@@ -3,6 +3,8 @@ package io.github.longshou.mcyukkuri.aquatic;
 import io.github.longshou.mcyukkuri.entity.DomainHooks;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.ParentCarry;
+import io.github.longshou.mcyukkuri.family.FamilyData;
+import io.github.longshou.mcyukkuri.social.Bonds;
 import io.github.longshou.mcyukkuri.headwear.HatGeometry;
 import io.github.longshou.mcyukkuri.headwear.HatProp;
 import io.github.longshou.mcyukkuri.headwear.PlacedHatEntity;
@@ -85,9 +87,8 @@ public final class AquaticLife {
         long now = parent.level().getGameTime();
         var kept = YOUNG.get(parent);
         if (kept != null && kept.tick() == now) return kept.list();
-        var id = parent.getUUID();
         var out = new ArrayList<>(parent.level().getEntitiesOfClass(YukkuriEntity.class, parent.getBoundingBox().inflate(FAMILY_RANGE),
-                y -> y != parent && y.isAlive() && !y.family().adult() && (id.equals(y.family().mother()) || id.equals(y.family().father()))));
+                y -> y != parent && y.isAlive() && !y.family().adult() && Bonds.parentOf(parent, y)));
         out.sort(Comparator.comparingDouble(parent::distanceToSqr));
         var list = List.copyOf(out);
         YOUNG.put(parent, new Young(now, list));
@@ -102,7 +103,7 @@ public final class AquaticLife {
         if (young.family().adult() || !(young.level() instanceof ServerLevel level)) return null;
         for (UUID id : new UUID[]{young.family().mother(), young.family().father()}) {
             if (id != null && level.getEntity(id) instanceof YukkuriEntity p && p.isAlive() && hat(p) != null
-                    && p.distanceTo(young) <= FAMILY_RANGE) return p;
+                    && Bonds.parentOf(p, young) && p.distanceTo(young) <= FAMILY_RANGE) return p;
         }
         return null;
     }
@@ -112,8 +113,26 @@ public final class AquaticLife {
         var out = new ArrayList<YukkuriEntity>(2);
         if (!(young.level() instanceof ServerLevel level)) return out;
         for (UUID id : new UUID[]{young.family().mother(), young.family().father()})
-            if (id != null && level.getEntity(id) instanceof YukkuriEntity p && p.isAlive()) out.add(p);
+            if (id != null && level.getEntity(id) instanceof YukkuriEntity p && p.isAlive() && Bonds.parentOf(p, young)) out.add(p);
         return out;
+    }
+
+    /** The real overload outcome, after the occupants were thrown; genealogy and the child's recognition stay intact. */
+    static void overloadCapsized(PlacedHatEntity hat, List<YukkuriEntity> aboard) {
+        var parent = hat.owner();
+        if (parent == null || !parent.isAlive()) return;
+        int intelligence = parent.life().personality().intelligence(), friendliness = parent.life().personality().friendliness();
+        if (intelligence <= 25 && friendliness >= 75) {
+            GameplayLog.event(parent, "family", "overload keeps children hat={} intelligence={} friendliness={}",
+                    hat.getUUID(), intelligence, friendliness);
+            return;
+        }
+        aboard.stream().filter(y -> y.isAlive() && !y.family().adult() && Bonds.parentOf(parent, y))
+                .max(Comparator.comparingDouble(y -> y.growthScale() * y.getScale())).ifPresent(child -> {
+                    FamilyData.get((ServerLevel) parent.level()).dismissChild(parent, child.getUUID());
+                    YOUNG.remove(parent);
+                    parent.showReaction("teary", "mood_bad", 120);
+                });
     }
 
     /** From dusk to the end of the night (vanilla's sleep window): the hours the family returns ashore to rest. */

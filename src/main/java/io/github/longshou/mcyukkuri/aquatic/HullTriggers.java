@@ -16,6 +16,9 @@ public final class HullTriggers {
     private int wetTicks;
     private boolean wetFired, impacting;
 
+    /** Excess as a fraction of the actual load: 0 at capacity, 1/2 at twice capacity, approaching 1. */
+    public static double overloadChance(double ratio) { return ratio <= 1 ? 0 : 1 - 1 / ratio; }
+
     /** N clicks in any sliding window fire once and consume that group. */
     public int shake(long tick) {
         while (!shakes.isEmpty() && tick - shakes.getFirst() > WINDOW) shakes.removeFirst();

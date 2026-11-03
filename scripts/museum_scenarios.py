@@ -2060,19 +2060,52 @@ def _uuid_text(sid, slot):
     return str(uuid.UUID(bytes=b''.join((n & 0xffffffff).to_bytes(4, 'big') for n in uid(sid, slot))))
 
 
-def _overload_no_reboard(window):
-    owner = _uuid_text('hat_crowd', 'grow')
-    placed = re.search(r'\[hat\][^\n]* placed owner=' + owner + r' hat=(\S+)', window)
-    if placed is None:
-        return 'overload fixture hat was not placed'
-    boat = placed.group(1)
-    capsized = re.search(r'\[hat\][^\n]*uuid=' + re.escape(boat) + r'[^\n]* capsized cause=too_heavy\b', window)
-    if capsized is None:
-        return 'overload capsize missing'
-    child = _uuid_text('hat_crowd', 'g1')
-    if re.search(r'\[body\][^\n]*uuid=' + child + r'[^\n]* mount host=' + re.escape(boat) + r'\b', window[capsized.end():]):
-        return 'overloaded young re-boarded the parent hat'
+def _overload_family_choice(window):
+    for parent, exceptional in (('normal', False), ('kind', True)):
+        owner = _uuid_text('hat_crowd', parent)
+        placed = re.search(r'\[hat\][^\n]* placed owner=' + owner + r' hat=(\S+)', window)
+        if placed is None:
+            return f'{parent}: hat was not placed'
+        boat = re.escape(placed.group(1))
+        rolls = re.findall(r'\[aquatic\][^\n]*uuid=' + boat + r'[^\n]* load changed event=(\w+) body=\S+ '
+                           r'load=(\S+) capacity=(\S+) chance=(\S+) roll=(\S+) result=(\w+)', window)
+        overloaded_growth = False
+        for event, load, capacity, chance, roll, result in rolls:
+            load, capacity, chance, roll = map(float, (load, capacity, chance, roll))
+            expected = 0 if load <= capacity else 1 - capacity / load
+            if abs(chance - expected) > 1e-9 or (result == 'capsize') != (roll < chance):
+                return f'{parent}: overload chance or result disagrees with the logged load and roll'
+            overloaded_growth |= event == 'growth' and load > capacity
+        if not overloaded_growth:
+            return f'{parent}: no real growth into overload'
+        capsized = re.search(r'\[hat\][^\n]*uuid=' + boat + r'[^\n]* capsized cause=too_heavy\b[^\n]*thrown=[1-9]', window)
+        if capsized is None:
+            return f'{parent}: no overload capsize in this random run'
+        after = window[capsized.end():]
+        dismissals = list(re.finditer(r'\[family\][^\n]*uuid=' + owner + r'[^\n]* parent dismissed child=(\S+)', window))
+        if exceptional:
+            if dismissals or not re.search(r'\[family\][^\n]*uuid=' + owner + r'[^\n]* overload keeps children', after):
+                return 'exceptional parent did not keep all children after overload'
+        else:
+            if not dismissals or dismissals[0].start() < capsized.end() or dismissals[0][1] != _uuid_text('hat_crowd', parent + '3'):
+                return 'normal parent did not dismiss the largest young after the real overload capsize'
+            for dismissal in dismissals:
+                if re.search(r'\[aquatic\][^\n]*uuid=' + owner + r'[^\n]* rescue start faller=' + dismissal[1], window[dismissal.end():]):
+                    return 'dismissed young was regathered by its former carer'
     return None
+
+
+def _overload_family(parent, dz, intelligence, friendliness):
+    return [yk('marisa', bank_dx(dz), dz, parent, aquatic=True, yaw=-90, lead=True,
+               uuid=uid('hat_crowd', parent), intelligence=intelligence, friendliness=friendliness,
+               label=f'智{intelligence}·友善{friendliness}', **{**pair_ready(), 'energy': 20}),
+            *[yk('marisa', bank_dx(dz + offset) - 1, dz + offset, parent + str(i), aquatic=True,
+                 fam=_seat_family(size, nourishment, age), childhood=CHILDHOOD_CRAWLING_READY,
+                 uuid=uid('hat_crowd', parent + str(i)), also=(parent + '_crew',),
+                 kin=f'Mother:{uuid_nbt(uid("hat_crowd", parent))}', label=f'孩子{i}', **pair_ready())
+              for i, offset, size, nourishment, age in ((1, -1, .16, 22909, 36000), (2, 0, .19, 68727, 36000),
+                                                       (3, 1, .36, 159100, 72000))],
+            afloat(parent, water_at(dz, 3), True, sel_all(parent + '_crew'), food=8, stick=True)]
 
 
 def _babies():
@@ -2392,43 +2425,35 @@ pond('cargo', '帽底储粮·计数与原地取食', '帽底储粮',
                 forbid=[r'\[body\][^\n]* invariant\b'],
                 readout=[f'yukkuri status {sel("a")} raw', f'yukkuri status {sel("full")} raw']))
 
-pond('hat_crowd', '按体型入座·满座与超重', '满座与超重翻船',
-     '一顶帽船坐着亲油与两只不同大小的赤油，按舱内、头顶、帽檐顺序找真实承托，岸上的子油按余量自行尝试上船；另一顶帽船坐着亲油和一只 0.36 体型的子油。身体按实际支撑落位，转身或成长可互相挤动，储粮不占身体位置。第二只子油没有自己的木棍而推迟初航，继续留在亲船成长，先进入载重警戒，最终超重真实翻覆，不再因尺寸刚越线就返岸离船',
+pond('hat_crowd', '帽内与头顶载幼·超载取舍', '帽内与头顶载幼·超载取舍',
+     '两位亲油并排，各载两只赤油和一只子油，按舱内、裸露头顶、帽檐顺序找真实承托。普通亲油智力55、友善70；另一位智力20、友善80。各有八份苹果，孩子靠实际成长增加载重；超载只在登船、离船或成长时抽一次翻船概率。真实超载翻船后，普通亲油断绝最大的一只，低智力高友善亲油继续承认全部孩子。落水后照常自救或救幼，不能保证存活',
      '约 12–16 分钟，建议倍速',
-     [yk('marisa', bank_dx(0), 0, 'a', aquatic=True, yaw=-90, lead=True, uuid=uid('hat_crowd', 'a'),
-         **{**pair_ready(), 'energy': 20}), *_babies(),
-      yk('marisa', bank_dx(0)-1, 0, 'excess', aquatic=True, fam=_seat_family(), uuid=uid('hat_crowd', 'excess'),
-         kin=f'Mother:{uuid_nbt(uid("hat_crowd", "a"))}', label='岸边候船', **pair_ready()),
-      yk('marisa', bank_dx(6), 6, 'grow', aquatic=True, yaw=-90, lead=True, uuid=uid('hat_crowd', 'grow'),
-         **{**pair_ready(), 'energy': 20}),
-      yk('marisa', bank_dx(6), 7, 'g1', aquatic=True, fam=_seat_family(.36, 159100, 72000), uuid=uid('hat_crowd', 'g1'),
-         kin=f'Mother:{uuid_nbt(uid("hat_crowd", "grow"))}', label='将到初航体型', **pair_ready()),
-      afloat('a', water_at(0, 3), True, sel_all('crew'), food=8),
-      afloat('grow', water_at(6, 2), True, sel('g1'), food=8, stick=True)],
-     late=[f'execute as {sel("grow")} on vehicle run tag @s add seat_reload'],
+     [*_overload_family('normal', 0, 55, 70), *_overload_family('kind', 6, 20, 80)],
+     late=[f'execute as {sel("normal")} on vehicle run tag @s add seat_reload'],
      capture=dict(shots=(1, 40, 600, 15000), sequences=((600, 15000, 300), (8400, 9600, 4))),
      note='先读第一顶帽 Riders 与 Passengers 的 UUID、坐标，保存退出后继续同一世界再读，位置不重排；冒烟会卸载再加载场地区块核对。'
-          '初态逐只记 scenario place 的 CABIN／HEAD／BRIM；三类承托及载重都按共享入座判定。第二顶帽先记 load warning 并可见降低水线、加强轻摇，超载后才记 capsized cause=too_heavy，亲油与孩子真实落水。'
-          '孩子落水后亲油接手救援；划近后按实际座位或岸边选择目的地，无可达目的地就如实中断，孩子自行上岸不算救起且不会再被接纳。'
-          '0.36 子油没有自己的木棍，初航被推迟；两顶帽各八份苹果是真实有限的成长物资，成长窗覆盖 85% 警戒带到真实超载（其余乘员体重超过 (1.05×S)³），不以刚到 S 作为翻船时刻；整窗不得有人饿死。',
-     reads=[('读赤油帽', f'execute as {sel("a")} on vehicle run data get entity @s Riders'),
-            ('读初航体型子油', f'yukkuri status {sel("g1")} raw'), ('读超重帽', 'data get entity @e[tag=seat_reload,limit=1]')],
+          '逐只记 scenario place 的 CABIN／HEAD／BRIM；[aquatic] load changed 给出事件、载重、容量、概率、抽值和结果，静止不重抽。'
+          '先看 load warning，再看 capsized cause=too_heavy 与真实落水；普通亲油随后记 parent dismissed child，孩子仍认亲、族谱不变，亲油不再救它；另一位记 overload keeps children。'
+          '子油没有自己的木棍而推迟初航；不强制翻船或死亡，真实拒绝和水伤保留，逐只读存亡；整窗不得有人饿死。',
+     reads=[('读普通亲油与族谱', f'yukkuri status {sel("normal")} raw'),
+            ('读低智力高友善亲油', f'yukkuri status {sel("kind")} raw'),
+            ('读普通亲油最大孩子', f'yukkuri status {sel("normal3")} raw'),
+            ('读另一位最大孩子', f'yukkuri status {sel("kind3")} raw'),
+            ('读载重帽', 'data get entity @e[tag=seat_reload,limit=1]')],
      smoke=dict(ticks=15000, reload=(60, '@e[tag=seat_reload,limit=1]'),
-                expect=[r'\[hat\][^\n]* scenario afloat prepared [^\n]*young=2\b[^\n]*food=8\b',
-                        r'\[hat\][^\n]* scenario afloat prepared [^\n]*young=1\b',
+                expect=[r'\[hat\][^\n]* scenario afloat prepared [^\n]*young=3\b[^\n]*food=8\b',
                         r'\[hat\][^\n]* scenario place [^\n]*place=CABIN\b[\s\S]*\[hat\][^\n]* scenario place [^\n]*place=HEAD\b[\s\S]*\[hat\][^\n]* scenario place [^\n]*place=BRIM\b',
                         r'\[hat\][^\n]* load warning ratio=[\s\S]*\[hat\][^\n]* capsized cause=too_heavy\b[^\n]*thrown=[1-9]\b',
-                        rf'\[aquatic\][^\n]*uuid={_uuid_text("hat_crowd", "grow")}[^\n]* rescue start faller={_uuid_text("hat_crowd", "g1")}\b',
-                        rf'\[water\][^\n]*uuid={_uuid_text("hat_crowd", "g1")}[^\n]* phase=(?:STRUGGLE|EXHAUSTED) -> RECOVER\b'],
+                        r'\[water\][^\n]* phase=(?:STRUGGLE|EXHAUSTED) -> RECOVER\b'],
                 forbid=[r'\[body\][^\n]* invariant\b', r'\[hat\][^\n]* capsized cause=(?:shake|impact|turbulence)\b',
                         r'\[action\][^\n]* refused id=hop [^\n]*detail=no_spot',
-                        r'\[body\][^\n]* death settled\b', r'\[needs\][^\n]* starvation damage accepted=true',
-                        r'\[intent\][^\n]* end id=follow_ashore result=DONE\b'],
-                verify=_overload_no_reboard,
-                readout=[f'yukkuri status {sel("g1")} raw', f'yukkuri status {sel("excess")} raw',
-                         'data get entity @e[tag=seat_reload,limit=1] Riders',
-                         'data get entity @e[tag=seat_reload,limit=1] Motion',
-                         'data get entity @e[tag=seat_reload,limit=1] Inverted']))
+                        r'\[needs\][^\n]* starvation damage accepted=true',
+                        r'\[body\][^\n]* death settled[^\n]*cause=(?!.*(?:drown|water))'],
+                verify=_overload_family_choice,
+                readout=[f'yukkuri status {sel(who)} raw' for who in ('normal', 'kind', 'normal1', 'normal2', 'normal3', 'kind1', 'kind2', 'kind3')]
+                        + ['data get entity @e[tag=seat_reload,limit=1] Riders',
+                           'data get entity @e[tag=seat_reload,limit=1] Motion',
+                           'data get entity @e[tag=seat_reload,limit=1] Inverted']))
 
 pond('hat_swap', '陆水帽与幼帽尺寸', '陆水帽与幼帽尺寸',
      '岸上并排站着戴帽的陆地魔理沙和水生魔理沙，另有两位成体与一只子油把各自的空帽放在面前的水面上。成体水生帽是陆地帽的 1.4 倍；子油帽按自己的体型缩小；戴着的与放下的同样大小；水生空帽倒扣漂着时仍同大，陆地帽落水会下沉，不作帽船',

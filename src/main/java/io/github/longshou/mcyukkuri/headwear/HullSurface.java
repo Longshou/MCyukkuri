@@ -21,10 +21,7 @@ public final class HullSurface implements HatSurface {
     static final HatSurface INSTANCE = new HullSurface();
     @Override public boolean bears(PlacedHatEntity hat, YukkuriEntity body) {
         return hat.hasPassenger(body) || !hat.cooling(body) && (body.getUUID().equals(hat.ownerYukkuri())
-                || hat.admits(body)
-                && hat.loadRatio() + (body.getRootVehicle() == hat && body.getVehicle() instanceof YukkuriEntity carrier
-                        && ParentCarry.hold(carrier, body) == ParentCarry.Hold.HEAD ? 0 : HullBounds.weight(body.growthScale() * body.getScale()))
-                    / HullBounds.capacity(hat.hullScale() / HullBounds.SCALE) <= 1);
+                || hat.admits(body));
     }
     @Override public boolean mountable(PlacedHatEntity hat, YukkuriEntity body) {
         var local = hat.frame().toLocal(body.position());
@@ -83,7 +80,7 @@ public final class HullSurface implements HatSurface {
                 .min(Comparator.comparingDouble(p -> p.distanceToSqr(edge))).orElse(null);
     }
     @Override public List<SeatTarget> restSpots(PlacedHatEntity hat, YukkuriEntity body, int limit) {
-        if (!hat.bears(body)) return none(hat, body, "load");
+        if (!hat.bears(body)) return none(hat, body, "admission");
         if (body.getUUID().equals(hat.ownerYukkuri())) {
             var home = Floor.point(HullBounds.HOME.scale(1 / HullBounds.UNIT));
             var height = hat.support(home, Floor.shape(hat, body, 0));

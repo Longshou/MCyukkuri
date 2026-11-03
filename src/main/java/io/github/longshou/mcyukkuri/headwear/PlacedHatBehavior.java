@@ -29,6 +29,8 @@ public interface PlacedHatBehavior {
     default HostFrame frameAfter(PlacedHatEntity hat, int ticks) { return hat.frame(); }
     /** A real dry-to-water entry; vanilla excludes the first tick after creation or reload. */
     default void waterEntered(PlacedHatEntity hat, double speed) {}
+    /** A real boarding, departure or body growth; loading a save does not replay these events. */
+    default void loadChanged(PlacedHatEntity hat, YukkuriEntity body, String event) {}
 
     /** Whether this behaviour carries the real hull through water rather than lying with the land bounds. */
     default boolean afloat(PlacedHatEntity hat) { return false; }

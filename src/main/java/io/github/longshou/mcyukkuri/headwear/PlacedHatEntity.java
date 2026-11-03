@@ -283,11 +283,11 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
         return support(at, BodyFootprint.envelope(body.assetId(), body.getBbWidth() / unit(), body.getBbHeight() / unit(), Math.toRadians(yaw)));
     }
     public double loadRatio() {
-        return HullBounds.loadRatio(hullScale() / HullBounds.SCALE, getSelfAndPassengers().filter(p -> p != owner()).filter(p -> p instanceof YukkuriEntity)
-                .map(p -> (YukkuriEntity) p).filter(y -> y.getVehicle() == this || y.getVehicle() instanceof YukkuriEntity carrier
-                        && ParentCarry.hold(carrier, y) == ParentCarry.Hold.HEAD)
+        return HullBounds.loadRatio(hullScale() / HullBounds.SCALE, getSelfAndPassengers()
+                .filter(p -> !p.getUUID().equals(ownerYukkuri())).filter(p -> p instanceof YukkuriEntity).map(p -> (YukkuriEntity) p)
                 .map(y -> (double) (y.growthScale() * y.getScale())).toList());
     }
+    @Override public void loadChanged(YukkuriEntity body, String event) { behavior().loadChanged(this, body, event); }
     @Override public OptionalDouble support(Vec3 local, BodyFootprint body) {
         if (upsideDown()) return OptionalDouble.empty();
         double height = profile().support(local.x, local.z, body);

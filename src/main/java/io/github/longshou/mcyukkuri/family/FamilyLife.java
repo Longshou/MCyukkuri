@@ -26,6 +26,7 @@ import io.github.longshou.mcyukkuri.motor.action.TakeProp;
 import io.github.longshou.mcyukkuri.motor.action.Walk;
 import io.github.longshou.mcyukkuri.motor.surface.BedContainer;
 import io.github.longshou.mcyukkuri.motor.surface.Occupancy;
+import io.github.longshou.mcyukkuri.motor.surface.SurfaceHost;
 import io.github.longshou.mcyukkuri.settlement.SettlementSeasons;
 import io.github.longshou.mcyukkuri.social.Bonds;
 import io.github.longshou.mcyukkuri.social.YukkuriPersonality;
@@ -714,7 +715,9 @@ public final class FamilyLife {
         var box=LiveBirthGeometry.bodyDimensions(entity,desired*entity.subspecies().formScale(),liveBelly()).scale(entity.getScale()).makeBoundingBox(entity.position());
         if(!level().noCollision(entity,box))return false;
         scale=desired;
-        entity.syncFamily();if(slept||stage!=Stage.BABY)entity.showReaction("happy","grown",100);return true;
+        entity.syncFamily();
+        if(entity.getRootVehicle() instanceof SurfaceHost host)host.loadChanged(entity,"growth");
+        if(slept||stage!=Stage.BABY)entity.showReaction("happy","grown",100);return true;
     }
     private static Stage stageForAge(long value) {
         return value<GrowthTiming.BABY_END?Stage.BABY:value<GrowthTiming.ADULT_START?Stage.JUVENILE:Stage.ADULT;

@@ -189,6 +189,17 @@ public final class HullAfloat implements PlacedHatBehavior {
         if (speed >= HullPresentation.number("drop_speed")) trigger("impact", speed, false);
     }
 
+    @Override public void loadChanged(PlacedHatEntity hat, YukkuriEntity body, String event) {
+        if (phase != Phase.UPRIGHT || rightProgress >= 0) return;
+        double ratio = hat.loadRatio(), capacity = HullBounds.capacity(scale(hat));
+        double chance = HullTriggers.overloadChance(ratio);
+        double roll = hat.level().random.nextDouble();
+        boolean capsize = roll < chance;
+        GameplayLog.event(hat, "aquatic", "load changed event={} body={} load={} capacity={} chance={} roll={} result={}",
+                event, body.getUUID(), ratio * capacity, capacity, chance, roll, capsize ? "capsize" : "afloat");
+        if (capsize) trigger("too_heavy", ratio, false);
+    }
+
     @Override public void tick(PlacedHatEntity hat) {
         double water = water();
         // Out of the water in the air (a fall carried it off the column it rode): it falls as any hat lying there does, and the water
@@ -198,7 +209,6 @@ public final class HullAfloat implements PlacedHatBehavior {
         long now = hat.level().getGameTime();
         impact = 0;
         double loadRatio = hat.loadRatio();
-        if (loadRatio > 1) trigger("too_heavy", loadRatio, false);
         var sample = turbulence(water);
         if (triggers.water(sample)) trigger("turbulence", sample.angle(), sample.falling());
         if (phase == Phase.ROCKING && phaseTicks++ >= HullPresentation.number("rock_ticks")) {
@@ -313,6 +323,8 @@ public final class HullAfloat implements PlacedHatBehavior {
         return hat.getDeltaMovement().add(Math.cos(a) * speed, HullPresentation.number("throw_vertical"), Math.sin(a) * speed);
     }
     private void capsize() {
+        var aboard = hat.getSelfAndPassengers().filter(p -> p instanceof YukkuriEntity)
+                .map(p -> (YukkuriEntity) p).toList();
         thrown = hat.getPassengers().size();
         for (var p : List.copyOf(hat.getPassengers())) if (p instanceof YukkuriEntity y)
             Motor.dismount(y, y.position(), thrownVelocity(y.position()), "thrown");
@@ -323,6 +335,7 @@ public final class HullAfloat implements PlacedHatBehavior {
                 "capsized cause={} value={} falling={} shake_window={} turbulent_ticks={} angle_limit={} impact_limit={} drop_limit={} count={} form={} thrown={} owner={}",
                 cause, triggerValue, falling, HullTriggers.WINDOW, HullTriggers.WET_TICKS, HullTriggers.ANGLE,
                 HullTriggers.IMPACT, HullPresentation.number("drop_speed"), capsizes, hat.formId(), thrown, hat.ownerYukkuri());
+        if (cause.equals("too_heavy")) AquaticLife.overloadCapsized(hat, aboard);
     }
 
     private record Contact(Vec3 move, Vec3 velocity) {}

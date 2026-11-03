@@ -18,6 +18,8 @@ public interface SurfaceHost {
     double GRID_CELL = FloorSearch.GRID_CELL;
 
     Entity entity();
+    /** A carried body's real attachment or size changed, including bodies held by another rider. */
+    default void loadChanged(YukkuriEntity body, String event) {}
 
     /** The host's pose for this tick: origin, hat unit, yaw and tilt. */
     HostFrame frame();
