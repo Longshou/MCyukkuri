@@ -248,7 +248,8 @@ public final class ChildhoodLife {
             var learner = ((ServerLevel) entity.level()).getEntitiesOfClass(YukkuriEntity.class, entity.getBoundingBox().inflate(3),
                     other -> entity.family().caresFor(other) && other.childhood().readyToPractiseJump()
                             && !other.childhood().demonstrationSeen && entity.hasLineOfSight(other)).stream().findFirst().orElse(null);
-            if (learner != null) { task = Task.DEMONSTRATE; careTarget = learner.getUUID(); taskTicks = 0; return true; }
+            // A parent on her way to a child she searches for greets that child first; the demonstration follows afterwards.
+            if (learner != null && !entity.family().searchingChild()) { task = Task.DEMONSTRATE; careTarget = learner.getUUID(); taskTicks = 0; return true; }
         }
         if (!newborn || !landed || !childAvailable(entity) || entity.isPassenger()) return false;
         if (needsAssistedFirstToilet()) {
