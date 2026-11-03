@@ -214,6 +214,7 @@ public final class Hop implements Action {
         var aim = from.add(p.x(), p.y(), p.z());
         if (aboard) aim = seatHost.frame().toWorld(aim.scale(1 / seatHost.frame().unit()));
         var delta = aim.subtract(body.position());
+        if (!carriedClear(body, body.position(), aim)) return Outcome.of(Reason.NO_SUPPORT, 0, "held_arc_blocked");
         Motor.velocity(body, aboard ? Vec3.ZERO : delta, "hop_flight");
         var contact = aboard ? null : ContactResolver.resolve(body);
         if (contact != null) return contact.refused() ? Outcome.of(Reason.NO_ROOM, 0, "mount_refused") : landed(body);
@@ -262,6 +263,9 @@ public final class Hop implements Action {
                 obstruction = "host_room at=" + GameplayLog.at(at); return false;
             }
             Vec3 corner = at.y < previous.y ? new Vec3(at.x, previous.y, at.z) : new Vec3(previous.x, at.y, previous.z);
+            if (!carriedClear(body, previous, at)) {
+                obstruction = "held_world at=" + GameplayLog.at(at); return false;
+            }
             AABB cornerBox = base.move(corner.subtract(body.position()));
             AABB atBox = base.move(at.subtract(body.position()));
             if (!body.level().noCollision(body, cornerBox) || !body.level().noCollision(body, atBox)) {
@@ -275,8 +279,34 @@ public final class Hop implements Action {
                 if (height.isPresent() && local.y < height.getAsDouble() - TOUCH / host.frame().unit()) {
                     obstruction = "surface at=" + GameplayLog.at(at); return false;
                 }
+                for (var passenger : body.getPassengers()) if (passenger instanceof YukkuriEntity child) {
+                    var childAt = child.position().add(at.subtract(body.position()));
+                    var childLocal = (host == anchor ? frame : host.frame()).toLocal(childAt);
+                    var childTop = host.support(childLocal, 0);
+                    if (childTop.isPresent() && childLocal.y < childTop.getAsDouble() - TOUCH / host.frame().unit()) {
+                        obstruction = "held_surface at=" + GameplayLog.at(childAt); return false;
+                    }
+                }
             }
             previous = at;
+        }
+        return true;
+    }
+
+    /** The carried boxes follow both legs of the same horizontal/vertical sweep as their carrier. */
+    private boolean carriedClear(YukkuriEntity body, Vec3 from, Vec3 to) {
+        var corner = to.y < from.y ? new Vec3(to.x, from.y, to.z) : new Vec3(from.x, to.y, from.z);
+        for (var passenger : body.getPassengers()) if (passenger instanceof YukkuriEntity child) {
+            var base = child.getBoundingBox();
+            var start = base.move(from.subtract(body.position()));
+            var bend = base.move(corner.subtract(body.position()));
+            var end = base.move(to.subtract(body.position()));
+            var first = start.minmax(bend);
+            var second = bend.minmax(end);
+            if (!body.level().noCollision(child, first) || !body.level().noCollision(child, second)) {
+                bodyBlocked |= bodyCollision(child, first, second);
+                return false;
+            }
         }
         return true;
     }

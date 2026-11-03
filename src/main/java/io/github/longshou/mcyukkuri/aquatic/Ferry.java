@@ -30,21 +30,6 @@ final class Ferry {
 
     private static Step act(Action action) { return new Step.Do(action); }
 
-    /** From pickup reach, carry to a reachable bank, using the shared brim route if the seat cannot clear it directly. */
-    static List<Supplier<Step>> fetchAshore(YukkuriEntity carrier, YukkuriEntity child, Release release) {
-        var hat = AquaticLife.hat(carrier);
-        var bank = Waters.ashore(carrier);
-        var brim = bank == null ? Waters.brimAshore(hat, carrier) : null;
-        var stand = brim == null ? bank : Waters.ashore(carrier, hat.toWorld(brim));
-        if (stand == null) return null;
-        var steps = new ArrayList<Supplier<Step>>();
-        if (brim != null) steps.add(() -> act(new Hop(hat, brim)));
-        if (child.getVehicle() != carrier) steps.add(() -> act(new Grab(child)));
-        steps.add(() -> act(new Hop(stand)));
-        steps.add(() -> act(release));
-        return steps;
-    }
-
     /** Close the braid's reach on the faller (or wait for it to come ashore by itself) before the shared lift. */
     static ArrayList<Supplier<Step>> chase(YukkuriEntity carrier, YukkuriEntity child) {
         var steps = new ArrayList<Supplier<Step>>();
@@ -120,11 +105,6 @@ final class Ferry {
 
         /** The beckon step, or null when no stroke applies; one try per run, so a drawn-in or failed stroke is never paid over again. */
         Step step(YukkuriEntity body, PlacedHatEntity hat) { return near(body, hat) ? act(tried = new Beckon(hat)) : null; }
-    }
-
-    /** The reverse boarding route is available when the bank is reachable directly or through a supported brim stop. */
-    static boolean canHopAshore(YukkuriEntity body) {
-        return Waters.ashore(body) != null || body.getVehicle() instanceof PlacedHatEntity hat && Waters.brimAshore(hat, body) != null;
     }
 
     /** Hop from the actual seat to a dry stand in the body's reach. A body may first hop to a brim spot from which that

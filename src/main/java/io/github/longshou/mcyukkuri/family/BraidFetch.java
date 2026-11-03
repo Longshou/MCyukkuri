@@ -10,6 +10,7 @@ import io.github.longshou.mcyukkuri.motor.action.Face;
 import io.github.longshou.mcyukkuri.motor.action.Grab;
 import io.github.longshou.mcyukkuri.motor.action.Release;
 import io.github.longshou.mcyukkuri.motor.surface.SurfaceHost;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 import net.minecraft.util.Mth;
@@ -28,8 +29,14 @@ public final class BraidFetch {
     }
     /** Face the child, let it settle within reach, then the shared lift and lowering. */
     public static List<Supplier<Step>> steps(YukkuriEntity carrier, YukkuriEntity child, SurfaceHost destination) {
-        return List.of(() -> turn(carrier, child), () -> settle(carrier, child),
-                () -> new Step.Do(new Grab(child, destination)), () -> new Step.Do(new Release(child, destination)));
+        var steps = new ArrayList<>(lift(carrier, child, destination));
+        steps.add(() -> new Step.Do(new Release(child, destination)));
+        return steps;
+    }
+
+    /** Pickup does not choose where the child will eventually be put down. */
+    public static List<Supplier<Step>> lift(YukkuriEntity carrier, YukkuriEntity child, SurfaceHost host) {
+        return List.of(() -> turn(carrier, child), () -> settle(carrier, child), () -> new Step.Do(new Grab(child, host)));
     }
 
     /** The carrier is turned to the child before the braid reaches: a hull swinging round under the reach clip pushes the child out of it. */

@@ -59,13 +59,15 @@ final class Rescue implements Intent {
         return List.of(Plan.of("braid_fetch", this::derive), new Plan("carry_ashore",
                 () -> faller.getVehicle() == helper ? Feasibility.pass() : Feasibility.of(Reason.NO_CONTACT, 0, "not_held"),
                 Set.of(Reason.NO_ROOM, Reason.NO_SUPPORT, Reason.NO_CONTACT),
-                () -> AquaticLife.ashore(helper) ? List.of(() -> new Step.Do(shoreRelease)) : Ferry.fetchAshore(helper, faller, shoreRelease)));
+                this::carryAshore));
     }
     /** Her own hull in the water belongs to this rescue: a body aboard its hat is not swimming, whatever the water state says. */
     @Override public boolean ownsBodyInWater() { return AquaticLife.aboard(helper, AquaticLife.hat(helper)); }
 
     private List<Supplier<Step>> derive() {
         var hat = AquaticLife.hat(helper);
+        if (faller.getVehicle() == helper) return AquaticLife.ashore(helper) ? List.of(() -> new Step.Do(shoreRelease))
+                : List.of(() -> new Step.Do(new Release(faller, hat)));
         if (!AquaticLife.aboard(helper, hat)) {
             // An upside-down hull is righted first, then she boards and lifts from it.
             if (hat != null && hat.upsideDown()) return List.of(() -> new Step.Do(new Right(hat, "rescue")));
@@ -73,11 +75,12 @@ final class Rescue implements Intent {
                     : List.of(() -> new Step.Sub(new SetOut.Launch(helper, deadline())));
         }
         if (!BraidFetch.withinReach(helper, faller)) return Ferry.chase(helper, faller);
-        if (hat.restSpot(faller) != null) return BraidFetch.steps(helper, faller, hat);
-        var ashore = Ferry.fetchAshore(helper, faller, shoreRelease);
-        if (ashore != null) return ashore;
-        GameplayLog.event(helper, "aquatic", "rescue blocked faller={} reason=no_seat_or_bank", faller.getUUID());
-        return null;
+        return BraidFetch.lift(helper, faller, hat);
+    }
+
+    private List<Supplier<Step>> carryAshore() {
+        return AquaticLife.ashore(helper) ? List.of(() -> new Step.Do(shoreRelease))
+                : List.of(() -> new Step.Sub(Ashore.carry(helper)), () -> new Step.Do(shoreRelease));
     }
 
     @Override public void ended(IntentRunner.Result result) {

@@ -27,7 +27,7 @@ import net.minecraft.world.phys.Vec3;
  * Take a body into one of the carrier's holds: {@code ParentCarry.holdsFor} gives them and the Grab takes the first whose reach
  * gets it, then seats it as a real passenger. The carrier first turns at its turn rate only as far as the hold needs (the mouth
  * to the target, the braid side by {@code ParentCarry.braidTurn}). A brim or braid-tip child is mounted once the braid has closed on it
- * (lift_start) and the Grab runs on to the clip's place marker while the braid lifts it and swings it to clear ground in view
+ * (lift_start) and the Grab runs on to the clip's place marker while the braid lifts it clear into its hold
  * ({@code ParentCarry.braided}). A mouth hold stays mounted through its real lift to the lips before the next action begins.
  */
 public final class Grab implements Action {
@@ -45,16 +45,16 @@ public final class Grab implements Action {
     private double gap;
     private String rejected;
     private Face turn;
-    private final SurfaceHost destination;
+    private final SurfaceHost source;
     private int ticks, lift, way, held;
     private boolean mounted;
     private long startTick;
 
     public Grab(YukkuriEntity target) { this(target, null); }
-    public Grab(YukkuriEntity target, SurfaceHost destination) {
+    public Grab(YukkuriEntity target, SurfaceHost source) {
         if (target == null) throw new IllegalArgumentException("Grab needs a target");
         this.target = target;
-        this.destination = destination;
+        this.source = source;
     }
 
     @Override public String id() { return ID; }
@@ -62,7 +62,7 @@ public final class Grab implements Action {
     /** The body being lifted: until it is mounted, a host leaves it where it is. */
     public YukkuriEntity target() { return target; }
 
-    @Override public SurfaceHost host() { return destination; }
+    @Override public SurfaceHost host() { return source; }
 
     /** The hold the last {@link #check} chose (its reach is {@code hold().reach()}). */
     public Hold hold() { return hold; }
@@ -85,15 +85,11 @@ public final class Grab implements Action {
         if (attach instanceof AttachState.Held held)
             return Feasibility.of(Reason.NO_ROOM, 0, held.carrier() == carrier ? "already_held" : "target_held");
         if (attach instanceof AttachState.Airborne) return Feasibility.of(Reason.NO_CONTACT, 0, "target_airborne");
-        if (destination != null) {
-            var seat = destination.restSpot(target);
-            if (seat == null || !seat.available(target)) return Feasibility.of(Reason.NO_ROOM, 0, "no_seat");
-            String problem = ParentCarry.holdProblem(carrier, target, Hold.BRAID, false, destination);
+        if (source != null) {
+            String problem = ParentCarry.holdProblem(carrier, target, Hold.BRAID, false, source);
             if (problem != null) return refusal(problem);
             chosen(Hold.BRAID, false, Double.NaN);
-            lift = BraidFetch.marker(BraidFetch.REACH, "contact") + BraidFetch.marker(BraidFetch.HOLD, "grip");
-            way = BraidFetch.marker(BraidFetch.HOLD, "place") - BraidFetch.marker(BraidFetch.HOLD, "grip");
-            rejected = "destination_braid";
+            rejected = "braid_lift";
             return Feasibility.pass();
         }
         var holds = ParentCarry.holdsFor(carrier, target);
@@ -101,21 +97,19 @@ public final class Grab implements Action {
         double mouthGap = ContactGeometry.mouthGap(carrier, target), upright = ContactGeometry.braidGap(carrier, target, false);
         double low = ContactGeometry.braidGap(carrier, target, true);
         boolean mouth = ContactGeometry.inMouthReach(carrier, target), braid = Math.min(upright, low) <= 0;
-        boolean noWay = holds.contains(Hold.BRAID) && braid && !ParentCarry.braidCanSetDown(carrier, target, upright > 0);
         String mouthWhy = holds.stream().noneMatch(h -> h.reach() == Reach.MOUTH) ? "no_capacity" : mouth ? "lower_preference" : "out_of_reach_or_sight";
-        String braidWhy = holds.stream().noneMatch(h -> h.reach() == Reach.BRAID) ? "no_capacity" : !braid ? "out_of_reach_or_sight" : noWay ? "no_set_down" : "lower_preference";
+        String braidWhy = holds.stream().noneMatch(h -> h.reach() == Reach.BRAID) ? "no_capacity" : !braid ? "out_of_reach_or_sight" : "lower_preference";
         // Capacity and preference come from holdsFor; take the first hold whose reach and route work.
         for (var candidate : holds) {
             if (candidate.reach() == Reach.MOUTH && mouth) {
                 rejected = "braid:" + braidWhy;
                 return chosen(candidate, false, mouthGap);
             }
-            if (candidate.reach() == Reach.BRAID && braid && (candidate != Hold.BRAID || !noWay)) {
+            if (candidate.reach() == Reach.BRAID && braid) {
                 rejected = "mouth:" + mouthWhy;
                 return chosen(candidate, upright > 0, Math.min(upright, low));
             }
         }
-        if (noWay) return Feasibility.of(Reason.NO_SUPPORT, 0, "no_braid_set_down");
         double shortfall = Math.min(holds.stream().anyMatch(h -> h.reach() == Reach.MOUTH)
                 ? Math.max(0, mouthGap - ContactGeometry.GRAB_MARGIN) : Double.POSITIVE_INFINITY,
                 holds.stream().anyMatch(h -> h.reach() == Reach.BRAID) ? Math.min(upright, low) : Double.POSITIVE_INFINITY);
@@ -127,15 +121,13 @@ public final class Grab implements Action {
         this.hold = hold;
         this.lean = lean;
         this.gap = gap;
-        var clip = ClipMarkers.of(BRAID_LIFT);
-        // A brim placement shares BraidFetch's reach and hold clips; other braid lifts keep their cradle clip.
-        if (hold == Hold.BRIM) {
+        // A brim placement and a held braid pickup share the reach and hold clips.
+        if (hold.reach() == Reach.BRAID) {
             lift = BraidFetch.marker(BraidFetch.REACH, "contact") + BraidFetch.marker(BraidFetch.HOLD, "grip");
             way = BraidFetch.marker(BraidFetch.HOLD, "place") - BraidFetch.marker(BraidFetch.HOLD, "grip");
         } else {
-            boolean braid = hold.reach() == Reach.BRAID;
-            lift = braid ? clip.ticks("lift_start", LIFT_TICKS) : LIFT_TICKS;
-            way = braid ? Math.max(0, clip.ticks("place", lift) - lift) : 0;
+            lift = LIFT_TICKS;
+            way = 0;
         }
         return Feasibility.pass();
     }
@@ -145,7 +137,7 @@ public final class Grab implements Action {
         mounted = false;
         startTick = carrier.level().getGameTime();
         // The one record of the hold (and, on the brim, its spot) starts with the lift; the client's pose reads it.
-        ParentCarry.plan(carrier, target, hold, lean);
+        ParentCarry.plan(carrier, target, hold, lean, source);
         facing = hold.reach() == Reach.BRAID ? ParentCarry.braidTurn(carrier, target, lean)
                 : (float) Math.toDegrees(Math.atan2(target.getZ() - carrier.getZ(), target.getX() - carrier.getX())) - 90;
         turn = new Face(facing);
@@ -161,22 +153,22 @@ public final class Grab implements Action {
         }
         ticks++;
         if (!target.isAlive()) return Outcome.of(Reason.TARGET_GONE, 0, "target_gone");
-        if (destination != null && ticks == BraidFetch.marker(BraidFetch.REACH, "contact")) {
-            gap = Math.min(ContactGeometry.braidGap(carrier, target, false), ContactGeometry.braidGap(carrier, target, true));
-            if (gap > 0) return Outcome.of(Reason.NO_CONTACT, gap, "braid_contact_out_of_reach");
-        }
         // The carrier turns while the braid (or the mouth) reaches out; the lift ends once both are done.
         double angle = turn.tick(carrier) instanceof Running turning ? turning.metric() : 0;
         if (angle > 0 || ticks < lift) return new Running(Math.max(0, lift - ticks) + angle + way, TravelMode.CONSUMED);
         if (target.operations().active()) return Outcome.of(Reason.TARGET_GONE, 0, "target_operated");
-        // The world may have changed since check: with no way out left the braid lets go of it before lifting.
-        var seat = destination == null ? null : destination.restSpot(target);
-        if (destination != null && seat == null) return Outcome.of(Reason.NO_ROOM, 0, "no_seat");
-        if (destination == null && hold.reach() == Reach.MOUTH && !ContactGeometry.inMouthReach(carrier, target))
+        if (hold.reach() == Reach.MOUTH && !ContactGeometry.inMouthReach(carrier, target))
             return Outcome.of(Reason.NO_CONTACT, ContactGeometry.mouthGap(carrier, target), "mouth_grip_out_of_reach");
-        if (destination == null && way > 0 && (gap = ContactGeometry.braidGap(carrier, target, lean)) > 0)
+        if (way > 0) {
+            lean = ContactGeometry.braidGap(carrier, target, false) > 0;
+            gap = ContactGeometry.braidGap(carrier, target, lean);
+        }
+        if (way > 0 && gap > 0) {
+            int left = lift + ClipMarkers.of(BraidFetch.REACH).length() - ticks;
+            if (left > 0) return new Running(left + way, TravelMode.CONSUMED);
             return Outcome.of(Reason.NO_CONTACT, gap, "braid_grip_out_of_reach");
-        if (way > 0 && !ParentCarry.braided(carrier, target, lean, seat)) return Outcome.of(Reason.NO_SUPPORT, 0, "no_braid_set_down");
+        }
+        if (way > 0 && !ParentCarry.braided(carrier, target, lean)) return Outcome.of(Reason.NO_SUPPORT, 0, "braid_lift_blocked");
         if (hold == Hold.MOUTH && (way = ParentCarry.mouthLift(carrier, target)) < 0) return Outcome.of(Reason.NO_ROOM, 0, "mouth_lift_blocked");
         if (!Motor.mount(target, carrier, "grab")) return Outcome.of(Reason.NO_CONTACT, 0, "mount_refused");
         target.fallDistance = 0;
@@ -191,11 +183,11 @@ public final class Grab implements Action {
     }
 
     @Override public MotionPose pose() {
-        if (destination != null || hold == Hold.BRIM) {
+        if (hold.reach() == Reach.BRAID) {
             int contact = BraidFetch.marker(BraidFetch.REACH, "contact");
             return new MotionPose(ticks < contact ? BraidFetch.REACH : BraidFetch.HOLD, startTick + (ticks < contact ? 0 : contact), false);
         }
-        return new MotionPose(hold.reach() == Reach.MOUTH ? "" : lean ? BRAID_LEAN : BRAID_LIFT, startTick, false);
+        return new MotionPose("", startTick, false);
     }
 
     @Override public String startDetail() {

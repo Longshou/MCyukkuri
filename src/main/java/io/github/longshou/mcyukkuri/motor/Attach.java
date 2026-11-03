@@ -20,6 +20,7 @@ public final class Attach {
     public static boolean sheltered(YukkuriEntity body) {
         var action = body.motor() == null ? null : body.motor().current();
         var host = body.getVehicle() instanceof SurfaceHost surface ? surface : action == null ? null : action.host();
+        if (body.getVehicle() instanceof YukkuriEntity carrier && carrier.getVehicle() instanceof SurfaceHost surface) host = surface;
         return host != null && host.shelters(body);
     }
 
