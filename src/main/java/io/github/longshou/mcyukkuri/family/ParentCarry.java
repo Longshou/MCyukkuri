@@ -136,7 +136,8 @@ public final class ParentCarry {
     private Purpose purpose;
     private long since, arrivedAt;
     private UUID lifting;
-    /** The dependent this retrieval is about to lift before it leaves: it waits for the lift like a searched-for child ({@link #awaitsCarrier}). */
+    /** The dependent this retrieval goes for next, recomputed every tick while it still has holds for one (no reservation: the
+     *  child's own wait for a carrying parent reads it, {@link #awaitsCarrier}). */
     private UUID gathering;
     private Release settingDown;
     /** Where the carry's own Walk was last sent and started; why the retrieval gave up; why the child being set down comes down. */
@@ -1370,7 +1371,7 @@ public final class ParentCarry {
         if (child == null || giveUp != null) return false;
         if (purpose == Purpose.NEST_RIM) return true;
         var more = lifting != null || walkTo == null && taskTicks < GATHER_TICKS ? dependent() : null;
-        // The claimed dependent stands still for the lift (it already waits instead of starting a walk of its own).
+        // The dependent this retrieval goes for next stops its own walking and waits for the lift ({@link #awaitsCarrier}).
         if (more != null && !more.getUUID().equals(gathering)) SurfaceApproach.stopWalking(more);
         gathering = more == null ? null : more.getUUID();
         if (more != null) {

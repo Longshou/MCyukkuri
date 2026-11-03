@@ -1728,6 +1728,7 @@ colony('colony_migrate', '族规·迁徙', '族群迁徙',
 def _carry_outcome_verify(log, home=False):
     # A physical refusal may recover after replanning; count each finished Release once, by its child.
     refusals, carried, released = {}, {}, {}
+    homed = set()
     for tick, event, child in re.findall(r'\[family\][^\n]*? t=(\d+)[^\n]* (carry (?:pickup hold=|put down reason=|put down refused )[^\n]*?)child=([0-9a-f-]{36})', log):
         if event.startswith('carry put down refused '):
             refusals[child] = refusals.get(child, 0) + 1
@@ -1738,6 +1739,8 @@ def _carry_outcome_verify(log, home=False):
         else:
             carried.pop(child, None)
             released[child] = event
+            if re.search(r'reason=(?:arrived_home|nest_rim_to_cushion)\b', event):
+                homed.add(child)
     if carried:
         # A later family retrieval or nest-rim recovery can still be under way; measure this child's current hold, not the carrier's first pickup.
         end_tick = int(re.search(r'MCYSMOKE_END_TICK (\d+)', log)[1])
@@ -1748,6 +1751,10 @@ def _carry_outcome_verify(log, home=False):
         for child, event in released.items():
             if not re.search(r'reason=(?:arrived_home|nest_rim_to_cushion)\b', event):
                 return f'child {child} last released without returning home: {event}'
+        # The brief race above is a child already brought home being picked up again; one never brought home is a failure.
+        never = {child for child in set(carried) | set(released) if child not in homed}
+        if never:
+            return f'children never carried home: {sorted(never)}'
     return None
 
 
