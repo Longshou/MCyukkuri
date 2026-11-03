@@ -14,7 +14,6 @@ import io.github.longshou.mcyukkuri.motor.action.Face;
 import io.github.longshou.mcyukkuri.motor.action.Grab;
 import io.github.longshou.mcyukkuri.motor.action.Hop;
 import io.github.longshou.mcyukkuri.motor.action.Paddle;
-import io.github.longshou.mcyukkuri.motor.action.Release;
 import io.github.longshou.mcyukkuri.motor.action.Walk;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.List;

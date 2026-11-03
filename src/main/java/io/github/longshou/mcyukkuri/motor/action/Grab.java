@@ -88,7 +88,7 @@ public final class Grab implements Action {
         if (source != null) {
             String problem = ParentCarry.holdProblem(carrier, target, Hold.BRAID, false, source);
             if (problem != null) return refusal(problem);
-            chosen(Hold.BRAID, false, Double.NaN);
+            chosen(Hold.BRAID, false, ContactGeometry.braidGap(carrier, target, false));
             rejected = "braid_lift";
             return Feasibility.pass();
         }
@@ -153,6 +153,11 @@ public final class Grab implements Action {
         }
         ticks++;
         if (!target.isAlive()) return Outcome.of(Reason.TARGET_GONE, 0, "target_gone");
+        if (hold.reach() == Reach.BRAID) {
+            facing = ParentCarry.braidTurn(carrier, target, lean);
+            turn = new Face(facing);
+            turn.start(carrier);
+        }
         // The carrier turns while the braid (or the mouth) reaches out; the lift ends once both are done.
         double angle = turn.tick(carrier) instanceof Running turning ? turning.metric() : 0;
         if (angle > 0 || ticks < lift) return new Running(Math.max(0, lift - ticks) + angle + way, TravelMode.CONSUMED);
@@ -185,7 +190,8 @@ public final class Grab implements Action {
     @Override public MotionPose pose() {
         if (hold.reach() == Reach.BRAID) {
             int contact = BraidFetch.marker(BraidFetch.REACH, "contact");
-            return new MotionPose(ticks < contact ? BraidFetch.REACH : BraidFetch.HOLD, startTick + (ticks < contact ? 0 : contact), false);
+            return mounted ? new MotionPose(BraidFetch.HOLD, startTick + ticks - BraidFetch.marker(BraidFetch.HOLD, "grip"), false)
+                    : new MotionPose(BraidFetch.REACH, startTick + Math.max(0, ticks - contact), false);
         }
         return new MotionPose("", startTick, false);
     }

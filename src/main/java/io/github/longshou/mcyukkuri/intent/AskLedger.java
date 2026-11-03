@@ -88,10 +88,11 @@ public final class AskLedger {
         return d != null && d.accepted() && !i.ended.containsKey(helper);
     }
 
-    /** A helper's run for this open incident is over while its owner is still in need: the help given did not get it out. */
+    /** Every accepted helper has ended while the owner is still in need: the help given did not get it out. */
     public boolean helpEnded(String incident) {
         var i = open.get(incident);
-        return i != null && !i.ended.isEmpty();
+        return i != null && !i.ended.isEmpty()
+                && i.decided.values().stream().noneMatch(d -> d.accepted() && !i.ended.containsKey(d.helper()));
     }
 
     /** The helper's run of the asked intent is over ({@code result}); it does not take this incident up again. */

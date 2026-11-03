@@ -50,6 +50,7 @@ public final class Release implements Action {
     private String placement;
     private Outcome outcome;
     private int failedWorld, rejectedSpace, rejectedStand, settling;
+    private long startTick;
     private Vec3 previousLocal;
     private double lowered;
 
@@ -86,6 +87,7 @@ public final class Release implements Action {
 
     private SeatTarget nearest(YukkuriEntity carrier) {
         return destination.restSpots(child, Integer.MAX_VALUE).stream()
+                .filter(target -> destination.insideFloor(target.local()))
                 .filter(target -> target.unavailable(child) == null)
                 .filter(target -> {
                     var grip = target.world().add(0, ParentCarry.GRIP_Y * child.growthScale() * child.getScale() / 16, 0);
@@ -196,6 +198,7 @@ public final class Release implements Action {
 
     @Override public void start(YukkuriEntity carrier) {
         this.carrier = carrier;
+        startTick = carrier.level().getGameTime();
         if (endpoint != null) {
             ParentCarry.nestSpot(carrier, child, endpoint);
             GameplayLog.event(carrier, "family", "carry release target child={} placement={} at={}", child.getUUID(), placement == null ? "ground" : placement, endpoint);
@@ -224,7 +227,8 @@ public final class Release implements Action {
             if (unavailable != null) {
                 var replacement = nearest(carrier);
                 if (replacement == null) return Outcome.of(Reason.NO_ROOM, 0, "no_seat check=" + unavailable);
-                GameplayLog.event(carrier, "family", "carry lowering target moved child={} from={} to={} reason={}",
+                GameplayLog.limited(carrier, "family", "lowering.target." + child.getUUID() + "." + unavailable, 200,
+                        "carry lowering target moved child={} from={} to={} reason={}",
                         child.getUUID(), seat.local(), replacement.local(), unavailable);
                 seat = replacement;
                 settling = 0;
@@ -277,7 +281,7 @@ public final class Release implements Action {
     @Override public MotionPose pose() {
         if (approach != null) return approach.pose();
         long since = carrier == null ? -1 : ParentCarry.setDownTick(carrier, child);
-        if (destination != null && since >= 0) return new MotionPose(BraidFetch.SETTLE, since, false);
+        if (destination != null && since >= 0) return new MotionPose(BraidFetch.SETTLE, startTick, false);
         String clip = ParentCarry.braidLean(carrier, child) ? Grab.BRAID_LEAN : Grab.BRAID_LIFT;
         return since < 0 || ParentCarry.hold(carrier, child).reach() != Reach.BRAID ? MotionPose.NONE
                 : new MotionPose(clip, since - ClipMarkers.of(clip).ticks("place", 38), false);
@@ -313,7 +317,8 @@ public final class Release implements Action {
         if (child.getVehicle() == carrier) ParentCarry.stopLowering(carrier, child);
         outcome = result;
         failedWorld = world(carrier);
-        if (result.reason() != null) GameplayLog.event(carrier, "family", "carry put down refused child={} outcome={} space={} stand={}",
+        if (result.reason() != null) GameplayLog.limited(carrier, "family", "release." + child.getUUID() + "." + result.reason(), 200,
+                "carry put down refused child={} outcome={} space={} stand={}",
                 child.getUUID(), result, rejectedSpace, rejectedStand);
     }
 
@@ -324,11 +329,22 @@ public final class Release implements Action {
     }
 
     private int world(YukkuriEntity carrier) {
+        if (destination != null && carrier.getVehicle() == destination.entity()) {
+            // Hull translation and bobbing do not make another attempt useful; changed room or reach does.
+            int state = Objects.hash(destination.capsized(), destination.bears(child), destination.frame().unit(), child.getBbWidth());
+            for (var rider : destination.entity().getPassengers()) {
+                var local = destination.riders().local(rider.getUUID());
+                state += Objects.hash(rider.getId(), Math.round(local.x * 10), Math.round(local.y * 10), Math.round(local.z * 10),
+                        Math.round(destination.riders().yaw(rider.getUUID()) / 5), rider.getBbWidth(), rider.getBbHeight());
+            }
+            return state;
+        }
         var area = carrier.getBoundingBox().inflate(carrier.getBbWidth() * 3, DROP, carrier.getBbWidth() * 3);
         int state = Objects.hash(carrier.blockPosition(), Math.round(carrier.getX() * 10), Math.round(carrier.getZ() * 10),
                 Math.round(carrier.bodyYaw() / 5), child.getBbWidth(), carrier.level().isRaining());
         for (var block : carrier.level().getBlockStates(area).toList()) state = 31 * state + block.hashCode();
-        for (var other : carrier.level().getEntities(carrier, area, e -> !carrier.hasPassenger(e) && (e instanceof YukkuriEntity || e instanceof SurfaceHost)))
+        for (var other : carrier.level().getEntities(carrier, area,
+                e -> e != carrier.getVehicle() && !carrier.hasPassenger(e) && (e instanceof YukkuriEntity || e instanceof SurfaceHost)))
             state += Objects.hash(other.getId(), Math.round(other.getX() * 10), Math.round(other.getY() * 10), Math.round(other.getZ() * 10),
                     Math.round(other.getYRot() / 5), other.getBbWidth(), other.getBbHeight());
         return state;

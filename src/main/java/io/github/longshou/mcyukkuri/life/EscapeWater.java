@@ -256,13 +256,14 @@ public final class EscapeWater implements Intent {
         return bank == null ? null : new Step.Do(Swim.toward(Vec3.atBottomCenterOf(bank), PRESS));
     }
 
-    /** Swim to the rim; once the mouth holds it, float there (a body pressing on the hull pushes it away) until the hat drifts out of
-     *  reach, is no longer the nearest refuge, or the wait is up. */
+    /** Swim to the rim; once the mouth holds it, float there until it drifts out of reach, is lost or capsizes, or the wait is up.
+     *  The next step checks sight and whether this hat is still the nearest refuge. */
     private Step atRim(PlacedHatEntity hat) {
         Supplier<Vec3> rim = () -> ContactGeometry.nearestRim(body, hat).orElseThrow();
         if (!ContactGeometry.canGrip(body, rim.get())) return new Step.Do(Swim.to(rim, HAT_SWIM));
         long from = body.level().getGameTime();
-        return new Step.Wait(() -> !ContactGeometry.canGrip(body, rim.get()) || rimHat() != hat || body.level().getGameTime() - from >= PRESS,
+        return new Step.Wait(() -> hat.isRemoved() || hat.capsized() || ContactGeometry.gripGap(body, rim.get(), false) > 0
+                || body.level().getGameTime() - from >= PRESS,
                 PRESS + 1, "wait_for_parent");
     }
 

@@ -17,6 +17,7 @@ import io.github.longshou.mcyukkuri.motor.ContactGeometry;
 import io.github.longshou.mcyukkuri.motor.Feasibility;
 import io.github.longshou.mcyukkuri.motor.Reason;
 import io.github.longshou.mcyukkuri.motor.action.Face;
+import io.github.longshou.mcyukkuri.motor.action.Hop;
 import io.github.longshou.mcyukkuri.motor.action.Paddle;
 import io.github.longshou.mcyukkuri.motor.action.Release;
 import io.github.longshou.mcyukkuri.motor.action.Right;
@@ -78,7 +79,7 @@ final class Ashore implements Intent {
 
     @Override public boolean satisfied() {
         var hat = AquaticLife.hat(owner);
-        if (purpose == Purpose.CARRY) return AquaticLife.ashore(owner);
+        if (purpose == Purpose.CARRY) return AquaticLife.ashore(owner) && !(owner.motor().current() instanceof Hop);
         if (reclaim()) return owner.life().custody().worn() || hat != null && hat.settled(owner);
         return owner.life().custody().worn() && AquaticLife.ashore(owner) && AquaticLife.carried(owner) == null;
     }
@@ -144,7 +145,8 @@ final class Ashore implements Intent {
         // at the landing water: paddle in against the bank, once; no hop in reach even then, and the next derive takes another
         if (!tried.add(edge.stand())) { landing = null; return paddle(hat); }
         var dock = edge.out(HullAfloat.brimToward(hat, edge.edge()));
-        return List.of(() -> new Step.Do(new Paddle(dock, ARRIVE)));
+        return List.of(() -> new Step.Do(new Paddle(() -> dock,
+                distance -> distance <= ARRIVE && Ferry.hopAshore(owner).get() != null)));
     }
 
     /** From the bank edge nearest the hat: walk there, face the hat, then the closing action ({@code close}, then {@code after}).

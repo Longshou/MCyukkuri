@@ -63,6 +63,8 @@ public interface SurfaceHost {
     Vec3 landingSpot(YukkuriEntity body, Vec3 edge);
     ContactResolver.Contact contact(YukkuriEntity body, Vec3 spot, Vec3 feet);
     default List<SeatTarget> restSpots(YukkuriEntity body, int limit) { return List.of(); }
+    /** A rest point on the floor inside the opening, excluding raised walls and the hop rim. */
+    boolean insideFloor(Vec3 local);
     default SeatTarget restSpot(YukkuriEntity body) {
         var spots = restSpots(body, 1);
         return spots.isEmpty() ? null : spots.getFirst();

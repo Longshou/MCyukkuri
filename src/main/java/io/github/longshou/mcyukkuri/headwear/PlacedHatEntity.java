@@ -254,6 +254,9 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
     @Override public List<SeatTarget> restSpots(YukkuriEntity body, int limit) {
         return profile().surface().restSpots(this, body, limit);
     }
+    @Override public boolean insideFloor(Vec3 local) {
+        return profile().inOpening(local.x, local.z) && local.y - profile().floor() <= Occupancy.MARGIN / unit();
+    }
     public double loadRatio() {
         return HullBounds.loadRatio(hullScale() / HullBounds.SCALE, youngPassengers().stream()
                 .map(p -> (YukkuriEntity) p).map(y -> (double) (y.growthScale() * y.getScale())).toList());

@@ -3,6 +3,7 @@ package io.github.longshou.mcyukkuri.life;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.intent.AskLedger;
+import io.github.longshou.mcyukkuri.motor.Attach;
 import io.github.longshou.mcyukkuri.motor.action.Climb;
 import io.github.longshou.mcyukkuri.motor.action.Swim;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
@@ -59,8 +60,8 @@ public final class WaterDistress {
             Phase before = phase; int elapsed = phaseTicks;
             phase=next;phaseTicks=0;
             GameplayLog.limited(entity, "water", "phase." + next, 200,
-                    "phase={} -> {} previousTicks={} immersion={} fatigue={} energy={}",
-                    before, next, elapsed, immersionTicks, fatigue, entity.life().energy());
+                    "phase={} -> {} previousTicks={} immersion={} fatigue={} energy={} sheltered={}",
+                    before, next, elapsed, immersionTicks, fatigue, entity.life().energy(), Attach.sheltered(entity));
         }
     }
     private void enterWater(){

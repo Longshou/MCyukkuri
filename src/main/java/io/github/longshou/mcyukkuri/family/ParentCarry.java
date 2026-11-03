@@ -10,7 +10,6 @@ import io.github.longshou.mcyukkuri.entity.YukkuriView;
 import io.github.longshou.mcyukkuri.entity.component.SyncSlot;
 import io.github.longshou.mcyukkuri.headwear.HatGeometry;
 import io.github.longshou.mcyukkuri.headwear.HatScale;
-import io.github.longshou.mcyukkuri.headwear.PlacedHatEntity;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.motor.Attach;
 import io.github.longshou.mcyukkuri.motor.AttachState;
@@ -398,8 +397,8 @@ public final class ParentCarry {
 
     // ---- the braid tip: the least turn and a lift clear of the host and blocks
 
-    /** Degrees of one step of the least braid turn; share of the braid's length the set-down search keeps for the scruff's offset. */
-    private static final float TURN_STEP = 5, REACH_KEEP = .95f;
+    /** Degrees of one step of the least braid turn. */
+    private static final float TURN_STEP = 5;
     /** Points of the lift and swing tested against blocks and the carrier's body before a way out is taken. */
     private static final int WAY_SAMPLES = 6;
     /**
@@ -420,9 +419,7 @@ public final class ParentCarry {
     /** The worn-brim lift draws the child out from beneath the brim, rises, then swings onto its brim spot. */
     private static Way wayOut(YukkuriEntity carrier, YukkuriEntity child, float yaw, boolean lean) {
         var root = ContactGeometry.braidRootModel(lean);
-        double s = size(carrier), lift = root.y - MOUTH_FLOOR - GRIP_Y * size(child) / s, length = ContactGeometry.braidLength() * REACH_KEEP;
-        double reach = lift < length ? Math.sqrt(length * length - lift * lift) : 0;
-        double apart = (Occupancy.foot(carrier.getBbWidth()) + Occupancy.foot(child.getBbWidth())) * 16 / s;
+        double s = size(carrier);
         var host = Attach.of(child) instanceof AttachState.OnHost ride ? ride.host() : carryHost(carrier, child);
         var from = modelAt(carrier, yaw, child.position());
         var ontoCarrier = brimPoint(carrier, child, 0);
@@ -433,7 +430,7 @@ public final class ParentCarry {
         e.putFloat("PX", from.x); e.putFloat("PY", from.y); e.putFloat("PZ", from.z);
         e.putFloat("OX", out.x); e.putFloat("OZ", out.z);
         if (lean) e.putBoolean("L", true);
-        var choice = CarryGeometry.wayOut(root.x, root.z, reach, vector(restTip()), vector(from), apart,
+        var choice = CarryGeometry.wayOut(root.x, root.z, vector(from),
                 vector(ontoCarrier), point -> {
             var seat = new Vector3f((float) point.x(), (float) point.y(), (float) point.z());
             var at = worldAt(carrier, yaw, seat);
@@ -441,13 +438,13 @@ public final class ParentCarry {
         }, (point, arc) -> {
             var seat = new Vector3f((float) point.x(), (float) point.y(), (float) point.z());
             e.putFloat("A", arc.floatValue());
-            return clearWay(carrier, child, yaw, host, e, from, seat, seat, 0, s, null);
+            return clearWay(carrier, child, yaw, host, e, from, seat, s);
         });
         return new Way(choice.point() == null ? null : e, choice.rejected());
     }
 
     private static boolean clearWay(YukkuriEntity carrier, YukkuriEntity child, float yaw, SurfaceHost host, CompoundTag e,
-                                    Vector3f from, Vector3f seat, Vector3f arcEnd, double body, double s, SurfaceHost destination) {
+                                    Vector3f from, Vector3f seat, double s) {
         var out = new Vector3f(e.getFloat("OX"), from.y, e.getFloat("OZ"));
         float high = Math.max(from.y, seat.y);
         for (int i = 0; host != null && i <= 8; i++) {
@@ -456,13 +453,13 @@ public final class ParentCarry {
         }
         high += (float) (child.getBbHeight() * 16 / s);
         e.putFloat("PH", high);
-        boolean free = clear(carrier, child, worldAt(carrier, yaw, new Vector3f(out.x, high, out.z)), destination);
+        boolean free = clear(carrier, child, worldAt(carrier, yaw, new Vector3f(out.x, high, out.z)), null);
         for (int i = 1; free && i <= WAY_SAMPLES; i++) {
             float t = i / (float) WAY_SAMPLES;
-            var q = sweepPoint(e, t, arcEnd);
-            free = Math.hypot(q.x, q.z) >= body && clear(carrier, child, worldAt(carrier, yaw, q), destination)
-                    && clear(carrier, child, worldAt(carrier, yaw, risePoint(e, t)), destination)
-                    && clear(carrier, child, worldAt(carrier, yaw, new Vector3f(seat.x, Mth.lerp(t, high, seat.y), seat.z)), destination);
+            var q = sweepPoint(e, t, seat);
+            free = clear(carrier, child, worldAt(carrier, yaw, q), null)
+                    && clear(carrier, child, worldAt(carrier, yaw, risePoint(e, t)), null)
+                    && clear(carrier, child, worldAt(carrier, yaw, new Vector3f(seat.x, Mth.lerp(t, high, seat.y), seat.z)), null);
         }
         return free;
     }
@@ -488,25 +485,34 @@ public final class ParentCarry {
         return true;
     }
 
-    /** Lift at the contact point to a dry hold. No ground or hull endpoint is admitted until Release. */
+    /** Rise out of the water before drawing the child to the braid's rest tip. Release chooses the eventual support. */
     private static boolean liftBraid(YukkuriEntity carrier, YukkuriEntity child, boolean lean) {
         var from = modelAt(carrier, carrier.bodyYaw(), child.position());
+        var tip = restTip();
         double s = size(carrier);
         var fluid = child.level().getFluidState(child.blockPosition());
         double floor = Math.max(carrier.getY(), fluid.isEmpty() ? carrier.getY()
                 : child.blockPosition().getY() + fluid.getHeight(child.level(), child.blockPosition()));
         var host = carryHost(carrier, child);
-        if (host != null) floor = Math.max(floor, Occupancy.surfaceUnder(host, child.getBbWidth(), child.position().add(0, 1, 0)));
-        float high = Math.max(from.y, (float) ((floor + child.getBbHeight() - carrier.getY()) * 16 / s));
-        var end = worldAt(carrier, carrier.bodyYaw(), new Vector3f(from.x, high, from.z));
+        double surface = host == null ? floor : Occupancy.surfaceUnder(host, child.getBbWidth(), child.position().add(0, 1, 0));
+        for (int i = 1; host != null && i <= WAY_SAMPLES; i++) {
+            var along = new Vector3f(from).lerp(tip, i / (float) WAY_SAMPLES);
+            double top = Occupancy.surfaceUnder(host, child.getBbWidth(), worldAt(carrier, carrier.bodyYaw(), along).add(0, 1, 0));
+            if (top > floor) floor = top;
+        }
+        float high = (float) ((CarryGeometry.liftHeight(child.getY(), floor, surface, child.getBbHeight()) - carrier.getY()) * 16 / s);
+        var raised = worldAt(carrier, carrier.bodyYaw(), new Vector3f(from.x, high, from.z));
+        var end = worldAt(carrier, carrier.bodyYaw(), new Vector3f(tip.x, high, tip.z));
         if (!clear(carrier, child, end, null) || carrier.level().getBlockCollisions(child,
-                child.getBoundingBox().expandTowards(end.subtract(child.position())).deflate(.02)).iterator().hasNext()) return false;
+                child.getBoundingBox().expandTowards(raised.subtract(child.position())).deflate(.02)).iterator().hasNext()
+                || carrier.level().getBlockCollisions(child, child.getDimensions(child.getPose()).makeBoundingBox(raised)
+                    .expandTowards(end.subtract(raised)).deflate(.02)).iterator().hasNext()) return false;
         var e = entry(carrier, child.getUUID()).copy();
         e.putBoolean("L", lean);
         e.putFloat("Y", carrier.bodyYaw());
         e.putFloat("PX", from.x); e.putFloat("PY", from.y); e.putFloat("PZ", from.z);
         e.putFloat("OX", from.x); e.putFloat("OZ", from.z);
-        e.putFloat("X", from.x); e.putFloat("Z", from.z); e.putFloat("PH", high); e.putFloat("A", 0);
+        e.putFloat("X", tip.x); e.putFloat("Z", tip.z); e.putFloat("PH", high); e.putFloat("A", 0);
         e.putLong("T", carrier.level().getGameTime() + BraidFetch.marker(BraidFetch.HOLD, "lift_start") - BraidFetch.marker(BraidFetch.HOLD, "grip"));
         write(carrier, child.getUUID(), e);
         return true;
@@ -531,6 +537,11 @@ public final class ParentCarry {
     }
     /** The admitted rise is the executed rise, including its outward draw beneath the brim. */
     private static Vector3f risePoint(CompoundTag e, float u) {
+        if (holdOf(e) == Hold.BRAID) {
+            var at = CarryGeometry.liftPoint(new Vec(e.getFloat("PX"), e.getFloat("PY"), e.getFloat("PZ")),
+                    new Vec(e.getFloat("X"), e.getFloat("PH"), e.getFloat("Z")), e.getFloat("PH"), ease(u));
+            return new Vector3f((float) at.x(), (float) at.y(), (float) at.z());
+        }
         var at = new Vector3f(e.getFloat("PX"), 0, e.getFloat("PZ")).lerp(new Vector3f(e.getFloat("OX"), 0, e.getFloat("OZ")), ease(u / .5f));
         at.y = Mth.lerp(ease(u), e.getFloat("PY"), e.getFloat("PH"));
         return at;
@@ -1325,7 +1336,7 @@ public final class ParentCarry {
             next.putFloat("DX", (float) destination.local().x); next.putFloat("DY", (float) destination.local().y); next.putFloat("DZ", (float) destination.local().z);
             next.putFloat("LX", (float) from.x); next.putFloat("LY", (float) from.y); next.putFloat("LZ", (float) from.z);
             next.putDouble("LV", pace);
-            ticks = CarryGeometry.motionTicks(distance, pace);
+            ticks = CarryGeometry.loweringTicks(distance, pace);
         } else ticks = holdOf(e) == Hold.MOUTH ? CarryGeometry.motionTicks(child.position().distanceTo(letGoPoint(carrier, child)),
                 BodyAbility.of(carrier).walkSpeed()) : lowerTicks();
         next.putLong("D", carrier.level().getGameTime());
@@ -1344,8 +1355,10 @@ public final class ParentCarry {
         var e = entry(carrier, child.getUUID());
         if (!e.contains("LX")) return;
         var next = e.copy();
-        var at = modelAt(carrier, carrier.bodyYaw(), child.position());
-        next.putFloat("X", at.x); next.putFloat("Z", at.z); next.putFloat("PH", at.y);
+        if (holdOf(next) == Hold.BRAID) {
+            var at = modelAt(carrier, carrier.bodyYaw(), child.position());
+            next.putFloat("X", at.x); next.putFloat("Z", at.z); next.putFloat("PH", at.y);
+        }
         next.remove("D"); next.remove("T"); next.remove("LX"); next.remove("LY"); next.remove("LZ"); next.remove("LV");
         next.remove("DX"); next.remove("DY"); next.remove("DZ");
         write(carrier, child.getUUID(), next);
