@@ -6,6 +6,7 @@ import io.github.longshou.mcyukkuri.motor.ClipMarkers;
 import io.github.longshou.mcyukkuri.motor.ContactGeometry;
 import io.github.longshou.mcyukkuri.motor.action.Face;
 import io.github.longshou.mcyukkuri.motor.action.Grab;
+import io.github.longshou.mcyukkuri.motor.action.Hop;
 import io.github.longshou.mcyukkuri.motor.action.Release;
 import io.github.longshou.mcyukkuri.motor.surface.SurfaceHost;
 import java.util.ArrayList;
@@ -26,6 +27,7 @@ public final class BraidFetch {
     /** Face the child, then the shared tracking lift and lowering. */
     public static List<Supplier<Step>> steps(YukkuriEntity carrier, YukkuriEntity child, SurfaceHost destination) {
         var steps = new ArrayList<>(lift(carrier, child, destination));
+        steps.add(() -> destination.settled(carrier) ? null : new Step.Do(new Hop(destination)));
         steps.add(() -> new Step.Do(new Release(child, destination)));
         return steps;
     }

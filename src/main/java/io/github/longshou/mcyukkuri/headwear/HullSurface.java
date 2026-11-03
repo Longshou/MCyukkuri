@@ -22,7 +22,8 @@ public final class HullSurface implements HatSurface {
     @Override public boolean bears(PlacedHatEntity hat, YukkuriEntity body) {
         return hat.hasPassenger(body) || !hat.cooling(body) && (body.getUUID().equals(hat.ownerYukkuri())
                 || hat.admits(body)
-                && hat.loadRatio() + (body.getRootVehicle() == hat ? 0 : HullBounds.weight(body.growthScale() * body.getScale()))
+                && hat.loadRatio() + (body.getRootVehicle() == hat && body.getVehicle() instanceof YukkuriEntity carrier
+                        && ParentCarry.hold(carrier, body) == ParentCarry.Hold.HEAD ? 0 : HullBounds.weight(body.growthScale() * body.getScale()))
                     / HullBounds.capacity(hat.hullScale() / HullBounds.SCALE) <= 1);
     }
     @Override public boolean mountable(PlacedHatEntity hat, YukkuriEntity body) {
@@ -34,7 +35,11 @@ public final class HullSurface implements HatSurface {
     @Override public Vec3 boarded(PlacedHatEntity hat, YukkuriEntity body) { return hat.frame().toLocal(body.position()); }
     @Override public void tickRiders(PlacedHatEntity hat) { hat.squeeze(); Floor.settle(hat); }
     @Override public boolean settled(PlacedHatEntity hat, YukkuriEntity body) {
-        if (body.getVehicle() != hat || hat.capsized() || !Floor.standing(body)) return false;
+        if (hat.capsized()) return false;
+        if (body.getVehicle() instanceof YukkuriEntity carrier && carrier == hat.placeCarrier()
+                && ParentCarry.hold(carrier, body) == ParentCarry.Hold.HEAD)
+            return ParentCarry.holdProblem(carrier, body, ParentCarry.Hold.HEAD, true) == null;
+        if (body.getVehicle() != hat || !Floor.standing(body)) return false;
         var at = hat.riders().local(body.getUUID());
         if (body.getUUID().equals(hat.ownerYukkuri()))
             return at.multiply(1, 0, 1).distanceToSqr(Floor.point(HullBounds.HOME.scale(1 / HullBounds.UNIT)).multiply(1, 0, 1))

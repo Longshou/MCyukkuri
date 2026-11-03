@@ -21,6 +21,7 @@ import io.github.longshou.mcyukkuri.motor.action.Face;
 import io.github.longshou.mcyukkuri.motor.action.Pick;
 import io.github.longshou.mcyukkuri.motor.action.PlaceProp;
 import io.github.longshou.mcyukkuri.motor.action.Walk;
+import io.github.longshou.mcyukkuri.motor.surface.SeatTarget;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -40,7 +41,7 @@ import net.minecraft.world.phys.Vec3;
  * calm water with room for the hull (the nearest one carrying a hull within {@link Waters#FAR} blocks when none is within berth
  * reach, in strides of a few blocks so the young keep up, calling for them between strides), sets her hat down on the water
  * ({@code PlaceProp} in water mode, {@code hat_off_self_aq}), and the family gets aboard: a young that hops boards by its own
- * {@code board_parent} desire. She loads dependent young from the near brim, then moves to her seat.
+ * {@code board_parent} desire. She picks dependent young up from the near brim and seats them after reaching her own seat.
  * Sleeping young, those in the water and those without a seat stay behind; a failed fetch ends this setting out. She gathers
  * responsive young at the bank first; the hat is set down at a dry stand with her own hop reach to its brim,
  * and she approaches a wandering child on foot before lifting it.
@@ -91,7 +92,8 @@ final class SetOut implements Intent, FamilyRendezvous {
     private String staying(YukkuriEntity y) {
         if (y.family().stage() == FamilyLife.Stage.BABY && y.childhood().isNewborn() && y.childhood().shouldStayWithParents()) return null;
         var hat = AquaticLife.hat(owner);
-        if (hat != null && !AquaticLife.aboard(y, hat) && hat.restSpot(y) == null) return "no_room";
+        if (hat != null && hat.settled(owner) && !AquaticLife.aboard(y, hat) && hat.restSpot(y) == null
+                && hat.places(y, SeatTarget.Kind.HEAD, 1).isEmpty()) return "no_room";
         return y.life().isSleeping() ? "asleep" : y.isInWaterOrBubble() ? "in_water" : excused.get(y.getUUID());
     }
 

@@ -284,7 +284,9 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
     }
     public double loadRatio() {
         return HullBounds.loadRatio(hullScale() / HullBounds.SCALE, getSelfAndPassengers().filter(p -> p != owner()).filter(p -> p instanceof YukkuriEntity)
-                .map(p -> (YukkuriEntity) p).map(y -> (double) (y.growthScale() * y.getScale())).toList());
+                .map(p -> (YukkuriEntity) p).filter(y -> y.getVehicle() == this || y.getVehicle() instanceof YukkuriEntity carrier
+                        && ParentCarry.hold(carrier, y) == ParentCarry.Hold.HEAD)
+                .map(y -> (double) (y.growthScale() * y.getScale())).toList());
     }
     @Override public OptionalDouble support(Vec3 local, BodyFootprint body) {
         if (upsideDown()) return OptionalDouble.empty();
