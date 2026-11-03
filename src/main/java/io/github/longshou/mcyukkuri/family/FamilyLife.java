@@ -1002,6 +1002,15 @@ public final class FamilyLife {
         var run = IntentRunner.running(parent);
         return run != null && run.intent() instanceof FamilyRendezvous meeting ? meeting.gatherAt(entity) : null;
     }
+    /** Early movement practice yields to an actual parent's gathering; ordinary family-follow owns the approach. */
+    boolean gathering() {
+        for(var id:new UUID[]{mother,father})if(id!=null&&level().getEntity(id) instanceof YukkuriEntity parent
+                &&parent.isAlive()&&entity.distanceToSqr(parent)<FAMILY_SEARCH_RANGE*FAMILY_SEARCH_RANGE) {
+            var run=IntentRunner.running(parent);
+            if(run!=null&&run.intent() instanceof FamilyRendezvous)return true;
+        }
+        return false;
+    }
     private double familyRadiusSqr() {
         if(exploring()&&!familyTravelling())return Math.pow(entity.roaming().radius()+2,2);
         if(!ordinaryLandFree(entity))return FAMILY_FOLLOW_DISTANCE_SQR;
