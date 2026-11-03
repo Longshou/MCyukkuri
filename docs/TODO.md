@@ -8,7 +8,6 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
-| 水生岸产审查修复：护幼、返岸判定与拒绝重启 | `.worktrees/fb-boat-birth-shore` | `AquaticGoal`、`Waters`、`Drive`、`Hop`、分娩净空与场景；`Ashore` 仅产后返岸分支 |
 | 统一托运接放判定（救援、出航装载、上岸；摇晃翻覆溺亡） | `.worktrees/fb-capsize-rescue`（分支 `fb-carry-admission`） | `motor/CarryAdmission`、`Grab`／`Release`、`aquatic/Rescue`／`SetOut`／`Ashore`／`Ferry` |
 
 ## 玩法待办
@@ -242,7 +241,7 @@
 
 **本轮复测（E12）**：运行版本与 CI 见[运行证据索引](#运行证据索引2026-10-2131)，未完成链路保持复测失败。
 
-- **`birth_boat_caught`／`birth_boat_missed`**：已接入待试玩（反馈 10、18 与运行版本见上，完成标准见 P0-9）。已下线船内生产反例：[55449fd63](https://github.com/Longshou/MCyukkuri/commit/55449fd6381619dec7d211af4748778c5ac76e54) 赤油悬空掉水；[5d930b5c4](https://github.com/Longshou/MCyukkuri/commit/5d930b5c4)（[CI 41200146048](https://github.com/Longshou/MCyukkuri/actions/runs/41200146048)）两只赤油溺亡；bbd16394b 新生儿与母体重叠。
+- **`birth_boat_caught`／`birth_boat_missed`**：已接入待试玩（反馈 10、18 与运行版本见上，完成标准见 P0-9）。[41a56b3cc](https://github.com/Longshou/MCyukkuri/commit/41a56b3cc) 自查见产后独自登船、返岸拒绝循环，现改为留岸照护后集合装载。已下线船内生产反例：[55449fd63](https://github.com/Longshou/MCyukkuri/commit/55449fd6381619dec7d211af4748778c5ac76e54) 赤油悬空掉水；[5d930b5c4](https://github.com/Longshou/MCyukkuri/commit/5d930b5c4)（[CI 41200146048](https://github.com/Longshou/MCyukkuri/actions/runs/41200146048)）两只赤油溺亡；bbd16394b 新生儿与母体重叠。
 - **`sail`／`shore_family` 划桨演出**：已接入待试玩（[091899217](https://github.com/Longshou/MCyukkuri/commit/091899217)，CI 待核对）。原现象（录像 22:52，圆帽 `cone_basin` 辫子穿船体、上下两节铰链、无力感）；现圆帽下辫子留在帽檐上方不穿模，自根部到梢呈波形弯曲。椭圆帽船演出未试玩确认：船长先转向船首再出桨，辫子与木棍越过横向帽檐（版本待合入）；离线伸展用量约 71%，略超 70% 目标。完成：看清转向时不划水、出桨越过短轴帽檐，核对真实航行；不以船体门通过代替演出认可。`hat_brim_offer`／`boat_nudge_young` 仅在船长面朝船首时通过船体门，播放它们的运行时动作须先转向船首，否则重做片段。
 - **辫梢划水木棍显示**：已接入待试玩。实现 [009ec0f2d](https://github.com/Longshou/MCyukkuri/commit/009ec0f2d)（CI pending，尚无试玩记录）。完成：`sail` 持有真实木棍时随辫梢划水，停划后平放帽檐，失去木棍后才不显示，空辫招帽不出现木棍（读数见场景说明）。
 - `family_skiffs`／`share_young`／`water_night`（已下线反例）— 送幼未启动、拾取受阻或翻覆 — [55449fd63](https://github.com/Longshou/MCyukkuri/commit/55449fd63)（E12），自查 [c0595c480](https://github.com/Longshou/MCyukkuri/commit/c0595c480)、[913b56da0](https://github.com/Longshou/MCyukkuri/commit/913b56da0)（实现 [12cb38d16](https://github.com/Longshou/MCyukkuri/commit/12cb38d16)）；双亲上岸不送幼、穿岸后船远离 — [b333bfc0](https://github.com/Longshou/MCyukkuri/commit/b333bfc0)（CI 41070657813）；召集超时弃粮、两帽间改向溺亡、提前挂船后落水、动作中断重发航路 — [1325c6bd](https://github.com/Longshou/MCyukkuri/commit/1325c6bd)、E8／E9（版本见运行证据索引；CLIMB 完成不等于送幼完成）；夜泊无可核实的独立失败记录 — 版本待核实。
