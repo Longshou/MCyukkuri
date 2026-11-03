@@ -40,11 +40,11 @@ public final class Face implements Action {
     }
 
     @Override public Progress tick(YukkuriEntity body) {
-        double left = Mth.wrapDegrees(yaw - body.getYRot());
+        double left = Mth.wrapDegrees(yaw - body.yBodyRot);
         if (Math.abs(left) <= FACE_ARRIVED)
-            return new Outcome.Done(String.format(Locale.ROOT, "yaw=%.1f", body.getYRot()));
+            return new Outcome.Done(String.format(Locale.ROOT, "yaw=%.1f", body.yBodyRot));
         double step = Math.min(Math.abs(left), turnRate);
-        if (step > 0) Motor.face(body, body.getYRot() + (float) Math.copySign(step, left));
+        if (step > 0) Motor.face(body, body.yBodyRot + (float) Math.copySign(step, left));
         // The remaining angle is the progress: a body whose turn rate is zero never reports progress and the watchdog ends it.
         return new Running(Math.abs(left), TravelMode.CONSUMED);
     }

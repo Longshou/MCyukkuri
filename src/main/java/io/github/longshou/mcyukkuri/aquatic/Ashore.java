@@ -172,7 +172,8 @@ final class Ashore implements Intent {
         GameplayLog.limited(owner, "headwear", "reclaim.wait", WAIT, "reclaim waiting reason={} hat={} form={} distance={}",
                 edge == null ? "no_bank_edge" : "out_of_reach", hat.getUUID(), AquaticGoal.form(hat),
                 Math.round(hat.distanceTo(owner) * 10) / 10.0);
-        return new Step.Wait(() -> ContactGeometry.reachesHull(owner, hat, true, false) || beckoning.near(owner, hat), WAIT, Behaviors.BOAT_CALL);
+        return new Step.Wait(() -> edge == null ? Waters.bankEdge(owner, hat) != null
+                : ContactGeometry.reachesHull(owner, hat, true, false) || beckoning.near(owner, hat), WAIT, Behaviors.BOAT_CALL);
     }
 
     /** A hat on dry ground: walk up beside it (the family pickup's stand), then the closing action. */
