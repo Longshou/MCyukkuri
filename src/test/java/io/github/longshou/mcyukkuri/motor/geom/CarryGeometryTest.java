@@ -35,6 +35,12 @@ class CarryGeometryTest {
             assertEquals(to, previous);
         }
     }
+    @Test void raisedAndSideHeldBodiesClearTheCarrierWhileCrossingItsFaceDoesNot() {
+        assertTrue(CarryGeometry.clearsBody(new Vec(11.7, 3.7, -4.2), 2.24, 3.36));
+        assertTrue(CarryGeometry.clearsBody(new Vec(2, 10.6, 0), 2.24, 3.36));
+        assertFalse(CarryGeometry.clearsBody(new Vec(5, 3.7, -4.2), 2.24, 3.36));
+        assertTrue(CarryGeometry.clearsBody(new Vec(2, 1, -8), 2.24, 3.36));
+    }
     @Test void braidReachUsesTheNearestBodyPointAndTheActualChainLength() {
         var root = new Vec(0, 1, 0);
         var low = new Vec(1, 0, -.1); var high = new Vec(1.2, .3, .1);

@@ -262,9 +262,10 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
         return captain != null && captain.getVehicle() == this && !captain.hasVisibleAccessory() ? captain : null;
     }
     @Override public List<SeatTarget> places(YukkuriEntity body, SeatTarget.Kind kind, int limit) {
+        if (body.getUUID().equals(ownerYukkuri()) && kind != SeatTarget.Kind.CABIN) return List.of();
         if (kind != SeatTarget.Kind.HEAD) return SurfaceHost.super.places(body, kind, limit);
         var captain = placeCarrier();
-        return captain == null || captain == body || !bears(body) ? List.of()
+        return captain == null || !ParentCarry.needsCarry(body) || !bears(body) ? List.of()
                 : ParentCarry.headPlaces(captain, body).stream().limit(limit).map(p -> new SeatTarget(this, p, kind)).toList();
     }
     @Override public SeatTarget restEntry(YukkuriEntity body) {

@@ -8,6 +8,7 @@ import io.github.longshou.mcyukkuri.headwear.HatProp;
 import io.github.longshou.mcyukkuri.headwear.PlacedHatEntity;
 import io.github.longshou.mcyukkuri.motor.BodyAbility;
 import io.github.longshou.mcyukkuri.motor.Motor;
+import io.github.longshou.mcyukkuri.motor.surface.SeatTarget;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -173,7 +174,7 @@ public final class AquaticLife {
             if (!afloat(hat)) return "no_parent_hat";
             Motor.face(body, hat.getYRot());
             var seat = hat.restSpot(body);
-            return seat == null ? "no_room" : board(body, hat, seat.local(), cause, false);
+            return seat == null ? "no_room" : board(body, hat, seat, cause, false);
         }
         if (!HatProp.usable(body) || !body.life().custody().worn()) return "no_hat";
         var water = Waters.edges(body, body.position(), SPAWN_REACH, true).stream().filter(e -> Waters.floats(e, body)).findFirst().orElse(null);
@@ -181,18 +182,17 @@ public final class AquaticLife {
         var hat = PlacedHatEntity.setDown(body, Waters.hatAt(water, body), water.yaw() + 90, HatGeometry.Role.SELF);
         if (hat == null) return "set_down_refused";
         Motor.face(body, hat.getYRot());
-        return board(body, hat, hat.restSpot(body).local(), cause, true);
+        return board(body, hat, hat.restSpot(body), cause, true);
     }
 
-    private static String board(YukkuriEntity body, PlacedHatEntity hat, Vec3 spot, String cause, boolean own) {
-        Motor.relocate(body, hat.frame().toWorld(spot), hat.getYRot(), "spawn_initial_seat");
-        if (!Motor.mount(body, hat, "spawn")) {
+    private static String board(YukkuriEntity body, PlacedHatEntity hat, SeatTarget seat, String cause, boolean own) {
+        Motor.relocate(body, seat.world(), hat.getYRot(), "spawn_initial_seat");
+        if (!seat.land(body, "spawn")) {
             if (own) { body.life().returnAccessory(body.getUUID(), hat.launchToken(), null); hat.state(PlacedHatEntity.State.RESCUED); }
             return "mount_refused";
         }
-        Motor.spot(hat, body, spot, 0, cause);
         GameplayLog.event(body, "aquatic", "spawn afloat hat={} own={} at={} local={} cause={}", hat.getUUID(), own,
-                GameplayLog.at(hat.position()), GameplayLog.at(spot), cause);
+                GameplayLog.at(hat.position()), GameplayLog.at(seat.local()), cause);
         return null;
     }
 }

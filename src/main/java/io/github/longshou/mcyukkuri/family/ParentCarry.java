@@ -399,7 +399,9 @@ public final class ParentCarry {
         radius += (float) (2 * Occupancy.foot(child.getBbWidth()) * 16 / size(carrier));
         return new Vector3f(x * Math.max(length, radius), direction.y, z * Math.max(length, radius));
     }
-    private static Vector3f setDown(CompoundTag e) { return e.contains("X") ? new Vector3f(e.getFloat("X"), e.getFloat("PH"), e.getFloat("Z")) : restTip(); }
+    private static Vector3f setDown(CompoundTag e) {
+        return e.contains("X") ? new Vector3f(e.getFloat("X"), e.contains("RY") ? e.getFloat("RY") : e.getFloat("PH"), e.getFloat("Z")) : restTip();
+    }
 
     // ---- the braid tip: the least turn and a lift clear of the host and blocks
 
@@ -495,9 +497,10 @@ public final class ParentCarry {
     private static boolean liftBraid(YukkuriEntity carrier, YukkuriEntity child, boolean lean) {
         var from = modelAt(carrier, carrier.bodyYaw(), child.position());
         double s = size(carrier);
-        var fluid = child.level().getFluidState(child.blockPosition());
-        double floor = Math.max(carrier.getY(), fluid.isEmpty() ? carrier.getY()
-                : child.blockPosition().getY() + fluid.getHeight(child.level(), child.blockPosition()));
+        var water = child.blockPosition();
+        while (!child.level().getFluidState(water.above()).isEmpty()) water = water.above();
+        var fluid = child.level().getFluidState(water);
+        double floor = Math.max(carrier.getY(), fluid.isEmpty() ? child.getY() : water.getY() + fluid.getHeight(child.level(), water));
         var host = carryHost(carrier, child);
         double surface = host == null ? floor : Occupancy.surfaceUnder(host, child.getBbWidth(), child.position().add(0, 1, 0));
         float high = (float) ((CarryGeometry.liftHeight(child.getY(), floor, surface, child.getBbHeight()) - carrier.getY()) * 16 / s);
@@ -512,7 +515,10 @@ public final class ParentCarry {
         e.putFloat("Y", carrier.bodyYaw());
         e.putFloat("PX", from.x); e.putFloat("PY", from.y); e.putFloat("PZ", from.z);
         e.putFloat("OX", from.x); e.putFloat("OZ", from.z);
-        e.putFloat("X", from.x); e.putFloat("Z", from.z); e.putFloat("PH", high); e.putFloat("A", 0);
+        var rest = restTip();
+        rest.x = Math.max(rest.x, (float) (CarryGeometry.BODY_HIGH.x() + headwearRadius(child) * 16 / s + .3));
+        e.putFloat("X", rest.x); e.putFloat("Z", rest.z); e.putFloat("PH", high); e.putFloat("A", 0);
+        e.putFloat("RY", (float) Math.max(MOUTH_FLOOR, (floor - carrier.getY()) * 16 / s));
         e.putLong("T", carrier.level().getGameTime() + (head ? 0 : BraidFetch.marker(BraidFetch.HOLD, "lift_start") - BraidFetch.marker(BraidFetch.HOLD, "grip")));
         write(carrier, child.getUUID(), e);
         return true;
@@ -539,7 +545,7 @@ public final class ParentCarry {
     private static Vector3f risePoint(CompoundTag e, float u) {
         if (holdOf(e) == Hold.BRAID) {
             var at = CarryGeometry.liftPoint(new Vec(e.getFloat("PX"), e.getFloat("PY"), e.getFloat("PZ")),
-                    new Vec(e.getFloat("X"), e.getFloat("PH"), e.getFloat("Z")), e.getFloat("PH"), ease(u));
+                    vector(setDown(e)), e.getFloat("PH"), ease(u));
             return new Vector3f((float) at.x(), (float) at.y(), (float) at.z());
         }
         var at = new Vector3f(e.getFloat("PX"), 0, e.getFloat("PZ")).lerp(new Vector3f(e.getFloat("OX"), 0, e.getFloat("OZ")), ease(u / .5f));
@@ -785,8 +791,13 @@ public final class ParentCarry {
     }
     private static boolean clear(YukkuriEntity carrier, YukkuriEntity child, Vec3 at, SurfaceHost destination) {
         var box = child.getDimensions(child.getPose()).makeBoundingBox(at).deflate(.02);
-        return !carrier.level().getBlockCollisions(child, box).iterator().hasNext()
-                && (destination != null || !carrier.level().containsAnyLiquid(box));
+        if (carrier.level().getBlockCollisions(child, box).iterator().hasNext()) return false;
+        if (destination != null) return true;
+        for (var pos : BlockPos.betweenClosed(BlockPos.containing(box.minX, box.minY, box.minZ), BlockPos.containing(box.maxX, box.maxY, box.maxZ))) {
+            var fluid = carrier.level().getFluidState(pos);
+            if (!fluid.isEmpty() && box.minY < pos.getY() + fluid.getHeight(carrier.level(), pos)) return false;
+        }
+        return true;
     }
 
     // ------------------------------------------------------------------------------------------ capacity and rules
@@ -1397,6 +1408,7 @@ public final class ParentCarry {
     public static void lower(YukkuriEntity carrier, YukkuriEntity child, SeatTarget destination) {
         var e = entry(carrier, child.getUUID());
         if (e.contains("D") && destination == null) return;
+        var brim = brimLocal(carrier, child);
         var next = e.copy();
         int ticks;
         if (destination != null || holdOf(e).reach() == Reach.BRAID) {
@@ -1424,8 +1436,8 @@ public final class ParentCarry {
         }
         next.putInt("N", ticks);
         write(carrier, child.getUUID(), next);
-        GameplayLog.event(carrier, "family", "carry lowering hold={} child={} from={} ticks={}", holdOf(e).key(), child.getUUID(),
-                GameplayLog.at(child.position()), ticks);
+        GameplayLog.event(carrier, "family", "carry lowering hold={} child={} from={} ticks={}{}", holdOf(e).key(), child.getUUID(),
+                GameplayLog.at(child.position()), ticks, brim);
     }
     public static String lowerClip(YukkuriView carrier, YukkuriView child) { return entry(carrier, child.getUUID()).getString("LC"); }
 
@@ -1450,12 +1462,13 @@ public final class ParentCarry {
         e.putString("LC", clip);
         int ticks = BraidFetch.marker(clip, "place") - BraidFetch.marker(clip, "lift_start");
         var previous = child.position();
-        var body = HatGeometry.envelope(carrier, carrier.position()).getFirst();
         for (int tick = 0; tick <= ticks; tick++) {
             var at = transferPoint(carrier, child, e, target.world(), tick, 1);
             var box = child.getDimensions(child.getPose()).makeBoundingBox(at);
             var grip = at.add(0, GRIP_Y * size(child) / 16, 0);
-            if (box.intersects(body) || child.level().getBlockCollisions(child, box.expandTowards(previous.subtract(at))).iterator().hasNext()
+            if (!CarryGeometry.clearsBody(vector(modelAt(carrier, carrier.bodyYaw(), at)), child.getBbWidth() * 8 / size(carrier),
+                    child.getBbHeight() * 16 / size(carrier))
+                    || child.level().getBlockCollisions(child, box.expandTowards(previous.subtract(at))).iterator().hasNext()
                     || transferGap(carrier, grip) > 0) return false;
             previous = at;
         }
@@ -1486,6 +1499,7 @@ public final class ParentCarry {
         var at = modelAt(carrier, carrier.bodyYaw(), child.position());
         next.putFloat("X", at.x); next.putFloat("Z", at.z); next.putFloat("PH", at.y);
         next.remove("D"); next.remove("T"); next.remove("LX"); next.remove("LY"); next.remove("LZ"); next.remove("LV");
+        next.remove("RY");
         next.remove("DX"); next.remove("DY"); next.remove("DZ");
         next.remove("LC"); next.remove("HeadTo"); next.remove("NX"); next.remove("NY"); next.remove("NZ");
         write(carrier, child.getUUID(), next);

@@ -257,7 +257,8 @@ final class ScenarioSetup {
             var seat = hat.restSpot(body);
             if (seat == null) return body.getName().getString() + " 没有合适座位（no_room），已入座者保留原位。";
             Motor.relocate(body, seat.world(), yaw, "scenario_initial_seat");
-            if (!Motor.mount(body, hat, "scenario_afloat")) return body.getName().getString() + " 没能坐上帽子。";
+            if (!seat.land(body, "scenario_afloat")) return body.getName().getString() + " 没能坐上帽子。";
+            GameplayLog.event(body, "hat", "scenario place hat={} place={} local={}", hat.getUUID(), seat.kind(), GameplayLog.at(seat.local()));
         }
         if (food != 0) {
             food = hat.behavior().stock(hat, new ItemStack(Items.APPLE), food);

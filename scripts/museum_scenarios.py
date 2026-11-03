@@ -1826,12 +1826,15 @@ def _carry_verify(log):
     for child, seat in re.findall(r'carry grip child=\d+ uuid=([0-9a-f-]{36})\b[^\n]*brimLocal=\(([^)]+)\)', log):
         grips.setdefault(child, set()).add(seat)
     checked = 0
-    for child, seat in re.findall(r'carry put down [^\n]*child=([0-9a-f-]{36})\b[^\n]*brimLocal=\(([^)]+)\)', log):
+    for match in re.finditer(r'carry lowering hold=brim child=([0-9a-f-]{36})\b[^\n]*brimLocal=\(([^)]+)\)', log):
+        child, seat = match.groups()
         if child not in grips:
             continue
         checked += 1
         if seat not in grips[child]:
             return f'brim-local seat changed for {child}: {grips[child]} -> {seat}'
+        if not re.search(rf'carry put down [^\n]*hold=braid cause=release [^\n]*child={child}\b', log[match.end():]):
+            return f'brim child {child} was not released after lowering'
     return None if checked else 'expected a brim grip/release pair with a constant brim-local seat'
 
 

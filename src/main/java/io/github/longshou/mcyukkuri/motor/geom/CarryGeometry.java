@@ -33,6 +33,12 @@ public final class CarryGeometry {
         return new Vec(p.x(), height, p.z());
     }
     private static Vec mix(Vec a, Vec b, double q) { return new Vec(a.x() + (b.x() - a.x()) * q, a.y() + (b.y() - a.y()) * q, a.z() + (b.z() - a.z()) * q); }
+    /** Collision in the carrier's frame, independent of its world yaw. */
+    public static boolean clearsBody(Vec feet, double radius, double height) {
+        return feet.y() >= BODY_HIGH.y() || feet.y() + height <= BODY_LOW.y()
+                || feet.x() + radius <= BODY_LOW.x() || feet.x() - radius >= BODY_HIGH.x()
+                || feet.z() + radius <= BODY_LOW.z() || feet.z() - radius >= BODY_HIGH.z();
+    }
     public enum Rejection { TERRAIN, ROUTE }
     public record Way(Vec point, int[] rejected) {}
 

@@ -57,7 +57,9 @@ final class Rescue implements Intent {
     }
     @Override public List<Method> methods() {
         return List.of(Plan.of("braid_fetch", this::derive), new Plan("carry_ashore",
-                () -> faller.getVehicle() == helper ? Feasibility.pass() : Feasibility.of(Reason.NO_CONTACT, 0, "not_held"),
+                () -> faller.getVehicle() != helper ? Feasibility.of(Reason.NO_CONTACT, 0, "not_held")
+                        : AquaticLife.hat(helper).restSpot(faller) == null ? Feasibility.pass()
+                        : Feasibility.of(Reason.NO_SUPPORT, 0, "hull_has_place"),
                 Set.of(Reason.NO_ROOM, Reason.NO_SUPPORT, Reason.NO_CONTACT),
                 this::carryAshore));
     }

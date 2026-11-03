@@ -26,6 +26,7 @@ import io.github.longshou.mcyukkuri.motor.surface.BedContainer;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Objects;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
@@ -79,24 +80,23 @@ public final class Release implements Action {
         if (!child.isAlive()) return Feasibility.of(Reason.TARGET_GONE, 0, "child_gone");
         if (child.getVehicle() != carrier) return Feasibility.of(Reason.NO_CONTACT, 0, "not_held");
         if (destination != null) {
-            seat = nearest(carrier);
-            return seat != null ? Feasibility.pass() : Feasibility.of(Reason.NO_ROOM, 0, "no_seat");
+            var places = destination.places(child, Integer.MAX_VALUE);
+            if (places.isEmpty()) return Feasibility.of(Reason.NO_ROOM, 0, "no_seat");
+            seat = nearest(carrier, places);
+            return seat != null ? Feasibility.pass() : Feasibility.of(Reason.NO_SUPPORT, 0, "transfer_blocked");
         }
         return plan(carrier, false);
     }
 
-    private SeatTarget nearest(YukkuriEntity carrier) {
-        for (var kind : new SeatTarget.Kind[]{SeatTarget.Kind.CABIN, SeatTarget.Kind.HEAD}) {
-            var found = destination.places(child, kind, Integer.MAX_VALUE).stream()
+    private SeatTarget nearest(YukkuriEntity carrier, List<SeatTarget> places) {
+        return places.stream()
                 .filter(target -> target.unavailable(child) == null)
                 .filter(target -> {
                     var grip = target.world().add(0, ParentCarry.GRIP_Y * child.growthScale() * child.getScale() / 16, 0);
                     return ParentCarry.transferGap(carrier, grip) <= 0;
-                }).sorted(Comparator.comparingDouble(target -> target.world().distanceToSqr(child.position())))
+                }).sorted(Comparator.comparing(SeatTarget::kind)
+                        .thenComparingDouble(target -> target.world().distanceToSqr(child.position())))
                 .filter(target -> ParentCarry.transferClear(carrier, child, target)).findFirst().orElse(null);
-            if (found != null) return found;
-        }
-        return null;
     }
 
     /** One endpoint/stand planner for cushions and nearby ground; execution uses the same room and turn tests. */
@@ -228,8 +228,10 @@ public final class Release implements Action {
             previousLocal = local;
             String unavailable = seat.unavailable(child);
             if (unavailable != null) {
-                var replacement = nearest(carrier);
-                if (replacement == null) return Outcome.of(Reason.NO_ROOM, 0, "no_seat check=" + unavailable);
+                var places = destination.places(child, Integer.MAX_VALUE);
+                if (places.isEmpty()) return Outcome.of(Reason.NO_ROOM, 0, "no_seat check=" + unavailable);
+                var replacement = nearest(carrier, places);
+                if (replacement == null) return Outcome.of(Reason.NO_SUPPORT, 0, "transfer_blocked check=" + unavailable);
                 GameplayLog.limited(carrier, "family", "lowering.target." + child.getUUID() + "." + unavailable, 200,
                         "carry lowering target moved child={} from={} to={} reason={}",
                         child.getUUID(), seat.local(), replacement.local(), unavailable);

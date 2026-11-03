@@ -35,8 +35,9 @@ final class TakeSeat implements Intent {
         var at = hat.riders().local(body.getUUID());
         var ability = BodyAbility.of(body);
         if (ability.walkSpeed() <= 0 && ability.hopReach() <= 0) return null;
-        var target = hat.restSpot(body);
-        if (target == null || !hat.profile().inOpening(target.local().x, target.local().z) || !target.available(body)) return null;
+        var places = hat.places(body, SeatTarget.Kind.CABIN, 1);
+        if (places.isEmpty()) return null;
+        var target = places.getFirst();
         if (at.distanceTo(target.local()) * hat.unit() <= .02) return null;
         if (ability.walkSpeed() > 0 && !hat.walkRoute(body, target.local(), true).isEmpty())
             return new TakeSeat(body, hat, target, new Walk(hat, target.local()));

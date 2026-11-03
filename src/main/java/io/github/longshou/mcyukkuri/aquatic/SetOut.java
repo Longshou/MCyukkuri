@@ -21,7 +21,6 @@ import io.github.longshou.mcyukkuri.motor.action.Face;
 import io.github.longshou.mcyukkuri.motor.action.Pick;
 import io.github.longshou.mcyukkuri.motor.action.PlaceProp;
 import io.github.longshou.mcyukkuri.motor.action.Walk;
-import io.github.longshou.mcyukkuri.motor.surface.SeatTarget;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -92,8 +91,7 @@ final class SetOut implements Intent, FamilyRendezvous {
     private String staying(YukkuriEntity y) {
         if (y.family().stage() == FamilyLife.Stage.BABY && y.childhood().isNewborn() && y.childhood().shouldStayWithParents()) return null;
         var hat = AquaticLife.hat(owner);
-        if (hat != null && hat.settled(owner) && !AquaticLife.aboard(y, hat) && hat.restSpot(y) == null
-                && hat.places(y, SeatTarget.Kind.HEAD, 1).isEmpty()) return "no_room";
+        if (hat != null && hat.settled(owner) && !AquaticLife.aboard(y, hat) && hat.restSpot(y) == null) return "no_room";
         return y.life().isSleeping() ? "asleep" : y.isInWaterOrBubble() ? "in_water" : excused.get(y.getUUID());
     }
 

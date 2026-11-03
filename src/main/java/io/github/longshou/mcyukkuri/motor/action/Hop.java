@@ -264,7 +264,7 @@ public final class Hop implements Action {
     private Progress landed(YukkuriEntity body) {
         landedAt = body.level().getGameTime();
         startTick = landedAt - marker("land");
-        Motor.velocity(body, Vec3.ZERO, "hop_landed");
+        Motor.velocity(body, body.isPassenger() ? Vec3.ZERO : new Vec3(0, -Ballistic.GRAVITY * Ballistic.VERTICAL_DRAG, 0), "hop_landed");
         return new Running(marker("settled") - marker("land"), TravelMode.CONSUMED, true);
     }
     private Progress nextLeg(YukkuriEntity body) {

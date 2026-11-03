@@ -7,6 +7,7 @@ import io.github.longshou.mcyukkuri.motor.geom.FloorSearch;
 import java.util.List;
 import java.util.Map;
 import java.util.OptionalDouble;
+import java.util.stream.Stream;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.phys.Vec3;
@@ -63,6 +64,10 @@ public interface SurfaceHost {
     Vec3 landingSpot(YukkuriEntity body, Vec3 edge);
     ContactResolver.Contact contact(YukkuriEntity body, Vec3 spot, Vec3 feet);
     default List<SeatTarget> restSpots(YukkuriEntity body, int limit) { return List.of(); }
+    /** Rest places in support order: cabin, head, then brim. */
+    default List<SeatTarget> places(YukkuriEntity body, int limit) {
+        return Stream.of(SeatTarget.Kind.values()).flatMap(kind -> places(body, kind, limit).stream()).limit(limit).toList();
+    }
     default List<SeatTarget> places(YukkuriEntity body, SeatTarget.Kind kind, int limit) {
         return switch (kind) {
             case CABIN -> restSpots(body, limit);
@@ -77,7 +82,7 @@ public interface SurfaceHost {
     /** A rest point on the floor inside the opening, excluding raised walls and the hop rim. */
     boolean insideFloor(Vec3 local);
     default SeatTarget restSpot(YukkuriEntity body) {
-        var spots = restSpots(body, 1);
+        var spots = places(body, 1);
         return spots.isEmpty() ? null : spots.getFirst();
     }
     default boolean settled(YukkuriEntity body) {

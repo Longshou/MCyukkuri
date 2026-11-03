@@ -26,8 +26,11 @@ public record SeatTarget(SurfaceHost host, Vec3 local, Kind kind) {
         if (!available(body) || body.position().distanceTo(world()) > .05) return false;
         if (kind == Kind.HEAD) {
             var carrier = host.placeCarrier();
-            if (body.getVehicle() != carrier) return false;
             ParentCarry.seatedHead(carrier, body, local);
+            if (body.getVehicle() != carrier && !Motor.mount(body, carrier, cause)) {
+                ParentCarry.released(carrier, body, cause);
+                return false;
+            }
             Motor.velocity(body, Vec3.ZERO, cause);
             return true;
         }
