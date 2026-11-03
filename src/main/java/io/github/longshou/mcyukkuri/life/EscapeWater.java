@@ -122,9 +122,17 @@ public final class EscapeWater implements Intent {
         Vec3 boat = boatSpot();
         Edge bank = climbable();
         boolean refuge = rimHat() != null || nearest() != null;
+        // Its own hat afloat within a braid's beckoning reach: one stroke draws it in before the last stretch is swum.
+        int stroke = hat != null && new Beckon(hat).check(body).ok() ? 1 : 0;
         return List.of(
-                new Way("own_hat", hat(hat, false), AT_HAT, i -> i == 0 ? closeOn(hat) : i == 1 ? new Step.Do(Climb.onto(hat)) : null),
-                new Way("right_own_hat", hat(hat, true), AT_HAT, i -> switch (i) {
+                new Way("own_hat", hat(hat, false), AT_HAT, i -> switch (i - stroke) {
+                    case -1 -> new Step.Do(new Beckon(hat));
+                    case 0 -> closeOn(hat);
+                    case 1 -> new Step.Do(Climb.onto(hat));
+                    default -> null;
+                }),
+                new Way("right_own_hat", hat(hat, true), AT_HAT, i -> switch (i - stroke) {
+                    case -1 -> new Step.Do(new Beckon(hat));
                     case 0 -> closeOn(hat);
                     case 1 -> new Step.Do(new Right(hat, "self_rescue"));
                     case 2 -> new Step.Wait(hat::steady, 60, "hat_settles");
@@ -148,11 +156,9 @@ public final class EscapeWater implements Intent {
                         i -> i > 0 && body.isInWaterOrBubble() && better(hat) ? null : press()));
     }
 
-    /** Close on its own hat: within a braid's beckoning reach it is drawn in with a stroke, beyond that swum to. */
+    /** The last stretch to its own hat: swum to the nearest rim, which the climb then holds on to. */
     private Step closeOn(PlacedHatEntity hat) {
-        var beckon = new Beckon(hat);
-        return beckon.check(body).ok() ? new Step.Do(beckon)
-                : new Step.Do(Swim.to(() -> ContactGeometry.nearestRim(body, hat).orElse(null), HAT_SWIM));
+        return new Step.Do(Swim.to(() -> hat.isRemoved() ? null : ContactGeometry.nearestRim(body, hat).orElse(null), HAT_SWIM));
     }
 
     /** One way out: whether it applies, what it shrinks, and its i-th step (null once it has no more). */
