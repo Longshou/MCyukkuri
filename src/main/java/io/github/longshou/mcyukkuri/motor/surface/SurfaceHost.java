@@ -18,6 +18,8 @@ public interface SurfaceHost {
 
     /** The host's pose for this tick: origin, hat unit, yaw and tilt. */
     HostFrame frame();
+    /** Pose after coasting for this many ticks without another drive; external contacts can still change it. */
+    default HostFrame frameAfter(int ticks) { return frame(); }
     /** Motor-owned tilt write; riders observe the resulting shared frame. */
     void pose(float roll, float pitch);
 

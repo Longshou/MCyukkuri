@@ -108,13 +108,36 @@ public final class HullAfloat implements PlacedHatBehavior {
     /** The floating frame at this water cell and tick, before any load or shake. */
     static HostFrame frame(Level level, Vec3 at, float hullScale, float yaw) {
         long now = level.getGameTime();
-        return frame(level, at, hullScale, yaw, HullPresentation.roll(now), HullPresentation.pitch(now), 0);
+        return frame(level, at, hullScale, yaw, HullPresentation.roll(now), HullPresentation.pitch(now), 0, now);
     }
-    private static HostFrame frame(Level level, Vec3 at, float hullScale, float yaw, float roll, float pitch, double sink) {
+    private static HostFrame frame(Level level, Vec3 at, float hullScale, float yaw, float roll, float pitch, double sink, long now) {
         double scale = hullScale / HullBounds.SCALE;
         double y = surface(level, at.x, at.y - 2, at.z) - HullPresentation.waterHeight(scale, roll, pitch)
-                + HullPresentation.bob(level.getGameTime()) * scale - sink;
+                + HullPresentation.bob(now) * scale - sink;
         return new HostFrame(new Vec3(at.x, y, at.z), hullScale / 16.0, (float) Math.toRadians(180 - yaw), roll, pitch);
+    }
+
+    private float uprightRoll(long now, double loadRatio) {
+        return HullPresentation.roll(now) + HullPresentation.rock(now,
+                shakes * Math.max(0, 1 - (now - shakeTick) / (double) HullTriggers.WINDOW))
+                + HullPresentation.loadRock(now, loadRatio);
+    }
+
+    private static Vec3 drift(Vec3 velocity, Vec3 drive) {
+        return velocity.scale(DRAG).add(drive.scale(1 - DRAG)).multiply(1, 0, 1);
+    }
+
+    @Override public HostFrame frameAfter(PlacedHatEntity hat, int ticks) {
+        var at = hat.position();
+        var velocity = hat.getDeltaMovement();
+        for (int i = 0; i < ticks; i++) {
+            velocity = drift(velocity, Vec3.ZERO);
+            at = at.add(velocity);
+        }
+        long then = hat.level().getGameTime() + ticks;
+        double load = hat.loadRatio();
+        return frame(hat.level(), at, hat.hullScale(), hat.getYRot(), uprightRoll(then, load),
+                HullPresentation.pitch(then), HullPresentation.loadSink(load) * scale(hat), then);
     }
 
     /** How deep (blocks) the water under the hull must be for it to float: shallower, its box rests on the floor. */
@@ -173,18 +196,15 @@ public final class HullAfloat implements PlacedHatBehavior {
                 "load warning ratio={} strength={} sink={}", loadRatio, warning, sink);
         hat.inverted(phase == Phase.INVERTED || phase == Phase.FLIPPING);
         float roll = switch (phase) {
-            case UPRIGHT -> HullPresentation.roll(now) + HullPresentation.rock(now,
-                    shakes * Math.max(0, 1 - (now - shakeTick) / (double) HullTriggers.WINDOW))
-                    + HullPresentation.loadRock(now, loadRatio);
+            case UPRIGHT -> uprightRoll(now, loadRatio);
             case ROCKING -> HullPresentation.rock(now, HullTriggers.SHAKES + 1);
             case FLIPPING -> HullPresentation.turn(flipFrom, 180, phaseTicks / HullPresentation.number("flip_ticks"));
             case INVERTED -> hat.roll();
         };
         float pitch = phase == Phase.INVERTED ? hat.pitch() : phase == Phase.UPRIGHT ? HullPresentation.pitch(now) : 0;
-        var frame = frame(hat.level(), hat.position(), hat.hullScale(), hat.getYRot() + turnBy, roll, pitch, sink);
+        var frame = frame(hat.level(), hat.position(), hat.hullScale(), hat.getYRot() + turnBy, roll, pitch, sink, now);
         Motor.hostPose(hat, hat.getYRot() + turnBy, frame.rollDeg(), frame.pitchDeg());
-        var v = hat.getDeltaMovement();
-        var motion = new Vec3(v.x * DRAG + drive.x * (1 - DRAG), frame.origin().y - hat.getY(), v.z * DRAG + drive.z * (1 - DRAG));
+        var motion = drift(hat.getDeltaMovement(), drive).add(0, frame.origin().y - hat.getY(), 0);
         var travel = new Contact(motion, motion);
         double reach = HullBounds.RADIUS * scale(hat) + 1;
         var nearby = hat.level().getEntities(hat, hat.getBoundingBox().inflate(reach),

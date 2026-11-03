@@ -7,6 +7,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.core.BlockPos;
 import net.minecraft.tags.FluidTags;
 import io.github.longshou.mcyukkuri.motor.Motor;
+import io.github.longshou.mcyukkuri.motor.surface.HostFrame;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -24,6 +25,8 @@ import net.minecraft.world.phys.AABB;
 public interface PlacedHatBehavior {
     /** Server tick: move the hull, separate what overlaps it (its one contact pass) and write its pose. */
     void tick(PlacedHatEntity hat);
+    /** Undriven motion observed by actions preparing to leave or cross this surface. */
+    default HostFrame frameAfter(PlacedHatEntity hat, int ticks) { return hat.frame(); }
     /** A real dry-to-water entry; vanilla excludes the first tick after creation or reload. */
     default void waterEntered(PlacedHatEntity hat, double speed) {}
 

@@ -267,12 +267,8 @@ final class Waters {
     static Vec3 ashore(YukkuriEntity body) { return ashore(body, body.position()); }
 
     /** The local brim spot of {@code hat} from which a dry stand is one hop away for {@code body}, or null: the ring spot nearest
-     *  the bank first, then the ones beside it, so a hull whose brim reaches over the bank still has a way off (kept for a few ticks). */
+     *  the bank first, then the ones beside it, so a hull whose brim reaches over the bank still has a way off. */
     static Vec3 brimAshore(PlacedHatEntity hat, YukkuriEntity body) {
-        return kept(hat.level(), key(hat.level(), "brim", hat.blockPosition(), body.getBbWidth()), () -> findBrimAshore(hat, body));
-    }
-
-    private static Vec3 findBrimAshore(PlacedHatEntity hat, YukkuriEntity body) {
         var edge = edges(body, hat.position(), 4, false).stream().findFirst().orElse(null);
         if (edge == null) return null;
         int exits = 0;
@@ -293,11 +289,6 @@ final class Waters {
 
     /** A dry stand within a hop of {@code from} (the body's actual position, or a supported spot it can hop to first). */
     static Vec3 ashore(YukkuriEntity body, Vec3 from) {
-        return kept(body.level(), key(body.level(), "ashore", Math.round(from.x * 4), Math.round(from.y * 4), Math.round(from.z * 4), body.getBbWidth()),
-                () -> findAshore(body, from));
-    }
-
-    private static Vec3 findAshore(YukkuriEntity body, Vec3 from) {
         int asked = 0;
         for (var e : edges(body, from, 2, false)) {
             var at = boardingStand(e, body);

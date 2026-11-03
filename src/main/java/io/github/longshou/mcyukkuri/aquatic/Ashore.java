@@ -141,7 +141,7 @@ final class Ashore implements Intent {
      *  and waits for it to drift in (the player's nudge too), saying why once. */
     @SafeVarargs
     private List<Supplier<Step>> fromBank(PlacedHatEntity hat, Supplier<Action> close, Supplier<Step>... after) {
-        var edge = reclaim ? Waters.bankEdge(owner, hat) : Waters.beside(hat, owner);
+        var edge = Waters.bankEdge(owner, hat);
         if (edge == null) {
             if (!AquaticLife.onWater(hat)) return beached(hat, close, after);
             return reclaim ? null : List.of(() -> waiting(hat, null));

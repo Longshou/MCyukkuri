@@ -185,6 +185,7 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
 
     @Override public Entity entity() { return this; }
     @Override public HostFrame frame() { return new HostFrame(position(), unit(), turn(), roll(), pitch()); }
+    @Override public HostFrame frameAfter(int ticks) { return ticks == 0 ? frame() : behavior().frameAfter(this, ticks); }
     public float roll() { return entityData.get(ROLL); }
     public float pitch() { return entityData.get(PITCH); }
     @Override public float roll(float partial) { return Mth.rotLerp(partial, rollO, roll()); }
