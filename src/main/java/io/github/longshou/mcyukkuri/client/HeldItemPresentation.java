@@ -9,7 +9,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 
 /** Presentation of a real synchronized stack; never creates an item or grants inventory. */
 final class HeldItemPresentation {
@@ -31,13 +30,17 @@ final class HeldItemPresentation {
         pose.mulPose(model.mouthAttachmentPose());
     }
 
-    static void paddle(YukkuriView entity,YukkuriModel model,PoseStack pose,MultiBufferSource buffers,int light,int overlay) {
-        if(!entity.visiblePaddleStick()||model.paddleAttachmentPose()==null)return;
-        pose.pushPose();pose.mulPose(model.paddleAttachmentPose());
-        // The vanilla sprite runs diagonally: align it with the track's +Y shaft and grip near its top.
-        pose.translate(0,-5/16f,0);pose.mulPose(Axis.ZP.rotationDegrees(45));
-        float scale=(float)Math.sqrt(.5);pose.scale(scale,scale,scale);
-        Minecraft.getInstance().getItemRenderer().renderStatic(new ItemStack(Items.STICK),ItemDisplayContext.NONE,
+    /** The real held stack at the running clip's grip; a body without a braid grip carries it at the mouth. */
+    static void held(ItemStack stack,YukkuriView entity,YukkuriModel model,PoseStack pose,MultiBufferSource buffers,int light,int overlay,float mouthScale) {
+        var grip=model.itemAttachmentPose();
+        pose.pushPose();
+        if(grip!=null){
+            pose.mulPose(grip);
+            // The item sprite runs diagonally: align it with the track's +Y shaft and grip near its top.
+            pose.translate(0,-5/16f,0);pose.mulPose(Axis.ZP.rotationDegrees(45));
+            float scale=(float)Math.sqrt(.5);pose.scale(scale,scale,scale);
+        } else {mouth(pose,model);pose.scale(mouthScale,mouthScale,mouthScale);}
+        Minecraft.getInstance().getItemRenderer().renderStatic(stack,ItemDisplayContext.NONE,
                 light,overlay,pose,buffers,entity.level(),entity.getId());
         pose.popPose();
     }

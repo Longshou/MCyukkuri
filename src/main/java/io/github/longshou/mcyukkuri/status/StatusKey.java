@@ -30,6 +30,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 
 /**
  * The register of scalar status entries. Each entry has one name ({@code group.name}), one reader that asks the
@@ -400,8 +401,8 @@ public enum StatusKey {
     BODY_ATTEMPTS("body", "attempts", 0, y -> IntentRunner.attemptsStatus(y), null),
     /** Every desire of the body's drives with its score and the facts it came from, the current intent and the failed ones. */
     AQUATIC_DESIRE("aquatic", "desire", 0, y -> Drive.status(y), null),
-    /** Whether the server's current presentation grips a real stick at the braid tuft. */
-    AQUATIC_STICK_IN_BRAID("aquatic", "stick_in_braid", 0, YukkuriEntity::visiblePaddleStick, null),
+    /** Whether the server presents a real stick in her grip: drawn in a braid's tuft, else at the mouth. */
+    AQUATIC_STICK_IN_BRAID("aquatic", "stick_in_braid", 0, y -> y.getHeldItem().is(Items.STICK), null),
     /** Its newest water incident from the shared ledger: the one answer of each helper and how that run ended (read only). */
     AQUATIC_RESCUE("aquatic", "rescue", 0, y -> AskLedger.server().outcome(y.getUUID()), null),
     GREET_CLICKS("social", "greet_clicks", 0, y -> y.social().greetClicks(), null),

@@ -3,7 +3,7 @@
 Reads the exported runtime clip (motion_corrections.json) and, with --against REV, the same clip from that git revision
 for comparison. The captain is the placement-fitted marisa skinned the way the game composes bones
 (aquatic_tools.palette), her hat hidden as aboard; the hull is the runtime prop at its hull_bounds scale with her on
-its seat, the stick the props.paddle keys, the tinted band the hull's fixed waterline (aquatic_tools.hull_forms). The
+its seat, the stick the props.item keys, the tinted band the hull's fixed waterline (aquatic_tools.hull_forms). The
 strip shows each braid joint's fore-aft bend over one stroke (blue forward, red aft): a wave running down the braid reads
 as diagonal bands. Flat-shaded orthographic Pillow render; nothing launches the game. Writes
 .local/previews/aquatic-paddle/paddle.png (MCYUKKURI_PREVIEWS overrides the previews root).
@@ -54,7 +54,7 @@ class Captain:
             pts = (np.einsum('nij,nj->ni', M[a], hv)*(1-w)+np.einsum('nij,nj->ni', M[b], hv)*w)[:, :3]
             out += [(kind, pts[k:k+3]) for k in range(0, len(pts)-2, 3)]
         if 'props' not in self.clip: return out
-        k = TOOLS['sample'](self.clip['props']['paddle']['keys'], t); A = np.eye(4); A[:3, 3] = np.array(self.model['bones'][self.tip]['pivot'])+k[:3]
+        k = TOOLS['sample'](self.clip['props']['item']['keys'], t); A = np.eye(4); A[:3, 3] = np.array(self.model['bones'][self.tip]['pivot'])+k[:3]
         R = np.eye(4); R[:3, :3] = TOOLS['euler'](k[3:]); G = M[self.tip]@A@R
         top, end = (G@np.r_[0, length[0], 0, 1])[:3], (G@np.r_[0, -length[1], 0, 1])[:3]
         d = (end-top)/np.linalg.norm(end-top); u = np.cross(d, [0, 1, 0]); u = u/np.linalg.norm(u)*.35; v = np.cross(d, u)
@@ -150,7 +150,7 @@ def main():
             x = 30+int(t0/now.duration*width); d.line((x, y+20, x, y+24+6*20), fill=INK, width=2); d.text((x+4, y+26+6*20), beat, font=P.preview_font(13), fill=MUTED)
     out = Image.new('RGB', (190+4*cell[0], 70+len(rows)*cell[1]+board.height), BG); d = ImageDraw.Draw(out)
     d.text((10, 6), f'划桨：辫子伸出越过帽檐、木棍入水（{args.form}，水线 {form["water"]:.2f}，离线渲染，非游戏实录）', font=P.preview_font(22), fill=INK)
-    d.text((10, 40), '运行片段 boat_paddle 的骨骼轨道与 props.paddle 关键帧（游戏同读）；运行船体道具按 hull_bounds 缩放，船长坐在座位上；浅蓝为水线以下', font=P.preview_font(14), fill=MUTED)
+    d.text((10, 40), '运行片段 boat_paddle 的骨骼轨道与 props.item 关键帧（游戏同读）；运行船体道具按 hull_bounds 缩放，船长坐在座位上；浅蓝为水线以下', font=P.preview_font(14), fill=MUTED)
     y = 70
     for name, cells in rows:
         d.text((8, y+cell[1]//2-10), name, font=P.preview_font(16), fill=INK)

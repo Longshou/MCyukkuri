@@ -3,8 +3,8 @@
 Imported by author.py (compile_clips). Every number that the game or a preview needs at run time is written into the
 exported clip itself, so both read the same data:
 
-- ``props.paddle``: the twig prop ``paddle_twig`` placed in the frame of ``bone`` (the braid tuft, ``hand_right_tip``)
-  at that bone's pivot. Keys are ``[t, px, py, pz, rx, ry, rz]`` in model units and degrees, rotation composed
+- ``props.item``: the one held stack (the twig prop) placed in the frame of ``bone`` (the braid tuft,
+  ``hand_right_tip``) at that bone's pivot; a rowing clip and the braid's own hold pose share this slot. Keys are ``[t, px, py, pz, rx, ry, rz]`` in model units and degrees, rotation composed
   Rz*Ry*Rx like every bone track; the prop's own ``socket`` (its grip) is the origin that the keys place.
 - ``markers``: named clip seconds (``power_start``/``power_end`` for the stroke, contact beats for the others).
 - ``contacts``: where a body touches something, as a bone and a rest-space point on it (``mouth`` uses the game's
@@ -655,7 +655,7 @@ def posed(M, points):
 
 
 def prop_sticks(model, tracks, prop):
-    """The twig as the game places it from the props.paddle keys: per key its grip and unit axis toward the blade."""
+    """The twig as the game places it from the props.item keys: per key its grip and unit axis toward the blade."""
     tip = bone_index(model, prop['bone']); rest = np.array(model['bones'][tip]['pivot'], float); out = []
     for k in prop['keys']:   # the tuft joint's frame times the key
         M = palette(model, tracks, k[0]); A = M[tip]@np.r_[np.c_[np.eye(3), rest], [[0, 0, 0, 1]]]
@@ -664,7 +664,7 @@ def prop_sticks(model, tracks, prop):
 
 
 def stroke_gate(model, action, samples, tracks, c, prop=None):
-    """Fail a water stroke (boat_paddle, bank_beckon, water_beckon) whose loop does not close (every track's and the props.paddle
+    """Fail a water stroke (boat_paddle, bank_beckon, water_beckon) whose loop does not close (every track's and the props.item
     keys' last key on its first), whose braid below its root lock sinks more than TOUCH deeper into her body than at rest (its
     upper lobes already lie into the body surface there; along the outward normal at the nearest body point) or whose rendered
     twig (prop keys, less `twig_radius`) enters her body. A braid stroke (`stroke`) also fails unless its deepest point is under
@@ -722,7 +722,7 @@ def extras(model, action, samples, tracks, c):
     if 'contacts' in c: fields['contacts'] = json.loads(json.dumps(c['contacts']))
     if action in PADDLE_CLIPS and 'hand_right_tip' in names and 'paddle' in c:
         braid, prop, sticks = paddle_tracks(model, action, samples, tracks, c)
-        more += braid; fields['props'] = {'paddle': prop}
+        more += braid; fields['props'] = {'item': prop}
         fields.setdefault('markers', {})
         hull_gate(model, action, samples, tracks+braid, sticks, c)
     if 'braid_path' in c and braid_chain.chain(names):
@@ -733,7 +733,7 @@ def extras(model, action, samples, tracks, c):
         fields.setdefault('contacts', {})['braid_grip'] = {'bone': 'hand_right_tip', 'point': grip, 'kind': 'BRAID_GRIP'}
         held_gate(model, action, samples, tracks+more, sticks, c)
     if action in ('boat_paddle', 'bank_beckon', 'water_beckon') and 'hand_right_tip' in names:
-        stroke_gate(model, action, samples, tracks+more, c, fields.get('props', {}).get('paddle'))
+        stroke_gate(model, action, samples, tracks+more, c, fields.get('props', {}).get('item'))
     rotation = None if action in PADDLE_CLIPS or 'braid_path' in c else [tip_rotation(action, t, c) for t in samples]
     if rotation and rotation[0] is not None and 'hand_right_tip' in names:
         more.append({'bone': names['hand_right_tip'], 'channel': 'rotation',
@@ -773,7 +773,7 @@ def exported(action):
     rev = _MODEL['clips'][model['id']]
     clip = rev['clips'][action]; cfg = json.loads((Path(__file__).resolve().parent/'recipe.json').read_text(encoding='utf-8'))
     tracks = [dict(t, bone=names[rev['bone_names'][t['bone']]]) for t in clip['tracks'] if rev['bone_names'][t['bone']] in names]
-    prop = clip.get('props', {}).get('paddle'); sticks = None
+    prop = clip.get('props', {}).get('item'); sticks = None
     if prop:
         samples = [k[0] for k in prop['keys']]; sticks = prop_sticks(model, tracks, prop)
     else:

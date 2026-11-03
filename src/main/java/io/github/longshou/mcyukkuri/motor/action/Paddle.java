@@ -2,7 +2,6 @@ package io.github.longshou.mcyukkuri.motor.action;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriAction;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
-import io.github.longshou.mcyukkuri.headwear.PlacedHatEntity;
 import io.github.longshou.mcyukkuri.motor.Action;
 import io.github.longshou.mcyukkuri.motor.Attach;
 import io.github.longshou.mcyukkuri.motor.AttachState;
@@ -55,16 +54,6 @@ public final class Paddle implements Action {
     public Paddle(Supplier<Vec3> target, DoublePredicate arrived) { this.target = target; this.arrived = arrived; }
 
     @Override public String id() { return ID; }
-
-    /** A published stick-use pose grips a real available stick. */
-    public static boolean stickGrip(YukkuriEntity body) {
-        String clip = body.getAnimationId();
-        boolean grips = clip.equals(CLIP) || clip.equals(YukkuriAction.HAT_BRIM_OFFER.id())
-                || clip.equals(YukkuriAction.BOAT_NUDGE_YOUNG.id());
-        return grips && (body.life().mouth().is(Items.STICK)
-                || body.life().custody().kit().is(Items.STICK)
-                || body.getVehicle() instanceof PlacedHatEntity hat && hat.kit().is(Items.STICK));
-    }
 
     @Override public Feasibility check(YukkuriEntity body) {
         if (target.get() == null) return Feasibility.of(Reason.TARGET_GONE, 0, "target_gone");

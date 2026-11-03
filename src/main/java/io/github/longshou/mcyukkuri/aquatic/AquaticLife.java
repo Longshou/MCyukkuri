@@ -61,11 +61,8 @@ public final class AquaticLife {
     /** On dry footing, not riding anything and not in the water. */
     static boolean ashore(YukkuriEntity y) { return !y.isPassenger() && !y.isInWaterOrBubble() && y.onGround(); }
 
-    /** Her stick: tucked in the worn hat, or kept by the hat she set down. */
-    static boolean stick(YukkuriEntity y) {
-        var hat = hat(y);
-        return y.life().custody().kit().is(Items.STICK) || hat != null && hat.kit().is(Items.STICK);
-    }
+    /** Her stick: the kit stack she holds, in the worn hat or in the hat she set down. */
+    static boolean stick(YukkuriEntity y) { return y.hatKit().is(Items.STICK); }
 
     /** Keeps one picked-up stick where her hat is: the set-down hat, else the worn one. */
     static boolean stow(YukkuriEntity y, ItemStack one) {

@@ -2,12 +2,10 @@ package io.github.longshou.mcyukkuri.client;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import io.github.longshou.mcyukkuri.MCYukkuri;
-import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.registry.ModEntities;
 import io.github.longshou.mcyukkuri.registry.ModItems;
 import io.github.longshou.mcyukkuri.headwear.PlacedHatEntity;
 import io.github.longshou.mcyukkuri.headwear.PlacedHatView;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRenderer;
@@ -15,9 +13,6 @@ import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
-import net.minecraft.world.item.ItemDisplayContext;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
 import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
@@ -53,14 +48,7 @@ public final class PlacedHatRenderer extends EntityRenderer<PlacedHatEntity> {
         pose.mulPose(new Quaternionf().rotationY((180-Mth.rotLerp(partial,hat.previousYaw(),hat.getYRot()))*Mth.DEG_TO_RAD)
                 .rotateZ(hat.roll(partial)*Mth.DEG_TO_RAD).rotateX(hat.pitch(partial)*Mth.DEG_TO_RAD));
         for(var layer:LAYERS){pose.pushPose();layer.render(hat,partial,pose,buffers,light);pose.popPose();}
-        // The hat still owns the stick between strokes; a braid presentation temporarily replaces this one resting copy.
-        if(hat.kitPresent()&&source.getPassengers().stream().noneMatch(p->p instanceof YukkuriEntity y&&y.visiblePaddleStick())){
-            var profile=hat.profile();double x=(profile.mouth(0)+profile.reach(0))*.5;
-            pose.pushPose();pose.translate(x*unit,profile.surface(x,0)*unit+.03,0);
-            Minecraft.getInstance().getItemRenderer().renderStatic(new ItemStack(Items.STICK),ItemDisplayContext.GROUND,
-                    light,OverlayTexture.NO_OVERLAY,pose,buffers,hat.level(),hat.getId());
-            pose.popPose();
-        }
+        // The kit is the owner's own stick and is drawn in her grip, not a second time inside the hollow.
         pose.translate(0,hat.profile().top()*unit,0);
         pose.scale(scale,scale*(float)hat.profile().squash(),scale);
         // The hull is the owner's own hat: its wear shows as the same square-cell damage as when worn.

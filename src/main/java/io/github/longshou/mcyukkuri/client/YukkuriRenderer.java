@@ -146,6 +146,7 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
                 else if (behavior.equals(Behaviors.WAKE)) pose.scale(1, .96f + Math.min(1, phaseTicks/20)*.04f, 1);
             }
             model.setCarrying(!entity.getCarriedItem().isEmpty());
+            model.setHeldItem(!entity.getHeldItem().isEmpty(),entity.vehicleHat()!=null);
             model.setMouthHolding(HeldItemPresentation.closedGrip(entity)||!entity.getMouthBodyFood().isEmpty()||ParentCarry.mouthCarrying(entity));
             configureCareContact(entity,behavior,partialTick,model);
             var delivery=LiveBirthRenderer.prepare(entity,model,partialTick);
@@ -182,7 +183,6 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
                 // places that same stack in the child's mouth; food never travels as an independent projectile.
                 var held=heldIndex==0?entity.getMouthItem():entity.getCarriedItem();
                 if(held.isEmpty())continue;
-                if(heldIndex==0&&held.is(Items.STICK)&&entity.visiblePaddleStick())continue;
                 boolean mash=InfantFood.isMash(held);
                 // The parent's real pending twig is mouth-held until the server hands that same item to the child.
                 var grip=heldIndex==1&&!behavior.equals(Behaviors.FAMILY_CHEW)&&!mash?model.gripPoint():null;
@@ -220,7 +220,7 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
                         pose,buffers,entity.level(),entity.getId());
                 pose.popPose();
             }
-            HeldItemPresentation.paddle(entity,model,pose,buffers,packedLight,overlay);
+            if(!entity.getHeldItem().isEmpty())HeldItemPresentation.held(entity.getHeldItem(),entity,model,pose,buffers,packedLight,overlay,presentation.foodScale());
             if(!operated&&HeldItemPresentation.kanroken(entity,behavior)){
                 // A Myon's stick sword rides crosswise in the free mouth, on the same mouth pose as food (rare/MyonLife).
                 pose.pushPose();HeldItemPresentation.mouth(pose,model);

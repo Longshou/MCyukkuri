@@ -1,7 +1,7 @@
 """Offline sheet: the two water strokes against their real contact geometry, four beats each (catch, mid pull, finish, mid
 recovery). bank_beckon: Marisa ashore at a flush bank (the bank block to the clip's `stroke.edge`, the tinted band its
 waterline `stroke.water`), seen from her braid side and from the water; boat_paddle: the captain on her hull's seat, stick
-from the props.paddle keys, the band the hull's fixed waterline (aquatic_paddle_preview). Reads the exported runtime clips
+from the props.item keys, the band the hull's fixed waterline (aquatic_paddle_preview). Reads the exported runtime clips
 (motion_corrections.json); flat-shaded orthographic Pillow render, nothing launches the game. Writes
 .local/previews/water-strokes/current.png (MCYUKKURI_PREVIEWS overrides the previews root).
 
