@@ -42,9 +42,7 @@ public final class HullBounds {
         var profile = HullProfile.of(HullProfile.BASIN);
         double scale = hullScale / SCALE, unit = profile.measuredUnit();
         var body = BodyFootprint.of(asset, width / scale / unit, height / scale / unit, yaw);
-        double radius = RADIUS / unit - width / scale / unit / 4;
-        return IntStream.range(0, 72).mapToObj(i -> new Vec(radius * Math.cos(i * Math.PI / 36), 0,
-                        radius * Math.sin(i * Math.PI / 36)))
+        return brimStops().stream().map(p -> p.scale(1 / unit))
                 .map(p -> new Vec(p.x(), profile.support(p.x(), p.z(), body), p.z())).toList();
     }
 

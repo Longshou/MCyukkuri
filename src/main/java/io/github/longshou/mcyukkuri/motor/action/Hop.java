@@ -23,7 +23,6 @@ import io.github.longshou.mcyukkuri.motor.surface.SurfaceHost;
 import io.github.longshou.mcyukkuri.motor.surface.HostFrame;
 import io.github.longshou.mcyukkuri.motor.surface.SeatTarget;
 import io.github.longshou.mcyukkuri.motor.surface.Floor;
-import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.List;
 import java.util.Comparator;
@@ -34,7 +33,8 @@ import net.minecraft.world.phys.Vec3;
 /** One collision-clear ballistic path; a seat's world point is sampled at take-off and attached at contact. */
 public final class Hop implements Action {
     public static final String ID = "hop";
-    private static final String CLIP = "hop_leg";
+    private static final String CLIP = "hop";
+    private static final int TAKEOFF_FALLBACK = 4;
     static final int SETTLE = 10;
     private static final double TOUCH = .05;
     private final Vec3 target;
@@ -57,8 +57,6 @@ public final class Hop implements Action {
     private long startTick;
     private Face seatingTurn;
     private SeatTarget rest;
-    private Face bearing;
-    private long landedAt = -1;
 
     public Hop(Vec3 target) { this.target = target; seatHost = null; }
     public Hop(SurfaceHost host) { seatHost = host; target = null; }
@@ -159,7 +157,7 @@ public final class Hop implements Action {
             if (anchor != null && !following) path = List.of(new HopPath.Leg(vec(destination), plan));
             return new Flight(Feasibility.pass(), candidate, plan, following ? leg + 1 < path.size() : entering && !brimOnly);
         }
-        if (anchor != null && !following && target == null) {
+        if (anchor != null && !following) {
             var stops = anchor.hopStops(body).stream().filter(p -> new SeatTarget(anchor, p).available(body))
                     .map(p -> vec(p.scale(anchor.frame().unit()))).toList();
             path = HopPath.solve(vec(origin), vec(destination), stops, (a, b) -> arc(body, a, anchor, swept, b, delay));
@@ -176,8 +174,7 @@ public final class Hop implements Action {
                 destination.y - origin.y, ability.hopHeight(), ability.hopReach(), obstruction)), null, null);
     }
 
-    static int takeoffTicks() { return marker("takeoff"); }
-    private static int marker(String name) { return Math.round(ClipMarkers.of(CLIP).markers().get(name) * 20); }
+    static int takeoffTicks() { return ClipMarkers.of(CLIP).ticks("takeoff", TAKEOFF_FALLBACK); }
     @Override public void start(YukkuriEntity body) {
         departure = body.getVehicle() instanceof SurfaceHost host ? host : null;
         aboard = departure != null && departure == seatHost;
@@ -188,23 +185,7 @@ public final class Hop implements Action {
 
     @Override public Progress tick(YukkuriEntity body) {
         if (rest != null) return finishSeating(body);
-        if (landedAt >= 0) {
-            long left = marker("settled") - marker("land") - (body.level().getGameTime() - landedAt);
-            return left > 0 ? new Running(left, TravelMode.CONSUMED) : nextLeg(body);
-        }
         if (!launched) {
-            if (crouch == 0) {
-                if (bearing == null) {
-                    var plan = solve(body, 0);
-                    if (!plan.ready().ok()) return Outcome.of(plan.ready().reason(), plan.ready().shortfall(), plan.ready().detail());
-                    var to = plan.seat() == null ? target : plan.seat().world();
-                    bearing = new Face(SurfaceApproach.yaw(body.position(), to));
-                    bearing.start(body);
-                }
-                var facing = bearing.tick(body);
-                if (!(facing instanceof Outcome.Done)) return facing;
-                startTick = body.level().getGameTime();
-            }
             if (++crouch < takeoff) return new Running(takeoff - crouch, TravelMode.CONSUMED);
             var launch = solve(body, 0);
             var ready = launch.ready();
@@ -220,11 +201,8 @@ public final class Hop implements Action {
                 Motor.takeoff(body, new Vec3(impulse.x(), impulse.y(), impulse.z()), "hop_takeoff");
             }
             launched = true;
-            GameplayLog.event(body, "body", "hop leg takeoff from={} to={} place={}", GameplayLog.at(body.position()),
-                    GameplayLog.at(seat == null ? target : seat.world()), seat == null ? "bank" : seat.kind());
             return new Running(flight.size(), TravelMode.CONSUMED);
         }
-        startTick = body.level().getGameTime() - marker("land");
         if (seatHost != null && seatHost.entity().isRemoved()) return Outcome.of(Reason.TARGET_GONE, 0, "host_gone");
         if (aboard && body.getVehicle() != seatHost.entity()) return new Outcome.Interrupted("left_host");
         // A sampled endpoint is not ground contact. Let the final downward velocity meet the real floor before handing off.
@@ -262,12 +240,6 @@ public final class Hop implements Action {
     }
 
     private Progress landed(YukkuriEntity body) {
-        landedAt = body.level().getGameTime();
-        startTick = landedAt - marker("land");
-        Motor.velocity(body, body.isPassenger() ? Vec3.ZERO : new Vec3(0, -Ballistic.GRAVITY * Ballistic.VERTICAL_DRAG, 0), "hop_landed");
-        return new Running(marker("settled") - marker("land"), TravelMode.CONSUMED, true);
-    }
-    private Progress nextLeg(YukkuriEntity body) {
         if (!more) {
             if (seatHost == null || target != null || brimOnly) return new Outcome.Done("at=" + GameplayLog.at(body.position()));
             rest = seatHost.restSpot(body);
@@ -280,8 +252,6 @@ public final class Hop implements Action {
         if (!aboard) { aboard = true; path = null; leg = 0; }
         else leg++;
         launched = false;
-        landedAt = -1;
-        bearing = null;
         crouch = air = 0;
         startTick = body.level().getGameTime();
         return new Running(takeoff, TravelMode.CONSUMED, true);
@@ -301,10 +271,9 @@ public final class Hop implements Action {
     }
 
     @Override public boolean interruptible() { return !launched; }
-    @Override public boolean airborne() { return launched && landedAt < 0; }
+    @Override public boolean airborne() { return launched; }
     @Override public MotionPose pose() {
         if (seatingTurn != null) return seatingTurn.pose();
-        if (bearing != null && crouch == 0) return bearing.pose();
         return rest != null ? MotionPose.NONE : new MotionPose(CLIP, startTick, false);
     }
     @Override public String startDetail() { return "from=" + GameplayLog.at(from) + " to=" + (seatHost == null ? GameplayLog.at(target) : seatHost.entity().getUUID()); }

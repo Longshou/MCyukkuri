@@ -229,7 +229,7 @@ public final class ParentCarry {
     /** A child sits on the brim or hangs from the braid: the braid cannot carry the hat on or off. */
     public static boolean braidBusy(YukkuriView carrier) {
         if (!carrier.isVehicle()) return false;
-        for (var rider : carrier.passengerViews()) if (hold(carrier, rider).reach() == Reach.BRAID) return true;
+        for (var rider : carrier.passengerViews()) if (hold(carrier, rider) != Hold.HEAD && hold(carrier, rider).reach() == Reach.BRAID) return true;
         return false;
     }
     /** A child sits on the brim: the carrier keeps a steady idle or walk, the brim pose the server places it on (not while the braid is still setting one there). */
@@ -502,6 +502,7 @@ public final class ParentCarry {
         var fluid = child.level().getFluidState(water);
         double floor = Math.max(carrier.getY(), fluid.isEmpty() ? child.getY() : water.getY() + fluid.getHeight(child.level(), water));
         var host = carryHost(carrier, child);
+        if (host != null) floor = Math.max(floor, carrier.getY() + host.container().rimY() - host.container().floorY());
         double surface = host == null ? floor : Occupancy.surfaceUnder(host, child.getBbWidth(), child.position().add(0, 1, 0));
         float high = (float) ((CarryGeometry.liftHeight(child.getY(), floor, surface, child.getBbHeight()) - carrier.getY()) * 16 / s);
         var raised = worldAt(carrier, carrier.bodyYaw(), new Vector3f(from.x, high, from.z));

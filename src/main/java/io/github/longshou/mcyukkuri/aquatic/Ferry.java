@@ -111,10 +111,6 @@ final class Ferry {
      *  same stand is reachable; the next derivation performs the ordinary hop off the host. */
     static Supplier<Step> hopAshore(YukkuriEntity body) {
         return () -> {
-            if (body.getVehicle() instanceof PlacedHatEntity hat && hat.insideFloor(hat.riders().local(body.getUUID()))) {
-                var brim = Waters.brimAshore(hat, body);
-                if (brim != null) return act(new Hop(hat, brim));
-            }
             var at = Waters.ashore(body);
             if (at != null) return act(new Hop(at));
             if (!(body.getVehicle() instanceof PlacedHatEntity hat)) return null;

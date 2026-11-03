@@ -91,7 +91,7 @@ final class PlayAboard implements Intent {
     }
 
     static boolean onBrim(YukkuriEntity body, PlacedHatEntity hat) {
-        return !hat.settled(body);
+        return !hat.insideFloor(hat.riders().local(body.getUUID()));
     }
 
     static String fear(YukkuriEntity body, PlacedHatEntity hat) {

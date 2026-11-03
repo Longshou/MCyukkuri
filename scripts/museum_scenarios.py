@@ -2345,12 +2345,12 @@ pond('cargo', '帽底储粮·计数与原地取食', '帽底储粮',
                 readout=[f'yukkuri status {sel("a")} raw', f'yukkuri status {sel("full")} raw']))
 
 pond('hat_crowd', '按体型入座·满座与超重', '满座与超重翻船',
-     '一顶帽船坐着亲油与两只不同大小的赤油，岸上的子油没有座位可上；另一顶帽船坐着亲油和一只 0.36 体型的子油。身体按实际支撑落位，转身或成长可互相挤动，储粮不占身体位置。第二只子油没有自己的木棍而推迟初航，继续留在亲船成长，先进入载重警戒，最终超重真实翻覆，不再因尺寸刚越线就返岸离船',
+     '一顶帽船坐着亲油与两只不同大小的赤油，按舱内、头顶、帽檐顺序找真实承托，岸上的子油按余量自行尝试上船；另一顶帽船坐着亲油和一只 0.36 体型的子油。身体按实际支撑落位，转身或成长可互相挤动，储粮不占身体位置。第二只子油没有自己的木棍而推迟初航，继续留在亲船成长，先进入载重警戒，最终超重真实翻覆，不再因尺寸刚越线就返岸离船',
      '约 12–16 分钟，建议倍速',
      [yk('marisa', bank_dx(0), 0, 'a', aquatic=True, yaw=-90, lead=True, uuid=uid('hat_crowd', 'a'),
          **{**pair_ready(), 'energy': 20}), *_babies(),
       yk('marisa', bank_dx(0)-1, 0, 'excess', aquatic=True, fam=_seat_family(), uuid=uid('hat_crowd', 'excess'),
-         kin=f'Mother:{uuid_nbt(uid("hat_crowd", "a"))}', label='满座留岸', **pair_ready()),
+         kin=f'Mother:{uuid_nbt(uid("hat_crowd", "a"))}', label='岸边候船', **pair_ready()),
       yk('marisa', bank_dx(6), 6, 'grow', aquatic=True, yaw=-90, lead=True, uuid=uid('hat_crowd', 'grow'),
          **{**pair_ready(), 'energy': 20}),
       yk('marisa', bank_dx(6), 7, 'g1', aquatic=True, fam=_seat_family(.36, 159100, 72000), uuid=uid('hat_crowd', 'g1'),
@@ -2360,7 +2360,7 @@ pond('hat_crowd', '按体型入座·满座与超重', '满座与超重翻船',
      late=[f'execute as {sel("grow")} on vehicle run tag @s add seat_reload'],
      capture=dict(shots=(1, 40, 600, 15000), sequences=((600, 15000, 300), (8400, 9600, 4))),
      note='先读第一顶帽 Riders 与 Passengers 的 UUID、坐标，保存退出后继续同一世界再读，位置不重排；冒烟会卸载再加载场地区块核对。'
-          '满座留岸记 board refused hat=… reason=no_room size=…（共享入座判定拒绝时欲望直接为 0，不再尝试跳船）；第二顶帽先记 load warning 并可见降低水线、加强轻摇，超载后才记 capsized cause=too_heavy，亲油与孩子真实落水。'
+          '初态逐只记 scenario place 的 CABIN／HEAD／BRIM；三类承托及载重都按共享入座判定。第二顶帽先记 load warning 并可见降低水线、加强轻摇，超载后才记 capsized cause=too_heavy，亲油与孩子真实落水。'
           '孩子落水后亲油接手救援；划近后按实际座位或岸边选择目的地，无可达目的地就如实中断，孩子自行上岸不算救起且不会再被接纳。'
           '0.36 子油没有自己的木棍，初航被推迟；两顶帽各八份苹果是真实有限的成长物资，成长窗覆盖 85% 警戒带到真实超载（其余乘员体重超过 (1.05×S)³），不以刚到 S 作为翻船时刻；整窗不得有人饿死。',
      reads=[('读赤油帽', f'execute as {sel("a")} on vehicle run data get entity @s Riders'),
@@ -2368,7 +2368,7 @@ pond('hat_crowd', '按体型入座·满座与超重', '满座与超重翻船',
      smoke=dict(ticks=15000, reload=(60, '@e[tag=seat_reload,limit=1]'),
                 expect=[r'\[hat\][^\n]* scenario afloat prepared [^\n]*young=2\b[^\n]*food=8\b',
                         r'\[hat\][^\n]* scenario afloat prepared [^\n]*young=1\b',
-                        rf'\[aquatic\][^\n]*uuid={_uuid_text("hat_crowd", "excess")}[^\n]* board refused [^\n]*reason=no_room size=',
+                        r'\[hat\][^\n]* scenario place [^\n]*place=CABIN\b[\s\S]*\[hat\][^\n]* scenario place [^\n]*place=HEAD\b[\s\S]*\[hat\][^\n]* scenario place [^\n]*place=BRIM\b',
                         r'\[hat\][^\n]* load warning ratio=[\s\S]*\[hat\][^\n]* capsized cause=too_heavy\b[^\n]*thrown=[1-9]\b',
                         rf'\[aquatic\][^\n]*uuid={_uuid_text("hat_crowd", "grow")}[^\n]* rescue start faller={_uuid_text("hat_crowd", "g1")}\b',
                         rf'\[water\][^\n]*uuid={_uuid_text("hat_crowd", "g1")}[^\n]* phase=(?:STRUGGLE|EXHAUSTED) -> RECOVER\b'],
@@ -2527,14 +2527,14 @@ pond('afloat_stick', '水上缺棍·划去取漂浮木棍', '漂浮木棍亲油�
                 forbid=[r'\[body\][^\n]* invariant\b', r'\[hat\][^\n]* capsized\b', r'\[body\][^\n]* death settled into remains']))
 
 pond('kid_boat_play', '赤油在亲帽上玩耍', '拨粮·受惊缩身',
-     '亲油与两只赤油已坐在静水亲帽里，亲油初始背向船首，帽里有一根木棍、四份苹果。一只赤油饥饿，亲油取食喂幼时会转身：看赤油让位、帽壁上的赤油下滑；玩家从岸边看赤油拨弄储粮，空手右击赤油看问候。雷雨、附近捕食种或冲向帽船的玩家会吓得赤油原地缩身，平静后继续玩耍；赤油不会跳上帽檐或模仿划桨',
+     '亲油在静水亲帽的船长位置面朝船首，两只赤油按实际空间分在舱内与头顶，帽里有一根木棍、四份苹果。一只赤油饥饿；玩家从岸边看舱内赤油拨弄储粮，空手右击赤油看问候。雷雨、附近捕食种或冲向帽船的玩家会吓得舱内赤油原地缩身，平静后继续玩耍；头顶乘员不做水上动作，赤油不会跳上帽檐或模仿划桨',
      '约 2–3 分钟；可用本场天气按钮观察受惊',
      [yk('marisa', bank_dx(0), 0, 'a', aquatic=True, yaw=-90, lead=True, friendliness=100,
          uuid=uid('kid_boat_play', 'a'), **pair_ready()),
       _aquatic_young('kid_boat_play', 'c1', bank_dx(1), 1, 'baby', 'a', also=('crew',)),
       _aquatic_young('kid_boat_play', 'c2', bank_dx(2), 2, 'baby', 'a', also=('crew',)),
       f'yukkuri status set {sel("c1")} needs.nutrition 20',
-      afloat('a', water_at(0, 3), True, sel_all('crew'), food=4, stick=True, facing=165)],
+      afloat('a', water_at(0, 3), True, sel_all('crew'), food=4, stick=True)],
      note='读 hat.float 的 play：拨粮开始次数、fear_* 原因次数；读 social.greet_clicks 看点击次数，body.attach 看实际帽内坐标。'
           '拨粮不扣粮，饿后才走原地进食；受惊时赤油在座位原地缩身，没有帽檐短跳、学划或离座回座。'
           '点击赤油与点击空帽檐不同：前者问候，后者摇船；准备入座不算行为成功。' + _DESIRE_NOTE,
@@ -2548,8 +2548,8 @@ pond('kid_boat_play', '赤油在亲帽上玩耍', '拨粮·受惊缩身',
                         r'\[aquatic\][^\n]* play kind=kid_poke_stores start\b',
                         r'\[aquatic\][^\n]* play kind=kid_poke_stores end result=DONE\b',
                         r'\[aquatic\][^\n]* play kind=kid_hide_behind start fear=thunder\b',
-                        r'\[hat\][^\n]* turn push rider=', r'\[hat\][^\n]* settled rider=',
-                        r'\[hat\][^\n]* turn via_hull body='],
+                        r'\[hat\][^\n]* scenario place [^\n]*place=CABIN\b',
+                        r'\[hat\][^\n]* scenario place [^\n]*place=HEAD\b'],
                 forbid=[r'\[body\][^\n]* invariant\b', r'\[aquatic\][^\n]* play fall_in\b',
                         r'\[aquatic\][^\n]* play kind=kid_(?:brim_splash|mimic_paddle)\b',
                         r'\[aquatic\][^\n]* play kind=kid_hide_behind end result=(?:EXHAUSTED|LOST)\b'],
@@ -2627,16 +2627,25 @@ pond('rescue_infant_full', '亲油用辫子救起落水赤油', '辫救落水赤
 
 
 pond('rescue_no_seat', '满船无座时托幼送岸', '满船托幼送岸',
-     '亲帽已有两只赤油，第三只尚未学爬的新生赤油在离岸约九格的开阔水面上漂着，离最近的干岸七格开外，自己爬不出去；亲油划近后发现座位已满，将它托起、带着跳到近岸干地，再放下。必须看见真实接起、离船和放下，孩子自己上岸不算救起',
+     '亲帽已有十只赤油，舱内、头顶、帽檐均有真实乘员，载重余量不足再载一只新生赤油。尚未学爬的新生赤油在离岸约九格的开阔水面上漂着，离最近的干岸七格开外，自己爬不出去；亲油划近后发现座位已满，将它托起、带着跳到近岸干地，再放下。必须看见真实接起、离船和放下，孩子自己上岸不算救起',
      '约 30–90 秒',
      [],
      late=[yk('marisa', bank_dx(0), 0, 'a', aquatic=True, yaw=90, lead=True, uuid=uid('rescue_no_seat', 'a'), **pair_ready()),
-           *_babies(), afloat('a', water_at(0, 1.45), True, sel_all('crew'), stick=True),
+           *_babies(),
+           *[yk('marisa', bank_dx(0) - 2, i - 4, f'full{i}', stage='baby', aquatic=True,
+                childhood=CHILDHOOD_CRAWLING_READY, also=('crew',),
+                fam=_seat_family(.16 if i == 0 else .19, 22909 if i == 0 else 68727, 36000), **pair_ready())
+             for i in range(8)],
+           f'execute as {sel_all("crew")} run yukkuri status set @s needs.nutrition 40',
+           afloat('a', water_at(0, 1.45), True, sel_all('crew'), stick=True),
            _aquatic_young('rescue_no_seat', 'c1', bank_dx(0) + 9.5, 0, 'baby', 'a', dy=-.5,
                           fam=_seat_family(.08, 0, 0), childhood='Version:2,Newborn:1b,Landed:1b')],
-     note=_INCIDENT_NOTE + '满座由两只真实乘员占据；新生赤油在亲帽已经放下之后才入水，离岸九格、四周七格内无干岸（它自己找不到可以爬的岸，只能朝亲帽漂），船长座位朝岸。观察 grab → hop → release → rescue end outcome=set_down，随后孩子存活并站在干地。',
+     note=_INCIDENT_NOTE + '满载乘员为两只 0.16 与八只 0.19 赤油，实际重量 0.063064，小于容量 (1.05×0.38)³，但余量不足 0.08 新生儿；乘员营养 40、无储粮，窗口内不跨成长阈值。三类承托都由同一查询落位。新生赤油在亲帽放下后才入水，离岸九格、四周七格内无干岸。观察 grab → hop → release → rescue end outcome=set_down，随后孩子存活并站在干地。',
      reads=[('读亲油', f'yukkuri status {sel("a")} raw'), ('读子油', f'yukkuri status {sel("c1")} raw')],
-     smoke=dict(ticks=1800, expect=[r'\[incident\][^\n]* decide [^\n]*chance=1 [^\n]*accepted=true',
+     smoke=dict(ticks=1800, expect=[r'\[hat\][^\n]* scenario place [^\n]*place=CABIN\b[\s\S]*\[hat\][^\n]* scenario place [^\n]*place=HEAD\b[\s\S]*\[hat\][^\n]* scenario place [^\n]*place=BRIM\b',
+                                    r'\[hat\][^\n]* scenario afloat prepared [^\n]*young=10\b',
+                                    r'refused id=release [^\n]*NO_ROOM[^\n]*no_seat',
+                                    r'\[incident\][^\n]* decide [^\n]*chance=1 [^\n]*accepted=true',
                                     rf'carry grip [^\n]*uuid={_uuid_text("rescue_no_seat", "c1")}'
                                     rf'[\s\S]*\[action\][^\n]*uuid={_uuid_text("rescue_no_seat", "a")}[^\n]* end id=hop outcome=DONE'
                                     rf'[\s\S]*\[action\][^\n]*uuid={_uuid_text("rescue_no_seat", "a")}[^\n]* end id=release outcome=DONE detail=released'
