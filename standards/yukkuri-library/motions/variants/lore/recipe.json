@@ -266,6 +266,38 @@
         "water_struggle with synchronized effort"
       ]
     },
+    "water_swim": {
+      "label": "落水后定神划水游",
+      "duration": 1.2,
+      "loop": true,
+      "applies": "all",
+      "root_support": "free_water",
+      "faces": [
+        [
+          0,
+          0.5,
+          "teary"
+        ],
+        [
+          0.5,
+          1.1,
+          "chewing_closed"
+        ],
+        [
+          1.1,
+          1.2,
+          "teary"
+        ]
+      ],
+      "lore": "Project design (user 2026-11-04: swimming back to the hat must not twitch at the start): purposeful swimming (Swim) after the plunge's shock, instead of water_struggle's distress jerks. Its first frame is water_plunge's last, so the shock flows straight into the first stroke without a reset; each loop starts at rest: the body glides while a carried braid swings forward to the catch, then surges a little on the pull (power_start..power_end: the braid drawn back down and out, pitch +5 to +2, a squash, a slight yaw and roll toward the stroke); plain side hair only follows. No root track: the server owns the travel. water_struggle stays for distress without a swim, water_gasp for real exhaustion.",
+      "triggers": [
+        "Swim running with paid effort while not EXHAUSTED"
+      ],
+      "markers": {
+        "power_start": 0.6,
+        "power_end": 1.2
+      }
+    },
     "water_gasp": {
       "label": "力竭停顿低伏喘息",
       "duration": 1.6,
@@ -810,16 +842,18 @@
           "closed_smile"
         ]
       ],
-      "lore": "Project design (user 2026-11-02: near the bank the hat is stroked in, the braid really in the water): Beckon ashore with the bare braid. She turns her braid side to the water before her, flattens on the bank edge and sinks toward that side; the tuft end follows `bank`'s stroke (aquatic_tools.stroke, shared with the stick blade): in at the catch, drawn toward the bank under the surface through the power half (power_start..power_end), lifted just over the water and swung back out in the recovery. `bank` is in model units from her feet in the bank's frame (-z toward the water): `water` the flush bank's surface (a vanilla source block 8/9 high), `edge` the farthest the bank can reach before her (Beckon's stroke point: half her width's diagonal and .05 block), `turn` her yaw, `lean_out` her shift toward the water; `root_support` bank: her lowest body point (no braid) stands on the bank top. Gate: aquatic_tools.stroke_gate.",
+      "lore": "Project design (user 2026-11-02: near the bank the hat is stroked in, the braid really in the water): Beckon ashore with the bare braid. She turns her braid side to the water before her, flattens on the bank edge and sinks toward that side; the tuft end follows `stroke`'s stroke (aquatic_tools.stroke, shared with the stick blade): in at the catch, drawn toward the bank under the surface through the power half (power_start..power_end), lifted just over the water and swung back out in the recovery. `stroke` is in model units from her feet in the bank's frame (-z toward the water): `water` the flush bank's surface (a vanilla source block 8/9 high), `edge` the farthest the bank can reach before her (Beckon's stroke point: half her width's diagonal and .05 block), `turn` her yaw, `lean_out` her shift toward the water; `root_support` bank: her lowest body point (no braid) stands on the bank top. Gate: aquatic_tools.stroke_gate. Markers `contact` and `stroke` are where the tuft really enters and leaves the water (gated): Beckon pushes the hat only between them, once per loop.",
       "triggers": [
         "Beckon: her own hat afloat within a braid stroke of the bank where she stands"
       ],
       "markers": {
         "power_start": 0.2,
-        "power_end": 1.0
+        "contact": 0.12,
+        "power_end": 1.0,
+        "stroke": 1.12
       },
       "braid_path": "stroke",
-      "bank": {
+      "stroke": {
         "water": -1.78,
         "edge": 9.3,
         "turn": 80,
@@ -833,6 +867,54 @@
         "entry": 0.08
       },
       "base_pose": "idle"
+    },
+    "water_beckon": {
+      "label": "游在帽旁用辫子拨水",
+      "duration": 1.6,
+      "loop": true,
+      "applies": "aquatic_marisa",
+      "root_support": "free_water",
+      "faces": [
+        [
+          0,
+          0.2,
+          "closed_smile"
+        ],
+        [
+          0.2,
+          1.0,
+          "chewing_closed"
+        ],
+        [
+          1.0,
+          1.6,
+          "closed_smile"
+        ]
+      ],
+      "lore": "Project design (user 2026-11-04: within three blocks the hat is drawn in by stroking the water, beyond that she swims to it): Beckon while she swims beside her own hat. Treading water she turns her braid side to the hat (`turn`; Beckon faces the hat), leans 7-9 degrees into each stroke with the face kept up, and the tuft end follows `stroke` (aquatic_tools.stroke, as bank_beckon): in at the catch out toward the hat, drawn in to her side under the surface through the power half, lifted clear of the water and swung back out in the recovery. `stroke` is in model units from her bottom in that frame (-z toward the hat); `water` is the assumed floating waterline (the body floats about half under; a waterline 1 lower or higher still wets and clears the tuft). Markers `contact` and `stroke` are where the tuft enters and leaves that water (gated): the push lies between them. Gate: aquatic_tools.stroke_gate.",
+      "triggers": [
+        "Beckon: swimming within braid reach of her own hat afloat (three blocks or nearer)"
+      ],
+      "markers": {
+        "power_start": 0.2,
+        "contact": 0.0,
+        "power_end": 1.0,
+        "stroke": 1.12
+      },
+      "braid_path": "stroke",
+      "stroke": {
+        "water": 4.0,
+        "turn": 80,
+        "lean_out": 0.5,
+        "x": -3.0,
+        "catch_z": -13.6,
+        "finish_z": -9.2,
+        "depth": 2.2,
+        "air": 1.8,
+        "arc": 1.0,
+        "entry": 0.08
+      },
+      "base_pose": "water_swim"
     },
     "boat_gather": {
       "label": "收食入帽",
@@ -3083,7 +3165,7 @@
       ],
       "lore": "young carried in the hat (L06)",
       "triggers": [
-        "young aboard the mother's hat boat"
+        "young aboard the mother's hat boat; quiet play on a brim spot facing outward"
       ]
     },
     "think": {
@@ -5055,7 +5137,7 @@
       ],
       "lore": "Project design (ecology design D 3.4, boat_rim_peek): a baby or small child on the bow perch by day leans out over the front rim to watch the water, stretched 4 % and tipped 7 degrees toward it, scanning left and right with two excited little hops, then turns 60 degrees to glance back over its shoulder at its mother and returns to the water; it stays forward off the wall and its braid lies out over the brim (boat_braid rest). Pitch + roll <= 8.5.",
       "triggers": [
-        "young on BOW_PERCH by day (hat_deck_layout crew)"
+        "young on a brim spot facing radially outward, or on the captain's bare head facing outward (no contact)"
       ],
       "markers": {
         "look_back": 3.8
@@ -5102,7 +5184,7 @@
       ],
       "lore": "Project design (user 2026-11-01: lively, cute 子油 play on the parent's boat; derived from boat_rim_peek and water_struggle): a 子油 on the brim ring, braid side to the water, leans about 10 degrees out and slaps the water twice with its braid; the tuft dips under the waterline at the slaps, the body stays over the brim.",
       "triggers": [
-        "子油 on the brim ring afloat (WP7)"
+        "赤油 on a brim spot (art-a1-places brim ring), braid side (+x) radially outward, afloat; not on the head"
       ],
       "markers": {
         "slap_1": 0.62,
@@ -5201,7 +5283,7 @@
       ],
       "lore": "Project design (user 2026-11-01; derived from boat_paddle): a 子油 on the brim copies its mother's stroke with its own braid and no stick, small and a little clumsy: the tuft sweeps fore and aft over the water and skims it mid-pull (marker dip).",
       "triggers": [
-        "子油 on the brim ring while the captain paddles (WP7)"
+        "赤油 on a brim spot while the captain paddles, braid side (+x) radially outward; not on the head"
       ],
       "markers": {
         "power_start": 0.2,
@@ -5386,7 +5468,7 @@
       ],
       "lore": "Project design (user 2026-11-01; derived from boat_alarm_wait and boat_flee): scared, a 子油 scoots to its mother with a crouch-spring hop (the server moves it; markers scoot_start..scoot_land) and cowers low under her braid, trembling, peeking out once (peek); held cowering from tucked.",
       "triggers": [
-        "子油 afloat scared: threat, hit, thunder (WP7)"
+        "赤油 afloat scared (threat, hit, thunder): on a brim spot facing the captain, the server moving it along the brim toward her braid side; on her head in place (the scoot hop stays in place)"
       ],
       "markers": {
         "scoot_start": 0.12,

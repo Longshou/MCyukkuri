@@ -33,7 +33,7 @@ PADDLE_CLIPS = ('boat_paddle', 'hat_brim_offer', 'boat_nudge_young')
 NEW_CLIPS = ('braid_cradle_lift', 'be_cradled', 'mouth_bite_hold', 'boat_thrown', 'water_hat_climb', 'water_hat_right',
              'boat_cargo_stow', 'boat_cargo_fetch', 'boat_jettison', 'boat_rim_peek', 'braid_rescue_reach', 'braid_rescue_hold',
              'braid_rescue_settle', 'boat_board', 'boat_feed_young', 'hat_hop_up', 'boat_drift', 'boat_steady', 'kid_brim_splash',
-             'kid_mimic_paddle', 'kid_poke_stores', 'kid_hide_behind', 'bank_beckon', 'braid_head_set', 'braid_head_take')
+             'kid_mimic_paddle', 'kid_poke_stores', 'kid_hide_behind', 'bank_beckon', 'water_beckon', 'braid_head_set', 'braid_head_take')
 # Beats were authored on these lengths; the recipe duration rescales them (boat_thrown 0.6 s, water_hat_right 1.6 s).
 AUTHORED = {'boat_thrown': 1.2, 'water_hat_right': 2.0}
 # A real item held in the braid tuft (the same vanilla stick the paddle clips row with): the hold overlays, pick and place.
@@ -135,9 +135,17 @@ def state(action, t, c, height):
         # Ashore at the water's edge (Beckon): she turns her braid side to the water before her (yaw is free), leans out over the
         # edge toward that side and flattens while the tuft is in the water (press: the stroke's depth share), so the braid
         # reaches under the surface; she rises as it lifts out, swaying a little with the stroke. Tilt <= 12; braid_path 'stroke'.
-        u = paddle_phase(t, c); b = c['bank']; press = min(1., max(0., -stroke(u, b)[0]/b['depth']))
+        u = paddle_phase(t, c); b = c['stroke']; press = min(1., max(0., -stroke(u, b)[0]/b['depth']))
         s = [1.03+.05*press, .72-.14*press, 1.02+.05*press]
         r = to_euler(euler([0, b['turn']+4*math.sin(2*math.pi*u), 0])@euler([-2-1.5*press, 0, -8.5-1.5*press]))
+        shift[1] = -b['lean_out']
+    elif action == 'water_beckon':
+        # Beckon while swimming beside her hat: treading water she turns her braid side to it (yaw free) and leans into each
+        # stroke, the face kept up; the tuft follows `stroke` like bank_beckon's, reaching out toward the hat under the surface
+        # and drawing in to her side through the pull, then lifting clear and swinging back out. Pitch +.5..+2, roll 7..9 (<= 12).
+        u = paddle_phase(t, c); b = c['stroke']; press = min(1., max(0., -stroke(u, b)[0]/b['depth']))
+        s = [1.02+.03*press, .95-.05*press, 1.02+.03*press]
+        r = to_euler(euler([0, b['turn']+4*math.sin(2*math.pi*u), 0])@euler([2-1.5*press, 0, -7-2*press]))
         shift[1] = -b['lean_out']
     elif action == 'braid_cradle_lift':
         # Reach toward the young beside the hull (lean and look to the braid side), scoop, lift it in front of her and set it
@@ -328,9 +336,9 @@ def stroke(u, p):
 
 def path_target(t, c):
     """The braid_path tuft-end target at t (model units in the clip's seat frame): keys [t, x, y, z], or [t, 'rest'] for
-    the shared boat_braid rest tuck, eased between; 'stroke' strokes the water before a bank (`bank`, in the bank's frame)."""
+    the shared boat_braid rest tuck, eased between; 'stroke' strokes the water before her (`stroke`, in its own frame)."""
     if c['braid_path'] == 'stroke':
-        b = c['bank']; y, z = stroke(paddle_phase(t, c), b); return np.array([b['x'], b['water']+y, z])
+        b = c['stroke']; y, z = stroke(paddle_phase(t, c), b); return np.array([b['x'], b['water']+y, z])
     keys = [(k[0], np.array(BOAT_BRAID['rest'] if k[1] == 'rest' else k[1:4], float)) for k in c['braid_path']]
     return keyed(t, keys)
 
@@ -338,13 +346,13 @@ def path_target(t, c):
 def path_tracks(model, action, samples, tracks, c):
     """Rotation tracks of every braid chain bone that lay the tuft's end (its farthest vertex from the root) on the clip's braid_path, bent as the game bends it (braid_chain.arc). The target turns with the
     body's yaw about the root pivot and moves with its x/z shift, so a tuck stays where she sits; height is the seat's.
-    The tuft keeps the clip's own tip_rotation (curl, hook) on top. A bank stroke's target stays in the bank's frame, and its
+    The tuft keeps the clip's own tip_rotation (curl, hook) on top. A water stroke's target stays in its own frame, and its
     root lock keeps its natural size on her squashed body (the inverse of her scale, unturned), the braid below it reaching
     as far as it really is long."""
     bones = model['bones']; names = {b['name']: i for i, b in enumerate(bones)}; chain = braid_chain.chain(names)
     body = names['root']; pivot = np.array(bones[body]['pivot'], float)
     own = {tr['channel']: tr['keys'] for tr in tracks if tr['bone'] == body}; lock = []
-    if 'bank' in c:
+    if 'stroke' in c:
         lock = [{'bone': chain[0], 'channel': 'scale', 'keys': [[k[0], *[round(1/v, 5) for v in k[1:]]] for k in own['scale']]}]
         chain = chain[1:]; tracks = tracks+lock
     V = np.array(model['vertices']).reshape(-1, 8)[:, :3]
@@ -356,7 +364,7 @@ def path_tracks(model, action, samples, tracks, c):
         yaw = sample(own['rotation'], t)[1] if 'rotation' in own else 0.
         shift = sample(own['position'], t) if 'position' in own else [0., 0., 0.]
         x, y, z = path_target(t, c); flat = euler([0, yaw, 0])@(np.array([x, 0., z])-[pivot[0], 0., pivot[2]])
-        world = np.array([x, y, z]) if 'bank' in c else np.array([flat[0]+pivot[0]+shift[0], y, flat[2]+pivot[2]+shift[2]])
+        world = np.array([x, y, z]) if 'stroke' in c else np.array([flat[0]+pivot[0]+shift[0], y, flat[2]+pivot[2]+shift[2]])
         M = palette(model, tracks, t); local = (np.linalg.inv(M[bones[chain[0]]['parent']])@np.r_[world, 1])[:3]
         solved = braid_chain.rotations(rest, braid_chain.arc(rest, local))
         curl = tip_rotation(action, t, c)
@@ -656,13 +664,14 @@ def prop_sticks(model, tracks, prop):
 
 
 def stroke_gate(model, action, samples, tracks, c, prop=None):
-    """Fail a water stroke (boat_paddle, bank_beckon) whose loop does not close (every track's and the props.paddle keys' last
-    key on its first), whose braid below its root lock sinks more than TOUCH deeper into her body than at rest (its upper
-    lobes already lie into the body surface there; along the outward normal at the nearest body point) or whose rendered
-    twig (prop keys, less `twig_radius`) enters her body. bank_beckon also fails unless her lowest body point over the bank
-    rests on its top (within TOUCH), no body point sinks into the bank or reaches the water, the braid stays out of the
-    bank (below its top short of `edge` ahead) and its deepest point is under the water by half the stroke's `depth`
-    through the whole power phase (PULL). Prints the worst values."""
+    """Fail a water stroke (boat_paddle, bank_beckon, water_beckon) whose loop does not close (every track's and the props.paddle
+    keys' last key on its first), whose braid below its root lock sinks more than TOUCH deeper into her body than at rest (its
+    upper lobes already lie into the body surface there; along the outward normal at the nearest body point) or whose rendered
+    twig (prop keys, less `twig_radius`) enters her body. A braid stroke (`stroke`) also fails unless its deepest point is under
+    the stroke's `water` by half its `depth` through the whole power phase (PULL) and its `contact`/`stroke` markers are where
+    the tuft really enters and leaves that water (within one sample). bank_beckon (root_support bank) also fails unless her
+    lowest body point over the bank rests on its top (within TOUCH), no body point sinks into the bank or reaches the water and
+    the braid stays out of the bank (below its top short of `edge` ahead). Prints the worst values."""
     for tr in tracks+([dict(prop, bone=prop['bone'], channel='prop')] if prop else []):
         a, z = np.array(tr['keys'][0][1:]), np.array(tr['keys'][-1][1:])
         gap = abs(z-a) if tr['channel'] in ('position', 'scale') else np.r_[abs(z-a)[:3], abs((z-a+180) % 360-180)[3:]] if tr['channel'] == 'prop' else abs((z-a+180) % 360-180)
@@ -670,6 +679,7 @@ def stroke_gate(model, action, samples, tracks, c, prop=None):
     names = {b['name']: i for i, b in enumerate(model['bones'])}; lock = names['hand_right']
     braid = skinned(model, lambda n: n.startswith('braid_lock_')); hanging = ~((braid[1] == lock) & (braid[2] == lock))
     body = skinned(model, lambda n: 'body_surface' in n); whole = skinned(model, body_part(model))
+    tuft = skinned(model, lambda n: n.startswith('braid_lock_tuft')); ashore = c.get('root_support') == 'bank'; wets = []
     m = c['markers']; core = [m['power_start']+q*(m['power_end']-m['power_start']) for q in PULL]
     p = paddle_spec(c) if prop else None; along = np.linspace(-p['top_length'], p['blade_length'], 25) if prop else None
     sticks = prop_sticks(model, tracks, prop) if prop else [None]*len(samples)
@@ -682,16 +692,24 @@ def stroke_gate(model, action, samples, tracks, c, prop=None):
     for t, stick in zip(samples, sticks):
         M = palette(model, tracks, t); P = posed(M, braid); B = posed(M, body); inside = min(inside, outside(P[hanging], B)-rest)
         if stick: twig = min(twig, outside(stick[0]+np.outer(along, stick[1]), B)-p['twig_radius'])
-        if 'bank' in c:
-            b = c['bank']; W = posed(M, whole); over = -W[:, 2] <= b['edge']; rests.append(float(W[over, 1].min()))
+        if 'stroke' in c:
+            b = c['stroke']; wets.append((t, float(posed(M, tuft)[:, 1].min()) < b['water']))
+            if core[0] <= t <= core[1]: wet = min(wet, float(b['water']-P[:, 1].min()))
+        if ashore:
+            W = posed(M, whole); over = -W[:, 2] <= b['edge']; rests.append(float(W[over, 1].min()))
             sinks = min(sinks, float(W[over, 1].min()), float(W[:, 1].min()-b['water']))
             below = P[:, 1] < 0
             if below.any(): bank = min(bank, float((-P[below, 2]).min()-b['edge']))
-            if core[0] <= t <= core[1]: wet = min(wet, float(b['water']-P[:, 1].min()))
+    beats, d = {}, c['duration']
+    for (_, was), (t, now) in zip(wets, wets[1:]):
+        if now != was: beats['contact' if now else 'stroke'] = round(t % d, 6)
+    step = d/(len(samples)-1); off = {k: min(abs(m[k]-v), d-abs(m[k]-v)) if k in m else math.inf for k, v in beats.items()}
     print(f'  {action}: loop closes; braid clears her body by {inside:.2f} beyond rest'+(f', twig by {twig:.2f}' if prop else '')
-          + (f'; body on the bank {min(rests):.2f}..{max(rests):.2f}, the braid clears the bank by {bank:.2f}; tuft {wet:.2f} under water' if 'bank' in c else ''), flush=True)
-    if inside < -TOUCH or twig < -TOUCH or 'bank' in c and (max(abs(r) for r in rests) > TOUCH or sinks < -TOUCH or bank < 0 or wet < c['bank']['depth']/2):
-        raise ValueError(f'{model["id"]} {action}: the braid or twig enters her body, she does not stand on the bank, or the braid enters the bank or misses the water')
+          + (f'; body on the bank {min(rests):.2f}..{max(rests):.2f}, the braid clears the bank by {bank:.2f}' if ashore else '')
+          + (f'; tuft {wet:.2f} under water, in at {beats.get("contact")} out at {beats.get("stroke")}' if 'stroke' in c else ''), flush=True)
+    if inside < -TOUCH or twig < -TOUCH or 'stroke' in c and (wet < c['stroke']['depth']/2 or set(beats) != {'contact', 'stroke'} or max(off.values()) > step+1e-6)             or ashore and (max(abs(r) for r in rests) > TOUCH or sinks < -TOUCH or bank < 0):
+        raise ValueError(f'{model["id"]} {action}: the braid or twig enters her body, misses the water or its contact/stroke markers {beats}, '
+                         'or she does not stand on the bank or the braid enters the bank')
 
 
 def extras(model, action, samples, tracks, c):
@@ -714,7 +732,7 @@ def extras(model, action, samples, tracks, c):
         fields['props'] = {'item': prop}
         fields.setdefault('contacts', {})['braid_grip'] = {'bone': 'hand_right_tip', 'point': grip, 'kind': 'BRAID_GRIP'}
         held_gate(model, action, samples, tracks+more, sticks, c)
-    if action in ('boat_paddle', 'bank_beckon') and 'hand_right_tip' in names:
+    if action in ('boat_paddle', 'bank_beckon', 'water_beckon') and 'hand_right_tip' in names:
         stroke_gate(model, action, samples, tracks+more, c, fields.get('props', {}).get('paddle'))
     rotation = None if action in PADDLE_CLIPS or 'braid_path' in c else [tip_rotation(action, t, c) for t in samples]
     if rotation and rotation[0] is not None and 'hand_right_tip' in names:

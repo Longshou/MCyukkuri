@@ -1,6 +1,6 @@
 """Offline sheet: the two water strokes against their real contact geometry, four beats each (catch, mid pull, finish, mid
-recovery). bank_beckon: Marisa ashore at a flush bank (the bank block to the clip's `bank.edge`, the tinted band its
-waterline `bank.water`), seen from her braid side and from the water; boat_paddle: the captain on her hull's seat, stick
+recovery). bank_beckon: Marisa ashore at a flush bank (the bank block to the clip's `stroke.edge`, the tinted band its
+waterline `stroke.water`), seen from her braid side and from the water; boat_paddle: the captain on her hull's seat, stick
 from the props.paddle keys, the band the hull's fixed waterline (aquatic_paddle_preview). Reads the exported runtime clips
 (motion_corrections.json); flat-shaded orthographic Pillow render, nothing launches the game. Writes
 .local/previews/water-strokes/current.png (MCYUKKURI_PREVIEWS overrides the previews root).
@@ -29,7 +29,7 @@ def bank_triangles(edge, depth=12., width=14., back=10.):
 
 def main():
     data = json.loads((P.ROOT/A.RUNTIME).read_text(encoding='utf-8')); OUT.mkdir(parents=True, exist_ok=True)
-    recipe = json.loads((HERE/'recipe.json').read_text(encoding='utf-8'))['clips']; bank = recipe['bank_beckon']['bank']
+    recipe = json.loads((HERE/'recipe.json').read_text(encoding='utf-8'))['clips']; bank = recipe['bank_beckon']['stroke']
     stick = TOOLS['paddle_spec'](recipe['boat_paddle']); length = (stick['top_length'], stick['blade_length'])
     beckon, paddle = A.Captain(data, 'bank_beckon', 'bank_beckon'), A.Captain(data, 'boat_paddle')
     form = next(f for f in TOOLS['hull_forms'](paddle.model['units_per_block']) if f['name'] == 'aquatic_basin_hat_turned')

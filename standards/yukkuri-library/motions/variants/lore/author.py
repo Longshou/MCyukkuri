@@ -18,7 +18,7 @@ import numpy as np
 
 ROOT = Path(__file__).resolve().parents[5]
 TEXTURES = ROOT/'src/main/resources/assets/mcyukkuri/textures/entity'
-DISTRESS_CLIPS=('hat_stumble','hat_jostle','water_plunge','water_struggle','water_gasp','water_recover','water_held_breath','boat_reassure',
+DISTRESS_CLIPS=('hat_stumble','hat_jostle','water_plunge','water_struggle','water_swim','water_gasp','water_recover','water_held_breath','boat_reassure',
                 'boat_alarm_call','boat_alarm_wait','boat_answer_call','boat_flee','boat_calm',
                 'braid_rescue_reach','braid_rescue_hold','braid_rescue_settle',
                 'water_hat_flip','water_hat_grip','water_hat_climb','water_hat_pull','water_hat_over',
@@ -35,7 +35,7 @@ TILT_FIX_CLIPS=('eat','drink','first_toilet_assist','newborn_crawl','nest_harves
 # Body pitch -8..+6, roll <= 6 (hard cap 12): effort is squash, stretch, shift, yaw and the face, never a whole-body flip.
 NEW_BRAID_CLIPS=('hat_brim_offer','hat_hop_up','water_bob_lunge','hat_slide_over','water_mouth_grip','water_hat_shake','water_hat_push','boat_nudge_young')
 # The composed resource names its newest family; aquatic_tools' paddle braid is the current one (author.py and the full exporter share it).
-AQUATIC_REVISION='carry-held-20261104-v34'
+AQUATIC_REVISION='brim-water-20261104-v35'
 _BRAID_RESCUE=None
 # Paddle stick, braid cradle, mouth bite, capsize and self-rescue clips (aquatic_tools.py), exported by --export-aquatic.
 TOOLS=runpy.run_path(str(Path(__file__).resolve().parent/'aquatic_tools.py'))
@@ -188,6 +188,14 @@ def state(action, t, c, height):
         s=[1+.045*effort,.92+.07*effort,1+.055*effort]
         r=[keyed(t,[(0,5),(.07,10),(.18,-3),(.28,9.5),(.4,4),(1.6,5)]),
            keyed(t,[(0,0),(.12,-5),(.3,4),(.45,0),(1.6,0)]),keyed(t,[(0,-2),(.12,6),(.29,-5),(.44,0),(1.6,-2)])]
+    elif action == 'water_swim':
+        # Purposeful swimming (Swim): a steady stroke instead of water_struggle's jerks. Its first frame is water_plunge's last
+        # and starts at rest, so the shock flows straight into the first reach. Each loop the body glides while the braid reaches
+        # forward, then surges on the pull (power_start..power_end: a little squash, the face dipping from +5 to +2 degrees, a
+        # slight yaw and roll toward the stroking side). Pitch +2..+5, roll <= 2; no root track (the server owns the travel).
+        drive=bump((t/d-.5)/.5)
+        s=[1.015+.03*drive,.967-.045*drive,1.012+.035*drive]
+        r=[5-3*drive,4*drive,-2*drive]
     elif action == 'water_gasp':
         breath=keyed(t,[(0,0),(.3,0),(.5,1),(.75,.1),(1.2,0),(1.6,0)])
         s=[1.035,.81+.035*breath,1.045]
@@ -631,7 +639,7 @@ def flourish_tracks(model, action, samples, cfg, c):
     """Rotation flourishes on the hand bones that carry a braid. Side hair, front locks and a ponytail sit on
     the same bones on other variants and only follow the body: a hair lock never paddles, lifts or flaps."""
     tracks = []
-    if action in ('hat_stumble','hat_jostle','water_plunge','water_struggle','water_gasp','water_recover','water_held_breath','boat_reassure'):
+    if action in ('hat_stumble','hat_jostle','water_plunge','water_struggle','water_swim','water_gasp','water_recover','water_held_breath','boat_reassure'):
         for bone,side in (('hand_right',1),('hand_left',-1)):
             hand,braid=braid_carried(model,bone)
             if not braid:continue
@@ -640,6 +648,11 @@ def flourish_tracks(model, action, samples, cfg, c):
                     at=max(0,t-(.11 if side<0 else 0))
                     sweep=keyed(at,[(0,0),(.08,1),(.18,-.5),(.29,.7),(.42,0),(1.6,0)])
                     return [-28*sweep,side*9*sweep,side*(8+38*abs(sweep))]
+                if action=='water_swim':
+                    # The braid strokes (a carried braid only): from water_plunge's last braid pose (hanging, at rest) it swings
+                    # forward to the catch tucked in, then is drawn back down and out through the pull (power_start..power_end).
+                    u=t/c['duration'];pull=bump((u-.5)/.5)
+                    return [-1.8+21*(1-math.cos(2*math.pi*u)),side*5*pull,side*(12.3+16*pull)]
                 if action=='water_plunge':
                     q=keyed(t,[(0,.1),(.14,1),(.35,.3),(.6,.15)])
                     return [-12*q,0,side*(9+22*q)]
@@ -806,7 +819,7 @@ def compile_clips(model, cfg, root, ground, height):
         keys = {'position': [], 'rotation': [], 'scale': []}
         for t in samples:
             s, r, lift, shift = state(name, t, c, height)
-            support=0 if c.get('root_support') in ('free_water','shared_braid') else TOOLS['bank_support'](model,s,r,shift,c['bank']['edge']) if c.get('root_support')=='bank' else ground(s,r)-carry_floor
+            support=0 if c.get('root_support') in ('free_water','shared_braid') else TOOLS['bank_support'](model,s,r,shift,c['stroke']['edge']) if c.get('root_support')=='bank' else ground(s,r)-carry_floor
             for channel, value in (('position', [shift[0], support+lift, shift[1]]), ('rotation', r), ('scale', s)):
                 keys[channel].append([round(t, 8), *[round(x, 7) for x in value]])
         tracks = [{'bone': root, 'channel': ch, 'keys': k} for ch, k in keys.items()]

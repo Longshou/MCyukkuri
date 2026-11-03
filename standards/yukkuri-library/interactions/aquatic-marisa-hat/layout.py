@@ -2,7 +2,7 @@
 
 Rules (user 2026-11-01/11-04, docs/FEATURES.md 水生魔理沙): the captain sits at the stern wall facing the bow; before her in the
 basin the young that fit with their worn hats clear of her face (cabin_hats: measured, project design); others go on her bare
-head (head_cap) or the brim edge, where a young splashes the water with its braid. Every body is the runtime Marisa posed by an exported clip at its growth (scene.Shape) and rests by its
+head (head_cap) or the brim edge, where the visible performances are measured on the exported clips (brim_acts, head_acts). Every body is the runtime Marisa posed by an exported clip at its growth (scene.Shape) and rests by its
 real underside; two bodies may not share a cell where their bodies' own columns overlap (hats, hair and braid are soft).
 
     python layout.py [--set key.path=value ...]   # prints the seat, capacity, reach and clip gate numbers
@@ -108,25 +108,63 @@ def turned(p, yaw):
     a = math.radians(yaw); return np.array([p[0]*math.cos(a)-p[2]*math.sin(a), p[1], p[0]*math.sin(a)+p[2]*math.cos(a)])
 
 
-def lean_out(p, scale, deg, forward=False):
-    """A body point at this growth after leaning `deg` about its bottom toward +x (roll), or forward toward -z (pitch)."""
-    a = math.radians(deg); x, y, z = np.asarray(p, float)*scale
-    if forward: return np.array([x, y*math.cos(a)+z*math.sin(a), z*math.cos(a)-y*math.sin(a)])
-    return np.array([x*math.cos(a)+y*math.sin(a), y*math.cos(a)-x*math.sin(a), z])
+# Visible baby performances (user 2026-11-04: every performance must be seen from the bank; water acts face the braid side to the
+# water; a rider on the head does no water act). Each act names its facing on a brim spot: braid_out (its braid side, +x,
+# radially outward: the water acts), face_out (its face outward) or face_in (toward her, along the brim).
+BRIM_ACTS = {'kid_brim_splash': 'braid_out', 'kid_mimic_paddle': 'braid_out', 'boat_rim_peek': 'face_out', 'hat_cradle': 'face_out',
+             'kid_hide_behind': 'face_in'}
+WATER_ACTS = ('kid_brim_splash', 'kid_mimic_paddle')
+HEAD_ACTS = ('boat_rim_peek', 'kid_hide_behind', 'greet')
+BEARING = -50.            # degrees in the hull frame: a brim spot on her braid side toward the bow, where a lift from the seat reaches
+SINK = .2                 # model units a posed rider may dip into a sloping support (clips are landed on a flat floor; grid .125)
 
 
-def splash(hull, scale):
-    """A young on the brim ring: its rest height, and how far below the water its braid (hanging from the root at its
-    full length toward the nearest water past the edge) and its mouth reach, upright and leaning LEAN toward the water."""
-    r, edge, water = brim_ring(scale), B.BRIM['radius']*B.K, -B.WATER*B.K
-    sh = young_shape(scale); y = sh.rest(hull.field, r, 0, overhang=True); bottom = y+sh.bottom
-    out = dict(scale=scale, ring=round(r, 2), underside=round(bottom, 2))
-    for deg in (0., LEAN):
-        root = np.array([r, bottom, 0])+lean_out(ROOT_AT, scale, deg)
-        reach = CHAIN*scale-math.hypot(max(0., edge+.1-root[0]), root[1]-water)
-        mouth = np.array([r, bottom, 0])+turned(lean_out(MOUTH_AT, scale, deg, True), 90)   # turned to face the water
-        out['lean' if deg else 'upright'] = dict(braid_below_water=round(reach, 2), mouth_over_water=round(mouth[1]-water, 2),
-                                                 mouth_past_edge=round(mouth[0]-edge, 2))
+def facing(kind, bearing):
+    """The rider's yaw (scene.place) for a facing at a brim bearing."""
+    return {'braid_out': -bearing, 'face_out': -(bearing+90), 'face_in': 90-bearing, 'bow': 0.}[kind]
+
+
+def act(clip, scale, support, x, z, yaw, face='happy', step=.04):
+    """An exported clip posed at growth `scale` turned by `yaw` at (x, z), standing where its upright young pose rests on
+    `support` (a hull or head field): per sample (t, tuft depth under the water past the brim's edge, least gap of the rest of
+    the mesh over the support, least gap of the braid over it)."""
+    up = young_shape(scale, yaw); y0 = up.rest(support, x, z, overhang=True); _, _, (sx, sz) = up.window(x, z)
+    water, edge, G = -B.WATER*B.K, B.BRIM['radius']*B.K, S.GRID
+    def over(P):
+        i = np.floor((P[:, 0]+G.half)/G.step).astype(int); j = np.floor((P[:, 2]+G.half)/G.step).astype(int)
+        ok = (i >= 0) & (i < G.n) & (j >= 0) & (j < G.n); f = np.full(len(P), np.nan); f[ok] = support[i[ok], j[ok]]
+        gap = P[:, 1]-np.where(np.isfinite(f), f, np.nan); return float(np.nanmin(gap)) if np.isfinite(gap).any() else math.inf
+    d = S.body().clips[clip]['duration']; rows = []
+    for k in range(int(round(d/step))+1):
+        tris, kinds = S.body().mesh(clip, k*step, face=face, hat=B.worn_mesh())
+        P = S.place(tris, (sx, y0, sz), yaw, scale); braid = P[kinds == 2][:, :, :3].reshape(-1, 3); rest = P[kinds != 2][:, :, :3].reshape(-1, 3)
+        out = np.hypot(braid[:, 0], braid[:, 2]) > edge
+        rows.append((k*step, float(water-braid[out, 1].min()) if out.any() else -math.inf, over(rest), over(braid)))
+    return rows
+
+
+def brim_acts(hull, scales=(.12, .15, BABY)):
+    """The brim repertoire on its brim spot (brim_ring at BEARING) at 赤油 sizes: the water acts' tuft depth under the water at
+    their contact markers and whether it is wet anywhere else, and the deepest dip of any act into the brim."""
+    out = {}
+    for clip, kind in BRIM_ACTS.items():
+        marks = S.body().clips[clip].get('markers', {}); per = {}
+        for s in scales:
+            r = brim_ring(s); a = math.radians(BEARING)
+            rows = act(clip, s, hull.field, r*math.cos(a), r*math.sin(a), facing(kind, BEARING))
+            per[s] = dict(sink=round(-min(q[2] for q in rows), 2), tuft=round(max(q[1] for q in rows), 2),
+                          **({'at': {n: round(next(q[1] for q in rows if q[0] >= v-1e-6), 2) for n, v in marks.items()
+                                     if n in ('slap_1', 'slap_2', 'dip')}} if clip in WATER_ACTS else {}))
+        out[clip] = {'facing': kind, **per}
+    return out
+
+
+def head_acts(hull, cap, scales=(.15, BABY)):
+    """The head repertoire on her bare head (front spot, facing the bow): the deepest dip into the hair top; no braid past the brim."""
+    osh, (ox, oz, oy) = cap; top = osh.full('top', ox, oz, oy); out = {}
+    for clip in HEAD_ACTS:
+        out[clip] = {s: dict(sink=round(-min(q[2] for q in rows), 2), wet=max(q[1] for q in rows) > 0)
+                     for s in scales for rows in [act(clip, s, top, ox, oz-2.4, facing('bow', 0.))]}
     return out
 
 
@@ -255,11 +293,17 @@ def checks(gates=True):
     out['babies_below_mouth'] = babies
     out['body_column_limit'] = largest_young(hull, cap)
     out['basin_young_limit'] = BASIN_YOUNG
-    out['brim_young'] = [splash(hull, s) for s in (.12, .15, BABY, SMALL, CHILD)]
+    out['brim_acts'] = brim_acts(hull); out['head_acts'] = head_acts(hull, cap)
     out['cabin_hats'] = dict(single=cabin_limit(hull, 1), pair=cabin_limit(hull, 2),
                              triple_010=cabin_hats(hull, [.1, .1, .1]) is not None, baby_020=cabin_hats(hull, [BABY]) is not None)
     out['head'] = head_cap(hull)
     out['rescue'] = rescue_reach(cap)
+    wet = all(v['at'][n] > 0 for c in WATER_ACTS for s, v in out['brim_acts'][c].items() if s != 'facing' for n in v['at'])
+    sunk = max([v['sink'] for c in out['brim_acts'].values() for s, v in c.items() if s != 'facing']
+               + [v['sink'] for c in out['head_acts'].values() for v in c.values()])
+    dry = not any(v['wet'] for c in out['head_acts'].values() for v in c.values())
+    out['acts_gate'] = dict(tuft_wet_at_contacts=wet, worst_sink=sunk, head_dry=dry)
+    if not (wet and sunk <= SINK and dry): raise ValueError(f'brim/head acts fail: {out["acts_gate"]}')
     if gates:
         import export as E
         T = tools(); lily = [E.gate_profile(bounds(hull))]; start = time.time()

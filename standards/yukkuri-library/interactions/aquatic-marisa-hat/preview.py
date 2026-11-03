@@ -9,6 +9,9 @@ the four stores coverage tiers, all cropping the existing texture at the same te
     MCY_LOCAL=<main checkout>/.local python preview.py --paddle # previews/braid-paddle/current.png: one boat_paddle stroke
     MCY_LOCAL=<main checkout>/.local python preview.py --places # previews/art-a1-places/current.png: captain seat, hatted
                                                                 # cabin young, head riders and the braid's transfer paths
+    MCY_LOCAL=<main checkout>/.local python preview.py --brim   # previews/art-a2b-brim-water/current.png: brim splash and
+                                                                # mimic paddle (braid to the water), head peek, the swimming
+                                                                # beckon stroke beside the hat
 """
 from pathlib import Path
 import math, os, sys
@@ -427,5 +430,67 @@ def places_main():
     print(out/'current.png', 'cabin', cabin, 'heads', [tuple(round(v, 2) for v in q) for q in heads])
 
 
+def rider(atlas, clip, t, face, scale, support, x, z, yaw):
+    """An exported clip posed at growth `scale`, turned by `yaw` (scene.place) and standing at (x, z) where its upright young
+    pose rests on `support` (layout.act's placement): its triangles and its braid's points."""
+    up = L.young_shape(scale, yaw); y0 = up.rest(support, x, z, overhang=True); _, _, (sx, sz) = up.window(x, z)
+    tris, kinds = S.body().mesh(clip, t, face=face, hat=B.worn_mesh() if scale < 1 else None)
+    m = S.place(tris, (sx, y0, sz), yaw, scale)
+    m[:, :, 3:5] = atlas.uv(f'marisa/{face}', Image.fromarray(S.body().texture(face)), m[:, :, 3:5])
+    return m, m[kinds == 2][:, :, :3].reshape(-1, 3)
+
+
+def wet_splash(atlas, braid, size, outside=0.):
+    """Droplets where the braid is under the water (past `outside` from the hull's axis), else nothing."""
+    v = braid[np.hypot(braid[:, 0], braid[:, 2]) >= outside]; low = v[np.argmin(v[:, 1])]
+    return [splash(atlas, low, size)] if low[1] < -B.WATER*B.K else []
+
+
+def brim_main():
+    """The visible baby repertoire and the swimming beckon (layout.BRIM_ACTS / HEAD_ACTS facings, exported clips):
+    <MCY_LOCAL or .local>/previews/art-a2b-brim-water/current.png."""
+    atlas = Atlas(); hull = S.Hull(); cap_sh, (cx, cz, cy) = L.captain(hull); edge = B.BRIM['radius']*B.K; water = -B.WATER*B.K
+    hull_tris = hull.placed.copy()
+    hull_tris[:, :, 3:5] = atlas.uv('marisa/neutral', Image.fromarray(S.body().texture('neutral')), hull_tris[:, :, 3:5])
+    cap = posed(cap_sh, atlas, *cap_sh.window(cx, cz)[2], cy); top = cap_sh.full('top', cx, cz, cy)
+    size, bear = .15, L.BEARING; a = math.radians(bear); r = L.brim_ring(size); bx, bz = r*math.cos(a), r*math.sin(a)
+    clips = S.body().clips; panels = []
+    def face_on(yaw):   # the camera azimuth looking at a rider's face (its -z) from in front
+        f = S.place(np.array([[[0., 0., -1., 0, 0, 0, 0, 0]]*3]), (0, 0, 0), yaw)[0, 0, :3]; return math.atan2(f[0], -f[2])
+    def brim(clip, t, kind, caption, bearing=bear, face='happy', side=0., outside=False):
+        q = math.radians(bearing); rr = L.brim_ring(size); x, z = rr*math.cos(q), rr*math.sin(q); yaw = L.facing(kind, bearing)
+        kid, braid = rider(atlas, clip, t, face, size, hull.field, x, z, yaw)
+        wet = wet_splash(atlas, braid, .4, edge) if clip in L.WATER_ACTS else []
+        view = (math.atan2(math.cos(q), -math.sin(q))+side, .3, 3.2, (x*.9, .8, z*.9)) if outside else (face_on(yaw)+side, .12, 2.1, (x, .5, z))
+        panels.append((caption+f'（{t:.2f}s）', [hull_tris, cap, kid]+wet, view))
+    splash_c = clips['kid_brim_splash']['markers']
+    brim('kid_brim_splash', .3, 'braid_out', '帽檐拍水·举辫：辫子一侧朝水')
+    brim('kid_brim_splash', splash_c['slap_1'], 'braid_out', '帽檐拍水·拍下：辫梢拍进水里')
+    brim('kid_mimic_paddle', clips['kid_mimic_paddle']['markers']['dip'], 'braid_out', '帽檐学划：辫梢在水面往后划')
+    peek, _ = rider(atlas, 'boat_rim_peek', 1.3, 'happy', size, top, cx, cz-2.4, L.facing('bow', 0.))
+    panels.append(('头顶探头：摘帽时坐在她头上向前探身（不碰水）（1.30s）', [hull_tris, cap, peek], (math.pi/2, .1, 3.2, (cx, 6.8, cz-3.))))
+    brim('boat_rim_peek', 1.3, 'face_out', '帽檐探头：面朝外探身看水', side=.6)
+    brim('kid_hide_behind', 1.2, 'face_in', '受惊缩身：在帽檐上朝向亲油缩成一团', bearing=20., face='teary', side=.5, outside=True)
+    c = clips['water_beckon']; m = c['markers']; d = c['duration']; hx = edge+13.6+2.   # she floats this far from the hat's axis
+    for t, caption in ((m['power_start'], '入水：辫梢伸向帽子'), (m['power_end'], '拉水到身边：辫梢在水下往回拨'),
+                       ((m['stroke']+d)/2, '回程：辫梢出水再伸出去')):
+        sh = S.Shape.posed('water_beckon', t, 'closed_smile', 1., 90.)
+        body = posed(sh, atlas, hx, 0., water-4.)
+        tris, kinds = S.body().mesh('water_beckon', t, face='closed_smile'); braid = S.place(tris, (hx, water-4., 0.), 90.)[kinds == 2][:, :, :3].reshape(-1, 3)
+        panels.append((f'游在帽旁拨水·{caption}（{t:.2f}s）', [hull_tris, body]+wet_splash(atlas, braid, 1.6), (math.pi, .12, 9., (hx-8., 2., 0.))))
+    W, H = 3*600+40, 3*470+150; img = Image.new('RGB', (W, H), (250, 251, 252)); dr = ImageDraw.Draw(img)
+    dr.text((20, 14), '帽檐与头顶上看得见的赤油演出、三格内游在帽旁拨水（离线渲染，不是游戏画面）', font=P.preview_font(26), fill=(32, 52, 64))
+    for i, (caption, meshes, view) in enumerate(panels):
+        shot, _ = render(meshes, [np.zeros(len(q), int) for q in meshes], atlas, view, hull)
+        x, y = 20+(i % 3)*600, 60+(i//3)*470
+        dr.text((x, y), caption, font=P.preview_font(19), fill=(40, 60, 70)); img.paste(shot.resize((590, 410), Image.Resampling.LANCZOS), (x, y+32))
+    notes = ['上两排：赤油（0.15）坐在帽檐上，拍水与学划时辫子一侧朝外、辫梢入水（白点为水花）；探头面朝外；受惊时朝向亲油缩身；头顶的赤油只做不碰水的动作',
+             '下排从侧面看：她游在帽子旁边，辫子一侧转向帽子，辫梢在水下从外往身边拨，回程出水；帽子靠水流与这一拨漂近，不是被拽']
+    for i, t in enumerate(notes): dr.text((20, H-80+i*32), '· '+t, font=P.preview_font(19), fill=(40, 60, 70))
+    out = OUT.parent/'art-a2b-brim-water'; out.mkdir(parents=True, exist_ok=True)
+    img.save(out/'current.png'); (out/'source.sha256').write_text(B.source_digest(), encoding='utf-8')
+    print(out/'current.png')
+
+
 if __name__ == '__main__':
-    clips_main() if '--clips' in sys.argv else paddle_main() if '--paddle' in sys.argv else places_main() if '--places' in sys.argv else main()
+    brim_main() if '--brim' in sys.argv else clips_main() if '--clips' in sys.argv else paddle_main() if '--paddle' in sys.argv else places_main() if '--places' in sys.argv else main()
