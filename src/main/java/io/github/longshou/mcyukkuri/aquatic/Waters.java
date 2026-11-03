@@ -319,7 +319,7 @@ final class Waters {
         for (var local : hat.hopStops(body).stream()
                 .sorted(Comparator.comparingDouble(p -> hat.toWorld(p).distanceToSqr(edge.edge()))).toList()) {
             if (nearest == null) nearest = hat.toWorld(local);
-            var bank = ashore(body, hat.toWorld(local));
+            var bank = findAshore(body, hat.toWorld(local), at -> Hop.off(hat, local, at).check(body).ok());
             if (bank == null) continue;
             exits++;
             if (Hop.reaches(body, hat, local)) return new Exit(local, bank);
@@ -340,6 +340,10 @@ final class Waters {
     }
 
     private static Vec3 findAshore(YukkuriEntity body, Vec3 from) {
+        return findAshore(body, from, at -> Hop.reaches(body, from, at));
+    }
+
+    private static Vec3 findAshore(YukkuriEntity body, Vec3 from, Predicate<Vec3> reachable) {
         var own = body.getVehicle() instanceof PlacedHatEntity hat && hat.owner() == body ? hat : null;
         int asked = 0;
         for (var e : edges(body, from, 2, false)) {
@@ -348,7 +352,7 @@ final class Waters {
             if (asked++ >= ASKED) break;
             String refusal = !SurfaceApproach.stands(body, at) ? "no_support" : hatOver(body, at, 0) ? "other_hat"
                     : own != null && !body.childhood().canSail() && !bankReach(body, e.stand(body.getBbWidth()), own) ? "reclaim_reach"
-                    : !Hop.reaches(body, from, at) ? "hop_arc" : null;
+                    : !reachable.test(at) ? "hop_arc" : null;
             if (refusal == null) return at;
             GameplayLog.limited(body, "aquatic", "shore." + refusal, 200,
                     "hop shore stand refused reason={} from={} stand={}", refusal, GameplayLog.at(from), GameplayLog.at(at));
