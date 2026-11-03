@@ -9,10 +9,11 @@
   ],
   "motion": "Raise the hat independently, then move forward; return reverses the same motion. Hair stays on the body.",
   "carry": "Young entities around the brim ring (front, then sides, then back), facing outward; feet on the real brim top, whole bodies apart and clear of the hat and bow.",
+  "head": "Hat off: young on the flat top of the bare head (hair top within the head band of its peak, per cell), feet on the real hair top, footprints and worn-headwear discs apart; they follow the hat_follow bone (project design, user 2026-11-04).",
   "exporter": "scripts/export_hat_interactions.py",
-  "exporter_sha256": "42154c22d528c3d3947587afc07bca13fcc33cc72e8d614db343b1c47a3c80bb",
+  "exporter_sha256": "31739affcb0581bc202055b4ca7e35da6f2494f857c504e49e4342d856293862",
   "runtime": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/hat_interactions.json",
-  "runtime_sha256": "d7399528a3189297f4ad014e6a5fbe3496566ac7127ccd5ca599ef2398e00aa7",
+  "runtime_sha256": "a492d1669ded941d7cd4461ea0ea6bc6dfa30e8ceb8f55d431550af692b85126",
   "sources": {
     "src/main/resources/assets/mcyukkuri/yukkuri/house_marisa.json": "400afc82e93a2ddd81f74368f6244647123da67ae56aa0b4cc1528687cebccf4",
     "src/main/resources/assets/mcyukkuri/yukkuri/marisa.json": "5031923ebbe12b881e9371d24060c36bec5c4a527ec7904ea7333b807787f202",
