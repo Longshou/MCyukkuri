@@ -175,7 +175,7 @@ final class AquaticGoal extends Goal {
         var brood = body.family().brood();
         double birth = brood != null && !brood.cancelled && !brood.complete() && brood.kind == FamilyData.BirthKind.LIVE
                 && (hat == null || !LiveBirthGeometry.admitsBrood(body, hat))
-                ? brood.progress() * num("birth_ashore_want", 100) : 0;
+                ? brood.progress() * num("birth_ashore_want", 200) : 0;
         var young = AquaticLife.young(body);
         if (!aboard) {
             boolean nearStick = !stick && Waters.stick(body, 10, true) != null;

@@ -147,7 +147,7 @@ final class ScenarioSetup {
      * catches, and whether there is a hat, a nest or her own boat, comes from the real pair and their home (decision R5), never
      * from here.
      * {@code stem}: a real STEM conception brought to 400 ticks before term (a hatted Marisa father sets the hat under it).
-     * {@code pregnant}: a live conception at half term, leaving the mother time to prepare her birth site.
+     * {@code pregnant}: a live conception at quarter term, leaving the mother room and time to prepare her birth site.
      */
     static String birth(YukkuriEntity mother, YukkuriEntity father, String outcome) {
         if (!(mother.level() instanceof ServerLevel level) || father.level() != level || mother == father
@@ -181,7 +181,7 @@ final class ScenarioSetup {
             data.setDirty();
         } else {
             var helper = FamilyLife.catcher(mother, brood);
-            int lead = outcome.equals("pregnant") ? brood.duration / 2 : helper != null && helper != mother ? 150 : 2;
+            int lead = outcome.equals("pregnant") ? brood.duration * 3 / 4 : helper != null && helper != mother ? 150 : 2;
             brood.elapsed = Math.max(0, brood.duration - lead);
             data.setDirty();
             if (outcome.equals("caught") && helper == null)

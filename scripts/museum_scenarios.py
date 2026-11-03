@@ -2646,7 +2646,7 @@ def shore_birth_result(window):
 
 def boat_birth(sid, title, hint, watch, riders, note, smoke):
     """``riders``: young already aboard the mother's hat (real infants in the two infant seats), or none."""
-    pond(sid, title, hint, watch, '约 1–3 分钟分娩，之后看照护与救援',
+    pond(sid, title, hint, watch, '约 4–6 分钟靠岸与分娩' if riders else '约 1–3 分钟分娩，之后看照护与救援',
          [yk('marisa', bank_dx(0), 0, 'mother', aquatic=True, yaw=-90, lead=True, **pair_ready()),
           yk('marisa', bank_dx(4), 4, 'father', aquatic=True, yaw=-90, **pair_ready()),
           *(_babies() if riders else []),
@@ -2655,12 +2655,13 @@ def boat_birth(sid, title, hint, watch, riders, note, smoke):
                afloat('mother', water_at(0, 3), True, sel_all('crew') if riders else sel('mother'), stick=True),
                afloat('father', water_at(4, 3), True, sel('father'), stick=True),
                f'yukkuri scenario birth {sel("mother")} {sel("father")} {"pregnant" if riders else "natural"}'],
-         note='开场：母油与父油在岸上，准备后坐进各自正放、浮着的帽子，母油怀上真实胎次。满座场保留半程孕期用于靠岸；空座场直接临产。'
+         note='开场：母油与父油在岸上，准备后坐进各自正放、浮着的帽子，母油怀上真实胎次。满座场从四分之一孕程开始，趁孕肚仍能通过岸沿时靠岸；空座场直接临产。'
               '胎数 1–2 只、偶尔 3 只（水生一胎 `1+抽(p)+抽(p/4)`），读母油 status 看胎次。' + note,
          reads=[('读母油与产程', f'yukkuri status {sel("mother")} raw'), ('读父油', f'yukkuri status {sel("father")} raw'),
                 ('读本胎新生儿', f'yukkuri status {NEWBORNS[:-1]},tag=!crew] raw'),
                 *([('读初始乘员', f'yukkuri status {sel_all("crew")} raw')] if riders else [])], smoke=smoke,
-         capture=dict(shots=(1, 40, 600, 1800, 3000, 4200), sequences=((3100, 3800, 5),) if riders else ((120, 520, 3),),
+         capture=dict(shots=(1, 40, 600, 1800, 3000, 4200, 7200) if riders else (1, 40, 600, 1800, 3000, 4200),
+                      sequences=((4500, 5800, 5),) if riders else ((120, 520, 3),),
                       views={'': dict(follow='@e[tag=scn_mother,limit=1]', offset=(-1.0, 1.8, 1.2))}))
 
 
@@ -2677,11 +2678,11 @@ boat_birth('birth_boat_caught', '帽船分娩·落座', '船上分娩',
                       forbid=_BOAT_SMOKE_FORBID + [r'birth delivery stage=(?:qualified|exit_wait)\b'],
                       verify=boat_birth_result, readout=_water_readouts('mother', 'father') + [f'yukkuri status {NEWBORNS} raw']))
 boat_birth('birth_boat_missed', '帽船分娩·座位已满', '座位已满',
-           '两只初始赤油从开场就在岸上，准备后坐进母船占满座位；母油孕程过半，整胎坐不下，于临产前划回岸边、带幼体下船，按陆地接生规则分娩。'
+           '两只初始赤油从开场就在岸上，准备后坐进母船占满座位；母油处于四分之一孕程，整胎坐不下，趁孕肚仍能越过岸沿时划回岸边、带幼体下船，按陆地接生规则分娩。'
            '看水生圆帽新生儿从身体外出生、落在岸上，幼体总数应为两只初始乘员加实际出生数',
            True, '日志：come_ashore 的 why 带 birth 得分，hop 上岸后再 delivery labor started → born → birth landed。'
               '“读本胎新生儿”排除标记 crew 的两只初始乘员；出生数对照 conceived children 与 born index。' + _DESIRE_NOTE,
-           smoke=dict(ticks=5400, expect=[_BOAT_SMOKE_START, r'\[choreo\][^\n]* beat id=live_birth\b',
+           smoke=dict(ticks=7200, expect=[_BOAT_SMOKE_START, r'\[choreo\][^\n]* beat id=live_birth\b',
                                          r'\[intent\][^\n]* start id=come_ashore[^\n]*birth=[1-9]',
                                          r'\[family\][^\n]* delivery complete\b',
                                          r'\[family\][^\n]* birth landed [^\n]*outcome=(?:HAT|GROUND|NEST)\b'],
