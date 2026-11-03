@@ -560,22 +560,20 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
     /**
      * Giving way is a step aside, not only standing still: two bodies that meet on a one-cell shore each stop on the other's line,
      * the one that keeps its line pushes into a body that only waits, and neither ever gets past (they stood there until they
-     * starved). The giver presses itself one nudge off the other's line, on the side away from it.
+     * starved). {@code body} takes one short pace off {@code other}'s line, on the side away from it; the motor makes the move, so
+     * vanilla resolves the collision instead of a body being put into a wall. True when it really moved.
      */
-    private static void stepAside(YukkuriEntity animal, Entity blocker, Vec3 heading) {
+    private static boolean stepAside(YukkuriEntity body, Entity other, Vec3 heading) {
         Vec3 side = right(heading);
-        double away = Math.signum((animal.getX() - blocker.getX()) * side.x + (animal.getZ() - blocker.getZ()) * side.z);
+        double away = Math.signum((body.getX() - other.getX()) * side.x + (body.getZ() - other.getZ()) * side.z);
         if (away == 0) away = 1;
-        Motor.nudge(animal, new Vec3(side.x * away * .16, 0, side.z * away * .16), "give_way");
+        return Motor.move(body, new Vec3(side.x * away * .16, 0, side.z * away * .16), "give_way").lengthSqr() > 1e-6;
     }
 
     /** An idle, awake blocker moves out of the way; sleeping, busy or boarded ones keep their place. */
     private boolean yieldRequest(YukkuriEntity animal, YukkuriEntity blocker, Vec3 heading) {
         if (!blocker.getNavigation().isDone() || blocker.isCommandPlaying() || blocker.operations().active()
                 || blocker.life().isSleeping() || !blocker.nudgeable()) return false;
-        Vec3 right = right(heading);
-        double side = Math.signum((blocker.getX() - animal.getX()) * right.x + (blocker.getZ() - animal.getZ()) * right.z);
-        if (side == 0) side = 1;
-        return Motor.nudge(blocker, new Vec3(right.x * side * .16, 0, right.z * side * .16), "blocker_yields");
+        return stepAside(blocker, animal, heading);
     }
 }
