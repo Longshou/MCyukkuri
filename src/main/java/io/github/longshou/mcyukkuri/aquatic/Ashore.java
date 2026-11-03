@@ -118,7 +118,7 @@ final class Ashore implements Intent {
         if (AquaticLife.afloat(hat) && dependent != null) {
             // This reboarding is for a pickup. Do not board only to leave again unable to carry the same child.
             if (carryProblem != null) {
-                GameplayLog.limited(owner, "aquatic", "land.carry", WAIT,
+                GameplayLog.limited(owner, "aquatic", "land.pickup", WAIT,
                         "land pickup refused child={} reason={}", dependent.getUUID(), carryProblem);
                 return null;
             }

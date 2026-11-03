@@ -148,8 +148,8 @@ public final class Drive {
         var result = r.result();
         if ((result == IntentRunner.Result.EXHAUSTED || result == IntentRunner.Result.LOST) && current != null) {
             // The intent may have travelled since admission. Exclude the facts at refusal, never its starting position or a timer.
-            var atFailure = desires.get().stream().filter(d -> d.intentId().equals(current.intentId())).findFirst().orElse(current);
-            failed.put(current.intentId(), atFailure.world());
+            var atFailure = desires.get().stream().filter(d -> d.intentId().equals(current.intentId())).findFirst().orElse(null);
+            failed.put(current.intentId(), atFailure == null ? null : atFailure.world());
         }
         runner = null;
         current = null;

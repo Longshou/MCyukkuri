@@ -2445,10 +2445,10 @@ pond('sail', '单体出航·划船·饿了返岸', '单体航程',
                         r'\[body\][^\n]* death settled into remains'], readout=_HULL_READOUT))
 
 pond('afloat_family', '辫子接赤油上船', '亲子出航',
-     '亲油与一只已完成首餐、首便、会爬但不会跳的赤油在岸边，附近有木棍：亲油取棍、集合、放帽，先跳上近侧帽檐，用辫子抓起岸边赤油并降低到前座，最后自己到船尾座位；两只实际入座后出航',
+     '亲油与一只已完成首餐、首便、正在学爬且不会跳的赤油在岸边，附近有木棍：亲油取棍、集合、放帽，先跳上近侧帽檐，用辫子抓起岸边赤油并降低到前座，最后自己到船尾座位；两只实际入座后出航',
      '约 1–2 分钟',
      [yk('marisa', bank_dx(0) - 1, 0, 'a', aquatic=True, yaw=-90, lead=True, uuid=uid('afloat_family', 'a'), **pair_ready()),
-      _aquatic_young('afloat_family', 'c1', bank_dx(1), 1, 'baby', 'a'),
+      _aquatic_young('afloat_family', 'c1', bank_dx(1), 1, 'baby', 'a', childhood='Version:1,Newborn:1b,Landed:1b,FirstMealDone:1b,FirstToiletDone:1b,Crawled:0b,Jumped:0b'),
       item('minecraft:stick', 1, bank_dx(0) - 1, -1, 'stick')],
      note='日志：set_out → placed → 亲油 mount → grab reach=braid → carry grip → carry lowering → 赤油 seat landed → 亲油 hop 到座位 → set_out complete aboard=1/1。' + _DESIRE_NOTE,
      vantage=(bank_dx(0) - 4, 4, -135, 18),
@@ -2469,7 +2469,7 @@ pond('afloat_family_gather', '先集合再出航·辫子接赤油', '集合出�
      '亲油在南岸，赤油沿岸边几格外、辫子够不到：亲油先走到岸边泊位，面向孩子呼叫，等它跟到身边，再放帽、跳上近侧帽檐把它托入前座，最后自己到船长座位；孩子挪远时亲油跳回岸上步行接近，帽子漂远时先招帽',
      '约 1–2 分钟',
      [yk('marisa', bank_dx(0) - 1, 0, 'a', aquatic=True, yaw=-90, lead=True, uuid=uid('afloat_family_gather', 'a'), **pair_ready()),
-      _aquatic_young('afloat_family_gather', 'c1', bank_dx(-6), -6, 'baby', 'a'),
+      _aquatic_young('afloat_family_gather', 'c1', bank_dx(-6), -6, 'baby', 'a', childhood='Version:1,Newborn:1b,Landed:1b,FirstMealDone:1b,FirstToiletDone:1b,Crawled:0b,Jumped:0b'),
       item('minecraft:stick', 1, bank_dx(0) - 1, -1, 'stick')],
      note='日志先有 set_out gather start / gathered，再有 placed、亲油 mount、carry grip、seat landed、亲油 hop 与 set_out complete aboard=1/1；集合期间不放弃孩子。' + _DESIRE_NOTE,
      reads=[('读亲油', f'yukkuri status {sel("a")} raw'), ('读赤油', f'yukkuri status {sel("c1")} raw'),
@@ -2487,7 +2487,7 @@ pond('afloat_family_distant', '远处赤油·先寻回再出航', '远子缓航'
      '亲油和木棍在南岸，赤油在内陆三十余格外、普通水上亲子范围之外但陆地搜寻范围之内：亲油先进行家庭搜寻，仍相距遥远时不会出航',
      '先看约 30–60 秒寻回',
      [yk('marisa', bank_dx(10) - 1, 10, 'a', aquatic=True, yaw=-90, lead=True, uuid=uid('afloat_family_distant', 'a'), **pair_ready()),
-      _aquatic_young('afloat_family_distant', 'c1', -16, -13, 'baby', 'a'),
+      _aquatic_young('afloat_family_distant', 'c1', -16, -13, 'baby', 'a', childhood='Version:1,Newborn:1b,Landed:1b,FirstMealDone:1b,FirstToiletDone:1b,Crawled:0b,Jumped:0b'),
       item('minecraft:stick', 1, bank_dx(10) - 1, 9, 'stick')],
      note='短窗口只验证远处初态：必须出现 family search started，尚不得 start id=set_out；重逢后的正常出航不算失败。' + _DESIRE_NOTE,
      reads=[('读亲油', f'yukkuri status {sel("a")} raw'), ('读赤油', f'yukkuri status {sel("c1")} raw')],
@@ -2637,8 +2637,11 @@ def shore_birth_result(window, riders):
     postpartum = window[re.search(rf'uuid={mother}[^\n]* delivery complete', window).end():]
     if not re.search(rf'uuid={mother}[^\n]* set_out held reason=newborn_care', postpartum):
         return 'mother did not remain ashore for newborn care'
-    if re.search(rf'uuid={mother}[^\n]* start id=(?:set_out|resolve_own_hat)\b', postpartum):
-        return 'mother tried to leave the newborn care phase for her boat'
+    for departure in re.finditer(rf'uuid={mother}[^\n]* start id=(?:set_out|resolve_own_hat)\b', postpartum):
+        if any(not re.search(rf'uuid={child}[^\n]* first toilet completed', postpartum[:departure.start()]) for child, _ in born):
+            return 'mother tried to leave the newborn care phase for her boat'
+    if any(re.search(rf'set_out left_ashore=[^\n]*{child}', postpartum) for child, _ in born):
+        return 'a newborn was excused from family loading and left ashore'
 
 
 def boat_birth(sid, title, hint, riders):
@@ -2646,7 +2649,7 @@ def boat_birth(sid, title, hint, riders):
     pond(sid, title, hint,
          '水生母油从四分之一孕程开始，划回岸边，经帽檐下船，随后按陆地接生帽／窝／地面规则分娩。'
          + ('两只初始赤油占满母船；怀孕不能搬运它们，仍留在真实座位上。' if riders else '母船起初没有幼体；空帽可以收回。')
-         + '每只新生儿都应戴水生圆帽、在身体外出生并落在岸上；母油产后留岸照护。幼体完成早期照护、能集合后再走普通亲子装载，本窗口不展示后续出航。',
+         + '每只新生儿都应戴水生圆帽、在身体外出生并落在岸上；本窗口观察出生与留岸照护。幼体完成首餐、首便、能集合后才走普通亲子装载，全部新生儿上船才算出航完成。',
          '约 4–6 分钟靠岸与分娩',
          [yk('marisa', bank_dx(0), 0, 'mother', aquatic=True, yaw=-90, lead=True, **pair_ready()),
           yk('marisa', bank_dx(4), 4, 'father', aquatic=True, yaw=-90, **pair_ready()),
