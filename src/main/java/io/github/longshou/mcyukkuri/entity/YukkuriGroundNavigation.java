@@ -513,7 +513,7 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
         else if (round.asked()) action = "waiting";
         else {
             blockers.put(id, new Blocker(round.obstacle(), round.until(), true));
-            if (oncoming) { yieldUntil = now + WINDOW; action = "gives_way"; }
+            if (oncoming) { yieldUntil = now + WINDOW; stepAside(animal, other, heading); action = "gives_way"; }
             else if (other instanceof YukkuriEntity body) action = yieldRequest(animal, body, heading) ? "blocker_yields" : "blocker_busy";
             else action = "waiting";
         }
@@ -556,6 +556,18 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
     }
 
     private static Vec3 right(Vec3 heading) { return new Vec3(-heading.z, 0, heading.x); }
+
+    /**
+     * Giving way is a step aside, not only standing still: two bodies that meet on a one-cell shore each stop on the other's line,
+     * the one that keeps its line pushes into a body that only waits, and neither ever gets past (they stood there until they
+     * starved). The giver presses itself one nudge off the other's line, on the side away from it.
+     */
+    private static void stepAside(YukkuriEntity animal, Entity blocker, Vec3 heading) {
+        Vec3 side = right(heading);
+        double away = Math.signum((animal.getX() - blocker.getX()) * side.x + (animal.getZ() - blocker.getZ()) * side.z);
+        if (away == 0) away = 1;
+        animal.nudge(side.x * away * .16, side.z * away * .16);
+    }
 
     /** An idle, awake blocker moves out of the way; sleeping, busy or boarded ones keep their place. */
     private boolean yieldRequest(YukkuriEntity animal, YukkuriEntity blocker, Vec3 heading) {
