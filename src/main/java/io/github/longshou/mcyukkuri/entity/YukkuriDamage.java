@@ -80,6 +80,8 @@ final class YukkuriDamage {
                 if(result.loss()>0)owner.headwear().struck(source,result.loss(),result.part());
                 owner.status().hurt(source);
                 owner.interrupt(interruption,InterruptPhase.AFTER_STATUS_HURT);
+                // One draw per accepted hit on a carrying parent: it may shake one young loose (ParentCarry#struck).
+                owner.family().carry().struck(result.loss());
                 // One draw per real attack: the victim's own protective puff and each of its parents' (ProtectivePuff).
                 boolean puffing = kind != BodyHit.Kind.BOUT && ProtectivePuff.witnessedHit(owner, source.getEntity());
                 if(kind!=BodyHit.Kind.BOUT&&source.getEntity() instanceof YukkuriEntity attacker)

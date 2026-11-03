@@ -303,6 +303,8 @@ public final class PresentationArbiter {
         // newborn's first wake. Only a reaction with a real clip replaces the seated pose.
         if (state.reactionTicks() > 0) {
             YukkuriAction reaction = EcologyPresentation.reaction(state.reactionEvent());
+            // Seated, the land puff would sink the braid into the hull: the seated puff keeps it at its boat rest.
+            if (reaction == YukkuriAction.PUFF) reaction = YukkuriAction.BOAT_PUFF;
             if (reaction != YukkuriAction.IDLE) return reaction;
         }
         if (onBrim(hat, e)) return YukkuriAction.HAT_BRIM;

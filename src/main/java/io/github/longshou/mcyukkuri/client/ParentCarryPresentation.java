@@ -44,9 +44,9 @@ final class ParentCarryPresentation {
     private static final float HANG = 5, TILT_BUDGET = 12;
     /** A captured carrier pose older than this is not used (ticks); the static seat is drawn instead. */
     private static final float STALE = 3;
-    /** Reimu's mouth (rule 灵梦口含多只): ticks a baby takes to slip in from the lips and for the mouth to close after it; the
-     *  share of a set-down it takes to come out; swell for the first baby inside and each further one (share of the puff swell). */
-    private static final float ENTER_TICKS = 6, CLOSE_TICKS = 5, EXIT_SHARE = .35f, CHEEK_FIRST = .5f, CHEEK_MORE = .3f;
+    /** Reimu's mouth (rule 灵梦口含多只): ticks a baby takes to slip in from the lips and for the mouth to close after it. Letting one
+     *  out follows the markers of her mouth_release clip. */
+    private static final float ENTER_TICKS = 6, CLOSE_TICKS = 5;
 
     private static final class Carrier {
         float time;
@@ -86,33 +86,46 @@ final class ParentCarryPresentation {
         return target == null ? null : ParentCarry.braidLean(carrier, target) ? Grab.BRAID_LEAN : Grab.BRAID_LIFT;
     }
 
-    /** How far a Reimu's mouth child is in her mouth (0 at the lips .. 1 inside, unseen); 0 for every other hold. */
+    /** How far a Reimu's mouth child is in her mouth (0 at the lips .. 1 inside, unseen); 0 for every other hold. Letting it out, it is
+     *  inside until the clip's open marker and out at its release marker. */
     private static float inside(YukkuriView carrier, YukkuriView child, float partial) {
         if (!ParentCarry.multi(carrier) || ParentCarry.hold(carrier, child) != Hold.MOUTH) return 0;
-        float down = ParentCarry.lowering(carrier, child, partial);
-        return down >= 0 ? 1 - ease(down / EXIT_SHARE) : ease(ParentCarry.sinceMouthLift(carrier, child, partial) / ENTER_TICKS);
+        float out = ParentCarry.mouthReleaseTicks(carrier, child, partial);
+        if (out < 0) return ease(ParentCarry.sinceMouthLift(carrier, child, partial) / ENTER_TICKS);
+        var clip = ClipMarkers.of(ParentCarry.MOUTH_RELEASE);
+        int open = clip.ticks("open", 7);
+        return 1 - ease((out - open) / (clip.ticks("release", 20) - open));
     }
-    /** How wide Reimu's mouth is open for this child (0..1): from late in the lift until it is in, and until it is out again. */
+    /** How wide Reimu's mouth is open for this child (0..1): from late in the lift until it is in, and from the release clip's start
+     *  to its open marker until its closed marker. */
     private static float opening(YukkuriView carrier, YukkuriView child, float partial) {
         if (!ParentCarry.multi(carrier) || ParentCarry.hold(carrier, child) != Hold.MOUTH) return 0;
-        float down = ParentCarry.lowering(carrier, child, partial), since = ParentCarry.sinceMouthLift(carrier, child, partial);
-        if (down >= 0) return 1 - ease((down - EXIT_SHARE) / .2f);
+        float out = ParentCarry.mouthReleaseTicks(carrier, child, partial);
+        if (out >= 0) {
+            var clip = ClipMarkers.of(ParentCarry.MOUTH_RELEASE);
+            int release = clip.ticks("release", 20);
+            return ease(out / clip.ticks("open", 7)) * (1 - ease((out - release) / (clip.ticks("closed", 26) - release)));
+        }
+        float since = ParentCarry.sinceMouthLift(carrier, child, partial);
         return since < 0 ? ease((ParentCarry.mouthLiftProgress(carrier, child, partial) - .5f) / .4f) : 1 - ease((since - ENTER_TICKS) / CLOSE_TICKS);
     }
-    /** Carrier's mouth over its children: how far open, and how many babies are inside (fractions while one goes in or out). */
+    /** Carrier's mouth over its children: how far open, and how full the cavity is with babies (fractions while one goes in or out). */
     private static float[] mouth(YukkuriView carrier, float partial) {
-        float open = 0, in = 0;
-        for (var rider : carrier.passengerViews()) { open = Math.max(open, opening(carrier, rider, partial)); in += inside(carrier, rider, partial); }
-        return new float[]{open, in};
+        float open = 0, load = 0;
+        for (var rider : carrier.passengerViews()) {
+            open = Math.max(open, opening(carrier, rider, partial));
+            load += inside(carrier, rider, partial) * ParentCarry.cavityShare(carrier, rider);
+        }
+        return new float[]{open, load};
     }
     /** A baby wholly inside its carrier's closed mouth: not drawn at all. */
     static boolean swallowed(YukkuriView child, YukkuriView carrier, float partial) {
         return carrier.hasPassengerId(child.getUUID()) && inside(carrier, child, partial) >= 1;
     }
-    /** The face a carrier shows (texture and face geometry, at the tick): wide open while a baby goes in or out, cheeks puffed
-     *  while babies are inside, else its own. */
+    /** The face a carrier shows (texture and face geometry, at the tick): wide open while a baby goes in, cheeks puffed while
+     *  babies are inside, else its own; her mouth_release clip has its own faces. */
     static String expression(YukkuriView carrier, String own) {
-        if (!carrier.isVehicle() || !ParentCarry.multi(carrier)) return own;
+        if (!carrier.isVehicle() || !ParentCarry.multi(carrier) || ParentCarry.MOUTH_RELEASE.equals(carrier.getAnimationId())) return own;
         var m = mouth(carrier, 0);
         return m[0] > .3f ? "yawn" : m[1] > 0 ? "cheek_puff" : own;
     }
@@ -187,7 +200,7 @@ final class ParentCarryPresentation {
         if (now - state.dropAt < DIP_TICKS) bow = Math.max(bow, Mth.sin((now - state.dropAt) / DIP_TICKS * Mth.PI));
         model.setCarryPose(riders.isEmpty() ? 0 : 1, bow, state.curl[0], state.curl[1]);
         var m = mouth(carrier, partial);
-        model.setMouthLoad(m[0], m[1] <= 1 ? CHEEK_FIRST * m[1] : CHEEK_FIRST + CHEEK_MORE * (m[1] - 1));
+        model.setMouthLoad(m[0], m[1]);
         if (riders.isEmpty() && !lifting && state.curl[0] == 0 && state.curl[1] == 0 && now - state.dropAt > DIP_TICKS && now - state.liftedAt > BOW_OUT_TICKS)
             CARRIERS.remove(carrier.getId());
     }

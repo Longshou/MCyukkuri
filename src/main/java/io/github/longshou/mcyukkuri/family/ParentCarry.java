@@ -59,7 +59,8 @@ import org.joml.Vector3f;
  * A parent carries a dependent baby over land as a real passenger, in the hold the shared Grab chose for it:
  * a hatted Marisa's braid lifts it onto her brim while the brim has free room, then one more goes in her mouth; Chen holds
  * one on each tail; Reimu holds several in her mouth within a volume budget; a hatless Marisa takes one in her mouth or at
- * her braid tip; everyone else one in the mouth (project design). The walk home is the shared Walk; the put-down is the
+ * her braid tip; everyone else one in the mouth (project design). A retrieval lifts every nearby dependent the live holds can
+ * still carry before it leaves, and a hit on a carrying parent can shake one loose ({@link #struck}). The walk home is the shared Walk; the put-down is the
  * shared Release at the child's own position for a real reason (a brim or tail child is first lowered to the ground with
  * the braid or tail), never copied, never teleported to a goal. The only record is {@link #HOLDS}: which hold each child is
  * in. Client code reads it with the synced riders through {@link #rawSeat} / {@link #mouthLane} / {@link #brimSeat}; the
@@ -94,11 +95,16 @@ public final class ParentCarry {
     private static final int MAX_CARRY_TICKS = 12000;
     /** A mouth or braid-tip hold takes a child up to this share of the carrier's volume, scaled by strength (project design). */
     static final double HOLD_FRACTION = .20;
-    /** Reimu holds several babies in her mouth (project design): their summed volume stays within this fraction of her own, scaled by strength. */
-    static final double MOUTH_LOAD_FRACTION = .45;
-    static final int MAX_MOUTH_BABIES = 4;
-    /** Chen's tails: one baby per tail, each up to this fraction of her volume times strength (project design). */
-    static final double TAIL_BABY_FRACTION = .26;
+    /** Reimu's mouth cavity (measured on her model, project design): the summed volume of the babies in it stays within this
+     *  fraction of her own, scaled by strength; a baby also has to pass her lips, whose width is this share of her own. */
+    static final double MOUTH_LOAD_FRACTION = .05, LIP_WIDTH_FRACTION = .28;
+    /** Chen's tails: one baby per tail, each up to this fraction of her volume times strength (project design, measured so the two babies clear each other and her body). */
+    static final double TAIL_BABY_FRACTION = .027;
+    /** A retrieval takes the dependents this close before it leaves, for at most this many ticks of its walk (project design). */
+    private static final double GATHER_RANGE = 8;
+    private static final int GATHER_TICKS = 600;
+    /** Reimu lets a baby out of her mouth by this clip: it opens, the baby leaves by {@code release} and the lips shut by {@code closed}. */
+    public static final String MOUTH_RELEASE = "mouth_release";
     /** Tail seat: the shelf of the curled tail behind and beside the body (model units, idle pose, full curl). */
     private record Tail(float x, float y, float z) {}
     /** One seat per tail (left, right), model units; matches the curl drawn by ParentCarryPresentation (the client follows the live tail). */
@@ -130,6 +136,8 @@ public final class ParentCarry {
     private Purpose purpose;
     private long since, arrivedAt;
     private UUID lifting;
+    /** The dependent this retrieval is about to lift before it leaves: it waits for the lift like a searched-for child ({@link #awaitsCarrier}). */
+    private UUID gathering;
     private Release settingDown;
     /** Where the carry's own Walk was last sent and started; why the retrieval gave up; why the child being set down comes down. */
     private Vec3 walkTo, walkFrom;
@@ -252,12 +260,32 @@ public final class ParentCarry {
     }
     /** The tick a lowered child's set-down began, or -1 when it is not being set down. */
     public static long setDownTick(YukkuriView carrier, YukkuriView child) { var e = entry(carrier, child.getUUID()); return e.contains("D") ? e.getLong("D") : -1; }
+    /** Ticks into Reimu's release clip for this baby (the clip's own clock), or -1 when she is not letting it out of her mouth. */
+    public static float mouthReleaseTicks(YukkuriView carrier, YukkuriView child, float partial) {
+        long since = multi(carrier) && hold(carrier, child) == Hold.MOUTH ? setDownTick(carrier, child) : -1;
+        return since < 0 ? -1 : carrier.level().getGameTime() - since + partial;
+    }
+    /** Ticks of Reimu's release clip still to play, the lips shutting by its end; 0 for every other hold. */
+    public static int mouthReleaseLeft(YukkuriView carrier, YukkuriView child) {
+        float played = mouthReleaseTicks(carrier, child, 0);
+        return played < 0 ? 0 : Math.max(0, ClipMarkers.of(MOUTH_RELEASE).length() - (int) played);
+    }
+    /** How much of Reimu's mouth cavity this baby fills (1: the whole cavity), strength aside; the cheeks swell by the sum. */
+    public static double cavityShare(YukkuriView carrier, YukkuriView child) {
+        return volume(child) / (MOUTH_LOAD_FRACTION * volume(carrier));
+    }
     /** How far a lowered child has come down (0 seated .. 1 on the ground), or -1 when it is not being set down. */
     public static float lowering(YukkuriView carrier, YukkuriView child, float partial) {
         var e = entry(carrier, child.getUUID());
         return e.contains("D") ? Math.clamp((carrier.level().getGameTime() - e.getLong("D") + partial) / e.getInt("N"), 0, 1) : -1;
     }
     public static boolean riding(YukkuriEntity carrier, Entity child) { return child instanceof YukkuriEntity && carrier.hasPassenger(child); }
+    /** The carry looks after this rider (it lifted it itself, or took it over): a hit draws for it instead of letting it go. */
+    public static boolean keeps(YukkuriEntity carrier, YukkuriEntity child) { return entry(carrier, child.getUUID()).getBoolean("C"); }
+    /** This young is held in a Reimu's mouth, where it is not drawn. */
+    public static boolean hiddenInMouth(YukkuriEntity child) {
+        return child.getVehicle() instanceof YukkuriEntity carrier && riding(carrier, child) && multi(carrier) && hold(carrier, child) == Hold.MOUTH;
+    }
     private static double size(YukkuriView v) { return v.growthScale() * v.getScale(); }
     /** Reimu carries babies in her mouth, several at once; every other mouth carrier holds one. */
     public static boolean multi(YukkuriView carrier) { return carrier.getVariant() == YukkuriVariant.REIMU; }
@@ -878,7 +906,7 @@ public final class ParentCarry {
                     count++;
                 }
                 if (!multi(carrier)) return count > 1 ? "occupied" : null;
-                if (count > MAX_MOUTH_BABIES) return "occupied";
+                if (child.getBbWidth() > LIP_WIDTH_FRACTION * carrier.getBbWidth()) return "lips";
                 return load > MOUTH_LOAD_FRACTION * strength * volume(carrier) ? "mouth_load" : null;
             }
         }
@@ -924,7 +952,8 @@ public final class ParentCarry {
         for (var id : new UUID[]{child.family().mother(), child.family().father()})
             if (id != null && level.getEntity(id) instanceof YukkuriEntity parent && parent.isAlive() && parent.family().adult()) {
                 var carry = parent.family().carry();
-                boolean incoming = parent.family().task() == FamilyLife.Task.SEARCH && parent.family().target() == child;
+                boolean incoming = parent.family().task() == FamilyLife.Task.SEARCH && parent.family().target() == child
+                        || parent.family().task() == FamilyLife.Task.CARRY && child.getUUID().equals(carry.gathering);
                 boolean escort = parent.family().task() != FamilyLife.Task.SEARCH && child.family().familyTravelling()
                         && child.family().migrationEscort() == parent && carry.pickupDue(child);
                 if ((incoming || escort) && carry.ready() && carry.pickupWanted(child) && child.life().canRecognize(parent)
@@ -973,7 +1002,7 @@ public final class ParentCarry {
             var riders = riders(carrier, Hold.MOUTH);
             for (var rider : riders) load += volume(rider);
             int byVolume = (int) Math.floor((MOUTH_LOAD_FRACTION * strength(carrier) * volume(carrier) - load) / Math.max(1e-6, volume(child)));
-            mouth = multi(carrier) ? Math.max(1, Math.min(byVolume, MAX_MOUTH_BABIES - riders.size())) : 1;
+            mouth = multi(carrier) ? Math.max(1, byVolume) : 1;
         }
         if (!brimmed(carrier)) return mouth + (holdProblem(carrier, child, Hold.BRAID, false) == null ? 1 : 0);
         // Copies of this baby added round the brim beside the children already there, until it has no more room.
@@ -995,7 +1024,7 @@ public final class ParentCarry {
             double budget = MOUTH_LOAD_FRACTION * strength(carrier) * volume(carrier), load = 0;
             int count = 0;
             for (var kid : kids) {
-                if (count >= MAX_MOUTH_BABIES || !fits(kid, Hold.MOUTH) || load + volume(kid) > budget) continue;
+                if (!fits(kid, Hold.MOUTH) || load + volume(kid) > budget) continue;
                 load += volume(kid);
                 count++;
             }
@@ -1174,9 +1203,9 @@ public final class ParentCarry {
     // ------------------------------------------------------------------------------------------ carrying (server)
 
     /**
-     * Per tick on the carrier (a passive clock): it only watches. A hard reason (fire, panic, an operation, death) goes
+     * Per tick on the carrier (a passive clock): it only watches. A hard reason (fire, an operation, death) goes
      * through the MOTOR interrupt bridge, which lets the children go where they are; every ordinary put-down is the set-down
-     * goal's Release ({@link #setDownGoal}).
+     * goal's Release ({@link #setDownGoal}). A hit is no hard reason: the panic it causes keeps the riders, and {@link #struck} draws.
      */
     void tick() {
         prune();
@@ -1193,8 +1222,7 @@ public final class ParentCarry {
             arrivedAt = now;
             GameplayLog.event(carrier, "family", "carry destination reached aboard={}", carrier.getPassengers().size());
         }
-        String hard = !carrier.isAlive() ? "carrier_died" : carrier.isOnFire() ? "carrier_burning"
-                : carrier.isPanicking() ? "carrier_panic" : carrier.operations().active() ? "operation" : null;
+        String hard = !carrier.isAlive() ? "carrier_died" : carrier.isOnFire() ? "carrier_burning" : carrier.operations().active() ? "operation" : null;
         if (hard != null) { carrier.motor().interrupt(hard); return; }
         for (var child : all) {
             String childHard = !child.isAlive() ? "died" : child.operations().active() ? "operation" : null;
@@ -1332,11 +1360,24 @@ public final class ParentCarry {
         if (!motor.run(owner, settingDown) && motor.refusal() != null) settingDown.finished(carrier, motor.refusal());
     }
 
-    /** Walk home with the child (retrieval) on the shared Walk; the set-down goal puts it down on arrival. False once the walk is over. */
+    /**
+     * Before the retrieval leaves, it lifts every nearby dependent the live holds can still carry (each Grab picks its hold, a
+     * failed lift leaves that one for a later trip); then it walks home with the children on the shared Walk, and the set-down
+     * goal puts them down on arrival. False once the walk is over.
+     */
     boolean tickHome(int taskTicks) {
         var child = carried();
         if (child == null || giveUp != null) return false;
         if (purpose == Purpose.NEST_RIM) return true;
+        var more = lifting != null || walkTo == null && taskTicks < GATHER_TICKS ? dependent() : null;
+        // The claimed dependent stands still for the lift (it already waits instead of starting a walk of its own).
+        if (more != null && !more.getUUID().equals(gathering)) SurfaceApproach.stopWalking(more);
+        gathering = more == null ? null : more.getUUID();
+        if (more != null) {
+            if (tickPickup(more, taskTicks) == Step.FAILED)
+                pauses.put(more.getUUID(), new Pause(carrier.level().getGameTime() + HOLD_TICKS, "pickup_failed"));
+            return true;
+        }
         var home = child.family().carryHome();
         if (home == null) { giveUp = "no_home"; return false; }
         var centre = Vec3.atBottomCenterOf(home);
@@ -1345,6 +1386,18 @@ public final class ParentCarry {
         var approach = entrance == null ? centre : Vec3.atBottomCenterOf(entrance);
         var floor = SurfaceApproach.restingFloor(carrier, approach.add(0, .1, 0));
         return walk(floor == null ? approach : floor, taskTicks, "home_unreachable");
+    }
+
+    /** The dependent under this carrier's Grab, else the nearest within reach that the retrieval would lift now and the live holds can carry. */
+    private YukkuriEntity dependent() {
+        var level = (ServerLevel) carrier.level();
+        if (lifting != null) {
+            if (level.getEntity(lifting) instanceof YukkuriEntity lifted) return lifted;
+            lifting = null;
+        }
+        return level.getEntitiesOfClass(YukkuriEntity.class, carrier.getBoundingBox().inflate(GATHER_RANGE),
+                kid -> kid != carrier && Bonds.parentOf(carrier, kid) && purposeFor(kid) == purpose && capable(kid) && carrier.life().canRecognize(kid))
+                .stream().min(Comparator.comparingDouble(carrier::distanceToSqr)).orElse(null);
     }
 
     /** The shared Walk to {@code at}: being there is arrival, and a route that moved the carrier nowhere is not tried again unchanged. */
@@ -1428,8 +1481,14 @@ public final class ParentCarry {
             next.putString("LC", clip);
             next.putByte("H", (byte) Hold.BRAID.ordinal());
             ticks = BraidFetch.marker(clip, "place") - BraidFetch.marker(clip, "lift_start") + BraidFetch.marker(BraidFetch.SETTLE, "release");
-        } else ticks = holdOf(e) == Hold.MOUTH ? CarryGeometry.motionTicks(child.position().distanceTo(letGoPoint(carrier, child)),
-                BodyAbility.of(carrier).walkSpeed()) : lowerTicks();
+        } else if (holdOf(e) != Hold.MOUTH) {
+            ticks = lowerTicks();
+        } else if (multi(carrier)) {
+            // Reimu: the baby is out on the ground by her release clip's release marker; Release holds the beat to the clip's end.
+            ticks = ClipMarkers.of(MOUTH_RELEASE).ticks("release", 20);
+        } else {
+            ticks = CarryGeometry.motionTicks(child.position().distanceTo(letGoPoint(carrier, child)), BodyAbility.of(carrier).walkSpeed());
+        }
         next.putLong("D", carrier.level().getGameTime());
         if (holdOf(e) == Hold.BRIM) {
             var grip = letGoPoint(carrier, child).add(0, GRIP_Y * size(child) / 16, 0);
@@ -1554,9 +1613,27 @@ public final class ParentCarry {
         if (!carrying()) {
             purpose = null;
             giveUp = null;
+            gathering = null;
             if (carrier.motor().current() instanceof Walk && carrier.motor().owner() == owner) carrier.motor().cancel(owner, "carry_ended");
             carrier.family().endCarry();
         }
+    }
+
+    /**
+     * One accepted hit on this carrying parent (project design, user 2026-11-04): one draw, at most one young shaken loose. The
+     * chance is the hit's share of her max health, scaled down by her self-control; the last one aboard goes through the shared
+     * Release where it hangs and falls to its real support. Command and other interruptions keep their own meaning.
+     */
+    public void struck(float loss) {
+        var all = ours();
+        if (all.isEmpty()) return;
+        int control = carrier.life().personality().selfControl();
+        float chance = Math.clamp(loss / carrier.getMaxHealth(), 0, 1) * (1 - control / 100f), roll = carrier.getRandom().nextFloat();
+        var child = all.get(all.size() - 1);
+        boolean dropped = roll < chance;
+        GameplayLog.event(carrier, "family", "carry hit drop chance={} roll={} loss={} selfControl={} dropped={} child={} hold={} aboard={}",
+                chance, roll, loss, control, dropped, child.getUUID(), hold(carrier, child).key(), all.size());
+        if (dropped) Release.now(carrier, child, true, "hit");
     }
 
     /** The hold record with the family save, so a reload keeps every child in its hold. */

@@ -547,6 +547,8 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     @Override public LivingEntity getControllingPassenger(){return null;}
     /** A rider's seat belongs to the carrier's route, including seats outside its collision box; a real hit still releases it. */
     @Override public boolean isInWall(){return !(getVehicle() instanceof YukkuriEntity)&&super.isInWall();}
+    /** A young held in a Reimu's mouth is not drawn, so it is not picked either: the click goes to its carrier. */
+    @Override public boolean isPickable(){return super.isPickable()&&!ParentCarry.hiddenInMouth(this);}
     @Override protected void positionRider(Entity passenger,MoveFunction move){
         if(passenger instanceof YukkuriEntity child&&ParentCarry.riding(this,child)){
             var point=ParentCarry.seat(this,child);

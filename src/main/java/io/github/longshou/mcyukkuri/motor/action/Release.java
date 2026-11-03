@@ -263,6 +263,9 @@ public final class Release implements Action {
                 ParentCarry.pinned(carrier, child, at));
         if (down < 1 || remaining > .02) return destination != null ? new Running(-lowered, TravelMode.CONSUMED)
                 : progress(new Running(Math.max(1 - down, remaining), TravelMode.CONSUMED), 0);
+        // Reimu's baby is out by the clip's release marker; the lips still shut before the clip ends.
+        int beat = ParentCarry.mouthReleaseLeft(carrier, child);
+        if (beat > 0) return progress(new Running(beat / 100.0, TravelMode.CONSUMED), 0);
         if (destination != null) {
             if (!destination.steady()) {
                 int left = ClipMarkers.of(BraidFetch.SETTLE).length() - settling++;
@@ -286,6 +289,7 @@ public final class Release implements Action {
     @Override public MotionPose pose() {
         if (approach != null) return approach.pose();
         long since = carrier == null ? -1 : ParentCarry.setDownTick(carrier, child);
+        if (since >= 0 && ParentCarry.mouthReleaseTicks(carrier, child, 0) >= 0) return new MotionPose(ParentCarry.MOUTH_RELEASE, since, false);
         if (since >= 0 && !ParentCarry.lowerClip(carrier, child).isEmpty()) {
             String clip = ParentCarry.lowerClip(carrier, child);
             int start = BraidFetch.marker(clip, "lift_start"), place = BraidFetch.marker(clip, "place");
@@ -312,10 +316,17 @@ public final class Release implements Action {
         return room;
     }
 
-    /** The carry side of the interrupt bridge: an interrupted carrier lets every child go where it is, and an interrupted held child (bar a fright) lets go of its carrier. */
+    /**
+     * The carry side of the interrupt bridge: an interrupted carrier lets every child go where it is, and an interrupted held child
+     * (bar a fright) lets go of its carrier. A hit does not end a carry's own hold: a hit child stays held, and a hit carrier draws
+     * once for one young ({@link ParentCarry#struck}); a young still being lifted, or held by another intent, is let go as before.
+     */
     public static void interrupted(YukkuriEntity body, String why) {
-        for (var rider : body.getPassengers()) if (rider instanceof YukkuriEntity child) let(body, child, "carry_" + why);
-        if (!why.equals("fright") && body.getVehicle() instanceof YukkuriEntity carrier) let(carrier, body, "carry_child_" + why);
+        boolean hit = why.equals("hurt");
+        for (var rider : body.getPassengers())
+            if (rider instanceof YukkuriEntity child && !(hit && ParentCarry.keeps(body, child))) let(body, child, "carry_" + why);
+        if (!why.equals("fright") && body.getVehicle() instanceof YukkuriEntity carrier && !(hit && ParentCarry.keeps(carrier, body)))
+            let(carrier, body, "carry_child_" + why);
     }
 
     private static void let(YukkuriEntity carrier, YukkuriEntity child, String cause) {

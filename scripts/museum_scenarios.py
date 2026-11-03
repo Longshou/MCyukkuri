@@ -1739,9 +1739,7 @@ def _carry_outcome_verify(log, home=False):
             carried.pop(child, None)
             released[child] = event
     if carried:
-        if home:
-            return f'children without a completed release: {sorted(carried)}'
-        # A later family retrieval can still be under way; measure this child's current hold, not the carrier's first pickup.
+        # A later family retrieval or nest-rim recovery can still be under way; measure this child's current hold, not the carrier's first pickup.
         end_tick = int(re.search(r'MCYSMOKE_END_TICK (\d+)', log)[1])
         stuck = {child: end_tick - tick for child, tick in carried.items() if end_tick - tick > 600}
         if stuck:
@@ -1835,13 +1833,36 @@ def _carry_verify(log):
             return f'brim-local seat changed for {child}: {grips[child]} -> {seat}'
         if not re.search(rf'carry put down [^\n]*hold=braid cause=release [^\n]*child={child}\b', log[match.end():]):
             return f'brim child {child} was not released after lowering'
-    return None if checked else 'expected a brim grip/release pair with a constant brim-local seat'
+    if not checked:
+        return 'expected a brim grip/release pair with a constant brim-local seat'
+    return _carry_loads_verify(log) or _reimu_release_verify(log)
+
+
+def _carry_loads_verify(log):
+    # A retrieval lifts every nearby young its holds can still carry before it leaves: Chen two, Marisa and Reimu more than one.
+    most = {}
+    for kind, aboard in re.findall(r'\[family\] (marisa|reimu|chen) #\d+ [^\n]*carry pickup hold=[^\n]* aboard=(\d+)', log):
+        most[kind] = max(most.get(kind, 0), int(aboard))
+    short = {kind: most.get(kind, 0) for kind in ('marisa', 'reimu', 'chen') if most.get(kind, 0) < 2}
+    return f'no simultaneous load of at least 2 young: {short} (most aboard {most})' if short else None
+
+
+def _reimu_release_verify(log):
+    # Reimu lets each baby out by her whole mouth_release clip (1.6 s = 32 ticks), not in the first ticks.
+    opened = {child: int(tick) for tick, child in re.findall(
+        r'\[family\] reimu #\d+ uuid=\S+ t=(\d+) [^\n]*?carry lowering hold=mouth child=([0-9a-f-]{36})', log)}
+    out = {child: int(tick) for tick, child in re.findall(
+        r'\[family\] reimu #\d+ uuid=\S+ t=(\d+) [^\n]*?carry put down reason=\w+ hold=mouth cause=release purpose=\w+ child=([0-9a-f-]{36})', log)}
+    if not opened or not out:
+        return 'expected a Reimu mouth release (carry lowering hold=mouth, then carry put down hold=mouth)'
+    quick = {child: out[child] - tick for child, tick in opened.items() if child in out and out[child] - tick < 32}
+    return f'Reimu released before her clip ended (ticks): {quick}' if quick else None
 
 
 add('carry_home', 'family', '亲代运输·把走远的赤油带回家', '亲代运输',
-    '三家各有自己的大窝，赤油在约 8 格外：魔理沙（1.2 倍）、灵梦、橙各自走去，每次把一个孩子接回窝内；魔理沙用辫子托上帽檐，灵梦口含，橙用尾巴',
+    '三家各有自己的大窝，赤油在约 8 格外：魔理沙（1.2 倍，4 只）、灵梦（3 只）、橙（2 只）各自走去，先把身边够得着、承托还放得下的孩子一只只都抬起，再一起带回窝内；魔理沙用辫子托上帽檐，灵梦口含，橙两尾各托一只，到窝后一只一只放下（灵梦张嘴放出约 1.6 秒）',
     '约 30 秒内开始抬起', _carry_lines, env=DAY, spot='carry_home', vantage=(.5, 4.5, 180, 1, 30),
-    note='孩子离窝超过 4 格即触发找回（purpose=RETRIEVE）；是否接起由亲油自己的照护决定，不指定 Goal。日志 [family] carry lift started／carry pickup hold=brim／mouth／tail_left／tail_right／carry put down。',
+    note='孩子离窝超过 4 格即触发找回（purpose=RETRIEVE）；是否接起由亲油自己的照护决定，不指定 Goal。离开前一趟抬起几只看 carry pickup 的 aboard=（橙 2；魔理沙按帽檐空间再口含一只；灵梦按口腔容量），放不下的留给下一趟。可右键问候／开照料菜单、攻击被抬着的孩子（灵梦口里看不见的除外）：孩子不会因此被放下，也不会自己走；攻击亲油则每次受击掷一次摔落（概率＝伤害占最大生命的比例×（1−自制/100），日志 [family] carry hit drop chance= roll= dropped=），命中则最后抱上的一只在原处掉到地面。日志 [family] carry lift started／carry pickup hold=brim／mouth／tail_left／tail_right／carry put down。',
     reads=[('读承托状态（home.family_state 的 carry=）', 'yukkuri status @e[type=#mcylab:yukkuri,tag=scn,distance=..48] raw')],
     capture=dict(shots=(1, 40, 1200, 2400, 3600), sequences=((2, 1000, 4), (2500, 3300, 10)), observe=False,
                  views={kind: dict(follow=f'@e[tag=scn_{kind}_parent,limit=1]',
@@ -1851,14 +1872,13 @@ add('carry_home', 'family', '亲代运输·把走远的赤油带回家', '亲代
                        r'\[family\] marisa #[^\n]* carry pickup hold=brim\b',
                        r'\[family\] reimu #[^\n]* carry pickup hold=mouth\b',
                        r'\[family\] chen #[^\n]* carry pickup hold=tail_(?:left|right)\b',
-                       *(rf'\[family\] {kind} #[^\n]* carry put down reason=arrived_home [^\n]*nest=(?:INSIDE_SUPPORTED|PARTIAL)\b' for kind, _, _, _ in _carry_families)],
+                       *(rf'\[family\] {kind} #[^\n]* carry put down reason=arrived_home [^\n]*nest=(?:INSIDE_SUPPORTED|PARTIAL)\b' for kind, _, _, _ in _carry_families),
+                       *(rf'\[family\] {kind} #[^\n]* carry pickup [^\n]*aboard=[2-9]\b' for kind, _, _, _ in _carry_families)],
                forbid=[r'\[home\][^\n]* assignment refused\b', r'\[family\][^\n]* task stopped task=SEARCH target=null\b',
                        r'\[home\][^\n]*bed crossing[^\n]*opening=false source=walk', r'\[home\][^\n]*nest_not_inside\b',
                        r'\[home\][^\n]*reason=doorway_unreachable\b',
-                       r'\[family\][^\n]* carry put down forced\b', r'\[family\][^\n]* cause=carry_release_blocked\b',
-                       r'MCYSMOKE_CHILD_STILL_HELD'],
-               readout=['yukkuri status @e[type=#mcylab:yukkuri,tag=scn] raw',
-                        'execute as @e[type=#mcylab:yukkuri,tag=scn,distance=..48] on vehicle run say MCYSMOKE_CHILD_STILL_HELD'],
+                       r'\[family\][^\n]* carry put down forced\b', r'\[family\][^\n]* cause=carry_release_blocked\b'],
+               readout=['yukkuri status @e[type=#mcylab:yukkuri,tag=scn] raw'],
                verify=_carry_verify))
 
 # ---- commodification
