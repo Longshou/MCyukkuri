@@ -12,7 +12,6 @@
 | 亲代一次运多只、灵梦放出动画、被运孩子可交互与受击摔落（反馈 1、2，WP-F2） | `.worktrees/wp-f2-carry` | `family/ParentCarry`、`motor/action/{Grab,Release}`、`client/ParentCarryPresentation`、`entity/{YukkuriDamage,YukkuriAction}`、`social/ProtectivePuff`、`entity/presentation/PresentationArbiter`、`scripts/museum_scenarios.py`（`carry_home`） |
 | 水生母油临产才上岸（反馈 8 上岸时机，WP-B1） | `.worktrees/wp-b1-late-shore` | `aquatic/AquaticGoal`、`family/FamilyLife`、`command/ScenarioSetup`、`scripts/museum_scenarios.py` |
 | 赤油在帽檐／头顶演出、删掉拨粮（反馈 4、13，WP-P） | `.worktrees/wp-p-brim-play` | `aquatic/{PlayAboard,BrimPerformance,AquaticGoal,HullAfloat}`、`entity/{Behaviors,YukkuriAction}`、`scripts/museum_scenarios.py`、`standards/yukkuri-library/motions/variants/lore/{aquatic_tools.py,recipe.json}` |
-| 通用持物显示：木棍在辫梢攥着（反馈 6，WP-K2a） | `.worktrees/wp-k2a-held-item` | `client/{HeldItemPresentation,YukkuriModel,PlacedHatRenderer,YukkuriRenderer}`、`entity/{YukkuriSync,YukkuriEntity,YukkuriView}`、`aquatic/AquaticLife`、`standards/yukkuri-library/motions/variants/lore/aquatic_tools.py` |
 | 拨水寻回帽与游泳起手动作（反馈 15，WP-K2b） | `.worktrees/wp-k2b-beckon-swim` | `motor/action/{Swim,Beckon}`、`entity/YukkuriAction`、`life/{WaterDistress,EscapeWater}`、`client/WaterMotionClock`、`scripts/museum_scenarios.py`（`shore_capsized`、`shore_capsized_far`） |
 
 ## 玩法待办

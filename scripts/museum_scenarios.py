@@ -2445,7 +2445,7 @@ pond('sail', '单体出航·划船·饿了返岸', '单体航程',
      capture=dict(shots=(1, 40, 200, 600), sequences=((220, 420, 2),)),
      note='每阶段一条日志：[headwear] kit stowed → [aquatic] berth → [hat] placed … water=true kit=… → [hat] boarded → [intent] start id=cruise → '
           '[aquatic] route purpose=cruise → [intent] start id=come_ashore（why 中 hunger、food_aboard=false）→ [aquatic] route purpose=come_ashore → [hat] left → '
-          '[action] end id=take_prop outcome=DONE。划水时原版木棍随辫梢移动，读 aquatic.stick_in_braid=true；停划时木棍平放帽檐、读数为 false，下一次划桨再握起，岸边招帽仍空辫拨水。上岸后饥饿仍压住出航欲望，不会马上再上船。' + _DESIRE_NOTE,
+          '[action] end id=take_prop outcome=DONE。取到棍后木棍始终握在辫梢（划桨、坐着、待机都不松手），读 aquatic.stick_in_braid=true，帽内腔不再另画一根。上岸后饥饿仍压住出航欲望，不会马上再上船。' + _DESIRE_NOTE,
      reads=[('读船主', f'yukkuri status {sel("a")} raw'), ('读帽子', f'data get entity {_HAT}')],
      smoke=dict(ticks=1200, commands=[(1, 'yukkuri status trace true'), (1199, 'yukkuri status trace false')],
                 expect=[r'\[intent\][^\n]* start id=set_out\b',
@@ -2520,7 +2520,7 @@ pond('afloat_stick', '水上缺棍·划去取漂浮木棍', '漂浮木棍亲油�
       item('minecraft:stick', 1, bank_dx(0) + 8, 0, 'stick', dy=-.15)],
      vantage=(bank_dx(0) + 11, -3, 40, 18),
      note='日志：[intent] start id=fetch_stick（why 里 item at=）→ [aquatic] stick target chosen … afloat=true → [action] start id=paddle → [action] start id=pick → [aquatic] stick taken … stowed_in=hat；'
-          '取到后 aquatic.stick_in_braid 随划桨变 true。木棍是原版掉落物，浮在水面上；准备放帽成功不算取棍成功。' + _DESIRE_NOTE,
+          '取到后 aquatic.stick_in_braid 在取到并收进帽后变 true。木棍是原版掉落物，浮在水面上；准备放帽成功不算取棍成功。' + _DESIRE_NOTE,
      reads=[('读船主', f'yukkuri status {sel("a")} raw'), ('读帽子', f'data get entity {_HAT}'),
             ('读水上物品', 'execute as @e[type=minecraft:item,distance=..48] run data get entity @s Pos')],
      smoke=dict(ticks=1200, expect=[r'\[intent\][^\n]* start id=fetch_stick\b', r'\[aquatic\][^\n]* stick target chosen [^\n]*afloat=true',
