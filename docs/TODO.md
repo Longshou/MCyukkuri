@@ -9,6 +9,7 @@
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
 | 落水救援收敛（孩子向亲帽靠拢、放下就近改选、满座托着送岸；摇晃翻覆溺亡） | `.worktrees/fb-capsize-sonnet`（分支 `rescue-converge`） | `life/EscapeWater`／`WaterDistress`、`family/BraidFetch`／`ParentCarry`、`motor/action/Grab`／`Release`、`motor/surface/SeatTarget`、`aquatic/Rescue`／`Ferry` |
+| 伤口导出对齐与帽船真实点选（魔理沙伤口、赤油可点、空帽打几下掉成物品、水上不损头饰） | `.worktrees/fb-wound-pick`（分支 `fb-wound-pick`） | `scripts/export_wound_surfaces.cjs`／`yukkuri_wounds/*`、`headwear/{PlacedHatEntity,PlacedHatBehavior,Headwear}`、`aquatic/{HullAfloat,HullTriggers}` |
 
 ## 玩法待办
 
