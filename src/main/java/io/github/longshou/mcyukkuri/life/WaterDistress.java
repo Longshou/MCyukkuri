@@ -21,7 +21,7 @@ public final class WaterDistress {
     public enum Phase { IDLE, IMPACT, STRUGGLE, EXHAUSTED, RECOVER }
     private final YukkuriEntity entity;
     private Phase phase=Phase.IDLE;
-    private int phaseTicks, immersionTicks, fatigue, callWait, pendingPlunge, drySupportTicks;
+    private int phaseTicks, immersionTicks, callWait, pendingPlunge, drySupportTicks;
     private long lastTick=Long.MIN_VALUE;
     private ServerLevel lastLevel;
     private long threatTick=Long.MIN_VALUE;
@@ -38,7 +38,7 @@ public final class WaterDistress {
             &&entity.motor().current() instanceof Swim swim&&swim.pushing();}
     /** Server-side status readout; no target search or rescue state changes are performed here. */
     public String statusDetail(){
-        return "phase="+phase+" phaseTicks="+phaseTicks+" immersion="+immersionTicks+" fatigue="+fatigue;
+        return "phase="+phase+" phaseTicks="+phaseTicks+" immersion="+immersionTicks+" energy="+entity.life().energy()+" air="+entity.getAirSupply();
     }
     /** Called where a body really falls in: it shows the plunge pose until it touches the water. */
     public void plunge(){
@@ -60,8 +60,8 @@ public final class WaterDistress {
             Phase before = phase; int elapsed = phaseTicks;
             phase=next;phaseTicks=0;
             GameplayLog.limited(entity, "water", "phase." + next, 200,
-                    "phase={} -> {} previousTicks={} immersion={} fatigue={} energy={} sheltered={}",
-                    before, next, elapsed, immersionTicks, fatigue, entity.life().energy(), Attach.sheltered(entity));
+                    "phase={} -> {} previousTicks={} immersion={} energy={} air={} sheltered={}",
+                    before, next, elapsed, immersionTicks, entity.life().energy(), entity.getAirSupply(), Attach.sheltered(entity));
         }
     }
     private void enterWater(){
@@ -78,9 +78,9 @@ public final class WaterDistress {
         if(entity.isInWaterOrBubble()){
             drySupportTicks=0;
             if(phase==Phase.IDLE||phase==Phase.RECOVER)enterWater();
-            immersionTicks=Math.min(24000,immersionTicks+1);fatigue=Math.min(24000,fatigue+1);
+            immersionTicks=Math.min(24000,immersionTicks+1);
             if(phase==Phase.IMPACT&&phaseTicks>=12)set(Phase.STRUGGLE);
-            if(phase!=Phase.IMPACT&&(fatigue>=160||entity.life().energy()<20))set(Phase.EXHAUSTED);
+            if(phase!=Phase.IMPACT&&worn())set(Phase.EXHAUSTED);
             if(!entity.isNoAi()&&!entity.isCommandPlaying()&&!entity.operations().active()
                     &&callWait==0&&phase!=Phase.IMPACT){entity.speak("water_help");callWait=phase==Phase.EXHAUSTED?90:55;}
             return;
@@ -94,11 +94,13 @@ public final class WaterDistress {
             entity.showReaction("teary", null, 40);
         }
         if(phase==Phase.RECOVER&&realThreat()){set(Phase.IDLE);return;}
-        if(fatigue>0&&now%4==0)fatigue--;
         if(phase==Phase.RECOVER&&phaseTicks>=56){
             set(Phase.IDLE);immersionTicks=0;
         }
     }
+    /** Really worn now, from the body's own state: its energy is nearly spent, or its vanilla breath is gone (its head has been under
+     *  the water long enough). Immersion time alone is not exhaustion. */
+    private boolean worn(){return entity.life().energy()<20||entity.getAirSupply()<=0;}
     /** A short recovery may interrupt leisure, but never an urgent need, threat escape, player command or a young of hers crying
      *  for help in the water. */
     public boolean restingBreath(){
@@ -140,14 +142,13 @@ public final class WaterDistress {
     }
     public CompoundTag save(){
         var tag=new CompoundTag();tag.putString("Phase",phase.name());tag.putInt("PhaseTicks",phaseTicks);
-        tag.putInt("Immersion",immersionTicks);tag.putInt("Fatigue",fatigue);
+        tag.putInt("Immersion",immersionTicks);
         tag.putInt("PendingPlunge",pendingPlunge);
         return tag;
     }
     public void load(CompoundTag tag){
         try{phase=Phase.valueOf(tag.getString("Phase"));}catch(IllegalArgumentException ex){phase=Phase.IDLE;}
         phaseTicks=Math.clamp(tag.getInt("PhaseTicks"),0,24000);immersionTicks=Math.clamp(tag.getInt("Immersion"),0,24000);
-        fatigue=Math.clamp(tag.getInt("Fatigue"),0,24000);
         drySupportTicks=0;
         pendingPlunge=Math.clamp(tag.getInt("PendingPlunge"),0,12);
         callWait=0;lastLevel=threatLevel=null;lastTick=threatTick=Long.MIN_VALUE;

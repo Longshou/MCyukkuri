@@ -2282,12 +2282,32 @@ pond('self_rescue', '落水游回自帽', '落水游回自帽',
                                    r'\[method\][^\n]* pick intent=escape_water method=(?:own_hat|right_own_hat)\b'],
                 forbid=_WATER_SMOKE_FORBID, verify=water_aftermath, readout=_water_readouts('a')))
 
-pond('shore_capsized', '岸边翻覆的帽子·走进水里扶正', '扶正帽子',
-     '离岸 8 格的水面上，船主的帽子倒扣漂着，岸上招帽够不着：她从岸上走进水里（普通走路跨过岸沿落水，不跳跃），游到帽檐外侧，咬住帽檐按一段片段的推帽标记把帽子推正，帽子正过来后再爬进去；扶正时播咬檐推帽的动作，泡水伤不打断',
+pond('shore_capsized', '岸边拨水寻回帽·三格内不湿身', '拨水寻回帽',
+     '船主的帽子倒扣漂在离岸不到三格的静水里：她站在岸边面向帽子，侧身探出岸沿用辫梢一下一下拨水（片段的水下拨动段才推动帽子，其余时间帽子顺水面的阻力和真实水流滑行），把帽子拨到辫梢／嘴够得着的地方后咬住帽檐推正，再收回戴上；三格内不下水',
+     '约 20–40 秒',
+     [captain(dx=bank_dx(0)), afloat('a', water_at(0, 2.5), False)],
+     late=[f'data merge entity {_HAT} {{Roll:180f,Inverted:1b,Motion:{{Phase:"INVERTED"}}}}'],
+     note='倒扣是帽子真实的漂浮姿态（帽冠朝上），不是被测环节。日志：[action] start id=beckon … wet=false stroke=2..22/32（每周期只在这 20 tick 推动帽子）→ 帽檐被拨到够得着的地方 → '
+          '[action] end id=beckon outcome=DONE detail=at_bank → [action] start id=right … push= → [hat] righted cause=reclaim → '
+          '[headwear] reclaim done how=worn；三格内不下水，不出现 step_in／swim（三格外的远帽见“远帽游去扶正”）；水伤不打断，死亡、帽子离开或玩家干预会终止。',
+     reads=[('读船主', f'yukkuri status {sel("a")} raw'), ('读帽子', f'data get entity {_HAT}')],
+     smoke=dict(ticks=2400, commands=[(1, 'yukkuri status trace true'), (2399, 'yukkuri status trace false')],
+                expect=[r'\[action\][^\n]* start id=beckon[^\n]*wet=false',
+                        r'\[action\][^\n]* end id=beckon outcome=DONE\b[^\n]*detail=at_bank',
+                        r'\[action\][^\n]* start id=right[^\n]*push=', r'\[hat\][^\n]* righted cause=reclaim',
+                        r'\[headwear\][^\n]* reclaim done how=\w+',
+                        r'\[intent\][^\n]* end id=resolve_own_hat result=DONE\b'],
+                forbid=[r'\[action\][^\n]* start id=step_in\b', r'\[action\][^\n]* start id=swim\b',
+                        r'\[headwear\][^\n]* reclaim waiting',
+                        r'\[body\][^\n]* death settled into remains', r'\[body\][^\n]* cause=drown'],
+                verify=water_aftermath, readout=_HULL_READOUT + [f'data get entity {_HAT} Pos']))
+
+pond('shore_capsized_far', '岸边远帽·走进水里游去扶正', '远帽游去扶正',
+     '离岸 8 格的水面上，船主的帽子倒扣漂着，岸边拨水够不着（三格外）：她从岸上走进水里（普通走路跨过岸沿落水，不跳跃），游到帽檐外侧，咬住帽檐按一段片段的推帽标记把帽子推正，帽子正过来后再爬进去；扶正时播咬檐推帽的动作，泡水伤不打断',
      '约 30–60 秒',
      [captain(dx=bank_dx(0)), afloat('a', water_at(0, 8), False)],
      late=[f'data merge entity {_HAT} {{Roll:180f,Inverted:1b,Motion:{{Phase:"INVERTED"}}}}'],
-     note='倒扣是帽子真实的漂浮姿态（帽冠朝上），不是被测环节。日志：招帽够不着就 [action] start id=step_in（普通走路跨过岸沿落水）→ '
+     note='倒扣是帽子真实的漂浮姿态（帽冠朝上），不是被测环节。日志：拨水够不着（三格外）就 [action] start id=step_in（普通走路跨过岸沿落水）→ '
           '[intent] start id=escape_water（同一 reclaim 的子意图）→ [method] pick method=right_own_hat → [action] start id=swim … grip → '
           '[action] start id=right … push= → [hat] righted cause=self_rescue → [action] start id=climb → [body] mount cause=climb → [action] end id=climb outcome=DONE → [intent] end id=resolve_own_hat result=DONE；到船长座位才完成；接触后轻摆与水伤不中断；死亡、帽子离开或玩家干预会终止。',
      reads=[('读船主', f'yukkuri status {sel("a")} raw'), ('读帽子', f'data get entity {_HAT}')],
@@ -2784,7 +2804,7 @@ TOPICS = {
     'hat_float': 'A1', 'hat_push': 'A1', 'hat_turbulence': 'A4', 'hat_current': 'A1', 'hat_grounded_inverted': 'A4', 'hat_grounded_capsized': 'A4', 'cargo': 'A2', 'hat_crowd': 'A3', 'shake_capsize': 'A4',
     'water_colony': 'A6', 'sail': 'A6', 'afloat_stick': 'A6', 'afloat_family': 'A6', 'afloat_family_gather': 'A6', 'afloat_family_distant': 'A6', 'shore_family': 'A6', 'kid_boat_play': 'A6',
     'rescue_child': 'A5', 'rescue_infant_full': 'A5', 'rescue_no_seat': 'A5', 'birth_boat_caught': 'A6', 'birth_boat_missed': 'A6', 'first_voyage': 'A6',
-    'self_rescue': 'A5', 'shore_capsized': 'A5', 'fall_in_pond': 'A5', 'worn_hat_boat': 'A5', 'hat_swap': 'C1', 'hat_damage': 'C1', 'hat_shatter': 'C1', 'hatless_kin': 'C2', 'hatless_scorn': 'C2', 'hatless_boundary': 'C2',
+    'self_rescue': 'A5', 'shore_capsized': 'A5', 'shore_capsized_far': 'A5', 'fall_in_pond': 'A5', 'worn_hat_boat': 'A5', 'hat_swap': 'C1', 'hat_damage': 'C1', 'hat_shatter': 'C1', 'hatless_kin': 'C2', 'hatless_scorn': 'C2', 'hatless_boundary': 'C2',
     'hatless_monster': 'C2', 'hatless_sanction': 'C2', 'puff_response': 'C2',
     'myon_stick': 'S1', 'myon_brave': 'S1', 'species_fatigue': 'S1', 'rare_forms': 'S2', 'kotatsu_winter': 'S2', 'kotatsu_summer': 'S2',
     'cheek_forage': 'S3', 'alice_chores': 'S3', 'patchouli_vomit': 'S3', 'chen_speed': 'S3', 'marisa_sumo': 'S3',

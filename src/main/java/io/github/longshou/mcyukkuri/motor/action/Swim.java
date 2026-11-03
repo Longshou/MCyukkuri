@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.motor.action;
 
+import io.github.longshou.mcyukkuri.entity.YukkuriAction;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.life.WaterDistress;
 import io.github.longshou.mcyukkuri.motor.Action;
@@ -7,6 +8,7 @@ import io.github.longshou.mcyukkuri.motor.BodyAbility;
 import io.github.longshou.mcyukkuri.motor.ContactGeometry;
 import io.github.longshou.mcyukkuri.motor.Feasibility;
 import io.github.longshou.mcyukkuri.motor.Motor;
+import io.github.longshou.mcyukkuri.motor.MotionPose;
 import io.github.longshou.mcyukkuri.motor.Outcome;
 import io.github.longshou.mcyukkuri.motor.Progress;
 import io.github.longshou.mcyukkuri.motor.Reason;
@@ -31,6 +33,9 @@ public final class Swim implements Action {
     private double speed, turnRate, paid;
     private int ticks;
     private boolean unpaid;
+    /** The clip's own start: the tick the plunge's impact ended, shared by every leg of one immersion. */
+    private long stroke;
+    private boolean stroking;
 
     private Swim(Supplier<Vec3> target, boolean grip, int maxTicks) { this.target = target; this.grip = grip; this.maxTicks = maxTicks; }
 
@@ -42,6 +47,10 @@ public final class Swim implements Action {
 
     /** Whether this tick's swimming effort was paid. */
     public boolean pushing() { return !unpaid; }
+
+    /** Her own stroke from the tick the plunge ended, while she really pays for it; the distress clips are for real distress (an
+     *  impact still falling, effort she cannot pay, an exhausted body). */
+    @Override public MotionPose pose() { return stroking ? new MotionPose(YukkuriAction.WATER_SWIM.id(), stroke, true) : MotionPose.NONE; }
 
     @Override public String id() { return ID; }
 
@@ -56,6 +65,9 @@ public final class Swim implements Action {
     @Override public Progress tick(YukkuriEntity body) {
         Vec3 at = target.get();
         if (at == null) return Outcome.of(Reason.TARGET_GONE, 0, "target_gone");
+        // One stroke clock for the whole immersion: the phase the water distress started in, not this leg's own start.
+        var distress = body.waterDistress();
+        if (distress.phase() == WaterDistress.Phase.STRUGGLE) stroke = body.level().getGameTime() - distress.phaseTicks();
         if (!body.isInWaterOrBubble()) return new Outcome.Done("out_of_water at=" + GameplayLog.at(body.position()));
         if (grip && ContactGeometry.canGrip(body, at)) return new Outcome.Done("grip at=" + GameplayLog.at(at));
         Vec3 to = at.subtract(body.position()).multiply(1, 0, 1);
@@ -72,6 +84,7 @@ public final class Swim implements Action {
             Vec3 v = to.scale(Math.min(speed, distance) / distance);
             Motor.velocity(body, new Vec3(v.x, body.getDeltaMovement().y, v.z), "swim");
         }
+        stroking = pushing() && distress.phase() == WaterDistress.Phase.STRUGGLE;
         return new Running(distance, TravelMode.PASS);
     }
 

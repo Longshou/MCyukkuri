@@ -16,6 +16,7 @@ import io.github.longshou.mcyukkuri.motor.ContactGeometry;
 import io.github.longshou.mcyukkuri.motor.Feasibility;
 import io.github.longshou.mcyukkuri.motor.Reason;
 import io.github.longshou.mcyukkuri.motor.action.Await;
+import io.github.longshou.mcyukkuri.motor.action.Beckon;
 import io.github.longshou.mcyukkuri.motor.action.Climb;
 import io.github.longshou.mcyukkuri.motor.action.PlaceProp;
 import io.github.longshou.mcyukkuri.motor.action.Right;
@@ -40,8 +41,8 @@ import net.minecraft.tags.FluidTags;
 import net.minecraft.world.phys.Vec3;
 
 /**
- * Out of the water by one's own means, the ways in order: its own hat floating upright in reach (swim
- * to the brim, climb in); its own hat lying capsized (swim, right it, let it settle, climb in); its own hat still worn, for a
+ * Out of the water by one's own means, the ways in order: its own hat floating upright in reach (stride into it with a braid
+ * stroke when it lies within a beckoning reach, swim to the brim otherwise, climb in); its own hat lying capsized (the same closing, right it, let it settle, climb in); its own hat still worn, for a
  * species that uses its hat as a boat (set it down on the open water beside it, climb in); the nearest bank edge it can climb
  * (rise within its climb rise, an open landing, open water in front), approached head-on (swim out in front of the edge, then
  * to it, climb); else pressing toward the nearest bank, aimed again every few seconds and given up for a better way as soon as
@@ -121,11 +122,10 @@ public final class EscapeWater implements Intent {
         Vec3 boat = boatSpot();
         Edge bank = climbable();
         boolean refuge = rimHat() != null || nearest() != null;
-        Step toRim = new Step.Do(Swim.to(() -> hat.isRemoved() ? null : ContactGeometry.nearestRim(body, hat).orElse(null), HAT_SWIM));
         return List.of(
-                new Way("own_hat", hat(hat, false), AT_HAT, i -> i == 0 ? toRim : i == 1 ? new Step.Do(Climb.onto(hat)) : null),
+                new Way("own_hat", hat(hat, false), AT_HAT, i -> i == 0 ? closeOn(hat) : i == 1 ? new Step.Do(Climb.onto(hat)) : null),
                 new Way("right_own_hat", hat(hat, true), AT_HAT, i -> switch (i) {
-                    case 0 -> toRim;
+                    case 0 -> closeOn(hat);
                     case 1 -> new Step.Do(new Right(hat, "self_rescue"));
                     case 2 -> new Step.Wait(hat::steady, 60, "hat_settles");
                     case 3 -> new Step.Do(Climb.onto(hat));
@@ -146,6 +146,13 @@ public final class EscapeWater implements Intent {
                 }),
                 new Way("struggle", refuge ? Feasibility.pass() : Feasibility.of(Reason.NO_PATH, 0, "no_bank"), PRESSING,
                         i -> i > 0 && body.isInWaterOrBubble() && better(hat) ? null : press()));
+    }
+
+    /** Close on its own hat: within a braid's beckoning reach it is drawn in with a stroke, beyond that swum to. */
+    private Step closeOn(PlacedHatEntity hat) {
+        var beckon = new Beckon(hat);
+        return beckon.check(body).ok() ? new Step.Do(beckon)
+                : new Step.Do(Swim.to(() -> ContactGeometry.nearestRim(body, hat).orElse(null), HAT_SWIM));
     }
 
     /** One way out: whether it applies, what it shrinks, and its i-th step (null once it has no more). */
