@@ -571,7 +571,9 @@ _LAND_BIRTH_SMOKE = dict(ticks=6000,
             r'\[action\][^\n]* end id=take_prop outcome=DONE detail=prop=hat worn=true\b',
             r'\[intent\][^\n]* end id=take_hat result=DONE\b'],
     forbid=[r'\[body\][^\n]* invariant\b', r'\[family\][^\n]* carry put down [^\n]*\bforward=-[0-9]',
-            r'\[hat\][^\n]* settled rider=', r'catch cleanup gave up', r'death settled', r'starvation damage accepted=true'])
+            r'\[hat\][^\n]* settled rider=', r'catch cleanup gave up', r'death settled', r'starvation damage accepted=true'],
+    readout=[f'yukkuri status {sel("mother")} raw', f'yukkuri status {sel("father")} raw',
+             f'yukkuri status {NEWBORNS} raw'])
 
 
 def land_birth(sid, title, hint, outcome, father_kind, watch, spot, father_x=4, smoke=None):
@@ -2501,7 +2503,7 @@ pond('afloat_family_distant', '远处赤油·先寻回再出航', '远子缓航'
                 forbid=[r'\[intent\][^\n]* start id=set_out\b', r'\[body\][^\n]* invariant\b']))
 
 pond('kid_boat_play', '赤油在亲帽上玩耍', '拨粮·受惊缩身',
-     '亲油与两只赤油已坐在静水亲帽里，亲油初始背向船首，帽里有一根木棍、四份苹果。看亲油转身时赤油让位、帽壁上的赤油下滑；玩家从岸边看赤油拨弄储粮，空手右击赤油看问候。雷雨、附近捕食种或冲向帽船的玩家会吓得赤油原地缩身，平静后继续玩耍；赤油不会跳上帽檐或模仿划桨',
+     '亲油与两只赤油已坐在静水亲帽里，亲油初始背向船首，帽里有一根木棍、四份苹果。一只赤油饥饿，亲油取食喂幼时会转身：看赤油让位、帽壁上的赤油下滑；玩家从岸边看赤油拨弄储粮，空手右击赤油看问候。雷雨、附近捕食种或冲向帽船的玩家会吓得赤油原地缩身，平静后继续玩耍；赤油不会跳上帽檐或模仿划桨',
      '约 2–3 分钟；可用本场天气按钮观察受惊',
      [yk('marisa', bank_dx(0), 0, 'a', aquatic=True, yaw=-90, lead=True, friendliness=100,
          uuid=uid('kid_boat_play', 'a'), **pair_ready()),
@@ -2512,7 +2514,7 @@ pond('kid_boat_play', '赤油在亲帽上玩耍', '拨粮·受惊缩身',
      note='读 hat.float 的 play：拨粮开始次数、fear_* 原因次数；读 social.greet_clicks 看点击次数，body.attach 看实际帽内坐标。'
           '拨粮不扣粮，饿后才走原地进食；受惊时赤油在座位原地缩身，没有帽檐短跳、学划或离座回座。'
           '点击赤油与点击空帽檐不同：前者问候，后者摇船；准备入座不算行为成功。' + _DESIRE_NOTE,
-     reads=[('读赤油动作与点击', f'yukkuri status {sel("c1")} raw'),
+     reads=[('读赤油动作与点击', f'yukkuri status {sel("c1")} raw'), ('读另一只赤油', f'yukkuri status {sel("c2")} raw'),
             ('读拨粮与受惊计数', f'yukkuri status {sel("a")} raw'), ('读帽子乘员', f'data get entity {_HAT} Riders')],
      capture=dict(shots=(1, 40, 2400), sequences=((40, 2400, 4),), observe=False,
                   views={'': dict(follow='@e[type=mcyukkuri:placed_hat,limit=1]', offset=(.75, .9, .75))}),
@@ -2526,7 +2528,8 @@ pond('kid_boat_play', '赤油在亲帽上玩耍', '拨粮·受惊缩身',
                 forbid=[r'\[body\][^\n]* invariant\b', r'\[aquatic\][^\n]* play fall_in\b',
                         r'\[aquatic\][^\n]* play kind=kid_(?:brim_splash|mimic_paddle)\b',
                         r'\[aquatic\][^\n]* play kind=kid_hide_behind end result=(?:EXHAUSTED|LOST)\b'],
-                readout=[f'yukkuri status {sel("a")} raw', f'yukkuri status {sel("c1")} raw', f'data get entity {_HAT} Riders']))
+                readout=[f'yukkuri status {sel("a")} raw', f'yukkuri status {sel("c1")} raw',
+                         f'yukkuri status {sel("c2")} raw', f'data get entity {_HAT} Riders']))
 
 pond('shore_family', '饿了带孩子返岸', '亲子返岸',
      '亲油和一只小子油在离岸 3 格的帽子上，帽里有木棍、没有粮，亲油已经饿了：她划回岸边；孩子先跳到干地，亲油随后上岸，把空帽子收回戴上',
