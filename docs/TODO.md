@@ -8,6 +8,7 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
+| 摇晃翻覆后亲油划桨停滞、赤油溺亡 | `.worktrees/fb-capsize-rescue` | `aquatic/Ferry`／`Rescue`、`motor/action/Paddle`、出水完成 |
 | 座位已满上岸分娩、水生亲本生水生子（反馈 10、18） | `.worktrees/fb-boat-birth-shore` | `family/LiveBirth`、`subspecies/SubspeciesLife`、水生上岸欲望、分娩场景 |
 
 ## 玩法待办
