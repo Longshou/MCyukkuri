@@ -8,6 +8,7 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
+| 帽船船长就位、舱内／头顶／帽檐承托、绕身搬运与两跳上岸（WP-C） | `.worktrees/wp-c-places` | `motor/{Attach,AttachState,BodyDriver,surface,geom,action}`、`family/{ParentCarry,BraidFetch}`、`headwear/{HullSurface,HatProp,PlacedHatEntity}`、`intent/IntentRunner`、`aquatic/{Rescue,Ferry,Ashore,FirstVoyage}`、`scripts/museum_scenarios.py` |
 
 ## 玩法待办
 
