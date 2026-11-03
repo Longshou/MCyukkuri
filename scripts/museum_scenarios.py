@@ -2650,6 +2650,7 @@ def boat_birth(sid, title, hint, watch, riders, note, smoke):
          [yk('marisa', bank_dx(0), 0, 'mother', aquatic=True, yaw=-90, lead=True, **pair_ready()),
           yk('marisa', bank_dx(4), 4, 'father', aquatic=True, yaw=-90, **pair_ready()),
           *(_babies() if riders else []),
+          *([item('minecraft:apple', 8, bank_dx(0) - 2, 0)] if riders else []),
           f'yukkuri scenario bond {sel("mother")} {sel("father")}'],
          late=[*([f'yukkuri scenario kin {sel("mother")} {sel(k)} false' for k in ('k1', 'k2')] if riders else []),
                afloat('mother', water_at(0, 3), True, sel_all('crew') if riders else sel('mother'), stick=True),
@@ -2680,7 +2681,7 @@ boat_birth('birth_boat_caught', '帽船分娩·落座', '船上分娩',
 boat_birth('birth_boat_missed', '帽船分娩·座位已满', '座位已满',
            '两只初始赤油从开场就在岸上，准备后坐进母船占满座位；母油处于四分之一孕程，整胎坐不下，趁孕肚仍能越过岸沿时划回岸边、经帽檐下船，按陆地接生规则分娩。怀孕时不能搬运的初始幼体仍坐在母船里。'
            '看水生圆帽新生儿从身体外出生、落在岸上，幼体总数应为两只初始乘员加实际出生数',
-           True, '日志：come_ashore 的 why 带 birth 得分，hop 上岸后再 delivery labor started → born → birth landed。'
+           True, '岸上有八个真实苹果供孕期取食。日志：come_ashore 的 why 带 birth 得分，hop 上岸后再 delivery labor started → born → birth landed。'
               '“读本胎新生儿”排除标记 crew 的两只初始乘员；出生数对照 conceived children 与 born index。' + _DESIRE_NOTE,
            smoke=dict(ticks=7200, expect=[_BOAT_SMOKE_START, r'\[choreo\][^\n]* beat id=live_birth\b',
                                          r'\[intent\][^\n]* start id=come_ashore[^\n]*birth=[1-9]',
