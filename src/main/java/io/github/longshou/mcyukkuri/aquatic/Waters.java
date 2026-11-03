@@ -222,12 +222,17 @@ final class Waters {
         int asked = 0;
         for (var e : edges(body, hat.position(), 4, false)) {
             var stand = e.stand(body.getBbWidth());
-            if (!ContactGeometry.reachesHullFrom(body, stand, SurfaceApproach.yaw(stand, hat.position()), hat, true, true)
-                    && !new Beckon(hat).checkFrom(body, stand, SurfaceApproach.yaw(stand, hat.position())).ok()) continue;
+            if (!bankReach(body, stand, hat)) continue;
             if (asked++ >= ASKED) break;
             if (SurfaceApproach.arrived(body, stand) || SurfaceApproach.canApproach(body, stand)) return e;
         }
         return null;
+    }
+
+    /** The bank's actual closing methods: take the hat directly or draw it in with a reachable braid stroke. */
+    private static boolean bankReach(YukkuriEntity body, Vec3 stand, PlacedHatEntity hat) {
+        float yaw = SurfaceApproach.yaw(stand, hat.position());
+        return ContactGeometry.reachesHullFrom(body, stand, yaw, hat, true, true) || new Beckon(hat).checkFrom(body, stand, yaw).ok();
     }
 
     /** The bank edge nearest the hat a body ashore can walk to (to reach over to it from the bank), or null. */
@@ -287,14 +292,14 @@ final class Waters {
         return null;
     }
 
-    /** A dry stand within a hop of {@code from}. An owner also needs to reach her hat from that same stand to take it back. */
+    /** A dry stand within a hop of {@code from}. An owner also needs a real closing method from this bank edge. */
     static Vec3 ashore(YukkuriEntity body, Vec3 from) {
         var own = body.getVehicle() instanceof PlacedHatEntity hat && hat.owner() == body ? hat : null;
         int asked = 0;
         for (var e : edges(body, from, 2, false)) {
-            var at = own == null ? boardingStand(e, body) : e.stand(body.getBbWidth());
+            var at = boardingStand(e, body);
             if (hatOver(body, at, 0)) continue;
-            if (own != null && !ContactGeometry.reachesHullFrom(body, at, SurfaceApproach.yaw(at, own.position()), own, true, true)) continue;
+            if (own != null && !bankReach(body, e.stand(body.getBbWidth()), own)) continue;
             if (asked++ >= ASKED) break;
             if (Hop.reaches(body, from, at)) return at;
         }

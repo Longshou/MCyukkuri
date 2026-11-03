@@ -226,7 +226,10 @@ public final class Hop implements Action {
         if (blocked > TOUCH) return Outcome.of(Reason.NO_SUPPORT, blocked, "arc_blocked at=" + GameplayLog.at(body.position()));
         if (air == flight.size() - 1) {
             if (seat != null && !seat.land(body, "hop_contact")) return Outcome.of(Reason.NO_ROOM, 0, "seat_landing_refused");
-            return seat != null ? landed(body) : new Running(SETTLE, TravelMode.PASS);
+            if (seat != null) return landed(body);
+            // The sampled horizontal travel is already consumed; vanilla only settles down onto the admitted ground point.
+            Motor.velocity(body, new Vec3(0, delta.y, 0), "hop_ground_contact");
+            return new Running(SETTLE, TravelMode.PASS);
         }
         return new Running(flight.size() - air, TravelMode.CONSUMED);
     }
