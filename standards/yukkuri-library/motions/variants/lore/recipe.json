@@ -137,6 +137,17 @@
     ],
     "aquatic_marisa": [
       "marisa"
+    ],
+    "reimu_mouth": {
+      "only": [
+        "reimu*"
+      ],
+      "except": [
+        "house_*"
+      ]
+    },
+    "marisa_braid": [
+      "marisa"
     ]
   },
   "clips": {
@@ -5407,6 +5418,423 @@
           10.0,
           1.5,
           0.5
+        ]
+      ]
+    },
+    "mouth_release": {
+      "label": "灵梦张口放出幼油",
+      "duration": 1.6,
+      "loop": false,
+      "applies": "reimu_mouth",
+      "faces": [
+        [
+          0,
+          0.3,
+          "cheek_puff"
+        ],
+        [
+          0.3,
+          1.3,
+          "yawn"
+        ],
+        [
+          1.3,
+          1.6,
+          "chewing_closed"
+        ]
+      ],
+      "markers": {
+        "open": 0.35,
+        "release": 1.0,
+        "closed": 1.3
+      },
+      "lore": "Project design (rule 灵梦口含多只; user 2026-11-04 feedback 1: Reimu's release was barely visible). She bows low toward the ground and gapes (open), the young slides out over her lower lip from inside her mouth (open..release, 13 ticks), drops free with a small push (release), then she rises and her mouth closes (closed). Same beat length as Marisa's braid set-down (braid_cradle_lift place..release, braid_rescue_settle). Pitch <= 8; the gape is squash and the face.",
+      "triggers": [
+        "ParentCarry MOUTH set-down (Reimu, live hidden passenger)"
+      ]
+    },
+    "braid_item_hold": {
+      "label": "辫梢攥着物品（陆上）",
+      "duration": 1.6,
+      "loop": true,
+      "applies": "marisa_braid",
+      "faces": [
+        [
+          0,
+          1.6,
+          "neutral"
+        ]
+      ],
+      "lore": "Project design (user 2026-11-04 feedback 6: holding an item is a general ability shown in the grip, the braid for Marisa; a stick taken on the bank is held in the braid, not hidden). Overlay: the braid curls up beside her cheek on her braid side (clear of her lips) and its tuft grips the real held stack (props.item, the paddle's grip and twig frame) shouldered: long end up, out and back past the brim; the body plays its own idle or walk under it.",
+      "triggers": [
+        "real held stack in the braid, ashore (idle and walking)"
+      ],
+      "braid_path": [
+        [
+          0,
+          11.5,
+          4.0,
+          -2.5
+        ],
+        [
+          0.8,
+          11.6,
+          4.15,
+          -2.5
+        ],
+        [
+          1.6,
+          11.5,
+          4.0,
+          -2.5
+        ]
+      ],
+      "held_item": {
+        "grip_offset": 1.6,
+        "top_length": 1.6,
+        "blade_length": 10.4,
+        "twig_radius": 0.3,
+        "dir": [
+          [
+            0,
+            0.6,
+            0.72,
+            0.35
+          ],
+          [
+            1.6,
+            0.6,
+            0.72,
+            0.35
+          ]
+        ]
+      }
+    },
+    "braid_item_hold_aq": {
+      "label": "辫梢攥着物品（帽船上）",
+      "duration": 1.6,
+      "loop": true,
+      "applies": "aquatic_marisa",
+      "root_support": "free_water",
+      "faces": [
+        [
+          0,
+          1.6,
+          "neutral"
+        ]
+      ],
+      "lore": "Project design (user 2026-11-04 feedback 6: holding an item is a general ability shown in the grip, the braid for Marisa; a stick taken on the bank is held in the braid, not hidden). Overlay afloat: the braid keeps its boat rest out over the brim (boat_braid rest) and the tuft holds the stick up and outboard beside the hull, out of the water; boat_paddle and hat_brim_offer remain the rowing and held-out grips of the same stick.",
+      "triggers": [
+        "real held stack in the braid, aboard (not rowing)"
+      ],
+      "braid_path": [
+        [
+          0,
+          "rest"
+        ],
+        [
+          1.6,
+          "rest"
+        ]
+      ],
+      "held_item": {
+        "grip_offset": 1.6,
+        "top_length": 1.6,
+        "blade_length": 10.4,
+        "twig_radius": 0.3,
+        "dir": [
+          [
+            0,
+            0.45,
+            0.85,
+            0.2
+          ],
+          [
+            1.6,
+            0.45,
+            0.85,
+            0.2
+          ]
+        ]
+      }
+    },
+    "braid_item_pick": {
+      "label": "辫梢拾起物品",
+      "duration": 1.6,
+      "loop": false,
+      "applies": "marisa_braid",
+      "faces": [
+        [
+          0,
+          0.6,
+          "neutral"
+        ],
+        [
+          0.6,
+          1.6,
+          "closed_smile"
+        ]
+      ],
+      "markers": {
+        "contact": 0.6,
+        "lift_end": 1.15
+      },
+      "lore": "Project design (user 2026-11-04 feedback 6: holding an item is a general ability shown in the grip, the braid for Marisa; a stick taken on the bank is held in the braid, not hidden). She leans and looks a little to her braid side, the tuft reaches the item lying beside her on her braid side (contacts.braid_grip), closes on it (contact: the real stack moves from the ground into the braid once), and lifts it to the hold (lift_end); the clip ends on braid_item_hold's pose.",
+      "triggers": [
+        "real item pickup with the braid (ground or bank item)"
+      ],
+      "reach": [
+        [
+          0,
+          0
+        ],
+        [
+          0.45,
+          1
+        ],
+        [
+          0.75,
+          1
+        ],
+        [
+          1.2,
+          0.2
+        ],
+        [
+          1.6,
+          0
+        ]
+      ],
+      "braid_path": [
+        [
+          0,
+          8.51,
+          0.21,
+          -4.21
+        ],
+        [
+          0.55,
+          12.5,
+          1.0,
+          -5.0
+        ],
+        [
+          0.7,
+          12.5,
+          1.0,
+          -5.0
+        ],
+        [
+          1.15,
+          11.5,
+          4.0,
+          -2.5
+        ],
+        [
+          1.6,
+          11.5,
+          4.0,
+          -2.5
+        ]
+      ],
+      "held_item": {
+        "grip_offset": 1.6,
+        "top_length": 1.6,
+        "blade_length": 10.4,
+        "twig_radius": 0.3,
+        "dir": [
+          [
+            0.6,
+            0.45,
+            0.1,
+            -0.89
+          ],
+          [
+            1.15,
+            0.6,
+            0.72,
+            0.35
+          ]
+        ],
+        "from": "contact"
+      }
+    },
+    "braid_item_place": {
+      "label": "辫梢放下物品",
+      "duration": 1.4,
+      "loop": false,
+      "applies": "marisa_braid",
+      "faces": [
+        [
+          0,
+          1.4,
+          "neutral"
+        ]
+      ],
+      "markers": {
+        "release": 0.8
+      },
+      "lore": "Project design (user 2026-11-04 feedback 6: holding an item is a general ability shown in the grip, the braid for Marisa; a stick taken on the bank is held in the braid, not hidden). braid_item_pick in reverse: from the hold the tuft lowers the item to the ground beside her on her braid side and opens (release: the real stack leaves the braid once), then the braid hangs free again.",
+      "triggers": [
+        "real item set-down from the braid"
+      ],
+      "reach": [
+        [
+          0,
+          0
+        ],
+        [
+          0.5,
+          1
+        ],
+        [
+          0.95,
+          1
+        ],
+        [
+          1.4,
+          0
+        ]
+      ],
+      "braid_path": [
+        [
+          0,
+          11.5,
+          4.0,
+          -2.5
+        ],
+        [
+          0.65,
+          12.5,
+          1.0,
+          -5.0
+        ],
+        [
+          0.9,
+          12.5,
+          1.0,
+          -5.0
+        ],
+        [
+          1.4,
+          8.51,
+          0.21,
+          -4.21
+        ]
+      ],
+      "held_item": {
+        "grip_offset": 1.6,
+        "top_length": 1.6,
+        "blade_length": 10.4,
+        "twig_radius": 0.3,
+        "dir": [
+          [
+            0,
+            0.6,
+            0.72,
+            0.35
+          ],
+          [
+            0.65,
+            0.45,
+            0.1,
+            -0.89
+          ]
+        ],
+        "until": "release"
+      }
+    },
+    "mouth_item_pick": {
+      "label": "低头用嘴叼起物品",
+      "duration": 1.2,
+      "loop": false,
+      "applies": "not_house",
+      "faces": [
+        [
+          0,
+          0.55,
+          "neutral"
+        ],
+        [
+          0.55,
+          1.2,
+          "chewing_closed"
+        ]
+      ],
+      "markers": {
+        "bite": 0.55
+      },
+      "contacts": {
+        "mouth": {
+          "anchor": "mouth",
+          "kind": "MOUTH_BITE"
+        }
+      },
+      "lore": "Project design (user 2026-11-04 feedback 6: holding an item is a general ability shown in the grip; the mouth for bodies without a braid). She bows and sinks so her lips reach an item lying before her, bites (bite: the real stack moves from the ground into the mouth once) and comes back up holding it; the held stack is drawn at the mouth anchor. Pitch <= 8; the reach is squash and a forward shift.",
+      "triggers": [
+        "real item pickup with the mouth (ground or bank item)"
+      ]
+    },
+    "mouth_item_place": {
+      "label": "低头把嘴里的物品放下",
+      "duration": 1.2,
+      "loop": false,
+      "applies": "not_house",
+      "faces": [
+        [
+          0,
+          0.6,
+          "chewing_closed"
+        ],
+        [
+          0.6,
+          1.2,
+          "neutral"
+        ]
+      ],
+      "markers": {
+        "release": 0.6
+      },
+      "contacts": {
+        "mouth": {
+          "anchor": "mouth",
+          "kind": "MOUTH_BITE"
+        }
+      },
+      "lore": "Project design (user 2026-11-04 feedback 6: holding an item is a general ability shown in the grip; the mouth for bodies without a braid). mouth_item_pick in reverse: she bows, opens her lips over the ground before her (release: the real stack leaves the mouth once) and straightens.",
+      "triggers": [
+        "real item set-down from the mouth"
+      ]
+    },
+    "boat_puff": {
+      "label": "帽船上鼓气威吓",
+      "duration": 2.8,
+      "loop": true,
+      "applies": "aquatic_marisa",
+      "faces": [
+        [
+          0,
+          2.352,
+          "puff"
+        ],
+        [
+          2.352,
+          2.8,
+          "cheek_puff"
+        ]
+      ],
+      "lore": "Project design (user 2026-11-04 feedback 2: parents puff at an attacker; the triage item 2 check): the land puff lifts and swells 15% and leaves the braid at its land rest, which sinks it 1.5 model units into the hull aboard. Seated variant: puff face, a 5% swell with a small tremble and a 3 degree glare toward the attacker (the body yaw), no hop, the braid laid out at its boat rest.",
+      "triggers": [
+        "protective puff while seated in the hat boat"
+      ],
+      "braid_path": [
+        [
+          0,
+          "rest"
+        ],
+        [
+          2.8,
+          "rest"
         ]
       ]
     }

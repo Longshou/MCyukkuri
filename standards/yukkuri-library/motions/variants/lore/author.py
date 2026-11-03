@@ -35,7 +35,7 @@ TILT_FIX_CLIPS=('eat','drink','first_toilet_assist','newborn_crawl','nest_harves
 # Body pitch -8..+6, roll <= 6 (hard cap 12): effort is squash, stretch, shift, yaw and the face, never a whole-body flip.
 NEW_BRAID_CLIPS=('hat_brim_offer','hat_hop_up','water_bob_lunge','hat_slide_over','water_mouth_grip','water_hat_shake','water_hat_push','boat_nudge_young')
 # The composed resource names its newest family; aquatic_tools' paddle braid is the current one (author.py and the full exporter share it).
-AQUATIC_REVISION='aquatic-places-20261104-v33'
+AQUATIC_REVISION='carry-held-20261104-v34'
 _BRAID_RESCUE=None
 # Paddle stick, braid cradle, mouth bite, capsize and self-rescue clips (aquatic_tools.py), exported by --export-aquatic.
 TOOLS=runpy.run_path(str(Path(__file__).resolve().parent/'aquatic_tools.py'))
@@ -571,6 +571,25 @@ def state(action, t, c, height):
     elif action == 'hat_brim':
         r = [2, c['turn']*math.sin(2*math.pi*t/d), c['sway']*math.sin(4*math.pi*t/d)]
         s[1] = 1.025  # upright, but no idle floating above the supporting brim
+    elif action in ('mouth_item_pick', 'mouth_item_place'):
+        # A held item taken from or set on the ground by mouth (project design): bow and sink until the lips are at the
+        # item (bite / release), then straighten. Pitch <= 8; the reach is squash and a forward shift.
+        beat = c['markers'].get('bite', c['markers'].get('release'))
+        lean = keyed(t, [(0, 0), (beat-.1, 1), (beat+.2, 1), (d, 0)])
+        s = [1+.04*lean, 1-.08*lean, 1+.04*lean]
+        r = [-8*lean, 0., 0.]
+        shift[1] = -.06*height*lean
+    elif action == 'mouth_release':
+        # Reimu lets a young out of her mouth (rule 灵梦口含多只, project design): bow low and gape (open), the young slides out
+        # over her lower lip (open..release), a small push as it drops free (release), then she rises and her mouth closes (closed).
+        m = c['markers']
+        bow = keyed(t, [(0, 0), (m['open'], 1), (m['release'], 1), (m['closed'], .3), (d, 0)])
+        gape = keyed(t, [(0, 0), (m['open'], 1), (m['release']-.1, 1), (m['closed'], 0), (d, 0)])
+        push = bump((t-(m['release']-.18))/.3)
+        s = [1+.03*gape+.03*push, 1-.05*gape-.06*push, 1+.03*gape+.02*push]
+        r = [-7*bow-1*push, 0., 0.]
+        shift[1] = -.04*height*bow
+        lift = .02*height*bump((t-m['closed'])/(d-m['closed']))
     else:
         raise KeyError(action)
     comp = c.get('mouth_comp')
@@ -820,7 +839,7 @@ def export_distress_clips(include_pet=False, include_birth=False, include_carry=
     contact_cfg=json.loads((here.parent/'contact-safe/recipe.json').read_text(encoding='utf-8'))
     authored_names=set(cfg['clips']) | set(contact_cfg['actions']) | set(contact_cfg['braid_follow']['actions'])
     contact_author=runpy.run_path(str(here.parent/'contact-safe/author.py')) if include_pet or include_birth or include_badge or include_comfort else None
-    names=TOOLS['EXPORT_CLIPS'] if include_aquatic else COMFORT_CLIPS if include_comfort else ('boat_carry_young','boat_be_carried','boat_prepare_carry','boat_release_carry') if include_carry else BIRTH_CLIPS if include_birth else BADGE_CLIPS+TILT_FIX_CLIPS if include_badge else DISTRESS_CLIPS
+    names=TOOLS['EXPORT_CLIPS'] if include_aquatic else COMFORT_CLIPS if include_comfort else ('boat_carry_young','boat_be_carried','boat_prepare_carry','boat_release_carry','mouth_release') if include_carry else BIRTH_CLIPS if include_birth else BADGE_CLIPS+TILT_FIX_CLIPS if include_badge else DISTRESS_CLIPS
     if include_pet:
         names+=('think','nervous','proud','joy_jump','sulk','hide_face','beg','bow','shy','doze_off','struggle','basket_in','basket_out','ignore','restrain')
     cfg['clips']={name:cfg['clips'][name] for name in names}

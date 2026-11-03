@@ -36,7 +36,9 @@ NEW_CLIPS = ('braid_cradle_lift', 'be_cradled', 'mouth_bite_hold', 'boat_thrown'
              'kid_mimic_paddle', 'kid_poke_stores', 'kid_hide_behind', 'bank_beckon', 'braid_head_set', 'braid_head_take')
 # Beats were authored on these lengths; the recipe duration rescales them (boat_thrown 0.6 s, water_hat_right 1.6 s).
 AUTHORED = {'boat_thrown': 1.2, 'water_hat_right': 2.0}
-EXPORT_CLIPS = PADDLE_CLIPS+NEW_CLIPS
+# A real item held in the braid tuft (the same vanilla stick the paddle clips row with): the hold overlays, pick and place.
+HELD_CLIPS = ('braid_item_hold', 'braid_item_hold_aq', 'braid_item_pick', 'braid_item_place')
+EXPORT_CLIPS = PADDLE_CLIPS+NEW_CLIPS+HELD_CLIPS+('boat_puff',)
 
 
 def smooth(x):
@@ -247,6 +249,19 @@ def state(action, t, c, height):
         r = [-4*max(0, crouch)+3*bump((t-1.5)/.5), keyed(t, [(0, 0), (.2, -14), (.6, -10), (1.5, -10), (1.75, 6), (2.05, -10), (d, -10)]),
              2*tremble]
         lift = .05*height*bump((t-.2)/.22)  # the little scoot hop; the server owns the move across
+    elif action == 'boat_puff':
+        # The seated captain's puff at an attacker (project design): the land puff's swell and glare kept inside the basin (no
+        # hop, a smaller swell) with the braid at its boat rest (braid_path), so neither presses into the hull.
+        k = keyed(t, [(0, 0), (.28, 1), (2.35, 1), (d, 0)]); tremble = .01*math.sin(2*math.pi*t/.35)*k
+        s = [1+.05*k+tremble, 1+.04*k-tremble, 1+.05*k+tremble]
+        r = [-3*k, 0., math.sin(2*math.pi*t/1.4)*k]
+    elif action in HELD_CLIPS:
+        # Project design: she leans and looks a little to her braid side while the tuft takes or sets down the item on the
+        # ground there (`reach` keys, 0..1); the holds keep the body still (only their braid and item are used, as an overlay).
+        reach = keyed(t, c['reach']) if 'reach' in c else 0.
+        s = [1+.03*reach, 1-.05*reach, 1+.02*reach]
+        r = [-4*reach, -10*reach, 4*reach]
+        shift[0] = .3*reach; shift[1] = -.3*reach
     else:
         return None
     return s, r, lift, shift
@@ -502,6 +517,75 @@ def paddle_tracks(model, action, samples, tracks, c):
     return out, prop, sticks
 
 
+def held_window(c):
+    """Clip seconds during which the item is in the braid: from the `from` marker to the `until` marker (whole clip by default)."""
+    h = c['held_item']; m = c.get('markers', {})
+    return m.get(h.get('from'), 0.)-1e-9, m.get(h.get('until'), c['duration'])+1e-9
+
+
+def held_tracks(model, action, samples, tracks, c):
+    """The held item where the tuft really grips it: the paddle's grip (the tuft joint plus `grip_offset` along the tuft) and
+    the same twig frame (+Y toward the short top end, the long end `blade_length` along -Y), its long end pointing along the
+    clip's `held_item.dir` keys ([t, x, y, z] in the seat frame, turned with the body's yaw). Keys cover held_window only:
+    outside it the item is not in the braid. Returns (prop block, per-key (grip, direction), rest-space grip on hand_right_tip)."""
+    h = c['held_item']; names = {b['name']: i for i, b in enumerate(model['bones'])}; bones = model['bones']
+    tip = names['hand_right_tip']; body = names['root']; joint_rest = np.array(bones[tip]['pivot'], float)
+    tuft = np.array(json.loads(BRAID.read_text(encoding='utf-8'))['braid_tip'], float)-joint_rest; tuft /= np.linalg.norm(tuft)
+    own = {tr['channel']: tr['keys'] for tr in tracks if tr['bone'] == body}
+    start, end = held_window(c); dirs = [(k[0], np.array(k[1:4], float)) for k in h['dir']]
+    rows, sticks = [], []
+    for t in samples:
+        if not start <= t <= end: continue
+        M = palette(model, tracks, t)
+        u = polar(M[tip][:3, :3])@tuft; G = (M[bones[tip]['parent']]@np.r_[joint_rest, 1])[:3]+u*h['grip_offset']
+        yaw = sample(own['rotation'], t)[1] if 'rotation' in own else 0.
+        d = euler([0, yaw, 0])@keyed(t, dirs); d /= np.linalg.norm(d)
+        y_axis = -d; z_axis = np.array([0., 0., 1.])-y_axis*y_axis[2]; z_axis /= np.linalg.norm(z_axis)
+        Rw = np.c_[np.cross(y_axis, z_axis), y_axis, z_axis]
+        A = M[tip]@np.r_[np.c_[np.eye(3), joint_rest], [[0, 0, 0, 1]]]
+        key = np.linalg.inv(A)@np.r_[np.c_[Rw, G], [[0, 0, 0, 1]]]
+        rows.append((t, [*key[:3, 3], *to_euler(polar(key[:3, :3]))])); sticks.append((G, d))
+    eul = unwrap([r[3:] for _, r in rows])
+    prop = {'prop': 'held_item', 'bone': 'hand_right_tip',
+            'keys': [[round(t, 8), *[round(float(v), 5) for v in list(r[:3])+list(e)]] for (t, r), e in zip(rows, eul)]}
+    return prop, sticks, [round(float(v), 4) for v in joint_rest+tuft*h['grip_offset']]
+
+
+def held_gate(model, action, samples, tracks, sticks, c):
+    """Fail a held-item clip whose stick (less `twig_radius`) enters her body or her worn hat, whose braid sinks deeper into
+    her body than at rest (TOUCH), or, ashore, whose stick goes under the ground (y 0); afloat (root_support free_water) the
+    stick must stay out of the hull forms with the captain turned within captain_yaw. A loop must close. Prints the worst values."""
+    h = c['held_item']; along = np.linspace(-h['top_length'], h['blade_length'], 25); afloat = c.get('root_support') == 'free_water'
+    if c['loop']:
+        for tr in tracks:
+            a, z = np.array(tr['keys'][0][1:]), np.array(tr['keys'][-1][1:])
+            gap = abs(z-a) if tr['channel'] in ('position', 'scale') else abs((z-a+180) % 360-180)
+            if gap.max() > 1e-3: raise ValueError(f'{model["id"]} {action}: the loop does not close on {tr["bone"]} {tr["channel"]}')
+    names = {b['name']: i for i, b in enumerate(model['bones'])}; lock = names['hand_right']
+    braid = skinned(model, lambda n: n.startswith('braid_lock_')); hanging = ~((braid[1] == lock) & (braid[2] == lock))
+    body = skinned(model, lambda n: 'body_surface' in n); hat = skinned(model, lambda n: n.startswith(('brim_', 'hat_')))
+    def outside(points, B):
+        near = B[np.argmin(((points[:, None]-B[None])**2).sum(-1), axis=1)]
+        out = (near-B.mean(0))/np.linalg.norm(near-B.mean(0), axis=1, keepdims=True); return float(((points-near)*out).sum(1).min())
+    M = palette(model, [], 0); rest = outside(posed(M, braid)[hanging], posed(M, body))
+    inside, twig, crown, low, hull = math.inf, math.inf, math.inf, math.inf, math.inf
+    start, end = held_window(c); held = iter(sticks)
+    forms = hull_forms(model['units_per_block']) if afloat else []
+    yaws = range(-SHARED['captain_yaw'], SHARED['captain_yaw']+1, SHARED['captain_yaw_step'])
+    for t in samples:
+        M = palette(model, tracks, t); B = posed(M, body); inside = min(inside, outside(posed(M, braid)[hanging], B)-rest)
+        if not start <= t <= end: continue
+        G, d = next(held); S = G+np.outer(along, d)
+        twig = min(twig, outside(S, B)-h['twig_radius'])
+        crown = min(crown, float(np.sqrt(((S[:, None]-posed(M, hat)[None])**2).sum(-1)).min())-h['twig_radius'])
+        if afloat: hull = min(hull, min(float(clearance(f, S, yaws).min()) for f in forms)-h['twig_radius'])
+        else: low = min(low, float(S[:, 1].min())-h['twig_radius'])
+    print(f'  {action}: braid clears her body by {inside:.2f} beyond rest, stick clears her body by {twig:.2f} and her hat mesh by {crown:.2f}'
+          + (f', the hull by {hull:.2f}' if afloat else f', the ground by {low:.2f}'), flush=True)
+    if inside < -TOUCH or twig < -TOUCH or crown < -TOUCH or (hull < -TOUCH if afloat else low < -TOUCH):
+        raise ValueError(f'{model["id"]} {action}: the braid or held stick enters her body, hat, the ground or the hull')
+
+
 def hull_gate(model, action, samples, tracks, sticks, c, profiles=None):
     """Fail the clip if the skinned braid (braid_lock_*) or the twig axis (less `twig_radius`) enters any hull form with
     the captain on its seat facing its bow within `captain_yaw` degrees (Paddle.FACING; every `captain_yaw_step`); boat_paddle's blade must also be under every
@@ -625,6 +709,11 @@ def extras(model, action, samples, tracks, c):
         hull_gate(model, action, samples, tracks+braid, sticks, c)
     if 'braid_path' in c and braid_chain.chain(names):
         more += path_tracks(model, action, samples, tracks, c)
+    if 'held_item' in c and 'hand_right_tip' in names:
+        prop, sticks, grip = held_tracks(model, action, samples, tracks+more, c)
+        fields['props'] = {'item': prop}
+        fields.setdefault('contacts', {})['braid_grip'] = {'bone': 'hand_right_tip', 'point': grip, 'kind': 'BRAID_GRIP'}
+        held_gate(model, action, samples, tracks+more, sticks, c)
     if action in ('boat_paddle', 'bank_beckon') and 'hand_right_tip' in names:
         stroke_gate(model, action, samples, tracks+more, c, fields.get('props', {}).get('paddle'))
     rotation = None if action in PADDLE_CLIPS or 'braid_path' in c else [tip_rotation(action, t, c) for t in samples]

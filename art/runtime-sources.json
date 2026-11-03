@@ -3542,7 +3542,7 @@
     "lore_source": "standards/yukkuri-library/motions/variants/lore",
     "runtime": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/motion_corrections.json",
     "format": 2,
-    "revision": "aquatic-places-20261104-v33",
+    "revision": "carry-held-20261104-v34",
     "lore_previews": ".local/previews/lore/index.html",
     "birth_performance_source": "standards/yukkuri-library/motions/variants/lore/mamu_birth_preview.py",
     "birth_performance_revision": "flexible-birth-catching-20261017",
@@ -4230,5 +4230,19 @@
     "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/{model}/sad.png, afraid.png",
     "status": "pending_user_review",
     "scope": "sad and afraid derived from each model's own approved teary, neutral and surprise atlases (project design); not part of the standard expression set until saved."
+  },
+  "carry_hold": {
+    "clips": {
+      "author": [
+        "standards/yukkuri-library/motions/variants/lore/author.py",
+        "standards/yukkuri-library/motions/variants/lore/aquatic_tools.py",
+        "standards/yukkuri-library/motions/variants/lore/recipe.json"
+      ],
+      "exporter": "scripts/export_motion_corrections.py",
+      "runtime": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/motion_corrections.json"
+    },
+    "preview": "standards/yukkuri-library/motions/variants/lore/carry_hold_preview.py",
+    "status": "pending_user_review",
+    "scope": "Reimu's mouth_release (markers open/release/closed: a young emerges from her mouth before it is let go); the generic held item: Marisa's braid (braid_item_hold / braid_item_hold_aq overlays, braid_item_pick contact, braid_item_place release; props.item uses the paddle's grip and twig frame on hand_right_tip, contacts.braid_grip) and the mouth for the others (mouth_item_pick bite, mouth_item_place release; drawn at the mouth anchor); boat_puff, the seated captain's puff with the braid at its boat rest. Project design (user 2026-11-04 feedback 1, 2 and 6). Chen's two-tail carry reuses the client CarryTailCurl seats unchanged."
   }
 }
