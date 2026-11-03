@@ -3453,19 +3453,19 @@
     },
     "braid_rescue_reach": {
       "label": "实单辫伸梢接触落水子",
-      "duration": 2.2,
+      "duration": 1.1,
       "loop": false,
       "applies": "aquatic_marisa",
       "root_support": "shared_braid",
       "faces": [
         [
           0,
-          0.6,
+          0.3,
           "surprise"
         ],
         [
-          0.6,
-          62.2,
+          0.3,
+          61.1,
           "teary"
         ]
       ],
@@ -3480,37 +3480,37 @@
           "rest"
         ],
         [
-          1.1,
+          0.55,
           16.6,
           4.0,
           -3.0
         ],
         [
-          2.2,
+          1.1,
           16.6,
           4.0,
           -3.0
         ]
       ],
       "markers": {
-        "contact": 1.2
+        "contact": 0.6
       }
     },
     "braid_rescue_hold": {
       "label": "同梢贴水抓托沿帽缘回护",
-      "duration": 2.4,
+      "duration": 3.0,
       "loop": false,
       "applies": "aquatic_marisa",
       "root_support": "shared_braid",
       "faces": [
         [
           0,
-          0.7,
+          0.35,
           "cry"
         ],
         [
-          0.7,
-          62.4,
+          0.35,
+          63.0,
           "teary"
         ]
       ],
@@ -3528,35 +3528,35 @@
           -3.0
         ],
         [
-          0.7,
+          0.35,
           16.6,
           4.0,
           -3.0
         ],
         [
-          1.4,
+          1.441176,
           14.5,
           9.0,
           -6.0
         ],
         [
-          1.9,
+          2.220588,
           13.0,
           7.5,
           -9.0
         ],
         [
-          2.4,
+          3.0,
           9.5,
           5.2,
           -10.5
         ]
       ],
       "markers": {
-        "grip": 0.7,
-        "lift_start": 0.8,
-        "lift_end": 1.4,
-        "place": 2.4
+        "grip": 0.35,
+        "lift_start": 0.505882,
+        "lift_end": 1.441176,
+        "place": 3.0
       }
     },
     "braid_rescue_settle": {
