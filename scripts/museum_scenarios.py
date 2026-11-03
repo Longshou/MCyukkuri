@@ -2223,7 +2223,7 @@ def water_aftermath(window):
                 return f'hull #{who} returned afloat {tick - grounded[who]} ticks after entering ground'
         elif kind == 'incident' and ' close id=water#' in line:
             escapes.pop(who, None)
-        elif kind == 'water' and 'phase=RECOVER -> IMPACT ' in line:
+        elif kind == 'water' and re.search(r'phase=(?:IDLE|RECOVER) -> IMPACT ', line):
             escapes.pop(who, None)
         elif kind == 'action' and re.search(r'outcome=INTERRUPTED why=(?:hurt|fright|command)\b', line):
             escapes.pop(who, None)
