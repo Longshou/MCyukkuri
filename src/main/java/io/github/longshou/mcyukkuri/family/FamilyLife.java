@@ -993,6 +993,8 @@ public final class FamilyLife {
      * independent subadults never enter this follow/search path.
      */
     private boolean exploring() { return entity.roaming()!=null&&entity.roaming().exploring(); }
+    /** The one reunion rule: within the child's own follow radius and in sight. The search ends, the approach halts and the greeting plays here. */
+    boolean reached(YukkuriEntity child){return entity.distanceToSqr(child)<=child.family().familyRadiusSqr()&&entity.hasLineOfSight(child);}
     /** The same arrival distance that ends this child's ordinary land follow. */
     public boolean withinFollowDistance(YukkuriEntity parent) {
         var at = gatherAt(parent);
@@ -1155,7 +1157,7 @@ public final class FamilyLife {
                         return;
                     }
                     if(!ordinaryLandFree(entity)||!ordinaryLandFree(target)||!entity.life().canRecognize(target)){stop();return;}
-                    if(entity.distanceToSqr(target)<=target.family().familyRadiusSqr()&&entity.hasLineOfSight(target)){stop();return;}
+                    if(reached(target)){separation.reunited(target);SurfaceApproach.halt(entity);stop();return;}
                     if(taskTicks%10==1&&!entity.life().navigate(target.blockPosition(),1.1,false))stop();
                 } else {
                     if(searchAt==null||entity.distanceToSqr(searchAt)<2){stop();return;}

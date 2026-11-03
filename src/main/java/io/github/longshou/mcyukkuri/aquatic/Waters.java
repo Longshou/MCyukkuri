@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -209,6 +210,27 @@ final class Waters {
         return null;
     }
 
+    /** How far (blocks) an owner ashore looks for water to set out from when none is within her berth reach. */
+    static final int FAR = 32;
+
+    /** The nearest roomy bank edge within {@link #FAR} blocks that {@code body} can walk to and whose water carries a hull, not one
+     *  it already stands at, or null: where an owner too far from any water heads to set out. Kept per 8-block cell for 200 ticks. */
+    static Edge farShore(YukkuriEntity body) {
+        var at = body.blockPosition();
+        return kept(body.level(), key(body.level(), "far", at.getX() >> 3, at.getZ() >> 3, body.getBbWidth()), 200, () -> findFarShore(body));
+    }
+
+    private static Edge findFarShore(YukkuriEntity body) {
+        int asked = 0;
+        for (var e : edges(body, body.position(), FAR, true)) {
+            var stand = e.stand(body.getBbWidth());
+            if (stand.distanceToSqr(body.position()) < 9 || !floats(e, body)) continue;
+            if (asked++ >= ASKED) break;
+            if (SurfaceApproach.canApproach(body, stand)) return e;
+        }
+        return null;
+    }
+
     /** The roomy edges round {@code body} with no other hat over the water they front, nearest first, up to {@link #ASKED}. */
     private static List<Edge> freeEdges(YukkuriEntity body, Vec3 at) {
         var out = new ArrayList<Edge>();
@@ -357,7 +379,9 @@ final class Waters {
         return null;
     }
 
-    /** The loose stick nearest {@code body} within {@code range} on dry ground; with {@code walk}, one it can walk to now. */
+    /** The loose stick nearest {@code body} within {@code range} that it can take from where it stands: lying on dry ground or, for a
+     *  body on foot ({@code walk}: one it can walk to now), afloat beside a bank stand within its reach. An owner afloat looks
+     *  for sticks on the water with {@link #floatingStick}. */
     static ItemEntity stick(YukkuriEntity body, double range, boolean walk) {
         UUID id = kept(body.level(), key(body.level(), "stick", body.blockPosition(), range, walk), () -> {
             var found = findStick(body, range, walk);
@@ -372,7 +396,7 @@ final class Waters {
         // Observe one extra search-width outside the pickup box, without admitting those sticks as candidates.
         var sticks = body.level().getEntitiesOfClass(ItemEntity.class, search.inflate(range), item -> {
             if (!item.isAlive() || !item.getItem().is(Items.STICK)) return false;
-            String reason = !search.intersects(item.getBoundingBox()) ? "out_of_range" : item.isInWater() ? "wet" : null;
+            String reason = !search.intersects(item.getBoundingBox()) ? "out_of_range" : item.isInWater() && !walk ? "wet" : null;
             if (reason == null) return true;
             rejectStick(body, item, reason, null, range, walk);
             return false;
@@ -380,8 +404,9 @@ final class Waters {
         sticks.sort(Comparator.comparingDouble(body::distanceToSqr));
         for (int i = 0; i < sticks.size() && i < 3; i++) {
             var stick = sticks.get(i);
-            var at = SurfaceApproach.floor(body, stick.position());
-            if (at != null && (!walk || SurfaceApproach.canApproach(body, at))) return stick;
+            boolean afloat = stick.isInWater();
+            var at = afloat ? SurfaceApproach.beside(body, stick, body.getBbWidth() / 2 + .2, 1.2) : SurfaceApproach.floor(body, stick.position());
+            if (at != null && (!walk || afloat || SurfaceApproach.canApproach(body, at))) return stick;
             rejectStick(body, stick, at == null ? "no_dry_floor" : "unreachable", at, range, walk);
         }
         return null;
@@ -398,21 +423,31 @@ final class Waters {
      * lying at the edge of it, within {@code range} of the hat, whose water the hat can be paddled to; nearest first, or null.
      */
     static ItemEntity food(PlacedHatEntity hat, YukkuriEntity body, int range) {
+        return loose(hat, "food", body.getUUID(), range, item -> item.getItem().is(YukkuriEntity.FOOD) && body.life().acceptsFood(item.getItem()));
+    }
+
+    /** A stick afloat in calm water or lying at the edge of it within {@code range} of the hat, whose water the hat can be paddled to:
+     *  what an owner with no stick (never had one, or lost it) goes for. Nearest first, or null. */
+    static ItemEntity floatingStick(PlacedHatEntity hat, int range) {
+        return loose(hat, "stick", "", range, item -> item.getItem().is(Items.STICK));
+    }
+
+    private static ItemEntity loose(PlacedHatEntity hat, String what, Object who, int range, Predicate<ItemEntity> wanted) {
         var level = hat.level();
         var from = cell(hat);
-        UUID id = kept(level, key(level, "food", body.getUUID(), from == null ? hat.blockPosition() : from, range), () -> {
-            var found = findFood(hat, body, range);
+        UUID id = kept(level, key(level, what, who, from == null ? hat.blockPosition() : from, range), () -> {
+            var found = findLoose(hat, range, wanted);
             return found == null ? null : found.getUUID();
         });
         return id != null && level instanceof ServerLevel server && server.getEntity(id) instanceof ItemEntity item && item.isAlive()
                 && !item.getItem().isEmpty() ? item : null;
     }
 
-    private static ItemEntity findFood(PlacedHatEntity hat, YukkuriEntity body, int range) {
+    private static ItemEntity findLoose(PlacedHatEntity hat, int range, Predicate<ItemEntity> wanted) {
         var level = hat.level();
         var from = cell(hat);
         var items = level.getEntitiesOfClass(ItemEntity.class, hat.getBoundingBox().inflate(range, 3, range),
-                item -> item.isAlive() && !item.hasPickUpDelay() && item.getItem().is(YukkuriEntity.FOOD) && body.life().acceptsFood(item.getItem()));
+                item -> item.isAlive() && !item.hasPickUpDelay() && wanted.test(item));
         items.sort(Comparator.comparingDouble(hat::distanceToSqr));
         int asked = 0;
         for (var item : items) {

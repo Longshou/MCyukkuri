@@ -30,6 +30,13 @@ final class FamilySeparation {
     private void pressure(float perSecond,float ceiling,String cause){
         o.entity().mind().add(Math.max(0,Math.min(perSecond,ceiling-o.entity().mind().unease())),cause);
     }
+    /** The parent reached the child it searched for (FamilyLife.reached): the one place the reunion is greeted and logged. */
+    void reunited(YukkuriEntity child){
+        var e=o.entity();
+        searching.remove(child.getUUID());
+        e.showReaction("happy","caregiver",80);BirthStaging.affection(e);
+        GameplayLog.event(e,"family","child search reunited child={} distance={}",child.getUUID(),Math.round(e.distanceTo(child)*100)/100.0);
+    }
     void tick(){
         if(o.entity().tickCount%20!=0)return;
         var e=o.entity();var data=FamilyData.get(o.level());var p=e.life().personality();
@@ -67,7 +74,7 @@ final class FamilySeparation {
             if(record==null||!e.getUUID().equals(record.mother)||!data.acknowledgesChild(e.getUUID(),id))continue;
             if(!(o.level().getEntity(id) instanceof YukkuriEntity child)||!child.isAlive()||child.family().adult()||child.family().subadult())continue;
             if(child.family().awaitingLanding()||child.isPassenger()||near(e,child)||FamilyNest.atAssignedNest(child)){
-                if(searching.remove(id)!=null){e.showReaction("happy","caregiver",80);BirthStaging.affection(e);GameplayLog.event(e,"family","child search reunited child={}",id);}
+                searching.remove(id);
                 continue;
             }
             int elapsed=searching.merge(id,20,Integer::sum);

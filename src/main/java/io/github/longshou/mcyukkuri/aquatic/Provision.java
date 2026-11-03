@@ -27,6 +27,8 @@ import net.minecraft.world.phys.Vec3;
  *   <li>{@code forage}: an owner aboard with her stick paddles over the loaded calm water to a food item afloat or lying at the
  *       water's edge, walks within reach and picks it up: hungry she eats it, else it goes into the hollow (the hold's own
  *       store, which refuses with its real reason, and then the item stays where it lay). Done once taken.</li>
+ *   <li>{@code fetch_stick}: the same trip for a stick afloat or lying at the water's edge when she has none (never had one, or
+ *       lost it at a capsize: one state); it goes into the hat's kit. Done once stowed.</li>
  * </ul>
  */
 final class Provision implements Intent {
@@ -36,19 +38,25 @@ final class Provision implements Intent {
 
     private final YukkuriEntity body;
     private final ItemEntity food;
+    private final boolean stick;
     private final long started;
     private boolean taken;
 
-    private Provision(YukkuriEntity body, ItemEntity food) {
+    private Provision(YukkuriEntity body, ItemEntity food, boolean stick) {
         this.body = body;
         this.food = food;
+        this.stick = stick;
         this.started = body.level().getGameTime();
     }
 
-    static Provision eat(YukkuriEntity body) { return new Provision(body, null); }
-    static Provision forage(YukkuriEntity owner, ItemEntity food) { return new Provision(owner, food); }
+    static Provision eat(YukkuriEntity body) { return new Provision(body, null, false); }
+    static Provision forage(YukkuriEntity owner, ItemEntity food) { return new Provision(owner, food, false); }
+    static Provision stick(YukkuriEntity owner, ItemEntity stick) {
+        GameplayLog.event(owner, "aquatic", "stick target chosen item={} at={} afloat={}", stick.getUUID(), GameplayLog.at(stick.position()), stick.isInWater());
+        return new Provision(owner, stick, true);
+    }
 
-    @Override public String id() { return food == null ? "eat_aboard" : "forage"; }
+    @Override public String id() { return stick ? "fetch_stick" : food == null ? "eat_aboard" : "forage"; }
     @Override public long deadline() { return started + (food == null ? EAT : FORAGE); }
     @Override public boolean satisfied() { return taken && (food != null || body.life().mealTicks() == 0); }
     @Override public List<Method> methods() { return List.of(Plan.of(id(), this::derive)); }
@@ -94,8 +102,13 @@ final class Provision implements Intent {
         return true;
     }
 
-    /** Hungry, eat it; else into the hollow of the hat she rides. */
+    /** Hungry, eat it; else into the hollow of the hat she rides. A stick goes into the hat's kit. */
     private boolean keep(ItemStack one) {
+        if (stick) {
+            taken = AquaticLife.stow(body, one);
+            if (taken) GameplayLog.event(body, "aquatic", "stick taken item={} stowed_in=hat", one.getItem());
+            return taken;
+        }
         var hat = AquaticLife.riding(body);
         var larder = HullLarder.of(hat);
         boolean ate = body.life().canEat() && body.life().beginMeal(one, null, false);

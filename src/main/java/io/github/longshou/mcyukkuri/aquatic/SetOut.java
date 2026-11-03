@@ -35,7 +35,9 @@ import net.minecraft.world.phys.Vec3;
 
 /**
  * Setting out (出航; HARD, a short commitment only danger breaks): with her stick (tucked in the hat, or
- * one picked up nearby) she walks to a bank edge beside calm water with room for the hull, sets her hat down on the water
+ * one picked up nearby, lying or afloat beside the bank; with none in reach she sets out without) she walks to a bank edge beside
+ * calm water with room for the hull (the nearest one carrying a hull within {@link Waters#FAR} blocks when none is within berth
+ * reach, her young following and one call for a young still beyond the gather range), sets her hat down on the water
  * ({@code PlaceProp} in water mode, {@code hat_off_self_aq}), and the family gets aboard: a young that hops boards by its own
  * {@code board_parent} desire. She loads dependent young from the near brim, then moves to her seat.
  * Sleeping young, those in the water and those without a seat stay behind; a failed fetch ends this setting out. She gathers
@@ -43,15 +45,15 @@ import net.minecraft.world.phys.Vec3;
  * and she approaches a wandering child on foot before lifting it.
  */
 final class SetOut implements Intent, FamilyRendezvous {
-    /** The whole setting out, the post-launch boarding call, and the longer bank gather (ticks). */
-    private static final int DEADLINE = 2400, WAIT_YOUNG = 300, GATHER_YOUNG = WAIT_YOUNG * 4;
+    /** The whole setting out (the walk to a far shore included), the post-launch boarding call, and the longer bank gather (ticks). */
+    private static final int DEADLINE = 3600, WAIT_YOUNG = 300, GATHER_YOUNG = WAIT_YOUNG * 4;
 
     private final YukkuriEntity owner;
     private final long started;
     private final Set<UUID> sticks = new HashSet<>();
     private int calls;
-    /** End of the one gather call, or zero when no gather wait is running. */
-    private long gatherUntil;
+    /** End of the one gather call, or zero when no gather wait is running; end of the one call for a young beyond the gather range. */
+    private long gatherUntil, farUntil;
     private final Ferry.Beckoning beckoning = new Ferry.Beckoning();
     /** Young she sets out without, with the reason. */
     private final Map<UUID, String> excused = new LinkedHashMap<>();
@@ -115,6 +117,16 @@ final class SetOut implements Intent, FamilyRendezvous {
         if (hat == null) {
             var fetch = dependentAshore(hat);
             var edge = Waters.berth(owner);
+            if (edge == null) {
+                var shore = Waters.farShore(owner);
+                if (shore != null) return toShore(shore);
+            }
+            if (edge != null && farUntil == 0 && dependentBeyondGatherRange(owner)) {
+                farUntil = owner.level().getGameTime() + GATHER_YOUNG;
+                GameplayLog.event(owner, "aquatic", "set_out call far child at={} wait={}", GameplayLog.at(owner.position()), GATHER_YOUNG);
+                return List.of(() -> new Step.Wait(() -> !dependentBeyondGatherRange(owner) || owner.level().getGameTime() >= farUntil,
+                        GATHER_YOUNG + 1, Behaviors.BOAT_CALL));
+            }
             if (edge != null && gatherUntil == 0 && !fetch.isEmpty()) {
                 GameplayLog.event(owner, "aquatic", "set_out gather start children={}", fetch.stream()
                         .map(y -> y.getUUID() + "@" + GameplayLog.at(y.position())).toList());
@@ -181,14 +193,28 @@ final class SetOut implements Intent, FamilyRendezvous {
                 () -> new Step.Do(new PlaceProp(new HatProp(owner, true, true), Waters.hatAt(edge, owner), edge.yaw() + (float) HullBounds.BOARDING_YAW)));
     }
 
+    /** Too far from any water to set a hat down: walk to the nearest bank edge that carries one (the young follow her there), then
+     *  set out from it. */
+    private List<Supplier<Step>> toShore(Waters.Edge shore) {
+        var stand = shore.stand(owner.getBbWidth());
+        GameplayLog.limited(owner, "aquatic", "set_out.far_shore", 200, "set_out far shore stand={} water={} distance={}",
+                GameplayLog.at(stand), shore.water().toShortString(), Math.round(Math.sqrt(owner.distanceToSqr(stand))));
+        return List.of(() -> SurfaceApproach.arrived(owner, stand) ? null : new Step.Do(new Walk(stand)));
+    }
+
     /** Walk beside the stick, face it, pick it up into her hat. */
     private List<Supplier<Step>> fetch(ItemEntity stick) {
+        GameplayLog.event(owner, "aquatic", "stick target chosen item={} at={} afloat={}", stick.getUUID(), GameplayLog.at(stick.position()), stick.isInWater());
         return List.of(() -> {
                     var at = SurfaceApproach.beside(owner, stick, owner.getBbWidth() / 2 + .2, 1.2);
                     return at == null ? null : new Step.Do(Walk.stand(at, 1));
                 },
                 () -> new Step.Do(new Face(SurfaceApproach.yaw(owner.position(), stick.position()))),
-                () -> new Step.Do(new Pick(stick, one -> AquaticLife.stow(owner, one))));
+                () -> new Step.Do(new Pick(stick, one -> {
+                    boolean stowed = AquaticLife.stow(owner, one);
+                    if (stowed) GameplayLog.event(owner, "aquatic", "stick taken item={} stowed_in={}", one.getItem(), AquaticLife.hat(owner) != null ? "hat" : "worn_hat");
+                    return stowed;
+                })));
     }
 
     /** Her nearest young ashore that cannot get aboard by itself: it cannot hop, or its own hop aboard just failed. */

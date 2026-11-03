@@ -182,17 +182,18 @@ final class AquaticGoal extends Goal {
         if (!aboard) {
             if (nursery && AquaticLife.ashore(body)) GameplayLog.limited(body, "aquatic", "nursery.ashore", 1200,
                     "set_out held reason=newborn_care children={}", nursing.stream().map(YukkuriEntity::getUUID).toList());
+            // A missing stick never keeps her ashore: SetOut takes one lying (or afloat beside the bank) within reach first, and afloat
+            // she goes for sticks on the water or comes ashore for one (fetch_stick, come_ashore).
             boolean nearStick = !stick && Waters.stick(body, 10, true) != null;
-            double noStick = stick || nearStick ? 0 : num("stick_need", 50);
-            double pull = Math.max(Math.max(hunger, noStick), Math.max(weather, breed));
+            double pull = Math.max(Math.max(hunger, weather), breed);
             boolean asleep = young.stream().anyMatch(y -> y.life().isSleeping() && !AquaticLife.aboard(y, hat));
             boolean beyondGather = SetOut.dependentBeyondGatherRange(body);
             double setOut = asleep || beyondGather || birth > 0 || nursery ? 0 : num("water_life", 60) - 2 * pull - (dusk ? num("night_pull", 60) : 0) - (rain ? num("rain_pull", 30) : 0);
             var world = List.of(body.blockPosition(), stick, nearStick, young.size(), beyondGather, birth > 0, nursery);
             boolean usable = hat == null ? life.custody().worn() : AquaticLife.afloat(hat);
             if (usable) out.add(Desire.of("set_out", floor(setOut), world, () -> String.format(Locale.ROOT,
-                    "pull=%.0f hunger=%.0f no_stick=%.0f weather=%.0f breed=%.0f dusk=%b rain=%b young=%d asleep=%b beyond_gather=%b nursery=%b",
-                    pull, hunger, noStick, weather, breed, dusk, rain, young.size(), asleep, beyondGather, nursery), () -> new SetOut(body, this::leftAshore)));
+                    "pull=%.0f hunger=%.0f weather=%.0f breed=%.0f stick=%b stick_near=%b dusk=%b rain=%b young=%d asleep=%b beyond_gather=%b nursery=%b",
+                    pull, hunger, weather, breed, stick, nearStick, dusk, rain, young.size(), asleep, beyondGather, nursery), () -> new SetOut(body, this::leftAshore)));
             // Newborns ashore go through family loading, never the solo reclaim that may finish aboard without them.
             if (hat != null && birth == 0 && unloadedNewborns.isEmpty() && !beyondGather
                     && (floor(setOut) == 0 || !AquaticLife.afloat(hat) || drive().failed("set_out")))
@@ -212,6 +213,10 @@ final class AquaticGoal extends Goal {
                 ? Waters.food(hat, body, 12) : null;
         if (catchable != null) out.add(Desire.of("forage", floor(Math.max(eat, num("forage_want", 35))), List.of(at, catchable.getUUID()),
                 () -> "item=" + catchable.getItem().getItem() + " at=" + GameplayLog.at(catchable.position()), () -> Provision.forage(body, catchable)));
+        // no stick aboard (never had one, or lost it: one state) and one afloat in sight she can paddle to: fetch it
+        var floating = stick ? null : Waters.floatingStick(hat, (int) num("stick_sight", 16));
+        if (floating != null) out.add(Desire.of("fetch_stick", floor(num("stick_want", 55)), List.of(at, floating.getUUID()),
+                () -> "item at=" + GameplayLog.at(floating.position()), () -> Provision.stick(body, floating)));
         care(out, hat, young, at);
         // a young on dry ground that is not off on its own first voyage (one on its father's boat, in the water or in a mouth is not ashore)
         long ashore = young.stream().filter(y -> AquaticLife.ashore(y) && !leftBehind(y) && !(Drive.running(y, DOMAIN) instanceof FirstVoyage)).count();
