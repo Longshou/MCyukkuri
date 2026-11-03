@@ -35,6 +35,9 @@ class PlaceGeometryTest {
         assertFalse(places(.18).isEmpty(), "one .18 baby");
         var pair = places(.15);
         assertTrue(pair.stream().anyMatch(a -> pair.stream().anyMatch(b -> fits(b, List.of(a)))), "two .15 babies");
+        var tiny = places(.10);
+        assertTrue(tiny.stream().anyMatch(a -> tiny.stream().anyMatch(b -> fits(b, List.of(a))
+                && tiny.stream().anyMatch(c -> fits(c, List.of(a, b))))), "three .10 babies");
         assertTrue(places(.20).isEmpty(), ".20 hat intersects captain or wall");
     }
     @Test void headCapSupportsYoungAcrossJoinedCellsButNeverAcrossItsEdge() {
