@@ -2496,15 +2496,33 @@ pond('afloat_family_gather', '岸边集合后再辫接幼上船', '岸边集合�
                         r'\[action\][^\n]* start id=take_prop\b', r'\[intent\][^\n]* end id=set_out result=EXHAUSTED\b']))
 
 pond('afloat_family_distant', '远处赤油·先寻回再出航', '寻回远处赤油再出航',
-     '亲油和木棍在南岸，赤油在内陆三十余格外、普通水上亲子范围之外但陆地搜寻范围之内：亲油先进行家庭搜寻，仍相距遥远时不会出航',
-     '先看约 30–60 秒寻回',
+     '亲油和木棍在南岸，赤油在内陆三十余格外、普通水上亲子范围之外但陆地搜寻范围之内：亲油先家庭搜寻，走到赤油身边停步打招呼（不顶着孩子往前走），随后朝水边走去、在水边呼唤等孩子跟上，再放帽出航；仍相距遥远时不会出航',
+     '先看约 30–60 秒寻回，再看约 2–3 分钟回水',
      [yk('marisa', bank_dx(10) - 1, 10, 'a', aquatic=True, yaw=-90, lead=True, uuid=uid('afloat_family_distant', 'a'), **pair_ready()),
       _aquatic_young('afloat_family_distant', 'c1', -16, -13, 'baby', 'a', childhood='Version:1,Newborn:1b,Landed:1b,FirstMealDone:1b,FirstToiletDone:1b,Crawled:0b,Jumped:0b'),
       item('minecraft:stick', 1, bank_dx(10) - 1, 9, 'stick')],
-     note='短窗口只验证远处初态：必须出现 family search started，尚不得 start id=set_out；重逢后的正常出航不算失败。' + _DESIRE_NOTE,
+     note='日志顺序：family search started → child search reunited（distance 是停步时的接触距离，之后亲油不再向前顶孩子）→ [intent] start id=set_out（why 里 stick=、beyond_gather=false）→ 离水远时 set_out far shore，到水边 set_out call far child 或 gather → placed。重逢前不得 start id=set_out，重逢后不得再来回搜寻（child search reunited 只出现一次）。'
+          '孩子不会爬时的叼运归亲代运输，不在此场景完成；准备成功不算行为成功。' + _DESIRE_NOTE,
      reads=[('读亲油', f'yukkuri status {sel("a")} raw'), ('读赤油', f'yukkuri status {sel("c1")} raw')],
-     smoke=dict(ticks=120, expect=[r'\[family\][^\n]* family search started\b'],
-                forbid=[r'\[intent\][^\n]* start id=set_out\b', r'\[body\][^\n]* invariant\b']))
+     smoke=dict(ticks=4800, expect=[r'\[family\][^\n]* family search started\b',
+                                   r'\[family\][^\n]* child search reunited [^\n]*distance=[\s\S]*\[intent\][^\n]* start id=set_out\b'],
+                forbid=[r'\A(?:(?!child search reunited)[\s\S])*\[intent\][^\n]* start id=set_out\b',
+                        r'child search reunited [\s\S]*child search reunited ', r'\[body\][^\n]* invariant\b']))
+
+pond('afloat_stick', '水上缺棍·划去取漂浮木棍', '漂浮木棍亲油划去取',
+     '亲油坐在自己的帽船里漂在静水上，帽里没有木棍；几格外的水面上漂着一根真木棍。没有木棍（从没有或翻船失去是同一状态）的亲油看到水上的木棍就划过去、用辫子或嘴取到收进帽里；水上没有木棍时则不会专门去找',
+     '约 1 分钟',
+     [captain(dx=bank_dx(0)),
+      afloat('a', water_at(0, 3), True),
+      item('minecraft:stick', 1, bank_dx(0) + 8, 0, 'stick', dy=-.15)],
+     vantage=(bank_dx(0) + 11, -3, 40, 18),
+     note='日志：[intent] start id=fetch_stick（why 里 item at=）→ [aquatic] stick target chosen … afloat=true → [action] start id=paddle → [action] start id=pick → [aquatic] stick taken … stowed_in=hat；'
+          '取到后 aquatic.stick_in_braid 随划桨变 true。木棍是原版掉落物，浮在水面上；准备放帽成功不算取棍成功。' + _DESIRE_NOTE,
+     reads=[('读船主', f'yukkuri status {sel("a")} raw'), ('读帽子', f'data get entity {_HAT}'),
+            ('读水上物品', 'execute as @e[type=minecraft:item,distance=..48] run data get entity @s Pos')],
+     smoke=dict(ticks=1200, expect=[r'\[intent\][^\n]* start id=fetch_stick\b', r'\[aquatic\][^\n]* stick target chosen [^\n]*afloat=true',
+                                   r'\[aquatic\][^\n]* stick taken [^\n]*stowed_in=hat'],
+                forbid=[r'\[body\][^\n]* invariant\b', r'\[hat\][^\n]* capsized\b', r'\[body\][^\n]* death settled into remains']))
 
 pond('kid_boat_play', '赤油在亲帽上玩耍', '拨粮·受惊缩身',
      '亲油与两只赤油已坐在静水亲帽里，亲油初始背向船首，帽里有一根木棍、四份苹果。一只赤油饥饿，亲油取食喂幼时会转身：看赤油让位、帽壁上的赤油下滑；玩家从岸边看赤油拨弄储粮，空手右击赤油看问候。雷雨、附近捕食种或冲向帽船的玩家会吓得赤油原地缩身，平静后继续玩耍；赤油不会跳上帽檐或模仿划桨',
@@ -2752,7 +2770,7 @@ TOPICS = {
     'body_mold': 'R5', 'wound_parts': 'R5', 'wound_materials': 'R5', 'thermal_body': 'R5', 'wound_sources': 'R5', 'wound_leak': 'R5', 'treatment_severe': 'R5', 'treatment_scars': 'R5', 'treatment_care': 'R5', 'magma_sole': 'R5', 'core_exposed': 'R5', 'core_filling': 'R5', 'remains_rot': 'R6', 'remains_forms': 'R6', 'carrion': 'R6', 'cannibal_hunt': 'R6',
     'last_words': 'R7', 'offering': 'R7', 'sacrifice': 'R7', 'sacrifice_reluctant': 'R7',
     'hat_float': 'A1', 'hat_push': 'A1', 'hat_turbulence': 'A4', 'hat_current': 'A1', 'hat_grounded_inverted': 'A4', 'hat_grounded_capsized': 'A4', 'cargo': 'A2', 'hat_crowd': 'A3', 'shake_capsize': 'A4',
-    'water_colony': 'A6', 'sail': 'A6', 'afloat_family': 'A6', 'afloat_family_gather': 'A6', 'afloat_family_distant': 'A6', 'shore_family': 'A6', 'kid_boat_play': 'A6',
+    'water_colony': 'A6', 'sail': 'A6', 'afloat_stick': 'A6', 'afloat_family': 'A6', 'afloat_family_gather': 'A6', 'afloat_family_distant': 'A6', 'shore_family': 'A6', 'kid_boat_play': 'A6',
     'rescue_child': 'A5', 'rescue_infant_full': 'A5', 'rescue_no_seat': 'A5', 'birth_boat_caught': 'A6', 'birth_boat_missed': 'A6', 'first_voyage': 'A6',
     'self_rescue': 'A5', 'shore_capsized': 'A5', 'fall_in_pond': 'A5', 'worn_hat_boat': 'A5', 'hat_swap': 'C1', 'hat_damage': 'C1', 'hat_shatter': 'C1', 'hatless_kin': 'C2', 'hatless_scorn': 'C2', 'hatless_boundary': 'C2',
     'hatless_monster': 'C2', 'hatless_sanction': 'C2', 'puff_response': 'C2',
