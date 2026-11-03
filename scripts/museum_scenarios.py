@@ -2611,7 +2611,7 @@ _BOAT_SMOKE_FORBID = [r'\[hat\][^\n]* scenario afloat prepared [^\n]*owner_aboar
 
 
 def boat_birth_result(window):
-    """Every conceived child must actually be born, aquatic, landed and alive; inspect land release clearance too."""
+    """Every conceived child must actually be born, aquatic, clear of bodies, landed and alive."""
     problem = water_aftermath(window)
     if problem:
         return problem
@@ -2623,8 +2623,8 @@ def boat_birth_result(window):
         line = re.search(rf'\[family\][^\n]*uuid={child}[^\n]* born [^\n]*', window)[0]
         if 'subspecies=AQUATIC_MARISA' not in line:
             return f'newborn {child} is not aquatic'
-        if 'motherAboard=false' in line and 'bodyClear=true' not in line:
-            return f'land newborn {child} overlaps a body'
+        if 'bodyClear=true' not in line:
+            return f'newborn {child} overlaps a body'
         if not re.search(rf'uuid={child}[^\n]* birth landed ', window):
             return f'newborn {child} never landed'
     if re.search(r'\[body\][^\n]* death settled|cause=starv|brood cancelled', window):
@@ -2678,7 +2678,7 @@ boat_birth('birth_boat_caught', '帽船分娩·落座', '船上分娩',
                       forbid=_BOAT_SMOKE_FORBID + [r'birth delivery stage=(?:qualified|exit_wait)\b'],
                       verify=boat_birth_result, readout=_water_readouts('mother', 'father') + [f'yukkuri status {NEWBORNS} raw']))
 boat_birth('birth_boat_missed', '帽船分娩·座位已满', '座位已满',
-           '两只初始赤油从开场就在岸上，准备后坐进母船占满座位；母油处于四分之一孕程，整胎坐不下，趁孕肚仍能越过岸沿时划回岸边、带幼体下船，按陆地接生规则分娩。'
+           '两只初始赤油从开场就在岸上，准备后坐进母船占满座位；母油处于四分之一孕程，整胎坐不下，趁孕肚仍能越过岸沿时划回岸边、经帽檐下船，按陆地接生规则分娩。怀孕时不能搬运的初始幼体仍坐在母船里。'
            '看水生圆帽新生儿从身体外出生、落在岸上，幼体总数应为两只初始乘员加实际出生数',
            True, '日志：come_ashore 的 why 带 birth 得分，hop 上岸后再 delivery labor started → born → birth landed。'
               '“读本胎新生儿”排除标记 crew 的两只初始乘员；出生数对照 conceived children 与 born index。' + _DESIRE_NOTE,

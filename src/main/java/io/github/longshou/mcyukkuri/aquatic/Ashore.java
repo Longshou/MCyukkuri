@@ -2,6 +2,7 @@ package io.github.longshou.mcyukkuri.aquatic;
 
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.family.ParentCarry;
 import io.github.longshou.mcyukkuri.headwear.HatProp;
 import io.github.longshou.mcyukkuri.headwear.PlacedHatEntity;
 import io.github.longshou.mcyukkuri.intent.Commitment;
@@ -98,12 +99,15 @@ final class Ashore implements Intent {
         var hat = AquaticLife.hat(owner);
         if (hat == null || hat.isRemoved()) return null;
         var held = AquaticLife.carried(owner);
+        var dependent = dependentAboard(hat);
+        String carryProblem = dependent == null ? null : ParentCarry.capacityProblem(owner, dependent);
         if (AquaticLife.aboard(owner, hat)) {
             if (held != null) return Ferry.canHopAshore(owner) ? List.of(Ferry.hopAshore(owner)) : paddle(hat);
-            var dependent = dependentAboard(hat);
             if (Ferry.canHopAshore(owner)) {
-                if (dependent != null) return Ferry.grabAboard(owner, hat, dependent);
-                if (youngAboard(hat)) return List.of(() -> new Step.Wait(() -> !youngAboard(hat), WAIT, Behaviors.BOAT_CALL));
+                if (dependent != null && carryProblem == null) return Ferry.grabAboard(owner, hat, dependent);
+                if (dependent == null && youngAboard(hat)) return List.of(() -> new Step.Wait(() -> !youngAboard(hat), WAIT, Behaviors.BOAT_CALL));
+                if (carryProblem != null) GameplayLog.limited(owner, "aquatic", "land.carry", WAIT,
+                        "land without dependent child={} reason={}", dependent.getUUID(), carryProblem);
                 return List.of(Ferry.hopAshore(owner));
             }
             return paddle(hat);
@@ -111,7 +115,8 @@ final class Ashore implements Intent {
         if (!AquaticLife.ashore(owner)) return null;
         if (held != null) return List.of(() -> new Step.Do(new Release(held)));
         if (hat.upsideDown()) return fromBank(hat, () -> new Right(hat, "reclaim"), () -> new Step.Wait(hat::steady, 60, "hat_settles"));
-        if (AquaticLife.afloat(hat) && dependentAboard(hat) != null) return Ferry.hopAboard(owner, hat, beckoning);
+        if (AquaticLife.afloat(hat) && dependent != null)
+            return carryProblem == null ? Ferry.hopAboard(owner, hat, beckoning) : null;
         if (youngAboard(hat)) return List.of(() -> new Step.Wait(() -> !youngAboard(hat), WAIT, Behaviors.BOAT_CALL));
         return fromBank(hat, () -> new TakeProp(new HatProp(owner, true, AquaticLife.afloat(hat))));
     }

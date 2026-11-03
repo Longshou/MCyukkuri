@@ -190,7 +190,7 @@ final class AquaticGoal extends Goal {
                     "pull=%.0f hunger=%.0f no_stick=%.0f weather=%.0f breed=%.0f dusk=%b rain=%b young=%d asleep=%b beyond_gather=%b",
                     pull, hunger, noStick, weather, breed, dusk, rain, young.size(), asleep, beyondGather), () -> new SetOut(body, this::leftAshore)));
             // Her hat out and no wish (or no way) to sail on it now: she wants it back (HEADWEAR).
-            if (hat != null && (floor(setOut) == 0 || !AquaticLife.afloat(hat) || drive().failed("set_out")))
+            if (hat != null && birth == 0 && (floor(setOut) == 0 || !AquaticLife.afloat(hat) || drive().failed("set_out")))
                 out.add(Desire.of("resolve_own_hat", num("reclaim", 85), List.of(cell(hat), form(hat), young.size()),
                         () -> "hat=" + form(hat), () -> Ashore.reclaim(body)));
             return;
