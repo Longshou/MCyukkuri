@@ -18,6 +18,7 @@ import io.github.longshou.mcyukkuri.motor.Running;
 import io.github.longshou.mcyukkuri.motor.TravelMode;
 import io.github.longshou.mcyukkuri.motor.geom.ArcSolver;
 import io.github.longshou.mcyukkuri.motor.geom.Ballistic;
+import io.github.longshou.mcyukkuri.motor.geom.BankStand;
 import io.github.longshou.mcyukkuri.motor.geom.HopPath;
 import io.github.longshou.mcyukkuri.motor.geom.Vec;
 import io.github.longshou.mcyukkuri.motor.surface.SurfaceHost;
@@ -95,6 +96,11 @@ public final class Hop implements Action {
         if (body.getVehicle() instanceof SurfaceHost host)
             from = host.frameAfter(takeoffTicks() - 1).toWorld(host.frame().toLocal(from));
         return new Hop(target).arc(body, vec(from), null, hosts(body, from, target), vec(target), 0) instanceof ArcSolver.Plan;
+    }
+
+    /** Nearest full-sole landing on a bank face, shared by docking and the eventual hop. */
+    public static Vec3 bankStand(YukkuriEntity body, Vec3 edge, Vec3 normal, Vec3 from) {
+        return Floor.point(BankStand.nearest(vec(edge), vec(normal), SurfaceApproach.supportRadius(body), vec(from)));
     }
 
     /** One leg to a supported point on the current host, without routing through other stops. */
