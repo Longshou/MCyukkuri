@@ -14,6 +14,8 @@ import io.github.longshou.mcyukkuri.motor.action.Beckon;
 import io.github.longshou.mcyukkuri.motor.action.Hop;
 import io.github.longshou.mcyukkuri.motor.geom.GridPath;
 import io.github.longshou.mcyukkuri.motor.geom.HeightGrid;
+import io.github.longshou.mcyukkuri.motor.geom.BankStand;
+import io.github.longshou.mcyukkuri.motor.surface.Floor;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -299,26 +301,29 @@ final class Waters {
     /** A dry stand by the edges near {@code body}, under no other hat's brim, that a hop from where it is lands on (world), or null. */
     static Vec3 ashore(YukkuriEntity body) { return ashore(body, body.position()); }
 
-    /** The local brim spot of {@code hat} from which a dry stand is one hop away for {@code body}, or null: the ring spot nearest
+    record Exit(Vec3 brim, Vec3 bank) {}
+
+    /** The local brim spot of {@code hat} and dry stand one hop away for {@code body}, or null: the ring spot nearest
      *  the bank first, then the ones beside it, so a hull whose brim reaches over the bank still has a way off. */
-    static Vec3 brimAshore(PlacedHatEntity hat, YukkuriEntity body) {
+    static Exit brimAshore(PlacedHatEntity hat, YukkuriEntity body) {
         return kept(body.level(), key(body.level(), "brim", hat.getUUID(), body.getUUID(), hat.frame(), body.position()), 1,
                 () -> findBrimAshore(hat, body));
     }
 
-    private static Vec3 findBrimAshore(PlacedHatEntity hat, YukkuriEntity body) {
+    private static Exit findBrimAshore(PlacedHatEntity hat, YukkuriEntity body) {
         var edge = edges(body, hat.position(), 4, false).stream().findFirst().orElse(null);
         if (edge == null) return null;
         int exits = 0;
         Vec3 nearest = null;
-        Vec3 routed = null;
+        Exit routed = null;
         for (var local : hat.hopStops(body).stream()
                 .sorted(Comparator.comparingDouble(p -> hat.toWorld(p).distanceToSqr(edge.edge()))).toList()) {
             if (nearest == null) nearest = hat.toWorld(local);
-            if (ashore(body, hat.toWorld(local)) == null) continue;
+            var bank = ashore(body, hat.toWorld(local));
+            if (bank == null) continue;
             exits++;
-            if (Hop.reaches(body, hat, local)) return local;
-            if (routed == null && new Hop(hat, local).check(body).ok()) routed = local;
+            if (Hop.reaches(body, hat, local)) return new Exit(local, bank);
+            if (routed == null && new Hop(hat, local).check(body).ok()) routed = new Exit(local, bank);
         }
         if (routed != null) return routed;
         GameplayLog.limited(body, "aquatic", "hop.ashore", 200,
@@ -338,9 +343,10 @@ final class Waters {
         var own = body.getVehicle() instanceof PlacedHatEntity hat && hat.owner() == body ? hat : null;
         int asked = 0;
         for (var e : edges(body, from, 2, false)) {
-            var at = boardingStand(e, body);
+            var at = Floor.point(BankStand.nearest(Floor.vec(e.edge()), Floor.vec(e.normal()),
+                    SurfaceApproach.supportRadius(body), Floor.vec(from)));
             if (asked++ >= ASKED) break;
-            String refusal = hatOver(body, at, 0) ? "other_hat"
+            String refusal = !SurfaceApproach.stands(body, at) ? "no_support" : hatOver(body, at, 0) ? "other_hat"
                     : own != null && !body.childhood().canSail() && !bankReach(body, e.stand(body.getBbWidth()), own) ? "reclaim_reach"
                     : !Hop.reaches(body, from, at) ? "hop_arc" : null;
             if (refusal == null) return at;

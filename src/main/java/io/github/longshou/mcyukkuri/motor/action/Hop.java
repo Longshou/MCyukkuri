@@ -38,8 +38,9 @@ public final class Hop implements Action {
     private static final String CLIP = "hop_leg";
     static final int SETTLE = 10;
     private static final double TOUCH = .05;
-    private final Vec3 target;
-    private final SurfaceHost seatHost;
+    private Vec3 target;
+    private SurfaceHost seatHost;
+    private Vec3 bank;
     private boolean brimOnly;
     private Vec3 entryNear;
     private SurfaceHost departure;
@@ -66,6 +67,10 @@ public final class Hop implements Action {
     public Hop(SurfaceHost host) { seatHost = host; target = null; }
     /** A destination on the host already carrying the body; the flight stays in its live frame. */
     public Hop(SurfaceHost host, Vec3 local) { seatHost = host; target = local; }
+    /** Leave through a supported host point, then hop to the admitted ground stand after settling there. */
+    public static Hop off(SurfaceHost host, Vec3 local, Vec3 bank) {
+        var hop = new Hop(host, local); hop.bank = bank; return hop;
+    }
     /** Stop at a reachable supported entry nearest the requested work point. */
     public static Hop ontoBrim(SurfaceHost host, Vec3 near) {
         var hop = new Hop(host); hop.brimOnly = true; hop.entryNear = near; return hop;
@@ -90,7 +95,7 @@ public final class Hop implements Action {
     public static boolean reaches(YukkuriEntity body, SurfaceHost host, Vec3 local) {
         var from = host.riders().local(body.getUUID()).scale(host.frame().unit());
         return new SeatTarget(host, local).available(body) && new Hop(host, local).arc(body, vec(from), host,
-                hosts(body, body.position(), host.frame().toWorld(local)), vec(local.scale(host.frame().unit())), 0) instanceof ArcSolver.Plan;
+                hosts(body, body.position(), host.frame().toWorld(local)), vec(local.scale(host.frame().unit())), takeoffTicks() - 1) instanceof ArcSolver.Plan;
     }
 
     /** The same supported entry and arc admission for a planned host and an actual boarding hop. */
@@ -168,6 +173,7 @@ public final class Hop implements Action {
             if (anchor != null && !following) path = List.of(new HopPath.Leg(vec(destination), plan));
             return new Flight(Feasibility.pass(), candidate, plan, following ? leg + 1 < path.size() : entering && !brimOnly);
         }
+        String directObstruction = obstruction;
         if (anchor != null && !following) {
             var stops = anchor.hopStops(body).stream().filter(p -> new SeatTarget(anchor, p).available(body))
                     .map(p -> vec(p.scale(anchor.frame().unit()))).toList();
@@ -182,7 +188,7 @@ public final class Hop implements Action {
         var reason = blocked.kind() == ArcSolver.Kind.TOO_FAR ? Reason.TOO_FAR : Reason.TOO_HIGH;
         return new Flight(Feasibility.of(reason, blocked.shortfall(), String.format(Locale.ROOT,
                 "dx=%.2f dy=%.2f hopHeight=%.2f hopReach=%.2f blocked=%s", origin.subtract(destination).horizontalDistance(),
-                destination.y - origin.y, ability.hopHeight(), ability.hopReach(), obstruction)), null, null);
+                destination.y - origin.y, ability.hopHeight(), ability.hopReach(), directObstruction)), null, null);
     }
 
     private static int marker(String name) { return Math.round(ClipMarkers.of(CLIP).markers().get(name) * 20); }
@@ -218,6 +224,12 @@ public final class Hop implements Action {
             var launch = solve(body, 0);
             var ready = launch.ready();
             if (!ready.ok()) return Outcome.of(ready.reason(), ready.shortfall(), ready.detail());
+            // The host can drift during preparation; face the live leg before committing its impulse.
+            legTurn = new Face(SurfaceApproach.yaw(body.position(), launch.seat() == null ? target : launch.seat().world()));
+            legTurn.start(body);
+            var turning = legTurn.tick(body);
+            if (!(turning instanceof Outcome.Done)) return turning;
+            legTurn = null;
             seat = launch.seat();
             more = launch.more();
             from = aboard ? seatHost.riders().local(body.getUUID()).scale(seatHost.frame().unit()) : body.position();
@@ -281,6 +293,12 @@ public final class Hop implements Action {
 
     private Progress settled(YukkuriEntity body) {
         if (!more) {
+            if (bank != null) {
+                target = bank; bank = null; seatHost = null; aboard = false; path = null; leg = 0;
+                crouch = air = 0;
+                startTick = body.level().getGameTime();
+                return new Running(takeoff, TravelMode.CONSUMED, true);
+            }
             if (seatHost == null || target != null || brimOnly) return new Outcome.Done("at=" + GameplayLog.at(body.position()));
             return seatFromEntry(body);
         }
@@ -321,7 +339,8 @@ public final class Hop implements Action {
         if (seatingTurn != null) return seatingTurn.pose();
         return rest != null ? MotionPose.NONE : new MotionPose(CLIP, startTick, false);
     }
-    @Override public String startDetail() { return "from=" + GameplayLog.at(from) + " to=" + (seatHost == null ? GameplayLog.at(target) : seatHost.entity().getUUID()); }
+    @Override public String startDetail() { return "from=" + GameplayLog.at(from) + " to=" + (seatHost == null ? GameplayLog.at(target) : seatHost.entity().getUUID())
+            + (bank == null ? "" : " bank=" + GameplayLog.at(bank)); }
     @Override public String endDetail(Outcome outcome) { return String.format(Locale.ROOT, "legs=%d peak=%.2f airTicks=%d", completedLegs, peak, air); }
 
     private boolean clear(YukkuriEntity body, Vec3 from, SurfaceHost anchor, List<SurfaceHost> hosts, List<Vec> points, int delay) {

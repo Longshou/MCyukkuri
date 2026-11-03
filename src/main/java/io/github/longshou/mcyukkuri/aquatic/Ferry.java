@@ -107,19 +107,15 @@ final class Ferry {
         Step step(YukkuriEntity body, PlacedHatEntity hat) { return near(body, hat) ? act(tried = new Beckon(hat)) : null; }
     }
 
-    /** Hop from the actual seat to a dry stand in the body's reach. A body may first hop to a brim spot from which that
-     *  same stand is reachable; the next derivation performs the ordinary hop off the host. */
+    /** Leave through the admitted brim and bank points in one shared hop action. */
     static Supplier<Step> hopAshore(YukkuriEntity body) {
         return () -> {
-            if (body.getVehicle() instanceof PlacedHatEntity hat && hat.insideFloor(hat.riders().local(body.getUUID()))) {
-                var local = Waters.brimAshore(hat, body);
-                if (local != null) return act(new Hop(hat, local));
+            if (body.getVehicle() instanceof PlacedHatEntity hat) {
+                var exit = Waters.brimAshore(hat, body);
+                return exit == null ? null : act(Hop.off(hat, exit.brim(), exit.bank()));
             }
             var at = Waters.ashore(body);
-            if (at != null) return act(new Hop(at));
-            if (!(body.getVehicle() instanceof PlacedHatEntity hat)) return null;
-            var local = Waters.brimAshore(hat, body);
-            return local == null ? null : act(new Hop(hat, local));
+            return at == null ? null : act(new Hop(at));
         };
     }
 

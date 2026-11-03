@@ -108,7 +108,6 @@ public final class Climb implements Action {
             return new Outcome.Done("on_bank at=" + GameplayLog.at(body.position()) + " support=" + GameplayLog.at(stand));
         }
         if (!new SeatTarget(host, stand).land(body, "climb")) return Outcome.of(Reason.NO_ROOM, 0, "landing_refused");
-        if (host.settled(body)) return new Outcome.Done("aboard local=" + stand);
         seating = new Hop(host);
         seating.start(body);
         return seating.seatFromEntry(body);
