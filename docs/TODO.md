@@ -9,7 +9,6 @@
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
 | 帽船位置美术（船长座、帽内按帽盘测量、头顶位、辫子绕前搬运、帽檐演出、跳步节拍与收帽标记） | `.worktrees/art-a1-places`（分支 `art-a1-places`） | `standards/yukkuri-library/motions/variants/{lore,contact-safe}/`、`interactions/{aquatic-marisa-hat,braid-water-rescue}/`、`scripts/export_hat_interactions.py`、`yukkuri_presentation/{motion_corrections,hat_interactions,braid_rescue}.json`、`art/runtime-sources.json` |
-| 伤口导出对齐与帽船真实点选（魔理沙伤口、赤油可点、空帽打几下掉成物品、水上不损头饰） | `.worktrees/fb-wound-pick`（分支 `fb-wound-pick`） | `scripts/export_wound_surfaces.cjs`／`yukkuri_wounds/*`、`headwear/{PlacedHatEntity,PlacedHatBehavior,Headwear}`、`aquatic/{HullAfloat,HullTriggers}` |
 | 倒扣搁浅场景起点与池塘场景改名（反馈 7、14） | `.worktrees/fb-aq-scenes`（分支 `fb-aq-scenes`） | `scripts/museum_scenarios.py`、`command/ScenarioSetup.java` |
 
 ## 玩法待办

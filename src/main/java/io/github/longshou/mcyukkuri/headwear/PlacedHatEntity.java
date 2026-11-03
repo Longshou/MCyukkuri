@@ -508,8 +508,6 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
         return super.getDismountLocationForPassenger(passenger);
     }
     @Override public boolean isPickable() { return !isRemoved(); }
-    /** A blow reaches it: the cloth takes it, or the body aboard the look reaches (hurt). */
-    @Override public boolean isAttackable() { return !isRemoved(); }
     /** The thin hull box is its own aim target: only an empty land cradle is widened, so no inflated afloat volume hides the
      *  bodies aboard it from a click. */
     @Override public float getPickRadius() { return catches() && !isVehicle() ? .4f : 0; }
