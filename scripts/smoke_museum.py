@@ -191,7 +191,7 @@ def run_scene(st, scene, builder, run_index=1):
         load_field(st, builder.BY_ID[scene.field], builder.FEET)
         server.sprint(st, 1)
         after = [server.run_cmd(st, f'{command} {path}') for path in paths]
-        normalize = lambda rows: re.sub(r'Yaw: [-.\d]+f', 'Yaw: observed', '\n'.join(rows))
+        normalize = lambda rows: re.sub(r'Yaw: [-+.\deE]+f', 'Yaw: observed', '\n'.join(rows))
         (Path(st['rundir']).parent / f'{scene.id}.reload.txt').write_text('\n'.join(before + after), encoding='utf-8')
         if normalize(before) != normalize(after):
             raise RuntimeError(f'{scene.id}: saved rider coordinates or passenger identities changed on reload')
