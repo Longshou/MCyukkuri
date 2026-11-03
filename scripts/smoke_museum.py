@@ -314,8 +314,6 @@ def main():
     args = parser.parse_args()
     source = server.ROOT if args.worktree is None else args.worktree.resolve(strict=True)
     instances = server.INSTANCES if args.worktree is None else server.COMMON / '.local/smoke'
-    if args.worktree is not None and instances.resolve().is_relative_to(source):
-        parser.error('--worktree must not contain the main checkout smoke output directory; use a linked worktree')
     server.stop_stale(instances)
     server.require_closed()
     runtime, java = server.installed_runtime()
