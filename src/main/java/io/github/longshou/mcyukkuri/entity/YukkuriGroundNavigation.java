@@ -566,7 +566,7 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
         Vec3 side = right(heading);
         double away = Math.signum((animal.getX() - blocker.getX()) * side.x + (animal.getZ() - blocker.getZ()) * side.z);
         if (away == 0) away = 1;
-        animal.nudge(side.x * away * .16, side.z * away * .16);
+        Motor.nudge(animal, new Vec3(side.x * away * .16, 0, side.z * away * .16), "give_way");
     }
 
     /** An idle, awake blocker moves out of the way; sleeping, busy or boarded ones keep their place. */
@@ -576,7 +576,6 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
         Vec3 right = right(heading);
         double side = Math.signum((blocker.getX() - animal.getX()) * right.x + (blocker.getZ() - animal.getZ()) * right.z);
         if (side == 0) side = 1;
-        blocker.nudge(right.x * side * .16, right.z * side * .16);
-        return true;
+        return Motor.nudge(blocker, new Vec3(right.x * side * .16, 0, right.z * side * .16), "blocker_yields");
     }
 }

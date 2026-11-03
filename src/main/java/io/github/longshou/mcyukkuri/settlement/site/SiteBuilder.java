@@ -409,7 +409,10 @@ public final class SiteBuilder {
             for (long key : SiteGeom.poolShelf(p)) {
                 int x = SiteGeom.keyX(key), z = SiteGeom.keyZ(key);
                 if (!inClip(x, z)) continue;
-                set(x, G - 2, z, (hash(x, z, 32) < .25 ? Blocks.CLAY : Blocks.MUD).defaultBlockState());
+                // A full block, so the drinking edge tops out at G - 1 exactly: one step below the meadow and a hand's width
+                // above the water. Mud (14/16) topped out at G - 1.125 — level with the water and 1.125 below the meadow, a
+                // step no body can take back up — so the shore keeps its mud and clay colour in packed mud instead.
+                set(x, G - 2, z, (hash(x, z, 32) < .25 ? Blocks.CLAY : Blocks.PACKED_MUD).defaultBlockState());
                 set(x, G - 1, z, AIR);
                 set(x, G, z, AIR);
             }
