@@ -149,12 +149,13 @@ def state(action, t, c, height):
     elif action == 'braid_head_set':
         # braid_cradle_lift's structure with the endpoint on her own head: lean and look to the braid side to take the child,
         # come upright and sink a little while the braid raises it over her crown, a small weight bob as it lands (place),
-        # then settle. Lean <= 6, no forward edging (the child comes to her, not she to the water).
+        # then settle. Lean <= 6; like braid_cradle_lift she edges forward off the stern wall while turned, so her rear hair
+        # stays clear of the lip.
         lean = keyed(t, [(0, 0), (.5, 1), (.9, 1), (1.4, 0), (d, 0)])
         sink = bump((t-1.05)/.85); bob = bump((t-1.88)/.3)
         s = [1+.03*lean+.02*sink+.035*bob, 1-.05*lean-.04*sink-.07*bob, 1+.02*lean+.02*sink+.03*bob]
-        r = [-3*lean+1.5*sink, keyed(t, [(0, 0), (.5, -14), (.9, -14), (1.5, -4), (2.4, 0)]), -5*lean]
-        shift[0] = .25*lean
+        r = [-3*lean, keyed(t, [(0, 0), (.5, -14), (.9, -14), (1.5, -4), (2.4, 0)]), -5*lean]
+        shift[0] = .25*lean; shift[1] = -.6*max(lean, abs(r[1])/14)
     elif action == 'braid_head_take':
         # braid_head_set run backwards through matching markers (recipe mirror.map), so both read as one motion.
         m = c['mirror']['map']; u = keyed_linear(t, m)

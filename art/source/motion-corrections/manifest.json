@@ -20,7 +20,7 @@
   "aquatic_hull_bounds": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/hull_bounds/aquatic_basin_hat_turned.json",
   "aquatic_hull_bounds_sha256": "48844686bff2c18a4221f540fef8a78659110d96a57545822067778f06d51d9e",
   "lore_aquatic_tools": "standards/yukkuri-library/motions/variants/lore/aquatic_tools.py",
-  "lore_aquatic_tools_sha256": "5c61a7a8084558db35debfc380635934f02146ae66d54ed7df0a3e55fa0109a2",
+  "lore_aquatic_tools_sha256": "6ccd43e06bd9707663d2a06a5c2babd0118894b06b9a2332a48c7e074d12c634",
   "braid_rescue_recipe": "standards/yukkuri-library/interactions/braid-water-rescue/recipe.json",
   "braid_rescue_recipe_sha256": "14f98a0ad4e248348106310d5250180b67960514753f978cf407f1de1752bcea",
   "braid_rescue_author": "standards/yukkuri-library/interactions/braid-water-rescue/author.py",
@@ -32,7 +32,7 @@
   "placement_fit": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/placement_fit.json",
   "placement_fit_sha256": "55828ae8a042b7ad525fdf052ee727b7d132fc40f0eba520ff1a4b833bca61c8",
   "runtime": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/motion_corrections.json",
-  "runtime_sha256": "b84cacd35fe1cda4f4014293b307c8f36c5fb55f2a51b59701cbeb0be4b73d4f",
+  "runtime_sha256": "77a12e61cbf83976becf5e29b83f7ed3fe19ed298ee48971f45deb28498e9d58",
   "models": {
     "alice": {
       "model": "src/main/resources/assets/mcyukkuri/yukkuri/alice.json",
