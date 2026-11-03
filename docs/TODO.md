@@ -8,7 +8,6 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
-| 帽船位置美术（船长座、帽内按帽盘测量、头顶位、辫子绕前搬运、帽檐演出、跳步节拍与收帽标记） | `.worktrees/art-a1-places`（分支 `art-a1-places`） | `standards/yukkuri-library/motions/variants/{lore,contact-safe}/`、`interactions/{aquatic-marisa-hat,braid-water-rescue}/`、`scripts/export_hat_interactions.py`、`yukkuri_presentation/{motion_corrections,hat_interactions,braid_rescue}.json`、`art/runtime-sources.json` |
 
 ## 玩法待办
 
