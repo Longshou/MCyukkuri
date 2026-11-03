@@ -8,7 +8,6 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
-| 真实体型载重、概率翻船与断亲取舍（反馈 13，WP-L） | `.worktrees/wp-l-overload` | `headwear/{HullSurface,HullBounds,PlacedHatEntity}`、`aquatic/{HullAfloat,HullTriggers,AquaticLife}`、`family/{FamilyData,FamilySeparation}`、`scripts/museum_scenarios.py`（`hat_crowd`）、`docs/FEATURES.md` |
 | 水生母油临产才上岸（反馈 8 上岸时机，WP-B1） | `.worktrees/wp-b1-late-shore` | `aquatic/AquaticGoal`、`family/FamilyLife`、`command/ScenarioSetup`、`scripts/museum_scenarios.py` |
 | 赤油在帽檐／头顶演出、删掉拨粮（反馈 4、13，WP-P） | `.worktrees/wp-p-brim-play` | `aquatic/{PlayAboard,BrimPerformance,AquaticGoal,HullAfloat}`、`entity/{Behaviors,YukkuriAction}`、`scripts/museum_scenarios.py`、`standards/yukkuri-library/motions/variants/lore/{aquatic_tools.py,recipe.json}` |
 

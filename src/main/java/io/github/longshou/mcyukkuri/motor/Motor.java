@@ -124,10 +124,7 @@ public final class Motor {
         // The mount is the transition: the moved body's own attach slot and nudge-out run here, once (settle never mounts).
         Attach.settle(body, cause);
         Entity root = body.getRootVehicle();
-        if (root != oldRoot) {
-            if (oldRoot instanceof SurfaceHost surface) surface.loadChanged(body, "departed");
-            if (root instanceof SurfaceHost surface) surface.loadChanged(body, "boarded");
-        }
+        if (root != oldRoot && root instanceof SurfaceHost surface) surface.loadChanged(body, "boarded");
         return true;
     }
 
@@ -135,7 +132,6 @@ public final class Motor {
     public static void dismount(YukkuriEntity body, Vec3 at, Vec3 v, String cause) {
         if (body == null) return;
         Vec3 before = body.position();
-        Entity oldRoot = body.getRootVehicle();
         for (var passenger : List.copyOf(body.getPassengers()))
             if (passenger instanceof YukkuriEntity child && ParentCarry.hold(body, child) == ParentCarry.Hold.HEAD) {
                 dismount(child, child.position(), v, "head_support_lost:" + cause);
@@ -156,7 +152,6 @@ public final class Motor {
         }
         // The dismount is the transition: the moved body's own attach slot and nudge-out run here, once (settle never dismounts).
         Attach.settle(body, cause);
-        if (oldRoot instanceof SurfaceHost surface) surface.loadChanged(body, "departed");
     }
 
     /** Pushes a body out of a collision by at most {@link #NUDGE_MAX}; anything longer is refused and logged. */
