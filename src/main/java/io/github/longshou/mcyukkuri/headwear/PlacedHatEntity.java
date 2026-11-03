@@ -257,8 +257,6 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
         return getPassengers().stream().filter(p -> p != except).map(p -> (YukkuriEntity) p)
                 .map(y -> occupant(y)).toList();
     }
-    /** Every actual passenger as the shared admission sees them (stores and the stick are not riders). */
-    public List<HatSeats.Occupant> seatOccupants() { return seatedExcept(null); }
     private HatSeats.Occupant occupant(YukkuriEntity body) {
         var at = riders.local(body.getUUID()).scale(unit());
         return new HatSeats.Occupant(seatBody(body), new Vec(at.x, at.y, at.z), body.getUUID().equals(ownerYukkuri()));

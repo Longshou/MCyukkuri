@@ -52,6 +52,7 @@ public final class Hop implements Action {
     private boolean aboard;
     private boolean more;
     private boolean bodyBlocked;
+    private String obstruction = "";
     private long startTick;
 
     public Hop(Vec3 target) { this.target = target; seatHost = null; }
@@ -161,8 +162,8 @@ public final class Hop implements Action {
         var blocked = (ArcSolver.Blocked) result;
         var reason = blocked.kind() == ArcSolver.Kind.TOO_FAR ? Reason.TOO_FAR : Reason.TOO_HIGH;
         return new Flight(Feasibility.of(reason, blocked.shortfall(), String.format(Locale.ROOT,
-                "dx=%.2f dy=%.2f hopHeight=%.2f hopReach=%.2f", origin.subtract(destination).horizontalDistance(),
-                destination.y - origin.y, ability.hopHeight(), ability.hopReach())), null, null);
+                "dx=%.2f dy=%.2f hopHeight=%.2f hopReach=%.2f blocked=%s", origin.subtract(destination).horizontalDistance(),
+                destination.y - origin.y, ability.hopHeight(), ability.hopReach(), obstruction)), null, null);
     }
 
     static int takeoffTicks() { return ClipMarkers.of(CLIP).ticks("takeoff", TAKEOFF_FALLBACK); }
@@ -237,18 +238,23 @@ public final class Hop implements Action {
         for (Vec point : points) {
             Vec3 at = from.add(point.x(), point.y(), point.z());
             if (anchor != null) at = anchor.frame().toWorld(at.scale(1 / anchor.frame().unit()));
-            if (anchor != null && !anchor.room(body, anchor.frame().toLocal(at))) return false;
+            if (anchor != null && !anchor.room(body, anchor.frame().toLocal(at))) {
+                obstruction = "host_room at=" + GameplayLog.at(at); return false;
+            }
             Vec3 corner = at.y < previous.y ? new Vec3(at.x, previous.y, at.z) : new Vec3(previous.x, at.y, previous.z);
             AABB cornerBox = base.move(corner.subtract(body.position()));
             AABB atBox = base.move(at.subtract(body.position()));
             if (!body.level().noCollision(body, cornerBox) || !body.level().noCollision(body, atBox)) {
                 bodyBlocked |= bodyCollision(body, cornerBox, atBox);
+                obstruction = "world at=" + GameplayLog.at(at) + " from=" + GameplayLog.at(previous);
                 return false;
             }
             for (SurfaceHost host : hosts) {
                 Vec3 local = host.frame().toLocal(at);
                 var height = host.support(local, 0);
-                if (height.isPresent() && local.y < height.getAsDouble() - TOUCH / host.frame().unit()) return false;
+                if (height.isPresent() && local.y < height.getAsDouble() - TOUCH / host.frame().unit()) {
+                    obstruction = "surface at=" + GameplayLog.at(at); return false;
+                }
             }
             previous = at;
         }
