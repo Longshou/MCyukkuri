@@ -635,7 +635,11 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
                 owner.getUUID(), hat.getUUID(), hat.position(), yaw, hat.hullScale(), hat.getBoundingBox(), hat.formId(), role, water, hat.kit.getItem());
         return hat;
     }
+    /** The reason and detail of the last placement {@link #setDown} refused, for a caller that must tell its own player why. */
+    private static String lastRefusal = "none";
+    public static String lastRefusal() { return lastRefusal; }
     private static PlacedHatEntity refusePlacement(YukkuriEntity owner, Vec3 at, String reason, String detail) {
+        lastRefusal = detail.isEmpty() ? reason : reason + " " + detail;
         GameplayLog.limited(owner, "headwear", "hat.refused." + reason, 200,
                 "hat refused reason={} detail={} at={} distanceSquared={} accessory={} custody={}",
                 reason, detail, at, owner.distanceToSqr(at), owner.life().hasAccessory(), owner.life().custody().state());

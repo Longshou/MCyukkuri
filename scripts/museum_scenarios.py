@@ -2108,15 +2108,17 @@ pond('hat_push', '轻推与猛撞帽船', '轻推／猛撞',
 
 
 def flow_channel(falling):
-    """Gravel stream bed and low grassy banks; fluid updates supply all flow and turbulence."""
+    """Gravel stream bed and low grassy banks; fluid updates supply all flow and turbulence. Water starts one cell west, so a hull
+    centred on the spawn cell has its whole brim (radius .89) over flowing water and no longer overlaps the west bank; downstream
+    the same one-block flow still shallows out and strands it. The dry bank stays one cell west of the water."""
     x = bank_dx(0)
     return [box(x, -3, -4, x + 13, -1, 4, 'minecraft:dirt'),
             box(x, -1, -4, x + 13, -1, 4, 'minecraft:grass_block'),
             box(x, 0, -4, x + 13, 4, 4, 'minecraft:air'),
-            box(x + 1, -2, -1, x + 9, -2, 1, 'minecraft:gravel'),
-            box(x + 1, -1, -1, x + 9, 4, 1, 'minecraft:air'),
-            *([box(x + 1, -1, -1, x + 9, -1, 1, 'minecraft:water')] if falling else
-              [block(x + 1, -1, z, 'minecraft:water') for z in (-1, 0, 1)])]
+            box(x, -2, -1, x + 9, -2, 1, 'minecraft:gravel'),
+            box(x, -1, -1, x + 9, 4, 1, 'minecraft:air'),
+            *([box(x, -1, -1, x + 9, -1, 1, 'minecraft:water')] if falling else
+              [block(x, -1, z, 'minecraft:water') for z in (-1, 0, 1)])]
 
 
 pond('hat_turbulence', '落水急流中的帽船', '急流翻船',
@@ -2149,7 +2151,7 @@ pond('hat_current', '单向缓流·只漂移', '缓流漂移',
       yk('marisa', bank_dx(1) - 1, 1, 'child', stage='child', aquatic=True, fam=_seat_family(), **pair_ready()),
       afloat('a', water_at(0, 1), True, sel('child'), food=4, stick=True)],
      vantage=(bank_dx(0) + 11, -3, 40, 18),
-     note='观察两名乘员离帽并上岸，四份苹果和一根木棍各掉出，帽主接触头饰即戴回；帽船搁浅不算翻覆。倒扣边界见“倒扣帽搁浅”，载人翻覆见“载人翻覆搁浅”。',
+     note='观察两名乘员离帽并上岸，四份苹果和一根木棍各掉出，帽主接触头饰即戴回；帽船搁浅不算翻覆。倒扣边界见“空倒扣帽随流搁浅”，载人翻覆见“载人帽翻覆后搁浅”。',
      reads=_HULL_READS + [('读子油', f'yukkuri status {sel("child")} raw')],
      capture=dict(shots=(1, 40, 300, 600, 900), sequences=((60, 200, 2), (220, 1100, 20))),
      smoke=dict(ticks=1100, commands=[(1, 'yukkuri status trace true'), (1099, 'yukkuri status trace false'),
@@ -2166,8 +2168,8 @@ pond('hat_current', '单向缓流·只漂移', '缓流漂移',
                     'execute as @e[type=minecraft:item,distance=..48] run data get entity @s Item']))
 
 
-pond('hat_grounded_inverted', '倒扣空帽随流搁浅', '倒扣帽搁浅',
-     '已倒扣的空帽从浅溪上游漂向水浅处；帽主在干岸上，水不再托住帽体时，它变成一件真实头饰。倒扣是初态，搁浅由水深与碰撞决定',
+pond('hat_grounded_inverted', '空倒扣帽随流搁浅', '空倒扣帽随流搁浅',
+     '已倒扣的空帽放在浅溪上游的宽水湾上——整顶帽体都在流动的水面上、不压西岸，随后顺流漂向下游浅水；帽主在干岸上，水不再托住帽体时，它变成一件真实头饰。倒扣是初态，搁浅由水深与碰撞决定',
      '约 30 秒',
      [*flow_channel(False), captain(dx=bank_dx(0) - 5, social_wait=0), afloat('a', water_at(0, 1), False)],
      vantage=(bank_dx(0) + 11, -3, 40, 18),
@@ -2185,7 +2187,7 @@ def capsized_crew(log):
         return f'both crew must be thrown at capsize, saw {len(thrown)}'
 
 
-pond('hat_grounded_capsized', '载人载粮帽船被落水掀翻后搁浅', '倒扣搁浅',
+pond('hat_grounded_capsized', '载人帽被落水掀翻后搁浅', '载人帽翻覆后搁浅',
      '浅溪上游一排水源形成同向水流；船主带着一只子油和四份苹果坐在帽上随流漂下（不带木棍，只随水漂），帽子所在一格落下一片水把它掀翻：两名乘员被甩进水里，余粮漂散；倒扣的帽体继续漂到水浅处落底，变成帽主的头饰，她游过去碰到就戴上',
      '约 1 分钟',
      [*flow_channel(False), captain(dx=bank_dx(0) - 5, social_wait=100),
@@ -2193,7 +2195,7 @@ pond('hat_grounded_capsized', '载人载粮帽船被落水掀翻后搁浅', '倒
       afloat('a', water_at(0, 1), True, sel('child'), food=4)],
      vantage=(bank_dx(0) + 11, -3, 40, 18),
      late=[block(bank_dx(0) + 1, 2, 0, 'minecraft:water')],
-     note='翻覆来自场景里真实落下的一格水，不是脚本改帽子状态；被甩出的两名乘员都应在日志里各记一次 dismount cause=thrown，之后帽体才搁浅成物品。帽主可能先游回去把帽子扶正，因此这里不要求落底时仍倒扣（倒扣边界见“倒扣帽搁浅”）。',
+     note='翻覆来自场景里真实落下的一格水，不是脚本改帽子状态；被甩出的两名乘员都应在日志里各记一次 dismount cause=thrown，之后帽体才搁浅成物品。帽主可能先游回去把帽子扶正，因此这里不要求落底时仍倒扣（倒扣边界见“空倒扣帽随流搁浅”）。',
      reads=_HULL_READS + [('读子油', f'yukkuri status {sel("child")} raw')],
      smoke=dict(ticks=1800, commands=[(1, 'yukkuri status trace true'), (1799, 'yukkuri status trace false')],
                 expect=[r'\[hat\][^\n]* scenario afloat prepared[^\n]*owner_aboard=true[^\n]*young=1[^\n]*food=4',
@@ -2265,7 +2267,7 @@ pond('shake_capsize', '摇晃翻覆', '摇晃翻覆',
                 forbid=_WATER_SMOKE_FORBID + [r'\[body\][^\n]* death settled\b', r'\[needs\][^\n]* starvation damage accepted=true'],
                 verify=water_aftermath, readout=_HULL_READOUT))
 
-pond('self_rescue', '落水自救·游回帽子', '游回帽子',
+pond('self_rescue', '落水游回自帽', '落水游回自帽',
      '水生魔理沙把帽子放在离岸 12 格的水面上，随后被推下岸落水：她朝自己的帽子游（一阵用力一阵歇，花体力），嘴或辫梢够到帽檐就停，咬住帽檐、按片段节拍把自己拉进帽腔坐好；在帽里不再算落水',
      '约 30 秒',
      [captain(dx=bank_dx(0)), afloat('a', water_at(0, 12), False)], late=[shoved('a')],
@@ -2302,7 +2304,7 @@ pond('fall_in_pond', '普通灵梦落水·爬回岸上', '落水爬岸',
      note='底座路径（不认识帽子）。日志：[water] phase IMPACT → STRUGGLE，[intent] start id=escape_water → [method] pick method=bank → [action] end id=swim … detail=grip → [action] start id=climb … onto=bank → [intent] end result=DONE。岸太高够不着时看 method=struggle。',
      reads=[('读灵梦', f'yukkuri status {sel("r")} raw')])
 
-pond('worn_hat_boat', '初航后落水·自帽自救', '帽子当船',
+pond('worn_hat_boat', '初航子油落水放帽自救', '初航子油落水放帽自救',
      '戴着帽子、已经初航过的水生魔理沙子油被推下岸落水：她先把自己的帽子摘下放到身旁的开阔水面上，帽子展开漂着，再游到帽檐、咬住爬进帽里坐好；高友善亲油只在附近面向她含泪围观，不再把她救上亲船。回到自帽后没有木棍也用辫子划水',
      '约 30–90 秒',
      [yk('marisa', bank_dx(3), 3, 'p', aquatic=True, friendliness=100, uuid=uid('worn_hat_boat', 'p'), **pair_ready()),
@@ -2377,7 +2379,7 @@ pond('hat_crowd', '按体型入座·满座与超重', '满座与超重翻船',
                          'data get entity @e[tag=seat_reload,limit=1] Motion',
                          'data get entity @e[tag=seat_reload,limit=1] Inverted']))
 
-pond('hat_swap', '帽子大小对照', '帽子大小',
+pond('hat_swap', '陆水帽与幼帽尺寸', '陆水帽与幼帽尺寸',
      '岸上并排站着戴帽的陆地魔理沙和水生魔理沙，另有两位成体与一只子油把各自的空帽放在面前的水面上。成体水生帽是陆地帽的 1.4 倍；子油帽按自己的体型缩小；戴着的与放下的同样大小；水生空帽倒扣漂着时仍同大，陆地帽落水会下沉，不作帽船',
      '约 30 秒',
      [yk('marisa', -4, -1, 'land_worn', yaw=-90, lead=True, label='陆地·戴着', **pair_ready()),
@@ -2452,7 +2454,7 @@ pond('sail', '单体出航·划船·饿了返岸', '单体航程',
                 forbid=[r'\[body\][^\n]* invariant\b', r'\[hat\][^\n]* pickup cause=grounded',
                         r'\[body\][^\n]* death settled into remains'], readout=_HULL_READOUT))
 
-pond('afloat_family', '辫子接赤油上船', '亲子出航',
+pond('afloat_family', '岸边辫子接赤油上船', '岸边接赤油上船',
      '亲油与一只已完成首餐、首便、正在学爬且不会跳的赤油在岸边，附近有木棍：亲油取棍、集合、放帽，先跳上近侧帽檐，用辫子抓起岸边赤油并降低到前座，最后自己到船尾座位；两只实际入座后出航',
      '约 1–2 分钟',
      [yk('marisa', bank_dx(0) - 1, 0, 'a', aquatic=True, yaw=-90, lead=True, uuid=uid('afloat_family', 'a'), **pair_ready()),
@@ -2475,7 +2477,7 @@ pond('afloat_family', '辫子接赤油上船', '亲子出航',
                         r'\[hat\][^\n]* pickup cause=grounded'],
                 readout=_HULL_READOUT + [f'yukkuri status {sel("c1")} raw']))
 
-pond('afloat_family_gather', '先集合再出航·辫子接赤油', '集合出航',
+pond('afloat_family_gather', '岸边集合后再辫接幼上船', '岸边集合再接幼上船',
      '亲油在南岸，赤油沿岸边几格外、辫子够不到：亲油先走到岸边泊位，面向孩子呼叫，等它跟到身边，再放帽、跳上近侧帽檐把它托入前座，最后自己到船长座位；孩子挪远时亲油跳回岸上步行接近，帽子漂远时先招帽',
      '约 1–2 分钟',
      [yk('marisa', bank_dx(0) - 1, 0, 'a', aquatic=True, yaw=-90, lead=True, uuid=uid('afloat_family_gather', 'a'), **pair_ready()),
@@ -2493,7 +2495,7 @@ pond('afloat_family_gather', '先集合再出航·辫子接赤油', '集合出�
                         r'\[intent\][^\n]* start id=set_out\b[\s\S]*\[intent\][^\n]* start id=set_out\b',
                         r'\[action\][^\n]* start id=take_prop\b', r'\[intent\][^\n]* end id=set_out result=EXHAUSTED\b']))
 
-pond('afloat_family_distant', '远处赤油·先寻回再出航', '远子缓航',
+pond('afloat_family_distant', '远处赤油·先寻回再出航', '寻回远处赤油再出航',
      '亲油和木棍在南岸，赤油在内陆三十余格外、普通水上亲子范围之外但陆地搜寻范围之内：亲油先进行家庭搜寻，仍相距遥远时不会出航',
      '先看约 30–60 秒寻回',
      [yk('marisa', bank_dx(10) - 1, 10, 'a', aquatic=True, yaw=-90, lead=True, uuid=uid('afloat_family_distant', 'a'), **pair_ready()),
@@ -2534,7 +2536,7 @@ pond('kid_boat_play', '赤油在亲帽上玩耍', '拨粮·受惊缩身',
                 readout=[f'yukkuri status {sel("a")} raw', f'yukkuri status {sel("c1")} raw',
                          f'yukkuri status {sel("c2")} raw', f'data get entity {_HAT} Riders']))
 
-pond('shore_family', '饿了带孩子返岸', '亲子返岸',
+pond('shore_family', '缺粮带孩子返岸并收帽', '缺粮带子返岸收帽',
      '亲油和一只小子油在离岸 3 格的帽子上，帽里有木棍、没有粮，亲油已经饿了：她划回岸边；孩子先跳到干地，亲油随后上岸，把空帽子收回戴上',
      '约 1 分钟',
      [yk('marisa', bank_dx(0), 0, 'a', aquatic=True, yaw=-90, lead=True, nutrition=35, energy=100, hygiene=100),
@@ -2574,7 +2576,7 @@ def _rescue_smoke(sid, slot):
             rf'[\s\S]*rescue end result=DONE outcome=rescued faller={child} incident=(?P=incident) aboard=true']
 
 
-pond('rescue_child', '落水·亲油救起子油', '亲油救援',
+pond('rescue_child', '亲油用辫子救起落水子油', '辫救落水子油',
      '亲油坐在近岸的自己的帽船里，帽里有木棍；一只 0.35 体型、未学会跳的小子油从岸边落水。亲油接下救援后连续划近，转身伸辫，抓住孩子提出水面，提过帽檐再降低到帽内净空。真实阻挡仍会失败，孩子自行上岸不算救起',
      '约 30–90 秒',
      [yk('marisa', bank_dx(0), 0, 'a', aquatic=True, yaw=-90, lead=True, friendliness=100, uuid=uid('rescue_child', 'a'), **pair_ready()),
@@ -2590,7 +2592,7 @@ pond('rescue_child', '落水·亲油救起子油', '亲油救援',
                                    *_rescue_smoke('rescue_child', 'c1')],
                 forbid=_WATER_SMOKE_FORBID, verify=water_aftermath, readout=_water_readouts('a', 'c1')))
 
-pond('rescue_infant_full', '落水赤油·亲油施救', '赤油救援',
+pond('rescue_infant_full', '亲油用辫子救起落水赤油', '辫救落水赤油',
      '亲油坐在自己的帽船里，帽里有木棍，岸边的赤油被推下水。亲油对这次落水决定一次救不救；接受后划近，从座位用辫子抓起赤油，提过帽檐再降低到前座；与岸边接赤油上船使用同一段演出',
      '约 30–90 秒',
      [yk('marisa', bank_dx(0), 0, 'a', aquatic=True, yaw=-90, lead=True, friendliness=100, uuid=uid('rescue_infant_full', 'a'), **pair_ready()),
@@ -2604,14 +2606,15 @@ pond('rescue_infant_full', '落水赤油·亲油施救', '赤油救援',
                 forbid=_WATER_SMOKE_FORBID, verify=water_aftermath, readout=_water_readouts('a', 'k1')))
 
 
-pond('rescue_no_seat', '满座落水·抱到岸上', '满座送岸',
-     '亲帽已有两只赤油，第三只尚未学爬的新生赤油在近岸水里；亲油划近后发现座位已满，将它托起、带着跳到近岸干地，再放下。必须看见真实接起、离船和放下，孩子自己上岸不算救起',
+pond('rescue_no_seat', '满船无座时托幼送岸', '满船托幼送岸',
+     '亲帽已有两只赤油，第三只尚未学爬的新生赤油在离岸约九格的开阔水面上漂着，离最近的干岸七格开外，自己爬不出去；亲油划近后发现座位已满，将它托起、带着跳到近岸干地，再放下。必须看见真实接起、离船和放下，孩子自己上岸不算救起',
      '约 30–90 秒',
-     [_aquatic_young('rescue_no_seat', 'c1', bank_dx(1) + 1.6, 1, 'baby', 'a', dy=-.5,
-                     fam=_seat_family(.08, 0, 0), childhood='Version:2,Newborn:1b,Landed:1b')],
+     [],
      late=[yk('marisa', bank_dx(0), 0, 'a', aquatic=True, yaw=90, lead=True, uuid=uid('rescue_no_seat', 'a'), **pair_ready()),
-           *_babies(), afloat('a', water_at(0, 1.45), True, sel_all('crew'), stick=True)],
-     note=_INCIDENT_NOTE + '满座由两只真实乘员占据；新生赤油以近岸落水为真实初态，船长座位朝岸。观察 grab → hop → release → rescue end outcome=set_down，随后孩子存活并站在干地。',
+           *_babies(), afloat('a', water_at(0, 1.45), True, sel_all('crew'), stick=True),
+           _aquatic_young('rescue_no_seat', 'c1', bank_dx(0) + 9.5, 0, 'baby', 'a', dy=-.5,
+                          fam=_seat_family(.08, 0, 0), childhood='Version:2,Newborn:1b,Landed:1b')],
+     note=_INCIDENT_NOTE + '满座由两只真实乘员占据；新生赤油在亲帽已经放下之后才入水，离岸九格、四周七格内无干岸（它自己找不到可以爬的岸，只能朝亲帽漂），船长座位朝岸。观察 grab → hop → release → rescue end outcome=set_down，随后孩子存活并站在干地。',
      reads=[('读亲油', f'yukkuri status {sel("a")} raw'), ('读子油', f'yukkuri status {sel("c1")} raw')],
      smoke=dict(ticks=1800, expect=[r'\[incident\][^\n]* decide [^\n]*chance=1 [^\n]*accepted=true',
                                     rf'carry grip [^\n]*uuid={_uuid_text("rescue_no_seat", "c1")}'
@@ -2705,7 +2708,7 @@ def boat_birth(sid, title, hint, riders):
 boat_birth('birth_boat_caught', '水生岸产·空船起步', '空船岸产', False)
 boat_birth('birth_boat_missed', '水生岸产·带幼体起步', '带幼岸产', True)
 
-pond('first_voyage', '初航·子油第一次自己操帽', '子油初航',
+pond('first_voyage', '初航·子油第一次自己操帽，先上岸', '子油初航·先上岸',
      '亲油与处于初航欲望带的子油已坐在近岸亲帽里；子油能自己吃、会跳和学习，戴着夹有一根木棍的帽子，'
      '还没自己操过帽。晴天静水里，子油想试试自己的帽子（越大胆越想）：先从亲帽跳上岸，再走到有静水和船位的地方把自己的帽子放到水面上、'
      '跳进去，用木棍划到亲船旁两三格外的开阔水面绕一下，再划回岸边跳上岸，从岸沿把帽子收回戴上；回到岸上戴好帽子才算学会操帽，之后只乘自己的帽子，落水能自己爬回、'

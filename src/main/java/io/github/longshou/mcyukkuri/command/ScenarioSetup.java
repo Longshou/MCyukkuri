@@ -245,7 +245,7 @@ final class ScenarioSetup {
             if (refusal != null) return refusal;
         }
         var hat = PlacedHatEntity.setDown(owner, at, owner.getYRot(), HatGeometry.Role.HELPER);
-        if (hat == null) return "帽子没能放下：帽主要戴着自己的帽子、没有乘坐别的东西（原因见日志 hat refused）。";
+        if (hat == null) return "帽子没能放下：" + PlacedHatEntity.lastRefusal() + "。水面托不住整顶帽体时（吃水不够或帽檐压到岸），把落点往水里挪一格。";
         if (stick && !hat.stow(new ItemStack(Items.STICK))) return takeBack(owner, hat, "帽子没能收下木棍，帽子已收回。");
         for (var child : young) kin(owner, child, false);
         var riders = new ArrayList<YukkuriEntity>();
