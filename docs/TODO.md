@@ -8,7 +8,6 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
-| 亲子出航与帽檐登船复核（反馈 11） | `.worktrees/fb-set-out-gather` | `aquatic/Ashore`、`HullAfloat`、`Waters`、`headwear/SeatSurface`、登船测试与试玩场 |
 | 浅水塘两只互相挡住困死（聚落长跑） | `.worktrees/fb-colony-food`（分支 `fb-pond-jam`） | 互挡绕行、浅水出水判定 |
 | 座位已满上岸分娩、水生亲本生水生子（反馈 10、18） | `.worktrees/fb-boat-birth-shore` | `family/LiveBirth`、`subspecies/SubspeciesLife`、水生上岸欲望、分娩场景 |
 
@@ -248,7 +247,7 @@
 - **辫梢划水木棍显示**：已接入待试玩。实现 [009ec0f2d](https://github.com/Longshou/MCyukkuri/commit/009ec0f2d)（CI pending，尚无试玩记录）。完成：`sail` 持有真实木棍时随辫梢划水，停划后平放帽檐，失去木棍后才不显示，空辫招帽不出现木棍（读数见场景说明）。
 - `family_skiffs`／`share_young`／`water_night`（已下线反例）— 送幼未启动、拾取受阻或翻覆 — [55449fd63](https://github.com/Longshou/MCyukkuri/commit/55449fd63)（E12），自查 [c0595c480](https://github.com/Longshou/MCyukkuri/commit/c0595c480)、[913b56da0](https://github.com/Longshou/MCyukkuri/commit/913b56da0)（实现 [12cb38d16](https://github.com/Longshou/MCyukkuri/commit/12cb38d16)）；双亲上岸不送幼、穿岸后船远离 — [b333bfc0](https://github.com/Longshou/MCyukkuri/commit/b333bfc0)（CI 41070657813）；召集超时弃粮、两帽间改向溺亡、提前挂船后落水、动作中断重发航路 — [1325c6bd](https://github.com/Longshou/MCyukkuri/commit/1325c6bd)、E8／E9（版本见运行证据索引；CLIMB 完成不等于送幼完成）；夜泊无可核实的独立失败记录 — 版本待核实。
 - **`shake_capsize` 赤油被甩进水里后溺死**：复测失败。[efba97ec5](https://github.com/Longshou/MCyukkuri/commit/efba97ec5) 3 次中 1 次溺亡；[9040e28a2](https://github.com/Longshou/MCyukkuri/commit/9040e28a2) 5 次中 1 次划近 `NO_PROGRESS` 后溺亡（`instance-653a448830ca`）；[50eadcc6e](https://github.com/Longshou/MCyukkuri/commit/50eadcc6e) 同为 1/5 次，亲油 t=11478 `NO_PROGRESS`，孩子 `f7de0ac1…` t=11671 溺亡，另 1 次脱水后 43 tick 内重入落水动作（本机自查，无 CI）。证据 `.local/smoke/instance-d17b3f0b77a3/run/logs/latest.log`；主线 [b03ca246c](https://github.com/Longshou/MCyukkuri/commit/b03ca246c) 对照亦 1/5 次溺亡，但止于 `NO_TOOL`，未复现同一接近失败（`instance-6cc968373fa5`）。自查 [cc23dc58c](https://github.com/Longshou/MCyukkuri/commit/cc23dc58c) 0/2：一次孩子 `9c37093a…` t=19655 溺亡，亲油救同胞耗尽六次接触预算；另一次两子上岸存活但逃水意图仅记 `INTERRUPTED`。自查 [d643c4780](https://github.com/Longshou/MCyukkuri/commit/d643c4780) 合并新主线后 0/3：孩子 `a7f1ede6…` t=30366 溺亡（亲油划近 `NO_PROGRESS`），另两次均存活但逃水仅记 `INTERRUPTED`；同轮主线 [c78b531e4](https://github.com/Longshou/MCyukkuri/commit/c78b531e4) 1/3、两次溺亡，均先划近失败。完成：池塘与河湾“摇晃翻覆”连续 5 次两只赤油均上岸或被救起，真实受阻仍保留原因。
-- **`afloat_family`**：复测失败。运行 [bbd16394b](https://github.com/Longshou/MCyukkuri/commit/bbd16394b) 反馈 11：辫子接赤油过快，孩子不在旁边时是否滞留／循环待验证。
+- **`afloat_family`**：已接入待试玩（[bbd16394b](https://github.com/Longshou/MCyukkuri/commit/bbd16394b) 复测失败，反馈 11；现先召集、亲油跳上帽檐后在檐上辫托岸边赤油入座、最后就位出航）：辫子接赤油过快，孩子不在旁边时是否滞留／循环待验证。
   - 已替换的登船路径反例：[927689eed](https://github.com/Longshou/MCyukkuri/commit/927689eed) 座位超跳距、无泊位；[9cfe1d3f3](https://github.com/Longshou/MCyukkuri/commit/9cfe1d3f3) 挤帽上岸、跳跃受阻；[e0afecbe9](https://github.com/Longshou/MCyukkuri/commit/e0afecbe9) 船上接取无目标、亲油受困死亡；[55449fd63](https://github.com/Longshou/MCyukkuri/commit/55449fd6381619dec7d211af4748778c5ac76e54) 未找棍／放帽／出航；[80f198366](https://github.com/Longshou/MCyukkuri/commit/80f198366)（CI 41195062942）两帽缺出航完成；[a7c31b3d4](https://github.com/Longshou/MCyukkuri/commit/a7c31b3d4)（CI 41198863260）全员登船后仍翻覆。
   - 更早反例：[2ac6d5f58](https://github.com/Longshou/MCyukkuri/commit/2ac6d5f58)（WP1／基线源码）孩子留岸或出航未完成；同版亲油救援双方落地后再次浮起。
   - 完成：按 P0-3 核对真实装载与登船，逐帧确认及时接触、温和托举与放下，孩子离开后能继续接取，无受困／溺水／饥饿死亡；当前演出仍待试玩确认。
