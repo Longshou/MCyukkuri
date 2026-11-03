@@ -193,13 +193,20 @@ public final class Release implements Action {
             GameplayLog.event(carrier, "family", "carry release approaching child={} cushion={} yaw={}", child.getUUID(), ParentCarry.nestDestination(carrier, child), facing);
         }
         else if (destination == null) { turn = new Face(facing); turn.start(carrier); }
-        else ParentCarry.lower(carrier, child, seat);
+        else {
+            ParentCarry.lower(carrier, child, seat);
+            GameplayLog.event(carrier, "family", "carry lowering destination child={} {}", child.getUUID(), seat.detail(child));
+        }
     }
 
     @Override public Progress tick(YukkuriEntity carrier) {
         if (child.getVehicle() != carrier) return destination == null ? new Outcome.Done("already_free")
                 : Outcome.of(Reason.DROPPED, 0, "already_free");
-        if (destination != null && !seat.available(child)) return Outcome.of(Reason.NO_ROOM, 0, "seat_unavailable");
+        if (destination != null) {
+            String unavailable = seat.unavailable(child);
+            if (unavailable != null) return Outcome.of(Reason.NO_ROOM, 0,
+                    "seat_unavailable check=" + unavailable + " " + seat.detail(child));
+        }
         if (approach != null) {
             var progress = approach.tick(carrier);
             if (progress instanceof Outcome outcome && outcome.reason() != null) return outsideAfter(carrier, outcome);
