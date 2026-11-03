@@ -339,7 +339,7 @@ final class AquaticGoal extends Goal {
         var world = List.of(cell(hat), body.blockPosition(), parentOn);
         if (on && parentOn && body.family().stage() == FamilyLife.Stage.BABY) play(out, hat, world);
         // a brim is a legal place to be: back into a seat the hat admits it into and has the room for, whenever one is free
-        var seat = PlayAboard.onBrim(body, hat) ? hat.restSpot(body) : null;
+        var seat = on && PlayAboard.onBrim(body, hat) ? hat.restSpot(body) : null;
         if (seat != null && hat.profile().inOpening(seat.local().x, seat.local().z) && seat.available(body))
             out.add(Desire.of("take_seat", num("take_seat_want", 70), List.of(seat.local(), body.blockPosition(), parentOn),
                     () -> "seat=" + GameplayLog.at(seat.world()), () -> new TakeSeat(body, hat)));
