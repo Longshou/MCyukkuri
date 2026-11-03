@@ -156,7 +156,12 @@ public final class SurfaceApproach {
     public static Vec3 dryAim(YukkuriEntity actor, Vec3 to) { return dryAim(actor, actor.position(), to); }
 
     private static Vec3 dryAim(YukkuriEntity actor, Vec3 from, Vec3 to) {
-        int start = wetCells(actor, from), samples = Math.max(1, (int)Math.ceil(from.distanceTo(to) / .1));
+        // A step that ends no wetter than it began is taken in full, even where its middle grazes a water cell: a body
+        // perched on the boundary cell of a shore level with the pond otherwise cannot move off it at all (every diagonal
+        // grazes the water by a rounding of its own box) and stands there until it starves.
+        int start = wetCells(actor, from);
+        if (wetCells(actor, to) <= start) return to;
+        int samples = Math.max(1, (int)Math.ceil(from.distanceTo(to) / .1));
         for (int i = 1; i <= samples; i++) {
             if (wetCells(actor, from.lerp(to, (double)i / samples)) <= start) continue;
             return i == 1 ? from : from.lerp(to, (double)(i - 1) / samples);
