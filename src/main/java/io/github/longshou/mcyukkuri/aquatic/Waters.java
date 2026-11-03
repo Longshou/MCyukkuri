@@ -275,16 +275,19 @@ final class Waters {
     private static Vec3 findBrimAshore(PlacedHatEntity hat, YukkuriEntity body) {
         var edge = edges(body, hat.position(), 4, false).stream().findFirst().orElse(null);
         if (edge == null) return null;
-        int reachable = 0;
+        int exits = 0;
+        Vec3 nearest = null;
         for (var local : hat.hopStops(body).stream()
                 .sorted(Comparator.comparingDouble(p -> hat.toWorld(p).distanceToSqr(edge.edge()))).toList()) {
-            if (!new Hop(hat, local).check(body).ok()) continue;
-            reachable++;
-            if (ashore(body, hat.toWorld(local)) != null) return local;
+            if (nearest == null) nearest = hat.toWorld(local);
+            if (ashore(body, hat.toWorld(local)) == null) continue;
+            exits++;
+            if (new Hop(hat, local).check(body).ok()) return local;
         }
         GameplayLog.limited(body, "aquatic", "hop.ashore", 200,
-                "hop ashore unavailable hat={} at={} edge={} reachable_stops={} ability={}",
-                hat.getUUID(), GameplayLog.at(hat.position()), GameplayLog.at(edge.edge()), reachable, BodyAbility.of(body).detail());
+                "hop ashore unavailable hat={} at={} edge={} brim={} stand={} exit_stops={} width={} ability={}",
+                hat.getUUID(), GameplayLog.at(hat.position()), GameplayLog.at(edge.edge()), GameplayLog.at(nearest),
+                GameplayLog.at(boardingStand(edge, body)), exits, body.getBbWidth(), BodyAbility.of(body).detail());
         return null;
     }
 
