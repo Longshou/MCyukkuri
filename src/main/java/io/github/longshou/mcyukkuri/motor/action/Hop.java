@@ -262,7 +262,10 @@ public final class Hop implements Action {
             var stand = host.frameAfter(delay).toWorld(local);
             if (!clear(body, stand, null, swept, List.of(Vec.ZERO), delay, bearing)) return false;
         }
-        return arc(body, vec(host.frameAfter(delay).toWorld(local)), null, swept, vec(bank), delay) instanceof ArcSolver.Plan;
+        var result = arc(body, vec(host.frameAfter(delay).toWorld(local)), null, swept, vec(bank), delay);
+        if (result instanceof ArcSolver.Blocked blocked)
+            obstruction = blocked.kind() + " shortfall=" + blocked.shortfall() + " " + obstruction;
+        return result instanceof ArcSolver.Plan;
     }
 
     private static int turnTicks(YukkuriEntity body, float from, float to) {
