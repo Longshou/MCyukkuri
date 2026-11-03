@@ -214,17 +214,19 @@ final class Waters {
     static final int FAR = 32;
 
     /** The nearest roomy bank edge within {@link #FAR} blocks that {@code body} can walk to and whose water carries a hull, not one
-     *  it already stands at, or null: where an owner too far from any water heads to set out. Kept per 8-block cell for 200 ticks. */
-    static Edge farShore(YukkuriEntity body) {
+     *  it already stands at or is in {@code tried}, or null: where an owner too far from any water heads to set out. Kept per
+     *  8-block cell for 200 ticks. */
+    static Edge farShore(YukkuriEntity body, Set<BlockPos> tried) {
         var at = body.blockPosition();
-        return kept(body.level(), key(body.level(), "far", at.getX() >> 3, at.getZ() >> 3, body.getBbWidth()), 200, () -> findFarShore(body));
+        return kept(body.level(), key(body.level(), "far", at.getX() >> 3, at.getZ() >> 3, body.getBbWidth(), Set.copyOf(tried)), 200,
+                () -> findFarShore(body, tried));
     }
 
-    private static Edge findFarShore(YukkuriEntity body) {
+    private static Edge findFarShore(YukkuriEntity body, Set<BlockPos> tried) {
         int asked = 0;
         for (var e : edges(body, body.position(), FAR, true)) {
             var stand = e.stand(body.getBbWidth());
-            if (stand.distanceToSqr(body.position()) < 9 || !floats(e, body)) continue;
+            if (tried.contains(e.stand()) || stand.distanceToSqr(body.position()) < 9 || !floats(e, body)) continue;
             if (asked++ >= ASKED) break;
             if (SurfaceApproach.canApproach(body, stand)) return e;
         }

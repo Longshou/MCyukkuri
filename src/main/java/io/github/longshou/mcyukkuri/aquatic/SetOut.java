@@ -30,6 +30,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
+import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.phys.Vec3;
 
@@ -51,6 +52,8 @@ final class SetOut implements Intent, FamilyRendezvous {
     private final YukkuriEntity owner;
     private final long started;
     private final Set<UUID> sticks = new HashSet<>();
+    /** The far shores she already walked to this setting out (the berth was still none there): not chosen again. */
+    private final Set<BlockPos> shores = new HashSet<>();
     private int calls;
     /** End of the one gather call, or zero when no gather wait is running; end of the one call for a young beyond the gather range. */
     private long gatherUntil, farUntil;
@@ -118,7 +121,7 @@ final class SetOut implements Intent, FamilyRendezvous {
             var fetch = dependentAshore(hat);
             var edge = Waters.berth(owner);
             if (edge == null) {
-                var shore = Waters.farShore(owner);
+                var shore = Waters.farShore(owner, shores);
                 if (shore != null) return toShore(shore);
             }
             if (edge != null && farUntil == 0 && dependentBeyondGatherRange(owner)) {
@@ -197,6 +200,7 @@ final class SetOut implements Intent, FamilyRendezvous {
      *  set out from it. */
     private List<Supplier<Step>> toShore(Waters.Edge shore) {
         var stand = shore.stand(owner.getBbWidth());
+        shores.add(shore.stand());
         GameplayLog.limited(owner, "aquatic", "set_out.far_shore", 200, "set_out far shore stand={} water={} distance={}",
                 GameplayLog.at(stand), shore.water().toShortString(), Math.round(Math.sqrt(owner.distanceToSqr(stand))));
         return List.of(() -> SurfaceApproach.arrived(owner, stand) ? null : new Step.Do(new Walk(stand)));
