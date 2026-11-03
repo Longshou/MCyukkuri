@@ -9,6 +9,7 @@
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
 | 帽船船长就位、舱内／头顶／帽檐承托、绕身搬运与两跳上岸（WP-C） | `.worktrees/wp-c-places` | `motor/{Attach,AttachState,BodyDriver,surface,geom,action}`、`family/{ParentCarry,BraidFetch}`、`headwear/{HullSurface,HatProp,PlacedHatEntity}`、`intent/IntentRunner`、`aquatic/{Rescue,Ferry,Ashore,FirstVoyage}`、`scripts/museum_scenarios.py` |
+| 多只运输与灵梦口中放出、辫子／嘴持物、持物与乘船噗咕动作（WP-A 美术） | `.worktrees/art-a2-carry` | `standards/yukkuri-library/motions/variants/lore/{recipe.json,author.py,aquatic_tools.py}`、`yukkuri_presentation/motion_corrections.json`、`art/runtime-sources.json`、`art/catalog.json` |
 
 ## 玩法待办
 
