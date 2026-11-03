@@ -9,7 +9,6 @@
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
 | 统一托运接放判定（救援、出航装载、上岸；摇晃翻覆溺亡） | `.worktrees/fb-capsize-rescue`（分支 `fb-carry-admission`） | `motor/CarryAdmission`、`Grab`／`Release`、`aquatic/Rescue`／`SetOut`／`Ashore`／`Ferry` |
-| 水生母油统一岸产与共享起跳几何 | `.worktrees/fb-boat-birth-shore` | `family/LiveBirth`、`AquaticGoal`、`motor/action/Hop`、分娩场景 |
 
 ## 玩法待办
 
@@ -24,7 +23,7 @@
   - 已接入待试玩：魔理沙帽檐托赤油比例、阶段判定、易掉落与缺辫子动作（`carry_home`、`colony_migrate_babies`）。完成：核对真实体型与帽檐空间、帽满后叼嘴、辫子接放及行走／跳跃掉落原因。
   - 已接入待试玩（[bbd16394b](https://github.com/Longshou/MCyukkuri/commit/bbd16394b) 复测失败，反馈 7、12）：浅水帽船不落底、乘员留船，远帽先等 300 tick。完成：`hat_current` 双乘员离帽、粮棍漂散、帽主接触物品即戴好并回到草岸；`hat_grounded_inverted` 倒扣空帽、`hat_grounded_capsized` 载人载粮翻覆后也都能搁浅成物品（后者帽主游过去戴回）；`hat_swap` 幼体够不到时继续日常，无 `no_way`／呼叫循环；`shore_capsized` 远帽直接游去扶正；`afloat_family`、`sail` 放帽点从不落底。规则见[水生魔理沙](FEATURES.md#水生魔理沙)。
   - 已接入待试玩：岸上不处理水中帽子与亲子出航反复放帽（`hat_swap`、`self_rescue`、`shore_capsized`、`afloat_family`）。完成：岸上对漂着或倒扣的自家帽先招帽靠岸再扶正收回（`beckon` → `right`／`take_prop` → `reclaim done`），招不到时走进水里游去扶正再爬回（`shore_capsized`：`step_in` → 游泳 → `right` → 上帽），无原地哭脸或岸边来回循环；亲子出航一次放帽、一次出航，待接赤油逐只辫子接上落座（`set_out complete aboard=…`），无收帽或重复出航。
-  - 复测失败（反馈 10、18，运行 [bbd16394b](https://github.com/Longshou/MCyukkuri/commit/bbd16394b)，CI 41438818895）：水生亲本生出方帽陆生子、突然多出幼体，船内分娩赤油穿进亲油；4064a9234 曾见初始乘员突然出现、新生儿卡沿。船内生产已下线，统一孕期上岸分娩与共享起跳几何待复测。完成：池塘与河湾“空船岸产”“带幼岸产”核对临产前上岸、水生子代、出生净空及初始乘员加新生儿总数。
+  - 已接入待试玩（反馈 10、18，失败版本 [bbd16394b](https://github.com/Longshou/MCyukkuri/commit/bbd16394b)，CI 41438818895）：水生亲本生出方帽陆生子、突然多出幼体，船内分娩赤油穿进亲油；4064a9234 曾见初始乘员突然出现、新生儿卡沿。船内生产已下线，统一孕期上岸分娩。完成：池塘与河湾“空船岸产”“带幼岸产”核对临产前上岸、水生子代、出生净空及初始乘员加新生儿总数。
   - 已接入待试玩：重做后丢失的水上表情与反应按新实现补回（`shake_capsize`“摇晃翻覆”、`self_rescue`“游回帽子”、`rescue_child`“亲油救援”）。完成：摇晃时帽内子油害怕发抖、成体惊起，被甩进水的孩子入水惊慌、出水后松一口气；接受救助的亲油先招呼落水孩子，自救者动身时也出声，初航成功返岸雀跃。完成标准只到演出与台词时机（三语、年龄声线最后统一听审）；家族呼救问答、帽子漂走／够不到、摇篮哼唱台词未接，归[配音与台词](#最后统一补配音台词与表情)。
   - 已接入待试玩：迁徙途中亲代抬起反复被拒（`colony_migrate_babies`、`carry_home`）：一次抬手只在马达接受 Grab 后才记 `carry lift started`；身体被别的动作占着时等它结束再抬，真被拒绝就结束这次抬手（孩子继续跟随）。完成：每个亲油 `carry lift started` 条数与实际接起（`carry pickup hold=`）相符，无原地重复抬手、无 `seat_blocked`，赤油仍被带到新址或窝边。
   - 已接入待试玩：`carry_home`（出生与成长场地北侧，按钮“亲代运输”）。完成：跳转点露天；三家从真实大窝认窝到接起、抵达、窝内放下，无 `assignment refused` 或 `target=null` 停搜；母油营养 95。
@@ -228,7 +227,7 @@
 
 ### 水生魔理沙模块（重构）
 
-- **水生帽船重做（用户裁决 2026-11-01）**：**部分接入**。用户：“以演出为核心”“储粮就用贴图”“赤油能在亲油船之间转移的能力……不需要”。目标见[水生魔理沙](FEATURES.md#水生魔理沙)，工作包逐项替换现行规则：1 下线舍弃行为 → 2 计数储粮与贴图 → 3 规则驱动船体 → 4 睡莲叶帽体与按体型排座、退役旧帽形 → 5 接受后的救援完整演出 → 6 座位分娩、阵痛交接与水生少胎 → 7 子油船上玩耍 → 8 清理残留。
+- **水生帽船重做（用户裁决 2026-11-01）**：**部分接入**。用户：“以演出为核心”“储粮就用贴图”“赤油能在亲油船之间转移的能力……不需要”。目标见[水生魔理沙](FEATURES.md#水生魔理沙)，工作包逐项替换现行规则：1 下线舍弃行为 → 2 计数储粮与贴图 → 3 规则驱动船体 → 4 睡莲叶帽体与按体型排座、退役旧帽形 → 5 接受后的救援完整演出 → 6 岸上分娩、阵痛交接与水生少胎 → 7 子油船上玩耍 → 8 清理残留。
   容量与新生儿落水救援见[功能说明](FEATURES.md#水生魔理沙)。夜泊附加流程暂缓，保持未做。复测反例：[2ac6d5f58](https://github.com/Longshou/MCyukkuri/commit/2ac6d5f58) 椭圆船被否决：船形夸张、戴帽与放船差异过大、仍显示粮堆，实际未发生救援（CI 待核实）。
 
 **状态：复测失败。** 重做首轮运行包主链多处阻塞（帽船、船长阶段机、席位、乘员转移、落水救助、试玩场），实现冻结：WP3a 下线、WP4–6 重建（用户裁决 2026-10-28），不再打补丁；下列现象是重建反例与三级复测对照。旧水 11、水 14（辫子抽动）演出缺口按 P0-6／P0-8／P0-11 复看；无桨手划暂用不握木棍的辫子划桨片段，专用片段待补；水 16 见上节。
@@ -242,7 +241,7 @@
 
 **本轮复测（E12）**：运行版本与 CI 见[运行证据索引](#运行证据索引2026-10-2131)，未完成链路保持复测失败。
 
-- **`birth_boat_caught`／`birth_boat_missed`**：复测失败（反馈 10、18 与运行版本见上，完成标准见 P0-9）。已下线船内生产反例：[55449fd63](https://github.com/Longshou/MCyukkuri/commit/55449fd6381619dec7d211af4748778c5ac76e54) 赤油悬空掉水；[5d930b5c4](https://github.com/Longshou/MCyukkuri/commit/5d930b5c4)（[CI 41200146048](https://github.com/Longshou/MCyukkuri/actions/runs/41200146048)）两只赤油溺亡；bbd16394b 新生儿与母体重叠。
+- **`birth_boat_caught`／`birth_boat_missed`**：已接入待试玩（反馈 10、18 与运行版本见上，完成标准见 P0-9）。已下线船内生产反例：[55449fd63](https://github.com/Longshou/MCyukkuri/commit/55449fd6381619dec7d211af4748778c5ac76e54) 赤油悬空掉水；[5d930b5c4](https://github.com/Longshou/MCyukkuri/commit/5d930b5c4)（[CI 41200146048](https://github.com/Longshou/MCyukkuri/actions/runs/41200146048)）两只赤油溺亡；bbd16394b 新生儿与母体重叠。
 - **`sail`／`shore_family` 划桨演出**：已接入待试玩（[091899217](https://github.com/Longshou/MCyukkuri/commit/091899217)，CI 待核对）。原现象（录像 22:52，圆帽 `cone_basin` 辫子穿船体、上下两节铰链、无力感）；现圆帽下辫子留在帽檐上方不穿模，自根部到梢呈波形弯曲。椭圆帽船演出未试玩确认：船长先转向船首再出桨，辫子与木棍越过横向帽檐（版本待合入）；离线伸展用量约 71%，略超 70% 目标。完成：看清转向时不划水、出桨越过短轴帽檐，核对真实航行；不以船体门通过代替演出认可。`hat_brim_offer`／`boat_nudge_young` 仅在船长面朝船首时通过船体门，播放它们的运行时动作须先转向船首，否则重做片段。
 - **辫梢划水木棍显示**：已接入待试玩。实现 [009ec0f2d](https://github.com/Longshou/MCyukkuri/commit/009ec0f2d)（CI pending，尚无试玩记录）。完成：`sail` 持有真实木棍时随辫梢划水，停划后平放帽檐，失去木棍后才不显示，空辫招帽不出现木棍（读数见场景说明）。
 - `family_skiffs`／`share_young`／`water_night`（已下线反例）— 送幼未启动、拾取受阻或翻覆 — [55449fd63](https://github.com/Longshou/MCyukkuri/commit/55449fd63)（E12），自查 [c0595c480](https://github.com/Longshou/MCyukkuri/commit/c0595c480)、[913b56da0](https://github.com/Longshou/MCyukkuri/commit/913b56da0)（实现 [12cb38d16](https://github.com/Longshou/MCyukkuri/commit/12cb38d16)）；双亲上岸不送幼、穿岸后船远离 — [b333bfc0](https://github.com/Longshou/MCyukkuri/commit/b333bfc0)（CI 41070657813）；召集超时弃粮、两帽间改向溺亡、提前挂船后落水、动作中断重发航路 — [1325c6bd](https://github.com/Longshou/MCyukkuri/commit/1325c6bd)、E8／E9（版本见运行证据索引；CLIMB 完成不等于送幼完成）；夜泊无可核实的独立失败记录 — 版本待核实。
@@ -268,7 +267,7 @@
 - `shake_capsize` 只跑约 27 秒；`self_rescue` 3 点体力船主漂上岸入睡、翻船再落水溺亡 — 未单独判断。
 - `birth_boat_caught` — 旧出口弹道（E8、E10）：新生儿 `outcome=WATER`、帽体净空拒绝；已下线，不再适用。
 - `water_threat` — 水上捕食后的落地：E8 捕食种 `no_dry_stand` 后关闭飞行落水受伤；E10 02:24 俯冲入水，返岸被 `not_ready` 取消，02:39 上岸血量 10→7，再俯冲入水降至 6；落水期间被 `water_struggle` 覆盖，鬓发曾由 `hand` 骨带动而翼骨不动，侧发现只随身体、翼无动作（复测失败）。
-- `afloat_family`、`first_voyage` — 亲子出航与初航交接：复测失败。E10 00:45 亲油放船后赤油 BOARD `no_reach`，约两秒后 `young_unloadable` 取消并戴帽；01:09 初航子油挪到帽檐即 `voyage_berth_lost`。[50eadcc6e](https://github.com/Longshou/MCyukkuri/commit/50eadcc6e) 初航 1/2 次未完成：两段离亲帽跳跃均 DONE，t=36493 岸上无可用出航手段而 EXHAUSTED，孩子存活（`instance-d17b3f0b77a3`）。[581a15291](https://github.com/Longshou/MCyukkuri/commit/581a15291) 修正初态帽船与岸重叠后仍 0/2：从亲帽开始即 `NO_PROGRESS`，未找到离船到岸的跳点，亲子均存活（`instance-3cd3395556a2`，本机自查，无 CI）；自查 [cc23dc58c](https://github.com/Longshou/MCyukkuri/commit/cc23dc58c) 精确泊位、落地交接及真实碰撞预检修正后初航 3/3，离亲帽、放自帽、登船与收帽完成，亲子存活；仍待试玩，完成标准见 P0-3。
+- `afloat_family`、`first_voyage` — 亲子出航与初航交接：复测失败。E10 00:45 亲油放船后赤油 BOARD `no_reach`，约两秒后 `young_unloadable` 取消并戴帽；01:09 初航子油挪到帽檐即 `voyage_berth_lost`。[50eadcc6e](https://github.com/Longshou/MCyukkuri/commit/50eadcc6e) 初航 1/2 次未完成：两段离亲帽跳跃均 DONE，t=36493 岸上无可用出航手段而 EXHAUSTED，孩子存活（`instance-d17b3f0b77a3`）。[581a15291](https://github.com/Longshou/MCyukkuri/commit/581a15291) 修正初态帽船与岸重叠后仍 0/2：从亲帽开始即 `NO_PROGRESS`，未找到离船到岸的跳点，亲子均存活（`instance-3cd3395556a2`，本机自查，无 CI）；自查 [cc23dc58c](https://github.com/Longshou/MCyukkuri/commit/cc23dc58c) 精确泊位、落地交接及真实碰撞预检修正后初航 3/3，离亲帽、放自帽、登船与收帽完成，亲子存活；本地 9fa4d52e4（无 CI）初航复测失败：已绕行并返岸，收帽无可用岸边站位，等待超时；完成标准见 P0-3。
 - `water_neighbours`、`first_voyage` — 池塘场景初态：E8 邻船先缺粮上岸、母油被低温打断；孩子尚在岸上反复 `first_voyage_ineligible`；两场受前一冬季群系影响；已改温和场景、清场恢复群系、删水上烧帽演示（[头饰](FEATURES.md#头饰)）（已接入待试玩）。
 
 通用要求：区分选择拒绝、物理受阻、接触与真实完成，真实受阻／力竭仍失败，不瞬移、不穿岸、不直接改成功状态。
@@ -285,7 +284,7 @@
   未合入反例：`aq-wp5-rescue` [0ed97198b](https://github.com/Longshou/MCyukkuri/commit/0ed97198b) 冒烟全链 3–4/8；同分支 WP5b [5e2c7ad62](https://github.com/Longshou/MCyukkuri/commit/5e2c7ad62) 救援 0/10、赤油登船 0/3；游泳拖行与帽檐释放后自跳的旧方案不再沿用。
 - **P0-7 自救与扶正交接（WP3）**：已接入待试玩。`self_rescue`（远帽长泳）、`shore_capsized`：游到帽檐、单次扶正后爬回，落水状态结束；真实中断保留姿态。
 - **P0-8 规则翻船与扶正（WP3）**：已接入待试玩。[4064a9234](https://github.com/Longshou/MCyukkuri/commit/4064a9234)（CI 41332517724）反馈 12：缓流不漂、似乎不响应水力；反馈 6：碰撞后动作一卡一卡。现修帽船碰撞路径，原反馈是否另含陆上身体碰撞仍待用户复看。完成：池塘与河湾 `hat_current`（缓流漂移）顺流至少 3 格、乘员随帽，靠岸停稳不抖；`hat_push`（轻推／猛撞）轻推后连续滑动、猛撞翻覆；`shake_capsize`、`hat_turbulence` 保留摇晃／水力／碰撞触发，`hat_crowd` 增加载重警戒与 `too_heavy` 超载触发，均先摇后翻、乘员落水及物品守恒。`status trace` 的 `[hat] travel` 读取逐 tick 位置、位移、速度和乘员数。
-- **P0-9 水生岸产与新生护理**：复测失败（反馈 10、18）。完成：空船／带幼两场均临产前上岸，所有新生儿水生圆帽、出生净空、不溺亡，产后嚼糜喂与首便、普通出航装载符合[分娩规则](FEATURES.md#消耗品与胎生)。
+- **P0-9 水生岸产与新生护理**：已接入待试玩（反馈 10、18）。完成：空船／带幼两场均临产前上岸，所有新生儿水生圆帽、出生净空、不溺亡，产后嚼糜喂与首便、普通出航装载符合[分娩规则](FEATURES.md#消耗品与胎生)。
 - **P0-10 赤油亲帽互动（WP7）**：已接入待试玩。`kid_boat_play`（池塘与河湾，按钮“拨粮·受惊缩身”）：观察赤油在亲帽座位拨粮、问候与受惊原地缩身；子油阶段都在自己帽船上，亲帽上不再有帽檐拍水或学划（用户裁决 2026-11-03）。核对 `hat.float` 的 play／fear、`social.greet_clicks`，拨粮不耗粮、点击回应，无帽檐落水。
 - **P0-11 帽船即家的基础演出（WP3）**：已接入待试玩。`hat_float` 静水不翻、轻摆跟船，`hat_swap` 戴帽／放帽同大，`first_voyage` 子油自帽沿用戴着时尺寸，`[hat] placed` 的 `scale/hullBox` 与体型一致，座位、储粮圈、浮态和帽檐点随同一尺寸；`shore_capsized` 倒扣稳定；排座复看 P0-3，陆地帽落水下沉且陆地接生不受影响。
 - **P0-12 不卡死**：任一水上场景跑满 10 分钟 → `/yukkuri aqdiag on` 下无持续同一阶段超时的个体；超时有 `ended reason=timeout/stalled` 与真实结果；辫子不会一直伸着。
