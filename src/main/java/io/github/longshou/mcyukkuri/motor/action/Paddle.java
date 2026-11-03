@@ -51,7 +51,7 @@ public final class Paddle implements Action {
 
     public Paddle(Vec3 target, double arrive) { this(() -> target, distance -> distance <= arrive); }
 
-    /** A moving destination, reached when the caller's actual contact condition holds. */
+    /** A moving destination, or null when its target is gone; reached at the caller's actual contact condition. */
     public Paddle(Supplier<Vec3> target, DoublePredicate arrived) { this.target = target; this.arrived = arrived; }
 
     @Override public String id() { return ID; }
@@ -67,6 +67,7 @@ public final class Paddle implements Action {
     }
 
     @Override public Feasibility check(YukkuriEntity body) {
+        if (target.get() == null) return Feasibility.of(Reason.TARGET_GONE, 0, "target_gone");
         if (!(Attach.of(body) instanceof AttachState.OnHost on)) return Feasibility.of(Reason.NO_SUPPORT, 0, "not_on_host");
         host = on.host();
         stick = body.getMouthItem().is(Items.STICK) || host.holds(Items.STICK);
@@ -102,6 +103,7 @@ public final class Paddle implements Action {
     @Override public Progress tick(YukkuriEntity body) {
         if (!(Attach.of(body) instanceof AttachState.OnHost on) || on.host() != host) return Outcome.of(Reason.NO_SUPPORT, 0, "left_host");
         Vec3 at = target.get(), here = host.entity().position();
+        if (at == null) return Outcome.of(Reason.TARGET_GONE, 0, "target_gone");
         Vec3 to = at.subtract(here).multiply(1, 0, 1);
         distance = to.length();
         if (arrived.test(distance)) return new Outcome.Done("arrived ticks=" + t);

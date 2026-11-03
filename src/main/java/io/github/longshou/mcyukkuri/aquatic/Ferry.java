@@ -33,8 +33,9 @@ final class Ferry {
     /** Close the braid's reach on the faller (or wait for it to come ashore by itself) before the shared lift. */
     static ArrayList<Supplier<Step>> chase(YukkuriEntity carrier, YukkuriEntity child) {
         var steps = new ArrayList<Supplier<Step>>();
-        steps.add(() -> AquaticLife.ashore(child) || BraidFetch.withinReach(carrier, child) ? null : act(new Paddle(child::position,
-                distance -> !child.isAlive() || child.isPassenger() || AquaticLife.ashore(child) || BraidFetch.withinReach(carrier, child))));
+        steps.add(() -> AquaticLife.ashore(child) || BraidFetch.withinReach(carrier, child) ? null
+                : act(new Paddle(() -> child.isAlive() ? child.position() : null,
+                distance -> child.isPassenger() || AquaticLife.ashore(child) || BraidFetch.withinReach(carrier, child))));
         return steps;
     }
 

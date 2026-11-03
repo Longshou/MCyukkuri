@@ -515,8 +515,9 @@ public final class ParentCarry {
     private record Timing(float t, int up, int over) { boolean active() { return t < up + over; } }
     private static Timing timing(YukkuriView carrier, CompoundTag e, float partial) {
         var clip = ClipMarkers.of(BraidFetch.HOLD);
-        int start = clip.ticks("lift_start", 21), span = clip.ticks("place", 38) - start;
+        int start = clip.ticks("lift_start", 21);
         int up = clip.ticks("lift_end", 30) - start;
+        int span = holdOf(e) == Hold.BRAID ? up : clip.ticks("place", 38) - start;
         return new Timing(Math.max(0, carrier.level().getGameTime() - e.getLong("T") + partial), up, span - up);
     }
     /** A braid-held child's place on its way to {@code end} (carrier model units, drawn at the recorded yaw {@code Y}), or null once it is

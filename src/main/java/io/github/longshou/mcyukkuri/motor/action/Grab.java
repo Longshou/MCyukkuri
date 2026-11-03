@@ -124,7 +124,7 @@ public final class Grab implements Action {
         // A brim placement and a held braid pickup share the reach and hold clips.
         if (hold.reach() == Reach.BRAID) {
             lift = BraidFetch.marker(BraidFetch.REACH, "contact") + BraidFetch.marker(BraidFetch.HOLD, "grip");
-            way = BraidFetch.marker(BraidFetch.HOLD, "place") - BraidFetch.marker(BraidFetch.HOLD, "grip");
+            way = BraidFetch.marker(BraidFetch.HOLD, hold == Hold.BRAID ? "lift_end" : "place") - BraidFetch.marker(BraidFetch.HOLD, "grip");
         } else {
             lift = LIFT_TICKS;
             way = 0;
