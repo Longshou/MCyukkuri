@@ -48,6 +48,8 @@ public final class HullAfloat implements PlacedHatBehavior {
     boolean brimFall() { return HullPresentation.brimFall(phase.name()); }
     private enum Phase { UPRIGHT, ROCKING, FLIPPING, INVERTED }
     private Phase phase;
+    /** The inverted pose the hit rocking swings around, taken when the hull comes down or a righting stops. */
+    private float invertedBase;
     private final HullTriggers triggers = new HullTriggers();
     private int phaseTicks, shakes, capsizes, thrown;
     private long shakeTick;
@@ -66,6 +68,7 @@ public final class HullAfloat implements PlacedHatBehavior {
     private HullAfloat(PlacedHatEntity hat) {
         this.hat = hat;
         phase = hat.upsideDown() ? Phase.INVERTED : Phase.UPRIGHT;
+        invertedBase = hat.roll();
     }
     HullLarder larder() { return larder; }
 
@@ -118,9 +121,12 @@ public final class HullAfloat implements PlacedHatBehavior {
     }
 
     private float uprightRoll(long now, double loadRatio) {
-        return HullPresentation.roll(now) + HullPresentation.rock(now,
-                shakes * Math.max(0, 1 - (now - shakeTick) / (double) HullTriggers.WINDOW))
-                + HullPresentation.loadRock(now, loadRatio);
+        return HullPresentation.roll(now) + rocking(now) + HullPresentation.loadRock(now, loadRatio);
+    }
+
+    /** How hard the hull still rocks from the player's shakes and hits: the same decay for both. */
+    private float rocking(long now) {
+        return HullPresentation.rock(now, shakes * Math.max(0, 1 - (now - shakeTick) / (double) HullTriggers.WINDOW));
     }
 
     private static Vec3 drift(Vec3 velocity, Vec3 drive) {
@@ -201,7 +207,7 @@ public final class HullAfloat implements PlacedHatBehavior {
         } else if (phase == Phase.FLIPPING && phaseTicks++ >= HullPresentation.number("flip_ticks")) {
             phase = Phase.INVERTED; phaseTicks = 0;
             Motor.hostPose(hat, hat.getYRot(), 180, 0);
-            if (cause.equals("shake") && thrown == 0) hat.dropAsItem("shaken_empty");
+            invertedBase = 180;
         }
         if (hat.isRemoved()) return;
         double warning = phase == Phase.UPRIGHT ? HullPresentation.loadWarning(loadRatio) : 0;
@@ -213,7 +219,7 @@ public final class HullAfloat implements PlacedHatBehavior {
             case UPRIGHT -> uprightRoll(now, loadRatio);
             case ROCKING -> HullPresentation.rock(now, HullTriggers.SHAKES + 1);
             case FLIPPING -> HullPresentation.turn(flipFrom, 180, phaseTicks / HullPresentation.number("flip_ticks"));
-            case INVERTED -> hat.roll();
+            case INVERTED -> rightProgress >= 0 ? hat.roll() : invertedBase + rocking(now);
         };
         float pitch = phase == Phase.INVERTED ? hat.pitch() : phase == Phase.UPRIGHT ? HullPresentation.pitch(now) : 0;
         var frame = frame(hat.level(), hat.position(), hat.hullScale(), hat.getYRot() + turnBy, roll, pitch, sink, now);
@@ -271,17 +277,35 @@ public final class HullAfloat implements PlacedHatBehavior {
     }
     @Override public boolean shake(PlacedHatEntity hat, Player by) {
         if (hat.level().isClientSide) return true;
-        if (righter != null) {
-            double progress = rightProgress;
-            righter.motor().interrupt("player_shake");
-            GameplayLog.event(hat, "hat", "righting interrupted player={} progress={}", by.getUUID(), progress);
-        }
+        interruptRighting(hat, by, "player_shake");
         if (phase != Phase.UPRIGHT) return true;
+        // An empty hull is no longer shaken into an item: it takes hits (hit), which rock it the same way.
+        if (hat.getPassengers().isEmpty()) return false;
         shakeTick = hat.level().getGameTime();
         shakes = triggers.shake(shakeTick);
         GameplayLog.event(hat, "hat", "shake player={} count={} window={}", by.getUUID(), shakes, HullTriggers.WINDOW);
         if (shakes == HullTriggers.SHAKES) trigger("shake", shakes, false);
         return true;
+    }
+    /** An empty floating hull a player hit: each hit rocks it, and the existing shake threshold turns it once into its hat
+     *  item, its stores and stick falling out where it lies. Occupied hulls leave every hit to the body aboard. */
+    @Override public boolean hit(PlacedHatEntity hat, Player by) {
+        if (hat.level().isClientSide || !hat.getPassengers().isEmpty()) return false;
+        if (phase != Phase.UPRIGHT && phase != Phase.INVERTED) return false;
+        interruptRighting(hat, by, "player_hit");
+        shakeTick = hat.level().getGameTime();
+        shakes = triggers.shake(shakeTick);
+        GameplayLog.event(hat, "hat", "hit player={} count={} phase={} inverted={} window={}", by.getUUID(), shakes, phase,
+                hat.upsideDown(), HullTriggers.WINDOW);
+        if (shakes == HullTriggers.SHAKES) hat.dropAsItem("hit_empty");
+        return true;
+    }
+    /** A player's hand on a hull one of its own is turning back over stops that action where it is. */
+    private void interruptRighting(PlacedHatEntity hat, Player by, String cause) {
+        if (righter == null) return;
+        double progress = rightProgress;
+        righter.motor().interrupt(cause);
+        GameplayLog.event(hat, "hat", "righting interrupted player={} progress={}", by.getUUID(), progress);
     }
     private Vec3 thrownVelocity(Vec3 at) {
         double a = Math.atan2(at.z - hat.getZ(), at.x - hat.getX());
@@ -342,7 +366,7 @@ public final class HullAfloat implements PlacedHatBehavior {
         return true;
     }
     @Override public void stopRight(PlacedHatEntity hat, YukkuriEntity by) {
-        if (righter == by) { righter = null; rightProgress = -1; }
+        if (righter == by) { righter = null; rightProgress = -1; invertedBase = hat.roll(); }
     }
     @Override public boolean thrust(PlacedHatEntity hat, YukkuriEntity by, Vec3 water, float turn) {
         if (phase != Phase.UPRIGHT && phase != Phase.INVERTED || rightProgress >= 0) return false;

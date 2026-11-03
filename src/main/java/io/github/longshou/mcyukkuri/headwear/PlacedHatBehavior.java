@@ -40,6 +40,10 @@ public interface PlacedHatBehavior {
      *  only the server moves it). */
     default boolean shake(PlacedHatEntity hat, Player by) { return false; }
 
+    /** A player's hit that reached this hat's own cloth rather than a body aboard: true when the hat took the blow itself
+     *  (an empty hull rocks and then drops as its item); false leaves the hit with no effect. */
+    default boolean hit(PlacedHatEntity hat, Player by) { return false; }
+
     /** Puts {@code stack} into the hollow for {@code by} (a player's click): true when it is
      *  something this hat stores, taken from the stack or refused with its real reason; false leaves the click to the shake. */
     default boolean store(PlacedHatEntity hat, ItemStack stack, Player by) { return false; }

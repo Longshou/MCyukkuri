@@ -212,6 +212,15 @@ public final class ScenarioCommands {
                     player.setPos(hat.getX() + hat.getBbWidth() / 2 + 1, hat.getY(), hat.getZ());
                     return hat.behavior().shake(hat, player) ? 1 : 0;
                 })))
+                // A player's left-click on the hat itself, without a client to aim it: the hit boundary only.
+                .then(Commands.literal("hit").requires(s -> s.hasPermission(2)).then(Commands.argument("hat", EntityArgument.entity()).executes(c -> {
+                    var entity = EntityArgument.getEntity(c, "hat");
+                    if (!(entity instanceof PlacedHatEntity hat)) return refused(c.getSource(), entity, "打帽", "not_a_hat");
+                    var level = c.getSource().getLevel();
+                    var player = FakePlayerFactory.getMinecraft(level);
+                    player.setPos(hat.getX() + hat.getBbWidth() / 2 + 1, hat.getY(), hat.getZ());
+                    return hat.hurt(level.damageSources().playerAttack(player), 1) ? 1 : 0;
+                })))
                 .then(Commands.literal("afloat").then(Commands.argument("owner", EntityArgument.entity())
                         .then(Commands.argument("water", Vec3Argument.vec3())
                                 .then(Commands.argument("aboard", BoolArgumentType.bool()).executes(c -> afloat(c, List.of(), 0, false, false, 0))

@@ -205,6 +205,8 @@ public final class Headwear extends Goal {
     /** A blow the owner survived (YukkuriEntity.hurt). {@code part} is the body region hit, or null. */
     public void struck(DamageSource source, float amount, BodyPart part) {
         if (entity.level().isClientSide || !entity.life().hasAccessory() || amount <= 0) return;
+        // The water exception: swimming or riding its floating hull the body is wounded as usual but the hat takes no wear.
+        if (waterborne()) return;
         var random = entity.getRandom();
         if (source.is(DamageTypeTags.IS_FIRE)) { if (random.nextInt(100) < 35) harm(1, "fire", true); return; }
         if (source.is(DamageTypeTags.IS_EXPLOSION)) { harm(amount >= 6 ? 3 : 2, "explosion", false); return; }
@@ -213,6 +215,11 @@ public final class Headwear extends Goal {
         boolean predator = source.getEntity() instanceof YukkuriEntity y && y.profile().dangerToYukkuri();
         int chance = part == BodyPart.TOP ? 70 : predator ? 45 : amount >= 3 ? 15 : 0;
         if (random.nextInt(100) < chance) harm(amount >= 5 ? 2 : 1, predator ? "bitten" : "struck", false);
+    }
+    /** Worn while the water carries the owner: immersed in it, or riding a hull that floats on it. On land, in a nest or on a
+     *  dry floor the shared accessory rules apply untouched. */
+    private boolean waterborne() {
+        return entity.isInWaterOrBubble() || entity.getVehicle() instanceof PlacedHatEntity hat && hat.afloat();
     }
     /** Tear the worn hat by {@code levels}; past torn it shatters ({@code burn}: burns away, nothing left to gather). */
     public boolean harm(int levels, String why, boolean burn) {

@@ -45,6 +45,7 @@ import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
@@ -507,8 +508,11 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
         return super.getDismountLocationForPassenger(passenger);
     }
     @Override public boolean isPickable() { return !isRemoved(); }
-    /** The thin hull box is a narrow aim target; a full body aboard hides it from a click. */
-    @Override public float getPickRadius() { return catches()&&isVehicle()?0:.4f; }
+    /** A blow reaches it: the cloth takes it, or the body aboard the look reaches (hurt). */
+    @Override public boolean isAttackable() { return !isRemoved(); }
+    /** The thin hull box is its own aim target: only an empty land cradle is widened, so no inflated afloat volume hides the
+     *  bodies aboard it from a click. */
+    @Override public float getPickRadius() { return catches() && !isVehicle() ? .4f : 0; }
     public boolean isCradle() { return state() == State.CRADLE; }
     /** Set down by its owner to catch young, on the ground; afloat it is her boat (PlacedHatBehavior.catches). */
     public boolean catches() { return isCradle() && behavior().catches(this); }
@@ -654,6 +658,8 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
     public void state(State next) { entityData.set(STATE, next.ordinal()); }
     /** The hat's size, the same in every form (HatScale). */
     public float hullScale() { return entityData.get(SCALE); }
+    /** Its behaviour carries it on water now (the immersed hull box, not a hat lying dry). */
+    public boolean afloat() { return entityData.get(AFLOAT); }
     public YukkuriEntity owner() {
         return ownerYukkuri() != null && level() instanceof ServerLevel server && server.getEntity(ownerYukkuri()) instanceof YukkuriEntity y ? y : null;
     }
@@ -666,6 +672,12 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
             return playerInteractionResult(player,hand,"off_hand",false,InteractionResult.PASS);
         if (player.distanceToSqr(this) > 36)
             return playerInteractionResult(player,hand,"out_of_reach",false,InteractionResult.PASS);
+        // A body the look reaches through the opening takes the click, the way it would take it without the hull around it.
+        var lookedAt = lookedAt(player);
+        if (lookedAt != null) {
+            var body = lookedAt.interact(player, hand);
+            if (body.consumesAction()) return playerInteractionResult(player,hand,"body",true,body);
+        }
         var held = player.getItemInHand(hand);
         // Food goes into the hollow (or is refused with its reason); empty hands and anything else rock a hat that rocks.
         if (!held.isEmpty() && behavior().store(this, held, player))
@@ -688,6 +700,44 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
                 player.getUUID(),hand,action,applied,result,state(),player.getItemInHand(hand).isEmpty(),player.distanceToSqr(this),
                 getPassengers().size());
         return result;
+    }
+
+    /** The body aboard that the player's own look actually reaches through the hull's opening: a ray crossing the brim
+     *  outside the mouth struck cloth and stays the hat's, one that crossed inside it came down into the hollow. */
+    private Entity lookedAt(Player player) {
+        var from = player.getEyePosition();
+        var end = from.add(player.getViewVector(1).scale(player.entityInteractionRange()));
+        var pose = frame();
+        var eye = pose.toLocal(from);
+        var ray = pose.toLocal(end).subtract(eye);
+        if (Math.abs(ray.y) < 1e-9) return null;
+        double crossing = -eye.y / ray.y;
+        if (crossing < 0 || crossing > 1) return null;
+        var mouth = eye.add(ray.scale(crossing));
+        if (!profile().inOpening(mouth.x, mouth.z)) return null;
+        var bodies = new ArrayList<Entity>();
+        for (var passenger : getPassengers()) if (passenger instanceof YukkuriEntity) {
+            bodies.add(passenger);
+            bodies.addAll(passenger.getPassengers());
+        }
+        Entity found = null;
+        double nearest = Double.MAX_VALUE;
+        for (var body : bodies) {
+            var hit = body.getBoundingBox().clip(from, end);
+            if (hit.isEmpty()) continue;
+            double distance = from.distanceToSqr(hit.get());
+            if (distance < nearest) { nearest = distance; found = body; }
+        }
+        return found;
+    }
+
+    /** A player's blow: a body its look reaches through the opening takes it exactly as a hit on that body, otherwise the
+     *  cloth does, and an empty floating hull rocks until it becomes its item ({@link PlacedHatBehavior#hit}). */
+    @Override public boolean hurt(DamageSource source, float amount) {
+        if (level().isClientSide || isRemoved() || !(source.getEntity() instanceof Player player)) return false;
+        var aimed = lookedAt(player);
+        if (aimed != null) { aimed.hurt(source, amount); return true; }
+        return behavior().hit(this, player);
     }
 
     @Override protected void doWaterSplashEffect() {
