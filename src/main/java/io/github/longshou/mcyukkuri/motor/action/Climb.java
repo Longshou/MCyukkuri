@@ -64,8 +64,10 @@ public final class Climb implements Action {
             return Feasibility.of(Reason.TOO_HIGH, rise - ability.climbRise(), String.format(Locale.ROOT, "rise=%.2f climbRise=%.2f", rise, ability.climbRise()));
         if (host != null) {
             edge = host.frame().toLocal(grip);
-            stand = host.landingSpot(body, edge);
-            return stand == null ? Feasibility.of(Reason.NO_ROOM, 0, "no_room_inside") : Feasibility.pass();
+            var entry = host.restEntry(body);
+            if (entry == null || !entry.available(body)) return Feasibility.of(Reason.NO_ROOM, 0, "no_room_inside");
+            stand = entry.local();
+            return Feasibility.pass();
         }
         // The landing is a stand a body really rests on, not just a point with room: its real sole height is what it aims at.
         Vec3 floorAt = SurfaceApproach.floor(body, stand);
@@ -109,7 +111,7 @@ public final class Climb implements Action {
         if (host.settled(body)) return new Outcome.Done("aboard local=" + stand);
         seating = new Hop(host);
         seating.start(body);
-        return new Running(1, TravelMode.CONSUMED, true);
+        return seating.seatFromEntry(body);
     }
 
     @Override public String startDetail() {

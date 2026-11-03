@@ -77,8 +77,9 @@ final class SetOut implements Intent, FamilyRendezvous {
     @Override public Commitment commitment() { return Commitment.HARD; }
     @Override public Vec3 gatherAt(YukkuriEntity child) {
         var hat = AquaticLife.hat(owner);
-        return hat == null ? SurfaceApproach.beside(child, owner, (child.getBbWidth() + owner.getBbWidth()) / 2 + .05, 1.2)
-                : SurfaceApproach.beside(child, hat, (child.getBbWidth() + hat.getBoundingBox().getXsize()) / 2 + .05, 1.2);
+        if (hat == null) return SurfaceApproach.beside(child, owner, (child.getBbWidth() + owner.getBbWidth()) / 2 + .05, 1.2);
+        var edge = Waters.beside(hat, child);
+        return edge == null ? null : Waters.boardingStand(edge, child);
     }
 
     @Override public boolean satisfied() {
@@ -186,7 +187,7 @@ final class SetOut implements Intent, FamilyRendezvous {
         if (edge == null) {
             GameplayLog.limited(owner, "aquatic", "berth.none", 200, "berth none reason=no_launch_berth_with_hop_reach at={}",
                     GameplayLog.at(owner.position()));
-            return List.of(() -> new Step.Wait(() -> false, ClipMarkers.of(Behaviors.BOAT_CALL).length(), Behaviors.BOAT_CALL));
+            return List.of(() -> new Step.Wait(() -> Waters.berth(owner) != null, ClipMarkers.of(Behaviors.BOAT_CALL).length(), Behaviors.BOAT_CALL));
         }
         GameplayLog.event(owner, "aquatic", "berth stand={} water={} yaw={}", edge.stand().toShortString(), edge.water().toShortString(), edge.yaw());
         var stand = Waters.boardingStand(edge, owner);

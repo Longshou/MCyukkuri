@@ -53,7 +53,7 @@ final class Rescue implements Intent {
     @Override public long deadline() { return started + (long) DriveWeights.of(AquaticGoal.DOMAIN, "rescue_ticks"); }
     @Override public Commitment commitment() { return Commitment.HARD; }
     @Override public boolean satisfied() {
-        return faller.isAlive() && (AquaticLife.aboard(faller, AquaticLife.hat(helper)) || AquaticLife.ashore(faller));
+        return faller.isAlive() && (shoreRelease.released() || AquaticLife.aboard(faller, AquaticLife.hat(helper)) || AquaticLife.ashore(faller));
     }
     @Override public List<Method> methods() {
         return List.of(Plan.of("braid_fetch", this::derive), new Plan("carry_ashore",

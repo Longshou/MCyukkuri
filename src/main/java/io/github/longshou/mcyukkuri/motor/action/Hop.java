@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.motor.action;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.motor.Action;
 import io.github.longshou.mcyukkuri.motor.Attach;
 import io.github.longshou.mcyukkuri.motor.AttachState;
@@ -24,6 +25,7 @@ import io.github.longshou.mcyukkuri.motor.surface.HostFrame;
 import io.github.longshou.mcyukkuri.motor.surface.SeatTarget;
 import io.github.longshou.mcyukkuri.motor.surface.Floor;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
+import io.github.longshou.mcyukkuri.status.StatusEvents;
 import java.util.List;
 import java.util.Comparator;
 import java.util.Locale;
@@ -33,8 +35,7 @@ import net.minecraft.world.phys.Vec3;
 /** One collision-clear ballistic path; a seat's world point is sampled at take-off and attached at contact. */
 public final class Hop implements Action {
     public static final String ID = "hop";
-    private static final String CLIP = "hop";
-    private static final int TAKEOFF_FALLBACK = 4;
+    private static final String CLIP = "hop_leg";
     static final int SETTLE = 10;
     private static final double TOUCH = .05;
     private final Vec3 target;
@@ -56,6 +57,9 @@ public final class Hop implements Action {
     private String obstruction = "";
     private long startTick;
     private Face seatingTurn;
+    private Face legTurn;
+    private int recovery;
+    private int completedLegs;
     private SeatTarget rest;
 
     public Hop(Vec3 target) { this.target = target; seatHost = null; }
@@ -80,6 +84,13 @@ public final class Hop implements Action {
         if (body.getVehicle() instanceof SurfaceHost host)
             from = host.frameAfter(takeoffTicks() - 1).toWorld(host.frame().toLocal(from));
         return new Hop(target).arc(body, vec(from), null, hosts(body, from, target), vec(target), 0) instanceof ArcSolver.Plan;
+    }
+
+    /** One leg to a supported point on the current host, without routing through other stops. */
+    public static boolean reaches(YukkuriEntity body, SurfaceHost host, Vec3 local) {
+        var from = host.riders().local(body.getUUID()).scale(host.frame().unit());
+        return new SeatTarget(host, local).available(body) && new Hop(host, local).arc(body, vec(from), host,
+                hosts(body, body.position(), host.frame().toWorld(local)), vec(local.scale(host.frame().unit())), 0) instanceof ArcSolver.Plan;
     }
 
     /** The same supported entry and arc admission for a planned host and an actual boarding hop. */
@@ -174,7 +185,8 @@ public final class Hop implements Action {
                 destination.y - origin.y, ability.hopHeight(), ability.hopReach(), obstruction)), null, null);
     }
 
-    static int takeoffTicks() { return ClipMarkers.of(CLIP).ticks("takeoff", TAKEOFF_FALLBACK); }
+    private static int marker(String name) { return Math.round(ClipMarkers.of(CLIP).markers().get(name) * 20); }
+    static int takeoffTicks() { return marker("takeoff"); }
     @Override public void start(YukkuriEntity body) {
         departure = body.getVehicle() instanceof SurfaceHost host ? host : null;
         aboard = departure != null && departure == seatHost;
@@ -185,7 +197,23 @@ public final class Hop implements Action {
 
     @Override public Progress tick(YukkuriEntity body) {
         if (rest != null) return finishSeating(body);
+        if (recovery > 0) {
+            if (--recovery > 0) return new Running(recovery, TravelMode.CONSUMED);
+            return settled(body);
+        }
         if (!launched) {
+            if (crouch == 0) {
+                if (legTurn == null) {
+                    var next = solve(body, takeoff - 1);
+                    if (!next.ready().ok()) return Outcome.of(next.ready().reason(), next.ready().shortfall(), next.ready().detail());
+                    legTurn = new Face(SurfaceApproach.yaw(body.position(), next.seat() == null ? target : next.seat().world()));
+                    legTurn.start(body);
+                }
+                var turning = legTurn.tick(body);
+                if (!(turning instanceof Outcome.Done)) return turning;
+                legTurn = null;
+                startTick = body.level().getGameTime();
+            }
             if (++crouch < takeoff) return new Running(takeoff - crouch, TravelMode.CONSUMED);
             var launch = solve(body, 0);
             var ready = launch.ready();
@@ -201,8 +229,12 @@ public final class Hop implements Action {
                 Motor.takeoff(body, new Vec3(impulse.x(), impulse.y(), impulse.z()), "hop_takeoff");
             }
             launched = true;
+            if (StatusEvents.trace()) GameplayLog.event(body, "move", "hop leg={} from={} to={} yaw={} bearing={} airTicks={}",
+                    completedLegs + 1, GameplayLog.at(body.position()), GameplayLog.at(seat == null ? target : seat.world()),
+                    body.yBodyRot, SurfaceApproach.yaw(body.position(), seat == null ? target : seat.world()), flight.size());
             return new Running(flight.size(), TravelMode.CONSUMED);
         }
+        startTick = body.level().getGameTime() - marker("land");
         if (seatHost != null && seatHost.entity().isRemoved()) return Outcome.of(Reason.TARGET_GONE, 0, "host_gone");
         if (aboard && body.getVehicle() != seatHost.entity()) return new Outcome.Interrupted("left_host");
         // A sampled endpoint is not ground contact. Let the final downward velocity meet the real floor before handing off.
@@ -240,14 +272,17 @@ public final class Hop implements Action {
     }
 
     private Progress landed(YukkuriEntity body) {
+        launched = false;
+        completedLegs++;
+        recovery = marker("settled") - marker("land");
+        startTick = body.level().getGameTime() - marker("land");
+        return new Running(recovery, TravelMode.CONSUMED, true);
+    }
+
+    private Progress settled(YukkuriEntity body) {
         if (!more) {
             if (seatHost == null || target != null || brimOnly) return new Outcome.Done("at=" + GameplayLog.at(body.position()));
-            rest = seatHost.restSpot(body);
-            if (rest == null) return Outcome.of(Reason.NO_ROOM, 0, "rest_place_lost");
-            seatingTurn = new Face(seatHost.restFacing(body));
-            seatingTurn.start(body);
-            launched = false;
-            return new Running(1, TravelMode.CONSUMED, true);
+            return seatFromEntry(body);
         }
         if (!aboard) { aboard = true; path = null; leg = 0; }
         else leg++;
@@ -255,6 +290,15 @@ public final class Hop implements Action {
         crouch = air = 0;
         startTick = body.level().getGameTime();
         return new Running(takeoff, TravelMode.CONSUMED, true);
+    }
+
+    /** The shared final turn and supported floor move after a hop or climb reaches the interior entry. */
+    Progress seatFromEntry(YukkuriEntity body) {
+        rest = seatHost.restSpot(body);
+        if (rest == null) return Outcome.of(Reason.NO_ROOM, 0, "rest_place_lost");
+        seatingTurn = new Face(seatHost.restFacing(body));
+        seatingTurn.start(body);
+        return new Running(1, TravelMode.CONSUMED, true);
     }
     private Progress finishSeating(YukkuriEntity body) {
         if (seatingTurn != null) {
@@ -270,14 +314,15 @@ public final class Hop implements Action {
         return new Running(seatHost.riders().local(body.getUUID()).distanceTo(rest.local()), TravelMode.CONSUMED);
     }
 
-    @Override public boolean interruptible() { return !launched; }
+    @Override public boolean interruptible() { return !launched && recovery == 0; }
     @Override public boolean airborne() { return launched; }
     @Override public MotionPose pose() {
+        if (legTurn != null) return legTurn.pose();
         if (seatingTurn != null) return seatingTurn.pose();
         return rest != null ? MotionPose.NONE : new MotionPose(CLIP, startTick, false);
     }
     @Override public String startDetail() { return "from=" + GameplayLog.at(from) + " to=" + (seatHost == null ? GameplayLog.at(target) : seatHost.entity().getUUID()); }
-    @Override public String endDetail(Outcome outcome) { return String.format(Locale.ROOT, "peak=%.2f airTicks=%d", peak, air); }
+    @Override public String endDetail(Outcome outcome) { return String.format(Locale.ROOT, "legs=%d peak=%.2f airTicks=%d", completedLegs, peak, air); }
 
     private boolean clear(YukkuriEntity body, Vec3 from, SurfaceHost anchor, List<SurfaceHost> hosts, List<Vec> points, int delay) {
         AABB base = body.getBoundingBox();

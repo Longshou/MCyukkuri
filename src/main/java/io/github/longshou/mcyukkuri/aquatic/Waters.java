@@ -311,13 +311,16 @@ final class Waters {
         if (edge == null) return null;
         int exits = 0;
         Vec3 nearest = null;
+        Vec3 routed = null;
         for (var local : hat.hopStops(body).stream()
                 .sorted(Comparator.comparingDouble(p -> hat.toWorld(p).distanceToSqr(edge.edge()))).toList()) {
             if (nearest == null) nearest = hat.toWorld(local);
             if (ashore(body, hat.toWorld(local)) == null) continue;
             exits++;
-            if (new Hop(hat, local).check(body).ok()) return local;
+            if (Hop.reaches(body, hat, local)) return local;
+            if (routed == null && new Hop(hat, local).check(body).ok()) routed = local;
         }
+        if (routed != null) return routed;
         GameplayLog.limited(body, "aquatic", "hop.ashore", 200,
                 "hop ashore unavailable hat={} at={} edge={} brim={} stand={} exit_stops={} width={} ability={}",
                 hat.getUUID(), GameplayLog.at(hat.position()), GameplayLog.at(edge.edge()), GameplayLog.at(nearest),
