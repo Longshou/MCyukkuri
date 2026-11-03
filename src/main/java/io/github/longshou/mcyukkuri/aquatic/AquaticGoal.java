@@ -176,7 +176,9 @@ final class AquaticGoal extends Goal {
                 ? num("birth_ashore_want", 200) : 0;
         var young = AquaticLife.young(body);
         // Finish the first meal/toilet care ashore; a crawling child can gather for a braid lift without learning to jump.
-        var nursing = young.stream().filter(y -> AquaticLife.ashore(y) && y.childhood().isNewborn() && !y.childhood().firstToiletDone()).toList();
+        var shoreNewborns = young.stream().filter(y -> AquaticLife.ashore(y) && y.childhood().isNewborn()
+                && y.childhood().shouldStayWithParents()).toList();
+        var nursing = shoreNewborns.stream().filter(y -> !y.childhood().firstToiletDone()).toList();
         boolean nursery = !nursing.isEmpty();
         if (!aboard) {
             if (nursery && AquaticLife.ashore(body)) GameplayLog.limited(body, "aquatic", "nursery.ashore", 1200,
@@ -192,8 +194,9 @@ final class AquaticGoal extends Goal {
             if (usable) out.add(Desire.of("set_out", floor(setOut), world, () -> String.format(Locale.ROOT,
                     "pull=%.0f hunger=%.0f no_stick=%.0f weather=%.0f breed=%.0f dusk=%b rain=%b young=%d asleep=%b beyond_gather=%b nursery=%b",
                     pull, hunger, noStick, weather, breed, dusk, rain, young.size(), asleep, beyondGather, nursery), () -> new SetOut(body, this::leftAshore)));
-            // Her hat out and no wish (or no way) to sail on it now: she wants it back (HEADWEAR).
-            if (hat != null && birth == 0 && !nursery && !beyondGather && (floor(setOut) == 0 || !AquaticLife.afloat(hat) || drive().failed("set_out")))
+            // Newborns ashore go through family loading, never the solo reclaim that may finish aboard without them.
+            if (hat != null && birth == 0 && shoreNewborns.isEmpty() && !beyondGather
+                    && (floor(setOut) == 0 || !AquaticLife.afloat(hat) || drive().failed("set_out")))
                 out.add(Desire.of("resolve_own_hat", num("reclaim", 85), List.of(cell(hat), form(hat), young.size()),
                         () -> "hat=" + form(hat), () -> Ashore.reclaim(body)));
             return;
