@@ -54,6 +54,7 @@ final class Ashore implements Intent {
     private final Ferry.Beckoning beckoning = new Ferry.Beckoning();
     /** The one water way has been derived; ending anywhere but aboard gives this reclaim up. */
     private boolean waterTried;
+    private Release carryRelease;
 
     private Ashore(YukkuriEntity owner, Purpose purpose) {
         this.owner = owner;
@@ -63,7 +64,11 @@ final class Ashore implements Intent {
 
     static Ashore come(YukkuriEntity owner) { return new Ashore(owner, Purpose.COME); }
     static Ashore reclaim(YukkuriEntity owner) { return new Ashore(owner, Purpose.RECLAIM); }
-    static Ashore carry(YukkuriEntity owner) { return new Ashore(owner, Purpose.CARRY); }
+    static Ashore carry(YukkuriEntity owner, Release release) {
+        var intent = new Ashore(owner, Purpose.CARRY);
+        intent.carryRelease = release;
+        return intent;
+    }
     private boolean reclaim() { return purpose == Purpose.RECLAIM; }
 
     /** An unsailed young only asks for its hat when it can do something from a reachable stand. */
@@ -78,8 +83,9 @@ final class Ashore implements Intent {
     @Override public Commitment commitment() { return reclaim() ? Commitment.SOFT : Commitment.HARD; }
 
     @Override public boolean satisfied() {
+        if (owner.motor().current() != null && !owner.motor().current().interruptible()) return false;
         var hat = AquaticLife.hat(owner);
-        if (purpose == Purpose.CARRY) return AquaticLife.ashore(owner) && !(owner.motor().current() instanceof Hop);
+        if (purpose == Purpose.CARRY) return AquaticLife.ashore(owner) && carryRelease.released();
         if (reclaim()) return owner.life().custody().worn() || hat != null && hat.settled(owner);
         return owner.life().custody().worn() && AquaticLife.ashore(owner) && AquaticLife.carried(owner) == null;
     }
@@ -118,7 +124,7 @@ final class Ashore implements Intent {
             return paddle(hat);
         }
         if (!AquaticLife.ashore(owner)) return null;
-        if (held != null) return List.of(() -> new Step.Do(new Release(held)));
+        if (held != null) return List.of(() -> new Step.Do(purpose == Purpose.CARRY ? carryRelease : new Release(held)));
         if (hat.upsideDown()) return fromBank(hat, () -> new Right(hat, "reclaim"), () -> new Step.Wait(hat::steady, 60, "hat_settles"));
         if (AquaticLife.afloat(hat) && dependent != null) {
             // This reboarding is for a pickup. Do not board only to leave again unable to carry the same child.
@@ -229,7 +235,8 @@ final class Ashore implements Intent {
 
     /** Her nearest young aboard that cannot hop off by itself. */
     private YukkuriEntity dependentAboard(PlacedHatEntity hat) {
-        for (var y : AquaticLife.young(owner)) if (!AquaticLife.jumper(y) && AquaticLife.aboard(y, hat)) return y;
+        for (var y : AquaticLife.young(owner)) if ((!AquaticLife.jumper(y) || y.getVehicle() == owner
+                && ParentCarry.hold(owner, y) == ParentCarry.Hold.HEAD) && AquaticLife.aboard(y, hat)) return y;
         return null;
     }
 

@@ -1,5 +1,7 @@
 package io.github.longshou.mcyukkuri.headwear;
 
+import io.github.longshou.mcyukkuri.family.ParentCarry;
+
 import io.github.longshou.mcyukkuri.motor.Attach;
 import io.github.longshou.mcyukkuri.motor.ContactResolver;
 import io.github.longshou.mcyukkuri.motor.AttachState;
@@ -255,11 +257,33 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
     @Override public List<SeatTarget> restSpots(YukkuriEntity body, int limit) {
         return profile().surface().restSpots(this, body, limit);
     }
+    @Override public YukkuriEntity placeCarrier() {
+        var captain = owner();
+        return captain != null && captain.getVehicle() == this && !captain.hasVisibleAccessory() ? captain : null;
+    }
+    @Override public List<SeatTarget> places(YukkuriEntity body, SeatTarget.Kind kind, int limit) {
+        if (kind != SeatTarget.Kind.HEAD) return SurfaceHost.super.places(body, kind, limit);
+        var captain = placeCarrier();
+        return captain == null || captain == body || !bears(body) ? List.of()
+                : ParentCarry.headPlaces(captain, body).stream().limit(limit).map(p -> new SeatTarget(this, p, kind)).toList();
+    }
+    @Override public SeatTarget restEntry(YukkuriEntity body) {
+        if (!profile().seated() || !body.getUUID().equals(ownerYukkuri())) return restSpot(body);
+        var height = support(Vec3.ZERO, body);
+        return height.isEmpty() ? null : new SeatTarget(this, new Vec3(0, height.getAsDouble(), 0), SeatTarget.Kind.CABIN);
+    }
+    @Override public float restFacing(YukkuriEntity body) {
+        return profile().seated() && body.getUUID().equals(ownerYukkuri()) ? getYRot() : body.bodyYaw();
+    }
     @Override public boolean insideFloor(Vec3 local) {
         return profile().inOpening(local.x, local.z) && local.y - profile().floor() <= Occupancy.MARGIN / unit();
     }
+    @Override public OptionalDouble turnSupport(Vec3 at, YukkuriEntity body, float yaw) {
+        if (!profile().seated()) return SurfaceHost.super.turnSupport(at, body, yaw);
+        return support(at, BodyFootprint.envelope(body.assetId(), body.getBbWidth() / unit(), body.getBbHeight() / unit(), Math.toRadians(yaw)));
+    }
     public double loadRatio() {
-        return HullBounds.loadRatio(hullScale() / HullBounds.SCALE, youngPassengers().stream()
+        return HullBounds.loadRatio(hullScale() / HullBounds.SCALE, getSelfAndPassengers().filter(p -> p != owner()).filter(p -> p instanceof YukkuriEntity)
                 .map(p -> (YukkuriEntity) p).map(y -> (double) (y.growthScale() * y.getScale())).toList());
     }
     @Override public OptionalDouble support(Vec3 local, BodyFootprint body) {

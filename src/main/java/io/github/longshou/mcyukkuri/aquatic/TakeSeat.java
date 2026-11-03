@@ -15,7 +15,7 @@ import io.github.longshou.mcyukkuri.motor.surface.SeatTarget;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.List;
 
-/** A brim rider may walk/crawl or hop into the hollow. Supported hollow riders rest; wall descent is physics. */
+/** A rider moves to its own cabin place after landing or a braid set-down. */
 final class TakeSeat implements Intent {
     private final YukkuriEntity body;
     private final PlacedHatEntity hat;
@@ -31,13 +31,13 @@ final class TakeSeat implements Intent {
 
     /** No offer without a real means; a wall rider is left to squeeze/settle, even while crowded. */
     static TakeSeat offer(YukkuriEntity body, PlacedHatEntity hat) {
-        if (body.getVehicle() != hat || !Floor.standing(body) || hat.settled(body)) return null;
+        if (body.getVehicle() != hat || !Floor.standing(body)) return null;
         var at = hat.riders().local(body.getUUID());
-        if (hat.profile().inOpening(at.x, at.z)) return null;
         var ability = BodyAbility.of(body);
         if (ability.walkSpeed() <= 0 && ability.hopReach() <= 0) return null;
         var target = hat.restSpot(body);
         if (target == null || !hat.profile().inOpening(target.local().x, target.local().z) || !target.available(body)) return null;
+        if (at.distanceTo(target.local()) * hat.unit() <= .02) return null;
         if (ability.walkSpeed() > 0 && !hat.walkRoute(body, target.local(), true).isEmpty())
             return new TakeSeat(body, hat, target, new Walk(hat, target.local()));
         if (ability.hopReach() <= 0) return null;
@@ -50,10 +50,10 @@ final class TakeSeat implements Intent {
 
     @Override public String id() { return "take_seat"; }
     @Override public long deadline() { return body.level().getGameTime() + (long) PlayAboard.number("play_deadline"); }
-    /** Any clear, supported point inside is enough; reaching the preferred lap is not required. */
+    /** The child reaches its chosen spot by its own movement. */
     @Override public boolean satisfied() {
         if (body.getVehicle() != hat || body.motor().current() instanceof Hop) return false;
-        return hat.settled(body);
+        return hat.settled(body) && hat.riders().local(body.getUUID()).distanceTo(target.local()) * hat.unit() <= .02;
     }
     @Override public List<Method> methods() {
         return List.of(Plan.of(id(), () -> body.getVehicle() != hat ? null : List.of(() -> new Step.Do(move))));

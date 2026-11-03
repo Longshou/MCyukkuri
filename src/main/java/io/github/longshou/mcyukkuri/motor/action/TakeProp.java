@@ -55,17 +55,17 @@ public final class TakeProp implements Action {
     }
 
     @Override public Progress tick(YukkuriEntity body) {
-        int release = releaseTicks();
+        int end = ClipMarkers.of(clip()).length();
         long elapsed = body.level().getGameTime() - startTick;
         if (!holding) {
-            if (elapsed < gripTicks()) return new Running(release - elapsed + 1, TravelMode.PASS);
+            if (elapsed < gripTicks()) return new Running(end - elapsed, TravelMode.CONSUMED);
             // The world may have changed while the braid reached: the same refusal the start check gives, before the one transfer.
             Feasibility still = check(body);
             if (!still.ok()) return Outcome.of(still.reason(), still.shortfall(), still.detail());
             if (!prop.takeBack()) return Outcome.of(Reason.NO_CONTACT, 0, "take_back_refused");
             holding = true;
         }
-        if (elapsed < release) return new Running(release - elapsed, TravelMode.PASS);
+        if (elapsed < end) return new Running(end - elapsed, TravelMode.CONSUMED);
         return new Outcome.Done("prop=" + prop.id() + " worn=" + prop.worn());
     }
 

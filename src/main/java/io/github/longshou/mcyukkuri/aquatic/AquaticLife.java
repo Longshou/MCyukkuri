@@ -2,6 +2,7 @@ package io.github.longshou.mcyukkuri.aquatic;
 
 import io.github.longshou.mcyukkuri.entity.DomainHooks;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.family.ParentCarry;
 import io.github.longshou.mcyukkuri.headwear.HatGeometry;
 import io.github.longshou.mcyukkuri.headwear.HatProp;
 import io.github.longshou.mcyukkuri.headwear.PlacedHatEntity;
@@ -51,7 +52,10 @@ public final class AquaticLife {
     /** Floating upright on the water (its afloat behaviour, not turned over). */
     static boolean afloat(PlacedHatEntity hat) { return onWater(hat) && !hat.upsideDown(); }
 
-    static boolean aboard(YukkuriEntity y, PlacedHatEntity hat) { return hat != null && y.getVehicle() == hat; }
+    static boolean aboard(YukkuriEntity y, PlacedHatEntity hat) {
+        return hat != null && (y.getVehicle() == hat || y.getVehicle() instanceof YukkuriEntity parent
+                && parent.getVehicle() == hat && ParentCarry.hold(parent, y) == ParentCarry.Hold.HEAD);
+    }
 
     /** On dry footing, not riding anything and not in the water. */
     static boolean ashore(YukkuriEntity y) { return !y.isPassenger() && !y.isInWaterOrBubble() && y.onGround(); }
@@ -70,7 +74,7 @@ public final class AquaticLife {
 
     /** The body this one carries in its mouth, or null. */
     static YukkuriEntity carried(YukkuriEntity y) {
-        for (var p : y.getPassengers()) if (p instanceof YukkuriEntity held && held.isAlive()) return held;
+        for (var p : y.getPassengers()) if (p instanceof YukkuriEntity held && held.isAlive() && ParentCarry.hold(y, held) != ParentCarry.Hold.HEAD) return held;
         return null;
     }
 

@@ -47,7 +47,7 @@ public final class Grab implements Action {
     private Face turn;
     private final SurfaceHost source;
     private int ticks, lift, way, held;
-    private boolean mounted;
+    private boolean mounted, fromHead;
     private long startTick;
 
     public Grab(YukkuriEntity target) { this(target, null); }
@@ -82,6 +82,15 @@ public final class Grab implements Action {
         if (!target.isAlive()) return Feasibility.of(Reason.TARGET_GONE, 0, "target_gone");
         if (target.level() != carrier.level()) return Feasibility.of(Reason.TARGET_GONE, 0, "target_level");
         AttachState attach = Attach.of(target);
+        fromHead = target.getVehicle() == carrier && ParentCarry.hold(carrier, target) == Hold.HEAD;
+        if (fromHead) {
+            String problem = ParentCarry.holdProblem(carrier, target, Hold.BRAID, false, ParentCarry.carryHost(carrier, target));
+            if (problem != null) return refusal(problem);
+            chosen(Hold.BRAID, false, ContactGeometry.braidGap(carrier, target, false));
+            lift = BraidFetch.marker("braid_head_take", "lift_start");
+            way = ClipMarkers.of("braid_head_take").length() - lift;
+            return Feasibility.pass();
+        }
         if (attach instanceof AttachState.Held held)
             return Feasibility.of(Reason.NO_ROOM, 0, held.carrier() == carrier ? "already_held" : "target_held");
         if (attach instanceof AttachState.Airborne) return Feasibility.of(Reason.NO_CONTACT, 0, "target_airborne");
@@ -175,7 +184,7 @@ public final class Grab implements Action {
         }
         if (way > 0 && !ParentCarry.braided(carrier, target, lean)) return Outcome.of(Reason.NO_SUPPORT, 0, "braid_lift_blocked");
         if (hold == Hold.MOUTH && (way = ParentCarry.mouthLift(carrier, target)) < 0) return Outcome.of(Reason.NO_ROOM, 0, "mouth_lift_blocked");
-        if (!Motor.mount(target, carrier, "grab")) return Outcome.of(Reason.NO_CONTACT, 0, "mount_refused");
+        if (target.getVehicle() != carrier && !Motor.mount(target, carrier, "grab")) return Outcome.of(Reason.NO_CONTACT, 0, "mount_refused");
         target.fallDistance = 0;
         mounted = true;
         ParentCarry.gripped(carrier, target, rejected, way);
@@ -188,6 +197,7 @@ public final class Grab implements Action {
     }
 
     @Override public MotionPose pose() {
+        if (fromHead) return new MotionPose("braid_head_take", startTick, false);
         if (hold.reach() == Reach.BRAID) {
             int contact = BraidFetch.marker(BraidFetch.REACH, "contact");
             return mounted ? new MotionPose(BraidFetch.HOLD, startTick + ticks - BraidFetch.marker(BraidFetch.HOLD, "grip"), false)

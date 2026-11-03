@@ -86,14 +86,17 @@ public final class Release implements Action {
     }
 
     private SeatTarget nearest(YukkuriEntity carrier) {
-        return destination.restSpots(child, Integer.MAX_VALUE).stream()
-                .filter(target -> destination.insideFloor(target.local()))
+        for (var kind : new SeatTarget.Kind[]{SeatTarget.Kind.CABIN, SeatTarget.Kind.HEAD}) {
+            var found = destination.places(child, kind, Integer.MAX_VALUE).stream()
                 .filter(target -> target.unavailable(child) == null)
                 .filter(target -> {
                     var grip = target.world().add(0, ParentCarry.GRIP_Y * child.growthScale() * child.getScale() / 16, 0);
-                    return Math.min(ContactGeometry.braidGapFrom(carrier, carrier.position(), grip, false),
-                            ContactGeometry.braidGapFrom(carrier, carrier.position(), grip, true)) <= 0;
-                }).min(Comparator.comparingDouble(target -> target.world().distanceToSqr(child.position()))).orElse(null);
+                    return ParentCarry.transferGap(carrier, grip) <= 0;
+                }).sorted(Comparator.comparingDouble(target -> target.world().distanceToSqr(child.position())))
+                .filter(target -> ParentCarry.transferClear(carrier, child, target)).findFirst().orElse(null);
+            if (found != null) return found;
+        }
+        return null;
     }
 
     /** One endpoint/stand planner for cushions and nearby ground; execution uses the same room and turn tests. */
@@ -265,8 +268,8 @@ public final class Release implements Action {
                         : Outcome.of(Reason.NO_SUPPORT, 0, "host_unsteady");
             }
             if (!seat.land(child, "braid_set_down")) return Outcome.of(Reason.NO_CONTACT, 0, "seat_contact_lost");
-            ParentCarry.released(carrier, child, "release");
-            GameplayLog.event(child, "body", "seat landed host={} cause=braid_set_down", destination.entity().getUUID());
+            if (seat.kind() != SeatTarget.Kind.HEAD) ParentCarry.released(carrier, child, "release");
+            GameplayLog.event(child, "body", "seat landed host={} place={} cause=braid_set_down", destination.entity().getUUID(), seat.kind());
         } else let(carrier, child, placement != null && !placement.equals("nest") ? placement : "release");
         released = true;
         return new Outcome.Done("released");
@@ -281,7 +284,12 @@ public final class Release implements Action {
     @Override public MotionPose pose() {
         if (approach != null) return approach.pose();
         long since = carrier == null ? -1 : ParentCarry.setDownTick(carrier, child);
-        if (destination != null && since >= 0) return new MotionPose(BraidFetch.SETTLE, startTick, false);
+        if (since >= 0 && !ParentCarry.lowerClip(carrier, child).isEmpty()) {
+            String clip = ParentCarry.lowerClip(carrier, child);
+            int start = BraidFetch.marker(clip, "lift_start"), place = BraidFetch.marker(clip, "place");
+            return carrier.level().getGameTime() - since < place - start ? new MotionPose(clip, since - start, false)
+                    : new MotionPose(BraidFetch.SETTLE, since + place - start, false);
+        }
         String clip = ParentCarry.braidLean(carrier, child) ? Grab.BRAID_LEAN : Grab.BRAID_LIFT;
         return since < 0 || ParentCarry.hold(carrier, child).reach() != Reach.BRAID ? MotionPose.NONE
                 : new MotionPose(clip, since - ClipMarkers.of(clip).ticks("place", 38), false);

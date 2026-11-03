@@ -28,6 +28,7 @@ public final class PlaceProp implements Action {
     private final float yaw;
     private long startTick;
     private boolean holding;
+    private Entity placed;
 
     public PlaceProp(Prop prop, Vec3 at, float yaw) {
         if (prop == null) throw new IllegalArgumentException("PlaceProp needs the prop");
@@ -54,12 +55,16 @@ public final class PlaceProp implements Action {
         int release = releaseTicks();
         long elapsed = body.level().getGameTime() - startTick;
         holding = elapsed >= ClipMarkers.of(clip()).ticks(TakeProp.GRIP_MARKER, 0);
-        if (elapsed < release) return new Running(release - elapsed, TravelMode.PASS);
+        int end = ClipMarkers.of(clip()).length();
+        if (elapsed < release) return new Running(end - elapsed, TravelMode.CONSUMED);
         // The world may have changed during the clip: the same refusal the start check gives, before the one transfer.
-        Feasibility still = check(body);
-        if (!still.ok()) return Outcome.of(still.reason(), still.shortfall(), still.detail());
-        Entity placed = prop.setDown(at, yaw);
-        if (placed == null) return Outcome.of(Reason.NO_ROOM, 0, "set_down_refused");
+        if (placed == null) {
+            Feasibility still = check(body);
+            if (!still.ok()) return Outcome.of(still.reason(), still.shortfall(), still.detail());
+            placed = prop.setDown(at, yaw);
+            if (placed == null) return Outcome.of(Reason.NO_ROOM, 0, "set_down_refused");
+        }
+        if (elapsed < end) return new Running(end - elapsed, TravelMode.CONSUMED);
         return new Outcome.Done("prop=" + prop.id() + " entity=" + placed.getUUID() + " at=" + GameplayLog.at(at));
     }
 

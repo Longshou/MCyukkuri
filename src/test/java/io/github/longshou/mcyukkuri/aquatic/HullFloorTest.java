@@ -132,7 +132,7 @@ class HullFloorTest {
                 assertEquals(adult.get(i).y(), stops.get(i).y(), 1e-9);
                 assertEquals(adult.get(i).z(), stops.get(i).z(), 1e-9);
                 var local = stops.get(i);
-                assertEquals(HullBounds.DATA.number("brim_ring.radius") * scale, local.hlen() * UNIT * scale, 1e-9);
+                assertEquals((HullBounds.RADIUS - .8 / 4) * scale, local.hlen() * UNIT * scale, 1e-9);
             }
         }
     }

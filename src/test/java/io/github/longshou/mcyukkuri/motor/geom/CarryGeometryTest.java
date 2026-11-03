@@ -1,7 +1,6 @@
 package io.github.longshou.mcyukkuri.motor.geom;
 
 import io.github.longshou.mcyukkuri.headwear.HullBounds;
-import java.util.ArrayList;
 import java.util.List;
 import io.github.longshou.mcyukkuri.motor.geom.CarryGeometry.Rejection;
 import org.junit.jupiter.api.Test;
@@ -16,40 +15,25 @@ class CarryGeometryTest {
         assertEquals(65, CarryGeometry.liftHeight(65, 64, hull, .3), 1e-9);
     }
 
-    @Test void occupiedLoweringEndpointRedirectsWithoutJumpingOrAccelerating() {
-        var start = new Vec(0, 1, 0);
-        var first = new Vec(.2, 0, 0);
-        double pace = .05;
-        var current = CarryGeometry.lowering(start, first, pace, 9);
-        var replacement = new Vec(-.4, .1, .5);
-        assertEquals(current, CarryGeometry.lowering(current, replacement, pace, 0));
-        var previous = current;
-        for (int tick = 1; tick <= 40; tick++) {
-            var next = CarryGeometry.lowering(current, replacement, pace, tick);
-            assertTrue(CarryGeometry.releaseRemaining(previous, next, next.y()) <= pace + 1e-9);
-            previous = next;
-        }
-        assertEquals(replacement, previous);
-        assertEquals(replacement, CarryGeometry.lowering(replacement, replacement, pace, 0));
-        int duration = CarryGeometry.loweringTicks(1, pace);
-        assertTrue(CarryGeometry.lowering(Vec.ZERO, new Vec(0, 1, 0), pace, 1).y() < pace / 2);
-        assertTrue(1 - CarryGeometry.lowering(Vec.ZERO, new Vec(0, 1, 0), pace, duration - 1).y() < pace / 2);
-    }
-
-    @Test void brimReleaseGoesAroundTheHeadBeforeDescendingAtTheCushion() {
-        var from = new Vec(-.8, .8, 0);
-        var to = new Vec(.9, .1, 0);
-        for (int i = 0; i <= 100; i++) {
-            var p = CarryGeometry.brimRelease(from, to, .2, 1, i / 100.0);
-            assertTrue(p.hlen() >= .8 - 1e-9, "opposite-side cushion must not cut through the head");
-            if (p.y() < .8) {
-                assertEquals(to.x(), p.x(), 1e-9);
-                assertEquals(to.z(), p.z(), 1e-9);
+    @Test void transferClearsTheCarrierAndDescendsOnlyAboveItsDestination() {
+        var from = new Vec(10, 0, -1);
+        var root = new Vec(6.93, 9.33, -2.52);
+        for (var to : List.of(new Vec(2, 0, -8), new Vec(0, 10.6, 0))) {
+            double height = to.y() + 4;
+            Vec previous = from;
+            for (int i = 0; i <= 1000; i++) {
+                double tick = i * 50.0 / 1000;
+                var p = CarryGeometry.transfer(from, to, root, CarryGeometry.BODY_LOW, CarryGeometry.BODY_HIGH,
+                        2, height, tick, 19, 34, 50);
+                assertFalse(p.y() < CarryGeometry.BODY_HIGH.y() && p.x() > CarryGeometry.BODY_LOW.x() - 2 + 1e-9
+                        && p.x() < CarryGeometry.BODY_HIGH.x() + 2 - 1e-9 && p.z() > CarryGeometry.BODY_LOW.z() - 2 + 1e-9
+                        && p.z() < CarryGeometry.BODY_HIGH.z() + 2 - 1e-9, "body intersection at " + p);
+                assertTrue(Math.hypot(p.sub(previous).hlen(), p.y() - previous.y()) < .2, "continuous path at " + p);
+                if (tick >= 34) { assertEquals(to.x(), p.x(), 1e-9); assertEquals(to.z(), p.z(), 1e-9); }
+                previous = p;
             }
+            assertEquals(to, previous);
         }
-        assertEquals(from, CarryGeometry.brimRelease(from, to, .2, 1, 0));
-        assertEquals(to.x(), CarryGeometry.brimRelease(from, to, .2, 1, 1).x(), 1e-9);
-        assertEquals(to.y(), CarryGeometry.brimRelease(from, to, .2, 1, 1).y(), 1e-9);
     }
     @Test void braidReachUsesTheNearestBodyPointAndTheActualChainLength() {
         var root = new Vec(0, 1, 0);
@@ -86,29 +70,17 @@ class CarryGeometryTest {
 
     @Test void sameBearingNeverSweepsAFullCircle() {
         for (double z : new double[]{-1, 1}) assertEquals(0, CarryGeometry.frontTurn(1, z, 2, z * 2));
-        var tried = new ArrayList<Double>();
-        assertFalse(CarryGeometry.chooseArc(0, turn -> { tried.add(turn); return false; }));
-        assertEquals(List.of(0.0), tried);
     }
 
-    @Test void blockedFrontSweepUsesTheClearRearRouteWithTheSameEndpoints() {
-        double front = CarryGeometry.frontTurn(1, 1, -1, 1);
-        var tried = new ArrayList<Double>();
-        assertTrue(CarryGeometry.chooseArc(front, turn -> {
-            tried.add(turn);
+    @Test void blockedFrontSweepCannotCarryBehindTheBody() {
+        var result = CarryGeometry.wayOut(0, 0, new Vec(1, 0, 1), new Vec(-1, 0, 1), p -> null, (p, turn) -> {
             for (int i = 0; i <= 20; i++) {
                 var point = CarryGeometry.swing(0, 0, 1, 1, -1, 1, turn, i / 20.0);
                 if (point.z() < -1) return false; // A wall across the front route.
             }
-            var end = CarryGeometry.swing(0, 0, 1, 1, -1, 1, turn, 1);
-            assertEquals(-1, end.x(), 1e-9); assertEquals(1, end.z(), 1e-9);
             return true;
-        }));
-        assertEquals(List.of(front, CarryGeometry.otherTurn(front)), tried);
-        tried.clear();
-        assertTrue(CarryGeometry.chooseArc(front, turn -> { tried.add(turn); return true; }));
-        assertEquals(List.of(front), tried, "a clear front route must not probe the rear");
-        assertFalse(CarryGeometry.chooseArc(front, turn -> false));
+        });
+        assertNull(result.point());
     }
 
     @Test void liveMouthBlendIsContinuousAtLiftEndAndLoweringStart() {

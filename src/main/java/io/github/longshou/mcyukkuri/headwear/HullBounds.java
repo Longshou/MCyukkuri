@@ -2,6 +2,7 @@ package io.github.longshou.mcyukkuri.headwear;
 
 import io.github.longshou.mcyukkuri.motor.geom.GeometryJson;
 import io.github.longshou.mcyukkuri.motor.geom.BodyFootprint;
+import io.github.longshou.mcyukkuri.motor.geom.RadialWall;
 import io.github.longshou.mcyukkuri.motor.geom.Vec;
 import java.util.List;
 import java.util.stream.IntStream;
@@ -16,6 +17,9 @@ public final class HullBounds {
             RADIUS = DATA.number("brim.outer_radius"), EDGE = DATA.number("brim.edge_y");
 
     private HullBounds() {}
+
+    private static final RadialWall WALL = RadialWall.read("yukkuri_props/aquatic_basin_hat_turned.json", "hull");
+    public static double innerRadius(double height) { return WALL.radius(Math.min(height, BRIM) / UNIT) * UNIT; }
 
     public static final Vec HOME = new Vec(DATA.number("captain_seat.x"), DATA.number("captain_seat.y"), DATA.number("captain_seat.z"));
     private static final double YOUNG = DATA.number("seating.young_max_growth"),
@@ -38,7 +42,9 @@ public final class HullBounds {
         var profile = HullProfile.of(HullProfile.BASIN);
         double scale = hullScale / SCALE, unit = profile.measuredUnit();
         var body = BodyFootprint.of(asset, width / scale / unit, height / scale / unit, yaw);
-        return brimStops().stream().map(p -> p.scale(1 / unit))
+        double radius = RADIUS / unit - width / scale / unit / 4;
+        return IntStream.range(0, 72).mapToObj(i -> new Vec(radius * Math.cos(i * Math.PI / 36), 0,
+                        radius * Math.sin(i * Math.PI / 36)))
                 .map(p -> new Vec(p.x(), profile.support(p.x(), p.z(), body), p.z())).toList();
     }
 

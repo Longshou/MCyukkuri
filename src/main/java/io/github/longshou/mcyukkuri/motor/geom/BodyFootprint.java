@@ -10,15 +10,22 @@ import java.util.concurrent.ConcurrentHashMap;
 public record BodyFootprint(List<Column> columns, double width, double height, double yaw, double radius, Shape shape, double cosine, double sine) {
     public record Column(double x, double z, double bottom, double top) {}
     private static final double STEP = 1.0 / 24;
-    private record Key(String asset,double width,double height,int yaw) {}
+    private record Key(String asset,double width,double height,int yaw,boolean hair) {}
     private static final Map<String,Shape> SHAPES=new ConcurrentHashMap<>();
     private static final Map<Key,BodyFootprint> CACHE=new LinkedHashMap<>(256,.75f,true) {
         @Override protected boolean removeEldestEntry(Map.Entry<Key,BodyFootprint> entry){return size()>256;}
     };
     public static int yawBucket(double yaw){return Math.floorMod((int)Math.round(Math.toDegrees(yaw)/5),72);}
     public static synchronized BodyFootprint of(String asset,double width,double height,double yaw) {
-        return CACHE.computeIfAbsent(new Key(asset,width,height,yawBucket(yaw)),key->{
-            var shape=SHAPES.computeIfAbsent(asset,BodyFootprint::shape);
+        return footprint(asset,width,height,yaw,false);
+    }
+    /** Body and hair, excluding the moving braid and worn headwear. */
+    public static synchronized BodyFootprint envelope(String asset,double width,double height,double yaw) {
+        return footprint(asset,width,height,yaw,true);
+    }
+    private static BodyFootprint footprint(String asset,double width,double height,double yaw,boolean hair) {
+        return CACHE.computeIfAbsent(new Key(asset,width,height,yawBucket(yaw),hair),key->{
+            var shape=SHAPES.computeIfAbsent(asset+":"+hair,ignored->shape(asset,hair));
             double angle=Math.toRadians(key.yaw*5),c=Math.cos(angle),s=Math.sin(angle),radius=0;
             var out=new ArrayList<Column>(shape.columns.size());
             for(var p:shape.columns){
@@ -59,15 +66,16 @@ public record BodyFootprint(List<Column> columns, double width, double height, d
             return ix<0||iz<0||ix>=grid.length||iz>=grid.length?null:grid[ix][iz];
         }
     }
-    private static Shape shape(String asset) {
+    private static Shape shape(String asset,boolean hair) {
             var source=GeometryJson.read("yukkuri/"+asset+".json");
             var model=source.data();var vertices=source.field("vertices").getAsJsonArray();
             var triangles=new ArrayList<double[]>();double width=0,height=0,extent=0;
             for(var value:model.getAsJsonArray("parts")){
-                var part=value.getAsJsonObject();if(!part.get("name").getAsString().endsWith("_body_surface"))continue;
+                var part=value.getAsJsonObject();var name=part.get("name").getAsString();boolean body=name.endsWith("_body_surface");
+                if(!body && !(hair && (name.contains("hair") || name.startsWith("bang") || name.startsWith("back_lock") || name.equals("crown"))))continue;
                 int first=part.get("start").getAsInt(),end=first+part.get("count").getAsInt();
                 for(int i=first;i<end;i+=3){
-                    double[] t=new double[9];for(int j=0;j<9;j++){t[j]=vertices.get((i+j/3)*8+j%3).getAsDouble();if(j%3==0)width=Math.max(width,2*Math.abs(t[j]));if(j%3==1)height=Math.max(height,t[j]);else extent=Math.max(extent,Math.abs(t[j]));}triangles.add(t);
+                    double[] t=new double[9];for(int j=0;j<9;j++){t[j]=vertices.get((i+j/3)*8+j%3).getAsDouble();if(body&&j%3==0)width=Math.max(width,2*Math.abs(t[j]));if(body&&j%3==1)height=Math.max(height,t[j]);if(j%3!=1)extent=Math.max(extent,Math.abs(t[j]));}triangles.add(t);
                 }
             }
             source.check(!triangles.isEmpty(),"parts","missing *_body_surface");

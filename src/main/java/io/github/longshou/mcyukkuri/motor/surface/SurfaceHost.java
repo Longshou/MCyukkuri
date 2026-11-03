@@ -63,6 +63,17 @@ public interface SurfaceHost {
     Vec3 landingSpot(YukkuriEntity body, Vec3 edge);
     ContactResolver.Contact contact(YukkuriEntity body, Vec3 spot, Vec3 feet);
     default List<SeatTarget> restSpots(YukkuriEntity body, int limit) { return List.of(); }
+    default List<SeatTarget> places(YukkuriEntity body, SeatTarget.Kind kind, int limit) {
+        return switch (kind) {
+            case CABIN -> restSpots(body, limit);
+            case HEAD -> List.of();
+            case BRIM -> hopStops(body).stream().map(p -> new SeatTarget(this, p, kind)).filter(p -> p.available(body)).limit(limit).toList();
+        };
+    }
+    default YukkuriEntity placeCarrier() { return null; }
+    default SeatTarget restEntry(YukkuriEntity body) { return restSpot(body); }
+    default float restFacing(YukkuriEntity body) { return body.bodyYaw(); }
+    default OptionalDouble turnSupport(Vec3 at, YukkuriEntity body, float yaw) { return support(at, Floor.shape(this, body, yaw)); }
     /** A rest point on the floor inside the opening, excluding raised walls and the hop rim. */
     boolean insideFloor(Vec3 local);
     default SeatTarget restSpot(YukkuriEntity body) {

@@ -1,26 +1,36 @@
 package io.github.longshou.mcyukkuri.motor.geom;
 
 import java.util.function.BiPredicate;
-import java.util.function.DoublePredicate;
 import java.util.function.Function;
 
 /** Carry geometry in the parent's model frame: -Z is forward, +X is right. */
 public final class CarryGeometry {
     private CarryGeometry() {}
-    /** Leave the brim radially, swing outside its edge at height, then lower vertically beside the body. */
-    public static Vec brimRelease(Vec from, Vec to, double clearance, double height, double progress) {
-        double radius = Math.max(from.hlen() + clearance, to.hlen());
-        double start = Math.atan2(from.z(), from.x());
-        var edge = new Vec(Math.cos(start) * radius, height, Math.sin(start) * radius);
-        if (progress < .35) return mix(from, edge, smooth(progress / .35));
-        double end = Math.atan2(to.z(), to.x());
-        double turn = Math.atan2(Math.sin(end - start), Math.cos(end - start));
-        if (progress < .7) {
-            double q = smooth((progress - .35) / .35), angle = start + turn * q;
-            double r = radius + (to.hlen() - radius) * q;
-            return new Vec(Math.cos(angle) * r, height, Math.sin(angle) * r);
+    public static final Vec BODY_LOW = bodyBound("body_min"), BODY_HIGH = bodyBound("body_max");
+    private static Vec bodyBound(String key) {
+        var a = GeometryJson.read("yukkuri_presentation/braid_rescue.json").field(key).getAsJsonArray();
+        return new Vec(a.get(0).getAsDouble(), a.get(1).getAsDouble(), a.get(2).getAsDouble());
+    }
+    /** One marker-timed route: rise at the grip, pass the front of the body, descend over the destination. */
+    public static Vec transfer(Vec from, Vec to, Vec root, Vec low, Vec high, double radius,
+                               double height, double tick, double liftEnd, double overEnd, double place) {
+        if (tick <= 0) return from;
+        if (tick >= place) return to;
+        if (tick <= liftEnd) return mix(from, new Vec(from.x(), height, from.z()), smooth(tick / liftEnd));
+        if (tick >= overEnd) return mix(new Vec(to.x(), height, to.z()), to, smooth((tick - overEnd) / (place - overEnd)));
+        double q = smooth((tick - liftEnd) / (overEnd - liftEnd));
+        double turn = frontTurn(from.x() - root.x(), from.z() - root.z(), to.x() - root.x(), to.z() - root.z());
+        var p = swing(root.x(), root.z(), from.x(), from.z(), to.x(), to.z(), turn, q);
+        if (height < high.y()) {
+            double angle = Math.atan2(p.z() - root.z(), p.x() - root.x()), x = Math.cos(angle), z = Math.sin(angle);
+            double ax = (low.x() - radius - root.x()) / x, bx = (high.x() + radius - root.x()) / x;
+            double az = (low.z() - radius - root.z()) / z, bz = (high.z() + radius - root.z()) / z;
+            double near = Math.max(Math.min(ax, bx), Math.min(az, bz)), far = Math.min(Math.max(ax, bx), Math.max(az, bz));
+            double r = Math.hypot(p.x() - root.x(), p.z() - root.z());
+            if (near <= far && far > 0) r = Math.max(r, far);
+            p = new Vec(root.x() + r * x, height, root.z() + r * z);
         }
-        return mix(new Vec(to.x(), height, to.z()), to, smooth((progress - .7) / .3));
+        return new Vec(p.x(), height, p.z());
     }
     private static Vec mix(Vec a, Vec b, double q) { return new Vec(a.x() + (b.x() - a.x()) * q, a.y() + (b.y() - a.y()) * q, a.z() + (b.z() - a.z()) * q); }
     public enum Rejection { TERRAIN, ROUTE }
@@ -43,15 +53,6 @@ public final class CarryGeometry {
         return Math.max(feet, floor + height);
     }
 
-    /** Ease into and out of lowering without exceeding the original pace after a destination moves. */
-    public static Vec lowering(Vec from, Vec to, double pace, double ticks) {
-        var delta = to.sub(from);
-        double distance = Math.sqrt(delta.x() * delta.x() + delta.y() * delta.y() + delta.z() * delta.z());
-        int duration = loweringTicks(distance, pace);
-        return ticks >= duration ? to : mix(from, to, smooth(ticks / duration));
-    }
-    /** Smoothstep's peak derivative is 3/2, so this duration keeps every step within the admitted pace. */
-    public static int loweringTicks(double distance, double pace) { return motionTicks(1.5 * distance, pace); }
 
     /** A worn-brim destination still needs a clear landing and swept route. */
     public static Way wayOut(double rootX, double rootZ, Vec from, Vec destination,
@@ -60,7 +61,7 @@ public final class CarryGeometry {
         var why = landing.apply(destination);
         if (why == null) {
             double turn = frontTurn(from.x() - rootX, from.z() - rootZ, destination.x() - rootX, destination.z() - rootZ);
-            if (!chooseArc(turn, arc -> route.test(destination, arc))) why = Rejection.ROUTE;
+            if (!route.test(destination, turn)) why = Rejection.ROUTE;
         }
         if (why == null) return new Way(destination, rejected);
         rejected[why.ordinal()]++;
@@ -76,11 +77,6 @@ public final class CarryGeometry {
     }
 
     public static double otherTurn(double turn) { return turn - Math.copySign(2 * Math.PI, turn); }
-
-    /** Runs the front route's real collision check first; an equal bearing never causes a full loop. */
-    public static boolean chooseArc(double front, DoublePredicate clear) {
-        return clear.test(front) || front != 0 && clear.test(otherTurn(front));
-    }
 
     /** Live-lip weight: ease in over the final third of the lift and out over the first third of lowering. */
     public static double mouthBlend(double lift, double down) {

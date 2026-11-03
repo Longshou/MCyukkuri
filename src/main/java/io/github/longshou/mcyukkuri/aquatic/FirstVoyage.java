@@ -50,7 +50,10 @@ final class FirstVoyage implements Intent {
     @Override public String id() { return "first_voyage"; }
     @Override public long deadline() { return started + DEADLINE; }
     @Override public Commitment commitment() { return Commitment.HARD; }
-    @Override public boolean satisfied() { return rounded && young.life().custody().worn() && AquaticLife.ashore(young); }
+    @Override public boolean satisfied() {
+        return (young.motor().current() == null || young.motor().current().interruptible())
+                && rounded && young.life().custody().worn() && AquaticLife.ashore(young);
+    }
     @Override public List<Method> methods() {
         return List.of(new Plan("own_hat", () -> stuck ? Feasibility.of(Reason.NO_PROGRESS, 0, "voyage_failed") : Feasibility.pass(),
                 Set.of(Reason.NO_PROGRESS), () -> { var steps = derive(); stuck |= steps == null; return steps; }));

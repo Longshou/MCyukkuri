@@ -80,14 +80,14 @@ final class Rescue implements Intent {
 
     private List<Supplier<Step>> carryAshore() {
         return AquaticLife.ashore(helper) ? List.of(() -> new Step.Do(shoreRelease))
-                : List.of(() -> new Step.Sub(Ashore.carry(helper)), () -> new Step.Do(shoreRelease));
+                : List.of(() -> new Step.Sub(Ashore.carry(helper, shoreRelease)));
     }
 
     @Override public void ended(IntentRunner.Result result) {
         boolean aboard = AquaticLife.aboard(faller, AquaticLife.hat(helper));
         String outcome = result == IntentRunner.Result.DONE ? aboard ? "rescued" : shoreRelease.released() ? "set_down" : "self_climbed"
                 : result.name();
-        if (faller.getVehicle() == helper) helper.family().carry().finish(faller, "rescue_ended");
+        if (faller.getVehicle() == helper && !aboard) helper.family().carry().finish(faller, "rescue_ended");
         AskLedger.server().ended(incident, helper.getUUID(), outcome);
         GameplayLog.event(helper, "aquatic", "rescue end result={} outcome={} faller={} incident={} aboard={} last={}",
                 result, outcome, faller.getUUID(), incident, aboard, helper.motor().lastDetail());

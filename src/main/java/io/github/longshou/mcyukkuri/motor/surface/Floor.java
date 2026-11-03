@@ -34,6 +34,20 @@ public final class Floor {
     }
     public static Vec vec(Vec3 p) { return new Vec(p.x, p.y, p.z); }
     public static Vec3 point(Vec p) { return new Vec3(p.x(), p.y(), p.z()); }
+    /** A short supported floor move that preserves the body's facing. */
+    public static boolean advance(SurfaceHost host, YukkuriEntity body, Vec3 target) {
+        var spot = host.riders().spot(body.getUUID());
+        var delta = target.subtract(spot.local());
+        double distance = delta.length();
+        if (distance == 0) return true;
+        var next = spot.local().add(delta.scale(Math.min(distance, BodyAbility.of(body).walkSpeed() / host.frame().unit()) / distance));
+        var height = host.support(next, body);
+        if (height.isEmpty() || !host.room(body, next)) return false;
+        next = new Vec3(next.x, height.getAsDouble(), next.z);
+        if (body.level().getBlockCollisions(body, body.getBoundingBox().move(host.frame().toWorld(next).subtract(body.position()))).iterator().hasNext()) return false;
+        Motor.spot(host, body, next, spot.yaw(), "floor_move");
+        return true;
+    }
 
     /** Try the requested turn, then two smaller turns; write only after every pushed body has a clear destination. */
     public static float turn(SurfaceHost host, YukkuriEntity body, float stepDeg) {
@@ -43,8 +57,8 @@ public final class Floor {
         for (int attempt = 0; attempt < 3; attempt++, stepDeg /= 2) {
             var proposed = new ArrayList<FloorSearch.Placed>(others(host, null));
             var turned = shape(host, body, spot.yaw() + stepDeg);
-            var height = host.support(spot.local(), turned);
-            if (height.isEmpty()) continue;
+            var height = host.turnSupport(spot.local(), body, spot.yaw() + stepDeg);
+            if (height.isEmpty() || (height.getAsDouble() - spot.local().y) * host.frame().unit() > Occupancy.MARGIN) continue;
             var at = new Vec(spot.local().x, height.getAsDouble(), spot.local().z);
             proposed.set(mover, new FloorSearch.Placed(turned, at));
             boolean fits = true;

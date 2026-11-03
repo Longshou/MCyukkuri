@@ -85,6 +85,7 @@ public final class IntentRunner implements MotorOwner {
     public void tick() {
         if (!active) return;
         long now = now();
+        if (driver().current() != null && !driver().current().interruptible()) return;
         if (intent.satisfied()) {
             end(Result.DONE);
             return;

@@ -136,7 +136,8 @@ final class ParentCarryPresentation {
         var reaching = braidTarget(carrier);
         if (reaching != null) {
             // The braid closes on the child's scruff over the clip's reach, then keeps it while the lift runs.
-            boolean fetch = BraidFetch.REACH.equals(carrier.getAnimationId()) || BraidFetch.HOLD.equals(carrier.getAnimationId());
+            boolean fetch = BraidFetch.REACH.equals(carrier.getAnimationId()) || BraidFetch.HOLD.equals(carrier.getAnimationId())
+                    || "braid_head_take".equals(carrier.getAnimationId());
             var clip = ClipMarkers.of(fetch ? carrier.getAnimationId() : liftClip(carrier));
             model.setBraidReach(modelPoint(carrier, scruff(reaching, reaching.getPosition(partial), yaw(reaching, partial)), partial),
                     BraidFetch.HOLD.equals(carrier.getAnimationId()) ? 1
@@ -147,7 +148,7 @@ final class ParentCarryPresentation {
             float down = ParentCarry.lowering(carrier, rider, partial);
             if (hold != Hold.BRAID && (hold != Hold.BRIM || down < 0 && !ParentCarry.placing(carrier, rider, partial))) continue;
             model.setBraidReach(modelPoint(carrier, scruff(rider, ParentCarry.rawSeat(carrier, rider, partial), yaw(carrier, partial)), partial),
-                    hold == Hold.BRAID && down >= 0 ? 1 - ease(down) : 1);
+                    ParentCarry.braidShare(carrier, rider, partial));
             break;
         }
         if (action.equals(TakeProp.ID) || action.equals(PlaceProp.ID)) {
@@ -246,6 +247,11 @@ final class ParentCarryPresentation {
         var at = ParentCarry.rawSeat(carrier, child, partial).subtract(origin);
         var seated = new Vector3f((float) at.x, (float) at.y, (float) at.z);
         switch (hold) {
+            case HEAD -> {
+                feet = seated;
+                pitch = roll = 0;
+                turnTo.rotationY((180 - yaw(child, partial)) * Mth.DEG_TO_RAD);
+            }
             case BRIM -> {
                 // On the brim the child faces out over the brim edge with the crown at its back and neighbours at its
                 // sides: it may tip outward, hardly back toward the crown, and only a little sideways.
