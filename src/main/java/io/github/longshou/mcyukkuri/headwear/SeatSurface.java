@@ -13,7 +13,7 @@ import java.util.OptionalDouble;
 import net.minecraft.world.phys.Vec3;
 
 /** The bounds-defined round surface: fixed seats, with no walking or repacking. */
-final class SeatSurface implements HatSurface {
+public final class SeatSurface implements HatSurface {
     static final HatSurface INSTANCE = new SeatSurface();
     @Override public OptionalDouble support(PlacedHatEntity hat, Vec3 local, YukkuriEntity body) {
         var brim = HullBounds.brim(body.growthScale() * body.getScale() * HullBounds.SCALE / hat.hullScale(), Math.atan2(local.z, local.x));
@@ -41,7 +41,10 @@ final class SeatSurface implements HatSurface {
     @Override public Vec3 boarded(PlacedHatEntity hat, YukkuriEntity body) { return hat.frame().toLocal(body.position()); }
     @Override public void tickRiders(PlacedHatEntity hat) {}
     @Override public List<Vec3> hopStops(PlacedHatEntity hat, YukkuriEntity body) {
-        double growth = body.growthScale() * body.getScale() * HullBounds.SCALE / hat.hullScale();
+        return hopStops(body, hat.hullScale());
+    }
+    public static List<Vec3> hopStops(YukkuriEntity body, float hullScale) {
+        double growth = body.growthScale() * body.getScale() * HullBounds.SCALE / hullScale;
         return HullBounds.brimStops(growth).stream()
                 .map(p -> new Vec3(p.x(), p.y(), p.z()).scale(1 / HullBounds.UNIT)).toList();
     }

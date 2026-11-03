@@ -2275,13 +2275,15 @@ pond('shore_capsized', '岸边翻覆的帽子·走进水里扶正', '扶正帽�
      late=[f'data merge entity {_HAT} {{Roll:180f,Inverted:1b,Motion:{{Phase:"INVERTED"}}}}'],
      note='倒扣是帽子真实的漂浮姿态（帽冠朝上），不是被测环节。日志：招帽够不着就 [action] start id=step_in（普通走路跨过岸沿落水）→ '
           '[intent] start id=escape_water（同一 reclaim 的子意图）→ [method] pick method=right_own_hat → [action] start id=swim … grip → '
-          '[action] start id=right … push= → [hat] righted cause=self_rescue → [action] start id=climb → [body] mount cause=climb；接触后轻摆与水伤不中断；死亡、帽子离开或玩家干预会终止。',
+          '[action] start id=right … push= → [hat] righted cause=self_rescue → [action] start id=climb → [body] mount cause=climb → [action] end id=climb outcome=DONE → [intent] end id=resolve_own_hat result=DONE；到船长座位才完成；接触后轻摆与水伤不中断；死亡、帽子离开或玩家干预会终止。',
      reads=[('读船主', f'yukkuri status {sel("a")} raw'), ('读帽子', f'data get entity {_HAT}')],
      smoke=dict(ticks=2400, expect=[r'\[action\][^\n]* start id=step_in\b',
                                    r'\[intent\][^\n]* start id=escape_water\b',
                                    r'\[action\][^\n]* start id=swim owner=drive:aquatic\b',
                                    r'\[action\][^\n]* start id=right[^\n]*push=', r'\[hat\][^\n]* righted cause=self_rescue',
-                                   r'\[body\][^\n]* mount [^\n]*cause=climb'],
+                                   r'\[body\][^\n]* mount [^\n]*cause=climb',
+                                   r'\[action\][^\n]* end id=climb outcome=DONE\b',
+                                   r'\[intent\][^\n]* end id=resolve_own_hat result=DONE\b'],
                 forbid=[*_WATER_SMOKE_FORBID, r'\[headwear\][^\n]* reclaim waiting',
                         r'\[body\][^\n]* death settled into remains'], verify=water_aftermath, readout=_HULL_READOUT))
 
@@ -2460,7 +2462,7 @@ pond('afloat_family', '辫子接赤油上船', '亲子出航',
                 forbid=[r'death settled into remains', r'\[body\][^\n]* invariant\b', r'\[aquatic\][^\n]* set_out left_ashore=',
                         r'\[intent\][^\n]* start id=set_out\b[\s\S]*\[intent\][^\n]* start id=set_out\b',
                         r'\[action\][^\n]* start id=take_prop\b', r'\[intent\][^\n]* end id=set_out result=EXHAUSTED\b',
-                        r'\[hat\][^\n]* pickup cause=grounded', r'\[body\][^\n]* death settled into remains'],
+                        r'\[hat\][^\n]* pickup cause=grounded'],
                 readout=_HULL_READOUT + [f'yukkuri status {sel("c1")} raw']))
 
 pond('afloat_family_gather', '先集合再出航·辫子接赤油', '集合出航',

@@ -247,7 +247,6 @@ public final class ScenarioCommands {
         if (owner == null) return 0;
         var young = new ArrayList<YukkuriEntity>();
         for (var entity : crew) if (entity instanceof YukkuriEntity y && y != owner) young.add(y);
-        BlockPosArgument.getLoadedBlockPos(c, "water");
         String reason = ScenarioSetup.afloat(owner, Vec3Argument.getVec3(c, "water"), BoolArgumentType.getBool(c, "aboard"), young,
                 food, middle, stick);
         if (reason != null) return refused(c.getSource(), owner, "帽子入水场景", reason);

@@ -6,6 +6,7 @@ import io.github.longshou.mcyukkuri.headwear.PlacedHatBehavior;
 import io.github.longshou.mcyukkuri.headwear.HatScale;
 import io.github.longshou.mcyukkuri.headwear.HullBounds;
 import io.github.longshou.mcyukkuri.headwear.PlacedHatEntity;
+import io.github.longshou.mcyukkuri.headwear.SeatSurface;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.motor.ContactGeometry;
 import io.github.longshou.mcyukkuri.motor.BodyAbility;
@@ -13,7 +14,6 @@ import io.github.longshou.mcyukkuri.motor.action.Beckon;
 import io.github.longshou.mcyukkuri.motor.action.Hop;
 import io.github.longshou.mcyukkuri.motor.geom.GridPath;
 import io.github.longshou.mcyukkuri.motor.geom.HeightGrid;
-import io.github.longshou.mcyukkuri.motor.surface.HostFrame;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -188,14 +188,8 @@ final class Waters {
             var stand = boardingStand(e, body);
             if (!SurfaceApproach.canApproach(body, stand)
                     || !PlacedHatBehavior.waterFits(body.level(), hatAt(e, body), HatGeometry.wornForm(body), HatScale.of(body))) continue;
-            var at = hatAt(e, body);
-            var floating = new Vec3(at.x, HullAfloat.surface(body.level(), at.x, at.y - 2, at.z)
-                    - HullPresentation.waterHeight(HatScale.of(body) / HullBounds.SCALE, 0, 0), at.z);
-            var frame = new HostFrame(floating, HatScale.of(body) / 16.0,
-                    (float) Math.toRadians(180 - e.yaw() - HullBounds.BOARDING_YAW), 0, 0);
-            var stops = HullBounds.brimStops(body.growthScale() * body.getScale() * HullBounds.SCALE / HatScale.of(body)).stream()
-                    .map(p -> new Vec3(p.x(), p.y(), p.z()).scale(1 / HullBounds.UNIT)).toList();
-            if (Hop.entry(body, stand, frame, stops) != null) return e;
+            var frame = HullAfloat.frame(body.level(), hatAt(e, body), HatScale.of(body), e.yaw() + (float) HullBounds.BOARDING_YAW);
+            if (Hop.entry(body, stand, frame, SeatSurface.hopStops(body, HatScale.of(body))) != null) return e;
         }
         return null;
     }

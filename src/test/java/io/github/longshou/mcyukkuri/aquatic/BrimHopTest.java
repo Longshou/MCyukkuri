@@ -23,7 +23,7 @@ class BrimHopTest {
                     AbilityMath.Coefficients.DEFAULTS, AbilityMath.Multipliers.IDENTITY);
             assertTrue(seat.sub(bank).hlen() > ability.hopReach());
             java.util.function.BiFunction<Vec, Vec, ArcSolver.Result> arc = (a, b) -> ArcSolver.lowest(a, b,
-                    ability.hopHeight(), ability.hopReach(), ability.size(), points -> clear(a, points)
+                    ability.hopHeight(), ability.hopReach(), ability.size(), points -> clearBankArc(a, points)
                             && points.stream().map(a::add).noneMatch(p -> p.x() - body.width() / 2 < edge && p.y() < bank.y() - .002));
             var entry = HullBounds.brimStops(size).stream().filter(p -> arc.apply(bank, p) instanceof ArcSolver.Plan
                     && arc.apply(p, bank) instanceof ArcSolver.Plan).findFirst().orElse(null);
@@ -93,6 +93,10 @@ class BrimHopTest {
     }
 
     private static boolean clear(Vec from, List<Vec> points) {
+        return points.stream().map(from::add).allMatch(p -> Double.isFinite(HullBounds.surface(p.hlen()))
+                && p.y() >= HullBounds.surface(p.hlen()) - .05);
+    }
+    private static boolean clearBankArc(Vec from, List<Vec> points) {
         return points.stream().map(from::add).allMatch(p -> !Double.isFinite(HullBounds.surface(p.hlen()))
                 || p.y() >= HullBounds.surface(p.hlen()) - .05);
     }

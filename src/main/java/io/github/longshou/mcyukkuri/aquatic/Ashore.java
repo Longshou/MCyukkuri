@@ -74,7 +74,8 @@ final class Ashore implements Intent {
     @Override public Commitment commitment() { return reclaim ? Commitment.SOFT : Commitment.HARD; }
 
     @Override public boolean satisfied() {
-        if (reclaim) return owner.life().custody().worn() || AquaticLife.aboard(owner, AquaticLife.hat(owner));
+        var hat = AquaticLife.hat(owner);
+        if (reclaim) return owner.life().custody().worn() || hat != null && hat.seated(owner);
         return owner.life().custody().worn() && AquaticLife.ashore(owner) && AquaticLife.carried(owner) == null;
     }
 

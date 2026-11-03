@@ -6,6 +6,7 @@ import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.headwear.PlacedHatBehavior;
 import io.github.longshou.mcyukkuri.headwear.PlacedHatEntity;
 import io.github.longshou.mcyukkuri.motor.Attach;
+import io.github.longshou.mcyukkuri.motor.surface.HostFrame;
 import io.github.longshou.mcyukkuri.motor.surface.Occupancy;
 import io.github.longshou.mcyukkuri.motor.AttachState;
 import io.github.longshou.mcyukkuri.motor.Motor;
@@ -104,6 +105,18 @@ public final class HullAfloat implements PlacedHatBehavior {
     }
     private double water() { return surface(hat.level(), hat.getX(), hat.getY() - 2, hat.getZ()); }
 
+    /** The floating frame at this water cell and tick, before any load or shake. */
+    static HostFrame frame(Level level, Vec3 at, float hullScale, float yaw) {
+        long now = level.getGameTime();
+        return frame(level, at, hullScale, yaw, HullPresentation.roll(now), HullPresentation.pitch(now), 0);
+    }
+    private static HostFrame frame(Level level, Vec3 at, float hullScale, float yaw, float roll, float pitch, double sink) {
+        double scale = hullScale / HullBounds.SCALE;
+        double y = surface(level, at.x, at.y - 2, at.z) - HullPresentation.waterHeight(scale, roll, pitch)
+                + HullPresentation.bob(level.getGameTime()) * scale - sink;
+        return new HostFrame(new Vec3(at.x, y, at.z), hullScale / 16.0, (float) Math.toRadians(180 - yaw), roll, pitch);
+    }
+
     /** How deep (blocks) the water under the hull must be for it to float: shallower, its box rests on the floor. */
     static double draft(double scale) { return (HullBounds.WATERLINE - HullBounds.KEEL) * scale; }
 
@@ -168,11 +181,10 @@ public final class HullAfloat implements PlacedHatBehavior {
             case INVERTED -> hat.roll();
         };
         float pitch = phase == Phase.INVERTED ? hat.pitch() : phase == Phase.UPRIGHT ? HullPresentation.pitch(now) : 0;
-        Motor.hostPose(hat, hat.getYRot() + turnBy, roll, pitch);
-        double target = water - HullPresentation.waterHeight(scale(hat), roll, pitch)
-                + HullPresentation.bob(now) * scale(hat) - sink;
+        var frame = frame(hat.level(), hat.position(), hat.hullScale(), hat.getYRot() + turnBy, roll, pitch, sink);
+        Motor.hostPose(hat, hat.getYRot() + turnBy, frame.rollDeg(), frame.pitchDeg());
         var v = hat.getDeltaMovement();
-        var motion = new Vec3(v.x * DRAG + drive.x * (1 - DRAG), target - hat.getY(), v.z * DRAG + drive.z * (1 - DRAG));
+        var motion = new Vec3(v.x * DRAG + drive.x * (1 - DRAG), frame.origin().y - hat.getY(), v.z * DRAG + drive.z * (1 - DRAG));
         var travel = new Contact(motion, motion);
         double reach = HullBounds.RADIUS * scale(hat) + 1;
         var nearby = hat.level().getEntities(hat, hat.getBoundingBox().inflate(reach),
