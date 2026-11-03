@@ -2094,10 +2094,29 @@ def _overload_family_choice(window):
         else:
             if not dismissals or dismissals[0].start() < capsized.end() or dismissals[0][1] != _uuid_text('hat_crowd', parent + '3'):
                 return 'normal parent did not dismiss the largest young after the real overload capsize'
+            capsize_ticks = re.findall(r'\[hat\][^\n]*uuid=' + boat + r' t=(\d+)[^\n]* capsized cause=too_heavy\b', window)
+            dismissal_ticks = [re.search(r' t=(\d+)', dismissal[0])[1] for dismissal in dismissals]
+            if dismissal_ticks != capsize_ticks:
+                return 'normal parent must dismiss exactly once at each overload capsize, never for another cause'
             for dismissal in dismissals:
                 if re.search(r'\[aquatic\][^\n]*uuid=' + owner + r'[^\n]* rescue start faller=' + dismissal[1], window[dismissal.end():]):
                     return 'dismissed young was regathered by its former carer'
     return None
+
+
+def _overload_bank():
+    pond_ = BY_ID['pond']
+    out = []
+    for x in range(pond_.px - pond_.RX - 2, pond_.px + pond_.RX + 3):
+        for z in range(pond_.pz - pond_.RZ - 2, pond_.pz + pond_.RZ + 3):
+            if pond_.depth(x, z):
+                continue
+            dx, dz = x - pond_.bank[0], z - pond_.bank[2]
+            if any(pond_.depth(x + ox, z + oz) for ox, oz in ((1, 0), (-1, 0), (0, 1), (0, -1))):
+                out.append(block(dx, -1, dz, 'minecraft:mud'))
+            else:
+                out.append(f'execute if block ~{dx} ~-1 ~{dz} minecraft:grass_block run setblock ~{dx} ~ ~{dz} minecraft:short_grass')
+    return out
 
 
 def _overload_family(parent, dz, intelligence, friendliness, cabin):
@@ -2433,13 +2452,13 @@ pond('cargo', '帽底储粮·计数与原地取食', '帽底储粮',
 pond('hat_crowd', '帽内与头顶载幼·超载取舍', '帽内与头顶载幼·超载取舍',
      '两位亲油并排，普通亲油带一只头顶赤油和一只帽檐子油，另一位还带一只帽内小赤油，按舱内、裸露头顶、帽檐顺序找真实承托。普通亲油智力55、友善70；另一位智力20、友善80。各有八份苹果，孩子靠实际成长增加载重；超载只在登船、离船或成长时抽一次翻船概率。真实超载翻船后，普通亲油断绝最大的一只，低智力高友善亲油继续承认全部孩子。落水后照常自救或救幼，不能保证存活',
      '约 12–16 分钟，建议倍速',
-     [*_overload_family('normal', 0, 55, 70, False), *_overload_family('kind', 6, 20, 80, True)],
+     [*_overload_bank(), *_overload_family('normal', 0, 55, 70, False), *_overload_family('kind', 6, 20, 80, True)],
      late=[f'execute as {sel("normal")} on vehicle run tag @s add seat_reload'],
      capture=dict(shots=(1, 40, 600, 15000), sequences=((600, 15000, 300), (8400, 9600, 4))),
      note='普通亲油的头顶与帽檐乘员用于保存重载核对，另一位的帽内赤油可自行转身和走动；冒烟会卸载再加载场地区块核对第一顶帽的位置与乘员。'
           '逐只记 scenario place 的 CABIN／HEAD／BRIM；[aquatic] load changed 给出事件、载重、容量、概率、抽值和结果，静止不重抽。'
           '先看 load warning，再看 capsized cause=too_heavy 与真实落水；普通亲油随后记 parent dismissed child，孩子仍认亲、族谱不变，亲油不再救它；另一位记 overload keeps children。'
-          '子油没有自己的木棍而推迟初航；不强制翻船或死亡，真实拒绝和水伤保留，逐只读存亡；整窗不得有人饿死。',
+          '子油没有自己的木棍而推迟初航；泥岸后有真实草地供上岸取食，八份帽粮翻覆后照常散出，不补粮。不强制翻船或死亡，真实碰撞、拒绝和水伤保留，逐只读存亡；整窗不得有人饿死。',
      reads=[('读普通亲油与族谱', f'yukkuri status {sel("normal")} raw'),
             ('读低智力高友善亲油', f'yukkuri status {sel("kind")} raw'),
             ('读普通亲油最大孩子', f'yukkuri status {sel("normal3")} raw'),
@@ -2450,7 +2469,7 @@ pond('hat_crowd', '帽内与头顶载幼·超载取舍', '帽内与头顶载幼�
                         r'\[hat\][^\n]* scenario place [^\n]*place=CABIN\b[\s\S]*\[hat\][^\n]* scenario place [^\n]*place=HEAD\b[\s\S]*\[hat\][^\n]* scenario place [^\n]*place=BRIM\b',
                         r'\[hat\][^\n]* load warning ratio=[\s\S]*\[hat\][^\n]* capsized cause=too_heavy\b[^\n]*thrown=[1-9]\b',
                         r'\[water\][^\n]* phase=(?:STRUGGLE|EXHAUSTED) -> RECOVER\b'],
-                forbid=[r'\[body\][^\n]* invariant\b', r'\[hat\][^\n]* capsized cause=(?:shake|impact|turbulence)\b',
+                forbid=[r'\[body\][^\n]* invariant\b', r'\[hat\][^\n]* capsized cause=(?:shake|turbulence)\b',
                         r'\[action\][^\n]* refused id=hop [^\n]*detail=no_spot',
                         r'\[needs\][^\n]* starvation damage accepted=true',
                         r'\[body\][^\n]* death settled[^\n]*cause=(?!.*(?:drown|water))'],
