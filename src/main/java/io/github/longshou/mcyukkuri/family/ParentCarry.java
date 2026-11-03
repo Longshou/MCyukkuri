@@ -518,7 +518,7 @@ public final class ParentCarry {
         var rest = restTip();
         rest.x = Math.max(rest.x, (float) (CarryGeometry.BODY_HIGH.x() + headwearRadius(child) * 16 / s + .3));
         e.putFloat("X", rest.x); e.putFloat("Z", rest.z); e.putFloat("PH", high); e.putFloat("A", 0);
-        e.putFloat("RY", (float) Math.max(MOUTH_FLOOR, (floor - carrier.getY()) * 16 / s));
+        e.putFloat("RY", (float) Math.max(MOUTH_FLOOR, (floor + child.getBbHeight() - carrier.getY()) * 16 / s));
         e.putLong("T", carrier.level().getGameTime() + (head ? 0 : BraidFetch.marker(BraidFetch.HOLD, "lift_start") - BraidFetch.marker(BraidFetch.HOLD, "grip")));
         write(carrier, child.getUUID(), e);
         return true;
@@ -635,7 +635,7 @@ public final class ParentCarry {
     }
     private static boolean headAvailable(YukkuriEntity carrier) {
         var hat = HatGeometry.worn(carrier.assetId());
-        return !carrier.hasVisibleAccessory() && carrier.getVehicle() instanceof SurfaceHost host && host.placeCarrier() == carrier
+        return carrier.getVehicle() instanceof SurfaceHost host && host.placeCarrier() == carrier
                 && hat != null && hat.has("head");
     }
     public static List<Vec3> headPlaces(YukkuriEntity carrier, YukkuriEntity child) {

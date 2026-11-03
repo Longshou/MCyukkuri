@@ -44,7 +44,8 @@ public final class HullSurface implements HatSurface {
         if (body.getUUID().equals(hat.ownerYukkuri()))
             return at.multiply(1, 0, 1).distanceToSqr(Floor.point(HullBounds.HOME.scale(1 / HullBounds.UNIT)).multiply(1, 0, 1))
                     * hat.unit() * hat.unit() <= .0025 && Math.abs(hat.riders().yaw(body.getUUID())) <= 3 && hat.insideFloor(at);
-        return hat.profile().resting(Floor.vec(at), Floor.shape(hat, body), Occupancy.MARGIN / hat.unit())
+        var support = hat.support(at, body);
+        return support.isPresent() && Math.abs(at.y - support.getAsDouble()) <= Occupancy.MARGIN / hat.unit()
                 && hat.room(body, at);
     }
     private static Disc hatDisc(PlacedHatEntity hat, YukkuriEntity body, Vec3 at) {

@@ -17,9 +17,13 @@ public record SeatTarget(SurfaceHost host, Vec3 local, Kind kind) {
         if (host.entity().isRemoved()) return "host_removed";
         if (host.capsized()) return "host_capsized";
         if (!host.bears(body)) return "not_borne";
-        if (kind == Kind.HEAD) return host.placeCarrier() != null && ParentCarry.headRoom(host.placeCarrier(), body, local) ? null : "head_room";
-        if (host.support(local, body).isEmpty()) return "no_support";
-        return host.room(body, local) ? null : "room";
+        if (kind == Kind.HEAD) {
+            if (host.placeCarrier() == null || !ParentCarry.headRoom(host.placeCarrier(), body, local)) return "head_room";
+        } else {
+            if (host.support(local, body).isEmpty()) return "no_support";
+            if (!host.room(body, local)) return "room";
+        }
+        return body.level().getBlockCollisions(body, body.getDimensions(body.getPose()).makeBoundingBox(world())).iterator().hasNext() ? "world" : null;
     }
     /** Attach only after movement has visibly reached the live destination. */
     public boolean land(YukkuriEntity body, String cause) {
