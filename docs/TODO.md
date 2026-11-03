@@ -9,7 +9,6 @@
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
 | 统一托运接放判定（救援、出航装载、上岸；摇晃翻覆溺亡） | `.worktrees/fb-capsize-rescue`（分支 `fb-carry-admission`） | `motor/CarryAdmission`、`Grab`／`Release`、`aquatic/Rescue`／`SetOut`／`Ashore`／`Ferry` |
-| 初航返岸收帽回归二分与修复 | `.worktrees/fb-boat-birth-shore` | `aquatic/Waters`、共享接触判定 |
 
 ## 玩法待办
 
@@ -268,7 +267,7 @@
 - `shake_capsize` 只跑约 27 秒；`self_rescue` 3 点体力船主漂上岸入睡、翻船再落水溺亡 — 未单独判断。
 - `birth_boat_caught` — 旧出口弹道（E8、E10）：新生儿 `outcome=WATER`、帽体净空拒绝；已下线，不再适用。
 - `water_threat` — 水上捕食后的落地：E8 捕食种 `no_dry_stand` 后关闭飞行落水受伤；E10 02:24 俯冲入水，返岸被 `not_ready` 取消，02:39 上岸血量 10→7，再俯冲入水降至 6；落水期间被 `water_struggle` 覆盖，鬓发曾由 `hand` 骨带动而翼骨不动，侧发现只随身体、翼无动作（复测失败）。
-- `afloat_family`、`first_voyage` — 亲子出航与初航交接：复测失败。E10 00:45 亲油放船后赤油 BOARD `no_reach`，约两秒后 `young_unloadable` 取消并戴帽；01:09 初航子油挪到帽檐即 `voyage_berth_lost`。[50eadcc6e](https://github.com/Longshou/MCyukkuri/commit/50eadcc6e) 初航 1/2 次未完成：两段离亲帽跳跃均 DONE，t=36493 岸上无可用出航手段而 EXHAUSTED，孩子存活（`instance-d17b3f0b77a3`）。[581a15291](https://github.com/Longshou/MCyukkuri/commit/581a15291) 修正初态帽船与岸重叠后仍 0/2：从亲帽开始即 `NO_PROGRESS`，未找到离船到岸的跳点，亲子均存活（`instance-3cd3395556a2`，本机自查，无 CI）；自查 [cc23dc58c](https://github.com/Longshou/MCyukkuri/commit/cc23dc58c) 精确泊位、落地交接及真实碰撞预检修正后初航 3/3，离亲帽、放自帽、登船与收帽完成，亲子存活；本地 9fa4d52e4（无 CI）初航复测失败：已绕行并返岸，收帽无可用岸边站位，等待超时；完成标准见 P0-3。
+- `afloat_family`、`first_voyage` — 亲子出航与初航交接：已接入待试玩。E10 00:45 亲油放船后赤油 BOARD `no_reach`，约两秒后 `young_unloadable` 取消并戴帽；01:09 初航子油挪到帽檐即 `voyage_berth_lost`。[50eadcc6e](https://github.com/Longshou/MCyukkuri/commit/50eadcc6e) 初航 1/2 次未完成：两段离亲帽跳跃均 DONE，t=36493 岸上无可用出航手段而 EXHAUSTED，孩子存活（`instance-d17b3f0b77a3`）。[581a15291](https://github.com/Longshou/MCyukkuri/commit/581a15291) 修正初态帽船与岸重叠后仍 0/2：从亲帽开始即 `NO_PROGRESS`，未找到离船到岸的跳点，亲子均存活（`instance-3cd3395556a2`，本机自查，无 CI）；自查 [cc23dc58c](https://github.com/Longshou/MCyukkuri/commit/cc23dc58c) 精确泊位、落地交接及真实碰撞预检修正后初航 3/3。其后本地 9fa4d52e4（无 CI）返岸收帽等待超时；本地 3b3954658 已统一落点与收帽准入并消除落地水平重复移动，自查初航 3/3、亲子出航 1/1，测试个体存活；完成标准见 P0-3。
 - `water_neighbours`、`first_voyage` — 池塘场景初态：E8 邻船先缺粮上岸、母油被低温打断；孩子尚在岸上反复 `first_voyage_ineligible`；两场受前一冬季群系影响；已改温和场景、清场恢复群系、删水上烧帽演示（[头饰](FEATURES.md#头饰)）（已接入待试玩）。
 
 通用要求：区分选择拒绝、物理受阻、接触与真实完成，真实受阻／力竭仍失败，不瞬移、不穿岸、不直接改成功状态。
