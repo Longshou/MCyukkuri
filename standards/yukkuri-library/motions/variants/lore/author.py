@@ -35,7 +35,7 @@ TILT_FIX_CLIPS=('eat','drink','first_toilet_assist','newborn_crawl','nest_harves
 # Body pitch -8..+6, roll <= 6 (hard cap 12): effort is squash, stretch, shift, yaw and the face, never a whole-body flip.
 NEW_BRAID_CLIPS=('hat_brim_offer','hat_hop_up','water_bob_lunge','hat_slide_over','water_mouth_grip','water_hat_shake','water_hat_push','boat_nudge_young')
 # The composed resource names its newest family; aquatic_tools' paddle braid is the current one (author.py and the full exporter share it).
-AQUATIC_REVISION='aquatic-home-20261026-v32'
+AQUATIC_REVISION='aquatic-places-20261104-v33'
 _BRAID_RESCUE=None
 # Paddle stick, braid cradle, mouth bite, capsize and self-rescue clips (aquatic_tools.py), exported by --export-aquatic.
 TOOLS=runpy.run_path(str(Path(__file__).resolve().parent/'aquatic_tools.py'))
@@ -136,6 +136,14 @@ def state(action, t, c, height):
         a=keyed(t,[(0,0),(.3,1),(.4,-.5),(.55,-.2),(.62,.7),(.8,0)])
         s=squash(a,.065,.12,.045)
         r=[keyed(t,[(0,0),(.3,-4),(.42,-6),(.55,3),(.68,1),(.8,0)]),keyed(t,[(0,0),(.3,2),(.55,-2),(.8,0)]),0]
+    elif action=='hop_leg':
+        # The Hop action's one leg (every species): hat_hop_up's crouch and spring at a readable pace. Crouch to takeoff, the
+        # stretched air pose up to land (held by the presentation for the physical airtime; the server owns the arc, no lift),
+        # landing squash and recovery to settled. Pitch -5..+2, roll 0.
+        m=c['markers'];tk,ld,st=m['takeoff'],m['land'],m['settled']
+        a=keyed(t,[(0,0),(tk,1),(tk+.08,-.5),(ld,-.2),(ld+.08,.7),(st,0)])
+        s=squash(a,.065,.12,.045)
+        r=[keyed(t,[(0,0),(tk,-4),(tk+.1,-5),(ld,2),(ld+.12,1),(st,0)]),0,0]
     elif action=='water_bob_lunge':
         # One darting surge up the dipped rim: squash, stretch, release; both ends match so it can repeat.
         a=keyed(t,[(0,.35),(.22,1),(.36,-.8),(.5,-.35),(.7,.35)])
@@ -764,10 +772,13 @@ def compile_clips(model, cfg, root, ground, height):
         if not applies(cfg, base['applies'], ident): continue
         c = variant(base, ident)
         if 'hat' in c:  # the braid works the hat (hat.py): its own root, hat and braid tracks
-            tracks, _ = (hat['compile_hold'](model, cfg, root, ground, height, c) if 'phases' not in c or not c['phases']
-                         else hat['compile_hat'](model, cfg, root, ground, height, name, c))
+            tracks, worst = (hat['compile_hold'](model, cfg, root, ground, height, c) if 'phases' not in c or not c['phases']
+                             else hat['compile_hat'](model, cfg, root, ground, height, name, c))
+            if isinstance(worst, dict) and 'ground' in worst:
+                print(f"  {name} ({ident}): hat lowest {worst['ground']:.2f} above her feet while it swings (carry phase)", flush=True)
             out[name] = {'duration': c['duration'], 'loop': c['loop'], 'tracks': tracks,
-                         'expression_spans': faces(cfg, c, ident), 'expression_yield': cfg['expression_yield']}
+                         'expression_spans': faces(cfg, c, ident), 'expression_yield': cfg['expression_yield'],
+                         **({'markers': dict(c['markers'])} if 'markers' in c else {})}
             continue
         carry_pose=name in ('boat_carry_young','boat_be_carried','boat_prepare_carry','boat_release_carry')
         # Contact preparation uses exact server-tick samples; extra keys also bound sub-tick floor drift.
@@ -785,6 +796,7 @@ def compile_clips(model, cfg, root, ground, height):
         if name in TOOLS['EXPORT_CLIPS']:
             if name not in NEW_BRAID_CLIPS: tracks += TOOLS['braid_tracks'](model, name, samples, c)
             more, fields = TOOLS['extras'](model, name, samples, tracks, c); tracks += more
+        elif 'markers' in c: fields = {'markers': dict(c['markers'])}  # beats the game reads (ClipMarkers), e.g. hop_leg
         out[name] = {'duration': d, 'loop': c['loop'], 'tracks': tracks,
                      'expression_spans': faces(cfg, c, ident), 'expression_yield': cfg['expression_yield'], **fields}
         if 'hat_transfer' in c:out[name]['hat_transfer']=c['hat_transfer']

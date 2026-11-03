@@ -273,7 +273,7 @@ def compile_hat(model, cfg, root, ground, height, name, c):
         return target, w
 
     keys = Keys(); times = [d-t for t in samples] if reverse else samples
-    worst = dict(stretch=[9, 0], clear=9., mother=9.)
+    worst = dict(stretch=[9, 0], clear=9., mother=9., ground=99.)
     for out_t, t in zip(samples, times):
         s, r = root_motion(t)
         pos = [0., ground(s, r), 0.]
@@ -291,6 +291,8 @@ def compile_hat(model, cfg, root, ground, height, name, c):
             lo, hi = rig.body_lo, rig.body_hi
             depth = np.minimum.reduce([local[:, 0]-lo[0], hi[0]-local[:, 0], local[:, 1]-lo[1], hi[1]-local[:, 1], local[:, 2]-lo[2], hi[2]-local[:, 2]])
             worst['clear'] = min(worst['clear'], float(-depth.max()))
+            if P['carry'][0] <= t <= P['carry'][1]:  # swinging round: the hat stays above her feet (no turn can sink it)
+                worst['ground'] = min(worst['ground'], float(pts[:, 1].min()))
             if t < P['settle'][0]:  # set down, the near brim tucks under the mother's belly by design
                 worst['mother'] = min(worst['mother'], mother_clearance(metrics, variant, role, pts))
         keys.add(out_t, root_p=pos, root_r=r, root_s=s, hat_p=hp, hat_r=hr, hat_s=hs, braid_r=to_euler(Rb[0]), braid_s=[1., sb, 1.],

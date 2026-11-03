@@ -2257,7 +2257,7 @@
           1.45
         ]
       },
-      "hover": 1.5,
+      "hover": 13.4,
       "hover_out": 6.0,
       "lift": 3.5,
       "swing_out": [
@@ -2288,7 +2288,12 @@
       "lore": "the braid hooks the brim, lifts the hat off, turns it over and presses it down upside down before the mother's outlet, its soft crown squashed under it (afloat, less), and keeps hold of its brim (user, 2026-10-14: the father works the hat with his braid)",
       "triggers": [
         "a Marisa catching for her mate reaches her place beside the outlet"
-      ]
+      ],
+      "markers": {
+        "grip": 0.35,
+        "hat_clear": 0.6,
+        "release": 1.45
+      }
     },
     "hat_hold_aq": {
       "label": "辫子扶帽接生（水生大帽）",
@@ -2363,7 +2368,7 @@
           1.45
         ]
       },
-      "hover": 1.5,
+      "hover": 13.4,
       "hover_out": 6.0,
       "lift": 3.5,
       "swing_out": [
@@ -2394,7 +2399,12 @@
       "lore": "the young have climbed out; the braid lifts the hat, turns it back and puts it on (hat_off played backwards)",
       "triggers": [
         "the cradle is no longer needed"
-      ]
+      ],
+      "markers": {
+        "grip": 0.15,
+        "hat_clear": 0.45,
+        "release": 1.25
+      }
     },
     "hat_off_self_aq": {
       "label": "自己摘帽放在身前（水生大帽）",
@@ -2427,7 +2437,7 @@
           1.8
         ]
       },
-      "hover": 1.2,
+      "hover": 13.6,
       "hover_out": 2.0,
       "lift": 3.5,
       "swing_out": [
@@ -2458,7 +2468,12 @@
       "lore": "a mother with no Marisa to catch for her sets her own hat, turned over, before her outlet with her braid, presses its crown flat and lets go (user: a single parent catches by herself)",
       "triggers": [
         "a hatted Marisa mother about to deliver alone"
-      ]
+      ],
+      "markers": {
+        "grip": 0.35,
+        "hat_clear": 0.6,
+        "release": 1.4
+      }
     },
     "hat_on_self_aq": {
       "label": "自己拿回帽子（水生大帽）",
@@ -2492,7 +2507,7 @@
           1.8
         ]
       },
-      "hover": 1.2,
+      "hover": 13.6,
       "hover_out": 2.0,
       "lift": 3.5,
       "swing_out": [
@@ -2518,7 +2533,12 @@
       "lore": "she leans out, takes the rim with her braid and puts the hat back on (hat_off_self played backwards)",
       "triggers": [
         "the cradle is no longer needed"
-      ]
+      ],
+      "markers": {
+        "grip": 0.4,
+        "hat_clear": 0.7,
+        "release": 1.45
+      }
     },
     "bereaved": {
       "label": "呆滞后哭泣",
@@ -3556,6 +3576,7 @@
         "grip": 0.35,
         "lift_start": 0.505882,
         "lift_end": 1.441176,
+        "over_end": 2.220588,
         "place": 3.0
       }
     },
@@ -4088,6 +4109,22 @@
         ]
       ]
     },
+    "hop_leg": {
+      "label": "一步跳（起跳、空中、落地缓冲）",
+      "duration": 0.9,
+      "loop": false,
+      "applies": "all",
+      "faces": [],
+      "lore": "Project design (user 2026-11-04 feedback 10: one hop onto the brim, one onto the bank, a little slower so it reads). The Hop action's clip for every species: crouch until takeoff, the stretched air pose from takeoff to land (the presentation holds it for the physical airtime; the server owns the arc, so no lift here), then the landing squash and recovery until settled. hat_hop_up's crouch and spring, slower.",
+      "triggers": [
+        "Hop (one leg)"
+      ],
+      "markers": {
+        "takeoff": 0.3,
+        "land": 0.45,
+        "settled": 0.9
+      }
+    },
     "water_bob_lunge": {
       "label": "水中蹿身，一次顶上近缘",
       "duration": 0.7,
@@ -4474,6 +4511,7 @@
         "contact_closed": 1.05,
         "lift_start": 1.05,
         "lift_end": 1.5,
+        "over_end": 1.7,
         "place": 1.9,
         "release": 2.3
       },
@@ -4534,6 +4572,217 @@
           14.5,
           8.0,
           -7.5
+        ],
+        [
+          2.4,
+          "rest"
+        ]
+      ]
+    },
+    "braid_head_set": {
+      "label": "辫梢把幼油放上头顶",
+      "duration": 2.4,
+      "loop": false,
+      "applies": "aquatic_marisa",
+      "faces": [
+        [
+          0,
+          0.5,
+          "neutral"
+        ],
+        [
+          0.5,
+          1.5,
+          "chewing_closed"
+        ],
+        [
+          1.5,
+          2.4,
+          "closed_smile"
+        ]
+      ],
+      "lore": "Project design (user 2026-11-04: babies that do not fit the basin, or have grown, go on her head; modelled on the brim set-down, the braid's endpoint on her head instead of the brim). braid_cradle_lift's structure and markers: she leans to her braid side to take the child (contact_closed), comes upright and sinks a little as the braid raises it over her head (lift_start..lift_end), swings it in over the crown (over_end), sets it on the hair top with a small weight bob (place) and lets go (release). The server owns the child's path; the braid follows the held child at run time.",
+      "triggers": [
+        "ParentCarry HEAD set-down (parent)"
+      ],
+      "markers": {
+        "contact_closed": 1.05,
+        "lift_start": 1.05,
+        "lift_end": 1.5,
+        "over_end": 1.7,
+        "place": 1.9,
+        "release": 2.3
+      },
+      "contacts": {
+        "braid_cradle": {
+          "bone": "hand_right_tip",
+          "point": [
+            8.2,
+            0.75,
+            -3.95
+          ],
+          "kind": "BRAID_CRADLE"
+        }
+      },
+      "braid_path": [
+        [
+          0,
+          "rest"
+        ],
+        [
+          0.5,
+          16.6,
+          3.9,
+          -3.0
+        ],
+        [
+          1.05,
+          16.6,
+          3.8,
+          -3.0
+        ],
+        [
+          1.5,
+          9.0,
+          15.5,
+          -2.0
+        ],
+        [
+          1.7,
+          4.0,
+          14.5,
+          -0.5
+        ],
+        [
+          1.9,
+          1.5,
+          12.6,
+          0.5
+        ],
+        [
+          2.3,
+          1.5,
+          12.6,
+          0.5
+        ],
+        [
+          2.4,
+          "rest"
+        ]
+      ]
+    },
+    "braid_head_take": {
+      "label": "辫梢把头顶的幼油抱下来",
+      "duration": 2.4,
+      "loop": false,
+      "applies": "aquatic_marisa",
+      "faces": [
+        [
+          0,
+          0.9,
+          "closed_smile"
+        ],
+        [
+          0.9,
+          1.9,
+          "chewing_closed"
+        ],
+        [
+          1.9,
+          2.4,
+          "neutral"
+        ]
+      ],
+      "lore": "Project design: braid_head_set run backwards through its own markers (mirror: [take second, set second]); the braid closes on the head rider (contact_closed), lifts it off the crown (lift_end), swings it out on the braid side (over_end), lowers it to the destination (place) and lets go (release). The server owns the path.",
+      "triggers": [
+        "ParentCarry HEAD pick-up (parent)"
+      ],
+      "mirror": {
+        "of": "braid_head_set",
+        "map": [
+          [
+            0,
+            2.4
+          ],
+          [
+            0.5,
+            1.9
+          ],
+          [
+            0.9,
+            1.7
+          ],
+          [
+            1.35,
+            1.5
+          ],
+          [
+            1.9,
+            1.05
+          ],
+          [
+            2.3,
+            0.5
+          ],
+          [
+            2.4,
+            0
+          ]
+        ]
+      },
+      "markers": {
+        "contact_closed": 0.5,
+        "lift_start": 0.5,
+        "lift_end": 0.9,
+        "over_end": 1.35,
+        "place": 1.9,
+        "release": 2.3
+      },
+      "contacts": {
+        "braid_cradle": {
+          "bone": "hand_right_tip",
+          "point": [
+            8.2,
+            0.75,
+            -3.95
+          ],
+          "kind": "BRAID_CRADLE"
+        }
+      },
+      "braid_path": [
+        [
+          0,
+          "rest"
+        ],
+        [
+          0.5,
+          1.5,
+          12.6,
+          0.5
+        ],
+        [
+          0.9,
+          4.0,
+          14.5,
+          -0.5
+        ],
+        [
+          1.35,
+          9.0,
+          15.5,
+          -2.0
+        ],
+        [
+          1.9,
+          16.6,
+          3.8,
+          -3.0
+        ],
+        [
+          2.3,
+          16.6,
+          3.9,
+          -3.0
         ],
         [
           2.4,
@@ -5236,7 +5485,8 @@
     "snatch_pull",
     "stand_ground",
     "offer_bite",
-    "comfort_lick"
+    "comfort_lick",
+    "hop_leg"
   ],
   "revision": 17
 }

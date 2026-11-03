@@ -33,7 +33,7 @@ PADDLE_CLIPS = ('boat_paddle', 'hat_brim_offer', 'boat_nudge_young')
 NEW_CLIPS = ('braid_cradle_lift', 'be_cradled', 'mouth_bite_hold', 'boat_thrown', 'water_hat_climb', 'water_hat_right',
              'boat_cargo_stow', 'boat_cargo_fetch', 'boat_jettison', 'boat_rim_peek', 'braid_rescue_reach', 'braid_rescue_hold',
              'braid_rescue_settle', 'boat_board', 'boat_feed_young', 'hat_hop_up', 'boat_drift', 'boat_steady', 'kid_brim_splash',
-             'kid_mimic_paddle', 'kid_poke_stores', 'kid_hide_behind', 'bank_beckon')
+             'kid_mimic_paddle', 'kid_poke_stores', 'kid_hide_behind', 'bank_beckon', 'braid_head_set', 'braid_head_take')
 # Beats were authored on these lengths; the recipe duration rescales them (boat_thrown 0.6 s, water_hat_right 1.6 s).
 AUTHORED = {'boat_thrown': 1.2, 'water_hat_right': 2.0}
 EXPORT_CLIPS = PADDLE_CLIPS+NEW_CLIPS
@@ -55,6 +55,13 @@ def keyed(t, keys):
     for (a, x), (b, y) in zip(keys, keys[1:]):
         if t <= b: return lerp(x, y, smooth((t-a)/(b-a)))
     return keys[-1][1]
+
+
+def keyed_linear(t, rows):
+    """Piecewise-linear map through [[x, y], ...] (x ascending)."""
+    for (a, x), (b, y) in zip(rows, rows[1:]):
+        if t <= b: return x+(y-x)*min(1., max(0., (t-a)/(b-a)))
+    return rows[-1][1]
 
 
 def euler(r):
@@ -139,6 +146,19 @@ def state(action, t, c, height):
         s = [1+.03*lean+.03*effort, 1-.05*lean-.05*effort, 1+.02*lean+.03*effort]
         r = [-4*lean, keyed(t, [(0, 0), (.5, -14), (.8, -14), (1.3, -8), (1.8, -6), (2.4, 0)]), -5*lean*(1-smooth((t-.8)/.6))]
         shift[0] = .25*lean; shift[1] = -.6*lean
+    elif action == 'braid_head_set':
+        # braid_cradle_lift's structure with the endpoint on her own head: lean and look to the braid side to take the child,
+        # come upright and sink a little while the braid raises it over her crown, a small weight bob as it lands (place),
+        # then settle. Lean <= 6, no forward edging (the child comes to her, not she to the water).
+        lean = keyed(t, [(0, 0), (.5, 1), (.9, 1), (1.4, 0), (d, 0)])
+        sink = bump((t-1.05)/.85); bob = bump((t-1.88)/.3)
+        s = [1+.03*lean+.02*sink+.035*bob, 1-.05*lean-.04*sink-.07*bob, 1+.02*lean+.02*sink+.03*bob]
+        r = [-3*lean+1.5*sink, keyed(t, [(0, 0), (.5, -14), (.9, -14), (1.5, -4), (2.4, 0)]), -5*lean]
+        shift[0] = .25*lean
+    elif action == 'braid_head_take':
+        # braid_head_set run backwards through matching markers (recipe mirror.map), so both read as one motion.
+        m = c['mirror']['map']; u = keyed_linear(t, m)
+        return state('braid_head_set', u, RECIPE['clips']['braid_head_set'], height)
     elif action == 'be_cradled':
         # A young held in the curled tuft: sags into the scoop (wider, lower), a little limp, swaying with the carrier.
         w = 2*math.pi*t/d
@@ -201,13 +221,13 @@ def state(action, t, c, height):
         r = [-2*lean, -8*lean+3*math.sin(2*math.pi*t/d), -10*lean]
     elif action == 'kid_mimic_paddle':
         # boat_paddle's stroke copied by a child without a stick: lean into the catch, an overdone shoulder twist through
-        # the power half, a clumsy wobble mid-stroke, then the recovery; it rolls out 7 degrees in the pull so its braid
-        # tip skims the water. Pitch -2.5..+.5, roll <= 8.
+        # the power half, a clumsy wobble mid-stroke, then the recovery; it rolls out 10 degrees in the pull (kid_brim_splash's
+        # lean, so the tuft dips as deep as there) and its braid tip skims the water. Pitch -2..+.5, roll <= 11, together <= 12.
         u = paddle_phase(t, c); power = u < .5; q = smooth(u/.5) if power else smooth((u-.5)/.5)
         drive = bump(u/.5) if power else 0.; wobble = bump((u-.28)/.16)
         s = [1+.03*drive, 1-.05*drive, 1+.02*drive]
-        r = [lerp(-2.5, .5, q) if power else lerp(.5, -2.5, q), lerp(-10, 9, q) if power else lerp(9, -10, q),
-             -7*drive+2.5*wobble*math.sin(2*math.pi*u*6)]
+        r = [lerp(-2, .5, q) if power else lerp(.5, -2, q), lerp(-10, 9, q) if power else lerp(9, -10, q),
+             -10*drive+wobble*math.sin(2*math.pi*u*6)]
     elif action == 'kid_poke_stores':
         # A young pokes at the stores on the basin floor (boat_cargo_fetch's head-down dip, eat's peck): three pecks with the
         # mouth (markers peck_1..3), the braid tapping the floor between, then a pleased wiggle. Pitch to -9, roll <= 2.
@@ -242,7 +262,7 @@ def braid_rotation(action, t, c, side):
         u = paddle_phase(t, c); power = u < .5; q = smooth(u/.5) if power else smooth((u-.5)/.5)
         sweep = lerp(c['braid_sweep'][0], c['braid_sweep'][1], q) if power else lerp(c['braid_sweep'][1], c['braid_sweep'][0], q)
         return [sweep, 0, c['braid_out']]
-    if action == 'braid_cradle_lift' and side < 0:
+    if action in ('braid_cradle_lift', 'braid_head_set', 'braid_head_take') and side < 0:
         return [0, 0, -(8+4*bump(t/d))]  # the braid itself follows the clip's braid_path
     if action == 'be_cradled':
         return [0, 0, side*(14+3*math.sin(2*math.pi*t/d))]  # limp locks hanging off the scoop
