@@ -43,7 +43,8 @@ public final class Paddle implements Action {
     private final Supplier<Vec3> target;
     private final DoublePredicate arrived;
     private SurfaceHost host;
-    private double pace, turnRate, from, distance, facing;
+    private double pace, turnRate, from, distance, facing, advanced;
+    private Vec3 previous;
     private int t, turnTicks, skipped;
     private long startTick;
     private boolean turning, stick;
@@ -89,7 +90,8 @@ public final class Paddle implements Action {
 
     @Override public void start(YukkuriEntity body) {
         startTick = body.level().getGameTime();
-        from = distance = target.get().subtract(host.entity().position()).horizontalDistance();
+        previous = host.entity().position();
+        from = distance = target.get().subtract(previous).horizontalDistance();
         var ability = BodyAbility.of(body);
         pace = ability.swimSpeed() * (stick ? 1 : BRAID_PACE);
         turnRate = ability.turnRate();
@@ -99,10 +101,13 @@ public final class Paddle implements Action {
 
     @Override public Progress tick(YukkuriEntity body) {
         if (!(Attach.of(body) instanceof AttachState.OnHost on) || on.host() != host) return Outcome.of(Reason.NO_SUPPORT, 0, "left_host");
-        Vec3 to = target.get().subtract(host.entity().position()).multiply(1, 0, 1);
+        Vec3 at = target.get(), here = host.entity().position();
+        Vec3 to = at.subtract(here).multiply(1, 0, 1);
         distance = to.length();
         if (arrived.test(distance)) return new Outcome.Done("arrived ticks=" + t);
         if (distance < .05) return Outcome.of(Reason.NO_CONTACT, 0, "destination_reached_without_contact");
+        advanced += Effort.approach(previous.x, previous.z, here.x, here.z, at.x, at.z);
+        previous = here;
         // She keeps facing the bow at her turn rate, so the stroke reaches the water over the beam; turned away, no stroke lands.
         double off = bowOff(body);
         if (Math.abs(off) > FACING) {
@@ -114,7 +119,7 @@ public final class Paddle implements Action {
             }
         }
         if (Math.abs(off) > Face.FACE_ARRIVED) Floor.turn(host, body, (float) Math.copySign(Math.min(Math.abs(off), turnRate), off));
-        if (Math.abs(off) > FACING) return new Running(distance + Math.abs(off) / FACING, TravelMode.CONSUMED);
+        if (Math.abs(off) > FACING) return new Running(-advanced + Math.abs(off) / FACING, TravelMode.CONSUMED);
         if (turning) {
             turning = false;
             startTick = body.level().getGameTime() - t;
@@ -129,7 +134,7 @@ public final class Paddle implements Action {
         if (!host.thrust(body, to.scale(Math.min(pace, distance) / distance), (float) turn)) return Outcome.of(Reason.NO_SUPPORT, 0, "not_afloat");
         body.life().spendEnergy(cost);
         t++;
-        return new Running(distance, TravelMode.CONSUMED);
+        return new Running(-advanced, TravelMode.CONSUMED);
     }
 
     /** Degrees from the rower's facing to her hull's bow (its yaw: the hull travels toward its -Z). */
@@ -141,6 +146,6 @@ public final class Paddle implements Action {
     }
 
     @Override public String endDetail(Outcome outcome) {
-        return String.format(Locale.ROOT, "distance_before=%.3f distance_after=%.3f paid=%.3f skipped_ticks=%d", from, distance, t * (stick ? COST : BRAID_COST), skipped);
+        return String.format(Locale.ROOT, "distance_before=%.3f distance_after=%.3f advanced=%.3f paid=%.3f skipped_ticks=%d", from, distance, advanced, t * (stick ? COST : BRAID_COST), skipped);
     }
 }

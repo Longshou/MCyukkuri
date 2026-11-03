@@ -384,7 +384,7 @@ final class YukkuriGoals {
             if (incident != null && out()) settle();
         }
         /** Out of the fall: standing or aboard (a hat, a carrier); a body still in the air settles once it lands (its breath). */
-        private boolean out() { return !owner.isInWaterOrBubble() && (owner.onGround() || owner.isPassenger()); }
+        private boolean out() { return EscapeWater.safe(owner); }
         private void settle() {
             AskLedger.server().settle(incident, owner.getVehicle() instanceof YukkuriEntity ? "held" : owner.isPassenger() ? "aboard" : "ashore");
             incident = null;

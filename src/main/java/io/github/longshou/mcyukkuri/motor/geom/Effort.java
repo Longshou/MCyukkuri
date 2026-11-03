@@ -10,4 +10,9 @@ public final class Effort {
     /** The yaw step (degrees) toward {@code heading}, the short way round, at most {@code rate}. */
     public static double turn(double yaw, double heading, double rate) { return Math.clamp(((heading - yaw) % 360 + 540) % 360 - 180, -rate, rate); }
 
+    /** Compare both hull positions with this tick's target; its own motion neither earns nor erases progress. */
+    public static double approach(double fromX, double fromZ, double x, double z, double targetX, double targetZ) {
+        return Math.hypot(targetX - fromX, targetZ - fromZ) - Math.hypot(targetX - x, targetZ - z);
+    }
+
 }

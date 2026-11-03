@@ -28,4 +28,18 @@ class EffortTest {
         assertTrue(Buoyancy.bodyLift(.2, 0) < .005);
         assertEquals(.032, Buoyancy.bodyLift(1, -1), 1e-12);
     }
+
+    @Test void aMovingFallerDoesNotHideTheHullsApproach() {
+        double advanced = 0;
+        for (int tick = 1; tick <= 40; tick++)
+            advanced += Effort.approach((tick - 1) * .015, 0, tick * .015, 0, 3 + tick * .015, 0);
+        assertEquals(.6, advanced, 1e-9, "equal swimming speeds preserve separation while the hull advances");
+    }
+
+    @Test void aPinnedHullEarnsNothingFromTargetMovement() {
+        for (int tick = 1; tick <= 40; tick++)
+            assertEquals(0, Effort.approach(0, 0, 0, 0, 3 - tick * .015, 1), 1e-9);
+        assertTrue(Effort.approach(0, 0, -.1, 0, 3, 0) < 0, "drifting away loses progress");
+        assertEquals(0, Effort.approach(0, 1, 0, -1, 3, 0), 1e-9, "sideways travel alone is not approach");
+    }
 }

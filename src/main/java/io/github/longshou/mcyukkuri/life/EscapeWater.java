@@ -88,7 +88,10 @@ public final class EscapeWater implements Intent {
 
     @Override public String id() { return "escape_water"; }
 
-    @Override public boolean satisfied() {
+    @Override public boolean satisfied() { return safe(body); }
+
+    /** The Goal and intent finish on the same completed climb or supported dry landing. */
+    public static boolean safe(YukkuriEntity body) {
         return !(body.motor().current() instanceof Climb)
                 && (body.isPassenger() || !body.isInWaterOrBubble() && SurfaceApproach.stands(body, body.position()));
     }
