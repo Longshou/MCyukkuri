@@ -99,9 +99,9 @@ final class Ashore implements Intent {
         if (hat == null || hat.isRemoved()) return null;
         var held = AquaticLife.carried(owner);
         if (AquaticLife.aboard(owner, hat)) {
-            if (held != null) return List.of(Ferry.hopAshore(owner));
+            if (held != null) return Ferry.canHopAshore(owner) ? List.of(Ferry.hopAshore(owner)) : paddle(hat);
             var dependent = dependentAboard(hat);
-            if (Waters.ashore(owner) != null) {
+            if (Ferry.canHopAshore(owner)) {
                 if (dependent != null) return Ferry.grabAboard(owner, hat, dependent);
                 if (youngAboard(hat)) return List.of(() -> new Step.Wait(() -> !youngAboard(hat), WAIT, Behaviors.BOAT_CALL));
                 return List.of(Ferry.hopAshore(owner));
@@ -127,7 +127,7 @@ final class Ashore implements Intent {
         if (route.size() > 1) return List.of(() -> new Step.Do(new Paddle(Waters.leg(route), ARRIVE)));
         // at the landing water: paddle in against the bank, once; no hop in reach even then, and the next derive takes another
         if (!tried.add(edge.stand())) { landing = null; return paddle(hat); }
-        return List.of(() -> new Step.Do(new Paddle(edge::edge, distance -> Waters.ashore(owner) != null)));
+        return List.of(() -> new Step.Do(new Paddle(edge::edge, distance -> Ferry.canHopAshore(owner))));
     }
 
     /** From the bank edge nearest the hat: walk there, face the hat, then the closing action ({@code close}, then {@code after}).

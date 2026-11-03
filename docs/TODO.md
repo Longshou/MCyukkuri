@@ -9,6 +9,7 @@
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
 | 统一托运接放判定（救援、出航装载、上岸；摇晃翻覆溺亡） | `.worktrees/fb-capsize-rescue`（分支 `fb-carry-admission`） | `motor/CarryAdmission`、`Grab`／`Release`、`aquatic/Rescue`／`SetOut`／`Ashore`／`Ferry` |
+| 满座母油经帽檐上岸复测 | `.worktrees/fb-boat-birth-shore` | `aquatic/Ashore`／`Ferry`、分娩场景 |
 
 ## 玩法待办
 

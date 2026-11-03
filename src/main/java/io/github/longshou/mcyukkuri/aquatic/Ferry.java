@@ -122,7 +122,12 @@ final class Ferry {
         Step step(YukkuriEntity body, PlacedHatEntity hat) { return near(body, hat) ? act(tried = new Beckon(hat)) : null; }
     }
 
-    /** Hop from the actual seat to a dry stand in the body's reach. A small body may first hop to a brim spot from which that
+    /** The reverse boarding route is available when the bank is reachable directly or through a supported brim stop. */
+    static boolean canHopAshore(YukkuriEntity body) {
+        return Waters.ashore(body) != null || body.getVehicle() instanceof PlacedHatEntity hat && Waters.brimAshore(hat, body) != null;
+    }
+
+    /** Hop from the actual seat to a dry stand in the body's reach. A body may first hop to a brim spot from which that
      *  same stand is reachable; the next derivation performs the ordinary hop off the host. */
     static Supplier<Step> hopAshore(YukkuriEntity body) {
         return () -> {

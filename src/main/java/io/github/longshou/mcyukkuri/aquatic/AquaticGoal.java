@@ -345,7 +345,7 @@ final class AquaticGoal extends Goal {
                     "board refused hat={} reason=no_seat size={}", hat.getUUID(), body.growthScale() * body.getScale());
         }
         if (on && AquaticLife.jumper(body) && (AquaticLife.ashore(parent) && !(running != null && running.intent() instanceof SetOut)
-                || running != null && running.intent() instanceof Ashore) && Waters.ashore(body) != null)
+                || running != null && running.intent() instanceof Ashore) && Ferry.canHopAshore(body))
             out.add(Desire.of("follow_ashore", num("follow", 65), world, why, () -> Follow.ashore(body, hat)));
     }
 
