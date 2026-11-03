@@ -1,4 +1,5 @@
-/* Runtime adapter: selected R3.1 union skin and shared binding kernel. */
+/* Runtime adapter: selected R3.1 union skin and shared binding kernel. The runtime model file is this adapter's input, so
+   --check re-verifies every exported surface against the model it was cut from. */
 const fs=require('fs'),path=require('path'),crypto=require('crypto');
 const root=path.resolve(__dirname,'..'),base=path.join(root,'art/props/body-wounds');
 const source=require(path.join(base,'selected/wound-surface.js'));
@@ -8,8 +9,20 @@ const sha=f=>crypto.createHash('sha256').update(fs.readFileSync(f)).digest('hex'
 const manifest={version:1,source:'art/props/body-wounds/selected/wound-surface.js',source_sha256:sha(path.join(base,'selected/wound-surface.js')),models:{}};
 const selected=process.argv.find(a=>a.startsWith('--ids='))?.slice(6).split(',');
 if(selected&&fs.existsSync(path.join(base,'provenance.json')))Object.assign(manifest.models,JSON.parse(fs.readFileSync(path.join(base,'provenance.json'))).models);
+const modelPath=id=>path.join(root,'src/main/resources/assets/mcyukkuri/yukkuri',id+'.json');
+// Same tolerance as body/ModelFingerprint: a Git line-ending change is not a model change.
+const cutFrom=(model,expected)=>{const raw=fs.readFileSync(model),lf=Buffer.from(raw.toString('latin1').replace(/\r\n/g,'\n'),'latin1');
+ return [raw,lf,Buffer.from(lf.toString('latin1').replace(/\n/g,'\r\n'),'latin1')].some(bytes=>crypto.createHash('sha256').update(bytes).digest('hex')===expected);};
+if(process.argv.includes('--check')){
+ const stale=(selected||fs.readdirSync(out).filter(f=>f.endsWith('.json.gz')).map(f=>f.slice(0,-8))).filter(id=>{const target=path.join(out,id+'.json.gz'),model=modelPath(id);
+  const surface=fs.existsSync(target)?JSON.parse(require('zlib').gunzipSync(fs.readFileSync(target))):null;
+  const ok=surface!==null&&fs.existsSync(model)&&cutFrom(model,surface.runtimeSourceHash);
+  console.log(ok?'current':'stale',id);return !ok;});
+ if(stale.length){console.error('Wound surfaces not exported from the selected model:',stale.join(','));process.exit(1);}
+ return;
+}
 for(const id of selected||['reimu','marisa','chen','alice','patchouli','house_reimu','house_marisa','remilia','flandre']){
- const file=path.join(root,'src/main/resources/assets/mcyukkuri/yukkuri',id+'.json'),m=JSON.parse(fs.readFileSync(file));
+ const file=modelPath(id),m=JSON.parse(fs.readFileSync(file));
  if(m.body_profile==='rounded_standard_v1'){delete manifest.models[id];console.log(id,'managed by rounded_wound_surface.cjs');continue;}
  const points=[],weights=[],parts=[],replaced=[];let skinCount=0;
  const round=x=>Math.round(x*1e6)/1e6;
