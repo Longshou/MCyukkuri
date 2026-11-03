@@ -20,7 +20,7 @@
   "aquatic_hull_bounds": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/hull_bounds/aquatic_basin_hat_turned.json",
   "aquatic_hull_bounds_sha256": "48844686bff2c18a4221f540fef8a78659110d96a57545822067778f06d51d9e",
   "lore_aquatic_tools": "standards/yukkuri-library/motions/variants/lore/aquatic_tools.py",
-  "lore_aquatic_tools_sha256": "4501801859e9a5a851cc7b5e22bba8463a39a179308284c7d8607c7c7625df8f",
+  "lore_aquatic_tools_sha256": "5a009a34ccaee8f1df7423e333af6c230daeab05403054830d90ba5b10270f38",
   "braid_rescue_recipe": "standards/yukkuri-library/interactions/braid-water-rescue/recipe.json",
   "braid_rescue_recipe_sha256": "14f98a0ad4e248348106310d5250180b67960514753f978cf407f1de1752bcea",
   "braid_rescue_author": "standards/yukkuri-library/interactions/braid-water-rescue/author.py",
