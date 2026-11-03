@@ -118,7 +118,7 @@ public final class AquaticLife {
     }
 
     /** The real overload outcome, after the occupants were thrown; genealogy and the child's recognition stay intact. */
-    static void overloadCapsized(PlacedHatEntity hat, List<YukkuriEntity> aboard) {
+    static void overloadCapsized(PlacedHatEntity hat) {
         var parent = hat.owner();
         if (parent == null || !parent.isAlive()) return;
         int intelligence = parent.life().personality().intelligence(), friendliness = parent.life().personality().friendliness();
@@ -127,7 +127,7 @@ public final class AquaticLife {
                     hat.getUUID(), intelligence, friendliness);
             return;
         }
-        aboard.stream().filter(y -> y.isAlive() && !y.family().adult() && Bonds.parentOf(parent, y))
+        young(parent).stream().filter(y -> y.isAlive() && Bonds.parentOf(parent, y))
                 .max(Comparator.comparingDouble(y -> y.growthScale() * y.getScale())).ifPresent(child -> {
                     FamilyData.get((ServerLevel) parent.level()).dismissChild(parent, child.getUUID());
                     YOUNG.remove(parent);
