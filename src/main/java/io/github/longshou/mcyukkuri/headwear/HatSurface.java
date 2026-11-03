@@ -22,6 +22,9 @@ public interface HatSurface {
     default boolean mountable(PlacedHatEntity hat, YukkuriEntity body) { return true; }
     default Vec3 boarded(PlacedHatEntity hat, YukkuriEntity body) { return hat.snapped(hat.toLocal(body.position()), body); }
     default void tickRiders(PlacedHatEntity hat) { hat.squeeze(); }
+    default boolean settled(PlacedHatEntity hat, YukkuriEntity body) {
+        return body.getVehicle() == hat && Occupancy.of(body, hat.container()) == Occupancy.INSIDE_SUPPORTED;
+    }
     default List<SeatTarget> restSpots(PlacedHatEntity hat, YukkuriEntity body, int limit) { return List.of(); }
     default List<Vec3> hopStops(PlacedHatEntity hat, YukkuriEntity body) { return List.of(); }
     default List<Vec3> hollowPlaces(PlacedHatEntity hat, FamilyData.BirthKind kind, FamilyData.Child child) { return hat.cavityPlaces(kind, child); }

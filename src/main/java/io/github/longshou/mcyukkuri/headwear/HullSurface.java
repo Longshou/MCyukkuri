@@ -29,6 +29,12 @@ public final class HullSurface implements HatSurface {
     }
     @Override public Vec3 boarded(PlacedHatEntity hat, YukkuriEntity body) { return hat.frame().toLocal(body.position()); }
     @Override public void tickRiders(PlacedHatEntity hat) { hat.squeeze(); Floor.settle(hat); }
+    @Override public boolean settled(PlacedHatEntity hat, YukkuriEntity body) {
+        if (body.getVehicle() != hat || hat.capsized() || !Floor.standing(body)) return false;
+        var at = hat.riders().local(body.getUUID());
+        return hat.profile().resting(Floor.vec(at), Floor.shape(hat, body), Occupancy.MARGIN / hat.unit())
+                && hat.room(body, at);
+    }
     @Override public List<Vec3> hopStops(PlacedHatEntity hat, YukkuriEntity body) {
         return HullBounds.brimStops(body.assetId(), body.getBbWidth(), body.getBbHeight(),
                 hat.hullScale(), Floor.shape(hat, body).yaw()).stream().map(Floor::point).toList();
@@ -37,7 +43,6 @@ public final class HullSurface implements HatSurface {
         return HullBounds.brimStops(body.assetId(), body.getBbWidth(), body.getBbHeight(), hullScale, 0)
                 .stream().map(Floor::point).toList();
     }
-    @Override public List<double[]> walkRoute(PlacedHatEntity hat, YukkuriEntity body, Vec3 target, boolean aroundRiders) { return List.of(); }
     @Override public Vec3 landingSpot(PlacedHatEntity hat, YukkuriEntity body, Vec3 edge) {
         return hopStops(hat, body).stream().filter(p -> new SeatTarget(hat, p).available(body))
                 .min(Comparator.comparingDouble(p -> p.distanceToSqr(edge))).orElse(null);

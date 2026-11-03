@@ -55,6 +55,10 @@ public abstract class HullProfile {
     public float[] brim() { return new float[]{(float)Math.max(reach(0), reach(Math.PI)), (float)Math.max(reach(Math.PI/2), reach(-Math.PI/2))}; }
     public float[] opening() { return new float[]{(float)-mouth(Math.PI), (float)mouth(0), (float)-mouth(-Math.PI/2), (float)mouth(Math.PI/2)}; }
     public boolean inOpening(double x, double z) { return Math.hypot(x, z) <= mouth(Math.atan2(z, x)); }
+    /** A supported point in the hollow, including its sloping wall; the lap is only a preference. */
+    public boolean resting(Vec at, BodyFootprint body, double margin) {
+        return inOpening(at.x(), at.z()) && Math.abs(at.y() - support(at.x(), at.z(), body)) <= margin;
+    }
 
     /** Whole body underside must lie over cloth; the highest surface-minus-underside fixes its resting height. */
     public double support(double x, double z, BodyFootprint body) {

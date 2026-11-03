@@ -241,6 +241,7 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
         return profile().surface().support(this, local, body);
     }
     @Override public List<Vec3> hopStops(YukkuriEntity body) { return profile().surface().hopStops(this, body); }
+    @Override public boolean settled(YukkuriEntity body) { return profile().surface().settled(this, body); }
     @Override public boolean mountable(YukkuriEntity body) { return profile().surface().mountable(this, body); }
     @Override public Vec3 landingSpot(YukkuriEntity body, Vec3 edge) { return profile().surface().landingSpot(this, body, edge); }
     @Override public List<double[]> walkRoute(YukkuriEntity body, Vec3 target, boolean aroundRiders) {

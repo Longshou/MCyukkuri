@@ -6,30 +6,57 @@ import io.github.longshou.mcyukkuri.intent.Intent;
 import io.github.longshou.mcyukkuri.intent.IntentRunner;
 import io.github.longshou.mcyukkuri.intent.Method;
 import io.github.longshou.mcyukkuri.intent.Step;
+import io.github.longshou.mcyukkuri.motor.Action;
+import io.github.longshou.mcyukkuri.motor.BodyAbility;
 import io.github.longshou.mcyukkuri.motor.action.Hop;
+import io.github.longshou.mcyukkuri.motor.action.Walk;
+import io.github.longshou.mcyukkuri.motor.surface.Floor;
+import io.github.longshou.mcyukkuri.motor.surface.SeatTarget;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.List;
 
-/** A young on the brim hopping into a seat the hat admits it into now. Nothing is held for it: until one is free the brim is a
- * legal place to be, and the hop is the ordinary shared ability. */
+/** A brim rider may walk/crawl or hop into the hollow. Supported hollow riders rest; wall descent is physics. */
 final class TakeSeat implements Intent {
     private final YukkuriEntity body;
     private final PlacedHatEntity hat;
+    private final SeatTarget target;
+    private final Action move;
 
-    TakeSeat(YukkuriEntity body, PlacedHatEntity hat) {
+    private TakeSeat(YukkuriEntity body, PlacedHatEntity hat, SeatTarget target, Action move) {
         this.body = body;
         this.hat = hat;
+        this.target = target;
+        this.move = move;
     }
+
+    /** No offer without a real means; a wall rider is left to squeeze/settle, even while crowded. */
+    static TakeSeat offer(YukkuriEntity body, PlacedHatEntity hat) {
+        if (body.getVehicle() != hat || !Floor.standing(body) || hat.settled(body)) return null;
+        var at = hat.riders().local(body.getUUID());
+        if (hat.profile().inOpening(at.x, at.z)) return null;
+        var ability = BodyAbility.of(body);
+        if (ability.walkSpeed() <= 0 && ability.hopReach() <= 0) return null;
+        var target = hat.restSpot(body);
+        if (target == null || !hat.profile().inOpening(target.local().x, target.local().z) || !target.available(body)) return null;
+        if (ability.walkSpeed() > 0 && !hat.walkRoute(body, target.local(), true).isEmpty())
+            return new TakeSeat(body, hat, target, new Walk(hat, target.local()));
+        if (ability.hopReach() <= 0) return null;
+        var hop = new Hop(hat, target.local());
+        return hop.check(body).ok() ? new TakeSeat(body, hat, target, hop) : null;
+    }
+    /** Hull motion in world space does not change a failed local move. */
+    Object world() { return List.of(hat.getUUID(), target.local(), hat.riders().local(body.getUUID()), move.id()); }
+    String why() { return "rest=" + GameplayLog.at(target.world()) + " via=" + move.id(); }
 
     @Override public String id() { return "take_seat"; }
     @Override public long deadline() { return body.level().getGameTime() + (long) PlayAboard.number("play_deadline"); }
-    /** Done only once the hop is over and it is at the hat's seat with that seat really available: the shared checks, combined. */
+    /** Any clear, supported point inside is enough; reaching the preferred lap is not required. */
     @Override public boolean satisfied() {
         if (body.getVehicle() != hat || body.motor().current() instanceof Hop) return false;
         return hat.settled(body);
     }
     @Override public List<Method> methods() {
-        return List.of(Plan.of(id(), () -> body.getVehicle() != hat ? null : List.of(() -> new Step.Do(new Hop(hat)))));
+        return List.of(Plan.of(id(), () -> body.getVehicle() != hat ? null : List.of(() -> new Step.Do(move))));
     }
     @Override public void ended(IntentRunner.Result result) {
         GameplayLog.limited(body, "aquatic", "take_seat_end", 100, "take_seat end result={} hat={}", result, hat.getUUID());

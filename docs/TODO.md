@@ -8,6 +8,7 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
+| 帽内安坐与无跳跃能力幼体回落 | `.worktrees/fb-hull-floor` | `headwear/HullSurface`、`aquatic/TakeSeat`／`AquaticGoal` |
 | 统一托运接放判定（救援、出航装载、上岸；摇晃翻覆溺亡） | `.worktrees/fb-capsize-rescue`（分支 `fb-carry-admission`） | `motor/CarryAdmission`、`Grab`／`Release`、`aquatic/Rescue`／`SetOut`／`Ashore`／`Ferry` |
 
 ## 玩法待办

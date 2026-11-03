@@ -4,6 +4,8 @@ import io.github.longshou.mcyukkuri.headwear.HullBounds;
 import io.github.longshou.mcyukkuri.headwear.HullProfile;
 import io.github.longshou.mcyukkuri.motor.geom.BodyFootprint;
 import io.github.longshou.mcyukkuri.motor.geom.FloorSearch;
+import io.github.longshou.mcyukkuri.motor.geom.FloorShape;
+import io.github.longshou.mcyukkuri.motor.geom.OccupancyMath;
 import io.github.longshou.mcyukkuri.motor.geom.Vec;
 import java.util.ArrayList;
 import java.util.List;
@@ -46,6 +48,24 @@ class HullFloorTest {
         var shape=body(.2,0,0); var anchor=new Vec(.1/UNIT,0,-.2/UNIT);
         var p=search(shape,anchor,List.of(),HullBounds.MOUTH/UNIT,true);
         assertEquals(anchor.x(),p.x()); assertEquals(anchor.z(),p.z());
+    }
+    @Test void supportedHollowRidersRestAwayFromTheLapAndOnTheWall() {
+        var infant = body(.2,0,0);
+        double margin = .02 / UNIT;
+        for (double x : new double[]{0, HullBounds.MOUTH - .01}) {
+            var at = new Vec(x / UNIT, HULL.support(x / UNIT,0,infant), 0);
+            assertTrue(HULL.resting(at,infant,margin));
+            assertFalse(HULL.resting(at.add(new Vec(0,2*margin,0)),infant,margin));
+            if (x > 0) {
+                // This supported wall point was previously misclassified as a reason to hop back in.
+                assertNotEquals(OccupancyMath.Result.INSIDE_SUPPORTED,
+                        OccupancyMath.classify(x,0,at.y()*UNIT,.10,new FloorShape.Circle(HullBounds.RADIUS),
+                                HullBounds.FLOOR,HullBounds.BRIM,true));
+            }
+        }
+        var swollen = body(1,1,0);
+        assertTrue(HULL.resting(home(swollen),swollen,margin));
+        assertFalse(HULL.resting(brim(.2,0).scale(1/UNIT),infant,margin));
     }
     @Test void youngRestsNearItsLapFormula() {
         var young=body(.38,0,0); var at=rest(.38,true); var anchor=lap(young).scale(UNIT);
