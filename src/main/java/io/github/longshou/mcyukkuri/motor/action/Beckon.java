@@ -79,7 +79,7 @@ public final class Beckon implements Action {
         return body.life().energy() < COST ? Feasibility.of(Reason.EXHAUSTED, 0, "energy=" + body.life().energy()) : Feasibility.pass();
     }
 
-    /** Swimming within a braid's stroke of a host afloat: the same stroke draws it in to her own braid. */
+    /** Swimming within a braid's stroke of a host afloat and not yet lying over her braid: the same stroke draws it in to her. */
     private Feasibility checkWet(YukkuriEntity body) {
         var hull = host.entity();
         if (!hull.isInWaterOrBubble()) return Feasibility.of(Reason.NO_SUPPORT, 0, "host_not_afloat");
@@ -88,6 +88,8 @@ public final class Beckon implements Action {
         wet = true;
         water = surface(body, ContactGeometry.braidTip(body));
         if (water == null) return Feasibility.of(Reason.NO_CONTACT, 0, "no_water_at_braid");
+        // Already against her: one stroke of water cannot bring it nearer, the climb's own grip does that.
+        if (gap() <= AT) return Feasibility.of(Reason.NO_CONTACT, 0, "host_in_hand");
         return body.life().energy() < COST ? Feasibility.of(Reason.EXHAUSTED, 0, "energy=" + body.life().energy()) : Feasibility.pass();
     }
 
@@ -140,7 +142,7 @@ public final class Beckon implements Action {
         if (wet && distance > 1E-4)
             Motor.face(body, body.getYRot() + (float) Effort.turn(body.getYRot(),
                     Mth.atan2(to.z, to.x) * Mth.RAD_TO_DEG - 90, BodyAbility.of(body).turnRate()));
-        if (ContactGeometry.reachesHull(body, hull, true, false))
+        if (ContactGeometry.reachesHull(body, hull, true, true))
             return new Outcome.Done(wet ? "at_braid at=" + GameplayLog.at(hull.position()) : "at_bank at=" + GameplayLog.at(hull.position()));
         double gap = wet ? distance : gap();
         if (t >= maxTicks) return Outcome.of(Reason.TOO_FAR, gap, "ticks=" + t);
@@ -161,8 +163,10 @@ public final class Beckon implements Action {
     /** The braid's stroke meeting the water it pulls, at the point it really pulls (splash is display only: the flow it stirs is the
      *  host's own drift). */
     private void splash(YukkuriEntity body) {
+        Vec3 at = wet ? surface(body, ContactGeometry.braidTip(body)) : water;
+        if (at == null) return;
         if (body.level() instanceof ServerLevel level)
-            level.sendParticles(ParticleTypes.SPLASH, water.x, water.y, water.z, 4, .1, .02, .1, .01);
+            level.sendParticles(ParticleTypes.SPLASH, at.x, at.y, at.z, 4, .1, .02, .1, .01);
     }
 
     /** How far (blocks) the host's brim lies from the water she strokes: the stroke's own progress, 0 once its surface is over it. */
