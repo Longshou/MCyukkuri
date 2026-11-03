@@ -10,6 +10,7 @@
 | --- | --- | --- |
 | 帽船船长就位、舱内／头顶／帽檐承托、绕身搬运与两跳上岸（WP-C） | `.worktrees/wp-c-places` | `motor/{Attach,AttachState,BodyDriver,surface,geom,action}`、`family/{ParentCarry,BraidFetch}`、`headwear/{HullSurface,HatProp,PlacedHatEntity}`、`intent/IntentRunner`、`aquatic/{Rescue,Ferry,Ashore,FirstVoyage}`、`scripts/museum_scenarios.py` |
 | 多只运输与灵梦口中放出、辫子／嘴持物、持物与乘船噗咕动作（WP-A 美术） | `.worktrees/art-a2-carry` | `standards/yukkuri-library/motions/variants/lore/{recipe.json,author.py,aquatic_tools.py}`、`yukkuri_presentation/motion_corrections.json`、`art/runtime-sources.json`、`art/catalog.json` |
+| 水生种寻回孩子后的打招呼与回水、水中浮棍、帽主取回帽子（WP-K1） | `.worktrees/wp-k1-water-life` | `family/{FamilyLife,FamilySeparation}`、`aquatic/{AquaticGoal,AquaticLife,Waters,SetOut,Provision}`、`social/YukkuriSocial`、`docs/{TODO,FEATURES}.md` |
 
 ## 玩法待办
 
