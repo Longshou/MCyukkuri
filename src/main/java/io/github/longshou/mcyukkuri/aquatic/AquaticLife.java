@@ -108,7 +108,7 @@ public final class AquaticLife {
         return null;
     }
 
-    /** Its two parents while they are loaded and alive, near or far. */
+    /** Its parents who still acknowledge it, while loaded and alive, near or far. */
     static List<YukkuriEntity> parents(YukkuriEntity young) {
         var out = new ArrayList<YukkuriEntity>(2);
         if (!(young.level() instanceof ServerLevel level)) return out;

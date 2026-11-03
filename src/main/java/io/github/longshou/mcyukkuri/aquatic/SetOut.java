@@ -22,6 +22,7 @@ import io.github.longshou.mcyukkuri.motor.action.Pick;
 import io.github.longshou.mcyukkuri.motor.action.PlaceProp;
 import io.github.longshou.mcyukkuri.motor.action.Walk;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
+import io.github.longshou.mcyukkuri.social.Bonds;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -255,9 +256,8 @@ final class SetOut implements Intent, FamilyRendezvous {
 
     /** Her own young on land within the family search range that still need to follow her. */
     static List<YukkuriEntity> strays(YukkuriEntity parent) {
-        var id = parent.getUUID();
         return parent.level().getEntitiesOfClass(YukkuriEntity.class, parent.getBoundingBox().inflate(FamilyLife.FAMILY_SEARCH_RANGE),
-                y -> y.isAlive() && !y.family().adult() && (id.equals(y.family().mother()) || id.equals(y.family().father()))
+                y -> y.isAlive() && !y.family().adult() && Bonds.parentOf(parent, y)
                         && y.childhood().shouldStayWithParents() && !y.isPassenger() && !y.isInWaterOrBubble());
     }
 

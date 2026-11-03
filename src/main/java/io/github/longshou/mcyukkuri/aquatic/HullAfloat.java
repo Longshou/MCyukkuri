@@ -191,6 +191,8 @@ public final class HullAfloat implements PlacedHatBehavior {
 
     @Override public void loadChanged(PlacedHatEntity hat, YukkuriEntity body, String event) {
         if (phase != Phase.UPRIGHT || rightProgress >= 0) return;
+        // The captain's body is excluded; only her carried young can change the load when she boards or leaves.
+        if (body.getUUID().equals(hat.ownerYukkuri()) && (event.equals("growth") || body.getPassengers().isEmpty())) return;
         double ratio = hat.loadRatio(), capacity = HullBounds.capacity(scale(hat));
         double chance = HullTriggers.overloadChance(ratio);
         double roll = hat.level().random.nextDouble();
