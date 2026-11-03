@@ -133,10 +133,13 @@ public final class SurfaceApproach {
      * refuses as a step ({@code PathType.WATER} is impassable, {@link YukkuriEntity} sets the malus to -1). The whole box
      * counts, not only the cell under the feet: beside a bank level with the water the rim of a dry block is still water under
      * half the body. How many cells, because a body already standing on such a rim may walk (see {@link #dryAim}).
+     * {@code touching} also counts the cells the footprint's edge only grazes, which is what a walker perched on a shore's
+     * boundary cell really stands over (a stand has to be clear of water, hence the plain count there).
      */
-    private static int wetCells(YukkuriEntity actor, Vec3 feet) {
+    private static int wetCells(YukkuriEntity actor, Vec3 feet, boolean touching) {
         var level = actor.level();
         var box = actor.getBoundingBox().move(feet.subtract(actor.position()));
+        if (touching) box = box.inflate(.02);
         int wet = 0;
         for (var cell : BlockPos.betweenClosed(BlockPos.containing(box.minX, feet.y, box.minZ),
                 BlockPos.containing(box.maxX - .005, feet.y, box.maxZ - .005)))
@@ -145,25 +148,20 @@ public final class SurfaceApproach {
     }
 
     /** Any water under the footprint at all: a stand or a destination on the land has none. */
-    private static boolean wet(YukkuriEntity actor, Vec3 feet) { return wetCells(actor, feet) > 0; }
+    private static boolean wet(YukkuriEntity actor, Vec3 feet) { return wetCells(actor, feet, false) > 0; }
 
     /** The straight step to {@code to} never puts more of the body over water than it already is (sampled every .1 blocks). */
     public static boolean dryStep(YukkuriEntity actor, Vec3 from, Vec3 to) {
         return dryAim(actor, from, to).distanceToSqr(to) < 1.0E-8;
     }
 
-    /** Where a walker may aim on its way to {@code to}: as far as the way there never puts more of its footprint over water than where it stands. A dry body therefore never steps onto water, while a body already standing on a rim level with the pond (a 14/16 mud shelf one step below the meadow) walks along it and out to the land — cutting the step at the water itself left it frozen where it stood until it starved. */
+    /** Where a walker may aim on its way to {@code to}: as far as the way there never puts more of its footprint over water than where it stands. A dry body therefore never steps onto water, while a body already standing on a shore level with the pond walks along it and out to the land — cutting the step at the water itself left it frozen where it stood until it starved. */
     public static Vec3 dryAim(YukkuriEntity actor, Vec3 to) { return dryAim(actor, actor.position(), to); }
 
     private static Vec3 dryAim(YukkuriEntity actor, Vec3 from, Vec3 to) {
-        // A step that ends no wetter than it began is taken in full, even where its middle grazes a water cell: a body
-        // perched on the boundary cell of a shore level with the pond otherwise cannot move off it at all (every diagonal
-        // grazes the water by a rounding of its own box) and stands there until it starves.
-        int start = wetCells(actor, from);
-        if (wetCells(actor, to) <= start) return to;
-        int samples = Math.max(1, (int)Math.ceil(from.distanceTo(to) / .1));
+        int start = wetCells(actor, from, true), samples = Math.max(1, (int)Math.ceil(from.distanceTo(to) / .1));
         for (int i = 1; i <= samples; i++) {
-            if (wetCells(actor, from.lerp(to, (double)i / samples)) <= start) continue;
+            if (wetCells(actor, from.lerp(to, (double)i / samples), true) <= start) continue;
             return i == 1 ? from : from.lerp(to, (double)(i - 1) / samples);
         }
         return to;
