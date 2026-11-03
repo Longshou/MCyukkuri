@@ -49,10 +49,9 @@ public final class YukkuriSocial implements MotorOwner {
     private boolean cautious;
     private double observedDistance;
     private int lessonSegments, lessonLimit;
-    /** A loose-accessory retrieval: each approach leg (walk to the stand, step in, swim ...) has the task's own 240 ticks, and the
-     *  retrieval ends after this many legs. A single 240 for the whole trip ended it mid-walk when the way round was long. */
-    private static final int ACCESSORY_LEGS = 12;
-    private int accessoryLegs;
+    /** A loose-accessory retrieval: one budget for the whole trip (the walk to a bank stand, the step in and the swim), since a
+     *  route round a bank corner is longer than the social tasks' short beat. */
+    private static final int ACCESSORY = 1200;
     /** The bank stands this retrieval already stepped in from (the swim did not reach the item): not chosen again. */
     private final Set<BlockPos> triedStands = new HashSet<>();
     private record ContactWait(int until, long lastInteraction) {}
@@ -185,7 +184,7 @@ public final class YukkuriSocial implements MotorOwner {
                 return reachable;
             })
                     .stream().min(Comparator.comparingDouble(entity::distanceToSqr)).orElse(null);
-            if(target!=null){task=Task.ACCESSORY;duration=240;elapsed=0;accessoryLegs=0;triedStands.clear();return true;}
+            if(target!=null){task=Task.ACCESSORY;duration=ACCESSORY;elapsed=0;triedStands.clear();return true;}
         }
         if (morningPending) {
             morningPending = false;
@@ -284,12 +283,11 @@ public final class YukkuriSocial implements MotorOwner {
             }
             var move=SurfaceApproach.approach(entity,item,triedStands);
             if(move instanceof StepIn)triedStands.add(entity.blockPosition().immutable());
-            if(move==null||accessoryLegs>=ACCESSORY_LEGS||!motor.run(this,move)){
-                GameplayLog.limited(entity,"headwear","accessory_retrieval_end",200,"loose accessory retrieval ended item={} legs={} reason={}",
-                        item.getUUID(),accessoryLegs,move==null?"no_way":accessoryLegs>=ACCESSORY_LEGS?"legs":"refused");
+            if(move==null||!motor.run(this,move)){
+                GameplayLog.limited(entity,"headwear","accessory_no_way",200,"loose accessory retrieval ended item={} stands={} reason={}",
+                        item.getUUID(),triedStands.size(),move==null?"no_way":"refused");
                 stop();return;
             }
-            accessoryLegs++;elapsed=0;
             return;
         }
         if (task == Task.TEACH || task == Task.WAIT) {
