@@ -26,7 +26,6 @@ import io.github.longshou.mcyukkuri.motor.action.TakeProp;
 import io.github.longshou.mcyukkuri.motor.action.Walk;
 import io.github.longshou.mcyukkuri.motor.geom.Vec;
 import io.github.longshou.mcyukkuri.motor.surface.Occupancy;
-import io.github.longshou.mcyukkuri.motor.surface.SeatTarget;
 import io.github.longshou.mcyukkuri.motor.surface.SurfaceHost;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.ArrayList;
@@ -50,9 +49,7 @@ import net.minecraft.world.phys.Vec3;
 /**
  * The birth as one choreography, conducted by the mother's {@link FamilyLife} over the last
  * {@value #APPROACH_LEAD} ticks of a LIVE or STEM gestation. Roles: the mother, and the catcher (a Marisa father nearby,
- * hatted or not, else a hatted Marisa mother herself). The receiver is a hat the catcher sets down, a large nest, the ground,
- * or the boat she rides ({@link OwnHull}: her own hat afloat, no catcher, no hat to set down or take back; she stays at her
- * seat, each newborn comes out onto a free seat in front of her, and one with no seat falls into the water). Both tables share the
+ * hatted or not, else a hatted Marisa mother herself). The receiver is a hat the catcher sets down, a large nest or the ground. Both tables share the
  * site, meeting, hat and cleanup beats; LIVE adds the labour beats, STEM one drop beat. The labour clock ({@link #conductData})
  * only advances the brood ledger; the bodies move through their own BirthGoal.
  */
@@ -67,10 +64,8 @@ final class LiveBirth extends Choreography {
     private static final float[] TURNS={0,22.5f,-22.5f,45,-45,67.5f,-67.5f,90,-90,112.5f,-112.5f,135,-135,157.5f,-157.5f,180};
     private static final Set<String> BEFORE_HAT=Set.of("site","meet","regroup","self_wait","place"),LABOUR=Set.of("term","exit","exit_any","push","drop");
     /** Where the newborns are meant to come down ({@code Receiver}); a placed hat's host is set once it is down. */
-    sealed interface Receiver permits PlacedHat, Nest, Ground, OwnHull { default String kind(){return getClass().getSimpleName();} }
+    sealed interface Receiver permits PlacedHat, Nest, Ground { default String kind(){return getClass().getSimpleName();} }
     record PlacedHat(UUID host) implements Receiver {}
-    /** The boat the mother rides, her own hat afloat (帽船分娩). */
-    record OwnHull(UUID host) implements Receiver {}
     record Nest() implements Receiver {}
     record Ground() implements Receiver {}
     /** A newborn's real landing, greeted by its father and siblings from their own ticks. */
@@ -110,19 +105,15 @@ final class LiveBirth extends Choreography {
         birth.recast(catcher(o.entity(),brood));
         return birth;
     }
-    /** Binds the catcher and picks the receiver: the boat she rides (no catcher), else the catcher's hat (already down, or to be set
+    /** Binds the catcher and picks the receiver: the catcher's hat (already down, or to be set
      *  down; one whose hat is out as a boat catches nothing and is not cast), else the large nest or the ground. */
     private void recast(YukkuriEntity catcher){
-        var mother=o.entity();var hull=ownHull(mother);
-        if(hull!=null&&LiveBirthGeometry.admitsBrood(mother,hull)){bind(CATCHER,null);receiver=new OwnHull(hull.getUUID());return;}
+        var mother=o.entity();
         var hat=catcher==null?null:PlacedHatEntity.find(catcher);boolean boat=hat!=null&&!hat.catches();
         bind(CATCHER,catcher==null||boat?null:catcher.getUUID());
         if(catcher!=null&&!boat&&HatProp.usable(catcher)&&!(catcher==mother&&FamilyNest.large(mother)))receiver=new PlacedHat(hat==null?null:hat.getUUID());
         else receiver=FamilyNest.large(mother)?new Nest():new Ground();
-        if(hull!=null)GameplayLog.event(mother,"family","birth receiver={} reason=whole_brood_not_admitted aboard=true unborn={}",receiver.kind(),brood().unborn());
     }
-    /** Her own hat she rides (a hat bears its owner only as her boat, never as a cradle), upright. */
-    static PlacedHatEntity ownHull(YukkuriEntity m){var hat=PlacedHatEntity.find(m);return hat!=null&&m.getVehicle()==hat&&!hat.upsideDown()?hat:null;}
     UUID broodId(){return broodId;}
     /** A Marisa father near enough to notice (with his hat, or without one only to cheer), else a hatted Marisa mother herself. */
     static YukkuriEntity catcher(YukkuriEntity mother,FamilyData.Brood brood){
@@ -149,9 +140,7 @@ final class LiveBirth extends Choreography {
         t.put("placed",new Beat.Branch(this::placed));
         t.put("nocatch",new Beat.Branch(r->nocatch("placement_timeout")));
         if(live){
-            t.put("term",new Beat.Await(Beat.roles(MOTHER,null,CATCHER,this::attend),()->brood()==null||toTerm()<=0,()->toTerm()+1200,"termed","term"));
-            // On her boat the mother stays at her seat: no outlet to turn to, straight to the pushes.
-            t.put("termed",new Beat.Branch(r->receiver instanceof OwnHull?"push":"exit"));
+            t.put("term",new Beat.Await(Beat.roles(MOTHER,null,CATCHER,this::attend),()->brood()==null||toTerm()<=0,()->toTerm()+1200,"exit","term"));
             t.put("exit",new Beat.Perform(Beat.roles(MOTHER,()->new Deliver(false),CATCHER,this::attend),()->(int)Math.max(1,exitUntil-now()),"turned","exit_any"));
             t.put("exit_any",new Beat.Perform(Beat.roles(MOTHER,()->new Deliver(true),CATCHER,this::attend),()->1200,"turned_any","force"));
             t.put("turned",new Beat.Branch(r->r.done()?"push":now()<exitUntil?"exit":"exit_any"));
@@ -164,7 +153,7 @@ final class LiveBirth extends Choreography {
                 forced=true;GameplayLog.event(o.entity(),"family","birth forced reason={} child={}",hold.isEmpty()?"no_safe_exit":hold,pushing);return "push";
             }));
             t.put("push",new Beat.Await(Beat.roles(MOTHER,null,CATCHER,this::attend),()->brood()==null||brood().children.get(pushing).born,this::pushTicks,"pushed","pushed"));
-            t.put("pushed",new Beat.Branch(r->brood()==null||brood().unborn()==0?"linger":receiver instanceof OwnHull?"push":!brood().children.get(pushing).born?"force":forced?"push":unprotected?"exit_any":"exit"));
+            t.put("pushed",new Beat.Branch(r->brood()==null||brood().unborn()==0?"linger":!brood().children.get(pushing).born?"force":forced?"push":unprotected?"exit_any":"exit"));
             t.put("linger",new Beat.Present(Beat.roles(MOTHER,null,CATCHER,this::attend),Behaviors.POSTPARTUM,LiveBirthGeometry.RECOVERY,"lingered"));
         }else{
             t.put("drop",new Beat.Await(Beat.roles(MOTHER,null,CATCHER,this::attend),()->brood()==null||brood().complete(),()->toTerm()+1240,"linger","drop"));
@@ -200,11 +189,6 @@ final class LiveBirth extends Choreography {
                 if(widening){exit=null;choices=null;}
                 if(beat.equals("exit_any"))rejection="";
                 pushing=next;
-                // Re-read actual admission if the hull or its occupants changed after the cast.
-                if(receiver instanceof OwnHull&&(ownHull(o.entity())==null||!LiveBirthGeometry.admitsBrood(o.entity(),ownHull(o.entity())))){
-                    recast(catcher(o.entity(),brood()));
-                    if(beat.equals("push")){jump("exit","hull_admission_changed");return;}
-                }
                 deliveryReadout("transition",beat);
             }
             default -> {}
@@ -233,7 +217,7 @@ final class LiveBirth extends Choreography {
         if(b==null||b.cancelled){if(BEFORE_HAT.contains(beat())||attending())jump(null,"brood_gone");return;}
         if(b.complete())return;
         // Nobody to catch yet and the hat could still come down before term: notice a catcher who arrives (a real failure keeps hers bound).
-        if(role(CATCHER)==null&&!(receiver instanceof OwnHull)&&now%20==0&&b.elapsed<b.duration&&(beat().equals("site")||LABOUR.contains(beat()))
+        if(role(CATCHER)==null&&now%20==0&&b.elapsed<b.duration&&(beat().equals("site")||LABOUR.contains(beat()))
                 &&catcher(o.entity(),b) instanceof YukkuriEntity c){
             recast(c);
             GameplayLog.event(c,"family","catch duty noticed brood={} mother={} beat={} receiver={}",b.id,o.entity().getUUID(),beat(),receiver.kind());
@@ -259,7 +243,7 @@ final class LiveBirth extends Choreography {
                 if(child.born||b.elapsed<b.duration+i*8)continue;
                 var at=FamilyGeometry.toWorld(m,FamilyGeometry.childBase(b.children.size(),i,1,m.growthScale(),b.variation,m.getVariant(),child.variant,GrowthSize.physicalBirth(b.kind,child)));
                 // A blocked attachment delays the birth; it never spawns through the ceiling or into a wall.
-                if(FamilyData.get(o.level()).birth(b,i,o.level(),at,receiverHat(),null,receiver instanceof OwnHull)!=null)
+                if(FamilyData.get(o.level()).birth(b,i,o.level(),at,placedHat(),null,false)!=null)
                     m.showReaction(b.incidentSource==null?"happy":"teary",b.incidentSource==null?"birth":"",100);
             }
             return "";
@@ -271,7 +255,7 @@ final class LiveBirth extends Choreography {
         int delivery=b.elapsed-b.duration;
         boolean visible=delivery>LiveBirthGeometry.emergenceStart(pushing);
         var hat=placedHat();
-        if(!(receiver instanceof OwnHull)&&!LiveBirthGeometry.clear(m,pushing,m.yBodyRot,unprotected||forced))return "outlet_blocked";
+        if(!LiveBirthGeometry.clear(m,pushing,m.yBodyRot,unprotected||forced))return "outlet_blocked";
         if(!o.bellyRoom(b))return "no_room_for_belly";
         // Replanning is permitted before the child is visible. Once emerging, retain this aim and the real risk of lost room.
         if(hat!=null&&!unprotected&&!forced&&!visible&&(exit==null||!qualified(hat)&&qualificationMisses>=3)){
@@ -283,40 +267,20 @@ final class LiveBirth extends Choreography {
         }
         if(delivery<LiveBirthGeometry.birthTick(pushing))return "";
         var data=FamilyData.get(o.level());var at=LiveBirthGeometry.position(m,pushing);
-        var unborn=b.children.get(pushing);var seat=receiver instanceof OwnHull?boatSeat(m,unborn):null;
-        if(receiver instanceof OwnHull&&seat==null){recast(catcher(m,b));jump("exit","seat_lost");return "seat_lost";}
-        if(seat!=null)at=seat.world();
         if(hat!=null&&(unprotected||forced)&&exit==null)riskyExit(hat,m.yBodyRot);
         var nominal=hat!=null&&exit!=null?(unprotected||forced?BirthLaunch.risky(at,hat.frame().toWorld(exit.aim()),m.yBodyRot)
                 :BirthLaunch.forward(at,hat.frame().toWorld(exit.aim()),m.yBodyRot,exit.ticks())):null;
         if(nominal==null&&(exit!=null||!unprotected&&!forced&&receiver instanceof PlacedHat))GameplayLog.limited(m,"family","birth_lost_aim",200,
                 "birth lost aim reason={} delivery={} phase=emerging host={}",hat==null?"host_missing":exit==null?"exit_missing":"behind",delivery,hat==null?null:hat.getUUID());
         if(nominal==null)hat=null;
-        // Failed entity insertion pauses at this child's release, never running into the next child's clock; inside her boat's
-        // dry hollow the outlet's space is checked for blocks only.
-        var child=data.birth(b,pushing,o.level(),at,hat,nominal,unprotected||forced||receiver instanceof OwnHull);
+        // Failed entity insertion pauses at this child's release, never running into the next child's clock.
+        var child=data.birth(b,pushing,o.level(),at,hat,nominal,unprotected||forced);
         if(child==null)return data.birthBlock(b);
-        if(seat!=null){
-            if(seat.land(child,"birth"))child.showReaction("happy",Behaviors.NEWBORN,100); // wakes in its seat
-            else noSeat("land_refused",ownHull(m),b.children.get(pushing));
-        }
         deliveryReadout("release","spawned",hat);
         BirthStaging.emerge(m,child.position());
         m.showReaction(pushing>0?"sleepy":"closed_smile","birth",LiveBirthGeometry.REST); // later children come easier but tire her more
         if(b.complete())o.delivered(b);
         return "";
-    }
-    /** The free seat the admitted newborn takes on her boat, measured at its unborn size. */
-    private SeatTarget boatSeat(YukkuriEntity m,FamilyData.Child child){
-        var hull=ownHull(m);
-        var seat=hull==null?null:hull.seatDestination(LiveBirthGeometry.seatBody(child));
-        if(seat==null)noSeat(hull==null?"no_hull":"full",hull,child);
-        return seat;
-    }
-    private void noSeat(String reason,PlacedHatEntity hull,FamilyData.Child child){
-        GameplayLog.limited(o.entity(),"family","birth_no_seat",200,"birth no_seat reason={} child={} host={} seated={} size={}",reason,pushing,
-                hull==null?null:hull.getUUID(),hull==null?0:hull.youngPassengers().size(),
-                String.format(Locale.ROOT,"%.3f",GrowthSize.physicalBirth(FamilyData.BirthKind.LIVE,child)));
     }
     /** Labour signs in the lead-in, the calls and soft sounds at the pushes (project original); each fires on one clock tick. */
     private static void labourBeats(YukkuriEntity m,int delivery){
@@ -338,7 +302,7 @@ final class LiveBirth extends Choreography {
     }
     private void deliveryReadout(String stage,String reason,PlacedHatEntity launchHat){
         var b=brood();if(b==null||!live)return;
-        int delivery=b.elapsed-b.duration;var hat=receiverHat();var out=LiveBirthGeometry.position(o.entity(),pushing);
+        int delivery=b.elapsed-b.duration;var hat=placedHat();var out=LiveBirthGeometry.position(o.entity(),pushing);
         GameplayLog.limited(o.entity(),"family","birth."+stage+"."+reason,200,
                 "birth delivery stage={} reason={} rejection={} beat={} child={} delivery={} phase={} host={} outlet={} aim={} launchHat={} forced={} unprotected={}",
                 stage,reason,rejection,beat(),pushing,delivery,delivery<LiveBirthGeometry.emergenceStart(pushing)?"before_emergence":"emerging",
@@ -386,7 +350,7 @@ final class LiveBirth extends Choreography {
     @Override protected String resume(String saved){return saved.equals("meet")||saved.equals("regroup")?"find":saved;}
     @Override protected void saveData(CompoundTag tag){
         var saved=new CompoundTag();saved.putString("Kind",receiver.kind());
-        var host=receiver instanceof PlacedHat p?p.host():receiver instanceof OwnHull h?h.host():null;
+        var host=receiver instanceof PlacedHat p?p.host():null;
         if(host!=null)saved.putUUID("Host",host);tag.put("Receiver",saved);
         if(unprotected)tag.putBoolean("Unprotected",true);
         if(forced)tag.putBoolean("Forced",true);
@@ -398,8 +362,7 @@ final class LiveBirth extends Choreography {
     }
     @Override protected void loadData(CompoundTag tag){
         var saved=tag.getCompound("Receiver");String kind=saved.getString("Kind");
-        receiver=kind.equals("PlacedHat")?new PlacedHat(saved.hasUUID("Host")?saved.getUUID("Host"):null):kind.equals("OwnHull")&&saved.hasUUID("Host")
-                ?new OwnHull(saved.getUUID("Host")):kind.equals("Nest")?new Nest():new Ground();
+        receiver=kind.equals("PlacedHat")?new PlacedHat(saved.hasUUID("Host")?saved.getUUID("Host"):null):kind.equals("Nest")?new Nest():new Ground();
         unprotected=tag.getBoolean("Unprotected");forced=tag.getBoolean("Forced");
         if(tag.contains("Exit")){
             var e=tag.getCompound("Exit");exit=new Exit(e.getInt("Child"),e.getUUID("Hat"),
@@ -413,7 +376,6 @@ final class LiveBirth extends Choreography {
 
     /** The mother's place for the term: out of the nest for a helper or a one-body cushion, into her large nest, or home. */
     private Intent site(){
-        if(receiver instanceof OwnHull)return null; // aboard her own boat she is where she gives birth
         var m=o.entity();var care=FamilyNest.care(m);var shelter=m.habitat().shelter();
         BlockPos bed=care!=null?care.getBlockPos():shelter!=null?shelter.bed(m.getUUID()):null;
         boolean helped=receiver instanceof PlacedHat&&catcher()!=null&&!self(),cushion=live&&care!=null&&!care.largeNest();
@@ -662,7 +624,7 @@ final class LiveBirth extends Choreography {
         private float yaw=Float.NaN;
         private Deliver(boolean any){this.any=any;deadline=any?now()+1200:exitUntil;}
         private float choose(){
-            var hat=receiverHat();var m=o.entity();
+            var hat=placedHat();var m=o.entity();
             if(any||hat==null){
                 yaw=LiveBirthGeometry.exitYaw(m,pushing,receiver instanceof Nest?FamilyNest.largeCentre(m):null,NEST_REACH,any);
                 if(hat!=null&&!Float.isNaN(yaw))riskyExit(hat,yaw);
@@ -677,7 +639,7 @@ final class LiveBirth extends Choreography {
         }
         @Override public String id(){return any?"turn_to_any_exit":"turn_to_exit";}
         @Override public boolean satisfied(){
-            var m=o.entity();var hat=receiverHat();
+            var m=o.entity();var hat=placedHat();
             return !Float.isNaN(yaw)&&Math.abs(Mth.wrapDegrees((exit!=null&&hat!=null?hat.getYRot()+exit.yaw():yaw)-m.yBodyRot))<=Face.FACE_ARRIVED
                     &&LiveBirthGeometry.clear(m,pushing,m.yBodyRot,any)
                     &&(any||hat==null||exit!=null&&qualified(hat));
@@ -700,11 +662,6 @@ final class LiveBirth extends Choreography {
             qualificationMisses=qualification?0:qualificationMisses+1;
         }
         return qualification;
-    }
-    /** The hat the outlet aims at now: the catch hat set down, or the boat she rides. */
-    private PlacedHatEntity receiverHat(){
-        if(!(receiver instanceof OwnHull h))return placedHat();
-        var hull=ownHull(o.entity());return hull!=null&&hull.getUUID().equals(h.host())?hull:null;
     }
     FamilyData.Brood brood(){return broodId==null?null:FamilyData.get(o.level()).brood(broodId);}
     YukkuriEntity catcher(){var id=role(CATCHER);return id!=null&&o.level().getEntity(id) instanceof YukkuriEntity c&&c.isAlive()?c:null;}

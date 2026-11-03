@@ -111,7 +111,7 @@ public final class Hop implements Action {
                 points -> clear(body, start, anchor, hosts, points));
     }
 
-    /** Keeps only the solved local route; admission and clearance are checked again at every takeoff. */
+    /** Keeps the local stops; the same arc solver admits each check and each takeoff in the current frame. */
     private Flight solve(YukkuriEntity body) {
         SeatTarget candidate = null;
         Vec3 to = target;
@@ -136,21 +136,19 @@ public final class Hop implements Action {
         var origin = anchor == null ? body.position() : anchor.riders().local(body.getUUID()).scale(anchor.frame().unit());
         var destination = anchor == null ? to : candidate.local().scale(anchor.frame().unit());
         var swept = hosts(body, body.position(), to);
-        if (anchor != null && path != null) {
+        boolean following = anchor != null && path != null;
+        if (following) {
             var next = path.get(leg);
-            var landing = new SeatTarget(anchor, new Vec3(next.at().x(), next.at().y(), next.at().z()).scale(1 / anchor.frame().unit()));
-            if (!landing.available(body)) return new Flight(Feasibility.of(Reason.NO_ROOM, 0, "destination_occupied"), null, null);
-            var plan = next.flight();
-            if (!clear(body, origin, anchor, swept, Ballistic.samples(new Vec(plan.vh() * plan.dir().x(), plan.vy(), plan.vh() * plan.dir().z()), plan.ticks())))
-                return new Flight(Feasibility.of(Reason.NO_SUPPORT, 0, "route_obstructed"), null, null);
-            return new Flight(Feasibility.pass(), landing, plan, leg + 1 < path.size());
+            destination = new Vec3(next.at().x(), next.at().y(), next.at().z());
+            candidate = new SeatTarget(anchor, destination.scale(1 / anchor.frame().unit()));
+            if (!candidate.available(body)) return new Flight(Feasibility.of(Reason.NO_ROOM, 0, "destination_occupied"), null, null);
         }
         var result = arc(body, vec(origin), anchor, swept, vec(destination));
         if (result instanceof ArcSolver.Plan plan) {
-            if (anchor != null) path = List.of(new HopPath.Leg(vec(destination), plan));
-            return new Flight(Feasibility.pass(), candidate, plan, entering && !brimOnly);
+            if (anchor != null && !following) path = List.of(new HopPath.Leg(vec(destination), plan));
+            return new Flight(Feasibility.pass(), candidate, plan, following ? leg + 1 < path.size() : entering && !brimOnly);
         }
-        if (anchor != null) {
+        if (anchor != null && !following) {
             var stops = anchor.hopStops(body).stream().filter(p -> new SeatTarget(anchor, p).available(body))
                     .map(p -> vec(p.scale(anchor.frame().unit()))).toList();
             path = HopPath.solve(vec(origin), vec(destination), stops, (a, b) -> arc(body, a, anchor, swept, b));

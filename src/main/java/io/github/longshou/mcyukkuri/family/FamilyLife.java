@@ -307,7 +307,7 @@ public final class FamilyLife {
     LiveBirth liveBirth() { return birth.choreography() instanceof LiveBirth running?running:null; }
     /** Danger, commands, operations, urgent needs and meals still come before any birth duty. */
     private boolean birthFree() {
-        return !entity.level().isClientSide&&entity.isAlive()&&!entity.isNoAi()&&!entity.isPanicking()&&!entity.isCommandPlaying()&&(!entity.isPassenger()||onHost())
+        return !entity.level().isClientSide&&entity.isAlive()&&!entity.isNoAi()&&!entity.isPanicking()&&!entity.isCommandPlaying()&&!entity.isPassenger()
                 &&!entity.operations().active()&&!entity.life().hasUrgentNeed()&&entity.life().mealTicks()==0&&!awaitingLanding;
     }
     /** The birth role this body plays in the current beat (BirthGoal.canUse); when the goal yields, the beat's deadline decides the cost.
@@ -479,7 +479,7 @@ public final class FamilyLife {
         boolean stem=b.kind==FamilyData.BirthKind.STEM;
         if(stem?entity.operations().active()||entity.isPanicking()||entity.isOnFire()||entity.isInWaterOrBubble()||entity.isCommandPlaying()
                 ||entity.life().nutrition()<30||entity.body().condition().blocksBreedingApproach()||entity.life().mealTicks()>0||entity.life().isSleeping()
-                :!readyForDelivery())return "mother_not_ready";
+                :!(b.elapsed<b.duration-LiveBirth.NEST_GRACE?gestationReady():readyForDelivery()))return "mother_not_ready";
         if(!sited&&b.elapsed>=b.duration-LiveBirth.NEST_GRACE)return "no_place_for_term";
         if(!stem&&!bellyRoom(b))return "no_room_for_belly";
         if(b.elapsed>=b.duration+(stem?40:0))return "";
@@ -507,6 +507,10 @@ public final class FamilyLife {
         var running=entity.level().isClientSide?null:liveBirth();return running==null?0:.22f*running.recoveryLeft()/LiveBirthGeometry.RECOVERY;
     }
     public boolean readyForDelivery(){
+        return !entity.isPassenger()&&gestationReady();
+    }
+    /** Pregnancy can advance aboard; labour and birth roles require her own ground support. */
+    private boolean gestationReady(){
         return !entity.level().isClientSide&&entity.isAlive()&&!entity.isNoAi()&&(supported()||onHost())&&!entity.operations().active()&&!entity.dailyLife().active()
                 &&!entity.isPanicking()&&!entity.isCommandPlaying()&&!entity.life().hasUrgentNeed()&&!entity.life().isSleeping()&&entity.life().mealTicks()==0
                 &&entity.body().condition().readyForDelivery();
@@ -862,7 +866,7 @@ public final class FamilyLife {
     }
     /** Birth duties that come before first-stool licking and mash feeding: a part in a running birth, or a hurt newborn to comfort. */
     public boolean birthDuty(){return inBirthBeat()||comfortTicks>0;}
-    /** Standing on a host (her own boat): its surface carries her as a floor does, for labour and the birth roles (never for courtship). */
+    /** A host supports pregnancy and greetings, never labour or courtship. */
     private boolean onHost(){return Attach.of(entity) instanceof AttachState.OnHost;}
     boolean supported(){
         // A zero-displacement physics step can clear onGround for one tick while the sole still touches a block.

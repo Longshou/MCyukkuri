@@ -20,7 +20,6 @@ import io.github.longshou.mcyukkuri.headwear.PlacedHatEntity;
 import io.github.longshou.mcyukkuri.headwear.HatGeometry;
 import io.github.longshou.mcyukkuri.headwear.HatScale;
 import java.util.List;
-import java.util.ArrayList;
 import net.minecraft.world.phys.AABB;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -32,8 +31,6 @@ import net.minecraft.core.Direction;
 import org.joml.Quaternionf;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.motor.surface.Occupancy;
-import io.github.longshou.mcyukkuri.headwear.HatSeats;
-import io.github.longshou.mcyukkuri.headwear.HullBounds;
 import net.minecraft.util.Mth;
 
 /** Shared pregnancy deformation and front delivery route; adapted from the approved viviparous prototype. */
@@ -230,29 +227,7 @@ public final class LiveBirthGeometry {
     }
     public static Vec3 position(YukkuriEntity mother,int index,Vec3 at,float yaw){
         var offset=releasePose(mother,localExit(mother,index)).yRot((float)Math.toRadians(180-yaw)).scale(mother.getScale());
-        // Match the rendered rider: hull tilt in the host's yaw frame, about the mother's feet.
-        if(mother.getVehicle() instanceof PlacedHatEntity hat){
-            var frame=hat.frame();
-            offset=frame.toWorld(offset.yRot(-frame.yawRad()).scale(1/frame.unit())).subtract(frame.origin());
-        }
         return at.add(offset);
-    }
-    public static HatSeats.Body seatBody(FamilyData.Child child){
-        var size=unbornDimensions(FamilyData.BirthKind.LIVE,child);
-        return new HatSeats.Body(SubspeciesLife.assetId(child.variant,child.subspeciesFlags),
-                GrowthSize.physicalBirth(FamilyData.BirthKind.LIVE,child),size.width(),size.height());
-    }
-    /** Read-only whole-brood admission, using precisely the same rule as a real arriving rider. */
-    public static boolean admitsBrood(YukkuriEntity mother,PlacedHatEntity hull){
-        var occupants=new ArrayList<>(hull.seatOccupants());
-        for(var child:mother.family().brood().children){
-            if(child.born)continue;
-            var body=seatBody(child);
-            var at=HatSeats.admit(hull.hullScale()/(float)HullBounds.SCALE,body,false,occupants);
-            if(at==null)return false;
-            occupants.add(new HatSeats.Occupant(body,at,false));
-        }
-        return true;
     }
     /**
      * Whether child {@code index} can come out of the outlet with the mother turned to {@code yaw}: its real birth-size box

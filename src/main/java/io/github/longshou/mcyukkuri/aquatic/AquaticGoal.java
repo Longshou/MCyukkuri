@@ -10,7 +10,6 @@ import io.github.longshou.mcyukkuri.headwear.PlacedHatEntity;
 import io.github.longshou.mcyukkuri.family.CareDecisionLedger;
 import io.github.longshou.mcyukkuri.family.FamilyLife;
 import io.github.longshou.mcyukkuri.family.FamilyData;
-import io.github.longshou.mcyukkuri.family.LiveBirthGeometry;
 import io.github.longshou.mcyukkuri.intent.Ask;
 import io.github.longshou.mcyukkuri.intent.AskLedger;
 import io.github.longshou.mcyukkuri.intent.Commitment;
@@ -174,7 +173,6 @@ final class AquaticGoal extends Goal {
         double breed = body.family().ready(false) && body.family().partner() != null ? num("breed_need", 35) : 0;
         var brood = body.family().brood();
         double birth = brood != null && !brood.cancelled && !brood.complete() && brood.kind == FamilyData.BirthKind.LIVE
-                && (hat == null || !LiveBirthGeometry.admitsBrood(body, hat))
                 ? brood.progress() * num("birth_ashore_want", 200) : 0;
         var young = AquaticLife.young(body);
         if (!aboard) {
