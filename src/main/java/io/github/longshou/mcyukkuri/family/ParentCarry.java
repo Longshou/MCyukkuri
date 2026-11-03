@@ -1302,14 +1302,14 @@ public final class ParentCarry {
     /** The set-down goal (priority 2, above daily life): whenever the carry has an ordinary reason, it runs the shared Release. */
     public Goal setDownGoal() {
         return new Goal() {
+            private Map.Entry<YukkuriEntity, String> admitted;
             { setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK)); }
-            @Override public boolean canUse() { return due() != null; }
+            @Override public boolean canUse() { admitted = due(); return admitted != null; }
             @Override public boolean canContinueToUse() { return due() != null; }
             @Override public boolean requiresUpdateEveryTick() { return true; }
             @Override public void start() {
                 setting = true;
-                var next = due();
-                GameplayLog.event(carrier, "family", "carry set down started reason={} child={}", next.getValue(), next.getKey().getUUID());
+                GameplayLog.event(carrier, "family", "carry set down started reason={} child={}", admitted.getValue(), admitted.getKey().getUUID());
             }
             @Override public void tick() { var next = due(); if (next != null) tickSetDown(next.getKey(), next.getValue()); }
             @Override public void stop() {
