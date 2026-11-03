@@ -516,9 +516,9 @@ public final class FamilyLife {
     }
     /** Live labour needs the mother's own dry ground, even when a choreography deadline expires. */
     boolean deliveryGrounded(){return !entity.isPassenger()&&supported()&&!entity.isInWaterOrBubble();}
-    /** The last ticks of a live pregnancy that need her own dry ground (the birth's nest grace): the only interval in which an
-     *  aquatic mother goes ashore and stops setting out. Read from the one constant the conductor's own term rule uses. */
-    public static int shoreBirthLead(){return LiveBirth.NEST_GRACE;}
+    /** The last ticks of a live pregnancy belong to the birth (the conductor's own lead): the only interval in which an aquatic
+     *  mother goes ashore and stops setting out, so she is on her own ground before the labour's nest grace ends. */
+    public static int shoreBirthLead(){return LiveBirth.APPROACH_LEAD;}
     /** A live brood is in that last interval now. */
     public boolean shoreBirthDue(){
         var b=brood();
