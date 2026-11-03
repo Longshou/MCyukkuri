@@ -127,7 +127,7 @@ public final class ContactResolver {
             Attach.settle(body, "hop_contact_refused");
             return new Contact(host, local, true);
         }
-        host.riders().put(body.getUUID(), local, localYaw(body, host));
+        Motor.spot(host, body, local, Mth.wrapDegrees(body.getYRot() - host.entity().getYRot()), "hop_contact");
         Motor.velocity(body, Vec3.ZERO, "hop_contact");
         return new Contact(host, local, false);
     }
@@ -146,11 +146,6 @@ public final class ContactResolver {
             if (host.room(body, candidate, top)) return candidate;
         }
         return null;
-    }
-
-    /** The body's own facing in the host's frame, which is what the rider table stores. */
-    private static float localYaw(YukkuriEntity body, SurfaceHost host) {
-        return Mth.wrapDegrees(body.getYRot() - (float) Math.toDegrees(host.frame().yawRad()));
     }
 
     /** It met only the brim's edge or wall: moving in, its horizontal push reverses and damps; moving out it passes on. */

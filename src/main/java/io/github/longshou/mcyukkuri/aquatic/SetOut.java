@@ -74,15 +74,15 @@ final class SetOut implements Intent, FamilyRendezvous {
 
     @Override public boolean satisfied() {
         var hat = AquaticLife.hat(owner);
-        return AquaticLife.afloat(hat) && hat.seated(owner) && AquaticLife.carried(owner) == null
-                && AquaticLife.young(owner).stream().allMatch(y -> hat.seated(y) || staying(y) != null);
+        return AquaticLife.afloat(hat) && hat.settled(owner) && AquaticLife.carried(owner) == null
+                && AquaticLife.young(owner).stream().allMatch(y -> hat.settled(y) || staying(y) != null);
     }
 
     /** Why this young stays ashore now, or null. */
     private String staying(YukkuriEntity y) {
         if (y.family().stage() == FamilyLife.Stage.BABY && y.childhood().isNewborn() && y.childhood().shouldStayWithParents()) return null;
         var hat = AquaticLife.hat(owner);
-        if (hat != null && !AquaticLife.aboard(y, hat) && hat.seatDestination(y) == null) return "no_seat";
+        if (hat != null && !AquaticLife.aboard(y, hat) && hat.restSpot(y) == null) return "no_room";
         return y.life().isSleeping() ? "asleep" : y.isInWaterOrBubble() ? "in_water" : excused.get(y.getUUID());
     }
 
@@ -143,7 +143,7 @@ final class SetOut implements Intent, FamilyRendezvous {
         if (!AquaticLife.afloat(hat)) return null;
         var dependent = dependentAshore(hat);
         if (!dependent.isEmpty()) return Ferry.loadFromBank(owner, hat, dependent.getFirst(), beckoning);
-        if (!hat.seated(owner)) return Ferry.hopAboard(owner, hat, beckoning);
+        if (!hat.settled(owner)) return Ferry.hopAboard(owner, hat, beckoning);
         // a second call means the first went unanswered: those not aboard by now stay
         if (calls++ > 0) for (var y : AquaticLife.young(owner))
             if (!AquaticLife.aboard(y, hat) && staying(y) == null) excused.put(y.getUUID(), "did_not_board");
@@ -156,7 +156,7 @@ final class SetOut implements Intent, FamilyRendezvous {
         @Override public Commitment commitment() { return Commitment.HARD; }
         @Override public boolean satisfied() {
             var hat = AquaticLife.hat(owner);
-            return AquaticLife.afloat(hat) && hat.seated(owner);
+            return AquaticLife.afloat(hat) && hat.settled(owner);
         }
         @Override public List<Method> methods() { return List.of(Plan.of("launch", this::derive)); }
         private List<Supplier<Step>> derive() {

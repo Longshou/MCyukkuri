@@ -205,7 +205,7 @@ public final class Gesture implements Action {
         }
         next = new Vec3(next.x, height.getAsDouble(), next.z);
         if (!host.room(body, next)) { stopped = true; return 0; }
-        host.riders().put(body.getUUID(), next, host.riders().yaw(body.getUUID()));
+        Motor.spot(host, body, next, host.riders().yaw(body.getUUID()), "tumble");
         return step * unit;
     }
 

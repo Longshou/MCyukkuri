@@ -11,6 +11,8 @@ import io.github.longshou.mcyukkuri.motor.geom.Vec;
 import io.github.longshou.mcyukkuri.motor.surface.SeatTarget;
 import io.github.longshou.mcyukkuri.motor.geom.FloorShape;
 import io.github.longshou.mcyukkuri.motor.geom.BodyFootprint;
+import io.github.longshou.mcyukkuri.motor.geom.FloorSearch;
+import io.github.longshou.mcyukkuri.motor.surface.Floor;
 import io.github.longshou.mcyukkuri.subspecies.SubspeciesLife;
 import io.github.longshou.mcyukkuri.motor.geom.HeightGrid;
 import io.github.longshou.mcyukkuri.motor.geom.Squeeze;
@@ -176,6 +178,7 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
     // ---------------------------------------------------------------- the host (SurfaceHost)
     /** How much two foot circles must overlap before they conflict. */
     private static final double ROOM_SLACK = .02;
+    @Override public double roomGap() { return ROOM_SLACK; }
 
     /** Blocks per hat unit (the prop's units at this hat's size). */
     public double unit() { return hullScale()/16; }
@@ -225,7 +228,7 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
     }
     /** All support, room and movement use the same body-only columns in hat units. */
     private BodyFootprint shape(YukkuriEntity body) {
-        return shape(body,body.yBodyRot);
+        return Floor.shape(this, body);
     }
     private BodyFootprint shape(YukkuriEntity body,float yaw) {
         return BodyFootprint.of(body.assetId(),body.getBbWidth()/unit(),tallOf(body),Math.toRadians(yaw-getYRot()));
@@ -247,42 +250,14 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
         return profile().surface().contact(this, body, spot, feet);
     }
     OptionalDouble shapedSupport(Vec3 local, YukkuriEntity body) { return support(local, shape(body)); }
-    /** How the shared admission measures a body: the captain's unswollen footprint (a pregnant belly takes no seat). */
-    public static HatSeats.Body seatBody(YukkuriEntity body, boolean captain) {
-        var size = captain ? LiveBirthGeometry.bodyDimensions(body, body.growthScale(), 0).scale(body.getScale())
-                : body.getDimensions(body.getPose());
-        return new HatSeats.Body(body.assetId(), body.growthScale() * body.getScale(), size.width(), size.height());
+    @Override public List<SeatTarget> restSpots(YukkuriEntity body, int limit) {
+        return profile().surface().restSpots(this, body, limit);
     }
-    private HatSeats.Body seatBody(YukkuriEntity body) { return seatBody(body, body.getUUID().equals(ownerYukkuri())); }
-    private List<HatSeats.Occupant> seatedExcept(YukkuriEntity except) {
-        return getPassengers().stream().filter(p -> p != except).map(p -> (YukkuriEntity) p)
-                .map(y -> occupant(y)).toList();
-    }
-    private HatSeats.Occupant occupant(YukkuriEntity body) {
-        var at = riders.local(body.getUUID()).scale(unit());
-        return new HatSeats.Occupant(seatBody(body), new Vec(at.x, at.y, at.z), body.getUUID().equals(ownerYukkuri()));
-    }
-    /** Current seat or an unreserved destination admitted against the real passengers and their saved coordinates. */
-    @Override public SeatTarget seatDestination(YukkuriEntity body) {
-        if (riders.contains(body.getUUID()) && HatSeats.seated(hullScale() / (float) HullBounds.SCALE, occupant(body)))
-            return seatFits(body) ? new SeatTarget(this, riders.local(body.getUUID())) : null;
-        var at = HatSeats.admit(hullScale() / (float) HullBounds.SCALE, seatBody(body),
-                body.getUUID().equals(ownerYukkuri()), seatedExcept(body));
-        return at == null ? null : new SeatTarget(this, new Vec3(at.x(), at.y(), at.z()).scale(1 / unit()));
-    }
-    /** Receiver planning for an unborn body; no entity, rider or slot is created here. */
-    public SeatTarget seatDestination(HatSeats.Body body) {
-        var at = HatSeats.admit(hullScale() / (float) HullBounds.SCALE, body, false, seatedExcept(null));
-        return at == null ? null : new SeatTarget(this, new Vec3(at.x(), at.y(), at.z()).scale(1 / unit()));
-    }
-    public boolean seatFits(YukkuriEntity body) {
-        return HatSeats.fits(hullScale() / (float) HullBounds.SCALE, occupant(body), seatedExcept(body));
-    }
-    /** Current load from the riders other than the captain; food and other hull contents are not rider weight. */
     public double loadRatio() {
-        return HatSeats.loadRatio(hullScale() / (float) HullBounds.SCALE, seatedExcept(null));
+        return HullBounds.loadRatio(hullScale() / HullBounds.SCALE, youngPassengers().stream()
+                .map(p -> (YukkuriEntity) p).map(y -> (double) (y.growthScale() * y.getScale())).toList());
     }
-    private OptionalDouble support(Vec3 local, BodyFootprint body) {
+    @Override public OptionalDouble support(Vec3 local, BodyFootprint body) {
         if (upsideDown()) return OptionalDouble.empty();
         double height = profile().support(local.x, local.z, body);
         return Double.isFinite(height) ? OptionalDouble.of(height) : OptionalDouble.empty();
@@ -447,13 +422,9 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
     /** The body's height in hat units. */
     private double tallOf(Entity body) { return body.getBbHeight() / unit(); }
     /** The spot this rider stands on (hat units), or null when there is none: the server table, the client sync slot. */
-    private Vec3 riderPlace(Entity passenger) {
-        if (!level().isClientSide) {
-            var spot = riders.spot(passenger.getUUID());
-            return spot == null ? null : spot.local();
-        }
-        var spot = Riders.readSync(entityData.get(RIDERS)).get(passenger.getId());
-        return spot == null ? null : spot.local();
+    private Riders.Spot riderPlace(Entity passenger) {
+        return level().isClientSide ? Riders.readSync(entityData.get(RIDERS)).get(passenger.getId())
+                : riders.spot(passenger.getUUID());
     }
     /** Writes the rider table's sync slot at most once a tick, and only when a spot changed. */
     private void syncRiders() {
@@ -473,20 +444,13 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
     }
     List<Vec3> cavityPlaces(FamilyData.BirthKind kind, FamilyData.Child child) {
         var size=LiveBirthGeometry.unbornDimensions(kind,child);
-        double foot=Occupancy.foot(size.width())/unit();
         var body=BodyFootprint.of(SubspeciesLife.assetId(child.variant,child.subspeciesFlags),size.width()/unit(),size.height()/unit(),0);
-        var centre=spots().get("centre");var out=new ArrayList<Vec3>();
-        for(double ring=0;ring<=Math.hypot(profile().brim()[0],profile().brim()[1]);ring+=foot){
-            int around=ring==0?1:Math.max(8,(int)Math.ceil(2*Math.PI*ring/foot));
-            for(int i=0;i<around;i++){
-                double angle=i*2*Math.PI/around;
-                var p=new Vec3(centre.x+Math.cos(angle)*ring,0,centre.z+Math.sin(angle)*ring);var h=support(p,body);
-                if(h.isEmpty())continue;
-                var world=frame().toWorld(new Vec3(p.x,h.getAsDouble(),p.z));
-                if(catches()||Occupancy.at(container(),world,size.width(),true)==Occupancy.INSIDE_SUPPORTED)out.add(world);
-            }
-        }
-        return out;
+        var centre=spots().get("centre");
+        return FloorSearch.spots(profile()::support, profile().floor(), Occupancy.MARGIN / unit(), body,
+                Floor.others(this, null), new Vec(centre.x, centre.y, centre.z),
+                Math.hypot(profile().brim()[0],profile().brim()[1]), true, ROOM_SLACK, Integer.MAX_VALUE).stream()
+                .map(p -> frame().toWorld(new Vec3(p.x(),p.y(),p.z())))
+                .filter(p -> catches() || Occupancy.at(container(),p,size.width(),true)==Occupancy.INSIDE_SUPPORTED).toList();
     }
     /** I2: the rider table's keys are this host's passengers. A mismatch is reported, never "fixed" by moving a body. */
     private void checkRiders(YukkuriEntity subject) {
@@ -517,7 +481,7 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
         // A spot already in the table is a rider read back from the save, not one that just boarded.
         boolean boarded = !riders.contains(y.getUUID());
         if (boarded)
-            riders.put(y.getUUID(), profile().surface().boarded(this, y), Mth.wrapDegrees(y.getYRot() - getYRot()));
+            Motor.spot(this, y, profile().surface().boarded(this, y), Mth.wrapDegrees(y.getYRot() - getYRot()), "boarded");
         if (boarded) GameplayLog.event(this, "hat", "boarded rider={} own={} riders={} owner={}", y.getUUID(), y.getUUID().equals(ownerYukkuri()),
                 getPassengers().size(), ownerYukkuri());
     }
@@ -561,8 +525,9 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
         if (!hasPassenger(passenger)) return;
         var place = riderPlace(passenger);
         if (place == null) return;
-        var at = frame().toWorld(place);
+        var at = frame().toWorld(place.local());
         move.accept(passenger, at.x, at.y, at.z);
+        Motor.riderFacing(passenger, getYRot() + place.yaw());
     }
 
     // ---------------------------------------------------------------- custody
@@ -771,14 +736,20 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
      * it here again for {@link #RESEAT_TICKS}. Only rider spots are written.
      */
     void squeeze() {
-        if (upsideDown() || !crowded()) { crowding.clear(); clampedShoves = 0; return; }
+        if (upsideDown() || getPassengers().isEmpty()) { crowding.clear(); clampedShoves = 0; return; }
         var lifted = new HashSet<YukkuriEntity>();
         for (var carrier : level().getEntitiesOfClass(YukkuriEntity.class, getBoundingBox().inflate(2)))
             if (carrier.motor().current() instanceof Grab grab) lifted.add(grab.target());
+        for (var p : getPassengers()) if (p instanceof YukkuriEntity y && Floor.standing(y) && !lifted.contains(y)) {
+            var spot = riders.spot(y.getUUID());
+            var at = snapped(spot.local(), y);
+            if (!at.equals(spot.local())) Motor.spot(this, y, at, spot.yaw(), "rest_height");
+        }
+        if (!crowded()) { crowding.clear(); clampedShoves = 0; return; }
         var bodies = new ArrayList<YukkuriEntity>();
         var feet = new ArrayList<Squeeze.Body>();
         double unit = unit();
-        for (var p : getPassengers()) if (p instanceof YukkuriEntity y && !lifted.contains(y) && riders.contains(y.getUUID())
+        for (var p : getPassengers()) if (p instanceof YukkuriEntity y && Floor.standing(y) && !lifted.contains(y) && riders.contains(y.getUUID())
                 && Attach.of(y) instanceof AttachState.OnHost on && on.host() == this) {
             var at = riders.local(y.getUUID());
             bodies.add(y);
@@ -833,7 +804,7 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
             double step = Math.hypot(moves[i][0], moves[i][1]);
             if (step < 1e-6) continue;
             if (step > mostStep) { mostStep = step; most = y; }
-            riders.put(y.getUUID(), snapped(new Vec3(from.x + moves[i][0], from.y, from.z + moves[i][1]), y), spot.yaw());
+            Motor.spot(this, y, snapped(new Vec3(from.x + moves[i][0], from.y, from.z + moves[i][1]), y), spot.yaw(), "squeeze");
         }
         crowding.keySet().retainAll(pressed);
         if (clamped != clampedShoves) GameplayLog.limited(this, "hat", "squeeze_clamp", 100,

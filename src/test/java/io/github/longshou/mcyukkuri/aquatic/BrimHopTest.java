@@ -1,6 +1,5 @@
 package io.github.longshou.mcyukkuri.aquatic;
 
-import io.github.longshou.mcyukkuri.headwear.HatSeats;
 import io.github.longshou.mcyukkuri.headwear.HullBounds;
 import io.github.longshou.mcyukkuri.motor.geom.AbilityMath;
 import io.github.longshou.mcyukkuri.motor.geom.ArcSolver;
@@ -15,8 +14,8 @@ import static org.junit.jupiter.api.Assertions.*;
 class BrimHopTest {
     @Test void clearBankBoardsAndLeavesThroughTheBrimWithinUnchangedHopAbility() {
         for (double size : List.of(1.0, .3)) {
-            var body = new HatSeats.Body("marisa", size, .8 * size, .6 * size);
-            var seat = HatSeats.admit(1, body, size == 1, List.of());
+            var body = BodyFootprint.of("marisa", .8 * size, .6 * size, 0);
+            var seat = HullFloorTest.rest(size, false);
             double edge = -HullBounds.RADIUS - .05;
             var bank = new Vec(edge - body.width() * .42, 1.0 / 9 + HullBounds.WATERLINE, 0);
             var ability = AbilityMath.compute(new AbilityMath.Inputs(size, 100, 20, 20, 0, false, true, false, false, 0),
@@ -25,11 +24,11 @@ class BrimHopTest {
             java.util.function.BiFunction<Vec, Vec, ArcSolver.Result> arc = (a, b) -> ArcSolver.lowest(a, b,
                     ability.hopHeight(), ability.hopReach(), ability.size(), points -> clearBankArc(a, points)
                             && points.stream().map(a::add).noneMatch(p -> p.x() - body.width() / 2 < edge && p.y() < bank.y() - .002));
-            var entry = HullBounds.brimStops(size).stream().filter(p -> arc.apply(bank, p) instanceof ArcSolver.Plan
+            var entry = HullFloorTest.brimStops(size).stream().filter(p -> arc.apply(bank, p) instanceof ArcSolver.Plan
                     && arc.apply(p, bank) instanceof ArcSolver.Plan).findFirst().orElse(null);
             assertNotNull(entry, "size=" + size);
             for (var ends : List.of(List.of(entry, seat), List.of(seat, entry))) {
-                var path = HopPath.solve(ends.getFirst(), ends.getLast(), HullBounds.brimStops(size), (a, b) -> ArcSolver.lowest(a, b,
+                var path = HopPath.solve(ends.getFirst(), ends.getLast(), HullFloorTest.brimStops(size), (a, b) -> ArcSolver.lowest(a, b,
                         ability.hopHeight(), ability.hopReach(), ability.size(), points -> clear(a, points)));
                 assertNotNull(path, "size=" + size + " from=" + ends.getFirst());
             }
@@ -37,11 +36,11 @@ class BrimHopTest {
     }
 
     @Test void hideUsesOneShortArcOnTheBraidSide() {
-        var child = new HatSeats.Body("marisa", .3, .24, .18);
-        var parent = new HatSeats.Body("marisa", 1, .8, .6);
-        var captain = HatSeats.admit(1, parent, true, List.of());
-        var from = HatSeats.admit(1, child, false, List.of(new HatSeats.Occupant(parent, captain, true)));
-        var to = HullBounds.brim(.3, Math.toRadians(300));
+        var child = BodyFootprint.of("marisa", .24, .18, 0);
+        var parent = BodyFootprint.of("marisa", .8, .6, 0);
+        var captain = HullFloorTest.rest(1, false);
+        var from = HullFloorTest.rest(.3, true);
+        var to = HullFloorTest.brim(.3, Math.toRadians(300));
         assertTrue(to.x() > 0 && to.z() < 0);
         var shape = BodyFootprint.of("marisa", child.width(), child.height(), 0);
         var adult = BodyFootprint.of("marisa", parent.width(), parent.height(), 0);
@@ -57,10 +56,10 @@ class BrimHopTest {
     }
 
     @Test void smallJuvenileReachesBraidSideWithSeveralSupportedHops() {
-        var b = new HatSeats.Body("marisa", .3, .24, .18);
-        var from = HatSeats.admit(1, b, false, List.of());
-        var to = HullBounds.brim(.3, 0);
-        var stops = IntStream.range(0, 24).mapToObj(i -> HullBounds.brim(.3, i * Math.PI / 12)).toList();
+        var b = BodyFootprint.of("marisa", .24, .18, 0);
+        var from = HullFloorTest.rest(.3, false);
+        var to = HullFloorTest.brim(.3, 0);
+        var stops = IntStream.range(0, 24).mapToObj(i -> HullFloorTest.brim(.3, i * Math.PI / 12)).toList();
         var ability = AbilityMath.compute(new AbilityMath.Inputs(.3, 100, 20, 20, 0, false, true, false, false, 0),
                 AbilityMath.Coefficients.DEFAULTS, AbilityMath.Multipliers.IDENTITY);
         assertTrue(to.sub(from).hlen() > ability.hopReach());

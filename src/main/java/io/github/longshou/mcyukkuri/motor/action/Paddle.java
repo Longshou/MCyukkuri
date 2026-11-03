@@ -19,6 +19,8 @@ import io.github.longshou.mcyukkuri.motor.Running;
 import io.github.longshou.mcyukkuri.motor.TravelMode;
 import io.github.longshou.mcyukkuri.motor.geom.Effort;
 import io.github.longshou.mcyukkuri.motor.surface.SurfaceHost;
+import io.github.longshou.mcyukkuri.motor.surface.Floor;
+import io.github.longshou.mcyukkuri.family.ParentCarry;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.Locale;
 import java.util.function.DoublePredicate;
@@ -67,9 +69,18 @@ public final class Paddle implements Action {
         if (!(Attach.of(body) instanceof AttachState.OnHost on)) return Feasibility.of(Reason.NO_SUPPORT, 0, "not_on_host");
         host = on.host();
         stick = body.getMouthItem().is(Items.STICK) || host.holds(Items.STICK);
-        if (!stick && !ContactGeometry.braided(body)) return Feasibility.of(Reason.NO_TOOL, 0, "no_braid");
-        float cost = stick ? COST : BRAID_COST;
+        return toolCheck(body, host);
+    }
+
+    static Feasibility toolCheck(YukkuriEntity body, SurfaceHost host) {
+        boolean stick = body.getMouthItem().is(Items.STICK) || host.holds(Items.STICK);
+        if (!stick && (!ContactGeometry.braided(body) || ParentCarry.braidBusy(body)))
+            return Feasibility.of(Reason.NO_TOOL, 0, "no_free_braid");
+        float cost = cost(body, host);
         return body.life().energy() < cost ? Feasibility.of(Reason.EXHAUSTED, 0, "energy=" + body.life().energy()) : Feasibility.pass();
+    }
+    static float cost(YukkuriEntity body, SurfaceHost host) {
+        return body.getMouthItem().is(Items.STICK) || host.holds(Items.STICK) ? COST : BRAID_COST;
     }
 
     @Override public MotionPose pose() {
@@ -102,7 +113,7 @@ public final class Paddle implements Action {
                 return Outcome.of(Reason.NO_PROGRESS, 0, "facing_stalled bow_off=" + off);
             }
         }
-        if (Math.abs(off) > Face.FACE_ARRIVED) Motor.face(body, body.getYRot() + (float) Math.copySign(Math.min(Math.abs(off), turnRate), off));
+        if (Math.abs(off) > Face.FACE_ARRIVED) Floor.turn(host, body, (float) Math.copySign(Math.min(Math.abs(off), turnRate), off));
         if (Math.abs(off) > FACING) return new Running(distance + Math.abs(off) / FACING, TravelMode.CONSUMED);
         if (turning) {
             turning = false;

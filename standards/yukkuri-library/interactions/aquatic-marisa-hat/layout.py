@@ -147,17 +147,11 @@ def rescue_reach(cap):
 def bounds(hull=None):
     """The captain's stern seat and the brim ring (blocks, hull frame) for the runtime bounds contract."""
     hull = hull or S.Hull(); cap = captain(hull); osh, (ox, oz, oy) = cap
-    ring = []
-    for s in (SMALL, CHILD):
-        sh = young_shape(s); ring.append([s, round((sh.rest(hull.field, brim_ring(), 0, overhang=True)+sh.bottom)/16, 4)])
-    return dict(boarding_yaw=120.,  # both seats clear the bank within the riders' hop reach
+    return dict(boarding_yaw=120.,
+                load=dict(weight_coefficient=1., capacity_over_seat=1.05),
                 captain_seat=dict(growth=1., x=round(ox/16, 4), y=round((oy+osh.bottom)/16, 4), z=round(oz/16, 4)),
-                brim_ring=dict(radius=round(brim_ring()/16, 4), underside_y=ring),
-                seating=dict(infant_max_growth=BABY, young_max_growth=BASIN_YOUNG,
-                             young=[[round(x/16, 4), round((y+sh.bottom)/16, 4), round(z/16, 4)]
-                                    for sh, x, z, y in seat_young(hull, [BASIN_YOUNG], cap)][0],
-                             infants=[[round(x/16, 4), round((y+sh.bottom)/16, 4), round(z/16, 4)]
-                                      for sh, x, z, y in seat_young(hull, [BABY, BABY], cap)]))
+                brim_ring=dict(radius=round(brim_ring()/16, 4)),
+                seating=dict(young_max_growth=BASIN_YOUNG))
 
 
 def tools():

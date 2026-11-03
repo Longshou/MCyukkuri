@@ -80,7 +80,7 @@ final class Ferry {
     }
 
     private static List<Supplier<Step>> hopAboard(YukkuriEntity body, PlacedHatEntity hat, Beckoning beckoning, YukkuriEntity ward) {
-        if (AquaticLife.aboard(body, hat)) return ward != null || hat.seated(body) ? null : List.of(() -> act(new Hop(hat)));
+        if (AquaticLife.aboard(body, hat)) return ward != null || hat.settled(body) ? null : List.of(() -> act(new Hop(hat)));
         Supplier<Hop> hop = () -> ward == null ? new Hop(hat) : Hop.ontoBrim(hat, ward.position());
         return List.of(() -> new Step.Wait(hat::steady, 60, "hat_settles"), () -> {
                     if (hop.get().check(body).ok()) return null;

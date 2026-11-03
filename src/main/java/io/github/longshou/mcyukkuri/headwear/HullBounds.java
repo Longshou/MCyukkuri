@@ -16,19 +16,20 @@ public final class HullBounds {
 
     private HullBounds() {}
 
-    public static List<Vec> brimStops(double growth) {
-        return IntStream.range(0, 72).mapToObj(i -> brim(growth, i * Math.PI / 36)).toList();
+    public static final Vec HOME = new Vec(DATA.number("captain_seat.x"), DATA.number("captain_seat.y"), DATA.number("captain_seat.z"));
+    private static final double YOUNG = DATA.number("seating.young_max_growth"),
+            WEIGHT = DATA.number("load.weight_coefficient"), FILL = DATA.number("load.capacity_over_seat");
+    public static double youngLimit(double scale) { return YOUNG * scale; }
+    public static double weight(double size) { return WEIGHT * size * size * size; }
+    public static double capacity(double scale) { return weight(FILL * youngLimit(scale)); }
+    /** Sizes of the actual riders other than the captain, wherever they stand. */
+    public static double loadRatio(double scale, List<Double> youngSizes) {
+        return youngSizes.stream().mapToDouble(HullBounds::weight).sum() / capacity(scale);
     }
-
-    /** A young's underside on the authored brim ring, in blocks at captain growth one. */
-    public static Vec brim(double growth, double bearing) {
-        var heights = DATA.field("brim_ring.underside_y").getAsJsonArray();
-        var a = heights.get(0).getAsJsonArray();
-        var b = heights.get(1).getAsJsonArray();
-        double t = (growth - a.get(0).getAsDouble()) / (b.get(0).getAsDouble() - a.get(0).getAsDouble());
-        double y = a.get(1).getAsDouble() + t * (b.get(1).getAsDouble() - a.get(1).getAsDouble());
+    public static List<Vec> brimStops() {
         double r = DATA.number("brim_ring.radius");
-        return new Vec(r * Math.cos(bearing), y, r * Math.sin(bearing));
+        return IntStream.range(0, 72).mapToObj(i -> new Vec(r * Math.cos(i * Math.PI / 36), 0,
+                r * Math.sin(i * Math.PI / 36))).toList();
     }
 
     /** Basin floor, inner wall and the level-to-drooping brim, all from the bounds contract. */

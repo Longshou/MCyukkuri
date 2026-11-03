@@ -76,7 +76,7 @@ public final class Release implements Action {
         if (!child.isAlive()) return Feasibility.of(Reason.TARGET_GONE, 0, "child_gone");
         if (child.getVehicle() != carrier) return Feasibility.of(Reason.NO_CONTACT, 0, "not_held");
         if (destination != null) {
-            seat = destination.seatDestination(child);
+            seat = destination.restSpot(child);
             return seat != null && seat.available(child) ? Feasibility.pass() : Feasibility.of(Reason.NO_ROOM, 0, "no_seat");
         }
         return plan(carrier, false);

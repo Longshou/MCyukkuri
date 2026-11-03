@@ -4,7 +4,6 @@ import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.entity.presentation.PresentationGoals;
 import io.github.longshou.mcyukkuri.headwear.HatProp;
-import io.github.longshou.mcyukkuri.headwear.HatSeats;
 import io.github.longshou.mcyukkuri.headwear.HullBounds;
 import io.github.longshou.mcyukkuri.headwear.PlacedHatEntity;
 import io.github.longshou.mcyukkuri.family.CareDecisionLedger;
@@ -340,17 +339,17 @@ final class AquaticGoal extends Goal {
         var world = List.of(cell(hat), body.blockPosition(), parentOn);
         if (on && parentOn && body.family().stage() == FamilyLife.Stage.BABY) play(out, hat, world);
         // a brim is a legal place to be: back into a seat the hat admits it into and has the room for, whenever one is free
-        var seat = PlayAboard.onBrim(body, hat) ? hat.seatDestination(body) : null;
-        if (seat != null && seat.available(body))
+        var seat = PlayAboard.onBrim(body, hat) ? hat.restSpot(body) : null;
+        if (seat != null && hat.profile().inOpening(seat.local().x, seat.local().z) && seat.available(body))
             out.add(Desire.of("take_seat", num("take_seat_want", 70), List.of(seat.local(), body.blockPosition(), parentOn),
                     () -> "seat=" + GameplayLog.at(seat.world()), () -> new TakeSeat(body, hat)));
         voyage(out, parent, hat);
         if (!on && AquaticLife.ashore(body) && AquaticLife.jumper(body) && body.distanceTo(hat) < AquaticLife.FAMILY_RANGE
                 && !(running != null && running.intent() instanceof Ashore)
                 && (parentOn || parent.distanceTo(hat) < 4 && running != null && running.intent() instanceof SetOut)) {
-            if (hat.seatDestination(body) != null) out.add(Desire.of("board_parent", num("follow", 65), world, why, () -> Follow.board(body, hat)));
+            if (hat.restSpot(body) != null) out.add(Desire.of("board_parent", num("follow", 65), world, why, () -> Follow.board(body, hat)));
             else GameplayLog.limited(body, "aquatic", "board refused hat=" + hat.getUUID(), 1200,
-                    "board refused hat={} reason=no_seat size={}", hat.getUUID(), body.growthScale() * body.getScale());
+                    "board refused hat={} reason=no_room size={}", hat.getUUID(), body.growthScale() * body.getScale());
         }
         if (on && AquaticLife.jumper(body) && (AquaticLife.ashore(parent) && !(running != null && running.intent() instanceof SetOut)
                 || running != null && running.intent() instanceof Ashore) && Ferry.canHopAshore(body))
@@ -391,7 +390,7 @@ final class AquaticGoal extends Goal {
                 || !(AquaticLife.ashore(body) || AquaticLife.aboard(body, hat) && !Waters.edges(body, body.position(), 2, false).isEmpty())
                 || !AquaticLife.stick(body) && Waters.stick(body, 10, true) == null)) return;
         double size = body.growthScale() * body.getScale();
-        double ratio = size / HatSeats.youngLimit(hat.hullScale() / HullBounds.SCALE);
+        double ratio = size / HullBounds.youngLimit(hat.hullScale() / HullBounds.SCALE);
         double want = VoyageReadiness.desire(ratio, life.personality().boldness(), DriveWeights.of(DOMAIN, "first_voyage_from"),
                 DriveWeights.of(DOMAIN, "first_voyage_to"), DriveWeights.of(DOMAIN, "first_voyage_bold_shift"),
                 DriveWeights.of(DOMAIN, "first_voyage_want"));

@@ -6,7 +6,7 @@ import io.github.longshou.mcyukkuri.headwear.PlacedHatBehavior;
 import io.github.longshou.mcyukkuri.headwear.HatScale;
 import io.github.longshou.mcyukkuri.headwear.HullBounds;
 import io.github.longshou.mcyukkuri.headwear.PlacedHatEntity;
-import io.github.longshou.mcyukkuri.headwear.SeatSurface;
+import io.github.longshou.mcyukkuri.headwear.HullSurface;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.motor.ContactGeometry;
 import io.github.longshou.mcyukkuri.motor.BodyAbility;
@@ -193,7 +193,7 @@ final class Waters {
             if (!SurfaceApproach.canApproach(body, stand)
                     || !PlacedHatBehavior.waterFits(body.level(), hatAt(e, body), HatGeometry.wornForm(body), HatScale.of(body))) continue;
             var frame = HullAfloat.frame(body.level(), hatAt(e, body), HatScale.of(body), e.yaw() + (float) HullBounds.BOARDING_YAW);
-            if (Hop.entry(body, stand, frame, SeatSurface.hopStops(body, HatScale.of(body))) != null) return e;
+            if (Hop.entry(body, stand, frame, HullSurface.hopStops(body, HatScale.of(body))) != null) return e;
         }
         return null;
     }

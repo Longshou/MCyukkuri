@@ -16,6 +16,7 @@ import io.github.longshou.mcyukkuri.motor.Running;
 import io.github.longshou.mcyukkuri.motor.TravelMode;
 import io.github.longshou.mcyukkuri.motor.geom.GridPath;
 import io.github.longshou.mcyukkuri.motor.surface.SurfaceHost;
+import io.github.longshou.mcyukkuri.motor.surface.Floor;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.ArrayList;
 import java.util.List;
@@ -212,9 +213,14 @@ public final class Walk implements Action {
         next = new Vec3(next.x, height.getAsDouble(), next.z);
         if (!host.room(body, next)) return replan(body, spot) ? new Running(routeLeft(spot), TravelMode.CONSUMED) : Outcome.of(Reason.NO_ROOM, 0, "occupied");
         // The body turns toward where it goes, at its own turn rate.
-        if (d > 1E-9) Motor.face(body, Mth.approachDegrees(body.getYRot(), SurfaceApproach.yaw(host.frame().toWorld(spot), host.frame().toWorld(next)),
-                (float) BodyAbility.of(body).turnRate()));
-        host.riders().put(body.getUUID(), next, localYaw(body, host));
+        if (d > 1E-9) Floor.turn(host, body, Mth.wrapDegrees(Mth.approachDegrees(body.getYRot(),
+                SurfaceApproach.yaw(host.frame().toWorld(spot), host.frame().toWorld(next)),
+                (float) BodyAbility.of(body).turnRate()) - body.getYRot()));
+        height = host.support(next, body);
+        if (height.isEmpty()) return Outcome.of(Reason.NO_SUPPORT, 0, "turned_off_surface");
+        next = new Vec3(next.x, height.getAsDouble(), next.z);
+        if (!host.room(body, next)) return Outcome.of(Reason.NO_ROOM, 0, "turned_occupied");
+        Motor.spot(host, body, next, host.riders().yaw(body.getUUID()), "walk");
         return new Running(routeLeft(next), TravelMode.CONSUMED);
     }
 
@@ -259,11 +265,6 @@ public final class Walk implements Action {
         var path = navigation.getPath();
         navDone = navigation.isDone();
         nodesLeft = path == null ? 0 : Math.max(0, path.getNodeCount() - path.getNextNodeIndex());
-    }
-
-    /** The rider table's yaw convention: the body's own yaw relative to the host frame. */
-    private static float localYaw(YukkuriEntity body, SurfaceHost host) {
-        return Mth.wrapDegrees(body.getYRot() - (float) Math.toDegrees(host.frame().yawRad()));
     }
 
     /** {@code walk.sample}: position, navigation state, nodes left, owner and the metric, only with the detail switch on. */

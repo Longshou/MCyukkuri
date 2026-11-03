@@ -2,6 +2,8 @@ package io.github.longshou.mcyukkuri.motor.surface;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.motor.ContactResolver;
+import io.github.longshou.mcyukkuri.motor.geom.BodyFootprint;
+import io.github.longshou.mcyukkuri.motor.geom.FloorSearch;
 import java.util.List;
 import java.util.Map;
 import java.util.OptionalDouble;
@@ -12,7 +14,7 @@ import net.minecraft.world.phys.Vec3;
 /** Something a body can stand on. */
 public interface SurfaceHost {
     /** Blocks per cell of the grid a body plans its walk on (in host units). */
-    double GRID_CELL = .25;
+    double GRID_CELL = FloorSearch.GRID_CELL;
 
     Entity entity();
 
@@ -25,6 +27,11 @@ public interface SurfaceHost {
 
     /** Hat-surface height (hat units) at {@code local} for a foot radius {@code r} in blocks; empty when nothing supports it. */
     OptionalDouble support(Vec3 local, double r);
+
+    /** Shaped support for a proposed footprint, including a turn not yet executed. */
+    OptionalDouble support(Vec3 local, BodyFootprint body);
+    /** Contact clearance in host units, shared by admission, turns and squeeze. */
+    double roomGap();
 
     /** The body's own underside, where the host has shaped support. */
     default OptionalDouble support(Vec3 local, YukkuriEntity body) { return support(local, Occupancy.foot(body.getBbWidth())); }
@@ -55,10 +62,13 @@ public interface SurfaceHost {
     boolean mountable(YukkuriEntity body);
     Vec3 landingSpot(YukkuriEntity body, Vec3 edge);
     ContactResolver.Contact contact(YukkuriEntity body, Vec3 spot, Vec3 feet);
-    default SeatTarget seatDestination(YukkuriEntity body) { return null; }
-    default boolean seated(YukkuriEntity body) {
-        var seat = seatDestination(body);
-        return body.getVehicle() == entity() && seat != null && seat.local().equals(riders().local(body.getUUID())) && seat.available(body);
+    default List<SeatTarget> restSpots(YukkuriEntity body, int limit) { return List.of(); }
+    default SeatTarget restSpot(YukkuriEntity body) {
+        var spots = restSpots(body, 1);
+        return spots.isEmpty() ? null : spots.getFirst();
+    }
+    default boolean settled(YukkuriEntity body) {
+        return body.getVehicle() == entity() && Occupancy.of(body, container()) == Occupancy.INSIDE_SUPPORTED;
     }
     /** Supported intermediate destinations for a body's hops aboard this host, in local units. */
     default List<Vec3> hopStops(YukkuriEntity body) { return List.of(); }

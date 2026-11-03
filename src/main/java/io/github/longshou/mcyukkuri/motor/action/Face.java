@@ -2,6 +2,14 @@ package io.github.longshou.mcyukkuri.motor.action;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.motor.Action;
+import io.github.longshou.mcyukkuri.motor.Attach;
+import io.github.longshou.mcyukkuri.motor.AttachState;
+import io.github.longshou.mcyukkuri.motor.MotionPose;
+import io.github.longshou.mcyukkuri.motor.Reason;
+import io.github.longshou.mcyukkuri.motor.surface.Floor;
+import io.github.longshou.mcyukkuri.entity.YukkuriAction;
+import io.github.longshou.mcyukkuri.status.GameplayLog;
+import net.minecraft.world.phys.Vec3;
 import io.github.longshou.mcyukkuri.motor.BodyAbility;
 import io.github.longshou.mcyukkuri.motor.Feasibility;
 import io.github.longshou.mcyukkuri.motor.Motor;
@@ -21,6 +29,7 @@ public final class Face implements Action {
     private final float yaw;
     private double turnRate;
     private long startTick;
+    private boolean hullTurning;
 
     public Face(float yaw) { this.yaw = yaw; }
 
@@ -39,12 +48,26 @@ public final class Face implements Action {
         startTick = body.level().getGameTime();
     }
 
+    @Override public MotionPose pose() {
+        return hullTurning ? new MotionPose(YukkuriAction.BOAT_PADDLE.id(), startTick, true) : MotionPose.NONE;
+    }
     @Override public Progress tick(YukkuriEntity body) {
+        hullTurning = false;
         double left = Mth.wrapDegrees(yaw - body.yBodyRot);
         if (Math.abs(left) <= FACE_ARRIVED)
             return new Outcome.Done(String.format(Locale.ROOT, "yaw=%.1f", body.yBodyRot));
         double step = Math.min(Math.abs(left), turnRate);
-        if (step > 0) Motor.face(body, body.yBodyRot + (float) Math.copySign(step, left));
+        float turn = (float) Math.copySign(step, left);
+        if (step > 0 && Attach.of(body) instanceof AttachState.OnHost on) {
+            if (Floor.turn(on.host(), body, turn) == 0) {
+                var host = on.host();
+                if (host.entity().getControllingPassenger() != body || !Paddle.toolCheck(body, host).ok()
+                        || !host.thrust(body, Vec3.ZERO, turn)) return Outcome.of(Reason.NO_ROOM, 0, "turn:riders");
+                body.life().spendEnergy(Paddle.cost(body, host));
+                hullTurning = true;
+                GameplayLog.limited(body, "hat", "turn_hull", 100, "turn via_hull body={} step={}", body.getUUID(), turn);
+            }
+        } else if (step > 0) Motor.face(body, body.yBodyRot + turn);
         // The remaining angle is the progress: a body whose turn rate is zero never reports progress and the watchdog ends it.
         return new Running(Math.abs(left), TravelMode.CONSUMED);
     }

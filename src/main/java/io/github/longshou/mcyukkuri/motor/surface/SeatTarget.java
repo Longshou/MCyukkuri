@@ -16,7 +16,7 @@ public record SeatTarget(SurfaceHost host, Vec3 local) {
     public boolean land(YukkuriEntity body, String cause) {
         if (!available(body) || body.position().distanceTo(world()) > .05) return false;
         if (body.getVehicle() != host.entity() && !Motor.mount(body, host.entity(), cause)) return false;
-        host.riders().put(body.getUUID(), local, Mth.wrapDegrees(body.getYRot() - (float) Math.toDegrees(host.frame().yawRad())));
+        Motor.spot(host, body, local, Mth.wrapDegrees(body.getYRot() - host.entity().getYRot()), cause);
         Motor.velocity(body, Vec3.ZERO, cause);
         return true;
     }

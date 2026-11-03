@@ -89,7 +89,6 @@ public final class EscapeWater implements Intent {
     @Override public String id() { return "escape_water"; }
 
     @Override public boolean satisfied() {
-        if (body.getVehicle() instanceof SurfaceHost host && host.seatDestination(body) != null) return host.seated(body);
         return body.isPassenger() || !body.isInWaterOrBubble() && !(body.motor().current() instanceof Climb)
                 && SurfaceApproach.stands(body, body.position());
     }

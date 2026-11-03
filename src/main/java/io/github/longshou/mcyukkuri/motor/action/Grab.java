@@ -86,7 +86,7 @@ public final class Grab implements Action {
             return Feasibility.of(Reason.NO_ROOM, 0, held.carrier() == carrier ? "already_held" : "target_held");
         if (attach instanceof AttachState.Airborne) return Feasibility.of(Reason.NO_CONTACT, 0, "target_airborne");
         if (destination != null) {
-            var seat = destination.seatDestination(target);
+            var seat = destination.restSpot(target);
             if (seat == null || !seat.available(target)) return Feasibility.of(Reason.NO_ROOM, 0, "no_seat");
             String problem = ParentCarry.holdProblem(carrier, target, Hold.BRAID, false, destination);
             if (problem != null) return refusal(problem);
@@ -170,7 +170,7 @@ public final class Grab implements Action {
         if (angle > 0 || ticks < lift) return new Running(Math.max(0, lift - ticks) + angle + way, TravelMode.CONSUMED);
         if (target.operations().active()) return Outcome.of(Reason.TARGET_GONE, 0, "target_operated");
         // The world may have changed since check: with no way out left the braid lets go of it before lifting.
-        var seat = destination == null ? null : destination.seatDestination(target);
+        var seat = destination == null ? null : destination.restSpot(target);
         if (destination != null && seat == null) return Outcome.of(Reason.NO_ROOM, 0, "no_seat");
         if (destination == null && hold.reach() == Reach.MOUTH && !ContactGeometry.inMouthReach(carrier, target))
             return Outcome.of(Reason.NO_CONTACT, ContactGeometry.mouthGap(carrier, target), "mouth_grip_out_of_reach");

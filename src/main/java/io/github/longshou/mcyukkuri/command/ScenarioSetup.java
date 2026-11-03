@@ -252,8 +252,9 @@ final class ScenarioSetup {
         if (aboard) riders.add(owner);
         riders.addAll(young);
         for (var body : riders) {
-            var seat = hat.seatDestination(body);
-            if (seat == null) return body.getName().getString() + " 没有合适座位（no_seat），已入座者保留原位。";
+            Motor.face(body, hat.getYRot());
+            var seat = hat.restSpot(body);
+            if (seat == null) return body.getName().getString() + " 没有合适座位（no_room），已入座者保留原位。";
             Motor.relocate(body, seat.world(), hat.getYRot(), "scenario_initial_seat");
             if (!Motor.mount(body, hat, "scenario_afloat")) return body.getName().getString() + " 没能坐上帽子。";
         }

@@ -72,8 +72,10 @@ def hull_bounds(seats):
         note='waterline_y: the fixed presentation waterline (the hull rides there, the basin dry); floor: the level floor '
              '(a shallow dimple in the middle); brim: level from the mouth to level_radius at y, then falling to its '
              'edge at outer_radius with its top at edge_y; keel_y: the hull\'s lowest point. captain_seat: an adult '
-             '(growth 1) underside at the stern wall facing the bow. brim_ring: where a sitting 子油 has its middle, braid '
-             'side out, and its underside height by growth. stores: reused texture and coverage rule in stores.note.')
+             '(growth 1) home and clip pose at the stern facing the bow. brim_ring: preferred hop ring; support comes '
+             'from the actual underside over cloth. seating.young_max_growth: capacity and voyage reference S. '
+             'load: other riders weigh weight_coefficient x size^3; capacity is weight(capacity_over_seat x S). '
+             'stores: reused texture and coverage rule in stores.note.')
 
 
 def gate_profile(bounds):

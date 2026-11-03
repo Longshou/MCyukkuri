@@ -9,6 +9,8 @@ import java.util.Locale;
 import java.util.function.Consumer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.MoverType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
 
 /** Writes and records a body's velocity, position, facing and riding; a straight step follows the caller's target and speed. */
@@ -66,9 +68,23 @@ public final class Motor {
     /** Turns the whole body at once; the caller has already limited the step to the ability turn rate. */
     public static void face(YukkuriEntity body, float yaw) {
         if (body == null) return;
+        if (Attach.of(body) instanceof AttachState.OnHost on) {
+            spot(on.host(), body, on.local(), Mth.wrapDegrees(yaw - on.host().entity().getYRot()), "face");
+        } else riderFacing(body, yaw);
+    }
+
+    /** Apply the host-derived facing on both sides; it is never a second rider authority. */
+    public static void riderFacing(Entity body, float yaw) {
         body.setYRot(yaw);
-        body.setYBodyRot(yaw);
-        body.setYHeadRot(yaw);
+        if (body instanceof LivingEntity living) {
+            living.setYBodyRot(yaw);
+            living.setYHeadRot(yaw);
+        }
+    }
+
+    public static void spot(SurfaceHost host, YukkuriEntity body, Vec3 local, float yaw, String cause) {
+        host.riders().put(body.getUUID(), local, yaw);
+        host.entity().positionRider(body);
     }
 
     /** A moving host's facing and synchronized tilt; riders follow its shared frame. */

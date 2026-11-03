@@ -3,7 +3,7 @@ package io.github.longshou.mcyukkuri.aquatic;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.headwear.PlacedHatEntity;
-import io.github.longshou.mcyukkuri.headwear.HullBounds;
+import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.intent.DriveWeights;
 import io.github.longshou.mcyukkuri.intent.Intent;
 import io.github.longshou.mcyukkuri.intent.IntentRunner;
@@ -48,8 +48,14 @@ final class PlayAboard implements Intent {
 
     private List<Supplier<Step>> derive() {
         if (body.getVehicle() != hat || hat.isRemoved()) return null;
-        return List.of(this::pause, () -> new Step.Do(new Face(hat.getYRot())),
+        return List.of(this::faceCaptain, this::pause, () -> new Step.Do(new Face(hat.getYRot())),
                 this::perform, this::finish);
+    }
+
+    private Step faceCaptain() {
+        var captain = hat.owner();
+        return captain == null || !hat.settled(captain) || !hat.settled(body) ? null
+                : new Step.Do(new Face(SurfaceApproach.yaw(body.position(), captain.position())));
     }
 
     private Step perform() {
@@ -85,7 +91,7 @@ final class PlayAboard implements Intent {
     }
 
     static boolean onBrim(YukkuriEntity body, PlacedHatEntity hat) {
-        return hat.riders().local(body.getUUID()).horizontalDistance() * HullBounds.UNIT >= HullBounds.MOUTH;
+        return !hat.settled(body);
     }
 
     static String fear(YukkuriEntity body, PlacedHatEntity hat) {

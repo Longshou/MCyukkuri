@@ -65,7 +65,7 @@ final class Rescue implements Intent {
                     : List.of(() -> new Step.Sub(new SetOut.Launch(helper, deadline())));
         }
         if (!BraidFetch.withinReach(helper, faller)) return Ferry.chase(helper, faller);
-        if (hat.seatDestination(faller) != null) return BraidFetch.steps(helper, faller, hat);
+        if (hat.restSpot(faller) != null) return BraidFetch.steps(helper, faller, hat);
         var ashore = Ferry.fetchAshore(helper, faller, shoreRelease);
         if (ashore != null) return ashore;
         GameplayLog.event(helper, "aquatic", "rescue blocked faller={} reason=no_seat_or_bank", faller.getUUID());

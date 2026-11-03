@@ -89,13 +89,22 @@ public abstract class HullProfile {
     public double standDistance(double dx,double dz,double radius,double least) { return Math.max(least,clear(dx,dz,radius)); }
 
     private static final class Round extends HullProfile {
-        @Override public HatSurface surface() { return SeatSurface.INSTANCE; }
+        @Override public HatSurface surface() { return HullSurface.INSTANCE; }
         @Override public boolean blocksWalking(double feetY, double rimY) { return !(rimY <= feetY); }
         private final List<Vec> rim;
         Round(String id, GeometryJson source) {
             super(id, source, 0);
             rim = IntStream.range(0, 24).mapToObj(i -> new Vec(Math.cos(i * Math.PI / 12) * reach(0),
                     HullBounds.EDGE / unit, Math.sin(i * Math.PI / 12) * reach(0))).toList();
+        }
+        @Override public double support(double x, double z, BodyFootprint body) {
+            if (!Double.isFinite(surface(x, z))) return Double.NaN;
+            double height = Double.NEGATIVE_INFINITY;
+            for (var p : body.columns()) {
+                double y = surface(x + p.x(), z + p.z());
+                if (Double.isFinite(y)) height = Math.max(height, y - p.bottom());
+            }
+            return height;
         }
         @Override public boolean seated() { return true; }
         @Override public List<Vec> rimPoints() { return rim; }

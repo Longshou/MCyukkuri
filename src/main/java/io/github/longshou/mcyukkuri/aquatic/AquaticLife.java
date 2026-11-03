@@ -167,15 +167,17 @@ public final class AquaticLife {
             var parent = parent(body);
             var hat = parent == null ? null : hat(parent);
             if (!afloat(hat)) return "no_parent_hat";
-            var seat = hat.seatDestination(body);
-            return seat == null ? "no_seat" : board(body, hat, seat.local(), cause, false);
+            Motor.face(body, hat.getYRot());
+            var seat = hat.restSpot(body);
+            return seat == null ? "no_room" : board(body, hat, seat.local(), cause, false);
         }
         if (!HatProp.usable(body) || !body.life().custody().worn()) return "no_hat";
         var water = Waters.edges(body, body.position(), SPAWN_REACH, true).stream().filter(e -> Waters.floats(e, body)).findFirst().orElse(null);
         if (water == null) return "no_water";
         var hat = PlacedHatEntity.setDown(body, Waters.hatAt(water, body), water.yaw() + 90, HatGeometry.Role.SELF);
         if (hat == null) return "set_down_refused";
-        return board(body, hat, hat.seatDestination(body).local(), cause, true);
+        Motor.face(body, hat.getYRot());
+        return board(body, hat, hat.restSpot(body).local(), cause, true);
     }
 
     private static String board(YukkuriEntity body, PlacedHatEntity hat, Vec3 spot, String cause, boolean own) {
@@ -184,7 +186,7 @@ public final class AquaticLife {
             if (own) { body.life().returnAccessory(body.getUUID(), hat.launchToken(), null); hat.state(PlacedHatEntity.State.RESCUED); }
             return "mount_refused";
         }
-        hat.riders().put(body.getUUID(), spot, 0);
+        Motor.spot(hat, body, spot, 0, cause);
         GameplayLog.event(body, "aquatic", "spawn afloat hat={} own={} at={} local={} cause={}", hat.getUUID(), own,
                 GameplayLog.at(hat.position()), GameplayLog.at(spot), cause);
         return null;

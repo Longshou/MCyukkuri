@@ -20,7 +20,7 @@
 - **2026-11-02 试玩反馈**（运行 [4064a9234](https://github.com/Longshou/MCyukkuri/commit/4064a9234)（CI 41332517724，2026-11-02），用户原话摘要；修复后改各条状态）：
   - 已接入待试玩：试玩场布置（反馈 1、3、6、9，运行 [bbd16394b](https://github.com/Longshou/MCyukkuri/commit/bbd16394b) 复测失败）：重置强开标签、嗯嗯坑玩家埋土、茎生与水流演示实体卡墙。完成：标签保留手动开关；全部场景的实体和玩家起点无穿模、有真实支撑、在所属场地内且互不挤占，观察点看得到被测行为。
   - 已接入待试玩：水上成长周期（反馈 14、16、17；复测失败版本 [bbd16394b](https://github.com/Longshou/MCyukkuri/commit/bbd16394b)）：亲油救起过大孩子穿模、玩耍场景误用子油、救援木棍消失。实现 [e8248decf](https://github.com/Longshou/MCyukkuri/commit/e8248decf)、[9cfe1d3f3](https://github.com/Longshou/MCyukkuri/commit/9cfe1d3f3)（CI 待核对）。
-    完成：池塘与河湾 `rescue_child`、`first_voyage`、`kid_boat_play`、`afloat_family`、`shake_capsize`、`hat_crowd`、`worn_hat_boat` 核对初航欲望带、其余乘员载重（船长不计）与超载后不回座、自帽自救与含泪围观、赤油玩耍、木棍帽檐闭环和无棍辫划。
+    完成：池塘与河湾 `rescue_child`、`first_voyage`、`kid_boat_play`、`afloat_family`、`shake_capsize`、`hat_crowd`、`worn_hat_boat` 核对亲油转身时与赤油不重叠、赤油让位及随帽转向，初航欲望带、其余乘员载重（船长不计）与超载后不回座、自帽自救与含泪围观、赤油玩耍、木棍帽檐闭环和无棍辫划。
   - 已接入待试玩：魔理沙帽檐托赤油比例、阶段判定、易掉落与缺辫子动作（`carry_home`、`colony_migrate_babies`）。完成：核对真实体型与帽檐空间、帽满后叼嘴、辫子接放及行走／跳跃掉落原因。
   - 已接入待试玩（[bbd16394b](https://github.com/Longshou/MCyukkuri/commit/bbd16394b) 复测失败，反馈 7、12）：浅水帽船不落底、乘员留船，远帽先等 300 tick。完成：`hat_current` 双乘员离帽、粮棍漂散、帽主接触物品即戴好并回到草岸；`hat_grounded_inverted` 倒扣空帽、`hat_grounded_capsized` 载人载粮翻覆后也都能搁浅成物品（后者帽主游过去戴回）；`hat_swap` 幼体够不到时继续日常，无 `no_way`／呼叫循环；`shore_capsized` 远帽直接游去扶正；`afloat_family`、`sail` 放帽点从不落底。规则见[水生魔理沙](FEATURES.md#水生魔理沙)。
   - 已接入待试玩：岸上不处理水中帽子与亲子出航反复放帽（`hat_swap`、`self_rescue`、`shore_capsized`、`afloat_family`）。完成：岸上对漂着或倒扣的自家帽先招帽靠岸再扶正收回（`beckon` → `right`／`take_prop` → `reclaim done`），招不到时走进水里游去扶正再爬回（`shore_capsized`：`step_in` → 游泳 → `right` → 上帽），无原地哭脸或岸边来回循环；亲子出航一次放帽、一次出航，待接赤油逐只辫子接上落座（`set_out complete aboard=…`），无收帽或重复出航。

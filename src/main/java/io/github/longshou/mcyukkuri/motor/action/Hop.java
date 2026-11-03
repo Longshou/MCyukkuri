@@ -121,8 +121,8 @@ public final class Hop implements Action {
         Vec3 to = target;
         if (seatHost != null) {
             if (seatHost.entity().isRemoved()) return new Flight(Feasibility.of(Reason.TARGET_GONE, 0, "host_gone"), null, null);
-            candidate = target == null ? seatHost.seatDestination(body) : new SeatTarget(seatHost, target);
-            if (candidate == null) return new Flight(Feasibility.of(Reason.NO_ROOM, 0, "no_seat size=" + body.growthScale() * body.getScale()), null, null);
+            candidate = target == null ? seatHost.restSpot(body) : new SeatTarget(seatHost, target);
+            if (candidate == null) return new Flight(Feasibility.of(Reason.NO_ROOM, 0, "no_spot size=" + body.growthScale() * body.getScale()), null, null);
             if (!seatHost.steady()) return new Flight(Feasibility.of(Reason.NO_SUPPORT, 0, "host_unsteady"), null, null);
             if (!candidate.available(body)) return new Flight(Feasibility.of(Reason.NO_ROOM, 0, "destination_occupied"), null, null);
             to = candidate.world();
@@ -220,7 +220,7 @@ public final class Hop implements Action {
         // Cross a bank horizontally before descending, matching the clearance sweep.
         if (delta.y < 0) Motor.move(body, new Vec3(delta.x, 0, delta.z), "hop_flight");
         Motor.move(body, delta.y < 0 ? new Vec3(0, delta.y, 0) : delta, "hop_flight");
-        if (aboard) seatHost.riders().put(body.getUUID(), seatHost.frame().toLocal(body.position()), seatHost.riders().yaw(body.getUUID()));
+        if (aboard) Motor.spot(seatHost, body, seatHost.frame().toLocal(body.position()), seatHost.riders().yaw(body.getUUID()), "hop_start");
         peak = Math.max(peak, aboard ? p.y() : body.getY() - from.y);
         double blocked = body.position().distanceTo(aim);
         if (blocked > TOUCH) return Outcome.of(Reason.NO_SUPPORT, blocked, "arc_blocked at=" + GameplayLog.at(body.position()));
