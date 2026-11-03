@@ -8,6 +8,7 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
+| 帽内连续落位替代座位表（反馈 14 穿模） | `.worktrees/fb-hull-floor` | `headwear/HullSurface`、`motor/geom/FloorSearch`、`motor/surface/Floor`、帽船座位数据 |
 | 统一托运接放判定（救援、出航装载、上岸；摇晃翻覆溺亡） | `.worktrees/fb-capsize-rescue`（分支 `fb-carry-admission`） | `motor/CarryAdmission`、`Grab`／`Release`、`aquatic/Rescue`／`SetOut`／`Ashore`／`Ferry` |
 
 ## 玩法待办
