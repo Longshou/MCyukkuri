@@ -8,6 +8,7 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
+| 帽船两跳上岸、出航接幼与自救入舱（反馈 6、10，WP-C2） | `.worktrees/wp-c2-hops` | `motor/action/Hop`、`motor/action/Climb`、`motor/geom/HopPath`、`aquatic/SetOut`、`aquatic/Ferry`、`aquatic/Rescue`、`docs/FEATURES.md` |
 | 水生母油临产才上岸（反馈 8 上岸时机，WP-B1） | `.worktrees/wp-b1-late-shore` | `aquatic/AquaticGoal`、`family/FamilyLife`、`command/ScenarioSetup`、`scripts/museum_scenarios.py` |
 
 ## 玩法待办
