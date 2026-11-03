@@ -2067,6 +2067,11 @@ def _overload_family_choice(window):
         if placed is None:
             return f'{parent}: hat was not placed'
         boat = re.escape(placed.group(1))
+        places = ((1, 'CABIN'), (2, 'HEAD'), (3, 'BRIM')) if exceptional else ((2, 'HEAD'), (3, 'BRIM'))
+        for child, place in places:
+            if not re.search(r'\[hat\][^\n]*uuid=' + _uuid_text('hat_crowd', parent + str(child))
+                             + r'[^\n]* scenario place hat=' + boat + r' place=' + place + r'\b', window):
+                return f'{parent}{child}: missing real {place} placement'
         rolls = re.findall(r'\[aquatic\][^\n]*uuid=' + boat + r'[^\n]* load changed event=(\w+) body=\S+ '
                            r'load=(\S+) capacity=(\S+) chance=(\S+) roll=(\S+) result=(\w+)', window)
         overloaded_growth = False
@@ -2095,7 +2100,7 @@ def _overload_family_choice(window):
     return None
 
 
-def _overload_family(parent, dz, intelligence, friendliness):
+def _overload_family(parent, dz, intelligence, friendliness, cabin):
     return [yk('marisa', bank_dx(dz), dz, parent, aquatic=True, yaw=-90, lead=True,
                uuid=uid('hat_crowd', parent), intelligence=intelligence, friendliness=friendliness,
                label=f'智{intelligence}·友善{friendliness}', **pair_ready()),
@@ -2103,8 +2108,8 @@ def _overload_family(parent, dz, intelligence, friendliness):
                  fam=_seat_family(size, nourishment, age), childhood=CHILDHOOD_CRAWLING_READY,
                  uuid=uid('hat_crowd', parent + str(i)), also=(parent + '_crew',),
                  kin=f'Mother:{uuid_nbt(uid("hat_crowd", parent))}', label=f'孩子{i}', **pair_ready())
-              for i, offset, size, nourishment, age in ((1, -1, .16, 22909, 36000), (2, 0, .19, 68727, 36000),
-                                                       (3, 1, .36, 159100, 72000))],
+              for i, offset, size, nourishment, age in ((1, -1, .16, 22909, 36000), (2, 0, .20, 84000, 36000),
+                                                       (3, 1, .36, 159100, 72000)) if cabin or i != 1],
             afloat(parent, water_at(dz, 3), True, sel_all(parent + '_crew'), food=8, stick=True)]
 
 
@@ -2426,12 +2431,12 @@ pond('cargo', '帽底储粮·计数与原地取食', '帽底储粮',
                 readout=[f'yukkuri status {sel("a")} raw', f'yukkuri status {sel("full")} raw']))
 
 pond('hat_crowd', '帽内与头顶载幼·超载取舍', '帽内与头顶载幼·超载取舍',
-     '两位亲油并排，各载两只赤油和一只子油，按舱内、裸露头顶、帽檐顺序找真实承托。普通亲油智力55、友善70；另一位智力20、友善80。各有八份苹果，孩子靠实际成长增加载重；超载只在登船、离船或成长时抽一次翻船概率。真实超载翻船后，普通亲油断绝最大的一只，低智力高友善亲油继续承认全部孩子。落水后照常自救或救幼，不能保证存活',
+     '两位亲油并排，普通亲油带一只头顶赤油和一只帽檐子油，另一位还带一只帽内小赤油，按舱内、裸露头顶、帽檐顺序找真实承托。普通亲油智力55、友善70；另一位智力20、友善80。各有八份苹果，孩子靠实际成长增加载重；超载只在登船、离船或成长时抽一次翻船概率。真实超载翻船后，普通亲油断绝最大的一只，低智力高友善亲油继续承认全部孩子。落水后照常自救或救幼，不能保证存活',
      '约 12–16 分钟，建议倍速',
-     [*_overload_family('normal', 0, 55, 70), *_overload_family('kind', 6, 20, 80)],
+     [*_overload_family('normal', 0, 55, 70, False), *_overload_family('kind', 6, 20, 80, True)],
      late=[f'execute as {sel("normal")} on vehicle run tag @s add seat_reload'],
      capture=dict(shots=(1, 40, 600, 15000), sequences=((600, 15000, 300), (8400, 9600, 4))),
-     note='先读第一顶帽 Riders 与 Passengers 的 UUID、坐标，保存退出后继续同一世界再读，位置不重排；冒烟会卸载再加载场地区块核对。'
+     note='普通亲油的头顶与帽檐乘员用于保存重载核对，另一位的帽内赤油可自行转身和走动；冒烟会卸载再加载场地区块核对第一顶帽的位置与乘员。'
           '逐只记 scenario place 的 CABIN／HEAD／BRIM；[aquatic] load changed 给出事件、载重、容量、概率、抽值和结果，静止不重抽。'
           '先看 load warning，再看 capsized cause=too_heavy 与真实落水；普通亲油随后记 parent dismissed child，孩子仍认亲、族谱不变，亲油不再救它；另一位记 overload keeps children。'
           '子油没有自己的木棍而推迟初航；不强制翻船或死亡，真实拒绝和水伤保留，逐只读存亡；整窗不得有人饿死。',
@@ -2450,7 +2455,7 @@ pond('hat_crowd', '帽内与头顶载幼·超载取舍', '帽内与头顶载幼�
                         r'\[needs\][^\n]* starvation damage accepted=true',
                         r'\[body\][^\n]* death settled[^\n]*cause=(?!.*(?:drown|water))'],
                 verify=_overload_family_choice,
-                readout=[f'yukkuri status {sel(who)} raw' for who in ('normal', 'kind', 'normal1', 'normal2', 'normal3', 'kind1', 'kind2', 'kind3')]
+                readout=[f'yukkuri status {sel(who)} raw' for who in ('normal', 'kind', 'normal2', 'normal3', 'kind1', 'kind2', 'kind3')]
                         + ['data get entity @e[tag=seat_reload,limit=1] Riders',
                            'data get entity @e[tag=seat_reload,limit=1] Motion',
                            'data get entity @e[tag=seat_reload,limit=1] Inverted']))

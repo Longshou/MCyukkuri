@@ -179,26 +179,23 @@ def run_scene(st, scene, builder, run_index=1):
     if 'reload' in scene.smoke:
         elapsed, selector = scene.smoke['reload']
         server.sprint(st, elapsed)
-        # Compare saved state while physics and AI are paused; a live cabin rider may walk between RCON reads.
-        server.run_cmd(st, 'tick freeze')
         command = f'execute positioned {x}.0 {builder.FEET} {z}.0 run data get entity {selector}'
         paths = ('Riders', 'Passengers[0].UUID', 'Passengers[1].UUID')
         before = [server.run_cmd(st, f'{command} {path}') for path in paths]
         server.run_cmd(st, 'save-all flush')
         for cx, cz in sorted(builder.BY_ID[scene.field].chunks()):
             server.run_cmd(st, f'forceload remove {cx} {cz}')
-        wait_command(st, f'execute positioned {x}.0 {builder.FEET} {z}.0 unless entity {selector} run say MCYSMOKE_RELOAD_UNLOADED',
-                     'MCYSMOKE_RELOAD_UNLOADED')
+        server.sprint(st, 400)
+        if 'No entity was found' not in server.run_cmd(st, f'{command} UUID'):
+            raise RuntimeError(f'{scene.id}: reload fixture did not unload')
         load_field(st, builder.BY_ID[scene.field], builder.FEET)
-        wait_command(st, f'execute positioned {x}.0 {builder.FEET} {z}.0 if entity {selector} run say MCYSMOKE_RELOAD_LOADED',
-                     'MCYSMOKE_RELOAD_LOADED')
+        server.sprint(st, 1)
         after = [server.run_cmd(st, f'{command} {path}') for path in paths]
         normalize = lambda rows: re.sub(r'Yaw: [-+.\deE]+f', 'Yaw: observed', '\n'.join(rows))
         (Path(st['rundir']).parent / f'{scene.id}.reload.txt').write_text('\n'.join(before + after), encoding='utf-8')
         if normalize(before) != normalize(after):
             raise RuntimeError(f'{scene.id}: saved rider coordinates or passenger identities changed on reload')
         print(f'PASS {scene.id}: rider coordinates and passenger identities survived chunk reload', flush=True)
-        server.run_cmd(st, 'tick unfreeze')
     server.sprint(st, scene.smoke['ticks'] - elapsed)
     readout = '\n'.join(server.run_cmd(st, f'execute positioned {x}.0 {builder.FEET} {z}.0 run {command}')
                         for command in scene.smoke.get('readout', ()))

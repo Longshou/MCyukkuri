@@ -419,9 +419,9 @@ public final class HullAfloat implements PlacedHatBehavior {
                 && local.y >= hat.profile().surface(local.x, local.z) - Occupancy.MARGIN / hat.unit());
     }
     @Override public String detail(PlacedHatEntity hat) {
-        double load = hat.loadRatio();
-        return String.format(Locale.ROOT, "afloat load=%.3f warning=%.3f waterline=%.3f surface=%.2f phase=%s trigger=%s value=%.3f falling=%s capsizes=%d inverted=%s righting=%.2f %s play=%s",
-                load, HullPresentation.loadWarning(load), HullBounds.WATERLINE * scale(hat), water(), phase, cause, triggerValue, falling, capsizes,
+        double load = hat.loadRatio(), capacity = HullBounds.capacity(scale(hat));
+        return String.format(Locale.ROOT, "afloat load=%.5f capacity=%.5f ratio=%.3f chance=%.3f warning=%.3f waterline=%.3f surface=%.2f phase=%s trigger=%s value=%.3f falling=%s capsizes=%d inverted=%s righting=%.2f %s play=%s",
+                load * capacity, capacity, load, HullTriggers.overloadChance(load), HullPresentation.loadWarning(load), HullBounds.WATERLINE * scale(hat), water(), phase, cause, triggerValue, falling, capsizes,
                 phase == Phase.INVERTED, rightProgress, larder.detail(), playCounts);
     }
     private static double[] local(PlacedHatEntity hat, double x, double z) {
