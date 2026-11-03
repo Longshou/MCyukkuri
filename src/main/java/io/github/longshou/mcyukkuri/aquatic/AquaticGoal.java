@@ -176,7 +176,7 @@ final class AquaticGoal extends Goal {
                 ? num("birth_ashore_want", 200) : 0;
         var young = AquaticLife.young(body);
         // Finish the first meal/toilet care ashore; a crawling child can gather for a braid lift without learning to jump.
-        var shoreNewborns = young.stream().filter(y -> AquaticLife.ashore(y) && y.childhood().isNewborn()
+        var shoreNewborns = young.stream().filter(y -> AquaticLife.ashore(y) && y.family().stage() == FamilyLife.Stage.BABY && y.childhood().isNewborn()
                 && y.childhood().shouldStayWithParents()).toList();
         var nursing = shoreNewborns.stream().filter(y -> !y.childhood().firstToiletDone()).toList();
         boolean nursery = !nursing.isEmpty();
