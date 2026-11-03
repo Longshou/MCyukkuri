@@ -247,6 +247,8 @@ public final class FamilyLife {
         return feeding.startCare()||startLandChildSearch();
     }
     /** Current family work only: no search or willingness decision is performed for this readout. */
+    /** A parent on her way to a child she searches for (the aquatic life does not set out under it); current family work only. */
+    public boolean searchingChild() { return task==Task.SEARCH&&target!=null; }
     public boolean migrationCareActive() { return task==Task.FEED_CHILD||task==Task.SEARCH&&target!=null&&caresFor(target); }
     public boolean elder() { return age>=GrowthTiming.ELDER_START; }
     /** The final child interval is internally still {@link Stage#JUVENILE}; it is a separate age qualification. */

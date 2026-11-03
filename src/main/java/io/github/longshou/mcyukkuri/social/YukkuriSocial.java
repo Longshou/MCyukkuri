@@ -17,12 +17,15 @@ import io.github.longshou.mcyukkuri.motor.ClipMarkers;
 import io.github.longshou.mcyukkuri.motor.ContactGeometry;
 import io.github.longshou.mcyukkuri.motor.MotorOwner;
 import io.github.longshou.mcyukkuri.motor.Outcome;
+import io.github.longshou.mcyukkuri.motor.action.StepIn;
 import io.github.longshou.mcyukkuri.settlement.SettlementSociety;
 import io.github.longshou.mcyukkuri.pet.PetSkill;
 import io.github.longshou.mcyukkuri.human.HumanNpc;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
@@ -50,6 +53,8 @@ public final class YukkuriSocial implements MotorOwner {
      *  retrieval ends after this many legs. A single 240 for the whole trip ended it mid-walk when the way round was long. */
     private static final int ACCESSORY_LEGS = 12;
     private int accessoryLegs;
+    /** The bank stands this retrieval already stepped in from (the swim did not reach the item): not chosen again. */
+    private final Set<BlockPos> triedStands = new HashSet<>();
     private record ContactWait(int until, long lastInteraction) {}
     private final Map<UUID, ContactWait> contactWaits = new HashMap<>();
     private int toyContact, toyTouches;
@@ -180,7 +185,7 @@ public final class YukkuriSocial implements MotorOwner {
                 return reachable;
             })
                     .stream().min(Comparator.comparingDouble(entity::distanceToSqr)).orElse(null);
-            if(target!=null){task=Task.ACCESSORY;duration=240;elapsed=0;accessoryLegs=0;return true;}
+            if(target!=null){task=Task.ACCESSORY;duration=240;elapsed=0;accessoryLegs=0;triedStands.clear();return true;}
         }
         if (morningPending) {
             morningPending = false;
@@ -277,7 +282,8 @@ public final class YukkuriSocial implements MotorOwner {
                 if(motor.current()!=null)return;
                 if(!(motor.last() instanceof Outcome.Done)){stop();return;}
             }
-            var move=SurfaceApproach.approach(entity,item);
+            var move=SurfaceApproach.approach(entity,item,triedStands);
+            if(move instanceof StepIn)triedStands.add(entity.blockPosition().immutable());
             if(move==null||accessoryLegs>=ACCESSORY_LEGS||!motor.run(this,move)){
                 GameplayLog.limited(entity,"headwear","accessory_retrieval_end",200,"loose accessory retrieval ended item={} legs={} reason={}",
                         item.getUUID(),accessoryLegs,move==null?"no_way":accessoryLegs>=ACCESSORY_LEGS?"legs":"refused");

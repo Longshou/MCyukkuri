@@ -188,12 +188,14 @@ final class AquaticGoal extends Goal {
             double pull = Math.max(Math.max(hunger, weather), breed);
             boolean asleep = young.stream().anyMatch(y -> y.life().isSleeping() && !AquaticLife.aboard(y, hat));
             boolean beyondGather = SetOut.dependentBeyondGatherRange(body);
-            double setOut = asleep || beyondGather || birth > 0 || nursery ? 0 : num("water_life", 60) - 2 * pull - (dusk ? num("night_pull", 60) : 0) - (rain ? num("rain_pull", 30) : 0);
-            var world = List.of(body.blockPosition(), stick, nearStick, young.size(), beyondGather, birth > 0, nursery);
+            // a search for a child ends at the child (greeting, halt) before she turns to the water
+            boolean searching = body.family().searchingChild();
+            double setOut = asleep || beyondGather || searching || birth > 0 || nursery ? 0 : num("water_life", 60) - 2 * pull - (dusk ? num("night_pull", 60) : 0) - (rain ? num("rain_pull", 30) : 0);
+            var world = List.of(body.blockPosition(), stick, nearStick, young.size(), beyondGather, searching, birth > 0, nursery);
             boolean usable = hat == null ? life.custody().worn() : AquaticLife.afloat(hat);
             if (usable) out.add(Desire.of("set_out", floor(setOut), world, () -> String.format(Locale.ROOT,
-                    "pull=%.0f hunger=%.0f weather=%.0f breed=%.0f stick=%b stick_near=%b dusk=%b rain=%b young=%d asleep=%b beyond_gather=%b nursery=%b",
-                    pull, hunger, weather, breed, stick, nearStick, dusk, rain, young.size(), asleep, beyondGather, nursery), () -> new SetOut(body, this::leftAshore)));
+                    "pull=%.0f hunger=%.0f weather=%.0f breed=%.0f stick=%b stick_near=%b dusk=%b rain=%b young=%d asleep=%b beyond_gather=%b searching=%b nursery=%b",
+                    pull, hunger, weather, breed, stick, nearStick, dusk, rain, young.size(), asleep, beyondGather, searching, nursery), () -> new SetOut(body, this::leftAshore)));
             // Newborns ashore go through family loading, never the solo reclaim that may finish aboard without them.
             if (hat != null && birth == 0 && unloadedNewborns.isEmpty() && !beyondGather
                     && (floor(setOut) == 0 || !AquaticLife.afloat(hat) || drive().failed("set_out")))

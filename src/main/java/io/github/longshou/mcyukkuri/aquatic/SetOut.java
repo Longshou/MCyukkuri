@@ -38,7 +38,7 @@ import net.minecraft.world.phys.Vec3;
  * Setting out (出航; HARD, a short commitment only danger breaks): with her stick (tucked in the hat, or
  * one picked up nearby, lying or afloat beside the bank; with none in reach she sets out without) she walks to a bank edge beside
  * calm water with room for the hull (the nearest one carrying a hull within {@link Waters#FAR} blocks when none is within berth
- * reach, her young following and one call for a young still beyond the gather range), sets her hat down on the water
+ * reach, in strides of a few blocks so the young keep up, calling for them between strides), sets her hat down on the water
  * ({@code PlaceProp} in water mode, {@code hat_off_self_aq}), and the family gets aboard: a young that hops boards by its own
  * {@code board_parent} desire. She loads dependent young from the near brim, then moves to her seat.
  * Sleeping young, those in the water and those without a seat stay behind; a failed fetch ends this setting out. She gathers
@@ -47,7 +47,9 @@ import net.minecraft.world.phys.Vec3;
  */
 final class SetOut implements Intent, FamilyRendezvous {
     /** The whole setting out (the walk to a far shore included), the post-launch boarding call, and the longer bank gather (ticks). */
-    private static final int DEADLINE = 3600, WAIT_YOUNG = 300, GATHER_YOUNG = WAIT_YOUNG * 4;
+    private static final int DEADLINE = 6000, WAIT_YOUNG = 300, GATHER_YOUNG = WAIT_YOUNG * 4;
+    /** The longest stretch (blocks) she walks toward a far shore before she waits for her young. */
+    private static final double STRIDE = 6;
 
     private final YukkuriEntity owner;
     private final long started;
@@ -55,8 +57,10 @@ final class SetOut implements Intent, FamilyRendezvous {
     /** The far shores she already walked to this setting out (the berth was still none there): not chosen again. */
     private final Set<BlockPos> shores = new HashSet<>();
     private int calls;
-    /** End of the one gather call, or zero when no gather wait is running; end of the one call for a young beyond the gather range. */
-    private long gatherUntil, farUntil;
+    /** End of the one gather call, or zero when no gather wait is running. */
+    private long gatherUntil;
+    /** The far shore she is heading for, or null. */
+    private Waters.Edge heading;
     private final Ferry.Beckoning beckoning = new Ferry.Beckoning();
     /** Young she sets out without, with the reason. */
     private final Map<UUID, String> excused = new LinkedHashMap<>();
@@ -121,14 +125,10 @@ final class SetOut implements Intent, FamilyRendezvous {
             var fetch = dependentAshore(hat);
             var edge = Waters.berth(owner);
             if (edge == null) {
-                var shore = Waters.farShore(owner, shores);
-                if (shore != null) return toShore(shore);
-            }
-            if (edge != null && farUntil == 0 && dependentBeyondGatherRange(owner)) {
-                farUntil = owner.level().getGameTime() + GATHER_YOUNG;
-                GameplayLog.event(owner, "aquatic", "set_out call far child at={} wait={}", GameplayLog.at(owner.position()), GATHER_YOUNG);
-                return List.of(() -> new Step.Wait(() -> !dependentBeyondGatherRange(owner) || owner.level().getGameTime() >= farUntil,
-                        GATHER_YOUNG + 1, Behaviors.BOAT_CALL));
+                // standing at a far shore that still has no berth: that one is done with
+                if (heading != null && SurfaceApproach.arrived(owner, heading.stand(owner.getBbWidth()))) { shores.add(heading.stand()); heading = null; }
+                if (heading == null) heading = Waters.farShore(owner, shores);
+                if (heading != null) return toShore(heading);
             }
             if (edge != null && gatherUntil == 0 && !fetch.isEmpty()) {
                 GameplayLog.event(owner, "aquatic", "set_out gather start children={}", fetch.stream()
@@ -200,11 +200,30 @@ final class SetOut implements Intent, FamilyRendezvous {
      *  set out from it. */
     private List<Supplier<Step>> toShore(Waters.Edge shore) {
         var stand = shore.stand(owner.getBbWidth());
-        shores.add(shore.stand());
-        GameplayLog.limited(owner, "aquatic", "set_out.far_shore", 200, "set_out far shore stand={} water={} distance={}",
-                GameplayLog.at(stand), shore.water().toShortString(), Math.round(Math.sqrt(owner.distanceToSqr(stand))));
-        return List.of(() -> SurfaceApproach.arrived(owner, stand) ? null : new Step.Do(new Walk(stand)));
+        GameplayLog.limited(owner, "aquatic", "set_out.far_shore", 200, "set_out far shore stand={} water={} distance={} young={}",
+                GameplayLog.at(stand), shore.water().toShortString(), Math.round(Math.sqrt(owner.distanceToSqr(stand))), strays(owner).size());
+        return List.of(() -> SurfaceApproach.arrived(owner, stand) ? null : new Step.Do(new Walk(stride(stand))),
+                () -> {
+                    if (!lagging()) return null;
+                    long until = owner.level().getGameTime() + GATHER_YOUNG;
+                    return new Step.Wait(() -> !lagging() || owner.level().getGameTime() >= until, GATHER_YOUNG + 1, Behaviors.BOAT_CALL);
+                });
     }
+
+    /** The next stretch toward the stand: the whole way when no young follows her, else at most {@link #STRIDE} blocks on a floor she
+     *  can walk to, so that the young (slow when small) keep up. */
+    private Vec3 stride(Vec3 stand) {
+        var to = stand.subtract(owner.position()).multiply(1, 0, 1);
+        if (to.length() <= STRIDE || strays(owner).isEmpty()) return stand;
+        for (double d = STRIDE; d >= 2; d -= 2) {
+            var at = SurfaceApproach.floor(owner, owner.position().add(to.normalize().scale(d)));
+            if (at != null && SurfaceApproach.canApproach(owner, at)) return at;
+        }
+        return stand;
+    }
+
+    /** Some young of hers on land has not yet come to her side. */
+    private boolean lagging() { return strays(owner).stream().anyMatch(y -> !y.family().withinFollowDistance(owner)); }
 
     /** Walk beside the stick, face it, pick it up into her hat. */
     private List<Supplier<Step>> fetch(ItemEntity stick) {
@@ -233,13 +252,17 @@ final class SetOut implements Intent, FamilyRendezvous {
         return fetch.stream().allMatch(y -> y.family().withinFollowDistance(owner));
     }
 
+    /** Her own young on land within the family search range that still need to follow her. */
+    static List<YukkuriEntity> strays(YukkuriEntity parent) {
+        var id = parent.getUUID();
+        return parent.level().getEntitiesOfClass(YukkuriEntity.class, parent.getBoundingBox().inflate(FamilyLife.FAMILY_SEARCH_RANGE),
+                y -> y.isAlive() && !y.family().adult() && (id.equals(y.family().mother()) || id.equals(y.family().father()))
+                        && y.childhood().shouldStayWithParents() && !y.isPassenger() && !y.isInWaterOrBubble());
+    }
+
     /** A narrow horizon scan for an own young on land too far away for the ordinary aquatic family list. */
     static boolean dependentBeyondGatherRange(YukkuriEntity parent) {
-        var id = parent.getUUID();
-        return !parent.level().getEntitiesOfClass(YukkuriEntity.class, parent.getBoundingBox().inflate(FamilyLife.FAMILY_SEARCH_RANGE),
-                y -> y.isAlive() && !y.family().adult() && (id.equals(y.family().mother()) || id.equals(y.family().father()))
-                        && y.childhood().shouldStayWithParents() && AquaticLife.ashore(y)
-                        && parent.distanceToSqr(y) > AquaticLife.FAMILY_RANGE * AquaticLife.FAMILY_RANGE).isEmpty();
+        return strays(parent).stream().anyMatch(y -> parent.distanceToSqr(y) > AquaticLife.FAMILY_RANGE * AquaticLife.FAMILY_RANGE);
     }
 
 }

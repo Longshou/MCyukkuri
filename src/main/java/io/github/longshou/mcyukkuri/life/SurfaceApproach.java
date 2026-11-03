@@ -17,6 +17,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
 import java.util.function.Predicate;
 import net.minecraft.core.BlockPos;
@@ -354,7 +355,10 @@ public final class SurfaceApproach {
 
     /** The next shared movement to a loose item: a supported walk to a stand beside it on dry ground, or, by species ability, from
      *  the bank stand nearest it a step into the water and a swim to it. Null when this body has no way there. */
-    public static Action approach(YukkuriEntity actor, ItemEntity item) {
+    public static Action approach(YukkuriEntity actor, ItemEntity item) { return approach(actor, item, Set.of()); }
+
+    /** The same, never from a bank stand in {@code avoid}: one an earlier step-in and swim left without reaching the item. */
+    public static Action approach(YukkuriEntity actor, ItemEntity item, Set<BlockPos> avoid) {
         if (actor.isInWaterOrBubble()) return actor.profile().aquatic() ? Swim.to(item::position, 0) : null;
         if (!item.isInWater()) {
             var stand = beside(actor, item, actor.getBbWidth() / 2 + .2, ContactGeometry.GRAB_HEIGHT);
@@ -366,7 +370,7 @@ public final class SurfaceApproach {
         Vec3 stand = null, entry = null;
         double best = Double.POSITIVE_INFINITY;
         for (var p : BlockPos.betweenClosed(centre.offset(-8, -1, -8), centre.offset(8, 2, 8))) {
-            if (!level.hasChunkAt(p) || !actor.life().dryStand(p)) continue;
+            if (!level.hasChunkAt(p) || avoid.contains(p) || !actor.life().dryStand(p)) continue;
             var at = Vec3.atBottomCenterOf(p);
             for (var direction : Direction.Plane.HORIZONTAL) {
                 var wet = p.relative(direction).below();
