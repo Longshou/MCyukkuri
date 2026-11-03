@@ -47,6 +47,7 @@ public final class Climb implements Action {
     public SurfaceHost host() { return host; }
 
     @Override public String id() { return ID; }
+    @Override public boolean airborne() { return seating != null && seating.airborne(); }
 
     /** Settles the edge and the stand: world points for a bank, the host's local spots (hat units) for a host. */
     @Override public Feasibility check(YukkuriEntity body) {

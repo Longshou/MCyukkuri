@@ -16,6 +16,9 @@ public interface Action {
     /** Physical host crossed by this action, including an arrival or departure in flight. */
     default SurfaceHost host() { return null; }
 
+    /** The current execution holds the body in flight, including a composed hop aboard a host. */
+    default boolean airborne() { return false; }
+
     /** Called from {@link BodyDriver#tickTravel}; every tick until it returns an {@link Outcome}. */
     Progress tick(YukkuriEntity body);
 

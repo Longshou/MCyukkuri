@@ -245,6 +245,7 @@ public final class Hop implements Action {
     }
 
     @Override public boolean interruptible() { return !launched; }
+    @Override public boolean airborne() { return launched; }
     @Override public MotionPose pose() { return new MotionPose(CLIP, startTick, false); }
     @Override public String startDetail() { return "from=" + GameplayLog.at(from) + " to=" + (seatHost == null ? GameplayLog.at(target) : seatHost.entity().getUUID()); }
     @Override public String endDetail(Outcome outcome) { return String.format(Locale.ROOT, "peak=%.2f airTicks=%d", peak, air); }

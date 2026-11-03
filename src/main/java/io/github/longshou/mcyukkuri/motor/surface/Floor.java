@@ -3,7 +3,6 @@ package io.github.longshou.mcyukkuri.motor.surface;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.motor.BodyAbility;
 import io.github.longshou.mcyukkuri.motor.Motor;
-import io.github.longshou.mcyukkuri.motor.action.Hop;
 import io.github.longshou.mcyukkuri.motor.geom.BodyFootprint;
 import io.github.longshou.mcyukkuri.motor.geom.FloorSearch;
 import io.github.longshou.mcyukkuri.motor.geom.Vec;
@@ -17,7 +16,8 @@ public final class Floor {
     private Floor() {}
     /** An aboard hop keeps its rider record while the motor carries it through the air. */
     public static boolean standing(YukkuriEntity body) {
-        return !(body.motor().current() instanceof Hop hop && !hop.interruptible());
+        var action = body.motor().current();
+        return action == null || !action.airborne();
     }
     public static BodyFootprint shape(SurfaceHost host, YukkuriEntity body) {
         float yaw = body.getVehicle() == host.entity() ? host.riders().yaw(body.getUUID())

@@ -89,8 +89,8 @@ public final class EscapeWater implements Intent {
     @Override public String id() { return "escape_water"; }
 
     @Override public boolean satisfied() {
-        return body.isPassenger() || !body.isInWaterOrBubble() && !(body.motor().current() instanceof Climb)
-                && SurfaceApproach.stands(body, body.position());
+        return !(body.motor().current() instanceof Climb)
+                && (body.isPassenger() || !body.isInWaterOrBubble() && SurfaceApproach.stands(body, body.position()));
     }
 
     /** One line per escape, with the stand it ended on (or none): the whole run's outcome in the water log. */
