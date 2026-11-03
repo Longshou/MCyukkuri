@@ -5,6 +5,7 @@ import io.github.longshou.mcyukkuri.headwear.HatGeometry;
 import io.github.longshou.mcyukkuri.headwear.HatProp;
 import io.github.longshou.mcyukkuri.headwear.HatScale;
 import io.github.longshou.mcyukkuri.headwear.PlacedHatEntity;
+import io.github.longshou.mcyukkuri.intent.AskLedger;
 import io.github.longshou.mcyukkuri.intent.Intent;
 import io.github.longshou.mcyukkuri.intent.IntentRunner;
 import io.github.longshou.mcyukkuri.intent.Method;
@@ -29,9 +30,12 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import java.util.function.IntFunction;
+import java.util.function.Supplier;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.world.phys.Vec3;
 
@@ -43,7 +47,8 @@ import net.minecraft.world.phys.Vec3;
  * to it, climb); else pressing toward the nearest bank, aimed again every few seconds and given up for a better way as soon as
  * one applies. An edge whose climb slipped or found no room is avoided for a while ({@link #AVOID_TICKS}), so the next try uses
  * another. The three own-hat ways are only for a body that sails ({@code ChildhoodLife.canSail}: an adult, or a young whose first
- * voyage came back); one that does not only struggles and waits for its parent to lift it out. Satisfied once the body stands on a stand it
+ * voyage came back); one that does not only struggles, toward the rim of its parent's hat afloat when that lies nearer than the
+ * bank (where the parent lifts it out), and waits for its parent to lift it. Satisfied once the body stands on a stand it
  * really rests on out of the water with its own footprint clear of it (a rim level with the water is no stand) and its own climb,
  * if one is running, has finished; failing costs what the water costs.
  */
@@ -115,7 +120,7 @@ public final class EscapeWater implements Intent {
         var hat = PlacedHatEntity.find(body);
         Vec3 boat = boatSpot();
         Edge bank = climbable();
-        BlockPos near = nearest();
+        boolean refuge = rimHat() != null || nearest() != null;
         Step toRim = new Step.Do(Swim.to(() -> hat.isRemoved() ? null : ContactGeometry.nearestRim(body, hat).orElse(null), HAT_SWIM));
         return List.of(
                 new Way("own_hat", hat(hat, false), AT_HAT, i -> i == 0 ? toRim : i == 1 ? new Step.Do(Climb.onto(hat)) : null),
@@ -139,10 +144,8 @@ public final class EscapeWater implements Intent {
                     case 2 -> new Step.Do(Climb.onto((climbing = bank).edge(), bank.land()));
                     default -> null;
                 }),
-                new Way("struggle", near == null ? Feasibility.of(Reason.NO_PATH, 0, "no_bank") : Feasibility.pass(), PRESSING, i -> {
-                    BlockPos to = i == 0 ? near : body.isInWaterOrBubble() && better(hat) ? null : nearest();
-                    return to == null ? null : new Step.Do(Swim.toward(Vec3.atBottomCenterOf(to), PRESS));
-                }));
+                new Way("struggle", refuge ? Feasibility.pass() : Feasibility.of(Reason.NO_PATH, 0, "no_bank"), PRESSING,
+                        i -> i > 0 && body.isInWaterOrBubble() && better(hat) ? null : press()));
     }
 
     /** One way out: whether it applies, what it shrinks, and its i-th step (null once it has no more). */
@@ -242,6 +245,51 @@ public final class EscapeWater implements Intent {
             if (edge != null && route(pos)) return edge;
         }
         return null;
+    }
+
+    /** One struggle step: toward the rim of a parent's hat afloat when that lies nearer than the nearest bank stand, else pressing
+     *  toward the stand. */
+    private Step press() {
+        var hat = rimHat();
+        if (hat != null) return atRim(hat);
+        BlockPos bank = nearest();
+        return bank == null ? null : new Step.Do(Swim.toward(Vec3.atBottomCenterOf(bank), PRESS));
+    }
+
+    /** Swim to the rim; once the mouth holds it, float there (a body pressing on the hull pushes it away) until the hat drifts out of
+     *  reach, is no longer the nearest refuge, or the wait is up. */
+    private Step atRim(PlacedHatEntity hat) {
+        Supplier<Vec3> rim = () -> ContactGeometry.nearestRim(body, hat).orElseThrow();
+        if (!ContactGeometry.canGrip(body, rim.get())) return new Step.Do(Swim.to(rim, HAT_SWIM));
+        long from = body.level().getGameTime();
+        return new Step.Wait(() -> !ContactGeometry.canGrip(body, rim.get()) || rimHat() != hat || body.level().getGameTime() - from >= PRESS,
+                PRESS + 1, "wait_for_parent");
+    }
+
+    /** The parent's hat afloat when its rim lies nearer than the nearest bank stand, else null. */
+    private PlacedHatEntity rimHat() {
+        var hat = parentHat();
+        BlockPos bank = nearest();
+        return hat != null && (bank == null || ContactGeometry.nearestRim(body, hat).orElseThrow().distanceToSqr(body.position())
+                <= Vec3.atBottomCenterOf(bank).distanceToSqr(body.position())) ? hat : null;
+    }
+
+    /** The nearest hat afloat of a living parent within {@link #HAT_RANGE}, for a young that cannot sail (a body that sails has its
+     *  own hat ways): the parent lifts it out of the water from there, so it waits at the rim rather than swimming on to a bank
+     *  it has no breath to reach, until the help its incident was given has ended without getting it out. */
+    private PlacedHatEntity parentHat() {
+        if (body.childhood().canSail() || body.family().adult() || !(body.level() instanceof ServerLevel level)) return null;
+        var ledger = AskLedger.server();
+        String incident = ledger.openOf(body.getUUID(), "water");
+        if (incident != null && ledger.helpEnded(incident)) return null;
+        PlacedHatEntity nearest = null;
+        for (UUID id : new UUID[]{body.family().mother(), body.family().father()}) {
+            if (id == null || !(level.getEntity(id) instanceof YukkuriEntity parent) || !parent.isAlive()) continue;
+            var hat = PlacedHatEntity.find(parent);
+            if (hat != null && hat.behavior().afloat(hat) && hat.distanceTo(body) <= HAT_RANGE
+                    && (nearest == null || hat.distanceToSqr(body) < nearest.distanceToSqr(body))) nearest = hat;
+        }
+        return nearest;
     }
 
     /** Prefer a routed stand, an avoided one last; only without a route does a weak struggle press toward an unrouted stand. */
