@@ -2098,7 +2098,7 @@ def _overload_family_choice(window):
 def _overload_family(parent, dz, intelligence, friendliness):
     return [yk('marisa', bank_dx(dz), dz, parent, aquatic=True, yaw=-90, lead=True,
                uuid=uid('hat_crowd', parent), intelligence=intelligence, friendliness=friendliness,
-               label=f'智{intelligence}·友善{friendliness}', **{**pair_ready(), 'energy': 20}),
+               label=f'智{intelligence}·友善{friendliness}', **pair_ready()),
             *[yk('marisa', bank_dx(dz + offset) - 1, dz + offset, parent + str(i), aquatic=True,
                  fam=_seat_family(size, nourishment, age), childhood=CHILDHOOD_CRAWLING_READY,
                  uuid=uid('hat_crowd', parent + str(i)), also=(parent + '_crew',),
