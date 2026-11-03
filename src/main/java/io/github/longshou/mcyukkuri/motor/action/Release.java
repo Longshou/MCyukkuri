@@ -193,10 +193,7 @@ public final class Release implements Action {
             GameplayLog.event(carrier, "family", "carry release approaching child={} cushion={} yaw={}", child.getUUID(), ParentCarry.nestDestination(carrier, child), facing);
         }
         else if (destination == null) { turn = new Face(facing); turn.start(carrier); }
-        else {
-            ParentCarry.lower(carrier, child, seat);
-            GameplayLog.event(carrier, "family", "carry lowering destination child={} {}", child.getUUID(), seat.detail(child));
-        }
+        else ParentCarry.lower(carrier, child, seat);
     }
 
     @Override public Progress tick(YukkuriEntity carrier) {
@@ -205,7 +202,7 @@ public final class Release implements Action {
         if (destination != null) {
             String unavailable = seat.unavailable(child);
             if (unavailable != null) return Outcome.of(Reason.NO_ROOM, 0,
-                    "seat_unavailable check=" + unavailable + " " + seat.detail(child));
+                    "seat_unavailable check=" + unavailable);
         }
         if (approach != null) {
             var progress = approach.tick(carrier);
