@@ -88,6 +88,8 @@ public final class EcologyPresentation {
             case "hello", "peer", "known_peer", "caregiver", "introduced", "gentle" -> YukkuriAction.GREET;
             case "afraid", "wounded", "water_help", "family_alarm_flee" -> YukkuriAction.TREMBLE;
             case "boat_rock_startle" -> YukkuriAction.STARTLE;
+            // The protective puff keeps its authored body clip on land and for a hat rider; a running hold keeps its own pose.
+            case "protect_taunt" -> YukkuriAction.PUFF;
             case "lost_accessory", "family_died", "lost_parent", "cold", "settlement_hurt", "settlement_submit" -> YukkuriAction.DROOP;
             case "washed" -> YukkuriAction.SHAKE;
             case "toy" -> YukkuriAction.HOP;

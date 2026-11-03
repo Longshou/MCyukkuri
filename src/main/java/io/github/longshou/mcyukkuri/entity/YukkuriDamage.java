@@ -11,6 +11,7 @@ import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.life.YukkuriLife;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.social.GroupInteractionGoal;
+import io.github.longshou.mcyukkuri.social.ProtectivePuff;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.DamageTypeTags;
@@ -79,6 +80,8 @@ final class YukkuriDamage {
                 if(result.loss()>0)owner.headwear().struck(source,result.loss(),result.part());
                 owner.status().hurt(source);
                 owner.interrupt(interruption,InterruptPhase.AFTER_STATUS_HURT);
+                // One draw per real attack: the victim's own protective puff and each of its parents' (ProtectivePuff).
+                boolean puffing = kind != BodyHit.Kind.BOUT && ProtectivePuff.witnessedHit(owner, source.getEntity());
                 if(kind!=BodyHit.Kind.BOUT&&source.getEntity() instanceof YukkuriEntity attacker)
                     GroupInteractionGoal.witnessedAttack(owner,attacker);
                 owner.operations().damaged(source);
@@ -99,7 +102,7 @@ final class YukkuriDamage {
                             &&!source.is(DamageTypes.DROWN)&&!owner.isInWaterOrBubble();
                     if(hurtCry)owner.startHurtCry(source.type().msgId(),HURT_CRY_TICKS);
                     else owner.setPanicTicks(112);
-                    if(defending || retaliating || !peerConflict && owner.myon().standGround(source))owner.setPanicTicks(0);
+                    if(defending || retaliating || puffing || !peerConflict && owner.myon().standGround(source))owner.setPanicTicks(0);
                     owner.directNavigation().stop();
                     if(hurtCry)owner.setAnimation(YukkuriAction.STARTLE,true);
                     else if(owner.shellRetracts())owner.shellRetraction().tick(owner.panicTicksValue());

@@ -182,6 +182,8 @@ public final class GroupInteractionGoal extends Goal {
         var relations=YukkuriWorldData.get(level);
         for(var witness:level.getEntitiesOfClass(YukkuriEntity.class,victim.getBoundingBox().inflate(6),e->e!=victim&&e!=attacker)) {
             if(!available(witness)||witness.isNoAi()||!witness.hasLineOfSight(victim)||!witness.hasLineOfSight(attacker))continue;
+            // A recognised parent answers through the family puff response, which already drew for this same hit.
+            if(ProtectivePuff.parentOf(victim, witness))continue;
             witness.mind().felt(EmotionEvent.FRIGHTENED); witness.showReaction("surprise","afraid",100);
             // Kin and friends defend only someone they can actually recognise: without its accessory the victim is a stranger to them.
             boolean close=witness.life().canRecognize(victim)&&(Bonds.careKin(witness, victim)||relations.affinity(witness.getUUID(),victim.getUUID())>=BondLevels.AFFINITY_ATTACHED);
