@@ -234,7 +234,7 @@ final class ScenarioSetup {
 
     /** Real initial seats: captain first, then admitted young. A refusal leaves already seated riders in place.
      *  Food uses the same counted store as a player's click. Everything afterwards is ordinary physics and AI. */
-    static String afloat(YukkuriEntity owner, Vec3 at, boolean aboard, List<YukkuriEntity> young, int food, boolean middle, boolean stick) {
+    static String afloat(YukkuriEntity owner, Vec3 at, boolean aboard, List<YukkuriEntity> young, int food, boolean middle, boolean stick, float facing) {
         if (!(owner.level() instanceof ServerLevel level) || !owner.isAlive()) return "帽主要是活着的魔理沙。";
         var water = BlockPos.containing(at);
         if (!level.getFluidState(water).is(FluidTags.WATER) || !level.getFluidState(water.above()).isEmpty())
@@ -252,10 +252,11 @@ final class ScenarioSetup {
         if (aboard) riders.add(owner);
         riders.addAll(young);
         for (var body : riders) {
-            Motor.face(body, hat.getYRot());
+            float yaw = hat.getYRot() + (body == owner ? facing : 0);
+            Motor.face(body, yaw);
             var seat = hat.restSpot(body);
             if (seat == null) return body.getName().getString() + " 没有合适座位（no_room），已入座者保留原位。";
-            Motor.relocate(body, seat.world(), hat.getYRot(), "scenario_initial_seat");
+            Motor.relocate(body, seat.world(), yaw, "scenario_initial_seat");
             if (!Motor.mount(body, hat, "scenario_afloat")) return body.getName().getString() + " 没能坐上帽子。";
         }
         if (food != 0) {

@@ -49,9 +49,13 @@ class HullFloorTest {
     }
     @Test void youngRestsNearItsLapFormula() {
         var young=body(.38,0,0); var at=rest(.38,true); var anchor=lap(young).scale(UNIT);
-        assertEquals(anchor.x(),at.x(),Math.min(young.radius(),FloorSearch.GRID_CELL)*UNIT);
-        assertEquals(anchor.z(),at.z(),Math.min(young.radius(),FloorSearch.GRID_CELL)*UNIT);
-        assertEquals(HullBounds.FLOOR,at.y(),.02);
+        double step = Math.min(young.radius(),FloorSearch.GRID_CELL)*UNIT;
+        // Independent design acceptance point; the authored grid and room gap explain its tolerance.
+        assertEquals(0,at.x(),step);
+        assertEquals(-.249,at.y(),step);
+        assertEquals(-.40,at.z(),step);
+        assertEquals(anchor.x(),at.x(),step);
+        assertEquals(anchor.z(),at.z(),step);
     }
     @Test void twoInfantsRestOnFloorAndCanYieldToEveryCaptainYaw() {
         var captain=body(1,0,0); var home=home(captain);
@@ -60,6 +64,7 @@ class HullFloorTest {
         for(int i=0;i<2;i++) {
             var p=search(infant,lap(infant),riders,2*HullBounds.MOUTH/UNIT,true);
             assertEquals(HullBounds.FLOOR,p.y()*UNIT,.002);
+            assertTrue(p.z()*UNIT < -.30, "infant must start in front of the yaw-0 captain");
             assertTrue(FloorSearch.clear(infant,p,riders,GAP));
             riders.add(new FloorSearch.Placed(infant,p));
         }
@@ -97,5 +102,18 @@ class HullFloorTest {
         assertEquals(Math.pow(1/1.05,3),single,1e-12);
         assertTrue(single>HullPresentation.number("load_warning") && single<1);
         assertTrue(HullBounds.loadRatio(1,List.of(limit,limit))>1);
+    }
+    @Test void brimStopsKeepTheSameAuthoredColumnsWhenBodyAndHatScaleTogether() {
+        var adult = HullBounds.brimStops("marisa", .8, .6, HullBounds.SCALE, 0);
+        for (double scale : new double[]{.2, .35, .72, 1.2}) {
+            var stops = HullBounds.brimStops("marisa", .8 * scale, .6 * scale, HullBounds.SCALE * scale, 0);
+            for (int i = 0; i < adult.size(); i++) {
+                assertEquals(adult.get(i).x(), stops.get(i).x(), 1e-9);
+                assertEquals(adult.get(i).y(), stops.get(i).y(), 1e-9);
+                assertEquals(adult.get(i).z(), stops.get(i).z(), 1e-9);
+                var local = stops.get(i);
+                assertEquals(HullBounds.DATA.number("brim_ring.radius") * scale, local.hlen() * UNIT * scale, 1e-9);
+            }
+        }
     }
 }

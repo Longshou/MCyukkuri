@@ -567,8 +567,11 @@ NEWBORNS = '@e[type=#mcylab:yukkuri,distance=..48,nbt={YukkuriFamily:{Stage:"BAB
 
 
 _LAND_BIRTH_SMOKE = dict(ticks=6000,
-    expect=[r'\[family\][^\n]* carry put down [^\n]*cause=release\b', r'catch cleanup completed\b'],
-    forbid=[r'\[body\][^\n]* invariant\b', r'\[family\][^\n]* carry put down [^\n]*\bforward=-[0-9]'])
+    expect=[r'\[family\][^\n]* birth landed [^\n]*outcome=HAT\b',
+            r'\[action\][^\n]* end id=take_prop outcome=DONE detail=prop=hat worn=true\b',
+            r'\[intent\][^\n]* end id=take_hat result=DONE\b'],
+    forbid=[r'\[body\][^\n]* invariant\b', r'\[family\][^\n]* carry put down [^\n]*\bforward=-[0-9]',
+            r'\[hat\][^\n]* settled rider=', r'catch cleanup gave up', r'death settled', r'starvation damage accepted=true'])
 
 
 def land_birth(sid, title, hint, outcome, father_kind, watch, spot, father_x=4, smoke=None):
@@ -1997,11 +2000,13 @@ def water_at(dz, out):
     return f'~{bank_dx(dz) + out + .5} ~-1 ~{dz + .5}'
 
 
-def afloat(owner, water, aboard=True, crew=None, food=0, middle=False, stick=False):
+def afloat(owner, water, aboard=True, crew=None, food=0, middle=False, stick=False, facing=0):
     """`scenario afloat`: the owner sets her real hat down at that water position with ``food`` apples (0..8)
     (and, with ``stick``, one real stick to paddle with). The captain takes her seat first, then each young takes an admitted
     seat. A stick needs a crew argument (the owner's own selector when she is alone)."""
     tail = f' {food}' + (' middle' if middle else ' stick' if stick else '') if food or middle or stick else ''
+    if facing:
+        tail += f' {facing}'
     return f'yukkuri scenario afloat {sel(owner)} {water} {"true" if aboard else "false"}' + (f' {crew}' if crew else '') + tail
 
 
@@ -2453,7 +2458,7 @@ pond('afloat_family', '辫子接赤油上船', '亲子出航',
      note='日志：set_out → placed → 亲油 mount → grab reach=braid → carry grip → carry lowering → 赤油 seat landed → 亲油 hop 到座位 → set_out complete aboard=1/1。' + _DESIRE_NOTE,
      vantage=(bank_dx(0) - 4, 4, -135, 18),
      capture=dict(shots=(1, 40, 2400), sequences=((40, 2400, 4),), observe=False,
-                  views={'': dict(follow='@e[type=mcyukkuri:placed_hat,limit=1]', offset=(-1.5, 1.4, 1.5))}),
+                  views={'': dict(follow='@e[type=mcyukkuri:placed_hat,limit=1]', offset=(.75, .9, .75))}),
      reads=[('读亲油', f'yukkuri status {sel("a")} raw'), ('读赤油', f'yukkuri status {sel("c1")} raw'),
             ('读帽子', f'data get entity {_HAT}')],
      smoke=dict(ticks=3600, expect=[r'\[intent\][^\n]* start id=set_out\b', r'\[intent\][^\n]* end id=set_out result=DONE\b',
@@ -2496,21 +2501,23 @@ pond('afloat_family_distant', '远处赤油·先寻回再出航', '远子缓航'
                 forbid=[r'\[intent\][^\n]* start id=set_out\b', r'\[body\][^\n]* invariant\b']))
 
 pond('kid_boat_play', '赤油在亲帽上玩耍', '拨粮·受惊缩身',
-     '亲油与一只赤油已坐在静水亲帽里，帽里有一根木棍、四份苹果。玩家从岸边看赤油在座位拨弄储粮；空手右击赤油看问候。雷雨、附近捕食种或冲向帽船的玩家会吓得赤油原地缩身，平静后继续玩耍；赤油不会跳上帽檐或模仿划桨',
+     '亲油与两只赤油已坐在静水亲帽里，亲油初始背向船首，帽里有一根木棍、四份苹果。看亲油转身时赤油让位、帽壁上的赤油下滑；玩家从岸边看赤油拨弄储粮，空手右击赤油看问候。雷雨、附近捕食种或冲向帽船的玩家会吓得赤油原地缩身，平静后继续玩耍；赤油不会跳上帽檐或模仿划桨',
      '约 2–3 分钟；可用本场天气按钮观察受惊',
      [yk('marisa', bank_dx(0), 0, 'a', aquatic=True, yaw=-90, lead=True, friendliness=100,
          uuid=uid('kid_boat_play', 'a'), **pair_ready()),
-      _aquatic_young('kid_boat_play', 'c1', bank_dx(1), 1, 'baby', 'a'),
-      afloat('a', water_at(0, 3), True, sel('c1'), food=4, stick=True)],
+      _aquatic_young('kid_boat_play', 'c1', bank_dx(1), 1, 'baby', 'a', also=('crew',)),
+      _aquatic_young('kid_boat_play', 'c2', bank_dx(2), 2, 'baby', 'a', also=('crew',)),
+      f'yukkuri status set {sel("c1")} needs.nutrition 20',
+      afloat('a', water_at(0, 3), True, sel_all('crew'), food=4, stick=True, facing=180)],
      note='读 hat.float 的 play：拨粮开始次数、fear_* 原因次数；读 social.greet_clicks 看点击次数，body.attach 看实际帽内坐标。'
           '拨粮不扣粮，饿后才走原地进食；受惊时赤油在座位原地缩身，没有帽檐短跳、学划或离座回座。'
           '点击赤油与点击空帽檐不同：前者问候，后者摇船；准备入座不算行为成功。' + _DESIRE_NOTE,
      reads=[('读赤油动作与点击', f'yukkuri status {sel("c1")} raw'),
             ('读拨粮与受惊计数', f'yukkuri status {sel("a")} raw'), ('读帽子乘员', f'data get entity {_HAT} Riders')],
      capture=dict(shots=(1, 40, 2400), sequences=((40, 2400, 4),), observe=False,
-                  views={'': dict(follow='@e[type=mcyukkuri:placed_hat,limit=1]', offset=(-1.5, 1.4, 1.5))}),
+                  views={'': dict(follow='@e[type=mcyukkuri:placed_hat,limit=1]', offset=(.75, .9, .75))}),
      smoke=dict(ticks=2400, commands=[(1800, 'weather thunder'), (1960, 'weather clear')],
-                expect=[r'\[hat\][^\n]* scenario afloat prepared [^\n]*owner_aboard=true[^\n]*young=1\b',
+                expect=[r'\[hat\][^\n]* scenario afloat prepared [^\n]*owner_aboard=true[^\n]*young=2\b',
                         r'\[aquatic\][^\n]* play kind=kid_poke_stores start\b',
                         r'\[aquatic\][^\n]* play kind=kid_poke_stores end result=DONE\b',
                         r'\[aquatic\][^\n]* play kind=kid_hide_behind start fear=thunder\b'],

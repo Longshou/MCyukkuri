@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.headwear;
 
 import io.github.longshou.mcyukkuri.motor.geom.GeometryJson;
+import io.github.longshou.mcyukkuri.motor.geom.BodyFootprint;
 import io.github.longshou.mcyukkuri.motor.geom.Vec;
 import java.util.List;
 import java.util.stream.IntStream;
@@ -30,6 +31,15 @@ public final class HullBounds {
         double r = DATA.number("brim_ring.radius");
         return IntStream.range(0, 72).mapToObj(i -> new Vec(r * Math.cos(i * Math.PI / 36), 0,
                 r * Math.sin(i * Math.PI / 36))).toList();
+    }
+
+    /** Normalize world dimensions to the authored hull scale before sampling its model-unit surface. */
+    public static List<Vec> brimStops(String asset, double width, double height, double hullScale, double yaw) {
+        var profile = HullProfile.of(HullProfile.BASIN);
+        double scale = hullScale / SCALE, unit = profile.measuredUnit();
+        var body = BodyFootprint.of(asset, width / scale / unit, height / scale / unit, yaw);
+        return brimStops().stream().map(p -> p.scale(1 / unit))
+                .map(p -> new Vec(p.x(), profile.support(p.x(), p.z(), body), p.z())).toList();
     }
 
     /** Basin floor, inner wall and the level-to-drooping brim, all from the bounds contract. */

@@ -6,7 +6,6 @@ import io.github.longshou.mcyukkuri.motor.BodyAbility;
 import io.github.longshou.mcyukkuri.motor.ContactResolver;
 import io.github.longshou.mcyukkuri.motor.geom.GridPath;
 import io.github.longshou.mcyukkuri.motor.surface.Occupancy;
-import io.github.longshou.mcyukkuri.motor.surface.Floor;
 import io.github.longshou.mcyukkuri.motor.surface.SeatTarget;
 import java.util.List;
 import java.util.OptionalDouble;
@@ -22,7 +21,7 @@ public interface HatSurface {
     }
     default boolean mountable(PlacedHatEntity hat, YukkuriEntity body) { return true; }
     default Vec3 boarded(PlacedHatEntity hat, YukkuriEntity body) { return hat.snapped(hat.toLocal(body.position()), body); }
-    default void tickRiders(PlacedHatEntity hat) { hat.squeeze(); Floor.settle(hat); }
+    default void tickRiders(PlacedHatEntity hat) { hat.squeeze(); }
     default List<SeatTarget> restSpots(PlacedHatEntity hat, YukkuriEntity body, int limit) { return List.of(); }
     default List<Vec3> hopStops(PlacedHatEntity hat, YukkuriEntity body) { return List.of(); }
     default List<Vec3> hollowPlaces(PlacedHatEntity hat, FamilyData.BirthKind kind, FamilyData.Child child) { return hat.cavityPlaces(kind, child); }

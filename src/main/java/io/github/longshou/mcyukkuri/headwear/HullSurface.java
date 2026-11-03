@@ -1,7 +1,6 @@
 package io.github.longshou.mcyukkuri.headwear;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
-import io.github.longshou.mcyukkuri.motor.geom.BodyFootprint;
 import io.github.longshou.mcyukkuri.motor.geom.FloorSearch;
 import io.github.longshou.mcyukkuri.motor.geom.Vec;
 import io.github.longshou.mcyukkuri.motor.surface.Floor;
@@ -29,16 +28,14 @@ public final class HullSurface implements HatSurface {
                 && hat.room(body, local);
     }
     @Override public Vec3 boarded(PlacedHatEntity hat, YukkuriEntity body) { return hat.frame().toLocal(body.position()); }
+    @Override public void tickRiders(PlacedHatEntity hat) { hat.squeeze(); Floor.settle(hat); }
     @Override public List<Vec3> hopStops(PlacedHatEntity hat, YukkuriEntity body) {
-        return HullBounds.brimStops().stream().map(p -> Floor.point(p.scale(1 / HullBounds.UNIT)))
-                .map(p -> new Vec3(p.x, hat.profile().support(p.x, p.z, Floor.shape(hat, body)), p.z)).toList();
+        return HullBounds.brimStops(body.assetId(), body.getBbWidth(), body.getBbHeight(),
+                hat.hullScale(), Floor.shape(hat, body).yaw()).stream().map(Floor::point).toList();
     }
     public static List<Vec3> hopStops(YukkuriEntity body, float hullScale) {
-        double unit = hullScale / 16;
-        var shape = BodyFootprint.of(body.assetId(), body.getBbWidth() / unit, body.getBbHeight() / unit, 0);
-        var profile = HullProfile.of(HullProfile.BASIN);
-        return HullBounds.brimStops().stream().map(p -> Floor.point(p.scale(1 / HullBounds.UNIT)))
-                .map(p -> new Vec3(p.x, profile.support(p.x, p.z, shape), p.z)).toList();
+        return HullBounds.brimStops(body.assetId(), body.getBbWidth(), body.getBbHeight(), hullScale, 0)
+                .stream().map(Floor::point).toList();
     }
     @Override public List<double[]> walkRoute(PlacedHatEntity hat, YukkuriEntity body, Vec3 target, boolean aroundRiders) { return List.of(); }
     @Override public Vec3 landingSpot(PlacedHatEntity hat, YukkuriEntity body, Vec3 edge) {
