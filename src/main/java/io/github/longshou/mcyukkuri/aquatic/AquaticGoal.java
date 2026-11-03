@@ -175,7 +175,8 @@ final class AquaticGoal extends Goal {
         double birth = brood != null && !brood.cancelled && !brood.complete() && brood.kind == FamilyData.BirthKind.LIVE
                 ? brood.progress() * num("birth_ashore_want", 200) : 0;
         var young = AquaticLife.young(body);
-        boolean nursery = young.stream().anyMatch(y -> AquaticLife.ashore(y) && y.childhood().needsCare());
+        // Finish the first meal/toilet care ashore; a crawling child can gather for a braid lift without learning to jump.
+        boolean nursery = young.stream().anyMatch(y -> AquaticLife.ashore(y) && y.childhood().isNewborn() && !y.childhood().firstToiletDone());
         if (!aboard) {
             if (nursery && AquaticLife.ashore(body)) GameplayLog.limited(body, "aquatic", "nursery.ashore", 1200,
                     "set_out held reason=newborn_care children={}", young.stream().filter(y -> y.childhood().needsCare()).map(YukkuriEntity::getUUID).toList());

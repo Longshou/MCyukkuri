@@ -55,7 +55,6 @@ final class Waters {
     private Waters() {}
 
     /** The answer to {@code key} asked within {@link #KEEP} ticks, else {@code compute}'s (null answers are kept too). */
-    @SuppressWarnings("unchecked")
     private static <T> T kept(Level level, List<Object> key, Supplier<T> compute) {
         return kept(level, key, KEEP, compute);
     }

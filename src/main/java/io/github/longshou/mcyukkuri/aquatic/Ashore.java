@@ -115,8 +115,15 @@ final class Ashore implements Intent {
         if (!AquaticLife.ashore(owner)) return null;
         if (held != null) return List.of(() -> new Step.Do(new Release(held)));
         if (hat.upsideDown()) return fromBank(hat, () -> new Right(hat, "reclaim"), () -> new Step.Wait(hat::steady, 60, "hat_settles"));
-        if (AquaticLife.afloat(hat) && dependent != null)
+        if (AquaticLife.afloat(hat) && dependent != null) {
+            // This reboarding is for a pickup. Do not board only to leave again unable to carry the same child.
+            if (carryProblem != null) {
+                GameplayLog.limited(owner, "aquatic", "land.carry", WAIT,
+                        "land pickup refused child={} reason={}", dependent.getUUID(), carryProblem);
+                return null;
+            }
             return Ferry.hopAboard(owner, hat, beckoning);
+        }
         if (youngAboard(hat)) return List.of(() -> new Step.Wait(() -> !youngAboard(hat), WAIT, Behaviors.BOAT_CALL));
         return fromBank(hat, () -> new TakeProp(new HatProp(owner, true, AquaticLife.afloat(hat))));
     }
