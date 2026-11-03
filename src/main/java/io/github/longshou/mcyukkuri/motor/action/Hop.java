@@ -108,6 +108,7 @@ public final class Hop implements Action {
 
     /** The one arc answer: the lowest collision-clear hop from {@code from} to {@code to} past {@code hosts}. */
     private ArcSolver.Result arc(YukkuriEntity body, Vec from, SurfaceHost anchor, List<SurfaceHost> hosts, Vec to, int delay) {
+        obstruction = "";
         var ability = BodyAbility.of(body);
         var start = new Vec3(from.x(), from.y(), from.z());
         return ArcSolver.lowest(from, to, ability.hopHeight(), ability.hopReach(), ability.scale(),
@@ -200,6 +201,15 @@ public final class Hop implements Action {
         }
         if (seatHost != null && seatHost.entity().isRemoved()) return Outcome.of(Reason.TARGET_GONE, 0, "host_gone");
         if (aboard && body.getVehicle() != seatHost.entity()) return new Outcome.Interrupted("left_host");
+        // A sampled endpoint is not ground contact. Let the final downward velocity meet the real floor before handing off.
+        if (air >= flight.size() - 1) {
+            var contact = ContactResolver.resolve(body);
+            if (contact != null) return contact.refused() ? Outcome.of(Reason.NO_ROOM, 0, "mount_refused") : landed(body);
+            if (body.onGround()) return landed(body);
+            if (body.isInWaterOrBubble()) return Outcome.of(Reason.NO_SUPPORT, 0, "landed_in_water");
+            if (++air >= flight.size() + SETTLE) return Outcome.of(Reason.NO_CONTACT, 0, "landing_contact_missing");
+            return new Running(flight.size() + SETTLE - air, TravelMode.PASS);
+        }
         var p = flight.get(++air);
         var aim = from.add(p.x(), p.y(), p.z());
         if (aboard) aim = seatHost.frame().toWorld(aim.scale(1 / seatHost.frame().unit()));
@@ -216,7 +226,7 @@ public final class Hop implements Action {
         if (blocked > TOUCH) return Outcome.of(Reason.NO_SUPPORT, blocked, "arc_blocked at=" + GameplayLog.at(body.position()));
         if (air == flight.size() - 1) {
             if (seat != null && !seat.land(body, "hop_contact")) return Outcome.of(Reason.NO_ROOM, 0, "seat_landing_refused");
-            return landed(body);
+            return seat != null ? landed(body) : new Running(SETTLE, TravelMode.PASS);
         }
         return new Running(flight.size() - air, TravelMode.CONSUMED);
     }
