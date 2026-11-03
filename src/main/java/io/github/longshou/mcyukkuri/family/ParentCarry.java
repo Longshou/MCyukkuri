@@ -81,7 +81,8 @@ public final class ParentCarry {
      * {@code R} and re-lift pause {@code P}), and for a Grab's target still being lifted its entity id {@code I} and low lean
      * {@code L}; a braid-tip child's way out ({@link #braided}) adds {@code T}, {@code Y}, {@code A}, {@code PX}/{@code PY}/{@code PZ}, {@code PH} and the swing start {@code OX}/{@code OZ} (out from under a brim).
      * A mouth lift shares the start and height keys, with duration {@code U}; a lowering's duration is {@code N}.
-     * An admitted set-down destination uses host {@code S} and local {@code DX}/{@code DY}/{@code DZ}; a nest's world cushion target uses {@code NX}/{@code NY}/{@code NZ}.
+     * A lowering uses host {@code S}, local endpoint {@code DX}/{@code DY}/{@code DZ}, start {@code LX}/{@code LY}/{@code LZ}
+     * and pace {@code LV}; a nest's world cushion target uses {@code NX}/{@code NY}/{@code NZ}.
      * Synced, and saved with the family.
      */
     public static final SyncSlot<CompoundTag> HOLDS = new SyncSlot<>(EntityDataSerializers.COMPOUND_TAG, CompoundTag::new);
@@ -187,7 +188,7 @@ public final class ParentCarry {
     public static double pinned(YukkuriView carrier, YukkuriView child, Vec3 feet) {
         var e = entry(carrier, child.getUUID());
         if (!e.contains("S") || !(carrier.level().getEntity(e.getInt("S")) instanceof SurfaceHost host)) return feet.y;
-        if (e.contains("DX") && e.contains("D")) return Math.max(feet.y, letGoPoint(carrier, child, carrier.bodyYaw()).y);
+        if (e.contains("DX") && e.contains("D")) return feet.y;
         double top = Occupancy.surfaceUnder(host, child.getBbWidth(), feet);
         return top > feet.y && (e.getBoolean("SO") || top - feet.y <= PIN) ? top : feet.y;
     }
@@ -274,6 +275,13 @@ public final class ParentCarry {
 
     /** Feet of the carried child before any collision adjustment, by its hold; a child being set down on its way to the ground. */
     public static Vec3 rawSeat(YukkuriView carrier, YukkuriView child, float partial) {
+        var record = entry(carrier, child.getUUID());
+        if (record.contains("D") && record.contains("LX")) {
+            var at = CarryGeometry.lowering(new Vec(record.getFloat("LX"), record.getFloat("LY"), record.getFloat("LZ")),
+                    new Vec(record.getFloat("DX"), record.getFloat("DY"), record.getFloat("DZ")), record.getDouble("LV"),
+                    carrier.level().getGameTime() - record.getLong("D") + partial);
+            return carryHost(carrier, child).frame().toWorld(new Vec3(at.x(), at.y(), at.z()));
+        }
         var hold = hold(carrier, child);
         Vector3f model;
         switch (hold) {
@@ -1172,7 +1180,7 @@ public final class ParentCarry {
     /** The next child to set down and why (the one being set down first), or null: a pure read of the carry's state. */
     private Map.Entry<YukkuriEntity, String> due() {
         var all = ours();
-        if (all.isEmpty() || lifting != null || carrier.isPassenger()) return null;
+        if (all.isEmpty() || lifting != null || carrier.isPassenger() && giveUp == null) return null;
         if (settingDown != null && carrier.motor().current() == settingDown) return Map.entry(settingDown.child(), settingWhy);
         // A set-down already under way (resumed after a reload or a stopped goal) is finished first.
         for (var child : all) if (entry(carrier, child.getUUID()).contains("D"))
@@ -1186,6 +1194,15 @@ public final class ParentCarry {
 
     /** The family goal must yield to its own ordinary put-down goal when this reason becomes due. */
     public boolean setDownDue() { return due() != null; }
+
+    /** An ended intent hands its real passenger to the existing set-down goal, never to a forced drop. */
+    public void finish(YukkuriEntity child, String why) {
+        var e = entry(carrier, child.getUUID()).copy();
+        e.putBoolean("C", true);
+        write(carrier, child.getUUID(), e);
+        if (purpose == null) adopt(child, carrier.level().getGameTime());
+        giveUp = why;
+    }
 
     /** The set-down goal (priority 2, above daily life): whenever the carry has an ordinary reason, it runs the shared Release. */
     public Goal setDownGoal() {
@@ -1215,7 +1232,7 @@ public final class ParentCarry {
         var home = purpose == Purpose.NEST_RIM ? rimNest
                 : reason.equals("arrived_home") || reason.equals("arrived_destination") ? child.family().carryHome() : null;
         if (settingDown != null && settingDown.child() == child && reason.equals(settingWhy) && !settingDown.changed(carrier, home)) return;
-        settingDown = Release.atNest(child, home);
+        settingDown = carrier.getVehicle() instanceof SurfaceHost host ? new Release(child, host) : Release.atNest(child, home);
         settingWhy = reason;
         if (!motor.run(owner, settingDown) && motor.refusal() != null) settingDown.finished(carrier, motor.refusal());
     }
@@ -1297,23 +1314,42 @@ public final class ParentCarry {
     public static void lower(YukkuriEntity carrier, YukkuriEntity child) { lower(carrier, child, null); }
     public static void lower(YukkuriEntity carrier, YukkuriEntity child, SeatTarget destination) {
         var e = entry(carrier, child.getUUID());
-        if (e.contains("D")) return;
+        if (e.contains("D") && destination == null) return;
         var next = e.copy();
+        int ticks;
         if (destination != null) {
+            var frame = destination.host().frame();
+            var from = frame.toLocal(child.position());
+            double distance = from.distanceTo(destination.local());
+            double pace = e.contains("D") ? e.getDouble("LV")
+                    : Math.max(distance, child.getBbHeight() / frame.unit()) / BraidFetch.marker(BraidFetch.SETTLE, "release");
             next.putInt("S", destination.host().entity().getId());
             next.putFloat("DX", (float) destination.local().x); next.putFloat("DY", (float) destination.local().y); next.putFloat("DZ", (float) destination.local().z);
-        }
+            next.putFloat("LX", (float) from.x); next.putFloat("LY", (float) from.y); next.putFloat("LZ", (float) from.z);
+            next.putDouble("LV", pace);
+            ticks = CarryGeometry.motionTicks(distance, pace);
+        } else ticks = holdOf(e) == Hold.MOUTH ? CarryGeometry.motionTicks(child.position().distanceTo(letGoPoint(carrier, child)),
+                BodyAbility.of(carrier).walkSpeed()) : lowerTicks();
         next.putLong("D", carrier.level().getGameTime());
         if (holdOf(e) == Hold.BRIM) {
             var grip = letGoPoint(carrier, child).add(0, GRIP_Y * size(child) / 16, 0);
             next.putBoolean("L", ContactGeometry.braidGapFrom(carrier, carrier.position(), grip, false) > 0);
         }
-        int ticks = holdOf(e) == Hold.MOUTH ? CarryGeometry.motionTicks(child.position().distanceTo(letGoPoint(carrier, child)),
-                BodyAbility.of(carrier).walkSpeed()) : e.contains("DX") ? BraidFetch.marker(BraidFetch.SETTLE, "release") : lowerTicks();
         next.putInt("N", ticks);
         write(carrier, child.getUUID(), next);
         GameplayLog.event(carrier, "family", "carry lowering hold={} child={} from={} ticks={}", holdOf(e).key(), child.getUUID(),
                 GameplayLog.at(child.position()), ticks);
+    }
+
+    /** Keep the child at its actual height and carrier-relative offset when lowering has no destination left. */
+    public static void stopLowering(YukkuriEntity carrier, YukkuriEntity child) {
+        var e = entry(carrier, child.getUUID());
+        if (!e.contains("LX")) return;
+        var next = e.copy();
+        var at = modelAt(carrier, carrier.bodyYaw(), child.position());
+        next.putFloat("X", at.x); next.putFloat("Z", at.z); next.putFloat("PH", at.y);
+        next.remove("D"); next.remove("T"); next.remove("LX"); next.remove("LY"); next.remove("LZ"); next.remove("LV");
+        write(carrier, child.getUUID(), next);
     }
 
     /** Every dismount from a carrier ends here (the Release action, the interrupt bridge, an ended intent): the record goes at once. */

@@ -7,6 +7,23 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 class CarryGeometryTest {
+    @Test void occupiedLoweringEndpointRedirectsWithoutJumpingOrAccelerating() {
+        var start = new Vec(0, 1, 0);
+        var first = new Vec(.2, 0, 0);
+        double pace = .05;
+        var current = CarryGeometry.lowering(start, first, pace, 9);
+        var replacement = new Vec(-.4, .1, .5);
+        assertEquals(current, CarryGeometry.lowering(current, replacement, pace, 0));
+        var previous = current;
+        for (int tick = 1; tick <= 40; tick++) {
+            var next = CarryGeometry.lowering(current, replacement, pace, tick);
+            assertTrue(CarryGeometry.releaseRemaining(previous, next, next.y()) <= pace + 1e-9);
+            previous = next;
+        }
+        assertEquals(replacement, previous);
+        assertEquals(replacement, CarryGeometry.lowering(replacement, replacement, pace, 0));
+    }
+
     @Test void brimReleaseGoesAroundTheHeadBeforeDescendingAtTheCushion() {
         var from = new Vec(-.8, .8, 0);
         var to = new Vec(.9, .1, 0);

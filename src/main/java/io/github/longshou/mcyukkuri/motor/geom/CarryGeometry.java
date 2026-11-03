@@ -42,6 +42,13 @@ public final class CarryGeometry {
         return Math.sqrt(Math.pow(feet.x() - endpoint.x(), 2) + Math.pow(feet.y() - supportedY, 2) + Math.pow(feet.z() - endpoint.z(), 2));
     }
 
+    /** Track a lowering endpoint at the original lowering pace, including after its destination moves. */
+    public static Vec lowering(Vec from, Vec to, double pace, double ticks) {
+        var delta = to.sub(from);
+        double distance = Math.sqrt(delta.x() * delta.x() + delta.y() * delta.y() + delta.z() * delta.z());
+        return distance <= pace * ticks ? to : mix(from, to, pace * ticks / distance);
+    }
+
     /** The production set-down search; world queries supply landing and swept-route clearance without formatting diagnostics. */
     public static Way wayOut(double rootX, double rootZ, double reach, Vec tip, Vec from, double apart,
                              Function<Vec, Rejection> landing, BiPredicate<Vec, Double> route) {

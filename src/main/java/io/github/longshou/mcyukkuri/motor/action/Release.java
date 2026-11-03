@@ -49,7 +49,9 @@ public final class Release implements Action {
     private Vec3 endpoint;
     private String placement;
     private Outcome outcome;
-    private int failedWorld, rejectedSpace, rejectedStand;
+    private int failedWorld, rejectedSpace, rejectedStand, settling;
+    private Vec3 previousLocal;
+    private double lowered;
 
     public Release(YukkuriEntity child) { this(child, null); }
     public Release(YukkuriEntity child, SurfaceHost destination) {
@@ -76,10 +78,20 @@ public final class Release implements Action {
         if (!child.isAlive()) return Feasibility.of(Reason.TARGET_GONE, 0, "child_gone");
         if (child.getVehicle() != carrier) return Feasibility.of(Reason.NO_CONTACT, 0, "not_held");
         if (destination != null) {
-            seat = destination.restSpot(child);
-            return seat != null && seat.available(child) ? Feasibility.pass() : Feasibility.of(Reason.NO_ROOM, 0, "no_seat");
+            seat = nearest(carrier);
+            return seat != null ? Feasibility.pass() : Feasibility.of(Reason.NO_ROOM, 0, "no_seat");
         }
         return plan(carrier, false);
+    }
+
+    private SeatTarget nearest(YukkuriEntity carrier) {
+        return destination.restSpots(child, Integer.MAX_VALUE).stream()
+                .filter(target -> target.unavailable(child) == null)
+                .filter(target -> {
+                    var grip = target.world().add(0, ParentCarry.GRIP_Y * child.growthScale() * child.getScale() / 16, 0);
+                    return Math.min(ContactGeometry.braidGapFrom(carrier, carrier.position(), grip, false),
+                            ContactGeometry.braidGapFrom(carrier, carrier.position(), grip, true)) <= 0;
+                }).min(Comparator.comparingDouble(target -> target.world().distanceToSqr(child.position()))).orElse(null);
     }
 
     /** One endpoint/stand planner for cushions and nearby ground; execution uses the same room and turn tests. */
@@ -193,16 +205,32 @@ public final class Release implements Action {
             GameplayLog.event(carrier, "family", "carry release approaching child={} cushion={} yaw={}", child.getUUID(), ParentCarry.nestDestination(carrier, child), facing);
         }
         else if (destination == null) { turn = new Face(facing); turn.start(carrier); }
-        else ParentCarry.lower(carrier, child, seat);
+        else {
+            previousLocal = destination.frame().toLocal(child.position());
+            ParentCarry.lower(carrier, child, seat);
+        }
     }
 
     @Override public Progress tick(YukkuriEntity carrier) {
         if (child.getVehicle() != carrier) return destination == null ? new Outcome.Done("already_free")
                 : Outcome.of(Reason.DROPPED, 0, "already_free");
         if (destination != null) {
+            if (destination.entity().isRemoved()) return Outcome.of(Reason.TARGET_GONE, 0, "host_removed");
+            if (destination.capsized()) return new Outcome.Interrupted("host_capsized");
+            var local = destination.frame().toLocal(child.position());
+            lowered += local.distanceTo(previousLocal);
+            previousLocal = local;
             String unavailable = seat.unavailable(child);
-            if (unavailable != null) return Outcome.of(Reason.NO_ROOM, 0,
-                    "seat_unavailable check=" + unavailable);
+            if (unavailable != null) {
+                var replacement = nearest(carrier);
+                if (replacement == null) return Outcome.of(Reason.NO_ROOM, 0, "no_seat check=" + unavailable);
+                GameplayLog.event(carrier, "family", "carry lowering target moved child={} from={} to={} reason={}",
+                        child.getUUID(), seat.local(), replacement.local(), unavailable);
+                seat = replacement;
+                settling = 0;
+                ParentCarry.lower(carrier, child, seat);
+                return new Running(-lowered, TravelMode.CONSUMED, true);
+            }
         }
         if (approach != null) {
             var progress = approach.tick(carrier);
@@ -224,12 +252,18 @@ public final class Release implements Action {
         var at = ParentCarry.letGoPoint(carrier, child);
         double remaining = CarryGeometry.releaseRemaining(new Vec(child.getX(), child.getY(), child.getZ()), new Vec(at.x, at.y, at.z),
                 ParentCarry.pinned(carrier, child, at));
-        if (down < 1 || remaining > .02) return progress(new Running(Math.max(1 - down, remaining), TravelMode.CONSUMED), 0);
-        let(carrier, child, placement != null && !placement.equals("nest") ? placement : "release");
+        if (down < 1 || remaining > .02) return destination != null ? new Running(-lowered, TravelMode.CONSUMED)
+                : progress(new Running(Math.max(1 - down, remaining), TravelMode.CONSUMED), 0);
         if (destination != null) {
+            if (!destination.steady()) {
+                int left = ClipMarkers.of(BraidFetch.SETTLE).length() - settling++;
+                return left > 0 ? new Running(-lowered - settling, TravelMode.CONSUMED)
+                        : Outcome.of(Reason.NO_SUPPORT, 0, "host_unsteady");
+            }
             if (!seat.land(child, "braid_set_down")) return Outcome.of(Reason.NO_CONTACT, 0, "seat_contact_lost");
+            ParentCarry.released(carrier, child, "release");
             GameplayLog.event(child, "body", "seat landed host={} cause=braid_set_down", destination.entity().getUUID());
-        }
+        } else let(carrier, child, placement != null && !placement.equals("nest") ? placement : "release");
         released = true;
         return new Outcome.Done("released");
     }
@@ -254,6 +288,7 @@ public final class Release implements Action {
 
     @Override public void abort(YukkuriEntity carrier, String why) {
         if (approach != null) approach.abort(carrier, why);
+        if (child.getVehicle() == carrier) ParentCarry.stopLowering(carrier, child);
     }
 
     /** The same release at once, for an interruption, a death or an ended intent ({@code forced}: the room check is skipped and the body comes down where it is). Returns that check. */
@@ -275,6 +310,7 @@ public final class Release implements Action {
     }
 
     @Override public void finished(YukkuriEntity carrier, Outcome result) {
+        if (child.getVehicle() == carrier) ParentCarry.stopLowering(carrier, child);
         outcome = result;
         failedWorld = world(carrier);
         if (result.reason() != null) GameplayLog.event(carrier, "family", "carry put down refused child={} outcome={} space={} stand={}",

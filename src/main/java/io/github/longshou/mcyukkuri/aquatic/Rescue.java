@@ -10,11 +10,14 @@ import io.github.longshou.mcyukkuri.intent.IntentRunner;
 import io.github.longshou.mcyukkuri.intent.Method;
 import io.github.longshou.mcyukkuri.intent.Step;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
+import io.github.longshou.mcyukkuri.motor.Feasibility;
+import io.github.longshou.mcyukkuri.motor.Reason;
 import io.github.longshou.mcyukkuri.motor.action.Face;
 import io.github.longshou.mcyukkuri.motor.action.Release;
 import io.github.longshou.mcyukkuri.motor.action.Right;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Supplier;
 import net.minecraft.util.Mth;
 
@@ -52,7 +55,12 @@ final class Rescue implements Intent {
     @Override public boolean satisfied() {
         return faller.isAlive() && (AquaticLife.aboard(faller, AquaticLife.hat(helper)) || AquaticLife.ashore(faller));
     }
-    @Override public List<Method> methods() { return List.of(Plan.of("braid_fetch", this::derive)); }
+    @Override public List<Method> methods() {
+        return List.of(Plan.of("braid_fetch", this::derive), new Plan("carry_ashore",
+                () -> faller.getVehicle() == helper ? Feasibility.pass() : Feasibility.of(Reason.NO_CONTACT, 0, "not_held"),
+                Set.of(Reason.NO_ROOM, Reason.NO_SUPPORT, Reason.NO_CONTACT),
+                () -> AquaticLife.ashore(helper) ? List.of(() -> new Step.Do(shoreRelease)) : Ferry.fetchAshore(helper, faller, shoreRelease)));
+    }
     /** Her own hull in the water belongs to this rescue: a body aboard its hat is not swimming, whatever the water state says. */
     @Override public boolean ownsBodyInWater() { return AquaticLife.aboard(helper, AquaticLife.hat(helper)); }
 
@@ -76,7 +84,7 @@ final class Rescue implements Intent {
         boolean aboard = AquaticLife.aboard(faller, AquaticLife.hat(helper));
         String outcome = result == IntentRunner.Result.DONE ? aboard ? "rescued" : shoreRelease.released() ? "set_down" : "self_climbed"
                 : result.name();
-        if (faller.getVehicle() == helper) Release.now(helper, faller, true, "rescue_ended");
+        if (faller.getVehicle() == helper) helper.family().carry().finish(faller, "rescue_ended");
         AskLedger.server().ended(incident, helper.getUUID(), outcome);
         GameplayLog.event(helper, "aquatic", "rescue end result={} outcome={} faller={} incident={} aboard={} last={}",
                 result, outcome, faller.getUUID(), incident, aboard, helper.motor().lastDetail());
