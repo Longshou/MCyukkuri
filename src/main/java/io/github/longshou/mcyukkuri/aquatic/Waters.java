@@ -222,7 +222,7 @@ final class Waters {
         int asked = 0;
         for (var e : edges(body, hat.position(), 4, false)) {
             var stand = e.stand(body.getBbWidth());
-            if (!ContactGeometry.reachesFrom(body, stand, hat, true)
+            if (!ContactGeometry.reachesHullFrom(body, stand, SurfaceApproach.yaw(stand, hat.position()), hat, true, true)
                     && !new Beckon(hat).checkFrom(body, stand, SurfaceApproach.yaw(stand, hat.position())).ok()) continue;
             if (asked++ >= ASKED) break;
             if (SurfaceApproach.arrived(body, stand) || SurfaceApproach.canApproach(body, stand)) return e;
@@ -287,12 +287,14 @@ final class Waters {
         return null;
     }
 
-    /** A dry stand within a hop of {@code from} (the body's actual position, or a supported spot it can hop to first). */
+    /** A dry stand within a hop of {@code from}. An owner also needs to reach her hat from that same stand to take it back. */
     static Vec3 ashore(YukkuriEntity body, Vec3 from) {
+        var own = body.getVehicle() instanceof PlacedHatEntity hat && hat.owner() == body ? hat : null;
         int asked = 0;
         for (var e : edges(body, from, 2, false)) {
-            var at = boardingStand(e, body);
+            var at = own == null ? boardingStand(e, body) : e.stand(body.getBbWidth());
             if (hatOver(body, at, 0)) continue;
+            if (own != null && !ContactGeometry.reachesHullFrom(body, at, SurfaceApproach.yaw(at, own.position()), own, true, true)) continue;
             if (asked++ >= ASKED) break;
             if (Hop.reaches(body, from, at)) return at;
         }

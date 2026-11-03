@@ -54,7 +54,10 @@ public final class ContactGeometry {
     /** The brim sample of {@code host} nearest the mouth tip, already tilted into world coordinates. */
     public static Optional<Vec3> nearestRim(YukkuriEntity body, SurfaceHost host) {
         if (body == null || host == null) return Optional.empty();
-        Vec3 mouth = mouth(body);
+        return nearestRim(mouth(body), host);
+    }
+
+    private static Optional<Vec3> nearestRim(Vec3 mouth, SurfaceHost host) {
         Vec3 nearest = null;
         double best = Double.MAX_VALUE;
         for (Vec3 point : host.rim()) {
@@ -181,9 +184,17 @@ public final class ContactGeometry {
     /** The same gap with {@code sighted} false for a read cheap enough for every tick: distances only, no sight ray. */
     public static double gripGap(YukkuriEntity body, Vec3 point, boolean sighted) {
         if (body == null || point == null) return Double.POSITIVE_INFINITY;
-        Vec3 mouth = mouth(body), root = braid(body, BRAID[0]);
+        return gripGap(body, body.position(), body.yBodyRot, point, sighted);
+    }
+
+    private static Vec3 mouth(YukkuriEntity body, Vec3 at, float yaw) {
+        return at.add(mouth(body).subtract(body.position()).yRot((float) Math.toRadians(body.yBodyRot - yaw)));
+    }
+
+    private static double gripGap(YukkuriEntity body, Vec3 at, float yaw, Vec3 point, boolean sighted) {
+        Vec3 mouth = mouth(body, at, yaw), root = braid(body, at, yaw, BRAID[0]);
         double gap = !sighted || sight(body, mouth, point) ? mouth.distanceTo(point) - GRAB_MARGIN : Double.POSITIVE_INFINITY;
-        return root != null && (!sighted || sight(body, root, point)) ? Math.min(gap, root.distanceTo(point) - root.distanceTo(braidTip(body))) : gap;
+        return root != null && (!sighted || sight(body, root, point)) ? Math.min(gap, root.distanceTo(point) - braidLength(body)) : gap;
     }
 
     /** Whether the body holds {@code hull} by mouth or braid, on the hull's own envelope and on its brim ring where it has one
@@ -191,14 +202,16 @@ public final class ContactGeometry {
      *  action starts with; a wait asks the cheap geometry only and leaves the last word to that check. */
     public static boolean reachesHull(YukkuriEntity body, Entity hull, boolean brim, boolean sighted) {
         if (body == null || hull == null) return false;
+        return reachesHullFrom(body, body.position(), body.yBodyRot, hull, brim, sighted);
+    }
+
+    /** The same hull contact from a proposed stand and facing, without moving either body. */
+    public static boolean reachesHullFrom(YukkuriEntity body, Vec3 at, float yaw, Entity hull, boolean brim, boolean sighted) {
         if (brim && hull instanceof SurfaceHost host) {
-            var rim = nearestRim(body, host).orElse(null);
-            if (rim != null && gripGap(body, rim, sighted) <= 0) return true;
+            var rim = nearestRim(mouth(body, at, yaw), host).orElse(null);
+            if (rim != null && gripGap(body, at, yaw, rim, sighted) <= 0) return true;
         }
-        if (mouthGap(body, hull) <= GRAB_MARGIN && Math.abs(hull.getY() - body.getY()) < GRAB_HEIGHT
-                && (!sighted || body.hasLineOfSight(hull))) return true;
-        return braidGap(body, body.position(), hull, false, sighted) <= 0
-                || braidGap(body, body.position(), hull, true, sighted) <= 0;
+        return reachesFrom(body, at, hull, sighted);
     }
 
     private static boolean sight(YukkuriEntity body, Vec3 from, Vec3 to) {
@@ -207,8 +220,12 @@ public final class ContactGeometry {
     }
 
     private static Vec3 braid(YukkuriEntity body, Vec3 model) {
-        return !braided(body) ? null : body.position()
-                .add(model.scale(body.growthScale() * body.getScale() / 16).yRot((float) Math.toRadians(180 - body.yBodyRot)));
+        return braid(body, body.position(), body.yBodyRot, model);
+    }
+
+    private static Vec3 braid(YukkuriEntity body, Vec3 at, float yaw, Vec3 model) {
+        return !braided(body) ? null : at
+                .add(model.scale(body.growthScale() * body.getScale() / 16).yRot((float) Math.toRadians(180 - yaw)));
     }
 
     private ContactGeometry() {}
