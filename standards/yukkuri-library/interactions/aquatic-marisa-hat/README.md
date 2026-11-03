@@ -10,8 +10,8 @@
 | `geometry.json` | 帽檐、帽口、平底、深度、龙骨、水线与圆盆剖面 |
 | `food_layer.png` | 复用既有 16×16 储粮贴图，按覆盖面积显示份数 |
 | `scene.py` | 摆姿的身体、身体底面贴帽面的支撑、帽船网格、辫兜够距；姿态缓存在 `<MCY_LOCAL 或 .local>/cache/aquatic-marisa-hat/` |
-| `layout.py` | 船长座位、帽盆容量、帽檐边子油、救援够距与贴帽动作检查 |
-| `preview.py` | 当前预览 `<MCY_LOCAL 或 .local>/previews/aquatic-hat-seats/current.png`；`--clips` 出帽船动作关键帧 `previews/aquatic-clips/current.png`；`--paddle` 出辫子划船一次划桨的关键帧 `previews/braid-paddle/current.png` |
+| `layout.py` | 船长座位、帽盆容量（含戴帽测量）、头顶位、帽檐边幼油、救援够距与贴帽动作检查 |
+| `preview.py` | 当前预览 `<MCY_LOCAL 或 .local>/previews/aquatic-hat-seats/current.png`；`--clips` 出帽船动作关键帧 `previews/aquatic-clips/current.png`；`--paddle` 出辫子划船一次划桨的关键帧 `previews/braid-paddle/current.png`；`--places` 出船长座、帽内戴帽赤油、头顶位与辫子搬运路线 `previews/art-a1-places/current.png` |
 
 ```sh
 python standards/yukkuri-library/interactions/aquatic-marisa-hat/build.py [--check] [--set key.path=值 ...]
@@ -63,7 +63,9 @@ MCY_LOCAL=<主检出>/.local python standards/yukkuri-library/interactions/aquat
 
 - 船长座位：从中心往船尾挪，直到再挪就会离开平底，或头发（不含辫子）在船长左右转 15° 时碰到帽口；成体停在中心后 0.75，身底 -4.02，后发贴着船尾帽口。
 - 帽盆：两只 0.15 或 0.20 赤油并排坐在她身前的平底上，身体顶部在帽口下 2.1 以上（0.20 赤油的帽尖高出帽口约 1.1）；运行容量见[功能说明](../../../../docs/FEATURES.md#水生魔理沙)。`layout.py` 的 `BASIN_YOUNG` 来自静止时刘海与辫根绒团不碰帽口的离线测量，运行时作为容量与初航参考；幼体表只用于离线检查，不导出为座位。
-- 帽檐边：子油中心在帽檐外缘内 0.96（0.30 子油半身宽的一半），辫子一侧朝外；0.30、0.45 子油坐直时辫子差 0.24–0.28 碰不到水，向水面侧倾 10° 时辫尖可入水 0.16、0.32；嘴够不到水。
+- 帽盆（戴帽，项目设计，用户 2026-11-04“赤油的帽子很容易就穿模亲油的脸”）：`cabin_hats` 用整只身体连同戴着的帽子，避开船长在 ±15° 转身范围内的脸和头发、帽壁与彼此（间隙 0.3）：单只至 0.18，左右一对各至 0.15，三只只在约 0.10 时放得下，0.20 放不下。
+- 头顶位（摘帽时）：`head_cap` 量船长头发顶在帽檐面上约 6.3，峰下 0.5 以内是平顶；0.15–0.30 幼油整只脚底都有支撑。
+- 帽檐边：幼油中心在帽檐外缘内半个自身半身宽（`brim_ring(scale)`；运行边界仍记 0.30 子油的参考环），辫子一侧朝外；0.30、0.45 子油坐直时辫子差 0.24–0.28 碰不到水，向水面侧倾 10° 时辫尖可入水 0.16、0.32；嘴够不到水。
 - 救援：船长在座位上原地转身，辫根到帽檐外 0.5 处水面最近 8.65（辫长 9.70 的 89%），越过横向帽檐 95%。
 
 ## 储粮贴图

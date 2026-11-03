@@ -7,6 +7,8 @@ the four stores coverage tiers, all cropping the existing texture at the same te
     MCY_LOCAL=<main checkout>/.local python preview.py --clips  # previews/aquatic-clips/current.png: key frames of the
                                                                 # boat clips (paddling, rescue reach, a 子油 splashing, hiding)
     MCY_LOCAL=<main checkout>/.local python preview.py --paddle # previews/braid-paddle/current.png: one boat_paddle stroke
+    MCY_LOCAL=<main checkout>/.local python preview.py --places # previews/art-a1-places/current.png: captain seat, hatted
+                                                                # cabin young, head riders and the braid's transfer paths
 """
 from pathlib import Path
 import math, os, sys
@@ -119,7 +121,8 @@ def clip(tris, axis, keep=-1):
 
 
 # ------------------------------------------------------------------ the scene
-SWATCH = {'stick': (132, 92, 52), 'stick_dark': (98, 66, 36), 'splash': (232, 246, 250)}
+SWATCH = {'stick': (132, 92, 52), 'stick_dark': (98, 66, 36), 'splash': (232, 246, 250), 'path_cabin': (232, 128, 40),
+          'path_head': (150, 70, 190)}
 
 
 def swatch(atlas, name, uv):
@@ -357,5 +360,72 @@ def paddle_main():
     print(out/'current.png')
 
 
+def keep_out(cap_sh, cx, cz, cy, bearing, extra):
+    """The captain's footprint reach (all of her mesh) along a bearing from her middle, plus `extra` (world units)."""
+    top = cap_sh.full('top', cx, cz, cy); m = np.isfinite(top); dx, dz = S.GRID.x[m]-cx, S.GRID.z[m]-cz
+    a = np.arctan2(dz, dx); near = np.abs(np.angle(np.exp(1j*(a-bearing)))) < math.radians(8)
+    return float(np.hypot(dx[near], dz[near]).max())+extra
+
+
+def carry_path(cap_sh, cx, cz, cy, start, end, high, disc):
+    """The transfer contract in the carrier frame: rise at the grip to `high`, swing round her middle at that height through
+    the front half (bow, -z) outside her footprint plus the child's headwear disc, come in above the destination, go straight
+    down onto it."""
+    pts = [np.array(start, float), np.array([start[0], high, start[2]])]
+    a0 = math.atan2(start[2]-cz, start[0]-cx); a1 = math.atan2(end[2]-cz, end[0]-cx)
+    turn = math.atan2(math.sin(a1-a0), math.cos(a1-a0)); other = turn-math.copysign(2*math.pi, turn)
+    if math.sin(a0+other/2) < math.sin(a0+turn/2): turn = other          # the arc whose middle lies further toward the bow (-z)
+    r0 = math.hypot(start[0]-cx, start[2]-cz)
+    for q in np.linspace(0, 1, 25)[1:]:
+        a = a0+turn*q; r = max(r0*(1-q)+math.hypot(end[0]-cx, end[2]-cz)*q, keep_out(cap_sh, cx, cz, cy, a, disc) if high < 99 else 0)
+        pts.append(np.array([cx+r*math.cos(a), high, cz+r*math.sin(a)]))
+    pts += [np.array([end[0], high, end[2]]), np.array(end, float)]
+    return pts
+
+
+def places_main():
+    """Captain at her seat, hatted 赤油 in the basin at the measured pair limit, two on her bare head, and the braid's two
+    transfer paths (water to the basin, water to the head): <MCY_LOCAL or .local>/previews/art-a1-places/current.png."""
+    atlas = Atlas(); hull = S.Hull(); cap_sh, (cx, cz, cy) = L.captain(hull)
+    hull_tris = hull.placed.copy()
+    hull_tris[:, :, 3:5] = atlas.uv('marisa/neutral', Image.fromarray(S.body().texture('neutral')), hull_tris[:, :, 3:5])
+    meshes = [hull_tris, posed(cap_sh, atlas, *cap_sh.window(cx, cz)[2], cy)]
+    size = .15; cabin = L.cabin_hats(hull, [size, size], mirror=True)
+    for s_, x, z in cabin:
+        sh = L.young_shape(s_); meshes.append(posed(sh, atlas, *sh.window(x, z)[2], sh.rest(hull.field, x, z)))
+    top = cap_sh.full('top', cx, cz, cy); heads = []
+    for dz in (-2.4, 3.4):
+        sh = L.young_shape(size, 90.); x, z = cx, cz+dz; y = sh.rest(top, x, z, overhang=True)
+        meshes.append(posed(sh, atlas, *sh.window(x, z)[2], y)); heads.append((x, y+sh.bottom, z))
+    child = L.young_shape(size); h = child.height; disc = 20.26*B.K*size/2+L.HAT_GAP; water = -B.WATER*B.K
+    start = (17.5, water, -2.)
+    cab = cabin[0] if cabin[0][1] > 0 else cabin[1]
+    paths = [(carry_path(cap_sh, cx, cz, cy, start, (cab[1], hull.field[np.unravel_index(np.argmin(np.hypot(S.GRID.x-cab[1], S.GRID.z-cab[2])), S.GRID.x.shape)], cab[2]), h+1.5, disc), 'path_cabin'),
+             (carry_path(cap_sh, cx, cz, cy, start, heads[0], float(np.nanmax(np.where(np.isfinite(top), top, np.nan)))+h+1.5, disc), 'path_head')]
+    for pts, key in paths:
+        for a, b in zip(pts, pts[1:]):
+            if np.linalg.norm(b-a) < 1e-6: continue
+            t = tube(a, b, .22, 6); t[:, :, 3:5] = swatch(atlas, key, t[:, :, 3:5]); meshes.append(t)
+        for k in (0, 1, len(pts)-2, len(pts)-1):
+            bl = blob(pts[k], .5, 6); bl[:, :, 3:5] = swatch(atlas, key, bl[:, :, 3:5]); meshes.append(bl)
+    flags = [np.zeros(len(m), int) for m in meshes]
+    views = [('从辫子一侧斜上方看', (2.25, .45, 15., (3., 1., -2.))), ('从船首看（她面朝镜头）', (0., .2, 13., (0., 1.5, 0.))),
+             ('从上方看搬运路线（船首在下）', (0., 1.5, 17., (2., 0., -1.)))]
+    W, H = 3*600+40, 560; img = Image.new('RGB', (W, H), (250, 251, 252)); d = ImageDraw.Draw(img)
+    d.text((20, 14), '帽船上的位置：船长座、帽内赤油（带帽测量）、头顶位、辫子搬运路线（离线渲染，不是游戏画面）', font=P.preview_font(26), fill=(32, 52, 64))
+    for i, (label, view) in enumerate(views):
+        shot, _ = render(meshes, flags, atlas, view, hull)
+        x = 20+i*600; d.text((x, 60), label, font=P.preview_font(21), fill=(70, 90, 100))
+        img.paste(shot.resize((590, 410), Image.Resampling.LANCZOS), (x, 92))
+    notes = [f'船长坐在船尾座位（离中心 0.75），面朝船首；帽内两只 {size:.2f} 赤油戴着帽子，帽子不碰她的脸和帽壁',
+             '头顶两只赤油前后坐在头发顶上（摘帽时才有头顶位），可以转身，不走动，不碰水',
+             '橙线：从水里提起→升高→绕辫子一侧经身前转过去→正上方直放进帽内；紫线：同样绕前，升过头顶后直放到头上；都不穿过她的身体']
+    img2 = Image.new('RGB', (W, H+90), (250, 251, 252)); img2.paste(img, (0, 0)); d2 = ImageDraw.Draw(img2)
+    for i, t in enumerate(notes): d2.text((20, 512+i*30), '· '+t, font=P.preview_font(19), fill=(40, 60, 70))
+    out = OUT.parent/'art-a1-places'; out.mkdir(parents=True, exist_ok=True)
+    img2.save(out/'current.png'); (out/'source.sha256').write_text(B.source_digest(), encoding='utf-8')
+    print(out/'current.png', 'cabin', cabin, 'heads', [tuple(round(v, 2) for v in q) for q in heads])
+
+
 if __name__ == '__main__':
-    clips_main() if '--clips' in sys.argv else paddle_main() if '--paddle' in sys.argv else main()
+    clips_main() if '--clips' in sys.argv else paddle_main() if '--paddle' in sys.argv else places_main() if '--places' in sys.argv else main()

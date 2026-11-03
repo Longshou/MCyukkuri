@@ -1,8 +1,8 @@
 """Where the riders of the lily-pad hat boat sit and what they reach (offline study; no game).
 
-Rules (user 2026-11-01, docs/FEATURES.md 水生魔理沙): the captain sits at the stern wall facing the bow; before her in the
-basin up to two 赤油, or one small 子油; a 子油 may sit on the brim edge and splash the water with its braid. Who does not
-fit cannot board. Every body is the runtime Marisa posed by an exported clip at its growth (scene.Shape) and rests by its
+Rules (user 2026-11-01/11-04, docs/FEATURES.md 水生魔理沙): the captain sits at the stern wall facing the bow; before her in the
+basin the young that fit with their worn hats clear of her face (cabin_hats: measured, project design); others go on her bare
+head (head_cap) or the brim edge, where a young splashes the water with its braid. Every body is the runtime Marisa posed by an exported clip at its growth (scene.Shape) and rests by its
 real underside; two bodies may not share a cell where their bodies' own columns overlap (hats, hair and braid are soft).
 
     python layout.py [--set key.path=value ...]   # prints the seat, capacity, reach and clip gate numbers
@@ -28,7 +28,7 @@ YAW = 15.                                              # the paddle's captain_ya
 LEAN = 10.                                             # degrees: a whole-body lean toward the water (limit about 12)
 GATE_CLIPS = ('boat_rim_peek', 'boat_paddle', 'braid_rescue_reach', 'braid_rescue_hold', 'braid_rescue_settle',
               'braid_cradle_lift', 'hat_brim_offer', 'boat_nudge_young', 'boat_board', 'hat_hop_up', 'boat_thrown',
-              'boat_feed_young', 'boat_drift', 'boat_steady')
+              'boat_feed_young', 'boat_drift', 'boat_steady', 'braid_head_set', 'braid_head_take')
 
 
 def captain_shape(scale=1., yaw=0.): return S.Shape.posed('boat_drift', .3, 'closed_smile', scale, yaw)
@@ -98,10 +98,10 @@ def largest_young(hull, cap, lo=SMALL, hi=.7):
     return lo
 
 
-def brim_ring():
-    """The brim-edge seat for a 子油: its middle half a 0.30 young's half width inside the brim's edge (the rest over the water), its braid
-    side (+x) toward the water."""
-    return B.BRIM["radius"]*B.K-6.4*SMALL*.5
+def brim_ring(scale=SMALL):
+    """The brim-edge seat for a young of this growth: its middle half its own half width inside the brim's edge (the rest over the
+    water), its braid side (+x) toward the water. The runtime bounds keep the 0.30 reference ring."""
+    return B.BRIM["radius"]*B.K-6.4*scale*.5
 
 
 def turned(p, yaw):
@@ -118,7 +118,7 @@ def lean_out(p, scale, deg, forward=False):
 def splash(hull, scale):
     """A young on the brim ring: its rest height, and how far below the water its braid (hanging from the root at its
     full length toward the nearest water past the edge) and its mouth reach, upright and leaning LEAN toward the water."""
-    r, edge, water = brim_ring(), B.BRIM['radius']*B.K, -B.WATER*B.K
+    r, edge, water = brim_ring(scale), B.BRIM['radius']*B.K, -B.WATER*B.K
     sh = young_shape(scale); y = sh.rest(hull.field, r, 0, overhang=True); bottom = y+sh.bottom
     out = dict(scale=scale, ring=round(r, 2), underside=round(bottom, 2))
     for deg in (0., LEAN):
@@ -127,6 +127,91 @@ def splash(hull, scale):
         mouth = np.array([r, bottom, 0])+turned(lean_out(MOUTH_AT, scale, deg, True), 90)   # turned to face the water
         out['lean' if deg else 'upright'] = dict(braid_below_water=round(reach, 2), mouth_over_water=round(mouth[1]-water, 2),
                                                  mouth_past_edge=round(mouth[0]-edge, 2))
+    return out
+
+
+# ---- with worn hats (user 2026-11-04: a baby's hat easily clips the captain's face): whole posed meshes as column intervals
+HAT_GAP = .3              # model units between whole meshes (body, hair, hats)
+
+
+def intervals(sh, x, z, y):
+    """Lowest and highest surface of the whole mesh per cell (one where the other is missing)."""
+    u, t = sh.full('under', x, z, y), sh.full('top', x, z, y)
+    return np.where(np.isfinite(u), u, t), np.where(np.isfinite(t), t, u)
+
+
+def apart(sh, x, z, y, others, gap=HAT_GAP):
+    si, sj, _ = sh.window(x, z); u, t = sh.under, sh.top
+    lo, hi = np.where(np.isfinite(u), u, t)+y, np.where(np.isfinite(t), t, u)+y
+    for cu, ct in others:
+        cw, tw = cu[si, sj], ct[si, sj]; both = np.isfinite(lo) & np.isfinite(hi) & np.isfinite(cw) & np.isfinite(tw)
+        if (both & (lo < tw+gap) & (hi > cw-gap)).any(): return False
+    return True
+
+
+def in_hull(hull, sh, x, z, y):
+    """The whole mesh (hat brim included) stays on or over the hull's cloth, the body inside the opening."""
+    si, sj, _ = sh.window(x, z); f = hull.field[si, sj]; u = sh.under+y; both = np.isfinite(f) & np.isfinite(u)
+    return hull.cavity[si, sj][np.isfinite(sh.low)].all() and not (both & (u < f-.05)).any()
+
+
+def cabin_hats(hull, scales, mirror=False):
+    """Young wearing their hats in the basin before the captain, clear of her face over her paddle turn (-YAW..YAW), of the hull
+    and of each other: [(growth, x, z)] or None. mirror: two equal young placed as a mirrored pair."""
+    osh, (ox, oz, oy) = captain(hull); others = []
+    for yaw in (-YAW, 0., YAW):
+        t = captain_shape(1., yaw); others.append(intervals(t, ox, oz, t.rest(hull.field, ox, oz)))
+    if mirror:
+        s = scales[0]
+        for yaw in (-20., 0., 20.):
+            a, b = young_shape(s, yaw), young_shape(s, -yaw)
+            for z in np.arange(-10, oz+.01, .25):
+                for x in np.arange(1., 9.01, .25):
+                    ya, yb = a.rest(hull.field, x, z), b.rest(hull.field, -x, z)
+                    if ya is None or yb is None or not (in_hull(hull, a, x, z, ya) and in_hull(hull, b, -x, z, yb)): continue
+                    if apart(a, x, z, ya, others) and apart(b, -x, z, yb, others) and apart(a, x, z, ya, [intervals(b, -x, z, yb)]):
+                        return [(s, float(x), float(z)), (s, float(-x), float(z))]
+        return None
+    out = []
+    for s in sorted(scales, reverse=True):
+        best = None
+        for yaw in (-20., 0., 20.):
+            sh = young_shape(s, yaw)
+            for x in np.arange(-9, 9.01, .5):
+                for z in np.arange(-10, oz+.01, .25):
+                    y = sh.rest(hull.field, x, z)
+                    if y is None or not in_hull(hull, sh, x, z, y) or not apart(sh, x, z, y, others): continue
+                    score = abs(z+6)+.2*abs(x)
+                    if best is None or score < best[0]: best = (score, sh, x, z, y)
+        if best is None: return None
+        _, sh, x, z, y = best; out.append((s, float(x), float(z))); others.append(intervals(sh, x, z, y))
+    return out
+
+
+def cabin_limit(hull, n):
+    """The largest growth at which n equal hatted young fit the basin (bisection; a pair is placed mirrored)."""
+    lo, hi = .08, .45
+    for _ in range(6):
+        mid = round((lo+hi)/2, 3)
+        if cabin_hats(hull, [mid]*n, mirror=n == 2) is None: hi = mid
+        else: lo = mid
+    return lo
+
+
+HEAD_BAND = .5            # model units under the head's peak that still count as its flat top (export_hat_interactions HEAD_BAND)
+
+
+def head_cap(hull):
+    """The captain's bare head top: its peak above the brim face and the extent within HEAD_BAND of it, and where a hatted
+    young of each growth rests on it (underside, fully supported)."""
+    osh, (ox, oz, oy) = captain(hull); top = osh.full('top', ox, oz, oy)
+    peak = float(top[np.isfinite(top)].max()); m = np.isfinite(top) & (top > peak-HEAD_BAND)
+    out = dict(peak=round(peak, 2), x=[round(float(S.GRID.x[m].min()), 1), round(float(S.GRID.x[m].max()), 1)],
+               z=[round(float(S.GRID.z[m].min()-oz), 1), round(float(S.GRID.z[m].max()-oz), 1)])
+    for s in (.15, .20, .30):
+        sh = young_shape(s); y = sh.rest(top, ox, oz+.5, overhang=True); si, sj, _ = sh.window(ox, oz+.5)
+        ok = np.isfinite(sh.low) & np.isfinite(top[si, sj])
+        out[str(s)] = dict(underside=round(y+sh.bottom, 2), supported=int(ok.sum()) == int(np.isfinite(sh.low).sum()))
     return out
 
 
@@ -170,7 +255,10 @@ def checks(gates=True):
     out['babies_below_mouth'] = babies
     out['body_column_limit'] = largest_young(hull, cap)
     out['basin_young_limit'] = BASIN_YOUNG
-    out['brim_young'] = [splash(hull, s) for s in (SMALL, CHILD)]
+    out['brim_young'] = [splash(hull, s) for s in (.12, .15, BABY, SMALL, CHILD)]
+    out['cabin_hats'] = dict(single=cabin_limit(hull, 1), pair=cabin_limit(hull, 2),
+                             triple_010=cabin_hats(hull, [.1, .1, .1]) is not None, baby_020=cabin_hats(hull, [BABY]) is not None)
+    out['head'] = head_cap(hull)
     out['rescue'] = rescue_reach(cap)
     if gates:
         import export as E
