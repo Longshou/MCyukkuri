@@ -548,13 +548,17 @@ public final class SurfaceApproach {
         if(current.result==Result.BLOCKED&&now<current.retryAt){stopInput(actor);return observed(actor,Result.BLOCKED);}
         if(current.target!=null){
             var active=navigation.getPath();
-            if(active==null||!current.target.equals(active.getTarget()))return blocked(actor,"route_stopped");
-            if(!active.canReach())return blocked(actor,"route_unreachable");
-            // A navigation replan may replace Path while retaining this destination. Follow its replacement.
-            if(!active.isDone()){navigation.setSpeedModifier(speed);return observed(actor,Result.MOVING);}
-            current.lastStep=floor(actor,active.getEntityPosAtNode(actor,active.getNodeCount()-1));
-            current.target=null;current.routed=false;
-            if(current.lastStep==null)return blocked(actor,"last_node_unsupported");
+            // Another owner stopping the route (a wild beat, a lesson) took the path away; it is not a refused way, so plan it again.
+            if(active==null){current.target=null;current.lastStep=null;current.routed=false;}
+            else {
+                if(!current.target.equals(active.getTarget()))return blocked(actor,"route_stopped");
+                if(!active.canReach())return blocked(actor,"route_unreachable");
+                // A navigation replan may replace Path while retaining this destination. Follow its replacement.
+                if(!active.isDone()){navigation.setSpeedModifier(speed);return observed(actor,Result.MOVING);}
+                current.lastStep=floor(actor,active.getEntityPosAtNode(actor,active.getNodeCount()-1));
+                current.target=null;current.routed=false;
+                if(current.lastStep==null)return blocked(actor,"last_node_unsupported");
+            }
         }
         if(current.lastStep!=null){
             // Natural path completion hands over one physical endpoint; an interrupted path never reaches here.
