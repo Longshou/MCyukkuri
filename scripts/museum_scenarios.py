@@ -2640,6 +2640,11 @@ def shore_birth_result(window, riders):
     for departure in re.finditer(rf'uuid={mother}[^\n]* start id=(?:set_out|resolve_own_hat)\b', postpartum):
         if any(not re.search(rf'uuid={child}[^\n]* first toilet completed', postpartum[:departure.start()]) for child, _ in born):
             return 'mother tried to leave the newborn care phase for her boat'
+        if 'id=resolve_own_hat' in departure[0]:
+            for child, _ in born:
+                attachments = re.findall(rf'uuid={child}[^\n]* (mount host=\S+|dismount at=\S+)', postpartum[:departure.start()])
+                if not attachments or not attachments[-1].startswith('mount '):
+                    return 'mother reclaimed alone while a newborn was still unboarded'
     if any(re.search(rf'set_out left_ashore=[^\n]*{child}', postpartum) for child, _ in born):
         return 'a newborn was excused from family loading and left ashore'
 

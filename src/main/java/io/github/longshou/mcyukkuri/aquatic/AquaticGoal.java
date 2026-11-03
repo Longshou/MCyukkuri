@@ -176,9 +176,9 @@ final class AquaticGoal extends Goal {
                 ? num("birth_ashore_want", 200) : 0;
         var young = AquaticLife.young(body);
         // Finish the first meal/toilet care ashore; a crawling child can gather for a braid lift without learning to jump.
-        var shoreNewborns = young.stream().filter(y -> AquaticLife.ashore(y) && y.family().stage() == FamilyLife.Stage.BABY && y.childhood().isNewborn()
+        var unloadedNewborns = young.stream().filter(y -> !y.isPassenger() && y.family().stage() == FamilyLife.Stage.BABY && y.childhood().isNewborn()
                 && y.childhood().shouldStayWithParents()).toList();
-        var nursing = shoreNewborns.stream().filter(y -> !y.childhood().firstToiletDone()).toList();
+        var nursing = unloadedNewborns.stream().filter(y -> !y.childhood().firstToiletDone()).toList();
         boolean nursery = !nursing.isEmpty();
         if (!aboard) {
             if (nursery && AquaticLife.ashore(body)) GameplayLog.limited(body, "aquatic", "nursery.ashore", 1200,
@@ -195,7 +195,7 @@ final class AquaticGoal extends Goal {
                     "pull=%.0f hunger=%.0f no_stick=%.0f weather=%.0f breed=%.0f dusk=%b rain=%b young=%d asleep=%b beyond_gather=%b nursery=%b",
                     pull, hunger, noStick, weather, breed, dusk, rain, young.size(), asleep, beyondGather, nursery), () -> new SetOut(body, this::leftAshore)));
             // Newborns ashore go through family loading, never the solo reclaim that may finish aboard without them.
-            if (hat != null && birth == 0 && shoreNewborns.isEmpty() && !beyondGather
+            if (hat != null && birth == 0 && unloadedNewborns.isEmpty() && !beyondGather
                     && (floor(setOut) == 0 || !AquaticLife.afloat(hat) || drive().failed("set_out")))
                 out.add(Desire.of("resolve_own_hat", num("reclaim", 85), List.of(cell(hat), form(hat), young.size()),
                         () -> "hat=" + form(hat), () -> Ashore.reclaim(body)));
