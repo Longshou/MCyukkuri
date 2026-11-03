@@ -8,6 +8,7 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
+| 水生岸产审查修复：护幼、返岸判定与拒绝重启 | `.worktrees/fb-boat-birth-shore` | `AquaticGoal`、`Waters`、`Drive`、`Hop`、分娩净空与场景；`Ashore` 仅产后返岸分支 |
 | 统一托运接放判定（救援、出航装载、上岸；摇晃翻覆溺亡） | `.worktrees/fb-capsize-rescue`（分支 `fb-carry-admission`） | `motor/CarryAdmission`、`Grab`／`Release`、`aquatic/Rescue`／`SetOut`／`Ashore`／`Ferry` |
 
 ## 玩法待办

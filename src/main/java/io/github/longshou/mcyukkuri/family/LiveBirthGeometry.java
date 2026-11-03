@@ -231,14 +231,12 @@ public final class LiveBirthGeometry {
     }
     /**
      * Whether child {@code index} can come out of the outlet with the mother turned to {@code yaw}: its real birth-size box
-     * free of blocks and every living body, and no wall between her and it. A protected outlet also keeps out liquid
-     * and needs the full newborn footprint on a floor below; an unprotected one (the safety wait ran out) allows
-     * exposure, never birth through a wall or inside another body.
+     * free of blocks and every living body, with no wall between her and it, no liquid, and a dry floor below the full footprint.
      */
-    public static boolean clear(YukkuriEntity mother,int index,float yaw,boolean unprotected){
-        return clear(mother,index,mother.position(),yaw,unprotected);
+    public static boolean clear(YukkuriEntity mother,int index,float yaw){
+        return clear(mother,index,mother.position(),yaw);
     }
-    public static boolean clear(YukkuriEntity mother,int index,Vec3 at,float yaw,boolean unprotected){
+    public static boolean clear(YukkuriEntity mother,int index,Vec3 at,float yaw){
         var brood=mother.family().brood();
         if(!(mother.level() instanceof ServerLevel level)||brood==null||index<0||index>=brood.children.size())return false;
         var position=position(mother,index,at,yaw);
@@ -251,7 +249,6 @@ public final class LiveBirthGeometry {
         for(var part:childEnvelope(brood.children.get(index),mother.getScale(),position,yaw))
             if(level.getBlockCollisions(mother,part).iterator().hasNext())return false;
         if(!level.getEntitiesOfClass(YukkuriEntity.class,box.inflate(.015),YukkuriEntity::isAlive).isEmpty())return false;
-        if(unprotected)return true;
         if(!level.noCollision(mother,box)||level.containsAnyLiquid(box))return false;
         var ground=level.clip(new ClipContext(position.add(0,.01,0),position.add(0,-.55,0),ClipContext.Block.COLLIDER,ClipContext.Fluid.NONE,mother));
         if(ground.getType()!=HitResult.Type.BLOCK||ground.getDirection()!=Direction.UP)return false;
@@ -269,11 +266,11 @@ public final class LiveBirthGeometry {
      * the clear outlet that brings the child within {@code reach} of the receiver's aim with the least turn, else the clear one
      * with the least turn (the ground). NaN when none is clear.
      */
-    public static float exitYaw(YukkuriEntity mother,int index,Vec3 aim,double reach,boolean unprotected){
+    public static float exitYaw(YukkuriEntity mother,int index,Vec3 aim,double reach){
         float best=Float.NaN;double score=Double.MAX_VALUE;
         for(int i=0;i<=16;i++){
             float yaw=i<16?Mth.wrapDegrees(mother.yBodyRot+i*22.5f):aim==null?mother.yBodyRot:SurfaceApproach.yaw(mother.position(),aim);
-            if(!clear(mother,index,yaw,unprotected))continue;
+            if(!clear(mother,index,yaw))continue;
             double turn=Math.abs(Mth.wrapDegrees(yaw-mother.yBodyRot)),candidate=(aims(mother,index,yaw,aim,reach)?0:1000)+turn;
             if(candidate<score){score=candidate;best=yaw;}
         }

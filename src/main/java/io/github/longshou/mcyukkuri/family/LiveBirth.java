@@ -81,7 +81,7 @@ final class LiveBirth extends Choreography {
     private record Excluded(Vec3 mother,Vec3 helper,long until){}
     private final List<Excluded> excluded=new ArrayList<>();
     private long windowEnd,cleanupEnd;
-    /** Sticky once upgraded: exposure is allowed; a forced delivery still requires a clear outlet. */
+    /** Sticky once upgraded: missing the receiver is allowed; every outlet still needs dry ground and body clearance. */
     private boolean unprotected,forced;
     private int pushing,welcomed,unloads,takes;
     private Welcome welcome;
@@ -145,9 +145,10 @@ final class LiveBirth extends Choreography {
             t.put("exit_any",new Beat.Perform(Beat.roles(MOTHER,()->new Deliver(true),CATCHER,this::attend),()->1200,"turned_any","force"));
             t.put("turned",new Beat.Branch(r->r.done()?"push":now()<exitUntil?"exit":"exit_any"));
             t.put("turned_any",new Beat.Branch(r->r.done()?"push":interrupted(r)?"exit_any":"force"));
-            // The safety window expired: real exposure is allowed, spawning inside another body is not.
+            // The receiver's safety window expired; labour still needs dry ground and a clear outlet.
             t.put("force",new Beat.Branch(r->{
-                if(!LiveBirthGeometry.clear(o.entity(),pushing,o.entity().yBodyRot,true)){
+                if(!o.deliveryGrounded())return "term";
+                if(!LiveBirthGeometry.clear(o.entity(),pushing,o.entity().yBodyRot)){
                     FamilyData.get(o.level()).cancel(brood(),o.entity(),"no_clear_birth_exit");return null;
                 }
                 forced=true;GameplayLog.event(o.entity(),"family","birth forced reason={} child={}",hold.isEmpty()?"no_safe_exit":hold,pushing);return "push";
@@ -243,19 +244,20 @@ final class LiveBirth extends Choreography {
                 if(child.born||b.elapsed<b.duration+i*8)continue;
                 var at=FamilyGeometry.toWorld(m,FamilyGeometry.childBase(b.children.size(),i,1,m.growthScale(),b.variation,m.getVariant(),child.variant,GrowthSize.physicalBirth(b.kind,child)));
                 // A blocked attachment delays the birth; it never spawns through the ceiling or into a wall.
-                if(FamilyData.get(o.level()).birth(b,i,o.level(),at,placedHat(),null,false)!=null)
+                if(FamilyData.get(o.level()).birth(b,i,o.level(),at,placedHat(),null)!=null)
                     m.showReaction(b.incidentSource==null?"happy":"teary",b.incidentSource==null?"birth":"",100);
             }
             return "";
         }
         if(b.elapsed<b.duration)return o.gestate(b,sited);
         if(!"push".equals(beat()))return BEFORE_HAT.contains(beat())?"waiting_for_catcher":beat().startsWith("exit")?rejection.isEmpty()?"turning_to_exit":rejection:"";
+        if(!o.deliveryGrounded())return "must_go_ashore";
         if(!o.readyForDelivery())return "mother_not_ready";
         if(moved>.0004)return "mother_moving";
         int delivery=b.elapsed-b.duration;
         boolean visible=delivery>LiveBirthGeometry.emergenceStart(pushing);
         var hat=placedHat();
-        if(!LiveBirthGeometry.clear(m,pushing,m.yBodyRot,unprotected||forced))return "outlet_blocked";
+        if(!LiveBirthGeometry.clear(m,pushing,m.yBodyRot))return "outlet_blocked";
         if(!o.bellyRoom(b))return "no_room_for_belly";
         // Replanning is permitted before the child is visible. Once emerging, retain this aim and the real risk of lost room.
         if(hat!=null&&!unprotected&&!forced&&!visible&&(exit==null||!qualified(hat)&&qualificationMisses>=3)){
@@ -274,7 +276,7 @@ final class LiveBirth extends Choreography {
                 "birth lost aim reason={} delivery={} phase=emerging host={}",hat==null?"host_missing":exit==null?"exit_missing":"behind",delivery,hat==null?null:hat.getUUID());
         if(nominal==null)hat=null;
         // Failed entity insertion pauses at this child's release, never running into the next child's clock.
-        var child=data.birth(b,pushing,o.level(),at,hat,nominal,unprotected||forced);
+        var child=data.birth(b,pushing,o.level(),at,hat,nominal);
         if(child==null)return data.birthBlock(b);
         deliveryReadout("release","spawned",hat);
         BirthStaging.emerge(m,child.position());
@@ -606,7 +608,7 @@ final class LiveBirth extends Choreography {
         }
         aims.sort(Comparator.comparingDouble(Aim::score));var facings=new HashMap<Float,Boolean>();
         for(var aim:aims){
-            if(!facings.computeIfAbsent(aim.yaw(),yaw->LiveBirthGeometry.clear(m,pushing,yaw,false)))continue;
+            if(!facings.computeIfAbsent(aim.yaw(),yaw->LiveBirthGeometry.clear(m,pushing,yaw)))continue;
             clear++;if(!BirthLaunch.room(m,child,hat,m.position(),aim.yaw(),aim.at()))continue;room++;
             var plan=BirthLaunch.qualify(m,child,hat,m.position(),aim.out(),aim.yaw(),aim.at());
             if(plan==null)continue;
@@ -626,7 +628,7 @@ final class LiveBirth extends Choreography {
         private float choose(){
             var hat=placedHat();var m=o.entity();
             if(any||hat==null){
-                yaw=LiveBirthGeometry.exitYaw(m,pushing,receiver instanceof Nest?FamilyNest.largeCentre(m):null,NEST_REACH,any);
+                yaw=LiveBirthGeometry.exitYaw(m,pushing,receiver instanceof Nest?FamilyNest.largeCentre(m):null,NEST_REACH);
                 if(hat!=null&&!Float.isNaN(yaw))riskyExit(hat,yaw);
                 return yaw;
             }
@@ -641,7 +643,7 @@ final class LiveBirth extends Choreography {
         @Override public boolean satisfied(){
             var m=o.entity();var hat=placedHat();
             return !Float.isNaN(yaw)&&Math.abs(Mth.wrapDegrees((exit!=null&&hat!=null?hat.getYRot()+exit.yaw():yaw)-m.yBodyRot))<=Face.FACE_ARRIVED
-                    &&LiveBirthGeometry.clear(m,pushing,m.yBodyRot,any)
+                    &&LiveBirthGeometry.clear(m,pushing,m.yBodyRot)
                     &&(any||hat==null||exit!=null&&qualified(hat));
         }
         @Override public long deadline(){return deadline;}

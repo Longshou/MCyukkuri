@@ -2634,6 +2634,11 @@ def shore_birth_result(window, riders):
         return 'initial rider count differs'
     if re.search(r'\[body\][^\n]* death settled|cause=starv|brood cancelled', window):
         return 'birth family died, starved or lost its brood'
+    postpartum = window[re.search(rf'uuid={mother}[^\n]* delivery complete', window).end():]
+    if not re.search(rf'uuid={mother}[^\n]* set_out held reason=newborn_care', postpartum):
+        return 'mother did not remain ashore for newborn care'
+    if re.search(rf'uuid={mother}[^\n]* start id=(?:set_out|resolve_own_hat)\b', postpartum):
+        return 'mother tried to leave the newborn care phase for her boat'
 
 
 def boat_birth(sid, title, hint, riders):
@@ -2641,7 +2646,7 @@ def boat_birth(sid, title, hint, riders):
     pond(sid, title, hint,
          '水生母油从四分之一孕程开始，划回岸边，经帽檐下船，随后按陆地接生帽／窝／地面规则分娩。'
          + ('两只初始赤油占满母船；怀孕不能搬运它们，仍留在真实座位上。' if riders else '母船起初没有幼体；空帽可以收回。')
-         + '每只新生儿都应戴水生圆帽、在身体外出生并落在岸上；产后入船走普通亲子出航的装载流程。',
+         + '每只新生儿都应戴水生圆帽、在身体外出生并落在岸上；母油产后留岸照护。幼体完成早期照护、能集合后再走普通亲子装载，本窗口不展示后续出航。',
          '约 4–6 分钟靠岸与分娩',
          [yk('marisa', bank_dx(0), 0, 'mother', aquatic=True, yaw=-90, lead=True, **pair_ready()),
           yk('marisa', bank_dx(4), 4, 'father', aquatic=True, yaw=-90, **pair_ready()),
@@ -2653,7 +2658,7 @@ def boat_birth(sid, title, hint, riders):
                f'yukkuri scenario birth {sel("mother")} {sel("father")} pregnant'],
          note='开场实体全部可见，准备后坐进各自浮着的帽子；岸上有八个真实苹果供孕期取食。'
               '胎数 1–2 只、偶尔 3 只，读母油 status 看胎次。come_ashore → hop 离船落地 → delivery labor started → born → birth landed；'
-              '出生数对照 conceived children 与 born index，“读本胎新生儿”排除初始 crew。' + _DESIRE_NOTE,
+              '出生数对照 conceived children 与 born index，“读本胎新生儿”排除初始 crew；产后应见 set_out held reason=newborn_care，母油留岸，不重新登船离开新生儿。' + _DESIRE_NOTE,
          reads=[('读母油与产程', f'yukkuri status {sel("mother")} raw'), ('读父油', f'yukkuri status {sel("father")} raw'),
                 ('读本胎新生儿', f'yukkuri status {NEWBORNS[:-1]},tag=!crew] raw'),
                 *([('读初始乘员', f'yukkuri status {sel_all("crew")} raw')] if riders else [])],

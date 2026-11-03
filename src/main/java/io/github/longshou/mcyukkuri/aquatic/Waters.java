@@ -57,10 +57,15 @@ final class Waters {
     /** The answer to {@code key} asked within {@link #KEEP} ticks, else {@code compute}'s (null answers are kept too). */
     @SuppressWarnings("unchecked")
     private static <T> T kept(Level level, List<Object> key, Supplier<T> compute) {
+        return kept(level, key, KEEP, compute);
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <T> T kept(Level level, List<Object> key, int ticks, Supplier<T> compute) {
         long now = level.getGameTime();
         synchronized (CACHE) {
             var k = CACHE.get(key);
-            if (k != null && now >= k.tick() && now - k.tick() < KEEP) return (T) k.value();
+            if (k != null && now >= k.tick() && now - k.tick() < ticks) return (T) k.value();
         }
         T value = compute.get();
         synchronized (CACHE) { CACHE.put(key, new Kept(now, value)); }
@@ -274,6 +279,11 @@ final class Waters {
     /** The local brim spot of {@code hat} from which a dry stand is one hop away for {@code body}, or null: the ring spot nearest
      *  the bank first, then the ones beside it, so a hull whose brim reaches over the bank still has a way off. */
     static Vec3 brimAshore(PlacedHatEntity hat, YukkuriEntity body) {
+        return kept(body.level(), key(body.level(), "brim", hat.getUUID(), body.getUUID(), hat.frame(), body.position()), 1,
+                () -> findBrimAshore(hat, body));
+    }
+
+    private static Vec3 findBrimAshore(PlacedHatEntity hat, YukkuriEntity body) {
         var edge = edges(body, hat.position(), 4, false).stream().findFirst().orElse(null);
         if (edge == null) return null;
         int exits = 0;
@@ -292,16 +302,24 @@ final class Waters {
         return null;
     }
 
-    /** A dry stand within a hop of {@code from}. An owner also needs a real closing method from this bank edge. */
+    /** A dry stand within one hop. An unsailed owner must also be able to collect her hat without swimming after it. */
     static Vec3 ashore(YukkuriEntity body, Vec3 from) {
+        return kept(body.level(), key(body.level(), "ashore", body.getUUID(), body.position(), from, body.getBbWidth()), 1,
+                () -> findAshore(body, from));
+    }
+
+    private static Vec3 findAshore(YukkuriEntity body, Vec3 from) {
         var own = body.getVehicle() instanceof PlacedHatEntity hat && hat.owner() == body ? hat : null;
         int asked = 0;
         for (var e : edges(body, from, 2, false)) {
             var at = boardingStand(e, body);
-            if (hatOver(body, at, 0)) continue;
-            if (own != null && !bankReach(body, e.stand(body.getBbWidth()), own)) continue;
             if (asked++ >= ASKED) break;
-            if (Hop.reaches(body, from, at)) return at;
+            String refusal = hatOver(body, at, 0) ? "other_hat"
+                    : own != null && !body.childhood().canSail() && !bankReach(body, e.stand(body.getBbWidth()), own) ? "reclaim_reach"
+                    : !Hop.reaches(body, from, at) ? "hop_arc" : null;
+            if (refusal == null) return at;
+            GameplayLog.limited(body, "aquatic", "shore." + refusal, 200,
+                    "hop shore stand refused reason={} from={} stand={}", refusal, GameplayLog.at(from), GameplayLog.at(at));
         }
         return null;
     }

@@ -116,7 +116,7 @@ final class Ashore implements Intent {
         if (held != null) return List.of(() -> new Step.Do(new Release(held)));
         if (hat.upsideDown()) return fromBank(hat, () -> new Right(hat, "reclaim"), () -> new Step.Wait(hat::steady, 60, "hat_settles"));
         if (AquaticLife.afloat(hat) && dependent != null)
-            return carryProblem == null ? Ferry.hopAboard(owner, hat, beckoning) : null;
+            return Ferry.hopAboard(owner, hat, beckoning);
         if (youngAboard(hat)) return List.of(() -> new Step.Wait(() -> !youngAboard(hat), WAIT, Behaviors.BOAT_CALL));
         return fromBank(hat, () -> new TakeProp(new HatProp(owner, true, AquaticLife.afloat(hat))));
     }

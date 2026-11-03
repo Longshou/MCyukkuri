@@ -553,11 +553,11 @@ public final class FamilyData extends SavedData {
     }
     /** Why the last birth attempt of this brood was refused (diagnostic; empty when none or since succeeded). */
     public String birthBlock(Brood brood){return brood==null?"":refusals.getOrDefault(brood.id,"");}
-    public YukkuriEntity birth(Brood brood, int index, ServerLevel level, Vec3 position) { return birth(brood,index,level,position,null,null,false); }
+    public YukkuriEntity birth(Brood brood, int index, ServerLevel level, Vec3 position) { return birth(brood,index,level,position,null,null); }
 
     /** One child into the world; a mother's LIVE or STEM child also draws its one launch, into {@code hat} when the outlet is aimed
-     *  at it (first real contact decides). {@code unprotected}: the safety wait ran out, so the outlet may hold liquid. */
-    public YukkuriEntity birth(Brood brood, int index, ServerLevel level, Vec3 position, PlacedHatEntity hat, BirthLaunch.Nominal nominal, boolean unprotected) {
+     *  at it (first real contact decides). Entity insertion always needs dry clearance. */
+    public YukkuriEntity birth(Brood brood, int index, ServerLevel level, Vec3 position, PlacedHatEntity hat, BirthLaunch.Nominal nominal) {
         if(brood.cancelled||index<0||index>=brood.children.size())return null;
         var mother=brood.detachedHolder==null&&brood.kind!=BirthKind.EGG&&level.getEntity(brood.mother) instanceof YukkuriEntity m?m:null;
         if(mother!=null&&!mother.subspecies().canReproduce()) {
@@ -573,6 +573,7 @@ public final class FamilyData extends SavedData {
                 ||!nest.identity().equals(child.eggNestId)))return null;
         if(brood.kind==BirthKind.LIVE){
             if(mother==null)return refuse(brood,level,"mother_missing");
+            if(!mother.family().deliveryGrounded())return refuse(brood,level,"must_go_ashore");
             for(int earlier=0;earlier<index;earlier++)if(!brood.children.get(earlier).born)return refuse(brood,level,"earlier_sibling_unborn");
         }
         for(ServerLevel dimension:level.getServer().getAllLevels())if(dimension.getEntity(child.id) instanceof YukkuriEntity existing) {
@@ -585,6 +586,8 @@ public final class FamilyData extends SavedData {
         if(brood.kind!=BirthKind.EGG||!child.eggManaged) {
             if(!relocate(brood,level,BlockPos.containing(position)))return refuse(brood,level,"population_limit");
         }
+        Boolean bodyClear=brood.kind==BirthKind.LIVE?LiveBirthGeometry.clear(mother,index,mother.yBodyRot):null;
+        if(Boolean.FALSE.equals(bodyClear))return refuse(brood,level,"outlet_blocked");
         YukkuriEntity entity=ModEntities.forVariant(child.variant).create(level);if(entity==null)return null;
         entity.setUUID(child.id);entity.subspecies().initializeBirth(child.subspeciesFlags);entity.family().newborn(child,brood);
         entity.subspecies().refreshStage();
@@ -594,8 +597,7 @@ public final class FamilyData extends SavedData {
         Motor.relocate(entity, position, facing, "birth_spawn");
         entity.yRotO = facing; entity.yBodyRotO = facing; entity.yHeadRotO = facing;
         entity.setPersistenceRequired();
-        if(unprotected?level.getBlockCollisions(entity,entity.getBoundingBox()).iterator().hasNext()
-                :!level.noCollision(entity)||level.containsAnyLiquid(entity.getBoundingBox()))return refuse(brood,level,"newborn_space_blocked");
+        if(!level.noCollision(entity)||level.containsAnyLiquid(entity.getBoundingBox()))return refuse(brood,level,"newborn_space_blocked");
         spawning.add(child.id);boolean added=false;
         try { added=level.addFreshEntity(entity); }
         finally { spawning.remove(child.id); }
@@ -631,7 +633,7 @@ public final class FamilyData extends SavedData {
         GameplayLog.event(entity,"family","born brood={} index={} kind={} mother={} father={} hat={} flying={} unborn={} stage={} scale={} width={} height={} subspecies={} motherGrounded={} bodyClear={}",
                 brood.id,index,brood.kind,brood.mother,brood.father,hat==null?null:hat.getUUID(),entity.family().flying(),brood.unborn(),
                 entity.family().stage(),entity.family().scale(),entity.getBbWidth(),entity.getBbHeight(),entity.subspecies().kind(),
-                mother!=null&&!mother.isPassenger()&&mother.family().supported(),level.getEntitiesOfClass(YukkuriEntity.class,entity.getBoundingBox(),other->other!=entity&&other.isAlive()).isEmpty());
+                mother!=null&&mother.family().deliveryGrounded(),bodyClear);
         return entity;
     }
     private void trackStemCompletion(Brood brood,ServerLevel level) {

@@ -290,6 +290,7 @@ public final class FamilyLife {
     /** Why the current delivery is held up (empty when it is not): the birth's own hold, or the last refusal of the ledger. */
     public String birthBlock() {
         var b=brood();if(b==null||b.cancelled||b.complete())return "";
+        if(b.kind==FamilyData.BirthKind.LIVE&&!deliveryGrounded())return "must_go_ashore";
         var running=liveBirth();return running!=null&&!running.hold().isEmpty()?running.hold():FamilyData.get(level()).birthBlock(b);
     }
     /** A live delivery is under way (server side). */
@@ -477,6 +478,7 @@ public final class FamilyLife {
     /** One loaded tick of gestation (the brood's own clock: no body writes): "" when it ran, else why it waits. */
     String gestate(FamilyData.Brood b,boolean sited){
         boolean stem=b.kind==FamilyData.BirthKind.STEM;
+        if(!stem&&b.elapsed>=b.duration-LiveBirth.NEST_GRACE&&!deliveryGrounded())return "must_go_ashore";
         if(stem?entity.operations().active()||entity.isPanicking()||entity.isOnFire()||entity.isInWaterOrBubble()||entity.isCommandPlaying()
                 ||entity.life().nutrition()<30||entity.body().condition().blocksBreedingApproach()||entity.life().mealTicks()>0||entity.life().isSleeping()
                 :!(b.elapsed<b.duration-LiveBirth.NEST_GRACE?gestationReady():readyForDelivery()))return "mother_not_ready";
@@ -507,8 +509,10 @@ public final class FamilyLife {
         var running=entity.level().isClientSide?null:liveBirth();return running==null?0:.22f*running.recoveryLeft()/LiveBirthGeometry.RECOVERY;
     }
     public boolean readyForDelivery(){
-        return !entity.isPassenger()&&gestationReady();
+        return deliveryGrounded()&&gestationReady();
     }
+    /** Live labour needs the mother's own dry ground, even when a choreography deadline expires. */
+    boolean deliveryGrounded(){return !entity.isPassenger()&&supported()&&!entity.isInWaterOrBubble();}
     /** Pregnancy can advance aboard; labour and birth roles require her own ground support. */
     private boolean gestationReady(){
         return !entity.level().isClientSide&&entity.isAlive()&&!entity.isNoAi()&&(supported()||onHost())&&!entity.operations().active()&&!entity.dailyLife().active()

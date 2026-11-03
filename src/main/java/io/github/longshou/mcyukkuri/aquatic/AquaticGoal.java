@@ -175,20 +175,23 @@ final class AquaticGoal extends Goal {
         double birth = brood != null && !brood.cancelled && !brood.complete() && brood.kind == FamilyData.BirthKind.LIVE
                 ? brood.progress() * num("birth_ashore_want", 200) : 0;
         var young = AquaticLife.young(body);
+        boolean nursery = young.stream().anyMatch(y -> AquaticLife.ashore(y) && y.childhood().needsCare());
         if (!aboard) {
+            if (nursery && AquaticLife.ashore(body)) GameplayLog.limited(body, "aquatic", "nursery.ashore", 1200,
+                    "set_out held reason=newborn_care children={}", young.stream().filter(y -> y.childhood().needsCare()).map(YukkuriEntity::getUUID).toList());
             boolean nearStick = !stick && Waters.stick(body, 10, true) != null;
             double noStick = stick || nearStick ? 0 : num("stick_need", 50);
             double pull = Math.max(Math.max(hunger, noStick), Math.max(weather, breed));
             boolean asleep = young.stream().anyMatch(y -> y.life().isSleeping() && !AquaticLife.aboard(y, hat));
             boolean beyondGather = SetOut.dependentBeyondGatherRange(body);
-            double setOut = asleep || beyondGather || birth > 0 ? 0 : num("water_life", 60) - 2 * pull - (dusk ? num("night_pull", 60) : 0) - (rain ? num("rain_pull", 30) : 0);
-            var world = List.of(body.blockPosition(), stick, nearStick, young.size(), beyondGather, birth > 0);
+            double setOut = asleep || beyondGather || birth > 0 || nursery ? 0 : num("water_life", 60) - 2 * pull - (dusk ? num("night_pull", 60) : 0) - (rain ? num("rain_pull", 30) : 0);
+            var world = List.of(body.blockPosition(), stick, nearStick, young.size(), beyondGather, birth > 0, nursery);
             boolean usable = hat == null ? life.custody().worn() : AquaticLife.afloat(hat);
             if (usable) out.add(Desire.of("set_out", floor(setOut), world, () -> String.format(Locale.ROOT,
-                    "pull=%.0f hunger=%.0f no_stick=%.0f weather=%.0f breed=%.0f dusk=%b rain=%b young=%d asleep=%b beyond_gather=%b",
-                    pull, hunger, noStick, weather, breed, dusk, rain, young.size(), asleep, beyondGather), () -> new SetOut(body, this::leftAshore)));
+                    "pull=%.0f hunger=%.0f no_stick=%.0f weather=%.0f breed=%.0f dusk=%b rain=%b young=%d asleep=%b beyond_gather=%b nursery=%b",
+                    pull, hunger, noStick, weather, breed, dusk, rain, young.size(), asleep, beyondGather, nursery), () -> new SetOut(body, this::leftAshore)));
             // Her hat out and no wish (or no way) to sail on it now: she wants it back (HEADWEAR).
-            if (hat != null && birth == 0 && (floor(setOut) == 0 || !AquaticLife.afloat(hat) || drive().failed("set_out")))
+            if (hat != null && birth == 0 && !nursery && (floor(setOut) == 0 || !AquaticLife.afloat(hat) || drive().failed("set_out")))
                 out.add(Desire.of("resolve_own_hat", num("reclaim", 85), List.of(cell(hat), form(hat), young.size()),
                         () -> "hat=" + form(hat), () -> Ashore.reclaim(body)));
             return;
@@ -216,7 +219,8 @@ final class AquaticGoal extends Goal {
         var world = List.of(at, stick, young.size(), birth > 0);
         Supplier<String> why = () -> String.format(Locale.ROOT, "hunger=%.0f food_aboard=%b stick=%b stick_ashore=%b weather=%.0f breed=%.0f birth=%.0f young_ashore=%d dusk=%b rain=%b",
                 hunger, food, stick, toHave, weather, breed, birth, ashore, dusk, rain);
-        out.add(Desire.of("come_ashore", floor(pull), world, why, () -> Ashore.come(body)));
+        double ashoreWant = birth > 0 ? Math.max(pull, out.stream().mapToDouble(drive()::scoreOf).max().orElse(0) + birth) : pull;
+        out.add(Desire.of("come_ashore", floor(ashoreWant), world, why, () -> Ashore.come(body)));
         out.add(Desire.of("cruise", dusk ? 0 : floor(num("cruise_want", 30)), world, () -> "energy=" + Math.round(life.energy()), () -> new Cruise(body)));
     }
 

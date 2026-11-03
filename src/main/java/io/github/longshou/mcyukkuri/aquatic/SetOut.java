@@ -80,6 +80,7 @@ final class SetOut implements Intent, FamilyRendezvous {
 
     /** Why this young stays ashore now, or null. */
     private String staying(YukkuriEntity y) {
+        if (y.childhood().isNewborn() && y.childhood().shouldStayWithParents()) return null;
         var hat = AquaticLife.hat(owner);
         if (hat != null && !AquaticLife.aboard(y, hat) && hat.seatDestination(y) == null) return "no_seat";
         return y.life().isSleeping() ? "asleep" : y.isInWaterOrBubble() ? "in_water" : excused.get(y.getUUID());

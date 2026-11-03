@@ -127,7 +127,21 @@ public final class HullAfloat implements PlacedHatBehavior {
         return velocity.scale(DRAG).add(drive.scale(1 - DRAG)).multiply(1, 0, 1);
     }
 
+    private record Forecast(long tick, HostFrame origin, Vec3 velocity, double load, Map<Integer, HostFrame> frames) {}
+    private Forecast forecast;
+
     @Override public HostFrame frameAfter(PlacedHatEntity hat, int ticks) {
+        long now = hat.level().getGameTime();
+        var origin = hat.frame();
+        var velocity = hat.getDeltaMovement();
+        double load = hat.loadRatio();
+        if (forecast == null || forecast.tick() != now || !forecast.origin().equals(origin)
+                || !forecast.velocity().equals(velocity) || forecast.load() != load)
+            forecast = new Forecast(now, origin, velocity, load, new HashMap<>());
+        return forecast.frames().computeIfAbsent(ticks, ahead -> forecastFrame(hat, ahead));
+    }
+
+    private HostFrame forecastFrame(PlacedHatEntity hat, int ticks) {
         var at = hat.position();
         var velocity = hat.getDeltaMovement();
         for (int i = 0; i < ticks; i++) {

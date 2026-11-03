@@ -21,15 +21,12 @@ public final class Drive {
     /** One evaluated desire and the score it got with the data weight applied. */
     public record Scored(Desire desire, double score) {}
 
-    /** The facts a failed intent's desire was read from and the time bucket it failed in. */
-    private record Failure(Object world, long bucket) {}
-
     private final YukkuriEntity body;
     private final String domain;
     private final Supplier<List<Desire>> desires;
     private final Supplier<IntentRunner.Target> target;
     private final DriveMath.Sustain sustain = new DriveMath.Sustain();
-    private final Map<String, Failure> failed = new HashMap<>();
+    private final Map<String, Object> failed = new HashMap<>();
     private List<Scored> ranked = List.of();
     private long rankedAt = Long.MIN_VALUE, decided = Long.MIN_VALUE;
     private IntentRunner runner;
@@ -115,12 +112,9 @@ public final class Drive {
         urgent = false;
         rankedAt = now;
         List<Desire> all = desires.get();
-        long bucket = bucket();
         for (var d : all) {
-            var f = failed.get(d.intentId());
-            if (f != null && (f.bucket() != bucket || !Objects.equals(f.world(), d.world()))) failed.remove(d.intentId());
+            if (failed.containsKey(d.intentId()) && !Objects.equals(failed.get(d.intentId()), d.world())) failed.remove(d.intentId());
         }
-        failed.values().removeIf(f -> f.bucket() != bucket);
         var out = new ArrayList<Scored>();
         for (var d : all) {
             double s = scoreOf(d);
@@ -152,14 +146,15 @@ public final class Drive {
 
     private void ended(IntentRunner r) {
         var result = r.result();
-        if ((result == IntentRunner.Result.EXHAUSTED || result == IntentRunner.Result.LOST) && current != null)
-            failed.put(current.intentId(), new Failure(current.world(), bucket()));
+        if ((result == IntentRunner.Result.EXHAUSTED || result == IntentRunner.Result.LOST) && current != null) {
+            // The intent may have travelled since admission. Exclude the facts at refusal, never its starting position or a timer.
+            var atFailure = desires.get().stream().filter(d -> d.intentId().equals(current.intentId())).findFirst().orElse(current);
+            failed.put(current.intentId(), atFailure.world());
+        }
         runner = null;
         current = null;
         urgent = true;
     }
-
-    private long bucket() { return Math.floorDiv(now(), WorldSignature.BUCKET_TICKS); }
 
     private static Scored find(List<Scored> list, String id) {
         for (var s : list) if (s.desire().intentId().equals(id)) return s;
