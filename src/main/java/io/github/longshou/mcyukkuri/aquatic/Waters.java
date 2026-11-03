@@ -309,13 +309,14 @@ final class Waters {
         var bank = Hop.bankStand(body, edge.edge(), edge.normal(), brim);
         var gap = brim.subtract(bank).multiply(1, 0, 1);
         double reach = BodyAbility.of(body).hopReach();
-        var dock = hat.position().add(gap.normalize().scale(reach).subtract(gap));
-        boolean floats = HullAfloat.floats(body.level(), dock, hat.hullScale());
+        var contact = hat.position().add(gap.normalize().scale(reach).subtract(gap));
+        boolean floats = HullAfloat.floats(body.level(), contact, hat.hullScale());
         GameplayLog.limited(body, "aquatic", "dock." + (floats ? "target" : "shallow"), 200,
-                "dock {} hat={} brim={} bank={} distance={} reach={} to={} reason={}",
+                "dock {} hat={} brim={} bank={} distance={} reach={} contact={} reason={}",
                 floats ? "target" : "refused", hat.getUUID(), GameplayLog.at(brim), GameplayLog.at(bank),
-                gap.length(), reach, GameplayLog.at(dock), floats ? "hop_reach" : "shallow_water");
-        return floats ? dock : null;
+                gap.length(), reach, GameplayLog.at(contact), floats ? "hop_reach" : "shallow_water");
+        // Aim through the reachable interval; Paddle's near-target tolerance must not stop short of the first valid hop.
+        return floats ? hat.position().subtract(gap) : null;
     }
 
     /** Only the complete, currently supported brim-to-bank hop admits docking. */
