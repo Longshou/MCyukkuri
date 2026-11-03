@@ -2278,6 +2278,7 @@ pond('self_rescue', '落水游回自帽', '落水游回自帽',
      reads=[('读船主', f'yukkuri status {sel("a")} raw'), ('读帽子', f'data get entity {_HAT}')],
      smoke=dict(ticks=1800, expect=[r'\[hat\][^\n]* scenario afloat prepared [^\n]*owner_aboard=false',
                                    *_WATER_ESCAPE, r'\[water\][^\n]* phase=\w+ -> RECOVER',
+                                   r'\[action\][^\n]* end id=climb outcome=DONE\b',
                                    r'\[method\][^\n]* pick intent=escape_water method=(?:own_hat|right_own_hat)\b'],
                 forbid=_WATER_SMOKE_FORBID, verify=water_aftermath, readout=_water_readouts('a')))
 
