@@ -8,7 +8,6 @@ import io.github.longshou.mcyukkuri.headwear.HullBounds;
 import io.github.longshou.mcyukkuri.headwear.PlacedHatEntity;
 import io.github.longshou.mcyukkuri.family.CareDecisionLedger;
 import io.github.longshou.mcyukkuri.family.FamilyLife;
-import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.intent.Ask;
 import io.github.longshou.mcyukkuri.intent.AskLedger;
 import io.github.longshou.mcyukkuri.intent.Commitment;
@@ -66,6 +65,8 @@ final class AquaticGoal extends Goal {
     private long voyageAfter;
     private long fearTick = Long.MIN_VALUE;
     private String fear;
+    /** The brood whose late interval was already reported: the shore return is announced once per brood. */
+    private UUID shoreBrood;
 
     private AquaticGoal(YukkuriEntity body) {
         this.body = body;
@@ -170,9 +171,15 @@ final class AquaticGoal extends Goal {
         double hunger = Math.max(0, num("hunger_from", 55) - life.nutrition()) * num("hunger_slope", 3);
         double weather = body.level().isThundering() ? num("thunder_need", 60) : rain && life.wetness() >= num("wet_from", 60) ? num("wet_need", 70) : 0;
         double breed = body.family().ready(false) && body.family().partner() != null ? num("breed_need", 35) : 0;
+        // Water life (sailing, feeding, setting out) until the birth's own last ticks: there the shore return is the strongest pull and
+        // a launch waits. The interval is the one live labour already needs her own dry ground in (no second gestation clock).
         var brood = body.family().brood();
-        double birth = brood != null && !brood.cancelled && !brood.complete() && brood.kind == FamilyData.BirthKind.LIVE
-                ? num("birth_ashore_want", 200) : 0;
+        boolean birth = body.family().shoreBirthDue();
+        double birthWant = birth ? num("birth_ashore_want", 200) : 0;
+        if (birth && !brood.id.equals(shoreBrood)) {
+            shoreBrood = brood.id;
+            GameplayLog.event(body, "aquatic", "birth shore return brood={} remaining={} aboard={}", brood.id, brood.duration - brood.elapsed, aboard);
+        }
         var young = AquaticLife.young(body);
         // Finish the first meal/toilet care ashore; a crawling child can gather for a braid lift without learning to jump.
         var unloadedNewborns = young.stream().filter(y -> !y.isPassenger() && y.family().stage() == FamilyLife.Stage.BABY && y.childhood().isNewborn()
@@ -190,14 +197,14 @@ final class AquaticGoal extends Goal {
             boolean beyondGather = SetOut.dependentBeyondGatherRange(body);
             // a search for a child ends at the child (greeting, halt) before she turns to the water
             boolean searching = body.family().searchingChild();
-            double setOut = asleep || beyondGather || searching || birth > 0 || nursery ? 0 : num("water_life", 60) - 2 * pull - (dusk ? num("night_pull", 60) : 0) - (rain ? num("rain_pull", 30) : 0);
-            var world = List.of(body.blockPosition(), stick, nearStick, young.size(), beyondGather, searching, birth > 0, nursery);
+            double setOut = asleep || beyondGather || searching || birth || nursery ? 0 : num("water_life", 60) - 2 * pull - (dusk ? num("night_pull", 60) : 0) - (rain ? num("rain_pull", 30) : 0);
+            var world = List.of(body.blockPosition(), stick, nearStick, young.size(), beyondGather, searching, birth, nursery);
             boolean usable = hat == null ? life.custody().worn() : AquaticLife.afloat(hat);
             if (usable) out.add(Desire.of("set_out", floor(setOut), world, () -> String.format(Locale.ROOT,
                     "pull=%.0f hunger=%.0f weather=%.0f breed=%.0f stick=%b stick_near=%b dusk=%b rain=%b young=%d asleep=%b beyond_gather=%b searching=%b nursery=%b",
                     pull, hunger, weather, breed, stick, nearStick, dusk, rain, young.size(), asleep, beyondGather, searching, nursery), () -> new SetOut(body, this::leftAshore)));
             // Newborns ashore go through family loading, never the solo reclaim that may finish aboard without them.
-            if (hat != null && birth == 0 && unloadedNewborns.isEmpty() && !beyondGather
+            if (hat != null && !birth && unloadedNewborns.isEmpty() && !beyondGather
                     && (floor(setOut) == 0 || !AquaticLife.afloat(hat) || drive().failed("set_out")))
                 out.add(Desire.of("resolve_own_hat", num("reclaim", 85), List.of(cell(hat), form(hat), young.size()),
                         () -> "hat=" + form(hat), () -> Ashore.reclaim(body)));
@@ -226,13 +233,13 @@ final class AquaticGoal extends Goal {
         boolean toHave = !stick && Waters.stick(body, 12, false) != null;
         boolean fed = food && !drive().failed("eat_aboard") || catchable != null && !drive().failed("forage");
         double pull = Math.max(Math.max(fed ? 0 : hunger, toHave ? num("stick_need", 50) : 0),
-                Math.max(birth, Math.max(Math.max(weather, breed), Math.max(dusk ? num("night_pull", 60) : 0, ashore > 0 ? num("young_ashore_need", 60) : 0))));
-        var world = List.of(at, stick, young.size(), birth > 0);
+                Math.max(birthWant, Math.max(Math.max(weather, breed), Math.max(dusk ? num("night_pull", 60) : 0, ashore > 0 ? num("young_ashore_need", 60) : 0))));
+        var world = List.of(at, stick, young.size(), birth);
         Supplier<String> why = () -> String.format(Locale.ROOT, "hunger=%.0f food_aboard=%b stick=%b stick_ashore=%b weather=%.0f breed=%.0f birth=%.0f young_ashore=%d dusk=%b rain=%b",
-                hunger, food, stick, toHave, weather, breed, birth, ashore, dusk, rain);
+                hunger, food, stick, toHave, weather, breed, birthWant, ashore, dusk, rain);
         var ashoreDesire = Desire.of("come_ashore", floor(pull), world, why, () -> Ashore.come(body));
         // At the desire ceiling, labour's shore requirement wins ties with hunger; other bodily emergencies still own their goals.
-        if (birth > 0) out.addFirst(ashoreDesire); else out.add(ashoreDesire);
+        if (birth) out.addFirst(ashoreDesire); else out.add(ashoreDesire);
         out.add(Desire.of("cruise", dusk ? 0 : floor(num("cruise_want", 30)), world, () -> "energy=" + Math.round(life.energy()), () -> new Cruise(body)));
     }
 

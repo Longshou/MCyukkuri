@@ -2769,6 +2769,12 @@ def shore_birth_result(window, riders):
     if expected is None or len(born) != int(expected[3]) or any(brood != expected[2] for _, brood in born):
         return 'birth count differs from the conceived brood'
     mother = expected[1]
+    late = re.search(r'\[aquatic\][^\n]* birth shore return brood=\S+ remaining=(\d+)', window)
+    if late is None:
+        return 'the late interval never announced her shore return'
+    first_departure = re.search(rf'uuid={mother}[^\n]* start id=come_ashore\b', window)
+    if first_departure is None or first_departure.start() < late.start():
+        return 'the mother left the water before the late interval'
     if not re.search(rf'uuid={mother}[^\n]* dismount [^\n]*cause=hop_takeoff'
                      rf'[\s\S]*uuid={mother}[^\n]* end id=hop outcome=DONE'
                      rf'[\s\S]*uuid={mother}[^\n]* delivery labor started', window):
@@ -2801,10 +2807,11 @@ def shore_birth_result(window, riders):
 def boat_birth(sid, title, hint, riders):
     """Empty and occupied hats differ visibly: reclaiming a hat versus leaving real dependents aboard."""
     pond(sid, title, hint,
-         '水生母油从四分之一孕程开始，划回岸边，经帽檐下船，随后按陆地接生帽／窝／地面规则分娩。'
+         '水生母油先照常在水上活动（划船、吃帽里的粮、出航），只在分娩前最后 400 tick 才停出航、划回岸边，经帽檐下船，'
+         '随后按陆地接生帽／窝／地面规则分娩。'
          + ('两只初始赤油占满母船；怀孕不能搬运它们，仍留在真实座位上。' if riders else '母船起初没有幼体；空帽可以收回。')
          + '每只新生儿都应戴水生圆帽、在身体外出生并落在岸上；本窗口观察出生与留岸照护。幼体完成首餐、首便、能集合后才走普通亲子装载，全部新生儿上船才算出航完成。',
-         '约 4–6 分钟靠岸与分娩',
+         '约 1–2 分钟（先水上生活，约 40 秒后临产上岸与分娩）',
          [yk('marisa', bank_dx(0), 0, 'mother', aquatic=True, yaw=-90, lead=True, **pair_ready()),
           yk('marisa', bank_dx(4), 4, 'father', aquatic=True, yaw=-90, **pair_ready()),
           *(_babies() if riders else []), item('minecraft:apple', 8, bank_dx(0) - 2, 0),
@@ -2812,14 +2819,16 @@ def boat_birth(sid, title, hint, riders):
          late=[*([f'yukkuri scenario kin {sel("mother")} {sel(k)} false' for k in ('k1', 'k2')] if riders else []),
                afloat('mother', water_at(0, 3), True, sel_all('crew') if riders else sel('mother'), stick=True),
                afloat('father', water_at(4, 3), True, sel('father'), stick=True),
-               f'yukkuri scenario birth {sel("mother")} {sel("father")} pregnant'],
+               f'yukkuri scenario birth {sel("mother")} {sel("father")} near_term'],
          note='开场实体全部可见，准备后坐进各自浮着的帽子；岸上有八个真实苹果供孕期取食。'
-              '胎数 1–2 只、偶尔 3 只，读母油 status 看胎次。come_ashore → hop 离船落地 → delivery labor started → born → birth landed；'
+              '胎数 1–2 只、偶尔 3 只，读母油 status 看胎次。先看母油照常在水上活动，`[aquatic] birth shore return` 之后才 come_ashore '
+              '→ hop 离船落地 → delivery labor started → born → birth landed；'
               '出生数对照 conceived children 与 born index，“读本胎新生儿”排除初始 crew；产后应见 set_out held reason=newborn_care，母油留岸，不重新登船离开新生儿。' + _DESIRE_NOTE,
          reads=[('读母油与产程', f'yukkuri status {sel("mother")} raw'), ('读父油', f'yukkuri status {sel("father")} raw'),
                 ('读本胎新生儿', f'yukkuri status {NEWBORNS[:-1]},tag=!crew] raw'),
                 *([('读初始乘员', f'yukkuri status {sel_all("crew")} raw')] if riders else [])],
          smoke=dict(ticks=7200, expect=[_BOAT_SMOKE_START, r'\[choreo\][^\n]* beat id=live_birth\b',
+                                       r'\[aquatic\][^\n]* birth shore return brood=\S+ remaining=\d+',
                                        r'\[intent\][^\n]* start id=come_ashore[^\n]*birth=[1-9]',
                                        r'\[family\][^\n]* delivery complete\b',
                                        r'\[family\][^\n]* birth landed [^\n]*outcome=(?:HAT|GROUND|NEST)\b'],
@@ -2827,12 +2836,12 @@ def boat_birth(sid, title, hint, riders):
                     verify=lambda window: shore_birth_result(window, riders),
                     readout=_water_readouts('mother', 'father', *(['k1', 'k2'] if riders else []))
                             + [f'yukkuri status {NEWBORNS[:-1]},tag=!crew] raw']),
-         capture=dict(shots=(1, 40, 600, 1800, 3000, 4200, 7200), sequences=((4500, 5800, 5),),
+         capture=dict(shots=(1, 40, 600, 1200, 1800, 2400, 4800), sequences=((600, 1800, 5),),
                       views={'': dict(follow='@e[tag=scn_mother,limit=1]', offset=(-1.0, 1.8, 1.2))}))
 
 
-boat_birth('birth_boat_caught', '水生岸产·空船起步', '空船岸产', False)
-boat_birth('birth_boat_missed', '水生岸产·带幼体起步', '带幼岸产', True)
+boat_birth('birth_boat_caught', '临产上岸·空船', '临产上岸·空船', False)
+boat_birth('birth_boat_missed', '带幼靠岸·卸幼待产', '带幼靠岸·卸幼待产', True)
 
 pond('first_voyage', '初航·子油第一次自己操帽，先上岸', '子油初航·先上岸',
      '亲油与处于初航欲望带的子油已坐在近岸亲帽里；子油能自己吃、会跳和学习，戴着夹有一根木棍的帽子，'
