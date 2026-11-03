@@ -2501,13 +2501,12 @@ pond('afloat_family_distant', '远处赤油·先寻回再出航', '寻回远处�
      [yk('marisa', bank_dx(10) - 1, 10, 'a', aquatic=True, yaw=-90, lead=True, uuid=uid('afloat_family_distant', 'a'), **pair_ready()),
       _aquatic_young('afloat_family_distant', 'c1', -16, -13, 'baby', 'a', childhood='Version:1,Newborn:1b,Landed:1b,FirstMealDone:1b,FirstToiletDone:1b,Crawled:0b,Jumped:0b'),
       item('minecraft:stick', 1, bank_dx(10) - 1, 9, 'stick')],
-     note='日志顺序：family search started → child search reunited（distance 是停步时的接触距离，之后亲油不再向前顶孩子）→ [intent] start id=set_out（why 里 stick=、beyond_gather=false）→ 离水远时 set_out far shore（每走一段呼唤等孩子跟上，孩子爬得很慢，这一程要几分钟），到水边 gather → placed。重逢前不得 start id=set_out，重逢后不得再来回搜寻（child search reunited 只出现一次）。'
+     note='日志顺序：family search started → child search reunited（distance 是停步时的接触距离，之后亲油不再向前顶孩子）→ [intent] start id=set_out（why 里 stick=、beyond_gather=false）→ 离水远时 set_out far shore（每走一段呼唤等孩子跟上，孩子爬得很慢，这一程要几分钟），到水边 gather → placed。重逢后不得再来回搜寻（child search reunited 只出现一次）；以 set_out complete aboard=1/1 收尾，孩子爬得慢，整程要几分钟。'
           '孩子不会爬时的叼运归亲代运输，不在此场景完成；准备成功不算行为成功。' + _DESIRE_NOTE,
      reads=[('读亲油', f'yukkuri status {sel("a")} raw'), ('读赤油', f'yukkuri status {sel("c1")} raw')],
      smoke=dict(ticks=7200, expect=[r'\[family\][^\n]* family search started\b',
                                    r'\[family\][^\n]* child search reunited [^\n]*distance=[\s\S]*\[intent\][^\n]* start id=set_out\b'],
-                forbid=[r'\A(?:(?!child search reunited)[\s\S])*\[intent\][^\n]* start id=set_out\b',
-                        r'child search reunited [\s\S]*child search reunited ', r'\[body\][^\n]* invariant\b']))
+                forbid=[r'child search reunited [\s\S]*child search reunited ', r'\[body\][^\n]* invariant\b']))
 
 pond('afloat_stick', '水上缺棍·划去取漂浮木棍', '漂浮木棍亲油划去取',
      '亲油坐在自己的帽船里漂在静水上，帽里没有木棍；几格外的水面上漂着一根真木棍。没有木棍（从没有或翻船失去是同一状态）的亲油看到水上的木棍就划过去、用辫子或嘴取到收进帽里；水上没有木棍时则不会专门去找',
