@@ -67,7 +67,8 @@ public final class Floor {
                 var after = point(proposed.get(i).at());
                 if (after.equals(before.local())) continue;
                 Motor.spot(host, rider, after, before.yaw(), "turn_push");
-                GameplayLog.limited(host.entity(), "hat", "turn_push." + rider.getUUID(), 100,
+                String band = after.y * host.frame().unit() > host.container().floorY() + Occupancy.MARGIN ? "raised" : "floor";
+                GameplayLog.limited(host.entity(), "hat", "turn_push." + rider.getUUID() + "." + band, 100,
                         "turn push rider={} by={} from={} to={}", rider.getUUID(), body.getUUID(), before.local(), after);
             }
             Motor.spot(host, body, point(at), spot.yaw() + stepDeg, "turn");
