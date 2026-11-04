@@ -278,7 +278,8 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
                     var next=neighbors[i];
                     var to=new Vec3(next.x+entityWidth*.5,next.y,next.z+entityDepth*.5);
                     if(!crossesObstacle(from,to,planningObstacle)
-                            &&!(mob instanceof YukkuriEntity actor&&NestDoorway.blocksLine(actor,from,to)))
+                            &&!(mob instanceof YukkuriEntity actor&&(NestDoorway.blocksLine(actor,from,to)
+                                    ||!SurfaceApproach.dryStep(actor,from,to))))
                         neighbors[kept++]=next;
                 }
                 return kept;

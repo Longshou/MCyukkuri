@@ -7,6 +7,7 @@ import io.github.longshou.mcyukkuri.headwear.HatProp;
 import io.github.longshou.mcyukkuri.headwear.HullBounds;
 import io.github.longshou.mcyukkuri.headwear.PlacedHatEntity;
 import io.github.longshou.mcyukkuri.family.CareDecisionLedger;
+import io.github.longshou.mcyukkuri.family.CareApproach;
 import io.github.longshou.mcyukkuri.family.ParentCarry;
 import io.github.longshou.mcyukkuri.family.FamilyLife;
 import io.github.longshou.mcyukkuri.intent.Ask;
@@ -115,6 +116,10 @@ final class AquaticGoal extends Goal {
     @Override public boolean requiresUpdateEveryTick() { return true; }
     @Override public void start() { drive().urgent(); }
     @Override public void tick() {
+        if (Drive.running(body, DOMAIN) instanceof Care care && care.tick() == CareApproach.Result.FAILED) {
+            drive().stop("care_approach_failed");
+            return;
+        }
         if (Drive.running(body, DOMAIN) instanceof SetOut && body.family().shoreBirthDue()
                 && (body.motor().current() == null || body.motor().current().interruptible())) drive().stop("birth_lead");
         if (!body.social().greeting()) drive().tick();
@@ -124,7 +129,7 @@ final class AquaticGoal extends Goal {
     @Override public boolean isInterruptable() {
         if (landing()) return false;
         var runner = drive == null ? null : drive.runner();
-        if (runner == null || BehaviorContinuity.emergency(body) || body.family().birthRole() != null) return true;
+        if (runner == null || BehaviorContinuity.emergency(body) || body.family().birthRole() != null || body.careApproach().waiting()) return true;
         return !(body.getVehicle() instanceof PlacedHatEntity) && runner.intent().commitment() == Commitment.NONE;
     }
 
@@ -363,11 +368,6 @@ final class AquaticGoal extends Goal {
         if (eat > 0 && larder != null && larder.has(body.life()::acceptsFood))
             out.add(Desire.of("eat_aboard", floor(eat + num("eat_bonus", 15)), List.of(cell(ride), larder.count()),
                     () -> "nutrition=" + Math.round(body.life().nutrition()), () -> Provision.eat(body)));
-        // a parent offering it food aboard: it turns to her and keeps still
-        for (var p : AquaticLife.parents(body)) if (ride != null && p.getVehicle() == ride && Care.feeding(p, body)) {
-            out.add(Desire.of("be_fed", floor(num("be_fed_want", 75)), List.of(p.getUUID()), () -> "parent=" + p.getUUID(), () -> new Care.Taking(body, p)));
-            break;
-        }
         var parent = AquaticLife.parent(body);
         var hat = parent == null ? null : AquaticLife.hat(parent);
         if (!AquaticLife.afloat(hat)) return;

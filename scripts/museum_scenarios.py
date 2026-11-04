@@ -2833,6 +2833,8 @@ def shore_birth_result(window, riders):
             return f'newborn {child} is not aquatic, ashore and clear of bodies'
         if not re.search(rf'uuid={child}[^\n]* birth landed [^\n]*water=false[^\n]*outcome=(?:GROUND|HAT|NEST)\b', window):
             return f'newborn {child} never landed safely'
+        if re.search(rf'\[water\][^\n]*uuid={child}[^\n]* entered at=', window):
+            return f'newborn {child} entered water after its dry birth'
         for health in re.findall(rf'uuid={child}[^\n]* damage cause=drown health=[\d.]+ -> ([\d.]+)', window):
             if float(health) < 8:
                 return f'newborn {child} fell below health 8 from water'
@@ -2917,6 +2919,9 @@ def hat_birth_result(window):
     born = re.findall(r'\[family\][^\n]*uuid=(\S+)[^\n]* born [^\n]*index=(\d+)[^\n]*kind=LIVE', window)
     if len(born) != 2:
         return f'expected two newborns, got {len(born)}'
+    mother = re.search(r' born brood=[^\n]* mother=(\S+)', window)[1]
+    if re.search(rf'turn push [^\n]*by={mother}\b', window):
+        return 'mother turned and pushed a rider during cabin care'
     for child, index in born:
         if not re.search(rf'uuid={child}[^\n]* birth landed [^\n]*water=false[^\n]*outcome=HAT\b', window):
             return f'newborn {index} never landed in the hat'

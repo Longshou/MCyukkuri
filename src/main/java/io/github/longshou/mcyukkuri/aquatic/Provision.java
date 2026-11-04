@@ -70,7 +70,7 @@ final class Provision implements Intent {
         if (taken) return List.of(() -> new Step.Wait(() -> body.life().mealTicks() == 0, CHEW, Behaviors.BOAT_EAT));
         var larder = HullLarder.of(hat);
         var portion = larder == null ? null : larder.source(hat, body, body.life()::acceptsFood, "eat");
-        return portion == null ? null : reach(body, portion.at(), new Pick(portion, this::eatIt));
+        return portion == null ? null : reach(new Pick(portion, this::eatIt));
     }
 
     /** Paddle the hat to the food's water, then reach for it from the hat. Gone, the pick ends the intent ({@code TARGET_GONE}). */
@@ -90,9 +90,9 @@ final class Provision implements Intent {
                 () -> act(pick));
     }
 
-    /** Face stored food and use the existing contact clip without changing the rider's place. */
-    static List<Supplier<Step>> reach(YukkuriEntity body, Vec3 at, Action action) {
-        return List.of(() -> act(new Face(SurfaceApproach.yaw(body.position(), at))), () -> act(action));
+    /** Stored food already exposes its mouth-reachable contact; taking it does not turn the seated body. */
+    static List<Supplier<Step>> reach(Action action) {
+        return List.of(() -> act(action));
     }
 
     private boolean eatIt(ItemStack one) {

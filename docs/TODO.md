@@ -9,6 +9,7 @@
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
 | 水生亲油寻回赤油后叼到水边出航、赤油自行上岸后的寻子（WP-K3） | `.worktrees/wp-k3-carry-to-water` | `aquatic/{SetOut,AquaticGoal,AquaticLife,Waters}`、`family/{ParentCarry,FamilyLife}`、`scripts/museum_scenarios.py`、`docs/{TODO,FEATURES}.md` |
+| 帽内照护不转亲油、岸产幼体护理后避水 | `wp-b2c-cabin-care` | `family/CareApproach.java`、`entity/YukkuriGroundNavigation.java`、`aquatic/HullAfloat.java`、相关接触能力与冒烟判定、`docs/{FEATURES,TODO}.md` |
 
 ## 玩法待办
 

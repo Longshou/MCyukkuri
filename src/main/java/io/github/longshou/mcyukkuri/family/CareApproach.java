@@ -43,6 +43,10 @@ public final class CareApproach {
         return !parent.isPassenger()&&!child.isPassenger()
                 || parent.getVehicle() instanceof SurfaceHost&&parent.getVehicle()==child.getVehicle();
     }
+    /** A caregiver on a shared floor keeps its place; the young approaches within its reach. */
+    public static boolean seatedWith(YukkuriEntity parent,YukkuriEntity child) {
+        return parent.getVehicle() instanceof SurfaceHost && sameFloor(parent,child) && parent.family().caresFor(child);
+    }
     private static String unsafeReason(YukkuriEntity actor) {
         return !actor.isAlive()?"not_alive":actor.isNoAi()?"no_ai":actor.isPassenger()&&!(actor.getVehicle() instanceof SurfaceHost)?"passenger":actor.isPanicking()?"panic"
                 :actor.isOnFire()?"fire":actor.isInWaterOrBubble()?"water":actor.isCommandPlaying()?"command"
@@ -95,7 +99,16 @@ public final class CareApproach {
         if (!waiting()) return;
         var session = incoming;
         if(owner.getVehicle() instanceof SurfaceHost host&&sameFloor(owner,session.owner)) {
+            if(!Floor.standing(owner)||!Floor.standing(session.owner))return;
             faceOn(host,owner,SurfaceApproach.yaw(owner.position(),session.owner.position())+(session.kind==Kind.REAR?180:0));
+            if(session.touching())return;
+            double limit=Math.toDegrees(Math.acos(session.kind==Kind.REAR?.97:FamilyFeedingContact.MIN_FACING_DOT));
+            float toward=SurfaceApproach.yaw(session.owner.position(),owner.position());
+            float yaw=session.owner.yBodyRot+(float)Math.clamp(Mth.wrapDegrees(toward-session.owner.yBodyRot),-limit,limit);
+            var stand=host.frame().toLocal(session.owner.position().add(Vec3.directionFromRotation(0,yaw)
+                    .scale(FamilyFeedingContact.standingDistance(session.owner,owner))));
+            var height=host.support(stand,owner);
+            if(height.isEmpty()||!Floor.advance(host,owner,new Vec3(stand.x,height.getAsDouble(),stand.z)))session.fail("no_reachable_meeting");
             return;
         }
         if (session.places==null || owner.life().mealTicks()>0) SurfaceApproach.halt(owner);
@@ -170,17 +183,18 @@ public final class CareApproach {
         return contact ? Result.CONTACT : Result.APPROACHING;
     }
 
-    /** The same care contact on a shared moving floor; each participant owns its turn. */
+    private boolean touching() {
+        return kind==Kind.FEED?FamilyFeedingContact.mouthsMeet(owner,child):ChildhoodLife.toiletContact(owner,child);
+    }
+
+    /** Contact from the caregiver's existing place; only the receiver's goal moves or turns the young. */
     private Result aboard(SurfaceHost host) {
         if(!Floor.standing(owner)||!Floor.standing(child))return Result.APPROACHING;
-        var from=host.riders().local(owner.getUUID());var to=host.riders().local(child.getUUID());
-        var away=from.subtract(to).multiply(1,0,1).normalize();
-        var stand=to.add(away.scale(FamilyFeedingContact.standingDistance(owner,child)/host.frame().unit()));
-        var height=host.support(stand,owner);
-        if(height.isEmpty()||!Floor.advance(host,owner,new Vec3(stand.x,height.getAsDouble(),stand.z)))return fail("no_reachable_meeting");
-        faceOn(host,owner,SurfaceApproach.yaw(owner.position(),child.position()));
-        return (kind==Kind.FEED?FamilyFeedingContact.mouthsMeet(owner,child):ChildhoodLife.toiletContact(owner,child))
-                ?Result.CONTACT:Result.APPROACHING;
+        if(!touching())return Result.APPROACHING;
+        GameplayLog.limited(owner,"care","aboard_contact."+kind,200,
+                "aboard contact child={} kind={} parentLocal={} childLocal={} parentYaw={} childYaw={}",
+                child.getUUID(),kind,host.riders().local(owner.getUUID()),host.riders().local(child.getUUID()),owner.yBodyRot,child.yBodyRot);
+        return Result.CONTACT;
     }
     private static void faceOn(SurfaceHost host,YukkuriEntity body,float yaw) {
         float left=Mth.wrapDegrees(yaw-body.yBodyRot),rate=(float)BodyAbility.of(body).turnRate();

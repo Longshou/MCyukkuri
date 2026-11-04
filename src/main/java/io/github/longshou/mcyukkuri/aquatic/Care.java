@@ -3,6 +3,7 @@ package io.github.longshou.mcyukkuri.aquatic;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.FamilyFeedingContact;
+import io.github.longshou.mcyukkuri.family.CareApproach;
 import io.github.longshou.mcyukkuri.family.FamilyLife;
 import io.github.longshou.mcyukkuri.family.BraidFetch;
 import io.github.longshou.mcyukkuri.family.ParentCarry;
@@ -10,13 +11,11 @@ import io.github.longshou.mcyukkuri.headwear.PlacedHatEntity;
 import io.github.longshou.mcyukkuri.intent.Intent;
 import io.github.longshou.mcyukkuri.intent.Commitment;
 import io.github.longshou.mcyukkuri.intent.IntentRunner;
-import io.github.longshou.mcyukkuri.intent.Drive;
 import io.github.longshou.mcyukkuri.intent.Method;
 import io.github.longshou.mcyukkuri.intent.Step;
 import io.github.longshou.mcyukkuri.life.InfantFood;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.life.WaterDistress;
-import io.github.longshou.mcyukkuri.motor.action.Face;
 import io.github.longshou.mcyukkuri.motor.action.Pick;
 import io.github.longshou.mcyukkuri.motor.action.Release;
 import io.github.longshou.mcyukkuri.motor.surface.SeatTarget;
@@ -24,17 +23,16 @@ import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.List;
 import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
-import net.minecraft.util.Mth;
 
 /**
  * A parent's care aboard (照料; docs/FEATURES.md 子代生命周期与离家的新生受喂, 帽船采用自身的移动、口部接触条件相同): on her
- * hat afloat she takes stored food in place, then approaches a young for feeding or comfort, using the same transactions as care on land:
+ * hat afloat she takes stored food in place, then the young approaches for feeding or comfort, using the same contact as care on land:
  * <ul>
  *   <li>{@code feed_young}: a hungry young that cannot eat by itself, her care decision accepted: she takes a stored portion with her
  *       mouth as her care food (the feeding's own held portion: kept, saved and shown), chews it into mash for a young that needs
  *       mash, stands mouth to mouth with it and, their mouths meeting for the contact time, hands it into its meal. Done once
  *       handed; a young turned away or moved on ends the wait and the next try aims again.</li>
- *   <li>{@code comfort_young}: a young gasping after the water, or cold: she stands beside it, faces it and nuzzles it
+ *   <li>{@code comfort_young}: a young gasping after the water, or cold: it approaches her and she nuzzles it
  *       ({@code boat_nuzzle}).</li>
  * </ul>
  */
@@ -100,9 +98,9 @@ final class Care implements Intent {
         }
     }
 
-    /** This parent is feeding {@code young} now (her running intent), so the young turns to her ({@link Taking}). */
-    static boolean feeding(YukkuriEntity parent, YukkuriEntity young) {
-        return Drive.running(parent, AquaticGoal.DOMAIN) instanceof Care care && care.feed && care.child == young && !care.done;
+    /** Called by the care owner's goal; the receiver's own goal performs its approach. */
+    CareApproach.Result tick() {
+        return parent.careApproach().tick(child, CareApproach.Kind.FEED);
     }
 
     /** Its care is due now: hungry, and unable to eat by itself (fed by her), or gasping after the water (comforted). */
@@ -125,22 +123,23 @@ final class Care implements Intent {
         var hat = AquaticLife.riding(parent);
         if (hat == null || !child.isAlive() || child.getVehicle() != hat) return null;
         contact = 0;
-        if (!feed) return mouthToMouth(hat, Behaviors.BOAT_NUZZLE, NUZZLE + CONTACT, this::nuzzled);
+        if (!feed) return mouthToMouth(Behaviors.BOAT_NUZZLE, NUZZLE + CONTACT, this::nuzzled);
         var held = parent.family().carrying();
         if (held.isEmpty()) {
             var larder = HullLarder.of(hat);
             var portion = larder == null ? null : larder.source(hat, parent, one -> child.life().canReceiveCareFood(one), "feed");
-            return portion == null ? null : Provision.reach(parent, portion.at(), new Pick(portion, parent.family()::holdCareFood));
+            return portion == null ? null : Provision.reach(new Pick(portion, parent.family()::holdCareFood));
         }
         if (child.family().needsMash() && !InfantFood.isMash(held)) {
             if (chewEnd == 0) chewEnd = parent.level().getGameTime() + FamilyLife.CHEW_TICKS;
             return List.of(() -> new Step.Wait(this::chewed, FamilyLife.CHEW_TICKS + 5, Behaviors.FAMILY_CHEW));
         }
-        return mouthToMouth(hat, Behaviors.BOAT_FEED_YOUNG, CONTACT, this::handed);
+        return mouthToMouth(Behaviors.BOAT_FEED_YOUNG, CONTACT, this::handed);
     }
 
     /** A feeding that did not hand the food over puts the portion she took back into her hold, if the stores have capacity. */
     @Override public void ended(IntentRunner.Result result) {
+        parent.careApproach().cancel();
         if (!feed || done) return;
         var hat = AquaticLife.riding(parent);
         var larder = HullLarder.of(hat);
@@ -166,7 +165,7 @@ final class Care implements Intent {
     }
 
     private boolean nuzzled() {
-        if (!near()) { contact = 0; return false; }
+        if (!FamilyFeedingContact.mouthsMeet(parent, child)) { contact = 0; return false; }
         if (++contact == 10) { parent.showReaction("closed_smile", "nuzzle", 60); child.showReaction("happy", "caregiver", 60); }
         if (contact < NUZZLE) return false;
         GameplayLog.event(parent, "aquatic", "comfort_young done child={}", child.getUUID());
@@ -181,45 +180,8 @@ final class Care implements Intent {
         return contact >= FamilyFeedingContact.REQUIRED_CONTACT_TICKS;
     }
 
-    private boolean near() {
-        parent.getLookControl().setLookAt(child, 30, 30);
-        return parent.position().subtract(child.position()).horizontalDistance() <= FamilyFeedingContact.mouthDistance(parent, child) + .1;
-    }
-
-    /** Turn from the seat and wait for the shared contact test. */
-    private List<Supplier<Step>> mouthToMouth(PlacedHatEntity hat, String clip, int ticks, BooleanSupplier until) {
-        return List.of(() -> new Step.Do(new Face(SurfaceApproach.yaw(parent.position(), child.position()))),
-                () -> new Step.Wait(until, ticks, clip));
-    }
-
-    /**
-     * The young's side of a feeding aboard ({@code be_fed}): while its parent offers it food it turns to her (its own Face) and keeps
-     * still, turning again whenever it is off by more than a little. Done once it has the food in its meal, or she stops offering.
-     */
-    static final class Taking implements Intent {
-        private static final int DEADLINE = 400;
-        private static final float OFF = 20;
-        private final YukkuriEntity young, parent;
-        private final long started;
-
-        Taking(YukkuriEntity young, YukkuriEntity parent) {
-            this.young = young;
-            this.parent = parent;
-            this.started = young.level().getGameTime();
-        }
-
-        @Override public String id() { return "be_fed"; }
-        @Override public long deadline() { return started + DEADLINE; }
-        @Override public boolean satisfied() { return young.life().mealTicks() > 0 || !feeding(parent, young); }
-        @Override public List<Method> methods() { return List.of(Plan.of("turn_to_parent", this::derive)); }
-
-        private float yaw() { return SurfaceApproach.yaw(young.position(), parent.position()); }
-
-        private List<Supplier<Step>> derive() {
-            return List.of(() -> new Step.Do(new Face(yaw())), () -> new Step.Wait(() -> {
-                young.getLookControl().setLookAt(parent, 30, 30);
-                return satisfied() || Math.abs(Mth.wrapDegrees(yaw() - young.yBodyRot)) > OFF;
-            }, DEADLINE, Behaviors.BOAT_FEED_YOUNG));
-        }
+    /** Contact is observed by the bounded wait; approach belongs to the two actors' goals. */
+    private List<Supplier<Step>> mouthToMouth(String clip, int ticks, BooleanSupplier until) {
+        return List.of(() -> new Step.Wait(until, ticks, clip));
     }
 }
