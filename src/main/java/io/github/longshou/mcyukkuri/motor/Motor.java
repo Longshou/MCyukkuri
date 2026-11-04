@@ -2,12 +2,10 @@ package io.github.longshou.mcyukkuri.motor;
 
 import io.github.longshou.mcyukkuri.MCYukkuri;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
-import io.github.longshou.mcyukkuri.family.ParentCarry;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.motor.surface.SurfaceHost;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.Locale;
-import java.util.List;
 import java.util.function.Consumer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.MoverType;
@@ -132,19 +130,15 @@ public final class Motor {
     public static void dismount(YukkuriEntity body, Vec3 at, Vec3 v, String cause) {
         if (body == null) return;
         Vec3 before = body.position();
-        for (var passenger : List.copyOf(body.getPassengers()))
-            if (passenger instanceof YukkuriEntity child && ParentCarry.hold(body, child) == ParentCarry.Hold.HEAD) {
-                dismount(child, child.position(), v, "head_support_lost:" + cause);
-                ParentCarry.released(body, child, "head_support_lost");
-            }
         boolean previous = DISMOUNTING.get();
         DISMOUNTING.set(true);
         try { body.stopRiding(); } finally { DISMOUNTING.set(previous); }
         if (at != null) body.setPos(at.x, at.y, at.z);
         body.setDeltaMovement(v == null ? Vec3.ZERO : v);
         body.hasImpulse = true;
-        GameplayLog.event(body, "body", "dismount at={} v={} cause={}",
-                GameplayLog.at(body.position()), GameplayLog.at(body.getDeltaMovement()), cause);
+        GameplayLog.event(body, "body", "dismount at={} v={} cause={} passengers={}",
+                GameplayLog.at(body.position()), GameplayLog.at(body.getDeltaMovement()), cause,
+                body.getPassengers().stream().map(Entity::getUUID).toList());
         double moved = body.position().distanceTo(before);
         if (moved > DISMOUNT_MAX) {
             invariant(body, "I4", String.format(Locale.ROOT,

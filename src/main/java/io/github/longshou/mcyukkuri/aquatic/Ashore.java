@@ -125,6 +125,8 @@ final class Ashore implements Intent {
         }
         if (!AquaticLife.ashore(owner)) return null;
         if (held != null) return List.of(() -> new Step.Do(purpose == Purpose.CARRY ? carryRelease : new Release(held)));
+        for (var passenger : owner.getPassengers()) if (passenger instanceof YukkuriEntity child)
+            return List.of(() -> new Step.Do(new Release(child)));
         if (hat.upsideDown()) return fromBank(hat, () -> new Right(hat, "reclaim"), () -> new Step.Wait(hat::steady, 60, "hat_settles"));
         if (AquaticLife.afloat(hat) && dependent != null) {
             // This reboarding is for a pickup. Do not board only to leave again unable to carry the same child.

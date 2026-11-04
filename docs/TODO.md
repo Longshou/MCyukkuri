@@ -8,7 +8,7 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
-| 水生母油临产才上岸（反馈 8 上岸时机，WP-B1） | `.worktrees/wp-b1-late-shore` | `aquatic/{AquaticGoal,Waters}`、`motor/{action/Hop,surface/Floor,geom/BankStand,geom/HopHeading}`、`family/{FamilyLife,GetTo}`、`command/{ScenarioCommands,ScenarioSetup}`、`scripts/museum_scenarios.py`、对应纯函数测试 |
+| 水生母油临产才上岸（反馈 8 上岸时机，WP-B1） | `.worktrees/wp-b1-late-shore` | `aquatic/{AquaticGoal,Ashore,Waters}`、`motor/{Motor,action/Hop,action/Release,surface/Floor,geom/BankStand,geom/HopHeading}`、`family/{FamilyLife,GetTo,ParentCarry,Fetch}`、`command/{ScenarioCommands,ScenarioSetup}`、`scripts/museum_scenarios.py`、对应纯函数测试 |
 | 赤油在帽檐／头顶演出、删掉拨粮（反馈 4、13，WP-P） | `.worktrees/wp-p-brim-play` | `aquatic/{PlayAboard,BrimPerformance,AquaticGoal,HullAfloat}`、`entity/{Behaviors,YukkuriAction}`、`scripts/museum_scenarios.py`、`standards/yukkuri-library/motions/variants/lore/{aquatic_tools.py,recipe.json}` |
 
 ## 玩法待办

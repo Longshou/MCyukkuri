@@ -665,8 +665,7 @@ public final class ParentCarry {
     }
     private static boolean headAvailable(YukkuriEntity carrier) {
         var hat = HatGeometry.worn(carrier.assetId());
-        return carrier.getVehicle() instanceof SurfaceHost host && host.placeCarrier() == carrier
-                && hat != null && hat.has("head");
+        return !carrier.hasVisibleAccessory() && hat != null && hat.has("head");
     }
     public static List<Vec3> headPlaces(YukkuriEntity carrier, YukkuriEntity child) {
         if (!headAvailable(carrier)) return List.of();

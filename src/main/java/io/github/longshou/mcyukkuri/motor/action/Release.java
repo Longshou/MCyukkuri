@@ -81,6 +81,11 @@ public final class Release implements Action {
         if (child.getVehicle() != carrier) return Feasibility.of(Reason.NO_CONTACT, 0, "not_held");
         if (destination != null) {
             var places = destination.places(child, Integer.MAX_VALUE);
+            GameplayLog.limited(carrier, "family", "release.places", 200,
+                    "release places child={} host={} cabin={} head={} brim={}", child.getUUID(), destination.entity().getUUID(),
+                    places.stream().filter(p -> p.kind() == SeatTarget.Kind.CABIN).count(),
+                    places.stream().filter(p -> p.kind() == SeatTarget.Kind.HEAD).count(),
+                    places.stream().filter(p -> p.kind() == SeatTarget.Kind.BRIM).count());
             if (places.isEmpty()) return Feasibility.of(Reason.NO_ROOM, 0, "no_seat");
             seat = nearest(carrier, places);
             return seat != null ? Feasibility.pass() : Feasibility.of(Reason.NO_SUPPORT, 0, "transfer_blocked");
@@ -184,7 +189,8 @@ public final class Release implements Action {
                     ContactGeometry.braidGapFrom(carrier, stand, grip, true));
             if (gap > 0) return Feasibility.of(Reason.NO_CONTACT, gap, "braid_release_out_of_reach");
         }
-        if (ParentCarry.hold(carrier, child) == Hold.BRIM && !ParentCarry.clearLowering(carrier, child, stand, yaw, at))
+        if ((ParentCarry.hold(carrier, child) == Hold.BRIM || ParentCarry.hold(carrier, child) == Hold.HEAD)
+                && !ParentCarry.clearLowering(carrier, child, stand, yaw, at))
             return Feasibility.of(Reason.NO_ROOM, 0, "lowering_route_blocked");
         return Feasibility.pass();
     }
