@@ -2349,6 +2349,23 @@ def _seat_load_aftermath(window):
     return water_aftermath(window)
 
 
+def seat_unload_result(window):
+    """The ferry's child is set down ashore, and no own young is left riding the hull afterwards: every one of them either left it
+    (a hop of its own or a real lift) or was brought ashore after it."""
+    problem = _seat_load_aftermath(window)
+    if problem:
+        return problem
+    # Every rider but the parent herself: only she is named by a fixed UUID, the crew's are drawn when they spawn.
+    boarded = set(re.findall(r'\[hat\][^\n]* boarded rider=(\S+)', window)) - {_uuid_text('rescue_no_seat', 'a')}
+    left = set(re.findall(r'\[hat\][^\n]* left rider=(\S+)', window))
+    stuck = sorted(boarded - left)
+    if stuck:
+        return f'{len(stuck)} young of hers still ride the hull at the end: {stuck}'
+    end = re.search(r'\[intent\][^\n]* end id=unload_young result=(\w+)\b', window)
+    if end is not None and re.search(r'child separation lost=true', window[end.end():]):
+        return 'a child was still logged as separated and lost after the unload'
+    return None
+
 _WATER_SMOKE_FORBID = [r'\[action\][^\n]* end id=swim outcome=INTERRUPTED why=(?:water_pause|escape_stop)\b']
 def _water_readouts(*bodies):
     """Each named body's own status (water distress phase, aims, its hat's float detail and its incident's outcome), then the hat's riders."""
@@ -2387,6 +2404,15 @@ pond('self_rescue', '落水后游回自己的帽子', '落水后游回自己的�
                                    r'\[method\][^\n]* pick intent=escape_water method=(?:own_hat|right_own_hat)\b'],
                 forbid=_WATER_SMOKE_FORBID, verify=water_aftermath, readout=_water_readouts('a')))
 
+def reclaim_facing_once(window):
+    """The bank reclaim turns to the hat once: a turn Face has already completed is never issued again (the beckon that comes
+    after it is the real proof, and a loop in front of it keeps it from starting)."""
+    turns = len(re.findall(r'\[action\][^\n]* start id=face\b', window))
+    if turns > 3:
+        return f'the facing was issued {turns} times: a turn already completed is issued again'
+    return water_aftermath(window)
+
+
 pond('shore_capsized', '岸边用辫子拨回漂远的帽子', '岸边用辫子拨回漂远的帽子',
      '船主的帽子倒扣漂在离岸不到三格的静水里：她站在岸边面向帽子，侧身探出岸沿用辫梢一下一下拨水（片段的水下拨动段才推动帽子，其余时间帽子顺水面的阻力和真实水流滑行），把帽子拨到辫梢／嘴够得着的地方后咬住帽檐推正，再收回戴上；三格内不下水',
      '约 20–40 秒',
@@ -2400,12 +2426,12 @@ pond('shore_capsized', '岸边用辫子拨回漂远的帽子', '岸边用辫子�
                 expect=[r'\[action\][^\n]* start id=beckon[^\n]*wet=false',
                         r'\[action\][^\n]* end id=beckon outcome=DONE\b[^\n]*detail=at_bank',
                         r'\[action\][^\n]* start id=right[^\n]*push=', r'\[hat\][^\n]* righted cause=reclaim',
-                        r'\[headwear\][^\n]* reclaim done how=\w+',
+                        r'\[headwear\][^\n]* reclaim done how=worn',
                         r'\[intent\][^\n]* end id=resolve_own_hat result=DONE\b'],
                 forbid=[r'\[action\][^\n]* start id=step_in\b', r'\[action\][^\n]* start id=swim\b',
                         r'\[headwear\][^\n]* reclaim waiting',
                         r'\[body\][^\n]* death settled into remains', r'\[body\][^\n]* cause=drown'],
-                verify=water_aftermath, readout=_HULL_READOUT + [f'data get entity {_HAT} Pos']))
+                verify=reclaim_facing_once, readout=_HULL_READOUT + [f'data get entity {_HAT} Pos']))
 
 pond('shore_capsized_far', '远处的帽子游过去扶正', '远处的帽子游过去扶正',
      '离岸 8 格的水面上，船主的帽子倒扣漂着，岸边拨水够不着（三格外）：她从岸上走进水里（普通走路跨过岸沿落水，不跳跃），游到帽檐外侧，咬住帽檐按一段片段的推帽标记把帽子推正，帽子正过来后再爬进去；扶正时播咬檐推帽的动作，泡水伤不打断',
@@ -2569,6 +2595,25 @@ pond('sail', '捡棍放帽出航，饿了返岸', '捡棍放帽出航，饿了�
                 forbid=[r'\[body\][^\n]* invariant\b', r'\[hat\][^\n]* pickup cause=grounded',
                         r'\[body\][^\n]* death settled into remains'], readout=_HULL_READOUT))
 
+def bank_boarding_result(window):
+    """After the parent boards her hull the young is lifted from the bank into its seat: no hop ashore and no blocked step in
+    between, and the set-out completes with it aboard."""
+    board = re.search(r'\[hat\][^\n]* boarded rider=\S+[^\n]*own=true', window)
+    if board is None:
+        return 'the parent never boarded her own hull'
+    after = window[board.end():]
+    end = re.search(r'\[aquatic\][^\n]* set_out complete', after)
+    if end is None:
+        return 'set_out never completed after the boarding'
+    between = after[:end.start()]
+    ashore = re.search(r'\[action\][^\n]* start id=hop owner=[^\n]* bank=', between)
+    if ashore:
+        return 'a hop ashore was taken between boarding and the seat: ' + ashore[0][-90:]
+    if 'NO_PROGRESS' in between:
+        return 'a step ended BLOCKED(NO_PROGRESS) between boarding and the seat'
+    return water_aftermath(window)
+
+
 def _to_water_chain(sid):
     """Reunion, then the lift to the water, the set-down at the berth, the hat, the lift aboard and the launch: one parent, one child, in order."""
     a, c = _uuid_text(sid, 'a'), _uuid_text(sid, 'c1')
@@ -2604,6 +2649,7 @@ pond('afloat_family', '亲油用辫子抱赤油上帽船', '亲油用辫子抱�
                         r'\[intent\][^\n]* start id=set_out\b[\s\S]*\[intent\][^\n]* start id=set_out\b',
                         r'\[action\][^\n]* start id=take_prop\b', r'\[intent\][^\n]* end id=set_out result=EXHAUSTED\b',
                         r'\[hat\][^\n]* pickup cause=grounded'],
+                verify=bank_boarding_result,
                 readout=_HULL_READOUT + [f'yukkuri status {sel("c1")} raw']))
 
 pond('afloat_family_gather', '内陆赤油爬不来，亲油抱去上船', '内陆赤油爬不来，亲油抱去上船',
@@ -2623,7 +2669,8 @@ pond('afloat_family_gather', '内陆赤油爬不来，亲油抱去上船', '内�
                                    r'\[body\][^\n]* seat landed [^\n]*cause=braid_set_down'],
                 forbid=[r'death settled into remains', r'\[body\][^\n]* invariant\b', r'\[aquatic\][^\n]* set_out left_ashore=',
                         r'\[intent\][^\n]* start id=set_out\b[\s\S]*\[intent\][^\n]* start id=set_out\b',
-                        r'\[action\][^\n]* start id=take_prop\b', r'\[intent\][^\n]* end id=set_out result=EXHAUSTED\b']))
+                        r'\[action\][^\n]* start id=take_prop\b', r'\[intent\][^\n]* end id=set_out result=EXHAUSTED\b'],
+                verify=bank_boarding_result))
 
 pond('afloat_stick', '划去捞水面上的木棍', '划去捞水面上的木棍',
      '亲油坐在自己的帽船里漂在静水上，帽里没有木棍；几格外的水面上漂着一根真木棍。没有木棍（从没有或翻船失去是同一状态）的亲油看到水上的木棍就划过去、用辫子或嘴取到收进帽里；水上没有木棍时则不会专门去找',
@@ -2791,7 +2838,8 @@ pond('rescue_no_seat', '满载亲帽救起新生儿送上岸', '满载亲帽救�
                                     rf'[\s\S]*rescue end result=DONE outcome=set_down faller={_uuid_text("rescue_no_seat", "c1")}',
                                     r'\[water\][^\n]* phase=\w+ -> RECOVER'],
                 forbid=[*_WATER_SMOKE_FORBID, r'rescue refused', r'\[body\][^\n]* death settled\b'],
-                verify=_seat_load_aftermath, readout=_water_readouts('a', 'c1')))
+                verify=seat_unload_result, readout=_water_readouts('a', 'c1')))
+
 
 
 # Smoke windows allow 1.5 times the three-minute upper bound, at 20 ticks per second.
@@ -2941,12 +2989,20 @@ pond('birth_hat_own', '独自在自己帽里生下两只赤油', '独自在自�
            afloat('father', water_at(4, 3), True, sel('father'), food=4, stick=True),
            f'yukkuri scenario birth {sel("mother")} {sel("father")} near_term "0.12,0.125"'],
      note='看 birth route=own_hat 的胎数、体型与空间判定；hat birth exit 的产程与片段时刻；'
-          '新生儿 contact → birth landed outcome=HAT、生命与首餐首便。帽形和普通分娩时钟不变，初态没有新生儿。',
+          '新生儿 contact → birth landed outcome=HAT、生命与首餐首便。帽形和普通分娩时钟不变，初态没有新生儿。'
+          '五秒后三下摇翻亲油那只帽（母亲的分娩不受影响）：木棍与粮随翻覆漂出，亲油游回扶正、爬回帽里，再没木棍就去水上把漂着的木棍取回帽里。',
      reads=[('读母油与产程', f'yukkuri status {sel("mother")} raw'),
             ('读本胎新生儿', f'yukkuri status {NEWBORNS} raw')],
-     smoke=dict(ticks=7200, expect=[_BOAT_SMOKE_START, r'scenario afloat prepared [^\n]*food=8', r'birth route=own_hat reason=fit',
+     smoke=dict(ticks=7200,
+                commands=[(tick, f'execute at {sel("father")} run yukkuri scenario shake '
+                                '@e[type=mcyukkuri:placed_hat,distance=..8,sort=nearest,limit=1]') for tick in (60, 70, 80)],
+                expect=[_BOAT_SMOKE_START, r'scenario afloat prepared [^\n]*food=8', r'birth route=own_hat reason=fit',
                                   r'hat birth exit index=0', r'hat birth exit index=1', r'delivery complete',
-                                  r'departure held reason=newborn_care'],
+                                  r'departure held reason=newborn_care',
+                                  r'\[hat\][^\n]* capsized cause=shake[\s\S]*\[hat\][^\n]* righted cause=\w+'
+                                  r'[\s\S]*\[hat\][^\n]* boarded rider=\S+[^\n]*own=true'
+                                  r'[\s\S]*\[intent\][^\n]* start id=fetch_stick\b'
+                                  r'[\s\S]*\[aquatic\][^\n]* stick taken [^\n]*stowed_in=hat'],
                 forbid=_BOAT_SMOKE_FORBID + [r'\[body\][^\n]* death settled', r'birth landed [^\n]*outcome=WATER'],
                 verify=hat_birth_result,
                 readout=_water_readouts('mother', 'father') + [f'yukkuri status {NEWBORNS} raw']))
