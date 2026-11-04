@@ -8,6 +8,7 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
+| 满船托幼送岸、岸上卸头顶幼体与受惊托头顶 | `.worktrees/wp-y2-head-ashore` | `aquatic/Rescue`、`aquatic/Care`、`aquatic/PlayAboard`、`AquaticGoal` 照护入口、共享承托与释放动作、`scripts/museum_scenarios.py` 受惊断言、`docs/FEATURES.md` |
 | 水上自帽分娩美术与动作（反馈 8） | `.worktrees/art-a3-hat-birth` | `standards/yukkuri-library/interactions/aquatic-marisa-hat/`、`motions/`、`art/` |
 
 ## 玩法待办
