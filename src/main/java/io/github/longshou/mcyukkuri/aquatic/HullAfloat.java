@@ -74,6 +74,9 @@ public final class HullAfloat implements PlacedHatBehavior {
     }
     HullLarder larder() { return larder; }
 
+    /** How often {@code hat}'s hull has capsized so far: a change of the hull itself that voids a refusal read before it. */
+    static int capsizeCount(PlacedHatEntity hat) { return hat.behavior() instanceof HullAfloat hull ? hull.capsizes : 0; }
+
     static double brimToward(PlacedHatEntity hat, Vec3 at) {
         var d = local(hat, at.x - hat.getX(), at.z - hat.getZ());
         return hat.profile().reach(Math.atan2(d[1], d[0])) * hat.unit();

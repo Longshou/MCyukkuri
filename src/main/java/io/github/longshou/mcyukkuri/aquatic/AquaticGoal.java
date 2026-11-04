@@ -251,9 +251,11 @@ final class AquaticGoal extends Goal {
                 ? Waters.food(hat, body, 12) : null;
         if (catchable != null) out.add(Desire.of("forage", floor(Math.max(eat, num("forage_want", 35))), List.of(at, catchable.getUUID()),
                 () -> "item=" + catchable.getItem().getItem() + " at=" + GameplayLog.at(catchable.position()), () -> Provision.forage(body, catchable)));
-        // no stick aboard (never had one, or lost it: one state) and one afloat in sight she can paddle to: fetch it
+        // no stick aboard (never had one, or lost it: one state) and one afloat in sight she can paddle to: fetch it.
+        // A capsize or a righting changes the hull itself, so what failed before it is not a fact of this hull any more.
         var floating = stick ? null : Waters.floatingStick(hat, (int) num("stick_sight", 16));
-        if (floating != null) out.add(Desire.of("fetch_stick", floor(num("stick_want", 55)), List.of(at, floating.getUUID()),
+        if (floating != null) out.add(Desire.of("fetch_stick", floor(num("stick_want", 55)),
+                List.of(at, floating.getUUID(), HullAfloat.capsizeCount(hat)),
                 () -> "item at=" + GameplayLog.at(floating.position()), () -> Provision.stick(body, floating)));
         care(out, hat, young, at);
         if (nursery) {
