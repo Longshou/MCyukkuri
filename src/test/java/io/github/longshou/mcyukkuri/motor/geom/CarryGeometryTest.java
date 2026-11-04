@@ -29,7 +29,9 @@ class CarryGeometryTest {
                         && p.x() < CarryGeometry.BODY_HIGH.x() + 2 - 1e-9 && p.z() > CarryGeometry.BODY_LOW.z() - 2 + 1e-9
                         && p.z() < CarryGeometry.BODY_HIGH.z() + 2 - 1e-9, "body intersection at " + p);
                 assertTrue(Math.hypot(p.sub(previous).hlen(), p.y() - previous.y()) < .2, "continuous path at " + p);
-                if (tick >= 34) { assertEquals(to.x(), p.x(), 1e-9); assertEquals(to.z(), p.z(), 1e-9); }
+                // Over the destination by the first third of the descent, still high above it until then.
+                if (tick >= 34 + 16 / 3.0) { assertEquals(to.x(), p.x(), 1e-9); assertEquals(to.z(), p.z(), 1e-9); }
+                else if (tick >= 34) assertTrue(p.y() - to.y() > .7 * (height - to.y()), "descends only near its destination at " + p);
                 previous = p;
             }
             assertEquals(to, previous);
@@ -121,9 +123,41 @@ class CarryGeometryTest {
         var to = new Vec(2, .5, 0);
         double length = CarryGeometry.liftLength(from, to, 2);
         assertEquals(from, CarryGeometry.liftPoint(from, to, 2, 0));
-        assertEquals(new Vec(0, 2, 0), CarryGeometry.liftPoint(from, to, 2, 1 / length));
-        assertEquals(new Vec(1, 2, 0), CarryGeometry.liftPoint(from, to, 2, 2 / length));
+        assertEquals(2, CarryGeometry.liftPoint(from, to, 2, (1 + 1.5) / length).y(), 1e-9, "held at the top while crossing");
+        assertEquals(0, CarryGeometry.liftPoint(from, to, 2, .5 / length).x(), 1e-9, "straight up at first");
         assertEquals(to, CarryGeometry.liftPoint(from, to, 2, 1));
+    }
+
+    /** User 2026-11-05: no move-pause-move. Each route moves without a stop between its start and its end and never jumps. */
+    @Test void routesMoveContinuouslyThroughTheirJoins() {
+        var from = new Vec(10, 0, -1); var to = new Vec(2, 0, -8); var root = new Vec(6.93, 9.33, -2.52);
+        int n = 2000;
+        Vec previous = null, step = null;
+        for (int i = 0; i <= n; i++) {
+            double tick = i * 50.0 / n;
+            var p = CarryGeometry.transfer(from, to, root, CarryGeometry.BODY_LOW, CarryGeometry.BODY_HIGH, 2, 4, tick, 19, 34, 50);
+            if (previous != null) {
+                var d = p.sub(previous);
+                double speed = Math.sqrt(d.x() * d.x() + d.y() * d.y() + d.z() * d.z()) * n / 50;
+                if (tick > 1 && tick < 49) assertTrue(speed > .02, "stopped at tick " + tick);
+                if (step != null) assertTrue(Math.sqrt(Math.pow(d.x() - step.x(), 2) + Math.pow(d.y() - step.y(), 2) + Math.pow(d.z() - step.z(), 2))
+                        < .02, "velocity jumps at tick " + tick);
+                step = d;
+            }
+            previous = p;
+        }
+        var a = new Vec(0, 1, 0); var b = new Vec(2, .5, 0);
+        previous = null;
+        for (int i = 0; i <= n; i++) {
+            var p = CarryGeometry.liftPoint(a, b, 2, i / (double) n);
+            if (previous != null && i > n / 50 && i < n - n / 50) {
+                var d = p.sub(previous);
+                assertTrue(Math.sqrt(d.x() * d.x() + d.y() * d.y() + d.z() * d.z()) * n > .05, "lift stopped at " + i);
+            }
+            previous = p;
+        }
+        var k = CarryGeometry.phases(.5, .3, .7);
+        assertArrayEquals(new double[]{1, .5, 0}, k, 1e-9);
     }
 
     @Test void mouthMotionDurationFollowsDistanceAndAbility() {

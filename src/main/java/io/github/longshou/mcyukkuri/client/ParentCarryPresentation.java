@@ -152,7 +152,8 @@ final class ParentCarryPresentation {
             boolean fetch = BraidFetch.REACH.equals(carrier.getAnimationId()) || BraidFetch.HOLD.equals(carrier.getAnimationId())
                     || "braid_head_take".equals(carrier.getAnimationId());
             var clip = ClipMarkers.of(fetch ? carrier.getAnimationId() : liftClip(carrier));
-            model.setBraidReach(modelPoint(carrier, scruff(reaching, reaching.getPosition(partial), yaw(reaching, partial)), partial),
+            var at = carrier.hasPassengerId(reaching.getUUID()) ? ParentCarry.braidHeld(carrier, reaching, partial) : reaching.getPosition(partial);
+            model.setBraidReach(modelPoint(carrier, scruff(reaching, at, yaw(reaching, partial)), partial),
                     BraidFetch.HOLD.equals(carrier.getAnimationId()) ? 1
                             : ease((now - carrier.motorStart()) / Math.max(1, clip.ticks("contact", clip.ticks("contact_closed", clip.length())))));
         } else if (carrier.isVehicle()) for (var rider : carrier.passengerViews()) {
@@ -160,7 +161,7 @@ final class ParentCarryPresentation {
             var hold = ParentCarry.hold(carrier, rider);
             float down = ParentCarry.lowering(carrier, rider, partial);
             if (hold != Hold.BRAID && (hold != Hold.BRIM || down < 0 && !ParentCarry.placing(carrier, rider, partial))) continue;
-            model.setBraidReach(modelPoint(carrier, scruff(rider, ParentCarry.rawSeat(carrier, rider, partial), yaw(carrier, partial)), partial),
+            model.setBraidReach(modelPoint(carrier, scruff(rider, ParentCarry.braidHeld(carrier, rider, partial), yaw(carrier, partial)), partial),
                     ParentCarry.braidShare(carrier, rider, partial));
             break;
         }
@@ -314,7 +315,10 @@ final class ParentCarryPresentation {
                 var grip = new Vector3f((float) lane.gripX(), (float) lane.gripY(), (float) lane.gripZ()).mul(childUnit).rotate(turnTo);
                 feet = bite.sub(grip);
                 feet.y = Math.max(feet.y, (float) ParentCarry.MOUTH_FLOOR * unit);
-                feet = new Vector3f(seated).lerp(feet, (float) CarryGeometry.mouthBlend(ParentCarry.mouthLiftProgress(carrier, child, partial), Math.max(0, lowering)));
+                // Reimu letting one out keeps it at her live lips until it drops from them (mouthDrop); other set-downs leave the lips early.
+                float drop = ParentCarry.mouthDrop(carrier, child, partial);
+                feet = new Vector3f(seated).lerp(feet, drop >= 0 ? 1 - drop
+                        : (float) CarryGeometry.mouthBlend(ParentCarry.mouthLiftProgress(carrier, child, partial), Math.max(0, lowering)));
                 // Reimu's open lips take it in: from the bite back into her mouth, where her face hides it, and out the same way.
                 float in = inside(carrier, child, partial);
                 if (in > 0) feet.lerp(new Vector3f(0, -child.getBbHeight() / 2, child.getBbWidth() * .6f).rotate(facing).add(lip), in);

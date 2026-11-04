@@ -122,7 +122,12 @@ public final class Release implements Action {
                 .thenComparingDouble(p -> p.world().distanceToSqr(child.position()))).toList()) {
             if (target.unavailable(child) != null) continue;
             var grip = target.world().add(0, ParentCarry.GRIP_Y * child.growthScale() * child.getScale() / 16, 0);
-            for (float yaw : facings) if (ParentCarry.transferGap(carrier, grip, yaw) <= 0
+            // The braid side turned to the place first (user 2026-11-05), so the braid never sets a child down across her body.
+            float side = ContactGeometry.braidYaw(carrier, target.world());
+            var order = new ArrayList<>(facings);
+            if (carrier.getVehicle() != destination.entity()) order.add(side);
+            order.sort(Comparator.comparingDouble(yaw -> Math.abs(Mth.wrapDegrees(yaw - side))));
+            for (float yaw : order) if (ParentCarry.transferGap(carrier, grip, yaw) <= 0
                     && keepsPlace(carrier, target, yaw)
                     && ParentCarry.transferClear(carrier, child, target, yaw)) {
                 facing = yaw;
@@ -320,7 +325,7 @@ public final class Release implements Action {
                 ParentCarry.pinned(carrier, child, at));
         if (down < 1 || remaining > .02) return destination != null ? new Running(-lowered, TravelMode.CONSUMED)
                 : progress(new Running(Math.max(1 - down, remaining), TravelMode.CONSUMED), 0);
-        // Reimu's baby is out by the clip's release marker; the lips still shut before the clip ends.
+        // Reimu's baby is on the ground by the clip's closed marker; the lips still shut before the clip ends.
         int beat = ParentCarry.mouthReleaseLeft(carrier, child);
         if (beat > 0) return progress(new Running(beat / 100.0, TravelMode.CONSUMED), 0);
         if (destination != null) {

@@ -170,8 +170,10 @@ public final class ContactGeometry {
     }
 
     /** The yaw that turns the braid side to {@code target}: the bearing to it less the braid root's own angle off the face. */
-    public static float braidYaw(YukkuriEntity body, Entity target) {
-        return (float) (Math.toDegrees(Math.atan2(target.getZ() - body.getZ(), target.getX() - body.getX())) - 90
+    public static float braidYaw(YukkuriEntity body, Entity target) { return braidYaw(body, target.position()); }
+    /** The same for a point. */
+    public static float braidYaw(YukkuriEntity body, Vec3 target) {
+        return (float) (Math.toDegrees(Math.atan2(target.z - body.getZ(), target.x - body.getX())) - 90
                 - Math.toDegrees(Math.atan2(BRAID[0].x, -BRAID[0].z)));
     }
 

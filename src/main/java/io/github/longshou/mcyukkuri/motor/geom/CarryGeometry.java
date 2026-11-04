@@ -11,28 +11,39 @@ public final class CarryGeometry {
         var a = GeometryJson.read("yukkuri_presentation/braid_rescue.json").field(key).getAsJsonArray();
         return new Vec(a.get(0).getAsDouble(), a.get(1).getAsDouble(), a.get(2).getAsDouble());
     }
-    /** One marker-timed route: rise at the grip, pass the front of the body, descend over the destination. */
+    /** How far the across move of a rise-across-descend route reaches into its neighbours (a share of the rise and of the descent). */
+    private static final double OVERLAP = 1 / 3.0;
+    /**
+     * Progress (0..1 each) of the rise, the move across and the descent of one continuous route at {@code t} (0..1 of its
+     * time), the rise ending at {@code upEnd} and the descent beginning at {@code downStart}. Each part eases on its own span and
+     * the move across begins in the last third of the rise and ends in the first third of the descent, so the body keeps moving
+     * through both joins (no stop between the parts) and starts and ends at rest.
+     */
+    public static double[] phases(double t, double upEnd, double downStart) {
+        double across0 = upEnd * (1 - OVERLAP), across1 = downStart + (1 - downStart) * OVERLAP;
+        return new double[]{span(t, 0, upEnd), span(t, across0, across1), span(t, downStart, 1)};
+    }
+    private static double span(double t, double start, double end) { return end <= start ? t >= end ? 1 : 0 : smooth((t - start) / (end - start)); }
+
+    /** One marker-timed route: rise at the grip, pass the front of the body, descend over the destination, in one continuous motion ({@link #phases}). */
     public static Vec transfer(Vec from, Vec to, Vec root, Vec low, Vec high, double radius,
                                double height, double tick, double liftEnd, double overEnd, double place) {
         if (tick <= 0) return from;
         if (tick >= place) return to;
-        if (tick <= liftEnd) return mix(from, new Vec(from.x(), height, from.z()), smooth(tick / liftEnd));
-        if (tick >= overEnd) return mix(new Vec(to.x(), height, to.z()), to, smooth((tick - overEnd) / (place - overEnd)));
-        double q = smooth((tick - liftEnd) / (overEnd - liftEnd));
+        var k = phases(tick / place, liftEnd / place, overEnd / place);
         double turn = frontTurn(from.x() - root.x(), from.z() - root.z(), to.x() - root.x(), to.z() - root.z());
-        var p = swing(root.x(), root.z(), from.x(), from.z(), to.x(), to.z(), turn, q);
-        if (height < high.y()) {
+        var p = swing(root.x(), root.z(), from.x(), from.z(), to.x(), to.z(), turn, k[1]);
+        if (height < high.y() && k[1] > 0 && k[1] < 1) {
             double angle = Math.atan2(p.z() - root.z(), p.x() - root.x()), x = Math.cos(angle), z = Math.sin(angle);
             double ax = (low.x() - radius - root.x()) / x, bx = (high.x() + radius - root.x()) / x;
             double az = (low.z() - radius - root.z()) / z, bz = (high.z() + radius - root.z()) / z;
             double near = Math.max(Math.min(ax, bx), Math.min(az, bz)), far = Math.min(Math.max(ax, bx), Math.max(az, bz));
             double r = Math.hypot(p.x() - root.x(), p.z() - root.z());
             if (near <= far && far > 0) r = Math.max(r, far);
-            p = new Vec(root.x() + r * x, height, root.z() + r * z);
+            p = new Vec(root.x() + r * x, 0, root.z() + r * z);
         }
-        return new Vec(p.x(), height, p.z());
+        return new Vec(p.x(), from.y() + (height - from.y()) * k[0] + (to.y() - height) * k[2], p.z());
     }
-    private static Vec mix(Vec a, Vec b, double q) { return new Vec(a.x() + (b.x() - a.x()) * q, a.y() + (b.y() - a.y()) * q, a.z() + (b.z() - a.z()) * q); }
     /** Collision in the carrier's frame, independent of its world yaw. */
     public static boolean clearsBody(Vec feet, double radius, double height) {
         return feet.y() >= BODY_HIGH.y() || feet.y() + height <= BODY_LOW.y()
@@ -102,15 +113,15 @@ public final class CarryGeometry {
         return high - from.y() + to.sub(from).hlen() + high - to.y();
     }
 
-    /** Raise clear of the host, cross above it, then arrive at the mouth, all at the same physical pace. */
+    /** Raise clear of the host, cross above it, then arrive at the mouth: one continuous motion ({@link #phases}) whose parts take
+     *  time in proportion to their length. */
     public static Vec liftPoint(Vec from, Vec to, double high, double progress) {
-        double up = high - from.y(), across = to.sub(from).hlen();
-        double distance = liftLength(from, to, high) * progress;
-        if (distance < up) return new Vec(from.x(), from.y() + distance, from.z());
-        distance -= up;
-        if (distance < across) return new Vec(from.x() + (to.x() - from.x()) * distance / across, high,
-                from.z() + (to.z() - from.z()) * distance / across);
-        return new Vec(to.x(), high - (distance - across), to.z());
+        double length = liftLength(from, to, high);
+        if (progress >= 1 || length <= 0) return to;
+        if (progress <= 0) return from;
+        var k = phases(progress, (high - from.y()) / length, 1 - (high - to.y()) / length);
+        return new Vec(from.x() + (to.x() - from.x()) * k[1], from.y() + (high - from.y()) * k[0] + (to.y() - high) * k[2],
+                from.z() + (to.z() - from.z()) * k[1]);
     }
 
     public static int motionTicks(double distance, double pace) { return Math.max(1, (int) Math.ceil(distance / pace)); }

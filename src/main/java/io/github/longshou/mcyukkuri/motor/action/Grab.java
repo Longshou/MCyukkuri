@@ -25,9 +25,9 @@ import net.minecraft.world.phys.Vec3;
 
 /**
  * Take a body into one of the carrier's holds: {@code ParentCarry.holdsFor} gives them and the Grab takes the first whose reach
- * gets it, then seats it as a real passenger. The carrier first turns at its turn rate only as far as the hold needs (the mouth
- * to the target, the braid side by {@code ParentCarry.braidTurn}). A brim or braid-tip child is mounted once the braid has closed on it
- * (lift_start) and the Grab runs on to the clip's place marker while the braid lifts it clear into its hold
+ * gets it, then seats it as a real passenger. The carrier first turns at its turn rate (the mouth to the target, the braid side
+ * squarely to it by {@code ParentCarry.braidTurn}). A brim or braid-tip child is mounted once the braid has closed on it
+ * (lift_start) and the Grab runs on to the clip's place marker (and a far-side brim child's own walk round the brim) while the braid lifts it clear into its hold
  * ({@code ParentCarry.braided}). A mouth hold stays mounted through its real lift to the lips before the next action begins.
  */
 public final class Grab implements Action {
@@ -147,7 +147,7 @@ public final class Grab implements Action {
         startTick = carrier.level().getGameTime();
         // The one record of the hold (and, on the brim, its spot) starts with the lift; the client's pose reads it.
         ParentCarry.plan(carrier, target, hold, lean, source);
-        facing = hold.reach() == Reach.BRAID ? ParentCarry.braidTurn(carrier, target, lean)
+        facing = hold.reach() == Reach.BRAID ? ParentCarry.braidTurn(carrier, target)
                 : (float) Math.toDegrees(Math.atan2(target.getZ() - carrier.getZ(), target.getX() - carrier.getX())) - 90;
         turn = new Face(facing);
         turn.check(carrier);
@@ -157,13 +157,14 @@ public final class Grab implements Action {
     @Override public Progress tick(YukkuriEntity carrier) {
         if (mounted) {
             if (target.getVehicle() != carrier) return Outcome.of(Reason.DROPPED, 0, "let_go");
-            double remaining = Math.max(way - ++held, target.position().distanceTo(ParentCarry.rawSeat(carrier, target, 0)));
+            double remaining = Math.max(Math.max(way - ++held, ParentCarry.placingLeft(carrier, target)),
+                    target.position().distanceTo(ParentCarry.rawSeat(carrier, target, 0)));
             return remaining > .02 ? new Running(remaining, TravelMode.CONSUMED) : completed(carrier);
         }
         ticks++;
         if (!target.isAlive()) return Outcome.of(Reason.TARGET_GONE, 0, "target_gone");
         if (hold.reach() == Reach.BRAID) {
-            facing = ParentCarry.braidTurn(carrier, target, lean);
+            facing = ParentCarry.braidTurn(carrier, target);
             turn = new Face(facing);
             turn.start(carrier);
         }
