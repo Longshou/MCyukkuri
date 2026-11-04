@@ -11,6 +11,7 @@ public final class EcologyPresentation {
         return switch (behavior) {
             case Behaviors.UNUN_EXERCISE -> YukkuriAction.TAISO;
             case Behaviors.TOILET, Behaviors.GROUND_TOILET, Behaviors.TOILET_ACCIDENT, Behaviors.FIRST_TOILET_STIMULATED -> YukkuriAction.BRACE;
+            case Behaviors.BOAT_TOILET -> YukkuriAction.BOAT_TOILET;
             case Behaviors.TAKE_FOOD, Behaviors.CHEW, Behaviors.FAMILY_CHEW, Behaviors.SWALLOW -> YukkuriAction.EAT;
             case Behaviors.RECEIVE_MASH -> YukkuriAction.DRINK;
             case Behaviors.MEAL_FINISH -> YukkuriAction.SHIAWASE;

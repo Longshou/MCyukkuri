@@ -2054,6 +2054,12 @@ def afloat(owner, water, aboard=True, crew=None, food=0, middle=False, stick=Fal
     return f'yukkuri scenario afloat {sel(owner)} {water} {"true" if aboard else "false"}' + (f' {crew}' if crew else '') + tail
 
 
+def afloat_now(owner, water, aboard=True, crew=None, **kw):
+    """`afloat` in the same tick as the summons (not two seconds later): the owner has had no tick of her own, so her hat is never
+    set down by her own place_prop while the setup seats her (the line is wrapped so it is not deferred like the others)."""
+    return f'execute as {sel(owner)} run ' + afloat(owner, water, aboard, crew, **kw)
+
+
 _HAT = '@e[type=mcyukkuri:placed_hat,distance=..48,limit=1,sort=nearest]'
 _DESIRE_NOTE_EARLY = '读 aquatic.desire 看每个欲望的得分与来由。'
 
@@ -2079,7 +2085,8 @@ def _overload_family_choice(window):
         if placed is None:
             return f'{parent}: hat was not placed'
         boat = re.escape(placed.group(1))
-        places = ((1, 'CABIN'), (2, 'HEAD'), (3, 'BRIM')) if exceptional else ((2, 'HEAD'), (3, 'BRIM'))
+        # the largest young that fits takes the head, the rest fill the brim (user 2026-11-05)
+        places = ((1, 'CABIN'), (2, 'BRIM'), (3, 'HEAD')) if exceptional else ((2, 'BRIM'), (3, 'HEAD'))
         for child, place in places:
             if not re.search(r'\[hat\][^\n]*uuid=' + _uuid_text('hat_crowd', parent + str(child))
                              + r'[^\n]* scenario place hat=' + boat + r' place=' + place + r'\b', window):
@@ -2226,12 +2233,19 @@ def current_drift(log):
     points = [float(x) for x in re.findall(r'\[hat\][^\n]* travel at=\(([-\d.]+),', log)]
     if len(points) < 2 or max(points[:200]) - points[0] < 3:
         return 'hat must drift at least 3 blocks downstream in 200 ticks'
-    riders = set(re.findall(r'\[body\][^\n]*uuid=(\S+)[^\n]* dismount [^\n]*cause=grounded', log))
-    if len(riders) != 2:
-        return f'both admitted riders must dismount at grounding, saw {len(riders)}'
+    # The largest young rides the captain's head (user 2026-11-05): at grounding it leaves the hat with her, not by itself.
+    head = re.search(r'uuid=(\S+)[^\n]* scenario place [^\n]*place=HEAD\b', log)
+    if head is None:
+        return 'the young must be seated on the head (largest first)'
+    captain = re.search(r'\[hat\][^\n]* left rider=(\S+)[^\n]*', log)
+    if captain is None or not re.search(rf'\[body\][^\n]*uuid={captain[1]}[^\n]* dismount [^\n]*cause=grounded'
+                                         rf'[^\n]*passengers=\[{head[1]}', log):
+        return 'the captain must leave the grounded hat still carrying her head young'
+    if re.search(rf'\[water\][^\n]*uuid={head[1]}[^\n]* entered at=', log):
+        return 'the head young must not enter the water'
     ashore = set(re.findall(r'\[water\][^\n]*uuid=(\S+)[^\n]* escape done [^\n]*support=stand=', log))
-    if len(ashore) != 2:
-        return f'both riders must reach their own dry stand after grounding, saw {len(ashore)}'
+    if captain[1] not in ashore:
+        return 'the captain must reach her own dry stand after grounding'
     back = re.search(r'\[headwear\][^\n]* received loose accessory', log)
     if back and re.search(r'\[action\][^\n]* start id=pick\b', log[:back.start()]):
         return 'the owner went for loose items before taking her hat back'
@@ -2244,7 +2258,7 @@ pond('hat_current', '帽子顺缓流漂到浅滩搁浅', '帽子顺缓流漂到�
       yk('marisa', bank_dx(1) - 1, 1, 'child', stage='child', aquatic=True, fam=_seat_family(), **pair_ready()),
       afloat('a', water_at(0, 1), True, sel('child'), food=4, stick=True)],
      vantage=(bank_dx(0) + 11, -3, 40, 18),
-     note='观察两名乘员离帽并上岸，四份苹果和一根木棍各掉出，帽主接触头饰即戴回；帽船搁浅不算翻覆。倒扣边界与载人翻覆见“落水掀翻帽子与帽子搁浅”。',
+     note='观察船长带着头顶的子油离帽、自己走上干岸（头顶子油随亲体离帽，不自己跳），四份苹果和一根木棍各掉出，帽主接触头饰即戴回；帽船搁浅不算翻覆。倒扣边界与载人翻覆见“落水掀翻帽子与帽子搁浅”。',
      reads=_HULL_READS + [('读子油', f'yukkuri status {sel("child")} raw')],
      capture=dict(shots=(1, 40, 300, 600, 900), sequences=((60, 200, 2), (220, 1100, 20))),
      smoke=dict(ticks=1100, commands=[(1, 'yukkuri status trace true'), (1099, 'yukkuri status trace false')],
@@ -2295,7 +2309,7 @@ def _grounded_smoke():
                 rf'\[hat\][^\n]* pickup cause=grounded [^\n]*owner={inverted} inverted=true'],
         forbid=[r'\[body\][^\n]* invariant\b', r'\[body\][^\n]* death settled into remains',
                 rf'\[hat\][^\n]* capsized cause=(?:shake|impact)\b[^\n]*owner={falling}\b',
-                rf'\[body\][^\n]*uuid=(?:{a}|{child})[^\n]* cause=drown'],
+                r'\[body\][^\n]* cause=drown'],
         verify=capsized_crew,
         readout=_HULL_READOUT + [f'yukkuri status {sel("child")} raw',
                                  'execute as @e[type=minecraft:item,distance=..48] run data get entity @s Item'])
@@ -2570,7 +2584,7 @@ def _aquatic_young(sid, slot, dx, dz, stage, parent, **kw):
               kin=f'Mother:{uuid_nbt(uid(sid, parent))}', **extra, **pair_ready())
 
 
-pond('water_colony', '水边出生直接坐在帽里', '水边出生直接坐在帽里',
+pond('water_colony', '自然生成就坐在自己帽里', '自然生成就坐在自己帽里',
      '四只成体水生魔理沙按自然生成的方式加入世界：水边的三只第 0 tick 就坐在自己放在身旁静水上的帽子里漂着（不先站在岸上、没有延迟的上船）；离水 5 格以外的第四只没有水面可放帽，留在岸上并在日志里说明原因。帽里没有木棍和粮，她们之后在水上漂着歇息',
      '约 30 秒',
      [*[aquatic_spawn(bank_dx(dz), dz) for dz in (-4, 0, 4)], aquatic_spawn(-6, 0)],
@@ -2686,16 +2700,16 @@ pond('afloat_stick', '划去捞水面上的木棍', '划去捞水面上的木棍
      '亲油坐在自己的帽船里漂在静水上，帽里没有木棍；几格外的水面上漂着一根真木棍。没有木棍（从没有或翻船失去是同一状态）的亲油看到水上的木棍就划过去、用辫子或嘴取到收进帽里；水上没有木棍时则不会专门去找',
      '约 1 分钟',
      [captain(dx=bank_dx(0)),
-      afloat('a', water_at(0, 3), True),
+      afloat_now('a', water_at(0, 3), True),
       item('minecraft:stick', 1, bank_dx(0) + 8, 0, 'stick', dy=-.15)],
-     vantage=(bank_dx(0) + 11, -3, 40, 18),
      note='日志：[intent] start id=fetch_stick（why 里 item at=）→ [aquatic] stick target chosen … afloat=true → [action] start id=paddle → [action] start id=pick → [aquatic] stick taken … stowed_in=hat；'
           '取到后 aquatic.stick_in_braid 在取到并收进帽后变 true。木棍是原版掉落物，浮在水面上；准备放帽成功不算取棍成功。' + _DESIRE_NOTE,
      reads=[('读船主', f'yukkuri status {sel("a")} raw'), ('读帽子', f'data get entity {_HAT}'),
             ('读水上物品', 'execute as @e[type=minecraft:item,distance=..48] run data get entity @s Pos')],
      smoke=dict(ticks=1200, expect=[r'\[intent\][^\n]* start id=fetch_stick\b', r'\[aquatic\][^\n]* stick target chosen [^\n]*afloat=true',
                                    r'\[aquatic\][^\n]* stick taken [^\n]*stowed_in=hat'],
-                forbid=[r'\[body\][^\n]* invariant\b', r'\[hat\][^\n]* capsized\b', r'\[body\][^\n]* death settled into remains']))
+                forbid=[r'\[body\][^\n]* invariant\b', r'\[hat\][^\n]* capsized\b', r'\[body\][^\n]* death settled into remains',
+                        r'\[action\][^\n]* start id=place_prop\b', r'prop_not_worn']))
 
 def kid_play_shelter(window):
     """A free head after the cabin refusal must lead to a real parental lift and head placement."""
@@ -2744,6 +2758,48 @@ pond('kid_boat_play', '赤油在帽檐玩耍，打雷躲避', '赤油在帽檐�
                 verify=kid_play_shelter,
                 readout=[f'yukkuri status {sel("a")} raw', f'yukkuri status {sel("c1")} raw',
                          f'yukkuri status {sel("c2")} raw', f'data get entity {_HAT} Riders']))
+
+def boat_toilet_result(window):
+    """Every release leaves the stool outside the rim near the body's own rear, and the young goes back into the hollow afterwards."""
+    drops = re.findall(r'uuid=(\S+)[^\n]* boat_toilet dropped hat=\S+ place=(\w+) at=[^\n]*? hull_distance=([\d.]+)/([\d.]+)'
+                       r' outlet_distance=([\d.]+)/([\d.]+)', window)
+    if len({d[0] for d in drops}) < 2:
+        return f'expected the owner and the young to relieve themselves, got {len(drops)} drop(s)'
+    for who, place, got, rim, real, real_rim in drops:
+        if float(got) + 1e-6 < float(rim):
+            return f'{who} dropped inside the rim ({got} < {rim})'
+        # The stool is carried out from the real rear, not thrown from the hull's middle: a large gap means a broken pose.
+        # A seated adult's rear reaches only ~0.39 blocks from the middle while the rim is ~0.89, so the item is placed at the rim
+        # (0.62 out, the documented drop-point deviation); the bound only stops the item being thrown further than that.
+        if float(got) - float(real) > .7:
+            return f'{who} dropped {float(got) - float(real):.2f} blocks away from its own rear (rear {real}, stool {got})'
+    if not any(place == 'brim' for _, place, *_ in drops):
+        return 'the young never relieved itself on the brim'
+    if not any(place == 'cabin' for _, place, *_ in drops):
+        return 'the owner never relieved herself from the hollow'
+    if not re.search(r'\[aquatic\][^\n]* boat_toilet back [^\n]*place=cabin', window):
+        return 'the young stayed on the brim after relieving itself'
+    return None
+
+
+pond('boat_toilet', '帽船上朝帽外排便', '帽船上朝帽外排便',
+     '亲油坐在静水上的帽船里，帽里有一只会跳的赤油，两只的膀胱都已很满。亲油在舱里转身，把屁股朝向帽外的水面撅起来排便，粪便落进帽外的水里；赤油先跳到亲油前方的帽檐上，转身朝外撅起屁股排便，之后回到舱里。',
+     '约 1 分钟',
+     [captain(dx=bank_dx(0), bladder=92, uuid=uid('boat_toilet', 'a')),
+      _aquatic_young('boat_toilet', 'c1', bank_dx(1), 1, 'baby', 'a', childhood=CHILDHOOD_HOPPING, bladder=90),
+      afloat_now('a', water_at(0, 3), True, sel('c1'), food=4, stick=True)],
+     note='日志：[aquatic] boat_toilet turn（rear_out 是朝水的方向）→ boat_toilet dropped place=cabin|brim at=… hull_distance=实际/船沿（实际 ≥ 船沿才是落在帽外）、outlet_distance=身体后方/船沿 → boat_toilet back place=cabin → [needs] relieved source=boat bladder=前 -> 后；'
+          '赤油先有 hop 上帽檐，place=brim，排完再跳回舱内。读 hat 乘员与膀胱数值。粪便是真实掉落物，落点在水里；准备入座不算行为成功。' + _DESIRE_NOTE,
+     reads=[('读亲油', f'yukkuri status {sel("a")} raw'), ('读子油', f'yukkuri status {sel("c1")} raw'), ('读帽子乘员', f'data get entity {_HAT} Riders'),
+            ('读水上物品', 'execute as @e[type=minecraft:item,distance=..48] run data get entity @s Pos')],
+     smoke=dict(ticks=1800, expect=[r'\[hat\][^\n]* scenario afloat prepared [^\n]*owner_aboard=true[^\n]*young=1\b',
+                                   r'\[aquatic\][^\n]* boat_toilet turn [^\n]*place=brim',
+                                   r'\[aquatic\][^\n]* boat_toilet dropped [^\n]*place=brim',
+                                   r'\[needs\][^\n]* relieved source=boat\b'],
+                forbid=[r'\[body\][^\n]* invariant\b', r'\[body\][^\n]* death settled', r'\[hat\][^\n]* capsized\b',
+                        r'\[aquatic\][^\n]* boat_toilet refused\b'],
+                verify=boat_toilet_result,
+                readout=[f'yukkuri status {sel("a")} raw', f'yukkuri status {sel("c1")} raw', f'data get entity {_HAT} Riders']))
 
 pond('shore_family', '饿了带孩子划回岸边', '饿了带孩子划回岸边',
      '亲油和一只小子油在离岸 3 格的帽子上，帽里有木棍、没有粮，亲油已经饿了：她划回岸边；孩子先跳到干地，亲油随后上岸，把空帽子收回戴上',
@@ -2931,7 +2987,7 @@ def shore_birth_result(window):
 pond('birth_boat_missed', '临产划回岸边，放下孩子再生产', '临产划回岸边，放下孩子再生产',
      '水生母油先照常在水上活动（划船、吃帽里的粮、出航），临产准备时才停出航、划回岸边，经帽檐下船，'
      '随后按陆地接生帽／窝／地面规则分娩。'
-     '初始一只会跳的子油和一只赤油随母船返岸：能自行下船的跟着上岸，头顶幼体随亲油落岸后由辫子放下。'
+     '初始一只较大的子油（坐头顶）和一只较小会跳的子油（站帽檐船首）随母船返岸：能自行下船的跟着上岸，头顶幼体随亲油落岸后由辫子放下。'
      '每只新生儿都应戴水生圆帽、在身体外出生并落在岸上；本窗口观察出生与留岸照护。幼体完成首餐、首便、能集合后才走普通亲子装载，全部新生儿上船才算出航完成。',
      '约 3–5 分钟（先水上生活，进入临产准备后返岸，留岸继续孕程）',
      [yk('marisa', bank_dx(0), 0, 'mother', aquatic=True, yaw=-90, lead=True, **pair_ready()),
@@ -2940,7 +2996,9 @@ pond('birth_boat_missed', '临产划回岸边，放下孩子再生产', '临产�
            childhood=readiness, fam=_seat_family(size, nourishment, age), also=('crew',), label=label, **pair_ready())
         for name, dz, stage, size, nourishment, age, readiness, label in (
             ('k1', 1, 'child', .35, 147000, 144000, CHILDHOOD_HOPPING, '会跳的子油'),
-            ('k2', -1, 'baby', .19, 68727, 36000, CHILDHOOD_CRAWLING_READY, '待托放的赤油'))],
+            # its own size's nourishment (105000, not the 0.35 body's 147000): else it grows to 0.35 on the first tick and the
+            # two young overload her hull, so the scene shows a random too_heavy capsize instead of the shore return.
+            ('k2', -1, 'child', .25, 105000, 144000, CHILDHOOD_HOPPING, '会跳的小子油'))],
       item('minecraft:apple', 8, bank_dx(0) - 2, 0),
       *pond_rim_seagrass(),
       f'yukkuri scenario bond {sel("mother")} {sel("father")}'],
@@ -3085,7 +3143,7 @@ pond('first_voyage_brim', '子油在帽檐脱帽放水划一圈', '子油在帽�
 POND_TOUR = (
     'water_colony', 'sail', 'afloat_stick', 'cargo',
     'afloat_family', 'afloat_family_gather', 'afloat_family_ashore', 'shore_family',
-    'kid_boat_play', 'first_voyage', 'first_voyage_brim', 'hat_crowd',
+    'kid_boat_play', 'boat_toilet', 'first_voyage', 'first_voyage_brim', 'hat_crowd',
     'self_rescue', 'worn_hat_boat', 'rescue_child', 'rescue_no_seat',
     'birth_boat_missed', 'birth_hat_own', 'shore_capsized', 'shore_capsized_far',
     'hat_swap', 'shake_capsize', 'hat_push', 'hat_current',
@@ -3111,7 +3169,7 @@ TOPICS = {
     'body_mold': 'R5', 'wound_parts': 'R5', 'wound_materials': 'R5', 'thermal_body': 'R5', 'wound_sources': 'R5', 'wound_leak': 'R5', 'treatment_severe': 'R5', 'treatment_scars': 'R5', 'treatment_care': 'R5', 'magma_sole': 'R5', 'core_exposed': 'R5', 'core_filling': 'R5', 'remains_rot': 'R6', 'remains_forms': 'R6', 'carrion': 'R6', 'cannibal_hunt': 'R6',
     'last_words': 'R7', 'offering': 'R7', 'sacrifice': 'R7', 'sacrifice_reluctant': 'R7',
     'hat_push': 'A1', 'hat_current': 'A1', 'hat_grounded_capsized': 'A4', 'cargo': 'A2', 'hat_crowd': 'A3', 'shake_capsize': 'A4',
-    'water_colony': 'A6', 'sail': 'A6', 'afloat_stick': 'A6', 'afloat_family': 'A6', 'afloat_family_gather': 'A6', 'afloat_family_ashore': 'A6', 'shore_family': 'A6', 'kid_boat_play': 'A6',
+    'water_colony': 'A6', 'sail': 'A6', 'afloat_stick': 'A6', 'afloat_family': 'A6', 'afloat_family_gather': 'A6', 'afloat_family_ashore': 'A6', 'shore_family': 'A6', 'kid_boat_play': 'A6', 'boat_toilet': 'A6',
     'rescue_child': 'A5', 'rescue_no_seat': 'A5', 'birth_boat_missed': 'A6', 'birth_hat_own': 'A6', 'first_voyage': 'A6', 'first_voyage_brim': 'A6',
     'self_rescue': 'A5', 'shore_capsized': 'A5', 'shore_capsized_far': 'A5', 'worn_hat_boat': 'A5', 'hat_swap': 'C1', 'hat_damage': 'C1', 'hat_shatter': 'C1', 'hatless_kin': 'C2', 'hatless_scorn': 'C2', 'hatless_boundary': 'C2',
     'hatless_monster': 'C2', 'hatless_sanction': 'C2', 'puff_response': 'C2',

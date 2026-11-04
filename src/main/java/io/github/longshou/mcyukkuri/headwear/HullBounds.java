@@ -18,6 +18,10 @@ public final class HullBounds {
             BRIM = DATA.number("brim.y"), LEVEL_RADIUS = DATA.number("brim.level_radius"),
             RADIUS = DATA.number("brim.outer_radius"), EDGE = DATA.number("brim.edge_y");
 
+    /** Vanilla {@code isInWall} tests a box {@code 0.8 x width} wide around the eye: its half-width as a share of the rider's width. */
+    public static final double EYE_BOX = .4;
+    /** Blocks (exported scale) a resting brim rider's collision box and eye box stay strictly inside the hull's own collision footprint. */
+    public static final double EPSILON = .002;
     private HullBounds() {}
 
     private static final RadialWall WALL = RadialWall.read("yukkuri_props/aquatic_basin_hat_turned.json", "hull");
@@ -60,10 +64,13 @@ public final class HullBounds {
         return loadRatioWith(scale, youngSizes, newcomer) <= 1;
     }
     private static double weightOf(List<Double> youngSizes) { return youngSizes.stream().mapToDouble(HullBounds::weight).sum(); }
+    /** The ring in seat order: the bow (-Z, in front of the captain) first, then outward both ways; the braid side (+X) comes late. */
     public static List<Vec> brimStops() {
         double r = DATA.number("brim_ring.radius");
-        return IntStream.range(0, 72).mapToObj(i -> new Vec(r * Math.cos(i * Math.PI / 36), 0,
-                r * Math.sin(i * Math.PI / 36))).toList();
+        return IntStream.range(0, 72).mapToObj(n -> {
+            int i = Math.floorMod(54 + (n % 2 == 0 ? -n / 2 : (n + 1) / 2), 72);
+            return new Vec(r * Math.cos(i * Math.PI / 36), 0, r * Math.sin(i * Math.PI / 36));
+        }).toList();
     }
 
     /** Offer the supported outer ring and inner footing where a larger body's outward edge fits inside the cloth. */
@@ -75,6 +82,21 @@ public final class HullBounds {
                 .flatMap(p -> Stream.of(p, p.scale(Math.min(p.hlen(), RADIUS / unit
                         - FloorSearch.extent(body, p.x() / p.hlen(), p.z() / p.hlen())) / p.hlen())).distinct())
                 .map(p -> new Vec(p.x(), profile.support(p.x(), p.z(), body), p.z())).toList();
+    }
+
+    /**
+     * Where a body rests on the brim: the ring places pulled in until its collision box and its eye box end {@link #EPSILON} inside the
+     * hull's outer radius, so a hull pressed against the bank never puts it into a block. Hop takeoff and landing keep {@link #brimStops}
+     * (a body in flight is not resting).
+     */
+    public static List<Vec> restStops(String asset, double width, double height, double hullScale, double yaw) {
+        var profile = HullProfile.of(HullProfile.BASIN);
+        double scale = hullScale / SCALE, unit = profile.measuredUnit();
+        var body = BodyFootprint.of(asset, width / scale / unit, height / scale / unit, yaw);
+        return brimStops().stream().map(p -> p.scale(1 / unit))
+                .map(p -> p.scale(Math.min(p.hlen(), (RADIUS - EPSILON) / unit
+                        - Math.max(FloorSearch.extent(body, p.x() / p.hlen(), p.z() / p.hlen()), EYE_BOX * width / scale / unit)) / p.hlen()))
+                .distinct().map(p -> new Vec(p.x(), profile.support(p.x(), p.z(), body), p.z())).toList();
     }
 
     /** Basin floor, inner wall and the level-to-drooping brim, all from the bounds contract. */

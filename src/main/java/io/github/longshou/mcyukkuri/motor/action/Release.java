@@ -119,7 +119,7 @@ public final class Release implements Action {
 
     private SeatTarget nearest(YukkuriEntity carrier, List<SeatTarget> places, List<Float> facings) {
         for (var target : places.stream().sorted(Comparator.comparing(SeatTarget::kind)
-                .thenComparingDouble(p -> p.world().distanceToSqr(child.position()))).toList()) {
+                .thenComparingDouble(p -> p.kind() == SeatTarget.Kind.BRIM ? 0 : p.world().distanceToSqr(child.position()))).toList()) {
             if (target.unavailable(child) != null) continue;
             var grip = target.world().add(0, ParentCarry.GRIP_Y * child.growthScale() * child.getScale() / 16, 0);
             // The braid side turned to the place first (user 2026-11-05), so the braid never sets a child down across her body.

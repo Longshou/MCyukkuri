@@ -140,6 +140,12 @@ public final class AquaticLife {
         young(parent).stream().filter(y -> y.isAlive() && Bonds.parentOf(parent, y))
                 .max(Comparator.comparingDouble(y -> y.growthScale() * y.getScale())).ifPresent(child -> {
                     FamilyData.get((ServerLevel) parent.level()).dismissChild(parent, child.getUUID());
+                    // The largest young sits on her head: the capsize did not throw it, so the dismissal sheds it from the head,
+                    // else the load that capsized the hat would stay with her and the hat would capsize again.
+                    if (child.getVehicle() == parent) {
+                        ParentCarry.released(parent, child, "overload_dismissed");
+                        Motor.dismount(child, child.position(), Vec3.ZERO, "overload_dismissed");
+                    }
                     YOUNG.remove(parent);
                     parent.showReaction("teary", "mood_bad", 120);
                 });

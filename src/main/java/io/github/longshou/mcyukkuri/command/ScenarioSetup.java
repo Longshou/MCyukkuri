@@ -25,6 +25,7 @@ import io.github.longshou.mcyukkuri.house.HouseNestBlockEntity;
 import io.github.longshou.mcyukkuri.settlement.Homes;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import io.github.longshou.mcyukkuri.headwear.HatGeometry;
@@ -255,7 +256,7 @@ final class ScenarioSetup {
         for (var child : young) kin(owner, child, false);
         var riders = new ArrayList<YukkuriEntity>();
         if (aboard) riders.add(owner);
-        riders.addAll(young);
+        riders.addAll(young.stream().sorted(Comparator.comparingDouble((YukkuriEntity y) -> -y.growthScale() * y.getScale())).toList());
         for (var body : riders) {
             float yaw = hat.getYRot() + (body == owner ? facing : 0);
             Motor.face(body, yaw);

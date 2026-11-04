@@ -54,7 +54,7 @@ final class AquaticGoal extends Goal {
     /** The clips of the boat life the presentation may show while this goal drives the body. */
     private static final Set<String> SHOWN = Set.of(Behaviors.BOAT_CALL, Behaviors.BOAT_DRIFT,
             Behaviors.BOAT_EAT, Behaviors.BOAT_FEED_YOUNG, Behaviors.BOAT_NUZZLE, Behaviors.FAMILY_CHEW,
-            Behaviors.KID_BRIM_SPLASH, Behaviors.KID_MIMIC_PADDLE, Behaviors.BOAT_RIM_PEEK, Behaviors.KID_HIDE_BEHIND);
+            Behaviors.KID_BRIM_SPLASH, Behaviors.KID_MIMIC_PADDLE, Behaviors.BOAT_RIM_PEEK, Behaviors.KID_HIDE_BEHIND, Behaviors.BOAT_TOILET);
     /** How long (ticks) a young she knowingly left ashore when setting out does not pull her back; how many she remembers. */
     private static final int LEFT_TICKS = 1200, LEFT_MAX = 16;
 
@@ -265,6 +265,7 @@ final class AquaticGoal extends Goal {
                 List.of(at, floating.getUUID(), HullAfloat.capsizeCount(hat)),
                 () -> "item at=" + GameplayLog.at(floating.position()), () -> Provision.stick(body, floating)));
         care(out, hat, young, at);
+        BoatToilet.offer(out, body, hat);
         if (nursery) {
             GameplayLog.limited(body, "aquatic", "nursery.aboard", 1200,
                     "departure held reason=newborn_care children={}", nursing.stream().map(YukkuriEntity::getUUID).toList());
@@ -403,6 +404,7 @@ final class AquaticGoal extends Goal {
                 + " doing=" + (running == null ? "none" : running.intent().id());
         var world = List.of(cell(hat), body.blockPosition(), parentOn);
         if (on && parentOn && body.family().stage() == FamilyLife.Stage.BABY) play(out, hat, world);
+        if (on) BoatToilet.offer(out, body, hat);
         var rest = TakeSeat.offer(body, hat);
         if (rest != null)
             out.add(Desire.of("take_seat", num("take_seat_want", 70), rest.world(), rest::why, () -> rest));

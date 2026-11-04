@@ -250,6 +250,16 @@ public final class YukkuriLife {
         entity.showReaction("happy", "toilet_done", 60);
         return true;
     }
+    /** Afloat (aquatic/BoatToilet): the body strains over the water and the stool leaves from {@code outlet}; the same load and relief as a ground toilet. */
+    public boolean relieveOutboard(Vec3 outlet) {
+        if (!(entity.level() instanceof ServerLevel) || bladder < 10 || constipated() || !entity.isAlive() || isSleeping() || mealTicks() > 0) return false;
+        if (!ToiletContact.drop(entity, outlet)) return false;
+        float before = bladder;
+        bladder = Math.max(0, bladder - 40); personality.relieveFear();
+        entity.showReaction("happy", "toilet_done", 60);
+        GameplayLog.event(entity, "needs", "relieved source=boat at={} bladder={} -> {}", outlet, before, bladder);
+        return true;
+    }
     /** A real cleaning or soiling of the body surface, bounded like every other hygiene change. */
     public void changeHygiene(float delta) { if (Float.isFinite(delta)) hygiene = Math.clamp(hygiene + delta, 0, 100); }
     public float wetness() { return wetness; }

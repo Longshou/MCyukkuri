@@ -1,7 +1,6 @@
 package io.github.longshou.mcyukkuri.headwear;
 
 import io.github.longshou.mcyukkuri.family.ParentCarry;
-import io.github.longshou.mcyukkuri.family.FamilyLife;
 
 import io.github.longshou.mcyukkuri.motor.Attach;
 import io.github.longshou.mcyukkuri.motor.ContactResolver;
@@ -264,8 +263,10 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
     }
     @Override public List<SeatTarget> places(YukkuriEntity body, SeatTarget.Kind kind, int limit) {
         if (body.getUUID().equals(ownerYukkuri()) && kind != SeatTarget.Kind.CABIN) return List.of();
+        if (kind == SeatTarget.Kind.BRIM) return profile().surface().brimPlaces(this, body).stream().map(p -> new SeatTarget(this, p, kind))
+                .filter(p -> p.available(body)).limit(limit).toList();
         if (kind != SeatTarget.Kind.HEAD) return SurfaceHost.super.places(body, kind, limit);
-        if (body.family().adult() || body.family().stage() != FamilyLife.Stage.BABY && BodyAbility.of(body).canJump()) return List.of();
+        if (body.family().adult()) return List.of();
         var captain = placeCarrier();
         return captain == null || !bears(body) ? List.of()
                 : ParentCarry.headPlaces(captain, body).stream().limit(limit).map(p -> new SeatTarget(this, p, kind)).toList();

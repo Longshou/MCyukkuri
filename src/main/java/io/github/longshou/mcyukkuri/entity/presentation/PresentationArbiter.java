@@ -238,7 +238,6 @@ public final class PresentationArbiter {
     /** One common action/start/expression tail for the selected ordinary behavior. */
     private static void ordinary(PresentationAccess state, Motion m, String behavior, Actions actions) {
         var e = state.owner();
-        if (behavior.equals(Behaviors.BOAT_TOILET)) behavior = Behaviors.SEEK_TOILET;
         // Priority: command clip, then the running motor action's pose, then the behavior-derived clips.
         var pose = state.requestedAction() == null ? actionPose(e) : null;
         if (state.requestedAction() == null && e.isPassenger() && e.social().greeting()

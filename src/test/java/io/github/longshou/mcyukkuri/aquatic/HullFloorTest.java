@@ -142,6 +142,20 @@ class HullFloorTest {
         }
     }
 
+    @Test void restingBrimPlacesKeepTheCollisionBoxAndTheEyeBoxInsideTheHull() {
+        for (double scale : new double[]{.19, .35, 1}) {
+            double width = .8 * scale;
+            var body = BodyFootprint.of("marisa", width / scale / UNIT, .6 / UNIT, 0);
+            var stops = HullBounds.restStops("marisa", width, .6 * scale, HullBounds.SCALE * scale, 0);
+            assertFalse(stops.isEmpty());
+            for (var at : stops) {
+                double edge = Math.max(FloorSearch.extent(body, at.x() / at.hlen(), at.z() / at.hlen()), HullBounds.EYE_BOX * width / scale / UNIT);
+                assertTrue((at.hlen() + edge) * UNIT * scale <= (HullBounds.RADIUS - HullBounds.EPSILON) * scale + 1e-9,
+                        "a resting rider's boxes end inside the hull footprint");
+            }
+        }
+    }
+
     @Test void fullYoungBrimStillHasSupportedCaptainFootingInsideTheRiders() {
         double scale = 1.2, unit = UNIT * scale;
         var small = BodyFootprint.of("marisa", .08 / unit, .06 / unit, 0);
