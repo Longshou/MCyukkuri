@@ -39,10 +39,14 @@ class ArcSolverTest {
         assertEquals(.1,blocked.shortfall(),TOL);
     }
 
-    @Test void tooFarTargetReportsTheReachShortfall(){
+    @Test void reachSlackAdmitsAHopAFewCentimetresOverTheBudget(){
+        assertInstanceOf(ArcSolver.Plan.class,ArcSolver.lowest(Vec.ZERO,new Vec(HOP_REACH+.03,0,0),HOP_HEIGHT,HOP_REACH,1,OPEN));
+    }
+
+    @Test void tooFarTargetReportsTheReachShortfallBeyondTheSlack(){
         var blocked=assertInstanceOf(ArcSolver.Blocked.class,ArcSolver.lowest(Vec.ZERO,new Vec(1.3,0,0),HOP_HEIGHT,HOP_REACH,1,OPEN));
         assertEquals(ArcSolver.Kind.TOO_FAR,blocked.kind());
-        assertEquals(.3,blocked.shortfall(),TOL);
+        assertEquals(.3-ArcSolver.REACH_SLACK,blocked.shortfall(),TOL);
     }
 
     @Test void obstacleRaisesTheApex(){

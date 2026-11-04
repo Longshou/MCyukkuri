@@ -21,6 +21,9 @@ public final class ArcSolver {
 
     /** Apex step, how far above the budget the apex is probed only to report the shortfall, and the lowest clearance per unit body scale. */
     private static final double STEP=.05,REPORT_RISE=1,MIN_CLEAR=.08;
+    /** Horizontal slack on the reach budget: a planned stand and the live hull differ by a few centimetres, which never shows on screen,
+     *  so a hop that misses the budget by less than this is admitted and still lands on its sampled point. */
+    public static final double REACH_SLACK=.05;
 
     private ArcSolver(){}
 
@@ -28,7 +31,7 @@ public final class ArcSolver {
     public static Result lowest(Vec from,Vec to,double hopHeight,double hopReach,double scale,Clearance clearance){
         Vec d=to.sub(from);
         double dx=d.hlen(),dy=d.y();
-        if(dx>hopReach)return new Blocked(Kind.TOO_FAR,dx-hopReach);
+        if(dx>hopReach+REACH_SLACK)return new Blocked(Kind.TOO_FAR,dx-hopReach-REACH_SLACK);
         if(dy>hopHeight)return new Blocked(Kind.TOO_HIGH,dy-hopHeight);
         Vec dir=dx<1e-9?new Vec(1,0,0):new Vec(d.x()/dx,0,d.z()/dx);
         for(double c=Math.max(dy,0)+MIN_CLEAR*scale;;c+=STEP){

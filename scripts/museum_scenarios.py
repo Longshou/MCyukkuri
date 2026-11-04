@@ -2150,26 +2150,23 @@ _HULL_READOUT = [f'yukkuri status {sel("a")} raw', f'data get entity {_HAT} Ride
 
 
 def push_smooth(log):
-    """The light contact slides and then stops at the bank; no other contact may capsize."""
-    if len(re.findall(r'\[hat\][^\n]* capsized\b', log)) != 1:
+    """The light contact slides a hull away without capsizing it; only the fast impact capsizes, and bank contact stays stopped."""
+    capsized = re.findall(r'\[hat\][^\n]* uuid=(\S+) t=\d+[^\n]* capsized\b', log)
+    if len(capsized) != 1:
         return 'expected only the fast impact to capsize'
     travel = re.compile(r'\[hat\][^\n]* uuid=(\S+) t=\d+[^\n]* travel at=\([^)]*\) delta=\(([-\d.E]+),[^)]*\)[^\n]* impact=([-\d.E]+)')
     by_hat = {}
     for hat, dx, impact in travel.findall(log):
         by_hat.setdefault(hat, []).append((float(dx), float(impact)))
-    smooth = any(0 < impact < .16 and len(rows[i + 1:i + 13]) == 12
-                 and all(next_dx < -1e-6 for next_dx, _ in rows[i + 1:i + 13])
-                 for rows in by_hat.values() for i, (_, impact) in enumerate(rows))
-    if not smooth:
-        return 'light contact must be followed by 12 non-zero steps in one direction'
-    banked = False
+    pushes = [[next_dx for next_dx, _ in rows[i + 1:i + 13]] for rows in by_hat.values()
+              for i, (_, impact) in enumerate(rows) if 0 < impact < .16 and len(rows[i + 1:i + 13]) == 12]
+    if not any(all(dx <= 0 for dx in push) and sum(push) <= -.1 for push in pushes):
+        return 'light contact must slide the hull at least 0.1 blocks away without coming back'
     for rows in by_hat.values():
         for i in range(1, len(rows)):
-            if rows[i - 1][0] < 0 and rows[i][1] > .16:
-                if any(abs(dx) > 1e-9 for dx, _ in rows[i + 1:i + 6]):
-                    return 'bank contact rebounded instead of staying stopped'
-                banked = True
-    return None if banked else 'no bank-stop displacement series'
+            if rows[i - 1][0] < 0 and rows[i][1] > .16 and any(abs(dx) > 1e-9 for dx, _ in rows[i + 1:i + 6]):
+                return 'bank contact rebounded instead of staying stopped'
+    return None
 
 
 pond('hat_float', '静水漂浮·乘员随帽轻摆', '静水轻摆',
@@ -2236,6 +2233,12 @@ def current_drift(log):
     riders = set(re.findall(r'\[body\][^\n]*uuid=(\S+)[^\n]* dismount [^\n]*cause=grounded', log))
     if len(riders) != 2:
         return f'both admitted riders must dismount at grounding, saw {len(riders)}'
+    ashore = set(re.findall(r'\[water\][^\n]*uuid=(\S+)[^\n]* escape done [^\n]*support=stand=', log))
+    if len(ashore) != 2:
+        return f'both riders must reach their own dry stand after grounding, saw {len(ashore)}'
+    back = re.search(r'\[headwear\][^\n]* received loose accessory', log)
+    if back and re.search(r'\[action\][^\n]* start id=pick\b', log[:back.start()]):
+        return 'the owner went for loose items before taking her hat back'
 
 
 pond('hat_current', '单向缓流·只漂移', '缓流漂移',
@@ -2248,16 +2251,14 @@ pond('hat_current', '单向缓流·只漂移', '缓流漂移',
      note='观察两名乘员离帽并上岸，四份苹果和一根木棍各掉出，帽主接触头饰即戴回；帽船搁浅不算翻覆。倒扣边界见“空倒扣帽随流搁浅”，载人翻覆见“载人帽翻覆后搁浅”。',
      reads=_HULL_READS + [('读子油', f'yukkuri status {sel("child")} raw')],
      capture=dict(shots=(1, 40, 300, 600, 900), sequences=((60, 200, 2), (220, 1100, 20))),
-     smoke=dict(ticks=1100, commands=[(1, 'yukkuri status trace true'), (1099, 'yukkuri status trace false'),
-                    *[(tick, f'execute as {sel(who)} at @s if data entity @s {{OnGround:1b}} unless block ~ ~ ~ minecraft:water if block ~ ~-1 ~ minecraft:grass_block run say MCYSMOKE_GROUNDED_BANK_{who}')
-                      for tick in (999, 1099) for who in ('a', 'child')]],
+     smoke=dict(ticks=1100, commands=[(1, 'yukkuri status trace true'), (1099, 'yukkuri status trace false')],
                 expect=[r'\[hat\][^\n]* scenario afloat prepared[^\n]*young=1[^\n]*food=4',
                         r'\[body\][^\n]* dismount [^\n]*cause=grounded',
                         r'\[hat\][^\n]* stores spilled [^\n]*cause=grounded', r'\[hat\][^\n]* kit dropped cause=grounded',
                         r'\[hat\][^\n]* pickup cause=grounded',
-                        r'\[headwear\][^\n]* received loose accessory', r'MCYSMOKE_GROUNDED_BANK_a', r'MCYSMOKE_GROUNDED_BANK_child'], verify=current_drift,
+                        r'\[headwear\][^\n]* received loose accessory'], verify=current_drift,
                 forbid=[r'\[hat\][^\n]* capsized\b', r'\[body\][^\n]* invariant\b', r'\[body\][^\n]* cause=drown',
-                        r'\[body\][^\n]* death settled into remains', r'\[action\][^\n]* start id=pick\b'],
+                        r'\[body\][^\n]* death settled into remains'],
                 readout=_HULL_READOUT + [f'yukkuri status {sel("child")} raw',
                     'execute as @e[type=minecraft:item,distance=..48] run data get entity @s Item']))
 

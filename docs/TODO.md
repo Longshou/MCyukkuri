@@ -13,6 +13,13 @@
 
 ### 复测失败/待修复
 
+- **内部判定放宽（`aq-audit-loosen`，本机冒烟非验收）**：按用户 2026-11-04“判定对演出影响不大就放宽”的原则放宽三处，画面与后果不变。
+  - 跳跃水平预算加 0.05 宽限（`ArcSolver.REACH_SLACK`）：`rescue_no_seat` 托幼跳岸被 `TOO_FAR shortfall=0.03–0.04`、`birth_boat_caught` 亲油上岸被 `shortfall=0.00` 拒掉，落点仍是准入的采样点。
+  - `hat_push` 只要求轻推把船推开至少 0.1 格且不回弹、全程只有猛撞翻覆一次；帽船这一趟是否真碰到岸、滑行正好几步都不再作通过条件（一次第 12 tick 正好停住、两次根本没漂回，画面无误）。
+  - `hat_current` 改用两名乘员各自 `[water] … escape done … support=stand=` 判“离帽上岸”，不再要求第 999／1099 tick 时仍站在草上（两人上岸后当场又出海）。
+- **`worn_hat_boat`“初航子油落水放帽自救”演出不发生**：复测失败（本机冒烟 3/3，版本待核实）。`late` 在 start+40 的 `Motion` 推力被该子油自己的 `set_out` 行走覆盖，整窗无 `[water] … entered at=`，它从岸上放帽、`mount cause=hop_contact` 上船，预期的 “落水后放帽自救”（`climb`／`mount cause=climb`／`rescue refused reason=can_sail`）无从发生。完成：子油真实落水后放帽自救，亲油含泪围观不救。
+- **`hat_current` 帽檐乘员被挤进岸壁淹死（`inWall`）**：复测失败（本机冒烟，主线 `568fcba48` 同批 6 场 3 场、本分支 6 场 3 场，不是本包引入）。子油从岸上跳上亲帽停在靠岸一侧帽檐（`local_hat_units=7.5,-4.3`），帽内两人重叠（`squeeze pressed=2`）、亲油转身把它推得更外（`turn push`，进入岸壁格），约 190 tick 内 `death settled into remains cause=inWall category=crushed`；同时亲油自己从同一侧帽檐下船的请求被 `NO_ROOM` 拒，停在岸边 `facing_stalled`。完成：岸壁侧的帽檐承托不得落进方块，靠岸挤推不把人压进地形。
+- **本轮机头再看到的可见失败（`aq-audit-loosen`，已各自条目，不在此包修）**：`hat_grounded_capsized` 帽已成物品但主人在 1800 tick 内没取回（`custody=lost(grounded)`、`reclaim=null`，主人上岸后向西走去；见上方反馈 14 行）；`birth_boat_caught` 新生儿陆上出生后自己走进水格，`escape_water` 反复 `grip` 在水点上，湖伤害叠到 7；`birth_boat_missed` 两幼首餐首便未完成（见 wp-b2c 行）。
 - **出水与爬岸在真实干地上结束（聚落成员溺水）**：已接入待试玩。冒烟 `settle_pit_slave` 长跑（`fb-pit-slave` 分支，版本待核实）中成员 marisa #1236 在同一岸边反复 `climb INTERRUPTED why=owner_inactive`／`escape_water DONE` 却仍在水中，t=51315 溺亡；原因是出水在攀爬跑到一半就结束、停在和水面齐平的岸沿上，之后走路又踩回水里。现出水要等自己的攀爬跑完、身体整个足迹都压不到水面，地面行走的路线与最后一段直走也保持足迹在水面外。完成：`聚落嗯嗯奴隶坑`“嗯嗯奴隶”长跑无成员溺亡（`池塘与河湾`“落水爬岸”看 `climb DONE on_bank` 之后 `escape done support=stand=` 或 `aboard=`）；被推或摔进水仍要挣扎。
 - **连续游泳与划船（反馈 8、13、15、16 划速）**：复测失败。运行 [bbd16394b](https://github.com/Longshou/MCyukkuri/commit/bbd16394b)（2026-11-02 20:40–21:22，[CI 41438818895](https://github.com/Longshou/MCyukkuri/actions/runs/41438818895)）：轻推／猛撞断续、游回帽子挣扎一下前进一下、持棍划水反复停顿、亲油船过慢看不到演出；同场 20:57:24 服务端落后 265 tick，连续推进与周期性存档停顿修复待同场复测。运行 [5a5711245](https://github.com/Longshou/MCyukkuri/commit/5a5711245)（[CI 41615566507](https://github.com/Longshou/MCyukkuri/actions/runs/41615566507)，2026-11-04 00:16–01:18）11-04 反馈 15：`self_rescue`“落水游回自帽”与 `shore_capsized`“扶正帽子”开头都有一段类似抽搐的动作，游到后半段消失（已按“拨水寻回帽”一条改掉游泳起手，待试玩；本条其余为逐 tick 位移与划速复测）。完成：池塘与河湾 `hat_push`（轻推／猛撞）、`self_rescue`（落水游回自帽）、`shore_capsized`（拨水寻回帽）、`shore_capsized_far`（远帽游去扶正）、`sail`（单体航程）、`kid_boat_play`（赤油上帽檐玩耍与受惊）逐 tick 位移无片段节拍造成的停走，游泳与乘船划桨动作随实际速度连续循环（游泳起手无抽搐样动作），亲油在场景内可见划行，无周期性服务端长停顿；真实碰撞、耗竭和漂流仍保留。
 - **2026-11-02 试玩反馈**（运行 [4064a9234](https://github.com/Longshou/MCyukkuri/commit/4064a9234)（CI 41332517724，2026-11-02），用户原话摘要；修复后改各条状态）：
