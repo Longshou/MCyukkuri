@@ -11,7 +11,6 @@
 | 满船托幼送岸后全家上岸（11-05 反馈 10） | `.worktrees/wp-l-full-ferry` | `aquatic/UnloadYoung.java`、`Ashore.java`、`Ferry.java`、`TakeSeat.java`、`headwear/` 座位让位、`scripts/museum_scenarios.py` |
 | 上岸跳与帽檐探头回归定位（wp-k-bisect） | `.worktrees/wp-k-bisect` | `aquatic/` 上岸跳准入、`aquatic/` 帽檐玩耍、`scripts/museum_scenarios.py` 的 `shore_family`／`kid_boat_play` |
 | 自帽新生儿首便照护绕行（wp-j-cabin-care） | `.worktrees/wp-j-cabin-care` | `family/CareApproach.java`、共享 `motor/Floor` 与船舱地面几何、`scripts/museum_scenarios.py` 的 `birth_hat_own` |
-| 自帽分娩出生弹道与落帽准入（wp-i-hat-birth） | `.worktrees/wp-i-hat-birth` | `family/LiveBirth.java`、出生弹道几何、`aquatic/HatBirth.java`、`scripts/museum_scenarios.py` 的 `birth_hat_own` |
 | 帽船排便撅臀与粪便出沿弧线（11-05 反馈 7，wp-h-toilet-pose） | `.worktrees/wp-h-toilet-pose` | `interactions/toilet-contact/`、`toilet_contact.json`、`aquatic/BoatToilet.java`、`life/ToiletContact.java`、`client/ToiletPresentation.java`、`entity/YukkuriAction.java`、`scripts/museum_scenarios.py` 的 `boat_toilet` |
 
 ## 玩法待办
