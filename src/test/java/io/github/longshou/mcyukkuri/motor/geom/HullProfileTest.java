@@ -7,6 +7,22 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 class HullProfileTest {
+    @Test void groundedCatchingSurfacesStayAboveTerrain() {
+        for (var id : new String[]{HullProfile.CURRENT, HullProfile.BASIN}) {
+            var profile = HullProfile.of(id);
+            for (double scale : new double[]{.145, .45, 1, 1.2}) {
+                double unit = profile.measuredUnit() * scale;
+                for (double radius : new double[]{0, .25, .5, .75, 1}) {
+                    double x = profile.mouth(0) * radius;
+                    assertTrue((profile.groundLift() + profile.surface(x, 0)) * unit > 0,
+                            id + " catch surface must clear the ground at " + radius);
+                }
+            }
+        }
+        var basin = HullProfile.of(HullProfile.BASIN);
+        assertEquals(.4095, basin.groundLift() * basin.measuredUnit(), 1e-6);
+        assertEquals(.1601, (basin.groundLift() + basin.floor()) * basin.measuredUnit(), 1e-6);
+    }
     private static double landTolerance(HullProfile p) { return p.data().get("level_tolerance").getAsDouble() / p.measuredUnit(); }
     @Test void landHatWalkingKeepsItsObstacleAtEveryHeight() {
         var land = HullProfile.of(HullProfile.CURRENT); var boat = HullProfile.of(HullProfile.BASIN);

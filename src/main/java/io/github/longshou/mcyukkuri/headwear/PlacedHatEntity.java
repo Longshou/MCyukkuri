@@ -152,7 +152,7 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
         if (SCALE.equals(data) || FORM.equals(data) || AFLOAT.equals(data)) refreshDimensions();
     }
     @Override public EntityDimensions getDimensions(Pose pose) {
-        if (entityData.get(AFLOAT) && profile().seated()) {
+        if (profile().seated()) {
             double scale = hullScale() / HullBounds.SCALE;
             return EntityDimensions.scalable((float) (2 * HullBounds.RADIUS * scale),
                     (float) ((HullBounds.BRIM - HullBounds.KEEL) * scale));
@@ -161,7 +161,7 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
     }
     @Override protected AABB makeBoundingBox() {
         var box = super.makeBoundingBox();
-        if (!entityData.get(AFLOAT) || !profile().seated()) return box;
+        if (!profile().seated()) return box;
         return box.move(0, HullBounds.KEEL * hullScale() / HullBounds.SCALE, 0);
     }
 
@@ -638,11 +638,12 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
             return refusePlacement(owner, at, "no_sturdy_floor", spot.below().toShortString() + " " + level.getBlockState(spot.below()).getBlock());
         var hat = ModEntities.PLACED_HAT.get().create(level);
         if (hat == null) return refusePlacement(owner, at, "entity_creation_failed", "");
-        hat.setPos(at.x, water ? spot.getY() + level.getFluidState(spot).getHeight(level, spot) : spot.getY(), at.z);
         hat.setYRot(yaw);
         hat.launchRole(role);
         hat.formId(HatGeometry.wornForm(owner).id());
         hat.syncHullScale(HatScale.of(owner));
+        hat.setPos(at.x, water ? spot.getY() + level.getFluidState(spot).getHeight(level, spot)
+                : spot.getY() + hat.profile().groundLift() * hat.unit(), at.z);
         hat.syncOwner(Optional.of(owner.getUUID()));
         hat.syncAccessoryIdentity(owner);
         hat.state(State.CRADLE);

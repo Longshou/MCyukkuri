@@ -12,8 +12,19 @@ public record BodyAbility(boolean canJump, double hopHeight, double hopReach, do
 
     /** Reads the ability of {@code body}, where {@code load} is the host's load in the units of L. The {@code scale} is S, which the arc solver uses for its minimum clearance. */
     public static BodyAbility of(YukkuriEntity body, double load) {
-        AbilityMath.Values ability = AbilityMath.compute(inputs(body, load), AbilityTable.current(),
-                AbilityModifier.of(body));
+        return from(AbilityMath.compute(inputs(body, load), AbilityTable.current(), AbilityModifier.of(body)));
+    }
+
+    /** This body's rested, uninjured ability, independent of its current activity or host. */
+    public static BodyAbility resting(YukkuriEntity body) {
+        var coefficients = AbilityTable.current();
+        var modifiers = AbilityModifier.of(body);
+        var inputs = new AbilityMath.Inputs(body.growthScale() * body.getScale(), modifiers.apply(coefficients).energyRef(),
+                body.getMaxHealth(), body.getMaxHealth(), 0, false, true, false, false, 0);
+        return from(AbilityMath.compute(inputs, coefficients, modifiers));
+    }
+
+    private static BodyAbility from(AbilityMath.Values ability) {
         return new BodyAbility(ability.canJump(), ability.hopHeight(), ability.hopReach(), ability.stepUp(),
                 ability.walkSpeed(), ability.turnRate(), ability.swimSpeed(), ability.climbRise(), ability.grip(),
                 ability.size());

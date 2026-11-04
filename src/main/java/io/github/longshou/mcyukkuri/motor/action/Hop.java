@@ -104,29 +104,6 @@ public final class Hop implements Action {
         return Floor.point(BankStand.nearest(vec(edge), vec(normal), SurfaceApproach.supportRadius(body), vec(from)));
     }
 
-    public record BankLimit(double width, double margin) {}
-
-    /** The bank-width budget includes the host's predicted movement while the brim landing settles and turns for takeoff. */
-    public static BankLimit bankLimit(YukkuriEntity body, SurfaceHost host) {
-        var ability = BodyAbility.of(body);
-        double margin = 0;
-        if (host != null) {
-            var from = vec(host.riders().local(body.getUUID()).scale(host.frame().unit()));
-            for (var local : host.hopStops(body)) {
-                var arc = ArcSolver.lowest(from, vec(local.scale(host.frame().unit())), ability.hopHeight(),
-                        ability.hopReach(), ability.scale(), points -> true);
-                if (!(arc instanceof ArcSolver.Plan plan)) continue;
-                int landing = takeoffTicks() - 1 + (int) Math.ceil(plan.ticks());
-                int launch = landing + marker("settled") - marker("land")
-                        + turnTicks(body, 0, 180) + takeoffTicks();
-                var at = host.frameAfter(landing).toWorld(local);
-                for (int tick = landing + 1; tick <= launch; tick++)
-                    margin = Math.max(margin, host.frameAfter(tick).toWorld(local).subtract(at).horizontalDistance());
-            }
-        }
-        return new BankLimit(BankStand.widthLimit(ability.hopReach(), margin), margin);
-    }
-
     /** Compare local horizontal points before applying a host's tilt to the bearing. */
     private static float heading(YukkuriEntity body, SurfaceHost host, Vec3 from, Vec3 to, float facing) {
         double unit = host == null ? 1 : host.frame().unit();

@@ -76,7 +76,7 @@ public final class HatGeometry {
     }
 
     // ---------------------------------------------------------------- the catch (world, blocks)
-    /** A hat set down to catch: where, facing (entity yaw), and who set it. */
+    /** A hat set down to catch: ground position beneath its keel, facing (entity yaw), and who set it. */
     public record Pose(Vec3 at,float yaw,Role role,HullProfile profile){}
     /** Where a catcher stands, and her yaw, to set down or take back a hat at a pose. */
     public record Stand(Vec3 at,float yaw){}
@@ -162,7 +162,7 @@ public final class HatGeometry {
     }
     /** Blocks per hat unit of this Marisa's own hat (HatScale), as it lies set down. */
     public static double unit(YukkuriEntity owner){return hatScale(owner)*owner.getScale()/16;}
-    public static Pose poseOf(PlacedHatEntity hat){return new Pose(hat.position(),hat.getYRot(),hat.role(),hat.profile());}
+    public static Pose poseOf(PlacedHatEntity hat){return new Pose(hat.position().add(0,-hat.profile().groundLift()*hat.unit(),0),hat.getYRot(),hat.role(),hat.profile());}
     private static Vec3 turned(Vec3 at,float yaw,Vec3 local,float scale){return at.add(local.yRot((float)Math.toRadians(180-yaw)).scale(scale));}
     private static Vec3 flat(Vec3 p,Vec3 floor){return new Vec3(p.x,floor.y,p.z);}
 

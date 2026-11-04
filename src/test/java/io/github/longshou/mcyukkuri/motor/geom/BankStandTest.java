@@ -5,10 +5,9 @@ import org.junit.jupiter.api.Test;
 
 class BankStandTest {
     @Test void fullTermBodyCannotBridgeTheBankButAnEarlierBodyCan() {
-        assertTrue(1.169 > BankStand.widthLimit(1, 0));
-        assertTrue(1 < BankStand.widthLimit(1, .05));
-        assertTrue(1 > BankStand.widthLimit(1, .1));
-        assertEquals(1, .92 * BankStand.widthLimit(1, .05) + .05, 1e-12);
+        assertTrue(1.169 > BankStand.widthLimit(1));
+        assertTrue(1 < BankStand.widthLimit(1));
+        assertEquals(1, .92 * BankStand.widthLimit(1), 1e-12);
     }
 
     @Test void nearestStandMakesShortCrossingReachableWithoutLeavingSupport() {

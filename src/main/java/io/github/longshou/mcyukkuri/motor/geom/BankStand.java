@@ -6,7 +6,7 @@ public final class BankStand {
     private BankStand() {}
 
     /** A clear body on the water side and its supported sole on the bank side share the same hop budget. */
-    public static double widthLimit(double reach, double margin) { return (reach - margin) / (.5 + SUPPORT_FRACTION); }
+    public static double widthLimit(double reach) { return reach / (.5 + SUPPORT_FRACTION); }
 
     public static Vec nearest(Vec edge, Vec normal, double radius, Vec from) {
         var tangent = new Vec(-normal.z(), 0, normal.x());
