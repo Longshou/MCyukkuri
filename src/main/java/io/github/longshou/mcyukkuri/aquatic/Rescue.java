@@ -2,7 +2,6 @@ package io.github.longshou.mcyukkuri.aquatic;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.BraidFetch;
-import io.github.longshou.mcyukkuri.family.ParentCarry;
 import io.github.longshou.mcyukkuri.intent.AskLedger;
 import io.github.longshou.mcyukkuri.intent.Commitment;
 import io.github.longshou.mcyukkuri.intent.DriveWeights;
@@ -65,10 +64,10 @@ final class Rescue implements Intent {
                 Set.of(Reason.NO_ROOM, Reason.NO_SUPPORT, Reason.NO_CONTACT),
                 this::carryAshore));
     }
-    /** The hull can still take the faller: a real place, and for a parent who does not keep every child, room under the load rule. */
+    /** The hull can still take the faller: a real place, and room under the load rule her own choice follows. */
     private boolean hullHasPlace(YukkuriEntity faller) {
         var hat = AquaticLife.hat(helper);
-        return hat.restSpot(faller) != null && (ParentCarry.overloadKeeper(helper) || hat.loadRefusal(faller) == null);
+        return hat.restSpot(faller) != null && hat.loadRefusal(helper, faller) == null;
     }
     /** Her own hull in the water belongs to this rescue: a body aboard its hat is not swimming, whatever the water state says. */
     @Override public boolean ownsBodyInWater() { return AquaticLife.aboard(helper, AquaticLife.hat(helper)); }

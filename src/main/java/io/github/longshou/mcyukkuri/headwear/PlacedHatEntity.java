@@ -292,7 +292,8 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
                 .map(y -> (double) (y.growthScale() * y.getScale())).toList();
     }
     /** The load rule a carer's own choice follows: her young may only be put down while the hull still carries it. */
-    @Override public String loadRefusal(YukkuriEntity child) {
+    @Override public String loadRefusal(YukkuriEntity carer, YukkuriEntity child) {
+        if (ParentCarry.overloadKeeper(carer)) return null;
         double scale = hullScale() / HullBounds.SCALE, capacity = HullBounds.capacity(scale);
         double ratio = HullBounds.loadRatioWith(scale, riderSizes(child), child.growthScale() * child.getScale());
         return ratio <= 1 ? null : String.format(Locale.ROOT, "load=%.4f capacity=%.4f", ratio * capacity, capacity);

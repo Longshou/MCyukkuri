@@ -94,7 +94,7 @@ public final class Release implements Action {
                     places.stream().filter(p -> p.kind() == SeatTarget.Kind.HEAD).count(),
                     places.stream().filter(p -> p.kind() == SeatTarget.Kind.BRIM).count());
             // A parent's own choice keeps the hull within its capacity (a young that boards itself is not weighed this way).
-            String full = ParentCarry.overloadKeeper(carrier) ? null : destination.loadRefusal(child);
+            String full = destination.loadRefusal(carrier, child);
             if (places.isEmpty() || full != null) return Feasibility.of(Reason.NO_ROOM, 0, full == null ? "no_seat" : "hull_full " + full);
             seat = nearest(carrier, places, facings(carrier));
             return seat != null ? Feasibility.pass() : Feasibility.of(Reason.NO_SUPPORT, 0, "transfer_blocked");
