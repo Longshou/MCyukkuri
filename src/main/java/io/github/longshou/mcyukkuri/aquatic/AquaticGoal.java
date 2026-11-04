@@ -22,6 +22,7 @@ import io.github.longshou.mcyukkuri.motor.action.Await;
 import io.github.longshou.mcyukkuri.motor.action.Beckon;
 import io.github.longshou.mcyukkuri.motor.action.Hop;
 import io.github.longshou.mcyukkuri.motor.action.Paddle;
+import io.github.longshou.mcyukkuri.motor.action.Release;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.ArrayList;
 import java.util.EnumSet;
@@ -95,7 +96,7 @@ final class AquaticGoal extends Goal {
      *  while this drive's own reclaim owns the water way. */
     private boolean eligible() {
         return body.isAlive() && !body.level().isClientSide && (!body.isInWaterOrBubble() || landing() || ownsWaterWay())
-                && !body.life().isSleeping() && !heldInBraidOrMouth()
+                && !body.life().isSleeping() && !heldInBraidOrMouth() && !body.family().carry().setDownDue()
                 && (body.profile().aquatic() || AquaticLife.parent(body) != null);
     }
 
@@ -129,7 +130,8 @@ final class AquaticGoal extends Goal {
     @Override public boolean isInterruptable() {
         if (landing()) return false;
         var runner = drive == null ? null : drive.runner();
-        if (runner == null || BehaviorContinuity.emergency(body) || body.family().birthRole() != null || body.careApproach().waiting()) return true;
+        if (runner == null || BehaviorContinuity.emergency(body) || body.family().birthRole() != null || body.careApproach().waiting()
+                || body.family().carry().setDownDue()) return true;
         return !(body.getVehicle() instanceof PlacedHatEntity) && runner.intent().commitment() == Commitment.NONE;
     }
 
@@ -231,6 +233,13 @@ final class AquaticGoal extends Goal {
             return;
         }
         if (!AquaticLife.afloat(hat)) return;
+        // A failed ordinary Release leaves the child held; landing owns the remaining route to dry support.
+        var child = body.family().carry().childForShore();
+        if (child != null) {
+            out.add(Desire.of("carry_ashore", num("birth_ashore_want", 200), List.of(cell(hat), child.getUUID()),
+                    () -> "held_child=" + child.getUUID(), () -> Ashore.carry(body, new Release(child))));
+            return;
+        }
         var at = cell(hat);
         var larder = HullLarder.of(hat);
         boolean food = larder != null && larder.has(life::acceptsFood);

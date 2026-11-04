@@ -167,11 +167,6 @@ public final class YukkuriSocial implements MotorOwner {
         if(task==Task.NONE && WildEvents.reserved(entity))return false;
         if (entity.isPanicking() || entity.dailyLife().active() || entity.life().isSleeping() || entity.life().hasUrgentNeed() || entity.waterDistress().active() ||
                 entity.life().mealTicks() > 0 || entity.isCommandPlaying()||entity.operations().active()||(entity.groupInteraction().active()||entity.playLife().active())) return false;
-        if (entity.life().nutrition() < 40 || entity.life().energy() < 35 || entity.family().active()
-                || entity.habitat().active() || entity.settlement().active() || entity.settlement().duties().active()
-                || entity.forageTrip().outing() || entity.independence().active()) return false;
-        if (entity.life().socialWait() > 0) return false;
-        entity.life().deferSocial(240 - personality().attachment());
         var level = entity.level();
         // A hatless owner looks for the pieces of its own accessory first; a hat on the head or in custody has none.
         if(!entity.life().hasAccessory()&&!entity.life().accessoryCustodied()){
@@ -184,8 +179,17 @@ public final class YukkuriSocial implements MotorOwner {
                 return reachable;
             })
                     .stream().min(Comparator.comparingDouble(entity::distanceToSqr)).orElse(null);
-            if(target!=null){task=Task.ACCESSORY;duration=ACCESSORY;elapsed=0;triedStands.clear();return true;}
+            if(target!=null){
+                task=Task.ACCESSORY;duration=ACCESSORY;elapsed=0;triedStands.clear();
+                GameplayLog.event(entity,"headwear","loose accessory retrieval started item={} at={}",target.getUUID(),GameplayLog.at(target.position()));
+                return true;
+            }
         }
+        if (entity.life().nutrition() < 40 || entity.life().energy() < 35 || entity.family().active()
+                || entity.habitat().active() || entity.settlement().active() || entity.settlement().duties().active()
+                || entity.forageTrip().outing() || entity.independence().active()) return false;
+        if (entity.life().socialWait() > 0) return false;
+        entity.life().deferSocial(240 - personality().attachment());
         if (morningPending) {
             morningPending = false;
             target = level.getEntitiesOfClass(YukkuriEntity.class, entity.getBoundingBox().inflate(6), peer -> peer != entity && peer.isAlive()

@@ -75,10 +75,10 @@ public final class Floor {
                         host.container().floorY() / host.frame().unit(), Occupancy.MARGIN / host.frame().unit(),
                         other.body(), obstacles, other.at(), BodyAbility.of(riders.get(i)).walkSpeed() / host.frame().unit(),
                         false, host.roomGap(), 1);
-                if (destinations.isEmpty()) { fits = false; break; }
+                if (destinations.isEmpty() || !Motor.clearSpot(host, riders.get(i), point(destinations.getFirst()))) { fits = false; break; }
                 proposed.set(i, new FloorSearch.Placed(other.body(), destinations.getFirst()));
             }
-            if (!fits) continue;
+            if (!fits || !Motor.clearSpot(host, body, point(at))) continue;
             for (int i = 0; i < riders.size(); i++) if (i != mover) {
                 var rider = riders.get(i); var before = host.riders().spot(rider.getUUID());
                 var after = point(proposed.get(i).at());

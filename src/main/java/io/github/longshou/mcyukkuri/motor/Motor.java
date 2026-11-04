@@ -102,9 +102,21 @@ public final class Motor {
         }
     }
 
-    public static void spot(SurfaceHost host, YukkuriEntity body, Vec3 local, float yaw, String cause) {
+    /** A host-local displacement must clear the world's blocks as well as the host's other riders. */
+    public static boolean clearSpot(SurfaceHost host, YukkuriEntity body, Vec3 local) {
+        var delta = host.frame().toWorld(local).subtract(body.position());
+        return !body.level().getBlockCollisions(body, body.getBoundingBox().expandTowards(delta).deflate(.001)).iterator().hasNext();
+    }
+
+    public static boolean spot(SurfaceHost host, YukkuriEntity body, Vec3 local, float yaw, String cause) {
+        if (!clearSpot(host, body, local)) {
+            GameplayLog.limited(body, "body", "spot_blocked", 200,
+                    "host move refused cause={} host={} local={} reason=terrain", cause, host.entity().getUUID(), local);
+            return false;
+        }
         host.riders().put(body.getUUID(), local, yaw);
         host.entity().positionRider(body);
+        return true;
     }
 
     /** A moving host's facing and synchronized tilt; riders follow its shared frame. */

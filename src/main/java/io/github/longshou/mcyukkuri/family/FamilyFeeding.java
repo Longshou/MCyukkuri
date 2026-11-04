@@ -134,7 +134,8 @@ final class FamilyFeeding {
         return child!=o.entity()&&child.isAlive()&&!child.family().adult()&&!child.family().awaitingLanding()
                 &&o.caresFor(child)&&o.entity().life().canRecognize(child)&&child.life().canReceiveCareFood()
                 &&(carrying.isEmpty()||child.life().canReceiveCareFood(carrying))
-                &&(!child.isPassenger()||carriedCheck&&child.getVehicle()==o.entity())&&child.life().nutrition()<o.entity().life().nutrition()-o.entity().species().traits().dote()
+                &&(!child.isPassenger()||carriedCheck&&child.getVehicle()==o.entity())
+                &&(!child.childhood().firstMealDone()||child.life().nutrition()<o.entity().life().nutrition()-o.entity().species().traits().dote())
                 &&o.entity().careApproach().mayTry(child);
     }
 

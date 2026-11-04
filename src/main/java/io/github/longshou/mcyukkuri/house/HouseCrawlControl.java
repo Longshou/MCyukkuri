@@ -1,10 +1,12 @@
 package io.github.longshou.mcyukkuri.house;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.entity.ai.control.MoveControl;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import net.minecraft.world.phys.Vec3;
 
 /** Navigation retains its target and collision handling while the contact gait pauses. */
 public final class HouseCrawlControl extends MoveControl {
@@ -16,6 +18,12 @@ public final class HouseCrawlControl extends MoveControl {
     }
 
     @Override public void tick() {
+        // Direct goal movement uses this control too, after navigation has finished its last node.
+        if (operation == Operation.MOVE_TO && entity.onGround() && !entity.isInWaterOrBubble()) {
+            var dry = SurfaceApproach.dryAim(entity, new Vec3(wantedX, entity.getY(), wantedZ));
+            wantedX = dry.x;
+            wantedZ = dry.z;
+        }
         boolean wanted = hasWanted();
         boolean moving = operation == Operation.MOVE_TO;
         double footTop = Double.NaN;

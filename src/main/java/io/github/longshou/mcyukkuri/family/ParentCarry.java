@@ -1335,6 +1335,12 @@ public final class ParentCarry {
     /** The family goal must yield to its own ordinary put-down goal when this reason becomes due. */
     public boolean setDownDue() { return due() != null; }
 
+    /** An ended carry whose hull placement failed still needs the carrier to reach dry ground. */
+    public YukkuriEntity childForShore() {
+        var all = ours();
+        return carrier.isPassenger() && giveUp != null && !all.isEmpty() && !setDownDue() ? all.getFirst() : null;
+    }
+
     /** An ended intent hands its real passenger to the existing set-down goal, never to a forced drop. */
     public void finish(YukkuriEntity child, String why) {
         var e = entry(carrier, child.getUUID()).copy();
