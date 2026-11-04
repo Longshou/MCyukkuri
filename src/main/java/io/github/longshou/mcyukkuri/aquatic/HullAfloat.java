@@ -244,11 +244,11 @@ public final class HullAfloat implements PlacedHatBehavior {
         var nearby = hat.level().getEntities(hat, hat.getBoundingBox().inflate(reach),
                 e -> e instanceof LivingEntity || e instanceof Boat || e instanceof PlacedHatEntity);
         contactPositions.keySet().retainAll(nearby);
-        for (var other : nearby) travel = contact(other, travel, contactPositions.put(other, other.position()));
+        for (var other : nearby) travel = contact(other, travel);
         Motor.velocity(hat, travel.velocity, "hull_drift");
         var actual = Motor.move(hat, travel.move, "hull_drift");
         var blocked = travel.move.subtract(actual).multiply(1, 0, 1);
-        if (blocked.lengthSqr() > 0) impact = Math.max(impact, travel.move.dot(blocked.normalize()));
+        if (blocked.lengthSqr() > 0) impact = Math.max(impact, travel.velocity.dot(blocked.normalize()));
         if (StatusEvents.trace()) GameplayLog.event(hat, "hat",
                 "travel at={} delta={} velocity={} drive={} impact={} riders={}", hat.position(), actual,
                 hat.getDeltaMovement(), drive, impact, hat.getPassengers().size());
@@ -343,7 +343,8 @@ public final class HullAfloat implements PlacedHatBehavior {
     private record Contact(Vec3 move, Vec3 velocity) {}
 
     /** Resolve entity contact before the single collision-aware move; only the approaching normal is removed. */
-    private Contact contact(Entity other, Contact travel, Vec3 previous) {
+    private Contact contact(Entity other, Contact travel) {
+        var previous = contactPositions.remove(other);
         if (other.isSpectator() || other.noPhysics || other.isPassenger() || other.isPassengerOfSameVehicle(hat)) return travel;
         // A body in the air by its own action (a hop's flight, a thrown body, a climb's hop up) is no obstacle: contact would only
         // drag the hull out from under a landing the flight planned from where the hull was at take-off.
@@ -353,6 +354,8 @@ public final class HullAfloat implements PlacedHatBehavior {
         var hull = hat.getBoundingBox();
         var box = other.getBoundingBox();
         if (box.minY >= hull.maxY || box.maxY <= hull.minY) return travel;
+        // Only consecutive physical contact samples measure impact; a completed flight is not a fresh collision impulse.
+        contactPositions.put(other, other.position());
         double dx = other.getX() - hat.getX(), dz = other.getZ() - hat.getZ(), distance = Math.hypot(dx, dz);
         if (distance < 1e-4) { dx = hat.getId() < other.getId() ? 1 : -1; dz = 0; distance = 1; }
         double gap = distance - (hull.getXsize() + Math.max(box.getXsize(), box.getZsize())) / 2;

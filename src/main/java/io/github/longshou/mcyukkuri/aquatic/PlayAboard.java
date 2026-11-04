@@ -79,7 +79,8 @@ final class PlayAboard implements Intent {
     /** A young the player can watch play: on the brim, on the head, or in the hollow with its own hop out. */
     static boolean canPlay(YukkuriEntity body, PlacedHatEntity hat) {
         var place = place(body, hat);
-        return "brim".equals(place) || "head".equals(place) || "cabin".equals(place) && BodyAbility.of(body).canJump();
+        return body.childhood().canExercise()
+                && ("brim".equals(place) || "head".equals(place) || "cabin".equals(place) && BodyAbility.of(body).canJump());
     }
 
     static boolean onBrim(YukkuriEntity body, PlacedHatEntity hat) { return "brim".equals(place(body, hat)); }

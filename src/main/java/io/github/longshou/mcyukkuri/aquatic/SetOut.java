@@ -140,7 +140,7 @@ final class SetOut implements Intent, FamilyRendezvous {
                 if (heading == null) heading = Waters.farShore(owner, shores);
                 if (heading != null) {
                     var carriable = carriable();
-                    return carriable != null ? lift(carriable) : toShore(heading);
+                    return carriable != null ? lift(carriable, heading) : toShore(heading);
                 }
             }
             if (edge != null && gatherUntil == 0 && !fetch.isEmpty()) {
@@ -157,11 +157,14 @@ final class SetOut implements Intent, FamilyRendezvous {
             }
             if (edge != null && gatherUntil != 0) {
                 boolean ready = gathered();
-                if (!ready && owner.level().getGameTime() >= gatherUntil)
+                if (!ready && owner.level().getGameTime() >= gatherUntil) {
+                    var carriable = carriable();
+                    if (carriable != null) return lift(carriable, edge);
                     for (var y : fetch) if (!y.family().withinFollowDistance(owner) && !BraidFetch.withinReach(owner, y)) {
                         excused.put(y.getUUID(), "did_not_gather");
                         GameplayLog.event(owner, "aquatic", "set_out gather missed child={} at={} reason=did_not_gather", y.getUUID(), GameplayLog.at(y.position()));
                     }
+                }
                 gatherUntil = 0;
                 if (ready) GameplayLog.event(owner, "aquatic", "set_out gathered children={}", fetch.stream()
                         .map(y -> y.getUUID() + "@" + GameplayLog.at(y.position())).toList());
@@ -234,14 +237,18 @@ final class SetOut implements Intent, FamilyRendezvous {
                 .findFirst().orElse(null);
     }
 
-    /** Call the young to her side, then lift it by the shared Grab, which picks the hold; it rides with her to the water's edge. A
-     *  young that does not come within the wait is led, as before, and not asked again. */
-    private List<Supplier<Step>> lift(YukkuriEntity child) {
-        var shore = heading.stand();
+    /** Walk within the shared Grab's reach, call the young beside her, then carry it to the chosen bank. */
+    private List<Supplier<Step>> lift(YukkuriEntity child, Waters.Edge shore) {
         asked.add(child.getUUID());
-        long until = owner.level().getGameTime() + WAIT_YOUNG;
-        return List.of(() -> reaches(child) ? null
-                        : new Step.Wait(() -> reaches(child) || owner.level().getGameTime() >= until, WAIT_YOUNG + 1, Behaviors.BOAT_CALL),
+        return List.of(() -> {
+                    if (reaches(child)) return null;
+                    var stand = new Grab(child).contactStand(owner);
+                    return stand == null ? null : new Step.Do(Walk.stand(stand, 1));
+                }, () -> {
+                    long until = owner.level().getGameTime() + WAIT_YOUNG;
+                    return reaches(child) ? null : new Step.Wait(() -> reaches(child) || owner.level().getGameTime() >= until,
+                            WAIT_YOUNG + 1, Behaviors.BOAT_CALL);
+                },
                 () -> {
                     if (!reaches(child)) {
                         GameplayLog.event(owner, "aquatic", "set_out carry skipped child={} reason=out_of_reach at={}", child.getUUID(),
@@ -249,7 +256,7 @@ final class SetOut implements Intent, FamilyRendezvous {
                         return null;
                     }
                     GameplayLog.event(owner, "aquatic", "set_out carry child={} purpose=to_water at={} shore={}", child.getUUID(),
-                            GameplayLog.at(child.position()), shore.toShortString());
+                            GameplayLog.at(child.position()), shore.stand().toShortString());
                     return new Step.Do(new Grab(child));
                 });
     }

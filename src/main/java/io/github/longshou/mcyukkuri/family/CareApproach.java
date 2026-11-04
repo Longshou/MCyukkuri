@@ -103,7 +103,7 @@ public final class CareApproach {
             if(!Floor.standing(owner)||!Floor.standing(session.owner))return;
             if(!faceOn(host,owner,SurfaceApproach.yaw(owner.position(),session.owner.position())+(session.kind==Kind.REAR?180:0)))return;
             if(session.touching())return;
-            double limit=Math.toDegrees(Math.acos(session.kind==Kind.REAR?.97:FamilyFeedingContact.MIN_FACING_DOT));
+            double limit=Math.toDegrees(Math.acos(session.kind==Kind.REAR?.97:FamilyFeedingContact.MIN_FACING_DOT))-Face.FACE_ARRIVED;
             float toward=SurfaceApproach.yaw(session.owner.position(),owner.position());
             float yaw=session.owner.yBodyRot+(float)Math.clamp(Mth.wrapDegrees(toward-session.owner.yBodyRot),-limit,limit);
             var stand=host.frame().toLocal(session.owner.position().add(Vec3.directionFromRotation(0,yaw)
@@ -229,10 +229,10 @@ public final class CareApproach {
     }
     private void logBoundary(String boundary,String reason){
         GameplayLog.limited(owner,"care",boundary+"."+reason,200,
-                "approach {} child={} kind={} reason={} retries={} stalled={} bodyContacts={} parentStand={} childStand={} childPosition={} childNutrition={} childEnergy={}",
+                "approach {} child={} kind={} reason={} retries={} stalled={} bodyContacts={} parentStand={} childStand={} childPosition={} childNutrition={} childEnergy={} parentPosition={} parentYaw={} childYaw={}",
                 boundary,child==null?null:child.getUUID(),kind,reason,retries,stalled,bodyContacts,
                 places==null?null:places.parent(),places==null?null:places.child(),child==null?null:child.position(),
-                child==null?null:child.life().nutrition(),child==null?null:child.life().energy());
+                child==null?null:child.life().nutrition(),child==null?null:child.life().energy(),owner.position(),owner.getYHeadRot(),child==null?null:child.getYHeadRot());
     }
 
     private Places choosePlaces() {
