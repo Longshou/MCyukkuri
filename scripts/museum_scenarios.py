@@ -2122,6 +2122,10 @@ def _overload_bank():
 
 
 def _overload_family(parent, dz, intelligence, friendliness, cabin):
+    """Saved young far below the size their stored nourishment already sustains: the ordinary loaded ticks grow them aboard into
+    a load over twice the hull's capacity. Young 2 stays under that capacity on its own, so the parent that lost its largest
+    stops overloading while the exceptional one keeps all three and overloading. One real pile of apples floats in the open
+    water beyond each berth, next to the eight in the hat."""
     return [yk('marisa', bank_dx(dz), dz, parent, aquatic=True, yaw=-90, lead=True,
                uuid=uid('hat_crowd', parent), intelligence=intelligence, friendliness=friendliness,
                label=f'智{intelligence}·友善{friendliness}', **pair_ready()),
@@ -2129,9 +2133,10 @@ def _overload_family(parent, dz, intelligence, friendliness, cabin):
                  fam=_seat_family(size, nourishment, age), childhood=CHILDHOOD_CRAWLING_READY,
                  uuid=uid('hat_crowd', parent + str(i)), also=(parent + '_crew',),
                  kin=f'Mother:{uuid_nbt(uid("hat_crowd", parent))}', label=f'孩子{i}', **pair_ready())
-              for i, offset, size, nourishment, age in ((1, -1, .16, 22909, 36000), (2, 0, .20, 84000, 36000),
-                                                       (3, 1, .36, 159100, 72000)) if cabin or i != 1],
-            afloat(parent, water_at(dz, 3), True, sel_all(parent + '_crew'), food=8, stick=True)]
+              for i, offset, size, nourishment, age in ((1, -1, .16, 22909, 36000), (2, 0, .20, 120000, 76000),
+                                                       (3, 1, .36, 210000, 72000)) if cabin or i != 1],
+            item('minecraft:apple', 8, bank_dx(dz) + 9, dz, name=parent + '_food'),
+            afloat(parent, water_at(dz, 6), True, sel_all(parent + '_crew'), food=8, stick=True)]
 
 
 def _babies():
@@ -2462,21 +2467,21 @@ pond('cargo', '帽底储粮·计数与原地取食', '帽底储粮',
                 readout=[f'yukkuri status {sel("a")} raw', f'yukkuri status {sel("full")} raw']))
 
 pond('hat_crowd', '帽内与头顶载幼·超载取舍', '帽内与头顶载幼·超载取舍',
-     '两位亲油并排，普通亲油带一只头顶赤油和一只帽檐子油，另一位还带一只帽内小赤油，按舱内、裸露头顶、帽檐顺序找真实承托。普通亲油智力55、友善70；另一位智力20、友善80。各有八份苹果，孩子靠实际成长增加载重；超载只在登船、离船或成长时抽一次翻船概率。真实超载翻船后，普通亲油断绝最大的一只，低智力高友善亲油继续承认全部孩子。落水后照常自救或救幼，不能保证存活',
-     '约 12–16 分钟，建议倍速',
+     '两位亲油并排，普通亲油带一只头顶赤油和一只帽檐子油，另一位还带一只帽内小赤油，按舱内、裸露头顶、帽檐顺序找真实承托。普通亲油智力55、友善70；另一位智力20、友善80。各有八份帽粮，帽旁水里另漂着八份真实苹果；孩子靠实际成长增加载重；超载只在登船、离船或成长时抽一次翻船概率。真实超载翻船后，普通亲油断绝最大的一只，低智力高友善亲油继续承认全部孩子。落水后照常自救或救幼，不能保证存活',
+     '约 5 分钟，建议倍速',
      [*_overload_bank(), *_overload_family('normal', 0, 55, 70, False), *_overload_family('kind', 6, 20, 80, True)],
      late=[f'execute as {sel("normal")} on vehicle run tag @s add seat_reload'],
-     capture=dict(shots=(1, 40, 600, 15000), sequences=((600, 15000, 300), (8400, 9600, 4))),
+     capture=dict(shots=(1, 600, 2400, 5200), sequences=((600, 5200, 200), (1400, 2600, 4))),
      note='普通亲油的头顶与帽檐乘员用于保存重载核对，另一位的帽内赤油可自行转身和走动；冒烟会卸载再加载场地区块核对第一顶帽的位置与乘员。'
           '逐只记 scenario place 的 CABIN／HEAD／BRIM；[aquatic] load changed 给出事件、载重、容量、概率、抽值和结果，静止不重抽。'
           '先看 load warning，再看 capsized cause=too_heavy 与真实落水；普通亲油随后记 parent dismissed child，孩子仍认亲、族谱不变，亲油不再救它；另一位记 overload keeps children。'
-          '子油没有自己的木棍而推迟初航；泥岸后有真实草地供上岸取食，八份帽粮翻覆后照常散出，不补粮。不强制翻船或死亡，真实碰撞、拒绝和水伤保留，逐只读存亡；整窗不得有人饿死。',
+          '子油没有自己的木棍而推迟初航；每家的帽旁另漂着一堆八份真实苹果可捞，帽内八份翻覆后照常散出，不补粮。不强制翻船或死亡，真实碰撞、拒绝和水伤保留，逐只读存亡；整窗不得有人饿死。',
      reads=[('读普通亲油与族谱', f'yukkuri status {sel("normal")} raw'),
             ('读低智力高友善亲油', f'yukkuri status {sel("kind")} raw'),
             ('读普通亲油最大孩子', f'yukkuri status {sel("normal3")} raw'),
             ('读另一位最大孩子', f'yukkuri status {sel("kind3")} raw'),
             ('读载重帽', 'data get entity @e[tag=seat_reload,limit=1]')],
-     smoke=dict(ticks=15000, reload=(60, '@e[tag=seat_reload,limit=1]'),
+     smoke=dict(ticks=6000, reload=(60, '@e[tag=seat_reload,limit=1]'),
                 expect=[r'\[hat\][^\n]* scenario afloat prepared [^\n]*young=3\b[^\n]*food=8\b',
                         r'\[hat\][^\n]* scenario place [^\n]*place=CABIN\b[\s\S]*\[hat\][^\n]* scenario place [^\n]*place=HEAD\b[\s\S]*\[hat\][^\n]* scenario place [^\n]*place=BRIM\b',
                         r'\[hat\][^\n]* load warning ratio=[\s\S]*\[hat\][^\n]* capsized cause=too_heavy\b[^\n]*thrown=[1-9]\b',
