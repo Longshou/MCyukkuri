@@ -237,6 +237,7 @@ final class LiveBirth extends Choreography {
             if(!beat().equals("site")&&receiver instanceof PlacedHat){jump("sited","catcher_found");return;}
         }
         String before=hold;hold=advance(b);
+        // A completed brood no longer has the outlet to read: a held release (outlet_blocked) resumes here on the tick the last child ships.
         if(b.complete())return;
         if(!hold.equals(before))deliveryReadout(hold.isEmpty()?"resumed":beat().startsWith("exit")?"exit_wait":beat().equals("push")
                 ?b.elapsed-b.duration>LiveBirthGeometry.emergenceStart(pushing)?"mid_push_hold":"push_hold":"preparation_wait",hold);

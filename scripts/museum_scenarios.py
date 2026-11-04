@@ -3057,7 +3057,7 @@ def hat_birth_result(window):
 
 pond('birth_hat_own', '独自在自己帽里生下两只赤油', '独自在自己帽里生下两只赤油',
      '临产水生母油独坐自己的浮帽；本胎两只出生体型 0.12、0.125，按真实空间判定留在水上。'
-     '母油面向船头分娩，赤油从出口落到帽内空处，触布后才附着。产后用真实粮食嚼糜喂幼、护理首便；落空仍会落水。',
+     '母油面向船头分娩，赤油从出口落到帽内空处，触布后才附着。产后用真实粮食嚼糜喂幼、护理首便。落点没有准入时她不放幼体出去，推挤期限到期才丢失未出生部分（`no_clear_birth_exit`）。',
      '约 3–6 分钟',
      [yk('marisa', bank_dx(0), 0, 'mother', aquatic=True, yaw=-90, lead=True, **pair_ready()),
       yk('marisa', bank_dx(4), 4, 'father', aquatic=True, yaw=-90, **pair_ready()),
