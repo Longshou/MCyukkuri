@@ -9,7 +9,6 @@
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
 | 水生亲油寻回赤油后叼到水边出航、赤油自行上岸后的寻子（WP-K3） | `.worktrees/wp-k3-carry-to-water` | `aquatic/{SetOut,AquaticGoal,AquaticLife,Waters}`、`family/{ParentCarry,FamilyLife}`、`scripts/museum_scenarios.py`、`docs/{TODO,FEATURES}.md` |
-| 帽内照护不转亲油、岸产幼体护理后避水 | `.worktrees/wp-b2c-cabin-care` | `family/{CareApproach,FamilyLife}`（仅照护与出生问候）、`aquatic/{Care,AquaticGoal,Provision}`、`entity/YukkuriGroundNavigation.java`、`scripts/museum_scenarios.py`、`docs/{FEATURES,TODO}.md` |
 
 ## 玩法待办
 
@@ -253,7 +252,7 @@ WP-C 本机自查证据（非试玩验收、无 CI）：复用主线 [85a0aac95]
 WP-C2 本机自查（非试玩验收、无 CI）：主线 `136b6f124`（独立比较工作树）`instance-e7a02609486b` 19/26；`1011ad8f2`（合入版另有 rebase 与失败诊断文本） `instance-ccb53535119f` 原 26 场全部 PASS，追加真临产岸产 0/2，28 场无死亡／饥饿伤害或崩溃。逐场结果、跳数与未通过边界见 `.local/refactor/reports/wp-c2-hops.md`，不得视为试玩通过。
 
 - **`birth_boat_caught`／`birth_boat_missed`**：复测失败（2026-11-02 反馈 10、18 与运行版本见上；11-04 反馈 8、9 见 P0-9；完成标准见 P0-9）。[41a56b3cc](https://github.com/Longshou/MCyukkuri/commit/41a56b3cc) 自查见产后独自登船、返岸拒绝循环，现改为留岸照护后集合装载。已下线船内生产反例：[55449fd63](https://github.com/Longshou/MCyukkuri/commit/55449fd6381619dec7d211af4748778c5ac76e54) 赤油悬空掉水；[5d930b5c4](https://github.com/Longshou/MCyukkuri/commit/5d930b5c4)（[CI 41200146048](https://github.com/Longshou/MCyukkuri/actions/runs/41200146048)）两只赤油溺亡；bbd16394b 新生儿与母体重叠。
-  岸产护理后避水：已接入待试玩（本机自查，非验收）。[08e13db2b](https://github.com/Longshou/MCyukkuri/commit/08e13db2b) 上 `birth_boat_caught` 1/3 首便后约 2000 tick 两次入水，最低生命 7、无死亡。现地面寻路统一绕开湿足迹；`b032582c6` 空船 3/3 首餐首便完成、无入水，带幼两场新生儿也无入水，但一场原有帽檐幼体未下船、另一场首餐首便未完成。完成：两场护理及装载均完成，护理后新生儿不自行入水；小样本不作稳定性结论，逐场见 `.local/refactor/reports/wp-b2c-cabin-care.md`。
+  岸产护理后避水：已接入待试玩（本机自查，非验收）。[08e13db2b](https://github.com/Longshou/MCyukkuri/commit/08e13db2b) 上 `birth_boat_caught` 1/3 首便后约 2000 tick 两次入水，最低生命 7、无死亡。现地面寻路统一绕开湿足迹；`b032582c6` 空船 3/3 首餐首便完成、无入水，带幼两场新生儿也无入水，但一场原有帽檐幼体未下船、另一场首餐首便未完成。完成：两场护理及装载均完成，护理后新生儿不自行入水；小样本不作稳定性结论，逐场见 `.local/refactor/reports/wp-b2c-cabin-care.md`。未解决：带幼岸产 `birth_boat_missed` 一场帽檐幼体在产前岸边跳被拒（`hop BLOCKED reason=TOO_FAR shortfall=0.01`）、一场母油仍在觅食而两幼首餐首便均未完成（严格复核 13/17）；`kid_boat_play` 一场摇晃跌落（`play fall_in cause=hard_rock`）后自救，无死亡。
 - **`sail`／`shore_family` 划桨演出**：已接入待试玩（[091899217](https://github.com/Longshou/MCyukkuri/commit/091899217)，CI 待核对）。原现象（录像 22:52，圆帽 `cone_basin` 辫子穿船体、上下两节铰链、无力感）；现圆帽下辫子留在帽檐上方不穿模，自根部到梢呈波形弯曲。椭圆帽船演出未试玩确认：船长先转向船首再出桨，辫子与木棍越过横向帽檐（版本待合入）；离线伸展用量约 71%，略超 70% 目标。完成：看清转向时不划水、出桨越过短轴帽檐，核对真实航行；不以船体门通过代替演出认可。`hat_brim_offer`／`boat_nudge_young` 仅在船长面朝船首时通过船体门，播放它们的运行时动作须先转向船首，否则重做片段。
 - **辫梢划水木棍显示**：已接入待试玩。实现 [009ec0f2d](https://github.com/Longshou/MCyukkuri/commit/009ec0f2d)（CI pending，尚无试玩记录）；持有期间一律画在抓握处，不再平放帽檐（[规则](FEATURES.md#基础生活与饲养操作)）。完成：`sail` 持有真实木棍时随辫梢划水，停划、托放与救援时仍用辫子攥着，失去木棍后才不显示，空辫招帽不出现木棍（读数见场景说明）。
 - `family_skiffs`／`share_young`／`water_night`（已下线反例）— 送幼未启动、拾取受阻或翻覆 — [55449fd63](https://github.com/Longshou/MCyukkuri/commit/55449fd63)（E12），自查 [c0595c480](https://github.com/Longshou/MCyukkuri/commit/c0595c480)、[913b56da0](https://github.com/Longshou/MCyukkuri/commit/913b56da0)（实现 [12cb38d16](https://github.com/Longshou/MCyukkuri/commit/12cb38d16)）；双亲上岸不送幼、穿岸后船远离 — [b333bfc0](https://github.com/Longshou/MCyukkuri/commit/b333bfc0)（CI 41070657813）；召集超时弃粮、两帽间改向溺亡、提前挂船后落水、动作中断重发航路 — [1325c6bd](https://github.com/Longshou/MCyukkuri/commit/1325c6bd)、E8／E9（版本见运行证据索引；CLIMB 完成不等于送幼完成）；夜泊无可核实的独立失败记录 — 版本待核实。
