@@ -46,9 +46,11 @@ final class BoatToilet implements Intent {
     private final long started;
     private Hop hop;
     private Vec3 out;
-    private boolean strained, relieved;
-    /** The stool this intent let go, watched only to report where it really came down. */
+    /** Strained (the clip started), relieved (the stool really left), finished (the clip played to its end: she sits back down). */
+    private boolean strained, relieved, finished;
+    /** The stool this intent let go and the clip tick after its planned landing, watched only to report where it really came down. */
     private ItemEntity stool;
+    private int landTick;
 
     private BoatToilet(YukkuriEntity body, PlacedHatEntity hat) {
         this.body = body;
@@ -72,7 +74,7 @@ final class BoatToilet implements Intent {
 
     @Override public String id() { return "boat_toilet"; }
     @Override public long deadline() { return started + (long) AquaticGoal.num("toilet_deadline", 600); }
-    @Override public boolean satisfied() { return relieved && (body.family().adult() || "cabin".equals(PlayAboard.place(body, hat))); }
+    @Override public boolean satisfied() { return finished && relieved && (body.family().adult() || "cabin".equals(PlayAboard.place(body, hat))); }
     @Override public List<Method> methods() { return List.of(Plan.of(id(), this::derive)); }
 
     private List<Supplier<Step>> derive() {
@@ -137,8 +139,8 @@ final class BoatToilet implements Intent {
         double before = body.life().bladder();
         return new Step.Do(new Await(() -> {
             if (++tick[0] == ToiletContact.DROP_TICKS) relieved = drop(before);
-            if (tick[0] == ToiletContact.RELEASE_TICKS) landed();
-            return tick[0] >= ToiletContact.RELEASE_TICKS;
+            if (tick[0] == Math.min(landTick, ToiletContact.RELEASE_TICKS)) landed();
+            return finished = tick[0] >= ToiletContact.RELEASE_TICKS;
         }, ToiletContact.RELEASE_TICKS + 10, Behaviors.BOAT_TOILET));
     }
 
@@ -152,6 +154,7 @@ final class BoatToilet implements Intent {
             return false;
         }
         var at = plan.release().at();
+        landTick = ToiletContact.DROP_TICKS + plan.ticks() + 1;
         GameplayLog.event(body, "aquatic", "boat_toilet dropped hat={} place={} at={} release_distance={} push={} lands={} land_distance={} air_ticks={} bladder={} -> {}",
                 hat.getUUID(), PlayAboard.place(body, hat), GameplayLog.at(at), distance(at, middle),
                 String.format(Locale.ROOT, "%.3f", Math.sqrt(plan.push().lengthSqr())), GameplayLog.at(plan.lands()), distance(plan.lands(), middle),
@@ -159,7 +162,7 @@ final class BoatToilet implements Intent {
         return true;
     }
 
-    /** Where the released stool really is when the clip ends (its flight lasts a few ticks): outside the rim and in the water, or not. */
+    /** Where the released stool really is a tick after its planned landing (or when the clip ends): outside the rim and in the water, or not. */
     private void landed() {
         if (stool == null) return;
         GameplayLog.event(body, "aquatic", "boat_toilet stool hat={} at={} hull_distance={} in_water={} removed={}", hat.getUUID(),

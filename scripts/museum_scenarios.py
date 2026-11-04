@@ -2808,10 +2808,12 @@ pond('boat_toilet', '帽船上朝帽外排便', '帽船上朝帽外排便',
      reads=[('读亲油', f'yukkuri status {sel("a")} raw'), ('读子油', f'yukkuri status {sel("c1")} raw'), ('读帽子乘员', f'data get entity {_HAT} Riders'),
             ('读水上物品', 'execute as @e[type=minecraft:item,distance=..48] run data get entity @s Pos')],
      # Side views of the hull: the owner raises her rear and the stool flies over the stern rim (ticks 1-40); the young does the same on
-     # the bow brim (about 40-80); one frame a tick so the few-tick flights are seen.
+     # the bow brim (about 40-80); one frame a tick so the few-tick flights are seen. The wide view goes first (the first view's opening
+     # frames can stall while the client loads); port shows her left profile, young follows the young from its own side.
      capture=dict(shots=(1, 200), sequences=((2, 110, 1),), observe=False,
-                  views={'port': dict(follow='@e[type=mcyukkuri:placed_hat,limit=1]', offset=(1.6, .45, 0)),
-                         'starboard': dict(follow='@e[type=mcyukkuri:placed_hat,limit=1]', offset=(-1.6, .45, 0))}),
+                  views={'wide': dict(follow='@e[type=mcyukkuri:placed_hat,limit=1]', offset=(3.2, 1.3, 0)),
+                         'port': dict(follow='@e[type=mcyukkuri:placed_hat,limit=1]', offset=(2.3, .7, 0)),
+                         'young': dict(follow='@e[tag=scn_c1,limit=1]', offset=(.9, .3, 0))}),
      smoke=dict(ticks=1800, expect=[r'\[hat\][^\n]* scenario afloat prepared [^\n]*owner_aboard=true[^\n]*young=1\b',
                                    r'\[aquatic\][^\n]* boat_toilet turn [^\n]*place=brim',
                                    r'\[aquatic\][^\n]* boat_toilet dropped [^\n]*place=brim',
