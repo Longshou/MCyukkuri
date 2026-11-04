@@ -1,14 +1,17 @@
 package io.github.longshou.mcyukkuri.family;
 
 import io.github.longshou.mcyukkuri.motor.MotorOwner;
+import io.github.longshou.mcyukkuri.motor.ContactGeometry;
 import io.github.longshou.mcyukkuri.motor.action.Face;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.FamilyLife.Task;
+import io.github.longshou.mcyukkuri.headwear.PlacedHatEntity;
 import io.github.longshou.mcyukkuri.life.InfantFood;
+import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.registry.ModItems;
+import io.github.longshou.mcyukkuri.settlement.Diet;
 import io.github.longshou.mcyukkuri.settlement.ForageClaims;
-import io.github.longshou.mcyukkuri.settlement.Grazing;
 import io.github.longshou.mcyukkuri.world.SearchBudget;
 import java.util.ArrayList;
 import io.github.longshou.mcyukkuri.settlement.PileContact;
@@ -26,8 +29,6 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.entity.ai.util.LandRandomPos;
-import net.minecraft.world.level.ClipContext;
-import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.event.EventHooks;
 
@@ -43,6 +44,11 @@ final class FamilyFeeding {
     private BlockPos foodStore;
     private PileContact storeContact;
     private BlockPos plantSource;
+    /** Where she stands to pick the plant: the plant itself on land, the dry bank cell above a water plant. */
+    private BlockPos plantStand;
+    /** Her own set-down hat she is going to for a portion, and the stand she reaches it from. */
+    private PlacedHatEntity hatLarder;
+    private Vec3 hatLarderStand;
     private ForageClaims.Claim plantClaim;
     private int searchTicks, plantContact;
     private int careCarryTicks, careChewTicks, careOfferTicks, careFinishTicks;
@@ -56,7 +62,8 @@ final class FamilyFeeding {
     int offerTicks() { return careOfferTicks; }
     String describe() { return "phase="+(o.task()!=Task.FEED_CHILD?"idle":careFinishTicks>0?"finish":carrying.isEmpty()?"search":InfantFood.isMash(carrying)?"offer":"chew")
             +" searchTicks="+searchTicks+" drop="+(foodSource==null?"none":foodSource.getUUID())+" store="+foodStore
-            +" plant="+plantSource+" carrying="+carrying+" chew="+careChewTicks+" contact="+careOfferTicks; }
+            +" plant="+plantSource+" larder="+(hatLarder==null?"none":hatLarder.getUUID())
+            +" carrying="+carrying+" chew="+careChewTicks+" contact="+careOfferTicks; }
     String activity() {
         return careFinishTicks>0 ? Behaviors.CARE_FINISH : !carrying.isEmpty() && o.target()!=null && o.target().family().needsMash()
                 && !InfantFood.isMash(carrying) ? Behaviors.FAMILY_CHEW : Behaviors.FEED_CHILD;
@@ -66,9 +73,10 @@ final class FamilyFeeding {
     }
     void reset() {
         foodSource=null;foodStore=null;careOfferTicks=careFinishTicks=0;
+        hatLarder=null;hatLarderStand=null;
         clearPlant();searchTicks=0;
     }
-    private void clearPlant(){ForageClaims.release(plantClaim);plantClaim=null;plantSource=null;plantContact=0;}
+    private void clearPlant(){ForageClaims.release(plantClaim);plantClaim=null;plantSource=null;plantStand=null;plantContact=0;}
     void died() {
         if(!carrying.isEmpty()) {
             var dropped=carrying.copy();
@@ -190,9 +198,29 @@ final class FamilyFeeding {
         BirthStaging.caption(o.entity(),"亲油接受求食，开始寻找真实食物；取得后嚼糜喂食");return true;
     }
 
-    /** Choose a real nearby drop or the caregiver's own stocked shelter, without reserving either. */
+    /** Choose the species' own food in its own order ({@link Diet}): a water diet looks at the water plants before anything
+     *  that lies about inland, and falls back on what her hat keeps. */
     void selectFoodSource() {
-        foodSource=null;foodStore=null;
+        foodSource=null;foodStore=null;hatLarder=null;hatLarderStand=null;
+        var diet=o.entity().profile().diet();
+        for(var step:diet.sources()) {
+            switch(step) {
+                case STOCK -> selectStock();
+                case PLANT -> selectPlant();
+                case LARDER -> selectLarder();
+            }
+            if(sourceChosen())break;
+        }
+        if(sourceChosen())GameplayLog.limited(o.entity(),"family","care.source",200,
+                "feed source selected child={} source={} drop={} store={} plant={} larder={}",o.target().getUUID(),
+                plantSource!=null?"plant "+diet.yield(o.level().getBlockState(plantSource)):hatLarder!=null?"hat larder":foodStore!=null?"store":"drop",
+                foodSource==null?null:foodSource.getUUID(),foodStore,plantSource,hatLarder==null?null:hatLarder.getUUID());
+    }
+
+    private boolean sourceChosen() { return foodSource!=null||foodStore!=null||plantSource!=null||hatLarder!=null; }
+
+    /** A real nearby drop or the caregiver's own stocked shelter, without reserving either. */
+    private void selectStock() {
         ItemEntity nearby=EventHooks.canEntityGrief(o.level(),o.entity())
                 ?o.level().getEntitiesOfClass(ItemEntity.class,o.entity().getBoundingBox().inflate(24),item->item.isAlive()&&!item.hasPickUpDelay()
                         &&o.entity().life().acceptsFood(item.getItem())&&o.target()!=null&&o.target().life().canReceiveCareFood(item.getItem()))
@@ -203,24 +231,35 @@ final class FamilyFeeding {
         boolean stocked=shelter!=null&&shelter.usable(o.entity())&&o.target()!=null&&shelter.hasFoodFor(o.entity(),o.target())&&pile!=null&&o.entity().life().reachable(pile.standCell(),false);
         if(nearby!=null&&(o.entity().getUUID().equals(o.target().family().mother())&&nearby.getItem().is(ModItems.YUKKURI_STEM.get())||!stocked||o.entity().distanceToSqr(nearby)<=o.entity().distanceToSqr(pile.standPoint(o.entity()))))foodSource=nearby;
         else if(stocked){foodStore=shelter.getBlockPos();if(storeContact==null)storeContact=new PileContact(o.entity());storeContact.reset();}
-        if(foodSource==null&&foodStore==null&&plantSource==null)selectPlant();
-        if(foodSource!=null||foodStore!=null||plantSource!=null)GameplayLog.limited(o.entity(),"family","care.source",200,
-                "feed source selected child={} drop={} store={} plant={}",o.target().getUUID(),foodSource==null?null:foodSource.getUUID(),foodStore,plantSource);
     }
 
-    /** Harvest the same finite wild food as ordinary grazing, after reaching and holding contact. */
+    /** Her own hat set down near the water keeps a portion for her ({@code HullAfloat}'s store): she walks to the bank beside it
+     *  and takes one with her mouth, so feeding a newborn ashore needs no way back onto the hat. Only a hat she can reach from a
+     *  dry stand counts, so one afloat out of reach never takes the place of food that really lies at hand. */
+    private void selectLarder() {
+        var hat=PlacedHatEntity.find(o.entity());
+        if(hat==null||hat.isRemoved()||o.entity().distanceToSqr(hat)>24*24)return;
+        var stand=SurfaceApproach.beside(o.entity(),hat,o.entity().getBbWidth()/2+.2,ContactGeometry.GRAB_HEIGHT);
+        if(stand==null)return;
+        hatLarder=hat;hatLarderStand=stand;
+    }
+
+    /** Harvest the same finite wild food of the species' own diet, after reaching and holding contact. */
     private void selectPlant(){
         if(!EventHooks.canEntityGrief(o.level(),o.entity())||!SearchBudget.take(o.level(),o.entity(),SearchBudget.Purpose.FAMILY_FEED))return;
+        var diet=o.entity().profile().diet();
         var candidates=new ArrayList<BlockPos>();
         for(var pos:BlockPos.betweenClosed(o.entity().blockPosition().offset(-8,-2,-8),o.entity().blockPosition().offset(8,2,8))) {
             if(!o.level().hasChunkAt(pos)||ForageClaims.taken(o.level(),pos,o.entity().getUUID()))continue;
-            var food=Grazing.yield(o.level().getBlockState(pos));
+            var food=diet.yield(o.level().getBlockState(pos));
             if(!food.isEmpty()&&o.entity().life().acceptsFood(food)&&o.target().life().canReceiveCareFood(food))candidates.add(pos.immutable());
         }
         candidates.sort(Comparator.comparingDouble(pos->o.entity().distanceToSqr(Vec3.atCenterOf(pos))));
-        for(var pos:candidates.stream().limit(3).toList())if(o.entity().life().reachable(pos,false)){
+        for(var pos:candidates.stream().limit(3).toList()){
+            var stand=diet.stand(o.entity(),pos);
+            if(stand==null||!o.entity().life().reachable(stand,false))continue;
             plantClaim=ForageClaims.claim(o.level(),pos,o.entity().getUUID());
-            if(plantClaim!=null){plantSource=pos;return;}
+            if(plantClaim!=null){plantSource=pos;plantStand=stand;return;}
         }
     }
 
@@ -288,7 +327,7 @@ final class FamilyFeeding {
                 trimRetries(o.level().getGameTime());
                 endCare("food_search_exhausted");return;
             }
-            if(foodSource==null&&foodStore==null&&plantSource==null&&searchTicks%40==1)selectFoodSource();
+            if(!sourceChosen()&&searchTicks%40==1)selectFoodSource();
             if(foodSource!=null) {
                 if(!foodSource.isAlive()||foodSource.hasPickUpDelay()||!o.entity().life().acceptsFood(foodSource.getItem())) { foodSource=null;return; }
                 o.entity().getLookControl().setLookAt(foodSource,20,20);
@@ -322,17 +361,35 @@ final class FamilyFeeding {
                 }
                 return;
             }
+            if(hatLarder!=null){
+                if(hatLarder.isRemoved()||!hatLarder.isAlive()||o.entity().distanceToSqr(hatLarder)>24*24){hatLarder=null;hatLarderStand=null;return;}
+                if(!ContactGeometry.inMouthReach(o.entity(),hatLarder)){
+                    if(hatLarderStand==null)hatLarderStand=SurfaceApproach.beside(o.entity(),hatLarder,o.entity().getBbWidth()/2+.2,ContactGeometry.GRAB_HEIGHT);
+                    if(hatLarderStand==null||searchTicks%10==1&&!o.entity().life().navigate(BlockPos.containing(hatLarderStand),1.0,false)){hatLarder=null;hatLarderStand=null;}
+                    return;
+                }
+                o.entity().getNavigation().stop();
+                o.entity().getLookControl().setLookAt(hatLarder,20,20);
+                var portion=hatLarder.behavior().take(hatLarder,o.entity(),one->o.target().life().canReceiveCareFood(one)&&o.entity().life().acceptsFood(one));
+                var from=hatLarder.getUUID();
+                hatLarder=null;hatLarderStand=null;
+                if(!portion.isEmpty()){
+                    carrying=portion;careChewTicks=careOfferTicks=0;
+                    GameplayLog.event(o.entity(),"family","feed portion reserved hat={} item={}",from,carrying);
+                }
+                return;
+            }
             if(plantSource!=null){
+                var diet=o.entity().profile().diet();
                 if(!EventHooks.canEntityGrief(o.level(),o.entity())||!ForageClaims.owns(o.level(),plantSource,plantClaim)
-                        ||!Grazing.edible(o.level().getBlockState(plantSource))){clearPlant();return;}
+                        ||!diet.edible(o.level().getBlockState(plantSource))){clearPlant();return;}
                 var at=Vec3.atCenterOf(plantSource);
-                boolean near=o.entity().distanceToSqr(Vec3.atBottomCenterOf(plantSource))<1
-                        &&o.level().clip(new ClipContext(o.entity().getEyePosition(),at,ClipContext.Block.COLLIDER,ClipContext.Fluid.NONE,o.entity())).getType()==HitResult.Type.MISS;
-                if(!near){plantContact=0;if(searchTicks%10==1&&!o.entity().life().navigate(plantSource,1.1,false))clearPlant();return;}
+                boolean near=diet.reaches(o.entity(),plantStand,plantSource);
+                if(!near){plantContact=0;if(searchTicks%10==1&&!o.entity().life().navigate(plantStand,1.1,false))clearPlant();return;}
                 o.entity().getNavigation().stop();o.entity().getLookControl().setLookAt(at.x,at.y,at.z);
                 if(++plantContact>=20){
-                    var food=Grazing.yield(o.level().getBlockState(plantSource));
-                    if(o.target().life().canReceiveCareFood(food)&&Grazing.graze(o.level(),plantSource)){
+                    var food=diet.yield(o.level().getBlockState(plantSource));
+                    if(o.target().life().canReceiveCareFood(food)&&diet.harvest(o.level(),plantSource)){
                         carrying=food;careChewTicks=careOfferTicks=0;
                         GameplayLog.event(o.entity(),"family","feed plant harvested child={} source={} item={}",o.target().getUUID(),plantSource,carrying);
                     }

@@ -127,6 +127,8 @@ import io.github.longshou.mcyukkuri.mind.EmotionEvent;
 /** Server-owned behaviour and actions. Clients only sample synchronized poses. */
 public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     public static final TagKey<Item> FOOD = TagKey.create(Registries.ITEM, MCYukkuri.id("yukkuri_food"));
+    /** Water plants: food for the species whose diet picks them (settlement/Diet), not for the land menu. */
+    public static final TagKey<Item> WATER_FOOD = TagKey.create(Registries.ITEM, MCYukkuri.id("water_food"));
 
     private final YukkuriVariant variant;
     private final PredatorLife predator = new PredatorLife(this);

@@ -23,6 +23,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.OptionalDouble;
 import java.util.TreeMap;
+import java.util.function.Predicate;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -401,6 +402,13 @@ public final class HullAfloat implements PlacedHatBehavior {
     @Override public boolean holds(PlacedHatEntity hat, Item item) { return larder.has(one -> one.is(item)); }
     @Override public boolean store(PlacedHatEntity hat, ItemStack stack, Player by) { return larder.store(hat, stack, by); }
     @Override public int stock(PlacedHatEntity hat, ItemStack food, int count) { return larder.stock(hat, food, count); }
+    @Override public ItemStack take(PlacedHatEntity hat, YukkuriEntity by, Predicate<ItemStack> wanted) {
+        var source = larder.source(hat, by, wanted, "feed");
+        if (source == null) return ItemStack.EMPTY;
+        var portion = source.item();
+        source.take();
+        return portion;
+    }
     @Override public void release(PlacedHatEntity hat, String cause) { contactPositions.clear(); larder.spill(hat, cause); }
     @Override public boolean catches(PlacedHatEntity hat) { return false; }
     @Override public HatBirth birthCabin(PlacedHatEntity hat, YukkuriEntity mother) { return new HatBirth(hat, mother); }

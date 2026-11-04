@@ -2034,6 +2034,16 @@ def water_at(dz, out):
     return f'~{bank_dx(dz) + out + .5} ~-1 ~{dz + .5}'
 
 
+def pond_rim_seagrass(every=2):
+    """Real finite seagrass along the pond's shallow rim (depth 1), so the shore an aquatic family comes ashore on always has the
+    water plant it picks from the bank above: vanilla never regrows it, and clearing the field puts the water back."""
+    pond_ = BY_ID['pond']
+    return [block(x - pond_.bank[0], -1, z - pond_.bank[2], 'minecraft:seagrass')
+            for x in range(pond_.px - pond_.RX, pond_.px + pond_.RX + 1)
+            for z in range(pond_.pz - pond_.RZ, pond_.pz + pond_.RZ + 1)
+            if pond_.depth(x, z) == 1 and (x + z) % every == 0]
+
+
 def afloat(owner, water, aboard=True, crew=None, food=0, middle=False, stick=False, facing=0):
     """`scenario afloat`: the owner sets her real hat down at that water position with ``food`` apples (0..8)
     (and, with ``stick``, one real stick to paddle with). The captain takes her seat first, then each young takes an admitted
@@ -2932,21 +2942,25 @@ pond('birth_boat_missed', '临产划回岸边，放下孩子再生产', '临产�
             ('k1', 1, 'child', .35, 147000, 144000, CHILDHOOD_HOPPING, '会跳的子油'),
             ('k2', -1, 'baby', .19, 68727, 36000, CHILDHOOD_CRAWLING_READY, '待托放的赤油'))],
       item('minecraft:apple', 8, bank_dx(0) - 2, 0),
+      *pond_rim_seagrass(),
       f'yukkuri scenario bond {sel("mother")} {sel("father")}'],
      late=[*[f'yukkuri scenario kin {sel("mother")} {sel(k)} false' for k in ('k1', 'k2')],
            afloat('mother', water_at(0, 3), True, sel_all('crew'), stick=True),
            afloat('father', water_at(4, 3), True, sel('father'), stick=True),
            f'yukkuri scenario birth {sel("mother")} {sel("father")} near_term "0.16,0.17"'],
-     note='开场实体全部可见，准备后坐进各自浮着的帽子；岸上有八个真实苹果供孕期取食。'
+     note='开场实体全部可见，准备后坐进各自浮着的帽子；岸上有八个真实苹果供孕期取食，整圈岸边浅水里是真实海草，是产后水生的食物。'
           '本胎两只出生体型 0.16、0.17，不符合自帽分娩空间；读 birth route=shore 的 growth/growth_max。先看母油照常在水上活动，`[aquatic] birth shore return` 之后才 come_ashore '
           '→ hop 离船落地 → delivery labor started → born → birth landed；'
-          '出生数对照 conceived children 与 born index，“读本胎新生儿”排除初始 crew；产后应见 set_out held reason=newborn_care，母油留岸，不重新登船离开新生儿。' + _DESIRE_NOTE,
+          '出生数对照 conceived children 与 born index，“读本胎新生儿”排除初始 crew；产后应见 set_out held reason=newborn_care，母油留岸，不重新登船离开新生儿。'
+          '产后喂食只看水草与帽内存粮：`feed source selected … source=plant 1 minecraft:seagrass`（她落在别处够不到水草时 `source=hat larder`），'
+          '不得走回岸上苹果那头。' + _DESIRE_NOTE,
      reads=[('读母油与产程', f'yukkuri status {sel("mother")} raw'), ('读父油', f'yukkuri status {sel("father")} raw'),
             ('读本胎新生儿', f'yukkuri status {NEWBORNS[:-1]},tag=!crew] raw'),
             ('读初始乘员', f'yukkuri status {sel_all("crew")} raw')],
      smoke=dict(ticks=7200, expect=[_BOAT_SMOKE_START, r'\[choreo\][^\n]* beat id=live_birth\b',
                                    r'\[aquatic\][^\n]* birth shore return brood=\S+ remaining=\d+',
                                    r'\[intent\][^\n]* start id=come_ashore[^\n]*birth=[1-9]',
+                                   r'\[family\][^\n]* feed source selected [^\n]*source=(?:plant 1 minecraft:seagrass|hat larder)\b',
                                    r'\[family\][^\n]* delivery complete\b',
                                    r'\[family\][^\n]* birth landed [^\n]*outcome=(?:HAT|GROUND|NEST)\b'],
                 forbid=_BOAT_SMOKE_FORBID + [r'\[body\][^\n]* death settled\b', r'birth landed [^\n]*outcome=WATER\b'],
@@ -2984,13 +2998,15 @@ pond('birth_hat_own', '独自在自己帽里生下两只赤油', '独自在自�
      '约 3–6 分钟',
      [yk('marisa', bank_dx(0), 0, 'mother', aquatic=True, yaw=-90, lead=True, **pair_ready()),
       yk('marisa', bank_dx(4), 4, 'father', aquatic=True, yaw=-90, **pair_ready()),
+      *pond_rim_seagrass(),
       f'yukkuri scenario bond {sel("mother")} {sel("father")}'],
      late=[afloat('mother', water_at(0, 3), True, sel('mother'), food=8, stick=True),
            afloat('father', water_at(4, 3), True, sel('father'), food=4, stick=True),
            f'yukkuri scenario birth {sel("mother")} {sel("father")} near_term "0.12,0.125"'],
      note='看 birth route=own_hat 的胎数、体型与空间判定；hat birth exit 的产程与片段时刻；'
           '新生儿 contact → birth landed outcome=HAT、生命与首餐首便。帽形和普通分娩时钟不变，初态没有新生儿。'
-          '五秒后三下摇翻亲油那只帽（母亲的分娩不受影响）：木棍与粮随翻覆漂出，亲油游回扶正、爬回帽里，再没木棍就去水上把漂着的木棍取回帽里。',
+          '五秒后三下摇翻亲油那只帽（母亲的分娩不受影响）：木棍与粮随翻覆漂出，亲油游回扶正、爬回帽里，再没木棍就去水上把漂着的木棍取回帽里。'
+          '岸边浅水里有真实海草，是本场景水生家庭上岸后唯一的水草食源。',
      reads=[('读母油与产程', f'yukkuri status {sel("mother")} raw'),
             ('读本胎新生儿', f'yukkuri status {NEWBORNS} raw')],
      smoke=dict(ticks=7200,

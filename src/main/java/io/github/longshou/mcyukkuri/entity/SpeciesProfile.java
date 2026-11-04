@@ -3,13 +3,14 @@ package io.github.longshou.mcyukkuri.entity;
 import io.github.longshou.mcyukkuri.body.BodyConstants;
 import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.subspecies.SubspeciesLife;
+import io.github.longshou.mcyukkuri.settlement.Diet;
 import java.util.EnumMap;
 
 /** Immutable capabilities and presentation coefficients. Never dispatches an ecology routine. */
 public record SpeciesProfile(Ecology ecology, BreedingPool pool, FamilyData.BirthKind birth,
                              boolean aquatic, boolean wildSociety, boolean landSettler, boolean dangerToYukkuri,
                              boolean boundBySocialRules, boolean hatVessel, boolean jumps, boolean diurnal,
-                             int metabolismDivisor, float modelScale, float portionScale, SpeciesTraits traits) {
+                             int metabolismDivisor, float modelScale, float portionScale, SpeciesTraits traits, Diet diet) {
     public enum Ecology { WILD, HOUSE, PREDATOR, AQUATIC }
     public enum BreedingPool { LAND, AQUATIC, HOUSE, PREDATOR }
 
@@ -35,7 +36,7 @@ public record SpeciesProfile(Ecology ecology, BreedingPool pool, FamilyData.Birt
                         aquatic, !house && !predator, !house && !predator && !aquatic, predator, !predator,
                         variant == YukkuriVariant.MARISA, !house, !house, house ? 4 : 1,
                         house ? BodyConstants.HOUSE_SOURCE_SCALE : 1,
-                        house ? BodyConstants.HOUSE_WOUND_SIZE : 1, SpeciesTraits.of(variant)));
+                        house ? BodyConstants.HOUSE_WOUND_SIZE : 1, SpeciesTraits.of(variant), aquatic ? Diet.AQUATIC : Diet.ORDINARY));
             }
             profiles.put(variant, forms);
         }

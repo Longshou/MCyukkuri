@@ -5,6 +5,7 @@ import io.github.longshou.mcyukkuri.family.BirthCabin;
 import java.util.List;
 import java.util.OptionalDouble;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.function.Predicate;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.core.BlockPos;
 import net.minecraft.tags.FluidTags;
@@ -54,6 +55,10 @@ public interface PlacedHatBehavior {
 
     /** Scene starting stock, returning the accepted count. */
     default int stock(PlacedHatEntity hat, ItemStack food, int count) { return 0; }
+
+    /** Hands {@code by} the first portion it keeps that {@code wanted} accepts, taking it out of the store; empty when it keeps
+     *  none, so a body can feed from its own set-down hat where it lies. */
+    default ItemStack take(PlacedHatEntity hat, YukkuriEntity by, Predicate<ItemStack> wanted) { return ItemStack.EMPTY; }
 
     /** What it keeps belongs to the hat: when the hat leaves this behaviour, is taken back or is destroyed, it falls out where
      *  it lies as real items ({@code cause} says which). A chunk unload saves it instead. */
