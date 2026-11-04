@@ -9,6 +9,7 @@
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
 | 水上自帽分娩美术与动作（反馈 8） | `.worktrees/art-a3-hat-birth` | `standards/yukkuri-library/interactions/aquatic-marisa-hat/`、`motions/`、`art/` |
+| 子油初航·帽檐放船（反馈 10） | `.worktrees/wp-v-brim-voyage` | `aquatic/FirstVoyage`、`aquatic/AquaticGoal`、`headwear/HatProp`、`headwear/PlacedHatEntity`、`scripts/museum_scenarios.py` |
 
 ## 玩法待办
 
