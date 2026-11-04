@@ -102,7 +102,7 @@ public final class Hop implements Action {
 
     /** Nearest centre supported by the bank; the arc and vanilla contact still check the whole collision box. */
     public static Vec3 bankStand(Vec3 edge, Vec3 normal, Vec3 from) {
-        return Floor.point(BankStand.nearest(vec(edge), vec(normal), vec(from)));
+        return Floor.point(BankStand.nearest(vec(edge), vec(normal), TOUCH, vec(from)));
     }
 
     /** World blocks carry a landing when their collision top supports the centre, without a full-sole inset. */
