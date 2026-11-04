@@ -22,7 +22,6 @@ import io.github.longshou.mcyukkuri.settlement.SettlementSociety;
 import io.github.longshou.mcyukkuri.pet.PetSkill;
 import io.github.longshou.mcyukkuri.human.HumanNpc;
 import java.util.Comparator;
-import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -33,7 +32,6 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.util.DefaultRandomPos;
-import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
@@ -213,18 +211,9 @@ public final class YukkuriSocial implements MotorOwner {
         return false;
     }
     /** Retrieving the real accessory has headwear priority, independent of optional greetings and their cooldown. */
-    public Goal accessoryGoal() {
-        return new Goal() {
-            { setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK)); }
-            @Override public boolean canUse() { return startAccessory(); }
-            @Override public boolean canContinueToUse() { return task == Task.ACCESSORY && canContinue(); }
-            @Override public boolean isInterruptable() { return urgent(); }
-            @Override public boolean requiresUpdateEveryTick() { return true; }
-            @Override public void tick() { tickGoal(); }
-            @Override public void stop() { YukkuriSocial.this.stop(); }
-        };
-    }
-    private boolean startAccessory() {
+    public boolean retrievingAccessory() { return task == Task.ACCESSORY; }
+
+    public boolean startAccessory() {
         if (task != Task.NONE || entity.life().hasAccessory() || entity.life().accessoryCustodied()
                 || !entity.childhood().canLearn() || entity.isPanicking() || entity.life().isSleeping()
                 || entity.life().hasUrgentNeed() || entity.waterDistress().active() || entity.life().mealTicks() > 0

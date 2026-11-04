@@ -71,7 +71,7 @@ final class YukkuriGoals {
         goalSelector.addGoal(2, presentationGoals.bind(PresentationGoals.SANCTION, owner.sanction()));
         owner.createHeadwear();
         goalSelector.addGoal(3, landBinding(PresentationGoals.HEADWEAR, owner.headwear()));
-        goalSelector.addGoal(3, landBinding(PresentationGoals.SOCIAL, owner.social().accessoryGoal()));
+        goalSelector.addGoal(3, landBinding(PresentationGoals.SOCIAL, new AccessoryGoal()));
         goalSelector.addGoal(1, presentationGoals.bind(PresentationGoals.THREAT, new Reactions.ThreatGoal(owner)));
         goalSelector.addGoal(2, landBinding(PresentationGoals.WEATHER, new Reactions.WeatherGoal(owner)));
         goalSelector.addGoal(1, landBinding(PresentationGoals.LIFE, new FatigueGoal()));
@@ -323,6 +323,15 @@ final class YukkuriGoals {
         @Override public boolean requiresUpdateEveryTick() { return true; }
         @Override public void tick() { owner.dailyLife().tickGoal(); }
         @Override public void stop() { owner.dailyLife().stop(); }
+    }
+    private final class AccessoryGoal extends Goal {
+        AccessoryGoal() { setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK)); }
+        @Override public boolean canUse() { return owner.social().startAccessory(); }
+        @Override public boolean canContinueToUse() { return owner.social().retrievingAccessory() && owner.social().canContinue(); }
+        @Override public boolean isInterruptable() { return BehaviorContinuity.emergency(owner); }
+        @Override public boolean requiresUpdateEveryTick() { return true; }
+        @Override public void tick() { owner.social().tickGoal(); }
+        @Override public void stop() { owner.social().stop(); }
     }
     private final class SocialGoal extends Goal {
         @Override public boolean isInterruptable() { return BehaviorContinuity.emergency(owner) || !(owner.social().active()); }
