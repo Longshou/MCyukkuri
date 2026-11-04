@@ -21,6 +21,8 @@ from museum_fields import BY_ID, FEET  # noqa: E402
 CHILDHOOD_CAN_JUMP_SOON = 'Version:1,Newborn:1b,Landed:1b,FirstToiletDone:1b,Crawled:1b,Jumped:0b,CrawlDistance:1.0d'
 # A real infant ready to follow its parent to the bank: it has already eaten, relieved itself and crawled, but cannot jump.
 CHILDHOOD_CRAWLING_READY = 'Version:1,Newborn:1b,Landed:1b,FirstMealDone:1b,FirstToiletDone:1b,Crawled:1b,Jumped:0b,CrawlDistance:1.0d'
+# The same infant that has since learned its short hop (Jumped, landings): it can now climb up to its parent's brim by itself.
+CHILDHOOD_HOPPING = 'Version:1,Newborn:1b,Landed:1b,FirstMealDone:1b,FirstToiletDone:1b,Crawled:1b,Jumped:1b,JumpLandings:5,CrawlDistance:1.0d'
 # A young that has already sailed its own hat (its first voyage came back): it may climb, right and boat its own hat out of the water.
 CHILDHOOD_SAILED = 'Version:2,Newborn:0b,Sailed:1b'
 OWNED = 'NeoForgeData.HumanCommerce'
@@ -2623,32 +2625,37 @@ pond('afloat_stick', '水上缺棍·划去取漂浮木棍', '漂浮木棍亲油�
                                    r'\[aquatic\][^\n]* stick taken [^\n]*stowed_in=hat'],
                 forbid=[r'\[body\][^\n]* invariant\b', r'\[hat\][^\n]* capsized\b', r'\[body\][^\n]* death settled into remains']))
 
-pond('kid_boat_play', '赤油在亲帽上玩耍', '拨粮·受惊缩身',
-     '亲油在静水亲帽的船长位置面朝船首，两只赤油按实际空间分在舱内与头顶，帽里有一根木棍、四份苹果。一只赤油饥饿；玩家从岸边看舱内赤油拨弄储粮，空手右击赤油看问候。雷雨、附近捕食种或冲向帽船的玩家会吓得舱内赤油原地缩身，平静后继续玩耍；头顶乘员不做水上动作，赤油不会跳上帽檐或模仿划桨',
+pond('kid_boat_play', '赤油在亲帽上玩耍', '赤油上帽檐玩耍与受惊',
+     '静水亲帽停在离岸三格的水面，亲油坐在船长位置面朝船首，帽里有一根木棍和四份苹果；两只赤油按实际空间一在舱内、一在头顶，舱内那只已经学会短跳且正饿着。'
+     '舱内那只自己跳上帽檐：辫子朝外对着水面拍水（亲油划桨时改成学划水），探头和原地玩耍都在帽檐上；头顶那只只做不碰水的探头，能转身。'
+     '雷雨、附近捕食种或冲向帽船的玩家会吓到赤油：舱内有空位就跳回舱内缩身，没有空位就留在帽檐上抓紧缩身，不等位；平静后继续玩耍。空手右击赤油看问候',
      '约 2–3 分钟；可用本场天气按钮观察受惊',
      [yk('marisa', bank_dx(0), 0, 'a', aquatic=True, yaw=-90, lead=True, friendliness=100,
          uuid=uid('kid_boat_play', 'a'), **pair_ready()),
-      _aquatic_young('kid_boat_play', 'c1', bank_dx(1), 1, 'baby', 'a', also=('crew',)),
+      _aquatic_young('kid_boat_play', 'c1', bank_dx(1), 1, 'baby', 'a', childhood=CHILDHOOD_HOPPING, also=('crew',)),
       _aquatic_young('kid_boat_play', 'c2', bank_dx(2), 2, 'baby', 'a', also=('crew',)),
       f'yukkuri status set {sel("c1")} needs.nutrition 20',
       afloat('a', water_at(0, 3), True, sel_all('crew'), food=4, stick=True)],
-     note='读 hat.float 的 play：拨粮开始次数、fear_* 原因次数；读 social.greet_clicks 看点击次数，body.attach 看实际帽内坐标。'
-          '拨粮不扣粮，饿后才走原地进食；受惊时赤油在座位原地缩身，没有帽檐短跳、学划或离座回座。'
-          '点击赤油与点击空帽檐不同：前者问候，后者摇船；准备入座不算行为成功。' + _DESIRE_NOTE,
-     reads=[('读赤油动作与点击', f'yukkuri status {sel("c1")} raw'), ('读另一只赤油', f'yukkuri status {sel("c2")} raw'),
-            ('读拨粮与受惊计数', f'yukkuri status {sel("a")} raw'), ('读帽子乘员', f'data get entity {_HAT} Riders')],
+     note='日志：舱内赤油自己 hop 上帽檐 → [aquatic] play kind=kid_brim_splash start spot=brim reason=brim_water braid_out=true（亲油在划桨时是 kind=kid_mimic_paddle reason=captain_paddle，两者都是水上动作）'
+          '→ 之后 kind=hat_cradle 原地静玩；头顶那只 play kind=boat_rim_peek start spot=head reason=head_dry，不做水上动作。'
+          '受惊：舱内有空位时 play return inside place=cabin reason=fear:thunder，再 play kind=kid_hide_behind start spot=cabin；舱内无空位时 play stays on brim … cabin=none head=none|free（head=free 是头顶位空着而赤油自己上不去：头顶位只由亲油辫子托放，此场景按规则不收）'
+          '再 kid_hide_behind start spot=brim；平静后继续玩耍。帽檐上真被晃到硬翻时仍会摔进水里（play fall_in）。'
+          '读 hat.float 的 play：各类演出开始次数、fear_* 原因次数；body.attach 看实际帽内坐标。点击赤油与点击空帽檐不同：前者问候，后者摇船；准备入座不算行为成功。' + _DESIRE_NOTE,
+     reads=[('读舱内赤油动作与点击', f'yukkuri status {sel("c1")} raw'), ('读头顶赤油', f'yukkuri status {sel("c2")} raw'),
+            ('读演出与受惊计数', f'yukkuri status {sel("a")} raw'), ('读帽子乘员', f'data get entity {_HAT} Riders')],
      capture=dict(shots=(1, 40, 2400), sequences=((40, 2400, 4),), observe=False,
                   views={'port': dict(follow='@e[type=mcyukkuri:placed_hat,limit=1]', offset=(1.15, .55, -.75)),
                          'starboard': dict(follow='@e[type=mcyukkuri:placed_hat,limit=1]', offset=(-1.15, .55, .75))}),
-     smoke=dict(ticks=2400, commands=[(1800, 'weather thunder'), (1960, 'weather clear')],
+     smoke=dict(ticks=2400, commands=[(260, 'weather thunder'), (520, 'weather clear')],
                 expect=[r'\[hat\][^\n]* scenario afloat prepared [^\n]*owner_aboard=true[^\n]*young=2\b',
-                        r'\[aquatic\][^\n]* play kind=kid_poke_stores start\b',
-                        r'\[aquatic\][^\n]* play kind=kid_poke_stores end result=DONE\b',
-                        r'\[aquatic\][^\n]* play kind=kid_hide_behind start fear=thunder\b',
                         r'\[hat\][^\n]* scenario place [^\n]*place=CABIN\b',
-                        r'\[hat\][^\n]* scenario place [^\n]*place=HEAD\b'],
-                forbid=[r'\[body\][^\n]* invariant\b', r'\[aquatic\][^\n]* play fall_in\b',
-                        r'\[aquatic\][^\n]* play kind=kid_(?:brim_splash|mimic_paddle)\b',
+                        r'\[hat\][^\n]* scenario place [^\n]*place=HEAD\b',
+                        r'\[aquatic\][^\n]* play kind=(?:kid_brim_splash|kid_mimic_paddle) start spot=brim [^\n]*braid_out=true\b',
+                        r'\[aquatic\][^\n]* play kind=boat_rim_peek start spot=head\b',
+                        r'\[aquatic\][^\n]* play kind=kid_hide_behind start spot=\w+ reason=fear:thunder\b',
+                        r'\[aquatic\][^\n]* play (?:return inside [^\n]*place=cabin|stays on brim [^\n]*cabin=none head=none) [^\n]*reason=fear:thunder\b'],
+                forbid=[r'\[body\][^\n]* invariant\b', r'\[body\][^\n]* death settled into remains', r'\[aquatic\][^\n]* play fall_in\b',
+                        r'\[aquatic\][^\n]* play kind=(?:kid_brim_splash|kid_mimic_paddle) start spot=head\b',
                         r'\[aquatic\][^\n]* play kind=kid_hide_behind end result=(?:EXHAUSTED|LOST)\b'],
                 readout=[f'yukkuri status {sel("a")} raw', f'yukkuri status {sel("c1")} raw',
                          f'yukkuri status {sel("c2")} raw', f'data get entity {_HAT} Riders']))

@@ -32,6 +32,8 @@ final class TakeSeat implements Intent {
     /** No offer without a real means; a wall rider is left to squeeze/settle, even while crowded. */
     static TakeSeat offer(YukkuriEntity body, PlacedHatEntity hat) {
         if (body.getVehicle() != hat || !Floor.standing(body)) return null;
+        // A young on the brim is playing there; fear or a gasp sends it in (PlayAboard), not a cabin place that merely is free.
+        if (PlayAboard.onBrim(body, hat)) return null;
         var at = hat.riders().local(body.getUUID());
         var ability = BodyAbility.of(body);
         if (ability.walkSpeed() <= 0 && ability.hopReach() <= 0) return null;

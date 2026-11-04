@@ -7,6 +7,7 @@ import io.github.longshou.mcyukkuri.headwear.HatProp;
 import io.github.longshou.mcyukkuri.headwear.HullBounds;
 import io.github.longshou.mcyukkuri.headwear.PlacedHatEntity;
 import io.github.longshou.mcyukkuri.family.CareDecisionLedger;
+import io.github.longshou.mcyukkuri.family.ParentCarry;
 import io.github.longshou.mcyukkuri.family.FamilyLife;
 import io.github.longshou.mcyukkuri.intent.Ask;
 import io.github.longshou.mcyukkuri.intent.AskLedger;
@@ -51,7 +52,7 @@ final class AquaticGoal extends Goal {
     /** The clips of the boat life the presentation may show while this goal drives the body. */
     private static final Set<String> SHOWN = Set.of(Behaviors.BOAT_CALL, Behaviors.BOAT_DRIFT,
             Behaviors.BOAT_EAT, Behaviors.BOAT_FEED_YOUNG, Behaviors.BOAT_NUZZLE, Behaviors.FAMILY_CHEW,
-            Behaviors.KID_POKE_STORES, Behaviors.KID_HIDE_BEHIND);
+            Behaviors.KID_BRIM_SPLASH, Behaviors.KID_MIMIC_PADDLE, Behaviors.BOAT_RIM_PEEK, Behaviors.KID_HIDE_BEHIND);
     /** How long (ticks) a young she knowingly left ashore when setting out does not pull her back; how many she remembers. */
     private static final int LEFT_TICKS = 1200, LEFT_MAX = 16;
 
@@ -93,8 +94,13 @@ final class AquaticGoal extends Goal {
      *  while this drive's own reclaim owns the water way. */
     private boolean eligible() {
         return body.isAlive() && !body.level().isClientSide && (!body.isInWaterOrBubble() || landing() || ownsWaterWay())
-                && !body.life().isSleeping() && !(body.getVehicle() instanceof YukkuriEntity)
+                && !body.life().isSleeping() && !heldInBraidOrMouth()
                 && (body.profile().aquatic() || AquaticLife.parent(body) != null);
+    }
+
+    /** A body a carrier holds is driven by it; a young sitting on her head keeps its own day (it can look, hide and be fed there). */
+    private boolean heldInBraidOrMouth() {
+        return body.getVehicle() instanceof YukkuriEntity carrier && ParentCarry.hold(carrier, body) != ParentCarry.Hold.HEAD;
     }
 
     private boolean ownsWaterWay() {
@@ -111,7 +117,6 @@ final class AquaticGoal extends Goal {
     @Override public void tick() {
         if (Drive.running(body, DOMAIN) instanceof SetOut && body.family().shoreBirthDue()
                 && (body.motor().current() == null || body.motor().current().interruptible())) drive().stop("birth_lead");
-        if (drive().runner() != null && drive().runner().intent() instanceof PlayAboard play) play.tick();
         if (!body.social().greeting()) drive().tick();
     }
     @Override public void stop() { drive().stop("aquatic_goal_stop"); }
@@ -376,13 +381,11 @@ final class AquaticGoal extends Goal {
         String fear = fear(hat);
         if (!fear.equals("none")) {
             out.add(new Desire("hide_aboard", PlayAboard.number("hide_want"), 0, true, List.of(world, fear),
-                    () -> "fear=" + fear, () -> new PlayAboard(body, hat, Behaviors.KID_HIDE_BEHIND, () -> fear(hat))));
+                    () -> "fear=" + fear, () -> PlayAboard.shrink(body, hat, () -> fear(hat))));
             return;
         }
-        int stores = HullLarder.of(hat).count();
-        if (stores == 0) return;
-        out.add(Desire.of("play_aboard", PlayAboard.number("play_want"), world,
-                () -> "stores=" + stores, () -> PlayAboard.create(body, hat, () -> fear(hat))));
+        if (PlayAboard.canPlay(body, hat)) out.add(Desire.of("play_aboard", PlayAboard.number("play_want"), world,
+                () -> "spot=" + PlayAboard.place(body, hat), () -> PlayAboard.create(body, hat, () -> fear(hat))));
     }
 
     private String fear(PlacedHatEntity hat) {

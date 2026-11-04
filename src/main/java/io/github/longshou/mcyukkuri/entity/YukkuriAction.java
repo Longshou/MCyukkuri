@@ -63,7 +63,6 @@ public enum YukkuriAction {
     BOAT_NUZZLE("boat_nuzzle", 2.4, false),
     KID_BRIM_SPLASH("kid_brim_splash", 2.4, true),
     KID_MIMIC_PADDLE("kid_mimic_paddle", 1.8, true),
-    KID_POKE_STORES("kid_poke_stores", 2.0, true),
     KID_HIDE_BEHIND("kid_hide_behind", 2.4, false),
     AQUATIC_HAT_CARE("aquatic_hat_care", 2.4, false),
     HAT_CRADLE("hat_cradle", 3.0, true),

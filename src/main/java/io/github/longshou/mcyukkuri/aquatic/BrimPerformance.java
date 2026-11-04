@@ -7,8 +7,8 @@ import io.github.longshou.mcyukkuri.motor.action.Hop;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import net.minecraft.world.entity.ai.goal.Goal;
 
-/** The brim's fall check, including interrupted play and a rescued child placed there. A brim is a legal place to be: getting
- * down is the young's own choice ({@link TakeSeat}), so nothing here waits for or reserves a seat.
+/** The brim's fall check, including interrupted play and a rescued child placed there. A brim is a legal place to be: a young
+ * plays there and goes in for fright or a gasp ({@link PlayAboard}), so nothing here waits for or reserves a seat.
  * No selector flags: another goal ending play cannot remove the brim's fall check. */
 final class BrimPerformance extends Goal {
     private final YukkuriEntity body;
