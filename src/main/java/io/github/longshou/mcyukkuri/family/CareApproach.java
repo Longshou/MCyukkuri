@@ -108,16 +108,7 @@ public final class CareApproach {
                 var route=Floor.approach(host,owner,session.owner.position(),session.owner.yBodyRot,
                         FamilyFeedingContact.minimumMouthDistance(session.owner,owner),
                         FamilyFeedingContact.mouthDistance(session.owner,owner),limit,session.kind==Kind.FEED?180:0);
-                if(route.isEmpty()) {
-                    // The existing care task bounds this wait; no second reservation or retry budget.
-                    if(host.entity().getPassengers().stream().anyMatch(p -> p instanceof YukkuriEntity other
-                            && other!=owner && other.careApproach().waiting())) {
-                        GameplayLog.limited(owner,"care","floor_wait",200,
-                                "floor approach waiting parent={} kind={} reason=other_receiver",session.owner.getUUID(),session.kind);
-                        return;
-                    }
-                    session.fail("no_reachable_meeting");return;
-                }
+                if(route.isEmpty()) {session.fail("no_reachable_meeting");return;}
                 session.floorRoute=route;
                 GameplayLog.event(owner,"care","floor approach parent={} kind={} target={} waypoints={}",
                         session.owner.getUUID(),session.kind,route.getLast(),route.size());

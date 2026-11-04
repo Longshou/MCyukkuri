@@ -45,7 +45,7 @@ public final class Floor {
                                       double inner, double outer, double halfAngle, float facingOffset) {
         var local = host.frame().toLocal(centre);
         var forward = host.frame().toLocal(centre.add(Vec3.directionFromRotation(0, yaw))).subtract(local);
-        var grid = walkGrid(host, body);
+        var grid = new HeightGrid[1];
         var refusals = new int[5];
         var path = FloorSearch.coneRoute(vec(host.riders().local(body.getUUID())), vec(local),
                 Math.atan2(forward.z, forward.x), inner / host.frame().unit(), outer / host.frame().unit(), Math.toRadians(halfAngle),
@@ -79,7 +79,7 @@ public final class Floor {
                 });
     }
 
-    private static List<Vec> route(SurfaceHost host, YukkuriEntity body, HeightGrid grid, Vec3 target, float facing, int[] refusals) {
+    private static List<Vec> route(SurfaceHost host, YukkuriEntity body, HeightGrid[] cache, Vec3 target, float facing, int[] refusals) {
         var height = host.support(target, body);
         if (height.isEmpty()) return noRoute(refusals,0);
         target = new Vec3(target.x, height.getAsDouble(), target.z);
@@ -96,6 +96,8 @@ public final class Floor {
         }
         var from = host.riders().local(body.getUUID());
         if (clearWay(host, body, from, target)) return List.of(vec(target));
+        // The walk grid is worth building only once a straight step is refused.
+        var grid = cache[0] != null ? cache[0] : (cache[0] = walkGrid(host, body));
         var start = grid.nearest(from.x, from.z);
         var end = grid.nearest(target.x, target.z);
         if (start == null || end == null) return noRoute(refusals,3);
