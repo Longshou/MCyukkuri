@@ -12,6 +12,7 @@
 | 划桨衔接、无棍辫划入水、放帽收帽辫子（11-05 反馈 1、2、8） | `.worktrees/wp-b-strokes` | `standards/yukkuri-library/motions/`、`motion_corrections.json`、`client/YukkuriModel.java`、`motor/action/Paddle.java` |
 | 帽船座位顺序、船上排便、afloat 夹具（wp-c-seats） | `.worktrees/wp-c-seats` | `headwear/PlacedHatEntity.java`、`headwear/HullBounds.java`、`aquatic/` 排便驱动、`command/ScenarioSetup.java`、`scripts/museum_scenarios.py` |
 | 岸边停顿与载幼跳岸（11-05 反馈 5、6） | `wp-d-landing` | `motor/action/Hop.java`、`motor/*`、`aquatic/Waters.java`、`family/ParentCarry.java` |
+| 水生亲油岸产后的食物（11-05 反馈 3） | `.worktrees/wp-e-shore-food` | `family/FamilyFeeding.java`、`entity/SpeciesProfile.java`、`settlement/Plants.java`、`headwear/PlacedHatBehavior.java`、`aquatic/HullAfloat.java`、`data/mcyukkuri/tags/item/`、`scripts/museum_scenarios.py`、`docs/FEATURES.md` |
 
 ## 玩法待办
 
