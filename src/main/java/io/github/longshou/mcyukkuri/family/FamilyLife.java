@@ -516,13 +516,23 @@ public final class FamilyLife {
     }
     /** Live labour needs the mother's own dry ground, even when a choreography deadline expires. */
     boolean deliveryGrounded(){return !entity.isPassenger()&&supported()&&!entity.isInWaterOrBubble();}
-    /** The last ticks of a live pregnancy belong to the birth (the conductor's own lead): the only interval in which an aquatic
-     *  mother goes ashore and stops setting out, so she is on her own ground before the labour's nest grace ends. */
+    /** The existing preparation interval also lets a growing mother leave before her body exhausts the hop budget. */
     public static int shoreBirthLead(){return LiveBirth.APPROACH_LEAD;}
-    /** A live brood is in that last interval now. */
-    public boolean shoreBirthDue(){
+    /** First preparation tick for birth or the body's hop-off width, whichever comes first. */
+    public int shoreBirthAt(double widthLimit){
         var b=brood();
-        return b!=null&&!b.cancelled&&!b.complete()&&b.kind==FamilyData.BirthKind.LIVE&&b.duration-b.elapsed<=shoreBirthLead();
+        int low=0,high=b.duration;
+        while(low<high){
+            int tick=(low+high)/2;
+            float belly=LiveBirthGeometry.belly((float)tick/b.duration,b.children.size()-b.unborn(),b.children.size());
+            double width=LiveBirthGeometry.bodyDimensions(entity,entity.growthScale(),belly).scale(entity.getScale()).width();
+            if(width>=widthLimit)high=tick;else low=tick+1;
+        }
+        return Math.max(0,low-shoreBirthLead());
+    }
+    public boolean shoreBirthDue(double widthLimit){
+        var b=brood();
+        return b!=null&&!b.cancelled&&!b.complete()&&b.kind==FamilyData.BirthKind.LIVE&&b.elapsed>=shoreBirthAt(widthLimit);
     }
     /** Pregnancy can advance aboard; labour and birth roles require her own ground support. */
     private boolean gestationReady(){

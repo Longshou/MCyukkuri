@@ -147,7 +147,8 @@ final class Ashore implements Intent {
         Waters.log(hat, owner, landing == null ? null : landing.water(), route, id());
         if (route.isEmpty()) { landing = null; return null; }
         var edge = landing;
-        if (route.size() > 1) return List.of(() -> new Step.Do(new Paddle(Waters.leg(route), ARRIVE)));
+        if (route.size() > 1) return List.of(() -> new Step.Do(new Paddle(() -> Waters.leg(route),
+                distance -> Waters.docked(hat, owner) || distance <= ARRIVE)));
         // at the landing water: paddle in against the bank, once; no hop in reach even then, and the next derive takes another
         if (!tried.add(edge.stand())) { landing = null; return paddle(hat); }
         var dock = Waters.dock(hat, owner, edge);

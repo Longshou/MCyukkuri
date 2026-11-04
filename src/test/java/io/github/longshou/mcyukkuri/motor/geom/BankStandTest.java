@@ -4,6 +4,13 @@ import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
 
 class BankStandTest {
+    @Test void fullTermBodyCannotBridgeTheBankButAnEarlierBodyCan() {
+        assertTrue(1.169 > BankStand.widthLimit(1, 0));
+        assertTrue(1 < BankStand.widthLimit(1, .05));
+        assertTrue(1 > BankStand.widthLimit(1, .1));
+        assertEquals(1, .92 * BankStand.widthLimit(1, .05) + .05, 1e-12);
+    }
+
     @Test void nearestStandMakesShortCrossingReachableWithoutLeavingSupport() {
         var from = new Vec(.7, -.06, .28);
         var stand = BankStand.nearest(new Vec(0, 0, 0), new Vec(1, 0, 0), .12, from);

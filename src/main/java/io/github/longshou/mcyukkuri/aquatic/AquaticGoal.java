@@ -171,14 +171,17 @@ final class AquaticGoal extends Goal {
         double hunger = Math.max(0, num("hunger_from", 55) - life.nutrition()) * num("hunger_slope", 3);
         double weather = body.level().isThundering() ? num("thunder_need", 60) : rain && life.wetness() >= num("wet_from", 60) ? num("wet_need", 70) : 0;
         double breed = body.family().ready(false) && body.family().partner() != null ? num("breed_need", 35) : 0;
-        // Water life (sailing, feeding, setting out) until the birth's own last ticks: there the shore return is the strongest pull and
-        // a launch waits. The interval is the one live labour already needs her own dry ground in (no second gestation clock).
+        // Use the birth's preparation lead before either labour or the physical hop-off limit, without a second pregnancy clock.
         var brood = body.family().brood();
-        boolean birth = body.family().shoreBirthDue();
+        var limit = brood == null ? null : Hop.bankLimit(body, aboard ? hat : null);
+        boolean birth = brood != null && body.family().shoreBirthDue(limit.width());
         double birthWant = birth ? num("birth_ashore_want", 200) : 0;
         if (birth && !brood.id.equals(shoreBrood)) {
             shoreBrood = brood.id;
-            GameplayLog.event(body, "aquatic", "birth shore return brood={} remaining={} aboard={}", brood.id, brood.duration - brood.elapsed, aboard);
+            GameplayLog.event(body, "aquatic", "birth shore return brood={} remaining={} aboard={} reason={} width={} limit={} margin={}",
+                    brood.id, brood.duration - brood.elapsed, aboard,
+                    brood.duration - brood.elapsed <= FamilyLife.shoreBirthLead() ? "birth_lead" : "body_limit",
+                    body.getBbWidth(), limit.width(), limit.margin());
         }
         var young = AquaticLife.young(body);
         // Finish the first meal/toilet care ashore; a crawling child can gather for a braid lift without learning to jump.

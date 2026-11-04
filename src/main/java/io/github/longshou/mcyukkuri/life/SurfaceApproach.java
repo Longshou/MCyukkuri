@@ -9,6 +9,7 @@ import io.github.longshou.mcyukkuri.motor.action.StepIn;
 import io.github.longshou.mcyukkuri.motor.action.Swim;
 import io.github.longshou.mcyukkuri.motor.action.Walk;
 import io.github.longshou.mcyukkuri.motor.geom.Detour;
+import io.github.longshou.mcyukkuri.motor.geom.BankStand;
 import io.github.longshou.mcyukkuri.status.Reactions;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.ArrayList;
@@ -113,7 +114,7 @@ public final class SurfaceApproach {
         return supported(actor,feet,true) && Reactions.Weather.allowsStep(actor,BlockPos.containing(feet));
     }
     /** Distance from the centre to the sole samples required by walking, including a bank-edge stand. */
-    public static double supportRadius(YukkuriEntity actor) { return actor.getBbWidth() * .42; }
+    public static double supportRadius(YukkuriEntity actor) { return actor.getBbWidth() * BankStand.SUPPORT_FRACTION; }
     private static boolean supported(YukkuriEntity actor, Vec3 feet, boolean planning) {
         var level = actor.level();
         if (!planning && !Reactions.Weather.allowsStep(actor,BlockPos.containing(feet))) return false;

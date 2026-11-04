@@ -8,6 +8,8 @@ import io.github.longshou.mcyukkuri.subspecies.SubspeciesLife;
 import net.minecraft.world.entity.MobSpawnType;
 import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.family.FamilyLife;
+import io.github.longshou.mcyukkuri.motor.action.Hop;
+import io.github.longshou.mcyukkuri.motor.surface.SurfaceHost;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.settlement.NaturalShelter;
 import io.github.longshou.mcyukkuri.settlement.SettlementData;
@@ -147,7 +149,7 @@ final class ScenarioSetup {
      * catches, and whether there is a hat, a nest or her own boat, comes from the real pair and their home (decision R5), never
      * from here.
      * {@code stem}: a real STEM conception brought to 400 ticks before term (a hatted Marisa father sets the hat under it).
-     * {@code near_term}: a live conception a short pause before the birth's own last ticks, so the mother still lives in the water first
+     * {@code near_term}: a live conception a short pause before the birth or body-limit preparation, so the mother lives in the water first
      * and only then returns ashore.
      */
     static String birth(YukkuriEntity mother, YukkuriEntity father, String outcome) {
@@ -182,8 +184,10 @@ final class ScenarioSetup {
             data.setDirty();
         } else {
             var helper = FamilyLife.catcher(mother, brood);
-            int lead = outcome.equals("near_term") ? FamilyLife.shoreBirthLead() + 800 : helper != null && helper != mother ? 150 : 2;
-            brood.elapsed = Math.max(0, brood.duration - lead);
+            brood.elapsed = outcome.equals("near_term")
+                    ? Math.max(0, mother.family().shoreBirthAt(Hop.bankLimit(mother,
+                            mother.getVehicle() instanceof SurfaceHost host ? host : null).width()) - 800)
+                    : Math.max(0, brood.duration - (helper != null && helper != mother ? 150 : 2));
             data.setDirty();
             if (outcome.equals("caught") && helper == null)
                 return "已进入临产，但没有人能接：父油要是戴帽的魔理沙、认识母油并在十六格内；这一胎会按普通规则发生。";

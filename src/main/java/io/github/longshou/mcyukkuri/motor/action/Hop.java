@@ -20,6 +20,7 @@ import io.github.longshou.mcyukkuri.motor.geom.ArcSolver;
 import io.github.longshou.mcyukkuri.motor.geom.Ballistic;
 import io.github.longshou.mcyukkuri.motor.geom.BankStand;
 import io.github.longshou.mcyukkuri.motor.geom.HopPath;
+import io.github.longshou.mcyukkuri.motor.geom.HopHeading;
 import io.github.longshou.mcyukkuri.motor.geom.Vec;
 import io.github.longshou.mcyukkuri.motor.surface.SurfaceHost;
 import io.github.longshou.mcyukkuri.motor.surface.HostFrame;
@@ -103,6 +104,43 @@ public final class Hop implements Action {
         return Floor.point(BankStand.nearest(vec(edge), vec(normal), SurfaceApproach.supportRadius(body), vec(from)));
     }
 
+    public record BankLimit(double width, double margin) {}
+
+    /** The bank-width budget includes the host's predicted movement while the brim landing settles and turns for takeoff. */
+    public static BankLimit bankLimit(YukkuriEntity body, SurfaceHost host) {
+        var ability = BodyAbility.of(body);
+        double margin = 0;
+        if (host != null) {
+            var from = vec(host.riders().local(body.getUUID()).scale(host.frame().unit()));
+            for (var local : host.hopStops(body)) {
+                var arc = ArcSolver.lowest(from, vec(local.scale(host.frame().unit())), ability.hopHeight(),
+                        ability.hopReach(), ability.scale(), points -> true);
+                if (!(arc instanceof ArcSolver.Plan plan)) continue;
+                int landing = takeoffTicks() - 1 + (int) Math.ceil(plan.ticks());
+                int launch = landing + marker("settled") - marker("land")
+                        + turnTicks(body, 0, 180) + takeoffTicks();
+                var at = host.frameAfter(landing).toWorld(local);
+                for (int tick = landing + 1; tick <= launch; tick++)
+                    margin = Math.max(margin, host.frameAfter(tick).toWorld(local).subtract(at).horizontalDistance());
+            }
+        }
+        return new BankLimit(BankStand.widthLimit(ability.hopReach(), margin), margin);
+    }
+
+    /** Compare local horizontal points before applying a host's tilt to the bearing. */
+    private static float heading(YukkuriEntity body, SurfaceHost host, Vec3 from, Vec3 to, float facing) {
+        double unit = host == null ? 1 : host.frame().unit();
+        double local = HopHeading.yaw(vec(from.scale(unit)), vec(to.scale(unit)), facing, TOUCH);
+        if (from.subtract(to).horizontalDistance() * unit <= TOUCH) return facing;
+        return host == null ? (float) local : SurfaceApproach.yaw(host.frame().toWorld(from), host.frame().toWorld(to));
+    }
+
+    private Face faceLeg(YukkuriEntity body) {
+        if (seat != null && body.getVehicle() == seat.host().entity())
+            return new Face(heading(body, seat.host(), seat.host().riders().local(body.getUUID()), seat.local(), body.yBodyRot));
+        return new Face(heading(body, null, body.position(), seat == null ? target : seat.world(), body.yBodyRot));
+    }
+
     /** One leg to a supported point on the current host, without routing through other stops. */
     public static boolean reaches(YukkuriEntity body, SurfaceHost host, Vec3 local) {
         var from = host.riders().local(body.getUUID()).scale(host.frame().unit());
@@ -144,8 +182,8 @@ public final class Hop implements Action {
         var start = new Vec3(from.x(), from.y(), from.z());
         var end = new Vec3(to.x(), to.y(), to.z());
         var frame = anchor == null ? null : anchor.frameAfter(delay);
-        float yaw = SurfaceApproach.yaw(frame == null ? start : frame.toWorld(start.scale(1 / frame.unit())),
-                frame == null ? end : frame.toWorld(end.scale(1 / frame.unit())));
+        float yaw = heading(body, anchor, frame == null ? start : start.scale(1 / frame.unit()),
+                frame == null ? end : end.scale(1 / frame.unit()), body.yBodyRot);
         return ArcSolver.lowest(from, to, ability.hopHeight(), ability.hopReach(), ability.scale(),
                 points -> clear(body, start, anchor, hosts, points, delay, yaw));
     }
@@ -190,9 +228,10 @@ public final class Hop implements Action {
             if (!candidate.available(body)) return new Flight(Feasibility.of(Reason.NO_ROOM, 0, "destination_occupied"), null, null);
         }
         if (anchor != null) {
-            float yaw = SurfaceApproach.yaw(anchor.frame().toWorld(origin.scale(1 / anchor.frame().unit())), candidate.world());
+            float yaw = heading(body, anchor, origin.scale(1 / anchor.frame().unit()), candidate.local(), body.yBodyRot);
             if (delay > 0) {
-                var height = anchor.turnSupport(origin.scale(1 / anchor.frame().unit()), body, yaw - anchor.entity().getYRot());
+                var height = Floor.turnHeight(anchor, body, origin.scale(1 / anchor.frame().unit()),
+                        body.yBodyRot - anchor.entity().getYRot(), yaw - anchor.entity().getYRot());
                 if (height.isEmpty()) return new Flight(Feasibility.of(Reason.NO_SUPPORT, 0, "takeoff_support"), null, null);
                 origin = new Vec3(origin.x, height.getAsDouble() * anchor.frame().unit(), origin.z);
             }
@@ -239,8 +278,9 @@ public final class Hop implements Action {
         for (int i = leg; i < path.size(); i++) {
             var next = path.get(i);
             var at = new Vec3(next.at().x(), next.at().y(), next.at().z()).scale(1 / host.frame().unit());
-            var frame = host.frameAfter(delay);
-            float bearing = SurfaceApproach.yaw(frame.toWorld(local), frame.toWorld(at));
+            float bearing = heading(body, host, local, at, yaw);
+            var turnHeight = Floor.turnHeight(host, body, local, yaw - host.entity().getYRot(), bearing - host.entity().getYRot());
+            if (turnHeight.isEmpty()) { obstruction = "takeoff_turn"; return false; }
             if (delay > 0) delay += turnTicks(body, yaw, bearing);
             yaw = bearing;
             delay += (int) Math.ceil(next.flight().ticks());
@@ -254,6 +294,9 @@ public final class Hop implements Action {
             if (i + 1 < path.size()) delay += takeoffTicks() - 1;
         }
         float bearing = SurfaceApproach.yaw(host.frameAfter(delay).toWorld(local), bank);
+        if (Floor.turnHeight(host, body, local, yaw - host.entity().getYRot(), bearing - host.entity().getYRot()).isEmpty()) {
+            obstruction = "bank_turn"; return false;
+        }
         double angle = Mth.wrapDegrees(bearing - yaw);
         int turns = turnTicks(body, yaw, bearing);
         for (int tick = 1; tick <= turns; tick++, delay++) {
@@ -298,7 +341,7 @@ public final class Hop implements Action {
                     var next = solve(body, takeoff - 1);
                     if (!next.ready().ok()) return Outcome.of(next.ready().reason(), next.ready().shortfall(), next.ready().detail());
                     seat = next.seat();
-                    legTurn = new Face(SurfaceApproach.yaw(body.position(), next.seat() == null ? target : next.seat().world()));
+                    legTurn = faceLeg(body);
                     legTurn.start(body);
                 }
                 var turning = legTurn.tick(body);
@@ -308,7 +351,7 @@ public final class Hop implements Action {
             }
             if (++crouch < takeoff) return new Running(takeoff - crouch, TravelMode.CONSUMED);
             // The host can drift during preparation; face the live leg before committing its impulse.
-            legTurn = new Face(SurfaceApproach.yaw(body.position(), seat == null ? target : seat.world()));
+            legTurn = faceLeg(body);
             legTurn.start(body);
             var turning = legTurn.tick(body);
             if (!(turning instanceof Outcome.Done)) return turning;

@@ -3,12 +3,15 @@ package io.github.longshou.mcyukkuri.motor.surface;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.motor.BodyAbility;
 import io.github.longshou.mcyukkuri.motor.Motor;
+import io.github.longshou.mcyukkuri.motor.action.Face;
 import io.github.longshou.mcyukkuri.motor.geom.BodyFootprint;
 import io.github.longshou.mcyukkuri.motor.geom.FloorSearch;
 import io.github.longshou.mcyukkuri.motor.geom.Vec;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.OptionalDouble;
+import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
 
 /** Contact motion on a host: turns yield only to supported positions, raised riders settle downhill. */
@@ -89,6 +92,27 @@ public final class Floor {
             return stepDeg;
         }
         return 0;
+    }
+
+    /** Read-only support sweep for a planned turn, with the same step sizes and rise limit as the executed turn. */
+    public static OptionalDouble turnHeight(SurfaceHost host, YukkuriEntity body, Vec3 local, float from, float to) {
+        double left = Mth.wrapDegrees(to - from);
+        while (Math.abs(left) > Face.FACE_ARRIVED) {
+            float step = (float) Math.copySign(Math.min(Math.abs(left), BodyAbility.of(body).turnRate()), left);
+            OptionalDouble height = OptionalDouble.empty();
+            for (int attempt = 0; attempt < 3; attempt++, step /= 2) {
+                var next = host.turnSupport(local, body, from + step);
+                if (next.isPresent() && (next.getAsDouble() - local.y) * host.frame().unit() <= Occupancy.MARGIN) {
+                    height = next;
+                    break;
+                }
+            }
+            if (height.isEmpty() || step == 0) return OptionalDouble.empty();
+            local = new Vec3(local.x, height.getAsDouble(), local.z);
+            from += step;
+            left = Mth.wrapDegrees(to - from);
+        }
+        return OptionalDouble.of(local.y);
     }
 
     public static void settle(SurfaceHost host) {

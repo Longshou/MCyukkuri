@@ -2811,7 +2811,7 @@ def boat_birth(sid, title, hint, riders):
          '随后按陆地接生帽／窝／地面规则分娩。'
          + ('两只初始赤油占满母船；怀孕不能搬运它们，仍留在真实座位上。' if riders else '母船起初没有幼体；空帽可以收回。')
          + '每只新生儿都应戴水生圆帽、在身体外出生并落在岸上；本窗口观察出生与留岸照护。幼体完成首餐、首便、能集合后才走普通亲子装载，全部新生儿上船才算出航完成。',
-         '约 1–2 分钟（先水上生活，约 40 秒后临产上岸与分娩）',
+         '约 3–5 分钟（先水上生活，约 40 秒后按临产或体宽上限靠岸，岸上继续孕程）',
          [yk('marisa', bank_dx(0), 0, 'mother', aquatic=True, yaw=-90, lead=True, **pair_ready()),
           yk('marisa', bank_dx(4), 4, 'father', aquatic=True, yaw=-90, **pair_ready()),
           *(_babies() if riders else []), item('minecraft:apple', 8, bank_dx(0) - 2, 0),
