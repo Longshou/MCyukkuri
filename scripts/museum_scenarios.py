@@ -2623,18 +2623,30 @@ pond('afloat_family_gather', '岸边集合后再辫接幼上船', '岸边集合�
                         r'\[intent\][^\n]* start id=set_out\b[\s\S]*\[intent\][^\n]* start id=set_out\b',
                         r'\[action\][^\n]* start id=take_prop\b', r'\[intent\][^\n]* end id=set_out result=EXHAUSTED\b']))
 
+def _to_water_chain(sid):
+    """Reunion, then the lift to the water, the set-down at the berth, the hat, the lift aboard and the launch: one parent, one child, in order."""
+    a, c = _uuid_text(sid, 'a'), _uuid_text(sid, 'c1')
+    return (rf'\[family\][^\n]*uuid={a}[^\n]* child search reunited child={c}\b'
+            rf'[\s\S]*\[intent\][^\n]*uuid={a}[^\n]* start id=set_out\b'
+            rf'[\s\S]*\[aquatic\][^\n]*uuid={a}[^\n]* set_out carry child={c} purpose=to_water\b'
+            rf'[\s\S]*\[family\][^\n]*uuid={a}[^\n]* carry grip [^\n]*uuid={c}'
+            rf'[\s\S]*\[action\][^\n]*uuid={a}[^\n]* end id=release outcome=DONE'
+            rf'[\s\S]*\[hat\][^\n]* placed owner={a}\b[^\n]*water=true'
+            rf'[\s\S]*\[family\][^\n]*uuid={a}[^\n]* carry grip [^\n]*uuid={c}[^\n]*hold=braid'
+            rf'[\s\S]*\[aquatic\][^\n]*uuid={a}[^\n]* set_out complete [^\n]*aboard=1/1\b')
+
+
 pond('afloat_family_distant', '远处赤油·先寻回再出航', '寻回远处赤油再出航',
-     '亲油和木棍在南岸，赤油在内陆三十余格外、普通水上亲子范围之外但陆地搜寻范围之内：亲油先家庭搜寻，走到赤油身边停步打招呼（不顶着孩子往前走），随后朝水边走去、在水边呼唤等孩子跟上，再放帽出航；仍相距遥远时不会出航',
-     '先看约 30–60 秒寻回，再看约 2–3 分钟回水',
+     '亲油和木棍在南岸，赤油在岸边内陆十七格外、普通水上亲子范围之外但陆地搜寻范围之内：亲油先家庭搜寻，走到赤油身边停步打招呼（不顶着孩子往前走），随后把爬不动的赤油抱起带到水边放下，再放帽、把它托上船出航；仍相距遥远时不会出航',
+     '约 1–2 分钟',
      [yk('marisa', bank_dx(10) - 1, 10, 'a', aquatic=True, yaw=-90, lead=True, uuid=uid('afloat_family_distant', 'a'), **pair_ready()),
-      _aquatic_young('afloat_family_distant', 'c1', -16, -13, 'baby', 'a', childhood='Version:1,Newborn:1b,Landed:1b,FirstMealDone:1b,FirstToiletDone:1b,Crawled:0b,Jumped:0b'),
+      _aquatic_young('afloat_family_distant', 'c1', -10, 12, 'baby', 'a', childhood='Version:1,Newborn:1b,Landed:1b,FirstMealDone:1b,FirstToiletDone:1b,Crawled:0b,Jumped:0b'),
       item('minecraft:stick', 1, bank_dx(10) - 1, 9, 'stick')],
-     note='日志顺序：family search started → child search reunited（distance 是停步时的接触距离，之后亲油不再向前顶孩子）→ [intent] start id=set_out（why 里 stick=、beyond_gather=false）→ 离水远时 set_out far shore（每走一段呼唤等孩子跟上，孩子爬得很慢，这一程要几分钟），到水边 gather → placed。重逢后不得再来回搜寻（child search reunited 只出现一次）；以 set_out complete aboard=1/1 收尾，孩子爬得慢，整程要几分钟。'
-          '孩子不会爬时的叼运归亲代运输，不在此场景完成；准备成功不算行为成功。' + _DESIRE_NOTE,
+     note='日志顺序：family search started → child search reunited（distance 是停步时的接触距离，之后亲油不再向前顶孩子）→ [intent] start id=set_out（why 里 stick=、beyond_gather=false）→ [aquatic] set_out carry … purpose=to_water（同一孩子）→ [family] carry grip（帽戴着时辫托到帽檐，否则嘴叼或辫尖）→ 离水远时 set_out far shore，孩子在身上，沿途不呼唤等待 → 到泊位 [action] end id=release outcome=DONE（先放下才摘帽）→ [hat] placed … water=true → 帽上辫托 carry grip … hold=braid → set_out complete … aboard=1/1。'
+          '重逢后不得再来回搜寻（child search reunited 只出现一次）。载重或承托容不下的孩子仍由亲油带路等候；准备成功不算行为成功。' + _DESIRE_NOTE,
      reads=[('读亲油', f'yukkuri status {sel("a")} raw'), ('读赤油', f'yukkuri status {sel("c1")} raw')],
-     smoke=dict(ticks=7200, expect=[r'\[family\][^\n]* family search started\b',
-                                   r'\[family\][^\n]* child search reunited [^\n]*distance=[\s\S]*\[intent\][^\n]* start id=set_out\b'],
-                forbid=[r'child search reunited [\s\S]*child search reunited ', r'\[body\][^\n]* invariant\b']))
+     smoke=dict(ticks=3600, expect=[r'\[family\][^\n]* family search started\b', _to_water_chain('afloat_family_distant')],
+                forbid=[r'child search reunited [\s\S]*child search reunited ', r'\[body\][^\n]* invariant\b', r'death settled into remains']))
 
 pond('afloat_stick', '水上缺棍·划去取漂浮木棍', '漂浮木棍亲油划去取',
      '亲油坐在自己的帽船里漂在静水上，帽里没有木棍；几格外的水面上漂着一根真木棍。没有木棍（从没有或翻船失去是同一状态）的亲油看到水上的木棍就划过去、用辫子或嘴取到收进帽里；水上没有木棍时则不会专门去找',
@@ -2767,6 +2779,21 @@ pond('rescue_infant_full', '亲油用辫子救起落水赤油', '辫救落水赤
                                    *_rescue_smoke('rescue_infant_full', 'k1')],
                 forbid=_WATER_SMOKE_FORBID, verify=water_aftermath, readout=_water_readouts('a', 'k1')))
 
+
+pond('afloat_family_ashore', '岸上远处赤油·水上亲油回岸寻回', '水上回岸寻回赤油再出航',
+     '亲油坐在近岸的自己的帽船里，帽里有木棍；赤油独自在内陆近二十格外的岸上（落水后自己爬上岸又走远），超出普通水上亲子范围、仍在陆地搜寻范围内：亲油不划开，划回近岸上岸、取回帽子，家庭搜寻、走到赤油身边打招呼，再带它回水边：抱不动的抱起带去放下，已学会跳的跟着走，然后放帽、上船再出航',
+     '约 2–3 分钟',
+     [yk('marisa', bank_dx(0), 0, 'a', aquatic=True, yaw=-90, lead=True, uuid=uid('afloat_family_ashore', 'a'), **pair_ready()),
+      _aquatic_young('afloat_family_ashore', 'c1', -14, -6, 'baby', 'a', childhood='Version:1,Newborn:1b,Landed:1b,FirstMealDone:1b,FirstToiletDone:1b,Crawled:0b,Jumped:0b'),
+      afloat('a', water_at(0, 3), True, sel('a'), stick=True)],
+     vantage=(bank_dx(0) - 2, 1, -90, 18),
+     note='日志顺序：[intent] start id=come_ashore（why 里 young_ashore=1，赤油在 16 格外也算）→ end id=come_ashore result=DONE（帽子取回戴好）→ family search started → child search reunited → start id=set_out → 赤油抱不动时 set_out carry … purpose=to_water 与 carry grip（上岸这段时间里它可能已学会跳，那就跟着走）→ set_out complete … aboard=1/1。亲油途中不转去 cruise；上岸一次落地失败后重来是登陆动作自己的事，不在此判。准备成功不算行为成功。' + _DESIRE_NOTE,
+     reads=[('读亲油', f'yukkuri status {sel("a")} raw'), ('读赤油', f'yukkuri status {sel("c1")} raw')],
+     smoke=dict(ticks=5400, expect=[rf'\[intent\][^\n]*uuid={_uuid_text("afloat_family_ashore", "a")}[^\n]* start id=come_ashore [^\n]*young_ashore=1\b'
+                                   rf'[\s\S]*\[intent\][^\n]*uuid={_uuid_text("afloat_family_ashore", "a")}[^\n]* end id=come_ashore result=DONE\b'
+                                   rf'[\s\S]*\[family\][^\n]*uuid={_uuid_text("afloat_family_ashore", "a")}[^\n]* child search reunited child={_uuid_text("afloat_family_ashore", "c1")}\b'
+                                   rf'[\s\S]*\[aquatic\][^\n]*uuid={_uuid_text("afloat_family_ashore", "a")}[^\n]* set_out complete [^\n]*aboard=1/1\b'],
+                forbid=[r'child search reunited [\s\S]*child search reunited ', r'\[body\][^\n]* invariant\b', r'death settled into remains']))
 
 pond('rescue_no_seat', '满船无座时托幼送岸', '满船托幼送岸',
      '1.0 体型亲油的帽船载着四只自己的孩子：0.10 舱内赤油、0.19 和 0.30 幼体在头顶、0.28 幼体在帽檐，载重 0.0568，离容量 0.0635 只差一只新生赤油的重量。尚未学爬的 0.19 体型新生赤油在离岸约九格的开阔水面上漂着，离最近的干岸七格开外，自己爬不出去；亲油划近后帽内、头顶、帽檐虽各有空位，普通亲油的载重规则不接受再多一只（0.0568+0.0069 超过容量），按满船处理：将它托起、带着跳到近岸干地，再放下。必须看见真实接起、离船和放下，孩子自己上岸不算救起',
@@ -3036,7 +3063,7 @@ TOPICS = {
     'body_mold': 'R5', 'wound_parts': 'R5', 'wound_materials': 'R5', 'thermal_body': 'R5', 'wound_sources': 'R5', 'wound_leak': 'R5', 'treatment_severe': 'R5', 'treatment_scars': 'R5', 'treatment_care': 'R5', 'magma_sole': 'R5', 'core_exposed': 'R5', 'core_filling': 'R5', 'remains_rot': 'R6', 'remains_forms': 'R6', 'carrion': 'R6', 'cannibal_hunt': 'R6',
     'last_words': 'R7', 'offering': 'R7', 'sacrifice': 'R7', 'sacrifice_reluctant': 'R7',
     'hat_float': 'A1', 'hat_push': 'A1', 'hat_turbulence': 'A4', 'hat_current': 'A1', 'hat_grounded_inverted': 'A4', 'hat_grounded_capsized': 'A4', 'cargo': 'A2', 'hat_crowd': 'A3', 'shake_capsize': 'A4',
-    'water_colony': 'A6', 'sail': 'A6', 'afloat_stick': 'A6', 'afloat_family': 'A6', 'afloat_family_gather': 'A6', 'afloat_family_distant': 'A6', 'shore_family': 'A6', 'kid_boat_play': 'A6',
+    'water_colony': 'A6', 'sail': 'A6', 'afloat_stick': 'A6', 'afloat_family': 'A6', 'afloat_family_gather': 'A6', 'afloat_family_distant': 'A6', 'afloat_family_ashore': 'A6', 'shore_family': 'A6', 'kid_boat_play': 'A6',
     'rescue_child': 'A5', 'rescue_infant_full': 'A5', 'rescue_no_seat': 'A5', 'birth_boat_caught': 'A6', 'birth_boat_missed': 'A6', 'birth_hat_own': 'A6', 'first_voyage': 'A6', 'first_voyage_brim': 'A6',
     'self_rescue': 'A5', 'shore_capsized': 'A5', 'shore_capsized_far': 'A5', 'fall_in_pond': 'A5', 'worn_hat_boat': 'A5', 'hat_swap': 'C1', 'hat_damage': 'C1', 'hat_shatter': 'C1', 'hatless_kin': 'C2', 'hatless_scorn': 'C2', 'hatless_boundary': 'C2',
     'hatless_monster': 'C2', 'hatless_sanction': 'C2', 'puff_response': 'C2',

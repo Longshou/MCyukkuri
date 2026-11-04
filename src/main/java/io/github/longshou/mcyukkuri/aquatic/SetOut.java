@@ -6,6 +6,7 @@ import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.FamilyLife;
 import io.github.longshou.mcyukkuri.family.BraidFetch;
 import io.github.longshou.mcyukkuri.family.FamilyRendezvous;
+import io.github.longshou.mcyukkuri.family.ParentCarry;
 import io.github.longshou.mcyukkuri.headwear.HatProp;
 import io.github.longshou.mcyukkuri.headwear.PlacedHatEntity;
 import io.github.longshou.mcyukkuri.intent.Commitment;
@@ -16,10 +17,11 @@ import io.github.longshou.mcyukkuri.intent.Method;
 import io.github.longshou.mcyukkuri.intent.Step;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.motor.ClipMarkers;
-import io.github.longshou.mcyukkuri.motor.Motor;
 import io.github.longshou.mcyukkuri.motor.action.Face;
+import io.github.longshou.mcyukkuri.motor.action.Grab;
 import io.github.longshou.mcyukkuri.motor.action.Pick;
 import io.github.longshou.mcyukkuri.motor.action.PlaceProp;
+import io.github.longshou.mcyukkuri.motor.action.Release;
 import io.github.longshou.mcyukkuri.motor.action.Walk;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.social.Bonds;
@@ -39,9 +41,11 @@ import net.minecraft.world.phys.Vec3;
  * Setting out (出航; HARD, a short commitment only danger breaks): with her stick (tucked in the hat, or
  * one picked up nearby, lying or afloat beside the bank; with none in reach she sets out without) she walks to a bank edge beside
  * calm water with room for the hull (the nearest one carrying a hull within {@link Waters#FAR} blocks when none is within berth
- * reach, in strides of a few blocks so the young keep up, calling for them between strides), sets her hat down on the water
+ * reach, calling for the young that follow on their own between strides of a few blocks), sets her hat down on the water
  * ({@code PlaceProp} in water mode, {@code hat_off_self_aq}), and the family gets aboard: a young that hops boards by its own
- * {@code board_parent} desire. She picks dependent young up from the near brim and seats them after reaching her own seat.
+ * {@code board_parent} desire. A young ashore that cannot get to the water by itself is lifted by the shared Grab (the hold it
+ * picks) and carried to that shore; she sets it down at the berth stand before she places the hat, and picks it up again from the
+ * near brim and seats it after reaching her own seat.
  * Sleeping young, those in the water and those without a seat stay behind; a failed fetch ends this setting out. She gathers
  * responsive young at the bank first; the hat is set down at a dry stand with her own hop reach to its brim,
  * and she approaches a wandering child on foot before lifting it.
@@ -62,6 +66,9 @@ final class SetOut implements Intent, FamilyRendezvous {
     private long gatherUntil;
     /** The far shore she is heading for, or null. */
     private Waters.Edge heading;
+    /** The young she already called to lift this setting out (one that did not come, or was let go on the way, is led from then on), and how many she lifted. */
+    private final Set<UUID> asked = new HashSet<>();
+    private int lifted;
     private final Ferry.Beckoning beckoning = new Ferry.Beckoning();
     /** Young she sets out without, with the reason. */
     private final Map<UUID, String> excused = new LinkedHashMap<>();
@@ -105,17 +112,15 @@ final class SetOut implements Intent, FamilyRendezvous {
 
     @Override public void ended(IntentRunner.Result result) {
         var held = AquaticLife.carried(owner);
-        if (result != IntentRunner.Result.DONE && held != null) {
-            // what an unfinished carry still holds is put down where it hangs (as Fetch does)
-            Motor.dismount(held, held.position(), Vec3.ZERO, "set_out_ended");
-            GameplayLog.event(owner, "aquatic", "set_out release child={} at={} result={}", held.getUUID(), GameplayLog.at(held.position()), result);
-        }
+        // what an unfinished carry still holds goes to the carry's own set-down
+        if (result != IntentRunner.Result.DONE && held != null) owner.family().carry().finish(held, id() + "_ended");
         if (result != IntentRunner.Result.DONE) return;
         var hat = AquaticLife.hat(owner);
         var stayed = new LinkedHashMap<UUID, String>();
         var young = AquaticLife.young(owner);
         for (var y : young) if (!AquaticLife.aboard(y, hat)) stayed.put(y.getUUID(), String.valueOf(staying(y)));
-        GameplayLog.event(owner, "aquatic", "set_out complete hat={} aboard={}/{}", hat.getUUID(), young.size() - stayed.size(), young.size());
+        GameplayLog.event(owner, "aquatic", "set_out complete hat={} aboard={}/{} lifted={} children={}", hat.getUUID(), young.size() - stayed.size(),
+                young.size(), lifted, young.stream().filter(y -> !stayed.containsKey(y.getUUID())).map(YukkuriEntity::getUUID).toList());
         if (stayed.isEmpty()) return;
         GameplayLog.event(owner, "aquatic", "set_out left_ashore={}", stayed);
         left.accept(stayed);
@@ -134,7 +139,10 @@ final class SetOut implements Intent, FamilyRendezvous {
                 // standing at a far shore that still has no berth: that one is done with
                 if (heading != null && SurfaceApproach.arrived(owner, heading.stand(owner.getBbWidth()))) { shores.add(heading.stand()); heading = null; }
                 if (heading == null) heading = Waters.farShore(owner, shores);
-                if (heading != null) return toShore(heading);
+                if (heading != null) {
+                    var carriable = carriable();
+                    return carriable != null ? lift(carriable) : toShore(heading);
+                }
             }
             if (edge != null && gatherUntil == 0 && !fetch.isEmpty()) {
                 GameplayLog.event(owner, "aquatic", "set_out gather start children={}", fetch.stream()
@@ -197,6 +205,11 @@ final class SetOut implements Intent, FamilyRendezvous {
         GameplayLog.event(owner, "aquatic", "berth stand={} water={} yaw={}", edge.stand().toShortString(), edge.water().toShortString(), edge.yaw());
         var stand = Waters.boardingStand(edge, owner);
         return List.of(() -> SurfaceApproach.arrived(owner, stand) ? null : new Step.Do(new Walk(stand)),
+                // a young carried here is set down at the stand: the hat never leaves her head with one on the brim or in the braid
+                () -> {
+                    var held = AquaticLife.carried(owner);
+                    return held == null ? null : new Step.Do(new Release(held));
+                },
                 () -> new Step.Do(new Face(edge.yaw())),
                 // Keep the whole hull clear of the bank; boarding reaches its supported brim first.
                 () -> new Step.Do(new PlaceProp(new HatProp(owner, true, true), Waters.hatAt(edge, owner), edge.yaw() + (float) HullBounds.BOARDING_YAW)));
@@ -215,6 +228,35 @@ final class SetOut implements Intent, FamilyRendezvous {
                     return new Step.Wait(() -> !lagging() || owner.level().getGameTime() >= until, GATHER_YOUNG + 1, Behaviors.BOAT_CALL);
                 });
     }
+
+    /** Her nearest young ashore that cannot get to the water by itself and that her holds can carry now, or null. */
+    private YukkuriEntity carriable() {
+        return dependentAshore(null).stream().filter(y -> !asked.contains(y.getUUID()) && ParentCarry.capacityProblem(owner, y) == null)
+                .findFirst().orElse(null);
+    }
+
+    /** Call the young to her side, then lift it by the shared Grab, which picks the hold; it rides with her to the water's edge. A
+     *  young that does not come within the wait is led, as before, and not asked again. */
+    private List<Supplier<Step>> lift(YukkuriEntity child) {
+        var shore = heading.stand();
+        asked.add(child.getUUID());
+        long until = owner.level().getGameTime() + WAIT_YOUNG;
+        return List.of(() -> reaches(child) ? null
+                        : new Step.Wait(() -> reaches(child) || owner.level().getGameTime() >= until, WAIT_YOUNG + 1, Behaviors.BOAT_CALL),
+                () -> {
+                    if (!reaches(child)) {
+                        GameplayLog.event(owner, "aquatic", "set_out carry skipped child={} reason=out_of_reach at={}", child.getUUID(),
+                                GameplayLog.at(child.position()));
+                        return null;
+                    }
+                    lifted++;
+                    GameplayLog.event(owner, "aquatic", "set_out carry child={} purpose=to_water at={} shore={}", child.getUUID(),
+                            GameplayLog.at(child.position()), shore.toShortString());
+                    return new Step.Do(new Grab(child));
+                });
+    }
+
+    private boolean reaches(YukkuriEntity child) { return new Grab(child).check(owner).ok(); }
 
     /** The next stretch toward the stand: the whole way when no young follows her, else at most {@link #STRIDE} blocks on a floor she
      *  can walk to, so that the young (slow when small) keep up. */

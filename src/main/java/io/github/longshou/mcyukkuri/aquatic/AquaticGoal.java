@@ -252,14 +252,15 @@ final class AquaticGoal extends Goal {
                     "departure held reason=newborn_care children={}", nursing.stream().map(YukkuriEntity::getUUID).toList());
             return;
         }
-        // a young on dry ground that is not off on its own first voyage (one on its father's boat, in the water or in a mouth is not ashore)
-        long ashore = young.stream().filter(y -> AquaticLife.ashore(y) && !leftBehind(y) && !(Drive.running(y, DOMAIN) instanceof FirstVoyage)).count();
+        // a dependent young on dry ground anywhere in her search range (one that climbed out by itself and strayed on is a separated young
+        // too; the family search finds it once she is ashore) that is not off on its own first voyage (one on its father's boat, in the water or in a mouth is not ashore)
+        long ashore = SetOut.strays(body).stream().filter(y -> AquaticLife.ashore(y) && !leftBehind(y) && !(Drive.running(y, DOMAIN) instanceof FirstVoyage)).count();
         // no stick aboard pulls her ashore only when one lies there to be had; hunger only with nothing aboard or afloat she can eat
         boolean toHave = !stick && Waters.stick(body, 12, false) != null;
         boolean fed = food && !drive().failed("eat_aboard") || catchable != null && !drive().failed("forage");
         double pull = Math.max(Math.max(fed ? 0 : hunger, toHave ? num("stick_need", 50) : 0),
                 Math.max(birthWant, Math.max(Math.max(weather, breed), Math.max(dusk ? num("night_pull", 60) : 0, ashore > 0 ? num("young_ashore_need", 60) : 0))));
-        var world = List.of(at, stick, young.size(), birth);
+        var world = List.of(at, stick, young.size(), ashore, birth);
         Supplier<String> why = () -> String.format(Locale.ROOT, "hunger=%.0f food_aboard=%b stick=%b stick_ashore=%b weather=%.0f breed=%.0f birth=%.0f young_ashore=%d dusk=%b rain=%b",
                 hunger, food, stick, toHave, weather, breed, birthWant, ashore, dusk, rain);
         var ashoreDesire = Desire.of("come_ashore", floor(pull), world, why, () -> Ashore.come(body));
