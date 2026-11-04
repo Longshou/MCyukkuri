@@ -9,6 +9,7 @@
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
 | 魔理沙辫子运输连续路径、转向辫子侧，灵梦放下从嘴部出 | `.worktrees/art-a4-braid-carry` | `family/ParentCarry`、`client/ParentCarryPresentation`、`motor/geom/CarryGeometry`、`standards/yukkuri-library/motions/variants/lore` |
+| 水生种演示场合并同路径场景并按所见重命名 | `.worktrees/aq-scene-consolidate` | `scripts/museum_scenarios.py`、`scripts/museum_fields.py`、`docs/TODO.md`、`docs/FEATURES.md` |
 
 ## 玩法待办
 
