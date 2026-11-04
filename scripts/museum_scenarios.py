@@ -2838,6 +2838,10 @@ def shore_birth_result(window, riders):
         for health in re.findall(rf'uuid={child}[^\n]* damage cause=drown health=[\d.]+ -> ([\d.]+)', window):
             if float(health) < 8:
                 return f'newborn {child} fell below health 8 from water'
+        if not re.search(rf'uuid={child}[^\n]* first meal swallowed', window):
+            return f'newborn {child} did not swallow its first meal'
+        if not re.search(rf'uuid={child}[^\n]* first toilet completed', window):
+            return f'newborn {child} did not complete newborn care'
     if not re.search(rf'scenario afloat prepared [^\n]*young={2 if riders else 0}\b', window):
         return 'initial rider count differs'
     if riders:
