@@ -418,9 +418,12 @@ final class AquaticGoal extends Goal {
                     "board refused hat={} reason=no_room size={}", hat.getUUID(), body.growthScale() * body.getScale());
         }
         // A young standing on the hull leaves it by itself; one her braid carries on her head goes with her and is set down there.
+        // A hull with no dry stand in this young's hop reach has no way off for it, so nothing is offered: the young waits where it
+        // stands (the hop's own search reports why) instead of failing the same jump over and over.
         if (body.getVehicle() == hat && AquaticLife.jumper(body)
                 && (AquaticLife.ashore(parent) && !(running != null && running.intent() instanceof SetOut)
-                || running != null && running.intent() instanceof Ashore))
+                || running != null && running.intent() instanceof Ashore)
+                && Waters.brimAshore(hat, body) != null)
             out.add(Desire.of("follow_ashore", num("follow", 65), world, why, () -> Follow.ashore(body, hat)));
     }
 
