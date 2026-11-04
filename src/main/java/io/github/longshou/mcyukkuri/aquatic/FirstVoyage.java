@@ -108,7 +108,8 @@ final class FirstVoyage implements Intent {
     }
 
     /** Off its parent's hat, whichever way is physically open: onto the bank when a hop reaches one, else its own hat set down on the
-     *  water beside her hull from her brim (hopping up to it first from the hollow), then hopped onto from hull to hull. */
+     *  water beside her hull from her brim (along the brim to the launch place first when it stands elsewhere), then hopped onto
+     *  from hull to hull. */
     private List<Supplier<Step>> leave(PlacedHatEntity ride) {
         if (Waters.brimAshore(ride, young) != null) {
             route = "bank";

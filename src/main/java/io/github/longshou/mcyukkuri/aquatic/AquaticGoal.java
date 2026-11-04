@@ -397,7 +397,8 @@ final class AquaticGoal extends Goal {
     /**
      * A young able to handle its own hat that has not yet (solid food, hopping, learning), wearing it with a stick for it (tucked in
      * it, or loose near), not tired, its parent aboard her own hat afloat on a calm day, and it on the bank or aboard her hat by one
-     * or with calm water beside her hull to set its hat down on from her brim: its readiness grows with size relative to the shared young-seat limit, shifted earlier by boldness. Kept while it runs.
+     * or with calm water beside her hull to set its hat down on from her brim: its readiness grows with size relative to the
+     * shared young-seat limit, shifted earlier by boldness. Kept while it runs.
      */
     private void voyage(List<Desire> out, YukkuriEntity parent, PlacedHatEntity hat) {
         var life = body.life();
