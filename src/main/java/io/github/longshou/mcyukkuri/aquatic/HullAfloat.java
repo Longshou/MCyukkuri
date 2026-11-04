@@ -13,6 +13,7 @@ import io.github.longshou.mcyukkuri.motor.Motor;
 import io.github.longshou.mcyukkuri.mind.EmotionEvent;
 import io.github.longshou.mcyukkuri.motor.action.Climb;
 import io.github.longshou.mcyukkuri.motor.action.Right;
+import io.github.longshou.mcyukkuri.motor.surface.Floor;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.status.StatusEvents;
 import java.util.ArrayList;
@@ -343,7 +344,7 @@ public final class HullAfloat implements PlacedHatBehavior {
     /** Resolve entity contact before the single collision-aware move; only the approaching normal is removed. */
     private Contact contact(Entity other, Contact travel, Vec3 previous) {
         if (other.isSpectator() || other.noPhysics || other.isPassenger() || other.isPassengerOfSameVehicle(hat)) return travel;
-        if (other instanceof YukkuriEntity y && (Attach.of(y) instanceof AttachState.Airborne
+        if (other instanceof YukkuriEntity y && (Attach.of(y) instanceof AttachState.Airborne || !Floor.standing(y)
                 || y.motor().current() instanceof Climb climb && climb.host() == hat
                 || y.motor().current() instanceof Right right && right.host() == hat)) return travel;
         var hull = hat.getBoundingBox();
