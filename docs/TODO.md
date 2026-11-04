@@ -13,6 +13,7 @@
 | 岸边停顿与载幼跳岸（11-05 反馈 5、6） | `wp-d-landing` | `motor/action/Hop.java`、`motor/*`、`aquatic/Waters.java`、`family/ParentCarry.java` |
 | 水生亲油岸产后的食物（11-05 反馈 3） | `.worktrees/wp-e-shore-food` | `family/FamilyFeeding.java`、`entity/SpeciesProfile.java`、`settlement/Plants.java`、`headwear/PlacedHatBehavior.java`、`aquatic/HullAfloat.java`、`data/mcyukkuri/tags/item/`、`scripts/museum_scenarios.py`、`docs/FEATURES.md` |
 | 岸边幼体登船避水与落水脱困（wp-f-rim-young） | `.worktrees/wp-f-rim-young` | `aquatic/Follow.java`、`aquatic/Ferry.java` 登船段、`motor/` 步行准入与水中脱困、`scripts/museum_scenarios.py` |
+| 满船托幼送岸卸空与朝向守卫（11-05 反馈 10） | `.worktrees/wp-g-unload` | `aquatic/UnloadYoung.java`、`aquatic/AquaticGoal.java`、`aquatic/Ashore.java`、`family/LiveBirth.java`、`family/FamilyLife.java`、`intent/GoTo.java`、`scripts/museum_scenarios.py` |
 
 ## 玩法待办
 
