@@ -47,7 +47,7 @@ public final class Floor {
         var height = host.support(next, body);
         if (height.isEmpty() || !host.room(body, next)) return false;
         next = new Vec3(next.x, height.getAsDouble(), next.z);
-        if (body.level().getBlockCollisions(body, body.getBoundingBox().move(host.frame().toWorld(next).subtract(body.position()))).iterator().hasNext()) return false;
+        if (!Motor.clearSpot(host, body, next)) return false;
         Motor.spot(host, body, next, spot.yaw(), "floor_move");
         return true;
     }
@@ -131,7 +131,7 @@ public final class Floor {
             var height = host.support(next, body);
             if (height.isEmpty() || height.getAsDouble() >= from.y) continue;
             next = new Vec3(next.x, height.getAsDouble(), next.z);
-            if (!host.room(body, next)) continue;
+            if (!host.room(body, next) || !Motor.clearSpot(host, body, next)) continue;
             Motor.spot(host, body, next, spot.yaw(), "settle");
             GameplayLog.limited(host.entity(), "hat", "settle." + body.getUUID(), 100,
                     "settled rider={} from={} to={}", body.getUUID(), from, next);

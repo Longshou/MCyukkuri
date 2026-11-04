@@ -907,7 +907,8 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
             double step = Math.hypot(moves[i][0], moves[i][1]);
             if (step < 1e-6) continue;
             if (step > mostStep) { mostStep = step; most = y; }
-            Motor.spot(this, y, snapped(new Vec3(from.x + moves[i][0], from.y, from.z + moves[i][1]), y), spot.yaw(), "squeeze");
+            var next = snapped(new Vec3(from.x + moves[i][0], from.y, from.z + moves[i][1]), y);
+            if (Motor.clearSpot(this, y, next)) Motor.spot(this, y, next, spot.yaw(), "squeeze");
         }
         crowding.keySet().retainAll(pressed);
         if (clamped != clampedShoves) GameplayLog.limited(this, "hat", "squeeze_clamp", 100,
