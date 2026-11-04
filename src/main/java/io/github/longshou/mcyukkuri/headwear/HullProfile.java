@@ -43,8 +43,6 @@ public abstract class HullProfile {
     public JsonObject data() { return data; }
     public double measuredUnit() { return unit; }
     public double top() { return -keel / unit; }
-    /** Height of this frame's origin above its keel when resting on ground, in hat units. */
-    public double groundLift() { return 0; }
     public double floor() { return (data.getAsJsonObject("floor").get("y").getAsDouble() - keel) / unit; }
     public abstract List<Vec> rimPoints();
     public abstract double rimY();
@@ -95,7 +93,6 @@ public abstract class HullProfile {
     public double standDistance(double dx,double dz,double radius,double least) { return Math.max(least,clear(dx,dz,radius)); }
 
     private static final class Round extends HullProfile {
-        @Override public double groundLift() { return -HullBounds.KEEL / unit; }
         @Override public HatSurface surface() { return HullSurface.INSTANCE; }
         @Override public boolean blocksWalking(double feetY, double rimY) { return !(rimY <= feetY); }
         private final List<Vec> rim;
