@@ -8,6 +8,7 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
+| 救幼优先进舱与远帽扶正后爬回 | `.worktrees/wp-x2-clean` | `aquatic/Rescue`、`aquatic/ResolveOwnHat`、`motor/` 放幼落点与转向、`docs/FEATURES.md`、`docs/TODO.md` |
 | 水上自帽分娩美术与动作（反馈 8） | `.worktrees/art-a3-hat-birth` | `standards/yukkuri-library/interactions/aquatic-marisa-hat/`、`motions/`、`art/` |
 | 子油初航·帽檐放船（反馈 10） | `.worktrees/wp-v-brim-voyage` | `aquatic/FirstVoyage`、`aquatic/AquaticGoal`、`headwear/HatProp`、`headwear/PlacedHatEntity`、`scripts/museum_scenarios.py` |
 
