@@ -44,10 +44,10 @@ public final class GoTo implements Intent {
     /** The one action done at the stand. */
     public GoTo then(Supplier<Action> action) { then = action; return this; }
 
-    /** At the stand and, when a yaw is given, turned to it. */
+    /** At the stand and, when a yaw is given, turned to it (the yaw Face completes on, not the head's). */
     public static boolean at(YukkuriEntity body, Vec3 stand, float yaw) {
         return SurfaceApproach.arrived(body, stand)
-                && (Float.isNaN(yaw) || Math.abs(Mth.wrapDegrees(yaw - body.getYRot())) <= Face.FACE_ARRIVED);
+                && (Float.isNaN(yaw) || Math.abs(Mth.wrapDegrees(yaw - body.yBodyRot)) <= Face.FACE_ARRIVED);
     }
 
     @Override public String id() { return id; }

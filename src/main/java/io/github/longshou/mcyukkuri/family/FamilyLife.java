@@ -371,7 +371,8 @@ public final class FamilyLife {
             else if(greetee() instanceof YukkuriEntity other){
                 // Only on an idle motor (a running Face is left to finish), and only once it is off by more than GREET_TURN.
                 float yaw=SurfaceApproach.yaw(entity.position(),other.position());
-                if(!CareApproach.seatedWith(entity,other)&&Math.abs(Mth.wrapDegrees(yaw-entity.getYRot()))>GREET_TURN)entity.motor().run(BIRTH_BODY,new Face(yaw));
+                // Face completes on the body yaw, so the same yaw is what tells whether a turn is still owed.
+                if(!CareApproach.seatedWith(entity,other)&&Math.abs(Mth.wrapDegrees(yaw-entity.yBodyRot))>GREET_TURN)entity.motor().run(BIRTH_BODY,new Face(yaw));
             }
             return false;
         }
@@ -655,7 +656,7 @@ public final class FamilyLife {
     private void turnTo(YukkuriEntity baby){
         if(CareApproach.seatedWith(entity,baby))return;
         float yaw=(float)(Mth.atan2(baby.getZ()-entity.getZ(),baby.getX()-entity.getX())*Mth.RAD_TO_DEG)-90;var motor=entity.motor();
-        if(motor.current() instanceof Face&&motor.owner()!=null&&beats.ownerId().equals(motor.owner().ownerId())||Math.abs(Mth.wrapDegrees(yaw-entity.getYRot()))<=Face.FACE_ARRIVED)return;
+        if(motor.current() instanceof Face&&motor.owner()!=null&&beats.ownerId().equals(motor.owner().ownerId())||Math.abs(Mth.wrapDegrees(yaw-entity.yBodyRot))<=Face.FACE_ARRIVED)return;
         motor.run(beats,new Face(yaw));
     }
     /** A parent hurries to a newborn that fell hard, worried, nuzzles it and licks it (project original; nuzzling is Wiki E06). */
