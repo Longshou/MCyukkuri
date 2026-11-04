@@ -3035,8 +3035,7 @@ def hat_birth_result(window):
     if len(born) != 2:
         return f'expected two newborns, got {len(born)}'
     mother = re.search(r' born brood=[^\n]* mother=(\S+)', window)[1]
-    if re.search(rf'turn push [^\n]*by={mother}\b', window):
-        return 'mother turned and pushed a rider during cabin care'
+    care_done = []
     for child, index in born:
         if not re.search(rf'uuid={child}[^\n]* birth landed [^\n]*water=false[^\n]*outcome=HAT\b', window):
             return f'newborn {index} never landed in the hat'
@@ -3046,8 +3045,12 @@ def hat_birth_result(window):
             return f'newborn {index} entered water or died'
         if not re.search(rf'uuid={child}[^\n]* first meal swallowed', window):
             return f'newborn {index} did not swallow its first meal'
-        if not re.search(rf'uuid={child}[^\n]* first toilet completed', window):
+        toilet = re.search(rf'uuid={child}[^\n]* first toilet completed', window)
+        if not toilet:
             return f'newborn {index} did not complete newborn care'
+        care_done.append(toilet.end())
+    if re.search(rf'turn push [^\n]*by={mother}\b', window[:max(care_done)]):
+        return 'mother turned and pushed a rider during cabin care'
     if re.search(r'\[body\][^\n]* death settled|cause=starv|brood cancelled', window):
         return 'birth family died, starved or lost its brood'
 

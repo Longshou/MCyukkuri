@@ -237,6 +237,7 @@ final class LiveBirth extends Choreography {
             if(!beat().equals("site")&&receiver instanceof PlacedHat){jump("sited","catcher_found");return;}
         }
         String before=hold;hold=advance(b);
+        if(b.complete())return;
         if(!hold.equals(before))deliveryReadout(hold.isEmpty()?"resumed":beat().startsWith("exit")?"exit_wait":beat().equals("push")
                 ?b.elapsed-b.duration>LiveBirthGeometry.emergenceStart(pushing)?"mid_push_hold":"push_hold":"preparation_wait",hold);
     }
@@ -285,6 +286,7 @@ final class LiveBirth extends Choreography {
         if(hat!=null&&(unprotected||forced)&&exit==null)riskyExit(hat,m.yBodyRot);
         var nominal=cabin!=null?cabin.launch(b,pushing):hat!=null&&exit!=null?(unprotected||forced?BirthLaunch.risky(at,hat.frame().toWorld(exit.aim()),m.yBodyRot)
                 :BirthLaunch.forward(at,hat.frame().toWorld(exit.aim()),m.yBodyRot,exit.ticks())):null;
+        if(cabin!=null&&nominal==null)return "outlet_blocked";
         if(nominal==null&&(exit!=null||!unprotected&&!forced&&receiver instanceof PlacedHat))GameplayLog.limited(m,"family","birth_lost_aim",200,
                 "birth lost aim reason={} delivery={} phase=emerging host={}",hat==null?"host_missing":exit==null?"exit_missing":"behind",delivery,hat==null?null:hat.getUUID());
         if(nominal==null)hat=null;

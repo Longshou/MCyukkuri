@@ -6,6 +6,47 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 class BirthFlightTest {
+    @Test void zeroLiftInterceptUsesTheDiscreteFallRatherThanContinuousGravity(){
+        var start=new Vec(0,.2367684949769,0);
+        var target=new Vec(.12976854994735,0,-.0133892792852);
+        var plan=BirthFlight.drop(start,tick->target);
+        assertNotNull(plan);
+        assertEquals(4,plan.ticks());
+        assertEquals(0,plan.velocity().y());
+        assertTrue(plan.velocity().hlen()<.05);
+        var contact=BirthFlight.contact(start,plan.velocity(),plan.ticks()+1,(tick,p)->p,1,p->0);
+        assertNotNull(contact);
+        assertFalse(contact.wall());
+        assertEquals(target.x(),contact.point().x(),1e-9);
+        assertEquals(target.z(),contact.point().z(),1e-9);
+        // The old two-tick impulse crosses the floor beyond the intended newborn's half-width.
+        var old=new Vec(Ballistic.speedFor(target.x(),2),0,Ballistic.speedFor(target.z(),2));
+        var missed=BirthFlight.contact(start,old,5,(tick,p)->p,1,p->0);
+        assertTrue(missed.point().x()-target.x()>.05);
+    }
+    @Test void wholeNewbornLandsInsideTheHollowAcrossDriftDirectionsAndBirthSizes(){
+        var hull=HullProfile.of(HullProfile.BASIN);
+        double unit=hull.measuredUnit();
+        for(double size:new double[]{.12,.125,.13})for(int side:new int[]{-1,1})
+            for(double driftX:new double[]{-.04,0,.04})for(double driftZ:new double[]{-.04,0,.04}){
+                var body=BodyFootprint.of("marisa",.8*size/unit,.6*size/unit,0);
+                var target=new Vec(side*.125/unit,0,-.4766/unit);
+                target=new Vec(target.x(),hull.support(target.x(),target.z(),body),target.z());
+                var floor=target;
+                var start=new Vec(0,.02,-.54);
+                var drift=new Vec(driftX,0,driftZ);
+                var plan=BirthFlight.drop(start,tick->floor.scale(unit).add(drift.scale(tick)));
+                assertNotNull(plan);
+                var contact=BirthFlight.contact(start,plan.velocity(),plan.ticks()+1,
+                        (tick,p)->p.sub(drift.scale(tick)).scale(1/unit),unit,
+                        p->hull.support(p.x(),p.z(),body));
+                assertNotNull(contact,"size="+size+" drift="+drift);
+                assertFalse(contact.wall());
+                double half=.8*size/2/unit;
+                for(int x:new int[]{-1,1})for(int z:new int[]{-1,1})
+                    assertTrue(hull.inOpening(contact.point().x()+x*half,contact.point().z()+z*half));
+            }
+    }
     @Test void forwardAimCannotBeBehindOrBesideTheOutlet(){
         var heading=new Vec(1,0,0);
         assertNull(Ballistic.forward(new Vec(-.2,-.1,0),heading,9));

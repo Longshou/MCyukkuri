@@ -13,7 +13,7 @@ import io.github.longshou.mcyukkuri.headwear.HullBounds;
 import io.github.longshou.mcyukkuri.headwear.HullSurface;
 import io.github.longshou.mcyukkuri.headwear.PlacedHatEntity;
 import io.github.longshou.mcyukkuri.motor.ClipMarkers;
-import io.github.longshou.mcyukkuri.motor.geom.Ballistic;
+import io.github.longshou.mcyukkuri.motor.geom.BirthFlight;
 import io.github.longshou.mcyukkuri.motor.geom.BodyFootprint;
 import io.github.longshou.mcyukkuri.motor.geom.Disc;
 import io.github.longshou.mcyukkuri.motor.geom.FloorSearch;
@@ -21,6 +21,7 @@ import io.github.longshou.mcyukkuri.motor.geom.PlaceGeometry;
 import io.github.longshou.mcyukkuri.motor.geom.Vec;
 import io.github.longshou.mcyukkuri.motor.surface.Floor;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
+import io.github.longshou.mcyukkuri.status.StatusEvents;
 import io.github.longshou.mcyukkuri.subspecies.SubspeciesLife;
 import java.util.ArrayList;
 import java.util.List;
@@ -86,8 +87,10 @@ record HatBirth(PlacedHatEntity hat, YukkuriEntity mother) implements BirthCabin
         return reason.equals("fit");
     }
     @Override public boolean clear(FamilyData.Brood brood, int index) {
+        return clear(brood, index, spot(brood, index));
+    }
+    private boolean clear(FamilyData.Brood brood, int index, Vec at) {
         var child = brood.children.get(index);
-        var at = spot(brood, index);
         var others = new ArrayList<>(Floor.others(hat, mother));
         others.add(maternal(LiveBirthGeometry.belly(1, index + 1, brood.children.size())));
         var hats = new ArrayList<>(hat.getPassengers().stream().filter(p->p!=mother).map(p->headwear((YukkuriEntity)p)).toList());
@@ -108,11 +111,29 @@ record HatBirth(PlacedHatEntity hat, YukkuriEntity mother) implements BirthCabin
     @Override public BirthLaunch.Nominal launch(FamilyData.Brood brood, int index) {
         var start = exit(index);
         var local = spot(brood, index);
-        var target = hat.frame().toWorld(Floor.point(local));
-        int ticks = (int) Math.floor(Math.sqrt(2 * (start.y - target.y) / Ballistic.GRAVITY));
-        var aim = hat.frameAfter(ticks).toWorld(Floor.point(local));
-        var delta = aim.subtract(start);
-        var velocity = new Vec3(Ballistic.speedFor(delta.x, ticks), 0, Ballistic.speedFor(delta.z, ticks));
-        return new BirthLaunch.Nominal(aim, velocity, ticks);
+        var child = brood.children.get(index);
+        var size = LiveBirthGeometry.childDimensions(child, mother.getScale());
+        var body = BodyFootprint.of(SubspeciesLife.assetId(child.variant, child.subspeciesFlags),
+                size.width() / hat.unit(), size.height() / hat.unit(), Math.toRadians(mother.yBodyRot - hat.getYRot()));
+        var floor = new Vec3(local.x(), hat.profile().support(local.x(), local.z(), body), local.z());
+        var plan = BirthFlight.drop(Floor.vec(start), tick -> Floor.vec(hat.frameAfter(tick).toWorld(floor)));
+        if (plan == null) return null;
+        var contact = BirthFlight.contact(Floor.vec(start), plan.velocity(), plan.ticks() + 1,
+                (tick, point) -> Floor.vec(hat.frameAfter(tick).toLocal(Floor.point(point))), hat.unit(),
+                point -> hat.profile().support(point.x(), point.z(), body));
+        boolean admitted = contact != null && !contact.wall() && clear(brood, index, contact.point());
+        if (admitted) {
+            var frame = hat.frameAfter(contact.tick());
+            var box = size.makeBoundingBox(frame.toWorld(Floor.point(contact.point())));
+            for (double x : new double[]{box.minX, box.maxX}) for (double y : new double[]{box.minY, box.maxY})
+                for (double z : new double[]{box.minZ, box.maxZ}) {
+                    var corner = frame.toLocal(new Vec3(x, y, z));
+                    admitted &= hat.profile().inOpening(corner.x, corner.z);
+                }
+        }
+        if (StatusEvents.trace()) GameplayLog.event(mother, "family",
+                "hat birth geometry index={} frame={} drift={} startLocal={} targetLocal={} ticks={} velocity={} contact={} admitted={}",
+                index, hat.frame(), hat.getDeltaMovement(), hat.frame().toLocal(start), floor, plan.ticks(), plan.velocity(), contact, admitted);
+        return admitted ? new BirthLaunch.Nominal(Floor.point(plan.aim()), Floor.point(plan.velocity()), plan.ticks()) : null;
     }
 }

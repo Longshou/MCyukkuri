@@ -4,6 +4,8 @@ import java.util.function.ToDoubleFunction;
 
 /** First surface crossing of a flight segment, in one rigid host frame. */
 public final class FlightContact {
+    /** Sample step and initial penetration tolerance, in world blocks. */
+    public static final double STEP = .05, TOUCH = .05;
     public record Hit(Vec point,double fraction,boolean wall) {}
     private FlightContact() {}
 

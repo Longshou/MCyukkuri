@@ -23,8 +23,6 @@ public final class ContactResolver {
 
     /** How far from the segment a host may be looked for (blocks). */
     private static final double SEARCH = 3;
-    /** Sample step and tolerated initial penetration when detecting a surface crossing (blocks). */
-    private static final double STEP = .05, TOUCH = .05;
     /** Share of the horizontal speed left, negated, after the body hits the brim wall moving in. */
     private static final double RIM_BOUNCE = -.3;
     /** Rings and directions of the one deflection off an occupied spot, and how far past the two feet it looks. */
@@ -67,7 +65,8 @@ public final class ContactResolver {
      *  an edge otherwise; a sideways entry below the surface is the wall. */
     private static Hit hit(YukkuriEntity body, SurfaceHost host, Vec3 feet, Vec3 next, Envelope envelope) {
         var frame=host.frame();
-        var hit=crossing(host,feet,next,p->envelope==null?host.support(frame.toLocal(p),body).orElse(Double.NaN):host.contactHeight(body,p,envelope.at(body,p)));
+        var hit=crossing(host,feet,next,envelope==null?FlightContact.TOUCH:0,
+                p->envelope==null?host.support(frame.toLocal(p),body).orElse(Double.NaN):host.contactHeight(body,p,envelope.at(body,p)));
         if(hit!=null){
             var p=hit.point();var spot=new Vec3(p.x(),p.y(),p.z());
             boolean stands=!hit.wall()&&host.support(spot,0).isPresent()&&host.bears(body);
@@ -81,11 +80,11 @@ public final class ContactResolver {
 
     /** Same segment and envelope-height crossing for real flight and an unborn child's nominal preview. */
     public static FlightContact.Hit crossing(SurfaceHost host,Vec3 from,Vec3 to,ToDoubleFunction<Vec3> surface){
-        return crossing(host,from,to,TOUCH,surface);
+        return crossing(host,from,to,FlightContact.TOUCH,surface);
     }
     public static FlightContact.Hit crossing(SurfaceHost host,Vec3 from,Vec3 to,double touch,ToDoubleFunction<Vec3> surface){
-        var frame=host.frame();var a=frame.toLocal(from);var b=frame.toLocal(to);
-        return FlightContact.first(new Vec(a.x,a.y,a.z),new Vec(b.x,b.y,b.z),STEP/frame.unit(),touch/frame.unit(),
+        var frame=host.frame();var a=frame.toLocal(from);var b=host.frameAfter(1).toLocal(to);
+        return FlightContact.first(new Vec(a.x,a.y,a.z),new Vec(b.x,b.y,b.z),FlightContact.STEP/frame.unit(),touch/frame.unit(),
                 p->surface.applyAsDouble(frame.toWorld(new Vec3(p.x(),p.y(),p.z()))));
     }
 

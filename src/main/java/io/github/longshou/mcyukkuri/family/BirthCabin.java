@@ -10,6 +10,7 @@ public interface BirthCabin {
     boolean ready();
     boolean clear(FamilyData.Brood brood, int index);
     Vec3 exit(int index);
+    /** The admitted impulse from the current outlet, or null while no clear cloth landing exists. */
     BirthLaunch.Nominal launch(FamilyData.Brood brood, int index);
     String clip();
     /** The mother's supported underside in host units, read by her own birth goal. */
