@@ -124,7 +124,8 @@ final class Ashore implements Intent {
             return paddle(hat);
         }
         if (!AquaticLife.ashore(owner)) return null;
-        if (held != null) return List.of(() -> new Step.Do(purpose == Purpose.CARRY ? carryRelease : new Release(held)));
+        if (purpose == Purpose.CARRY) return List.of(() -> new Step.Do(carryRelease));
+        if (held != null) return List.of(() -> new Step.Do(new Release(held)));
         for (var passenger : owner.getPassengers()) if (passenger instanceof YukkuriEntity child)
             return List.of(() -> new Step.Do(new Release(child)));
         if (hat.upsideDown()) return fromBank(hat, () -> new Right(hat, "reclaim"), () -> new Step.Wait(hat::steady, 60, "hat_settles"));

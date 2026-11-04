@@ -377,7 +377,7 @@ public final class Hop implements Action {
             if (StatusEvents.trace()) GameplayLog.event(body, "move", "hop leg={} from={} to={} yaw={} bearing={} airTicks={} width={}",
                     completedLegs + 1, GameplayLog.at(body.position()), GameplayLog.at(seat == null ? target : seat.world()),
                     body.yBodyRot, SurfaceApproach.yaw(body.position(), seat == null ? target : seat.world()), flight.size(), body.getBbWidth());
-            return new Running(flight.size(), TravelMode.CONSUMED);
+            // Consumed travel must advance the first flight segment on the takeoff tick too.
         }
         startTick = body.level().getGameTime() - marker("land");
         if (seatHost != null && seatHost.entity().isRemoved()) return Outcome.of(Reason.TARGET_GONE, 0, "host_gone");
