@@ -8,6 +8,7 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
+| 魔理沙辫子运输连续路径、转向辫子侧，灵梦放下从嘴部出 | `.worktrees/art-a4-braid-carry` | `family/ParentCarry`、`client/ParentCarryPresentation`、`motor/geom/CarryGeometry`、`standards/yukkuri-library/motions/variants/lore` |
 
 ## 玩法待办
 
