@@ -2882,8 +2882,8 @@ pond('first_voyage', '初航·子油第一次自己操帽，先上岸', '子油�
 
 
 pond('first_voyage_brim', '初航·子油从亲帽帽檐放船', '子油初航·帽檐放船',
-     '亲油坐在离岸四格以外的开阔静水里歇泊，帽里有粮和木棍；处于初航欲望带的子油坐在亲帽里，能自己吃、会跳和学习，戴着夹有一根木棍的帽子，'
-     '还没自己操过帽。周围没有一跳够得着的岸，子油想试试自己的帽子（越大胆越想）：先从帽里跳上亲帽的帽檐，面向水面脱下自己的帽子放到亲船旁的静水上，'
+     '亲油坐在离岸四格以外的开阔静水里歇泊，帽里有粮和木棍；处于初航欲望带的子油站在亲帽的帽檐上（它太大，帽里容不下），能自己吃、会跳和学习，戴着夹有一根木棍的帽子，'
+     '还没自己操过帽。周围没有一跳够得着的岸，子油想试试自己的帽子（越大胆越想）：在帽檐上面向水面脱下自己的帽子放到亲船旁的静水上，'
      '再一步从亲帽帽檐跳进自己的帽子（跳向与朝向一致），用木棍划到亲船旁两三格外的开阔水面绕一下，再划回岸边跳上岸，从岸沿把帽子收回戴上；'
      '回到岸上戴好帽子才算学会操帽，之后只乘自己的帽子。路上翻帽或滑落是真实的，这次初航失败；落水救助按功能说明的水生规则执行',
      '约 2–4 分钟（可倍速）',
@@ -2892,9 +2892,9 @@ pond('first_voyage_brim', '初航·子油从亲帽帽檐放船', '子油初航·
       _aquatic_young('first_voyage_brim', 'c1', bank_dx(1), 1, 'child', 'a', fam=_seat_family(.34), kit='minecraft:stick', boldness=75),
       afloat('a', water_at(0, 6), True, sel('c1'), food=4)],
      note='初态：子油位于初航欲望带，childhood 无 Sailed（读子油 childhood 看 Sailed），固食、跳跃与学习条件已具备，自己的帽里有真实木棍；亲油在离岸 4 格以外的静水里低体力歇泊，'
-          '帽里有四份苹果和一根木棍，子油坐在亲帽的真实座位上，岸边没有可跳的落点。'
+          '帽里有四份苹果和一根木棍，子油站在亲帽帽檐的真实位置上，岸边没有可跳的落点。'
           '日志：子油 [intent] start id=first_voyage → [aquatic] first_voyage start … from=parent_hat → [aquatic] first_voyage route=brim reason=no_bank_in_hop_reach → '
-          '[action] end id=hop outcome=DONE（跳上亲帽帽檐）→ [action] end id=face → [action] start id=place_prop → [hat] placed … water=true kit=minecraft:stick → '
+          '[action] end id=face → [action] start id=place_prop → [hat] placed … water=true kit=minecraft:stick → '
           '[aquatic] first_voyage hat set on water → [action] start id=hop（亲帽帽檐跳进自己的帽，hop_leg 片段）→ [body] mount … cause=hop_contact → '
           '[aquatic] first_voyage hopped onto own hat … aboard=true → [aquatic] route purpose=first_voyage → [action] start id=paddle → [aquatic] first_voyage rounded → '
           '[intent] start id=come_ashore → … → [action] start id=take_prop → [aquatic] first_voyage success … route=brim → [childhood] sailing learned how=first_voyage。'
