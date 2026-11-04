@@ -106,6 +106,7 @@ final class Care implements Intent {
     /** Its care is due now: hungry, and unable to eat by itself (fed by her), or gasping after the water (comforted). */
     static boolean hungry(YukkuriEntity parent, YukkuriEntity child) {
         return child.isAlive() && parent.family().caresFor(child) && !child.family().canEatIndependently() && child.life().canReceiveCareFood()
+                && parent.careApproach().mayTry(child)
                 && child.life().nutrition() < parent.life().nutrition() - parent.species().traits().dote();
     }
 
