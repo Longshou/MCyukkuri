@@ -15,6 +15,19 @@ class HullLoadTest {
         assertEquals(0, HullBounds.loadRatio(1, List.of()));
     }
 
+    @Test void aCarerOnlyPutsItsYoungDownWhileTheHullStillCarriesIt() {
+        var family = List.of(.19, .19, .30, .28);
+        double capacity = HullBounds.capacity(1);
+        double load = HullBounds.loadRatio(1, family) * capacity;
+        assertTrue(load <= capacity);
+        assertFalse(HullBounds.carries(1, family, .19));
+        assertEquals((load + HullBounds.weight(.19)) / capacity, HullBounds.loadRatioWith(1, family, .19), 1e-12);
+        assertTrue(HullBounds.carries(1, List.of(.19), .19));
+        assertTrue(HullBounds.carries(2, family, .19));
+        assertTrue(HullBounds.carries(1, List.of(), .36));
+        assertFalse(HullBounds.carries(1, List.of(.36), .30));
+    }
+
     @Test void onlyExcessLoadRisksCapsizeAndTheChanceRisesWithoutBecomingCertain() {
         for (double ratio : new double[]{0, .85, 1}) assertEquals(0, HullTriggers.overloadChance(ratio));
         assertEquals(.2, HullTriggers.overloadChance(1.25), 1e-12);

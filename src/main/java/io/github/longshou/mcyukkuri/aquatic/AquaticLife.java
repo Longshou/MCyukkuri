@@ -122,7 +122,7 @@ public final class AquaticLife {
         var parent = hat.owner();
         if (parent == null || !parent.isAlive()) return;
         int intelligence = parent.life().personality().intelligence(), friendliness = parent.life().personality().friendliness();
-        if (intelligence <= 25 && friendliness >= 75) {
+        if (ParentCarry.overloadKeeper(parent)) {
             GameplayLog.event(parent, "family", "overload keeps children hat={} intelligence={} friendliness={}",
                     hat.getUUID(), intelligence, friendliness);
             return;

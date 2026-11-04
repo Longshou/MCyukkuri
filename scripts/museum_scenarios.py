@@ -2324,6 +2324,16 @@ def water_aftermath(window):
             escapes[who] = tick
 
 
+def _seat_load_aftermath(window):
+    """The hull was full by load, not by missing places, and the same child is set down ashore and lives."""
+    refusal = re.search(r'refused id=release [^\n]*NO_ROOM[^\n]*hull_full load=(\S+) capacity=(\S+)', window)
+    if refusal is None:
+        return 'no load-full release refusal'
+    if float(refusal[1]) <= float(refusal[2]):
+        return 'the logged load does not exceed the capacity'
+    return water_aftermath(window)
+
+
 _WATER_SMOKE_FORBID = [r'\[action\][^\n]* end id=swim outcome=INTERRUPTED why=(?:water_pause|escape_stop)\b']
 def _water_readouts(*bodies):
     """Each named body's own status (water distress phase, aims, its hat's float detail and its incident's outcome), then the hat's riders."""
@@ -2743,25 +2753,24 @@ pond('rescue_infant_full', '亲油用辫子救起落水赤油', '辫救落水赤
 
 
 pond('rescue_no_seat', '满船无座时托幼送岸', '满船托幼送岸',
-     '1.2 体型亲油的大帽已有一百只最小赤油，舱内、头顶、帽檐都由真实身体占满，仍未超载。尚未学爬的 0.19 体型新生赤油在离岸约九格的开阔水面上漂着，离最近的干岸七格开外，自己爬不出去；亲油划近后没有可放入的承托位置，将它托起、带着跳到近岸干地，再放下。必须看见真实接起、离船和放下，孩子自己上岸不算救起',
+     '1.0 体型亲油的帽船载着四只自己的孩子：0.10 舱内赤油、0.19 和 0.30 幼体在头顶、0.28 幼体在帽檐，载重 0.0568，离容量 0.0635 只差一只新生赤油的重量。尚未学爬的 0.19 体型新生赤油在离岸约九格的开阔水面上漂着，离最近的干岸七格开外，自己爬不出去；亲油划近后帽内、头顶、帽檐虽各有空位，普通亲油的载重规则不接受再多一只（0.0568+0.0069 超过容量），按满船处理：将它托起、带着跳到近岸干地，再放下。必须看见真实接起、离船和放下，孩子自己上岸不算救起',
      '约 30–90 秒',
      [],
      late=[yk('marisa', bank_dx(0), 0, 'a', aquatic=True, yaw=90, lead=True, uuid=uid('rescue_no_seat', 'a'),
-              fam='Version:3,Initialized:1b,Age:400000L,Nourishment:400000L,AdultScale:1.2f,Scale:1.2f', **pair_ready()),
-           *[yk('marisa', bank_dx(0) - 2 - i % 10, i // 10 - 4, f'full{i}', stage='baby', aquatic=True,
+              fam='Version:3,Initialized:1b,Age:400000L,Nourishment:400000L,AdultScale:1f,Scale:1f', **pair_ready()),
+           *[yk('marisa', bank_dx(0) - 2 - i, -i, f'crew{i}', stage='baby', aquatic=True,
                 childhood='Version:2,Newborn:1b,Landed:1b', also=('crew',),
-                fam=_seat_family(.1, 0, 0) + ',BirthScale:0.1f', **pair_ready())
-             for i in range(100)],
+                fam=_seat_family(size, 0, 0) + f',BirthScale:{size}f', **pair_ready())
+             for i, size in enumerate((.10, .19, .30, .28))],
            f'execute as {sel_all("crew")} run yukkuri status set @s needs.nutrition 40',
            afloat('a', water_at(0, 3), True, sel_all('crew'), stick=True),
            _aquatic_young('rescue_no_seat', 'c1', bank_dx(0) + 9.5, 0, 'baby', 'a', dy=-.5,
                           fam=_seat_family(.19, 0, 0) + ',BirthScale:0.19f', childhood='Version:2,Newborn:1b,Landed:1b')],
-     note=_INCIDENT_NOTE + '满船按真实承托与身体净空判定，不按重量拒收：一百只 0.10 赤油总重 0.1，小于 1.2 体型亲帽容量约 0.10976；乘员营养 40、无储粮，不靠成长撑满。逐只 scenario place 显示 CABIN/HEAD/BRIM，救起后的 release places 必须三个可用位置数均为零。新生赤油在亲帽放下后才入水。观察同一孩子 grab → hop → release → rescue end outcome=set_down，随后存活并站在干地。',
+     note=_INCIDENT_NOTE + '满船按载重判定：除船长外每名乘员按体型^3 计重，普通亲油把抱着的孩子放到帽上时要求当前载重加这名孩子不超过容量（1.0 体型帽 0.06352）。这只家庭载重 0.0568（0.10+0.19+0.30+0.28），再加 0.19 孩子 0.0069 = 0.0637 超过容量，日志给 refused id=release … NO_ROOM detail=hull_full load=… capacity=…；智力≤25 且友善≥75 的亲油不受载重限制，照旧放置并照旧抽翻船概率。载重留一只孩子的余量，是因为抱起孩子本身也算一次载重变化：再往上加，抓取那一刻的翻船概率就会升到几个百分点，真实翻船又会把帽檐幼体甩进水里。乘员营养 40、无储粮，不靠成长撑满。逐只 scenario place 显示 CABIN/HEAD/BRIM。新生赤油在亲帽放下后才入水。观察同一孩子 grab → hop → release → rescue end outcome=set_down，随后存活并站在干地。',
      reads=[('读亲油', f'yukkuri status {sel("a")} raw'), ('读子油', f'yukkuri status {sel("c1")} raw')],
      smoke=dict(ticks=1800, expect=[r'\[hat\][^\n]* scenario place [^\n]*place=CABIN\b[\s\S]*\[hat\][^\n]* scenario place [^\n]*place=HEAD\b[\s\S]*\[hat\][^\n]* scenario place [^\n]*place=BRIM\b',
-                                    r'\[hat\][^\n]* scenario afloat prepared [^\n]*young=100\b',
-                                    r'\[family\][^\n]* release places [^\n]*cabin=0 head=0 brim=0\b',
-                                    r'refused id=release [^\n]*NO_ROOM[^\n]*no_seat',
+                                    r'\[hat\][^\n]* scenario afloat prepared [^\n]*young=4\b',
+                                    r'refused id=release [^\n]*NO_ROOM[^\n]*hull_full load=\S+ capacity=\S+',
                                     r'\[incident\][^\n]* decide [^\n]*chance=1 [^\n]*accepted=true',
                                     rf'carry grip [^\n]*uuid={_uuid_text("rescue_no_seat", "c1")}'
                                     rf'[\s\S]*\[action\][^\n]*uuid={_uuid_text("rescue_no_seat", "a")}[^\n]* end id=hop outcome=DONE'
@@ -2769,7 +2778,7 @@ pond('rescue_no_seat', '满船无座时托幼送岸', '满船托幼送岸',
                                     rf'[\s\S]*rescue end result=DONE outcome=set_down faller={_uuid_text("rescue_no_seat", "c1")}',
                                     r'\[water\][^\n]* phase=\w+ -> RECOVER'],
                 forbid=[*_WATER_SMOKE_FORBID, r'rescue refused', r'\[body\][^\n]* death settled\b'],
-                verify=water_aftermath, readout=_water_readouts('a', 'c1')))
+                verify=_seat_load_aftermath, readout=_water_readouts('a', 'c1')))
 
 
 # Smoke windows allow 1.5 times the three-minute upper bound, at 20 ticks per second.

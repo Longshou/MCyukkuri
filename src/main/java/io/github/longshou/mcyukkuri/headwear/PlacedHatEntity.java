@@ -283,9 +283,19 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
         return support(at, BodyFootprint.envelope(body.assetId(), body.getBbWidth() / unit(), body.getBbHeight() / unit(), Math.toRadians(yaw)));
     }
     public double loadRatio() {
-        return HullBounds.loadRatio(hullScale() / HullBounds.SCALE, getSelfAndPassengers()
-                .filter(p -> !p.getUUID().equals(ownerYukkuri())).filter(p -> p instanceof YukkuriEntity).map(p -> (YukkuriEntity) p)
-                .map(y -> (double) (y.growthScale() * y.getScale())).toList());
+        return HullBounds.loadRatio(hullScale() / HullBounds.SCALE, riderSizes(null));
+    }
+    /** Every rider but the captain, by the size its weight is taken at; a young still carried by a rider counts where it rides. */
+    private List<Double> riderSizes(YukkuriEntity except) {
+        return getSelfAndPassengers().filter(p -> !p.getUUID().equals(ownerYukkuri()) && p != except)
+                .filter(p -> p instanceof YukkuriEntity).map(p -> (YukkuriEntity) p)
+                .map(y -> (double) (y.growthScale() * y.getScale())).toList();
+    }
+    /** The load rule a carer's own choice follows: her young may only be put down while the hull still carries it. */
+    @Override public String loadRefusal(YukkuriEntity child) {
+        double scale = hullScale() / HullBounds.SCALE, capacity = HullBounds.capacity(scale);
+        double ratio = HullBounds.loadRatioWith(scale, riderSizes(child), child.growthScale() * child.getScale());
+        return ratio <= 1 ? null : String.format(Locale.ROOT, "load=%.4f capacity=%.4f", ratio * capacity, capacity);
     }
     @Override public void loadChanged(YukkuriEntity body, String event) { behavior().loadChanged(this, body, event); }
     @Override public OptionalDouble support(Vec3 local, BodyFootprint body) {

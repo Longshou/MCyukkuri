@@ -31,8 +31,17 @@ public final class HullBounds {
     public static double capacity(double scale) { return weight(FILL * youngLimit(scale)); }
     /** Sizes of the actual riders other than the captain, wherever they stand. */
     public static double loadRatio(double scale, List<Double> youngSizes) {
-        return youngSizes.stream().mapToDouble(HullBounds::weight).sum() / capacity(scale);
+        return weightOf(youngSizes) / capacity(scale);
     }
+    /** The load ratio once one more body of this size is aboard: what a carer putting a young down weighs against the capacity. */
+    public static double loadRatioWith(double scale, List<Double> youngSizes, double newcomer) {
+        return (weightOf(youngSizes) + weight(newcomer)) / capacity(scale);
+    }
+    /** A carer's own choice: the hull takes the young only while its load with that young stays within capacity. */
+    public static boolean carries(double scale, List<Double> youngSizes, double newcomer) {
+        return loadRatioWith(scale, youngSizes, newcomer) <= 1;
+    }
+    private static double weightOf(List<Double> youngSizes) { return youngSizes.stream().mapToDouble(HullBounds::weight).sum(); }
     public static List<Vec> brimStops() {
         double r = DATA.number("brim_ring.radius");
         return IntStream.range(0, 72).mapToObj(i -> new Vec(r * Math.cos(i * Math.PI / 36), 0,

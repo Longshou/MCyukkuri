@@ -2,6 +2,7 @@ package io.github.longshou.mcyukkuri.aquatic;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.BraidFetch;
+import io.github.longshou.mcyukkuri.family.ParentCarry;
 import io.github.longshou.mcyukkuri.intent.AskLedger;
 import io.github.longshou.mcyukkuri.intent.Commitment;
 import io.github.longshou.mcyukkuri.intent.DriveWeights;
@@ -59,10 +60,15 @@ final class Rescue implements Intent {
     @Override public List<Method> methods() {
         return List.of(Plan.of("braid_fetch", this::derive), new Plan("carry_ashore",
                 () -> faller.getVehicle() != helper ? Feasibility.of(Reason.NO_CONTACT, 0, "not_held")
-                        : AquaticLife.hat(helper).restSpot(faller) == null ? Feasibility.pass()
-                        : Feasibility.of(Reason.NO_SUPPORT, 0, "hull_has_place"),
+                        : hullHasPlace(faller) ? Feasibility.of(Reason.NO_SUPPORT, 0, "hull_has_place")
+                        : Feasibility.pass(),
                 Set.of(Reason.NO_ROOM, Reason.NO_SUPPORT, Reason.NO_CONTACT),
                 this::carryAshore));
+    }
+    /** The hull can still take the faller: a real place, and for a parent who does not keep every child, room under the load rule. */
+    private boolean hullHasPlace(YukkuriEntity faller) {
+        var hat = AquaticLife.hat(helper);
+        return hat.restSpot(faller) != null && (ParentCarry.overloadKeeper(helper) || hat.loadRefusal(faller) == null);
     }
     /** Her own hull in the water belongs to this rescue: a body aboard its hat is not swimming, whatever the water state says. */
     @Override public boolean ownsBodyInWater() { return AquaticLife.aboard(helper, AquaticLife.hat(helper)); }
@@ -70,7 +76,8 @@ final class Rescue implements Intent {
     private List<Supplier<Step>> derive() {
         var hat = AquaticLife.hat(helper);
         if (faller.getVehicle() == helper) return AquaticLife.ashore(helper) ? List.of(() -> new Step.Do(shoreRelease))
-                : List.of(() -> hat.settled(helper) || hat.places(faller, 1).isEmpty() ? null : new Step.Do(new Hop(hat)),
+                : List.of(() -> hullHasPlace(faller) && !hat.settled(helper) && !hat.places(faller, 1).isEmpty()
+                        ? new Step.Do(new Hop(hat)) : null,
                         () -> new Step.Do(new Release(faller, hat)));
         if (!AquaticLife.aboard(helper, hat)) {
             // An upside-down hull is righted first, then she boards and lifts from it.

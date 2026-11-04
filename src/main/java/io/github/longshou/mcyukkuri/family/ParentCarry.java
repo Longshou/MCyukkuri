@@ -936,6 +936,12 @@ public final class ParentCarry {
         return passenger instanceof YukkuriEntity child && (hold(carrier, child) == Hold.HEAD || capacityProblem(carrier, child) == null)
                 && !carrier.operations().active() && !child.operations().active();
     }
+    /** The parents of the overload rule (low intelligence, high friendliness): they keep every child through an overload and
+     *  ignore the hull's load when they put a young down, so the capsize chance alone answers. */
+    public static boolean overloadKeeper(YukkuriEntity parent) {
+        var personality = parent.life().personality();
+        return personality.intelligence() <= 25 && personality.friendliness() >= 75;
+    }
 
     /** The carrier is not busy with something that needs its body, mouth or attention right now. */
     private boolean ready() {
