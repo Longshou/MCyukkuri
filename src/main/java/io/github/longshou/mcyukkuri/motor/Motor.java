@@ -3,6 +3,7 @@ package io.github.longshou.mcyukkuri.motor;
 import io.github.longshou.mcyukkuri.MCYukkuri;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
+import io.github.longshou.mcyukkuri.motor.action.Grab;
 import io.github.longshou.mcyukkuri.motor.surface.SurfaceHost;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.Locale;
@@ -12,6 +13,7 @@ import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.event.entity.EntityMountEvent;
 
 /** Writes and records a body's velocity, position, facing and riding; a straight step follows the caller's target and speed. */
 public final class Motor {
@@ -24,6 +26,18 @@ public final class Motor {
     public static final ThreadLocal<Boolean> DISMOUNTING = ThreadLocal.withInitial(() -> Boolean.FALSE);
 
     private Motor() {}
+
+    /** Vanilla's old passenger snapshot may still visit a child just grabbed from the carrier's host.
+     *  Keep the live grip; explicit motor releases and either body's death still dismount normally. */
+    public static void mounting(EntityMountEvent event) {
+        if (!event.isDismounting() || event.getLevel().isClientSide || DISMOUNTING.get()) return;
+        if (event.getEntityMounting() instanceof YukkuriEntity child && child.isAlive()
+                && event.getEntityBeingMounted() instanceof YukkuriEntity carrier && carrier.isAlive()
+                && carrier.motor().current() instanceof Grab grab && grab.target() == child) {
+            event.setCanceled(true);
+            GameplayLog.limited(carrier, "body", "grip.dismount", 100, "kept active grip child={}", child.getUUID());
+        }
+    }
 
     /** A short straight ground step; vanilla still resolves collision, step-up and gravity, as for StepIn. */
     public static boolean step(YukkuriEntity body, Vec3 to, double speed) {

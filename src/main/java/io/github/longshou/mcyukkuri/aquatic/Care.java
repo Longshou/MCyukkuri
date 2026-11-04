@@ -95,7 +95,7 @@ final class Care implements Intent {
             if (child.getVehicle() == parent && ParentCarry.hold(parent, child) != ParentCarry.Hold.HEAD)
                 parent.family().carry().finish(child, id() + "_ended");
             GameplayLog.event(parent, "aquatic", "care transfer end kind={} child={} result={} released={} ground={} head={}",
-                    id(), child.getUUID(), result, release.released(), AquaticLife.ashore(child),
+                    id(), child.getUUID(), result, release.released(), SurfaceApproach.supportedGround(child, child.position()),
                     child.getVehicle() == parent && ParentCarry.hold(parent, child) == ParentCarry.Hold.HEAD);
         }
     }
