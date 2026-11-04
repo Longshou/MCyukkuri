@@ -35,6 +35,18 @@
  "seating": {
   "young_max_growth": 0.38
  },
+ "hat_birth": {
+  "clip": "boat_labor",
+  "underside_by_belly": [[1.0, -0.0312], [0.61, -0.0781], [0.22, -0.1275], [0.0, -0.2037]],
+  "1": {
+   "growth_max": 0.185,
+   "spots": [[0.0, -0.4375]]
+  },
+  "2": {
+   "growth_max": 0.13,
+   "spots": [[0.125, -0.4766], [-0.125, -0.4766]]
+  }
+ },
  "stores": {
   "tiers": [[0, 0], [1, 2], [3, 5], [6, 8]],
   "texture": "mcyukkuri:textures/props/aquatic_basin_hat_stores.png",
@@ -43,5 +55,5 @@
   "pixels_per_block": 16,
   "note": "reuses the existing 16x16 food_layer.png unchanged. Project design: tiers are total stored portions [from, to]; tier 0 draws nothing. For each other tier, f = radius_fractions[tier], R = basin floor radius: disc radius f*R, centre (x=0, z=-(1-f)*R), tangent to the bow-side wall (-Z), before the captain. Fixed hull-space UVs (+X right, +Z down), repeating at 16 pixels per block; smaller discs crop the same texture without stretching."
  },
- "note": "waterline_y: the fixed presentation waterline (the hull rides there, the basin dry); floor: the level floor (a shallow dimple in the middle); brim: level from the mouth to level_radius at y, then falling to its edge at outer_radius with its top at edge_y; keel_y: the hull's lowest point. captain_seat: an adult (growth 1) home and clip pose at the stern facing the bow. brim_ring: preferred hop ring; support comes from the actual underside over cloth. seating.young_max_growth: capacity and voyage reference S. load: other riders weigh weight_coefficient x size^3; capacity is weight(capacity_over_seat x S). stores: reused texture and coverage rule in stores.note."
+ "note": "waterline_y: the fixed presentation waterline (the hull rides there, the basin dry); floor: the level floor (a shallow dimple in the middle); brim: level from the mouth to level_radius at y, then falling to its edge at outer_radius with its top at edge_y; keel_y: the hull's lowest point. captain_seat: an adult (growth 1) home and clip pose at the stern facing the bow. brim_ring: preferred hop ring; support comes from the actual underside over cloth. seating.young_max_growth: capacity and voyage reference S. load: other riders weigh weight_coefficient x size^3; capacity is weight(capacity_over_seat x S). stores: reused texture and coverage rule in stores.note. hat_birth: own-hat birth afloat (clip boat_labor, markers exit and land): the captain underside on her seat line by belly (a swollen body rests on the basin wall, higher than captain_seat.y), and for one (\"1\") and two (\"2\") newborns the largest birth growth that lands clear and their landing spots [x, z] before her, the first of two on her braid side (+x); support from the actual underside."
 }

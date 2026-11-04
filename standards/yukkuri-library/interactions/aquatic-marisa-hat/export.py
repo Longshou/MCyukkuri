@@ -75,7 +75,11 @@ def hull_bounds(seats):
              '(growth 1) home and clip pose at the stern facing the bow. brim_ring: preferred hop ring; support comes '
              'from the actual underside over cloth. seating.young_max_growth: capacity and voyage reference S. '
              'load: other riders weigh weight_coefficient x size^3; capacity is weight(capacity_over_seat x S). '
-             'stores: reused texture and coverage rule in stores.note.')
+             'stores: reused texture and coverage rule in stores.note. hat_birth: own-hat birth afloat (clip boat_labor, '
+             'markers exit and land): the captain underside on her seat line by belly (a swollen body rests on the basin '
+             'wall, higher than captain_seat.y), and for one ("1") and two ("2") newborns the largest birth growth that lands '
+             'clear and their landing spots [x, z] before her, the first of two on her braid side (+x); support from the '
+             'actual underside.')
 
 
 def gate_profile(bounds):

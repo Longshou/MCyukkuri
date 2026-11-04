@@ -66,6 +66,25 @@ class Body(P.Posed):
 _BODY, _POSES = [], {}
 
 
+def smooth(v): q = np.clip(v, 0., 1.); return q*q*(3-2*q)
+
+
+def deform(P, belly, squeeze=0.):
+    """LiveBirthGeometry.deform on model-unit points (n, 3): the full belly swells the body from the floor, its lower
+    front most (SWELL .26, LOW_WIDE .16, LOW_DEEP .06, LOW_FRONT .28); squeeze is the contraction."""
+    x, y, z = P[:, 0], P[:, 1], P[:, 2]; s = 1+.26*belly
+    low = smooth(y/1.5)*(1-smooth((y-1.5)/4.5)); front = np.where(z < 0, smooth(-z/4), 0.); q = 1+.035*squeeze
+    return np.stack([x*s*(1+.16*belly*low)*q, y*s*(1-.04*squeeze), z*s*(1+(.06+.28*front)*belly*low)*q], axis=1)
+
+
+def pregnant(tris, kinds, belly, squeeze=0.):
+    """A posed mesh as YukkuriModel draws it at this belly: the body and hair deform, the braid rides its root's lift."""
+    out = tris.copy(); P = out[:, :, :3].reshape(-1, 3); braid = np.repeat(kinds == 2, 3)
+    who = body(); root = np.array(who.model['bones'][who.bones['hand_right']]['pivot'], float)
+    P[~braid] = deform(P[~braid], belly, squeeze); P[braid] += deform(root[None], belly)[0]-root
+    out[:, :, :3] = P.reshape(-1, 3, 3); return out
+
+
 def body():
     """The posed Marisa (built on first use: posing is the slow part, cached shapes skip it)."""
     if not _BODY: _BODY.append(Body())
@@ -101,10 +120,11 @@ class Shape:
         self.tall = float(body_pts[:, 1].max()-body_pts[:, 1].min())   # the body's own height (hats do not count)
 
     @classmethod
-    def posed(cls, clip, t, face, scale=1., yaw=0., hat=False):
+    def posed(cls, clip, t, face, scale=1., yaw=0., hat=False, belly=0., squeeze=0.):
         """The body posed by an exported clip at t, scaled and turned; hat: wearing this make-source's worn hat (as
-        recipe-overridden). Read from the disk cache when its inputs match, else posed and stored."""
-        key = json.dumps([INPUTS, clip, t, face, scale, yaw, B.R if hat else None, GRID.n, GRID.step], sort_keys=True)
+        recipe-overridden); belly, squeeze: a pregnant mother (pregnant). Read from the disk cache when its inputs match,
+        else posed and stored."""
+        key = json.dumps([INPUTS, clip, t, face, scale, yaw, B.R if hat else None, GRID.n, GRID.step]+([belly, squeeze] if belly else []), sort_keys=True)
         path = CACHE/f'shape-{hashlib.sha256(key.encode()).hexdigest()[:20]}.npz'
         if path.is_file():
             data = np.load(path); sh = cls.__new__(cls)
@@ -112,7 +132,8 @@ class Shape:
             sh.face = face; return sh
         pose = json.dumps([clip, t, face, B.R if hat else None], sort_keys=True)   # the same pose at another growth or yaw
         if pose not in _POSES: _POSES[pose] = body().mesh(clip, t, face=face, hat=B.worn_mesh() if hat else None)
-        sh = cls(*_POSES[pose], yaw, scale); sh.face = face
+        tris, kinds = _POSES[pose]
+        sh = cls(pregnant(tris, kinds, belly, squeeze) if belly else tris, kinds, yaw, scale); sh.face = face
         CACHE.mkdir(parents=True, exist_ok=True); np.savez_compressed(path, **{k: getattr(sh, k) for k in cls.FIELDS})
         return sh
 

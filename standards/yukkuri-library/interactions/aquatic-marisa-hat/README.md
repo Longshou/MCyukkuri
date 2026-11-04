@@ -10,8 +10,8 @@
 | `geometry.json` | 帽檐、帽口、平底、深度、龙骨、水线与圆盆剖面 |
 | `food_layer.png` | 复用既有 16×16 储粮贴图，按覆盖面积显示份数 |
 | `scene.py` | 摆姿的身体、身体底面贴帽面的支撑、帽船网格、辫兜够距；姿态缓存在 `<MCY_LOCAL 或 .local>/cache/aquatic-marisa-hat/` |
-| `layout.py` | 船长座位、帽盆容量（含戴帽测量）、头顶位、帽檐边幼油、救援够距与贴帽动作检查 |
-| `preview.py` | 当前预览 `<MCY_LOCAL 或 .local>/previews/aquatic-hat-seats/current.png`；`--clips` 出帽船动作关键帧 `previews/aquatic-clips/current.png`；`--paddle` 出辫子划船一次划桨的关键帧 `previews/braid-paddle/current.png`；`--places` 出船长座、帽内戴帽赤油、头顶位与辫子搬运路线 `previews/art-a1-places/current.png` |
+| `layout.py` | 船长座位、帽盆容量（含戴帽测量）、头顶位、帽檐边幼油、救援够距、自帽分娩落点与贴帽动作检查 |
+| `preview.py` | 当前预览 `<MCY_LOCAL 或 .local>/previews/aquatic-hat-seats/current.png`；`--clips` 出帽船动作关键帧 `previews/aquatic-clips/current.png`；`--paddle` 出辫子划船一次划桨的关键帧 `previews/braid-paddle/current.png`；`--places` 出船长座、帽内戴帽赤油、头顶位与辫子搬运路线 `previews/art-a1-places/current.png`；`--birth` 出满孕船长分娩与一、两只新生儿落点 `previews/art-a3-hat-birth/current.png` |
 
 ```sh
 python standards/yukkuri-library/interactions/aquatic-marisa-hat/build.py [--check] [--set key.path=值 ...]
@@ -67,6 +67,7 @@ MCY_LOCAL=<主检出>/.local python standards/yukkuri-library/interactions/aquat
 - 头顶位（摘帽时）：`head_cap` 量船长头发顶在帽檐面上约 6.3，峰下 0.5 以内是平顶；0.15–0.30 幼油整只脚底都有支撑。
 - 帽檐边：幼油中心在帽檐外缘内半个自身半身宽（`brim_ring(scale)`；运行边界仍记 0.30 子油的参考环）。可见演出（项目设计，用户 2026-11-04“所有的演出都要玩家可以看到”）由 `brim_acts` 在导出片段上量：拍水 `kid_brim_splash`、学划 `kid_mimic_paddle` 辫子一侧（+x）朝外，0.12–0.20 赤油在 `slap_1`／`slap_2`／`dip` 时辫梢入水 0.15–0.20；探头 `boat_rim_peek`、安静玩 `hat_cradle` 面朝外；受惊 `kid_hide_behind` 沿帽檐朝向亲油；各动作陷进帽檐不超过 0.16（片段按平地落地，帽檐下垂，网格 0.125）。
 - 头顶位的演出（`head_acts`）：`boat_rim_peek`、`kid_hide_behind`（原地）、`greet`，陷进头发顶不超过 0.07，辫子不过帽檐、不碰水。
+- 自帽分娩（`hat_birth`，项目设计，用户 2026-11-04 反馈 8“生一两只直接生到自己帽子里”）：身体按 `LiveBirthGeometry.deform` 鼓起，满孕时比帽底宽，下侧头发先搭到帽壁，于是她在船长座位那条线上（不挪座、不转身）按身体加头发的底面支撑坐高；`boat_labor` 整段取各姿态中最高的一档，按肚子大小导出 `underside_by_belly`（满孕比平时高约 0.22 格，生完逐只回落），身体、头发和搭出帽檐的辫子都不陷进帽子。新生儿的出口取她鼓起的出口再往前半个自身宽（地上那条“离开她整个碰撞箱”的规则会把孩子放到船首帽口沿上），从出口只受重力落下、不高过出口（约 2 刻），落点在她身前帽底：一只在中线，最大 0.185；两只左右对称、先落辫子一侧，各最大 0.13。每只落点整只连帽子都在帽布上，与她此后各姿态（含下一只的用力）保持 0.3 间隙，下落途中不碰她和先出生的兄弟姐妹。满孕时帽盆里没有别的空位，头顶在用力时起伏；她的身体在帽檐面以上伸到离中心 12.1（模型单位）。
 - 救援：船长在座位上原地转身，辫根到帽檐外 0.5 处水面最近 8.65（辫长 9.70 的 89%），越过横向帽檐 95%。
 
 ## 储粮贴图
@@ -98,6 +99,7 @@ MCY_LOCAL=<主检出>/.local python standards/yukkuri-library/interactions/aquat
 | `keel_y` | 帽船最低点 |
 | `captain_seat` | 成体船长（`growth` 1）坐在船尾、面朝船首时身底的位置 `x`、`y`、`z` |
 | `brim_ring.radius`、`brim_ring.underside_y` | 帽檐边子油的中心半径（辫子一侧朝外），以及各体型 `[生长, 身底高度]` |
+| `hat_birth` | 自帽分娩：`clip`（`boat_labor`，标记 `exit`／`land`）、`underside_by_belly`（`[肚子, 船长身底高度]`）、`"1"`／`"2"` 各自的 `growth_max` 与落点 `spots`（`[x, z]`，两只时先辫子一侧 +x） |
 | `stores.texture`、`texture_px`、`tiers`、`radius_fractions`、`pixels_per_block`、`note` | 复用贴图与边长、各档份数 `[起, 止]`、半径比例、像素密度及船首相切的覆盖规则（见上节） |
 
 ## 采用时

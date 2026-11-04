@@ -441,10 +441,10 @@ def state(action, t, c, height):
                 fade = smooth((t-c['omen_start'])/.5)*(1-smooth((t-d+.6)/.6)); w = 2*math.pi*c['restless_hz']*(t-c['omen_start'])
                 r[1] = c['restless_yaw']*math.sin(w)*fade; r[2] = 2*math.sin(w+.5)*fade
         else:
-            # Gather the newborn into the hat: turn toward it, lean in, come back.
+            # Lean over the newborn that dropped into the basin straight before her, and come back (no turn).
             e = bump((t-c['birth_seconds'])/(cycle-c['birth_seconds'])); s = base
             s[1]+=.015*bump(((t-c['birth_seconds'])/.8)%1)*e
-            r = [keyed(t, c['pitch_keys'])+c['tuck_lean']*e, c['tuck_turn']*e, 0.]
+            r = [keyed(t, c['pitch_keys'])+c['tuck_lean']*e, 0., 0.]
     elif action == 'bereaved':
         if t < 1.6:  # frozen, sinking a little: the blank stare
             a = smooth(t/.4); s = [1+c['sink']*.5*a, 1-c['sink']*a, 1+c['sink']*.5*a]

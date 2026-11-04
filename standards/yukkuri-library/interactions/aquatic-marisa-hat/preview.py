@@ -12,6 +12,8 @@ the four stores coverage tiers, all cropping the existing texture at the same te
     MCY_LOCAL=<main checkout>/.local python preview.py --brim   # previews/art-a2b-brim-water/current.png: brim splash and
                                                                 # mimic paddle (braid to the water), head peek, the swimming
                                                                 # beckon stroke beside the hat
+    MCY_LOCAL=<main checkout>/.local python preview.py --birth  # previews/art-a3-hat-birth/current.png: the full-term captain
+                                                                # in labour and one and two newborns at their landing spots
 """
 from pathlib import Path
 import math, os, sys
@@ -492,5 +494,58 @@ def brim_main():
     print(out/'current.png')
 
 
+def birth_main():
+    """Own-hat birth afloat (layout.hat_birth): the full-term captain bracing on her seat line, then one and two newborns at
+    their landing spots with the drop from each exit: <MCY_LOCAL or .local>/previews/art-a3-hat-birth/current.png."""
+    atlas = Atlas(); hull = S.Hull(); cap_sh, (_, z, cy) = L.captain(hull); hb = L.hat_birth(hull, z)
+    hull_tris = hull.placed.copy()
+    hull_tris[:, :, 3:5] = atlas.uv('marisa/neutral', Image.fromarray(S.body().texture('neutral')), hull_tris[:, :, 3:5])
+
+    def her(belly, t, sq=0.):
+        sh = L.labor_shape(belly, t, sq); return posed(sh, atlas, *sh.window(0., z)[2], L.seat_lift(hull, z, belly))
+
+    def drop(a, b, ticks, key):
+        pts = []
+        for k in range(4*ticks+1):
+            t = k/4; p = a+(b-a)*t/ticks; p[1] += L.GRAVITY/2*t*(ticks-t); pts.append(p+[0, .6, 0])
+        out = []
+        for p, q in zip(pts, pts[1:]):
+            tb = tube(p, q, .16, 6); tb[:, :, 3:5] = swatch(atlas, key, tb[:, :, 3:5]); out.append(tb)
+        bl = blob(pts[0], .4, 6); bl[:, :, 3:5] = swatch(atlas, key, bl[:, :, 3:5]); return out+[bl]
+
+    def bow_cut(at):
+        """The hull without its bow wall beyond z = at, so the newborns on the floor show from the bow."""
+        m = hull_tris.copy(); m[:, :, 2] -= at; m = clip(m, 'z', keep=-1); m[:, :, 2] += at; return m
+
+    def brood(count, growth, t_mother, cut=None):
+        row = hb[count]; meshes = [hull_tris if cut is None else bow_cut(cut), her(L.belly_after(count, count), t_mother)]
+        _, kids = L.check_spots(hull, z, count, growth, row['spots'])
+        for (x, zz), kid in zip(row['spots'], kids):
+            sh = L.young_shape(growth); meshes.append(posed(sh, atlas, *sh.window(x, zz)[2], sh.rest(hull.field, x, zz)))
+            meshes += drop(np.array(kid['exit']), np.array(kid['land']), kid['ticks'], 'path_cabin')
+        return meshes
+
+    g1, g2 = hb[1]['growth_max'], hb[2]['growth_max']
+    lean = L.marker('exit')+1.2
+    shots = [('临产：满孕亲油在船尾座位用力（肚子把帽口塞满，身体搭在帽壁上）', [hull_tris, her(1., 3.9, 1.)], (-.7, .3, 15., (0., 2., -1.))),
+             (f'生一只（{g1:.3f}）：从出口落进身前帽底，她俯身看着（剖开船首帽壁）', brood(1, g1, lean, hb[1]['spots'][0][1]-2.), (.25, .2, 10., (0., -1., -5.))),
+             (f'生两只（各 {g2:.3f}）：先辫子一侧后另一侧（剖开船首帽壁）', brood(2, g2, lean, hb[2]['spots'][0][1]-2.), (.25, .2, 10., (0., -1., -5.))),
+             ('从上方看两只的落点（船首在下）', brood(2, g2, lean), (0., 1.5, 13., (0., 0., -3.)))]
+    W, H = 2*700+30, 2*470+170; img = Image.new('RGB', (W, H), (250, 251, 252)); d = ImageDraw.Draw(img)
+    d.text((20, 14), '水上自帽分娩：一至两只直接生到自己帽子里（离线渲染，不是游戏画面）', font=P.preview_font(26), fill=(32, 52, 64))
+    for i, (label, meshes, view) in enumerate(shots):
+        shot, _ = render(meshes, [np.zeros(len(m), int) for m in meshes], atlas, view, hull, cut='剖开' in label)
+        x, y = 20+(i % 2)*705, 60+(i//2)*470; d.text((x, y), label, font=P.preview_font(20), fill=(70, 90, 100))
+        img.paste(shot.resize((690, 430), Image.Resampling.LANCZOS), (x, y+30))
+    under = hb['underside']
+    notes = [f'满孕时身体比帽底宽，下侧头发搭在帽壁上，比平时坐高 {(under[1.0]-cy-cap_sh.bottom)/16:.2f} 格；生完逐只回落（船尾座位不变，不转身）',
+             f'橙线：孩子从出口下落 {hb[1][g1]["children"][0]["ticks"]} 刻到帽底，不高过出口，翻不出帽檐；落点在她身前、帽壁以内',
+             f'一只最大 {g1:.3f}，两只各最大 {g2:.3f}（胎生 0.10–0.19）；更大或三只时照常临产上岸']
+    for i, t in enumerate(notes): d.text((20, H-100+i*30), '· '+t, font=P.preview_font(19), fill=(40, 60, 70))
+    out = OUT.parent/'art-a3-hat-birth'; out.mkdir(parents=True, exist_ok=True)
+    img.save(out/'current.png'); (out/'source.sha256').write_text(B.source_digest(), encoding='utf-8')
+    print(out/'current.png')
+
+
 if __name__ == '__main__':
-    brim_main() if '--brim' in sys.argv else clips_main() if '--clips' in sys.argv else paddle_main() if '--paddle' in sys.argv else places_main() if '--places' in sys.argv else main()
+    birth_main() if '--birth' in sys.argv else brim_main() if '--brim' in sys.argv else clips_main() if '--clips' in sys.argv else paddle_main() if '--paddle' in sys.argv else places_main() if '--places' in sys.argv else main()

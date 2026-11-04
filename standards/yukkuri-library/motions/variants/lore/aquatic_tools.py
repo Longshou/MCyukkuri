@@ -33,7 +33,7 @@ PADDLE_CLIPS = ('boat_paddle', 'hat_brim_offer', 'boat_nudge_young')
 NEW_CLIPS = ('braid_cradle_lift', 'be_cradled', 'mouth_bite_hold', 'boat_thrown', 'water_hat_climb', 'water_hat_right',
              'boat_cargo_stow', 'boat_cargo_fetch', 'boat_jettison', 'boat_rim_peek', 'braid_rescue_reach', 'braid_rescue_hold',
              'braid_rescue_settle', 'boat_board', 'boat_feed_young', 'hat_hop_up', 'boat_drift', 'boat_steady', 'kid_brim_splash',
-             'kid_mimic_paddle', 'kid_hide_behind', 'bank_beckon', 'water_beckon', 'braid_head_set', 'braid_head_take')
+             'kid_mimic_paddle', 'kid_hide_behind', 'bank_beckon', 'water_beckon', 'braid_head_set', 'braid_head_take', 'boat_labor')
 # Beats were authored on these lengths; the recipe duration rescales them (boat_thrown 0.6 s, water_hat_right 1.6 s).
 AUTHORED = {'boat_thrown': 1.2, 'water_hat_right': 2.0}
 # A real item held in the braid tuft (the same vanilla stick the paddle clips row with): the hold overlays, pick and place.
