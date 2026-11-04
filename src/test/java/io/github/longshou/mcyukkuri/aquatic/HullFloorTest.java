@@ -135,7 +135,9 @@ class HullFloorTest {
                 var body = BodyFootprint.of("marisa", .8 / UNIT, .6 / UNIT, 0);
                 double outer = body.columns().stream().mapToDouble(p ->
                         p.x() * local.x() / local.hlen() + p.z() * local.z() / local.hlen()).max().orElseThrow();
-                assertEquals(HullBounds.RADIUS * scale, (local.hlen() + outer) * UNIT * scale, 1e-9);
+                assertTrue(Double.isFinite(local.y()));
+                if (local.hlen() < HullBounds.DATA.number("brim_ring.radius") / UNIT - 1e-9)
+                    assertEquals(HullBounds.RADIUS * scale, (local.hlen() + outer) * UNIT * scale, 1e-9);
             }
         }
     }
@@ -148,6 +150,8 @@ class HullFloorTest {
         for (var at : young) assertEquals(HullBounds.DATA.number("brim_ring.radius") / UNIT, at.hlen(), 1e-9,
                 "small riders already fit on the preferred ring; moving them inward breaks the full-boat fixture");
         var stops = HullBounds.brimStops("marisa", .96, .72, HullBounds.SCALE * scale, 0);
+        for (var at : young) assertTrue(stops.stream().anyMatch(p -> Math.hypot(p.x() - at.x(), p.z() - at.z()) < 1e-9),
+                "the supported outer brim must remain available for bank pickup without settling into the hollow");
         assertTrue(stops.stream().anyMatch(at -> Double.isFinite(at.y()) && young.stream().noneMatch(p ->
                 captain.overlaps(at.x(), at.y(), at.z(), small, p.x(), p.y(), p.z(), .02))));
         var child = BodyFootprint.of("marisa", .8 * .19 / unit, .6 * .19 / unit, 0);

@@ -7,6 +7,7 @@ import io.github.longshou.mcyukkuri.motor.geom.RadialWall;
 import io.github.longshou.mcyukkuri.motor.geom.Vec;
 import java.util.List;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 /** The round hull's authored dimensions, in blocks at its exported scale; origin at the brim. */
 public final class HullBounds {
@@ -38,14 +39,14 @@ public final class HullBounds {
                 r * Math.sin(i * Math.PI / 36))).toList();
     }
 
-    /** Keep the preferred brim ring where the body fits; bring a larger body's outward edge inside the cloth. */
+    /** Offer the supported outer ring and inner footing where a larger body's outward edge fits inside the cloth. */
     public static List<Vec> brimStops(String asset, double width, double height, double hullScale, double yaw) {
         var profile = HullProfile.of(HullProfile.BASIN);
         double scale = hullScale / SCALE, unit = profile.measuredUnit();
         var body = BodyFootprint.of(asset, width / scale / unit, height / scale / unit, yaw);
         return brimStops().stream().map(p -> p.scale(1 / unit))
-                .map(p -> p.scale(Math.min(p.hlen(), RADIUS / unit
-                        - FloorSearch.extent(body, p.x() / p.hlen(), p.z() / p.hlen())) / p.hlen()))
+                .flatMap(p -> Stream.of(p, p.scale(Math.min(p.hlen(), RADIUS / unit
+                        - FloorSearch.extent(body, p.x() / p.hlen(), p.z() / p.hlen())) / p.hlen())).distinct())
                 .map(p -> new Vec(p.x(), profile.support(p.x(), p.z(), body), p.z())).toList();
     }
 
