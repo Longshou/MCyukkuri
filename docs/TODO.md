@@ -8,6 +8,7 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
+| 水生亲油寻回赤油后叼到水边出航、赤油自行上岸后的寻子（WP-K3） | `.worktrees/wp-k3-carry-to-water` | `aquatic/{SetOut,AquaticGoal,AquaticLife,Waters}`、`family/{ParentCarry,FamilyLife}`、`scripts/museum_scenarios.py`、`docs/{TODO,FEATURES}.md` |
 
 ## 玩法待办
 
