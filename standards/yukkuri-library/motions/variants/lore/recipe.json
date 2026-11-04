@@ -748,7 +748,11 @@
       "lore": "Original post-voyage care of the existing 1.5x hat. Slight drying only; never creates, repairs or changes a hat or subspecies.",
       "triggers": [
         "safe return to dry ground with the original hat"
-      ]
+      ],
+      "markers": {
+        "braid_busy": 1.1,
+        "braid_free": 1.8
+      }
     },
     "boat_paddle": {
       "label": "辫端持枝划船",
@@ -818,6 +822,89 @@
       },
       "base_pose": "boat_steady",
       "body_lead_seconds": 0.1
+    },
+    "boat_paddle_braid": {
+      "label": "无棍用辫子划水",
+      "duration": 1.6,
+      "loop": true,
+      "applies": "aquatic_marisa",
+      "height": 0.95,
+      "width": 1.025,
+      "faces": [
+        [
+          0,
+          0.2,
+          "closed_smile"
+        ],
+        [
+          0.2,
+          1.0,
+          "chewing_closed"
+        ],
+        [
+          1.0,
+          1.6,
+          "closed_smile"
+        ]
+      ],
+      "lore": "Project design (user 2026-11-05 feedback 8: rowing without a stick the braid must really touch the water): boat_paddle's stroke with the bare braid. Seated low in the basin her braid only reaches the water beyond the brim when she leans out to her braid side (`lean` degrees of roll, her pitch scaled by `pitch_share` so the two stay within 12; `lean_out` an [x, z] shift that way and a little forward, so her rear hair stays off the basin wall) and draws the braid taut over the brim (`lean_stretch`, up to that share longer along it, as hat.py stretches it), from the catch through the pull. The tuft end follows `braid_path` as one closed curve (`braid_curve` loop): from the shared boat rest tuck out and down into the water at the catch (power_start), drawn aft under the hull's waterline (`stroke.water` hull: hull_forms, the waterline boat_paddle's blade aims under; at least half `stroke.depth` under through the whole power half) to the finish (power_end), lifted out and swung back to the rest tuck. The loop's seam (t=0) is the rest tuck with her upright, so a drift turn hands over without a jump. Markers `contact` and `stroke` are where the tuft really enters and leaves the water (aquatic_tools.stroke_gate); hull_gate keeps the braid out of the hull.",
+      "triggers": [
+        "server surface route without a stick (Paddle, bare braid)"
+      ],
+      "markers": {
+        "power_start": 0.2,
+        "contact": 0.12,
+        "power_end": 1.0,
+        "stroke": 1.2
+      },
+      "body_lead_seconds": 0.1,
+      "lean": 10.5,
+      "pitch_share": 0.1,
+      "lean_out": [
+        0.2,
+        -1.2
+      ],
+      "braid_path": [
+        [
+          0,
+          "rest"
+        ],
+        [
+          0.1,
+          18.0,
+          4.5,
+          -3.4
+        ],
+        [
+          0.2,
+          18.0,
+          3.0,
+          -5.0
+        ],
+        [
+          1.0,
+          18.0,
+          3.0,
+          1.5
+        ],
+        [
+          1.12,
+          16.6,
+          4.6,
+          1.8
+        ],
+        [
+          1.6,
+          "rest"
+        ]
+      ],
+      "braid_curve": "loop",
+      "stroke": {
+        "water": "hull",
+        "depth": 1.8
+      },
+      "base_pose": "boat_steady",
+      "lean_stretch": 1.12
     },
     "bank_beckon": {
       "label": "岸边用辫子拨水",
@@ -2091,7 +2178,10 @@
       "lore": "the braid hooks the brim, lifts the hat off, turns it over and presses it down upside down before the mother's outlet, its soft crown squashed under it (afloat, less), and keeps hold of its brim (user, 2026-10-14: the father works the hat with his braid)",
       "triggers": [
         "a Marisa catching for her mate reaches her place beside the outlet"
-      ]
+      ],
+      "markers": {
+        "braid_busy": 0.35
+      }
     },
     "hat_hold": {
       "label": "辫子扶帽接生",
@@ -2197,7 +2287,10 @@
       "lore": "the young have climbed out; the braid lifts the hat, turns it back and puts it on (hat_off played backwards)",
       "triggers": [
         "the cradle is no longer needed"
-      ]
+      ],
+      "markers": {
+        "braid_free": 1.25
+      }
     },
     "hat_off_self": {
       "label": "自己摘帽放在身前",
@@ -2261,7 +2354,11 @@
       "lore": "a mother with no Marisa to catch for her sets her own hat, turned over, before her outlet with her braid, presses its crown flat and lets go (user: a single parent catches by herself)",
       "triggers": [
         "a hatted Marisa mother about to deliver alone"
-      ]
+      ],
+      "markers": {
+        "braid_busy": 0.35,
+        "braid_free": 1.4
+      }
     },
     "hat_on_self": {
       "label": "自己拿回帽子",
@@ -2321,7 +2418,11 @@
       "lore": "she leans out, takes the rim with her braid and puts the hat back on (hat_off_self played backwards)",
       "triggers": [
         "the cradle is no longer needed"
-      ]
+      ],
+      "markers": {
+        "braid_busy": 0.4,
+        "braid_free": 1.45
+      }
     },
     "hat_off_aq": {
       "label": "辫子摘帽放下（水生大帽）",
@@ -2385,7 +2486,8 @@
       "markers": {
         "grip": 0.35,
         "hat_clear": 0.6,
-        "release": 1.45
+        "release": 1.45,
+        "braid_busy": 0.35
       }
     },
     "hat_hold_aq": {
@@ -2496,7 +2598,8 @@
       "markers": {
         "grip": 0.15,
         "hat_clear": 0.45,
-        "release": 1.25
+        "release": 1.25,
+        "braid_free": 1.25
       }
     },
     "hat_off_self_aq": {
@@ -2565,7 +2668,9 @@
       "markers": {
         "grip": 0.35,
         "hat_clear": 0.6,
-        "release": 1.4
+        "release": 1.4,
+        "braid_busy": 0.35,
+        "braid_free": 1.4
       }
     },
     "hat_on_self_aq": {
@@ -2630,7 +2735,9 @@
       "markers": {
         "grip": 0.4,
         "hat_clear": 0.7,
-        "release": 1.45
+        "release": 1.45,
+        "braid_busy": 0.4,
+        "braid_free": 1.45
       }
     },
     "bereaved": {
@@ -5112,7 +5219,9 @@
       ],
       "markers": {
         "push": 0.45,
-        "over": 0.7
+        "over": 0.7,
+        "braid_busy": 0.3,
+        "braid_free": 0.6
       },
       "contacts": {
         "braid_push": {
@@ -5506,54 +5615,6 @@
         ]
       }
     },
-    "braid_item_hold_aq": {
-      "label": "辫梢攥着物品（帽船上）",
-      "duration": 1.6,
-      "loop": true,
-      "applies": "aquatic_marisa",
-      "root_support": "free_water",
-      "faces": [
-        [
-          0,
-          1.6,
-          "neutral"
-        ]
-      ],
-      "lore": "Project design (user 2026-11-04 feedback 6: holding an item is a general ability shown in the grip, the braid for Marisa; a stick taken on the bank is held in the braid, not hidden). Overlay afloat: the braid keeps its boat rest out over the brim (boat_braid rest) and the tuft holds the stick up and outboard beside the hull, out of the water; boat_paddle and hat_brim_offer remain the rowing and held-out grips of the same stick.",
-      "triggers": [
-        "real held stack in the braid, aboard (not rowing)"
-      ],
-      "braid_path": [
-        [
-          0,
-          "rest"
-        ],
-        [
-          1.6,
-          "rest"
-        ]
-      ],
-      "held_item": {
-        "grip_offset": 1.6,
-        "top_length": 1.6,
-        "blade_length": 10.4,
-        "twig_radius": 0.3,
-        "dir": [
-          [
-            0,
-            0.45,
-            0.85,
-            0.2
-          ],
-          [
-            1.6,
-            0.45,
-            0.85,
-            0.2
-          ]
-        ]
-      }
-    },
     "braid_item_pick": {
       "label": "辫梢拾起物品",
       "duration": 1.6,
@@ -5912,5 +5973,44 @@
     "comfort_lick",
     "hop_leg"
   ],
+  "braid_use": {
+    "note": "Project design (user 2026-11-05 feedback 2: what the braid already holds decides what it can do): clips whose own authored braid grips, carries or strokes something (the hat, a child, a brim, the water; in the water she flails and swims with it while the stack stays in her hat) use the braid, so the game never lays the held stack's hold over them; a held stack shows there only by the clip's own props.item, otherwise it stays stowed in her hat and is not drawn. Markers `braid_busy` (the braid has left the hold by here) and `braid_free` (from here it returns to the hold by the clip's end) let a one-shot clip hand the braid over from and back to the hold. Exported as the clip field braid_use.",
+    "clips": [
+      "hat_off",
+      "hat_hold",
+      "hat_on",
+      "hat_off_self",
+      "hat_on_self",
+      "hat_off_aq",
+      "hat_hold_aq",
+      "hat_on_aq",
+      "hat_off_self_aq",
+      "hat_on_self_aq",
+      "aquatic_hat_care",
+      "bank_beckon",
+      "water_beckon",
+      "water_swim",
+      "water_plunge",
+      "water_struggle",
+      "water_gasp",
+      "water_held_breath",
+      "water_bob_lunge",
+      "water_mouth_grip",
+      "water_hat_shake",
+      "water_hat_push",
+      "boat_paddle_braid",
+      "water_hat_climb",
+      "water_hat_right",
+      "boat_jettison",
+      "braid_cradle_lift",
+      "braid_head_set",
+      "braid_head_take",
+      "braid_rescue_reach",
+      "braid_rescue_hold",
+      "braid_rescue_settle",
+      "kid_brim_splash",
+      "kid_mimic_paddle"
+    ]
+  },
   "revision": 17
 }

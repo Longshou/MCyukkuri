@@ -33,11 +33,13 @@ PADDLE_CLIPS = ('boat_paddle', 'hat_brim_offer', 'boat_nudge_young')
 NEW_CLIPS = ('braid_cradle_lift', 'be_cradled', 'mouth_bite_hold', 'boat_thrown', 'water_hat_climb', 'water_hat_right',
              'boat_cargo_stow', 'boat_cargo_fetch', 'boat_jettison', 'boat_rim_peek', 'braid_rescue_reach', 'braid_rescue_hold',
              'braid_rescue_settle', 'boat_board', 'boat_feed_young', 'hat_hop_up', 'boat_drift', 'boat_steady', 'kid_brim_splash',
-             'kid_mimic_paddle', 'kid_hide_behind', 'bank_beckon', 'water_beckon', 'braid_head_set', 'braid_head_take', 'boat_labor')
+             'kid_mimic_paddle', 'kid_hide_behind', 'bank_beckon', 'water_beckon', 'braid_head_set', 'braid_head_take', 'boat_labor',
+             'boat_paddle_braid')
 # Beats were authored on these lengths; the recipe duration rescales them (boat_thrown 0.6 s, water_hat_right 1.6 s).
 AUTHORED = {'boat_thrown': 1.2, 'water_hat_right': 2.0}
-# A real item held in the braid tuft (the same vanilla stick the paddle clips row with): the hold overlays, pick and place.
-HELD_CLIPS = ('braid_item_hold', 'braid_item_hold_aq', 'braid_item_pick', 'braid_item_place')
+# A real item held in the braid tuft (the same vanilla stick the paddle clips row with): the hold overlay ashore, pick and place.
+# Aboard the hold is boat_paddle's own loop start (the game samples it at 0), so rowing and holding share one grip.
+HELD_CLIPS = ('braid_item_hold', 'braid_item_pick', 'braid_item_place')
 EXPORT_CLIPS = PADDLE_CLIPS+NEW_CLIPS+HELD_CLIPS+('boat_puff',)
 
 
@@ -122,7 +124,7 @@ def state(action, t, c, height):
     s, r, lift, shift = [1., 1., 1.], [0., 0., 0.], 0., [0., 0.]
     d = c['duration']
     if action in AUTHORED: t, d = t*AUTHORED[action]/d, AUTHORED[action]
-    if action == 'boat_paddle':
+    if action in ('boat_paddle', 'boat_paddle_braid'):
         # Seated low in the hull: lean into the catch, drive back through the power half with a small squash and a
         # shoulder twist toward the braid side, the body leading the braid by `body_lead_seconds`; the recovery
         # straightens. Pitch -5..+.5, roll <= 1 (more would dip the held-out braid onto the gunwale). No aft shift and
@@ -131,6 +133,12 @@ def state(action, t, c, height):
         drive = bump(u/.5) if power else 0.
         s = [c['width']+.02*drive, c['height']-.03*drive, c['width']+.015*drive]
         r = [lerp(-5, .5, q) if power else lerp(.5, -5, q), lerp(-7, 6, q) if power else lerp(6, -7, q), -.5-.5*drive]
+        if 'lean' in c:
+            # Without a stick (boat_paddle_braid) her braid itself must reach the water beyond the brim: she rolls out to her
+            # braid side by `lean` degrees (her pitch scaled by `pitch_share`, so pitch and roll together stay within 12) and
+            # shifts `lean_out` that way from the catch through the pull, comes upright early in the recovery and sits as
+            # boat_paddle does at the loop's seam, where a drift turn hands over.
+            k = lean_share(paddle_phase(t, c)); r[0] *= c['pitch_share']; r[2] -= c['lean']*k; shift = [v*k for v in c['lean_out']]
     elif action == 'bank_beckon':
         # Ashore at the water's edge (Beckon): she turns her braid side to the water before her (yaw is free), leans out over the
         # edge toward that side and flattens while the tuft is in the water (press: the stroke's depth share), so the braid
@@ -266,6 +274,14 @@ def state(action, t, c, height):
     return s, r, lift, shift
 
 
+def lean_share(u):
+    """boat_paddle_braid's lean-out at stroke phase u (paddle_phase): full through the power half, released over the first
+    40 % of the recovery, upright from there to its last quarter (the loop's seam at t=0 lies there) and leaning back in for
+    the catch."""
+    if u < .5: return 1.
+    q = (u-.5)/.5; return 1-smooth(q/.4)+smooth((q-.75)/.25)
+
+
 # ---- braid tracks -----------------------------------------------------------------------------------------------------
 
 def braid_rotation(action, t, c, side):
@@ -327,11 +343,25 @@ def stroke(u, p):
 
 def path_target(t, c):
     """The braid_path tuft-end target at t (model units in the clip's seat frame): keys [t, x, y, z], or [t, 'rest'] for
-    the shared boat_braid rest tuck, eased between; 'stroke' strokes the water before her (`stroke`, in its own frame)."""
+    the shared boat_braid rest tuck, eased between (`braid_curve` "loop": one closed curve through them, `looped`);
+    'stroke' strokes the water before her (`stroke`, in its own frame)."""
     if c['braid_path'] == 'stroke':
         b = c['stroke']; y, z = stroke(paddle_phase(t, c), b); return np.array([b['x'], b['water']+y, z])
     keys = [(k[0], np.array(BOAT_BRAID['rest'] if k[1] == 'rest' else k[1:4], float)) for k in c['braid_path']]
-    return keyed(t, keys)
+    return looped(t, keys, c['duration']) if c.get('braid_curve') == 'loop' else keyed(t, keys)
+
+
+def looped(t, keys, d):
+    """A looping clip's closed path through its keys (the last key the first again, at d): Catmull-Rom tangents from the
+    neighbouring keys, across the seam too, so the tuft neither stops at a key nor kinks where the loop closes."""
+    times = [k[0] for k in keys[:-1]]; points = [k[1] for k in keys[:-1]]; n = len(points)
+    at = lambda j: (times[j % n]+d*(j//n), points[j % n])
+
+    def tangent(j):
+        (ta, a), (tb, b) = at(j-1), at(j+1); return (b-a)/(tb-ta)
+    t %= d; i = max(j for j in range(n) if times[j] <= t)
+    (t0, p0), (t1, p1) = at(i), at(i+1); h = t1-t0; s = (t-t0)/h
+    return (2*s**3-3*s**2+1)*p0+(s**3-2*s**2+s)*h*tangent(i)+(-2*s**3+3*s**2)*p1+(s**3-s**2)*h*tangent(i+1)
 
 
 def path_tracks(model, action, samples, tracks, c):
@@ -339,30 +369,37 @@ def path_tracks(model, action, samples, tracks, c):
     body's yaw about the root pivot and moves with its x/z shift, so a tuck stays where she sits; height is the seat's.
     The tuft keeps the clip's own tip_rotation (curl, hook) on top. A water stroke's target stays in its own frame, and its
     root lock keeps its natural size on her squashed body (the inverse of her scale, unturned), the braid below it reaching
-    as far as it really is long."""
+    as far as it really is long. `lean_stretch` (boat_paddle_braid): leaning out she draws the braid taut over the brim, up to
+    that share longer along it (hat.py stretches the braid the same way, its tuft kept its size)."""
     bones = model['bones']; names = {b['name']: i for i, b in enumerate(bones)}; chain = braid_chain.chain(names)
     body = names['root']; pivot = np.array(bones[body]['pivot'], float)
-    own = {tr['channel']: tr['keys'] for tr in tracks if tr['bone'] == body}; lock = []
-    if 'stroke' in c:
+    own = {tr['channel']: tr['keys'] for tr in tracks if tr['bone'] == body}; lock = []; water = c['braid_path'] == 'stroke'
+    if water:
         lock = [{'bone': chain[0], 'channel': 'scale', 'keys': [[k[0], *[round(1/v, 5) for v in k[1:]]] for k in own['scale']]}]
         chain = chain[1:]; tracks = tracks+lock
     V = np.array(model['vertices']).reshape(-1, 8)[:, :3]
     tuft = np.concatenate([V[p['start']:p['start']+p['count']] for p in model['parts'] if p['name'].startswith('braid_lock_tuft')])
     top = np.array(bones[chain[0]]['pivot'], float); end = tuft[np.argmax(np.linalg.norm(tuft-top, axis=1))]
     rest = np.array([bones[i]['pivot'] for i in chain]+[end.tolist()], float)
-    rows, last = {i: [] for i in chain}, {}
+    rows, last, sizes = {i: [] for i in chain}, {}, []; stretch = c.get('lean_stretch')
     for t in samples:
         yaw = sample(own['rotation'], t)[1] if 'rotation' in own else 0.
         shift = sample(own['position'], t) if 'position' in own else [0., 0., 0.]
         x, y, z = path_target(t, c); flat = euler([0, yaw, 0])@(np.array([x, 0., z])-[pivot[0], 0., pivot[2]])
-        world = np.array([x, y, z]) if 'stroke' in c else np.array([flat[0]+pivot[0]+shift[0], y, flat[2]+pivot[2]+shift[2]])
+        world = np.array([x, y, z]) if water else np.array([flat[0]+pivot[0]+shift[0], y, flat[2]+pivot[2]+shift[2]])
         M = palette(model, tracks, t); local = (np.linalg.inv(M[bones[chain[0]]['parent']])@np.r_[world, 1])[:3]
-        solved = braid_chain.rotations(rest, braid_chain.arc(rest, local))
+        sy = 1+(stretch-1)*lean_share(paddle_phase(t, c)) if stretch else 1.; sizes.append((t, sy))
+        taut = rest[0]+(rest-rest[0])*[1., sy, 1.]
+        solved = braid_chain.rotations(taut, braid_chain.arc(taut, local))
         curl = tip_rotation(action, t, c)
         if curl is not None: solved[-1] = solved[-1]@euler(curl)
         for i, R in zip(chain, solved):
             last[i] = braid_chain.to_euler(R, last.get(i)); rows[i].append([round(t, 8), *[round(v, 5) for v in last[i]]])
-    return lock+[{'bone': i, 'channel': 'rotation', 'keys': rows[i]} for i in chain]
+    out = lock+[{'bone': i, 'channel': 'rotation', 'keys': rows[i]} for i in chain]
+    if stretch:
+        out += [{'bone': chain[0], 'channel': 'scale', 'keys': [[round(t, 8), 1., round(sy, 5), 1.] for t, sy in sizes]},
+                {'bone': chain[-1], 'channel': 'scale', 'keys': [[round(t, 8), 1., round(1/sy, 5), 1.] for t, sy in sizes]}]
+    return out
 
 
 # ---- skeleton -----------------------------------------------------------------------------------------------------------
@@ -589,22 +626,25 @@ def hull_gate(model, action, samples, tracks, sticks, c, profiles=None):
     """Fail the clip if the skinned braid (braid_lock_*) or the twig axis (less `twig_radius`) enters any hull form with
     the captain on its seat facing its bow within `captain_yaw` degrees (Paddle.FACING; every `captain_yaw_step`); boat_paddle's blade must also be under every
     form's waterline by half its `depth` through the middle of the pull. Prints per form the worst braid and twig clearance.
+    `sticks` None: a stroke without a stick (boat_paddle_braid), its braid alone.
     `profiles`: hull dicts in memory instead of the exported files (hull_forms)."""
-    p = paddle_spec(c); forms = hull_forms(model['units_per_block'], profiles); yaws = range(-SHARED['captain_yaw'], SHARED['captain_yaw']+1, p['captain_yaw_step'])
+    p = paddle_spec(c) if 'paddle' in c else SHARED; forms = hull_forms(model['units_per_block'], profiles)
+    yaws = range(-SHARED['captain_yaw'], SHARED['captain_yaw']+1, p['captain_yaw_step'])
     V = np.array(model['vertices']).reshape(-1, 8)[:, :3]; W = np.array(model['weights'])
     braid = sorted({i for q in model['parts'] if q['name'].startswith('braid_lock_') for i in range(q['start'], q['start']+q['count'])})
     braid = np.unique(np.c_[V[braid], W[braid]].round(5), axis=0)
     hv = np.c_[braid[:, :3], np.ones(len(braid))]; a, b, w = braid[:, 3].astype(int), braid[:, 4].astype(int), braid[:, 5:6]
-    along = np.linspace(-p['top_length'], p['blade_length'], 25)
+    along = np.linspace(-p['top_length'], p['blade_length'], 25) if sticks else None
     worst = {f['name']: [0, math.inf, math.inf, -math.inf] for f in forms}  # penetrating samples, braid, twig, blade under water
     if action == 'boat_paddle': m = c['markers']; core = [m['power_start']+q*(m['power_end']-m['power_start']) for q in PULL]
-    for t, (G, d) in zip(samples, sticks):
+    for t, stick in zip(samples, sticks or [None]*len(samples)):
         M = palette(model, tracks, t)
-        P = (np.einsum('nij,nj->ni', M[a], hv)*(1-w)+np.einsum('nij,nj->ni', M[b], hv)*w)[:, :3]; S = G+np.outer(along, d)
+        P = (np.einsum('nij,nj->ni', M[a], hv)*(1-w)+np.einsum('nij,nj->ni', M[b], hv)*w)[:, :3]
+        S = stick[0]+np.outer(along, stick[1]) if stick else None
         pull = action == 'boat_paddle' and core[0] <= t <= core[1]
         for f in forms:
             r = worst[f['name']]
-            hair = clearance(f, P, yaws).min(); twig = clearance(f, S, yaws).min()-p['twig_radius']
+            hair = clearance(f, P, yaws).min(); twig = clearance(f, S, yaws).min()-p['twig_radius'] if stick else math.inf
             r[0] += hair < 0 or twig < 0; r[1] = min(r[1], hair); r[2] = min(r[2], twig)
             if pull: r[3] = f['water']-S[-1, 1] if r[3] == -math.inf else min(r[3], f['water']-S[-1, 1])
     failed = [name for name, (bad, _, _, wet) in worst.items() if bad or (action == 'boat_paddle' and not wet >= p['depth']/2)]
@@ -655,7 +695,7 @@ def prop_sticks(model, tracks, prop):
 
 
 def stroke_gate(model, action, samples, tracks, c, prop=None):
-    """Fail a water stroke (boat_paddle, bank_beckon, water_beckon) whose loop does not close (every track's and the props.item
+    """Fail a water stroke (boat_paddle, boat_paddle_braid, bank_beckon, water_beckon) whose loop does not close (every track's and the props.item
     keys' last key on its first), whose braid below its root lock sinks more than TOUCH deeper into her body than at rest (its
     upper lobes already lie into the body surface there; along the outward normal at the nearest body point) or whose rendered
     twig (prop keys, less `twig_radius`) enters her body. A braid stroke (`stroke`) also fails unless its deepest point is under
@@ -723,7 +763,11 @@ def extras(model, action, samples, tracks, c):
         fields['props'] = {'item': prop}
         fields.setdefault('contacts', {})['braid_grip'] = {'bone': 'hand_right_tip', 'point': grip, 'kind': 'BRAID_GRIP'}
         held_gate(model, action, samples, tracks+more, sticks, c)
-    if action in ('boat_paddle', 'bank_beckon', 'water_beckon') and 'hand_right_tip' in names:
+    if c.get('stroke', {}).get('water') == 'hull':  # the hull's own waterline from her seat (hull_forms), as boat_paddle's blade aims
+        c = dict(c, stroke=dict(c['stroke'], water=min(f['water'] for f in hull_forms(model['units_per_block']))))
+    if action == 'boat_paddle_braid' and 'hand_right_tip' in names:
+        hull_gate(model, action, samples, tracks+more, None, c)
+    if action in ('boat_paddle', 'boat_paddle_braid', 'bank_beckon', 'water_beckon') and 'hand_right_tip' in names:
         stroke_gate(model, action, samples, tracks+more, c, fields.get('props', {}).get('item'))
     rotation = None if action in PADDLE_CLIPS or 'braid_path' in c else [tip_rotation(action, t, c) for t in samples]
     if rotation and rotation[0] is not None and 'hand_right_tip' in names:

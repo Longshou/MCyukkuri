@@ -35,7 +35,7 @@ TILT_FIX_CLIPS=('eat','drink','first_toilet_assist','newborn_crawl','nest_harves
 # Body pitch -8..+6, roll <= 6 (hard cap 12): effort is squash, stretch, shift, yaw and the face, never a whole-body flip.
 NEW_BRAID_CLIPS=('hat_brim_offer','hat_hop_up','water_bob_lunge','hat_slide_over','water_mouth_grip','water_hat_shake','water_hat_push','boat_nudge_young')
 # The composed resource names its newest family; aquatic_tools' paddle braid is the current one (author.py and the full exporter share it).
-AQUATIC_REVISION='brim-water-20261104-v35'
+AQUATIC_REVISION='braid-use-20261105-v36'
 _BRAID_RESCUE=None
 # Paddle stick, braid cradle, mouth bite, capsize and self-rescue clips (aquatic_tools.py), exported by --export-aquatic.
 TOOLS=runpy.run_path(str(Path(__file__).resolve().parent/'aquatic_tools.py'))
@@ -832,6 +832,8 @@ def compile_clips(model, cfg, root, ground, height):
         out[name] = {'duration': d, 'loop': c['loop'], 'tracks': tracks,
                      'expression_spans': faces(cfg, c, ident), 'expression_yield': cfg['expression_yield'], **fields}
         if 'hat_transfer' in c:out[name]['hat_transfer']=c['hat_transfer']
+    for name in cfg.get('braid_use', {}).get('clips', ()):
+        if name in out: out[name]['braid_use'] = True  # its own braid grips, carries or strokes (recipe braid_use)
     return out
 
 
