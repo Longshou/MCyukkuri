@@ -8,6 +8,7 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
+| 自帽水上分娩（WP-B2B） | `wp-b2b-hat-birth` | `family/`、`aquatic/`、`motor/`、分娩展示、试玩场脚本、`docs/FEATURES.md` |
 
 ## 玩法待办
 
