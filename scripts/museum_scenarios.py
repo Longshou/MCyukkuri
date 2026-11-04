@@ -2569,6 +2569,19 @@ pond('sail', '捡棍放帽出航，饿了返岸', '捡棍放帽出航，饿了�
                 forbid=[r'\[body\][^\n]* invariant\b', r'\[hat\][^\n]* pickup cause=grounded',
                         r'\[body\][^\n]* death settled into remains'], readout=_HULL_READOUT))
 
+def _to_water_chain(sid, slot='c1', search=True, aboard=1):
+    """Optional reunion, then the lift to the water, the set-down at the berth, the hat, the lift aboard and the launch: one parent, one child, in order."""
+    a, c = _uuid_text(sid, 'a'), _uuid_text(sid, slot)
+    reunion = (rf'\[family\][^\n]*uuid={a}[^\n]* child search reunited child={c}\b'
+               rf'[\s\S]*\[intent\][^\n]*uuid={a}[^\n]* start id=set_out\b[\s\S]*') if search else ''
+    return (reunion + rf'\[aquatic\][^\n]*uuid={a}[^\n]* set_out carry child={c} purpose=to_water\b'
+            rf'[\s\S]*\[family\][^\n]*uuid={a}[^\n]* carry grip [^\n]*uuid={c}'
+            rf'[\s\S]*\[action\][^\n]*uuid={a}[^\n]* end id=release outcome=DONE'
+            rf'[\s\S]*\[hat\][^\n]* placed owner={a}\b[^\n]*water=true'
+            rf'[\s\S]*\[family\][^\n]*uuid={a}[^\n]* carry grip [^\n]*uuid={c}[^\n]*hold=braid'
+            rf'[\s\S]*\[aquatic\][^\n]*uuid={a}[^\n]* set_out complete [^\n]*aboard={aboard}/{aboard}\b')
+
+
 _FED_NEWBORN = 'Version:1,Newborn:1b,Landed:1b,FirstMealDone:1b,FirstToiletDone:1b,Crawled:0b,Jumped:0b'
 pond('afloat_family', '亲油用辫子抱赤油上帽船', '亲油用辫子抱赤油上帽船',
      '亲油与两只已完成首餐、首便、正在学爬且不会跳的赤油在岸边，附近有木棍；一只赤油在泊位旁，另一只在岸边内陆十六格外、来不及在集合期爬到。亲油取棍、走到泊位呼叫集合；集合超时后不丢下爬不来的那只，走去抱回水边放下。随后放帽、先跳上近侧帽檐，用辫子把两只依次抓起降低到前座，最后自己到船长座位；两只实际入座后出航',
@@ -2594,19 +2607,6 @@ pond('afloat_family', '亲油用辫子抱赤油上帽船', '亲油用辫子抱�
                         r'\[action\][^\n]* start id=take_prop\b', r'\[intent\][^\n]* end id=set_out result=EXHAUSTED\b',
                         r'\[hat\][^\n]* pickup cause=grounded'],
                 readout=_HULL_READOUT + [f'yukkuri status {sel("c1")} raw', f'yukkuri status {sel("c2")} raw']))
-
-def _to_water_chain(sid, slot='c1', search=True, aboard=1):
-    """Optional reunion, then the lift to the water, the set-down at the berth, the hat, the lift aboard and the launch: one parent, one child, in order."""
-    a, c = _uuid_text(sid, 'a'), _uuid_text(sid, slot)
-    reunion = (rf'\[family\][^\n]*uuid={a}[^\n]* child search reunited child={c}\b'
-               rf'[\s\S]*\[intent\][^\n]*uuid={a}[^\n]* start id=set_out\b[\s\S]*') if search else ''
-    return (reunion + rf'\[aquatic\][^\n]*uuid={a}[^\n]* set_out carry child={c} purpose=to_water\b'
-            rf'[\s\S]*\[family\][^\n]*uuid={a}[^\n]* carry grip [^\n]*uuid={c}'
-            rf'[\s\S]*\[action\][^\n]*uuid={a}[^\n]* end id=release outcome=DONE'
-            rf'[\s\S]*\[hat\][^\n]* placed owner={a}\b[^\n]*water=true'
-            rf'[\s\S]*\[family\][^\n]*uuid={a}[^\n]* carry grip [^\n]*uuid={c}[^\n]*hold=braid'
-            rf'[\s\S]*\[aquatic\][^\n]*uuid={a}[^\n]* set_out complete [^\n]*aboard={aboard}/{aboard}\b')
-
 
 pond('afloat_stick', '划去捞水面上的木棍', '划去捞水面上的木棍',
      '亲油坐在自己的帽船里漂在静水上，帽里没有木棍；几格外的水面上漂着一根真木棍。没有木棍（从没有或翻船失去是同一状态）的亲油看到水上的木棍就划过去、用辫子或嘴取到收进帽里；水上没有木棍时则不会专门去找',
