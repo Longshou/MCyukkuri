@@ -126,13 +126,6 @@ final class Ferry {
                 () -> boardHop(body, hat, child, beckoning));
     }
 
-    /** The own young aboard that she can board at and lift first (nearest first), or null when none of them has a brim place
-     *  the braid reaches it from. */
-    static YukkuriEntity liftable(YukkuriEntity body, PlacedHatEntity hat, List<YukkuriEntity> young) {
-        for (var child : young) if (child.getVehicle() == hat && !reachingStops(body, hat, child).isEmpty()) return child;
-        return null;
-    }
-
     /** One boarding hop: the nearest brim place the braid reaches the young from whose own hop is admitted here, else her own
      *  seat, else her entrance place. */
     private static Step boardHop(YukkuriEntity body, PlacedHatEntity hat, YukkuriEntity child, Beckoning beckoning) {

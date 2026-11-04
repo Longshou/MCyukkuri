@@ -57,7 +57,7 @@ final class UnloadYoung implements HostIntent {
         if (ContactGeometry.reachesFrom(owner, owner.position(), child)) return List.of(() -> new Step.Do(grab(child)));
         var edge = Waters.beside(hat, owner);
         var stand = edge == null ? null : Waters.boardingStand(edge, owner);
-        int wait = (int) Math.max(1, deadline() - owner.level().getGameTime());
+        int wait = (int) Math.min(WAIT, Math.max(1, deadline() - owner.level().getGameTime()));
         GameplayLog.limited(owner, "aquatic", "unload.wait", WAIT, "unload waiting child={} stand={} at={}",
                 child.getUUID(), GameplayLog.at(stand), GameplayLog.at(child.position()));
         return List.of(() -> stand == null || SurfaceApproach.arrived(owner, stand) ? null : new Step.Do(new Walk(stand)),
