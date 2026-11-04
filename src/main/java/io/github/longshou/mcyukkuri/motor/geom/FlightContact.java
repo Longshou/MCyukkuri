@@ -17,7 +17,7 @@ public final class FlightContact {
             if(under&&Double.isFinite(previousHeight)&&previous.y()>=previousHeight-touch){
                 double drop=previous.y()-previousHeight,fall=height-point.y();
                 double inside=drop+fall<1e-9?1:Math.clamp(drop/(drop+fall),0,1),at=(i-1+inside)/steps;
-                return new Hit(from.add(delta.scale(at)),at,false);
+                return new Hit(from.add(delta.scale(at)),at,delta.y()>=0);
             }
             if(under&&!Double.isFinite(previousHeight))return new Hit(point,share,true);
             previous=point;previousHeight=height;

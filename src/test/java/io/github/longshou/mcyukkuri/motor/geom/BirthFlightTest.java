@@ -44,6 +44,13 @@ class BirthFlightTest {
         assertNotNull(hit);assertFalse(hit.wall());
         assertEquals(.03,hit.point().y(),1e-9);
     }
+    @Test void risingPastARimIsAWallContactRatherThanALanding(){
+        ToDoubleFunction<Vec> rim=p->p.x()*2;
+        var hit=FlightContact.first(new Vec(0,0,0),new Vec(.1,.1,0),.05,.05,rim);
+        assertNotNull(hit);assertTrue(hit.wall());
+        var falling=FlightContact.first(new Vec(0,.2,0),new Vec(.1,.05,0),.05,.05,rim);
+        assertNotNull(falling);assertFalse(falling.wall());
+    }
     @Test void ordinaryFlightRetainsItsPenetrationTolerance(){
         assertNull(FlightContact.first(new Vec(0,.08,0),new Vec(0,.02,0),.05,.05,p->.03));
         assertNotNull(FlightContact.first(new Vec(0,.08,0),new Vec(0,.02,0),.05,0,p->.03));
