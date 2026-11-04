@@ -206,7 +206,8 @@ public final class YukkuriModel {
         if(free!=null&&time>free)return smooth((time-free)/Math.max(1e-3f,duration-free));
         return 0;
     }
-    /** The held stack is in her hat for this render (a braid-using clip without its own grip keys): it is not drawn. */
+    /** The held stack is in her hat for this render (a braid-using clip without its own grip keys, once its braid has left the
+     *  hold): it is not drawn. While the braid hands over it rides the tuft, so it goes into the hat as the tuft takes the brim. */
     boolean heldItemStowed(){return heldStowed;}
     public void setMouthHolding(boolean value){mouthHolding=value;}
     /** Parent carry (ParentCarryPresentation): load damps the walk sway, lean bows the body (0..1), curls bend the two tails;
@@ -935,7 +936,7 @@ public final class YukkuriModel {
         if(hatInBraid>0&&hatGrip!=null)braidPose.holdHat(hatFollowBone(),hatInBraid,hatGrip);
         if(pregnancyBelly>.001f)rigidLifts();
         itemAttachment=null;
-        heldStowed=holdingItem&&!braidPose.active()&&!clipProps.containsKey(selected)&&braidUse.contains(selected);
+        heldStowed=holdingItem&&!braidPose.active()&&!clipProps.containsKey(selected)&&braidUse.contains(selected)&&hold==0;
         if(holdingItem&&!braidPose.active()&&!heldStowed){
             // A clip with its own grip keys poses the item itself; otherwise the hold overlay above supplies them.
             boolean own=clipProps.containsKey(selected);String from=own?selected:heldClip();
