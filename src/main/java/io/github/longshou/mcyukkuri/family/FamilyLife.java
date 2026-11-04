@@ -320,6 +320,7 @@ public final class FamilyLife {
     public Conductor.Role birthRole() {
         var role=birthFree()?Conductor.roleOf(entity):null;
         if(role==null||!role.engaged(entity))return null;
+        if(role.choreography().host()==entity&&shoreBirthDue()&&entity.isVehicle())return null;
         return LiveBirth.CATCHER.equals(role.role())&&role.choreography().host()!=entity&&role.choreography() instanceof LiveBirth b&&b.watching()
                 &&(comfortTicks>0||hasUrgentlyHungryChild())?null:role;
     }
@@ -512,7 +513,7 @@ public final class FamilyLife {
         var running=entity.level().isClientSide?null:liveBirth();return running==null?0:.22f*running.recoveryLeft()/LiveBirthGeometry.RECOVERY;
     }
     public boolean readyForDelivery(){
-        return deliveryGrounded()&&gestationReady();
+        return deliveryGrounded()&&!entity.isVehicle()&&gestationReady();
     }
     /** Live labour needs the mother's own dry ground, even when a choreography deadline expires. */
     boolean deliveryGrounded(){return !entity.isPassenger()&&supported()&&!entity.isInWaterOrBubble();}

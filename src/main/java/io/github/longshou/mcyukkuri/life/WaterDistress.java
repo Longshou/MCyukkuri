@@ -65,6 +65,11 @@ public final class WaterDistress {
         }
     }
     private void enterWater(){
+        var action=entity.motor().current();
+        var owner=entity.motor().owner();
+        GameplayLog.event(entity,"water","entered at={} action={} owner={} last={} velocity={}",
+                GameplayLog.at(entity.position()),action==null?"none":action.id(),owner==null?"none":owner.ownerId(),
+                entity.motor().lastDetail(),GameplayLog.at(entity.getDeltaMovement()));
         immersionTicks=0;pendingPlunge=0;set(Phase.IMPACT);
         if(!entity.isNoAi()){entity.life().wakeInHat();if(!entity.predatorFlying())entity.getNavigation().stop();}
     }

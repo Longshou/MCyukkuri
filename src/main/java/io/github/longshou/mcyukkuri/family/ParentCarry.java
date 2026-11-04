@@ -413,6 +413,12 @@ public final class ParentCarry {
         if (hold == Hold.BRIM && brimSeat(carrier, child) != null)
             // A brim child comes down outside the brim edge, beyond the braid's rest tip, not back under the brim.
             return outsideBrim(carrier, child, restTip()).mul(1, 0, 1);
+        if (hold == Hold.HEAD) {
+            var point = restTip();
+            double length = Math.hypot(point.x, point.z);
+            double apart = (carrier.getBbWidth() / 2 + headwearRadius(child)) * 16 / size(carrier);
+            return point.mul((float) (Math.max(length, apart) / length), 0, (float) (Math.max(length, apart) / length));
+        }
         return (hold == Hold.BRAID ? setDown(entry(carrier, child.getUUID())) : restTip()).mul(1, 0, 1);
     }
     private static Vector3f restTip() { var tip = ContactGeometry.braidTipModel(); return new Vector3f((float) tip.x, (float) MOUTH_FLOOR, (float) tip.z); }
@@ -694,10 +700,15 @@ public final class ParentCarry {
     }
     private static Vector3f headPoint(YukkuriView carrier, YukkuriView child, float partial) {
         var e = entry(carrier, child.getUUID());
-        return headPose(carrier, partial).transformPosition(new Vector3f(e.getFloat("X"), e.getFloat("PH"), e.getFloat("Z")));
+        return headPoint(carrier, new Vec3(e.getFloat("X"), e.getFloat("PH"), e.getFloat("Z")), partial);
+    }
+    private static Vector3f headPoint(YukkuriView carrier, Vec3 local, float partial) {
+        var point = headPose(carrier, partial).transformPosition(new Vector3f((float) local.x, (float) local.y, (float) local.z));
+        LiveBirthGeometry.deform(point, carrier.livePregnancyProgress(), 0);
+        return point;
     }
     public static Vec3 headWorld(YukkuriView carrier, Vec3 local, float partial) {
-        return world(carrier, partial, headPose(carrier, partial).transformPosition(new Vector3f((float) local.x, (float) local.y, (float) local.z)), yaw(carrier, partial));
+        return world(carrier, partial, headPoint(carrier, local, partial), yaw(carrier, partial));
     }
     public static void seatedHead(YukkuriEntity carrier, YukkuriEntity child, Vec3 at) {
         var e = new CompoundTag();

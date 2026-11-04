@@ -12,7 +12,6 @@ import io.github.longshou.mcyukkuri.intent.AskLedger;
 import io.github.longshou.mcyukkuri.intent.Conductor;
 import io.github.longshou.mcyukkuri.intent.Drive;
 import io.github.longshou.mcyukkuri.intent.IntentRunner;
-import io.github.longshou.mcyukkuri.intent.WorldSignature;
 import io.github.longshou.mcyukkuri.human.FactoryWorkGoal;
 import io.github.longshou.mcyukkuri.life.AgitationLife;
 import io.github.longshou.mcyukkuri.life.EscapeWater;
@@ -333,18 +332,18 @@ final class YukkuriGoals {
         @Override public void tick() { owner.social().tickGoal(); }
         @Override public void stop() { owner.social().stop(); }
     }
-    /** In water the body works its way out through the EscapeWater intent; a run that ran out of ways before its deadline is not
-     *  started again until the world changed, one that reached its deadline is at once. Out of the water it holds still
+    /** In water the body works its way out through one EscapeWater run per fall; exhaustion does not renew its attempts.
+     *  Out of the water it holds still
      *  for the breath. The edges whose climb failed are remembered here across runs. It owns the fall's incident: opened
      *  once the plunge's impact is over and the body works its way out, so helpers near decide once each, and settled once the body
      *  is out (aboard, held, ashore). */
     private final class EscapeWaterGoal extends Goal {
         private final Map<BlockPos, Long> avoid = new HashMap<>();
         private IntentRunner runner;
-        private WorldSignature ended;
         private String incident;
         EscapeWaterGoal() { setFlags(EnumSet.of(Flag.MOVE, Flag.JUMP, Flag.LOOK)); }
         @Override public boolean canUse() { return (owner.waterDistress().escaping() || owner.waterDistress().climbing() || owner.waterDistress().restingBreath()
+                || incident != null && out()
                 || runner != null && runner.result() == IntentRunner.Result.RUNNING)
                 && !bodyOwnedInWater() && !owner.predatorFlying(); }
         private boolean bodyOwnedInWater() {
@@ -362,30 +361,24 @@ final class YukkuriGoals {
             if (!struggles && (runner == null || owner.isInWaterOrBubble() || out())) {
                 halt(out() ? "escape_safe" : "escape_unavailable"); owner.getNavigation().stop(); return;
             }
-            if (runner != null && runner.result() != IntentRunner.Result.RUNNING) {
-                boolean outOfWays = runner.result() == IntentRunner.Result.EXHAUSTED && owner.level().getGameTime() <= runner.intent().deadline();
-                ended = outOfWays ? signature() : null;
-                runner = null;
-            }
-            if (runner == null && !signature().equals(ended)) {
+            if (runner == null) {
                 runner = new IntentRunner(owner, new EscapeWater(owner, avoid), "escape_water").target(() -> EscapeWater.target(owner));
                 runner.start();
             }
             if (runner != null) runner.tick();
         }
-        private WorldSignature signature() {
-            var at = EscapeWater.target(owner);
-            return WorldSignature.of(at.at(), at.host(), at.blockers(), owner.level().getGameTime());
-        }
-        private void halt(String why) { if (runner != null) runner.stop(why); runner = null; }
+        private void halt(String why) { if (runner != null) runner.stop(why); }
         @Override public void stop() {
             halt(out() ? "escape_safe" : "escape_stop");
             owner.directNavigation().stop();
             if (incident != null && out()) settle();
+            else if (runner != null && runner.result() == IntentRunner.Result.INTERRUPTED) runner = null;
         }
         /** Out of the fall: standing or aboard (a hat, a carrier); a body still in the air settles once it lands (its breath). */
         private boolean out() { return EscapeWater.safe(owner); }
         private void settle() {
+            halt("escape_safe");
+            runner = null;
             AskLedger.server().settle(incident, owner.getVehicle() instanceof YukkuriEntity ? "held" : owner.isPassenger() ? "aboard" : "ashore");
             incident = null;
         }

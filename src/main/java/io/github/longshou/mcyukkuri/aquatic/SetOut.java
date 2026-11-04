@@ -78,7 +78,11 @@ final class SetOut implements Intent, FamilyRendezvous {
     @Override public Commitment commitment() { return Commitment.HARD; }
     @Override public Vec3 gatherAt(YukkuriEntity child) {
         var hat = AquaticLife.hat(owner);
-        if (hat == null) return SurfaceApproach.beside(child, owner, (child.getBbWidth() + owner.getBbWidth()) / 2 + .05, 1.2);
+        if (hat == null || AquaticLife.ashore(owner)) {
+            var bank = hat == null ? Waters.berth(owner) : Waters.beside(hat, owner);
+            return SurfaceApproach.beside(child, owner, (child.getBbWidth() + owner.getBbWidth()) / 2 + .05, 1.2,
+                    Double.POSITIVE_INFINITY, at -> bank == null || at.subtract(owner.position()).dot(bank.normal()) < 0);
+        }
         var edge = Waters.beside(hat, child);
         return edge == null ? null : Waters.boardingStand(edge, child);
     }

@@ -2319,12 +2319,12 @@ def water_aftermath(window):
                 return f'hull #{who} returned afloat {tick - grounded[who]} ticks after entering ground'
         elif kind == 'incident' and ' close id=water#' in line:
             escapes.pop(who, None)
-        elif kind == 'water' and re.search(r'phase=(?:IDLE|RECOVER) -> IMPACT ', line):
+        elif kind == 'water' and (' entered at=' in line or re.search(r'phase=(?:IDLE|RECOVER) -> IMPACT ', line)):
             escapes.pop(who, None)
         elif kind == 'action' and re.search(r'outcome=INTERRUPTED why=(?:hurt|fright|command)\b', line):
             escapes.pop(who, None)
         elif kind == 'intent' and ' start id=escape_water ' in line:
-            if who in escapes and tick - escapes[who] <= 1200:
+            if who in escapes:
                 return f'escape #{who} restarted after {tick - escapes[who]} ticks without a new water entry or interruption'
             escapes[who] = tick
 
@@ -2822,13 +2822,24 @@ def shore_birth_result(window, riders):
             return f'newborn {child} is not aquatic, ashore and clear of bodies'
         if not re.search(rf'uuid={child}[^\n]* birth landed [^\n]*water=false[^\n]*outcome=(?:GROUND|HAT|NEST)\b', window):
             return f'newborn {child} never landed safely'
+        for health in re.findall(rf'uuid={child}[^\n]* damage cause=drown health=[\d.]+ -> ([\d.]+)', window):
+            if float(health) < 8:
+                return f'newborn {child} fell below health 8 from water'
     if not re.search(rf'scenario afloat prepared [^\n]*young={2 if riders else 0}\b', window):
         return 'initial rider count differs'
     if riders:
-        for child in re.findall(r'uuid=(\S+)[^\n]* scenario place [^\n]*place=HEAD\b', window):
-            if not re.search(rf'carry lowering hold=head child={child}'
-                             rf'[\s\S]*carry put down [^\n]*cause=release[^\n]*child={child}', window):
-                return f'head rider {child} never completed ordinary ground release'
+        parents = re.search(r' born brood=[^\n]* mother=(\S+) father=(\S+)', window).groups()
+        labour = re.search(rf'uuid={mother}[^\n]* delivery labor started', window)
+        for child, place in re.findall(r'uuid=(\S+)[^\n]* scenario place [^\n]*place=(HEAD|CABIN|BRIM)\b', window):
+            if child in parents:
+                continue
+            if place == 'HEAD':
+                if not re.search(rf'carry lowering hold=head child={child}'
+                                 rf'[\s\S]*carry put down [^\n]*cause=release[^\n]*child={child}', window[:labour.start()]):
+                    return f'head rider {child} never completed ordinary ground release before labour'
+            elif not re.search(rf'uuid={child}[^\n]* dismount [^\n]*cause=hop_takeoff'
+                               rf'[\s\S]*uuid={child}[^\n]* end id=hop outcome=DONE', window[:labour.start()]):
+                return f'initial rider {child} never hopped ashore before labour'
     if re.search(r'\[body\][^\n]* death settled|cause=starv|brood cancelled', window):
         return 'birth family died, starved or lost its brood'
     postpartum = window[completed.end():]
@@ -2847,16 +2858,21 @@ def shore_birth_result(window, riders):
 
 
 def boat_birth(sid, title, hint, riders):
-    """Empty and occupied hats differ visibly: reclaiming a hat versus leaving real dependents aboard."""
+    """The occupied hat carries one hopping child and one infant needing ordinary head release."""
     pond(sid, title, hint,
          '水生母油先照常在水上活动（划船、吃帽里的粮、出航），临产准备时才停出航、划回岸边，经帽檐下船，'
          '随后按陆地接生帽／窝／地面规则分娩。'
-         + ('两只初始赤油占满母船；怀孕不能搬运它们，仍留在真实座位上。' if riders else '母船起初没有幼体；空帽可以收回。')
+         + ('初始一只会跳的子油和一只赤油随母船返岸：能自行下船的跟着上岸，头顶幼体随亲油落岸后由辫子放下。' if riders else '母船起初没有幼体；空帽可以收回。')
          + '每只新生儿都应戴水生圆帽、在身体外出生并落在岸上；本窗口观察出生与留岸照护。幼体完成首餐、首便、能集合后才走普通亲子装载，全部新生儿上船才算出航完成。',
          '约 3–5 分钟（先水上生活，进入临产准备后返岸，留岸继续孕程）',
          [yk('marisa', bank_dx(0), 0, 'mother', aquatic=True, yaw=-90, lead=True, **pair_ready()),
           yk('marisa', bank_dx(4), 4, 'father', aquatic=True, yaw=-90, **pair_ready()),
-          *(_babies() if riders else []), item('minecraft:apple', 8, bank_dx(0) - 2, 0),
+          *([yk('marisa', bank_dx(dz), dz, name, stage=stage, aquatic=True,
+                childhood=readiness, fam=_seat_family(size, nourishment, age), also=('crew',), label=label, **pair_ready())
+             for name, dz, stage, size, nourishment, age, readiness, label in (
+                 ('k1', 1, 'child', .35, 147000, 144000, CHILDHOOD_HOPPING, '会跳的子油'),
+                 ('k2', -1, 'baby', .19, 68727, 36000, CHILDHOOD_CRAWLING_READY, '待托放的赤油'))] if riders else []),
+          item('minecraft:apple', 8, bank_dx(0) - 2, 0),
           f'yukkuri scenario bond {sel("mother")} {sel("father")}'],
          late=[*([f'yukkuri scenario kin {sel("mother")} {sel(k)} false' for k in ('k1', 'k2')] if riders else []),
                afloat('mother', water_at(0, 3), True, sel_all('crew') if riders else sel('mother'), stick=True),
@@ -2883,7 +2899,7 @@ def boat_birth(sid, title, hint, riders):
 
 
 boat_birth('birth_boat_caught', '临产上岸·空船', '临产上岸·空船', False)
-boat_birth('birth_boat_missed', '带幼靠岸·卸幼待产', '带幼靠岸·卸幼待产', True)
+boat_birth('birth_boat_missed', '带两幼上岸·放幼后待产', '带两幼上岸·放幼后待产', True)
 
 pond('first_voyage', '初航·子油第一次自己操帽，先上岸', '子油初航·先上岸',
      '亲油与处于初航欲望带的子油已坐在近岸亲帽里；子油能自己吃、会跳和学习，戴着夹有一根木棍的帽子，'

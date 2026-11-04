@@ -131,6 +131,8 @@ public final class ChildhoodLife {
     public boolean landed() { return landed; }
     public boolean firstMealDone() { return firstMealDone; }
     public boolean firstToiletDone() { return firstToiletDone; }
+    /** The first meal and assisted toilet must both finish before the family returns to the water. */
+    public boolean needsNewbornCare() { return newborn && (!firstMealDone || !firstToiletDone); }
     public boolean active() { return task != Task.NONE; }
     public CompoundTag debug() {
         var tag=save();tag.putString("Task",task.name());tag.putInt("TaskTicks",taskTicks);

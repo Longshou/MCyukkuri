@@ -130,26 +130,30 @@ public final class SurfaceApproach {
     }
 
     /**
-     * Water cells under the body's own footprint at {@code feet}: the water a land body cannot stand in, which the path finder
+     * Water area under the body's own footprint at {@code feet}: the water a land body cannot stand in, which the path finder
      * refuses as a step ({@code PathType.WATER} is impassable, {@link YukkuriEntity} sets the malus to -1). The whole box
      * counts, not only the cell under the feet: beside a bank level with the water the rim of a dry block is still water under
-     * half the body. How many cells, because a body already standing on such a rim may walk (see {@link #dryAim}).
-     * {@code touching} also counts the cells the footprint's edge only grazes, which is what a walker perched on a shore's
-     * boundary cell really stands over (a stand has to be clear of water, hence the plain count there).
+     * half the body. The overlap area distinguishes moving farther over one water cell from moving inland (see {@link #dryAim}).
+     * {@code touching} includes the footprint's grazed edge, which is what a walker perched on a shore's boundary really
+     * stands over (a stand itself uses the uninflated footprint).
      */
-    private static int wetCells(YukkuriEntity actor, Vec3 feet, boolean touching) {
+    private static double wetArea(YukkuriEntity actor, Vec3 feet, boolean touching) {
         var level = actor.level();
         var box = actor.getBoundingBox().move(feet.subtract(actor.position()));
         if (touching) box = box.inflate(.02);
-        int wet = 0;
-        for (var cell : BlockPos.betweenClosed(BlockPos.containing(box.minX, feet.y, box.minZ),
+        double wet = 0;
+        int sole = Mth.floor(feet.y);
+        for (var cell : BlockPos.betweenClosed(BlockPos.containing(box.minX, feet.y - .005, box.minZ),
                 BlockPos.containing(box.maxX - .005, feet.y, box.maxZ - .005)))
-            if (!level.getFluidState(cell).isEmpty()) wet++;
+            if (!level.getFluidState(cell).isEmpty() && (cell.getY() == sole
+                    || level.getBlockState(cell).getCollisionShape(level, cell).isEmpty()))
+                wet += (Math.min(box.maxX, cell.getX() + 1) - Math.max(box.minX, cell.getX()))
+                        * (Math.min(box.maxZ, cell.getZ() + 1) - Math.max(box.minZ, cell.getZ()));
         return wet;
     }
 
     /** Any water under the footprint at all: a stand or a destination on the land has none. */
-    private static boolean wet(YukkuriEntity actor, Vec3 feet) { return wetCells(actor, feet, false) > 0; }
+    private static boolean wet(YukkuriEntity actor, Vec3 feet) { return wetArea(actor, feet, false) > 0; }
 
     /** The straight step to {@code to} never puts more of the body over water than it already is (sampled every .1 blocks). */
     public static boolean dryStep(YukkuriEntity actor, Vec3 from, Vec3 to) {
@@ -160,9 +164,10 @@ public final class SurfaceApproach {
     public static Vec3 dryAim(YukkuriEntity actor, Vec3 to) { return dryAim(actor, actor.position(), to); }
 
     private static Vec3 dryAim(YukkuriEntity actor, Vec3 from, Vec3 to) {
-        int start = wetCells(actor, from, true), samples = Math.max(1, (int)Math.ceil(from.distanceTo(to) / .1));
+        double start = wetArea(actor, from, true);
+        int samples = Math.max(1, (int)Math.ceil(from.distanceTo(to) / .1));
         for (int i = 1; i <= samples; i++) {
-            if (wetCells(actor, from.lerp(to, (double)i / samples), true) <= start) continue;
+            if (wetArea(actor, from.lerp(to, (double)i / samples), true) <= start + 1.0E-8) continue;
             return i == 1 ? from : from.lerp(to, (double)(i - 1) / samples);
         }
         return to;
@@ -178,24 +183,25 @@ public final class SurfaceApproach {
         if (destination.y-start.y > step || start.y-destination.y > 1 || start.distanceToSqr(destination) > reach*reach) return false;
         if (!supported(actor, destination)) return false;
         int samples = Math.max(1, (int)Math.ceil(start.distanceTo(destination)/Math.min(.05, actor.getBbWidth()*.25)));
+        double wet = wetArea(actor, start, false);
         double previous=start.y;
         for (int i=0; i<=samples; i++) {
             var sample=start.lerp(destination,(double)i/samples);
-            if(supportedStep(actor,sample)){previous=sample.y;continue;}
+            if(supportedStep(actor,sample,wet)){previous=sample.y;continue;}
             // Partly over an edge (a nest rim or step it is stepping down from): the top under part of the sole is enough
             // for this sample; requiring all four feet here stranded wide bodies on a rim above the floor they walk to.
             var surface=top(actor,sample);
-            if(surface==null||surface.y-previous>step||previous-surface.y>1||!supportedStep(actor,surface))return false;
+            if(surface==null||surface.y-previous>step||previous-surface.y>1||!supportedStep(actor,surface,wet))return false;
             previous=surface.y;
         }
         return true;
     }
 
     /** A step may begin with the body partly over the edge it just climbed onto. */
-    private static boolean supportedStep(YukkuriEntity actor, Vec3 feet) {
+    private static boolean supportedStep(YukkuriEntity actor, Vec3 feet, double wet) {
         var level = actor.level();
         if (!Reactions.Weather.allowsStep(actor,BlockPos.containing(feet))) return false;
-        if (!level.hasChunkAt(BlockPos.containing(feet)) || wet(actor, feet)) return false;
+        if (!level.hasChunkAt(BlockPos.containing(feet)) || wetArea(actor, feet, false) > wet + 1.0E-8) return false;
         AABB body = actor.getBoundingBox().move(feet.subtract(actor.position())).deflate(.005);
         if (!level.noCollision(actor, body)) return false;
         // Match the physical feet: vanilla can land while only part of the bounding box touches

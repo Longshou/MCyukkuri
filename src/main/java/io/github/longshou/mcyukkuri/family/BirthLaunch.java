@@ -104,6 +104,12 @@ public final class BirthLaunch {
     static double speedFor(double distance,double vy){
         return Ballistic.speedFor(distance,Math.ceil(Ballistic.airTicks(vy,0)));
     }
+    /** Ground room covers the strongest push and longest fall without drawing or changing the actual impulse. */
+    static double groundReach(double drop){
+        double speed=speedFor(GROUND_REACH,LIFT*(1-LIFT_SPREAD))*PUSH_MAX;
+        double ticks=Math.ceil(Ballistic.airTicks(LIFT*(1+LIFT_SPREAD),-drop));
+        return speed/Ballistic.speedFor(1,ticks);
+    }
     /** The first impulse of a push out of the outlet toward {@code direction} (unit, horizontal) for a planned reach. */
     private static Vec3 impulse(RandomSource random,Vec3 direction,double distance,double push,double yawDeg){
         double vy=LIFT*(1-LIFT_SPREAD+random.nextDouble()*2*LIFT_SPREAD);

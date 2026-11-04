@@ -98,6 +98,16 @@ public final class AquaticLife {
     /** A young that hops by itself (the others are carried). */
     static boolean jumper(YukkuriEntity y) { return BodyAbility.of(y).canJump(); }
 
+    /** Care does not end when a loaded child is carried or leaves the nearby-young scan. */
+    static List<YukkuriEntity> nursing(YukkuriEntity parent) {
+        var level = (ServerLevel) parent.level();
+        var out = new ArrayList<YukkuriEntity>();
+        for (var id : FamilyData.get(level).children(parent.getUUID()))
+            if (level.getEntity(id) instanceof YukkuriEntity child && child.isAlive() && Bonds.parentOf(parent, child)
+                    && child.childhood().needsNewbornCare()) out.add(child);
+        return out;
+    }
+
     /** The young's parent whose own hat is set down near it, or null. */
     static YukkuriEntity parent(YukkuriEntity young) {
         if (young.family().adult() || !(young.level() instanceof ServerLevel level)) return null;

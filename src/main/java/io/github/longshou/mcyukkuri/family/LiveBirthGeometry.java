@@ -250,14 +250,29 @@ public final class LiveBirthGeometry {
             if(level.getBlockCollisions(mother,part).iterator().hasNext())return false;
         if(!level.getEntitiesOfClass(YukkuriEntity.class,box.inflate(.015),YukkuriEntity::isAlive).isEmpty())return false;
         if(!level.noCollision(mother,box)||level.containsAnyLiquid(box))return false;
+        return dryFloor(mother,position,dimensions.width());
+    }
+    private static boolean dryFloor(YukkuriEntity mother,Vec3 position,double width){
+        var level=mother.level();
         var ground=level.clip(new ClipContext(position.add(0,.01,0),position.add(0,-.55,0),ClipContext.Block.COLLIDER,ClipContext.Fluid.NONE,mother));
         if(ground.getType()!=HitResult.Type.BLOCK||ground.getDirection()!=Direction.UP)return false;
         double y=ground.getLocation().y;
-        for(double dx:new double[]{-dimensions.width()*.4,dimensions.width()*.4})for(double dz:new double[]{-dimensions.width()*.4,dimensions.width()*.4}){
+        for(double dx:new double[]{-width*.4,width*.4})for(double dz:new double[]{-width*.4,width*.4}){
             Vec3 foot=new Vec3(position.x+dx,y+.03,position.z+dz);
             var support=level.clip(new ClipContext(foot,foot.add(0,-.08,0),ClipContext.Block.COLLIDER,ClipContext.Fluid.NONE,mother));
             if(support.getType()!=HitResult.Type.BLOCK||Math.abs(support.getLocation().y-y)>.03)return false;
         }
+        return true;
+    }
+
+    /** A ground birth faces supported land across its launch spread, not just under the outlet. */
+    private static boolean groundRoom(YukkuriEntity mother,int index,float yaw){
+        var start=position(mother,index,yaw);
+        double reach=BirthLaunch.groundReach(start.y-mother.getY());
+        double width=childDimensions(mother.family().brood().children.get(index),mother.getScale()).width();
+        for(double angle:new double[]{-BirthLaunch.YAW_MAX,0,BirthLaunch.YAW_MAX})
+            for(double distance:new double[]{reach/2,reach})
+                if(!dryFloor(mother,start.add(Vec3.directionFromRotation(0,yaw+(float)angle).scale(distance)),width))return false;
         return true;
     }
 
@@ -266,11 +281,11 @@ public final class LiveBirthGeometry {
      * the clear outlet that brings the child within {@code reach} of the receiver's aim with the least turn, else the clear one
      * with the least turn (the ground). NaN when none is clear.
      */
-    public static float exitYaw(YukkuriEntity mother,int index,Vec3 aim,double reach){
+    public static float exitYaw(YukkuriEntity mother,int index,Vec3 aim,double reach,boolean ground){
         float best=Float.NaN;double score=Double.MAX_VALUE;
         for(int i=0;i<=16;i++){
             float yaw=i<16?Mth.wrapDegrees(mother.yBodyRot+i*22.5f):aim==null?mother.yBodyRot:SurfaceApproach.yaw(mother.position(),aim);
-            if(!clear(mother,index,yaw))continue;
+            if(!clear(mother,index,yaw)||ground&&!groundRoom(mother,index,yaw))continue;
             double turn=Math.abs(Mth.wrapDegrees(yaw-mother.yBodyRot)),candidate=(aims(mother,index,yaw,aim,reach)?0:1000)+turn;
             if(candidate<score){score=candidate;best=yaw;}
         }

@@ -12,6 +12,7 @@ import io.github.longshou.mcyukkuri.life.YukkuriLife;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.social.GroupInteractionGoal;
 import io.github.longshou.mcyukkuri.social.ProtectivePuff;
+import io.github.longshou.mcyukkuri.status.GameplayLog;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.DamageTypeTags;
@@ -74,6 +75,9 @@ final class YukkuriDamage {
                 owner.interrupt(interruption,InterruptPhase.BEFORE_INJURY);
             }
             var result=settle(transaction,accepted);
+            if(result.loss()>0&&YukkuriLife.isWaterDamage(source))
+                GameplayLog.event(owner,"water","damage cause={} health={} -> {} loss={}",
+                        source.type().msgId(),transaction.hit.healthBefore(),owner.getHealth(),result.loss());
             // Witnesses see a lethal hit too; the victim's own recovery and panic require it to remain alive.
             if(physicalHit&&!owner.isAlive())owner.status().hurt(source);
             if(notify&&owner.isAlive()) {

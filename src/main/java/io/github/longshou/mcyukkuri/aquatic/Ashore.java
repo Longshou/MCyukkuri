@@ -112,7 +112,7 @@ final class Ashore implements Intent {
         var dependent = dependentAboard(hat);
         String carryProblem = dependent == null ? null : ParentCarry.capacityProblem(owner, dependent);
         if (AquaticLife.aboard(owner, hat)) {
-            var hop = Ferry.hopAshore(owner).get();
+            var hop = youngCanLand(hat) ? Ferry.hopAshore(owner).get() : null;
             if (held != null) return hop != null ? List.of(() -> hop) : paddle(hat);
             if (hop != null) {
                 if (dependent != null && carryProblem == null) return Ferry.grabAboard(owner, hat, dependent);
@@ -154,7 +154,14 @@ final class Ashore implements Intent {
         if (!tried.add(edge.stand())) { landing = null; return paddle(hat); }
         var dock = edge.out(HullAfloat.brimToward(hat, edge.edge()));
         return List.of(() -> new Step.Do(new Paddle(() -> dock,
-                distance -> distance <= ARRIVE && Ferry.hopAshore(owner).get() != null)));
+                distance -> distance <= ARRIVE && Ferry.hopAshore(owner).get() != null && youngCanLand(hat))));
+    }
+
+    /** The family landing must also be reachable by the young who will leave under their own power. */
+    private boolean youngCanLand(PlacedHatEntity hat) {
+        for (var child : AquaticLife.young(owner))
+            if (child.getVehicle() == hat && AquaticLife.jumper(child) && Ferry.hopAshore(child).get() == null) return false;
+        return true;
     }
 
     /** From the bank edge nearest the hat: walk there, face the hat, then the closing action ({@code close}, then {@code after}).

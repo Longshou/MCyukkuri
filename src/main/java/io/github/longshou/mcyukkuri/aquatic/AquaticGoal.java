@@ -191,7 +191,7 @@ final class AquaticGoal extends Goal {
         // Finish the first meal/toilet care ashore; a crawling child can gather for a braid lift without learning to jump.
         var unloadedNewborns = young.stream().filter(y -> !y.isPassenger() && y.family().stage() == FamilyLife.Stage.BABY && y.childhood().isNewborn()
                 && y.childhood().shouldStayWithParents()).toList();
-        var nursing = unloadedNewborns.stream().filter(y -> !y.childhood().firstToiletDone()).toList();
+        var nursing = AquaticLife.nursing(body);
         boolean nursery = !nursing.isEmpty();
         if (!aboard) {
             if (birth && hat != null) out.add(Desire.of("come_ashore", floor(birthWant), List.of(cell(hat), birth),
@@ -219,7 +219,7 @@ final class AquaticGoal extends Goal {
                     "pull=%.0f hunger=%.0f weather=%.0f breed=%.0f stick=%b stick_near=%b dusk=%b rain=%b young=%d asleep=%b beyond_gather=%b searching=%b nursery=%b",
                     pull, hunger, weather, breed, stick, nearStick, dusk, rain, young.size(), asleep, beyondGather, searching, nursery), () -> new SetOut(body, this::leftAshore)));
             // Newborns ashore go through family loading, never the solo reclaim that may finish aboard without them.
-            if (hat != null && !birth && unloadedNewborns.isEmpty() && !beyondGather
+            if (hat != null && !birth && !nursery && unloadedNewborns.isEmpty() && !beyondGather
                     && (floor(setOut) == 0 || !AquaticLife.afloat(hat) || drive().failed("set_out")))
                 out.add(Desire.of("resolve_own_hat", num("reclaim", 85), List.of(cell(hat), form(hat), young.size()),
                         () -> "hat=" + form(hat), () -> Ashore.reclaim(body)));
@@ -377,8 +377,9 @@ final class AquaticGoal extends Goal {
             out.add(Desire.of("take_seat", num("take_seat_want", 70), rest.world(), rest::why, () -> rest));
         voyage(out, parent, hat);
         if (!on && AquaticLife.ashore(body) && AquaticLife.jumper(body) && body.distanceTo(hat) < AquaticLife.FAMILY_RANGE
+                && !body.childhood().needsNewbornCare() && AquaticLife.nursing(parent).isEmpty()
                 && !(running != null && running.intent() instanceof Ashore)
-                && (parentOn || parent.distanceTo(hat) < 4 && running != null && running.intent() instanceof SetOut)) {
+                && parentOn) {
             if (hat.restSpot(body) != null) out.add(Desire.of("board_parent", num("follow", 65), world, why, () -> Follow.board(body, hat)));
             else GameplayLog.limited(body, "aquatic", "board refused hat=" + hat.getUUID(), 1200,
                     "board refused hat={} reason=no_room size={}", hat.getUUID(), body.growthScale() * body.getScale());

@@ -538,7 +538,7 @@ final class Waters {
     }
 
     static Vec3 boardingStand(Edge edge, YukkuriEntity body) {
-        return edge.edge().subtract(edge.normal().scale(SurfaceApproach.supportRadius(body)));
+        return edge.edge().subtract(edge.normal().scale(body.getBbWidth() / 2 + .025));
     }
 
     /** Whether the water in front of {@code edge} is deep enough to carry a hull of {@code body}'s size (never set one down where it

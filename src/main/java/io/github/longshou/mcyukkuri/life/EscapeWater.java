@@ -99,7 +99,8 @@ public final class EscapeWater implements Intent {
     /** The Goal and intent finish on the same completed climb or supported dry landing. */
     public static boolean safe(YukkuriEntity body) {
         return !(body.motor().current() instanceof Climb)
-                && (body.isPassenger() || !body.isInWaterOrBubble() && SurfaceApproach.stands(body, body.position()));
+                && (body.isPassenger() || !body.isInWaterOrBubble() && body.onGround()
+                && (body.waterDistress().phase() == WaterDistress.Phase.RECOVER || body.waterDistress().phase() == WaterDistress.Phase.IDLE));
     }
 
     /** One line per escape, with the stand it ended on (or none): the whole run's outcome in the water log. */
@@ -111,7 +112,7 @@ public final class EscapeWater implements Intent {
     /** The stand the body rests on now: aboard a host, on a stand of its own out of the water, or {@code none}. */
     private String support() {
         if (body.isPassenger()) return "aboard=" + body.getVehicle().getId();
-        return !body.isInWaterOrBubble() && SurfaceApproach.stands(body, body.position()) ? "stand=" + GameplayLog.at(body.position()) : "none";
+        return safe(body) ? "stand=" + GameplayLog.at(body.position()) : "none";
     }
 
     @Override public long deadline() { return started + DEADLINE; }

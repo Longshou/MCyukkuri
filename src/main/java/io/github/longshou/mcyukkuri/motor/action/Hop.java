@@ -85,10 +85,17 @@ public final class Hop implements Action {
         Flight(Feasibility ready, SeatTarget seat, ArcSolver.Plan plan) { this(ready, seat, plan, false); }
     }
     @Override public Feasibility check(YukkuriEntity body) {
+        if (onEntryFloor(body)) return Feasibility.pass();
         var ready = solve(body, takeoffTicks() - 1).ready();
         if (bank != null && !ready.ok() && StatusEvents.trace()) GameplayLog.limited(body, "move", "exit." + ready.reason(), 200,
                 "exit refused brim={} bank={} reason={} detail={} width={}", target, bank, ready.reason(), ready.detail(), body.getBbWidth());
         return ready;
+    }
+
+    /** A body that already settled into the interior resumes the same final seating move. */
+    private boolean onEntryFloor(YukkuriEntity body) {
+        return seatHost != null && target == null && !brimOnly && body.getVehicle() == seatHost.entity()
+                && seatHost.insideFloor(seatHost.riders().local(body.getUUID()));
     }
 
     /** Whether the body's own ability makes one collision-clear hop from a planned stand to {@code target}, judged by the same
@@ -326,6 +333,13 @@ public final class Hop implements Action {
             return settled(body);
         }
         if (!launched) {
+            if (onEntryFloor(body)) {
+                var entry = seatHost.restEntry(body);
+                if (entry == null) return Outcome.of(Reason.NO_ROOM, 0, "entry_place_lost");
+                if (!Floor.advance(seatHost, body, entry.local())) return Outcome.of(Reason.NO_ROOM, 0, "entry_place_blocked");
+                double left = seatHost.riders().local(body.getUUID()).distanceTo(entry.local()) * seatHost.frame().unit();
+                return left > SurfaceApproach.ARRIVAL ? new Running(left, TravelMode.CONSUMED) : seatFromEntry(body);
+            }
             if (crouch == 0) {
                 if (legTurn == null) {
                     var next = solve(body, takeoff - 1);

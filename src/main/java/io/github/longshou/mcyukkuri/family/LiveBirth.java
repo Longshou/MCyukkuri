@@ -628,7 +628,7 @@ final class LiveBirth extends Choreography {
         private float choose(){
             var hat=placedHat();var m=o.entity();
             if(any||hat==null){
-                yaw=LiveBirthGeometry.exitYaw(m,pushing,receiver instanceof Nest?FamilyNest.largeCentre(m):null,NEST_REACH);
+                yaw=LiveBirthGeometry.exitYaw(m,pushing,receiver instanceof Nest?FamilyNest.largeCentre(m):null,NEST_REACH,hat==null&&receiver instanceof Ground);
                 if(hat!=null&&!Float.isNaN(yaw))riskyExit(hat,yaw);
                 return yaw;
             }
