@@ -71,6 +71,7 @@ final class YukkuriGoals {
         goalSelector.addGoal(2, presentationGoals.bind(PresentationGoals.SANCTION, owner.sanction()));
         owner.createHeadwear();
         goalSelector.addGoal(3, landBinding(PresentationGoals.HEADWEAR, owner.headwear()));
+        goalSelector.addGoal(3, landBinding(PresentationGoals.SOCIAL, owner.social().accessoryGoal()));
         goalSelector.addGoal(1, presentationGoals.bind(PresentationGoals.THREAT, new Reactions.ThreatGoal(owner)));
         goalSelector.addGoal(2, landBinding(PresentationGoals.WEATHER, new Reactions.WeatherGoal(owner)));
         goalSelector.addGoal(1, landBinding(PresentationGoals.LIFE, new FatigueGoal()));

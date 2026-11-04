@@ -22,6 +22,7 @@ import io.github.longshou.mcyukkuri.settlement.SettlementSociety;
 import io.github.longshou.mcyukkuri.pet.PetSkill;
 import io.github.longshou.mcyukkuri.human.HumanNpc;
 import java.util.Comparator;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -32,6 +33,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.util.DefaultRandomPos;
+import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
@@ -167,29 +169,12 @@ public final class YukkuriSocial implements MotorOwner {
         if(task==Task.NONE && WildEvents.reserved(entity))return false;
         if (entity.isPanicking() || entity.dailyLife().active() || entity.life().isSleeping() || entity.life().hasUrgentNeed() || entity.waterDistress().active() ||
                 entity.life().mealTicks() > 0 || entity.isCommandPlaying()||entity.operations().active()||(entity.groupInteraction().active()||entity.playLife().active())) return false;
-        var level = entity.level();
-        // A hatless owner looks for the pieces of its own accessory first; a hat on the head or in custody has none.
-        if(!entity.life().hasAccessory()&&!entity.life().accessoryCustodied()){
-            target=level.getEntitiesOfClass(ItemEntity.class,entity.getBoundingBox().inflate(8),item->{
-                if(!item.isAlive()||!AccessoryItem.matches(entity,item.getItem()))return false;
-                boolean sight=entity.hasLineOfSight(item);
-                boolean reachable=ContactGeometry.inMouthReach(entity,item)||SurfaceApproach.approach(entity,item)!=null;
-                if(!reachable)GameplayLog.limited(entity,"headwear","accessory_unreachable",200,
-                        "loose accessory unreachable item={} at={} sight={} in_water={}",item.getUUID(),GameplayLog.at(item.position()),sight,item.isInWater());
-                return reachable;
-            })
-                    .stream().min(Comparator.comparingDouble(entity::distanceToSqr)).orElse(null);
-            if(target!=null){
-                task=Task.ACCESSORY;duration=ACCESSORY;elapsed=0;triedStands.clear();
-                GameplayLog.event(entity,"headwear","loose accessory retrieval started item={} at={}",target.getUUID(),GameplayLog.at(target.position()));
-                return true;
-            }
-        }
         if (entity.life().nutrition() < 40 || entity.life().energy() < 35 || entity.family().active()
                 || entity.habitat().active() || entity.settlement().active() || entity.settlement().duties().active()
                 || entity.forageTrip().outing() || entity.independence().active()) return false;
         if (entity.life().socialWait() > 0) return false;
         entity.life().deferSocial(240 - personality().attachment());
+        var level = entity.level();
         if (morningPending) {
             morningPending = false;
             target = level.getEntitiesOfClass(YukkuriEntity.class, entity.getBoundingBox().inflate(6), peer -> peer != entity && peer.isAlive()
@@ -226,6 +211,35 @@ public final class YukkuriSocial implements MotorOwner {
             return true;
         }
         return false;
+    }
+    /** Retrieving the real accessory has headwear priority, independent of optional greetings and their cooldown. */
+    public Goal accessoryGoal() {
+        return new Goal() {
+            { setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK)); }
+            @Override public boolean canUse() { return startAccessory(); }
+            @Override public boolean canContinueToUse() { return task == Task.ACCESSORY && canContinue(); }
+            @Override public boolean isInterruptable() { return urgent(); }
+            @Override public boolean requiresUpdateEveryTick() { return true; }
+            @Override public void tick() { tickGoal(); }
+            @Override public void stop() { YukkuriSocial.this.stop(); }
+        };
+    }
+    private boolean startAccessory() {
+        if (task != Task.NONE || entity.life().hasAccessory() || entity.life().accessoryCustodied()
+                || !entity.childhood().canLearn() || entity.isPanicking() || entity.life().isSleeping()
+                || entity.life().hasUrgentNeed() || entity.waterDistress().active() || entity.life().mealTicks() > 0
+                || entity.isCommandPlaying() || entity.operations().active()) return false;
+        target=entity.level().getEntitiesOfClass(ItemEntity.class,entity.getBoundingBox().inflate(8),item->{
+            if(!item.isAlive()||!AccessoryItem.matches(entity,item.getItem()))return false;
+            boolean reachable=ContactGeometry.inMouthReach(entity,item)||SurfaceApproach.approach(entity,item)!=null;
+            if(!reachable)GameplayLog.limited(entity,"headwear","accessory_unreachable",200,
+                    "loose accessory unreachable item={} at={} sight={} in_water={}",item.getUUID(),GameplayLog.at(item.position()),entity.hasLineOfSight(item),item.isInWater());
+            return reachable;
+        }).stream().min(Comparator.comparingDouble(entity::distanceToSqr)).orElse(null);
+        if(target==null)return false;
+        task=Task.ACCESSORY;duration=ACCESSORY;elapsed=0;triedStands.clear();
+        GameplayLog.event(entity,"headwear","loose accessory retrieval started item={} at={}",target.getUUID(),GameplayLog.at(target.position()));
+        return true;
     }
     public boolean canContinue() {
         return task != Task.NONE && target != null && target.isAlive() && target.level() == entity.level()
