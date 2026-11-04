@@ -5,6 +5,7 @@ import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.headwear.HullBounds;
 import io.github.longshou.mcyukkuri.headwear.PlacedHatEntity;
 import io.github.longshou.mcyukkuri.intent.Desire;
+import io.github.longshou.mcyukkuri.intent.Drive;
 import io.github.longshou.mcyukkuri.intent.Intent;
 import io.github.longshou.mcyukkuri.intent.IntentRunner;
 import io.github.longshou.mcyukkuri.intent.Method;
@@ -15,6 +16,7 @@ import io.github.longshou.mcyukkuri.motor.Motor;
 import io.github.longshou.mcyukkuri.motor.action.Await;
 import io.github.longshou.mcyukkuri.motor.action.Face;
 import io.github.longshou.mcyukkuri.motor.action.Hop;
+import io.github.longshou.mcyukkuri.motor.action.Paddle;
 import io.github.longshou.mcyukkuri.motor.geom.Ballistic;
 import io.github.longshou.mcyukkuri.motor.geom.Vec;
 import io.github.longshou.mcyukkuri.motor.surface.SeatTarget;
@@ -67,9 +69,18 @@ final class BoatToilet implements Intent {
         var place = PlayAboard.place(body, hat);
         boolean adult = body.family().adult();
         if (adult ? !"cabin".equals(place) : !("brim".equals(place) || "cabin".equals(place) && AquaticLife.jumper(body))) return;
+        // A young does not go out over the rim of a hull being paddled: it would come down ahead of the moving hull (the captain in turn
+        // does not set off while it is out there, overboard).
+        if (!adult && hat.owner() != null && hat.owner().motor().current() instanceof Paddle) return;
         double want = AquaticGoal.num("toilet_want", 40) + (bladder - from) * AquaticGoal.num("toilet_slope", 2);
         out.add(Desire.of("boat_toilet", want, List.of(hat.getUUID(), place), () -> String.format(Locale.ROOT, "bladder=%.0f place=%s", bladder, place),
                 () -> new BoatToilet(body, hat)));
+    }
+
+    /** A young of {@code parent} is out on the brim of {@code hat} relieving itself over the rim: paddled on now, the hull would run over its stool. */
+    static boolean overboard(YukkuriEntity parent, PlacedHatEntity hat) {
+        return AquaticLife.young(parent).stream().anyMatch(y -> Drive.running(y, AquaticGoal.DOMAIN) instanceof BoatToilet toilet
+                && toilet.hat == hat && "brim".equals(PlayAboard.place(y, hat)));
     }
 
     @Override public String id() { return "boat_toilet"; }

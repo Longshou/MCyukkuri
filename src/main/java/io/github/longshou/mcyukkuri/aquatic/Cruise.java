@@ -13,8 +13,8 @@ import net.minecraft.core.BlockPos;
 /**
  * Out on the water (水上生活): one stretch of the afloat routine. With a stick or braid and the energy for it
  * she paddles ({@code Paddle}, paying energy each stroke) to calm open water a few blocks off over the loaded calm surface, then
- * drifts and rests ({@code boat_drift}); without the energy she only drifts. Done when the rest is over; the drive then weighs her
- * wants again.
+ * drifts and rests ({@code boat_drift}); without the energy she only drifts. She does not set off while a young of hers is out on
+ * the brim relieving itself ({@link BoatToilet#overboard}). Done when the rest is over; the drive then weighs her wants again.
  */
 final class Cruise implements Intent {
     /** One stretch at most; one rest (ticks); the least energy she paddles on; the open water she heads for (blocks off). */
@@ -45,6 +45,9 @@ final class Cruise implements Intent {
             if (owner.life().energy() >= ENERGY) goal = Waters.wander(hat, MIN, MAX);
         }
         if (goal != null && Waters.surface(owner.level(), goal).subtract(hat.position()).horizontalDistance() > ARRIVE) {
+            // A young of hers relieving itself over the rim is not paddled into its own stool: she drifts until it is back in the hollow.
+            if (BoatToilet.overboard(owner, hat))
+                return List.of(() -> new Step.Wait(() -> !BoatToilet.overboard(owner, hat), REST, Behaviors.BOAT_DRIFT));
             var route = Waters.route(hat, goal);
             Waters.log(hat, owner, goal, route, "cruise");
             if (!route.isEmpty()) return List.of(() -> new Step.Do(new Paddle(Waters.leg(route), ARRIVE)));
