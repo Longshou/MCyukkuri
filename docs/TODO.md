@@ -10,6 +10,7 @@
 | --- | --- | --- |
 | 满船口含救幼并载全家送岸（11-05 反馈 10，接替 wp-l 方案） | `.worktrees/wp-m-mouth-ferry` | `aquatic/Rescue.java`、`Ferry.java`、`Ashore.java`、`UnloadYoung.java`、`AquaticGoal.java`、`family/ParentCarry.java`、`motor/geom/Ballistic.java`、`scripts/museum_scenarios.py` 的 `rescue_no_seat` |
 | 满船托幼送岸后全家上岸（11-05 反馈 10） | `.worktrees/wp-l-full-ferry` | `aquatic/UnloadYoung.java`、`Ashore.java`、`Ferry.java`、`TakeSeat.java`、`headwear/` 座位让位、`scripts/museum_scenarios.py` |
+| 帽檐幼体被岸壁挤死与 `follow_ashore` 反复重试（11-05 复查，wp-n-rim-deaths） | `.worktrees/wp-n-rim-deaths` | `headwear/HullBounds.java`、`HullSurface.java`、`PlacedHatEntity.java`、`aquatic/Waters.java`、`Follow.java`、`AquaticGoal.java` 的 `follow_ashore`、`scripts/museum_scenarios.py` |
 | 帽船排便撅臀与粪便出沿弧线（11-05 反馈 7，wp-h-toilet-pose） | `.worktrees/wp-h-toilet-pose` | `interactions/toilet-contact/`、`toilet_contact.json`、`aquatic/BoatToilet.java`、`life/ToiletContact.java`、`client/ToiletPresentation.java`、`entity/YukkuriAction.java`、`scripts/museum_scenarios.py` 的 `boat_toilet` |
 
 ## 玩法待办
