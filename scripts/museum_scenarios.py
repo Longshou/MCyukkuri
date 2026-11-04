@@ -2781,18 +2781,17 @@ pond('rescue_infant_full', '亲油用辫子救起落水赤油', '辫救落水赤
 
 
 pond('afloat_family_ashore', '岸上远处赤油·水上亲油回岸寻回', '水上回岸寻回赤油再出航',
-     '亲油坐在近岸的自己的帽船里，帽里有木棍；赤油独自在内陆近二十格外的岸上（落水后自己爬上岸又走远），超出普通水上亲子范围、仍在陆地搜寻范围内：亲油不划开，划回近岸上岸、取回帽子，家庭搜寻、走到赤油身边打招呼，再带它回水边：抱不动的抱起带去放下，已学会跳的跟着走，然后放帽、上船再出航',
+     '亲油坐在近岸的自己的帽船里，帽里有木棍；赤油独自在南岸内陆近十八格外的岸上（落水后自己爬上岸又走远），超出普通水上亲子范围、仍在陆地搜寻范围内：亲油不划开，划回近岸上岸、取回帽子，再接着做家庭搜寻与出航（走到赤油身边打招呼，抱不动的抱起带去水边放下，已学会跳的跟着走，然后放帽、上船）',
      '约 2–3 分钟',
-     [yk('marisa', bank_dx(0), 0, 'a', aquatic=True, yaw=-90, lead=True, uuid=uid('afloat_family_ashore', 'a'), **pair_ready()),
-      _aquatic_young('afloat_family_ashore', 'c1', -14, -6, 'baby', 'a', childhood='Version:1,Newborn:1b,Landed:1b,FirstMealDone:1b,FirstToiletDone:1b,Crawled:0b,Jumped:0b'),
-      afloat('a', water_at(0, 3), True, sel('a'), stick=True)],
+     [_aquatic_young('afloat_family_ashore', 'c1', -12, 13, 'baby', 'a', childhood='Version:1,Newborn:1b,Landed:1b,FirstMealDone:1b,FirstToiletDone:1b,Crawled:0b,Jumped:0b')],
+     late=[yk('marisa', bank_dx(0), 0, 'a', aquatic=True, yaw=-90, lead=True, uuid=uid('afloat_family_ashore', 'a'), **pair_ready()),
+           afloat('a', water_at(0, 3), True, sel('a'), stick=True)],
      vantage=(bank_dx(0) - 2, 1, -90, 18),
-     note='日志顺序：[intent] start id=come_ashore（why 里 young_ashore=1，赤油在 16 格外也算）→ end id=come_ashore result=DONE（帽子取回戴好）→ family search started → child search reunited → start id=set_out → 赤油抱不动时 set_out carry … purpose=to_water 与 carry grip（上岸这段时间里它可能已学会跳，那就跟着走）→ set_out complete … aboard=1/1。亲油途中不转去 cruise；上岸一次落地失败后重来是登陆动作自己的事，不在此判。准备成功不算行为成功。' + _DESIRE_NOTE,
+     note='日志顺序：[intent] start id=come_ashore（why 里 young_ashore=1，赤油在 16 格外也算）→ end id=come_ashore result=DONE（上岸并取回帽子）→ family search started／child search reunited → start id=set_out；之后的抱运与放帽上船同“寻回远处赤油再出航”。亲油途中不划去闲游；上岸落地失败后重来是登陆动作自己的事。上岸这段时间里赤油可能已学会跳，那就不必抱。准备成功不算行为成功。' + _DESIRE_NOTE,
      reads=[('读亲油', f'yukkuri status {sel("a")} raw'), ('读赤油', f'yukkuri status {sel("c1")} raw')],
-     smoke=dict(ticks=5400, expect=[rf'\[intent\][^\n]*uuid={_uuid_text("afloat_family_ashore", "a")}[^\n]* start id=come_ashore [^\n]*young_ashore=1\b'
+     smoke=dict(ticks=3600, expect=[rf'\[intent\][^\n]*uuid={_uuid_text("afloat_family_ashore", "a")}[^\n]* start id=come_ashore [^\n]*young_ashore=1\b'
                                    rf'[\s\S]*\[intent\][^\n]*uuid={_uuid_text("afloat_family_ashore", "a")}[^\n]* end id=come_ashore result=DONE\b'
-                                   rf'[\s\S]*\[family\][^\n]*uuid={_uuid_text("afloat_family_ashore", "a")}[^\n]* child search reunited child={_uuid_text("afloat_family_ashore", "c1")}\b'
-                                   rf'[\s\S]*\[aquatic\][^\n]*uuid={_uuid_text("afloat_family_ashore", "a")}[^\n]* set_out complete [^\n]*aboard=1/1\b'],
+                                   rf'[\s\S]*\[intent\][^\n]*uuid={_uuid_text("afloat_family_ashore", "a")}[^\n]* start id=set_out\b'],
                 forbid=[r'child search reunited [\s\S]*child search reunited ', r'\[body\][^\n]* invariant\b', r'death settled into remains']))
 
 pond('rescue_no_seat', '满船无座时托幼送岸', '满船托幼送岸',
