@@ -252,15 +252,15 @@ final class Ashore implements Intent {
                 () -> new Step.Sub(new EscapeWater(owner, new HashMap<>())));
     }
 
-    /** Her nearest young aboard that cannot hop off by itself. */
+    /** Her nearest young aboard that cannot get off the hull by itself: one in the hollow that cannot hop has to be taken up
+     *  first. One already riding her head is carried already — it comes ashore with her and her braid sets it down there. */
     private YukkuriEntity dependentAboard(PlacedHatEntity hat) {
-        for (var y : AquaticLife.young(owner)) if ((!AquaticLife.jumper(y) || y.getVehicle() == owner
-                && ParentCarry.hold(owner, y) == ParentCarry.Hold.HEAD) && AquaticLife.aboard(y, hat)) return y;
+        for (var y : AquaticLife.young(owner)) if (y.getVehicle() == hat && !AquaticLife.jumper(y)) return y;
         return null;
     }
 
     private boolean youngAboard(PlacedHatEntity hat) {
-        return AquaticLife.young(owner).stream().anyMatch(y -> AquaticLife.aboard(y, hat));
+        return AquaticLife.young(owner).stream().anyMatch(y -> y.getVehicle() == hat);
     }
 
     @Override public void ended(IntentRunner.Result result) {

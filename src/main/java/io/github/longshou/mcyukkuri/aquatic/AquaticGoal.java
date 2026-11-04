@@ -417,7 +417,9 @@ final class AquaticGoal extends Goal {
             else GameplayLog.limited(body, "aquatic", "board refused hat=" + hat.getUUID(), 1200,
                     "board refused hat={} reason=no_room size={}", hat.getUUID(), body.growthScale() * body.getScale());
         }
-        if (on && AquaticLife.jumper(body) && (AquaticLife.ashore(parent) && !(running != null && running.intent() instanceof SetOut)
+        // A young standing on the hull leaves it by itself; one her braid carries on her head goes with her and is set down there.
+        if (body.getVehicle() == hat && AquaticLife.jumper(body)
+                && (AquaticLife.ashore(parent) && !(running != null && running.intent() instanceof SetOut)
                 || running != null && running.intent() instanceof Ashore))
             out.add(Desire.of("follow_ashore", num("follow", 65), world, why, () -> Follow.ashore(body, hat)));
     }

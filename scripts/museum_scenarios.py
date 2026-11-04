@@ -2724,18 +2724,19 @@ def kid_play_shelter(window):
 
 
 pond('kid_boat_play', '赤油在帽檐玩耍，打雷躲避', '赤油在帽檐玩耍，打雷躲避',
-     '静水亲帽停在离岸三格的水面，亲油坐在船长位置面朝船首，帽里有一根木棍和四份苹果；两只赤油一在舱内（已学会短跳、正饿着）、一在头顶。静水里帽子只轻摆起伏，不翻。'
+     '静水亲帽停在离岸三格的水面，亲油坐在船长位置面朝船首，帽里有一根木棍和四份苹果；两只赤油都已学会短跳（会玩才会探头），一在舱内正饿着、一在头顶。静水里帽子只轻摆起伏，不翻。'
      '舱内那只自己跳上帽檐，辫子朝外对着水面拍水（亲油划桨时改成学划水）；头顶那只只做不碰水的探头。'
      '第 13 秒打雷：舱内有空位就跳回舱内缩身，舱内无位而头顶有位时由亲油辫子托上头顶，两处都无位才留在帽檐上抓紧缩身；平静后继续玩耍。空手右击赤油看问候',
      '约 2 分钟；用天气按钮可再看受惊',
      [yk('marisa', bank_dx(0), 0, 'a', aquatic=True, yaw=-90, lead=True, friendliness=100,
          uuid=uid('kid_boat_play', 'a'), **pair_ready()),
       _aquatic_young('kid_boat_play', 'c1', bank_dx(1), 1, 'baby', 'a', childhood=CHILDHOOD_HOPPING, also=('crew',)),
-      _aquatic_young('kid_boat_play', 'c2', bank_dx(2), 2, 'baby', 'a', also=('crew',)),
+      _aquatic_young('kid_boat_play', 'c2', bank_dx(2), 2, 'baby', 'a', childhood=CHILDHOOD_HOPPING, also=('crew',)),
       f'yukkuri status set {sel("c1")} needs.nutrition 20',
       afloat('a', water_at(0, 3), True, sel_all('crew'), food=4, stick=True)],
      note='日志：舱内赤油自己 hop 上帽檐 → [aquatic] play kind=kid_brim_splash start spot=brim reason=brim_water braid_out=true（亲油在划桨时是 kind=kid_mimic_paddle reason=captain_paddle，两者都是水上动作）'
           '→ 之后 kind=hat_cradle 原地静玩；头顶那只 play kind=boat_rim_peek start spot=head reason=head_dry，不做水上动作。'
+          '两只都已学会短跳：新生油不能玩耍，头顶那只不会探头。'
           '受惊：舱内有空位时 play return inside place=cabin reason=fear:thunder，再 play kind=kid_hide_behind start spot=cabin；舱内无位且 head=free 时先在帽檐缩身，亲油 shelter_young → carry lowering clip=braid_head_set → seat landed place=HEAD，随后在头顶缩身。'
           '舱内、头顶都无位才一直在帽檐缩身；平静后继续玩耍。帽檐上真被晃到硬翻时仍会摔进水里（play fall_in）。'
           '读 hat.float 的 play：各类演出开始次数、fear_* 原因次数；body.attach 看实际帽内坐标。点击赤油与点击空帽檐不同：前者问候，后者摇船；准备入座不算行为成功。' + _DESIRE_NOTE,
@@ -2803,18 +2804,21 @@ pond('boat_toilet', '帽船上朝帽外排便', '帽船上朝帽外排便',
                 readout=[f'yukkuri status {sel("a")} raw', f'yukkuri status {sel("c1")} raw', f'data get entity {_HAT} Riders']))
 
 pond('shore_family', '饿了带孩子划回岸边', '饿了带孩子划回岸边',
-     '亲油和一只小子油在离岸 3 格的帽子上，帽里有木棍、没有粮，亲油已经饿了：她划回岸边；孩子先跳到干地，亲油随后上岸，把空帽子收回戴上',
+     '亲油和一只小子油在离岸 3 格的帽子上，帽里有木棍、没有粮，亲油已经饿了：她划回岸边；孩子坐在她头顶随她上岸，辫子把它放到干地，亲油随后把空帽子收回戴上',
      '约 1 分钟',
      [yk('marisa', bank_dx(0), 0, 'a', aquatic=True, yaw=-90, lead=True, nutrition=35, energy=100, hygiene=100),
       yk('marisa', bank_dx(1), 1, 'c1', aquatic=True, fam=_seat_family(), yaw=-90, **pair_ready()),
       afloat('a', water_at(0, 3), True, sel('c1'), stick=True)],
-     note='日志 come_ashore → paddle → 子油 follow_ashore / hop → 亲油 hop → take_prop。观察孩子与亲油都真实离帽，船长最后收帽。' + _DESIRE_NOTE,
+     note='日志 come_ashore → paddle → 亲油 hop（孩子坐在头顶随她一起离帽）→ 上岸后辫子 carry put down reason=release / release DONE 把孩子放到干地 → take_prop。'
+          '舱里放不下的最大一只坐头顶（用户 2026-11-05 的排座规则），头顶的孩子由亲油带着走、落地后由辫子放下，不自己跳；观察孩子与亲油都真实离帽，船长最后收帽。' + _DESIRE_NOTE,
      reads=[('读亲油', f'yukkuri status {sel("a")} raw'), ('读子油', f'yukkuri status {sel("c1")} raw'), ('读帽子', f'data get entity {_HAT}')],
      smoke=dict(ticks=1800, expect=[r'\[hat\][^\n]* scenario afloat prepared [^\n]*young=1\b',
-                                   r'\[intent\][^\n]* end id=follow_ashore result=DONE\b',
+                                   r'\[family\][^\n]* carry put down [^\n]*reason=release\b',
+                                   r'\[action\][^\n]* end id=release outcome=DONE\b',
                                    r'\[action\][^\n]* end id=take_prop outcome=DONE\b',
                                    r'\[intent\][^\n]* end id=come_ashore result=DONE\b'],
-                forbid=[r'\[body\][^\n]* invariant\b'], readout=[f'yukkuri status {sel("a")} raw', f'yukkuri status {sel("c1")} raw']))
+                forbid=[r'\[body\][^\n]* invariant\b', r'\[intent\][^\n]* end id=come_ashore result=EXHAUSTED\b'],
+                readout=[f'yukkuri status {sel("a")} raw', f'yukkuri status {sel("c1")} raw']))
 
 # ---- food, care, rescue and birth on the hat boat (refactor WP6b): real starting states only; who helps and when is the helpers' own decision.
 _INCIDENT_NOTE = ('每次落水由落水者自己开一个事件（[incident] open id=water#…），近旁的亲油各自只决定一次救不救（[incident] decide … chance= roll= accepted=）；'
