@@ -2569,44 +2569,61 @@ pond('sail', '捡棍放帽出航，饿了返岸', '捡棍放帽出航，饿了�
                 forbid=[r'\[body\][^\n]* invariant\b', r'\[hat\][^\n]* pickup cause=grounded',
                         r'\[body\][^\n]* death settled into remains'], readout=_HULL_READOUT))
 
-def _to_water_chain(sid, slot='c1', search=True, aboard=1):
-    """Optional reunion, then the lift to the water, the set-down at the berth, the hat, the lift aboard and the launch: one parent, one child, in order."""
-    a, c = _uuid_text(sid, 'a'), _uuid_text(sid, slot)
-    reunion = (rf'\[family\][^\n]*uuid={a}[^\n]* child search reunited child={c}\b'
-               rf'[\s\S]*\[intent\][^\n]*uuid={a}[^\n]* start id=set_out\b[\s\S]*') if search else ''
-    return (reunion + rf'\[aquatic\][^\n]*uuid={a}[^\n]* set_out carry child={c} purpose=to_water\b'
+def _to_water_chain(sid):
+    """Reunion, then the lift to the water, the set-down at the berth, the hat, the lift aboard and the launch: one parent, one child, in order."""
+    a, c = _uuid_text(sid, 'a'), _uuid_text(sid, 'c1')
+    return (rf'\[family\][^\n]*uuid={a}[^\n]* child search reunited child={c}\b'
+            rf'[\s\S]*\[intent\][^\n]*uuid={a}[^\n]* start id=set_out\b'
+            rf'[\s\S]*\[aquatic\][^\n]*uuid={a}[^\n]* set_out carry child={c} purpose=to_water\b'
             rf'[\s\S]*\[family\][^\n]*uuid={a}[^\n]* carry grip [^\n]*uuid={c}'
             rf'[\s\S]*\[action\][^\n]*uuid={a}[^\n]* end id=release outcome=DONE'
             rf'[\s\S]*\[hat\][^\n]* placed owner={a}\b[^\n]*water=true'
             rf'[\s\S]*\[family\][^\n]*uuid={a}[^\n]* carry grip [^\n]*uuid={c}[^\n]*hold=braid'
-            rf'[\s\S]*\[aquatic\][^\n]*uuid={a}[^\n]* set_out complete [^\n]*aboard={aboard}/{aboard}\b')
+            rf'[\s\S]*\[aquatic\][^\n]*uuid={a}[^\n]* set_out complete [^\n]*aboard=1/1\b')
 
 
 _FED_NEWBORN = 'Version:1,Newborn:1b,Landed:1b,FirstMealDone:1b,FirstToiletDone:1b,Crawled:0b,Jumped:0b'
 pond('afloat_family', '亲油用辫子抱赤油上帽船', '亲油用辫子抱赤油上帽船',
-     '亲油与两只已完成首餐、首便、正在学爬且不会跳的赤油在岸边，附近有木棍；一只赤油在泊位旁，另一只在岸边内陆十六格外、来不及在集合期爬到。亲油取棍、走到泊位呼叫集合；集合超时后不丢下爬不来的那只，走去抱回水边放下。随后放帽、先跳上近侧帽檐，用辫子把两只依次抓起降低到前座，最后自己到船长座位；两只实际入座后出航',
-     '约 2–3 分钟',
+     '亲油与一只已完成首餐、首便、正在学爬且不会跳的赤油在岸边，附近有木棍：亲油取棍、集合、放帽，先跳上近侧帽檐，用辫子抓起岸边赤油并降低到前座，最后自己到船尾座位；两只实际入座后出航',
+     '约 1–2 分钟',
      [yk('marisa', bank_dx(0) - 1, 0, 'a', aquatic=True, yaw=-90, lead=True, uuid=uid('afloat_family', 'a'), **pair_ready()),
       _aquatic_young('afloat_family', 'c1', bank_dx(1), 1, 'baby', 'a', childhood=_FED_NEWBORN),
-      _aquatic_young('afloat_family', 'c2', bank_dx(-6) - 16, -6, 'baby', 'a', childhood=_FED_NEWBORN),
       item('minecraft:stick', 1, bank_dx(0) - 1, -1, 'stick')],
-     note='日志先有 set_out gather start，近处赤油：亲油 mount → grab reach=braid → carry grip → carry lowering → seat landed；内陆赤油：set_out carry … purpose=to_water、carry grip、gathered、release DONE，再有 placed、亲油 mount、carry grip、seat landed、亲油 hop 到座位，最后 set_out complete aboard=2/2；集合超时不丢下爬不来的孩子。' + _DESIRE_NOTE,
+     note='日志：set_out → placed → 亲油 mount → grab reach=braid → carry grip → carry lowering → 赤油 seat landed → 亲油 hop 到座位 → set_out complete aboard=1/1。' + _DESIRE_NOTE,
      vantage=(bank_dx(0) - 4, 4, -135, 18),
      capture=dict(shots=(1, 40, 2400), sequences=((40, 2400, 4),), observe=False,
                   views={'port': dict(follow='@e[type=mcyukkuri:placed_hat,limit=1]', offset=(1.15, .55, -.75)),
                          'starboard': dict(follow='@e[type=mcyukkuri:placed_hat,limit=1]', offset=(-1.15, .55, .75))}),
-     reads=[('读亲油', f'yukkuri status {sel("a")} raw'), ('读近处赤油', f'yukkuri status {sel("c1")} raw'),
-            ('读内陆赤油', f'yukkuri status {sel("c2")} raw'), ('读帽子', f'data get entity {_HAT}')],
-     smoke=dict(ticks=4800, expect=[r'\[intent\][^\n]* start id=set_out\b', r'\[intent\][^\n]* end id=set_out result=DONE\b',
-                                   r'\[aquatic\][^\n]* set_out gather start\b', r'\[aquatic\][^\n]* set_out gathered\b',
-                                   _to_water_chain('afloat_family', 'c2', search=False, aboard=2),
-                                   rf'\[body\][^\n]*uuid={_uuid_text("afloat_family", "c1")}[^\n]* seat landed [^\n]*cause=braid_set_down',
-                                   rf'\[body\][^\n]*uuid={_uuid_text("afloat_family", "c2")}[^\n]* seat landed [^\n]*cause=braid_set_down'],
+     reads=[('读亲油', f'yukkuri status {sel("a")} raw'), ('读赤油', f'yukkuri status {sel("c1")} raw'),
+            ('读帽子', f'data get entity {_HAT}')],
+     smoke=dict(ticks=3600, expect=[r'\[intent\][^\n]* start id=set_out\b', r'\[intent\][^\n]* end id=set_out result=DONE\b',
+                                   r'\[aquatic\][^\n]* set_out complete [^\n]*aboard=1/1\b',
+                                   r'\[family\][^\n]* carry grip [^\n]*hold=braid',
+                                   r'\[body\][^\n]* seat landed [^\n]*cause=braid_set_down'],
                 forbid=[r'death settled into remains', r'\[body\][^\n]* invariant\b', r'\[aquatic\][^\n]* set_out left_ashore=',
                         r'\[intent\][^\n]* start id=set_out\b[\s\S]*\[intent\][^\n]* start id=set_out\b',
                         r'\[action\][^\n]* start id=take_prop\b', r'\[intent\][^\n]* end id=set_out result=EXHAUSTED\b',
                         r'\[hat\][^\n]* pickup cause=grounded'],
-                readout=_HULL_READOUT + [f'yukkuri status {sel("c1")} raw', f'yukkuri status {sel("c2")} raw']))
+                readout=_HULL_READOUT + [f'yukkuri status {sel("c1")} raw']))
+
+pond('afloat_family_gather', '内陆赤油爬不来，亲油抱去上船', '内陆赤油爬不来，亲油抱去上船',
+     '亲油在南岸泊位旁，赤油在岸边内陆、来不及在集合期爬到：亲油先走到泊位呼叫，再走近抱回赤油，在泊位放下后放帽、跳上近侧帽檐把它托入前座，最后自己到船长座位；帽子漂远时先招帽',
+     '约 1–2 分钟',
+     [yk('marisa', bank_dx(0) - 1, 0, 'a', aquatic=True, yaw=-90, lead=True, uuid=uid('afloat_family_gather', 'a'), **pair_ready()),
+      _aquatic_young('afloat_family_gather', 'c1', bank_dx(-6) - 16, -6, 'baby', 'a', childhood=_FED_NEWBORN),
+      item('minecraft:stick', 1, bank_dx(0) - 1, -1, 'stick')],
+     note='日志先有 set_out gather start、set_out carry … purpose=to_water、carry grip、gathered、release DONE，再有 placed、亲油 mount、carry grip、seat landed、亲油 hop 与 set_out complete aboard=1/1；集合超时不丢下爬不来的孩子。' + _DESIRE_NOTE,
+     reads=[('读亲油', f'yukkuri status {sel("a")} raw'), ('读赤油', f'yukkuri status {sel("c1")} raw'),
+            ('读帽子', f'data get entity {_HAT}')],
+     smoke=dict(ticks=3600, expect=[r'\[aquatic\][^\n]* set_out gather start\b', r'\[aquatic\][^\n]* set_out gathered\b',
+                                   r'\[aquatic\][^\n]* set_out carry [^\n]*purpose=to_water\b[\s\S]*\[family\][^\n]* carry grip [\s\S]*\[action\][^\n]* end id=release outcome=DONE[\s\S]*\[hat\][^\n]* placed [^\n]*water=true',
+                                   r'\[intent\][^\n]* end id=set_out result=DONE\b',
+                                   r'\[aquatic\][^\n]* set_out complete [^\n]*aboard=1/1\b',
+                                   r'\[family\][^\n]* carry grip [^\n]*hold=braid',
+                                   r'\[body\][^\n]* seat landed [^\n]*cause=braid_set_down'],
+                forbid=[r'death settled into remains', r'\[body\][^\n]* invariant\b', r'\[aquatic\][^\n]* set_out left_ashore=',
+                        r'\[intent\][^\n]* start id=set_out\b[\s\S]*\[intent\][^\n]* start id=set_out\b',
+                        r'\[action\][^\n]* start id=take_prop\b', r'\[intent\][^\n]* end id=set_out result=EXHAUSTED\b']))
 
 pond('afloat_stick', '划去捞水面上的木棍', '划去捞水面上的木棍',
      '亲油坐在自己的帽船里漂在静水上，帽里没有木棍；几格外的水面上漂着一根真木棍。没有木棍（从没有或翻船失去是同一状态）的亲油看到水上的木棍就划过去、用辫子或嘴取到收进帽里；水上没有木棍时则不会专门去找',
@@ -2698,7 +2715,7 @@ def _kin_young(sid, slot, dx, dz, stage, mother, father, **kw):
               kin=f'Mother:{uuid_nbt(uid(sid, mother))},Father:{uuid_nbt(uid(sid, father))}', **extra, **pair_ready(), **kw)
 
 
-RESCUE_BABY_DELAY = 900     # ticks the infant waits on the bank, so the first rescue is over before the second fall
+RESCUE_BABY_DELAY = 190     # ticks the infant waits on the bank, so the first rescue is over before the second fall
 
 
 def _rescue_smoke(sid, slot):
@@ -2994,11 +3011,12 @@ pond('first_voyage_brim', '子油在帽檐脱帽放水划一圈', '子油在帽�
 # Deck order of the pond field: solo life, family on the boat, falling in and rescue, birth, then hat handling and hull physics.
 POND_TOUR = (
     'water_colony', 'sail', 'afloat_stick', 'cargo',
-    'afloat_family', 'afloat_family_ashore', 'shore_family', 'kid_boat_play',
-    'first_voyage', 'first_voyage_brim', 'hat_crowd', 'self_rescue',
-    'worn_hat_boat', 'rescue_child', 'rescue_no_seat', 'birth_boat_missed',
-    'birth_hat_own', 'shore_capsized', 'shore_capsized_far', 'hat_swap',
-    'shake_capsize', 'hat_push', 'hat_current', 'hat_grounded_capsized')
+    'afloat_family', 'afloat_family_gather', 'afloat_family_ashore', 'shore_family',
+    'kid_boat_play', 'first_voyage', 'first_voyage_brim', 'hat_crowd',
+    'self_rescue', 'worn_hat_boat', 'rescue_child', 'rescue_no_seat',
+    'birth_boat_missed', 'birth_hat_own', 'shore_capsized', 'shore_capsized_far',
+    'hat_swap', 'shake_capsize', 'hat_push', 'hat_current',
+    'hat_grounded_capsized')
 assert sorted(POND_TOUR) == sorted(scenario.id for scenario in BY_ID['pond'].scenarios), 'the pond tour must list every pond scene'
 BY_ID['pond'].scenarios.sort(key=lambda scenario: POND_TOUR.index(scenario.id))
 
@@ -3020,7 +3038,7 @@ TOPICS = {
     'body_mold': 'R5', 'wound_parts': 'R5', 'wound_materials': 'R5', 'thermal_body': 'R5', 'wound_sources': 'R5', 'wound_leak': 'R5', 'treatment_severe': 'R5', 'treatment_scars': 'R5', 'treatment_care': 'R5', 'magma_sole': 'R5', 'core_exposed': 'R5', 'core_filling': 'R5', 'remains_rot': 'R6', 'remains_forms': 'R6', 'carrion': 'R6', 'cannibal_hunt': 'R6',
     'last_words': 'R7', 'offering': 'R7', 'sacrifice': 'R7', 'sacrifice_reluctant': 'R7',
     'hat_push': 'A1', 'hat_current': 'A1', 'hat_grounded_capsized': 'A4', 'cargo': 'A2', 'hat_crowd': 'A3', 'shake_capsize': 'A4',
-    'water_colony': 'A6', 'sail': 'A6', 'afloat_stick': 'A6', 'afloat_family': 'A6', 'afloat_family_ashore': 'A6', 'shore_family': 'A6', 'kid_boat_play': 'A6',
+    'water_colony': 'A6', 'sail': 'A6', 'afloat_stick': 'A6', 'afloat_family': 'A6', 'afloat_family_gather': 'A6', 'afloat_family_ashore': 'A6', 'shore_family': 'A6', 'kid_boat_play': 'A6',
     'rescue_child': 'A5', 'rescue_no_seat': 'A5', 'birth_boat_missed': 'A6', 'birth_hat_own': 'A6', 'first_voyage': 'A6', 'first_voyage_brim': 'A6',
     'self_rescue': 'A5', 'shore_capsized': 'A5', 'shore_capsized_far': 'A5', 'worn_hat_boat': 'A5', 'hat_swap': 'C1', 'hat_damage': 'C1', 'hat_shatter': 'C1', 'hatless_kin': 'C2', 'hatless_scorn': 'C2', 'hatless_boundary': 'C2',
     'hatless_monster': 'C2', 'hatless_sanction': 'C2', 'puff_response': 'C2',
