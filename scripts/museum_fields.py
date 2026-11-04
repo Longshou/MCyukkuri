@@ -531,7 +531,7 @@ FIELDS = [
     Weather('weather', '天气与捕食种', 'react', -300, 300, 44, 28, 'minecraft:plains', blurb='雨天躲雨、捕食种反应、挡捕食种、妖梦拔刀、脏污伤痕、橙汁'),
     Open('body', '伤病与遗体', 'react', -150, 500, 36, 28, 'minecraft:plains', deck_depth=19, blurb='受击部位、中枢外露与濒死、遗体腐败、食尸、临终遗言、请吃了我'),
     Open('headwear', '头饰与认知', 'react', 0, 500, 28, 24, 'minecraft:plains', blurb='头饰损坏自愈、碎裂拼回、失饰者认不出、鄙视、怪物、欺负'),
-    Pond('pond', '池塘与河湾', 'aqua', -150, 300, 36, 28, 'minecraft:plains', blurb='放下的帽子漂浮、被推动、摇晃翻覆，帽子大小对照'),
+    Pond('pond', '池塘与河湾', 'aqua', -150, 300, 36, 28, 'minecraft:plains', blurb='水生魔理沙：出航返岸、亲子上船、落水自救与救援、岸边分娩、帽子翻覆与搁浅'),
     House('house', '家油人类屋', 'house', 8, 296, 22, 18, 'minecraft:plains', blurb='有人类活动的屋子：隐蔽墙角、搬入、筑巢、迁卵'),
     Town('town', '街道', 'human', -900, 700, 36, 28, 'minecraft:plains', blurb='牵宠散步、喂野生油、鬼威惨、徽章、考试、相亲、运输'),
     Lot('shop', '商店', 'human', -750, 700, 26, 22, 'minecraft:plains', blurb='整座商店：店主、货架、银章爱丽丝'),
