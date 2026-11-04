@@ -8,6 +8,7 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
+| 自帽新生儿首便照护绕行（wp-j-cabin-care） | `.worktrees/wp-j-cabin-care` | `family/CareApproach.java`、共享 `motor/Floor` 与船舱地面几何、`scripts/museum_scenarios.py` 的 `birth_hat_own` |
 | 自帽分娩出生弹道与落帽准入（wp-i-hat-birth） | `.worktrees/wp-i-hat-birth` | `family/LiveBirth.java`、出生弹道几何、`aquatic/HatBirth.java`、`scripts/museum_scenarios.py` 的 `birth_hat_own` |
 | 岸边停顿与载幼跳岸（11-05 反馈 5、6） | `wp-d-landing` | `motor/action/Hop.java`、`motor/*`、`aquatic/Waters.java`、`family/ParentCarry.java` |
 | 满船托幼送岸卸空与朝向守卫（11-05 反馈 10） | `.worktrees/wp-g-unload` | `aquatic/UnloadYoung.java`、`aquatic/AquaticGoal.java`、`aquatic/Ashore.java`、`family/LiveBirth.java`、`family/FamilyLife.java`、`intent/GoTo.java`、`scripts/museum_scenarios.py` |
