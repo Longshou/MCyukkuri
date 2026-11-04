@@ -143,7 +143,7 @@ final class PlayAboard implements Intent {
 
     /**
      * Fright, or a gasp after the water, takes a young on the brim to a free cabin place its own hop reaches. With none it stays
-     * and holds on; the place query's next place, her head, is set only by her braid, and nothing here waits for a place.
+     * and holds on while the parent's ordinary care can lift it to her free head. Nothing here waits for a place.
      */
     private Step inside() {
         if (!"brim".equals(place(body, hat)) || !scared && !Care.upset(body)) return null;

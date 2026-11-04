@@ -132,8 +132,24 @@ class HullFloorTest {
                 assertEquals(adult.get(i).y(), stops.get(i).y(), 1e-9);
                 assertEquals(adult.get(i).z(), stops.get(i).z(), 1e-9);
                 var local = stops.get(i);
-                assertEquals(HullBounds.DATA.number("brim_ring.radius") * scale, local.hlen() * UNIT * scale, 1e-9);
+                var body = BodyFootprint.of("marisa", .8 / UNIT, .6 / UNIT, 0);
+                double outer = body.columns().stream().mapToDouble(p ->
+                        p.x() * local.x() / local.hlen() + p.z() * local.z() / local.hlen()).max().orElseThrow();
+                assertEquals(HullBounds.DATA.number("brim_ring.radius") * scale, (local.hlen() + outer) * UNIT * scale, 1e-9);
             }
         }
+    }
+
+    @Test void fullYoungBrimStillHasSupportedCaptainFootingInsideTheRiders() {
+        double scale = 1.2, unit = UNIT * scale;
+        var small = BodyFootprint.of("marisa", .08 / unit, .06 / unit, 0);
+        var captain = BodyFootprint.of("marisa", .96 / unit, .72 / unit, 0);
+        var young = HullBounds.brimStops("marisa", .08, .06, HullBounds.SCALE * scale, 0);
+        var stops = HullBounds.brimStops("marisa", .96, .72, HullBounds.SCALE * scale, 0);
+        assertTrue(stops.stream().anyMatch(at -> Double.isFinite(at.y()) && young.stream().noneMatch(p ->
+                captain.overlaps(at.x(), at.y(), at.z(), small, p.x(), p.y(), p.z(), .02))));
+        var child = BodyFootprint.of("marisa", .8 * .19 / unit, .6 * .19 / unit, 0);
+        assertTrue(HullBounds.brimStops("marisa", .8 * .19, .6 * .19, HullBounds.SCALE * scale, 0).stream()
+                .allMatch(at -> young.stream().anyMatch(p -> child.overlaps(at.x(), at.y(), at.z(), small, p.x(), p.y(), p.z(), .02))));
     }
 }

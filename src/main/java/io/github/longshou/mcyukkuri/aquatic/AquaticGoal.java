@@ -209,6 +209,12 @@ final class AquaticGoal extends Goal {
             double setOut = asleep || beyondGather || searching || birth || nursery ? 0 : num("water_life", 60) - 2 * pull - (dusk ? num("night_pull", 60) : 0) - (rain ? num("rain_pull", 30) : 0);
             var world = List.of(body.blockPosition(), stick, nearStick, young.size(), beyondGather, searching, birth, nursery);
             boolean usable = hat == null ? life.custody().worn() : AquaticLife.afloat(hat);
+            if (AquaticLife.ashore(body) && (!usable || floor(setOut) == 0 || drive().failed("set_out")))
+                for (var rider : body.family().carry().riders()) if (ParentCarry.hold(body, rider) == ParentCarry.Hold.HEAD) {
+                    out.add(Desire.of("set_down_young", PlayAboard.number("hide_want"), List.of(body.blockPosition(), rider.getUUID()),
+                            () -> "head_rider_ashore child=" + rider.getUUID(), () -> new Care.Transfer(body, rider, null)));
+                    break;
+                }
             if (usable) out.add(Desire.of("set_out", floor(setOut), world, () -> String.format(Locale.ROOT,
                     "pull=%.0f hunger=%.0f weather=%.0f breed=%.0f stick=%b stick_near=%b dusk=%b rain=%b young=%d asleep=%b beyond_gather=%b searching=%b nursery=%b",
                     pull, hunger, weather, breed, stick, nearStick, dusk, rain, young.size(), asleep, beyondGather, searching, nursery), () -> new SetOut(body, this::leftAshore)));
@@ -300,6 +306,11 @@ final class AquaticGoal extends Goal {
     /** Care for her young aboard: the hungriest that cannot eat by itself and has food aboard for it, her decision accepted (the
      *  care ledger's one draw, kept 1200 ticks); one gasping after the water or cold. */
     private void care(List<Desire> out, PlacedHatEntity hat, List<YukkuriEntity> young, Object at) {
+        if (!ParentCarry.braidBusy(body)) for (var child : young) if (Care.needsShelter(child, hat)) {
+            out.add(new Desire("shelter_young", PlayAboard.number("hide_want"), 0, true, List.of(at, child.getUUID()),
+                    () -> "frightened_brim child=" + child.getUUID(), () -> new Care.Transfer(body, child, hat)));
+            break;
+        }
         var held = body.family().carrying();
         var larder = HullLarder.of(hat);
         YukkuriEntity hungry = null, gasping = null;

@@ -1496,8 +1496,8 @@ public final class ParentCarry {
         }
         next.putInt("N", ticks);
         write(carrier, child.getUUID(), next);
-        GameplayLog.event(carrier, "family", "carry lowering hold={} child={} from={} ticks={}{}", holdOf(e).key(), child.getUUID(),
-                GameplayLog.at(child.position()), ticks, brim);
+        GameplayLog.event(carrier, "family", "carry lowering hold={} child={} from={} ticks={}{} clip={}", holdOf(e).key(), child.getUUID(),
+                GameplayLog.at(child.position()), ticks, brim, next.getString("LC"));
     }
     public static String lowerClip(YukkuriView carrier, YukkuriView child) { return entry(carrier, child.getUUID()).getString("LC"); }
 

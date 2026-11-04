@@ -4,8 +4,11 @@ import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.FamilyFeedingContact;
 import io.github.longshou.mcyukkuri.family.FamilyLife;
+import io.github.longshou.mcyukkuri.family.BraidFetch;
+import io.github.longshou.mcyukkuri.family.ParentCarry;
 import io.github.longshou.mcyukkuri.headwear.PlacedHatEntity;
 import io.github.longshou.mcyukkuri.intent.Intent;
+import io.github.longshou.mcyukkuri.intent.Commitment;
 import io.github.longshou.mcyukkuri.intent.IntentRunner;
 import io.github.longshou.mcyukkuri.intent.Drive;
 import io.github.longshou.mcyukkuri.intent.Method;
@@ -15,6 +18,8 @@ import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.life.WaterDistress;
 import io.github.longshou.mcyukkuri.motor.action.Face;
 import io.github.longshou.mcyukkuri.motor.action.Pick;
+import io.github.longshou.mcyukkuri.motor.action.Release;
+import io.github.longshou.mcyukkuri.motor.surface.SeatTarget;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.List;
 import java.util.function.BooleanSupplier;
@@ -53,6 +58,47 @@ final class Care implements Intent {
 
     static Care feed(YukkuriEntity parent, YukkuriEntity child) { return new Care(parent, child, true); }
     static Care comfort(YukkuriEntity parent, YukkuriEntity child) { return new Care(parent, child, false); }
+
+    /** A frightened brim rider needs her braid only when the cabin is full and her head has real room. */
+    static boolean needsShelter(YukkuriEntity child, PlacedHatEntity hat) {
+        return child.family().stage() == FamilyLife.Stage.BABY && PlayAboard.onBrim(child, hat)
+                && !PlayAboard.fear(child, hat).equals("none")
+                && hat.places(child, SeatTarget.Kind.CABIN, 1).isEmpty()
+                && !hat.places(child, SeatTarget.Kind.HEAD, 1).isEmpty();
+    }
+
+    /** Ordinary parental placement: lift a brim child to shelter, or lower a head rider onto supported ground. */
+    static final class Transfer implements Intent {
+        private final YukkuriEntity parent, child;
+        private final PlacedHatEntity hat;
+        private final Release release;
+        private final long started;
+
+        Transfer(YukkuriEntity parent, YukkuriEntity child, PlacedHatEntity hat) {
+            this.parent = parent;
+            this.child = child;
+            this.hat = hat;
+            release = new Release(child, hat);
+            started = parent.level().getGameTime();
+        }
+
+        @Override public String id() { return hat == null ? "set_down_young" : "shelter_young"; }
+        @Override public long deadline() { return started + COMFORT; }
+        @Override public Commitment commitment() { return Commitment.HARD; }
+        @Override public boolean satisfied() { return release.released(); }
+        @Override public List<Method> methods() { return List.of(Plan.of(id(), this::derive)); }
+        private List<Supplier<Step>> derive() {
+            if (hat != null && child.getVehicle() != parent) return BraidFetch.lift(parent, child, hat);
+            return List.of(() -> new Step.Do(release));
+        }
+        @Override public void ended(IntentRunner.Result result) {
+            if (child.getVehicle() == parent && ParentCarry.hold(parent, child) != ParentCarry.Hold.HEAD)
+                parent.family().carry().finish(child, id() + "_ended");
+            GameplayLog.event(parent, "aquatic", "care transfer end kind={} child={} result={} released={} ground={} head={}",
+                    id(), child.getUUID(), result, release.released(), AquaticLife.ashore(child),
+                    child.getVehicle() == parent && ParentCarry.hold(parent, child) == ParentCarry.Hold.HEAD);
+        }
+    }
 
     /** This parent is feeding {@code young} now (her running intent), so the young turns to her ({@link Taking}). */
     static boolean feeding(YukkuriEntity parent, YukkuriEntity young) {

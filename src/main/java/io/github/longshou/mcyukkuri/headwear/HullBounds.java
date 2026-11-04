@@ -2,6 +2,7 @@ package io.github.longshou.mcyukkuri.headwear;
 
 import io.github.longshou.mcyukkuri.motor.geom.GeometryJson;
 import io.github.longshou.mcyukkuri.motor.geom.BodyFootprint;
+import io.github.longshou.mcyukkuri.motor.geom.FloorSearch;
 import io.github.longshou.mcyukkuri.motor.geom.RadialWall;
 import io.github.longshou.mcyukkuri.motor.geom.Vec;
 import java.util.List;
@@ -37,12 +38,13 @@ public final class HullBounds {
                 r * Math.sin(i * Math.PI / 36))).toList();
     }
 
-    /** Normalize world dimensions to the authored hull scale before sampling its model-unit surface. */
+    /** Put the body's outward edge over the preferred brim ring, then sample its real underside support. */
     public static List<Vec> brimStops(String asset, double width, double height, double hullScale, double yaw) {
         var profile = HullProfile.of(HullProfile.BASIN);
         double scale = hullScale / SCALE, unit = profile.measuredUnit();
         var body = BodyFootprint.of(asset, width / scale / unit, height / scale / unit, yaw);
         return brimStops().stream().map(p -> p.scale(1 / unit))
+                .map(p -> p.scale((p.hlen() - FloorSearch.extent(body, p.x() / p.hlen(), p.z() / p.hlen())) / p.hlen()))
                 .map(p -> new Vec(p.x(), profile.support(p.x(), p.z(), body), p.z())).toList();
     }
 

@@ -2625,10 +2625,21 @@ pond('afloat_stick', '水上缺棍·划去取漂浮木棍', '漂浮木棍亲油�
                                    r'\[aquatic\][^\n]* stick taken [^\n]*stowed_in=hat'],
                 forbid=[r'\[body\][^\n]* invariant\b', r'\[hat\][^\n]* capsized\b', r'\[body\][^\n]* death settled into remains']))
 
+def kid_play_shelter(window):
+    """A free head after the cabin refusal must lead to a real parental lift and head placement."""
+    for request in re.finditer(r'uuid=(\S+)[^\n]* play stays on brim [^\n]*cabin=none head=free reason=fear:thunder', window):
+        child = request[1]
+        after = window[request.end():]
+        if not re.search(rf'carry lowering [^\n]*child={child}[^\n]*clip=braid_head_set'
+                         rf'[\s\S]*uuid={child}[^\n]* seat landed [^\n]*place=HEAD cause=braid_set_down'
+                         rf'[\s\S]*uuid={child}[^\n]* play kind=kid_hide_behind start spot=head reason=fear:thunder', after):
+            return f'frightened brim child {child} was not lifted to the free head and sheltered there'
+
+
 pond('kid_boat_play', '赤油在亲帽上玩耍', '赤油上帽檐玩耍与受惊',
      '静水亲帽停在离岸三格的水面，亲油坐在船长位置面朝船首，帽里有一根木棍和四份苹果；两只赤油按实际空间一在舱内、一在头顶，舱内那只已经学会短跳且正饿着。'
      '舱内那只自己跳上帽檐：辫子朝外对着水面拍水（亲油划桨时改成学划水），探头和原地玩耍都在帽檐上；头顶那只只做不碰水的探头，能转身。'
-     '雷雨、附近捕食种或冲向帽船的玩家会吓到赤油：舱内有空位就跳回舱内缩身，没有空位就留在帽檐上抓紧缩身，不等位；平静后继续玩耍。空手右击赤油看问候',
+     '雷雨、附近捕食种或冲向帽船的玩家会吓到赤油：舱内有空位就跳回舱内缩身，舱内无位而头顶有位时由亲油辫子托上头顶；两处都无位才留在帽檐上抓紧缩身，不等位。平静后继续玩耍。空手右击赤油看问候',
      '约 2–3 分钟；可用本场天气按钮观察受惊',
      [yk('marisa', bank_dx(0), 0, 'a', aquatic=True, yaw=-90, lead=True, friendliness=100,
          uuid=uid('kid_boat_play', 'a'), **pair_ready()),
@@ -2638,8 +2649,8 @@ pond('kid_boat_play', '赤油在亲帽上玩耍', '赤油上帽檐玩耍与受�
       afloat('a', water_at(0, 3), True, sel_all('crew'), food=4, stick=True)],
      note='日志：舱内赤油自己 hop 上帽檐 → [aquatic] play kind=kid_brim_splash start spot=brim reason=brim_water braid_out=true（亲油在划桨时是 kind=kid_mimic_paddle reason=captain_paddle，两者都是水上动作）'
           '→ 之后 kind=hat_cradle 原地静玩；头顶那只 play kind=boat_rim_peek start spot=head reason=head_dry，不做水上动作。'
-          '受惊：舱内有空位时 play return inside place=cabin reason=fear:thunder，再 play kind=kid_hide_behind start spot=cabin；舱内无空位时 play stays on brim … cabin=none head=none|free（head=free 是头顶位空着而赤油自己上不去：头顶位只由亲油辫子托放，此场景按规则不收）'
-          '再 kid_hide_behind start spot=brim；平静后继续玩耍。帽檐上真被晃到硬翻时仍会摔进水里（play fall_in）。'
+          '受惊：舱内有空位时 play return inside place=cabin reason=fear:thunder，再 play kind=kid_hide_behind start spot=cabin；舱内无位且 head=free 时先在帽檐缩身，亲油 shelter_young → carry lowering clip=braid_head_set → seat landed place=HEAD，随后在头顶缩身。'
+          '舱内、头顶都无位才一直在帽檐缩身；平静后继续玩耍。帽檐上真被晃到硬翻时仍会摔进水里（play fall_in）。'
           '读 hat.float 的 play：各类演出开始次数、fear_* 原因次数；body.attach 看实际帽内坐标。点击赤油与点击空帽檐不同：前者问候，后者摇船；准备入座不算行为成功。' + _DESIRE_NOTE,
      reads=[('读舱内赤油动作与点击', f'yukkuri status {sel("c1")} raw'), ('读头顶赤油', f'yukkuri status {sel("c2")} raw'),
             ('读演出与受惊计数', f'yukkuri status {sel("a")} raw'), ('读帽子乘员', f'data get entity {_HAT} Riders')],
@@ -2653,10 +2664,11 @@ pond('kid_boat_play', '赤油在亲帽上玩耍', '赤油上帽檐玩耍与受�
                         r'\[aquatic\][^\n]* play kind=(?:kid_brim_splash|kid_mimic_paddle) start spot=brim [^\n]*braid_out=true\b',
                         r'\[aquatic\][^\n]* play kind=boat_rim_peek start spot=head\b',
                         r'\[aquatic\][^\n]* play kind=kid_hide_behind start spot=\w+ reason=fear:thunder\b',
-                        r'\[aquatic\][^\n]* play (?:return inside [^\n]*place=cabin|stays on brim [^\n]*cabin=none head=none) [^\n]*reason=fear:thunder\b'],
+                        r'\[aquatic\][^\n]*(?: play (?:return inside [^\n]*place=cabin|stays on brim [^\n]*cabin=none head=none) [^\n]*reason=fear:thunder\b| care transfer end kind=shelter_young [^\n]*result=DONE released=true [^\n]*head=true)'],
                 forbid=[r'\[body\][^\n]* invariant\b', r'\[body\][^\n]* death settled into remains', r'\[aquatic\][^\n]* play fall_in\b',
                         r'\[aquatic\][^\n]* play kind=(?:kid_brim_splash|kid_mimic_paddle) start spot=head\b',
                         r'\[aquatic\][^\n]* play kind=kid_hide_behind end result=(?:EXHAUSTED|LOST)\b'],
+                verify=kid_play_shelter,
                 readout=[f'yukkuri status {sel("a")} raw', f'yukkuri status {sel("c1")} raw',
                          f'yukkuri status {sel("c2")} raw', f'data get entity {_HAT} Riders']))
 
@@ -2798,6 +2810,11 @@ def shore_birth_result(window, riders):
             return f'newborn {child} never landed safely'
     if not re.search(rf'scenario afloat prepared [^\n]*young={2 if riders else 0}\b', window):
         return 'initial rider count differs'
+    if riders:
+        for child in re.findall(r'uuid=(\S+)[^\n]* scenario place [^\n]*place=HEAD\b', window):
+            if not re.search(rf'carry lowering hold=head child={child}'
+                             rf'[\s\S]*carry put down [^\n]*cause=release[^\n]*child={child}', window):
+                return f'head rider {child} never completed ordinary ground release'
     if re.search(r'\[body\][^\n]* death settled|cause=starv|brood cancelled', window):
         return 'birth family died, starved or lost its brood'
     postpartum = window[completed.end():]
