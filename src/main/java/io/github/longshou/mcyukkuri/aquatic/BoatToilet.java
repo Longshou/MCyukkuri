@@ -43,7 +43,7 @@ final class BoatToilet implements Intent {
      * Open water has to lie within CLEAR (blocks) beyond the rim in the chosen direction, and the stool comes down inside that band, at
      * least LAND past the rim beyond its own half length: clear of the brim's edge by a visible gap, not grazing it.
      */
-    private static final double CLEAR = .3, LAND = .1;
+    private static final double CLEAR = .45, LAND = .2;
     private static final int TURN_DEADLINE = 80;
 
     private final YukkuriEntity body;
@@ -150,12 +150,13 @@ final class BoatToilet implements Intent {
         if (out == null) return null;
         strained = true;
         int[] tick = {0};
+        int length = ToiletContact.ticks(body, Behaviors.BOAT_TOILET);
         double before = body.life().bladder();
         return new Step.Do(new Await(() -> {
             if (++tick[0] == ToiletContact.DROP_TICKS) relieved = drop(before);
-            if (tick[0] == Math.min(landTick, ToiletContact.RELEASE_TICKS)) landed();
-            return finished = tick[0] >= ToiletContact.RELEASE_TICKS;
-        }, ToiletContact.RELEASE_TICKS + 10, Behaviors.BOAT_TOILET));
+            if (tick[0] == Math.min(landTick, length)) landed();
+            return finished = tick[0] >= length;
+        }, length + 10, Behaviors.BOAT_TOILET));
     }
 
     private boolean drop(double before) {

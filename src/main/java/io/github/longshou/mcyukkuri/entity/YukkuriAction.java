@@ -62,7 +62,7 @@ public enum YukkuriAction {
     BOAT_BOARD("boat_board", .8, true),
     BOAT_FEED_YOUNG("boat_feed_young", 2.4, false),
     BOAT_NUZZLE("boat_nuzzle", 2.4, false),
-    BOAT_TOILET("boat_toilet", 2, false),
+    BOAT_TOILET("boat_toilet", 2.3, false),
     KID_BRIM_SPLASH("kid_brim_splash", 2.4, true),
     KID_MIMIC_PADDLE("kid_mimic_paddle", 1.8, true),
     KID_HIDE_BEHIND("kid_hide_behind", 2.4, false),

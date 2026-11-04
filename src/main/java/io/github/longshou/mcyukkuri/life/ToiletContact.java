@@ -29,7 +29,7 @@ import java.nio.charset.StandardCharsets;
 
 /** Supported toilet positions and real portions; no inventory change is earned by proximity alone. */
 public final class ToiletContact {
-    /** The straining clip ({@code toilet_contact.json}, 40 ticks) pushes the stool out between ticks 12 and 34; it leaves the body at DROP_TICKS. */
+    /** The straining clips ({@code toilet_contact.json}, 40 ticks; the boat's {@link #ticks own length}) push the stool out between ticks 12 and 34; it leaves the body at DROP_TICKS. */
     public static final int RELEASE_TICKS = 40, EMERGE_FROM_TICKS = 12, DROP_TICKS = 34;
     private static final JsonObject DATA = read(), MODELS = DATA.getAsJsonObject("models"), STOOL = DATA.getAsJsonObject("stool");
     /** The stool's start inside the anus (model units) and its leaving direction, both at rest; its full length and radius (blocks). */
@@ -71,6 +71,13 @@ public final class ToiletContact {
         q = q * q * (3 - 2 * q);
         return new Stool(new Vec3(start[0], start[1], start[2]).scale(1 / 16.0), new Vec3(along[0], along[1], along[2]).normalize(),
                 LENGTH * size * q, RADIUS * size * (.55 + .45 * q), q);
+    }
+
+    /** How many ticks the straining clip {@code clip} of this form lasts; RELEASE_TICKS without the export. */
+    public static int ticks(YukkuriView actor, String clip) {
+        var model = MODELS.has(actor.assetId()) ? MODELS.getAsJsonObject(actor.assetId()) : null;
+        var frames = model == null ? null : POSES.computeIfAbsent(actor.assetId() + "/" + clip, key -> frames(model, clip));
+        return frames == null || frames.length == 0 ? RELEASE_TICKS : frames.length - 1;
     }
 
     /** A stool in the model frame (blocks at growth 1): where it starts, its unit direction, its length and radius so far, and how much of it is out (0..1). */
