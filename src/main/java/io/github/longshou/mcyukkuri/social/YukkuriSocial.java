@@ -59,6 +59,8 @@ public final class YukkuriSocial implements MotorOwner {
     private int toyContact, toyTouches;
     private int greetClicks;
     private long greetUntil;
+    /** A stopped retrieval is not restarted on the next goal evaluation. */
+    private long accessoryRetry;
     public int greetClicks() { return greetClicks; }
     public boolean greeting() { return entity.level().getGameTime() < greetUntil; }
     public long greetStart() { return greetUntil - ClipMarkers.of("greet").length(); }
@@ -214,7 +216,7 @@ public final class YukkuriSocial implements MotorOwner {
     public boolean retrievingAccessory() { return task == Task.ACCESSORY; }
 
     public boolean startAccessory() {
-        if (task != Task.NONE || entity.life().hasAccessory() || entity.life().accessoryCustodied()
+        if (task != Task.NONE || entity.tickCount < accessoryRetry || entity.life().hasAccessory() || entity.life().accessoryCustodied()
                 || !entity.childhood().canLearn() || entity.isPanicking() || entity.life().isSleeping()
                 || entity.life().hasUrgentNeed() || entity.waterDistress().active() || entity.life().mealTicks() > 0
                 || entity.isCommandPlaying() || entity.operations().active()) return false;
@@ -426,6 +428,7 @@ public final class YukkuriSocial implements MotorOwner {
                 target==null?null:target.getUUID(),elapsed,toyContact,toyTouches);
         if(task==Task.TOY&&target instanceof ItemEntity toy){var lease=toy.getPersistentData();if(lease.hasUUID("YukkuriPlayOwner")&&
                 lease.getUUID("YukkuriPlayOwner").equals(entity.getUUID())){lease.remove("YukkuriPlayOwner");lease.remove("YukkuriPlayUntil");}}
+        if (task == Task.ACCESSORY) accessoryRetry = entity.tickCount + 200;
         if (task != Task.NONE) entity.life().deferSocial(600);
         if (target != null && (task == Task.PLAYER || task == Task.PEER)) {
             contactWaits.entrySet().removeIf(e -> e.getValue().until() <= entity.tickCount);

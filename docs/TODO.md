@@ -8,7 +8,6 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
-| 池塘五项可见故障 | `wp-z-visible` | `motor/`、`aquatic/`、`family/`、`headwear/`、`entity/YukkuriGoals.java`、`social/YukkuriSocial.java`、`house/HouseCrawlControl.java`、`scripts/museum_scenarios.py`、`docs/TODO.md` |
 
 ## 玩法待办
 
