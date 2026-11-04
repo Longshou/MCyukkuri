@@ -66,9 +66,8 @@ final class SetOut implements Intent, FamilyRendezvous {
     private long gatherUntil;
     /** The far shore she is heading for, or null. */
     private Waters.Edge heading;
-    /** The young she already called to lift this setting out (one that did not come, or was let go on the way, is led from then on), and how many she lifted. */
+    /** The young she already called to lift this setting out: one that did not come, or was let go on the way, is led from then on. */
     private final Set<UUID> asked = new HashSet<>();
-    private int lifted;
     private final Ferry.Beckoning beckoning = new Ferry.Beckoning();
     /** Young she sets out without, with the reason. */
     private final Map<UUID, String> excused = new LinkedHashMap<>();
@@ -119,8 +118,8 @@ final class SetOut implements Intent, FamilyRendezvous {
         var stayed = new LinkedHashMap<UUID, String>();
         var young = AquaticLife.young(owner);
         for (var y : young) if (!AquaticLife.aboard(y, hat)) stayed.put(y.getUUID(), String.valueOf(staying(y)));
-        GameplayLog.event(owner, "aquatic", "set_out complete hat={} aboard={}/{} lifted={} children={}", hat.getUUID(), young.size() - stayed.size(),
-                young.size(), lifted, young.stream().filter(y -> !stayed.containsKey(y.getUUID())).map(YukkuriEntity::getUUID).toList());
+        GameplayLog.event(owner, "aquatic", "set_out complete hat={} aboard={}/{} children={}", hat.getUUID(), young.size() - stayed.size(),
+                young.size(), young.stream().filter(y -> !stayed.containsKey(y.getUUID())).map(YukkuriEntity::getUUID).toList());
         if (stayed.isEmpty()) return;
         GameplayLog.event(owner, "aquatic", "set_out left_ashore={}", stayed);
         left.accept(stayed);
@@ -249,7 +248,6 @@ final class SetOut implements Intent, FamilyRendezvous {
                                 GameplayLog.at(child.position()));
                         return null;
                     }
-                    lifted++;
                     GameplayLog.event(owner, "aquatic", "set_out carry child={} purpose=to_water at={} shore={}", child.getUUID(),
                             GameplayLog.at(child.position()), shore.toShortString());
                     return new Step.Do(new Grab(child));
