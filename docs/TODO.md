@@ -9,7 +9,6 @@
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
 | 魔理沙辫子运输连续路径、转向辫子侧，灵梦放下从嘴部出 | `.worktrees/art-a4-braid-carry` | `family/ParentCarry`、`client/ParentCarryPresentation`、`motor/geom/CarryGeometry`、`standards/yukkuri-library/motions/variants/lore` |
-| 池塘家庭链收尾：接幼、登陆、出生照料与水流接触 | `.worktrees/wp-polish-1` | `aquatic/{SetOut,Waters,HullAfloat,PlayAboard}`、`motor/geom/FlightContact`、`family/CareApproach`、对应纯函数测试、`scripts/museum_scenarios.py`、`docs/{FEATURES,TODO}.md` |
 
 ## 玩法待办
 
