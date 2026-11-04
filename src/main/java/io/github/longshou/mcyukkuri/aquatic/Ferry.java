@@ -100,9 +100,11 @@ final class Ferry {
         Supplier<Hop> hop = () -> new Hop(hat);
         return List.of(() -> new Step.Wait(hat::steady, 60, "hat_settles"), () -> {
                     if (hop.get().check(body).ok()) return null;
-                    var edge = Waters.beside(hat, body);
-                    var stand = edge == null ? null : Waters.boardingStand(edge, body);
-                    return stand == null || SurfaceApproach.arrived(body, stand) ? null : act(new Walk(stand));
+                    var stand = boardingStand(body, hat, beckoning);
+                    if (stand != null) return SurfaceApproach.arrived(body, stand) ? null : act(new Walk(stand));
+                    GameplayLog.limited(body, "aquatic", "board.no_stand", 200,
+                            "board waiting reason=no_dry_hop_stand hat={}", hat.getUUID());
+                    return new Step.Wait(() -> hat.settled(body), ClipMarkers.of(Behaviors.BOAT_CALL).length(), Behaviors.BOAT_CALL);
                 },
                 () -> act(new Face(SurfaceApproach.yaw(body.position(), hat.position()))),
                 () -> beckoning == null || hop.get().check(body).reason() != Reason.TOO_FAR ? null : beckoning.step(body, hat),
@@ -111,6 +113,18 @@ final class Ferry {
                     return action.blockedByBody(body) ? bodyWait(body, action) : null;
                 },
                 () -> act(hop.get()));
+    }
+
+    /** A dry walking destination admitted by the boarding arc, or by the owner's one braid stroke to draw her hat closer. */
+    private static Vec3 boardingStand(YukkuriEntity body, PlacedHatEntity hat, Beckoning beckoning) {
+        for (var edge : Waters.edges(body, hat.position(), 4, false)) {
+            var stand = Waters.boardingStand(edge, body);
+            if (SurfaceApproach.supported(body, stand)
+                    && (new Hop(hat).checkFrom(body, stand).ok()
+                        || beckoning != null && beckoning.nearFrom(body, hat, stand, edge.yaw()))
+                    && SurfaceApproach.canApproach(body, stand)) return stand;
+        }
+        return null;
     }
 
     /** Board to work a young from the hull: walk to the boarding stand, face it, then hop where the braid reaches the young from —
@@ -167,8 +181,12 @@ final class Ferry {
          *  where she stands facing it — the action's own check is the only reach test, so admitting a stroke and running it never
          *  disagree. The cheap read a wait can make every tick. */
         boolean near(YukkuriEntity body, PlacedHatEntity hat) {
+            return nearFrom(body, hat, body.position(), body.getYRot());
+        }
+
+        private boolean nearFrom(YukkuriEntity body, PlacedHatEntity hat, Vec3 stand, float yaw) {
             return tried == null && PlacedHatEntity.find(body) == hat && AquaticLife.onWater(hat) && AquaticLife.ashore(body)
-                    && new Beckon(hat).check(body).ok();
+                    && new Beckon(hat).checkFrom(body, stand, yaw).ok();
         }
 
         /** The beckon step, or null when no stroke applies; one try per run, so a drawn-in or failed stroke is never paid over again. */

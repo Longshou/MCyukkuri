@@ -151,6 +151,7 @@ public final class EscapeWater implements Intent {
                     case 0 -> { tried.add(bank.stand()); yield new Step.Do(Swim.to(bank::front, 0)); }
                     case 1 -> new Step.Do(Swim.to(bank::edge, 0));
                     case 2 -> new Step.Do(Climb.onto((climbing = bank).edge(), bank.land()));
+                    case 3 -> new Step.Wait(() -> body.isInWaterOrBubble() || satisfied(), 20, "water_contact");
                     default -> null;
                 }),
                 new Way("struggle", refuge ? Feasibility.pass() : Feasibility.of(Reason.NO_PATH, 0, "no_bank"), PRESSING,

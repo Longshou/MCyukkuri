@@ -92,6 +92,11 @@ public final class Hop implements Action {
         return ready;
     }
 
+    /** The same boarding arc from a proposed dry stand, without moving the body. */
+    public Feasibility checkFrom(YukkuriEntity body, Vec3 from) {
+        return solve(body, from, takeoffTicks() - 1).ready();
+    }
+
     /** A body that already settled into the interior resumes the same final seating move. */
     private boolean onEntryFloor(YukkuriEntity body) {
         return seatHost != null && target == null && !brimOnly && body.getVehicle() == seatHost.entity()
@@ -184,6 +189,10 @@ public final class Hop implements Action {
 
     /** Keeps the local stops; the same arc solver admits each check and each takeoff in the current frame. */
     private Flight solve(YukkuriEntity body, int delay) {
+        return solve(body, body.position(), delay);
+    }
+
+    private Flight solve(YukkuriEntity body, Vec3 from, int delay) {
         SeatTarget candidate = null;
         Vec3 to = target;
         if (seatHost == null && !ground(body, to))
@@ -200,13 +209,13 @@ public final class Hop implements Action {
         SurfaceHost anchor = seatHost != null && body.getVehicle() == seatHost.entity() ? seatHost : null;
         boolean entering = seatHost != null && anchor == null && target == null && !seatHost.hopStops(body).isEmpty();
         if (entering) {
-            var stop = entryFrom(body, body.position(), seatHost.frame(), seatHost.hopStops(body).stream()
+            var stop = entryFrom(body, from, seatHost.frame(), seatHost.hopStops(body).stream()
                     .filter(p -> new SeatTarget(seatHost, p).available(body)).toList());
             if (stop == null) return new Flight(Feasibility.of(Reason.TOO_FAR, 0, "no_reachable_brim"), null, null);
             candidate = new SeatTarget(seatHost, stop);
             to = candidate.world();
         }
-        var origin = anchor == null ? body.position() : anchor.riders().local(body.getUUID()).scale(anchor.frame().unit());
+        var origin = anchor == null ? from : anchor.riders().local(body.getUUID()).scale(anchor.frame().unit());
         if (anchor == null && delay > 0 && body.getVehicle() instanceof SurfaceHost carrier) {
             var local = carrier.frame().toLocal(body.position());
             float yaw = SurfaceApproach.yaw(body.position(), to);
@@ -215,7 +224,7 @@ public final class Hop implements Action {
             origin = carrier.frameAfter(delay).toWorld(new Vec3(local.x, height.getAsDouble(), local.z));
         }
         var destination = anchor == null ? to : candidate.local().scale(anchor.frame().unit());
-        var swept = hosts(body, body.position(), to);
+        var swept = hosts(body, from, to);
         boolean following = anchor != null && path != null;
         if (following) {
             var next = path.get(leg);

@@ -178,7 +178,7 @@ final class SetOut implements Intent, FamilyRendezvous {
         // a second call means the first went unanswered: those not aboard by now stay
         if (calls++ > 0) for (var y : AquaticLife.young(owner))
             if (!AquaticLife.aboard(y, hat) && staying(y) == null) excused.put(y.getUUID(), "did_not_board");
-        return List.of(() -> new Step.Wait(this::satisfied, WAIT_YOUNG, Behaviors.BOAT_CALL));
+        return List.of(() -> new Step.Wait(() -> satisfied() || !dependentAshore(hat).isEmpty(), WAIT_YOUNG, Behaviors.BOAT_CALL));
     }
 
     /** Launch and sit only; the parent runner consumes this result before rescue or family boarding continues. */

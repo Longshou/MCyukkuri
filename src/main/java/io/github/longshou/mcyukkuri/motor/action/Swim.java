@@ -68,8 +68,13 @@ public final class Swim implements Action {
         // One stroke clock for the whole immersion: the phase the water distress started in, not this leg's own start.
         var distress = body.waterDistress();
         if (distress.phase() == WaterDistress.Phase.STRUGGLE) stroke = body.level().getGameTime() - distress.phaseTicks();
-        if (!body.isInWaterOrBubble()) return new Outcome.Done("out_of_water at=" + GameplayLog.at(body.position()));
-        if (grip && ContactGeometry.canGrip(body, at)) return new Outcome.Done("grip at=" + GameplayLog.at(at));
+        if (grip && ContactGeometry.canGrip(body, at)) {
+            Motor.velocity(body, Vec3.ZERO, "swim_grip");
+            return new Outcome.Done("grip at=" + GameplayLog.at(at));
+        }
+        if (!body.isInWaterOrBubble()) return body.onGround() || body.isPassenger()
+                ? new Outcome.Done("out_of_water at=" + GameplayLog.at(body.position()))
+                : new Running(body.position().distanceTo(at), TravelMode.PASS);
         Vec3 to = at.subtract(body.position()).multiply(1, 0, 1);
         double distance = to.length();
         if (maxTicks > 0 && ++ticks > maxTicks)

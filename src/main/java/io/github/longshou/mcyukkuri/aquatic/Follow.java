@@ -10,7 +10,7 @@ import java.util.function.Supplier;
 
 /**
  * A young going where its family's hat goes: {@code board_parent} hops from the bank into the hollow of its
- * parent's hat (walking first to the bank edge nearest it), {@code follow_ashore} hops off it onto the nearest dry stand in
+ * parent's hat (walking only to a dry stand its own hop reaches from), {@code follow_ashore} hops off it onto the nearest dry stand in
  * reach. Only a young that can hop boards or leaves by itself; the others
  * are carried ({@link Ferry}).
  */
