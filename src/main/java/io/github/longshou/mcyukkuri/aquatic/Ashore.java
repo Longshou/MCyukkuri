@@ -2,7 +2,6 @@ package io.github.longshou.mcyukkuri.aquatic;
 
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
-import io.github.longshou.mcyukkuri.family.BraidFetch;
 import io.github.longshou.mcyukkuri.family.ParentCarry;
 import io.github.longshou.mcyukkuri.headwear.HatProp;
 import io.github.longshou.mcyukkuri.headwear.PlacedHatEntity;
@@ -45,7 +44,7 @@ final class Ashore implements Intent {
     private static final double ARRIVE = .6;
 
     private final YukkuriEntity owner;
-    private enum Purpose { COME, RECLAIM, CARRY, UNLOAD }
+    private enum Purpose { COME, RECLAIM, CARRY }
     private final Purpose purpose;
     private final long started;
     private Waters.Edge landing;
@@ -70,8 +69,6 @@ final class Ashore implements Intent {
         intent.carryRelease = release;
         return intent;
     }
-    /** Bring every own young still riding the afloat hull ashore, one after another. */
-    static Ashore unload(YukkuriEntity owner) { return new Ashore(owner, Purpose.UNLOAD); }
     private boolean reclaim() { return purpose == Purpose.RECLAIM; }
 
     /** An unsailed young only asks for its hat when it can do something from a reachable stand. */
@@ -80,9 +77,7 @@ final class Ashore implements Intent {
                 ? SurfaceApproach.beside(body, hat, body.getBbWidth() / 2 + .3, 1.2) != null : Waters.bankEdge(body, hat) != null);
     }
 
-    @Override public String id() {
-        return reclaim() ? "resolve_own_hat" : purpose == Purpose.CARRY ? "carry_ashore" : purpose == Purpose.UNLOAD ? "unload_young" : "come_ashore";
-    }
+    @Override public String id() { return reclaim() ? "resolve_own_hat" : purpose == Purpose.CARRY ? "carry_ashore" : "come_ashore"; }
     @Override public boolean ownsBodyInWater() { return reclaim() && waterTried; }
     @Override public long deadline() { return started + (reclaim() ? RECLAIM : COME); }
     @Override public Commitment commitment() { return reclaim() ? Commitment.SOFT : Commitment.HARD; }
@@ -91,7 +86,6 @@ final class Ashore implements Intent {
         if (owner.motor().current() != null && !owner.motor().current().interruptible()) return false;
         var hat = AquaticLife.hat(owner);
         if (purpose == Purpose.CARRY) return AquaticLife.ashore(owner) && carryRelease.released();
-        if (purpose == Purpose.UNLOAD) return AquaticLife.carried(owner) == null && AquaticGoal.stuckAboard(owner, hat) == null;
         if (reclaim()) return owner.life().custody().worn() || hat != null && hat.settled(owner);
         return owner.life().custody().worn() && AquaticLife.ashore(owner) && AquaticLife.carried(owner) == null;
     }
@@ -114,7 +108,6 @@ final class Ashore implements Intent {
     private List<Supplier<Step>> derive() {
         var hat = AquaticLife.hat(owner);
         if (hat == null || hat.isRemoved()) return null;
-        if (purpose == Purpose.UNLOAD) return unload(hat);
         var held = AquaticLife.carried(owner);
         var dependent = dependentAboard(hat);
         String carryProblem = dependent == null ? null : ParentCarry.capacityProblem(owner, dependent);
@@ -147,18 +140,6 @@ final class Ashore implements Intent {
         }
         if (youngAboard(hat)) return List.of(() -> new Step.Wait(() -> !youngAboard(hat), WAIT, Behaviors.BOAT_CALL));
         return fromBank(hat, () -> new TakeProp(new HatProp(owner, true, AquaticLife.afloat(hat))));
-    }
-
-    /** Every own young still riding the afloat hull comes ashore: the one she already holds is set down, the ones that cannot get
-     *  off by themselves are lifted from their seat with the braid, carried ashore and set down, one after another (a jumper leaves by
-     *  its own {@code follow_ashore}). */
-    private List<Supplier<Step>> unload(PlacedHatEntity hat) {
-        var held = AquaticLife.carried(owner);
-        if (held != null) return List.of(() -> new Step.Sub(carry(owner, new Release(held))));
-        var child = AquaticGoal.stuckAboard(owner, hat);
-        if (child == null) return null;
-        if (!AquaticLife.aboard(owner, hat)) return List.of(() -> new Step.Sub(new SetOut.Launch(owner, deadline())));
-        return BraidFetch.lift(owner, child, hat);
     }
 
     /** Aboard and no bank in hop reach: paddle the next leg toward a landing over calm water. */

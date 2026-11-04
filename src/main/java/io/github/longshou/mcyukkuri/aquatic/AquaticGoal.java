@@ -222,10 +222,12 @@ final class AquaticGoal extends Goal {
                             () -> "head_rider_ashore child=" + rider.getUUID(), () -> new Care.Transfer(body, rider, null)));
                     break;
                 }
-                // The young still riding the afloat hull come ashore too, one after another; a jumper leaves by its own follow_ashore.
-                var stuck = stuckAboard(body, hat);
-                if (stuck != null) out.add(Desire.of("unload_young", PlayAboard.number("hide_want"),
-                        List.of(cell(hat), stuck.getUUID()), () -> "stuck_aboard child=" + stuck.getUUID(), () -> Ashore.unload(body)));
+                // The young still riding the afloat hull come ashore too: a capable one hops off by itself, a dependent one is
+                // carried out over the brim, one after another.
+                var rider = youngAboard(body, hat);
+                if (rider != null) out.add(Desire.of("unload_young", PlayAboard.number("hide_want"),
+                        List.of(cell(hat), rider.getUUID()), () -> "aboard child=" + rider.getUUID(),
+                        () -> new UnloadYoung(body, hat)));
             }
             if (usable) out.add(Desire.of("set_out", floor(setOut), world, () -> String.format(Locale.ROOT,
                     "pull=%.0f hunger=%.0f weather=%.0f breed=%.0f stick=%b stick_near=%b dusk=%b rain=%b young=%d asleep=%b beyond_gather=%b searching=%b nursery=%b",
@@ -369,10 +371,10 @@ final class AquaticGoal extends Goal {
         if (comforted.size() < LEFT_MAX) comforted.put(young.getUUID(), body.level().getGameTime() + (long) num("comfort_again", 600));
     }
 
-    /** Her own young still riding {@code hat} afloat that cannot get off by itself: a jumper leaves by its own {@code follow_ashore}. */
-    static YukkuriEntity stuckAboard(YukkuriEntity parent, PlacedHatEntity hat) {
+    /** The nearest of her own young still riding {@code hat} afloat, or null. */
+    static YukkuriEntity youngAboard(YukkuriEntity parent, PlacedHatEntity hat) {
         if (!AquaticLife.afloat(hat)) return null;
-        for (var y : AquaticLife.young(parent)) if (y.getVehicle() == hat && !AquaticLife.jumper(y)) return y;
+        for (var y : AquaticLife.young(parent)) if (y.getVehicle() == hat) return y;
         return null;
     }
 
