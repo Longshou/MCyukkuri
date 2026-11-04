@@ -8,7 +8,6 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
-| 水生种演示场合并同路径场景并按所见重命名 | `.worktrees/aq-scene-consolidate` | `scripts/museum_scenarios.py`、`scripts/museum_fields.py`、`docs/TODO.md`、`docs/FEATURES.md` |
 
 ## 玩法待办
 
