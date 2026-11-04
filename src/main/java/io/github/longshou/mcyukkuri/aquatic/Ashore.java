@@ -180,7 +180,8 @@ final class Ashore implements Intent {
         if (owner.position().multiply(1, 0, 1).distanceTo(stand.multiply(1, 0, 1)) >= .25)
             return List.of(() -> new Step.Do(Walk.stand(stand, 1)));
         float yaw = SurfaceApproach.yaw(owner.position(), hat.position());
-        if (Math.abs(Mth.wrapDegrees(yaw - owner.getYRot())) > Face.FACE_ARRIVED)
+        // The same facing Face completes on, so a turn it already made is never issued again.
+        if (Math.abs(Mth.wrapDegrees(yaw - owner.yBodyRot)) > Face.FACE_ARRIVED)
             return List.of(() -> new Step.Do(new Face(yaw)));
         if (ContactGeometry.reachesHull(owner, hat, true, false) || !AquaticLife.onWater(hat)) {
             var closing = new ArrayList<Supplier<Step>>();
