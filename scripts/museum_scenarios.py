@@ -2881,6 +2881,35 @@ pond('first_voyage', '初航·子油第一次自己操帽，先上岸', '子油�
                 forbid=[r'\[body\][^\n]* invariant\b', r'\[body\][^\n]* death settled\b'], readout=[f'yukkuri status {sel("c1")} raw']))
 
 
+pond('first_voyage_brim', '初航·子油从亲帽帽檐放船', '子油初航·帽檐放船',
+     '亲油坐在离岸四格以外的开阔静水里歇泊，帽里有粮和木棍；处于初航欲望带的子油坐在亲帽里，能自己吃、会跳和学习，戴着夹有一根木棍的帽子，'
+     '还没自己操过帽。周围没有一跳够得着的岸，子油想试试自己的帽子（越大胆越想）：先从帽里跳上亲帽的帽檐，面向水面脱下自己的帽子放到亲船旁的静水上，'
+     '再一步从亲帽帽檐跳进自己的帽子（跳向与朝向一致），用木棍划到亲船旁两三格外的开阔水面绕一下，再划回岸边跳上岸，从岸沿把帽子收回戴上；'
+     '回到岸上戴好帽子才算学会操帽，之后只乘自己的帽子。路上翻帽或滑落是真实的，这次初航失败；落水救助按功能说明的水生规则执行',
+     '约 2–4 分钟（可倍速）',
+     [yk('marisa', bank_dx(0), 0, 'a', aquatic=True, yaw=0, lead=True, uuid=uid('first_voyage_brim', 'a'), kit='minecraft:stick',
+         **{**pair_ready(), 'energy': 20}),
+      _aquatic_young('first_voyage_brim', 'c1', bank_dx(1), 1, 'child', 'a', fam=_seat_family(.34), kit='minecraft:stick', boldness=75),
+      afloat('a', water_at(0, 6), True, sel('c1'), food=4)],
+     note='初态：子油位于初航欲望带，childhood 无 Sailed（读子油 childhood 看 Sailed），固食、跳跃与学习条件已具备，自己的帽里有真实木棍；亲油在离岸 4 格以外的静水里低体力歇泊，'
+          '帽里有四份苹果和一根木棍，子油坐在亲帽的真实座位上，岸边没有可跳的落点。'
+          '日志：子油 [intent] start id=first_voyage → [aquatic] first_voyage start … from=parent_hat → [aquatic] first_voyage route=brim reason=no_bank_in_hop_reach → '
+          '[action] end id=hop outcome=DONE（跳上亲帽帽檐）→ [action] end id=face → [action] start id=place_prop → [hat] placed … water=true kit=minecraft:stick → '
+          '[aquatic] first_voyage hat set on water → [action] start id=hop（亲帽帽檐跳进自己的帽，hop_leg 片段）→ [body] mount … cause=hop_contact → '
+          '[aquatic] first_voyage hopped onto own hat … aboard=true → [aquatic] route purpose=first_voyage → [action] start id=paddle → [aquatic] first_voyage rounded → '
+          '[intent] start id=come_ashore → … → [action] start id=take_prop → [aquatic] first_voyage success … route=brim → [childhood] sailing learned how=first_voyage。'
+          '放帽点在亲船帽檐外 0.05 格，两顶帽子并排漂着，不重叠；亲船静止（速度极小）时才出发。' + _DESIRE_NOTE,
+     reads=[('读子油', f'yukkuri status {sel("c1")} raw'), ('读亲油', f'yukkuri status {sel("a")} raw'), ('读最近的帽子', f'data get entity {_HAT}')],
+     smoke=dict(ticks=4800, expect=[r'\[hat\][^\n]* scenario afloat prepared [^\n]*young=1\b',
+                                   rf'\[aquatic\][^\n]*uuid={_uuid_text("first_voyage_brim", "c1")}[^\n]* first_voyage start [^\n]*from=parent_hat\b'
+                                   rf'[\s\S]*\[aquatic\][^\n]*uuid={_uuid_text("first_voyage_brim", "c1")}[^\n]* first_voyage route=brim\b'
+                                   rf'[\s\S]*\[hat\][^\n]* placed owner={_uuid_text("first_voyage_brim", "c1")}\b[^\n]* water=true'
+                                   rf'[\s\S]*\[aquatic\][^\n]*uuid={_uuid_text("first_voyage_brim", "c1")}[^\n]* first_voyage hopped onto own hat [^\n]*aboard=true\b',
+                                   r'\[aquatic\][^\n]* first_voyage success [^\n]*route=brim\b'],
+                forbid=[r'\[body\][^\n]* invariant\b', r'\[body\][^\n]* death settled\b', r'\[aquatic\][^\n]* first_voyage route=bank\b'],
+                readout=[f'yukkuri status {sel("c1")} raw']))
+
+
 # Topic codes are shared by the scene buttons, signs, and readouts.
 TOPICS = {
     'balance_traits': 'N1', 'balance_growth': 'N1', 'balance_relation': 'N1', 'balance_first_contact': 'N1', 'balance_forms': 'N1', 'balance_deibu': 'N1',
@@ -2899,7 +2928,7 @@ TOPICS = {
     'last_words': 'R7', 'offering': 'R7', 'sacrifice': 'R7', 'sacrifice_reluctant': 'R7',
     'hat_float': 'A1', 'hat_push': 'A1', 'hat_turbulence': 'A4', 'hat_current': 'A1', 'hat_grounded_inverted': 'A4', 'hat_grounded_capsized': 'A4', 'cargo': 'A2', 'hat_crowd': 'A3', 'shake_capsize': 'A4',
     'water_colony': 'A6', 'sail': 'A6', 'afloat_stick': 'A6', 'afloat_family': 'A6', 'afloat_family_gather': 'A6', 'afloat_family_distant': 'A6', 'shore_family': 'A6', 'kid_boat_play': 'A6',
-    'rescue_child': 'A5', 'rescue_infant_full': 'A5', 'rescue_no_seat': 'A5', 'birth_boat_caught': 'A6', 'birth_boat_missed': 'A6', 'first_voyage': 'A6',
+    'rescue_child': 'A5', 'rescue_infant_full': 'A5', 'rescue_no_seat': 'A5', 'birth_boat_caught': 'A6', 'birth_boat_missed': 'A6', 'first_voyage': 'A6', 'first_voyage_brim': 'A6',
     'self_rescue': 'A5', 'shore_capsized': 'A5', 'shore_capsized_far': 'A5', 'fall_in_pond': 'A5', 'worn_hat_boat': 'A5', 'hat_swap': 'C1', 'hat_damage': 'C1', 'hat_shatter': 'C1', 'hatless_kin': 'C2', 'hatless_scorn': 'C2', 'hatless_boundary': 'C2',
     'hatless_monster': 'C2', 'hatless_sanction': 'C2', 'puff_response': 'C2',
     'myon_stick': 'S1', 'myon_brave': 'S1', 'species_fatigue': 'S1', 'rare_forms': 'S2', 'kotatsu_winter': 'S2', 'kotatsu_summer': 'S2',

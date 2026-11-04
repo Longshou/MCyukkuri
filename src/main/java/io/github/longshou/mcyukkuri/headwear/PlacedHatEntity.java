@@ -624,7 +624,8 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
         if (!(owner.level() instanceof ServerLevel level)) return null;
         if (owner.getVariant() != YukkuriVariant.MARISA) return refusePlacement(owner, at, "not_marisa", "");
         if (!owner.isAlive()) return refusePlacement(owner, at, "not_alive", "");
-        if (owner.isPassenger()) return refusePlacement(owner, at, "passenger", "");
+        var blocked = placerBlock(owner);
+        if (blocked != null) return refusePlacement(owner, at, blocked, "");
         if (!owner.life().hasAccessory()) return refusePlacement(owner, at, "no_accessory", "");
         if (owner.life().custody().custodied()) return refusePlacement(owner, at, "existing_hat", "");
         var spot = BlockPos.containing(at);
@@ -659,6 +660,13 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
         GameplayLog.event(owner, "hat", "placed owner={} hat={} at={} yaw={} scale={} hullBox={} form={} role={} water={} kit={}",
                 owner.getUUID(), hat.getUUID(), hat.position(), yaw, hat.hullScale(), hat.getBoundingBox(), hat.formId(), role, water, hat.kit.getItem());
         return hat;
+    }
+    /** Why this Marisa cannot take her hat off and set it down from where she is, or null: held in another body's arms, riding
+     *  something that is not a steady hull (a guest standing on a steady hull may), or in mid-flight. */
+    public static String placerBlock(YukkuriEntity owner) {
+        if (owner.getVehicle() instanceof YukkuriEntity) return "held";
+        if (owner.isPassenger() && !(owner.getVehicle() instanceof SurfaceHost host && host.steady())) return "unsupported";
+        return Floor.standing(owner) ? null : "moving";
     }
     /** The reason and detail of the last placement {@link #setDown} refused, for a caller that must tell its own player why. */
     private static String lastRefusal = "none";

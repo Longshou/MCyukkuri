@@ -54,7 +54,8 @@ public final class HatProp implements Prop {
      *  a surface admitted by {@link PlacedHatBehavior#waterFits}. */
     @Override public Feasibility fits(Vec3 at, float yaw) {
         if (owner.getVariant() != YukkuriVariant.MARISA) return Feasibility.of(Reason.NO_TOOL, 0, "not_marisa");
-        if (owner.isPassenger()) return Feasibility.of(Reason.NO_ROOM, 0, "passenger");
+        var blocked = PlacedHatEntity.placerBlock(owner);
+        if (blocked != null) return Feasibility.of(Reason.NO_SUPPORT, 0, blocked);
         if (!worn() || deployed()) return Feasibility.of(Reason.NO_TOOL, 0, "hat_not_worn");
         var level = owner.level();
         var spot = BlockPos.containing(at);

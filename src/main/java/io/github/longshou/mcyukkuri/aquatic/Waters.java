@@ -14,6 +14,7 @@ import io.github.longshou.mcyukkuri.motor.action.Beckon;
 import io.github.longshou.mcyukkuri.motor.action.Hop;
 import io.github.longshou.mcyukkuri.motor.geom.GridPath;
 import io.github.longshou.mcyukkuri.motor.geom.HeightGrid;
+import io.github.longshou.mcyukkuri.motor.surface.Floor;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -241,6 +242,53 @@ final class Waters {
             if (!hatOver(body, hatAt(e, body), HatGeometry.wornForm(body).brim()[1] * HatScale.of(body) / 16)) out.add(e);
         }
         return out;
+    }
+
+    /** A brim place of the hull a body rides to set its own hat down from: {@code stop} in the hull's local units, {@code edge} the
+     *  hull's rim there, as the bank edge the hat is set down beside. */
+    record Launch(Vec3 stop, Edge edge) {}
+
+    /** Under this speed (blocks per tick) a hull lies still enough for a hat to be set beside it and a hop to plan from it. */
+    private static final double MOORED = .005;
+
+    /**
+     * Where {@code body}, standing on the hull {@code ride}, can set its own hat down on calm water beside the hull and hop onto it,
+     * or null: a brim place it stands on or hops to whose rim fronts water that carries a hat of its size with no other hull over
+     * it, a supported turn there to face the water, and a hop from there onto the brim of the hat set down (as a berth is judged).
+     */
+    static Launch brimLaunch(YukkuriEntity body, PlacedHatEntity ride) {
+        return kept(body.level(), key(body.level(), "launch", ride.getUUID(), ride.blockPosition(), body.getUUID()), () -> findLaunch(body, ride));
+    }
+
+    private static Launch findLaunch(YukkuriEntity body, PlacedHatEntity ride) {
+        var water = cell(ride);
+        if (water == null || body.getVehicle() != ride || ride.getDeltaMovement().horizontalDistanceSqr() > MOORED * MOORED) return null;
+        var level = body.level();
+        float scale = HatScale.of(body);
+        var form = HatGeometry.wornForm(body);
+        var stops = HullSurface.hopStops(body, scale);
+        var here = ride.riders().local(body.getUUID());
+        int asked = 0;
+        for (var stop : ride.hopStops(body).stream().sorted(Comparator.comparingDouble(p -> p.distanceToSqr(here))).toList()) {
+            var from = ride.toWorld(stop);
+            var away = from.subtract(ride.position()).multiply(1, 0, 1).normalize();
+            var rim = ride.position().add(away.scale(HullAfloat.brimToward(ride, from)));
+            var edge = new Edge(BlockPos.containing(from), new Vec3(rim.x, from.y, rim.z), away, water);
+            var at = hatAt(edge, body);
+            if (!calm(level, BlockPos.containing(at)) || !PlacedHatBehavior.waterFits(level, at, form, scale)
+                    || hatOver(body, at, form.brim()[1] * scale / 16)) continue;
+            if (asked++ >= ASKED) break;
+            if (Floor.turnHeight(ride, body, stop, body.yBodyRot - ride.getYRot(), edge.yaw() - ride.getYRot()).isEmpty()
+                    || !standsAt(ride, body, stop) && !Hop.reaches(body, ride, stop)) continue;
+            var frame = HullAfloat.frame(level, at, scale, edge.yaw() + (float) HullBounds.BOARDING_YAW);
+            if (Hop.entry(body, from, frame, stops) != null) return new Launch(stop, edge);
+        }
+        return null;
+    }
+
+    /** {@code body} already stands on the brim place {@code stop} of the hull it rides. */
+    static boolean standsAt(PlacedHatEntity ride, YukkuriEntity body, Vec3 stop) {
+        return stop.subtract(ride.riders().local(body.getUUID())).multiply(1, 0, 1).lengthSqr() < 1e-3;
     }
 
     /** The bank edge nearest {@code hat} from which {@code body} could really reach it: a stand it can walk to and either touch the
