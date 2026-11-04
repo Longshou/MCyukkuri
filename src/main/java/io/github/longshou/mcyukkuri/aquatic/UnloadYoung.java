@@ -5,14 +5,13 @@ import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.headwear.PlacedHatEntity;
 import io.github.longshou.mcyukkuri.intent.Commitment;
 import io.github.longshou.mcyukkuri.intent.HostIntent;
+import io.github.longshou.mcyukkuri.intent.IntentRunner;
 import io.github.longshou.mcyukkuri.intent.Method;
 import io.github.longshou.mcyukkuri.intent.Step;
-import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.motor.Action;
 import io.github.longshou.mcyukkuri.motor.ContactGeometry;
 import io.github.longshou.mcyukkuri.motor.action.Grab;
 import io.github.longshou.mcyukkuri.motor.action.Release;
-import io.github.longshou.mcyukkuri.motor.action.Walk;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.List;
 import java.util.function.Supplier;
@@ -21,18 +20,25 @@ import java.util.function.Supplier;
  * Every own young still riding the afloat hull is brought ashore, one after another ( ashore after a ferry or a rescue):
  * <ul>
  *   <li>a capable young leaves by itself (its own {@code follow_ashore} hop);</li>
- *   <li>a young that cannot comes to the brim on her side (its own crawl, asked off by this host intent), is taken over the rim
- *       with the shared braid from the bank, and is set down there, then the next one.</li>
+ *   <li>a hull lying beyond the braid's reach from the bank is drawn in to the bank edge she stands at with the bank beckon
+ *       ({@code Beckon}): a hull out on the water can lie outside the braid while its riders are asked off only from the shore she
+ *       stands on;</li>
+ *   <li>her asking the hull off ({@link #unloads()}) is what makes each young walk to the brim on her side, so she waits one window
+ *       for the nearest to come within reach, takes it over the rim and sets it down on the bank, then the next one.</li>
  * </ul>
- * Nothing is retried unchanged: a young that does not come within this intent's own clock ends it, and the drive asks again once
- * the hull or its brood changed.
+ * Nothing is retried unchanged: one stroke per run, and one window for a young to come to her; a run that brings none in ends, and
+ * the drive asks again once the hull or its brood changed.
  */
 final class UnloadYoung implements HostIntent {
-    /** The whole unloading, and the longest wait for one young to come to the brim (ticks). */
-    private static final int DEADLINE = 2400, WAIT = 300;
+    /** The whole unloading (ticks); the one window at the rim; how often a reason is said again. */
+    private static final int DEADLINE = 2400, COME = 400, SAY = 300;
 
     private final YukkuriEntity owner;
     private final PlacedHatEntity hat;
+    /** The one bank stroke of this run: a hull it did not bring into reach ends the run instead of paying strokes over and over. */
+    private final Ferry.Beckoning beckoning = new Ferry.Beckoning();
+    /** The one window of this run spent waiting for an asked-off young to come to the rim. */
+    private boolean waited;
     private final long started;
 
     UnloadYoung(YukkuriEntity owner, PlacedHatEntity hat) {
@@ -52,27 +58,46 @@ final class UnloadYoung implements HostIntent {
         if (!AquaticLife.afloat(hat)) return null;
         var held = AquaticLife.carried(owner);
         if (held != null) return List.of(() -> new Step.Sub(Ashore.carry(owner, new Release(held))));
-        final var child = next();
-        if (child == null) return null;
-        if (ContactGeometry.reachesFrom(owner, owner.position(), child)) return List.of(() -> new Step.Do(grab(child)));
-        var edge = Waters.beside(hat, owner);
-        var stand = edge == null ? null : Waters.boardingStand(edge, owner);
-        int wait = (int) Math.min(WAIT, Math.max(1, deadline() - owner.level().getGameTime()));
-        GameplayLog.limited(owner, "aquatic", "unload.wait", WAIT, "unload waiting child={} stand={} at={}",
-                child.getUUID(), GameplayLog.at(stand), GameplayLog.at(child.position()));
-        return List.of(() -> stand == null || SurfaceApproach.arrived(owner, stand) ? null : new Step.Do(new Walk(stand)),
-                () -> new Step.Wait(() -> !child.isAlive() || !AquaticLife.aboard(child, hat)
-                        || ContactGeometry.reachesFrom(owner, owner.position(), child), wait, Behaviors.BOAT_CALL),
-                () -> ContactGeometry.reachesFrom(owner, owner.position(), child) ? new Step.Do(grab(child)) : null);
+        var child = reached();
+        if (child != null) return List.of(() -> new Step.Do(grab(child)));
+        final var next = AquaticGoal.youngAboard(owner, hat);
+        if (next == null) return null;
+        if (!AquaticLife.ashore(owner) || AquaticLife.aboard(owner, hat)) return noWay(next, "not_on_the_bank");
+        var edge = Waters.bankEdge(owner, hat);
+        if (edge == null) return noWay(next, "no_bank_edge");
+        var approach = Ashore.bankApproach(owner, hat, edge);
+        if (!approach.isEmpty()) return approach;
+        // Facing it, from the bank: the stroke is admitted on this same reach and water test.
+        Step stroke = beckoning.step(owner, hat);
+        if (stroke != null) return List.of(() -> stroke);
+        if (waited) return noWay(next, "no_young_at_rim");
+        waited = true;
+        int window = (int) Math.max(1, Math.min(COME, deadline() - owner.level().getGameTime()));
+        GameplayLog.limited(owner, "aquatic", "unload.wait", SAY, "unload waiting child={} hat={} distance={} asked={} step={}",
+                next.getUUID(), hat.getUUID(), Math.round(hat.distanceTo(owner) * 10) / 10.0, hat.unloadRequested(),
+                next.motor().current() == null ? "idle" : next.motor().current().id());
+        return List.of(() -> new Step.Wait(() -> !next.isAlive() || !AquaticLife.aboard(next, hat) || reached() != null,
+                window, Behaviors.BOAT_CALL));
     }
 
-    /** The young to take now: one the mouth or the braid already reaches, else the nearest still aboard. */
-    private YukkuriEntity next() {
-        var nearest = AquaticGoal.youngAboard(owner, hat);
+    /** One of her young aboard the hull the mouth or the braid already reaches, or null. */
+    private YukkuriEntity reached() {
         for (var y : AquaticLife.young(owner))
             if (y.getVehicle() == hat && ContactGeometry.reachesFrom(owner, owner.position(), y)) return y;
-        return nearest;
+        return null;
+    }
+
+    private List<Supplier<Step>> noWay(YukkuriEntity child, String reason) {
+        GameplayLog.limited(owner, "aquatic", "unload.no_way", SAY, "unload no way child={} reason={} hat={} at={} distance={} asked={}",
+                child.getUUID(), reason, hat.getUUID(), GameplayLog.at(hat.position()),
+                Math.round(hat.distanceTo(owner) * 10) / 10.0, hat.unloadRequested());
+        return null;
     }
 
     private Action grab(YukkuriEntity child) { return new Grab(child, hat); }
+
+    @Override public void ended(IntentRunner.Result result) {
+        var held = AquaticLife.carried(owner);
+        if (result != IntentRunner.Result.DONE && held != null) owner.family().carry().finish(held, "unload_young_ended");
+    }
 }

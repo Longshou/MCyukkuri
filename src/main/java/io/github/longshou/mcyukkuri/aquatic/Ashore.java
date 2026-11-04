@@ -176,13 +176,8 @@ final class Ashore implements Intent {
             if (!AquaticLife.onWater(hat)) return beached(hat, close, after);
             return reclaim() ? null : List.of(() -> waiting(hat, null));
         }
-        var stand = edge.stand(owner.getBbWidth());
-        if (owner.position().multiply(1, 0, 1).distanceTo(stand.multiply(1, 0, 1)) >= .25)
-            return List.of(() -> new Step.Do(Walk.stand(stand, 1)));
-        float yaw = SurfaceApproach.yaw(owner.position(), hat.position());
-        // The same facing Face completes on, so a turn it already made is never issued again.
-        if (Math.abs(Mth.wrapDegrees(yaw - owner.yBodyRot)) > Face.FACE_ARRIVED)
-            return List.of(() -> new Step.Do(new Face(yaw)));
+        var approach = bankApproach(owner, hat, edge);
+        if (!approach.isEmpty()) return approach;
         if (ContactGeometry.reachesHull(owner, hat, true, false) || !AquaticLife.onWater(hat)) {
             var closing = new ArrayList<Supplier<Step>>();
             closing.add(() -> new Step.Do(close.get()));
@@ -196,6 +191,19 @@ final class Ashore implements Intent {
         if (stroke != null) return List.of(() -> stroke);
         if (!reclaim()) return List.of(() -> waiting(hat, edge));
         return owner.childhood().canSail() ? swim() : null;
+    }
+
+    /** The steps onto the bank edge nearest the hat and turned to it: walk there, then turn ({@code Face}, which completes on the body
+     *  yaw, so a turn already made is never issued again). Empty when she stands there already turned, which is what a bank reach or a
+     *  stroke is read from. */
+    static List<Supplier<Step>> bankApproach(YukkuriEntity owner, PlacedHatEntity hat, Waters.Edge edge) {
+        var stand = edge.stand(owner.getBbWidth());
+        if (owner.position().multiply(1, 0, 1).distanceTo(stand.multiply(1, 0, 1)) >= .25)
+            return List.of(() -> new Step.Do(Walk.stand(stand, 1)));
+        float yaw = SurfaceApproach.yaw(owner.position(), hat.position());
+        if (Math.abs(Mth.wrapDegrees(yaw - owner.yBodyRot)) > Face.FACE_ARRIVED)
+            return List.of(() -> new Step.Do(new Face(yaw)));
+        return List.of();
     }
 
     /** Waiting for a hat out of the braid's reach to drift in, said once with its real reason and the calling clip. */
