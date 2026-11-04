@@ -13,6 +13,7 @@ import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.motor.Feasibility;
 import io.github.longshou.mcyukkuri.motor.Reason;
 import io.github.longshou.mcyukkuri.motor.action.Face;
+import io.github.longshou.mcyukkuri.motor.action.Hop;
 import io.github.longshou.mcyukkuri.motor.action.Release;
 import io.github.longshou.mcyukkuri.motor.action.Right;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
@@ -69,7 +70,8 @@ final class Rescue implements Intent {
     private List<Supplier<Step>> derive() {
         var hat = AquaticLife.hat(helper);
         if (faller.getVehicle() == helper) return AquaticLife.ashore(helper) ? List.of(() -> new Step.Do(shoreRelease))
-                : List.of(() -> new Step.Do(new Release(faller, hat)));
+                : List.of(() -> hat.settled(helper) || hat.places(faller, 1).isEmpty() ? null : new Step.Do(new Hop(hat)),
+                        () -> new Step.Do(new Release(faller, hat)));
         if (!AquaticLife.aboard(helper, hat)) {
             // An upside-down hull is righted first, then she boards and lifts from it.
             if (hat != null && hat.upsideDown()) return List.of(() -> new Step.Do(new Right(hat, "rescue")));

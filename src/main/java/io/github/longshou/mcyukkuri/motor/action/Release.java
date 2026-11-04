@@ -4,6 +4,8 @@ import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.ParentCarry;
 import io.github.longshou.mcyukkuri.family.BraidFetch;
 import io.github.longshou.mcyukkuri.family.ParentCarry.Hold;
+import io.github.longshou.mcyukkuri.headwear.HatGeometry;
+import io.github.longshou.mcyukkuri.headwear.HullBounds;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.motor.ContactGeometry;
 import io.github.longshou.mcyukkuri.motor.Action;
@@ -18,11 +20,14 @@ import io.github.longshou.mcyukkuri.motor.Reason;
 import io.github.longshou.mcyukkuri.motor.Running;
 import io.github.longshou.mcyukkuri.motor.TravelMode;
 import io.github.longshou.mcyukkuri.motor.geom.CarryGeometry;
+import io.github.longshou.mcyukkuri.motor.geom.BodyFootprint;
+import io.github.longshou.mcyukkuri.motor.geom.Disc;
 import io.github.longshou.mcyukkuri.motor.geom.FloorShape;
 import io.github.longshou.mcyukkuri.motor.geom.Vec;
 import io.github.longshou.mcyukkuri.motor.surface.SurfaceHost;
 import io.github.longshou.mcyukkuri.motor.surface.SeatTarget;
 import io.github.longshou.mcyukkuri.motor.surface.BedContainer;
+import io.github.longshou.mcyukkuri.motor.surface.Floor;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -69,7 +74,9 @@ public final class Release implements Action {
 
     @Override public String id() { return ID; }
     @Override public SurfaceHost host() { return destination; }
-    @Override public String startDetail() { return "child=" + child.getUUID(); }
+    @Override public String startDetail() {
+        return "child=" + child.getUUID() + (seat == null ? "" : " place=" + seat.kind() + " local=" + seat.local() + " facing=" + facing);
+    }
 
     /** The body being set down. */
     public YukkuriEntity child() { return child; }
@@ -87,21 +94,52 @@ public final class Release implements Action {
                     places.stream().filter(p -> p.kind() == SeatTarget.Kind.HEAD).count(),
                     places.stream().filter(p -> p.kind() == SeatTarget.Kind.BRIM).count());
             if (places.isEmpty()) return Feasibility.of(Reason.NO_ROOM, 0, "no_seat");
-            seat = nearest(carrier, places);
+            seat = nearest(carrier, places, facings(carrier));
             return seat != null ? Feasibility.pass() : Feasibility.of(Reason.NO_SUPPORT, 0, "transfer_blocked");
         }
         return plan(carrier, false);
     }
 
-    private SeatTarget nearest(YukkuriEntity carrier, List<SeatTarget> places) {
-        return places.stream()
-                .filter(target -> target.unavailable(child) == null)
-                .filter(target -> {
-                    var grip = target.world().add(0, ParentCarry.GRIP_Y * child.growthScale() * child.getScale() / 16, 0);
-                    return ParentCarry.transferGap(carrier, grip) <= 0;
-                }).sorted(Comparator.comparing(SeatTarget::kind)
-                        .thenComparingDouble(target -> target.world().distanceToSqr(child.position())))
-                .filter(target -> ParentCarry.transferClear(carrier, child, target)).findFirst().orElse(null);
+    private List<Float> facings(YukkuriEntity carrier) {
+        var facings = new ArrayList<Float>();
+        facings.add(carrier.bodyYaw());
+        if (carrier.getVehicle() == destination.entity()) {
+            var spot = destination.riders().spot(carrier.getUUID());
+            for (int direction : new int[]{1, -1}) for (int angle = 5; angle <= 180; angle += 5) {
+                float yaw = spot.yaw() + direction * angle;
+                if (Floor.turnHeight(destination, carrier, spot.local(), spot.yaw(), yaw).isEmpty()) break;
+                facings.add(carrier.bodyYaw() + direction * angle);
+            }
+        }
+        facings.sort(Comparator.comparingDouble(yaw -> Math.abs(Mth.wrapDegrees(yaw - carrier.bodyYaw()))));
+        return facings;
+    }
+
+    private SeatTarget nearest(YukkuriEntity carrier, List<SeatTarget> places, List<Float> facings) {
+        for (var target : places.stream().sorted(Comparator.comparing(SeatTarget::kind)
+                .thenComparingDouble(p -> p.world().distanceToSqr(child.position()))).toList()) {
+            if (target.unavailable(child) != null) continue;
+            var grip = target.world().add(0, ParentCarry.GRIP_Y * child.growthScale() * child.getScale() / 16, 0);
+            for (float yaw : facings) if (ParentCarry.transferGap(carrier, grip, yaw) <= 0
+                    && keepsPlace(carrier, target, yaw)
+                    && ParentCarry.transferClear(carrier, child, target, yaw)) {
+                facing = yaw;
+                return target;
+            }
+        }
+        return null;
+    }
+
+    private boolean keepsPlace(YukkuriEntity carrier, SeatTarget target, float yaw) {
+        if (target.kind() != SeatTarget.Kind.CABIN || carrier.getVehicle() != destination.entity()) return true;
+        var frame = destination.frame();
+        var at = frame.toLocal(carrier.position());
+        var body = BodyFootprint.envelope(carrier.assetId(), carrier.getBbWidth() / frame.unit(),
+                carrier.getBbHeight() / frame.unit(), Math.toRadians(yaw - destination.entity().getYRot()));
+        double scale = child.growthScale() * child.getScale() / 16 / frame.unit();
+        double bottom = target.local().y + HatGeometry.anchor().y * scale;
+        var hat = new Disc(target.local().x, target.local().z, ParentCarry.headwearRadius(child) / frame.unit(), bottom, bottom + .3 * scale);
+        return !body.overlaps(at.x, at.y, at.z, hat, .3 / HullBounds.SCALE);
     }
 
     /** One endpoint/stand planner for cushions and nearby ground; execution uses the same room and turn tests. */
@@ -217,6 +255,9 @@ public final class Release implements Action {
             GameplayLog.event(carrier, "family", "carry release approaching child={} cushion={} yaw={}", child.getUUID(), ParentCarry.nestDestination(carrier, child), facing);
         }
         else if (destination == null) { turn = new Face(facing); turn.start(carrier); }
+        else if (Math.abs(Mth.wrapDegrees(facing - carrier.bodyYaw())) > Face.FACE_ARRIVED) {
+            turn = new Face(facing); turn.start(carrier);
+        }
         else {
             previousLocal = destination.frame().toLocal(child.position());
             ParentCarry.lower(carrier, child, seat);
@@ -226,7 +267,7 @@ public final class Release implements Action {
     @Override public Progress tick(YukkuriEntity carrier) {
         if (child.getVehicle() != carrier) return destination == null ? new Outcome.Done("already_free")
                 : Outcome.of(Reason.DROPPED, 0, "already_free");
-        if (destination != null) {
+        if (destination != null && turn == null) {
             if (destination.entity().isRemoved()) return Outcome.of(Reason.TARGET_GONE, 0, "host_removed");
             if (destination.capsized()) return new Outcome.Interrupted("host_capsized");
             var local = destination.frame().toLocal(child.position());
@@ -236,7 +277,7 @@ public final class Release implements Action {
             if (unavailable != null) {
                 var places = destination.places(child, Integer.MAX_VALUE);
                 if (places.isEmpty()) return Outcome.of(Reason.NO_ROOM, 0, "no_seat check=" + unavailable);
-                var replacement = nearest(carrier, places);
+                var replacement = nearest(carrier, places, List.of(carrier.bodyYaw()));
                 if (replacement == null) return Outcome.of(Reason.NO_SUPPORT, 0, "transfer_blocked check=" + unavailable);
                 GameplayLog.limited(carrier, "family", "lowering.target." + child.getUUID() + "." + unavailable, 200,
                         "carry lowering target moved child={} from={} to={} reason={}",
@@ -257,11 +298,19 @@ public final class Release implements Action {
             turn.start(carrier);
         }
         if (turn != null) {
-            if (turn.tick(carrier) instanceof Running running) return progress(running, 1);
-            var room = room(carrier, carrier.position(), carrier.bodyYaw(), ParentCarry.letGoPoint(carrier, child));
-            if (!room.ok()) return outsideAfter(carrier, Outcome.of(room.reason(), room.shortfall(), room.detail()));
+            var turned = turn.tick(carrier);
+            if (turned instanceof Running running) return progress(running, 1);
+            if (destination == null) {
+                var room = room(carrier, carrier.position(), carrier.bodyYaw(), ParentCarry.letGoPoint(carrier, child));
+                if (!room.ok()) return outsideAfter(carrier, Outcome.of(room.reason(), room.shortfall(), room.detail()));
+            } else {
+                if (turned instanceof Outcome failed && failed.reason() != null) return failed;
+                String unavailable = seat.unavailable(child);
+                if (unavailable != null) return Outcome.of(Reason.NO_ROOM, 0, "place_lost_after_turn " + unavailable);
+                previousLocal = destination.frame().toLocal(child.position());
+            }
             turn = null;
-            ParentCarry.lower(carrier, child);
+            ParentCarry.lower(carrier, child, seat);
         }
         float down = ParentCarry.lowering(carrier, child, 0);
         var at = ParentCarry.letGoPoint(carrier, child);

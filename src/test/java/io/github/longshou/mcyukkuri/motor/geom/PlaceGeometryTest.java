@@ -40,6 +40,14 @@ class PlaceGeometryTest {
                 && tiny.stream().anyMatch(c -> fits(c, List.of(a, b))))), "three .10 babies");
         assertTrue(places(.20).isEmpty(), ".20 hat intersects captain or wall");
     }
+    @Test void aRescueTurnCanConsumeAnOtherwiseFreeCabinPlace() {
+        double bottom = -2.76426 + 10.3774 * .16 / HullBounds.SCALE;
+        var child = new Disc(1.10473, -5.26741, 14.18 * .16 / HullBounds.SCALE, bottom, bottom + .3 * .16 / HullBounds.SCALE);
+        var home = HullBounds.HOME.scale(1 / UNIT);
+        assertTrue(fits(child, List.of()));
+        var turned = BodyFootprint.envelope("marisa", .8 / UNIT, .6 / UNIT, Math.toRadians(-60));
+        assertTrue(turned.overlaps(home.x(), home.y(), home.z(), child, .3 / HullBounds.SCALE));
+    }
     @Test void headCapSupportsYoungAcrossJoinedCellsButNeverAcrossItsEdge() {
         var head = GeometryJson.read("yukkuri_presentation/hat_interactions.json").field("variants.marisa.head").getAsJsonObject();
         var supports = new ArrayList<double[]>();

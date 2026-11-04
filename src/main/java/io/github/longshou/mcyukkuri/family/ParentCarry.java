@@ -1502,8 +1502,11 @@ public final class ParentCarry {
     public static String lowerClip(YukkuriView carrier, YukkuriView child) { return entry(carrier, child.getUUID()).getString("LC"); }
 
     private static Vec3 transferPoint(YukkuriView carrier, YukkuriView child, CompoundTag e, Vec3 destination, double tick, float partial) {
+        return transferPoint(carrier, child, e, destination, tick, partial, yaw(carrier, partial));
+    }
+    private static Vec3 transferPoint(YukkuriView carrier, YukkuriView child, CompoundTag e, Vec3 destination, double tick, float partial, float facing) {
         var from = new Vec(e.getFloat("LX"), e.getFloat("LY"), e.getFloat("LZ"));
-        var to = vector(modelAt(carrier, yaw(carrier, partial), destination));
+        var to = vector(modelAt(carrier, facing, destination));
         var root = ContactGeometry.braidRootModel(e.getBoolean("L"));
         double height = Math.max(from.y(), to.y() + child.getBbHeight() * 16 / size(carrier));
         String clip = e.getString("LC");
@@ -1511,9 +1514,9 @@ public final class ParentCarry {
         var at = CarryGeometry.transfer(from, to, new Vec(root.x, root.y, root.z), CarryGeometry.BODY_LOW, CarryGeometry.BODY_HIGH,
                 headwearRadius(child) * 16 / size(carrier) + .3, height, tick,
                 BraidFetch.marker(clip, "lift_end") - start, BraidFetch.marker(clip, "over_end") - start, BraidFetch.marker(clip, "place") - start);
-        return world(carrier, partial, new Vector3f((float) at.x(), (float) at.y(), (float) at.z()), yaw(carrier, partial));
+        return world(carrier, partial, new Vector3f((float) at.x(), (float) at.y(), (float) at.z()), facing);
     }
-    public static boolean transferClear(YukkuriEntity carrier, YukkuriEntity child, SeatTarget target) {
+    public static boolean transferClear(YukkuriEntity carrier, YukkuriEntity child, SeatTarget target, float facing) {
         var e = new CompoundTag();
         var from = modelAt(carrier, carrier.bodyYaw(), child.position());
         e.putFloat("LX", from.x); e.putFloat("LY", from.y); e.putFloat("LZ", from.z);
@@ -1523,20 +1526,20 @@ public final class ParentCarry {
         int ticks = BraidFetch.marker(clip, "place") - BraidFetch.marker(clip, "lift_start");
         var previous = child.position();
         for (int tick = 0; tick <= ticks; tick++) {
-            var at = transferPoint(carrier, child, e, target.world(), tick, 1);
+            var at = transferPoint(carrier, child, e, target.world(), tick, 1, facing);
             var box = child.getDimensions(child.getPose()).makeBoundingBox(at);
             var grip = at.add(0, GRIP_Y * size(child) / 16, 0);
-            if (!CarryGeometry.clearsBody(vector(modelAt(carrier, carrier.bodyYaw(), at)), child.getBbWidth() * 8 / size(carrier),
+            if (!CarryGeometry.clearsBody(vector(modelAt(carrier, facing, at)), child.getBbWidth() * 8 / size(carrier),
                     child.getBbHeight() * 16 / size(carrier))
                     || child.level().getBlockCollisions(child, box.expandTowards(previous.subtract(at))).iterator().hasNext()
-                    || transferGap(carrier, grip) > 0) return false;
+                    || transferGap(carrier, grip, facing) > 0) return false;
             previous = at;
         }
         return true;
     }
     /** The actual braid-side roots at this yaw, without turning a hypothetical root toward the destination. */
-    public static double transferGap(YukkuriEntity carrier, Vec3 grip) {
-        var point = modelAt(carrier, carrier.bodyYaw(), grip);
+    public static double transferGap(YukkuriEntity carrier, Vec3 grip, float facing) {
+        var point = modelAt(carrier, facing, grip);
         var at = new Vec3(point.x, point.y, point.z);
         return (Math.min(at.distanceTo(ContactGeometry.braidRootModel(false)), at.distanceTo(ContactGeometry.braidRootModel(true)))
                 - ContactGeometry.braidLength()) * size(carrier) / 16;

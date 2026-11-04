@@ -77,7 +77,7 @@ public final class Climb implements Action {
     }
 
     @Override public MotionPose pose() { return seating == null ? new MotionPose(CLIP, startTick, false) : seating.pose(); }
-    @Override public boolean interruptible() { return seating == null || seating.interruptible(); }
+    @Override public boolean interruptible() { return t < pullStart; }
 
     @Override public void start(YukkuriEntity body) {
         startTick = body.level().getGameTime();

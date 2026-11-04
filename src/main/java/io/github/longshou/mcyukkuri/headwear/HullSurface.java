@@ -58,8 +58,8 @@ public final class HullSurface implements HatSurface {
         if (captain != null) {
             var at = captain.getVehicle() == hat ? Floor.vec(hat.riders().local(captain.getUUID())) : HullBounds.HOME.scale(1 / HullBounds.UNIT);
             float yaw = captain.getVehicle() == hat ? hat.riders().yaw(captain.getUUID()) : 0;
-            for (int turn : new int[]{-15, 0, 15}) envelope.add(new FloorSearch.Placed(BodyFootprint.envelope(captain.assetId(),
-                    captain.getBbWidth() / hat.unit(), captain.getBbHeight() / hat.unit(), Math.toRadians(yaw + turn)), at));
+            for (float turn : new float[]{-15, 0, 15, yaw}) envelope.add(new FloorSearch.Placed(BodyFootprint.envelope(captain.assetId(),
+                    captain.getBbWidth() / hat.unit(), captain.getBbHeight() / hat.unit(), Math.toRadians(turn)), at));
         }
         var others = hat.getPassengers().stream().filter(p -> p != body && p != captain).map(p -> (YukkuriEntity) p)
                 .map(p -> hatDisc(hat, p, hat.riders().local(p.getUUID()))).toList();
