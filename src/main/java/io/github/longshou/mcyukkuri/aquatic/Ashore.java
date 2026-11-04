@@ -112,20 +112,16 @@ final class Ashore implements Intent {
         var dependent = dependentAboard(hat);
         String carryProblem = dependent == null ? null : ParentCarry.capacityProblem(owner, dependent);
         if (AquaticLife.aboard(owner, hat)) {
-            if (held == null && dependent == null) {
-                var first = AquaticLife.young(owner).stream().filter(y -> AquaticLife.aboard(y, hat)).findFirst().orElse(null);
-                if (first != null) return Ferry.hopAshore(first).get() == null ? paddle(hat, first)
-                        : List.of(() -> new Step.Wait(() -> !youngAboard(hat), WAIT, Behaviors.BOAT_CALL));
-            }
             var hop = Ferry.hopAshore(owner).get();
-            if (held != null) return hop != null ? List.of(() -> hop) : paddle(hat, owner);
+            if (held != null) return hop != null ? List.of(() -> hop) : paddle(hat);
             if (hop != null) {
                 if (dependent != null && carryProblem == null) return Ferry.grabAboard(owner, hat, dependent);
+                if (dependent == null && youngAboard(hat)) return List.of(() -> new Step.Wait(() -> !youngAboard(hat), WAIT, Behaviors.BOAT_CALL));
                 if (carryProblem != null) GameplayLog.limited(owner, "aquatic", "land.carry", WAIT,
                         "land without dependent child={} reason={}", dependent.getUUID(), carryProblem);
                 return List.of(() -> hop);
             }
-            return paddle(hat, owner);
+            return paddle(hat);
         }
         if (!AquaticLife.ashore(owner)) return null;
         if (held != null) return List.of(() -> new Step.Do(purpose == Purpose.CARRY ? carryRelease : new Release(held)));
@@ -144,20 +140,19 @@ final class Ashore implements Intent {
     }
 
     /** Aboard and no bank in hop reach: paddle the next leg toward a landing over calm water. */
-    private List<Supplier<Step>> paddle(PlacedHatEntity hat, YukkuriEntity departing) {
+    private List<Supplier<Step>> paddle(PlacedHatEntity hat) {
         if (landing == null && tried.size() >= LANDINGS) return null;
         if (landing == null) landing = Waters.landing(hat, owner, tried);
         var route = landing == null ? List.<Vec3>of() : Waters.route(hat, landing.water());
         Waters.log(hat, owner, landing == null ? null : landing.water(), route, id());
         if (route.isEmpty()) { landing = null; return null; }
         var edge = landing;
-        if (route.size() > 1) return List.of(() -> new Step.Do(new Paddle(() -> Waters.leg(route),
-                distance -> Waters.docked(hat, departing) || distance <= ARRIVE)));
+        if (route.size() > 1) return List.of(() -> new Step.Do(new Paddle(Waters.leg(route), ARRIVE)));
         // at the landing water: paddle in against the bank, once; no hop in reach even then, and the next derive takes another
-        if (!tried.add(edge.stand())) { landing = null; return paddle(hat, departing); }
-        var dock = Waters.dock(hat, departing, edge);
-        if (dock == null) { landing = null; return paddle(hat, departing); }
-        return List.of(() -> new Step.Do(new Paddle(() -> dock, distance -> Waters.docked(hat, departing))));
+        if (!tried.add(edge.stand())) { landing = null; return paddle(hat); }
+        var dock = edge.out(HullAfloat.brimToward(hat, edge.edge()));
+        return List.of(() -> new Step.Do(new Paddle(() -> dock,
+                distance -> distance <= ARRIVE && Ferry.hopAshore(owner).get() != null)));
     }
 
     /** From the bank edge nearest the hat: walk there, face the hat, then the closing action ({@code close}, then {@code after}).

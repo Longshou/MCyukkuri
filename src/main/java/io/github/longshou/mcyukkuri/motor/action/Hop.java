@@ -94,14 +94,24 @@ public final class Hop implements Action {
     /** Whether the body's own ability makes one collision-clear hop from a planned stand to {@code target}, judged by the same
      *  arc the takeoff judges. */
     public static boolean reaches(YukkuriEntity body, Vec3 from, Vec3 target) {
+        if (!ground(body, target)) return false;
         if (body.getVehicle() instanceof SurfaceHost host)
             from = host.frameAfter(takeoffTicks() - 1).toWorld(host.frame().toLocal(from));
         return new Hop(target).arc(body, vec(from), null, hosts(body, from, target), vec(target), 0) instanceof ArcSolver.Plan;
     }
 
-    /** Nearest full-sole landing on a bank face, shared by docking and the eventual hop. */
-    public static Vec3 bankStand(YukkuriEntity body, Vec3 edge, Vec3 normal, Vec3 from) {
-        return Floor.point(BankStand.nearest(vec(edge), vec(normal), SurfaceApproach.supportRadius(body), vec(from)));
+    /** Nearest centre supported by the bank; the arc and vanilla contact still check the whole collision box. */
+    public static Vec3 bankStand(Vec3 edge, Vec3 normal, Vec3 from) {
+        return Floor.point(BankStand.nearest(vec(edge), vec(normal), vec(from)));
+    }
+
+    /** World blocks carry a landing when their collision top supports the centre, without a full-sole inset. */
+    public static boolean ground(YukkuriEntity body, Vec3 feet) {
+        var probe = body.getBoundingBox().move(feet.subtract(body.position())).move(0, -TOUCH, 0);
+        for (var shape : body.level().getBlockCollisions(body, probe)) for (var box : shape.toAabbs())
+            if (box.minX <= feet.x && feet.x < box.maxX && box.minZ <= feet.z && feet.z < box.maxZ
+                    && Math.abs(box.maxY - feet.y) <= TOUCH) return true;
+        return false;
     }
 
     /** Compare local horizontal points before applying a host's tilt to the bearing. */
@@ -169,6 +179,8 @@ public final class Hop implements Action {
     private Flight solve(YukkuriEntity body, int delay) {
         SeatTarget candidate = null;
         Vec3 to = target;
+        if (seatHost == null && !ground(body, to))
+            return new Flight(Feasibility.of(Reason.NO_SUPPORT, 0, "ground_centre"), null, null);
         if (seatHost != null) {
             if (seatHost.entity().isRemoved()) return new Flight(Feasibility.of(Reason.TARGET_GONE, 0, "host_gone"), null, null);
             candidate = target == null ? seatHost.restEntry(body) : new SeatTarget(seatHost, target);
@@ -249,6 +261,7 @@ public final class Hop implements Action {
 
     /** Admit the bank leg after the host's drift, each landing beat and the supported turn, not at the old brim point. */
     private boolean exitClear(YukkuriEntity body, SurfaceHost host, int delay) {
+        if (!ground(body, bank)) { obstruction = "ground_centre"; return false; }
         var local = host.riders().local(body.getUUID());
         float yaw = body.yBodyRot;
         var swept = hosts(body, body.position(), bank);
@@ -405,7 +418,10 @@ public final class Hop implements Action {
                 startTick = body.level().getGameTime();
                 return new Running(takeoff, TravelMode.CONSUMED, true);
             }
-            if (seatHost == null || target != null || brimOnly) return new Outcome.Done("at=" + GameplayLog.at(body.position()));
+            if (seatHost == null) return ground(body, body.position())
+                    ? new Outcome.Done("at=" + GameplayLog.at(body.position()) + " centre_support=true")
+                    : Outcome.of(Reason.NO_SUPPORT, 0, "ground_centre_lost");
+            if (target != null || brimOnly) return new Outcome.Done("at=" + GameplayLog.at(body.position()));
             return seatFromEntry(body);
         }
         if (!aboard) { aboard = true; path = null; leg = 0; }

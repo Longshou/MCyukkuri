@@ -301,34 +301,6 @@ final class Waters {
 
     record Exit(Vec3 brim, Vec3 bank) {}
 
-    /** Bring this rider's nearest brim point within its own hop reach of the full-sole bank stand. */
-    static Vec3 dock(PlacedHatEntity hat, YukkuriEntity body, Edge edge) {
-        var local = hat.hopStops(body).stream()
-                .min(Comparator.comparingDouble(p -> hat.toWorld(p).distanceToSqr(edge.edge()))).orElseThrow();
-        var brim = hat.toWorld(local);
-        var bank = Hop.bankStand(body, edge.edge(), edge.normal(), brim);
-        var gap = brim.subtract(bank).multiply(1, 0, 1);
-        double reach = BodyAbility.of(body).hopReach();
-        var contact = hat.position().add(gap.normalize().scale(reach).subtract(gap));
-        boolean floats = HullAfloat.floats(body.level(), contact, hat.hullScale());
-        GameplayLog.limited(body, "aquatic", "dock." + (floats ? "target" : "shallow"), 200,
-                "dock {} hat={} brim={} bank={} distance={} reach={} contact={} reason={}",
-                floats ? "target" : "refused", hat.getUUID(), GameplayLog.at(brim), GameplayLog.at(bank),
-                gap.length(), reach, GameplayLog.at(contact), floats ? "hop_reach" : "shallow_water");
-        // Aim through the reachable interval; Paddle's near-target tolerance must not stop short of the first valid hop.
-        return floats ? hat.position().subtract(gap) : null;
-    }
-
-    /** Only the complete, currently supported brim-to-bank hop admits docking. */
-    static boolean docked(PlacedHatEntity hat, YukkuriEntity body) {
-        var exit = brimAshore(hat, body);
-        if (exit == null) return false;
-        GameplayLog.event(body, "aquatic", "dock arrived hat={} brim={} bank={} distance={} reach={}",
-                hat.getUUID(), GameplayLog.at(hat.toWorld(exit.brim())), GameplayLog.at(exit.bank()),
-                hat.toWorld(exit.brim()).subtract(exit.bank()).horizontalDistance(), BodyAbility.of(body).hopReach());
-        return true;
-    }
-
     /** The local brim spot of {@code hat} and dry stand one hop away for {@code body}, or null: the ring spot nearest
      *  the bank first, then the ones beside it, so a hull whose brim reaches over the bank still has a way off. */
     static Exit brimAshore(PlacedHatEntity hat, YukkuriEntity body) {
@@ -373,9 +345,9 @@ final class Waters {
         var own = body.getVehicle() instanceof PlacedHatEntity hat && hat.owner() == body ? hat : null;
         int asked = 0;
         for (var e : edges(body, from, 2, false)) {
-            var at = Hop.bankStand(body, e.edge(), e.normal(), from);
+            var at = Hop.bankStand(e.edge(), e.normal(), from);
             if (asked++ >= ASKED) break;
-            String refusal = !SurfaceApproach.stands(body, at) ? "no_support" : hatOver(body, at, 0) ? "other_hat"
+            String refusal = !Hop.ground(body, at) ? "no_support" : hatOver(body, at, 0) ? "other_hat"
                     : own != null && !body.childhood().canSail() && !bankReach(body, e.stand(body.getBbWidth()), own) ? "reclaim_reach"
                     : !reachable.test(at) ? "hop_arc" : null;
             if (refusal == null) return at;

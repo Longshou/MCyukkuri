@@ -20,7 +20,6 @@ import io.github.longshou.mcyukkuri.motor.AttachState;
 import io.github.longshou.mcyukkuri.motor.MotorOwner;
 import io.github.longshou.mcyukkuri.motor.Motor;
 import io.github.longshou.mcyukkuri.motor.BodyAbility;
-import io.github.longshou.mcyukkuri.motor.geom.BankStand;
 import io.github.longshou.mcyukkuri.motor.action.Launch;
 import io.github.longshou.mcyukkuri.motor.action.PlaceProp;
 import io.github.longshou.mcyukkuri.motor.action.TakeProp;
@@ -517,17 +516,11 @@ public final class FamilyLife {
     }
     /** Live labour needs the mother's own dry ground, even when a choreography deadline expires. */
     boolean deliveryGrounded(){return !entity.isPassenger()&&supported()&&!entity.isInWaterOrBubble();}
-    public record ShorePoint(double fraction,double width,double limit){}
-    /** One point on this mother's unborn growth curve, independent of motion, fatigue and delivery shrinkage. */
-    public ShorePoint shorePoint(){
-        double resting=LiveBirthGeometry.bodyDimensions(entity,entity.growthScale(),0).scale(entity.getScale()).width();
-        double limit=BankStand.widthLimit(BodyAbility.resting(entity).hopReach());
-        double fraction=PregnancyCurve.shoreFraction(resting,limit);
-        return new ShorePoint(fraction,resting*PregnancyCurve.widthScale(PregnancyCurve.belly((float)fraction,0,brood().children.size())),limit);
-    }
-    public boolean pastShorePoint(){
+    /** The birth conductor's own preparation lead also starts the shore return. */
+    public static int shoreBirthLead(){return LiveBirth.APPROACH_LEAD;}
+    public boolean shoreBirthDue(){
         var b=brood();
-        return b!=null&&!b.cancelled&&!b.complete()&&b.kind==FamilyData.BirthKind.LIVE&&b.progress()>=shorePoint().fraction();
+        return b!=null&&!b.cancelled&&!b.complete()&&b.kind==FamilyData.BirthKind.LIVE&&b.duration-b.elapsed<=shoreBirthLead();
     }
     /** Pregnancy can advance aboard; labour and birth roles require her own ground support. */
     private boolean gestationReady(){

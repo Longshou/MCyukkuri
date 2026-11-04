@@ -148,9 +148,9 @@ public final class LiveBirthGeometry {
     }
     public static float smooth(float value){float q=Math.clamp(value,0,1);return q*q*(3-2*q);}
     /** Fast at first so a pregnancy shows early (a quarter of the term is already half a belly), then settles to the full term belly. */
-    public static float belly(float progress,int born,int count){return PregnancyCurve.belly(progress,born,count);}
+    public static float belly(float progress,int born,int count){return smooth((float)Math.sqrt(Math.clamp(progress,0f,1f)))*(1-.78f*born/Math.max(1,count));}
     /** Whole-body growth of a full belly; the lower body also fills out, most at the front under the mouth. */
-    public static final float SWELL=PregnancyCurve.SWELL, LOW_WIDE=PregnancyCurve.LOW_WIDE, LOW_DEEP=.06f, LOW_FRONT=.28f;
+    public static final float SWELL=.26f, LOW_WIDE=.16f, LOW_DEEP=.06f, LOW_FRONT=.28f;
     /** Model units, before the entity's scale and yaw. The body grows from the floor and its lower front rounds out
      *  below the mouth (CADあき: the lower body swells); the face and the upper body are moved, not stretched.
      *  Accessories and Marisa's braid do not take this: they ride the swollen head rigidly (YukkuriModel). */
@@ -175,7 +175,7 @@ public final class LiveBirthGeometry {
     }
     public static EntityDimensions bodyDimensions(YukkuriEntity entity,float growth,float belly){
         var size=selectedDimensions(entity.getVariant(),entity.subspeciesFlags());
-        return size.scale(growth*PregnancyCurve.widthScale(belly),growth*(1+SWELL*belly));
+        return size.scale(growth*(1+SWELL*belly)*(1+LOW_WIDE*belly),growth*(1+SWELL*belly));
     }
     /** Her footprint radius (blocks) at this belly: the shared foot rule over her farthest reach, the swollen lower front (deform). */
     public static double footprint(YukkuriEntity mother,float belly){

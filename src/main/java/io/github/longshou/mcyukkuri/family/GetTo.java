@@ -101,7 +101,7 @@ public final class GetTo implements Intent {
             // Probe at the host's own base height: the ground around a set-down host lies there, whatever the brim height is.
             var near = new Vec3(point.x + away.x / reach * (child.getBbWidth() * .5 + .15), origin.y + .1,
                     point.z + away.z / reach * (child.getBbWidth() * .5 + .15));
-            var ground = SurfaceApproach.floor(child, near);
+            var ground = SurfaceApproach.surface(child, near);
             if (ground != null) out.add(ground);
         }
         return out;

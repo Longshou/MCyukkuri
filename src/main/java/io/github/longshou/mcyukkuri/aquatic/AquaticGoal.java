@@ -109,8 +109,8 @@ final class AquaticGoal extends Goal {
     @Override public boolean requiresUpdateEveryTick() { return true; }
     @Override public void start() { drive().urgent(); }
     @Override public void tick() {
-        if (Drive.running(body, DOMAIN) instanceof SetOut && body.family().pastShorePoint()
-                && (body.motor().current() == null || body.motor().current().interruptible())) drive().stop("past_shore_point");
+        if (Drive.running(body, DOMAIN) instanceof SetOut && body.family().shoreBirthDue()
+                && (body.motor().current() == null || body.motor().current().interruptible())) drive().stop("birth_lead");
         if (drive().runner() != null && drive().runner().intent() instanceof PlayAboard play) play.tick();
         if (!body.social().greeting()) drive().tick();
     }
@@ -173,15 +173,14 @@ final class AquaticGoal extends Goal {
         double hunger = Math.max(0, num("hunger_from", 55) - life.nutrition()) * num("hunger_slope", 3);
         double weather = body.level().isThundering() ? num("thunder_need", 60) : rain && life.wetness() >= num("wet_from", 60) ? num("wet_need", 70) : 0;
         double breed = body.family().ready(false) && body.family().partner() != null ? num("breed_need", 35) : 0;
-        // The brood's one shore point also forbids departures after landing, until delivery is complete.
+        // The birth's own lead also forbids departures after landing, until delivery is complete.
         var brood = body.family().brood();
-        boolean birth = body.family().pastShorePoint();
+        boolean birth = body.family().shoreBirthDue();
         double birthWant = birth ? num("birth_ashore_want", 200) : 0;
         if (birth && !brood.id.equals(shoreBrood)) {
             shoreBrood = brood.id;
-            var point = body.family().shorePoint();
-            GameplayLog.event(body, "aquatic", "birth shore return brood={} remaining={} aboard={} fraction={} width={} limit={}",
-                    brood.id, brood.duration - brood.elapsed, aboard, point.fraction(), point.width(), point.limit());
+            GameplayLog.event(body, "aquatic", "birth shore return brood={} remaining={} aboard={} reason=birth_lead lead={}",
+                    brood.id, brood.duration - brood.elapsed, aboard, FamilyLife.shoreBirthLead());
         }
         var young = AquaticLife.young(body);
         // Finish the first meal/toilet care ashore; a crawling child can gather for a braid lift without learning to jump.
@@ -191,7 +190,7 @@ final class AquaticGoal extends Goal {
         boolean nursery = !nursing.isEmpty();
         if (!aboard) {
             if (birth && hat != null) out.add(Desire.of("come_ashore", floor(birthWant), List.of(cell(hat), birth),
-                    () -> "past_shore_point", () -> Ashore.come(body)));
+                    () -> "birth_lead", () -> Ashore.come(body)));
             if (nursery && AquaticLife.ashore(body)) GameplayLog.limited(body, "aquatic", "nursery.ashore", 1200,
                     "set_out held reason=newborn_care children={}", nursing.stream().map(YukkuriEntity::getUUID).toList());
             // A missing stick never keeps her ashore: SetOut takes one lying (or afloat beside the bank) within reach first, and afloat
