@@ -344,6 +344,8 @@ public final class HullAfloat implements PlacedHatBehavior {
     /** Resolve entity contact before the single collision-aware move; only the approaching normal is removed. */
     private Contact contact(Entity other, Contact travel, Vec3 previous) {
         if (other.isSpectator() || other.noPhysics || other.isPassenger() || other.isPassengerOfSameVehicle(hat)) return travel;
+        // A body in the air by its own action (a hop's flight, a thrown body, a climb's hop up) is no obstacle: contact would only
+        // drag the hull out from under a landing the flight planned from where the hull was at take-off.
         if (other instanceof YukkuriEntity y && (Attach.of(y) instanceof AttachState.Airborne || !Floor.standing(y)
                 || y.motor().current() instanceof Climb climb && climb.host() == hat
                 || y.motor().current() instanceof Right right && right.host() == hat)) return travel;

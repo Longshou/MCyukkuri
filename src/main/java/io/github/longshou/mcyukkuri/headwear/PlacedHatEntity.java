@@ -662,11 +662,11 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
         return hat;
     }
     /** Why this Marisa cannot take her hat off and set it down from where she is, or null: held in another body's arms, riding
-     *  something that is not a steady hull (a guest standing on a steady hull may), or in mid-flight. */
+     *  something that is not a steady hull (a guest standing on a steady hull may), or in the air. */
     public static String placerBlock(YukkuriEntity owner) {
         if (owner.getVehicle() instanceof YukkuriEntity) return "held";
         if (owner.isPassenger() && !(owner.getVehicle() instanceof SurfaceHost host && host.steady())) return "unsupported";
-        return Floor.standing(owner) ? null : "moving";
+        return Floor.standing(owner) ? null : "airborne";
     }
     /** The reason and detail of the last placement {@link #setDown} refused, for a caller that must tell its own player why. */
     private static String lastRefusal = "none";

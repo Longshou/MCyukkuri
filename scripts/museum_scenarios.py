@@ -2898,7 +2898,7 @@ pond('first_voyage_brim', '初航·子油从亲帽帽檐放船', '子油初航·
           '[aquatic] first_voyage hat set on water → [action] start id=hop（亲帽帽檐跳进自己的帽，hop_leg 片段）→ [body] mount … cause=hop_contact → '
           '[aquatic] first_voyage hopped onto own hat … aboard=true → [aquatic] route purpose=first_voyage → [action] start id=paddle → [aquatic] first_voyage rounded → '
           '[intent] start id=come_ashore → … → [action] start id=take_prop → [aquatic] first_voyage success … route=brim → [childhood] sailing learned how=first_voyage。'
-          '放帽点在亲船帽檐外 0.05 格，两顶帽子并排漂着，不重叠；亲船静止（速度极小）时才出发。' + _DESIRE_NOTE,
+          '两顶帽子的帽檐相距 0.05 格并排漂着，不重叠；亲船静止（速度极小）时才出发。' + _DESIRE_NOTE,
      reads=[('读子油', f'yukkuri status {sel("c1")} raw'), ('读亲油', f'yukkuri status {sel("a")} raw'), ('读最近的帽子', f'data get entity {_HAT}')],
      smoke=dict(ticks=4800, expect=[r'\[hat\][^\n]* scenario afloat prepared [^\n]*young=1\b',
                                    rf'\[aquatic\][^\n]*uuid={_uuid_text("first_voyage_brim", "c1")}[^\n]* first_voyage start [^\n]*from=parent_hat\b'

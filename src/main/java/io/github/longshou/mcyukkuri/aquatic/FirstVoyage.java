@@ -117,11 +117,14 @@ final class FirstVoyage implements Intent {
             return List.of(Ferry.hopAshore(young));
         }
         var launch = Waters.brimLaunch(young, ride);
-        GameplayLog.event(young, "aquatic", "first_voyage route={} reason=no_bank_in_hop_reach hat={} water={}", launch == null ? "none" : "brim",
-                ride.getUUID(), launch == null ? "none" : launch.edge().water().toShortString());
-        if (launch == null) return null;
+        if (launch == null) {
+            GameplayLog.event(young, "aquatic", "first_voyage route=none reason=no_way_off_parent_hat hat={}", ride.getUUID());
+            return null;
+        }
         route = "brim";
         var edge = launch.edge();
+        GameplayLog.event(young, "aquatic", "first_voyage route=brim reason=no_bank_in_hop_reach hat={} water={}", ride.getUUID(),
+                edge.water().toShortString());
         var steps = new ArrayList<Supplier<Step>>();
         steps.add(() -> Waters.standsAt(ride, young, launch.stop()) ? null : new Step.Do(new Hop(ride, launch.stop())));
         steps.add(() -> new Step.Do(new Face(edge.yaw())));
