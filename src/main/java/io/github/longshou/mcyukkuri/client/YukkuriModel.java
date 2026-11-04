@@ -193,12 +193,17 @@ public final class YukkuriModel {
     /** The authored hold pose the braid takes: seated in a hull it is the stroke's own loop start, so rowing, turning and
      *  sitting share one grip (the paddle neutral). */
     private String heldClip(){return holdingAboard?YukkuriAction.BOAT_PADDLE.id():"braid_item_hold";}
+    /** Her braid keeps the held stack in this clip: she holds one, nothing else poses her braid or the stack, and her body
+     *  has the hold clip (a body without a braid carries the stack at its mouth, as HeldItemPresentation draws it). */
+    private boolean braidKeepsStack(String clip){
+        return holdingItem&&!braidPose.active()&&!clipProps.containsKey(clip)&&clips.containsKey(heldClip());
+    }
     /** How much of the hold overlay her braid takes in this clip at its own time (0..1). A cradled child keeps the braid,
      *  and a clip with its own grip keys poses it itself. A clip whose own braid grips, carries or strokes something
      *  (lore recipe braid_use) keeps it too, the stack stowed in her hat; a one-shot one hands the braid over from the
      *  hold until its braid_busy marker and back to it from its braid_free marker. Every other clip takes the hold. */
     private float braidHoldShare(String clip,float time){
-        if(!holdingItem||braidPose.active()||clipProps.containsKey(clip)||!clips.containsKey(heldClip()))return 0;
+        if(!braidKeepsStack(clip))return 0;
         if(!braidUse.contains(clip))return 1;
         var markers=clipMarkers.getOrDefault(clip,Map.of());Float busy=markers.get("braid_busy"),free=markers.get("braid_free");
         float duration=clips.get(clip).duration;
@@ -935,7 +940,7 @@ public final class YukkuriModel {
         if(hatInBraid>0&&hatGrip!=null)braidPose.holdHat(hatFollowBone(),hatInBraid,hatGrip);
         if(pregnancyBelly>.001f)rigidLifts();
         itemAttachment=null;
-        heldStowed=holdingItem&&!braidPose.active()&&!clipProps.containsKey(selected)&&braidUse.contains(selected);
+        heldStowed=braidUse.contains(selected)&&braidKeepsStack(selected);
         if(holdingItem&&!braidPose.active()&&!heldStowed){
             // A clip with its own grip keys poses the item itself; otherwise the hold overlay above supplies them.
             boolean own=clipProps.containsKey(selected);String from=own?selected:heldClip();
