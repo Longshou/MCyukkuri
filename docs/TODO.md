@@ -11,6 +11,7 @@
 | 自帽分娩出生弹道与落帽准入（wp-i-hat-birth） | `.worktrees/wp-i-hat-birth` | `family/LiveBirth.java`、出生弹道几何、`aquatic/HatBirth.java`、`scripts/museum_scenarios.py` 的 `birth_hat_own` |
 | 岸边停顿与载幼跳岸（11-05 反馈 5、6） | `wp-d-landing` | `motor/action/Hop.java`、`motor/*`、`aquatic/Waters.java`、`family/ParentCarry.java` |
 | 满船托幼送岸卸空与朝向守卫（11-05 反馈 10） | `.worktrees/wp-g-unload` | `aquatic/UnloadYoung.java`、`aquatic/AquaticGoal.java`、`aquatic/Ashore.java`、`family/LiveBirth.java`、`family/FamilyLife.java`、`intent/GoTo.java`、`scripts/museum_scenarios.py` |
+| 帽船排便撅臀与粪便出沿弧线（11-05 反馈 7，wp-h-toilet-pose） | `.worktrees/wp-h-toilet-pose` | `interactions/toilet-contact/`、`toilet_contact.json`、`aquatic/BoatToilet.java`、`life/ToiletContact.java`、`client/ToiletPresentation.java`、`entity/YukkuriAction.java`、`scripts/museum_scenarios.py` 的 `boat_toilet` |
 
 ## 玩法待办
 
