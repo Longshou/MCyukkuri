@@ -10,22 +10,17 @@ import io.github.longshou.mcyukkuri.family.FamilyFeedingContact;
 import io.github.longshou.mcyukkuri.life.ToiletContact;
 import java.io.IOException;
 import java.io.UncheckedIOException;
-import java.util.HashMap;
-import java.util.Map;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.util.Mth;
-import net.minecraft.world.phys.Vec3;
 import org.joml.Vector3f;
 
 /** Rear-care motion and a flat facial tongue expression, visible only during verified live care. */
 final class ToiletPresentation {
     private static float cycle = 10, contactStart = 2, contactEnd = 7, width = .045f, length = .055f, faceOffset = .003f;
     private static float[][] profile = {{0, .8f}, {.25f, 1}, {.8f, 1}, {1, .55f}};
-    /** Anus (rump mark) centre of each rig in rest-pose model pixels, exported with the straining clip (toilet_contact.json "outlet"). */
-    private static Map<String, float[]> sites = Map.of();
     private static final int[] STOOL = {96, 62, 32};
     private ToiletPresentation() {}
 
@@ -54,16 +49,7 @@ final class ToiletPresentation {
             }
             if (loaded[0][0] != 0 || loaded[loaded.length - 1][0] != 1) throw new IllegalArgumentException("Incomplete facial tongue outline");
             profile = loaded;
-            var models = data.getAsJsonObject("models");
-            var found = new HashMap<String, float[]>();
-            for (var entry : models.entrySet()) {
-                var outlet = entry.getValue().getAsJsonObject().getAsJsonObject("outlet");
-                if (outlet == null) continue;
-                var site = outlet.getAsJsonArray("site_px");
-                found.put(entry.getKey(), new float[]{site.get(0).getAsFloat(), site.get(1).getAsFloat(), site.get(2).getAsFloat()});
-            }
-            sites = Map.copyOf(found);
-            return models;
+            return data.getAsJsonObject("models");
         } catch (IOException error) { throw new UncheckedIOException("Cannot load toilet presentation", error); }
     }
 
@@ -123,31 +109,21 @@ final class ToiletPresentation {
     }
 
     /**
-     * The stool leaves the model's own anus (油菊) as the straining clip pushes: it grows out of the rump along the rear-downward
-     * normal between {@code EMERGE_FROM_TICKS} and {@code DROP_TICKS}, the tick at which the server lets the real item fall from the
-     * same point (ToiletContact.anus). Drawn in the model's posed root frame, so squat, squash and yaw are all followed.
+     * The stool leaves the model's own anus (油菊) as the straining clip pushes: ToiletContact.stool, the same stool the server lets go
+     * as the real item at {@code DROP_TICKS} (ToiletContact.release), grows out along the rear-downward normal between
+     * {@code EMERGE_FROM_TICKS} and that tick. Drawn in the model frame under the body's own clip pose, so squat, squash, tilt and yaw
+     * are all followed.
      */
-    static void renderStool(YukkuriView actor, String behavior, float ticks, YukkuriModel model, PoseStack pose, MultiBufferSource buffers, int light) {
+    static void renderStool(YukkuriView actor, String behavior, float ticks, PoseStack pose, MultiBufferSource buffers, int light) {
         if (!(behavior.equals(Behaviors.TOILET) || behavior.equals(Behaviors.GROUND_TOILET) || behavior.equals(Behaviors.BOAT_TOILET) || behavior.equals(Behaviors.TOILET_ACCIDENT))) return;
-        float from = ToiletContact.EMERGE_FROM_TICKS, to = ToiletContact.DROP_TICKS;
-        if (ticks < from || ticks > to + 1) return;
-        var site = sites.get(actor.assetId());
-        if (site == null) return;
-        float q = Mth.clamp((ticks - from) / (to - from), 0, 1);
-        q = q * q * (3 - 2 * q);
-        float size = actor.getVariant().width() / .75f;
-        var root = model.rootPose();
-        // Starts just inside the skin so the sausage seems to come out of the opening; leaves along the rear-downward normal.
-        var inside = new Vector3f(site[0], site[1] + .15f, site[2] - .25f);
-        var direction = root.transformDirection(new Vector3f(0, -.26f, .965f)).normalize();
-        var start = root.transformPosition(new Vector3f(inside)).div(16);
-        float length = .165f * size * q, radius = .036f * size * (.55f + .45f * q);
-        var end = new Vector3f(start).add(direction.x * length, direction.y * length, direction.z * length);
-        var tip = new Vector3f(end).add(direction.x * radius * .8f, direction.y * radius * .8f, direction.z * radius * .8f);
+        if (ticks < ToiletContact.EMERGE_FROM_TICKS || ticks > ToiletContact.DROP_TICKS + 1) return;
+        var stool = ToiletContact.stool(actor, behavior, Math.min(ticks, ToiletContact.DROP_TICKS));
+        if (stool == null) return;
+        var start = stool.start();
+        var end = start.add(stool.direction().scale(stool.length()));
+        var tip = end.add(stool.direction().scale(stool.radius() * .8));
         var buffer = buffers.getBuffer(RenderType.entityCutoutNoCull(ResourceLocation.withDefaultNamespace("textures/block/white_concrete.png")));
-        FamilyRenderer.tube(pose, buffer, new Vec3(start.x, start.y, start.z), new Vec3(end.x, end.y, end.z),
-                radius * .8, radius, light, STOOL);
-        FamilyRenderer.tube(pose, buffer, new Vec3(end.x, end.y, end.z), new Vec3(tip.x, tip.y, tip.z),
-                radius, radius * .35, light, STOOL);
+        FamilyRenderer.tube(pose, buffer, start, end, stool.radius() * .8, stool.radius(), light, STOOL);
+        FamilyRenderer.tube(pose, buffer, end, tip, stool.radius(), stool.radius() * .35, light, STOOL);
     }
 }

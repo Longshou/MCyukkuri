@@ -250,15 +250,19 @@ public final class YukkuriLife {
         entity.showReaction("happy", "toilet_done", 60);
         return true;
     }
-    /** Afloat (aquatic/BoatToilet): the body strains over the water and the stool leaves from {@code outlet}; the same load and relief as a ground toilet. */
-    public boolean relieveOutboard(Vec3 outlet) {
-        if (!(entity.level() instanceof ServerLevel) || bladder < 10 || constipated() || !entity.isAlive() || isSleeping() || mealTicks() > 0) return false;
-        if (!ToiletContact.drop(entity, outlet)) return false;
+    /**
+     * Afloat (aquatic/BoatToilet): the body strains over the water and the stool leaves its rear at {@code at} with {@code velocity}
+     * (blocks per tick); the same load and relief as a ground toilet. The flying item, or null when nothing left the body.
+     */
+    public ItemEntity relieveOutboard(Vec3 at, Vec3 velocity) {
+        if (!(entity.level() instanceof ServerLevel) || bladder < 10 || constipated() || !entity.isAlive() || isSleeping() || mealTicks() > 0) return null;
+        var stool = ToiletContact.launch(entity, at, velocity);
+        if (stool == null) return null;
         float before = bladder;
         bladder = Math.max(0, bladder - 40); personality.relieveFear();
         entity.showReaction("happy", "toilet_done", 60);
-        GameplayLog.event(entity, "needs", "relieved source=boat at={} bladder={} -> {}", outlet, before, bladder);
-        return true;
+        GameplayLog.event(entity, "needs", "relieved source=boat at={} bladder={} -> {}", GameplayLog.at(at), before, bladder);
+        return stool;
     }
     /** A real cleaning or soiling of the body surface, bounded like every other hygiene change. */
     public void changeHygiene(float delta) { if (Float.isFinite(delta)) hygiene = Math.clamp(hygiene + delta, 0, 100); }

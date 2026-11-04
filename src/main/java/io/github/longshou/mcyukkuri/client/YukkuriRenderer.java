@@ -170,7 +170,7 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
             // Captured before anything else poses this shared model (stem fruits reuse it).
             if(!carried)ParentCarryPresentation.capture(entity,model,start,pose.last().pose(),renderedBodyYaw,partialTick);
             ToiletPresentation.renderTongue(entity,behavior,phaseTicks,partialTick,model,pose,buffers,packedLight,overlay);
-            ToiletPresentation.renderStool(entity,behavior,phaseTicks,model,pose,buffers,packedLight);
+            ToiletPresentation.renderStool(entity,behavior,phaseTicks,pose,buffers,packedLight);
             var root=model.rootPose();
             if(entity.hasVisibleAccessory()||contact.equals("HAT_REMOVE")) model.renderBadge(entity.visibleMedal(),pose,buffers,packedLight,overlay);
             if(entity.visibleWear()!=0&&!hatCarrier&&!carried)CareWearRenderer.render(model,entity.visibleWear(),pose,buffers,packedLight,overlay);

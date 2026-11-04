@@ -15,23 +15,30 @@ import io.github.longshou.mcyukkuri.motor.Motor;
 import io.github.longshou.mcyukkuri.motor.action.Await;
 import io.github.longshou.mcyukkuri.motor.action.Face;
 import io.github.longshou.mcyukkuri.motor.action.Hop;
+import io.github.longshou.mcyukkuri.motor.geom.Ballistic;
+import io.github.longshou.mcyukkuri.motor.geom.Vec;
 import io.github.longshou.mcyukkuri.motor.surface.SeatTarget;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.function.Supplier;
+import java.util.stream.IntStream;
 import net.minecraft.util.Mth;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.phys.Vec3;
 
 /**
- * A bladder that has to go (项目设计): the seated owner turns in the hollow so her rear faces open water over the rim and strains
- * there; a young first hops onto a brim place (front of the captain first, as every brim seat), turns its rear out over the water
- * and strains the same way, then goes back by the ordinary seat rule. The stool leaves the model's own outlet at the clip's drop tick;
- * when that point is still over the hull it falls just outside the rim, into the water, never into the hat.
+ * A bladder that has to go (项目设计, user 2026-11-05 #7): the seated owner turns in the hollow so her rear faces open water over the
+ * rim, tips onto her front and raises her rear toward that side (the {@code boat_toilet} clip); a young first hops onto a brim place
+ * (front of the captain first, as every brim seat), turns its rear out over the water and does the same, then goes back by the
+ * ordinary seat rule. At the clip's drop tick the stool leaves the very place the client draws it leaving the rear
+ * (ToiletContact.release) along its own direction, pushed just hard enough that its real item flight clears the hat and comes down
+ * in the water beyond the rim ({@link #plan}); a rear side that no such push serves is not chosen.
  */
 final class BoatToilet implements Intent {
-    /** Open water has to lie this far (blocks) beyond the rim in the chosen direction; the stool falls this far outside it. */
-    private static final double CLEAR = .3, OUTSIDE = .12;
+    /** Open water has to lie within this far (blocks) beyond the rim in the chosen direction; the stool comes down inside that band. */
+    private static final double CLEAR = .3;
     private static final int TURN_DEADLINE = 80;
 
     private final YukkuriEntity body;
@@ -40,6 +47,8 @@ final class BoatToilet implements Intent {
     private Hop hop;
     private Vec3 out;
     private boolean strained, relieved;
+    /** The stool this intent let go, watched only to report where it really came down. */
+    private ItemEntity stool;
 
     private BoatToilet(YukkuriEntity body, PlacedHatEntity hat) {
         this.body = body;
@@ -101,7 +110,7 @@ final class BoatToilet implements Intent {
     private Step turn() {
         out = outward();
         if (out == null) {
-            GameplayLog.limited(body, "aquatic", "toilet_water:none", 200, "boat_toilet refused hat={} reason=no_open_water_beyond_rim", hat.getUUID());
+            GameplayLog.limited(body, "aquatic", "toilet_water:none", 200, "boat_toilet refused hat={} reason=no_open_water_throw_beyond_rim", hat.getUUID());
             return null;
         }
         float yaw = yawToward(out.reverse());
@@ -128,28 +137,88 @@ final class BoatToilet implements Intent {
         double before = body.life().bladder();
         return new Step.Do(new Await(() -> {
             if (++tick[0] == ToiletContact.DROP_TICKS) relieved = drop(before);
+            if (tick[0] == ToiletContact.RELEASE_TICKS) landed();
             return tick[0] >= ToiletContact.RELEASE_TICKS;
         }, ToiletContact.RELEASE_TICKS + 10, Behaviors.BOAT_TOILET));
     }
 
     private boolean drop(double before) {
-        var real = ToiletContact.anus(body, ToiletContact.DROP_TICKS);
+        var plan = plan(out, body.yBodyRot);
         var middle = hat.position();
-        var away = new Vec3(real.x - middle.x, 0, real.z - middle.z);
-        double rim = rim() + OUTSIDE;
-        var outlet = real;
-        if (away.length() < rim) {
-            var dir = away.lengthSqr() < 1e-6 ? out : away.normalize();
-            double water = HullAfloat.surface(body.level(), middle.x + dir.x * rim, middle.y - 2, middle.z + dir.z * rim);
-            outlet = new Vec3(middle.x + dir.x * rim, Double.isNaN(water) ? real.y : Math.max(real.y, water + .05), middle.z + dir.z * rim);
+        stool = plan == null ? null : body.life().relieveOutboard(plan.release().at(), plan.push());
+        if (stool == null) {
+            GameplayLog.event(body, "aquatic", "boat_toilet refused hat={} place={} reason={} bladder={}", hat.getUUID(), PlayAboard.place(body, hat),
+                    plan == null ? "no_throw_beyond_rim" : "not_released", Math.round(before));
+            return false;
         }
-        boolean done = body.life().relieveOutboard(outlet);
-        GameplayLog.event(body, "aquatic", "boat_toilet {} hat={} place={} at={} hull_distance={} outlet_distance={} bladder={} -> {}", done ? "dropped" : "refused",
-                hat.getUUID(), PlayAboard.place(body, hat), GameplayLog.at(outlet),
-                String.format(Locale.ROOT, "%.2f/%.2f", Math.hypot(outlet.x - middle.x, outlet.z - middle.z), rim()),
-                String.format(Locale.ROOT, "%.2f/%.2f", Math.hypot(real.x - middle.x, real.z - middle.z), rim()),
-                Math.round(before), Math.round(body.life().bladder()));
-        return done;
+        var at = plan.release().at();
+        GameplayLog.event(body, "aquatic", "boat_toilet dropped hat={} place={} at={} release_distance={} push={} lands={} land_distance={} air_ticks={} bladder={} -> {}",
+                hat.getUUID(), PlayAboard.place(body, hat), GameplayLog.at(at), distance(at, middle),
+                String.format(Locale.ROOT, "%.3f", Math.sqrt(plan.push().lengthSqr())), GameplayLog.at(plan.lands()), distance(plan.lands(), middle),
+                plan.ticks(), Math.round(before), Math.round(body.life().bladder()));
+        return true;
+    }
+
+    /** Where the released stool really is when the clip ends (its flight lasts a few ticks): outside the rim and in the water, or not. */
+    private void landed() {
+        if (stool == null) return;
+        GameplayLog.event(body, "aquatic", "boat_toilet stool hat={} at={} hull_distance={} in_water={} removed={}", hat.getUUID(),
+                GameplayLog.at(stool.position()), distance(stool.position(), hat.position()), stool.isInWater(), stool.isRemoved());
+        stool = null;
+    }
+
+    private String distance(Vec3 at, Vec3 middle) {
+        return String.format(Locale.ROOT, "%.2f/%.2f", Math.hypot(at.x - middle.x, at.z - middle.z), rim());
+    }
+
+    /** One release: the stool's place and direction at the drop tick, the push it leaves with, where it comes down and after how many ticks. */
+    private record Throw(ToiletContact.Release release, Vec3 push, Vec3 lands, int ticks) {}
+
+    /**
+     * The stool's way out for a rear turned to {@code out} with the body at {@code yaw}: released where the stool really is at the clip's
+     * drop tick, along its own direction, with the slowest push whose vanilla item path keeps it (its half length either way) above the
+     * hull's surface and brings it down on the water beyond the rim, within the open band (Ballistic.itemPush); null when no push the body
+     * can give does. The choice of the rear side (outward) and the release itself (drop) both ask this.
+     */
+    private Throw plan(Vec3 out, float yaw) {
+        var release = ToiletContact.release(body, Behaviors.BOAT_TOILET, yaw);
+        var middle = hat.position();
+        double rim = rim(), water = HullAfloat.surface(body.level(), middle.x + out.x * rim, middle.y - 2, middle.z + out.z * rim);
+        if (release == null || Double.isNaN(water)) return null;
+        var at = release.at();
+        double half = release.length() / 2, drop = water - at.y;
+        var dir = new Vec(release.direction().x, release.direction().y, release.direction().z);
+        var push = Ballistic.itemPush(dir, drop, points -> clears(at, points, half, rim));
+        if (push == null) return null;
+        var path = Ballistic.itemPath(push, drop);
+        var last = path.getLast();
+        return new Throw(release, new Vec3(push.x(), push.y(), push.z()), at.add(last.x(), last.y(), last.z()), path.size() - 1);
+    }
+
+    /** The path from {@code at} (each tick's chord in quarters; a falling curve lies above its chords) clears the hull and ends on open water past the rim. */
+    private boolean clears(Vec3 at, List<Vec> points, double half, double rim) {
+        for (int i = 1; i < points.size(); i++) {
+            var a = points.get(i - 1);
+            var b = points.get(i);
+            for (int quarter = 0; quarter < 4; quarter++) {
+                double q = quarter / 4.0;
+                if (!aboveHull(at.add(a.x() + (b.x() - a.x()) * q, a.y() + (b.y() - a.y()) * q, a.z() + (b.z() - a.z()) * q), half)) return false;
+            }
+        }
+        var end = at.add(points.getLast().x(), points.getLast().y(), points.getLast().z());
+        double reach = Math.hypot(end.x - hat.getX(), end.z - hat.getZ());
+        return reach - half >= rim && reach <= rim + CLEAR;
+    }
+
+    /** A point (the stool's bottom) is above the hull's own surface across its half length either way; past the rim there is no hull. */
+    private boolean aboveHull(Vec3 world, double half) {
+        var local = hat.toLocal(world);
+        double scale = hat.hullScale() / HullBounds.SCALE, radius = Math.hypot(local.x, local.z) * HullBounds.UNIT, height = local.y * HullBounds.UNIT;
+        for (double r : new double[]{Math.max(0, radius - half / scale), radius, radius + half / scale}) {
+            double surface = HullBounds.surface(r);
+            if (!Double.isNaN(surface) && height < surface) return false;
+        }
+        return true;
     }
 
     /** Back into the hollow the way it hopped out (the ordinary hop to a cabin place); the owner never left hers. */
@@ -170,26 +239,25 @@ final class BoatToilet implements Intent {
     /** The hull's outer rim (blocks) at this hat's size. */
     private double rim() { return HullBounds.RADIUS * hat.hullScale() / HullBounds.SCALE; }
 
-    /** The level direction from the hull's middle toward water this body's rear can face, or null. */
+    /** The level direction from the hull's middle toward water this body's rear can face and its stool can reach, or null. */
     private Vec3 outward() {
         if ("brim".equals(PlayAboard.place(body, hat))) {
             var away = body.position().subtract(hat.position()).multiply(1, 0, 1);
-            return away.lengthSqr() < 1e-8 || !open(away.normalize()) ? null : away.normalize();
+            return away.lengthSqr() < 1e-8 || !usable(away.normalize()) ? null : away.normalize();
         }
-        Vec3 best = null;
-        double least = Double.MAX_VALUE;
-        for (int k = 0; k < 16; k++) {
-            var dir = new Vec3(Math.cos(k * Math.PI / 8), 0, Math.sin(k * Math.PI / 8));
-            double turn = Math.abs(Mth.wrapDegrees(yawToward(dir.reverse()) - body.yBodyRot));
-            if (turn < least && open(dir)) { best = dir; least = turn; }
-        }
-        return best;
+        // The owner turns least: the water sides in the order of her turn, the first whose stool clears the rim.
+        return IntStream.range(0, 16).mapToObj(k -> new Vec3(Math.cos(k * Math.PI / 8), 0, Math.sin(k * Math.PI / 8)))
+                .sorted(Comparator.comparingDouble(dir -> Math.abs(Mth.wrapDegrees(yawToward(dir.reverse()) - body.yBodyRot))))
+                .filter(this::usable).findFirst().orElse(null);
     }
+
+    /** Open water beyond the rim on that side, and a stool released with the rear turned there comes down in it. */
+    private boolean usable(Vec3 dir) { return open(dir) && plan(dir, yawToward(dir.reverse())) != null; }
 
     /** Water at the level of the hull's own surface just beyond the rim. */
     private boolean open(Vec3 dir) {
         var at = hat.position();
-        for (double reach = rim() + OUTSIDE; reach <= rim() + CLEAR + 1e-6; reach += .09) {
+        for (double reach = rim(); reach <= rim() + CLEAR + 1e-6; reach += .09) {
             double y = HullAfloat.surface(body.level(), at.x + dir.x * reach, at.y - 2, at.z + dir.z * reach);
             if (Double.isNaN(y) || Math.abs(y - at.y) > 1) return false;
         }

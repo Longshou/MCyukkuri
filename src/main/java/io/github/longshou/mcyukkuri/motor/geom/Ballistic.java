@@ -55,6 +55,46 @@ public final class Ballistic {
         return out;
     }
 
+    /** A dropped item's own air step (vanilla ItemEntity): v.y -= ITEM_GRAVITY, then pos += v, then v *= ITEM_DRAG on every axis. */
+    public static final double ITEM_GRAVITY=.04,ITEM_DRAG=.98;
+    /** The slowest item push tried and the step between tries, in blocks per tick; a push the body cannot give is no plan. */
+    static final double PUSH_STEP=.005,MAX_PUSH=.4;
+
+    /**
+     * Per-tick positions from the origin of a dropped item launched at {@code v0} until it falls through relative height {@code dy}
+     * (that crossing interpolated as the last point), start included; empty if it is still above {@code dy} after MAX_TICKS.
+     */
+    public static List<Vec> itemPath(Vec v0,double dy){
+        var out=new ArrayList<Vec>();
+        Vec p=Vec.ZERO,v=v0;
+        out.add(p);
+        for(int n=1;n<=MAX_TICKS;n++){
+            v=new Vec(v.x(),v.y()-ITEM_GRAVITY,v.z());
+            Vec next=p.add(v);
+            if(next.y()<=dy&&v.y()<0){
+                double q=p.y()<=dy?0:(p.y()-dy)/(p.y()-next.y());
+                out.add(p.add(v.scale(q)));
+                return out;
+            }
+            out.add(p=next);
+            v=v.scale(ITEM_DRAG);
+        }
+        return List.of();
+    }
+
+    /**
+     * The slowest push along the unit {@code dir} (from none up to MAX_PUSH) whose dropped-item path down to relative height {@code dy}
+     * passes {@code path}; null when none does. The item then really flies that path: the same vanilla step, nothing steers it.
+     */
+    public static Vec itemPush(Vec dir,double dy,ArcSolver.Clearance path){
+        for(int i=0;i*PUSH_STEP<=MAX_PUSH+1e-9;i++){
+            Vec v0=dir.scale(i*PUSH_STEP);
+            var points=itemPath(v0,dy);
+            if(!points.isEmpty()&&path.clear(points))return v0;
+        }
+        return null;
+    }
+
     /** Highest point of the discrete trajectory launched upward at {@code vy}. */
     static double peak(double vy){
         double y=0,v=vy,p=0;

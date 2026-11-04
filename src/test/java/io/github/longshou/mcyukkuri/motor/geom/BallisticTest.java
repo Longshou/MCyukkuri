@@ -85,4 +85,36 @@ class BallisticTest {
             assertTrue(ticks>1&&ticks<80);
         }
     }
+    /** Vanilla ItemEntity in air, step by step: gravity first, then the move, then drag on every axis. */
+    @Test void itemPathFollowsTheVanillaItemStep(){
+        List<Vec> path=Ballistic.itemPath(new Vec(.1,.05,0),-1);
+        assertEquals(Vec.ZERO,path.get(0));
+        assertEquals(.1,path.get(1).x(),1e-12);
+        assertEquals(.01,path.get(1).y(),1e-12);
+        assertEquals(.198,path.get(2).x(),1e-12);
+        assertEquals(.01+(.01*.98-.04),path.get(2).y(),1e-12);
+        assertEquals(-1,path.get(path.size()-1).y(),1e-12);
+        assertTrue(path.get(path.size()-2).y()>-1);
+        assertTrue(Ballistic.itemPath(new Vec(0,.5,0),-100).isEmpty(),"still falling after the longest air time");
+    }
+
+    /** The slowest push that carries the item past a wall: a slower one would hit it, the path ends on the requested height. */
+    @Test void itemPushIsTheSlowestThatClears(){
+        Vec dir=new Vec(Math.cos(.2),Math.sin(.2),0);
+        ArcSolver.Clearance beyond=points->{
+            Vec last=points.get(points.size()-1);
+            for(Vec p:points)if(p.x()<.6&&p.y()<-.1)return false;
+            return last.x()>=.6;
+        };
+        Vec push=Ballistic.itemPush(dir,-.15,beyond);
+        assertTrue(push!=null&&push.x()>0);
+        double speed=Math.hypot(push.x(),push.y());
+        List<Vec> path=Ballistic.itemPath(push,-.15);
+        assertTrue(beyond.clear(path));
+        assertEquals(-.15,path.get(path.size()-1).y(),1e-12);
+        Vec slower=dir.scale(speed-Ballistic.PUSH_STEP);
+        assertTrue(!beyond.clear(Ballistic.itemPath(slower,-.15)));
+        assertEquals(Vec.ZERO,Ballistic.itemPush(dir,-.15,points->true),"no push is needed when any path will do");
+        assertEquals(null,Ballistic.itemPush(dir,-.15,points->false));
+    }
 }

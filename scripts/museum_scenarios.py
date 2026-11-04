@@ -2766,19 +2766,27 @@ pond('kid_boat_play', '赤油在帽檐玩耍，打雷躲避', '赤油在帽檐�
                          f'yukkuri status {sel("c2")} raw', f'data get entity {_HAT} Riders']))
 
 def boat_toilet_result(window):
-    """Every release leaves the stool outside the rim near the body's own rear, and the young goes back into the hollow afterwards."""
-    drops = re.findall(r'uuid=(\S+)[^\n]* boat_toilet dropped hat=\S+ place=(\w+) at=[^\n]*? hull_distance=([\d.]+)/([\d.]+)'
-                       r' outlet_distance=([\d.]+)/([\d.]+)', window)
+    """Every stool leaves the body's own rear (the release point is the drawn stool, inside the rim for the hollow), really comes down
+    in the water outside the rim when the clip ends, and the young goes back into the hollow afterwards."""
+    drops = re.findall(r'uuid=(\S+)[^\n]* boat_toilet dropped hat=\S+ place=(\w+) at=[^\n]*? release_distance=([\d.]+)/([\d.]+)'
+                       r' push=([\d.]+) lands=[^\n]*? land_distance=([\d.]+)/[\d.]+', window)
     if len({d[0] for d in drops}) < 2:
         return f'expected the owner and the young to relieve themselves, got {len(drops)} drop(s)'
-    for who, place, got, rim, real, real_rim in drops:
-        if float(got) + 1e-6 < float(rim):
-            return f'{who} dropped inside the rim ({got} < {rim})'
-        # The stool is carried out from the real rear, not thrown from the hull's middle: a large gap means a broken pose.
-        # A seated adult's rear reaches only ~0.39 blocks from the middle while the rim is ~0.89, so the item is placed at the rim
-        # (0.62 out, the documented drop-point deviation); the bound only stops the item being thrown further than that.
-        if float(got) - float(real) > .7:
-            return f'{who} dropped {float(got) - float(real):.2f} blocks away from its own rear (rear {real}, stool {got})'
+    landed = {who: (float(at), float(rim), wet == 'true')
+              for who, at, rim, wet in re.findall(r'uuid=(\S+)[^\n]* boat_toilet stool hat=\S+ at=[^\n]*? hull_distance=([\d.]+)/([\d.]+)'
+                                                  r' in_water=(\w+)', window)}
+    for who, place, release, rim, push, plan in drops:
+        if float(plan) < float(rim):
+            return f'{who} planned its stool to come down inside the rim ({plan} < {rim})'
+        if who not in landed:
+            return f'{who} released a stool that was never seen after the clip'
+        at, edge, wet = landed[who]
+        # The real item, not the plan: where vanilla item motion actually took it by the clip's end.
+        if at < edge or not wet:
+            return f'{who} stool ended at {at:.2f} of rim {edge:.2f} in_water={wet}'
+        # From the hollow the rear is well inside the rim: the stool has to fly out, never be placed outside.
+        if place == 'cabin' and not (float(release) < float(rim) and float(push) > 0):
+            return f'{who} released at {release} of rim {rim} with push {push}: not from the body in the hollow'
     if not any(place == 'brim' for _, place, *_ in drops):
         return 'the young never relieved itself on the brim'
     if not any(place == 'cabin' for _, place, *_ in drops):
@@ -2794,10 +2802,16 @@ pond('boat_toilet', '帽船上朝帽外排便', '帽船上朝帽外排便',
      [captain(dx=bank_dx(0), bladder=92, uuid=uid('boat_toilet', 'a')),
       _aquatic_young('boat_toilet', 'c1', bank_dx(1), 1, 'baby', 'a', childhood=CHILDHOOD_HOPPING, bladder=90),
       afloat_now('a', water_at(0, 3), True, sel('c1'), food=4, stick=True)],
-     note='日志：[aquatic] boat_toilet turn（rear_out 是朝水的方向）→ boat_toilet dropped place=cabin|brim at=… hull_distance=实际/船沿（实际 ≥ 船沿才是落在帽外）、outlet_distance=身体后方/船沿 → boat_toilet back place=cabin → [needs] relieved source=boat bladder=前 -> 后；'
+     note='日志：[aquatic] boat_toilet turn（rear_out 是朝水的方向）→ boat_toilet dropped place=cabin|brim at=… release_distance=出粪点/船沿（就是画面上屁股排出的位置，舱内 < 船沿）push=推出速度 lands=… land_distance=落水点/船沿 air_ticks=飞行 tick'
+          ' → boat_toilet stool at=… hull_distance=动作结束时粪便的实际位置/船沿 in_water=true（≥ 船沿且在水里才是落到帽外水中）→ boat_toilet back place=cabin → [needs] relieved source=boat bladder=前 -> 后；'
           '赤油先有 hop 上帽檐，place=brim，排完再跳回舱内。读 hat 乘员与膀胱数值。粪便是真实掉落物，落点在水里；准备入座不算行为成功。' + _DESIRE_NOTE,
      reads=[('读亲油', f'yukkuri status {sel("a")} raw'), ('读子油', f'yukkuri status {sel("c1")} raw'), ('读帽子乘员', f'data get entity {_HAT} Riders'),
             ('读水上物品', 'execute as @e[type=minecraft:item,distance=..48] run data get entity @s Pos')],
+     # Side views of the hull: the owner raises her rear and the stool flies over the stern rim (ticks 1-40); the young does the same on
+     # the bow brim (about 40-80); one frame a tick so the few-tick flights are seen.
+     capture=dict(shots=(1, 200), sequences=((2, 110, 1),), observe=False,
+                  views={'port': dict(follow='@e[type=mcyukkuri:placed_hat,limit=1]', offset=(1.6, .45, 0)),
+                         'starboard': dict(follow='@e[type=mcyukkuri:placed_hat,limit=1]', offset=(-1.6, .45, 0))}),
      smoke=dict(ticks=1800, expect=[r'\[hat\][^\n]* scenario afloat prepared [^\n]*owner_aboard=true[^\n]*young=1\b',
                                    r'\[aquatic\][^\n]* boat_toilet turn [^\n]*place=brim',
                                    r'\[aquatic\][^\n]* boat_toilet dropped [^\n]*place=brim',
