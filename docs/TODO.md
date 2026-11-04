@@ -10,6 +10,7 @@
 | --- | --- | --- |
 | 水生四条空转链（11-05 反馈 9–12：拨水寻帽、翻船取桨、满船托幼送岸、岸边接赤油上船） | `.worktrees/wp-a-chains` | `aquatic/Ashore`、`aquatic/Ferry`、`aquatic/Provision`、`aquatic/AquaticGoal`、`scripts/museum_scenarios.py` |
 | 划桨衔接、无棍辫划入水、放帽收帽辫子（11-05 反馈 1、2、8） | `.worktrees/wp-b-strokes` | `standards/yukkuri-library/motions/`、`motion_corrections.json`、`client/YukkuriModel.java`、`motor/action/Paddle.java` |
+| 帽船座位顺序、船上排便、afloat 夹具（wp-c-seats） | `.worktrees/wp-c-seats` | `headwear/PlacedHatEntity.java`、`headwear/HullBounds.java`、`aquatic/` 排便驱动、`command/ScenarioSetup.java`、`scripts/museum_scenarios.py` |
 
 ## 玩法待办
 
@@ -134,6 +135,7 @@
 
 | 编号 | 运行版本 | 已确认现象／边界 |
 | --- | --- | --- |
+| 帽船座位顺序、船上排便、afloat 夹具（wp-c-seats） | `.worktrees/wp-c-seats` | `headwear/PlacedHatEntity.java`、`headwear/HullBounds.java`、`aquatic/` 排便驱动、`command/ScenarioSetup.java`、`scripts/museum_scenarios.py` |
 | **E1** | 10-21 22:41 至 10-22 00:04，[f4872105](https://github.com/Longshou/MCyukkuri/commit/f4872105)，[CI 39595554878](https://github.com/Longshou/MCyukkuri/actions/runs/39595554878) | 头饰、捕食、遗体／治疗及出生与成长反馈的共同运行包。 |
 | **E2** | 10-22 00:10–00:39，[372fa23d](https://github.com/Longshou/MCyukkuri/commit/372fa23d)，[CI 39630804471](https://github.com/Longshou/MCyukkuri/actions/runs/39630804471) | 中枢按钮卡死、岩浆块过快致死、护尸走停、治疗持物不可见。 |
 | **E3** | 00:45–01:09，[cc0e78ff](https://github.com/Longshou/MCyukkuri/commit/cc0e78ff)，[CI 39634939963](https://github.com/Longshou/MCyukkuri/actions/runs/39634939963) | 天气、捕食、睡眠与闲逛场景反馈。 |
