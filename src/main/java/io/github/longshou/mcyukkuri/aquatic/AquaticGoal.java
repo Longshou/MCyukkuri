@@ -216,12 +216,17 @@ final class AquaticGoal extends Goal {
             double setOut = asleep || beyondGather || searching || birth || nursery ? 0 : num("water_life", 60) - 2 * pull - (dusk ? num("night_pull", 60) : 0) - (rain ? num("rain_pull", 30) : 0);
             var world = List.of(body.blockPosition(), stick, nearStick, young.size(), beyondGather, searching, birth, nursery);
             boolean usable = hat == null ? life.custody().worn() : AquaticLife.afloat(hat);
-            if (AquaticLife.ashore(body) && (!usable || floor(setOut) == 0 || drive().failed("set_out")))
+            if (AquaticLife.ashore(body) && (!usable || floor(setOut) == 0 || drive().failed("set_out"))) {
                 for (var rider : body.family().carry().riders()) if (ParentCarry.hold(body, rider) == ParentCarry.Hold.HEAD) {
                     out.add(Desire.of("set_down_young", PlayAboard.number("hide_want"), List.of(body.blockPosition(), rider.getUUID()),
                             () -> "head_rider_ashore child=" + rider.getUUID(), () -> new Care.Transfer(body, rider, null)));
                     break;
                 }
+                // The young still riding the afloat hull come ashore too, one after another; a jumper leaves by its own follow_ashore.
+                var stuck = stuckAboard(body, hat);
+                if (stuck != null) out.add(Desire.of("unload_young", PlayAboard.number("hide_want"),
+                        List.of(cell(hat), stuck.getUUID()), () -> "stuck_aboard child=" + stuck.getUUID(), () -> Ashore.unload(body)));
+            }
             if (usable) out.add(Desire.of("set_out", floor(setOut), world, () -> String.format(Locale.ROOT,
                     "pull=%.0f hunger=%.0f weather=%.0f breed=%.0f stick=%b stick_near=%b dusk=%b rain=%b young=%d asleep=%b beyond_gather=%b searching=%b nursery=%b",
                     pull, hunger, weather, breed, stick, nearStick, dusk, rain, young.size(), asleep, beyondGather, searching, nursery), () -> new SetOut(body, this::leftAshore)));
@@ -362,6 +367,13 @@ final class AquaticGoal extends Goal {
     private void comforted(YukkuriEntity young) {
         if (comforted == null) comforted = new HashMap<>();
         if (comforted.size() < LEFT_MAX) comforted.put(young.getUUID(), body.level().getGameTime() + (long) num("comfort_again", 600));
+    }
+
+    /** Her own young still riding {@code hat} afloat that cannot get off by itself: a jumper leaves by its own {@code follow_ashore}. */
+    static YukkuriEntity stuckAboard(YukkuriEntity parent, PlacedHatEntity hat) {
+        if (!AquaticLife.afloat(hat)) return null;
+        for (var y : AquaticLife.young(parent)) if (y.getVehicle() == hat && !AquaticLife.jumper(y)) return y;
+        return null;
     }
 
     private void young(List<Desire> out) {
