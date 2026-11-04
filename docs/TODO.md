@@ -8,6 +8,7 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
+| 水生四条空转链（11-05 反馈 9–12：拨水寻帽、翻船取桨、满船托幼送岸、岸边接赤油上船） | `.worktrees/wp-a-chains` | `aquatic/Ashore`、`aquatic/Ferry`、`aquatic/Provision`、`aquatic/AquaticGoal`、`scripts/museum_scenarios.py` |
 
 ## 玩法待办
 
