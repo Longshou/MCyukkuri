@@ -90,7 +90,7 @@ public final class Fetch implements HostIntent {
      * first with a floor the taker can get to. Nothing is reserved.
      */
     private Vec3 stand() {
-        if (SurfaceApproach.supported(taker, taker.position()) && BraidFetch.withinReach(taker, child)) return taker.position();
+        if (SurfaceApproach.supported(taker, taker.position()) && ContactGeometry.reachesFrom(taker, taker.position(), child)) return taker.position();
         var centre = hat.position();
         var toward = child.position().subtract(centre).multiply(1, 0, 1);
         if (toward.lengthSqr() < .01) toward = taker.position().subtract(centre).multiply(1, 0, 1);
@@ -104,7 +104,7 @@ public final class Fetch implements HostIntent {
 
     private boolean held() { return child.getVehicle() == taker; }
 
-    /** From a supported stand the braid reaches the young: walk there, lift it clear of the host, carry it out. */
+    /** From a supported stand the mouth or braid reaches the young: walk there, lift it clear of the host, carry it out. */
     private final class GrabCarryRelease implements Method {
         private int state;
         private Vec3 stand;
@@ -115,8 +115,8 @@ public final class Fetch implements HostIntent {
             if (!child.isAlive()) return Feasibility.of(Reason.TARGET_GONE, 0, "child_gone");
             if (held()) return Feasibility.pass();
             if ((stand = stand()) == null) return Feasibility.of(Reason.NO_SUPPORT, 0, "no_stand");
-            // Beyond the braid's reach from outside the brim, the young first comes to the edge (WaitThenRetry).
-            return ContactGeometry.braidGap(taker, stand, child) <= 0 ? Feasibility.pass() : Feasibility.of(Reason.NO_CONTACT, 0, "out_of_reach");
+            // Beyond the mouth's and braid's reach from outside the brim, the young first comes to the edge (WaitThenRetry).
+            return ContactGeometry.reachesFrom(taker, stand, child) ? Feasibility.pass() : Feasibility.of(Reason.NO_CONTACT, 0, "out_of_reach");
         }
 
         @Override public Set<Reason> reduces() {
@@ -185,7 +185,7 @@ public final class Fetch implements HostIntent {
         private boolean edged() {
             long now = hat.level().getGameTime();
             if (child.position().distanceTo(markAt) >= STEP) { markAt = child.position(); markTick = now; }
-            return ContactGeometry.braidGap(taker, HatGeometry.outside(hat, taker, child.position(), 0), child) <= 0
+            return ContactGeometry.reachesFrom(taker, HatGeometry.outside(hat, taker, child.position(), 0), child)
                     || now - markTick >= STALL_TICKS || hat.position().distanceTo(hatAt) >= HOST_MOVED;
         }
     }

@@ -94,7 +94,7 @@ public final class Grab implements Action {
         if (attach instanceof AttachState.Held held)
             return Feasibility.of(Reason.NO_ROOM, 0, held.carrier() == carrier ? "already_held" : "target_held");
         if (attach instanceof AttachState.Airborne) return Feasibility.of(Reason.NO_CONTACT, 0, "target_airborne");
-        if (source != null) {
+        if (source != null && ContactGeometry.braided(carrier)) {
             String problem = ParentCarry.holdProblem(carrier, target, Hold.BRAID, false, source);
             if (problem != null) return refusal(problem);
             chosen(Hold.BRAID, false, ContactGeometry.braidGap(carrier, target, false));
