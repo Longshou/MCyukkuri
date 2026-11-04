@@ -187,14 +187,27 @@ public final class YukkuriModel {
     HatTransfer selfHatTransfer(){return selfHatTransfer;}
     void setSelfHatPose(Matrix4f matrix){selfHatPose=matrix==null?null:new Matrix4f(matrix);}
     public void setCarrying(boolean value){carrying=value;}
-    /** She holds a real stack: the braid's authored hold pose is overlaid on every clip, seated in a hull or ashore. */
-    private boolean holdingItem,holdingAboard;
+    /** She holds a real stack: the braid's authored hold pose is overlaid on every clip that leaves her braid alone, seated in a hull or ashore. */
+    private boolean holdingItem,holdingAboard,heldStowed;
     void setHeldItem(boolean holding,boolean aboard){holdingItem=holding;holdingAboard=aboard;}
-    /** The authored hold pose the braid takes: seated in a hull it is the afloat variant. */
-    private String heldClip(){return holdingAboard?"braid_item_hold_aq":"braid_item_hold";}
-    /** She holds a stack and nothing else owns her braid: a cradled child keeps that grip, and a clip with its own
-     *  grip keys poses the braid itself. Otherwise the hold overlay above does. */
-    private boolean braidHolds(String clip){return holdingItem&&!braidPose.active()&&!clipProps.containsKey(clip)&&clips.containsKey(heldClip());}
+    /** The authored hold pose the braid takes: seated in a hull it is the stroke's own loop start, so rowing, turning and
+     *  sitting share one grip (the paddle neutral). */
+    private String heldClip(){return holdingAboard?YukkuriAction.BOAT_PADDLE.id():"braid_item_hold";}
+    /** How much of the hold overlay her braid takes in this clip at its own time (0..1). A cradled child keeps the braid,
+     *  and a clip with its own grip keys poses it itself. A clip whose own braid grips, carries or strokes something
+     *  (lore recipe braid_use) keeps it too, the stack stowed in her hat; a one-shot one hands the braid over from the
+     *  hold until its braid_busy marker and back to it from its braid_free marker. Every other clip takes the hold. */
+    private float braidHoldShare(String clip,float time){
+        if(!holdingItem||braidPose.active()||clipProps.containsKey(clip)||!clips.containsKey(heldClip()))return 0;
+        if(!braidUse.contains(clip))return 1;
+        var markers=clipMarkers.getOrDefault(clip,Map.of());Float busy=markers.get("braid_busy"),free=markers.get("braid_free");
+        float duration=clips.get(clip).duration;
+        if(busy!=null&&time<busy)return 1-smooth(time/busy);
+        if(free!=null&&time>free)return smooth((time-free)/Math.max(1e-3f,duration-free));
+        return 0;
+    }
+    /** The held stack is in her hat for this render (a braid-using clip without its own grip keys): it is not drawn. */
+    boolean heldItemStowed(){return heldStowed;}
     public void setMouthHolding(boolean value){mouthHolding=value;}
     /** Parent carry (ParentCarryPresentation): load damps the walk sway, lean bows the body (0..1), curls bend the two tails;
      *  a mouth that takes babies in opens (0..1) and the body fills out with the babies inside (0..1, as the puff clip swells). */
@@ -224,6 +237,8 @@ public final class YukkuriModel {
     private final Map<String, float[]> puffEnvelopes = new HashMap<>();
     /** Clip-authored prop keys (clip props.<slot>): [t, px, py, pz, rx, ry, rz] in the bone frame at its pivot (aquatic_tools.py). */
     private final Map<String, Map<String, Track>> clipProps = new HashMap<>();
+    /** Clips whose own braid grips, carries or strokes something (clip braid_use, lore recipe): never under the hold overlay. */
+    private final Set<String> braidUse = new HashSet<>();
     private Matrix4f itemAttachment;
     /** Named clip seconds (clip markers), such as the paddle's power_start and power_end. */
     private final Map<String, Map<String, Float>> clipMarkers = new HashMap<>();
@@ -628,6 +643,7 @@ public final class YukkuriModel {
                         transfer.get("slide_begin").getAsFloat(),transfer.get("lower_begin").getAsFloat());
             }
             if (clip.has("puff_envelope")) puffEnvelopes.put(entry.getKey(),floats(clip.getAsJsonArray("puff_envelope")));
+            if (clip.has("braid_use") && clip.get("braid_use").getAsBoolean()) braidUse.add(entry.getKey());
             if (clip.has("props")) {
                 Map<String, Track> slots = new HashMap<>();
                 for (var slot : clip.getAsJsonObject("props").entrySet()) {
@@ -841,11 +857,17 @@ public final class YukkuriModel {
             // Carry survives interruption; only the lock joints override another body action.
             for(Track track:clips.get("house_carry").tracks)if(track.bone==gripBones[0]||track.bone==gripBones[1])track.sample(0,pose[track.bone]);
         }
-        if(braidHolds(selected)){
+        float hold=braidHoldShare(selected,clips.getOrDefault(selected,clips.get("idle")).time(adultTime));
+        if(hold>0){
             // Her braid keeps the held item: only the braid chain takes the hold pose, so the body clip's walking,
-            // sitting and rowing stay untouched (the house_carry locks work the same way).
-            String hold=heldClip();
-            for(Track track:clips.get(hold).tracks)if(bones[track.bone].name().startsWith("hand_right"))track.sample(0,pose[track.bone]);
+            // sitting and rowing stay untouched (the house_carry locks work the same way). Handing over, it blends.
+            float[] held=new float[9];
+            for(Track track:clips.get(heldClip()).tracks)if(bones[track.bone].name().startsWith("hand_right")){
+                float[] target=pose[track.bone];
+                if(hold>=1){track.sample(0,target);continue;}
+                System.arraycopy(target,0,held,0,9);track.sample(0,held);
+                for(int k=track.offset;k<track.offset+3;k++)target[k]+=(held[k]-target[k])*hold;
+            }
         }
         if (behavior.equals(Behaviors.CHEW) || behavior.equals(Behaviors.FAMILY_CHEW) || behavior.equals(Behaviors.SING)) {
             float wave = (float)(.5 + .5 * Math.sin(behaviorTicks * Math.PI * 2 / LivingPresentation.chewPeriod));
@@ -913,7 +935,8 @@ public final class YukkuriModel {
         if(hatInBraid>0&&hatGrip!=null)braidPose.holdHat(hatFollowBone(),hatInBraid,hatGrip);
         if(pregnancyBelly>.001f)rigidLifts();
         itemAttachment=null;
-        if(holdingItem&&!braidPose.active()){
+        heldStowed=holdingItem&&!braidPose.active()&&!clipProps.containsKey(selected)&&braidUse.contains(selected);
+        if(holdingItem&&!braidPose.active()&&!heldStowed){
             // A clip with its own grip keys poses the item itself; otherwise the hold overlay above supplies them.
             boolean own=clipProps.containsKey(selected);String from=own?selected:heldClip();
             var props=clipProps.get(from);var prop=props==null?null:props.get("item");

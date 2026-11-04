@@ -30,8 +30,10 @@ final class HeldItemPresentation {
         pose.mulPose(model.mouthAttachmentPose());
     }
 
-    /** The real held stack at the running clip's grip; a body without a braid grip carries it at the mouth. */
+    /** The real held stack at the running clip's grip; a body without a braid grip carries it at the mouth. While her braid
+     *  works in a clip without its own grip keys (YukkuriModel.heldItemStowed) the stack stays in her hat and is not drawn. */
     static void held(ItemStack stack,YukkuriView entity,YukkuriModel model,PoseStack pose,MultiBufferSource buffers,int light,int overlay,float mouthScale) {
+        if(model.heldItemStowed())return;
         var grip=model.itemAttachmentPose();
         pose.pushPose();
         if(grip!=null){

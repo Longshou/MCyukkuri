@@ -7,7 +7,6 @@ import io.github.longshou.mcyukkuri.motor.AttachState;
 import io.github.longshou.mcyukkuri.motor.MotionPose;
 import io.github.longshou.mcyukkuri.motor.Reason;
 import io.github.longshou.mcyukkuri.motor.surface.Floor;
-import io.github.longshou.mcyukkuri.entity.YukkuriAction;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import net.minecraft.world.phys.Vec3;
 import io.github.longshou.mcyukkuri.motor.BodyAbility;
@@ -29,7 +28,8 @@ public final class Face implements Action {
     private final float yaw;
     private double turnRate;
     private long startTick;
-    private boolean hullTurning;
+    /** The stroke clip she turns the hull with this tick (Paddle.strokeClip), or null while she turns on her seat. */
+    private String hullStroke;
 
     public Face(float yaw) { this.yaw = yaw; }
 
@@ -49,10 +49,10 @@ public final class Face implements Action {
     }
 
     @Override public MotionPose pose() {
-        return hullTurning ? new MotionPose(YukkuriAction.BOAT_PADDLE.id(), startTick, true) : MotionPose.NONE;
+        return hullStroke != null ? new MotionPose(hullStroke, startTick, true) : MotionPose.NONE;
     }
     @Override public Progress tick(YukkuriEntity body) {
-        hullTurning = false;
+        hullStroke = null;
         double left = Mth.wrapDegrees(yaw - body.yBodyRot);
         if (Math.abs(left) <= FACE_ARRIVED)
             return new Outcome.Done(String.format(Locale.ROOT, "yaw=%.1f", body.yBodyRot));
@@ -64,7 +64,7 @@ public final class Face implements Action {
                 if (host.entity().getControllingPassenger() != body || !Paddle.toolCheck(body, host).ok()
                         || !host.thrust(body, Vec3.ZERO, turn)) return Outcome.of(Reason.NO_ROOM, 0, "turn:riders");
                 body.life().spendEnergy(Paddle.cost(body, host));
-                hullTurning = true;
+                hullStroke = Paddle.strokeClip(body, host);
                 GameplayLog.limited(body, "hat", "turn_hull", 100, "turn via_hull body={} step={}", body.getUUID(), turn);
             }
         } else if (step > 0) Motor.face(body, body.yBodyRot + turn);

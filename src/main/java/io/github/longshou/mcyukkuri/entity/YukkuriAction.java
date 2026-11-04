@@ -53,6 +53,7 @@ public enum YukkuriAction {
     BOAT_CALL("boat_call", 2.0, true),
     BOAT_BROOD("boat_brood", 4.0, true),
     BOAT_PADDLE("boat_paddle", 1.6, true),
+    BOAT_PADDLE_BRAID("boat_paddle_braid", 1.6, true),
     BANK_BECKON("bank_beckon", 1.6, true),
     WATER_BECKON("water_beckon", 1.6, true),
     BOAT_GATHER("boat_gather", 1.6, false),

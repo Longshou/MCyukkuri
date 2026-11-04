@@ -31,13 +31,18 @@ import net.minecraft.world.phys.Vec3;
 /** Drive the ridden host continuously with a stick or bare braid, facing its bow and paying energy each tick. */
 public final class Paddle implements Action {
     public static final String ID = "paddle";
-    private static final String CLIP = YukkuriAction.BOAT_PADDLE.id();
+    /** The stroke clips: with a stick, and with the bare braid dipping into the water itself. */
+    public static final String CLIP = YukkuriAction.BOAT_PADDLE.id(), BRAID_CLIP = YukkuriAction.BOAT_PADDLE_BRAID.id();
     /** Energy per tick, preserving the original one point per 80 ticks; a bare braid costs twice as much. */
     private static final float COST = 1f / 80, BRAID_COST = 1f / 40;
-    private static final double BRAID_PACE = .35;
+    /** A bare braid drives the hull at this share of a stick's pace (项目设计). */
+    public static final double BRAID_PACE = .35;
     /** The widest angle (degrees) between the rower and her hull's bow at which a stroke reaches the water: the stick goes over the
      *  beam, as lore/recipe.json paddle_shared.captain_yaw gates the paddle clips against every hull form. 项目设计 */
     public static final double FACING = ClipMarkers.of(CLIP).parameters().get("captain_yaw");
+    /** A facing correction she finishes within the stroke's lead-in (its loop start to power_start) stays in the stroke clip;
+     *  only a longer turn shows her drifting, for the whole turn (the drift's held grip is the stroke's loop start). */
+    private static final int TURN_IN_STROKE = ClipMarkers.of(CLIP).ticks("power_start", 0);
 
     private final Supplier<Vec3> target;
     private final DoublePredicate arrived;
@@ -46,7 +51,7 @@ public final class Paddle implements Action {
     private Vec3 previous;
     private int t, turnTicks, skipped;
     private long startTick;
-    private boolean turning, stick;
+    private boolean turning, drifting, stick;
 
     public Paddle(Vec3 target, double arrive) { this(() -> target, distance -> distance <= arrive); }
 
@@ -59,23 +64,40 @@ public final class Paddle implements Action {
         if (target.get() == null) return Feasibility.of(Reason.TARGET_GONE, 0, "target_gone");
         if (!(Attach.of(body) instanceof AttachState.OnHost on)) return Feasibility.of(Reason.NO_SUPPORT, 0, "not_on_host");
         host = on.host();
-        stick = body.getMouthItem().is(Items.STICK) || host.holds(Items.STICK);
+        stick = hasStick(body, host);
         return toolCheck(body, host);
     }
 
+    /** She rows with a real stick: in her mouth or kept by the hull she rides. */
+    private static boolean hasStick(YukkuriEntity body, SurfaceHost host) {
+        return body.getMouthItem().is(Items.STICK) || host.holds(Items.STICK);
+    }
+
     static Feasibility toolCheck(YukkuriEntity body, SurfaceHost host) {
-        boolean stick = body.getMouthItem().is(Items.STICK) || host.holds(Items.STICK);
-        if (!stick && (!ContactGeometry.braided(body) || ParentCarry.braidBusy(body)))
+        if (!hasStick(body, host) && (!ContactGeometry.braided(body) || ParentCarry.braidBusy(body)))
             return Feasibility.of(Reason.NO_TOOL, 0, "no_free_braid");
         float cost = cost(body, host);
         return body.life().energy() < cost ? Feasibility.of(Reason.EXHAUSTED, 0, "energy=" + body.life().energy()) : Feasibility.pass();
     }
     static float cost(YukkuriEntity body, SurfaceHost host) {
-        return body.getMouthItem().is(Items.STICK) || host.holds(Items.STICK) ? COST : BRAID_COST;
+        return hasStick(body, host) ? COST : BRAID_COST;
     }
 
     @Override public MotionPose pose() {
-        return new MotionPose(turning ? YukkuriAction.BOAT_DRIFT.id() : CLIP, startTick, true);
+        return new MotionPose(drifting ? YukkuriAction.BOAT_DRIFT.id() : stick ? CLIP : BRAID_CLIP, startTick, true);
+    }
+
+    /** The stroke clip for her tool: the stick's when she has one, else the bare braid's. */
+    public static String strokeClip(YukkuriEntity body, SurfaceHost host) {
+        return hasStick(body, host) ? CLIP : BRAID_CLIP;
+    }
+
+    /** Hull travel per clip second, relative to a stick stroke: the bare braid's clip keeps the stick's beat at its slower pace. */
+    public static double clipPace(String clip) { return clip.equals(BRAID_CLIP) ? BRAID_PACE : 1; }
+
+    /** The turn left (degrees past FACING, at her turn rate) outlasts the stroke's lead-in, so she drifts while she turns. */
+    private boolean longTurn(double off) {
+        return turnRate == 0 || Math.ceil((Math.abs(off) - FACING) / turnRate) > TURN_IN_STROKE;
     }
 
     @Override public void start(YukkuriEntity body) {
@@ -87,6 +109,7 @@ public final class Paddle implements Action {
         turnRate = ability.turnRate();
         facing = bowOff(body);
         turning = Math.abs(facing) > FACING;
+        drifting = turning && longTurn(facing);
     }
 
     @Override public Progress tick(YukkuriEntity body) {
@@ -102,9 +125,11 @@ public final class Paddle implements Action {
         // She keeps facing the bow at her turn rate, so the stroke reaches the water over the beam; turned away, no stroke lands.
         double off = bowOff(body);
         if (Math.abs(off) > FACING) {
+            if (!turning) drifting = longTurn(off);
             turning = true;
             skipped++;
-            GameplayLog.limited(body, "action", "paddle.turning", 200, "paddle turning bow_off={} turn_rate={} stroke_tick={}", off, turnRate, t);
+            GameplayLog.limited(body, "action", "paddle.turning", 200, "paddle turning bow_off={} turn_rate={} stroke_tick={} pose={}", off, turnRate, t,
+                    drifting ? "drift" : "stroke");
             if (turnRate == 0 || ++turnTicks >= Math.min(progressWindow() - 1, Math.ceil(180 / turnRate))) {
                 return Outcome.of(Reason.NO_PROGRESS, 0, "facing_stalled bow_off=" + off);
             }
@@ -115,8 +140,9 @@ public final class Paddle implements Action {
             turning = false;
             startTick = body.level().getGameTime() - t;
             GameplayLog.limited(body, "action", "paddle.facing_ready", 200,
-                    "paddle facing ready bow_off={} turn_ticks={} stroke_tick={}", bowOff(body), turnTicks, t);
+                    "paddle facing ready bow_off={} turn_ticks={} stroke_tick={} pose={}", bowOff(body), turnTicks, t, drifting ? "drift" : "stroke");
             turnTicks = 0;
+            drifting = false;
         }
         float cost = stick ? COST : BRAID_COST;
         if (body.life().energy() < cost) return Outcome.of(Reason.EXHAUSTED, 0, "energy=" + body.life().energy());

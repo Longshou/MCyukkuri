@@ -1,6 +1,5 @@
 package io.github.longshou.mcyukkuri.client;
 
-import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriView;
 import io.github.longshou.mcyukkuri.motor.action.Paddle;
 import io.github.longshou.mcyukkuri.motor.action.Swim;
@@ -9,7 +8,7 @@ import java.util.Map;
 import java.util.WeakHashMap;
 import net.minecraft.world.phys.Vec3;
 
-/** Locomotion clip time follows rendered body or ridden hull distance. */
+/** Locomotion clip time follows rendered body or ridden hull distance; a bare-braid stroke keeps the stick's beat at its slower pace. */
 final class WaterMotionClock {
     private record Sample(long start, Vec3 at, float seconds) {}
     private static final Map<YukkuriView, Sample> samples = new WeakHashMap<>();
@@ -17,7 +16,7 @@ final class WaterMotionClock {
     static float seconds(YukkuriView body, float partial, float ordinary) {
         String action = body.motorAction();
         String clip = body.getAnimationId();
-        if (!action.equals(Swim.ID) && !(action.equals(Paddle.ID) && clip.equals(Behaviors.BOAT_PADDLE))) {
+        if (!action.equals(Swim.ID) && !(action.equals(Paddle.ID) && (clip.equals(Paddle.CLIP) || clip.equals(Paddle.BRAID_CLIP)))) {
             samples.remove(body);
             return ordinary;
         }
@@ -25,7 +24,7 @@ final class WaterMotionClock {
         Vec3 at = hat == null ? body.getPosition(partial) : hat.getPosition(partial);
         var previous = samples.get(body);
         float seconds = previous == null || previous.start != body.motorStart() ? 0 : previous.seconds
-                + (float) (at.subtract(previous.at).horizontalDistance() / (20 * AbilityMath.Coefficients.DEFAULTS.swimSpeed()));
+                + (float) (at.subtract(previous.at).horizontalDistance() / (20 * AbilityMath.Coefficients.DEFAULTS.swimSpeed() * Paddle.clipPace(clip)));
         samples.put(body, new Sample(body.motorStart(), at, seconds));
         return seconds;
     }
