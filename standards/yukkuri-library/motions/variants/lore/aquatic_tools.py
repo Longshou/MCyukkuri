@@ -33,7 +33,7 @@ PADDLE_CLIPS = ('boat_paddle', 'hat_brim_offer', 'boat_nudge_young')
 NEW_CLIPS = ('braid_cradle_lift', 'be_cradled', 'mouth_bite_hold', 'boat_thrown', 'water_hat_climb', 'water_hat_right',
              'boat_cargo_stow', 'boat_cargo_fetch', 'boat_jettison', 'boat_rim_peek', 'braid_rescue_reach', 'braid_rescue_hold',
              'braid_rescue_settle', 'boat_board', 'boat_feed_young', 'hat_hop_up', 'boat_drift', 'boat_steady', 'kid_brim_splash',
-             'kid_mimic_paddle', 'kid_poke_stores', 'kid_hide_behind', 'bank_beckon', 'water_beckon', 'braid_head_set', 'braid_head_take')
+             'kid_mimic_paddle', 'kid_hide_behind', 'bank_beckon', 'water_beckon', 'braid_head_set', 'braid_head_take')
 # Beats were authored on these lengths; the recipe duration rescales them (boat_thrown 0.6 s, water_hat_right 1.6 s).
 AUTHORED = {'boat_thrown': 1.2, 'water_hat_right': 2.0}
 # A real item held in the braid tuft (the same vanilla stick the paddle clips row with): the hold overlays, pick and place.
@@ -239,15 +239,6 @@ def state(action, t, c, height):
         s = [1+.03*drive, 1-.05*drive, 1+.02*drive]
         r = [lerp(-2, .5, q) if power else lerp(.5, -2, q), lerp(-10, 9, q) if power else lerp(9, -10, q),
              -10*drive+wobble*math.sin(2*math.pi*u*6)]
-    elif action == 'kid_poke_stores':
-        # A young pokes at the stores on the basin floor (boat_cargo_fetch's head-down dip, eat's peck): three pecks with the
-        # mouth (markers peck_1..3), the braid tapping the floor between, then a pleased wiggle. Pitch to -9, roll <= 2.
-        pecks = [.35, .8, 1.25]
-        dip = max(bump((t-at+.18)/.36) for at in pecks)
-        s = [1+.04*dip, 1-.09*dip, 1+.05*dip]
-        r = [-9*dip, keyed(t, [(0, 0), (.6, -6), (1.05, 5), (1.5, 0), (d, 0)])+6*math.sin(2*math.pi*(t-1.5)/.25)*bump((t-1.5)/.5),
-             2*math.sin(2*math.pi*t/.45)*bump((t-1.5)/.5)]
-        shift[1] = -.3*dip  # mostly down: a large young sits with its front at the basin wall
     elif action == 'kid_hide_behind':
         # Scared: a quick crouch-spring scoot toward its mother (the server moves it; boat_alarm_wait / boat_flee), then it
         # cowers low and wide under her braid, trembling, peeking out once. Pitch <= 5, roll <= 3.

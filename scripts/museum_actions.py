@@ -33,7 +33,7 @@ CATEGORIES = [
         ('boat_cargo_stow','把粮放进帽冠袋底'),('boat_cargo_fetch','从帽冠袋底取粮'),
         ('boat_jettison','推出帽檐'),('boat_rim_peek','前台阶探头看水'),
         ('kid_brim_splash','子油帽檐拍水'),('kid_mimic_paddle','子油学亲油划水'),
-        ('kid_poke_stores','幼体拨弄储粮'),('kid_hide_behind','子油躲在亲油辫后')]),
+        ('kid_hide_behind','子油躲在亲油辫后')]),
     ('初航与帽檐', [('hat_brim','站帽檐'),('boat_first_balance','试坐平衡'),('hat_stumble','帽檐失衡'),('hat_jostle','帽檐拥挤'),
         ('hat_brim_offer','低下近缘帽檐'),('hat_hop_up','蹿上帽檐'),('hat_slide_over','贴缘滑进帽里')]),
     ('落水与救援', [('water_plunge','落水冲击'),('water_struggle','水中扑腾'),('water_gasp','呼救喘息'),('water_recover','获救喘息'),
