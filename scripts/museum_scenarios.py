@@ -2903,7 +2903,8 @@ pond('first_voyage_brim', '初航·子油从亲帽帽檐放船', '子油初航·
      smoke=dict(ticks=4800, expect=[r'\[hat\][^\n]* scenario afloat prepared [^\n]*young=1\b',
                                    rf'\[aquatic\][^\n]*uuid={_uuid_text("first_voyage_brim", "c1")}[^\n]* first_voyage start [^\n]*from=parent_hat\b'
                                    rf'[\s\S]*\[aquatic\][^\n]*uuid={_uuid_text("first_voyage_brim", "c1")}[^\n]* first_voyage route=brim\b'
-                                   rf'[\s\S]*\[hat\][^\n]* placed owner={_uuid_text("first_voyage_brim", "c1")}\b[^\n]* water=true'
+                                   rf'[\s\S]*\[hat\][^\n]* placed owner={_uuid_text("first_voyage_brim", "c1")} hat=(\S+)[^\n]* water=true'
+                                   rf'[\s\S]*\[body\][^\n]*uuid={_uuid_text("first_voyage_brim", "c1")}[^\n]* mount host=\1 cause=hop_contact'
                                    rf'[\s\S]*\[aquatic\][^\n]*uuid={_uuid_text("first_voyage_brim", "c1")}[^\n]* first_voyage hopped onto own hat [^\n]*aboard=true\b',
                                    r'\[aquatic\][^\n]* first_voyage success [^\n]*route=brim\b'],
                 forbid=[r'\[body\][^\n]* invariant\b', r'\[body\][^\n]* death settled\b', r'\[aquatic\][^\n]* first_voyage route=bank\b'],
