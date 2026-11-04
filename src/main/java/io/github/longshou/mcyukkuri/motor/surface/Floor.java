@@ -6,6 +6,8 @@ import io.github.longshou.mcyukkuri.motor.Motor;
 import io.github.longshou.mcyukkuri.motor.action.Face;
 import io.github.longshou.mcyukkuri.motor.geom.BodyFootprint;
 import io.github.longshou.mcyukkuri.motor.geom.FloorSearch;
+import io.github.longshou.mcyukkuri.motor.geom.GridPath;
+import io.github.longshou.mcyukkuri.motor.geom.HeightGrid;
 import io.github.longshou.mcyukkuri.motor.geom.Vec;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.ArrayList;
@@ -37,6 +39,123 @@ public final class Floor {
     }
     public static Vec vec(Vec3 p) { return new Vec(p.x, p.y, p.z); }
     public static Vec3 point(Vec p) { return new Vec3(p.x(), p.y(), p.z()); }
+
+    /** A supported route to a free point in a fixed body's contact cone. */
+    public static List<Vec3> approach(SurfaceHost host, YukkuriEntity body, Vec3 centre, float yaw,
+                                      double inner, double outer, double halfAngle, float facingOffset) {
+        var local = host.frame().toLocal(centre);
+        var forward = host.frame().toLocal(centre.add(Vec3.directionFromRotation(0, yaw))).subtract(local);
+        var grid = walkGrid(host, body);
+        var refusals = new int[5];
+        var path = FloorSearch.coneRoute(vec(host.riders().local(body.getUUID())), vec(local),
+                Math.atan2(forward.z, forward.x), inner / host.frame().unit(), outer / host.frame().unit(), Math.toRadians(halfAngle),
+                at -> {
+                    var delta = host.frame().toWorld(point(at)).subtract(centre);
+                    float facing = (float) Math.toDegrees(Math.atan2(delta.z, delta.x)) - 90 + facingOffset;
+                    return route(host, body, grid, point(at), facing - host.entity().getYRot(), refusals);
+                });
+        if (path.isEmpty()) GameplayLog.limited(body,"care","floor_no_route",200,
+                "floor route unavailable from={} centre={} bearing={} facingOffset={} radius={}..{} width={} height={} yaw={} others={} rejected=support:{},room:{},turn:{},path:{},edge:{}",
+                host.riders().local(body.getUUID()),local,Math.toDegrees(Math.atan2(forward.z,forward.x)),facingOffset,
+                inner/host.frame().unit(),outer/host.frame().unit(),body.getBbWidth()/host.frame().unit(),body.getBbHeight()/host.frame().unit(),
+                host.riders().yaw(body.getUUID()),others(host,body).stream().map(p -> p.at()+"/"+p.body().width()+"/"+p.body().height()+"/"+Math.toDegrees(p.body().yaw())).toList(),
+                refusals[0],refusals[1],refusals[2],refusals[3],refusals[4]);
+        return new ArrayList<>(path.stream().map(Floor::point).toList());
+    }
+
+    private static List<Vec> noRoute(int[] refusals, int reason) { refusals[reason]++; return List.of(); }
+
+    private static HeightGrid walkGrid(SurfaceHost host, YukkuriEntity body) {
+        var rim = host.rim().stream().map(host.frame()::toLocal).toList();
+        var from = host.riders().local(body.getUUID());
+        return new HeightGrid(rim.stream().mapToDouble(p -> p.x).min().orElseThrow(), rim.stream().mapToDouble(p -> p.z).min().orElseThrow(),
+                rim.stream().mapToDouble(p -> p.x).max().orElseThrow(), rim.stream().mapToDouble(p -> p.z).max().orElseThrow(),
+                Math.min(FloorSearch.GRID_CELL, shape(host, body).radius()), (x, z) -> {
+                    var height = host.support(new Vec3(x, 0, z), body);
+                    if (height.isEmpty()) return Double.NaN;
+                    var at = new Vec3(x, height.getAsDouble(), z);
+                    return host.insideFloor(at) && host.stepRoom(body, from, at) && Motor.clearSpot(host, body, at)
+                            ? height.getAsDouble() : Double.NaN;
+                });
+    }
+
+    private static List<Vec> route(SurfaceHost host, YukkuriEntity body, HeightGrid grid, Vec3 target, float facing, int[] refusals) {
+        var height = host.support(target, body);
+        if (height.isEmpty()) return noRoute(refusals,0);
+        target = new Vec3(target.x, height.getAsDouble(), target.z);
+        if (!host.insideFloor(target) || !host.room(body, target) || !Motor.clearSpot(host, body, target)) return noRoute(refusals,1);
+        var turned = target;
+        float yaw = host.riders().yaw(body.getUUID());
+        while (Math.abs(Mth.wrapDegrees(facing - yaw)) > Face.FACE_ARRIVED) {
+            float rate = (float) BodyAbility.of(body).turnRate();
+            yaw += Math.clamp(Mth.wrapDegrees(facing - yaw), -rate, rate);
+            var turn = clearTurn(host, body, turned, yaw);
+            if (turn.isEmpty()) return noRoute(refusals,2);
+            turned = new Vec3(turned.x, turn.getAsDouble(), turned.z);
+            if (!host.insideFloor(turned)) return noRoute(refusals,2);
+        }
+        var from = host.riders().local(body.getUUID());
+        if (clearWay(host, body, from, target)) return List.of(vec(target));
+        var start = grid.nearest(from.x, from.z);
+        var end = grid.nearest(target.x, target.z);
+        if (start == null || end == null) return noRoute(refusals,3);
+        var way = GridPath.find(grid, grid.centreX(start[0]), grid.centreZ(start[1]), grid.centreX(end[0]), grid.centreZ(end[1]),
+                BodyAbility.of(body).stepUp() / host.frame().unit(), 0,
+                (a, b) -> clearWay(host, body, point(a), point(b)));
+        if (way.isEmpty()) return noRoute(refusals,3);
+        var out = new ArrayList<Vec>();
+        for (var step : way) {
+            var next = new Vec3(step[0], host.support(new Vec3(step[0], 0, step[1]), body).orElseThrow(), step[1]);
+            if (!clearWay(host, body, from, next)) return noRoute(refusals,4);
+            out.add(vec(next)); from = next;
+        }
+        if (!clearWay(host, body, from, target)) return noRoute(refusals,4);
+        out.add(vec(target));
+        return out;
+    }
+
+    /** Sweep the actual footprint between grid centres too; a clear endpoint cannot cut through another rider. */
+    private static boolean clearWay(SurfaceHost host, YukkuriEntity body, Vec3 from, Vec3 to) {
+        int steps = Math.max(1, (int) Math.ceil(from.distanceTo(to) / Math.min(FloorSearch.GRID_CELL, shape(host, body).radius())));
+        var previous = from;
+        for (int i = 1; i <= steps; i++) {
+            var at = from.lerp(to, (double) i / steps);
+            var height = host.support(at, body);
+            if (height.isEmpty()) return false;
+            at = new Vec3(at.x, height.getAsDouble(), at.z);
+            if (!host.insideFloor(at) && at.y > from.y
+                    || Math.abs(at.y - previous.y) * host.frame().unit() > BodyAbility.of(body).stepUp()
+                    || !host.stepRoom(body, previous, at) || !Motor.clearSpot(host, body, at)) return false;
+            previous = at;
+        }
+        return true;
+    }
+
+    /** Consume one physical step of the selected route, preserving the contact facing. */
+    public static boolean follow(SurfaceHost host, YukkuriEntity body, List<Vec3> route) {
+        var target = route.getFirst();
+        if (!advance(host, body, target)) return false;
+        var at = host.riders().local(body.getUUID());
+        if (Math.hypot(at.x - target.x, at.z - target.z) < 1e-6) route.removeFirst();
+        return true;
+    }
+
+    /** Turn only this body; contact approaches cannot displace the stationary caregiver or a serving sibling. */
+    public static void turnInPlace(SurfaceHost host, YukkuriEntity body, float stepDeg) {
+        var spot = host.riders().spot(body.getUUID());
+        var height = clearTurn(host, body, spot.local(), spot.yaw() + stepDeg);
+        if (height.isPresent()) Motor.spot(host, body, new Vec3(spot.local().x, height.getAsDouble(), spot.local().z),
+                spot.yaw() + stepDeg, "turn");
+    }
+
+    private static OptionalDouble clearTurn(SurfaceHost host, YukkuriEntity body, Vec3 local, float yaw) {
+        var height = host.turnSupport(local, body, yaw);
+        if (height.isEmpty() || (height.getAsDouble() - local.y) * host.frame().unit() > Occupancy.MARGIN) return OptionalDouble.empty();
+        var at = new Vec(local.x, height.getAsDouble(), local.z);
+        return FloorSearch.clear(shape(host, body, yaw), at, others(host, body), host.roomGap())
+                && Motor.clearSpot(host, body, point(at)) ? height : OptionalDouble.empty();
+    }
+
     /** A short supported floor move that preserves the body's facing. */
     public static boolean advance(SurfaceHost host, YukkuriEntity body, Vec3 target) {
         var spot = host.riders().spot(body.getUUID());
@@ -45,9 +164,9 @@ public final class Floor {
         if (distance == 0) return true;
         var next = spot.local().add(delta.scale(Math.min(distance, BodyAbility.of(body).walkSpeed() / host.frame().unit()) / distance));
         var height = host.support(next, body);
-        if (height.isEmpty() || !host.room(body, next)) return false;
+        if (height.isEmpty()) return false;
         next = new Vec3(next.x, height.getAsDouble(), next.z);
-        if (!Motor.clearSpot(host, body, next)) return false;
+        if (!host.stepRoom(body, spot.local(), next) || !Motor.clearSpot(host, body, next)) return false;
         Motor.spot(host, body, next, spot.yaw(), "floor_move");
         return true;
     }

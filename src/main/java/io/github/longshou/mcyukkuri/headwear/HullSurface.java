@@ -62,19 +62,31 @@ public final class HullSurface implements HatSurface {
     @Override public boolean room(PlacedHatEntity hat, YukkuriEntity body, Vec3 local, double top) {
         if (!hat.shapedRoom(body, local, top)) return false;
         if (body.getUUID().equals(hat.ownerYukkuri()) || !hat.insideFloor(local)) return true;
+        return roomAround(hat, body).clear(hatDisc(hat, body, local));
+    }
+    @Override public boolean stepRoom(PlacedHatEntity hat, YukkuriEntity body, Vec3 from, Vec3 to) {
+        if (!hat.shapedRoom(body, to, to.y + body.getBbHeight() / hat.unit())) return false;
+        if (body.getUUID().equals(hat.ownerYukkuri()) || !hat.insideFloor(to)) return true;
+        return roomAround(hat, body).step(hatDisc(hat, body, from), hatDisc(hat, body, to));
+    }
+    private record Room(List<FloorSearch.Placed> captain, List<Disc> riders) {
+        private static double wall(Disc hat) { return HullBounds.innerRadius(hat.bottom() * HullBounds.UNIT) / HullBounds.UNIT; }
+        boolean clear(Disc hat) { return PlaceGeometry.cabin(hat, wall(hat), captain, riders, .3 / HullBounds.SCALE); }
+        boolean step(Disc from, Disc to) { return PlaceGeometry.cabinStep(from, wall(from), to, wall(to), captain, riders, .3 / HullBounds.SCALE); }
+    }
+    private static Room roomAround(PlacedHatEntity hat, YukkuriEntity body) {
         var captain = hat.owner();
         var envelope = new ArrayList<FloorSearch.Placed>();
         if (captain != null) {
             var at = captain.getVehicle() == hat ? Floor.vec(hat.riders().local(captain.getUUID())) : HullBounds.HOME.scale(1 / HullBounds.UNIT);
             float yaw = captain.getVehicle() == hat ? hat.riders().yaw(captain.getUUID()) : 0;
-            for (float turn : captain.family().holdsBirthStation() ? new float[]{yaw} : new float[]{-15, 0, 15, yaw}) envelope.add(new FloorSearch.Placed(BodyFootprint.envelope(captain.assetId(),
+            for (float turn : captain.family().holdsBirthStation() || captain.careApproach().cooperatingWith(body)
+                    ? new float[]{yaw} : new float[]{-15, 0, 15, yaw}) envelope.add(new FloorSearch.Placed(BodyFootprint.envelope(captain.assetId(),
                     captain.getBbWidth() / hat.unit(), captain.getBbHeight() / hat.unit(), Math.toRadians(turn)), at));
         }
         var others = hat.getPassengers().stream().filter(p -> p != body && p != captain).map(p -> (YukkuriEntity) p)
                 .map(p -> hatDisc(hat, p, hat.riders().local(p.getUUID()))).toList();
-        var disc = hatDisc(hat, body, local);
-        return PlaceGeometry.cabin(disc, HullBounds.innerRadius(disc.bottom() * HullBounds.UNIT) / HullBounds.UNIT,
-                envelope, others, .3 / HullBounds.SCALE);
+        return new Room(envelope, others);
     }
     @Override public List<Vec3> hopStops(PlacedHatEntity hat, YukkuriEntity body) {
         return HullBounds.brimStops(body.assetId(), body.getBbWidth(), body.getBbHeight(),

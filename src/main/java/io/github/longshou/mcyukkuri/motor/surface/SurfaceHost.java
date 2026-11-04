@@ -51,6 +51,8 @@ public interface SurfaceHost {
 
     /** As {@link #room(YukkuriEntity, Vec3)} with the body reaching up to {@code top} (hat units): a body coming down needs the column it falls through free as well. */
     boolean room(YukkuriEntity body, Vec3 local, double top);
+    /** Clearance for a physical step; a host may let an existing soft overlap separate without admitting a new one. */
+    default boolean stepRoom(YukkuriEntity body, Vec3 from, Vec3 to) { return room(body, to); }
 
     /** It lets this body stand on it (ride it): a body it does not bear meets it only as an edge to glance off. */
     default boolean bears(YukkuriEntity body) { return true; }

@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.PriorityQueue;
+import java.util.function.BiPredicate;
 
 /** A* over a {@link HeightGrid}: 8-way, edges need two supported cells within {@code stepUp}. */
 public final class GridPath {
@@ -12,6 +13,12 @@ public final class GridPath {
 
     /** Waypoints {@code {x,z}} from the start cell centre to the goal cell centre, empty when unreachable. Cost is distance in cells; a rim cell adds {@code rimWeight}. */
     public static List<double[]> find(HeightGrid g, double sx, double sz, double gx, double gz, double stepUp, double rimWeight) {
+        return find(g, sx, sz, gx, gz, stepUp, rimWeight, (from, to) -> true);
+    }
+
+    /** A physical move may reject an edge even when both endpoints have support. */
+    public static List<double[]> find(HeightGrid g, double sx, double sz, double gx, double gz, double stepUp, double rimWeight,
+                                       BiPredicate<Vec, Vec> clear) {
         int nx = g.nx(), n = nx * g.nz();
         int s = g.cellZ(sz) * nx + g.cellX(sx), t = g.cellZ(gz) * nx + g.cellX(gx);
         if (!g.supported(s % nx, s / nx) || !g.supported(t % nx, t / nx)) return List.of();
@@ -30,6 +37,8 @@ public final class GridPath {
                 for (int di = -1; di <= 1; di++) {
                     int i = ci + di, j = cj + dj;
                     if ((di == 0 && dj == 0) || !g.supported(i, j) || Math.abs(g.height(i, j) - g.height(ci, cj)) > stepUp) continue;
+                    if (!clear.test(new Vec(g.centreX(ci), g.height(ci, cj), g.centreZ(cj)),
+                            new Vec(g.centreX(i), g.height(i, j), g.centreZ(j)))) continue;
                     double nc = cost[c] + (di != 0 && dj != 0 ? Math.sqrt(2) : 1) + (rim(g, i, j) ? rimWeight : 0);
                     int k = j * nx + i;
                     if (nc < cost[k]) {

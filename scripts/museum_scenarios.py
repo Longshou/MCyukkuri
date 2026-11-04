@@ -3049,8 +3049,8 @@ def hat_birth_result(window):
         if not toilet:
             return f'newborn {index} did not complete newborn care'
         care_done.append(toilet.end())
-    if re.search(rf'turn push [^\n]*by={mother}\b', window[:max(care_done)]):
-        return 'mother turned and pushed a rider during cabin care'
+    if re.search(rf'turn push [^\n]*(?:by={mother}|rider={mother})\b', window[:max(care_done)]):
+        return 'mother moved or pushed a rider during cabin care'
     if re.search(r'\[body\][^\n]* death settled|cause=starv|brood cancelled', window):
         return 'birth family died, starved or lost its brood'
 

@@ -32,6 +32,7 @@ public final class CareApproach {
     private YukkuriEntity child;
     private Kind kind;
     private Places places;
+    private List<Vec3> floorRoute;
     private Vec3 lastParent, lastChild;
     private int stalled, retries, bodyContacts;
     private long lease;
@@ -101,15 +102,31 @@ public final class CareApproach {
         var session = incoming;
         if(owner.getVehicle() instanceof SurfaceHost host&&sameFloor(owner,session.owner)) {
             if(!Floor.standing(owner)||!Floor.standing(session.owner))return;
-            if(!faceOn(host,owner,SurfaceApproach.yaw(owner.position(),session.owner.position())+(session.kind==Kind.REAR?180:0)))return;
             if(session.touching())return;
-            double limit=Math.toDegrees(Math.acos(session.kind==Kind.REAR?.97:FamilyFeedingContact.MIN_FACING_DOT))-Face.FACE_ARRIVED;
-            float toward=SurfaceApproach.yaw(session.owner.position(),owner.position());
-            float yaw=session.owner.yBodyRot+(float)Math.clamp(Mth.wrapDegrees(toward-session.owner.yBodyRot),-limit,limit);
-            var stand=host.frame().toLocal(session.owner.position().add(Vec3.directionFromRotation(0,yaw)
-                    .scale(FamilyFeedingContact.standingDistance(session.owner,owner))));
-            var height=host.support(stand,owner);
-            if(height.isEmpty()||!Floor.advance(host,owner,new Vec3(stand.x,height.getAsDouble(),stand.z)))session.fail("no_reachable_meeting");
+            if(session.floorRoute==null) {
+                double limit=Math.toDegrees(Math.acos(session.kind==Kind.REAR?.97:FamilyFeedingContact.MIN_FACING_DOT));
+                var route=Floor.approach(host,owner,session.owner.position(),session.owner.yBodyRot,
+                        FamilyFeedingContact.minimumMouthDistance(session.owner,owner),
+                        FamilyFeedingContact.mouthDistance(session.owner,owner),limit,session.kind==Kind.FEED?180:0);
+                if(route.isEmpty()) {
+                    // The existing care task bounds this wait; no second reservation or retry budget.
+                    if(host.entity().getPassengers().stream().anyMatch(p -> p instanceof YukkuriEntity other
+                            && other!=owner && other.careApproach().waiting())) {
+                        GameplayLog.limited(owner,"care","floor_wait",200,
+                                "floor approach waiting parent={} kind={} reason=other_receiver",session.owner.getUUID(),session.kind);
+                        return;
+                    }
+                    session.fail("no_reachable_meeting");return;
+                }
+                session.floorRoute=route;
+                GameplayLog.event(owner,"care","floor approach parent={} kind={} target={} waypoints={}",
+                        session.owner.getUUID(),session.kind,route.getLast(),route.size());
+            }
+            if(session.floorRoute.isEmpty()) {
+                float facing=SurfaceApproach.yaw(owner.position(),session.owner.position())+(session.kind==Kind.REAR?180:0);
+                if(faceOn(host,owner,facing)&&!session.touching())session.fail("contact_not_reached");
+            }
+            else if(!Floor.follow(host,owner,session.floorRoute))session.fail("no_reachable_meeting");
             return;
         }
         if (session.places==null || owner.life().mealTicks()>0) SurfaceApproach.halt(owner);
@@ -193,13 +210,14 @@ public final class CareApproach {
         if(!Floor.standing(owner)||!Floor.standing(child))return Result.APPROACHING;
         if(!touching())return Result.APPROACHING;
         GameplayLog.limited(owner,"care","aboard_contact."+kind,200,
-                "aboard contact child={} kind={} parentLocal={} childLocal={} parentYaw={} childYaw={}",
-                child.getUUID(),kind,host.riders().local(owner.getUUID()),host.riders().local(child.getUUID()),owner.yBodyRot,child.yBodyRot);
+                "aboard contact child={} kind={} parentLocal={} childLocal={} parentYaw={} childYaw={} parentLocalYaw={}",
+                child.getUUID(),kind,host.riders().local(owner.getUUID()),host.riders().local(child.getUUID()),owner.yBodyRot,child.yBodyRot,
+                host.riders().yaw(owner.getUUID()));
         return Result.CONTACT;
     }
     private static boolean faceOn(SurfaceHost host,YukkuriEntity body,float yaw) {
         float left=Mth.wrapDegrees(yaw-body.yBodyRot),rate=(float)BodyAbility.of(body).turnRate();
-        Floor.turn(host,body,Math.clamp(left,-rate,rate));
+        Floor.turnInPlace(host,body,Math.clamp(left,-rate,rate));
         return Math.abs(Mth.wrapDegrees(yaw-body.yBodyRot))<=Face.FACE_ARRIVED;
     }
 
@@ -224,7 +242,7 @@ public final class CareApproach {
         if(child!=null)logBoundary("stopped",reason);
         if (child!=null && child.careApproach().incoming==this) child.careApproach().incoming=null;
         if (child!=null) SurfaceApproach.halt(owner);
-        child=null; places=null; rejected.clear(); retries=stalled=bodyContacts=0; lastParent=lastChild=null;
+        child=null; places=null; floorRoute=null; rejected.clear(); retries=stalled=bodyContacts=0; lastParent=lastChild=null;
         blocked.entrySet().removeIf(entry->entry.getValue()<=owner.level().getGameTime());
     }
     private void logBoundary(String boundary,String reason){

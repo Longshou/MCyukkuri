@@ -20,6 +20,7 @@ public interface HatSurface {
         return ContactResolver.surface(hat, feet, envelope);
     }
     default boolean room(PlacedHatEntity hat, YukkuriEntity body, Vec3 local, double top) { return hat.shapedRoom(body, local, top); }
+    default boolean stepRoom(PlacedHatEntity hat, YukkuriEntity body, Vec3 from, Vec3 to) { return hat.room(body, to); }
     default boolean bears(PlacedHatEntity hat, YukkuriEntity body) {
         return !hat.cooling(body) && !hat.isInWaterOrBubble() && (body.getUUID().equals(hat.ownerYukkuri()) ? !hat.catches() : hat.admits(body));
     }

@@ -1,7 +1,9 @@
 package io.github.longshou.mcyukkuri.motor.geom;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.function.Function;
 
 /** Clear supported positions, in host units. No reservation or persistent layout. */
 public final class FloorSearch {
@@ -10,6 +12,32 @@ public final class FloorSearch {
     public record Placed(BodyFootprint body, Vec at) {}
 
     private FloorSearch() {}
+
+    /** Nearest reachable contact in a cone, including its two edges. The route owns support and clearance. */
+    public static List<Vec> coneRoute(Vec from, Vec centre, double bearing, double inner, double outer, double halfAngle,
+                                      Function<Vec, List<Vec>> route) {
+        var candidates = new ArrayList<Vec>();
+        double toward = Math.atan2(from.z() - centre.z(), from.x() - centre.x()) - bearing;
+        double nearest = Math.clamp(Math.atan2(Math.sin(toward), Math.cos(toward)), -halfAngle, halfAngle);
+        double closest = Math.clamp(from.sub(centre).hlen(), inner, outer);
+        candidates.add(centre.add(new Vec(Math.cos(bearing + nearest) * closest, 0, Math.sin(bearing + nearest) * closest)));
+        var radii = new ArrayList<Double>();
+        radii.add(outer);
+        for (double radius = inner; radius < outer; radius += GRID_CELL) radii.add(radius);
+        for (double radius : radii) {
+            int steps = (int) Math.ceil(2 * halfAngle * radius / GRID_CELL);
+            for (int i = 0; i <= steps; i++) {
+                double angle = bearing - halfAngle + 2 * halfAngle * i / steps;
+                candidates.add(centre.add(new Vec(Math.cos(angle) * radius, 0, Math.sin(angle) * radius)));
+            }
+        }
+        candidates.sort(Comparator.comparingDouble(at -> at.sub(from).hlen()));
+        for (var at : candidates) {
+            var path = route.apply(at);
+            if (!path.isEmpty()) return path;
+        }
+        return List.of();
+    }
 
     public static boolean clear(BodyFootprint body, Vec at, List<Placed> others, double gap) {
         for (var other : others) if (body.overlaps(at.x(), at.y(), at.z(), other.body(),

@@ -311,6 +311,9 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
     @Override public boolean room(YukkuriEntity body, Vec3 local, double top) {
         return profile().surface().room(this, body, local, top);
     }
+    @Override public boolean stepRoom(YukkuriEntity body, Vec3 from, Vec3 to) {
+        return profile().surface().stepRoom(this, body, from, to);
+    }
     boolean shapedRoom(YukkuriEntity body, Vec3 local, double top) {
         var shape = shape(body);
         return clear(shape, local, body, Math.max(0, top-local.y-tallOf(body)));
