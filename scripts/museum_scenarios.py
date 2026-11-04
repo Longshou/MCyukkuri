@@ -2276,9 +2276,19 @@ pond('hat_grounded_inverted', '空倒扣帽随流搁浅', '空倒扣帽随流搁
 
 
 def capsized_crew(log):
-    thrown = set(re.findall(r'\[body\][^\n]*uuid=(\S+)[^\n]* dismount [^\n]*cause=thrown', log))
-    if len(thrown) != 2:
-        return f'both crew must be thrown at capsize, saw {len(thrown)}'
+    """Each rider leaves the hull into the water by a logged cause: the brim's hard-rock fall, then the capsize throw."""
+    left = {}
+    for line in log.splitlines():
+        dismount = re.search(r'\[body\][^\n]* uuid=(\S+)[^\n]* dismount [^\n]*cause=(brim_hard_rock|thrown)', line)
+        if dismount:
+            left[dismount[1]] = (dismount[2], int(re.search(r' t=(\d+) ', line)[1]))
+    if sorted(cause for cause, _ in left.values()) != ['brim_hard_rock', 'thrown']:
+        return f'each rider must leave the hull by a real cause, saw {left}'
+    for uuid, (cause, tick) in left.items():
+        entries = [int(m[1]) for m in re.finditer(r'\[water\][^\n]* uuid=' + uuid + r'[^\n]* t=(\d+)[^\n]* entered at=', log)]
+        if not any(entry >= tick for entry in entries):
+            return f'rider {uuid} ({cause}) left the hull without entering the water'
+    return None
 
 
 pond('hat_grounded_capsized', '载人帽被落水掀翻后搁浅', '载人帽翻覆后搁浅',
@@ -2289,11 +2299,12 @@ pond('hat_grounded_capsized', '载人帽被落水掀翻后搁浅', '载人帽翻
       afloat('a', water_at(0, 1), True, sel('child'), food=4)],
      vantage=(bank_dx(0) + 11, -3, 40, 18),
      late=[block(bank_dx(0) + 1, 2, 0, 'minecraft:water')],
-     note='翻覆来自场景里真实落下的一格水，不是脚本改帽子状态；被甩出的两名乘员都应在日志里各记一次 dismount cause=thrown，之后帽体才搁浅成物品。帽主可能先游回去把帽子扶正，因此这里不要求落底时仍倒扣（倒扣边界见“空倒扣帽随流搁浅”）。',
+     note='翻覆来自场景里真实落下的一格水，不是脚本改帽子状态；帽体撞上硬石时帽檐上的子油先按帽檐自身的落石判定被甩下（dismount cause=brim_hard_rock），稍后帽子才因撞击翻覆把舱内的帽主甩出（capsized cause=impact thrown=1），两名乘员各经一次真实原因落水后，帽体才搁浅成物品。帽主可能先游回去把帽子扶正，因此这里不要求落底时仍倒扣（倒扣边界见“空倒扣帽随流搁浅”）。',
      reads=_HULL_READS + [('读子油', f'yukkuri status {sel("child")} raw')],
      smoke=dict(ticks=1800, commands=[(1, 'yukkuri status trace true'), (1799, 'yukkuri status trace false')],
                 expect=[r'\[hat\][^\n]* scenario afloat prepared[^\n]*owner_aboard=true[^\n]*young=1[^\n]*food=4',
-                        r'\[hat\][^\n]* capsized cause=(?:turbulence|impact)[^\n]*thrown=2',
+                        r'\[hat\][^\n]* capsized cause=(?:turbulence|impact)[^\n]*thrown=1\b',
+                        r'\[body\][^\n]* dismount [^\n]*cause=brim_hard_rock',
                         r'\[body\][^\n]* dismount [^\n]*cause=thrown',
                         r'\[hat\][^\n]* stores spilled [^\n]*cause=(?:turbulence|impact)',
                         r'\[hat\][^\n]* pickup cause=grounded',
