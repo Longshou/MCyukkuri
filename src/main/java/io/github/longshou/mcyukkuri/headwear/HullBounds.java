@@ -7,7 +7,6 @@ import io.github.longshou.mcyukkuri.motor.geom.RadialWall;
 import io.github.longshou.mcyukkuri.motor.geom.Vec;
 import java.util.List;
 import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 /** The round hull's authored dimensions, in blocks at its exported scale; origin at the brim. */
 public final class HullBounds {
@@ -73,23 +72,12 @@ public final class HullBounds {
         }).toList();
     }
 
-    /** Offer the supported outer ring and inner footing where a larger body's outward edge fits inside the cloth. */
-    public static List<Vec> brimStops(String asset, double width, double height, double hullScale, double yaw) {
-        var profile = HullProfile.of(HullProfile.BASIN);
-        double scale = hullScale / SCALE, unit = profile.measuredUnit();
-        var body = BodyFootprint.of(asset, width / scale / unit, height / scale / unit, yaw);
-        return brimStops().stream().map(p -> p.scale(1 / unit))
-                .flatMap(p -> Stream.of(p, p.scale(Math.min(p.hlen(), RADIUS / unit
-                        - FloorSearch.extent(body, p.x() / p.hlen(), p.z() / p.hlen())) / p.hlen())).distinct())
-                .map(p -> new Vec(p.x(), profile.support(p.x(), p.z(), body), p.z())).toList();
-    }
-
     /**
-     * Where a body rests on the brim: the ring places pulled in until its collision box and its eye box end {@link #EPSILON} inside the
-     * hull's outer radius, so a hull pressed against the bank never puts it into a block. Hop takeoff and landing keep {@link #brimStops}
-     * (a body in flight is not resting).
+     * Every place a body comes to rest on the brim — a seat taken, a hop leg or landing, a carry put down — the ring places pulled in
+     * until its collision box and its eye box end {@link #EPSILON} inside the hull's outer radius, so a hull pressed against the bank
+     * never puts it into a block. Being on the brim is resting, so takeoff and landing use these same places.
      */
-    public static List<Vec> restStops(String asset, double width, double height, double hullScale, double yaw) {
+    public static List<Vec> brimPlaces(String asset, double width, double height, double hullScale, double yaw) {
         var profile = HullProfile.of(HullProfile.BASIN);
         double scale = hullScale / SCALE, unit = profile.measuredUnit();
         var body = BodyFootprint.of(asset, width / scale / unit, height / scale / unit, yaw);

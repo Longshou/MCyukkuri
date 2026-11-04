@@ -263,7 +263,7 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
     }
     @Override public List<SeatTarget> places(YukkuriEntity body, SeatTarget.Kind kind, int limit) {
         if (body.getUUID().equals(ownerYukkuri()) && kind != SeatTarget.Kind.CABIN) return List.of();
-        if (kind == SeatTarget.Kind.BRIM) return profile().surface().brimPlaces(this, body).stream().map(p -> new SeatTarget(this, p, kind))
+        if (kind == SeatTarget.Kind.BRIM) return hopStops(body).stream().map(p -> new SeatTarget(this, p, kind))
                 .filter(p -> p.available(body)).limit(limit).toList();
         if (kind != SeatTarget.Kind.HEAD) return SurfaceHost.super.places(body, kind, limit);
         if (body.family().adult()) return List.of();

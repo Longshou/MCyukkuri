@@ -123,30 +123,26 @@ class HullFloorTest {
         assertTrue(single>HullPresentation.number("load_warning") && single<1);
         assertTrue(HullBounds.loadRatio(1,List.of(limit,limit))>1);
     }
-    @Test void brimStopsKeepTheSameAuthoredColumnsWhenBodyAndHatScaleTogether() {
-        var adult = HullBounds.brimStops("marisa", .8, .6, HullBounds.SCALE, 0);
+    @Test void brimPlacesKeepTheSameAuthoredColumnsWhenBodyAndHatScaleTogether() {
+        var adult = HullBounds.brimPlaces("marisa", .8, .6, HullBounds.SCALE, 0);
         for (double scale : new double[]{.2, .35, .72, 1.2}) {
-            var stops = HullBounds.brimStops("marisa", .8 * scale, .6 * scale, HullBounds.SCALE * scale, 0);
+            var stops = HullBounds.brimPlaces("marisa", .8 * scale, .6 * scale, HullBounds.SCALE * scale, 0);
             for (int i = 0; i < adult.size(); i++) {
                 assertEquals(adult.get(i).x(), stops.get(i).x(), 1e-9);
                 assertEquals(adult.get(i).y(), stops.get(i).y(), 1e-9);
                 assertEquals(adult.get(i).z(), stops.get(i).z(), 1e-9);
-                var local = stops.get(i);
-                var body = BodyFootprint.of("marisa", .8 / UNIT, .6 / UNIT, 0);
-                double outer = body.columns().stream().mapToDouble(p ->
-                        p.x() * local.x() / local.hlen() + p.z() * local.z() / local.hlen()).max().orElseThrow();
-                assertTrue(Double.isFinite(local.y()));
-                if (local.hlen() < HullBounds.DATA.number("brim_ring.radius") / UNIT - 1e-9)
-                    assertEquals(HullBounds.RADIUS * scale, (local.hlen() + outer) * UNIT * scale, 1e-9);
+                assertTrue(Double.isFinite(stops.get(i).y()));
             }
         }
     }
 
-    @Test void restingBrimPlacesKeepTheCollisionBoxAndTheEyeBoxInsideTheHull() {
-        for (double scale : new double[]{.19, .35, 1}) {
+    /** The one brim place set serves a seat taken, every hop leg and landing, and a carry put down: whatever a body stands on the
+     *  brim after is a resting place, so its collision box and its eye box end inside the hull's own footprint. */
+    @Test void brimPlacesKeepTheCollisionBoxAndTheEyeBoxInsideTheHull() {
+        for (double scale : new double[]{.19, .25, .35, 1}) {
             double width = .8 * scale;
             var body = BodyFootprint.of("marisa", width / scale / UNIT, .6 / UNIT, 0);
-            var stops = HullBounds.restStops("marisa", width, .6 * scale, HullBounds.SCALE * scale, 0);
+            var stops = HullBounds.brimPlaces("marisa", width, .6 * scale, HullBounds.SCALE * scale, 0);
             assertFalse(stops.isEmpty());
             for (var at : stops) {
                 double edge = Math.max(FloorSearch.extent(body, at.x() / at.hlen(), at.z() / at.hlen()), HullBounds.EYE_BOX * width / scale / UNIT);
@@ -160,16 +156,15 @@ class HullFloorTest {
         double scale = 1.2, unit = UNIT * scale;
         var small = BodyFootprint.of("marisa", .08 / unit, .06 / unit, 0);
         var captain = BodyFootprint.of("marisa", .96 / unit, .72 / unit, 0);
-        var young = HullBounds.brimStops("marisa", .08, .06, HullBounds.SCALE * scale, 0);
+        var young = HullBounds.brimPlaces("marisa", .08, .06, HullBounds.SCALE * scale, 0);
         for (var at : young) assertEquals(HullBounds.DATA.number("brim_ring.radius") / UNIT, at.hlen(), 1e-9,
                 "small riders already fit on the preferred ring; moving them inward breaks the full-boat fixture");
-        var stops = HullBounds.brimStops("marisa", .96, .72, HullBounds.SCALE * scale, 0);
-        for (var at : young) assertTrue(stops.stream().anyMatch(p -> Math.hypot(p.x() - at.x(), p.z() - at.z()) < 1e-9),
-                "the supported outer brim must remain available for bank pickup without settling into the hollow");
-        assertTrue(stops.stream().anyMatch(at -> Double.isFinite(at.y()) && young.stream().noneMatch(p ->
-                captain.overlaps(at.x(), at.y(), at.z(), small, p.x(), p.y(), p.z(), .02))));
+        var home = new Vec(HullBounds.HOME.x() / unit, HULL.support(HullBounds.HOME.x() / unit, HullBounds.HOME.z() / unit, captain),
+                HullBounds.HOME.z() / unit);
+        for (var at : young) assertFalse(captain.overlaps(home.x(), home.y(), home.z(), small, at.x(), at.y(), at.z(), .02),
+                "a brim rider does not stand in the captain on her seat");
         var child = BodyFootprint.of("marisa", .8 * .19 / unit, .6 * .19 / unit, 0);
-        assertTrue(HullBounds.brimStops("marisa", .8 * .19, .6 * .19, HullBounds.SCALE * scale, 0).stream()
+        assertTrue(HullBounds.brimPlaces("marisa", .8 * .19, .6 * .19, HullBounds.SCALE * scale, 0).stream()
                 .allMatch(at -> young.stream().anyMatch(p -> child.overlaps(at.x(), at.y(), at.z(), small, p.x(), p.y(), p.z(), .02))));
     }
 }

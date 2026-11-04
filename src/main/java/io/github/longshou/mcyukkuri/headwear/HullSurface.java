@@ -89,15 +89,11 @@ public final class HullSurface implements HatSurface {
         return new Room(envelope, others);
     }
     @Override public List<Vec3> hopStops(PlacedHatEntity hat, YukkuriEntity body) {
-        return HullBounds.brimStops(body.assetId(), body.getBbWidth(), body.getBbHeight(),
-                hat.hullScale(), Floor.shape(hat, body).yaw()).stream().map(Floor::point).toList();
-    }
-    @Override public List<Vec3> brimPlaces(PlacedHatEntity hat, YukkuriEntity body) {
-        return HullBounds.restStops(body.assetId(), body.getBbWidth(), body.getBbHeight(),
+        return HullBounds.brimPlaces(body.assetId(), body.getBbWidth(), body.getBbHeight(),
                 hat.hullScale(), Floor.shape(hat, body).yaw()).stream().map(Floor::point).toList();
     }
     public static List<Vec3> hopStops(YukkuriEntity body, float hullScale) {
-        return HullBounds.brimStops(body.assetId(), body.getBbWidth(), body.getBbHeight(), hullScale, 0)
+        return HullBounds.brimPlaces(body.assetId(), body.getBbWidth(), body.getBbHeight(), hullScale, 0)
                 .stream().map(Floor::point).toList();
     }
     @Override public Vec3 landingSpot(PlacedHatEntity hat, YukkuriEntity body, Vec3 edge) {

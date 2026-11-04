@@ -31,9 +31,8 @@ public interface HatSurface {
         return body.getVehicle() == hat && Occupancy.of(body, hat.container()) == Occupancy.INSIDE_SUPPORTED;
     }
     default List<SeatTarget> restSpots(PlacedHatEntity hat, YukkuriEntity body, int limit) { return List.of(); }
+    /** The places a body comes to rest on the brim, in seat order: the one set every brim arrival (seat, hop leg or landing, carry put down) uses. */
     default List<Vec3> hopStops(PlacedHatEntity hat, YukkuriEntity body) { return List.of(); }
-    /** Where a body rests on the brim; takeoff and landing use {@link #hopStops}. */
-    default List<Vec3> brimPlaces(PlacedHatEntity hat, YukkuriEntity body) { return hopStops(hat, body); }
     default List<Vec3> hollowPlaces(PlacedHatEntity hat, FamilyData.BirthKind kind, FamilyData.Child child) { return hat.cavityPlaces(kind, child); }
     default ContactResolver.Contact contact(PlacedHatEntity hat, YukkuriEntity body, Vec3 spot, Vec3 feet) {
         return ContactResolver.landFree(body, hat, spot, feet);

@@ -30,6 +30,8 @@ OWNED = 'NeoForgeData.HumanCommerce'
 TEEN_FAMILY = ('Version:2,Initialized:1b,Stage:"JUVENILE",Age:276000L,Nourishment:276000L,Maturity:336000L,Lifespan:1056000L,AdultScale:1f,Scale:0.72f')
 LATE_COMMANDS = ('yukkuri scenario home', 'yukkuri scenario twigs', 'yukkuri scenario birth', 'yukkuri scenario eggs', 'yukkuri scenario afloat')
 PENDING = '修复中'     # a scenario whose helper behaviour is not wired in yet: the sign says so, the button and terrain stay
+# A rider crushed into a block is never a pond outcome: whichever scene has a young on a hat brim, its smoke window forbids the death.
+_POND_SMOKE_FORBID = r'\[body\][^\n]* death settled [^\n]*cause=inWall\b'
 
 
 class Retry:
@@ -57,6 +59,8 @@ class Scenario:
         self.vantage = vantage         # (dx, dz) from the anchor where the starting player is put (None: stay on the deck)
         self.reads = list(reads)       # (caption, command) readouts that belong to this scenario
         self.smoke = smoke             # optional {ticks, expect, forbid}; runner only, never emitted into the pack
+        if field == 'pond' and self.smoke is not None:
+            self.smoke = {**self.smoke, 'forbid': [*self.smoke.get('forbid', ()), _POND_SMOKE_FORBID]}
         self.capture = capture if capture is not None else dict(shots=(1, 40, 200, 600), sequences=((60, 160, 2),))
         self.late = self.late_lines + surface_demo_lines(sid,late)   # commands that need the individuals to stand on the ground first: run two seconds after the start
         self.layout_ticks = max([40] + [40 + r.first for r in self.late if isinstance(r, Retry) and r.command.startswith('summon ')])
