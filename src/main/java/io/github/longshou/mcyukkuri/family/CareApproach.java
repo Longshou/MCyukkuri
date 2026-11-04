@@ -4,6 +4,7 @@ import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.motor.BodyAbility;
+import io.github.longshou.mcyukkuri.motor.action.Face;
 import io.github.longshou.mcyukkuri.motor.surface.Floor;
 import io.github.longshou.mcyukkuri.motor.surface.SurfaceHost;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
@@ -100,7 +101,7 @@ public final class CareApproach {
         var session = incoming;
         if(owner.getVehicle() instanceof SurfaceHost host&&sameFloor(owner,session.owner)) {
             if(!Floor.standing(owner)||!Floor.standing(session.owner))return;
-            faceOn(host,owner,SurfaceApproach.yaw(owner.position(),session.owner.position())+(session.kind==Kind.REAR?180:0));
+            if(!faceOn(host,owner,SurfaceApproach.yaw(owner.position(),session.owner.position())+(session.kind==Kind.REAR?180:0)))return;
             if(session.touching())return;
             double limit=Math.toDegrees(Math.acos(session.kind==Kind.REAR?.97:FamilyFeedingContact.MIN_FACING_DOT));
             float toward=SurfaceApproach.yaw(session.owner.position(),owner.position());
@@ -196,9 +197,10 @@ public final class CareApproach {
                 child.getUUID(),kind,host.riders().local(owner.getUUID()),host.riders().local(child.getUUID()),owner.yBodyRot,child.yBodyRot);
         return Result.CONTACT;
     }
-    private static void faceOn(SurfaceHost host,YukkuriEntity body,float yaw) {
+    private static boolean faceOn(SurfaceHost host,YukkuriEntity body,float yaw) {
         float left=Mth.wrapDegrees(yaw-body.yBodyRot),rate=(float)BodyAbility.of(body).turnRate();
         Floor.turn(host,body,Math.clamp(left,-rate,rate));
+        return Math.abs(Mth.wrapDegrees(yaw-body.yBodyRot))<=Face.FACE_ARRIVED;
     }
 
     public void hold() {
