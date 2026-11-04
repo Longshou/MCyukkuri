@@ -239,7 +239,7 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
         return Double.isFinite(y)?OptionalDouble.of(y):OptionalDouble.empty();
     }
     @Override public OptionalDouble support(Vec3 local, YukkuriEntity body) {
-        return profile().surface().support(this, local, body);
+        return behavior().support(this, local, body);
     }
     @Override public List<Vec3> hopStops(YukkuriEntity body) { return profile().surface().hopStops(this, body); }
     @Override public boolean settled(YukkuriEntity body) { return profile().surface().settled(this, body); }
@@ -252,6 +252,9 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
         return profile().surface().contact(this, body, spot, feet);
     }
     OptionalDouble shapedSupport(Vec3 local, YukkuriEntity body) { return support(local, shape(body)); }
+    @Override public double contactHeight(YukkuriEntity body, Vec3 feet, List<AABB> envelope) {
+        return profile().surface().contactHeight(this, body, feet, envelope);
+    }
     @Override public List<SeatTarget> restSpots(YukkuriEntity body, int limit) {
         return profile().surface().restSpots(this, body, limit);
     }

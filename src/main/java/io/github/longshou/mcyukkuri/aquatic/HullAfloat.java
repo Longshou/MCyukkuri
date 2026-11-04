@@ -21,6 +21,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.OptionalDouble;
 import java.util.TreeMap;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -346,7 +347,7 @@ public final class HullAfloat implements PlacedHatBehavior {
         if (other.isSpectator() || other.noPhysics || other.isPassenger() || other.isPassengerOfSameVehicle(hat)) return travel;
         // A body in the air by its own action (a hop's flight, a thrown body, a climb's hop up) is no obstacle: contact would only
         // drag the hull out from under a landing the flight planned from where the hull was at take-off.
-        if (other instanceof YukkuriEntity y && (Attach.of(y) instanceof AttachState.Airborne || !Floor.standing(y)
+        if (other instanceof YukkuriEntity y && (Attach.of(y) instanceof AttachState.Airborne || y.family().freeFalling() || !Floor.standing(y)
                 || y.motor().current() instanceof Climb climb && climb.host() == hat
                 || y.motor().current() instanceof Right right && right.host() == hat)) return travel;
         var hull = hat.getBoundingBox();
@@ -396,6 +397,13 @@ public final class HullAfloat implements PlacedHatBehavior {
     @Override public int stock(PlacedHatEntity hat, ItemStack food, int count) { return larder.stock(hat, food, count); }
     @Override public void release(PlacedHatEntity hat, String cause) { contactPositions.clear(); larder.spill(hat, cause); }
     @Override public boolean catches(PlacedHatEntity hat) { return false; }
+    @Override public HatBirth birthCabin(PlacedHatEntity hat, YukkuriEntity mother) { return new HatBirth(hat, mother); }
+    @Override public OptionalDouble support(PlacedHatEntity hat, Vec3 local, YukkuriEntity body) {
+        var cabin = body.getUUID().equals(hat.ownerYukkuri()) ? body.family().birthCabin() : null;
+        if (cabin != null && body.family().cabinBirth() && (body.family().laboring() || body.getAnimationId().equals("postpartum")))
+            return OptionalDouble.of(cabin.underside());
+        return PlacedHatBehavior.super.support(hat, local, body);
+    }
     @Override public boolean steady(PlacedHatEntity hat) { return phase == Phase.UPRIGHT && rightProgress < 0; }
     @Override public boolean retrievable(PlacedHatEntity hat, YukkuriEntity owner) {
         return steady(hat) && hat.getPassengers().isEmpty();

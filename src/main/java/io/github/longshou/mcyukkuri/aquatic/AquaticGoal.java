@@ -242,6 +242,11 @@ final class AquaticGoal extends Goal {
         if (floating != null) out.add(Desire.of("fetch_stick", floor(num("stick_want", 55)), List.of(at, floating.getUUID()),
                 () -> "item at=" + GameplayLog.at(floating.position()), () -> Provision.stick(body, floating)));
         care(out, hat, young, at);
+        if (nursery) {
+            GameplayLog.limited(body, "aquatic", "nursery.aboard", 1200,
+                    "departure held reason=newborn_care children={}", nursing.stream().map(YukkuriEntity::getUUID).toList());
+            return;
+        }
         // a young on dry ground that is not off on its own first voyage (one on its father's boat, in the water or in a mouth is not ashore)
         long ashore = young.stream().filter(y -> AquaticLife.ashore(y) && !leftBehind(y) && !(Drive.running(y, DOMAIN) instanceof FirstVoyage)).count();
         // no stick aboard pulls her ashore only when one lies there to be had; hunger only with nothing aboard or afloat she can eat

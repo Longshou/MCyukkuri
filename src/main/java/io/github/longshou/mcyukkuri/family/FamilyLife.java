@@ -293,7 +293,7 @@ public final class FamilyLife {
     /** Why the current delivery is held up (empty when it is not): the birth's own hold, or the last refusal of the ledger. */
     public String birthBlock() {
         var b=brood();if(b==null||b.cancelled||b.complete())return "";
-        if(b.kind==FamilyData.BirthKind.LIVE&&!deliveryGrounded())return "must_go_ashore";
+        if(b.kind==FamilyData.BirthKind.LIVE&&!deliverySupported())return "must_go_ashore";
         var running=liveBirth();return running!=null&&!running.hold().isEmpty()?running.hold():FamilyData.get(level()).birthBlock(b);
     }
     /** A live delivery is under way (server side). */
@@ -311,7 +311,7 @@ public final class FamilyLife {
     LiveBirth liveBirth() { return birth.choreography() instanceof LiveBirth running?running:null; }
     /** Danger, commands, operations, urgent needs and meals still come before any birth duty. */
     private boolean birthFree() {
-        return !entity.level().isClientSide&&entity.isAlive()&&!entity.isNoAi()&&!entity.isPanicking()&&!entity.isCommandPlaying()&&!entity.isPassenger()
+        return !entity.level().isClientSide&&entity.isAlive()&&!entity.isNoAi()&&!entity.isPanicking()&&!entity.isCommandPlaying()&&(!entity.isPassenger()||cabinBirth())
                 &&!entity.operations().active()&&!entity.life().hasUrgentNeed()&&entity.life().mealTicks()==0&&!awaitingLanding;
     }
     /** The birth role this body plays in the current beat (BirthGoal.canUse); when the goal yields, the beat's deadline decides the cost.
@@ -327,6 +327,9 @@ public final class FamilyLife {
     /** BirthGoal's tick for a role with nothing to run: hold still; the mother's postpartum beats, the catcher's eyes on the birth. */
     public void holdBirthRole(Conductor.Role role) {
         entity.getNavigation().stop();
+        var cabin=birthCabin();
+        if(cabin!=null&&cabin.ready()&&(laboring()||"linger".equals(role.choreography().beat())))
+            Motor.supportHeight(cabin.hat(),entity,cabin.underside(),"birth_support");
         if(LiveBirth.MOTHER.equals(role.role())&&"linger".equals(role.choreography().beat()))recoveryBeats((int)(level().getGameTime()-role.choreography().beatTick()));
         else watchBirth(role);
     }
@@ -374,7 +377,9 @@ public final class FamilyLife {
         }
         if(launch!=null&&!launched&&!entity.onGround()&&!entity.isInWaterOrBubble()&&!entity.isPassenger()){
             launched=true;
-            if(entity.motor().run(BIRTH_BODY,new Launch(launch.velocity(),"birth").envelope(HatGeometry::envelope))){entity.getNavigation().stop();return true;}
+            var target=launch.hat()==null?null:level().getEntity(launch.hat());
+            if(entity.motor().run(BIRTH_BODY,new Launch(launch.velocity(),"birth").envelope(HatGeometry::envelope)
+                    .toward(target instanceof SurfaceHost host?host:null))){entity.getNavigation().stop();return true;}
             var refusal=entity.motor().last();
             GameplayLog.event(entity,"family","birth launch refused lastReason={} shortfall={}; the body drops where it is",refusal==null?"n/a":refusal.reason(),refusal==null?0:refusal.shortfall());
             return false;
@@ -482,7 +487,7 @@ public final class FamilyLife {
     /** One loaded tick of gestation (the brood's own clock: no body writes): "" when it ran, else why it waits. */
     String gestate(FamilyData.Brood b,boolean sited){
         boolean stem=b.kind==FamilyData.BirthKind.STEM;
-        if(!stem&&b.elapsed>=b.duration-LiveBirth.NEST_GRACE&&!deliveryGrounded())return "must_go_ashore";
+        if(!stem&&b.elapsed>=b.duration-LiveBirth.NEST_GRACE&&!deliverySupported())return "must_go_ashore";
         if(stem?entity.operations().active()||entity.isPanicking()||entity.isOnFire()||entity.isInWaterOrBubble()||entity.isCommandPlaying()
                 ||entity.life().nutrition()<30||entity.body().condition().blocksBreedingApproach()||entity.life().mealTicks()>0||entity.life().isSleeping()
                 :!(b.elapsed<b.duration-LiveBirth.NEST_GRACE?gestationReady():readyForDelivery()))return "mother_not_ready";
@@ -513,7 +518,13 @@ public final class FamilyLife {
         var running=entity.level().isClientSide?null:liveBirth();return running==null?0:.22f*running.recoveryLeft()/LiveBirthGeometry.RECOVERY;
     }
     public boolean readyForDelivery(){
-        return deliveryGrounded()&&!entity.isVehicle()&&gestationReady();
+        return deliverySupported()&&!entity.isVehicle()&&gestationReady();
+    }
+    public boolean cabinBirth(){return liveBirth()!=null&&liveBirth().cabinChosen();}
+    public BirthCabin birthCabin(){return liveBirth()==null?null:liveBirth().cabin();}
+    boolean deliverySupported(){var cabin=birthCabin();return cabinBirth()?cabin!=null&&cabin.ready():deliveryGrounded();}
+    boolean deliveryClear(FamilyData.Brood brood,int index){
+        var cabin=birthCabin();return cabinBirth()?cabin!=null&&cabin.clear(brood,index):LiveBirthGeometry.clear(entity,index,entity.yBodyRot);
     }
     /** Live labour needs the mother's own dry ground, even when a choreography deadline expires. */
     boolean deliveryGrounded(){return !entity.isPassenger()&&supported()&&!entity.isInWaterOrBubble();}
@@ -521,7 +532,7 @@ public final class FamilyLife {
     public static int shoreBirthLead(){return LiveBirth.APPROACH_LEAD;}
     public boolean shoreBirthDue(){
         var b=brood();
-        return b!=null&&!b.cancelled&&!b.complete()&&b.kind==FamilyData.BirthKind.LIVE&&b.duration-b.elapsed<=shoreBirthLead();
+        return b!=null&&!b.cancelled&&!b.complete()&&b.kind==FamilyData.BirthKind.LIVE&&b.duration-b.elapsed<=shoreBirthLead()&&liveBirth()!=null&&!cabinBirth();
     }
     /** Pregnancy can advance aboard; labour and birth roles require her own ground support. */
     private boolean gestationReady(){

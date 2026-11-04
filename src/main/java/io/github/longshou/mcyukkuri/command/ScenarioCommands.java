@@ -29,6 +29,7 @@ import net.neoforged.neoforge.common.util.FakePlayerFactory;
 import io.github.longshou.mcyukkuri.family.FamilyData;
 import net.minecraft.commands.CommandSource;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
@@ -204,7 +205,18 @@ public final class ScenarioCommands {
                                             tell(c.getSource().getLevel(), mother.position(), "[试玩场] 母油已怀上真实胎次（" + outcome
                                                     + "）；接下来的出生、接生和照护由普通规则发生。", ChatFormatting.GOLD);
                                             return 1;
-                                        })))))
+                                        })
+                                        .then(Commands.argument("sizes", StringArgumentType.string()).executes(c -> {
+                                            var mother=yukkuri(c,"mother");var father=yukkuri(c,"father");
+                                            if(mother==null||father==null)return 0;
+                                            List<Float> sizes;
+                                            try { sizes=Arrays.stream(StringArgumentType.getString(c,"sizes").split(",")).map(Float::valueOf).toList(); }
+                                            catch(NumberFormatException ex){return refused(c.getSource(),mother,"接生场景","体型须用逗号分隔。");}
+                                            String reason=ScenarioSetup.birth(mother,father,StringArgumentType.getString(c,"outcome"),sizes);
+                                            if(reason!=null)return refused(c.getSource(),mother,"接生场景",reason);
+                                            tell(c.getSource().getLevel(),mother.position(),"[试玩场] 已建立指定出生体型的真实胎次："+sizes,ChatFormatting.GOLD);
+                                            return 1;
+                                        }))))))
                 .then(Commands.literal("shake").requires(s -> s.hasPermission(2)).then(Commands.argument("hat", EntityArgument.entity()).executes(c -> {
                     var entity = EntityArgument.getEntity(c, "hat");
                     if (!(entity instanceof PlacedHatEntity hat)) return refused(c.getSource(), entity, "摇帽", "not_a_hat");

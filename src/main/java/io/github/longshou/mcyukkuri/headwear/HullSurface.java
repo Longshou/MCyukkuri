@@ -14,11 +14,15 @@ import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
 /** The round hull carries real footprints on a continuous floor; preferences never reserve positions. */
 public final class HullSurface implements HatSurface {
     static final HatSurface INSTANCE = new HullSurface();
+    @Override public double contactHeight(PlacedHatEntity hat, YukkuriEntity body, Vec3 feet, List<AABB> envelope) {
+        return hat.support(hat.frame().toLocal(feet), body).orElse(Double.NaN);
+    }
     @Override public boolean bears(PlacedHatEntity hat, YukkuriEntity body) {
         return hat.hasPassenger(body) || !hat.cooling(body) && (body.getUUID().equals(hat.ownerYukkuri())
                 || hat.admits(body));
@@ -31,6 +35,12 @@ public final class HullSurface implements HatSurface {
     }
     @Override public Vec3 boarded(PlacedHatEntity hat, YukkuriEntity body) { return hat.frame().toLocal(body.position()); }
     @Override public void tickRiders(PlacedHatEntity hat) { hat.squeeze(); Floor.settle(hat); }
+    /** The captain's seat line and bow-facing pose; a swollen underside can rest above the floor. */
+    public static boolean captainAtRest(PlacedHatEntity hat, YukkuriEntity body) {
+        var at=hat.riders().local(body.getUUID());
+        return at.multiply(1,0,1).distanceToSqr(Floor.point(HullBounds.HOME.scale(1/HullBounds.UNIT)).multiply(1,0,1))
+                *hat.unit()*hat.unit()<=.0025&&Math.abs(hat.riders().yaw(body.getUUID()))<=3;
+    }
     @Override public boolean settled(PlacedHatEntity hat, YukkuriEntity body) {
         if (hat.capsized()) return false;
         if (body.getVehicle() instanceof YukkuriEntity carrier && carrier == hat.placeCarrier()
@@ -39,8 +49,7 @@ public final class HullSurface implements HatSurface {
         if (body.getVehicle() != hat || !Floor.standing(body)) return false;
         var at = hat.riders().local(body.getUUID());
         if (body.getUUID().equals(hat.ownerYukkuri()))
-            return at.multiply(1, 0, 1).distanceToSqr(Floor.point(HullBounds.HOME.scale(1 / HullBounds.UNIT)).multiply(1, 0, 1))
-                    * hat.unit() * hat.unit() <= .0025 && Math.abs(hat.riders().yaw(body.getUUID())) <= 3 && hat.insideFloor(at);
+            return captainAtRest(hat,body) && hat.insideFloor(at);
         var support = hat.support(at, body);
         return support.isPresent() && Math.abs(at.y - support.getAsDouble()) <= Occupancy.MARGIN / hat.unit()
                 && hat.room(body, at);
@@ -58,7 +67,7 @@ public final class HullSurface implements HatSurface {
         if (captain != null) {
             var at = captain.getVehicle() == hat ? Floor.vec(hat.riders().local(captain.getUUID())) : HullBounds.HOME.scale(1 / HullBounds.UNIT);
             float yaw = captain.getVehicle() == hat ? hat.riders().yaw(captain.getUUID()) : 0;
-            for (float turn : new float[]{-15, 0, 15, yaw}) envelope.add(new FloorSearch.Placed(BodyFootprint.envelope(captain.assetId(),
+            for (float turn : captain.family().holdsBirthStation() ? new float[]{yaw} : new float[]{-15, 0, 15, yaw}) envelope.add(new FloorSearch.Placed(BodyFootprint.envelope(captain.assetId(),
                     captain.getBbWidth() / hat.unit(), captain.getBbHeight() / hat.unit(), Math.toRadians(turn)), at));
         }
         var others = hat.getPassengers().stream().filter(p -> p != body && p != captain).map(p -> (YukkuriEntity) p)

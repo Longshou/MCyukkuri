@@ -10,11 +10,15 @@ import io.github.longshou.mcyukkuri.motor.surface.SeatTarget;
 import java.util.List;
 import java.util.OptionalDouble;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.AABB;
 
 /** The model owns support, boarding and rider movement; the defaults are the land cradle. */
 public interface HatSurface {
     HatSurface LAND = new HatSurface() {};
     default OptionalDouble support(PlacedHatEntity hat, Vec3 local, YukkuriEntity body) { return hat.shapedSupport(local, body); }
+    default double contactHeight(PlacedHatEntity hat, YukkuriEntity body, Vec3 feet, List<AABB> envelope) {
+        return ContactResolver.surface(hat, feet, envelope);
+    }
     default boolean room(PlacedHatEntity hat, YukkuriEntity body, Vec3 local, double top) { return hat.shapedRoom(body, local, top); }
     default boolean bears(PlacedHatEntity hat, YukkuriEntity body) {
         return !hat.cooling(body) && !hat.isInWaterOrBubble() && (body.getUUID().equals(hat.ownerYukkuri()) ? !hat.catches() : hat.admits(body));

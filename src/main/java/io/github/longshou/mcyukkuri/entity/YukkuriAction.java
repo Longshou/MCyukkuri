@@ -140,7 +140,8 @@ public enum YukkuriAction {
     // Badge social arcs (lore recipe v16, all standard forms).
     SNATCH_PULL("snatch_pull", 1.2, false),
     STAND_GROUND("stand_ground", 1.6, true),
-    OFFER_BITE("offer_bite", 1.4, false);
+    OFFER_BITE("offer_bite", 1.4, false),
+    BOAT_LABOR("boat_labor", 12.0, true);
 
     private final String id;
     private final double duration;

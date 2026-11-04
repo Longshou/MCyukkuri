@@ -34,6 +34,7 @@ public final class Launch implements Action {
     private final Vec3 velocity;
     private final String cause;
     private ContactResolver.Envelope envelope;
+    private SurfaceHost target;
     private Vec3 from;
     private int horizon;
     private String preview = "";
@@ -52,6 +53,10 @@ public final class Launch implements Action {
         envelope = boxes;
         return this;
     }
+    /** The physical host being crossed; its dry cavity applies only while the body is actually inside it. */
+    public Launch toward(SurfaceHost host) { target = host; return this; }
+    @Override public SurfaceHost host() { return target; }
+    @Override public boolean airborne() { return true; }
 
     @Override public String id() { return ID; }
 

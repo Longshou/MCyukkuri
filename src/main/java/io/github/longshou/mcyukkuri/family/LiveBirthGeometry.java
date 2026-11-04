@@ -53,12 +53,12 @@ public final class LiveBirthGeometry {
                 .lerp(new Vector3f(right.get(1).getAsFloat(),right.get(2).getAsFloat(),right.get(3).getAsFloat()),q);
     }
     /** Same exported root tracks and pivot as the visible mother at the release frame. */
-    private static Vec3 releasePose(YukkuriEntity mother,Vec3 local){
+    private static Vec3 releasePose(YukkuriEntity mother,Vec3 local,String clipId){
         String id=mother.subspecies().assetId();
         if(!POSES.has(id))return local;
         var data=POSES.getAsJsonObject(id);var pivot=data.getAsJsonArray("pivot");
         var clips=data.getAsJsonObject("clips");
-        var clip=clips.getAsJsonObject("labor");
+        var clip=clips.getAsJsonObject(clipId);
         float seconds=(STRAIN+EMERGENCE)/20f;
         var position=sample(clip.getAsJsonArray("position"),seconds,new Vector3f());
         var rotation=sample(clip.getAsJsonArray("rotation"),seconds,new Vector3f()).mul((float)Math.PI/180);
@@ -211,7 +211,15 @@ public final class LiveBirthGeometry {
     /** How far ahead of her origin the newborn comes out (blocks, before scale): on the ground the full newborn must clear the
      *  maternal collision volume before becoming an entity; the client draws the emergence up to it from the synchronized view. */
     public static double visibleExitFront(YukkuriView mother,int index){
+        if(mother.getAnimationId().equals("boat_labor"))
+            return -outlet(mother).z*mother.growthScale()+selectedDimensions(mother.liveChildVariant(index),mother.liveChildAssetId(index),false).width()*mother.birthChildScale(index)/2;
         return Math.max(-outlet(mother).z*mother.growthScale()+.15,mother.getBbWidth()/mother.getScale()*.5+.15);
+    }
+    /** Outlet in the cabin frame, with the newborn's centre just beyond the swollen outlet. */
+    public static Vec3 cabinExit(YukkuriEntity mother,int index){
+        var outlet=outlet(mother).scale(mother.growthScale());
+        var child=childDimensions(mother.family().brood().children.get(index),1);
+        return releasePose(mother,new Vec3(0,Math.max(.015,outlet.y-child.height()/2),outlet.z-child.width()/2),mother.family().birthCabin().clip());
     }
     public static Vec3 localExit(YukkuriEntity mother,int index){
         float size=mother.growthScale();
@@ -226,7 +234,7 @@ public final class LiveBirthGeometry {
         return position(mother,index,mother.position(),yaw);
     }
     public static Vec3 position(YukkuriEntity mother,int index,Vec3 at,float yaw){
-        var offset=releasePose(mother,localExit(mother,index)).yRot((float)Math.toRadians(180-yaw)).scale(mother.getScale());
+        var offset=releasePose(mother,localExit(mother,index),"labor").yRot((float)Math.toRadians(180-yaw)).scale(mother.getScale());
         return at.add(offset);
     }
     /**

@@ -27,6 +27,12 @@ public final class Motor {
 
     private Motor() {}
 
+    /** A supported body's own action follows its changing underside without moving across the host. */
+    public static void supportHeight(SurfaceHost host, YukkuriEntity body, double height, String cause) {
+        var place = host.riders().spot(body.getUUID());
+        spot(host, body, new Vec3(place.local().x, height, place.local().z), place.yaw(), cause);
+    }
+
     /** Vanilla's old passenger snapshot may still visit a child just grabbed from the carrier's host.
      *  Keep the live grip; explicit motor releases and either body's death still dismount normally. */
     public static void mounting(EntityMountEvent event) {

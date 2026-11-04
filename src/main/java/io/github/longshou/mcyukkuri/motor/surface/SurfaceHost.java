@@ -11,6 +11,7 @@ import java.util.stream.Stream;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.AABB;
 
 /** Something a body can stand on. */
 public interface SurfaceHost {
@@ -38,6 +39,10 @@ public interface SurfaceHost {
 
     /** The body's own underside, where the host has shaped support. */
     default OptionalDouble support(Vec3 local, YukkuriEntity body) { return support(local, Occupancy.foot(body.getBbWidth())); }
+    /** First flight contact uses the same support geometry as standing on this host. */
+    default double contactHeight(YukkuriEntity body, Vec3 feet, List<AABB> envelope) {
+        return ContactResolver.surface(this, feet, envelope);
+    }
 
     /** The body's footprint at {@code local} overlaps no rider or stored object; shaped hosts compare body columns. */
     default boolean room(YukkuriEntity body, Vec3 local) {

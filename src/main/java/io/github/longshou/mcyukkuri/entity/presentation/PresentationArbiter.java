@@ -265,7 +265,7 @@ public final class PresentationArbiter {
                 if(start>=0&&e.getAnimationStartTick()!=start)state.animationStart(start);
             }
             // Partners sample the authoritative contraction, rescaling the shorter hat clips.
-            int phase = action == YukkuriAction.LABOR ? e.liveDeliveryTicks()
+            int phase = action == YukkuriAction.LABOR || action == YukkuriAction.BOAT_LABOR ? e.liveDeliveryTicks()
                     : (action == YukkuriAction.MIDWIFE || action == YukkuriAction.HAT_HOLD || action == YukkuriAction.HAT_HOLD_AQ)
                     && e.family().midwifeTarget() != null ? e.family().midwifeTarget().liveDeliveryTicks() : -1;
             if (phase >= 0) {
@@ -291,7 +291,8 @@ public final class PresentationArbiter {
     private static YukkuriAction hatRiderAction(PresentationAccess state, PlacedHatEntity hat, String behavior) {
         var e = state.owner();
         // A supported mother's delivery keeps the same clip and phase as on land; riding only supplies the hull tilt.
-        if (behavior.equals(Behaviors.LABOR) || behavior.equals(Behaviors.POSTPARTUM)) return EcologyPresentation.action(behavior);
+        if (behavior.equals(Behaviors.LABOR)) return e.family().cabinBirth() ? YukkuriAction.BOAT_LABOR : YukkuriAction.LABOR;
+        if (behavior.equals(Behaviors.POSTPARTUM)) return EcologyPresentation.action(behavior);
         if (behavior.equals(Behaviors.HAT_WALK)) return EcologyPresentation.action(behavior);
         if (e.life().isSleeping()) return YukkuriAction.SLEEP;
         if (e.life().mealTicks() > 0) return EcologyPresentation.action(behavior);

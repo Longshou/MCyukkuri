@@ -234,9 +234,9 @@ public final class ChildhoodLife {
 
     public boolean canUse() {
         if (entity.level().isClientSide || !entity.isAlive() || entity.isNoAi() || task != Task.NONE) return false;
-        if (parentAvailable(entity) && !entity.isPassenger() && !entity.family().hasUrgentlyHungryChild() && !entity.family().birthDuty()) {
+        if (parentAvailable(entity) && !entity.family().hasUrgentlyHungryChild() && !entity.family().birthDuty()) {
             var child = ((ServerLevel) entity.level()).getEntitiesOfClass(YukkuriEntity.class, entity.getBoundingBox().inflate(10),
-                    other -> entity.family().caresFor(other) && !other.isPassenger() && childAvailable(other)
+                    other -> entity.family().caresFor(other) && CareApproach.sameFloor(entity,other) && childAvailable(other)
                             && other.childhood().needsAssistedFirstToilet() && other.life().nutrition()>=30
                             && !careRefused(other) && entity.careApproach().mayTry(other) && mayHelp(other)).stream()
                     .min(Comparator.comparingDouble(entity::distanceToSqr)).orElse(null);
@@ -251,9 +251,9 @@ public final class ChildhoodLife {
                     other -> entity.family().caresFor(other) && other.childhood().readyToPractiseJump()
                             && !other.childhood().demonstrationSeen && entity.hasLineOfSight(other)).stream().findFirst().orElse(null);
             // A parent on her way to a child she searches for greets that child first; the demonstration follows afterwards.
-            if (learner != null && !entity.family().searchingChild()) { task = Task.DEMONSTRATE; careTarget = learner.getUUID(); taskTicks = 0; return true; }
+            if (learner != null && !entity.isPassenger() && !entity.family().searchingChild()) { task = Task.DEMONSTRATE; careTarget = learner.getUUID(); taskTicks = 0; return true; }
         }
-        if (!newborn || !landed || !childAvailable(entity) || entity.isPassenger()) return false;
+        if (!newborn || !landed || !childAvailable(entity)) return false;
         if (needsAssistedFirstToilet()) {
             var parent = availableParent();
             if (parent != null && parent.childhood().task == Task.FIRST_TOILET && entity.getUUID().equals(parent.childhood().careTarget)) {
@@ -261,7 +261,7 @@ public final class ChildhoodLife {
             }
             return false;
         }
-        if (!safePracticeState() || !firstToiletDone) return false;
+        if (entity.isPassenger() || !safePracticeState() || !firstToiletDone) return false;
         if(practiceRest>0)return false;
         var demonstrator=availableParent();
         if(demonstrator!=null&&demonstrator.childhood().task==Task.DEMONSTRATE&&entity.getUUID().equals(demonstrator.childhood().careTarget)){
@@ -295,8 +295,8 @@ public final class ChildhoodLife {
     public boolean canContinue() {
         var target = person(careTarget);
         return switch (task) {
-            case FIRST_TOILET -> taskTicks < 300 && parentAvailable(entity) && !entity.isPassenger() && target != null
-                    && entity.family().caresFor(target) && !target.isPassenger() && childAvailable(target) && target.childhood().needsAssistedFirstToilet();
+            case FIRST_TOILET -> taskTicks < 300 && parentAvailable(entity) && target != null
+                    && entity.family().caresFor(target) && CareApproach.sameFloor(entity,target) && childAvailable(target) && target.childhood().needsAssistedFirstToilet();
             case WAIT_CARE -> taskTicks < 300 && childAvailable(entity) && needsAssistedFirstToilet() && target != null
                     && target.childhood().task == Task.FIRST_TOILET && entity.getUUID().equals(target.childhood().careTarget);
             case DEMONSTRATE -> taskTicks < 100 && parentAvailable(entity) && target != null && target.childhood().readyToPractiseJump();
@@ -464,9 +464,9 @@ public final class ChildhoodLife {
 
     private YukkuriEntity availableParent() {
         var mother = person(entity.family().mother());
-        if (parentAvailable(mother) && !mother.isPassenger() && entity.distanceToSqr(mother) <= 144) return mother;
+        if (parentAvailable(mother) && CareApproach.sameFloor(mother,entity) && entity.distanceToSqr(mother) <= 144) return mother;
         var father = person(entity.family().father());
-        return parentAvailable(father) && !father.isPassenger() && entity.distanceToSqr(father) <= 144 ? father : null;
+        return parentAvailable(father) && CareApproach.sameFloor(father,entity) && entity.distanceToSqr(father) <= 144 ? father : null;
     }
 
     private BlockPos nextPracticeTarget() {

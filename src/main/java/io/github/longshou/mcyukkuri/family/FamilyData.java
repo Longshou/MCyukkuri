@@ -382,12 +382,15 @@ public final class FamilyData extends SavedData {
     private record Plan(String refusal,long seed,int count,ShelterBlockEntity shelter,boolean joinMother,float cost){}
     private static Plan refused(String reason){return new Plan(reason,0,0,null,false,0);}
     private Plan plan(ServerLevel level,YukkuriEntity mother,YukkuriEntity father,BirthKind kind,GlobalPos anchor){
+        return plan(level,mother,father,kind,anchor,List.of());
+    }
+    private Plan plan(ServerLevel level,YukkuriEntity mother,YukkuriEntity father,BirthKind kind,GlobalPos anchor,List<Float> sizes){
         if(!mother.family().canReproduceWith(father))return refused("pair");
         if(busyParent(mother.getUUID())||busyParent(father.getUUID()))return refused("busy");
         if(kind==BirthKind.EGG != mother.profile().houseBody())return refused("kind");
         if(kind==BirthKind.LIVE&&mother.profile().dangerToYukkuri())return refused("kind");
         long seed=mother.getUUID().getMostSignificantBits()^father.getUUID().getLeastSignificantBits()^mother.family().conceptions();
-        int count=kind!=BirthKind.EGG?offspringCount(mother.family().adultScale(),seed,mother.profile().aquatic()):2+new Random(seed).nextInt(3);
+        int count=!sizes.isEmpty()?sizes.size():kind!=BirthKind.EGG?offspringCount(mother.family().adultScale(),seed,mother.profile().aquatic()):2+new Random(seed).nextInt(3);
         if(!FactoryProduction.reproductionAllowed(mother,father,count))return refused("factory");
         var shelter=mother.habitat().shelter();
         boolean joinMother=ordinaryWildBurrow(mother,father,shelter);
@@ -407,9 +410,16 @@ public final class FamilyData extends SavedData {
     public String conceiveRefusal(YukkuriEntity mother, YukkuriEntity father, BirthKind kind, GlobalPos anchor) {
         return plan((ServerLevel)mother.level(),mother,father,kind,anchor).refusal();
     }
+    public String conceiveRefusal(YukkuriEntity mother,YukkuriEntity father,BirthKind kind,GlobalPos anchor,List<Float> sizes) {
+        return plan((ServerLevel)mother.level(),mother,father,kind,anchor,sizes).refusal();
+    }
     public Brood conceive(YukkuriEntity mother, YukkuriEntity father, BirthKind kind, GlobalPos anchor) {
+        return conceive(mother,father,kind,anchor,List.of());
+    }
+    /** An external setup may specify unborn sizes; population, parent cost and all birth steps remain real. */
+    public Brood conceive(YukkuriEntity mother, YukkuriEntity father, BirthKind kind, GlobalPos anchor,List<Float> sizes) {
         ServerLevel level=(ServerLevel)mother.level();register(mother);register(father);
-        Plan plan=plan(level,mother,father,kind,anchor);
+        Plan plan=plan(level,mother,father,kind,anchor,sizes);
         if(plan.refusal()!=null){
             GameplayLog.limited(mother,"family","conceive."+plan.refusal(),200,
                     "conceive refused father={} kind={} reason={}",father.getUUID(),kind,plan.refusal());return null;
@@ -432,6 +442,7 @@ public final class FamilyData extends SavedData {
             putPerson(person);
         }
         GrowthSize.assignBirthSizes(brood);
+        for(int i=0;i<sizes.size();i++)brood.children.get(i).birthScale=sizes.get(i)/GrowthSize.physicalBirth(1,brood.children.get(i).subspeciesFlags);
         broods.put(brood.id,brood);mother.life().spendNutrition(cost);father.life().spendNutrition(5);
         mother.family().conceived(brood.id,father.getUUID());father.family().partnerConceived(mother.getUUID());
         var custody=Custody.view(mother);
@@ -556,7 +567,7 @@ public final class FamilyData extends SavedData {
     public YukkuriEntity birth(Brood brood, int index, ServerLevel level, Vec3 position) { return birth(brood,index,level,position,null,null); }
 
     /** One child into the world; a mother's LIVE or STEM child also draws its one launch, into {@code hat} when the outlet is aimed
-     *  at it (first real contact decides). Entity insertion always needs dry clearance. */
+     *  at it (first real contact decides). Cabin space is shaped; other births need dry world clearance. */
     public YukkuriEntity birth(Brood brood, int index, ServerLevel level, Vec3 position, PlacedHatEntity hat, BirthLaunch.Nominal nominal) {
         if(brood.cancelled||index<0||index>=brood.children.size())return null;
         var mother=brood.detachedHolder==null&&brood.kind!=BirthKind.EGG&&level.getEntity(brood.mother) instanceof YukkuriEntity m?m:null;
@@ -573,7 +584,7 @@ public final class FamilyData extends SavedData {
                 ||!nest.identity().equals(child.eggNestId)))return null;
         if(brood.kind==BirthKind.LIVE){
             if(mother==null)return refuse(brood,level,"mother_missing");
-            if(!mother.family().deliveryGrounded())return refuse(brood,level,"must_go_ashore");
+            if(!mother.family().deliverySupported())return refuse(brood,level,"must_go_ashore");
             for(int earlier=0;earlier<index;earlier++)if(!brood.children.get(earlier).born)return refuse(brood,level,"earlier_sibling_unborn");
         }
         for(ServerLevel dimension:level.getServer().getAllLevels())if(dimension.getEntity(child.id) instanceof YukkuriEntity existing) {
@@ -586,7 +597,7 @@ public final class FamilyData extends SavedData {
         if(brood.kind!=BirthKind.EGG||!child.eggManaged) {
             if(!relocate(brood,level,BlockPos.containing(position)))return refuse(brood,level,"population_limit");
         }
-        Boolean bodyClear=brood.kind==BirthKind.LIVE?LiveBirthGeometry.clear(mother,index,mother.yBodyRot):null;
+        Boolean bodyClear=brood.kind==BirthKind.LIVE?mother.family().deliveryClear(brood,index):null;
         if(Boolean.FALSE.equals(bodyClear))return refuse(brood,level,"outlet_blocked");
         YukkuriEntity entity=ModEntities.forVariant(child.variant).create(level);if(entity==null)return null;
         entity.setUUID(child.id);entity.subspecies().initializeBirth(child.subspeciesFlags);entity.family().newborn(child,brood);
@@ -597,14 +608,16 @@ public final class FamilyData extends SavedData {
         Motor.relocate(entity, position, facing, "birth_spawn");
         entity.yRotO = facing; entity.yBodyRotO = facing; entity.yHeadRotO = facing;
         entity.setPersistenceRequired();
-        if(!level.noCollision(entity)||level.containsAnyLiquid(entity.getBoundingBox()))return refuse(brood,level,"newborn_space_blocked");
+        boolean cabin=mother!=null&&mother.family().cabinBirth();
+        if(cabin?level.getBlockCollisions(entity,entity.getBoundingBox()).iterator().hasNext()
+                :!level.noCollision(entity)||level.containsAnyLiquid(entity.getBoundingBox()))return refuse(brood,level,"newborn_space_blocked");
         spawning.add(child.id);boolean added=false;
         try { added=level.addFreshEntity(entity); }
         finally { spawning.remove(child.id); }
         if(!added)return refuse(brood,level,"entity_rejected");
         // One drawn impulse, then physics; on land the push is random, so a strong or crooked one carries the kit past the hat.
         if(mother!=null&&brood.kind==BirthKind.LIVE)entity.family().launch(hat!=null
-                ?BirthLaunch.intoHat(entity,hat,nominal,BirthLaunch.push(level.random),BirthLaunch.yaw(level.random))
+                ?BirthLaunch.intoHat(entity,hat,nominal,cabin?1:BirthLaunch.push(level.random),cabin?0:BirthLaunch.yaw(level.random))
                 :BirthLaunch.live(level.random,mother,entity,entity.position()),brood,index,hat);
         else if(mother!=null&&brood.kind==BirthKind.STEM){
             var centre=FamilyNest.largeCentre(mother);double half=NestResting.LARGE.half();

@@ -24,6 +24,24 @@ public final class HullBounds {
     public static double innerRadius(double height) { return WALL.radius(Math.min(height, BRIM) / UNIT) * UNIT; }
 
     public static final Vec HOME = new Vec(DATA.number("captain_seat.x"), DATA.number("captain_seat.y"), DATA.number("captain_seat.z"));
+    public static double birthLimit(int count) { return DATA.number("hat_birth." + count + ".growth_max"); }
+    public static List<Vec> birthSpots(int count) {
+        return DATA.field("hat_birth." + count + ".spots").getAsJsonArray().asList().stream()
+                .map(p -> new Vec(p.getAsJsonArray().get(0).getAsDouble(), 0, p.getAsJsonArray().get(1).getAsDouble())).toList();
+    }
+    public static double birthUnderside(double belly) {
+        var keys = DATA.field("hat_birth.underside_by_belly").getAsJsonArray();
+        var left = keys.get(0).getAsJsonArray();
+        for (int i = 1; i < keys.size(); i++) {
+            var right = keys.get(i).getAsJsonArray();
+            if (belly >= right.get(0).getAsDouble()) {
+                double q = (left.get(0).getAsDouble() - belly) / (left.get(0).getAsDouble() - right.get(0).getAsDouble());
+                return left.get(1).getAsDouble() + q * (right.get(1).getAsDouble() - left.get(1).getAsDouble());
+            }
+            left = right;
+        }
+        return left.get(1).getAsDouble();
+    }
     private static final double YOUNG = DATA.number("seating.young_max_growth"),
             WEIGHT = DATA.number("load.weight_coefficient"), FILL = DATA.number("load.capacity_over_seat");
     public static double youngLimit(double scale) { return YOUNG * scale; }

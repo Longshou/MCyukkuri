@@ -1,7 +1,9 @@
 package io.github.longshou.mcyukkuri.headwear;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.family.BirthCabin;
 import java.util.List;
+import java.util.OptionalDouble;
 import java.util.concurrent.CopyOnWriteArrayList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.core.BlockPos;
@@ -68,6 +70,13 @@ public interface PlacedHatBehavior {
 
     /** Set down to catch young, a cradle; a hat afloat is its owner's boat instead and she may ride it. */
     default boolean catches(PlacedHatEntity hat) { return true; }
+
+    /** A measured delivery space offered by this host, or none. */
+    default BirthCabin birthCabin(PlacedHatEntity hat, YukkuriEntity mother) { return null; }
+    /** A changing body pose may rest higher than its ordinary footprint. */
+    default OptionalDouble support(PlacedHatEntity hat, Vec3 local, YukkuriEntity body) {
+        return hat.profile().surface().support(hat, local, body);
+    }
 
     /** Its owner may put it back on now (PlacedHatEntity.retrieve adds reach and emptiness). */
     default boolean retrievable(PlacedHatEntity hat, YukkuriEntity owner) { return hat.catches(); }

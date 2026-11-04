@@ -151,9 +151,13 @@ final class ScenarioSetup {
      * and only then returns ashore.
      */
     static String birth(YukkuriEntity mother, YukkuriEntity father, String outcome) {
+        return birth(mother,father,outcome,List.of());
+    }
+    static String birth(YukkuriEntity mother, YukkuriEntity father, String outcome,List<Float> sizes) {
         if (!(mother.level() instanceof ServerLevel level) || father.level() != level || mother == father
                 || !mother.family().adult() || !father.family().adult()) return "接生场景要在同一维度放两只成年个体。";
         if (!Set.of("natural", "caught", "stem", "near_term").contains(outcome)) return "结果必须为 natural、caught、stem 或 near_term。";
+        if(sizes.size()>5||sizes.stream().anyMatch(size->!Float.isFinite(size)||size<.1f||size>.19f))return "出生体型须为一至五个 0.10–0.19 的数值。";
         boolean stem = outcome.equals("stem");
         if (mother.distanceToSqr(father) > 64) return "父油要在母油八格内。";
         if (mother.family().brood() != null) return "母油已经有胎次，不会覆盖。";
@@ -169,9 +173,9 @@ final class ScenarioSetup {
         father.family().arrange(mother.getUUID());
         try {
             var kind = stem ? FamilyData.BirthKind.STEM : FamilyData.BirthKind.LIVE;
-            String reason = data.conceiveRefusal(mother, father, kind, anchor);
+            String reason = data.conceiveRefusal(mother, father, kind, anchor,sizes);
             if (reason != null) return "真实受孕条件未满足：" + reason + "（没有创建胎次）。";
-            brood = data.conceive(mother, father, kind, anchor);
+            brood = data.conceive(mother, father, kind, anchor,sizes);
         } finally {
             mother.family().arrange(null);
             father.family().arrange(null);

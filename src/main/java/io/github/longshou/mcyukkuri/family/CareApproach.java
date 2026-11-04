@@ -3,6 +3,9 @@ package io.github.longshou.mcyukkuri.family;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
+import io.github.longshou.mcyukkuri.motor.BodyAbility;
+import io.github.longshou.mcyukkuri.motor.surface.Floor;
+import io.github.longshou.mcyukkuri.motor.surface.SurfaceHost;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -14,6 +17,7 @@ import net.minecraft.world.phys.Vec3;
 import java.util.Comparator;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.util.Mth;
 
 /** One transient agreement between two living actors, including reachable standing places. */
 public final class CareApproach {
@@ -35,8 +39,12 @@ public final class CareApproach {
     public boolean mayTry(YukkuriEntity target) {
         return blocked.getOrDefault(target.getUUID(), 0L)<=owner.level().getGameTime();
     }
+    public static boolean sameFloor(YukkuriEntity parent,YukkuriEntity child) {
+        return !parent.isPassenger()&&!child.isPassenger()
+                || parent.getVehicle() instanceof SurfaceHost&&parent.getVehicle()==child.getVehicle();
+    }
     private static String unsafeReason(YukkuriEntity actor) {
-        return !actor.isAlive()?"not_alive":actor.isNoAi()?"no_ai":actor.isPassenger()?"passenger":actor.isPanicking()?"panic"
+        return !actor.isAlive()?"not_alive":actor.isNoAi()?"no_ai":actor.isPassenger()&&!(actor.getVehicle() instanceof SurfaceHost)?"passenger":actor.isPanicking()?"panic"
                 :actor.isOnFire()?"fire":actor.isInWaterOrBubble()?"water":actor.isCommandPlaying()?"command"
                 :actor.operations().active()?"operation":actor.life().isSleeping()?"sleeping":null;
     }
@@ -86,6 +94,10 @@ public final class CareApproach {
     public void tickReceiver() {
         if (!waiting()) return;
         var session = incoming;
+        if(owner.getVehicle() instanceof SurfaceHost host&&sameFloor(owner,session.owner)) {
+            faceOn(host,owner,SurfaceApproach.yaw(owner.position(),session.owner.position())+(session.kind==Kind.REAR?180:0));
+            return;
+        }
         if (session.places==null || owner.life().mealTicks()>0) SurfaceApproach.halt(owner);
         else if (SurfaceApproach.walkAround(owner, session.places.child(), session.owner, .65)) {
             float yaw = SurfaceApproach.yaw(owner.position(), session.owner.position());
@@ -109,6 +121,7 @@ public final class CareApproach {
         lease=owner.level().getGameTime()+10;
         String reason=invalidReason();
         if(reason!=null)return fail(reason);
+        if(owner.getVehicle() instanceof SurfaceHost host&&sameFloor(owner,child))return aboard(host);
         boolean touching=kind==Kind.FEED ? FamilyFeedingContact.mouthsMeet(owner, child) : ChildhoodLife.toiletContact(owner, child);
         boolean supportedContact=touching && owner.onGround() && child.onGround()
                 && SurfaceApproach.supported(owner, owner.position()) && SurfaceApproach.supported(child, child.position());
@@ -155,6 +168,23 @@ public final class CareApproach {
         boolean contact = kind==Kind.FEED ? FamilyFeedingContact.mouthsMeet(owner, child) : ChildhoodLife.toiletContact(owner, child);
         if (!contact && stalled>70) { replan("contact_not_reached"); if (++retries>=3) return fail("contact_retry_limit"); }
         return contact ? Result.CONTACT : Result.APPROACHING;
+    }
+
+    /** The same care contact on a shared moving floor; each participant owns its turn. */
+    private Result aboard(SurfaceHost host) {
+        if(!Floor.standing(owner)||!Floor.standing(child))return Result.APPROACHING;
+        var from=host.riders().local(owner.getUUID());var to=host.riders().local(child.getUUID());
+        var away=from.subtract(to).multiply(1,0,1).normalize();
+        var stand=to.add(away.scale(FamilyFeedingContact.standingDistance(owner,child)/host.frame().unit()));
+        var height=host.support(stand,owner);
+        if(height.isEmpty()||!Floor.advance(host,owner,new Vec3(stand.x,height.getAsDouble(),stand.z)))return fail("no_reachable_meeting");
+        faceOn(host,owner,SurfaceApproach.yaw(owner.position(),child.position()));
+        return (kind==Kind.FEED?FamilyFeedingContact.mouthsMeet(owner,child):ChildhoodLife.toiletContact(owner,child))
+                ?Result.CONTACT:Result.APPROACHING;
+    }
+    private static void faceOn(SurfaceHost host,YukkuriEntity body,float yaw) {
+        float left=Mth.wrapDegrees(yaw-body.yBodyRot),rate=(float)BodyAbility.of(body).turnRate();
+        Floor.turn(host,body,Math.clamp(left,-rate,rate));
     }
 
     public void hold() {

@@ -2888,9 +2888,9 @@ def boat_birth(sid, title, hint, riders):
          late=[*([f'yukkuri scenario kin {sel("mother")} {sel(k)} false' for k in ('k1', 'k2')] if riders else []),
                afloat('mother', water_at(0, 3), True, sel_all('crew') if riders else sel('mother'), stick=True),
                afloat('father', water_at(4, 3), True, sel('father'), stick=True),
-               f'yukkuri scenario birth {sel("mother")} {sel("father")} near_term'],
+               f'yukkuri scenario birth {sel("mother")} {sel("father")} near_term "0.16,0.17"'],
          note='开场实体全部可见，准备后坐进各自浮着的帽子；岸上有八个真实苹果供孕期取食。'
-              '胎数 1–2 只、偶尔 3 只，读母油 status 看胎次。先看母油照常在水上活动，`[aquatic] birth shore return` 之后才 come_ashore '
+              '本胎两只出生体型 0.16、0.17，不符合自帽分娩空间；读 birth route=shore 的 growth/growth_max。先看母油照常在水上活动，`[aquatic] birth shore return` 之后才 come_ashore '
               '→ hop 离船落地 → delivery labor started → born → birth landed；'
               '出生数对照 conceived children 与 born index，“读本胎新生儿”排除初始 crew；产后应见 set_out held reason=newborn_care，母油留岸，不重新登船离开新生儿。' + _DESIRE_NOTE,
          reads=[('读母油与产程', f'yukkuri status {sel("mother")} raw'), ('读父油', f'yukkuri status {sel("father")} raw'),
@@ -2911,6 +2911,47 @@ def boat_birth(sid, title, hint, riders):
 
 boat_birth('birth_boat_caught', '临产上岸·空船', '临产上岸·空船', False)
 boat_birth('birth_boat_missed', '带两幼上岸·放幼后待产', '带两幼上岸·放幼后待产', True)
+
+
+def hat_birth_result(window):
+    born = re.findall(r'\[family\][^\n]*uuid=(\S+)[^\n]* born [^\n]*index=(\d+)[^\n]*kind=LIVE', window)
+    if len(born) != 2:
+        return f'expected two newborns, got {len(born)}'
+    for child, index in born:
+        if not re.search(rf'uuid={child}[^\n]* birth landed [^\n]*water=false[^\n]*outcome=HAT\b', window):
+            return f'newborn {index} never landed in the hat'
+        if not re.search(rf'uuid={child}[^\n]* contact host=', window):
+            return f'newborn {index} has no real hull contact'
+        if re.search(rf'\[water\][^\n]*uuid={child}[^\n]* entered at=|uuid={child}[^\n]*(?:damage cause=drown|death settled)', window):
+            return f'newborn {index} entered water or died'
+        if not re.search(rf'uuid={child}[^\n]* first meal swallowed', window):
+            return f'newborn {index} did not swallow its first meal'
+        if not re.search(rf'uuid={child}[^\n]* first toilet completed', window):
+            return f'newborn {index} did not complete newborn care'
+    if re.search(r'\[body\][^\n]* death settled|cause=starv|brood cancelled', window):
+        return 'birth family died, starved or lost its brood'
+
+
+pond('birth_hat_own', '一至两只自帽分娩', '一至两只自帽分娩',
+     '临产水生母油独坐自己的浮帽；本胎两只出生体型 0.12、0.125，按真实空间判定留在水上。'
+     '母油面向船头分娩，赤油从出口落到帽内空处，触布后才附着。产后用真实粮食嚼糜喂幼、护理首便；落空仍会落水。',
+     '约 3–6 分钟',
+     [yk('marisa', bank_dx(0), 0, 'mother', aquatic=True, yaw=-90, lead=True, **pair_ready()),
+      yk('marisa', bank_dx(4), 4, 'father', aquatic=True, yaw=-90, **pair_ready()),
+      f'yukkuri scenario bond {sel("mother")} {sel("father")}'],
+     late=[afloat('mother', water_at(0, 3), True, sel('mother'), food=8, stick=True),
+           afloat('father', water_at(4, 3), True, sel('father'), food=4, stick=True),
+           f'yukkuri scenario birth {sel("mother")} {sel("father")} near_term "0.12,0.125"'],
+     note='看 birth route=own_hat 的胎数、体型与空间判定；hat birth exit 的产程与片段时刻；'
+          '新生儿 contact → birth landed outcome=HAT、生命与首餐首便。帽形和普通分娩时钟不变，初态没有新生儿。',
+     reads=[('读母油与产程', f'yukkuri status {sel("mother")} raw'),
+            ('读本胎新生儿', f'yukkuri status {NEWBORNS} raw')],
+     smoke=dict(ticks=7200, expect=[_BOAT_SMOKE_START, r'scenario afloat prepared [^\n]*food=8', r'birth route=own_hat reason=fit',
+                                  r'hat birth exit index=0', r'hat birth exit index=1', r'delivery complete',
+                                  r'departure held reason=newborn_care'],
+                forbid=_BOAT_SMOKE_FORBID + [r'\[body\][^\n]* death settled', r'birth landed [^\n]*outcome=WATER'],
+                verify=hat_birth_result,
+                readout=_water_readouts('mother', 'father') + [f'yukkuri status {NEWBORNS} raw']))
 
 pond('first_voyage', '初航·子油第一次自己操帽，先上岸', '子油初航·先上岸',
      '亲油与处于初航欲望带的子油已坐在近岸亲帽里；子油能自己吃、会跳和学习，戴着夹有一根木棍的帽子，'
@@ -2987,7 +3028,7 @@ TOPICS = {
     'last_words': 'R7', 'offering': 'R7', 'sacrifice': 'R7', 'sacrifice_reluctant': 'R7',
     'hat_float': 'A1', 'hat_push': 'A1', 'hat_turbulence': 'A4', 'hat_current': 'A1', 'hat_grounded_inverted': 'A4', 'hat_grounded_capsized': 'A4', 'cargo': 'A2', 'hat_crowd': 'A3', 'shake_capsize': 'A4',
     'water_colony': 'A6', 'sail': 'A6', 'afloat_stick': 'A6', 'afloat_family': 'A6', 'afloat_family_gather': 'A6', 'afloat_family_distant': 'A6', 'shore_family': 'A6', 'kid_boat_play': 'A6',
-    'rescue_child': 'A5', 'rescue_infant_full': 'A5', 'rescue_no_seat': 'A5', 'birth_boat_caught': 'A6', 'birth_boat_missed': 'A6', 'first_voyage': 'A6', 'first_voyage_brim': 'A6',
+    'rescue_child': 'A5', 'rescue_infant_full': 'A5', 'rescue_no_seat': 'A5', 'birth_boat_caught': 'A6', 'birth_boat_missed': 'A6', 'birth_hat_own': 'A6', 'first_voyage': 'A6', 'first_voyage_brim': 'A6',
     'self_rescue': 'A5', 'shore_capsized': 'A5', 'shore_capsized_far': 'A5', 'fall_in_pond': 'A5', 'worn_hat_boat': 'A5', 'hat_swap': 'C1', 'hat_damage': 'C1', 'hat_shatter': 'C1', 'hatless_kin': 'C2', 'hatless_scorn': 'C2', 'hatless_boundary': 'C2',
     'hatless_monster': 'C2', 'hatless_sanction': 'C2', 'puff_response': 'C2',
     'myon_stick': 'S1', 'myon_brave': 'S1', 'species_fatigue': 'S1', 'rare_forms': 'S2', 'kotatsu_winter': 'S2', 'kotatsu_summer': 'S2',

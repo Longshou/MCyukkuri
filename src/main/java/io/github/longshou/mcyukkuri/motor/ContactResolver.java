@@ -67,7 +67,7 @@ public final class ContactResolver {
      *  an edge otherwise; a sideways entry below the surface is the wall. */
     private static Hit hit(YukkuriEntity body, SurfaceHost host, Vec3 feet, Vec3 next, Envelope envelope) {
         var frame=host.frame();
-        var hit=crossing(host,feet,next,p->envelope==null?host.support(frame.toLocal(p),body).orElse(Double.NaN):surface(host,p,envelope.at(body,p)));
+        var hit=crossing(host,feet,next,p->envelope==null?host.support(frame.toLocal(p),body).orElse(Double.NaN):host.contactHeight(body,p,envelope.at(body,p)));
         if(hit!=null){
             var p=hit.point();var spot=new Vec3(p.x(),p.y(),p.z());
             boolean stands=!hit.wall()&&host.support(spot,0).isPresent()&&host.bears(body);
@@ -110,7 +110,7 @@ public final class ContactResolver {
         return height.isPresent() ? height.getAsDouble() : Double.NaN;
     }
 
-    /** Airborne → OnHost: on the crossing spot when it is free, else onto the nearest free spot around it, else where it fell; then move, mount, write the spot, zero velocity. */
+    /** Airborne → OnHost: on a free crossing or deflection spot; a full host refuses without moving the body. */
     public static Contact landFree(YukkuriEntity body, SurfaceHost host, Vec3 spot, Vec3 feet) {
         HostFrame frame = host.frame();
         double top = frame.toLocal(feet).y + body.getBbHeight() / Math.max(1E-6, frame.unit());
@@ -121,6 +121,7 @@ public final class ContactResolver {
         GameplayLog.event(body, "body", "contact host={} at={} occupancy={} room={}{}", host.entity().getUUID(), GameplayLog.at(at),
                 Occupancy.at(host.container(), at, body.getBbWidth(), true), free,
                 free ? "" : aside == null ? " deflected=none" : " deflected_from=" + GameplayLog.at(frame.toWorld(spot)));
+        if (!free && aside == null) return new Contact(host, spot, true);
         Motor.move(body, at.subtract(body.position()), "hop_contact");
         if (!Motor.mount(body, host.entity(), "hop_contact")) {
             Motor.warn(body, "contact refused host={}", host.entity().getUUID());

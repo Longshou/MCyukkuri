@@ -153,7 +153,7 @@ public final class BirthLaunch {
         return new Plan(target,null,start,start,Double.NaN,speed,1,0,velocity);
     }
     /** The deterministic arc selected before pushing; only its horizontal impulse is randomized at release. */
-    record Nominal(Vec3 aim,Vec3 velocity,int ticks) {}
+    public record Nominal(Vec3 aim,Vec3 velocity,int ticks) {}
     static Nominal forward(Vec3 start,Vec3 aim,float yaw,int ticks){
         var d=aim.subtract(start);var h=Vec3.directionFromRotation(0,yaw);
         var v=Ballistic.forward(new Vec(d.x,d.y,d.z),new Vec(h.x,0,h.z),ticks);
