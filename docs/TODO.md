@@ -8,6 +8,7 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
+| 自帽分娩出生弹道与落帽准入（wp-i-hat-birth） | `.worktrees/wp-i-hat-birth` | `family/LiveBirth.java`、出生弹道几何、`aquatic/HatBirth.java`、`scripts/museum_scenarios.py` 的 `birth_hat_own` |
 | 帽船座位顺序、船上排便、afloat 夹具（wp-c-seats） | `.worktrees/wp-c-seats` | `headwear/PlacedHatEntity.java`、`headwear/HullBounds.java`、`aquatic/` 排便驱动、`command/ScenarioSetup.java`、`scripts/museum_scenarios.py` |
 | 岸边停顿与载幼跳岸（11-05 反馈 5、6） | `wp-d-landing` | `motor/action/Hop.java`、`motor/*`、`aquatic/Waters.java`、`family/ParentCarry.java` |
 | 水生亲油岸产后的食物（11-05 反馈 3） | `.worktrees/wp-e-shore-food` | `family/FamilyFeeding.java`、`entity/SpeciesProfile.java`、`settlement/Plants.java`、`headwear/PlacedHatBehavior.java`、`aquatic/HullAfloat.java`、`data/mcyukkuri/tags/item/`、`scripts/museum_scenarios.py`、`docs/FEATURES.md` |
