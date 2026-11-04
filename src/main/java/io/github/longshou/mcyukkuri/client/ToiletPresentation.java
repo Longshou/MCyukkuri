@@ -12,7 +12,7 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.util.Mth;
 import org.joml.Vector3f;
@@ -21,7 +21,9 @@ import org.joml.Vector3f;
 final class ToiletPresentation {
     private static float cycle = 10, contactStart = 2, contactEnd = 7, width = .045f, length = .055f, faceOffset = .003f;
     private static float[][] profile = {{0, .8f}, {.25f, 1}, {.8f, 1}, {1, .55f}};
-    private static final int[] STOOL = {96, 62, 32};
+    /** The dropping's prop and the share of its full size it first shows at the opening. */
+    private static final String WASTE = "yukkuri_waste";
+    private static final float EMERGING = .35f;
     private ToiletPresentation() {}
 
     static JsonObject reload(ResourceManager resources) {
@@ -111,19 +113,23 @@ final class ToiletPresentation {
     /**
      * The stool leaves the model's own anus (油菊) as the straining clip pushes: ToiletContact.stool, the same stool the server lets go
      * as the real item at {@code DROP_TICKS} (ToiletContact.release), grows out along the rear-downward normal between
-     * {@code EMERGE_FROM_TICKS} and that tick. Drawn in the model frame under the body's own clip pose, so squat, squash, tilt and yaw
-     * are all followed.
+     * {@code EMERGE_FROM_TICKS} and that tick. It is drawn as the very dropping the loose item and the ground pile show afterwards
+     * (HouseScrapRenderer, SupplyPileRenderer), standing on {@link ToiletContact.Stool#bottom} at the ground size, so the hand-over at
+     * the drop tick changes neither shape, size nor place. Drawn in the model frame under the body's own clip pose.
      */
     static void renderStool(YukkuriView actor, String behavior, float ticks, PoseStack pose, MultiBufferSource buffers, int light) {
         if (!(behavior.equals(Behaviors.TOILET) || behavior.equals(Behaviors.GROUND_TOILET) || behavior.equals(Behaviors.BOAT_TOILET) || behavior.equals(Behaviors.TOILET_ACCIDENT))) return;
-        if (ticks < ToiletContact.EMERGE_FROM_TICKS || ticks > ToiletContact.DROP_TICKS + 1) return;
-        var stool = ToiletContact.stool(actor, behavior, Math.min(ticks, ToiletContact.DROP_TICKS));
+        if (ticks < ToiletContact.EMERGE_FROM_TICKS || ticks > ToiletContact.DROP_TICKS) return;
+        var stool = ToiletContact.stool(actor, behavior, ticks);
         if (stool == null) return;
-        var start = stool.start();
-        var end = start.add(stool.direction().scale(stool.length()));
-        var tip = end.add(stool.direction().scale(stool.radius() * .8));
-        var buffer = buffers.getBuffer(RenderType.entityCutoutNoCull(ResourceLocation.withDefaultNamespace("textures/block/white_concrete.png")));
-        FamilyRenderer.tube(pose, buffer, start, end, stool.radius() * .8, stool.radius(), light, STOOL);
-        FamilyRenderer.tube(pose, buffer, end, tip, stool.radius(), stool.radius() * .35, light, STOOL);
+        var at = stool.bottom();
+        // Never nothing: a small first knob at the opening that swells to the full dropping.
+        float scale = HouseScrapRenderer.WASTE_GROUND * actor.profile().modelScale() * (float) (EMERGING + (1 - EMERGING) * stool.grown());
+        pose.pushPose();
+        pose.translate(at.x, at.y, at.z);
+        pose.scale(scale, scale, scale);
+        PropModels.center(WASTE, pose, true);
+        PropModels.render(WASTE, 8, pose, buffers, light, OverlayTexture.NO_OVERLAY);
+        pose.popPose();
     }
 }

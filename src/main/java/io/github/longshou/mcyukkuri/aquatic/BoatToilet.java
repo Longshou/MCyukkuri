@@ -39,8 +39,11 @@ import net.minecraft.world.phys.Vec3;
  * in the water beyond the rim ({@link #plan}); a rear side that no such push serves is not chosen.
  */
 final class BoatToilet implements Intent {
-    /** Open water has to lie within this far (blocks) beyond the rim in the chosen direction; the stool comes down inside that band. */
-    private static final double CLEAR = .3;
+    /**
+     * Open water has to lie within CLEAR (blocks) beyond the rim in the chosen direction, and the stool comes down inside that band, at
+     * least LAND past the rim beyond its own half length: clear of the brim's edge by a visible gap, not grazing it.
+     */
+    private static final double CLEAR = .3, LAND = .1;
     private static final int TURN_DEADLINE = 80;
 
     private final YukkuriEntity body;
@@ -221,7 +224,7 @@ final class BoatToilet implements Intent {
         }
         var end = at.add(points.getLast().x(), points.getLast().y(), points.getLast().z());
         double reach = Math.hypot(end.x - hat.getX(), end.z - hat.getZ());
-        return reach - half >= rim && reach <= rim + CLEAR;
+        return reach - half >= rim + LAND && reach <= rim + CLEAR;
     }
 
     /** A point (the stool's bottom) is above the hull's own surface across its half length either way; past the rim there is no hull. */

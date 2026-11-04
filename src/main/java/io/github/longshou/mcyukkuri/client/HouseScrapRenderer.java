@@ -19,7 +19,7 @@ import net.minecraft.world.item.component.CustomData;
 public final class HouseScrapRenderer extends ItemEntityRenderer {
     static final float HELD_SCALE=.18f;
     /** A dropping on the ground is drawn at this share of its prop (the vanilla ground display scale it had as a bobbing item). */
-    private static final float WASTE_GROUND=.5f;
+    static final float WASTE_GROUND=.5f;
     static String smallProp(ItemStack item){
         if(item.is(ModItems.NEST_LINT.get()))return "nest_lint";
         if(!item.is(ModItems.HOUSE_EGG.get()))return null;
@@ -45,7 +45,8 @@ public final class HouseScrapRenderer extends ItemEntityRenderer {
         }
         if(entity.getItem().is(ModItems.WASTE.get())){
             // A loose dropping lies where it really is, on its own bottom (the stool it continues: ToiletContact.Stool.bottom), at the
-            // ground size of its source body; it never hovers, bobs or spins like a vanilla item, so leaving the body it does not jump.
+            // ground size of its source body, turned as it left the body; it never hovers, bobs or spins like a vanilla item, so leaving
+            // the body it does not jump (ToiletPresentation.renderStool draws the same prop while it comes out).
             var data=entity.getItem().getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();
             float scale=WASTE_GROUND*Math.clamp(data.contains("SourceScale")?data.getFloat("SourceScale"):1,.05f,4f);
             pose.pushPose();pose.mulPose(Axis.YP.rotationDegrees(-entity.getYRot()));pose.scale(scale,scale,scale);

@@ -149,28 +149,6 @@ final class FamilyRenderer {
             vertex(pose,buffer,points.get(n-1),front,.5f,.5f,light,color);
         }
     }
-    static void tube(PoseStack pose,VertexConsumer buffer,Vec3 from,Vec3 to,double r0,double r1,int light,int[] color) {
-        Vec3 axis=to.subtract(from);if(axis.lengthSqr()<1e-10)return;axis=axis.normalize();
-        Vec3 reference=Math.abs(axis.z)<.9?new Vec3(0,0,1):new Vec3(1,0,0);
-        Vec3 u=axis.cross(reference).normalize(),v=axis.cross(u).normalize();
-        for(int i=0;i<8;i++) {
-            double a=i*Math.PI/4,b=(i+1)*Math.PI/4;
-            Vec3 na=u.scale(Math.cos(a)).add(v.scale(Math.sin(a))),nb=u.scale(Math.cos(b)).add(v.scale(Math.sin(b)));
-            vertex(pose,buffer,from.add(na.scale(r0)),na,0,0,light,color);
-            vertex(pose,buffer,to.add(na.scale(r1)),na,0,1,light,color);
-            vertex(pose,buffer,to.add(nb.scale(r1)),nb,1,1,light,color);
-            vertex(pose,buffer,from.add(nb.scale(r0)),nb,1,0,light,color);
-            // Closed ends keep the narrow connector solid from close viewpoints.
-            vertex(pose,buffer,from,axis.scale(-1),.5f,.5f,light,color);
-            vertex(pose,buffer,from.add(nb.scale(r0)),axis.scale(-1),1,0,light,color);
-            vertex(pose,buffer,from.add(na.scale(r0)),axis.scale(-1),0,0,light,color);
-            vertex(pose,buffer,from,axis.scale(-1),.5f,.5f,light,color);
-            vertex(pose,buffer,to,axis,.5f,.5f,light,color);
-            vertex(pose,buffer,to.add(na.scale(r1)),axis,0,0,light,color);
-            vertex(pose,buffer,to.add(nb.scale(r1)),axis,1,0,light,color);
-            vertex(pose,buffer,to,axis,.5f,.5f,light,color);
-        }
-    }
     private static void vertex(PoseStack pose,VertexConsumer buffer,Vec3 position,Vec3 normal,float u,float v,int light,int[] color) {
         buffer.addVertex(pose.last().pose(),(float)position.x,(float)position.y,(float)position.z)
                 .setColor(color[0],color[1],color[2],255).setUv(u,v).setOverlay(OverlayTexture.NO_OVERLAY).setLight(light)

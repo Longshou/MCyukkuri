@@ -85,7 +85,7 @@
     ],
     "length": 0.165,
     "radius": 0.036,
-    "note": "The stool as both the client draws it and the server releases it (life/ToiletContact.stool): it starts inside_px from the anus (rump mark centre, model units) and grows along direction (the rear-downward normal at rest) by the root pose of the playing clip, up to length and radius blocks times the variant size (width/0.75) between ToiletContact.EMERGE_FROM_TICKS and DROP_TICKS."
+    "note": "The stool as both the client draws it and the server releases it (life/ToiletContact.stool): it starts inside_px from the anus (rump mark centre, model units) and grows along direction (the rear-downward normal at rest) by the root pose of the playing clip, up to length and radius blocks times the variant size (width/0.75) between ToiletContact.EMERGE_FROM_TICKS and DROP_TICKS. The client draws the dropping prop (yukkuri_waste, at the loose item ground size) standing on the bottom of its middle, where the server spawns the item."
   },
   "clips": {
     "ground_toilet": {
@@ -297,9 +297,9 @@
         ],
         [
           8,
-          -22,
+          -30,
           0,
-          0,
+          4,
           1.03,
           0.96,
           1.04,
@@ -308,9 +308,9 @@
         ],
         [
           13,
-          -25,
+          -34,
           0,
-          1.5,
+          5.5,
           1.06,
           0.92,
           1.06,
@@ -319,9 +319,9 @@
         ],
         [
           18,
-          -22,
+          -30,
           0,
-          -1,
+          3.5,
           1.04,
           0.95,
           1.05,
@@ -330,9 +330,9 @@
         ],
         [
           26,
-          -25,
+          -34,
           0,
-          1.5,
+          5.5,
           1.08,
           0.9,
           1.07,
@@ -341,9 +341,9 @@
         ],
         [
           34,
-          -24,
+          -32,
           0,
-          0,
+          4.5,
           1.04,
           0.95,
           1.04,
@@ -389,7 +389,7 @@
           "satisfied"
         ]
       ],
-      "note": "Afloat (aquatic/BoatToilet), project design after user 2026-11-05 #7 (撅起屁股朝帽外): from the seated rest (rotation 0, scale 1, as the other toilet clips and hat_cradle) the body tips forward onto its front (pitch -22..-25 degrees, beyond the 12 degree lean budget by the lead decision for this clip only) and shifts 1.2..1.5 model units rearward (keys 8/9: root x/z shift), so the rear rises above the hat rim toward the water side; two pushes at 13 and 26, the stool leaves at the drop tick 34, settled back by 40. The same clip serves the captain in the hollow and a young on the brim facing in."
+      "note": "Afloat (aquatic/BoatToilet), project design after user 2026-11-05 #7 (撅起屁股朝帽外): from the seated rest (rotation 0, scale 1, as the other toilet clips and hat_cradle) the body tips forward onto its front (pitch -30..-34 degrees, beyond the 12 degree lean budget for this clip only), rolls 3.5..5.5 degrees so its braid side (+x) stays off the brim, and shifts 1.2..1.5 model units rearward (keys 8/9: root x/z shift), so the rear rises well above the hat rim toward the water side; two pushes at 13 and 26, the stool leaves at the drop tick 34, settled back by 40. The same clip serves the captain in the hollow and a young on the brim facing in."
     },
     "toilet_accident": {
       "duration_ticks": 40,

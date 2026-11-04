@@ -2,10 +2,10 @@
 
 制作源为 `recipe.json`，选用快照为 `art/source/toilet-contact/recipe.json`。依据 EH08-008 的亲油舔舐促进幼体首便；身体收缩、节拍与表情切换属于本项目演出。
 
-独立输出 `yukkuri_presentation/toilet_contact.json`，格式 1，包含 24 种当前骨架的七段片段、`tongue` 与 `stool` 参数；不重写基础模型或共享 `motion_corrections.json`。客户端在其他演出修订后通过现有 `applyRevision` 接入 `models[id]`。每种骨架的 `outlet` 只记油菊（臀后标记中心）`site_px` 与根骨枢轴 `pivot_px`；`stool` 记排泄物起点相对油菊的偏移、静止时的离体方向、全长与半径。`life/ToiletContact.stool` 用正在播放片段的根姿态把它们摆到当前姿势，客户端照此绘制挤出的排泄物，服务端 `ToiletContact.release` 在 34 tick 从同一处放出真实掉落物，两边是同一根。
+独立输出 `yukkuri_presentation/toilet_contact.json`，格式 1，包含 24 种当前骨架的七段片段、`tongue` 与 `stool` 参数；不重写基础模型或共享 `motion_corrections.json`。客户端在其他演出修订后通过现有 `applyRevision` 接入 `models[id]`。每种骨架的 `outlet` 只记油菊（臀后标记中心）`site_px` 与根骨枢轴 `pivot_px`；`stool` 记排泄物起点相对油菊的偏移、静止时的离体方向、全长与半径。`life/ToiletContact.stool` 用正在播放片段的根姿态把它们摆到当前姿势：客户端在 12..34 tick 把落地后同一个排泄物模型（`yukkuri_waste`，掉落物的地面大小）从油菊处逐渐挤出、立在这根排泄物中段的底点上，服务端 `ToiletContact.release` 在 34 tick 从同一点放出真实掉落物，交接时形状、大小、位置不变。
 
 - `ground_toilet`、`toilet`、`toilet_accident`：40 tick 单次，两次明显挤压收缩后舒缓；失禁使用惊慌和含泪结尾。位置和真实排泄物由服务器决定。
-- `boat_toilet`（水上，项目设计；用户 2026-11-05 反馈 7“撅起屁股朝帽外”）：同样 40 tick、13 与 26 tick 两次用力，从坐姿（旋转 0、缩放 1，与 `hat_cradle` 起点相同）前扑到身体前端着地，俯仰 −22..−25°（仅此片段放宽 12° 预算，以不穿入帽体和自身为限），根部向后平移 1.2..1.5 模型单位，屁股抬过帽沿平面朝向水面；34 tick 排出，40 tick 坐回。舱内亲油与帽檐上面朝帽心的赤油共用。离线核对：船长在座位上各朝向下身体不比坐姿更深入帽体，辫子与持棍不入帽体（≤0.06 模型单位接触），棍端俯身时略没入帽外水面。
+- `boat_toilet`（水上，项目设计；用户 2026-11-05 反馈 7“撅起屁股朝帽外”）：同样 40 tick、13 与 26 tick 两次用力，从坐姿（旋转 0、缩放 1，与 `hat_cradle` 起点相同）前扑到身体前端着地，俯仰 −30..−34°（仅此片段放宽 12° 预算，以不穿入帽体和自身为限），向左侧滚 3.5..5.5° 让辫子一侧离开帽檐，根部向后平移 1.2..1.5 模型单位，屁股抬到帽沿平面以上约 0.2 格、朝向水面；34 tick 排出，40 tick 坐回。舱内亲油与帽檐上面朝帽心的赤油共用。离线核对：船长在座位上各朝向下身体不比坐姿更深入帽体，辫子离帽体 ≥0.5 模型单位，持棍离帽体 ≥2.8 且不入水。
 - `first_toilet_wait`：安静低伏等待，不播放受刺激反应。
 - `first_toilet_stimulated`：10 tick 循环，惊讶、收缩、含泪；仅真实后侧接触时进入。
 - `first_toilet_assist`：10 tick 循环，稳定低伏（俯 −9..−10°、压低约 10%）和小幅点头、张闭口；客户端接触求解的合计俯仰上限为 12°（原 28°），靠前移与压低补足；40 tick 接触完成后服务端切换 `care_finish`，即停止舌头。

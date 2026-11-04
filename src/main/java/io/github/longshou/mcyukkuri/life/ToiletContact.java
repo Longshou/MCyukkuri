@@ -70,11 +70,11 @@ public final class ToiletContact {
         double q = Math.clamp((tick - EMERGE_FROM_TICKS) / (double) (DROP_TICKS - EMERGE_FROM_TICKS), 0, 1), size = actor.getVariant().width() / .75;
         q = q * q * (3 - 2 * q);
         return new Stool(new Vec3(start[0], start[1], start[2]).scale(1 / 16.0), new Vec3(along[0], along[1], along[2]).normalize(),
-                LENGTH * size * q, RADIUS * size * (.55 + .45 * q));
+                LENGTH * size * q, RADIUS * size * (.55 + .45 * q), q);
     }
 
-    /** A stool in the model frame (blocks at growth 1): where it starts, its unit direction, its drawn length and radius. */
-    public record Stool(Vec3 start, Vec3 direction, double length, double radius) {
+    /** A stool in the model frame (blocks at growth 1): where it starts, its unit direction, its length and radius so far, and how much of it is out (0..1). */
+    public record Stool(Vec3 start, Vec3 direction, double length, double radius, double grown) {
         /** The bottom of its middle: where a loose dropping that continues it rests (a dropping is drawn standing on its position). */
         public Vec3 bottom() { return start.add(direction.scale(length / 2)).subtract(0, radius, 0); }
     }
@@ -185,7 +185,7 @@ public final class ToiletContact {
                 return true;
             }
         }
-        boolean spawned = loose(server, stack, outlet, Vec3.ZERO) != null;
+        boolean spawned = loose(server, stack, outlet, Vec3.ZERO, actor.yBodyRot) != null;
         if (spawned) GameplayLog.limited(actor, "needs", "poop_loose", 200, "poop stays a loose item reason={} meant={}",
                 origin == null ? "no_floor_cell" : "no_cell_within_" + Poops.SPREAD, origin);
         return spawned;
@@ -196,13 +196,15 @@ public final class ToiletContact {
      * it, so the item flies and falls by vanilla item motion alone (aquatic/BoatToilet plans that path). Null if it cannot exist there.
      */
     public static ItemEntity launch(YukkuriEntity actor, Vec3 at, Vec3 velocity) {
-        return actor.level() instanceof ServerLevel server && at != null ? loose(server, DetachedItems.waste(actor), at, velocity) : null;
+        return actor.level() instanceof ServerLevel server && at != null ? loose(server, DetachedItems.waste(actor), at, velocity, actor.yBodyRot) : null;
     }
 
-    private static ItemEntity loose(ServerLevel server, ItemStack stack, Vec3 at, Vec3 velocity) {
+    private static ItemEntity loose(ServerLevel server, ItemStack stack, Vec3 at, Vec3 velocity, float yaw) {
         var waste = new ItemEntity(server, at.x, at.y, at.z, stack);
         waste.setDefaultPickUpDelay();
         waste.setDeltaMovement(velocity);
+        // Turned as the dropping was drawn leaving the body (the model frame turns by 180 - body yaw; the item is drawn turned by -yRot).
+        waste.setYRot(yaw - 180);
         return server.noCollision(waste, waste.getBoundingBox()) && server.addFreshEntity(waste) ? waste : null;
     }
 
