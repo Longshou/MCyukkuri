@@ -23,13 +23,17 @@ class ArcSolverTest {
         return Ballistic.samples(new Vec(p.vh()*p.dir().x(),p.vy(),p.vh()*p.dir().z()),p.ticks());
     }
 
-    @Test void flatGroundGivesTheLowestArc(){
-        var plan=assertInstanceOf(ArcSolver.Plan.class,ArcSolver.lowest(Vec.ZERO,new Vec(.5,0,0),HOP_HEIGHT,HOP_REACH,1,OPEN));
-        assertEquals(Ballistic.GRAVITY,plan.apex(),TOL);
-        assertEquals(1,plan.dir().x(),TOL);
-        assertEquals(0,plan.dir().z(),TOL);
-        assertTrue(plan.vy()>0&&plan.vh()>0&&plan.ticks()>0);
-        List<Vec> pts=sweep(plan);
+    @Test void hullLegKeepsTheLowestClearanceAndAGroundHopJumps(){
+        var lowest=assertInstanceOf(ArcSolver.Plan.class,ArcSolver.lowest(Vec.ZERO,new Vec(.5,0,0),HOP_HEIGHT,HOP_REACH,1,OPEN));
+        assertEquals(Ballistic.GRAVITY,lowest.apex(),TOL);
+        var jump=assertInstanceOf(ArcSolver.Plan.class,
+                ArcSolver.lowest(Vec.ZERO,new Vec(.5,0,0),HOP_HEIGHT,HOP_REACH,1,OPEN,true,true));
+        assertTrue(jump.apex()>.3&&jump.apex()<HOP_HEIGHT);
+        assertTrue(Math.ceil(jump.ticks())>=7,"a half-block hop must have a visible ascent and descent");
+        assertEquals(1,jump.dir().x(),TOL);
+        assertEquals(0,jump.dir().z(),TOL);
+        assertTrue(jump.vy()>0&&jump.vh()>0&&jump.ticks()>0);
+        List<Vec> pts=sweep(jump);
         assertEquals(.5,pts.get(pts.size()-1).x(),.02);
     }
 
@@ -63,6 +67,15 @@ class ArcSolverTest {
         assertTrue(blocked.shortfall()>.05,"shortfall="+blocked.shortfall());
     }
 
+    @Test void aBlockedDepartureCannotBeClearedByProbingHigherArcs(){
+        int[] probes={0};
+        var wall=gate(-.1,.1,.1);
+        var blocked=assertInstanceOf(ArcSolver.Blocked.class,ArcSolver.lowest(Vec.ZERO,new Vec(.5,0,0),HOP_HEIGHT,HOP_REACH,1,
+                points->{probes[0]++;return wall.clear(points);}));
+        assertEquals(ArcSolver.Kind.TOO_HIGH,blocked.kind());
+        assertEquals(1,probes[0],"all trajectories share the same obstructed departure");
+    }
+
     @Test void planPeaksAtItsApexAndArrivesAtTheLedge(){
         var plan=assertInstanceOf(ArcSolver.Plan.class,ArcSolver.lowest(Vec.ZERO,new Vec(.4,.3,0),HOP_HEIGHT,HOP_REACH,1,OPEN));
         List<Vec> pts=sweep(plan);
@@ -89,6 +102,18 @@ class ArcSolverTest {
             var plan=assertInstanceOf(ArcSolver.Plan.class,ArcSolver.lowest(Vec.ZERO,new Vec(.3,dy,0),HOP_HEIGHT,HOP_REACH,1,OPEN));
             assertTrue(plan.apex()<=HOP_HEIGHT&&plan.apex()>=dy,"dy="+dy);
         }
+    }
+
+    @Test void fullReachBankHopUsesTheSameArcAsGround(){
+        var from=new Vec(12,63.9,-4);
+        var bank=assertInstanceOf(ArcSolver.Plan.class,
+                ArcSolver.lowest(from,new Vec(13,64,-4),HOP_HEIGHT,HOP_REACH,1,OPEN,true,true));
+        var ground=assertInstanceOf(ArcSolver.Plan.class,
+                ArcSolver.lowest(Vec.ZERO,new Vec(1,.1,0),HOP_HEIGHT,HOP_REACH,1,OPEN,true,true));
+        assertEquals(ground.ticks(),bank.ticks(),TOL);
+        assertEquals(ground.apex(),bank.apex(),TOL);
+        assertTrue(Math.ceil(bank.ticks())>=9);
+        assertTrue(bank.apex()<=HOP_HEIGHT);
     }
 
     /** {@link ArcSolver#vyFor} is what a one-impulse gesture uses: the smallest speed whose discrete peak reaches the apex. */

@@ -8,6 +8,7 @@ import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.entity.YukkuriView;
 import io.github.longshou.mcyukkuri.family.ParentCarry;
 import io.github.longshou.mcyukkuri.family.ParentCarry.Hold;
+import io.github.longshou.mcyukkuri.motor.action.Hop;
 import io.github.longshou.mcyukkuri.life.Consumables;
 import io.github.longshou.mcyukkuri.life.InfantFood;
 import io.github.longshou.mcyukkuri.play.PlayBlock;
@@ -153,9 +154,11 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
             model.setPregnancy(entity.livePregnancyProgress(),LiveBirthRenderer.contraction(entity,partialTick));model.setDelivery(delivery);
             // A braid-held child is cradled; a carrier whose braid reaches plays the braid clip on its Grab's clock.
             boolean cradled=carried&&ParentCarry.hold(parent,entity)==Hold.BRAID;
+            boolean carriedHop=carried&&parent.motorAction().equals(Hop.ID);
             String braidClip=carried?null:ParentCarryPresentation.liftClip(entity);
-            String action=braidClip!=null?braidClip:cradled?"be_cradled":carried?"idle":hatCarrier?ParentCarry.carryAction(entity):entity.getAnimationId();
+            String action=braidClip!=null?braidClip:carriedHop?"boat_be_carried":cradled?"be_cradled":carried?"idle":hatCarrier?ParentCarry.carryAction(entity):entity.getAnimationId();
             float clock=braidClip!=null?Math.max(0,(entity.level().getGameTime()-entity.motorStart()+partialTick)/20f)
+                    :carriedHop?(entity.level().getGameTime()-parent.motorStart()+partialTick)/20f
                     :cradled?(entity.level().getGameTime()+partialTick)/20f:carried?0:elapsed;
             var anatomy=ReproductionPresentation.anatomy(entity);
             model.setReproductiveAnatomy(anatomy==null?null:anatomy.part(),anatomy==null?0:anatomy.amount());

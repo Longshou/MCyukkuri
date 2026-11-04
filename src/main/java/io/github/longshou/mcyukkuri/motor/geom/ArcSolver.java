@@ -29,18 +29,33 @@ public final class ArcSolver {
 
     /** Solves the lowest arc from {@code from} to {@code to} for the given hop budget and sweep check. */
     public static Result lowest(Vec from,Vec to,double hopHeight,double hopReach,double scale,Clearance clearance){
+        return lowest(from,to,hopHeight,hopReach,scale,clearance,false,true);
+    }
+
+    /**
+     * As {@link #lowest(Vec,Vec,double,double,double,Clearance)}. {@code visibleRise} spends more of the height budget the
+     * further the hop goes, so a hop that ends on the ground reads as a jump; it never exceeds it. {@code diagnose} also probes
+     * above the budget for the rise a refused arc would need, which is a report only: every admitted arc is admitted either way.
+     */
+    public static Result lowest(Vec from,Vec to,double hopHeight,double hopReach,double scale,Clearance clearance,
+                                boolean visibleRise,boolean diagnose){
         Vec d=to.sub(from);
         double dx=d.hlen(),dy=d.y();
         if(dx>hopReach+REACH_SLACK)return new Blocked(Kind.TOO_FAR,dx-hopReach-REACH_SLACK);
         if(dy>hopHeight)return new Blocked(Kind.TOO_HIGH,dy-hopHeight);
+        // Every arc contains the departure point; raising its apex cannot clear a blocked start.
+        if(!clearance.clear(List.of(Vec.ZERO)))return new Blocked(Kind.TOO_HIGH,REPORT_RISE);
         Vec dir=dx<1e-9?new Vec(1,0,0):new Vec(d.x()/dx,0,d.z()/dx);
-        for(double c=Math.max(dy,0)+MIN_CLEAR*scale;;c+=STEP){
+        // A hop that ends on the ground spends height with distance; a hull leg keeps the lowest clearance that works.
+        double rise=Math.max(dy,0)+MIN_CLEAR*scale;
+        if(visibleRise)rise=Math.max(rise,hopHeight*dx/(hopReach+REACH_SLACK));
+        for(double c=rise;;c+=STEP){
             double apex=Math.min(c,hopHeight);
             Plan plan=attempt(apex,dy,dx,dir,clearance);
             if(plan!=null)return plan;
             if(apex>=hopHeight)break;
         }
-        for(double rise=STEP;rise<=REPORT_RISE;rise+=STEP)if(attempt(hopHeight+rise,dy,dx,dir,clearance)!=null)return new Blocked(Kind.TOO_HIGH,rise);
+        if(diagnose)for(double extra=STEP;extra<=REPORT_RISE;extra+=STEP)if(attempt(hopHeight+extra,dy,dx,dir,clearance)!=null)return new Blocked(Kind.TOO_HIGH,extra);
         return new Blocked(Kind.TOO_HIGH,REPORT_RISE);
     }
 

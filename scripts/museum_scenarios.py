@@ -2608,12 +2608,13 @@ pond('sail', '捡棍放帽出航，饿了返岸', '捡棍放帽出航，饿了�
           '[aquatic] route purpose=cruise → [intent] start id=come_ashore（why 中 hunger、food_aboard=false）→ [aquatic] route purpose=come_ashore → [hat] left → '
           '[action] end id=take_prop outcome=DONE。取到棍后木棍始终握在辫梢（划桨、坐着、待机都不松手），读 aquatic.stick_in_braid=true，帽内腔不再另画一根。上岸后饥饿仍压住出航欲望，不会马上再上船。' + _DESIRE_NOTE,
      reads=[('读船主', f'yukkuri status {sel("a")} raw'), ('读帽子', f'data get entity {_HAT}')],
-     smoke=dict(ticks=1200, commands=[(1, 'yukkuri status trace true'), (1199, 'yukkuri status trace false')],
+     smoke=dict(ticks=3600, commands=[(1, 'yukkuri status trace true'), (3599, 'yukkuri status trace false')],
                 expect=[r'\[intent\][^\n]* start id=set_out\b',
                                     r'\[hat\][^\n]* placed [^\n]*water=true kit=minecraft:stick\b',
                                     r'\[body\][^\n]* mount [^\n]*cause=hop_contact\b',
                                     r'\[intent\][^\n]* end id=set_out result=DONE\b',
                                     r'\[status\][^\n]* aquatic\.stick_in_braid: false -> true\b',
+                                    r'\[intent\][^\n]* end id=come_ashore result=DONE\b',
                                     # Ordinary paddling in calm water must reach cruise without capsizing.
                                     r'\A(?:(?!\[hat\][^\n]* capsized [^\n]*form=cone_basin\b)[\s\S])*\[intent\][^\n]* start id=cruise\b'],
                 forbid=[r'\[body\][^\n]* invariant\b', r'\[hat\][^\n]* pickup cause=grounded',

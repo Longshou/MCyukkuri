@@ -22,6 +22,7 @@ import io.github.longshou.mcyukkuri.motor.MotorOwner;
 import io.github.longshou.mcyukkuri.motor.Outcome;
 import io.github.longshou.mcyukkuri.motor.Reason;
 import io.github.longshou.mcyukkuri.motor.action.Grab;
+import io.github.longshou.mcyukkuri.motor.action.Hop;
 import io.github.longshou.mcyukkuri.motor.action.Release;
 import io.github.longshou.mcyukkuri.motor.action.Walk;
 import io.github.longshou.mcyukkuri.motor.geom.CarryGeometry;
@@ -1374,6 +1375,8 @@ public final class ParentCarry {
 
     /** The next child to set down and why (the one being set down first), or null: a pure read of the carry's state. */
     private Map.Entry<YukkuriEntity, String> due() {
+        // A running jump holds the child: the crouch, the flight and its landing offer no place to lower it.
+        if (carrier.motorAction().equals(Hop.ID)) return null;
         var all = ours();
         if (all.isEmpty() || lifting != null || carrier.isPassenger() && giveUp == null) return null;
         // A blocked hull placement yields the body so its ordinary landing intent can carry the child ashore.

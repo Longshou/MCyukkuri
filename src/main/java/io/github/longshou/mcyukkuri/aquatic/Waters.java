@@ -16,6 +16,7 @@ import io.github.longshou.mcyukkuri.motor.geom.GridPath;
 import io.github.longshou.mcyukkuri.motor.geom.HeightGrid;
 import io.github.longshou.mcyukkuri.motor.surface.Floor;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
+import io.github.longshou.mcyukkuri.status.StatusEvents;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
@@ -353,17 +354,19 @@ final class Waters {
      *  the bank first, then the ones beside it, so a hull whose brim reaches over the bank still has a way off. */
     static Exit brimAshore(PlacedHatEntity hat, YukkuriEntity body) {
         return kept(body.level(), key(body.level(), "brim", hat.getUUID(), body.getUUID(), hat.frame(), body.position()), 1,
-                () -> findBrimAshore(hat, body));
+                () -> timed(body, "brim_ashore", () -> findBrimAshore(hat, body)));
     }
 
     private static Exit findBrimAshore(PlacedHatEntity hat, YukkuriEntity body) {
         var edge = edges(body, hat.position(), 4, false).stream().findFirst().orElse(null);
         if (edge == null) return null;
         Vec3 nearest = null;
-        for (var local : hat.hopStops(body).stream()
+        var search = new Hop.Search();
+        for (var local : search.stops(hat, body).stream()
                 .sorted(Comparator.comparingDouble(p -> hat.toWorld(p).distanceToSqr(edge.edge()))).toList()) {
-            if (nearest == null) nearest = hat.toWorld(local);
-            var bank = findAshore(body, hat.toWorld(local), at -> Hop.off(hat, local, at).check(body).ok());
+            var from = hat.toWorld(local);
+            if (nearest == null) nearest = from;
+            var bank = findAshore(body, from, at -> search.admits(body, hat, local, at));
             if (bank != null) return new Exit(local, bank);
         }
         GameplayLog.limited(body, "aquatic", "hop.ashore", 200,
@@ -376,7 +379,16 @@ final class Waters {
     /** A dry stand within one hop. An unsailed owner must also be able to collect her hat without swimming after it. */
     static Vec3 ashore(YukkuriEntity body, Vec3 from) {
         return kept(body.level(), key(body.level(), "ashore", body.getUUID(), body.position(), from, body.getBbWidth()), 1,
-                () -> findAshore(body, from));
+                () -> timed(body, "ashore", () -> findAshore(body, from)));
+    }
+
+    private static <T> T timed(YukkuriEntity body, String operation, Supplier<T> search) {
+        long started = System.nanoTime();
+        T result = search.get();
+        double millis = (System.nanoTime() - started) / 1_000_000.0;
+        if (StatusEvents.trace() && millis >= 50) GameplayLog.event(body, "aquatic",
+                "landing search operation={} millis={} found={}", operation, millis, result != null);
+        return result;
     }
 
     private static Vec3 findAshore(YukkuriEntity body, Vec3 from) {

@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.motor.action;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.family.ParentCarry;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.motor.Action;
 import io.github.longshou.mcyukkuri.motor.Attach;
@@ -30,7 +31,9 @@ import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.status.StatusEvents;
 import java.util.List;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.util.Mth;
@@ -74,6 +77,27 @@ public final class Hop implements Action {
     public static Hop off(SurfaceHost host, Vec3 local, Vec3 bank) {
         var hop = new Hop(host, local); hop.bank = bank; return hop;
     }
+    /** One synchronous landing decision's memo: the hull's stops and its arcs are the same for every candidate. Nothing
+     *  survives the decision and nothing here moves a body. */
+    public static final class Search {
+        private final Map<ArcKey, ArcAnswer> arcs = new HashMap<>();
+        private final Map<SurfaceHost, List<Vec3>> stops = new HashMap<>();
+        private final Map<SurfaceHost, List<Vec>> usable = new HashMap<>();
+        /** The local stands this hull offers to a body of its size. */
+        public List<Vec3> stops(SurfaceHost host, YukkuriEntity body) {
+            return stops.computeIfAbsent(host, h -> h.hopStops(body));
+        }
+        /** Those of them this body may stand on now, in hull units for the arc solver. */
+        private List<Vec> usable(SurfaceHost host, YukkuriEntity body) {
+            return usable.computeIfAbsent(host, h -> stops(host, body).stream()
+                    .filter(p -> new SeatTarget(host, p).available(body))
+                    .map(p -> vec(p.scale(host.frame().unit()))).toList());
+        }
+        /** The same admission the takeoff judges, sharing this decision's arcs. */
+        public boolean admits(YukkuriEntity body, SurfaceHost host, Vec3 local, Vec3 bank) {
+            return off(host, local, bank).check(body, this).ok();
+        }
+    }
     /** Stop at a reachable supported entry nearest the requested work point. */
     public static Hop ontoBrim(SurfaceHost host, Vec3 near) {
         var hop = new Hop(host); hop.brimOnly = true; hop.entryNear = near; return hop;
@@ -85,8 +109,13 @@ public final class Hop implements Action {
         Flight(Feasibility ready, SeatTarget seat, ArcSolver.Plan plan) { this(ready, seat, plan, false); }
     }
     @Override public Feasibility check(YukkuriEntity body) {
+        return check(body, new Search());
+    }
+    private Feasibility check(YukkuriEntity body, Search search) {
         if (onEntryFloor(body)) return Feasibility.pass();
-        var ready = solve(body, takeoffTicks() - 1).ready();
+        long started = System.nanoTime();
+        var ready = solve(body, takeoffTicks() - 1, search).ready();
+        timing(body, "check", started);
         if (bank != null && !ready.ok() && StatusEvents.trace()) GameplayLog.limited(body, "move", "exit." + ready.reason(), 200,
                 "exit refused brim={} bank={} reason={} detail={} width={}", target, bank, ready.reason(), ready.detail(), body.getBbWidth());
         return ready;
@@ -94,7 +123,7 @@ public final class Hop implements Action {
 
     /** The same boarding arc from a proposed dry stand, without moving the body. */
     public Feasibility checkFrom(YukkuriEntity body, Vec3 from) {
-        return solve(body, from, takeoffTicks() - 1).ready();
+        return solve(body, from, takeoffTicks() - 1, new Search()).ready();
     }
 
     /** A body that already settled into the interior resumes the same final seating move. */
@@ -176,6 +205,14 @@ public final class Hop implements Action {
 
     /** The one arc answer: the lowest collision-clear hop from {@code from} to {@code to} past {@code hosts}. */
     private ArcSolver.Result arc(YukkuriEntity body, Vec from, SurfaceHost anchor, List<SurfaceHost> hosts, Vec to, int delay) {
+        return arc(body, from, anchor, hosts, to, delay, true, false);
+    }
+
+    /** As above. {@code diagnose} only adds the rise a refused arc would need to the report; {@code visibleRise} spends more of
+     *  the body's height budget the further a hop that ends on the ground goes, so that it reads as a jump. */
+    private ArcSolver.Result arc(YukkuriEntity body, Vec from, SurfaceHost anchor, List<SurfaceHost> hosts, Vec to, int delay,
+                                 boolean diagnose, boolean visibleRise) {
+        long started = System.nanoTime();
         obstruction = "";
         var ability = BodyAbility.of(body);
         var start = new Vec3(from.x(), from.y(), from.z());
@@ -183,16 +220,42 @@ public final class Hop implements Action {
         var frame = anchor == null ? null : anchor.frameAfter(delay);
         float yaw = heading(body, anchor, frame == null ? start : start.scale(1 / frame.unit()),
                 frame == null ? end : end.scale(1 / frame.unit()), body.yBodyRot);
-        return ArcSolver.lowest(from, to, ability.hopHeight(), ability.hopReach(), ability.scale(),
-                points -> clear(body, start, anchor, hosts, points, delay, yaw));
+        var result = ArcSolver.lowest(from, to, ability.hopHeight(), ability.hopReach(), ability.scale(),
+                points -> clear(body, start, anchor, hosts, points, delay, yaw), visibleRise, diagnose);
+        timing(body, "arc", started);
+        return result;
+    }
+
+    private static void timing(YukkuriEntity body, String operation, long started) {
+        double millis = (System.nanoTime() - started) / 1_000_000.0;
+        if (StatusEvents.trace() && millis >= 50) GameplayLog.event(body, "move",
+                "hop admission operation={} millis={}", operation, millis);
+    }
+
+    private record ArcKey(Vec from, Vec to, SurfaceHost anchor, List<SurfaceHost> hosts, int delay, boolean diagnose,
+                          boolean visibleRise) {}
+    private record ArcAnswer(ArcSolver.Result result, String obstruction, boolean bodyBlocked) {}
+
+    private ArcSolver.Result arc(YukkuriEntity body, Vec from, SurfaceHost anchor, List<SurfaceHost> hosts, Vec to, int delay,
+                                 Search search, boolean diagnose, boolean visibleRise) {
+        var key = new ArcKey(from, to, anchor, hosts, delay, diagnose, visibleRise);
+        var answer = search.arcs.computeIfAbsent(key, ignored -> {
+            var result = arc(body, from, anchor, hosts, to, delay, diagnose, visibleRise);
+            return new ArcAnswer(result, obstruction, bodyBlocked);
+        });
+        obstruction = answer.obstruction();
+        bodyBlocked |= answer.bodyBlocked();
+        return answer.result();
     }
 
     /** Keeps the local stops; the same arc solver admits each check and each takeoff in the current frame. */
     private Flight solve(YukkuriEntity body, int delay) {
-        return solve(body, body.position(), delay);
+        return solve(body, body.position(), delay, new Search());
     }
-
-    private Flight solve(YukkuriEntity body, Vec3 from, int delay) {
+    private Flight solve(YukkuriEntity body, int delay, Search search) {
+        return solve(body, body.position(), delay, search);
+    }
+    private Flight solve(YukkuriEntity body, Vec3 from, int delay, Search search) {
         SeatTarget candidate = null;
         Vec3 to = target;
         if (seatHost == null && !ground(body, to))
@@ -207,9 +270,9 @@ public final class Hop implements Action {
         }
         var ability = BodyAbility.of(body);
         SurfaceHost anchor = seatHost != null && body.getVehicle() == seatHost.entity() ? seatHost : null;
-        boolean entering = seatHost != null && anchor == null && target == null && !seatHost.hopStops(body).isEmpty();
+        boolean entering = seatHost != null && anchor == null && target == null && !search.stops(seatHost, body).isEmpty();
         if (entering) {
-            var stop = entryFrom(body, from, seatHost.frame(), seatHost.hopStops(body).stream()
+            var stop = entryFrom(body, from, seatHost.frame(), search.stops(seatHost, body).stream()
                     .filter(p -> new SeatTarget(seatHost, p).available(body)).toList());
             if (stop == null) return new Flight(Feasibility.of(Reason.TOO_FAR, 0, "no_reachable_brim"), null, null);
             candidate = new SeatTarget(seatHost, stop);
@@ -245,7 +308,7 @@ public final class Hop implements Action {
             candidate = new SeatTarget(anchor, new Vec3(candidate.local().x, height.getAsDouble(), candidate.local().z));
             destination = candidate.local().scale(anchor.frame().unit());
         }
-        var result = arc(body, vec(origin), anchor, swept, vec(destination), delay);
+        var result = arc(body, vec(origin), anchor, swept, vec(destination), delay, search, true, seatHost == null);
         if (result instanceof ArcSolver.Plan plan) {
             if (anchor != null && !following) path = List.of(new HopPath.Leg(vec(destination), plan));
             var ready = bank == null || exitClear(body, anchor, delay) ? Feasibility.pass()
@@ -254,9 +317,11 @@ public final class Hop implements Action {
         }
         String directObstruction = obstruction;
         if (anchor != null && !following) {
-            var stops = anchor.hopStops(body).stream().filter(p -> new SeatTarget(anchor, p).available(body))
-                    .map(p -> vec(p.scale(anchor.frame().unit()))).toList();
-            path = HopPath.solve(vec(origin), vec(destination), stops, (a, b) -> arc(body, a, anchor, swept, b, delay));
+            var stops = search.usable(anchor, body);
+            long started = System.nanoTime();
+            path = HopPath.solve(vec(origin), vec(destination), stops,
+                    (a, b) -> arc(body, a, anchor, swept, b, delay, search, false, false));
+            timing(body, "path", started);
             if (path != null) {
                 var next = path.getFirst();
                 var ready = bank == null || exitClear(body, anchor, delay) ? Feasibility.pass()
@@ -317,7 +382,7 @@ public final class Hop implements Action {
             var stand = host.frameAfter(delay).toWorld(local);
             if (!clear(body, stand, null, swept, List.of(Vec.ZERO), delay, bearing)) return false;
         }
-        var result = arc(body, vec(host.frameAfter(delay).toWorld(local)), null, swept, vec(bank), delay);
+        var result = arc(body, vec(host.frameAfter(delay).toWorld(local)), null, swept, vec(bank), delay, true, true);
         if (result instanceof ArcSolver.Blocked blocked)
             obstruction = blocked.kind() + " shortfall=" + blocked.shortfall() + " " + obstruction;
         return result instanceof ArcSolver.Plan;
@@ -383,9 +448,11 @@ public final class Hop implements Action {
                 Motor.takeoff(body, new Vec3(impulse.x(), impulse.y(), impulse.z()), "hop_takeoff");
             }
             launched = true;
-            if (StatusEvents.trace()) GameplayLog.event(body, "move", "hop leg={} from={} to={} yaw={} bearing={} airTicks={} width={}",
+            if (StatusEvents.trace()) GameplayLog.event(body, "move",
+                    "hop leg={} from={} to={} yaw={} bearing={} airTicks={} width={} apex={} ability={}",
                     completedLegs + 1, GameplayLog.at(body.position()), GameplayLog.at(seat == null ? target : seat.world()),
-                    body.yBodyRot, SurfaceApproach.yaw(body.position(), seat == null ? target : seat.world()), flight.size(), body.getBbWidth());
+                    body.yBodyRot, SurfaceApproach.yaw(body.position(), seat == null ? target : seat.world()), flight.size(),
+                    body.getBbWidth(), plan.apex(), BodyAbility.of(body).detail());
             // Consumed travel must advance the first flight segment on the takeoff tick too.
         }
         startTick = body.level().getGameTime() - marker("land");
@@ -412,6 +479,7 @@ public final class Hop implements Action {
         if (delta.y < 0) Motor.move(body, new Vec3(delta.x, 0, delta.z), "hop_flight");
         Motor.move(body, delta.y < 0 ? new Vec3(0, delta.y, 0) : delta, "hop_flight");
         if (aboard) Motor.spot(seatHost, body, seatHost.frame().toLocal(body.position()), seatHost.riders().yaw(body.getUUID()), "hop_start");
+        else carriedFlight(body, air);
         peak = Math.max(peak, aboard ? p.y() : body.getY() - from.y);
         double blocked = body.position().distanceTo(aim);
         if (blocked > TOUCH) return Outcome.of(Reason.NO_SUPPORT, blocked, "arc_blocked at=" + GameplayLog.at(body.position()));
@@ -423,6 +491,15 @@ public final class Hop implements Action {
             return new Running(SETTLE, TravelMode.PASS);
         }
         return new Running(flight.size() - air, TravelMode.CONSUMED);
+    }
+
+    /** The carried young keeps its seat through the free flight; the sample is traced only. */
+    private static void carriedFlight(YukkuriEntity body, int air) {
+        for (var passenger : body.getPassengers()) if (passenger instanceof YukkuriEntity child) {
+            body.positionRider(child);
+            if (StatusEvents.trace()) GameplayLog.event(body, "family", "carry flight child={} hold={} air={} at={} expected={}",
+                    child.getUUID(), ParentCarry.hold(body, child).key(), air, child.position(), ParentCarry.rawSeat(body, child, 1));
+        }
     }
 
     private Progress landed(YukkuriEntity body) {
