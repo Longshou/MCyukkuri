@@ -424,6 +424,8 @@ public final class HullAfloat implements PlacedHatBehavior {
         return PlacedHatBehavior.super.support(hat, local, body);
     }
     @Override public boolean steady(PlacedHatEntity hat) { return phase == Phase.UPRIGHT && rightProgress < 0; }
+    /** An ordinary parent reads the hull sitting low and rocking: she takes no young aboard past its load warning. */
+    @Override public double loadLimit(PlacedHatEntity hat) { return HullPresentation.number("load_warning"); }
     @Override public boolean retrievable(PlacedHatEntity hat, YukkuriEntity owner) {
         return steady(hat) && hat.getPassengers().isEmpty();
     }

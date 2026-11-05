@@ -307,10 +307,12 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
                 .filter(p -> p instanceof YukkuriEntity).map(p -> (YukkuriEntity) p)
                 .map(y -> (double) (y.growthScale() * y.getScale())).toList();
     }
-    /** Why the hull would not carry a load these sizes add up to ({@link HullBounds#loadRatio}), or null while it still does. */
+    /** Why an ordinary carer would not load the hull with these sizes ({@link HullBounds#loadRatio} past this hat's
+     *  {@link PlacedHatBehavior#loadLimit}: afloat, its load warning), or null while it stays within it. */
     private String weigh(List<Double> sizes) {
         double scale = hullScale() / HullBounds.SCALE, capacity = HullBounds.capacity(scale), ratio = HullBounds.loadRatio(scale, sizes);
-        return ratio <= 1 ? null : String.format(Locale.ROOT, "load=%.4f capacity=%.4f", ratio * capacity, capacity);
+        double limit = behavior().loadLimit(this);
+        return ratio <= limit ? null : String.format(Locale.ROOT, "load=%.4f capacity=%.4f limit=%.4f", ratio * capacity, capacity, limit * capacity);
     }
     /** The sizes the hull would carry once this body is aboard: the riders already there plus what she brings, a young her own
      *  and a captain only the young she carries, her own body being the hull's design weight (the same exclusion
@@ -321,10 +323,13 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
                 .forEach(p -> sizes.add((double) (((YukkuriEntity) p).growthScale() * ((YukkuriEntity) p).getScale())));
         return sizes;
     }
-    /** The load rule a carer's own choice follows: her young may only be put down while the hull still carries it. */
+    /** The load rule a carer's own choice follows: her young may only be put down while the hull still carries it, with what she
+     *  brings aboard herself when she is not aboard yet (she puts it down from her seat). */
     @Override public String loadRefusal(YukkuriEntity carer, YukkuriEntity child) {
         if (ParentCarry.overloadKeeper(carer)) return null;
         var sizes = new ArrayList<>(riderSizes(child));
+        if (carer.getVehicle() != this) for (var p : carer.getPassengers())
+            if (p instanceof YukkuriEntity y && y != child && !y.getUUID().equals(ownerYukkuri())) sizes.add((double) (y.growthScale() * y.getScale()));
         sizes.add((double) (child.growthScale() * child.getScale()));
         return weigh(sizes);
     }

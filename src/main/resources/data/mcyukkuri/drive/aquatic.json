@@ -37,6 +37,7 @@
   "hunger_from": 55,
   "hunger_slope": 3,
   "stick_need": 50,
+  "load_need": 70,
   "wet_from": 60,
   "wet_need": 70,
   "thunder_need": 60,

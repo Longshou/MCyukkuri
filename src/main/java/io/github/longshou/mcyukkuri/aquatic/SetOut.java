@@ -46,7 +46,8 @@ import net.minecraft.world.phys.Vec3;
  * {@code board_parent} desire. A young ashore that cannot get to the water by itself is lifted by the shared Grab (the hold it
  * picks) and carried to that shore; she sets it down at the berth stand before she places the hat, and picks it up again from the
  * near brim and seats it after reaching her own seat.
- * Sleeping young, those in the water and those without a seat stay behind; a failed fetch ends this setting out. She gathers
+ * Sleeping young, those in the water, those without a seat and those her load rule keeps off the hull stay behind; a failed
+ * fetch ends this setting out. She gathers
  * responsive young at the bank first; the hat is set down at a dry stand with her own hop reach to its brim,
  * and she approaches a wandering child on foot before lifting it.
  */
@@ -103,6 +104,8 @@ final class SetOut implements Intent, FamilyRendezvous {
     private String staying(YukkuriEntity y) {
         if (y.family().stage() == FamilyLife.Stage.BABY && y.childhood().isNewborn() && y.childhood().shouldStayWithParents()) return null;
         var hat = AquaticLife.hat(owner);
+        // one her own load rule would not put aboard (with what she brings herself) stays with the family ashore
+        if (AquaticLife.afloat(hat) && !AquaticLife.aboard(y, hat) && hat.loadRefusal(owner, y) != null) return "hull_full";
         if (hat != null && hat.settled(owner) && !AquaticLife.aboard(y, hat) && hat.restSpot(y) == null) return "no_room";
         return y.life().isSleeping() ? "asleep" : y.isInWaterOrBubble() ? "in_water" : excused.get(y.getUUID());
     }

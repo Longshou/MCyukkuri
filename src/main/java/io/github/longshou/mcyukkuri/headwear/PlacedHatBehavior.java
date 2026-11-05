@@ -74,6 +74,10 @@ public interface PlacedHatBehavior {
     /** False while it shakes hard or turns over: no jump landing may be planned onto it. Synced facts only. */
     default boolean steady(PlacedHatEntity hat) { return true; }
 
+    /** The load ratio an ordinary carer keeps it within (her own choice, {@code PlacedHatEntity.loadRefusal}): its capacity, or a
+     *  floating hull's load warning, the line past which it visibly sinks and rocks. */
+    default double loadLimit(PlacedHatEntity hat) { return 1; }
+
     /** Set down to catch young, a cradle; a hat afloat is its owner's boat instead and she may ride it. */
     default boolean catches(PlacedHatEntity hat) { return true; }
 

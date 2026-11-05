@@ -2083,19 +2083,23 @@ def _uuid_text(sid, slot):
 
 
 def _overload_family_choice(window):
+    """Both kinds of parent on overload (FEATURES 载重, 超载断亲): the ordinary parent reads her hull's load warning and takes the
+    family ashore to unload before it goes over (only a real overload capsize when she is too late dismisses her largest young);
+    the keeper (low intelligence, high friendliness) keeps going until it capsizes and keeps all her young."""
     for parent, exceptional in (('normal', False), ('kind', True)):
         owner = _uuid_text('hat_crowd', parent)
-        placed = re.search(r'\[hat\][^\n]* placed owner=' + owner + r' hat=(\S+)', window)
-        if placed is None:
+        hulls = re.findall(r'\[hat\][^\n]* placed owner=' + owner + r' hat=(\S+)', window)
+        if not hulls:
             return f'{parent}: hat was not placed'
-        boat = re.escape(placed.group(1))
+        boat = re.escape(hulls[0])
+        boats = '(?:' + '|'.join(map(re.escape, dict.fromkeys(hulls))) + ')'
         # the largest young that fits takes the head, the rest fill the brim (user 2026-11-05)
         places = ((1, 'CABIN'), (2, 'BRIM'), (3, 'HEAD')) if exceptional else ((2, 'BRIM'), (3, 'HEAD'))
         for child, place in places:
             if not re.search(r'\[hat\][^\n]*uuid=' + _uuid_text('hat_crowd', parent + str(child))
                              + r'[^\n]* scenario place hat=' + boat + r' place=' + place + r'\b', window):
                 return f'{parent}{child}: missing real {place} placement'
-        rolls = re.findall(r'\[aquatic\][^\n]*uuid=' + boat + r'[^\n]* load changed event=(\w+) body=\S+ '
+        rolls = re.findall(r'\[aquatic\][^\n]*uuid=' + boats + r'[^\n]* load changed event=(\w+) body=\S+ '
                            r'load=(\S+) capacity=(\S+) chance=(\S+) roll=(\S+) result=(\w+)', window)
         overloaded_growth = False
         for event, load, capacity, chance, roll, result in rolls:
@@ -2104,26 +2108,37 @@ def _overload_family_choice(window):
             if abs(chance - expected) > 1e-9 or (result == 'capsize') != (roll < chance):
                 return f'{parent}: overload chance or result disagrees with the logged load and roll'
             overloaded_growth |= event == 'growth' and load > capacity
-        if not overloaded_growth:
-            return f'{parent}: no real growth into overload'
-        capsized = re.search(r'\[hat\][^\n]*uuid=' + boat + r'[^\n]* capsized cause=too_heavy\b[^\n]*thrown=[1-9]', window)
-        if capsized is None:
-            return f'{parent}: no overload capsize in this random run'
-        after = window[capsized.end():]
+        capsized = re.search(r'\[hat\][^\n]*uuid=' + boats + r'[^\n]* capsized cause=too_heavy\b[^\n]*thrown=[1-9]', window)
         dismissals = list(re.finditer(r'\[family\][^\n]*uuid=' + owner + r'[^\n]* parent dismissed child=(\S+)', window))
         if exceptional:
-            if dismissals or not re.search(r'\[family\][^\n]*uuid=' + owner + r'[^\n]* overload keeps children', after):
+            if not overloaded_growth:
+                return f'{parent}: no real growth into overload'
+            if capsized is None:
+                return f'{parent}: no overload capsize in this random run'
+            if dismissals or not re.search(r'\[family\][^\n]*uuid=' + owner + r'[^\n]* overload keeps children', window[capsized.end():]):
                 return 'exceptional parent did not keep all children after overload'
-        else:
-            if not dismissals or dismissals[0].start() < capsized.end() or dismissals[0][1] != _uuid_text('hat_crowd', parent + '3'):
-                return 'normal parent did not dismiss the largest young after the real overload capsize'
-            capsize_ticks = re.findall(r'\[hat\][^\n]*uuid=' + boat + r' t=(\d+)[^\n]* capsized cause=too_heavy\b', window)
-            dismissal_ticks = [re.search(r' t=(\d+)', dismissal[0])[1] for dismissal in dismissals]
-            if dismissal_ticks != capsize_ticks:
-                return 'normal parent must dismiss exactly once at each overload capsize, never for another cause'
-            for dismissal in dismissals:
-                if re.search(r'\[aquatic\][^\n]*uuid=' + owner + r'[^\n]* rescue start faller=' + dismissal[1], window[dismissal.end():]):
-                    return 'dismissed young was regathered by its former carer'
+            if re.search(r'\[aquatic\][^\n]*uuid=' + owner + r'[^\n]* load heavy ', window):
+                return 'exceptional parent reacted to the load warning'
+            continue
+        if capsized is None:
+            # in time: the load warning sends her ashore, the family lands, and nobody is dismissed without a capsize
+            heavy = re.search(r'\[aquatic\][^\n]*uuid=' + owner + r'[^\n]* load heavy hat=' + boats + r'[^\n]* reason=unload_ashore', window)
+            if heavy is None:
+                return 'normal parent neither unloaded at the load warning nor capsized'
+            if not re.search(r'\[intent\][^\n]*uuid=' + owner + r'[^\n]* end id=come_ashore result=DONE\b', window[heavy.end():]):
+                return 'normal parent turned for the bank at the load warning but never landed the family'
+            if dismissals:
+                return 'normal parent dismissed a young without an overload capsize'
+            continue
+        if not dismissals or dismissals[0].start() < capsized.end() or dismissals[0][1] != _uuid_text('hat_crowd', parent + '3'):
+            return 'normal parent did not dismiss the largest young after the real overload capsize'
+        capsize_ticks = re.findall(r'\[hat\][^\n]*uuid=' + boats + r' t=(\d+)[^\n]* capsized cause=too_heavy\b', window)
+        dismissal_ticks = [re.search(r' t=(\d+)', dismissal[0])[1] for dismissal in dismissals]
+        if dismissal_ticks != capsize_ticks:
+            return 'normal parent must dismiss exactly once at each overload capsize, never for another cause'
+        for dismissal in dismissals:
+            if re.search(r'\[aquatic\][^\n]*uuid=' + owner + r'[^\n]* rescue start faller=' + dismissal[1], window[dismissal.end():]):
+                return 'dismissed young was regathered by its former carer'
     return None
 
 
@@ -2552,14 +2567,14 @@ pond('cargo', '帽里存粮取食，空帽打下', '帽里存粮取食，空帽�
                 readout=[f'yukkuri status {sel("a")} raw', f'yukkuri status {sel("full")} raw']))
 
 pond('hat_crowd', '孩子长大超载翻船，亲油取舍', '孩子长大超载翻船，亲油取舍',
-     '两位亲油并排，普通亲油带一只头顶赤油和一只帽檐子油，另一位还带一只帽内小赤油，按舱内、裸露头顶、帽檐顺序找真实承托。普通亲油智力55、友善70；另一位智力20、友善80。各有八份帽粮，帽旁水里另漂着八份真实苹果；孩子靠实际成长增加载重；超载只在登船、离船或成长时抽一次翻船概率。真实超载翻船后，普通亲油断绝最大的一只，低智力高友善亲油继续承认全部孩子。落水后照常自救或救幼，不能保证存活',
+     '两位亲油并排，普通亲油带一只头顶赤油和一只帽檐子油，另一位还带一只帽内小赤油，按舱内、裸露头顶、帽檐顺序找真实承托。普通亲油智力55、友善70；另一位智力20、友善80。各有八份帽粮，帽旁水里另漂着八份真实苹果；孩子靠实际成长增加载重；超载只在登船、离船或成长时抽一次翻船概率。普通亲油看到帽船吃水下沉、多晃（载重警戒）就带全家划回岸边卸下，再出航只带帽船载得下的孩子、载不下的留岸；来不及靠岸而真正超载翻船时，才断绝最大的一只。低智力高友善亲油不理会警戒，照样载着全家，超载翻船后继续承认全部孩子。落水后照常自救或救幼，不能保证存活',
      '约 5 分钟，建议倍速',
      [*_overload_bank(), *_overload_family('normal', 0, 55, 70, False), *_overload_family('kind', 6, 20, 80, True)],
      late=[f'execute as {sel("normal")} on vehicle run tag @s add seat_reload'],
      capture=dict(shots=(1, 600, 2400, 5200), sequences=((600, 5200, 200), (1400, 2600, 4))),
      note='普通亲油的头顶与帽檐乘员用于保存重载核对，另一位的帽内赤油可自行转身和走动；冒烟会卸载再加载场地区块核对第一顶帽的位置与乘员。'
           '逐只记 scenario place 的 CABIN／HEAD／BRIM；[aquatic] load changed 给出事件、载重、容量、概率、抽值和结果，静止不重抽。'
-          '先看 load warning，再看 capsized cause=too_heavy 与真实落水；普通亲油随后记 parent dismissed child，孩子仍认亲、族谱不变，亲油不再救它；另一位记 overload keeps children。'
+          '先看 load warning：普通亲油随即记 [aquatic] load heavy … reason=unload_ashore，come_ashore 的 why 中 heavy=true，靠岸卸下全家，再出航时载不下的记 set_out left_ashore（hull_full）；来不及而真正翻覆时才记 parent dismissed child，孩子仍认亲、族谱不变，亲油不再救它。另一位不理会警戒，capsized cause=too_heavy 与真实落水后记 overload keeps children。'
           '子油没有自己的木棍而推迟初航；每家的帽旁另漂着一堆八份真实苹果可捞，帽内八份翻覆后照常散出，不补粮。不强制翻船或死亡，真实碰撞、拒绝和水伤保留，逐只读存亡；整窗不得有人饿死。',
      reads=[('读普通亲油与族谱', f'yukkuri status {sel("normal")} raw'),
             ('读低智力高友善亲油', f'yukkuri status {sel("kind")} raw'),
@@ -3063,9 +3078,10 @@ pond('birth_boat_missed', '临产划回岸边，放下孩子再生产', '临产�
            childhood=readiness, fam=_seat_family(size, nourishment, age), also=('crew',), label=label, **pair_ready())
         for name, dz, stage, size, nourishment, age, readiness, label in (
             ('k1', 1, 'child', .35, 147000, 144000, CHILDHOOD_CRAWLING_READY, '待托放的子油'),
-            # its own size's nourishment (105000, not the 0.35 body's 147000): else it grows to 0.35 on the first tick and the
-            # two young overload her hull, so the scene shows a random too_heavy capsize instead of the shore return.
-            ('k2', -1, 'child', .25, 105000, 144000, CHILDHOOD_HOPPING, '会跳的小子油'))],
+            # its own size's nourishment (84000, not the 0.35 body's 147000): else it grows to 0.35 on the first tick and the
+            # two young overload her hull, so the scene shows a random too_heavy capsize instead of the shore return. With k1
+            # the two weigh 0.80 of her hull's capacity, under its load warning (0.85), so she has no reason to unload them early.
+            ('k2', -1, 'child', .20, 84000, 144000, CHILDHOOD_HOPPING, '会跳的小子油'))],
       item('minecraft:apple', 8, bank_dx(0) - 2, 0),
       *pond_rim_seagrass(),
       f'yukkuri scenario bond {sel("mother")} {sel("father")}'],
