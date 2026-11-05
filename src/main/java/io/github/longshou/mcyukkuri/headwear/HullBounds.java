@@ -75,7 +75,8 @@ public final class HullBounds {
     /**
      * Every place a body comes to rest on the brim — a seat taken, a hop leg or landing, a carry put down — the ring places pulled in
      * until its collision box and its eye box end {@link #EPSILON} inside the hull's outer radius, so a hull pressed against the bank
-     * never puts it into a block. Being on the brim is resting, so takeoff and landing use these same places.
+     * never puts it into a block. The collision box is axis-aligned whichever way the hull and the body face, so it is the box's
+     * corner, not its extent along the radius, that has to stay inside the round rim. Being on the brim is resting, so takeoff and landing use these same places.
      */
     public static List<Vec> brimPlaces(String asset, double width, double height, double hullScale, double yaw) {
         var profile = HullProfile.of(HullProfile.BASIN);
@@ -83,7 +84,8 @@ public final class HullBounds {
         var body = BodyFootprint.of(asset, width / scale / unit, height / scale / unit, yaw);
         return brimStops().stream().map(p -> p.scale(1 / unit))
                 .map(p -> p.scale(Math.min(p.hlen(), (RADIUS - EPSILON) / unit
-                        - Math.max(FloorSearch.extent(body, p.x() / p.hlen(), p.z() / p.hlen()), EYE_BOX * width / scale / unit)) / p.hlen()))
+                        - Math.max(Math.max(FloorSearch.extent(body, p.x() / p.hlen(), p.z() / p.hlen()), EYE_BOX * width / scale / unit),
+                                width / scale / unit * Math.sqrt(.5))) / p.hlen()))
                 .distinct().map(p -> new Vec(p.x(), profile.support(p.x(), p.z(), body), p.z())).toList();
     }
 

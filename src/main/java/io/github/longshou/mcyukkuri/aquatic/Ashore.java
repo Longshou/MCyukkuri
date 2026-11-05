@@ -4,7 +4,6 @@ import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.ParentCarry;
 import io.github.longshou.mcyukkuri.headwear.HatProp;
-import io.github.longshou.mcyukkuri.headwear.HullBounds;
 import io.github.longshou.mcyukkuri.headwear.PlacedHatEntity;
 import io.github.longshou.mcyukkuri.intent.Commitment;
 import io.github.longshou.mcyukkuri.intent.Intent;
@@ -168,25 +167,15 @@ final class Ashore implements Intent {
                 distance -> distance <= DOCKED || distance <= ARRIVE && youngCanLand(hat) && Ferry.hopAshore(owner).get() != null)));
     }
 
-    /** Where the hull's centre rests against {@code edge}: its rim toward the bank plus the stand-off. */
+    /** Where the hull's centre rests against {@code edge}: its rim toward the bank. */
     private static Vec3 dock(PlacedHatEntity hat, Waters.Edge edge) {
-        return edge.out(HullAfloat.brimToward(hat, edge.edge()) + standoff(hat));
+        return edge.out(HullAfloat.brimToward(hat, edge.edge()));
     }
 
     /** The hull has been paddled in to the landing it chose and lies within the paddle's arrival of the dock. */
     private boolean docked(PlacedHatEntity hat) {
         return landing != null && tried.contains(landing.stand())
                 && dock(hat, landing).subtract(hat.position()).multiply(1, 0, 1).length() <= ARRIVE;
-    }
-
-    /** How far the hull docks off the bank so that no rider's brim stand reaches into it. A brim place keeps its box's extent along
-     *  the radius inside the rim ({@link HullBounds#brimPlaces}), but the box corner beside that extent still sticks out of the round
-     *  rim by half the box's diagonal less half its width; the hull turns on its way in, so the widest rider's corner sets the gap
-     *  whichever way it faces. */
-    private static double standoff(PlacedHatEntity hat) {
-        double width = 0;
-        for (var rider : hat.getPassengers()) width = Math.max(width, rider.getBbWidth());
-        return width * (Math.sqrt(2) - 1) / 2 + HullBounds.EPSILON;
     }
 
     /** The family landing must also be reachable by the young who will leave under their own power. */
