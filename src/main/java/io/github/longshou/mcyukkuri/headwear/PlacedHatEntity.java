@@ -161,7 +161,7 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
     }
     @Override protected AABB makeBoundingBox() {
         var box = super.makeBoundingBox();
-        if (!entityData.get(AFLOAT) || !profile().seated()) return box;
+        if (!profile().seated()) return box;
         return box.move(0, HullBounds.KEEL * hullScale() / HullBounds.SCALE, 0);
     }
 
@@ -701,7 +701,12 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
             return refusePlacement(owner, at, "no_sturdy_floor", spot.below().toShortString() + " " + level.getBlockState(spot.below()).getBlock());
         var hat = ModEntities.PLACED_HAT.get().create(level);
         if (hat == null) return refusePlacement(owner, at, "entity_creation_failed", "");
-        hat.setPos(at.x, water ? spot.getY() + level.getFluidState(spot).getHeight(level, spot) : spot.getY(), at.z);
+        hat.setYRot(yaw);
+        hat.formId(HatGeometry.wornForm(owner).id());
+        hat.syncHullScale(HatScale.of(owner));
+        // A round hull hangs its keel below its origin: on the ground it stands on the keel.
+        double lift = !water && hat.profile().seated() ? -HullBounds.KEEL * hat.hullScale() / HullBounds.SCALE : 0;
+        hat.setPos(at.x, water ? spot.getY() + level.getFluidState(spot).getHeight(level, spot) : spot.getY() + lift, at.z);
         hat.setYRot(yaw);
         hat.launchRole(role);
         hat.formId(HatGeometry.wornForm(owner).id());
