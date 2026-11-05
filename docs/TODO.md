@@ -9,6 +9,7 @@
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
 | 翻覆后攀帽死循环与帽檐空转（`wp-r-loops`） | `wp-r-loops` | `life/EscapeWater.java`、`motor/action/{Climb,Hop,Face}.java`、`motor/surface/Floor.java`、`headwear/PlacedHatEntity.java`、`aquatic/{AquaticGoal,Follow,PlayAboard}.java`、`scripts/museum_scenarios.py` |
+| 满船托幼送岸后全家团聚（`wp-s-full-ferry`） | `wp-s-full-ferry` | `aquatic/{Rescue,Ashore,UnloadYoung,Ferry}.java`、`docs/FEATURES.md` 水生魔理沙落水救助、`scripts/museum_scenarios.py` 的 `rescue_no_seat` |
 
 ## 玩法待办
 
