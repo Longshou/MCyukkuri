@@ -46,6 +46,8 @@ final class Waters {
     static final int RANGE = 24, ASKED = 8;
     /** Brim stands closer than this (blocks) are one stand for a landing search: the difference is invisible. */
     private static final double SAME_STAND = 0.15;
+    /** Ticks a landing search that found nothing stays unasked. */
+    private static final int NONE_HOLD = 4;
     /** What a route step beside the bank costs extra (GridPath's rim weight, in cells): the hull keeps off the shore. */
     private static final double SHORE_COST = 2;
 
@@ -355,8 +357,14 @@ final class Waters {
     /** The local brim spot of {@code hat} and dry stand one hop away for {@code body}, or null: the ring spot nearest
      *  the bank first, then the ones beside it, so a hull whose brim reaches over the bank still has a way off. */
     static Exit brimAshore(PlacedHatEntity hat, YukkuriEntity body) {
-        return kept(body.level(), key(body.level(), "brim", hat.getUUID(), body.getUUID(), hat.frame(), body.position()), 1,
+        var level = body.level();
+        // A search that found no way off is not repeated every tick while the hull drifts: a few ticks' wait is not visible.
+        var none = key(level, "brim_none", hat.getUUID(), body.getUUID());
+        if (kept(level, none, NONE_HOLD, () -> Boolean.FALSE) == Boolean.TRUE) return null;
+        var exit = kept(level, key(level, "brim", hat.getUUID(), body.getUUID(), hat.frame(), body.position()), 1,
                 () -> timed(body, "brim_ashore", () -> findBrimAshore(hat, body)));
+        if (exit == null) synchronized (CACHE) { CACHE.put(none, new Kept(level.getGameTime(), Boolean.TRUE)); }
+        return exit;
     }
 
     private static Exit findBrimAshore(PlacedHatEntity hat, YukkuriEntity body) {
