@@ -119,10 +119,13 @@ final class Ferry {
 
     /** A dry walking destination admitted by the boarding arc, or by the owner's one braid stroke to draw her hat closer. */
     private static Vec3 boardingStand(YukkuriEntity body, PlacedHatEntity hat, Beckoning beckoning) {
+        return boardingStand(body, hat, beckoning, new Hop.Search());
+    }
+    private static Vec3 boardingStand(YukkuriEntity body, PlacedHatEntity hat, Beckoning beckoning, Hop.Search search) {
         for (var edge : Waters.edges(body, hat.position(), 4, false)) {
             var stand = Waters.boardingStand(edge, body);
             if (SurfaceApproach.supported(body, stand)
-                    && (new Hop(hat).checkFrom(body, stand).ok()
+                    && (new Hop(hat).checkFrom(body, stand, search).ok()
                         || beckoning != null && beckoning.nearFrom(body, hat, stand, edge.yaw()))
                     && SurfaceApproach.canApproach(body, stand)) return stand;
         }
@@ -132,7 +135,9 @@ final class Ferry {
     /** Whether a boarding has a means where the young stands now: its own hop admitted, or a dry stand near the hull to walk to and
      *  hop from (the two the boarding intent's first step reads). */
     static boolean canBoard(YukkuriEntity body, PlacedHatEntity hat) {
-        return new Hop(hat).check(body).ok() || boardingStand(body, hat, null) != null;
+        // One decision: the hull's place for this young is searched once, not again from every bank stand.
+        var search = new Hop.Search();
+        return new Hop(hat).check(body, search).ok() || boardingStand(body, hat, null, search) != null;
     }
 
     /** Board to work a young from the hull: walk to the boarding stand, face it, then hop where the braid reaches the young from —

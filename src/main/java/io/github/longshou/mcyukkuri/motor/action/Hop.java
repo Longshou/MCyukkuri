@@ -34,6 +34,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.util.Mth;
@@ -83,6 +84,7 @@ public final class Hop implements Action {
         private final Map<ArcKey, ArcAnswer> arcs = new HashMap<>();
         private final Map<SurfaceHost, List<Vec3>> stops = new HashMap<>();
         private final Map<SurfaceHost, List<Vec>> usable = new HashMap<>();
+        private final Map<SurfaceHost, Optional<SeatTarget>> entries = new HashMap<>();
         private final boolean report;
         public Search() { this(true); }
         private Search(boolean report) { this.report = report; }
@@ -97,6 +99,10 @@ public final class Hop implements Action {
             return usable.computeIfAbsent(host, h -> stops(host, body).stream()
                     .filter(p -> new SeatTarget(host, p).available(body))
                     .map(p -> vec(p.scale(host.frame().unit()))).toList());
+        }
+        /** The host's place this body would come to rest in ({@link SurfaceHost#restEntry}): the same from every stand. */
+        private SeatTarget entry(SurfaceHost host, YukkuriEntity body) {
+            return entries.computeIfAbsent(host, h -> Optional.ofNullable(h.restEntry(body))).orElse(null);
         }
         /** The same admission the takeoff judges, sharing this decision's arcs. */
         public boolean admits(YukkuriEntity body, SurfaceHost host, Vec3 local, Vec3 bank) {
@@ -116,7 +122,8 @@ public final class Hop implements Action {
     @Override public Feasibility check(YukkuriEntity body) {
         return check(body, new Search());
     }
-    private Feasibility check(YukkuriEntity body, Search search) {
+    /** {@link #check(YukkuriEntity)} within one decision that also asks other hops, sharing its memo. */
+    public Feasibility check(YukkuriEntity body, Search search) {
         if (onEntryFloor(body)) return Feasibility.pass();
         long started = System.nanoTime();
         var ready = solve(body, takeoffTicks() - 1, search).ready();
@@ -128,7 +135,10 @@ public final class Hop implements Action {
 
     /** The same boarding arc from a proposed dry stand, without moving the body. */
     public Feasibility checkFrom(YukkuriEntity body, Vec3 from) {
-        return solve(body, from, takeoffTicks() - 1, new Search()).ready();
+        return checkFrom(body, from, new Search());
+    }
+    public Feasibility checkFrom(YukkuriEntity body, Vec3 from, Search search) {
+        return solve(body, from, takeoffTicks() - 1, search).ready();
     }
 
     /** A body that already settled into the interior resumes the same final seating move. */
@@ -278,7 +288,7 @@ public final class Hop implements Action {
             return new Flight(Feasibility.of(Reason.NO_SUPPORT, 0, "ground_centre"), null, null);
         if (seatHost != null) {
             if (seatHost.entity().isRemoved()) return new Flight(Feasibility.of(Reason.TARGET_GONE, 0, "host_gone"), null, null);
-            candidate = target == null ? seatHost.restEntry(body) : new SeatTarget(seatHost, target);
+            candidate = target == null ? search.entry(seatHost, body) : new SeatTarget(seatHost, target);
             if (candidate == null) return new Flight(Feasibility.of(Reason.NO_ROOM, 0, "no_spot size=" + body.growthScale() * body.getScale()), null, null);
             if (!seatHost.steady()) return new Flight(Feasibility.of(Reason.NO_SUPPORT, 0, "host_unsteady"), null, null);
             if (!candidate.available(body, arrivalYaw(body, from, candidate))) return new Flight(Feasibility.of(Reason.NO_ROOM, 0, "destination_occupied"), null, null);

@@ -167,6 +167,15 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
 
     @Override public String formId() { return entityData.get(FORM); }
     public void formId(String id) { entityData.set(FORM, HullProfile.of(id).id()); }
+    /** The profile of the synced form, looked up again only when the form changes: the surface loops read it per sample. Written
+     *  first from the entity constructor (the bounding box), so no initializer. */
+    private HullProfile profile;
+    private String profileForm;
+    @Override public HullProfile profile() {
+        var id = formId();
+        if (!id.equals(profileForm)) { profile = HullProfile.of(id); profileForm = id; }
+        return profile;
+    }
 
     public void syncOwner(Optional<UUID> owner) { entityData.set(OWNER, owner); }
     public void syncHullScale(float scale) { entityData.set(SCALE, scale); }
