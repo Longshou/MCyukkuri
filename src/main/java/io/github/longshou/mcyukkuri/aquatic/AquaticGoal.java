@@ -418,9 +418,11 @@ final class AquaticGoal extends Goal {
                 && !(running != null && running.intent() instanceof Ashore)
                 && parentOn) {
             var full = hat.boardingRefusal(body);
-            if (full == null && hat.restSpot(body) != null) out.add(Desire.of("board_parent", num("follow", 65), world, why, () -> Follow.board(body, hat)));
+            // Only a boarding this young has a means for now: the hop admitted where it stands, or a dry stand near the hull to hop
+            // from. Without one it waits on the bank and her own fetch/ferry applies, instead of failing the same boarding over and over.
+            if (full == null && Ferry.canBoard(body, hat)) out.add(Desire.of("board_parent", num("follow", 65), world, why, () -> Follow.board(body, hat)));
             else GameplayLog.limited(body, "aquatic", "board refused hat=" + hat.getUUID(), 1200,
-                    "board refused hat={} reason={} size={}", hat.getUUID(), full == null ? "no_room" : "hull_full " + full,
+                    "board refused hat={} reason={} size={}", hat.getUUID(), full == null ? "no_boarding_stand" : "hull_full " + full,
                     body.growthScale() * body.getScale());
         }
         // A young standing on the hull leaves it by itself; one her braid carries on her head goes with her and is set down there.

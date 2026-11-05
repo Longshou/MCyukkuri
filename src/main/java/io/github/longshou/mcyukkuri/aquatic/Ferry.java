@@ -129,6 +129,12 @@ final class Ferry {
         return null;
     }
 
+    /** Whether a boarding has a means where the young stands now: its own hop admitted, or a dry stand near the hull to walk to and
+     *  hop from (the two the boarding intent's first step reads). */
+    static boolean canBoard(YukkuriEntity body, PlacedHatEntity hat) {
+        return new Hop(hat).check(body).ok() || boardingStand(body, hat, null) != null;
+    }
+
     /** Board to work a young from the hull: walk to the boarding stand, face it, then hop where the braid reaches the young from —
      *  chosen where she stands, so its own hop admission is the one read. */
     static List<Supplier<Step>> boardNear(YukkuriEntity body, PlacedHatEntity hat, YukkuriEntity child, Beckoning beckoning) {
