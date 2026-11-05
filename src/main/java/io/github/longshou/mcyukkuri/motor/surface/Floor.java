@@ -24,10 +24,10 @@ public final class Floor {
         var action = body.motor().current();
         return action == null || !action.airborne();
     }
-    public static BodyFootprint shape(SurfaceHost host, YukkuriEntity body) {
-        float yaw = body.getVehicle() == host.entity() ? host.riders().yaw(body.getUUID())
-                : body.yBodyRot - host.entity().getYRot();
-        return shape(host, body, yaw);
+    public static BodyFootprint shape(SurfaceHost host, YukkuriEntity body) { return shape(host, body, yaw(host, body)); }
+    /** The body's turn relative to the host (degrees): its riding yaw there, else its body yaw. */
+    public static float yaw(SurfaceHost host, YukkuriEntity body) {
+        return body.getVehicle() == host.entity() ? host.riders().yaw(body.getUUID()) : body.yBodyRot - host.entity().getYRot();
     }
     public static BodyFootprint shape(SurfaceHost host, YukkuriEntity body, float yaw) {
         double unit = host.frame().unit();

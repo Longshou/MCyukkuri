@@ -163,6 +163,16 @@ public final class Hop implements Action {
         return host == null ? (float) local : SurfaceApproach.yaw(host.frame().toWorld(from), host.frame().toWorld(to));
     }
 
+    /** The turn (relative to the host) a body hopping from {@code from} comes down on {@code seat} with: it faces the leg (the turn
+     *  {@link #faceLeg} makes and the landing keeps), so its room there is judged turned that way, at admission and at launch alike. */
+    private static float arrivalYaw(YukkuriEntity body, Vec3 from, SeatTarget seat) {
+        var host = seat.host();
+        float yaw = body.getVehicle() == host.entity()
+                ? heading(body, host, host.riders().local(body.getUUID()), seat.local(), body.yBodyRot)
+                : heading(body, null, from, seat.world(), body.yBodyRot);
+        return yaw - host.entity().getYRot();
+    }
+
     private Face faceLeg(YukkuriEntity body) {
         if (seat != null && body.getVehicle() == seat.host().entity())
             return new Face(heading(body, seat.host(), seat.host().riders().local(body.getUUID()), seat.local(), body.yBodyRot));
@@ -172,7 +182,8 @@ public final class Hop implements Action {
     /** One leg to a supported point on the current host, without routing through other stops. */
     public static boolean reaches(YukkuriEntity body, SurfaceHost host, Vec3 local) {
         var from = host.riders().local(body.getUUID()).scale(host.frame().unit());
-        return new SeatTarget(host, local).available(body) && new Hop(host, local).arc(body, vec(from), host,
+        var seat = new SeatTarget(host, local);
+        return seat.available(body, arrivalYaw(body, body.position(), seat)) && new Hop(host, local).arc(body, vec(from), host,
                 hosts(body, body.position(), host.frame().toWorld(local)), vec(local.scale(host.frame().unit())), takeoffTicks() - 1) instanceof ArcSolver.Plan;
     }
 
@@ -265,7 +276,7 @@ public final class Hop implements Action {
             candidate = target == null ? seatHost.restEntry(body) : new SeatTarget(seatHost, target);
             if (candidate == null) return new Flight(Feasibility.of(Reason.NO_ROOM, 0, "no_spot size=" + body.growthScale() * body.getScale()), null, null);
             if (!seatHost.steady()) return new Flight(Feasibility.of(Reason.NO_SUPPORT, 0, "host_unsteady"), null, null);
-            if (!candidate.available(body)) return new Flight(Feasibility.of(Reason.NO_ROOM, 0, "destination_occupied"), null, null);
+            if (!candidate.available(body, arrivalYaw(body, from, candidate))) return new Flight(Feasibility.of(Reason.NO_ROOM, 0, "destination_occupied"), null, null);
             to = candidate.world();
         }
         var ability = BodyAbility.of(body);
@@ -273,7 +284,7 @@ public final class Hop implements Action {
         boolean entering = seatHost != null && anchor == null && target == null && !search.stops(seatHost, body).isEmpty();
         if (entering) {
             var stop = entryFrom(body, from, seatHost.frame(), search.stops(seatHost, body).stream()
-                    .filter(p -> new SeatTarget(seatHost, p).available(body)).toList());
+                    .filter(p -> { var at = new SeatTarget(seatHost, p); return at.available(body, arrivalYaw(body, from, at)); }).toList());
             if (stop == null) return new Flight(Feasibility.of(Reason.TOO_FAR, 0, "no_reachable_brim"), null, null);
             candidate = new SeatTarget(seatHost, stop);
             to = candidate.world();
@@ -293,7 +304,7 @@ public final class Hop implements Action {
             var next = path.get(leg);
             destination = new Vec3(next.at().x(), next.at().y(), next.at().z());
             candidate = new SeatTarget(anchor, destination.scale(1 / anchor.frame().unit()));
-            if (!candidate.available(body)) return new Flight(Feasibility.of(Reason.NO_ROOM, 0, "destination_occupied"), null, null);
+            if (!candidate.available(body, arrivalYaw(body, from, candidate))) return new Flight(Feasibility.of(Reason.NO_ROOM, 0, "destination_occupied"), null, null);
         }
         if (anchor != null) {
             float yaw = heading(body, anchor, origin.scale(1 / anchor.frame().unit()), candidate.local(), body.yBodyRot);

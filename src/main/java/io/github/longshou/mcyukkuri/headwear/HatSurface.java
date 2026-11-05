@@ -19,7 +19,8 @@ public interface HatSurface {
     default double contactHeight(PlacedHatEntity hat, YukkuriEntity body, Vec3 feet, List<AABB> envelope) {
         return ContactResolver.surface(hat, feet, envelope);
     }
-    default boolean room(PlacedHatEntity hat, YukkuriEntity body, Vec3 local, double top) { return hat.shapedRoom(body, local, top); }
+    /** Room for the body's footprint turned to {@code yaw} (degrees, relative to the hat). */
+    default boolean room(PlacedHatEntity hat, YukkuriEntity body, Vec3 local, double top, float yaw) { return hat.shapedRoom(body, local, top, yaw); }
     default boolean stepRoom(PlacedHatEntity hat, YukkuriEntity body, Vec3 from, Vec3 to) { return hat.room(body, to); }
     default boolean bears(PlacedHatEntity hat, YukkuriEntity body) {
         return !hat.cooling(body) && !hat.isInWaterOrBubble() && (body.getUUID().equals(hat.ownerYukkuri()) ? !hat.catches() : hat.admits(body));

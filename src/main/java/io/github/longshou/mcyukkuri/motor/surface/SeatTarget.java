@@ -12,8 +12,12 @@ public record SeatTarget(SurfaceHost host, Vec3 local, Kind kind) {
     public SeatTarget(SurfaceHost host, Vec3 local) { this(host, local, host.insideFloor(local) ? Kind.CABIN : Kind.BRIM); }
     public Vec3 world() { return kind == Kind.HEAD ? ParentCarry.headWorld(host.placeCarrier(), local, 1) : host.frame().toWorld(local); }
     public boolean available(YukkuriEntity body) { return host.steady() && unavailable(body) == null; }
+    /** As {@link #available(YukkuriEntity)} for a body that arrives turned to {@code yaw} (degrees, relative to the host). */
+    public boolean available(YukkuriEntity body, float yaw) { return host.steady() && unavailable(body, yaw) == null; }
     /** The first actual failed check, shared by the boolean query and a running action's refusal. */
-    public String unavailable(YukkuriEntity body) {
+    public String unavailable(YukkuriEntity body) { return unavailable(body, Floor.yaw(host, body)); }
+    /** The same with the body's footprint turned to {@code yaw} (relative to the host). */
+    public String unavailable(YukkuriEntity body, float yaw) {
         if (host.entity().isRemoved()) return "host_removed";
         if (host.capsized()) return "host_capsized";
         if (!host.bears(body)) return "not_borne";
@@ -21,7 +25,7 @@ public record SeatTarget(SurfaceHost host, Vec3 local, Kind kind) {
             if (host.placeCarrier() == null || !ParentCarry.headRoom(host.placeCarrier(), body, local)) return "head_room";
         } else {
             if (host.support(local, body).isEmpty()) return "no_support";
-            if (!host.room(body, local)) return "room";
+            if (!host.room(body, local, local.y + body.getBbHeight() / host.frame().unit(), yaw)) return "room";
         }
         return body.level().getBlockCollisions(body, body.getDimensions(body.getPose()).makeBoundingBox(world())).iterator().hasNext() ? "world" : null;
     }

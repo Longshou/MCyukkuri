@@ -325,15 +325,14 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
         double height = profile().support(local.x, local.z, body);
         return Double.isFinite(height) ? OptionalDouble.of(height) : OptionalDouble.empty();
     }
-    @Override public boolean room(YukkuriEntity body, Vec3 local, double top) {
-        return profile().surface().room(this, body, local, top);
+    @Override public boolean room(YukkuriEntity body, Vec3 local, double top, float yaw) {
+        return profile().surface().room(this, body, local, top, yaw);
     }
     @Override public boolean stepRoom(YukkuriEntity body, Vec3 from, Vec3 to) {
         return profile().surface().stepRoom(this, body, from, to);
     }
-    boolean shapedRoom(YukkuriEntity body, Vec3 local, double top) {
-        var shape = shape(body);
-        return clear(shape, local, body, Math.max(0, top-local.y-tallOf(body)));
+    boolean shapedRoom(YukkuriEntity body, Vec3 local, double top, float yaw) {
+        return clear(Floor.shape(this, body, yaw), local, body, Math.max(0, top-local.y-tallOf(body)));
     }
     /** Room after one body reaches a proposed stand; uses the same shaped overlap as actual riders. */
     public boolean room(BodyFootprint body,Vec3 at,YukkuriEntity mover,Vec3 stand,float yaw){

@@ -59,13 +59,13 @@ public final class HullSurface implements HatSurface {
         return new Disc(at.x, at.z, ParentCarry.headwearRadius(body) / hat.unit(), at.y + bottom,
                 at.y + bottom + .3 * body.growthScale() * body.getScale() / 16 / hat.unit());
     }
-    @Override public boolean room(PlacedHatEntity hat, YukkuriEntity body, Vec3 local, double top) {
-        if (!hat.shapedRoom(body, local, top)) return false;
+    @Override public boolean room(PlacedHatEntity hat, YukkuriEntity body, Vec3 local, double top, float yaw) {
+        if (!hat.shapedRoom(body, local, top, yaw)) return false;
         if (body.getUUID().equals(hat.ownerYukkuri()) || !hat.insideFloor(local)) return true;
         return roomAround(hat, body).clear(hatDisc(hat, body, local));
     }
     @Override public boolean stepRoom(PlacedHatEntity hat, YukkuriEntity body, Vec3 from, Vec3 to) {
-        if (!hat.shapedRoom(body, to, to.y + body.getBbHeight() / hat.unit())) return false;
+        if (!hat.shapedRoom(body, to, to.y + body.getBbHeight() / hat.unit(), Floor.yaw(hat, body))) return false;
         if (body.getUUID().equals(hat.ownerYukkuri()) || !hat.insideFloor(to)) return true;
         return roomAround(hat, body).step(hatDisc(hat, body, from), hatDisc(hat, body, to));
     }

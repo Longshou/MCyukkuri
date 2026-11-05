@@ -50,7 +50,10 @@ public interface SurfaceHost {
     }
 
     /** As {@link #room(YukkuriEntity, Vec3)} with the body reaching up to {@code top} (hat units): a body coming down needs the column it falls through free as well. */
-    boolean room(YukkuriEntity body, Vec3 local, double top);
+    default boolean room(YukkuriEntity body, Vec3 local, double top) { return room(body, local, top, Floor.yaw(this, body)); }
+    /** As above with the body's footprint turned to {@code yaw} (degrees, relative to the host): the turn it will stand there with,
+     *  not the one it has now. */
+    boolean room(YukkuriEntity body, Vec3 local, double top, float yaw);
     /** Clearance for a physical step; a host may let an existing soft overlap separate without admitting a new one. */
     default boolean stepRoom(YukkuriEntity body, Vec3 from, Vec3 to) { return room(body, to); }
 
