@@ -2948,6 +2948,8 @@ pond('rescue_no_seat', '满载亲帽救起新生儿送上岸', '满载亲帽救�
                           fam=_seat_family(.19, 0, 0) + ',BirthScale:0.19f', childhood='Version:2,Newborn:1b,Landed:1b')],
      note=_INCIDENT_NOTE + '满船按载重判定：除船长外每名乘员按体型^3 计重，普通亲油把抱着的孩子放到帽上时要求当前载重加这名孩子不超过容量（1.0 体型帽 0.06352）。这只家庭载重 0.0568（0.10+0.19+0.30+0.28），再加 0.19 孩子 0.0069 = 0.0637 超过容量，日志给 refused id=release … NO_ROOM detail=hull_full load=… capacity=…；智力≤25 且友善≥75 的亲油不受载重限制，照旧放置并照旧抽翻船概率。载重留一只孩子的余量，是因为抱起孩子本身也算一次载重变化：再往上加，抓取那一刻的翻船概率就会升到几个百分点，真实翻船又会把帽檐幼体甩进水里。乘员营养 40、无储粮，不靠成长撑满。逐只 scenario place 显示 CABIN/HEAD/BRIM。新生赤油在亲帽放下后才入水。观察同一孩子 grab → 划回岸边 → 舱内赤油 carry grip hold=mouth → hop（两腿）→ 四次 release → 帽檐孩子从岸上 grab、release → take_prop（custody DEPLOYED -> WORN）→ rescue end outcome=set_down；帽上不留孩子，送岸期间无 child separation lost=true。',
      reads=[('读亲油', f'yukkuri status {sel("a")} raw'), ('读子油', f'yukkuri status {sel("c1")} raw')],
+     capture=dict(shots=(1, 40, 200, 400, 600, 800, 1000), sequences=((140, 1000, 5),), observe=False,
+                  views={'wide': dict(follow='@e[type=mcyukkuri:placed_hat,limit=1]', offset=(3.0, 1.6, 0))}),
      smoke=dict(ticks=1800, expect=[r'\[hat\][^\n]* scenario place [^\n]*place=CABIN\b[\s\S]*\[hat\][^\n]* scenario place [^\n]*place=HEAD\b[\s\S]*\[hat\][^\n]* scenario place [^\n]*place=BRIM\b',
                                     r'\[hat\][^\n]* scenario afloat prepared [^\n]*young=4\b',
                                     r'refused id=release [^\n]*NO_ROOM[^\n]*hull_full load=\S+ capacity=\S+',
