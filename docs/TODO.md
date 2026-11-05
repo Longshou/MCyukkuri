@@ -11,7 +11,6 @@
 | 满船口含救幼并载全家送岸（11-05 反馈 10，接替 wp-l 方案） | `.worktrees/wp-m-mouth-ferry` | `aquatic/Rescue.java`、`Ferry.java`、`Ashore.java`、`UnloadYoung.java`、`AquaticGoal.java`、`family/ParentCarry.java`、`motor/geom/Ballistic.java`、`scripts/museum_scenarios.py` 的 `rescue_no_seat` |
 | 满船托幼送岸后全家上岸（11-05 反馈 10） | `.worktrees/wp-l-full-ferry` | `aquatic/UnloadYoung.java`、`Ashore.java`、`Ferry.java`、`TakeSeat.java`、`headwear/` 座位让位、`scripts/museum_scenarios.py` |
 | 初航恢复与登船超载准入（wp-o-voyage-overload） | `.worktrees/wp-o-voyage-overload` | `headwear/PlacedHatEntity.java` 座位顺序、`aquatic/` 登船准入、`scripts/museum_scenarios.py` 的 `first_voyage`／`first_voyage_brim`／`birth_boat_missed` |
-| 帽船排便撅臀与粪便出沿弧线（11-05 反馈 7，wp-h-toilet-pose） | `.worktrees/wp-h-toilet-pose` | `interactions/toilet-contact/`、`toilet_contact.json`、`aquatic/BoatToilet.java`、`life/ToiletContact.java`、`client/ToiletPresentation.java`、`entity/YukkuriAction.java`、`scripts/museum_scenarios.py` 的 `boat_toilet` |
 
 ## 玩法待办
 
@@ -301,7 +300,7 @@ WP-C2 本机自查（非试玩验收、无 CI）：主线 `136b6f124`（独立�
 
 - **辫子占用时的取戴帽动作**（反馈 2）：部分接入。辫子持木棍时发生戴帽、放帽，辫子没有动画、帽子直接穿模；“划去捞水面上的木棍”（`afloat_stick`）里拿下帽子的下一瞬间帽子就直接出现在水上。现取戴帽、扶帽理帽、拨水、游泳等辫子自己干活的片段照常做自己的辫子动作、帽子随辫梢走，木棍收在帽里不画，起手与收尾从持棍姿态过渡（待试玩）；帽子瞬间出现在水上是场景初态抢在她的放帽动作前写入，夹具已改（[a2d63bd51](https://github.com/Longshou/MCyukkuri/commit/a2d63bd51)）：`afloat_stick` 的放帽在召唤同一 tick 完成，本机自查 1/1，日志无 `place_prop`／`prop_not_worn`（非验收）。用户：这里有辫子占用，以后都要考虑好辫子当前状态；放帽收帽此前相对较好，改着改着又出问题，要看真实暴露的问题而非回溯。完成：`afloat_stick` 及其他取戴帽、放帽场景，辫子持物时先腾出或按占用状态做动画，帽子随辫梢移动、不穿模、不凭空出现在水上。
 - **水生母油岸产后的食物**（反馈 3）：已接入待试玩。按[水生食物规则](FEATURES.md#水生魔理沙)接入；本机自查（非验收）`birth_boat_missed` 6/6+3/3 从真实海草取食并喂出首餐，`birth_hat_own` 2/3。完成：“临产划回岸边，放下孩子再生产”产后水生亲油在岸边摘水草（或取帽内存粮）并喂出新生儿首餐，不走回岸上苹果那头。
-- **水生种排便动作**（反馈 7）：已接入待试玩（wp-h-toilet-pose，合入提交待补）。亲油在舱内、赤油先跳到船首帽檐再转身朝里，都播 `boat_toilet`（2.3 秒）：前扑约 35°、侧滚让辫子离开帽檐、两次用力时屁股左右摆，屁股抬过帽沿平面朝向水面；粪便从画面上屁股挤出的同一个粪便模型，在第 34 tick 顺挤出方向以刚好够用的力度飞出（亲油约 0.18 格/tick、5 tick；赤油约 0.1 格/tick），落在帽沿外至少 0.2 格的水里，膀胱 −40；赤油在帽檐排便时亲油漂着等它回舱再划，划行中赤油不出舱排便。日志 `boat_toilet dropped … release_distance=… push=… land_distance=…`，落水后一 tick `boat_toilet stool … hull_distance=… in_water=true`；本机自查池塘“帽船上朝帽外排便”(`boat_toilet`) 冒烟 2/2（非验收）。已知缺口：落水粪便按原版物品在水中下沉、滑行；赤油跳上帽檐落地后原地转身约 16 tick。完成：池塘与河湾“帽船上朝帽外排便”亲油与帽檐赤油都明显撅起屁股，粪便从屁股出来越过帽沿落进帽外水中，不穿帽、不跳位。
+- **水生种排便动作**（反馈 7）：已接入待试玩（[324ea4ec3](https://github.com/Longshou/MCyukkuri/commit/324ea4ec3)）。亲油在舱内、赤油先跳到船首帽檐再转身朝里，都播 `boat_toilet`（2.3 秒）：前扑约 35°、侧滚让辫子离开帽檐、两次用力时屁股左右摆，屁股抬过帽沿平面朝向水面；粪便从画面上屁股挤出的同一个粪便模型，在第 34 tick 顺挤出方向以刚好够用的力度飞出（亲油约 0.17 格/tick、5 tick；赤油约 0.09 格/tick），落在帽沿外至少 0.2 格的水里，膀胱 −40；赤油在帽檐排便时亲油漂着等它回舱再划，划行中赤油不出舱排便。日志 `boat_toilet dropped … release_distance=… push=… land_distance=…`，落水后一 tick `boat_toilet stool … hull_distance=… in_water=true`；本机自查池塘“帽船上朝帽外排便”(`boat_toilet`) 冒烟 2/2（非验收）。已知缺口：落水粪便按原版物品在水中下沉、滑行；赤油跳上帽檐落地后原地转身约 16 tick；赤油跳出途中亲油正好开始新一趟划行时，粪便仍可能落在移动的帽旁。完成：池塘与河湾“帽船上朝帽外排便”亲油与帽檐赤油都明显撅起屁股，粪便从屁股出来越过帽沿落进帽外水中，不穿帽、不跳位。
 
 **旧实现反例（重建对照）**：场景 — 现象 — 版本；不再单独复测，重建后按本列表与 P0 复看，状态在行末。池塘场景日志默认开逐阶段细节（[AGENTS.md](../AGENTS.md)）。
 
