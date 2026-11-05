@@ -8,7 +8,6 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
-| 登陆判定降到约 50 ms（水生母油岸边呆滞） | `.worktrees/wp-v-landing-hitch` | `motor/action/Hop.java` |
 | 取戴帽时木棍可见收进帽冠（反馈 2） | `.worktrees/wp-u-stick-stow` | `standards/yukkuri-library/body-standard/features/marisa-single-braid/` 水生取戴帽片段、`client/YukkuriModel.java`、`client/HeldItemPresentation.java` |
 
 ## 玩法待办
