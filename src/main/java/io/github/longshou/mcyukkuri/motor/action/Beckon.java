@@ -71,6 +71,7 @@ public final class Beckon implements Action {
         if (host.entity().isRemoved()) return Feasibility.of(Reason.TARGET_GONE, 0, "host_gone");
         double far = host.entity().position().subtract(stand).horizontalDistance() - REACH;
         if (far > 0) return Feasibility.of(Reason.TOO_FAR, far, "host_far");
+        if (!host.drivable()) return Feasibility.of(Reason.NO_SUPPORT, 0, "host_not_drivable");
         wet = false;
         water = water(body, stand, yaw);
         double gap = water == null ? Double.POSITIVE_INFINITY : ContactGeometry.braidGap(body, stand, water, true);
@@ -83,6 +84,7 @@ public final class Beckon implements Action {
     private Feasibility checkWet(YukkuriEntity body) {
         var hull = host.entity();
         if (!hull.isInWaterOrBubble()) return Feasibility.of(Reason.NO_SUPPORT, 0, "host_not_afloat");
+        if (!host.drivable()) return Feasibility.of(Reason.NO_SUPPORT, 0, "host_not_drivable");
         double far = hull.position().subtract(body.position()).horizontalDistance() - REACH;
         if (far > 0) return Feasibility.of(Reason.TOO_FAR, far, "host_far");
         wet = true;

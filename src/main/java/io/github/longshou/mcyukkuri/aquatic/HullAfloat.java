@@ -393,10 +393,11 @@ public final class HullAfloat implements PlacedHatBehavior {
         if (righter == by) { righter = null; rightProgress = -1; invertedBase = hat.roll(); }
     }
     @Override public boolean thrust(PlacedHatEntity hat, YukkuriEntity by, Vec3 water, float turn) {
-        if (phase != Phase.UPRIGHT && phase != Phase.INVERTED || rightProgress >= 0) return false;
+        if (!drivable(hat)) return false;
         drive = water; turnBy = turn;
         return true;
     }
+    @Override public boolean drivable(PlacedHatEntity hat) { return (phase == Phase.UPRIGHT || phase == Phase.INVERTED) && rightProgress < 0; }
     @Override public boolean afloat(PlacedHatEntity hat) { return true; }
     @Override public boolean pushable(PlacedHatEntity hat) { return true; }
     @Override public boolean holds(PlacedHatEntity hat, Item item) { return larder.has(one -> one.is(item)); }

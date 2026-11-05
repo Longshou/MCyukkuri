@@ -134,6 +134,9 @@ public interface SurfaceHost {
     /** A rider's paddle stroke: the water velocity it drives and the yaw it turns (Paddle); false when it cannot be paddled. */
     default boolean thrust(YukkuriEntity by, Vec3 drive, float turn) { return false; }
 
+    /** Whether a stroke is taken now ({@link #thrust} succeeds): not while it rocks, flips or is being righted. */
+    default boolean drivable() { return false; }
+
     /** It keeps such an item where a rider can use it (a stick to paddle with). */
     default boolean holds(Item item) { return false; }
 

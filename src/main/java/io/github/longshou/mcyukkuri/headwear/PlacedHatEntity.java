@@ -434,6 +434,7 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
     @Override public boolean right(YukkuriEntity by, double progress, String cause) { return behavior().right(this, by, progress, cause); }
     @Override public void stopRight(YukkuriEntity by) { behavior().stopRight(this, by); }
     @Override public boolean thrust(YukkuriEntity by, Vec3 drive, float turn) { return behavior().thrust(this, by, drive, turn); }
+    @Override public boolean drivable() { return behavior().drivable(this); }
     @Override public boolean holds(Item item) { return kit.is(item) || behavior().holds(this, item); }
     /** The stick it keeps, or empty. */
     public ItemStack kit() { return kit; }

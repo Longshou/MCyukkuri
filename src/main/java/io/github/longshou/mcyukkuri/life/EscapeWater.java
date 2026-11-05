@@ -56,7 +56,7 @@ import net.minecraft.world.phys.Vec3;
 public final class EscapeWater implements Intent {
     /** One run's ticks; a swim to the hat longer than this turns to the bank (AQUATIC rules); how long one press lasts before it
      *  aims again; how long an edge that failed a climb is avoided; the old shore search box (blocks out, down, up). */
-    private static final int DEADLINE = 1200, HAT_SWIM = 600, PRESS = 100, AVOID_TICKS = 400, OUT = 6, DOWN = 1, UP = 3;
+    private static final int DEADLINE = 1200, HAT_SWIM = 600, PRESS = 100, AVOID_TICKS = 400, OUT = 6, FAR_OUT = 20, FAR_STANDS = 8, DOWN = 1, UP = 3;
     /** How far (blocks) its own hat is swum to; clearance (blocks) of the landing box. */
     private static final double HAT_RANGE = 16, CLEAR = .05;
     private static final Set<Reason> AT_HAT = Set.of(Reason.SLIPPED, Reason.NO_CONTACT, Reason.NO_PROGRESS), AT_BANK = Set.of(
@@ -74,7 +74,8 @@ public final class EscapeWater implements Intent {
     /** Water routes already asked of the pathfinder in this run, and the stands scanned this tick. */
     private final Map<BlockPos, Boolean> routes = new HashMap<>();
     private List<BlockPos> stands = List.of();
-    private long scanned = Long.MIN_VALUE;
+    private long scanned = Long.MIN_VALUE, farScanned = Long.MIN_VALUE / 2;
+    private List<BlockPos> farStands = List.of();
     private Edge climbing;
     /** The hat ways and bank edges this run has already begun: a press gives way only to one not tried yet. */
     private final Set<Object> tried = new HashSet<>();
@@ -344,16 +345,32 @@ public final class EscapeWater implements Intent {
         return best;
     }
 
-    /** Every dry stand of the search box, nearest first; scanned once a tick. */
+    /** Every dry stand of the search box, nearest first; scanned once a tick. With none close, the nearest few of a wide box,
+     *  so a body in open water still swims for the nearest bank rather than having no way out. */
     private List<BlockPos> stands() {
         long now = body.level().getGameTime();
         if (scanned == now) return stands;
         scanned = now;
-        var out = new ArrayList<BlockPos>();
-        var at = body.blockPosition();
-        for (var pos : BlockPos.betweenClosed(at.offset(-OUT, -DOWN, -OUT), at.offset(OUT, UP, OUT)))
-            if (body.level().hasChunkAt(pos) && body.life().dryStand(pos)) out.add(pos.immutable());
+        var out = scan(OUT);
+        if (out.isEmpty()) {
+            // the wide box is costly: rescanned only every few seconds, and only the nearest few are kept
+            if (now - farScanned >= PRESS / 4) {
+                farScanned = now;
+                var far = scan(FAR_OUT);
+                far.sort(Comparator.comparingDouble(pos -> body.distanceToSqr(Vec3.atBottomCenterOf(pos))));
+                farStands = far.size() > FAR_STANDS ? List.copyOf(far.subList(0, FAR_STANDS)) : far;
+            }
+            return stands = farStands;
+        }
         out.sort(Comparator.comparingDouble(pos -> body.distanceToSqr(Vec3.atBottomCenterOf(pos))));
         return stands = out;
+    }
+
+    private List<BlockPos> scan(int radius) {
+        var out = new ArrayList<BlockPos>();
+        var at = body.blockPosition();
+        for (var pos : BlockPos.betweenClosed(at.offset(-radius, -DOWN, -radius), at.offset(radius, UP, radius)))
+            if (body.level().hasChunkAt(pos) && body.life().dryStand(pos)) out.add(pos.immutable());
+        return out;
     }
 }

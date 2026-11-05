@@ -68,6 +68,7 @@ public interface PlacedHatBehavior {
     default boolean right(PlacedHatEntity hat, YukkuriEntity by, double progress, String cause) { return false; }
     default void stopRight(PlacedHatEntity hat, YukkuriEntity by) {}
     default boolean thrust(PlacedHatEntity hat, YukkuriEntity by, Vec3 drive, float turn) { return false; }
+    default boolean drivable(PlacedHatEntity hat) { return false; }
     default boolean holds(PlacedHatEntity hat, Item item) { return false; }
 
     /** False while it shakes hard or turns over: no jump landing may be planned onto it. Synced facts only. */
