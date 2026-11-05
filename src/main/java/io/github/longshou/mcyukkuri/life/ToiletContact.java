@@ -203,7 +203,11 @@ public final class ToiletContact {
      * it, so the item flies and falls by vanilla item motion alone (aquatic/BoatToilet plans that path). Null if it cannot exist there.
      */
     public static ItemEntity launch(YukkuriEntity actor, Vec3 at, Vec3 velocity) {
-        return actor.level() instanceof ServerLevel server && at != null ? loose(server, DetachedItems.waste(actor), at, velocity, actor.yBodyRot) : null;
+        var waste = actor.level() instanceof ServerLevel server && at != null ? loose(server, DetachedItems.waste(actor), at, velocity, actor.yBodyRot) : null;
+        // Its first air step is taken in the tick it leaves, as the client steps a newly arrived item at once: the server's first position
+        // update then agrees with the client instead of pulling the flying item back to where it was let go for a frame.
+        if (waste != null) waste.tick();
+        return waste;
     }
 
     private static ItemEntity loose(ServerLevel server, ItemStack stack, Vec3 at, Vec3 velocity, float yaw) {
