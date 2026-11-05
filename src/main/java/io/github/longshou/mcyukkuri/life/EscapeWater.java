@@ -59,7 +59,7 @@ public final class EscapeWater implements Intent {
      *  aims again; how long an edge that failed a climb is avoided; the old shore search box (blocks out, down, up). */
     private static final int DEADLINE = 1200, HAT_SWIM = 600, PRESS = 100, AVOID_TICKS = 400, OUT = 6, FAR_OUT = 20, FAR_STANDS = 8, DOWN = 1, UP = 3;
     /** How far (blocks) its own hat is swum to; clearance (blocks) of the landing box. */
-    private static final double HAT_RANGE = 16, CLEAR = .05;
+    private static final double WEAK_ENERGY = 30, HAT_RANGE = 16, CLEAR = .05;
     private static final Set<Reason> AT_HAT = Set.of(Reason.SLIPPED, Reason.NO_CONTACT, Reason.NO_PROGRESS), AT_BANK = Set.of(
             Reason.TOO_FAR, Reason.SLIPPED, Reason.NO_CONTACT, Reason.NO_PROGRESS, Reason.NO_ROOM, Reason.NO_SUPPORT), PRESSING = Set.of(Reason.TOO_HIGH);
     /** The ways that go for the body's own hat: it stops panicking and starts for it (自救援). */
@@ -221,9 +221,14 @@ public final class EscapeWater implements Intent {
         climbing = null;
     }
 
+    /** A tired or hurt swimmer (energy under a voyage's, aquatic drive {@code voyage_energy}; health at most half) cannot manage a swim
+     *  to a hat and a climb aboard, so it makes for the nearest bank or waits to be lifted out. */
+    private boolean weak() { return body.life().energy() < WEAK_ENERGY || body.getHealth() <= body.getMaxHealth() / 2; }
+
     private Feasibility hat(PlacedHatEntity hat, boolean capsized) {
         if (hat == null || hat.isRemoved() || hat.capsized() != capsized) return Feasibility.of(Reason.NO_SUPPORT, 0, "no_hat");
         if (!body.childhood().canSail()) return Feasibility.of(Reason.NO_TOOL, 0, "cannot_sail");
+        if (weak()) return Feasibility.of(Reason.EXHAUSTED, 0, "too_weak_for_hat");
         // Boarding a hull its own load would swamp is no way out: the climb would only throw the body back into the water.
         String overload = hat.boardingRefusal(body);
         if (overload != null) return Feasibility.of(Reason.TOO_HEAVY, 0, "overload " + overload);
@@ -235,7 +240,7 @@ public final class EscapeWater implements Intent {
      *  as a boat (the {@code hat_boat} ability), the hat worn, able to climb; the spot as far out as the hat reaches, so they do
      *  not overlap, in front of it first and then round it. */
     private Vec3 boatSpot() {
-        if (!AbilityModifier.flag(body, AbilityModifier.HAT_BOAT) || !body.childhood().canSail() || !body.life().custody().worn()
+        if (!AbilityModifier.flag(body, AbilityModifier.HAT_BOAT) || !body.childhood().canSail() || weak() || !body.life().custody().worn()
                 || BodyAbility.of(body).climbRise() <= 0) return null;
         float[] brim = HatGeometry.wornForm(body).brim();
         double apart = body.getBbWidth() / 2 + Math.max(brim[0], brim[1]) * HatScale.of(body) / 16 + CLEAR;
@@ -255,6 +260,7 @@ public final class EscapeWater implements Intent {
     private Feasibility boatRefusal() {
         if (!AbilityModifier.flag(body, AbilityModifier.HAT_BOAT)) return Feasibility.of(Reason.NO_TOOL, 0, "no_hat_boat");
         if (!body.childhood().canSail()) return Feasibility.of(Reason.NO_TOOL, 0, "cannot_sail");
+        if (weak()) return Feasibility.of(Reason.EXHAUSTED, 0, "too_weak_for_hat");
         if (!body.life().custody().worn()) return Feasibility.of(Reason.NO_TOOL, 0, "hat_not_worn");
         if (BodyAbility.of(body).climbRise() <= 0) return Feasibility.of(Reason.TOO_HIGH, 0, "cannot_climb");
         return Feasibility.of(Reason.NO_ROOM, 0, "no_open_water_beside");
