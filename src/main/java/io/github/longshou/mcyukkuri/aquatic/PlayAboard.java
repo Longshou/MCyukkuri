@@ -80,6 +80,9 @@ final class PlayAboard implements Intent {
     static boolean canPlay(YukkuriEntity body, PlacedHatEntity hat) {
         var place = place(body, hat);
         if (!body.childhood().canExercise()) return false;
+        // A young that needs feeding stays and asks for it: hungry below her feed line, or her feeding already on its way to it.
+        var parent = AquaticLife.parent(body);
+        if (body.careApproach().waiting() || parent != null && Care.hungry(parent, body)) return false;
         if ("cabin".equals(place)) return !hat.places(body, SeatTarget.Kind.CABIN, 1).isEmpty() && hopOut(body, hat) != null;
         return "brim".equals(place) || "head".equals(place);
     }
