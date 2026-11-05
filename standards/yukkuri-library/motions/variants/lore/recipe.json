@@ -2611,9 +2611,18 @@
         "variant": "aquatic",
         "role": "self",
         "stick": [
-          0.95,
-          0.17,
-          0.25
+          [
+            0.6,
+            0.95,
+            0.17,
+            0.25
+          ],
+          [
+            1.1,
+            0.87,
+            0.0,
+            0.5
+          ]
         ]
       },
       "phases": {
@@ -2688,9 +2697,18 @@
         "role": "self",
         "reverse": true,
         "stick": [
-          0.95,
-          0.17,
-          0.25
+          [
+            0.7,
+            0.87,
+            0.0,
+            0.5
+          ],
+          [
+            1.2,
+            0.95,
+            0.17,
+            0.25
+          ]
         ]
       },
       "phases": {
@@ -5984,7 +6002,7 @@
     "hop_leg"
   ],
   "braid_use": {
-    "note": "Project design (user 2026-11-05 feedback 2: what the braid already holds decides what it can do): clips whose own authored braid grips, carries or strokes something (the hat, a child, a brim, the water; in the water she flails and swims with it while the stack stays in her hat) use the braid, so the game never lays the held stack's hold over them; a held stack shows there only by the clip's own props.item, otherwise it stays stowed in her hat and is not drawn. A hat clip with `hat.stick` (her own hat on and off at the water, the clips the game plays while she holds the stick) keeps the stick in the tuft: it lies along the brim the tuft hooks, its long end that way in the worn hat's frame and turning with the hat, so the stick never leaves the braid, never pops and never crosses her face (user 2026-11-05 feedback 2; user 2026-11-04 feedback 6: held in the braid, not hidden). Markers `braid_busy` (the braid has left the hold by here) and `braid_free` (from here it returns to the hold by the clip's end) let a one-shot clip hand the braid over from and back to the hold. Exported as the clip field braid_use.",
+    "note": "Project design (user 2026-11-05 feedback 2: what the braid already holds decides what it can do): clips whose own authored braid grips, carries or strokes something (the hat, a child, a brim, the water; in the water she flails and swims with it while the stack stays in her hat) use the braid, so the game never lays the held stack's hold over them; a held stack shows there only by the clip's own props.item, otherwise it stays stowed in her hat and is not drawn. A hat clip with `hat.stick` (her own hat on and off at the water, the clips the game plays while she holds the stick) keeps the stick in the tuft: it lies along the brim the tuft hooks, its long end along the keyed direction in the worn hat's frame ([t, x, y, z]: out to her braid side on the worn brim, out over the water on the hat set down; re-aimed in the tuft while the hat swings over) and turning with the hat, so the stick never leaves the braid, never pops and never crosses her face (user 2026-11-05 feedback 2; user 2026-11-04 feedback 6: held in the braid, not hidden). Markers `braid_busy` (the braid has left the hold by here) and `braid_free` (from here it returns to the hold by the clip's end) let a one-shot clip hand the braid over from and back to the hold. Exported as the clip field braid_use.",
     "clips": [
       "hat_off",
       "hat_hold",

@@ -628,25 +628,28 @@ HOLD = RECIPE['clips']['braid_item_hold']['held_item']  # the hold's grip and tw
 
 
 def stow_tracks(model, samples, tracks, c):
-    """props.item for a hat clip whose `hat.stick` names the stick's long end in the worn hat's frame (model units at rest):
-    the tuft keeps the held stack at the hold's own grip while it hooks the brim, the stick laid along the brim beside it,
-    turning with the hat (the hat bone's rotation, its crown squash left out). Before `braid_busy` and after `braid_free` the
+    """props.item for a hat clip whose `hat.stick` keys ([t, x, y, z]) name the stick's long end in the worn hat's frame
+    (model units at rest): the tuft keeps the held stack at the hold's own grip while it hooks the brim, the stick laid along
+    the brim beside it, turning with the hat (the hat bone's rotation, its crown squash left out) and between keys re-aimed
+    in the tuft (`keyed`), so it can lie one way on the worn brim and another on the hat set down turned over. Before `braid_busy` and after `braid_free` the
     key holds its value at that marker: there the game hands the stick over from and back to the hold's key with the braid
     (YukkuriModel.braidHoldShare), so it travels in the tuft and lies on the brim from the moment the tuft takes the brim."""
     names = {b['name']: i for i, b in enumerate(model['bones'])}; bones = model['bones']
     tip, hat = names['hand_right_tip'], names['hat_follow']; joint_rest = np.array(bones[tip]['pivot'], float)
     tuft = np.array(json.loads(BRAID.read_text(encoding='utf-8'))['braid_tip'], float)-joint_rest; tuft /= np.linalg.norm(tuft)
-    d = np.array(c['hat']['stick'], float); y_axis = -d/np.linalg.norm(d)
-    ref = np.array([0., 0., 1.]) if abs(y_axis[2]) < .9 else np.array([1., 0., 0.])
-    z_axis = ref-y_axis*(y_axis@ref); z_axis /= np.linalg.norm(z_axis)
-    lay = np.c_[np.cross(y_axis, z_axis), y_axis, z_axis]  # the twig frame of held_tracks, fixed in the hat
+    keys = [(k[0], np.array(k[1:4], float)) for k in c['hat']['stick']]
+    def lay(t):  # the twig frame of held_tracks in the hat, its long end along the keyed direction
+        y_axis = keyed(t, keys); y_axis = -y_axis/np.linalg.norm(y_axis)
+        ref = np.array([0., 0., 1.]) if abs(y_axis[2]) < .9 else np.array([1., 0., 0.])
+        z_axis = ref-y_axis*(y_axis@ref); z_axis /= np.linalg.norm(z_axis)
+        return np.c_[np.cross(y_axis, z_axis), y_axis, z_axis]
     m = c.get('markers', {}); busy, free = m.get('braid_busy', 0.), m.get('braid_free', c['duration'])
     rows = []
     for t in samples:
-        M = palette(model, tracks, min(max(t, busy), free))
+        t = min(max(t, busy), free); M = palette(model, tracks, t)
         u = polar(M[tip][:3, :3])@tuft; G = (M[bones[tip]['parent']]@np.r_[joint_rest, 1])[:3]+u*HOLD['grip_offset']
         A = M[tip]@np.r_[np.c_[np.eye(3), joint_rest], [[0, 0, 0, 1]]]
-        key = np.linalg.inv(A)@np.r_[np.c_[polar(M[hat][:3, :3])@lay, G], [[0, 0, 0, 1]]]
+        key = np.linalg.inv(A)@np.r_[np.c_[polar(M[hat][:3, :3])@lay(t), G], [[0, 0, 0, 1]]]
         rows.append([*key[:3, 3], *to_euler(polar(key[:3, :3]))])
     eul = unwrap([r[3:] for r in rows])
     return {'prop': 'held_item', 'bone': 'hand_right_tip',

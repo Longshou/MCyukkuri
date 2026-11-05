@@ -10,7 +10,7 @@
   "braid_chain": "standards/yukkuri-library/motions/variants/contact-safe/braid_chain.py",
   "braid_chain_sha256": "1d268e400587187da164c7efe3a54f28055e47e442d118516bfcafa48bebdf13",
   "lore_recipe": "standards/yukkuri-library/motions/variants/lore/recipe.json",
-  "lore_recipe_sha256": "c9484ad6c6beeb322afe35340a37858ca6f034d9237762fec37033bd616547a0",
+  "lore_recipe_sha256": "adf9da823521f89c95fedff72a2d63c9ba5079d9ede49185bf3a69d76171e1e4",
   "lore_author": "standards/yukkuri-library/motions/variants/lore/author.py",
   "lore_author_sha256": "1c7626e92cc4dce0f710801d010d25ac988f8cd8683df6df1482c8a052778150",
   "lore_hat": "standards/yukkuri-library/motions/variants/lore/hat.py",
@@ -20,7 +20,7 @@
   "aquatic_hull_bounds": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/hull_bounds/aquatic_basin_hat_turned.json",
   "aquatic_hull_bounds_sha256": "2e918b32fafdf195e4d621680552413e20221a6a5578fe935353f6fd0dce77db",
   "lore_aquatic_tools": "standards/yukkuri-library/motions/variants/lore/aquatic_tools.py",
-  "lore_aquatic_tools_sha256": "b2289d52bab6153fbea0b2a6af2f377d9f9556e1aa4da63f809f8f40921254a1",
+  "lore_aquatic_tools_sha256": "1cc78a9fbecdf6bbfa9917a493f8e78b32cb4ed671d53567c83500a329c90ae0",
   "braid_rescue_recipe": "standards/yukkuri-library/interactions/braid-water-rescue/recipe.json",
   "braid_rescue_recipe_sha256": "14f98a0ad4e248348106310d5250180b67960514753f978cf407f1de1752bcea",
   "braid_rescue_author": "standards/yukkuri-library/interactions/braid-water-rescue/author.py",
@@ -32,7 +32,7 @@
   "placement_fit": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/placement_fit.json",
   "placement_fit_sha256": "55828ae8a042b7ad525fdf052ee727b7d132fc40f0eba520ff1a4b833bca61c8",
   "runtime": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/motion_corrections.json",
-  "runtime_sha256": "078f194168ec9d88278267b8ab0686c608dde6f9051b5277d32ba87688b830dc",
+  "runtime_sha256": "7d669dd398d29123601f79729a44c3b3a03183aaef2d0273d2a145b6cc6df4b8",
   "models": {
     "alice": {
       "model": "src/main/resources/assets/mcyukkuri/yukkuri/alice.json",
