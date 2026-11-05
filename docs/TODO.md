@@ -9,6 +9,7 @@
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
 | 分娩时服务端卡顿突刺（11-06 性能） | `.worktrees/wp-x-birth-lag` | 分娩、护产、护幼与水边路线搜索相关的 `aquatic/`、`family/`、`life/`、`motor/` 热点 |
+| 亲油落水时头顶赤油随之落水（11-06） | `.worktrees/wp-y-head-fall` | `life/WaterDistress`、`scripts/museum_scenarios.py` 相关场景 |
 
 ## 玩法待办
 
