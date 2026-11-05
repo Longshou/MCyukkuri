@@ -46,7 +46,6 @@ import net.minecraft.world.entity.item.ItemEntity;
  * ({@code resolve_own_hat}); afloat she wants the bank (hunger with nothing aboard or afloat to eat and food of hers lying ashore,
  * tiredness, a hull sinking under her young, no stick, wet weather, a mate, young left ashore, dusk: {@code come_ashore}) or cruises
  * in daylight ({@code cruise}). She eats, feeds and comforts her young,
-
  * and rescues a young in the water once she accepts its incident. A young boards or follows its parent ashore, eats aboard,
  * and once able tries its own hat ({@code first_voyage}), then comes ashore and takes it back. Who goes
  * first between bodies follows only from these desires (P11, Q4). Every number is in
@@ -313,7 +312,6 @@ final class AquaticGoal extends Goal {
         var world = List.of(at, stick, young.size(), ashore, birth, mateBirth > 0, heavy, floor(tired) > 0, landFood);
         Supplier<String> why = () -> String.format(Locale.ROOT, "hunger=%.0f food_aboard=%b land_food=%b stick=%b stick_ashore=%b weather=%.0f breed=%.0f birth=%.0f mate_birth=%.0f young_ashore=%d dusk=%b rain=%b heavy=%b tired=%.0f",
                 hunger, food, landFood, stick, toHave, weather, breed, birthWant, mateBirth, ashore, dusk, rain, heavy, tired);
-
         var ashoreDesire = Desire.of("come_ashore", floor(pull), world, why, () -> {
             if (heavy) {
                 // she feels it sit low and wallow with her young aboard: a worried cry before she turns for the bank
@@ -361,8 +359,6 @@ final class AquaticGoal extends Goal {
     }
 
     /** How much a body that can eat wants to now (0 when it cannot or is not hungry). */
-
-
     private static double eat(YukkuriEntity y) {
         return y.life().canEat() ? Math.max(0, num("eat_from", 70) - y.life().nutrition()) * num("eat_slope", 3) : 0;
     }
@@ -495,7 +491,6 @@ final class AquaticGoal extends Goal {
         // failed hop out is not offered again just because the hull moved); ashore, where it stands and where the hull lies.
         Object world = body.getVehicle() == hat ? List.of(hat.getUUID(), hat.riders().local(body.getUUID()), parentOn)
                 : on ? List.of(hat.getUUID(), "head", parentOn) : List.of(cell(hat), body.blockPosition(), parentOn);
-
         if (on && parentOn && body.family().stage() == FamilyLife.Stage.BABY) play(out, hat, world);
         if (on) BoatToilet.offer(out, body, hat);
         var rest = TakeSeat.offer(body, hat);

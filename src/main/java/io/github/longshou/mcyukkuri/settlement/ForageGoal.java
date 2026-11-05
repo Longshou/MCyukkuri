@@ -58,7 +58,6 @@ public final class ForageGoal extends Goal {
     @Override public boolean canUse() {
         if (entity.isPassenger() || entity.profile().houseBody() || entity.family().awaitingLanding() || !entity.life().canEat() || entity.life().isSleeping() || entity.isInWaterOrBubble()
                 || !EventHooks.canEntityGrief(level(), entity) || !grazes()) return false;
-
         if (SettlementSeasons.forageBlocked(entity)) return false;
         scanFood();
         if (target == null && entity.life().nutrition() >= 30) return false;

@@ -2654,7 +2654,6 @@ pond('sail', '捡棍放帽出航，饿了返岸', '捡棍放帽出航，饿了�
      capture=dict(shots=(1, 40, 200, 600), sequences=((220, 420, 2),)),
      note='每阶段一条日志：[headwear] kit stowed → [aquatic] berth → [hat] placed … water=true kit=… → [hat] boarded → [intent] start id=cruise → '
           '[aquatic] route purpose=cruise → [intent] start id=come_ashore（why 中 hunger、food_aboard=false、land_food=true）→ [aquatic] route purpose=come_ashore → [hat] left → '
-
           '[action] end id=take_prop outcome=DONE。取到棍后木棍始终握在辫梢（划桨、坐着、待机都不松手），读 aquatic.stick_in_braid=true，帽内腔不再另画一根。上岸后饥饿仍压住出航欲望，不会马上再上船。' + _DESIRE_NOTE,
      reads=[('读船主', f'yukkuri status {sel("a")} raw'), ('读帽子', f'data get entity {_HAT}')],
      smoke=dict(ticks=3600, commands=[(1, 'yukkuri status trace true'), (3599, 'yukkuri status trace false')],
@@ -2892,7 +2891,6 @@ pond('shore_family', '饿了带孩子划回岸边', '饿了带孩子划回岸边
                                    r'\[intent\][^\n]* end id=come_ashore result=DONE\b',
                                    r'\[intent\][^\n]* start id=come_ashore [^\n]*land_food=true\b',
                                    r'\[meal\][^\n]* swallowed item=minecraft:apple\b'],
-
                 forbid=[r'\[body\][^\n]* invariant\b', r'\[intent\][^\n]* end id=come_ashore result=EXHAUSTED\b',
                         r'\[forage\][^\n]* food search started\b'],
                 readout=[f'yukkuri status {sel("a")} raw', f'yukkuri status {sel("c1")} raw']))
