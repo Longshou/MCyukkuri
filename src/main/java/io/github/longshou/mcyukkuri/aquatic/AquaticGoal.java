@@ -186,6 +186,8 @@ final class AquaticGoal extends Goal {
         double hunger = Math.max(0, num("hunger_from", 55) - life.nutrition()) * num("hunger_slope", 3);
         double weather = body.level().isThundering() ? num("thunder_need", 60) : rain && life.wetness() >= num("wet_from", 60) ? num("wet_need", 70) : 0;
         double breed = body.family().ready(false) && body.family().partner() != null ? num("breed_need", 35) : 0;
+        // Tired below the energy a voyage takes: rest comes only on dry ground (grounded rest), so it draws her ashore and keeps her there.
+        double tired = Math.max(0, num("voyage_energy", 30) - life.energy()) * num("tired_slope", 2);
         // The birth's own lead also forbids departures after landing, until delivery is complete.
         var brood = body.family().brood();
         boolean birth = body.family().shoreBirthDue();
@@ -214,7 +216,7 @@ final class AquaticGoal extends Goal {
             // A missing stick never keeps her ashore: SetOut takes one lying (or afloat beside the bank) within reach first, and afloat
             // she goes for sticks on the water or comes ashore for one (fetch_stick, come_ashore).
             boolean nearStick = !stick && Waters.stick(body, 10, true) != null;
-            double pull = Math.max(Math.max(hunger, weather), breed);
+            double pull = Math.max(Math.max(Math.max(hunger, weather), breed), tired);
             boolean asleep = young.stream().anyMatch(y -> y.life().isSleeping() && !AquaticLife.aboard(y, hat));
             boolean beyondGather = SetOut.dependentBeyondGatherRange(body);
             // a search for a child ends at the child (greeting, halt) before she turns to the water
@@ -238,8 +240,8 @@ final class AquaticGoal extends Goal {
                         List.of(cell(hat), rider.getUUID()), () -> "aboard child=" + rider.getUUID(), () -> Ashore.come(body)));
             }
             if (usable) out.add(Desire.of("set_out", floor(setOut), world, () -> String.format(Locale.ROOT,
-                    "pull=%.0f hunger=%.0f weather=%.0f breed=%.0f stick=%b stick_near=%b dusk=%b rain=%b young=%d asleep=%b beyond_gather=%b searching=%b mate_birth=%b nursery=%b overladen=%b",
-                    pull, hunger, weather, breed, stick, nearStick, dusk, rain, young.size(), asleep, beyondGather, searching, mateBirth > 0, nursery, overladen),
+                    "pull=%.0f hunger=%.0f weather=%.0f breed=%.0f tired=%.0f stick=%b stick_near=%b dusk=%b rain=%b young=%d asleep=%b beyond_gather=%b searching=%b mate_birth=%b nursery=%b overladen=%b",
+                    pull, hunger, weather, breed, tired, stick, nearStick, dusk, rain, young.size(), asleep, beyondGather, searching, mateBirth > 0, nursery, overladen),
                     () -> new SetOut(body, this::leftAshore)));
             // Newborns ashore go through family loading, never the solo reclaim that may finish aboard without them.
             if (hat != null && !birth && !nursery && unloadedNewborns.isEmpty() && !beyondGather
@@ -298,11 +300,12 @@ final class AquaticGoal extends Goal {
         // The hull sits low and rocks under her young's weight (its load warning): an ordinary parent takes the family ashore to
         // unload before it goes over; a keeper (low intelligence, high friendliness) keeps going (FEATURES 载重).
         boolean heavy = overladen(body, hat);
-        double pull = Math.max(Math.max(Math.max(fed ? 0 : hunger, toHave ? num("stick_need", 50) : 0), heavy ? num("load_need", 70) : 0),
+        double pull = Math.max(Math.max(Math.max(fed ? 0 : hunger, toHave ? num("stick_need", 50) : 0), Math.max(heavy ? num("load_need", 70) : 0, tired)),
                 Math.max(Math.max(birthWant, mateBirth), Math.max(Math.max(weather, breed), Math.max(dusk ? num("night_pull", 60) : 0, ashore > 0 ? num("young_ashore_need", 60) : 0))));
-        var world = List.of(at, stick, young.size(), ashore, birth, mateBirth > 0, heavy);
-        Supplier<String> why = () -> String.format(Locale.ROOT, "hunger=%.0f food_aboard=%b stick=%b stick_ashore=%b weather=%.0f breed=%.0f birth=%.0f mate_birth=%.0f young_ashore=%d dusk=%b rain=%b heavy=%b",
-                hunger, food, stick, toHave, weather, breed, birthWant, mateBirth, ashore, dusk, rain, heavy);
+        var world = List.of(at, stick, young.size(), ashore, birth, mateBirth > 0, heavy, floor(tired) > 0);
+        Supplier<String> why = () -> String.format(Locale.ROOT, "hunger=%.0f food_aboard=%b stick=%b stick_ashore=%b weather=%.0f breed=%.0f birth=%.0f mate_birth=%.0f young_ashore=%d dusk=%b rain=%b heavy=%b tired=%.0f",
+                hunger, food, stick, toHave, weather, breed, birthWant, mateBirth, ashore, dusk, rain, heavy, tired);
+
         var ashoreDesire = Desire.of("come_ashore", floor(pull), world, why, () -> {
             if (heavy) {
                 // she feels it sit low and wallow with her young aboard: a worried cry before she turns for the bank

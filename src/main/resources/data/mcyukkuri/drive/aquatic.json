@@ -66,5 +66,6 @@
   "first_voyage_to": 0.95,
   "first_voyage_bold_shift": 0.05,
   "voyage_energy": 30,
+  "tired_slope": 2,
   "young_return": 60
 }
