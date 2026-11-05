@@ -2979,7 +2979,7 @@ pond('rescue_no_seat', '满载亲帽救起新生儿送上岸', '满载亲帽救�
      late=[yk('marisa', bank_dx(0), 0, 'a', aquatic=True, yaw=90, lead=True, uuid=uid('rescue_no_seat', 'a'),
               fam='Version:3,Initialized:1b,Age:400000L,Nourishment:400000L,AdultScale:1f,Scale:1f', **pair_ready()),
            *[yk('marisa', bank_dx(0) - 2 - i, -i, f'crew{i}', stage='baby', aquatic=True,
-                childhood='Version:2,Newborn:1b,Landed:1b', also=('crew',),
+                childhood=CHILDHOOD_HOPPING if size == .28 else 'Version:2,Newborn:1b,Landed:1b', also=('crew',),
                 fam=_seat_family(size, 0, 0) + f',BirthScale:{size}f', **pair_ready())
              for i, size in enumerate((.10, .19, .285, .28))],
            f'execute as {sel_all("crew")} run yukkuri status set @s needs.nutrition 40',

@@ -4,6 +4,7 @@ import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.ParentCarry;
 import io.github.longshou.mcyukkuri.headwear.HatProp;
+import io.github.longshou.mcyukkuri.headwear.HullBounds;
 import io.github.longshou.mcyukkuri.headwear.PlacedHatEntity;
 import io.github.longshou.mcyukkuri.intent.Commitment;
 import io.github.longshou.mcyukkuri.intent.Intent;
@@ -154,9 +155,22 @@ final class Ashore implements Intent {
         if (route.size() > 1) return List.of(() -> new Step.Do(new Paddle(Waters.leg(route), ARRIVE)));
         // at the landing water: paddle in against the bank, once; no hop in reach even then, and the next derive takes another
         if (!tried.add(edge.stand())) { landing = null; return paddle(hat); }
-        var dock = edge.out(HullAfloat.brimToward(hat, edge.edge()));
+        var dock = edge.out(HullAfloat.brimToward(hat, edge.edge()) + standoff(hat, edge));
         return List.of(() -> new Step.Do(new Paddle(() -> dock,
                 distance -> distance <= ARRIVE && Ferry.hopAshore(owner).get() != null && youngCanLand(hat))));
+    }
+
+    /** How far the hull docks off the bank so that no rider's collision box reaches into it: the farthest horizontal corner of any
+     *  rider's box from the hull centre, past the rim toward the bank (the box corners of a brim place stick out of the round rim,
+     *  and the hull turns on its way in, so the bound does not depend on its yaw), plus the hull's own clearance. */
+    private static double standoff(PlacedHatEntity hat, Waters.Edge edge) {
+        double reach = 0;
+        for (var rider : hat.getPassengers()) {
+            var box = rider.getBoundingBox();
+            for (double x : new double[]{box.minX, box.maxX}) for (double z : new double[]{box.minZ, box.maxZ})
+                reach = Math.max(reach, Math.hypot(x - hat.getX(), z - hat.getZ()));
+        }
+        return Math.max(0, reach - HullAfloat.brimToward(hat, edge.edge())) + HullBounds.EPSILON;
     }
 
     /** The family landing must also be reachable by the young who will leave under their own power. */
