@@ -170,8 +170,8 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
             // Captured before anything else poses this shared model (stem fruits reuse it).
             if(!carried)ParentCarryPresentation.capture(entity,model,start,pose.last().pose(),renderedBodyYaw,partialTick);
             ToiletPresentation.renderTongue(entity,behavior,phaseTicks,partialTick,model,pose,buffers,packedLight,overlay);
-            // The stool keeps the clock its body clip is sampled on (YukkuriModel: the action's own clock when the action is that clip),
-            // the clock of the server's release too.
+            // The stool keeps the clock its body clip is sampled on (YukkuriModel: the action's own clock when the action is that clip), so
+            // the server's release at clip tick DROP_TICKS is the tick this prop hands over to the item.
             ToiletPresentation.renderStool(entity,behavior,behavior.equals(action)?clock*20:phaseTicks,pose,buffers,packedLight);
             var root=model.rootPose();
             if(entity.hasVisibleAccessory()||contact.equals("HAT_REMOVE")) model.renderBadge(entity.visibleMedal(),pose,buffers,packedLight,overlay);

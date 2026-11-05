@@ -57,7 +57,10 @@ public final class Ballistic {
 
     /** A dropped item's own air step (vanilla ItemEntity): v.y -= ITEM_GRAVITY, then pos += v, then v *= ITEM_DRAG on every axis. */
     public static final double ITEM_GRAVITY=.04,ITEM_DRAG=.98;
-    /** The slowest item push tried and the step between tries, in blocks per tick; a push the body cannot give is no plan. */
+    /**
+     * The push search step and its cap, in blocks per tick (a push is tried from none upward): the chosen push is always the slowest that
+     * clears, and a faster one has overshot any caller's landing band, so nothing is planned above MAX_PUSH.
+     */
     static final double PUSH_STEP=.005,MAX_PUSH=.4;
 
     /**
