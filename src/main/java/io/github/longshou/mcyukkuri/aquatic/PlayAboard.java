@@ -123,7 +123,8 @@ final class PlayAboard implements Intent {
         String reason;
         if (scared) { act = Behaviors.KID_HIDE_BEHIND; reason = "fear:" + cause; }
         else if (water) { act = paddling ? Behaviors.KID_MIMIC_PADDLE : Behaviors.KID_BRIM_SPLASH; reason = paddling ? "captain_paddle" : "brim_water"; }
-        else { act = Behaviors.BOAT_RIM_PEEK; reason = "head".equals(where) ? "head_dry" : "no_water_act"; }
+        else if ("head".equals(where)) { act = Behaviors.HAT_CRADLE; reason = "head_dry"; }
+        else { act = Behaviors.BOAT_RIM_PEEK; reason = "no_water_act"; }
         if (hat.behavior() instanceof HullAfloat hull) {
             hull.playEvent(act);
             if (scared) hull.playEvent("fear_" + cause);

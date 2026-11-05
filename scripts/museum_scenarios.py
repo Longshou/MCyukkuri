@@ -2773,7 +2773,7 @@ pond('kid_boat_play', '赤油在帽檐玩耍，打雷躲避', '赤油在帽檐�
       f'yukkuri status set {sel("c1")} needs.nutrition 20',
       afloat('a', water_at(0, 3), True, sel_all('crew'), food=4, stick=True)],
      note='日志：舱内赤油自己 hop 上帽檐 → [aquatic] play kind=kid_brim_splash start spot=brim reason=brim_water braid_out=true（亲油在划桨时是 kind=kid_mimic_paddle reason=captain_paddle，两者都是水上动作）'
-          '→ 之后 kind=hat_cradle 原地静玩；头顶那只 play kind=boat_rim_peek start spot=head reason=head_dry，不做水上动作。'
+          '→ 之后 kind=hat_cradle 原地静玩；头顶那只 play kind=hat_cradle start spot=head reason=head_dry（静坐，不回头转身；boat_rim_peek 的 60° 回望只在帽檐/舱内），不做水上动作。'
           '两只都已学会短跳：新生油不能玩耍，头顶那只不会探头。'
           '受惊：舱内有空位时 play return inside place=cabin reason=fear:thunder，再 play kind=kid_hide_behind start spot=cabin；舱内无位且 head=free 时先在帽檐缩身，亲油 shelter_young → carry lowering clip=braid_head_set → seat landed place=HEAD，随后在头顶缩身。'
           '舱内、头顶都无位才一直在帽檐缩身；平静后继续玩耍。帽檐上真被晃到硬翻时仍会摔进水里（play fall_in）。'
@@ -2788,7 +2788,7 @@ pond('kid_boat_play', '赤油在帽檐玩耍，打雷躲避', '赤油在帽檐�
                         r'\[hat\][^\n]* scenario place [^\n]*place=CABIN\b',
                         r'\[hat\][^\n]* scenario place [^\n]*place=HEAD\b',
                         r'\[aquatic\][^\n]* play kind=(?:kid_brim_splash|kid_mimic_paddle) start spot=brim [^\n]*braid_out=true\b',
-                        r'\[aquatic\][^\n]* play kind=boat_rim_peek start spot=head\b',
+                        r'\[aquatic\][^\n]* play kind=hat_cradle start spot=head reason=head_dry\b',
                         r'\[aquatic\][^\n]* play kind=kid_hide_behind start spot=\w+ reason=fear:thunder\b',
                         r'\[aquatic\][^\n]*(?: play (?:return inside [^\n]*place=cabin|stays on brim [^\n]*cabin=none head=none) [^\n]*reason=fear:thunder\b| care transfer end kind=shelter_young [^\n]*result=DONE released=true [^\n]*head=true)'],
                 forbid=[r'\[body\][^\n]* invariant\b', r'\[body\][^\n]* death settled into remains', r'\[aquatic\][^\n]* play fall_in\b',
