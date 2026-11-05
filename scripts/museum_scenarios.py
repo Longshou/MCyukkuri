@@ -2892,6 +2892,8 @@ RESCUE_BABY_DELAY = 190     # ticks the infant waits on the bank, so the first r
 
 
 def _rescue_smoke(sid, slot):
+    """The same child's rescue chain: lifted by the braid and lowered into a seat aboard, or (when she stands on the bank and it is
+    within a hold's reach of a dry stand, FEATURES 落水救助) taken out over the bank and set down ashore."""
     child, parent = _uuid_text(sid, slot), _uuid_text(sid, 'a')
     return [rf'\[incident\][^\n]* open id=water#[^\n]*subject={child}',
             rf'\A(?=[\s\S]*?\[incident\][^\n]* open id=(?P<incident>water#\S+) [^\n]*subject={child})'
@@ -2900,19 +2902,20 @@ def _rescue_smoke(sid, slot):
             rf'[\s\S]*\[action\][^\n]* start id=grab [^\n]*target={child}'
             rf'[\s\S]*\[family\][^\n]* carry grip [^\n]*uuid={child}'
             rf'[\s\S]*\[action\][^\n]* start id=release [^\n]*child={child}'
-            rf'[\s\S]*\[body\][^\n]* uuid={child} [^\n]* seat landed '
-            rf'[\s\S]*rescue end result=DONE outcome=rescued faller={child} incident=(?P=incident) aboard=true']
+            rf'(?:[\s\S]*\[body\][^\n]* uuid={child} [^\n]* seat landed '
+            rf'[\s\S]*rescue end result=DONE outcome=rescued faller={child} incident=(?P=incident) aboard=true'
+            rf'|[\s\S]*rescue end result=DONE outcome=set_down faller={child} incident=(?P=incident) aboard=false)']
 
 
 pond('rescue_child', '亲油用辫子救起落水的子油和赤油', '亲油用辫子救起落水的子油和赤油',
-     '亲油坐在近岸的自己的帽船里，帽里有木棍。先有一只 0.35 体型、未学会跳的小子油从岸边落水：亲油接下救援后连续划近，转身伸辫，抓住孩子提出水面，提过帽檐再降低到帽内净空。救完后岸边的一只赤油也被推下水，亲油同样划近救起，降低到前座。真实阻挡仍会失败，孩子自行上岸不算救起',
+     '亲油坐在近岸的自己的帽船里，帽里有木棍。先有一只 0.35 体型、未学会跳的小子油从岸边落水：亲油接下救援后连续划近，转身伸辫，抓住孩子提出水面，提过帽檐再降低到帽内净空。救完后岸边的一只赤油也被推下水，亲油同样划近救起，降低到前座；她若这时已在岸上、赤油就在岸边站位够得着的地方，就直接从岸边用辫子把它捞出水面放到干地，不再放帽出航。真实阻挡仍会失败，孩子自行上岸不算救起',
      '约 1–3 分钟',
      [yk('marisa', bank_dx(0), 0, 'a', aquatic=True, yaw=-90, lead=True, friendliness=100, uuid=uid('rescue_child', 'a'), **pair_ready()),
       _aquatic_young('rescue_child', 'c1', bank_dx(1), 1, 'child', 'a', fam=_seat_family(), childhood=CHILDHOOD_CRAWLING_READY),
       _aquatic_young('rescue_child', 'k1', bank_dx(-1), -1, 'baby', 'a'),
       afloat('a', water_at(0, 3), True, sel('a'), stick=True)],
      late=[shoved('c1', .5), Retry(shoved('k1', .5), sel('k1'), tries=1, first=RESCUE_BABY_DELAY)], vantage=(bank_dx(0) - 2, 1, -90, 18),
-     note=_INCIDENT_NOTE + '0.35 子油按真实身体净空与载重找落点。同一孩子 UUID：rescue start → grab reach=braid → carry grip → release → seat landed → rescue end result=DONE outcome=rescued aboard=true；self_climbed 只算自行脱险。赤油在子油救完之后才被推下水，走同一条链。' + _DESIRE_NOTE,
+     note=_INCIDENT_NOTE + '0.35 子油按真实身体净空与载重找落点。同一孩子 UUID：rescue start → grab reach=braid → carry grip → release → seat landed → rescue end result=DONE outcome=rescued aboard=true；self_climbed 只算自行脱险。赤油在子油救完之后才被推下水，走同一条链；亲油那时若已站在岸上、赤油在岸边站位够得着，则 grab → carry grip → release（放到干地）→ rescue end result=DONE outcome=set_down aboard=false，不再 start id=launch。' + _DESIRE_NOTE,
      reads=[('读亲油', f'yukkuri status {sel("a")} raw'), ('读子油', f'yukkuri status {sel("c1")} raw'),
             ('读赤油', f'yukkuri status {sel("k1")} raw'), ('读帽子', f'data get entity {_HAT}')],
      capture=dict(shots=(1, 40, 1800), sequences=((40, 1800, 4),), observe=False,

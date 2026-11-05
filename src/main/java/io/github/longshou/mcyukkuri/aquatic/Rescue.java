@@ -14,16 +14,19 @@ import io.github.longshou.mcyukkuri.motor.ContactGeometry;
 import io.github.longshou.mcyukkuri.motor.Feasibility;
 import io.github.longshou.mcyukkuri.motor.Reason;
 import io.github.longshou.mcyukkuri.motor.action.Face;
+import io.github.longshou.mcyukkuri.motor.action.Grab;
 import io.github.longshou.mcyukkuri.motor.action.Hop;
 import io.github.longshou.mcyukkuri.motor.action.Release;
 import io.github.longshou.mcyukkuri.motor.action.Right;
+import io.github.longshou.mcyukkuri.motor.action.Walk;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Supplier;
 import net.minecraft.util.Mth;
 
-/** One accepted incident: close distance from the captain seat, then carry to an admitted seat; with no place on her hull she keeps
+/** One accepted incident: from the bank a faller within a hold's reach of a dry stand is taken straight out and set down ashore;
+ *  otherwise close distance from the captain seat, then carry to an admitted seat; with no place on her hull she keeps
  *  holding it and lands the whole family ({@link Ashore#come}), so no young of hers is left on the hull. */
 final class Rescue implements Intent {
     private final YukkuriEntity helper, faller;
@@ -31,6 +34,8 @@ final class Rescue implements Intent {
     private final long started;
     /** The family landing the held faller went ashore with: the rescue ends with that landing, not with this one child. */
     private Ashore landing;
+    /** She had the faller in her hold: one ending ashore was set down by her, not climbed out by itself. */
+    private boolean held;
 
     Rescue(YukkuriEntity helper, YukkuriEntity faller, String incident) {
         this.helper = helper;
@@ -79,11 +84,19 @@ final class Rescue implements Intent {
         var hat = AquaticLife.hat(helper);
         // Set down ashore already: only the family landing it went with is left, and that one ended without finishing.
         if (AquaticLife.ashore(faller)) return null;
-        if (faller.getVehicle() == helper) return AquaticLife.ashore(helper) ? List.of(() -> new Step.Do(new Release(faller)))
-                : List.of(() -> hullHasPlace(faller) && !hat.settled(helper) && !hat.places(faller, 1).isEmpty()
-                        ? new Step.Do(new Hop(hat)) : null,
-                        () -> new Step.Do(new Release(faller, hat)));
+        if (faller.getVehicle() == helper) {
+            held = true;
+            return AquaticLife.ashore(helper) ? List.of(() -> new Step.Do(new Release(faller)))
+                    : List.of(() -> hullHasPlace(faller) && !hat.settled(helper) && !hat.places(faller, 1).isEmpty()
+                            ? new Step.Do(new Hop(hat)) : null,
+                            () -> new Step.Do(new Release(faller, hat)));
+        }
         if (!AquaticLife.aboard(helper, hat)) {
+            // On the bank with the faller in a hold's reach of a dry stand (the Grab's own reach): she leans over and takes it out
+            // there. Only one out of that reach sends her out on her hull to chase it.
+            var stand = AquaticLife.ashore(helper) ? new Grab(faller).contactStand(helper) : null;
+            if (stand != null) return List.of(() -> SurfaceApproach.arrived(helper, stand) ? null : new Step.Do(Walk.stand(stand, 1)),
+                    () -> new Step.Do(new Grab(faller)));
             // An upside-down hull is righted first, then she boards and lifts from it.
             if (hat != null && hat.upsideDown()) return List.of(() -> new Step.Do(new Right(hat, "rescue")));
             return hat == null && !helper.life().custody().worn() ? null
@@ -99,7 +112,7 @@ final class Rescue implements Intent {
 
     @Override public void ended(IntentRunner.Result result) {
         boolean aboard = AquaticLife.aboard(faller, AquaticLife.hat(helper));
-        String outcome = result == IntentRunner.Result.DONE ? aboard ? "rescued" : landing != null ? "set_down" : "self_climbed"
+        String outcome = result == IntentRunner.Result.DONE ? aboard ? "rescued" : landing != null || held ? "set_down" : "self_climbed"
                 : result.name();
         if (faller.getVehicle() == helper && !aboard) helper.family().carry().finish(faller, "rescue_ended");
         AskLedger.server().ended(incident, helper.getUUID(), outcome);
