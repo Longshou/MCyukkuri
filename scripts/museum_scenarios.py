@@ -2788,7 +2788,7 @@ pond('kid_boat_play', '赤油在帽檐玩耍，打雷躲避', '赤油在帽檐�
                         r'\[hat\][^\n]* scenario place [^\n]*place=CABIN\b',
                         r'\[hat\][^\n]* scenario place [^\n]*place=HEAD\b',
                         r'\[aquatic\][^\n]* play kind=(?:kid_brim_splash|kid_mimic_paddle) start spot=brim [^\n]*braid_out=true\b',
-                        r'\[aquatic\][^\n]* play kind=hat_cradle start spot=head reason=head_dry\b',
+                        r'\[aquatic\][^\n]* play kind=hat_cradle start spot=head reason=head_dry\b',
                         r'\[aquatic\][^\n]* play kind=kid_hide_behind start spot=\w+ reason=fear:thunder\b',
                         r'\[aquatic\][^\n]*(?: play (?:return inside [^\n]*place=cabin|stays on brim [^\n]*cabin=none head=none) [^\n]*reason=fear:thunder\b| care transfer end kind=shelter_young [^\n]*result=DONE released=true [^\n]*head=true)'],
                 forbid=[r'\[body\][^\n]* invariant\b', r'\[body\][^\n]* death settled into remains', r'\[aquatic\][^\n]* play fall_in\b',
