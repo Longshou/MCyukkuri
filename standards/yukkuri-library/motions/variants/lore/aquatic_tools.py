@@ -622,6 +622,136 @@ def held_gate(model, action, samples, tracks, sticks, c):
         raise ValueError(f'{model["id"]} {action}: the braid or held stick enters her body, hat, the ground or the hull')
 
 
+# ---- the held stack through a hat clip (hat.stick): it stays in the tuft, laid along the brim the tuft grips ---------------
+
+HOLD = RECIPE['clips']['braid_item_hold']['held_item']  # the hold's grip and twig, so handing over never slides it in the tuft
+
+
+def stow_tracks(model, samples, tracks, c):
+    """props.item for a hat clip whose `hat.stick` names the stick's long end in the worn hat's frame (model units at rest):
+    the tuft keeps the held stack at the hold's own grip while it hooks the brim, the stick laid along the brim beside it,
+    turning with the hat (the hat bone's rotation, its crown squash left out). Before `braid_busy` and after `braid_free` the
+    key holds its value at that marker: there the game hands the stick over from and back to the hold's key with the braid
+    (YukkuriModel.braidHoldShare), so it travels in the tuft and lies on the brim from the moment the tuft takes the brim."""
+    names = {b['name']: i for i, b in enumerate(model['bones'])}; bones = model['bones']
+    tip, hat = names['hand_right_tip'], names['hat_follow']; joint_rest = np.array(bones[tip]['pivot'], float)
+    tuft = np.array(json.loads(BRAID.read_text(encoding='utf-8'))['braid_tip'], float)-joint_rest; tuft /= np.linalg.norm(tuft)
+    d = np.array(c['hat']['stick'], float); y_axis = -d/np.linalg.norm(d)
+    ref = np.array([0., 0., 1.]) if abs(y_axis[2]) < .9 else np.array([1., 0., 0.])
+    z_axis = ref-y_axis*(y_axis@ref); z_axis /= np.linalg.norm(z_axis)
+    lay = np.c_[np.cross(y_axis, z_axis), y_axis, z_axis]  # the twig frame of held_tracks, fixed in the hat
+    m = c.get('markers', {}); busy, free = m.get('braid_busy', 0.), m.get('braid_free', c['duration'])
+    rows = []
+    for t in samples:
+        M = palette(model, tracks, min(max(t, busy), free))
+        u = polar(M[tip][:3, :3])@tuft; G = (M[bones[tip]['parent']]@np.r_[joint_rest, 1])[:3]+u*HOLD['grip_offset']
+        A = M[tip]@np.r_[np.c_[np.eye(3), joint_rest], [[0, 0, 0, 1]]]
+        key = np.linalg.inv(A)@np.r_[np.c_[polar(M[hat][:3, :3])@lay, G], [[0, 0, 0, 1]]]
+        rows.append([*key[:3, 3], *to_euler(polar(key[:3, :3]))])
+    eul = unwrap([r[3:] for r in rows])
+    return {'prop': 'held_item', 'bone': 'hand_right_tip',
+            'keys': [[round(t, 8), *[round(float(v), 5) for v in r[:3]+e]] for t, r, e in zip(samples, rows, eul)]}
+
+
+def _quat(R):
+    w = math.sqrt(max(0., 1+R[0, 0]+R[1, 1]+R[2, 2]))/2; x = math.sqrt(max(0., 1+R[0, 0]-R[1, 1]-R[2, 2]))/2
+    y = math.sqrt(max(0., 1-R[0, 0]+R[1, 1]-R[2, 2]))/2; z = math.sqrt(max(0., 1-R[0, 0]-R[1, 1]+R[2, 2]))/2
+    q = np.array([w, math.copysign(x, R[2, 1]-R[1, 2]), math.copysign(y, R[0, 2]-R[2, 0]), math.copysign(z, R[1, 0]-R[0, 1])])
+    return q/np.linalg.norm(q)
+
+
+def _slerp_matrix(A, B, s):
+    """Rotation s of the way from A to B along the shorter arc (JOML Quaternionf.slerp)."""
+    a, b = _quat(A), _quat(B); dot = float(a@b)
+    if dot < 0: b, dot = -b, -dot
+    if dot > .9995: q = a+(b-a)*s
+    else: th = math.acos(dot); q = (math.sin((1-s)*th)*a+math.sin(s*th)*b)/math.sin(th)
+    w, x, y, z = q/np.linalg.norm(q)
+    return np.array([[1-2*(y*y+z*z), 2*(x*y-z*w), 2*(x*z+y*w)], [2*(x*y+z*w), 1-2*(x*x+z*z), 2*(y*z-x*w)], [2*(x*z-y*w), 2*(y*z+x*w), 1-2*(x*x+y*y)]])
+
+
+def _crossings(a, b, T):
+    """How many triangles T (n, 3, 3) the segment a-b passes through (Moller-Trumbore)."""
+    d = b-a; e1 = T[:, 1]-T[:, 0]; e2 = T[:, 2]-T[:, 0]; p = np.cross(d, e2); det = (e1*p).sum(1)
+    ok = np.abs(det) > 1e-9; inv = np.where(ok, 1/np.where(ok, det, 1), 0); s = a-T[:, 0]
+    u = (s*p).sum(1)*inv; q = np.cross(s, e1); v = (q*d).sum(1)*inv; w = (q*e2).sum(1)*inv
+    return int((ok & (u >= 0) & (v >= 0) & (u+v <= 1) & (w >= 0) & (w <= 1)).sum())
+
+
+def stow_gate(model, action, tracks, prop, holds, c):
+    """Fail a hat clip whose held stick, as the game draws it, passes through her body (face and hair included) or the hat,
+    or crosses in front of her face. The game is replayed per tick for each hold the stick may come from (`holds`: name ->
+    exported hold clip; ashore braid_item_hold, aboard boat_paddle at 0): her braid blends from that hold's braid over
+    [0, braid_busy] and back over [braid_free, end], the stick's key from the hold's key the same share (position and the
+    shorter arc), the aquatic hat bone scales about the worn anchor (hat_vessel.json) and rides the tuft end between the
+    grip and release markers (ParentCarryPresentation, BraidPose.holdHat). Prints the counts and the stick's lowest point."""
+    names = {b['name']: i for i, b in enumerate(model['bones'])}; bones = model['bones']
+    tip, hat, braid, root = names['hand_right_tip'], names['hat_follow'], names['hand_right'], names['root']
+    vessel = json.loads((ASSETS/'yukkuri_presentation/hat_vessel.json').read_text(encoding='utf-8'))
+    spec = c['hat']; k = vessel['scale']['aquatic_marisa'] if spec['variant'] == 'aquatic' else 1.
+    anchor = np.array(vessel['anchor_worn'], float); grip = np.array(vessel['placements'][spec['variant']][spec['role']]['grip_worn'], float)
+    V = np.array(model['vertices']).reshape(-1, 8)[:, :3]; Wt = np.array(model['weights'])
+    tufts = [i for p in model['parts'] if p['name'].startswith('braid_lock_tuft') for i in range(p['start'], p['start']+p['count'])]
+    tuft_end = V[tufts][np.argmax(((V[tufts]-np.array(bones[braid]['pivot']))**2).sum(1))]
+    hats = tuple(json.loads((ASSETS/'yukkuri_presentation/living.json').read_text(encoding='utf-8'))['variants'][model['id']]['accessory_prefixes'])
+    overlay = ('face_brow', 'face_blush', 'face_tear', 'face_effect')
+    pick = lambda f: sorted(i for p in model['parts'] if not p.get('anatomy') and f(p['name']) for i in range(p['start'], p['start']+p['count']))
+    body_v, hat_v = pick(lambda n: not n.startswith(('braid_lock_', 'puff_')+hats+overlay)), pick(lambda n: n.startswith(hats))
+    face = V[pick(lambda n: n.startswith('face_'))]; face = (np.abs(face[:, 0]).max(), face[:, 1].max(), face[:, 2].min())  # no stick before it
+    under_hat = [i for i in range(len(bones)) if any(j == hat for j in _ancestry(bones, i))]
+    m = c['markers']; d = c['duration']; busy, free = m.get('braid_busy'), m.get('braid_free')
+    g0, r0 = round(m['grip']*20), round(m['release']*20)
+    along = np.linspace(-HOLD['top_length'], HOLD['blade_length'], 2); r = HOLD['twig_radius']
+    tri = lambda P, idx: P[idx].reshape(-1, 3, 3)
+    for hold_name, held in holds.items():
+        braid_keys = [tr for tr in held['tracks'] if bones[tr['bone']]['name'].startswith('hand_right')]
+        hk = sample(held['props']['item']['keys'], 0.)
+        through_body = through_hat = before_face = 0; lowest = math.inf
+        for tick in range(round(d*20)+1):
+            t = tick/20; share = 1-smooth(t/busy) if busy is not None and t < busy else smooth((t-free)/max(1e-3, d-free)) if free is not None and t > free else 0.
+            pose = {}
+            for tr in model['clips']['idle']['tracks']: pose.setdefault(tr['bone'], {})[tr['channel']] = np.array(sample(tr['keys'], 0), float)
+            for tr in tracks: pose.setdefault(tr['bone'], {})[tr['channel']] = np.array(sample(tr['keys'], t), float)
+            for tr in braid_keys:
+                h = np.array(sample(tr['keys'], 0), float); now = pose.setdefault(tr['bone'], {}).get(tr['channel'], np.ones(3) if tr['channel'] == 'scale' else np.zeros(3))
+                pose[tr['bone']][tr['channel']] = now+(h-now)*share
+            M = []
+            for i, b in enumerate(bones):
+                p = pose.get(i, {}); L = np.eye(4); pv = np.array(b['pivot'], float)
+                L[:3, :3] = euler(p.get('rotation', [0, 0, 0]))*np.array(p.get('scale', [1, 1, 1])); L[:3, 3] = pv+np.array(p.get('position', [0, 0, 0]))-L[:3, :3]@pv
+                Wm = M[b['parent']]@L if b['parent'] >= 0 else L
+                if i == hat and k != 1: S = np.eye(4); S[:3, :3] *= k; S[:3, 3] = anchor*(1-k); Wm = Wm@S
+                M.append(Wm)
+            M = np.array(M); q = (tick-g0)/max(1, r0-g0); ride = smooth(q*4)*smooth((1-q)*4)
+            if ride > 0:
+                T = np.eye(4); T[:3, 3] = ((M[tip]@np.r_[tuft_end, 1])[:3]-(M[hat]@np.r_[grip, 1])[:3])*ride
+                for i in under_hat: M[i] = T@M[i]
+            ck = sample(prop['keys'], t); pos = np.array(ck[:3])+(np.array(hk[:3])-np.array(ck[:3]))*share
+            R = _slerp_matrix(euler(ck[3:6]), euler(hk[3:6]), share)
+            A = M[tip]@np.r_[np.c_[np.eye(3), np.array(bones[tip]['pivot'], float)], [[0, 0, 0, 1]]]
+            S = A@np.r_[np.c_[R, pos], [[0, 0, 0, 1]]]; G = S[:3, 3]; u = -S[:3, 1]; u /= np.linalg.norm(u)
+            side = np.cross(u, [0., 1., 0.]); side = side/np.linalg.norm(side) if np.linalg.norm(side) > 1e-6 else np.array([1., 0., 0.]); up = np.cross(side, u)
+            P = posed(M, skinned_all(V, Wt))
+            ends = [(G+u*along[0]+o, G+u*along[1]+o) for o in (np.zeros(3), side*r, -side*r, up*r, -up*r)]
+            through_body += any(_crossings(a, b, tri(P, body_v)) for a, b in ends)
+            through_hat += any(_crossings(a, b, tri(P, hat_v)) for a, b in ends)
+            pts = G+np.outer(np.linspace(along[0], along[1], 25), u); lowest = min(lowest, float(pts[:, 1].min()))
+            own = (np.linalg.inv(M[root])@np.c_[pts, np.ones(len(pts))].T).T[:, :3]  # in her body's frame, as she bows
+            before_face += bool(((np.abs(own[:, 0]) < face[0]) & (own[:, 1] > 0) & (own[:, 1] < face[1]) & (own[:, 2] < face[2])).any())
+        print(f'  {action} from the {hold_name} hold: the stick passes through her body in {through_body}, the hat in {through_hat}'
+              f' and crosses before her face in {before_face} of {round(d*20)+1} ticks; lowest point {lowest:.2f}', flush=True)
+        if through_body or through_hat or before_face:
+            raise ValueError(f'{model["id"]} {action}: the held stick goes through her body or hat, or across her face, from the {hold_name} hold')
+
+
+def _ancestry(bones, i):
+    while i >= 0: yield i; i = bones[i]['parent']
+
+
+def skinned_all(V, W):
+    return np.c_[V, np.ones(len(V))], W[:, 0].astype(int), W[:, 1].astype(int), W[:, 2:3]
+
+
 def hull_gate(model, action, samples, tracks, sticks, c, profiles=None):
     """Fail the clip if the skinned braid (braid_lock_*) or the twig axis (less `twig_radius`) enters any hull form with
     the captain on its seat facing its bow within `captain_yaw` degrees (Paddle.FACING; every `captain_yaw_step`); boat_paddle's blade must also be under every

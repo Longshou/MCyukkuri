@@ -35,7 +35,7 @@ TILT_FIX_CLIPS=('eat','drink','first_toilet_assist','newborn_crawl','nest_harves
 # Body pitch -8..+6, roll <= 6 (hard cap 12): effort is squash, stretch, shift, yaw and the face, never a whole-body flip.
 NEW_BRAID_CLIPS=('hat_brim_offer','hat_hop_up','water_bob_lunge','hat_slide_over','water_mouth_grip','water_hat_shake','water_hat_push','boat_nudge_young')
 # The composed resource names its newest family; aquatic_tools' paddle braid is the current one (author.py and the full exporter share it).
-AQUATIC_REVISION='braid-use-20261105-v36'
+AQUATIC_REVISION='stick-stow-20261105-v37'
 _BRAID_RESCUE=None
 # Paddle stick, braid cradle, mouth bite, capsize and self-rescue clips (aquatic_tools.py), exported by --export-aquatic.
 TOOLS=runpy.run_path(str(Path(__file__).resolve().parent/'aquatic_tools.py'))
@@ -811,6 +811,9 @@ def compile_clips(model, cfg, root, ground, height):
             out[name] = {'duration': c['duration'], 'loop': c['loop'], 'tracks': tracks,
                          'expression_spans': faces(cfg, c, ident), 'expression_yield': cfg['expression_yield'],
                          **({'markers': dict(c['markers'])} if 'markers' in c else {})}
+            if 'stick' in c['hat'] and 'hand_right_tip' in {b['name'] for b in model['bones']}:  # the held stack stays in the tuft on the brim
+                n = math.ceil(c['duration']/cfg['sample_seconds'])
+                out[name]['props'] = {'item': TOOLS['stow_tracks'](model, [c['duration']*i/n for i in range(n+1)], tracks, c)}
             continue
         carry_pose=name in ('boat_carry_young','boat_be_carried','boat_prepare_carry','boat_release_carry')
         # Contact preparation uses exact server-tick samples; extra keys also bound sub-tick floor drift.
@@ -834,6 +837,11 @@ def compile_clips(model, cfg, root, ground, height):
         if 'hat_transfer' in c:out[name]['hat_transfer']=c['hat_transfer']
     for name in cfg.get('braid_use', {}).get('clips', ()):
         if name in out: out[name]['braid_use'] = True  # its own braid grips, carries or strokes (recipe braid_use)
+    holds = {where: out[clip] for where, clip in (('ashore', 'braid_item_hold'), ('aboard', 'boat_paddle')) if clip in out}
+    for name, clip in out.items():
+        if 'hat' in cfg['clips'][name] and 'props' in clip:  # the hat clips that keep the held stick (hat.stick), from either hold
+            if len(holds) == 2: TOOLS['stow_gate'](model, name, clip['tracks'], clip['props']['item'], holds, variant(cfg['clips'][name], ident))
+            else: print(f'  {name}: stick gate skipped (the hold clips are not in this export)', flush=True)
     return out
 
 
