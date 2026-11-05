@@ -95,6 +95,8 @@ def unpack_resources(commit, hashes, mod):
                 target.parent.mkdir(parents=True, exist_ok=True)
                 target.write_bytes(data)
                 missing.remove(entry.name)
+        # tarfile stops at the end-of-archive marker; drain git's trailing record padding so it can exit.
+        process.stdout.read()
         if process.wait() != 0:
             raise ValueError('Could not read the matching resource tree from git.')
     finally:
