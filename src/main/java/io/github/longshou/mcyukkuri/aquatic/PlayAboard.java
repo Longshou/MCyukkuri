@@ -9,7 +9,6 @@ import io.github.longshou.mcyukkuri.intent.Intent;
 import io.github.longshou.mcyukkuri.intent.IntentRunner;
 import io.github.longshou.mcyukkuri.intent.Method;
 import io.github.longshou.mcyukkuri.intent.Step;
-import io.github.longshou.mcyukkuri.motor.BodyAbility;
 import io.github.longshou.mcyukkuri.motor.ClipMarkers;
 import io.github.longshou.mcyukkuri.motor.ContactGeometry;
 import io.github.longshou.mcyukkuri.motor.Motor;
@@ -76,11 +75,13 @@ final class PlayAboard implements Intent {
         return hat.insideFloor(hat.riders().local(body.getUUID())) ? "cabin" : "brim";
     }
 
-    /** A young the player can watch play: on the brim, on the head, or in the hollow with its own hop out. */
+    /** A young the player can watch play: on the brim, on the head, or in the hollow where the riders leave it a cabin place of its
+     *  own and a brim place its own hop out reaches (the same admissions a taken seat and the hop read). */
     static boolean canPlay(YukkuriEntity body, PlacedHatEntity hat) {
         var place = place(body, hat);
-        return body.childhood().canExercise()
-                && ("brim".equals(place) || "head".equals(place) || "cabin".equals(place) && BodyAbility.of(body).canJump());
+        if (!body.childhood().canExercise()) return false;
+        if ("cabin".equals(place)) return !hat.places(body, SeatTarget.Kind.CABIN, 1).isEmpty() && hopOut(body, hat) != null;
+        return "brim".equals(place) || "head".equals(place);
     }
 
     static boolean onBrim(YukkuriEntity body, PlacedHatEntity hat) { return "brim".equals(place(body, hat)); }
@@ -90,7 +91,7 @@ final class PlayAboard implements Intent {
         if (place == null) return null;
         if (scared) return List.of(this::inside, this::perform, this::finish);
         if ("cabin".equals(place)) {
-            outHop = hopOut();
+            outHop = hopOut(body, hat);
             if (outHop == null) {
                 GameplayLog.limited(body, "aquatic", "play_hop:none", 100, "play refused hat={} reason=no_brim_place_in_hop_reach", hat.getUUID());
                 return null;
@@ -99,8 +100,8 @@ final class PlayAboard implements Intent {
         return List.of(this::out, this::perform, this::quiet, this::inside, this::finish);
     }
 
-    /** The brim place nearest this young that its own hop out of the hollow reaches. */
-    private Hop hopOut() {
+    /** The brim place nearest this young that its own hop out of the hollow reaches (turn included). */
+    private static Hop hopOut(YukkuriEntity body, PlacedHatEntity hat) {
         var here = hat.riders().local(body.getUUID());
         return hat.places(body, SeatTarget.Kind.BRIM, Integer.MAX_VALUE).stream()
                 .sorted(Comparator.comparingDouble(place -> place.local().distanceToSqr(here)))
