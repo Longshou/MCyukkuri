@@ -5,6 +5,8 @@ import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.entity.YukkuriVariant;
 import io.github.longshou.mcyukkuri.headwear.HatGeometry;
 import io.github.longshou.mcyukkuri.headwear.HatProp;
+import io.github.longshou.mcyukkuri.headwear.HatScale;
+import io.github.longshou.mcyukkuri.headwear.HullBounds;
 import io.github.longshou.mcyukkuri.headwear.PlacedHatEntity;
 import io.github.longshou.mcyukkuri.intent.Beat;
 import io.github.longshou.mcyukkuri.intent.Choreography;
@@ -479,15 +481,30 @@ final class LiveBirth extends Choreography {
         var m=o.entity();var c=catcher();var b=brood();
         if(c==null||b==null)return null;
         var role=self()?HatGeometry.Role.SELF:HatGeometry.Role.HELPER;var prop=new HatProp(c,self());
-        float yaw=m.yBodyRot;var pose=HatGeometry.catchPose(m,b,c,role,m.position(),yaw);
-        if(self())for(float turn:TURNS){
-            // On her own she sets the hat where her clip puts it, in front of her: at a water's edge she turns to ground that bears it.
-            var trial=HatGeometry.catchPose(m,b,c,role,m.position(),m.yBodyRot+turn);
-            if(prop.fits(trial.at(),trial.yaw()).ok()){yaw=m.yBodyRot+turn;pose=trial;break;}
+        var from=m.position();var pose=HatGeometry.catchPose(m,b,c,role,from,m.yBodyRot);
+        if(self()&&!dryRoom(c,pose.at())){
+            // On her own she sets the hat in front of where she stands: at a water's edge she first walks to the nearest ground
+            // whose hat spot has dry floor all round it, so the hat does not take the water.
+            search:for(int radius=1;radius<=4;radius++)for(int side=0;side<8;side++){
+                double angle=side*Math.PI/4;
+                var at=SurfaceApproach.floor(m,m.position().add(Math.cos(angle)*radius,0,Math.sin(angle)*radius));
+                if(at==null)continue;
+                var trial=HatGeometry.catchPose(m,b,c,role,at,m.yBodyRot);
+                if(dryRoom(c,trial.at())&&m.level().noCollision(m,m.getBoundingBox().move(at.subtract(m.position())))){from=at;pose=trial;break search;}
+            }
         }
-        var placed=pose;var stand=HatGeometry.stand(pose,c);float facing=self()?yaw==m.yBodyRot?Float.NaN:yaw:stand.yaw();
-        return new GoTo("place_hat",c,self()?c.position():stand.at(),now()+Math.max(40,window())).around(self()?null:m)
-                .facing(facing).until(prop::deployed).then(()->new PlaceProp(prop,placed.at(),placed.yaw()));
+        var placed=pose;var stand=HatGeometry.stand(pose,c);
+        return new GoTo("place_hat",c,self()?from:stand.at(),now()+Math.max(40,window())).around(self()?null:m)
+                .facing(self()?Float.NaN:stand.yaw()).until(prop::deployed).then(()->new PlaceProp(prop,placed.at(),placed.yaw()));
+    }
+    /** The ground round a hat spot is dry and bears it: no water under any part of the brim. */
+    private static boolean dryRoom(YukkuriEntity c,Vec3 at){
+        var level=c.level();int r=(int)Math.ceil(HullBounds.RADIUS*HatScale.of(c)/HullBounds.SCALE);
+        for(int dx=-r;dx<=r;dx++)for(int dz=-r;dz<=r;dz++){
+            var cell=BlockPos.containing(at.x+dx,at.y,at.z+dz);
+            if(!level.getFluidState(cell).isEmpty()||!level.getBlockState(cell.below()).isFaceSturdy(level,cell.below(),Direction.UP))return false;
+        }
+        return true;
     }
     /** The catcher while the young come and after: with the hat (Attend), or (no hat) beside the outlet to cheer. */
     private Intent attend(){
