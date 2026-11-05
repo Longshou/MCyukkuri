@@ -94,6 +94,11 @@ public final class BodyDriver {
         stop(why == null ? "cancelled" : why);
     }
 
+    /** An active owner other than {@code ownerId} holds the body with its action: {@link #run} would refuse an action of {@code ownerId}. */
+    public boolean heldByOther(String ownerId) {
+        return current != null && owner != null && !ownerId.equals(owner.ownerId()) && owner.active();
+    }
+
     /** The latest {@link #run} was refused only because the current action is in an uninterruptible stretch: try again after it. */
     public boolean refusedBusy() { return refusedBusy; }
 

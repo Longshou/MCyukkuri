@@ -76,6 +76,9 @@ public final class Drive {
             r.tick();
             if (r.result() != IntentRunner.Result.RUNNING) ended(r);
         }
+        // Another owner's action holds the body (a newborn's greeting turn): an intent started now could not start its first action, so
+        // none starts and none fails on it; the drive starts once the body is free.
+        if (runner == null && body.motor().heldByOther(ownerId())) return;
         var list = rank();
         if (runner == null) { if (!list.isEmpty()) start(list.get(0), list); decided = rankedAt; return; }
         // one switching decision per evaluation, so the sustain counts evaluations
@@ -138,7 +141,7 @@ public final class Drive {
         Desire d = chosen.desire();
         Intent intent = d.intent().get();
         if (intent == null) return;
-        var next = new IntentRunner(body, intent, "drive:" + domain).target(target);
+        var next = new IntentRunner(body, intent, ownerId()).target(target);
         next.start(String.format(Locale.ROOT, "source=drive:%s top=%s why=%s fp=%s", domain, describe(list), d.why().get(), DriveWeights.fingerprint()));
         runner = next;
         current = d;
@@ -207,4 +210,7 @@ public final class Drive {
     }
 
     private long now() { return body.level().getGameTime(); }
+
+    /** The motor owner id this drive's runners act under. */
+    private String ownerId() { return "drive:" + domain; }
 }
