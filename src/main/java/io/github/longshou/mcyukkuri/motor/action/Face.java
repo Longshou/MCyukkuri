@@ -48,6 +48,16 @@ public final class Face implements Action {
         startTick = body.level().getGameTime();
     }
 
+    /** Whether the turn to this yaw is admitted where the body stands (what {@link #tick} steps through, nothing
+     *  written): on a host, the riders leave it room at the end of the turn, or the controlling captain's paddle can swing the hull. */
+    public static boolean admitted(YukkuriEntity body, float yaw) {
+        double left = Mth.wrapDegrees(yaw - body.yBodyRot);
+        if (Math.abs(left) <= FACE_ARRIVED || BodyAbility.of(body).turnRate() <= 0 || !(Attach.of(body) instanceof AttachState.OnHost on)) return true;
+        var host = on.host();
+        return Floor.canTurn(host, body, (float) left)
+                || host.entity().getControllingPassenger() == body && Paddle.toolCheck(body, host).ok();
+    }
+
     @Override public MotionPose pose() {
         return hullStroke != null ? new MotionPose(hullStroke, startTick, true) : MotionPose.NONE;
     }

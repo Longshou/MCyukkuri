@@ -173,12 +173,15 @@ public final class Floor {
         return true;
     }
 
-    /** Try the requested turn, then two smaller turns; write only after every pushed body has a clear destination. */
-    public static float turn(SurfaceHost host, YukkuriEntity body, float stepDeg) {
+    /** The turn that fits: its step, where the turner stands after it, and where every rider (the turner included) ends up. */
+    private record Turn(float step, Vec at, List<FloorSearch.Placed> proposed) {}
+
+    /** Try the requested turn, then smaller ones (up to {@code attempts}), without writing: the first that gives every pushed body a clear destination. */
+    private static Turn plan(SurfaceHost host, YukkuriEntity body, float stepDeg, int attempts) {
         var riders = host.entity().getPassengers().stream().map(p -> (YukkuriEntity) p).toList();
         int mover = riders.indexOf(body);
         var spot = host.riders().spot(body.getUUID());
-        for (int attempt = 0; attempt < 3; attempt++, stepDeg /= 2) {
+        for (int attempt = 0; attempt < attempts; attempt++, stepDeg /= 2) {
             var proposed = new ArrayList<FloorSearch.Placed>(others(host, null));
             var turned = shape(host, body, spot.yaw() + stepDeg);
             var height = host.turnSupport(spot.local(), body, spot.yaw() + stepDeg);
@@ -199,20 +202,33 @@ public final class Floor {
                 if (destinations.isEmpty() || !Motor.clearSpot(host, riders.get(i), point(destinations.getFirst()))) { fits = false; break; }
                 proposed.set(i, new FloorSearch.Placed(other.body(), destinations.getFirst()));
             }
-            if (!fits || !Motor.clearSpot(host, body, point(at))) continue;
-            for (int i = 0; i < riders.size(); i++) if (i != mover) {
-                var rider = riders.get(i); var before = host.riders().spot(rider.getUUID());
-                var after = point(proposed.get(i).at());
-                if (after.equals(before.local())) continue;
-                Motor.spot(host, rider, after, before.yaw(), "turn_push");
-                String band = after.y * host.frame().unit() > host.container().floorY() + Occupancy.MARGIN ? "raised" : "floor";
-                GameplayLog.limited(host.entity(), "hat", "turn_push." + rider.getUUID() + "." + band, 100,
-                        "turn push rider={} by={} from={} to={}", rider.getUUID(), body.getUUID(), before.local(), after);
-            }
-            Motor.spot(host, body, point(at), spot.yaw() + stepDeg, "turn");
-            return stepDeg;
+            if (fits && Motor.clearSpot(host, body, point(at))) return new Turn(stepDeg, at, proposed);
         }
-        return 0;
+        return null;
+    }
+
+    /** Whether the whole turn by {@code deg} finds room at its end (riders pushed aside if they can be), with nothing written. */
+    public static boolean canTurn(SurfaceHost host, YukkuriEntity body, float deg) { return plan(host, body, deg, 1) != null; }
+
+    /** Turn by the requested step, or the largest of two smaller ones that fits; writes only once every pushed body has a clear
+     *  destination. Returns the turn made (0 when none fits). */
+    public static float turn(SurfaceHost host, YukkuriEntity body, float stepDeg) {
+        var turn = plan(host, body, stepDeg, 3);
+        if (turn == null) return 0;
+        var riders = host.entity().getPassengers().stream().map(p -> (YukkuriEntity) p).toList();
+        int mover = riders.indexOf(body);
+        var spot = host.riders().spot(body.getUUID());
+        for (int i = 0; i < riders.size(); i++) if (i != mover) {
+            var rider = riders.get(i); var before = host.riders().spot(rider.getUUID());
+            var after = point(turn.proposed().get(i).at());
+            if (after.equals(before.local())) continue;
+            Motor.spot(host, rider, after, before.yaw(), "turn_push");
+            String band = after.y * host.frame().unit() > host.container().floorY() + Occupancy.MARGIN ? "raised" : "floor";
+            GameplayLog.limited(host.entity(), "hat", "turn_push." + rider.getUUID() + "." + band, 100,
+                    "turn push rider={} by={} from={} to={}", rider.getUUID(), body.getUUID(), before.local(), after);
+        }
+        Motor.spot(host, body, point(turn.at()), spot.yaw() + turn.step(), "turn");
+        return turn.step();
     }
 
     /** Read-only support sweep for a planned turn, with the same step sizes and rise limit as the executed turn. */

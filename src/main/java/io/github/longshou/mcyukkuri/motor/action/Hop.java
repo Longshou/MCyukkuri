@@ -297,6 +297,8 @@ public final class Hop implements Action {
         }
         if (anchor != null) {
             float yaw = heading(body, anchor, origin.scale(1 / anchor.frame().unit()), candidate.local(), body.yBodyRot);
+            // The turn to face the leg is the first thing the hop does: refuse here what the shared turn would refuse there.
+            if (!Face.admitted(body, yaw)) return new Flight(Feasibility.of(Reason.NO_ROOM, 0, "turn:riders"), null, null);
             if (delay > 0) {
                 var height = Floor.turnHeight(anchor, body, origin.scale(1 / anchor.frame().unit()),
                         body.yBodyRot - anchor.entity().getYRot(), yaw - anchor.entity().getYRot());
