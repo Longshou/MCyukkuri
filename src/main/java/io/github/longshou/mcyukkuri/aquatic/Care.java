@@ -60,13 +60,12 @@ final class Care implements Intent {
     /** {@code settled} runs when the comfort ends, so it is not offered again at once while it is still going on. */
     static Care comfort(YukkuriEntity parent, YukkuriEntity child, Runnable settled) { return new Care(parent, child, false, settled); }
 
-    /** A frightened brim rider needs her braid only when the cabin is full and her head has real room; so does one that cannot play there. */
+    /** A frightened brim rider needs her braid only when the cabin is full and her head has real room. */
     static boolean needsShelter(YukkuriEntity child, PlacedHatEntity hat) {
-        if (child.family().stage() != FamilyLife.Stage.BABY || !PlayAboard.onBrim(child, hat)) return false;
-        boolean cabin = !hat.places(child, SeatTarget.Kind.CABIN, 1).isEmpty();
-        // One that cannot play on the brim and has no cabin move of its own (cannot walk or hop in) is lifted into the free cabin place.
-        if (!child.childhood().canExercise()) return cabin && TakeSeat.offer(child, hat) == null;
-        return !PlayAboard.fear(child, hat).equals("none") && !cabin && !hat.places(child, SeatTarget.Kind.HEAD, 1).isEmpty();
+        return child.family().stage() == FamilyLife.Stage.BABY && PlayAboard.onBrim(child, hat)
+                && !PlayAboard.fear(child, hat).equals("none")
+                && hat.places(child, SeatTarget.Kind.CABIN, 1).isEmpty()
+                && !hat.places(child, SeatTarget.Kind.HEAD, 1).isEmpty();
     }
 
     /** Ordinary parental placement: lift a brim child to shelter, or lower a head rider onto supported ground. */
@@ -87,9 +86,7 @@ final class Care implements Intent {
         @Override public String id() { return hat == null ? "set_down_young" : "shelter_young"; }
         @Override public long deadline() { return started + COMFORT; }
         @Override public Commitment commitment() { return Commitment.HARD; }
-        /** Set down somewhere better than the brim it was lifted from; a lift that puts it back there fails and is not offered again
-         *  until the boat's cell changes. */
-        @Override public boolean satisfied() { return release.released() && (hat == null || child.getVehicle() == hat && !PlayAboard.onBrim(child, hat)); }
+        @Override public boolean satisfied() { return release.released(); }
         @Override public List<Method> methods() { return List.of(Plan.of(id(), this::derive)); }
         private List<Supplier<Step>> derive() {
             if (hat != null && child.getVehicle() != parent) return BraidFetch.lift(parent, child, hat);
