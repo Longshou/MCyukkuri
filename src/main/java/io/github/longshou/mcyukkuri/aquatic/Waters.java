@@ -256,6 +256,9 @@ final class Waters {
     /** Under this speed (blocks per tick) a hull lies still enough for a hat to be set beside it and a hop to plan from it. */
     private static final double MOORED = .005;
 
+    /** The hull lies still: a young leaves it for the bank only then, not while it still glides into the bank under the hop. */
+    static boolean moored(PlacedHatEntity hat) { return hat.getDeltaMovement().horizontalDistanceSqr() <= MOORED * MOORED; }
+
     /**
      * Where {@code body}, standing on the hull {@code ride}, can set its own hat down on calm water beside the hull and hop onto it,
      * or null: a brim place it stands on or hops to whose rim fronts water that carries a hat of its size with no other hull over
@@ -267,7 +270,7 @@ final class Waters {
 
     private static Launch findLaunch(YukkuriEntity body, PlacedHatEntity ride) {
         var water = cell(ride);
-        if (water == null || body.getVehicle() != ride || ride.getDeltaMovement().horizontalDistanceSqr() > MOORED * MOORED) return null;
+        if (water == null || body.getVehicle() != ride || !moored(ride)) return null;
         var level = body.level();
         float scale = HatScale.of(body);
         var form = HatGeometry.wornForm(body);
