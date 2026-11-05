@@ -11,7 +11,6 @@
 | wp-ah-young-aboard：幼体在帽中的行为 | `.worktrees/wp-ah-young-aboard` | `aquatic/TakeSeat.java`、`Care.java`、`PlayAboard.java` |
 | 辫子占用单一权威、木棍不凭空消失、放幼不往身后弯（11-06 反馈 2、3、6） | `.worktrees/wp-z-braid-state` | `family/ParentCarry`、`motor/` 抓取放下与辫子持物、`client/` 持物显示、辫子动作片段 |
 | 水上个体的生物取舍：脚下不稳不决定救援、岸上亲油辫子够得到直接捞、普通亲油预警时先卸载、累了上岸、伴侣岸上分娩随行、饿了只在够得到自己的食物时上岸（11-06 审计 P1） | `.worktrees/wp-ag-afloat-priorities` | `aquatic/AquaticGoal`、`aquatic/Rescue`、`drive/aquatic.json`、`settlement/ForageGoal`、载重预警反应、`hat_crowd`／`rescue_child`／`shake_capsize` 场景 |
-| 岸边生产跟随母父新生儿的取舍：帽子回到身边才接生、父油上岸后接任接生、首餐优先于闲逛（11-06 审计 P3） | `.worktrees/wp-ai-shore-birth` | `family/FamilyLife`、`family/LiveBirth`、`family/FamilyFeeding`、`family/CareApproach`、`social/DailyLife`、`event/WildCards` |
 | 帽船靠岸留间距、满载救起场景的帽檐子油自己上岸（11-06 反馈 2a） | `.worktrees/wp-ae-dock-standoff` | `aquatic/Ashore`、`aquatic/Waters` 靠岸、`scripts/museum_scenarios.py` `rescue_no_seat` |
 
 ## 玩法待办
@@ -19,6 +18,7 @@
 ### 复测失败/待修复
 
 - **`birth_boat_missed` 新生儿首餐／首便偶发不完成**：部分接入（按钮“临产划回岸边，放下孩子再生产”；主线 c80ff8d41 与本机分支，非验收）：本机约 20 场中三成失败，失败场上新生儿在岸边反复落水再爬出（`damage cause=drown`，仍存活）或在窗口内没有 `first meal swallowed`／`first toilet completed`；与登船载重无关。完成：该场连续 20 次无此失败，新生儿在岸上完成首餐与首便。
+  岸产帽子与首餐（11-06 审计 P3，本机冒烟非验收）：已接入待试玩。临产母油在回岸途中帽子仍漂着时不再被产程抢走身体，等帽子回头上后在水边先走到脚下平整的干地再摘帽，圆帽放在地上改为立在帽底上（此前陷进地里，进帽的新生儿 `inWall` 死亡）；未养过的新生儿首餐按急迫处理，期间不凑闲聊／野生事件，首餐不再因精力不足被拒。仍未通过：同场约半数母油上岸时孩子还在帽上，`come_ashore` 在 `boat_call` 等 300 tick 后 `NO_PROGRESS`、帽子没取回，此时仍无帽落地受伤（属水上亲代回岸与幼体离帽，见上表对应工作树）。
 - **内部判定放宽（`aq-audit-loosen`，本机冒烟非验收）**：按用户 2026-11-04“判定对演出影响不大就放宽”的原则放宽三处，画面与后果不变。
   - 跳跃水平预算加 0.05 宽限（`ArcSolver.REACH_SLACK`）：`rescue_no_seat` 托幼跳岸被 `TOO_FAR shortfall=0.03–0.04`、`birth_boat_missed` 亲油上岸被 `shortfall=0.00` 拒掉，落点仍是准入的采样点。
   - `hat_push` 只要求轻推把船推开至少 0.1 格且不回弹、全程只有猛撞翻覆一次；帽船这一趟是否真碰到岸、滑行正好几步都不再作通过条件（一次第 12 tick 正好停住、两次根本没漂回，画面无误）。
