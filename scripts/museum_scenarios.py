@@ -3000,8 +3000,10 @@ pond('rescue_no_seat', '满载亲帽救起新生儿送上岸', '满载亲帽救�
                                     rf'[\s\S]*\[action\][^\n]*uuid={_uuid_text("rescue_no_seat", "a")}[^\n]* end id=hop outcome=DONE'
                                     rf'[\s\S]*\[action\][^\n]*uuid={_uuid_text("rescue_no_seat", "a")}[^\n]* end id=release outcome=DONE detail=released'
                                     rf'[\s\S]*rescue end result=DONE outcome=set_down faller={_uuid_text("rescue_no_seat", "c1")}',
-                                    r'\[water\][^\n]* phase=\w+ -> RECOVER'],
-                forbid=[*_WATER_SMOKE_FORBID, r'rescue refused', r'\[body\][^\n]* death settled\b'],
+                                    r'\[water\][^\n]* phase=\w+ -> RECOVER',
+                                    # The brim young hops ashore by itself, before the parent follows with the carried ones.
+                                    rf'end id=follow_ashore result=DONE[\s\S]*\[action\][^\n]*uuid={_uuid_text("rescue_no_seat", "a")}[^\n]* end id=hop outcome=DONE'],
+                forbid=[*_WATER_SMOKE_FORBID, r'rescue refused', r'\[body\][^\n]* death settled\b', r'cause=inWall'],
                 verify=seat_unload_result, readout=_water_readouts('a', 'c1')))
 
 
