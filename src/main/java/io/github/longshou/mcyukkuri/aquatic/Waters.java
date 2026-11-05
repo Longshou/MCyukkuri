@@ -44,6 +44,8 @@ import net.minecraft.world.phys.Vec3;
 final class Waters {
     /** How far (blocks) a route or a landing is looked for around the hat; how many candidates get a route or path asked. */
     static final int RANGE = 24, ASKED = 8;
+    /** Brim stands closer than this (blocks) are one stand for a landing search: the difference is invisible. */
+    private static final double SAME_STAND = 0.1;
     /** What a route step beside the bank costs extra (GridPath's rim weight, in cells): the hull keeps off the shore. */
     private static final double SHORE_COST = 2;
 
@@ -361,13 +363,17 @@ final class Waters {
         var edge = edges(body, hat.position(), 4, false).stream().findFirst().orElse(null);
         if (edge == null) return null;
         Vec3 nearest = null;
-        var search = new Hop.Search();
+        var search = Hop.Search.admission();
+        var refused = new ArrayList<Vec3>();
         for (var local : search.stops(hat, body).stream()
                 .sorted(Comparator.comparingDouble(p -> hat.toWorld(p).distanceToSqr(edge.edge()))).toList()) {
             var from = hat.toWorld(local);
             if (nearest == null) nearest = from;
+            // Stands a few centimetres apart fail alike; once one has no way ashore, its close neighbours are not asked again.
+            if (refused.stream().anyMatch(r -> r.distanceToSqr(from) < SAME_STAND * SAME_STAND)) continue;
             var bank = findAshore(body, from, at -> search.admits(body, hat, local, at));
             if (bank != null) return new Exit(local, bank);
+            refused.add(from);
         }
         GameplayLog.limited(body, "aquatic", "hop.ashore", 200,
                 "hop ashore unavailable hat={} at={} edge={} brim={} stand={} exit_stops=0 width={} ability={}",

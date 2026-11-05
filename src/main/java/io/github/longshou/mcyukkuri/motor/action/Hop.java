@@ -83,6 +83,11 @@ public final class Hop implements Action {
         private final Map<ArcKey, ArcAnswer> arcs = new HashMap<>();
         private final Map<SurfaceHost, List<Vec3>> stops = new HashMap<>();
         private final Map<SurfaceHost, List<Vec>> usable = new HashMap<>();
+        private final boolean report;
+        public Search() { this(true); }
+        private Search(boolean report) { this.report = report; }
+        /** A search that only asks whether a landing is admitted: a refused arc skips the report of the rise it would have needed. */
+        public static Search admission() { return new Search(false); }
         /** The local stands this hull offers to a body of its size. */
         public List<Vec3> stops(SurfaceHost host, YukkuriEntity body) {
             return stops.computeIfAbsent(host, h -> h.hopStops(body));
@@ -321,7 +326,7 @@ public final class Hop implements Action {
             candidate = new SeatTarget(anchor, new Vec3(candidate.local().x, height.getAsDouble(), candidate.local().z));
             destination = candidate.local().scale(anchor.frame().unit());
         }
-        var result = arc(body, vec(origin), anchor, swept, vec(destination), delay, search, true, seatHost == null);
+        var result = arc(body, vec(origin), anchor, swept, vec(destination), delay, search, search.report, seatHost == null);
         if (result instanceof ArcSolver.Plan plan) {
             if (anchor != null && !following) path = List.of(new HopPath.Leg(vec(destination), plan));
             var ready = bank == null || exitClear(body, anchor, delay) ? Feasibility.pass()
