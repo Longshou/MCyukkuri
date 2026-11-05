@@ -370,8 +370,8 @@ final class YukkuriGoals {
                     "stage=" + owner.family().stage() + " landing=" + owner.family().landingOutcome() + " last=" + owner.motor().lastDetail());
             if (!struggles && (runner == null || owner.isInWaterOrBubble() || out())) {
                 halt(out() ? "escape_safe" : "escape_unavailable"); owner.getNavigation().stop();
-                // thrown back into the water mid-run: this plunge is a new fall and gets its own run once its impact is over
-                if (runner != null && runner.result() == IntentRunner.Result.INTERRUPTED) runner = null;
+                // plunged again after a finished run: this fall is new and gets its own run once its impact is over
+                if (runner != null && runner.result() != IntentRunner.Result.RUNNING) runner = null;
                 return;
             }
             if (runner == null) {
