@@ -345,14 +345,16 @@ public final class EscapeWater implements Intent {
         return best;
     }
 
-    /** Every dry stand of the search box, nearest first; scanned once a tick. With none close, the nearest few of a wide box,
-     *  so a body in open water still swims for the nearest bank rather than having no way out. */
+    /** Every dry stand of the search box, nearest first; scanned once a tick. With none close and no parent's hat to wait at, the
+     *  nearest few of a wide box, so a body in open water still swims for the nearest bank rather than having no way out. */
     private List<BlockPos> stands() {
         long now = body.level().getGameTime();
         if (scanned == now) return stands;
         scanned = now;
         var out = scan(OUT);
         if (out.isEmpty()) {
+            // a young with its parent's hat afloat waits at its rim instead (the parent lifts it out)
+            if (parentHat() != null) return stands = out;
             // the wide box is costly: rescanned only every few seconds, and only the nearest few are kept
             if (now - farScanned >= PRESS / 4) {
                 farScanned = now;
