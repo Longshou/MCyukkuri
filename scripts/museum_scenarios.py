@@ -2127,6 +2127,23 @@ def _overload_family_choice(window):
     return None
 
 
+def _escape_needs_place(window):
+    """A climb that ended rest_place_lost while the body held no place on the hull (its last attach is not on_host) is a failed
+    climb: an `escape done support=aboard` right after it is a false success. A body still on the host's spot is settled."""
+    attach = {}
+    for line in window.splitlines():
+        who = re.search(r'\[body\][^\n]* uuid=(\S+) t=\d+ [^\n]* attach [^\n]*current=(\S+)', line)
+        if who:
+            attach[who[1]] = who[2]
+        lost = re.search(r'\[action\][^\n]* uuid=(\S+) t=(\d+) [^\n]* end id=climb outcome=BLOCKED [^\n]*detail=rest_place_lost', line)
+        if lost and not attach.get(lost[1], '').startswith('on_host:'):
+            done = re.search(r'\[water\][^\n]* uuid=' + lost[1] + r' t=(\d+) [^\n]* escape done [^\n]*support=aboard',
+                             window[window.index(line):])
+            if done and int(done[1]) - int(lost[2]) <= 3:
+                return 'escape done support=aboard right after a climb that held no place (rest_place_lost): ' + lost[1]
+    return None
+
+
 def _overload_bank():
     pond_ = BY_ID['pond']
     out = []
@@ -2549,12 +2566,9 @@ pond('hat_crowd', '孩子长大超载翻船，亲油取舍', '孩子长大超载
                         r'\[action\][^\n]* refused id=hop [^\n]*detail=no_spot',
                         r'\[needs\][^\n]* starvation damage accepted=true',
                         r'\[body\][^\n]* death settled[^\n]*cause=(?!.*(?:drown|water))',
-                        # A climb that ended in rest_place_lost is a failed climb: the mount it left behind is no support, and boarding
-                        # a hull the body's own load would swamp is no way out (the escape goes to the nearest dry bank instead).
-                        r'\[action\][^\n]* end id=climb outcome=BLOCKED [^\n]*detail=rest_place_lost[\s\S]*?\[water\][^\n]* escape done [^\n]*support=aboard',
-                        rf'\[body\][^\n]* uuid=(?:{_uuid_text("hat_crowd", "normal")}|{_uuid_text("hat_crowd", "kind")})[^\n]* death settled',
+                        rf'\[body\][^\n]* uuid={_uuid_text("hat_crowd", "normal")}[^\n]* death settled',
                         ],
-                verify=_overload_family_choice,
+                verify=lambda window: _overload_family_choice(window) or _escape_needs_place(window),
                 readout=[f'yukkuri status {sel(who)} raw' for who in ('normal', 'kind', 'normal2', 'normal3', 'kind1', 'kind2', 'kind3')]
                         + ['data get entity @e[tag=seat_reload,limit=1] Riders',
                            'data get entity @e[tag=seat_reload,limit=1] Motion',
