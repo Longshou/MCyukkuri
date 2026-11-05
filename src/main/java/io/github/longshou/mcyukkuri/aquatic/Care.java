@@ -89,7 +89,7 @@ final class Care implements Intent {
         @Override public Commitment commitment() { return Commitment.HARD; }
         /** Set down somewhere better than the brim it was lifted from; a lift that puts it back there fails and is not offered again
          *  until the boat's cell changes. */
-        @Override public boolean satisfied() { return release.released() && (hat == null || !PlayAboard.onBrim(child, hat)); }
+        @Override public boolean satisfied() { return release.released() && (hat == null || child.getVehicle() == hat && !PlayAboard.onBrim(child, hat)); }
         @Override public List<Method> methods() { return List.of(Plan.of(id(), this::derive)); }
         private List<Supplier<Step>> derive() {
             if (hat != null && child.getVehicle() != parent) return BraidFetch.lift(parent, child, hat);
