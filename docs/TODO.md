@@ -8,6 +8,7 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
+| 登陆判定降到约 50 ms（水生母油岸边呆滞） | `.worktrees/wp-v-landing-hitch` | `motor/action/Hop.java` |
 
 ## 玩法待办
 
