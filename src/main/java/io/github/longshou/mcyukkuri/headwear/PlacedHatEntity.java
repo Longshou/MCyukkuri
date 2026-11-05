@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.headwear;
 
+import io.github.longshou.mcyukkuri.family.FamilyLife;
 import io.github.longshou.mcyukkuri.family.ParentCarry;
 
 import io.github.longshou.mcyukkuri.motor.Attach;
@@ -266,7 +267,9 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
         if (kind == SeatTarget.Kind.BRIM) return hopStops(body).stream().map(p -> new SeatTarget(this, p, kind))
                 .filter(p -> p.available(body)).limit(limit).toList();
         if (kind != SeatTarget.Kind.HEAD) return SurfaceHost.super.places(body, kind, limit);
-        if (body.family().adult()) return List.of();
+        // The head is the anti-clipping overflow for a young that cannot get onto the brim by itself, and the largest of those takes it
+        // (user 2026-11-05); one that can hop takes the brim instead, so it is never seated on the head.
+        if (body.family().adult() || body.family().stage() != FamilyLife.Stage.BABY && BodyAbility.of(body).canJump()) return List.of();
         var captain = placeCarrier();
         return captain == null || !bears(body) ? List.of()
                 : ParentCarry.headPlaces(captain, body).stream().limit(limit).map(p -> new SeatTarget(this, p, kind)).toList();

@@ -2237,10 +2237,11 @@ def current_drift(log):
     points = [float(x) for x in re.findall(r'\[hat\][^\n]* travel at=\(([-\d.]+),', log)]
     if len(points) < 2 or max(points[:200]) - points[0] < 3:
         return 'hat must drift at least 3 blocks downstream in 200 ticks'
-    # The largest young rides the captain's head (user 2026-11-05): at grounding it leaves the hat with her, not by itself.
+    # The young that cannot hop onto the brim rides the captain's head (it is its real place): at grounding it leaves the hat with
+    # her, not by itself.
     head = re.search(r'uuid=(\S+)[^\n]* scenario place [^\n]*place=HEAD\b', log)
     if head is None:
-        return 'the young must be seated on the head (largest first)'
+        return 'the young must be seated on the head (it cannot hop there itself)'
     captain = re.search(r'\[hat\][^\n]* left rider=(\S+)[^\n]*', log)
     if captain is None or not re.search(rf'\[body\][^\n]*uuid={captain[1]}[^\n]* dismount [^\n]*cause=grounded'
                                          rf'[^\n]*passengers=\[{head[1]}', log):
@@ -2259,10 +2260,11 @@ pond('hat_current', '帽子顺缓流漂到浅滩搁浅', '帽子顺缓流漂到�
      '浅溪上游一排水源形成同向水流，两侧低草岸可爬上；船主乘帽随水流缓慢漂动，碰到岸边只停住。没有落水、流向冲突或猛撞时不会翻船',
      '约 30 秒',
      [*flow_channel(0), captain(dx=bank_dx(0) - 1, social_wait=100),
-      yk('marisa', bank_dx(1) - 1, 1, 'child', stage='child', aquatic=True, fam=_seat_family(), **pair_ready()),
+      yk('marisa', bank_dx(1) - 1, 1, 'child', stage='child', aquatic=True, fam=_seat_family(), childhood=CHILDHOOD_CRAWLING_READY,
+         **pair_ready()),
       afloat('a', water_at(0, 1), True, sel('child'), food=4, stick=True)],
      vantage=(bank_dx(0) + 11, -3, 40, 18),
-     note='观察船长带着头顶的子油离帽、自己走上干岸（头顶子油随亲体离帽，不自己跳），四份苹果和一根木棍各掉出，帽主接触头饰即戴回；帽船搁浅不算翻覆。倒扣边界与载人翻覆见“落水掀翻帽子与帽子搁浅”。',
+     note='观察船长带着头顶的子油离帽、自己走上干岸（头顶子油不会自己跳，随亲体离帽），四份苹果和一根木棍各掉出，帽主接触头饰即戴回；帽船搁浅不算翻覆。倒扣边界与载人翻覆见“落水掀翻帽子与帽子搁浅”。',
      reads=_HULL_READS + [('读子油', f'yukkuri status {sel("child")} raw')],
      capture=dict(shots=(1, 40, 300, 600, 900), sequences=((60, 200, 2), (220, 1100, 20))),
      smoke=dict(ticks=1100, commands=[(1, 'yukkuri status trace true'), (1099, 'yukkuri status trace false')],
@@ -2828,7 +2830,7 @@ pond('shore_family', '饿了带孩子划回岸边', '饿了带孩子划回岸边
      '亲油和一只小子油在离岸 3 格的帽子上，帽里有木棍、没有粮，亲油已经饿了：她划回岸边；孩子坐在她头顶随她上岸，辫子把它放到干地，亲油随后把空帽子收回戴上',
      '约 1 分钟',
      [yk('marisa', bank_dx(0), 0, 'a', aquatic=True, yaw=-90, lead=True, nutrition=35, energy=100, hygiene=100),
-      yk('marisa', bank_dx(1), 1, 'c1', aquatic=True, fam=_seat_family(), yaw=-90, **pair_ready()),
+      yk('marisa', bank_dx(1), 1, 'c1', aquatic=True, fam=_seat_family(), childhood=CHILDHOOD_CRAWLING_READY, yaw=-90, **pair_ready()),
       afloat('a', water_at(0, 3), True, sel('c1'), stick=True)],
      note='日志 come_ashore → paddle → 亲油 hop（孩子坐在头顶随她一起离帽）→ 上岸后辫子 carry put down reason=release / release DONE 把孩子放到干地 → take_prop。'
           '舱里放不下的最大一只坐头顶（用户 2026-11-05 的排座规则），头顶的孩子由亲油带着走、落地后由辫子放下，不自己跳；观察孩子与亲油都真实离帽，船长最后收帽。' + _DESIRE_NOTE,
@@ -3021,7 +3023,7 @@ pond('birth_boat_missed', '临产划回岸边，放下孩子再生产', '临产�
       *[yk('marisa', bank_dx(dz), dz, name, stage=stage, aquatic=True,
            childhood=readiness, fam=_seat_family(size, nourishment, age), also=('crew',), label=label, **pair_ready())
         for name, dz, stage, size, nourishment, age, readiness, label in (
-            ('k1', 1, 'child', .35, 147000, 144000, CHILDHOOD_HOPPING, '会跳的子油'),
+            ('k1', 1, 'child', .35, 147000, 144000, CHILDHOOD_CRAWLING_READY, '待托放的子油'),
             # its own size's nourishment (105000, not the 0.35 body's 147000): else it grows to 0.35 on the first tick and the
             # two young overload her hull, so the scene shows a random too_heavy capsize instead of the shore return.
             ('k2', -1, 'child', .25, 105000, 144000, CHILDHOOD_HOPPING, '会跳的小子油'))],

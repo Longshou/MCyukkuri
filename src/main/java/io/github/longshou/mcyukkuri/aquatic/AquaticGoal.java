@@ -446,8 +446,9 @@ final class AquaticGoal extends Goal {
 
     /**
      * A young able to handle its own hat that has not yet (solid food, hopping, learning), wearing it with a stick for it (tucked in
-     * it, or loose near), not tired, its parent aboard her own hat afloat on a calm day, and it on the bank or aboard her hat by one
-     * or with calm water beside her hull to set its hat down on from her brim: its readiness grows with size relative to the
+     * it, or loose near), not tired, its parent aboard her own hat afloat on a calm day, and it on the bank or standing on her hat by one
+     * or with calm water beside her hull to set its hat down on from her brim (a young her braid carries on her head has no way off by
+     * itself, so it does not try): its readiness grows with size relative to the
      * shared young-seat limit, shifted earlier by boldness. Kept while it runs.
      */
     private void voyage(List<Desire> out, YukkuriEntity parent, PlacedHatEntity hat) {
@@ -457,7 +458,7 @@ final class AquaticGoal extends Goal {
         if (!running && (child.canSail() || body.level().getGameTime() < voyageAfter || !child.canEatSolid() || !child.canLearn() || !AquaticLife.jumper(body)
                 || !HatProp.usable(body) || !life.custody().worn()
                 || life.energy() < num("voyage_energy", 30) || AquaticLife.dusk(body.level()) || AquaticLife.rain(body) || !AquaticLife.aboard(parent, hat)
-                || !(AquaticLife.ashore(body) || AquaticLife.aboard(body, hat)
+                || !(AquaticLife.ashore(body) || body.getVehicle() == hat
                         && (!Waters.edges(body, body.position(), 2, false).isEmpty() || Waters.brimLaunch(body, hat) != null))
                 || !AquaticLife.stick(body) && Waters.stick(body, 10, true) == null)) return;
         double size = body.growthScale() * body.getScale();
