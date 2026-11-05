@@ -1,11 +1,25 @@
 package io.github.longshou.mcyukkuri.motor.geom;
 
 import io.github.longshou.mcyukkuri.headwear.HullProfile;
+import java.util.function.BiFunction;
 import java.util.function.ToDoubleFunction;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 class BirthFlightTest {
+    /** The first real cloth contact under the moving host, as the shared sweep finds it. */
+    private static FlightContact.Hit contact(Vec start,BirthFlight.Drop plan,double unit,ToDoubleFunction<Vec> surface){
+        return contact(start,plan,unit,(tick,p)->p,surface);
+    }
+    private static FlightContact.Hit contact(Vec start,BirthFlight.Drop plan,double unit,BiFunction<Integer,Vec,Vec> local,ToDoubleFunction<Vec> surface){
+        var path=Ballistic.samples(plan.velocity(),plan.ticks()+1);
+        for(int tick=1;tick<path.size();tick++){
+            var hit=FlightContact.first(local.apply(tick-1,start.add(path.get(tick-1))),local.apply(tick,start.add(path.get(tick))),
+                    FlightContact.STEP/unit,0,surface);
+            if(hit!=null)return hit;
+        }
+        return null;
+    }
     @Test void zeroLiftInterceptUsesTheDiscreteFallRatherThanContinuousGravity(){
         var start=new Vec(0,.2367684949769,0);
         var target=new Vec(.12976854994735,0,-.0133892792852);
@@ -14,14 +28,14 @@ class BirthFlightTest {
         assertEquals(4,plan.ticks());
         assertEquals(0,plan.velocity().y());
         assertTrue(plan.velocity().hlen()<.05);
-        var contact=BirthFlight.contact(start,plan.velocity(),plan.ticks()+1,(tick,p)->p,1,p->0);
-        assertNotNull(contact);
-        assertFalse(contact.wall());
-        assertEquals(target.x(),contact.point().x(),1e-9);
-        assertEquals(target.z(),contact.point().z(),1e-9);
+        var landed=contact(start,plan,1,p->0);
+        assertNotNull(landed);
+        assertFalse(landed.wall());
+        assertEquals(target.x(),landed.point().x(),1e-9);
+        assertEquals(target.z(),landed.point().z(),1e-9);
         // The old two-tick impulse crosses the floor beyond the intended newborn's half-width.
         var old=new Vec(Ballistic.speedFor(target.x(),2),0,Ballistic.speedFor(target.z(),2));
-        var missed=BirthFlight.contact(start,old,5,(tick,p)->p,1,p->0);
+        var missed=contact(start,new BirthFlight.Drop(target,old,4),1,p->0);
         assertTrue(missed.point().x()-target.x()>.05);
     }
     @Test void wholeNewbornLandsInsideTheHollowAcrossDriftDirectionsAndBirthSizes(){
@@ -37,14 +51,13 @@ class BirthFlightTest {
                 var drift=new Vec(driftX,0,driftZ);
                 var plan=BirthFlight.drop(start,tick->floor.scale(unit).add(drift.scale(tick)));
                 assertNotNull(plan);
-                var contact=BirthFlight.contact(start,plan.velocity(),plan.ticks()+1,
-                        (tick,p)->p.sub(drift.scale(tick)).scale(1/unit),unit,
-                        p->hull.support(p.x(),p.z(),body));
-                assertNotNull(contact,"size="+size+" drift="+drift);
-                assertFalse(contact.wall());
+                var landed=contact(start,plan,unit,
+                        (tick,p)->p.sub(drift.scale(tick)).scale(1/unit),p->hull.support(p.x(),p.z(),body));
+                assertNotNull(landed,"size="+size+" drift="+drift);
+                assertFalse(landed.wall());
                 double half=.8*size/2/unit;
                 for(int x:new int[]{-1,1})for(int z:new int[]{-1,1})
-                    assertTrue(hull.inOpening(contact.point().x()+x*half,contact.point().z()+z*half));
+                    assertTrue(hull.inOpening(landed.point().x()+x*half,landed.point().z()+z*half));
             }
     }
     @Test void forwardAimCannotBeBehindOrBesideTheOutlet(){

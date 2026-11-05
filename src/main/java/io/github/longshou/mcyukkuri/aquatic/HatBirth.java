@@ -87,10 +87,8 @@ record HatBirth(PlacedHatEntity hat, YukkuriEntity mother) implements BirthCabin
         return reason.equals("fit");
     }
     @Override public boolean clear(FamilyData.Brood brood, int index) {
-        return clear(brood, index, spot(brood, index));
-    }
-    private boolean clear(FamilyData.Brood brood, int index, Vec at) {
         var child = brood.children.get(index);
+        var at = spot(brood, index);
         var others = new ArrayList<>(Floor.others(hat, mother));
         others.add(maternal(LiveBirthGeometry.belly(1, index + 1, brood.children.size())));
         var hats = new ArrayList<>(hat.getPassengers().stream().filter(p->p!=mother).map(p->headwear((YukkuriEntity)p)).toList());
@@ -108,6 +106,8 @@ record HatBirth(PlacedHatEntity hat, YukkuriEntity mother) implements BirthCabin
         var at = hat.riders().local(mother.getUUID());
         return hat.frame().toWorld(at.add(LiveBirthGeometry.cabinExit(mother, index).scale(mother.getScale() / hat.unit())));
     }
+    /** The ordinary impulse from her outlet into the hollow. It is never withheld: a newborn may miss the cloth and land in the water, exactly
+     *  like an uncaught land birth (the landing records {@code outcome=WATER}), and the shared rescue takes it from there. */
     @Override public BirthLaunch.Nominal launch(FamilyData.Brood brood, int index) {
         var start = exit(index);
         var local = spot(brood, index);
@@ -118,22 +118,9 @@ record HatBirth(PlacedHatEntity hat, YukkuriEntity mother) implements BirthCabin
         var floor = new Vec3(local.x(), hat.profile().support(local.x(), local.z(), body), local.z());
         var plan = BirthFlight.drop(Floor.vec(start), tick -> Floor.vec(hat.frameAfter(tick).toWorld(floor)));
         if (plan == null) return null;
-        var contact = BirthFlight.contact(Floor.vec(start), plan.velocity(), plan.ticks() + 1,
-                (tick, point) -> Floor.vec(hat.frameAfter(tick).toLocal(Floor.point(point))), hat.unit(),
-                point -> hat.profile().support(point.x(), point.z(), body));
-        boolean admitted = contact != null && !contact.wall() && clear(brood, index, contact.point());
-        if (admitted) {
-            var frame = hat.frameAfter(contact.tick());
-            var box = size.makeBoundingBox(frame.toWorld(Floor.point(contact.point())));
-            for (double x : new double[]{box.minX, box.maxX}) for (double y : new double[]{box.minY, box.maxY})
-                for (double z : new double[]{box.minZ, box.maxZ}) {
-                    var corner = frame.toLocal(new Vec3(x, y, z));
-                    admitted &= hat.profile().inOpening(corner.x, corner.z);
-                }
-        }
         if (StatusEvents.trace()) GameplayLog.event(mother, "family",
-                "hat birth geometry index={} frame={} drift={} startLocal={} targetLocal={} ticks={} velocity={} contact={} admitted={}",
-                index, hat.frame(), hat.getDeltaMovement(), hat.frame().toLocal(start), floor, plan.ticks(), plan.velocity(), contact, admitted);
-        return admitted ? new BirthLaunch.Nominal(Floor.point(plan.aim()), Floor.point(plan.velocity()), plan.ticks()) : null;
+                "hat birth geometry index={} frame={} drift={} startLocal={} targetLocal={} ticks={} velocity={}",
+                index, hat.frame(), hat.getDeltaMovement(), hat.frame().toLocal(start), floor, plan.ticks(), plan.velocity());
+        return new BirthLaunch.Nominal(Floor.point(plan.aim()), Floor.point(plan.velocity()), plan.ticks());
     }
 }

@@ -161,6 +161,8 @@ final class LiveBirth extends Choreography {
             t.put("push",new Beat.Await(Beat.roles(MOTHER,null,CATCHER,this::attend),()->brood()==null||brood().children.get(pushing).born,this::pushTicks,"pushed","pushed"));
             t.put("pushed",new Beat.Branch(r->{
                 if(brood()==null||brood().unborn()==0)return "linger";
+                // Only a physically obstructed outlet (a body or headwear where the child must lie), held from the labour on, reaches here;
+                // a missing cloth landing is no hold: that birth is launched anyway and the landing decides where it comes down.
                 if(receiver instanceof Cabin){
                     if(brood().children.get(pushing).born)return "push";
                     FamilyData.get(o.level()).cancel(brood(),o.entity(),"no_clear_birth_exit");return null;
@@ -287,7 +289,6 @@ final class LiveBirth extends Choreography {
         if(hat!=null&&(unprotected||forced)&&exit==null)riskyExit(hat,m.yBodyRot);
         var nominal=cabin!=null?cabin.launch(b,pushing):hat!=null&&exit!=null?(unprotected||forced?BirthLaunch.risky(at,hat.frame().toWorld(exit.aim()),m.yBodyRot)
                 :BirthLaunch.forward(at,hat.frame().toWorld(exit.aim()),m.yBodyRot,exit.ticks())):null;
-        if(cabin!=null&&nominal==null)return "outlet_blocked";
         if(nominal==null&&(exit!=null||!unprotected&&!forced&&receiver instanceof PlacedHat))GameplayLog.limited(m,"family","birth_lost_aim",200,
                 "birth lost aim reason={} delivery={} phase=emerging host={}",hat==null?"host_missing":exit==null?"exit_missing":"behind",delivery,hat==null?null:hat.getUUID());
         if(nominal==null)hat=null;
