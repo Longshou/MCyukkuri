@@ -8,7 +8,7 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
-| （当前无） | | |
+| 翻覆后攀帽死循环与帽檐空转（`wp-r-loops`） | `wp-r-loops` | `life/EscapeWater.java`、`motor/action/{Climb,Hop,Face}.java`、`motor/surface/Floor.java`、`headwear/PlacedHatEntity.java`、`aquatic/{AquaticGoal,Follow,PlayAboard}.java`、`scripts/museum_scenarios.py` |
 
 ## 玩法待办
 
