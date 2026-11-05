@@ -2,13 +2,16 @@ package io.github.longshou.mcyukkuri.life;
 
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.family.ParentCarry;
 import io.github.longshou.mcyukkuri.intent.AskLedger;
 import io.github.longshou.mcyukkuri.motor.Attach;
+import io.github.longshou.mcyukkuri.motor.Motor;
 import io.github.longshou.mcyukkuri.motor.action.Climb;
 import io.github.longshou.mcyukkuri.motor.action.Swim;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.tags.FluidTags;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.monster.Enemy;
 
@@ -83,6 +86,7 @@ public final class WaterDistress {
         if(entity.isInWaterOrBubble()){
             drySupportTicks=0;
             if(phase==Phase.IDLE||phase==Phase.RECOVER)enterWater();
+            shedHeadRiders();
             immersionTicks=Math.min(24000,immersionTicks+1);
             if(phase==Phase.IMPACT&&phaseTicks>=12)set(Phase.STRUGGLE);
             if(phase!=Phase.IMPACT&&worn())set(Phase.EXHAUSTED);
@@ -101,6 +105,21 @@ public final class WaterDistress {
         if(phase==Phase.RECOVER&&realThreat()){set(Phase.IDLE);return;}
         if(phase==Phase.RECOVER&&phaseTicks>=56){
             set(Phase.IDLE);immersionTicks=0;
+        }
+    }
+    /**
+     * A carrier that falls in (airborne on contact) or whose head goes under loses the young on her head: they drop into the water
+     * with her and then escape or are rescued like any thrown rider. Standing or wading on her feet with her head clear sheds none;
+     * braid- and mouth-held young are not touched here.
+     */
+    private void shedHeadRiders(){
+        if(!entity.isVehicle()||entity.isPassenger()||entity.onGround()&&!entity.isEyeInFluid(FluidTags.WATER))return;
+        for(var child:entity.family().carry().riders()){
+            if(ParentCarry.hold(entity,child)!=ParentCarry.Hold.HEAD)continue;
+            boolean airborne=!entity.onGround();
+            ParentCarry.released(entity,child,"carrier_in_water");
+            Motor.dismount(child,child.position(),entity.getDeltaMovement().scale(.5),"carrier_in_water");
+            GameplayLog.event(entity,"water","head rider shed child={} airborne={} eyes_under={}",child.getUUID(),airborne,entity.isEyeInFluid(FluidTags.WATER));
         }
     }
     /** Really worn now, from the body's own state: its energy is nearly spent, or its vanilla breath is gone (its head has been under
