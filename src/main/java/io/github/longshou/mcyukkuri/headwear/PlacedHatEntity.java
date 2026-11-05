@@ -542,11 +542,11 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
         return child != null && !child.family().adult() && young(child) && boardingRefusal(child) == null;
     }
     /** Why this hull does not take a body that climbs aboard by her own means: the over-capacity detail, or null while it carries
-     *  what she brings ({@link #boardingSizes}). The captain is weighed too: she does not climb onto a hull she would swamp. A
-     *  young's boarding is the captain's own choice, and a keeper may overload on purpose. */
+     *  what she brings ({@link #boardingSizes}). The captain is weighed too: she does not climb onto a hull she would swamp, unless she is a
+     *  keeper who overloads on purpose. A young's boarding is the captain's own choice. */
     @Override public String boardingRefusal(YukkuriEntity body) {
         if (body.getVehicle() instanceof YukkuriEntity) return null;
-        if (body.getUUID().equals(ownerYukkuri())) return weigh(boardingSizes(body));
+        if (body.getUUID().equals(ownerYukkuri())) return ParentCarry.overloadKeeper(body) ? null : weigh(boardingSizes(body));
         var captain = placeCarrier();
         return captain == null ? null : loadRefusal(captain, body);
     }
