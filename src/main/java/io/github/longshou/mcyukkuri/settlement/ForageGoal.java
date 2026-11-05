@@ -20,6 +20,7 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.event.EventHooks;
 import io.github.longshou.mcyukkuri.rare.MyonLife;
@@ -51,9 +52,13 @@ public final class ForageGoal extends Goal {
     private ServerLevel level() { return (ServerLevel)entity.level(); }
     private boolean grass(BlockPos pos) { return level().hasChunkAt(pos) && Grazing.edible(level().getBlockState(pos)); }
     private boolean edible(BlockPos pos) { return grass(pos) && entity.life().acceptsFood(new ItemStack(Items.SHORT_GRASS)); }
+    /** This goal searches the meadow grass: a diet whose own plants are other ones (the water plants of an aquatic Marisa) has no
+     *  search and no sweep here, so hunger never walks it inland after food it does not pick. */
+    private boolean grazes() { return entity.profile().diet().edible(Blocks.SHORT_GRASS.defaultBlockState()); }
     @Override public boolean canUse() {
         if (entity.isPassenger() || entity.profile().houseBody() || entity.family().awaitingLanding() || !entity.life().canEat() || entity.life().isSleeping() || entity.isInWaterOrBubble()
-                || !EventHooks.canEntityGrief(level(), entity)) return false;
+                || !EventHooks.canEntityGrief(level(), entity) || !grazes()) return false;
+
         if (SettlementSeasons.forageBlocked(entity)) return false;
         scanFood();
         if (target == null && entity.life().nutrition() >= 30) return false;

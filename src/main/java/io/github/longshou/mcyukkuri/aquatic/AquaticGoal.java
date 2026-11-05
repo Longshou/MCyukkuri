@@ -19,6 +19,7 @@ import io.github.longshou.mcyukkuri.intent.Drive;
 import io.github.longshou.mcyukkuri.intent.DriveWeights;
 import io.github.longshou.mcyukkuri.intent.IntentRunner;
 import io.github.longshou.mcyukkuri.life.BehaviorContinuity;
+import io.github.longshou.mcyukkuri.life.TravelRange;
 import io.github.longshou.mcyukkuri.motor.action.Await;
 import io.github.longshou.mcyukkuri.motor.action.Beckon;
 import io.github.longshou.mcyukkuri.motor.action.Hop;
@@ -36,13 +37,16 @@ import java.util.function.Supplier;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.ai.goal.Goal;
+import net.minecraft.world.entity.item.ItemEntity;
 
 /**
  * The aquatic life's one goal: below the escape from water (0) and the birth roles (2),
  * above the daily life, it runs one {@link Drive} over the desires read from this body's real state. An owner ashore wants the
  * water (a constant preference less what pulls her ashore, dusk and rain: {@code set_out}) or her hat back
- * ({@code resolve_own_hat}); afloat she wants the bank (hunger with nothing aboard or afloat to eat, no stick, wet weather, a mate,
- * young left ashore, dusk: {@code come_ashore}) or cruises in daylight ({@code cruise}). She eats, feeds and comforts her young,
+ * ({@code resolve_own_hat}); afloat she wants the bank (hunger with nothing aboard or afloat to eat and food of hers lying ashore,
+ * tiredness, a hull sinking under her young, no stick, wet weather, a mate, young left ashore, dusk: {@code come_ashore}) or cruises
+ * in daylight ({@code cruise}). She eats, feeds and comforts her young,
+
  * and rescues a young in the water once she accepts its incident. A young boards or follows its parent ashore, eats aboard,
  * and once able tries its own hat ({@code first_voyage}), then comes ashore and takes it back. Who goes
  * first between bodies follows only from these desires (P11, Q4). Every number is in
@@ -184,6 +188,10 @@ final class AquaticGoal extends Goal {
         var life = body.life();
         boolean dusk = AquaticLife.dusk(body.level()), rain = AquaticLife.rain(body), stick = AquaticLife.stick(body);
         double hunger = Math.max(0, num("hunger_from", 55) - life.nutrition()) * num("hunger_slope", 3);
+        // Hunger draws her to the bank, or keeps her there, only while food of hers lies there: a bank without it feeds her nothing,
+        // and she looks for food on the water instead (her stores, food afloat). Starvation stays real.
+        boolean landFood = hunger > 0 && foodAshore(body);
+        double landHunger = landFood ? hunger : 0;
         double weather = body.level().isThundering() ? num("thunder_need", 60) : rain && life.wetness() >= num("wet_from", 60) ? num("wet_need", 70) : 0;
         double breed = body.family().ready(false) && body.family().partner() != null ? num("breed_need", 35) : 0;
         // Tired below the energy a voyage takes: rest comes only on dry ground (grounded rest), so it draws her ashore and keeps her there.
@@ -216,7 +224,7 @@ final class AquaticGoal extends Goal {
             // A missing stick never keeps her ashore: SetOut takes one lying (or afloat beside the bank) within reach first, and afloat
             // she goes for sticks on the water or comes ashore for one (fetch_stick, come_ashore).
             boolean nearStick = !stick && Waters.stick(body, 10, true) != null;
-            double pull = Math.max(Math.max(Math.max(hunger, weather), breed), tired);
+            double pull = Math.max(Math.max(Math.max(landHunger, weather), breed), tired);
             boolean asleep = young.stream().anyMatch(y -> y.life().isSleeping() && !AquaticLife.aboard(y, hat));
             boolean beyondGather = SetOut.dependentBeyondGatherRange(body);
             // a search for a child ends at the child (greeting, halt) before she turns to the water
@@ -225,7 +233,7 @@ final class AquaticGoal extends Goal {
             boolean overladen = overladen(body, hat);
             double setOut = asleep || beyondGather || searching || birth || mateBirth > 0 || nursery || overladen ? 0
                     : num("water_life", 60) - 2 * pull - (dusk ? num("night_pull", 60) : 0) - (rain ? num("rain_pull", 30) : 0);
-            var world = List.of(body.blockPosition(), stick, nearStick, young.size(), beyondGather, searching, birth, mateBirth > 0, nursery, overladen);
+            var world = List.of(body.blockPosition(), stick, nearStick, young.size(), beyondGather, searching, birth, mateBirth > 0, nursery, overladen, landFood);
             boolean usable = hat == null ? life.custody().worn() : AquaticLife.afloat(hat);
             if (AquaticLife.ashore(body) && (!usable || floor(setOut) == 0 || drive().failed("set_out"))) {
                 for (var rider : body.family().carry().riders()) if (ParentCarry.hold(body, rider) == ParentCarry.Hold.HEAD) {
@@ -240,8 +248,8 @@ final class AquaticGoal extends Goal {
                         List.of(cell(hat), rider.getUUID()), () -> "aboard child=" + rider.getUUID(), () -> Ashore.come(body)));
             }
             if (usable) out.add(Desire.of("set_out", floor(setOut), world, () -> String.format(Locale.ROOT,
-                    "pull=%.0f hunger=%.0f weather=%.0f breed=%.0f tired=%.0f stick=%b stick_near=%b dusk=%b rain=%b young=%d asleep=%b beyond_gather=%b searching=%b mate_birth=%b nursery=%b overladen=%b",
-                    pull, hunger, weather, breed, tired, stick, nearStick, dusk, rain, young.size(), asleep, beyondGather, searching, mateBirth > 0, nursery, overladen),
+                    "pull=%.0f hunger=%.0f land_food=%b weather=%.0f breed=%.0f tired=%.0f stick=%b stick_near=%b dusk=%b rain=%b young=%d asleep=%b beyond_gather=%b searching=%b mate_birth=%b nursery=%b overladen=%b",
+                    pull, hunger, landFood, weather, breed, tired, stick, nearStick, dusk, rain, young.size(), asleep, beyondGather, searching, mateBirth > 0, nursery, overladen),
                     () -> new SetOut(body, this::leftAshore)));
             // Newborns ashore go through family loading, never the solo reclaim that may finish aboard without them.
             if (hat != null && !birth && !nursery && unloadedNewborns.isEmpty() && !beyondGather
@@ -300,11 +308,11 @@ final class AquaticGoal extends Goal {
         // The hull sits low and rocks under her young's weight (its load warning): an ordinary parent takes the family ashore to
         // unload before it goes over; a keeper (low intelligence, high friendliness) keeps going (FEATURES 载重).
         boolean heavy = overladen(body, hat);
-        double pull = Math.max(Math.max(Math.max(fed ? 0 : hunger, toHave ? num("stick_need", 50) : 0), Math.max(heavy ? num("load_need", 70) : 0, tired)),
+        double pull = Math.max(Math.max(Math.max(fed ? 0 : landHunger, toHave ? num("stick_need", 50) : 0), Math.max(heavy ? num("load_need", 70) : 0, tired)),
                 Math.max(Math.max(birthWant, mateBirth), Math.max(Math.max(weather, breed), Math.max(dusk ? num("night_pull", 60) : 0, ashore > 0 ? num("young_ashore_need", 60) : 0))));
-        var world = List.of(at, stick, young.size(), ashore, birth, mateBirth > 0, heavy, floor(tired) > 0);
-        Supplier<String> why = () -> String.format(Locale.ROOT, "hunger=%.0f food_aboard=%b stick=%b stick_ashore=%b weather=%.0f breed=%.0f birth=%.0f mate_birth=%.0f young_ashore=%d dusk=%b rain=%b heavy=%b tired=%.0f",
-                hunger, food, stick, toHave, weather, breed, birthWant, mateBirth, ashore, dusk, rain, heavy, tired);
+        var world = List.of(at, stick, young.size(), ashore, birth, mateBirth > 0, heavy, floor(tired) > 0, landFood);
+        Supplier<String> why = () -> String.format(Locale.ROOT, "hunger=%.0f food_aboard=%b land_food=%b stick=%b stick_ashore=%b weather=%.0f breed=%.0f birth=%.0f mate_birth=%.0f young_ashore=%d dusk=%b rain=%b heavy=%b tired=%.0f",
+                hunger, food, landFood, stick, toHave, weather, breed, birthWant, mateBirth, ashore, dusk, rain, heavy, tired);
 
         var ashoreDesire = Desire.of("come_ashore", floor(pull), world, why, () -> {
             if (heavy) {
@@ -345,7 +353,15 @@ final class AquaticGoal extends Goal {
         return y.isInWaterOrBubble() || y.getRootVehicle() instanceof PlacedHatEntity hat && AquaticLife.onWater(hat);
     }
 
+    /** Food of hers lying on dry ground within her meal search (the life meal's own reach and acceptance, which is what feeds her
+     *  ashore): what landing, or staying on the bank, can really give her. */
+    private static boolean foodAshore(YukkuriEntity body) {
+        return !body.level().getEntitiesOfClass(ItemEntity.class, body.getBoundingBox().inflate(TravelRange.search(body, 8)),
+                item -> item.isAlive() && !item.isInWater() && body.life().acceptsFood(item.getItem())).isEmpty();
+    }
+
     /** How much a body that can eat wants to now (0 when it cannot or is not hungry). */
+
 
     private static double eat(YukkuriEntity y) {
         return y.life().canEat() ? Math.max(0, num("eat_from", 70) - y.life().nutrition()) * num("eat_slope", 3) : 0;

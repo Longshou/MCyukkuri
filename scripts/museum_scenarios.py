@@ -2644,15 +2644,17 @@ pond('water_colony', '自然生成就坐在自己帽里', '自然生成就坐在
                 forbid=[r'\[body\][^\n]* invariant\b', r'\[hat\][^\n]* capsized [^\n]*form=cone_basin\b']))
 
 pond('sail', '捡棍放帽出航，饿了返岸', '捡棍放帽出航，饿了返岸',
-     '成体水生魔理沙在岸上，几格外有一根木棍，没有粮：她捡起木棍收进帽里，走到有静水和船位的岸边把帽子放到水面上，跳进帽里；之后在已加载的静水上划桨（每划一下花体力）、漂着歇息。饿到一定程度、帽里又没粮，就划回最近能靠的岸边跳上岸，再从岸边把空帽子收回戴上，木棍跟着帽子回来',
+     '成体水生魔理沙在岸上，几格外有一根木棍，帽里没有粮，岸边草地上放着一个苹果：她捡起木棍收进帽里，走到有静水和船位的岸边把帽子放到水面上，跳进帽里；之后在已加载的静水上划桨（每划一下花体力）、漂着歇息。饿到一定程度、帽里和水面都没吃的而岸上有，就划回最近能靠的岸边跳上岸，再从岸边把空帽子收回戴上（木棍跟着帽子回来），上岸去吃；岸上没有她的食物时饥饿不拉她回岸',
      '约 2–3 分钟（可倍速）',
      [yk('marisa', bank_dx(0) - 5, 0, 'a', aquatic=True, yaw=-90, lead=True, nutrition=56, energy=100, hygiene=100),
-      item('minecraft:stick', 1, bank_dx(0) - 3, 2, 'stick')],
+      item('minecraft:stick', 1, bank_dx(0) - 3, 2, 'stick'),
+      item('minecraft:apple', 1, bank_dx(-3) - 2, -3, 'food')],
      # On the south bank behind her first strokes north along the shore: her braid side and the stick toward the open water.
      vantage=(2, 6, 180, 15),
      capture=dict(shots=(1, 40, 200, 600), sequences=((220, 420, 2),)),
      note='每阶段一条日志：[headwear] kit stowed → [aquatic] berth → [hat] placed … water=true kit=… → [hat] boarded → [intent] start id=cruise → '
-          '[aquatic] route purpose=cruise → [intent] start id=come_ashore（why 中 hunger、food_aboard=false）→ [aquatic] route purpose=come_ashore → [hat] left → '
+          '[aquatic] route purpose=cruise → [intent] start id=come_ashore（why 中 hunger、food_aboard=false、land_food=true）→ [aquatic] route purpose=come_ashore → [hat] left → '
+
           '[action] end id=take_prop outcome=DONE。取到棍后木棍始终握在辫梢（划桨、坐着、待机都不松手），读 aquatic.stick_in_braid=true，帽内腔不再另画一根。上岸后饥饿仍压住出航欲望，不会马上再上船。' + _DESIRE_NOTE,
      reads=[('读船主', f'yukkuri status {sel("a")} raw'), ('读帽子', f'data get entity {_HAT}')],
      smoke=dict(ticks=3600, commands=[(1, 'yukkuri status trace true'), (3599, 'yukkuri status trace false')],
@@ -2874,20 +2876,25 @@ pond('boat_toilet', '帽船上朝帽外排便', '帽船上朝帽外排便',
                 readout=[f'yukkuri status {sel("a")} raw', f'yukkuri status {sel("c1")} raw', f'data get entity {_HAT} Riders']))
 
 pond('shore_family', '饿了带孩子划回岸边', '饿了带孩子划回岸边',
-     '亲油和一只小子油在离岸 3 格的帽子上，帽里有木棍、没有粮，亲油已经饿了：她划回岸边；孩子坐在她头顶随她上岸，辫子把它放到干地，亲油随后把空帽子收回戴上',
+     '亲油和一只小子油在离岸 3 格的帽子上，帽里有木棍、没有粮，水上也没有吃的，岸边草地上放着一个苹果；亲油已经饿了：她划回岸边；孩子坐在她头顶随她上岸，辫子把它放到干地，亲油随后把空帽子收回戴上，走去吃那个苹果，不往内陆游荡找草（她不吃陆地草）',
      '约 1 分钟',
      [yk('marisa', bank_dx(0), 0, 'a', aquatic=True, yaw=-90, lead=True, nutrition=35, energy=100, hygiene=100),
+      item('minecraft:apple', 1, bank_dx(0) - 2, 0, 'food'),
       yk('marisa', bank_dx(1), 1, 'c1', aquatic=True, fam=_seat_family(), childhood=CHILDHOOD_CRAWLING_READY, yaw=-90, **pair_ready()),
       afloat('a', water_at(0, 3), True, sel('c1'), stick=True)],
-     note='日志 come_ashore → paddle → 亲油 hop（孩子坐在头顶随她一起离帽）→ 上岸后辫子 carry put down reason=release / release DONE 把孩子放到干地 → take_prop。'
+     note='饥饿只在岸上有她的食物时才拉她回岸（come_ashore 的 why 中 land_food=true）。日志 come_ashore → paddle → 亲油 hop（孩子坐在头顶随她一起离帽）→ 上岸后辫子 carry put down reason=release / release DONE 把孩子放到干地 → take_prop → [meal] swallowed item=minecraft:apple。'
           '舱里放不下的最大一只坐头顶（用户 2026-11-05 的排座规则），头顶的孩子由亲油带着走、落地后由辫子放下，不自己跳；观察孩子与亲油都真实离帽，船长最后收帽。' + _DESIRE_NOTE,
      reads=[('读亲油', f'yukkuri status {sel("a")} raw'), ('读子油', f'yukkuri status {sel("c1")} raw'), ('读帽子', f'data get entity {_HAT}')],
      smoke=dict(ticks=1800, expect=[r'\[hat\][^\n]* scenario afloat prepared [^\n]*young=1\b',
                                    r'\[family\][^\n]* carry put down [^\n]*reason=release\b',
                                    r'\[action\][^\n]* end id=release outcome=DONE\b',
                                    r'\[action\][^\n]* end id=take_prop outcome=DONE\b',
-                                   r'\[intent\][^\n]* end id=come_ashore result=DONE\b'],
-                forbid=[r'\[body\][^\n]* invariant\b', r'\[intent\][^\n]* end id=come_ashore result=EXHAUSTED\b'],
+                                   r'\[intent\][^\n]* end id=come_ashore result=DONE\b',
+                                   r'\[intent\][^\n]* start id=come_ashore [^\n]*land_food=true\b',
+                                   r'\[meal\][^\n]* swallowed item=minecraft:apple\b'],
+
+                forbid=[r'\[body\][^\n]* invariant\b', r'\[intent\][^\n]* end id=come_ashore result=EXHAUSTED\b',
+                        r'\[forage\][^\n]* food search started\b'],
                 readout=[f'yukkuri status {sel("a")} raw', f'yukkuri status {sel("c1")} raw']))
 
 # ---- food, care, rescue and birth on the hat boat (refactor WP6b): real starting states only; who helps and when is the helpers' own decision.
