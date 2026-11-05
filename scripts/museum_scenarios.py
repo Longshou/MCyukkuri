@@ -3064,12 +3064,22 @@ def hat_birth_result(window):
     mother = re.search(r' born brood=[^\n]* mother=(\S+)', window)[1]
     care_done = []
     for child, index in born:
-        if not re.search(rf'uuid={child}[^\n]* birth landed [^\n]*water=false[^\n]*outcome=HAT\b', window):
-            return f'newborn {index} never landed in the hat'
-        if not re.search(rf'uuid={child}[^\n]* contact host=', window):
-            return f'newborn {index} has no real hull contact'
-        if re.search(rf'\[water\][^\n]*uuid={child}[^\n]* entered at=|uuid={child}[^\n]*(?:damage cause=drown|death settled)', window):
-            return f'newborn {index} entered water or died'
+        landing = re.search(rf'uuid={child}[^\n]* birth landed [^\n]*outcome=(HAT|WATER)\b', window)
+        if not landing:
+            return f'newborn {index} never landed'
+        # A newborn may miss the hollow and come down in the water (the user's rule); the ordinary rescue then takes it.
+        if landing[1] == 'HAT':
+            if not re.search(rf'uuid={child}[^\n]* birth landed [^\n]*water=false[^\n]*outcome=HAT\b', window):
+                return f'newborn {index} HAT landing was not dry'
+            if not re.search(rf'uuid={child}[^\n]* contact host=', window):
+                return f'newborn {index} has no real hull contact'
+            if re.search(rf'\[water\][^\n]*uuid={child}[^\n]* (?:entered at=|damage cause=drown)', window):
+                return f'newborn {index} entered the water after a hat landing'
+        else:
+            if not re.search(rf'\[aquatic\][^\n]* rescue start [^\n]*faller={child}\b', window):
+                return f'newborn {index} landed in the water and no rescue started'
+            if not re.search(rf'\[aquatic\][^\n]* rescue end [^\n]*outcome=\S+ [^\n]*faller={child}\b', window):
+                return f'newborn {index} rescue never ended'
         if not re.search(rf'uuid={child}[^\n]* first meal swallowed', window):
             return f'newborn {index} did not swallow its first meal'
         toilet = re.search(rf'uuid={child}[^\n]* first toilet completed', window)
@@ -3078,13 +3088,14 @@ def hat_birth_result(window):
         care_done.append(toilet.end())
     if re.search(rf'turn push [^\n]*(?:by={mother}|rider={mother})\b', window[:max(care_done)]):
         return 'mother moved or pushed a rider during cabin care'
-    if re.search(r'\[body\][^\n]* death settled|cause=starv|brood cancelled', window):
+    if re.search(r'\[body\][^\n]* death settled|starvation damage|brood cancelled', window):
         return 'birth family died, starved or lost its brood'
 
 
 pond('birth_hat_own', '独自在自己帽里生下两只赤油', '独自在自己帽里生下两只赤油',
      '临产水生母油独坐自己的浮帽；本胎两只出生体型 0.12、0.125，按真实空间判定留在水上。'
-     '母油面向船头分娩，赤油从出口落到帽内空处，触布后才附着。产后用真实粮食嚼糜喂幼、护理首便。落点没有准入时她不放幼体出去，推挤期限到期才丢失未出生部分（`no_clear_birth_exit`）。',
+     '母油面向船头分娩，赤油从出口落到帽内空处，触布后才附着；落点偏了也可落水，落水赤油走正常救援。'
+     '父油有自己的浮帽，产程里划到她帽旁守候。产后用真实粮食嚼糜喂幼、护理首便。',
      '约 3–6 分钟',
      [yk('marisa', bank_dx(0), 0, 'mother', aquatic=True, yaw=-90, lead=True, **pair_ready()),
       yk('marisa', bank_dx(4), 4, 'father', aquatic=True, yaw=-90, **pair_ready()),
@@ -3094,8 +3105,10 @@ pond('birth_hat_own', '独自在自己帽里生下两只赤油', '独自在自�
            afloat('father', water_at(4, 3), True, sel('father'), food=4, stick=True),
            f'yukkuri scenario birth {sel("mother")} {sel("father")} near_term "0.12,0.125"'],
      note='看 birth route=own_hat 的胎数、体型与空间判定；hat birth exit 的产程与片段时刻；'
-          '新生儿 contact → birth landed outcome=HAT、生命与首餐首便。帽形和普通分娩时钟不变，初态没有新生儿。'
-          '五秒后三下摇翻亲油那只帽（母亲的分娩不受影响）：木棍与粮随翻覆漂出，亲油游回扶正、爬回帽里，再没木棍就去水上把漂着的木棍取回帽里。'
+          '父油 [aquatic] guard start → guard arrive（划到她帽旁、不在出口那侧）→ guard end；'
+          '新生儿 birth landed outcome=HAT 触布附着，或落水 outcome=WATER 后走正常救援（rescue start/end），然后首餐首便。'
+          '帽形和普通分娩时钟不变，初态没有新生儿。'
+          '五秒后三下摇翻父油那只帽（母亲的分娩不受影响）：木棍与粮随翻覆漂出，父油游回扶正、爬回帽里，再没木棍就去水上把漂着的木棍取回帽里。'
           '岸边浅水里有真实海草，是本场景水生家庭上岸后唯一的水草食源。',
      reads=[('读母油与产程', f'yukkuri status {sel("mother")} raw'),
             ('读本胎新生儿', f'yukkuri status {NEWBORNS} raw')],
@@ -3103,13 +3116,15 @@ pond('birth_hat_own', '独自在自己帽里生下两只赤油', '独自在自�
                 commands=[(tick, f'execute at {sel("father")} run yukkuri scenario shake '
                                 '@e[type=mcyukkuri:placed_hat,distance=..8,sort=nearest,limit=1]') for tick in (60, 70, 80)],
                 expect=[_BOAT_SMOKE_START, r'scenario afloat prepared [^\n]*food=8', r'birth route=own_hat reason=fit',
+                                  r'\[aquatic\][^\n]* guard start mate=\S+ mother=\S+',
+                                  r'\[aquatic\][^\n]* guard arrive mate=\S+ mother=\S+',
                                   r'hat birth exit index=0', r'hat birth exit index=1', r'delivery complete',
                                   r'departure held reason=newborn_care',
                                   r'\[hat\][^\n]* capsized cause=shake[\s\S]*\[hat\][^\n]* righted cause=\w+'
                                   r'[\s\S]*\[hat\][^\n]* boarded rider=\S+[^\n]*own=true'
                                   r'[\s\S]*\[intent\][^\n]* start id=fetch_stick\b'
                                   r'[\s\S]*\[aquatic\][^\n]* stick taken [^\n]*stowed_in=hat'],
-                forbid=_BOAT_SMOKE_FORBID + [r'\[body\][^\n]* death settled', r'birth landed [^\n]*outcome=WATER'],
+                forbid=_BOAT_SMOKE_FORBID + [r'\[body\][^\n]* death settled'],
                 verify=hat_birth_result,
                 readout=_water_readouts('mother', 'father') + [f'yukkuri status {NEWBORNS} raw']))
 

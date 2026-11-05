@@ -248,6 +248,10 @@ final class AquaticGoal extends Goal {
             return;
         }
         var at = cell(hat);
+        // Her mate waits beside her through her own-hat water labour, so a newborn that lands in the water is within a stroke of him.
+        var labouring = GuardLabour.labouringMate(body);
+        if (labouring != null) out.add(Desire.of("guard_labour", num("guard_want", 90), List.of(at, hat.blockPosition(), labouring.blockPosition()),
+                () -> "mother=" + labouring.getUUID() + " hold=" + labouring.family().birthBlock(), () -> new GuardLabour(body, labouring)));
         var larder = HullLarder.of(hat);
         boolean food = larder != null && larder.has(life::acceptsFood);
         double eat = eat(body);
