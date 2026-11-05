@@ -136,6 +136,9 @@ public final class YukkuriLife {
         GameplayLog.event(entity,"sleep","begin source=fatigue full={} duration={} boldness={} energy={}",fullFatigueSleep,fatigueLength,personality.boldness(),energy);
     }
     public void tickFatigueRest() {
+        // An ended rest stays ended: the goal may still be ticked once before its continue check, and counting on from zero there
+        // would start a nap of its own that no start ever logged and that never ends.
+        if (fatigueTicks == 0) return;
         SurfaceApproach.halt(entity);
         // A nap is leisure: real hunger ends it so the body can eat (a full sleep at energy 0 goes on to the end).
         if (!fullFatigueSleep && nutrition < 30) { stopFatigueRest(); return; }
