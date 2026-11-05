@@ -113,11 +113,12 @@ final class Care implements Intent {
                 && child.life().nutrition() < parent.life().nutrition() - parent.species().traits().dote();
     }
 
-    /** Gasping after the water (or its incident closed a moment ago, so a lift during the breath does not cancel the comfort), or cold:
+    /** Gasping after the water (or its incident closed a moment ago and it has dried enough to be nuzzled), or cold:
      *  the young she comforts. */
     static boolean upset(YukkuriEntity child) {
         return child.isAlive() && (child.waterDistress().phase() == WaterDistress.Phase.RECOVER
-                || child.waterDistress().closedWithin((long) PlayAboard.number("comfort_again")) || child.life().temperature().cold());
+                || child.waterDistress().closedWithin((long) PlayAboard.number("comfort_again")) && CareApproach.dry(child)
+                || child.life().temperature().cold());
     }
 
     @Override public String id() { return feed ? "feed_young" : "comfort_young"; }

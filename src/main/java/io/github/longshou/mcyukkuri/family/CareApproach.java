@@ -41,6 +41,8 @@ public final class CareApproach {
     public boolean mayTry(YukkuriEntity target) {
         return blocked.getOrDefault(target.getUUID(), 0L)<=owner.level().getGameTime();
     }
+    /** Dry enough for a parent to come in contact with. */
+    public static boolean dry(YukkuriEntity child){return child.life().wetness()<=40;}
     public static boolean sameFloor(YukkuriEntity parent,YukkuriEntity child) {
         return !parent.isPassenger()&&!child.isPassenger()
                 || parent.getVehicle() instanceof SurfaceHost&&parent.getVehicle()==child.getVehicle();
@@ -67,7 +69,7 @@ public final class CareApproach {
         if(owner.life().hasUrgentNeed())return "parent_urgent_need";
         // A never-fed newborn is never too tired for its first meal: it is fed rather than put off.
         if(!(child.life().energy()>=25)&&(kind!=Kind.FEED||child.childhood().firstMealDone()))return "child_low_energy";
-        if(!(child.life().wetness()<=40))return "child_wet";
+        if(!dry(child))return "child_wet";
         return kind==Kind.FEED||!child.life().hasUrgentNeed()||child.childhood().needsAssistedFirstToilet()&&child.life().nutrition()>=30
                 ?null:"child_urgent_need";
     }
