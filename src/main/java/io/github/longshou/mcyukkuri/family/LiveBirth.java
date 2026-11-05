@@ -484,18 +484,21 @@ final class LiveBirth extends Choreography {
         var from=m.position();var pose=HatGeometry.catchPose(m,b,c,role,from,m.yBodyRot);
         if(self()&&!dryRoom(c,pose.at())){
             // On her own she sets the hat in front of where she stands: at a water's edge she first walks to the nearest ground
-            // whose hat spot has dry floor all round it, so the hat does not take the water.
+            // whose hat spot (in front of her as she arrives) has dry floor all round it, so the hat does not take the water.
             search:for(int radius=1;radius<=4;radius++)for(int side=0;side<8;side++){
                 double angle=side*Math.PI/4;
                 var at=SurfaceApproach.floor(m,m.position().add(Math.cos(angle)*radius,0,Math.sin(angle)*radius));
-                if(at==null)continue;
-                var trial=HatGeometry.catchPose(m,b,c,role,at,m.yBodyRot);
-                if(dryRoom(c,trial.at())&&m.level().noCollision(m,m.getBoundingBox().move(at.subtract(m.position())))){from=at;pose=trial;break search;}
+                if(at==null||!m.level().noCollision(m,m.getBoundingBox().move(at.subtract(m.position()))))continue;
+                if(dryRoom(c,HatGeometry.catchPose(m,b,c,role,at,SurfaceApproach.yaw(m.position(),at)).at())){from=at;break search;}
             }
         }
-        var placed=pose;var stand=HatGeometry.stand(pose,c);
+        var stand=HatGeometry.stand(pose,c);var walked=from!=m.position();
         return new GoTo("place_hat",c,self()?from:stand.at(),now()+Math.max(40,window())).around(self()?null:m)
-                .facing(self()?Float.NaN:stand.yaw()).until(prop::deployed).then(()->new PlaceProp(prop,placed.at(),placed.yaw()));
+                .facing(self()?Float.NaN:stand.yaw()).until(prop::deployed).then(()->{
+                    // Where she stands and faces on arrival (a walk turns her), not where she stood when the walk was planned.
+                    var put=walked?HatGeometry.catchPose(m,b,c,role,m.position(),m.yBodyRot):pose;
+                    return new PlaceProp(prop,put.at(),put.yaw());
+                });
     }
     /** The ground round a hat spot is dry and bears it: no water under any part of the brim. */
     private static boolean dryRoom(YukkuriEntity c,Vec3 at){
