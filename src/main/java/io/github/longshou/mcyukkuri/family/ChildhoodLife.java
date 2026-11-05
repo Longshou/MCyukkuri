@@ -3,6 +3,8 @@ package io.github.longshou.mcyukkuri.family;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.intent.AskLedger;
+import io.github.longshou.mcyukkuri.social.Bonds;
 import io.github.longshou.mcyukkuri.subspecies.SubspeciesLife;
 import java.util.UUID;
 import net.minecraft.core.BlockPos;
@@ -53,6 +55,7 @@ public final class ChildhoodLife {
     private boolean sailed;
     private double launchY;
     private int jumpLandings,practiceRest,watchedTicks;
+    private boolean kinWater;
     private boolean demonstrationLaunched,demonstrationAirborne,demonstrationWitnessed;
 
     public ChildhoodLife(YukkuriEntity entity) { this.entity = entity; }
@@ -443,7 +446,15 @@ public final class ChildhoodLife {
         return entity.isAlive() && !entity.isNoAi() && !entity.isPanicking() && !entity.isCommandPlaying()
                 && !entity.isOnFire() && !entity.isInWaterOrBubble() && !entity.life().isSleeping()
                 && entity.life().mealTicks() == 0 && !entity.life().hasUrgentNeed() && !ParentCarry.awaitsCarrier(entity)
-                && !entity.family().gathering();
+                && !entity.family().gathering() && !kinInWater();
+    }
+
+    /** A family member within sight has an open water incident: a young looks to it and does not practise. Asked every ten ticks. */
+    private boolean kinInWater() {
+        if (entity.tickCount % 10 != 0) return kinWater;
+        var ledger = AskLedger.server();
+        return kinWater = !entity.level().getEntitiesOfClass(YukkuriEntity.class, entity.getBoundingBox().inflate(16),
+                kin -> kin != entity && Bonds.careKin(entity, kin) && ledger.openOf(kin.getUUID(), "water") != null).isEmpty();
     }
 
     static boolean childAvailable(YukkuriEntity child) {
