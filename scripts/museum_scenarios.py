@@ -2671,17 +2671,23 @@ def bank_boarding_result(window):
     return water_aftermath(window)
 
 
-def _to_water_chain(sid):
-    """Reunion, then the lift to the water, the set-down at the berth, the hat, the lift aboard and the launch: one parent, one child, in order."""
+def _to_water_chain(sid, may_hop=False):
+    """Reunion, then the lift to the water, the set-down at the berth, the hat, the lift aboard and the launch: one parent, one child, in order.
+
+    ``may_hop``: a young left alone for a while teaches itself the hop before the parent reaches it, and then boards as a guest by
+    itself instead of being carried; the reunion, set_out, the placed hat and the full launch stay required either way."""
     a, c = _uuid_text(sid, 'a'), _uuid_text(sid, 'c1')
+    carried = (rf'\[aquatic\][^\n]*uuid={a}[^\n]* set_out carry child={c} purpose=to_water\b'
+               rf'[\s\S]*\[family\][^\n]*uuid={a}[^\n]* carry grip [^\n]*uuid={c}'
+               rf'[\s\S]*\[action\][^\n]*uuid={a}[^\n]* end id=release outcome=DONE'
+               rf'[\s\S]*\[hat\][^\n]* placed owner={a}\b[^\n]*water=true'
+               rf'[\s\S]*\[family\][^\n]*uuid={a}[^\n]* carry grip [^\n]*uuid={c}[^\n]*hold=braid')
+    hopped = (rf'\[hat\][^\n]* placed owner={a}\b[^\n]*water=true'
+              rf'[\s\S]*\[hat\][^\n]* boarded rider={c} own=false\b')
     return (rf'\[family\][^\n]*uuid={a}[^\n]* child search reunited child={c}\b'
             rf'[\s\S]*\[intent\][^\n]*uuid={a}[^\n]* start id=set_out\b'
-            rf'[\s\S]*\[aquatic\][^\n]*uuid={a}[^\n]* set_out carry child={c} purpose=to_water\b'
-            rf'[\s\S]*\[family\][^\n]*uuid={a}[^\n]* carry grip [^\n]*uuid={c}'
-            rf'[\s\S]*\[action\][^\n]*uuid={a}[^\n]* end id=release outcome=DONE'
-            rf'[\s\S]*\[hat\][^\n]* placed owner={a}\b[^\n]*water=true'
-            rf'[\s\S]*\[family\][^\n]*uuid={a}[^\n]* carry grip [^\n]*uuid={c}[^\n]*hold=braid'
-            rf'[\s\S]*\[aquatic\][^\n]*uuid={a}[^\n]* set_out complete [^\n]*aboard=1/1\b')
+            rf'[\s\S]*' + (rf'(?:{carried}|{hopped})' if may_hop else carried)
+            + rf'[\s\S]*\[aquatic\][^\n]*uuid={a}[^\n]* set_out complete [^\n]*aboard=1/1\b')
 
 
 _FED_NEWBORN = 'Version:1,Newborn:1b,Landed:1b,FirstMealDone:1b,FirstToiletDone:1b,Crawled:0b,Jumped:0b'
@@ -2929,7 +2935,7 @@ pond('afloat_family_ashore', '回岸寻回远处赤油再出航', '回岸寻回�
                                    rf'[\s\S]*\[intent\][^\n]*uuid={_uuid_text("afloat_family_ashore", "a")}[^\n]* end id=come_ashore result=DONE\b'
                                    rf'[\s\S]*\[intent\][^\n]*uuid={_uuid_text("afloat_family_ashore", "a")}[^\n]* start id=set_out\b',
                                    r'\[family\][^\n]* family search started\b',
-                                   _to_water_chain('afloat_family_ashore')],
+                                   _to_water_chain('afloat_family_ashore', may_hop=True)],
                 forbid=[r'child search reunited [\s\S]*child search reunited ', r'\[body\][^\n]* invariant\b', r'death settled into remains']))
 
 pond('rescue_no_seat', '满载亲帽救起新生儿送上岸', '满载亲帽救起新生儿送上岸',
