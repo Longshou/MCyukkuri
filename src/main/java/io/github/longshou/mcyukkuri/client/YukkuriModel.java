@@ -193,15 +193,17 @@ public final class YukkuriModel {
     /** The authored hold pose the braid takes: seated in a hull it is the stroke's own loop start, so rowing, turning and
      *  sitting share one grip (the paddle neutral). */
     private String heldClip(){return holdingAboard?YukkuriAction.BOAT_PADDLE.id():"braid_item_hold";}
-    /** Her braid keeps the held stack in this clip: she holds one, nothing else poses her braid or the stack, and her body
-     *  has the hold clip (a body without a braid carries the stack at its mouth, as HeldItemPresentation draws it). */
+    /** Her braid keeps the held stack in this clip: she holds one, nothing else poses her braid, and her body has the hold
+     *  clip (a body without a braid carries the stack at its mouth, as HeldItemPresentation draws it). A clip with its own
+     *  grip keys poses braid and stack itself, unless its braid works (braid_use): then it still hands over with the hold. */
     private boolean braidKeepsStack(String clip){
-        return holdingItem&&!braidPose.active()&&!clipProps.containsKey(clip)&&clips.containsKey(heldClip());
+        return holdingItem&&!braidPose.active()&&(braidUse.contains(clip)||!clipProps.containsKey(clip))&&clips.containsKey(heldClip());
     }
     /** How much of the hold overlay her braid takes in this clip at its own time (0..1). A cradled child keeps the braid,
      *  and a clip with its own grip keys poses it itself. A clip whose own braid grips, carries or strokes something
-     *  (lore recipe braid_use) keeps it too, the stack stowed in her hat; a one-shot one hands the braid over from the
-     *  hold until its braid_busy marker and back to it from its braid_free marker. Every other clip takes the hold. */
+     *  (lore recipe braid_use) keeps it too, the stack stowed in her hat unless the clip keys it (the hat clips keep it in
+     *  the tuft, laid along the brim); a one-shot one hands the braid, and a keyed stack with it, over from the hold until
+     *  its braid_busy marker and back to it from its braid_free marker. Every other clip takes the hold. */
     private float braidHoldShare(String clip,float time){
         if(!braidKeepsStack(clip))return 0;
         if(!braidUse.contains(clip))return 1;
@@ -940,17 +942,24 @@ public final class YukkuriModel {
         if(hatInBraid>0&&hatGrip!=null)braidPose.holdHat(hatFollowBone(),hatInBraid,hatGrip);
         if(pregnancyBelly>.001f)rigidLifts();
         itemAttachment=null;
-        heldStowed=braidUse.contains(selected)&&braidKeepsStack(selected);
+        heldStowed=braidUse.contains(selected)&&braidKeepsStack(selected)&&!clipProps.containsKey(selected);
         if(holdingItem&&!braidPose.active()&&!heldStowed){
-            // A clip with its own grip keys poses the item itself; otherwise the hold overlay above supplies them.
+            // A clip with its own grip keys poses the item itself; otherwise the hold overlay above supplies them. While a
+            // braid-using clip hands its braid over (hold>0) its keyed item comes from the hold's grip the same share.
             boolean own=clipProps.containsKey(selected);String from=own?selected:heldClip();
             var props=clipProps.get(from);var prop=props==null?null:props.get("item");
             if(prop!=null){
                 var bone=bones[prop.bone];float[] v=new float[6];
                 prop.sample(clips.get(from).time(own?adultTime:0),v);
+                var turn=new Quaternionf().rotationZYX(v[5]*DEGREES,v[4]*DEGREES,v[3]*DEGREES);
+                var heldProps=own&&hold>0?clipProps.get(heldClip()):null;var grip=heldProps==null?null:heldProps.get("item");
+                if(grip!=null&&grip.bone==prop.bone){
+                    float[] h=new float[6];grip.sample(0,h);
+                    for(int k=0;k<3;k++)v[k]+=(h[k]-v[k])*hold;
+                    turn.slerp(new Quaternionf().rotationZYX(h[5]*DEGREES,h[4]*DEGREES,h[3]*DEGREES),hold);
+                }
                 itemAttachment=new Matrix4f().scaling(1/16f).mul(world[prop.bone])
-                        .translate(bone.x+v[0],bone.y+v[1],bone.z+v[2])
-                        .rotateZYX(v[5]*DEGREES,v[4]*DEGREES,v[3]*DEGREES).scale(16);
+                        .translate(bone.x+v[0],bone.y+v[1],bone.z+v[2]).rotate(turn).scale(16);
             }
         }
         if (delivery != null) delivery.follow(world[rootBone()]);
