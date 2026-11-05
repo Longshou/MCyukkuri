@@ -2038,6 +2038,19 @@ def water_at(dz, out):
     return f'~{bank_dx(dz) + out + .5} ~-1 ~{dz + .5}'
 
 
+def _bank_food(item_id='minecraft:apple'):
+    """One real portion on the dry bank at each side of the pond (west, east, north, south), a block back from the rim: from
+    anywhere on the water a hungry aquatic owner has food of hers within her meal search of some bank (FEATURES 食物)."""
+    pond_ = BY_ID['pond']
+    out = []
+    for ux, uz in ((-1, 0), (1, 0), (0, -1), (0, 1)):
+        x, z = pond_.px, pond_.pz
+        while pond_.depth(x, z):
+            x, z = x + ux, z + uz
+        out.append(item(item_id, 1, x + ux - pond_.bank[0], z + uz - pond_.bank[2], 'food'))
+    return out
+
+
 def pond_rim_seagrass(every=2):
     """Real finite seagrass along the pond's shallow rim (depth 1), so the shore an aquatic family comes ashore on always has the
     water plant it picks from the bank above: vanilla never regrows it, and clearing the field puts the water back."""
@@ -2630,11 +2643,11 @@ pond('water_colony', '自然生成就坐在自己帽里', '自然生成就坐在
                 forbid=[r'\[body\][^\n]* invariant\b', r'\[hat\][^\n]* capsized [^\n]*form=cone_basin\b']))
 
 pond('sail', '捡棍放帽出航，饿了返岸', '捡棍放帽出航，饿了返岸',
-     '成体水生魔理沙在岸上，几格外有一根木棍，帽里没有粮，岸边草地上放着一个苹果：她捡起木棍收进帽里，走到有静水和船位的岸边把帽子放到水面上，跳进帽里；之后在已加载的静水上划桨（每划一下花体力）、漂着歇息。饿到一定程度、帽里和水面都没吃的而岸上有，就划回最近能靠的岸边跳上岸，再从岸边把空帽子收回戴上（木棍跟着帽子回来），上岸去吃；岸上没有她的食物时饥饿不拉她回岸',
+     '成体水生魔理沙在岸上，几格外有一根木棍，帽里没有粮，池塘四边的岸上各放着一个苹果：她捡起木棍收进帽里，走到有静水和船位的岸边把帽子放到水面上，跳进帽里；之后在已加载的静水上划桨（每划一下花体力）、漂着歇息。饿到一定程度、帽里和水面都没吃的而岸上有，就划回最近能靠的岸边跳上岸，再从岸边把空帽子收回戴上（木棍跟着帽子回来），上岸去吃；岸上没有她的食物时饥饿不拉她回岸',
      '约 2–3 分钟（可倍速）',
      [yk('marisa', bank_dx(0) - 5, 0, 'a', aquatic=True, yaw=-90, lead=True, nutrition=56, energy=100, hygiene=100),
       item('minecraft:stick', 1, bank_dx(0) - 3, 2, 'stick'),
-      item('minecraft:apple', 1, bank_dx(-3) - 2, -3, 'food')],
+      *_bank_food()],
      # On the south bank behind her first strokes north along the shore: her braid side and the stick toward the open water.
      vantage=(2, 6, 180, 15),
      capture=dict(shots=(1, 40, 200, 600), sequences=((220, 420, 2),)),
