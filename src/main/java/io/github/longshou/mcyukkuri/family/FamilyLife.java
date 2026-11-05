@@ -9,6 +9,7 @@ import io.github.longshou.mcyukkuri.dialogue.NativeDialogue;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.intent.Conductor;
+import io.github.longshou.mcyukkuri.intent.Drive;
 import io.github.longshou.mcyukkuri.intent.Intent;
 import io.github.longshou.mcyukkuri.intent.IntentRunner;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
@@ -320,7 +321,7 @@ public final class FamilyLife {
     public Conductor.Role birthRole() {
         var role=birthFree()?Conductor.roleOf(entity):null;
         if(role==null||!role.engaged(entity))return null;
-        if(role.choreography().host()==entity&&shoreBirthDue()&&entity.isVehicle())return null;
+        if(role.choreography().host()==entity&&shoreLanding())return null;
         return LiveBirth.CATCHER.equals(role.role())&&role.choreography().host()!=entity&&role.choreography() instanceof LiveBirth b&&b.watching()
                 &&(comfortTicks>0||hasUrgentlyHungryChild())?null:role;
     }
@@ -531,6 +532,14 @@ public final class FamilyLife {
     boolean deliveryGrounded(){return !entity.isPassenger()&&supported()&&!entity.isInWaterOrBubble();}
     /** The birth conductor's own preparation lead also starts the shore return. */
     public static int shoreBirthLead(){return LiveBirth.APPROACH_LEAD;}
+    /** The shore return is still under way: her riders are aboard, or she is down but her hat still floats as a boat while her own
+     *  landing runs (it ends with the hat worn again, or at its own deadline). The birth role waits for the hat so the newborns land in it. */
+    private boolean shoreLanding(){
+        if(!shoreBirthDue())return false;
+        if(entity.isVehicle())return true;
+        var hat=PlacedHatEntity.find(entity);var landing=Drive.running(entity,"aquatic");
+        return hat!=null&&!hat.catches()&&landing!=null&&("come_ashore".equals(landing.id())||"resolve_own_hat".equals(landing.id()));
+    }
     public boolean shoreBirthDue(){
         var b=brood();
         return b!=null&&!b.cancelled&&!b.complete()&&b.kind==FamilyData.BirthKind.LIVE&&b.duration-b.elapsed<=shoreBirthLead()&&liveBirth()!=null&&!cabinBirth();

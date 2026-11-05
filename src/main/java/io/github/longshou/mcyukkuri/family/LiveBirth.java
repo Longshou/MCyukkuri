@@ -119,6 +119,12 @@ final class LiveBirth extends Choreography {
         if(catcher!=null&&!boat&&HatProp.usable(catcher)&&!(catcher==mother&&FamilyNest.large(mother)))receiver=new PlacedHat(hat==null?null:hat.getUUID());
         else receiver=FamilyNest.large(mother)?new Nest():new Ground();
     }
+    /** A cast made while no catching hat was down (her own floated as a boat) is cast again once one can catch. */
+    private void recastIfBare(){
+        if(!(receiver instanceof Ground)||role(CATCHER)!=null||brood()==null||!(catcher(o.entity(),brood()) instanceof YukkuriEntity c))return;
+        recast(c);
+        GameplayLog.event(c,"family","catch duty noticed brood={} mother={} beat={} receiver={}",brood().id,o.entity().getUUID(),beat(),receiver.kind());
+    }
     UUID broodId(){return broodId;}
     /** A Marisa father near enough to notice (with his hat, or without one only to cheer), else a hatted Marisa mother herself. */
     static YukkuriEntity catcher(YukkuriEntity mother,FamilyData.Brood brood){
@@ -130,7 +136,10 @@ final class LiveBirth extends Choreography {
     @Override protected Map<String,Beat> table(){
         var t=new HashMap<String,Beat>();String labour=live?"term":"drop";
         t.put("site",new Beat.Perform(Beat.roles(MOTHER,this::site),()->Math.max(PAUSE,toTerm()),"sited","sited"));
-        t.put("sited",new Beat.Branch(r->interrupted(r)?"site":receiver instanceof PlacedHat p&&p.host()==null?self()?"self_wait":"find":labour));
+        t.put("sited",new Beat.Branch(r->{
+            recastIfBare();
+            return interrupted(r)?"site":receiver instanceof PlacedHat p&&p.host()==null?self()?"self_wait":"find":labour;
+        }));
         // A failed site stays out for NEST_GRACE ticks: the search picks another one or waits for the world to change.
         t.put("find",new Beat.Branch(r->(meeting=meet())!=null?"meet":!excluded.isEmpty()&&window()>PAUSE?"regroup":nocatch("no_site")));
         t.put("meet",new Beat.Perform(Beat.roles(CATCHER,()->meeting.forB(),MOTHER,()->meeting.forA()),this::window,"met","nocatch"));
