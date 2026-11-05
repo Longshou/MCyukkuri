@@ -2159,26 +2159,12 @@ def _escape_needs_place(window):
     return None
 
 
-def _overload_bank():
-    pond_ = BY_ID['pond']
-    out = []
-    for x in range(pond_.px - pond_.RX - 2, pond_.px + pond_.RX + 3):
-        for z in range(pond_.pz - pond_.RZ - 2, pond_.pz + pond_.RZ + 3):
-            if pond_.depth(x, z):
-                continue
-            dx, dz = x - pond_.bank[0], z - pond_.bank[2]
-            if any(pond_.depth(x + ox, z + oz) for ox, oz in ((1, 0), (-1, 0), (0, 1), (0, -1))):
-                out.append(block(dx, -1, dz, 'minecraft:mud'))
-            else:
-                out.append(f'execute if block ~{dx} ~-1 ~{dz} minecraft:grass_block run setblock ~{dx} ~ ~{dz} minecraft:short_grass')
-    return out
-
-
 def _overload_family(parent, dz, intelligence, friendliness, cabin):
     """Saved young far below the size their stored nourishment already sustains: the ordinary loaded ticks grow them aboard into
-    a load over twice the hull's capacity. Young 2 stays under that capacity on its own, so the parent that lost its largest
-    stops overloading while the exceptional one keeps all three and overloading. One real pile of apples floats in the open
-    water beyond each berth, next to the eight in the hat."""
+    a load over twice the hull's capacity. They start just under the load warning for the ordinary parent (head 0.36 + brim
+    0.18: 0.83 of capacity), so her own load rule seats them and growth carries the hull into the warning she reacts to; young 2
+    stays under that capacity on its own, so the parent that lost its largest stops overloading while the exceptional one keeps
+    all three and overloading. One real pile of apples floats in the open water beyond each berth, next to the eight in the hat."""
     return [yk('marisa', bank_dx(dz), dz, parent, aquatic=True, yaw=-90, lead=True,
                uuid=uid('hat_crowd', parent), intelligence=intelligence, friendliness=friendliness,
                label=f'智{intelligence}·友善{friendliness}', **pair_ready()),
@@ -2186,7 +2172,7 @@ def _overload_family(parent, dz, intelligence, friendliness, cabin):
                  fam=_seat_family(size, nourishment, age), childhood=CHILDHOOD_CRAWLING_READY,
                  uuid=uid('hat_crowd', parent + str(i)), also=(parent + '_crew',),
                  kin=f'Mother:{uuid_nbt(uid("hat_crowd", parent))}', label=f'孩子{i}', **pair_ready())
-              for i, offset, size, nourishment, age in ((1, -1, .16, 22909, 36000), (2, 0, .20, 120000, 76000),
+              for i, offset, size, nourishment, age in ((1, -1, .16, 22909, 36000), (2, 0, .18, 120000, 76000),
                                                        (3, 1, .36, 210000, 72000)) if cabin or i != 1],
             item('minecraft:apple', 8, bank_dx(dz) + 9, dz, name=parent + '_food'),
             afloat(parent, water_at(dz, 6), True, sel_all(parent + '_crew'), food=8, stick=True)]
@@ -2569,7 +2555,7 @@ pond('cargo', '帽里存粮取食，空帽打下', '帽里存粮取食，空帽�
 pond('hat_crowd', '孩子长大超载翻船，亲油取舍', '孩子长大超载翻船，亲油取舍',
      '两位亲油并排，普通亲油带一只头顶赤油和一只帽檐子油，另一位还带一只帽内小赤油，按舱内、裸露头顶、帽檐顺序找真实承托。普通亲油智力55、友善70；另一位智力20、友善80。各有八份帽粮，帽旁水里另漂着八份真实苹果；孩子靠实际成长增加载重；超载只在登船、离船或成长时抽一次翻船概率。普通亲油看到帽船吃水下沉、多晃（载重警戒）就带全家划回岸边卸下，再出航只带帽船载得下的孩子、载不下的留岸；来不及靠岸而真正超载翻船时，才断绝最大的一只。低智力高友善亲油不理会警戒，照样载着全家，超载翻船后继续承认全部孩子。落水后照常自救或救幼，不能保证存活',
      '约 5 分钟，建议倍速',
-     [*_overload_bank(), *_overload_family('normal', 0, 55, 70, False), *_overload_family('kind', 6, 20, 80, True)],
+     [*_overload_family('normal', 0, 55, 70, False), *_overload_family('kind', 6, 20, 80, True)],
      late=[f'execute as {sel("normal")} on vehicle run tag @s add seat_reload'],
      capture=dict(shots=(1, 600, 2400, 5200), sequences=((600, 5200, 200), (1400, 2600, 4))),
      note='普通亲油的头顶与帽檐乘员用于保存重载核对，另一位的帽内赤油可自行转身和走动；冒烟会卸载再加载场地区块核对第一顶帽的位置与乘员。'
