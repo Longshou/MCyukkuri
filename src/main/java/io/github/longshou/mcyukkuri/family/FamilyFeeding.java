@@ -163,7 +163,8 @@ final class FamilyFeeding {
 
     /** A parent chooses once per viable child-care opportunity; attachment never enters this choice. */
     private boolean acceptsCare(YukkuriEntity child) {
-        boolean urgent=child.life().nutrition()<30;
+        // The never-fed newborn's first meal is as urgent as starvation: the parent's draw takes the urgent chance.
+        boolean urgent=child.life().nutrition()<30||!child.childhood().firstMealDone();
         var decision=o.careDecisions().decide(child,CareDecisionLedger.Need.FEED,urgent);
         if(!decision.newDecision())return decision.accepted();
         boolean accepted=decision.accepted();

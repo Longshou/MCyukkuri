@@ -95,7 +95,7 @@ public final class DailyLife {
                     || e.isOnFire() || e.isInWaterOrBubble() : e.life().hasUrgentNeed())
                 && e.life().activity().equals(Behaviors.IDLE)
                 && e.life().nutrition() >= (continuing ? 15 : 40) && e.life().energy() >= (continuing ? 15 : 35)
-                && e.body().condition().readyForAffection() && e.life().spicyTicks() == 0
+                && !e.childhood().needsNewbornCare() && e.body().condition().readyForAffection() && e.life().spicyTicks() == 0
                 && !e.groupInteraction().active() && !e.playLife().active() && !e.pet().busy()
                 && !e.family().active() && !e.house().active() && !e.habitat().active()
                 && !e.independence().active() && !e.forageTrip().outing() && !e.settlement().active() && !e.settlement().duties().active()

@@ -65,7 +65,8 @@ public final class CareApproach {
         if(reason!=null)return "child_"+reason;
         if(!owner.family().caresFor(child))return "care_relationship_lost";
         if(owner.life().hasUrgentNeed())return "parent_urgent_need";
-        if(!(child.life().energy()>=25))return "child_low_energy";
+        // A never-fed newborn is never too tired for its first meal: it is fed rather than put off.
+        if(!(child.life().energy()>=25)&&(kind!=Kind.FEED||child.childhood().firstMealDone()))return "child_low_energy";
         if(!(child.life().wetness()<=40))return "child_wet";
         return kind==Kind.FEED||!child.life().hasUrgentNeed()||child.childhood().needsAssistedFirstToilet()&&child.life().nutrition()>=30
                 ?null:"child_urgent_need";

@@ -61,7 +61,7 @@ public final class WildEvents {
     public static boolean available(YukkuriEntity e) {
         return e.level() instanceof ServerLevel level && safe(e) && WildEventData.get(level).membersFree(List.of(e.getUUID())) && e.onGround()
                 && !e.profile().houseBody() && !e.profile().dangerToYukkuri() && !HomeClaim.holds(e)
-                && !e.dailyLife().active() && !e.social().active() && !e.groupInteraction().active() && !e.playLife().active()
+                && !e.childhood().needsNewbornCare() && !e.dailyLife().active() && !e.social().active() && !e.groupInteraction().active() && !e.playLife().active()
                 && !e.family().active() && !e.house().active() && !e.habitat().active() && e.life().mealTicks()==0;
     }
     public static boolean recognizes(YukkuriEntity a, YukkuriEntity b) {
