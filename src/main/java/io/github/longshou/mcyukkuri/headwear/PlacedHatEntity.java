@@ -298,12 +298,26 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
                 .filter(p -> p instanceof YukkuriEntity).map(p -> (YukkuriEntity) p)
                 .map(y -> (double) (y.growthScale() * y.getScale())).toList();
     }
+    /** Why the hull would not carry a load these sizes add up to ({@link HullBounds#loadRatio}), or null while it still does. */
+    private String weigh(List<Double> sizes) {
+        double scale = hullScale() / HullBounds.SCALE, capacity = HullBounds.capacity(scale), ratio = HullBounds.loadRatio(scale, sizes);
+        return ratio <= 1 ? null : String.format(Locale.ROOT, "load=%.4f capacity=%.4f", ratio * capacity, capacity);
+    }
+    /** The sizes a boarding body brings aboard: a young her own; a captain only the young she carries, her own body being the
+     *  hull's design weight (the same exclusion {@code HullAfloat.loadChanged} makes). */
+    private List<Double> boardingSizes(YukkuriEntity boarder) {
+        var brought = boarder.getUUID().equals(ownerYukkuri())
+                ? boarder.getPassengers().stream().filter(p -> p instanceof YukkuriEntity y && !y.getUUID().equals(ownerYukkuri()))
+                        .map(p -> (YukkuriEntity) p).toList()
+                : List.of(boarder);
+        return brought.stream().map(y -> (double) (y.growthScale() * y.getScale())).toList();
+    }
     /** The load rule a carer's own choice follows: her young may only be put down while the hull still carries it. */
     @Override public String loadRefusal(YukkuriEntity carer, YukkuriEntity child) {
         if (ParentCarry.overloadKeeper(carer)) return null;
-        double scale = hullScale() / HullBounds.SCALE, capacity = HullBounds.capacity(scale);
-        double ratio = HullBounds.loadRatioWith(scale, riderSizes(child), child.growthScale() * child.getScale());
-        return ratio <= 1 ? null : String.format(Locale.ROOT, "load=%.4f capacity=%.4f", ratio * capacity, capacity);
+        var sizes = new ArrayList<>(riderSizes(child));
+        sizes.add((double) (child.growthScale() * child.getScale()));
+        return weigh(sizes);
     }
     @Override public void loadChanged(YukkuriEntity body, String event) { behavior().loadChanged(this, body, event); }
     @Override public OptionalDouble support(Vec3 local, BodyFootprint body) {
@@ -527,11 +541,14 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
     public boolean admits(YukkuriEntity child) {
         return child != null && !child.family().adult() && young(child) && boardingRefusal(child) == null;
     }
-    /** Why this hull does not take a young that boards herself: the over-capacity detail, or null while the load carries her. */
-    public String boardingRefusal(YukkuriEntity child) {
-        if (child.getVehicle() instanceof YukkuriEntity) return null;
+    /** Why this hull does not take a body that climbs aboard by her own means: the over-capacity detail, or null while it carries
+     *  what she brings ({@link #boardingSizes}). The captain is weighed too: she does not climb onto a hull she would swamp. A
+     *  young's boarding is the captain's own choice, and a keeper may overload on purpose. */
+    @Override public String boardingRefusal(YukkuriEntity body) {
+        if (body.getVehicle() instanceof YukkuriEntity) return null;
+        if (body.getUUID().equals(ownerYukkuri())) return weigh(boardingSizes(body));
         var captain = placeCarrier();
-        return captain == null ? null : loadRefusal(captain, child);
+        return captain == null ? null : loadRefusal(captain, body);
     }
     public int youngAboard() { return (int) getPassengers().stream().filter(p -> !p.getUUID().equals(ownerYukkuri())).count(); }
     @Override protected void addPassenger(Entity passenger) {

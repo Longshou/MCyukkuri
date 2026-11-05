@@ -2548,7 +2548,12 @@ pond('hat_crowd', '孩子长大超载翻船，亲油取舍', '孩子长大超载
                 forbid=[r'\[body\][^\n]* invariant\b', r'\[hat\][^\n]* capsized cause=(?:shake|turbulence)\b',
                         r'\[action\][^\n]* refused id=hop [^\n]*detail=no_spot',
                         r'\[needs\][^\n]* starvation damage accepted=true',
-                        r'\[body\][^\n]* death settled[^\n]*cause=(?!.*(?:drown|water))'],
+                        r'\[body\][^\n]* death settled[^\n]*cause=(?!.*(?:drown|water))',
+                        # A climb that ended in rest_place_lost is a failed climb: the mount it left behind is no support, and boarding
+                        # a hull the body's own load would swamp is no way out (the escape goes to the nearest dry bank instead).
+                        r'\[action\][^\n]* end id=climb outcome=BLOCKED [^\n]*detail=rest_place_lost[\s\S]*?\[water\][^\n]* escape done [^\n]*support=aboard',
+                        rf'\[body\][^\n]* uuid=(?:{_uuid_text("hat_crowd", "normal")}|{_uuid_text("hat_crowd", "kind")})[^\n]* death settled',
+                        ],
                 verify=_overload_family_choice,
                 readout=[f'yukkuri status {sel(who)} raw' for who in ('normal', 'kind', 'normal2', 'normal3', 'kind1', 'kind2', 'kind3')]
                         + ['data get entity @e[tag=seat_reload,limit=1] Riders',

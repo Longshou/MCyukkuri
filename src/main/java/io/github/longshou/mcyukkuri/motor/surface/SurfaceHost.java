@@ -61,6 +61,10 @@ public interface SurfaceHost {
      *  load), else the over-capacity detail ({@code load}, {@code capacity}). Only a weighed hull answers. */
     default String loadRefusal(YukkuriEntity carer, YukkuriEntity child) { return null; }
 
+    /** A body climbing aboard by its own means (the captain included): null while the host carries what it brings aboard, else the
+     *  over-capacity detail. Only a weighed hull answers. */
+    default String boardingRefusal(YukkuriEntity body) { return null; }
+
     /** Brim sample points in world coordinates, tilt included (24 of them). */
     List<Vec3> rim();
 

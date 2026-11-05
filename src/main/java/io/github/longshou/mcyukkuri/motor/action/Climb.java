@@ -64,6 +64,9 @@ public final class Climb implements Action {
             return Feasibility.of(Reason.TOO_HIGH, rise - ability.climbRise(), String.format(Locale.ROOT, "rise=%.2f climbRise=%.2f", rise, ability.climbRise()));
         if (host != null) {
             edge = host.frame().toLocal(grip);
+            // A hull this body's own boarding would overload flips her straight back: it is no way out (the captain included).
+            String overload = host.boardingRefusal(body);
+            if (overload != null) return Feasibility.of(Reason.TOO_HEAVY, 0, "overload " + overload);
             var entry = host.restEntry(body);
             if (entry == null || !entry.available(body)) return Feasibility.of(Reason.NO_ROOM, 0, "no_room_inside");
             stand = entry.local();

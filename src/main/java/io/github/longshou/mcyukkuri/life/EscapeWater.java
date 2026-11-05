@@ -96,11 +96,15 @@ public final class EscapeWater implements Intent {
 
     @Override public boolean satisfied() { return safe(body); }
 
-    /** The Goal and intent finish on the same completed climb or supported dry landing. */
+    /** The Goal and intent finish on the same completed climb or a support that really holds the body: a settled rest place on the
+     *  hull it rides, a carrier's braid or head, or a dry stand of its own. The mount a failed climb left behind is no support. */
     public static boolean safe(YukkuriEntity body) {
-        return !(body.motor().current() instanceof Climb)
-                && (body.isPassenger() || !body.isInWaterOrBubble() && body.onGround()
-                && (body.waterDistress().phase() == WaterDistress.Phase.RECOVER || body.waterDistress().phase() == WaterDistress.Phase.IDLE));
+        if (body.motor().current() instanceof Climb) return false;
+        var vehicle = body.getVehicle();
+        if (vehicle instanceof SurfaceHost host) return host.settled(body);
+        if (vehicle instanceof YukkuriEntity) return true;
+        return !body.isInWaterOrBubble() && body.onGround()
+                && (body.waterDistress().phase() == WaterDistress.Phase.RECOVER || body.waterDistress().phase() == WaterDistress.Phase.IDLE);
     }
 
     /** One line per escape, with the stand it ended on (or none): the whole run's outcome in the water log. */
@@ -218,6 +222,9 @@ public final class EscapeWater implements Intent {
     private Feasibility hat(PlacedHatEntity hat, boolean capsized) {
         if (hat == null || hat.isRemoved() || hat.capsized() != capsized) return Feasibility.of(Reason.NO_SUPPORT, 0, "no_hat");
         if (!body.childhood().canSail()) return Feasibility.of(Reason.NO_TOOL, 0, "cannot_sail");
+        // Boarding a hull its own load would swamp is no way out: the climb would only throw the body back into the water.
+        String overload = hat.boardingRefusal(body);
+        if (overload != null) return Feasibility.of(Reason.TOO_HEAVY, 0, "overload " + overload);
         double far = hat.distanceTo(body) - HAT_RANGE;
         return far > 0 ? Feasibility.of(Reason.TOO_FAR, far, "hat_far") : Feasibility.pass();
     }
