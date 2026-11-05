@@ -57,12 +57,13 @@ final class Care implements Intent {
     static Care feed(YukkuriEntity parent, YukkuriEntity child) { return new Care(parent, child, true); }
     static Care comfort(YukkuriEntity parent, YukkuriEntity child) { return new Care(parent, child, false); }
 
-    /** A frightened brim rider needs her braid only when the cabin is full and her head has real room. */
+    /** A frightened brim rider needs her braid only when the cabin is full and her head has real room; so does one that cannot play there. */
     static boolean needsShelter(YukkuriEntity child, PlacedHatEntity hat) {
-        return child.family().stage() == FamilyLife.Stage.BABY && PlayAboard.onBrim(child, hat)
-                && !PlayAboard.fear(child, hat).equals("none")
-                && hat.places(child, SeatTarget.Kind.CABIN, 1).isEmpty()
-                && !hat.places(child, SeatTarget.Kind.HEAD, 1).isEmpty();
+        if (child.family().stage() != FamilyLife.Stage.BABY || !PlayAboard.onBrim(child, hat)) return false;
+        boolean cabin = !hat.places(child, SeatTarget.Kind.CABIN, 1).isEmpty();
+        // One that cannot play on the brim and has no cabin move of its own (cannot walk or hop in) is lifted into the free cabin place.
+        if (!child.childhood().canExercise()) return cabin && TakeSeat.offer(child, hat) == null;
+        return !PlayAboard.fear(child, hat).equals("none") && !cabin && !hat.places(child, SeatTarget.Kind.HEAD, 1).isEmpty();
     }
 
     /** Ordinary parental placement: lift a brim child to shelter, or lower a head rider onto supported ground. */
@@ -110,9 +111,11 @@ final class Care implements Intent {
                 && child.life().nutrition() < parent.life().nutrition() - parent.species().traits().dote();
     }
 
-    /** Gasping after the water, or cold: the young she comforts. */
+    /** Gasping after the water (or its incident closed a moment ago, so a lift during the breath does not cancel the comfort), or cold:
+     *  the young she comforts. */
     static boolean upset(YukkuriEntity child) {
-        return child.isAlive() && (child.waterDistress().phase() == WaterDistress.Phase.RECOVER || child.life().temperature().cold());
+        return child.isAlive() && (child.waterDistress().phase() == WaterDistress.Phase.RECOVER
+                || child.waterDistress().closedWithin((long) PlayAboard.number("comfort_again")) || child.life().temperature().cold());
     }
 
     @Override public String id() { return feed ? "feed_young" : "comfort_young"; }

@@ -24,7 +24,7 @@ public final class WaterDistress {
     private final YukkuriEntity entity;
     private Phase phase=Phase.IDLE;
     private int phaseTicks, immersionTicks, callWait, pendingPlunge, drySupportTicks;
-    private long lastTick=Long.MIN_VALUE;
+    private long lastTick=Long.MIN_VALUE, closedTick=Long.MIN_VALUE;
     private ServerLevel lastLevel;
     private long threatTick=Long.MIN_VALUE;
     private ServerLevel threatLevel;
@@ -34,6 +34,8 @@ public final class WaterDistress {
     public Phase phase(){return phase;}
     public int phaseTicks(){return phaseTicks;}
     public int immersionTicks(){return immersionTicks;}
+    /** Its water incident ended (the breath after it included) within the last {@code ticks}. */
+    public boolean closedWithin(long ticks){return closedTick!=Long.MIN_VALUE&&entity.level().getGameTime()-closedTick<=ticks;}
     public boolean active(){return phase!=Phase.IDLE;}
     /** Paid swimming effort: read from the body's running Swim. */
     public boolean effort(){return entity.isInWaterOrBubble()&&!entity.predatorFlying()&&!entity.family().flying()
@@ -61,6 +63,7 @@ public final class WaterDistress {
         if(phase!=next){
             Phase before = phase; int elapsed = phaseTicks;
             phase=next;phaseTicks=0;
+            if(before==Phase.RECOVER&&next==Phase.IDLE)closedTick=entity.level().getGameTime();
             GameplayLog.limited(entity, "water", "phase." + next, 200,
                     "phase={} -> {} previousTicks={} immersion={} energy={} air={} sheltered={}",
                     before, next, elapsed, immersionTicks, entity.life().energy(), entity.getAirSupply(), Attach.sheltered(entity));

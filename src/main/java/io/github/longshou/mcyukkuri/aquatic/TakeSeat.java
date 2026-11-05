@@ -33,8 +33,9 @@ final class TakeSeat implements Intent {
     /** No offer without a real means; a wall rider is left to squeeze/settle, even while crowded. */
     static TakeSeat offer(YukkuriEntity body, PlacedHatEntity hat) {
         if (body.getVehicle() != hat || !Floor.standing(body)) return null;
-        // A young on the brim is playing there; fear or a gasp sends it in (PlayAboard), not a cabin place that merely is free.
-        if (PlayAboard.onBrim(body, hat)) return null;
+        // A young on the brim that can exercise is playing there; fear or a gasp sends it in (PlayAboard), not a cabin place that merely
+        // is free. One that cannot play there walks or hops into the free cabin place itself, or is lifted in (Care.needsShelter).
+        if (PlayAboard.onBrim(body, hat) && body.childhood().canExercise()) return null;
         var at = hat.riders().local(body.getUUID());
         // Seated is seated: a young already standing on an admitted cabin place stays, however a nearer-the-captain place shifts.
         if (hat.settled(body) && new SeatTarget(hat, at, SeatTarget.Kind.CABIN).available(body)) return null;
