@@ -475,7 +475,11 @@ final class AquaticGoal extends Goal {
         var running = IntentRunner.running(parent);
         Supplier<String> why = () -> "parent=" + parent.getUUID() + " parent_aboard=" + parentOn
                 + " doing=" + (running == null ? "none" : running.intent().id());
-        var world = List.of(cell(hat), body.blockPosition(), parentOn);
+        // What a failed offer was read from: aboard, the hull and its own place on it (hull-local, so drift changes neither and a
+        // failed hop out is not offered again just because the hull moved); ashore, where it stands and where the hull lies.
+        Object world = body.getVehicle() == hat ? List.of(hat.getUUID(), hat.riders().local(body.getUUID()), parentOn)
+                : on ? List.of(hat.getUUID(), "head", parentOn) : List.of(cell(hat), body.blockPosition(), parentOn);
+
         if (on && parentOn && body.family().stage() == FamilyLife.Stage.BABY) play(out, hat, world);
         if (on) BoatToilet.offer(out, body, hat);
         var rest = TakeSeat.offer(body, hat);
