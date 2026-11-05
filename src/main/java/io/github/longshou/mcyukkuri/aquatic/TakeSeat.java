@@ -13,6 +13,7 @@ import io.github.longshou.mcyukkuri.motor.action.Walk;
 import io.github.longshou.mcyukkuri.motor.surface.Floor;
 import io.github.longshou.mcyukkuri.motor.surface.SeatTarget;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
+import java.util.ArrayList;
 import java.util.List;
 
 /** A rider moves to its own cabin place after landing or a braid set-down. */
@@ -35,6 +36,8 @@ final class TakeSeat implements Intent {
         // A young on the brim is playing there; fear or a gasp sends it in (PlayAboard), not a cabin place that merely is free.
         if (PlayAboard.onBrim(body, hat)) return null;
         var at = hat.riders().local(body.getUUID());
+        // Seated is seated: a young already standing on an admitted cabin place stays, however a nearer-the-captain place shifts.
+        if (hat.settled(body) && new SeatTarget(hat, at, SeatTarget.Kind.CABIN).available(body)) return null;
         var ability = BodyAbility.of(body);
         if (ability.walkSpeed() <= 0 && ability.hopReach() <= 0) return null;
         var places = hat.places(body, SeatTarget.Kind.CABIN, 1);
@@ -47,8 +50,15 @@ final class TakeSeat implements Intent {
         var hop = new Hop(hat, target.local());
         return hop.check(body).ok() ? new TakeSeat(body, hat, target, hop) : null;
     }
-    /** Hull motion in world space does not change a failed local move. */
-    Object world() { return List.of(hat.getUUID(), target.local(), hat.riders().local(body.getUUID()), move.id()); }
+    /** A failed move is excluded until a rider has really moved: every rider's place in eighths of a block, not the drifting target. */
+    Object world() {
+        var places = new ArrayList<Object>(List.of(hat.getUUID(), move.id()));
+        for (var rider : hat.getPassengers()) if (rider instanceof YukkuriEntity y) {
+            var at = hat.riders().local(y.getUUID());
+            places.add(List.of(y.getUUID(), Math.round(at.x * hat.unit() * 8), Math.round(at.z * hat.unit() * 8)));
+        }
+        return places;
+    }
     String why() { return "rest=" + GameplayLog.at(target.world()) + " via=" + move.id(); }
 
     @Override public String id() { return "take_seat"; }
