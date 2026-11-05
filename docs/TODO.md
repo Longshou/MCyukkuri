@@ -8,6 +8,7 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
+| wp-ah-young-aboard：幼体在帽中的行为 | `.worktrees/wp-ah-young-aboard` | `aquatic/TakeSeat.java`、`Care.java`、`PlayAboard.java` |
 | 辫子占用单一权威、木棍不凭空消失、放幼不往身后弯（11-06 反馈 2、3、6） | `.worktrees/wp-z-braid-state` | `family/ParentCarry`、`motor/` 抓取放下与辫子持物、`client/` 持物显示、辫子动作片段 |
 | 水上个体的生物取舍：脚下不稳不决定救援、岸上亲油辫子够得到直接捞、普通亲油预警时先卸载、累了上岸、伴侣岸上分娩随行、饿了只在够得到自己的食物时上岸（11-06 审计 P1） | `.worktrees/wp-ag-afloat-priorities` | `aquatic/AquaticGoal`、`aquatic/Rescue`、`drive/aquatic.json`、`settlement/ForageGoal`、载重预警反应、`hat_crowd`／`rescue_child`／`shake_capsize` 场景 |
 | 帽船靠岸留间距、满载救起场景的帽檐子油自己上岸（11-06 反馈 2a） | `.worktrees/wp-ae-dock-standoff` | `aquatic/Ashore`、`aquatic/Waters` 靠岸、`scripts/museum_scenarios.py` `rescue_no_seat` |
@@ -136,6 +137,7 @@
 
 | 编号 | 运行版本 | 已确认现象／边界 |
 | --- | --- | --- |
+| wp-ah-young-aboard：幼体在帽中的行为 | `.worktrees/wp-ah-young-aboard` | `aquatic/TakeSeat.java`、`Care.java`、`PlayAboard.java` |
 | **E1** | 10-21 22:41 至 10-22 00:04，[f4872105](https://github.com/Longshou/MCyukkuri/commit/f4872105)，[CI 39595554878](https://github.com/Longshou/MCyukkuri/actions/runs/39595554878) | 头饰、捕食、遗体／治疗及出生与成长反馈的共同运行包。 |
 | **E2** | 10-22 00:10–00:39，[372fa23d](https://github.com/Longshou/MCyukkuri/commit/372fa23d)，[CI 39630804471](https://github.com/Longshou/MCyukkuri/actions/runs/39630804471) | 中枢按钮卡死、岩浆块过快致死、护尸走停、治疗持物不可见。 |
 | **E3** | 00:45–01:09，[cc0e78ff](https://github.com/Longshou/MCyukkuri/commit/cc0e78ff)，[CI 39634939963](https://github.com/Longshou/MCyukkuri/actions/runs/39634939963) | 天气、捕食、睡眠与闲逛场景反馈。 |
