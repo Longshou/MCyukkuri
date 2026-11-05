@@ -6,6 +6,7 @@ import io.github.longshou.mcyukkuri.motor.Action;
 import io.github.longshou.mcyukkuri.motor.ClipMarkers;
 import io.github.longshou.mcyukkuri.motor.ContactGeometry;
 import io.github.longshou.mcyukkuri.motor.Feasibility;
+import io.github.longshou.mcyukkuri.motor.HeldMove;
 import io.github.longshou.mcyukkuri.motor.MotionPose;
 import io.github.longshou.mcyukkuri.motor.Outcome;
 import io.github.longshou.mcyukkuri.motor.Progress;
@@ -17,7 +18,8 @@ import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.Locale;
 import net.minecraft.world.entity.Entity;
 
-/** Take a prop back onto the body: at the clip's {@code grip} marker the braid takes it and the one transfer happens; the clip then carries it to the head by {@code release}. */
+/** Take a prop back onto the body: at the clip's {@code grip} marker the braid takes it and the one transfer happens; the clip then carries it to the head by {@code release}.
+ *  Her stick lying in that hat is taken into the braid first when the braid reaches it ({@link Stow}); otherwise it tips out into the water as the hat is lifted. */
 public final class TakeProp implements Action {
     public static final String ID = "take_prop";
     public static final String RELEASE_MARKER = "release";
@@ -26,7 +28,8 @@ public final class TakeProp implements Action {
 
     private final Prop prop;
     private long startTick;
-    private boolean holding;
+    private boolean holding, begun;
+    private final StowStep take = new StowStep();
 
     public TakeProp(Prop prop) {
         if (prop == null) throw new IllegalArgumentException("TakeProp needs the prop");
@@ -51,10 +54,19 @@ public final class TakeProp implements Action {
     }
 
     @Override public void start(YukkuriEntity body) {
+        begun = false;
+        if (take.start(body, Stow.regrip(body, "take_prop"))) return;
+        begun = true;
         startTick = body.level().getGameTime();
     }
 
     @Override public Progress tick(YukkuriEntity body) {
+        if (!begun) {
+            var taken = take.tick(body);
+            if (taken instanceof Running running) return new Running(running.metric() + ClipMarkers.of(clip()).length(), TravelMode.CONSUMED);
+            begun = true;
+            startTick = body.level().getGameTime();
+        }
         int end = ClipMarkers.of(clip()).length();
         long elapsed = body.level().getGameTime() - startTick;
         if (!holding) {
@@ -62,6 +74,7 @@ public final class TakeProp implements Action {
             // The world may have changed while the braid reached: the same refusal the start check gives, before the one transfer.
             Feasibility still = check(body);
             if (!still.ok()) return Outcome.of(still.reason(), still.shortfall(), still.detail());
+            Stow.tipOut(body, "hat_lifted");
             if (!prop.takeBack()) return Outcome.of(Reason.NO_CONTACT, 0, "take_back_refused");
             holding = true;
         }
@@ -72,7 +85,9 @@ public final class TakeProp implements Action {
     /** Once the braid holds the prop the clip runs on to the head; before that any request may replace it. */
     @Override public boolean interruptible() { return !holding; }
 
-    @Override public MotionPose pose() { return new MotionPose(clip(), startTick, false); }
+    @Override public MotionPose pose() { return begun ? new MotionPose(clip(), startTick, false) : MotionPose.NONE; }
+
+    @Override public HeldMove heldMove() { return take.move(); }
 
     @Override public String startDetail() {
         return String.format(Locale.ROOT, "prop=%s at=%s grip=%d release=%d", prop.id(),

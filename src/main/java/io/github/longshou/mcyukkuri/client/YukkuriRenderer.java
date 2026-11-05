@@ -40,6 +40,9 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
     public boolean shouldRender(YukkuriEntity source, Frustum frustum, double x, double y, double z) {
         YukkuriView entity=source;
         if (super.shouldRender(source, frustum, x, y, z)) return true;
+        // Her stick lying in her set-down hat is drawn with her: seen whenever that hat is.
+        var hat=entity.getHeldItem().isEmpty()||entity.heldPlace().hat()<0?null:entity.level().getEntity(entity.heldPlace().hat());
+        if(hat!=null&&frustum.isVisible(hat.getBoundingBoxForCulling().inflate(1)))return true;
         // The body-sized collision box excludes tall hats and animated stretches.
         double margin = entity.broodCount()>0?3:entity.profile().houseBody() ? .4 : 1.2;
         return source.shouldRender(x, y, z) && frustum.isVisible(entity.getBoundingBoxForCulling().inflate(margin));
@@ -147,8 +150,11 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
                 else if (behavior.equals(Behaviors.WAKE)) pose.scale(1, .96f + Math.min(1, phaseTicks/20)*.04f, 1);
             }
             model.setCarrying(!entity.getCarriedItem().isEmpty());
-            model.setHeldItem(!entity.getHeldItem().isEmpty(),entity.vehicleHat()!=null);
-            model.setMouthHolding(HeldItemPresentation.closedGrip(entity)||!entity.getMouthBodyFood().isEmpty()||ParentCarry.mouthCarrying(entity));
+            // Her held stack is drawn where the server's record puts it: the hold pose carries it only while her grip has it.
+            var heldNow=HeldItemPresentation.now(entity,partialTick);
+            model.setHeldItem(heldNow!=null&&heldNow.overlay(),heldNow!=null&&heldNow.attach(),entity.vehicleHat()!=null);
+            model.setMouthHolding(HeldItemPresentation.closedGrip(entity)||!entity.getMouthBodyFood().isEmpty()||ParentCarry.mouthCarrying(entity)
+                    ||heldNow!=null&&heldNow.mouth());
             configureCareContact(entity,behavior,partialTick,model);
             var delivery=LiveBirthRenderer.prepare(entity,model,partialTick);
             model.setPregnancy(entity.livePregnancyProgress(),LiveBirthRenderer.contraction(entity,partialTick));model.setDelivery(delivery);
@@ -163,7 +169,7 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
                     :cradled?(entity.level().getGameTime()+partialTick)/20f:carried?0:elapsed;
             var anatomy=ReproductionPresentation.anatomy(entity);
             model.setReproductiveAnatomy(anatomy==null?null:anatomy.part(),anatomy==null?0:anatomy.amount());
-            if(!carried)ParentCarryPresentation.configure(entity,model,partialTick);
+            if(!carried)ParentCarryPresentation.configure(entity,model,heldNow,partialTick);
             // The worn wrap lies under the hair; the model lifts the hair over it as it draws (CareWearRenderer.clearHair).
             model.setWear(!hatCarrier&&!carried?entity.visibleWear():0);
             model.renderLiving(operated||behavior.equals(Behaviors.SLIDE_DOWN)?"idle":action, operated?0:clock, pose, buffer, packedLight, overlay,
@@ -226,7 +232,7 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
                         pose,buffers,entity.level(),entity.getId());
                 pose.popPose();
             }
-            if(!entity.getHeldItem().isEmpty())HeldItemPresentation.held(entity.getHeldItem(),entity,model,pose,buffers,packedLight,overlay,presentation.foodScale());
+            if(heldNow!=null)HeldItemPresentation.held(entity.getHeldItem(),entity,model,heldNow,start,pose,buffers,packedLight,overlay,partialTick);
             if(!operated&&HeldItemPresentation.kanroken(entity,behavior)){
                 // A Myon's stick sword rides crosswise in the free mouth, on the same mouth pose as food (rare/MyonLife).
                 pose.pushPose();HeldItemPresentation.mouth(pose,model);

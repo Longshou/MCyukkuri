@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Set;
 import io.github.longshou.mcyukkuri.headwear.HatGeometry;
 import io.github.longshou.mcyukkuri.headwear.PlacedHatEntity;
+import io.github.longshou.mcyukkuri.motor.Held;
 import io.github.longshou.mcyukkuri.motor.Motor;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import net.minecraft.tags.FluidTags;
@@ -253,6 +254,8 @@ final class ScenarioSetup {
         var hat = PlacedHatEntity.setDown(owner, at, owner.getYRot(), HatGeometry.Role.HELPER);
         if (hat == null) return "帽子没能放下：" + PlacedHatEntity.lastRefusal() + "。水面托不住整顶帽体时（吃水不够或帽檐压到岸），把落点往水里挪一格。";
         if (stick && !hat.stow(new ItemStack(Items.STICK))) return takeBack(owner, hat, "帽子没能收下木棍，帽子已收回。");
+        // The stick starts in her own grip, as one she took up herself.
+        if (stick) owner.life().custody().placeKit(Held.Place.GRIP, null, null, "scenario");
         for (var child : young) kin(owner, child, false);
         var riders = new ArrayList<YukkuriEntity>();
         if (aboard) riders.add(owner);

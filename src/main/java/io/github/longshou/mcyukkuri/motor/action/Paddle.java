@@ -6,9 +6,12 @@ import io.github.longshou.mcyukkuri.motor.Action;
 import io.github.longshou.mcyukkuri.motor.Attach;
 import io.github.longshou.mcyukkuri.motor.AttachState;
 import io.github.longshou.mcyukkuri.motor.BodyAbility;
+import io.github.longshou.mcyukkuri.motor.Braid;
 import io.github.longshou.mcyukkuri.motor.ClipMarkers;
 import io.github.longshou.mcyukkuri.motor.ContactGeometry;
 import io.github.longshou.mcyukkuri.motor.Feasibility;
+import io.github.longshou.mcyukkuri.motor.Held;
+import io.github.longshou.mcyukkuri.motor.HeldMove;
 import io.github.longshou.mcyukkuri.motor.Motor;
 import io.github.longshou.mcyukkuri.motor.MotionPose;
 import io.github.longshou.mcyukkuri.motor.Outcome;
@@ -28,7 +31,8 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.phys.Vec3;
 
-/** Drive the ridden host continuously with a stick or bare braid, facing its bow and paying energy each tick. */
+/** Drive the ridden host continuously with a stick or bare braid, facing its bow and paying energy each tick. A stick in her mouth
+ *  or lying in the hull is first taken into her free braid ({@link Stow}); while the braid holds a young she rows with it in her mouth. */
 public final class Paddle implements Action {
     public static final String ID = "paddle";
     /** The stroke clips: with a stick, and with the bare braid dipping into the water itself. */
@@ -51,7 +55,8 @@ public final class Paddle implements Action {
     private Vec3 previous;
     private int t, turnTicks, skipped;
     private long startTick;
-    private boolean turning, drifting, stick;
+    private boolean turning, drifting, stick, begun;
+    private final StowStep take = new StowStep();
 
     public Paddle(Vec3 target, double arrive) { this(() -> target, distance -> distance <= arrive); }
 
@@ -68,9 +73,12 @@ public final class Paddle implements Action {
         return toolCheck(body, host);
     }
 
-    /** She rows with a real stick: in her mouth or kept by the hull she rides. */
+    /** She rows with a real stick: in her mouth or kept by the hull she rides; her own lying in the hull only once her free braid can
+     *  take it up. */
     private static boolean hasStick(YukkuriEntity body, SurfaceHost host) {
-        return body.getMouthItem().is(Items.STICK) || host.holds(Items.STICK);
+        if (body.getMouthItem().is(Items.STICK)) return true;
+        if (!host.holds(Items.STICK)) return false;
+        return !body.hatKit().is(Items.STICK) || body.life().custody().kitPlace() != Held.Place.HAT || !Braid.gripping(body);
     }
 
     static Feasibility toolCheck(YukkuriEntity body, SurfaceHost host) {
@@ -84,8 +92,11 @@ public final class Paddle implements Action {
     }
 
     @Override public MotionPose pose() {
+        if (!begun) return MotionPose.NONE;
         return new MotionPose(drifting ? YukkuriAction.BOAT_DRIFT.id() : stick ? CLIP : BRAID_CLIP, startTick, true);
     }
+
+    @Override public HeldMove heldMove() { return take.move(); }
 
     /** The stroke clip for her tool: the stick's when she has one, else the bare braid's. */
     public static String strokeClip(YukkuriEntity body, SurfaceHost host) {
@@ -101,6 +112,13 @@ public final class Paddle implements Action {
     }
 
     @Override public void start(YukkuriEntity body) {
+        begin(body);
+        // A stick in her mouth or lying in the hull goes into her free braid first; the stroke starts after it.
+        if (stick && take.start(body, Stow.regrip(body, "paddle"))) begun = false;
+    }
+
+    private void begin(YukkuriEntity body) {
+        begun = true;
         startTick = body.level().getGameTime();
         previous = host.entity().position();
         from = distance = target.get().subtract(previous).horizontalDistance();
@@ -114,6 +132,12 @@ public final class Paddle implements Action {
 
     @Override public Progress tick(YukkuriEntity body) {
         if (!(Attach.of(body) instanceof AttachState.OnHost on) || on.host() != host) return Outcome.of(Reason.NO_SUPPORT, 0, "left_host");
+        if (!begun) {
+            var taken = take.tick(body);
+            if (taken instanceof Running running) return new Running(running.metric(), TravelMode.CONSUMED);
+            if (taken instanceof Outcome outcome && outcome.reason() != null) return outcome;
+            begin(body);
+        }
         Vec3 at = target.get(), here = host.entity().position();
         if (at == null) return Outcome.of(Reason.TARGET_GONE, 0, "target_gone");
         Vec3 to = at.subtract(here).multiply(1, 0, 1);

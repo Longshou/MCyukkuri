@@ -171,7 +171,11 @@ public final class YukkuriModel {
     private final BraidPose braidPose=new BraidPose(this);
     private float boardingPitch=Float.NaN,boardingRoll,boardingSquash=1,boardingYaw;
     /** Bend a Marisa's braid to {@code tip} (model units) with this share of the clip's braid, for this render; null lets it go. */
-    void setBraidReach(Vector3f tip,float share){braidPose.reach(tip,share);}
+    void setBraidReach(Vector3f tip,float share){braidPose.reach(tip,share);beatReach=false;}
+    /** Bend the braid toward where it hands her held stack over (HeldItemPresentation): unlike a child's reach this keeps the
+     *  hold pose under it, so the tuft leaves the hold and comes back to it without a jump. */
+    void setBraidBeat(Vector3f tip,float share){braidPose.reach(tip,share);beatReach=tip!=null&&share>0;}
+    private boolean beatReach;
     /** The hat hangs from the braid tip by its grip (model units) with this share, for this render (the hat_off / hat_on clips). */
     private float hatInBraid;private Vector3f hatGrip;
     void setHatInBraid(float share,Vector3f grip){hatInBraid=Math.clamp(share,0,1);hatGrip=grip;}
@@ -187,23 +191,24 @@ public final class YukkuriModel {
     HatTransfer selfHatTransfer(){return selfHatTransfer;}
     void setSelfHatPose(Matrix4f matrix){selfHatPose=matrix==null?null:new Matrix4f(matrix);}
     public void setCarrying(boolean value){carrying=value;}
-    /** She holds a real stack: the braid's authored hold pose is overlaid on every clip that leaves her braid alone, seated in a hull or ashore. */
-    private boolean holdingItem,holdingAboard,heldStowed;
-    void setHeldItem(boolean holding,boolean aboard){holdingItem=holding;holdingAboard=aboard;}
+    /** Her braid holds a real stack (the server's held record says so): the braid's authored hold pose is overlaid on every clip
+     *  that leaves her braid alone, seated in a hull or ashore; {@code attach} asks for the tuft's grip of it this render. */
+    private boolean holdingItem,holdingAboard,attachItem;
+    void setHeldItem(boolean holding,boolean attach,boolean aboard){holdingItem=holding;attachItem=attach;holdingAboard=aboard;}
     /** The authored hold pose the braid takes: seated in a hull it is the stroke's own loop start, so rowing, turning and
      *  sitting share one grip (the paddle neutral). */
     private String heldClip(){return holdingAboard?YukkuriAction.BOAT_PADDLE.id():"braid_item_hold";}
-    /** Her braid keeps the held stack in this clip: she holds one, nothing else poses her braid, and her body has the hold
+    /** Her braid keeps the held stack in this clip: she holds one, no child's reach poses her braid, and her body has the hold
      *  clip (a body without a braid carries the stack at its mouth, as HeldItemPresentation draws it). A clip with its own
      *  grip keys poses braid and stack itself, unless its braid works (braid_use): then it still hands over with the hold. */
     private boolean braidKeepsStack(String clip){
-        return holdingItem&&!braidPose.active()&&(braidUse.contains(clip)||!clipProps.containsKey(clip))&&clips.containsKey(heldClip());
+        return holdingItem&&(!braidPose.active()||beatReach)&&(braidUse.contains(clip)||!clipProps.containsKey(clip))&&clips.containsKey(heldClip());
     }
     /** How much of the hold overlay her braid takes in this clip at its own time (0..1). A cradled child keeps the braid,
-     *  and a clip with its own grip keys poses it itself. A clip whose own braid grips, carries or strokes something
-     *  (lore recipe braid_use) keeps it too, the stack stowed in her hat unless the clip keys it (the hat clips keep it in
-     *  the tuft, laid along the brim); a one-shot one hands the braid, and a keyed stack with it, over from the hold until
-     *  its braid_busy marker and back to it from its braid_free marker. Every other clip takes the hold. */
+     *  and a clip with its own grip keys poses it itself. A clip whose own braid strokes, swims or tends something
+     *  (lore recipe braid_use) keeps its braid, the stack still in the tuft (keyed by the clip, as the hat clips lay it along
+     *  the brim, else at the hold's own grip on the tuft); a one-shot one hands the braid, and a keyed stack with it, over from
+     *  the hold until its braid_busy marker and back to it from its braid_free marker. Every other clip takes the hold. */
     private float braidHoldShare(String clip,float time){
         if(!braidKeepsStack(clip))return 0;
         if(!braidUse.contains(clip))return 1;
@@ -213,8 +218,6 @@ public final class YukkuriModel {
         if(free!=null&&time>free)return smooth((time-free)/Math.max(1e-3f,duration-free));
         return 0;
     }
-    /** The held stack is in her hat for this render (a braid-using clip without its own grip keys): it is not drawn. */
-    boolean heldItemStowed(){return heldStowed;}
     public void setMouthHolding(boolean value){mouthHolding=value;}
     /** Parent carry (ParentCarryPresentation): load damps the walk sway, lean bows the body (0..1), curls bend the two tails;
      *  a mouth that takes babies in opens (0..1) and the body fills out with the babies inside (0..1, as the puff clip swells). */
@@ -944,10 +947,10 @@ public final class YukkuriModel {
         if(hatInBraid>0&&hatGrip!=null)braidPose.holdHat(hatFollowBone(),hatInBraid,hatGrip);
         if(pregnancyBelly>.001f)rigidLifts();
         itemAttachment=null;
-        heldStowed=braidUse.contains(selected)&&braidKeepsStack(selected)&&!clipProps.containsKey(selected);
-        if(holdingItem&&!braidPose.active()&&!heldStowed){
-            // A clip with its own grip keys poses the item itself; otherwise the hold overlay above supplies them. While a
-            // braid-using clip hands its braid over (hold>0) its keyed item comes from the hold's grip the same share.
+        if(attachItem){
+            // A clip with its own grip keys poses the item itself; otherwise the hold's own grip on the tuft carries it, wherever the
+            // braid is (the hold overlay above, a working clip's braid, a beat's reach). While a braid-using clip hands its braid
+            // over (hold>0) its keyed item comes from the hold's grip the same share.
             boolean own=clipProps.containsKey(selected);String from=own?selected:heldClip();
             var props=clipProps.get(from);var prop=props==null?null:props.get("item");
             if(prop!=null){

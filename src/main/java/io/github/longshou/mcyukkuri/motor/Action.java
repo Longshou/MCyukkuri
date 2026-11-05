@@ -34,6 +34,9 @@ public interface Action {
     /** The clip it plays; nothing for an action that animates nothing. */
     default MotionPose pose() { return MotionPose.NONE; }
 
+    /** The beat this execution is running to move her held stack out of a part it needs (or back), or null. */
+    default HeldMove heldMove() { return null; }
+
     /** Entity whose displacement paces the clip; 0 uses the body or its vehicle. Display only. */
     default int motionSource() { return 0; }
 

@@ -18,6 +18,8 @@ import io.github.longshou.mcyukkuri.headwear.PlacedHatEntity;
 import io.github.longshou.mcyukkuri.rare.RareForms;
 import io.github.longshou.mcyukkuri.motor.Attach;
 import io.github.longshou.mcyukkuri.motor.BodyAbility;
+import io.github.longshou.mcyukkuri.motor.Braid;
+import io.github.longshou.mcyukkuri.motor.Held;
 import io.github.longshou.mcyukkuri.intent.Drive;
 import io.github.longshou.mcyukkuri.intent.IntentRunner;
 import io.github.longshou.mcyukkuri.settlement.Rations;
@@ -393,6 +395,9 @@ public enum StatusKey {
     BODY_ACTION("body", "action", 0, y -> y.motor().detail(), null),
     /** The last outcome of an action with its reason and shortfall. */
     BODY_LAST("body", "last", 0, y -> y.motor().lastDetail(), null),
+    /** What her braid holds now (the one braid authority) and where her held stack is: grip, mouth or lying in her hat. */
+    BODY_BRAID("body", "braid", 0, y -> Braid.use(y).name().toLowerCase(Locale.ROOT)
+            + (y.hatKit().isEmpty() ? "" : " held=" + y.life().custody().kitPlace().name().toLowerCase(Locale.ROOT)), null),
     /** The intent the running owner is executing and its result (the innermost Sub runner). */
     BODY_INTENT("body", "intent", 0, y -> IntentRunner.intentStatus(y), null),
     /** The method the current intent is using. */
@@ -401,8 +406,8 @@ public enum StatusKey {
     BODY_ATTEMPTS("body", "attempts", 0, y -> IntentRunner.attemptsStatus(y), null),
     /** Every desire of the body's drives with its score and the facts it came from, the current intent and the failed ones. */
     AQUATIC_DESIRE("aquatic", "desire", 0, y -> Drive.status(y), null),
-    /** Whether the server presents a real stick in her grip: drawn in a braid's tuft, else at the mouth. */
-    AQUATIC_STICK_IN_BRAID("aquatic", "stick_in_braid", 0, y -> y.getHeldItem().is(Items.STICK), null),
+    /** Whether a real stick is in her own grip now (a braid's tuft, else the mouth), not in her mouth or lying in her hat. */
+    AQUATIC_STICK_IN_BRAID("aquatic", "stick_in_braid", 0, y -> y.getHeldItem().is(Items.STICK) && y.life().custody().kitPlace() == Held.Place.GRIP, null),
     /** Its newest water incident from the shared ledger: the one answer of each helper and how that run ended (read only). */
     AQUATIC_RESCUE("aquatic", "rescue", 0, y -> AskLedger.server().outcome(y.getUUID()), null),
     GREET_CLICKS("social", "greet_clicks", 0, y -> y.social().greetClicks(), null),

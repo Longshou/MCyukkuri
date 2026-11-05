@@ -12,6 +12,7 @@ import io.github.longshou.mcyukkuri.motor.ClipMarkers;
 import io.github.longshou.mcyukkuri.motor.ContactGeometry;
 import io.github.longshou.mcyukkuri.motor.ContactGeometry.Reach;
 import io.github.longshou.mcyukkuri.motor.Feasibility;
+import io.github.longshou.mcyukkuri.motor.HeldMove;
 import io.github.longshou.mcyukkuri.motor.MotionPose;
 import io.github.longshou.mcyukkuri.motor.Motor;
 import io.github.longshou.mcyukkuri.motor.Outcome;
@@ -29,6 +30,7 @@ import net.minecraft.world.phys.Vec3;
  * squarely to it by {@code ParentCarry.braidTurn}). A brim or braid-tip child is mounted once the braid has closed on it
  * (lift_start) and the Grab runs on to the clip's place marker (and a far-side brim child's own walk round the brim) while the braid lifts it clear into its hold
  * ({@code ParentCarry.braided}). A mouth hold stays mounted through its real lift to the lips before the next action begins.
+ * A stick in the braid (or the mouth) this grip needs is first moved out of the way by one visible {@link Stow} beat.
  */
 public final class Grab implements Action {
     public static final String ID = "grab";
@@ -50,8 +52,9 @@ public final class Grab implements Action {
     private Face turn;
     private final SurfaceHost source;
     private int ticks, lift, way, held;
-    private boolean mounted, fromHead;
+    private boolean mounted, fromHead, begun;
     private long startTick;
+    private final StowStep clear = new StowStep();
 
     public Grab(YukkuriEntity target) { this(target, null); }
     public Grab(YukkuriEntity target, SurfaceHost source) {
@@ -161,7 +164,14 @@ public final class Grab implements Action {
 
     @Override public void start(YukkuriEntity carrier) {
         ticks = held = 0;
-        mounted = false;
+        mounted = begun = false;
+        // The part that grips the child is cleared of her held stick first; the hold record starts only after it.
+        if (clear.start(carrier, hold.reach() == Reach.BRAID ? Stow.freeBraid(carrier, "grab") : Stow.freeMouth(carrier, "grab"))) return;
+        begin(carrier);
+    }
+
+    private void begin(YukkuriEntity carrier) {
+        begun = true;
         startTick = carrier.level().getGameTime();
         // The one record of the hold (and, on the brim, its spot) starts with the lift; the client's pose reads it.
         ParentCarry.plan(carrier, target, hold, lean, source);
@@ -173,6 +183,13 @@ public final class Grab implements Action {
     }
 
     @Override public Progress tick(YukkuriEntity carrier) {
+        if (!begun) {
+            var cleared = clear.tick(carrier);
+            if (cleared instanceof Running running) return new Running(running.metric() + lift + way, TravelMode.CONSUMED);
+            if (cleared instanceof Outcome outcome && outcome.reason() != null) return outcome;
+            if (!target.isAlive()) return Outcome.of(Reason.TARGET_GONE, 0, "target_gone");
+            begin(carrier);
+        }
         if (mounted) {
             if (target.getVehicle() != carrier) return Outcome.of(Reason.DROPPED, 0, "let_go");
             double remaining = Math.max(Math.max(way - ++held, ParentCarry.placingLeft(carrier, target)),
@@ -215,7 +232,10 @@ public final class Grab implements Action {
         return new Outcome.Done("mounted target=" + target.getUUID());
     }
 
+    @Override public HeldMove heldMove() { return clear.move(); }
+
     @Override public MotionPose pose() {
+        if (!begun) return MotionPose.NONE;
         if (fromHead) return new MotionPose("braid_head_take", startTick, false);
         if (hold.reach() == Reach.BRAID) {
             int contact = BraidFetch.marker(BraidFetch.REACH, "contact");

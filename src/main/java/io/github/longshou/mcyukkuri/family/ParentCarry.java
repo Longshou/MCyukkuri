@@ -243,6 +243,17 @@ public final class ParentCarry {
         for (var rider : carrier.passengerViews()) if (hold(carrier, rider) != Hold.HEAD && hold(carrier, rider).reach() == Reach.BRAID) return true;
         return false;
     }
+    /** The braid itself grips a child now: one hanging at its tip, one it is still carrying onto the brim or lowering off the brim or
+     *  head, or the one a Grab's braid closes on. A child sitting on the brim or the head leaves the braid free. */
+    public static boolean braidGripping(YukkuriView carrier) {
+        if (braidTarget(carrier) != null) return true;
+        if (!carrier.isVehicle()) return false;
+        for (var rider : carrier.passengerViews()) {
+            var hold = hold(carrier, rider);
+            if (hold == Hold.BRAID || hold.reach() == Reach.BRAID && (placing(carrier, rider, 0) || lowering(carrier, rider, 0) >= 0)) return true;
+        }
+        return false;
+    }
     /** A child sits on the brim: the carrier keeps a steady idle or walk, the brim pose the server places it on (not while the braid is still setting one there). */
     public static boolean brimCarrying(YukkuriView carrier) {
         if (!carrier.isVehicle()) return false;

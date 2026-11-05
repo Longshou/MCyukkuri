@@ -4,6 +4,7 @@ import io.github.longshou.mcyukkuri.body.BodyWound;
 import io.github.longshou.mcyukkuri.body.BodyFood;
 import io.github.longshou.mcyukkuri.family.FamilyLife;
 import io.github.longshou.mcyukkuri.headwear.PlacedHatView;
+import io.github.longshou.mcyukkuri.motor.Held;
 import io.github.longshou.mcyukkuri.subspecies.SubspeciesLife;
 import java.util.List;
 import java.util.UUID;
@@ -114,8 +115,10 @@ public interface YukkuriView {
     boolean predatorFlying();
     boolean hasVisibleAccessory();
     boolean visibleKanroken();
-    /** The stack the server presents in her grip: drawn in a braid's tuft, else at the mouth. Empty when she holds none. */
+    /** The stack she holds (her hat's kit); empty when she holds none. */
     ItemStack getHeldItem();
+    /** Where that stack physically is (her grip, her mouth, lying in her set-down hat) and the beat moving it, as synchronized. */
+    Held heldPlace();
     int visibleMedal();
     int visibleHeadwear();
     int visibleWear();

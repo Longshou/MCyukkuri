@@ -50,6 +50,7 @@ import io.github.longshou.mcyukkuri.life.WaterDistress;
 import io.github.longshou.mcyukkuri.life.YukkuriLife;
 import io.github.longshou.mcyukkuri.mind.MindLife;
 import io.github.longshou.mcyukkuri.motor.BodyDriver;
+import io.github.longshou.mcyukkuri.motor.Held;
 import io.github.longshou.mcyukkuri.motor.Attach;
 import io.github.longshou.mcyukkuri.motor.Motor;
 import io.github.longshou.mcyukkuri.motor.TravelMode;
@@ -502,8 +503,22 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     /** Myon traits (saved tic, stick sword, bravery); inert for other species except the saved tic slot. */
     public MyonLife myon() { return myon; }
     public boolean visibleKanroken() { return sync().visibleKanroken(); }
-    /** The synchronized stack she presents in her grip; empty when she holds none. */
+    /** The synchronized stack she holds; empty when she holds none. Where it is: {@link #heldPlace()}. */
     public ItemStack getHeldItem() { return sync().getHeldItem(); }
+    /** Where the stack she holds physically is, as the server synchronized it (the client draws it there only). */
+    public Held heldPlace() { return sync().held(); }
+    /** The server's record of where her kit is: her custody's place and spot, the hat it lies in, and the beat moving it now. */
+    public Held heldRecord() {
+        if (hatKit().isEmpty()) return Held.NONE;
+        var custody = life.custody();
+        var move = motor().current() == null ? null : motor().current().heldMove();
+        var place = custody.kitPlace();
+        boolean into = move != null && move.beat().to() == Held.Place.HAT;
+        var spot = place == Held.Place.HAT ? custody.kitSpot() : into ? move.spot() : null;
+        var dir = place == Held.Place.HAT ? custody.kitDir() : into ? move.dir() : null;
+        var hat = spot == null ? null : PlacedHatEntity.find(this);
+        return new Held(place, hat == null ? -1 : hat.getId(), hat == null ? null : spot, hat == null ? null : dir, move == null ? null : move.beat());
+    }
     /** The one stack her hats keep for her and she therefore holds: the worn hat's kit, else her own set-down hat's. */
     public ItemStack hatKit() {
         var kit = life.custody().kit();
@@ -682,7 +697,17 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     @Override
     public void tick() {
         super.tick();
+        if (!level().isClientSide) sync().syncBodyYaw(yBodyRot);
         HumanCommerce.tickAnimal(this);
+    }
+
+    /** The motor owns the body's facing on the server; the client draws the facing it synchronized, never vanilla's own estimate
+     *  (which lags a turn in place by up to 50 degrees, so every braid, mouth and brim point the server chose was drawn turned away). */
+    @Override
+    protected float tickHeadTurn(float yRot, float animStep) {
+        if (!level().isClientSide) return super.tickHeadTurn(yRot, animStep);
+        yBodyRot = sync().bodyYaw();
+        return animStep;
     }
 
     @Override

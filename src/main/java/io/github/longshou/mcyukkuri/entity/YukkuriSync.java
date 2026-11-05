@@ -9,6 +9,7 @@ import io.github.longshou.mcyukkuri.family.ChildhoodLife;
 import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.family.GrowthSize;
 import io.github.longshou.mcyukkuri.family.FamilyLife;
+import io.github.longshou.mcyukkuri.motor.Held;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.status.Marks;
 import io.github.longshou.mcyukkuri.subspecies.SubspeciesLife;
@@ -77,6 +78,11 @@ final class YukkuriSync {
     private static final EntityDataAccessor<Integer> WEAR=YukkuriEntity.defineSyncedValue(EntityDataSerializers.INT);
     private static final EntityDataAccessor<Boolean> KANROKEN=YukkuriEntity.defineSyncedValue(EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<ItemStack> HELD_ITEM=YukkuriEntity.defineSyncedValue(EntityDataSerializers.ITEM_STACK);
+    /** Where that stack physically is ({@link Held}): the client draws it there and nowhere else. */
+    private static final EntityDataAccessor<CompoundTag> HELD_PLACE=YukkuriEntity.defineSyncedValue(EntityDataSerializers.COMPOUND_TAG);
+    /** The server's body facing (the motor owns it): the client draws the body at it instead of estimating its own. */
+    private static final EntityDataAccessor<Float> BODY_YAW=YukkuriEntity.defineSyncedValue(EntityDataSerializers.FLOAT);
+    private Held heldSnapshot = Held.NONE;
     private YukkuriSyncState.Agitation agitationSnapshot;
     private YukkuriSyncState.WaterDistress waterDistressSnapshot;
     private YukkuriSyncState.LiveChildren liveChildrenSnapshot;
@@ -155,6 +161,9 @@ final class YukkuriSync {
     boolean hasVisibleAccessory() { return owner.getEntityData().get(ACCESSORY); }
     boolean visibleKanroken() { return owner.getEntityData().get(KANROKEN); }
     ItemStack getHeldItem() { return owner.getEntityData().get(HELD_ITEM); }
+    Held held() { return heldSnapshot; }
+    float bodyYaw() { return owner.getEntityData().get(BODY_YAW); }
+    void syncBodyYaw(float yaw) { setChanged(BODY_YAW, yaw); }
     int subspeciesFlags() { return owner.getEntityData().get(SUBSPECIES); }
     void syncSubspecies(int flags) { if (!owner.level().isClientSide) owner.getEntityData().set(SUBSPECIES, flags); }
     ItemStack getCarriedItem(){return owner.getEntityData().get(CARRYING);}
@@ -313,11 +322,16 @@ final class YukkuriSync {
         owner.getEntityData().set(MEDAL, owner.pet().visibleGrade().id()); owner.getEntityData().set(ACCESSORY, owner.life().hasAccessory());
         owner.getEntityData().set(WEAR, owner.wornBits());
     }
-    void syncHeldItem() { setChanged(HELD_ITEM, owner.hatKit().copy()); }
+    void syncHeldItem() {
+        var kit = owner.hatKit();
+        if (!ItemStack.matches(owner.getEntityData().get(HELD_ITEM), kit)) owner.getEntityData().set(HELD_ITEM, kit.copy());
+        setChanged(HELD_PLACE, owner.heldRecord().write());
+    }
     void resetDeathPresentation() {
         setAnimation(YukkuriAction.IDLE, true);
         owner.getEntityData().set(EXPRESSION, "neutral");
         owner.getEntityData().set(HELD_ITEM, ItemStack.EMPTY);
+        owner.getEntityData().set(HELD_PLACE, new CompoundTag());
     }
     void resetLoadedPresentation() {
         setAnimation(YukkuriAction.IDLE, true);
@@ -351,7 +365,7 @@ final class YukkuriSync {
         builder.define(AGITATION,new CompoundTag());
         builder.define(COURTSHIP,new CompoundTag());
         builder.define(WEAR,0);builder.define(MARKS,new CompoundTag());builder.define(HEADWEAR,100<<4);builder.define(KANROKEN,false);
-        builder.define(HELD_ITEM,ItemStack.EMPTY);
+        builder.define(HELD_ITEM,ItemStack.EMPTY);builder.define(HELD_PLACE,new CompoundTag());builder.define(BODY_YAW,0f);
     }
     void onSyncedDataUpdated(EntityDataAccessor<?> key) {
         // set() calls this on the server too. Replace only this accessor's decoded value.
@@ -360,6 +374,7 @@ final class YukkuriSync {
         else if (LIVE_CHILDREN.equals(key)) liveChildrenSnapshot = YukkuriSyncState.LiveChildren.read(owner.getEntityData().get(LIVE_CHILDREN));
         else if (WOUNDS.equals(key)) woundsSnapshot = BodyWound.read(owner.getEntityData().get(WOUNDS));
         else if (MARKS.equals(key)) marksCache=Marks.read(owner.getEntityData().get(MARKS));
+        else if (HELD_PLACE.equals(key)) heldSnapshot = Held.read(owner.getEntityData().get(HELD_PLACE));
         if(GROWTH_SCALE.equals(key)||LIVE_PROGRESS.equals(key)||SUBSPECIES.equals(key))owner.refreshDimensions();
     }
     void invalidateSentStructures() {

@@ -13,6 +13,7 @@ import io.github.longshou.mcyukkuri.motor.ClipMarkers;
 import io.github.longshou.mcyukkuri.motor.ContactGeometry.Reach;
 import io.github.longshou.mcyukkuri.motor.MotionPose;
 import io.github.longshou.mcyukkuri.motor.Feasibility;
+import io.github.longshou.mcyukkuri.motor.HeldMove;
 import io.github.longshou.mcyukkuri.motor.Motor;
 import io.github.longshou.mcyukkuri.motor.Outcome;
 import io.github.longshou.mcyukkuri.motor.Progress;
@@ -37,7 +38,8 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
 
-/** Turn a mouth hold to clear ground if needed, lower the child, then dismount at its measured feet. */
+/** Turn a mouth hold to clear ground if needed, lower the child, then dismount at its measured feet. A braid that lowers a brim or
+ *  head child first moves her held stick out of the way ({@link Stow}); once the braid is free again it takes the stick back. */
 public final class Release implements Action {
     public static final String ID = "release";
     /** How far below the let-go feet support or water has to exist (blocks). */
@@ -59,6 +61,8 @@ public final class Release implements Action {
     private long startTick;
     private Vec3 previousLocal;
     private double lowered;
+    private final StowStep stow = new StowStep();
+    private boolean begun;
 
     public Release(YukkuriEntity child) { this(child, null); }
     public Release(YukkuriEntity child, SurfaceHost destination) {
@@ -80,8 +84,9 @@ public final class Release implements Action {
 
     /** The body being set down. */
     public YukkuriEntity child() { return child; }
-    /** Observed successful set-down, never merely a planned release or an already-free child. */
-    public boolean released() { return released; }
+    /** Observed successful set-down, never merely a planned release or an already-free child (and the braid's taking her stick
+     *  back after it has finished). */
+    public boolean released() { return released && !stow.running(); }
 
     @Override public Feasibility check(YukkuriEntity carrier) {
         if (!child.isAlive()) return Feasibility.of(Reason.TARGET_GONE, 0, "child_gone");
@@ -252,6 +257,14 @@ public final class Release implements Action {
 
     @Override public void start(YukkuriEntity carrier) {
         this.carrier = carrier;
+        begun = false;
+        var hold = ParentCarry.hold(carrier, child);
+        if ((hold == Hold.BRIM || hold == Hold.HEAD) && stow.start(carrier, Stow.freeBraid(carrier, "release"))) return;
+        begin(carrier);
+    }
+
+    private void begin(YukkuriEntity carrier) {
+        begun = true;
         startTick = carrier.level().getGameTime();
         if (endpoint != null) {
             ParentCarry.nestSpot(carrier, child, endpoint);
@@ -272,6 +285,17 @@ public final class Release implements Action {
     }
 
     @Override public Progress tick(YukkuriEntity carrier) {
+        if (released) {
+            // The braid is free again: it takes her stick back (from her mouth, or from her own hat within reach).
+            var back = stow.tick(carrier);
+            return back instanceof Running running ? running : new Outcome.Done("released");
+        }
+        if (!begun) {
+            var cleared = stow.tick(carrier);
+            if (cleared instanceof Running running) return new Running(running.metric() + 4 * 360, TravelMode.CONSUMED);
+            if (cleared instanceof Outcome outcome && outcome.reason() != null) return outcome;
+            begin(carrier);
+        }
         if (child.getVehicle() != carrier) return destination == null ? new Outcome.Done("already_free")
                 : Outcome.of(Reason.DROPPED, 0, "already_free");
         if (destination != null && turn == null) {
@@ -339,6 +363,8 @@ public final class Release implements Action {
             GameplayLog.event(child, "body", "seat landed host={} place={} cause=braid_set_down", destination.entity().getUUID(), seat.kind());
         } else let(carrier, child, placement != null && !placement.equals("nest") ? placement : "release");
         released = true;
+        var back = Stow.regrip(carrier, "release");
+        if (stow.start(carrier, back)) return new Running(back.length(), TravelMode.CONSUMED, true);
         return new Outcome.Done("released");
     }
 
@@ -348,7 +374,10 @@ public final class Release implements Action {
     }
 
     /** A child set down with the braid plays the braid clip's own set-down (place to release): the braid lowers it, opens and comes back. */
+    @Override public HeldMove heldMove() { return stow.move(); }
+
     @Override public MotionPose pose() {
+        if (!begun || released) return MotionPose.NONE;
         if (approach != null) return approach.pose();
         long since = carrier == null ? -1 : ParentCarry.setDownTick(carrier, child);
         if (since >= 0 && ParentCarry.mouthReleaseTicks(carrier, child, 0) >= 0) return new MotionPose(ParentCarry.MOUTH_RELEASE, since, false);

@@ -145,10 +145,13 @@ final class ParentCarryPresentation {
                 .mul(16 / (float) size(carrier));
     }
 
-    /** Before the carrier's model is posed: carry gait, bow, tail curl, and the braid bent to the body it reaches for or holds. */
-    static void configure(YukkuriView carrier, YukkuriModel model, float partial) {
+    /** Before the carrier's model is posed: carry gait, bow, tail curl, and the braid bent to the body it reaches for or holds (or to
+     *  where it hands her held stack over, HeldItemPresentation). */
+    static void configure(YukkuriView carrier, YukkuriModel model, HeldItemPresentation.Now held, float partial) {
         float now = now(carrier, partial);
         String action = carrier.motorAction();
+        HeldItemPresentation.braid(carrier, model, held, partial);
+        float heldBow = HeldItemPresentation.bow(held);
         var reaching = braidTarget(carrier);
         if (reaching != null) {
             // The braid closes on the child's scruff over the clip's reach, then keeps it while the lift runs.
@@ -180,7 +183,11 @@ final class ParentCarryPresentation {
         // The braid sets a brim child on its own; the other lifts are bowed to.
         boolean lifting = reaching == null && action.equals(Grab.ID) && carrier.passengerViews().stream().noneMatch(r -> ParentCarry.placing(carrier, r, partial));
         var state = CARRIERS.get(carrier.getId());
-        if (state == null && !carrier.isVehicle() && !lifting) return;
+        if (state == null && !carrier.isVehicle() && !lifting) {
+            // Laying her stack down from her lips she bows to it like a mouth lift.
+            if (heldBow > 0) model.setCarryPose(0, heldBow, 0, 0);
+            return;
+        }
         if (state == null) { prune(CARRIERS, now); CARRIERS.put(carrier.getId(), state = new Carrier()); }
         float dt = Math.clamp(now - state.time, 0, 4);
         state.time = now;
@@ -202,6 +209,7 @@ final class ParentCarryPresentation {
             bow = Math.max(bow, Math.max(0, ParentCarry.lowering(carrier, rider, partial)));
         if (!lifting && now - state.liftedAt < BOW_OUT_TICKS) bow = Math.max(bow, 1 - ease((now - state.liftedAt) / BOW_OUT_TICKS));
         if (now - state.dropAt < DIP_TICKS) bow = Math.max(bow, Mth.sin((now - state.dropAt) / DIP_TICKS * Mth.PI));
+        bow = Math.max(bow, heldBow);
         model.setCarryPose(riders.isEmpty() ? 0 : 1, bow, state.curl[0], state.curl[1]);
         var m = mouth(carrier, partial);
         model.setMouthLoad(m[0], m[1]);

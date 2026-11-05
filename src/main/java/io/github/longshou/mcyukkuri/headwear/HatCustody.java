@@ -1,12 +1,14 @@
 package io.github.longshou.mcyukkuri.headwear;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.motor.Held;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.UUID;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.phys.Vec3;
 
 /**
  * Where one individual's hat is: the single record of the hat's own token while it is on the head, the real entity it became when
@@ -19,7 +21,9 @@ import net.minecraft.world.item.ItemStack;
  *  LOST            no longer in her custody; cause says why.
  * </pre>
  * The worn hat also keeps her kit, the one stick tucked into it (project design: the paddle travels with the hat); set down,
- * the placed hat carries it instead ({@link PlacedHatEntity#kit()}), so the stick has one place at a time.
+ * the placed hat carries it instead ({@link PlacedHatEntity#kit()}), so the stick has one place at a time. Where it physically is
+ * for her ({@link #kitPlace}: her grip, her mouth, or lying in her set-down hat at {@link #kitSpot}) is this record's too: only a
+ * visible beat (motor Stow) moves it.
  */
 public final class HatCustody {
     public enum State { WORN, DEPLOYED, LOST }
@@ -33,6 +37,9 @@ public final class HatCustody {
     private UUID reclaimHat, reclaimAssignee;
     private long reclaimLease, reclaimRetry;
     private ItemStack kit = ItemStack.EMPTY;
+    private Held.Place kitPlace = Held.Place.GRIP;
+    /** Where the kit lies in her set-down hat (hat-local units) and the way its short end points, while {@link #kitPlace} is HAT. */
+    private Vec3 kitSpot, kitDir;
 
     public HatCustody(YukkuriEntity owner) { this.owner = Objects.requireNonNull(owner, "Hat custody requires its entity owner"); }
 
@@ -59,6 +66,21 @@ public final class HatCustody {
     }
     /** The kit leaves the worn hat (it goes with the hat being set down). */
     public ItemStack takeKit() { var out = kit; kit = ItemStack.EMPTY; return out; }
+    /** Where her kit is for her: in her grip, her mouth, or lying in her set-down hat. */
+    public Held.Place kitPlace() { return kitPlace; }
+    public Vec3 kitSpot() { return kitSpot; }
+    public Vec3 kitDir() { return kitDir; }
+    /** The one move of her kit, made at a beat's handover (or by a new stick taken into her grip); {@code spot}/{@code dir} for HAT. */
+    public void placeKit(Held.Place next, Vec3 spot, Vec3 dir, String cause) {
+        if (next == Held.Place.GROUND) throw new IllegalArgumentException("a kit on the ground is no longer her kit");
+        if (next == Held.Place.HAT && (spot == null || dir == null)) throw new IllegalArgumentException("a kit in the hat lies somewhere");
+        var before = kitPlace;
+        kitPlace = next;
+        kitSpot = next == Held.Place.HAT ? spot : null;
+        kitDir = next == Held.Place.HAT ? dir : null;
+        if (before != next) GameplayLog.event(owner, "headwear", "kit place {} -> {} cause={}{}", before, next, cause,
+                next == Held.Place.HAT ? " spot=" + GameplayLog.at(spot) : "");
+    }
     /** This owner and token name the hat that is off the head. */
     public boolean matches(UUID ownerId, UUID tokenId) { return !worn() && owner.getUUID().equals(ownerId) && token != null && token.equals(tokenId); }
     public String detail() { return "custody=" + state.name().toLowerCase(Locale.ROOT) + (cause.isEmpty() ? "" : "(" + cause + ")")
@@ -122,6 +144,11 @@ public final class HatCustody {
         t.putLong("Since", since);
         if (!cause.isEmpty()) t.putString("Cause", cause);
         if (!kit.isEmpty()) t.put("Kit", kit.save(owner.registryAccess()));
+        if (kitPlace != Held.Place.GRIP) t.putString("KitPlace", kitPlace.name());
+        if (kitSpot != null && kitDir != null) {
+            t.putDouble("KitX", kitSpot.x); t.putDouble("KitY", kitSpot.y); t.putDouble("KitZ", kitSpot.z);
+            t.putDouble("KitDX", kitDir.x); t.putDouble("KitDZ", kitDir.z);
+        }
         tag.put("HatCustody", t);
     }
 
@@ -133,6 +160,11 @@ public final class HatCustody {
         since = t.getLong("Since");
         cause = t.getString("Cause");
         kit = ItemStack.parseOptional(owner.registryAccess(), t.getCompound("Kit"));
+        try { kitPlace = t.contains("KitPlace") ? Held.Place.valueOf(t.getString("KitPlace")) : Held.Place.GRIP; }
+        catch (IllegalArgumentException ex) { kitPlace = Held.Place.GRIP; }
+        boolean spotted = t.contains("KitX");
+        kitSpot = spotted ? new Vec3(t.getDouble("KitX"), t.getDouble("KitY"), t.getDouble("KitZ")) : null;
+        kitDir = spotted ? new Vec3(t.getDouble("KitDX"), 0, t.getDouble("KitDZ")) : null;
         if (wornFlag != worn()) state = wornFlag ? State.WORN : (custodiedFallback() ? State.DEPLOYED : State.LOST);
         reclaimHat = reclaimAssignee = null; reclaimLease = reclaimRetry = 0;
     }
