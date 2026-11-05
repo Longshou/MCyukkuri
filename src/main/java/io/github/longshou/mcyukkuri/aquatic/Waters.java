@@ -45,7 +45,7 @@ final class Waters {
     /** How far (blocks) a route or a landing is looked for around the hat; how many candidates get a route or path asked. */
     static final int RANGE = 24, ASKED = 8;
     /** Brim stands closer than this (blocks) are one stand for a landing search: the difference is invisible. */
-    private static final double SAME_STAND = 0.1;
+    private static final double SAME_STAND = 0.15;
     /** What a route step beside the bank costs extra (GridPath's rim weight, in cells): the hull keeps off the shore. */
     private static final double SHORE_COST = 2;
 
