@@ -11,6 +11,7 @@
 | 分娩时服务端卡顿突刺（11-06 性能） | `.worktrees/wp-x-birth-lag` | 分娩、护产、护幼与水边路线搜索相关的 `aquatic/`、`family/`、`life/`、`motor/` 热点 |
 | 辫子占用单一权威、木棍不凭空消失、放幼不往身后弯（11-06 反馈 2、3、6） | `.worktrees/wp-z-braid-state` | `family/ParentCarry`、`motor/` 抓取放下与辫子持物、`client/` 持物显示、辫子动作片段 |
 | 水上个体的生物取舍：脚下不稳不决定救援、岸上亲油辫子够得到直接捞、普通亲油预警时先卸载、累了上岸、伴侣岸上分娩随行、饿了只在够得到自己的食物时上岸（11-06 审计 P1） | `.worktrees/wp-ag-afloat-priorities` | `aquatic/AquaticGoal`、`aquatic/Rescue`、`drive/aquatic.json`、`settlement/ForageGoal`、载重预警反应、`hat_crowd`／`rescue_child`／`shake_capsize` 场景 |
+| 帽船靠岸留间距、满载救起场景的帽檐子油自己上岸（11-06 反馈 2a） | `.worktrees/wp-ae-dock-standoff` | `aquatic/Ashore`、`aquatic/Waters` 靠岸、`scripts/museum_scenarios.py` `rescue_no_seat` |
 
 ## 玩法待办
 
