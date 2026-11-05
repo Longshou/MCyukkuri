@@ -97,7 +97,10 @@ public final class Grab implements Action {
         if (source != null && ContactGeometry.braided(carrier)) {
             String problem = ParentCarry.holdProblem(carrier, target, Hold.BRAID, false, source);
             if (problem != null) return refusal(problem);
-            chosen(Hold.BRAID, false, ContactGeometry.braidGap(carrier, target, false));
+            // The same reach the lift itself re-reads every tick until the braid closes: a grip begun here is one that holds.
+            double upright = ContactGeometry.braidGap(carrier, target, false);
+            if (upright > 0) return Feasibility.of(Reason.NO_CONTACT, upright, String.format(Locale.ROOT, "braid_gap=%.2f", upright));
+            chosen(Hold.BRAID, false, upright);
             rejected = "braid_lift";
             return Feasibility.pass();
         }

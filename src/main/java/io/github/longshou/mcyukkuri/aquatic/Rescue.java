@@ -10,6 +10,7 @@ import io.github.longshou.mcyukkuri.intent.IntentRunner;
 import io.github.longshou.mcyukkuri.intent.Method;
 import io.github.longshou.mcyukkuri.intent.Step;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
+import io.github.longshou.mcyukkuri.motor.ContactGeometry;
 import io.github.longshou.mcyukkuri.motor.Feasibility;
 import io.github.longshou.mcyukkuri.motor.Reason;
 import io.github.longshou.mcyukkuri.motor.action.Face;
@@ -84,7 +85,7 @@ final class Rescue implements Intent {
             return hat == null && !helper.life().custody().worn() ? null
                     : List.of(() -> new Step.Sub(new SetOut.Launch(helper, deadline())));
         }
-        if (!BraidFetch.withinReach(helper, faller)) return Ferry.chase(helper, faller);
+        if (!ContactGeometry.braidReachesUpright(helper, faller)) return Ferry.chase(helper, faller);
         return BraidFetch.lift(helper, faller, hat);
     }
 

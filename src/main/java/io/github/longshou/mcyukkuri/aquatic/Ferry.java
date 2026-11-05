@@ -35,12 +35,14 @@ final class Ferry {
 
     private static Step act(Action action) { return new Step.Do(action); }
 
-    /** Close the braid's reach on the faller (or wait for it to come ashore by itself) before the shared lift. */
+    /** Close the braid's reach on the faller (or wait for it to come ashore by itself) before the shared lift: the boat is
+     *  brought alongside until the braid's own upright reach holds the young where it is now, so a grip begun from here is one
+     *  that holds; the low lean stays the reserve for a young that drifts while the braid closes. */
     static ArrayList<Supplier<Step>> chase(YukkuriEntity carrier, YukkuriEntity child) {
         var steps = new ArrayList<Supplier<Step>>();
-        steps.add(() -> AquaticLife.ashore(child) || BraidFetch.withinReach(carrier, child) ? null
+        steps.add(() -> AquaticLife.ashore(child) || ContactGeometry.braidReachesUpright(carrier, child) ? null
                 : act(new Paddle(() -> child.isAlive() ? child.position() : null,
-                distance -> child.isPassenger() || AquaticLife.ashore(child) || BraidFetch.withinReach(carrier, child))));
+                distance -> child.isPassenger() || AquaticLife.ashore(child) || ContactGeometry.braidReachesUpright(carrier, child))));
         return steps;
     }
 

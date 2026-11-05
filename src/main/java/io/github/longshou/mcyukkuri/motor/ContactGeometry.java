@@ -169,6 +169,12 @@ public final class ContactGeometry {
         return braidGap(body, target, false) <= 0 || braidGap(body, target, true) <= 0;
     }
 
+    /** Whether the braid reaches the target upright: the reach a grip is begun with, the low lean only ever widening it, so an
+     *  approach that ends here leaves the lean as the reserve for a target that moves while the braid closes. */
+    public static boolean braidReachesUpright(YukkuriEntity body, Entity target) {
+        return braidGap(body, target, false) <= 0;
+    }
+
     /** The yaw that turns the braid side to {@code target}: the bearing to it less the braid root's own angle off the face. */
     public static float braidYaw(YukkuriEntity body, Entity target) { return braidYaw(body, target.position()); }
     /** The same for a point. */
