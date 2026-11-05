@@ -17,6 +17,7 @@ import io.github.longshou.mcyukkuri.motor.ContactGeometry;
 import io.github.longshou.mcyukkuri.motor.Feasibility;
 import io.github.longshou.mcyukkuri.motor.Reason;
 import io.github.longshou.mcyukkuri.motor.action.Face;
+import io.github.longshou.mcyukkuri.motor.action.Grab;
 import io.github.longshou.mcyukkuri.motor.action.Hop;
 import io.github.longshou.mcyukkuri.motor.action.Paddle;
 import io.github.longshou.mcyukkuri.motor.action.Release;
@@ -36,6 +37,10 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
 
 /** Land with the family, take the empty hat back, or reclaim it from a reachable bank.
+ * The landing brings every young of hers off the hull: docked, she takes up each one that cannot leave by itself while she still has
+ * a hold for it (one already in her braid, the next in her mouth), carries them ashore with those riding her head and sets each down;
+ * one still on the hull she takes over the rim from the bank, or boards for when no bank stand reaches it, and only an empty hat is
+ * taken back.
  * A sailor without a bank action swims directly to the hat; an unsailed young yields to normal goals. */
 final class Ashore implements Intent {
     /** The whole landing and unload; the whole reclaim; the longest wait for young to hop off or for the hat to drift into reach (ticks). */
@@ -44,7 +49,7 @@ final class Ashore implements Intent {
     private static final double ARRIVE = .6;
 
     private final YukkuriEntity owner;
-    private enum Purpose { COME, RECLAIM, CARRY }
+    private enum Purpose { COME, RECLAIM }
     private final Purpose purpose;
     private final long started;
     private Waters.Edge landing;
@@ -54,7 +59,6 @@ final class Ashore implements Intent {
     private final Ferry.Beckoning beckoning = new Ferry.Beckoning();
     /** The one water way has been derived; ending anywhere but aboard gives this reclaim up. */
     private boolean waterTried;
-    private Release carryRelease;
 
     private Ashore(YukkuriEntity owner, Purpose purpose) {
         this.owner = owner;
@@ -64,11 +68,6 @@ final class Ashore implements Intent {
 
     static Ashore come(YukkuriEntity owner) { return new Ashore(owner, Purpose.COME); }
     static Ashore reclaim(YukkuriEntity owner) { return new Ashore(owner, Purpose.RECLAIM); }
-    static Ashore carry(YukkuriEntity owner, Release release) {
-        var intent = new Ashore(owner, Purpose.CARRY);
-        intent.carryRelease = release;
-        return intent;
-    }
     private boolean reclaim() { return purpose == Purpose.RECLAIM; }
 
     /** An unsailed young only asks for its hat when it can do something from a reachable stand. */
@@ -77,7 +76,7 @@ final class Ashore implements Intent {
                 ? SurfaceApproach.beside(body, hat, body.getBbWidth() / 2 + .3, 1.2) != null : Waters.bankEdge(body, hat) != null);
     }
 
-    @Override public String id() { return reclaim() ? "resolve_own_hat" : purpose == Purpose.CARRY ? "carry_ashore" : "come_ashore"; }
+    @Override public String id() { return reclaim() ? "resolve_own_hat" : "come_ashore"; }
     @Override public boolean ownsBodyInWater() { return reclaim() && waterTried; }
     @Override public long deadline() { return started + (reclaim() ? RECLAIM : COME); }
     @Override public Commitment commitment() { return reclaim() ? Commitment.SOFT : Commitment.HARD; }
@@ -85,7 +84,6 @@ final class Ashore implements Intent {
     @Override public boolean satisfied() {
         if (owner.motor().current() != null && !owner.motor().current().interruptible()) return false;
         var hat = AquaticLife.hat(owner);
-        if (purpose == Purpose.CARRY) return AquaticLife.ashore(owner) && carryRelease.released();
         if (reclaim()) return owner.life().custody().worn() || hat != null && hat.settled(owner);
         return owner.life().custody().worn() && AquaticLife.ashore(owner) && AquaticLife.carried(owner) == null;
     }
@@ -113,30 +111,33 @@ final class Ashore implements Intent {
         String carryProblem = dependent == null ? null : ParentCarry.capacityProblem(owner, dependent);
         if (AquaticLife.aboard(owner, hat)) {
             var hop = youngCanLand(hat) ? Ferry.hopAshore(owner).get() : null;
-            if (held != null) return hop != null ? List.of(() -> hop) : paddle(hat);
-            if (hop != null) {
-                if (dependent != null && carryProblem == null) return Ferry.grabAboard(owner, hat, dependent);
-                if (dependent == null && youngAboard(hat)) return List.of(() -> new Step.Wait(() -> !youngAboard(hat), WAIT, Behaviors.BOAT_CALL));
-                if (carryProblem != null) GameplayLog.limited(owner, "aquatic", "land.carry", WAIT,
-                        "land without dependent child={} reason={}", dependent.getUUID(), carryProblem);
-                return List.of(() -> hop);
-            }
-            return paddle(hat);
+            if (hop == null) return paddle(hat);
+            // Docked: a young that cannot leave by itself is taken up while she still has a hold for it, whatever she holds already.
+            if (dependent != null && carryProblem == null) return Ferry.grabAboard(owner, hat, dependent);
+            if (held == null && dependent == null && youngAboard(hat))
+                return List.of(() -> new Step.Wait(() -> !youngAboard(hat), WAIT, Behaviors.BOAT_CALL));
+            if (carryProblem != null) GameplayLog.limited(owner, "aquatic", "land.carry", WAIT,
+                    "land without dependent child={} reason={}", dependent.getUUID(), carryProblem);
+            return List.of(() -> hop);
         }
         if (!AquaticLife.ashore(owner)) return null;
-        if (purpose == Purpose.CARRY) return List.of(() -> new Step.Do(carryRelease));
         if (held != null) return List.of(() -> new Step.Do(new Release(held)));
         for (var passenger : owner.getPassengers()) if (passenger instanceof YukkuriEntity child)
             return List.of(() -> new Step.Do(new Release(child)));
         if (hat.upsideDown()) return fromBank(hat, () -> new Right(hat, "reclaim"), () -> new Step.Wait(hat::steady, 60, "hat_settles"));
         if (AquaticLife.afloat(hat) && dependent != null) {
-            // This reboarding is for a pickup. Do not board only to leave again unable to carry the same child.
+            // This pickup is for carrying it ashore. Do not go for it only to be unable to carry the same child.
             if (carryProblem != null) {
                 GameplayLog.limited(owner, "aquatic", "land.pickup", WAIT,
                         "land pickup refused child={} reason={}", dependent.getUUID(), carryProblem);
                 return null;
             }
-            return Ferry.hopAboard(owner, hat, beckoning);
+            // A young on the brim by the bank is taken over the rim from a bank stand a hold reaches it from (the Grab's own
+            // reach); one out of reach from the bank she boards for and takes from her seat.
+            var stand = new Grab(dependent).contactStand(owner);
+            if (stand == null) return Ferry.hopAboard(owner, hat, beckoning);
+            return List.of(() -> SurfaceApproach.arrived(owner, stand) ? null : new Step.Do(Walk.stand(stand, 1)),
+                    () -> new Step.Do(new Grab(dependent)));
         }
         if (youngAboard(hat)) return List.of(() -> new Step.Wait(() -> !youngAboard(hat), WAIT, Behaviors.BOAT_CALL));
         return fromBank(hat, () -> new TakeProp(new HatProp(owner, true, AquaticLife.afloat(hat))));
@@ -196,7 +197,7 @@ final class Ashore implements Intent {
     /** The steps onto the bank edge nearest the hat and turned to it: walk there, then turn ({@code Face}, which completes on the body
      *  yaw, so a turn already made is never issued again). Empty when she stands there already turned, which is what a bank reach or a
      *  stroke is read from. */
-    static List<Supplier<Step>> bankApproach(YukkuriEntity owner, PlacedHatEntity hat, Waters.Edge edge) {
+    private static List<Supplier<Step>> bankApproach(YukkuriEntity owner, PlacedHatEntity hat, Waters.Edge edge) {
         var stand = edge.stand(owner.getBbWidth());
         if (owner.position().multiply(1, 0, 1).distanceTo(stand.multiply(1, 0, 1)) >= .25)
             return List.of(() -> new Step.Do(Walk.stand(stand, 1)));
@@ -264,7 +265,6 @@ final class Ashore implements Intent {
     }
 
     @Override public void ended(IntentRunner.Result result) {
-        if (purpose == Purpose.CARRY) return;
         var held = AquaticLife.carried(owner);
         if (result != IntentRunner.Result.DONE && held != null) {
             owner.family().carry().finish(held, id() + "_ended");

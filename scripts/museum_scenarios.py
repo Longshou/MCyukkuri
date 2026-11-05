@@ -2397,20 +2397,29 @@ def _seat_load_aftermath(window):
 
 
 def seat_unload_result(window):
-    """The ferry's child is set down ashore, and no own young is left riding the hull afterwards: every one of them either left it
-    (a hop of its own or a real lift) or was brought ashore after it."""
+    """The ferry's child is set down ashore and the whole family lands with her (FEATURES 水生魔理沙, 登船 and 落水救助): every own
+    young's last hull event is leaving it, she wears her emptied hat again before the rescue ends, and no young of hers is logged
+    lost while she ferries them (from the faller's grip to the rescue's end)."""
     problem = _seat_load_aftermath(window)
     if problem:
         return problem
+    parent, faller = _uuid_text('rescue_no_seat', 'a'), _uuid_text('rescue_no_seat', 'c1')
     # Every rider but the parent herself: only she is named by a fixed UUID, the crew's are drawn when they spawn.
-    boarded = set(re.findall(r'\[hat\][^\n]* boarded rider=(\S+)', window)) - {_uuid_text('rescue_no_seat', 'a')}
-    left = set(re.findall(r'\[hat\][^\n]* left rider=(\S+)', window))
-    stuck = sorted(boarded - left)
+    aboard = {}
+    for event in re.finditer(r'\[hat\][^\n]* (boarded|left) rider=(\S+)', window):
+        aboard[event[2]] = event[1] == 'boarded'
+    stuck = sorted(rider for rider, on in aboard.items() if on and rider != parent)
     if stuck:
         return f'{len(stuck)} young of hers still ride the hull at the end: {stuck}'
-    end = re.search(r'\[intent\][^\n]* end id=unload_young result=(\w+)\b', window)
-    if end is not None and re.search(r'child separation lost=true', window[end.end():]):
-        return 'a child was still logged as separated and lost after the unload'
+    grip = re.search(rf'carry grip [^\n]*uuid={faller}', window)
+    end = re.search(rf'rescue end result=DONE outcome=set_down faller={faller}', window)
+    if grip is None or end is None:
+        return 'no grip of the faller followed by its set-down rescue end'
+    ferry = window[grip.end():end.start()]
+    if not re.search(rf'\[headwear\][^\n]*uuid={parent}[^\n]* custody DEPLOYED -> WORN\b', ferry):
+        return 'she did not take her emptied hat back before the rescue ended'
+    if re.search(r'child separation lost=true', ferry):
+        return 'a child was logged as separated and lost while she ferried the family'
     return None
 
 _WATER_SMOKE_FORBID = [r'\[action\][^\n]* end id=swim outcome=INTERRUPTED why=(?:water_pause|escape_stop)\b']
@@ -2924,7 +2933,7 @@ pond('afloat_family_ashore', '回岸寻回远处赤油再出航', '回岸寻回�
                 forbid=[r'child search reunited [\s\S]*child search reunited ', r'\[body\][^\n]* invariant\b', r'death settled into remains']))
 
 pond('rescue_no_seat', '满载亲帽救起新生儿送上岸', '满载亲帽救起新生儿送上岸',
-     '1.0 体型亲油的帽船载着四只自己的孩子：0.10 舱内赤油、0.19 和 0.30 幼体在头顶、0.28 幼体在帽檐，载重 0.0568，离容量 0.0635 只差一只新生赤油的重量。尚未学爬的 0.19 体型新生赤油在离岸约九格的开阔水面上漂着，离最近的干岸七格开外，自己爬不出去；亲油划近后帽内、头顶、帽檐虽各有空位，普通亲油的载重规则不接受再多一只（0.0568+0.0069 超过容量），按满船处理：将它托起、带着跳到近岸干地，再放下。必须看见真实接起、离船和放下，孩子自己上岸不算救起',
+     '1.0 体型亲油的帽船载着四只自己的孩子：0.10 舱内赤油、0.19 和 0.30 幼体在头顶、0.28 幼体在帽檐，载重 0.0568，离容量 0.0635 只差一只新生赤油的重量。尚未学爬的 0.19 体型新生赤油在离岸约九格的开阔水面上漂着，离最近的干岸七格开外，自己爬不出去；亲油划近后帽内、头顶、帽檐虽各有空位，普通亲油的载重规则不接受再多一只（0.0568+0.0069 超过容量），按满船处理：辫子托着它不放，把整只帽船划到岸边，靠岸后嘴叼起舱内赤油，带着辫中、嘴里和头顶的孩子经帽檐跳上岸，逐只放到干地；帽檐上那只从岸边越过帽沿接下放好，最后收回空帽，全家都在岸上。必须看见真实接起、离船和放下，孩子自己上岸不算救起',
      '约 30–90 秒',
      [],
      late=[yk('marisa', bank_dx(0), 0, 'a', aquatic=True, yaw=90, lead=True, uuid=uid('rescue_no_seat', 'a'),
@@ -2937,12 +2946,14 @@ pond('rescue_no_seat', '满载亲帽救起新生儿送上岸', '满载亲帽救�
            afloat('a', water_at(0, 3), True, sel_all('crew'), stick=True),
            _aquatic_young('rescue_no_seat', 'c1', bank_dx(0) + 9.5, 0, 'baby', 'a', dy=-.5,
                           fam=_seat_family(.19, 0, 0) + ',BirthScale:0.19f', childhood='Version:2,Newborn:1b,Landed:1b')],
-     note=_INCIDENT_NOTE + '满船按载重判定：除船长外每名乘员按体型^3 计重，普通亲油把抱着的孩子放到帽上时要求当前载重加这名孩子不超过容量（1.0 体型帽 0.06352）。这只家庭载重 0.0568（0.10+0.19+0.30+0.28），再加 0.19 孩子 0.0069 = 0.0637 超过容量，日志给 refused id=release … NO_ROOM detail=hull_full load=… capacity=…；智力≤25 且友善≥75 的亲油不受载重限制，照旧放置并照旧抽翻船概率。载重留一只孩子的余量，是因为抱起孩子本身也算一次载重变化：再往上加，抓取那一刻的翻船概率就会升到几个百分点，真实翻船又会把帽檐幼体甩进水里。乘员营养 40、无储粮，不靠成长撑满。逐只 scenario place 显示 CABIN/HEAD/BRIM。新生赤油在亲帽放下后才入水。观察同一孩子 grab → hop → release → rescue end outcome=set_down，随后存活并站在干地。',
+     note=_INCIDENT_NOTE + '满船按载重判定：除船长外每名乘员按体型^3 计重，普通亲油把抱着的孩子放到帽上时要求当前载重加这名孩子不超过容量（1.0 体型帽 0.06352）。这只家庭载重 0.0568（0.10+0.19+0.30+0.28），再加 0.19 孩子 0.0069 = 0.0637 超过容量，日志给 refused id=release … NO_ROOM detail=hull_full load=… capacity=…；智力≤25 且友善≥75 的亲油不受载重限制，照旧放置并照旧抽翻船概率。载重留一只孩子的余量，是因为抱起孩子本身也算一次载重变化：再往上加，抓取那一刻的翻船概率就会升到几个百分点，真实翻船又会把帽檐幼体甩进水里。乘员营养 40、无储粮，不靠成长撑满。逐只 scenario place 显示 CABIN/HEAD/BRIM。新生赤油在亲帽放下后才入水。观察同一孩子 grab → 划回岸边 → 舱内赤油 carry grip hold=mouth → hop（两腿）→ 四次 release → 帽檐孩子从岸上 grab、release → take_prop（custody DEPLOYED -> WORN）→ rescue end outcome=set_down；帽上不留孩子，送岸期间无 child separation lost=true。',
      reads=[('读亲油', f'yukkuri status {sel("a")} raw'), ('读子油', f'yukkuri status {sel("c1")} raw')],
      smoke=dict(ticks=1800, expect=[r'\[hat\][^\n]* scenario place [^\n]*place=CABIN\b[\s\S]*\[hat\][^\n]* scenario place [^\n]*place=HEAD\b[\s\S]*\[hat\][^\n]* scenario place [^\n]*place=BRIM\b',
                                     r'\[hat\][^\n]* scenario afloat prepared [^\n]*young=4\b',
                                     r'refused id=release [^\n]*NO_ROOM[^\n]*hull_full load=\S+ capacity=\S+',
                                     r'\[incident\][^\n]* decide [^\n]*chance=1 [^\n]*accepted=true',
+                                    rf'carry grip [^\n]*uuid={_uuid_text("rescue_no_seat", "c1")}[^\n]*hold=braid'
+                                    r'[\s\S]*\[family\][^\n]* carry grip [^\n]*hold=mouth',
                                     rf'carry grip [^\n]*uuid={_uuid_text("rescue_no_seat", "c1")}'
                                     rf'[\s\S]*\[action\][^\n]*uuid={_uuid_text("rescue_no_seat", "a")}[^\n]* end id=hop outcome=DONE'
                                     rf'[\s\S]*\[action\][^\n]*uuid={_uuid_text("rescue_no_seat", "a")}[^\n]* end id=release outcome=DONE detail=released'

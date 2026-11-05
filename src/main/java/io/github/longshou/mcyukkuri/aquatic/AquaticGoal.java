@@ -22,7 +22,6 @@ import io.github.longshou.mcyukkuri.motor.action.Await;
 import io.github.longshou.mcyukkuri.motor.action.Beckon;
 import io.github.longshou.mcyukkuri.motor.action.Hop;
 import io.github.longshou.mcyukkuri.motor.action.Paddle;
-import io.github.longshou.mcyukkuri.motor.action.Release;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.ArrayList;
 import java.util.EnumSet;
@@ -222,12 +221,11 @@ final class AquaticGoal extends Goal {
                             () -> "head_rider_ashore child=" + rider.getUUID(), () -> new Care.Transfer(body, rider, null)));
                     break;
                 }
-                // The young still riding the afloat hull come ashore too: a capable one hops off by itself, a dependent one is
-                // carried out over the brim, one after another.
+                // The young still riding the afloat hull come ashore too, through the family landing: a capable one hops off by
+                // itself, a dependent one she takes over the rim from the bank, or boards for when the bank does not reach it.
                 var rider = youngAboard(body, hat);
                 if (rider != null) out.add(Desire.of("unload_young", PlayAboard.number("hide_want"),
-                        List.of(cell(hat), rider.getUUID()), () -> "aboard child=" + rider.getUUID(),
-                        () -> new UnloadYoung(body, hat)));
+                        List.of(cell(hat), rider.getUUID()), () -> "aboard child=" + rider.getUUID(), () -> Ashore.come(body)));
             }
             if (usable) out.add(Desire.of("set_out", floor(setOut), world, () -> String.format(Locale.ROOT,
                     "pull=%.0f hunger=%.0f weather=%.0f breed=%.0f stick=%b stick_near=%b dusk=%b rain=%b young=%d asleep=%b beyond_gather=%b searching=%b nursery=%b",
@@ -240,11 +238,11 @@ final class AquaticGoal extends Goal {
             return;
         }
         if (!AquaticLife.afloat(hat)) return;
-        // A failed ordinary Release leaves the child held; landing owns the remaining route to dry support.
+        // A failed ordinary Release leaves the child held; the family landing owns the remaining route to dry support.
         var child = body.family().carry().childForShore();
         if (child != null) {
             out.add(Desire.of("carry_ashore", num("birth_ashore_want", 200), List.of(cell(hat), child.getUUID()),
-                    () -> "held_child=" + child.getUUID(), () -> Ashore.carry(body, new Release(child))));
+                    () -> "held_child=" + child.getUUID(), () -> Ashore.come(body)));
             return;
         }
         var at = cell(hat);
