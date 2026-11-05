@@ -110,7 +110,7 @@ final class Ashore implements Intent {
         var dependent = dependentAboard(hat);
         String carryProblem = dependent == null ? null : ParentCarry.capacityProblem(owner, dependent);
         if (AquaticLife.aboard(owner, hat)) {
-            var hop = youngCanLand(hat) ? Ferry.hopAshore(owner).get() : null;
+            var hop = Ferry.hopAshore(owner).get();
             if (hop == null) return paddle(hat);
             // Docked: a young that cannot leave by itself is taken up while she still has a hold for it, whatever she holds already.
             if (dependent != null && carryProblem == null) return Ferry.grabAboard(owner, hat, dependent);
@@ -156,14 +156,7 @@ final class Ashore implements Intent {
         if (!tried.add(edge.stand())) { landing = null; return paddle(hat); }
         var dock = edge.out(HullAfloat.brimToward(hat, edge.edge()));
         return List.of(() -> new Step.Do(new Paddle(() -> dock,
-                distance -> distance <= ARRIVE && Ferry.hopAshore(owner).get() != null && youngCanLand(hat))));
-    }
-
-    /** The family landing must also be reachable by the young who will leave under their own power. */
-    private boolean youngCanLand(PlacedHatEntity hat) {
-        for (var child : AquaticLife.young(owner))
-            if (child.getVehicle() == hat && AquaticLife.jumper(child) && Ferry.hopAshore(child).get() == null) return false;
-        return true;
+                distance -> distance <= ARRIVE && Ferry.hopAshore(owner).get() != null)));
     }
 
     /** From the bank edge nearest the hat: walk there, face the hat, then the closing action ({@code close}, then {@code after}).
@@ -253,10 +246,13 @@ final class Ashore implements Intent {
                 () -> new Step.Sub(new EscapeWater(owner, new HashMap<>())));
     }
 
-    /** Her nearest young aboard that cannot get off the hull by itself: one in the hollow that cannot hop has to be taken up
-     *  first. One already riding her head is carried already — it comes ashore with her and her braid sets it down there. */
+    /** Her nearest young aboard that cannot get off the hull by itself: one that cannot hop has to be taken up first, and so does
+     *  one that can but, with the hull lying still, has no stand in its own hop reach (it hops first when it has one, so she is
+     *  not kept from the bank). One already riding her head is carried already — it comes ashore with her and her braid sets it
+     *  down there. */
     private YukkuriEntity dependentAboard(PlacedHatEntity hat) {
-        for (var y : AquaticLife.young(owner)) if (y.getVehicle() == hat && !AquaticLife.jumper(y)) return y;
+        for (var y : AquaticLife.young(owner)) if (y.getVehicle() == hat
+                && (!AquaticLife.jumper(y) || Waters.moored(hat) && Waters.brimAshore(hat, y) == null)) return y;
         return null;
     }
 
