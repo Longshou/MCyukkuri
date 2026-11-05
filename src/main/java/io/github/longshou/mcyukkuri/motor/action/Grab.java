@@ -77,8 +77,16 @@ public final class Grab implements Action {
         boolean braid = holds.stream().anyMatch(h -> h.reach() == Reach.BRAID);
         return SurfaceApproach.beside(carrier, target, (carrier.getBbWidth() + target.getBbWidth()) * .5 + .15,
                 ContactGeometry.GRAB_HEIGHT, Double.POSITIVE_INFINITY,
-                at -> mouth && ContactGeometry.inMouthReach(carrier, at, target)
-                        || braid && ContactGeometry.braidGap(carrier, at, target) <= 0);
+                at -> (mouth && ContactGeometry.inMouthReach(carrier, at, target)
+                        || braid && ContactGeometry.braidGap(carrier, at, target) <= 0) && free(carrier, at));
+    }
+
+    /** No other yukkuri stands where the carrier would: young already set down on the bank are obstacles to walk round, not a stand
+     *  to walk into. */
+    private boolean free(YukkuriEntity carrier, Vec3 at) {
+        var body = carrier.getBoundingBox().move(at.subtract(carrier.position())).deflate(.005);
+        return carrier.level().getEntitiesOfClass(YukkuriEntity.class, body,
+                other -> other != carrier && other != target && other.getVehicle() == null).isEmpty();
     }
 
     @Override public Feasibility check(YukkuriEntity carrier) {
