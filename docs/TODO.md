@@ -11,6 +11,7 @@
 | 分娩时服务端卡顿突刺（11-06 性能） | `.worktrees/wp-x-birth-lag` | 分娩、护产、护幼与水边路线搜索相关的 `aquatic/`、`family/`、`life/`、`motor/` 热点 |
 | 亲油落水时头顶赤油随之落水（11-06） | `.worktrees/wp-y-head-fall` | `life/WaterDistress`、`scripts/museum_scenarios.py` 相关场景 |
 | 帽檐上的子油在家庭靠岸时自行上岸（11-06 反馈 1、2） | `.worktrees/wp-aa-bow-young` | `aquatic/Follow`、`aquatic/Waters`、`aquatic/Ashore`、`scripts/museum_scenarios.py` |
+| 辫子占用单一权威、木棍不凭空消失、放幼不往身后弯（11-06 反馈 2、3、6） | `.worktrees/wp-z-braid-state` | `family/ParentCarry`、`motor/` 抓取放下与辫子持物、`client/` 持物显示、辫子动作片段 |
 
 ## 玩法待办
 
