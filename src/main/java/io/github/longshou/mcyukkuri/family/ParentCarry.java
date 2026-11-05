@@ -1659,7 +1659,7 @@ public final class ParentCarry {
     /** Every dismount from a carrier ends here (the Release action, the interrupt bridge, an ended intent): the record goes at once. */
     public static void released(YukkuriEntity carrier, YukkuriEntity child, String cause) { carrier.family().carry().letGone(child, cause); }
 
-    /** Most tilt (degrees, pitch plus roll) a body perched on a carrier or a hull absorbs; past it a head rider loses its hold. */
+    /** Most tilt (degrees, pitch plus roll) a carried body leans within. */
     public static final float HOLD_TILT = 12;
 
     /** The young on her head lose their hold and fall with {@code velocity}: a real dismount, then the normal escape or rescue. */

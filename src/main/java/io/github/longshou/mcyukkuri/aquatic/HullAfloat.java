@@ -243,9 +243,6 @@ public final class HullAfloat implements PlacedHatBehavior {
         float pitch = phase == Phase.INVERTED ? hat.pitch() : phase == Phase.UPRIGHT ? HullPresentation.pitch(now) : 0;
         var frame = frame(hat.level(), hat.position(), hat.hullScale(), hat.getYRot() + turnBy, roll, pitch, sink, now);
         Motor.hostPose(hat, hat.getYRot() + turnBy, frame.rollDeg(), frame.pitchDeg());
-        // Rocked past what a perch absorbs (the same tilt budget a carried body leans within), the young on a rider's head lose hold and fall.
-        if (phase != Phase.INVERTED && phase != Phase.FLIPPING && Math.abs(frame.rollDeg()) + Math.abs(frame.pitchDeg()) > ParentCarry.HOLD_TILT)
-            for (var p : hat.getPassengers()) if (p instanceof YukkuriEntity y && y.isVehicle()) ParentCarry.shedHead(y, hat.getDeltaMovement(), "hull_rock");
         var motion = drift(hat.getDeltaMovement(), drive).add(0, frame.origin().y - hat.getY(), 0);
         var travel = new Contact(motion, motion);
         double reach = HullBounds.RADIUS * scale(hat) + 1;
@@ -336,8 +333,11 @@ public final class HullAfloat implements PlacedHatBehavior {
     }
     private void capsize() {
         thrown = hat.getPassengers().size();
-        for (var p : List.copyOf(hat.getPassengers())) if (p instanceof YukkuriEntity y)
+        for (var p : List.copyOf(hat.getPassengers())) if (p instanceof YukkuriEntity y) {
+            // The young on a rider's head go over with her, thrown the same way, and are rescued like the rest.
+            ParentCarry.shedHead(y, thrownVelocity(y.position()), "thrown");
             Motor.dismount(y, y.position(), thrownVelocity(y.position()), "thrown");
+        }
         larder.spill(hat, cause);
         hat.dropKit(hat.position(), hat.getDeltaMovement(), "capsized");
         capsizes++;
