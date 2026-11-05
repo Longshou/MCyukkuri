@@ -234,8 +234,12 @@ public final class LiveBirthGeometry {
         return position(mother,index,mother.position(),yaw);
     }
     public static Vec3 position(YukkuriEntity mother,int index,Vec3 at,float yaw){
-        var offset=releasePose(mother,localExit(mother,index),"labor").yRot((float)Math.toRadians(180-yaw)).scale(mother.getScale());
-        return at.add(offset);
+        return position(mother,exitOffset(mother,index),at,yaw);
+    }
+    /** Child {@code index}'s release point on her body before her turn and render scale: an exit search over many facings reads it once. */
+    public static Vec3 exitOffset(YukkuriEntity mother,int index){return releasePose(mother,localExit(mother,index),"labor");}
+    public static Vec3 position(YukkuriEntity mother,Vec3 exitOffset,Vec3 at,float yaw){
+        return at.add(exitOffset.yRot((float)Math.toRadians(180-yaw)).scale(mother.getScale()));
     }
     /**
      * Whether child {@code index} can come out of the outlet with the mother turned to {@code yaw}: its real birth-size box

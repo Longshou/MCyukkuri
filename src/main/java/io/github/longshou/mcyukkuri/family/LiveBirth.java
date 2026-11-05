@@ -619,12 +619,12 @@ final class LiveBirth extends Choreography {
     private void search(PlacedHatEntity hat){
         choices=new ArrayList<>();var m=o.entity();var child=brood().children.get(pushing);var places=points(hat);
         int clear=0,forward=0,room=0;double ahead=Double.NEGATIVE_INFINITY;
-        var aims=new ArrayList<Aim>();
+        var aims=new ArrayList<Aim>();var offset=LiveBirthGeometry.exitOffset(m,pushing);
         for(var aim:places){
-            float yaw=SurfaceApproach.yaw(m.position(),aim);var out=LiveBirthGeometry.position(m,pushing,yaw);
+            float yaw=SurfaceApproach.yaw(m.position(),aim);var out=LiveBirthGeometry.position(m,offset,m.position(),yaw);
             double reach=BirthLaunch.ahead(out,aim,yaw);ahead=Math.max(ahead,reach);
             if(reach<=0)continue;
-            yaw=SurfaceApproach.yaw(out,aim);out=LiveBirthGeometry.position(m,pushing,yaw);
+            yaw=SurfaceApproach.yaw(out,aim);out=LiveBirthGeometry.position(m,offset,m.position(),yaw);
             if(BirthLaunch.ahead(out,aim,yaw)<=0)continue;
             forward++;aims.add(new Aim(aim,out,yaw,score(hat,out,aim,yaw)));
         }
