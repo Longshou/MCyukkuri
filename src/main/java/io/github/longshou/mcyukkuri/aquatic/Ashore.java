@@ -115,7 +115,7 @@ final class Ashore implements Intent {
             if (hop == null) return paddle(hat);
             // Docked: a young that cannot leave by itself is taken up while she still has a hold for it, whatever she holds already.
             if (dependent != null && carryProblem == null) return Ferry.grabAboard(owner, hat, dependent);
-            if (held == null && dependent == null && youngAboard(hat))
+            if (dependent == null && youngAboard(hat))
                 return List.of(() -> new Step.Wait(() -> !youngAboard(hat), WAIT, Behaviors.BOAT_CALL));
             if (carryProblem != null) GameplayLog.limited(owner, "aquatic", "land.carry", WAIT,
                     "land without dependent child={} reason={}", dependent.getUUID(), carryProblem);
@@ -155,22 +155,19 @@ final class Ashore implements Intent {
         if (route.size() > 1) return List.of(() -> new Step.Do(new Paddle(Waters.leg(route), ARRIVE)));
         // at the landing water: paddle in against the bank, once; no hop in reach even then, and the next derive takes another
         if (!tried.add(edge.stand())) { landing = null; return paddle(hat); }
-        var dock = edge.out(HullAfloat.brimToward(hat, edge.edge()) + standoff(hat, edge));
+        var dock = edge.out(HullAfloat.brimToward(hat, edge.edge()) + standoff(hat));
         return List.of(() -> new Step.Do(new Paddle(() -> dock,
                 distance -> distance <= ARRIVE && Ferry.hopAshore(owner).get() != null && youngCanLand(hat))));
     }
 
-    /** How far the hull docks off the bank so that no rider's collision box reaches into it: the farthest horizontal corner of any
-     *  rider's box from the hull centre, past the rim toward the bank (the box corners of a brim place stick out of the round rim,
-     *  and the hull turns on its way in, so the bound does not depend on its yaw), plus the hull's own clearance. */
-    private static double standoff(PlacedHatEntity hat, Waters.Edge edge) {
-        double reach = 0;
-        for (var rider : hat.getPassengers()) {
-            var box = rider.getBoundingBox();
-            for (double x : new double[]{box.minX, box.maxX}) for (double z : new double[]{box.minZ, box.maxZ})
-                reach = Math.max(reach, Math.hypot(x - hat.getX(), z - hat.getZ()));
-        }
-        return Math.max(0, reach - HullAfloat.brimToward(hat, edge.edge())) + HullBounds.EPSILON;
+    /** How far the hull docks off the bank so that no rider's brim stand reaches into it. A brim place keeps its box's extent along
+     *  the radius inside the rim ({@link HullBounds#brimPlaces}), but the box corner beside that extent still sticks out of the round
+     *  rim by half the box's diagonal less half its width; the hull turns on its way in, so the widest rider's corner sets the gap
+     *  whichever way it faces. */
+    private static double standoff(PlacedHatEntity hat) {
+        double width = 0;
+        for (var rider : hat.getPassengers()) width = Math.max(width, rider.getBbWidth());
+        return width * (Math.sqrt(2) - 1) / 2 + HullBounds.EPSILON;
     }
 
     /** The family landing must also be reachable by the young who will leave under their own power. */
