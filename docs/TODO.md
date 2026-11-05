@@ -8,6 +8,7 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
+| `afloat_family_ashore` 回归二分 | `.worktrees/wp-w-ashore-bisect` | `scripts/museum_*.py`（场景）, 帽船上岸相关 |
 | 取戴帽时木棍可见收进帽冠（反馈 2） | `.worktrees/wp-u-stick-stow` | `standards/yukkuri-library/body-standard/features/marisa-single-braid/` 水生取戴帽片段、`client/YukkuriModel.java`、`client/HeldItemPresentation.java` |
 
 ## 玩法待办
