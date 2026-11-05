@@ -154,7 +154,8 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
             model.setPregnancy(entity.livePregnancyProgress(),LiveBirthRenderer.contraction(entity,partialTick));model.setDelivery(delivery);
             // A braid-held child is cradled; a carrier whose braid reaches plays the braid clip on its Grab's clock.
             boolean cradled=carried&&ParentCarry.hold(parent,entity)==Hold.BRAID;
-            boolean carriedHop=carried&&parent.motorAction().equals(Hop.ID);
+            // Held through its carrier's hop it tucks in; one on her head sits on it as it does at rest.
+            boolean carriedHop=carried&&parent.motorAction().equals(Hop.ID)&&ParentCarry.hold(parent,entity)!=Hold.HEAD;
             String braidClip=carried?null:ParentCarryPresentation.liftClip(entity);
             String action=braidClip!=null?braidClip:carriedHop?"boat_be_carried":cradled?"be_cradled":carried?"idle":hatCarrier?ParentCarry.carryAction(entity):entity.getAnimationId();
             float clock=braidClip!=null?Math.max(0,(entity.level().getGameTime()-entity.motorStart()+partialTick)/20f)

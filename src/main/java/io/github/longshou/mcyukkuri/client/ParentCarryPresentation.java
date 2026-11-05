@@ -56,6 +56,9 @@ final class ParentCarryPresentation {
         float capturedAt = -1000, yaw;
         Matrix4f mouth, hat;
         final Matrix4f[] cradle = new Matrix4f[2];
+        /** The drawn head bone (model units) with its model space (block units from the carrier's feet), belly and contraction. */
+        Matrix4f head, space;
+        float belly, contraction;
     }
     private static final class Child {
         float time, freeAt = -1000, boardAt = -1000, releaseAt = -1000;
@@ -219,6 +222,11 @@ final class ParentCarryPresentation {
             var cradle = model.carryCradle(side);
             state.cradle[side] = cradle == null ? null : new Matrix4f(space).scale(1 / 16f).mul(cradle);
         }
+        boolean head = carrier.passengerViews().stream().anyMatch(rider -> ParentCarry.hold(carrier, rider) == Hold.HEAD);
+        state.head = head ? model.bonePose(ParentCarry.headBone(carrier)) : null;
+        state.space = new Matrix4f(space).scale(1 / 16f);
+        state.belly = carrier.livePregnancyProgress();
+        state.contraction = LiveBirthRenderer.contraction(carrier, partial);
         state.yaw = yaw;
         state.capturedAt = now(carrier, partial);
     }
@@ -262,9 +270,16 @@ final class ParentCarryPresentation {
         var seated = new Vector3f((float) at.x, (float) at.y, (float) at.z);
         switch (hold) {
             case HEAD -> {
-                feet = seated;
+                // It rests on the hair its carrier was just drawn with (that clip's time and squash, her belly, her hull's tilt),
+                // turned its own way; the server's seat is the same spot on the same bone in the clip.
                 pitch = roll = 0;
-                turnTo.rotationY((180 - yaw(child, partial)) * Mth.DEG_TO_RAD);
+                if (live && state.head != null) {
+                    feet = state.space.transformPosition(ParentCarry.headPoint(state.head, ParentCarry.headSeat(carrier, child), state.belly, state.contraction));
+                    new Matrix4f(state.space).mul(state.head).getUnnormalizedRotation(turnTo).rotateY((yaw - yaw(child, partial)) * Mth.DEG_TO_RAD);
+                } else {
+                    feet = seated;
+                    turnTo.rotationY((180 - yaw(child, partial)) * Mth.DEG_TO_RAD);
+                }
             }
             case BRIM -> {
                 // On the brim the child faces out over the brim edge with the crown at its back and neighbours at its

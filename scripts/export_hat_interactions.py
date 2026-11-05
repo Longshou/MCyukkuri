@@ -17,11 +17,13 @@ HEAD_BAND=.5  # model units below the highest hair point that still count as the
 HEAD_CELL=1.  # support cell size, model units
 def head_top(m,unit):
     """The bare head's flat top (hat off): highest hair/body surface per HEAD_CELL cell over the crown, the cells within
-    HEAD_BAND of the peak, as [x0, z0, x1, z1, top] in the hat_follow frame (model space at rest)."""
+    HEAD_BAND of the peak, as [x0, z0, x1, z1, top] in model space at rest, and the bone that carries that surface (the
+    one most of its vertices are skinned to), so a rider follows the hair it stands on in every clip."""
     skip=('brim_','hat_','bow_','face_','braid_lock_','puff_','mamu','peni','rounded_rump')
-    top={}
+    top={};parts=[]
     for p in m['parts']:
         if p.get('anatomy') or p['name'].startswith(skip):continue
+        parts.append(p)
         v=m['vertices'][p['start']*8:(p['start']+p['count'])*8];pts=[v[i:i+3] for i in range(0,len(v),8)]
         for a,b,c in zip(pts[0::3],pts[1::3],pts[2::3]):
             den=(b[2]-c[2])*(a[0]-c[0])+(c[0]-b[0])*(a[2]-c[2])
@@ -40,9 +42,14 @@ def head_top(m,unit):
                 i+=1
     peak=max(top.values())
     cells=sorted(k for k,y in top.items() if y>=peak-HEAD_BAND)
+    carriers={}
+    for p in parts:
+        for i in range(p['start'],p['start']+p['count']):
+            if m['vertices'][i*8+1]>=peak-HEAD_BAND:
+                first,second,w=m['weights'][i];bone=second if w>=.5 else first;carriers[bone]=carriers.get(bone,0)+1
     return {'supports':[[k[0]*HEAD_CELL,k[1]*HEAD_CELL,(k[0]+1)*HEAD_CELL,(k[1]+1)*HEAD_CELL,round(top[k],4)] for k in cells],
-            'peak':round(peak,4),'margin':.10*unit,'obstacles':[],
-            'note':'hat off only (worn crown and tip are no seat); riders stand on the highest support under their foot, footprints and worn-headwear discs apart; they may turn, not walk, and do no water actions'}
+            'peak':round(peak,4),'bone':max(carriers,key=carriers.get),'margin':.10*unit,'obstacles':[],
+            'note':'hat off only (worn crown and tip are no seat); riders stand on the highest support under their foot on the posed bone, footprints and worn-headwear discs apart; they may turn, not walk, and do no water actions'}
 def main():
     result={'version':1,'variants':{},'children':{}}
     fingerprints={};fits=placement_fit.load()
@@ -83,7 +90,7 @@ def main():
     (OUT/'recipe.json').write_text(json.dumps({'status':'pending_user_confirmation','scope':IDS,
         'motion':'Raise the hat independently, then move forward; return reverses the same motion. Hair stays on the body.',
         'carry':'Young entities around the brim ring (front, then sides, then back), facing outward; feet on the real brim top, whole bodies apart and clear of the hat and bow.',
-        'head':'Hat off: young on the flat top of the bare head (hair top within the head band of its peak, per cell), feet on the real hair top, footprints and worn-headwear discs apart; they follow the hat_follow bone (project design, user 2026-11-04).',
+        'head':'Hat off: young on the flat top of the bare head (hair top within the head band of its peak, per cell), feet on the real hair top, footprints and worn-headwear discs apart; they follow the bone that carries the hair top (project design, user 2026-11-04).',
         'exporter':'scripts/export_hat_interactions.py','exporter_sha256':hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
         'runtime':target.relative_to(ROOT).as_posix(),'runtime_sha256':hashlib.sha256(target.read_bytes()).hexdigest(),
         'sources':fingerprints,'placement_fit':placement_fit.RESOURCE.relative_to(ROOT).as_posix(),

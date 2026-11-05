@@ -704,10 +704,12 @@ public final class ParentCarry {
         var anchor = HatGeometry.anchor();
         return pose.translate(anchor).scale(HatScale.factor(carrier.subspeciesFlags())).translate(anchor.negate());
     }
-    /** Bare head follows the live head bone, without applying the worn hat's scale. */
+    /** The bone that carries the bare head's top (hat_interactions head.bone): the hair the head supports were measured on. */
+    public static int headBone(YukkuriView carrier) { return HatGeometry.worn(carrier.assetId()).getAsJsonObject("head").get("bone").getAsInt(); }
+    /** That bone in the carrier's clip, as the server poses it (the hat's own bone and scale play no part on a bare head). */
     public static Matrix4f headPose(YukkuriView carrier, float partial) {
         float elapsed = Math.max(0, (carrier.level().getGameTime() - carrier.getAnimationStartTick() + partial) / 20f);
-        return new Matrix4f(WoundSurface.get(carrier.assetId()).pose(carrier.getAnimationId(), elapsed)[HatGeometry.worn(carrier.assetId()).get("bone").getAsInt()]);
+        return new Matrix4f(WoundSurface.get(carrier.assetId()).pose(carrier.getAnimationId(), elapsed)[headBone(carrier)]);
     }
     private static final Map<String, List<double[]>> HEAD_TOPS = new ConcurrentHashMap<>();
     private static List<double[]> headSupports(YukkuriView carrier) {
@@ -756,13 +758,25 @@ public final class ParentCarry {
         }
         return true;
     }
-    private static Vector3f headPoint(YukkuriView carrier, YukkuriView child, float partial) {
+    /** A head rider's spot on the head support (rest-pose carrier model units: x, the support top under its foot, z). */
+    public static Vec3 headSeat(YukkuriView carrier, YukkuriView child) {
         var e = entry(carrier, child.getUUID());
-        return headPoint(carrier, new Vec3(e.getFloat("X"), e.getFloat("PH"), e.getFloat("Z")), partial);
+        return new Vec3(e.getFloat("X"), e.getFloat("PH"), e.getFloat("Z"));
+    }
+    private static Vector3f headPoint(YukkuriView carrier, YukkuriView child, float partial) {
+        return headPoint(carrier, headSeat(carrier, child), partial);
     }
     private static Vector3f headPoint(YukkuriView carrier, Vec3 local, float partial) {
-        var point = headPose(carrier, partial).transformPosition(new Vector3f((float) local.x, (float) local.y, (float) local.z));
-        LiveBirthGeometry.deform(point, carrier.livePregnancyProgress(), 0);
+        return headPoint(headPose(carrier, partial), local, carrier.livePregnancyProgress(), 0);
+    }
+    /**
+     * Where a head spot is on a posed head bone (carrier model units): the bone carries the rest-pose point as it carries the hair
+     * there, then the swollen body moves it as it moves that hair (LiveBirthGeometry.deform). The server poses the bone from the
+     * clip; the client puts the young on the bone and belly its carrier was just drawn with, so it rests on the drawn hair.
+     */
+    public static Vector3f headPoint(Matrix4f head, Vec3 local, float belly, float contraction) {
+        var point = head.transformPosition(new Vector3f((float) local.x, (float) local.y, (float) local.z));
+        LiveBirthGeometry.deform(point, belly, contraction);
         return point;
     }
     public static Vec3 headWorld(YukkuriView carrier, Vec3 local, float partial) {

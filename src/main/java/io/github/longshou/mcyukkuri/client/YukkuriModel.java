@@ -230,6 +230,8 @@ public final class YukkuriModel {
     void setMouthLoad(float open,float cheeks){carryMouth=Math.clamp(open,0,1);carryCheeks=Math.clamp(cheeks,0,1);}
     /** The posed hat bone of the last render (model units), or null for a hatless form. */
     Matrix4f hatFollowPose(){int bone=hatFollowBone();return bone<0?null:new Matrix4f(world[bone]);}
+    /** One posed bone of the last render (model units). */
+    Matrix4f bonePose(int bone){return new Matrix4f(world[bone]);}
     /** The seat on one curled tail in the last render (model units), or null. */
     Matrix4f carryCradle(int side){return tailCurl==null?null:tailCurl.cradle(side);}
     void setCareContact(float targetMouthX,float targetMouthY,float targetMouthZ,float progress){
