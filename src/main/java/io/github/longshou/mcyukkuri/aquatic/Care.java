@@ -42,20 +42,23 @@ final class Care implements Intent {
 
     private final YukkuriEntity parent, child;
     private final boolean feed;
+    private final Runnable settled;
     private final long started;
     private long chewEnd;
     private int contact;
     private boolean done;
 
-    private Care(YukkuriEntity parent, YukkuriEntity child, boolean feed) {
+    private Care(YukkuriEntity parent, YukkuriEntity child, boolean feed, Runnable settled) {
+        this.settled = settled;
         this.parent = parent;
         this.child = child;
         this.feed = feed;
         this.started = parent.level().getGameTime();
     }
 
-    static Care feed(YukkuriEntity parent, YukkuriEntity child) { return new Care(parent, child, true); }
-    static Care comfort(YukkuriEntity parent, YukkuriEntity child) { return new Care(parent, child, false); }
+    static Care feed(YukkuriEntity parent, YukkuriEntity child) { return new Care(parent, child, true, () -> { }); }
+    /** {@code settled} runs when the comfort ends, so it is not offered again at once while it is still going on. */
+    static Care comfort(YukkuriEntity parent, YukkuriEntity child, Runnable settled) { return new Care(parent, child, false, settled); }
 
     /** A frightened brim rider needs her braid only when the cabin is full and her head has real room; so does one that cannot play there. */
     static boolean needsShelter(YukkuriEntity child, PlacedHatEntity hat) {
@@ -146,6 +149,7 @@ final class Care implements Intent {
     /** A feeding that did not hand the food over puts the portion she took back into her hold, if the stores have capacity. */
     @Override public void ended(IntentRunner.Result result) {
         parent.careApproach().cancel();
+        if (!feed) settled.run();
         if (!feed || done) return;
         var hat = AquaticLife.riding(parent);
         var larder = HullLarder.of(hat);

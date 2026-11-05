@@ -428,7 +428,7 @@ final class AquaticGoal extends Goal {
                     () -> "child=" + fed.getUUID() + " nutrition=" + Math.round(fed.life().nutrition()), () -> Care.feed(body, fed)));
         var calmed = gasping;
         if (calmed != null) out.add(Desire.of("comfort_young", floor(num("comfort_want", 45)), List.of(at, calmed.getUUID()),
-                () -> "child=" + calmed.getUUID(), () -> { comforted(calmed); return Care.comfort(body, calmed); }));
+                () -> "child=" + calmed.getUUID(), () -> Care.comfort(body, calmed, () -> comforted(calmed))));
     }
 
     private boolean recently(YukkuriEntity young) {
