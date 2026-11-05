@@ -8,6 +8,7 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
+| 救援尾部三项（hat_crowd 普通母亲溺水、rescue_child 二次落水、rescue_no_seat 岸边落点） | `.worktrees/wp-t-rescue-tails` | EscapeWater、救援／落岸准入 |
 
 ## 玩法待办
 
@@ -133,6 +134,7 @@
 
 | 编号 | 运行版本 | 已确认现象／边界 |
 | --- | --- | --- |
+| 救援尾部三项（hat_crowd 普通母亲溺水、rescue_child 二次落水、rescue_no_seat 岸边落点） | `.worktrees/wp-t-rescue-tails` | EscapeWater、救援／落岸准入 |
 | **E1** | 10-21 22:41 至 10-22 00:04，[f4872105](https://github.com/Longshou/MCyukkuri/commit/f4872105)，[CI 39595554878](https://github.com/Longshou/MCyukkuri/actions/runs/39595554878) | 头饰、捕食、遗体／治疗及出生与成长反馈的共同运行包。 |
 | **E2** | 10-22 00:10–00:39，[372fa23d](https://github.com/Longshou/MCyukkuri/commit/372fa23d)，[CI 39630804471](https://github.com/Longshou/MCyukkuri/actions/runs/39630804471) | 中枢按钮卡死、岩浆块过快致死、护尸走停、治疗持物不可见。 |
 | **E3** | 00:45–01:09，[cc0e78ff](https://github.com/Longshou/MCyukkuri/commit/cc0e78ff)，[CI 39634939963](https://github.com/Longshou/MCyukkuri/actions/runs/39634939963) | 天气、捕食、睡眠与闲逛场景反馈。 |
