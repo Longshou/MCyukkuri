@@ -5,7 +5,6 @@ import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.ParentCarry;
 import io.github.longshou.mcyukkuri.intent.AskLedger;
 import io.github.longshou.mcyukkuri.motor.Attach;
-import io.github.longshou.mcyukkuri.motor.Motor;
 import io.github.longshou.mcyukkuri.motor.action.Climb;
 import io.github.longshou.mcyukkuri.motor.action.Swim;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
@@ -114,13 +113,7 @@ public final class WaterDistress {
      */
     private void shedHeadRiders(){
         if(!entity.isVehicle()||entity.isPassenger()||entity.onGround()&&!entity.isEyeInFluid(FluidTags.WATER))return;
-        for(var child:entity.family().carry().riders()){
-            if(ParentCarry.hold(entity,child)!=ParentCarry.Hold.HEAD)continue;
-            boolean airborne=!entity.onGround();
-            ParentCarry.released(entity,child,"carrier_in_water");
-            Motor.dismount(child,child.position(),entity.getDeltaMovement().scale(.5),"carrier_in_water");
-            GameplayLog.event(entity,"water","head rider shed child={} airborne={} eyes_under={}",child.getUUID(),airborne,entity.isEyeInFluid(FluidTags.WATER));
-        }
+        ParentCarry.shedHead(entity,entity.getDeltaMovement().scale(.5),"carrier_in_water");
     }
     /** Really worn now, from the body's own state: its energy is nearly spent, or its vanilla breath is gone (its head has been under
      *  the water long enough). Immersion time alone is not exhaustion. */

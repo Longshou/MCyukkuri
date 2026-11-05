@@ -41,7 +41,7 @@ final class ParentCarryPresentation {
     /** Carrier bows in for a mouth or tail lift, straightens after it, dips once after setting a child down; tails curl (ticks). */
     private static final float BOW_IN_TICKS = 6, BOW_OUT_TICKS = 8, DIP_TICKS = 10, CURL_TICKS = 8;
     /** A hanging child tips nose-down about its grip; tilt budget for every child (degrees, pitch plus roll). */
-    private static final float HANG = 5, TILT_BUDGET = 12;
+    private static final float HANG = 5, TILT_BUDGET = ParentCarry.HOLD_TILT;
     /** A captured carrier pose older than this is not used (ticks); the static seat is drawn instead. */
     private static final float STALE = 3;
     /** Reimu's mouth (rule 灵梦口含多只): ticks a baby takes to slip in from the lips and for the mouth to close after it. Letting one

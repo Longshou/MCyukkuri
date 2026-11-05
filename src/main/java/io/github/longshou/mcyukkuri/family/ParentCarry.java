@@ -18,6 +18,7 @@ import io.github.longshou.mcyukkuri.motor.BodyDriver;
 import io.github.longshou.mcyukkuri.motor.ClipMarkers;
 import io.github.longshou.mcyukkuri.motor.ContactGeometry;
 import io.github.longshou.mcyukkuri.motor.ContactGeometry.Reach;
+import io.github.longshou.mcyukkuri.motor.Motor;
 import io.github.longshou.mcyukkuri.motor.MotorOwner;
 import io.github.longshou.mcyukkuri.motor.Outcome;
 import io.github.longshou.mcyukkuri.motor.Reason;
@@ -1657,6 +1658,19 @@ public final class ParentCarry {
 
     /** Every dismount from a carrier ends here (the Release action, the interrupt bridge, an ended intent): the record goes at once. */
     public static void released(YukkuriEntity carrier, YukkuriEntity child, String cause) { carrier.family().carry().letGone(child, cause); }
+
+    /** Most tilt (degrees, pitch plus roll) a body perched on a carrier or a hull absorbs; past it a head rider loses its hold. */
+    public static final float HOLD_TILT = 12;
+
+    /** The young on her head lose their hold and fall with {@code velocity}: a real dismount, then the normal escape or rescue. */
+    public static void shedHead(YukkuriEntity carrier, Vec3 velocity, String cause) {
+        for (var child : carrier.family().carry().riders()) {
+            if (hold(carrier, child) != Hold.HEAD) continue;
+            released(carrier, child, cause);
+            Motor.dismount(child, child.position(), velocity, cause);
+            GameplayLog.event(carrier, "family", "head rider shed child={} cause={} velocity={}", child.getUUID(), cause, GameplayLog.at(velocity));
+        }
+    }
 
     public static void gripped(YukkuriEntity carrier, YukkuriEntity child, String rejected, int travelTicks) {
         var choices = carrier.family().carry().holdChoices;

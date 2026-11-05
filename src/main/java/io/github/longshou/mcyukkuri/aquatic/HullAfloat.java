@@ -2,6 +2,7 @@ package io.github.longshou.mcyukkuri.aquatic;
 
 import io.github.longshou.mcyukkuri.headwear.HullBounds;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.family.ParentCarry;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.headwear.PlacedHatBehavior;
 import io.github.longshou.mcyukkuri.headwear.PlacedHatEntity;
@@ -242,6 +243,9 @@ public final class HullAfloat implements PlacedHatBehavior {
         float pitch = phase == Phase.INVERTED ? hat.pitch() : phase == Phase.UPRIGHT ? HullPresentation.pitch(now) : 0;
         var frame = frame(hat.level(), hat.position(), hat.hullScale(), hat.getYRot() + turnBy, roll, pitch, sink, now);
         Motor.hostPose(hat, hat.getYRot() + turnBy, frame.rollDeg(), frame.pitchDeg());
+        // Rocked past what a perch absorbs (the same tilt budget a carried body leans within), the young on a rider's head lose hold and fall.
+        if (phase != Phase.INVERTED && phase != Phase.FLIPPING && Math.abs(frame.rollDeg()) + Math.abs(frame.pitchDeg()) > ParentCarry.HOLD_TILT)
+            for (var p : hat.getPassengers()) if (p instanceof YukkuriEntity y && y.isVehicle()) ParentCarry.shedHead(y, hat.getDeltaMovement(), "hull_rock");
         var motion = drift(hat.getDeltaMovement(), drive).add(0, frame.origin().y - hat.getY(), 0);
         var travel = new Contact(motion, motion);
         double reach = HullBounds.RADIUS * scale(hat) + 1;
