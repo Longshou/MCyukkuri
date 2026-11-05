@@ -2,6 +2,7 @@ package io.github.longshou.mcyukkuri.aquatic;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.BraidFetch;
+import io.github.longshou.mcyukkuri.family.ParentCarry;
 import io.github.longshou.mcyukkuri.intent.AskLedger;
 import io.github.longshou.mcyukkuri.intent.Commitment;
 import io.github.longshou.mcyukkuri.intent.DriveWeights;
@@ -24,6 +25,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.Supplier;
 import net.minecraft.util.Mth;
+import net.minecraft.world.phys.Vec3;
 
 /** One accepted incident: from the bank a faller within a hold's reach of a dry stand is taken straight out and set down ashore;
  *  otherwise close distance from the captain seat, then carry to an admitted seat; with no place on her hull she keeps
@@ -92,9 +94,9 @@ final class Rescue implements Intent {
                             () -> new Step.Do(new Release(faller, hat)));
         }
         if (!AquaticLife.aboard(helper, hat)) {
-            // On the bank with the faller in a hold's reach of a dry stand (the Grab's own reach): she leans over and takes it out
+            // On the bank with the faller in a hold's reach of a bank stand (the Grab's own reach): she leans over and takes it out
             // there. Only one out of that reach sends her out on her hull to chase it.
-            var stand = AquaticLife.ashore(helper) ? new Grab(faller).contactStand(helper) : null;
+            var stand = AquaticLife.ashore(helper) ? bankStand() : null;
             if (stand != null) return List.of(() -> SurfaceApproach.arrived(helper, stand) ? null : new Step.Do(Walk.stand(stand, 1)),
                     () -> new Step.Do(new Grab(faller)));
             // An upside-down hull is righted first, then she boards and lifts from it.
@@ -104,6 +106,20 @@ final class Rescue implements Intent {
         }
         if (!ContactGeometry.braidReachesUpright(helper, faller)) return Ferry.chase(helper, faller);
         return BraidFetch.lift(helper, faller, hat);
+    }
+
+    /** A dry bank stand beside the faller's water she can walk to, from which a hold she has for it reaches it where it is now (the
+     *  reach the Grab admits: her braid upright or leaning low, else her mouth), nearest first; null when no bank stand reaches it. */
+    private Vec3 bankStand() {
+        var holds = ParentCarry.holdsFor(helper, faller);
+        boolean braid = holds.stream().anyMatch(h -> h.reach() == ContactGeometry.Reach.BRAID);
+        boolean mouth = holds.stream().anyMatch(h -> h.reach() == ContactGeometry.Reach.MOUTH);
+        for (var edge : Waters.edges(helper, faller.position(), 2, false)) {
+            var at = edge.stand(helper.getBbWidth());
+            if ((braid && ContactGeometry.braidGap(helper, at, faller) <= 0 || mouth && ContactGeometry.inMouthReach(helper, at, faller))
+                    && SurfaceApproach.supported(helper, at) && SurfaceApproach.canApproach(helper, at)) return at;
+        }
+        return null;
     }
 
     private List<Supplier<Step>> carryAshore() {
