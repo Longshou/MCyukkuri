@@ -8,7 +8,6 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
-| 救援尾部三项（hat_crowd 普通母亲溺水、rescue_child 二次落水、rescue_no_seat 岸边落点） | `.worktrees/wp-t-rescue-tails` | EscapeWater、救援／落岸准入 |
 
 ## 玩法待办
 
