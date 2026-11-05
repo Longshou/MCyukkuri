@@ -303,14 +303,14 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
         double scale = hullScale() / HullBounds.SCALE, capacity = HullBounds.capacity(scale), ratio = HullBounds.loadRatio(scale, sizes);
         return ratio <= 1 ? null : String.format(Locale.ROOT, "load=%.4f capacity=%.4f", ratio * capacity, capacity);
     }
-    /** The sizes a boarding body brings aboard: a young her own; a captain only the young she carries, her own body being the
-     *  hull's design weight (the same exclusion {@code HullAfloat.loadChanged} makes). */
+    /** The sizes the hull would carry once this body is aboard: the riders already there plus what she brings, a young her own
+     *  and a captain only the young she carries, her own body being the hull's design weight (the same exclusion
+     *  {@code HullAfloat.loadChanged} makes). */
     private List<Double> boardingSizes(YukkuriEntity boarder) {
-        var brought = boarder.getUUID().equals(ownerYukkuri())
-                ? boarder.getPassengers().stream().filter(p -> p instanceof YukkuriEntity y && !y.getUUID().equals(ownerYukkuri()))
-                        .map(p -> (YukkuriEntity) p).toList()
-                : List.of(boarder);
-        return brought.stream().map(y -> (double) (y.growthScale() * y.getScale())).toList();
+        var sizes = new ArrayList<>(riderSizes(null));
+        boarder.getPassengers().stream().filter(p -> p instanceof YukkuriEntity y && !y.getUUID().equals(ownerYukkuri()))
+                .forEach(p -> sizes.add((double) (((YukkuriEntity) p).growthScale() * ((YukkuriEntity) p).getScale())));
+        return sizes;
     }
     /** The load rule a carer's own choice follows: her young may only be put down while the hull still carries it. */
     @Override public String loadRefusal(YukkuriEntity carer, YukkuriEntity child) {

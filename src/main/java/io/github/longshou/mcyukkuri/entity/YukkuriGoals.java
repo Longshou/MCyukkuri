@@ -342,7 +342,8 @@ final class YukkuriGoals {
         @Override public void tick() { owner.social().tickGoal(); }
         @Override public void stop() { owner.social().stop(); }
     }
-    /** In water the body works its way out through one EscapeWater run per fall; exhaustion does not renew its attempts.
+    /** In water the body works its way out through one EscapeWater run per fall; exhaustion does not renew its attempts within the fall
+     *  (a finished run is dropped only once the body stops struggling, so the next fall gets its own).
      *  Out of the water it holds still
      *  for the breath. The edges whose climb failed are remembered here across runs. It owns the fall's incident: opened
      *  once the plunge's impact is over and the body works its way out, so helpers near decide once each, and settled once the body

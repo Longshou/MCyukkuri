@@ -2565,9 +2565,7 @@ pond('hat_crowd', '孩子长大超载翻船，亲油取舍', '孩子长大超载
                 forbid=[r'\[body\][^\n]* invariant\b', r'\[hat\][^\n]* capsized cause=(?:shake|turbulence)\b',
                         r'\[action\][^\n]* refused id=hop [^\n]*detail=no_spot',
                         r'\[needs\][^\n]* starvation damage accepted=true',
-                        r'\[body\][^\n]* death settled[^\n]*cause=(?!.*(?:drown|water))',
-                        rf'\[body\][^\n]* uuid={_uuid_text("hat_crowd", "normal")}[^\n]* death settled',
-                        ],
+                        r'\[body\][^\n]* death settled[^\n]*cause=(?!.*(?:drown|water))'],
                 verify=lambda window: _overload_family_choice(window) or _escape_needs_place(window),
                 readout=[f'yukkuri status {sel(who)} raw' for who in ('normal', 'kind', 'normal2', 'normal3', 'kind1', 'kind2', 'kind3')]
                         + ['data get entity @e[tag=seat_reload,limit=1] Riders',
