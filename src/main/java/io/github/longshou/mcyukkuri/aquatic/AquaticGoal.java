@@ -238,6 +238,9 @@ final class AquaticGoal extends Goal {
             return;
         }
         if (!AquaticLife.afloat(hat)) return;
+        // A hull rocking hard, going over or being righted is no footing to set off from: she holds on until it lies still (an intent
+        // already under way keeps the body; nothing new starts to fail at once on the unsteady seat).
+        if (!hat.steady()) return;
         // A failed ordinary Release leaves the child held; the family landing owns the remaining route to dry support.
         var child = body.family().carry().childForShore();
         if (child != null) {
@@ -297,16 +300,24 @@ final class AquaticGoal extends Goal {
 
     /** Her decided help: a young of hers in the water whose incident she accepted (one decision each; a rescue under way
      *  keeps its desire). A young that cannot sail is always accepted for rescue; a protecting parent watches an
-     *  independent young with tears. Rescue is offered before retaining a running watch. */
+     *  independent young with tears. Rescue is offered before retaining a running watch. She decides only from steady footing:
+     *  while her own hull rocks hard, goes over or is being righted, or she is in the water herself, she sees to herself first,
+     *  and no answer is drawn that she could not act on (it would spend her one answer to that incident). */
     private void help(List<Desire> out) {
         var ledger = AskLedger.server();
         if (drive().runner() != null && drive().runner().intent() instanceof Rescue r) out.add(rescue(r.faller(), r.incident(), null));
         else {
             YukkuriEntity watching = null;
             String watched = null;
+            boolean steady = steadyFooting();
             for (var y : AquaticLife.young(body)) {
                 String id = y.isInWaterOrBubble() ? ledger.openOf(y.getUUID(), "water") : null;
                 if (id == null) continue;
+                if (!steady) {
+                    GameplayLog.limited(body, "aquatic", "help.unsteady", 200, "rescue decision deferred faller={} incident={} reason=unsteady_footing",
+                            y.getUUID(), id);
+                    continue;
+                }
                 var ask = new Ask(y.getUUID(), body.getUUID(), h -> new Rescue(h, y, id), id);
                 String refusal = Rescue.refusal(body, y);
                 boolean[] fresh = {false};
@@ -322,6 +333,13 @@ final class AquaticGoal extends Goal {
             if (drive().runner() != null && drive().runner().intent() instanceof Rescue.Watch w) out.add(watch(w.faller(), w.incident()));
             else if (watching != null) out.add(watch(watching, watched));
         }
+    }
+
+    /** Footing she can act from: dry ground, or a seat on a hull lying upright and still (not rocking hard, going over or being
+     *  righted); never while she is in the water. */
+    private boolean steadyFooting() {
+        if (body.isInWaterOrBubble()) return false;
+        return body.getVehicle() instanceof PlacedHatEntity hat ? hat.steady() : AquaticLife.ashore(body);
     }
 
     /** One desire for the accepted incident, kept until its performance ends. */
