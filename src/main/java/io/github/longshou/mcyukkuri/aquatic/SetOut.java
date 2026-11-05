@@ -182,7 +182,18 @@ final class SetOut implements Intent, FamilyRendezvous {
     }
 
     /** Launch and sit only; the parent runner consumes this result before rescue or family boarding continues. */
-    record Launch(YukkuriEntity owner, long deadline) implements Intent {
+    static final class Launch implements Intent {
+        private final YukkuriEntity owner;
+        private final long deadline;
+        /** Her hat afloat out of hop reach of every stand is drawn in with one braid stroke, as a landing family does. */
+        private final Ferry.Beckoning beckoning = new Ferry.Beckoning();
+
+        Launch(YukkuriEntity owner, long deadline) {
+            this.owner = owner;
+            this.deadline = deadline;
+        }
+
+        @Override public long deadline() { return deadline; }
         @Override public String id() { return "launch"; }
         @Override public Commitment commitment() { return Commitment.HARD; }
         @Override public boolean satisfied() {
@@ -192,7 +203,7 @@ final class SetOut implements Intent, FamilyRendezvous {
         @Override public List<Method> methods() { return List.of(Plan.of("launch", this::derive)); }
         private List<Supplier<Step>> derive() {
             var hat = AquaticLife.hat(owner);
-            if (hat != null) return AquaticLife.afloat(hat) ? Ferry.hopAboard(owner, hat, null) : null;
+            if (hat != null) return AquaticLife.afloat(hat) ? Ferry.hopAboard(owner, hat, beckoning) : null;
             return place(owner);
         }
     }
