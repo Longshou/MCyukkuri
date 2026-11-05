@@ -369,7 +369,10 @@ final class YukkuriGoals {
             if (incident == null && struggles) incident = AskLedger.server().open(owner, "water",
                     "stage=" + owner.family().stage() + " landing=" + owner.family().landingOutcome() + " last=" + owner.motor().lastDetail());
             if (!struggles && (runner == null || owner.isInWaterOrBubble() || out())) {
-                halt(out() ? "escape_safe" : "escape_unavailable"); owner.getNavigation().stop(); return;
+                halt(out() ? "escape_safe" : "escape_unavailable"); owner.getNavigation().stop();
+                // thrown back into the water mid-run: this plunge is a new fall and gets its own run once its impact is over
+                if (runner != null && runner.result() == IntentRunner.Result.INTERRUPTED) runner = null;
+                return;
             }
             if (runner == null) {
                 runner = new IntentRunner(owner, new EscapeWater(owner, avoid), "escape_water").target(() -> EscapeWater.target(owner));
