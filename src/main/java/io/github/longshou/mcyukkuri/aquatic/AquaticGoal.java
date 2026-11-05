@@ -413,9 +413,11 @@ final class AquaticGoal extends Goal {
                 && !body.childhood().needsNewbornCare() && AquaticLife.nursing(parent).isEmpty()
                 && !(running != null && running.intent() instanceof Ashore)
                 && parentOn) {
-            if (hat.restSpot(body) != null) out.add(Desire.of("board_parent", num("follow", 65), world, why, () -> Follow.board(body, hat)));
+            var full = hat.boardingRefusal(body);
+            if (full == null && hat.restSpot(body) != null) out.add(Desire.of("board_parent", num("follow", 65), world, why, () -> Follow.board(body, hat)));
             else GameplayLog.limited(body, "aquatic", "board refused hat=" + hat.getUUID(), 1200,
-                    "board refused hat={} reason=no_room size={}", hat.getUUID(), body.growthScale() * body.getScale());
+                    "board refused hat={} reason={} size={}", hat.getUUID(), full == null ? "no_room" : "hull_full " + full,
+                    body.growthScale() * body.getScale());
         }
         // A young standing on the hull leaves it by itself; one her braid carries on her head goes with her and is set down there.
         // A hull with no dry stand in this young's hop reach has no way off for it, so nothing is offered: the young waits where it

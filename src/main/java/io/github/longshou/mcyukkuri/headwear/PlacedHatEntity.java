@@ -522,8 +522,17 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
     public boolean young(YukkuriEntity y) {
         return ownerYukkuri() != null && (ownerYukkuri().equals(y.family().mother()) || ownerYukkuri().equals(y.family().father())) && !y.family().adult();
     }
-    /** Physical boarding authority: the birth family of the owner. A cradle grants no other relation. */
-    public boolean admits(YukkuriEntity child) { return child != null && !child.family().adult() && young(child); }
+    /** Physical boarding authority: the birth family of the owner, and only while the load still carries the young boarding herself
+     *  (a young a carer holds is weighed by that carer's own placement instead). A cradle grants no other relation. */
+    public boolean admits(YukkuriEntity child) {
+        return child != null && !child.family().adult() && young(child) && boardingRefusal(child) == null;
+    }
+    /** Why this hull does not take a young that boards herself: the over-capacity detail, or null while the load carries her. */
+    public String boardingRefusal(YukkuriEntity child) {
+        if (child.getVehicle() instanceof YukkuriEntity) return null;
+        var captain = placeCarrier();
+        return captain == null ? null : loadRefusal(captain, child);
+    }
     public int youngAboard() { return (int) getPassengers().stream().filter(p -> !p.getUUID().equals(ownerYukkuri())).count(); }
     @Override protected void addPassenger(Entity passenger) {
         super.addPassenger(passenger);

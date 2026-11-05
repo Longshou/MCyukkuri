@@ -17,6 +17,7 @@
 
 ### 复测失败/待修复
 
+- **`birth_boat_missed` 新生儿首餐／首便偶发不完成**（主线 c80ff8d41 与本机分支，非验收）：本机约 20 场中三成失败，失败场上新生儿在岸边反复落水再爬出（`damage cause=drown`，仍存活）或在窗口内没有 `first meal swallowed`／`first toilet completed`；与登船载重无关。完成：该场连续 20 次无此失败，新生儿在岸上完成首餐与首便。
 - **内部判定放宽（`aq-audit-loosen`，本机冒烟非验收）**：按用户 2026-11-04“判定对演出影响不大就放宽”的原则放宽三处，画面与后果不变。
   - 跳跃水平预算加 0.05 宽限（`ArcSolver.REACH_SLACK`）：`rescue_no_seat` 托幼跳岸被 `TOO_FAR shortfall=0.03–0.04`、`birth_boat_missed` 亲油上岸被 `shortfall=0.00` 拒掉，落点仍是准入的采样点。
   - `hat_push` 只要求轻推把船推开至少 0.1 格且不回弹、全程只有猛撞翻覆一次；帽船这一趟是否真碰到岸、滑行正好几步都不再作通过条件（一次第 12 tick 正好停住、两次根本没漂回，画面无误）。

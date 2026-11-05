@@ -57,8 +57,8 @@ public interface SurfaceHost {
     /** It lets this body stand on it (ride it): a body it does not bear meets it only as an edge to glance off. */
     default boolean bears(YukkuriEntity body) { return true; }
 
-    /** A carer putting this young down here: null while the host still carries it (or the carer ignores load), else the over-capacity detail
-     *  ({@code load}, {@code capacity}). Only a weighed hull answers; a young that boards itself is not weighed this way. */
+    /** A carer putting this young down here, or a young boarding herself: null while the host still carries it (or the carer ignores
+     *  load), else the over-capacity detail ({@code load}, {@code capacity}). Only a weighed hull answers. */
     default String loadRefusal(YukkuriEntity carer, YukkuriEntity child) { return null; }
 
     /** Brim sample points in world coordinates, tilt included (24 of them). */
