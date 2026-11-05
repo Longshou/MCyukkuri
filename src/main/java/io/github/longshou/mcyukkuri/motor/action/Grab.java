@@ -75,17 +75,18 @@ public final class Grab implements Action {
         var holds = ParentCarry.holdsFor(carrier, target);
         boolean mouth = holds.stream().anyMatch(h -> h.reach() == Reach.MOUTH);
         boolean braid = holds.stream().anyMatch(h -> h.reach() == Reach.BRAID);
-        return SurfaceApproach.beside(carrier, target, (carrier.getBbWidth() + target.getBbWidth()) * .5 + .15,
-                ContactGeometry.GRAB_HEIGHT, Double.POSITIVE_INFINITY,
-                at -> (mouth && ContactGeometry.inMouthReach(carrier, at, target)
-                        || braid && ContactGeometry.braidGap(carrier, at, target) <= 0) && free(carrier, at));
+        // Sixteen bearings round the target, not four: young already set down on the bank are obstacles to stand round, so a stand
+        // another yukkuri occupies is no stand.
+        return SurfaceApproach.beside(carrier, target.position(), (carrier.getBbWidth() + target.getBbWidth()) * .5 + .15,
+                at -> Math.abs(at.y - target.getY()) <= ContactGeometry.GRAB_HEIGHT && free(carrier, at)
+                        && (mouth && ContactGeometry.inMouthReach(carrier, at, target)
+                        || braid && ContactGeometry.braidGap(carrier, at, target) <= 0));
     }
 
-    /** No other yukkuri stands where the carrier would: young already set down on the bank are obstacles to walk round, not a stand
-     *  to walk into. */
+    /** Where the carrier would stand clear of the target and of every other yukkuri on the ground. */
     private boolean free(YukkuriEntity carrier, Vec3 at) {
         var body = carrier.getBoundingBox().move(at.subtract(carrier.position())).deflate(.005);
-        return carrier.level().getEntitiesOfClass(YukkuriEntity.class, body,
+        return !body.intersects(target.getBoundingBox()) && carrier.level().getEntitiesOfClass(YukkuriEntity.class, body,
                 other -> other != carrier && other != target && other.getVehicle() == null).isEmpty();
     }
 
