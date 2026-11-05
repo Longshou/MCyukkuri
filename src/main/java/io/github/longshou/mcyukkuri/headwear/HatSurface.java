@@ -5,10 +5,12 @@ import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.motor.BodyAbility;
 import io.github.longshou.mcyukkuri.motor.ContactResolver;
 import io.github.longshou.mcyukkuri.motor.geom.GridPath;
+import io.github.longshou.mcyukkuri.motor.surface.Floor;
 import io.github.longshou.mcyukkuri.motor.surface.Occupancy;
 import io.github.longshou.mcyukkuri.motor.surface.SeatTarget;
 import java.util.List;
 import java.util.OptionalDouble;
+import java.util.function.Predicate;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.AABB;
 
@@ -21,6 +23,13 @@ public interface HatSurface {
     }
     /** Room for the body's footprint turned to {@code yaw} (degrees, relative to the hat). */
     default boolean room(PlacedHatEntity hat, YukkuriEntity body, Vec3 local, double top, float yaw) { return hat.shapedRoom(body, local, top, yaw); }
+    /** {@code hat.room(body, local)} for many places of one body within one search (its own height and turn): what does not change
+     *  between the places is read once. */
+    default Predicate<Vec3> roomAt(PlacedHatEntity hat, YukkuriEntity body) {
+        float yaw = Floor.yaw(hat, body);
+        double tall = body.getBbHeight() / hat.frame().unit();
+        return local -> room(hat, body, local, local.y + tall, yaw);
+    }
     default boolean stepRoom(PlacedHatEntity hat, YukkuriEntity body, Vec3 from, Vec3 to) { return hat.room(body, to); }
     default boolean bears(PlacedHatEntity hat, YukkuriEntity body) {
         return !hat.cooling(body) && !hat.isInWaterOrBubble() && (body.getUUID().equals(hat.ownerYukkuri()) ? !hat.catches() : hat.admits(body));

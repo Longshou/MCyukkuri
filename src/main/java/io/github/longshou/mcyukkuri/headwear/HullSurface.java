@@ -14,6 +14,7 @@ import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.function.Predicate;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
@@ -63,6 +64,15 @@ public final class HullSurface implements HatSurface {
         if (!hat.shapedRoom(body, local, top, yaw)) return false;
         if (body.getUUID().equals(hat.ownerYukkuri()) || !hat.insideFloor(local)) return true;
         return roomAround(hat, body).clear(hatDisc(hat, body, local));
+    }
+    /** {@link #room} with the captain's envelope and the other riders' hats read once for the whole search. */
+    @Override public Predicate<Vec3> roomAt(PlacedHatEntity hat, YukkuriEntity body) {
+        float yaw = Floor.yaw(hat, body);
+        double tall = body.getBbHeight() / hat.frame().unit();
+        boolean owner = body.getUUID().equals(hat.ownerYukkuri());
+        var around = owner ? null : roomAround(hat, body);
+        return local -> hat.shapedRoom(body, local, local.y + tall, yaw)
+                && (owner || !hat.insideFloor(local) || around.clear(hatDisc(hat, body, local)));
     }
     @Override public boolean stepRoom(PlacedHatEntity hat, YukkuriEntity body, Vec3 from, Vec3 to) {
         if (!hat.shapedRoom(body, to, to.y + body.getBbHeight() / hat.unit(), Floor.yaw(hat, body))) return false;
@@ -123,11 +133,12 @@ public final class HullSurface implements HatSurface {
             anchor = anchor.add(new Vec(x * reach, 0, z * reach));
         }
         double range = HullBounds.MOUTH / HullBounds.UNIT + anchor.hlen();
+        var room = roomAt(hat, body);
         var candidates = FloorSearch.spots((x,z,fp) -> {
                     if (!hat.profile().inOpening(x,z)) return Double.NaN;
                     double y = hat.profile().support(x,z,fp);
                     var at = new Vec3(x, y, z);
-                    return hat.insideFloor(at) && hat.room(body, at) ? y : Double.NaN;
+                    return hat.insideFloor(at) && room.test(at) ? y : Double.NaN;
                 },
                 hat.profile().floor(), Occupancy.MARGIN / hat.unit(), shape, Floor.others(hat, body), anchor,
                 range, true, hat.roomGap(), limit);

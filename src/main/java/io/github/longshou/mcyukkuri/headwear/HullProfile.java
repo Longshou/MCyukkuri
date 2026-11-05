@@ -54,7 +54,7 @@ public abstract class HullProfile {
     public abstract double clearance(double x, double z);
     public float[] brim() { return new float[]{(float)Math.max(reach(0), reach(Math.PI)), (float)Math.max(reach(Math.PI/2), reach(-Math.PI/2))}; }
     public float[] opening() { return new float[]{(float)-mouth(Math.PI), (float)mouth(0), (float)-mouth(-Math.PI/2), (float)mouth(Math.PI/2)}; }
-    public boolean inOpening(double x, double z) { return Math.hypot(x, z) <= mouth(Math.atan2(z, x)); }
+    public boolean inOpening(double x, double z) { return Math.sqrt(x * x + z * z) <= mouth(Math.atan2(z, x)); }
     /** A supported point in the hollow, including its sloping wall; the lap is only a preference. */
     public boolean resting(Vec at, BodyFootprint body, double margin) {
         return inOpening(at.x(), at.z()) && Math.abs(at.y() - support(at.x(), at.z(), body)) <= margin;
@@ -117,8 +117,9 @@ public abstract class HullProfile {
         @Override public double reach(double angle) { return HullBounds.RADIUS / unit; }
         @Override public double mouth(double angle) { return HullBounds.MOUTH / unit; }
         @Override public float[] wornBrim() { return brim(); }
-        @Override public double surface(double x, double z) { return HullBounds.surface(Math.hypot(x, z) * unit) / unit; }
-        @Override public double clearance(double x, double z) { return Math.max(0, Math.hypot(x, z) - reach(0)); }
+        // sqrt, not Math.hypot: these run per footprint column per floor sample, and hypot's overflow care costs ~10x here.
+        @Override public double surface(double x, double z) { return HullBounds.surface(Math.sqrt(x * x + z * z) * unit) / unit; }
+        @Override public double clearance(double x, double z) { return Math.max(0, Math.sqrt(x * x + z * z) - reach(0)); }
     }
 
     private static final class Cradle extends HullProfile {

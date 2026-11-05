@@ -23,17 +23,23 @@ public final class PlaceGeometry {
 
     private static double[] cabinGaps(Disc hat, double wall, List<FloorSearch.Placed> captain, List<Disc> riders, double gap) {
         var gaps = new double[1 + captain.size() + riders.size()];
-        gaps[0] = wall - Math.hypot(hat.x(), hat.z()) - hat.r();
+        gaps[0] = wall - Math.sqrt(hat.x() * hat.x() + hat.z() * hat.z()) - hat.r();
         int i = 1;
         for (var p : captain) {
-            double distance = Double.POSITIVE_INFINITY;
+            // the nearest column by squared distance, one root at the end: the same gap without a root per column
+            double nearest = Double.POSITIVE_INFINITY;
             for (var column : p.body().columns())
-                if (Disc.level(p.at().y() + column.bottom() - gap, p.at().y() + column.top() + gap, hat.bottom(), hat.top()))
-                    distance = Math.min(distance, Math.hypot(p.at().x() + column.x() - hat.x(), p.at().z() + column.z() - hat.z()) - hat.r() - gap);
-            gaps[i++] = distance;
+                if (Disc.level(p.at().y() + column.bottom() - gap, p.at().y() + column.top() + gap, hat.bottom(), hat.top())) {
+                    double dx = p.at().x() + column.x() - hat.x(), dz = p.at().z() + column.z() - hat.z();
+                    nearest = Math.min(nearest, dx * dx + dz * dz);
+                }
+            gaps[i++] = Double.isInfinite(nearest) ? nearest : Math.sqrt(nearest) - hat.r() - gap;
         }
-        for (var other : riders) gaps[i++] = Disc.level(hat.bottom(), hat.top(), other.bottom(), other.top())
-                ? Math.hypot(hat.x() - other.x(), hat.z() - other.z()) - hat.r() - other.r() - gap : Double.POSITIVE_INFINITY;
+        for (var other : riders) {
+            double dx = hat.x() - other.x(), dz = hat.z() - other.z();
+            gaps[i++] = Disc.level(hat.bottom(), hat.top(), other.bottom(), other.top())
+                    ? Math.sqrt(dx * dx + dz * dz) - hat.r() - other.r() - gap : Double.POSITIVE_INFINITY;
+        }
         return gaps;
     }
     /** Cell boundaries join into a cap; the margin applies to the outside of the whole sole. */

@@ -384,10 +384,16 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
         var tilt = new HostFrame(Vec3.ZERO, 1, 0, roll, pitch);
         int nx = (int) Math.ceil(2 * brim[0] / cell), nz = (int) Math.ceil(2 * brim[1] / cell);
         double x0 = -nx * cell / 2, z0 = -nz * cell / 2;
-        return new HeightGrid(x0, z0, x0 + (nx - .5) * cell, z0 + (nz - .5) * cell, cell, (x, z) -> {
+        if (!aroundRiders) return new HeightGrid(x0, z0, x0 + (nx - .5) * cell, z0 + (nz - .5) * cell, cell, (x, z) -> {
             var height = support(new Vec3(x, 0, z), walker);
-            if (height.isEmpty()) return Double.NaN;
-            if (aroundRiders && !room(walker, new Vec3(x, height.getAsDouble(), z))) return Double.NaN;
+            return height.isEmpty() ? Double.NaN : tilt.toWorld(new Vec3(x, height.getAsDouble(), z)).y;
+        });
+        // Around the riders the grid is asked once, right away, by one route search: only the cells round its way are sampled,
+        // and what the other riders and the captain hold is read once for all of them.
+        var room = profile().surface().roomAt(this, walker);
+        return HeightGrid.lazy(x0, z0, x0 + (nx - .5) * cell, z0 + (nz - .5) * cell, cell, (x, z) -> {
+            var height = support(new Vec3(x, 0, z), walker);
+            if (height.isEmpty() || !room.test(new Vec3(x, height.getAsDouble(), z))) return Double.NaN;
             return tilt.toWorld(new Vec3(x, height.getAsDouble(), z)).y;
         });
     }

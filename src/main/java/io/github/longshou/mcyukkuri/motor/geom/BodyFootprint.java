@@ -40,7 +40,8 @@ public record BodyFootprint(List<Column> columns, double width, double height, d
         return overlaps(x,y,z,other,ox,oy,oz,gap,0);
     }
     public boolean overlaps(double x,double y,double z,BodyFootprint other,double ox,double oy,double oz,double gap,double rise) {
-        return Math.hypot(x-ox,z-oz)<radius+other.radius+gap && (probes(x,y,z,other,ox,oy,oz,gap,rise,0) || other.probes(ox,oy,oz,this,x,y,z,gap,0,rise));
+        double dx=x-ox,dz=z-oz,reach=radius+other.radius+gap;
+        return dx*dx+dz*dz<reach*reach && reach>0 && (probes(x,y,z,other,ox,oy,oz,gap,rise,0) || other.probes(ox,oy,oz,this,x,y,z,gap,0,rise));
     }
     private boolean probes(double x,double y,double z,BodyFootprint other,double ox,double oy,double oz,double gap,double rise,double otherRise) {
         double c=other.cosine,s=other.sine;
@@ -55,9 +56,11 @@ public record BodyFootprint(List<Column> columns, double width, double height, d
         return overlaps(x,y,z,solid,gap,0);
     }
     public boolean overlaps(double x,double y,double z,Disc solid,double gap,double rise) {
-        if(Math.hypot(x-solid.x(),z-solid.z())>=radius+solid.r()+gap)return false;
-        for(var p:columns)if(Math.hypot(x+p.x-solid.x(),z+p.z-solid.z())<solid.r()+gap
-                && Disc.level(y+p.bottom-gap,y+p.top+rise+gap,solid.bottom(),solid.top()))return true;
+        double dx=x-solid.x(),dz=z-solid.z(),reach=radius+solid.r()+gap,r=solid.r()+gap;
+        if(reach<=0||dx*dx+dz*dz>=reach*reach)return false;
+        if(r<=0)return false;
+        for(var p:columns){double cx=dx+p.x,cz=dz+p.z;if(cx*cx+cz*cz<r*r
+                && Disc.level(y+p.bottom-gap,y+p.top+rise+gap,solid.bottom(),solid.top()))return true;}
         return false;
     }
     public record Shape(List<Column> columns,Column[][] grid,int offset) {
