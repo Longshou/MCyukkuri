@@ -123,7 +123,7 @@ final class LiveBirth extends Choreography {
     private void recastIfBare(){
         if(!(receiver instanceof Ground)||role(CATCHER)!=null||brood()==null||!(catcher(o.entity(),brood()) instanceof YukkuriEntity c))return;
         recast(c);
-        GameplayLog.event(c,"family","catch duty noticed brood={} mother={} beat={} receiver={}",brood().id,o.entity().getUUID(),beat(),receiver.kind());
+        if(role(CATCHER)!=null)GameplayLog.event(c,"family","catch duty noticed brood={} mother={} beat={} receiver={}",brood().id,o.entity().getUUID(),beat(),receiver.kind());
     }
     UUID broodId(){return broodId;}
     /** A Marisa father near enough to notice (with his hat, or without one only to cheer), else a hatted Marisa mother herself. */
@@ -244,7 +244,8 @@ final class LiveBirth extends Choreography {
         if(!(receiver instanceof Cabin)&&role(CATCHER)==null&&now%20==0&&b.elapsed<b.duration&&(beat().equals("site")||LABOUR.contains(beat()))
                 &&catcher(o.entity(),b) instanceof YukkuriEntity c){
             recast(c);
-            GameplayLog.event(c,"family","catch duty noticed brood={} mother={} beat={} receiver={}",b.id,o.entity().getUUID(),beat(),receiver.kind());
+            // A hat still afloat catches nothing: nobody is bound and the next look is a fresh one.
+            if(role(CATCHER)!=null)GameplayLog.event(c,"family","catch duty noticed brood={} mother={} beat={} receiver={}",b.id,o.entity().getUUID(),beat(),receiver.kind());
             if(!beat().equals("site")&&receiver instanceof PlacedHat){jump("sited","catcher_found");return;}
         }
         String before=hold;hold=advance(b);
@@ -477,10 +478,16 @@ final class LiveBirth extends Choreography {
     private Intent placeHat(){
         var m=o.entity();var c=catcher();var b=brood();
         if(c==null||b==null)return null;
-        var pose=HatGeometry.catchPose(m,b,c,self()?HatGeometry.Role.SELF:HatGeometry.Role.HELPER,m.position(),m.yBodyRot);
-        var stand=HatGeometry.stand(pose,c);var prop=new HatProp(c,self());
+        var role=self()?HatGeometry.Role.SELF:HatGeometry.Role.HELPER;var prop=new HatProp(c,self());
+        float yaw=m.yBodyRot;var pose=HatGeometry.catchPose(m,b,c,role,m.position(),yaw);
+        if(self())for(float turn:TURNS){
+            // On her own she sets the hat where her clip puts it, in front of her: at a water's edge she turns to ground that bears it.
+            var trial=HatGeometry.catchPose(m,b,c,role,m.position(),m.yBodyRot+turn);
+            if(prop.fits(trial.at(),trial.yaw()).ok()){yaw=m.yBodyRot+turn;pose=trial;break;}
+        }
+        var placed=pose;var stand=HatGeometry.stand(pose,c);float facing=self()?yaw==m.yBodyRot?Float.NaN:yaw:stand.yaw();
         return new GoTo("place_hat",c,self()?c.position():stand.at(),now()+Math.max(40,window())).around(self()?null:m)
-                .facing(self()?Float.NaN:stand.yaw()).until(prop::deployed).then(()->new PlaceProp(prop,pose.at(),pose.yaw()));
+                .facing(facing).until(prop::deployed).then(()->new PlaceProp(prop,placed.at(),placed.yaw()));
     }
     /** The catcher while the young come and after: with the hat (Attend), or (no hat) beside the outlet to cheer. */
     private Intent attend(){
