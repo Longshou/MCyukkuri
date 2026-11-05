@@ -34,6 +34,9 @@ public final class Grab implements Action {
     public static final String ID = "grab";
     /** The mouth lift (ticks): the parent stands over the child and closes on it. */
     public static final int LIFT_TICKS = 14;
+    /** How far (blocks) a target that drifted while the braid closed may lie past the braid's tip and still be gripped: a hand's breadth,
+     *  well inside what the lift's own swing hides. */
+    private static final double GRIP_SLACK = .05;
     /** The braid's clips: it reaches, closes on the child by {@code lift_start}, lifts it by {@code lift_end} and sets it down by
      *  {@code place}; the low lean reaches lower and farther. */
     public static final String BRAID_LIFT = "braid_cradle_lift", BRAID_LEAN = "braid_reach_low";
@@ -184,7 +187,7 @@ public final class Grab implements Action {
             lean = ContactGeometry.braidGap(carrier, target, false) > 0;
             gap = ContactGeometry.braidGap(carrier, target, lean);
         }
-        if (way > 0 && gap > 0) {
+        if (way > 0 && gap > GRIP_SLACK) {
             int left = lift + ClipMarkers.of(BraidFetch.REACH).length() - ticks;
             if (left > 0) return new Running(left + way, TravelMode.CONSUMED);
             return Outcome.of(Reason.NO_CONTACT, gap, "braid_grip_out_of_reach");
