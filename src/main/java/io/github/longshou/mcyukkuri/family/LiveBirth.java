@@ -500,12 +500,13 @@ final class LiveBirth extends Choreography {
                     return new PlaceProp(prop,put.at(),put.yaw());
                 });
     }
-    /** The ground round a hat spot is dry and bears it: no water under any part of the brim. */
+    /** The ground round a hat spot is level, dry and bears it: no water, step or wall under any part of the brim. */
     private static boolean dryRoom(YukkuriEntity c,Vec3 at){
         var level=c.level();int r=(int)Math.ceil(HullBounds.RADIUS*HatScale.of(c)/HullBounds.SCALE);
         for(int dx=-r;dx<=r;dx++)for(int dz=-r;dz<=r;dz++){
             var cell=BlockPos.containing(at.x+dx,at.y,at.z+dz);
-            if(!level.getFluidState(cell).isEmpty()||!level.getBlockState(cell.below()).isFaceSturdy(level,cell.below(),Direction.UP))return false;
+            if(!level.getFluidState(cell).isEmpty()||!level.getBlockState(cell).getCollisionShape(level,cell).isEmpty()
+                    ||!level.getBlockState(cell.below()).isFaceSturdy(level,cell.below(),Direction.UP))return false;
         }
         return true;
     }
