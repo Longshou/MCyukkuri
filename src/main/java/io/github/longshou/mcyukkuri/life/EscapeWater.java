@@ -22,6 +22,7 @@ import io.github.longshou.mcyukkuri.motor.action.PlaceProp;
 import io.github.longshou.mcyukkuri.motor.action.Right;
 import io.github.longshou.mcyukkuri.motor.action.Swim;
 import io.github.longshou.mcyukkuri.motor.surface.SurfaceHost;
+import io.github.longshou.mcyukkuri.social.Bonds;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -298,7 +299,7 @@ public final class EscapeWater implements Intent {
                 <= Vec3.atBottomCenterOf(bank).distanceToSqr(body.position())) ? hat : null;
     }
 
-    /** The nearest hat afloat of a living parent within {@link #HAT_RANGE}, for a young that cannot sail (a body that sails has its
+    /** The nearest hat afloat of a living parent who still acknowledges it, within {@link #HAT_RANGE}, for a young that cannot sail (a body that sails has its
      *  own hat ways): the parent lifts it out of the water from there, so it waits at the rim rather than swimming on to a bank
      *  it has no breath to reach, until the help its incident was given has ended without getting it out. */
     private PlacedHatEntity parentHat() {
@@ -308,7 +309,7 @@ public final class EscapeWater implements Intent {
         if (incident != null && ledger.helpEnded(incident)) return null;
         PlacedHatEntity nearest = null;
         for (UUID id : new UUID[]{body.family().mother(), body.family().father()}) {
-            if (id == null || !(level.getEntity(id) instanceof YukkuriEntity parent) || !parent.isAlive()) continue;
+            if (id == null || !(level.getEntity(id) instanceof YukkuriEntity parent) || !parent.isAlive() || !Bonds.parentOf(parent, body)) continue;
             var hat = PlacedHatEntity.find(parent);
             if (hat != null && hat.behavior().afloat(hat) && hat.distanceTo(body) <= HAT_RANGE
                     && (nearest == null || hat.distanceToSqr(body) < nearest.distanceToSqr(body))) nearest = hat;
