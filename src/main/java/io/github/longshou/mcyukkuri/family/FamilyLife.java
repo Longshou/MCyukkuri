@@ -1072,7 +1072,7 @@ public final class FamilyLife {
                 &&ordinaryLandFree(other)&&caresFor(other)&&other.childhood().shouldStayWithParents()&&entity.life().canRecognize(other)
                 &&escortsMigratingChild(other)&&!safeInSharedHome(other)
                 &&(!other.family().exploring()||other.life().hasUrgentNeed())
-                &&(!FamilySeparation.near(entity,other)||carry.pickupDue(other)))
+                &&(!FamilySeparation.near(entity,other)||carry.pickupWanted(other)))
                 .stream().min(Comparator.comparingDouble(entity::distanceToSqr)).orElse(null);
     }
     /** Water, boarding, delivery and braid work retain their dedicated family paths instead of being taken over by land-child search. */

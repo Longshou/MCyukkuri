@@ -1160,8 +1160,18 @@ public final class ParentCarry {
         if (carrier.settlement().familyMarching() && child.family().familyTravelling()) return Purpose.MIGRATE;
         if (FamilyNest.rimNest(child) != null) return Purpose.NEST_RIM;
         var home = child.family().carryHome();
-        if (home != null && child.distanceToSqr(Vec3.atBottomCenterOf(home)) > 4 * 4) return Purpose.RETRIEVE;
+        if (home != null && child.distanceToSqr(Vec3.atBottomCenterOf(home)) > 4 * 4 && !fetchedByOther(child)) return Purpose.RETRIEVE;
         return null;
+    }
+    /** One lifter: the child's other parent is already going for it to carry it, gathering it, or lifting it. */
+    private boolean fetchedByOther(YukkuriEntity child) {
+        for (var id : new UUID[]{child.family().mother(), child.family().father()})
+            if (id != null && !id.equals(carrier.getUUID()) && ((ServerLevel) carrier.level()).getEntity(id) instanceof YukkuriEntity other && other.isAlive()) {
+                var family = other.family();var carry = family.carry();
+                if (child.getUUID().equals(carry.lifting) || child.getUUID().equals(carry.gathering)
+                        || family.task() == FamilyLife.Task.SEARCH && family.target() == child && carry.capable(child)) return true;
+            }
+        return false;
     }
     /** A search for this child should end in a lift rather than in waiting for it to walk over. */
     boolean pickupWanted(YukkuriEntity child) { return (purposeFor(child) != null || child.getUUID().equals(lifting)) && capable(child); }
@@ -1173,8 +1183,15 @@ public final class ParentCarry {
 
     /** Standing over a child and counting down its lift (shown as the lean-down of carry_lift, or the braid's reach). */
     boolean lifting() { return lifting != null; }
-    /** One tick of walking to the child, standing over it and lifting it with the shared Grab (into the hold it chooses). */
+    /** One tick of walking to the child, standing over it and lifting it with the shared Grab (into the hold it chooses). A failed
+     *  pickup leaves the child alone a while ({@link #HOLD_TICKS}): it comes home by itself, and the next try starts from where it is. */
     Step tickPickup(YukkuriEntity child, int taskTicks) {
+        var step = pickupStep(child);
+        if (step == Step.FAILED)
+            pauses.put(child.getUUID(), new Pause(carrier.level().getGameTime() + HOLD_TICKS, "pickup_failed"));
+        return step;
+    }
+    private Step pickupStep(YukkuriEntity child) {
         var intent = purposeFor(child);
         if (child.getUUID().equals(lifting)) {
             // This carrier's own Grab is the pickup: still lifting, or finished with an outcome to read here.
@@ -1201,8 +1218,7 @@ public final class ParentCarry {
                 GameplayLog.limited(carrier, "family", "carry.approach", 200, "carry pickup refused child={} reason=no_supported_contact_stand", child.getUUID());
                 return Step.FAILED;
             }
-            SurfaceApproach.walkAround(carrier, stand, child, 1.1);
-            return Step.WORKING;
+            return approachStand(child, stand);
         }
         carrier.getNavigation().stop();
         carrier.getLookControl().setLookAt(child, 30, 30);
@@ -1245,12 +1261,20 @@ public final class ParentCarry {
             var stand = new Grab(child).contactStand(carrier);
             if (stand != null && carrier.position().distanceToSqr(stand) > .01) {
                 GameplayLog.event(carrier, "family", "carry contact lost child={} shortfall={} approach={}", child.getUUID(), outcome.shortfall(), stand);
-                SurfaceApproach.walkAround(carrier, stand, child, 1.1);
-                return Step.WORKING;
+                return approachStand(child, stand);
             }
         }
         GameplayLog.event(carrier, "family", "carry grab failed child={} outcome={} reason={}", child.getUUID(),
                 outcome == null ? "none" : outcome.label(), reason);
+        return Step.FAILED;
+    }
+
+    /** Walk round to the stand beside the child; a stand the ground gives no way to ends the pickup instead of being asked again. */
+    private Step approachStand(YukkuriEntity child, Vec3 stand) {
+        SurfaceApproach.walkAround(carrier, stand, child, 1.1);
+        if (SurfaceApproach.lastResult(carrier, stand) != SurfaceApproach.Result.BLOCKED) return Step.WORKING;
+        GameplayLog.event(carrier, "family", "carry pickup stand blocked child={} stand={} why={}", child.getUUID(), GameplayLog.at(stand),
+                SurfaceApproach.why(carrier, stand));
         return Step.FAILED;
     }
 
@@ -1470,8 +1494,7 @@ public final class ParentCarry {
         if (more != null && !more.getUUID().equals(gathering)) SurfaceApproach.stopWalking(more);
         gathering = more == null ? null : more.getUUID();
         if (more != null) {
-            if (tickPickup(more, taskTicks) == Step.FAILED)
-                pauses.put(more.getUUID(), new Pause(carrier.level().getGameTime() + HOLD_TICKS, "pickup_failed"));
+            tickPickup(more, taskTicks);
             return true;
         }
         var home = child.family().carryHome();
