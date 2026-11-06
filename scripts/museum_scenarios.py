@@ -63,7 +63,7 @@ class Scenario:
             self.smoke = {**self.smoke, 'forbid': [*self.smoke.get('forbid', ()), _POND_SMOKE_FORBID]}
         self.capture = capture if capture is not None else dict(shots=(1, 40, 200, 600), sequences=((60, 160, 2),))
         self.late = self.late_lines + surface_demo_lines(sid,late)   # commands that need the individuals to stand on the ground first: run two seconds after the start
-        self.layout_ticks = max([40] + [40 + r.first for r in self.late if isinstance(r, Retry) and r.command.startswith('summon ')])
+        self.layout_ticks = max([40] + [40 + r.first + (r.tries - 1) * 20 for r in self.late if isinstance(r, Retry) and r.command.startswith('summon ')])
 
     @property
     def tag(self):
@@ -920,7 +920,7 @@ add('house_eggs', 'house', '迁卵', '迁卵', '先建立真实卵生胎次，�
 
 # ====================================================================================================== town
 add('wild', 'town', '野良应对', '野良应对', '宠物（银章）在进食；饥饿的野生魔理沙走来讨吃，看宠物是不理会、报告主人，还是没忍住', '约 1–3 分钟', [
-    yk('reimu', 0, 0, 'pet', grade=2, nutrition=38, yaw=-90, lead=True, boldness=60), *own('pet'), item('minecraft:apple', 1, 1, 0),
+    yk('reimu', 0, 0, 'pet', grade=2, nutrition=38, yaw=-90, lead=True, boldness=60), *own('pet'), item('minecraft:apple', 1, 3, 0),
     yk('marisa', 6, 0, 'wild', nutrition=34, yaw=90, boldness=45)], vantage=(0, 12))
 
 add('badge', 'town', '徽章与旁人', '徽章旁人', '场景给这只宠物灵梦签发的银章，只能由它佩戴；把它别上后，旁边的野生魔理沙会羡慕或嫉妒', '别上后约 1 分钟', [
@@ -3333,3 +3333,18 @@ TOPICS = {
 for _s in S:
     _s.asks = TOPICS.get(_s.id) or ('B1' if _s.id.startswith('settle_') else '')
     assert _s.asks, _s.id
+
+
+# Smoke expectations of the starts the land audit (P6) corrected: each names the subject the scene exists to show.
+def _smoke(sid, ticks, expect, forbid=(), readout=()):
+    scene = next(s for s in S if s.id == sid)
+    scene.smoke = dict(ticks=ticks, expect=list(expect), forbid=[r'\[body\][^\n]* invariant\b', *forbid], readout=list(readout))
+
+
+_LICK = [r'\[comfort\][^\n]* approach started', r'\[comfort\][^\n]* mouth contact started']
+_smoke('hurt', 1800, _LICK)
+_smoke('hurt_kin', 1800, _LICK)
+_NEST_BIRTH = [r'\[family\][^\n]* birth landed [^\n]*outcome=CUSHION\b']
+_smoke('pet_birth', 3000, _NEST_BIRTH)
+_smoke('birth_nest_safe', 3000, _NEST_BIRTH)
+next(s for s in S if s.id == 'birth_land_reunion').smoke = _LAND_BIRTH_SMOKE
