@@ -24,13 +24,14 @@ import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.pathfinder.Path;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.AABB;
 import io.github.longshou.mcyukkuri.house.HouseNestBlockEntity;
 import io.github.longshou.mcyukkuri.rare.RareForms;
 
 /** Loaded-time thermal exposure and interruptible refuge seeking. All numbers are MC adaptation. */
 public final class TemperatureLife {
     public record Conditions(double felt, boolean shade, boolean insulated, double warmth) {}
-    private record Refuge(BlockPos pos, double score) {}
+    private record Refuge(BlockPos pos, double score, Conditions at) {}
     /** Felt-temperature bonus of a swaddle in the cold and the largest combined bonus of swaddle and nest (project-original numbers). */
     public static final double SWADDLE_WARMTH = .5, SWADDLE_CAP = 1.5;
     private final YukkuriEntity entity;
@@ -117,9 +118,11 @@ public final class TemperatureLife {
         initialSample = true; sampleTicks = temperatureSampleTicks = 0; cooldown = 0; stop();
     }
 
+    /** Block heat, and the internal heat of the kotatsu Marisas nearby. */
+    private record HeatSources(List<ThermalSourceCache.Source> blocks, List<ThermalSourceCache.Source> bodies) {}
     /** Public for observation and remote world fixtures; it never generates or loads a chunk. */
     public Conditions sample(BlockPos pos) { return sample(pos, heatSources(pos, 4)); }
-    private Conditions sample(BlockPos pos, List<ThermalSourceCache.Source> sources) {
+    private Conditions sample(BlockPos pos, HeatSources sources) {
         if (!level().hasChunkAt(pos)) return new Conditions(.8, false, false, 0);
         boolean shade = shaded(pos), insulated = insulated(pos, shade);
         double biome = level().getBiome(pos).value().getBaseTemperature();
@@ -131,12 +134,10 @@ public final class TemperatureLife {
         // The swaddle adds a little warmth on top of a nest, up to a combined bonus of 1.5 (docs/FEATURES.md).
         if (entity.pet().care().swaddled() && tooCold(felt + bonus)) bonus = Math.max(bonus, Math.min(bonus + SWADDLE_WARMTH, SWADDLE_CAP));
         felt += bonus;
-        double warmth = 0;
-        for (var source : sources) {
-            double distance = Math.sqrt(source.pos().distSqr(pos));
-            if (distance > 4 || !level().hasChunkAt(source.pos())) continue;
-            if (clearHeat(pos, source.pos())) warmth = Math.max(warmth, source.strength() * (1 - distance / 6));
-        }
+        double warmth = heatAt(pos, sources.blocks());
+        // A kotatsu Marisa carries an internal heater like a torch carries fire, but only into a body that is cold:
+        // beside her a freezing neighbour gets properly warm, and in summer nobody does (wiki L23 内部发热, L22 耐寒怕热).
+        if (tooCold(felt + warmth)) warmth = Math.max(warmth, heatAt(pos, sources.bodies()));
         return new Conditions(felt + warmth, shade, insulated, warmth);
     }
     private boolean shaded(BlockPos pos) {
@@ -159,9 +160,25 @@ public final class TemperatureLife {
                 && level().getBlockEntity(home.pos()) instanceof CareBlockEntity care && care.kind() == CareBlock.Kind.NEST
                 && care.owns(entity.getUUID()) && entity.life().dryStand(pos);
     }
-    private List<ThermalSourceCache.Source> heatSources(BlockPos center, int radius) {
-        return ThermalSourceCache.sources(level(), center, radius);
+    private HeatSources heatSources(BlockPos center, int radius) {
+        var bodies = new ArrayList<ThermalSourceCache.Source>();
+        for (var kotatsu : level().getEntitiesOfClass(YukkuriEntity.class, new AABB(center).inflate(radius),
+                other -> other != entity && RareForms.kotatsu(other)))
+            bodies.add(new ThermalSourceCache.Source(kotatsu.blockPosition(), KOTATSU_NEIGHBOUR_HEAT));
+        return new HeatSources(ThermalSourceCache.sources(level(), center, radius), bodies);
     }
+    /** Warmth reaching this place from one group of heat sources; a wall blocks it like any other heat. */
+    private double heatAt(BlockPos pos, List<ThermalSourceCache.Source> sources) {
+        double warmth = 0;
+        for (var source : sources) {
+            double distance = Math.sqrt(source.pos().distSqr(pos));
+            if (distance > 4 || !level().hasChunkAt(source.pos())) continue;
+            if (clearHeat(pos, source.pos())) warmth = Math.max(warmth, source.strength() * (1 - distance / 6));
+        }
+        return warmth;
+    }
+    /** Heat a kotatsu Marisa radiates to a body huddled against her: properly warm within three blocks, gone by four. */
+    static final double KOTATSU_NEIGHBOUR_HEAT = 2.4;
     private boolean clearHeat(BlockPos from, BlockPos source) {
         // A ray may cross a third chunk even when both endpoints are already loaded.
         for (var pos : BlockPos.betweenClosed(from, source)) if (!level().hasChunkAt(pos)) return false;
@@ -198,7 +215,10 @@ public final class TemperatureLife {
             var at = sample(pos, sources);
             if (!refuge(at)) continue;
             double distance = pos.distSqr(center);
-            candidates.add(new Refuge(pos.immutable(), distance - (seekingWarmth && at.insulated() ? 8 : 0)));
+            // Seeking warmth means seeking the warmest place within reach, not just the nearest merely comfortable one:
+            // a real heat source (a torch, a fire, a kotatsu Marisa) outranks open ground at the same distance.
+            candidates.add(new Refuge(pos.immutable(), distance - (seekingWarmth ? at.warmth() * 8 : 0)
+                    - (seekingWarmth && at.insulated() ? 8 : 0), at));
         }
         candidates.sort(Comparator.comparingDouble(Refuge::score));
         for (int i = 0; i < Math.min(16, candidates.size()); i++) {
@@ -206,7 +226,8 @@ public final class TemperatureLife {
             if (safePath(candidate.pos()) == null) continue;
             target = candidate.pos(); taskTicks = restTicks = 0;
             GameplayLog.limited(entity, "temperature", "refuge.start", 1200,
-                    "refuge route selected warming={} target={} felt={} coldExposure={}", seekingWarmth, target, current.felt(), coldExposure);
+                    "refuge route selected warming={} target={} felt={} target_felt={} target_heat={} coldExposure={}",
+                    seekingWarmth, target, current.felt(), candidate.at().felt(), candidate.at().warmth(), coldExposure);
             return true;
         }
         return false;
@@ -251,9 +272,17 @@ public final class TemperatureLife {
         }
         return path;
     }
-    public boolean canContinue() {
-        return active() && available() && taskTicks < 400 && restTicks < 200 && safeStand(target) && mayUse(target)
-                && (taskTicks % 20 != 0 || !waterTakesPriority() && refuge(sample(target)));
+    public boolean canContinue() { return continueGate() == null; }
+    /** Which admission ends the walk; the stop log alone cannot tell a reached refuge from a lost one. */
+    private String continueGate() {
+        if (!active()) return "inactive";
+        if (!available()) return "unavailable";
+        if (taskTicks >= 400) return "elapsed";
+        if (restTicks >= 200) return "rested";
+        if (!safeStand(target)) return "unsafe_stand";
+        if (!mayUse(target)) return "not_ours";
+        if (taskTicks % 20 == 0 && (waterTakesPriority() || !refuge(sample(target)))) return "lost_refuge";
+        return null;
     }
     private boolean waterTakesPriority() {
         var life = entity.life();
@@ -310,9 +339,14 @@ public final class TemperatureLife {
                 && (sampleTicks != 0 || !waterTakesPriority());
     }
     public void stop() {
+        String gate = active() ? continueGate() : null;
+        if (gate != null) GameplayLog.limited(entity, "temperature", "refuge.gate." + gate, 1200,
+                "refuge ended gate={} warming={} target={} felt={} exposure={}", gate, seekingWarmth, target, current.felt(), coldExposure);
         if (target != null) GameplayLog.limited(entity, "temperature", "refuge.stop", 1200,
                 "refuge stopped warming={} target={} elapsed={} restTicks={} felt={}", seekingWarmth, target, taskTicks, restTicks, current.felt());
-        target = temporarySleepSite = null; taskTicks = restTicks = 0; cooldown = Math.max(cooldown, 60);
+        target = temporarySleepSite = null; taskTicks = restTicks = 0;
+        // A place that went cold because the heat itself walked on is looked for again on the next plan, not given up on.
+        cooldown = "lost_refuge".equals(gate) ? 0 : Math.max(cooldown, 60);
     }
 
     public Component observation() {
