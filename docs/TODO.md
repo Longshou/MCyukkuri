@@ -11,7 +11,6 @@
 | 陆地危险、天气与寒冷（审计 P3：受害者记住攻击者、逃向掩体与父母、安全撤离点，Alice 追击门与目击，捕食种战败撤离与饥饿巡飞，洞口结界，雨搜方向与抖水，暖桌暖邻） | `.worktrees/wp-at-danger` | `status/Reactions`、`entity/YukkuriGoals`、`predator/PredatorLife`、`settlement/DenBarrierBlockEntity`、`life/AgitationLife`、`life/TemperatureLife` |
 | 陆地食物与喂养（审计 P4：池塘岸边觅食停滞、喂养时钟与亲代先喂幼体、干草缺口母亲的进食门、就近草地与保留所携、争食公平、分配幼体与幼体乞食、寒冷不觅食、奴隶睡觉、先备粮后铺床） | `.worktrees/wp-av-food` | `settlement/ForageGoal`、`settlement/ForageTrip`、`settlement/HabitatLife`、`family/FamilyFeeding`、`family/ChildhoodLife`、`life/YukkuriLife`、`life/LifeHome`、`entity/YukkuriGroundNavigation` |
 | 陆地家庭在场（审计 P1：近处不寻子、窝内不算走失、幼体饥饿时跟随亲代、目睹亲缘死亡、独立告别、搬运站位失败与单人抬、求偶上限读数、孕期安窝、无路时留守与部分寻路、亲缘问候与蹭蹭；临产母亲走进窝里分娩） | `.worktrees/wp-aq-family` | `family/FamilyLife`、`family/FamilySeparation`、`family/ParentCarry`、`family/IndependenceLife`、`family/Courtship`、`family/LiveBirth`、`social/YukkuriSocial`、`social/SelfOffering` |
-| 全游戏演示场景梳理与取名（非池塘场地合并同路径演示、改名、迁徙两场找回、生成点与初态核对） | `.worktrees/wp-au-scene-curation` | `scripts/museum_*.py`、`scripts/smoke_museum.py`、`docs/TODO.md` |
 
 ## 玩法待办
 
@@ -403,6 +402,7 @@ WP-C2 本机自查（非试玩验收、无 CI）：主线 `136b6f124`（独立�
 - **通用**：陆 1（23）场景北侧观察、个体初始朝北；陆 3（11）清空本场地后实体、账本和地形回到同一初始状态，无模组物品与拆窝掉落；陆 6、7 季节展示与帕琪误报已删，无残留即删；[架构整理](../AGENTS.md)后的行为、显示顺序、保存契约与多人同步；同屏 1–15 只（污渍、孕肚、发言）的帧时间；单一血量下多日的死亡与繁殖节奏。
 - **野外住所**：`den_family` 家庭洞（杀死父油即丧偶家庭）：陆 52 清醒饥饿翻倍，丧偶后母油接替外出存粮，未独立子油留洞内、不再进出循环。`indep_near` 独立（亲油在与不在各一只）：告别后释放旧床位，成为寻窝流浪油，亲缘与好感保留，尚不具备繁殖资格。
 - **流浪与觅食**：`dig` 流浪油挖穴（陆 29（47）内部 2 格高）；`forage` 外出觅食（陆 30（48）近处不足才远行：父基础／上限 48／192、母 20／128 格，再乘胆量系数）；`graze` 吃草（陆 31（49）优先非草、咽草嫌苦）；`forage` 灵梦颊囊：多捡、逐份放入。
+  - 复测失败：`forage` 母油割满 6 份草后 `[forage] end ok=false phase=BACK reason=stuck_home`，草掉落、无 `deposit home=`（本机冒烟非验收，主线 aa574abd4 同样；场景起点无误）。完成：父母带草进洞存入，日志有 `deposit home=`。
 - **群系聚落**
   - `settle_snow`、`settle_desert`：体感、保温窝和避暑效果符合[季节与温度](FEATURES.md#季节体感温度与储粮)，笔记与命令季节一致，跳时间不换季。
   - **族长空缺后的交接**：已接入待试玩（[族规与继任](FEATURES.md#聚落族规与迁徙)）。完成：`colony_hunt`、`colony_ration`、`colony_migrate` 手动杀死原族长后，公仓实物仍可取、救急盘点不重复份额、召集中断不算空猎、已出发猎手返程交粮、迁徙继续、候选会合在吃饭／照护中暂停后累计完成；无合格成体时保持空缺、真实缺粮仍有后果。水上接力须在实际水上聚落迁徙中杀死引导船主，确认接力者驾驶自有帽船、未搬走死者船货且抵达后才换公仓；陆地场景不作这项通过证据。
