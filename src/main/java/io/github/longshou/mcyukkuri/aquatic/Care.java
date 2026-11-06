@@ -110,7 +110,7 @@ final class Care implements Intent {
     static boolean hungry(YukkuriEntity parent, YukkuriEntity child) {
         return child.isAlive() && parent.family().caresFor(child) && !child.family().canEatIndependently() && child.life().canReceiveCareFood()
                 && parent.careApproach().mayTry(child)
-                && child.life().nutrition() < parent.life().nutrition() - parent.species().traits().dote();
+                && (!child.childhood().firstMealDone() || child.life().nutrition() < parent.life().nutrition() - parent.species().traits().dote());
     }
 
     /** Gasping after the water (or its incident closed a moment ago and it has dried enough to be nuzzled), or cold:

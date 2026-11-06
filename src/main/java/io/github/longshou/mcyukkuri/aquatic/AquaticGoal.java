@@ -423,7 +423,8 @@ final class AquaticGoal extends Goal {
             if (food && (hungry == null || y.life().nutrition() < hungry.life().nutrition())) hungry = y;
         }
         var fed = hungry;
-        if (fed != null && body.family().careDecisions().decide(fed, CareDecisionLedger.Need.FEED, fed.life().nutrition() < 30).accepted())
+        if (fed != null && body.family().careDecisions().decide(fed, CareDecisionLedger.Need.FEED,
+                fed.life().nutrition() < 30 || !fed.childhood().firstMealDone()).accepted())
             out.add(Desire.of("feed_young", floor(num("feed_want", 55) + Math.max(0, 50 - fed.life().nutrition())), List.of(at, fed.getUUID()),
                     () -> "child=" + fed.getUUID() + " nutrition=" + Math.round(fed.life().nutrition()), () -> Care.feed(body, fed)));
         var calmed = gasping;

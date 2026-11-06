@@ -16,7 +16,8 @@ public final class CareDecisionLedger {
     public enum Need { FEED, FIRST_TOILET, NUZZLE, LULLABY }
     public record Result(boolean accepted, boolean newDecision) {}
 
-    private static final int DECISION_TICKS = 1200, MAX_DECISIONS = 64;
+    /** A refusal of an urgent need (a newborn's first care, a starving child) is asked again after the shorter span: a crying child is not left a whole minute. */
+    private static final int DECISION_TICKS = 1200, URGENT_REFUSAL_TICKS = 300, MAX_DECISIONS = 64;
     private record Key(UUID child, Need need) {}
     private record Decision(boolean accepted, long until) {}
 
@@ -43,7 +44,7 @@ public final class CareDecisionLedger {
         float chance = parent.life().personality().helpProbability(true, urgent);
         float roll = parent.getRandom().nextFloat();
         boolean accepted = roll < chance;
-        long until = now + DECISION_TICKS;
+        long until = now + (accepted || !urgent ? DECISION_TICKS : URGENT_REFUSAL_TICKS);
         decisions.put(key, new Decision(accepted, until));
         trim(now);
         GameplayLog.limited(parent, "family", "care.decision." + need.name().toLowerCase() + "." + child.getUUID(), 200,

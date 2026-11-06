@@ -291,7 +291,7 @@ public final class ChildhoodLife {
 
     /** First-toilet help is chosen exactly once after a real child and safe contact path are available. */
     private boolean acceptsCare(YukkuriEntity child) {
-        boolean urgent=child.life().bladder()>=70;
+        boolean urgent=child.life().bladder()>=70||!child.childhood().firstToiletDone();
         return entity.family().careDecisions().decide(child,CareDecisionLedger.Need.FIRST_TOILET,urgent).accepted();
     }
 
