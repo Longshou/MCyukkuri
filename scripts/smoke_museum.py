@@ -84,6 +84,14 @@ def build_pack(builder, pack_root, layout=False):
             lines = []
             for number, line in enumerate(path.read_text(encoding='utf-8').splitlines(), 1):
                 if re.search(r'(?:^|run )(?:summon |yukkuri settlement spawn |yukkuri scenario (?:spawn|afloat) |yukkuri human build |yukkuri human walker )', line):
+                    # A guarded retry writes its own success score and returns it; replacing that line would leave the
+                    # score unset and the retry would summon again every attempt, so only observe the score it writes.
+                    if line.startswith('execute store success score '):
+                        score = ' '.join(line.split()[4:6])
+                        lines += [line,
+                                  f'execute if score {score} matches 0 run say MCYLAYOUT_MISSING {path.stem}:{number}',
+                                  f'execute if score {score} matches 1.. run yukkuri scenario geometry record']
+                        continue
                     command = line.removeprefix('return run ')
                     lines += [f'execute store result score #layout_created museum run {command}',
                               f'execute if score #layout_created museum matches 0 run say MCYLAYOUT_MISSING {path.stem}:{number}',
@@ -243,12 +251,15 @@ def check_layout(st, builder, scene):
     previous_tick = 0
     geometry_offset = offset
     for tick in sorted({0, 40, scene.layout_ticks}):
-        if tick:
+        # Step in short runs: a scene waiting for a guarded summon steps a few hundred ticks, and one long step stops
+        # emitting the end-of-step marker.
+        while previous_tick < tick:
+            step = min(40, tick - previous_tick)
             ready_offset = server.log_offset(st)
-            server.run_cmd(st, f'schedule function {builder.NS}:layout_ready {tick - previous_tick}t replace')
-            server.run_cmd(st, f'tick step {tick - previous_tick}')
-            server.wait_log(st, 'MCYLAYOUT_READY', ready_offset, timeout=30 + (tick - previous_tick) // 10)
-        previous_tick = tick
+            server.run_cmd(st, f'schedule function {builder.NS}:layout_ready {step}t replace')
+            server.run_cmd(st, f'tick step {step}')
+            server.wait_log(st, 'MCYLAYOUT_READY', ready_offset, timeout=120)
+            previous_tick += step
         # Creation records run synchronously before the actor's first physics tick (including delayed flying predators).
         created = [row for row in geometry_rows(server.log_text(st, geometry_offset)) if not row['player']]
         geometry_offset = server.log_offset(st)
