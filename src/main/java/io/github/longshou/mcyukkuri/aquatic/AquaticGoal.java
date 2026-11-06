@@ -173,13 +173,12 @@ final class AquaticGoal extends Goal {
 
     private static double floor(double desire) { return desire >= num("floor", 20) ? desire : 0; }
 
-    /** The hat's calm cell, or its block: what a route or a landing is chosen from (a stable fact while it drifts). */
     /** Where her hull lies, four cells wide: a failed trip over the water is not offered again for the one cell another errand moved it. */
     private static List<Integer> region(PlacedHatEntity hat) {
         var c = cell(hat);
         return List.of(c.getX() >> 2, c.getY(), c.getZ() >> 2);
     }
-
+    /** The hat's calm cell, or its block: what a route or a landing is chosen from (a stable fact while it drifts). */
     private static BlockPos cell(PlacedHatEntity hat) {
         var c = Waters.cell(hat);
         return c != null ? c : hat.blockPosition();
