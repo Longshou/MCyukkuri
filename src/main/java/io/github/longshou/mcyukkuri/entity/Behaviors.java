@@ -101,6 +101,8 @@ public final class Behaviors {
     public static final String INDEPENDENCE_VISIT = "independence_visit";
     public static final String JUDGEMENT_APPROACH = "judgement_approach";
     public static final String JUDGEMENT_HEARING = "judgement_hearing";
+    /** The accused's own bearing at the hearing, by its nature (settlement/Judgement). */
+    public static final String JUDGEMENT_BOW = "judgement_bow", JUDGEMENT_BEG = "judgement_beg", JUDGEMENT_STAND = "judgement_stand";
     public static final String LABOR = "labor";
     // leaf swaddle (family/LeafSwaddle): the parent's gathering, folding, wrapping and care; the child's answer
     public static final String LEAF_SWADDLE_APPROACH = "leaf_swaddle_approach";

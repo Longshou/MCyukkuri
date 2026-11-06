@@ -266,8 +266,6 @@ public final class HumanNpc extends PathfinderMob {
         if (y.life().canEat() && careFood > 0 && residentWildFeedAllowed(y) && y.life().beginMeal(new ItemStack(ModItems.GRAIN_REGULAR.get()), getUUID(), true)) {
             if (job() == Job.RESIDENT && Custody.view(y).wild()) recordResidentWildFeed(y);
             careFood--; swing(InteractionHand.MAIN_HAND);
-            y.mind().perform("bow", 30);
-            y.showReaction("happy", "badge_thanks", 60);
             GameplayLog.event(this, "npc-care", "action=begin_meal target={} food={}->{} nutrition={} result=accepted", y.getUUID(), careFood + 1, careFood, y.life().nutrition());
             return true;
         }

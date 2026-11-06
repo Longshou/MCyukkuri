@@ -49,7 +49,9 @@ public final class EcologyPresentation {
             case Behaviors.COURTSHIP -> YukkuriAction.LOOK_AROUND;
             case Behaviors.PAIRING_ACCEPT -> YukkuriAction.GREET;
             case Behaviors.PAIRING -> YukkuriAction.NUZZLE;
-            case Behaviors.BEG_FOOD -> YukkuriAction.BEG;
+            case Behaviors.BEG_FOOD, Behaviors.JUDGEMENT_BEG -> YukkuriAction.BEG;
+            case Behaviors.JUDGEMENT_BOW -> YukkuriAction.BOW;
+            case Behaviors.JUDGEMENT_STAND -> YukkuriAction.STAND_GROUND;
             case Behaviors.COMFORT_LICK, Behaviors.SHARD_LICK -> YukkuriAction.COMFORT_LICK;
             // headwear: gathering the pieces of a shattered accessory; a sanction declared, then carried out by bullying
             case Behaviors.SHARD_SEEK, Behaviors.SANCTION_APPROACH -> YukkuriAction.LOOK_AROUND;
@@ -98,6 +100,7 @@ public final class EcologyPresentation {
             case "newborn", "hatched" -> YukkuriAction.FIRST_WAKE;
             case "birth" -> YukkuriAction.POSTPARTUM;
             case "birth_lost" -> YukkuriAction.BEREAVED;
+            case "badge_thanks" -> YukkuriAction.BOW;
             case "hat_jostle", "hat_scramble", "hat_slipping" -> YukkuriAction.HAT_JOSTLE;
             case "returned_accessory" -> YukkuriAction.SHIAWASE;
             case "expecting" -> YukkuriAction.SHIAWASE;

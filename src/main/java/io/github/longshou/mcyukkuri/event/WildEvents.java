@@ -9,6 +9,7 @@ import io.github.longshou.mcyukkuri.event.WildEventData.Scene;
 import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.family.ParentCarry;
 import io.github.longshou.mcyukkuri.human.HumanCommerce;
+import io.github.longshou.mcyukkuri.human.HumanNpc;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.pet.social.BadgeArcPolicy.Arc;
 import io.github.longshou.mcyukkuri.social.BondLevels;
@@ -293,6 +294,8 @@ public final class WildEvents {
     /** Called only at the existing successful food swallow, before its feeder UUID is cleared. */
     public static void fed(YukkuriEntity e, UUID player) {
         WildCards.swallowed(e);
+        // A meal given by a caring human is thanked with a bow once it is swallowed.
+        if(player!=null && e.level() instanceof ServerLevel level && level.getEntity(player) instanceof HumanNpc)e.showReaction("happy","badge_thanks",60);
         if(player==null || !(e.level() instanceof ServerLevel level))return;
         var data=WildEventData.get(level);
         Scene s=data.forMember(e.getUUID(),scene -> (scene.kind==Kind.SISTERS || scene.kind==Kind.SINGLE_PARENT) && !scene.fed.contains(e.getUUID())

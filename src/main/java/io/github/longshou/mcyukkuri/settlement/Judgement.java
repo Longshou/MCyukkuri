@@ -37,7 +37,8 @@ public final class Judgement {
     /** The selected presentation source observes this only while the bridge Goal is running. */
     public String activity() {
         if (current == null) return Behaviors.IDLE;
-        return current.hearing == Commons.Hearing.APPROACH ? Behaviors.JUDGEMENT_APPROACH : Behaviors.JUDGEMENT_HEARING;
+        if (current.hearing == Commons.Hearing.APPROACH) return Behaviors.JUDGEMENT_APPROACH;
+        return accusedCase() == current ? stance(entity) : Behaviors.JUDGEMENT_HEARING;
     }
 
     public void tickGoal() {
@@ -261,6 +262,13 @@ public final class Judgement {
         pending.hearingSince = 0;
     }
 
+    /** The accused answers by its own nature: the timid bow or plead, the bold and unruly stand their ground. */
+    private static String stance(YukkuriEntity accused) {
+        var p = accused.life().personality();
+        if (p.boldness() < 50) return p.selfControl() >= 50 ? Behaviors.JUDGEMENT_BOW : Behaviors.JUDGEMENT_BEG;
+        return p.boldness() >= 60 && p.selfControl() < 50 ? Behaviors.JUDGEMENT_STAND : Behaviors.JUDGEMENT_HEARING;
+    }
+
     private static void announce(ServerLevel level, SettlementData.Group group, Commons.Pending pending, YukkuriEntity offender) {
         var leader = level.getEntity(pending.hearingLeader) instanceof YukkuriEntity value ? value : null;
         if (leader == null) return;
@@ -269,11 +277,8 @@ public final class Judgement {
                 group.id,offender.getUUID(),pending.offence,pending.time,HEARING_TICKS);
         leader.showReaction("angry", "rule_rebuke", (int)HEARING_TICKS);
         offender.showReaction("teary", "rule_punished", (int)HEARING_TICKS);
-        // The accused answers by its own nature: the timid bow or plead, the bold and unruly stand their ground.
         var p = offender.life().personality();
-        String stance = p.boldness() < 50 ? p.selfControl() >= 50 ? "bow" : "beg" : p.boldness() >= 60 && p.selfControl() < 50 ? "stand_ground" : null;
-        if (stance != null) offender.mind().perform(stance, (int)HEARING_TICKS);
-        GameplayLog.event(offender, "judgement", "hearing stance action={} boldness={} selfControl={}", stance, p.boldness(), p.selfControl());
+        GameplayLog.event(offender, "judgement", "hearing stance behavior={} boldness={} selfControl={}", stance(offender), p.boldness(), p.selfControl());
         for (var witness : level.getEntitiesOfClass(YukkuriEntity.class, offender.getBoundingBox().inflate(CommunityRules.WITNESS_RANGE),
                 value -> value != leader && value != offender && value.isAlive() && !value.isNoAi()
                         && group.id.equals(value.settlement().groupId()) && SettlementSociety.accepted(value)
