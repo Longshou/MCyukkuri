@@ -8,8 +8,6 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
-| 陆地危险、天气与寒冷（审计 P3：受害者记住攻击者、逃向掩体与父母、安全撤离点，Alice 追击门与目击，捕食种战败撤离与饥饿巡飞，洞口结界，雨搜方向与抖水，暖桌暖邻） | `.worktrees/wp-at-danger` | `status/Reactions`、`entity/YukkuriGoals`、`predator/PredatorLife`、`settlement/DenBarrierBlockEntity`、`life/AgitationLife`、`life/TemperatureLife` |
-| 陆地危险、天气与寒冷（审计 P3：受害者记住攻击者、逃向掩体与父母、安全撤离点，Alice 追击门与目击，捕食种战败撤离与饥饿巡飞，洞口结界，雨搜方向与抖水，暖桌暖邻） | `.worktrees/wp-at-danger` | `status/Reactions`、`entity/YukkuriGoals`、`predator/PredatorLife`、`settlement/DenBarrierBlockEntity`、`life/AgitationLife`、`life/TemperatureLife` |
 | 陆地家庭在场（审计 P1：近处不寻子、窝内不算走失、幼体饥饿时跟随亲代、目睹亲缘死亡、独立告别、搬运站位失败与单人抬、求偶上限读数、孕期安窝、无路时留守与部分寻路、亲缘问候与蹭蹭；临产母亲走进窝里分娩） | `.worktrees/wp-aq-family` | `family/FamilyLife`、`family/FamilySeparation`、`family/ParentCarry`、`family/IndependenceLife`、`family/Courtship`、`family/LiveBirth`、`social/YukkuriSocial`、`social/SelfOffering` |
 | 全游戏演示场景梳理与取名（非池塘场地合并同路径演示、改名、迁徙两场找回、生成点与初态核对） | `.worktrees/wp-au-scene-curation` | `scripts/museum_*.py`、`scripts/smoke_museum.py`、`docs/TODO.md` |
 
@@ -92,7 +90,7 @@
 - **生殖行为演出**：已接入待试玩。擦脸前段、父方绕后、佩妮佩妮／马姆马姆、共享接触节拍与粒子；爱丽丝追击保持佩妮佩妮，受方压制显示马姆马姆。完成：`adult_pairing` 正侧背面看清回应、擦脸、绕后、接触，`home.family_state` 的 `court=` 中 `align` 不计有效接触、`contact` 后父母角色与账本一致；`alice_hunt` 追击器官不消失，喷雾、受击或遮挡后只收势。
 - **食尸、伴侣与请吃了我演出**：部分接入。丰富 `carrion` 食尸、伴侣反应与 `offering` 献身请求演出，只跟随实际数值。完成：看清食尸吞咽、伴侣的选择及献身请求、回应、交付；与陆 24 分体统一收尾，不标记数值通过。
 - **陆 14 雨天与雷暴演出**：未做。补普通雨不安、雷暴更强不安、寻找掩体、干燥区恢复休闲／觅食、很饿冒雨觅食的表现，随真实状态。机制见待试玩陆 14。
-- **陆 5 暖桌魔理沙**（2，`kotatsu_winter`、`kotatsu_summer`）：部分接入。被炉帘布造型已补待视觉确认；冬天应不觉冷、不进洞冬居，夏天白天回棚下睡，现看不出区别；读数冬夏不同只补演出，相同按数值问题修。
+- **陆 5 暖桌魔理沙**（2，`kotatsu_winter`、`kotatsu_summer`）：部分接入。被炉帘布造型已补待视觉确认；冬天应不觉冷、不进洞冬居，夏天白天回棚下睡，现看不出区别；读数冬夏不同只补演出，相同按数值问题修。已接入待试玩（审计 P3，分支 wp-at-danger，本机冒烟非验收）：她本身是热源，冷的普通魔理沙会选她身边的落脚点（`refuge route selected … target_heat=`）；但两人各自闲逛走散后，暖桌一走开那格就变冷（`refuge ended gate=lost_refuge`），冷的那只仍会去群系边缘取暖——绑在一起要靠同伴贴靠（P2 RoamingGoal）。
 - **陆 17 妖梦咬刀**：已接入待试玩。[ac4ba87b](https://github.com/Longshou/MCyukkuri/commit/ac4ba87b)（CI `40196337976`）`myon_brave` 拔刀交战时观楼剑在身体下方不在嘴里（此后空口持剑也逐帧刷新挂点，待复测）。完成：`myon_stick` 木棍正侧面横贯嘴部，走动跳动转身不脱离；`myon_brave` 交战、追击、受击、退战全程不在身体下方或原点，不与他只串位。
 - **陆 22 茎生尊重重力**（7）：复测失败。[dd75d650](https://github.com/Longshou/MCyukkuri/commit/dd75d650)（CI 40200352271，2026-10-25 22:24–22:38）`birth_stem_caught`：用户问茎为何左右歪、实子是否过大（核对 0.10→0.20 未超标，见[体型规范](FEATURES.md#行为性格与成长)）；子油头顶小茎仍左右斜（版本待核实），现改整根竖直悬下。完成：`aftermath_growth`、`birth_stem_caught` 母体静止小茎竖直，走动跳跃轻摆、停稳恢复；各视角无固定左右斜伸，子代不穿主茎、母体或同胞，出生从悬挂处脱落；剪下／装瓶的茎同样竖垂（[挂法](../art/props/family-life/README.md)）。
 - **陆 24 献身分体**（37）：部分接入。现 GIVE 只停步、注视、低垂后进中枢濒死，遗体完整压低。要从中间劈成两半，横切面按构造分层，中枢馅／线也分两半，对应同一遗体资源；入口并入 `offering`。完成：分体可见、资源不重复（[受伤与遗体](FEATURES.md#伤口遗体与身体状态)）。
@@ -188,9 +186,9 @@
 - **妖梦体力系数未生效**：已接入待试玩。源码核查 [c3033e91](https://github.com/Longshou/MCyukkuri/commit/c3033e91)（CI `39580340893`），无试玩复现。完成：`species_fatigue` 妖梦、灵梦、帕秋莉同初态，`species.fatigue.steps=20` 时代谢 `cost` 分别 18／20／25，重载不带入上次统计。
 - **陆 38 捕食种腾空台词**：已接入待试玩。原生会飞的捕食种说“好像在天上飞”（版本待核实）。完成：`airborne` 普通高抛只触发一次，小跳和蕾米莉亚／弗兰均不触发。
 - **固定群系下的日常储粮**：已接入待试玩。已移除秋储规划、秋季加征和过冬预留。完成：`forage`、`settle_taiga`、`colony_hunt`、`colony_ration` 读库存／公仓目标与上缴比例，秋季群系不为未来冬天囤粮或扣留公粮。
-- **陆 14 避雨搜索与雨天活动**（4）：已接入待试玩。E1 找掩体偏低且避雨不应锁死活动；E3 雨伤、湿润和水生避雨缺口；E5 严重饥饿者雨中 `idle`。完成：`rain_shelter`、`rain_open`、`rain_life` 读搜索目标、遮蔽、Goal、不安、营养与湿度；无掩体仍合理搜索，干燥区恢复活动，极饿真实冒雨觅食。
+- **陆 14 避雨搜索与雨天活动**（4）：已接入待试玩。E1 找掩体偏低且避雨不应锁死活动；E3 雨伤、湿润和水生避雨缺口；E5 严重饥饿者雨中 `idle`。本机冒烟（分支 wp-at-danger，非验收）：`rain_life` 饿油吃完第一枚苹果后接着出去吃第二枚（营养 30 才回去躲雨）、进屋 `shaking the rain off on arrival`；“认一个方向一直走”试过后在 `rain_damage` 反而背着唯一的屋顶走出 37–40 格 780 tick 找不到掩体（主线 59–139 tick 就跑到），已撤回，搜索仍按现有随机迈步。完成：`rain_shelter`、`rain_open`、`rain_life` 读搜索目标、遮蔽、Goal、不安、营养与湿度；无掩体仍合理搜索，干燥区恢复活动，极饿真实冒雨觅食。
 - **陆 16 挡捕食种与亲油反应**（39）：已接入待试玩。2026-10-20（版本待核实）`sacrifice` 只追亲油；E1 23:17:57、23:18:22 子油→亲油转移不证明完成挡护；E3 看不清挡护；E5 01:48:18、01:48:42 噗咕后子油受咬、捕食种落地清空猎物、亲油下一 tick 中断。[ac4ba87b](https://github.com/Longshou/MCyukkuri/commit/ac4ba87b)（CI `40196337976`）21:36、21:37：亲油被挑衅后芙兰约 25 tick 咬一次（2.0），5 次杀死亲油，清场后立刻再选子油；现改捕食／战斗两态、伤害 1.5。完成：`sacrifice` 确认真实护子或退避（`behavior.protection`、血量），低意愿仍可抽中；转怒后命中间隔≥40 tick（`mode predation -> combat`）；亲油死亡后 `eat pause started; reason=combat_kill`，芙兰不起飞追猎，饿时 `remains feeding via=eat_pause` 至吃饱或遗体取尽才再选目标。
-- **陆 17 妖梦战力**（40）：已接入待试玩。2026-10-20（版本待核实）妖梦击杀捕食种。ac4ba87b（CI `40196337976`）21:39、21:40：芙兰贴地连咬妖梦，约 25 tick 一口、每口 2.0，14 点血打到 4.0 退战后被补死；现每次命中 1.5、间隔≥40 tick。完成：`myon_brave` 双方都造成实际伤害，健康同阶段妖梦略弱于捕食种，按胆量退避；`combat strike` 的 `since_last` ≥40，战斗中芙兰 `nutrition` 不因命中增加。
+- **陆 17 妖梦战力**（40）：已接入待试玩。2026-10-20（版本待核实）妖梦击杀捕食种。ac4ba87b（CI `40196337976`）21:39、21:40：芙兰贴地连咬妖梦，约 25 tick 一口、每口 2.0，14 点血打到 4.0 退战后被补死；现每次命中 1.5、间隔≥40 tick。完成：`myon_brave` 双方都造成实际伤害，健康同阶段妖梦略弱于捕食种，按胆量退避；`combat strike` 的 `since_last` ≥40，战斗中芙兰 `nutrition` 不因命中增加；退战或体力耗尽后不在妖梦脚边落地（`withdrawing by air`，落点距对手 ≥16 格），先挑只会跑的猎物（持棍且敢战者评分更差）。
 - **饿极食尸与伴侣决策**：已接入待试玩。E2 护尸走停及 `guard_path_blocked`；E4 01:35:41 只打一次，01:35:56 食尸者返回后不再护尸；同轮 87.5 分接受、20.25 分拒食。完成：`carrion` 对照大胆攻击、胆小抗议与自愿食尸（`guardStyle`、`decision`、`score`、伤害、遗体余额），返回后仍响应，保留拒绝与能力不足后果。
 - **饿极攻击失饰者**：已接入待试玩。`cannibal_hunt` 攻击意愿按饥饿、友善、自制、胆量、恐惧和能力差判分。完成：两组对照读决策、追咬目标、伤害及吞咽营养，保留真实拒绝与危险后果。
 - **陆 24 请吃了我触发条件**（37）：已接入待试玩。同一受赠者连续六次检查营养≤2、生命≤50%，献身者营养≤15、友善≥70、胆量≥40、亲近非负；概率上限 65%，拒绝冷却 1200 tick，补给与照护可中止。完成：`offering` 对照绝境、低意愿和普通饥饿，观察请求、交付、中断；一般饥饿不轻易献身，不写 Goal 或成功状态。
@@ -207,7 +205,7 @@
 - **无粮时主动搜索（E3 反馈6）**：已接入待试玩。ac4ba87b（CI `40196337976`）21:35 搜索与 `seek_food` 是两段状态、表情不对，被攻击或雨中觅食仍慢悠悠。完成：`forage_empty` 空手饥饿灵梦流口水并游荡；手持苹果走近立即走向玩家（`search met player holding food`），丢下后 `search saw loose food` 再吃；雨天干燥区活动与攻击后 `[urgency] urgency speed on`、`move_speed` 约 ×1.3，结束 off；无粮不假装取食。
 - **捕食种／水生种通用身体与地面动作（E5 反馈3、4）**：已接入待试玩。E5 捕食种缺油菊、伸缩与步态仍旧。完成：`shared_body` 四种对照核对油菊、互斥伸缩、通用步态及落地后真实行走。
 - **岩浆块烫伤脚底**：已接入待试玩。E2 伤害过快；E4 改为原版受伤频率、受伤后降低跳高并逃向真实安全地面。完成：`magma_sole` 健康个体从四格岩浆块中心活着离开，石头对照不烫伤，离开后不再新增接触伤。
-- **野生灵梦入巢结界**：已接入待试玩（项目设计，用户要求；[规则](FEATURES.md#野外住所)）。智力与自制都≥70 的野生灵梦被捕食种威胁、跑回天然洞后约 2 秒封洞口（耗结界枝 1 根），捕食种不再选其为猎物，约 10 秒无危险后拆下。完成：`den_barrier` 左洞（90·90）依次 `den seal started`、`den seal completed`（twigs 2 → 1 或 0）、屏障出现、`target rejected reason=barrier`，捕食者离开后 `den barrier removed reason=danger_passed twig_returned=true`；右洞（40·30）只逃入窝，`den seal skipped reason=traits_low`；被攻击或洞口有他者时中止且不扣枝。
+- **野生灵梦入巢结界**：已接入待试玩（项目设计，用户要求；[规则](FEATURES.md#野外住所)）。智力与自制都≥70 的野生灵梦被捕食种威胁、跑回天然洞后约 2 秒封洞口（耗结界枝 1 根），捕食种不再选其为猎物，约 10 秒无危险后拆下。完成：`den_barrier` 左洞（90·90）依次 `den seal started`、`den seal completed`（twigs 2 → 1 或 0）、屏障出现、`target rejected reason=barrier`，捕食者离开后 `den barrier removed reason=danger_passed twig_returned=true`；右洞（40·30）只逃入窝，`den seal skipped reason=traits_low`；被攻击或洞口有他者时中止且不扣枝。本机冒烟（分支 wp-at-danger，非验收）：封好的屏在捕食种还在扫描范围（20 格）内不再被自己推开（主线 3 次分别在 144／180／240 tick 推开，分支为 331／589／645／934 tick 或整场不推），推开只在扫描无危险后。
 
 ### 出生与成长
 
@@ -425,7 +423,7 @@ WP-C2 本机自查（非试玩验收、无 CI）：主线 `136b6f124`（独立�
   - `first_toilet` 首餐后首便：陆 26（42）首餐吞下后才首便。亲代照护决定已接入待试玩：`feed`、`first_toilet` 与帽中照护核对 `home.family_state` 的 `care`；同一孩子同一需求中断重试、重载后沿用决定，喂食与首便独立。`hurt` 南边亲子受伤舔舐：完整舔舐让最老一处轻伤降一级并回 2 点生命，深伤只安抚（`life.lickHeals`）。
   - `growth` 一路长大：陆 13（50）335999 tick 亚成在下一模拟 tick 成年，不因体型受阻延后年龄资格；陆 51 移速新生约成体 45%、赤体末 55%、子体渐到 100%。
   - `family_distance`、`family_search`：陆 23（36）按反馈 1；`feed` 按反馈 2、5、6；赤油食物限制与产后茎优先见反馈 7，离巢限制见陆 33。`aftermath_growth` 事后茎生：自然生产结束后空茎消失，落成一次真实茎物品；检查连续生产、食用、配方和保存，母油优先嚼茎喂赤油随反馈 7 核对。
-- **天气与捕食种**：`rain_shelter`、`rain_open`（陆 14（4））按上方完成标准复测。`pred_watch`、`pred_range`（陆 15（17、20、38））发现与巡飞更远，续追不中断，看见即退避，接触后取食；慢速赤／子油优先与陆 16 一并试玩。`treatment_scars` 南排脏污与伤痕：陆 21（9）与陆 49 留疤合并复测；普通伤概率原位留疤、大伤必留，橙汁治伤也须结算，面粉糊去疤。
+- **天气与捕食种**：`rain_shelter`、`rain_open`（陆 14（4））按上方完成标准复测。`pred_watch`、`pred_range`（陆 15（17、20、38））发现与巡飞更远，续追不中断，看见即退避，接触后取食；慢速赤／子油优先与陆 16 一并试玩。已接入待试玩（审计 P3，分支 wp-at-danger，本机冒烟非验收）：被咬过的个体记住攻击者并持续逃到掩体或干地（`[threat] flight cover=…|flight away=…`，不再停在 14–16 格外挨第二口），`sacrifice`·`sacrifice_reluctant` 的子油 `fleeing to parent`，`myon_brave` 战败后 `withdrawing by air`，`pred_pets` 饿了仍 `task=PATROL`，`alice_hunt`·`alice_interrupt` 的追击不再被她自己的差事打断（`pursuit ended by gate=`）。看：`pred_hunt` 被咬后一路跑远；`sacrifice` 子油躲到亲油身后；`myon_brave` 芙兰低血后飞去 16 格外落地；`alice_hunt` 追到接触。`treatment_scars` 南排脏污与伤痕：陆 21（9）与陆 49 留疤合并复测；普通伤概率原位留疤、大伤必留，橙汁治伤也须结算，面粉糊去疤。
 - **伤病与遗体**
   - `airborne` 腾空与小跳：陆 38（14）明显腾空才感叹。`house_health` 家油血量：陆 45（24）生命上限 1／2／4。
   - `wound_leak`、`core_exposed`、`core_filling`、`carrion`、`cannibal_hunt`：血量与遗体资源按[规则](FEATURES.md#伤口遗体与身体状态)；治疗止漏另看陆 49；`body_mold` 核对四档油霉及治疗后原位回退，`core_exposed` 核对大创腔、普通馅／唯一中央中枢、低血小裂口及完整皮面对照。
