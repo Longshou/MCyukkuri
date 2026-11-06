@@ -945,7 +945,18 @@ public final class YukkuriLife {
     /** Set only while a household moves into a home it has already inspected: the pathfinder's short range must not veto a walk of a few dozen blocks. */
     private boolean trustRoutes;
     public void trustRoutes(boolean value) { trustRoutes = value; }
-    public boolean reachable(BlockPos target, boolean escapeWater) { return trustRoutes || path(target, escapeWater) != null; }
+    /** Answers of the last {@link #REACH_MEMO} ticks from this block: asking again about an unchanged target costs no new route plan. */
+    private static final int REACH_MEMO = 40;
+    private final java.util.HashMap<Long, Boolean> reachMemo = new java.util.HashMap<>();
+    private BlockPos reachFrom;
+    private long reachSince;
+    public boolean reachable(BlockPos target, boolean escapeWater) {
+        if (trustRoutes) return true;
+        long now = level().getGameTime();
+        var here = entity.blockPosition();
+        if (!here.equals(reachFrom) || now - reachSince > REACH_MEMO || reachMemo.size() >= 32) { reachMemo.clear(); reachFrom = here; reachSince = now; }
+        return reachMemo.computeIfAbsent(target.asLong() * 2 + (escapeWater ? 1 : 0), key -> path(target, escapeWater) != null);
+    }
     /** Walk to a dry target on land: full paths within range, partial paths farther away until the full check comes near.
      * A step or short fall continues on landing; a genuinely unreachable destination still fails. */
     public boolean travel(BlockPos target, double speed) {

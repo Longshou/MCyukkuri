@@ -68,11 +68,19 @@ final class LifeHome {
         return nearestReachable(found);
     }
 
+    /** Distinct unreachable spots (a roof is one spot, not each of its cells) one search tests before giving up until its next turn. */
+    private static final int REFUSED_AREAS=4;
     /** The nearest candidate with a walkable route, testing from the nearest outward (not every cell in scan order). */
     private BlockPos nearestReachable(List<BlockPos> candidates){
         var from=o.entity().position();
         candidates.sort(Comparator.comparingDouble(pos->Vec3.atBottomCenterOf(pos).distanceToSqr(from)));
-        for(var pos:candidates)if(o.reachable(pos,false))return pos;
+        var refused=new ArrayList<BlockPos>();
+        for(var pos:candidates){
+            if(refused.stream().anyMatch(r->r.distSqr(pos)<=9))continue;
+            if(o.reachable(pos,false))return pos;
+            if(refused.size()>=REFUSED_AREAS)break;
+            refused.add(pos);
+        }
         return null;
     }
 

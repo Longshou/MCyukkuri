@@ -538,6 +538,7 @@ final class HabitatHomes {
     /** No soil face to dig into here: walk on a good way and look again. */
     private boolean startRoam() {
         roamWait=300;
+        int tests=0;
         // A migrant at its new ground looks for soft soil near the chosen site; it does not wander off across the map.
         var arrival=o.entity().settlement().arrivalSite();
         int span=arrival==null?40:16;
@@ -547,7 +548,9 @@ final class HabitatHomes {
             var column=(arrival==null?o.entity().blockPosition():arrival).offset(dx,0,dz);
             if(!level().hasChunkAt(column))continue;
             var ground=level().getHeightmapPos(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,column);
-            if(!level().hasChunkAt(ground)||!o.entity().life().dryStand(ground)||!o.entity().life().reachable(ground,false))continue;
+            if(!level().hasChunkAt(ground)||!o.entity().life().dryStand(ground))continue;
+            // Two route tests a turn; the rest of the eight draws come on the next turns (75 ticks later, 300 in all).
+            if(!o.entity().life().reachable(ground,false)){if(++tests==2){roamWait=75;break;}continue;}
             SearchBudget.cancel(level(),o.entity(),Purpose.DIG,0);
             roamTarget=ground;o.task(Task.ROAM);o.resetTicks();return true;
         }

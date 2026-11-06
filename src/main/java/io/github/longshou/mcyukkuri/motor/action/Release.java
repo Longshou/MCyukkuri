@@ -57,6 +57,8 @@ public final class Release implements Action {
     private Vec3 endpoint;
     private String placement;
     private Outcome outcome;
+    /** Route plans one set-down search may spend on refused stands; the spots are tried nearest first. */
+    private static final int STAND_TRIES = 6;
     private int failedWorld, rejectedSpace, rejectedStand, settling;
     private long startTick;
     private Vec3 previousLocal;
@@ -157,6 +159,7 @@ public final class Release implements Action {
     /** One endpoint/stand planner for cushions and nearby ground; execution uses the same room and turn tests. */
     private Feasibility plan(YukkuriEntity carrier, boolean outside) {
         var bed = BedContainer.of(child, nest);
+        int stands = 0;
         for (int pass = outside || bed == null ? 1 : 0; pass < 2; pass++) {
             var spots = new ArrayList<Vec3>();
             double half = pass == 0 ? ((FloorShape.RoundedRect) bed.floor()).half() : carrier.getBbWidth() * 2;
@@ -169,12 +172,14 @@ public final class Release implements Action {
             spots.sort(Comparator.comparingDouble(carrier::distanceToSqr));
             int free = 0;
             for (var point : spots) for (double down = 0; down <= (pass == 0 ? 0 : DROP); down += .5) {
+                if (stands >= STAND_TRIES) break;
                 var at = pass == 0 ? point : SurfaceApproach.restingFloor(child, point.add(0, .1 - down, 0));
                 if (at == null || !free(carrier, at)) { rejectedSpace++; continue; }
                 if (pass == 1 && bed != null && bed.floor().contains(bed.toPlane(at).x, bed.toPlane(at).z)) continue;
                 free++;
                 if (place(carrier, at)) { if (pass == 0) placement = "nest"; return Feasibility.pass(); }
                 rejectedStand++;
+                stands++;
             }
             if (pass == 0) placement = free == 0 ? "nest_full" : "nest_unreachable";
         }

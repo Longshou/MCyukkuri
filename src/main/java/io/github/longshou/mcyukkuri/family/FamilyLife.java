@@ -989,7 +989,8 @@ public final class FamilyLife {
         if(familyTravelling())return migrationEscort();
         return level().getEntitiesOfClass(YukkuriEntity.class,entity.getBoundingBox().inflate(12),other->other.isAlive()
                 &&(other.getUUID().equals(mother)||other.getUUID().equals(father))&&entity.life().canRecognize(other))
-                .stream().filter(other->ParentCarry.needsCarry(entity)||gatherAt(other)!=null||entity.life().reachable(other.blockPosition(),false)).min(Comparator.comparingDouble(entity::distanceToSqr)).orElse(null);
+                .stream().sorted(Comparator.comparingDouble(entity::distanceToSqr))
+                .filter(other->ParentCarry.needsCarry(entity)||gatherAt(other)!=null||entity.life().reachable(other.blockPosition(),false)).findFirst().orElse(null);
     }
     /** Use the same real parent for a travelling child's follow and the parents' search decisions. */
     YukkuriEntity migrationEscort() {
