@@ -990,7 +990,10 @@ public final class FamilyLife {
     /** An urgent need puts family aside, except a dependent young's hunger: that keeps it with its parents, who feed it or find food with it. */
     private boolean urgentNeed(){
         var life=entity.life();
-        return life.hasUrgentNeed()&&(adult()||life.nutrition()>=30||!entity.childhood().shouldStayWithParents());
+        if(!life.hasUrgentNeed())return false;
+        boolean hungerOnly=life.nutrition()<30&&life.energy()>=25&&(life.bladder()<90||life.constipated())&&life.wetness()<=40
+                &&!entity.isInWaterOrBubble()&&!entity.isOnFire();
+        return adult()||!hungerOnly||!entity.childhood().shouldStayWithParents();
     }
     private boolean startLandChildSearch() {
         var child=closestSeparatedDependentChild();
