@@ -8,13 +8,13 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
-| 首次加载卡顿与路径搜索上限（wp-af-perf2） | `.worktrees/wp-af-perf2` | `WoundSurface`、`ExpressionClips`、`GeometryJson`、`LiveBirth`、`YukkuriLife.reachable`、`NestDoorway` |
 | 头顶幼体随亲油游泳／涉水不脱落、停靠等待不重发（wp-aj-head-swim） | `.worktrees/wp-aj-head-swim` | `life/WaterDistress`、`aquatic/Ashore` |
 | 出航与散落物件按生物行为（wp-ak-setout-items） | `.worktrees/wp-ak-setout-items` | `aquatic/SetOut`、`aquatic/Waters`（散落物搜索）、`afloat_*`／`cargo`／`sail` 场景 |
 
 ## 玩法待办
 
 ### 复测失败/待修复
+- **首次加载卡顿余项**：未做。仍在 tick 线程内的搜索（无家者找屋顶、幼体在水面找亲、流浪游走、父亲放下点）与首次受伤时的 `WoundSurface` 网格构建（按模型惰性，约百毫秒）。完成标准：首次出现时无可见卡顿。
 - **帽檐上不会玩的幼体进不了舱（审计 M4，`rescue_child`）**：部分接入（分支 wp-ah-young-aboard，本机冒烟非验收）：被救起放到帽檐的幼体，落水收口后干爽即可被安抚；但 `TakeSeat` 对帽檐上的幼体不出手（放开会让被照料的新生儿离开接触，`birth_hat_own` 首便失败），辫子 `Release` 即使舱内有位也把它放回帽檐，且 `CareApproach` 对帽檐上的幼体报 `no_reachable_meeting`，安抚与托入无从落地。完成：舱内有空位时，被救的幼体进到舱内（自己爬入或辫子放入），亲油随后安抚。
 
 - **`birth_boat_missed` 新生儿首餐／首便偶发不完成**：部分接入（按钮“临产划回岸边，放下孩子再生产”；主线 c80ff8d41 与本机分支，非验收）：本机约 20 场中三成失败，失败场上新生儿在岸边反复落水再爬出（`damage cause=drown`，仍存活）或在窗口内没有 `first meal swallowed`／`first toilet completed`；与登船载重无关。完成：该场连续 20 次无此失败，新生儿在岸上完成首餐与首便。
@@ -138,7 +138,6 @@
 
 | 编号 | 运行版本 | 已确认现象／边界 |
 | --- | --- | --- |
-| 首次加载卡顿与路径搜索上限（wp-af-perf2） | `.worktrees/wp-af-perf2` | `WoundSurface`、`ExpressionClips`、`GeometryJson`、`LiveBirth`、`YukkuriLife.reachable`、`NestDoorway` |
 | **E1** | 10-21 22:41 至 10-22 00:04，[f4872105](https://github.com/Longshou/MCyukkuri/commit/f4872105)，[CI 39595554878](https://github.com/Longshou/MCyukkuri/actions/runs/39595554878) | 头饰、捕食、遗体／治疗及出生与成长反馈的共同运行包。 |
 | **E2** | 10-22 00:10–00:39，[372fa23d](https://github.com/Longshou/MCyukkuri/commit/372fa23d)，[CI 39630804471](https://github.com/Longshou/MCyukkuri/actions/runs/39630804471) | 中枢按钮卡死、岩浆块过快致死、护尸走停、治疗持物不可见。 |
 | **E3** | 00:45–01:09，[cc0e78ff](https://github.com/Longshou/MCyukkuri/commit/cc0e78ff)，[CI 39634939963](https://github.com/Longshou/MCyukkuri/actions/runs/39634939963) | 天气、捕食、睡眠与闲逛场景反馈。 |
