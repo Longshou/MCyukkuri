@@ -315,6 +315,8 @@ public final class YukkuriLife {
     public BodyFood.Bite mouthBodyFood() { return meal.mouthBodyFood(); }
     public boolean hasMouthFood() { return meal.hasMouthFood(); }
     public int mealTicks(){ return meal.mealTicks(); }
+    /** Ticks this body has waited its turn at a contested meal; 0 when it is not heading for food. */
+    public int queuedTicks() { return task == Task.FOOD ? queueTicks : 0; }
     public boolean hasAccessory(){ return accessory.hasAccessory(); }
     /** The hat is simply not worn (a young who has none yet): no token, nothing to be returned. */
     public void removeAccessory(){ accessory.removeAccessory("removed"); }
@@ -843,7 +845,9 @@ public final class YukkuriLife {
                 var rivals = level().getEntitiesOfClass(YukkuriEntity.class, targetFood.getBoundingBox().inflate(1.5), other ->
                         other != entity && other.isAlive() && other.life().canEat() && entity.hasLineOfSight(other));
                 int wait=nutrition<15?0:queueBudget;
-                if (!rivals.isEmpty() && queueTicks++ < wait) {
+                // First come eats: wait only behind a rival that has queued longer, never behind one that arrived later.
+                boolean behindRival = rivals.stream().anyMatch(rival -> rival.life().queuedTicks() > queueTicks);
+                if (behindRival && queueTicks++ < wait) {
                     entity.getNavigation().stop(); if (queueTicks == 1) {personality.decided("wait_food");entity.showReaction("neutral", "wait_turn", wait);} return;
                 }
                 ItemStack one = targetFood.getItem().copyWithCount(1);
