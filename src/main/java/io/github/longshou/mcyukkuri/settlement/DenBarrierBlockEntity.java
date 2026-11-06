@@ -3,7 +3,6 @@ package io.github.longshou.mcyukkuri.settlement;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.registry.ModBlocks;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
-import io.github.longshou.mcyukkuri.status.Reactions;
 import java.util.UUID;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
@@ -43,10 +42,10 @@ public final class DenBarrierBlockEntity extends BlockEntity {
         boolean danger = !server.getEntitiesOfClass(YukkuriEntity.class, new AABB(worldPosition).inflate(WATCH_RANGE, 8, WATCH_RANGE),
                 p -> p.isAlive() && p.profile().dangerToYukkuri()).isEmpty();
         calm = danger ? 0 : calm + CHECK;
-        // A resident that stands calm against the screen from inside pushes it aside (it is only loose twigs), danger or not.
-        boolean pushing = home != null && !server.getEntitiesOfClass(YukkuriEntity.class, new AABB(worldPosition).inflate(1.6, 1, 1.6),
-                y -> y.isAlive() && home.owns(y.getUUID()) && !y.life().isSleeping() && !y.isPanicking()
-                        && y.status().reactions().threat().stage() == Reactions.Threat.Stage.NONE).isEmpty();
+        // A resident that stands calm against the screen from inside pushes it aside (it is only loose twigs) — but only
+        // while the screen's own danger scan is clear: behind it with a predator outside, the body stays put.
+        boolean pushing = !danger && home != null && !server.getEntitiesOfClass(YukkuriEntity.class, new AABB(worldPosition).inflate(1.6, 1, 1.6),
+                y -> y.isAlive() && home.owns(y.getUUID()) && !y.life().isSleeping() && !y.isPanicking()).isEmpty();
         push = pushing ? push + CHECK : 0;
         if (push >= PUSH_TICKS) release("pushed_through", true);
         else if (calm >= CALM_TICKS) release("danger_passed", true);
