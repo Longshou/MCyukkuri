@@ -950,10 +950,12 @@ public final class FamilyLife {
                 var data=FamilyData.get(level());var known=data.person(mother);
                 if(known==null||known.status==FamilyData.Status.DEAD)known=data.person(father);
                 if(known!=null&&known.status==FamilyData.Status.ALIVE&&known.position!=null&&known.position.dimension().equals(level().dimension())
-                        &&level().hasChunkAt(known.position.pos())&&entity.distanceToSqr(Vec3.atBottomCenterOf(known.position.pos()))>4
-                        &&entity.distanceToSqr(Vec3.atBottomCenterOf(known.position.pos()))<48*48) {
-                    searchAt=Vec3.atBottomCenterOf(known.position.pos());task=Task.SEARCH;taskTicks=0;entity.showReaction("surprise",
-                            "lost_parent",100);return true;
+                        &&level().hasChunkAt(known.position.pos())&&entity.distanceToSqr(Vec3.atBottomCenterOf(known.position.pos()))<48*48) {
+                    var last=known.position.pos();
+                    // Already at the last place it knew and still alone: it keeps looking round about.
+                    if(entity.distanceToSqr(Vec3.atBottomCenterOf(last))<=4)last=last.offset(entity.getRandom().nextInt(13)-6,0,entity.getRandom().nextInt(13)-6);
+                    else entity.showReaction("surprise","lost_parent",100);
+                    searchAt=Vec3.atBottomCenterOf(last);task=Task.SEARCH;taskTicks=0;return true;
                 }
             }
             return false;
@@ -1076,6 +1078,12 @@ public final class FamilyLife {
                 &&(!FamilySeparation.near(entity,other)||carry.pickupWanted(other)))
                 .stream().min(Comparator.comparingDouble(entity::distanceToSqr)).orElse(null);
     }
+    /** A full route, else vanilla's partial one: a parent or a lost child goes as near as the ground lets it (to the glass). */
+    private boolean navigateToward(BlockPos at,double speed){
+        if(entity.life().navigate(at,speed,false))return true;
+        var path=entity.getNavigation().createPath(at,0);
+        return path!=null&&entity.getNavigation().moveTo(path,speed);
+    }
     /** Water, boarding, delivery and braid work retain their dedicated family paths instead of being taken over by land-child search. */
     static boolean ordinaryLandFree(YukkuriEntity member) {
         var family=member.family();
@@ -1195,7 +1203,13 @@ public final class FamilyLife {
                 var at=FamilyNest.restPosition(entity,home);
                 if(at==null){stop();return;}
                 if(entity.distanceToSqr(at)>.16)SurfaceApproach.walk(entity,at,1);
-                else {SurfaceApproach.halt(entity);stop();}
+                else {SurfaceApproach.halt(entity);stop();return;}
+                // No way to the bed (bodies in the doorway): rest where it stands a while instead of re-planning every 20 ticks.
+                if(SurfaceApproach.lastResult(entity,at)==SurfaceApproach.Result.BLOCKED){
+                    GameplayLog.limited(entity,"family","stay_home.blocked",400,"child rests short of its bed why={} distance={}",
+                            SurfaceApproach.why(entity,at),Math.round(Math.sqrt(entity.distanceToSqr(at))*10)/10.0);
+                    stop();wait=200;
+                }
             }
             case FEED_CHILD -> feeding.tickCare();
             case WAIT_CHILD -> {
@@ -1214,10 +1228,15 @@ public final class FamilyLife {
                     }
                     if(!ordinaryLandFree(entity)||!ordinaryLandFree(target)||!entity.life().canRecognize(target)){stop();return;}
                     if(reached(target)){separation.reunited(target);SurfaceApproach.halt(entity);stop();return;}
-                    if(taskTicks%10==1&&!entity.life().navigate(target.blockPosition(),1.1,false))stop();
+                    if(taskTicks%10==1&&!navigateToward(target.blockPosition(),1.1)){stop();return;}
+                    // As near as the ground allows (a child behind glass): wait there in sight and call to it now and then.
+                    if(entity.getNavigation().isDone()) {
+                        entity.getLookControl().setLookAt(target,20,20);
+                        if(taskTicks%160==1)entity.showReaction("teary","wait_family",80);
+                    }
                 } else {
                     if(searchAt==null||entity.distanceToSqr(searchAt)<2){stop();return;}
-                    if(taskTicks%20==1&&!entity.life().navigate(BlockPos.containing(searchAt),.9,false))stop();
+                    if(taskTicks%20==1&&!navigateToward(BlockPos.containing(searchAt),.9))stop();
                 }
             }
             default -> { }
