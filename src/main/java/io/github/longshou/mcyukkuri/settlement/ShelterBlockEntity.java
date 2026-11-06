@@ -398,7 +398,11 @@ public final class ShelterBlockEntity extends BlockEntity {
         if((lining<4||dirt>=30||moisture>=60)&&bedding(stack)){
             if(lining<4)lining++;dirt=Math.max(0,dirt-30);moisture=Math.max(0,moisture-10);changed();return true;
         }
-        if(foodSpace(stack)==0)return false;
+        return depositFood(stack);
+    }
+    /** One portion straight onto the food pile, whether or not the lining or the repair also wants it. */
+    public boolean depositFood(ItemStack stack) {
+        if(stack.getCount()!=1||foodSpace(stack)==0)return false;
         return returnFood(stack).isEmpty();
     }
     public ItemStack takeFood(YukkuriEntity entity) {

@@ -212,9 +212,11 @@ public final class HabitatLife {
     /** Cut grass from a real plant: first for the lining, then as stock while the forage pile has room and the target is not met. */
     private boolean wantsHarvest(ShelterBlockEntity value) {
         var grass=new ItemStack(Items.SHORT_GRASS);
-        if(value.needsMaterial(grass))return true;
+        if(value.needsMaterial(grass)&&!stockFirst())return true;
         return entity.life().acceptsFood(grass)&&value.food()<HouseholdStores.target(value)&&value.foodSpace(grass)>0;
     }
+    /** A hungry own child comes before the bed: harvested grass goes onto the food pile, not into the lining. */
+    private boolean stockFirst() { return entity.family().hasChildAwaitingFeed(); }
     private boolean meal() { return task==Task.FOOD||task==Task.GRAIN_TAKE; }
     /** Own store empty and hungry: walk to the nearest granary pile that holds something this animal eats. */
     private boolean startGranaryTake() {
@@ -497,14 +499,15 @@ public final class HabitatLife {
             else if(!plants.active())stop();
         } else if(task==Task.DEPOSIT) {
             // Food goes onto the forage pile by mouth contact; lining and repair materials are still worked in at the bed.
-            if(!value.needsMaterial(carrying)&&carrying.is(YukkuriEntity.FOOD)) {
+            boolean stock=carrying.is(YukkuriEntity.FOOD)&&(!value.needsMaterial(carrying)||stockFirst());
+            if(stock) {
                 var pile=value.ensurePile();
                 if(pile==null){if(entity.life().dryStand(entity.blockPosition()))dropCarrying();stop();return;}
                 if(!rationLoad&&value.foodSpace(carrying)==0&&startGranaryPut())return;
                 if(!mouth(pile))return;
-                depositCarried(value);
+                depositCarried(value,true);
             } else if(approach(value.bed(entity.getUUID()))) {
-                depositCarried(value);
+                depositCarried(value,false);
             }
         } else if(task==Task.CLEAN) {
             BlockPos outside=value.entrance().relative(value.facing(),2);
@@ -537,8 +540,9 @@ public final class HabitatLife {
         }
     }
     /** One portion at a time goes onto the pile (it only takes single portions); a full cheek is emptied by repeated mouth contact. */
-    private void depositCarried(ShelterBlockEntity value) {
-        if(!value.deposit(carrying.copyWithCount(1))) {
+    private void depositCarried(ShelterBlockEntity value,boolean stock) {
+        var portion=carrying.copyWithCount(1);
+        if(!(stock?value.depositFood(portion):value.deposit(portion))) {
             GameplayLog.limited(entity,"habitat","deposit_refused",200,"deposit refused home={} item={} carried={}",value.getBlockPos(),carrying.getItem(),carrying.getCount());
             if(entity.life().dryStand(entity.blockPosition()))dropCarrying();
             stop();return;
