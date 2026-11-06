@@ -1454,6 +1454,8 @@
   "behavior.mcyukkuri.hat_walk": "Taking supported steps inside the hat",
   "activity.mcyukkuri.learn_watch": "Watching a parent's takeoff and landing",
   "behavior.mcyukkuri.learn_watch": "Watching a parent's takeoff and landing",
+  "activity.mcyukkuri.beg_food": "Begging a parent for food",
+  "behavior.mcyukkuri.beg_food": "Begging a parent for food",
   "activity.mcyukkuri.care_finish": "Staying beside the child until care finishes",
   "behavior.mcyukkuri.care_finish": "Staying beside the child until care finishes",
   "activity.mcyukkuri.nest_carry": "Carrying bedding to the sleeping spot",

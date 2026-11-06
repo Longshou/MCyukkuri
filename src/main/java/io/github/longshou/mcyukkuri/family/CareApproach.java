@@ -73,6 +73,8 @@ public final class CareApproach {
         return kind==Kind.FEED||!child.life().hasUrgentNeed()||child.childhood().needsAssistedFirstToilet()&&child.life().nutrition()>=30
                 ?null:"child_urgent_need";
     }
+    /** Another caregiver's agreement holds this receiver right now: a second one picks a different child instead. */
+    public boolean heldByOther(YukkuriEntity caregiver) { return waiting()&&incoming.owner!=caregiver; }
     public boolean waiting() {
         if (incoming==null) return false;
         String reason=incoming.invalidReason();

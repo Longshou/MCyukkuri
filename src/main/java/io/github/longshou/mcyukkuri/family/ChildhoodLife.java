@@ -35,7 +35,9 @@ public final class ChildhoodLife {
     /** Ground distance, rather than a wait, required to learn basic crawling. */
     public static final double CRAWL_DISTANCE_REQUIRED = .75;
 
-    private enum Task { NONE, FIRST_TOILET, WAIT_CARE, DEMONSTRATE, WATCH, CRAWL, JUMP }
+    private enum Task { NONE, FIRST_TOILET, WAIT_CARE, DEMONSTRATE, WATCH, CRAWL, JUMP, BEG }
+    /** A hungry baby asks its parent again after this long; the parent's own draw whether to answer is unchanged. */
+    private static final int BEG_TICKS = 40, BEG_PAUSE = 240;
 
     private final YukkuriEntity entity;
     /** The goal's own claim on the body: the demonstration and practice hops are real actions (Launch). */
@@ -55,6 +57,7 @@ public final class ChildhoodLife {
     private boolean sailed;
     private double launchY;
     private int jumpLandings,practiceRest,watchedTicks;
+    private long begAfter;
     private boolean kinWater;
     private boolean demonstrationLaunched,demonstrationAirborne,demonstrationWitnessed;
 
@@ -220,6 +223,7 @@ public final class ChildhoodLife {
             case WAIT_CARE -> rearCareResponse();
             case DEMONSTRATE -> Behaviors.LEARN_JUMP;
             case WATCH -> Behaviors.LEARN_WATCH;
+            case BEG -> Behaviors.BEG_FOOD;
             case CRAWL -> Behaviors.NEWBORN_CRAWL;
             case JUMP -> Behaviors.LEARN_JUMP;
             default -> Behaviors.IDLE;
@@ -241,7 +245,7 @@ public final class ChildhoodLife {
             var child = ((ServerLevel) entity.level()).getEntitiesOfClass(YukkuriEntity.class, entity.getBoundingBox().inflate(10),
                     other -> entity.family().caresFor(other) && CareApproach.sameFloor(entity,other) && childAvailable(other)
                             && other.childhood().needsAssistedFirstToilet() && other.life().nutrition()>=30
-                            && !careRefused(other) && entity.careApproach().mayTry(other) && mayHelp(other)).stream()
+                            && !careRefused(other) && entity.careApproach().mayTry(other) && !other.careApproach().heldByOther(entity) && mayHelp(other)).stream()
                     .min(Comparator.comparingDouble(entity::distanceToSqr)).orElse(null);
             if (child != null) {
                 if (!acceptsCare(child)) return false;
@@ -257,6 +261,14 @@ public final class ChildhoodLife {
             if (learner != null && !entity.isPassenger() && !entity.family().searchingChild()) { task = Task.DEMONSTRATE; careTarget = learner.getUUID(); taskTicks = 0; return true; }
         }
         if (!newborn || !landed || !childAvailable(entity)) return false;
+        if (!needsAssistedFirstToilet() && entity.tickCount >= begAfter && hungryForCare()) {
+            var parent = availableParent();
+            if (parent != null && entity.hasLineOfSight(parent) && !(parent.family().task() == FamilyLife.Task.FEED_CHILD && parent.family().target() == entity)) {
+                task = Task.BEG; careTarget = parent.getUUID(); taskTicks = 0; begAfter = entity.tickCount + BEG_PAUSE;
+                GameplayLog.limited(entity, "childhood", "beg", 200, "hungry baby begs parent={} nutrition={} firstMealDone={}", careTarget, entity.life().nutrition(), firstMealDone);
+                return true;
+            }
+        }
         if (needsAssistedFirstToilet()) {
             var parent = availableParent();
             if (parent != null && parent.childhood().task == Task.FIRST_TOILET && entity.getUUID().equals(parent.childhood().careTarget)) {
@@ -304,6 +316,7 @@ public final class ChildhoodLife {
                     && target.childhood().task == Task.FIRST_TOILET && entity.getUUID().equals(target.childhood().careTarget);
             case DEMONSTRATE -> taskTicks < 100 && parentAvailable(entity) && target != null && target.childhood().readyToPractiseJump();
             case WATCH -> taskTicks<100&&safePracticeState()&&target!=null&&target.childhood().task==Task.DEMONSTRATE&&entity.getUUID().equals(target.childhood().careTarget);
+            case BEG -> taskTicks < BEG_TICKS && !entity.isPassenger() && childAvailable(entity) && hungryForCare() && !entity.careApproach().waiting() && target != null && childAvailable(target);
             case CRAWL -> !crawled && taskTicks < 240 && !entity.isPassenger() && safePracticeState() && firstToiletDone;
             case JUMP -> !jumped && taskTicks < 120 && !entity.isPassenger() && safePracticeState() && firstToiletDone;
             default -> false;
@@ -341,6 +354,11 @@ public final class ChildhoodLife {
             case WATCH -> {
                 var parent=person(careTarget);SurfaceApproach.halt(entity);
                 if(parent!=null)SurfaceApproach.face(entity,SurfaceApproach.yaw(entity.position(),parent.position()));
+            }
+            case BEG -> {
+                var parent = person(careTarget);
+                SurfaceApproach.halt(entity);
+                SurfaceApproach.face(entity, SurfaceApproach.yaw(entity.position(), parent.position()));
             }
             case CRAWL -> tickCrawl();
             case JUMP -> tickJump();
@@ -472,6 +490,9 @@ public final class ChildhoodLife {
     private YukkuriEntity person(UUID id) {
         return id != null && entity.level() instanceof ServerLevel server && server.getEntity(id) instanceof YukkuriEntity other ? other : null;
     }
+
+    /** A never-fed baby, or one that has fallen below a settled belly, waits for a parent's care meal. */
+    private boolean hungryForCare() { return entity.life().canReceiveCareFood() && (!firstMealDone || entity.life().nutrition() < 45); }
 
     private YukkuriEntity availableParent() {
         var mother = person(entity.family().mother());

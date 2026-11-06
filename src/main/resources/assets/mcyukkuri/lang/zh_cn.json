@@ -1454,6 +1454,8 @@
   "behavior.mcyukkuri.hat_walk": "沿帽面挪步",
   "activity.mcyukkuri.learn_watch": "观察亲油起跳与落地",
   "behavior.mcyukkuri.learn_watch": "观察亲油起跳与落地",
+  "activity.mcyukkuri.beg_food": "向亲油乞食",
+  "behavior.mcyukkuri.beg_food": "向亲油乞食",
   "activity.mcyukkuri.care_finish": "留在身边等待照料结束",
   "behavior.mcyukkuri.care_finish": "留在身边等待照料结束",
   "activity.mcyukkuri.nest_carry": "衔着叶束回睡位",

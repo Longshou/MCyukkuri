@@ -3,6 +3,8 @@
   "behavior.mcyukkuri.hat_walk": "帽子の上を足場に沿って歩く",
   "activity.mcyukkuri.learn_watch": "親の離陸と着地を見る",
   "behavior.mcyukkuri.learn_watch": "親の離陸と着地を見る",
+  "activity.mcyukkuri.beg_food": "親に食べ物をねだる",
+  "behavior.mcyukkuri.beg_food": "親に食べ物をねだる",
   "activity.mcyukkuri.care_finish": "世話が終わるまでそばで待つ",
   "behavior.mcyukkuri.care_finish": "世話が終わるまでそばで待つ",
   "activity.mcyukkuri.nest_carry": "葉の束を寝床へ運ぶ",

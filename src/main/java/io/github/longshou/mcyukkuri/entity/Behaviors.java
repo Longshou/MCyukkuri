@@ -115,6 +115,7 @@ public final class Behaviors {
     public static final String SWADDLE_UNWRAP = "swaddle_unwrap";
     public static final String LEARN_JUMP = "learn_jump";
     public static final String LEARN_WATCH = "learn_watch";
+    public static final String BEG_FOOD = "beg_food";
     public static final String LISTEN_SONG = "listen_song";
     public static final String MEAL_FINISH = "meal_finish";
     public static final String MIDWIFE = "midwife";

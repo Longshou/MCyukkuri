@@ -144,7 +144,7 @@ final class FamilyFeeding {
                 &&(carrying.isEmpty()||child.life().canReceiveCareFood(carrying))
                 &&(!child.isPassenger()||carriedCheck&&child.getVehicle()==o.entity())
                 &&(!child.childhood().firstMealDone()||child.life().nutrition()<o.entity().life().nutrition()-o.entity().species().traits().dote())
-                &&o.entity().careApproach().mayTry(child);
+                &&o.entity().careApproach().mayTry(child)&&!child.careApproach().heldByOther(o.entity());
     }
 
     YukkuriEntity hungriestOwnChild() {
