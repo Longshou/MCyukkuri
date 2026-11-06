@@ -159,8 +159,8 @@ public final class Release implements Action {
     /** One endpoint/stand planner for cushions and nearby ground; execution uses the same room and turn tests. */
     private Feasibility plan(YukkuriEntity carrier, boolean outside) {
         var bed = BedContainer.of(child, nest);
-        int stands = 0;
         for (int pass = outside || bed == null ? 1 : 0; pass < 2; pass++) {
+            int stands = 0;
             var spots = new ArrayList<Vec3>();
             double half = pass == 0 ? ((FloorShape.RoundedRect) bed.floor()).half() : carrier.getBbWidth() * 2;
             double step = pass == 0 ? child.getBbWidth() / 2 : carrier.getBbWidth() / 2;
