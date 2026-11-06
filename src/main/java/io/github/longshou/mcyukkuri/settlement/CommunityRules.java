@@ -56,7 +56,7 @@ public final class CommunityRules {
     /** [original] distances and durations. */
     static final double WITNESS_RANGE = 10, JUDGE_RANGE = 24, PATROL_RANGE = 8, TERRITORY = 40;
     public static final long RATION_CUT_TICKS = 48000, BANISH_TICKS = 72000, MEMORY_TICKS = 72000;
-    static final long ABSENT_AFTER = 2400, LAPSE_AFTER = 24000, INTRUSION_GAP = 600, COURTSHIP_MEMORY = 48000;
+    static final long ABSENT_AFTER = 2400, LAPSE_AFTER = 24000, INTRUSION_GAP = 600, COURTSHIP_MEMORY = 48000, EXILE_GRACE = 2400;
     private static final int PENDING_MAX = 16;
 
     // ---- who has rules ------------------------------------------------------------------------------------------
@@ -217,7 +217,13 @@ public final class CommunityRules {
         // The family left behind feels the disgrace.
         var kin = Bonds.exileRelatives(offender);
         for (UUID id : kin) if (level.getEntity(id) instanceof YukkuriEntity relative && relative.isAlive()
-                && group.id.equals(relative.settlement().groupId())) relative.mind().add(5, "kin_exiled");
+                && group.id.equals(relative.settlement().groupId())) {
+            relative.mind().add(5, "kin_exiled");
+            if (relative.distanceToSqr(offender) <= WITNESS_RANGE * WITNESS_RANGE && relative.hasLineOfSight(offender)) {
+                relative.showReaction("teary", "kin_exiled", 100);
+                relative.mind().perform("droop", 80);
+            }
+        }
         commons.note(now, "exiled", offender.getUUID(), why);
         SettlementData.get(level).setDirty();
     }
@@ -262,7 +268,8 @@ public final class CommunityRules {
             var s = commons.standing(other.getUUID());
             if (now - s.lastIntrusion < INTRUSION_GAP) continue;
             boolean recognised = member.life().canRecognize(other);
-            if (recognised && banished(group, other.getUUID(), now)) {
+            // A sentence leaves time to go: only an exile still or again inside the territory after the grace is an offence.
+            if (recognised && banished(group, other.getUUID(), now) && now - (s.banishedUntil - BANISH_TICKS) >= EXILE_GRACE) {
                 s.lastIntrusion = now;
                 report(other, group, Offence.RETURNED_EXILE, member, "came_back");
             } else if (!recognised && group.commons.has(Commons.NO_HATLESS)) {

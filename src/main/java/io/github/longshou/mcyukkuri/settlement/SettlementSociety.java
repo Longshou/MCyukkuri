@@ -13,6 +13,8 @@ import net.minecraft.server.level.ServerLevel;
 
 /** Actual nearby witnesses create social consequences; a missing hat alone creates none. */
 public final class SettlementSociety {
+    /** The same observer rejects the same member again only after a longer gap: one rejection per encounter. */
+    private static final long REJECT_GAP = 200, ENCOUNTER_GAP = 1200;
     private final YukkuriEntity entity;
     public SettlementSociety(YukkuriEntity entity) { this.entity = entity; }
     private ServerLevel level() { return (ServerLevel)entity.level(); }
@@ -95,10 +97,11 @@ public final class SettlementSociety {
         // Sustained kindness is durable colony acceptance itself (`Member.hatlessAccepted`): there is no second timer for it.
         if (record.hatlessAccepted) return;
         var observers = LoadedGroupMembers.query(level(), group.id, box,
-                peer -> available(peer) && rejects(peer, entity) && peer.hasLineOfSight(entity));
+                peer -> available(peer) && rejects(peer, entity) && peer.hasLineOfSight(entity)
+                        && !(peer.getUUID().equals(record.observer) && now - (record.nextObservation - REJECT_GAP) < ENCOUNTER_GAP));
         var observer = LoadedGroupMembers.minimum(level(), box, observers, entity::distanceToSqr);
         if (observer == null) return;
-        record.nextObservation = now + 200; record.observer = observer.getUUID();
+        record.nextObservation = now + REJECT_GAP; record.observer = observer.getUUID();
         int before = record.rejections;
         record.rejections = Math.min(5, before + 1);
         if (before < 5) {
@@ -130,9 +133,12 @@ public final class SettlementSociety {
         }
         observer.getLookControl().setLookAt(entity, 25, 25);
         observer.showReaction("angry", event, 80);
+        observer.mind().perform("puff", 60);
         if (record.role == SettlementData.Role.UNUN_SLAVE) entity.mind().feltSlavePressure(EmotionEvent.SUBMITTED);
         else entity.mind().felt(EmotionEvent.SOCIAL_HURT);
         entity.showReaction("teary", record.role == SettlementData.Role.UNUN_SLAVE ? "settlement_submit" : "settlement_hurt", 100);
+        // The rejected one withdraws from the one who turned on it (a slave is sent to the pit instead).
+        if (record.role != SettlementData.Role.UNUN_SLAVE) entity.frightenFrom(observer);
         data.setDirty();
     }
     /** After a member's own mockery of a slave kept in the pit: one per slave per 400 ticks. Transient. */
