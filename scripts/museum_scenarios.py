@@ -2285,8 +2285,9 @@ def current_drift(log):
     if captain is None or not re.search(rf'\[body\][^\n]*uuid={captain[1]}[^\n]* dismount [^\n]*cause=grounded'
                                          rf'[^\n]*passengers=\[{head[1]}', log):
         return 'the captain must leave the grounded hat still carrying her head young'
-    if re.search(rf'\[water\][^\n]*uuid={head[1]}[^\n]* entered at=', log):
-        return 'the head young must not enter the water'
+    # Her eyes go under in the shoal, so the young on her head falls in with her (rule); it must then get out alive.
+    if re.search(rf'\[body\][^\n]*uuid={head[1]}[^\n]* death settled', log):
+        return 'the head young must not die after falling in with the captain'
     ashore = set(re.findall(r'\[water\][^\n]*uuid=(\S+)[^\n]* escape done [^\n]*support=stand=', log))
     if captain[1] not in ashore:
         return 'the captain must reach her own dry stand after grounding'

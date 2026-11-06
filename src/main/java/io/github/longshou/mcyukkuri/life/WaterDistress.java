@@ -120,7 +120,7 @@ public final class WaterDistress {
      */
     private void shedHeadRiders(){
         if(!entity.isVehicle()||entity.isPassenger()||!airborneDry&&!entity.isEyeInFluid(FluidTags.WATER))return;
-        ParentCarry.shedHead(entity,entity.getDeltaMovement().scale(.5),"carrier_in_water");
+        ParentCarry.shedHead(entity,entity.getDeltaMovement().scale(.5),airborneDry?"carrier_fell_in":"carrier_eyes_under");
     }
     /** Really worn now, from the body's own state: its energy is nearly spent, or its vanilla breath is gone (its head has been under
      *  the water long enough). Immersion time alone is not exhaustion. */
