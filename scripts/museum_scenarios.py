@@ -2555,9 +2555,9 @@ pond('cargo', '帽里存粮取食，空帽打下', '帽里存粮取食，空帽�
      [yk('marisa', bank_dx(0), 0, 'a', aquatic=True, yaw=-90, lead=True, nutrition=48, energy=100, hygiene=100, label='饿船主'),
       yk('marisa', bank_dx(5), 5, 'full', aquatic=True, yaw=0, label='满粮船主', **pair_ready()),
       yk('marisa', bank_dx(-5) - 5, -5, 'empty', aquatic=True, label='空帽船主', **pair_ready()),
-      afloat('a', water_at(0, 3), True, sel('a'), food=3),
-      afloat('full', water_at(5, 3), True, sel('full'), food=8),
-      afloat('empty', water_at(-5, 3), False, sel('empty'), food=8)],
+      afloat_now('a', water_at(0, 3), True, sel('a'), food=3),
+      afloat_now('full', water_at(5, 3), True, sel('full'), food=8),
+      afloat_now('empty', water_at(-5, 3), False, sel('empty'), food=8)],
      late=[f'execute at {sel("empty")} run tag {_HAT} add empty_hull'],
      give=['minecraft:apple 8', 'minecraft:bread 4'],
      note='先给近岸满粮帽放一份，看拒绝与手中余量；再给饿船主补粮，看帽底贴图换档、原地取食。读 hat.float 的 stores、tier、eats、refusals；读 Motion.Stores 核对按种类保存，重载后余量一致。'
