@@ -47,8 +47,6 @@ final class Ashore implements Intent {
     private static final int COME = 2400, RECLAIM = 1600, WAIT = 300;
     /** Route-leg arrival distance. */
     private static final double ARRIVE = .6;
-    /** The hull rests at its dock this close (above the paddle's own no-contact limit of 0.05). */
-    private static final double DOCKED = .1;
 
     private final YukkuriEntity owner;
     private enum Purpose { COME, RECLAIM }
@@ -113,15 +111,10 @@ final class Ashore implements Intent {
         String carryProblem = dependent == null ? null : ParentCarry.capacityProblem(owner, dependent);
         if (AquaticLife.aboard(owner, hat)) {
             var hop = youngCanLand(hat) ? Ferry.hopAshore(owner).get() : null;
-            // At the dock but no way off yet: a young may stand on her way (or have no hop to the bank yet); it leaves by its own hop
-            // first and she follows. Nothing left aboard to wait for, or no landing for the young, is the paddle's to settle.
-            if (hop == null) return docked(hat) && youngAboard(hat)
-                    ? List.of(() -> new Step.Wait(() -> !youngAboard(hat) || youngCanLand(hat) && Ferry.hopAshore(owner).get() != null,
-                            WAIT, Behaviors.BOAT_CALL))
-                    : paddle(hat);
+            if (hop == null) return paddle(hat);
             // Docked: a young that cannot leave by itself is taken up while she still has a hold for it, whatever she holds already.
             if (dependent != null && carryProblem == null) return Ferry.grabAboard(owner, hat, dependent);
-            if (dependent == null && youngAboard(hat))
+            if (held == null && dependent == null && youngAboard(hat))
                 return List.of(() -> new Step.Wait(() -> !youngAboard(hat), WAIT, Behaviors.BOAT_CALL));
             if (carryProblem != null) GameplayLog.limited(owner, "aquatic", "land.carry", WAIT,
                     "land without dependent child={} reason={}", dependent.getUUID(), carryProblem);
@@ -161,21 +154,9 @@ final class Ashore implements Intent {
         if (route.size() > 1) return List.of(() -> new Step.Do(new Paddle(Waters.leg(route), ARRIVE)));
         // at the landing water: paddle in against the bank, once; no hop in reach even then, and the next derive takes another
         if (!tried.add(edge.stand())) { landing = null; return paddle(hat); }
-        // The rim toward the bank follows the hull's yaw, which changes on the way in: the dock is read afresh every stroke. She
-        // stops short as soon as the family can leave, or at the dock itself, where the young may leave first.
-        return List.of(() -> new Step.Do(new Paddle(() -> dock(hat, edge),
-                distance -> distance <= DOCKED || distance <= ARRIVE && youngCanLand(hat) && Ferry.hopAshore(owner).get() != null)));
-    }
-
-    /** Where the hull's centre rests against {@code edge}: its rim toward the bank. */
-    private static Vec3 dock(PlacedHatEntity hat, Waters.Edge edge) {
-        return edge.out(HullAfloat.brimToward(hat, edge.edge()));
-    }
-
-    /** The hull has been paddled in to the landing it chose and lies within the paddle's arrival of the dock. */
-    private boolean docked(PlacedHatEntity hat) {
-        return landing != null && tried.contains(landing.stand())
-                && dock(hat, landing).subtract(hat.position()).multiply(1, 0, 1).length() <= ARRIVE;
+        var dock = edge.out(HullAfloat.brimToward(hat, edge.edge()));
+        return List.of(() -> new Step.Do(new Paddle(() -> dock,
+                distance -> distance <= ARRIVE && Ferry.hopAshore(owner).get() != null && youngCanLand(hat))));
     }
 
     /** The family landing must also be reachable by the young who will leave under their own power. */
