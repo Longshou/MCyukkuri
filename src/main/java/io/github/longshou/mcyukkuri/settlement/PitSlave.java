@@ -25,11 +25,12 @@ public final class PitSlave {
     private enum Phase { NONE, RETURN, EAT, STAY }
     /** Nutrition at or below which it takes a portion. */
     public static final float HUNGRY_AT = 50;
-    private static final int REFRESH_TICKS = 100, STAY_MOVE_TICKS = 160, RETRY_TICKS = 200;
+    private static final float BEG_BELOW = 30;
+    private static final int REFRESH_TICKS = 100, STAY_MOVE_TICKS = 160, RETRY_TICKS = 200, BEG_TICKS = 600;
     private final YukkuriEntity entity;
     private Phase phase = Phase.NONE;
     private List<BlockPos> cells = List.of();
-    private long cellsAt = Long.MIN_VALUE, retryAt;
+    private long cellsAt = Long.MIN_VALUE, retryAt, begAt;
     private BlockPos destination;
     private int ticks;
     /** Whether the last look found it inside the pit: the arrival is a real fact, not a phase of the walk. */
@@ -106,6 +107,7 @@ public final class PitSlave {
     private boolean eat() {
         var heap = Poops.richest(level(), cells, entity.position());
         if (heap == null) {
+            beg();
             GameplayLog.limited(entity, "settlement", "pit_hungry", 600, "pit slave hungry reason=no_droppings cells={} nutrition={}",
                     cells.size(), entity.life().nutrition());
             return false;
@@ -134,6 +136,21 @@ public final class PitSlave {
                 entity.life().nutrition(), recorded.hasUUID("Source") ? recorded.getUUID("Source") : "unknown");
         phase = Phase.NONE;
         return true;
+    }
+
+    /** Starving with nothing to eat, it pleads with a member standing at the bank (the outcome is unchanged). */
+    private void beg() {
+        long now = level().getGameTime();
+        if (entity.life().nutrition() >= BEG_BELOW || now < begAt) return;
+        begAt = now + 40;
+        var box = entity.getBoundingBox().inflate(6);
+        var member = LoadedGroupMembers.minimum(level(), box, LoadedGroupMembers.query(level(), entity.settlement().group().id, box,
+                peer -> peer != entity && SettlementSociety.accepted(peer) && peer.hasLineOfSight(entity)), entity::distanceToSqr);
+        if (member == null) return;
+        begAt = now + BEG_TICKS;
+        entity.getLookControl().setLookAt(member, 30, 30);
+        entity.mind().perform("beg", 60);
+        GameplayLog.event(entity, "settlement", "pit slave begs member={} nutrition={}", member.getUUID(), entity.life().nutrition());
     }
 
     private void stay() {
