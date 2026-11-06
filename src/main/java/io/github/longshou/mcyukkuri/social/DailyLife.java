@@ -38,6 +38,7 @@ public final class DailyLife {
     private Session session;
     /** A lonely individual walks to a trusted friend it can see this far off and asks for a nuzzle. */
     private static final int NUZZLE_SIGHT = 16;
+    private static final double LEAN = 1.1;
     private int affection = 20, boredom = 20, clock, cooldown, scanWait;
     private int nuzzles, songs, exercises;
     private final Map<UUID, Integer> invitations = new HashMap<>();
@@ -94,7 +95,9 @@ public final class DailyLife {
         if (active() && !valid()) stop();
     }
     private static boolean available(YukkuriEntity e) { return available(e, false); }
-    private static boolean available(YukkuriEntity e, boolean continuing) {
+    private static boolean available(YukkuriEntity e, boolean continuing) { return available(e, continuing, false); }
+    /** {@code receiving}: the nuzzled companion, to whom an uneasy mind is a reason for comfort, not against it. */
+    private static boolean available(YukkuriEntity e, boolean continuing, boolean receiving) {
         return !WildEvents.reserved(e) && e.isAlive() && !e.isRemoved() && !e.isNoAi() && (e.onGround() && !e.isPassenger())
                 && !e.isPanicking() && !e.isCommandPlaying() && !e.operations().active() && !e.predator().active() && !e.social().holdingStill()
                 && !(continuing ? e.life().nutrition() < 15 || e.life().energy() < 15
@@ -102,7 +105,7 @@ public final class DailyLife {
                 && e.life().activity().equals(Behaviors.IDLE)
                 && e.life().nutrition() >= (continuing ? 15 : 40) && e.life().energy() >= (continuing ? 15 : 35)
                 && !e.childhood().needsNewbornCare() && e.body().condition().readyForAffection() && e.life().spicyTicks() == 0
-                && wellAndFree(e, continuing)
+                && wellAndFree(e, continuing, receiving)
                 && !e.groupInteraction().active() && !e.playLife().active() && !e.pet().busy()
                 && !e.family().active() && !e.house().active() && !e.habitat().active()
                 && !e.independence().active() && !e.forageTrip().outing() && !e.settlement().active() && !e.settlement().duties().active()
@@ -113,8 +116,9 @@ public final class DailyLife {
      * (an own newborn awaiting its first meal or toilet within 12, a swaddle needing care, a comfort walk under way, a heat with its partner in sight)
      * is what songs, exercise and cards need. The scans run only when a session is being admitted, never while one continues.
      */
-    public static boolean wellAndFree(YukkuriEntity e, boolean continuing) {
-        if (e.body().weak() || e.mind().unease() >= MindLife.UNEASY || e.leafSwaddle().needsCare() || e.woundComfort().active()) return false;
+    public static boolean wellAndFree(YukkuriEntity e, boolean continuing) { return wellAndFree(e, continuing, false); }
+    private static boolean wellAndFree(YukkuriEntity e, boolean continuing, boolean receiving) {
+        if (e.body().weak() || !receiving && e.mind().unease() >= MindLife.UNEASY || e.leafSwaddle().needsCare() || e.woundComfort().active()) return false;
         if (continuing || !e.family().adult()) return true;
         if (e.family().inBreedingPeriod() && e.family().partner() != null
                 && e.level() instanceof ServerLevel level && level.getEntity(e.family().partner()) instanceof YukkuriEntity mate
@@ -123,21 +127,25 @@ public final class DailyLife {
                 child -> child.childhood().needsNewbornCare() && e.family().caresFor(child)).isEmpty();
     }
     private boolean closePeer(YukkuriEntity peer) {
-        if (!entity.life().canRecognize(peer) || !peer.life().canRecognize(entity)) return false;
-        return entity.life().personality().trust(peer.getUUID()) > 0
-                && peer.life().personality().trust(entity.getUUID()) > 0
-                && entity.life().personality().fear(peer.getUUID()) < 60
-                && peer.life().personality().fear(entity.getUUID()) < 60;
+        return unafraid(peer) && entity.life().personality().trust(peer.getUUID()) > 0
+                && peer.life().personality().trust(entity.getUUID()) > 0;
+    }
+    private boolean unafraid(YukkuriEntity peer) {
+        return entity.life().canRecognize(peer) && peer.life().canRecognize(entity)
+                && entity.life().personality().fear(peer.getUUID()) < 60 && peer.life().personality().fear(entity.getUUID()) < 60;
     }
     private boolean trusted(Player player) {
         return player.isAlive() && !player.isSpectator() && player.level() == entity.level()
                 && Bonds.trustedPlayer(entity, player.getUUID());
     }
-    public boolean nuzzle(Entity companion) {
+    public boolean nuzzle(Entity companion) { return nuzzle(companion, false); }
+    /** A gentle one comforts a suffering group-mate that knows it: the same nuzzle, without the trust a leisure friend needs. */
+    public boolean console(YukkuriEntity peer) { return nuzzle(peer, true); }
+    private boolean nuzzle(Entity companion, boolean pity) {
         if (companion == entity || companion.level() != entity.level() || !companion.isAlive()
                 || entity.distanceToSqr(companion) > NUZZLE_SIGHT * NUZZLE_SIGHT || !entity.hasLineOfSight(companion)) return false;
         if (companion instanceof YukkuriEntity peer) {
-            if (!available(peer) || peer.dailyLife().active() || peer.dailyLife().cooldown > 0 || !closePeer(peer)) return false;
+            if (!available(peer, false, true) || peer.dailyLife().active() || peer.dailyLife().cooldown > 0 || !(pity ? unafraid(peer) : closePeer(peer))) return false;
         } else if (!(companion instanceof Player player) || !trusted(player)) return false;
         return begin(Kind.NUZZLE, companion);
     }
@@ -225,7 +233,7 @@ public final class DailyLife {
                 || session.leader.distanceToSqr(other) > (session.kind == Kind.NUZZLE ? NUZZLE_SIGHT * NUZZLE_SIGHT : 36)
                 || !session.leader.hasLineOfSight(other)) return false;
         if (other instanceof YukkuriEntity peer)
-            return available(peer, true) && peer.dailyLife().session == session
+            return available(peer, true, session.kind == Kind.NUZZLE) && peer.dailyLife().session == session
                     && peer.life().personality().fear(session.leader.getUUID()) < 60
                     && session.leader.life().personality().fear(peer.getUUID()) < 60;
         return other instanceof Player player && player.isAlive() && session.leader.life().personality().fear(player.getUUID()) < 60;
@@ -237,13 +245,14 @@ public final class DailyLife {
         if (other != null) entity.getLookControl().setLookAt(other, 30, 30);
         if (current.kind == Kind.NUZZLE && other != null) {
             double reach = (entity.getBbWidth() + other.getBbWidth()) * .5 + .10;
-            boolean touching = entity.distanceToSqr(other) <= reach * reach
-                    && Math.abs(entity.getY() - other.getY()) < .35;
+            // A nuzzle leans over one block of height (a friend on the bank, a hollow below it).
+            boolean touching = entity.position().subtract(other.position()).horizontalDistance() <= reach
+                    && Math.abs(entity.getY() - other.getY()) <= LEAN;
             if (!touching) {
                 // One member approaches the consenting partner. Two centre-seeking controllers otherwise push
                 // each other past their contact envelope, especially when their bodies meet diagonally.
                 if(current.leader==entity){
-                    var stand=SurfaceApproach.beside(entity,other,reach-.04,.35,reach);
+                    var stand=SurfaceApproach.beside(entity,other,reach-.04,LEAN);
                     if(stand==null)SurfaceApproach.halt(entity);
                     else SurfaceApproach.walkAround(entity,stand,other,.8);
                     current.contact=0;current.elapsed++;

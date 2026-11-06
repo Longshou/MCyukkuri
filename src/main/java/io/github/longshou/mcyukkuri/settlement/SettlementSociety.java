@@ -76,14 +76,12 @@ public final class SettlementSociety {
                 && record.rememberedUntil > observer.level().getGameTime();
     }
     public void tick() {
+        if (entity.tickCount % 20 == 0 && entity.isAlive() && entity.settlement().group() != null) comfortSlave();
         if (entity.tickCount % 100 != 0 || !entity.isAlive()) return;
         var group = entity.settlement().group();
         if (group == null) return;
         // The target need not be free to act: nearby witnesses can reject a hatless member even while it eats, sleeps or panics.
-        if (available(entity)) {
-            LeaderSuccession.observe(entity, group);
-            comfortSlave(group);
-        }
+        if (available(entity)) LeaderSuccession.observe(entity, group);
         var data = SettlementData.get(level());
         var record = data.member(group, entity.getUUID());
         long now = level().getGameTime();
@@ -176,16 +174,17 @@ public final class SettlementSociety {
     }
 
     /**
-     * A gentle, recognising member that finds the group's slave at the pit goes over and nuzzles it (the shared nuzzle session);
-     * each finished nuzzle is one kind treatment (kindContact).
+     * A gentle, recognising member that finds the group's slave beside it at the pit (typically just after its own relief there) goes over
+     * and nuzzles it (the shared nuzzle session); each finished nuzzle is one kind treatment (kindContact).
      */
-    private void comfortSlave(SettlementData.Group group) {
-        if (!accepted(entity) || !Temperament.lenient(entity.life().personality())) return;
+    private void comfortSlave() {
+        if (!Temperament.lenient(entity.life().personality()) || !accepted(entity) || !available(entity)) return;
+        var group = entity.settlement().group();
         var box = entity.getBoundingBox().inflate(8);
         var slave = LoadedGroupMembers.minimum(level(), box, LoadedGroupMembers.query(level(), group.id, box,
                 peer -> peer.settlement().society().slave() && entity.life().canRecognize(peer) && entity.hasLineOfSight(peer)),
                 entity::distanceToSqr);
-        if (slave != null) entity.dailyLife().nuzzle(slave);
+        if (slave != null) entity.dailyLife().console(slave);
     }
 
     /** A gentle member's nuzzle with this slave has finished. */
