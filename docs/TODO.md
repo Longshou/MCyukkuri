@@ -9,6 +9,7 @@
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
 | 陆地家庭在场（审计 P1：近处不寻子、窝内不算走失、幼体饥饿时跟随亲代、目睹亲缘死亡、独立告别、搬运站位失败与单人抬、求偶上限读数、孕期安窝、无路时留守与部分寻路、亲缘问候与蹭蹭；临产母亲走进窝里分娩） | `.worktrees/wp-aq-family` | `family/FamilyLife`、`family/FamilySeparation`、`family/ParentCarry`、`family/IndependenceLife`、`family/Courtship`、`family/LiveBirth`、`social/YukkuriSocial`、`social/SelfOffering` |
+| 聚落、无帽与人类的社会生活（审计 P5：坑边接触照料、拒绝与流放按次、狩猎拒绝按特质、奴隶乞食、宠物主人悲伤、NPC 看护上限与进食、嘲笑按性格回应、Myon 取树枝、碎片分散、喂食后鞠躬、配偶同居同迁） | `.worktrees/wp-ax-society` | `settlement/SettlementSociety`、`settlement/CommonHunt`、`settlement/CommunityRules`、`settlement/Judgement`、`settlement/PitSlave`、`settlement/HabitatHomes`、`headwear/Contempt`、`headwear/Headwear`、`human/HumanNpc`、`human/Custody`、`pet/PetLife`、`rare/MyonLife` |
 | 全游戏演示场景梳理与取名（非池塘场地合并同路径演示、改名、迁徙两场找回、生成点与初态核对） | `.worktrees/wp-au-scene-curation` | `scripts/museum_*.py`、`scripts/smoke_museum.py`、`docs/TODO.md` |
 
 ## 玩法待办
