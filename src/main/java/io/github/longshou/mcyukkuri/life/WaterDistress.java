@@ -24,6 +24,8 @@ public final class WaterDistress {
     private final YukkuriEntity entity;
     private Phase phase=Phase.IDLE;
     private int phaseTicks, immersionTicks, callWait, pendingPlunge, drySupportTicks;
+    /** The last dry tick had her off the ground (a fall, a missed hop): the tick she meets water she falls in. */
+    private boolean airborneDry;
     private long lastTick=Long.MIN_VALUE, closedTick=Long.MIN_VALUE;
     private ServerLevel lastLevel;
     private long threatTick=Long.MIN_VALUE;
@@ -89,6 +91,7 @@ public final class WaterDistress {
             drySupportTicks=0;
             if(phase==Phase.IDLE||phase==Phase.RECOVER)enterWater();
             shedHeadRiders();
+            airborneDry=false;
             immersionTicks=Math.min(24000,immersionTicks+1);
             if(phase==Phase.IMPACT&&phaseTicks>=12)set(Phase.STRUGGLE);
             if(phase!=Phase.IMPACT&&worn())set(Phase.EXHAUSTED);
@@ -96,6 +99,7 @@ public final class WaterDistress {
                     &&callWait==0&&phase!=Phase.IMPACT){entity.speak("water_help");callWait=phase==Phase.EXHAUSTED?90:55;}
             return;
         }
+        airborneDry=!entity.onGround()&&!entity.isPassenger();
         // An upward flight or airborne tumble is not a completed rescue; standing on dry ground or aboard (a dry hat, a carrier) is.
         if(phase==Phase.IMPACT||phase==Phase.STRUGGLE||phase==Phase.EXHAUSTED){
             if(entity.predatorFlying()||entity.family().flying()||!entity.onGround()&&!entity.isPassenger()){drySupportTicks=0;return;}
@@ -111,11 +115,11 @@ public final class WaterDistress {
     }
     /**
      * A carrier that falls in (airborne on contact) or whose head goes under loses the young on her head: they drop into the water
-     * with her and then escape or are rescued like any thrown rider. Standing or wading on her feet with her head clear sheds none;
+     * with her and then escape or are rescued like any thrown rider. Swimming or wading with her head clear sheds none;
      * braid- and mouth-held young are not touched here.
      */
     private void shedHeadRiders(){
-        if(!entity.isVehicle()||entity.isPassenger()||entity.onGround()&&!entity.isEyeInFluid(FluidTags.WATER))return;
+        if(!entity.isVehicle()||entity.isPassenger()||!airborneDry&&!entity.isEyeInFluid(FluidTags.WATER))return;
         ParentCarry.shedHead(entity,entity.getDeltaMovement().scale(.5),"carrier_in_water");
     }
     /** Really worn now, from the body's own state: its energy is nearly spent, or its vanilla breath is gone (its head has been under
