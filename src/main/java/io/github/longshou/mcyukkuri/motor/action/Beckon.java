@@ -76,7 +76,8 @@ public final class Beckon implements Action {
         water = water(body, stand, yaw);
         double gap = water == null ? Double.POSITIVE_INFINITY : ContactGeometry.braidGap(body, stand, water, true);
         if (gap > 0) return Feasibility.of(Reason.NO_CONTACT, Double.isFinite(gap) ? gap : 0, water == null ? "no_water_ahead" : "water_out_of_reach");
-        if (gap() <= AT) return Feasibility.pass();
+        // Already lying at the bank: one stroke cannot bring it nearer, so it is no means for a boarding that still fails from here.
+        if (gap() <= AT) return Feasibility.of(Reason.NO_CONTACT, 0, "host_at_bank");
         return body.life().energy() < COST ? Feasibility.of(Reason.EXHAUSTED, 0, "energy=" + body.life().energy()) : Feasibility.pass();
     }
 
@@ -144,7 +145,8 @@ public final class Beckon implements Action {
         if (wet && distance > 1E-4)
             Motor.face(body, body.getYRot() + (float) Effort.turn(body.getYRot(),
                     Mth.atan2(to.z, to.x) * Mth.RAD_TO_DEG - 90, BodyAbility.of(body).turnRate()));
-        if (ContactGeometry.reachesHull(body, hull, true, true))
+        // Swimming, the stroke ends once the hull lies in her grip; ashore, once its brim lies at the water she strokes (the same test admission uses).
+        if (wet ? ContactGeometry.reachesHull(body, hull, true, true) : gap() <= AT)
             return new Outcome.Done(wet ? "at_braid at=" + GameplayLog.at(hull.position()) : "at_bank at=" + GameplayLog.at(hull.position()));
         double gap = wet ? distance : gap();
         if (t >= maxTicks) return Outcome.of(Reason.TOO_FAR, gap, "ticks=" + t);
