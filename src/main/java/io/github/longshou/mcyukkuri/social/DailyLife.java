@@ -8,6 +8,7 @@ import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.life.EcologyMovement;
 import io.github.longshou.mcyukkuri.mind.EmotionEvent;
 import io.github.longshou.mcyukkuri.mind.MindLife;
+import io.github.longshou.mcyukkuri.motor.ClipMarkers;
 import io.github.longshou.mcyukkuri.motor.Motor;
 import io.github.longshou.mcyukkuri.settlement.SettlementSeasons;
 import java.util.Comparator;
@@ -27,8 +28,8 @@ public final class DailyLife {
         final YukkuriEntity leader;
         final Entity companion;
         final Kind kind;
-        int elapsed, contact;
-        boolean ended;
+        int elapsed, contact, greetHold;
+        boolean ended, greeted;
         Session(YukkuriEntity leader, Entity companion, Kind kind) {
             this.leader = leader; this.companion = companion; this.kind = kind;
         }
@@ -250,6 +251,20 @@ public final class DailyLife {
                 return;
             }
             SurfaceApproach.halt(entity);
+            // A peer whose greeting is due is greeted first, then nuzzled.
+            if (current.leader == entity && !current.greeted && other instanceof YukkuriEntity peer) {
+                current.greeted = true;
+                if (entity.social().greetingDue(peer) != null) {
+                    peer.social().noteContact(entity);
+                    entity.showReaction("happy", "hello", 80);
+                    peer.showReactionDelayed("happy", "hello", 80, 20);
+                    current.greetHold = ClipMarkers.of("greet").length() + 20;
+                }
+            }
+            if (current.greetHold > 0) {
+                if (current.leader == entity) current.greetHold--;
+                return;
+            }
         }
         if (current.kind == Kind.SING) EcologyMovement.halt(entity);
         else entity.getNavigation().stop();
@@ -274,6 +289,7 @@ public final class DailyLife {
         }
         if (current.companion instanceof YukkuriEntity peer) {
             complete(peer, current.kind);
+            if (current.kind == Kind.NUZZLE) { current.leader.social().noteContact(peer); peer.social().noteContact(current.leader); }
         }
         stop();
     }
