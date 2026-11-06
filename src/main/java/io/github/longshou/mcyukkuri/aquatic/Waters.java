@@ -517,11 +517,18 @@ final class Waters {
 
     private static ItemEntity loose(PlacedHatEntity hat, String what, Object who, int range, Predicate<ItemEntity> wanted) {
         var level = hat.level();
+        // the item she chose stays her target while it still exists in sight, even bobbing under the surface or drifting off its cell
+        var chosenKey = key(level, "chosen", what, who);
+        UUID chosen;
+        synchronized (CACHE) { var k = CACHE.get(chosenKey); chosen = k == null ? null : (UUID) k.value(); }
+        if (chosen != null && level instanceof ServerLevel server && server.getEntity(chosen) instanceof ItemEntity item && item.isAlive()
+                && !item.getItem().isEmpty() && wanted.test(item) && hat.getBoundingBox().inflate(range, 3, range).intersects(item.getBoundingBox())) return item;
         var from = cell(hat);
         UUID id = kept(level, key(level, what, who, from == null ? hat.blockPosition() : from, range), () -> {
             var found = findLoose(hat, range, wanted);
             return found == null ? null : found.getUUID();
         });
+        synchronized (CACHE) { if (id == null) CACHE.remove(chosenKey); else CACHE.put(chosenKey, new Kept(level.getGameTime(), id)); }
         return id != null && level instanceof ServerLevel server && server.getEntity(id) instanceof ItemEntity item && item.isAlive()
                 && !item.getItem().isEmpty() ? item : null;
     }
