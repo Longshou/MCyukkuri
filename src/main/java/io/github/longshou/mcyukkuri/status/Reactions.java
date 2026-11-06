@@ -71,6 +71,7 @@ public final class Reactions {
     void hurtBy(DamageSource source) {
         threat.seal.abort("attacked");
         if (!(source.getEntity() instanceof LivingEntity attacker) || attacker == entity) return;
+        threat.attackedBy(attacker);
         threat.warnKin(attacker);
         if (!(attacker instanceof Player || attacker instanceof HumanNpc)) return;
         long now = entity.level().getGameTime();
@@ -128,7 +129,12 @@ public final class Reactions {
          */
         private UUID knownDanger;
         private long knownAt = Long.MIN_VALUE / 2;
-        static final int SAME_DANGER = 3600;
+        static final int SAME_DANGER = 3600, HEARD = 160;
+        /** The covered stand the current flight runs to, and when it was last searched (one cover query, shared). */
+        private BlockPos flightCover;
+        private LivingEntity flightFrom;
+        private long flightCoverAt;
+        private int flightOffset;
 
         Threat(YukkuriEntity y) { this.y = y; seal = new DenSeal(y); }
 
@@ -212,10 +218,13 @@ public final class Reactions {
             for (var z : y.level().getEntitiesOfClass(YukkuriEntity.class, y.getBoundingBox().inflate(12, 5, 12),
                     o -> o != y && prey(o) && kin(y, o))) z.status().reactions().threat().heard(danger, now);
         }
-        void heard(LivingEntity danger, long now) {
+        void heard(LivingEntity danger, long now) { heard(danger, now, HEARD); }
+        /** The one that just hurt this body is remembered for the whole danger window: a bitten animal does not forget it. */
+        void attackedBy(LivingEntity danger) { heard(danger, y.level().getGameTime(), SAME_DANGER); }
+        private void heard(LivingEntity danger, long now, int window) {
             if(y.life().isSleeping())return;
             if (danger == y || !danger.isAlive()) return;
-            heard = danger; heardUntil = now + 160;
+            heard = danger; heardUntil = now + window;
             if (!fresh(danger, now)) return;
             know(danger, now);
             if (now >= noticeUntil && stage == Stage.NONE) { noticeUntil = now + 400; y.mind().felt(EmotionEvent.FRIGHTENED); y.showReaction("surprise", "afraid", 60); }
@@ -306,15 +315,94 @@ public final class Reactions {
             }
             var home = y.life().homeStand();
             if (home != null && home.distSqr(s.blockPosition()) > 25 && y.life().navigate(home, 1.2, false)) return;
-            Vec3 away = DefaultRandomPos.getPosAway(y, 10, 4, s.position());
-            if (away != null) y.getNavigation().moveTo(away.x, away.y, away.z, 1.2);
+            flight(s, 10);
         }
+        /** Runs for cover away from one danger, else for a dry point away; the cover is searched at most every 80 ticks. */
+        public boolean flight(LivingEntity danger, int distance) {
+            long now = y.level().getGameTime();
+            if (flightFrom != danger || now >= flightCoverAt) {
+                flightFrom = danger; flightCoverAt = now + 80;
+                boolean budget = SearchBudget.take((ServerLevel) y.level());
+                if (budget) flightCover = findCover(y, danger.position(), flightOffset++);
+                GameplayLog.limited(y, "threat", "flight.cover", 200, "flight cover searched budget={} cover={} danger=#{} distance={}",
+                        budget, flightCover, danger.getId(), Math.round(danger.distanceTo(y)));
+            }
+            boolean routed = flightCover != null && y.life().navigate(flightCover, 1.2, false);
+            if (routed) return true;
+            Vec3 away = awayFrom(y, distance, danger.position());
+            boolean moved = away != null && y.getNavigation().moveTo(away.x, away.y, away.z, 1.2);
+            GameplayLog.limited(y, "threat", "flight.away", 200, "flight away covered={} away={} routed={} danger=#{} distance={}",
+                    flightCover != null, away, moved, danger.getId(), Math.round(danger.distanceTo(y)));
+            return moved;
+        }
+    }
+
+    // ---- shared ground rules for reactions ---------------------------------------------------------------------
+
+    /**
+     * The one cover query: the nearest reachable covered dry stand of this body's travel range, and farther from the
+     * danger than the body itself when a danger is given. The weather goal and both flight paths use it.
+     */
+    static BlockPos findCover(YukkuriEntity y, Vec3 danger, int offset) {
+        var level = (ServerLevel) y.level();
+        var life = y.life();
+        var home = life.homeStand();
+        if (home != null && life.covered(home) && Sky.at(level, home) == Sky.CLEAR && life.reachable(home, false)
+                && farther(home, y, danger)) return home;
+        var origin = y.blockPosition();
+        var candidates = new ArrayList<BlockPos>();
+        int radius = TravelRange.search(y, 16);
+        for (int dx = -radius; dx <= radius; dx++) for (int dz = -radius; dz <= radius; dz++) {
+            int x = origin.getX() + dx, z = origin.getZ() + dz;
+            if (!level.hasChunkAt(new BlockPos(x, origin.getY(), z))) continue;
+            int roof = level.getHeight(Heightmap.Types.MOTION_BLOCKING, x, z);
+            for (int ry = origin.getY() + 1; ry >= origin.getY() - 2; ry--) {
+                if (roof <= ry) continue;                          // open sky at this height
+                var pos = new BlockPos(x, ry, z);
+                if (!level.getBlockState(pos.below()).isFaceSturdy(level, pos.below(), Direction.UP)) continue;
+                if (!life.dryStand(pos) || !life.covered(pos) || !TravelRange.babyDestination(y, pos)) continue;
+                var owner = ShelterBlock.shelter(level, pos);
+                if (owner != null && !owner.owns(y.getUUID())) continue;
+                if (!farther(pos, y, danger)) continue;
+                candidates.add(pos.immutable());
+                break;
+            }
+        }
+        candidates.sort(Comparator.comparingDouble(p -> p.distSqr(origin)));
+        if (candidates.isEmpty()) return null;
+        // Rotate through candidates: eight unreachable nearby cells must not hide a farther roof forever.
+        for (int tried = 0; tried < Math.min(8, candidates.size()); tried++) {
+            var pos = candidates.get(Math.floorMod(offset + tried, candidates.size()));
+            if (life.reachable(pos, false)) return pos;
+        }
+        return null;
+    }
+
+    /** A flight point only counts when it is clearly farther from the danger than the body is standing now. */
+    private static boolean farther(BlockPos pos, YukkuriEntity y, Vec3 danger) {
+        return danger == null || Math.sqrt(Vec3.atCenterOf(pos).distanceToSqr(danger))
+                > Math.sqrt(y.position().distanceToSqr(danger)) + FLIGHT_GAIN;
+    }
+    /** Blocks of extra distance from the danger a covered stand must offer to be worth hiding in. */
+    private static final double FLIGHT_GAIN = 8;
+
+    /** A random dry stand away from one danger, or null: a flight point obeys the same ground rules as any other walk. */
+    public static Vec3 awayFrom(YukkuriEntity y, int distance, Vec3 danger) {
+        for (int attempt = 0; attempt < 8; attempt++) {
+            Vec3 away = DefaultRandomPos.getPosAway(y, distance, 4, danger);
+            if (away == null) return null;
+            var pos = BlockPos.containing(away);
+            if (y.life().dryStand(pos) && TravelRange.babyDestination(y, pos)) return away;
+        }
+        return null;
     }
 
     // ---- weather ----------------------------------------------------------------------------------------------
 
     public static final class Weather {
         public enum Stage { NONE, RUN, WAIT, SEARCH, SHAKE }
+        /** Wetness above which an arriving body shakes the rain off before it settles (rain adds 3 per 20 ticks). */
+        static final float SHAKE_WETNESS = 10;
         private final YukkuriEntity y;
         private Stage stage = Stage.NONE;
         private Sky sky = Sky.CLEAR;
@@ -343,8 +431,10 @@ public final class Reactions {
         public static boolean rainAt(YukkuriEntity animal, BlockPos pos) {
             return Sky.at(animal.level(), pos).wet();
         }
+        /** Hunger below this outranks staying dry: the body walks out into the rain to eat, and comes back in when fed. */
+        static final float DRY_NUTRITION = 30;
         public static boolean keepDry(YukkuriEntity animal) {
-            return prey(animal) && animal.level().isRaining() && animal.life().nutrition() >= 20
+            return prey(animal) && animal.level().isRaining() && animal.life().nutrition() >= DRY_NUTRITION
                     && !rainAt(animal, animal.blockPosition()) && !BehaviorContinuity.emergency(animal)
                     && !animal.family().birthDuty();
         }
@@ -354,10 +444,10 @@ public final class Reactions {
         private boolean bothered() {
             return sky.wet() || sky == Sky.SNOW && y.life().temperature().cold();
         }
-        /** Body emergencies are the life goal's business; this goal does not hold a starving individual in place. */
+        /** Body needs are the life goal's business; this goal does not hold a hungry individual under a roof. */
         private boolean pressing() {
             var life = y.life();
-            return life.nutrition() < 20 || life.bladder() >= 90 || life.energy() < 10;
+            return life.nutrition() < DRY_NUTRITION || life.bladder() >= 90 || life.energy() < 10;
         }
         boolean wants() {
             if (stage != Stage.NONE) return true;
@@ -402,48 +492,23 @@ public final class Reactions {
             y.getNavigation().stop();
         }
 
-        private BlockPos findCover() {
-            var level = (ServerLevel) y.level();
-            var life = y.life();
-            var home = life.homeStand();
-            if (home != null && life.covered(home) && Sky.at(level, home) == Sky.CLEAR && life.reachable(home, false)) return home;
-            var origin = y.blockPosition();
-            var candidates = new ArrayList<BlockPos>();
-            int radius = TravelRange.search(y, 16);
-            for (int dx = -radius; dx <= radius; dx++) for (int dz = -radius; dz <= radius; dz++) {
-                int x = origin.getX() + dx, z = origin.getZ() + dz;
-                if (!level.hasChunkAt(new BlockPos(x, origin.getY(), z))) continue;
-                int roof = level.getHeight(Heightmap.Types.MOTION_BLOCKING, x, z);
-                for (int ry = origin.getY() + 1; ry >= origin.getY() - 2; ry--) {
-                    if (roof <= ry) continue;                          // open sky at this height
-                    var pos = new BlockPos(x, ry, z);
-                    if (!level.getBlockState(pos.below()).isFaceSturdy(level, pos.below(), Direction.UP)) continue;
-                    if (!life.dryStand(pos) || !life.covered(pos) || !TravelRange.babyDestination(y, pos)) continue;
-                    var owner = ShelterBlock.shelter(level, pos);
-                    if (owner != null && !owner.owns(y.getUUID())) continue;
-                    candidates.add(pos.immutable());
-                    break;
-                }
-            }
-            candidates.sort(Comparator.comparingDouble(p -> p.distSqr(origin)));
-            if (!candidates.isEmpty()) {
-                // Rotate through candidates: eight unreachable nearby cells must not hide a farther roof forever.
-                for (int tried = 0; tried < Math.min(8, candidates.size()); tried++) {
-                    var pos = candidates.get(Math.floorMod(searchOffset++, candidates.size()));
-                    if (life.reachable(pos, false)) return pos;
-                }
-            }
-            return null;
-        }
+        private BlockPos findCover() { return Reactions.findCover(y, null, searchOffset++); }
 
         void tick() {
             ticks++;
             var level = (ServerLevel) y.level();
             var life = y.life();
             boolean raining = level.isRaining();
-            // Reaching any roof ends the run, whether or not it was the chosen one.
+            // Reaching any roof ends the run, whether or not it was the chosen one. A soaked body shakes the rain off first.
             if ((stage == Stage.RUN || stage == Stage.SEARCH) && raining && Sky.at(level, y.blockPosition()) == Sky.CLEAR
-                    && life.covered(y.blockPosition()) && ticks > 20) { y.getNavigation().stop(); stage = Stage.WAIT; ticks = 0; return; }
+                    && life.covered(y.blockPosition()) && ticks > 20) {
+                y.getNavigation().stop();
+                stage = life.wetness() >= SHAKE_WETNESS ? Stage.SHAKE : Stage.WAIT;
+                ticks = 0;
+                if (stage == Stage.SHAKE) GameplayLog.limited(y, "weather", "shake.arrival", 1200,
+                        "shaking the rain off on arrival; wetness={} cover={}", life.wetness(), cover);
+                return;
+            }
             switch (stage) {
                 case RUN -> {
                     if (cover == null || !life.dryStand(cover)) { searchOnFoot(); return; }

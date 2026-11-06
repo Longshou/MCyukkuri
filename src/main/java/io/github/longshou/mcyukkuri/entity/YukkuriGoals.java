@@ -21,14 +21,17 @@ import io.github.longshou.mcyukkuri.predator.PredatorLife;
 import io.github.longshou.mcyukkuri.settlement.ForageGoal;
 import io.github.longshou.mcyukkuri.settlement.ForageTrip;
 import io.github.longshou.mcyukkuri.social.BondLevels;
+import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.status.Reactions;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.StringTag;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.ai.goal.GoalSelector;
 import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
@@ -191,11 +194,29 @@ final class YukkuriGoals {
                     if (owner.pet().fleeToOwner()) return;
                     var safe = owner.life().homeStand();
                     if (safe != null && owner.life().navigate(safe, 1.2, false)) return;
+                    // A young runs to the parent it recognises; a body without a home runs for cover, then for a dry point away.
+                    var parent = recognisedParent(threat);
+                    if (parent != null && owner.life().navigate(parent.blockPosition(), 1.2, false)) {
+                        GameplayLog.limited(owner, "threat", "flight.parent", 200, "fleeing to parent #{} distance={} danger=#{}",
+                                parent.getId(), Math.round(owner.distanceTo(parent)), threat.getId());
+                        return;
+                    }
+                    if (owner.status().reactions().threat().flight(threat, 10)) return;
                 }
                 Vec3 target = owner.getLastHurtByMob() == null ? DefaultRandomPos.getPos(owner, 6, 3)
-                        : DefaultRandomPos.getPosAway(owner, 6, 3, owner.getLastHurtByMob().position());
+                        : Reactions.awayFrom(owner, 6, owner.getLastHurtByMob().position());
                 if (target != null) owner.directNavigation().moveTo(target.x, target.y, target.z, 1.2);
             }
+        }
+        /** The mother or father this young keeps to, while that parent is near enough to run to and is no danger itself. */
+        private YukkuriEntity recognisedParent(YukkuriEntity danger) {
+            if (!owner.childhood().shouldStayWithParents()) return null;
+            for (var id : new UUID[] { owner.family().mother(), owner.family().father() }) {
+                if (id == null || id.equals(danger.getUUID())) continue;
+                if (owner.level() instanceof ServerLevel level && level.getEntity(id) instanceof YukkuriEntity parent && parent.isAlive()
+                        && owner.distanceToSqr(parent) <= 144 && owner.life().canRecognize(parent)) return parent;
+            }
+            return null;
         }
         @Override public void stop() { owner.directNavigation().stop(); }
     }
