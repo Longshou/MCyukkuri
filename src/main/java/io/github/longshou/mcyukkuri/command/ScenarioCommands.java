@@ -7,12 +7,14 @@ import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import io.github.longshou.mcyukkuri.body.BodyPart;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.headwear.HullProfile;
 import io.github.longshou.mcyukkuri.headwear.PlacedHatEntity;
 import io.github.longshou.mcyukkuri.human.Custody;
 import io.github.longshou.mcyukkuri.human.HumanNpc;
 import io.github.longshou.mcyukkuri.pet.BadgeGrade;
+import io.github.longshou.mcyukkuri.status.GameplayLog;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
@@ -48,6 +50,7 @@ public final class ScenarioCommands {
     }
 
     private static int refused(CommandSourceStack source, Entity at, String prefix, String reason) {
+        GameplayLog.world(source.getLevel(), "scenario", "refused prefix={} reason={} at={}", prefix, reason, at.blockPosition());
         tell(source.getLevel(), at.position(), "[试玩场] " + prefix + "没有成功：" + reason, ChatFormatting.RED);
         source.sendFailure(Component.literal(reason));
         return 0;
@@ -94,10 +97,13 @@ public final class ScenarioCommands {
                             return ScenarioSetup.community(leader, members, BlockPos.containing(c.getSource().getPosition()));
                         }))))
                 .then(Commands.literal("wound").then(Commands.argument("targets", EntityArgument.entities()).executes(c -> {
-                    // A real, small injury through the ordinary wound path.
+                    // A real, small injury: lost health plus a mild non-leaking dent on the skin (a generic hit leaves no wound).
                     int count = 0;
                     for (var entity : EntityArgument.getEntities(c, "targets"))
-                        if (entity instanceof YukkuriEntity y && y.isAlive()) { y.hurt(y.level().damageSources().generic(), 4f); count++; }
+                        if (entity instanceof YukkuriEntity y && y.isAlive()) {
+                            y.hurt(y.level().damageSources().generic(), 4f);
+                            if (y.body().woundAt(BodyPart.FRONT, "dent", 1)) count++;
+                        }
                     return count;
                 })))
                 .then(Commands.literal("bond").then(Commands.argument("first", EntityArgument.entity())

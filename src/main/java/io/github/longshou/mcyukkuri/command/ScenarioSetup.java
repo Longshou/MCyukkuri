@@ -145,7 +145,7 @@ final class ScenarioSetup {
 
     /**
      * A real LIVE conception for an adult pair, then the brood is brought to the end of its term. {@code caught}: a Marisa
-     * father (if the pair has one) has time to come over and take off his hat; {@code natural}: two ticks before term. Who
+     * father (if the pair has one) has time to come over and take off his hat; {@code natural}: 400 ticks before term, time to walk into her nest. Who
      * catches, and whether there is a hat, a nest or her own boat, comes from the real pair and their home (decision R5), never
      * from here.
      * {@code stem}: a real STEM conception brought to 400 ticks before term (a hatted Marisa father sets the hat under it).
@@ -165,6 +165,9 @@ final class ScenarioSetup {
         if (mother.family().brood() != null) return "母油已经有胎次，不会覆盖。";
         // Where she lives now: a nest within two blocks, or (aquatic) the boat she rides; the brood is anchored there.
         var home = mother.life().homeStand();
+        // Her nest is the home the scene assigned, wherever she wandered in the two seconds before this command.
+        if (home == null && mother.life().home() != null && mother.life().home().dimension().equals(level.dimension()))
+            home = mother.life().home().pos();
         boolean boat = mother.getVehicle() instanceof PlacedHatEntity hat && hat == PlacedHatEntity.find(mother);
         if (home == null && !boat) return "母油需要两格内可用的窝位，或正乘在自己浮在水上的帽子里。";
         var data = FamilyData.get(level);
@@ -188,7 +191,7 @@ final class ScenarioSetup {
             data.setDirty();
         } else {
             var helper = FamilyLife.catcher(mother, brood);
-            int lead = outcome.equals("near_term") ? FamilyLife.shoreBirthLead() + 800 : helper != null && helper != mother ? 150 : 2;
+            int lead = outcome.equals("near_term") ? FamilyLife.shoreBirthLead() + 800 : helper != null && helper != mother ? 150 : 400;
             brood.elapsed = Math.max(0, brood.duration - lead);
             data.setDirty();
             if (outcome.equals("caught") && helper == null)
