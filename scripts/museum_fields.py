@@ -224,10 +224,14 @@ class Forage(Field):
 
 # ----------------------------------------------------------------------------------------------- biome settlements
 BIOME_PLOTS = [  # id, biome, ground block, trunk, leaves, title, hill block (None: flat plot)
-    # one plot per season (docs/FEATURES.md: the season follows the biome); the forest village digs into its hill, the plains one
-    # stands on flat ground with built-up banks
+    # the season follows the biome (docs/FEATURES.md); the forest village digs into its hill, the plains one stands on flat ground
+    # with built-up banks, and each hill band shows its own site profile
     ('forest', 'minecraft:forest', 'minecraft:grass_block', 'minecraft:oak_log', 'minecraft:oak_leaves', '森林', 'minecraft:dirt'),
     ('plains', 'minecraft:plains', 'minecraft:grass_block', None, None, '平原', None),
+    ('taiga', 'minecraft:taiga', 'minecraft:grass_block', 'minecraft:spruce_log', 'minecraft:spruce_leaves', '针叶林', 'minecraft:dirt'),
+    ('cherry', 'minecraft:cherry_grove', 'minecraft:grass_block', 'minecraft:cherry_log', 'minecraft:cherry_leaves', '樱花林', 'minecraft:dirt'),
+    ('hills', 'minecraft:windswept_hills', 'minecraft:grass_block', 'minecraft:spruce_log', 'minecraft:spruce_leaves', '风袭丘陵', 'minecraft:stone'),
+    ('savanna', 'minecraft:savanna', 'minecraft:grass_block', 'minecraft:acacia_log', 'minecraft:acacia_leaves', '热带草原', 'minecraft:coarse_dirt'),
     # no settlement generates in these two (docs/FEATURES.md): flat plots for the cold / hot season scenes
     ('snow', 'minecraft:snowy_plains', 'minecraft:snow_block', 'minecraft:spruce_log', 'minecraft:spruce_leaves', '雪原', None),
     ('desert', 'minecraft:desert', 'minecraft:sand', None, None, '沙漠', None),
@@ -524,8 +528,8 @@ FIELDS = [
     Dens('den', '野外住所', 'wild', -900, 300, 44, 36, 'minecraft:plains', blurb='山坡洞穴一家三口、独立、搬往大洞'),
     # 72 deep, not more: its far edge must stay loaded while a visitor presses "clear" on the deck (render distance 10).
     Forage('forage', '流浪与觅食', 'wild', -750, 300, 96, 72, 'minecraft:plains', blurb='流浪油挖穴、家旁稀疏与远处草场、吃草'),
-    Biomes('biomes', '群系聚落', 'biome', -824, 468, 64, 64, 'minecraft:plains', plots=BIOME_PLOTS, cols=2,
-           blurb='春夏秋冬四块地上的聚落，山脚聚落的嗯嗯坑与嗯嗯奴隶'),
+    Biomes('biomes', '群系聚落', 'biome', -884, 468, 128, 64, 'minecraft:plains', plots=BIOME_PLOTS, cols=4,
+           blurb='八个群系的聚落（春夏秋冬各有），各群系的住所、存粮与山脚聚落的嗯嗯坑、嗯嗯奴隶'),
     # 64 blocks of meadow north and south of the plots: the leader's hunting ground lies 32-64 blocks out (CommonHunt.RADIUS).
     Biomes('colony', '族群迁徙与族规', 'biome', -680, 468, 64, 64, 'minecraft:plains', plots=COLONY_PLOTS, cols=2,
            blurb='有族长的村落：公共狩猎、黄昏分粮、审判，全族带着赤油迁往东边的空村'),

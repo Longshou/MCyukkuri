@@ -238,10 +238,13 @@ def settlement(plot, kind, seen):
         f'{title}的{"村落" if kind == "village" else "小群"}：{where}；南边低处有一处浅浅的嗯嗯坑（裸土凹地，无厕所方块）。季节随群系而定，成员、住所、仓堆随群系特色而不同',
         '数分钟（可倍速）', [f'yukkuri settlement spawn {kind} ~ ~ ~', LEAD_ANY], env=DAY, spot=plot,
         vantage=(0, 26), retry='先“清空本场地”再按一次',
-        reads=[('读聚落场地与嗯嗯坑', 'yukkuri settlement site info'), ('读场地勘测', 'yukkuri settlement site check')])
+        reads=[('读聚落场地与嗯嗯坑', 'yukkuri settlement site info'), ('读场地勘测', 'yukkuri settlement site check')],
+        smoke=dict(ticks=3000, expect=[r'\[habitat\][^\n]* home chosen'], forbid=[r'\[body\][^\n]* invariant\b']))
 
 
 for _plot, _kind, _seen in (('forest', 'village', '秋·森林村落，洞挖进山坡'), ('plains', 'village', '春·平原村落，平地补土做洞'),
+                            ('taiga', 'band', '秋·针叶林：深洞小群，存粮更多'), ('cherry', 'band', '春·樱花林：落花瓣的软土洞岸'),
+                            ('hills', 'band', '秋·风袭丘陵：岩石洞穴小群'), ('savanna', 'band', '夏·热带草原：干土洞岸小群'),
                             ('snow', 'band', '冬·雪原小群的寒冷生活'), ('desert', 'band', '夏·沙漠小群的炎热生活')):
     settlement(_plot, _kind, _seen)
 
