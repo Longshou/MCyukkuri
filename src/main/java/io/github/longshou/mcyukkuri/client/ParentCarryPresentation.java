@@ -82,11 +82,13 @@ final class ParentCarryPresentation {
     private static YukkuriView braidTarget(YukkuriView carrier) {
         return carrier.motorAction().equals(Grab.ID) ? ParentCarry.braidTarget(carrier) : null;
     }
-    /** The clip a carrier plays while its braid reaches (the lift, or the low lean), or null. */
+    /** The clip a carrier plays while its braid reaches (the lift, or the low lean), or null (also for the brim lift, which plays its own
+     *  authored clip from the Grab's pose). */
     static String liftClip(YukkuriView carrier) {
         var target = braidTarget(carrier);
         if (BraidFetch.REACH.equals(carrier.getAnimationId()) || BraidFetch.HOLD.equals(carrier.getAnimationId())) return null;
-        return target == null ? null : ParentCarry.braidLean(carrier, target) ? Grab.BRAID_LEAN : Grab.BRAID_LIFT;
+        return target == null || ParentCarry.hold(carrier, target) == Hold.BRIM ? null
+                : ParentCarry.braidLean(carrier, target) ? Grab.BRAID_LEAN : Grab.BRAID_LIFT;
     }
 
     /** How far a Reimu's mouth child is in her mouth (0 at the lips .. 1 inside, unseen); 0 for every other hold. Letting it out, it is
@@ -153,21 +155,20 @@ final class ParentCarryPresentation {
         HeldItemPresentation.braid(carrier, model, held, partial);
         float heldBow = HeldItemPresentation.bow(held);
         var reaching = braidTarget(carrier);
-        if (reaching != null) {
+        // The brim lift is an authored clip: its own braid carries the young (ParentCarry.BRIM_LIFT), nothing is bent to it here.
+        if (reaching != null && ParentCarry.hold(carrier, reaching) != Hold.BRIM) {
             // The braid closes on the child's scruff over the clip's reach, then keeps it while the lift runs.
             boolean fetch = BraidFetch.REACH.equals(carrier.getAnimationId()) || BraidFetch.HOLD.equals(carrier.getAnimationId())
                     || "braid_head_take".equals(carrier.getAnimationId());
             var clip = ClipMarkers.of(fetch ? carrier.getAnimationId() : liftClip(carrier));
-            var at = carrier.hasPassengerId(reaching.getUUID()) ? ParentCarry.braidHeld(carrier, reaching, partial) : reaching.getPosition(partial);
+            var at = carrier.hasPassengerId(reaching.getUUID()) ? ParentCarry.rawSeat(carrier, reaching, partial) : reaching.getPosition(partial);
             model.setBraidReach(modelPoint(carrier, scruff(reaching, at, yaw(reaching, partial)), partial),
                     BraidFetch.HOLD.equals(carrier.getAnimationId()) ? 1
                             : ease((now - carrier.motorStart()) / Math.max(1, clip.ticks("contact", clip.ticks("contact_closed", clip.length())))));
         } else if (carrier.isVehicle()) for (var rider : carrier.passengerViews()) {
-            // The braid holds its own child all the way out and opens off it as it lets go, and lowers a brim child.
-            var hold = ParentCarry.hold(carrier, rider);
-            float down = ParentCarry.lowering(carrier, rider, partial);
-            if (hold != Hold.BRAID && (hold != Hold.BRIM || down < 0 && !ParentCarry.placing(carrier, rider, partial))) continue;
-            model.setBraidReach(modelPoint(carrier, scruff(rider, ParentCarry.braidHeld(carrier, rider, partial), yaw(carrier, partial)), partial),
+            // The braid holds its own child all the way out and opens off it as it lets go (a brim young rides the brim clips' own braid).
+            if (ParentCarry.hold(carrier, rider) != Hold.BRAID) continue;
+            model.setBraidReach(modelPoint(carrier, scruff(rider, ParentCarry.rawSeat(carrier, rider, partial), yaw(carrier, partial)), partial),
                     ParentCarry.braidShare(carrier, rider, partial));
             break;
         }

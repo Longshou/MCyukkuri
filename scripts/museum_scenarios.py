@@ -1876,7 +1876,7 @@ def _carry_verify(log):
         checked += 1
         if seat not in grips[child]:
             return f'brim-local seat changed for {child}: {grips[child]} -> {seat}'
-        if not re.search(rf'carry put down [^\n]*hold=braid cause=release [^\n]*child={child}\b', log[match.end():]):
+        if not re.search(rf'carry put down [^\n]*hold=brim cause=release [^\n]*child={child}\b', log[match.end():]):
             return f'brim child {child} was not released after lowering'
     if not checked:
         return 'expected a brim grip/release pair with a constant brim-local seat'

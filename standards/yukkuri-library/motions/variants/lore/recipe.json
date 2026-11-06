@@ -5031,6 +5031,388 @@
         ]
       ]
     },
+    "braid_brim_lift": {
+      "label": "辫梢兜起幼油送到帽檐外沿",
+      "duration": 2.6,
+      "loop": false,
+      "applies": "marisa_braid",
+      "faces": [
+        [
+          0,
+          0.6,
+          "neutral"
+        ],
+        [
+          0.6,
+          1.65,
+          "chewing_closed"
+        ],
+        [
+          1.65,
+          2.6,
+          "closed_smile"
+        ]
+      ],
+      "lore": "Project design (user 2026-11-05/11-06: the braid must not pass through her body or hat and must move as one living motion; a full brim side lets the braid only touch the hat and the young move onto it itself). Her braid is too short and thick to reach over her own brim, so it never tries: she leans and looks to her braid side, the tuft curls under the young on the ground beside her (contact) and closes (lift_start), swings it out and up in one arc outside her body (lift_end, beside the brim edge) and holds it level with the brim just outside the edge (place) while it steps onto the brim (release), then falls back to rest. The young rides on the tuft end (clip field tip). Chain key poses and gate: braid_keys.py.",
+      "triggers": [
+        "ParentCarry BRIM pick-up (parent)"
+      ],
+      "markers": {
+        "contact": 0.45,
+        "lift_start": 0.6,
+        "lift_end": 1.35,
+        "over_end": 1.5,
+        "place": 1.65,
+        "release": 2.0
+      },
+      "braid_keys": [
+        [
+          0,
+          "rest",
+          "stop"
+        ],
+        [
+          0.45,
+          {
+            "tip": [
+              11.0,
+              0.35,
+              -4.8
+            ],
+            "root": [
+              1.1,
+              -1,
+              -0.1
+            ],
+            "arrive": [
+              -1,
+              0.9,
+              0.1
+            ]
+          },
+          "stop"
+        ],
+        [
+          0.6,
+          {
+            "tip": [
+              11.0,
+              0.35,
+              -4.8
+            ],
+            "root": [
+              1.1,
+              -1,
+              -0.1
+            ],
+            "arrive": [
+              -1,
+              0.9,
+              0.1
+            ]
+          },
+          "stop"
+        ],
+        [
+          1.0,
+          {
+            "tip": [
+              13.3,
+              5.2,
+              -4.6
+            ],
+            "root": [
+              0.6,
+              -1,
+              -0.1
+            ],
+            "arrive": [
+              -0.3,
+              -1,
+              0
+            ]
+          }
+        ],
+        [
+          1.35,
+          {
+            "tip": [
+              12.8,
+              10.6,
+              -3.6
+            ],
+            "root": [
+              0.5,
+              -1,
+              -0.1
+            ],
+            "arrive": [
+              0.5,
+              -1,
+              0
+            ]
+          }
+        ],
+        [
+          1.65,
+          {
+            "tip": [
+              10.8,
+              9.9,
+              -3.2
+            ],
+            "root": [
+              0.5,
+              -1,
+              -0.1
+            ],
+            "arrive": [
+              0.3,
+              -1,
+              0
+            ]
+          },
+          "stop"
+        ],
+        [
+          2.0,
+          {
+            "tip": [
+              10.8,
+              9.9,
+              -3.2
+            ],
+            "root": [
+              0.5,
+              -1,
+              -0.1
+            ],
+            "arrive": [
+              0.3,
+              -1,
+              0
+            ]
+          },
+          "stop"
+        ],
+        [
+          2.3,
+          {
+            "tip": [
+              11.0,
+              5.5,
+              -4.0
+            ],
+            "root": [
+              0.4,
+              -1,
+              -0.1
+            ],
+            "arrive": [
+              1,
+              0.4,
+              0
+            ]
+          }
+        ],
+        [
+          2.6,
+          "rest",
+          "stop"
+        ]
+      ]
+    },
+    "braid_brim_lower": {
+      "label": "幼油踏上辫梢、辫梢送回地面",
+      "duration": 2.6,
+      "loop": false,
+      "applies": "marisa_braid",
+      "faces": [
+        [
+          0,
+          0.8,
+          "closed_smile"
+        ],
+        [
+          0.8,
+          1.85,
+          "chewing_closed"
+        ],
+        [
+          1.85,
+          2.6,
+          "neutral"
+        ]
+      ],
+      "lore": "Project design (user 2026-11-05/11-06: one living motion, no move-stop-reverse; the young stays visible). One loop beside her: the braid rises close outside her cheek to the brim edge (contact), the young steps off the brim onto the tuft (lift_start), the braid swings it out wide (lift_end) and down in one arc beside her braid side (over_end) to the ground or nest (place), the tuft under and behind it, slides out (release) and falls back to rest. Never retraces the way up. Chain key poses and gate: braid_keys.py.",
+      "triggers": [
+        "ParentCarry BRIM set-down (parent)"
+      ],
+      "markers": {
+        "contact": 0.6,
+        "lift_start": 0.8,
+        "lift_end": 1.15,
+        "over_end": 1.5,
+        "place": 1.85,
+        "release": 2.0
+      },
+      "braid_keys": [
+        [
+          0,
+          "rest",
+          "stop"
+        ],
+        [
+          0.3,
+          {
+            "tip": [
+              10.5,
+              5.2,
+              -4.0
+            ],
+            "root": [
+              0.45,
+              -1,
+              -0.1
+            ],
+            "arrive": [
+              1,
+              0,
+              0
+            ]
+          }
+        ],
+        [
+          0.6,
+          {
+            "tip": [
+              10.8,
+              9.9,
+              -3.2
+            ],
+            "root": [
+              0.5,
+              -1,
+              -0.1
+            ],
+            "arrive": [
+              0.3,
+              -1,
+              0
+            ]
+          },
+          "stop"
+        ],
+        [
+          0.8,
+          {
+            "tip": [
+              10.8,
+              9.9,
+              -3.2
+            ],
+            "root": [
+              0.5,
+              -1,
+              -0.1
+            ],
+            "arrive": [
+              0.3,
+              -1,
+              0
+            ]
+          },
+          "stop"
+        ],
+        [
+          1.15,
+          {
+            "tip": [
+              13.2,
+              9.2,
+              -3.8
+            ],
+            "root": [
+              0.5,
+              -1,
+              -0.1
+            ],
+            "arrive": [
+              0.4,
+              -1,
+              0
+            ]
+          }
+        ],
+        [
+          1.5,
+          {
+            "tip": [
+              13.5,
+              5.0,
+              -4.4
+            ],
+            "root": [
+              0.6,
+              -1,
+              -0.1
+            ],
+            "arrive": [
+              -0.3,
+              -1,
+              0
+            ]
+          }
+        ],
+        [
+          1.85,
+          {
+            "tip": [
+              11.0,
+              0.3,
+              -4.8
+            ],
+            "root": [
+              1.1,
+              -1,
+              -0.1
+            ],
+            "arrive": [
+              -1,
+              0.9,
+              0.3
+            ]
+          },
+          "stop"
+        ],
+        [
+          2.0,
+          {
+            "tip": [
+              11.0,
+              0.3,
+              -4.8
+            ],
+            "root": [
+              1.1,
+              -1,
+              -0.1
+            ],
+            "arrive": [
+              -1,
+              0.9,
+              0.3
+            ]
+          },
+          "stop"
+        ],
+        [
+          2.6,
+          "rest",
+          "stop"
+        ]
+      ]
+    },
     "be_cradled": {
       "label": "被辫梢兜着",
       "duration": 1.2,
@@ -6037,7 +6419,9 @@
       "braid_rescue_hold",
       "braid_rescue_settle",
       "kid_brim_splash",
-      "kid_mimic_paddle"
+      "kid_mimic_paddle",
+      "braid_brim_lift",
+      "braid_brim_lower"
     ]
   },
   "revision": 17

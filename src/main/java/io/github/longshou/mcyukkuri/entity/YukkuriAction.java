@@ -113,6 +113,9 @@ public enum YukkuriAction {
     BOAT_NUDGE_YOUNG("boat_nudge_young", .8, false),
     // Braid and mouth tools, capsize and self-rescue (lore aquatic_tools.py; project original, water 11 ruling).
     BRAID_CRADLE_LIFT("braid_cradle_lift", 2.4, false),
+    // Marisa's braid lifting a young onto her brim edge and back down (lore braid_keys.py; ParentCarry.BRIM_LIFT).
+    BRAID_BRIM_LIFT("braid_brim_lift", 2.6, false),
+    BRAID_BRIM_LOWER("braid_brim_lower", 2.6, false),
     BE_CRADLED("be_cradled", 1.2, true),
     MOUTH_BITE_HOLD("mouth_bite_hold", 1.0, true),
     MOUTH_RELEASE("mouth_release", 1.6, false),

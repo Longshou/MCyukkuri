@@ -1,8 +1,5 @@
 package io.github.longshou.mcyukkuri.motor.geom;
 
-import java.util.function.BiPredicate;
-import java.util.function.Function;
-
 /** Carry geometry in the parent's model frame: -Z is forward, +X is right. */
 public final class CarryGeometry {
     private CarryGeometry() {}
@@ -50,9 +47,6 @@ public final class CarryGeometry {
                 || feet.x() + radius <= BODY_LOW.x() || feet.x() - radius >= BODY_HIGH.x()
                 || feet.z() + radius <= BODY_LOW.z() || feet.z() - radius >= BODY_HIGH.z();
     }
-    public enum Rejection { TERRAIN, ROUTE }
-    public record Way(Vec point, int[] rejected) {}
-
     public static double reachGap(Vec root, Vec low, Vec high, double length) {
         var gap = root.sub(new Vec(Math.clamp(root.x(), low.x(), high.x()), Math.clamp(root.y(), low.y(), high.y()),
                 Math.clamp(root.z(), low.z(), high.z())));
@@ -70,20 +64,6 @@ public final class CarryGeometry {
         return Math.max(feet, floor + height);
     }
 
-
-    /** A worn-brim destination still needs a clear landing and swept route. */
-    public static Way wayOut(double rootX, double rootZ, Vec from, Vec destination,
-                             Function<Vec, Rejection> landing, BiPredicate<Vec, Double> route) {
-        var rejected = new int[Rejection.values().length];
-        var why = landing.apply(destination);
-        if (why == null) {
-            double turn = frontTurn(from.x() - rootX, from.z() - rootZ, destination.x() - rootX, destination.z() - rootZ);
-            if (!route.test(destination, turn)) why = Rejection.ROUTE;
-        }
-        if (why == null) return new Way(destination, rejected);
-        rejected[why.ordinal()]++;
-        return new Way(null, rejected);
-    }
 
     /** Signed turn around the braid root through the forward half-plane; offsets are relative to the root. */
     public static double frontTurn(double fx, double fz, double tx, double tz) {

@@ -10,9 +10,9 @@
   "braid_chain": "standards/yukkuri-library/motions/variants/contact-safe/braid_chain.py",
   "braid_chain_sha256": "1d268e400587187da164c7efe3a54f28055e47e442d118516bfcafa48bebdf13",
   "lore_recipe": "standards/yukkuri-library/motions/variants/lore/recipe.json",
-  "lore_recipe_sha256": "adf9da823521f89c95fedff72a2d63c9ba5079d9ede49185bf3a69d76171e1e4",
+  "lore_recipe_sha256": "fd5a28d2f10d062d31e9d387feaefd4c23c31ce4c652a62603e41adef4f47fe8",
   "lore_author": "standards/yukkuri-library/motions/variants/lore/author.py",
-  "lore_author_sha256": "1c7626e92cc4dce0f710801d010d25ac988f8cd8683df6df1482c8a052778150",
+  "lore_author_sha256": "45057cc9fef076d6b23a1dda84194651b40ead9ec2f6611f8d0e5aa4bd3c67b1",
   "lore_hat": "standards/yukkuri-library/motions/variants/lore/hat.py",
   "lore_hat_sha256": "a007b28152fef6b2272c501f19cd7ff0650180bb8279f772c12ee01e35213e4a",
   "hat_vessel": "standards/yukkuri-library/interactions/marisa-hat-vessel/geometry.json",
@@ -32,7 +32,7 @@
   "placement_fit": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/placement_fit.json",
   "placement_fit_sha256": "55828ae8a042b7ad525fdf052ee727b7d132fc40f0eba520ff1a4b833bca61c8",
   "runtime": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/motion_corrections.json",
-  "runtime_sha256": "7d669dd398d29123601f79729a44c3b3a03183aaef2d0273d2a145b6cc6df4b8",
+  "runtime_sha256": "4eb792f5fff33d3ef4132ad7e5345279dcd23864622cc2e59db4dbf5a35f79f4",
   "models": {
     "alice": {
       "model": "src/main/resources/assets/mcyukkuri/yukkuri/alice.json",

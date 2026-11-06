@@ -238,14 +238,10 @@ public final class Release implements Action {
                 return Feasibility.of(Reason.NO_ROOM, 0, "carry_host");
         }
         if (!clearTurn(carrier, stand, yaw)) return Feasibility.of(Reason.NO_ROOM, 0, "mouth_turn_blocked");
-        if (ParentCarry.hold(carrier, child) == Hold.BRIM) {
-            var grip = at.add(0, ParentCarry.GRIP_Y * child.growthScale() * child.getScale() / 16, 0);
-            double gap = Math.min(ContactGeometry.braidGapFrom(carrier, stand, grip, false),
-                    ContactGeometry.braidGapFrom(carrier, stand, grip, true));
-            if (gap > 0) return Feasibility.of(Reason.NO_CONTACT, gap, "braid_release_out_of_reach");
-        }
-        if ((ParentCarry.hold(carrier, child) == Hold.BRIM || ParentCarry.hold(carrier, child) == Hold.HEAD)
-                && !ParentCarry.clearLowering(carrier, child, stand, yaw, at))
+        var hold = ParentCarry.hold(carrier, child);
+        if (hold == Hold.BRIM && !ParentCarry.brimLevel(stand, at)) return Feasibility.of(Reason.NO_ROOM, 0, "brim_release_off_level");
+        if (hold == Hold.BRIM && !ParentCarry.clearLowering(carrier, child, stand, yaw, at)
+                || hold == Hold.HEAD && !ParentCarry.clearHeadLowering(carrier, child, stand, yaw, at))
             return Feasibility.of(Reason.NO_ROOM, 0, "lowering_route_blocked");
         return Feasibility.pass();
     }
@@ -386,6 +382,9 @@ public final class Release implements Action {
         if (approach != null) return approach.pose();
         long since = carrier == null ? -1 : ParentCarry.setDownTick(carrier, child);
         if (since >= 0 && ParentCarry.mouthReleaseTicks(carrier, child, 0) >= 0) return new MotionPose(ParentCarry.MOUTH_RELEASE, since, false);
+        // A brim young walks to the brim edge first; the lowering clip starts so its tuft is there as it steps on.
+        long brim = ParentCarry.brimLowerStart(carrier, child);
+        if (brim >= 0) return new MotionPose(ParentCarry.BRIM_LOWER, brim, false);
         if (since >= 0 && !ParentCarry.lowerClip(carrier, child).isEmpty()) {
             String clip = ParentCarry.lowerClip(carrier, child);
             int start = BraidFetch.marker(clip, "lift_start"), place = BraidFetch.marker(clip, "place");

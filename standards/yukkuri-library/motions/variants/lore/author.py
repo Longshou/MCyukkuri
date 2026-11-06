@@ -37,8 +37,11 @@ NEW_BRAID_CLIPS=('hat_brim_offer','hat_hop_up','water_bob_lunge','hat_slide_over
 # The composed resource names its newest family; aquatic_tools' paddle braid is the current one (author.py and the full exporter share it).
 AQUATIC_REVISION='stick-stow-20261105-v37'
 _BRAID_RESCUE=None
+BRIM_CARRY_CLIPS=('braid_brim_lift','braid_brim_lower')
 # Paddle stick, braid cradle, mouth bite, capsize and self-rescue clips (aquatic_tools.py), exported by --export-aquatic.
 TOOLS=runpy.run_path(str(Path(__file__).resolve().parent/'aquatic_tools.py'))
+# Braid chains laid by key poses with their tuft track and clearance gate (braid_keys.py), exported by --export-brim-carry.
+BRAID_KEYS=runpy.run_path(str(Path(__file__).resolve().parent/'braid_keys.py'))
 
 
 def smooth(x):
@@ -91,6 +94,8 @@ def state(action, t, c, height):
     owned = TOOLS['state'](action, t, c, height) if action in TOOLS['EXPORT_CLIPS'] else None
     if owned is not None:
         s, r, lift, shift = owned
+    elif BRAID_KEYS['authored'](c):
+        s, r, lift, shift = BRAID_KEYS['state'](action, t, c)
     elif action.startswith('braid_rescue_'):
         global _BRAID_RESCUE
         if _BRAID_RESCUE is None:_BRAID_RESCUE=json.loads((ROOT/'src/main/resources/assets/mcyukkuri/yukkuri_presentation/braid_rescue.json').read_text(encoding='utf-8'))
@@ -828,7 +833,12 @@ def compile_clips(model, cfg, root, ground, height):
         tracks = [{'bone': root, 'channel': ch, 'keys': k} for ch, k in keys.items()]
         tracks += flourish_tracks(model, name, samples, cfg, c)+family_braid_tracks(model, name, samples, keys, root, hat, c)
         fields = {}
-        if name in TOOLS['EXPORT_CLIPS']:
+        if BRAID_KEYS['authored'](c):
+            tracks += BRAID_KEYS['tracks'](model, name, c, samples, tracks, TOOLS['palette'])
+            tip = BRAID_KEYS['tip_track'](model, samples, tracks, TOOLS['palette'])
+            BRAID_KEYS['gate'](model, name, samples, tracks, tip, c, TOOLS['palette'])
+            fields = {'markers': dict(c['markers']), 'tip': tip}
+        elif name in TOOLS['EXPORT_CLIPS']:
             if name not in NEW_BRAID_CLIPS: tracks += TOOLS['braid_tracks'](model, name, samples, c)
             more, fields = TOOLS['extras'](model, name, samples, tracks, c); tracks += more
         elif 'markers' in c: fields = {'markers': dict(c['markers'])}  # beats the game reads (ClipMarkers), e.g. hop_leg
@@ -845,7 +855,7 @@ def compile_clips(model, cfg, root, ground, height):
     return out
 
 
-def export_distress_clips(include_pet=False, include_birth=False, include_carry=False, include_badge=False, include_comfort=False, include_aquatic=False, prune_only=False, check=False):
+def export_distress_clips(include_pet=False, include_birth=False, include_carry=False, include_badge=False, include_comfort=False, include_aquatic=False, prune_only=False, check=False, include_brim=False):
     """Export only this new clip family, preserving unrelated selected meshes, cheek morphs and existing clips."""
     import hashlib,sys
     sys.path.insert(0,str(ROOT/'scripts'))
@@ -862,7 +872,7 @@ def export_distress_clips(include_pet=False, include_birth=False, include_carry=
     contact_cfg=json.loads((here.parent/'contact-safe/recipe.json').read_text(encoding='utf-8'))
     authored_names=set(cfg['clips']) | set(contact_cfg['actions']) | set(contact_cfg['braid_follow']['actions'])
     contact_author=runpy.run_path(str(here.parent/'contact-safe/author.py')) if include_pet or include_birth or include_badge or include_comfort else None
-    names=TOOLS['EXPORT_CLIPS'] if include_aquatic else COMFORT_CLIPS if include_comfort else ('boat_carry_young','boat_be_carried','boat_prepare_carry','boat_release_carry','mouth_release') if include_carry else BIRTH_CLIPS if include_birth else BADGE_CLIPS+TILT_FIX_CLIPS if include_badge else DISTRESS_CLIPS
+    names=BRIM_CARRY_CLIPS if include_brim else TOOLS['EXPORT_CLIPS'] if include_aquatic else COMFORT_CLIPS if include_comfort else ('boat_carry_young','boat_be_carried','boat_prepare_carry','boat_release_carry','mouth_release') if include_carry else BIRTH_CLIPS if include_birth else BADGE_CLIPS+TILT_FIX_CLIPS if include_badge else DISTRESS_CLIPS
     if include_pet:
         names+=('think','nervous','proud','joy_jump','sulk','hide_face','beg','bow','shy','doze_off','struggle','basket_in','basket_out','ignore','restrain')
     cfg['clips']={name:cfg['clips'][name] for name in names}
@@ -903,7 +913,7 @@ def export_distress_clips(include_pet=False, include_birth=False, include_carry=
         print('Exported selected lore clips:',ident,flush=True)
     if include_birth:
         write(resource.parent/'live_birth_pose.json',json.dumps(birth_poses,ensure_ascii=False,separators=(',',':'))+'\n')
-    if not prune_only:
+    if not prune_only and not include_brim:
         payload['revision']=AQUATIC_REVISION if include_aquatic else 'comfort-lick-20261017-v29' if include_comfort else 'hat-care-contact-20261017-v26' if include_carry else 'birth-staging-20261017-v27' if include_birth else 'badge-motion-20261017-v28' if include_badge else 'braid-reach-low-20261018-v30'
     write(resource,json.dumps(payload,ensure_ascii=False,separators=(',',':'))+'\n')
     entry=json.loads(manifest.read_text(encoding='utf-8'))
@@ -932,6 +942,7 @@ if __name__=='__main__':
     parser.add_argument('--export-carry',action='store_true',help='Export the supported prepare, hold and release carry poses only.')
     parser.add_argument('--export-badge',action='store_true',help='Export the badge-arc clips (BADGE_CLIPS) and the tilt-refitted clips (TILT_FIX_CLIPS) only.')
     parser.add_argument('--export-comfort',action='store_true',help='Export the comfort_lick clip only, preserving other runtime clips.')
+    parser.add_argument('--export-brim-carry',action='store_true',help='Export the braid brim lift and lowering (BRIM_CARRY_CLIPS, braid_keys.py) only.')
     parser.add_argument('--export-aquatic',action='store_true',help='Export the paddle, braid cradle, mouth bite, capsize and self-rescue clips (aquatic_tools.py) only.')
     args=parser.parse_args()
     if args.prune:export_distress_clips(prune_only=True,check=args.check)
@@ -941,3 +952,4 @@ if __name__=='__main__':
     if args.export_badge:export_distress_clips(include_badge=True,check=args.check)
     if args.export_comfort:export_distress_clips(include_comfort=True,check=args.check)
     if args.export_aquatic:export_distress_clips(include_aquatic=True,check=args.check)
+    if args.export_brim_carry:export_distress_clips(include_brim=True,check=args.check)

@@ -163,10 +163,12 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
             // Held through its carrier's hop it tucks in; one on her head sits on it as it does at rest.
             boolean carriedHop=carried&&parent.motorAction().equals(Hop.ID)&&ParentCarry.hold(parent,entity)!=Hold.HEAD;
             String braidClip=carried?null:ParentCarryPresentation.liftClip(entity);
-            String action=braidClip!=null?braidClip:carriedHop?"boat_be_carried":cradled?"be_cradled":carried?"idle":hatCarrier?ParentCarry.carryAction(entity):entity.getAnimationId();
+            // A brim young steps along the brim between the braid at its edge and its spot on its own feet.
+            boolean stepping=carried&&ParentCarry.brimWalking(parent,entity,partialTick);
+            String action=braidClip!=null?braidClip:carriedHop?"boat_be_carried":cradled?"be_cradled":stepping?"waddle":carried?"idle":hatCarrier?ParentCarry.carryAction(entity):entity.getAnimationId();
             float clock=braidClip!=null?Math.max(0,(entity.level().getGameTime()-entity.motorStart()+partialTick)/20f)
                     :carriedHop?(entity.level().getGameTime()-parent.motorStart()+partialTick)/20f
-                    :cradled?(entity.level().getGameTime()+partialTick)/20f:carried?0:elapsed;
+                    :cradled||stepping?(entity.level().getGameTime()+partialTick)/20f:carried?0:elapsed;
             var anatomy=ReproductionPresentation.anatomy(entity);
             model.setReproductiveAnatomy(anatomy==null?null:anatomy.part(),anatomy==null?0:anatomy.amount());
             if(!carried)ParentCarryPresentation.configure(entity,model,heldNow,partialTick);

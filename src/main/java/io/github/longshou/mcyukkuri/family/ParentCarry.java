@@ -27,7 +27,6 @@ import io.github.longshou.mcyukkuri.motor.action.Hop;
 import io.github.longshou.mcyukkuri.motor.action.Release;
 import io.github.longshou.mcyukkuri.motor.action.Walk;
 import io.github.longshou.mcyukkuri.motor.geom.CarryGeometry;
-import io.github.longshou.mcyukkuri.motor.geom.CarryGeometry.Rejection;
 import io.github.longshou.mcyukkuri.motor.geom.Vec;
 import io.github.longshou.mcyukkuri.motor.geom.PlaceGeometry;
 import io.github.longshou.mcyukkuri.motor.geom.FloorSearch;
@@ -46,6 +45,7 @@ import java.util.Map;
 import java.util.StringJoiner;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.IntFunction;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataSerializers;
@@ -83,7 +83,9 @@ public final class ParentCarry {
      * The one record of how each carried child is held, keyed by child UUID: {@code H} the hold, {@code X}/{@code Z} its spot
      * on the brim (a braid-tip child's set-down beside the carrier), {@code D} the tick its set-down began (with the reason
      * {@code R} and re-lift pause {@code P}), and for a Grab's target still being lifted its entity id {@code I} and low lean
-     * {@code L}; a braid-tip child's way out ({@link #braided}) adds {@code T}, {@code Y}, {@code A}, {@code PX}/{@code PY}/{@code PZ}, {@code PH} and the swing start {@code OX}/{@code OZ} (out from under a brim).
+     * {@code L}; a braid-tip child's rise ({@link #braided}) adds {@code T}, {@code Y}, {@code PX}/{@code PY}/{@code PZ} and {@code PH}; a brim
+ * lift ({@link #brimLifted}) adds its clip's start {@code T}, the young's offset off the braid's grip {@code EX}/{@code EY}/{@code EZ} and
+ * its walk on the brim {@code W}, which a brim lowering ({@link #BRIM_LOWER}) records again.
      * A mouth lift shares the start and height keys, with duration {@code U}; a lowering's duration is {@code N}.
      * A lowering uses host {@code S}, local endpoint {@code DX}/{@code DY}/{@code DZ}, start {@code LX}/{@code LY}/{@code LZ}
      * and pace {@code LV}; a nest's world cushion target uses {@code NX}/{@code NY}/{@code NZ}.
@@ -254,16 +256,18 @@ public final class ParentCarry {
         }
         return false;
     }
-    /** A child sits on the brim: the carrier keeps a steady idle or walk, the brim pose the server places it on (not while the braid is still setting one there). */
+    /** A child sits on the brim: the carrier keeps a steady idle or walk, the brim pose the server places it on (not while the braid is
+     *  still setting one there, nor while it plays a brim clip for another). */
     public static boolean brimCarrying(YukkuriView carrier) {
-        if (!carrier.isVehicle()) return false;
+        String clip = carrier.getAnimationId();
+        if (!carrier.isVehicle() || clip.equals(BRIM_LIFT) || clip.equals(BRIM_LOWER)) return false;
         for (var rider : riders(carrier, Hold.BRIM)) if (!placing(carrier, rider, 0)) return true;
         return false;
     }
-    /** The braid is still carrying this brim child over to its spot (the clip's lift and swing): it is drawn on that way, not yet on the brim. */
+    /** This brim young is still on its way to its spot (riding the braid's lift, then walking on the brim): drawn there, not yet seated. */
     public static boolean placing(YukkuriView carrier, YukkuriView child, float partial) {
         var e = entry(carrier, child.getUUID());
-        return holdOf(e) == Hold.BRIM && e.contains("T") && timing(carrier, e, partial).active();
+        return holdOf(e) == Hold.BRIM && e.contains("T") && brimRide(carrier, child, e, partial) != null;
     }
     /** The steady pose a brim carrier is drawn and measured in. */
     public static String carryAction(YukkuriView carrier) { return carrier.getAnimationId().equals("waddle") ? "waddle" : "idle"; }
@@ -339,6 +343,9 @@ public final class ParentCarry {
     /** Feet of the carried child before any collision adjustment, by its hold; a child being set down on its way to the ground. */
     public static Vec3 rawSeat(YukkuriView carrier, YukkuriView child, float partial) {
         var record = entry(carrier, child.getUUID());
+        if (record.contains("D") && BRIM_LOWER.equals(record.getString("LC")))
+            return world(carrier, partial, brimDown(carrier, child, record, partial, modelAt(carrier, yaw(carrier, partial), letGoPoint(carrier, child, yaw(carrier, partial)))),
+                    yaw(carrier, partial));
         if (record.contains("D") && record.contains("LX")) {
             return transferPoint(carrier, child, record, letGoPoint(carrier, child, yaw(carrier, partial)),
                     carrier.level().getGameTime() - record.getLong("D") + partial, partial);
@@ -351,18 +358,18 @@ public final class ParentCarry {
                 var seat = brimSeat(carrier, child);
                 if (seat == null) model = ground(carrier, child, hold);
                 else {
-                    // On its way over the braid carries it along the recorded sweep, to the live brim spot.
+                    // On its way up it rides the braid's tuft and then walks from the brim edge to its spot.
                     model = brimPoint(carrier, child, partial);
                     var e = entry(carrier, child.getUUID());
-                    var way = e.contains("T") ? wayPoint(carrier, e, partial, model) : null;
-                    if (way != null) return pinnedAt(carrier, child, world(carrier, partial, way, e.getFloat("Y")));
+                    var way = e.contains("T") ? brimRide(carrier, child, e, partial) : null;
+                    if (way != null) return world(carrier, partial, way, yaw(carrier, partial));
                 }
             }
             case TAIL_LEFT, TAIL_RIGHT -> model = tail(carrier, hold);
             case BRAID -> {
                 // On its way out it is drawn at the yaw the way was recorded with, the same on server and client.
                 var e = entry(carrier, child.getUUID());
-                var way = wayPoint(carrier, e, partial, setDown(e));
+                var way = wayPoint(carrier, e, partial);
                 if (way != null) return pinnedAt(carrier, child, world(carrier, partial, way, e.getFloat("Y")));
                 model = setDown(e);
             }
@@ -435,9 +442,8 @@ public final class ParentCarry {
             point.z = (float) Math.min(point.z, -apart);
             return point.mul(1, 0, 1);
         }
-        if (hold == Hold.BRIM && brimSeat(carrier, child) != null)
-            // A brim child comes down outside the brim edge, beyond the braid's rest tip, not back under the brim.
-            return outsideBrim(carrier, child, restTip()).mul(1, 0, 1);
+        // A brim young comes down where the braid's lowering clip leaves it, beside her braid side.
+        if (hold == Hold.BRIM && brimSeat(carrier, child) != null) return groundTuft().mul(1, 0, 1);
         if (hold == Hold.HEAD) {
             var point = restTip();
             double length = Math.hypot(point.x, point.z);
@@ -447,117 +453,25 @@ public final class ParentCarry {
         return (hold == Hold.BRAID ? setDown(entry(carrier, child.getUUID())) : restTip()).mul(1, 0, 1);
     }
     private static Vector3f restTip() { var tip = ContactGeometry.braidTipModel(); return new Vector3f((float) tip.x, (float) MOUTH_FLOOR, (float) tip.z); }
-    /** Support of the actual brim silhouette in this direction, with room for the child's whole worn form. */
-    private static Vector3f outsideBrim(YukkuriView carrier, YukkuriView child, Vector3f direction) {
-        float length = (float) Math.hypot(direction.x, direction.z), x = direction.x / length, z = direction.z / length;
-        float radius = 0;
-        var pose = hatPose(carrier, 1);
-        for (var face : tops(brim(carrier), carrier.assetId())) for (float px : new float[]{face[0], face[2]}) for (float pz : new float[]{face[1], face[3]}) {
-            var p = pose.transformPosition(new Vector3f(px, face[4], pz));
-            radius = Math.max(radius, p.x * x + p.z * z);
-        }
-        radius += (float) (2 * Occupancy.foot(child.getBbWidth()) * 16 / size(carrier));
-        return new Vector3f(x * Math.max(length, radius), direction.y, z * Math.max(length, radius));
-    }
     private static Vector3f setDown(CompoundTag e) {
         return e.contains("X") ? new Vector3f(e.getFloat("X"), e.contains("RY") ? e.getFloat("RY") : e.getFloat("PH"), e.getFloat("Z")) : restTip();
     }
 
     // ---- the braid tip: the braid-side turn and a lift clear of the host and blocks
 
-    /** Points of the lift and swing tested against blocks and the carrier's body before a way out is taken. */
+    /** Points of a mouth lift tested against blocks before it is taken. */
     private static final int WAY_SAMPLES = 6;
     /**
      * The yaw a Grab turns the carrier to before its braid reaches for {@code child}: the bearing that puts the braid side on the
      * child (user 2026-11-05: she turns to her braid side), so the braid never reaches across her own body.
      */
     public static float braidTurn(YukkuriEntity carrier, YukkuriEntity child) { return ContactGeometry.braidYaw(carrier, child); }
-    private record Way(CompoundTag path, int[] rejected) {}
-    /** The worn-brim lift draws the child out from beneath the brim, rises, then swings onto its brim spot. */
-    private static Way wayOut(YukkuriEntity carrier, YukkuriEntity child, float yaw, boolean lean) {
-        var root = ContactGeometry.braidRootModel(lean);
-        double s = size(carrier);
-        var host = Attach.of(child) instanceof AttachState.OnHost ride ? ride.host() : carryHost(carrier, child);
-        var from = modelAt(carrier, yaw, child.position());
-        var e = new CompoundTag();
-        var ontoCarrier = brimPoint(carrier, child, 0);
-        // A spot on the far side of the brim: the braid sets the child above the mirrored spot on its own side and the child goes on
-        // round the front of the brim by itself (user 2026-11-05 accepts this), so the braid never crosses her face.
-        var spot = brimSeat(carrier, child);
-        if (spot != null && spot[0] < 0) {
-            float top = top(tops(brim(carrier), carrier.assetId()), -spot[0], spot[2], 0);
-            e.putFloat("RX", -spot[0]); e.putFloat("RY", Float.isNaN(top) ? spot[1] : top + .02f); e.putFloat("RZ", spot[2]);
-        }
-        // Onto its own brim the braid first draws a child out from under the brim, so it rises past the brim edge, not through it.
-        var out = outward(from, ontoCarrier, (float) (2 * Occupancy.foot(child.getBbWidth()) * 16 / s));
-        e.putFloat("Y", yaw);
-        e.putFloat("PX", from.x); e.putFloat("PY", from.y); e.putFloat("PZ", from.z);
-        e.putFloat("OX", out.x); e.putFloat("OZ", out.z);
-        if (lean) e.putBoolean("L", true);
-        var choice = CarryGeometry.wayOut(root.x, root.z, vector(from),
-                vector(ontoCarrier), point -> {
-            var seat = new Vector3f((float) point.x(), (float) point.y(), (float) point.z());
-            var at = worldAt(carrier, yaw, seat);
-            return clear(carrier, child, at, null) ? null : Rejection.TERRAIN;
-        }, (point, arc) -> {
-            var seat = new Vector3f((float) point.x(), (float) point.y(), (float) point.z());
-            e.putFloat("A", arc.floatValue());
-            return clearWay(carrier, child, yaw, host, e, from, seat, s);
-        });
-        return new Way(choice.point() == null ? null : e, choice.rejected());
-    }
 
-    private static boolean clearWay(YukkuriEntity carrier, YukkuriEntity child, float yaw, SurfaceHost host, CompoundTag e,
-                                    Vector3f from, Vector3f seat, double s) {
-        var out = new Vector3f(e.getFloat("OX"), from.y, e.getFloat("OZ"));
-        float high = Math.max(from.y, seat.y);
-        for (int i = 0; host != null && i <= 8; i++) {
-            double top = Occupancy.surfaceUnder(host, child.getBbWidth(), worldAt(carrier, yaw, swing(e, i / 8f, high, seat)).add(0, 1, 0));
-            if (top > carrier.getY()) high = Math.max(high, (float) ((top - carrier.getY()) * 16 / s));
-        }
-        high += (float) (child.getBbHeight() * 16 / s);
-        e.putFloat("PH", high);
-        if (e.contains("RX")) {
-            // The braid's own way ends above the near-side spot; the child's walk round the brim is timed by its own pace.
-            var touch = touch(carrier, e, 0);
-            var root = ContactGeometry.braidRootModel(e.getBoolean("L"));
-            e.putFloat("A", (float) CarryGeometry.frontTurn(out.x - root.x, out.z - root.z, touch.x - root.x, touch.z - root.z));
-            var centre = hatPose(carrier, 0).transformPosition(new Vector3f(0, touch.y, 0));
-            double arc = Math.abs(CarryGeometry.frontTurn(touch.x - centre.x, touch.z - centre.z, seat.x - centre.x, seat.z - centre.z))
-                    * Math.hypot(touch.x - centre.x, touch.z - centre.z), drop = Math.max(0, high - seat.y);
-            int walk = CarryGeometry.motionTicks((arc + drop) * s / 16, BodyAbility.of(child).walkSpeed());
-            e.putInt("W", walk); e.putInt("WO", (int) Math.round(walk * arc / Math.max(1e-6, arc + drop)));
-        }
-        boolean free = clear(carrier, child, worldAt(carrier, yaw, new Vector3f(out.x, high, out.z)), null);
-        var plan = timing(e, 0);
-        for (int i = 1, n = 3 * WAY_SAMPLES; free && i <= n; i++)
-            free = clear(carrier, child, worldAt(carrier, yaw, wayAt(carrier, e, timing(e, (plan.span() + plan.own()) * i / (float) n), 0, seat)), null);
-        return free;
-    }
     /**
-     * The braid has closed on {@code child} (just before it is mounted): its way out ({@link #wayOut}, with the carrier's yaw now,
-     * which both sides then draw it with) and the tick it starts go into the hold record. False when there is no way out any more:
-     * the Grab then ends without lifting it.
+     * The braid has closed on a braid-tip or head {@code child} (just before it is mounted): its rise goes into the hold record.
+     * False when there is no clear rise: the Grab then ends without lifting it. Release chooses the support only after the child is held.
      */
     public static boolean braided(YukkuriEntity carrier, YukkuriEntity child, boolean lean) {
-        if (hold(carrier, child) == Hold.BRAID || hold(carrier, child) == Hold.HEAD) return liftBraid(carrier, child, lean);
-        var choice = wayOut(carrier, child, carrier.bodyYaw(), lean);
-        var way = choice.path();
-        var counts = new StringJoiner(",", "[", "]");
-        for (var reason : Rejection.values()) counts.add(reason + "=" + choice.rejected()[reason.ordinal()]);
-        GameplayLog.event(carrier, "family", "braid candidates child={} yaw={} selected={} own={} rejected={}", child.getUUID(),
-                String.format(Locale.ROOT, "%.1f", carrier.bodyYaw()),
-                way == null ? "none" : GameplayLog.at(worldAt(carrier, carrier.bodyYaw(),
-                        hold(carrier, child) == Hold.BRIM ? brimPoint(carrier, child, 0) : setDown(way))), way == null ? 0 : way.getInt("W"), counts);
-        if (way == null) return false;
-        var e = entry(carrier, child.getUUID()).copy().merge(way);
-        e.putLong("T", carrier.level().getGameTime() + BraidFetch.marker(BraidFetch.HOLD, "lift_start") - BraidFetch.marker(BraidFetch.HOLD, "grip"));
-        write(carrier, child.getUUID(), e);
-        return true;
-    }
-
-    /** Rise at the grip; Release chooses the support and its exterior swing only after the child is held. */
-    private static boolean liftBraid(YukkuriEntity carrier, YukkuriEntity child, boolean lean) {
         var from = modelAt(carrier, carrier.bodyYaw(), child.position());
         double s = size(carrier);
         var water = child.blockPosition();
@@ -578,103 +492,163 @@ public final class ParentCarry {
         e.putBoolean("L", lean);
         e.putFloat("Y", carrier.bodyYaw());
         e.putFloat("PX", from.x); e.putFloat("PY", from.y); e.putFloat("PZ", from.z);
-        e.putFloat("OX", from.x); e.putFloat("OZ", from.z);
         var rest = restTip();
         rest.x = Math.max(rest.x, (float) (CarryGeometry.BODY_HIGH.x() + headwearRadius(child) * 16 / s + .3));
-        e.putFloat("X", rest.x); e.putFloat("Z", rest.z); e.putFloat("PH", high); e.putFloat("A", 0);
+        e.putFloat("X", rest.x); e.putFloat("Z", rest.z); e.putFloat("PH", high);
         e.putFloat("RY", (float) Math.max(MOUTH_FLOOR, (floor + child.getBbHeight() - carrier.getY()) * 16 / s));
         e.putLong("T", carrier.level().getGameTime() + (head ? 0 : BraidFetch.marker(BraidFetch.HOLD, "lift_start") - BraidFetch.marker(BraidFetch.HOLD, "grip")));
         write(carrier, child.getUUID(), e);
         return true;
     }
-    /** Where a braid lift stands in its clip: ticks since it began; the clip's rise (up), rise and swing (across) and whole braid way
-     *  (span); and the child's own walk round the brim after the braid let it go on the near side (own). */
-    private record Timing(float t, int up, int across, int span, int own) { boolean active() { return t < span + own; } }
-    private static Timing timing(CompoundTag e, float t) {
-        var clip = ClipMarkers.of(e.contains("LC") ? e.getString("LC") : BraidFetch.HOLD);
-        int start = clip.ticks("lift_start", 21);
-        int up = clip.ticks("lift_end", 30) - start;
-        boolean braid = holdOf(e) == Hold.BRAID;
-        return new Timing(t, up, braid ? up : clip.ticks("over_end", 34) - start, braid ? up : clip.ticks("place", 38) - start,
-                braid ? 0 : e.getInt("W"));
+    /** Ticks a braid-tip rise takes: its clip's lift_start to lift_end. */
+    private static int riseTicks(CompoundTag e) {
+        String clip = e.contains("LC") ? e.getString("LC") : BraidFetch.HOLD;
+        return BraidFetch.marker(clip, "lift_end") - BraidFetch.marker(clip, "lift_start");
     }
-    private static Timing timing(YukkuriView carrier, CompoundTag e, float partial) {
-        return timing(e, Math.max(0, carrier.level().getGameTime() - e.getLong("T") + partial));
-    }
-    /** Ticks still to go of a brim child's way onto the brim (the braid's lift and the child's own walk round it); 0 for any other hold. */
-    public static int placingLeft(YukkuriView carrier, YukkuriView child) {
-        var e = entry(carrier, child.getUUID());
-        if (holdOf(e) != Hold.BRIM || !e.contains("T")) return 0;
-        var time = timing(carrier, e, 0);
-        return Math.max(0, (int) Math.ceil(time.span() + time.own() - time.t()));
-    }
-    /** A braid-held child's place on its way to {@code end} (carrier model units, drawn at the recorded yaw {@code Y}), or null once it is
-     *  done or there is none: then it is at its set-down or brim spot, as the carrier is now. */
-    private static Vector3f wayPoint(YukkuriView carrier, CompoundTag e, float partial, Vector3f end) {
+    /** A braid-tip child's place on its rise to its set-down (carrier model units, drawn at the recorded yaw {@code Y}), or null once it
+     *  is there. */
+    private static Vector3f wayPoint(YukkuriView carrier, CompoundTag e, float partial) {
         if (!e.contains("T")) return null;
-        var time = timing(carrier, e, partial);
-        return time.active() ? wayAt(carrier, e, time, partial, end) : null;
-    }
-    /** The one continuous way of a braid lift ({@link CarryGeometry#phases}): to the braid tip, or out from under the brim, up, round
-     *  and down onto the brim spot; a far-side child is set above the near-side spot and walks round the front of the brim itself. */
-    private static Vector3f wayAt(YukkuriView carrier, CompoundTag e, Timing time, float partial, Vector3f end) {
-        float t = time.t();
-        if (holdOf(e) == Hold.BRAID) return risePoint(e, t / time.up());
-        if (!e.contains("RX")) return brimWay(e, t / time.span(), time.up() / (float) time.span(), time.across() / (float) time.span(), end);
-        var touch = touch(carrier, e, partial);
-        if (t < time.span()) return brimWay(e, t / time.span(), time.up() / (float) time.span(), 1, touch);
-        var centre = hatPose(carrier, partial).transformPosition(new Vector3f(0, touch.y, 0));
-        var p = CarryGeometry.transfer(vector(touch), vector(end), vector(centre), CarryGeometry.BODY_LOW, CarryGeometry.BODY_HIGH, 0,
-                touch.y, t - time.span(), 0, e.getInt("WO"), time.own());
-        return new Vector3f((float) p.x(), (float) p.y(), (float) p.z());
-    }
-    /** The near-side brim spot a far-side child is let go above (carrier model units, at the carry height). */
-    private static Vector3f touch(YukkuriView carrier, CompoundTag e, float partial) {
-        var at = hatPose(carrier, partial).transformPosition(new Vector3f(e.getFloat("RX"), e.getFloat("RY"), e.getFloat("RZ")));
-        at.y = e.getFloat("PH");
-        return at;
-    }
-    /** Where the braid grips this rider: where it is drawn, or above the near-side brim spot it let a far-side child go at. */
-    public static Vec3 braidHeld(YukkuriView carrier, YukkuriView child, float partial) {
-        var e = entry(carrier, child.getUUID());
-        if (holdOf(e) == Hold.BRIM && e.contains("RX") && e.contains("T")) {
-            var time = timing(carrier, e, partial);
-            if (time.active() && time.t() >= time.span())
-                return pinnedAt(carrier, child, world(carrier, partial, touch(carrier, e, partial), e.getFloat("Y")));
-        }
-        return rawSeat(carrier, child, partial);
-    }
-    /** The braid's opening off a far-side child it let go above the near-side spot (1 held .. 0 open), or -1 when that is not happening. */
-    private static float letGoShare(YukkuriView carrier, CompoundTag e, float partial) {
-        if (holdOf(e) != Hold.BRIM || !e.contains("RX") || !e.contains("T")) return -1;
-        var time = timing(carrier, e, partial);
-        return time.t() < time.span() ? -1 : 1 - ease((time.t() - time.span()) / BraidFetch.marker(BraidFetch.SETTLE, "release"));
+        float t = Math.max(0, carrier.level().getGameTime() - e.getLong("T") + partial);
+        return t < riseTicks(e) ? risePoint(e, t / riseTicks(e)) : null;
     }
     /** The braid-tip lift: up off the host, across, down to the braid's set-down height, in one motion. */
     private static Vector3f risePoint(CompoundTag e, float u) {
         var at = CarryGeometry.liftPoint(new Vec(e.getFloat("PX"), e.getFloat("PY"), e.getFloat("PZ")), vector(setDown(e)), e.getFloat("PH"), u);
         return new Vector3f((float) at.x(), (float) at.y(), (float) at.z());
     }
-    /** The brim lift as one motion: drawn out from under the brim over the first half of the rise, raised, swung round the checked
-     *  arc and set down on {@code end}, every part overlapping the next ({@link CarryGeometry#phases}). */
-    private static Vector3f brimWay(CompoundTag e, float u, float upEnd, float downStart, Vector3f end) {
-        var k = CarryGeometry.phases(u, upEnd, downStart);
-        var at = swing(e, (float) k[1], 0, end);
-        float drawn = upEnd <= 0 ? 1 : ease(u * 2 / upEnd);
-        at.add((e.getFloat("PX") - e.getFloat("OX")) * (1 - drawn), 0, (e.getFloat("PZ") - e.getFloat("OZ")) * (1 - drawn));
-        at.y = (float) (e.getFloat("PY") + (e.getFloat("PH") - e.getFloat("PY")) * k[0] + (end.y - e.getFloat("PH")) * k[2]);
-        return at;
+
+    // ---- the brim lift and lowering: the braid's authored clips beside the brim edge, the young stepping on and off the brim itself
+
+    /**
+     * The braid's brim clips (standards lore braid_keys.py, clearance-gated offline against her body and hat): the braid curls
+     * under the young beside her braid side, swings it out and up outside her body and holds it level with the brim just outside its
+     * edge, where the young steps onto the brim and walks to its spot (user 2026-11-05: the braid only touches the hat, the young
+     * moves onto it itself); the lowering is the same clip run backwards. The young rides the clip's tuft end ({@code tip}).
+     */
+    public static final String BRIM_LIFT = "braid_brim_lift", BRIM_LOWER = "braid_brim_lower";
+    /** How far (blocks) a young's ground may lie above or below the carrier's (a cushion, a slab) for the braid's grip: the tuft
+     *  ride's offset eases that out as it lifts (project design). */
+    private static final double BRIM_STEP = .15;
+    /** Whether this carrier's form has the brim clips (they are authored per model; another form carries in its mouth). */
+    private static boolean brimClips(YukkuriView carrier) { return ClipMarkers.tipped(carrier.assetId(), BRIM_LIFT); }
+    /** The tuft end of a brim clip {@code ticks} into it (carrier model units): where the young rides. */
+    private static Vector3f tuft(String clip, float ticks) {
+        var p = ClipMarkers.of(clip).tip(ticks / 20);
+        return new Vector3f((float) p.x(), (float) p.y(), (float) p.z());
     }
-    /** {@code from} pushed straight away from the carrier until it is {@code gap} beyond {@code onto}'s distance (model units). */
-    private static Vector3f outward(Vector3f from, Vector3f onto, float gap) {
-        float d = (float) Math.hypot(from.x, from.z), r = (float) Math.hypot(onto.x, onto.z) + gap;
-        return d >= r ? from : new Vector3f(from.x * r / d, from.y, from.z * r / d);
+    private static int mark(String clip, String marker) { return BraidFetch.marker(clip, marker); }
+    /** Where the braid holds a young beside the brim edge (carrier model units): the lift's place. */
+    private static Vector3f edge() { return tuft(BRIM_LIFT, mark(BRIM_LIFT, "place")); }
+    /** Where the braid takes or leaves a young on the ground (carrier model units): the lift's grip, the lowering's place. */
+    private static Vector3f groundTuft() { return tuft(BRIM_LIFT, mark(BRIM_LIFT, "lift_start")); }
+    /** How far from the carrier (blocks, horizontally) the braid takes a young off the ground. */
+    public static double brimReach(YukkuriView carrier) { var g = groundTuft(); return Math.hypot(g.x, g.z) * size(carrier) / 16; }
+    /** The yaw that brings the braid's ground grip onto {@code at} for the carrier standing at {@code stand}. */
+    public static float brimYaw(Vec3 stand, Vec3 at) {
+        var g = groundTuft();
+        return SurfaceApproach.yaw(stand, at) - SurfaceApproach.yaw(Vec3.ZERO, new Vec3(-g.x, 0, -g.z));
     }
-    /** The checked arc stored with the hold, shared by the passenger and the rendered braid. */
-    private static Vector3f swing(CompoundTag e, float q, float high, Vector3f end) {
-        var root = ContactGeometry.braidRootModel(e.getBoolean("L"));
-        var p = CarryGeometry.swing(root.x, root.z, e.getFloat("OX"), e.getFloat("OZ"), end.x, end.z, e.getFloat("A"), q);
-        return new Vector3f((float) p.x(), high, (float) p.z());
+    /** How far (blocks) the young lies off the braid's ground grip for the carrier standing at {@code stand} and turned to it: its
+     *  distance off the grip's reach, or its height past {@link #BRIM_STEP} off the carrier's ground. */
+    public static double brimGap(YukkuriView carrier, Vec3 stand, YukkuriView child) {
+        var at = child.position();
+        return Math.max(Math.abs(at.y - stand.y) - BRIM_STEP, Math.abs(Math.hypot(at.x - stand.x, at.z - stand.z) - brimReach(carrier)));
+    }
+    /** The young rides the tuft from the lift's grip to its place, its own offset from the grip ({@code off}) easing out by lift_end. */
+    private static Vector3f liftFeet(Vector3f off, float t) {
+        int start = mark(BRIM_LIFT, "lift_start"), end = mark(BRIM_LIFT, "lift_end");
+        return tuft(BRIM_LIFT, Math.clamp(t, start, mark(BRIM_LIFT, "place"))).add(new Vector3f(off).mul(1 - ease((t - start) / (end - start))));
+    }
+    /** The young rides the tuft from the lowering's grip to its place, its offset to the real endpoint {@code to} easing in from over_end. */
+    private static Vector3f lowerFeet(Vector3f to, float t) {
+        int over = mark(BRIM_LOWER, "over_end"), place = mark(BRIM_LOWER, "place");
+        var end = tuft(BRIM_LOWER, place);
+        return tuft(BRIM_LOWER, Math.clamp(t, mark(BRIM_LOWER, "lift_start"), place)).add(new Vector3f(to).sub(end).mul(ease((t - over) / (place - over))));
+    }
+    /** The walk on the brim between the braid at the edge and the spot, at the young's own pace. */
+    private static int brimWalk(YukkuriEntity carrier, YukkuriEntity child) {
+        return CarryGeometry.motionTicks(edge().distance(brimPoint(carrier, child, 0)) * size(carrier) / 16, BodyAbility.of(child).walkSpeed());
+    }
+    /** Every tick of a tuft ride clear of blocks, the carrier at {@code stand} turned to {@code yaw}: the feet the ride itself takes. */
+    private static boolean rideClear(YukkuriEntity carrier, YukkuriEntity child, Vec3 stand, float yaw, IntFunction<Vector3f> feet, int from, int to) {
+        Vec3 previous = null;
+        for (int t = from; t <= to; t++) {
+            var p = feet.apply(t).mul((float) size(carrier) / 16).rotateY((180 - yaw) * Mth.DEG_TO_RAD);
+            var at = stand.add(p.x, p.y, p.z);
+            var box = child.getDimensions(child.getPose()).makeBoundingBox(at).deflate(.02);
+            if (child.level().getBlockCollisions(child, previous == null ? box : box.expandTowards(previous.subtract(at))).iterator().hasNext()) return false;
+            previous = at;
+        }
+        return true;
+    }
+    /**
+     * The braid's lift clip began at {@code start} and its tuft has closed under the young (lift_start): the ride and the young's walk
+     * to its spot go into the hold record, the carrier where it stands. False when the ride would pass through a block.
+     */
+    public static boolean brimLifted(YukkuriEntity carrier, YukkuriEntity child, long start) {
+        var off = modelAt(carrier, carrier.bodyYaw(), child.position()).sub(groundTuft());
+        if (!rideClear(carrier, child, carrier.position(), carrier.bodyYaw(), t -> liftFeet(off, t), mark(BRIM_LIFT, "lift_start"), mark(BRIM_LIFT, "place")))
+            return false;
+        var e = entry(carrier, child.getUUID()).copy();
+        e.putLong("T", start);
+        e.putFloat("EX", off.x); e.putFloat("EY", off.y); e.putFloat("EZ", off.z);
+        e.putInt("W", brimWalk(carrier, child));
+        write(carrier, child.getUUID(), e);
+        GameplayLog.event(carrier, "family", "brim lift child={} spot={} walk={} offset={}", child.getUUID(),
+                GameplayLog.at(worldAt(carrier, carrier.bodyYaw(), brimPoint(carrier, child, 0))), e.getInt("W"),
+                String.format(Locale.ROOT, "%.3f", off.length() * size(carrier) / 16));
+        return true;
+    }
+    /** A brim young on its way up: riding the tuft until the lift's place, then walking from the edge to its spot; null once it sits. */
+    private static Vector3f brimRide(YukkuriView carrier, YukkuriView child, CompoundTag e, float partial) {
+        float t = carrier.level().getGameTime() - e.getLong("T") + partial;
+        int place = mark(BRIM_LIFT, "place"), walk = e.getInt("W");
+        if (t < place) return liftFeet(new Vector3f(e.getFloat("EX"), e.getFloat("EY"), e.getFloat("EZ")), t);
+        return t < place + walk ? edge().lerp(brimPoint(carrier, child, partial), (t - place) / walk) : null;
+    }
+    /** Ticks still to go of a brim young's way onto the brim (the lift clip to its end and its own walk to its spot); 0 for any other hold. */
+    public static int placingLeft(YukkuriView carrier, YukkuriView child) {
+        var e = entry(carrier, child.getUUID());
+        if (holdOf(e) != Hold.BRIM || !e.contains("T")) return 0;
+        int end = Math.max(ClipMarkers.of(BRIM_LIFT).length(), mark(BRIM_LIFT, "place") + e.getInt("W"));
+        return (int) Math.max(0, end - (carrier.level().getGameTime() - e.getLong("T")));
+    }
+    /** This brim young is walking on the brim now (from the braid at the edge to its spot, or back to the edge to be lowered). */
+    public static boolean brimWalking(YukkuriView carrier, YukkuriView child, float partial) {
+        var e = entry(carrier, child.getUUID());
+        if (holdOf(e) != Hold.BRIM) return false;
+        long now = carrier.level().getGameTime();
+        int walk = e.getInt("W");
+        if (e.contains("D")) {
+            if (!BRIM_LOWER.equals(e.getString("LC"))) return false;
+            float on = now - e.getLong("D") + partial - lowerStart(e) - mark(BRIM_LOWER, "lift_start");
+            return on >= -walk && on < 0;
+        }
+        float t = e.contains("T") ? now - e.getLong("T") + partial - mark(BRIM_LIFT, "place") : -1;
+        return t >= 0 && t < walk;
+    }
+    /** Ticks into a brim young's set-down at which the lowering clip starts: its walk to the edge ends as the tuft is there (lift_start). */
+    private static int lowerStart(CompoundTag e) { return Math.max(0, e.getInt("W") - (mark(BRIM_LOWER, "lift_start") - mark(BRIM_LOWER, "contact"))); }
+    /** The tick a brim young's lowering clip starts, or -1 when none is under way. */
+    public static long brimLowerStart(YukkuriView carrier, YukkuriView child) {
+        var e = entry(carrier, child.getUUID());
+        return e.contains("D") && BRIM_LOWER.equals(e.getString("LC")) ? e.getLong("D") + lowerStart(e) : -1;
+    }
+    /** A brim young on its way down: walking from its spot to the edge, then riding the tuft to its endpoint {@code to} (model units). */
+    private static Vector3f brimDown(YukkuriView carrier, YukkuriView child, CompoundTag e, float partial, Vector3f to) {
+        float t = carrier.level().getGameTime() - e.getLong("D") + partial;
+        int clip = lowerStart(e), on = clip + mark(BRIM_LOWER, "lift_start"), walk = e.getInt("W");
+        if (t < on) return brimPoint(carrier, child, partial).lerp(tuft(BRIM_LOWER, mark(BRIM_LOWER, "lift_start")), Math.clamp((t - on + walk) / walk, 0, 1));
+        return lowerFeet(to, t - clip);
+    }
+    /** Whether a brim young's endpoint lies level enough with the carrier's stand for the tuft ride to set it there ({@link #BRIM_STEP}). */
+    public static boolean brimLevel(Vec3 stand, Vec3 at) { return Math.abs(at.y - stand.y) <= BRIM_STEP; }
+    /** Release's check of a brim lowering from {@code stand} turned to {@code yaw} onto {@code endpoint}: the same ride, clear of blocks. */
+    public static boolean clearLowering(YukkuriEntity carrier, YukkuriEntity child, Vec3 stand, float yaw, Vec3 endpoint) {
+        var d = endpoint.subtract(stand);
+        var to = new Vector3f((float) d.x, (float) d.y, (float) d.z).rotateY(-(180 - yaw) * Mth.DEG_TO_RAD).mul(16 / (float) size(carrier));
+        return rideClear(carrier, child, stand, yaw, t -> lowerFeet(to, t), mark(BRIM_LOWER, "lift_start"), mark(BRIM_LOWER, "place"));
     }
     private static Vector3f tail(YukkuriView carrier, Hold hold) {
         var tail = TAILS.getOrDefault(carrier.assetId(), TAILS.get("chen"))[hold == Hold.TAIL_LEFT ? 0 : 1];
@@ -824,12 +798,13 @@ public final class ParentCarry {
     private static final Map<String, float[][]> BRIM_SPOTS = new ConcurrentHashMap<>();
     /**
      * The brim spots (hat-bone model units x, z, top) where a footprint disc of radius {@code r} stands on the brim top, clear of
-     * the crown, band and bow boxes up to {@code h} above it, in the order children take them: the braid side from the front round
-     * to the back, then the far side from the back round to the front, so a far-side child walks to its spot past free spots only
-     * (project design; user 2026-11-05: the braid side first). Pure, cached per form and size.
+     * the crown, band and bow boxes up to {@code h} above it, that a young let go at {@code from} (the brim edge beside her braid,
+     * {@link #edge}) reaches by walking straight along the brim, farthest first: each young walks past free spots only and the edge
+     * stays free for the next (project design). The crown and the front bow leave the far side out of reach. Pure, cached per form,
+     * size and edge.
      */
-    private static float[][] brimSpots(JsonObject hat, String id, float r, float h) {
-        String key = id + "|" + Math.round(r * 20) + "|" + Math.round(h * 4);
+    private static float[][] brimSpots(JsonObject hat, String id, float r, float h, Vector3f from) {
+        String key = id + "|" + Math.round(r * 20) + "|" + Math.round(h * 4) + "|" + Math.round(from.x * 4) + "|" + Math.round(from.z * 4);
         var cached = BRIM_SPOTS.get(key);
         if (cached != null) return cached;
         var faces = tops(hat, id);
@@ -841,29 +816,37 @@ public final class ParentCarry {
             float top = top(faces, x, z, margin);
             boolean ok = !Float.isNaN(top);
             for (int k = 0; k < 12 && ok; k++) ok = !Float.isNaN(top(faces, x + r * Mth.cos(k * Mth.PI / 6), z + r * Mth.sin(k * Mth.PI / 6), margin));
-            for (var b : boxes) if (ok && b[1] < top + h && b[4] > top) {
-                float dx = Math.max(Math.max(b[0] - x, 0), x - b[3]), dz = Math.max(Math.max(b[2] - z, 0), z - b[5]);
-                ok = dx * dx + dz * dz >= r * r;
-            }
+            double length = Math.hypot(x - from.x, z - from.z);
+            for (int i = 0, n = (int) Math.ceil(length / .25); ok && i <= n; i++)
+                ok = clearOf(boxes, from.x + (x - from.x) * i / Math.max(1, n), from.z + (z - from.z) * i / Math.max(1, n), top, r, h);
             if (ok) out.add(new float[]{x, z, top + .02f});
         }
-        out.sort(Comparator.comparingDouble((float[] p) -> p[0] >= 0 ? Math.abs(Math.atan2(p[0], -p[1])) : 2 * Math.PI - Math.abs(Math.atan2(p[0], -p[1]))));
+        out.sort(Comparator.comparingDouble((float[] p) -> -Math.hypot(p[0] - from.x, p[1] - from.z)));
         if (BRIM_SPOTS.size() > 256) BRIM_SPOTS.clear();
         var spots = out.toArray(float[][]::new);
         BRIM_SPOTS.put(key, spots);
         return spots;
     }
+    /** A disc of radius {@code r} at ({@code x}, {@code z}) standing at {@code top} keeps clear of the crown, band and bow boxes up to {@code h}. */
+    private static boolean clearOf(List<float[]> boxes, float x, float z, float top, float r, float h) {
+        for (var b : boxes) if (b[1] < top + h && b[4] > top) {
+            float dx = Math.max(Math.max(b[0] - x, 0), x - b[3]), dz = Math.max(Math.max(b[2] - z, 0), z - b[5]);
+            if (dx * dx + dz * dz < r * r) return false;
+        }
+        return true;
+    }
     /** A child's footprint on the brim: the shared footprint radius ({@link Occupancy#foot}), in the carrier's model units. */
     private static float radius(YukkuriView carrier, YukkuriView child) {
         return (float) (Occupancy.foot(child.getBbWidth()) * 16 / (size(carrier) * HatScale.factor(carrier.subspeciesFlags())));
     }
-    /** The first brim spot this child fits beside the given discs (x, z, radius), or null when the brim has no room for it. */
+    /** The first brim spot ({@link #brimSpots}) this child fits beside the given discs (x, z, radius), or null when the brim has no room for it. */
     private static float[] freeBrimSpot(YukkuriView carrier, YukkuriView child, List<float[]> taken) {
         var hat = brim(carrier);
         if (hat == null) return null;
         float r = radius(carrier, child);
+        var from = new Matrix4f(hatPose(carrier, 0)).invert().transformPosition(edge());
         for (var p : brimSpots(hat, carrier.assetId(), r,
-                (float) (child.getBbHeight() * 16 / (size(carrier) * HatScale.factor(carrier.subspeciesFlags()))))) {
+                (float) (child.getBbHeight() * 16 / (size(carrier) * HatScale.factor(carrier.subspeciesFlags()))), from)) {
             boolean free = true;
             for (var t : taken) if ((p[0] - t[0]) * (p[0] - t[0]) + (p[1] - t[1]) * (p[1] - t[1]) < (r + t[2]) * (r + t[2])) { free = false; break; }
             if (free) return p;
@@ -910,7 +893,7 @@ public final class ParentCarry {
     private static boolean clear(YukkuriEntity carrier, YukkuriEntity child, Vec3 at) {
         var e = entry(carrier, child.getUUID());
         var host = carryHost(carrier, child);
-        return clear(carrier, child, at, e.contains("D") || e.contains("T") && timing(carrier, e, 0).active()
+        return clear(carrier, child, at, e.contains("D") || e.contains("T") && (holdOf(e) == Hold.BRIM ? brimRide(carrier, child, e, 0) : wayPoint(carrier, e, 0)) != null
                 || host != null && host.shelters(child) ? host : null);
     }
     private static boolean clear(YukkuriEntity carrier, YukkuriEntity child, Vec3 at, SurfaceHost destination) {
@@ -977,6 +960,7 @@ public final class ParentCarry {
             }
             case BRIM -> {
                 if (!brimmed(carrier)) return "no_brim";
+                if (!brimClips(carrier)) return "no_brim_clip";
                 return ongoing || freeBrimSpot(carrier, child, brimDiscs(carrier, child)) != null ? null : "brim_full";
             }
             case BRAID -> {
@@ -1405,6 +1389,9 @@ public final class ParentCarry {
         if (carrier.motorAction().equals(Hop.ID)) return null;
         var all = ours();
         if (all.isEmpty() || lifting != null || carrier.isPassenger() && giveUp == null) return null;
+        // Brim young come down nearest the brim edge first, so each walks to the braid past free spots only.
+        all.sort(Comparator.comparingDouble(child -> hold(carrier, child) == Hold.BRIM && brimSeat(carrier, child) != null
+                ? edge().distance(brimPoint(carrier, child, 0)) : 0));
         // A blocked hull placement yields the body so its ordinary landing intent can carry the child ashore.
         if (carrier.isPassenger() && settingDown != null && !settingDown.changed(carrier, null)) return null;
         if (settingDown != null && carrier.motor().current() == settingDown) return Map.entry(settingDown.child(), settingWhy);
@@ -1540,28 +1527,6 @@ public final class ParentCarry {
         return world(carrier, 1, ground(carrier, child, hold(carrier, child)), yaw);
     }
 
-    private static Vec3 brimLower(YukkuriView carrier, YukkuriView child, float partial, float down, Vec3 origin, float facing, Vec3 endpoint) {
-        var from = vector(hold(carrier, child) == Hold.HEAD ? headPoint(carrier, child, partial) : brimPoint(carrier, child, partial));
-        var to = vector(modelAt(carrier, facing, endpoint.subtract(origin).add(carrier.position())));
-        var root = ContactGeometry.braidRootModel(false);
-        int start = BraidFetch.marker(Grab.BRAID_LIFT, "lift_start"), place = BraidFetch.marker(Grab.BRAID_LIFT, "place") - start;
-        var p = CarryGeometry.transfer(from, to, new Vec(root.x, root.y, root.z), CarryGeometry.BODY_LOW, CarryGeometry.BODY_HIGH,
-                headwearRadius(child) * 16 / size(carrier), from.y() + child.getBbHeight() * 16 / size(carrier), down * place,
-                BraidFetch.marker(Grab.BRAID_LIFT, "lift_end") - start, BraidFetch.marker(Grab.BRAID_LIFT, "over_end") - start, place);
-        return world(carrier, partial, new Vector3f((float) p.x(), (float) p.y(), (float) p.z()), facing).subtract(carrier.position()).add(origin);
-    }
-
-    /** Release checks exactly the same exterior sweep that the rider and braid follow. */
-    public static boolean clearLowering(YukkuriEntity carrier, YukkuriEntity child, Vec3 stand, float facing, Vec3 endpoint) {
-        var body = carrier.getBoundingBox().move(stand.subtract(carrier.position()));
-        for (int i = 1; i <= WAY_SAMPLES; i++) {
-            var at = brimLower(carrier, child, 1, i / (float) WAY_SAMPLES, stand, facing, endpoint);
-            var box = child.getDimensions(child.getPose()).makeBoundingBox(at);
-            if (box.intersects(body) || child.level().getBlockCollisions(child, box).iterator().hasNext()) return false;
-        }
-        return true;
-    }
-
     public static Vec3 mouthAt(YukkuriEntity carrier, YukkuriEntity child, float yaw) {
         return pinnedAt(carrier, child, worldAt(carrier, yaw, mouthSeat(carrier, child)));
     }
@@ -1574,7 +1539,14 @@ public final class ParentCarry {
         var brim = brimLocal(carrier, child);
         var next = e.copy();
         int ticks;
-        if (destination != null || holdOf(e).reach() == Reach.BRAID) {
+        if (destination == null && holdOf(e) == Hold.BRIM) {
+            // It walks from its spot to the brim edge, steps onto the braid's tuft there and rides the lowering clip to the ground.
+            var at = letGoPoint(carrier, child);
+            next.putDouble("NX", at.x); next.putDouble("NY", at.y); next.putDouble("NZ", at.z);
+            next.putString("LC", BRIM_LOWER);
+            next.putInt("W", brimWalk(carrier, child));
+            ticks = lowerStart(next) + ClipMarkers.of(BRIM_LOWER).length();
+        } else if (destination != null || holdOf(e).reach() == Reach.BRAID) {
             var from = modelAt(carrier, carrier.bodyYaw(), child.position());
             if (destination != null) {
                 next.putInt("S", destination.host().entity().getId());
@@ -1600,10 +1572,6 @@ public final class ParentCarry {
             ticks = CarryGeometry.motionTicks(child.position().distanceTo(letGoPoint(carrier, child)), BodyAbility.of(carrier).walkSpeed());
         }
         next.putLong("D", carrier.level().getGameTime());
-        if (holdOf(e) == Hold.BRIM) {
-            var grip = letGoPoint(carrier, child).add(0, GRIP_Y * size(child) / 16, 0);
-            next.putBoolean("L", ContactGeometry.braidGapFrom(carrier, carrier.position(), grip, false) > 0);
-        }
         next.putInt("N", ticks);
         write(carrier, child.getUUID(), next);
         GameplayLog.event(carrier, "family", "carry lowering hold={} child={} from={} ticks={}{} clip={}", holdOf(e).key(), child.getUUID(),
@@ -1626,13 +1594,32 @@ public final class ParentCarry {
                 BraidFetch.marker(clip, "lift_end") - start, BraidFetch.marker(clip, "over_end") - start, BraidFetch.marker(clip, "place") - start);
         return world(carrier, partial, new Vector3f((float) at.x(), (float) at.y(), (float) at.z()), facing);
     }
-    public static boolean transferClear(YukkuriEntity carrier, YukkuriEntity child, SeatTarget target, float facing) {
+    /** Release's check of a head young's lowering from {@code stand} turned to {@code yaw} onto {@code endpoint}: the route the lowering
+     *  itself takes ({@link #transferPoint}), clear of her body and of blocks. */
+    public static boolean clearHeadLowering(YukkuriEntity carrier, YukkuriEntity child, Vec3 stand, float yaw, Vec3 endpoint) {
+        var shift = stand.subtract(carrier.position());
+        var e = trialLowering(carrier, child, "braid_head_take");
+        var body = carrier.getBoundingBox().move(shift);
+        int ticks = BraidFetch.marker("braid_head_take", "place") - BraidFetch.marker("braid_head_take", "lift_start");
+        for (int i = 1; i <= WAY_SAMPLES; i++) {
+            var at = transferPoint(carrier, child, e, endpoint.subtract(shift), ticks * i / (double) WAY_SAMPLES, 1, yaw).add(shift);
+            var box = child.getDimensions(child.getPose()).makeBoundingBox(at);
+            if (box.intersects(body) || child.level().getBlockCollisions(child, box).iterator().hasNext()) return false;
+        }
+        return true;
+    }
+    /** A trial lowering record of {@code clip} from where the child is now. */
+    private static CompoundTag trialLowering(YukkuriEntity carrier, YukkuriEntity child, String clip) {
         var e = new CompoundTag();
         var from = modelAt(carrier, carrier.bodyYaw(), child.position());
         e.putFloat("LX", from.x); e.putFloat("LY", from.y); e.putFloat("LZ", from.z);
         e.putBoolean("L", braidLean(carrier, child));
-        String clip = target.kind() == SeatTarget.Kind.HEAD ? "braid_head_set" : BraidFetch.HOLD;
         e.putString("LC", clip);
+        return e;
+    }
+    public static boolean transferClear(YukkuriEntity carrier, YukkuriEntity child, SeatTarget target, float facing) {
+        String clip = target.kind() == SeatTarget.Kind.HEAD ? "braid_head_set" : BraidFetch.HOLD;
+        var e = trialLowering(carrier, child, clip);
         int ticks = BraidFetch.marker(clip, "place") - BraidFetch.marker(clip, "lift_start");
         var previous = child.position();
         for (int tick = 0; tick <= ticks; tick++) {
@@ -1657,8 +1644,6 @@ public final class ParentCarry {
     /** Presentation observes actual arrival before the authored opening beat. */
     public static float braidShare(YukkuriView carrier, YukkuriView child, float partial) {
         var e = entry(carrier, child.getUUID());
-        float letGo = letGoShare(carrier, e, partial);
-        if (letGo >= 0) return letGo;
         if (!e.contains("D")) return 1;
         if (!e.contains("LC")) return 1 - ease(Math.max(0, lowering(carrier, child, partial)));
         if (child.position().distanceTo(letGoPoint(carrier, child, yaw(carrier, partial))) > .02) return 1;

@@ -2,7 +2,6 @@ package io.github.longshou.mcyukkuri.motor.geom;
 
 import io.github.longshou.mcyukkuri.headwear.HullBounds;
 import java.util.List;
-import io.github.longshou.mcyukkuri.motor.geom.CarryGeometry.Rejection;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -51,13 +50,6 @@ class CarryGeometryTest {
         assertTrue(CarryGeometry.reachGap(root, low, high, 1.2) > 0);
     }
 
-    @Test void brimDestinationNeverBypassesObstruction() {
-        var seat = new Vec(.2, -.3, -.4); var from = new Vec(2, 0, -2);
-        assertEquals(seat, CarryGeometry.wayOut(0, 0, from, seat, p -> null, (p, a) -> true).point());
-        assertNull(CarryGeometry.wayOut(0, 0, from, seat, p -> Rejection.TERRAIN, (p, a) -> fail()).point());
-        assertNull(CarryGeometry.wayOut(0, 0, from, seat, p -> null, (p, a) -> false).point());
-    }
-
     @Test void releaseConvergesAtPinnedAndUnpinnedFeetWithoutAcceptingHorizontalError() {
         var endpoint = new Vec(1, 0, 2);
         for (double support : new double[]{0, .04}) {
@@ -78,17 +70,6 @@ class CarryGeometryTest {
 
     @Test void sameBearingNeverSweepsAFullCircle() {
         for (double z : new double[]{-1, 1}) assertEquals(0, CarryGeometry.frontTurn(1, z, 2, z * 2));
-    }
-
-    @Test void blockedFrontSweepCannotCarryBehindTheBody() {
-        var result = CarryGeometry.wayOut(0, 0, new Vec(1, 0, 1), new Vec(-1, 0, 1), p -> null, (p, turn) -> {
-            for (int i = 0; i <= 20; i++) {
-                var point = CarryGeometry.swing(0, 0, 1, 1, -1, 1, turn, i / 20.0);
-                if (point.z() < -1) return false; // A wall across the front route.
-            }
-            return true;
-        });
-        assertNull(result.point());
     }
 
     @Test void liveMouthBlendIsContinuousAtLiftEndAndLoweringStart() {

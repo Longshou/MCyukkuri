@@ -41,7 +41,7 @@ CATEGORIES = [
         ('boat_alarm_call','惊呼'),('boat_alarm_wait','警戒等待'),('boat_flee','撤离'),('boat_calm','平复'),
         ('boat_answer_call','回应呼唤'),('braid_rescue_reach','伸辫救援'),('braid_rescue_hold','辫托孩子'),('braid_rescue_settle','放回帽中'),
         ('water_bob_lunge','水中蹿身'),('water_mouth_grip','咬住帽缘'),('water_hat_shake','抖落帽子'),('water_hat_push','身体顶帽'),
-        ('boat_nudge_young','亲油贴身一顶'),('braid_cradle_lift','辫梢卷兜托起幼油'),('be_cradled','被辫梢兜着'),('mouth_bite_hold','咬住并拖拽'),
+        ('boat_nudge_young','亲油贴身一顶'),('braid_cradle_lift','辫梢卷兜托起幼油'),('braid_brim_lift','辫梢兜起幼油送上帽檐'),('braid_brim_lower','辫梢从帽檐接下幼油'),('be_cradled','被辫梢兜着'),('mouth_bite_hold','咬住并拖拽'),
         ('boat_thrown','翻船被甩出'),('water_hat_right','咬檐翻正帽子')]),
     ('特殊身体', [('shell_retract','缩壳'),('anatomy_mamu_extend','产道伸出'),('anatomy_mamu_retract','产道收回'),
         ('anatomy_peni_extend','生殖部伸出'),('anatomy_peni_retract','生殖部收回')]),
