@@ -9,9 +9,11 @@ import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.family.FamilyLife;
 import io.github.longshou.mcyukkuri.mind.EmotionEvent;
 import io.github.longshou.mcyukkuri.life.CombatCourage;
+import io.github.longshou.mcyukkuri.motor.ClipMarkers;
 import java.util.EnumSet;
 import java.util.UUID;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
@@ -34,7 +36,7 @@ import net.minecraft.world.item.Items;
  *   <li>The tic is chosen once, when the individual first ticks on the server (spawn egg, natural spawn, birth or
  *       summon), and saved; a Myon born to a Myon parent takes that parent's tic three times in four [project rule].
  *   <li>The Kanroken is a real stick: adults start with one, the young and anyone who lost theirs pick up a dropped stick
- *       (consuming the item) or now and then break one off near trees. It drops as an ordinary stick on death or when a
+ *       (consuming the item) or walk to a tree and pull a twig off it (StickGoal). It drops as an ordinary stick on death or when a
  *       hard blow knocks it out of the mouth. It is shown in the mouth whenever the mouth is free (client).
  *   <li>Bravery: a healthy Myon does not bolt when hit or when a predator or attacker comes; it turns on the attacker and
  *       strikes with the stick (1.5 damage, 1 bare-mouthed), protecting kin. Its courage sets willingness and the retreat health fraction.
@@ -106,28 +108,21 @@ public final class MyonLife {
         if (strikeCooldown > 0) strikeCooldown--;
         if (foeTicks > 0 && --foeTicks == 0) foe = null;
         if (searchCooldown > 0) searchCooldown--;
-        else if (!kanroken && !entity.family().stage().equals(FamilyLife.Stage.BABY)) {
-            searchCooldown = STICK_SEARCH;
-            findStick();
-        }
+        if (searchCooldown == 0 && !kanroken && free()) pickUpDropped();
     }
 
-    /** Pick up a dropped stick in reach, or (rarely, near trees) break one off: the new Kanroken. */
-    private void findStick() {
-        if (entity.isNoAi() || entity.life().isSleeping() || !entity.getMouthItem().isEmpty() || entity.isPanicking()) return;
+    private boolean free() {
+        return !entity.isNoAi() && !entity.life().isSleeping() && !entity.isPanicking() && entity.getMouthItem().isEmpty()
+                && !entity.family().stage().equals(FamilyLife.Stage.BABY);
+    }
+    /** A dropped stick within reach goes into the mouth. */
+    private void pickUpDropped() {
         var near = entity.level().getEntitiesOfClass(ItemEntity.class, entity.getBoundingBox().inflate(1.2),
                 item -> item.isAlive() && item.getItem().is(Items.STICK));
-        if (!near.isEmpty()) {
-            near.getFirst().getItem().shrink(1);
-            if (near.getFirst().getItem().isEmpty()) near.getFirst().discard();
-            armed();
-            return;
-        }
-        var pos = entity.blockPosition();
-        boolean trees = false;
-        for (var p : BlockPos.betweenClosed(pos.offset(-3, -1, -3), pos.offset(3, 3, 3)))
-            if (entity.level().getBlockState(p).is(BlockTags.LEAVES) || entity.level().getBlockState(p).is(BlockTags.LOGS)) { trees = true; break; }
-        if (trees && entity.getRandom().nextInt(6) == 0) armed();
+        if (near.isEmpty()) return;
+        near.getFirst().getItem().shrink(1);
+        if (near.getFirst().getItem().isEmpty()) near.getFirst().discard();
+        armed();
     }
     private void armed() {
         kanroken = true;
@@ -210,6 +205,66 @@ public final class MyonLife {
     }
 
     public Goal goal() { return new FightGoal(); }
+    public Goal stickGoal() { return new StickGoal(); }
+
+    /**
+     * An unarmed Myon walks to the nearest tree it can reach, stands beside a low leaf or log, pulls a twig off (snatch_pull) and holds
+     * it as its Kanroken at the clip's pull marker.
+     */
+    private final class StickGoal extends Goal {
+        private static final int REACH = 12, GIVE_UP = 400;
+        private BlockPos stand, branch;
+        private int ticks, pulled;
+        StickGoal() { setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK)); }
+        private boolean ready() { return myon() && !kanroken && free() && !entity.life().hasUrgentNeed() && !entity.isInWaterOrBubble() && entity.onGround(); }
+        @Override public boolean canUse() {
+            if (searchCooldown > 0 || !ready()) return false;
+            searchCooldown = STICK_SEARCH;
+            return findBranch();
+        }
+        @Override public boolean canContinueToUse() { return ready() && ticks < GIVE_UP; }
+        @Override public boolean requiresUpdateEveryTick() { return true; }
+        @Override public void start() { ticks = 0; pulled = 0; entity.life().travel(stand, .9); }
+        @Override public void tick() {
+            ticks++;
+            if (pulled > 0) {
+                entity.getLookControl().setLookAt(branch.getX() + .5, branch.getY() + .5, branch.getZ() + .5);
+                if (++pulled == ClipMarkers.of("snatch_pull").ticks("pull", 7)) armed();
+                return;
+            }
+            double dx = stand.getX() + .5 - entity.getX(), dz = stand.getZ() + .5 - entity.getZ();
+            if (dx * dx + dz * dz > .25) {
+                if (ticks % 10 == 0) entity.life().travel(stand, .9);
+                return;
+            }
+            entity.getNavigation().stop();
+            entity.playAction("snatch_pull");
+            pulled = 1;
+            GameplayLog.event(entity, "myon", "twig pull at={} branch={}", stand, branch);
+        }
+        @Override public void stop() { entity.getNavigation().stop(); stand = null; branch = null; pulled = 0; }
+        /** The nearest leaf or log with a free, supported cell beside it at a height the Myon can pull at, and a way there. */
+        private boolean findBranch() {
+            var level = entity.level();
+            var here = entity.blockPosition();
+            BlockPos best = null, bestBranch = null;
+            double bestDistance = Double.MAX_VALUE;
+            for (var p : BlockPos.betweenClosed(here.offset(-REACH, 0, -REACH), here.offset(REACH, 2, REACH))) {
+                var state = level.getBlockState(p);
+                if (!state.is(BlockTags.LEAVES) && !state.is(BlockTags.LOGS)) continue;
+                for (var side : Direction.Plane.HORIZONTAL) {
+                    var cell = p.relative(side);
+                    double distance = cell.distSqr(here);
+                    if (distance >= bestDistance || !level.getBlockState(cell).isAir()
+                            || !level.getBlockState(cell.below()).isFaceSturdy(level, cell.below(), Direction.UP)) continue;
+                    best = cell.immutable(); bestBranch = p.immutable(); bestDistance = distance;
+                }
+            }
+            if (best == null || !entity.life().reachable(best, false)) return false;
+            stand = best; branch = bestBranch;
+            return true;
+        }
+    }
 
     /** Walk at the remembered foe and strike; ends when the foe is gone, the memory fades or courage fails. */
     private final class FightGoal extends Goal {

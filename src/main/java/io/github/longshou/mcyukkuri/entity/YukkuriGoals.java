@@ -69,6 +69,7 @@ final class YukkuriGoals {
         goalSelector.addGoal(1, new FleeGoal());
         owner.createMyon();
         goalSelector.addGoal(1, owner.myon().goal());
+        goalSelector.addGoal(5, owner.myon().stickGoal());
         goalSelector.addGoal(1, presentationGoals.bind(PresentationGoals.MIND, new MindLife.FrenzyGoal(owner)));
         owner.createSanction();
         goalSelector.addGoal(2, presentationGoals.bind(PresentationGoals.SANCTION, owner.sanction()));
