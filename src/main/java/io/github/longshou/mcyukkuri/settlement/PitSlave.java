@@ -138,7 +138,7 @@ public final class PitSlave {
 
     private void stay() {
         phase = Phase.STAY;
-        if (ticks % STAY_MOVE_TICKS == 0 && cells.size() > 1 && entity.getNavigation().isDone()) {
+        if (ticks % STAY_MOVE_TICKS == 0 && cells.size() > 1 && entity.getNavigation().isDone() && !entity.dailyLife().active()) {
             var next = cells.get(entity.getRandom().nextInt(cells.size()));
             if (!next.equals(entity.blockPosition())) entity.life().travel(next, .7);
         }

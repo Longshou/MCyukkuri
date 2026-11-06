@@ -290,6 +290,7 @@ public final class DailyLife {
         if (current.companion instanceof YukkuriEntity peer) {
             complete(peer, current.kind);
             if (current.kind == Kind.NUZZLE) { current.leader.social().noteContact(peer); peer.social().noteContact(current.leader); }
+            if (current.kind == Kind.NUZZLE && peer.settlement().society().slave()) peer.settlement().society().kindContact(current.leader);
         }
         stop();
     }

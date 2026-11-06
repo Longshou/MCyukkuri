@@ -78,7 +78,10 @@ public final class SettlementSociety {
         var group = entity.settlement().group();
         if (group == null) return;
         // The target need not be free to act: nearby witnesses can reject a hatless member even while it eats, sleeps or panics.
-        if (available(entity)) LeaderSuccession.observe(entity, group);
+        if (available(entity)) {
+            LeaderSuccession.observe(entity, group);
+            comfortSlave(group);
+        }
         var data = SettlementData.get(level());
         var record = data.member(group, entity.getUUID());
         long now = level().getGameTime();
@@ -86,16 +89,9 @@ public final class SettlementSociety {
         if (entity.life().hasAccessory() && record.rejections > 0) { restored("accessory"); return; }
         if (now < record.nextObservation) return;
         var box = entity.getBoundingBox().inflate(6);
-        // A slave already lives at the bottom of the pit: from here only real kindness by members that still see who it is changes
-        // its standing (wiki: sustained gentle treatment); the harsh witnesses below are what put a member there.
-        if (record.role == SettlementData.Role.UNUN_SLAVE) {
-            if (!available(entity)) return;
-            var kind = LoadedGroupMembers.minimum(level(), box, LoadedGroupMembers.query(level(), group.id, box,
-                    peer -> available(peer) && accepted(peer) && Temperament.lenient(peer.life().personality())
-                            && peer.life().canRecognize(entity) && peer.hasLineOfSight(entity)), entity::distanceToSqr);
-            if (kind != null) treat(kind, record);
-            return;
-        }
+        // A slave already lives at the bottom of the pit: only real contact from a gentle member (kindContact) changes its standing;
+        // the harsh witnesses below are what put a member there.
+        if (record.role == SettlementData.Role.UNUN_SLAVE) return;
         // Sustained kindness is durable colony acceptance itself (`Member.hatlessAccepted`): there is no second timer for it.
         if (record.hatlessAccepted) return;
         var observers = LoadedGroupMembers.query(level(), group.id, box,
@@ -173,11 +169,23 @@ public final class SettlementSociety {
         }
     }
 
-    private void treat(YukkuriEntity member, SettlementData.Member record) {
-        record.nextObservation = level().getGameTime() + 100;
+    /**
+     * A gentle, recognising member that finds the group's slave at the pit goes over and nuzzles it (the shared nuzzle session);
+     * each finished nuzzle is one kind treatment (kindContact).
+     */
+    private void comfortSlave(SettlementData.Group group) {
+        if (!accepted(entity) || !Temperament.lenient(entity.life().personality())) return;
+        var box = entity.getBoundingBox().inflate(8);
+        var slave = LoadedGroupMembers.minimum(level(), box, LoadedGroupMembers.query(level(), group.id, box,
+                peer -> peer.settlement().society().slave() && entity.life().canRecognize(peer) && entity.hasLineOfSight(peer)),
+                entity::distanceToSqr);
+        if (slave != null) entity.dailyLife().nuzzle(slave);
+    }
+
+    /** A gentle member's nuzzle with this slave has finished. */
+    public void kindContact(YukkuriEntity member) {
+        var record = record();
         record.gentleness++;
-        member.getLookControl().setLookAt(entity, 25, 25);
-        member.showReaction("closed_smile", "gentle", 80);
         YukkuriWorldData.get(level()).relate(member.getUUID(), entity.getUUID(), 2);
         entity.mind().felt(EmotionEvent.COMFORTED);
         entity.showReaction("teary", "gentle", 100);
