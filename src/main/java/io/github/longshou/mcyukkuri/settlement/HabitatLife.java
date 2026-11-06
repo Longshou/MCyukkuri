@@ -127,6 +127,8 @@ public final class HabitatLife {
     /** Share of the hollow in progress that is already dug, 0 when none. */
     public int digProgress() { return homes.digProgress(); }
     /** Members of this individual's household that need a place: itself, its partner and its young. */
+    /** Whether this resident is the one running a household move (its mate does not start another). */
+    boolean relocating() { return homes.relocationPending(); }
     public int householdNeed() {
         int count=1;
         if(entity.family().partner()!=null)count++;

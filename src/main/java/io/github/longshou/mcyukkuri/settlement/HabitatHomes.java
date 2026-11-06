@@ -69,12 +69,21 @@ final class HabitatHomes {
             cores.sort(Comparator.comparingDouble(value->fit(value.capacity(),value.capacity()-value.usedSlots(),need,
                     owner.o.entity().distanceToSqr(Vec3.atBottomCenterOf(value.getBlockPos())))));
             cells=BlockPos.betweenClosed(anchor.offset(-16,-2,-16),anchor.offset(16,2,16)).iterator();
+            // A mated adult looks at its mate's home first and shares it when there is room.
+            var mate=owner.mate();
+            var shared=mate==null?null:mate.habitat().shelter();
+            if(shared!=null&&cores.remove(shared))cores.addFirst(shared);
         }
         boolean current(HabitatHomes owner) { return dimension.equals(owner.level().dimension())&&anchor.distSqr(owner.o.entity().blockPosition())<=12*12
                 &&need==owner.o.householdNeed(); }
     }
     private record HomeCandidate(ShelterPlacement.Plan plan,double score) {}
     private HomeSearch homeSearch;
+    /** The adult mate of this resident, when loaded. */
+    private YukkuriEntity mate() {
+        var id=o.entity().family().partner();
+        return o.entity().family().adult()&&id!=null&&level().getEntity(id) instanceof YukkuriEntity mate&&mate.isAlive()&&mate.family().adult()?mate:null;
+    }
     /** Only the initiating resident's own move may retain this relocation continuation through homeChosen(). */
     private boolean relocatingSelf;
     private static final class RelocationSearch {
@@ -85,6 +94,7 @@ final class HabitatHomes {
         final List<ShelterBlockEntity> cores;
         final Iterator<BlockPos> cells;
         ShelterPlacement.Plan best;
+        double targetScore=Double.MAX_VALUE;
         int bestCells=Integer.MAX_VALUE,core,mover,moved;
         BlockPos pendingCell;
         ShelterBlockEntity target;
@@ -365,6 +375,8 @@ final class HabitatHomes {
     boolean relocationWanted(ShelterBlockEntity value) {
         if(relocationSearch!=null)return true;
         if(moveWait>0)return false;
+        var mate=mate();
+        if(mate!=null&&mate.habitat().relocating())return false;
         return noExtension&&o.entity().family().adult()&&value.owns(o.entity().getUUID())&&value.crowded()&&!level().isNight()
                 &&EventHooks.canEntityGrief(level(),o.entity())&&o.carrying().isEmpty()&&!o.hasNestProject();
     }
@@ -397,8 +409,11 @@ final class HabitatHomes {
             var core=search.cores.get(search.core++);
             SearchBudget.probe(level());
             if(!currentCore(core))return Result.DEFERRED;
-            if(!core.getBlockPos().equals(search.old)&&core.residentIds().isEmpty()&&core.kind()==ShelterBlock.Kind.BURROW&&core.sound()&&core.capacity()>=search.minimum
-                    &&(search.target==null||core.capacity()<search.target.capacity()))search.target=core;
+            if(!core.getBlockPos().equals(search.old)&&core.residentIds().isEmpty()&&core.kind()==ShelterBlock.Kind.BURROW&&core.sound()&&core.capacity()>=search.minimum) {
+                // The same fit as a home search: room for the household, a size close to its need, then the nearer one.
+                double score=fit(core.capacity(),core.capacity(),o.householdNeed(),o.entity().distanceToSqr(Vec3.atBottomCenterOf(core.getBlockPos())));
+                if(score<search.targetScore){search.target=core;search.targetScore=score;}
+            }
             return Result.DEFERRED;
         }
         if(search.target==null&&(search.cells.hasNext()||search.pendingCell!=null)) {
