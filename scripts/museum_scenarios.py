@@ -1738,7 +1738,7 @@ colony('colony_hunt', '族规·公共狩猎与上缴', '公共狩猎',
        reads=[('读族规与公仓', 'yukkuri settlement rules')], leader_loss=True)
 colony('colony_ration', '族规·黄昏分粮', '黄昏分粮',
        '黄昏时族长清点公仓：只给自家粮堆不够一天的“短缺户”分粮，其余不分；读数里看 SHORT 户和分配记录',
-       '几秒', [Retry('yukkuri settlement rules ration', COLONY_LEAD)], env={'time': 'dusk'}, leader_loss=True)
+       '约 1.5 分钟后（家家吃掉一些存粮，才有短缺户）', [Retry('yukkuri settlement rules ration', COLONY_LEAD, first=1800)], env={'time': 'dusk'}, leader_loss=True)
 _judge = []
 for _i, _off in enumerate(('theft', 'hatless', 'returned_exile', 'cannibal'), 1):
     _judge += [f'tag @e[type=#mcylab:yukkuri,tag=!scn_lead,tag=!scn_picked,nbt={{YukkuriFamily:{{Stage:"ADULT"}}}},distance=..45,limit=1,sort=random] add scn_off{_i}',
@@ -3351,3 +3351,18 @@ _NEST_BIRTH = [r'\[family\][^\n]* birth landed [^\n]*outcome=CUSHION\b']
 _smoke('pet_birth', 3000, _NEST_BIRTH)
 _smoke('birth_nest_safe', 3000, _NEST_BIRTH)
 next(s for s in S if s.id == 'birth_land_reunion').smoke = _LAND_BIRTH_SMOKE
+
+
+def _alice_share_home(window):
+    homes = re.findall(r'\[habitat\] (?:alice|reimu) [^\n]* home chosen [^\n]*?home=(BlockPos\{[^}]*\})', window)
+    if len(homes) < 2:
+        return f'alice and reimu did not both choose a home: {homes}'
+    return None if len(set(homes)) == 1 else f'the partners chose different homes: {homes}'
+
+
+_smoke('alice_chores', 600, [r'\[habitat\] alice [^\n]* home chosen', r'\[habitat\] reimu [^\n]* home chosen'])
+next(s for s in S if s.id == 'alice_chores').smoke['verify'] = _alice_share_home
+_smoke('sacrifice', 1200, [r'\[grief\][^\n]* protection diverted [^\n]*response=protect_child_worry'])
+_smoke('colony_hunt', 2400, [r'\[settlement\][^\n]* event=hunt_call [^\n]*detail=party \d+ dest '])
+_smoke('colony_ration', 3600, [r'\[settlement\][^\n]* event=ration [^\n]*detail=relief \d+/\d+ to [1-9]\d* short households',
+                               r'\[settlement\][^\n]* event=ration_fetched '])

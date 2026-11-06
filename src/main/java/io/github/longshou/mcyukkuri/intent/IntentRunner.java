@@ -140,6 +140,14 @@ public final class IntentRunner implements MotorOwner {
         WorldSignature signature = signature(now);
         Method picked = pick(null, signature);
         if (picked == null) {
+            // No method applies on the facts as they are now: say which refused and why (the end line carries no reason).
+            var refusals = new java.util.ArrayList<String>();
+            for (Method candidate : intent.methods()) {
+                if (candidate == null) continue;
+                Feasibility f = candidate.applicable();
+                if (f != null && !f.ok()) refusals.add(candidate.id() + ":" + f.reason() + (f.detail().isEmpty() ? "" : "(" + f.detail() + ")"));
+            }
+            GameplayLog.limited(body, "method", "none." + intent.id(), 200, "no applicable method intent={} refused={}", intent.id(), refusals);
             end(Result.EXHAUSTED);
             return;
         }
