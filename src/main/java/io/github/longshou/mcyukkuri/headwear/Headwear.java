@@ -244,18 +244,20 @@ public final class Headwear extends Goal {
         shardToken = burned ? null : UUID.randomUUID();
         shardsTotal = burned ? 0 : 2 + entity.getRandom().nextInt(2);
         int emitted=0;
-        for (int piece = 0; piece < shardsTotal; piece++) if(dropShard(item))emitted++;
+        for (int piece = 0; piece < shardsTotal; piece++) if(dropShard(item, piece))emitted++;
         entity.mind().add(burned ? 20 : 12, burned ? "accessory_burned" : "accessory_shattered");
         if (entity.isAlive()) { entity.mind().felt(EmotionEvent.ACCESSORY_LOST); entity.showReaction("cry", "lost_accessory", 140); }
         GameplayLog.event(entity, "headwear", "accessory destroyed burned={} cause={} pieces={} emitted={} token={}", burned, why, shardsTotal, emitted, shardToken);
     }
     /** @return whether the world accepted this one physical fragment. */
-    private boolean dropShard(ItemStack hat) {
+    private boolean dropShard(ItemStack hat, int piece) {
         var stack = new ItemStack(ModItems.ACCESSORY_SHARD.get());
         CustomData.update(DataComponents.CUSTOM_DATA, stack, tag -> {
             tag.putString("Variant", entity.getVariant().assetId());
             tag.putString("SourceModel", ModItems.accessoryModelFor(entity));
             tag.putString("Accessory", BuiltInRegistries.ITEM.getKey(hat.getItem()).toString());
+            // Its own piece number keeps the pieces from merging into one pile on the ground.
+            tag.putInt("Piece", piece);
         });
         var drop = new ItemEntity(entity.level(), entity.getX(), entity.getEyeY(), entity.getZ(), stack);
         double angle = entity.getRandom().nextDouble() * Math.PI * 2;
@@ -328,7 +330,7 @@ public final class Headwear extends Goal {
         var hat = new ItemStack(ModItems.accessoryFor(entity));
         int initiallyHeld = shardsHeld;
         while (shardsHeld > 0) {
-            if (!dropShard(hat)) {
+            if (!dropShard(hat, shardsHeld)) {
                 GameplayLog.limited(entity, "headwear", "replacement_held_shards_drop_failed", 40,
                         "whole accessory replacement refused reason=held_shard_drop_failed released={} remaining={} token={}",
                         initiallyHeld - shardsHeld, shardsHeld, shardToken);
