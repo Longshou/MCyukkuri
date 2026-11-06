@@ -259,7 +259,7 @@ final class YukkuriGoals {
     }
     private final class HabitatGoal extends Goal {
         HabitatGoal() { setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK)); }
-        @Override public boolean canUse() { return !HomeClaim.holds(owner) && owner.habitat().canUse(); }
+        @Override public boolean canUse() { return !HomeClaim.holds(owner) && !owner.agitation().hunting() && owner.habitat().canUse(); }
         @Override public boolean canContinueToUse() { return !HomeClaim.holds(owner) && owner.habitat().canContinue(); }
         @Override public boolean requiresUpdateEveryTick() { return true; }
         @Override public void tick() { owner.habitat().tickGoal(); }
@@ -275,7 +275,7 @@ final class YukkuriGoals {
     }
     private final class SettlementDutyGoal extends Goal {
         SettlementDutyGoal() { setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK)); }
-        @Override public boolean canUse() { return owner.settlement().duties().canUse(); }
+        @Override public boolean canUse() { return !owner.agitation().hunting() && owner.settlement().duties().canUse(); }
         @Override public boolean canContinueToUse() { return owner.settlement().duties().canContinue(); }
         @Override public boolean requiresUpdateEveryTick() { return true; }
         @Override public void tick() { owner.settlement().duties().tickGoal(); }
@@ -283,7 +283,7 @@ final class YukkuriGoals {
     }
     private final class SettlementGoal extends Goal {
         SettlementGoal() { setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK)); }
-        @Override public boolean canUse() { return !HomeClaim.holds(owner) && !owner.settlement().underway() && owner.settlement().canUse(); }
+        @Override public boolean canUse() { return !HomeClaim.holds(owner) && !owner.agitation().hunting() && !owner.settlement().underway() && owner.settlement().canUse(); }
         @Override public boolean canContinueToUse() { return !HomeClaim.holds(owner) && owner.settlement().canContinue(); }
         @Override public boolean requiresUpdateEveryTick() { return true; }
         @Override public void tick() { owner.settlement().tickGoal(); }
@@ -292,7 +292,7 @@ final class YukkuriGoals {
     /** The same settlement walk while this member takes part in a migration that has not reached the new site. */
     private final class MigrationGoal extends Goal {
         MigrationGoal() { setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK)); }
-        @Override public boolean canUse() { return !HomeClaim.holds(owner) && owner.settlement().underway() && owner.settlement().canUse(); }
+        @Override public boolean canUse() { return !HomeClaim.holds(owner) && !owner.agitation().hunting() && owner.settlement().underway() && owner.settlement().canUse(); }
         @Override public boolean canContinueToUse() { return !HomeClaim.holds(owner) && owner.settlement().canContinue(); }
         @Override public boolean requiresUpdateEveryTick() { return true; }
         @Override public void tick() { owner.settlement().tickGoal(); }
@@ -301,7 +301,7 @@ final class YukkuriGoals {
     private final class PlaygroundGoal extends Goal {
         @Override public boolean isInterruptable() { return BehaviorContinuity.emergency(owner) || !(owner.playLife().active()); }
         PlaygroundGoal(){setFlags(EnumSet.of(Flag.MOVE,Flag.LOOK,Flag.JUMP));}
-        @Override public boolean canUse(){return owner.playLife().canUse();}
+        @Override public boolean canUse(){return !owner.agitation().hunting() && owner.playLife().canUse();}
         @Override public boolean canContinueToUse(){return owner.playLife().canContinue();}
         @Override public boolean requiresUpdateEveryTick(){return true;}
         @Override public void tick(){owner.playLife().tickGoal();}
@@ -310,7 +310,7 @@ final class YukkuriGoals {
     private final class GroupGoal extends Goal {
         @Override public boolean isInterruptable() { return BehaviorContinuity.emergency(owner) || !(owner.groupInteraction().active()); }
         GroupGoal(){setFlags(EnumSet.of(Flag.MOVE,Flag.LOOK));}
-        @Override public boolean canUse(){return owner.groupInteraction().canUse();}
+        @Override public boolean canUse(){return !owner.agitation().hunting() && owner.groupInteraction().canUse();}
         @Override public boolean canContinueToUse(){return owner.groupInteraction().canContinueToUse();}
         @Override public boolean requiresUpdateEveryTick(){return true;}
         @Override public void tick(){owner.groupInteraction().tick();}
@@ -339,7 +339,7 @@ final class YukkuriGoals {
     private final class DailyGoal extends Goal {
         @Override public boolean isInterruptable() { return BehaviorContinuity.emergency(owner) || !(owner.dailyLife().active()); }
         DailyGoal() { setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK)); }
-        @Override public boolean canUse() { return owner.dailyLife().plan(); }
+        @Override public boolean canUse() { return !owner.agitation().hunting() && owner.dailyLife().plan(); }
         @Override public boolean canContinueToUse() { return owner.dailyLife().valid(); }
         @Override public boolean requiresUpdateEveryTick() { return true; }
         @Override public void tick() { owner.dailyLife().tickGoal(); }
@@ -428,7 +428,7 @@ final class YukkuriGoals {
     }
     private final class HouseGoal extends Goal {
         HouseGoal(){setFlags(EnumSet.of(Flag.MOVE,Flag.LOOK));}
-        @Override public boolean canUse(){return owner.house().canUse();}
+        @Override public boolean canUse(){return !owner.agitation().hunting() && owner.house().canUse();}
         @Override public boolean canContinueToUse(){return owner.house().canContinue();}
         @Override public boolean requiresUpdateEveryTick(){return true;}
         @Override public void tick(){owner.house().tickGoal();}

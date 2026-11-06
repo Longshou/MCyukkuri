@@ -206,33 +206,61 @@ public final class AgitationLife {
                 && entity.level().getBlockCollisions(entity, entity.getBoundingBox().move(0, -.025, 0)).iterator().hasNext();
     }
     private boolean available() { return available(true); }
-    private boolean available(boolean requireGround) {
+    private String unavailable() { return unavailable(true); }
+    private boolean available(boolean requireGround) { return unavailable(requireGround) == null; }
+    /** The first gate that says this body may not start or keep an episode; null when everything is free. */
+    private String unavailable(boolean requireGround) {
         var life = entity.life();
         var brood = entity.family().brood();
         // Mid-act only the hard safety gates apply: the 1.12 act runs to its own stamina cost.
         boolean acting = phase == Phase.ALICE_ACT;
-        return eligible() && entity.isAlive() && !entity.isNoAi() && !entity.isPanicking()
-                && !entity.body().dying() && entity.body().coreIntact()
-                && !entity.isPassenger() && !entity.isVehicle() && !entity.isLeashed()
-                && !entity.isCommandPlaying() && !entity.operations().active() && !entity.pet().busy()
-                && !entity.isInWaterOrBubble() && !entity.isOnFire() && (acting || requireGround || grounded())
-                && !entity.waterDistress().active() && (acting || !entity.status().reactions().active())
-                && (acting || entity.getHealth() >= entity.getMaxHealth() * .8) && entity.body().condition().readyForAgitation()
-                && !life.isSleeping() && !life.sedated() && (acting || !life.hasUrgentNeed())
-                && (acting || life.energy() >= 30 && life.nutrition() >= 40) && life.mealTicks() == 0
-                && (acting || life.activity().equals(Behaviors.IDLE)) && !life.temperature().unsafeSleep()
-                && !entity.family().active() && !entity.family().awaitingLanding()
-                && !entity.family().hasUrgentlyHungryChild() && !entity.family().birthDuty()
-                && (brood == null || brood.cancelled || brood.complete()
-                    // A fresh normal gestation does not hide the brief staged completion right after conceiving.
-                    || phase == Phase.HEAT_RELIEVED && brood.incidentSource == null && brood.elapsed == 0)
-                && !entity.careApproach().waiting() && !entity.childhood().active()
-                && !entity.house().active() && !entity.woundComfort().active()
-                && !entity.independence().active()
-                && !entity.habitat().active() && !entity.settlement().duties().active()
-                && !entity.dailyLife().active() && !entity.groupInteraction().active() && !entity.playLife().active()
-                && !WildEvents.reserved(entity)
-                && !HomeClaim.holds(entity);
+        // A chase she is already running is not dropped for one of her own errands: only danger and the body end it.
+        boolean hunting = phase == Phase.ALICE_APPROACH;
+        if (!eligible()) return "ineligible";
+        if (!entity.isAlive()) return "dead";
+        if (entity.isNoAi()) return "no_ai";
+        if (entity.isPanicking()) return "panic";
+        if (entity.body().dying()) return "dying";
+        if (!entity.body().coreIntact()) return "core";
+        if (entity.isPassenger() || entity.isVehicle()) return "vehicle";
+        if (entity.isLeashed()) return "leashed";
+        if (entity.isCommandPlaying()) return "command";
+        if (entity.operations().active()) return "operation";
+        if (entity.pet().busy()) return "pet_busy";
+        if (entity.isInWaterOrBubble()) return "water";
+        if (entity.isOnFire()) return "fire";
+        if (!acting && !requireGround && !grounded()) return "airborne";
+        if (entity.waterDistress().active()) return "water_distress";
+        if (!acting && entity.status().reactions().active()) return "reaction";
+        if (!acting && entity.getHealth() < entity.getMaxHealth() * .8) return "health";
+        if (!entity.body().condition().readyForAgitation()) return "condition";
+        if (life.isSleeping()) return "sleep";
+        if (life.sedated()) return "sedated";
+        if (!acting && life.hasUrgentNeed()) return "urgent_need";
+        if (!acting && (life.energy() < 30 || life.nutrition() < 40)) return "stamina";
+        if (life.mealTicks() != 0) return "meal";
+        if (!acting && !life.activity().equals(Behaviors.IDLE)) return "activity";
+        if (life.temperature().unsafeSleep()) return "temperature";
+        if (entity.family().active()) return "family";
+        if (entity.family().awaitingLanding()) return "landing";
+        if (entity.family().hasUrgentlyHungryChild()) return "hungry_child";
+        if (entity.family().birthDuty()) return "birth_duty";
+        // A fresh normal gestation does not hide the brief staged completion right after conceiving.
+        if (!(brood == null || brood.cancelled || brood.complete()
+                || phase == Phase.HEAT_RELIEVED && brood.incidentSource == null && brood.elapsed == 0)) return "brood";
+        if (entity.careApproach().waiting()) return "care_approach";
+        if (!hunting && entity.childhood().active()) return "childhood";
+        if (!hunting && entity.house().active()) return "house";
+        if (entity.woundComfort().active()) return "wound_comfort";
+        if (!hunting && entity.independence().active()) return "independence";
+        if (!hunting && entity.habitat().active()) return "habitat";
+        if (!hunting && entity.settlement().duties().active()) return "duties";
+        if (!hunting && entity.dailyLife().active()) return "daily";
+        if (!hunting && entity.groupInteraction().active()) return "group";
+        if (!hunting && entity.playLife().active()) return "play";
+        if (WildEvents.reserved(entity)) return "wild_event";
+        if (!hunting && HomeClaim.holds(entity)) return "home_claim";
+        return null;
     }
 
     private boolean plan() {
@@ -287,6 +315,10 @@ public final class AgitationLife {
     public void stop() {
         Phase previous=phase; int previousTicks=phaseTicks;
         var previousTarget=target==null?null:target.getUUID();
+        // A hunt that dies without a rule of its own ending it names the gate that refused the body: never a catch-all alone.
+        String gate = alicePhase() ? unavailable() : null;
+        if (gate != null) GameplayLog.limited(entity, "agitation", "pursuit.gate." + gate, 200,
+                "pursuit ended by gate={} phase={} ticks={} target={}", gate, phase, phaseTicks, previousTarget);
         if (phase == Phase.ALICE_ACT) interruptAct("素鸡立被打断，未结算");
         else if (alicePhase()) giveUpHunt("追击被危险或干预中断");
         if (buffet) buffet = false; // the settled hunter re-hunts almost immediately (1.12 attack_6)
@@ -345,6 +377,8 @@ public final class AgitationLife {
                 && entity.distanceToSqr(other) <= 144;
     }
     public boolean held() { return phase == Phase.HELD; }
+    /** She is out after a target: her own errands and leisure wait until the hunt is over. */
+    public boolean hunting() { return phase == Phase.ALICE_APPROACH; }
     private YukkuriEntity findTarget() {
         return entity.level().getEntitiesOfClass(YukkuriEntity.class, entity.getBoundingBox().inflate(12), this::validTarget)
                 .stream().min(Comparator.comparingDouble(entity::distanceToSqr)).orElse(null);
@@ -369,7 +403,13 @@ public final class AgitationLife {
     /** Attacker-side throttle around the victim's alarm; renews the flight while the chase lasts. */
     private void threaten(YukkuriEntity victim) {
         if (phaseTicks % 40 != 1) return;
-        if (entity.distanceToSqr(victim) <= 64 && entity.hasLineOfSight(victim)) victim.agitation().threatenedBy(entity);
+        if (entity.distanceToSqr(victim) > 64 || !entity.hasLineOfSight(victim)) return;
+        victim.agitation().threatenedBy(entity);
+        // Adults in plain sight of the hunt startle and back off as well.
+        for (var witness : entity.level().getEntitiesOfClass(YukkuriEntity.class, entity.getBoundingBox().inflate(8),
+                other -> other != entity && other != victim && other.isAlive() && other.family().adult()
+                        && !other.profile().dangerToYukkuri() && other.hasLineOfSight(entity)))
+            witness.agitation().threatenedBy(entity);
     }
 
     /** The stand point directly behind the victim, where the mount is taken from. */
