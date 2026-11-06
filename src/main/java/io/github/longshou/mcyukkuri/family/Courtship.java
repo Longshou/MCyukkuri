@@ -258,10 +258,15 @@ final class Courtship {
         }
     }
 
-    private void courtStopped(String reason){
+    void courtStopped(String reason){
+        var peer=o.target();
+        var mother=peer==null?null:mother(o.entity(),peer);var father=mother==null?null:mother==o.entity()?peer:o.entity();
         GameplayLog.limited(o.entity(),"family","court.stop."+reason,200,
-                "courtship stopped reason={} partner={} nearTicks={} contactTicks={} requiredTicks={} pathFailures={}",
-                reason,o.target()==null?null:o.target().getUUID(),courtNearTicks,courtContactTicks,courtRequiredTicks,courtPathFailures);
+                "courtship stopped reason={} partner={} nearTicks={} contactTicks={} requiredTicks={} pathFailures={} distance={} rearDistance={} fatherNavDone={}",
+                reason,peer==null?null:peer.getUUID(),courtNearTicks,courtContactTicks,courtRequiredTicks,courtPathFailures,
+                peer==null?null:Math.round(o.entity().distanceTo(peer)*100)/100.0,
+                mother==null?null:Math.round(Math.sqrt(father.distanceToSqr(rearStand(mother,father)))*100)/100.0,
+                father==null?null:father.getNavigation().isDone());
     }
 
     void tickReceiver() {

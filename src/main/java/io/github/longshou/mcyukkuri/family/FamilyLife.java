@@ -1152,7 +1152,11 @@ public final class FamilyLife {
                 &&(task==Task.SEARCH||target!=null&&target.isAlive()&&target.level()==entity.level()&&entity.distanceToSqr(target)<256);
     }
     public void tickGoal() {
-        if(!canContinue()){stop();return;}taskTicks++;
+        if(!canContinue()){
+            if(task==Task.COURT&&taskTicks>=240)courtship.courtStopped("time_cap");
+            stop();return;
+        }
+        taskTicks++;
         if(task==Task.SEARCH&&taskTicks==1)GameplayLog.limited(entity,"family","search.started",1200,
                 "family search started target={} lastKnownPosition={} mother={} father={} nutrition={} energy={}",
                 target==null?null:target.getUUID(),searchAt,mother,father,entity.life().nutrition(),entity.life().energy());
