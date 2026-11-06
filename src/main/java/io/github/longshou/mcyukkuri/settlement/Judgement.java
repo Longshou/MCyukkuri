@@ -271,8 +271,9 @@ public final class Judgement {
         offender.showReaction("teary", "rule_punished", (int)HEARING_TICKS);
         // The accused answers by its own nature: the timid bow or plead, the bold and unruly stand their ground.
         var p = offender.life().personality();
-        if (p.boldness() < 50) offender.mind().perform(p.selfControl() >= 50 ? "bow" : "beg", (int)HEARING_TICKS);
-        else if (p.boldness() >= 60 && p.selfControl() < 50) offender.mind().perform("stand_ground", (int)HEARING_TICKS);
+        String stance = p.boldness() < 50 ? p.selfControl() >= 50 ? "bow" : "beg" : p.boldness() >= 60 && p.selfControl() < 50 ? "stand_ground" : null;
+        if (stance != null) offender.mind().perform(stance, (int)HEARING_TICKS);
+        GameplayLog.event(offender, "judgement", "hearing stance action={} boldness={} selfControl={}", stance, p.boldness(), p.selfControl());
         for (var witness : level.getEntitiesOfClass(YukkuriEntity.class, offender.getBoundingBox().inflate(CommunityRules.WITNESS_RANGE),
                 value -> value != leader && value != offender && value.isAlive() && !value.isNoAi()
                         && group.id.equals(value.settlement().groupId()) && SettlementSociety.accepted(value)
