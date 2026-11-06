@@ -2174,9 +2174,9 @@ def _escape_needs_place(window):
 
 def _overload_family(parent, dz, intelligence, friendliness, cabin):
     """Saved young far below the size their stored nourishment already sustains: the ordinary loaded ticks grow them aboard into
-    a load over twice the hull's capacity. They start just under the load warning for the ordinary parent (head 0.36 + brim
-    0.18: 0.83 of capacity), so her own load rule seats them and growth carries the hull into the warning she reacts to; young 2
-    stays under that capacity on its own, so the parent that lost its largest stops overloading while the exceptional one keeps
+    a load over twice the hull's capacity. They start just under the load warning for the ordinary parent (head 0.355 + brim
+    0.20: 0.83 of capacity; at 0.18 young 2 takes the cabin instead), so her own load rule seats them and growth carries the
+    hull into the warning she reacts to; young 2 stays under that capacity on its own, so the parent that lost its largest stops overloading while the exceptional one keeps
     all three and overloading. One real pile of apples floats in the open water beyond each berth, next to the eight in the hat."""
     return [yk('marisa', bank_dx(dz), dz, parent, aquatic=True, yaw=-90, lead=True,
                uuid=uid('hat_crowd', parent), intelligence=intelligence, friendliness=friendliness,
@@ -2185,8 +2185,8 @@ def _overload_family(parent, dz, intelligence, friendliness, cabin):
                  fam=_seat_family(size, nourishment, age), childhood=CHILDHOOD_CRAWLING_READY,
                  uuid=uid('hat_crowd', parent + str(i)), also=(parent + '_crew',),
                  kin=f'Mother:{uuid_nbt(uid("hat_crowd", parent))}', label=f'孩子{i}', **pair_ready())
-              for i, offset, size, nourishment, age in ((1, -1, .16, 22909, 36000), (2, 0, .18, 120000, 76000),
-                                                       (3, 1, .36, 210000, 72000)) if cabin or i != 1],
+              for i, offset, size, nourishment, age in ((1, -1, .16, 22909, 36000), (2, 0, .20, 120000, 76000),
+                                                       (3, 1, .355, 210000, 72000)) if cabin or i != 1],
             item('minecraft:apple', 8, bank_dx(dz) + 9, dz, name=parent + '_food'),
             afloat(parent, water_at(dz, 6), True, sel_all(parent + '_crew'), food=8, stick=True)]
 
