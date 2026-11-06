@@ -131,7 +131,6 @@ public final class SettlementSociety {
         }
         observer.getLookControl().setLookAt(entity, 25, 25);
         observer.showReaction("angry", event, 80);
-        observer.mind().perform("puff", 60);
         if (record.role == SettlementData.Role.UNUN_SLAVE) entity.mind().feltSlavePressure(EmotionEvent.SUBMITTED);
         else entity.mind().felt(EmotionEvent.SOCIAL_HURT);
         entity.showReaction("teary", record.role == SettlementData.Role.UNUN_SLAVE ? "settlement_submit" : "settlement_hurt", 100);

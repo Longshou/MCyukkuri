@@ -101,6 +101,8 @@ public final class EcologyPresentation {
             case "birth" -> YukkuriAction.POSTPARTUM;
             case "birth_lost" -> YukkuriAction.BEREAVED;
             case "badge_thanks" -> YukkuriAction.BOW;
+            // The harsh turn on a hatless member, jeer at the slave or drive an exile off: the threat puff.
+            case "settlement_drive", "settlement_assign", "settlement_shun" -> YukkuriAction.PUFF;
             case "hat_jostle", "hat_scramble", "hat_slipping" -> YukkuriAction.HAT_JOSTLE;
             case "returned_accessory" -> YukkuriAction.SHIAWASE;
             case "expecting" -> YukkuriAction.SHIAWASE;

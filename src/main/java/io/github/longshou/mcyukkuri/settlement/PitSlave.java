@@ -30,7 +30,7 @@ public final class PitSlave {
     private final YukkuriEntity entity;
     private Phase phase = Phase.NONE;
     private List<BlockPos> cells = List.of();
-    private long cellsAt = Long.MIN_VALUE, retryAt, begAt;
+    private long cellsAt = Long.MIN_VALUE, retryAt, begAt, begUntil;
     private BlockPos destination;
     private int ticks;
     /** Whether the last look found it inside the pit: the arrival is a real fact, not a phase of the walk. */
@@ -55,7 +55,9 @@ public final class PitSlave {
         }
         return !cells.isEmpty();
     }
-    public String activity() { return phase == Phase.RETURN ? Behaviors.SETTLEMENT_RETURN : null; }
+    public String activity() {
+        return phase == Phase.RETURN ? Behaviors.SETTLEMENT_RETURN : level().getGameTime() < begUntil ? Behaviors.BEG_FOOD : null;
+    }
 
     private boolean inPit(BlockPos pos) { return GroupPits.inCells(cells, pos); }
     private boolean ready() {
@@ -149,7 +151,7 @@ public final class PitSlave {
         if (member == null) return;
         begAt = now + BEG_TICKS;
         entity.getLookControl().setLookAt(member, 30, 30);
-        entity.mind().perform("beg", 60);
+        begUntil = now + 60;
         GameplayLog.event(entity, "settlement", "pit slave begs member={} nutrition={}", member.getUUID(), entity.life().nutrition());
     }
 
