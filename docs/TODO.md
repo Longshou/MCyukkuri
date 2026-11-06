@@ -8,7 +8,11 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
+<<<<<<< HEAD
 | 水域余项（birth_hat_own 次胎首便、岸边抓幼、rescue_child 回帽、hat_crowd 重试） | `.worktrees/wp-am-aquatic-tails` | `behavior/`、`aquatic/` 相关 |
+=======
+| 首次加载卡顿（伤口网格后台加载、受限路径搜索） | `.worktrees/wp-an-perf3` | `body/WoundSurface.java`、`body/WoundMotion.java`、`life/LifeHome`、`HabitatHomes`、`motor/action/Release` |
+>>>>>>> 14d85baac (Aboard care meets the child inside the contact cone, not on its edge (the rear contact read .9699 against .97 and the first toilet never touched); log why a rear contact is lost)
 | 陆地场景起点真实性（审计 P6：Retry 分叉、伤口、产期、各场景起点；Walk 已在目标即完成） | `.worktrees/wp-ap-scene-truth` | `scripts/museum_scenarios.py`、`museum_fields.py`、`build_museum_full.py`、`command/ScenarioSetup`、`ScenarioCommands`、`motor/action/Walk` |
 
 ## 玩法待办
@@ -290,7 +294,7 @@ WP-C2 本机自查（非试玩验收、无 CI）：主线 `136b6f124`（独立�
   - 更早反例：[2ac6d5f58](https://github.com/Longshou/MCyukkuri/commit/2ac6d5f58)（WP1／基线源码）孩子留岸或出航未完成；同版辫救落水子油双方落地后再次浮起。
   - 完成：按 P0-3 核对真实装载与登船，逐帧确认及时接触、温和托举与放下，孩子离开后能继续接取，无受困／溺水／饥饿死亡；当前演出仍待试玩确认。
 - **`hat_crowd`**：复测失败。[55449fd63](https://github.com/Longshou/MCyukkuri/commit/55449fd6381619dec7d211af4748778c5ac76e54) 初态后 10 tick 整船翻覆，先于挤落；五只孩子登自帽、船主爬岸均已脱水却 `escape_water INTERRUPTED`，船主扶帽中途打滑。完成：挤落与真实倾覆分别可观察，离水后意图 `DONE`，真实打滑仍失败；浮稳与帽形由新帽包处理。[5a5711245](https://github.com/Longshou/MCyukkuri/commit/5a5711245)（CI 41615566507）11-04 反馈 13“满座与超重翻船”：用户判断满座与超重翻船的逻辑不对、无法闭环；改按 11-04 新增项“帽内空间与头顶承托”“超载翻船与断绝关系闭环”（项目设计）。
-  - 本机冒烟（wp-al-scene-race，非验收）：`self_rescue`、`birth_hat_own`、`shore_capsized(_far)`、`hat_push`、`birth_boat_missed`、`shore_family` 初态改为召唤同 tick 就座后恢复起点；`birth_hat_own` 1/2 失败于后一只新生儿首便未在窗口内完成（亲油反复 `first toilet approach` 后 goal stopped，待查）；`hat_crowd` 2/2 通过但仍有 `cruise`／`forage` EXHAUSTED（NO_SUPPORT／NO_CONTACT）未定位。
+  - 本机冒烟（wp-al-scene-race，非验收）：`self_rescue`、`birth_hat_own`、`shore_capsized(_far)`、`hat_push`、`birth_boat_missed`、`shore_family` 初态改为召唤同 tick 就座后恢复起点；`hat_crowd` 2/2 通过但仍有 `cruise` EXHAUSTED（NO_SUPPORT）未定位。`birth_hat_own` 后一只新生儿首便偶发不完成已查出两处（wp-am-aquatic-tails，非验收）：亲油对未喂过的新生儿首餐不按急迫处理、被拒后 1200 tick 才重问；帽内会面点取在接触锥边缘（亲油朝向点积 0.9699 < 0.97），首便每次接触都断。
   `wp-r-loops` 本机冒烟（非验收）：92d12e560 上亲油爬回超载帽后被抛回、逃生误记 `support=aboard` 反复溺水；现攀帽按载重准入（含船主）、逃生仅在有承托时成功、每次新落水重开逃生。守约亲油（有意超载）仍每次登船抽翻船，其溺亡是真实水伤的设计后果，翻船次数与主线同量级；非守约亲油落水后 `beckon` 因 `not_afloat`（帽正翻转）一次即 `EXHAUSTED` 而溺亡：`wp-t-rescue-tails` 本机已接入（辫子拉船先看船是否可划；近处无岸时找二十格内最近的岸游去，有亲帽可等时仍等在帽檐），待试玩，本机冒烟非验收。
 
 **2026-11-04 试玩新增项**（运行 [5a5711245](https://github.com/Longshou/MCyukkuri/commit/5a5711245)（[CI 41615566507](https://github.com/Longshou/MCyukkuri/actions/runs/41615566507)，2026-11-04 00:16–01:18，会话 20261104-001607-669 与 20261104-002901-312，日志副本 `.local/reports/playtest-1104/`）；反馈编号为用户 11-04 的编号，标“项目设计”的是用户授权代定的设计）：
@@ -357,7 +361,7 @@ WP-C2 本机自查（非试玩验收、无 CI）：主线 `136b6f124`（独立�
 - **P0-6 落水救助一次决策**：已接入待试玩（本机冒烟，非验收）。`rescue-converge` [b44b4f104](https://github.com/Longshou/MCyukkuri/commit/b44b4f104)：放下才选开口内平底，托着的孩子不丢回水里，无处可放则带着跳岸后放下；42 场 35 PASS／7 FAIL、无死亡，翻覆溺亡 0/20、`rescue_no_seat` 2/3、`rescue_infant_full`（现并入 `rescue_child`）2/2。本轮主线 [2075b7c2f](https://github.com/Longshou/MCyukkuri/commit/2075b7c2f) 基准：翻覆 10/20 场溺亡、`rescue_child` 6/6、满船托幼送岸 0/3；报告 `.local/refactor/reports/rescue-converge.md`。
   前轮自查：起点 `211317016` 最终 9/10 场无溺亡（fork 失败中断）、中间版本 80/82（具体版本待核实），`rescue_child` 6/6；满船托幼送岸 0/3（先跳离孩子、口叼水路／跳岸弧线受阻）；`fb-capsize-small` 放下途中 `seat_unavailable` 2/6。木棍平放帽檐演出待看清。
   `rescue_child` 现象（[b44b4f104](https://github.com/Longshou/MCyukkuri/commit/b44b4f104)，冒烟 0/6，主线 6/6）：孩子被托出水、安全带上岸放下（`outcome=set_down aboard=false`），没有放进帽内；亲油当前站位下帽内平底超出辫子够得到的范围。后续：船长就位帽内座位、辫路径绕开自己的身体，见 11-04 新增项“成油站在帽檐”。
-  `rescue_child` 二次落水偶发失败（`wp-t-rescue-tails` 本机冒烟非验收，主线 5 场 1 场、分支 12 场 7 场未过，差别随亲油救后是否去游弋）：赤油落水时亲油已划远，赤油先自己爬上岸记 `self_climbed`；亲油随后上岸，帽子漂出跳帽与辫子拉船够不着，`Launch` 报 `TOO_FAR no_reachable_brim` 或等 `boat_call` 超时而救援 `EXHAUSTED`。亲油在岸上够不着自己的帽、孩子在水里时尚无下水游回帽子的手段（已让 `Launch` 在可达时先辫子拉船）；完成：帽子漂远时亲油下水游回帽子再救。
+  `rescue_child` 二次落水偶发失败（`wp-t-rescue-tails` 本机冒烟非验收，主线 5 场 1 场、分支 12 场 7 场未过，差别随亲油救后是否去游弋）：赤油落水时亲油已划远，赤油先自己爬上岸记 `self_climbed`；亲油随后上岸，帽子漂出跳帽与辫子拉船够不着，`Launch` 报 `TOO_FAR no_reachable_brim` 或等 `boat_call` 超时而救援 `EXHAUSTED`。亲油在岸上够不着自己的帽、孩子在水里时尚无下水游回帽子的手段（已让 `Launch` 在可达时先辫子拉船；帽子已贴岸时不再提供空的拉船一击，岸上拉船以帽檐贴水为止，仍跳不上则等或换站位，wp-am-aquatic-tails 未在分支复现原失败）；岸边抓幼（审计 M5）站位已取到岸缘最靠水处，冒烟里亲油都在帽上、没出现岸上抓；够不着的间隙最小 0.004–1.01，浅水处身体会没入水，不涉水。完成：帽子漂远时亲油下水游回帽子再救。
   完成：`rescue_child` 的子油与赤油两次落水各自同一孩子同一事件实际 `carry grip` → `seat landed` → `rescue end result=DONE outcome=rescued aboard=true`，提过帽檐后随船晃、不抽动；池塘与河湾 `rescue_no_seat`（满船托幼送岸）实际抓取、跳岸、放下并存活，自行上岸只记 `self_climbed`；每事件每救助者一条决策，出生问候后可接续，真实阻挡／干预保留原因。救援、围观与木棍规则见[功能说明](FEATURES.md#水生魔理沙)。
   11-05 反馈 10（“满载亲帽救起新生儿送上岸”，满船托幼送岸后船上还留两只，[81858504b](https://github.com/Longshou/MCyukkuri/commit/81858504b) 起；主线 `da086c416` 本机 9/9 仍留舱内 0.10 一只）：已接入待试玩（`wp-s-full-ferry`，本机冒烟非验收）。现满船时亲油托着新生儿把整船划回岸边，按[靠岸卸幼](FEATURES.md#aquatic-boarding)嘴叼舱内赤油一趟带上岸放下，帽檐那只从岸上越过帽沿接下，最后收回空帽；本机 `rescue_no_seat` 4/4 全家上岸、帽上不留孩子、零死亡。`wp-t-rescue-tails`（本机冒烟非验收）：落水孩子在辫子抓取期间漂开 0.01–0.03 即 `braid_grip_out_of_reach` 而溺亡（主线 6 场 2 场亦然）已放宽 0.05；岸边落点被已放下的幼体占住致 `NO_PATH` 已改为绕开占位另选站位，该分支 12 场仅 2 场未过（放宽前的版本），其后 6/6 通过。完成：该场景救起后帽上自家幼油全部到岸上，不留船，亲油收回空帽。
   11-04 试玩（[5a5711245](https://github.com/Longshou/MCyukkuri/commit/5a5711245)，CI 41615566507）：反馈 7 `rescue_no_seat`“满载亲帽救起新生儿送上岸”落水点离岸太近，一只赤油自己爬上岸，亲油载着帽内赤油划走不管（场景须先改到赤油无法自行爬上岸）；反馈 6 救援时亲油站在帽边缘，辫子拾起赤油后穿过自己的身体向后送进帽内（见 11-04 新增项“成油站在帽檐”），赤油自行上岸后亲油也不靠岸、不进入寻子逻辑（已接入待试玩：陆地搜寻范围 48 格内站在干地上仍需照看的孩子让水上亲油 `come_ashore`〔why 里 `young_ashore`〕，上岸取回帽子后接家庭搜寻与出航；池塘与河湾“回岸寻回远处赤油再出航”`afloat_family_ashore` WP-K3 本机冒烟〔非验收〕4/4 走到 `end id=come_ashore result=DONE` → `start id=set_out`，去掉这条判断改回主线时 2/2 不上岸；登陆现采用首条完整可达路线，起跳上升擦过帽沿不再被误判为落回帽内；此前〔`hop_arc`／`ground_centre_lost`〕多次重来待复看，帽檐占满无出口〔`exit_stops=0`〕仍须真实腾出空间）。完成另加：孩子自行上岸后，亲油靠近岸边接上现有家庭搜寻（`family_search`），不划走不管。

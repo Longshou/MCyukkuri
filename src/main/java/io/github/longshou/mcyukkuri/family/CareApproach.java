@@ -88,6 +88,8 @@ public final class CareApproach {
         if (contact == 0 || !FamilyFeedingContact.rearContact(incoming.owner, owner)) return Behaviors.FIRST_TOILET_WAIT;
         return contact >= ChildhoodLife.FIRST_TOILET_CONTACT_TICKS ? Behaviors.GROUND_TOILET : Behaviors.FIRST_TOILET_STIMULATED;
     }
+    /** The share of the contact cone's half angle a floor meeting point is chosen within. */
+    private static final double CONE_MARGIN=.8;
     public void cancelIncoming() { if (incoming!=null) incoming.cancel("receiver_cancelled"); }
     public boolean cooperatingWith(YukkuriEntity other){
         return child==other&&valid()&&lease>=owner.level().getGameTime() || waiting()&&incoming.owner==other;
@@ -107,7 +109,8 @@ public final class CareApproach {
             if(!Floor.standing(owner)||!Floor.standing(session.owner))return;
             if(session.touching())return;
             if(session.floorRoute==null) {
-                double limit=Math.toDegrees(Math.acos(session.kind==Kind.REAR?.97:FamilyFeedingContact.MIN_FACING_DOT));
+                // Aim inside the contact cone, not at its edge: a point on the edge reads .9699 against the .97 the contact asks and never touches.
+                double limit=CONE_MARGIN*Math.toDegrees(Math.acos(session.kind==Kind.REAR?.97:FamilyFeedingContact.MIN_FACING_DOT));
                 var route=Floor.approach(host,owner,session.owner.position(),session.owner.yBodyRot,
                         FamilyFeedingContact.minimumMouthDistance(session.owner,owner),
                         FamilyFeedingContact.mouthDistance(session.owner,owner),limit,session.kind==Kind.FEED?180:0);
@@ -118,7 +121,11 @@ public final class CareApproach {
             }
             if(session.floorRoute.isEmpty()) {
                 float facing=SurfaceApproach.yaw(owner.position(),session.owner.position())+(session.kind==Kind.REAR?180:0);
-                if(faceOn(host,owner,facing)&&!session.touching())session.fail("contact_not_reached");
+                if(faceOn(host,owner,facing)&&!session.touching()) {
+                    if(session.kind==Kind.REAR)GameplayLog.limited(owner,"care","contact_lost."+session.owner.getUUID(),200,
+                            "contact lost parent={} child={} why={}",session.owner.getUUID(),owner.getUUID(),FamilyFeedingContact.rearRefusal(session.owner,owner));
+                    session.fail("contact_not_reached");
+                }
             }
             else if(!Floor.follow(host,owner,session.floorRoute))session.fail("no_reachable_meeting");
             return;

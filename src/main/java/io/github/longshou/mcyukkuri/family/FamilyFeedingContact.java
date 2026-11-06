@@ -96,24 +96,32 @@ public final class FamilyFeedingContact {
 
     /** Rear care requires aligned, separated bodies and an unobstructed tongue path, also inside hats. */
     public static boolean rearContact(YukkuriEntity caregiver, YukkuriEntity child) {
+        return rearRefusal(caregiver, child) == null;
+    }
+
+    /** Why the rear care contact does not hold now (with the reading that failed), or null when it holds. */
+    public static String rearRefusal(YukkuriEntity caregiver, YukkuriEntity child) {
         // The infertile bean form's high mouth cannot reach this low care anchor; never award an invisible lick.
-        if (caregiver.subspecies().congenital() == SubspeciesLife.Congenital.BEAN_BODY) return false;
-        if (caregiver == child || !caregiver.isAlive() || !child.isAlive() || caregiver.level() != child.level()
-                || !caregiver.hasLineOfSight(child) || !child.hasLineOfSight(caregiver)) return false;
+        if (caregiver.subspecies().congenital() == SubspeciesLife.Congenital.BEAN_BODY) return "bean_body";
+        if (caregiver == child || !caregiver.isAlive() || !child.isAlive() || caregiver.level() != child.level()) return "not_both_alive";
+        if (!caregiver.hasLineOfSight(child) || !child.hasLineOfSight(caregiver)) return "no_line_of_sight";
         Vec3 delta = child.position().subtract(caregiver.position()).multiply(1, 0, 1);
         double distance = delta.length();
-        if (distance < minimumMouthDistance(caregiver, child) || distance > mouthDistance(caregiver, child)
-                || Math.abs(caregiver.getY() - child.getY()) > .18) return false;
+        double dy = Math.abs(caregiver.getY() - child.getY());
+        if (distance < minimumMouthDistance(caregiver, child) || distance > mouthDistance(caregiver, child) || dy > .18)
+            return String.format(java.util.Locale.ROOT, "distance=%.3f range=%.3f..%.3f dy=%.3f", distance, minimumMouthDistance(caregiver, child),
+                    mouthDistance(caregiver, child), dy);
         Vec3 toward = delta.scale(1 / distance);
-        if (horizontalForward(caregiver).dot(toward) < .97
-                || Vec3.directionFromRotation(0, child.getYRot()).dot(toward) < .97) return false;
+        double parentDot = horizontalForward(caregiver).dot(toward), childDot = Vec3.directionFromRotation(0, child.getYRot()).dot(toward);
+        if (parentDot < .97 || childDot < .97)
+            return String.format(java.util.Locale.ROOT, "facing parent_dot=%.3f child_dot=%.3f", parentDot, childDot);
         Vec3 rear = rearPoint(child);
         // The parent's authored low lean ends at this mouth envelope. Trace the remaining tongue path.
         Vec3 mouth = caregiver.position().add(toward.scale(caregiver.getBbWidth() * .46))
                 .add(0, .04 + caregiver.getBbHeight() * .10, 0);
         return caregiver.level().clip(new ClipContext(mouth, rear,
                 ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE,
-                caregiver)).getType() == HitResult.Type.MISS;
+                caregiver)).getType() == HitResult.Type.MISS ? null : "tongue_path_blocked";
     }
 
     /** Keep the caregiver collision context when the client checks the visible tongue path. */
