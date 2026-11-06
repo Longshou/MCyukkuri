@@ -224,39 +224,37 @@ class Forage(Field):
 
 # ----------------------------------------------------------------------------------------------- biome settlements
 BIOME_PLOTS = [  # id, biome, ground block, trunk, leaves, title, hill block (None: flat plot)
+    # one plot per season (docs/FEATURES.md: the season follows the biome); the forest village digs into its hill, the plains one
+    # stands on flat ground with built-up banks
     ('forest', 'minecraft:forest', 'minecraft:grass_block', 'minecraft:oak_log', 'minecraft:oak_leaves', '森林', 'minecraft:dirt'),
     ('plains', 'minecraft:plains', 'minecraft:grass_block', None, None, '平原', None),
-    ('taiga', 'minecraft:taiga', 'minecraft:grass_block', 'minecraft:spruce_log', 'minecraft:spruce_leaves', '针叶林', 'minecraft:dirt'),
-    ('cherry', 'minecraft:cherry_grove', 'minecraft:grass_block', 'minecraft:cherry_log', 'minecraft:cherry_leaves', '樱花林', 'minecraft:dirt'),
-    ('hills', 'minecraft:windswept_hills', 'minecraft:grass_block', 'minecraft:spruce_log', 'minecraft:spruce_leaves', '风袭丘陵', 'minecraft:stone'),
-    ('savanna', 'minecraft:savanna', 'minecraft:grass_block', 'minecraft:acacia_log', 'minecraft:acacia_leaves', '热带草原', 'minecraft:coarse_dirt'),
     # no settlement generates in these two (docs/FEATURES.md): flat plots for the cold / hot season scenes
     ('snow', 'minecraft:snowy_plains', 'minecraft:snow_block', 'minecraft:spruce_log', 'minecraft:spruce_leaves', '雪原', None),
     ('desert', 'minecraft:desert', 'minecraft:sand', None, None, '沙漠', None),
-    # the plains village of the colony scenes and, 64 blocks east, the empty village it migrates to
+]
+COLONY_PLOTS = [  # the plains village of the colony scenes and, 64 blocks east, the empty village it migrates to
     ('colony', 'minecraft:plains', 'minecraft:grass_block', None, None, '族群', None),
     ('colony_dest', 'minecraft:plains', 'minecraft:grass_block', None, None, '迁徙新址', None),
 ]
 
 
 class Biomes(Field):
-    """Ten 63x63 plots in a 4x3 grid, one biome each; a plot holds a whole village (SiteTier.VILLAGE.bound 29), so neighbours never
-    share ground. The six where settlements generate (docs/FEATURES.md) all but plains have a slope rising in their north part, its
-    foot five blocks north of the plot centre, so a settlement spawned at the centre digs its burrows into the bank; snow and desert
-    stay flat for the cold and hot season scenes; the two colony plots are plain plains. Every clear puts the plots' ground, hill,
-    trees and biomes back."""
+    """63x63 plots in a grid of ``cols`` columns, one biome each; a plot holds a whole village (SiteTier.VILLAGE.bound 29), so
+    neighbours never share ground. Plots with a hill block have a slope rising in their north part, its foot five blocks north of
+    the plot centre, so a settlement spawned at the centre digs its burrows into the bank; flat plots get built-up banks. Every
+    clear puts the plots' ground, hill, trees and biomes back."""
     HILL_FOOT = 5          # blocks north of the plot centre where the slope begins
     HILL_TOP = 9           # height of the hill crest above the ground
     HALF = 31              # SiteTier.VILLAGE.bound (29, hedge plus meadow ring) and two more
     PITCH = 2 * HALF + 2
 
-    def __init__(self, *args, **kw):
+    def __init__(self, *args, plots, cols, **kw):
         super().__init__(*args, **kw)
+        rows = -(-len(plots) // cols)
         self.plots = []
-        for i, plot in enumerate(BIOME_PLOTS):
-            col, row = i % 4, i // 4
-            px = self.cx - 3 * self.PITCH // 2 + col * self.PITCH
-            pz = self.cz + (row - 1) * self.PITCH
+        for i, plot in enumerate(plots):
+            px = self.cx - (cols - 1) * self.PITCH // 2 + i % cols * self.PITCH
+            pz = self.cz - (rows - 1) * self.PITCH // 2 + i // cols * self.PITCH
             self.plots.append((plot, px, pz))
         self.spots = {plot[0]: (px, pz) for plot, px, pz in self.plots}
         assert self.PITCH > 2 * self.HALF and all(self.x1 <= x1 and x2 <= self.x2 and self.z1 <= z1 and z2 <= self.z2
@@ -352,8 +350,8 @@ class Weather(Field):
         super().__init__(*args, **kw)
         cx, cz = self.cx, self.cz
         self.roof_at = (cx - 22, cz)
-        self.spots = {'shelter': (cx - 22 + 28, cz - 6), 'open': (cx + 26, cz - 6), 'thunder': (cx - 22 + 10, cz + 8), 'pred': (cx + 2, cz + 14), 'marks': (cx + 24, cz + 14),
-                      'orange': (cx + 2, cz - 16), 'dry_life': (cx, cz - 12), 'roaming': (cx, cz)}
+        self.spots = {'shelter': (cx - 22 + 28, cz - 6), 'open': (cx + 26, cz - 6), 'pred': (cx + 2, cz + 14), 'dry_life': (cx, cz - 12),
+                      'roaming': (cx, cz)}
         self.anchor = self.spots['shelter']
 
     def features(self):
@@ -526,7 +524,11 @@ FIELDS = [
     Dens('den', '野外住所', 'wild', -900, 300, 44, 36, 'minecraft:plains', blurb='山坡洞穴一家三口、独立、搬往大洞'),
     # 72 deep, not more: its far edge must stay loaded while a visitor presses "clear" on the deck (render distance 10).
     Forage('forage', '流浪与觅食', 'wild', -750, 300, 96, 72, 'minecraft:plains', blurb='流浪油挖穴、家旁稀疏与远处草场、吃草'),
-    Biomes('biomes', '群系聚落', 'biome', -760, 500, 128, 96, 'minecraft:plains', blurb='八个群系聚落地块和族群迁徙的两块平原，迁徙场景提供真实空聚落'),
+    Biomes('biomes', '群系聚落', 'biome', -824, 468, 64, 64, 'minecraft:plains', plots=BIOME_PLOTS, cols=2,
+           blurb='春夏秋冬四块地上的聚落，山脚聚落的嗯嗯坑与嗯嗯奴隶'),
+    # 64 blocks of meadow north and south of the plots: the leader's hunting ground lies 32-64 blocks out (CommonHunt.RADIUS).
+    Biomes('colony', '族群迁徙与族规', 'biome', -680, 468, 64, 64, 'minecraft:plains', plots=COLONY_PLOTS, cols=2,
+           blurb='有族长的村落：公共狩猎、黄昏分粮、审判，全族带着赤油迁往东边的空村'),
     Meadow('meadow', '日常草地', 'family', -600, 300, 28, 28, 'minecraft:plains', blurb='回窝、相遇、受伤照料、饿了取食、厕所'),
     Family('family', '出生与成长', 'family', -450, 300, 36, 24, 'minecraft:plains', deck_depth=19, blurb='陆地接生、育儿、亲子舔舐、成长、宠物生产窝'),
     Weather('weather', '天气与捕食种', 'react', -300, 300, 44, 28, 'minecraft:plains', blurb='雨天躲雨、捕食种反应、挡捕食种、妖梦拔刀、脏污伤痕、橙汁'),

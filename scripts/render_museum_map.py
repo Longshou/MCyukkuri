@@ -71,7 +71,7 @@ def main():
             for name, (x, y, z) in f.doorways.items():
                 rect(x - 2, z - 6, x + 2, z + 1, fill='#6b4f33', outline='#b08a5a')
                 d.text(px(x - 2, z + 2), name, font=f_s, fill='#ffffff')
-        if f.id == 'biomes':
+        if f.id in ('biomes', 'colony'):
             for plot, ppx, ppz in f.plots:
                 x1, z1, x2, z2 = f.plot_rect(ppx, ppz)
                 rect(x1, z1, x2, z2, outline=color)

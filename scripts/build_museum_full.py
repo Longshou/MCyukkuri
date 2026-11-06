@@ -125,10 +125,11 @@ def book_command(shown):
         for f in FIELDS:
             if f.group != gid:
                 continue
-            lines = [f'{gtitle} · {f.title}', f.blurb, '']
-            for s in f.scenarios:
-                lines.append(f'· {s.title}' + (f'（{s.tag}）' if s.tag else ''))
-            pages.append('\n'.join(lines))
+            entries = [f'· {s.title}' + (f'（{s.tag}）' if s.tag else '') for s in f.scenarios]
+            # A book page shows about 14 short lines and does not scroll: the field's blurb on a page of its own, then six scenes a page.
+            pages.append(f'{gtitle} · {f.title}\n\n{f.blurb}\n\n共 {len(entries)} 个场景，见后页')
+            for start in range(0, len(entries), 6):
+                pages.append(f'{f.title}（{start // 6 + 1}）\n' + '\n'.join(entries[start:start + 6]))
     pages.append('说明\n\n场景只写真实的起始状态（饥饿、困倦、年龄、亲子、怀孕、伤、放下的帽子……），之后全由普通 AI 接手。\n'
                  '倍速与“推进”：观察台入口第二排；推进是快进若干分钟再恢复原速。第一排可恢复正常速度。\n观察标签（默认关闭，用观察台按钮开启）：头顶显示行为、饥饿、困倦、年龄、成长、伤。\n'
                  '场景也可在任意平地用 /function 执行 mcylab 的 scn/场景id 生成（洞穴场景需要对应地形）；它不清场，要从同一初始状态重来请按观察台的场景按钮。')
@@ -278,10 +279,7 @@ def build_pack(world):
                 yaw = 0
             # The player stands on whatever the column holds (hill, bank), never inside it.
             pitch = s.vantage[-1] if len(s.vantage) > 3 else 20
-            view = f'execute positioned {ax + vdx + .5} {FEET} {az + vdz + .5} positioned over motion_blocking_no_leaves run tp @s ~ ~ ~ {yaw} {pitch}'
-            if len(s.vantage) > 4:
-                view = f'tp @s {ax + vdx + .5} {FEET + s.vantage[3]} {az + vdz + .5} {yaw} {pitch}'
-            fn(f'view/{s.id}', [view])
+            fn(f'view/{s.id}', [f'execute positioned {ax + vdx + .5} {FEET} {az + vdz + .5} positioned over motion_blocking_no_leaves run tp @s ~ ~ ~ {yaw} {pitch}'])
             start += [f'function {NS}:view/{s.id}',
                       'tellraw @s ' + js([{'text': '到了。', 'color': 'gray'},
                                           {'text': ' [回观察台]', 'color': 'aqua', 'clickEvent': {'action': 'run_command', 'value': f'/function {NS}:go/{f.id}'}},
@@ -515,8 +513,11 @@ def build_lobby():
             z += 3
             for f in [f for f in FIELDS if f.group == gid]:
                 s += button(bx, FEET, z, f'function {NS}:go/{f.id}', f.title, '', nav=True, context=f'lobby {f.id}', color='gold')
-                names = '、'.join(sc.title for sc in f.scenarios) or f.blurb
-                body = [(f'{f.title}\n', 'gold', True), ('\n'.join(wrap(f.blurb, 44)) + '\n', 'white'), ('\n'.join(wrap(names, 44)[:6]), 'gray')]
+                names = wrap('、'.join(sc.title for sc in f.scenarios) or f.blurb, 44)
+                if len(names) > 6:
+                    # A cut list says so: the deck holds every scene.
+                    names = names[:5] + [f'……共 {len(f.scenarios)} 个场景，全在观察台']
+                body = [(f'{f.title}\n', 'gold', True), ('\n'.join(wrap(f.blurb, 44)) + '\n', 'white'), ('\n'.join(names), 'gray')]
                 s.append(display(bx + 6.5, FEET + 1.9, z + .5, body, .85, 'board', f'lobby board {f.id}', billboard='vertical'))
                 z += 6
             z += 1
