@@ -319,12 +319,12 @@ final class SetOut implements Intent, FamilyRendezvous {
                 && AquaticLife.ashore(y) && staying(y) == null && !AquaticLife.aboard(y, hat)).toList();
     }
 
-    /** The gather call is over: all have come, the time is up, or a young that has not come cannot reach her at its own walking pace
-     *  before the time is up (she then goes to it instead of standing at the berth). */
+    /** The gather call is over: all have come, the time is up, or a young that has not come cannot reach her at its own gait (a crawl
+     *  for a baby) before the time is up; she then goes to it instead of standing at the berth. */
     private boolean gatherOver() {
         long left = Math.max(0, gatherUntil - owner.level().getGameTime());
         return gathered() || left == 0 || dependentAshore(AquaticLife.hat(owner)).stream().anyMatch(y -> !y.family().withinFollowDistance(owner)
-                && Math.sqrt(y.distanceToSqr(owner)) > BodyAbility.of(y).walkSpeed() * left);
+                && Math.sqrt(y.distanceToSqr(owner)) > (y.crawler() ? y.crawlSpeed() : BodyAbility.of(y).walkSpeed()) * left);
     }
 
     /** Whether the current responsive wards have reached her braid on the bank. */
