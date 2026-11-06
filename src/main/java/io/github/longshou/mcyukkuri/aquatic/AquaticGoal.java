@@ -174,6 +174,12 @@ final class AquaticGoal extends Goal {
     private static double floor(double desire) { return desire >= num("floor", 20) ? desire : 0; }
 
     /** The hat's calm cell, or its block: what a route or a landing is chosen from (a stable fact while it drifts). */
+    /** Where her hull lies, four cells wide: a failed trip over the water is not offered again for the one cell another errand moved it. */
+    private static List<Integer> region(PlacedHatEntity hat) {
+        var c = cell(hat);
+        return List.of(c.getX() >> 2, c.getY(), c.getZ() >> 2);
+    }
+
     private static BlockPos cell(PlacedHatEntity hat) {
         var c = Waters.cell(hat);
         return c != null ? c : hat.blockPosition();
@@ -275,13 +281,13 @@ final class AquaticGoal extends Goal {
         // food to fish up: when hungry, or the hold runs low and has floor for it
         var catchable = (eat > 0 || larder != null && larder.count() < num("stock_portions", 2) && larder.room(hat))
                 ? Waters.food(hat, body, 12) : null;
-        if (catchable != null) out.add(Desire.of("forage", floor(Math.max(eat, num("forage_want", 35))), List.of(at, catchable.getUUID()),
+        if (catchable != null) out.add(Desire.of("forage", floor(Math.max(eat, num("forage_want", 35))), List.of(region(hat), catchable.getUUID()),
                 () -> "item=" + catchable.getItem().getItem() + " at=" + GameplayLog.at(catchable.position()), () -> Provision.forage(body, catchable)));
         // no stick aboard (never had one, or lost it: one state) and one afloat in sight she can paddle to: fetch it.
         // A capsize or a righting changes the hull itself, so what failed before it is not a fact of this hull any more.
         var floating = stick ? null : Waters.floatingStick(hat, (int) num("stick_sight", 16));
         if (floating != null) out.add(Desire.of("fetch_stick", floor(num("stick_want", 55)),
-                List.of(at, floating.getUUID(), HullAfloat.capsizeCount(hat)),
+                List.of(region(hat), floating.getUUID(), floating.blockPosition(), HullAfloat.capsizeCount(hat)),
                 () -> "item at=" + GameplayLog.at(floating.position()), () -> Provision.stick(body, floating)));
         care(out, hat, young, at);
         BoatToilet.offer(out, body, hat);
