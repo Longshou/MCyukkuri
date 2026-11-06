@@ -8,7 +8,6 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
-| 头顶幼体随亲油游泳／涉水不脱落、停靠等待不重发（wp-aj-head-swim） | `.worktrees/wp-aj-head-swim` | `life/WaterDistress`、`aquatic/Ashore` |
 | 出航与散落物件按生物行为（wp-ak-setout-items） | `.worktrees/wp-ak-setout-items` | `aquatic/SetOut`、`aquatic/Waters`（散落物搜索）、`afloat_*`／`cargo`／`sail` 场景 |
 
 ## 玩法待办
