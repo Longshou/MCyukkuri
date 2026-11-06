@@ -35,7 +35,6 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.function.Supplier;
 import net.minecraft.core.BlockPos;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.item.ItemEntity;
 
@@ -199,11 +198,6 @@ final class AquaticGoal extends Goal {
         var brood = body.family().brood();
         boolean birth = body.family().shoreBirthDue();
         double birthWant = birth ? num("birth_ashore_want", 200) : 0;
-        // His mate heads ashore for her shore birth or labours there: he goes ashore and stays by her (the shore twin of guard_labour).
-        var birthing = birthingMate(body);
-        double mateBirth = birthing != null ? num("guard_want", 90) : 0;
-        if (birthing != null) GameplayLog.limited(body, "aquatic", "mate.birth", 1200, "mate shore birth mate={} distance={} aboard={}",
-                birthing.getUUID(), Math.round(body.distanceTo(birthing) * 10) / 10.0, aboard);
         if (birth && !brood.id.equals(shoreBrood)) {
             shoreBrood = brood.id;
             GameplayLog.event(body, "aquatic", "birth shore return brood={} remaining={} aboard={} reason=birth_lead lead={}",
@@ -230,9 +224,9 @@ final class AquaticGoal extends Goal {
             boolean searching = body.family().searchingChild();
             // the young on her head would sink her hull into its load warning: an ordinary parent sets it down first (set_down_young)
             boolean overladen = overladen(body, hat);
-            double setOut = asleep || beyondGather || searching || birth || mateBirth > 0 || nursery || overladen ? 0
+            double setOut = asleep || beyondGather || searching || birth || nursery || overladen ? 0
                     : num("water_life", 60) - 2 * pull - (dusk ? num("night_pull", 60) : 0) - (rain ? num("rain_pull", 30) : 0);
-            var world = List.of(body.blockPosition(), stick, nearStick, young.size(), beyondGather, searching, birth, mateBirth > 0, nursery, overladen, landFood);
+            var world = List.of(body.blockPosition(), stick, nearStick, young.size(), beyondGather, searching, birth, nursery, overladen, landFood);
             boolean usable = hat == null ? life.custody().worn() : AquaticLife.afloat(hat);
             if (AquaticLife.ashore(body) && (!usable || floor(setOut) == 0 || drive().failed("set_out"))) {
                 for (var rider : body.family().carry().riders()) if (ParentCarry.hold(body, rider) == ParentCarry.Hold.HEAD) {
@@ -247,8 +241,8 @@ final class AquaticGoal extends Goal {
                         List.of(cell(hat), rider.getUUID()), () -> "aboard child=" + rider.getUUID(), () -> Ashore.come(body)));
             }
             if (usable) out.add(Desire.of("set_out", floor(setOut), world, () -> String.format(Locale.ROOT,
-                    "pull=%.0f hunger=%.0f land_food=%b weather=%.0f breed=%.0f tired=%.0f stick=%b stick_near=%b dusk=%b rain=%b young=%d asleep=%b beyond_gather=%b searching=%b mate_birth=%b nursery=%b overladen=%b",
-                    pull, hunger, landFood, weather, breed, tired, stick, nearStick, dusk, rain, young.size(), asleep, beyondGather, searching, mateBirth > 0, nursery, overladen),
+                    "pull=%.0f hunger=%.0f land_food=%b weather=%.0f breed=%.0f tired=%.0f stick=%b stick_near=%b dusk=%b rain=%b young=%d asleep=%b beyond_gather=%b searching=%b nursery=%b overladen=%b",
+                    pull, hunger, landFood, weather, breed, tired, stick, nearStick, dusk, rain, young.size(), asleep, beyondGather, searching, nursery, overladen),
                     () -> new SetOut(body, this::leftAshore)));
             // Newborns ashore go through family loading, never the solo reclaim that may finish aboard without them.
             if (hat != null && !birth && !nursery && unloadedNewborns.isEmpty() && !beyondGather
@@ -308,10 +302,10 @@ final class AquaticGoal extends Goal {
         // unload before it goes over; a keeper (low intelligence, high friendliness) keeps going (FEATURES 载重).
         boolean heavy = overladen(body, hat);
         double pull = Math.max(Math.max(Math.max(fed ? 0 : landHunger, toHave ? num("stick_need", 50) : 0), Math.max(heavy ? num("load_need", 70) : 0, tired)),
-                Math.max(Math.max(birthWant, mateBirth), Math.max(Math.max(weather, breed), Math.max(dusk ? num("night_pull", 60) : 0, ashore > 0 ? num("young_ashore_need", 60) : 0))));
-        var world = List.of(at, stick, young.size(), ashore, birth, mateBirth > 0, heavy, floor(tired) > 0, landFood);
-        Supplier<String> why = () -> String.format(Locale.ROOT, "hunger=%.0f food_aboard=%b land_food=%b stick=%b stick_ashore=%b weather=%.0f breed=%.0f birth=%.0f mate_birth=%.0f young_ashore=%d dusk=%b rain=%b heavy=%b tired=%.0f",
-                hunger, food, landFood, stick, toHave, weather, breed, birthWant, mateBirth, ashore, dusk, rain, heavy, tired);
+                Math.max(birthWant, Math.max(Math.max(weather, breed), Math.max(dusk ? num("night_pull", 60) : 0, ashore > 0 ? num("young_ashore_need", 60) : 0))));
+        var world = List.of(at, stick, young.size(), ashore, birth, heavy, floor(tired) > 0, landFood);
+        Supplier<String> why = () -> String.format(Locale.ROOT, "hunger=%.0f food_aboard=%b land_food=%b stick=%b stick_ashore=%b weather=%.0f breed=%.0f birth=%.0f young_ashore=%d dusk=%b rain=%b heavy=%b tired=%.0f",
+                hunger, food, landFood, stick, toHave, weather, breed, birthWant, ashore, dusk, rain, heavy, tired);
         var ashoreDesire = Desire.of("come_ashore", floor(pull), world, why, () -> {
             if (heavy) {
                 // she feels it sit low and wallow with her young aboard: a worried cry before she turns for the bank
@@ -336,14 +330,6 @@ final class AquaticGoal extends Goal {
         var sizes = new ArrayList<Double>();
         for (var p : body.getPassengers()) if (p instanceof YukkuriEntity y) sizes.add((double) (y.growthScale() * y.getScale()));
         return !sizes.isEmpty() && HullPresentation.loadWarning(HullBounds.loadRatio(HatScale.of(body) / HullBounds.SCALE, sizes)) > 0;
-    }
-
-    /** His mate (partner), alive within the family range, whose shore birth is due: heading ashore for it from its approach lead on,
-     *  or labouring there, until the brood is complete. */
-    private static YukkuriEntity birthingMate(YukkuriEntity body) {
-        var id = body.family().partner();
-        return id != null && body.level() instanceof ServerLevel level && level.getEntity(id) instanceof YukkuriEntity mate && mate != body
-                && mate.isAlive() && mate.distanceTo(body) <= AquaticLife.FAMILY_RANGE && mate.family().shoreBirthDue() ? mate : null;
     }
 
     /** On the water: in it, or aboard (or carried by one aboard) a hull on the water. */
