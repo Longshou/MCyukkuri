@@ -2136,6 +2136,9 @@ def _overload_family_choice(window):
             continue
         if parent == 'early' and capsized is not None:
             return 'early: the hull capsized from overload though its young grow only into the warning'
+        if parent == 'early' and len(re.findall(r'\[action\][^\n]*uuid=' + _uuid_text('hat_crowd', 'early2')
+                                                + r' [^\n]* refused id=hop [^\n]*detail=no_spot', window)) > 1:
+            return 'early2: hopped for a hull with no spot more than once'
         if capsized is None:
             # in time: the load warning sends her ashore, the family lands, and nobody is dismissed without a capsize
             heavy = re.search(r'\[aquatic\][^\n]*uuid=' + owner + r'[^\n]* load heavy hat=' + boats + r'[^\n]* reason=unload_ashore', window)
@@ -2594,7 +2597,8 @@ pond('hat_crowd', '孩子长大超载翻船，亲油取舍', '孩子长大超载
                         r'\[hat\][^\n]* load warning ratio=[\s\S]*\[hat\][^\n]* capsized cause=too_heavy\b[^\n]*thrown=[1-9]\b',
                         r'\[water\][^\n]* phase=(?:STRUGGLE|EXHAUSTED) -> RECOVER\b'],
                 forbid=[r'\[body\][^\n]* invariant\b', r'\[hat\][^\n]* capsized cause=(?:shake|turbulence)\b',
-                        r'\[action\][^\n]* refused id=hop [^\n]*detail=no_spot',
+                        # the early family's brim young, left ashore by the load rule, may walk up once and find the hull taken
+                        r'\[action\][^\n]* uuid=(?!' + _uuid_text('hat_crowd', 'early2') + r')\S+ [^\n]* refused id=hop [^\n]*detail=no_spot',
                         r'\[needs\][^\n]* starvation damage accepted=true',
                         r'\[body\][^\n]* death settled[^\n]*cause=(?!.*(?:drown|water))'],
                 verify=lambda window: _overload_family_choice(window) or _escape_needs_place(window),
