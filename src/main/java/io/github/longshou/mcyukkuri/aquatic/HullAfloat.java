@@ -38,6 +38,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.material.FlowingFluid;
 import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
 /** Authored waterline travel and rocking. Passenger positions and food never change flotation; shared rider load warns and capsizes. */
@@ -241,6 +242,8 @@ public final class HullAfloat implements PlacedHatBehavior {
             case INVERTED -> rightProgress >= 0 ? hat.roll() : invertedBase + rocking(now);
         };
         float pitch = phase == Phase.INVERTED ? hat.pitch() : phase == Phase.UPRIGHT ? HullPresentation.pitch(now) : 0;
+        // Pressed against a block, the hull does not turn a rider into it.
+        if (turnBy != 0 && turnTraps(roll, pitch, sink, now)) turnBy = 0;
         var frame = frame(hat.level(), hat.position(), hat.hullScale(), hat.getYRot() + turnBy, roll, pitch, sink, now);
         Motor.hostPose(hat, hat.getYRot() + turnBy, frame.rollDeg(), frame.pitchDeg());
         var motion = drift(hat.getDeltaMovement(), drive).add(0, frame.origin().y - hat.getY(), 0);
@@ -250,10 +253,12 @@ public final class HullAfloat implements PlacedHatBehavior {
                 e -> e instanceof LivingEntity || e instanceof Boat || e instanceof PlacedHatEntity);
         contactPositions.keySet().retainAll(nearby);
         for (var other : nearby) travel = contact(other, travel);
+        var pushed = travel;
+        travel = ridersStop(travel);
         Motor.velocity(hat, travel.velocity, "hull_drift");
         var actual = Motor.move(hat, travel.move, "hull_drift");
-        var blocked = travel.move.subtract(actual).multiply(1, 0, 1);
-        if (blocked.lengthSqr() > 0) impact = Math.max(impact, travel.velocity.dot(blocked.normalize()));
+        var blocked = pushed.move.subtract(actual).multiply(1, 0, 1);
+        if (blocked.lengthSqr() > 0) impact = Math.max(impact, pushed.velocity.dot(blocked.normalize()));
         if (StatusEvents.trace()) GameplayLog.event(hat, "hat",
                 "travel at={} delta={} velocity={} drive={} impact={} riders={}", hat.position(), actual,
                 hat.getDeltaMovement(), drive, impact, hat.getPassengers().size());
@@ -349,6 +354,48 @@ public final class HullAfloat implements PlacedHatBehavior {
     }
 
     private record Contact(Vec3 move, Vec3 velocity) {}
+
+    /** Its riders are bodies too: the drift stops where the first rider (or a young it carries) would come within the brim's
+     *  {@link HullBounds#EPSILON} of a block, as the hull's own box stops at the bank, so a hull pushed against the bank never
+     *  presses a rider into it and a rider by the bank still has room to take off. One already that close still keeps the room
+     *  its eyes need (the box vanilla smothers). The stopped part of the velocity is gone, as the hull's own. */
+    private Contact ridersStop(Contact travel) {
+        var flat = travel.move.multiply(1, 0, 1);
+        if (flat.lengthSqr() == 0) return travel;
+        var allowed = flat;
+        for (var body : hat.getIndirectPassengers()) {
+            var box = body.getBoundingBox();
+            double eyes = body.getBbWidth() * (.5 - HullBounds.EYE_BOX);
+            allowed = Entity.collideBoundingBox(body, allowed, box.inflate(HullBounds.EPSILON, 0, HullBounds.EPSILON), hat.level(), List.of());
+            allowed = Entity.collideBoundingBox(body, allowed, box.deflate(eyes, 0, eyes), hat.level(), List.of());
+        }
+        if (allowed.equals(flat)) return travel;
+        var v = travel.velocity;
+        return new Contact(new Vec3(allowed.x, travel.move.y, allowed.z),
+                new Vec3(allowed.x == flat.x ? v.x : 0, v.y, allowed.z == flat.z ? v.z : 0));
+    }
+
+    /** Whether turning by {@code turnBy} now would carry a rider (or a young it carries) into a block it is clear of. */
+    private boolean turnTraps(float roll, float pitch, double sink, long now) {
+        var level = hat.level();
+        var still = frame(level, hat.position(), hat.hullScale(), hat.getYRot(), roll, pitch, sink, now);
+        var turned = frame(level, hat.position(), hat.hullScale(), hat.getYRot() + turnBy, roll, pitch, sink, now);
+        for (var rider : hat.getPassengers()) {
+            var local = hat.riders().local(rider.getUUID());
+            var shift = turned.toWorld(local).subtract(still.toWorld(local));
+            for (var body : rider.getSelfAndPassengers().toList()) {
+                var box = body.getBoundingBox();
+                double eyes = body.getBbWidth() * (.5 - HullBounds.EYE_BOX);
+                if (enters(body, box, shift) || enters(body, box.deflate(eyes, 0, eyes), shift)) return true;
+            }
+        }
+        return false;
+    }
+
+    private static boolean enters(Entity body, AABB box, Vec3 shift) {
+        return !body.level().getBlockCollisions(body, box).iterator().hasNext()
+                && body.level().getBlockCollisions(body, box.move(shift)).iterator().hasNext();
+    }
 
     /** Resolve entity contact before the single collision-aware move; only the approaching normal is removed. */
     private Contact contact(Entity other, Contact travel) {

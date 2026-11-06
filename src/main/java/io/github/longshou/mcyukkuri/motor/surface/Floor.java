@@ -4,6 +4,7 @@ import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.motor.BodyAbility;
 import io.github.longshou.mcyukkuri.motor.Motor;
 import io.github.longshou.mcyukkuri.motor.action.Face;
+import io.github.longshou.mcyukkuri.motor.action.Hop;
 import io.github.longshou.mcyukkuri.motor.geom.BodyFootprint;
 import io.github.longshou.mcyukkuri.motor.geom.FloorSearch;
 import io.github.longshou.mcyukkuri.motor.geom.GridPath;
@@ -257,7 +258,8 @@ public final class Floor {
         double unit = host.frame().unit();
         var container = host.container();
         for (var passenger : host.entity().getPassengers()) if (passenger instanceof YukkuriEntity body) {
-            if (!standing(body)) continue;
+            // A body between the legs of its own hop stands where the leg came down: the next takeoff was admitted from there.
+            if (!standing(body) || body.motor().current() instanceof Hop) continue;
             var spot = host.riders().spot(body.getUUID()); var from = spot.local();
             if (!container.floor().contains(from.x * unit, from.z * unit)
                     || from.y * unit <= container.floorY() + Occupancy.MARGIN || !host.room(body, from)) continue;

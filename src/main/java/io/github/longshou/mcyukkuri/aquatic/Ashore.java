@@ -47,6 +47,9 @@ final class Ashore implements Intent {
     private static final int COME = 2400, RECLAIM = 1600, WAIT = 300;
     /** Route-leg arrival distance. */
     private static final double ARRIVE = .6;
+    /** Within this of its dock (blocks) the hull lies against the bank, its rim or its first rider's body touching it; the
+     *  paddle's own no-contact limit is 0.05, and a rider's body stops the hull up to a tenth of its width short of the rim. */
+    private static final double DOCKED = .1;
 
     private final YukkuriEntity owner;
     private enum Purpose { COME, RECLAIM }
@@ -110,7 +113,15 @@ final class Ashore implements Intent {
         var dependent = dependentAboard(hat);
         String carryProblem = dependent == null ? null : ParentCarry.capacityProblem(owner, dependent);
         if (AquaticLife.aboard(owner, hat)) {
+            // Paddled in against the bank, she lets the hull come to rest before anyone leaves it: a hop off is judged, and taken,
+            // from a hull lying still.
+            if (docked() && !Waters.moored(hat))
+                return List.of(() -> new Step.Wait(() -> Waters.moored(hat), WAIT, Behaviors.BOAT_CALL));
             var hop = youngCanLand(hat) ? Ferry.hopAshore(owner).get() : null;
+            // A young of hers that leaves by its own power goes first, she after it (one at the brim place her own hop leaves from
+            // would keep her aboard): with her way off, or docked, she waits while one has its own way ashore or is taking it.
+            if ((hop != null || docked()) && youngLeaving(hat))
+                return List.of(() -> new Step.Wait(() -> !youngLeaving(hat), WAIT, Behaviors.BOAT_CALL));
             if (hop == null) return paddle(hat);
             // Docked: a young that cannot leave by itself is taken up while she still has a hold for it, whatever she holds already.
             if (dependent != null && carryProblem == null) return Ferry.grabAboard(owner, hat, dependent);
@@ -155,15 +166,28 @@ final class Ashore implements Intent {
         // at the landing water: paddle in against the bank, once; no hop in reach even then, and the next derive takes another
         if (!tried.add(edge.stand())) { landing = null; return paddle(hat); }
         var dock = edge.out(HullAfloat.brimToward(hat, edge.edge()));
-        return List.of(() -> new Step.Do(new Paddle(() -> dock,
-                distance -> distance <= ARRIVE && Ferry.hopAshore(owner).get() != null && youngCanLand(hat))));
+        return List.of(() -> new Step.Do(new Paddle(() -> dock, distance -> distance <= DOCKED
+                || distance <= ARRIVE && Ferry.hopAshore(owner).get() != null && youngCanLand(hat))));
     }
+
+    /** She has paddled in against the landing she chose. */
+    private boolean docked() { return landing != null && tried.contains(landing.stand()); }
 
     /** The family landing must also be reachable by the young who will leave under their own power. */
     private boolean youngCanLand(PlacedHatEntity hat) {
         for (var child : AquaticLife.young(owner))
             if (child.getVehicle() == hat && AquaticLife.jumper(child) && Ferry.hopAshore(child).get() == null) return false;
         return true;
+    }
+
+    /** A young of hers on the hull leaving it by its own power: with a way ashore of its own, or taking it already. */
+    private boolean youngLeaving(PlacedHatEntity hat) {
+        for (var child : AquaticLife.young(owner)) {
+            if (child.getVehicle() != hat || !AquaticLife.jumper(child)) continue;
+            var running = IntentRunner.running(child);
+            if (running != null && running.intent().id().equals("follow_ashore") || Waters.brimAshore(hat, child) != null) return true;
+        }
+        return false;
     }
 
     /** From the bank edge nearest the hat: walk there, face the hat, then the closing action ({@code close}, then {@code after}).

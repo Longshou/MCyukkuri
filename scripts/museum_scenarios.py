@@ -2973,7 +2973,7 @@ pond('afloat_family_ashore', '回岸寻回远处赤油再出航', '回岸寻回�
                 forbid=[r'child search reunited [\s\S]*child search reunited ', r'\[body\][^\n]* invariant\b', r'death settled into remains']))
 
 pond('rescue_no_seat', '满载亲帽救起新生儿送上岸', '满载亲帽救起新生儿送上岸',
-     '1.0 体型亲油的帽船载着四只自己的孩子：0.10 舱内赤油、0.19 和 0.285 幼体在头顶、0.28 幼体在帽檐，载重 0.0530，在普通亲油的载重警戒线 0.0540（容量 0.0635 的 85%）之下，只差一只新生赤油的重量。尚未学爬的 0.19 体型新生赤油在离岸约九格的开阔水面上漂着，离最近的干岸七格开外，自己爬不出去；亲油划近后帽内、头顶、帽檐虽各有空位，普通亲油的载重规则不接受再多一只（0.0530+0.0069 越过警戒线），按满船处理：辫子托着它不放，把整只帽船划到岸边，靠岸后嘴叼起舱内赤油，带着辫中、嘴里和头顶的孩子经帽檐跳上岸，逐只放到干地；帽檐上那只从岸边越过帽沿接下放好，最后收回空帽，全家都在岸上。必须看见真实接起、离船和放下，孩子自己上岸不算救起',
+     '1.0 体型亲油的帽船载着四只自己的孩子：0.10 舱内赤油、0.19 和 0.285 幼体在头顶、0.28 会跳的子油在帽檐，载重 0.0530，在普通亲油的载重警戒线 0.0540（容量 0.0635 的 85%）之下，只差一只新生赤油的重量。尚未学爬的 0.19 体型新生赤油在离岸约九格的开阔水面上漂着，离最近的干岸七格开外，自己爬不出去；亲油划近后帽内、头顶、帽檐虽各有空位，普通亲油的载重规则不接受再多一只（0.0530+0.0069 越过警戒线），按满船处理：辫子托着它不放，把整只帽船划到岸边，靠岸后船停稳，帽檐上的子油先自己跳上岸，亲油再嘴叼起舱内赤油，带着辫中、嘴里和头顶的孩子经帽檐跳上岸，逐只放到干地，最后收回空帽，全家都在岸上。必须看见真实接起、离船和放下，孩子自己上岸不算救起',
      '约 30–90 秒',
      [],
      late=[yk('marisa', bank_dx(0), 0, 'a', aquatic=True, yaw=90, lead=True, uuid=uid('rescue_no_seat', 'a'),
@@ -2986,7 +2986,7 @@ pond('rescue_no_seat', '满载亲帽救起新生儿送上岸', '满载亲帽救�
            afloat('a', water_at(0, 3), True, sel_all('crew'), stick=True),
            _aquatic_young('rescue_no_seat', 'c1', bank_dx(0) + 9.5, 0, 'baby', 'a', dy=-.5,
                           fam=_seat_family(.19, 0, 0) + ',BirthScale:0.19f', childhood='Version:2,Newborn:1b,Landed:1b')],
-     note=_INCIDENT_NOTE + '满船按载重判定：除船长外每名乘员按体型^3 计重，普通亲油把抱着的孩子放到帽上时要求当前载重加这名孩子不进入警戒（1.0 体型帽容量 0.06352，警戒线 0.0540）。这只家庭载重 0.0530（0.10+0.19+0.285+0.28），再加 0.19 孩子 0.0069 = 0.0599 越过警戒线，日志给 refused id=release … NO_ROOM detail=hull_full load=… capacity=… limit=…；智力≤25 且友善≥75 的亲油不受载重限制，照旧放置并照旧抽翻船概率。载重留一只孩子的余量，是因为抱起孩子本身也算一次载重变化：再往上加，抓取那一刻的翻船概率就会升到几个百分点，真实翻船又会把帽檐幼体甩进水里。乘员营养 40、无储粮，不靠成长撑满。逐只 scenario place 显示 CABIN/HEAD/BRIM。新生赤油在亲帽放下后才入水。观察同一孩子 grab → 划回岸边 → 舱内赤油 carry grip hold=mouth → hop（两腿）→ 四次 release → 帽檐孩子从岸上 grab、release → take_prop（custody DEPLOYED -> WORN）→ rescue end outcome=set_down；帽上不留孩子，送岸期间无 child separation lost=true。',
+     note=_INCIDENT_NOTE + '满船按载重判定：除船长外每名乘员按体型^3 计重，普通亲油把抱着的孩子放到帽上时要求当前载重加这名孩子不进入警戒（1.0 体型帽容量 0.06352，警戒线 0.0540）。这只家庭载重 0.0530（0.10+0.19+0.285+0.28），再加 0.19 孩子 0.0069 = 0.0599 越过警戒线，日志给 refused id=release … NO_ROOM detail=hull_full load=… capacity=… limit=…；智力≤25 且友善≥75 的亲油不受载重限制，照旧放置并照旧抽翻船概率。载重留一只孩子的余量，是因为抱起孩子本身也算一次载重变化：再往上加，抓取那一刻的翻船概率就会升到几个百分点，真实翻船又会把帽檐幼体甩进水里。乘员营养 40、无储粮，不靠成长撑满。逐只 scenario place 显示 CABIN/HEAD/BRIM。新生赤油在亲帽放下后才入水。观察同一孩子 grab → 划回岸边、船停稳 → 帽檐子油 follow_ashore 自己 hop 落岸 → 舱内赤油 carry grip hold=mouth → 亲油 hop → 四次 release → take_prop（custody DEPLOYED -> WORN）→ rescue end outcome=set_down；帽上不留孩子，送岸期间无 child separation lost=true。',
      reads=[('读亲油', f'yukkuri status {sel("a")} raw'), ('读子油', f'yukkuri status {sel("c1")} raw')],
      capture=dict(shots=(1, 40, 200, 400, 600, 800, 1000), sequences=((140, 1000, 5),), observe=False,
                   views={'wide': dict(follow='@e[type=mcyukkuri:placed_hat,limit=1]', offset=(3.0, 1.6, 0))}),
