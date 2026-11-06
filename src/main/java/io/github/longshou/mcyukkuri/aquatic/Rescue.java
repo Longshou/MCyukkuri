@@ -114,11 +114,18 @@ final class Rescue implements Intent {
         var holds = ParentCarry.holdsFor(helper, faller);
         boolean braid = holds.stream().anyMatch(h -> h.reach() == ContactGeometry.Reach.BRAID);
         boolean mouth = holds.stream().anyMatch(h -> h.reach() == ContactGeometry.Reach.MOUTH);
+        int edges = 0;
+        double best = Double.POSITIVE_INFINITY;
         for (var edge : Waters.edges(helper, faller.position(), 2, false)) {
             var at = edge.stand(helper.getBbWidth());
-            if ((braid && ContactGeometry.braidGap(helper, at, faller) <= 0 || mouth && ContactGeometry.inMouthReach(helper, at, faller))
+            double gap = braid ? ContactGeometry.braidGap(helper, at, faller) : Double.POSITIVE_INFINITY;
+            edges++;
+            best = Math.min(best, gap);
+            if ((gap <= 0 || mouth && ContactGeometry.inMouthReach(helper, at, faller))
                     && SurfaceApproach.supported(helper, at) && SurfaceApproach.canApproach(helper, at)) return at;
         }
+        GameplayLog.limited(helper, "aquatic", "rescue.bank_reach", 200, "rescue bank reach none faller={} edges={} holds={} braid_gap={}",
+                faller.getUUID(), edges, holds.stream().map(h -> h.reach()).toList(), best);
         return null;
     }
 
