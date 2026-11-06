@@ -15,6 +15,7 @@
 ## 玩法待办
 
 ### 复测失败/待修复
+- **陆地休闲、同伴与亡者（审计 P2，[规则](FEATURES.md)）**：已接入待试玩（分支 wp-ar-leisure，本机冒烟非验收）。休闲统一门、孤独者走向朋友蹭蹭、同伴闲逛靠近、目睹受伤／濒死亲缘去安抚、悲伤时不躲臭味、躲臭味走出半径。未做：问候后才蹭蹭（需 `YukkuriSocial.noteContact`，归家庭包）。完成：`meet` 孤独者走近信任朋友蹭蹭（`session reserved kind=NUZZLE` 带 distance）、`last_words` 亲缘在濒死期内走到身边（`[comfort] cause=dying`）、`hurt` 目睹后安抚（`cause=witnessed_hurt`）。
 - **首次加载卡顿余项**：部分接入（分支 wp-an-perf3，本机冒烟非验收）：伤口网格改流式载入、表情点位按需读、动作片段紧凑存放并在实体首次上线后由后台线程预热（单模型约 8 MB，原约 110 MB），可达性查询 40 tick 内同块复用、找屋顶按不同屋顶测试、流浪游走每轮两次路线测试、放下点最多 6 个被拒站位。剩余：陆产接生“接住”路线搜索（`BirthLaunch.catches` → `HullProfile` 表面采样）单 tick 可达 0.2–1.2 s；场景布置帧约 0.5 s 不属代码。完成标准：首次出现时无可见卡顿。
 - **帽檐上不会玩的幼体进不了舱（审计 M4，`rescue_child`）**：部分接入（分支 wp-ah-young-aboard，本机冒烟非验收）：被救起放到帽檐的幼体，落水收口后干爽即可被安抚；但 `TakeSeat` 对帽檐上的幼体不出手（放开会让被照料的新生儿离开接触，`birth_hat_own` 首便失败），辫子 `Release` 即使舱内有位也把它放回帽檐，且 `CareApproach` 对帽檐上的幼体报 `no_reachable_meeting`，安抚与托入无从落地。完成：舱内有空位时，被救的幼体进到舱内（自己爬入或辫子放入），亲油随后安抚。
 
