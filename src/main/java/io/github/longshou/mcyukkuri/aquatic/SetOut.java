@@ -16,6 +16,7 @@ import io.github.longshou.mcyukkuri.intent.IntentRunner;
 import io.github.longshou.mcyukkuri.intent.Method;
 import io.github.longshou.mcyukkuri.intent.Step;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
+import io.github.longshou.mcyukkuri.motor.BodyAbility;
 import io.github.longshou.mcyukkuri.motor.ClipMarkers;
 import io.github.longshou.mcyukkuri.motor.action.Face;
 import io.github.longshou.mcyukkuri.motor.action.Grab;
@@ -160,12 +161,12 @@ final class SetOut implements Intent, FamilyRendezvous {
                             return current.isEmpty() ? null : new Step.Do(new Face(SurfaceApproach.yaw(owner.position(), current.getFirst().position())));
                         }, () -> {
                             gatherUntil = owner.level().getGameTime() + GATHER_YOUNG;
-                            return new Step.Wait(() -> gathered() || owner.level().getGameTime() >= gatherUntil, GATHER_YOUNG + 1, Behaviors.BOAT_CALL);
+                            return new Step.Wait(this::gatherOver, GATHER_YOUNG + 1, Behaviors.BOAT_CALL);
                         });
             }
             if (edge != null && gatherUntil != 0) {
                 boolean ready = gathered();
-                if (!ready && owner.level().getGameTime() >= gatherUntil) {
+                if (!ready && gatherOver()) {
                     var carriable = carriable();
                     if (carriable != null) return lift(carriable, edge);
                     for (var y : fetch) if (!y.family().withinFollowDistance(owner) && !BraidFetch.withinReach(owner, y)) {
@@ -316,6 +317,14 @@ final class SetOut implements Intent, FamilyRendezvous {
     private List<YukkuriEntity> dependentAshore(PlacedHatEntity hat) {
         return AquaticLife.young(owner).stream().filter(y -> (!AquaticLife.jumper(y) || Drive.failed(y, "board_parent"))
                 && AquaticLife.ashore(y) && staying(y) == null && !AquaticLife.aboard(y, hat)).toList();
+    }
+
+    /** The gather call is over: all have come, the time is up, or a young that has not come cannot reach her at its own walking pace
+     *  before the time is up (she then goes to it instead of standing at the berth). */
+    private boolean gatherOver() {
+        long left = Math.max(0, gatherUntil - owner.level().getGameTime());
+        return gathered() || left == 0 || dependentAshore(AquaticLife.hat(owner)).stream().anyMatch(y -> !y.family().withinFollowDistance(owner)
+                && Math.sqrt(y.distanceToSqr(owner)) > BodyAbility.of(y).walkSpeed() * left);
     }
 
     /** Whether the current responsive wards have reached her braid on the bank. */
