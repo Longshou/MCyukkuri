@@ -8,14 +8,14 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
-| 陆地家庭在场（审计 P1：近处不寻子、窝内不算走失、幼体饥饿时跟随亲代、目睹亲缘死亡、独立告别、搬运站位失败与单人抬、求偶上限读数、孕期安窝、无路时留守与部分寻路、亲缘问候与蹭蹭；临产母亲走进窝里分娩） | `.worktrees/wp-aq-family` | `family/FamilyLife`、`family/FamilySeparation`、`family/ParentCarry`、`family/IndependenceLife`、`family/Courtship`、`family/LiveBirth`、`social/YukkuriSocial`、`social/SelfOffering` |
 | 聚落、无帽与人类的社会生活（审计 P5：坑边接触照料、拒绝与流放按次、狩猎拒绝按特质、奴隶乞食、宠物主人悲伤、NPC 看护上限与进食、嘲笑按性格回应、Myon 取树枝、碎片分散、喂食后鞠躬、配偶同居同迁） | `.worktrees/wp-ax-society` | `settlement/SettlementSociety`、`settlement/CommonHunt`、`settlement/CommunityRules`、`settlement/Judgement`、`settlement/PitSlave`、`settlement/HabitatHomes`、`headwear/Contempt`、`headwear/Headwear`、`human/HumanNpc`、`human/Custody`、`pet/PetLife`、`rare/MyonLife` |
 | 全游戏演示场景梳理与取名（非池塘场地合并同路径演示、改名、迁徙两场找回、生成点与初态核对） | `.worktrees/wp-au-scene-curation` | `scripts/museum_*.py`、`scripts/smoke_museum.py`、`docs/TODO.md` |
 
 ## 玩法待办
 
 ### 复测失败/待修复
-- **陆地休闲、同伴与亡者（审计 P2，[规则](FEATURES.md)）**：已接入待试玩（分支 wp-ar-leisure，本机冒烟非验收）。休闲统一门、孤独者走向朋友蹭蹭、同伴闲逛靠近、目睹受伤／濒死亲缘去安抚、悲伤时不躲臭味、躲臭味走出半径。未做：问候后才蹭蹭（需 `YukkuriSocial.noteContact`，归家庭包）。完成：`meet` 孤独者走近信任朋友蹭蹭（`session reserved kind=NUZZLE` 带 distance）、`last_words` 亲缘在濒死期内走到身边（`[comfort] cause=dying`）、`hurt` 目睹后安抚（`cause=witnessed_hurt`）。
+- **陆地家庭在场（审计 P1，[规则](FEATURES.md)）**：已接入待试玩（分支 wp-aq-family，本机冒烟非验收）。看得见的近处孩子只看着（走失才寻）、窝内的孩子不算走失、受饿幼体留在亲油身边、目睹亲缘死亡当场悲伤（`witnessed kin death`）、离家孩子在 4 格内看得见处告别、一只赤油只由一个亲油去抬且无路站位即放弃（`carry pickup stand blocked`，赤油自己回窝）、孕母在窝里安住、进不了床的孩子原地歇（`child rests short of its bed`）、隔玻璃的亲子走到最近处等待呼唤、走失幼体在最后所知处附近继续找、亲属问候算重逢、该问候时先问候再蹭蹭；求偶超时记 `courtship stopped reason=time_cap`。未做：求偶超时本身本机 7 场未复现，另 2 场两只发情成体从未开始求偶、各自走远（`HEAT_UNMET`，主线 2/2 受孕，样本小未作结论）；母油在孩子看不见时死亡，孤儿不知其死（台账已记 DEAD）仍不去找。完成：`den_family`、`hop` 无近处 `family search started`（本机 5 次重逢／0 次，审计时 52／约 20）；`settle_snow` 窝内不再反复 `child separation lost`；`offering` 献身仪式成形；`indep_near` 告别 `contact=100`；`family_search` 母油走到玻璃前等待至放弃；`last_words` 亲缘目睹死亡播 bereaved。
+- **陆地休闲、同伴与亡者（审计 P2，[规则](FEATURES.md)）**：已接入待试玩（分支 wp-ar-leisure，本机冒烟非验收）。休闲统一门、孤独者走向朋友蹭蹭、同伴闲逛靠近、目睹受伤／濒死亲缘去安抚、悲伤时不躲臭味、躲臭味走出半径。问候后才蹭蹭已由家庭包（下条）接入。完成：`meet` 孤独者走近信任朋友蹭蹭（`session reserved kind=NUZZLE` 带 distance）、`last_words` 亲缘在濒死期内走到身边（`[comfort] cause=dying`）、`hurt` 目睹后安抚（`cause=witnessed_hurt`）。
 - **首次加载卡顿余项**：部分接入（分支 wp-an-perf3，本机冒烟非验收）：伤口网格改流式载入、表情点位按需读、动作片段紧凑存放并在实体首次上线后由后台线程预热（单模型约 8 MB，原约 110 MB），可达性查询 40 tick 内同块复用、找屋顶按不同屋顶测试、流浪游走每轮两次路线测试、放下点最多 6 个被拒站位。剩余：陆产接生“接住”路线搜索（`BirthLaunch.catches` → `HullProfile` 表面采样）单 tick 可达 0.2–1.2 s；场景布置帧约 0.5 s 不属代码。完成标准：首次出现时无可见卡顿。
 - **帽檐上不会玩的幼体进不了舱（审计 M4，`rescue_child`）**：部分接入（分支 wp-ah-young-aboard，本机冒烟非验收）：被救起放到帽檐的幼体，落水收口后干爽即可被安抚；但 `TakeSeat` 对帽檐上的幼体不出手（放开会让被照料的新生儿离开接触，`birth_hat_own` 首便失败），辫子 `Release` 即使舱内有位也把它放回帽檐，且 `CareApproach` 对帽檐上的幼体报 `no_reachable_meeting`，安抚与托入无从落地。完成：舱内有空位时，被救的幼体进到舱内（自己爬入或辫子放入），亲油随后安抚。
 
@@ -224,7 +224,7 @@
   - [dd75d650](https://github.com/Longshou/MCyukkuri/commit/dd75d650)（CI 40200352271，10-25 22:24–22:38）`birth_nest_safe` 母油走到野生大窝窝沿上悬着不再行动（`no_place_for_term` 约 36 秒），手推才生产，首只赤油落窝沿顶仍记 CUSHION 且不动；伴侣反复 `nest claim refused reason=no_supported_body_space bodyWidth=0.80`；陆地接生足月母油（`bodyWidth=1.169`）被软垫窝拒收；`pet_birth`（现并入 `birth_nest_safe`）22:38:41 受孕后卡死。用户改判：伴侣拒收不再作真实后果，宁可少量穿模也要放得下、判定稳。
   - a0300e75（CI 40376399575，10-27 02:30:15）`pet_birth` 受孕后卡死（均无线程栈）。
   - E8 `pet_birth` 母油出窝是场景放了魔理沙接生者（`leave nest reason=catcher`）；场景已改灵梦伴侣，待试玩。
-  - 11-06 本机冒烟非验收（`wp-ap-scene-truth`，基于 f90b78a3c）：自然产与接生场的临产余量改为整段进近（`shoreBirthLead` 400 tick，近岸产 1200）后，`pet_birth`、`birth_nest_safe` 受孕后 2 tick 内 `birth_site` 无可用方法（`[method] no applicable method intent=birth_site refused=[walk:NO_PATH(no_route)]`），母油在原地生产，赤油 `outcome=GROUND` 摔伤；同样的茎生 `birth_nest_stem` 能走进窝。完成：胎生母油能规划到窝内休息位并走入，赤油落 CUSHION。
+  - 11-06 本机冒烟非验收（`wp-ap-scene-truth`，基于 f90b78a3c）：`pet_birth`（现并入 `birth_nest_safe`）、`birth_nest_safe` 受孕后 `birth_site` 无可用方法（`NO_PATH(no_route)`），赤油 `outcome=GROUND` 摔伤；原因是足月下腹撑宽后比窝口宽。已接入待试玩（分支 wp-aq-family，本机冒烟非验收）：软的下腹挤过窝口，窝口太窄另记 `[home] nest doorway too narrow`；`birth_nest_safe` 2/2 `birth_site result=DONE`、各 3 只 CUSHION、无摔伤。完成：胎生母油从窝外走进窝内休息位，赤油落 CUSHION。
 
   完成：`birth_nest_safe` 反复清场重开，初态落地、临产后游戏响应、母油留在大窝内生产；母油不跳地走进窝、不停窝沿，无长时间 `no_place_for_term`，到位后才 `delivery labor started`，落窝沿的赤油 `newborn on nest rim rolls inward` 后 `outcome=CUSHION`，伴侣 `assigned kind=care` 认领同窝；`birth_land_missed`、`birth_land_caught` 不再 `nest no longer fits stage/body`，`near-term leave nest reason=…` 后在窝外生产。1.2 倍足月孕母配 1.05 倍以上伴侣仍认窝失败是保留的空间上限。两种新窝模型待用户确认。
 - **窝内外寻路与接触交接（反馈 5）**：复测失败。用户反复看到途经窝时被卡住；陆地接生部分已由 WP3b 重写（见陆 25），其余场景未改。完成：`feed`、`first_toilet`、`hurt`、`meet`、`marisa_sumo`、`birth_land_caught`／`birth_land_missed`、`family_search`、`indep_near` 覆盖斜向接近、双方窝内／外、远侧站位、途中亲油移动；读 Goal、路径、接触距离与阻塞原因，途中探路不换当前目标，窝柱夹缝走完整绕路或换可达接生点，真实进出并完成交接；不用瞬移或强制留守。
