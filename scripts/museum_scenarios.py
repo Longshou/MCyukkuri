@@ -2098,8 +2098,9 @@ def _uuid_text(sid, slot):
 def _overload_family_choice(window):
     """Both kinds of parent on overload (FEATURES 载重, 超载断亲): the ordinary parent reads her hull's load warning and takes the
     family ashore to unload before it goes over (only a real overload capsize when she is too late dismisses her largest young);
-    the keeper (low intelligence, high friendliness) keeps going until it capsizes and keeps all her young."""
-    for parent, exceptional in (('normal', False), ('kind', True)):
+    the keeper (low intelligence, high friendliness) keeps going until it capsizes and keeps all her young. The `early` family's
+    young grow only into the warning: she must turn for the bank and land them, with no overload capsize."""
+    for parent, exceptional in (('early', False), ('normal', False), ('kind', True)):
         owner = _uuid_text('hat_crowd', parent)
         hulls = re.findall(r'\[hat\][^\n]* placed owner=' + owner + r' hat=(\S+)', window)
         if not hulls:
@@ -2133,15 +2134,17 @@ def _overload_family_choice(window):
             if re.search(r'\[aquatic\][^\n]*uuid=' + owner + r'[^\n]* load heavy ', window):
                 return 'exceptional parent reacted to the load warning'
             continue
+        if parent == 'early' and capsized is not None:
+            return 'early: the hull capsized from overload though its young grow only into the warning'
         if capsized is None:
             # in time: the load warning sends her ashore, the family lands, and nobody is dismissed without a capsize
             heavy = re.search(r'\[aquatic\][^\n]*uuid=' + owner + r'[^\n]* load heavy hat=' + boats + r'[^\n]* reason=unload_ashore', window)
             if heavy is None:
-                return 'normal parent neither unloaded at the load warning nor capsized'
+                return f'{parent}: neither unloaded at the load warning nor capsized'
             if not re.search(r'\[intent\][^\n]*uuid=' + owner + r'[^\n]* end id=come_ashore result=DONE\b', window[heavy.end():]):
-                return 'normal parent turned for the bank at the load warning but never landed the family'
+                return f'{parent}: turned for the bank at the load warning but never landed the family'
             if dismissals:
-                return 'normal parent dismissed a young without an overload capsize'
+                return f'{parent}: dismissed a young without an overload capsize'
             continue
         if not dismissals or dismissals[0].start() < capsized.end() or dismissals[0][1] != _uuid_text('hat_crowd', parent + '3'):
             return 'normal parent did not dismiss the largest young after the real overload capsize'
@@ -2172,12 +2175,14 @@ def _escape_needs_place(window):
     return None
 
 
-def _overload_family(parent, dz, intelligence, friendliness, cabin):
-    """Saved young far below the size their stored nourishment already sustains: the ordinary loaded ticks grow them aboard into
-    a load over twice the hull's capacity. They start just under the load warning for the ordinary parent (head 0.355 + brim
-    0.20: 0.83 of capacity; at 0.18 young 2 takes the cabin instead), so her own load rule seats them and growth carries the
-    hull into the warning she reacts to; young 2 stays under that capacity on its own, so the parent that lost its largest stops overloading while the exceptional one keeps
-    all three and overloading. One real pile of apples floats in the open water beyond each berth, next to the eight in the hat."""
+def _overload_family(parent, dz, intelligence, friendliness, cabin, grown=(120000, 210000)):
+    """Saved young below the size their stored nourishment (`grown`, young 2 and 3) already sustains: the ordinary loaded ticks
+    grow them aboard. They start just under the load warning for the ordinary parent (head 0.355 + brim 0.20: 0.83 of capacity;
+    at 0.18 young 2 takes the cabin instead), so her own load rule seats them. By default the head young grows at once to 0.50
+    and young 2 to 0.29, a load over twice the hull's capacity with no warning in between; young 2 stays under that capacity on
+    its own, so the parent that lost its largest stops overloading while the exceptional one keeps all three and overloading.
+    `grown=(84000, 157500)` grows only the head young, to 0.375: the hull sits in its warning (0.96) and never overloads.
+    One real pile of apples floats in the open water beyond each berth, next to the eight in the hat."""
     return [yk('marisa', bank_dx(dz), dz, parent, aquatic=True, yaw=-90, lead=True,
                uuid=uid('hat_crowd', parent), intelligence=intelligence, friendliness=friendliness,
                label=f'智{intelligence}·友善{friendliness}', **pair_ready()),
@@ -2185,8 +2190,8 @@ def _overload_family(parent, dz, intelligence, friendliness, cabin):
                  fam=_seat_family(size, nourishment, age), childhood=CHILDHOOD_CRAWLING_READY,
                  uuid=uid('hat_crowd', parent + str(i)), also=(parent + '_crew',),
                  kin=f'Mother:{uuid_nbt(uid("hat_crowd", parent))}', label=f'孩子{i}', **pair_ready())
-              for i, offset, size, nourishment, age in ((1, -1, .16, 22909, 36000), (2, 0, .20, 120000, 76000),
-                                                       (3, 1, .355, 210000, 72000)) if cabin or i != 1],
+              for i, offset, size, nourishment, age in ((1, -1, .16, 22909, 36000), (2, 0, .20, grown[0], 76000),
+                                                       (3, 1, .355, grown[1], 72000)) if cabin or i != 1],
             item('minecraft:apple', 8, bank_dx(dz) + 9, dz, name=parent + '_food'),
             afloat(parent, water_at(dz, 6), True, sel_all(parent + '_crew'), food=8, stick=True)]
 
@@ -2567,18 +2572,20 @@ pond('cargo', '帽里存粮取食，空帽打下', '帽里存粮取食，空帽�
                 readout=[f'yukkuri status {sel("a")} raw', f'yukkuri status {sel("full")} raw']))
 
 pond('hat_crowd', '孩子长大超载翻船，亲油取舍', '孩子长大超载翻船，亲油取舍',
-     '两位亲油并排，普通亲油带一只头顶赤油和一只帽檐子油，另一位还带一只帽内小赤油，按舱内、裸露头顶、帽檐顺序找真实承托。普通亲油智力55、友善70；另一位智力20、友善80。各有八份帽粮，帽旁水里另漂着八份真实苹果；孩子靠实际成长增加载重；超载只在登船、离船或成长时抽一次翻船概率。普通亲油看到帽船吃水下沉、多晃（载重警戒）就带全家划回岸边卸下，再出航只带帽船载得下的孩子、载不下的留岸；来不及靠岸而真正超载翻船时，才断绝最大的一只。低智力高友善亲油不理会警戒，照样载着全家，超载翻船后继续承认全部孩子。落水后照常自救或救幼，不能保证存活',
+     '三位亲油并排，两位普通亲油（智力55、友善70）各带一只头顶赤油和一只帽檐子油，低智力高友善的一位（智力20、友善80）还带一只帽内小赤油，按舱内、裸露头顶、帽檐顺序找真实承托。北侧普通亲油的头顶孩子只长大一点，帽船进入载重警戒而不超载；中间普通亲油的孩子一下长大到超载，来不及应对。各有八份帽粮，帽旁水里另漂着八份真实苹果；孩子靠实际成长增加载重；超载只在登船、离船或成长时抽一次翻船概率。普通亲油看到帽船吃水下沉、多晃（载重警戒）就带全家划回岸边卸下，再出航只带帽船载得下的孩子、载不下的留岸；来不及靠岸而真正超载翻船时，才断绝最大的一只。低智力高友善亲油不理会警戒，照样载着全家，超载翻船后继续承认全部孩子。落水后照常自救或救幼，不能保证存活',
      '约 5 分钟，建议倍速',
-     [*_overload_family('normal', 0, 55, 70, False), *_overload_family('kind', 6, 20, 80, True)],
+     [*_overload_family('early', -6, 55, 70, False, grown=(84000, 157500)), *_overload_family('normal', 0, 55, 70, False),
+      *_overload_family('kind', 6, 20, 80, True)],
      late=[f'execute as {sel("normal")} on vehicle run tag @s add seat_reload'],
      capture=dict(shots=(1, 600, 2400, 5200), sequences=((600, 5200, 200), (1400, 2600, 4))),
      note='普通亲油的头顶与帽檐乘员用于保存重载核对，另一位的帽内赤油可自行转身和走动；冒烟会卸载再加载场地区块核对第一顶帽的位置与乘员。'
           '逐只记 scenario place 的 CABIN／HEAD／BRIM；[aquatic] load changed 给出事件、载重、容量、概率、抽值和结果，静止不重抽。'
-          '先看 load warning：普通亲油随即记 [aquatic] load heavy … reason=unload_ashore，come_ashore 的 why 中 heavy=true，靠岸卸下全家，再出航时载不下的记 set_out left_ashore（hull_full）；来不及而真正翻覆时才记 parent dismissed child，孩子仍认亲、族谱不变，亲油不再救它。另一位不理会警戒，capsized cause=too_heavy 与真实落水后记 overload keeps children。'
+          '先看 load warning：普通亲油（北侧必然，中间只在超载没抽中翻船时）随即记 [aquatic] load heavy … reason=unload_ashore，come_ashore 的 why 中 heavy=true，靠岸卸下全家，再出航时载不下的记 set_out left_ashore（hull_full）；来不及而真正翻覆时才记 parent dismissed child，孩子仍认亲、族谱不变，亲油不再救它。另一位不理会警戒，capsized cause=too_heavy 与真实落水后记 overload keeps children。'
           '子油没有自己的木棍而推迟初航；每家的帽旁另漂着一堆八份真实苹果可捞，帽内八份翻覆后照常散出，不补粮。不强制翻船或死亡，真实碰撞、拒绝和水伤保留，逐只读存亡；整窗不得有人饿死。',
      reads=[('读普通亲油与族谱', f'yukkuri status {sel("normal")} raw'),
             ('读低智力高友善亲油', f'yukkuri status {sel("kind")} raw'),
             ('读普通亲油最大孩子', f'yukkuri status {sel("normal3")} raw'),
+            ('读北侧普通亲油（只进警戒）', f'yukkuri status {sel("early")} raw'),
             ('读另一位最大孩子', f'yukkuri status {sel("kind3")} raw'),
             ('读载重帽', 'data get entity @e[tag=seat_reload,limit=1]')],
      smoke=dict(ticks=6000, reload=(60, '@e[tag=seat_reload,limit=1]'),
@@ -2591,7 +2598,8 @@ pond('hat_crowd', '孩子长大超载翻船，亲油取舍', '孩子长大超载
                         r'\[needs\][^\n]* starvation damage accepted=true',
                         r'\[body\][^\n]* death settled[^\n]*cause=(?!.*(?:drown|water))'],
                 verify=lambda window: _overload_family_choice(window) or _escape_needs_place(window),
-                readout=[f'yukkuri status {sel(who)} raw' for who in ('normal', 'kind', 'normal2', 'normal3', 'kind1', 'kind2', 'kind3')]
+                readout=[f'yukkuri status {sel(who)} raw'
+                         for who in ('early', 'normal', 'kind', 'early2', 'early3', 'normal2', 'normal3', 'kind1', 'kind2', 'kind3')]
                         + ['data get entity @e[tag=seat_reload,limit=1] Riders',
                            'data get entity @e[tag=seat_reload,limit=1] Motion',
                            'data get entity @e[tag=seat_reload,limit=1] Inverted']))
