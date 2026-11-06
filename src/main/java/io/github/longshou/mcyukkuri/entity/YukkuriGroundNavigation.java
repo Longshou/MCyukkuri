@@ -194,8 +194,9 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
         super.doStuckDetection(at);
         if(walking&&isDone()){
             stalled=true;
-            GameplayLog.limited(mob,"move","path_stalled",200,"ground path stopped reason=no_progress target={} at={} node={} index={} held={} nodeBelow={} nodeFluid={}",
-                    target,at,node,route,held,node==null?null:level.getBlockState(node.below()).getBlock(),node==null?null:level.getFluidState(node).getType());
+            GameplayLog.limited(mob,"move","path_stalled",200,"ground path stopped reason=no_progress target={} at={} node={} index={} held={} nodeBlock={} nodeBelow={} nodeFluid={} collided={} speed={} onGround={} motor={}",
+                    target,at,node,route,held,node==null?null:level.getBlockState(node).getBlock(),node==null?null:level.getBlockState(node.below()).getBlock(),node==null?null:level.getFluidState(node).getType(),
+                    mob.horizontalCollision,mob.getSpeed(),mob.onGround(),mob instanceof YukkuriEntity body?body.motor().current():null);
         }
     }
 
@@ -337,6 +338,9 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
             }
             // A route's nodes are dry, but the straight step to one can still cross a corner of water: the step stops at the land.
             var dry = SurfaceApproach.dryAim(walker, wanted);
+            // A body perched on a brink (a drinker at the bank) may find every direct step toward the node putting more of it over
+            // the water: it first centres on its own cell, which only lessens the water under it, and then goes on along the shore.
+            if (dry.distanceToSqr(walker.position()) < 1.0E-8) dry = SurfaceApproach.dryAim(walker, new Vec3(walker.getBlockX() + .5, walker.getY(), walker.getBlockZ() + .5));
             if (dry.distanceToSqr(wanted) > 1.0E-8) control.setWantedPosition(dry.x, dry.y, dry.z, control.getSpeedModifier());
         }
     }
