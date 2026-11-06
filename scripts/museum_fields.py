@@ -198,7 +198,8 @@ class Dens(Field):
         self.anchor = self.spots['family']
 
     def features(self):
-        return self.cave_cmds + scatter_trees(self, 10, 61, margin=3, avoid=[(self.cx - 40, self.cz - 10, self.cx + 28, self.cz + 12)])
+        # Grass over the whole field first (parents forage locally); the mound and cavity fills then overwrite it.
+        return grass_cover(self.x1 + 1, self.z1 + 1, self.x2 - 1, self.z2 - 1) + self.cave_cmds + scatter_trees(self, 10, 61, margin=3, avoid=[(self.cx - 40, self.cz - 10, self.cx + 28, self.cz + 12)])
 
 
 class Forage(Field):
