@@ -35,6 +35,8 @@ public final class ForageGoal extends Goal {
     private final YukkuriEntity entity;
     private BlockPos target;
     private BlockPos searchSpot;
+    /** A plant whose walk stalled: the next search passes it over once, so the same tuft is not re-picked at once. */
+    private BlockPos stalledPlant;
     private boolean running;
     private ForageClaims.Claim claim;
     private int elapsed;
@@ -128,12 +130,14 @@ public final class ForageGoal extends Goal {
         claim = null; target = null; int tests = 0;
         for (BlockPos pos : found) {
             if (!Reactions.Weather.allowsStep(entity,pos) || !entity.life().dryStand(pos) || !entity.family().allowsIdleWalk(Vec3.atBottomCenterOf(pos))) continue;
+            if (pos.equals(stalledPlant)) continue;
             if (++tests > MAX_PATH_TESTS) break;
             if (entity.life().reachable(pos, false)) {
                 claim = ForageClaims.claim(level(), pos, entity.getUUID());
                 if (claim != null) { target = pos; break; }
             }
         }
+        stalledPlant = null;
     }
     @Override public void start() {
         running = true;
@@ -192,9 +196,14 @@ public final class ForageGoal extends Goal {
             if (ForageClaims.owns(level(), target, claim) && Grazing.edible(level().getBlockState(target))
                     && entity.life().beginMeal(new ItemStack(Items.SHORT_GRASS), null, false)) Grazing.graze(level(), target);
             stop();
-        } else if (elapsed % 10 == 1 && !entity.life().navigate(target, searchSpeed(), false)) {
-            GameplayLog.limited(entity,"forage","blocked_food",200,"food path blocked target={}",target);
-            ForageClaims.release(claim); claim = null; target = null; scanAfter = level().getGameTime() + 40;
+        } else if (elapsed % 10 == 1) {
+            // A walk the ground navigation gave up on (no progress) is a path failure like a refused route, not a reason to re-issue it.
+            boolean stalled = entity.getNavigation().isStuck();
+            if (stalled || !entity.life().navigate(target, searchSpeed(), false)) {
+                GameplayLog.limited(entity,"forage","blocked_food",200,"food path blocked target={} stalled={}",target,stalled);
+                stalledPlant = target;
+                ForageClaims.release(claim); claim = null; target = null; scanAfter = level().getGameTime() + 40;
+            }
         }
     }
     @Override public void stop() {
