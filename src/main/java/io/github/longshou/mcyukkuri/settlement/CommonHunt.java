@@ -2,6 +2,8 @@ package io.github.longshou.mcyukkuri.settlement;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.FamilyData;
+import io.github.longshou.mcyukkuri.social.Temperament;
+import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.UUID;
@@ -140,9 +142,10 @@ public final class CommonHunt {
             if (level.getEntity(id) instanceof YukkuriEntity child && child.isAlive() && child.family().needsMash()) return true;
         return false;
     }
+    /** The documented band (project design): little attachment, a selfish nature and little self-control. */
     private static boolean defiant(YukkuriEntity m) {
         var p = m.life().personality();
-        return m.getRandom().nextFloat() >= p.helpProbability(true, false);
+        return p.attachment() < 40 && p.friendliness() <= 40 && p.selfControl() < Temperament.SELF_CONTROL_AT_50;
     }
 
     /**
@@ -191,6 +194,9 @@ public final class CommonHunt {
             if (!able(m, famine)) continue;
             if (defiant(m)) {
                 hunt.defied.add(m.getUUID());
+                var p = m.life().personality();
+                GameplayLog.event(m, "settlement", "hunt call refused leader={} attachment={} friendliness={} selfControl={}", leader.getUUID(),
+                        p.attachment(), p.friendliness(), p.selfControl());
                 m.showReaction("angry", "hunt_refuse", 60);
                 continue;
             }

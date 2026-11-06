@@ -210,6 +210,7 @@ public final class CommunityRules {
         if (wasMember) offender.settlement().exile();
         if (by != null) {
             by.showReaction("angry", "settlement_drive", 80);
+            by.mind().perform("puff", 60);
             if (by.distanceToSqr(offender) <= 16 * 16) offender.frightenFrom(by);
         }
         offender.mind().felt(EmotionEvent.SOCIAL_HURT); offender.showReaction("teary", "settlement_hurt", 100);
