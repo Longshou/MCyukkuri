@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.family;
 
 import io.github.longshou.mcyukkuri.status.GameplayLog;
+import io.github.longshou.mcyukkuri.life.NestDoorway;
 import io.github.longshou.mcyukkuri.life.TravelRange;
 
 import io.github.longshou.mcyukkuri.mind.EmotionEvent;
@@ -1134,7 +1135,8 @@ public final class FamilyLife {
         if(urgentNeed())return false;
         if(task==Task.FETCH_HAT)return choreHat!=null&&!choreHat.isRemoved()&&choreHat.catches()&&taskTicks<2400&&Conductor.roleOf(entity)==null;
         if(task==Task.COMFORT)return comfortTicks>0;
-        if(task==Task.BROOD)return taskTicks<240&&!birth.active();
+        // She stays settled with the unborn until a real need (above) takes her out or the birth's own beats begin.
+        if(task==Task.BROOD){var pregnancy=brood();return pregnancy!=null&&!pregnancy.cancelled&&!pregnancy.complete()&&!birth.active();}
         if((task==Task.FOLLOW||task==Task.SEARCH||task==Task.STAY_HOME)&&ParentCarry.awaitsCarrier(entity)) {
             GameplayLog.limited(entity,"family","wait.carrier",1200,"baby waits for parent carry task={} ticks={}",task,taskTicks);
             return false;
@@ -1171,7 +1173,12 @@ public final class FamilyLife {
                 var resting=FamilyNest.restPosition(entity,home);
                 if(resting==null)resting=FamilyNest.bedMiddle(entity,home);
                 if(resting!=null&&entity.distanceToSqr(resting)>.04) { SurfaceApproach.walk(entity,resting,.9); }
-                else { entity.getNavigation().stop();entity.getLookControl().setLookAt(entity.getX(),entity.getEyeY(),entity.getZ()-2,10,10); }
+                else {
+                    entity.getNavigation().stop();
+                    var care=FamilyNest.care(entity);
+                    var out=care!=null?care.centre().add(0,0,NestDoorway.shape(care).side()*2):shelter!=null?Vec3.atCenterOf(shelter.entrance()):null;
+                    if(out!=null)entity.getLookControl().setLookAt(out.x,entity.getEyeY(),out.z,10,10);
+                }
             }
             case COURT -> courtship.tickCourt();
             case RECEIVE_COURT -> courtship.tickReceiver();
