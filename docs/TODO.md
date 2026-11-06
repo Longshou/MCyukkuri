@@ -8,11 +8,7 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
-<<<<<<< HEAD
 | 水域余项（birth_hat_own 次胎首便、岸边抓幼、rescue_child 回帽、hat_crowd 重试） | `.worktrees/wp-am-aquatic-tails` | `behavior/`、`aquatic/` 相关 |
-=======
-| 首次加载卡顿（伤口网格后台加载、受限路径搜索） | `.worktrees/wp-an-perf3` | `body/WoundSurface.java`、`body/WoundMotion.java`、`life/LifeHome`、`HabitatHomes`、`motor/action/Release` |
->>>>>>> 14d85baac (Aboard care meets the child inside the contact cone, not on its edge (the rear contact read .9699 against .97 and the first toilet never touched); log why a rear contact is lost)
 | 陆地场景起点真实性（审计 P6：Retry 分叉、伤口、产期、各场景起点；Walk 已在目标即完成） | `.worktrees/wp-ap-scene-truth` | `scripts/museum_scenarios.py`、`museum_fields.py`、`build_museum_full.py`、`command/ScenarioSetup`、`ScenarioCommands`、`motor/action/Walk` |
 
 ## 玩法待办
