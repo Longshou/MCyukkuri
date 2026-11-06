@@ -1,5 +1,8 @@
 package io.github.longshou.mcyukkuri.life;
 
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 import io.github.longshou.mcyukkuri.registry.ModBlocks;
 import io.github.longshou.mcyukkuri.family.FamilyNest;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
@@ -55,15 +58,25 @@ final class LifeHome {
     }
 
     BlockPos nearestDryCover() {
-        BlockPos best=null;double distance=Double.MAX_VALUE;
+        var found=new ArrayList<BlockPos>();
         for(var pos:BlockPos.betweenClosed(o.entity().blockPosition().offset(-TravelRange.search(o.entity(),8),-2,-TravelRange.search(o.entity(),8)),o.entity().blockPosition().offset(TravelRange.search(o.entity(),8),2,TravelRange.search(o.entity(),8)))) {
             if(!TravelRange.babyDestination(o.entity(),pos)||!dryStand(pos)||!covered(pos))continue;
             var owner=ShelterBlock.shelter(o.level(),pos);
             if(owner!=null&&!owner.owns(o.entity().getUUID()))continue;
-            double candidate=o.entity().distanceToSqr(Vec3.atBottomCenterOf(pos));
-            if(candidate<distance&&o.reachable(pos,false)){best=pos.immutable();distance=candidate;}
+            found.add(pos.immutable());
         }
-        return best;
+        return nearestReachable(found);
+    }
+
+    /** At most this many route searches per scan: neighbouring cells of one roof share their answer. */
+    private static final int ROUTE_TESTS=6;
+    /** The nearest candidate with a walkable route, testing from the nearest outward (not every cell in scan order). */
+    private BlockPos nearestReachable(List<BlockPos> candidates){
+        var from=o.entity().position();
+        candidates.sort(Comparator.comparingDouble(pos->Vec3.atBottomCenterOf(pos).distanceToSqr(from)));
+        int tests=0;
+        for(var pos:candidates){if(++tests>ROUTE_TESTS)break;if(o.reachable(pos,false))return pos;}
+        return null;
     }
 
     boolean covered(BlockPos pos) {
@@ -176,12 +189,12 @@ final class LifeHome {
         if (nest != null && assignHome(GlobalPos.of(o.level().dimension(), nest))) return false;
         // A wild individual without a recognised home is a vagrant: any dry roof is only a refuge for the night, never an address.
         if (o.entity().habitat().wildLiver()) return false;
-        BlockPos best = null; double distance = Double.MAX_VALUE;
+        var found = new ArrayList<BlockPos>();
         for (BlockPos scan : BlockPos.betweenClosed(o.entity().blockPosition().offset(-TravelRange.search(o.entity(),8),-2,-TravelRange.search(o.entity(),8)), o.entity().blockPosition().offset(TravelRange.search(o.entity(),8),2,TravelRange.search(o.entity(),8)))) {
             if (!dryStand(scan) || !covered(scan) || ShelterBlock.shelter(o.level(),scan)!=null) continue;
-            double candidate = o.entity().distanceToSqr(Vec3.atBottomCenterOf(scan));
-            if (candidate < distance && o.reachable(scan, false)) { best = scan.immutable(); distance = candidate; }
+            found.add(scan.immutable());
         }
+        BlockPos best = nearestReachable(found);
         if (best != null) {
             home = GlobalPos.of(o.level().dimension(), best); naturalHome = true;
             GameplayLog.event(o.entity(),"home","assigned kind=roof home={}",home);

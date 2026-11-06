@@ -75,6 +75,8 @@ public final class LiveBirthGeometry {
             return JsonParser.parseReader(new InputStreamReader(stream,StandardCharsets.UTF_8)).getAsJsonObject().getAsJsonObject("variants");
         }catch(IOException ex){throw new UncheckedIOException(ex);}
     }
+    /** Forces the pose and body tables to load (resource warm-up). */
+    public static void warm(){modelHeight("reimu");POSES.size();}
     public static float modelHeight(String id){
         return BODY.has(id)?BODY.getAsJsonObject(id).get("height").getAsFloat():id.startsWith("house_")?3.82f:id.equals("remilia")||id.equals("flandre")?9.6f:8.48f*(id.endsWith("_bean")?1.55f:1);
     }

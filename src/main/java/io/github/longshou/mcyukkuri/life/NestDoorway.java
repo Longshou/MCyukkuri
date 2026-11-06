@@ -24,6 +24,7 @@ public final class NestDoorway {
         var level = actor.level();
         if (!level.hasChunkAt(pos)) return null;
         var state = level.getBlockState(pos);
+        if (!(state.getBlock() instanceof CareBlock)) return null;
         var origin = state.getBlock() instanceof LargeNestBlock ? LargeNestBlock.origin(state, pos) : pos;
         return level.getBlockEntity(origin) instanceof CareBlockEntity bed && bed.kind() == CareBlock.Kind.NEST
                 && bed.bed() != NestResting.LEDGE ? bed : null;

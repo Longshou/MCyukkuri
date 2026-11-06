@@ -23,6 +23,8 @@ public record BodyFootprint(List<Column> columns, double width, double height, d
     public static synchronized BodyFootprint envelope(String asset,double width,double height,double yaw) {
         return footprint(asset,width,height,yaw,true);
     }
+    /** Builds one model's collision shapes ahead of its first body (resource warm-up). */
+    public static void warm(String asset){for(boolean hair:new boolean[]{false,true})SHAPES.computeIfAbsent(asset+":"+hair,ignored->shape(asset,hair));}
     private static BodyFootprint footprint(String asset,double width,double height,double yaw,boolean hair) {
         return CACHE.computeIfAbsent(new Key(asset,width,height,yawBucket(yaw),hair),key->{
             var shape=SHAPES.computeIfAbsent(asset+":"+hair,ignored->shape(asset,hair));

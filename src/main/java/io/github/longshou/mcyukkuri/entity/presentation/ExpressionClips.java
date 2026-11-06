@@ -15,7 +15,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /** Server-side sampling of authored face spans; clients only display the synchronized winner. */
-final class ExpressionClips {
+public final class ExpressionClips {
     private record Span(float start,float end,String face){}
     private record Clip(float duration,boolean loop,List<Span> spans,Set<String> yields){}
     private static final String ROOT="/assets/mcyukkuri/";
@@ -28,6 +28,8 @@ final class ExpressionClips {
         for(var span:clip.spans)if(time>=span.start&&time<span.end)return span.face;
         return fallback;
     }
+    /** Reads one model's face spans ahead of its first body (resource warm-up). */
+    public static void warm(String asset){MODELS.computeIfAbsent(asset,ExpressionClips::load);}
     private static Map<String,Clip> load(String asset){
         var out=new HashMap<String,Clip>();
         try(var stream=ExpressionClips.class.getResourceAsStream(ROOT+"yukkuri/"+asset+".json")){

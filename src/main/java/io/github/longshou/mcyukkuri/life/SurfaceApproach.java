@@ -157,6 +157,15 @@ public final class SurfaceApproach {
 
     /** The straight step to {@code to} never puts more of the body over water than it already is (sampled every .1 blocks). */
     public static boolean dryStep(YukkuriEntity actor, Vec3 from, Vec3 to) {
+        // No fluid anywhere over the two footprints' hull: every sample is dry, so the step is dry.
+        var level = actor.level();
+        var shift = actor.getBoundingBox().move(from.subtract(actor.position()));
+        var hull = shift.minmax(shift.move(to.subtract(from))).inflate(.02);
+        boolean fluid = false;
+        for (var cell : BlockPos.betweenClosed(BlockPos.containing(hull.minX, Math.min(from.y, to.y) - .005, hull.minZ),
+                BlockPos.containing(hull.maxX, Math.max(from.y, to.y), hull.maxZ)))
+            if (!level.getFluidState(cell).isEmpty()) { fluid = true; break; }
+        if (!fluid) return true;
         return dryAim(actor, from, to).distanceToSqr(to) < 1.0E-8;
     }
 

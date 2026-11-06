@@ -146,6 +146,7 @@ public final class CommonRegistration {
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, EntityTickEvent.Post.class, WildEvents::discover);
 
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, ServerStartingEvent.class, SceneReset::started);
+        NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, ServerStartingEvent.class, ResourceWarmup::started);
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, ServerStartingEvent.class, ForageClaims::started);
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, ServerStartingEvent.class, ShopCourier::started);
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, ServerStartingEvent.class, ShopPerformance::started);
