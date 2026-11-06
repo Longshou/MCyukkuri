@@ -83,6 +83,10 @@ public final class PredatorLife implements EcologyRoutine {
     private long nextLandingSearch;
     private int landingSearchRadius = 8;
     private int ticks, cooldown, biteTicks, patrolWait = 160, nestWait, reactWait, restrainWait;
+    /** A beaten fighter's landing search keeps this far from the body that beat it. */
+    private static final int WITHDRAW_CLEARANCE_SQR = 256;
+    private static final double ARMED_PREY_PENALTY = 60;
+    private Vec3 landingAvoid;
     /** Combat (true) is a continuous defensive fight that never feeds or depends on hunger; predation (false) is bite, then eat. */
     private boolean retaliation;
     private Pass pass = Pass.APPROACH;
@@ -402,7 +406,8 @@ public final class PredatorLife implements EcologyRoutine {
             prey = level().getEntitiesOfClass(YukkuriEntity.class, animal.getBoundingBox().inflate(HUNT_RANGE, 8, HUNT_RANGE), this::mayHunt).stream()
                     .min(Comparator.<YukkuriEntity>comparingInt(y -> slowChild(y) ? 0 : 1)
                             .thenComparingDouble(y -> slowChild(y) ? y.getAttributeValue(Attributes.MOVEMENT_SPEED) : 0)
-                            .thenComparingDouble(y -> animal.distanceToSqr(y) + y.getHealth() - y.mind().preyAppeal())).orElse(null);
+                            .thenComparingDouble(y -> animal.distanceToSqr(y) + y.getHealth() - y.mind().preyAppeal()
+                                    + (fightsBack(y) ? ARMED_PREY_PENALTY : 0))).orElse(null);
             if (prey != null) {
                 GameplayLog.event(animal,"predator","prey selected target={} stage={} speed={} slow_child={} range={} distance={}",
                         prey.getUUID(),prey.family().stage(),prey.getAttributeValue(Attributes.MOVEMENT_SPEED),slowChild(prey),HUNT_RANGE,animal.distanceTo(prey));
@@ -411,7 +416,7 @@ public final class PredatorLife implements EcologyRoutine {
             if (restrain()) { cooldown = 20; return false; }
         }
         if (patrolWait == 0 && order() != Order.RETURN && animal.family().adult() && animal.life().energy() > 45
-                && !level().isNight() && !level().isRaining() && !animal.life().hasUrgentNeed()) {
+                && !level().isNight() && !level().isRaining()) {
             var center = home == null ? animal.position() : Vec3.atBottomCenterOf(home);
             double angle = animal.getRandom().nextDouble() * 2 * Math.PI;
             double distance = 12 + animal.getRandom().nextDouble() * (PATROL_RADIUS - 12);
@@ -427,6 +432,10 @@ public final class PredatorLife implements EcologyRoutine {
     private boolean slowChild(YukkuriEntity target) {
         return !target.family().adult() && !target.family().subadult()
                 && target.getAttributeValue(Attributes.MOVEMENT_SPEED) < .18;
+    }
+    /** A prey that will fight back is harder than one that only runs: the score of one with a stick is worth ~eight blocks. */
+    private boolean fightsBack(YukkuriEntity target) {
+        return target.myon().hasKanroken() && CombatCourage.willing(target);
     }
     private boolean edibleDrop(ItemEntity item) {
         return item.isAlive() && !item.hasPickUpDelay() && animal.hasLineOfSight(item)
@@ -560,11 +569,13 @@ public final class PredatorLife implements EcologyRoutine {
         double distance = delta.length();
         return distance <= FLIGHT_PATH_SEGMENT ? goal : from.add(delta.scale(FLIGHT_PATH_SEGMENT / distance));
     }
-    private void land() {
+    private void land() { land(null); }
+    /** @param avoid the beaten fighter lands well away from the one that beat it (see {@link #withdraw}) */
+    private void land(Vec3 avoid) {
         if(task!=Task.LAND)GameplayLog.event(animal,"predator","landing started; previous_task={} prey={} elapsed={} energy={}",
                 task,prey==null?"none":prey.getUUID(),ticks,animal.life().energy());
         if (task != Task.LAND) {
-            nextLandingSearch = 0; landingSearchRadius = 8;
+            nextLandingSearch = 0; landingSearchRadius = 8; landingAvoid = avoid;
             animal.getNavigation().stop();
             if (animal.predatorFlying() && !dryLanded()) directFlight(animal.position().add(0, .8, 0), .85);
         }
@@ -583,6 +594,17 @@ public final class PredatorLife implements EcologyRoutine {
     }
     private boolean dryLanded() { return animal.onGround() && !animal.isInWaterOrBubble() && animal.life().dryStand(animal.blockPosition()); }
     private boolean canSustainFlight() { return animal.isAlive() && !animal.body().dying() && animal.life().energy() > 0 && !animal.isPassenger(); }
+    /** Below its retreat ratio the beaten fighter leaves by air, not by dropping next to the one that beat it. */
+    private void withdraw(YukkuriEntity foe) {
+        GameplayLog.event(animal, "predator", "withdrawing by air; foe={} health={}/{} distance={}",
+                foe.getUUID(), animal.getHealth(), animal.getMaxHealth(), animal.distanceTo(foe));
+        land(foe.position());
+    }
+    /** A landing during a fight keeps its search away from the foe: a beaten or spent body does not come down at its feet. */
+    private void landAvoidingFoe() {
+        if (retaliation && prey != null && animal.distanceToSqr(prey) <= 64) withdraw(prey);
+        else land();
+    }
     private record Landing(BlockPos stand, Vec3 feet) {}
     /** The candidate and the final flight use the same supported feet, including a nest's pad and assigned rest offset. */
     private Vec3 landingFeet(BlockPos stand) {
@@ -616,6 +638,8 @@ public final class PredatorLife implements EcologyRoutine {
             }
         }
         var ordered = new ArrayList<>(candidates);
+        // A beaten fighter does not come down at the victor's feet: those stands are not candidates for this landing.
+        if (landingAvoid != null) ordered.removeIf(p -> Vec3.atCenterOf(p).distanceToSqr(landingAvoid) <= WITHDRAW_CLEARANCE_SQR);
         ordered.sort(Comparator.comparingDouble(p -> p.distSqr(center) + animal.distanceToSqr(Vec3.atBottomCenterOf(p)) * .1));
         for (int i = 0; i < Math.min(8, ordered.size()); i++) {
             BlockPos stand = ordered.get(i);
@@ -640,16 +664,17 @@ public final class PredatorLife implements EcologyRoutine {
             GameplayLog.event(animal,"predator","activity cancelled; reason={} elapsed={}",ticks>800?"timeout":"not_ready",ticks);
             stop(); return;
         }
-        if (animal.life().energy() < 15 && task != Task.LAND && task != Task.EAT) land();
+        if (animal.life().energy() < 15 && task != Task.LAND && task != Task.EAT) landAvoidingFoe();
         if (task == Task.NONE) return;
         if (task == Task.EAT) { eat(); return; }
         if (task == Task.TAKEOFF || task == Task.CHASE || task == Task.DIVE) {
             if (!(retaliation ? retaliationReady() : wantsHunt()) || prey == null || !huntable(prey, true)) {
                 GameplayLog.event(animal,"predator","pursuit ended; prey={} prey_alive={} retaliation={} energy={} nutrition={} health={}",
                         prey==null?"none":prey.getUUID(),prey!=null&&prey.isAlive(),retaliation,animal.life().energy(),animal.life().nutrition(),animal.getHealth());
-                // A fight that ended in a kill leaves the winner settled beside the body, not chasing the next target.
+                // A fight that ended in a kill leaves the winner settled beside the body, not chasing the next target. A body
+                // that could not go on leaves by air instead of dropping at the victor's feet.
                 if (retaliation && prey != null && (!prey.isAlive() || prey.body().dying())) rest(KILL_PAUSE, "combat_kill");
-                else land();
+                else landAvoidingFoe();
                 return;
             }
             if (ticks % 20 == 1) alertPrey();
@@ -905,7 +930,7 @@ public final class PredatorLife implements EcologyRoutine {
     public void stop() {
         if (animal.predatorFlying() && !dryLanded() && canSustainFlight()) {
             cancelNestSearch();
-            if (task != Task.LAND) { pendingRest = 0; restTicks = 0; eatRemains = null; land(); }
+            if (task != Task.LAND) { pendingRest = 0; restTicks = 0; eatRemains = null; landAvoidingFoe(); }
             return;
         }
         if(task!=Task.NONE)GameplayLog.event(animal,"predator","activity stopped; task={} prey={} elapsed={} health={}/{} energy={}",
