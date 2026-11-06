@@ -1060,13 +1060,14 @@ public final class FamilyLife {
         if(entity.childhood().shouldStayWithParents())radius*=1.20-.004*personality.attachment();
         return radius*radius;
     }
-    /** The new mutual search is only for ordinary land families that can all move freely; independent young are never recalled. */
+    /** The new mutual search is only for ordinary land families that can all move freely; independent young are never recalled.
+     *  A child near in the separation sense is watched, not searched: the search starts beyond it and ends at {@link #reached}. */
     private YukkuriEntity closestSeparatedDependentChild() {
         return level().getEntitiesOfClass(YukkuriEntity.class,entity.getBoundingBox().inflate(FAMILY_SEARCH_RANGE),other->other.isAlive()
                 &&ordinaryLandFree(other)&&caresFor(other)&&other.childhood().shouldStayWithParents()&&entity.life().canRecognize(other)
                 &&escortsMigratingChild(other)&&!safeInSharedHome(other)
                 &&(!other.family().exploring()||other.life().hasUrgentNeed())
-                &&(entity.distanceToSqr(other)>other.family().familyRadiusSqr()||!entity.hasLineOfSight(other)||carry.pickupDue(other)))
+                &&(!FamilySeparation.near(entity,other)||carry.pickupDue(other)))
                 .stream().min(Comparator.comparingDouble(entity::distanceToSqr)).orElse(null);
     }
     /** Water, boarding, delivery and braid work retain their dedicated family paths instead of being taken over by land-child search. */
