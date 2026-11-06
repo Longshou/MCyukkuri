@@ -2928,6 +2928,7 @@ pond('shore_family', '饿了带孩子划回岸边', '饿了带孩子划回岸边
      note='饥饿只在岸上有她的食物时才拉她回岸（come_ashore 的 why 中 land_food=true）。日志 come_ashore → paddle → 亲油 hop（孩子坐在头顶随她一起离帽）→ 上岸后辫子 carry put down reason=release / release DONE 把孩子放到干地 → take_prop → [meal] swallowed item=minecraft:apple。'
           '舱里放不下的最大一只坐头顶（用户 2026-11-05 的排座规则），头顶的孩子由亲油带着走、落地后由辫子放下，不自己跳；观察孩子与亲油都真实离帽，船长最后收帽。' + _DESIRE_NOTE,
      reads=[('读亲油', f'yukkuri status {sel("a")} raw'), ('读子油', f'yukkuri status {sel("c1")} raw'), ('读帽子', f'data get entity {_HAT}')],
+     capture=dict(shots=(1, 40, 600), sequences=((170, 260, 3),)),
      smoke=dict(ticks=1800, expect=[r'\[hat\][^\n]* scenario afloat prepared [^\n]*young=1\b',
                                    r'\[family\][^\n]* carry put down [^\n]*reason=release\b',
                                    r'\[action\][^\n]* end id=release outcome=DONE\b',
