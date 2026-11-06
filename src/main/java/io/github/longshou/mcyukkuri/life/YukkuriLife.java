@@ -582,18 +582,19 @@ public final class YukkuriLife {
         if (!penned && canEat() && EventHooks.canEntityGrief(level(), entity)) {
             var offered = level().getEntitiesOfClass(ItemEntity.class, entity.getBoundingBox().inflate(TravelRange.search(entity,8)), item ->
                     item.isAlive() && acceptsFood(item.getItem()));
-            targetFood = offered.stream().filter(item -> !item.hasPickUpDelay())
-                    .sorted(Comparator.comparingInt((ItemEntity item) -> FoodTaste.rank(item.getItem()))
-                            .thenComparingDouble(entity::distanceToSqr))
-                    .filter(item -> TravelRange.babyDestination(entity,item.blockPosition()))
-                    .filter(item -> entity.distanceToSqr(item)<.5 && entity.hasLineOfSight(item) || reachable(item.blockPosition(),false))
-                    .findFirst().orElse(null);
+            // One pass in the species' own order (taste, then nearness): the first portion it can really walk to is the meal, and
+            // when none is, the same pass has already counted why each was passed over for the readout below.
+            targetFood = null; int delayed = 0, outOfBabyRange = 0, unreachable = 0;
+            for (var item : offered.stream().sorted(Comparator.comparingInt((ItemEntity it) -> FoodTaste.rank(it.getItem()))
+                    .thenComparingDouble(entity::distanceToSqr)).toList()) {
+                if (item.hasPickUpDelay()) { delayed++; continue; }
+                if (!TravelRange.babyDestination(entity, item.blockPosition())) { outOfBabyRange++; continue; }
+                if (entity.distanceToSqr(item)<.5 && entity.hasLineOfSight(item) || reachable(item.blockPosition(),false)) { targetFood = item; break; }
+                unreachable++;
+            }
             if (targetFood == null && !offered.isEmpty()) GameplayLog.limited(entity, "meal", "food_plan_refused", 400,
                     "loose food in reach but not planned items={} pickupDelay={} outOfBabyRange={} unreachable={} task={} nutrition={}",
-                    offered.size(), offered.stream().filter(ItemEntity::hasPickUpDelay).count(),
-                    offered.stream().filter(item -> !TravelRange.babyDestination(entity,item.blockPosition())).count(),
-                    offered.stream().filter(item -> !(entity.distanceToSqr(item)<.5 && entity.hasLineOfSight(item)) && !reachable(item.blockPosition(),false)).count(),
-                    task, nutrition);
+                    offered.size(), delayed, outOfBabyRange, unreachable, task, nutrition);
             targetBlock = nearestCare(CareBlock.Kind.BOWL, true);
             if (targetBlock != null && entity.pet().lessons().knows(PetSkill.FOOD_BOWL)) {
                 if (followsRule(PetSkill.FOOD_BOWL)) targetFood = null;
