@@ -1,7 +1,6 @@
 package io.github.longshou.mcyukkuri.registry;
 
 import io.github.longshou.mcyukkuri.MCYukkuri;
-import io.github.longshou.mcyukkuri.body.WoundSurface;
 import io.github.longshou.mcyukkuri.entity.YukkuriVariant;
 import io.github.longshou.mcyukkuri.entity.presentation.ExpressionClips;
 import io.github.longshou.mcyukkuri.family.LiveBirthGeometry;
@@ -10,7 +9,7 @@ import io.github.longshou.mcyukkuri.subspecies.SubspeciesLife;
 import java.util.LinkedHashSet;
 import net.neoforged.neoforge.event.server.ServerStartingEvent;
 
-/** Reads the per-model tables (wound mesh, face spans, footprint shapes, birth poses) once off the tick thread,
+/** Reads the per-model tables (face spans, footprint shapes, birth poses) once off the tick thread,
  *  so no body's first tick pays for them. Every table is a keyed cache, so a tick that needs one first waits for it. */
 public final class ResourceWarmup {
     private static volatile boolean started;
@@ -36,7 +35,6 @@ public final class ResourceWarmup {
         int loaded = 0;
         for (var asset : assets) {
             try {
-                WoundSurface.get(asset);
                 ExpressionClips.warm(asset);
                 BodyFootprint.warm(asset);
                 loaded++;

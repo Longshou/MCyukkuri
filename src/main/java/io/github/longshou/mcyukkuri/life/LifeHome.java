@@ -68,14 +68,11 @@ final class LifeHome {
         return nearestReachable(found);
     }
 
-    /** At most this many route searches per scan: neighbouring cells of one roof share their answer. */
-    private static final int ROUTE_TESTS=6;
     /** The nearest candidate with a walkable route, testing from the nearest outward (not every cell in scan order). */
     private BlockPos nearestReachable(List<BlockPos> candidates){
         var from=o.entity().position();
         candidates.sort(Comparator.comparingDouble(pos->Vec3.atBottomCenterOf(pos).distanceToSqr(from)));
-        int tests=0;
-        for(var pos:candidates){if(++tests>ROUTE_TESTS)break;if(o.reachable(pos,false))return pos;}
+        for(var pos:candidates)if(o.reachable(pos,false))return pos;
         return null;
     }
 
