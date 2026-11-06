@@ -235,6 +235,8 @@ public final class FamilyLife {
     }
     /** An own child within 12 blocks that is waiting for this parent's care meal (not refused, not in a failed-search pause). */
     public boolean hasChildAwaitingFeed() { return adult()&&feeding.hungriestOwnChild()!=null; }
+    /** A dependent young with a parent of its own in follow range: it keeps to her side rather than sweeping an empty field alone. */
+    public boolean keepsToParent() { return !adult()&&entity.childhood().shouldStayWithParents()&&closestParent()!=null; }
     public boolean hasUrgentlyHungryChild() {
         return !entity.level().getEntitiesOfClass(YukkuriEntity.class,entity.getBoundingBox().inflate(12),
                 child->caresFor(child)&&child.life().nutrition()<30&&child.life().canReceiveCareFood()).isEmpty();
