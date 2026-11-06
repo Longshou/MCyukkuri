@@ -10,6 +10,7 @@
 | --- | --- | --- |
 | 首次加载卡顿与路径搜索上限（wp-af-perf2） | `.worktrees/wp-af-perf2` | `WoundSurface`、`ExpressionClips`、`GeometryJson`、`LiveBirth`、`YukkuriLife.reachable`、`NestDoorway` |
 | 辫子占用单一权威、木棍不凭空消失、放幼不往身后弯（11-06 反馈 2、3、6） | `.worktrees/wp-z-braid-state` | `family/ParentCarry`、`motor/` 抓取放下与辫子持物、`client/` 持物显示、辫子动作片段 |
+| 头顶幼体随亲油游泳／涉水不脱落、停靠等待不重发（wp-aj-head-swim） | `.worktrees/wp-aj-head-swim` | `life/WaterDistress`、`aquatic/Ashore` |
 
 ## 玩法待办
 
