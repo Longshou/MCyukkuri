@@ -58,6 +58,8 @@ final class Ashore implements Intent {
     private Waters.Edge landing;
     /** Landings already paddled in against without a hop ashore coming in reach: the next one is another, at most this many. */
     private final Set<BlockPos> tried = new HashSet<>();
+    /** Landings where she has already given the hull its one bounded wait to come to rest. */
+    private final Set<BlockPos> settledAt = new HashSet<>();
     private static final int LANDINGS = 3;
     private final Ferry.Beckoning beckoning = new Ferry.Beckoning();
     /** The one water way has been derived; ending anywhere but aboard gives this reclaim up. */
@@ -114,8 +116,8 @@ final class Ashore implements Intent {
         String carryProblem = dependent == null ? null : ParentCarry.capacityProblem(owner, dependent);
         if (AquaticLife.aboard(owner, hat)) {
             // Paddled in against the bank, she lets the hull come to rest before anyone leaves it: a hop off is judged, and taken,
-            // from a hull lying still.
-            if (docked() && !Waters.moored(hat))
+            // from a hull lying still. One bounded wait per docking; when it ends she goes on.
+            if (docked() && !Waters.moored(hat) && settledAt.add(landing.stand()))
                 return List.of(() -> new Step.Wait(() -> Waters.moored(hat), WAIT, Behaviors.BOAT_CALL));
             var hop = youngCanLand(hat) ? Ferry.hopAshore(owner).get() : null;
             // A young of hers that leaves by its own power goes first, she after it (one at the brim place her own hop leaves from
