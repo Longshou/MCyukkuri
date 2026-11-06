@@ -8,6 +8,7 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
+| 水域余项（birth_hat_own 次胎首便、岸边抓幼、rescue_child 回帽、hat_crowd 重试） | `.worktrees/wp-am-aquatic-tails` | `behavior/`、`aquatic/` 相关 |
 
 ## 玩法待办
 
