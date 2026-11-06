@@ -198,15 +198,13 @@ public final class SelfOffering extends Goal {
         entity.getLookControl().setLookAt(child, 30, 30);
         if (phase == Phase.GIVE) {
             EcologyMovement.halt(entity);
-            EcologyMovement.halt(child);
-            child.getLookControl().setLookAt(entity, 30, 30);
             return;
         }
         boolean rescued = alreadyRescued(child);
         boolean remedy = remedyAvailable(child);
         // A new real meal or care opportunity takes over at every pre-GIVE phase, including the approach.
         if (!desperate(child) || rescued || remedy) {
-            EcologyMovement.halt(entity); EcologyMovement.halt(child);
+            EcologyMovement.halt(entity);
             entity.showReaction("happy", "offer_spared", 80);
             lastReason = !desperate(child) ? "spared (recipient no longer desperate)"
                     : rescued ? "spared (care already started)" : "spared (food available)";
@@ -229,8 +227,8 @@ public final class SelfOffering extends Goal {
             child.mind().add(12, "offer_dread");
             return;
         }
-        EcologyMovement.halt(entity); EcologyMovement.halt(child);
-        child.getLookControl().setLookAt(entity, 30, 30);
+        // The child stays by its own family follow; this goal moves only the parent.
+        EcologyMovement.halt(entity);
         if (entity.distanceToSqr(child) > 6 || !entity.hasLineOfSight(child)) {
             phase = Phase.APPROACH; phaseTicks = 0; lastReason = "recipient_moved"; return;
         }

@@ -468,7 +468,7 @@ public final class FamilyLife {
         greet();
         feeding.settleCareFood();
         if(entity.tickCount%40==0)retryMotherBurrow();
-        if(entity.isPanicking()||entity.isCommandPlaying()||(task!=Task.FEED_CHILD&&entity.life().hasUrgentNeed()))stop();
+        if(entity.isPanicking()||entity.isCommandPlaying()||(task!=Task.FEED_CHILD&&urgentNeed()))stop();
         if(prioritizesBirth()) {
             if(entity.life().isSleeping())entity.life().interrupt();
             if(entity.dailyLife().active())entity.dailyLife().stop();
@@ -921,7 +921,7 @@ public final class FamilyLife {
     public BlockPos birthAnchor(){var nest=nestStand();return nest!=null?nest:entity.blockPosition();}
     public boolean canUse() {
         if(entity.dailyLife().active())return false;
-        if(entity.isPanicking()||entity.isCommandPlaying()||entity.life().hasUrgentNeed()||entity.life().mealTicks()>0||awaitingLanding)return false;
+        if(entity.isPanicking()||entity.isCommandPlaying()||urgentNeed()||entity.life().mealTicks()>0||awaitingLanding)return false;
         if(task!=Task.NONE)return true;
         if(comfortTicks>0&&adult()){task=Task.COMFORT;taskTicks=0;return true;}
         if(wait>0)return false;wait=40;
@@ -983,6 +983,11 @@ public final class FamilyLife {
             if(target!=null) { task=Task.COURT;courtship.resetAttempt();taskTicks=0;entity.showReaction("happy","courtship",100);return true; }
         }
         return false;
+    }
+    /** An urgent need puts family aside, except a dependent young's hunger: that keeps it with its parents, who feed it or find food with it. */
+    private boolean urgentNeed(){
+        var life=entity.life();
+        return life.hasUrgentNeed()&&(adult()||life.nutrition()>=30||!entity.childhood().shouldStayWithParents());
     }
     private boolean startLandChildSearch() {
         var child=closestSeparatedDependentChild();
@@ -1126,7 +1131,7 @@ public final class FamilyLife {
         if((task==Task.COURT||task==Task.RECEIVE_COURT)&&!canReproduceWith(target))return false;
         if(task==Task.NONE||entity.isPanicking()||entity.life().mealTicks()>0||entity.isCommandPlaying())return false;
         if(task==Task.FEED_CHILD)return feeding.canContinue();
-        if(entity.life().hasUrgentNeed())return false;
+        if(urgentNeed())return false;
         if(task==Task.FETCH_HAT)return choreHat!=null&&!choreHat.isRemoved()&&choreHat.catches()&&taskTicks<2400&&Conductor.roleOf(entity)==null;
         if(task==Task.COMFORT)return comfortTicks>0;
         if(task==Task.BROOD)return taskTicks<240&&!birth.active();
