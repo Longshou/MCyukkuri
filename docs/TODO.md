@@ -10,6 +10,7 @@
 | --- | --- | --- |
 | 陆地场景起点真实性（审计 P6：Retry 分叉、伤口、产期、各场景起点；Walk 已在目标即完成） | `.worktrees/wp-ap-scene-truth` | `scripts/museum_scenarios.py`、`museum_fields.py`、`build_museum_full.py`、`command/ScenarioSetup`、`ScenarioCommands`、`motor/action/Walk` |
 | 魔理沙辫子抬放改为制作好的动作片段（亲代运输演出：辫子抬起／放下片段、离线穿模检查、孩子跟随辫梢标记） | `.worktrees/wp-as-braid-carry-clips` | `standards/yukkuri-library/`（魔理沙辫子动作）、`family/ParentCarry`、`motor/geom/CarryGeometry`、`motor/action/Stow`、`motor/action/Release`、`motor/ContactGeometry`、`client/ParentCarryPresentation` |
+| 陆地危险、天气与寒冷（审计 P3：受害者记住攻击者、逃向掩体与父母、安全撤离点，Alice 追击门与目击，捕食种战败撤离与饥饿巡飞，洞口结界，雨搜方向与抖水，暖桌暖邻） | `.worktrees/wp-at-danger` | `status/Reactions`、`entity/YukkuriGoals`、`predator/PredatorLife`、`settlement/DenBarrierBlockEntity`、`life/AgitationLife`、`life/TemperatureLife` |
 
 ## 玩法待办
 
