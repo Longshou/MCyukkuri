@@ -610,7 +610,7 @@ public final class YukkuriLife {
             var nestOccupancy = targetBlock == null ? null : FamilyNest.bedOccupancy(entity, targetBlock);
             if (targetBlock != null && (entity.distanceToSqr(Vec3.atBottomCenterOf(targetBlock)) > .16 || !restable(entity.blockPosition())
                     || nestOccupancy != null && nestOccupancy != Occupancy.INSIDE_SUPPORTED)) { task = Task.HOME; pursuitTicks = 0; return true; }
-            if (targetBlock != null || energy <= 10 || entity.family().needsMash() && entity.childhood().landed()
+            if (targetBlock != null || energy <= 10 || (penned || entity.family().needsMash() && entity.childhood().landed())
                     && dryStand(entity.blockPosition()) && restable(entity.blockPosition())) { task = Task.SLEEP; sleepTicks = 0; return true; }
         }
         return false;
