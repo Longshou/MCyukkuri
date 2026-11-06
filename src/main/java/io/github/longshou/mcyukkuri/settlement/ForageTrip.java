@@ -245,10 +245,16 @@ public final class ForageTrip extends Goal {
     }
 
     /**
-     * A meadow {@code 0.75..1.0 x radius} blocks from home with grazable plants on dry ground and not in a village: the
+     * A meadow with grazable plants on dry ground and not in a village, the nearest ring of {@code radius} that has one: the
      * best of several random bearings. Only loaded chunks are considered; the trip itself walks there in legs.
      */
-    private BlockPos chooseDestination(ShelterBlockEntity home, int r) { return destinationFrom(home.getBlockPos(), r, .75); }
+    private BlockPos chooseDestination(ShelterBlockEntity home, int r) {
+        // Inside-out: the nearest ring that holds a meadow, so a trip is never longer than the food requires.
+        for (int ring = Math.min(24, r); ; ring = Math.min(ring + 16, r)) {
+            var spot = destinationFrom(home.getBlockPos(), ring, .5);
+            if (spot != null || ring == r) return spot;
+        }
+    }
     /** A meadow {@code 0.5..1.0 x r} blocks from {@code origin}; used by the leader to pick the hunting ground. */
     BlockPos destinationFrom(BlockPos origin, int r) { return destinationFrom(origin, r, .5); }
     private BlockPos destinationFrom(BlockPos origin, int r, double inner) {
@@ -290,13 +296,13 @@ public final class ForageTrip extends Goal {
             if (phase == Phase.BACK && load.isEmpty() && inside.contains(entity.blockPosition())) { finish(true); return false; }
             return true;
         }
-        if (!load.isEmpty()) { // a load left over from an interrupted trip: bring it home first
-            if (shelter() == null) { dropLoad(); return false; }
-            begin(role == Role.NONE ? Role.MOTHER : role, entity.blockPosition(), 0, "leftover_load"); phase = Phase.BACK; return true;
-        }
         var hunt = CommonHunt.drafted(entity);
         if (hunt != null) { beginHunt(hunt); return true; }
         if (cooldown-- > 0) return false;
+        if (!load.isEmpty()) { // a load left over from an interrupted trip (or a way home that failed): bring it home first, after the pause
+            if (shelter() == null) { dropLoad(); return false; }
+            begin(role == Role.NONE ? Role.MOTHER : role, entity.blockPosition(), 0, "leftover_load"); phase = Phase.BACK; return true;
+        }
         cooldown = 80 + entity.getRandom().nextInt(60);
         var home = shelter();
         if (home == null || urgent() || !fair() || entity.life().mealTicks() != 0 || SettlementSeasons.confined(entity)) return false;
@@ -387,7 +393,9 @@ public final class ForageTrip extends Goal {
         phase = Phase.NONE; ticks = 0; dest = null; plants.stop(); contact.reset();
     }
     private static final Set<String> FAILED = Set.of("barren", "late", "no_route", "stuck", "stuck_home", "no_route_home", "lapsed");
-    private void giveUp(String why) { reason = why; dropLoad(); finish(false); }
+    private static final Set<String> KEEPS_LOAD = Set.of("stuck_home", "no_route_home");
+    /** A way home that fails keeps the family's load in the mouth (it is brought on after the pause); the other endings drop it. */
+    private void giveUp(String why) { reason = why; if (!KEEPS_LOAD.contains(why)) dropLoad(); finish(false); }
     private void dropLoad() {
         if (load.isEmpty() || entity.level().isClientSide) { load = ItemStack.EMPTY; return; }
         var drop = new ItemEntity(level(), entity.getX(), entity.getY(), entity.getZ(), load.copy()); drop.setPickUpDelay(100);
