@@ -53,7 +53,7 @@ public final class MyonLife {
     private final YukkuriEntity entity;
     private String quirk;
     private boolean kanroken, initialized;
-    private int strikeCooldown, searchCooldown, foeTicks;
+    private int strikeCooldown, searchCooldown, foeTicks, pulling;
     private UUID foe;
 
     public MyonLife(YukkuriEntity entity) { this.entity = entity; }
@@ -108,6 +108,8 @@ public final class MyonLife {
         if (strikeCooldown > 0) strikeCooldown--;
         if (foeTicks > 0 && --foeTicks == 0) foe = null;
         if (searchCooldown > 0) searchCooldown--;
+        // The clip (a command, which sends the goals away) owns the body; the twig is in the mouth at its pull marker.
+        if (pulling > 0 && ++pulling == ClipMarkers.of("snatch_pull").ticks("pull", 7)) { pulling = 0; armed(); }
         if (searchCooldown == 0 && !kanroken && free()) pickUpDropped();
     }
 
@@ -209,12 +211,12 @@ public final class MyonLife {
 
     /**
      * An unarmed Myon walks to the nearest tree it can reach, stands beside a low leaf or log, pulls a twig off (snatch_pull) and holds
-     * it as its Kanroken at the clip's pull marker.
+     * it as its Kanroken at the clip's pull marker (counted in tick, since the clip takes the body from every goal).
      */
     private final class StickGoal extends Goal {
         private static final int REACH = 12, GIVE_UP = 400;
         private BlockPos stand, branch;
-        private int ticks, pulled;
+        private int ticks;
         StickGoal() { setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK)); }
         private boolean ready() { return myon() && !kanroken && free() && !entity.life().hasUrgentNeed() && !entity.isInWaterOrBubble() && entity.onGround(); }
         @Override public boolean canUse() {
@@ -222,16 +224,11 @@ public final class MyonLife {
             searchCooldown = STICK_SEARCH;
             return findBranch();
         }
-        @Override public boolean canContinueToUse() { return ready() && ticks < GIVE_UP; }
+        @Override public boolean canContinueToUse() { return pulling == 0 && ready() && ticks < GIVE_UP; }
         @Override public boolean requiresUpdateEveryTick() { return true; }
-        @Override public void start() { ticks = 0; pulled = 0; entity.life().travel(stand, .9); }
+        @Override public void start() { ticks = 0; entity.life().travel(stand, .9); }
         @Override public void tick() {
             ticks++;
-            if (pulled > 0) {
-                entity.getLookControl().setLookAt(branch.getX() + .5, branch.getY() + .5, branch.getZ() + .5);
-                if (++pulled == ClipMarkers.of("snatch_pull").ticks("pull", 7)) armed();
-                return;
-            }
             double dx = stand.getX() + .5 - entity.getX(), dz = stand.getZ() + .5 - entity.getZ();
             if (dx * dx + dz * dz > .25) {
                 if (ticks % 10 == 0) entity.life().travel(stand, .9);
@@ -239,10 +236,10 @@ public final class MyonLife {
             }
             entity.getNavigation().stop();
             entity.playAction("snatch_pull");
-            pulled = 1;
+            pulling = 1;
             GameplayLog.event(entity, "myon", "twig pull at={} branch={}", stand, branch);
         }
-        @Override public void stop() { entity.getNavigation().stop(); stand = null; branch = null; pulled = 0; }
+        @Override public void stop() { entity.getNavigation().stop(); stand = null; branch = null; }
         /** The nearest leaf or log with a free, supported cell beside it at a height the Myon can pull at, and a way there. */
         private boolean findBranch() {
             var level = entity.level();
