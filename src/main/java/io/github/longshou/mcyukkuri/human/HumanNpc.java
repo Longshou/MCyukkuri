@@ -266,6 +266,8 @@ public final class HumanNpc extends PathfinderMob {
         if (y.life().canEat() && careFood > 0 && residentWildFeedAllowed(y) && y.life().beginMeal(new ItemStack(ModItems.GRAIN_REGULAR.get()), getUUID(), true)) {
             if (job() == Job.RESIDENT && Custody.view(y).wild()) recordResidentWildFeed(y);
             careFood--; swing(InteractionHand.MAIN_HAND);
+            y.mind().perform("bow", 30);
+            y.showReaction("happy", "badge_thanks", 60);
             GameplayLog.event(this, "npc-care", "action=begin_meal target={} food={}->{} nutrition={} result=accepted", y.getUUID(), careFood + 1, careFood, y.life().nutrition());
             return true;
         }
@@ -283,7 +285,8 @@ public final class HumanNpc extends PathfinderMob {
         @Override public boolean canContinueToUse() { return canUse(); }
     }
     private final class RoutineGoal extends Goal {
-        private int elapsed;
+        /** Ticks in reach of the patient (the care cap) and ticks spent walking up to it (its own, longer cap). */
+        private int elapsed, approach;
         private int careTicks;
         private TreatmentItem.Kind dose;
         RoutineGoal() { setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK)); }
@@ -298,8 +301,8 @@ public final class HumanNpc extends PathfinderMob {
                             - (attitude()==Attitude.CARING && FactoryPipeline.stage(y).equals("observe") ? 1024 : 0))).orElse(null);
             return attention != null;
         }
-        @Override public boolean canContinueToUse() { return isTrading() || resting() || attention != null && attention.isAlive() && elapsed < 140; }
-        @Override public void start() { elapsed = 0; careTicks = 0; dose = null; }
+        @Override public boolean canContinueToUse() { return isTrading() || resting() || attention != null && attention.isAlive() && elapsed < 140 && approach < 600; }
+        @Override public void start() { elapsed = 0; approach = 0; careTicks = 0; dose = null; }
         @Override public boolean requiresUpdateEveryTick() { return true; }
         @Override public void tick() {
             if (ExamSession.active(HumanNpc.this)) return; // the exam session steers the examiner
@@ -309,12 +312,13 @@ public final class HumanNpc extends PathfinderMob {
                 else getNavigation().stop();
                 return;
             }
-            elapsed++; if (attention == null) return;
+            if (attention == null) return;
             getLookControl().setLookAt(attention, 30, 30);
             if (distanceToSqr(attention) > 4 || !hasLineOfSight(attention)) {
                 careTicks = 0;
-                if (elapsed % 20 == 1) getNavigation().moveTo(attention, .85);
+                if (approach++ % 20 == 0) getNavigation().moveTo(attention, .85);
             } else {
+                elapsed++;
                 getNavigation().stop();
                 if (careTicks < 0) { careTicks++; return; }
                 if (dose == null && !prepareDose(attention)) { attend(attention); elapsed = 140; return; }
@@ -343,7 +347,8 @@ public final class HumanNpc extends PathfinderMob {
             });
             var desired=physical ? TreatmentItem.Kind.ORANGE_JUICE
                     : patient.status().marks().scarCount()>0 ? TreatmentItem.Kind.FLOUR_PASTE
-                    : patient.getHealth()<patient.getMaxHealth() ? TreatmentItem.Kind.ORANGE_JUICE : null;
+                    : patient.getHealth()<patient.getMaxHealth() && !(patient.life().canEat() && patient.life().nutrition()<10 && careFood>0)
+                            ? TreatmentItem.Kind.ORANGE_JUICE : null;
             if(desired==null)return false;
             var item=desired==TreatmentItem.Kind.ORANGE_JUICE ? ModItems.ORANGE_JUICE.get() : ModItems.FLOUR_PASTE.get();
             if(!getMainHandItem().isEmpty()) {
