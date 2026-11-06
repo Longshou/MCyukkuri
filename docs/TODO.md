@@ -8,6 +8,7 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
+| 陆地休闲、同伴与亡者（审计 P2：休闲统一门、孤独找友、悲伤不躲避、离开腐味、目睹受伤安慰） | `.worktrees/wp-ar-leisure` | `social/DailyLife`、`event/WildCards`、`entity/RoamingGoal`、`body/BodyCondition`、`social/WoundComfort`、`social/GriefLife`、`social/Cannibalism` |
 | 陆地场景起点真实性（审计 P6：Retry 分叉、伤口、产期、各场景起点；Walk 已在目标即完成） | `.worktrees/wp-ap-scene-truth` | `scripts/museum_scenarios.py`、`museum_fields.py`、`build_museum_full.py`、`command/ScenarioSetup`、`ScenarioCommands`、`motor/action/Walk` |
 
 ## 玩法待办
