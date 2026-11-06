@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.entity;
 
+import io.github.longshou.mcyukkuri.body.RemainsRot;
 import io.github.longshou.mcyukkuri.family.FamilyLife.Stage;
 import io.github.longshou.mcyukkuri.life.BehaviorContinuity;
 import io.github.longshou.mcyukkuri.life.TravelRange;
@@ -105,6 +106,7 @@ public final class RoamingGoal extends Goal {
             if (companion != null && companion.distSqr(pos) > 64) continue;
             if (preferInside && !(shelter != null ? shelter.contains(pos) : pos.distSqr(home) <= 4 && animal.life().covered(pos))) continue;
             if (Reactions.Weather.rainAt(animal,pos) || !animal.life().dryStand(pos)) continue;
+            if (animal.level() instanceof ServerLevel level && RemainsRot.source(level,Vec3.atBottomCenterOf(pos)) != null) continue;
             if (++paths > 4) break;
             if (!animal.life().reachable(pos,false)) continue;
             return pos.immutable();

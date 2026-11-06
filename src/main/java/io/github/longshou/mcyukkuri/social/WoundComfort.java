@@ -200,6 +200,9 @@ public final class WoundComfort {
                 + " cooldown=" + cooldown + " relief=" + relief + " kin=" + String.join(",", candidates);
     }
 
+    /** Kin hear the last words: the next planning tick looks at the dying one (a dying body lasts only ~80 ticks). */
+    public void noticeDying() { scanWait = 0; }
+
     /** Autonomous noticing; scans a few times a second at most. */
     public boolean plan() {
         if (entity.level().isClientSide) return false;

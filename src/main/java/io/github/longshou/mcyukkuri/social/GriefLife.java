@@ -80,6 +80,7 @@ public final class GriefLife {
         for (var other : kin) {
             if (n++ >= 4) break;
             other.mind().add(6, "kin_dying");
+            other.woundComfort().noticeDying();
             other.showReactionDelayed("teary", "kin_dying", 100, 50 + n * 6);
         }
     }
