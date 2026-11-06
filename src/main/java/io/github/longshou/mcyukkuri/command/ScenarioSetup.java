@@ -161,7 +161,7 @@ final class ScenarioSetup {
         if (!Set.of("natural", "caught", "stem", "near_term").contains(outcome)) return "结果必须为 natural、caught、stem 或 near_term。";
         if(sizes.size()>5||sizes.stream().anyMatch(size->!Float.isFinite(size)||size<.1f||size>.19f))return "出生体型须为一至五个 0.10–0.19 的数值。";
         boolean stem = outcome.equals("stem");
-        if (mother.distanceToSqr(father) > 64) return "父油要在母油八格内。";
+        if (mother.distanceToSqr(father) > 256) return "父油要在母油十六格内。";
         if (mother.family().brood() != null) return "母油已经有胎次，不会覆盖。";
         // Where she lives now: a nest within two blocks, or (aquatic) the boat she rides; the brood is anchored there.
         var home = mother.life().homeStand();
