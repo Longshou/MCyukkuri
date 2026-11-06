@@ -1232,9 +1232,11 @@ public final class FamilyLife {
         for(var other:level().getEntitiesOfClass(YukkuriEntity.class,entity.getBoundingBox().inflate(16),other->other!=entity&&other.isAlive()))
             if(age<1200&&(Bonds.parentOf(other, entity))) {
                 // A newborn lost at birth: the parents stare blankly, then cry.
-                other.life().personality().experienced(Trait.BOLDNESS,-3);other.bereave();
+                other.life().personality().experienced(Trait.BOLDNESS,-3);other.bereave(EmotionEvent.BIRTH_LOSS);
             } else if(Bonds.careKin(entity, other)&&entity.distanceToSqr(other)<100&&other.life().canRecognize(entity)&&other.hasLineOfSight(entity)) {
-                other.life().personality().experienced(Trait.BOLDNESS,-3);other.mind().felt(EmotionEvent.FAMILY_DEATH); other.showReaction("surprise","family_died",120);
+                // Kin who see it die grieve where they stand (no walk to the body).
+                other.life().personality().experienced(Trait.BOLDNESS,-3);other.bereave(EmotionEvent.FAMILY_DEATH);
+                GameplayLog.event(other,"family","witnessed kin death dead={} distance={}",entity.getUUID(),Math.round(other.distanceTo(entity)*10)/10.0);
             }
     }
     public CompoundTag save() {

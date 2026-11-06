@@ -758,10 +758,10 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
         return reactionTicks > 0 && (reactionEvent.equals("birth_lost") || reactionEvent.equals("family_died") || reactionEvent.equals("kin_dying"));
     }
 
-    /** A parent whose newborn was lost at birth: a blank stare, then crying and calling out (bereaved clip). */
-    public void bereave() {
+    /** A death in the family before its eyes (a newborn lost at birth, a kin dying in sight): a blank stare, then crying and calling out (bereaved clip). */
+    public void bereave(EmotionEvent loss) {
         if (level().isClientSide) return;
-        reactionTicks = 100; reactionHeld = false; reactionExpression = "surprise"; reactionEvent = "birth_lost"; mind.felt(EmotionEvent.BIRTH_LOSS);
+        reactionTicks = 100; reactionHeld = false; reactionExpression = "surprise"; reactionEvent = "birth_lost"; mind.felt(loss);
         pendingSpeech = "family_died"; pendingSpeechTicks = 32;
     }
 
