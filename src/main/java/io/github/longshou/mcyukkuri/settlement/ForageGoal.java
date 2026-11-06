@@ -56,11 +56,13 @@ public final class ForageGoal extends Goal {
      *  search and no sweep here, so hunger never walks it inland after food it does not pick. */
     private boolean grazes() { return entity.profile().diet().edible(Blocks.SHORT_GRASS.defaultBlockState()); }
     /** A cold body that is not truly hungry stays in its warm place instead of grazing out in the cold (hunger below 30 still goes out). */
+    /** A parent not yet hungry herself leaves the plants to the meal she owes her hungry child (below 40 her own hunger wins). */
+    private boolean feedsChildFirst() { return entity.life().nutrition() >= 40 && entity.family().hasChildAwaitingFeed(); }
     private boolean staysWarm() { return entity.life().nutrition() >= 30 && entity.life().temperature().cold(); }
     @Override public boolean canUse() {
         if (entity.isPassenger() || entity.profile().houseBody() || entity.family().awaitingLanding() || !entity.life().canEat() || entity.life().isSleeping() || entity.isInWaterOrBubble()
                 || !EventHooks.canEntityGrief(level(), entity) || !grazes()) return false;
-        if (SettlementSeasons.forageBlocked(entity) || staysWarm()) return false;
+        if (SettlementSeasons.forageBlocked(entity) || staysWarm() || feedsChildFirst()) return false;
         scanFood();
         if (target == null && entity.life().nutrition() >= 30) return false;
         elapsed = 0; searchSpot = null;
@@ -140,7 +142,7 @@ public final class ForageGoal extends Goal {
     @Override public boolean canContinueToUse() {
         return running && !entity.life().isSleeping() && !entity.family().awaitingLanding() && entity.life().canEat()
                 && (target != null || entity.life().nutrition() < 30)
-                && !SettlementSeasons.forageBlocked(entity) && !staysWarm()
+                && !SettlementSeasons.forageBlocked(entity) && !staysWarm() && !feedsChildFirst()
                 && !entity.isInWaterOrBubble() && EventHooks.canEntityGrief(level(), entity);
     }
     @Override public boolean requiresUpdateEveryTick() { return true; }

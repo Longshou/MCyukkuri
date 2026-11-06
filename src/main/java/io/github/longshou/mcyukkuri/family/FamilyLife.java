@@ -233,6 +233,8 @@ public final class FamilyLife {
         return !entity.level().getEntitiesOfClass(YukkuriEntity.class,entity.getBoundingBox().inflate(1.5),child->caresFor(child)
                 &&entity.life().canRecognize(child)&&child.life().nutrition()<entity.life().nutrition()-entity.species().traits().dote()).isEmpty();
     }
+    /** An own child within 12 blocks that is waiting for this parent's care meal (not refused, not in a failed-search pause). */
+    public boolean hasChildAwaitingFeed() { return adult()&&feeding.hungriestOwnChild()!=null; }
     public boolean hasUrgentlyHungryChild() {
         return !entity.level().getEntitiesOfClass(YukkuriEntity.class,entity.getBoundingBox().inflate(12),
                 child->caresFor(child)&&child.life().nutrition()<30&&child.life().canReceiveCareFood()).isEmpty();

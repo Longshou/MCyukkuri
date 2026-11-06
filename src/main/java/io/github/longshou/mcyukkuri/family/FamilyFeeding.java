@@ -322,7 +322,7 @@ final class FamilyFeeding {
         }
         o.careDecisions().touch(o.target(),CareDecisionLedger.Need.FEED);
         if(carrying.isEmpty()) {
-            searchTicks++;
+            if(!sourceChosen())searchTicks++;
             if(searchTicks>600){
                 retryUntil.put(o.target().getUUID(),o.level().getGameTime()+RETRY_TICKS);
                 trimRetries(o.level().getGameTime());
@@ -366,7 +366,7 @@ final class FamilyFeeding {
                 if(hatLarder.isRemoved()||!hatLarder.isAlive()||o.entity().distanceToSqr(hatLarder)>24*24){hatLarder=null;hatLarderStand=null;return;}
                 if(!ContactGeometry.inMouthReach(o.entity(),hatLarder)){
                     if(hatLarderStand==null)hatLarderStand=SurfaceApproach.beside(o.entity(),hatLarder,o.entity().getBbWidth()/2+.2,ContactGeometry.GRAB_HEIGHT);
-                    if(hatLarderStand==null||searchTicks%10==1&&!o.entity().life().navigate(BlockPos.containing(hatLarderStand),1.0,false)){hatLarder=null;hatLarderStand=null;}
+                    if(hatLarderStand==null||o.taskTicks()%10==1&&!o.entity().life().navigate(BlockPos.containing(hatLarderStand),1.0,false)){hatLarder=null;hatLarderStand=null;}
                     return;
                 }
                 o.entity().getNavigation().stop();
@@ -386,7 +386,7 @@ final class FamilyFeeding {
                         ||!diet.edible(o.level().getBlockState(plantSource))){clearPlant();return;}
                 var at=Vec3.atCenterOf(plantSource);
                 boolean near=diet.reaches(o.entity(),plantStand,plantSource);
-                if(!near){plantContact=0;if(searchTicks%10==1&&!o.entity().life().navigate(plantStand,1.1,false))clearPlant();return;}
+                if(!near){plantContact=0;if(o.taskTicks()%10==1&&!o.entity().life().navigate(plantStand,1.1,false))clearPlant();return;}
                 o.entity().getNavigation().stop();o.entity().getLookControl().setLookAt(at.x,at.y,at.z);
                 if(++plantContact>=20){
                     var food=diet.yield(o.level().getBlockState(plantSource));
