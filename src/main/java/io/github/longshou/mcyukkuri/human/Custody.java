@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.human;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.mind.EmotionEvent;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.UUID;
 import javax.annotation.Nullable;
@@ -163,9 +164,26 @@ public final class Custody {
                 if (tag.hasUUID("Owner") && tag.getUUID("Owner").equals(owner.getUUID()))
                     affected.add(animal);
             }
-        for (var animal : affected) release(animal, ReleaseReason.OWNER_DIED, owner.getUUID(), null);
+        for (var animal : affected) {
+            release(animal, ReleaseReason.OWNER_DIED, owner.getUUID(), null);
+            mourn(animal, owner);
+        }
         YukkuriWorldData.get(level).normalizeCustody(level);
         GameplayLog.event(owner, "custody", "owner death recorded loadedDependants={}", affected.size());
+    }
+
+    /**
+     * A released animal that sees its keeper's body within 10 blocks grieves on the spot (moment only, no grave visit): the kin-death
+     * unease scaled by its own attachment (provisional amount, the user has not confirmed it).
+     */
+    private static void mourn(YukkuriEntity animal, HumanNpc owner) {
+        if (animal.level() != owner.level() || !animal.isAlive() || animal.distanceToSqr(owner) > 100 || !animal.hasLineOfSight(owner)) return;
+        float bond = animal.life().personality().attachment() / 100f;
+        animal.mind().add(EmotionEvent.FAMILY_DEATH.delta() * bond, "owner_died");
+        animal.mind().perform("bereaved", 100);
+        animal.showReaction("teary", "kin_dying", 100);
+        GameplayLog.event(animal, "custody", "keeper grieved owner={} attachment={} unease={}", owner.getUUID(),
+                animal.life().personality().attachment(), animal.mind().unease());
     }
 
     public static View view(YukkuriEntity animal) { return read(data(animal)); }

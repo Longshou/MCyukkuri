@@ -31,4 +31,5 @@ public enum EmotionEvent {
     EmotionEvent(float delta, int cooldown, String bucket) {
         this.delta = delta; this.cooldown = cooldown; this.bucket = bucket;
     }
+    public float delta() { return delta; }
 }
