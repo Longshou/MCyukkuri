@@ -247,7 +247,7 @@ def check_layout(st, builder, scene):
             ready_offset = server.log_offset(st)
             server.run_cmd(st, f'schedule function {builder.NS}:layout_ready {tick - previous_tick}t replace')
             server.run_cmd(st, f'tick step {tick - previous_tick}')
-            server.wait_log(st, 'MCYLAYOUT_READY', ready_offset, timeout=30)
+            server.wait_log(st, 'MCYLAYOUT_READY', ready_offset, timeout=30 + (tick - previous_tick) // 10)
         previous_tick = tick
         # Creation records run synchronously before the actor's first physics tick (including delayed flying predators).
         created = [row for row in geometry_rows(server.log_text(st, geometry_offset)) if not row['player']]
