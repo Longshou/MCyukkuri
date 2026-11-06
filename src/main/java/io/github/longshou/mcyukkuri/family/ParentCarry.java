@@ -524,7 +524,7 @@ public final class ParentCarry {
      * The braid's brim clips (standards lore braid_keys.py, clearance-gated offline against her body and hat): the braid curls
      * under the young beside her braid side, swings it out and up outside her body and holds it level with the brim just outside its
      * edge, where the young steps onto the brim and walks to its spot (user 2026-11-05: the braid only touches the hat, the young
-     * moves onto it itself); the lowering is the same clip run backwards. The young rides the clip's tuft end ({@code tip}).
+     * moves onto it itself); the lowering is its own loop (up beside the cheek, out and down), never retracing. The young rides the clip's tuft end ({@code tip}).
      */
     public static final String BRIM_LIFT = "braid_brim_lift", BRIM_LOWER = "braid_brim_lower";
     /** How far (blocks) a young's ground may lie above or below the carrier's (a cushion, a slab) for the braid's grip: the tuft
