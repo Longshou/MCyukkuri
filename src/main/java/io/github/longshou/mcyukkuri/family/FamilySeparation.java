@@ -26,7 +26,17 @@ final class FamilySeparation {
                 .filter(id->FamilyData.get(o.level()).acknowledgesChild(o.entity().getUUID(),id)).count();
         return Math.clamp(2400+60*p.friendliness()+40*p.selfControl()+20*p.boldness()-600*(int)Math.max(0,children-1),1200,14400);
     }
-    private boolean near(YukkuriEntity a,YukkuriEntity b){return a.level()==b.level()&&a.distanceToSqr(b)<=64&&a.hasLineOfSight(b);}
+    /** Within 8 blocks and in sight, or both inside the same home (its walls and floors break sight, not the family). */
+    static boolean near(YukkuriEntity a,YukkuriEntity b){
+        var home=a.habitat().shelter();
+        return a.level()==b.level()&&a.distanceToSqr(b)<=64&&(a.hasLineOfSight(b)||home!=null&&home==b.habitat().shelter()
+                &&home.contains(a.blockPosition())&&home.contains(b.blockPosition()));
+    }
+    /** In its nest, or anywhere inside its own home. */
+    static boolean atHome(YukkuriEntity e){
+        var home=e.habitat().shelter();
+        return FamilyNest.atAssignedNest(e)||home!=null&&home.contains(e.blockPosition());
+    }
     private void pressure(float perSecond,float ceiling,String cause){
         o.entity().mind().add(Math.max(0,Math.min(perSecond,ceiling-o.entity().mind().unease())),cause);
     }
@@ -60,7 +70,7 @@ final class FamilySeparation {
                     nearby|=near(e,parent);sameNest|=FamilyNest.sameNest(e,parent);
                 }
             }
-            lost=knownAlive&&!nearby&&!FamilyNest.atAssignedNest(e);
+            lost=knownAlive&&!nearby&&!atHome(e);
             if(lost)pressure(.2f,Math.max(60,100-.4f*p.boldness()),"lost_parent");
             else if(o.stage()==FamilyLife.Stage.BABY&&!sameNest)pressure(.07f,70-.5f*p.selfControl(),"separate_nest");
             if(lost!=wasLost){
@@ -73,7 +83,7 @@ final class FamilySeparation {
             var record=data.person(id);
             if(record==null||!e.getUUID().equals(record.mother)||!data.acknowledgesChild(e.getUUID(),id))continue;
             if(!(o.level().getEntity(id) instanceof YukkuriEntity child)||!child.isAlive()||child.family().adult()||child.family().subadult())continue;
-            if(child.family().awaitingLanding()||child.isPassenger()||near(e,child)||FamilyNest.atAssignedNest(child)){
+            if(child.family().awaitingLanding()||child.isPassenger()||near(e,child)||atHome(child)){
                 searching.remove(id);
                 continue;
             }
