@@ -6,15 +6,13 @@ import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import java.util.Comparator;
-import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.entity.ai.util.DefaultRandomPos;
 
 /**
  * Contempt for the hatless, the root of the hatless individual's misery (user correction 2026-10-18; komicolle 40720
  * No.11518829 "socially erased", No.11518847 "not recognised as one of its kind"). Every yukkuri that sees a living hatless
- * individual it cannot recognise ({@link Recognition}) despises it: its affinity drops, it makes a face and says so, and it
- * keeps away. The harsh ones among them bully it ({@link Sanction}, reason {@code hatless}). Kin are no exception: a mother that
+ * individual it cannot recognise ({@link Recognition}) despises it: its affinity drops, it makes a face and says so. The scorned one answers by its
+ * nature ({@code PeerDefense}) and thinks less of the scorner. The harsh ones among them bully it ({@link Sanction}, reason {@code hatless}). Kin are no exception: a mother that
  * cannot see past the missing ribbon scorns her own child exactly as she would a stranger.
  *
  * <p>A hatless body that is also badly hurt ({@link Recognition#grotesque}) is not despised but feared as a monster: the
@@ -98,8 +96,12 @@ public final class Contempt {
             return AFTER_SCORN;
         }
         observer.showReaction("angry", "hatless_scorn", 80);
-        if (mobile(observer)) keepAway(observer, target, 5);
-        suffer(target, "teary", target.getRandom().nextInt(3) == 0 ? "settlement_hurt" : "", 80, SCORNED, "scorned",
+        // The scorned one answers by its own nature (flee, puff back or ignore), and thinks less of the scorner in turn.
+        int regard = relations.affinity(target.getUUID(), observer.getUUID());
+        if (regard > SCORN_FLOOR) relations.relate(target.getUUID(), observer.getUUID(), Math.max(SCORN, SCORN_FLOOR - regard));
+        target.groupInteraction().defense().provoke(observer);
+        boolean answered = target.groupInteraction().defense().active() || target.isPanicking();
+        suffer(target, answered ? "angry" : "teary", target.getRandom().nextInt(3) == 0 ? "settlement_hurt" : "", 80, SCORNED, "scorned",
                 SettlementSociety.sameGroup(observer, target));
         GameplayLog.event(observer, "contempt", "scorn target={} known=false intelligence={} affinity={} -> {} sanction=request_not_accepted attempted={}",
                 target.getUUID(), observer.life().personality().intelligence(), before, affinity, bully);
@@ -134,10 +136,5 @@ public final class Contempt {
         if (pitPressure) target.mind().addSlavePressure(unease, cause); else target.mind().add(unease, cause);
         target.showReaction(face, "", ticks);
         if (!line.isEmpty()) target.speak(line);
-    }
-
-    private static void keepAway(YukkuriEntity observer, YukkuriEntity target, int distance) {
-        var away = DefaultRandomPos.getPosAway(observer, distance, 2, target.position());
-        if (away != null) observer.life().navigate(BlockPos.containing(away), 1.0, false);
     }
 }
