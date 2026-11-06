@@ -36,6 +36,8 @@ public final class WoundSurface {
     private final Map<String,WoundMotion.Clip> clips;
     private final JsonArray envelope,accessoryPrefixes;
     private final Node tree;
+    private final float[][] pivots;
+    private final int[] parents;
     private record Node(float[] box,Node left,Node right,int[] triangles) {}
     public record Hit(int triangle,float u,float v,float distance) {}
     public record AttachmentLifts(Vector3f crown,Vector3f braid) {}
@@ -84,6 +86,8 @@ public final class WoundSurface {
         replaced=new HashSet<>();replacedIn.forEach(v->replaced.add(v.getAsString()));
         faceParts=new ArrayList<>();for(var rawPart:partsIn){var p=rawPart.getAsJsonObject();
                 faceParts.add(new FacePart(p.get("start").getAsInt(),p.get("count").getAsInt(),p.get("bone").getAsInt(),p.get("parent").getAsInt()));}
+        pivots=new float[bones.size()][];parents=new int[bones.size()];
+        for(int i=0;i<pivots.length;i++){var b=bones.get(i).getAsJsonObject();pivots[i]=floats(b.getAsJsonArray("pivot"));parents[i]=b.get("parent").getAsInt();}
         tree=tree(IntStream.range(0,skinCount/3).map(i->i*3).boxed().toArray(Integer[]::new),0,skinCount/3);
     }
     private static float[] readFloats(JsonReader in)throws IOException{
@@ -319,8 +323,8 @@ public final class WoundSurface {
     public Matrix4f[] pose(String action,float elapsed){return pose(action,elapsed,"",0);}
     public Matrix4f[] pose(String action,float elapsed,String hatMotion,float hatPhase){
         var values=poseValues(action,elapsed,hatMotion,hatPhase);var world=new Matrix4f[bones.size()];
-        for(int i=0;i<world.length;i++){var b=bones.get(i).getAsJsonObject();var p=floats(b.getAsJsonArray("pivot"));int parent=
-                b.get("parent").getAsInt();var v=values[i];world[i]=parent<0?new Matrix4f():new Matrix4f(world[parent]);world[i].translate(p[0]+v[0],
+        for(int i=0;i<world.length;i++){var p=pivots[i];int parent=
+                parents[i];var v=values[i];world[i]=parent<0?new Matrix4f():new Matrix4f(world[parent]);world[i].translate(p[0]+v[0],
                 p[1]+v[1],p[2]+v[2]).rotateZYX(v[5]*(float)Math.PI/180,v[4]*(float)Math.PI/180,v[3]*(float)Math.PI/180).scale(v[6],v[7],v[8]).translate(-p[0],-p[1],-p[2]);
         }return world;
     }
