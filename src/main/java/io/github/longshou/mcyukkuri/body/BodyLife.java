@@ -470,7 +470,7 @@ public final class BodyLife {
     public void tick(){
         if(entity.level().isClientSide||!entity.isAlive())return;
         if(dying>0){entity.getNavigation().stop();if(--dying==0)finishDying();else if(dying%20==0)entity.syncBody();return;}
-        if(entity.isNoAi())return;ticks++;
+        if(entity.isNoAi())return;if(ticks++%200==0)WoundSurface.warm(entity.subspecies().assetId());
         int previousInfection=infection,previousToxin=toxin;
         var life=entity.life();
         if(life.wetness()>40&&life.hygiene()<40){
