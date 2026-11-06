@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.life;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.family.LiveBirthGeometry;
 import io.github.longshou.mcyukkuri.motor.surface.BedContainer;
 import io.github.longshou.mcyukkuri.motor.surface.Occupancy;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
@@ -79,7 +80,7 @@ public final class NestDoorway {
 
     private static boolean opening(YukkuriEntity actor, CareBlockEntity bed, Vec3 point) {
         var d=shape(bed);var p=point.subtract(bed.centre());
-        return Math.abs(p.x)+Occupancy.foot(actor.getBbWidth())<=d.opening()+SurfaceApproach.ARRIVAL
+        return Math.abs(p.x)+passFoot(actor)<=d.opening()+SurfaceApproach.ARRIVAL
                 &&p.z*d.side()>0&&p.z*d.side()<=d.outer()+actor.getBbWidth()*.5+.05+SurfaceApproach.ARRIVAL;
     }
 
@@ -131,6 +132,9 @@ public final class NestDoorway {
         }
     }
 
+    /** The footprint that has to pass the opening (a full-term belly squeezes through). */
+    private static double passFoot(YukkuriEntity actor) { return Occupancy.foot(LiveBirthGeometry.passWidth(actor)); }
+
     /** Align inside the hollow before the one straight crossing. */
     public static Vec3 inner(YukkuriEntity actor, CareBlockEntity bed, Vec3 stand) {
         return SurfaceApproach.surface(actor,new Vec3(stand.x,bed.centre().y,bed.centre().z));
@@ -142,8 +146,12 @@ public final class NestDoorway {
     }
     public static Vec3 stand(YukkuriEntity actor, CareBlockEntity bed, Vec3 destination) {
         var shape = shape(bed);
-        double room = shape.opening() - Occupancy.foot(actor.getBbWidth()) - SurfaceApproach.ARRIVAL;
-        if (room < 0) return null;
+        double room = shape.opening() - passFoot(actor) - SurfaceApproach.ARRIVAL;
+        if (room < 0) {
+            GameplayLog.limited(actor, "home", "doorway.narrow", 400, "nest doorway too narrow nest={} opening={} foot={} width={}",
+                    bed.getBlockPos(), shape.opening(), passFoot(actor), actor.getBbWidth());
+            return null;
+        }
         var centre = bed.centre();
         double preferred = Math.clamp(destination.x - centre.x, -room, room);
         for (double x : new double[]{preferred, -room, room, 0}) {

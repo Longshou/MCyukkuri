@@ -175,6 +175,8 @@ public final class LiveBirthGeometry {
         }
         return original.scale(bean?.82f:1,bean?1.55f:1);
     }
+    /** Her width through a nest doorway: the swollen low belly is soft and presses through where the rest of her body fits. */
+    public static double passWidth(YukkuriEntity entity){return entity.getBbWidth()/(1+LOW_WIDE*entity.livePregnancyProgress());}
     public static EntityDimensions bodyDimensions(YukkuriEntity entity,float growth,float belly){
         var size=selectedDimensions(entity.getVariant(),entity.subspeciesFlags());
         return size.scale(growth*(1+SWELL*belly)*(1+LOW_WIDE*belly),growth*(1+SWELL*belly));
