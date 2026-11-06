@@ -178,18 +178,24 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
 
     @Override protected void doStuckDetection(Vec3 at){
         // This hook runs after vanilla advances, but before it samples node progress and timeout.
-        if(path!=null&&!path.isDone()&&followingNode>=0&&path.getNextNodeIndex()>followingNode&&walkingQuery!=null
-                &&(crossesObstacle(mob.position(),path.getNextEntityPos(mob),walkingQuery.obstacle())
-                ||mob instanceof YukkuriEntity actor&&NestDoorway.blocksLine(actor,mob.position(),path.getNextEntityPos(mob))))
-            path.setNextNodeIndex(followingNode);
+        String held=null;
+        if(path!=null&&!path.isDone()&&followingNode>=0&&path.getNextNodeIndex()>followingNode&&walkingQuery!=null){
+            held=crossesObstacle(mob.position(),path.getNextEntityPos(mob),walkingQuery.obstacle())?"body"
+                    :mob instanceof YukkuriEntity actor&&NestDoorway.blocksLine(actor,mob.position(),path.getNextEntityPos(mob))?"doorway":null;
+            if(held!=null)path.setNextNodeIndex(followingNode);
+        }
         boolean walking=!isDone();
         var target=walkingTarget;
+        // What the walk was heading for when it gives up (the path is gone once vanilla stops it).
+        var node=walking?path.getNextNodePos():null;
+        String route=walking?path.getNextNodeIndex()+"/"+path.getNodeCount():null;
         if(mob instanceof YukkuriEntity crawler&&crawler.isCrawling()){crawlStuckDetection(crawler,at,walking,target);return;}
         crawlCheckPos=null;
         super.doStuckDetection(at);
         if(walking&&isDone()){
             stalled=true;
-            GameplayLog.limited(mob,"move","path_stalled",200,"ground path stopped reason=no_progress target={} at={}",target,at);
+            GameplayLog.limited(mob,"move","path_stalled",200,"ground path stopped reason=no_progress target={} at={} node={} index={} held={} nodeBelow={} nodeFluid={}",
+                    target,at,node,route,held,node==null?null:level.getBlockState(node.below()).getBlock(),node==null?null:level.getFluidState(node).getType());
         }
     }
 

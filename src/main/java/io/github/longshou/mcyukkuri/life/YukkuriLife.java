@@ -580,13 +580,20 @@ public final class YukkuriLife {
             if (entity.wintering().planMeal()) { task = Task.WINTER_FOOD; pursuitTicks = 0; winterNeedCheckAt = 20; return true; }
         }
         if (!penned && canEat() && EventHooks.canEntityGrief(level(), entity)) {
-            targetFood = level().getEntitiesOfClass(ItemEntity.class, entity.getBoundingBox().inflate(TravelRange.search(entity,8)), item ->
-                    item.isAlive() && !item.hasPickUpDelay() && acceptsFood(item.getItem())).stream()
+            var offered = level().getEntitiesOfClass(ItemEntity.class, entity.getBoundingBox().inflate(TravelRange.search(entity,8)), item ->
+                    item.isAlive() && acceptsFood(item.getItem()));
+            targetFood = offered.stream().filter(item -> !item.hasPickUpDelay())
                     .sorted(Comparator.comparingInt((ItemEntity item) -> FoodTaste.rank(item.getItem()))
                             .thenComparingDouble(entity::distanceToSqr))
                     .filter(item -> TravelRange.babyDestination(entity,item.blockPosition()))
                     .filter(item -> entity.distanceToSqr(item)<.5 && entity.hasLineOfSight(item) || reachable(item.blockPosition(),false))
                     .findFirst().orElse(null);
+            if (targetFood == null && !offered.isEmpty()) GameplayLog.limited(entity, "meal", "food_plan_refused", 400,
+                    "loose food in reach but not planned items={} pickupDelay={} outOfBabyRange={} unreachable={} task={} nutrition={}",
+                    offered.size(), offered.stream().filter(ItemEntity::hasPickUpDelay).count(),
+                    offered.stream().filter(item -> !TravelRange.babyDestination(entity,item.blockPosition())).count(),
+                    offered.stream().filter(item -> !(entity.distanceToSqr(item)<.5 && entity.hasLineOfSight(item)) && !reachable(item.blockPosition(),false)).count(),
+                    task, nutrition);
             targetBlock = nearestCare(CareBlock.Kind.BOWL, true);
             if (targetBlock != null && entity.pet().lessons().knows(PetSkill.FOOD_BOWL)) {
                 if (followsRule(PetSkill.FOOD_BOWL)) targetFood = null;
