@@ -396,6 +396,11 @@ WP-C2 本机自查（非试玩验收、无 CI）：主线 `136b6f124`（独立�
 **未做（按新架构）**：旧代码中的初航、随亲出航、雨天等按新架构迁移，不计为完成。P1（15 项：初航与小船随亲、水上离家、赤油帽檐守护、威胁、雨天、帽内事故、晒干、非亲救助、推遗体与哀悼、孤儿船、孕期腾舱、无棍手划、船体损伤与修帽、桨滑落、并舷社交）与 P2（11 项：啃睡莲、夜间筏群、领地碰船、并舷递粮、结冰搁浅、桨拍反击、高湿软化、撕裂帽漏水、老年航程、宠物水生、尺度统一）清单与完成标准以 `.local/reports/aquatic-redesign/D-ecology.md` 第 2 节为准，原水 21–32 并入其中；船长遗体留在船长位直到靠岸或被推入水（A10）尚未实现。另未做：出航前备粮；玩家交付木棍与从树叶／枯灌木取棍（亲油取棍递给孩子）；夜泊的芦苇／睡莲与摇篮曲、天亮后推离岸边；船长湿度与避雨细则；帽内亲昵；母船无位时新生儿落到父船。
 ### 其他已接入玩法
 
+- **陆地食物与喂养（11-07 审计 P4，[规则](FEATURES.md#野外住所)）**：已接入待试玩（分支 `wp-av-food`，本机冒烟非验收，运行版本合入后补）。看点：
+  - 池岸停滞：`settle_pit_slave`、`settle_pit_release` 长跑饮水后不再在池岸反复 `ground path stopped`、无成员饿死；站在岸沿的身体先挪到本格中央再沿岸走。奴隶到休息时间在坑里睡（`[sleep] begin source=life`），不再靠疲劳小盹。
+  - 外出觅食：`forage`、`cheek_forage` 由近及远选草场，`[forage] end ok=true reason=full`，不再 `no_meadow`、回程失败不在路边 `drop` 所衔的草；有饥饿幼体时 `den_family`、`forage` 的 `[habitat] deposit` 先入粮堆（`stock` 递增）再铺床。
+  - 亲代喂幼：`birth_land_caught` 两亲代喂不同孩子（无 `receiver_already_waiting`），营养≥40 且仍有等着喂的孩子时不自己吃草；饥饿新生儿 `[childhood] hungry baby begs`（`beg` 动作）。`chen_speed` 先到者先吃。`settle_snow` 营养≥30 的成年不为冷处的草离开暖处。
+  - 未做：幼体饥饿时保持跟随亲代（审计 8 的 P1 半，`FamilyLife.canUse` 在紧急需求下仍丢弃 FOLLOW，`offering` 中幼体仍饿死）；`aftermath_growth` 母亲吃不到脚边苹果是场景里三个窝相距 2 格互相挡路（读数 `[meal] loose food in reach but not planned … unreachable=1`，归场景整理）；亲代喂幼的就近草被吃光后仍只搜 8 格内（`food_search_exhausted`）。
 - **油库里互挡绕行与互相推挤**：已接入待试玩。[ac4ba87b](https://github.com/Longshou/MCyukkuri/commit/ac4ba87b)（CI 40196337976）一只挡住另一只路线时反复碰撞、既不绕行也不重算，互相推不动，亲子被夹在窝里两亲之间出不来；对爬行赤油推力无效（[规则](FEATURES.md#行为性格与成长)）。完成：`den_family`、`birth_nest_safe`（赤油能从两亲之间出窝，亲代睡着也被缓慢挤开）、聚落各场景与 `colony_migrate`（窄处互让、不长期对撞）读 `[move] blocked by yukkuri` 的 action（sidestep／replanned／blocker_yields）与位置变化；护子、抱持、乘船与出生弹道不受影响。窝内卡住的其余原因仍需现场读数。
 - **行为数值、成长与遗传**：五属性、对象关系与恐惧、技能学习和固定成长时钟已接入。完成：“五属性读数对照”概率与任务预算符合公式；“固定成长边界”按实际 tick 换阶段；“特殊形态边界”不越界；“灵胖成年锁定”在成年边界锁定且不中断短动作；亲子分享、照护和翻船救援按友善作一次决策，普通失败冷却后才重选。见[正式设计](FEATURES.md#行为性格与成长)。
 - **数值改造适配**：修正初始商店资格／技能漏载、新生儿关系用临时 UUID、中立对象无法首次问候。完成：`shop_build` 受训库存有原定徽章与六项技能，购买放出及重载保持；`birth_land_caught` 新生儿读取亲子关系，收纳放出及重载继续累计；`meet` 南边陌生一对从亲近 0 开始普通问候并建立同伴关系，高恐惧仍按 `balance_relation` 退避。
