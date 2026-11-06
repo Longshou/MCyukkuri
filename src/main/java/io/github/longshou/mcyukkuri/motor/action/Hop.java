@@ -45,6 +45,9 @@ public final class Hop implements Action {
     private static final String CLIP = "hop_leg";
     static final int SETTLE = 10;
     private static final double TOUCH = .05;
+    /** How far (blocks) a carried young may graze a block once its carrier's hop is under way: the arc was admitted with it
+     *  clear, and the frames it is flown in differ from the forecast ones by less than this. Invisible. */
+    private static final double HELD_GIVE = .01;
     private Vec3 target;
     private SurfaceHost seatHost;
     private Vec3 bank;
@@ -69,6 +72,8 @@ public final class Hop implements Action {
     private int recovery;
     private int completedLegs;
     private SeatTarget rest;
+    /** Started: from here on its own checks are the flight's, with {@link #HELD_GIVE} for the young it carries. */
+    private boolean underway;
 
     public Hop(Vec3 target) { this.target = target; seatHost = null; }
     public Hop(SurfaceHost host) { seatHost = host; target = null; }
@@ -426,6 +431,7 @@ public final class Hop implements Action {
         takeoff = takeoffTicks();
         from = body.position();
         startTick = body.level().getGameTime();
+        underway = true;
     }
 
     @Override public Progress tick(YukkuriEntity body) {
@@ -647,7 +653,8 @@ public final class Hop implements Action {
     private boolean carriedClear(YukkuriEntity body, Vec3 from, Vec3 to, float yaw) {
         var corner = to.y < from.y ? new Vec3(to.x, from.y, to.z) : new Vec3(from.x, to.y, from.z);
         for (var passenger : body.getPassengers()) if (passenger instanceof YukkuriEntity child) {
-            var base = child.getBoundingBox().move(body.position().add(carriedOffset(body, child, yaw)).subtract(child.position()));
+            var base = child.getBoundingBox().deflate(underway ? HELD_GIVE : 0)
+                    .move(body.position().add(carriedOffset(body, child, yaw)).subtract(child.position()));
             var start = base.move(from.subtract(body.position()));
             var bend = base.move(corner.subtract(body.position()));
             var end = base.move(to.subtract(body.position()));

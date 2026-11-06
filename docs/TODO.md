@@ -10,7 +10,7 @@
 | --- | --- | --- |
 | 首次加载卡顿与路径搜索上限（wp-af-perf2） | `.worktrees/wp-af-perf2` | `WoundSurface`、`ExpressionClips`、`GeometryJson`、`LiveBirth`、`YukkuriLife.reachable`、`NestDoorway` |
 | 辫子占用单一权威、木棍不凭空消失、放幼不往身后弯（11-06 反馈 2、3、6） | `.worktrees/wp-z-braid-state` | `family/ParentCarry`、`motor/` 抓取放下与辫子持物、`client/` 持物显示、辫子动作片段 |
-| 帽船靠岸留间距、满载救起场景的帽檐子油自己上岸（11-06 反馈 2a） | `.worktrees/wp-ae-dock-standoff` | `aquatic/Ashore`、`aquatic/Waters` 靠岸、`scripts/museum_scenarios.py` `rescue_no_seat` |
+| 靠岸不把乘员压进岸、满载救起场景的帽檐子油自己上岸（11-06 反馈 2a） | `.worktrees/wp-ae-dock-standoff` | `aquatic/Ashore` 靠岸、`aquatic/HullAfloat` 乘员挡船、`motor/surface/Floor` settle、`motor/action/Hop` 持幼余量、`scripts/museum_scenarios.py` `rescue_no_seat` |
 
 ## 玩法待办
 
@@ -251,7 +251,7 @@
   1. “临产划回岸边，放下孩子再生产中，靠近岸边想上岸时卡住，可能是被子油不动卡住？”
      本机自查（非验收）：原因是帽船靠岸时还在滑行，帽檐子油起跳被预测的撞岸判拒（`bank_handoff world`），失败记入后船不动就不再重试；现等船停稳（`Waters.moored`）才让它起跳；`birth_boat_missed` 本机多数场子油自己先上岸。
   2. “满载亲帽救起新生儿上岸演出中 首先帽前的子油和1.一样不动 还是被亲油叼上来的。应该自己也能上岸才对。其次动作虽然完成了，但是又是辫子往后弯曲，放在身后”
-     未完成：该帽檐子油的船首站位在帽船贴岸时有约 0.02 格伸进岸壁，起跳被 `world` 判拒，亲油只好叼它上岸；需另定靠岸间距。
+     前半已接入待试玩（本机自查非验收）：靠岸后等船停稳，帽檐子油自己先跳上岸，亲油等它走后再带其余孩子上岸（`rescue_no_seat` 帽檐改为会跳的子油）；乘员身体也挡船，帽船不再把帽檐孩子压进岸壁（主线 038b5f85f 本机冒烟曾见 `birth_boat_missed` 帽檐子油贴岸窒息 `inWall`）。辫子往后弯见第 6 条。
   3. “亲油用辫子救起落水子油和赤油中，首先是木棍又是直接消失，救完孩子才凭空出现。 其次是头上的赤油有时候会变成类似45度角又变回来”
   4. “头上的孩子的底部和亲油的头部距离过大，看起来像悬浮。如果亲油晃动严重，其实孩子直接被晃下来就行了。”
   5. 原则（已写入 AGENTS 规则与实现）：以“生物而非脚本”审视现有水生种演出，后面扩大到整个游戏。6. “你没有做好辫子状态管理，我不能接受的是物品等突然消失”。
