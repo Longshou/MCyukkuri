@@ -28,7 +28,7 @@ import net.minecraft.world.phys.Vec3;
 import io.github.longshou.mcyukkuri.event.WildEvents;
 
 /**
- * A grown child leaves its parents (project design). When it is old and fit enough, and the day suits it, it walks to a parent,
+ * A grown child leaves its parents (project design). When it is old and fit enough, and the day suits it, it walks toward a parent until it is a few blocks off in sight,
  * the two exchange a short farewell (the child's "yukkuri shite itte ne" and the parent's glad answer), and the child
  * then simply becomes a vagrant looking for a new nest of its own: its bed in the parents' home is released, its
  * kinship and affinity are kept. Finding or digging the new home belongs to {@code HabitatLife}; nothing here builds.
@@ -37,7 +37,7 @@ import io.github.longshou.mcyukkuri.event.WildEvents;
  */
 public final class IndependenceLife extends Goal {
     private enum Task { NONE, FAREWELL }
-    private static final int CHECK_INTERVAL = 1200, FAREWELL_LIMIT = 600, CONTACT_TICKS = 100, PARENT_RANGE = 24, WAITS_FOR_PARENT = 8;
+    private static final int CHECK_INTERVAL = 1200, FAREWELL_LIMIT = 600, CONTACT_TICKS = 100, CALL_RANGE = 4, PARENT_RANGE = 24, WAITS_FOR_PARENT = 8;
     private final YukkuriEntity entity;
     /** The parents' home that was left; the leaver never moves back into it. */
     private GlobalPos origin;
@@ -196,14 +196,11 @@ public final class IndependenceLife extends Goal {
         if (!(level().getEntity(visitor) instanceof YukkuriEntity parent) || !parent.isAlive() || parent.isPanicking() || parent.isCommandPlaying()) {
             leave(); stop(); return;
         }
-        var stand = contactStand(parent);
-        if (contact == 0 && (stand == null || elapsed > FAREWELL_LIMIT)) { leave(); stop(); return; }
-        double reach=(entity.getBbWidth()+parent.getBbWidth())*.5+.2;
-        boolean close=entity.position().subtract(parent.position()).horizontalDistanceSqr()<=reach*reach
-                &&Math.abs(entity.getY()-parent.getY())<.35&&entity.hasLineOfSight(parent);
-        if(stand==null||contact==0&&!SurfaceApproach.arrived(entity,stand)||contact>0&&!close){
-            if(elapsed>FAREWELL_LIMIT){leave();stop();return;}
-            if(stand!=null)approach(stand,parent);else SurfaceApproach.halt(entity);
+        // The goodbye is called from a few blocks off in sight; a roaming parent need not be caught up with and touched.
+        if (entity.distanceToSqr(parent) > CALL_RANGE * CALL_RANGE || !entity.hasLineOfSight(parent)) {
+            var stand = contactStand(parent);
+            if (elapsed > FAREWELL_LIMIT || stand == null && contact == 0) { leave(); stop(); return; }
+            if (stand != null) approach(stand, parent); else SurfaceApproach.halt(entity);
             return;
         }
         SurfaceApproach.halt(entity);
