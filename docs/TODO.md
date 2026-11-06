@@ -398,8 +398,8 @@ WP-C2 本机自查（非试玩验收、无 CI）：主线 `136b6f124`（独立�
 ### 其他已接入玩法
 
 - **陆地食物与喂养（11-07 审计 P4，[规则](FEATURES.md#野外住所)）**：已接入待试玩（本机冒烟非验收，运行版本待核实）。看点：
-  - 池岸停滞：`settle_pit_slave`、`settle_pit_release` 长跑饮水后不再在池岸反复 `ground path stopped`、无成员饿死；站在岸沿的身体先挪到本格中央再沿岸走。奴隶到休息时间在坑里睡（`[sleep] begin source=life`），不再靠疲劳小盹。
-  - 外出觅食：`forage`、`cheek_forage` 由近及远选草场，`[forage] end ok=true reason=full`，不再 `no_meadow`、回程失败不在路边 `drop` 所衔的草；有饥饿幼体时 `den_family`、`forage` 的 `[habitat] deposit` 先入粮堆（`stock` 递增）再铺床。
+  - 池岸停滞：`settle_pit_slave`、`settle_pit_release` 长跑饮水后不再在池岸反复 `ground path stopped`、无成员饿死；站在岸沿的身体先挪到本格中央再沿岸走。奴隶到休息时间在坑里睡（`begin source=life`），不再靠疲劳小盹。
+  - 外出觅食：`forage`、`cheek_forage` 由近及远选草场，`end ok=true reason=full`，不再 `no_meadow`、回程失败不在路边 `drop` 所衔的草；有饥饿幼体时 `den_family`、`forage` 的 `deposit … stock=` 先入粮堆、再铺床。
   - 亲代喂幼：`birth_land_caught` 两亲代喂不同孩子（无 `receiver_already_waiting`），营养≥40 且仍有等着喂的孩子时不自己吃草；饥饿新生儿 `[childhood] hungry baby begs`（`beg` 动作）。`chen_speed` 先到者先吃。`settle_snow` 营养≥30 的成年不为冷处的草离开暖处。
   - 未做：幼体饥饿时保持跟随亲代（审计 8 的 P1 半，`FamilyLife.canUse` 在紧急需求下仍丢弃 FOLLOW，`offering` 中幼体仍饿死）；`aftermath_growth` 母亲吃不到脚边苹果是场景里三个窝相距 2 格互相挡路（读数 `[meal] loose food in reach but not planned … unreachable=1`，归场景整理）；亲代喂幼的就近草被吃光后仍只搜 8 格内（`food_search_exhausted`）。
 - **油库里互挡绕行与互相推挤**：已接入待试玩。[ac4ba87b](https://github.com/Longshou/MCyukkuri/commit/ac4ba87b)（CI 40196337976）一只挡住另一只路线时反复碰撞、既不绕行也不重算，互相推不动，亲子被夹在窝里两亲之间出不来；对爬行赤油推力无效（[规则](FEATURES.md#行为性格与成长)）。完成：`den_family`、`birth_nest_safe`（赤油能从两亲之间出窝，亲代睡着也被缓慢挤开）、聚落各场景与 `colony_migrate`（窄处互让、不长期对撞）读 `[move] blocked by yukkuri` 的 action（sidestep／replanned／blocker_yields）与位置变化；护子、抱持、乘船与出生弹道不受影响。窝内卡住的其余原因仍需现场读数。
