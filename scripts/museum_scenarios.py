@@ -2196,7 +2196,7 @@ def _overload_family(parent, dz, intelligence, friendliness, cabin, grown=(12000
               for i, offset, size, nourishment, age in ((1, -1, .16, 22909, 36000), (2, 0, .20, grown[0], 76000),
                                                        (3, 1, .355, grown[1], 72000)) if cabin or i != 1],
             item('minecraft:apple', 8, bank_dx(dz) + 9, dz, name=parent + '_food'),
-            afloat(parent, water_at(dz, 6), True, sel_all(parent + '_crew'), food=8, stick=True)]
+            afloat_now(parent, water_at(dz, 6), True, sel_all(parent + '_crew'), food=8, stick=True)]
 
 
 def _babies():
@@ -2458,7 +2458,7 @@ pond('shake_capsize', '右击晃翻帽子，船主游回扶正', '右击晃翻�
      '空手反复右击水面的帽子：单击只会摇一下，三秒内三次摇晃后先剧烈摇摆再翻覆，所有乘员沿倾斜方向被甩进水里，帽子倒扣浮着（不再是容器）。随后船主慢慢游回帽边（很弱的挣扎前进），咬住帽檐按一段动作推正帽子（播咬檐推帽的扶正动作，不是挣扎），再爬回帽里；泡水伤照常扣血但不打断游、扶正与爬；两只赤油不会攀爬，只能朝岸挣扎',
      '约 1 分钟',
      [captain(dx=bank_dx(0)), *_babies(),
-      afloat('a', water_at(0, 3), True, sel_all('crew'), food=4, stick=True)],
+      afloat_now('a', water_at(0, 3), True, sel_all('crew'), food=4, stick=True)],
      note='载人帽有四份粮与木棍；日志 capsized → righted → mount cause=climb，粮与木棍各漂出一次。扶正是一段咬檐推帽动作，水伤照常扣血。读 hat.float 的 trigger、value、capsizes、inverted 与 righting。',
      reads=[('读船主', f'yukkuri status {sel("a")} raw'), ('读赤油一', f'yukkuri status {sel("k1")} raw'),
             ('读赤油二', f'yukkuri status {sel("k2")} raw'), ('读帽子', f'data get entity {_HAT}')],
@@ -2799,7 +2799,7 @@ pond('kid_boat_play', '赤油在帽檐玩耍，打雷躲避', '赤油在帽檐�
          uuid=uid('kid_boat_play', 'a'), **pair_ready()),
       _aquatic_young('kid_boat_play', 'c1', bank_dx(1), 1, 'baby', 'a', childhood=CHILDHOOD_HOPPING, also=('crew',)),
       _aquatic_young('kid_boat_play', 'c2', bank_dx(2), 2, 'baby', 'a', childhood=CHILDHOOD_HOPPING, also=('crew',)),
-      afloat('a', water_at(0, 3), True, sel_all('crew'), food=4, stick=True)],
+      afloat_now('a', water_at(0, 3), True, sel_all('crew'), food=4, stick=True)],
      note='日志：舱内赤油自己 hop 上帽檐 → [aquatic] play kind=kid_brim_splash start spot=brim reason=brim_water braid_out=true（亲油在划桨时是 kind=kid_mimic_paddle reason=captain_paddle，两者都是水上动作）'
           '→ 之后 kind=hat_cradle 原地静玩；头顶那只 play kind=hat_cradle start spot=head reason=head_dry（静坐，不回头转身；boat_rim_peek 的 60° 回望只在帽檐/舱内），不做水上动作。'
           '两只都已学会短跳：新生油不能玩耍，头顶那只不会探头。'
@@ -2945,7 +2945,7 @@ pond('rescue_child', '亲油用辫子救起落水的子油和赤油', '亲油用
      [yk('marisa', bank_dx(0), 0, 'a', aquatic=True, yaw=-90, lead=True, friendliness=100, uuid=uid('rescue_child', 'a'), **pair_ready()),
       _aquatic_young('rescue_child', 'c1', bank_dx(1), 1, 'child', 'a', fam=_seat_family(), childhood=CHILDHOOD_CRAWLING_READY),
       _aquatic_young('rescue_child', 'k1', bank_dx(-1), -1, 'baby', 'a'),
-      afloat('a', water_at(0, 3), True, sel('a'), stick=True)],
+      afloat_now('a', water_at(0, 3), True, sel('a'), stick=True)],
      late=[shoved('c1', .5), Retry(shoved('k1', .5), sel('k1'), tries=1, first=RESCUE_BABY_DELAY)], vantage=(bank_dx(0) - 2, 1, -90, 18),
      note=_INCIDENT_NOTE + '0.35 子油按真实身体净空与载重找落点。同一孩子 UUID：rescue start → grab reach=braid → carry grip → release → seat landed → rescue end result=DONE outcome=rescued aboard=true；self_climbed 只算自行脱险。赤油在子油救完之后才被推下水，走同一条链；亲油那时若已站在岸上、赤油在岸边站位够得着，则 grab → carry grip → release（放到干地）→ rescue end result=DONE outcome=set_down aboard=false，不再 start id=launch。' + _DESIRE_NOTE,
      reads=[('读亲油', f'yukkuri status {sel("a")} raw'), ('读子油', f'yukkuri status {sel("c1")} raw'),
