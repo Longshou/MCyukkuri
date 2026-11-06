@@ -10,7 +10,6 @@
 | --- | --- | --- |
 | 首次加载卡顿与路径搜索上限（wp-af-perf2） | `.worktrees/wp-af-perf2` | `WoundSurface`、`ExpressionClips`、`GeometryJson`、`LiveBirth`、`YukkuriLife.reachable`、`NestDoorway` |
 | 辫子占用单一权威、木棍不凭空消失、放幼不往身后弯（11-06 反馈 2、3、6） | `.worktrees/wp-z-braid-state` | `family/ParentCarry`、`motor/` 抓取放下与辫子持物、`client/` 持物显示、辫子动作片段 |
-| 靠岸不把乘员压进岸、满载救起场景的帽檐子油自己上岸（11-06 反馈 2a） | `.worktrees/wp-ae-dock-standoff` | `aquatic/Ashore` 靠岸、`aquatic/HullAfloat` 乘员挡船、`motor/surface/Floor` settle、`motor/action/Hop` 持幼余量、`scripts/museum_scenarios.py` `rescue_no_seat` |
 
 ## 玩法待办
 
