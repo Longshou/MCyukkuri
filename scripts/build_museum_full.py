@@ -253,7 +253,9 @@ def build_pack(world):
                 # a command the game may refuse for a while: attempt it every few ticks, only once its guard matches, a bounded number of times
                 base = f'scn/{s.id}_retry{ri}'
                 late_lines.append(f'schedule function {NS}:{base}_0 {retry.first}t replace')
-                fn(f'{base}_try', [f'return run {retry.command}'])
+                # store-success instead of `return run`: a forking command (`execute as @e[...] run ...`) must run every branch
+                fn(f'{base}_try', [f'execute store success score #retry {OBJ} run {retry.command}',
+                                   f'return run scoreboard players get #retry {OBJ}'])
                 for k in range(retry.tries):
                     nxt = f'schedule function {NS}:{base}_{k + 1} %dt replace' if k + 1 < retry.tries else ''
                     fn(f'{base}_{k}', ([f'execute positioned {ax}.0 {FEET} {az}.0 unless entity {retry.guard} run ' + nxt % 20,
