@@ -228,6 +228,7 @@ public final class MyonLife {
         @Override public boolean requiresUpdateEveryTick() { return true; }
         @Override public void start() { ticks = 0; entity.life().travel(stand, .9); }
         @Override public void tick() {
+            if (pulling > 0) return;
             ticks++;
             double dx = stand.getX() + .5 - entity.getX(), dz = stand.getZ() + .5 - entity.getZ();
             if (dx * dx + dz * dz > .25) {
