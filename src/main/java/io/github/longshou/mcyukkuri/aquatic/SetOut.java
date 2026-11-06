@@ -134,6 +134,11 @@ final class SetOut implements Intent, FamilyRendezvous {
             var stick = Waters.stick(owner, 10, true);
             if (stick != null && sticks.add(stick.getUUID())) return fetch(stick);
         }
+        // her hat knocked off or lost mid set-out: nothing left to set down, so the drive offers her own hat back
+        if (hat == null && !owner.life().custody().worn()) {
+            GameplayLog.event(owner, "aquatic", "set_out ended reason=hat_gone");
+            return null;
+        }
         if (hat == null) {
             var fetch = dependentAshore(hat);
             var edge = Waters.berth(owner);
@@ -207,7 +212,7 @@ final class SetOut implements Intent, FamilyRendezvous {
         private List<Supplier<Step>> derive() {
             var hat = AquaticLife.hat(owner);
             if (hat != null) return AquaticLife.afloat(hat) ? Ferry.hopAboard(owner, hat, beckoning) : null;
-            return place(owner);
+            return owner.life().custody().worn() ? place(owner) : null;
         }
     }
 
