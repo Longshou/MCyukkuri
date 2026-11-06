@@ -378,8 +378,21 @@ public final class YukkuriSocial implements MotorOwner {
         Long last = lastContact.put(peer.getUUID(), now);
         String why = greetWhy; greetWhy = null;
         if ("morning".equals(why)) return last == null || last / 24000L != now / 24000L ? why : null;
-        if (last == null) return relations.affinity(entity.getUUID(), peer.getUUID()) >= BondLevels.AFFINITY_ACQUAINTED ? "reunion" : "first_meet";
+        // Family is never a stranger: kin met with no contact remembered greet as a reunion.
+        if (last == null) return Bonds.careKin(entity, peer) || relations.affinity(entity.getUUID(), peer.getUUID()) >= BondLevels.AFFINITY_ACQUAINTED
+                ? "reunion" : "first_meet";
         return now - last >= REUNION_GAP ? "reunion" : null;
+    }
+    /** A real contact with this peer (a nuzzle, a mating): meeting it again soon after is no reunion. */
+    public void noteContact(YukkuriEntity peer) {
+        if (lastContact.size() >= 64 && !lastContact.containsKey(peer.getUUID())) lastContact.remove(lastContact.keySet().iterator().next());
+        lastContact.put(peer.getUUID(), entity.level().getGameTime());
+    }
+    /** Meeting this peer for a nuzzle: why it is greeted first (logged), or null; the greeting counts as this contact. */
+    public String greetingDue(YukkuriEntity peer) {
+        String why = greetReason(peer, YukkuriWorldData.get((ServerLevel) entity.level()));
+        if (why != null) logGreet(peer, why);
+        return why;
     }
     private void logGreet(YukkuriEntity other, String why) {
         GameplayLog.limited(entity, "social", "greet." + other.getUUID(), 200, "greet from={} to={} why={}", entity.getUUID(), other.getUUID(), why);

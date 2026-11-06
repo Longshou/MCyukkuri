@@ -253,6 +253,7 @@ final class Courtship {
                 o.entity().showReaction("confused","",60);peer.showReaction("confused","",60);
             }
             unauthorizedWith=null;
+            o.entity().social().noteContact(peer);peer.social().noteContact(o.entity());
             peer.family().stop();peer.family().waitTicks(200);
             o.stop();o.waitTicks(200);
         }
