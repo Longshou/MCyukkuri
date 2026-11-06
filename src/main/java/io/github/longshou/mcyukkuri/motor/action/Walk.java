@@ -152,15 +152,16 @@ public final class Walk implements Action {
     }
 
     private Progress groundTick(YukkuriEntity body) {
-        // Already at the stand, or within STAND_ARRIVED of it: a straight step closes the last centimetres (the route planner makes
-        // no progress on three), and the walk is done the moment the body is there. It must not end BLOCKED or stall at its goal.
+        // Already at the stand, or within STAND_ARRIVED of it: a walk with that tolerance is done there; one without closes the last
+        // centimetres with a straight step (the route planner makes no progress on three). It must not end BLOCKED or stall at its goal.
         var stand = goal != null ? goal : target;
-        if (Math.abs(body.getY() - stand.y) < .08 && body.position().subtract(stand).horizontalDistance() <= STAND_ARRIVED) {
-            if (SurfaceApproach.arrived(body, target) || Motor.step(body, stand, 1)) {
+        double near = body.position().subtract(stand).horizontalDistance();
+        if (Math.abs(body.getY() - stand.y) < .08 && near <= STAND_ARRIVED) {
+            if (near <= arrive || SurfaceApproach.arrived(body, target) || Motor.step(body, stand, 1)) {
                 SurfaceApproach.halt(body);
                 return new Outcome.Done(String.format(Locale.ROOT, "at=%s settled", GameplayLog.at(body.position())));
             }
-            return new Running(body.position().subtract(stand).horizontalDistance(), TravelMode.PASS, false);
+            return new Running(near, TravelMode.PASS, false);
         }
         double paceNow = speed * BodyAbility.carrying(body);
         boolean arrived = avoid == null

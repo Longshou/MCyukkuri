@@ -54,6 +54,7 @@ import io.github.longshou.mcyukkuri.motor.Held;
 import io.github.longshou.mcyukkuri.motor.Attach;
 import io.github.longshou.mcyukkuri.motor.Motor;
 import io.github.longshou.mcyukkuri.motor.TravelMode;
+import io.github.longshou.mcyukkuri.motor.action.Hop;
 import io.github.longshou.mcyukkuri.motor.surface.SurfaceHost;
 import net.neoforged.neoforge.fluids.FluidType;
 import io.github.longshou.mcyukkuri.pet.PetLife;
@@ -486,9 +487,18 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
         if(nudgeable())shove(-ux,-uz,strength*Math.clamp(2*theirs/(mine+theirs),.4,1.8)*(life.isSleeping()?.6:1));
         if(peer.nudgeable())peer.shove(ux,uz,strength*Math.clamp(2*mine/(mine+theirs),.4,1.8)*(peer.life.isSleeping()?.6:1));
     }
+    /** It yields turned to its own right; a body standing on ground does not yield over a brink (water, a drop) under its leading
+     *  side: it turns to its left instead, and braces when both sides are brinks. */
     private void shove(double x,double z,double strength) {
-        double turn=.5,c=Math.cos(turn),s=Math.sin(turn);
-        nudge((x*c-z*s)*strength,(x*s+z*c)*strength);
+        boolean footing=onGround()&&Hop.ground(this,position());
+        for(double turn:new double[]{.5,-.5}){
+            double c=Math.cos(turn),s=Math.sin(turn),dx=x*c-z*s,dz=x*s+z*c;
+            if(!footing||Hop.ground(this,position().add(dx*getBbWidth()*.5,0,dz*getBbWidth()*.5))){
+                if(turn<0)GameplayLog.limited(this,"move","shove.brink",200,"shove turned from brink side=left");
+                nudge(dx*strength,dz*strength);return;
+            }
+        }
+        GameplayLog.limited(this,"move","shove.brace",200,"shove braced at brink both_sides");
     }
     /** A walking nudge. The crawl gait rewrites the horizontal velocity every tick, so crawlers keep a decaying carry. */
     public void nudge(double x,double z) {
