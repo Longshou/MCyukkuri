@@ -10,6 +10,7 @@
 | --- | --- | --- |
 | 魔理沙辫子抬放改为制作好的动作片段（亲代运输演出：辫子抬起／放下片段、离线穿模检查、孩子跟随辫梢标记） | `.worktrees/wp-as-braid-carry-clips` | `standards/yukkuri-library/`（魔理沙辫子动作）、`family/ParentCarry`、`motor/geom/CarryGeometry`、`motor/action/Stow`、`motor/action/Release`、`motor/ContactGeometry`、`client/ParentCarryPresentation` |
 | 陆地危险、天气与寒冷（审计 P3：受害者记住攻击者、逃向掩体与父母、安全撤离点，Alice 追击门与目击，捕食种战败撤离与饥饿巡飞，洞口结界，雨搜方向与抖水，暖桌暖邻） | `.worktrees/wp-at-danger` | `status/Reactions`、`entity/YukkuriGoals`、`predator/PredatorLife`、`settlement/DenBarrierBlockEntity`、`life/AgitationLife`、`life/TemperatureLife` |
+| 陆地食物与喂养（审计 P4：池塘岸边觅食停滞、喂养时钟与亲代先喂幼体、干草缺口母亲的进食门、就近草地与保留所携、争食公平、分配幼体与幼体乞食、寒冷不觅食、奴隶睡觉、先备粮后铺床） | `.worktrees/wp-av-food` | `settlement/ForageGoal`、`settlement/ForageTrip`、`settlement/HabitatLife`、`family/FamilyFeeding`、`family/ChildhoodLife`、`life/YukkuriLife`、`life/LifeHome`、`entity/YukkuriGroundNavigation` |
 | 全游戏演示场景梳理与取名（非池塘场地合并同路径演示、改名、迁徙两场找回、生成点与初态核对） | `.worktrees/wp-au-scene-curation` | `scripts/museum_*.py`、`scripts/smoke_museum.py`、`docs/TODO.md` |
 
 ## 玩法待办
