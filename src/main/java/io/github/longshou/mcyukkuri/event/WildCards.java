@@ -12,9 +12,11 @@ import io.github.longshou.mcyukkuri.life.Facilities;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.social.BondLevels;
 import io.github.longshou.mcyukkuri.social.Bonds;
+import io.github.longshou.mcyukkuri.social.DailyLife;
 import io.github.longshou.mcyukkuri.social.Temperament;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.GlobalPos;
@@ -96,11 +98,14 @@ public final class WildCards {
             pair.getFirst().getPersistentData().put("WildConflict",memory);
         }
     }
+    private static final Set<String> CARE_CARDS=Set.of("weak-escort","little-gap","plea","ornament","deficient-wait","young-call");
     public static Scene begin(String card,YukkuriEntity first,List<YukkuriEntity> peers,Player player) {
         if(!(first.level() instanceof ServerLevel level)||peers.isEmpty()||!WildEvents.available(first))return null;
         var second=peers.getFirst();List<YukkuriEntity> all=new ArrayList<>();all.add(first);all.addAll(peers);
         if(all.stream().distinct().count()!=all.size()||all.size()>6||peers.stream().anyMatch(p -> p.level()!=level
                 ||!WildEvents.available(p)||!close(first,p,6)||!first.life().reachable(p.blockPosition(),false)))return null;
+        // Cards are leisure: everyone in a play card, and the carer of a care card, must be well and free (the daily-life gate).
+        if(!(CARE_CARDS.contains(card)?List.of(first):all).stream().allMatch(p -> DailyLife.wellAndFree(p,false)))return null;
         var data=WildEventData.get(level);
         if (!data.canStart(GlobalPos.of(level.dimension(),first.blockPosition()), all.stream().map(Entity::getUUID).toList(), level.getGameTime())) return null;
         var relations=YukkuriWorldData.get(level);var family=FamilyData.get(level);

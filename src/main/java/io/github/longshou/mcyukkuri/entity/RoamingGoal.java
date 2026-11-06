@@ -8,6 +8,7 @@ import io.github.longshou.mcyukkuri.status.Reactions;
 import java.util.EnumSet;
 import java.util.Comparator;
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.ai.util.LandRandomPos;
 import net.minecraft.world.phys.Vec3;
@@ -39,7 +40,7 @@ public final class RoamingGoal extends Goal {
     private boolean available() {
         return animal.isAlive() && !animal.isNoAi() && !animal.isPassenger() && animal.childhood().canLearn()
                 && (!animal.profile().houseBody() || animal.house().homeless())
-                && !animal.life().hasUrgentNeed() && !animal.life().isSleeping()
+                && !animal.life().hasUrgentNeed() && !animal.life().isSleeping() && !animal.body().weak()
                 && !animal.family().active() && !animal.isCommandPlaying() && !animal.operations().active()
                 && !BehaviorContinuity.emergency(animal);
     }
@@ -70,19 +71,38 @@ public final class RoamingGoal extends Goal {
         if (expedition && destination == null) GameplayLog.event(animal,"explore","start refused reason={} radius={}",result,radius);
         return destination != null;
     }
+    /**
+     * An attached individual (with probability attachment/100) strolls near its mate, else the most trusted friend it sees
+     * within 16, so companions stay within sight of each other instead of drifting apart.
+     */
+    private BlockPos companionSpot() {
+        var p = animal.life().personality();
+        if (expedition || animal.getRandom().nextInt(100) >= p.attachment()) return null;
+        if (animal.family().partner() != null && animal.level() instanceof ServerLevel level
+                && level.getEntity(animal.family().partner()) instanceof YukkuriEntity mate && mate.isAlive()
+                && animal.life().canRecognize(mate) && animal.distanceToSqr(mate) <= 576) return mate.blockPosition();
+        return animal.level().getEntitiesOfClass(YukkuriEntity.class, animal.getBoundingBox().inflate(16), peer -> peer != animal
+                && peer.isAlive() && animal.hasLineOfSight(peer) && animal.life().canRecognize(peer) && peer.life().canRecognize(animal)
+                && p.trust(peer.getUUID()) > 0).stream()
+                .max(Comparator.comparingInt((YukkuriEntity peer) -> p.trust(peer.getUUID())))
+                .map(YukkuriEntity::blockPosition).orElse(null);
+    }
     private BlockPos choose() {
         boolean baby = animal.family().stage() == Stage.BABY;
         var home = baby ? animal.life().homeStand() : null;
         var shelter = baby ? animal.habitat().shelter() : null;
         boolean preferInside = baby && home != null && animal.getRandom().nextInt(5) != 0;
         int paths = 0;
+        BlockPos companion = companionSpot();
         for (int attempt = 0; attempt < 16; attempt++) {
-            Vec3 point = LandRandomPos.getPos(animal, radius, 3);
+            Vec3 point = companion == null ? LandRandomPos.getPos(animal, radius, 3)
+                    : LandRandomPos.getPosTowards(animal, radius, 3, Vec3.atBottomCenterOf(companion));
             if (point == null) continue;
             BlockPos pos = BlockPos.containing(point);
             if (origin.distSqr(pos) > radius * radius || !TravelRange.babyDestination(animal,pos)) continue;
             if (expedition && origin.distSqr(pos) <= radius * radius / 4) continue;
             if (!expedition && !animal.family().allowsIdleWalk(point)) continue;
+            if (companion != null && companion.distSqr(pos) > 64) continue;
             if (preferInside && !(shelter != null ? shelter.contains(pos) : pos.distSqr(home) <= 4 && animal.life().covered(pos))) continue;
             if (Reactions.Weather.rainAt(animal,pos) || !animal.life().dryStand(pos)) continue;
             if (++paths > 4) break;

@@ -228,17 +228,19 @@ public final class Cannibalism extends Goal {
                 prey = target; return begin(Mode.HUNT, "hunt");
             }
         }
-        if (smellWait == 0 && nutrition >= 8) {
+        if (smellWait == 0 && nutrition >= 8 && !entity.grieving()) {
             var source = RemainsRot.source(level(), entity.position());
             if (source != null) {
-                var spot = DefaultRandomPos.getPosAway(entity, 14, 6, source.position());
+                // The destination lies beyond the smell, not merely away from the body.
+                double clear = RemainsRot.radius(source.stage()) + 2;
+                var spot = DefaultRandomPos.getPosAway(entity, (int) clear + 2, 6, source.position());
+                if (spot != null && spot.distanceToSqr(source.position()) < clear * clear) spot = null;
                 if (spot == null) {
                     // No random spot fitted the navigation: walk straight away from the smell instead.
                     var dir = entity.position().subtract(source.position()).multiply(1, 0, 1);
                     dir = dir.lengthSqr() < 1e-4 ? new Vec3(1, 0, 0) : dir.normalize();
-                    spot = entity.position().add(dir.scale(10));
+                    spot = source.position().add(dir.scale(clear));
                 }
-                smellWait = 600;
                 away = spot; return begin(Mode.AVOID, "stench");
             }
         }
@@ -292,7 +294,7 @@ public final class Cannibalism extends Goal {
     @Override public boolean canContinueToUse() {
         if (!eligible() || elapsed > (mode == Mode.AVOID ? 240 : 600)) return false;
         return switch (mode) {
-            case AVOID -> away != null && entity.position().distanceToSqr(away) > 4;
+            case AVOID -> away != null && entity.position().distanceToSqr(away) > 4 && (elapsed % 10 != 0 || RemainsRot.source(level(), entity.position()) != null);
             case CARRION -> body != null && body.isAlive() && mayEat(body);
             case HUNT -> prey != null && prey.isAlive() && !prey.body().dying() && bites < 6 && entity.life().nutrition() < 30
                     && combatFit() && Headwear.fairGame(entity, prey) && !Recognition.grotesque(prey);
@@ -418,6 +420,7 @@ public final class Cannibalism extends Goal {
         if (mode != Mode.NONE) GameplayLog.limited(entity, "cannibal", "stop." + mode, 200,
                 "stopped mode={} body={} prey={} elapsed={} bites={} last={} nutrition={}",
                 mode, body == null ? null : body.getUUID(), prey == null ? null : prey.getUUID(), elapsed, bites, lastReason, entity.life().nutrition());
+        if (mode == Mode.AVOID) smellWait = 600; // only after it has left (or given up): the next errand is not a second walk at once
         if (mode == Mode.HUNT) entity.getPersistentData().putInt(HUNT_COOLDOWN, 3000);
         if (mode == Mode.CARRION && bites > 0 && offeredBody) { entity.mind().add(15, "offered_grief"); entity.showReactionDelayed("blank_cry", "offer_grief", 100, 20); }
         offeredBody = false;

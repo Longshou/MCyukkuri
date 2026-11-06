@@ -7,10 +7,10 @@ public record BodyCondition(int wound, int burns, int infection, int mold, int f
     public boolean readyForReproduction() { return wound == 0 && burns == 0 && infection == 0; }
     public boolean readyForDelivery() { return wound == 0 && burns == 0 && infection == 0; }
     public boolean readyForPlay() { return wound == 0 && burns == 0; }
-    public boolean readyForAffection() { return wound == 0 && infection == 0; }
-    public boolean readyForGroupPlay() { return wound == 0 && infection == 0; }
-    public boolean readyForWildEvent() { return wound == 0 && infection == 0; }
-    public boolean readyForHouseCare() { return wound == 0 && infection == 0; }
+    public boolean readyForAffection() { return wound == 0 && burns == 0 && infection == 0; }
+    public boolean readyForGroupPlay() { return wound == 0 && burns == 0 && infection == 0; }
+    public boolean readyForWildEvent() { return wound == 0 && burns == 0 && infection == 0; }
+    public boolean readyForHouseCare() { return wound == 0 && burns == 0 && infection == 0; }
     public boolean readyForAgitation() { return wound == 0 && infection == 0; }
     public boolean readyForFactory() { return wound == 0 && infection == 0 && mold == 0; }
     public boolean readyToLick() { return wound == 0 && burns == 0 && infection == 0; }

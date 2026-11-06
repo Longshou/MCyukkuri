@@ -7,6 +7,7 @@ import io.github.longshou.mcyukkuri.event.WildEvents;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.life.EcologyMovement;
 import io.github.longshou.mcyukkuri.mind.EmotionEvent;
+import io.github.longshou.mcyukkuri.mind.MindLife;
 import io.github.longshou.mcyukkuri.motor.Motor;
 import io.github.longshou.mcyukkuri.settlement.SettlementSeasons;
 import java.util.Comparator;
@@ -34,6 +35,8 @@ public final class DailyLife {
     }
     private final YukkuriEntity entity;
     private Session session;
+    /** A lonely individual walks to a trusted friend it can see this far off and asks for a nuzzle. */
+    private static final int NUZZLE_SIGHT = 16;
     private int affection = 20, boredom = 20, clock, cooldown, scanWait;
     private int nuzzles, songs, exercises;
     private final Map<UUID, Integer> invitations = new HashMap<>();
@@ -84,6 +87,8 @@ public final class DailyLife {
                         + (entity.getRandom().nextFloat() < entity.species().traits().affection() - 1 ? 1 : 0));
                 boredom = Math.min(100, boredom + 1);
             }
+            if (entity.body().weak() && entity.life().activity().equals(Behaviors.IDLE) && !entity.isCommandPlaying())
+                entity.mind().perform("droop", 80);
         }
         if (active() && !valid()) stop();
     }
@@ -96,10 +101,25 @@ public final class DailyLife {
                 && e.life().activity().equals(Behaviors.IDLE)
                 && e.life().nutrition() >= (continuing ? 15 : 40) && e.life().energy() >= (continuing ? 15 : 35)
                 && !e.childhood().needsNewbornCare() && e.body().condition().readyForAffection() && e.life().spicyTicks() == 0
+                && wellAndFree(e, continuing)
                 && !e.groupInteraction().active() && !e.playLife().active() && !e.pet().busy()
                 && !e.family().active() && !e.house().active() && !e.habitat().active()
                 && !e.independence().active() && !e.forageTrip().outing() && !e.settlement().active() && !e.settlement().duties().active()
                 && !SettlementSeasons.confined(e);
+    }
+    /**
+     * The one "well and free" gate for leisure and wild cards: a weak body rests, and a calm mind with nothing pressing
+     * (an own newborn awaiting its first meal or toilet within 12, a swaddle needing care, a heat with its partner in sight)
+     * is what songs, exercise and cards need. The scans run only when a session is being admitted, never while one continues.
+     */
+    public static boolean wellAndFree(YukkuriEntity e, boolean continuing) {
+        if (e.body().weak() || e.mind().unease() >= MindLife.UNEASY || e.leafSwaddle().needsCare()) return false;
+        if (continuing || !e.family().adult()) return true;
+        if (e.family().inBreedingPeriod() && e.family().partner() != null
+                && e.level() instanceof ServerLevel level && level.getEntity(e.family().partner()) instanceof YukkuriEntity mate
+                && mate.isAlive() && mate.family().inBreedingPeriod() && e.distanceToSqr(mate) <= 256 && e.hasLineOfSight(mate)) return false;
+        return e.level().getEntitiesOfClass(YukkuriEntity.class, e.getBoundingBox().inflate(12),
+                child -> child.childhood().needsNewbornCare() && e.family().caresFor(child)).isEmpty();
     }
     private boolean closePeer(YukkuriEntity peer) {
         if (!entity.life().canRecognize(peer) || !peer.life().canRecognize(entity)) return false;
@@ -114,7 +134,7 @@ public final class DailyLife {
     }
     public boolean nuzzle(Entity companion) {
         if (companion == entity || companion.level() != entity.level() || !companion.isAlive()
-                || entity.distanceToSqr(companion) > 25 || !entity.hasLineOfSight(companion)) return false;
+                || entity.distanceToSqr(companion) > NUZZLE_SIGHT * NUZZLE_SIGHT || !entity.hasLineOfSight(companion)) return false;
         if (companion instanceof YukkuriEntity peer) {
             if (!available(peer) || peer.dailyLife().active() || peer.dailyLife().cooldown > 0 || !closePeer(peer)) return false;
         } else if (!(companion instanceof Player player) || !trusted(player)) return false;
@@ -147,8 +167,8 @@ public final class DailyLife {
         if (kind == Kind.NUZZLE) entity.speak("want_nuzzle");
         if (kind == Kind.NUZZLE) entity.life().personality().decided("seek_companion");
         GameplayLog.limited(entity,"daily","started."+kind,1200,
-                "session reserved kind={} companion={} affectionNeed={} boredom={}",
-                kind,companion==null?null:companion.getUUID(),affection,boredom);
+                "session reserved kind={} companion={} distance={} affectionNeed={} boredom={}",
+                kind,companion==null?null:companion.getUUID(),companion==null?0:Math.round(entity.distanceTo(companion)*10)/10.0,affection,boredom);
         return true;
     }
     private boolean room() {
@@ -164,13 +184,16 @@ public final class DailyLife {
         if (boredom < 45 && affection < entity.life().personality().affectionThreshold()
                 && !entity.life().constipated()) return false;
         scanWait = 600;
-        var peers = level().getEntitiesOfClass(YukkuriEntity.class, entity.getBoundingBox().inflate(5),
+        boolean lonely = affection >= entity.life().personality().affectionThreshold();
+        var peers = level().getEntitiesOfClass(YukkuriEntity.class, entity.getBoundingBox().inflate(lonely ? NUZZLE_SIGHT : 5),
                 peer -> peer != entity && available(peer) && !peer.dailyLife().active() && peer.dailyLife().cooldown == 0
                         && !invitations.containsKey(peer.getUUID())
-                        && entity.hasLineOfSight(peer) && closePeer(peer)).stream()
+                        && entity.hasLineOfSight(peer) && closePeer(peer)
+                        && (entity.distanceToSqr(peer) <= 25 || entity.life().reachable(peer.blockPosition(), false))).stream()
                 .sorted(Comparator.comparingInt((YukkuriEntity peer) -> entity.life().personality().trust(peer.getUUID())).reversed()
                         .thenComparingDouble(entity::distanceToSqr)).toList();
-        boolean together = !peers.isEmpty() && entity.getRandom().nextFloat() < entity.life().personality().companionshipProbability();
+        // Loneliness decides the asking; the friend's own roll below still decides the answer.
+        boolean together = !peers.isEmpty() && (lonely || entity.getRandom().nextFloat() < entity.life().personality().companionshipProbability());
         YukkuriEntity companion = null;
         if (together) {
             var candidate = peers.getFirst();
@@ -181,13 +204,15 @@ public final class DailyLife {
         if (entity.life().constipated() && entity.childhood().canExercise()) {
             if (companion != null && companion.family().adult()
                     && companion.getRandom().nextFloat() >= companion.life().personality().helpProbability(true, false)) companion = null;
-            return begin(Kind.EXERCISE, companion);
+            return begin(Kind.EXERCISE, inEarshot(companion));
         }
-        if (companion != null && affection >= entity.life().personality().affectionThreshold() && nuzzle(companion)) return true;
+        if (companion != null && lonely && nuzzle(companion)) return true;
         float song = 2 * entity.species().traits().song();
         Kind kind = !entity.childhood().canExercise() || entity.getRandom().nextFloat() * (song + 1) >= 1 ? Kind.SING : Kind.EXERCISE;
-        return begin(kind, companion);
+        return begin(kind, inEarshot(companion));
     }
+    /** Songs and exercise are shared only with a companion close by; a far friend is for the nuzzle walk. */
+    private YukkuriEntity inEarshot(YukkuriEntity companion) { return companion != null && entity.distanceToSqr(companion) <= 25 ? companion : null; }
 
     public boolean valid() {
         if (!active() || !available(session.leader, true) || session.elapsed >= 320) return false;
@@ -196,7 +221,8 @@ public final class DailyLife {
         var other = session.companion;
         if (other == null) return true;
         if (!other.isAlive() || other.isRemoved() || other.level() != entity.level()
-                || session.leader.distanceToSqr(other) > 36 || !session.leader.hasLineOfSight(other)) return false;
+                || session.leader.distanceToSqr(other) > (session.kind == Kind.NUZZLE ? NUZZLE_SIGHT * NUZZLE_SIGHT : 36)
+                || !session.leader.hasLineOfSight(other)) return false;
         if (other instanceof YukkuriEntity peer)
             return available(peer, true) && peer.dailyLife().session == session
                     && peer.life().personality().fear(session.leader.getUUID()) < 60

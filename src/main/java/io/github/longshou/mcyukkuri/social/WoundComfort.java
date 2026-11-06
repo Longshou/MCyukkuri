@@ -31,6 +31,8 @@ public final class WoundComfort {
     /** Radius within which a kin notices a hurt one it can see. */
     private static final double NOTICE_RANGE = 10;
     private static final int SCAN_TICKS = 60;
+    /** A hit this recent (ticks) still counts as seen by a kin that comes to the hurt one. */
+    private static final int WITNESS_WINDOW = 300;
     /** Longest walk to the wounded one before the kin gives up. */
     private static final int APPROACH_LIMIT = 400;
     /** Uninterrupted mouth-contact ticks of one comforting session (10 s). */
@@ -59,6 +61,7 @@ public final class WoundComfort {
     private final YukkuriEntity entity;
     private Session session;
     private int cooldown, relief, scanWait;
+    private long hurtAt = -1;
 
     public WoundComfort(YukkuriEntity entity) { this.entity = entity; }
 
@@ -84,6 +87,8 @@ public final class WoundComfort {
         if (cooldown > 0) cooldown--;
         if (relief > 0) relief--;
         if (scanWait > 0) scanWait--;
+        // The moment of a hit (or the comforting that follows it) is what a kin that saw it comes for.
+        if (entity.hurtTime > 0 || receiving() && hurtAt >= 0) hurtAt = entity.level().getGameTime();
         if (active() && !valid()) stop();
     }
 
@@ -137,12 +142,22 @@ public final class WoundComfort {
     }
 
 
+    /**
+     * Who is worth a kin's comfort: a visible wound, a dying body, or one hit a moment ago that the kin can see (comfort only,
+     * nothing to mend unless a mild wound is open).
+     */
+    private static String needReason(YukkuriEntity victim) {
+        if (victim.body().condition().hasSkinOrBurnDamage()) return "wound";
+        if (victim.body().dying()) return "dying";
+        return victim.woundComfort().hurtAt >= 0 && victim.level().getGameTime() - victim.woundComfort().hurtAt <= WITNESS_WINDOW ? "witnessed_hurt" : null;
+    }
+
     /** A visible wound, not a newborn (the birth staging already comforts a fallen newborn), nobody licking it yet. */
     private static String victimReason(YukkuriEntity victim) {
         if (victim.family().stage() == FamilyLife.Stage.BABY) return "newborn";
         if (victim.woundComfort().session != null) return "being_licked";
         if (victim.woundComfort().relief != 0) return "already_soothed";
-        if (!victim.body().condition().hasSkinOrBurnDamage()) return "no_wound";
+        if (needReason(victim) == null) return "no_wound";
         var busy = busyReason(victim, true);
         return busy == null ? null : "victim_" + busy;
     }
@@ -192,7 +207,7 @@ public final class WoundComfort {
         if (scanWait > 0 || cooldown > 0) return false;
         scanWait = SCAN_TICKS + entity.getRandom().nextInt(20);
         var near = level().getEntitiesOfClass(YukkuriEntity.class, entity.getBoundingBox().inflate(NOTICE_RANGE),
-                other -> other != entity && (other.body().condition().hasSkinOrBurnDamage()));
+                other -> other != entity && needReason(other) != null);
         YukkuriEntity found = null;
         double nearest = Double.MAX_VALUE;
         for (var other : near) {
@@ -236,8 +251,8 @@ public final class WoundComfort {
         if (victim.family().yieldsToComfort()) victim.family().stop();
         victim.getNavigation().stop();
         entity.setPersistenceRequired();
-        GameplayLog.event(entity,"comfort","approach started; victim=#{} uuid={} wounds={} health={}",
-                victim.getId(),victim.getUUID(),victim.body().wounds().size(),victim.getHealth());
+        GameplayLog.event(entity,"comfort","approach started; victim=#{} uuid={} cause={} wounds={} health={}",
+                victim.getId(),victim.getUUID(),needReason(victim),victim.body().wounds().size(),victim.getHealth());
         return true;
     }
 
@@ -261,7 +276,7 @@ public final class WoundComfort {
         if (able != null) return able;
         var busy = busyReason(victim, true);
         if (busy != null) return "victim_" + busy;
-        if (!victim.body().condition().hasSkinOrBurnDamage()) return "healed";
+        if (needReason(victim) == null) return "healed";
         return null;
     }
 

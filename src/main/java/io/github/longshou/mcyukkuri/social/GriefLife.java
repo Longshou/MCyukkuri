@@ -20,7 +20,7 @@ import net.minecraft.server.level.ServerLevel;
  * (user ruling 2026-10-18); the dead only reek (body/RemainsRot).
  * <ul>
  * <li>Last words: {@link #dying} hooks {@code BodyLife.DYING_LISTENERS}. A dying individual with kin within ten blocks says its last words to
- *     them ({@code dying_kin}); the kin gather, cry and are unsettled ({@code kin_dying}). A parent dying near a starving child instead
+ *     them ({@code dying_kin}); the kin cry and are unsettled ({@code kin_dying}); WoundComfort lets them walk up to touch the dying one. A parent dying near a starving child instead
  *     gives that child its body ("please eat me", {@link SelfOffering}), a different event chain.</li>
  * <li>Protection: an adult whose own child is the target of a chasing predator may draw the chase onto itself. The choice is
  *     from its character, relation, fear and condition; changing the target only gives the real chase a different prey.</li>
@@ -81,9 +81,6 @@ public final class GriefLife {
             if (n++ >= 4) break;
             other.mind().add(6, "kin_dying");
             other.showReactionDelayed("teary", "kin_dying", 100, 50 + n * 6);
-            // A carried one can witness and grieve, but never walks off on its own to reach the dying body.
-            if (other.distanceToSqr(dying) > 6 && !other.isPassenger() && !dying.isPassenger())
-                other.getNavigation().moveTo(dying, 1.1);
         }
     }
     /** Partner, parent, child or sibling by recorded care relations. */

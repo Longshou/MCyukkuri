@@ -743,6 +743,11 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
 
     private void setBehavior(String behavior) { sync().setBehavior(behavior); }
 
+    /** The shown reaction is grief over a death (lost newborn, died kin, dying kin): the face is not replaced by another errand. */
+    public boolean grieving() {
+        return reactionTicks > 0 && (reactionEvent.equals("birth_lost") || reactionEvent.equals("family_died") || reactionEvent.equals("kin_dying"));
+    }
+
     /** A parent whose newborn was lost at birth: a blank stare, then crying and calling out (bereaved clip). */
     public void bereave() {
         if (level().isClientSide) return;
