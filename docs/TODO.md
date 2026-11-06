@@ -9,8 +9,9 @@
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
 | 陆地危险、天气与寒冷（审计 P3：受害者记住攻击者、逃向掩体与父母、安全撤离点，Alice 追击门与目击，捕食种战败撤离与饥饿巡飞，洞口结界，雨搜方向与抖水，暖桌暖邻） | `.worktrees/wp-at-danger` | `status/Reactions`、`entity/YukkuriGoals`、`predator/PredatorLife`、`settlement/DenBarrierBlockEntity`、`life/AgitationLife`、`life/TemperatureLife` |
-| 陆地食物与喂养（审计 P4：池塘岸边觅食停滞、喂养时钟与亲代先喂幼体、干草缺口母亲的进食门、就近草地与保留所携、争食公平、分配幼体与幼体乞食、寒冷不觅食、奴隶睡觉、先备粮后铺床） | `.worktrees/wp-av-food` | `settlement/ForageGoal`、`settlement/ForageTrip`、`settlement/HabitatLife`、`family/FamilyFeeding`、`family/ChildhoodLife`、`life/YukkuriLife`、`life/LifeHome`、`entity/YukkuriGroundNavigation` |
+| 陆地危险、天气与寒冷（审计 P3：受害者记住攻击者、逃向掩体与父母、安全撤离点，Alice 追击门与目击，捕食种战败撤离与饥饿巡飞，洞口结界，雨搜方向与抖水，暖桌暖邻） | `.worktrees/wp-at-danger` | `status/Reactions`、`entity/YukkuriGoals`、`predator/PredatorLife`、`settlement/DenBarrierBlockEntity`、`life/AgitationLife`、`life/TemperatureLife` |
 | 陆地家庭在场（审计 P1：近处不寻子、窝内不算走失、幼体饥饿时跟随亲代、目睹亲缘死亡、独立告别、搬运站位失败与单人抬、求偶上限读数、孕期安窝、无路时留守与部分寻路、亲缘问候与蹭蹭；临产母亲走进窝里分娩） | `.worktrees/wp-aq-family` | `family/FamilyLife`、`family/FamilySeparation`、`family/ParentCarry`、`family/IndependenceLife`、`family/Courtship`、`family/LiveBirth`、`social/YukkuriSocial`、`social/SelfOffering` |
+| 全游戏演示场景梳理与取名（非池塘场地合并同路径演示、改名、迁徙两场找回、生成点与初态核对） | `.worktrees/wp-au-scene-curation` | `scripts/museum_*.py`、`scripts/smoke_museum.py`、`docs/TODO.md` |
 
 ## 玩法待办
 
@@ -396,7 +397,7 @@ WP-C2 本机自查（非试玩验收、无 CI）：主线 `136b6f124`（独立�
 **未做（按新架构）**：旧代码中的初航、随亲出航、雨天等按新架构迁移，不计为完成。P1（15 项：初航与小船随亲、水上离家、赤油帽檐守护、威胁、雨天、帽内事故、晒干、非亲救助、推遗体与哀悼、孤儿船、孕期腾舱、无棍手划、船体损伤与修帽、桨滑落、并舷社交）与 P2（11 项：啃睡莲、夜间筏群、领地碰船、并舷递粮、结冰搁浅、桨拍反击、高湿软化、撕裂帽漏水、老年航程、宠物水生、尺度统一）清单与完成标准以 `.local/reports/aquatic-redesign/D-ecology.md` 第 2 节为准，原水 21–32 并入其中；船长遗体留在船长位直到靠岸或被推入水（A10）尚未实现。另未做：出航前备粮；玩家交付木棍与从树叶／枯灌木取棍（亲油取棍递给孩子）；夜泊的芦苇／睡莲与摇篮曲、天亮后推离岸边；船长湿度与避雨细则；帽内亲昵；母船无位时新生儿落到父船。
 ### 其他已接入玩法
 
-- **陆地食物与喂养（11-07 审计 P4，[规则](FEATURES.md#野外住所)）**：已接入待试玩（分支 `wp-av-food`，本机冒烟非验收，运行版本合入后补）。看点：
+- **陆地食物与喂养（11-07 审计 P4，[规则](FEATURES.md#野外住所)）**：已接入待试玩（本机冒烟非验收，运行版本待核实）。看点：
   - 池岸停滞：`settle_pit_slave`、`settle_pit_release` 长跑饮水后不再在池岸反复 `ground path stopped`、无成员饿死；站在岸沿的身体先挪到本格中央再沿岸走。奴隶到休息时间在坑里睡（`[sleep] begin source=life`），不再靠疲劳小盹。
   - 外出觅食：`forage`、`cheek_forage` 由近及远选草场，`[forage] end ok=true reason=full`，不再 `no_meadow`、回程失败不在路边 `drop` 所衔的草；有饥饿幼体时 `den_family`、`forage` 的 `[habitat] deposit` 先入粮堆（`stock` 递增）再铺床。
   - 亲代喂幼：`birth_land_caught` 两亲代喂不同孩子（无 `receiver_already_waiting`），营养≥40 且仍有等着喂的孩子时不自己吃草；饥饿新生儿 `[childhood] hungry baby begs`（`beg` 动作）。`chen_speed` 先到者先吃。`settle_snow` 营养≥30 的成年不为冷处的草离开暖处。
