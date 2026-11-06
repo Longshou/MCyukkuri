@@ -8,7 +8,6 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
-| 陆地场景起点真实性（审计 P6：Retry 分叉、伤口、产期、各场景起点；Walk 已在目标即完成） | `.worktrees/wp-ap-scene-truth` | `scripts/museum_scenarios.py`、`museum_fields.py`、`build_museum_full.py`、`command/ScenarioSetup`、`ScenarioCommands`、`motor/action/Walk` |
 | 魔理沙辫子抬放改为制作好的动作片段（亲代运输演出：辫子抬起／放下片段、离线穿模检查、孩子跟随辫梢标记） | `.worktrees/wp-as-braid-carry-clips` | `standards/yukkuri-library/`（魔理沙辫子动作）、`family/ParentCarry`、`motor/geom/CarryGeometry`、`motor/action/Stow`、`motor/action/Release`、`motor/ContactGeometry`、`client/ParentCarryPresentation` |
 | 陆地危险、天气与寒冷（审计 P3：受害者记住攻击者、逃向掩体与父母、安全撤离点，Alice 追击门与目击，捕食种战败撤离与饥饿巡飞，洞口结界，雨搜方向与抖水，暖桌暖邻） | `.worktrees/wp-at-danger` | `status/Reactions`、`entity/YukkuriGoals`、`predator/PredatorLife`、`settlement/DenBarrierBlockEntity`、`life/AgitationLife`、`life/TemperatureLife` |
 
@@ -222,6 +221,7 @@
   - [dd75d650](https://github.com/Longshou/MCyukkuri/commit/dd75d650)（CI 40200352271，10-25 22:24–22:38）`birth_nest_safe` 母油走到野生大窝窝沿上悬着不再行动（`no_place_for_term` 约 36 秒），手推才生产，首只赤油落窝沿顶仍记 CUSHION 且不动；伴侣反复 `nest claim refused reason=no_supported_body_space bodyWidth=0.80`；陆地接生足月母油（`bodyWidth=1.169`）被软垫窝拒收；`pet_birth` 22:38:41 受孕后卡死。用户改判：伴侣拒收不再作真实后果，宁可少量穿模也要放得下、判定稳。
   - a0300e75（CI 40376399575，10-27 02:30:15）`pet_birth` 受孕后卡死（均无线程栈）。
   - E8 `pet_birth` 母油出窝是场景放了魔理沙接生者（`leave nest reason=catcher`）；场景已改灵梦伴侣，待试玩。
+  - 11-06 本机冒烟非验收（`wp-ap-scene-truth`，基于 f90b78a3c）：`natural` 产期改为整段进近 1200 tick 后，`pet_birth`、`birth_nest_safe` 受孕后 2 tick 内 `birth_site` 无可用方法（`[method] no applicable method intent=birth_site refused=[walk:NO_PATH(no_route)]`），母油在原地生产，赤油 `outcome=GROUND` 摔伤；同样的茎生 `birth_nest_stem` 能走进窝。完成：胎生母油能规划到窝内休息位并走入，赤油落 CUSHION。
 
   完成：`pet_birth` 反复清场重开，初态落地、临产后游戏响应、母油留在大窝内生产；`birth_nest_safe` 母油不跳地走进窝、不停窝沿，无长时间 `no_place_for_term`，到位后才 `delivery labor started`，落窝沿的赤油 `newborn on nest rim rolls inward` 后 `outcome=CUSHION`，伴侣 `assigned kind=care` 认领同窝；`birth_land_missed`、`birth_land_reunion` 不再 `nest no longer fits stage/body`，`near-term leave nest reason=…` 后在窝外生产。1.2 倍足月孕母配 1.05 倍以上伴侣仍认窝失败是保留的空间上限。两种新窝模型待用户确认。
 - **窝内外寻路与接触交接（反馈 5）**：复测失败。用户反复看到途经窝时被卡住；陆地接生部分已由 WP3b 重写（见陆 25），其余场景未改。完成：`feed`、`first_toilet`、`hurt`／`hurt_kin`、`meet`、`marisa_sumo`、`birth_land_caught`／`birth_land_missed`、`family_search`、`indep_near` 覆盖斜向接近、双方窝内／外、远侧站位、途中亲油移动；读 Goal、路径、接触距离与阻塞原因，途中探路不换当前目标，窝柱夹缝走完整绕路或换可达接生点，真实进出并完成交接；不用瞬移或强制留守。

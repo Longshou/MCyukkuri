@@ -59,8 +59,6 @@ public final class Walk implements Action {
     private int leg;
     /** A host walk replans once, around the other riders, when a step leaves the surface or meets a body. */
     private boolean replanned;
-    /** The first ground tick: a walk that starts at its goal is done at once (a few centimetres of route must not end BLOCKED). */
-    private boolean firstTick = true;
 
     /** Walks to a world point, arrived when {@link SurfaceApproach#arrived}. */
     public Walk(Vec3 target) {
@@ -154,12 +152,15 @@ public final class Walk implements Action {
     }
 
     private Progress groundTick(YukkuriEntity body) {
-        if (firstTick) {
-            firstTick = false;
-            if (SurfaceApproach.arrived(body, target) || goal != null && SurfaceApproach.at(body, goal)) {
+        // Already at the stand, or within STAND_ARRIVED of it: a straight step closes the last centimetres (the route planner makes
+        // no progress on three), and the walk is done the moment the body is there. It must not end BLOCKED or stall at its goal.
+        var stand = goal != null ? goal : target;
+        if (Math.abs(body.getY() - stand.y) < .08 && body.position().subtract(stand).horizontalDistance() <= STAND_ARRIVED) {
+            if (SurfaceApproach.arrived(body, target) || Motor.step(body, stand, 1)) {
                 SurfaceApproach.halt(body);
-                return new Outcome.Done(String.format(Locale.ROOT, "at=%s already_there", GameplayLog.at(body.position())));
+                return new Outcome.Done(String.format(Locale.ROOT, "at=%s settled", GameplayLog.at(body.position())));
             }
+            return new Running(body.position().subtract(stand).horizontalDistance(), TravelMode.PASS, false);
         }
         double paceNow = speed * BodyAbility.carrying(body);
         boolean arrived = avoid == null
