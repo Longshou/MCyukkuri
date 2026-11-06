@@ -117,7 +117,7 @@ final class Rescue implements Intent {
         int edges = 0;
         double best = Double.POSITIVE_INFINITY;
         for (var edge : Waters.edges(helper, faller.position(), 2, false)) {
-            var at = edge.stand(helper.getBbWidth());
+            var at = edge.brink(SurfaceApproach.supportRadius(helper));
             double gap = braid ? ContactGeometry.braidGap(helper, at, faller) : Double.POSITIVE_INFINITY;
             edges++;
             best = Math.min(best, gap);

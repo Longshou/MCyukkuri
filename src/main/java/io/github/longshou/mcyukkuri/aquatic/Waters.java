@@ -160,6 +160,8 @@ final class Waters {
      */
     record Edge(BlockPos stand, Vec3 edge, Vec3 normal, BlockPos water) {
         Vec3 stand(double width) { return edge.subtract(normal.scale(width / 2 + .05)); }
+        /** The stand at the brink: her centre just far enough inside the lip that every sole sample ({@code supportRadius}) is still on the block. */
+        Vec3 brink(double supportRadius) { return edge.subtract(normal.scale(supportRadius + .02)); }
         Vec3 out(double d) { return edge.add(normal.scale(d)); }
         /** {@code d} blocks out over the water, inside the water cell: where a hat is set down. */
         Vec3 onWater(double d) { var at = out(d); return new Vec3(at.x, water.getY() + .5, at.z); }
