@@ -36,8 +36,6 @@ final class TakeSeat implements Intent {
         // A young on the brim is playing there or being tended; fear or a gasp sends it in (PlayAboard), not a cabin place that merely is free.
         if (PlayAboard.onBrim(body, hat)) return null;
         var at = hat.riders().local(body.getUUID());
-        // Seated is seated: a young already standing on an admitted cabin place stays, however a nearer-the-captain place shifts.
-        if (hat.settled(body) && new SeatTarget(hat, at, SeatTarget.Kind.CABIN).available(body)) return null;
         var ability = BodyAbility.of(body);
         if (ability.walkSpeed() <= 0 && ability.hopReach() <= 0) return null;
         var places = hat.places(body, SeatTarget.Kind.CABIN, 1);
