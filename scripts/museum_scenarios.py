@@ -570,8 +570,11 @@ add('meet', 'meadow', '相遇与蹭蹭', '相遇蹭蹭', '橙和爱丽丝互相�
 add('hurt', 'meadow', '受伤与照料', '受伤照料',
     '橙身上有一处磕伤，旁边是认得它的伴侣爱丽丝。惊慌过去后，爱丽丝会走近舔舐：完整舔舐让最老的一处 1–2 级伤降一级并回 2 血，三级伤只安抚。橙汁治伤补满血；面粉糊只修疤',
     '先看舔舐；橙汁治伤，若愈合留疤再用面粉糊', [
+        # Each has a nest of her own (homeless adults are busy looking for a den and would not come to lick).
+        *shed(0, -4, half=1), *shed(4, -4, half=1),
         yk('chen', 0, 0, 'a', lead=True),
         yk('alice', 4, 0, 'mate', yaw=90, **pair_ready()),
+        home('a', 0, -4), home('mate', 4, -4),
         f'yukkuri scenario bond {sel("a")} {sel("mate")}',
         f'yukkuri scenario mate {sel("a")} {sel("mate")}',
         f'yukkuri scenario wound {sel("a")}'], give=['mcyukkuri:orange_juice 2', 'mcyukkuri:flour_paste 2'], vantage=None)
