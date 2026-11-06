@@ -2233,7 +2233,7 @@ pond('hat_push', '木船轻碰只推开，猛撞才翻', '木船轻碰只推开�
      '两顶载人的帽船旁各有一艘真实木船：近处木船低速碰帽，只推开或碰停；远处木船快速撞帽，帽子先猛烈摇摆再翻覆。正常划船撞岸或碰另一顶帽不会翻覆',
      '约 30 秒',
      [captain(dx=bank_dx(0)), yk('marisa', bank_dx(5), 5, 'fast', aquatic=True, yaw=-90, label='猛撞边界', **pair_ready()),
-      afloat('a', water_at(0, 3)), afloat('fast', water_at(5, 3))],
+      afloat_now('a', water_at(0, 3)), afloat_now('fast', water_at(5, 3))],
      late=[f'execute as {sel("a")} on vehicle at @s run summon minecraft:boat ~1.8 ~ ~ {{Type:"oak",Tags:["scn_prop","low_push"]}}',
            f'execute as {sel("fast")} on vehicle at @s run summon minecraft:boat ~2 ~ ~ {{Type:"oak",Tags:["scn_prop","fast_push"]}}',
            Retry('data merge entity @e[tag=low_push,limit=1] {Motion:[-0.08d,0d,0d]}', sel('a'), tries=1, first=40),
@@ -2475,7 +2475,7 @@ pond('shake_capsize', '右击晃翻帽子，船主游回扶正', '右击晃翻�
 pond('self_rescue', '落水后游回自己的帽子', '落水后游回自己的帽子',
      '水生魔理沙把帽子放在离岸 12 格的水面上，随后被推下岸落水：她朝自己的帽子游（一阵用力一阵歇，花体力），嘴或辫梢够到帽檐就停，咬住帽檐、按片段节拍把自己拉进帽腔坐好；在帽里不再算落水',
      '约 30 秒',
-     [captain(dx=bank_dx(0)), afloat('a', water_at(0, 12), False)], late=[shoved('a')],
+     [captain(dx=bank_dx(0)), afloat_now('a', water_at(0, 12), False)], late=[shoved('a')],
      note='长泳消耗体力；向帽子游超过 600 tick 或用尽办法才转向近岸。日志：[intent] start id=escape_water → [method] pick method=own_hat → [action] end id=swim … detail=grip → [action] start id=climb（rise、climbRise、grip）→ [body] mount cause=climb → [intent] end result=DONE。读 water.distress 的阶段，读 hat.float 看固定水线与翻覆状态。',
      reads=[('读船主', f'yukkuri status {sel("a")} raw'), ('读帽子', f'data get entity {_HAT}')],
      smoke=dict(ticks=1800, expect=[r'\[hat\][^\n]* scenario afloat prepared [^\n]*owner_aboard=false',
@@ -2496,7 +2496,7 @@ def reclaim_facing_once(window):
 pond('shore_capsized', '岸边用辫子拨回漂远的帽子', '岸边用辫子拨回漂远的帽子',
      '船主的帽子倒扣漂在离岸不到三格的静水里：她站在岸边面向帽子，侧身探出岸沿用辫梢一下一下拨水（片段的水下拨动段才推动帽子，其余时间帽子顺水面的阻力和真实水流滑行），把帽子拨到辫梢／嘴够得着的地方后咬住帽檐推正，再收回戴上；三格内不下水',
      '约 20–40 秒',
-     [captain(dx=bank_dx(0)), afloat('a', water_at(0, 2.5), False)],
+     [captain(dx=bank_dx(0)), afloat_now('a', water_at(0, 2.5), False)],
      late=[f'data merge entity {_HAT} {{Roll:180f,Inverted:1b,Motion:{{Phase:"INVERTED"}}}}'],
      note='倒扣是帽子真实的漂浮姿态（帽冠朝上），不是被测环节。日志：[action] start id=beckon … wet=false stroke=2..22/32（每周期只在这 20 tick 推动帽子）→ 帽檐被拨到够得着的地方 → '
           '[action] end id=beckon outcome=DONE detail=at_bank → [action] start id=right … push= → [hat] righted cause=reclaim → '
@@ -2516,7 +2516,7 @@ pond('shore_capsized', '岸边用辫子拨回漂远的帽子', '岸边用辫子�
 pond('shore_capsized_far', '远处的帽子游过去扶正', '远处的帽子游过去扶正',
      '离岸 8 格的水面上，船主的帽子倒扣漂着，岸边拨水够不着（三格外）：她从岸上走进水里（普通走路跨过岸沿落水，不跳跃），游到帽檐外侧，咬住帽檐按一段片段的推帽标记把帽子推正，帽子正过来后再爬进去；扶正时播咬檐推帽的动作，泡水伤不打断',
      '约 30–60 秒',
-     [captain(dx=bank_dx(0)), afloat('a', water_at(0, 8), False)],
+     [captain(dx=bank_dx(0)), afloat_now('a', water_at(0, 8), False)],
      late=[f'data merge entity {_HAT} {{Roll:180f,Inverted:1b,Motion:{{Phase:"INVERTED"}}}}'],
      note='倒扣是帽子真实的漂浮姿态（帽冠朝上），不是被测环节。日志：拨水够不着（三格外）就 [action] start id=step_in（普通走路跨过岸沿落水）→ '
           '[intent] start id=escape_water（同一 reclaim 的子意图）→ [method] pick method=right_own_hat → [action] start id=swim … grip → '
@@ -2890,9 +2890,9 @@ pond('shore_family', '饿了带孩子划回岸边', '饿了带孩子划回岸边
      '亲油和一只小子油在离岸 3 格的帽子上，帽里有木棍、没有粮，水上也没有吃的，岸边草地上放着一个苹果；亲油已经饿了：她划回岸边；孩子坐在她头顶随她上岸，辫子把它放到干地，亲油随后把空帽子收回戴上，走去吃那个苹果，不往内陆游荡找草（她不吃陆地草）',
      '约 1 分钟',
      [yk('marisa', bank_dx(0), 0, 'a', aquatic=True, yaw=-90, lead=True, nutrition=35, energy=100, hygiene=100),
-      item('minecraft:apple', 1, bank_dx(0) - 2, 0, 'food'),
+      item('minecraft:apple', 1, bank_dx(0) - 7, 0, 'food'),
       yk('marisa', bank_dx(1), 1, 'c1', aquatic=True, fam=_seat_family(), childhood=CHILDHOOD_CRAWLING_READY, yaw=-90, **pair_ready()),
-      afloat('a', water_at(0, 3), True, sel('c1'), stick=True)],
+      afloat_now('a', water_at(0, 3), True, sel('c1'), stick=True)],
      note='饥饿只在岸上有她的食物时才拉她回岸（come_ashore 的 why 中 land_food=true）。日志 come_ashore → paddle → 亲油 hop（孩子坐在头顶随她一起离帽）→ 上岸后辫子 carry put down reason=release / release DONE 把孩子放到干地 → take_prop → [meal] swallowed item=minecraft:apple。'
           '舱里放不下的最大一只坐头顶（用户 2026-11-05 的排座规则），头顶的孩子由亲油带着走、落地后由辫子放下，不自己跳；观察孩子与亲油都真实离帽，船长最后收帽。' + _DESIRE_NOTE,
      reads=[('读亲油', f'yukkuri status {sel("a")} raw'), ('读子油', f'yukkuri status {sel("c1")} raw'), ('读帽子', f'data get entity {_HAT}')],
@@ -3105,10 +3105,10 @@ pond('birth_boat_missed', '临产划回岸边，放下孩子再生产', '临产�
             ('k2', -1, 'child', .20, 84000, 144000, CHILDHOOD_HOPPING, '会跳的小子油'))],
       item('minecraft:apple', 8, bank_dx(0) - 2, 0),
       *pond_rim_seagrass(),
-      f'yukkuri scenario bond {sel("mother")} {sel("father")}'],
+      f'yukkuri scenario bond {sel("mother")} {sel("father")}',
+      afloat_now('mother', water_at(0, 3), True, sel_all('crew'), stick=True),
+      afloat_now('father', water_at(4, 3), True, sel('father'), stick=True)],
      late=[*[f'yukkuri scenario kin {sel("mother")} {sel(k)} false' for k in ('k1', 'k2')],
-           afloat('mother', water_at(0, 3), True, sel_all('crew'), stick=True),
-           afloat('father', water_at(4, 3), True, sel('father'), stick=True),
            f'yukkuri scenario birth {sel("mother")} {sel("father")} near_term "0.16,0.17"'],
      note='开场实体全部可见，准备后坐进各自浮着的帽子；岸上有八个真实苹果供孕期取食，整圈岸边浅水里是真实海草，是产后水生的食物。'
           '本胎两只出生体型 0.16、0.17，不符合自帽分娩空间；读 birth route=shore 的 growth/growth_max。先看母油照常在水上活动，`[aquatic] birth shore return` 之后才 come_ashore '
@@ -3176,9 +3176,10 @@ pond('birth_hat_own', '独自在自己帽里生下两只赤油', '独自在自�
      [yk('marisa', bank_dx(0), 0, 'mother', aquatic=True, yaw=-90, lead=True, **pair_ready()),
       yk('marisa', bank_dx(4), 4, 'father', aquatic=True, yaw=-90, **pair_ready()),
       *pond_rim_seagrass(),
-      f'yukkuri scenario bond {sel("mother")} {sel("father")}'],
-     late=[afloat('mother', water_at(0, 3), True, sel('mother'), food=8, stick=True),
-           afloat('father', water_at(4, 3), True, sel('father'), food=4, stick=True),
+      f'yukkuri scenario bond {sel("mother")} {sel("father")}',
+      afloat_now('mother', water_at(0, 3), True, sel('mother'), food=8, stick=True),
+      afloat_now('father', water_at(4, 3), True, sel('father'), food=4, stick=True)],
+     late=[
            f'yukkuri scenario birth {sel("mother")} {sel("father")} near_term "0.12,0.125"'],
      note='看 birth route=own_hat 的胎数、体型与空间判定；hat birth exit 的产程与片段时刻；'
           '父油 [aquatic] guard start → guard arrive（划到她帽旁、不在出口那侧）→ guard end；'
