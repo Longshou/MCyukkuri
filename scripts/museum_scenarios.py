@@ -221,7 +221,7 @@ add('forage', 'forage', '父母去远处草场割草带回洞', '父母去远处
     env=DAY, spot='forage', vantage=(0, 16),
     # The baby at home welcoming a parent back from the meadow (inside the mound, so the camera follows it).
     capture=dict(shots=(1, 40, 600), sequences=((900, 2700, 6),), observe=False,
-                 views={'child': dict(follow=f'@e[tag={tag("child")},limit=1]', offset=(1.8, .7, .9))}),
+                 views={'child': dict(follow=f'@e[tag={tag("child")},limit=1]', offset=(.9, .4, .8))}),
     reads=[('读觅食数据（父）', f'yukkuri status {sel("father")} raw'), ('读觅食与颊囊（灵梦母）', f'yukkuri status {sel("mother")} raw')])
 
 add('graze', 'forage', '饿了先吃苹果，只有草就啃草', '饿了先吃苹果，只有草就啃草', '左边的饿灵梦身边既有苹果又有草，会先取普通食物；右边的饿魔理沙在八格外、只见草，啃下后会露出苦味反应。草仍会退回上一阶、日后重新长出',
@@ -727,8 +727,8 @@ add('family_search', 'family', '走散亲子：走得到就重逢，隔玻璃就
     env=DAY, spot='hurt_kin', vantage=(0, 14),
     # The calls: once following the warm parent (in front of her face while she calls), once following the north child.
     capture=dict(shots=(1, 40, 600), sequences=((100, 340, 3),), observe=False,
-                 views={'parent': dict(follow=f'@e[tag={tag("search_parent")},limit=1]', offset=(0, 1.2, 3.5)),
-                        'child': dict(follow=f'@e[tag={tag("search_child")},limit=1]', offset=(0, 1.0, 3.0))}),
+                 views={'parent': dict(follow=f'@e[tag={tag("search_parent")},limit=1]', offset=(0, .9, 2.4)),
+                        'child': dict(follow=f'@e[tag={tag("search_child")},limit=1]', offset=(0, .5, 1.5))}),
     reads=[('读寻子亲油', f'yukkuri status {sel("search_parent")} raw'), ('读寻亲子油', f'yukkuri status {sel("search_child")} raw'),
            ('读搜索时长与断亲', f'yukkuri status {sel("lost_mother")} raw'), ('读被围子油不安', f'yukkuri status {sel("lost_child")} raw')])
 
