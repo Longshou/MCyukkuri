@@ -4266,6 +4266,6 @@
       "src/main/resources/assets/mcyukkuri/textures/emote/emotes.json"
     ],
     "status": "pending_user_review",
-    "scope": "Twelve 16x16 above-head emote symbols (sweat, anger, zzz, exclaim, question, note, heart, gloom, sparkle, steam, shiver, idea) in one 4x3 atlas with an id/meaning/use/cell registry; project design. No renderer yet: the billboard and sync arrive with the moments package."
+    "scope": "Nine 16x16 above-head emote symbols (sweat, anger, zzz, exclaim, question, note, heart, gloom, shiver; the user merged sparkle and idea into exclaim, steam into anger) in one 3x3 atlas with an id/meaning/use/cell registry; project design. No renderer yet: the billboard and sync arrive with the moments package."
   }
 }

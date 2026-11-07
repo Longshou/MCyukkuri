@@ -1,11 +1,12 @@
-"""Emote symbols: twelve 16x16 pixel icons shown above a yukkuri's head (project design, pending user review).
+"""Emote symbols: nine 16x16 pixel icons shown above a yukkuri's head (project design, pending user review).
 
 Each icon is hand-drawn below as 16 rows of 16 characters: `.` is transparent, `k` is an explicit outline pixel and
 every other letter is a flat fill from the icon's palette. The 1 px dark outline is added around the fills
 (8-neighbour), so the rows only carry the fill shapes. Direction follows the image liaison's concept sheet
-(`.local/generated-images/emotes/sheet.png`), redrawn at 16 px rather than downscaled.
+(`.local/generated-images/emotes/sheet.png`), redrawn at 16 px rather than downscaled. The user merged overlapping
+symbols to keep them easy to read: sparkle and idea are covered by exclaim, steam by anger.
 
-Outputs: `assembled/<id>.png` (one icon), `assembled/atlas.png` (4x3 cells of 16 px, row-major in ICONS order) and
+Outputs: `assembled/<id>.png` (one icon), `assembled/atlas.png` (3x3 cells of 16 px, row-major in ICONS order) and
 `assembled/emotes.json` (id, meaning, suggested use, atlas cell); the atlas and the registry are copied to the runtime
 folder `textures/emote/`. Generated files are never edited by hand.
 
@@ -19,7 +20,7 @@ HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[2]
 OUT = HERE/'assembled'
 RUNTIME = ROOT/'src/main/resources/assets/mcyukkuri/textures/emote'
-SIZE, COLUMNS = 16, 4
+SIZE, COLUMNS = 16, 3
 OUTLINE = (27, 21, 48)
 
 ICONS = [
@@ -41,7 +42,7 @@ ICONS = [
                '......BBBB......',
                '................',
                '................']),
-    dict(id='anger', meaning='生气、不满', use='被抢食物、被打扰、争地盘、被冒犯',
+    dict(id='anger', meaning='生气、不满', use='被抢食物、被打扰、争地盘、被冒犯、气呼呼跺脚、拒绝后赌气',
          palette=dict(R=(238, 43, 43), D=(168, 20, 28)),
          rows=['................',
                '.....R....R.....',
@@ -77,7 +78,7 @@ ICONS = [
                '..PPPP..........',
                '................',
                '................']),
-    dict(id='exclaim', meaning='吃惊、发现', use='发现食物或天敌、受惊、注意到玩家',
+    dict(id='exclaim', meaning='吃惊、发现', use='发现食物或天敌、受惊、注意到玩家、收到宝物、想到办法',
          palette=dict(Y=(255, 214, 58), O=(240, 90, 30)),
          rows=['................',
                '................',
@@ -167,42 +168,6 @@ ICONS = [
                '................',
                '................',
                '................']),
-    dict(id='sparkle', meaning='得意、满足、发现宝物', use='收到宝物、梳洗干净、出生、成长',
-         palette=dict(Y=(255, 216, 58), W=(255, 251, 224), O=(240, 160, 32)),
-         rows=['................',
-               '................',
-               '.......YY.......',
-               '.......YY.......',
-               '.......YY.......',
-               '......YYYO......',
-               '.....YYWWYO.....',
-               '..YYYYWWWWYYYO..',
-               '..YYYYWWWWYOOO..',
-               '.....YYWWYO.....',
-               '......YYOO......',
-               '.......YO.......',
-               '.......YO.......',
-               '.......OO.......',
-               '................',
-               '................']),
-    dict(id='steam', meaning='气呼呼、闹别扭', use='生气跺脚、抗议、拒绝后赌气',
-         palette=dict(W=(255, 255, 255), S=(196, 206, 222)),
-         rows=['................',
-               '................',
-               '...........WW...',
-               '...........WWW..',
-               '...........SWS..',
-               '................',
-               '................',
-               '...WW.WW........',
-               '..WWWWWWWWW.....',
-               '..WWWWWWWWWWWW..',
-               '..WWWWWWWWWWWW..',
-               '..SWWWWWWWWWWS..',
-               '...SSWWWSWWSS...',
-               '....SS..SSS.....',
-               '................',
-               '................']),
     dict(id='shiver', meaning='发冷、害怕发抖', use='受冻、淋雨、看见天敌、挨骂',
          palette=dict(L=(143, 212, 255), B=(61, 143, 224)),
          rows=['................',
@@ -219,24 +184,6 @@ ICONS = [
                '..LB....LB......',
                '...LB....LB.....',
                '....LB....LB....',
-               '................',
-               '................']),
-    dict(id='idea', meaning='想到办法', use='找到绕过手段、想到用帽子或木棍、发现新路线',
-         palette=dict(Y=(255, 216, 58), W=(255, 251, 230), G=(185, 190, 200)),
-         rows=['................',
-               '................',
-               '......YYYY......',
-               '....YYYYYYYY....',
-               '...YWWYYYYYYY...',
-               '...YWYYYYYYYY...',
-               '...YYYYYYYYYY...',
-               '...YYYYYYYYYY...',
-               '....YYYYYYYY....',
-               '.....YYYYYY.....',
-               '......YYYY......',
-               '.....GGGGGG.....',
-               '.....kkkkkk.....',
-               '......GGGG......',
                '................',
                '................']),
 ]
