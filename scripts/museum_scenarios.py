@@ -211,7 +211,7 @@ add('dig', 'forage', '流浪魔理沙在土丘挖洞安家', '流浪魔理沙在
     reads=[('读挖穴阶段', f'yukkuri status {sel("vagrant")} raw')])
 
 _fm, _ff, _fc = uid('forage', 'mother'), uid('forage', 'father'), uid('forage', 'child')
-add('forage', 'forage', '父母去远处草场割草带回洞', '父母去远处草场割草带回洞', '5×5 土丘洞里的一家：储粮空、家旁的草已稀疏，父母各自向远处草场出发；实际采草、衔回并存入洞中。灵梦母油颊囊能多含 2 份，一趟比同角色多带 2 份（读数 species.cheek_load）。读数看目标半径、最远距离和送回次数',
+add('forage', 'forage', '父母去远处草场割草带回洞', '父母去远处草场割草带回洞', '5×5 土丘洞里的一家：储粮空、家旁的草已稀疏，父母各自向远处草场出发；实际采草、衔回并存入洞中。灵梦母油颊囊能多含 2 份，一趟比同角色多带 2 份（读数 species.cheek_load）。读数看目标半径、最远距离和送回次数。亲油离家半分钟以上回到洞里，在家的赤油看见就走过去打招呼、蹭蹭（迎接归家，日志 welcome home started）',
     '数分钟（可倍速）', [
         yk('marisa', 0, 3, 'father', uuid=_ff, yaw=180, lead=True, kin=f'Partner:{uuid_nbt(_fm)}', nutrition=60, energy=100),
         yk('reimu', 2, 3, 'mother', uuid=_fm, yaw=180, kin=f'Partner:{uuid_nbt(_ff)}', nutrition=60, energy=100),
@@ -219,6 +219,9 @@ add('forage', 'forage', '父母去远处草场割草带回洞', '父母去远处
         ],
     late=[f'yukkuri scenario home {sel(n)} ~ ~ ~-1' for n in ('mother', 'father', 'child')],
     env=DAY, spot='forage', vantage=(0, 16),
+    # The baby at home welcoming a parent back from the meadow (inside the mound, so the camera follows it).
+    capture=dict(shots=(1, 40, 600), sequences=((900, 2700, 6),), observe=False,
+                 views={'child': dict(follow=f'@e[tag={tag("child")},limit=1]', offset=(0, .9, 2.2))}),
     reads=[('读觅食数据（父）', f'yukkuri status {sel("father")} raw'), ('读觅食与颊囊（灵梦母）', f'yukkuri status {sel("mother")} raw')])
 
 add('graze', 'forage', '饿了先吃苹果，只有草就啃草', '饿了先吃苹果，只有草就啃草', '左边的饿灵梦身边既有苹果又有草，会先取普通食物；右边的饿魔理沙在八格外、只见草，啃下后会露出苦味反应。草仍会退回上一阶、日后重新长出',
@@ -527,6 +530,7 @@ add('meal_content', 'meadow', '吃饱了原地瘫软一会儿', '吃饱了原地
         yk('reimu', 4, 0, 'composed', uuid=_content_ids['composed'], label='成年·自制95', nutrition=60, self_control=95),
         item('minecraft:apple', 1, 4, -1, name='apple_composed')],
     env=DAY, vantage=(0, 7), note='待验证：新场景，尚未在游戏里实测。',
+    capture=dict(shots=(1, 40, 300), sequences=((50, 190, 3),), observe=False),
     reads=[('读成年灵梦', f'yukkuri status {sel("adult")} raw'), ('读稳重灵梦', f'yukkuri status {sel("composed")} raw')])
 
 # Two wounded young or mates, each beside the one who knows it: a mate (north, each with a nest of her own: homeless adults are
@@ -719,6 +723,10 @@ add('family_search', 'family', '走散亲子：走得到就重逢，隔玻璃就
         yk('reimu', 15, 5, 'lost_child', uuid=_fs['lost_child'], stage='child', label='被围住的子油', boldness=0,
            kin=f'Mother:{uuid_nbt(_fs["lost_mother"])}')],
     env=DAY, spot='hurt_kin', vantage=(0, 14),
+    # The calls: once following the warm parent (in front of her face while she calls), once following the north child.
+    capture=dict(shots=(1, 40, 600), sequences=((100, 340, 3),), observe=False,
+                 views={'parent': dict(follow=f'@e[tag={tag("search_parent")},limit=1]', offset=(0, 1.2, 3.5)),
+                        'child': dict(follow=f'@e[tag={tag("search_child")},limit=1]', offset=(0, 1.0, 3.0))}),
     reads=[('读寻子亲油', f'yukkuri status {sel("search_parent")} raw'), ('读寻亲子油', f'yukkuri status {sel("search_child")} raw'),
            ('读搜索时长与断亲', f'yukkuri status {sel("lost_mother")} raw'), ('读被围子油不安', f'yukkuri status {sel("lost_child")} raw')])
 
@@ -3349,12 +3357,13 @@ def _distinct(pattern, count, what):
 
 
 _smoke('den_family', 6000, [r'\[habitat\] reimu [^\n]* home chosen', r'\[habitat\] marisa [^\n]* home chosen',
-                            r'\[forage\] reimu [^\n]* begin role='])
+                            r'\[forage\] reimu [^\n]* begin role=', r'\[family\][^\n]* welcome home started '])
 # The widowed mother takes over the trips: the father is killed once the family has settled.
 next(s for s in S if s.id == 'den_family').smoke['commands'] = [(2400, f'kill {sel("father")}')]
 _smoke('indep_near', 7200, [r'\[independence\][^\n]* farewell started'])
 next(s for s in S if s.id == 'indep_near').smoke['verify'] = _distinct(r'\[independence\] \w+ #\d+ uuid=(\S+)[^\n]* departed ', 2, 'teens that left home')
-_smoke('forage', 6000, [r'\[forage\][^\n]* begin role=', r'\[forage\][^\n]* deposit home='])
+_smoke('forage', 6000, [r'\[forage\][^\n]* begin role=', r'\[forage\][^\n]* deposit home=',
+                         r'\[family\][^\n]* came home away=', r'\[family\][^\n]* welcome home started '])
 _smoke('graze', 1200, [r'\[meal\][^\n]* swallowed item=minecraft:apple\b', r'\[meal\][^\n]* swallowed item=minecraft:short_grass\b'])
 _smoke('meal_content', 900, [r'\[meal\][^\n]* full nutrition=[^\n]*content=true'])
 next(s for s in S if s.id == 'meal_content').smoke['verify'] = _meal_content_verify
