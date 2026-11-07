@@ -1,0 +1,187 @@
+"""END grammar controls and deliberate breaks; no gameplay simulation or other-check calibration."""
+import copy
+from pathlib import Path
+import sys
+import unittest
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+import smoke_checks as checks
+import timeline
+from cases import ACTOR, HOST, record, state, log
+
+CHILD = '00000000-0000-0000-0000-000000000003'
+OTHER = '00000000-0000-0000-0000-000000000004'
+HAT = '00000000-0000-0000-0000-000000000005'
+
+
+def actor(t, uid, name, **values):
+    row = state(t, tags=['scn_' + name], **values)
+    row['u'] = uid
+    return row
+
+
+def event(t, uid, cat, msg):
+    return record('ev', t, uid, cat=cat, msg=msg)
+
+
+def evaluate(rows, end):
+    records, issues = timeline.parse([log(rows)])
+    assert not issues, issues
+    return checks.endings(records, timeline.states(records), end)
+
+
+def verdict(rows, end):
+    return max((r['verdict'] for r in evaluate(rows, end)), key=checks.RANK.get)
+
+
+class EndChecks(unittest.TestCase):
+    def setUp(self):
+        self.rows = [actor(t, ACTOR, 'parent') for t in (0, 200)]
+        self.rows += [actor(t, CHILD, 'child', parents={'mother': ACTOR}, stage='baby') for t in (0, 200)]
+        self.events = [event(20, ACTOR, 'family', 'carry pickup hold=brim child=' + CHILD),
+                       event(30, ACTOR, 'family', 'carry set down started reason=arrived_home child=' + CHILD),
+                       event(40, ACTOR, 'family', 'carry put down reason=arrived_home cause=release child=' + CHILD + ' nest=INSIDE_SUPPORTED')]
+        self.end = dict(final=[('child_of:parent', 'alive=true and w=false')], paths=[dict(
+            each='child_of:parent', steps=[('parent', 'seen:family:carry pickup .*child=$subject'),
+                                         ('parent', 'seen:family:carry set down started .*child=$subject'),
+                                         ('parent', 'seen:family:carry put down .*child=$subject .*nest=INSIDE_SUPPORTED')],
+            post=[('$subject', 'att.kind=free and nest_of.parent=true')])])
+        # Actual recorder uses free, not the older fixture's ground kind.
+        for row in self.rows:
+            row['st']['att']['kind'] = 'free'
+
+    def test_carry_complete_and_stopped_at_every_handoff(self):
+        self.assertEqual(verdict(self.rows + self.events, self.end), 'pass')
+        for count in range(3):
+            self.assertEqual(verdict(self.rows + self.events[:count], self.end), 'fail')
+
+    def test_reversed_events_and_different_child_cannot_complete_path(self):
+        wrong = copy.deepcopy(self.events)
+        wrong[0]['t'], wrong[2]['t'] = 40, 20
+        self.assertEqual(verdict(self.rows + wrong, self.end), 'fail')
+        wrong = copy.deepcopy(self.events)
+        wrong[-1]['msg'] = wrong[-1]['msg'].replace(CHILD, OTHER)
+        self.assertEqual(verdict(self.rows + wrong, self.end), 'fail')
+
+    def test_emitter_is_not_the_carried_subject_and_nest_is_real_occupancy(self):
+        wrong = copy.deepcopy(self.events)
+        wrong[-1]['u'] = CHILD
+        self.assertEqual(verdict(self.rows + wrong, self.end), 'fail')
+        wrong = copy.deepcopy(self.events)
+        wrong[-1]['msg'] = wrong[-1]['msg'].replace('INSIDE_SUPPORTED', 'OUTSIDE')
+        self.assertEqual(verdict(self.rows + wrong, self.end), 'fail')
+
+    def test_each_child_requires_its_own_whole_chain(self):
+        rows = self.rows + [actor(t, OTHER, 'sibling', parents={'mother': ACTOR}) for t in (0, 200)]
+        self.assertEqual(verdict(rows + self.events, self.end), 'fail')
+
+    def test_newborn_excludes_existing_sibling_and_requires_birth_evidence(self):
+        rows = self.rows + [actor(t, OTHER, 'newborn', parents={'mother': ACTOR}) for t in (50, 200)]
+        rows += [record('life', 49, OTHER, **{'in': 'birth', 'parent': ACTOR}),
+                 event(60, OTHER, 'meal', 'swallowed prepared=true')]
+        end = dict(paths=[dict(each='newborn_of:parent', steps=[('$subject', 'seen:meal:swallowed prepared=true')])])
+        self.assertEqual(verdict(rows, end), 'pass')
+        self.assertEqual(verdict([r for r in rows if r['k'] != 'life'], end), 'fail')
+
+    def test_world_events_bound_to_same_group_and_scene_leader(self):
+        rows = self.rows + [event(10, None, 'settlement', 'migration phase=MARCH group=group-a'),
+                            event(20, None, 'settlement', 'migration pivot arrived group=group-a leader=' + ACTOR)]
+        end = dict(paths=[dict(steps=[('world', r'seen:settlement:migration phase=MARCH group=(?P<group>\S+)'),
+                                     ('world', r'seen:settlement:migration pivot arrived group=$group leader=$parent')])])
+        self.assertEqual(verdict(rows, end), 'pass')
+        for old, new in [('group-a leader', 'group-b leader'), (ACTOR, OTHER)]:
+            wrong = copy.deepcopy(rows)
+            wrong[-1]['msg'] = wrong[-1]['msg'].replace(old, new)
+            self.assertEqual(verdict(wrong, end), 'fail')
+
+    def test_backtracks_over_incomplete_earlier_attempt(self):
+        rows = self.rows + [event(10, ACTOR, 'incident', 'open incident=old'),
+                            event(20, ACTOR, 'incident', 'open incident=new'),
+                            event(30, ACTOR, 'incident', 'done incident=new')]
+        end = dict(paths=[dict(steps=[('parent', r'seen:incident:open incident=(?P<incident>\S+)'),
+                                     ('parent', r'seen:incident:done incident=$incident')])])
+        self.assertEqual(verdict(rows, end), 'pass')
+
+    def test_completion_then_legitimate_relaunch_and_later_unsafe_young(self):
+        end = dict(final=[('child', 'alive=true and distress=false')], paths=[dict(
+            steps=[('parent', 'seen:headwear:reclaim done')], post=[('parent', 'veh=false and hold.hat.state=worn')])])
+        rows = self.rows + [actor(40, ACTOR, 'parent', veh=None, hold={'hat': {'state': 'worn'}}),
+                            event(40, ACTOR, 'headwear', 'reclaim done'),
+                            actor(60, ACTOR, 'parent', veh=HAT)]
+        self.assertEqual(verdict(rows, end), 'pass')
+        rows += [actor(200, CHILD, 'child', distress=True)]
+        self.assertEqual(verdict(rows, end), 'fail')
+
+    def test_holder_and_location_relations(self):
+        end = dict(final=[('child', 'near.parent<=4 and home_of.parent=true and carry_empty=true')])
+        self.assertEqual(verdict(self.rows, end), 'pass')
+        for values in (dict(p=[10, 0, 0]), dict(home=[10, 0, 0]), dict(hold={'carry': [{'child': OTHER}]})):
+            rows = self.rows + [actor(t, CHILD, 'child', **values) for t in (1, 200)]
+            self.assertEqual(verdict(rows, end), 'fail')
+
+    def test_owned_hat_and_unrelated_hat_forbidden_event(self):
+        rows = self.rows + [event(10, HAT, 'hat', f'placed owner={ACTOR} hat={HAT}'),
+                            event(20, OTHER, 'hat', 'capsized')]
+        end = dict(final=[('parent', 'alive=true')], forbid=[('hat_of:parent', 'seen:hat:capsized')])
+        self.assertEqual(verdict(rows, end), 'pass')
+        rows += [event(30, HAT, 'hat', 'capsized')]
+        self.assertEqual(verdict(rows, end), 'fail')
+
+    def test_known_missing_unloaded_and_dead_subjects(self):
+        for reason in ('unloaded', 'killed'):
+            end = dict(final=[('child', 'alive=true')])
+            self.assertEqual(verdict(self.rows + [record('life', 201, CHILD, out=reason)], end), 'fail')
+        self.assertEqual(verdict(self.rows, dict(final=[('missing', 'alive=true')])), 'fail')
+        self.assertEqual(verdict([], self.end), 'no-evidence')
+        rows = [r for r in self.rows if not (r['u'] == CHILD and r['t'] == 200)] + [record('life', 100, CHILD, out='killed')]
+        self.assertEqual(verdict(rows, dict(final=[('child', 'alive=false')])), 'pass')
+
+    def test_unknown_relation_is_not_certified(self):
+        rows = self.rows + [actor(t, CHILD, 'child', home=None) for t in (1, 200)]
+        self.assertEqual(verdict(rows, dict(final=[('child', 'home_of.parent=true')])), 'no-evidence')
+
+    def test_legacy_event_is_bounded_and_keeps_same_tick_order(self):
+        rows, issues = timeline.parse([log(self.rows + [event(20, ACTOR, 'family', 'answer')])])
+        end = dict(bounds=[-2, -2, 2, 2], paths=[dict(steps=[('actors', 'seen:family:call'), ('parent', 'seen:family:answer')])])
+        prefix = f'[family] reimu #3 uuid={OTHER} t=20 dim=minecraft:overworld pos=0, 0, 0 '
+        answer = f'[family] marisa #1 uuid={ACTOR} t=20 dim=minecraft:overworld pos=0, 0, 0 answer'
+        def check(raw):
+            return max((r['verdict'] for r in checks.endings(rows, timeline.states(rows), end, raw)), key=checks.RANK.get)
+        self.assertEqual(check(prefix + 'call\n' + answer), 'pass')
+        self.assertEqual(check(answer + '\n' + prefix + 'call'), 'fail')
+        self.assertEqual(check(prefix.replace('pos=0, 0, 0', 'pos=30, 0, 0') + 'call\n' + answer), 'fail')
+        self.assertEqual(check(prefix.replace('overworld', 'the_nether') + 'call\n' + answer), 'fail')
+        self.assertEqual(check(prefix.replace('t=20 ', 't=201 ') + 'call\n' + answer), 'fail')
+
+    def test_head_carried_child_aboard_the_correct_owned_hat(self):
+        rows = [actor(t, ACTOR, 'parent', att={'kind': 'on_host', 'host': HAT}) for t in (0, 200)]
+        rows += [actor(t, CHILD, 'child', att={'kind': 'held', 'host': ACTOR}) for t in (0, 200)]
+        rows += [event(0, HAT, 'hat', f'placed owner={ACTOR} hat={HAT}')]
+        end = dict(final=[('child', 'aboard.parent=true')])
+        self.assertEqual(verdict(rows, end), 'pass')
+        rows += [actor(t, ACTOR, 'parent', att={'kind': 'free', 'host': None}) for t in (1, 200)]
+        self.assertEqual(verdict(rows, end), 'fail')
+
+    def test_ground_contact_on_tick_after_release(self):
+        rows = self.rows + [actor(40, CHILD, 'child', g=False, att={'kind': 'free'}),
+                            actor(41, CHILD, 'child', g=True, att={'kind': 'free'})]
+        end = copy.deepcopy(self.end)
+        end['paths'][0]['post'] = [('$subject', 'g=true and att.kind=free')]
+        self.assertEqual(verdict(rows + self.events, end), 'pass')
+        self.assertEqual(verdict(rows[:-1] + self.events, end), 'fail')
+
+    def test_scene_pickup_refusal_is_not_a_successful_lift(self):
+        import museum_scenarios
+        scene = next(s for s in museum_scenarios.S if s.id == 'carry_home')
+        end = dict(paths=[scene.smoke['end']['paths'][0]])
+        rows = [actor(t, ACTOR, 'marisa_parent') for t in (0, 200)]
+        rows += [actor(t, CHILD, 'marisa_baby', att={'kind': 'free'}) for t in (0, 200)]
+        rows += copy.deepcopy(self.events)
+        rows[-3]['msg'] = 'carry pickup stand blocked child=' + CHILD + ' why=no_complete_surface_route'
+        self.assertEqual(verdict(rows, end), 'fail')
+        rows[-3]['msg'] = 'carry pickup hold=brim purpose=RETRIEVE child=' + CHILD
+        self.assertEqual(verdict(rows, end), 'pass')
+
+
+if __name__ == '__main__':
+    unittest.main(verbosity=2)

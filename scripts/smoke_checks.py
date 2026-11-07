@@ -471,7 +471,7 @@ def predicate(s, text):
     return True
 
 
-def endings(records, samples, end):
+def terminal_endings(records, samples, end):
     if not end:
         return [result('END', 'no-evidence', 'scene has no end declaration')]
     out = []
@@ -520,7 +520,236 @@ def endings(records, samples, end):
     return out
 
 
-def observations(records, issues=(), raw='', allow=(), end=(), seed=None, rerun=None, evidence='F', dense=False):
+class EndContext:
+    """END-only index. Selectors name observed identities; events never create state evidence."""
+    def __init__(self, records, samples, raw='', bounds=None):
+        self.records = records
+        self.samples = actor_samples(samples)
+        self.times = {u: [r['t'] for r in rows] for u, rows in self.samples.items()}
+        self.exits = defaultdict(list)
+        for r in records:
+            if r['k'] == 'life' and r.get('out'):
+                self.exits[r['u']].append(r)
+        self.events = [dict(r) for r in records if r['k'] == 'ev']
+        self.end = max((r['t'] for r in records), default=0)
+        # Untagged settlement residents still emit authoritative GameplayLog events. END alone may read
+        # them, bounded by the scene's real plot, dimension and window; no state is invented for them.
+        if raw and bounds:
+            start = min(r['t'] for r in records)
+            dimension = records[0]['dim']
+            seen = {(r['u'], r['t'], r.get('cat'), r['msg']) for r in self.events}
+            orders = {}
+            for order, line in enumerate(raw.splitlines()):
+                event = EVENT.search(line)
+                world = re.search(r'\[([\w-]+)\] t=(\d+) dim=(\S+) (.*)', line)
+                if world and world[3] == dimension:
+                    orders[None, int(world[2]), world[1], world[4]] = order
+                if event is None or f'dim={dimension} ' not in line:
+                    continue
+                tick = int(re.search(r'\bt=(\d+)\b', line)[1])
+                x, y, z = map(int, re.search(r'\bpos=(-?\d+), (-?\d+), (-?\d+)', line).groups())
+                key = event['uuid'], tick, event['cat'], event['msg']
+                orders[key] = order
+                if start <= tick <= self.end and bounds[0] <= x <= bounds[2] and bounds[1] <= z <= bounds[3] and key not in seen:
+                    self.events.append(dict(k='ev', u=event['uuid'], t=tick, cat=event['cat'], msg=event['msg'],
+                                            seq=order, end_legacy=True))
+                    seen.add(key)
+            for r in self.events:
+                r['end_order'] = orders.get((r['u'], r['t'], r.get('cat'), r['msg']), r['seq'])
+            self.events.sort(key=lambda r: (r['t'], r['end_order']))
+        self.names = defaultdict(set)
+        for r in records:
+            if r['k'] == 'geo':
+                for tag in r.get('tags', []):
+                    self.names[tag.removeprefix('scn_')].add(r['u'])
+        for r in samples:
+            for tag in r['state'].get('tags', []):
+                self.names[tag.removeprefix('scn_')].add(r['u'])
+            if r['state'].get('name'):
+                self.names[r['state']['name']].add(r['u'])
+
+    def select(self, selector, bindings):
+        if selector.startswith('$'):
+            return {bindings[selector[1:]]}
+        if selector == 'world':
+            return {None}
+        if selector == 'actors':
+            return {u for u, rows in self.samples.items() if 'stage' in rows[0]['state']} | {r['u'] for r in self.events if r['u']}
+        if selector.startswith(('child_of:', 'newborn_of:')):
+            kind, parent = selector.split(':', 1)
+            parents = self.select(parent, bindings)
+            children = {u for u, rows in self.samples.items() if any(parents.intersection(
+                r['state']['parents'].values() if isinstance(r['state'].get('parents'), dict)
+                else r['state'].get('parents', [])) for r in rows)}
+            if kind == 'newborn_of':
+                children &= {r['u'] for r in self.records if r['k'] == 'life' and r.get('in') == 'birth'}
+            return children
+        if selector.startswith('hat_of:'):
+            owners = self.select(selector[7:], bindings)
+            return {m['hat'] for r in self.events if r.get('cat') == 'hat'
+                    and (m := re.search(r'^placed owner=(?P<owner>\S+) hat=(?P<hat>\S+)', r['msg']))
+                    and m['owner'] in owners}
+        return self.names[selector]
+
+    def state(self, actor, tick):
+        # life-out invalidates an old full snapshot, including an unloaded subject.
+        from bisect import bisect_right
+        rows = self.samples.get(actor, [])
+        index = bisect_right(self.times.get(actor, []), tick) - 1
+        if index < 0:
+            return None
+        row = rows[index]
+        exits = [r for r in self.exits[actor] if row['t'] <= r['t'] <= tick]
+        if exits:
+            return {'hp': 0, 'alive': False} if exits[-1]['out'] == 'killed' else None
+        return row['state']
+
+    def expand(self, pattern, bindings):
+        def replace(match):
+            key = match[1]
+            if key in bindings:
+                return re.escape(bindings[key])
+            actors = self.select(key, bindings)
+            if len(actors) != 1:
+                raise ValueError(f'END placeholder ${key} requires one actor, got {len(actors)}')
+            return re.escape(next(iter(actors)))
+        return re.sub(r'\$([A-Za-z_]\w*)', replace, pattern)
+
+    def test(self, actor, pred, tick, bindings):
+        state = self.state(actor, tick)
+        if state is None:
+            return False
+        for clause in pred.split(' and '):
+            relation = re.fullmatch(r'(near|home_of|nest_of|aboard)\.([\w$]+)\s*(=|<=)\s*(.+)', clause)
+            if relation:
+                kind, selector, op, raw = relation.groups()
+                peers = (set(v for v in state['parents'].values() if v) if selector == 'parents'
+                         and isinstance(state.get('parents'), dict) else self.select(selector, bindings))
+                other = [self.state(u, tick) for u in peers]
+                if not peers or any(s is None for s in other):
+                    return None
+                if kind == 'near':
+                    if 'p' not in state or any('p' not in s for s in other):
+                        return None
+                    value = min(distance(state['p'], s['p']) for s in other) <= float(raw)
+                elif kind == 'home_of':
+                    if state.get('home') is None or any(s.get('home') is None for s in other):
+                        return None
+                    value = any(state['home'] == s['home'] for s in other) == json.loads(raw)
+                elif kind == 'aboard':
+                    if 'att' not in state:
+                        return None
+                    hats = self.select('hat_of:' + selector, bindings)
+                    host = state['att'].get('host')
+                    value = (host in hats or host in peers and any(s.get('att', {}).get('host') in hats for s in other)) == json.loads(raw)
+                else:
+                    # Occupancy is the motor's logged result, never a guessed radius around homePos.
+                    releases = [r for r in self.events if r['u'] in peers and r['t'] <= tick
+                                and r.get('cat') == 'family' and re.search(r'\bchild=' + re.escape(actor) + r'\b', r['msg'])
+                                and r['msg'].startswith('carry put down reason=')]
+                    value = bool(releases and re.search(r'\bnest=(?:INSIDE_SUPPORTED|PARTIAL)\b', releases[-1]['msg'])
+                                 and state.get('att', {}).get('kind') == 'free') == json.loads(raw)
+                if not value:
+                    return False
+            elif clause == 'carry_empty=true':
+                if 'carry' not in state.get('hold', {}):
+                    return None
+                if state['hold']['carry']:
+                    return False
+            elif (value := predicate(state, clause)) is not True:
+                return value
+        return True
+
+    def clauses(self, clauses, tick, bindings, sustained):
+        out = []
+        for selector, pred in clauses:
+            actors = self.select(selector, bindings)
+            if not actors:
+                out.append(result('END', 'fail', f'missing subject {selector}', dict(u=None, t=tick)))
+            for actor in sorted(actors):
+                times = range(tick - 99, tick + 1) if sustained else (tick,)
+                values = [self.test(actor, pred, t, bindings) for t in times]
+                verdict = ('no-evidence' if None in values else
+                           'pass' if values[-1] and sum(values) >= .8 * len(values) else 'fail')
+                out.append(result('END', verdict, f'{selector}: {pred}', dict(u=actor, t=tick)))
+        return out
+
+    def path(self, path, bindings):
+        """Find a single ordered witness, backtracking over repeats instead of mixing unrelated attempts."""
+        steps = path['steps']
+        furthest = [0, None]
+        rejected = []
+
+        def search(index, after, bound):
+            if index == len(steps):
+                # Cross-entity movement settles on the next physics tick (the child may tick before its carrier).
+                # Main carry_home samples: release t=140070 g=false, t=140071 g=true, unchanged attachment/position.
+                post = []
+                if path.get('post'):
+                    if after[0] < self.end:
+                        post = self.clauses(path['post'], after[0] + 1, bound, False)
+                    else:
+                        post = [result('END', 'no-evidence', 'window ended before postcondition sample', dict(u=None, t=after[0]))]
+                rejected[:] = [r for r in post if r['verdict'] != 'pass']
+                return (after, post) if all(r['verdict'] == 'pass' for r in post) else None
+            emitter, seen = steps[index]
+            _, cat, pattern = seen.split(':', 2)
+            regex = re.compile(self.expand(pattern, bound))
+            emitters = self.select(emitter, bound)
+            for r in self.events:
+                key = (r['t'], r.get('end_order', r['seq']))
+                if key <= after or r['u'] not in emitters or r.get('cat') != cat:
+                    continue
+                match = regex.search(r['msg'])
+                if match:
+                    captured = {k: v for k, v in match.groupdict().items() if v is not None}
+                    if any(k in bound and bound[k] != v for k, v in captured.items()):
+                        continue
+                    if index >= furthest[0]:
+                        furthest[:] = [index + 1, r]
+                    if witness := search(index + 1, key, bound | captured):
+                        return witness
+            return None
+
+        witness = search(0, (-1, -1), bindings)
+        if witness:
+            (tick, seq), post = witness
+            return [result('END', 'pass', 'ordered path: ' + path.get('name', str(steps)),
+                           dict(u=bindings.get('subject'), t=tick)), *post]
+        last = furthest[1] or dict(u=bindings.get('subject'), t=self.end)
+        label = path.get('name', '') + (' subject=' + bindings['subject'] if 'subject' in bindings else '')
+        return [result('END', 'no-evidence' if rejected and all(r['verdict'] == 'no-evidence' for r in rejected) else 'fail',
+                       f'ordered path {label}: reached {furthest[0]}/{len(steps)}; '
+                       'no complete witness with required postcondition', last,
+                       next_step=steps[min(furthest[0], len(steps) - 1)], last_event=last.get('msg')), *rejected]
+
+
+def endings(records, samples, end, raw=''):
+    if not isinstance(end, dict):
+        return terminal_endings(records, samples, end)
+    if not samples:
+        return [result('END', 'no-evidence', 'state samples missing')]
+    context = EndContext(records, samples, raw, end.get('bounds'))
+    out = context.clauses(end.get('final', ()), context.end, {}, True)
+    for emitter, seen in end.get('forbid', ()):
+        _, cat, pattern = seen.split(':', 2)
+        actors = context.select(emitter, {})
+        hits = [r for r in context.events if r['u'] in actors and r.get('cat') == cat
+                and re.search(context.expand(pattern, {}), r['msg'])]
+        out.append(result('END', 'fail' if hits else 'pass', 'forbidden event: ' + seen, hits[0] if hits else None))
+    for path in end.get('paths', ()):
+        if 'each' in path:
+            actors = context.select(path['each'], {})
+            if not actors:
+                out.append(result('END', 'fail', 'missing path subject ' + path['each']))
+            for actor in sorted(actors):
+                out.extend(context.path(path, {'subject': actor}))
+        else:
+            out.extend(context.path(path, {}))
+    return out
+
+
+def observations(records, issues=(), raw='', allow=(), end=(), seed=None, rerun=None, evidence='F', dense=False, end_raw=None):
     """One scope only. New checks NEVER determine the smoke exit code; fates() alone keeps that gate."""
     samples = timeline.states(records)
     findings = []
@@ -548,7 +777,7 @@ def observations(records, issues=(), raw='', allow=(), end=(), seed=None, rerun=
             if cause not in ('drown', 'inWall'):
                 findings.append(result('FATE', 'fail' if cause in ('fall', 'soaking', 'starve') else 'suspect', r['msg'], r))
     findings += progress(samples) + loops(records, samples) + jumps(samples) + ledger(records, samples, dense) + orphans(samples)
-    findings += endings(records, samples, end)
+    findings += endings(records, samples, end, raw if end_raw is None else end_raw)
     lag = [r for r in records if r['k'] == 'lag']
     for r in lag:
         if 'stall_ms' in r and r['stall_ms'] > 5000:
@@ -693,7 +922,7 @@ def report_log(log, output, smoke=None, seed=None, rerun=None, evidence='R', den
                          and event['uuid'] in actors and first_tick <= int(re.search(r'\bt=(\d+)', line)[1]) <= last_tick
                          and f'dim={key[1]} ' in line)
         reports.append(dict(scope=key, scene=scene_id, **observations(scoped, issues, legacy,
-                       spec.get('allow_fate', ()), spec.get('end', ()), seed, scene_rerun, evidence, dense)))
+                       spec.get('allow_fate', ()), spec.get('end', ()), seed, scene_rerun, evidence, dense, end_raw=raw)))
     if not reports:
         reports.append(dict(scene=only, **observations([], issues, raw, seed=seed, rerun=rerun, evidence=evidence, dense=dense)))
     (output / 'checks.json').write_text(json.dumps(reports, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')

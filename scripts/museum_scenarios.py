@@ -3435,13 +3435,13 @@ for _sid, _allow in _FATES.items():
     next(s for s in S if s.id == _sid).smoke['allow_fate'] = _allow
 
 
-# Observation contracts, never commands: each tuple in milestones is (scene tag, END seen predicate).
-# The list orders beats within one path; independent households have separate lists. S2 currently checks
-# presence through end, but does not yet enforce milestone order (see scripts/README.md).
-def _scene_end(sid, final, *paths):
+# Observation contracts only. Each path has ordered (emitter selector, seen predicate) steps;
+# named regex groups bind identities and $subject is the actor selected by each.
+def _scene_end(sid, final, *paths, forbid=()):
     scene = next(s for s in S if s.id == sid)
+    paths = [path if isinstance(path, dict) else dict(steps=path) for path in paths]
     scene.smoke['milestones'] = paths
-    scene.smoke['end'] = [*final, *(beat for path in paths for beat in path)]
+    scene.smoke['end'] = dict(final=final, paths=paths, forbid=forbid, bounds=scene.plot)
     views = scene.capture.get('views')
     if views is None:
         views = {'': {key: scene.capture[key] for key in ('follow', 'offset') if key in scene.capture}}
@@ -3460,10 +3460,11 @@ _scene_end('forage', [('mother', _DRY), ('father', _DRY), ('child', _DRY)],
            [('mother', 'seen:forage:begin role='), ('mother', 'seen:forage:deposit home=')],
            [('father', 'seen:forage:begin role='), ('father', 'seen:forage:deposit home=')],
            [('child', 'seen:family:welcome home started')])
-_scene_end('settle_snow', [('lead', _DRY)], [('lead', 'seen:habitat:home chosen')])
+_scene_end('settle_snow', [('lead', _DRY)], [('actors', 'seen:habitat:home chosen')])
 _scene_end('settle_pit_slave', [('slave', _DRY)],
            [('slave', 'seen:settlement:pit slave back in pit'),
-            ('slave', 'seen:settlement:pit slave eats droppings')])
+            ('slave', 'seen:settlement:pit slave eats droppings')],
+           forbid=[('slave', 'seen:mind:stage uneasy -> sweetened|non-yukkuri onset|died of non-yukkuri')])
 _scene_end('settle_pit_famine', [('slave', 'alive=true and need.nut=0 and hp<10')],
            [('slave', 'seen:settlement:pit slave hungry reason=no_droppings'),
             ('slave', 'seen:needs:starvation damage')])
@@ -3493,33 +3494,45 @@ _scene_end('rain_huddle', [('shy', _DRY), ('mate', _DRY), ('alone', _DRY)],
 _scene_end('aftermath_depletion', [('affected_depletion', 'alive=false'), ('source_depletion', _DRY)],
            [('affected_depletion', 'seen:family:aftermath reserved'),
             ('affected_depletion', 'seen:body:death settled.*stem_depletion=true')])
-# Migration phase messages are world events. The leader must itself arrive and choose a real new home;
-# the pivot alone cannot certify the families' arrival.
-_scene_end('colony_migrate', [('lead', _DRY)], [('lead', 'seen:habitat:home chosen')])
+# World phase events belong to the same captured group; arrival must name this scene's leader.
+_scene_end('colony_migrate', [('lead', _DRY)],
+           [('world', r'seen:settlement:migration phase=DISCUSS group=(?P<group>\S+)'),
+            ('world', r'seen:settlement:migration phase=PREPARE group=$group\b'),
+            ('world', r'seen:settlement:migration phase=MARCH group=$group\b'),
+            ('world', r'seen:settlement:migration pivot arrived group=$group .*leader=$lead\b')])
 _scene_end('colony_migrate_babies', [('migrant_baby', _ASHORE)],
-           *[[(f'migrant_{kind}', 'seen:family:carry pickup .*purpose=MIGRATE'),
-              (f'migrant_{kind}_0', 'seen:settlement:dependent settled with parent='),
-              (f'migrant_{kind}_1', 'seen:settlement:dependent settled with parent='),
-              (f'migrant_{kind}', 'seen:family:carry put down .*purpose=MIGRATE')]
+           *[dict(each=f'child_of:migrant_{kind}', steps=[
+              (f'migrant_{kind}', r'seen:family:carry pickup .*purpose=MIGRATE child=$subject\b'),
+              (f'migrant_{kind}', r'seen:family:carry put down .*purpose=MIGRATE child=$subject\b')],
+              post=[('$subject', _ASHORE + f' and near.migrant_{kind}<=4')])
+             for kind in ('marisa', 'reimu', 'chen')],
+           *[dict(each=f'child_of:migrant_{kind}', steps=[
+              (f'migrant_{kind}', r'seen:family:carry pickup .*purpose=MIGRATE child=$subject\b'),
+              ('$subject', f'seen:settlement:dependent settled with parent=$migrant_{kind}\\b')])
              for kind in ('marisa', 'reimu', 'chen')])
-_scene_end('carry_home', [(f'{kind}_baby', _ASHORE) for kind in ('marisa', 'reimu', 'chen')],
-           *[[(f'{kind}_parent', 'seen:family:carry pickup '),
-              (f'{kind}_parent', 'seen:family:carry set down started reason=arrived_home'),
-              (f'{kind}_parent', 'seen:family:carry put down reason=arrived_home .*nest=(?:INSIDE_SUPPORTED|PARTIAL)')]
+_scene_end('carry_home', [(f'{kind}_baby', _DRY) for kind in ('marisa', 'reimu', 'chen')],
+           *[dict(each=f'{kind}_baby', steps=[
+              (f'{kind}_parent', r'seen:family:^carry pickup hold=\S+ .*child=$subject\b'),
+              (f'{kind}_parent', r'seen:family:carry (?:set down started reason=arrived_home child=$subject\b|release target child=$subject placement=nest|lowering hold=\S+ child=$subject\b)'),
+              (f'{kind}_parent', r'seen:family:carry put down reason=arrived_home .*child=$subject .*nest=(?:INSIDE_SUPPORTED|PARTIAL)')],
+              post=[('$subject', _ASHORE + f' and nest_of.{kind}_parent=true')])
              for kind in ('marisa', 'reimu', 'chen')])
 _scene_end('hat_push', [('a', 'alive=true and distress=false'), ('fast', 'alive=true and distress=false')],
-           [('fast', 'seen:body:dismount .*cause=thrown')])
-_scene_end('hat_current', [('a', _ASHORE), ('child', _ASHORE)],
-           [('a', 'seen:body:dismount .*cause=grounded'), ('a', 'seen:headwear:received loose accessory')])
+           [('hat_of:fast', 'seen:hat:capsized cause=impact .*count=1')],
+           forbid=[('hat_of:a', 'seen:hat:capsized')])
+_scene_end('hat_current', [('a', _DRY), ('child', _DRY)],
+           dict(steps=[('a', 'seen:body:dismount .*cause=grounded'),
+                       ('a', 'seen:headwear:received loose accessory')], post=[('a', _ASHORE), ('child', _ASHORE)]))
 _scene_end('shake_capsize', [('a', _DRY + ' and place=cabin'), ('k1', _DRY), ('k2', _DRY)],
            [('a', 'seen:body:dismount .*cause=thrown'), ('a', 'seen:action:end id=right outcome=DONE'),
             ('a', 'seen:body:mount .*cause=climb')])
 _scene_end('self_rescue', [('a', _DRY + ' and place=cabin')],
            [('a', 'seen:water:escape start'), ('a', 'seen:body:mount .*cause=climb'),
             ('a', 'seen:water:escape done')])
-_scene_end('shore_capsized', [('a', _ASHORE + ' and hold.hat.state=worn')],
-           [('a', 'seen:action:end id=beckon outcome=DONE detail=at_bank'),
-            ('a', 'seen:action:end id=right outcome=DONE'), ('a', 'seen:headwear:reclaim done how=worn')])
+_scene_end('shore_capsized', [('a', _DRY)],
+           dict(steps=[('a', 'seen:action:end id=beckon outcome=DONE detail=at_bank'),
+                       ('a', 'seen:action:end id=right outcome=DONE'), ('a', 'seen:headwear:reclaim done how=worn')],
+                post=[('a', _ASHORE + ' and hold.hat.state=worn')]))
 # Overloaded families retain real risk; no prescribed survival for a deliberate capsize. Surviving young
 # must still be safe (ORPHAN remains independent); the load response itself is the observable path.
 _scene_end('hat_crowd', [('early', _DRY), ('normal', 'alive=true and distress=false')],
@@ -3528,13 +3541,15 @@ _scene_end('hat_crowd', [('early', _DRY), ('normal', 'alive=true and distress=fa
            [('normal', 'seen:family:parent dismissed child=')])
 _scene_end('hat_swap', [(name, _DRY) for name in ('land_worn', 'aqua_worn', 'land_owner', 'aqua_owner', 'kid_owner')],
            [('aqua_owner', 'seen:headwear:reclaim done how=worn')])
-_scene_end('sail', [('a', _ASHORE + ' and hold.hat.state=worn')],
-           [('a', 'seen:aquatic:stick taken'), ('a', 'seen:aquatic:set_out complete'),
-            ('a', 'seen:action:end id=paddle outcome=DONE'),
-            ('a', 'seen:intent:end id=come_ashore result=DONE'), ('a', 'seen:meal:swallowed item=minecraft:apple')])
+_scene_end('sail', [('a', _DRY)],
+           dict(steps=[('a', 'seen:aquatic:stick taken'), ('a', 'seen:aquatic:set_out complete'),
+                       ('a', 'seen:action:end id=paddle outcome=DONE'),
+                       ('a', 'seen:intent:end id=come_ashore result=DONE'), ('a', 'seen:meal:swallowed item=minecraft:apple')],
+                post=[('a', _ASHORE + ' and hold.hat.state=worn')]))
 _scene_end('afloat_family', [('a', _DRY), ('c1', _DRY)],
-           [('a', 'seen:family:carry grip .*hold=braid'), ('c1', 'seen:body:seat landed .*cause=braid_set_down'),
-            ('a', 'seen:aquatic:set_out complete .*aboard=1/1')])
+           dict(steps=[('a', 'seen:family:carry grip .*hold=braid'), ('c1', 'seen:body:seat landed .*cause=braid_set_down'),
+                       ('a', 'seen:aquatic:set_out complete .*aboard=1/1')],
+                post=[('c1', _DRY + ' and aboard.a=true')]))
 _scene_end('afloat_stick', [('a', _DRY + ' and hold.kit.item=minecraft:stick')],
            [('a', 'seen:aquatic:stick target chosen'), ('a', 'seen:aquatic:stick taken .*stowed_in=hat')])
 _scene_end('kid_boat_play', [('a', _DRY), ('c1', _DRY), ('c2', _DRY)],
@@ -3545,21 +3560,26 @@ _scene_end('rescue_child', [('a', _DRY), ('c1', _DRY), ('k1', _DRY)],
            *[[('a', f'seen:family:carry grip .*uuid={_uuid_text("rescue_child", child)}'),
               ('a', f'seen:aquatic:rescue end result=DONE outcome=(?:rescued|set_down) faller={_uuid_text("rescue_child", child)}')]
              for child in ('c1', 'k1')])
-_scene_end('rescue_no_seat', [('a', _ASHORE + ' and hold.hat.state=worn'), ('child_of:a', _ASHORE)],
-           [('a', f'seen:family:carry grip .*uuid={_uuid_text("rescue_no_seat", "c1")}'),
+_scene_end('rescue_no_seat', [('a', _DRY), ('child_of:a', _DRY)],
+           dict(steps=[('a', f'seen:family:carry grip .*uuid={_uuid_text("rescue_no_seat", "c1")}'),
             ('a', 'seen:action:end id=hop outcome=DONE'), ('a', 'seen:action:end id=release outcome=DONE detail=released'),
-            ('a', f'seen:aquatic:rescue end result=DONE outcome=set_down faller={_uuid_text("rescue_no_seat", "c1")}')])
-_scene_end('birth_boat_missed', [('mother', _ASHORE), ('k1', _ASHORE), ('k2', _ASHORE), ('child_of:mother', _ASHORE)],
+            ('a', f'seen:aquatic:rescue end result=DONE outcome=set_down faller={_uuid_text("rescue_no_seat", "c1")}')],
+                post=[('a', _ASHORE + ' and hold.hat.state=worn and carry_empty=true'), ('child_of:a', _ASHORE)]))
+_scene_end('birth_boat_missed', [('mother', _DRY), ('child_of:mother', _DRY)],
            [('mother', 'seen:aquatic:birth shore return'), ('mother', 'seen:action:end id=hop outcome=DONE'),
-            ('mother', 'seen:family:delivery complete')])
+            ('mother', 'seen:family:delivery complete')],
+           dict(each='newborn_of:mother', steps=[('$subject', 'seen:family:birth landed .*outcome=(?:HAT|GROUND|NEST)'),
+                                                ('$subject', 'seen:meal:swallowed .*prepared=true')],
+                post=[('mother', _ASHORE), ('$subject', _DRY + ' and near.parents<=4')]))
 _scene_end('birth_hat_own', [('mother', _DRY), ('father', _DRY), ('child_of:mother', _DRY)],
            [('mother', 'seen:aquatic:birth route=own_hat reason=fit'), ('mother', 'seen:family:delivery complete')],
-           [('father', 'seen:aquatic:guard start'), ('father', 'seen:aquatic:guard arrive'),
-            ('father', 'seen:aquatic:stick taken .*stowed_in=hat')],
+           [('father', 'seen:aquatic:guard start'), ('father', 'seen:aquatic:guard arrive')],
+           [('father', 'seen:aquatic:stick taken .*stowed_in=hat')],
            [('child_of:mother', 'seen:meal:swallowed .*prepared=true')])
-_scene_end('first_voyage', [('c1', _ASHORE + ' and hold.hat.state=worn')],
-           [('c1', 'seen:aquatic:first_voyage start'), ('c1', 'seen:aquatic:first_voyage rounded'),
-            ('c1', 'seen:aquatic:first_voyage success'), ('c1', 'seen:childhood:sailing learned how=first_voyage')])
+_scene_end('first_voyage', [('c1', _DRY)],
+           dict(steps=[('c1', 'seen:aquatic:first_voyage start'), ('c1', 'seen:aquatic:first_voyage rounded'),
+                       ('c1', 'seen:childhood:sailing learned how=first_voyage'), ('c1', 'seen:aquatic:first_voyage success')],
+                post=[('c1', _ASHORE + ' and hold.hat.state=worn')]))
 _scene_end('family_search', [('search_parent', _DRY), ('search_child', _DRY), ('lost_child', _DRY)],
            [('search_parent', 'seen:family:child call started'), ('search_child', 'seen:family:child heard parent call'),
             ('search_parent', 'seen:family:child search reunited')],
