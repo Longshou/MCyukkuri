@@ -8,7 +8,6 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
-| 删除温和成员照料坑中奴隶并复原的机制与 `settle_pit_release` 场景 | `.worktrees/wp-ay-remove-gentle-care` | `settlement/SettlementSociety.java`、`settlement/SettlementData.java`、`social/DailyLife.java`、`scripts/museum_*.py`、`docs/FEATURES.md` |
 
 ## 玩法待办
 
