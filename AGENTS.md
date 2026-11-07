@@ -124,10 +124,20 @@
 - 一个包对应一个工作树 `.worktrees/<名>`（基于 `origin/main`）、一份任务说明 `.local/refactor/briefs/<名>.md`、一份报告。开工前由总负责人把待办“进行中”行推到 `main`（工作树与主要文件），已登记区域先协调，不同时改；交接时核对这张表与 `git worktree list` 一致。
 - 包要小：一个包只做一条玩家看得见的行为链或一件工具，便于审查和定位。失败过的链路先写一页设计，交另一个模型审过再实现。已接入待试玩的行为链积压超过 10 条时暂停新内容（用户明确要求的除外），先修复测失败、等用户试玩。
 - 任务说明要短：指向本文件与模型笔记而不复述规则；验收标准用用户原话，总负责人自加的数值只是暂定；写明硬门槛（死亡、溺水、新循环）与只报告项、改动适用的确切情形、同批并行工人及其文件；美术与动作任务必须含分镜／概念与视觉审核（第 5 节）；不设代码行数目标。同批共用的规则写成一份公共说明。
-- 渠道：Claude（Sonnet、Opus）用 Agent 工具后台派出，提示里指向任务说明、本文件与模型笔记。外部 AI 走 herdr：`PYTHONUTF8=1 <py> .local/tools/herdr_task.py run <名> --kind pi|codex --cd <工作树> --brief <路径> [--model M --effort E]`（后台运行；`tail`／`say`／`wait`／`close` 跟进）。pi 会话装有 pi-agents-team，外部任务大到需要多个工人协作时，可让 pi 当协调者用 `/team` 派其内部工人（`/team-steer`、`/team-result` 跟进）。生图走 Codex（`storyboard.py`，用户的 ChatGPT 登录）。
-- 模型分工：按难度选最便宜够用的模型，Claude 额度留给只有 Opus 做得好的事。简单修复、机械活、文档、工具脚本和一般审查交 Sonnet 或 pi 模型：kimi（`kimi-coding/k3.1-pro`）是 pi 中最强的，优先用于审查与设计明确的实现，关键场景必须复跑；DeepSeek 官方 `deepseek/deepseek-flash` 胜在快和便宜，适合机械活、代码加冒烟与快速审查；GLM 5.3 没有突出长处，只在前两者不可用时备用。Opus 只做美术、动作、复杂链路、已失败或回归过的链路和公共基础设施。审查者与作者不同模型。Codex 暂不写代码，只生图；不用 Fable。外部接口出故障（如 HTTP 500）时改派其他模型，不原地反复重试。各模型的倾向记在 `.local/refactor/model-notes/<模型>.md`，每次审查后按证据更新。
-- 推理强度：每次派活按难度设定 thinking／effort，不用默认值：机械活与文档 low；简单修复与一般审查 medium；工具与普通功能 high；复杂链路、根因排查与动作设计 xhigh 或 max。Agent 工具用 `effort` 参数，herdr 用 `--effort`。
-- 额度：`bash .local/tools/claude_quota.sh` 看 5 小时与周用量；快满时暂停，重置后继续；额度紧张时只记入待办不开工；临近重置仍有余量就用掉。DeepSeek、kimi 与 Codex 生图不占 Claude 额度。
+- 渠道：Claude（Opus、Sonnet）用 Agent 工具后台派出，提示里指向任务说明、本文件与模型笔记。外部 AI 走 herdr：`PYTHONUTF8=1 <py> .local/tools/herdr_task.py run <名> --kind pi|codex --cd <工作树> --brief <路径> --model M --effort E`（后台运行；`tail`／`say`／`wait`／`close` 跟进）。pi 会话装有 pi-agents-team，外部任务大到需要多个工人协作时可让 pi 当协调者用 `/team` 派内部工人。生图走 Codex（`storyboard.py`，用户的 ChatGPT 登录）。
+- 模型分工：按难度选最便宜够用的模型，审查者与作者不同模型；每次派活明确设定推理强度，不用默认值。
+
+  | 难度／类型 | 首选 | 备选 | 推理强度 |
+  | --- | --- | --- | --- |
+  | 机械活、文档、简单脚本 | DeepSeek | Sonnet | low |
+  | 简单修复、一般审查 | kimi（审查）、DeepSeek（代码加冒烟） | Sonnet | medium |
+  | 中等：普通功能、工具、多文件改动 | Codex `gpt-6.1-sol`、kimi（设计明确时） | Sonnet | high |
+  | 困难：物理几何、公共基础设施、二分定位、失败或回归过的链路 | Codex `gpt-6-astra`、Opus（需要大量阅读的根因排查） | — | xhigh／max |
+  | 美术与动作制作 | Opus | — | high／xhigh |
+  | 视觉与动作审查 | Codex `gpt-6-astra` | kimi | high |
+
+  kimi（`kimi-coding/k3.1-pro`）是 pi 中最强的，关键场景必须复跑；DeepSeek 官方 `deepseek/deepseek-flash` 胜在快和便宜；GLM 5.3 只在前两者都不可用时备用。Codex 慢，不派简单活，推理强度不低于 medium；`gpt-6.1-sol` 便宜、`gpt-6-astra` 最强最贵。Claude 额度留给只有 Opus 做得好的事；不用 Fable。外部接口出故障（如 HTTP 500）时改派其他模型，不原地反复重试。各模型的倾向记在 `.local/refactor/model-notes/<模型>.md`，每次审查后按证据更新。
+- 额度：`bash .local/tools/claude_quota.sh` 看 5 小时与周用量；快满时暂停，重置后继续；额度紧张时只记入待办不开工；临近重置仍有余量就用掉。pi 模型与 Codex 不占 Claude 额度；工作量在 Claude、Codex、kimi、DeepSeek 之间分摊，不压在一家。
 - 并发：用户同时在玩游戏（约 8 GB），同时最多 3 个跑冒烟或截图的工人。限流会一次停掉所有子代理，工作已提交，开新代理“从提交继续”。
 - 失败处理：同一链路失败两轮就换思路，由总负责人写设计，不再调参；卡住的工人加人组队，不让它空转；偶发回归找隐藏的起始状态分叉，主线与分支各 20 次以上对比，修在共享归属处。
 - 合入顺序：大段文档改写先合；共用动作源的包按顺序 rebase，冲突时合并制作源再重建输出。合入后 CI 成功、且没有冒烟或截图在跑时，按第 6 节更新运行包。
