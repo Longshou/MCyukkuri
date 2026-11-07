@@ -95,7 +95,8 @@
     ]},
     {"id": "shared", "label": "共用制作基础与登记", "families": [
       {"id": "library-tools", "label": "素材库构建、校验与来源登记", "prefixes": ["standards/yukkuri-library/tools/", "standards/yukkuri-library/provenance/", "standards/yukkuri-library/runtime/", "standards/yukkuri-library/tests/", "standards/yukkuri-library/AGENTS.md", "standards/yukkuri-library/README.md", "standards/yukkuri-library/author_standard_species.py", "standards/yukkuri-library/build.py", "standards/yukkuri-library/catalog-data.", "standards/yukkuri-library/character_appearance.py", "standards/yukkuri-library/geometry.py", "standards/yukkuri-library/validate.py", "standards/yukkuri-library/drafts/README.md"]},
-      {"id": "shared-palette", "label": "共用色板与选用登记", "prefixes": ["art/README.md", "art/props/README.md", "art/props/palette.json", "art/runtime-sources.json"], "ids": ["index", "rounded-index", "subspecies-index", "body_geometry", "subspecies"]}
+      {"id": "shared-palette", "label": "共用色板与选用登记", "prefixes": ["art/README.md", "art/props/README.md", "art/props/palette.json", "art/runtime-sources.json"], "ids": ["index", "rounded-index", "subspecies-index", "body_geometry", "subspecies"]},
+      {"id": "style-refs", "label": "生图画风参考（非运行美术）", "prefixes": ["standards/yukkuri-library/style-refs/"]}
     ]}
   ]
 }
