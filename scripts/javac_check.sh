@@ -6,7 +6,8 @@
 R=$(cd "$(dirname "$0")/.." && git rev-parse --path-format=absolute --git-common-dir | sed 's#/\.git$##')
 W=$(cd "${1:-$R}" && pwd)
 TAG=$(basename "$W")
-OUT=$R/.local/tmp/javac-$TAG
+# Per-run names: two concurrent checks of one worktree must not delete each other's list and class files.
+OUT=$R/.local/tmp/javac-$TAG-$$
 mkdir -p "$R/.local/tmp"
 JAVAC=$(find "$R/.local/tools/java" -name javac.exe -o -name javac -type f 2>/dev/null | head -1)
 JAVA=$(dirname "$JAVAC")/java

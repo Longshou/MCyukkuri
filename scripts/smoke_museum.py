@@ -4,8 +4,10 @@ a self-check, never playtest acceptance."""
 import argparse
 from contextlib import contextmanager
 import importlib
+import inspect
 import json
 import msvcrt
+import os
 import re
 import secrets
 import shutil
@@ -173,16 +175,22 @@ def load_field(st, field, feet):
 
 
 def failure(smoke, window):
-    """The scene's own check: (stable reason, printed text) of its first failure, or None."""
-    for line in window.splitlines():
-        for pattern in smoke['forbid']:
-            if re.search(pattern, line):
-                return f'forbidden /{pattern}/', 'forbidden line: ' + line
+    """The scene's own check: one (stable reason, printed text) per failed check -- every forbidden pattern that hit and
+    every expected pattern that is missing, so one fix round sees the whole list."""
+    found = []
+    lines = window.splitlines()
+    for pattern in smoke['forbid']:
+        hits = [line for line in lines if re.search(pattern, line)]
+        if hits:
+            count = f' ({len(hits)} lines)' if len(hits) > 1 else ''
+            found.append((f'forbidden /{pattern}/', f'forbidden line{count}: ' + hits[0]))
     for pattern in smoke['expect']:
         if not re.search(pattern, window):
-            return f'missing /{pattern}/', f'missing /{pattern}/'
+            found.append((f'missing /{pattern}/', f'missing /{pattern}/'))
     problem = smoke['verify'](window) if 'verify' in smoke else None
-    return None if problem is None else (fate.signature(problem)[:200], problem)
+    if problem is not None:
+        found.append((fate.signature(problem)[:200], problem))
+    return found
 
 
 def run_scene(st, scene, builder, run_index=1):
@@ -224,7 +232,7 @@ def run_scene(st, scene, builder, run_index=1):
     log = Path(st['rundir']).parent / f'{scene.id}-{run_index}.log'
     log.write_text(window, encoding='utf-8')
     problems = [] if raw_window.strip() else [('empty log', 'empty server log window')]
-    problems += [problem for problem in [failure(scene.smoke, window)] if problem]
+    problems += failure(scene.smoke, window)
     problems += fate.fates(window, scene.smoke.get('allow_fate', ()))
     for _, text in problems:
         print(f'FAIL {scene.id}: {text}', flush=True)
@@ -341,6 +349,106 @@ def load_builder(source):
     """The scene definitions of ``source``; a process loads one tree (its modules are cached by name)."""
     sys.path[0] = str(source / 'scripts')
     return importlib.import_module('build_museum_full')
+
+
+def smoke_spec(smoke):
+    """A scene's own checks as comparable values: what must appear, what must not, the verify body and the timing."""
+    if smoke is None:
+        return None
+    verify = smoke.get('verify')
+    return dict(expect=list(smoke['expect']), forbid=list(smoke['forbid']),
+                verify=None if verify is None else ' '.join(inspect.getsource(verify).split()),
+                ticks=smoke.get('ticks'), reload=list(smoke['reload']) if 'reload' in smoke else None)
+
+
+# The child's own copy of smoke_spec: it reads origin/main's scenes, so it cannot borrow this tree's extractor without
+# importing this tree's museum_scenarios too.
+SPEC_DUMP = '''
+import inspect, json, sys
+
+sys.dont_write_bytecode = True
+sys.path.insert(0, sys.argv[1])
+import museum_scenarios
+
+
+def spec(smoke):
+    if smoke is None:
+        return None
+    verify = smoke.get('verify')
+    return dict(expect=list(smoke['expect']), forbid=list(smoke['forbid']),
+                verify=None if verify is None else ' '.join(inspect.getsource(verify).split()),
+                ticks=smoke.get('ticks'), reload=list(smoke['reload']) if 'reload' in smoke else None)
+
+
+print(json.dumps({scene.id: spec(scene.smoke) for scene in museum_scenarios.S}))
+'''
+
+# What origin/main's scenes need to import: their own scripts tree and the one resource museum_dsl reads beside it.
+MAIN_SCENE_INPUTS = ('scripts', 'src/main/resources/assets/mcyukkuri/yukkuri_presentation/care_collision.json')
+
+
+def smoke_specs_on_main(source):
+    """origin/main's scene checks, read in a child process from that commit's own scripts tree: loading a second
+    museum_scenarios beside this one would register its scenes into this tree's fields a second time (and trip its own
+    pond-tour assertion), so that commit is exported and imported on its own."""
+    commit = git(source, 'rev-parse', 'origin/main')
+    tree = server.COMMON / '.local/tmp' / f'museum-scripts-{commit[:12]}-{os.getpid()}'
+    tree.mkdir(parents=True)
+    try:
+        archive = subprocess.Popen(['git', '-C', str(source), 'archive', 'origin/main', *MAIN_SCENE_INPUTS],
+                                   stdout=subprocess.PIPE)
+        with tarfile.open(fileobj=archive.stdout, mode='r|') as tar:
+            tar.extractall(tree, filter='data')
+        if archive.wait():
+            raise subprocess.CalledProcessError(archive.returncode,
+                                                'git archive origin/main ' + ' '.join(MAIN_SCENE_INPUTS))
+        reply = subprocess.run([sys.executable, '-c', SPEC_DUMP, str(tree / 'scripts')], capture_output=True,
+                               text=True, encoding='utf-8')
+        if reply.returncode:
+            reason = reply.stderr.strip().splitlines()[-1] if reply.stderr.strip() else reply.returncode
+            raise RuntimeError(f'origin/main scenes did not load: {reason}')
+        return json.loads(reply.stdout)
+    finally:
+        shutil.rmtree(tree, ignore_errors=True)
+
+
+def shorten(text, limit=80):
+    return text if len(text) <= limit else text[:limit - 3] + '...'
+
+
+def smoke_differences(here, main):
+    """Every way this tree's scene checks differ from origin/main's, in words (empty when they agree)."""
+    if main is None:
+        return ['no smoke checks on origin/main']
+    differences = []
+    for key in ('expect', 'forbid'):
+        differences += [f'{key} only on origin/main /{shorten(pattern)}/'
+                        for pattern in main[key] if pattern not in here[key]]
+        differences += [f'{key} only here /{shorten(pattern)}/' for pattern in here[key] if pattern not in main[key]]
+    if here['verify'] != main['verify']:
+        differences.append('verify body differs')
+    if here['ticks'] != main['ticks']:
+        differences.append(f'ticks {main["ticks"]} -> {here["ticks"]}')
+    if here['reload'] != main['reload']:
+        differences.append(f'reload {main["reload"]} -> {here["reload"]}')
+    return differences
+
+
+def warn_smoke_drift(source, scenes):
+    """WARNING lines naming every scene whose smoke checks (expect / forbid / verify / timing) differ from origin/main's:
+    a worker once relaxed an expectation in its own tree, and its self-check then proved less than the scene asks. This
+    only warns; the scene still runs and reports as its own tree defines it."""
+    try:
+        main = smoke_specs_on_main(source)
+    except (subprocess.CalledProcessError, OSError, RuntimeError, ValueError, SyntaxError, ImportError,
+            AttributeError, TypeError, KeyError) as error:
+        print(f'WARNING scene checks: cannot read origin/main\'s scenes ({error}); they were not compared', flush=True)
+        return
+    here = {scene.id: smoke_spec(scene.smoke) for scene in scenes}
+    for sid, spec in here.items():
+        differences = smoke_differences(spec, main.get(sid))
+        if differences:
+            print(f'WARNING scene {sid}: smoke checks differ from origin/main: ' + '; '.join(differences), flush=True)
 
 
 def session(source, compile_tree, builder, scenes, args, label, stop=None):
@@ -544,6 +652,7 @@ def main():
         return 0 if all(session(source, args.worktree is not None, builder, selected, args, label)) else 1
     for scene in selected:
         fate.check_allowances(scene.smoke.get('allow_fate', ()))
+    warn_smoke_drift(source, selected)
     commit, dirty = git(source, 'rev-parse', 'HEAD'), bool(git(source, 'status', '--porcelain'))
     results = session(source, args.worktree is not None, builder, [scene for _ in range(args.repeat) for scene in selected], args, label)
     table = tally(results)
