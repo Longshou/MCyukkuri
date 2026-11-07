@@ -870,11 +870,6 @@ def compile_clips(model, cfg, root, ground, height):
                 keys[channel].append([round(t, 8), *[round(x, 7) for x in value]])
         tracks = [{'bone': root, 'channel': ch, 'keys': k} for ch, k in keys.items()]
         tracks += flourish_tracks(model, name, samples, cfg, c)+family_braid_tracks(model, name, samples, keys, root, hat, c)
-        if 'hat_tilt' in c and 'hat' in {bone['name'] for bone in model['bones']}:
-            # A worn hat pressed against the partner's head rides up on that side (the head itself keeps its small lean): its brim
-            # clears the partner's hair so the cheeks meet. Held over the whole loop, as the stand is measured over it.
-            hat_bone = next(i for i, bone in enumerate(model['bones']) if bone['name'] == 'hat')
-            tracks.append({'bone': hat_bone, 'channel': 'rotation', 'keys': [[0, 0, 0, c['side']*c['hat_tilt']], [d, 0, 0, c['side']*c['hat_tilt']]]})
         fields = {}
         if BRAID_KEYS['authored'](c):
             tracks += BRAID_KEYS['tracks'](model, name, c, samples, tracks, TOOLS['palette'])

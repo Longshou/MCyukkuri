@@ -6395,7 +6395,6 @@
       "shiver_ratio": 0.008,
       "shiver_roll": 1.0,
       "breath": 0.012,
-      "hat_tilt": 14,
       "faces": [
         [
           0,
@@ -6413,7 +6412,7 @@
           "sleepy"
         ]
       ],
-      "lore": "Project design (TODO 陆 14, art-dir-life rain_huddle): pressed against a kin or friend under a roof in the rain. Each cycle opens with a nestle (squash low and wide, slide and lean into the partner, eyes squeezed), then holds pressed with a shiver that is not mirrored, so a pair started on one clip clock shivers in step, and a slow breath with calmer half-closed eyes; it eases back to the held pose at the seam. A worn hat rides up 14 degrees on the partner's side (the hat, not the head), so its brim clears the partner's hair and the cheeks meet. A thunder clap restarts the cycle after the startle, which reads as nestling closer. side +1: the partner is toward model +X, the body's right (the game turns the model by 180 - yaw, its face is -Z).",
+      "lore": "Project design (TODO 陆 14, art-dir-life rain_huddle): pressed against a kin or friend under a roof in the rain. Each cycle opens with a nestle (squash low and wide, slide and lean into the partner, eyes squeezed), then holds pressed with a shiver that is not mirrored, so a pair started on one clip clock shivers in step, and a slow breath with calmer half-closed eyes; it eases back to the held pose at the seam. The worn hat remains seated on the head and follows only the body pose. Real posed brim, hair and ribbon surfaces determine the contact spacing; cheek contact must not force accessories through each other. A thunder clap restarts the cycle after the startle, which reads as nestling closer. side +1: the partner is toward model +X, the body's right (the game turns the model by 180 - yaw, its face is -Z).",
       "triggers": [
         "weather huddle pressed (Reactions.Weather HUDDLE), partner on its right"
       ]
