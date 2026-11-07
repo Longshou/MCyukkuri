@@ -714,6 +714,8 @@ public final class TraceRecorder {
 
     public static void world(ServerLevel level, String category, String message, int suppressed) {
         SceneWindow window = currentWindow(level);
+        // SceneGeometry emits its dedicated geo row; duplicating the human-readable MCYGEOMETRY payload as ev breaks its reader.
+        if (category.equals("layout") && message.startsWith("MCYGEOMETRY")) return;
         if (mode == Mode.OFF || window == null) return;
         JsonObject body = new JsonObject();
         body.addProperty("cat", category);
