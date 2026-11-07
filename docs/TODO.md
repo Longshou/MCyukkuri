@@ -11,6 +11,7 @@
 | 生活演出·天气与取暖：雨中相依、雷暴缩身与找掩体、出水抖身、晒太阳、钻暖桌被炉 | `.worktrees/wp-ba-life-weather` | `standards/yukkuri-library/motions/`、天气／取暖行为、`scripts/museum_*.py` |
 | 生活演出·家庭日常：呼唤走散孩子、迎接归家、睡醒伸懒腰、饭后满足 | `.worktrees/wp-bb-life-family` | `standards/yukkuri-library/motions/`、家庭／作息／进食行为、`scripts/museum_*.py` |
 | 演出组装件①：全部认可表情可在游戏里按 ID 选用、两帧表情交替、表情目录页 | `.worktrees/wp-bs-face-library` | 表情导出脚本、src/main/resources/assets/mcyukkuri/textures/entity/、yukkuri/*.json 表情补丁、客户端表情渲染、scripts/preview.py（kit 目录页） |
+| 演出组装件②：头顶符号 16px 像素图集（汗滴、怒筋、Zzz 等 12 个） | `.worktrees/wp-bt-emote-atlas` | standards/yukkuri-library/emotes/、src/main/resources/assets/mcyukkuri/textures/emote/、art/catalog.json、art/runtime-sources.json |
 
 ## 玩法待办
 
