@@ -232,7 +232,7 @@ public final class DailyLife {
         if (other == null) return true;
         if (!other.isAlive() || other.isRemoved() || other.level() != entity.level()
                 || session.leader.distanceToSqr(other) > (session.kind == Kind.NUZZLE ? NUZZLE_SIGHT * NUZZLE_SIGHT : 36)
-                || !session.leader.hasLineOfSight(other)) return false;
+                || session.leader.distanceToSqr(other) > 4 && !session.leader.hasLineOfSight(other)) return false;
         if (other instanceof YukkuriEntity peer)
             return available(peer, true, session.kind == Kind.NUZZLE) && peer.dailyLife().session == session
                     && peer.life().personality().fear(session.leader.getUUID()) < 60
