@@ -817,7 +817,7 @@ add('storm_cower', 'weather', '雷暴：胆小的缩成一团，淋雨的跑进�
     reads=[('附近落雷', 'summon minecraft:lightning_bolt ~16 ~ ~8'), ('读缩身的灵梦', f'yukkuri status {sel("timid")} raw'),
            ('读胆大魔理沙', f'yukkuri status {sel("bold")} raw'), ('读冒雨跑来的', f'yukkuri status {sel("runner")} raw')],
     capture=dict(shots=(1, 40, 200, 400, 600, 800), sequences=((60, 800, 6),),
-                 follow='@e[tag=scn_timid,limit=1]', offset=(0, .8, 2.6)),
+                 follow='@e[tag=scn_timid,limit=1]', offset=(0, .8, -2.6)),
     smoke=dict(ticks=1000, commands=[(300, 'summon minecraft:lightning_bolt ~16 ~ ~8')],
                expect=[r'\[weather\] reimu [^\n]* sheltered alone pose=cower',
                        # vanilla ramps the thunder level up over a few seconds after `weather thunder`: the first run may still read RAIN
