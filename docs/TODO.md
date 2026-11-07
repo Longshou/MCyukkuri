@@ -64,7 +64,6 @@
 
 ### 场景、信息与读数
 
-- **小墓碑**：未做。安葬后显示小墓碑，右键像告示牌看基本信息与死因，重载对应同一死者（[遗体后续](FEATURES.md#伤口遗体与身体状态)）。
 - **陆 12 群系融入／陆 13 后半真实山地**：未做。沙漠、恶地聚落的土堆和木头融入群系；保留真实山地环境与自然演出。
 - **试玩场演示场景梳理与取名**：已接入待试玩（本机冒烟与 `--layout` 自查非验收）。用户：[5a5711245](https://github.com/Longshou/MCyukkuri/commit/5a5711245) 反馈 14，场景取名都要改得更匹配实际演出，很多取名完全看不懂；[81858504b](https://github.com/Longshou/MCyukkuri/commit/81858504b) 反馈 13，水生演示很多其实是一套几乎差不多的演出，看了没有意义，名字答非所问，每轮修改要矫正，不留早就不用的场景，日志也可以看看；[f90b78a3c](https://github.com/Longshou/MCyukkuri/commit/f90b78a3c) 后：“族群迁徙的场景呢 怎么没了？记一个todo 梳理游戏的演示场景 跟之前一样合并无用展示 并且确保生成点 初始化等正确”。未合并：`afloat_family` 与 `afloat_family_gather`（两场首次 `set_out` 都可能终止）。完成：“族群迁徙与族规”场地的迁徙两场在大厅找得到并能演出；各场开场即见主题，按钮名与实际演出对应、用户读得懂；不留不用的场景；用户试玩认可。
 
@@ -349,6 +348,7 @@
 - **火烧后的烧焦外观**：E7 `core_exposed` 低血烧伤全身斑驳、侧边部件错位、泪痕浮出；用户接受降级，全身烧伤改按伤级整体着色，家油只用三级热损外观。完成：`core_exposed` 低血烧伤三级着色均匀，泪痕与侧发贴合，`[render]` 读数不明显升高；`thermal_body`、`wound_sources`、`magma_sole` 真实火烧验证，足烧只足底、全烧保持高度／深度与头饰尺寸，不误出露核洞。
 - **身体印记与重伤创腔**：发面／皮面裁切、硬边断发边、直壁平底创腔、普通馅和唯一中央中枢；露核命中放宽为开口外扩 1.5 倍（[规则](FEATURES.md#伤口遗体与身体状态)）。完成：`body_mold`、`treatment_scars`、`treatment_severe` 原位变化；`core_exposed` 各类伤瞄准开口及外缘即可命中；`core_filling` 取核后空腔，`rare_forms` 品种内馅配色及捕食种核心接缝无原发色弧边；治疗、遗体搬放及清场重开不换位、不重复中枢。
 - **遗体美术**：按[死因类别与水中阶段](FEATURES.md#伤口遗体与身体状态)换死亡脸、姿态、表层与地面馅渍；寿终缎带下垂需骨骼姿态，目前缺；制作源 `standards/yukkuri-library/drafts/remains/` 未经用户认可，献身切面归分体项。完成：`remains_forms` 用“读遗体”核对七种死因与溺死的 `category`／`form`；水池左具约 30–60 秒后 `water=softened`，右具约 30–60 秒后 `water=dissolving`、`food` 6→0、`core=false` 且沉底，岸上对照不变。
+- **小墓碑**：已接入待试玩（分支 wp-bc-grave-marker，[65ddd902b](https://github.com/Longshou/MCyukkuri/commit/65ddd902b)）。铲子安葬后冢头立小石碑、正面朝向安葬者，赤体等小个子碑缩小；右键读名字／无名、种类与年龄段、死因、安葬日。试玩：“伤病与遗体”场地按钮“八种死因遗体，溶化与立碑”，开场观察点前方约 5 格偏右已埋好一只饿死赤油，另给铁锹可安葬其余遗体。完成：用户看到墓碑并认可外观，右键读到正确信息，退出重进后仍是同一死者。
 - **多只伤员同屏卡顿**：[58d99ee0](https://github.com/Longshou/MCyukkuri/commit/58d99ee0)（CI 40182081691）`core_exposed` 多只伤员同屏，攻击瞬间仍卡；用户认为一律平贴覆盖原有样式（[18fd3981](https://github.com/Longshou/MCyukkuri/commit/18fd3981)，已撤回）。完成：`core_exposed`、`rare_forms` 全部伤员同屏绕行和连续攻击无明显卡顿，不靠一律平贴。
 - **脸部表情贴片分块与遮眼**：[998f52c2](https://github.com/Longshou/MCyukkuri/commit/998f52c2)（CI 40186711876）头部皮肤竖向明暗带、眼睛边缘略被遮（截图未入库）。完成：`core_exposed` 及任一普通场景近看未受伤与受伤个体走动、转身，脸上无分块明暗，眼睛不被遮挡。
 - **遗体表面颗粒闪烁**：[ac4ba87b](https://github.com/Longshou/MCyukkuri/commit/ac4ba87b) 走动或转视角时自然死等遗体皮肤满面颗粒闪烁，暴力死、溶解不明显（截图未入库）。完成：自然死、饿死、烧死、病死遗体旁走动、转视角，皮肤颜色均匀无颗粒，呈各死法设计偏色。
