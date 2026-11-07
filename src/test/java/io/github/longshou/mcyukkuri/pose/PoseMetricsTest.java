@@ -123,6 +123,35 @@ class PoseMetricsTest {
         verdict("pass", "pass", pair("hat", hollow, "rider", box(2,2,2,2)));
         bad.getAsJsonObject("meshes").remove("partner_hair"); verdict("error", "pass", bad);
     }
+    @Test void reviewerBreaksInPassTiltAndWetAreCaught() {
+        // pass: an allowed region that does not cover the real overlap cannot excuse it.
+        var overlap = pair("braid", box(.5,.5,.5,1), "own_body", box(0,0,0,4));
+        verdict("fail", "pass", overlap);
+        overlap.getAsJsonArray("pairs").get(0).getAsJsonObject().getAsJsonArray("allowed")
+                .add(json("{\"center\":[1,1,1],\"radius\":0.5,\"why\":\"smaller than the overlap\"}"));
+        verdict("fail", "pass", overlap);
+        // pass: the frozen 0.1 mu depth band from the other side (0.05 mu already passes below).
+        var deep = json("{\"closed\":false,\"triangles\":[[[0,-0.2,0],[0,0.2,0],[1,0.2,0]]]} ");
+        verdict("fail", "pass", pair("sheet", surface(), "cross", deep));
+
+        // tilt: the hull support branch, upright root on a rolled hull.
+        var hull = frame(0); var sup = hull.getAsJsonObject("sup");
+        sup.addProperty("kind", "hull"); sup.add("frame", matrix(new Matrix4d().rotateZ(Math.toRadians(10))));
+        verdict("pass", "tilt", hull);
+        sup.add("frame", matrix(new Matrix4d().rotateZ(Math.toRadians(20)))); verdict("fail", "tilt", hull);
+        sup.remove("frame"); verdict("error", "tilt", hull);
+        // tilt: the suspect margin between the 12 degree budget and +3 degrees.
+        var margin = frame(0); margin.add("root", matrix(new Matrix4d().rotateX(Math.toRadians(13))));
+        verdict("suspect", "tilt", margin);
+
+        // wet: tip exactly at the surface is not a pass, and only contact..stroke is measured.
+        var f = frame(0); f.getAsJsonObject("parameters").add("stroke", json("{\"depth\":2}"));
+        f.add("water", json("{\"point\":0.5}")); f.add("wet_tip", array(0,8,0));
+        verdict("suspect", "wet", f);
+        f.addProperty("ct", 0.1); verdict("skipped", "wet", f);
+        f.addProperty("ct", 0.5); f.getAsJsonObject("parameters").add("stroke", json("{\"depth\":-1}"));
+        verdict("error", "wet", f);
+    }
     @Test void crossingsWithoutInteriorVerticesAndFrozenDepth() {
         var cross = json("{\"closed\":false,\"triangles\":[[[0,-2,0],[0,2,0],[20,2,0]]]} ");
         verdict("fail", "pass", pair("sheet", surface(), "cross", cross));

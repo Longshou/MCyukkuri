@@ -34,4 +34,4 @@
 
 服务请求格式为 `{"model":"marisa","clip":"idle","t":"0:1:0.05","metric":["tilt"]}` 或 `{"frames":[...],"metric":[...]}`；可带 `partner` 字符串列表、`care` xyz 数组、`water` 数值、`context` 对象、`vertices` 和 `pose_out` 文件路径。单次命令输入/证据错误退出 2；有效检查（包括 fail）退出 0。服务保持一行输入一行 JSON，错误在该行返回，不中断后续请求。
 
-F 覆盖：29=`row29BraidAndChildPenetration`，30=`row30BraidAndDeclaredBladeWet`，31=`row31TiltRelativeToCarrierHead`，32=`row32FloatingRiderGap`，33=`row33SustainedBodyYawLagAndWrap`，34=`row34ClipFlickerAndAuthoredTransition`，35=`row35HeldSwordAnchorAndMissingDraw`，36=`row36HatCutsHairAndHollowControl`。另测无内部顶点的薄面交叉、空心帽、局部允许区、单位边界、缺证据和确定性。未查摄影可读性、未声明配对或允许区内的穿模、采样间不可见的动作以及没有原始数据的历史截图；速度带与间距带仍需按观测层校准规则审图。
+F 覆盖：29=`row29BraidAndChildPenetration`，30=`row30BraidAndDeclaredBladeWet`，31=`row31TiltRelativeToCarrierHead`，32=`row32FloatingRiderGap`，33=`row33SustainedBodyYawLagAndWrap`，34=`row34ClipFlickerAndAuthoredTransition`，35=`row35HeldSwordAnchorAndMissingDraw`，36=`row36HatCutsHairAndHollowControl`。另测无内部顶点的薄面交叉、空心帽、覆盖不足的局部允许区、帽船支撑与 12–15° 疑似带、单位边界、缺证据和确定性。未查摄影可读性、未声明配对或允许区内的穿模、采样间不可见的动作以及没有原始数据的历史截图；速度带与间距带仍需按观测层校准规则审图。
