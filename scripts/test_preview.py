@@ -6,6 +6,8 @@ import subprocess
 import sys
 import tempfile
 import unittest
+from PIL import Image
+from preview import ffmpeg_path
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -48,6 +50,22 @@ class PreviewBoundaryTests(unittest.TestCase):
 
     def test_unknown_clip_keeps_current_page(self):
         self.assert_rejected(self.run_cli('strip', 'boundary', '--model', 'reimu', '--clip', 'no_such_clip'), 'Unknown clip reimu/no_such_clip')
+
+    def test_video_preserves_long_tick_gaps(self):
+        source = self.base/'capture'
+        source.mkdir()
+        rows = []
+        for tick, color in [(1, 'red'), (40, 'green'), (200, 'blue'), (2600, 'white')]:
+            name = f'{tick}.png'
+            Image.new('RGB', (32, 32), color).save(source/name)
+            rows.append(dict(tick=tick, file=name))
+        (source/'frames.json').write_text(json.dumps(rows))
+        result = self.run_cli('capture', 'boundary', '--source', str(source))
+        self.assertEqual(result.returncode, 0, result.stderr)
+        # Inspect the encoded container, rather than trusting our duration manifest.
+        probe = subprocess.run([str(ffmpeg_path()), '-hide_banner', '-i', str(self.topic/'capture.mp4')],
+                               capture_output=True, text=True)
+        self.assertIn('Duration: 00:02:10.00', probe.stderr)
 
     def test_inbox_import_add_remove_and_hub(self):
         target = self.out/'inbox'

@@ -73,7 +73,9 @@ def staging(topic):
         # Keep authoring inputs and original references; replace only this invocation's outputs.
         for source in stage.iterdir():
             if source.is_file():
-                os.replace(source, target / source.name)
+                temporary = target / (source.name + '.tmp')
+                shutil.copy2(source, temporary)
+                os.replace(temporary, target / source.name)
 
 
 def sheet(images, labels, target, columns=4, cell=(360, 260)):
@@ -274,7 +276,7 @@ def capture(args, stage):
         (work/'frames.txt').write_text('\n'.join(lines)+'\n', encoding='utf-8')
         subprocess.run([str(exe), '-hide_banner', '-loglevel', 'error', '-y', '-f', 'concat', '-safe', '0',
                         '-i', str(work/'frames.txt'), '-vf', 'pad=ceil(iw/2)*2:ceil(ih/2)*2',
-                        '-fps_mode', 'vfr', '-c:v', 'libx264', '-pix_fmt', 'yuv420p', '-movflags', '+faststart',
+                        '-r', '20', '-fps_mode', 'cfr', '-c:v', 'libx264', '-pix_fmt', 'yuv420p', '-movflags', '+faststart',
                         '-t', str(sum(durations)), str(stage/'capture.mp4')], check=True)
     sheet(samples, labels, stage/'contact.png', args.columns)
     write_json(stage/'frames.json', dict(source=str(directory), compare=str(other) if other else None,
