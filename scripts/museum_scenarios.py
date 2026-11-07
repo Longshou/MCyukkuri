@@ -783,7 +783,7 @@ add('rain_life', 'weather', '屋檐下躲雨，饿的冒雨吃苹果', '屋檐�
 # Nothing is told to huddle: the uneasy one seeks its kin, the mate has her, the stranger has nobody (trust 0) and trembles.
 _hm, _hr = uid('rain_huddle', 'shy'), uid('rain_huddle', 'mate')
 _hm_t, _hr_t = (str(uuid.UUID(bytes=b''.join((n & 0xffffffff).to_bytes(4, 'big') for n in u))) for u in (_hm, _hr))
-add('rain_huddle', 'weather', '屋檐下怕雨的贴着伴侣发抖，落雷一起受惊', '屋檐下怕雨的贴着伴侣发抖，落雷一起受惊',
+add('rain_huddle', 'weather', '屋檐下怕雨的贴着伴侣发抖', '屋檐下怕雨的贴着伴侣发抖',
     '下雨，石顶下：胆小、已经不安（mood.unease=30）的魔理沙走到伴侣灵梦身边侧身贴紧，两只同步发抖（behavior.reaction 含 huddle partner=… pressed=true，日志 [weather] huddle pressed），贴着时不安下降；'
     '按“附近落雷”：两只一起受惊再贴紧（[weather] thunder clap heard）。后排独处的胆小灵梦没有亲友，只自己发抖（hunker.start pose=tremble）',
     '约 10–40 秒', [
@@ -805,7 +805,7 @@ add('rain_huddle', 'weather', '屋檐下怕雨的贴着伴侣发抖，落雷一�
 
 # A thunderstorm: a timid one under the roof cowers flat; a bold one under the same roof only waits; one caught out in the open
 # runs in under the roof, flinching at the claps.
-add('storm_cower', 'weather', '雷暴：胆小的在石顶下缩成一团，空地上的冒雨跑进来', '雷暴：胆小的在石顶下缩成一团，空地上的冒雨跑进来',
+add('storm_cower', 'weather', '雷暴：胆小的缩成一团，淋雨的跑进石顶', '雷暴：胆小的缩成一团，淋雨的跑进石顶',
     '雷暴，石顶下：胆小灵梦压扁发抖、偷看一眼又缩回（hunker.start pose=cower）；同在顶下的胆大魔理沙只是等雨停。'
     '东边空地上的灵梦冒雨跑向石顶（shelter response started sky=STORM），落雷时原地一缩再跑。按“附近落雷”看受惊；很饿的仍会冒雨找吃的（见“屋檐下躲雨”场景）',
     '约 10–40 秒', [
@@ -2421,7 +2421,7 @@ pond('self_rescue', '落水后游回自己的帽子', '落水后游回自己的�
                 forbid=_WATER_SMOKE_FORBID, verify=water_aftermath, readout=_water_readouts('a')))
 
 # An ordinary land Reimu shoved off the bank: nobody fetches it, it gets out by itself and, wet on dry ground, shakes the water off.
-pond('shake_ashore', '落水的灵梦自己爬上岸，甩掉身上的水', '落水的灵梦自己爬上岸，甩掉身上的水',
+pond('shake_ashore', '落水灵梦爬上岸甩水', '落水灵梦爬上岸甩水',
      '普通灵梦站在岸边，被推下水：自己游回岸上（[intent] end id=escape_water），在干地上停下甩水（[weather] shaking water off … after=water，播甩水片段），甩完湿度减半（shook the water off wetness=A -> A/2）；之后自然晾干，不会反复甩',
      '约 20–40 秒',
      [yk('reimu', bank_dx(0) - 1, 0, 'a', yaw=-90, lead=True, **pair_ready())], late=[shoved('a', .5)], note=NEW, vantage=(bank_dx(0) - 5, 3, -120, 15),
