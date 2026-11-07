@@ -141,6 +141,12 @@ def render_strip(args, stage, times, before=False):
         specs.append((args.partner, None, args.partner_offset))
     for model, prop, offset in specs:
         a, images = actor(model, prop, args.clip, offset, source_root)
+        if getattr(args, 'face', None) and not prop:
+            a['face'] = args.face
+            images = [(source_root/'src/main/resources/assets/mcyukkuri/textures/entity'/model/(args.face+'.png'),None,[0,0],[1,1])]
+            animation = read(source_root/'src/main/resources/assets/mcyukkuri/yukkuri_presentation/face_library.json')['animations'].get(args.face)
+            if animation:
+                images.append((images[0][0].with_name(animation['frames'][1]+'.png'),None,[0,0],[1,1]))
         a['slots'] = list(range(len(textures), len(textures)+len(images)))
         textures.extend(images)
         actors.append(a)
@@ -327,6 +333,52 @@ def collection(args, stage):
     return ''.join(media(copy_media(p, stage, p.stem), p.stem) for p in videos)
 
 
+def kit(args, stage):
+    library = ROOT/'standards/yukkuri-library'
+    entries = read(library/'provenance/standard-expressions.json')['entries']
+    selection = read(library/'expressions/runtime.json')
+    java = '\n'.join(p.read_text(encoding='utf-8') for p in (ROOT/'src/main/java').rglob('*.java'))
+    model = read(ASSETS/'yukkuri/reimu.json')
+    clips = {**model['clips'], **read(ASSETS/'yukkuri_presentation/motion_corrections.json')['models']['reimu']['clips']}
+    revisions = read(ASSETS/'yukkuri_presentation/motion_corrections.json')['models']
+    spans = set()
+    for species in selection['models']:
+        runtime = read(ASSETS/'yukkuri'/(species+'.json'))
+        selected = {**runtime['clips'], **runtime.get('behavior_clips',{}), **revisions.get(species,{}).get('clips',{})}
+        spans.update((clip,a,b,face) for clip,row in selected.items() for a,b,face in row.get('expression_spans',[]))
+    usage = {}
+    cards = []
+    for row in entries:
+        ident = row['id']
+        count = len(re.findall(r'"'+re.escape(ident)+r'"',java))
+        span_count = sum(s[3]==ident for s in spans)
+        usage[ident] = dict(java=count,face_spans=span_count)
+        shutil.copy2(library/'expressions/thumbnails'/(ident+'.png'),stage/(ident+'.png'))
+        cards.append(f'<figure><img loading="lazy" src="{ident}.png"><figcaption>{E(row["label"])} · {ident}<br>Java {count} / 片段表情段 {span_count}'+(' · <strong>未使用</strong>' if count+span_count==0 else '')+'</figcaption></figure>')
+    write_json(stage/'usage.json',usage)
+    body = '<p>认可表情；引用数为 Java 字符串出现次数和全部模型运行片段的表情段数（相同片段及表情段跨模型去重），不代表游玩频率。A/B 相位单列；客户端自动轮播基础 ID。</p><div style="display:flex;flex-wrap:wrap">'+''.join(cards)+'</div>'
+    proof = [r['id'] for r in entries if sum(usage[r['id']].values())==0 and not r['id'].endswith('_b')][:6]
+    body += '<h2>运行资源实绘：灵梦／魔理沙</h2>'
+    for species in ('reimu','marisa'):
+        images=[]
+        for face in proof:
+            opts=argparse.Namespace(model=species,prop=None,clip='idle',face=face,partner=None,before=None,
+                                    size=[240,220],view=[0,5],node=args.node)
+            images.append(render_strip(opts,stage,[0])[0])
+        sheet(images,proof,stage/(species+'-faces.png'),6,(240,220))
+        body += media(species+'-faces.png',species+' / 六种此前未使用表情（真实运行贴图与补丁）')
+    body += '<h2>基本／通用动作</h2>'
+    for ident in selection['kit_clips']:
+        clip = clips[ident]
+        opts=argparse.Namespace(model='reimu',prop=None,clip=ident,face=None,partner=None,before=None,
+                                size=[160,150],view=[26,10],node=args.node)
+        frames=render_strip(opts,stage,[clip['duration']*i/12 for i in range(12)])
+        frames[0].save(stage/(ident+'.gif'),save_all=True,append_images=frames[1:],duration=max(20,round(clip['duration']*1000/12)),loop=0)
+        count=len(re.findall(r'"'+re.escape(ident)+r'"|\b'+re.escape(ident.upper())+r'\b',java))
+        body += f'<figure><img loading="lazy" src="{ident}.gif"><figcaption>{ident} · {clip["duration"]:g} 秒 · Java {count}'+(' · <strong>未使用</strong>' if count==0 else '')+'</figcaption></figure>'
+    return body
+
+
 class InboxReader(HTMLParser):
     """Import existing human-written inbox links once, keeping their decision text."""
     def __init__(self):
@@ -392,6 +444,7 @@ def parser():
             group = p.add_mutually_exclusive_group(required=True)
             group.add_argument('--model'); group.add_argument('--prop')
             p.add_argument('--clip', default='idle')
+            p.add_argument('--face', help='runtime expression id (including geometry patches)')
             time = p.add_mutually_exclusive_group()
             time.add_argument('--times', default='0s,0.25s,0.5s,0.75s')
             time.add_argument('--beats', help='one time (seconds or ticks), then optional label per line')
@@ -421,6 +474,9 @@ def parser():
             for key in ('title', 'url', 'decision'):
                 p.add_argument('--'+key, required=True)
     commands.add_parser('hub', help='register existing topic pages/media without rerendering')
+    kp = commands.add_parser('kit',help='approved faces and base/generic runtime clips')
+    kp.set_defaults(topic='kit',title='表情与基本动作目录',decision=None)
+    kp.add_argument('--node',default='node')
     return ap
 
 

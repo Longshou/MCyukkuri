@@ -55,7 +55,7 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
     }
 
     private ResourceLocation textureAt(YukkuriView entity, float partialTick) {
-        String expression=ParentCarryPresentation.expression(entity,entity.getExpressionId());
+        String expression=FaceLibrary.expression(entity,ParentCarryPresentation.expression(entity,entity.getExpressionId()));
         int dry=Math.max(entity.aftermathDrain(),HairWoundAssets.wholeBurn(entity.visibleWounds(),entity.profile().houseBody()));
         return HairWoundAssets.texture(entity.assetId(),expression,dry);
     }

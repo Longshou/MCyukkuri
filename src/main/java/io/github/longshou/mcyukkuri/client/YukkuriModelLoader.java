@@ -42,6 +42,7 @@ final class YukkuriModelLoader {
             houseEcology=data.getAsJsonObject("models");
         } catch(IOException error) { throw new UncheckedIOException("Cannot load house ecology motions",error); }
         JsonObject toiletContact = ToiletPresentation.reload(manager);
+        JsonObject faceLibrary = FaceLibrary.reload(manager);
         HairWoundAssets.reload(manager);
         RemainsAssets.reload(manager);RemainsRenderer.reload();
         var assetIds = new ArrayList<String>();
@@ -61,6 +62,7 @@ final class YukkuriModelLoader {
                 if(houseRevision!=null)applyRevision(id,data,houseRevision);
                 JsonObject toiletRevision=toiletContact.getAsJsonObject(id);
                 if(toiletRevision!=null)applyRevision(id,data,toiletRevision);
+                applyRevision(id,data,faceLibrary.getAsJsonObject(id));
                 // Hash still identifies unchanged base geometry for wounds and badges.
                 var model=new YukkuriModel(data,hash);
                 try{model.hatSampler(HatDamageFaces.load(manager,MCYukkuri.id("textures/entity/"+id+"/neutral.png")));}

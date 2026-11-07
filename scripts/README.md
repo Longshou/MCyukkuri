@@ -116,7 +116,7 @@ E-Hentai 补充库使用 `wiki_ehentai_reference.py`（Python 3.10+、Pillow）�
 | `export_subspecies_wounds.cjs` | 读取八套实际运行几何与既有受伤表面算法，仅重建对应受伤表面和指纹；需 Node.js |
 | `preview_subspecies.py` | 从当前运行三角面和贴图生成离线交互页、六角度拼图与40幅生态表情图；需 Python/Pillow 和现有 Node.js，不启动游戏 |
 
-日常生态入口：`export_ecology_expressions.py` 选择已确认表情，`build_ecology_audio.py` 制作原创短哼唱，二者支持只读 `--check`。说明见[日常生态](../docs/FEATURES.md#日常生态)。
+日常生态入口：`export_ecology_expressions.py` 按标准库 `expressions/runtime.json` 导出全部认可表情（共享辅助模块 `runtime_face_library.py`），保留已选贴图来源，补齐其他贴图与几何补丁；双帧速率、模型清单和目录动作清单在该数据中维护。`build_ecology_audio.py` 制作原创短哼唱，二者支持只读 `--check`。`preview.py kit` 生成表情与基本／通用动作目录（认可缩略图、Java 与片段表情段引用数、真实运行资源实绘及共享 pose 模块的动画预览），只登记预览总入口。`preview.py strip --face <ID>` 可指定运行表情并播放 A/B 相位。说明见[日常生态](../docs/FEATURES.md#日常生态)。
 
 头饰与头发位置适配由 `export_placement_fit.cjs` 从[制作源](../standards/yukkuri-library/presentation/placement-fit/README.md)和当前运行模型导出 `yukkuri_presentation/placement_fit.json` 与来源清单；稀有形态沿用其基础形态的适配，部件索引按自身模型重映射。`--check` 只核对，`--only id,... --out 文件` 写试验结果；`--update-only id,...` 只更新这些模型并保留其他适配。基础模型不改写。`placement_fit.py` 是 Python 导出器共用的拼接规则：`export_motion_corrections.py`（鼓腮）与 `export_hat_interactions.py`（脱帽、帽托和幼油尺寸）都读取拼接后的网格。`verify_placement_fit.cjs` 检查头饰透穿、头发进入身体、五官遮挡、蝴蝶结贴合与地面，并输出前后对比、脱帽、动作和未改形态预览；`--checks-only` 不渲染。只做离线计算与渲染，不操作界面或游戏。见[游戏适配](../art/source/placement-fit/README.md)。
 
