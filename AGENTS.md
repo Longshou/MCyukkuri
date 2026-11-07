@@ -56,7 +56,7 @@
 - 先定结构、数值和素材清单，再制作；最后只给用户看一张当前预览，不给用户看量尺表。
 - 替换已在用的美术：先在同一场景、同一视角出新旧对比预览（静图或录像），用户看过决定换才替换。
 - 先粗后细：新动作或新行为先做能跑的粗版，尽早截图（或录像）对照用户原话审过方向，再细化；不要做完全部细节才第一次看画面。
-- 分镜与概念先行：新动作先按[分镜流程](.local/refactor/storyboard-workflow.md)用 `.local/tools/storyboard.py` 出 8 格分镜（Codex 生图，以本项目模型为参考；kimi 逐格审；问题格最多重画两轮；拼对齐动画），只作意图（节拍、弧线、节奏），长度、角度、接触来自真实模型与检查；新道具、贴图、物件先出概念图定方向（16 像素贴图用 `snap16` 取格）。每个工人同时只跑一个 Codex 任务，容量不足等 2 分钟再试；等图时先做不依赖图的部分。
+- 分镜与概念先行：新动作先出 8 格分镜（以本项目模型为参考，只作意图：节拍、弧线、节奏；长度、角度、接触来自真实模型与检查），新道具、贴图、物件先出概念图或四视图定方向。生图由生图专员负责（Sonnet，推理强度 low，按 `.local/refactor/briefs/_image-liaison.md`）：用 `.local/tools/storyboard.py` 调 Codex 生图，从 `.local/refactor/image-prompts.md` 的成熟写法起步，自己逐格初审（分镜另加 kimi 逐格审），问题格改 prompt 重画最多两轮，交付到 `.local/generated-images/<主题>/`（含 `handoff.md` 写明哪些地方不能照搬）；总负责人在派制作者之前先派生图专员，制作者只用交付物。改 prompt 能修好的反复问题（如四视图的侧视偏成四分之三）把写法记回 prompt 库。
 - 可见动作的交付：真实片段的离线渲染条与分镜节拍并排；`scripts/capture_museum.py` 截图联系表按实际大小看接触、穿模和观察点可读性，并由另一个代理对照用户原话审图后才能合入。每轮出图由另一个代理独立审图，作者自评不能代替。
 - 预览统一输出 `.local/previews/<主题>/`，总入口 `.local/previews/index.html`；更新后重建总入口，同主题只留当前预览，不删制作输入、当前模型或原始参考图。改模型后出一张当前预览并贴在回复中。
 - 生成脚本和模板留在原制作目录。预览、截图、报告、验收或确认记录不入库；截图、报告分别放 `.local/screenshots/`、`.local/reports/`；生图工作目录 `.local/generated-images/<主题>/`。认可集合和文件指纹由制作源登记保存。
@@ -137,6 +137,7 @@
   | 困难：物理几何、公共基础设施、二分定位、失败或回归过的链路 | Codex `gpt-6-astra`、Opus（需要大量阅读的根因排查） | — | xhigh／max |
   | 美术与动作制作 | Opus | — | high／xhigh |
   | 视觉与动作审查 | Codex `gpt-6-astra` | kimi | high |
+  | 生图沟通与初审（生图专员） | Sonnet | — | low |
 
   kimi（`kimi-coding/k3.1-pro`）是 pi 中最强的，关键场景必须复跑；DeepSeek 官方 `deepseek/deepseek-flash` 胜在快和便宜；GLM 5.3 只在前两者都不可用时备用。Codex 慢，不派简单活，推理强度不低于 medium；`gpt-6.1-sol` 便宜、`gpt-6-astra` 最强最贵。Claude 额度留给只有 Opus 做得好的事；不用 Fable。外部接口出故障（如 HTTP 500）时改派其他模型，不原地反复重试。各模型的倾向记在 `.local/refactor/model-notes/<模型>.md`，每次审查后按证据更新。
 - 额度：`bash .local/tools/claude_quota.sh` 看 5 小时与周用量；快满时暂停，重置后继续；额度紧张时只记入待办不开工；临近重置仍有余量就用掉。pi 模型与 Codex 不占 Claude 额度；工作量在 Claude、Codex、kimi、DeepSeek 之间分摊，不压在一家。
