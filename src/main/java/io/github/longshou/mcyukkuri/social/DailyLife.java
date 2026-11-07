@@ -255,9 +255,10 @@ public final class DailyLife {
         if (other != null) entity.getLookControl().setLookAt(other, 30, 30);
         if (current.kind == Kind.NUZZLE && other != null) {
             double reach = (entity.getBbWidth() + other.getBbWidth()) * .5 + .10;
-            // A nuzzle leans over one block of height (a friend on the bank, a hollow below it).
-            boolean touching = entity.position().subtract(other.position()).horizontalDistance() <= reach
-                    && Math.abs(entity.getY() - other.getY()) <= LEAN;
+            // A nuzzle leans over one block of height (a friend on the bank, a hollow below it), and the lean itself reaches that much further.
+            double lift = Math.abs(entity.getY() - other.getY());
+            boolean touching = lift <= LEAN
+                    && entity.position().subtract(other.position()).horizontalDistance() <= reach + (lift > .35 ? LEAN : 0);
             if (!touching) {
                 // One member approaches the consenting partner. Two centre-seeking controllers otherwise push
                 // each other past their contact envelope, especially when their bodies meet diagonally.
