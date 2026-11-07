@@ -38,6 +38,8 @@ public final class GroupInteractionGoal extends Goal {
     public PeerDefense defense() { return defense; }
     public void interrupt() { stop(); defense.stop(); }
     public boolean active() { return bout!=null&&!bout.ended; }
+    /** Verified contact already accumulated by the running bout; observation only. */
+    public int contactProgress() { return active() ? bout.contactTicks : 0; }
     public String activity() {
             return !active()?Behaviors.IDLE:defending?Behaviors.PROTECT_PEER:bout.kind==Kind.BULLY?Behaviors.BULLY_PEER:bout.contactTicks<20?Behaviors.SUMO_PREPARE:Behaviors.SUMO_PUSH; }
     public int cooldown() { return cooldown; }

@@ -611,6 +611,8 @@ public final class TraceRecorder {
         if (role == null) waitElapsed = entity.status().reactions().observedWaitElapsed();
         else waitElapsed = role.choreography().observedWaitElapsed();
         out.addProperty("waitElapsed", waitElapsed);
+        out.addProperty("contactProgress", entity.groupInteraction().active()
+                ? entity.groupInteraction().contactProgress() : entity.childhood().careProgress());
         out.add("hold", hold(entity));
         out.addProperty("dep", entity.childhood().shouldStayWithParents());
         out.addProperty("distress", entity.waterDistress().active());

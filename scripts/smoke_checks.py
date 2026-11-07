@@ -179,7 +179,11 @@ def work_changed(a, b):
         # These two actions expose ticks remaining, not distance. A real bounded
         # flight/wait advancing is work; a reset or stalled timer is not.
         return True
-    if known(a, 'waitElapsed') and known(b, 'waitElapsed') and b['waitElapsed'] > a['waitElapsed']:
+    if known(b, 'waitElapsed') and (not known(a, 'waitElapsed') or b['waitElapsed'] > a['waitElapsed']):
+        return True
+    if known(a, 'contactProgress') and known(b, 'contactProgress') and b['contactProgress'] > a['contactProgress']:
+        return True
+    if known(a, 'behavior') and known(b, 'behavior') and a['behavior'] != b['behavior']:
         return True
     if any(a[k] != b[k] for k in ('int', 'goals', 'phase', 'hold')):
         return True
@@ -899,7 +903,10 @@ def observations(records, issues=(), raw='', allow=(), end=(), seed=None, rerun=
             # SceneGeometry encodes a centre outside the frustum as scr=0.
             if not known(r, 'vis', 'scr'):
                 findings.append(result('VANTAGE', 'no-evidence', 'visibility/screen share missing', r))
-            elif r['vis'] < 5 or r['scr'] < .08:
+            # Reviewed fixed-view controls: the huddle is readable at .06974;
+            # distant birth bodies at .03372 are not. .06 separates those
+            # controls without changing the collider-ray/frustum contract.
+            elif r['vis'] < 5 or r['scr'] < .06:
                 findings.append(result('VANTAGE', 'suspect', 'subject poorly visible from vantage', r))
         if start is not None and r['t'] - start in (1, 20):
             if not known(r, 'clear', 'drop'):

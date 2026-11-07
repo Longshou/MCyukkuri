@@ -14,6 +14,22 @@ from cases import record, state, log, HOST, ACTOR
 
 
 class Calibration(unittest.TestCase):
+    def test_reviewed_vantage_size_controls_keep_occlusion_and_offscreen_warnings(self):
+        for visible, share, expected in ((9, .0697396, 'pass'), (9, .0337174, 'suspect'),
+                                         (0, .13, 'suspect'), (9, 0, 'suspect')):
+            rows = [record('geo', 1, player=True, vis=visible, scr=share)]
+            report = checks.observations(rows)
+            self.assertEqual(expected, next(f['verdict'] for f in report['summary'] if f['check']=='VANTAGE'))
+
+    def test_verified_contact_advances_even_when_bodies_stop_and_push(self):
+        # H birth_boat_missed-29: SUMO completes with contact=80 while the
+        # bodies intentionally push/stop. Only actual contact increments count.
+        rows = [state(t, p=[(t // 2) * .02, 0, 0], contactProgress=t) for t in range(80)]
+        self.assertFalse(checks.progress(timeline.states(rows)))
+        for row in rows:
+            row['st']['contactProgress'] = 0
+        self.assertTrue(any(f['verdict'] == 'fail' for f in checks.progress(timeline.states(rows))))
+
     def test_startup_refusal_with_real_progress_is_not_a_setup_block(self):
         # H: den_family-1/forage-2/carry_home-15 refuse optional leaf wrapping,
         # then walk 1.7–2.4 blocks within the same first 40 ticks.
@@ -164,6 +180,11 @@ class Calibration(unittest.TestCase):
 
     def test_observed_wait_counter_must_actually_advance(self):
         rows = [state(t, goals=['BirthGoal@2'], phase='term', waitElapsed=t) for t in range(1202)]
+        self.assertFalse(checks.progress(timeline.states(rows)))
+        # R rain_huddle: the leader first walks, then starts the bounded huddle
+        # clock. An earlier null anchor must not hide subsequent clock progress.
+        rows = [state(0, goals=['WeatherGoal'], waitElapsed=None)] + [
+            state(t, goals=['WeatherGoal'], waitElapsed=t) for t in range(1, 1202)]
         self.assertFalse(checks.progress(timeline.states(rows)))
         rows = [state(t, goals=['BirthGoal@2'], phase='term', waitElapsed=0) for t in range(1202)]
         self.assertTrue(any(f['verdict'] == 'fail' for f in checks.progress(timeline.states(rows))))

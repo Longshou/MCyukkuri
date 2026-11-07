@@ -75,9 +75,11 @@ public abstract class Choreography {
     public final String beat() { return beat; }
     public final boolean running() { return beat != null; }
     public final long beatTick() { return beatStart; }
-    /** Read-only progress of an already-entered timed Await; never builds or probes a beat. */
+    /** Read-only progress of an already-entered timed wait/presentation; never probes a beat. */
     public final Long observedWaitElapsed() {
-        if (table == null || beat == null || !(table.get(beat) instanceof Beat.Await)) return null;
+        if (table == null || beat == null) return null;
+        Beat current = table.get(beat);
+        if (!(current instanceof Beat.Await) && !(current instanceof Beat.Present)) return null;
         long elapsed = now() - beatStart;
         return elapsed <= beatTicks ? elapsed : null;
     }
