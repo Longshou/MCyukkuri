@@ -107,7 +107,7 @@ def state(action, t, duration, cfg, height, angle, shape='standard'):
     return scale, rotation, lift
 
 
-def compile_revision(model, cfg, face):
+def compile_revision(model, cfg, face, cache=None):
     """face: {'mouth_patch': {index, vertices} | None}; only the mouth patch of the derived face is kept."""
     names = {b['name']: i for i, b in enumerate(model['bones'])}
     root = names['root']; pivot = model['bones'][root]['pivot']
@@ -143,6 +143,12 @@ def compile_revision(model, cfg, face):
 
     result = {}
     for action in cfg['actions']:
+        if cache:
+            key = cache.key('contact', action, cfg)
+            saved = cache.get(key)
+            if saved is not None:
+                result[action] = saved
+                continue
         duration = {'hop': cfg['hop_seconds'], 'puff': cfg['puff_seconds']}.get(action) or model['clips'][action]['duration']
         step = cfg['puff']['sample_seconds'] if action == 'puff' else cfg['sample_seconds']
         count = math.ceil(duration/step)
@@ -160,16 +166,31 @@ def compile_revision(model, cfg, face):
             clip['expression_spans'] = puff_faces(cfg, model['id'], start, span)
             clip['expression_yield'] = cfg['puff']['expression_yield']
         result[action] = clip
+        if cache:
+            cache.put(key, clip)
     # World-setting motions (v9): new clip names the game selects from everyday behaviors.
     owned = set()
     if cfg.get('lore'):
         lore_cfg = json.loads((LIBRARY/cfg['lore']).read_text(encoding='utf-8'))
         lore = runpy.run_path(str((LIBRARY/cfg['lore']).parent/'author.py'))
-        result.update(lore['compile_clips'](model, lore_cfg, root, ground, height))
+        result.update(lore['compile_clips'](model, lore_cfg, root, ground, height, cache=cache))
         owned = set(lore['TOOLS']['EXPORT_CLIPS'])  # aquatic_tools lays the braid itself in these clips
         cfg = dict(cfg, braid_follow=dict(cfg['braid_follow'], actions=[a for a in cfg['braid_follow']['actions']+lore_cfg['braid_follow'] if a not in owned]))
-    result.update(braid_follow(model, cfg, result))
-    result = finish_chain(model, cfg, result, owned)
+    if cache:
+        # Each follow consumes exactly one clip; preserve the original list order
+        # (including repeated actions) and the single final update of result.
+        followed = {}
+        for action in cfg['braid_follow']['actions']:
+            spec = dict(cfg, braid_follow=dict(cfg['braid_follow'], actions=[action]))
+            followed.update(cache.memo('follow', action, [spec, result.get(action)],
+                                      lambda: braid_follow(model, spec, result)))
+        result.update(followed)
+        result = {name: cache.memo('chain', name, [cfg['braid_chain'], name in owned, clip],
+                                  lambda: finish_chain(model, cfg, {name: clip}, owned))[name]
+                  for name, clip in result.items()}
+    else:
+        result.update(braid_follow(model, cfg, result))
+        result = finish_chain(model, cfg, result, owned)
     revision = {'bone_names': [b['name'] for b in model['bones']], 'clips': result,
                 'expression_aliases': {'cheek_puff': 'neutral'},
                 'body_height': height, 'hop_height': height*cfg['hop_height_body_ratio']}

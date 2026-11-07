@@ -821,7 +821,7 @@ def faces(cfg, c, ident):
     return out
 
 
-def compile_clips(model, cfg, root, ground, height):
+def compile_clips(model, cfg, root, ground, height, cache=None):
     """ground(scale, rotation) -> y offset that keeps the lowest visible point on the floor."""
     out = {}; ident = model['id']
     hat = runpy.run_path(str(Path(__file__).resolve().parent/'hat.py'))
@@ -830,6 +830,13 @@ def compile_clips(model, cfg, root, ground, height):
             base = {**cfg['clips'][base['base']], **{k: v for k, v in base.items() if k != 'base'}}
         if not applies(cfg, base['applies'], ident): continue
         c = variant(base, ident)
+        if cache:
+            from motion_compile_cache import lore_inputs
+            key = cache.key('lore', name, lore_inputs(cfg, name))
+            saved = cache.get(key)
+            if saved is not None:
+                out[name] = saved
+                continue
         if 'hat' in c:  # the braid works the hat (hat.py): its own root, hat and braid tracks
             tracks, worst = (hat['compile_hold'](model, cfg, root, ground, height, c) if 'phases' not in c or not c['phases']
                              else hat['compile_hat'](model, cfg, root, ground, height, name, c))
@@ -841,6 +848,8 @@ def compile_clips(model, cfg, root, ground, height):
             if 'stick' in c['hat'] and 'hand_right_tip' in {b['name'] for b in model['bones']}:  # the held stack stays in the tuft on the brim
                 n = math.ceil(c['duration']/cfg['sample_seconds'])
                 out[name]['props'] = {'item': TOOLS['stow_tracks'](model, [c['duration']*i/n for i in range(n+1)], tracks, c)}
+            if cache:
+                cache.put(key, out[name])
             continue
         carry_pose=name in ('boat_carry_young','boat_be_carried','boat_prepare_carry','boat_release_carry')
         # Contact preparation uses exact server-tick samples; extra keys also bound sub-tick floor drift.
@@ -867,12 +876,23 @@ def compile_clips(model, cfg, root, ground, height):
         out[name] = {'duration': d, 'loop': c['loop'], 'tracks': tracks,
                      'expression_spans': faces(cfg, c, ident), 'expression_yield': cfg['expression_yield'], **fields}
         if 'hat_transfer' in c:out[name]['hat_transfer']=c['hat_transfer']
+        if cache:
+            cache.put(key, out[name])
     for name in cfg.get('braid_use', {}).get('clips', ()):
         if name in out: out[name]['braid_use'] = True  # its own braid grips, carries or strokes (recipe braid_use)
     holds = {where: out[clip] for where, clip in (('ashore', 'braid_item_hold'), ('aboard', 'boat_paddle')) if clip in out}
     for name, clip in out.items():
         if 'hat' in cfg['clips'][name] and 'props' in clip:  # the hat clips that keep the held stick (hat.stick), from either hold
-            if len(holds) == 2: TOOLS['stow_gate'](model, name, clip['tracks'], clip['props']['item'], holds, variant(cfg['clips'][name], ident))
+            if len(holds) == 2:
+                def gate():
+                    TOOLS['stow_gate'](model, name, clip['tracks'], clip['props']['item'], holds, variant(cfg['clips'][name], ident))
+                    return True
+                if cache:
+                    # stow_gate also measures the stick from HOLD (top, blade, twig radius),
+                    # which the exported clip and hold payloads do not carry.
+                    cache.memo('stow-gate', name, [clip, holds, variant(cfg['clips'][name], ident), TOOLS['HOLD']], gate)
+                else:
+                    gate()
             else: print(f'  {name}: stick gate skipped (the hold clips are not in this export)', flush=True)
     return out
 

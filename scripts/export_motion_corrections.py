@@ -9,6 +9,7 @@ from pathlib import Path
 import argparse, hashlib, io, json, math, runpy
 from PIL import Image
 import placement_fit
+from motion_compile_cache import MotionCache
 
 ROOT = Path(__file__).resolve().parents[1]
 SOURCE = ROOT/'standards/yukkuri-library/motions/variants/contact-safe'
@@ -141,10 +142,13 @@ def main():
     parser.add_argument('--update-only', help='Rebuild these changed models in place, preserving all other selected clips')
     parser.add_argument('--trial', help='write a trial resource and textures to this directory, never the runtime')
     parser.add_argument('--fit', help='placement fit resource to author against (default: the runtime one)')
+    parser.add_argument('--full', action='store_true', help='Recompile every stage, ignoring cached results')
     args = parser.parse_args()
     source_files = [SOURCE/'recipe.json', SOURCE/'author.py', SOURCE/'braid_chain.py', LORE/'recipe.json', LORE/'author.py', LORE/'aquatic_tools.py', LORE/'hat.py', VESSEL, Path(__file__), *AQUATIC_INPUTS]
     source_hashes = {path: sha(path) for path in source_files}
     cfg = json.loads((SOURCE/'recipe.json').read_text(encoding='utf-8'))
+    source_hashes.update({p: sha(p) for p in [ASSETS/'yukkuri'/(cfg['derived_mouth_from']+'.json'),
+                          ASSETS/'textures/entity'/cfg['derived_mouth_from']/'puff.png']})
     compile_revision = runpy.run_path(str(SOURCE/'author.py'))['compile_revision']
     resource_revision = runpy.run_path(str(LORE/'author.py'))['RUNTIME_REVISION']
     reference = json.loads((ASSETS/'yukkuri'/(cfg['derived_mouth_from']+'.json')).read_text(encoding='utf-8'))
@@ -158,8 +162,21 @@ def main():
     models, inputs, textures = {}, {}, {}
     # Cheeks, side-lock swings and obstacles are authored on the placement-fitted meshes the game shows.
     fit_path = Path(args.fit) if args.fit else placement_fit.RESOURCE
+    source_hashes[fit_path] = sha(fit_path)
     fits = placement_fit.load(fit_path)
+    # Hash compiler modules and external geometry, not the monolithic lore recipe:
+    # lore_inputs records each clip and its actual recipe dependencies separately.
+    compiler_inputs = [SOURCE/'author.py', SOURCE/'braid_chain.py',
+                       *(LORE/name for name in ('author.py', 'hat.py', 'aquatic_tools.py', 'braid_keys.py')),
+                       Path(__file__), ROOT/'scripts/motion_compile_cache.py', Path(placement_fit.__file__),
+                       ROOT/'standards/yukkuri-library/body-standard/features/marisa-single-braid/check_runtime_clearance.py',
+                       VESSEL, *AQUATIC_INPUTS, PRESENTATION/'hat_vessel.json', PRESENTATION/'living.json']
+    compiler_hashes = {rel(path): sha(path) for path in compiler_inputs}
+    source_hashes.update({path: sha(path) for path in compiler_inputs})
+    caches = []
     for path in sorted((ASSETS/'yukkuri').glob('*.json')):
+        model_hash = sha(path)
+        source_hashes[path] = model_hash
         model = json.loads(path.read_text(encoding='utf-8'))
         if not all(k in model for k in ['bones', 'clips', 'weights']):
             continue
@@ -168,20 +185,27 @@ def main():
         if only and ident not in only:
             continue
         tex = ASSETS/'textures/entity'/ident
+        source_hashes.update({p: sha(p) for p in [tex/'neutral.png', tex/'angry.png',
+                              *([tex/'puff.png'] if (tex/'puff.png').exists() else [])]})
         patch, mouth_source = mouth_patch(model, transform)
         png, image = cheek_texture(model, tex, reference_mouth, cfg, patch)
         neutral = Image.open(tex/'neutral.png').convert('RGBA')
         face = {'eyes': ink_points(part_vertices(model, 'face_eye_left'), neutral)+ink_points(part_vertices(model, 'face_eye_right'), neutral),
                 'mouth': ink_points(patch['vertices'], image), 'mouth_patch': patch}
-        models[ident] = compile_revision(model, cfg, face)
+        cache = MotionCache(ROOT/'.local/cache/motion-compile',
+                            [compiler_hashes, cfg, model_hash, fits.get(ident),
+                             sorted(p.name for p in tex.glob('*.png'))], full=args.full)
+        caches.append(cache)
+        models[ident] = compile_revision(model, cfg, face, cache=cache)
         textures[ident] = png
-        inputs[ident] = {'model': rel(path), 'sha256': sha(path), 'placement_fit': ident in fits,
+        inputs[ident] = {'model': rel(path), 'sha256': model_hash, 'placement_fit': ident in fits,
                          'expression_sources': {'eyes_brows_blush': rel(tex/'angry.png'),
                                                 'mouth': rel(tex/'puff.png') if (tex/'puff.png').exists() else rel(ASSETS/'textures/entity'/cfg['derived_mouth_from']/'puff.png')},
                          'expression_source_sha256': {'angry': sha(tex/'angry.png'), **({'puff': sha(tex/'puff.png')} if (tex/'puff.png').exists() else {})},
                          'mouth_geometry': mouth_source,
                          'texture': rel(tex/'cheek_puff.png'), 'texture_sha256': hashlib.sha256(png).hexdigest()}
         print(ident, 'puff', models[ident]['clips']['puff']['expression_spans'], flush=True)
+    print(f'motion cache: {sum(c.hits for c in caches)} reused, {sum(c.misses for c in caches)} compiled', flush=True)
     assert all(sha(path) == fingerprint for path, fingerprint in source_hashes.items()), 'Motion source changed during export; rerun from the current source'
     payload = json.dumps({'format': 2, 'revision': resource_revision, 'models': models}, separators=(',', ':'), ensure_ascii=False)+'\n'
     if args.trial:
@@ -231,7 +255,7 @@ def main():
             target.write_bytes(png)
     for path, text in records:
         if args.check:
-            assert path.read_text(encoding='utf-8') == text, f'Stale export: {rel(path)}'
+            assert sha(path) == hashlib.sha256(text.encode('utf-8')).hexdigest(), f'Stale export: {rel(path)}'
         else:
             path.parent.mkdir(parents=True, exist_ok=True); path.write_text(text, encoding='utf-8', newline='\n')
 

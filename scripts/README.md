@@ -85,7 +85,7 @@ lore 通用宠物联系表 `pet_motions_preview.py` 已由 `preview.py strip <�
 
 `verify_puff_motion.cjs` 检查整身鼓腮：每种形态鼓腮为只驱动根骨骼的2.8秒循环且首尾回到静止、不再带脸颊形变与包络、鼓起幅度在预算内（豆形不拉高）、俯仰≤4°侧倾≤2°无转向、最低点不离地、表情时间线以 `cheek_puff` 收尾并让位于哭脸、完整体操段脸时间线一致。只读运行资源，离线运行。
 
-整身鼓腮、侧弯、跳跃与体操由 `export_motion_corrections.py` 从动作配方和19种当前骨架生成动作覆盖资源，并生成各形态的 `cheek_puff.png`；`--check` 只核对，`--only id,... --trial 目录` 把试验结果写到指定目录而不碰运行资源。替换基础模型后重新执行；`--update-only id,...` 只重建这些形态并保留其他形态的已选片段，可与 `--check` 合用。`verify_motion_corrections.cjs` 检查地面接触、挂接一致性、跳跃高度及表情时段（鼓腮按2.8秒），并离线生成前后对比与动图，不操作浏览器。见[当前动作适配](../art/source/motion-corrections/README.md)。
+整身鼓腮、侧弯、跳跃与体操由 `export_motion_corrections.py` 从动作配方和当前骨架生成动作覆盖资源，并生成各形态的 `cheek_puff.png`。默认按片段缓存编译、辫子跟随与辫节传播；缓存键包含配方项及其 base／镜像依赖、共享参数、所属模型与位置适配、表情文件名和编译代码／外部几何指纹，持物交接校验另含持物尺寸与两种起始持物姿态。缓存位于当前工作树 `.local/cache/motion-compile/`，可直接删除；输入或缓存内容指纹不符即重编。`--check` 复用未变片段、重编变化输入，并核对完整输出文件 SHA-256 与贴图，不写运行资源或来源清单（可填充本地缓存）。`--full` 忽略缓存重编全部，也可由 `export.py --full` 传入。`--only id,... --trial 目录` 把试验结果写到指定目录而不碰运行资源。替换基础模型后重新执行；`--update-only id,...` 只重建这些形态并保留其他形态的已选片段，可与 `--check` 合用。工具自查：`<py> scripts/test_motion_compile_cache.py`；加 `--integration` 在 `.local/tmp/` 隔离副本中运行全量基线、单片段／位置适配改动的字节对比、耗时与损坏缓存反例（耗时较长）。`verify_motion_corrections.cjs` 检查地面接触、挂接一致性、跳跃高度及表情时段（鼓腮按2.8秒），并离线生成前后对比与动图，不操作浏览器。见[当前动作适配](../art/source/motion-corrections/README.md)。
 
 素材集中检查使用 `build_review_catalog.py` 从当前运行资源生成模型／声音索引，`start_review.ps1` 启动仅监听本机的只读服务；`-NoOpen` 只启动服务并输出地址，不打开浏览器。`stop_review.ps1` 按进程记录停止该服务。`node scripts/verify_review.cjs` 通过命令行验证动作数据并生成模型缩略图，不操作浏览器或游戏；Python 需有 Pillow，可用 `REVIEW_PYTHON` 指定解释器。检查数据写入 `.local/reports/model-review/`，联系表写入 `.local/previews/model-review/`，缩略图写入 `.local/previews/models/thumbs/`。入口见[素材检查室](../preview/README.md)。
 

@@ -26,7 +26,13 @@ TABLE = [
     exporter('placement-fit', 'scripts/export_placement_fit.cjs', ['standards/yukkuri-library/presentation/placement-fit/', 'src/main/resources/assets/mcyukkuri/yukkuri/']),
     exporter('motion-corrections', 'scripts/export_motion_corrections.py', ['standards/yukkuri-library/motions/', 'art/source/motion-corrections/',
              'standards/yukkuri-library/interactions/braid-water-rescue/', 'standards/yukkuri-library/interactions/marisa-hat-vessel/',
-             'standards/yukkuri-library/interactions/aquatic-marisa-hat/'], ['placement-fit', 'braid-water-rescue']),
+             'standards/yukkuri-library/interactions/aquatic-marisa-hat/', 'scripts/motion_compile_cache.py',
+             'scripts/placement_fit.py', 'src/main/resources/assets/mcyukkuri/textures/entity/',
+             'src/main/resources/assets/mcyukkuri/yukkuri_presentation/placement_fit.json',
+             'src/main/resources/assets/mcyukkuri/yukkuri_presentation/braid_rescue.json',
+             'src/main/resources/assets/mcyukkuri/yukkuri_presentation/hat_vessel.json',
+             'src/main/resources/assets/mcyukkuri/yukkuri_presentation/living.json',
+             'src/main/resources/assets/mcyukkuri/yukkuri_presentation/hull_bounds/'], ['placement-fit', 'braid-water-rescue']),
     exporter('braid-water-rescue', 'standards/yukkuri-library/interactions/braid-water-rescue/author.py', ['standards/yukkuri-library/interactions/braid-water-rescue/'], ['placement-fit'], check=None),
     exporter('hat-interactions', 'scripts/export_hat_interactions.py', ['art/source/hat-interactions/'], ['placement-fit'], check=None),
     exporter('rounded-attachments', 'scripts/export_rounded_attachments.py', ['standards/yukkuri-library/body-standard/'], check=None),
@@ -232,6 +238,7 @@ def main():
     select.add_argument('--registries', action='store_true')
     select.add_argument('--import-registries', action='store_true')
     ap.add_argument('--check', action='store_true')
+    ap.add_argument('--full', action='store_true', help='Force motion compilation without cache reuse')
     ap.add_argument('--list', action='store_true')
     ap.add_argument('--beats', type=Path)
     ap.add_argument('--model', default='reimu')
@@ -246,6 +253,8 @@ def main():
     if args.context:
         args.context = args.context.resolve()
     rows = table()
+    if args.full:
+        rows['motion-corrections']['args'] = (*rows['motion-corrections']['args'], '--full')
     if args.list:
         for row in rows.values():
             print(f"{row['id']} | {row['path']} | check={row['check']} | requires={','.join(row['deps'])} | after={','.join(row.get('after', []))} | inputs={row.get('input_ledger', '')} | changed={'auto' if row.get('auto', True) else 'manual'} | {row['note']}")
