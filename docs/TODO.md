@@ -139,17 +139,13 @@
 | **E3** | 00:45–01:09，[cc0e78ff](https://github.com/Longshou/MCyukkuri/commit/cc0e78ff)，[CI 39634939963](https://github.com/Longshou/MCyukkuri/actions/runs/39634939963) | 天气、捕食、睡眠与闲逛场景反馈。 |
 | **E4** | 01:25:54 起 [d1cf4f1f](https://github.com/Longshou/MCyukkuri/commit/d1cf4f1f)，[CI 39641090628](https://github.com/Longshou/MCyukkuri/actions/runs/39641090628)（此前仍为 E3） | 桌面复测未再卡死（仅诊断）；01:29–01:38 护尸、移速反馈归属 d1cf。 |
 | **E5** | 01:44–01:58，[193a87ae](https://github.com/Longshou/MCyukkuri/commit/193a87ae)，[CI 39644324457](https://github.com/Longshou/MCyukkuri/actions/runs/39644324457) | 天气、捕食、困倦、认窝与通用身体复测。 |
-| **E6** | 10-25 16:08–16:09，[303d10d0](https://github.com/Longshou/MCyukkuri/commit/303d10d0)，[CI 40173988194](https://github.com/Longshou/MCyukkuri/actions/runs/40173988194) | `core_exposed` 多只伤员同屏明显卡顿，服务端无落后记录；发面伤口处头发穿透／缺口。 |
-| **E7** | 16:45–16:51，[b1b7d88f](https://github.com/Longshou/MCyukkuri/commit/b1b7d88f)，[CI 40177589999](https://github.com/Longshou/MCyukkuri/actions/runs/40177589999) | `core_exposed` 全程严重卡顿；烧伤斑驳、侧边部件错位、泪痕浮出；爆裂伤洞口污渍、断发参差、头顶深伤交界细缝。 |
+| **E7** | 10-25 16:45–16:51，[b1b7d88f](https://github.com/Longshou/MCyukkuri/commit/b1b7d88f)，[CI 40177589999](https://github.com/Longshou/MCyukkuri/actions/runs/40177589999) | `core_exposed` 全程严重卡顿；烧伤斑驳、侧边部件错位、泪痕浮出；爆裂伤洞口污渍、断发参差、头顶深伤交界细缝。 |
 | — | 10-25 21:35–22:10，[ac4ba87b](https://github.com/Longshou/MCyukkuri/commit/ac4ba87b)，[CI 40196337976](https://github.com/Longshou/MCyukkuri/actions/runs/40196337976) | 捕食、妖梦、迁徙、嗯嗯坑反馈；日志副本 `.local/experimental-map/play-museum/20261025-211412-264.log`。 |
 | — | 22:24–22:38，[dd75d650](https://github.com/Longshou/MCyukkuri/commit/dd75d650)，[CI 40200352271](https://github.com/Longshou/MCyukkuri/actions/runs/40200352271) | 茎生、窝与接生反馈。 |
-| — | 10-27 03:21–03:31，[1325c6bd](https://github.com/Longshou/MCyukkuri/commit/1325c6bd)，[CI 40380823130](https://github.com/Longshou/MCyukkuri/actions/runs/40380823130) | 水生首轮试玩，下水、找回帽子、扶正、跳出帽船与亲油施救均阻塞；副本 `.local/reports/aquatic-1325c6bd/`。 |
-| **E8** | 10-27 21:50–22:37，[ce9c0bfc](https://github.com/Longshou/MCyukkuri/commit/ce9c0bfc)，[CI 40465587203](https://github.com/Longshou/MCyukkuri/actions/runs/40465587203) | 出生与水上链路反馈；E8–E10 副本在 `.local/reports/birth-aquatic-fix/`。 |
-| **E9** | 10-28 00:15–00:20，[7e99a8bd](https://github.com/Longshou/MCyukkuri/commit/7e99a8bd)，[CI 40536690947](https://github.com/Longshou/MCyukkuri/actions/runs/40536690947) | 自救、扶正后登船、换船与返岸仍失败；未复测出生链。 |
-| **E10** | 01:52–02:02，[98038210](https://github.com/Longshou/MCyukkuri/commit/98038210)，[CI 40550269285](https://github.com/Longshou/MCyukkuri/actions/runs/40550269285) | 出生、水上与动作细节复测；条目中的时间为录像“屏幕录制 2026-10-28 020258.mp4”偏移，抽帧在 `.local/screenshots/birth-aquatic-20261028-020258/`。 |
+| **E8** | 10-27 21:50–22:37，[ce9c0bfc](https://github.com/Longshou/MCyukkuri/commit/ce9c0bfc)，[CI 40465587203](https://github.com/Longshou/MCyukkuri/actions/runs/40465587203) | 出生与水上链路反馈；E8、E10 副本在 `.local/reports/birth-aquatic-fix/`。 |
+| **E10** | 10-28 01:52–02:02，[98038210](https://github.com/Longshou/MCyukkuri/commit/98038210)，[CI 40550269285](https://github.com/Longshou/MCyukkuri/actions/runs/40550269285) | 出生、水上与动作细节复测；条目中的时间为录像“屏幕录制 2026-10-28 020258.mp4”偏移，抽帧在 `.local/screenshots/birth-aquatic-20261028-020258/`。 |
 | **E11** | 03:22–03:37，[2715d9c1](https://github.com/Longshou/MCyukkuri/commit/2715d9c1)，CI 待核实 | 陆地接生收尾、宠物窝入睡、赤油取食与水上自救、帽子归属回归。 |
-| — | 10-30 01:09–01:34，[405bf290](https://github.com/Longshou/MCyukkuri/commit/405bf290)，[CI 40908737713](https://github.com/Longshou/MCyukkuri/actions/runs/40908737713) | 陆地接生与水上反馈。 |
-| — | 02:32–02:46，[a9b60f00](https://github.com/Longshou/MCyukkuri/commit/a9b60f00)，[CI 40928640596](https://github.com/Longshou/MCyukkuri/actions/runs/40928640596) | 陆地接生、茎生与落水反馈。 |
+| — | 10-30 02:32–02:46，[a9b60f00](https://github.com/Longshou/MCyukkuri/commit/a9b60f00)，[CI 40928640596](https://github.com/Longshou/MCyukkuri/actions/runs/40928640596) | 陆地接生、茎生与落水反馈。 |
 | — | 22:35–23:02，[b333bfc0](https://github.com/Longshou/MCyukkuri/commit/b333bfc0)，[CI 41070657813](https://github.com/Longshou/MCyukkuri/actions/runs/41070657813) | 水生重建后首轮复测与陆地接生反馈。 |
 | **E12** | 10-31 14:07–14:31，[55449fd63](https://github.com/Longshou/MCyukkuri/commit/55449fd6381619dec7d211af4748778c5ac76e54)，[CI 41131967155](https://github.com/Longshou/MCyukkuri/actions/runs/41131967155) | 陆地接生与水生复测；用户反馈水生魔理沙几乎全部演出有问题；暂停时间不计观察时长。 |
 | — | 11-02 01:44 起，[4064a9234](https://github.com/Longshou/MCyukkuri/commit/4064a9234)，[CI 41332517724](https://github.com/Longshou/MCyukkuri/actions/runs/41332517724) | 2026-11-02 试玩反馈 1–18。 |
@@ -167,8 +163,8 @@
 
 场景在“族群迁徙与族规”场地：`colony_migrate`“族群迁徙：全族搬去东边空村”、`colony_migrate_babies`“族群迁徙：亲油带着赤油走”。
 
-- [c235e189](https://github.com/Longshou/MCyukkuri/commit/c235e189)（[CI 39427119109](https://github.com/Longshou/MCyukkuri/actions/runs/39427119109)，2026-10-20，后期 5 倍速）：多轮幼油断粮与亲油献身。一轮 4 只成体献身死亡、3 只幼油饿死，双亲几乎同时献给同一孩子；重开一轮 6 只幼油饿死、2 只成体献身死亡，族长帕琪也饿死；饿死的幼油距新址仍约 36–48 格；两只幼油已到新址附近仍营养 22、`idle`、住所指旧窝，双亲已认领新窝、营养 82，随后饿死；受赠孩子后变非油症触发 `non_yukkuri` 制裁。
-- [ac4ba87b](https://github.com/Longshou/MCyukkuri/commit/ac4ba87b)：两轮均 `migrate_failed reason deadline phase MARCH`。族长帕琪（体弱）走最前，体力 24→8 被 `urgent_need` 拒绝停下，随队者在她身边等待；到达后无成员在新址认屋（无 `settled`、无新址 `home chosen`），成员重复 `settle waiting reason=no_home`，闲逛、觅食或体力<25 离开广场后又被拉回直到超时；超时后折返约 64 格，途中数百次 `settlement goal refused … reason=urgent_need`，少数回旧窝，其余停在半路。
+- [c235e189](https://github.com/Longshou/MCyukkuri/commit/c235e189)（[CI 39427119109](https://github.com/Longshou/MCyukkuri/actions/runs/39427119109)，2026-10-20，后期 5 倍速）：多轮幼油断粮饿死与亲油献身，双亲几乎同时献给同一孩子，族长帕琪也饿死；饿死的幼油距新址仍约 36–48 格；已到新址附近的幼油住所仍指旧窝、`idle` 至饿死，双亲已认领新窝、营养 82；受赠孩子后变非油症触发 `non_yukkuri` 制裁。
+- [ac4ba87b](https://github.com/Longshou/MCyukkuri/commit/ac4ba87b)：两轮均 `migrate_failed reason deadline phase MARCH`。体弱的族长帕琪走最前，体力耗尽仍被 `urgent_need` 拒绝停下，随队者在她身边等待；到达后无成员在新址认屋（`settle waiting reason=no_home`），离开广场后又被拉回直到超时；超时后折返途中数百次 `settlement goal refused … reason=urgent_need`，多数停在半路。
 
 问题与完成标准：
 
