@@ -14,6 +14,7 @@
 | 噗咕多版供选（看 wiki 原版表现，并排预览给用户选） | `.worktrees/wp-cc-puku-variants` | moments.json 噗咕相关行、motions/base 或 lore 新增噗咕变体片段 |
 | 流泪两帧表情：A/B 差别加大看得出泪在流、切换放慢；雷暴缩身与呼唤孩子两行的表情修正 | `.worktrees/wp-cd-tear-faces` | standards/yukkuri-library/expressions/（两帧泪脸）、expressions/runtime.json 帧时长、导出的表情贴图与补丁、moments.json 两行 |
 | 噗咕鼓腮：身体模型两腮外鼓（复刻原作ぷくー，比概念图更夸张） | `.worktrees/wp-ce-cheek-puff` | standards/yukkuri-library/body-standard/（鼓腮 puff_offsets）、导出的 yukkuri/*.json 模型数据、噗咕片段的 puff 通道 |
+| Wiki 图片库整理：按行为动作与形象标注全部图片、删去无用图片、稳定的批量流程 | `.worktrees/wp-cg-wiki-images` | wiki/art-references/、wiki/reference-library/、scripts/wiki_reference_topics.py、scripts/wiki_ehentai_reference.py、新批量标注脚本 |
 
 ## 玩法待办
 
