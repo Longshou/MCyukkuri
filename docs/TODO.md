@@ -18,7 +18,6 @@
 | 演出：出生落点（飞出窝外惊叫、落地扬尘弹跳、弹进帽、母油目送） | `.worktrees/wp-bd-birth-landing` | 出生／`LiveDelivery` 演出、动作源 |
 | 演出：甜化与非油症专属表现、遗体记录甜度与非油症 | `.worktrees/wp-be-sweet-states` | 心理状态演出、动作源、遗体快照 |
 | 美术：照料小道具重做（油粮袋、清洗布、毛线球、运输篮）与寿终遗体缎带下垂 | `.worktrees/wp-bf-props-ribbon` | 道具制作源与模型、遗体姿态 |
-| tooling: throwaway pkg.py test | `.worktrees/zz-pkg-test` | scripts/zz.txt |
 
 ## 玩法待办
 
