@@ -12,7 +12,6 @@
 | 生活演出·天气与取暖：雨中相依、雷暴缩身与找掩体、出水抖身、晒太阳、钻暖桌被炉 | `.worktrees/wp-ba-life-weather` | `standards/yukkuri-library/motions/`、天气／取暖行为、`scripts/museum_*.py` |
 | 生活演出·家庭日常：呼唤走散孩子、迎接归家、睡醒伸懒腰、饭后满足 | `.worktrees/wp-bb-life-family` | `standards/yukkuri-library/motions/`、家庭／作息／进食行为、`scripts/museum_*.py` |
 | 工具：预览一条命令（渲染条、对比、截图帧联系表与录像、动作主题页、总入口与待你查看页自动登记） | `.worktrees/wp-bn-preview-cmd` | scripts/preview.py、scripts/build_preview_hub.py、preview/hub/、scripts/README.md |
-| 工具：生图风格参考包（已认可的身体、道具、贴图参考图，生图默认带上） | `.worktrees/wp-bo-style-refs` | standards/yukkuri-library/style-refs/、standards/yukkuri-library/AGENTS.md |
 
 ## 玩法待办
 
