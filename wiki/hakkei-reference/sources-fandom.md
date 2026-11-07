@@ -2,7 +2,7 @@
 
 [Wiki 总入口](../README.md) · [世界观与生态来源](sources-lore.md) · [设定差异](lore/conflicts.md)
 
-本页登记社区 Wiki yukkuri.fandom.com 六个分类的采用范围：Category:Pet Yukkuri（12 页）、Places（4 页）、Meta（8 页）、Memes（4 页）、Behavior（21 页）与 Biology（22 页，含 1 个子分类）。六个分类共 71 条分类记录，跨分类重复的按页面计一次，共 60 个条目。它是多人合写的社区整理，属于 **W** 级资料：同一页里既有被称作通行的写法，也有注明出处的个人方案、写手私设与建议体文章两种情况，本库按页面登记，不把整页当作跨作者共识。Meta 分类多为社区史与站务资料，不是设定陈述，单独按页注明用处。
+本页登记社区 Wiki yukkuri.fandom.com 七个分类的采用范围：Category:Pet Yukkuri（12 页）、Places（4 页）、Meta（8 页）、Memes（4 页）、Behavior（21 页）、Biology（22 页，含 1 个子分类）与 Category:Yukkuri（149 页，另有 1 个子分类）。七个分类共 221 条分类记录，跨分类重复的按页面计一次，共 200 个条目。Category:Yukkuri 是各型条目的总目录：本库只把已实现的种族与形态并进种族页，其余未实现的型在[种族目录](lore/species/README.md)各留一行，不转录内容。它同样是多人合写的社区整理，属于 **W** 级资料：同一页里既有被称作通行的写法，也有注明出处的个人方案、写手私设与建议体文章两种情况，本库按页面登记，不把整页当作跨作者共识。Meta 分类多为社区史与站务资料，不是设定陈述，单独按页注明用处。
 
 - 抓取只走公开 MediaWiki API（`list=categorymembers`、`action=parse&prop=wikitext`），缓存留在 `.local/fandom/`、不入库；`scripts/wiki_fandom.py` 负责抓取与离线核对。
 - 站点图片受 Cloudflare 质询保护，本库**没有取到任何图片**：只从页面源码登记图片文件名与说明文字，不当画格证据、不据此写造型或行为结论。
@@ -71,5 +71,145 @@
 | F58 | [Suiiii](https://yukkuri.fandom.com/wiki/Suiiii) | [资源与生活生态](world/resources-ecology.md) | rev 10191；全页，含活体载具版本 |
 | F59 | [U-Packs](https://yukkuri.fandom.com/wiki/U-Packs) | [资源与生活生态](world/resources-ecology.md) | rev 9225；全页 |
 | F60 | [Yukkuri Shitette Ne!](https://yukkuri.fandom.com/wiki/Yukkuri_Shitette_Ne!) | [社区史、迷因与外站资料](../fandom-history.md) | rev 10497；全页，歌曲条 |
+| F61 | [Awesome Yukkuris](https://yukkuri.fandom.com/wiki/Awesome_Yukkuris) | — | rev 8808；未实现的型，只在[种族目录](lore/species/README.md)列名 |
+| F62 | [Chimeeramaru](https://yukkuri.fandom.com/wiki/Chimeeramaru) | — | rev 10020；未实现的型，只在[种族目录](lore/species/README.md)列名 |
+| F63 | [House yu](https://yukkuri.fandom.com/wiki/House_yu) | [家油小节](lore/species/forms.md) | rev 9927；全页，已并入家油小节 |
+| F64 | [Niko Yukkuri](https://yukkuri.fandom.com/wiki/Niko_Yukkuri) | — | rev 9557；未实现的型，只在[种族目录](lore/species/README.md)列名 |
+| F65 | [Yukkuri Akyu](https://yukkuri.fandom.com/wiki/Yukkuri_Akyu) | — | rev 10325；未实现的型，只在[种族目录](lore/species/README.md)列名 |
+| F66 | [Yukkuri Alice](https://yukkuri.fandom.com/wiki/Yukkuri_Alice) | [爱丽丝](lore/species/alice/README.md) | rev 10387；全页，已并入爱丽丝页 |
+| F67 | [Yukkuri Anonymous](https://yukkuri.fandom.com/wiki/Yukkuri_Anonymous) | — | rev 10380；未实现的型，只在[种族目录](lore/species/README.md)列名 |
+| F68 | [Yukkuri Aya](https://yukkuri.fandom.com/wiki/Yukkuri_Aya) | — | rev 10195；未实现的型，只在[种族目录](lore/species/README.md)列名 |
+| F69 | [Yukkuri Benben](https://yukkuri.fandom.com/wiki/Yukkuri_Benben) | — | rev 8584；未实现的型，只在[种族目录](lore/species/README.md)列名 |
+| F70 | [Yukkuri Boyfriend](https://yukkuri.fandom.com/wiki/Yukkuri_Boyfriend) | — | rev 10437；未实现的型，只在[种族目录](lore/species/README.md)列名 |
+| F71 | [Yukkuri Bumblebirb](https://yukkuri.fandom.com/wiki/Yukkuri_Bumblebirb) | — | rev 9883；未实现的型，只在[种族目录](lore/species/README.md)列名 |
+| F72 | [Yukkuri Byakuren](https://yukkuri.fandom.com/wiki/Yukkuri_Byakuren) | — | rev 10249；未实现的型，只在[种族目录](lore/species/README.md)列名 |
+| F73 | [Yukkuri Chandra](https://yukkuri.fandom.com/wiki/Yukkuri_Chandra) | — | rev 8896；未实现的型，只在[种族目录](lore/species/README.md)列名 |
+| F74 | [Yukkuri Chen](https://yukkuri.fandom.com/wiki/Yukkuri_Chen) | [橙](lore/species/chen/README.md) | rev 10555；全页，已并入橙页 |
+| F75 | [Yukkuri Chitose](https://yukkuri.fandom.com/wiki/Yukkuri_Chitose) | — | rev 10356；未实现的型，只在[种族目录](lore/species/README.md)列名 |
+| F76 | [Yukkuri Chiyoda](https://yukkuri.fandom.com/wiki/Yukkuri_Chiyoda) | — | rev 10290；未实现的型，只在[种族目录](lore/species/README.md)列名 |
+| F77 | [Yukkuri Cirno](https://yukkuri.fandom.com/wiki/Yukkuri_Cirno) | — | rev 10409；未实现的型，只在[种族目录](lore/species/README.md)列名 |
+| F78 | [Yukkuri Clownpiece](https://yukkuri.fandom.com/wiki/Yukkuri_Clownpiece) | — | rev 10485；未实现的型，只在[种族目录](lore/species/README.md)列名 |
+| F79 | [Yukkuri Cyborg](https://yukkuri.fandom.com/wiki/Yukkuri_Cyborg) | — | rev 9659；未实现的型，只在[种族目录](lore/species/README.md)列名 |
+| F80 | [Yukkuri Daiyousei](https://yukkuri.fandom.com/wiki/Yukkuri_Daiyousei) | — | rev 9149；未实现的型，只在[种族目录](lore/species/README.md)列名 |
+| F81 | [Yukkuri Doremy](https://yukkuri.fandom.com/wiki/Yukkuri_Doremy) | — | rev 10170；未实现的型，只在[种族目录](lore/species/README.md)列名 |
+| F82 | [Yukkuri Eika](https://yukkuri.fandom.com/wiki/Yukkuri_Eika) | — | rev 10440；未实现的型，只在[种族目录](lore/species/README.md)列名 |
+| F83 | [Yukkuri Eirin](https://yukkuri.fandom.com/wiki/Yukkuri_Eirin) | — | rev 9551；未实现的型，只在[种族目录](lore/species/README.md)列名 |
+| F84 | [Yukkuri Elly](https://yukkuri.fandom.com/wiki/Yukkuri_Elly) | — | rev 10326；未实现的型，只在[种族目录](lore/species/README.md)列名 |
+| F85 | [Yukkuri Eternity](https://yukkuri.fandom.com/wiki/Yukkuri_Eternity) | — | rev 10419；未实现的型，只在[种族目录](lore/species/README.md)列名 |
+| F86 | [Yukkuri Flandre](https://yukkuri.fandom.com/wiki/Yukkuri_Flandre) | [芙兰](lore/species/flandre/README.md) | rev 10266；全页，已并入芙兰页 |
+| F87 | [Yukkuri Futo](https://yukkuri.fandom.com/wiki/Yukkuri_Futo) | — | rev 8712；未实现的型，只在[种族目录](lore/species/README.md)列名 |
+| F88 | [Yukkuri Gabriel](https://yukkuri.fandom.com/wiki/Yukkuri_Gabriel) | — | rev 10043；未实现的型，只在[种族目录](lore/species/README.md)列名 |
+| F89 | [Yukkuri Ghost](https://yukkuri.fandom.com/wiki/Yukkuri_Ghost) | — | rev 8385；未实现的型，只在[种族目录](lore/species/README.md)列名 |
+| F90 | [Yukkuri Haku](https://yukkuri.fandom.com/wiki/Yukkuri_Haku) | — | rev 10289；未实现的型，只在[种族目录](lore/species/README.md)列名 |
+| F91 | [Yukkuri Harvey Zilth](https://yukkuri.fandom.com/wiki/Yukkuri_Harvey_Zilth) | — | rev 9982；未实现的型，只在[种族目录](lore/species/README.md)列名 |
+| F92 | [Yukkuri Hatate](https://yukkuri.fandom.com/wiki/Yukkuri_Hatate) | — | rev 7819；未实现的型，只在[种族目录](lore/species/README.md)列名 |
+| F93 | [Yukkuri Hina](https://yukkuri.fandom.com/wiki/Yukkuri_Hina) | — | rev 10174；未实现的型，只在[种族目录](lore/species/README.md)列名 |
+| F94 | [Yukkuri Holo](https://yukkuri.fandom.com/wiki/Yukkuri_Holo) | — | rev 9871；未实现的型，只在[种族目录](lore/species/README.md)列名 |
+| F95 | [Yukkuri Hourai](https://yukkuri.fandom.com/wiki/Yukkuri_Hourai) | — | rev 9816；未实现的型，只在[种族目录](lore/species/README.md)列名 |
+| F96 | [Yukkuri Ichirin](https://yukkuri.fandom.com/wiki/Yukkuri_Ichirin) | — | rev 10453；未实现的型，只在[种族目录](lore/species/README.md)列名 |
+| F97 | [Yukkuri Iku](https://yukkuri.fandom.com/wiki/Yukkuri_Iku) | — | rev 10268；未实现的型，只在[种族目录](lore/species/README.md)列名 |
+| F98 | [Yukkuri Isaac](https://yukkuri.fandom.com/wiki/Yukkuri_Isaac) | — | rev 8283；未实现的型，只在[种族目录](lore/species/README.md)列名 |
+| F99 | [Yukkuri Jasmine](https://yukkuri.fandom.com/wiki/Yukkuri_Jasmine) | — | rev 10211；未实现的型，只在[种族目录](lore/species/README.md)列名 |
+| F100 | [Yukkuri Jotaro](https://yukkuri.fandom.com/wiki/Yukkuri_Jotaro) | — | rev 9639；未实现的型，只在[种族目录](lore/species/README.md)列名 |
+| F101 | [Yukkuri Junko](https://yukkuri.fandom.com/wiki/Yukkuri_Junko) | — | rev 10468；未实现的型，只在[种族目录](lore/species/README.md)列名 |
+| F102 | [Yukkuri Kagerou](https://yukkuri.fandom.com/wiki/Yukkuri_Kagerou) | — | rev 9106；未实现的型，只在[种族目录](lore/species/README.md)列名 |
+| F103 | [Yukkuri Kaguya](https://yukkuri.fandom.com/wiki/Yukkuri_Kaguya) | — | rev 8703；未实现的型，只在[种族目录](lore/species/README.md)列名 |
+| F104 | [Yukkuri Kakyoin](https://yukkuri.fandom.com/wiki/Yukkuri_Kakyoin) | — | rev 9715；未实现的型，只在[种族目录](lore/species/README.md)列名 |
+| F105 | [Yukkuri Kana](https://yukkuri.fandom.com/wiki/Yukkuri_Kana) | — | rev 10429；未实现的型，只在[种族目录](lore/species/README.md)列名 |
+| F106 | [Yukkuri Kanako](https://yukkuri.fandom.com/wiki/Yukkuri_Kanako) | — | rev 10376；未实现的型，只在[种族目录](lore/species/README.md)列名 |
+| F107 | [Yukkuri Kasen](https://yukkuri.fandom.com/wiki/Yukkuri_Kasen) | — | rev 10179；未实现的型，只在[种族目录](lore/species/README.md)列名 |
+| F108 | [Yukkuri Keine](https://yukkuri.fandom.com/wiki/Yukkuri_Keine) | — | rev 9553；未实现的型，只在[种族目录](lore/species/README.md)列名 |
+| F109 | [Yukkuri Kikuri](https://yukkuri.fandom.com/wiki/Yukkuri_Kikuri) | — | rev 10519；未实现的型，只在[种族目录](lore/species/README.md)列名 |
+| F110 | [Yukkuri Kisume](https://yukkuri.fandom.com/wiki/Yukkuri_Kisume) | — | rev 9705；未实现的型，只在[种族目录](lore/species/README.md)列名 |
+| F111 | [Yukkuri Koakuma](https://yukkuri.fandom.com/wiki/Yukkuri_Koakuma) | — | rev 10182；未实现的型，只在[种族目录](lore/species/README.md)列名 |
+| F112 | [Yukkuri Kogasa](https://yukkuri.fandom.com/wiki/Yukkuri_Kogasa) | — | rev 9257；未实现的型，只在[种族目录](lore/species/README.md)列名 |
+| F113 | [Yukkuri Koishi](https://yukkuri.fandom.com/wiki/Yukkuri_Koishi) | — | rev 10295；未实现的型，只在[种族目录](lore/species/README.md)列名 |
+| F114 | [Yukkuri Kokoro](https://yukkuri.fandom.com/wiki/Yukkuri_Kokoro) | — | rev 8085；未实现的型，只在[种族目录](lore/species/README.md)列名 |
+| F115 | [Yukkuri Komachi](https://yukkuri.fandom.com/wiki/Yukkuri_Komachi) | — | rev 10163；未实现的型，只在[种族目录](lore/species/README.md)列名 |
+| F116 | [Yukkuri Kongou](https://yukkuri.fandom.com/wiki/Yukkuri_Kongou) | — | rev 9287；未实现的型，只在[种族目录](lore/species/README.md)列名 |
+| F117 | [Yukkuri Kyouko](https://yukkuri.fandom.com/wiki/Yukkuri_Kyouko) | — | rev 8901；未实现的型，只在[种族目录](lore/species/README.md)列名 |
+| F118 | [Yukkuri Letty](https://yukkuri.fandom.com/wiki/Yukkuri_Letty) | — | rev 10057；未实现的型，只在[种族目录](lore/species/README.md)列名 |
+| F119 | [Yukkuri Lily White](https://yukkuri.fandom.com/wiki/Yukkuri_Lily_White) | — | rev 9704；未实现的型，只在[种族目录](lore/species/README.md)列名 |
+| F120 | [Yukkuri Luize](https://yukkuri.fandom.com/wiki/Yukkuri_Luize) | — | rev 9935；未实现的型，只在[种族目录](lore/species/README.md)列名 |
+| F121 | [Yukkuri Luna Child](https://yukkuri.fandom.com/wiki/Yukkuri_Luna_Child) | — | rev 10172；未实现的型，只在[种族目录](lore/species/README.md)列名 |
+| F122 | [Yukkuri Lunasa](https://yukkuri.fandom.com/wiki/Yukkuri_Lunasa) | — | rev 8814；未实现的型，只在[种族目录](lore/species/README.md)列名 |
+| F123 | [Yukkuri Lyrica](https://yukkuri.fandom.com/wiki/Yukkuri_Lyrica) | — | rev 8656；未实现的型，只在[种族目录](lore/species/README.md)列名 |
+| F124 | [Yukkuri Mami](https://yukkuri.fandom.com/wiki/Yukkuri_Mami) | — | rev 8897；未实现的型，只在[种族目录](lore/species/README.md)列名 |
+| F125 | [Yukkuri Mamizou](https://yukkuri.fandom.com/wiki/Yukkuri_Mamizou) | — | rev 9127；未实现的型，只在[种族目录](lore/species/README.md)列名 |
+| F126 | [Yukkuri Marisa](https://yukkuri.fandom.com/wiki/Yukkuri_Marisa) | [魔理沙与四个亚种](lore/species/marisa/README.md) | rev 10535；全页，已并入魔理沙页与四个亚种页 |
+| F127 | [Yukkuri Master Chief](https://yukkuri.fandom.com/wiki/Yukkuri_Master_Chief) | — | rev 8177；未实现的型，只在[种族目录](lore/species/README.md)列名 |
+| F128 | [Yukkuri May](https://yukkuri.fandom.com/wiki/Yukkuri_May) | — | rev 10240；未实现的型，只在[种族目录](lore/species/README.md)列名 |
+| F129 | [Yukkuri Medicine](https://yukkuri.fandom.com/wiki/Yukkuri_Medicine) | — | rev 10381；未实现的型，只在[种族目录](lore/species/README.md)列名 |
+| F130 | [Yukkuri Meiling](https://yukkuri.fandom.com/wiki/Yukkuri_Meiling) | — | rev 10247；未实现的型，只在[种族目录](lore/species/README.md)列名 |
+| F131 | [Yukkuri Merlin](https://yukkuri.fandom.com/wiki/Yukkuri_Merlin) | — | rev 10001；未实现的型，只在[种族目录](lore/species/README.md)列名 |
+| F132 | [Yukkuri Miku](https://yukkuri.fandom.com/wiki/Yukkuri_Miku) | — | rev 9709；未实现的型，只在[种族目录](lore/species/README.md)列名 |
+| F133 | [Yukkuri Mima](https://yukkuri.fandom.com/wiki/Yukkuri_Mima) | — | rev 10332；未实现的型，只在[种族目录](lore/species/README.md)列名 |
+| F134 | [Yukkuri Minoriko](https://yukkuri.fandom.com/wiki/Yukkuri_Minoriko) | — | rev 10287；未实现的型，只在[种族目录](lore/species/README.md)列名 |
+| F135 | [Yukkuri Misty](https://yukkuri.fandom.com/wiki/Yukkuri_Misty) | — | rev 10226；未实现的型，只在[种族目录](lore/species/README.md)列名 |
+| F136 | [Yukkuri Mokou](https://yukkuri.fandom.com/wiki/Yukkuri_Mokou) | — | rev 9989；未实现的型，只在[种族目录](lore/species/README.md)列名 |
+| F137 | [Yukkuri Momiji](https://yukkuri.fandom.com/wiki/Yukkuri_Momiji) | — | rev 8600；未实现的型，只在[种族目录](lore/species/README.md)列名 |
+| F138 | [Yukkuri Murasa](https://yukkuri.fandom.com/wiki/Yukkuri_Murasa) | — | rev 9692；未实现的型，只在[种族目录](lore/species/README.md)列名 |
+| F139 | [Yukkuri Mystia](https://yukkuri.fandom.com/wiki/Yukkuri_Mystia) | — | rev 9049；未实现的型，只在[种族目录](lore/species/README.md)列名 |
+| F140 | [Yukkuri Naruto](https://yukkuri.fandom.com/wiki/Yukkuri_Naruto) | — | rev 10264；未实现的型，只在[种族目录](lore/species/README.md)列名 |
+| F141 | [Yukkuri Nazrin](https://yukkuri.fandom.com/wiki/Yukkuri_Nazrin) | — | rev 9051；未实现的型，只在[种族目录](lore/species/README.md)列名 |
+| F142 | [Yukkuri Nitori](https://yukkuri.fandom.com/wiki/Yukkuri_Nitori) | — | rev 10554；未实现的型，只在[种族目录](lore/species/README.md)列名 |
+| F143 | [Yukkuri Nue](https://yukkuri.fandom.com/wiki/Yukkuri_Nue) | — | rev 9216；未实现的型，只在[种族目录](lore/species/README.md)列名 |
+| F144 | [Yukkuri Observer](https://yukkuri.fandom.com/wiki/Yukkuri_Observer) | — | rev 9319；未实现的型，只在[种族目录](lore/species/README.md)列名 |
+| F145 | [Yukkuri Orin](https://yukkuri.fandom.com/wiki/Yukkuri_Orin) | — | rev 10242；未实现的型，只在[种族目录](lore/species/README.md)列名 |
+| F146 | [Yukkuri Parsee](https://yukkuri.fandom.com/wiki/Yukkuri_Parsee) | — | rev 9128；未实现的型，只在[种族目录](lore/species/README.md)列名 |
+| F147 | [Yukkuri Patchouli](https://yukkuri.fandom.com/wiki/Yukkuri_Patchouli) | [帕秋莉](lore/species/patchouli/README.md) | rev 10161；全页，已并入帕秋莉页 |
+| F148 | [Yukkuri Quake Woman](https://yukkuri.fandom.com/wiki/Yukkuri_Quake_Woman) | — | rev 8895；未实现的型，只在[种族目录](lore/species/README.md)列名 |
+| F149 | [Yukkuri Raiko](https://yukkuri.fandom.com/wiki/Yukkuri_Raiko) | — | rev 8582；未实现的型，只在[种族目录](lore/species/README.md)列名 |
+| F150 | [Yukkuri Ran](https://yukkuri.fandom.com/wiki/Yukkuri_Ran) | — | rev 10379；未实现的型，只在[种族目录](lore/species/README.md)列名 |
+| F151 | [Yukkuri Reimu](https://yukkuri.fandom.com/wiki/Yukkuri_Reimu) | [灵梦](lore/species/reimu/README.md) | rev 10107；全页，已并入灵梦页 |
+| F152 | [Yukkuri Reisen](https://yukkuri.fandom.com/wiki/Yukkuri_Reisen) | — | rev 10556；未实现的型，只在[种族目录](lore/species/README.md)列名 |
+| F153 | [Yukkuri Remilia](https://yukkuri.fandom.com/wiki/Yukkuri_Remilia) | [蕾米莉亚](lore/species/remilia/README.md) | rev 10415；全页，已并入蕾米莉亚页 |
+| F154 | [Yukkuri Renna](https://yukkuri.fandom.com/wiki/Yukkuri_Renna) | — | rev 9960；未实现的型，只在[种族目录](lore/species/README.md)列名 |
+| F155 | [Yukkuri Rensouhou](https://yukkuri.fandom.com/wiki/Yukkuri_Rensouhou) | — | rev 9429；未实现的型，只在[种族目录](lore/species/README.md)列名 |
+| F156 | [Yukkuri Rinnosuke](https://yukkuri.fandom.com/wiki/Yukkuri_Rinnosuke) | — | rev 10375；未实现的型，只在[种族目录](lore/species/README.md)列名 |
+| F157 | [Yukkuri Roman](https://yukkuri.fandom.com/wiki/Yukkuri_Roman) | — | rev 9458；未实现的型，只在[种族目录](lore/species/README.md)列名 |
+| F158 | [Yukkuri Rumia](https://yukkuri.fandom.com/wiki/Yukkuri_Rumia) | — | rev 10041；未实现的型，只在[种族目录](lore/species/README.md)列名 |
+| F159 | [Yukkuri Sakuya](https://yukkuri.fandom.com/wiki/Yukkuri_Sakuya) | — | rev 10331；未实现的型，只在[种族目录](lore/species/README.md)列名 |
+| F160 | [Yukkuri Sanae](https://yukkuri.fandom.com/wiki/Yukkuri_Sanae) | — | rev 10382；未实现的型，只在[种族目录](lore/species/README.md)列名 |
+| F161 | [Yukkuri Sara](https://yukkuri.fandom.com/wiki/Yukkuri_Sara) | — | rev 7706；未实现的型，只在[种族目录](lore/species/README.md)列名 |
+| F162 | [Yukkuri Satori](https://yukkuri.fandom.com/wiki/Yukkuri_Satori) | — | rev 9436；未实现的型，只在[种族目录](lore/species/README.md)列名 |
+| F163 | [Yukkuri Seiga](https://yukkuri.fandom.com/wiki/Yukkuri_Seiga) | — | rev 10384；未实现的型，只在[种族目录](lore/species/README.md)列名 |
+| F164 | [Yukkuri Seija](https://yukkuri.fandom.com/wiki/Yukkuri_Seija) | — | rev 9556；未实现的型，只在[种族目录](lore/species/README.md)列名 |
+| F165 | [Yukkuri Seiran](https://yukkuri.fandom.com/wiki/Yukkuri_Seiran) | — | rev 9799；未实现的型，只在[种族目录](lore/species/README.md)列名 |
+| F166 | [Yukkuri Sekibanki](https://yukkuri.fandom.com/wiki/Yukkuri_Sekibanki) | — | rev 9064；未实现的型，只在[种族目录](lore/species/README.md)列名 |
+| F167 | [Yukkuri Shanghai](https://yukkuri.fandom.com/wiki/Yukkuri_Shanghai) | — | rev 10383；未实现的型，只在[种族目录](lore/species/README.md)列名 |
+| F168 | [Yukkuri Shikieiki](https://yukkuri.fandom.com/wiki/Yukkuri_Shikieiki) | — | rev 10342；未实现的型，只在[种族目录](lore/species/README.md)列名 |
+| F169 | [Yukkuri Shimakaze](https://yukkuri.fandom.com/wiki/Yukkuri_Shimakaze) | — | rev 8677；未实现的型，只在[种族目录](lore/species/README.md)列名 |
+| F170 | [Yukkuri Shinki](https://yukkuri.fandom.com/wiki/Yukkuri_Shinki) | — | rev 9331；未实现的型，只在[种族目录](lore/species/README.md)列名 |
+| F171 | [Yukkuri Shinmyoumaru](https://yukkuri.fandom.com/wiki/Yukkuri_Shinmyoumaru) | — | rev 9069；未实现的型，只在[种族目录](lore/species/README.md)列名 |
+| F172 | [Yukkuri Shizuha](https://yukkuri.fandom.com/wiki/Yukkuri_Shizuha) | — | rev 10052；未实现的型，只在[种族目录](lore/species/README.md)列名 |
+| F173 | [Yukkuri Shou](https://yukkuri.fandom.com/wiki/Yukkuri_Shou) | — | rev 8696；未实现的型，只在[种族目录](lore/species/README.md)列名 |
+| F174 | [Yukkuri Star Sapphire](https://yukkuri.fandom.com/wiki/Yukkuri_Star_Sapphire) | — | rev 10412；未实现的型，只在[种族目录](lore/species/README.md)列名 |
+| F175 | [Yukkuri Suika](https://yukkuri.fandom.com/wiki/Yukkuri_Suika) | — | rev 10243；未实现的型，只在[种族目录](lore/species/README.md)列名 |
+| F176 | [Yukkuri Sunny Milk](https://yukkuri.fandom.com/wiki/Yukkuri_Sunny_Milk) | — | rev 10413；未实现的型，只在[种族目录](lore/species/README.md)列名 |
+| F177 | [Yukkuri Suwako](https://yukkuri.fandom.com/wiki/Yukkuri_Suwako) | — | rev 10371；未实现的型，只在[种族目录](lore/species/README.md)列名 |
+| F178 | [Yukkuri Tairitsu](https://yukkuri.fandom.com/wiki/Yukkuri_Tairitsu) | — | rev 10177；未实现的型，只在[种族目录](lore/species/README.md)列名 |
+| F179 | [Yukkuri Tanjiro](https://yukkuri.fandom.com/wiki/Yukkuri_Tanjiro) | — | rev 10050；未实现的型，只在[种族目录](lore/species/README.md)列名 |
+| F180 | [Yukkuri Tatsuta](https://yukkuri.fandom.com/wiki/Yukkuri_Tatsuta) | — | rev 8219；未实现的型，只在[种族目录](lore/species/README.md)列名 |
+| F181 | [Yukkuri Tenryuu](https://yukkuri.fandom.com/wiki/Yukkuri_Tenryuu) | — | rev 8218；未实现的型，只在[种族目录](lore/species/README.md)列名 |
+| F182 | [Yukkuri Tenshi](https://yukkuri.fandom.com/wiki/Yukkuri_Tenshi) | — | rev 10472；未实现的型，只在[种族目录](lore/species/README.md)列名 |
+| F183 | [Yukkuri Tewi](https://yukkuri.fandom.com/wiki/Yukkuri_Tewi) | — | rev 10378；未实现的型，只在[种族目录](lore/species/README.md)列名 |
+| F184 | [Yukkuri Tojiko](https://yukkuri.fandom.com/wiki/Yukkuri_Tojiko) | — | rev 8711；未实现的型，只在[种族目录](lore/species/README.md)列名 |
+| F185 | [Yukkuri Tokiko](https://yukkuri.fandom.com/wiki/Yukkuri_Tokiko) | — | rev 8569；未实现的型，只在[种族目录](lore/species/README.md)列名 |
+| F186 | [Yukkuri Toyosatomimi](https://yukkuri.fandom.com/wiki/Yukkuri_Toyosatomimi) | — | rev 10250；未实现的型，只在[种族目录](lore/species/README.md)列名 |
+| F187 | [Yukkuri Utsuho](https://yukkuri.fandom.com/wiki/Yukkuri_Utsuho) | — | rev 9546；未实现的型，只在[种族目录](lore/species/README.md)列名 |
+| F188 | [Yukkuri Wakasagihime](https://yukkuri.fandom.com/wiki/Yukkuri_Wakasagihime) | — | rev 9054；未实现的型，只在[种族目录](lore/species/README.md)列名 |
+| F189 | [Yukkuri Wriggle](https://yukkuri.fandom.com/wiki/Yukkuri_Wriggle) | — | rev 10530；未实现的型，只在[种族目录](lore/species/README.md)列名 |
+| F190 | [Yukkuri Yamame](https://yukkuri.fandom.com/wiki/Yukkuri_Yamame) | — | rev 8341；未实现的型，只在[种族目录](lore/species/README.md)列名 |
+| F191 | [Yukkuri Yatsunashı](https://yukkuri.fandom.com/wiki/Yukkuri_Yatsunashı) | — | rev 8583；未实现的型，只在[种族目录](lore/species/README.md)列名 |
+| F192 | [Yukkuri Yoshika](https://yukkuri.fandom.com/wiki/Yukkuri_Yoshika) | — | rev 8709；未实现的型，只在[种族目录](lore/species/README.md)列名 |
+| F193 | [Yukkuri Youmu](https://yukkuri.fandom.com/wiki/Yukkuri_Youmu) | [妖梦](lore/species/myon/README.md) | rev 9162；全页，已并入妖梦页 |
+| F194 | [Yukkuri Yukari](https://yukkuri.fandom.com/wiki/Yukkuri_Yukari) | — | rev 10401；未实现的型，只在[种族目录](lore/species/README.md)列名 |
+| F195 | [Yukkuri Yuki](https://yukkuri.fandom.com/wiki/Yukkuri_Yuki) | — | rev 10369；未实现的型，只在[种族目录](lore/species/README.md)列名 |
+| F196 | [Yukkuri Yumeko](https://yukkuri.fandom.com/wiki/Yukkuri_Yumeko) | — | rev 9594；未实现的型，只在[种族目录](lore/species/README.md)列名 |
+| F197 | [Yukkuri YuugenMagan](https://yukkuri.fandom.com/wiki/Yukkuri_YuugenMagan) | — | rev 9297；未实现的型，只在[种族目录](lore/species/README.md)列名 |
+| F198 | [Yukkuri Yuugi](https://yukkuri.fandom.com/wiki/Yukkuri_Yuugi) | — | rev 9324；未实现的型，只在[种族目录](lore/species/README.md)列名 |
+| F199 | [Yukkuri Yuuka](https://yukkuri.fandom.com/wiki/Yukkuri_Yuuka) | — | rev 10559；未实现的型，只在[种族目录](lore/species/README.md)列名 |
+| F200 | [Yukkuri Yuyuko](https://yukkuri.fandom.com/wiki/Yukkuri_Yuyuko) | — | rev 10155；未实现的型，只在[种族目录](lore/species/README.md)列名 |
 
 各页中属于单一作品的写法按[wiki 来源与记录边界](../README.md#来源与记录边界)与页面自身措辞保留，不因被反复转述升格为通行设定。

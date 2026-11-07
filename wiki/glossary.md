@@ -41,6 +41,11 @@
 | 不良油、优良油／Shithead・Nicehead | 站点用一个标签概括品行好坏的二分，并自称“界限模糊、不好用”。[W，F15](https://yukkuri.fandom.com/wiki/Shithead) | 项目用五项属性与具体行为判定，不设全局好坏标签（[性格与社会关系](hakkei-reference/world/personality-social.md)） |
 | 垃圾油／Gutter Trash | 站点对城市流浪、失饰与脏污个体的统称。[W，F04](https://yukkuri.fandom.com/wiki/Gutter_Trash_Yukkuris) | 项目用身份（流浪、聚落、有主）与卫生状态分别描述，不合成一个“品种” |
 | 不如意症／Anti-yukkuritis | 站点把它写成“不能慢慢来”导致的抑郁，早期可用更好的环境治好。[W，F01](https://yukkuri.fandom.com/wiki/Anti-yukkuritis) | 项目的非油症是不可逆的终末阶段（狂乱→衰竭→死亡），不设治愈；见[性格与社会关系](hakkei-reference/world/personality-social.md) |
+| 爱称／昵称 | 站点给每型一个检索用昵称，如 Yukkureimu、Yukkurisa、Mukyu、Myon、Kimeemaru、Miniaturekkuri。[W，F151](https://yukkuri.fandom.com/wiki/Yukkuri_Reimu)、[F126](https://yukkuri.fandom.com/wiki/Yukkuri_Marisa)、[F147](https://yukkuri.fandom.com/wiki/Yukkuri_Patchouli)、[F193](https://yukkuri.fandom.com/wiki/Yukkuri_Youmu)、[F68](https://yukkuri.fandom.com/wiki/Yukkuri_Aya)、[F171](https://yukkuri.fandom.com/wiki/Yukkuri_Shinmyoumaru) | 与种族名同义，不是独立品种，也不是个体名字 |
+| Deibu／灵胖 | 站点把肥胖好怒的灵梦写成 Deibu，子代称 Weibu。[W，F151](https://yukkuri.fandom.com/wiki/Yukkuri_Reimu) | 项目的灵胖是营养与压力跨阈值的后天体型变化，与人格无关，也没有 Weibu 称呼 |
+| Peni Peni／攻击素鸡立 | 站点写爱丽丝等型能操控该部位的形状与运动，并以其气流飞行。[W，F30](https://yukkuri.fandom.com/wiki/Peni_Peni)、[F66](https://yukkuri.fandom.com/wiki/Yukkuri_Alice) | 项目只有真实的「攻击素鸡立」茎生规则，不操控形态，也不拿来飞行 |
+| 半灵／幽灵伴随物 | 站点把妖梦型身边的“幽灵”写成来历不明的伴随物。[W，F193](https://yukkuri.fandom.com/wiki/Yukkuri_Youmu) | 项目没有幽灵实体，妖梦只用真实的木棍 |
+| Mukyu | 帕秋莉的咳声，站点同时把它当爱称。[W，F147](https://yukkuri.fandom.com/wiki/Yukkuri_Patchouli) | 项目里是易吐与口癖的表现，不是状态名或数值 |
 
 种族索引见[种族与变体](hakkei-reference/lore/species/README.md)，冲突采用见[差异表](hakkei-reference/lore/conflicts.md)。
 

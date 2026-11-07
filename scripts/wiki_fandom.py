@@ -13,7 +13,7 @@ page source and never requests a file or bypasses the challenge.
 ``check`` is offline and read-only: it verifies the cache against the committed
 coverage table ``wiki/hakkei-reference/sources-fandom.md`` (every cached page
 listed once, every listed wiki target existing and citing its source ID). Pages
-of all six fetched categories are listed there, including the ones skipped with
+of all seven fetched categories are listed there, including the ones skipped with
 a reason.
 """
 from __future__ import annotations
@@ -31,7 +31,7 @@ CACHE = ROOT / '.local/fandom'
 API = 'https://yukkuri.fandom.com/api.php'
 SITE = 'https://yukkuri.fandom.com/wiki/'
 COVERAGE = ROOT / 'wiki/hakkei-reference/sources-fandom.md'
-CATEGORIES = ('Pet Yukkuri', 'Places', 'Meta', 'Memes', 'Behavior', 'Biology')
+CATEGORIES = ('Pet Yukkuri', 'Places', 'Meta', 'Memes', 'Behavior', 'Biology', 'Yukkuri')
 AGENT = 'MCyukkuri-Wiki-Reference/1.0 (project wiki source cache)'
 DELAY = 1.0
 
@@ -153,7 +153,7 @@ def coverage_rows():
         raise SystemExit(f'missing {COVERAGE.relative_to(ROOT)}')
     rows = []
     for line in COVERAGE.read_text(encoding='utf-8').splitlines():
-        match = re.match(r'\|\s*(F\d\d)\s*\|(.*)\|\s*(.*?)\s*\|\s*(.*?)\s*\|$', line)
+        match = re.match(r'\|\s*(F\d+)\s*\|(.*)\|\s*(.*?)\s*\|\s*(.*?)\s*\|$', line)
         if match:
             rows.append({'id': match.group(1), 'page': match.group(2),
                          'target': match.group(3), 'note': match.group(4)})
