@@ -48,7 +48,10 @@ CHECKER = hashlib.sha256(Path(__file__).read_bytes()).hexdigest()[:12]
 def is_refusal(category, message):
     # Status deltas describe stored state, not another attempted action. In particular,
     # failed=[] and decision=unavailable are not refusals, nor is rejected=null.
-    return category != 'status' and REFUSAL.search(message)
+    # Waters.stick enumerates candidates before an action is selected. Rejecting
+    # one wet/unreachable item is not a failed attempt by the running action.
+    candidate = category == 'aquatic' and message.startswith('stick rejected id=')
+    return category != 'status' and not candidate and REFUSAL.search(message)
 
 
 def signature(text):
@@ -523,8 +526,14 @@ def ledger(records, samples, dense=False):
     return out
 
 
-def orphans(samples):
+def orphans(samples, records=()):
     out, all_ticks = [], defaultdict(dict)
+    final_tick = max((r['t'] for r in samples), default=None)
+    deaths = {}
+    for r in records:
+        if (r['k'] == 'life' and r.get('out') == 'killed' or
+                r['k'] == 'ev' and r.get('cat') == 'body' and r.get('msg', '').startswith('death settled into remains;')):
+            deaths[r['u']] = min(deaths.get(r['u'], r['t']), r['t'])
     for r in samples:
         all_ticks[r['t']][r['u']] = r['state']
     for rows in actor_samples(samples).values():
@@ -533,6 +542,8 @@ def orphans(samples):
             continue
         for r in rows:
             s = r['state']
+            if r['u'] in deaths and r['t'] >= deaths[r['u']]:
+                continue
             if not known(s, 'dep'):
                 out.append(result('ORPHAN', 'no-evidence', 'dependent status missing', r))
                 continue
@@ -557,8 +568,11 @@ def orphans(samples):
                 age = r['t'] - unsafe_since
                 if age >= 200:
                     out.append(result('ORPHAN', 'fail' if age > 600 and dist > 16 else 'suspect', 'unsafe dependent without nearby carer', r, duration=age))
-            if r is rows[-1] and unsafe:
-                out.append(result('ORPHAN', 'fail', 'dependent unsafe at window end', r))
+            if r is rows[-1] and unsafe and r['u'] not in deaths:
+                if r['t'] == final_tick:
+                    out.append(result('ORPHAN', 'fail', 'dependent unsafe at window end', r))
+                else:
+                    out.append(result('ORPHAN', 'no-evidence', 'unsafe dependent not observed through window end', r))
     return out
 
 
@@ -900,7 +914,7 @@ def observations(records, issues=(), raw='', allow=(), end=(), seed=None, rerun=
                 continue
             if cause not in ('drown', 'inWall'):
                 findings.append(result('FATE', 'fail' if cause in ('fall', 'soaking', 'starve') else 'suspect', r['msg'], r))
-    findings += progress(samples) + loops(records, samples) + jumps(samples, records) + ledger(records, samples, dense) + orphans(samples)
+    findings += progress(samples) + loops(records, samples) + jumps(samples, records) + ledger(records, samples, dense) + orphans(samples, records)
     findings += endings(records, samples, end, raw if end_raw is None else end_raw)
     lag = [r for r in records if r['k'] == 'lag']
     for r in lag:

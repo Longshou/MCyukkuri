@@ -14,6 +14,16 @@ from cases import record, state, log, HOST, ACTOR
 
 
 class Calibration(unittest.TestCase):
+    def test_unsafe_last_sample_before_death_is_not_the_window_end(self):
+        rows = [state(0,dep=True,distress=True),state(1,dep=True,distress=True),state(1000)]
+        rows[-1]['u'] = HOST
+        death = record('life',2,**{'out':'killed'})
+        self.assertFalse(checks.orphans(timeline.states(rows),[death]))
+        self.assertEqual('no-evidence', checks.orphans(timeline.states(rows))[0]['verdict'])
+        rows += [state(1000,dep=True,distress=True)]
+        self.assertTrue(any(f['detail']=='dependent unsafe at window end' and f['verdict']=='fail'
+                            for f in checks.orphans(timeline.states(rows))))
+
     def test_logged_host_contact_travel_explains_only_its_actual_displacement(self):
         # H shake_capsize-18 t144663: contact moves the hull .354 blocks,
         # while its retained drift velocity is only .001 blocks/tick.
@@ -165,6 +175,7 @@ class Calibration(unittest.TestCase):
         for category, message in (
                 ('aquatic', 'drive evaluated current=none failed=[]'),
                 ('aquatic', 'drive evaluated current=none failed=[take_seat]'),
+                ('aquatic', 'stick rejected id=4 uuid=fixture reason=wet floor=null range=12.0 walk=false'),
                 ('family', 'carry put down rejected=null'),
                 ('status', 'behavior.protection: decision=waiting -> decision=unavailable'),
                 ('status', 'body.last: outcome=BLOCKED -> outcome=BLOCKED')):
