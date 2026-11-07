@@ -56,7 +56,7 @@ def read_lines(path):
         return [line.rstrip('\r\n') for line in source if '[trace]' not in line]
 
 
-def observation_summary(log, dest, scenes, sid):
+def observation_summary(log, dest, scenes):
     """Use trace windows, independent of chat headings and other fields' simultaneous scenes."""
     reports = smoke_checks.report_log(log, dest / 'observations', scenes, evidence='H')
     out = ['## 结构化时间线与自动检查', '',
@@ -171,7 +171,7 @@ def main():
            f'- 副本：{dest}', f'- 打开过的场景启动 {len(opens)} 次（按聊天标题 `【…】看点：` 识别）']
     out += [f'- 注意：{n}' for n in notes]
     out.append('')
-    out += observation_summary(trace_log, dest, {s.id: s.smoke or {} for s in by_title.values()}, sid)
+    out += observation_summary(trace_log, dest, {s.id: s.smoke or {} for s in by_title.values()})
     groups = {}
     for n, (i, title, t) in enumerate(opens):
         stop = opens[n + 1][0] if n + 1 < len(opens) else len(stamped)

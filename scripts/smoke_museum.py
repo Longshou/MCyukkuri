@@ -272,7 +272,8 @@ def run_scene(st, scene, builder, run_index=1):
     rerun = subprocess.list2cmdline([sys.executable, str(Path(__file__).resolve()), '--worktree',
                     str(builder.ROOT), '--seed', str(st['seed']), scene.id])
     observations_dir = log.with_suffix('')
-    reports = smoke_checks.report_log(log, observations_dir, {scene.id: scene.smoke}, st['seed'], rerun, dense=True)
+    reports = smoke_checks.report_log(log, observations_dir, {scene.id: scene.smoke}, st['seed'], rerun, dense=True,
+                                      only=scene.id)
     jfr = server.jfr_summary(st, f'{scene.id}-{run_index}')
     (observations_dir / 'jfr.json').write_text(json.dumps(jfr, indent=2), encoding='utf-8')
     summary = [r for r in reports if r.get('scene') == scene.id]

@@ -24,12 +24,32 @@ class Integration(unittest.TestCase):
             source = dest / 'session.log'
             source.write_text('[seed] run=123 covered=fixture\n' +
                               log([record('win', 0, None), state(1), state(2)]), encoding='utf-8')
-            summary = intake.observation_summary(source, dest, {}, 'fixture')
+            summary = intake.observation_summary(source, dest, {})
             reports = json.loads((dest / 'observations/checks.json').read_text(encoding='utf-8'))
             self.assertEqual(reports[0]['seed'], 123)
             index = json.loads((dest / 'observations/timelines/index.json').read_text(encoding='utf-8'))
             self.assertEqual(len(index['streams']), 2)
             self.assertTrue(any('END=no-evidence' in row for row in summary))
+
+    def test_only_reports_the_requested_scene_window(self):
+        # A run log also holds the unwound tail of the previous scene's window; its complete copy is that scene's own run.
+        tail = [record('st', 1, st=dict(p=[0, 0, 0], v=[0, 0, 0], yaw=0, g=True, hp=10, att={}, veh=False, act={},
+                                      int={}, goals=[], phase='', hold=None, dep=False, distress=False,
+                                      iwr=False, parents=[])),
+                record('lag', 1, None, ms=1, rec_ms=.1)]
+        def window(win, t):
+            return [dict(record('win', t, None, scene=win, field='land'), win=win)] + \
+                   [dict(row, t=row['t'] + t, win=win) for row in tail]
+        text = log(window('earlier', 0) + window('later', 9))
+        with tempfile.TemporaryDirectory() as folder:
+            source = Path(folder) / 'window.log'
+            source.write_text(text, encoding='utf-8')
+            reports = smoke_checks.report_log(source, Path(folder) / 'out', {'later': {}}, only='later')
+            self.assertEqual([row['scene'] for row in reports], ['later'])
+            kept = json.loads((Path(folder) / 'out/checks.json').read_text(encoding='utf-8'))
+            self.assertEqual([row['scene'] for row in kept], ['later'])
+            all_windows = smoke_checks.report_log(source, Path(folder) / 'all', {'later': {}})
+            self.assertEqual([row['scene'] for row in all_windows], ['earlier', 'later'])
 
     def test_stream_interval_and_incremental_poll(self):
         with tempfile.TemporaryDirectory() as folder:

@@ -658,8 +658,11 @@ def main():
     return 0
 
 
-def report_log(log, output, smoke=None, seed=None, rerun=None, evidence='R', dense=False):
-    """Shared smoke/intake path: stream input, export full timelines, report each trace window independently."""
+def report_log(log, output, smoke=None, seed=None, rerun=None, evidence='R', dense=False, only=None):
+    """Shared smoke/intake path: stream input, export full timelines, report each trace window independently.
+
+    ``only`` keeps one scene id: a scene's run log also holds the unwound tail of the previous window, which is complete
+    only in that scene's own run."""
     smoke = smoke or {}
     records, issues = timeline.read([log])
     output = Path(output)
@@ -673,6 +676,8 @@ def report_log(log, output, smoke=None, seed=None, rerun=None, evidence='R', den
     for key in dict.fromkeys(timeline.scope(r) for r in records):
         scoped = [r for r in records if timeline.scope(r) == key]
         scene_id = scoped[0]['win']
+        if only is not None and scene_id != only:
+            continue
         spec = smoke.get(scene_id, {})
         command = [sys.executable, str(Path(__file__).with_name('smoke_museum.py')), '--worktree',
                    str(Path(__file__).resolve().parent.parent)]
@@ -690,7 +695,7 @@ def report_log(log, output, smoke=None, seed=None, rerun=None, evidence='R', den
         reports.append(dict(scope=key, scene=scene_id, **observations(scoped, issues, legacy,
                        spec.get('allow_fate', ()), spec.get('end', ()), seed, scene_rerun, evidence, dense)))
     if not reports:
-        reports.append(observations([], issues, raw, seed=seed, rerun=rerun, evidence=evidence, dense=dense))
+        reports.append(dict(scene=only, **observations([], issues, raw, seed=seed, rerun=rerun, evidence=evidence, dense=dense)))
     (output / 'checks.json').write_text(json.dumps(reports, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
     return reports
 
