@@ -128,7 +128,10 @@ final class LifeMeal {
         syncBodyFood();
         mouth = transferred.copy(); mealHold = 0; feeder = fromPlayer; sharedMeal = alreadyShared; preparedMeal = InfantFood.isMash(transferred); content = false; mealTicks = 1;
         o.beginConsumption(); o.entity().getNavigation().stop(); o.entity().setPersistenceRequired();
-        o.entity().showReaction("happy", reaction, 60); return true;
+        o.entity().showReaction("happy", reaction, 60);
+        GameplayLog.event(o.entity(), "meal", "received item={} count={} holder=mouth feeder={} prepared={} shared={}",
+                mouth.getItem(), mouth.getCount(), feeder, preparedMeal, sharedMeal);
+        return true;
     }
 
     boolean holdMeal(int ticks) {

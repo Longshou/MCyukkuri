@@ -460,6 +460,8 @@ public final class HabitatLife {
                 var remaining=targetItem.getItem().copy();var gathered=remaining.split(1);
                 if(remaining.isEmpty())targetItem.discard();else targetItem.setItem(remaining);
                 takeNestMaterial(value,gathered);
+                GameplayLog.event(entity,"habitat","pickup item={} count={} source={} remaining={} holder=mouth",
+                        gathered.getItem(),gathered.getCount(),targetItem.getUUID(),remaining.getCount());
                 targetItem=null;ticks=0;
                 task=Task.NEST_BUILD;targetBlock=value.bed(entity.getUUID());buildTicks=0;
             }
@@ -491,7 +493,10 @@ public final class HabitatLife {
                     ||!(targetItem.getItem().is(ModItems.WASTE.get())&&value.contains(targetItem.blockPosition())
                     ||wantsMaterial(value,targetItem.getItem()))){stop();return;}
             if(approach(targetItem.blockPosition())&&entity.distanceToSqr(targetItem)<2.25) {
-                carry(targetItem.getItem().split(1));cheekFill();if(targetItem.getItem().isEmpty())targetItem.discard();targetItem=null;
+                carry(targetItem.getItem().split(1));
+                GameplayLog.event(entity,"habitat","pickup item={} count=1 source={} remaining={} holder=mouth",
+                        carrying.getItem(),targetItem.getUUID(),targetItem.getItem().getCount());
+                cheekFill();if(targetItem.getItem().isEmpty())targetItem.discard();targetItem=null;
                 task=carrying.is(ModItems.WASTE.get())?Task.CLEAN:Task.DEPOSIT;ticks=0;
             }
         } else if(task==Task.HARVEST) {
@@ -538,6 +543,8 @@ public final class HabitatLife {
                             &&ItemStack.isSameItemSameComponents(it.getItem(),carrying)).stream().findFirst().orElse(null);
             if(source==null)break;
             source.getItem().shrink(1);carrying.grow(1);
+            GameplayLog.event(entity,"habitat","pickup item={} count=1 source={} remaining={} holder=mouth carried={}",
+                    carrying.getItem(),source.getUUID(),source.getItem().getCount(),carrying.getCount());
             if(source.getItem().isEmpty())source.discard();
         }
     }

@@ -668,7 +668,8 @@ public final class TraceRecorder {
         ItemStack carried = entity.getCarriedItem();
         if (!carried.isEmpty()) mouth.add(item(carried));
         out.add("mouth", mouth);
-        ItemStack kitStack = entity.hatKit();
+        // Observe this holder's authority only; hatKit() also aliases a deployed hat's stack.
+        ItemStack kitStack = entity.life().custody().kit();
         if (kitStack.isEmpty()) out.add("kit", JsonNull.INSTANCE);
         else {
             JsonObject kit = item(kitStack);

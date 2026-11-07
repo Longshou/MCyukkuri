@@ -875,6 +875,8 @@ public final class YukkuriLife {
                 if (beginMeal(one, null, false)) {
                     ItemStack remaining = targetFood.getItem().copy(); remaining.shrink(1);
                     if (remaining.isEmpty()) targetFood.discard(); else targetFood.setItem(remaining);
+                    GameplayLog.event(entity, "meal", "pickup item={} count=1 source={} remaining={} holder=mouth",
+                            one.getItem(), targetFood.getUUID(), remaining.getCount());
                     WildCards.foodTaken(entity,targetFood);
                     if (!rivals.isEmpty() && wait < 35 && nutrition>15) {
                         for (var rival : rivals) WildCards.competing(entity, rival);
@@ -900,7 +902,11 @@ public final class YukkuriLife {
                 if (!one.isEmpty() && !beginMeal(one, null, false)) {
                     // Only reachable if another rule invalidates eating inside this call.
                     ItemEntity restored = entity.spawnAtLocation(one); if (restored != null) restored.setPickUpDelay(40);
-                } else if (!one.isEmpty()) meal.bowlMeal();
+                } else if (!one.isEmpty()) {
+                    meal.bowlMeal();
+                    GameplayLog.event(entity, "meal", "pickup item={} count={} source={} holder=mouth",
+                            one.getItem(), one.getCount(), targetBlock);
+                }
             } else {
                 Vec3 stand = contact.add(toward.scale(Math.max(entity.getBbWidth()*.5+.04,
                         MouthPlacement.position(entity).subtract(entity.position()).horizontalDistance())));

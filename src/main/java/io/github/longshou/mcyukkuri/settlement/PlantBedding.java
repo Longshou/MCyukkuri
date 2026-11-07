@@ -3,6 +3,7 @@ package io.github.longshou.mcyukkuri.settlement;
 import io.github.longshou.mcyukkuri.world.SearchBudget.Purpose;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
+import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.function.Predicate;
@@ -119,6 +120,8 @@ public final class PlantBedding {
         if(!ForageClaims.owns(level,target.block(),claim)||!(Grazing.edible(target.state())?Grazing.graze(level,target.block()):level.setBlock(target.block(),
                 Blocks.AIR.defaultBlockState(),3))){stop();return ItemStack.EMPTY;}
         level.levelEvent(2001,target.block(),Block.getId(target.state()));
+        GameplayLog.event(entity, "habitat", "gathered item={} count={} source={} holder=mouth",
+                result.getItem(), result.getCount(), target.block());
         stop();return result;
     }
 }

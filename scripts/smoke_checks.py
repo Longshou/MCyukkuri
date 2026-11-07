@@ -9,6 +9,7 @@ import sys
 import json
 import math
 import subprocess
+from bisect import bisect_left, bisect_right
 from collections import defaultdict, Counter, deque
 from pathlib import Path
 
@@ -162,11 +163,11 @@ def changed(a, b):
         return True
     if any(a[k] != b[k] for k in ('int', 'goals', 'phase', 'hold')):
         return True
-    intent = str(b['int']).lower()
-    for key, verbs in (('nut', ('eat', 'meal', 'feed')), ('en', ('sleep', 'rest'))):
-        if any(verb in intent for verb in verbs):
-            if a['need'].get(key) is not None and b['need'].get(key) is not None and b['need'][key] > a['need'][key]:
-                return True
+    # LifeGoal serves meals/rest without an IntentRunner id. Real recovery is progress
+    # regardless of which driver owns it; the interval closes when recovery stops.
+    for key in ('nut', 'en'):
+        if a['need'].get(key) is not None and b['need'].get(key) is not None and b['need'][key] > a['need'][key]:
+            return True
     return False
 
 
@@ -251,6 +252,7 @@ def actor_samples(rows):
 def loops(records, samples):
     out, buckets = [], defaultdict(list)
     actors = actor_samples(samples)
+    actor_ticks = {actor: [r['t'] for r in rows] for actor, rows in actors.items()}
     for row in records:
         if row['k'] != 'ev':
             continue
@@ -264,7 +266,8 @@ def loops(records, samples):
         bucket = buckets[key]
         # Count only repeats at the same block ±1 with no observed progress in between.
         prior = bucket[-1][0] if bucket else None
-        between = [s for s in actors[row['u']] if prior and prior['t'] <= s['t'] <= row['t']]
+        ticks = actor_ticks.get(row['u'], [])
+        between = actors[row['u']][bisect_left(ticks, prior['t']):bisect_right(ticks, row['t'])] if prior else []
         enough = len(between) >= 2 and all(progress_known(s['state']) for s in between)
         if prior and (distance(prior['pos'], row['pos']) > math.sqrt(3) or enough and changed(between[0]['state'], between[-1]['state'])):
             bucket.clear()
@@ -280,7 +283,9 @@ def loops(records, samples):
             s = row['state']
             if not known(s, 'att', 'hold') or 'veh' not in s:
                 continue
-            value = (s['att'], s['veh'], s['hold'].get('carry'))
+            # Frame/spot motion is geometry, not a change of attachment ownership.
+            attachment = tuple(s['att'].get(k) for k in ('kind', 'host', 'place'))
+            value = (attachment, s['veh'], s['hold'].get('carry'))
             if not values or values[-1][1] != value:
                 values.append((row, value))
                 if len(values) >= 3 and values[-1][1] == values[-3][1]:
@@ -367,8 +372,13 @@ def inventory(s):
 
 def ledger(records, samples, dense=False):
     out, ticks, current = [], defaultdict(list), {}
-    explanations = [r for r in records if r['k'] == 'ev' and re.search(r'\b(eat|ate|swallow|consum|place|pickup|interaction)', r.get('msg', ''), re.I)
+    explanations = [r for r in records if r['k'] == 'ev' and re.search(r'\b(eat|ate|swallow|consum|place|pickup|interaction|received item=|gathered item=|shed stem delivered|deposit home=|granary deposit|feed portion reserved|feed plant harvested|feed mash prepared|feed handed to meal|nest material|pack store=|carried meal)', r.get('msg', ''), re.I)
                     or r['k'] == 'life' and r.get('out') in ('unloaded', 'scope_exit', 'changed_dimension')]
+    explained_items = defaultdict(set)
+    for event in explanations:
+        item = re.search(r'\bitem=(?:\d+ )?([a-z0-9_.-]+:[a-z0-9_/.-]+)', event.get('msg', ''))
+        for offset in range(-2, 3):
+            explained_items[event['t'] + offset].add(item[1] if item else None)
     for row in records:
         if row['k'] == 'life':
             ticks[row['t']].append(row)
@@ -403,7 +413,8 @@ def ledger(records, samples, dense=False):
             out.append(result('LEDGER', 'no-evidence', 'inventory authority missing', rows[-1]))
             continue
         total = sum(current.values(), Counter())
-        explained = any(abs(r['t'] - tick) <= 2 for r in explanations)
+        changed_items = {item for item in total.keys() | previous.keys() if total[item] != previous[item]} if previous is not None else set()
+        explained = None in explained_items[tick] or changed_items <= explained_items[tick]
         if previous is not None and total != previous and not explained and dip is None:
             dip = (tick, previous, rows[-1])
         if dip and total == dip[1]:
@@ -858,10 +869,20 @@ def observations(records, issues=(), raw='', allow=(), end=(), seed=None, rerun=
         relevant = [f for f in findings if f['check'] == check]
         verdict = max((f['verdict'] for f in relevant), key=RANK.get, default='pass')
         summary.append(dict(check=check, verdict=verdict))
+    evidence_rows = defaultdict(list)
+    for index, row in enumerate(records):
+        evidence_rows[row['u']].append((row['t'], index, row))
+    for rows in evidence_rows.values():
+        rows.sort(key=lambda entry: (entry[0], entry[1]))
+    evidence_ticks = {actor: [entry[0] for entry in rows] for actor, rows in evidence_rows.items()}
     for f in findings:
-        f.update(evidence=evidence, seed=seed, rerun=rerun,
-                 timeline=[r for r in records if f['t'] is not None and abs(r['t'] - f['t']) <= 100
-                           and (r['u'] == f['actor'] or r['u'] is None)])
+        nearby = []
+        if f['t'] is not None:
+            for actor in {f['actor'], None}:
+                ticks = evidence_ticks.get(actor, [])
+                nearby.extend(evidence_rows[actor][bisect_left(ticks, f['t'] - 100):bisect_right(ticks, f['t'] + 100)])
+        nearby.sort(key=lambda entry: entry[1])
+        f.update(evidence=evidence, seed=seed, rerun=rerun, timeline=[entry[2] for entry in nearby])
     return dict(report_only=True, evidence=evidence, seed=seed, rerun=rerun, summary=summary, findings=findings)
 
 
