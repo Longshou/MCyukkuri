@@ -324,23 +324,20 @@
       "loop": false,
       "steps": [
         {
-          "clip": "meal_content",
+          "clip": "sway",
           "intensity": 1,
-          "tempo": 1,
+          "tempo": 0.6666667,
           "faces": [
             [
               0,
-              "closed_smile"
-            ],
-            [
-              0.9,
               "satisfied"
             ],
             [
-              2.9,
+              0.8,
               "closed_smile"
             ]
-          ]
+          ],
+          "emote": "note"
         }
       ]
     },
@@ -741,20 +738,12 @@
       "steps": [
         {
           "clip": "rain_huddle_left",
-          "intensity": 1,
+          "intensity": 1.1,
           "tempo": 1,
           "faces": [
             [
               0,
-              "squeezed_cry_tears"
-            ],
-            [
-              0.6,
-              "teary"
-            ],
-            [
-              2.8,
-              "sleepy"
+              "cold"
             ]
           ],
           "emote": "shiver"
@@ -766,20 +755,12 @@
       "steps": [
         {
           "clip": "rain_huddle_right",
-          "intensity": 1,
+          "intensity": 1.1,
           "tempo": 1,
           "faces": [
             [
               0,
-              "squeezed_cry_tears"
-            ],
-            [
-              0.6,
-              "teary"
-            ],
-            [
-              2.8,
-              "sleepy"
+              "cold"
             ]
           ],
           "emote": "shiver"
@@ -790,23 +771,32 @@
       "loop": true,
       "steps": [
         {
-          "clip": "thunder_cower",
+          "clip": "shy",
           "intensity": 1,
-          "tempo": 1,
+          "tempo": 1.25,
           "faces": [
             [
               0,
-              "squeezed_cry_tears"
+              "horrified"
             ],
             [
-              1.4,
-              "teary"
-            ],
-            [
-              2.4,
-              "squeezed_cry_tears"
+              0.4,
+              "squeezed_teary"
             ]
-          ]
+          ],
+          "emote": "shiver"
+        },
+        {
+          "clip": "shy",
+          "intensity": 1,
+          "tempo": 1.25,
+          "faces": [
+            [
+              0,
+              "squeezed_teary"
+            ]
+          ],
+          "emote": "shiver"
         }
       ]
     },
@@ -2277,7 +2267,8 @@
               2.75,
               "teary"
             ]
-          ]
+          ],
+          "emote": "question"
         }
       ]
     },
