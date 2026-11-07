@@ -13,8 +13,9 @@ page source and never requests a file or bypasses the challenge.
 ``check`` is offline and read-only: it verifies the cache against the committed
 coverage table ``wiki/hakkei-reference/sources-fandom.md`` (every cached page
 listed once, every listed wiki target existing and citing its source ID). Pages
-of all seven fetched categories are listed there, including the ones skipped with
-a reason.
+of all eleven fetched categories are listed there, including the ones skipped
+with a reason. Character and story pages summarize single works, so they are
+registered here and indexed in the wiki rather than treated as setting.
 """
 from __future__ import annotations
 
@@ -31,7 +32,8 @@ CACHE = ROOT / '.local/fandom'
 API = 'https://yukkuri.fandom.com/api.php'
 SITE = 'https://yukkuri.fandom.com/wiki/'
 COVERAGE = ROOT / 'wiki/hakkei-reference/sources-fandom.md'
-CATEGORIES = ('Pet Yukkuri', 'Places', 'Meta', 'Memes', 'Behavior', 'Biology', 'Yukkuri')
+CATEGORIES = ('Pet Yukkuri', 'Places', 'Meta', 'Memes', 'Behavior', 'Biology', 'Yukkuri',
+              'Characters', 'Other Characters', 'Text Stories', 'Cartoon Stories')
 AGENT = 'MCyukkuri-Wiki-Reference/1.0 (project wiki source cache)'
 DELAY = 1.0
 
@@ -200,7 +202,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument('command', choices=['fetch', 'list', 'show', 'check'])
     parser.add_argument('--category', nargs='+', default=list(CATEGORIES),
-                        help='categories to fetch or show (default: all seven)')
+                        help='categories to fetch or show (default: all eleven)')
     parser.add_argument('--page', nargs='+', help='show only these page titles')
     parser.add_argument('--refresh', action='store_true',
                         help='re-request category lists and cached pages')

@@ -21,6 +21,33 @@
 
 **W：** 高优先级综述 [L36](hakkei-reference/sources-lore.md)记录了人油关系的常见变化：早期写法中，油库里畏惧捕食种、轻视人类；随着加工所成为创作背景，加工人员成为明确的恐惧对象，对一般人类的警惕也更常出现（[No. 11518780](https://komicolle.org/c/40720#r11518780)）。人类角色由其职业、经历和对油库里的态度共同呈现，可形成饲主、商店职员、工厂员工、鬼威惨与爱派照顾者等不同关系。
 
+## 原作人物与无名人类的条目
+
+Category:Characters 里与人类角色有关的九页，写的是人类或东方原作人物在故事里被怎样使用。它们提供人类态度与职业的母题，不进入项目世界：项目没有东方人物，人类 NPC 只按职业与立场区分（[人类世界](../docs/FEATURES.md#人类世界)），具体差异见[设定差异](hakkei-reference/lore/conflicts.md)。该分类其余条目是未实现的型，只在[种族目录](hakkei-reference/lore/species/README.md)列名。
+
+| 条目 | 站点写法 | 项目采用 |
+| --- | --- | --- |
+| [F211](https://yukkuri.fandom.com/wiki/Anonymous) 匿名者 | 故事里的无名人类被当作一个身份，分施虐者、饲主与无能者三类；无能者出于好意误判个体信号，反而造成伤害。 | 人类 NPC 按职业与立场区分（店主、工厂职员、鬼威惨、爱派照顾者），没有以“Anon”为名的固定角色，也不单列“好意误伤”一类。 |
+| [F236](https://yukkuri.fandom.com/wiki/Reimu_Hakurei) 博丽灵梦 | 对油库里中立或友善，最多赶出神社，也常养一只灵梦型当宠物。 | 项目没有东方人物，角色名只作种族名；人类对油库里的态度按 NPC 自身立场。 |
+| [F227](https://yukkuri.fandom.com/wiki/Marisa_Kirisame) 雾雨魔理沙 | 少见出场，多当旁观者衬托别人的关系。 | 同上。 |
+| [F209](https://yukkuri.fandom.com/wiki/Alice_Margatroid) 爱丽丝·玛格特罗伊德 | 把感情投射到魔理沙型身上，既溺爱又施虐。 | 同上；项目没有投射式占有关系。 |
+| [F242](https://yukkuri.fandom.com/wiki/Sakuya_Izayoi) 十六夜咲夜 | 喜欢油库里，养一只蕾米莉亚型，对自己那型冷淡。 | 同上。 |
+| [F218](https://yukkuri.fandom.com/wiki/Eirin_Yagokoro) 八意永琳 | 月之药师，故事里常对油库里做实验与手术。 | 同上；项目没有实验改造路径。 |
+| [F224](https://yukkuri.fandom.com/wiki/Hieda_no_Akyu) 稗田阿求 | 故事里成为设计折磨环境的施虐者（AQN）。 | 同上。 |
+| [F271](https://yukkuri.fandom.com/wiki/Yuuka_Kazami) 风见幽香 | 护花，对吃花的油库里下手。 | 同上；项目没有花的产权冲突。 |
+| [F212](https://yukkuri.fandom.com/wiki/Aya_Shameimaru) 射命丸文 | 只有一句定位，没有油库里故事内容。 | 无可采用。 |
+
+### 故事里的人类职业与项目 NPC
+
+故事页写出的人类职业比单个人物页更具体。下表的四个角色仅供对照，项目的 NPC 集合仍以[人类世界](../docs/FEATURES.md#人类世界)为准；触犯规则的部分见[设定差异](hakkei-reference/lore/conflicts.md)。
+
+| 职业 | 站点写法 | 项目采用 |
+| --- | --- | --- |
+| 工厂捕猎队 | 派人入林捉野生个体卖给工厂，与聚居个体正面冲突（[F208](https://yukkuri.fandom.com/wiki/A_team_full_of_yukkuri)、[F215](https://yukkuri.fandom.com/wiki/Dangerous_Yukkuri)） | 没有巡猎队与人手捕猎；工厂只收玩家递上的真实运输篮。 |
+| “矫正者” | 接单把个体关进地下室、用笼具与电击调教（[F221](https://yukkuri.fandom.com/wiki/For_Great_Justice_V)、[F222](https://yukkuri.fandom.com/wiki/For_Great_Justice_VI._Human_vs_yukkuri)、[F223](https://yukkuri.fandom.com/wiki/For_Great_Justice_VII)） | 没有这项业务；鬼威惨是工头或独立 NPC，不施虐受保护个体。 |
+| 研究者与实验者 | 药师、博士一类角色对个体做实验、手术与改造（[F207](https://yukkuri.fandom.com/wiki/A_recipe_to_madness)、[F246](https://yukkuri.fandom.com/wiki/Smart_Reimu)、[F267](https://yukkuri.fandom.com/wiki/Yukkuri_studies)） | 没有实验与改造路径，也没有研究者 NPC。 |
+| 饲主与店铺顾客 | 购买、挑选、带回家饲养，也会因不懂个体需求而误伤（[F202](https://yukkuri.fandom.com/wiki/"Life_With_Yukkuris")、[F230](https://yukkuri.fandom.com/wiki/My_first_Yukkuri)、[F244](https://yukkuri.fandom.com/wiki/Shell)） | 归主与收养走真实交接（运输篮、双向许可），态度由 NPC 立场与事件决定。 |
+
 ## 已核读的作品
 
 ### 商店：有活体库存、价差与购买咨询

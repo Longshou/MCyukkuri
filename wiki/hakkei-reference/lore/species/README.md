@@ -164,6 +164,10 @@
 | [F198](https://yukkuri.fandom.com/wiki/Yukkuri_Yuugi) 勇仪型 | 力气极大、爱开宴会。 |
 | [F199](https://yukkuri.fandom.com/wiki/Yukkuri_Yuuka) 幽香型 | 是第一种会自己种食物的型，会用锄头与水壶。 |
 | [F200](https://yukkuri.fandom.com/wiki/Yukkuri_Yuyuko) 幽幽子型 | 食量极大。 |
+| [F261](https://yukkuri.fandom.com/wiki/Yukkuri_Minami) 南型 | 原型为栗桥南，据说只在外部世界出现，爱去东武铁道的车站。 |
+| [F263](https://yukkuri.fandom.com/wiki/Yukkuri_Rikako) 理香子型 | 眼镜与小白丝带，馅为铝热剂或硫酸，能读写、在实验室与工厂供数据。 |
+| [F265](https://yukkuri.fandom.com/wiki/Yukkuri_VIVIT) 薇薇特型 | 女仆发带与扫帚，爱做家务、能说完整句子，遇水会让水温升高。 |
+| [F270](https://yukkuri.fandom.com/wiki/Yurriku) 尤里库 | 不是型：站点把它归为非油库里角色，外形像倒过来的油库里、用长发当四肢，把幼体寄生产在油库里体内。 |
 
 **项目采用：** 已实现者为[类型总表](#类型总表)里的十个种族与各自的亚种、先天形态；上列类型、它们的超自然能力与外作联动一律未实现。站点另有“各型继承原作人物能力、会飞的型都能飞”的写法，项目只让蕾米莉亚与芙兰飞行，见[设定差异](../conflicts.md)。
 

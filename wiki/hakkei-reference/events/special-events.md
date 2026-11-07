@@ -31,4 +31,6 @@
 
 探险、送行、表演、家庭求助和聚落危机都可作为创作母题。另写救援、返家、重逢或撤离结局时，应视为原创情景，不反过来替换原篇后果。
 
+社区 Wiki 的 56 篇单篇作品另有[fandom 故事目录](fandom-stories.md)，只登记标题、作者与一句前提；其中的重复母题见[传统母题](traditional-motifs.md)的 TM78–TM84。
+
 [作品来源与核读范围](../sources-events.md) · [原创中文对白](../dialogue/scene-lines.md)

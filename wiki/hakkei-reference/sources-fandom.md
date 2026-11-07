@@ -2,7 +2,7 @@
 
 [Wiki 总入口](../README.md) · [世界观与生态来源](sources-lore.md) · [设定差异](lore/conflicts.md)
 
-本页登记社区 Wiki yukkuri.fandom.com 七个分类的采用范围：Category:Pet Yukkuri（12 页）、Places（4 页）、Meta（8 页）、Memes（4 页）、Behavior（21 页）、Biology（22 页，含 1 个子分类）与 Category:Yukkuri（149 页，另有 1 个子分类）。七个分类共 221 条分类记录，跨分类重复的按页面计一次，共 200 个条目。Category:Yukkuri 是各型条目的总目录：本库只把已实现的种族与形态并进种族页，其余未实现的型在[种族目录](lore/species/README.md)各留一行，不转录内容。它同样是多人合写的社区整理，属于 **W** 级资料：同一页里既有被称作通行的写法，也有注明出处的个人方案、写手私设与建议体文章两种情况，本库按页面登记，不把整页当作跨作者共识。Meta 分类多为社区史与站务资料，不是设定陈述，单独按页注明用处。
+本页登记社区 Wiki yukkuri.fandom.com 十一个分类的采用范围：Category:Pet Yukkuri（12 页）、Places（4 页）、Meta（8 页，另有 2 个子分类）、Memes（4 页）、Behavior（21 页）、Biology（22 页，另有 1 个子分类）、Category:Yukkuri（149 页，另有 1 个子分类）、Characters（126 页，另有 2 个模板）、Other Characters（35 页）、Text Stories（45 页）与 Cartoon Stories（13 页）。十一个分类共 445 条分类记录，跨分类重复的按页面计一次，共 271 个条目。Category:Yukkuri 是各型条目的总目录：本库只把已实现的种族与形态并进种族页，其余未实现的型在[种族目录](lore/species/README.md)各留一行，不转录内容。Characters 与 Other Characters 里的种族条目与总目录各行重合，不再另列；其中的人类角色与东方人物条目（含无名人类一页）并在[商店、加工所与人类 NPC](../shops-factory-npcs.md)。两个故事分类的 56 篇作品逐篇登记在[fandom 故事目录](events/fandom-stories.md)，只留标题、作者与一句前提。它同样是多人合写的社区整理，属于 **W** 级资料：同一页里既有被称作通行的写法，也有注明出处的个人方案、写手私设与建议体文章两种情况，本库按页面登记，不把整页当作跨作者共识。Meta 分类多为社区史与站务资料，不是设定陈述，单独按页注明用处。
 
 - 抓取只走公开 MediaWiki API（`list=categorymembers`、`action=parse&prop=wikitext`），缓存留在 `.local/fandom/`、不入库；`scripts/wiki_fandom.py` 负责抓取与离线核对。
 - 站点图片受 Cloudflare 质询保护，本库**没有取到任何图片**：只从页面源码登记图片文件名与说明文字，不当画格证据、不据此写造型或行为结论。
@@ -211,5 +211,90 @@
 | F198 | [Yukkuri Yuugi](https://yukkuri.fandom.com/wiki/Yukkuri_Yuugi) | — | rev 9324；未实现的型，只在[种族目录](lore/species/README.md)列名 |
 | F199 | [Yukkuri Yuuka](https://yukkuri.fandom.com/wiki/Yukkuri_Yuuka) | — | rev 10559；未实现的型，只在[种族目录](lore/species/README.md)列名 |
 | F200 | [Yukkuri Yuyuko](https://yukkuri.fandom.com/wiki/Yukkuri_Yuyuko) | — | rev 10155；未实现的型，只在[种族目录](lore/species/README.md)列名 |
+
+## 人类与原作人物（Category:Characters）
+
+这些页写的是人类或东方原作人物在油库里作品里被怎样使用，不是油库里的设定。无名人类集中在 [F211](https://yukkuri.fandom.com/wiki/Anonymous) 一页，东方人物各有一页；项目的世界没有东方人物，人类 NPC 只按职业与立场区分（[商店、加工所与人类 NPC](../shops-factory-npcs.md)）。三只未实现的型与一件非油库里生物仍归[种族目录](lore/species/README.md)；图片索引页没有可取内容。
+
+| 编号 | 页面 | 收录地点 | 版本与范围 |
+| --- | --- | --- | --- |
+| F209 | [Alice Margatroid](https://yukkuri.fandom.com/wiki/Alice_Margatroid) | [商店、加工所与人类 NPC](../shops-factory-npcs.md) | rev 3204；东方人物条，全页 |
+| F211 | [Anonymous](https://yukkuri.fandom.com/wiki/Anonymous) | [商店、加工所与人类 NPC](../shops-factory-npcs.md) | rev 10377；人类无名主角的分类，全页 |
+| F212 | [Aya Shameimaru](https://yukkuri.fandom.com/wiki/Aya_Shameimaru) | [商店、加工所与人类 NPC](../shops-factory-npcs.md) | rev 10482；东方人物条，只有一句 |
+| F218 | [Eirin Yagokoro](https://yukkuri.fandom.com/wiki/Eirin_Yagokoro) | [商店、加工所与人类 NPC](../shops-factory-npcs.md) | rev 6692；东方人物条，全页 |
+| F224 | [Hieda no Akyu](https://yukkuri.fandom.com/wiki/Hieda_no_Akyu) | [商店、加工所与人类 NPC](../shops-factory-npcs.md) | rev 7623；东方人物条，全页 |
+| F227 | [Marisa Kirisame](https://yukkuri.fandom.com/wiki/Marisa_Kirisame) | [商店、加工所与人类 NPC](../shops-factory-npcs.md) | rev 10294；东方人物条，全页 |
+| F236 | [Reimu Hakurei](https://yukkuri.fandom.com/wiki/Reimu_Hakurei) | [商店、加工所与人类 NPC](../shops-factory-npcs.md) | rev 3201；东方人物条，全页 |
+| F242 | [Sakuya Izayoi](https://yukkuri.fandom.com/wiki/Sakuya_Izayoi) | [商店、加工所与人类 NPC](../shops-factory-npcs.md) | rev 6729；东方人物条，全页 |
+| F271 | [Yuuka Kazami](https://yukkuri.fandom.com/wiki/Yuuka_Kazami) | [商店、加工所与人类 NPC](../shops-factory-npcs.md) | rev 6758；东方人物条，全页 |
+| F261 | [Yukkuri Minami](https://yukkuri.fandom.com/wiki/Yukkuri_Minami) | [种族目录](lore/species/README.md) | rev 7523；未实现的型，列名 |
+| F263 | [Yukkuri Rikako](https://yukkuri.fandom.com/wiki/Yukkuri_Rikako) | [种族目录](lore/species/README.md) | rev 8833；未实现的型，列名 |
+| F265 | [Yukkuri VIVIT](https://yukkuri.fandom.com/wiki/Yukkuri_VIVIT) | [种族目录](lore/species/README.md) | rev 10275；未实现的型，列名 |
+| F270 | [Yurriku](https://yukkuri.fandom.com/wiki/Yurriku) | [种族目录](lore/species/README.md) | rev 5745；非油库里生物条，列名 |
+| F259 | [Yukkuri Gallery](https://yukkuri.fandom.com/wiki/Yukkuri_Gallery) | — | rev 4058；只有图片文件名与页面链，站点图片未取，没有文字内容 |
+
+## 故事页（Category:Text Stories、Cartoon Stories）
+
+站点把每一篇作品写成摘要页，页内带作者、出处与题材栏。本库只保留标题、作者与一句前提，供查词和写作参照；前提是站点编辑的概括，不是原文，也不是项目设定（[fandom 故事目录](events/fandom-stories.md)）。作品里的具体后果不推广到其他作品。
+
+| 编号 | 页面 | 收录地点 | 版本与范围 |
+| --- | --- | --- | --- |
+| F201 | ["Hatless Marisa"](https://yukkuri.fandom.com/wiki/"Hatless_Marisa") | [故事目录](events/fandom-stories.md) | rev 10491；文本故事，全页 |
+| F202 | ["Life With Yukkuris"](https://yukkuri.fandom.com/wiki/"Life_With_Yukkuris") | [故事目录](events/fandom-stories.md) | rev 10478；文本故事，全页 |
+| F203 | ["Taking it Easy in Tokyo-3"](https://yukkuri.fandom.com/wiki/"Taking_it_Easy_in_Tokyo-3") | [故事目录](events/fandom-stories.md) | rev 10490；文本故事，全页 |
+| F204 | ["What if yukkuris were treated like plants?"](https://yukkuri.fandom.com/wiki/"What_if_yukkuris_were_treated_like_plants?") | [故事目录](events/fandom-stories.md) | rev 10496；文本故事，全页 |
+| F205 | [A Yukkuri paradise](https://yukkuri.fandom.com/wiki/A_Yukkuri_paradise) | [故事目录](events/fandom-stories.md) | rev 4899；文本故事，全页 |
+| F206 | [A certain pink-haired ghost and her yukkuri](https://yukkuri.fandom.com/wiki/A_certain_pink-haired_ghost_and_her_yukkuri) | [故事目录](events/fandom-stories.md) | rev 10503；文本故事，全页 |
+| F207 | [A recipe to madness](https://yukkuri.fandom.com/wiki/A_recipe_to_madness) | [故事目录](events/fandom-stories.md) | rev 8484；文本故事，全页 |
+| F208 | [A team full of yukkuri](https://yukkuri.fandom.com/wiki/A_team_full_of_yukkuri) | [故事目录](events/fandom-stories.md) | rev 10481；文本故事，全页 |
+| F210 | [An Easy Host](https://yukkuri.fandom.com/wiki/An_Easy_Host) | [故事目录](events/fandom-stories.md) | rev 10480；文本故事，全页 |
+| F213 | [Boy returns home](https://yukkuri.fandom.com/wiki/Boy_returns_home) | [故事目录](events/fandom-stories.md) | rev 10438；文本故事，全页 |
+| F214 | [Breeding Nonshitting Yukkuris](https://yukkuri.fandom.com/wiki/Breeding_Nonshitting_Yukkuris) | [故事目录](events/fandom-stories.md) | rev 8418；漫画，全页 |
+| F215 | [Dangerous Yukkuri](https://yukkuri.fandom.com/wiki/Dangerous_Yukkuri) | [故事目录](events/fandom-stories.md) | rev 9467；文本故事，全页 |
+| F216 | [Dangerous mansion of yukkuri part I](https://yukkuri.fandom.com/wiki/Dangerous_mansion_of_yukkuri_part_I) | [故事目录](events/fandom-stories.md) | rev 10509；文本故事，含两个结局 |
+| F217 | [Dangerous mansion of yukkuri part II](https://yukkuri.fandom.com/wiki/Dangerous_mansion_of_yukkuri_part_II) | [故事目录](events/fandom-stories.md) | rev 5164；文本故事，全页 |
+| F219 | [Factory Incident](https://yukkuri.fandom.com/wiki/Factory_Incident) | [故事目录](events/fandom-stories.md) | rev 7303；文本故事，短篇 |
+| F220 | [Flandre Rescue](https://yukkuri.fandom.com/wiki/Flandre_Rescue) | [故事目录](events/fandom-stories.md) | rev 10499；文本故事，全页 |
+| F221 | [For Great Justice V](https://yukkuri.fandom.com/wiki/For_Great_Justice_V) | [故事目录](events/fandom-stories.md) | rev 4841；文本故事，系列一篇 |
+| F222 | [For Great Justice VI. Human vs yukkuri](https://yukkuri.fandom.com/wiki/For_Great_Justice_VI._Human_vs_yukkuri) | [故事目录](events/fandom-stories.md) | rev 4865；文本故事，系列一篇 |
+| F223 | [For Great Justice VII](https://yukkuri.fandom.com/wiki/For_Great_Justice_VII) | [故事目录](events/fandom-stories.md) | rev 4885；文本故事，系列一篇 |
+| F225 | [Kind mother Reimu](https://yukkuri.fandom.com/wiki/Kind_mother_Reimu) | [故事目录](events/fandom-stories.md) | rev 8954；漫画，摘要 |
+| F226 | [Lonely Reimu](https://yukkuri.fandom.com/wiki/Lonely_Reimu) | [故事目录](events/fandom-stories.md) | rev 3368；文本故事，全页 |
+| F228 | [Marisa's magic hat](https://yukkuri.fandom.com/wiki/Marisa's_magic_hat) | [故事目录](events/fandom-stories.md) | rev 10495；文本故事，全页 |
+| F229 | [My Precious Marisa](https://yukkuri.fandom.com/wiki/My_Precious_Marisa) | [故事目录](events/fandom-stories.md) | rev 10510；文本故事，全页 |
+| F230 | [My first Yukkuri](https://yukkuri.fandom.com/wiki/My_first_Yukkuri) | [故事目录](events/fandom-stories.md) | rev 5245；文本故事，全页 |
+| F231 | [New Type of Yukkuri](https://yukkuri.fandom.com/wiki/New_Type_of_Yukkuri) | [故事目录](events/fandom-stories.md) | rev 10511；文本故事，全页 |
+| F232 | [Orphan Alice](https://yukkuri.fandom.com/wiki/Orphan_Alice) | [故事目录](events/fandom-stories.md) | rev 5676；漫画，摘要 |
+| F233 | [Oven mitt](https://yukkuri.fandom.com/wiki/Oven_mitt) | [故事目录](events/fandom-stories.md) | rev 4092；文本故事，全页 |
+| F234 | [Project Bottle Yu Farm](https://yukkuri.fandom.com/wiki/Project_Bottle_Yu_Farm) | [故事目录](events/fandom-stories.md) | rev 10526；文本故事，全页 |
+| F235 | [Raising a Yu](https://yukkuri.fandom.com/wiki/Raising_a_Yu) | [故事目录](events/fandom-stories.md) | rev 10532；文本故事兼漫画，全页 |
+| F237 | [Reimu's malformed sister](https://yukkuri.fandom.com/wiki/Reimu's_malformed_sister) | [故事目录](events/fandom-stories.md) | rev 9905；文本故事，全页 |
+| F238 | [Reimu's mortal sin](https://yukkuri.fandom.com/wiki/Reimu's_mortal_sin) | [故事目录](events/fandom-stories.md) | rev 10512；文本故事，全页 |
+| F239 | [Reimu's mute children](https://yukkuri.fandom.com/wiki/Reimu's_mute_children) | [故事目录](events/fandom-stories.md) | rev 4095；文本故事，全页 |
+| F240 | [Remilia is Marisa](https://yukkuri.fandom.com/wiki/Remilia_is_Marisa) | [故事目录](events/fandom-stories.md) | rev 10500；漫画，摘要 |
+| F241 | [Removal of Marisa's Accesory](https://yukkuri.fandom.com/wiki/Removal_of_Marisa's_Accesory) | [故事目录](events/fandom-stories.md) | rev 8997；漫画，摘要 |
+| F243 | [Sanae Saves The Day!](https://yukkuri.fandom.com/wiki/Sanae_Saves_The_Day!) | [故事目录](events/fandom-stories.md) | rev 10492；文本故事，全页 |
+| F244 | [Shell](https://yukkuri.fandom.com/wiki/Shell) | [故事目录](events/fandom-stories.md) | rev 8429；漫画，摘要 |
+| F245 | [Shell Marisa](https://yukkuri.fandom.com/wiki/Shell_Marisa) | [故事目录](events/fandom-stories.md) | rev 10302；漫画，摘要 |
+| F246 | [Smart Reimu](https://yukkuri.fandom.com/wiki/Smart_Reimu) | [故事目录](events/fandom-stories.md) | rev 8438；漫画，摘要 |
+| F247 | [Stalk Amputation](https://yukkuri.fandom.com/wiki/Stalk_Amputation) | [故事目录](events/fandom-stories.md) | rev 8680；漫画，摘要 |
+| F248 | [Story Templates](https://yukkuri.fandom.com/wiki/Story_Templates) | — | rev 10487；站点投稿模板，不是作品 |
+| F249 | [Super-Spicy Reimu and Coffee Alice](https://yukkuri.fandom.com/wiki/Super-Spicy_Reimu_and_Coffee_Alice) | [故事目录](events/fandom-stories.md) | rev 10523；文本故事，全页 |
+| F250 | [Taming of bad Reimu](https://yukkuri.fandom.com/wiki/Taming_of_bad_Reimu) | [故事目录](events/fandom-stories.md) | rev 5415；文本故事，全页 |
+| F251 | [Ten yukkuris](https://yukkuri.fandom.com/wiki/Ten_yukkuris) | [故事目录](events/fandom-stories.md) | rev 10508；文本故事，全页 |
+| F252 | [The Diary.](https://yukkuri.fandom.com/wiki/The_Diary.) | [故事目录](events/fandom-stories.md) | rev 10502；文本故事，全页 |
+| F253 | [The Strangest Family](https://yukkuri.fandom.com/wiki/The_Strangest_Family) | [故事目录](events/fandom-stories.md) | rev 10505；文本故事，全页 |
+| F254 | [The Strongest Puff-Puff](https://yukkuri.fandom.com/wiki/The_Strongest_Puff-Puff) | [故事目录](events/fandom-stories.md) | rev 10479；文本故事，全页 |
+| F255 | [The happy family](https://yukkuri.fandom.com/wiki/The_happy_family) | [故事目录](events/fandom-stories.md) | rev 10504；漫画，摘要 |
+| F256 | [This Yukkuri](https://yukkuri.fandom.com/wiki/This_Yukkuri) | [故事目录](events/fandom-stories.md) | rev 3372；文本故事，全页 |
+| F257 | [Yukkurarium Family](https://yukkuri.fandom.com/wiki/Yukkurarium_Family) | [故事目录](events/fandom-stories.md) | rev 8454；漫画，摘要 |
+| F258 | [Yukkuri Escape](https://yukkuri.fandom.com/wiki/Yukkuri_Escape) | [故事目录](events/fandom-stories.md) | rev 10545；文本故事，全页 |
+| F260 | [Yukkuri Medical Malpractice, RubRub Edition](https://yukkuri.fandom.com/wiki/Yukkuri_Medical_Malpractice,_RubRub_Edition) | [故事目录](events/fandom-stories.md) | rev 10517；文本故事，全页 |
+| F262 | [Yukkuri Pastry](https://yukkuri.fandom.com/wiki/Yukkuri_Pastry) | [故事目录](events/fandom-stories.md) | rev 8479；文本故事，全页 |
+| F264 | [Yukkuri Suwako on a Hunt](https://yukkuri.fandom.com/wiki/Yukkuri_Suwako_on_a_Hunt) | [故事目录](events/fandom-stories.md) | rev 5406；文本故事，短篇 |
+| F266 | [Yukkuri in winter](https://yukkuri.fandom.com/wiki/Yukkuri_in_winter) | [故事目录](events/fandom-stories.md) | rev 10314；文本故事，全页 |
+| F267 | [Yukkuri studies](https://yukkuri.fandom.com/wiki/Yukkuri_studies) | [故事目录](events/fandom-stories.md) | rev 4849；文本故事，全页 |
+| F268 | [Yukkuri's House](https://yukkuri.fandom.com/wiki/Yukkuri's_House) | [故事目录](events/fandom-stories.md) | rev 8414；漫画，摘要 |
+| F269 | [Yukkuri: Reincarnation](https://yukkuri.fandom.com/wiki/Yukkuri:_Reincarnation) | [故事目录](events/fandom-stories.md) | rev 10474；文本故事，全页 |
 
 各页中属于单一作品的写法按[wiki 来源与记录边界](../README.md#来源与记录边界)与页面自身措辞保留，不因被反复转述升格为通行设定。
