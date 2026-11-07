@@ -4253,5 +4253,19 @@
     "preview": "standards/yukkuri-library/motions/variants/lore/carry_hold_preview.py",
     "status": "pending_user_review",
     "scope": "Reimu's mouth_release (markers open/release/closed: a young emerges from her mouth before it is let go); the generic held item: Marisa's braid (the braid_item_hold overlay ashore and boat_paddle's loop start aboard, braid_item_pick contact, braid_item_place release; props.item uses the paddle's grip and twig frame on hand_right_tip, contacts.braid_grip) and the mouth for the others (mouth_item_pick bite, mouth_item_place release; drawn at the mouth anchor); boat_puff, the seated captain's puff with the braid at its boat rest; the aquatic self hat clips (hat_off_self_aq, hat_on_self_aq: hat.stick) keep the held stick in the tuft, laid along the brim it hooks, handed over from and back to the hold with the braid (user 2026-11-05 feedback 2). Project design (user 2026-11-04 feedback 1, 2 and 6). Chen's two-tail carry reuses the client CarryTailCurl seats unchanged."
+  },
+  "emote_symbols": {
+    "source": "standards/yukkuri-library/emotes/emotes.py",
+    "exporter": "standards/yukkuri-library/emotes/emotes.py",
+    "assembled": "standards/yukkuri-library/emotes/assembled",
+    "preview_source": "standards/yukkuri-library/emotes/preview.py",
+    "preview": ".local/previews/emote-atlas/index.html",
+    "concept": ".local/generated-images/emotes/sheet.png (image liaison concept; redrawn at 16 px, not copied)",
+    "runtime": [
+      "src/main/resources/assets/mcyukkuri/textures/emote/atlas.png",
+      "src/main/resources/assets/mcyukkuri/textures/emote/emotes.json"
+    ],
+    "status": "pending_user_review",
+    "scope": "Twelve 16x16 above-head emote symbols (sweat, anger, zzz, exclaim, question, note, heart, gloom, sparkle, steam, shiver, idea) in one 4x3 atlas with an id/meaning/use/cell registry; project design. No renderer yet: the billboard and sync arrive with the moments package."
   }
 }

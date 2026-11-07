@@ -12,7 +12,8 @@
       {"id": "standard-expressions", "label": "标准表情、部件与叠加效果", "prefixes": ["standards/yukkuri-library/expressions/", "standards/yukkuri-library/STANDARD-EXPRESSIONS.md"], "library": ["expressions", "effects"]},
       {"id": "derived-faces", "label": "派生表情（沮丧、害怕）", "prefixes": ["standards/yukkuri-library/expressions/derived/"], "registry": ["derived_faces"], "ids": ["sad", "afraid"]},
       {"id": "ecology-expressions", "prefixes": ["art/source/ecology/"], "registry": ["ecology_expressions"]},
-      {"id": "adult-states", "prefixes": ["art/source/adult-states/", "standards/yukkuri-library/drafts/rapem-alice/"], "registry": ["adult_states", "alice_appearance"]}
+      {"id": "adult-states", "prefixes": ["art/source/adult-states/", "standards/yukkuri-library/drafts/rapem-alice/"], "registry": ["adult_states", "alice_appearance"]},
+      {"id": "emote-symbols", "label": "头顶情绪符号（汗滴、怒筋、Zzz 等 12 个）", "prefixes": ["standards/yukkuri-library/emotes/", "src/main/resources/assets/mcyukkuri/textures/emote/"], "registry": ["emote_symbols"]}
     ]},
     {"id": "headwear", "label": "头发与头饰", "families": [
       {"id": "hat-damage", "prefixes": ["art/props/hat-damage/", "src/main/resources/assets/mcyukkuri/yukkuri_presentation/hat_damage.json"], "ids": ["accessory_*", "hat-damage-index", "hat_damage_inner", "trimmed_hair"]},
