@@ -21,7 +21,7 @@ class MomentTest {
         assertEquals(Moments.frame("wet_relief", Moments.duration("wet_relief")).start(),
                 Moments.frame("wet_relief", Moments.duration("wet_relief")+10).start());
     }
-    @Test void loopClockClosesAndFacePeriodRemainsAuthored() {
+    @Test void loopClockClosesAndSingingFacesKeepTheirAuthoredBeats() {
         String id = Moments.select("behaviors", "sing", "");
         assertEquals("open_smile", Moments.face(id, .1f, "neutral"));
         assertEquals("closed_smile", Moments.face(id, .4f, "neutral"));

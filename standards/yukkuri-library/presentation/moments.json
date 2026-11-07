@@ -12,6 +12,18 @@
             [
               0,
               "happy"
+            ],
+            [
+              10.72,
+              "puff"
+            ],
+            [
+              13.088,
+              "cheek_puff"
+            ],
+            [
+              13.6,
+              "happy"
             ]
           ]
         }
@@ -102,7 +114,31 @@
           "faces": [
             [
               0,
-              "drool"
+              "chewing"
+            ],
+            [
+              0.1,
+              "chewing_closed"
+            ],
+            [
+              0.3,
+              "chewing"
+            ],
+            [
+              0.5,
+              "chewing_closed"
+            ],
+            [
+              0.7,
+              "chewing"
+            ],
+            [
+              0.9,
+              "chewing_closed"
+            ],
+            [
+              1.1,
+              "chewing"
             ]
           ]
         }
@@ -121,13 +157,32 @@
               "chewing"
             ],
             [
-              0.2,
+              0.1,
               "chewing_closed"
+            ],
+            [
+              0.3,
+              "chewing"
+            ],
+            [
+              0.5,
+              "chewing_closed"
+            ],
+            [
+              0.7,
+              "chewing"
+            ],
+            [
+              0.9,
+              "chewing_closed"
+            ],
+            [
+              1.1,
+              "chewing"
             ]
           ]
         }
-      ],
-      "face_period": 0.4
+      ]
     },
     "behavior_family_chew": {
       "loop": true,
@@ -142,13 +197,32 @@
               "chewing"
             ],
             [
-              0.2,
+              0.1,
               "chewing_closed"
+            ],
+            [
+              0.3,
+              "chewing"
+            ],
+            [
+              0.5,
+              "chewing_closed"
+            ],
+            [
+              0.7,
+              "chewing"
+            ],
+            [
+              0.9,
+              "chewing_closed"
+            ],
+            [
+              1.1,
+              "chewing"
             ]
           ]
         }
-      ],
-      "face_period": 0.4
+      ]
     },
     "behavior_swallow": {
       "loop": true,
@@ -160,7 +234,31 @@
           "faces": [
             [
               0,
+              "chewing"
+            ],
+            [
+              0.1,
               "chewing_closed"
+            ],
+            [
+              0.3,
+              "chewing"
+            ],
+            [
+              0.5,
+              "chewing_closed"
+            ],
+            [
+              0.7,
+              "chewing"
+            ],
+            [
+              0.9,
+              "chewing_closed"
+            ],
+            [
+              1.1,
+              "chewing"
             ]
           ]
         }
@@ -176,7 +274,23 @@
           "faces": [
             [
               0,
-              "open_smile"
+              "chewing_closed"
+            ],
+            [
+              0.25,
+              "chewing"
+            ],
+            [
+              0.55,
+              "chewing_closed"
+            ],
+            [
+              1.05,
+              "chewing"
+            ],
+            [
+              1.35,
+              "chewing_closed"
             ]
           ]
         }
@@ -192,6 +306,14 @@
           "faces": [
             [
               0,
+              "closed_smile"
+            ],
+            [
+              0.3,
+              "happy"
+            ],
+            [
+              0.95,
               "satisfied"
             ]
           ]
@@ -208,7 +330,15 @@
           "faces": [
             [
               0,
+              "closed_smile"
+            ],
+            [
+              0.9,
               "satisfied"
+            ],
+            [
+              2.9,
+              "closed_smile"
             ]
           ]
         }
@@ -225,6 +355,22 @@
             [
               0,
               "chewing_closed"
+            ],
+            [
+              0.25,
+              "chewing"
+            ],
+            [
+              0.55,
+              "chewing_closed"
+            ],
+            [
+              1.05,
+              "chewing"
+            ],
+            [
+              1.35,
+              "chewing_closed"
             ]
           ]
         }
@@ -240,7 +386,7 @@
           "faces": [
             [
               0,
-              "sleepy"
+              "sleep"
             ]
           ],
           "emote": "zzz"
@@ -254,7 +400,12 @@
           "clip": "sleep",
           "intensity": 1,
           "tempo": 1,
-          "faces": [],
+          "faces": [
+            [
+              0,
+              "sleep"
+            ]
+          ],
           "emote": "zzz"
         }
       ]
@@ -269,7 +420,7 @@
           "faces": [
             [
               0,
-              "sleepy"
+              "sleep"
             ]
           ]
         }
@@ -301,7 +452,7 @@
           "faces": [
             [
               0,
-              "sleepy"
+              "sleep"
             ]
           ]
         }
@@ -320,6 +471,22 @@
             [
               0,
               "neutral"
+            ],
+            [
+              0.6,
+              "confused"
+            ],
+            [
+              1.6,
+              "neutral"
+            ],
+            [
+              2.4,
+              "confused"
+            ],
+            [
+              3.4,
+              "neutral"
             ]
           ]
         }
@@ -335,7 +502,23 @@
           "faces": [
             [
               0,
-              "teary"
+              "neutral"
+            ],
+            [
+              0.6,
+              "confused"
+            ],
+            [
+              1.6,
+              "neutral"
+            ],
+            [
+              2.4,
+              "confused"
+            ],
+            [
+              3.4,
+              "neutral"
             ]
           ]
         }
@@ -351,6 +534,22 @@
           "faces": [
             [
               0,
+              "neutral"
+            ],
+            [
+              0.6,
+              "confused"
+            ],
+            [
+              1.6,
+              "neutral"
+            ],
+            [
+              2.4,
+              "confused"
+            ],
+            [
+              3.4,
               "neutral"
             ]
           ]
@@ -463,7 +662,23 @@
           "faces": [
             [
               0,
-              "surprise"
+              "neutral"
+            ],
+            [
+              0.6,
+              "confused"
+            ],
+            [
+              1.6,
+              "neutral"
+            ],
+            [
+              2.4,
+              "confused"
+            ],
+            [
+              3.4,
+              "neutral"
             ]
           ]
         }
@@ -511,7 +726,11 @@
           "faces": [
             [
               0,
-              "neutral"
+              "chewing_closed"
+            ],
+            [
+              0.9,
+              "happy"
             ]
           ]
         }
@@ -527,7 +746,15 @@
           "faces": [
             [
               0,
+              "squeezed_cry_tears"
+            ],
+            [
+              0.6,
               "teary"
+            ],
+            [
+              2.8,
+              "sleepy"
             ]
           ],
           "emote": "shiver"
@@ -544,7 +771,15 @@
           "faces": [
             [
               0,
+              "squeezed_cry_tears"
+            ],
+            [
+              0.6,
               "teary"
+            ],
+            [
+              2.8,
+              "sleepy"
             ]
           ],
           "emote": "shiver"
@@ -561,7 +796,15 @@
           "faces": [
             [
               0,
+              "squeezed_cry_tears"
+            ],
+            [
+              1.4,
               "teary"
+            ],
+            [
+              2.4,
+              "squeezed_cry_tears"
             ]
           ]
         }
@@ -593,7 +836,15 @@
           "faces": [
             [
               0,
+              "teary"
+            ],
+            [
+              0.8,
               "closed_smile"
+            ],
+            [
+              9.2,
+              "happy"
             ]
           ]
         }
@@ -609,7 +860,23 @@
           "faces": [
             [
               0,
-              "sleepy"
+              "neutral"
+            ],
+            [
+              0.6,
+              "confused"
+            ],
+            [
+              1.6,
+              "neutral"
+            ],
+            [
+              2.4,
+              "confused"
+            ],
+            [
+              3.4,
+              "neutral"
             ]
           ]
         }
@@ -721,7 +988,23 @@
           "faces": [
             [
               0,
-              "happy"
+              "closed_smile"
+            ],
+            [
+              0.15,
+              "satisfied"
+            ],
+            [
+              0.3,
+              "closed_smile"
+            ],
+            [
+              0.55,
+              "satisfied"
+            ],
+            [
+              0.7,
+              "closed_smile"
             ]
           ]
         }
@@ -737,6 +1020,22 @@
           "faces": [
             [
               0,
+              "closed_smile"
+            ],
+            [
+              0.15,
+              "satisfied"
+            ],
+            [
+              0.3,
+              "closed_smile"
+            ],
+            [
+              0.55,
+              "satisfied"
+            ],
+            [
+              0.7,
               "closed_smile"
             ]
           ]
@@ -754,6 +1053,22 @@
             [
               0,
               "closed_smile"
+            ],
+            [
+              0.15,
+              "satisfied"
+            ],
+            [
+              0.3,
+              "closed_smile"
+            ],
+            [
+              0.55,
+              "satisfied"
+            ],
+            [
+              0.7,
+              "closed_smile"
             ]
           ]
         }
@@ -769,7 +1084,23 @@
           "faces": [
             [
               0,
-              "neutral"
+              "closed_smile"
+            ],
+            [
+              0.15,
+              "satisfied"
+            ],
+            [
+              0.3,
+              "closed_smile"
+            ],
+            [
+              0.55,
+              "satisfied"
+            ],
+            [
+              0.7,
+              "closed_smile"
             ]
           ]
         }
@@ -785,6 +1116,22 @@
           "faces": [
             [
               0,
+              "closed_smile"
+            ],
+            [
+              0.15,
+              "satisfied"
+            ],
+            [
+              0.3,
+              "closed_smile"
+            ],
+            [
+              0.55,
+              "satisfied"
+            ],
+            [
+              0.7,
               "closed_smile"
             ]
           ]
@@ -802,6 +1149,22 @@
             [
               0,
               "closed_smile"
+            ],
+            [
+              0.15,
+              "satisfied"
+            ],
+            [
+              0.3,
+              "closed_smile"
+            ],
+            [
+              0.55,
+              "satisfied"
+            ],
+            [
+              0.7,
+              "closed_smile"
             ]
           ]
         }
@@ -817,6 +1180,22 @@
           "faces": [
             [
               0,
+              "closed_smile"
+            ],
+            [
+              0.15,
+              "satisfied"
+            ],
+            [
+              0.3,
+              "closed_smile"
+            ],
+            [
+              0.55,
+              "satisfied"
+            ],
+            [
+              0.7,
               "closed_smile"
             ]
           ]
@@ -862,7 +1241,28 @@
           "clip": "look_around",
           "intensity": 1,
           "tempo": 1,
-          "faces": []
+          "faces": [
+            [
+              0,
+              "neutral"
+            ],
+            [
+              0.6,
+              "confused"
+            ],
+            [
+              1.6,
+              "neutral"
+            ],
+            [
+              2.4,
+              "confused"
+            ],
+            [
+              3.4,
+              "neutral"
+            ]
+          ]
         }
       ]
     },
@@ -873,7 +1273,28 @@
           "clip": "look_around",
           "intensity": 1,
           "tempo": 1,
-          "faces": []
+          "faces": [
+            [
+              0,
+              "neutral"
+            ],
+            [
+              0.6,
+              "confused"
+            ],
+            [
+              1.6,
+              "neutral"
+            ],
+            [
+              2.4,
+              "confused"
+            ],
+            [
+              3.4,
+              "neutral"
+            ]
+          ]
         }
       ]
     },
@@ -887,7 +1308,23 @@
           "faces": [
             [
               0,
-              "teary"
+              "neutral"
+            ],
+            [
+              0.6,
+              "confused"
+            ],
+            [
+              1.6,
+              "neutral"
+            ],
+            [
+              2.4,
+              "confused"
+            ],
+            [
+              3.4,
+              "neutral"
             ]
           ]
         }
@@ -992,7 +1429,28 @@
           "clip": "look_around",
           "intensity": 1,
           "tempo": 1,
-          "faces": []
+          "faces": [
+            [
+              0,
+              "neutral"
+            ],
+            [
+              0.6,
+              "confused"
+            ],
+            [
+              1.6,
+              "neutral"
+            ],
+            [
+              2.4,
+              "confused"
+            ],
+            [
+              3.4,
+              "neutral"
+            ]
+          ]
         }
       ]
     },
@@ -1007,6 +1465,14 @@
             [
               0,
               "happy"
+            ],
+            [
+              0.8,
+              "closed_smile"
+            ],
+            [
+              1.3,
+              "open_smile"
             ]
           ]
         }
@@ -1023,6 +1489,14 @@
             [
               0,
               "happy"
+            ],
+            [
+              0.8,
+              "closed_smile"
+            ],
+            [
+              1.3,
+              "open_smile"
             ]
           ]
         }
@@ -1035,7 +1509,28 @@
           "clip": "look_around",
           "intensity": 1,
           "tempo": 1,
-          "faces": []
+          "faces": [
+            [
+              0,
+              "neutral"
+            ],
+            [
+              0.6,
+              "confused"
+            ],
+            [
+              1.6,
+              "neutral"
+            ],
+            [
+              2.4,
+              "confused"
+            ],
+            [
+              3.4,
+              "neutral"
+            ]
+          ]
         }
       ]
     },
@@ -1046,7 +1541,28 @@
           "clip": "look_around",
           "intensity": 1,
           "tempo": 1,
-          "faces": []
+          "faces": [
+            [
+              0,
+              "neutral"
+            ],
+            [
+              0.6,
+              "confused"
+            ],
+            [
+              1.6,
+              "neutral"
+            ],
+            [
+              2.4,
+              "confused"
+            ],
+            [
+              3.4,
+              "neutral"
+            ]
+          ]
         }
       ]
     },
@@ -1060,7 +1576,23 @@
           "faces": [
             [
               0,
+              "sleep"
+            ],
+            [
+              0.2,
+              "sleepy"
+            ],
+            [
+              0.5,
               "yawn"
+            ],
+            [
+              2,
+              "sleepy"
+            ],
+            [
+              2.4,
+              "neutral"
             ]
           ]
         }
@@ -1077,6 +1609,22 @@
             [
               0,
               "closed_smile"
+            ],
+            [
+              0.15,
+              "satisfied"
+            ],
+            [
+              0.3,
+              "closed_smile"
+            ],
+            [
+              0.55,
+              "satisfied"
+            ],
+            [
+              0.7,
+              "closed_smile"
             ]
           ]
         }
@@ -1089,7 +1637,28 @@
           "clip": "look_around",
           "intensity": 1,
           "tempo": 1,
-          "faces": []
+          "faces": [
+            [
+              0,
+              "neutral"
+            ],
+            [
+              0.6,
+              "confused"
+            ],
+            [
+              1.6,
+              "neutral"
+            ],
+            [
+              2.4,
+              "confused"
+            ],
+            [
+              3.4,
+              "neutral"
+            ]
+          ]
         }
       ]
     },
@@ -1104,6 +1673,14 @@
             [
               0,
               "happy"
+            ],
+            [
+              0.8,
+              "closed_smile"
+            ],
+            [
+              1.3,
+              "open_smile"
             ]
           ]
         }
@@ -1120,6 +1697,22 @@
             [
               0,
               "closed_smile"
+            ],
+            [
+              0.15,
+              "satisfied"
+            ],
+            [
+              0.3,
+              "closed_smile"
+            ],
+            [
+              0.55,
+              "satisfied"
+            ],
+            [
+              0.7,
+              "closed_smile"
             ]
           ]
         }
@@ -1132,7 +1725,24 @@
           "clip": "beg",
           "intensity": 1,
           "tempo": 1,
-          "faces": []
+          "faces": [
+            [
+              0,
+              "teary"
+            ],
+            [
+              0.35,
+              "open_smile"
+            ],
+            [
+              0.7,
+              "teary"
+            ],
+            [
+              1.05,
+              "open_smile"
+            ]
+          ]
         }
       ]
     },
@@ -1143,7 +1753,24 @@
           "clip": "beg",
           "intensity": 1,
           "tempo": 1,
-          "faces": []
+          "faces": [
+            [
+              0,
+              "teary"
+            ],
+            [
+              0.35,
+              "open_smile"
+            ],
+            [
+              0.7,
+              "teary"
+            ],
+            [
+              1.05,
+              "open_smile"
+            ]
+          ]
         }
       ]
     },
@@ -1154,7 +1781,16 @@
           "clip": "bow",
           "intensity": 1,
           "tempo": 1,
-          "faces": []
+          "faces": [
+            [
+              0,
+              "closed_smile"
+            ],
+            [
+              0.7,
+              "happy"
+            ]
+          ]
         }
       ]
     },
@@ -1165,7 +1801,12 @@
           "clip": "stand_ground",
           "intensity": 1,
           "tempo": 1,
-          "faces": []
+          "faces": [
+            [
+              0,
+              "angry"
+            ]
+          ]
         }
       ]
     },
@@ -1211,7 +1852,23 @@
           "faces": [
             [
               0,
-              "teary"
+              "neutral"
+            ],
+            [
+              0.6,
+              "confused"
+            ],
+            [
+              1.6,
+              "neutral"
+            ],
+            [
+              2.4,
+              "confused"
+            ],
+            [
+              3.4,
+              "neutral"
             ]
           ]
         }
@@ -1227,7 +1884,23 @@
           "faces": [
             [
               0,
-              "angry"
+              "neutral"
+            ],
+            [
+              0.6,
+              "confused"
+            ],
+            [
+              1.6,
+              "neutral"
+            ],
+            [
+              2.4,
+              "confused"
+            ],
+            [
+              3.4,
+              "neutral"
             ]
           ]
         }
@@ -1244,6 +1917,14 @@
             [
               0,
               "angry"
+            ],
+            [
+              0.28,
+              "puff"
+            ],
+            [
+              2.352,
+              "cheek_puff"
             ]
           ]
         }
@@ -1271,6 +1952,14 @@
             [
               0,
               "angry"
+            ],
+            [
+              0.45,
+              "puff"
+            ],
+            [
+              0.65,
+              "angry"
             ]
           ]
         }
@@ -1287,6 +1976,14 @@
             [
               0,
               "angry"
+            ],
+            [
+              0.45,
+              "puff"
+            ],
+            [
+              0.65,
+              "angry"
             ]
           ]
         }
@@ -1299,7 +1996,20 @@
           "clip": "droop",
           "intensity": 1,
           "tempo": 1,
-          "faces": []
+          "faces": [
+            [
+              0,
+              "teary"
+            ],
+            [
+              2.6,
+              "cry"
+            ],
+            [
+              3.3,
+              "teary"
+            ]
+          ]
         }
       ]
     },
@@ -1313,7 +2023,15 @@
           "faces": [
             [
               0,
+              "teary"
+            ],
+            [
+              2.6,
               "cry"
+            ],
+            [
+              3.3,
+              "teary"
             ]
           ]
         }
@@ -1326,7 +2044,20 @@
           "clip": "droop",
           "intensity": 1,
           "tempo": 1,
-          "faces": []
+          "faces": [
+            [
+              0,
+              "teary"
+            ],
+            [
+              2.6,
+              "cry"
+            ],
+            [
+              3.3,
+              "teary"
+            ]
+          ]
         }
       ]
     },
@@ -1343,13 +2074,36 @@
               "open_smile"
             ],
             [
-              0.35,
+              0.32,
+              "closed_smile"
+            ],
+            [
+              0.5,
+              "open_smile"
+            ],
+            [
+              0.82,
+              "closed_smile"
+            ],
+            [
+              1,
+              "open_smile"
+            ],
+            [
+              1.32,
+              "closed_smile"
+            ],
+            [
+              1.5,
+              "open_smile"
+            ],
+            [
+              1.82,
               "closed_smile"
             ]
           ]
         }
-      ],
-      "face_period": 0.5
+      ]
     },
     "behavior_listen_song": {
       "loop": true,
@@ -1361,6 +2115,14 @@
           "faces": [
             [
               0,
+              "closed_smile"
+            ],
+            [
+              1,
+              "happy"
+            ],
+            [
+              1.4,
               "closed_smile"
             ]
           ]
@@ -1378,6 +2140,14 @@
             [
               0,
               "closed_smile"
+            ],
+            [
+              1,
+              "happy"
+            ],
+            [
+              1.4,
+              "closed_smile"
             ]
           ]
         }
@@ -1390,7 +2160,28 @@
           "clip": "look_around",
           "intensity": 1,
           "tempo": 1,
-          "faces": []
+          "faces": [
+            [
+              0,
+              "neutral"
+            ],
+            [
+              0.6,
+              "confused"
+            ],
+            [
+              1.6,
+              "neutral"
+            ],
+            [
+              2.4,
+              "confused"
+            ],
+            [
+              3.4,
+              "neutral"
+            ]
+          ]
         }
       ]
     },
@@ -1401,7 +2192,28 @@
           "clip": "look_around",
           "intensity": 1,
           "tempo": 1,
-          "faces": []
+          "faces": [
+            [
+              0,
+              "neutral"
+            ],
+            [
+              0.6,
+              "confused"
+            ],
+            [
+              1.6,
+              "neutral"
+            ],
+            [
+              2.4,
+              "confused"
+            ],
+            [
+              3.4,
+              "neutral"
+            ]
+          ]
         }
       ]
     },
@@ -1412,7 +2224,28 @@
           "clip": "look_around",
           "intensity": 1,
           "tempo": 1,
-          "faces": []
+          "faces": [
+            [
+              0,
+              "neutral"
+            ],
+            [
+              0.6,
+              "confused"
+            ],
+            [
+              1.6,
+              "neutral"
+            ],
+            [
+              2.4,
+              "confused"
+            ],
+            [
+              3.4,
+              "neutral"
+            ]
+          ]
         }
       ]
     },
@@ -1423,7 +2256,36 @@
           "clip": "call_child",
           "intensity": 1,
           "tempo": 1,
-          "faces": []
+          "faces": [
+            [
+              0,
+              "teary"
+            ],
+            [
+              0.3,
+              "cry"
+            ],
+            [
+              0.8,
+              "teary"
+            ],
+            [
+              1.1,
+              "cry"
+            ],
+            [
+              1.55,
+              "teary"
+            ],
+            [
+              1.8,
+              "cry"
+            ],
+            [
+              2.75,
+              "teary"
+            ]
+          ]
         }
       ]
     },
@@ -1434,7 +2296,28 @@
           "clip": "look_around",
           "intensity": 1,
           "tempo": 1,
-          "faces": []
+          "faces": [
+            [
+              0,
+              "neutral"
+            ],
+            [
+              0.6,
+              "confused"
+            ],
+            [
+              1.6,
+              "neutral"
+            ],
+            [
+              2.4,
+              "confused"
+            ],
+            [
+              3.4,
+              "neutral"
+            ]
+          ]
         }
       ]
     },
@@ -1445,7 +2328,20 @@
           "clip": "droop",
           "intensity": 1,
           "tempo": 1,
-          "faces": []
+          "faces": [
+            [
+              0,
+              "teary"
+            ],
+            [
+              2.6,
+              "cry"
+            ],
+            [
+              3.3,
+              "teary"
+            ]
+          ]
         }
       ]
     },
@@ -1456,7 +2352,20 @@
           "clip": "boat_answer_call",
           "intensity": 1,
           "tempo": 1,
-          "faces": []
+          "faces": [
+            [
+              0,
+              "surprise"
+            ],
+            [
+              0.25,
+              "cry"
+            ],
+            [
+              0.6,
+              "teary"
+            ]
+          ]
         }
       ]
     },
@@ -1467,7 +2376,24 @@
           "clip": "brood",
           "intensity": 1,
           "tempo": 1,
-          "faces": []
+          "faces": [
+            [
+              0,
+              "closed_smile"
+            ],
+            [
+              1.6,
+              "satisfied"
+            ],
+            [
+              2.4,
+              "closed_smile"
+            ],
+            [
+              3.4,
+              "teary"
+            ]
+          ]
         }
       ]
     },
@@ -1478,7 +2404,56 @@
           "clip": "labor",
           "intensity": 1,
           "tempo": 1,
-          "faces": []
+          "faces": [
+            [
+              0,
+              "teary"
+            ],
+            [
+              0.7,
+              "puff"
+            ],
+            [
+              1.4,
+              "cry"
+            ],
+            [
+              2.6,
+              "sleepy"
+            ],
+            [
+              3.2,
+              "cry"
+            ],
+            [
+              4.6,
+              "sleepy"
+            ],
+            [
+              5.7,
+              "satisfied"
+            ],
+            [
+              7,
+              "teary"
+            ],
+            [
+              8.3,
+              "confused"
+            ],
+            [
+              9.1,
+              "teary"
+            ],
+            [
+              10.6,
+              "surprise"
+            ],
+            [
+              11.4,
+              "teary"
+            ]
+          ]
         }
       ]
     },
@@ -1489,7 +2464,28 @@
           "clip": "postpartum",
           "intensity": 1,
           "tempo": 1,
-          "faces": []
+          "faces": [
+            [
+              0,
+              "sleepy"
+            ],
+            [
+              3.2,
+              "satisfied"
+            ],
+            [
+              4.4,
+              "closed_smile"
+            ],
+            [
+              5.8,
+              "open_smile"
+            ],
+            [
+              6.6,
+              "closed_smile"
+            ]
+          ]
         }
       ]
     },
@@ -1569,7 +2565,15 @@
           "faces": [
             [
               0,
+              "surprise"
+            ],
+            [
+              0.12,
               "cry"
+            ],
+            [
+              0.36,
+              "teary"
             ]
           ]
         }
@@ -1582,7 +2586,24 @@
           "clip": "water_struggle",
           "intensity": 1,
           "tempo": 1,
-          "faces": []
+          "faces": [
+            [
+              0,
+              "teary"
+            ],
+            [
+              0.14,
+              "cry"
+            ],
+            [
+              0.3,
+              "teary"
+            ],
+            [
+              0.5,
+              "cry"
+            ]
+          ]
         }
       ]
     },
@@ -1593,7 +2614,24 @@
           "clip": "water_struggle",
           "intensity": 1,
           "tempo": 1,
-          "faces": []
+          "faces": [
+            [
+              0,
+              "teary"
+            ],
+            [
+              0.14,
+              "cry"
+            ],
+            [
+              0.3,
+              "teary"
+            ],
+            [
+              0.5,
+              "cry"
+            ]
+          ]
         }
       ]
     },
@@ -1608,6 +2646,18 @@
             [
               0,
               "teary"
+            ],
+            [
+              0.14,
+              "cry"
+            ],
+            [
+              0.3,
+              "teary"
+            ],
+            [
+              0.5,
+              "cry"
             ]
           ]
         }
@@ -1623,6 +2673,18 @@
           "faces": [
             [
               0,
+              "cry"
+            ],
+            [
+              0.3,
+              "teary"
+            ],
+            [
+              0.7,
+              "cry"
+            ],
+            [
+              1.05,
               "teary"
             ]
           ]
@@ -1639,7 +2701,19 @@
           "faces": [
             [
               0,
+              "sleep"
+            ],
+            [
+              0.5,
               "teary"
+            ],
+            [
+              1.4,
+              "neutral"
+            ],
+            [
+              2.1,
+              "closed_smile"
             ]
           ]
         }
@@ -1656,6 +2730,14 @@
             [
               0,
               "teary"
+            ],
+            [
+              0.28,
+              "surprise"
+            ],
+            [
+              0.62,
+              "cry"
             ]
           ]
         }
@@ -1668,7 +2750,20 @@
           "clip": "push",
           "intensity": 1,
           "tempo": 1,
-          "faces": []
+          "faces": [
+            [
+              0,
+              "angry"
+            ],
+            [
+              0.45,
+              "puff"
+            ],
+            [
+              0.65,
+              "angry"
+            ]
+          ]
         }
       ]
     },
@@ -1679,7 +2774,20 @@
           "clip": "push",
           "intensity": 1,
           "tempo": 1,
-          "faces": []
+          "faces": [
+            [
+              0,
+              "angry"
+            ],
+            [
+              0.45,
+              "puff"
+            ],
+            [
+              0.65,
+              "angry"
+            ]
+          ]
         }
       ]
     },
@@ -1690,7 +2798,20 @@
           "clip": "push",
           "intensity": 1,
           "tempo": 1,
-          "faces": []
+          "faces": [
+            [
+              0,
+              "angry"
+            ],
+            [
+              0.45,
+              "puff"
+            ],
+            [
+              0.65,
+              "angry"
+            ]
+          ]
         }
       ]
     },
@@ -1712,7 +2833,20 @@
           "clip": "greet",
           "intensity": 1,
           "tempo": 1,
-          "faces": []
+          "faces": [
+            [
+              0,
+              "happy"
+            ],
+            [
+              0.8,
+              "closed_smile"
+            ],
+            [
+              1.3,
+              "open_smile"
+            ]
+          ]
         }
       ]
     },
@@ -1723,7 +2857,20 @@
           "clip": "greet",
           "intensity": 1,
           "tempo": 1,
-          "faces": []
+          "faces": [
+            [
+              0,
+              "happy"
+            ],
+            [
+              0.8,
+              "closed_smile"
+            ],
+            [
+              1.3,
+              "open_smile"
+            ]
+          ]
         }
       ]
     },
@@ -1734,7 +2881,20 @@
           "clip": "greet",
           "intensity": 1,
           "tempo": 1,
-          "faces": []
+          "faces": [
+            [
+              0,
+              "happy"
+            ],
+            [
+              0.8,
+              "closed_smile"
+            ],
+            [
+              1.3,
+              "open_smile"
+            ]
+          ]
         }
       ]
     },
@@ -1745,7 +2905,20 @@
           "clip": "greet",
           "intensity": 1,
           "tempo": 1,
-          "faces": []
+          "faces": [
+            [
+              0,
+              "happy"
+            ],
+            [
+              0.8,
+              "closed_smile"
+            ],
+            [
+              1.3,
+              "open_smile"
+            ]
+          ]
         }
       ]
     },
@@ -1756,7 +2929,20 @@
           "clip": "greet",
           "intensity": 1,
           "tempo": 1,
-          "faces": []
+          "faces": [
+            [
+              0,
+              "happy"
+            ],
+            [
+              0.8,
+              "closed_smile"
+            ],
+            [
+              1.3,
+              "open_smile"
+            ]
+          ]
         }
       ]
     },
@@ -1767,7 +2953,20 @@
           "clip": "greet",
           "intensity": 1,
           "tempo": 1,
-          "faces": []
+          "faces": [
+            [
+              0,
+              "happy"
+            ],
+            [
+              0.8,
+              "closed_smile"
+            ],
+            [
+              1.3,
+              "open_smile"
+            ]
+          ]
         }
       ]
     },
@@ -1778,7 +2977,12 @@
           "clip": "tremble",
           "intensity": 1,
           "tempo": 1,
-          "faces": []
+          "faces": [
+            [
+              0,
+              "teary"
+            ]
+          ]
         }
       ]
     },
@@ -1789,7 +2993,12 @@
           "clip": "tremble",
           "intensity": 1,
           "tempo": 1,
-          "faces": []
+          "faces": [
+            [
+              0,
+              "teary"
+            ]
+          ]
         }
       ]
     },
@@ -1800,7 +3009,12 @@
           "clip": "tremble",
           "intensity": 1,
           "tempo": 1,
-          "faces": []
+          "faces": [
+            [
+              0,
+              "teary"
+            ]
+          ]
         }
       ]
     },
@@ -1811,7 +3025,12 @@
           "clip": "tremble",
           "intensity": 1,
           "tempo": 1,
-          "faces": []
+          "faces": [
+            [
+              0,
+              "teary"
+            ]
+          ]
         }
       ]
     },
@@ -1855,7 +3074,20 @@
           "clip": "droop",
           "intensity": 1,
           "tempo": 1,
-          "faces": []
+          "faces": [
+            [
+              0,
+              "teary"
+            ],
+            [
+              2.6,
+              "cry"
+            ],
+            [
+              3.3,
+              "teary"
+            ]
+          ]
         }
       ]
     },
@@ -1866,7 +3098,20 @@
           "clip": "droop",
           "intensity": 1,
           "tempo": 1,
-          "faces": []
+          "faces": [
+            [
+              0,
+              "teary"
+            ],
+            [
+              2.6,
+              "cry"
+            ],
+            [
+              3.3,
+              "teary"
+            ]
+          ]
         }
       ]
     },
@@ -1877,7 +3122,20 @@
           "clip": "droop",
           "intensity": 1,
           "tempo": 1,
-          "faces": []
+          "faces": [
+            [
+              0,
+              "teary"
+            ],
+            [
+              2.6,
+              "cry"
+            ],
+            [
+              3.3,
+              "teary"
+            ]
+          ]
         }
       ]
     },
@@ -1888,7 +3146,20 @@
           "clip": "droop",
           "intensity": 1,
           "tempo": 1,
-          "faces": []
+          "faces": [
+            [
+              0,
+              "teary"
+            ],
+            [
+              2.6,
+              "cry"
+            ],
+            [
+              3.3,
+              "teary"
+            ]
+          ]
         }
       ]
     },
@@ -1899,7 +3170,20 @@
           "clip": "droop",
           "intensity": 1,
           "tempo": 1,
-          "faces": []
+          "faces": [
+            [
+              0,
+              "teary"
+            ],
+            [
+              2.6,
+              "cry"
+            ],
+            [
+              3.3,
+              "teary"
+            ]
+          ]
         }
       ]
     },
@@ -1910,7 +3194,20 @@
           "clip": "droop",
           "intensity": 1,
           "tempo": 1,
-          "faces": []
+          "faces": [
+            [
+              0,
+              "teary"
+            ],
+            [
+              2.6,
+              "cry"
+            ],
+            [
+              3.3,
+              "teary"
+            ]
+          ]
         }
       ]
     },
@@ -1921,7 +3218,16 @@
           "clip": "shake",
           "intensity": 1,
           "tempo": 1,
-          "faces": []
+          "faces": [
+            [
+              0,
+              "chewing_closed"
+            ],
+            [
+              0.9,
+              "happy"
+            ]
+          ]
         }
       ]
     },
@@ -1943,7 +3249,24 @@
           "clip": "first_wake",
           "intensity": 1,
           "tempo": 1,
-          "faces": []
+          "faces": [
+            [
+              0,
+              "sleep"
+            ],
+            [
+              0.5,
+              "sleepy"
+            ],
+            [
+              0.9,
+              "surprise"
+            ],
+            [
+              1.2,
+              "happy"
+            ]
+          ]
         }
       ]
     },
@@ -1954,7 +3277,24 @@
           "clip": "first_wake",
           "intensity": 1,
           "tempo": 1,
-          "faces": []
+          "faces": [
+            [
+              0,
+              "sleep"
+            ],
+            [
+              0.5,
+              "sleepy"
+            ],
+            [
+              0.9,
+              "surprise"
+            ],
+            [
+              1.2,
+              "happy"
+            ]
+          ]
         }
       ]
     },
@@ -1965,7 +3305,28 @@
           "clip": "postpartum",
           "intensity": 1,
           "tempo": 1,
-          "faces": []
+          "faces": [
+            [
+              0,
+              "sleepy"
+            ],
+            [
+              3.2,
+              "satisfied"
+            ],
+            [
+              4.4,
+              "closed_smile"
+            ],
+            [
+              5.8,
+              "open_smile"
+            ],
+            [
+              6.6,
+              "closed_smile"
+            ]
+          ]
         }
       ]
     },
@@ -1976,7 +3337,20 @@
           "clip": "bereaved",
           "intensity": 1,
           "tempo": 1,
-          "faces": []
+          "faces": [
+            [
+              0,
+              "dazed"
+            ],
+            [
+              1.6,
+              "blank_cry"
+            ],
+            [
+              2.4,
+              "cry"
+            ]
+          ]
         }
       ]
     },
@@ -1987,7 +3361,16 @@
           "clip": "bow",
           "intensity": 1,
           "tempo": 1,
-          "faces": []
+          "faces": [
+            [
+              0,
+              "closed_smile"
+            ],
+            [
+              0.7,
+              "happy"
+            ]
+          ]
         }
       ]
     },
@@ -2031,7 +3414,20 @@
           "clip": "hat_jostle",
           "intensity": 1,
           "tempo": 1,
-          "faces": []
+          "faces": [
+            [
+              0,
+              "teary"
+            ],
+            [
+              0.28,
+              "surprise"
+            ],
+            [
+              0.62,
+              "cry"
+            ]
+          ]
         }
       ]
     },
@@ -2042,7 +3438,20 @@
           "clip": "hat_jostle",
           "intensity": 1,
           "tempo": 1,
-          "faces": []
+          "faces": [
+            [
+              0,
+              "teary"
+            ],
+            [
+              0.28,
+              "surprise"
+            ],
+            [
+              0.62,
+              "cry"
+            ]
+          ]
         }
       ]
     },
@@ -2053,7 +3462,20 @@
           "clip": "hat_jostle",
           "intensity": 1,
           "tempo": 1,
-          "faces": []
+          "faces": [
+            [
+              0,
+              "teary"
+            ],
+            [
+              0.28,
+              "surprise"
+            ],
+            [
+              0.62,
+              "cry"
+            ]
+          ]
         }
       ]
     },
@@ -2064,7 +3486,20 @@
           "clip": "shiawase",
           "intensity": 1,
           "tempo": 1,
-          "faces": []
+          "faces": [
+            [
+              0,
+              "closed_smile"
+            ],
+            [
+              0.3,
+              "happy"
+            ],
+            [
+              0.95,
+              "satisfied"
+            ]
+          ]
         }
       ]
     },
@@ -2075,7 +3510,20 @@
           "clip": "shiawase",
           "intensity": 1,
           "tempo": 1,
-          "faces": []
+          "faces": [
+            [
+              0,
+              "closed_smile"
+            ],
+            [
+              0.3,
+              "happy"
+            ],
+            [
+              0.95,
+              "satisfied"
+            ]
+          ]
         }
       ]
     },

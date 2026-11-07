@@ -63,10 +63,7 @@ public final class Moments {
         throw new IllegalStateException("Empty moment " + id);
     }
     public static String face(String id, float elapsed, String fallback) {
-        var frame = frame(id, elapsed);
-        var row = row(id);
-        if (row.has("face_period")) frame = new Frame(frame.step(), frame.index(), elapsed % row.get("face_period").getAsFloat(), frame.start());
-        return frame.face(fallback);
+        return frame(id, elapsed).face(fallback);
     }
     private Moments() {}
 }

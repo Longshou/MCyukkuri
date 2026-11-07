@@ -108,7 +108,7 @@ public final class PresentationArbiter {
             case Behaviors.TOILET,Behaviors.GROUND_TOILET,Behaviors.BOAT_TOILET,Behaviors.TOILET_ACCIDENT,
                  Behaviors.FIRST_TOILET_ASSIST,Behaviors.FIRST_TOILET_WAIT,Behaviors.FIRST_TOILET_STIMULATED->{clip=e.getBehaviorId();start=e.getBehaviorStartTick();}
         }
-        if (!e.getMomentId().isEmpty()) {
+        if (!e.getMomentId().isEmpty() && clip.equals(e.getAnimationId())) {
             String selected = Moments.face(e.getMomentId(), (e.level().getGameTime()-e.getMomentStartTick())/20f, "");
             if (!selected.isEmpty()) return EcologyPresentation.expression(e, selected);
         }

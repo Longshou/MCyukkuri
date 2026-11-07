@@ -29,8 +29,7 @@ const frames=job.times.map(t=>{
     const duration=a.pose.clips[step.clip].duration/step.tempo;
     if(time>=duration){time-=duration;continue;}
     clip=step.clip;intensity=step.intensity;
-    let faceTime=a.moment.face_period?t%a.moment.face_period:time;
-    momentFace='neutral';for(const [at,face] of step.faces)if(faceTime>=at)momentFace=face;
+    momentFace='neutral';for(const [at,face] of step.faces)if(time>=at)momentFace=face;
     time*=step.tempo;break;
    }
   }
