@@ -221,7 +221,7 @@ add('forage', 'forage', '父母去远处草场割草带回洞', '父母去远处
     env=DAY, spot='forage', vantage=(0, 16),
     # The baby at home welcoming a parent back from the meadow (inside the mound, so the camera follows it).
     capture=dict(shots=(1, 40, 600), sequences=((900, 2700, 6),), observe=False,
-                 views={'child': dict(follow=f'@e[tag={tag("child")},limit=1]', offset=(.9, .4, .8))}),
+                 views={'child': dict(follow=f'@e[tag={tag("child")},limit=1]', offset=(.5, 1.2, 1.2))}),
     reads=[('读觅食数据（父）', f'yukkuri status {sel("father")} raw'), ('读觅食与颊囊（灵梦母）', f'yukkuri status {sel("mother")} raw')])
 
 add('graze', 'forage', '饿了先吃苹果，只有草就啃草', '饿了先吃苹果，只有草就啃草', '左边的饿灵梦身边既有苹果又有草，会先取普通食物；右边的饿魔理沙在八格外、只见草，啃下后会露出苦味反应。草仍会退回上一阶、日后重新长出',
@@ -454,7 +454,9 @@ add('sleep', 'meadow', '困了走回有顶的窝睡觉', '困了走回有顶的�
     # threshold, above the in-place nap's 25).
     late=[Retry(f'execute as {sel("a")} run yukkuri status set @s needs.energy 30', sel('a'), tries=1, first=160)],
     # The bed's own doorway is its north side: the body walks round to it, steps in, sleeps, then steps out through it again.
-    capture=dict(shots=(1, 40, 2600), sequences=((200, 1500, 5),), observe=False),
+    # Second view: in front of her face, for the waking stretch and yawn (from the deck she lies with her back to it).
+    capture=dict(shots=(1, 40, 2600), sequences=((200, 1500, 5),), observe=False,
+                 views={'': dict(), 'face': dict(follow=f'@e[tag={tag("a")},limit=1]', offset=(0, .7, 1.3))}),
     smoke=dict(ticks=2600, forbid=[r'\[home\][^\n]*nest_not_inside\b', r'\[home\][^\n]*reason=doorway_unreachable\b',
                                   r'\[home\][^\n]*bed crossing[^\n]*opening=false source=walk'],
                expect=[r'\[sleep\] [^\n]*begin source=life occupancy=INSIDE_SUPPORTED',
