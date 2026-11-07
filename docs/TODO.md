@@ -13,6 +13,7 @@
 | 噗咕鼓腮：身体模型两腮外鼓（复刻原作ぷくー，比概念图更夸张） | `.worktrees/wp-ce-cheek-puff` | standards/yukkuri-library/body-standard/（鼓腮 puff_offsets）、导出的 yukkuri/*.json 模型数据、噗咕片段的 puff 通道 |
 | Wiki 图片库整理：按行为动作与形象标注全部图片、删去无用图片、稳定的批量流程 | `.worktrees/wp-cg-wiki-images` | wiki/art-references/、wiki/reference-library/、scripts/wiki_reference_topics.py、scripts/wiki_ehentai_reference.py、新批量标注脚本 |
 | 工具：动作编译增量化（改一个片段不再全量编译 2303 个片段约 16 分钟） | `.worktrees/wp-ch-motion-compile-speed` | scripts/export_motion_corrections.py、scripts/export.py（motion-corrections 选择）、编译缓存 |
+| Wiki：引入 fandom 宠物、地点、术语翻译指南与梗（Pet Yukkuri、Places、Meta、Memes） | `.worktrees/wp-cj-fandom-pets-meta` | wiki/pet-life.md、wiki/shops-factory-npcs.md、wiki/glossary.md、wiki/hakkei-reference/（sources-fandom、conflicts、dialogue）、docs/TODO.md 待用户裁决 |
 
 ## 玩法待办
 
