@@ -20,6 +20,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.Vec3;
 
 /** Loaded-time emotional needs and interruptible leisure. A pair shares one contact clock. */
 public final class DailyLife {
@@ -238,6 +239,13 @@ public final class DailyLife {
                     && session.leader.life().personality().fear(peer.getUUID()) < 60;
         return other instanceof Player player && player.isAlive() && session.leader.life().personality().fear(player.getUUID()) < 60;
     }
+    /** A stand beside the other at its own height, or (a bank over a hollow) a block above or below it. */
+    private Vec3 standBeside(Entity other, double distance) {
+        var stand = SurfaceApproach.beside(entity, other, distance, LEAN);
+        for (double lift = 1; stand == null && lift >= -1; lift -= 2)
+            stand = SurfaceApproach.beside(entity, other.position().add(0, lift, 0), distance, at -> Math.abs(at.y - other.getY()) <= LEAN);
+        return stand;
+    }
     public void tickGoal() {
         if (!valid()) { stop(); return; }
         var current = session;
@@ -252,7 +260,7 @@ public final class DailyLife {
                 // One member approaches the consenting partner. Two centre-seeking controllers otherwise push
                 // each other past their contact envelope, especially when their bodies meet diagonally.
                 if(current.leader==entity){
-                    var stand=SurfaceApproach.beside(entity,other,reach-.04,LEAN);
+                    var stand=standBeside(other,reach-.04);
                     if(stand==null)SurfaceApproach.halt(entity);
                     else SurfaceApproach.walkAround(entity,stand,other,.8);
                     current.contact=0;current.elapsed++;
