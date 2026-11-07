@@ -10,10 +10,39 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 import smoke_checks as checks
 import timeline
-from cases import record, state, HOST
+from cases import record, state, log, HOST, ACTOR
 
 
 class Calibration(unittest.TestCase):
+    def test_observed_wait_counter_must_actually_advance(self):
+        rows = [state(t, goals=['BirthGoal@2'], phase='term', waitElapsed=t) for t in range(1202)]
+        self.assertFalse(checks.progress(timeline.states(rows)))
+        rows = [state(t, goals=['BirthGoal@2'], phase='term', waitElapsed=0) for t in range(1202)]
+        self.assertTrue(any(f['verdict'] == 'fail' for f in checks.progress(timeline.states(rows))))
+        _, issues = timeline.parse([log([state(0, waitElapsed='bad counter')])])
+        self.assertTrue(issues)
+
+    def test_declared_death_does_not_duplicate_as_unexpected_terminal_damage(self):
+        death = 'death settled into remains; cause=genericKill'
+        damage = 'accepted damage cause=genericKill health=10.0 -> 0.0 loss=10.0'
+        rows = [record('ev', 1, cat='body', msg=msg) for msg in (death, damage)]
+        raw = '\n'.join(f'[body] reimu #1 uuid={ACTOR} t=1 dim=minecraft:overworld pos=0, 0, 0 {msg}'
+                        for msg in (death, damage))
+        allow = [{'kind': 'death', 'who': ACTOR, 'match': 'cause=genericKill', 'why': 'declared smoke widowhood'}]
+        report = checks.observations(rows, raw=raw, allow=allow)
+        self.assertEqual(next(f['verdict'] for f in report['summary'] if f['check'] == 'FATE'), 'pass')
+        report = checks.observations(rows, raw=raw)
+        self.assertEqual(next(f['verdict'] for f in report['summary'] if f['check'] == 'FATE'), 'fail')
+        # The allowance is for death, not an arbitrary hit without a matching death event.
+        report = checks.observations(rows[1:], raw=raw.splitlines()[1], allow=allow)
+        self.assertEqual(next(f['verdict'] for f in report['summary'] if f['check'] == 'FATE'), 'suspect')
+
+    def test_lifecycle_before_inventory_baseline_and_missing_snapshots(self):
+        rows = [record('life', 0, **{'in': 'spawn'}), state(1), state(2)]
+        self.assertFalse(checks.ledger(rows, timeline.states(rows)))
+        rows = [record('life', t, **{'in': 'spawn'}) for t in range(3)]
+        self.assertTrue(any(f['verdict'] == 'no-evidence' for f in checks.ledger(rows, [])))
+
     def test_life_goal_recovery_without_intent_is_progress(self):
         for key in ('nut', 'en'):
             rows = [state(t, int=None, goals=['LifeGoal@3'], need={key: t / 20}) for t in range(1202)]
@@ -73,6 +102,10 @@ class Calibration(unittest.TestCase):
     def test_translating_stop_go_still_fails(self):
         rows = [state(t, p=[(t // 2) * .1, 0, 0]) for t in range(40)]
         self.assertTrue(any(f['verdict'] == 'fail' for f in checks.progress(timeline.states(rows))))
+
+    def test_separate_completed_jobs_do_not_accumulate_stutter(self):
+        rows = [state(t, p=[(t // 2) * .1, 0, 0], phase=str(t // 4)) for t in range(40)]
+        self.assertFalse(checks.progress(timeline.states(rows)))
 
     def test_surface_support_is_not_depth_to_underwater_floor(self):
         rows = [record('win', 0, None), state(1), state(20)]

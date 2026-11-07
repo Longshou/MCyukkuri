@@ -460,7 +460,7 @@ public final class HabitatLife {
                 var remaining=targetItem.getItem().copy();var gathered=remaining.split(1);
                 if(remaining.isEmpty())targetItem.discard();else targetItem.setItem(remaining);
                 takeNestMaterial(value,gathered);
-                GameplayLog.event(entity,"habitat","pickup item={} count={} source={} remaining={} holder=mouth",
+                GameplayLog.event(entity,"habitat","pickup item={} count={} source={} remaining={} purpose=nest_material",
                         gathered.getItem(),gathered.getCount(),targetItem.getUUID(),remaining.getCount());
                 targetItem=null;ticks=0;
                 task=Task.NEST_BUILD;targetBlock=value.bed(entity.getUUID());buildTicks=0;

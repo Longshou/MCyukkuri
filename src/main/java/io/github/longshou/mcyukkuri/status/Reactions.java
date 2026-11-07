@@ -65,6 +65,13 @@ public final class Reactions {
 
     public Threat threat() { return threat; }
     public Weather weather() { return weather; }
+    /** Actual running counters for stationary responses, not a new waiting clock. */
+    public Integer observedWaitElapsed() {
+        if (threat.stage == Threat.Stage.HIDE) return threat.ticks;
+        if (weather.stage == Weather.Stage.SHAKE || weather.stage == Weather.Stage.HUDDLE
+                && (weather.partner == null || weather.pressedAt >= 0 || !weather.leads)) return weather.ticks;
+        return null;
+    }
     public boolean active() { return threat.stage != Threat.Stage.NONE || weather.stage != Weather.Stage.NONE; }
     /** Behavior id for the shared presentation chain (see EcologyPresentation). */
     public String activity() { return threat.stage != Threat.Stage.NONE ? threat.activity() : weather.activity(); }

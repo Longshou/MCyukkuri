@@ -75,6 +75,12 @@ public abstract class Choreography {
     public final String beat() { return beat; }
     public final boolean running() { return beat != null; }
     public final long beatTick() { return beatStart; }
+    /** Read-only progress of an already-entered timed Await; never builds or probes a beat. */
+    public final Long observedWaitElapsed() {
+        if (table == null || beat == null || !(table.get(beat) instanceof Beat.Await)) return null;
+        long elapsed = now() - beatStart;
+        return elapsed <= beatTicks ? elapsed : null;
+    }
     public final YukkuriEntity host() { return host; }
     public final UUID role(String role) { return roles.get(role); }
     public final Map<String, UUID> roles() { return Map.copyOf(roles); }

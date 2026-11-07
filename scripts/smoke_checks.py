@@ -161,6 +161,13 @@ def changed(a, b):
     """Observed progress, never merely an action-id change (which could itself be a loop)."""
     if distance(a['p'], b['p']) >= .5:
         return True
+    return work_changed(a, b)
+
+
+def work_changed(a, b):
+    """Completed work/context changes, excluding displacement and action-id churn."""
+    if known(a, 'waitElapsed') and known(b, 'waitElapsed') and b['waitElapsed'] > a['waitElapsed']:
+        return True
     if any(a[k] != b[k] for k in ('int', 'goals', 'phase', 'hold')):
         return True
     # LifeGoal serves meals/rest without an IntentRunner id. Real recovery is progress
@@ -207,7 +214,7 @@ def progress(rows):
         transitions, reversals, positions = deque(), deque(), deque()
         prev_moving, prev_turn = None, 0
         for a, b in zip(valid, valid[1:]):
-            if b['t'] - a['t'] != 1:
+            if b['t'] - a['t'] != 1 or work_changed(a['state'], b['state']):
                 prev_moving, prev_turn = None, 0
                 transitions.clear()
                 reversals.clear()
@@ -409,7 +416,11 @@ def ledger(records, samples, dense=False):
                 mouth = (row['state'].get('hold') or {}).get('mouth') or []
                 if sum(bool(store) for store in mouth) > 1:
                     out.append(result('LEDGER', 'suspect', 'two non-empty mouth stores', row))
-        if not current or any(v is None for v in current.values()):
+        # A spawn event can precede the first snapshot by one tick. There is no
+        # inventory comparison yet; an empty field after a known snapshot is a real zero.
+        if not current and previous is None:
+            continue
+        if any(v is None for v in current.values()):
             out.append(result('LEDGER', 'no-evidence', 'inventory authority missing', rows[-1]))
             continue
         total = sum(current.values(), Counter())
@@ -425,7 +436,7 @@ def ledger(records, samples, dense=False):
         previous = total
     if dip:
         out.append(result('LEDGER', 'fail', 'unexplained permanent item total change', dip[2]))
-    if len(ticks) < 2:
+    if len({r['t'] for r in samples}) < 2:
         out.append(result('LEDGER', 'no-evidence', 'need at least two inventory snapshots'))
     return out
 
@@ -790,6 +801,8 @@ def observations(records, issues=(), raw='', allow=(), end=(), seed=None, rerun=
                       if re.search(entry['who'], line) and (event := EVENT.search(line))}
                       for entry in allow if entry.get('who') is not None}
     damage_lines = defaultdict(list)
+    deaths = {(r['u'], r['t'], re.search(r'\bcause=(\S+)', r['msg'])[1].rsplit('.', 1)[-1])
+              for r in records if r['k'] == 'ev' and r.get('msg', '').startswith('death settled into remains; cause=')}
     for line in raw.splitlines():
         if event := EVENT.search(line):
             damage_lines[event['uuid'], int(re.search(r'\bt=(\d+)', line)[1]), event['cat']].append(line)
@@ -797,6 +810,8 @@ def observations(records, issues=(), raw='', allow=(), end=(), seed=None, rerun=
         if r['k'] == 'ev' and re.search(r'damage .*cause=', r.get('msg', '')):
             cause = re.search(r'cause=(\S+)', r['msg'])[1].rsplit('.', 1)[-1]
             kind = {'drown': 'drown', 'inWall': 'in_wall', 'starve': 'starve'}.get(cause)
+            if kind is None and (r['u'], r['t'], cause) in deaths:
+                kind = 'death'
             if any(entry['kind'] == kind and (entry.get('who') is None or r['u'] in allowed_actors[entry['who']])
                    and (entry.get('match') is None or any(re.search(entry['match'], line)
                         for line in damage_lines[r['u'], r['t'], r.get('cat')])) for entry in allow):

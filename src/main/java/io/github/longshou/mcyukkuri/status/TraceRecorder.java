@@ -600,6 +600,10 @@ public final class TraceRecorder {
         out.add("goals", goals);
         Conductor.Role role = Conductor.roleOf(entity);
         out.addProperty("phase", role == null ? entity.family().taskId() : role.choreography().beat());
+        Number waitElapsed;
+        if (role == null) waitElapsed = entity.status().reactions().observedWaitElapsed();
+        else waitElapsed = role.choreography().observedWaitElapsed();
+        out.addProperty("waitElapsed", waitElapsed);
         out.add("hold", hold(entity));
         out.addProperty("dep", entity.childhood().shouldStayWithParents());
         out.addProperty("distress", entity.waterDistress().active());

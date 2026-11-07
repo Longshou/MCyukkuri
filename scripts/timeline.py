@@ -31,6 +31,9 @@ def validate(row):
     for key in ('hold', 'att', 'act', 'int', 'need'):
         if s.get(key) is not None and not isinstance(s[key], dict):
             raise ValueError(f'{key} must be an object or null')
+    if s.get('waitElapsed') is not None and (type(s['waitElapsed']) not in (int, float)
+                                            or not math.isfinite(s['waitElapsed'])):
+        raise ValueError('waitElapsed must be finite numeric or null')
 
 
 def parse(texts):
