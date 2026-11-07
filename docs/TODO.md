@@ -192,26 +192,26 @@
 - **妖梦体力系数未生效**：已接入待试玩（源码修正 [c3033e91](https://github.com/Longshou/MCyukkuri/commit/c3033e91)，无试玩复现）。完成：`species_fatigue` 妖梦、灵梦、帕秋莉同初态，`species.fatigue.steps=20` 时代谢 `cost` 分别 18／20／25，重载不带入上次统计。
 - **陆 38 捕食种腾空台词**：已接入待试玩。原生会飞的捕食种说“好像在天上飞”（版本待核实）。完成：`airborne` 普通高抛只触发一次，小跳和蕾米莉亚／弗兰均不触发。
 - **固定群系下的日常储粮**：已接入待试玩。已移除秋储规划、秋季加征和过冬预留。完成：`forage`、`settle_taiga`、`colony_hunt`、`colony_ration` 读库存／公仓目标与上缴比例，秋季群系不为未来冬天囤粮或扣留公粮。
-- **陆 14 避雨搜索与雨天活动**（4）：已接入待试玩。E1 找掩体偏低且避雨不应锁死活动；E3 雨伤、湿润和水生避雨缺口；E5 严重饥饿者雨中 `idle`。看点：`rain_life` 饿油吃完一枚苹果接着出去吃下一枚，营养 30 才回去躲雨，进屋 `shaking the rain off on arrival`。已知未解决：`rain_open` 无掩体时仍按随机迈步搜索，本机 16 场有 6 场有个体 780 tick 找不到屋顶而死于雨伤。完成：`rain_shelter`、`rain_open`、`rain_life` 读搜索目标、遮蔽、Goal、不安、营养与湿度；无掩体仍合理搜索，干燥区恢复活动，极饿真实冒雨觅食。
-- **陆 16 挡捕食种与亲油反应**（39）：已接入待试玩。2026-10-20（版本待核实）`sacrifice` 只追亲油；E1 子油→亲油转移不证明完成挡护；E3 看不清挡护；E5 噗咕后子油受咬、捕食种落地清空猎物、亲油下一 tick 中断；[ac4ba87b](https://github.com/Longshou/MCyukkuri/commit/ac4ba87b) 亲油被挑衅后芙兰约 25 tick 咬一次（2.0），5 次杀死亲油，清场后立刻再选子油。完成：`sacrifice` 确认真实护子或退避（`behavior.protection`、血量），低意愿仍可抽中；转怒后命中间隔≥40 tick（`mode predation -> combat`）；亲油死亡后 `eat pause started; reason=combat_kill`，芙兰不起飞追猎，饿时 `remains feeding via=eat_pause` 至吃饱或遗体取尽才再选目标。
-- **陆 17 妖梦战力**（40）：已接入待试玩。2026-10-20（版本待核实）妖梦击杀捕食种；ac4ba87b 芙兰贴地连咬妖梦，约 25 tick 一口、每口 2.0，14 点血打到 4.0 退战后被补死。完成：`myon_brave` 双方都造成实际伤害，健康同阶段妖梦略弱于捕食种，按胆量退避；`combat strike` 的 `since_last` ≥40，战斗中芙兰 `nutrition` 不因命中增加；退战或体力耗尽后不在妖梦脚边落地（`withdrawing by air`，落点距对手 ≥16 格），先挑只会跑的猎物（持棍且敢战者评分更差）。
-- **饿极食尸与伴侣决策**：已接入待试玩。E2 护尸走停及 `guard_path_blocked`；E4 只打一次，食尸者返回后不再护尸；同轮 87.5 分接受、20.25 分拒食。完成：`carrion` 对照大胆攻击、胆小抗议与自愿食尸（`guardStyle`、`decision`、`score`、伤害、遗体余额），返回后仍响应，保留拒绝与能力不足后果。
+- **陆 14 避雨搜索与雨天活动**（4）：已接入待试玩。E5 严重饥饿者雨中 `idle`。看点：`rain_life` 饿油吃完一枚苹果接着出去吃下一枚，营养 30 才回去躲雨，进屋 `shaking the rain off on arrival`。未解决：`rain_open` 无掩体时仍按随机迈步搜索，本机常有个体找不到屋顶而死于雨伤。完成：`rain_shelter`、`rain_open`、`rain_life` 读搜索目标、遮蔽、Goal、不安、营养与湿度；无掩体仍合理搜索，干燥区恢复活动，极饿真实冒雨觅食。
+- **陆 16 挡捕食种与亲油反应**（39）：已接入待试玩。[ac4ba87b](https://github.com/Longshou/MCyukkuri/commit/ac4ba87b) 亲油被挑衅后芙兰约 25 tick 咬一次（2.0），5 次杀死亲油，清场后立刻再选子油。完成：`sacrifice` 确认真实护子或退避（`behavior.protection`、血量），低意愿仍可抽中；转怒后命中间隔≥40 tick（`mode predation -> combat`）；亲油死亡后 `eat pause started; reason=combat_kill`，芙兰不起飞追猎，饿时 `remains feeding via=eat_pause` 至吃饱或遗体取尽才再选目标。
+- **陆 17 妖梦战力**（40）：已接入待试玩。[ac4ba87b](https://github.com/Longshou/MCyukkuri/commit/ac4ba87b) 芙兰贴地连咬妖梦，约 25 tick 一口、每口 2.0，14 点血打到 4.0 退战后被补死。完成：`myon_brave` 双方都造成实际伤害，健康同阶段妖梦略弱于捕食种，按胆量退避；`combat strike` 的 `since_last` ≥40，战斗中芙兰 `nutrition` 不因命中增加；退战或体力耗尽后不在妖梦脚边落地（`withdrawing by air`，落点距对手 ≥16 格），先挑只会跑的猎物（持棍且敢战者评分更差）。
+- **饿极食尸与伴侣决策**：已接入待试玩。E4 护尸者只打一次，食尸者返回后不再护尸。完成：`carrion` 对照大胆攻击、胆小抗议与自愿食尸（`guardStyle`、`decision`、`score`、伤害、遗体余额），返回后仍响应，保留拒绝与能力不足后果。
 - **饿极攻击失饰者**：已接入待试玩。`cannibal_hunt` 攻击意愿按饥饿、友善、自制、胆量、恐惧和能力差判分。完成：两组对照读决策、追咬目标、伤害及吞咽营养，保留真实拒绝与危险后果。
 - **陆 24 请吃了我触发条件**（37）：已接入待试玩（[触发阈值](FEATURES.md#伤口遗体与身体状态)）。完成：`offering` 对照绝境、低意愿和普通饥饿，观察请求、交付、中断；一般饥饿不轻易献身，补给与照护可中止，不写 Goal 或成功状态。
-- **陆 49 橙汁治伤、面粉糊去疤与 NPC 治疗**：已接入待试玩。E1 清伤后疤数归 0；E2 看不出持药。完成：`treatment_severe`、`treatment_scars` 普通伤概率留疤、大伤必留，橙汁保留旧疤且不治油霉，面粉糊只去疤；`treatment_care` 按需先橙汁后面粉糊、逐剂持物、扣余量，无效不扣料；绷带移除及旧档背包、箱内迁移仍待试玩。
-- **陆 50 中枢作为通用身体结构**：已接入待试玩。E2 `core_filling`、`core_exposed` 生成后卡死无栈（已加 `[body-render]` 耗时读数；E4 桌面复测未再卡死，仅诊断）。完成：外露中枢命中立即死亡并留遗体，旁侧不致死，能取得中枢；两按钮反复生成、转视角、治疗闭口、取核不卡死。
+- **陆 49 橙汁治伤、面粉糊去疤与 NPC 治疗**：已接入待试玩。E2 看不出持药。完成：`treatment_severe`、`treatment_scars` 普通伤概率留疤、大伤必留，橙汁保留旧疤且不治油霉，面粉糊只去疤；`treatment_care` 按需先橙汁后面粉糊、逐剂持物、扣余量，无效不扣料；绷带移除及旧档背包、箱内迁移仍待试玩。
+- **陆 50 中枢作为通用身体结构**：已接入待试玩。E2 `core_filling`、`core_exposed` 生成后卡死无栈（E4 未再卡死，仅诊断；`[body-render]` 记耗时）。完成：外露中枢命中立即死亡并留遗体，旁侧不致死，能取得中枢；两按钮反复生成、转视角、治疗闭口、取核不卡死。
 - **低营养虚弱与饥饿掉血**：已接入待试玩。E4 看不出减速。完成：`nutrition_age` 对照移速、营养、血量和 `needs.fatigue` 计时；补食后计时归零、效果到期，饥饿仍可致死。
 - **定向噗咕的数值回应**：已接入待试玩。完成：`puff_response` 四种初态待自然制裁宣告，核对 `[social] puff` 输入、选择、Goal 与移动／伤害；`carrion` 饥饿目标对护尸噗咕的反应。
 - **新增演示到场传送**：已接入待试玩。E5 仍未传送。完成：`fatigue`、`fatigue_predator`、`nutrition_age` 各观察台启动均传送到样例附近，清场重开一致。
-- **困倦打盹、胆量睡时与危险惊醒**：已接入待试玩。ac4ba87b 两次打盹间隔不足 0.5 秒；E5 入睡 3 秒后已受咬且未找到困倦演示。口渴见[基础生活](FEATURES.md#基础生活与饲养操作)。完成：`fatigue` 两次打盹至少隔 15 秒；`yukkuri status … raw` 的 dryness 随时间上升，水边个体约 40 分钟后自行喝水不扣血；`fatigue_predator`、`sleep` 对照停步、睡眠表情、困值、危险惊醒和捕食目标，不指定 Goal。
+- **困倦打盹、胆量睡时与危险惊醒**：已接入待试玩。ac4ba87b 两次打盹间隔不足 0.5 秒。口渴见[基础生活](FEATURES.md#基础生活与饲养操作)。完成：`fatigue` 两次打盹至少隔 15 秒；`yukkuri status … raw` 的 dryness 随时间上升，水边个体约 40 分钟后自行喝水不扣血；`fatigue_predator`、`sleep` 对照停步、睡眠表情、困值、危险惊醒和捕食目标，不指定 Goal。
 - **成长营养需求与献身供养总量**：已接入待试玩。E2 要求幼体需求低于成体，默认消耗下献身余额可供两只子油约五天。完成：`nutrition_age` 对照需求与营养扣值；`offering` 共享真实余额与吞咽，受伤、腐败和成长仍减少可供时间。
 - **空手击打无伤口反馈**：已接入待试玩。E7 `core_exposed` 空手击打只首拳留一级凹伤，重复击打 `wound unchanged`。完成：对“满血爆裂”个体背面连打同一处，第 3、5 拳分别升二、三级，`[body]` 点数前后值对应；每拳命中点有馅屑（火烧冒烟）。
 - **旁观受伤语音串用**：已接入待试玩。E2 旁观者播放自己的受伤语音。完成：`hurt` 轻击一只，只有受伤者痛呼。
 - **漏馅止漏演示覆盖**：已接入待试玩。E2 缺大伤口与露核对照。完成：`wound_leak` 读漏血、`core_site`、`wound_anchors`；橙汁闭口止漏并原位留疤，面粉糊仅去疤，场景不卡死。
 - **无粮时主动搜索（E3 反馈 6）**：已接入待试玩。ac4ba87b 搜索与 `seek_food` 是两段状态、表情不对，被攻击或雨中觅食仍慢悠悠。完成：`forage_empty` 空手饥饿灵梦流口水并游荡；手持苹果走近立即走向玩家（`search met player holding food`），丢下后 `search saw loose food` 再吃；雨天干燥区活动与攻击后 `[urgency] urgency speed on`、`move_speed` 约 ×1.3，结束 off；无粮不假装取食。
 - **捕食种／水生种通用身体与地面动作（E5 反馈 3、4）**：已接入待试玩。E5 捕食种缺油菊、伸缩与步态仍旧。完成：`shared_body` 四种对照核对油菊、互斥伸缩、通用步态及落地后真实行走。
-- **岩浆块烫伤脚底**：已接入待试玩。E2 伤害过快；E4 改为原版受伤频率、受伤后降低跳高并逃向真实安全地面。完成：`magma_sole` 健康个体从四格岩浆块中心活着离开，石头对照不烫伤，离开后不再新增接触伤。
-- **野生灵梦入巢结界**：已接入待试玩（项目设计，用户要求；[规则](FEATURES.md#野外住所)）。本机冒烟（非验收）封好的屏在捕食种仍在扫描范围内时不再被自己推开。完成：`den_barrier` 左洞（90·90）依次 `den seal started`、`den seal completed`（twigs 2 → 1 或 0）、屏障出现、`target rejected reason=barrier`，捕食者离开后 `den barrier removed reason=danger_passed twig_returned=true`；右洞（40·30）只逃入窝，`den seal skipped reason=traits_low`；被攻击或洞口有他者时中止且不扣枝。
+- **岩浆块烫伤脚底**：已接入待试玩。E2 伤害过快。完成：`magma_sole` 健康个体从四格岩浆块中心活着离开，石头对照不烫伤，离开后不再新增接触伤。
+- **野生灵梦入巢结界**：已接入待试玩（项目设计，用户要求；[规则](FEATURES.md#野外住所)）。完成：`den_barrier` 左洞（90·90）依次 `den seal started`、`den seal completed`（twigs 2 → 1 或 0）、屏障出现、`target rejected reason=barrier`，捕食者离开后 `den barrier removed reason=danger_passed twig_returned=true`；右洞（40·30）只逃入窝，`den seal skipped reason=traits_low`；被攻击或洞口有他者时中止且不扣枝。
 
 ### 出生与成长
 
