@@ -25,7 +25,7 @@ final class MomentEmote {
     }
     static void render(YukkuriView e, float partial, PoseStack pose, MultiBufferSource buffers, int light) {
         var mc = Minecraft.getInstance();
-        if (e.getMomentId().isEmpty() || e.isInvisible() || !e.isAlive() || mc.options.hideGui
+        if (e.getMomentId().isEmpty() || e.isInvisible() || !e.isAlive()
                 || mc.gameRenderer.getMainCamera().getPosition().distanceToSqr(e.position()) > 256) return;
         float elapsed = (e.level().getGameTime()-e.getMomentStartTick()+partial)/20f;
         // A looping body pose must not turn a short punctuation mark into a permanent status icon.

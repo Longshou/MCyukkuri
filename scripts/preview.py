@@ -410,15 +410,18 @@ def kit(args, stage):
         runtime = read(ASSETS/'yukkuri'/(species+'.json'))
         selected = {**runtime['clips'], **runtime.get('behavior_clips',{}), **revisions.get(species,{}).get('clips',{})}
         spans.update((clip,a,b,face) for clip,row in selected.items() for a,b,face in row.get('expression_spans',[]))
+    moments = read(ROOT/'standards/yukkuri-library/presentation/moments.json')['moments']
     usage = {}
     cards = []
     for row in entries:
         ident = row['id']
         count = len(re.findall(r'"'+re.escape(ident)+r'"',java))
         span_count = sum(s[3]==ident for s in spans)
-        usage[ident] = dict(java=count,face_spans=span_count)
+        moment_count = sum(any(face==ident for step in row['steps'] for _,face in step['faces'])
+                           or row.get('condition_face')==ident for row in moments.values())
+        usage[ident] = dict(java=count,face_spans=span_count,moments=moment_count)
         shutil.copy2(library/'expressions/thumbnails'/(ident+'.png'),stage/(ident+'.png'))
-        cards.append(f'<figure><img loading="lazy" src="{ident}.png"><figcaption>{E(row["label"])} · {ident}<br>Java {count} / 片段表情段 {span_count}'+(' · <strong>未使用</strong>' if count+span_count==0 else '')+'</figcaption></figure>')
+        cards.append(f'<figure><img loading="lazy" src="{ident}.png"><figcaption>{E(row["label"])} · {ident}<br>Java {count} / 片段表情段 {span_count} / 演出行 {moment_count}'+(' · <strong>未使用</strong>' if count+span_count+moment_count==0 else '')+'</figcaption></figure>')
     write_json(stage/'usage.json',usage)
     body = '<p>认可表情；引用数为 Java 字符串出现次数和全部模型运行片段的表情段数（相同片段及表情段跨模型去重），不代表游玩频率。A/B 相位单列；客户端自动轮播基础 ID。</p><div style="display:flex;flex-wrap:wrap">'+''.join(cards)+'</div>'
     proof = [r['id'] for r in entries if sum(usage[r['id']].values())==0 and not r['id'].endswith('_b')][:6]
@@ -440,7 +443,6 @@ def kit(args, stage):
         frames[0].save(stage/(ident+'.gif'),save_all=True,append_images=frames[1:],duration=max(20,round(clip['duration']*1000/12)),loop=0)
         count=len(re.findall(r'"'+re.escape(ident)+r'"|\b'+re.escape(ident.upper())+r'\b',java))
         body += f'<figure><img loading="lazy" src="{ident}.gif"><figcaption>{ident} · {clip["duration"]:g} 秒 · Java {count}'+(' · <strong>未使用</strong>' if count==0 else '')+'</figcaption></figure>'
-    moments = read(ROOT/'standards/yukkuri-library/presentation/moments.json')['moments']
     body += '<h2>演出数据行</h2><ul>'+''.join('<li>'+E(ident)+'：'+E(' → '.join(s['clip'] for s in row['steps']))+'</li>' for ident,row in moments.items())+'</ul>'
     emotes = read(ASSETS/'textures/emote/emotes.json')
     shutil.copy2(ASSETS/'textures/emote/atlas.png',stage/'emotes.png')
