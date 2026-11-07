@@ -2,7 +2,7 @@
 (function (root) {
   'use strict';
   const sections = ['all', 'models', 'motions', 'items', 'audio', 'scenes', 'guide'];
-  const kinds = {models:['model'], motions:['motion'], items:['item'], audio:['audio'], scenes:['scene'], guide:['scenario','reference']};
+  const kinds = {models:['model'], motions:['motion'], items:['item'], audio:['audio'], scenes:['scene','page'], guide:['scenario','reference']};
   function parse(value) {
     const url = new URL(value, 'http://localhost');
     const p = url.searchParams;

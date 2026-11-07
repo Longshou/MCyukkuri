@@ -60,7 +60,7 @@
 - 先粗后细：新动作或新行为先做能跑的粗版，尽早截图（或录像）对照用户原话审过方向，再细化；不要做完全部细节才第一次看画面。
 - 分镜与概念先行：新动作先出 8 格分镜（以本项目模型为参考，只作意图：节拍、弧线、节奏；长度、角度、接触来自真实模型与检查），新道具、贴图、物件先出概念图或四视图定方向。生图由生图专员负责（Sonnet，推理强度 low，按 `.local/refactor/briefs/_image-liaison.md`）：用 `.local/tools/storyboard.py` 调 Codex 生图，从 `.local/refactor/image-prompts.md` 的成熟写法起步，自己逐格初审（分镜另加 kimi 逐格审），问题格改 prompt 重画最多两轮，交付到 `.local/generated-images/<主题>/`（含 `handoff.md` 写明哪些地方不能照搬）；总负责人在派制作者之前先派生图专员，制作者只用交付物。改 prompt 能修好的反复问题（如四视图的侧视偏成四分之三）把写法记回 prompt 库。
 - 可见动作的交付：真实片段的离线渲染条与分镜节拍并排；`scripts/capture_museum.py` 截图联系表按实际大小看接触、穿模和观察点可读性，并由另一个代理对照用户原话审图后才能合入。每轮出图由另一个代理独立审图，作者自评不能代替。一条命令出审图：`<py> .local/tools/capture_review.py --worktree <工作树> <场景> --criteria <用户原话或文件> [--beats 节拍文件]`（截图后由 kimi 按全分辨率帧对照原话与固定检查，写 `.local/reports/capture-review/`；身体／动作问题退出 1，取景问题单列，审核错误退出 2）。
-- 预览统一输出 `.local/previews/<主题>/`，总入口 `.local/previews/index.html`；更新后重建总入口，同主题只留当前预览，不删制作输入、当前模型或原始参考图。改模型后出一张当前预览并贴在回复中。
+- 新预览用 `<py> scripts/preview.py`（用法见 `scripts/README.md`）输出 `.local/previews/<主题>/` 并自动登记总入口；需用户决定的带 `--decision` 登记待查看。同主题只留当前预览，不删制作输入、当前模型或原始参考图。改模型后出一张当前预览并贴在回复中。
 - 生成脚本和模板留在原制作目录。预览、截图、报告、验收或确认记录不入库；截图、报告分别放 `.local/screenshots/`、`.local/reports/`；生图工作目录 `.local/generated-images/<主题>/`。认可集合和文件指纹由制作源登记保存。
 - 生成文件冲突先合并制作源（动作源 motions／variants／lore／recipe.json、author.py、motion_corrections.json；语言按键、台词按行 ID 合并）再重建受影响输出，不手工合并生成文件。目录与文件用稳定英文 ID 命名，不用“最终版／新版2”；当前导出放 `assembled/`，待确认方案放 `drafts/<主题>/`，被替代方案直接删除、不设 `archive/`；同包脚本留包内，跨目录脚本放 `scripts/` 并登记其 README；`standards/yukkuri-v1/` 仍被读取。
 

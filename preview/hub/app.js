@@ -1,7 +1,7 @@
 'use strict';
 const $=id=>document.getElementById(id), R=window.PreviewRoute;
 const labels={all:'全部',models:'角色',motions:'动作',items:'物品',audio:'声音',scenes:'演示',guide:'试玩指引'};
-const kinds={model:'三维角色',motion:'动态动作',item:'物品',audio:'声音',scene:'演示',scenario:'试玩指引',reference:'预览说明'};
+const kinds={model:'三维角色',motion:'动态动作',item:'物品',audio:'声音',scene:'演示',scenario:'试玩指引',reference:'预览说明',page:'本地预览'};
 let library,data,state=R.parse(location.href), timer;
 const pageSize=36;
 let disposeScene;
@@ -47,6 +47,9 @@ function renderDetail(){
  if(['model','motion','audio'].includes(entry.kind)){
    const src=viewerURL(entry),frame=el('iframe');frame.src=src;frame.title=entry.title;frame.className='viewer';frame.allow='autoplay';$('content').append(frame);
    $('standalone').href=src.replace('embed=1&','').replace('embed=1','');$('standalone').hidden=false;
+ }else if(entry.kind==='page'){
+   const frame=el('iframe');frame.src=entry.page;frame.title=entry.title;frame.className='viewer';$('content').append(frame);
+   $('standalone').href=entry.page;$('standalone').hidden=false;
  }else if(entry.kind==='scene'){
    const chapter=data.chapters.find(c=>c.id===entry.chapter);
    const steps=chapter?.steps||[];

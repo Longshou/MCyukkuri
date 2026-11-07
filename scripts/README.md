@@ -34,17 +34,19 @@
 
 ## 试玩清单与反馈入档
 
-`<py> scripts/playtest_list.py [--since <commit>] [--until <commit>] [--no-html]`：给用户的试玩清单。上次试玩提交取最近一场会话（`play-museum/*.session.json` 的 `runtimeConfig.commit`，`--since` 覆盖），已装运行包取 `museum-runtime.json`（`--until` 覆盖）；两个提交的 `docs/TODO.md` 差异只决定哪些状态仍开放的条目算新增或变化，措辞一律取当前检出的 `docs/TODO.md`（跨版本靠标题／引导短语／重叠度对上；在当前待办里找不到对应条目的跳过，列在标准错误）。条目里反引号包住的场景 ID 经 `museum_scenarios.py` 换成按钮：一场一行，按场地分组（场地与场内场景都按博物馆顺序），场内复测失败在前、已接入待试玩次之；每条目取最短看点（看点／完成子句，约 40 字）；顶部有场地、场景、条目计数，未指名场景的条目与已不存在的场景 ID 放在末尾“其他”块。Markdown 打到标准输出，页面写到 `.local/previews/playtest/index.html`；总入口 `index.html` 由 `build_preview_hub.py` 按分类生成，未接入此页，需直接打开。场景 ID 以当前检出为准，TODO 条目只认反引号写法。
+`<py> scripts/playtest_list.py [--since <commit>] [--until <commit>] [--no-html]`：给用户的试玩清单。上次试玩提交取最近一场会话（`play-museum/*.session.json` 的 `runtimeConfig.commit`，`--since` 覆盖），已装运行包取 `museum-runtime.json`（`--until` 覆盖）；两个提交的 `docs/TODO.md` 差异只决定哪些状态仍开放的条目算新增或变化，措辞一律取当前检出的 `docs/TODO.md`（跨版本靠标题／引导短语／重叠度对上；在当前待办里找不到对应条目的跳过，列在标准错误）。条目里反引号包住的场景 ID 经 `museum_scenarios.py` 换成按钮：一场一行，按场地分组（场地与场内场景都按博物馆顺序），场内复测失败在前、已接入待试玩次之；每条目取最短看点（看点／完成子句，约 40 字）；顶部有场地、场景、条目计数，未指名场景的条目与已不存在的场景 ID 放在末尾“其他”块。Markdown 打到标准输出，页面写到 `.local/previews/playtest/index.html`；总入口 `index.html` 由 `build_preview_hub.py` 按分类生成，并链接此页。场景 ID 以当前检出为准，TODO 条目只认反引号写法。
 
 `<py> scripts/feedback_intake.py [--session <id或前缀>]`：把最近（或指定）会话的 session JSON、该场 stdout／stderr 日志（以及最近一场的 `latest.log`、`debug.log`；更早场次的这两份已被覆盖）复制到 `.local/reports/playtest-<日期>-<时间>/`，原文件不动；按聊天标题 `【<场景标题>】看点：` 识别用户打开过的场景，窗口取到下一次场景启动为止（并排场地的场景会共享窗口），逐场汇总死亡、溺水、`inWall`、饥饿伤害、拒绝（含原因计数）、异常，以及场景 `smoke.expect` 的断言行是否出现（无断言的场景给服务端前缀计数），写成同目录 `summary.md` 并打印。标题已在场景源码里改名的场景标为找不到；日志只含时分秒，日期由会话开始时间逐日推算。
 
 ## 预览与导出
 
+`<py> scripts/preview.py <子命令>`（`PYTHONUTF8=1`；Pillow、Node.js）统一生成预览并登记总入口，工作树默认共用主检出 `.local/previews/<主题>/`，可用 `MCYUKKURI_PREVIEWS` 指定其他输出。`strip <主题> --model reimu --clip idle --times 0s,5t,10t` 出渲染条和帧图集；`--prop <ID>` 改看道具，`--beats beats.txt` 每行用秒／tick 时刻（如 `0.5s 抬头`、`20t 回落`，不能用格序号），`--partner marisa --partner-offset 20 0 0` 同场放伴侣，`--before <旧检出>` 出同机位新旧对比。`capture <主题> --source <截图视角目录>` 从 `frames.json` 出带帧号／tick 联系表和 1 倍速 MP4（相邻 tick 差 / 20 秒，末帧保留 1 tick；使用本机 `.local/tools/video-decode/` 的 ffmpeg），`--ticks 起点 终点 --crop X Y W H --zoom 倍数` 保留逐帧裁图，`--compare <另一视角目录>` 按相同 tick 并排。`motion <主题>` 按分镜、动态分镜、真实片段、截图／录像、审图 JSON 固定排版，自动读取主题已有材料，也可用 `--storyboard/--animatic/--strip/--capture/--review` 提供文件；缺项标注待提供。`collection <主题> --source <录像目录>` 整理已有 MP4；`hub` 只刷新本地页面登记（已有无页面主题自动出媒体页，留存预览不声明为当前运行效果）。生成命令可带 `--title` 与 `--decision <要用户决定什么>`，后者同时登记待查看；也可 `inbox add <ID> --title <标题> --url ../<主题>/index.html --decision <决定>` 或 `inbox remove <ID>`，首次接管保留原条目。缺帧、无效时刻、未知片段等错误非零退出，输入／制作失败保留当前页面；详细参数见各子命令 `--help`。查看服务用 `scripts/serve_review.py --port 8765`，页面效果由用户手工查看。
+
 `python scripts/build_art_catalog.py` 从 Git 跟踪文件、`art/runtime-sources.json`、标准库目录及包内登记生成[素材目录](../art/CATALOG.md)；分类树、路径前缀、运行资源 ID 模式及登记键维护在 `art/catalog.json`。运行 ID 优先，路径前缀取最长匹配，登记输出补齐未指定文件，共用资源另列；伤口目录按路径归类，不随种族 ID 分散。不扫描 Wiki。`--check` 只读检查未归类文件／登记族及目录过期，任一存在返回 1。新增文件先 `git add` 再生成；游戏使用只统计 Java／运行 JSON 的静态资源引用，动态加载不作否定结论，预览只链接工作树内已有文件。
 
 所有新预览统一写到 `.local/previews/<主题>/`，总入口为 `.local/previews/index.html`。同主题只保留当前版本；截图和检查报告分别写到 `.local/screenshots/`、`.local/reports/`，不入库。
 
-`python scripts/build_preview_hub.py` 生成纯预览入口、当前模型／物品缩略图、声音索引与连续场景 GIF／可拖动帧序列；`--render` 另行生成专项图（部分依赖现有原版资源 jar）。需要 Pillow、numpy 和 Node.js。`build_preview_props.py` 复用制作源的软件渲染器，只读当前打包网格和贴图，不导出游戏资源。`python scripts/serve_review.py --port 8766` 只启动本机 HTTP 服务，再手动打开它输出的地址。页面模板在 `preview/hub/`，模型查看器源码在 `preview/review/`；收录与专项图片更新边界见[预览说明](../preview/README.md#内容与边界)。生成流程不启动浏览器、游戏或 Java 编译。
+`python scripts/build_preview_hub.py` 生成纯预览入口、当前模型／物品缩略图、声音索引与连续场景 GIF／可拖动帧序列；`--render` 另行生成专项图（部分依赖现有原版资源 jar）。需要 Pillow、numpy 和 Node.js。`build_preview_props.py` 复用制作源的软件渲染器，只读当前打包网格和贴图，不导出游戏资源。`python scripts/serve_review.py --port 8765` 只启动本机 HTTP 服务，再手动打开它输出的地址。页面模板在 `preview/hub/`，模型查看器源码在 `preview/review/`；收录与专项图片更新边界见[预览说明](../preview/README.md#内容与边界)。生成流程不启动浏览器、游戏或 Java 编译。
 
 总入口调用 `build_preview_library.py`，按 `preview/hub/categories.json` 生成游戏分类目录、物品缩略图及试玩入口；`preview_block_model.py` 适配原生方块元素供离线渲染；`preview_inventory.py` 从 Java 注册与运行引用过滤残留资源。它们只读资源与场景源码，输出在 `.local/previews/`，分类缺口报告在 `.local/reports/preview-library.json`；不会生成试玩世界或运行场景。
 
