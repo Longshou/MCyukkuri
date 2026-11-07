@@ -517,8 +517,10 @@ def main():
     parser.add_argument('--slots', type=int, help=f'Machine-wide limit of smoke/capture servers (default {slots.DEFAULT_SLOTS} or %%{slots.ENVIRONMENT}%%)')
     parser.add_argument('scenes', nargs='*', help='Scene IDs (default: all scenes with smoke metadata)')
     args = parser.parse_args()
-    if args.repeat < 1 or args.layout and (args.repeat > 1 or args.baseline or args.compare) or args.baseline and args.compare:
-        parser.error('--repeat is at least 1; --layout takes no --repeat, --baseline or --compare; --baseline excludes --compare')
+    if (args.repeat < 1 or args.slots is not None and args.slots < 1
+            or args.layout and (args.repeat > 1 or args.baseline or args.compare) or args.baseline and args.compare):
+        parser.error('--repeat and --slots are at least 1; --layout takes no --repeat, --baseline or --compare; '
+                     '--baseline excludes --compare')
     source = server.ROOT if args.worktree is None else args.worktree.resolve(strict=True)
     if args.baseline:
         commit = args.base_commit or git(source, 'merge-base', 'HEAD', 'origin/main')
