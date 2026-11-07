@@ -13,7 +13,7 @@ public final class StatusEvents {
     static void changed(YukkuriEntity entity, String key, String before, String after) {
         NeoForge.EVENT_BUS.post(new StatusChangedEvent(entity, key, before, after));
         if (TraceRecorder.recorded(entity)) {
-            GameplayLog.event(entity, "status", "changed key={} before={} after={}", key, before, after);
+            if (trace()) GameplayLog.event(entity, "status", "changed key={} before={} after={}", key, before, after);
             TraceRecorder.changed(entity, key, before, after);
         }
     }

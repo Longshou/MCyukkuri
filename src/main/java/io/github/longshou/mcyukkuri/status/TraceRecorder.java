@@ -96,7 +96,7 @@ public final class TraceRecorder {
         private final ServerLevel level;
         private final UUID uuid;
         private final SceneWindow window;
-        private JsonObject digest;
+        private JsonObject emitted;
         private Vec3 lastPosition;
         private Vec3 lastVelocity;
         private String attachment;
@@ -303,7 +303,7 @@ public final class TraceRecorder {
         ActorCache cache = cacheFor(entity, window);
         cache.lifeKnown = true;
         String reason = parent != null && entity instanceof YukkuriEntity y && y.family().birthId() != null ? "birth"
-                : cache.digest != null ? "scope_enter" : event.loadedFromDisk() ? "chunk_load" : "spawn";
+                : cache.emitted != null ? "scope_enter" : event.loadedFromDisk() ? "chunk_load" : "spawn";
         JsonObject life = new JsonObject();
         life.addProperty("in", reason);
         if (parent != null) life.addProperty("parent", parent.toString());
@@ -441,26 +441,40 @@ public final class TraceRecorder {
         boolean jump = cache.lastPosition != null && jump(entity, position, velocity, attachment, cache);
         if (mode == Mode.DENSE) {
             emit(entity, cache.window, "st", full);
-        } else if (cache.digest == null) {
+            cache.emitted = full;
+        } else if (cache.emitted == null) {
             emit(entity, cache.window, "st", full);
+            cache.emitted = full;
             cache.lastPositionTick = now;
         } else {
-            JsonObject delta = delta(cache.digest, cheap);
             boolean positionDue = cache.lastPositionTick == Long.MIN_VALUE || now - cache.lastPositionTick >= LIGHT_POSITION_TICKS;
-            if (positionDue) {
-                delta.add("p", vec(position));
-                delta.add("v", vec(velocity));
+            JsonObject observed = positionDue ? full : cheap.deepCopy();
+            if (!positionDue) {
+                JsonObject att = observed.getAsJsonObject("att");
+                JsonObject prior = cache.emitted.getAsJsonObject("att");
+                if (Objects.equals(att.get("host"), prior.get("host"))) {
+                    for (String key : new String[]{"frame", "spot"})
+                        if (prior.has(key)) att.add(key, prior.get(key));
+                }
+                JsonElement act = observed.get("act"), previousAct = cache.emitted.get("act");
+                if (act.isJsonObject() && previousAct.isJsonObject()
+                        && act.getAsJsonObject().get("id").equals(previousAct.getAsJsonObject().get("id"))
+                        && act.getAsJsonObject().get("owner").equals(previousAct.getAsJsonObject().get("owner"))) {
+                    act.getAsJsonObject().add("metric", previousAct.getAsJsonObject().get("metric"));
+                }
             }
+            JsonObject delta = changedKeys(cache.emitted, observed);
             if (jump) {
                 if (cache.previousLight != null) emit(entity, cache.window, "st", cache.previousLight, cache.previousLightTick);
                 emit(entity, cache.window, "st", full);
+                cache.emitted = full;
                 cache.lastPositionTick = now;
             } else {
                 if (!delta.isEmpty()) emit(entity, cache.window, "st", delta);
+                for (String key : delta.keySet()) cache.emitted.add(key, delta.get(key));
                 if (positionDue) cache.lastPositionTick = now;
             }
         }
-        cache.digest = cheap;
         cache.previousLight = cheap.deepCopy();
         cache.previousLight.add("p", vec(position));
         cache.previousLight.add("v", vec(velocity));
@@ -488,41 +502,34 @@ public final class TraceRecorder {
 
     private static void sampleSimple(Entity entity, ActorCache cache, JsonObject full) {
         long now = entity.level().getGameTime();
-        if (mode == Mode.DENSE || cache.digest == null) {
+        if (mode == Mode.DENSE || cache.emitted == null) {
             emit(entity, cache.window, "st", full);
+            cache.emitted = full;
             cache.lastPositionTick = now;
         } else {
-            JsonObject delta = delta(cache.digest, full);
-            delta.remove("p");
-            delta.remove("v");
             boolean positionDue = now - cache.lastPositionTick >= LIGHT_POSITION_TICKS;
-            if (positionDue) {
-                delta.add("p", full.get("p"));
-                if (full.has("v")) delta.add("v", full.get("v"));
-                cache.lastPositionTick = now;
-            }
+            JsonObject observed = full.deepCopy();
+            if (!positionDue) for (String key : new String[]{"p", "v", "frame"}) observed.remove(key);
+            JsonObject delta = changedKeys(cache.emitted, observed);
+            if (positionDue) cache.lastPositionTick = now;
             if (!delta.isEmpty()) emit(entity, cache.window, "st", delta);
+            for (String key : delta.keySet()) cache.emitted.add(key, delta.get(key));
         }
-        cache.digest = full;
     }
 
-    private static JsonObject delta(JsonObject before, JsonObject after) {
+    private static JsonObject changedKeys(JsonObject before, JsonObject after) {
         JsonObject out = new JsonObject();
         for (String key : after.keySet()) if (!after.get(key).equals(before.get(key))) out.add(key, after.get(key));
-        for (String key : before.keySet()) if (!after.has(key)) out.add(key, JsonNull.INSTANCE);
         return out;
     }
 
     private static JsonObject cheapState(JsonObject full) {
         JsonObject out = new JsonObject();
-        for (String key : new String[]{"att", "veh", "hold", "dep", "distress", "wr", "iwr"}) out.add(key, full.get(key));
+        for (String key : new String[]{"att", "veh", "hold", "dep", "distress", "g", "w", "wr", "iw", "iwr", "hp", "phase", "int", "goals", "stage", "parents"}) out.add(key, full.get(key));
         JsonElement action = full.get("act");
         if (action == null || action.isJsonNull()) out.add("act", JsonNull.INSTANCE);
         else {
-            JsonObject id = new JsonObject();
-            id.add("id", action.getAsJsonObject().get("id"));
-            id.add("owner", action.getAsJsonObject().get("owner"));
-            out.add("act", id);
+            out.add("act", action);
         }
         return out;
     }

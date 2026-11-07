@@ -51,7 +51,11 @@ public final class StatusLife {
         airborneTick();
         if (t % 20 == 7) {
             if (marks.tick(identity())) entity.syncMarks(Marks.write(marks.visible()));
-            if (TraceRecorder.recorded(entity)) watch();
+            // Light keeps the detailed register at ten-second resolution; the recorder observes
+            // attachment, holders and hazards every tick independently of this diagnostic register.
+            if (TraceRecorder.recorded(entity)) {
+                if (StatusEvents.trace() || t % 200 == 7) watch();
+            }
             else sampled.clear();
         }
     }
