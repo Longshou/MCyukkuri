@@ -1,7 +1,7 @@
 {
   "clips": {
     "author": "standards/yukkuri-library/motions/variants/lore/aquatic_tools.py",
-    "exporter": "standards/yukkuri-library/motions/variants/lore/author.py --export-aquatic",
+    "exporter": "standards/yukkuri-library/motions/variants/lore/author.py --family aquatic",
     "runtime": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/motion_corrections.json"
   },
   "preview": "standards/yukkuri-library/motions/variants/lore/aquatic_paddle_preview.py",

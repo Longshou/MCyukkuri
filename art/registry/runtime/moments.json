@@ -1,0 +1,5 @@
+{
+  "source": "standards/yukkuri-library/presentation/moments.json",
+  "exporter": "scripts/export_moments.py",
+  "runtime": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/moments.json"
+}

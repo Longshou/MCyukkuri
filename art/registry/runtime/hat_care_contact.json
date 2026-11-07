@@ -1,7 +1,7 @@
 {
   "source": "standards/yukkuri-library/motions/variants/lore/recipe.json",
   "exporter": "standards/yukkuri-library/motions/variants/lore/carry_geometry.py",
-  "motion_exporter": "standards/yukkuri-library/motions/variants/lore/author.py --export-carry",
+  "motion_exporter": "standards/yukkuri-library/motions/variants/lore/author.py --family carry",
   "runtime": [
     "src/main/resources/assets/mcyukkuri/yukkuri_presentation/hat_carry_geometry.json.gz",
     "src/main/resources/assets/mcyukkuri/yukkuri_presentation/motion_corrections.json"

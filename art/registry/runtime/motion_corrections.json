@@ -39,12 +39,11 @@
   "history": "preview/review/puff-v6",
   "lore_hat_source": "standards/yukkuri-library/motions/variants/lore/hat.py",
   "births_preview": ".local/previews/lore/index.html",
-  "aquatic_preview_source": "standards/yukkuri-library/motions/variants/lore/aquatic_preview.py",
   "aquatic_family_preview_source": "standards/yukkuri-library/motions/variants/lore/aquatic_family_preview.py",
   "first_voyage_preview_source": "standards/yukkuri-library/motions/variants/lore/first_voyage_preview.py",
-  "water_distress_export_source": "standards/yukkuri-library/motions/variants/lore/author.py --export-distress",
+  "water_distress_export_source": "standards/yukkuri-library/motions/variants/lore/author.py --family distress",
   "hat_self_rescue_geometry": "src/main/java/io/github/longshou/mcyukkuri/subspecies/SelfRescueHatGeometry.java",
   "birth_pose_runtime": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/live_birth_pose.json",
-  "birth_pose_source": "standards/yukkuri-library/motions/variants/lore/author.py --export-birth",
+  "birth_pose_source": "standards/yukkuri-library/motions/variants/lore/author.py --family birth",
   "birth_current_preview": ".local/previews/birth-catching/index.html"
 }
