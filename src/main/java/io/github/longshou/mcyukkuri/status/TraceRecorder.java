@@ -93,7 +93,8 @@ public final class TraceRecorder {
     private record SceneWindow(String scene, String field, long start, AABB box) {}
 
     private static final class ActorCache {
-        private final Entity entity;
+        private final ServerLevel level;
+        private final UUID uuid;
         private final SceneWindow window;
         private JsonObject digest;
         private Vec3 lastPosition;
@@ -104,7 +105,11 @@ public final class TraceRecorder {
         private long previousLightTick;
         private boolean lifeKnown;
 
-        private ActorCache(Entity entity, SceneWindow window) { this.entity = entity; this.window = window; }
+        private ActorCache(Entity entity, SceneWindow window) {
+            this.level = (ServerLevel) entity.level();
+            this.uuid = entity.getUUID();
+            this.window = window;
+        }
     }
 
     public static Mode mode() { return mode; }
@@ -413,10 +418,10 @@ public final class TraceRecorder {
         var iterator = ACTORS.entrySet().iterator();
         while (iterator.hasNext()) {
             ActorCache cache = iterator.next().getValue();
-            if (cache.entity.level() != level || selected.containsKey(cache.entity.getUUID())) continue;
+            if (cache.level != level || selected.containsKey(cache.uuid)) continue;
             JsonObject life = new JsonObject();
             life.addProperty("out", "scope_exit");
-            emit(cache.entity, cache.window, "life", life);
+            emit(level, cache.window, cache.uuid.toString(), "life", life, level.getGameTime());
             iterator.remove();
         }
     }
