@@ -6,6 +6,7 @@ import argparse
 import hashlib
 import json
 from pathlib import Path
+from export_registry import shared_checkout
 
 ROOT = Path(__file__).resolve().parents[1]
 ASSETS = ROOT / 'src/main/resources/assets/mcyukkuri'
@@ -30,6 +31,7 @@ def place_dialogue(values, old_order):
 
 
 def outputs():
+    references = shared_checkout(ROOT)
     source = json.loads((ROOT / 'art/dialogue/runtime-lines.json').read_text(encoding='utf-8'))
     corpus_text = (ROOT / 'art/dialogue/native-u/catalogue-data.js').read_text(encoding='utf-8')
     corpus = json.loads(corpus_text[len('window.HAKKEI_DIALOGUE='):-2])
@@ -58,7 +60,7 @@ def outputs():
             namespace = 'native'
         elif origin == 'hakkei112':
             # Verbatim rows quoted from the user-provided 八景 ver1.12 package (kept local, never packed).
-            path = ROOT / ref['file']
+            path = references / ref['file']
             assert path.is_file(), path
             rows = path.read_bytes().decode('cp932').splitlines()
             raw = rows[ref['line'] - 1]

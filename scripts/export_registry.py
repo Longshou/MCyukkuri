@@ -3,6 +3,13 @@ import hashlib
 import json
 from pathlib import Path
 import re
+import subprocess
+
+
+def shared_checkout(root):
+    """Main checkout owns machine-local tools and untracked original references."""
+    return Path(subprocess.check_output(['git', 'rev-parse', '--path-format=absolute', '--git-common-dir'],
+                                       cwd=root, text=True).strip()).parent
 
 
 def load(path):

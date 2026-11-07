@@ -3,11 +3,11 @@
 rain_huddle: a Reimu with a Marisa on her right (rain_huddle_right) and the Marisa with the Reimu on her left
 (rain_huddle_left), side by side at the distance the server stands them (the two side reaches of side_profile.json added, as
 motor/SideContact does), both on one clip clock;
-thunder_cower and sunbathe on a Reimu and a Marisa. Each strip is drawn under the storyboard sheet whose beats it follows
-(the aligned panels in .local/generated-images/<clip>/), when they exist. Writes .local/previews/<clip>/strip.png and compare.png.
+thunder_cower and sunbathe delegate to scripts/preview.py strip. The paired huddle strip is drawn under its storyboard
+(the aligned panels in .local/generated-images/rain_huddle/), when present, and writes strip.png and compare.png.
 """
 from pathlib import Path
-import json, math, runpy, subprocess
+import json, math, runpy, subprocess, sys
 import numpy as np
 from PIL import Image
 
@@ -57,19 +57,20 @@ def posed(body, clip, t):
 
 
 def strip(name):
+    if name in ('thunder_cower', 'sunbathe'):
+        subprocess.run([sys.executable, str(HERE.parents[4]/'scripts/preview.py'), 'strip', name,
+                        '--model', 'reimu' if name == 'thunder_cower' else 'marisa', '--clip', name,
+                        '--times', ','.join(f'{t}s' for t in BEATS[name]), '--columns', '8'], check=True)
+        return
     cell = (300, 260)
     canvas = Canvas(cell[0]*len(BEATS[name]), cell[1]+30)
     for i, t in enumerate(BEATS[name]):
         box = (i*cell[0], 30, (i+1)*cell[0], 30+cell[1])
-        if name == 'rain_huddle':
-            reimu, marisa = Body('reimu'), Body('marisa')
-            across, behind = stand('reimu', 'right', 'marisa', 'left')
-            offset = np.array([across, 0, behind])   # the Marisa on the Reimu's +X side (her right), +Z: behind her
-            items = [(reimu, posed(reimu, 'rain_huddle_right', t), expression(reimu, 'rain_huddle_right', t), 1, np.zeros(3)),
-                     (marisa, posed(marisa, 'rain_huddle_left', t), expression(marisa, 'rain_huddle_left', t), 1, offset)]
-        else:
-            body = Body('reimu' if name == 'thunder_cower' else 'marisa')
-            items = [(body, posed(body, name, t), expression(body, name, t), 1, np.zeros(3))]
+        reimu, marisa = Body('reimu'), Body('marisa')
+        across, behind = stand('reimu', 'right', 'marisa', 'left')
+        offset = np.array([across, 0, behind])   # the Marisa on the Reimu's +X side (her right), +Z: behind her
+        items = [(reimu, posed(reimu, 'rain_huddle_right', t), expression(reimu, 'rain_huddle_right', t), 1, np.zeros(3)),
+                 (marisa, posed(marisa, 'rain_huddle_left', t), expression(marisa, 'rain_huddle_left', t), 1, offset)]
         frame(canvas, box, items)
         canvas.text((i*cell[0]+8, 4), f'{i+1}  t={t:.2f}s', small=True)
     out = LOCAL/'previews'/name

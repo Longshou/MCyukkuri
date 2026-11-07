@@ -7,7 +7,7 @@ import re
 import subprocess
 import sys
 import time
-from export_registry import load as read, save as write
+from export_registry import load as read, save as write, shared_checkout
 
 ROOT = Path(__file__).resolve().parents[1]
 LORE = 'standards/yukkuri-library/motions/variants/lore'
@@ -27,7 +27,7 @@ TABLE = [
     exporter('motion-corrections', 'scripts/export_motion_corrections.py', ['standards/yukkuri-library/motions/', 'art/source/motion-corrections/',
              'standards/yukkuri-library/interactions/braid-water-rescue/', 'standards/yukkuri-library/interactions/marisa-hat-vessel/',
              'standards/yukkuri-library/interactions/aquatic-marisa-hat/'], ['placement-fit', 'braid-water-rescue']),
-    exporter('braid-water-rescue', 'standards/yukkuri-library/interactions/braid-water-rescue/author.py', ['standards/yukkuri-library/interactions/braid-water-rescue/'], check=None),
+    exporter('braid-water-rescue', 'standards/yukkuri-library/interactions/braid-water-rescue/author.py', ['standards/yukkuri-library/interactions/braid-water-rescue/'], ['placement-fit'], check=None),
     exporter('hat-interactions', 'scripts/export_hat_interactions.py', ['art/source/hat-interactions/'], ['placement-fit'], check=None),
     exporter('rounded-attachments', 'scripts/export_rounded_attachments.py', ['standards/yukkuri-library/body-standard/'], check=None),
     exporter('wound-surfaces', 'scripts/export_wound_surfaces.cjs', ['art/source/standard-runtime/', 'src/main/resources/assets/mcyukkuri/yukkuri/']),
@@ -91,9 +91,9 @@ CHECKED_BUILDERS = {
        'care-props/build.py', 'body-marks/hair-wounds/build.py', 'consumables/build.py',
        'operation-tools/build.py', 'body-marks/export_wounds.py', 'remains/build.py', 'remains/export.py', 'care-expansion/build.py')],
 }
-TABLE += [exporter('source:'+p, p, [str(Path(p).parent)+'/'], check=('--check',) if p in CHECKED_BUILDERS else None,
+TABLE += [exporter('source:'+p, p, [] if p == 'standards/yukkuri-library/build.py' else [Path(p).parent.as_posix()+'/'], check=('--check',) if p in CHECKED_BUILDERS else None,
                    note='Source authoring command.') for p in BUILDERS]
-TABLE += [exporter('source:'+p, p, [str(Path(p).parent)+'/']) for p in [
+TABLE += [exporter('source:'+p, p, [Path(p).parent.as_posix()+'/']) for p in [
     'art/props/body-marks/core_filling.py', 'standards/yukkuri-library/emotes/emotes.py',
     'art/props/family-life/fit_stem.py',
     'standards/yukkuri-library/expressions/derived/faces.py',
@@ -117,9 +117,32 @@ SOURCE_ORDER = {
 for row in TABLE:
     row['after'] = ['source:'+p for p in SOURCE_ORDER.get(row['id'], [])]
 
+MODEL_OWNERS = ['rounded', 'subspecies', 'rare-forms', 'predator-assets', 'reimu-deficient',
+                'marisa-deficient', 'bean-assets', 'alice-appearance', 'house-face-motion', 'house-carry-motion']
+MODEL_READERS = ['placement-fit', 'rounded-attachments', 'wound-surfaces', 'rounded-wounds',
+                 'subspecies-wounds', 'hat-interactions', 'badges', 'hat-damage', 'ecology-expressions']
+INPUT_LEDGERS = {key: 'art/props/'+folder+'/provenance.json' for key, folder in [
+    ('family-assets', 'family-life'), ('living-assets', 'care-facilities'),
+    ('peripheral-assets', 'runtime-peripheral'), ('pet-goods-icons', 'pet-goods'), ('supply-icons', 'supply-icons')]}
+
 
 def table():
-    rows = list(TABLE)
+    rows = [dict(row, sources=list(row['sources']), after=list(row.get('after', []))) for row in TABLE]
+    for row in rows:
+        if row['id'] in MODEL_READERS:
+            row['sources'].append('src/main/resources/assets/mcyukkuri/yukkuri/')
+            row['after'] += MODEL_OWNERS
+        if row['id'] == 'rounded':
+            row['sources'].append('standards/yukkuri-library/assembled/')
+        if row['id'] == 'badges':
+            row['after'].append('rounded-attachments')
+        if row['id'] == 'runtime-models':
+            row['auto'] = False  # historical recipe refuses the selected rounded models
+        if row['id'] == 'ecology-audio':
+            row['pythonpath'] = '.local/python-audio'
+        if row['id'] in INPUT_LEDGERS:
+            row['input_ledger'] = INPUT_LEDGERS[row['id']]
+            row['sources'] += list(read(ROOT/row['input_ledger'])['inputs'])
     cfg = read(ROOT/LORE/'recipe.json')
     for name in cfg['export_families']:
         rows.append(exporter(name, LORE+'/author.py', [LORE+'/'], ['placement-fit'], args=('--family', name)))
@@ -157,11 +180,12 @@ def changed_files(rev):
 
 
 def affected(rows, files):
-    selected = {key for key, row in rows.items() if any(
+    selected = {key for key, row in rows.items() if row.get('auto', True) and any(
         f.startswith(p) if p.endswith('/') else f == p for f in files for p in row['sources'])}
     # Consumers must rebuild when a producer changes too.
     while True:
-        more = {key for key, row in rows.items() if selected.intersection(row['deps'])}
+        more = {key for key, row in rows.items() if row.get('auto', True) and
+                selected.intersection([*row['deps'], *row.get('after', [])])}
         if more <= selected:
             return selected
         selected |= more
@@ -181,8 +205,11 @@ def run(row, check, logs):
         log = logs/(re.sub(r'[^a-zA-Z0-9_-]', '_', row['id'])+'.log')
         with log.open('w', encoding='utf-8') as stream:
             try:
+                environment = {**os.environ, 'PYTHONUTF8': '1', 'PYTHONDONTWRITEBYTECODE': '1'}
+                if 'pythonpath' in row:
+                    environment['PYTHONPATH'] = str(shared_checkout(ROOT)/row['pythonpath'])+os.pathsep+environment.get('PYTHONPATH', '')
                 process = subprocess.run(command, cwd=ROOT, stdout=stream, stderr=subprocess.STDOUT,
-                                         env={**os.environ, 'PYTHONUTF8': '1', 'PYTHONDONTWRITEBYTECODE': '1'})
+                                         env=environment)
                 status = 'PASS' if process.returncode == 0 else 'FAIL'
             except OSError as error:
                 stream.write(str(error)+'\n')
@@ -221,7 +248,7 @@ def main():
     rows = table()
     if args.list:
         for row in rows.values():
-            print(f"{row['id']} | {row['path']} | check={row['check']} | requires={','.join(row['deps'])} | after={','.join(row.get('after', []))} | {row['note']}")
+            print(f"{row['id']} | {row['path']} | check={row['check']} | requires={','.join(row['deps'])} | after={','.join(row.get('after', []))} | inputs={row.get('input_ledger', '')} | changed={'auto' if row.get('auto', True) else 'manual'} | {row['note']}")
         return 0
     from export_registry import registries, register, import_registries
     if args.register:
@@ -264,12 +291,12 @@ def main():
     failed = set()
     for row in ordered(rows, selected):
         # Independent checks always run, even when a producer check fails.
-        if not args.check and failed.intersection(row['deps']):
+        if not args.check and failed.intersection([*row['deps'], *row.get('after', [])]):
             result = dict(id=row['id'], status='BLOCKED', seconds=0, detail='Failed dependency')
             print(f"{row['id']}: BLOCKED 0s Failed dependency", flush=True)
         else:
             before = {p: (ROOT/p).read_bytes() for p in ('art/runtime-sources.json', 'art/catalog.json')} if not args.check else {}
-            result = run(row, args.check, args.report.parent/'logs')
+            result = run(row, args.check, args.report.parent/(args.report.stem+'-logs'))
             if not args.check:
                 # Existing exporters still write aggregates. Import only their actual edits;
                 # newly registered shards never get overwritten by an unchanged aggregate.
@@ -305,7 +332,7 @@ def motion(args, rows):
             raise ValueError('No declared family for clip: '+clip)
         families += matches[:1]
     for name in dict.fromkeys(families):
-        if run(rows[name], False, args.report.parent/'logs')['status'] != 'PASS':
+        if run(rows[name], args.check, args.report.parent/(args.report.stem+'-logs'))['status'] != 'PASS':
             return 1
     for clip in args.clips:
         topic = 'motion-'+clip.replace('_', '-')

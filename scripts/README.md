@@ -1,6 +1,6 @@
 # 项目脚本
 
-资源统一入口：`<py> scripts/export.py --family weather --family life` 按家族导出；`--changed [REV]` 读取从 REV（默认 HEAD）到工作区的 Git 差异（含暂存、未暂存、未跟踪文件），选择声明的源和下游导出器。`--list` 列出脚本、只读检查参数、依赖与边界；表在 `scripts/export.py`，执行按依赖排序，导出器仍留原目录。无选择时只接受 `--check`，避免误跑全部历史制作器。每项只打印一行耗时／结果，详细输出在同目录的 `<报告名>-logs/`，汇总在 `results.json`（`--report` 可改位置）；失败返回非零，独立检查继续，无检查的脚本明确标 `NO CHECK`，不会执行写入。`subspecies` 的检查只覆盖贴图；尚未合入的导出器标 `MISSING`，不略过。表新增项应同时登记制作源路径与依赖。
+资源统一入口：`<py> scripts/export.py --family weather --family life` 按家族导出；`--changed [REV]` 读取从 REV（默认 HEAD）到工作区的 Git 差异（含暂存、未暂存、未跟踪文件），选择声明的源和下游导出器。`--list` 列出脚本、只读检查参数、依赖与边界；表在 `scripts/export.py`，执行按依赖排序，导出器仍留原目录。已选制作器先于其运行导出；单独导出家族不会自动重做已选模型制作源。来源清单中显式登记的 `inputs` 也参与改动选择；旧七模型入口 `runtime-models` 只允许显式指定。无选择时只接受 `--check`，避免误跑全部历史制作器。每项只打印一行耗时／结果，详细输出在 `.local/reports/export/<报告名>-logs/`，汇总在 `results.json`（`--report` 可改位置）；失败返回非零，独立检查继续，无检查的脚本明确标 `NO CHECK`，不会执行写入。`subspecies` 的检查只覆盖贴图；尚未合入的导出器标 `MISSING`，不略过。表新增项应同时登记制作源路径与依赖。音频检查使用主检出 `.local/python-audio/` 的现有依赖；对白的本地八景原文也从主检出读取，运行导出仍写当前工作树。
 
 动作源合并后用 `export.py --rebuild-motion` 重建完整动作、天气接触轮廓和生活片段。家族在 lore `recipe.json` 的 `export_families` 登记片段及必要派生输出，不再新增命令行开关。`export.py motion call_child wake --beats beats.txt --model reimu` 导出所属家族，调用 `preview.py strip` 输出各片段的节拍渲染条，再通过 `pose_check.py --serve` 把同一组任意秒时刻逐帧送检，输出在 `.local/reports/export/motion/<片段>/`。默认只查 `tilt`；例如 `--model marisa --metrics tilt,pass` 加辫身穿透。其他单帧检查用 `--metrics wet,gap,held`，必要证据由 `--water`／`--context` 提供；时序检查直接用 G2 的 `--frames`，不把稀疏节拍伪装成连续采样。几何 fail／疑似均如实保留在报告，缺证据、未知输入或未合入 G2 则非零退出。节拍格式沿用下文预览命令。
 
@@ -14,7 +14,7 @@
 
 认可登记写 `standards/yukkuri-library/provenance/selections/<ID>.json`；输入全数校验后才落盘，JSON 写入用同目录临时文件原子替换。工具自查：`<py> scripts/test_export.py`（含真实双分支登记合并、失败传播、只读边界和指纹反例）。
 
-lore 通用宠物联系表 `pet_motions_preview.py` 已由 `preview.py strip <主题> --model <模型> --clip <片段> --times <秒列表>` 接替；出生兼容入口 `birth_performance_preview.py` 移除，专用剖面直接用 `mamu_birth_preview.py`。保留的专门组合：`aquatic_family_preview.py`／`first_voyage_preview.py`（船上乘员与投喂交接）、`aquatic_paddle_preview.py`／`aquatic_strokes_preview.py`（船体、水线、岸边与辫节弯曲带）、`carry_hold_preview.py`（口中放幼、双尾承托、持物，侧面轮廓导出亦复用其蒙皮）、`birth_catching_preview.py`／`mamu_birth_preview.py`（出生出口剖切与接幼）、`weather_preview.py`（按真实侧面轮廓排列双体）。这些依赖的 lore `preview.py` 是场景蒙皮辅助库，不是命令入口；`page.py` 的完整设定动作目录也保留。`aquatic_preview.py` 的旧帽船与木棍组合由上述水上专门预览覆盖。
+lore 通用宠物联系表 `pet_motions_preview.py` 已由 `preview.py strip <主题> --model <模型> --clip <片段> --times <秒列表>` 接替；出生兼容入口 `birth_performance_preview.py` 移除，专用剖面直接用 `mamu_birth_preview.py`。保留的专门组合：`aquatic_family_preview.py`／`first_voyage_preview.py`（船上乘员与投喂交接）、`aquatic_paddle_preview.py`／`aquatic_strokes_preview.py`（船体、水线、岸边与辫节弯曲带）、`carry_hold_preview.py`（口中放幼、双尾承托、持物，侧面轮廓导出亦复用其蒙皮）、`birth_catching_preview.py`／`mamu_birth_preview.py`（出生出口剖切与接幼）、`weather_preview.py`（按真实侧面轮廓排列双体；雷雨与晒太阳的单体渲染已委托统一 strip）。这些依赖的 lore `preview.py` 是场景蒙皮辅助库，不是命令入口；`page.py` 的完整设定动作目录也保留。`aquatic_preview.py` 的旧帽船与木棍组合由上述水上专门预览覆盖。
 
 演出数据：`export_moments.py [--check]` 导出并检查片段、表情及符号引用；`test_moments.py` 用错误引用与非法时间检查拒绝行为。`preview.py moment <ID>` 输出渲染条与 MP4，`preview.py kit` 包含演出行与头顶符号目录。格式见[演出数据](../standards/yukkuri-library/presentation/README.md)。
 

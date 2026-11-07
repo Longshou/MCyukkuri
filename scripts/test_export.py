@@ -37,6 +37,25 @@ class ExportTests(unittest.TestCase):
         self.assertEqual(pipeline.affected(rows, ['source/deleted.json']), {'a', 'b', 'c'})
         self.assertFalse(pipeline.affected(rows, ['source-other/a']))
 
+    def test_selected_producer_order_without_rebuilding_accepted_sources(self):
+        rows = {'source': dict(id='source', sources=['recipe/'], deps=[]),
+                'owner': dict(id='owner', sources=[], deps=[], after=['source']),
+                'consumer': dict(id='consumer', sources=[], deps=['owner'])}
+        self.assertEqual(pipeline.affected(rows, ['recipe/data.json']), set(rows))
+        self.assertEqual([r['id'] for r in pipeline.ordered(rows, ['consumer'])], ['owner', 'consumer'])
+        self.assertEqual([r['id'] for r in pipeline.ordered(rows, ['consumer', 'source'])], ['source', 'owner', 'consumer'])
+
+    def test_real_source_selection_uses_posix_package_and_declared_inputs(self):
+        rows = pipeline.table()
+        selected = pipeline.affected(rows, ['standards/yukkuri-library/drafts/cold-storage/recipe.json'])
+        self.assertIn('source:standards/yukkuri-library/drafts/cold-storage/build.py', selected)
+        self.assertNotIn('source:standards/yukkuri-library/build.py', selected)
+        selected = pipeline.affected(rows, ['standards/yukkuri-v1/profiles/growth.json'])
+        self.assertIn('family-assets', selected)
+        selected = pipeline.affected(rows, ['scripts/export_rounded_runtime.py'])
+        self.assertTrue({'rounded', 'placement-fit', 'braid-water-rescue', 'motion-corrections'} <= selected)
+        pipeline.ordered(rows, sorted(selected))  # whole declared producer graph must be acyclic
+
     def test_no_check_never_executes(self):
         row = pipeline.exporter('unsafe', 'missing.py', [], check=None)
         with patch.object(pipeline.subprocess, 'run', side_effect=AssertionError('must not execute')):
@@ -62,6 +81,41 @@ class ExportTests(unittest.TestCase):
         row = pipeline.exporter('node', 'scripts/export_placement_fit.cjs', [])
         with patch.object(pipeline.subprocess, 'run', side_effect=FileNotFoundError('node missing')):
             self.assertEqual(pipeline.run(row, True, self.root)['status'], 'FAIL')
+
+    def test_declared_audio_dependencies_use_shared_checkout(self):
+        row = pipeline.exporter('audio', 'scripts/build_ecology_audio.py', [])
+        row['pythonpath'] = '.local/python-audio'
+        with patch.object(pipeline, 'shared_checkout', return_value=self.root), \
+             patch.object(pipeline.subprocess, 'run', return_value=subprocess.CompletedProcess([], 0)) as execute:
+            self.assertEqual(pipeline.run(row, True, self.root)['status'], 'PASS')
+        import os
+        self.assertEqual(execute.call_args.kwargs['env']['PYTHONPATH'].split(os.pathsep)[0], str(self.root/'.local/python-audio'))
+
+    def test_motion_check_uses_readonly_exporter_mode(self):
+        import argparse
+        beats = self.root/'beats.txt'
+        beats.write_bytes(b'0s start\n0.15s next\n')
+        args = argparse.Namespace(beats=beats, clips=['call_child'], check=True, report=self.root/'results.json')
+        with patch.object(pipeline, 'run', return_value={'status': 'FAIL'}) as execute:
+            self.assertEqual(pipeline.motion(args, pipeline.table()), 1)
+        self.assertTrue(execute.call_args.args[1], 'motion --check must not export runtime assets')
+
+    def test_failed_selected_source_blocks_owner_but_not_independent_export(self):
+        self.seed()
+        rows = {key: pipeline.exporter(key, 'scripts/export.py', []) for key in ('source', 'owner', 'independent')}
+        rows['owner']['after'] = ['source']
+        visited = []
+        def execute(row, *_):
+            visited.append(row['id'])
+            return dict(id=row['id'], status='FAIL' if row['id']=='source' else 'PASS', seconds=0, detail='control')
+        args = ['export.py', '--family', 'source', '--family', 'owner', '--family', 'independent',
+                '--report', str(self.root/'result.json')]
+        with patch.object(pipeline, 'ROOT', self.root), patch.object(pipeline, 'table', return_value=rows), \
+             patch.object(pipeline, 'run', side_effect=execute), patch.object(registry, 'registries'), \
+             patch.object(registry, 'import_registries'), patch('sys.argv', args):
+            self.assertEqual(pipeline.main(), 1)
+        self.assertEqual(visited, ['source', 'independent'])
+        self.assertEqual(json.loads((self.root/'result.json').read_text())[1]['status'], 'BLOCKED')
 
     def test_atomic_serialization(self):
         path = self.root/'current.json'
