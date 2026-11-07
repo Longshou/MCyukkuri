@@ -38,6 +38,7 @@ public final class BodyDriver {
     private StartRefusal startRefusal;
     private long lastTick;
     private double bestMetric = Double.POSITIVE_INFINITY;
+    private double currentMetric = Double.NaN;
     private long windowStart;
     private boolean interrupted, refusedBusy;
     private String interruptedWhy = "";
@@ -107,7 +108,7 @@ public final class BodyDriver {
     /** Read-only trace view of the running action's own progress watchdog. */
     public record ActionTrace(String id, String owner, double metric, int window) {}
     public ActionTrace actionTrace() {
-        return current == null ? null : new ActionTrace(current.id(), owner.ownerId(), bestMetric, current.progressWindow());
+        return current == null ? null : new ActionTrace(current.id(), owner.ownerId(), currentMetric, current.progressWindow());
     }
 
     public Outcome last() { return last; }
@@ -175,6 +176,7 @@ public final class BodyDriver {
             return TravelMode.PASS;
         }
         long tick = now();
+        currentMetric = running.metric();
         if (running.metric() < bestMetric - action.progressEpsilon()) {
             bestMetric = running.metric();
             windowStart = tick;
@@ -243,6 +245,7 @@ public final class BodyDriver {
         owner = candidate;
         lastTick = tick;
         bestMetric = Double.POSITIVE_INFINITY;
+        currentMetric = Double.NaN;
         windowStart = tick;
         interrupted = false;
         interruptedWhy = "";

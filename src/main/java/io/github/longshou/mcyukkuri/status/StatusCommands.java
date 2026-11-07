@@ -5,6 +5,7 @@ import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import net.minecraft.commands.CommandSourceStack;
@@ -13,22 +14,28 @@ import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.phys.AABB;
 import java.util.ArrayList;
 
 /**
  * {@code /yukkuri status <targets>}: the whole register in chat and log.
  * {@code ... raw}: the same as one SNBT compound. {@code status set <targets> <key> <value>}: controlled write.
  * {@code status relate <from> <to> <score>}: set an acquaintance score.
- * {@code status trace off|light|dense}: structured observation; {@code trace window <scene> [field]} starts a scene window.
+ * {@code status trace off|light|dense}: structured observation; {@code trace window <scene> [field] [x1,y1,z1,x2,y2,z2]} starts a scene window.
  */
 public final class StatusCommands {
+    private static final DynamicCommandExceptionType INVALID_BOUNDS = new DynamicCommandExceptionType(
+            value -> Component.literal("trace window bounds must be x1,y1,z1,x2,y2,z2: " + value));
     public static LiteralArgumentBuilder<CommandSourceStack> command() {
         return Commands.literal("status")
                 .then(Commands.literal("trace")
                         .then(Commands.literal("window").then(Commands.argument("scene", StringArgumentType.word())
                                 .executes(context -> window(context, null))
                                 .then(Commands.argument("field", StringArgumentType.word())
-                                        .executes(context -> window(context, StringArgumentType.getString(context, "field"))))))
+                                        .executes(context -> window(context, StringArgumentType.getString(context, "field"), null))
+                                        .then(Commands.argument("bounds", StringArgumentType.word())
+                                                .executes(context -> window(context, StringArgumentType.getString(context, "field"),
+                                                        StringArgumentType.getString(context, "bounds")))))))
                         .then(Commands.argument("mode", StringArgumentType.word()).executes(context -> {
                             String id = StringArgumentType.getString(context, "mode");
                             TraceRecorder.Mode mode = TraceRecorder.Mode.parse(id);
@@ -72,11 +79,32 @@ public final class StatusCommands {
                         .then(Commands.literal("raw").executes(context -> show(context, true))));
     }
 
-    private static int window(CommandContext<CommandSourceStack> context, String field) {
+    private static int window(CommandContext<CommandSourceStack> context, String field) throws CommandSyntaxException {
+        return window(context, field, null);
+    }
+
+    private static int window(CommandContext<CommandSourceStack> context, String field, String bounds) throws CommandSyntaxException {
         String scene = StringArgumentType.getString(context, "scene");
-        TraceRecorder.window(context.getSource().getLevel(), scene, field);
+        TraceRecorder.window(context.getSource().getLevel(), scene, field, bounds(bounds));
         context.getSource().sendSuccess(() -> Component.literal("status trace window " + scene), false);
         return 1;
+    }
+
+    private static AABB bounds(String text) throws CommandSyntaxException {
+        if (text == null) return null;
+        String[] parts = text.split(",", -1);
+        if (parts.length != 6) throw INVALID_BOUNDS.create(text);
+        double[] values = new double[6];
+        try {
+            for (int i = 0; i < values.length; i++) {
+                values[i] = Double.parseDouble(parts[i]);
+                if (!Double.isFinite(values[i])) throw INVALID_BOUNDS.create(text);
+            }
+        } catch (NumberFormatException error) {
+            throw INVALID_BOUNDS.create(text);
+        }
+        if (values[0] > values[3] || values[1] > values[4] || values[2] > values[5]) throw INVALID_BOUNDS.create(text);
+        return new AABB(values[0], values[1], values[2], values[3], values[4], values[5]);
     }
 
     private static int show(CommandContext<CommandSourceStack> context, boolean raw) throws CommandSyntaxException {

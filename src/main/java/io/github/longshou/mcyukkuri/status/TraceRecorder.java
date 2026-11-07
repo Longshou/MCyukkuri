@@ -18,6 +18,7 @@ import io.github.longshou.mcyukkuri.motor.AttachState;
 import io.github.longshou.mcyukkuri.motor.BodyDriver;
 import io.github.longshou.mcyukkuri.motor.Braid;
 import io.github.longshou.mcyukkuri.motor.surface.HostFrame;
+import io.github.longshou.mcyukkuri.motor.surface.Occupancy;
 import io.github.longshou.mcyukkuri.motor.surface.SurfaceHost;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -39,6 +40,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
 import net.neoforged.neoforge.event.entity.EntityLeaveLevelEvent;
@@ -88,7 +90,7 @@ public final class TraceRecorder {
     private static long modeRecorderNanos;
     private static long modeBytes;
 
-    private record SceneWindow(String scene, String field, long start) {}
+    private record SceneWindow(String scene, String field, long start, AABB box) {}
 
     private static final class ActorCache {
         private final Entity entity;
@@ -232,14 +234,20 @@ public final class TraceRecorder {
 
     /** Starts a scene window and invalidates every delta, so each actor's next sample is full. */
     public static void window(ServerLevel level, String scene, String field) {
+        window(level, scene, field, null);
+    }
+
+    /** The generated scene supplies its real field box; manual one-argument windows retain tag/proximity scope. */
+    public static void window(ServerLevel level, String scene, String field, AABB box) {
         String actualField = field == null ? inferField(level) : field;
-        SceneWindow window = new SceneWindow(scene, actualField, level.getGameTime());
+        SceneWindow window = new SceneWindow(scene, actualField, level.getGameTime(), box);
         WINDOWS.put(level.dimension(), window);
         ACTORS.clear();
         JsonObject body = new JsonObject();
         body.addProperty("scene", scene);
         body.addProperty("field", actualField);
         body.addProperty("start", window.start());
+        if (box != null) body.add("box", vec(box.minX, box.minY, box.minZ, box.maxX, box.maxY, box.maxZ));
         emit(level, window, null, "win", body, window.start());
     }
 
@@ -376,6 +384,10 @@ public final class TraceRecorder {
         }
         for (Entity item : entities) {
             if (!(item instanceof ItemEntity) || selected.containsKey(item.getUUID())) continue;
+            if (current != null && current.box() != null && current.box().contains(item.position())) {
+                selected.put(item.getUUID(), current);
+                continue;
+            }
             for (Entity actor : entities) if (selected.containsKey(actor.getUUID()) && item.distanceToSqr(actor) <= NEAR_ITEM_RANGE_SQR) {
                 selected.put(item.getUUID(), current);
                 break;
@@ -600,7 +612,7 @@ public final class TraceRecorder {
     private static String place(SurfaceHost host, YukkuriEntity body, Vec3 local) {
         if (host.entity() instanceof PlacedHatEntity hat) {
             if (PresentationArbiter.onBrim(hat, body)) return "brim";
-            if (hat.insideFloor(local)) return "cabin";
+            if (Occupancy.of(body, host.container()) == Occupancy.INSIDE_SUPPORTED) return "cabin";
         }
         return "ground";
     }
@@ -618,6 +630,8 @@ public final class TraceRecorder {
             value.addProperty("n", bite.portions());
             mouth.add(value);
         }
+        ItemStack carried = entity.getCarriedItem();
+        if (!carried.isEmpty()) mouth.add(item(carried));
         out.add("mouth", mouth);
         ItemStack kitStack = entity.hatKit();
         if (kitStack.isEmpty()) out.add("kit", JsonNull.INSTANCE);
@@ -627,8 +641,8 @@ public final class TraceRecorder {
             out.add("kit", kit);
         }
         JsonObject hat = new JsonObject();
-        hat.addProperty("state", entity.life().custody().state().name().toLowerCase(Locale.ROOT));
-        hat.addProperty("placed", entity.life().custody().boat() == null ? null : entity.life().custody().boat().toString());
+        hat.addProperty("state", entity.headwear().stateId());
+        hat.addProperty("placed", PlacedHatEntity.find(entity) != null);
         out.add("hat", hat);
         var carry = new JsonArray();
         for (Entity passenger : entity.getPassengers()) if (passenger instanceof YukkuriEntity child) {
@@ -699,6 +713,17 @@ public final class TraceRecorder {
         out.add(x);
         out.add(y);
         out.add(z);
+        return out;
+    }
+
+    private static JsonArray vec(double minX, double minY, double minZ, double maxX, double maxY, double maxZ) {
+        var out = new JsonArray();
+        out.add(minX);
+        out.add(minY);
+        out.add(minZ);
+        out.add(maxX);
+        out.add(maxY);
+        out.add(maxZ);
         return out;
     }
 
