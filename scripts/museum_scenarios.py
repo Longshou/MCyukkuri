@@ -221,7 +221,7 @@ add('forage', 'forage', '父母去远处草场割草带回洞', '父母去远处
     env=DAY, spot='forage', vantage=(0, 16),
     # The baby at home welcoming a parent back from the meadow (inside the mound, so the camera follows it).
     capture=dict(shots=(1, 40, 600), sequences=((900, 2700, 6),), observe=False,
-                 views={'child': dict(follow=f'@e[tag={tag("child")},limit=1]', offset=(0, .9, 2.2))}),
+                 views={'child': dict(follow=f'@e[tag={tag("child")},limit=1]', offset=(1.8, .7, .9))}),
     reads=[('读觅食数据（父）', f'yukkuri status {sel("father")} raw'), ('读觅食与颊囊（灵梦母）', f'yukkuri status {sel("mother")} raw')])
 
 add('graze', 'forage', '饿了先吃苹果，只有草就啃草', '饿了先吃苹果，只有草就啃草', '左边的饿灵梦身边既有苹果又有草，会先取普通食物；右边的饿魔理沙在八格外、只见草，啃下后会露出苦味反应。草仍会退回上一阶、日后重新长出',
@@ -530,7 +530,9 @@ add('meal_content', 'meadow', '吃饱了原地瘫软一会儿', '吃饱了原地
         yk('reimu', 3, 0, 'composed', uuid=_content_ids['composed'], label='成年·自制95', nutrition=60, self_control=95),
         item('minecraft:apple', 1, 3, -1, name='apple_composed')],
     env=DAY, vantage=(0, 4), note='待验证：新场景，尚未在游戏里实测。',
-    capture=dict(shots=(1, 40, 300), sequences=((50, 190, 3),), observe=False),
+    capture=dict(shots=(1, 40, 300), sequences=((50, 190, 3),), observe=False,
+                 views={'': dict(), 'adult': dict(follow=f'@e[tag={tag("adult")},limit=1]', offset=(0, .9, 2.4)),
+                        'composed': dict(follow=f'@e[tag={tag("composed")},limit=1]', offset=(0, .9, 2.4))}),
     reads=[('读成年灵梦', f'yukkuri status {sel("adult")} raw'), ('读稳重灵梦', f'yukkuri status {sel("composed")} raw')])
 
 # Two wounded young or mates, each beside the one who knows it: a mate (north, each with a nest of her own: homeless adults are

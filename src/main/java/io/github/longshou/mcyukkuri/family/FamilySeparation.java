@@ -70,7 +70,7 @@ final class FamilySeparation {
         if(atHome(e)){
             if(away>=ABSENCE){cameHome=o.level().getGameTime();GameplayLog.event(e,"family","came home away={} home={}",away,e.habitat().shelter()==null?null:e.habitat().shelter().getBlockPos());}
             away=0;
-        }else away=Math.min(away+20,ABSENCE);
+        }else away=Math.min(away+20,1_000_000);
         boolean wasLost=lost;lost=false;
         if(!o.adult()&&!o.subadult()&&!o.awaitingLanding()&&(o.mother()!=null||o.father()!=null)){
             boolean nearby=false,sameNest=false,knownAlive=false;

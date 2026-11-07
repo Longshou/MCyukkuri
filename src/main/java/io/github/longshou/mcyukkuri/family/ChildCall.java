@@ -155,7 +155,7 @@ final class ChildCall {
     /** A call of its own parent it hears now (within earshot, out of sight) and has not answered yet, else null. */
     YukkuriEntity heard() {
         var e = o.entity();
-        if (o.adult() || phase != Phase.NONE || e.life().isSleeping() || e.isPanicking()) return null;
+        if (o.adult() || phase != Phase.NONE || e.isPassenger() || e.life().isSleeping() || e.isPanicking()) return null;
         for (UUID id : new UUID[]{o.mother(), o.father()}) {
             if (id == null || !(o.level().getEntity(id) instanceof YukkuriEntity parent) || !parent.isAlive()) continue;
             var call = parent.family().call();
