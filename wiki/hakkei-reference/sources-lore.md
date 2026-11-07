@@ -77,4 +77,4 @@
 
 ## 社区 Wiki（yukkuri.fandom.com）
 
-站点 Category:Behavior 与 Category:Biology 的 37 个条目另按页登记在[行为与生物学来源](sources-fandom.md)，不进入本表 L 编号：那是同一站点多人合写的资料，每页同时包含通行写法与个人方案，没有共同作者或共同正典，按页保留范围比编成单一来源更准确。本库从该站点取的任何陈述都带 F 编号，可回溯到具体页面与修订。
+站点 Category:Pet Yukkuri、Places、Meta、Memes、Behavior 与 Biology 共 60 个条目（跨分类重复的按页面计一次）另按页登记在 [fandom 条目来源](sources-fandom.md)，不进入本表 L 编号：那是同一站点多人合写的资料，每页同时包含通行写法与个人方案，没有共同作者或共同正典，按页保留范围比编成单一来源更准确。本库从该站点取的任何陈述都带 F 编号，可回溯到具体页面与修订。

@@ -16,7 +16,7 @@
 | 学习、识别、语言与社会评价 | [学习与社会判断](hakkei-reference/lore/learning-social.md) |
 | 幼体的依赖、第一餐、同胞次序与亲代投入 | [幼体照料与发育](hakkei-reference/lore/juvenile-rearing.md) |
 | 噗咕、蹭蹭、舔舐、伸展与举高的作品记录 | [身体动作与展示](hakkei-reference/lore/behavior-actions.md) |
-| 社区 Wiki 行为与生物学条目的采用范围 | [行为与生物学来源](hakkei-reference/sources-fandom.md) |
+| 社区 Wiki 宠物、地点、社区史与行为生物学条目的采用范围 | [fandom 条目来源](hakkei-reference/sources-fandom.md) |
 | 人类与油库里的世界、沿用规则 | [世界背景与设定](hakkei-reference/world/README.md) · [基本设定](hakkei-reference/world/rules.md) |
 | 个体、性格、亲缘、饰品识别与社会地位 | [个体](hakkei-reference/world/individuals.md) · [性格与社会关系](hakkei-reference/world/personality-social.md) |
 | 食物、馅料、住所与家油生命过程 | [资源与生活生态](hakkei-reference/world/resources-ecology.md) |
@@ -24,6 +24,7 @@
 | 原作品与本设定的不同写法 | [设定差异](hakkei-reference/lore/conflicts.md) |
 | 金银章佩戴、考核与等级态度的漫画、小说依据 | [金银章系统参考](badges.md) |
 | 商店、工厂结构与鬼威惨／爱派 NPC 的漫画、小说参考 | [商店、加工所与人类 NPC](shops-factory-npcs.md) |
+| 油库里题材的起源、油虐题材惯例与外站作者资料（创作史，不作设定） | [社区史与外站资料](fandom-history.md) |
 | 油虐用、饲料用活体的子油生产流程与当前实现缺口 | [工厂生产专项核读](factory-production-review.md) |
 | 日记 APK 的模型、骨骼、表情与 MC 借鉴方案 | [油库里日记实现核读](yukkuri-diary-implementation.md) |
 | 基础介绍与作品背景 | [油库里是什么](hakkei-reference/lore/README.md)（含高优先级常用设定入口 L36） |
@@ -42,7 +43,7 @@
 
 - [L36《饅饅來大講堂》](hakkei-reference/sources-lore.md)是常用设定的高优先级综述；与其他社区资料冲突时优先采用其明示内容。项目需要取舍时，以用户最新明确修改为准；游戏当前规则见[游戏文档索引](../docs/FEATURES.md)。
 - 讲堂的台湾圈名词在使用前按[术语表](glossary.md)换成项目名词。讲堂楼层、作品编号、同源别名和各来源范围只在[世界观与生态来源](hakkei-reference/sources-lore.md)、[对白与情节来源](hakkei-reference/sources-events.md)登记。
-- 社区 Wiki [yukkuri.fandom.com](https://yukkuri.fandom.com/) 的 Category:Behavior（21 页）与 Category:Biology（22 页，含 1 个子分类）按页登记在[行为与生物学来源](hakkei-reference/sources-fandom.md)，不入 L 编号：页面自述没有统一标准、通行写法与个人方案混排，因此按页保留范围。站点图片受 Cloudflare 质询，本库只从源码登记图片名与说明，不取图、不以图作结论。
+- 社区 Wiki [yukkuri.fandom.com](https://yukkuri.fandom.com/) 的 Category:Pet Yukkuri（12 页）、Places（4 页）、Meta（8 页）、Memes（4 页）、Behavior（21 页）与 Biology（22 页，含 1 个子分类）共 71 条分类记录、去重后 60 个条目，按页登记在 [fandom 条目来源](hakkei-reference/sources-fandom.md)，不入 L 编号：页面自述没有统一标准、通行写法与个人方案混排，因此按页保留范围。Meta 分类多为社区史、题材惯例与站务资料，只作写作与用词参考，不当作设定（[社区史与外站资料](fandom-history.md)）。站点图片受 Cloudflare 质询，本库只从源码登记图片名与说明，不取图、不以图作结论。
 - 八景原作来自用户提供的本机 `油库里八景ver1.12/`（不入库），可读 `start.utf8.hsp` 与 `text/<角色>/` 台词还原行为骨架；它与社区 Wiki、小说和漫画的异说并列，不改写作品原文。
 - **A** 为具体作品，**W** 为社区整理，**I** 为整理推断，**P** 为项目改编或原创；A 只证明该作品，W 必须保留版本范围，I、P 不冒充原文。转载、译版和改编关系不重复计作独立见证。
 - 图片保留作品出处、署名、原字节和来源限制；未明确的信息保留说明。外部参考不直接成为游戏资源或已认可造型。

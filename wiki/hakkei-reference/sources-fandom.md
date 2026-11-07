@@ -1,12 +1,12 @@
-# yukkuri.fandom.com 行为与生物学来源
+# yukkuri.fandom.com 条目来源
 
 [Wiki 总入口](../README.md) · [世界观与生态来源](sources-lore.md) · [设定差异](lore/conflicts.md)
 
-本页登记社区 Wiki yukkuri.fandom.com 的 Category:Behavior（21 页）与 Category:Biology（22 页，含 1 个子分类）共 37 个条目的采用范围。它是多人合写的社区整理，属于 **W** 级资料：同一页里既有被称作通行的写法，也有注明出处的个人方案、写手私设与建议体文章两种情况，本库按页面登记，不把整页当作跨作者共识。
+本页登记社区 Wiki yukkuri.fandom.com 六个分类的采用范围：Category:Pet Yukkuri（12 页）、Places（4 页）、Meta（8 页）、Memes（4 页）、Behavior（21 页）与 Biology（22 页，含 1 个子分类）。六个分类共 71 条分类记录，跨分类重复的按页面计一次，共 60 个条目。它是多人合写的社区整理，属于 **W** 级资料：同一页里既有被称作通行的写法，也有注明出处的个人方案、写手私设与建议体文章两种情况，本库按页面登记，不把整页当作跨作者共识。Meta 分类多为社区史与站务资料，不是设定陈述，单独按页注明用处。
 
 - 抓取只走公开 MediaWiki API（`list=categorymembers`、`action=parse&prop=wikitext`），缓存留在 `.local/fandom/`、不入库；`scripts/wiki_fandom.py` 负责抓取与离线核对。
 - 站点图片受 Cloudflare 质询保护，本库**没有取到任何图片**：只从页面源码登记图片文件名与说明文字，不当画格证据、不据此写造型或行为结论。
-- 同一网页条目在 Behavior 与 Biology 都有时只登记一次。版本栏的 `rev` 是本库读取的页面修订号，用于按需回查。
+- 同一网页条目在多个分类都有时只登记一次。版本栏的 `rev` 是本库读取的页面修订号，用于按需回查。
 - 与 L36 或其他来源不同的写法，游戏已实现的按游戏实现写在[设定差异](lore/conflicts.md)，其余登记到[待办](../../docs/TODO.md#待用户裁决)。
 
 | 编号 | 页面 | 收录地点 | 版本与范围 |
@@ -48,5 +48,28 @@
 | F35 | [Yukkuri](https://yukkuri.fandom.com/wiki/Yukkuri) | [基本设定](world/rules.md) | rev 10515；站点综述。命名与体型取到基本设定，认知与推理取到[学习与社会判断](lore/learning-social.md)；幻想乡背景、匿名者与超能力行文按项目实现与[设定差异](lore/conflicts.md)处理 |
 | F36 | [Yukkuri Types](https://yukkuri.fandom.com/wiki/Yukkuri_Types) | [种族目录](lore/species/README.md) | rev 10553；只登记分类方式与已收录种类，未逐型收录 138 行 |
 | F37 | [Yurethra](https://yukkuri.fandom.com/wiki/Yurethra) | [身体与馅料](lore/entities-sources.md) | rev 6315；全页，短条目 |
+| F38 | [Badges](https://yukkuri.fandom.com/wiki/Badges) | [徽章：佩戴、考核与社会反应](../badges.md) | rev 8955；全页，含伪造与特殊章 |
+| F39 | [Factory](https://yukkuri.fandom.com/wiki/Factory) | [油库里商店、加工所与人类 NPC](../shops-factory-npcs.md) | rev 10557；全页，含实验清单与读者反应 |
+| F40 | [Pet Yukkuris](https://yukkuri.fandom.com/wiki/Pet_Yukkuris) | [宠物油的生活与襁褓](../pet-life.md) | rev 10528；全页，含商品化品系与饲养建议体 |
+| F41 | [Yukkurarium](https://yukkuri.fandom.com/wiki/Yukkurarium) | [宠物油的生活与襁褓](../pet-life.md) | rev 10189；全页，含虐待缸段 |
+| F42 | [Yukkuri Akiko](https://yukkuri.fandom.com/wiki/Yukkuri_Akiko) | [种族与亚种](lore/species/README.md) | rev 9272；全页，Key 联动角色条 |
+| F43 | [Yukkuri Clothes](https://yukkuri.fandom.com/wiki/Yukkuri_Clothes) | [宠物油的生活与襁褓](../pet-life.md) | rev 10372；全页 |
+| F44 | [Yukkuri Pet Shop](https://yukkuri.fandom.com/wiki/Yukkuri_Pet_Shop) | [油库里商店、加工所与人类 NPC](../shops-factory-npcs.md) | rev 9972；全页，含虐待顾客段 |
+| F45 | [Yukkuri Sagume](https://yukkuri.fandom.com/wiki/Yukkuri_Sagume) | [种族与亚种](lore/species/README.md) | rev 9957；全页，含该型台词 |
+| F46 | [Yukkuri Hecatia](https://yukkuri.fandom.com/wiki/Yukkuri_Hecatia) | [种族与亚种](lore/species/README.md) | rev 10029；全页，含该型台词 |
+| F47 | [Bamboo Forest](https://yukkuri.fandom.com/wiki/Bamboo_Forest) | [世界背景与设定](world/README.md) | rev 5318；全页，短条目 |
+| F48 | [Scarlet Devil Mansion](https://yukkuri.fandom.com/wiki/Scarlet_Devil_Mansion) | [世界背景与设定](world/README.md) | rev 5137；全页 |
+| F49 | [Abuse](https://yukkuri.fandom.com/wiki/Abuse) | [社区史、迷因与外站资料](../fandom-history.md) | rev 10330；全页，题材惯例不作设定 |
+| F50 | [Artist Marks](https://yukkuri.fandom.com/wiki/Artist_Marks) | [社区史、迷因与外站资料](../fandom-history.md) | rev 5427；全页，只有署名图样表 |
+| F51 | [Artists](https://yukkuri.fandom.com/wiki/Artists) | [社区史、迷因与外站资料](../fandom-history.md) | rev 5682；全页，作者名单 |
+| F52 | [History Of The Yukkuri Phenomenon](https://yukkuri.fandom.com/wiki/History_Of_The_Yukkuri_Phenomenon) | [社区史、迷因与外站资料](../fandom-history.md) | rev 8428；全页，页面自述年表为推测 |
+| F53 | [Translator's Discussion](https://yukkuri.fandom.com/wiki/Translator%27s_Discussion) | — | rev 5377；讨论页，只有译者对译法的个人意见与签名，没有可采用的约定 |
+| F54 | [Translator's Guide](https://yukkuri.fandom.com/wiki/Translator%27s_Guide) | [术语表](../glossary.md) | rev 9872；术语与译法惯例按词条并入术语表与[通用短语](dialogue/common-phrases.md)，与既有词条重复的不再列 |
+| F55 | [Uploaders and Sites](https://yukkuri.fandom.com/wiki/Uploaders_and_Sites) | [社区史、迷因与外站资料](../fandom-history.md) | rev 10327；全页，外站入口 |
+| F56 | [Yukkuri Threads](https://yukkuri.fandom.com/wiki/Yukkuri_Threads) | [社区史、迷因与外站资料](../fandom-history.md) | rev 9917；全页，版块惯例 |
+| F57 | [Su----per Cute](https://yukkuri.fandom.com/wiki/Su----per_Cute) | [种族与亚种](lore/species/README.md) | rev 8826；全页，单一画师起源的迷因亚种 |
+| F58 | [Suiiii](https://yukkuri.fandom.com/wiki/Suiiii) | [资源与生活生态](world/resources-ecology.md) | rev 10191；全页，含活体载具版本 |
+| F59 | [U-Packs](https://yukkuri.fandom.com/wiki/U-Packs) | [资源与生活生态](world/resources-ecology.md) | rev 9225；全页 |
+| F60 | [Yukkuri Shitette Ne!](https://yukkuri.fandom.com/wiki/Yukkuri_Shitette_Ne!) | [社区史、迷因与外站资料](../fandom-history.md) | rev 10497；全页，歌曲条 |
 
 各页中属于单一作品的写法按[wiki 来源与记录边界](../README.md#来源与记录边界)与页面自身措辞保留，不因被反复转述升格为通行设定。

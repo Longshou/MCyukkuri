@@ -12,7 +12,9 @@ page source and never requests a file or bypasses the challenge.
 
 ``check`` is offline and read-only: it verifies the cache against the committed
 coverage table ``wiki/hakkei-reference/sources-fandom.md`` (every cached page
-listed once, every listed wiki target existing and citing its source ID).
+listed once, every listed wiki target existing and citing its source ID). Pages
+of all six fetched categories are listed there, including the ones skipped with
+a reason.
 """
 from __future__ import annotations
 
@@ -29,7 +31,7 @@ CACHE = ROOT / '.local/fandom'
 API = 'https://yukkuri.fandom.com/api.php'
 SITE = 'https://yukkuri.fandom.com/wiki/'
 COVERAGE = ROOT / 'wiki/hakkei-reference/sources-fandom.md'
-CATEGORIES = ('Behavior', 'Biology')
+CATEGORIES = ('Pet Yukkuri', 'Places', 'Meta', 'Memes', 'Behavior', 'Biology')
 AGENT = 'MCyukkuri-Wiki-Reference/1.0 (project wiki source cache)'
 DELAY = 1.0
 
