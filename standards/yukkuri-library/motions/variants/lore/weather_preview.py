@@ -42,7 +42,8 @@ def touching(a, a_side, b, b_side, behind):
 
 def stand(a, a_side, b, b_side):
     """The closest stand over the server's offsets (a quarter block in front or behind, in 1/16 steps): (across, behind)."""
-    return min(((touching(a, a_side, b, b_side, k), k) for k in range(-4, 5)), key=lambda s: (round(s[0], 9), abs(s[1])))
+    across, behind = min(((touching(a, a_side, b, b_side, k), k) for k in range(-4, 5)), key=lambda s: (round(s[0], 9), abs(s[1])))
+    return across + .02*16, behind  # SideContact includes SurfaceApproach.ARRIVAL (blocks) before the walk.
 
 
 def frame(canvas, box, items):

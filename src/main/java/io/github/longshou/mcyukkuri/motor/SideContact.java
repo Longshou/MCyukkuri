@@ -2,6 +2,7 @@ package io.github.longshou.mcyukkuri.motor;
 
 import com.google.gson.JsonArray;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.motor.geom.GeometryJson;
 import io.github.longshou.mcyukkuri.motor.geom.SideProfile;
 import java.util.HashMap;
@@ -31,7 +32,8 @@ public final class SideContact {
             // On the partner's right, the mover has the partner on its own left.
             var stand = SideProfile.closest(right ? theirs.right() : theirs.left(), scale(partner),
                     right ? mine.left() : mine.right(), scale(mover), 0, BEHIND);
-            across = stand.across(); behind = stand.behind();
+            // Walking may stop on the inside edge of its arrival envelope; that edge must still clear the posed surfaces.
+            across = stand.across() + SurfaceApproach.ARRIVAL; behind = stand.behind();
         }
         // A body facing yaw has (-cos, -sin) on its right and (sin, -cos) behind it (x, z).
         double rad = Math.toRadians(yaw), side = right ? 1 : -1;

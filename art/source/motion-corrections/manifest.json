@@ -10,7 +10,7 @@
   "braid_chain": "standards/yukkuri-library/motions/variants/contact-safe/braid_chain.py",
   "braid_chain_sha256": "1d268e400587187da164c7efe3a54f28055e47e442d118516bfcafa48bebdf13",
   "lore_recipe": "standards/yukkuri-library/motions/variants/lore/recipe.json",
-  "lore_recipe_sha256": "d258db10e0e327b0936ef123495c2df08309b3a8e8495484477289dda9caf638",
+  "lore_recipe_sha256": "c056a4f8e7df53099f2a8e171f1b772e49af0f5bb720128e396e732b8d493201",
   "lore_author": "standards/yukkuri-library/motions/variants/lore/author.py",
   "lore_author_sha256": "1007324da420e85bb25d898c9c57fc17d83ea68d32c7100a5ab09f221a4e54ff",
   "lore_hat": "standards/yukkuri-library/motions/variants/lore/hat.py",
