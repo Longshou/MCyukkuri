@@ -9,7 +9,7 @@ import sys
 import json
 import math
 import subprocess
-from collections import defaultdict, Counter
+from collections import defaultdict, Counter, deque
 from pathlib import Path
 
 import timeline
@@ -203,23 +203,39 @@ def progress(rows):
             if age >= window:
                 out.append(result('PROGRESS', band(age, window, 2 * window), 'no observed progress', row, duration=age, window=window))
         # Dense stop/go and yaw reversal cycles, in rolling 100-tick windows (5 seconds).
-        transitions, reversals, prev_moving, prev_turn = [], [], None, 0
+        transitions, reversals, positions = deque(), deque(), deque()
+        prev_moving, prev_turn = None, 0
         for a, b in zip(valid, valid[1:]):
             if b['t'] - a['t'] != 1:
                 prev_moving, prev_turn = None, 0
+                transitions.clear()
+                reversals.clear()
+                positions.clear()
                 continue
+            if not positions:
+                positions.append(a)
+            positions.append(b)
+            while positions[0]['t'] < b['t'] - 100:
+                positions.popleft()
             moving = distance(a['state']['p'], b['state']['p']) > .01 + 1e-9
             if prev_moving is not None and moving != prev_moving:
                 transitions.append(b['t'])
             prev_moving = moving
             if known(a['state'], 'yaw') and known(b['state'], 'yaw'):
                 turn = (b['state']['yaw'] - a['state']['yaw'] + 180) % 360 - 180
-                if turn * prev_turn < 0:
-                    reversals.append(b['t'])
                 if abs(turn) > 1:
+                    # Apply the same deadband to counting and remembering a turn. Otherwise
+                    # every small opposite step repeats the last significant reversal.
+                    if turn * prev_turn < 0:
+                        reversals.append(b['t'])
                     prev_turn = turn
-            cycles = max(sum(t > b['t'] - 100 for t in transitions) // 2,
-                         sum(t > b['t'] - 100 for t in reversals) // 2)
+            for events in (transitions, reversals):
+                while events and events[0] <= b['t'] - 100:
+                    events.popleft()
+            # Navigation steers around path nodes while travelling. Yaw-only oscillation
+            # is an in-place signal, using the existing half-block progress distance.
+            in_place = distance(positions[0]['state']['p'], b['state']['p']) < .5
+            cycles = max(len(transitions) // 2, len(reversals) // 2 if in_place else 0)
             if cycles >= 3:
                 out.append(result('PROGRESS', band(cycles, 3, 5), 'dense stutter cycles', b, cycles=cycles))
     return out
@@ -797,7 +813,10 @@ def observations(records, issues=(), raw='', allow=(), end=(), seed=None, rerun=
         if start is not None and r['t'] - start in (1, 20):
             if not known(r, 'clear', 'drop'):
                 findings.append(result('SPAWN', 'no-evidence', 'geometry clear/drop missing', r))
-            elif not r['clear'] or r['drop'] > .0625:
+            elif not r['clear'] or (r['drop'] > .0625 and r.get('supported') is not True):
+                # SceneGeometry.supported includes fluid/contact support. Its drop scan can
+                # return the underwater floor before testing that surface; keep the frozen
+                # tolerance for unsupported actors and still reject every obstruction.
                 findings.append(result('SPAWN', 'fail', 'spawn obstructed/unsupported', r, drop=r['drop']))
     if start is None or not all(any(r['t'] == start + t for r in geo) for t in (1, 20)):
         findings.append(result('SPAWN', 'no-evidence', 'need window start and geometry at +1/+20 ticks'))
