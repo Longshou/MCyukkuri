@@ -3433,3 +3433,134 @@ _FATES = {
 }
 for _sid, _allow in _FATES.items():
     next(s for s in S if s.id == _sid).smoke['allow_fate'] = _allow
+
+
+# Observation contracts, never commands: each tuple in milestones is (scene tag, END seen predicate).
+# The list orders beats within one path; independent households have separate lists. S2 currently checks
+# presence through end, but does not yet enforce milestone order (see scripts/README.md).
+def _scene_end(sid, final, *paths):
+    scene = next(s for s in S if s.id == sid)
+    scene.smoke['milestones'] = paths
+    scene.smoke['end'] = [*final, *(beat for path in paths for beat in path)]
+    views = scene.capture.get('views')
+    if views is None:
+        views = {'': {key: scene.capture[key] for key in ('follow', 'offset') if key in scene.capture}}
+        scene.capture['views'] = views
+    for view in views.values():
+        view['criteria'] = scene.watch
+
+
+_DRY = 'alive=true and w=false and distress=false and iwr=false'
+_ASHORE = _DRY + ' and veh=false and att.kind=free and g=true'
+
+_scene_end('den_family', [('mother', _DRY), ('child', _ASHORE), ('father', 'alive=false')],
+           [('mother', 'seen:habitat:home chosen'), ('mother', 'seen:forage:begin role='),
+            ('mother', 'seen:forage:deposit home=')])
+_scene_end('forage', [('mother', _DRY), ('father', _DRY), ('child', _DRY)],
+           [('mother', 'seen:forage:begin role='), ('mother', 'seen:forage:deposit home=')],
+           [('father', 'seen:forage:begin role='), ('father', 'seen:forage:deposit home=')],
+           [('child', 'seen:family:welcome home started')])
+_scene_end('settle_snow', [('lead', _DRY)], [('lead', 'seen:habitat:home chosen')])
+_scene_end('settle_pit_slave', [('slave', _DRY)],
+           [('slave', 'seen:settlement:pit slave back in pit'),
+            ('slave', 'seen:settlement:pit slave eats droppings')])
+_scene_end('settle_pit_famine', [('slave', 'alive=true and need.nut=0 and hp<10')],
+           [('slave', 'seen:settlement:pit slave hungry reason=no_droppings'),
+            ('slave', 'seen:needs:starvation damage')])
+_scene_end('sleep', [('a', _DRY)],
+           [('a', 'seen:home:bed crossing .*direction=in .*opening=true'),
+            ('a', 'seen:sleep:begin source=life occupancy=INSIDE_SUPPORTED'),
+            ('a', 'seen:sleep:end source=life.*stretched=true'),
+            ('a', 'seen:home:bed crossing .*direction=out .*opening=true')])
+_scene_end('birth_land_caught', [('mother', _DRY), ('father', _DRY + ' and hold.hat.state=worn'),
+                                 ('child_of:mother', _ASHORE)],
+           [('child_of:mother', 'seen:family:birth landed .*outcome=(?:HAT|GROUND)')],
+           [('father', 'seen:family:carry put down .*cause=release'),
+            ('father', 'seen:action:end id=take_prop outcome=DONE detail=prop=hat worn=true')])
+_scene_end('birth_stem_caught', [('mother', _DRY), ('father', _DRY), ('child_of:mother', _DRY)],
+           [('child_of:mother', 'seen:family:birth landed .*outcome=(?:HAT|GROUND)')])
+_scene_end('birth_nest_safe', [('mother', _ASHORE), ('child_of:mother', _ASHORE)],
+           [('mother', 'seen:family:delivery complete')],
+           [('child_of:mother', 'seen:family:birth landed .*outcome=(?:CUSHION|GROUND)')])
+# No artificial survival requirement for the exposed damage controls: the wetness boundary and real damage are the path.
+_scene_end('rain_open', [('a', _DRY), ('b', _DRY)],
+           [('a', 'seen:weather:shelter response started')],
+           [('wet_ordinary', 'seen:needs:soaking damage')], [('wet_control', 'seen:needs:soaking damage')])
+_scene_end('rain_huddle', [('shy', _DRY), ('mate', _DRY), ('alone', _DRY)],
+           [('shy', 'seen:weather:huddle sought partner='), ('shy', 'seen:weather:huddle pressed partner='),
+            ('shy', 'seen:weather:thunder clap heard .*stage=HUDDLE')],
+           [('alone', 'seen:weather:sheltered alone pose=tremble')])
+_scene_end('aftermath_depletion', [('affected_depletion', 'alive=false'), ('source_depletion', _DRY)],
+           [('affected_depletion', 'seen:family:aftermath reserved'),
+            ('affected_depletion', 'seen:body:death settled.*stem_depletion=true')])
+# Migration phase messages are world events. The leader must itself arrive and choose a real new home;
+# the pivot alone cannot certify the families' arrival.
+_scene_end('colony_migrate', [('lead', _DRY)], [('lead', 'seen:habitat:home chosen')])
+_scene_end('colony_migrate_babies', [('migrant_baby', _ASHORE)],
+           *[[(f'migrant_{kind}', 'seen:family:carry pickup .*purpose=MIGRATE'),
+              (f'migrant_{kind}_0', 'seen:settlement:dependent settled with parent='),
+              (f'migrant_{kind}_1', 'seen:settlement:dependent settled with parent='),
+              (f'migrant_{kind}', 'seen:family:carry put down .*purpose=MIGRATE')]
+             for kind in ('marisa', 'reimu', 'chen')])
+_scene_end('carry_home', [(f'{kind}_baby', _ASHORE) for kind in ('marisa', 'reimu', 'chen')],
+           *[[(f'{kind}_parent', 'seen:family:carry pickup '),
+              (f'{kind}_parent', 'seen:family:carry set down started reason=arrived_home'),
+              (f'{kind}_parent', 'seen:family:carry put down reason=arrived_home .*nest=(?:INSIDE_SUPPORTED|PARTIAL)')]
+             for kind in ('marisa', 'reimu', 'chen')])
+_scene_end('hat_push', [('a', 'alive=true and distress=false'), ('fast', 'alive=true and distress=false')],
+           [('fast', 'seen:body:dismount .*cause=thrown')])
+_scene_end('hat_current', [('a', _ASHORE), ('child', _ASHORE)],
+           [('a', 'seen:body:dismount .*cause=grounded'), ('a', 'seen:headwear:received loose accessory')])
+_scene_end('shake_capsize', [('a', _DRY + ' and place=cabin'), ('k1', _DRY), ('k2', _DRY)],
+           [('a', 'seen:body:dismount .*cause=thrown'), ('a', 'seen:action:end id=right outcome=DONE'),
+            ('a', 'seen:body:mount .*cause=climb')])
+_scene_end('self_rescue', [('a', _DRY + ' and place=cabin')],
+           [('a', 'seen:water:escape start'), ('a', 'seen:body:mount .*cause=climb'),
+            ('a', 'seen:water:escape done')])
+_scene_end('shore_capsized', [('a', _ASHORE + ' and hold.hat.state=worn')],
+           [('a', 'seen:action:end id=beckon outcome=DONE detail=at_bank'),
+            ('a', 'seen:action:end id=right outcome=DONE'), ('a', 'seen:headwear:reclaim done how=worn')])
+# Overloaded families retain real risk; no prescribed survival for a deliberate capsize. Surviving young
+# must still be safe (ORPHAN remains independent); the load response itself is the observable path.
+_scene_end('hat_crowd', [('early', _DRY), ('normal', 'alive=true and distress=false')],
+           [('early', 'seen:aquatic:load heavy .*reason=unload_ashore'),
+            ('early', 'seen:intent:end id=come_ashore result=DONE')],
+           [('normal', 'seen:family:parent dismissed child=')])
+_scene_end('hat_swap', [(name, _DRY) for name in ('land_worn', 'aqua_worn', 'land_owner', 'aqua_owner', 'kid_owner')],
+           [('aqua_owner', 'seen:headwear:reclaim done how=worn')])
+_scene_end('sail', [('a', _ASHORE + ' and hold.hat.state=worn')],
+           [('a', 'seen:aquatic:stick taken'), ('a', 'seen:aquatic:set_out complete'),
+            ('a', 'seen:action:end id=paddle outcome=DONE'),
+            ('a', 'seen:intent:end id=come_ashore result=DONE'), ('a', 'seen:meal:swallowed item=minecraft:apple')])
+_scene_end('afloat_family', [('a', _DRY), ('c1', _DRY)],
+           [('a', 'seen:family:carry grip .*hold=braid'), ('c1', 'seen:body:seat landed .*cause=braid_set_down'),
+            ('a', 'seen:aquatic:set_out complete .*aboard=1/1')])
+_scene_end('afloat_stick', [('a', _DRY + ' and hold.kit.item=minecraft:stick')],
+           [('a', 'seen:aquatic:stick target chosen'), ('a', 'seen:aquatic:stick taken .*stowed_in=hat')])
+_scene_end('kid_boat_play', [('a', _DRY), ('c1', _DRY), ('c2', _DRY)],
+           [('c1', 'seen:aquatic:play kind=(?:kid_brim_splash|kid_mimic_paddle) start spot=brim'),
+            ('c1', 'seen:aquatic:play (?:return inside|stays on brim).*reason=fear:thunder')],
+           [('c2', 'seen:aquatic:play kind=hat_cradle start spot=head reason=head_dry')])
+_scene_end('rescue_child', [('a', _DRY), ('c1', _DRY), ('k1', _DRY)],
+           *[[('a', f'seen:family:carry grip .*uuid={_uuid_text("rescue_child", child)}'),
+              ('a', f'seen:aquatic:rescue end result=DONE outcome=(?:rescued|set_down) faller={_uuid_text("rescue_child", child)}')]
+             for child in ('c1', 'k1')])
+_scene_end('rescue_no_seat', [('a', _ASHORE + ' and hold.hat.state=worn'), ('child_of:a', _ASHORE)],
+           [('a', f'seen:family:carry grip .*uuid={_uuid_text("rescue_no_seat", "c1")}'),
+            ('a', 'seen:action:end id=hop outcome=DONE'), ('a', 'seen:action:end id=release outcome=DONE detail=released'),
+            ('a', f'seen:aquatic:rescue end result=DONE outcome=set_down faller={_uuid_text("rescue_no_seat", "c1")}')])
+_scene_end('birth_boat_missed', [('mother', _ASHORE), ('k1', _ASHORE), ('k2', _ASHORE), ('child_of:mother', _ASHORE)],
+           [('mother', 'seen:aquatic:birth shore return'), ('mother', 'seen:action:end id=hop outcome=DONE'),
+            ('mother', 'seen:family:delivery complete')])
+_scene_end('birth_hat_own', [('mother', _DRY), ('father', _DRY), ('child_of:mother', _DRY)],
+           [('mother', 'seen:aquatic:birth route=own_hat reason=fit'), ('mother', 'seen:family:delivery complete')],
+           [('father', 'seen:aquatic:guard start'), ('father', 'seen:aquatic:guard arrive'),
+            ('father', 'seen:aquatic:stick taken .*stowed_in=hat')],
+           [('child_of:mother', 'seen:meal:swallowed .*prepared=true')])
+_scene_end('first_voyage', [('c1', _ASHORE + ' and hold.hat.state=worn')],
+           [('c1', 'seen:aquatic:first_voyage start'), ('c1', 'seen:aquatic:first_voyage rounded'),
+            ('c1', 'seen:aquatic:first_voyage success'), ('c1', 'seen:childhood:sailing learned how=first_voyage')])
+_scene_end('family_search', [('search_parent', _DRY), ('search_child', _DRY), ('lost_child', _DRY)],
+           [('search_parent', 'seen:family:child call started'), ('search_child', 'seen:family:child heard parent call'),
+            ('search_parent', 'seen:family:child search reunited')],
+           [('lost_mother', 'seen:family:child call started'), ('lost_mother', 'seen:family:parent dismissed')])
