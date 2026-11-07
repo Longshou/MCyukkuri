@@ -203,7 +203,8 @@ public final class KeeperMenu extends AbstractContainerMenu {
         if (!pet.pet().lock(ShopDate.LOCK, p.getUUID())) return false;
         if (!s.pet().lock(ShopDate.LOCK, target.getUUID())) { pet.pet().unlock(ShopDate.LOCK); return false; }
         debit(p, FEE);
-        ShopPerformance.schedule(level, new ShopDate(level, target.getUUID(), pet, s, p.getUUID(), pet.position(), meet));
+        var date = new ShopDate(level, target.getUUID(), pet, s, p.getUUID(), pet.position(), meet);
+        ShopPerformance.schedule(level, Set.of(target.getUUID(), pet.getUUID(), s.getUUID()), date, date::cancelForReset);
         return true;
     }
 

@@ -41,6 +41,17 @@ public final class ExamSession implements ExamContext {
             "already_badged", "need_badge", "max_grade", "need_silver", "not_needed", "no_section", "no_fee", "no_management");
     private static final Map<UUID, ExamSession> ACTIVE = new HashMap<>();
     public static void reset() { ACTIVE.clear(); }
+    public static void forget(Set<UUID> ids) {
+        for (var session : List.copyOf(ACTIVE.values())) {
+            if (!ids.contains(session.examiner.getUUID()) && !ids.contains(session.candidate.getUUID())
+                    && !ids.contains(session.ownerId) && session.extraIds.stream().noneMatch(ids::contains)
+                    && !ids.contains(session.sayCard)
+                    && session.cards.stream().noneMatch(ids::contains)
+                    && session.directed.stream().noneMatch(y -> ids.contains(y.getUUID()))) continue;
+            if (session.phase == Phase.ITEM && session.item != null) session.item.abort(session);
+            session.release();
+        }
+    }
     /** Identity matters: a reloaded candidate cannot resume a session holding its old instance. */
     public static boolean running(YukkuriEntity candidate) {
         return ACTIVE.values().stream().anyMatch(s -> !s.done && s.candidate == candidate);

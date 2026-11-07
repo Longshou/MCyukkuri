@@ -10,6 +10,8 @@ import java.util.*;
 import java.util.function.IntPredicate;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.event.server.ServerStartingEvent;
 import net.neoforged.neoforge.event.server.ServerStoppedEvent;
@@ -17,7 +19,7 @@ import net.neoforged.neoforge.event.tick.ServerTickEvent;
 
 /** Delayed shop scenes (farewell, sale, locate beam) and the display "beg" appeal. Tasks are transient: a restart mid-scene drops them. */
 public final class ShopPerformance {
-    private record Task(ServerLevel level, int[] age, IntPredicate run) {}
+    private record Task(ServerLevel level, Set<UUID> participants, int[] age, IntPredicate run, Runnable cancel) {}
     private static final List<Task> TASKS = new ArrayList<>();
     private static final DeadlineMap<UUID> APPEAL = new DeadlineMap<>();
     private record Pen(ServerLevel level, long pos) {}
@@ -53,11 +55,23 @@ public final class ShopPerformance {
     public static boolean reserved(ServerLevel level, BlockPos pos) { return !RESERVED.free(List.of(new Pen(level, pos.asLong())), level.getGameTime()); }
 
     /** The predicate gets the age in ticks (1, 2, ...) and returns true when the scene is over. */
-    public static void schedule(ServerLevel level, IntPredicate run) { TASKS.add(new Task(level, new int[1], run)); }
+    public static void schedule(ServerLevel level, UUID owner, IntPredicate run) { schedule(level, Set.of(owner), run); }
+    public static void schedule(ServerLevel level, Collection<UUID> participants, IntPredicate run) {
+        schedule(level, participants, run, () -> {});
+    }
+    public static void schedule(ServerLevel level, Collection<UUID> participants, IntPredicate run, Runnable cancel) {
+        TASKS.add(new Task(level, Set.copyOf(participants), new int[1], run, cancel));
+    }
+    public static void forget(ServerLevel level, AABB box, Set<UUID> ids) {
+        for (var task : List.copyOf(TASKS)) if (task.participants.stream().anyMatch(ids::contains)) {
+            task.cancel.run(); TASKS.remove(task);
+        }
+        ids.forEach(APPEAL::remove);
+        RESERVED.removeKeys(pen -> pen.level == level && box.contains(Vec3.atCenterOf(BlockPos.of(pen.pos))));
+    }
 
     /** Transient scenes and pen reservations never outlive their server (singleplayer world switches). */
     public static void started(ServerStartingEvent event) { TASKS.clear(); RESERVED.clear(); APPEAL.clear(); }
-    public static void reset() { TASKS.clear(); RESERVED.clear(); APPEAL.clear(); }
     public static void stopped(ServerStoppedEvent event) { TASKS.clear(); RESERVED.clear(); APPEAL.clear(); }
 
     public static void tick(ServerTickEvent.Post event) {

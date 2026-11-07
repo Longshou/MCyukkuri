@@ -2,7 +2,7 @@
 
 Ground is the flat world's own grass (top block y=63 over two layers of dirt, standing level y=64). A field's ``terrain``
 lines put its whole box back into the starting state (the dirt under the turf, grass, features, empty air above and, where
-scenes change it, the biome), so "clear this field" is: remove every mod entity and dropped item in the box together with the
+scenes change it, the biome), so "clear this field" is: remove every recorded non-player entity together with the
 world records the field left behind (``yukkuri clear``), then run the terrain again. Nothing else is ever left behind.
 
 Every field belongs to a theme group (``GROUPS``); the lobby only lists the fields by group, and each field has its own

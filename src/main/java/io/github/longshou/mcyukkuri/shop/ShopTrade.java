@@ -9,6 +9,7 @@ import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.notebook.SurvivalProgress;
 import io.github.longshou.mcyukkuri.registry.ModItems;
 import java.util.UUID;
+import java.util.Set;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.ItemStack;
@@ -43,7 +44,7 @@ public final class ShopTrade {
             else { o.playAction("beg"); o.speak("shop_appeal"); }
         }
         UUID id = animal.getUUID(); Vec3 at = animal.position();
-        ShopPerformance.schedule(level, age -> {
+        ShopPerformance.schedule(level, Set.of(clerk.getUUID(), id), age -> {
             if (age < 30) return false;
             if (!(level.getEntity(id) instanceof YukkuriEntity a) || !a.isAlive()) {
                 ShopMenu.handBack(clerk); ShopMenu.deliverEmeralds(level, buyer, at, price);
@@ -72,7 +73,7 @@ public final class ShopTrade {
             var buyerPlayer = level.getServer().getPlayerList().getPlayer(buyer);
             if (buyerPlayer != null) SurvivalProgress.award(buyerPlayer, "pet_bought");
             return true;
-        });
+        }, () -> { animal.pet().unlock("sale"); ShopMenu.handBack(clerk); });
         return true;
     }
 }

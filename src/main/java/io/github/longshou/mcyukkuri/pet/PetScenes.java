@@ -25,6 +25,9 @@ public final class PetScenes {
         COOLDOWN.put(key, now + ticks); return true;
     }
     public static void reset() { COOLDOWN.clear(); }
+    public static void forget(Set<UUID> ids) {
+        for (var key : COOLDOWN.snapshot().keySet()) if (ids.contains(key.animal)) COOLDOWN.remove(key);
+    }
 
     /** Action + face + line in one go; a looping action is ended after ticks, and the animal keeps glancing at look (may be null) meanwhile. */
     public static void act(YukkuriEntity y, String action, String face, String event, int ticks, Entity look) {
@@ -35,18 +38,21 @@ public final class PetScenes {
         long start = y.getAnimationStartTick();
         boolean loops = played && YukkuriAction.byId(action).map(YukkuriAction::loops).orElse(false);
         if (!loops && look == null) return;
-        ShopPerformance.schedule(level, age -> {
+        ShopPerformance.schedule(level, look == null ? Set.of(y.getUUID()) : new HashSet<>(List.of(y.getUUID(), look.getUUID())), age -> {
             if (!y.isAlive()) return true;
             if (look != null && look.isAlive() && age % 10 == 0 && age < ticks) y.getLookControl().setLookAt(look, 30, 30);
             if (age < ticks) return false;
             if (loops && y.isCommandPlaying() && y.getAnimationStartTick() == start) y.playAction("idle");
             return true;
+        }, () -> {
+            if (loops && y.isAlive() && !y.isRemoved() && y.isCommandPlaying() && y.getAnimationStartTick() == start) y.playAction("idle");
         });
     }
     /** Run later on the server thread (transient: dropped when the world stops). */
-    public static void later(ServerLevel level, int ticks, Runnable run) {
+    public static void later(YukkuriEntity owner, int ticks, Runnable run) {
         if (ticks <= 0) { run.run(); return; }
-        ShopPerformance.schedule(level, age -> { if (age < ticks) return false; run.run(); return true; });
+        var level = (ServerLevel) owner.level();
+        ShopPerformance.schedule(level, owner.getUUID(), age -> { if (age < ticks) return false; run.run(); return true; });
     }
 
     /** The owner pins the badge on: bold ones swagger, the rest hop or bow. */
@@ -72,7 +78,7 @@ public final class PetScenes {
             var y = i == 0 ? a : b; var other = i == 0 ? b : a;
             if (!(y.level() instanceof ServerLevel level) || y.distanceToSqr(owner) > 256 || !y.pet().calm() || !ready(y, "permit", 200)) continue;
             y.getLookControl().setLookAt(other, 30, 30);
-            later(level, i * 8, () -> act(y, "shy", "closed_smile", "permit_glad", 70, other));
+            later(y, i * 8, () -> act(y, "shy", "closed_smile", "permit_glad", 70, other));
         }
     }
     /** The permit is withdrawn: both droop a moment. */

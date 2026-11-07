@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.Set;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
@@ -46,6 +47,12 @@ public final class BadgeSocial {
     }
     public static void reset() {
         VIEWS.clear(); budget = null; BadgeArcs.reset(); BadgePraise.reset();
+    }
+    public static void forget(Set<UUID> ids) {
+        VIEWS.keySet().removeAll(ids);
+        VIEWS.values().forEach(views -> views.keySet().removeAll(ids));
+        if (budget != null) budget.forget(ids);
+        BadgeArcs.forget(ids); BadgePraise.forget(ids);
     }
 
     /** Move a directed affinity by a badge reaction without ever passing the guard rails (a change that points back toward 0 is always allowed). */

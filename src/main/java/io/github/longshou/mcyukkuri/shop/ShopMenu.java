@@ -331,12 +331,12 @@ public final class ShopMenu extends AbstractContainerMenu {
         UUID id = animal.getUUID();
         if (!locating.add(id)) { custom = true; return false; } // its beam is still running
         p.displayClientMessage(Component.translatable("shop.mcyukkuri.locate_hint", animal.getDisplayName()), true); custom = true;
-        ShopPerformance.schedule(level, age -> {
+        ShopPerformance.schedule(level, Set.of(id), age -> {
             var e = level.getEntity(id); if (e == null) { locating.remove(id); return true; }
             if (age % 3 == 0) for (int k = 0; k < 6; k++) level.sendParticles(ParticleTypes.END_ROD, e.getX(), e.getY() + e.getBbHeight() + .3 + k * .35, e.getZ(), 1, .05, .05, .05, 0);
             if (age >= 100) { locating.remove(id); return true; }
             return false;
-        });
+        }, () -> locating.remove(id));
         return true;
     }
     /** R2: the clerk explains the species and gives transport advice, as three chat lines. */
@@ -405,7 +405,7 @@ public final class ShopMenu extends AbstractContainerMenu {
         else if (pers.friendliness() <= 60) { a.playAction("proud"); a.showReaction("smug", "shop_sold_proud", 80); }
         else a.playAction("bow");
         UUID id = a.getUUID(); HumanNpc clerk = target;
-        ShopPerformance.schedule(level, age -> {
+        ShopPerformance.schedule(level, Set.of(clerk.getUUID(), id), age -> {
             if (!ShopPerformance.renew(level, reservation)) {
                 // The sale is committed, but this old scene may not place stock in a later holder's pen.
                 ShopPerformance.release(reservation);
@@ -429,7 +429,7 @@ public final class ShopMenu extends AbstractContainerMenu {
             }
             ShopPerformance.release(reservation);
             return true;
-        });
+        }, () -> { a.pet().unlock("sale"); ShopPerformance.release(reservation); });
         rescan(); return true;
     }
     /** A shop must not turn skills into a synthetic badge result. Exams record only actual tasks. */

@@ -45,7 +45,8 @@ public final class PlaygroundFields extends SavedData {
         Field field = fields.computeIfAbsent(name, ignored -> new Field(box, level.dimension().location().toString()));
         for (Entity entity : level.getAllEntities()) remember(entity);
         var ids = Set.copyOf(field.ids);
-        field.ids.clear();
+        // A UUID reused after this clear is a new incarnation; another field must not inherit the old visit.
+        for (var other : fields.values()) other.ids.removeAll(ids);
         field.epoch++;
         setDirty();
         return ids;

@@ -23,6 +23,9 @@ public final class WildEncounter {
     private WildEncounter() {}
 
     public static void reset() { WILD.clear(); PET.clear(); TOLD.clear(); }
+    public static void forget(Set<UUID> ids) {
+        for (UUID id : ids) { WILD.remove(id); PET.remove(id); TOLD.remove(id); }
+    }
     private static boolean held(DeadlineMap<UUID> map, UUID id, long now) { return map.active(id, now); }
     private static void hold(DeadlineMap<UUID> map, UUID id, long now, int ticks) {
         if (map.size() > 256) { map.prune(now); if (map.size() > 2048) map.clear(); }
@@ -62,7 +65,8 @@ public final class WildEncounter {
         if (!level.getEntitiesOfClass(YukkuriEntity.class, wild.getBoundingBox().inflate(16), v -> v.profile().dangerToYukkuri()
                 && v.predator().active()).isEmpty()) { hold(WILD, wild.getUUID(), now, 600); return; }
         hold(WILD, wild.getUUID(), now, 36000); hold(PET, pet.getUUID(), now, 12000); // a pet meets a given wild one a few times a day, not every two minutes
-        ShopPerformance.schedule(level, new Scene(level, wild, pet, mode));
+        var scene = new Scene(level, wild, pet, mode);
+        ShopPerformance.schedule(level, Set.of(wild.getUUID(), pet.getUUID()), scene, () -> scene.end(wild, pet));
     }
 
     private static final class Scene implements IntPredicate {

@@ -2,8 +2,8 @@
 
 Open fields of real ground (meadow, town, pond, house, hill with caves, woods, snow, settlement meadow,
 motion-clip corner), each with a raised observation deck. A lobby lists every field and scenario by name. Every scenario
-creates real individuals with ordinary AI and only sets their real starting state; "clear this field" removes every mod
-entity and dropped item in the field's box (and those marked as having stood in it), makes the world records forget what
+creates real individuals with ordinary AI and only sets their real starting state; "clear this field" removes every non-player
+entity recorded in its UUID history, including departed and unloaded copies, makes the world records forget what
 the field left behind and rebuilds its terrain, so nothing is ever refused and a scenario starts again from the same state. Minecraft builds the map from the generated data pack on first entry; this script writes the pack,
 a seed-derived level.dat (metadata only) and options.
 
@@ -70,7 +70,7 @@ def rect_chunks(rect):
 
 
 def field_mark(f):
-    """Entity tag of everything that has stood in this field's box since its last clear (util/tag_fields)."""
+    """Stable name of the field's UUID history (registered by util/tag_fields)."""
     return f'fld_{f.id}'
 
 
@@ -230,16 +230,9 @@ def build_pack(world):
         if f.id == 'clips':
             cancel += [f'schedule clear {NS}:clip/{ci}/{i}' for ci, (_, seq) in enumerate(clip_chains()) for i in range(len(seq) + 1)]
             cancel.append(f'schedule clear {NS}:clip/rest')
-        # The field mark (util/tag_fields) also takes the individuals and drops that wandered out of the box since the scene began.
+        # Java retains every UUID that visited the field, even after capture, death or unloading.
         clear_entities = f'yukkuri clear {bx1} {by1} {bz1} {bx2} {by2} {bz2} {field_mark(f)}'
-        trial_cleanup = []
-        if f.id == 'body':
-            # Real injury tools leave vanilla projectiles and primed explosives in this field.
-            for kind in ('arrow','spectral_arrow','trident','tnt'):
-                trial_cleanup += [f'kill @e[type=minecraft:{kind},tag={field_mark(f)}]',
-                    f'kill @e[type=minecraft:{kind},x={bx1},y={by1},z={bz1},dx={bx2-bx1},dy={by2-by1},dz={bz2-bz1}]']
-        sweep = cancel + trial_cleanup + [clear_entities,
-                 f'kill @e[type=!minecraft:player,tag=scn_prop,x={bx1},y={by1},z={bz1},dx={bx2 - bx1},dy={by2 - by1},dz={bz2 - bz1}]',
+        sweep = cancel + [clear_entities,
                  f'function {NS}:field/{f.id}/terrain',
                  f'yukkuri clear {bx1} {by1} {bz1} {bx2} {by2} {bz2}']  # Remove drops from rebuilt containers without resetting twice.
         fn(f'field/{f.id}/clear', sweep + ([f'function {NS}:clip/cast'] if f.id == 'clips' else [])

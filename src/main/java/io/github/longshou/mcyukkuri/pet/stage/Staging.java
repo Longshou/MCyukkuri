@@ -27,6 +27,7 @@ public final class Staging {
     private record Card(MinecraftServer server, ResourceKey<Level> dimension, long expiry) {}
     private static final Map<UUID, Card> CARDS = new HashMap<>();
     public static void reset() { CARDS.clear(); }
+    public static void forget(Set<UUID> ids) { CARDS.keySet().removeAll(ids); }
     private Staging() {}
 
     /** A billboard text card. Returns the entity id, or null if it could not be spawned. */

@@ -12,6 +12,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.Set;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -39,6 +40,9 @@ public final class CarrierItem extends Item {
     private static final LeaseTable<UUID, Object> SCENES = new LeaseTable<>(SCENE_WINDOW);
     private static final Map<UUID, Object> RUNNING = new HashMap<>();
     public static void resetScenes() { SCENES.clear(); RUNNING.clear(); }
+    public static void forget(Set<UUID> ids) {
+        SCENES.removeKeys(ids::contains); RUNNING.keySet().removeAll(ids);
+    }
     private static Object scene(ServerLevel level, UUID id) {
         long now = level.getGameTime();
         if (!SCENES.free(List.of(id), now)) return null;
@@ -87,7 +91,7 @@ public final class CarrierItem extends Item {
         }
         GameplayLog.event(player,"carrier","action=capture result=accepted target={} completion=pending",entity.getUUID());
         entity.playAction("basket_in"); entity.speak("basket_enter");
-        ShopPerformance.schedule(level, age -> {
+        ShopPerformance.schedule(level, entity.getUUID(), age -> {
             if (age < 16) return false;
             if (!finishScene(entity.getUUID(), session)) return true;
             if (entity.isAlive() && !entity.isRemoved() && !entity.isPanicking() && player.isAlive() && player.level() == level && player.distanceToSqr(entity) <= 36)
@@ -106,7 +110,7 @@ public final class CarrierItem extends Item {
         if (session == null) return;
         entity.playAction("struggle"); entity.showReaction("teary", "basket_refuse", 60);
         Vec3 from = player.position();
-        ShopPerformance.schedule(level, age -> {
+        ShopPerformance.schedule(level, entity.getUUID(), age -> {
             if (age < 20) return false;
             if (!finishScene(entity.getUUID(), session)) return true;
             if (!entity.isAlive()) return true;

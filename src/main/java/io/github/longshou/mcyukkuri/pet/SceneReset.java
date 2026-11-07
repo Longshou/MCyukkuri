@@ -31,12 +31,13 @@ public final class SceneReset {
         ExamSession.reset(); Staging.reset(); ShopPens.reset(); ExamHall.reset(); CarrierItem.resetScenes();
     }
     /** Field command only; session performances end before the cleared UUIDs may be summoned again. */
-    public static void field(ServerLevel level, AABB box, Set<UUID> ids) {
-        reset();
-        ShopCourier.reset();
-        ShopPerformance.reset();
-        ForageClaims.forget(level, box);
-        Sanction.forget(level, ids);
+    public static void field(ServerLevel level, AABB box, Set<UUID> ids, Set<UUID> tokens) {
+        ShopPerformance.forget(level, box, ids);
+        ShopCourier.forget(level, ids, tokens);
+        ShopDate.forget(ids); PetScenes.forget(ids); WildEncounter.forget(ids); BadgeSocial.forget(ids); PredatorLife.forget(ids);
+        ExamSession.forget(ids); Staging.forget(ids); ShopPens.forget(ids); ExamHall.forget(ids); CarrierItem.forget(ids);
+        ForageClaims.forget(level, box, ids);
+        for (var dimension : level.getServer().getAllLevels()) Sanction.forget(dimension, ids);
         AskLedger.server().forget(ids);
         Conductor.forget(ids);
         GameplayLog.forget(level, ids);

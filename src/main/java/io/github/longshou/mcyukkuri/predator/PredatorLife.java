@@ -34,6 +34,7 @@ import java.util.EnumSet;
 import java.util.UUID;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Set;
 import net.minecraft.core.BlockPos;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.util.Mth;
@@ -108,6 +109,7 @@ public final class PredatorLife implements EcologyRoutine {
     public PredatorLife(YukkuriEntity animal) { this.animal = animal; }
     /** Owner alerts never outlive their server. */
     public static void resetAlerts() { ALERTED.clear(); }
+    public static void forget(Set<UUID> ids) { for (UUID id : ids) ALERTED.remove(id); }
     public boolean active() { return task != Task.NONE; }
     public Order order() { return obedient() && validCommander() ? order : Order.NATURAL; }
     public String activity() {

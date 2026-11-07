@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.Predicate;
+import java.util.function.BiPredicate;
 
 /** Caller-owned, single-threaded leases. Tokens identify a session, never just an actor or kind. */
 public final class LeaseTable<K, O> {
@@ -86,4 +87,8 @@ public final class LeaseTable<K, O> {
     public void clear() { leases.clear(); }
     /** Explicit tooling reset, preserving unrelated keys. */
     public void removeKeys(Predicate<K> selected) { leases.keySet().removeIf(selected); }
+    public void removeIf(BiPredicate<K, O> selected) {
+        leases.forEach((key, owners) -> owners.keySet().removeIf(owner -> selected.test(key, owner)));
+        leases.values().removeIf(Map::isEmpty);
+    }
 }

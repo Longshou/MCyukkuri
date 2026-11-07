@@ -3,6 +3,7 @@ package io.github.longshou.mcyukkuri.settlement;
 import io.github.longshou.mcyukkuri.coordination.LeaseTable;
 import java.util.List;
 import java.util.UUID;
+import java.util.Set;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
@@ -45,8 +46,8 @@ public final class ForageClaims {
     public static void release(Claim claim) { if (claim != null) CLAIMS.release(claim.key, claim); }
     public static void started(ServerStartingEvent event) { CLAIMS.clear(); }
     public static void stopped(ServerStoppedEvent event) { CLAIMS.clear(); }
-    public static void forget(ServerLevel level, AABB box) {
-        CLAIMS.removeKeys(key -> key.server == level.getServer() && key.dimension.equals(level.dimension())
+    public static void forget(ServerLevel level, AABB box, Set<UUID> ids) {
+        CLAIMS.removeIf((key, claim) -> ids.contains(claim.owner) || key.server == level.getServer() && key.dimension.equals(level.dimension())
                 && box.contains(Vec3.atCenterOf(BlockPos.of(key.pos))));
     }
     private ForageClaims() {}

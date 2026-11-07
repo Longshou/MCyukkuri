@@ -7,6 +7,7 @@ import io.github.longshou.mcyukkuri.pet.stage.Staging;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.Set;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Player;
 
@@ -19,6 +20,9 @@ public final class BadgePraise {
     private BadgePraise() {}
 
     public static void reset() { WINDOWS.clear(); }
+    public static void forget(Set<UUID> ids) {
+        WINDOWS.entrySet().removeIf(e -> ids.contains(e.getKey()) || ids.contains(e.getValue().owner));
+    }
     public static boolean open(YukkuriEntity pet) { return WINDOWS.containsKey(pet.getUUID()); }
 
     /** The pet just reported to this owner; the window starts now. */

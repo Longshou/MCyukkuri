@@ -145,6 +145,8 @@ public final class WildEventData extends SavedData {
     }
     /** Playground field clear only, after {@link WildEvents#forget} interrupted the active scenes: no record or delay of the box remains. */
     void forget(ResourceKey<Level> dimension, AABB box, Set<UUID> members) {
+        var origins = scenes.values().stream().filter(s -> !s.active() && touches(s,dimension,box,members)).map(s -> s.origin).toList();
+        regions.removeIf(delay -> origins.contains(delay.origin));
         scenes.values().removeIf(s -> !s.active() && touches(s,dimension,box,members));
         for(UUID id:members) cooldowns.remove(id);
         // A delay blocks new scenes within 32 blocks of its origin, so the band around the box goes too.

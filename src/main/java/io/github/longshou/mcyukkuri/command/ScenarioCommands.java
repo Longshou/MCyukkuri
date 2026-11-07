@@ -288,8 +288,8 @@ public final class ScenarioCommands {
 
     /**
      * {@code /yukkuri clear <from> <to> [tag]}: removes the mod's entities and all dropped items in the box. With a field mark
-     * {@code tag} it also removes the loaded entities carrying it and makes the world records forget what the field left behind
-     * (PlaygroundTools.clear). Never refuses; unloaded parts of the box are skipped instead of failing the whole clear.
+     * {@code tag} it also clears historical UUIDs and their world records, invalidates old unloaded copies, and loads the entire
+     * box for the following terrain rebuild (PlaygroundTools.clear).
      */
     public static LiteralArgumentBuilder<CommandSourceStack> clear() {
         return Commands.literal("clear").requires(s -> s.hasPermission(2))

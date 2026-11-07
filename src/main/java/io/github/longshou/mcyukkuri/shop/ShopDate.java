@@ -32,6 +32,7 @@ public final class ShopDate implements IntPredicate {
     /** Whether a date scene currently has the carrier in this keeper's hand (HumanNpc clears a stray carrier otherwise). */
     public static boolean holding(UUID keeper) { return !HOLDING.free(List.of(keeper), 0); }
     public static void reset() { HOLDING.clear(); }
+    public static void forget(Set<UUID> ids) { HOLDING.removeKeys(ids::contains); }
 
     private final ServerLevel level;
     private final UUID keeperId, petId, studId, buyer;
@@ -102,6 +103,15 @@ public final class ShopDate implements IntPredicate {
         hold(k, false);
         if (a != null) { if (away && a.isAlive()) carryHome(a); release(a); }
         if (b != null) release(b);
+    }
+
+    /** Museum cancellation releases the scene's locks and hand without replaying its return or refund. */
+    public void cancelForReset() {
+        var keeper = level.getEntity(keeperId) instanceof HumanNpc npc ? npc : null;
+        hold(keeper, false);
+        var pet = animal(petId); if (pet != null) release(pet);
+        var stud = animal(studId); if (stud != null) release(stud);
+        done = true;
     }
 
     @Override public boolean test(int age) {

@@ -42,7 +42,14 @@ public final class ShopCourier {
     private static final int LEG = 400, STALL = 120, SPRAY_TRIES = 8, BASKET_TICKS = 16, WAKE_TICKS = 100;
 
     public static void started(ServerStartingEvent event) { JOBS.clear(); IN_FLIGHT.clear(); }
-    public static void reset() { JOBS.clear(); IN_FLIGHT.clear(); }
+    public static void forget(ServerLevel level, Set<UUID> ids, Set<UUID> tokens) {
+        for (var job : List.copyOf(JOBS.values())) if (ids.contains(job.keeper) || job.shop != null && ids.contains(job.shop)
+                || job.animal != null && ids.contains(job.animal) || job.token != null && tokens.contains(job.token)) {
+            if (job.animal != null) for (var dimension : level.getServer().getAllLevels())
+                if (dimension.getEntity(job.animal) instanceof YukkuriEntity animal) animal.pet().unlock("courier");
+            endJob(level, job, "field_clear");
+        }
+    }
     public static void stopped(ServerStoppedEvent event) { JOBS.clear(); IN_FLIGHT.clear(); }
 
     /** True while the keeper runs a job: its routine and wandering goals stand aside. */
@@ -128,7 +135,12 @@ public final class ShopCourier {
         JOBS.put(job.keeper, job);
         if (token != null) IN_FLIGHT.add(token);
         GameplayLog.event(keeper,"courier","action=start kind={} phase={} target={} token={} shop={} destination={}",kind,phase,animal,token,job.shop,pen.toShortString());
-        ShopPerformance.schedule(level, age -> step(level, job));
+        var participants = new HashSet<UUID>();
+        participants.add(job.keeper);
+        if (job.shop != null) participants.add(job.shop);
+        if (job.animal != null) participants.add(job.animal);
+        if (job.token != null) participants.add(YukkuriWorldData.get(level).captiveSnapshot(job.token).getUUID("UUID"));
+        ShopPerformance.schedule(level, participants, age -> step(level, job));
     }
     private static boolean endJob(ServerLevel level, Job job, String reason) {
         JOBS.remove(job.keeper, job); ShopPerformance.release(job.reservation);

@@ -968,11 +968,14 @@ CORE_FILLING = 'mcyukkuri:core_filling[minecraft:custom_data={FillingVersion:1,C
 add('shop_build', 'shop', '整座商店：店员照料上架太久的库存', '整座商店：店员照料上架太久的库存',
     '商店整体放下：展舱有银章与金章个体，后场有无章库存；右键店主开店。货架上的个体已上架 11 天且营养偏低，店员按自己的口粮预算照常照料、喂食。'
     '读档案确认受训库存六项技能、徽章编号和有效期，购买放出后保持；手里的中枢馅潜行右键店主可卖',
-    '建筑几秒；白天约 10–30 秒看店员照料', ['yukkuri human build shop ~8 ~ ~17 south'],
+    '建筑几秒；白天约 10–30 秒看店员照料', ['yukkuri human build shop ~8 ~ ~17 south',
+        yk('reimu', 8, 20, 'sale_stock', uuid=uid('shop_build', 'sale_stock'), label='待售灵梦',
+           extra='NeoForgeData:{HumanCommerce:{Use:"stock",OwnerKind:"npc"}}')],
     late=['scoreboard objectives add scn_t dummy', 'execute store result score #now scn_t run time query gametime',
           'scoreboard players remove #now scn_t 264000',
           f'execute as {STOCK} store result entity @s NeoForgeData.HumanCommerce.ForSaleSince long 1 run scoreboard players get #now scn_t',
-          f'yukkuri status set {STOCK} needs.nutrition 24'],
+          f'yukkuri status set {STOCK} needs.nutrition 24',
+          f'data modify entity {sel("sale_stock")} NeoForgeData.HumanCommerce.Owner set from entity @e[nbt={{HumanJob:1}},distance=..80,sort=nearest,limit=1] UUID'],
     give=['minecraft:emerald 128', 'mcyukkuri:badge_handbook', CORE_FILLING], env=DAY, vantage=(8, 21, 180, 0),
     reads=[('店铺登记（shop list）', 'yukkuri human shop list'),
            ('读店内个体档案', 'yukkuri status @e[type=#mcylab:yukkuri,distance=..80] raw'),
@@ -3318,6 +3321,10 @@ _smoke('hatless_scorn', 3600, [r'\[contempt\][^\n]* scorn target=',
 _smoke('hatless_monster', 1200, [r'\[contempt\][^\n]* monster target=', r'\[contempt\][^\n]* scorn target='])
 _smoke('feed_wild', 2400, [r'\[npc-care\][^\n]* action=begin_meal '])
 _smoke('shop_build', 1200, [r'\[npc-care\][^\n]* action=begin_meal '])
+_sale_smoke = next(s for s in S if s.id == 'shop_build').smoke
+_sale_smoke['commands'] = [(200, f'yukkuri human shop buy @e[nbt={{HumanJob:1}},distance=..80,sort=nearest,limit=1] {sel("sale_stock")} {_uuid_text("shop_build", "buyer")}')]
+_sale_smoke['expect'] += [rf'\[transport\][^\n]*uuid={_uuid_text("shop_build", "sale_stock")} [^\n]*action=capture result=committed',
+                          rf'\[shop\][^\n]*action=buy_live result=delivered [^\n]*target={_uuid_text("shop_build", "sale_stock")}']
 _smoke('colony_migrate', 7200, [r'\[settlement\][^\n]* migration phase=DISCUSS', r'\[settlement\][^\n]* migration phase=MARCH',
                                 r'\[settlement\][^\n]* migration pivot arrived '])
 

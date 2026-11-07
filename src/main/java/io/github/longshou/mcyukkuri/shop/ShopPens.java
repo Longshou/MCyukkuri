@@ -8,6 +8,7 @@ import io.github.longshou.mcyukkuri.human.HumanNpc;
 import io.github.longshou.mcyukkuri.life.CareBlock;
 import io.github.longshou.mcyukkuri.pet.BadgeGrade;
 import java.util.UUID;
+import java.util.Set;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
@@ -16,6 +17,7 @@ import net.minecraft.world.phys.AABB;
 /** Pen lookup and population count shared by the shopkeeper menu and the keeper's restocking. */
 public final class ShopPens {
     public static void reset() { NO_PEN.clear(); }
+    public static void forget(Set<UUID> ids) { for (UUID id : ids) NO_PEN.remove(id); }
     private static boolean glassNear(ServerLevel level, BlockPos pos) {
         for (int dx = -2; dx <= 2; dx++) for (int dy = 0; dy <= 2; dy++) for (int dz = -2; dz <= 2; dz++)
             if (level.getBlockState(pos.offset(dx, dy, dz)).is(BlockTags.IMPERMEABLE)) return true;

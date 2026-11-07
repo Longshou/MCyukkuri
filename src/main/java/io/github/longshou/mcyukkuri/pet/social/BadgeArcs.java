@@ -22,6 +22,7 @@ import io.github.longshou.mcyukkuri.settlement.Rumours;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.Set;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.network.chat.Component;
@@ -43,6 +44,7 @@ public final class BadgeArcs {
     private BadgeArcs() {}
 
     public static void reset() { TOLD.clear(); }
+    public static void forget(Set<UUID> ids) { for (UUID id : ids) TOLD.remove(id); }
     public static boolean handles(Scene s) { return s != null && s.kind == Kind.BADGE_ARC; }
 
     /** Ticks the participants stay out of new scenes after the arc closes (the observer's own pair cooldown lives in the budget). */
@@ -534,7 +536,7 @@ public final class BadgeArcs {
         item.setDefaultPickUpDelay(); item.setUnlimitedLifetime();
         if (!level.addFreshEntity(item)) return false;
         if (victim.life().takeAccessory(thief.getUUID(), token) == null) { item.discard(); return false; }
-        PetScenes.later(level, 6000, () -> {
+        PetScenes.later(victim, 6000, () -> {
             if (item.isAlive() && victim.isAlive() && AccessoryItem.matches(victim,item.getItem())) {
                 item.setPos(victim.getX(), victim.getY(), victim.getZ()); item.setDefaultPickUpDelay();
             }

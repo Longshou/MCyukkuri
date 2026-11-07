@@ -85,16 +85,21 @@ public final class PlaygroundTools {
             entity.discard();
             removed++;
         }
-        var settlements = SettlementData.get(level);
-        int groupsBefore = settlements.groups().size(), sitesBefore = settlements.sites().size();
-        for (var group : settlements.groups()) if (box.contains(group.center.getX() + .5, group.center.getY() + .5, group.center.getZ() + .5)
-                || tag != null && ids.stream().anyMatch(id -> settlements.existingMember(group, id) != null)) {
-            if (tag != null && group.siteId != null) settlements.removeSite(group.siteId);
-            settlements.remove(group.id);
+        int groups = 0, sites = 0;
+        for (var dimension : level.getServer().getAllLevels()) {
+            if (tag == null && dimension != level) continue;
+            var settlements = SettlementData.get(dimension);
+            int groupsBefore = settlements.groups().size(), sitesBefore = settlements.sites().size();
+            for (var group : settlements.groups()) if (dimension == level && box.contains(group.center.getX() + .5, group.center.getY() + .5, group.center.getZ() + .5)
+                    || tag != null && ids.stream().anyMatch(id -> settlements.existingMember(group, id) != null)) {
+                if (tag != null && group.siteId != null) settlements.removeSite(group.siteId);
+                settlements.remove(group.id);
+            }
+            if (dimension == level) for (var site : settlements.sites())
+                if (box.contains(site.origin.getX() + .5, site.origin.getY() + .5, site.origin.getZ() + .5)) settlements.removeSite(site.id);
+            groups += groupsBefore - settlements.groups().size(); sites += sitesBefore - settlements.sites().size();
         }
-        for (var site : settlements.sites()) if (box.contains(site.origin.getX() + .5, site.origin.getY() + .5, site.origin.getZ() + .5)) settlements.removeSite(site.id);
-        if (tag != null) forgetLedgers(level, box, ids, removed,
-                groupsBefore - settlements.groups().size(), sitesBefore - settlements.sites().size());
+        if (tag != null) forgetLedgers(level, box, ids, removed, groups, sites);
         return removed;
     }
 
@@ -120,9 +125,9 @@ public final class PlaygroundTools {
         HouseholdProtection.get(level).removeWithin(box);
         ShopRegistry.get(level).forget(level, box, removed);
         for (var token : ShopDeliveries.get(level).forget(level, box, removed)) custody.forgetCaptive(token);
-        SceneReset.field(level, box, individuals);
+        SceneReset.field(level, box, individuals, records.captiveTokens());
         GameplayLog.world(level, "scene", "clear ids={} entities={} people={} broods={} captives={} freezer_leases={} relations={} groups={} sites={} box={}",
-                individuals.size(), entities, forgotten.people().size(), forgotten.broods().size(), records.captives(), records.freezerLeases(),
+                individuals.size(), entities, forgotten.people().size(), forgotten.broods().size(), records.captiveTokens().size(), records.freezerLeases(),
                 records.relations(), groups, sites, box);
     }
 
