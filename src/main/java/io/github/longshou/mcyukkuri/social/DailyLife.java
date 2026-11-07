@@ -150,9 +150,23 @@ public final class DailyLife {
         if (companion == entity || companion.level() != entity.level() || !companion.isAlive()
                 || entity.distanceToSqr(companion) > NUZZLE_SIGHT * NUZZLE_SIGHT || !entity.hasLineOfSight(companion)) return false;
         if (companion instanceof YukkuriEntity peer) {
-            if (!available(peer, false, true) || peer.dailyLife().active() || peer.dailyLife().cooldown > 0 || !(pity ? unafraid(peer) : closePeer(peer))) return false;
+            var why = refusal(peer, pity);
+            if (why != null) {
+                if (pity) GameplayLog.limited(entity, "settlement", "pit_care_refused", 600,
+                        "pit care refused slave={} reason={} distance={}", peer.getUUID(), why,
+                        String.format("%.1f", Math.sqrt(entity.distanceToSqr(peer))));
+                return false;
+            }
         } else if (!(companion instanceof Player player) || !trusted(player)) return false;
         return begin(Kind.NUZZLE, companion);
+    }
+    /** Why this one cannot nuzzle {@code peer} right now (null: it can); the comfort of a suffering group-mate reports it. */
+    private String refusal(YukkuriEntity peer, boolean pity) {
+        if (!available(peer, false, true)) return "companion_busy";
+        if (peer.dailyLife().active()) return "companion_session";
+        if (peer.dailyLife().cooldown > 0) return "companion_cooldown";
+        if (pity ? !unafraid(peer) : !closePeer(peer)) return "companion_untrusted";
+        return null;
     }
     /** A care-menu invitation respects the same needs, trust, space and cooldown as autonomous leisure. */
     public boolean invite(Player player, Kind kind) {
