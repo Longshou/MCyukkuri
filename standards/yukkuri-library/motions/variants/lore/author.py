@@ -293,8 +293,10 @@ def state(action, t, c, height):
         r[0] = -6; s = [1.015, .97, c['depth']]
     elif action in ('boat_be_carried','boat_prepare_carry','boat_release_carry'):
         q = smooth(t/d) if action == 'boat_prepare_carry' else 1-smooth(t/d) if action == 'boat_release_carry' else 1
+        # The tuck is a flatten with the hat leaning a little forward, away from a carrier biting the scruff behind it. The lean
+        # stays small so the hold's own hang keeps the 12 degree budget; no yaw, which would swing the held scruff out of the bite.
         r[0] = c['tilt']*q
-        s = [1+.04*q, 1-.10*q, 1+.04*q]
+        k = c['tuck']*q; s = [1+.45*k, 1-k, 1+.45*k]
     elif action in ('newborn_crawl', 'hat_walk'):
         phase = 2*math.pi*t/d
         s = [1.04, c['height'], 1.07]

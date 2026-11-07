@@ -434,7 +434,8 @@
       "triggers": [
         "boat_be_carried"
       ],
-      "tilt": 38
+      "tilt": -4,
+      "tuck": 0.2
     },
     "hat_walk": {
       "label": "帽内伏身挪步",
@@ -5005,7 +5006,8 @@
       "triggers": [
         "boat_prepare_carry"
       ],
-      "tilt": 38
+      "tilt": -4,
+      "tuck": 0.2
     },
     "boat_release_carry": {
       "label": "Carry release",
@@ -5023,7 +5025,8 @@
       "triggers": [
         "boat_release_carry"
       ],
-      "tilt": 38
+      "tilt": -4,
+      "tuck": 0.2
     },
     "snatch_pull": {
       "label": "咬住饰物拽走",

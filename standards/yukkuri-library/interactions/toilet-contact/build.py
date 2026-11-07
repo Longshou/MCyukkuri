@@ -56,6 +56,8 @@ def build():
             spans=[[a/20,b/20,resolve(f)] for a,b,f in entry['faces']]
             assert spans[0][0]==0 and spans[-1][1]==entry['duration_ticks']/20
             clips[name]={'duration':entry['duration_ticks']/20,'loop':entry['loop'],'tracks':tracks,'expression_spans':spans,'expression_yield':cfg['expression_yield']}
+            # A documented exception to the 12 degree body budget travels with the clip for the pose tilt check.
+            if 'tilt_max' in entry:clips[name]['parameters']={'tilt_max':entry['tilt_max'],'tilt_why':entry['tilt_why']}
         # The anus and the root pivot are all the server needs to pose the stool by any of these clips (life/ToiletContact.stool).
         out['models'][ident]={'bone_names':[b['name'] for b in model['bones']],'clips':clips,
                               'outlet':{'site_px':[round(float(v),4) for v in anus_site(model,raw)],'pivot_px':[round(float(v),4) for v in pivot]}}

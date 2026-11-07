@@ -283,6 +283,8 @@
     "boat_toilet": {
       "duration_ticks": 46,
       "loop": false,
+      "tilt_max": 38,
+      "tilt_why": "rump raised over the hat brim toward the water (user 2026-11-05 feedback 7); the only clip allowed past the 12 degree body budget, limited by not entering the hat or itself",
       "keys": [
         [
           0,

@@ -53,9 +53,12 @@ public final class Overlays {
         for(int i=0;i<pose.length;i++)for(int k=0;k<9;k++)pose[i][k]=defaults[i][k]+(pose[i][k]-defaults[i][k])*keep;
     }
     public static void cheeks(float[] root,float amount){float wide=1+.2f*amount,tall=1+.14f*amount;root[6]*=wide;root[7]*=tall;root[8]*=wide;}
+    /** Boarding pitch and roll share one body tilt budget (degrees, the neckless-ball rule): the lean keeps its direction, not its size. */
+    public static final float BOARDING_TILT=12;
     public static void boarding(float[] root,float pitch,float roll,float squash,float yaw){
         root[4]=Math.clamp(root[4],-8,8)*yaw;
-        root[0]=root[1]=root[2]=0;root[3]=Math.clamp(pitch,-12,12);root[5]=Math.clamp(roll,-12,12);
+        float lean=(float)Math.hypot(pitch,roll),keep=lean>BOARDING_TILT?BOARDING_TILT/lean:1;
+        root[0]=root[1]=root[2]=0;root[3]=pitch*keep;root[5]=roll*keep;
         float wide=1+(1-squash)*.5f;root[6]=wide;root[7]=squash;root[8]=wide;
     }
     public static void hat(float[] root,float phase,boolean returning,float lift,float depth){
