@@ -61,6 +61,10 @@ public final class GameplayLog {
     /** Finite transactions and actual transitions should call this only after the result is known. */
     public static void event(Entity source, String category, String message, Object... values) {
         if (source == null || source.level().isClientSide) return;
+        event(source, category, message, 0, values);
+    }
+
+    private static void event(Entity source, String category, String message, int suppressed, Object... values) {
         Object[] args = new Object[7 + values.length];
         args[0] = category;
         args[1] = source instanceof YukkuriEntity y ? y.getVariant().assetId() : source.getType().getDescriptionId();
@@ -71,6 +75,7 @@ public final class GameplayLog {
         args[6] = source.blockPosition().toShortString();
         System.arraycopy(values, 0, args, 7, values.length);
         MCYukkuri.LOGGER.info("[{}] {} #{} uuid={} t={} dim={} pos={} " + message, args);
+        TraceRecorder.event(source, category, format(message, values), suppressed);
     }
 
     /** Repeated automatic refusals: stable per-entity keys, with suppressed count on the next emitted line. */
@@ -84,24 +89,29 @@ public final class GameplayLog {
         Map<String, Window> windows = WINDOWS.computeIfAbsent(source, ignored -> new HashMap<>());
         int suppressed = enter(windows, source.level().getGameTime(), category, key, minTicks);
         if (suppressed < 0) return;
-        event(source, category, message + suffix(suppressed), values.get());
+        event(source, category, message + suffix(suppressed), suppressed, values.get());
     }
 
     /** Transactions without a live entity must include their stable token, group or block identity. */
     public static void world(ServerLevel level, String category, String message, Object... values) {
+        world(level, category, message, 0, values);
+    }
+
+    private static void world(ServerLevel level, String category, String message, int suppressed, Object... values) {
         Object[] args = new Object[3 + values.length];
         args[0] = category;
         args[1] = level.getGameTime();
         args[2] = level.dimension().location();
         System.arraycopy(values, 0, args, 3, values.length);
         MCYukkuri.LOGGER.info("[{}] t={} dim={} " + message, args);
+        TraceRecorder.world(level, category, format(message, values), suppressed);
     }
 
     public static void worldLimited(ServerLevel level, String category, String key, int minTicks, String message, Object... values) {
         Map<String, Window> windows = WORLD_WINDOWS.computeIfAbsent(level, ignored -> new HashMap<>());
         int suppressed = enter(windows, level.getGameTime(), category, key, minTicks);
         if (suppressed < 0) return;
-        world(level, category, message + suffix(suppressed), values);
+        world(level, category, message + suffix(suppressed), suppressed, values);
     }
 
     private static int enter(Map<String, Window> windows, long now, String category, String key, int minTicks) {
@@ -115,6 +125,18 @@ public final class GameplayLog {
         if (previous == null && windows.size() >= MAX_KEYS) windows.clear();
         windows.put(slot, new Window(now));
         return suppressed;
+    }
+
+    private static String format(String message, Object... values) {
+        StringBuilder out = new StringBuilder();
+        int from = 0;
+        for (Object value : values) {
+            int marker = message.indexOf("{}", from);
+            if (marker < 0) break;
+            out.append(message, from, marker).append(String.valueOf(value));
+            from = marker + 2;
+        }
+        return out.append(message.substring(from)).toString();
     }
 
     private static String suffix(int suppressed) { return suppressed == 0 ? "" : " (suppressed=" + suppressed + ")"; }

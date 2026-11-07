@@ -161,6 +161,8 @@ public final class FamilyLife {
     int waitTicks() { return wait; }
     void waitTicks(int value) { wait=value; }
     Task task() { return task; }
+    /** Stable observation id; the enum and its decision code remain package-private. */
+    public String taskId() { return task.name(); }
     void task(Task value) { task=value; }
     YukkuriEntity target() { return target; }
     void target(YukkuriEntity value) { target=value; }

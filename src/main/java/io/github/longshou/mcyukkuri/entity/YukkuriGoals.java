@@ -25,6 +25,7 @@ import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.status.Reactions;
 import java.util.EnumSet;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import net.minecraft.core.BlockPos;
@@ -485,5 +486,9 @@ final class YukkuriGoals {
     }
     PresentationGoals.Running runningGoals() {
         return presentationGoals.running(goalSelector.getAvailableGoals());
+    }
+    List<String> runningGoalIds() {
+        return goalSelector.getAvailableGoals().stream().filter(WrappedGoal::isRunning)
+                .map(goal -> goal.getGoal().getClass().getSimpleName() + "@" + goal.getPriority()).toList();
     }
 }

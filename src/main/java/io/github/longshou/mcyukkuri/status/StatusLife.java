@@ -51,7 +51,7 @@ public final class StatusLife {
         airborneTick();
         if (t % 20 == 7) {
             if (marks.tick(identity())) entity.syncMarks(Marks.write(marks.visible()));
-            if (StatusEvents.trace()) watch();
+            if (TraceRecorder.recorded(entity)) watch();
             else sampled.clear();
         }
     }

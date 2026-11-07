@@ -104,6 +104,12 @@ public final class BodyDriver {
 
     public Action current() { return current; }
 
+    /** Read-only trace view of the running action's own progress watchdog. */
+    public record ActionTrace(String id, String owner, double metric, int window) {}
+    public ActionTrace actionTrace() {
+        return current == null ? null : new ActionTrace(current.id(), owner.ownerId(), bestMetric, current.progressWindow());
+    }
+
     public Outcome last() { return last; }
 
     /** Why the latest {@link #run} call refused its action by the action's own check, or null (accepted, or refused by the acceptance rules, which name no reason of the action's). */

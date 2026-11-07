@@ -1,6 +1,5 @@
 package io.github.longshou.mcyukkuri.status;
 
-import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
@@ -19,17 +18,24 @@ import java.util.ArrayList;
 /**
  * {@code /yukkuri status <targets>}: the whole register in chat and log.
  * {@code ... raw}: the same as one SNBT compound. {@code status set <targets> <key> <value>}: controlled write.
- * {@code status relate <from> <to> <score>}: set an acquaintance score. {@code status trace <on|off>}: log changes.
+ * {@code status relate <from> <to> <score>}: set an acquaintance score.
+ * {@code status trace off|light|dense}: structured observation; {@code trace window <scene> [field]} starts a scene window.
  */
 public final class StatusCommands {
     public static LiteralArgumentBuilder<CommandSourceStack> command() {
         return Commands.literal("status")
-                .then(Commands.literal("trace").then(Commands.argument("on", BoolArgumentType.bool()).executes(context -> {
-                    boolean on = BoolArgumentType.getBool(context, "on");
-                    StatusEvents.trace(on);
-                    context.getSource().sendSuccess(() -> Component.literal("status trace " + (on ? "on" : "off")), true);
-                    return on ? 1 : 0;
-                })))
+                .then(Commands.literal("trace")
+                        .then(Commands.literal("window").then(Commands.argument("scene", StringArgumentType.word())
+                                .executes(context -> window(context, null))
+                                .then(Commands.argument("field", StringArgumentType.word())
+                                        .executes(context -> window(context, StringArgumentType.getString(context, "field"))))))
+                        .then(Commands.argument("mode", StringArgumentType.word()).executes(context -> {
+                            String id = StringArgumentType.getString(context, "mode");
+                            TraceRecorder.Mode mode = TraceRecorder.Mode.parse(id);
+                            TraceRecorder.setMode(mode);
+                            context.getSource().sendSuccess(() -> Component.literal("status trace " + mode.id), true);
+                            return mode == TraceRecorder.Mode.OFF ? 0 : 1;
+                        })))
                 .then(Commands.literal("set").then(Commands.argument("targets", EntityArgument.entities())
                         .then(Commands.argument("key", StringArgumentType.word())
                                 .suggests((context, builder) -> {
@@ -64,6 +70,13 @@ public final class StatusCommands {
                 .then(Commands.argument("targets", EntityArgument.entities())
                         .executes(context -> show(context, false))
                         .then(Commands.literal("raw").executes(context -> show(context, true))));
+    }
+
+    private static int window(CommandContext<CommandSourceStack> context, String field) {
+        String scene = StringArgumentType.getString(context, "scene");
+        TraceRecorder.window(context.getSource().getLevel(), scene, field);
+        context.getSource().sendSuccess(() -> Component.literal("status trace window " + scene), false);
+        return 1;
     }
 
     private static int show(CommandContext<CommandSourceStack> context, boolean raw) throws CommandSyntaxException {

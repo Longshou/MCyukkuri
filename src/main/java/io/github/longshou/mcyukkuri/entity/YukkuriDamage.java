@@ -82,6 +82,10 @@ final class YukkuriDamage {
             if(result.loss()>0&&source.is(DamageTypes.IN_WALL))
                 GameplayLog.limited(owner,"body","in_wall",200,"in wall damage health={} -> {} loss={}",
                         transaction.hit.healthBefore(),owner.getHealth(),result.loss());
+            if(result.loss()>0&&!YukkuriLife.isWaterDamage(source)&&!source.is(DamageTypes.IN_WALL))
+                GameplayLog.limited(owner,"body","accepted_damage."+source.type().msgId(),200,
+                        "accepted damage cause={} health={} -> {} loss={}",
+                        source.type().msgId(),transaction.hit.healthBefore(),owner.getHealth(),result.loss());
             // Witnesses see a lethal hit too; the victim's own recovery and panic require it to remain alive.
             if(physicalHit&&!owner.isAlive())owner.status().hurt(source);
             if(notify&&owner.isAlive()) {

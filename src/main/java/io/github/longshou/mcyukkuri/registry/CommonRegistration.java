@@ -39,6 +39,7 @@ import io.github.longshou.mcyukkuri.settlement.SiteClaimer;
 import io.github.longshou.mcyukkuri.shop.ShopCourier;
 import io.github.longshou.mcyukkuri.shop.ShopPerformance;
 import io.github.longshou.mcyukkuri.status.Reactions;
+import io.github.longshou.mcyukkuri.status.TraceRecorder;
 import io.github.longshou.mcyukkuri.world.SearchBudgetEvents;
 import java.util.function.Consumer;
 import net.neoforged.bus.api.EventPriority;
@@ -62,6 +63,7 @@ import net.neoforged.neoforge.event.level.ChunkEvent;
 import net.neoforged.neoforge.event.level.LevelEvent;
 import net.neoforged.neoforge.event.server.ServerStartingEvent;
 import net.neoforged.neoforge.event.server.ServerStoppedEvent;
+import net.neoforged.neoforge.event.server.ServerStoppingEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 import net.neoforged.neoforge.event.tick.EntityTickEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
@@ -90,6 +92,7 @@ public final class CommonRegistration {
 
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, RegisterCommandsEvent.class, YukkuriCommands::register);
 
+        NeoForge.EVENT_BUS.addListener(EventPriority.HIGHEST, false, ServerTickEvent.Pre.class, TraceRecorder::tickPre);
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, ServerTickEvent.Pre.class, SearchBudgetEvents::tick);
 
         // Preserve the constructor prefix, including the settlement ticker's position.
@@ -106,6 +109,7 @@ public final class CommonRegistration {
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, ServerTickEvent.Post.class, Grazing::tick);
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, ServerTickEvent.Post.class, GroupMemberEvents::tick);
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, ServerTickEvent.Post.class, ShopPerformance::tick);
+        NeoForge.EVENT_BUS.addListener(EventPriority.LOWEST, false, ServerTickEvent.Post.class, TraceRecorder::tickPost);
 
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, EntityJoinLevelEvent.class, Custody::joining);
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, EntityJoinLevelEvent.class, YukkuriWorldData::joining);
@@ -119,7 +123,9 @@ public final class CommonRegistration {
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, EntityJoinLevelEvent.class, Reactions::lightning);
         // Last, after every listener that may refuse the join: a naturally spawned aquatic marisa is seated on her hat.
         NeoForge.EVENT_BUS.addListener(EventPriority.LOWEST, false, EntityJoinLevelEvent.class, AquaticLife::joined);
+        NeoForge.EVENT_BUS.addListener(EventPriority.LOWEST, false, EntityJoinLevelEvent.class, TraceRecorder::joined);
 
+        NeoForge.EVENT_BUS.addListener(EventPriority.HIGHEST, false, EntityLeaveLevelEvent.class, TraceRecorder::leaving);
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, EntityLeaveLevelEvent.class, FamilyData::leaving);
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, EntityLeaveLevelEvent.class, HouseEggs::leaving);
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, EntityLeaveLevelEvent.class, HouseholdEcology::leaving);
@@ -156,6 +162,9 @@ public final class CommonRegistration {
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, ServerStartingEvent.class, ForageClaims::started);
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, ServerStartingEvent.class, ShopCourier::started);
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, ServerStartingEvent.class, ShopPerformance::started);
+        NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, ServerStartingEvent.class, TraceRecorder::started);
+
+        NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, ServerStoppingEvent.class, TraceRecorder::stopping);
 
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, ServerStoppedEvent.class, SettlementTicker::stopped);
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, ServerStoppedEvent.class, event -> { Conductor.reset(); AskLedger.server().clear(); });

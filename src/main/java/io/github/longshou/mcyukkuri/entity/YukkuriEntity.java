@@ -244,6 +244,21 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
         body.syncStageHealth();
     }
 
+    @Override public void onAddedToLevel() {
+        super.onAddedToLevel();
+        if (level().isClientSide) return;
+        Long seed = Long.getLong("mcyukkuri.seed");
+        if (seed != null) getRandom().setSeed(mixSeed(seed, getUUID()));
+    }
+
+    /** UUID mixing keeps fixed-UUID scene actors independent while sharing the run's seed. */
+    private static long mixSeed(long seed, UUID id) {
+        long z = seed + 0x9e3779b97f4a7c15L + id.getMostSignificantBits();
+        z = (z ^ (z >>> 30)) * 0xbf58476d1ce4e5b9L;
+        z = (z ^ (z >>> 27)) * 0x94d049bb133111ebL;
+        return (z ^ (z >>> 31)) ^ id.getLeastSignificantBits();
+    }
+
     // Keep the allocation call in the owning entity class (also avoids NeoForge's foreign-owner warning).
     static <T> EntityDataAccessor<T> defineSyncedValue(EntityDataSerializer<T> serializer) {
         return SynchedEntityData.defineId(YukkuriEntity.class, serializer);
@@ -449,6 +464,8 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     }
     /** A host that keeps this rider dry (SurfaceHost.shelters): every water check, drowning included, sees it out of the water. */
     @Override public boolean isInWater() { return super.isInWater() && !Attach.sheltered(this); }
+    /** Raw fluid query for observation, without the host shelter override. */
+    public boolean rawInWater() { return super.isInWater(); }
     @Override public boolean canDrownInFluidType(FluidType type) { return !Attach.sheltered(this) && super.canDrownInFluidType(type); }
     public ChildhoodLife childhood() { return childhood; }
     public CareApproach careApproach() { return careApproach; }
@@ -576,6 +593,8 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     @Override public LivingEntity getControllingPassenger(){return null;}
     /** A rider's seat belongs to the carrier's route, including seats outside its collision box; a real hit still releases it. */
     @Override public boolean isInWall(){return !(getVehicle() instanceof YukkuriEntity)&&super.isInWall();}
+    /** Raw collision query for observation, without the carrier override. */
+    public boolean rawInWall(){return super.isInWall();}
     /** A young held in a Reimu's mouth is not drawn, so it is not picked either: the click goes to its carrier. */
     @Override public boolean isPickable(){return super.isPickable()&&!ParentCarry.hiddenInMouth(this);}
     @Override protected void positionRider(Entity passenger,MoveFunction move){
@@ -986,6 +1005,8 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     // Assigned only inside Mob.registerGoals; it owns the selector's exact Goal identity bindings.
     private YukkuriGoals goals;
     public RoamingGoal roaming() { return goals == null ? null : goals.roaming(); }
+    /** Actual selector entries only; observing never starts or probes a Goal. */
+    public List<String> runningGoalIds() { return goals.runningGoalIds(); }
     private YukkuriSync sync() {
         if (sync == null) sync = new YukkuriSync(this);
         return sync;
