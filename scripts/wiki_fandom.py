@@ -200,7 +200,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument('command', choices=['fetch', 'list', 'show', 'check'])
     parser.add_argument('--category', nargs='+', default=list(CATEGORIES),
-                        help='categories to fetch or show (default: all six)')
+                        help='categories to fetch or show (default: all seven)')
     parser.add_argument('--page', nargs='+', help='show only these page titles')
     parser.add_argument('--refresh', action='store_true',
                         help='re-request category lists and cached pages')
