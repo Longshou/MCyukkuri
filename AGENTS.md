@@ -125,7 +125,8 @@
 - 包要小：一个包只做一条玩家看得见的行为链或一件工具，便于审查和定位。失败过的链路先写一页设计，交另一个模型审过再实现。已接入待试玩的行为链积压超过 10 条时暂停新内容（用户明确要求的除外），先修复测失败、等用户试玩。
 - 任务说明要短：指向本文件与模型笔记而不复述规则；验收标准用用户原话，总负责人自加的数值只是暂定；写明硬门槛（死亡、溺水、新循环）与只报告项、改动适用的确切情形、同批并行工人及其文件；美术与动作任务必须含分镜／概念与视觉审核（第 5 节）；不设代码行数目标。同批共用的规则写成一份公共说明。
 - 渠道：Claude（Sonnet、Opus）用 Agent 工具后台派出，提示里指向任务说明、本文件与模型笔记。外部 AI 走 herdr：`PYTHONUTF8=1 <py> .local/tools/herdr_task.py run <名> --kind pi|codex --cd <工作树> --brief <路径> [--model M --effort E]`（后台运行；`tail`／`say`／`wait`／`close` 跟进）。pi 会话装有 pi-agents-team，外部任务大到需要多个工人协作时，可让 pi 当协调者用 `/team` 派其内部工人（`/team-steer`、`/team-result` 跟进）。生图走 Codex（`storyboard.py`，用户的 ChatGPT 登录）。
-- 模型分工：Sonnet 做简单修复、机械活、文档和审查；Opus 做美术、动作、复杂链路，以及任何已失败或回归过的链路；DeepSeek 用官方 `deepseek/deepseek-flash`（便宜、诚实、善找根因，适合代码加冒烟与审查）；kimi（`kimi-coding/k3.1-pro`）只接设计精确、有边界的任务，关键场景必须复跑，适合重证据的审查；Codex 暂不写代码，只生图；不用 Fable。各模型的倾向记在 `.local/refactor/model-notes/<模型>.md`，每次审查后按证据更新。
+- 模型分工：按难度选最便宜够用的模型，Claude 额度留给只有 Opus 做得好的事。简单修复、机械活、文档、工具脚本和一般审查交 Sonnet 或 pi 模型：GLM 5.3（`zai-coding-cn/glm-5.3`）、DeepSeek 官方 `deepseek/deepseek-flash`（便宜、诚实、善找根因，适合代码加冒烟与审查）、kimi（`kimi-coding/k3.1-pro`，只接设计精确、有边界的任务，关键场景必须复跑，适合重证据的审查）；Opus 只做美术、动作、复杂链路、已失败或回归过的链路和公共基础设施。审查者与作者不同模型。Codex 暂不写代码，只生图；不用 Fable。外部接口出故障（如 HTTP 500）时改派 Claude，不原地反复重试。各模型的倾向记在 `.local/refactor/model-notes/<模型>.md`，每次审查后按证据更新。
+- 推理强度：每次派活按难度设定 thinking／effort，不用默认值：机械活与文档 low；简单修复与一般审查 medium；工具与普通功能 high；复杂链路、根因排查与动作设计 xhigh 或 max。Agent 工具用 `effort` 参数，herdr 用 `--effort`。
 - 额度：`bash .local/tools/claude_quota.sh` 看 5 小时与周用量；快满时暂停，重置后继续；额度紧张时只记入待办不开工；临近重置仍有余量就用掉。DeepSeek、kimi 与 Codex 生图不占 Claude 额度。
 - 并发：用户同时在玩游戏（约 8 GB），同时最多 3 个跑冒烟或截图的工人。限流会一次停掉所有子代理，工作已提交，开新代理“从提交继续”。
 - 失败处理：同一链路失败两轮就换思路，由总负责人写设计，不再调参；卡住的工人加人组队，不让它空转；偶发回归找隐藏的起始状态分叉，主线与分支各 20 次以上对比，修在共享归属处。
