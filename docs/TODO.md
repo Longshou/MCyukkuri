@@ -14,6 +14,7 @@
 | 观测层：服务端检查校准（主线零误报、已知问题仍抓到） | `.worktrees/wp-ck-check-calibration` | scripts/smoke_checks.py、scripts/timeline.py、scripts/fixtures/timeline/ |
 | 观测层 S3：试玩场景结束条件与里程碑（冒烟自动判断行为链是否走完） | `.worktrees/wp-cl-scene-ends` | scripts/museum_scenarios.py（end、里程碑、视角） |
 | 观测层 G4：预览与检查脚本改用统一姿态命令，删除旧骨骼合成拷贝 | `.worktrees/wp-cn-pose-copies` | preview/review/pose.js、scripts/render_preview_actions.cjs、check_reach.cjs、aquatic_tools.py、render_checks.py、braid_chain.py、scripts/runtime_animation.py |
+| Wiki：引入 fandom 人类角色与故事（Characters、Other Characters、Text/Cartoon Stories） | `.worktrees/wp-co-fandom-characters-stories` | wiki/shops-factory-npcs.md、wiki/hakkei-reference/events/、wiki/hakkei-reference/sources-fandom.md、wiki/hakkei-reference/lore/conflicts.md、docs/TODO.md 待用户裁决 |
 
 ## 玩法待办
 
