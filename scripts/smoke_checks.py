@@ -34,7 +34,7 @@ FATES = {
 }
 KINDS = (*FATES, 'loop')
 # A refusal, block or failed attempt; GameplayLog.limited folds its repeats into "(suppressed=N)" on the next line.
-REFUSAL = re.compile(r'\b(?:refused|rejected|unavailable|blocked|failed|gave up|abandoned)\b'
+REFUSAL = re.compile(r'(?<![=\w])(?:refused|rejected|unavailable|blocked|failed|gave up|abandoned)\b(?![=])'
                      r'|\boutcome=(?:BLOCKED|INCAPABLE|LOST)\b|\bresult=(?:EXHAUSTED|LOST)\b')
 SUPPRESSED = re.compile(r' \(suppressed=(\d+)\)')
 # Same entity, same refusal and reason, counted with its suppressed repeats. In 1615 saved runs of the smoke scenes
@@ -43,6 +43,12 @@ SUPPRESSED = re.compile(r' \(suppressed=(\d+)\)')
 # "contact stand unavailable" up to 1322): an actor that did not change its condition. 400 is 20 s of one refusal a tick.
 LOOP_BOUND = 400
 CHECKER = hashlib.sha256(Path(__file__).read_bytes()).hexdigest()[:12]
+
+
+def is_refusal(category, message):
+    # Status deltas describe stored state, not another attempted action. In particular,
+    # failed=[] and decision=unavailable are not refusals, nor is rejected=null.
+    return category != 'status' and REFUSAL.search(message)
 
 
 def signature(text):
@@ -78,7 +84,7 @@ def fates(window, allow=()):
                                                                        cause=match.groupdict().get('cause')))
                     row['count'] += 1
                     break
-        if REFUSAL.search(event['msg']):
+        if is_refusal(event['cat'], event['msg']):
             suppressed = SUPPRESSED.search(event['msg'])
             row = loops.setdefault((event['uuid'], event['cat'], signature(event['msg'])), dict(event=event, line=line, count=0))
             row['count'] += 1 + (int(suppressed[1]) if suppressed else 0)
@@ -166,6 +172,13 @@ def changed(a, b):
 
 def work_changed(a, b):
     """Completed work/context changes, excluding displacement and action-id churn."""
+    aa, ab = a.get('act') or {}, b.get('act') or {}
+    if (aa.get('id') in ('launch', 'await') and aa.get('id') == ab.get('id')
+            and aa.get('owner') == ab.get('owner') and known(aa, 'metric') and known(ab, 'metric')
+            and 0 <= ab['metric'] < aa['metric']):
+        # These two actions expose ticks remaining, not distance. A real bounded
+        # flight/wait advancing is work; a reset or stalled timer is not.
+        return True
     if known(a, 'waitElapsed') and known(b, 'waitElapsed') and b['waitElapsed'] > a['waitElapsed']:
         return True
     if any(a[k] != b[k] for k in ('int', 'goals', 'phase', 'hold')):
@@ -202,7 +215,9 @@ def progress(rows):
         for row in valid[1:]:
             s, a = row['state'], anchor['state']
             action = s['act'] or {}
-            active = bool(s['int']) or any(str(g).lower() not in ('idle', 'look', 'random_look') for g in s['goals'])
+            active = bool(s['int']) or bool(action) or (s.get('behavior') != 'idle' and any(
+                str(g).split('@')[0].lower() not in ('idle', 'look', 'random_look', 'randomlookaroundgoal', 'lookatplayergoal')
+                for g in s['goals']))
             if not active or changed(a, s) or (action.get('deadline') is not None and row['t'] <= action['deadline']):
                 anchor = row
                 continue
@@ -225,7 +240,11 @@ def progress(rows):
             positions.append(b)
             while positions[0]['t'] < b['t'] - 100:
                 positions.popleft()
-            moving = distance(a['state']['p'], b['state']['p']) > .01 + 1e-9
+            step = distance(a['state']['p'], b['state']['p'])
+            # Crossing the .01 start threshold while still translating is speed
+            # modulation, not a stop. Close a movement only at an actual stop
+            # (the existing floating-point tolerance), then count a new start.
+            moving = step > 1e-9 if prev_moving else step > .01 + 1e-9
             if prev_moving is not None and moving != prev_moving:
                 transitions.append(b['t'])
             prev_moving = moving
@@ -264,7 +283,7 @@ def loops(records, samples):
         if row['k'] != 'ev':
             continue
         msg = row.get('msg', '')
-        if not (REFUSAL.search(msg) or row.get('cat') == 'action' and msg.startswith('end ')):
+        if not (is_refusal(row.get('cat'), msg) or row.get('cat') == 'action' and msg.startswith('end ')):
             continue
         if not known(row, 'pos', 'u'):
             out.append(result('LOOP', 'no-evidence', 'event has no actor or block position', row))
@@ -284,20 +303,28 @@ def loops(records, samples):
             out.append(result('LOOP', band(count, 5, 20) if enough else 'no-evidence',
                               'repeated event without observed progress' if enough else 'repeats lack progress samples', row, repeats=count))
     for actor, rows in actors.items():
-        flips = []
+        flips = defaultdict(list)
         values = []
         for row in rows:
             s = row['state']
             if not known(s, 'att', 'hold') or 'veh' not in s:
                 continue
+            if values and known(s, 'p') and known(values[-1][0]['state'], 'p') and distance(s['p'], values[-1][0]['state']['p']) >= .5:
+                # Carrying a child to another place is completed transport, not
+                # repeated ownership churn at the same place.
+                values.clear()
+                flips.clear()
             # Frame/spot motion is geometry, not a change of attachment ownership.
-            attachment = tuple(s['att'].get(k) for k in ('kind', 'host', 'place'))
+            attachment = tuple(s['att'].get(k) for k in ('kind', 'host', 'place')) if s['att'].get('host') else None
             value = (attachment, s['veh'], s['hold'].get('carry'))
             if not values or values[-1][1] != value:
                 values.append((row, value))
                 if len(values) >= 3 and values[-1][1] == values[-3][1]:
-                    flips.append(row['t'])
-                    count = sum(t > row['t'] - 1200 for t in flips)
+                    # Empty -> child A -> empty and empty -> child B -> empty
+                    # are different transfers, not repeats of one A-B-A cycle.
+                    pair = tuple(sorted((repr(value), repr(values[-2][1]))))
+                    flips[pair].append(row['t'])
+                    count = sum(t > row['t'] - 1200 for t in flips[pair])
                     if count >= 3:
                         out.append(result('LOOP', band(count, 3, 5), 'attachment/holder A-B-A flips', row, flips=count))
     return out
@@ -314,8 +341,15 @@ def local_point(p, frame):
     return [v / frame['unit'] for v in (x, y, z)]
 
 
-def jumps(samples):
+def jumps(samples, records=()):
     out = []
+    placements = {}
+    for row in records:
+        if row['k'] == 'ev' and row.get('cat') == 'body':
+            match = re.fullmatch(r'relocate cause=scenario_initial_seat from=\(([^)]+)\) to=\(([^)]+)\)', row.get('msg', ''))
+            if match:
+                before, after = ([float(x) for x in match[i].split(',')] for i in (1, 2))
+                placements[row['u'], row['t']] = [b - a for a, b in zip(before, after)]
     by_tick = {(r['u'], r['t']): r['state'] for r in samples}
     for rows in actor_samples(samples).values():
         pairs = 0
@@ -333,15 +367,30 @@ def jumps(samples):
                 if aa.get('frame') and ab.get('frame'):
                     r = distance(local_point(sa['p'], aa['frame']), local_point(sb['p'], ab['frame'])) * ab['frame']['unit']
                 elif (host, a['t']) in by_tick and (host, b['t']) in by_tick:
-                    pa, pb = by_tick[host, a['t']]['p'], by_tick[host, b['t']]['p']
-                    r = distance([sa['p'][i] - pa[i] for i in range(3)], [sb['p'][i] - pb[i] for i in range(3)])
+                    ca, cb = by_tick[host, a['t']], by_tick[host, b['t']]
+                    if not known(ca, 'p', 'by') or not known(cb, 'p', 'by'):
+                        out.append(result('JUMP', 'no-evidence', 'carrier position/body yaw missing', b))
+                        continue
+                    # ParentCarry.world rotates its model by 180 - bodyYaw. A child
+                    # held at one point does not jump when its carrier turns.
+                    fa, fb = (dict(origin=s['p'], unit=1, yaw=math.radians(180 - s['by']), pitch=0, roll=0)
+                              for s in (ca, cb))
+                    r = distance(local_point(sa['p'], fa), local_point(sb['p'], fb))
                 else:
                     out.append(result('JUMP', 'no-evidence', 'host frame/carrier positions missing', b))
                     continue
             else:
                 residual = [sb['p'][i] - sa['p'][i] - sa['v'][i] for i in range(3)]
+                # Subtract only the explicitly logged scene-setup input for this actor
+                # and tick; extra motion in the same tick is still checked.
+                placed = placements.get((b['u'], b['t']))
+                if placed is not None:
+                    residual = [residual[i] - placed[i] for i in range(3)]
                 if sa.get('g') or sb.get('g'):
-                    residual[1] = math.copysign(max(0, abs(residual[1]) - .6), residual[1])
+                    # YukkuriEntity sets STEP_HEIGHT=1, unlike vanilla's .6. Use the
+                    # recorded capability for upward steps; legacy logs keep their band.
+                    slack = sa['step'] if residual[1] > 0 and known(sa, 'step') else .6
+                    residual[1] = math.copysign(max(0, abs(residual[1]) - slack), residual[1])
                 r = math.sqrt(sum(v * v for v in residual))
             if r > .25:
                 out.append(result('JUMP', band(r, .25, 1), 'motion residual (blocks)', b, residual=r))
@@ -379,13 +428,18 @@ def inventory(s):
 
 def ledger(records, samples, dense=False):
     out, ticks, current = [], defaultdict(list), {}
-    explanations = [r for r in records if r['k'] == 'ev' and re.search(r'\b(eat|ate|swallow|consum|place|pickup|interaction|received item=|gathered item=|shed stem delivered|deposit home=|granary deposit|feed portion reserved|feed plant harvested|feed mash prepared|feed handed to meal|nest material|pack store=|carried meal)', r.get('msg', ''), re.I)
-                    or r['k'] == 'life' and r.get('out') in ('unloaded', 'scope_exit', 'changed_dimension')]
+    explanations = [r for r in records if r['k'] == 'ev' and re.search(r'\b(eat|ate|swallow|consum|place|pickup|interaction|received item=|gathered item=|shed stem delivered|deposit home=|granary deposit|feed portion reserved|feed plant harvested|feed mash prepared|feed handed to meal|nest material|pack store=|carried meal|stores (?:put|taken|spilled))', r.get('msg', ''), re.I)
+                    or r['k'] == 'life' and (r.get('out') in ('unloaded', 'scope_exit', 'changed_dimension')
+                        or r.get('out') == 'discarded' and known(r, 'age', 'lifespan', 'item') and r['age'] >= r['lifespan'])]
     explained_items = defaultdict(set)
     for event in explanations:
-        item = re.search(r'\bitem=(?:\d+ )?([a-z0-9_.-]+:[a-z0-9_/.-]+)', event.get('msg', ''))
+        msg = event.get('msg', '')
+        item = re.search(r'\b(?:item|kind)=(?:\d+ )?([a-z0-9_.-]+:[a-z0-9_/.-]+)', msg)
+        kinds = re.search(r'\bkinds=\{([^}]*)\}', msg)
+        items = (set(re.findall(r'([a-z0-9_.-]+:[a-z0-9_/.-]+)=\d+', kinds[1])) if kinds
+                 else {event.get('item') or (item[1] if item else None)})
         for offset in range(-2, 3):
-            explained_items[event['t'] + offset].add(item[1] if item else None)
+            explained_items[event['t'] + offset].update(items)
     for row in records:
         if row['k'] == 'life':
             ticks[row['t']].append(row)
@@ -408,6 +462,7 @@ def ledger(records, samples, dense=False):
                 out.append(result('LEDGER', 'fail', 'actor appeared without lifecycle entry', first))
     previous, dip = None, None
     for tick, rows in sorted(ticks.items()):
+        prior_holders = dict(current)
         for row in rows:
             if row['k'] == 'life' and row.get('out'):
                 current.pop(row['u'], None)
@@ -427,15 +482,16 @@ def ledger(records, samples, dense=False):
         changed_items = {item for item in total.keys() | previous.keys() if total[item] != previous[item]} if previous is not None else set()
         explained = None in explained_items[tick] or changed_items <= explained_items[tick]
         if previous is not None and total != previous and not explained and dip is None:
-            dip = (tick, previous, rows[-1])
+            affected = [r for r in rows if prior_holders.get(r['u']) != current.get(r['u'])]
+            dip = (tick, previous, affected[0], {item: total[item] - previous[item] for item in changed_items})
         if dip and total == dip[1]:
             duration = tick - dip[0]
             if duration >= 3:
-                out.append(result('LEDGER', 'fail' if duration > 20 else 'suspect', 'unexplained inventory dip/appearance', dip[2], duration=duration))
+                out.append(result('LEDGER', 'fail' if duration > 20 else 'suspect', 'unexplained inventory dip/appearance', dip[2], duration=duration, items=dip[3]))
             dip = None
         previous = total
     if dip:
-        out.append(result('LEDGER', 'fail', 'unexplained permanent item total change', dip[2]))
+        out.append(result('LEDGER', 'fail', 'unexplained permanent item total change', dip[2], items=dip[3]))
     if len({r['t'] for r in samples}) < 2:
         out.append(result('LEDGER', 'no-evidence', 'need at least two inventory snapshots'))
     return out
@@ -818,7 +874,7 @@ def observations(records, issues=(), raw='', allow=(), end=(), seed=None, rerun=
                 continue
             if cause not in ('drown', 'inWall'):
                 findings.append(result('FATE', 'fail' if cause in ('fall', 'soaking', 'starve') else 'suspect', r['msg'], r))
-    findings += progress(samples) + loops(records, samples) + jumps(samples) + ledger(records, samples, dense) + orphans(samples)
+    findings += progress(samples) + loops(records, samples) + jumps(samples, records) + ledger(records, samples, dense) + orphans(samples)
     findings += endings(records, samples, end, raw if end_raw is None else end_raw)
     lag = [r for r in records if r['k'] == 'lag']
     for r in lag:
@@ -855,7 +911,7 @@ def observations(records, issues=(), raw='', allow=(), end=(), seed=None, rerun=
         if r['state'].get('iwr'):
             findings.append(result('SPAWN', 'fail', 'first actor sample inside wall', r))
     for r in records:
-        if start is not None and r['k'] == 'ev' and 0 <= r['t'] - start <= 40 and REFUSAL.search(r.get('msg', '')):
+        if start is not None and r['k'] == 'ev' and 0 <= r['t'] - start <= 40 and is_refusal(r.get('cat'), r.get('msg', '')):
             findings.append(result('SPAWN', 'suspect', 'early scene refusal', r))
     if not lag or any(not known(r, 'ms') and 'stall_ms' not in r for r in lag):
         findings.append(result('LAG', 'no-evidence', 'tick timing missing'))

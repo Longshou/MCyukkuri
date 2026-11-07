@@ -345,6 +345,11 @@ public final class TraceRecorder {
         };
         JsonObject life = new JsonObject();
         life.addProperty("out", out);
+        if (entity instanceof ItemEntity item) {
+            life.addProperty("item", BuiltInRegistries.ITEM.getKey(item.getItem().getItem()).toString());
+            life.addProperty("age", item.getAge());
+            life.addProperty("lifespan", item.lifespan);
+        }
         emit(entity, cache.window, "life", life);
     }
 
@@ -564,6 +569,7 @@ public final class TraceRecorder {
         out.addProperty("yaw", entity.getYRot());
         out.addProperty("by", entity.bodyYaw());
         out.addProperty("g", entity.onGround());
+        out.addProperty("step", entity.maxUpStep());
         out.addProperty("w", entity.isInWater());
         out.addProperty("wr", entity.rawInWater());
         Boolean rawWall = TraceBlocks.inWall(entity);
@@ -598,6 +604,7 @@ public final class TraceRecorder {
         var goals = new JsonArray();
         entity.runningGoalIds().forEach(goals::add);
         out.add("goals", goals);
+        out.addProperty("behavior", entity.getBehaviorId());
         Conductor.Role role = Conductor.roleOf(entity);
         out.addProperty("phase", role == null ? entity.family().taskId() : role.choreography().beat());
         Number waitElapsed;

@@ -27,7 +27,11 @@ lore 通用宠物联系表 `pet_motions_preview.py` 已由 `preview.py strip <�
 
 场景观察契约在 `museum_scenarios.py`：`smoke.end` 的 `final` 保存 `(主体, 谓词)`，按整窗末尾 100 tick 至少 80% 且最后时刻成立判定；`paths`（同 `smoke.milestones`）是互不强加顺序的路径，每条 `steps` 保存有序的 `(事件发出者, seen:类别:正则)`，`each` 要求选中的每个个体走完整条链。正则命名捕获绑定身份，后续 `$变量` 必须匹配同一身份；`$标签名` 引用唯一场景个体，`$subject` 引用 each 当前个体；顺序使用 tick 和记录顺序，支持同 tick 事件。`post` 在链尾事件后的一个物理 tick 检查真实完成状态，允许随后恢复日常行为；`forbid` 禁止窗口内的指定事件。主体支持标签、`actors`、`world`、`child_of:标签`、`newborn_of:标签`（仅本窗 life/birth）、`hat_of:标签`。谓词支持状态字段、`carry_empty=true`、`near.主体<=距离`、`aboard.帽主=true`（含帽主承托）、`home_of.主体=true`（相同 homeStand 坐标）、`nest_of.亲油=true`（该亲油对同一孩子真实放下日志的窝内占用，且孩子已解除承托）；homeStand 相等不能代替窝内几何。未标记聚落成员的事件只从同维度、同窗口、`bounds` 场景范围内的原始 GameplayLog 补读，不补造状态。旧式 END 列表仍供已有调用方使用。`capture.views` 各视角的 `criteria` 保存画面要求。`<py> scripts/fixtures/timeline/test_end.py` 验证顺序、错配、离场、世界事件、初生范围和完成后继续活动；`<py> scripts/fixtures/timeline/replay_end.py 日志目录 --output 目录` 对真实日志和移除阶段事件的故障输入逐场报告 END。检查只报告，不代替用户试玩。
 
-`<py> scripts/fixtures/timeline/test_calibration.py` 检查正常转向、真实停走、资源交接、出生支撑、已声明死亡和等待计时的正反例。PROGRESS 的转向循环只统计超过 1° 的反向，沿路前进不计作原地转向；完成阶段或资源交接会结束当前停走统计窗口。`st.waitElapsed` 是原有编排 Await、躲藏、避雨抱团或抖水计时器的只读值，实际递增才算进展，停住或到期后继续检查卡住。LEDGER 的交接解释仍限前后 2 tick，带物品 ID 的事件不能解释另一种物品；帽主只记录自身库存，放置帽库存由帽子记录。SPAWN 沿用 0.0625 格容差，并承认几何记录中的实际支撑。新检查仍只报告，离线样例不赋予合入门槛资格。
+`<py> scripts/fixtures/timeline/test_calibration.py` 检查正常转向、真实停走、资源交接、出生支撑、已声明死亡和等待计时的正反例。PROGRESS 的转向循环只统计超过 1° 的反向，沿路前进不计作原地转向；完成阶段、资源交接或实际恢复会结束当前停走统计窗口。`st.waitElapsed` 是原有编排 Await、躲藏、避雨抱团或抖水计时器的只读值，实际递增才算进展，停住或到期后继续检查卡住；Launch/Await 的剩余时间同理。没有意图或动作、实际展示为 idle 的个体不算工作停滞。LOOP 与 SPAWN 不把状态快照或 `failed=[]` 等诊断字段当成新拒绝；没有承载对象的腾空／着地变化不算挂接循环。JUMP 按 `st.step` 的实际跨步能力检查向上跨步，仅扣除同个体同 tick 明确记录的场景初态放置位移，额外跳变照常检查。LEDGER 的交接解释仍限前后 2 tick，带物品 ID 的事件不能解释另一种物品；帽主只记录自身库存，放置帽库存由帽子记录。SPAWN 沿用 0.0625 格容差，并承认几何记录中的实际支撑。新检查仍只报告，离线样例不赋予合入门槛资格。
+
+掉落物离场记录附带实际 `age`、`lifespan` 与物品 ID；只有已达到寿命的丢弃才解释对应物品的自然过期，其他丢弃仍检查守恒。LEDGER 报告指向库存实际变化的持有者，并附物品增减量。搬运中的 JUMP 使用承载者的身体朝向换算局部位移，正常转身不算幼体瞬移。
+
+LOOP 的挂接循环按同一对持有状态累计，实际搬运前进半格会结束当前循环，不把依次交接不同幼体累计成同一次反复。PROGRESS 的停走要求实际停住；持续移动中越过 0.01 格/tick 的速度变化不算停止。
 
 `python scripts/check_architecture.py --check` 是 Python 3.10+ 标准库的只读架构建议工具；默认不带 `--check` 也只读。它只扫描本仓库 `src/main/java/**/*.java`，不扫描 `.worktrees`、`.local`、资源或文档，不调用 Git、Java、Gradle、游戏、网络，也不修改文件。不接入 CI、pre-commit 或合并门槛，不替代远端编译或用户试玩。
 

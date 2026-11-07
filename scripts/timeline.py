@@ -18,6 +18,10 @@ def validate(row):
         raise ValueError('seq/t must be finite numeric values')
     if not all(isinstance(row[k], str) for k in ('run', 'dim', 'k', 'src')):
         raise ValueError('run/dim/k/src must be strings')
+    if row['k'] == 'life':
+        for key in ('age', 'lifespan'):
+            if key in row and (type(row[key]) not in (int, float) or not math.isfinite(row[key])):
+                raise ValueError(f'{key} must be finite numeric')
     if row['k'] != 'st':
         return
     s = row.get('st')
@@ -31,9 +35,9 @@ def validate(row):
     for key in ('hold', 'att', 'act', 'int', 'need'):
         if s.get(key) is not None and not isinstance(s[key], dict):
             raise ValueError(f'{key} must be an object or null')
-    if s.get('waitElapsed') is not None and (type(s['waitElapsed']) not in (int, float)
-                                            or not math.isfinite(s['waitElapsed'])):
-        raise ValueError('waitElapsed must be finite numeric or null')
+    for key in ('waitElapsed', 'step'):
+        if s.get(key) is not None and (type(s[key]) not in (int, float) or not math.isfinite(s[key])):
+            raise ValueError(f'{key} must be finite numeric or null')
 
 
 def parse(texts):

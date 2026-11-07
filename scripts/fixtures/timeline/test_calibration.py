@@ -14,6 +14,121 @@ from cases import record, state, log, HOST, ACTOR
 
 
 class Calibration(unittest.TestCase):
+    def test_slow_continuous_motion_does_not_create_stops(self):
+        # H: forage-2 father 01d69f8d, t12843..12867: continuously advances
+        # .005..028 blocks/tick while the old .01 threshold counts six stops.
+        rows, x = [], 0
+        for t in range(100):
+            rows.append(state(t, p=[x, 0, 0], goals=['DailyGoal']))
+            x += .02 if t % 4 == 0 else .005
+        self.assertFalse(any(f['detail'] == 'dense stutter cycles' for f in checks.progress(timeline.states(rows))))
+        rows, x = [], 0
+        for t in range(100):
+            rows.append(state(t, p=[x, 0, 0], goals=['DailyGoal']))
+            x += .02 if t % 4 == 0 else 0
+        self.assertTrue(any(f['verdict'] == 'fail' for f in checks.progress(timeline.states(rows))))
+
+    def test_completed_carries_are_not_ownership_churn(self):
+        # H: colony_migrate_babies-45, child de4405b8: released at x=-675.46,
+        # picked up there, then released at x=-649.28. Birth-land's father
+        # also unloads three different newborns, rather than toggling one child.
+        rows = [state(t, p=[t * 2, 0, 0], att={'kind': 'held' if t % 2 else 'free',
+                      'host': HOST if t % 2 else None, 'place': 'ground'}) for t in range(20)]
+        self.assertFalse(checks.loops(rows, timeline.states(rows)))
+        rows = [state(t, hold={'carry': [{'child': str(t), 'hold': 'braid'}] if t % 2 else []}) for t in range(20)]
+        self.assertFalse(checks.loops(rows, timeline.states(rows)))
+        for row in rows:
+            if row['st']['hold']['carry']:
+                row['st']['hold']['carry'][0]['child'] = HOST
+        self.assertTrue(any(f['verdict'] == 'fail' for f in checks.loops(rows, timeline.states(rows))))
+
+    def test_actual_item_expiry_is_distinct_from_unexplained_discard(self):
+        rows = [record('st', 0, st={'p': [0, 0, 0], 'item': 'minecraft:lily_pad', 'n': 1}),
+                state(0), state(1), record('life', 1, out='discarded', item='minecraft:lily_pad', age=6000, lifespan=6000)]
+        rows[1]['u'] = rows[2]['u'] = HOST
+        self.assertFalse(checks.ledger(rows, timeline.states(rows)))
+        for changed in (dict(age=5999), dict(item='minecraft:apple')):
+            broken = rows[:-1] + [rows[-1] | changed]
+            self.assertTrue(any(f['verdict'] == 'fail' for f in checks.ledger(broken, timeline.states(broken))))
+        broken = rows[:-1] + [record('life', 1, out='discarded')]
+        self.assertTrue(any(f['verdict'] == 'fail' for f in checks.ledger(broken, timeline.states(broken))))
+
+    def test_ledger_evidence_names_a_changed_holder(self):
+        rows = [state(0), state(1, hold={'mouth': [{'item': 'minecraft:apple', 'n': 1}]}), state(0), state(1)]
+        for row in rows[2:]:
+            row['u'] = HOST
+        rows.sort(key=lambda r: r['t'])
+        finding = next(f for f in checks.ledger(rows, timeline.states(rows)) if f['verdict'] == 'fail')
+        self.assertEqual(finding['actor'], ACTOR)
+        self.assertEqual(finding['items'], {'minecraft:apple': 1})
+
+    def test_carrier_turn_is_not_child_displacement(self):
+        rows = [state(0, by=180), state(1, by=90),
+                state(0, p=[1, 1, 0], att={'kind': 'held', 'host': HOST}),
+                state(1, p=[0, 1, -1], att={'kind': 'held', 'host': HOST})]
+        for row in rows[:2]:
+            row['u'] = HOST
+        rows.sort(key=lambda r: r['t'])
+        self.assertFalse(checks.jumps(timeline.states(rows)))
+        next(r for r in rows if r['u'] == ACTOR and r['t'] == 1)['st']['p'] = [0, 1, -3]
+        self.assertTrue(any(f['verdict'] == 'fail' for f in checks.jumps(timeline.states(rows))))
+
+    def test_observed_idle_and_look_goals_are_not_stalled_jobs(self):
+        for fields in (dict(behavior='idle', goals=['PitSlaveGoal@4']), dict(goals=['RandomLookAroundGoal@9'])):
+            rows = [state(t, int=None, **fields) for t in range(1202)]
+            self.assertFalse(checks.progress(timeline.states(rows)))
+        rows = [state(t, behavior='idle', int={'id': 'travel'}) for t in range(1202)]
+        self.assertTrue(any(f['verdict'] == 'fail' for f in checks.progress(timeline.states(rows))))
+
+    def test_bounded_flight_timer_and_normal_airborne_contacts(self):
+        rows = [state(t, act={'id': 'launch', 'owner': 'childhood_practice', 'metric': 30 - t},
+                      att={'kind': 'airborne' if t % 2 else 'free', 'host': None, 'place': 'ground'},
+                      p=[0, .02 * ((t // 2) % 2), 0]) for t in range(30)]
+        self.assertFalse(checks.progress(timeline.states(rows)))
+        self.assertFalse(checks.loops(rows, timeline.states(rows)))
+        for row in rows:
+            row['st']['act']['metric'] = 30
+        self.assertTrue(any(f['verdict'] == 'fail' for f in checks.progress(timeline.states(rows))))
+
+    def test_counted_store_transfer_explains_only_recorded_kinds(self):
+        for msg in ('stores taken by=fixture use=feed kind=minecraft:apple count=4 -> 3',
+                    'stores spilled by=fixture kinds={minecraft:apple=4} -> {} total=4 -> 0'):
+            rows = [state(0), state(1, hold={'mouth': [{'item': 'minecraft:apple', 'n': 1}]}),
+                    record('ev', 1, cat='hat', msg=msg)]
+            self.assertFalse(checks.ledger(rows, timeline.states(rows)))
+            rows[1]['st']['hold']['mouth'][0]['item'] = 'minecraft:stick'
+            self.assertTrue(any(f['verdict'] == 'fail' for f in checks.ledger(rows, timeline.states(rows))))
+
+    def test_status_and_diagnostic_fields_are_not_refusal_attempts(self):
+        for category, message in (
+                ('aquatic', 'drive evaluated current=none failed=[]'),
+                ('aquatic', 'drive evaluated current=none failed=[take_seat]'),
+                ('family', 'carry put down rejected=null'),
+                ('status', 'behavior.protection: decision=waiting -> decision=unavailable'),
+                ('status', 'body.last: outcome=BLOCKED -> outcome=BLOCKED')):
+            self.assertFalse(checks.is_refusal(category, message))
+            raw = f'[{category}] reimu #1 uuid={ACTOR} t=1 dim=minecraft:overworld pos=0, 0, 0 {message} (suppressed=499)'
+            self.assertFalse(checks.fates(raw))
+        raw = f'[approach] reimu #1 uuid={ACTOR} t=1 dim=minecraft:overworld pos=0, 0, 0 contact stand unavailable (suppressed=399)'
+        self.assertTrue(checks.fates(raw))
+
+    def test_recorded_step_capability_and_overshoot(self):
+        rows = [state(0, step=1, v=[0, -.0784, 0]), state(1, step=1, p=[0, 1, 0])]
+        self.assertFalse(checks.jumps(timeline.states(rows)))
+        rows[1]['st']['p'][1] = 2.5
+        self.assertTrue(any(f['verdict'] == 'fail' for f in checks.jumps(timeline.states(rows))))
+        rows = [state(0, step=1, g=False), state(1, step=1, g=False, p=[0, 1.1, 0])]
+        self.assertTrue(any(f['verdict'] == 'fail' for f in checks.jumps(timeline.states(rows))))
+
+    def test_explicit_setup_placement_does_not_exempt_other_jumps(self):
+        rows = [state(0), state(1, p=[3, 0, 0]), state(2, p=[6, 0, 0])]
+        placement = record('ev', 1, cat='body', msg='relocate cause=scenario_initial_seat from=(0.00,0.00,0.00) to=(3.00,0.00,0.00)')
+        findings = checks.jumps(timeline.states(rows), [placement])
+        self.assertEqual([(f['t'], f['verdict']) for f in findings], [(2, 'fail')])
+        for changed in (dict(u=HOST), dict(t=2), dict(msg=placement['msg'].replace('3.00', '4.00')),
+                        dict(msg=placement['msg'].replace('scenario_initial_seat', 'agitation_pin'))):
+            self.assertTrue(any(f['t'] == 1 for f in checks.jumps(timeline.states(rows), [placement | changed])))
+
     def test_observed_wait_counter_must_actually_advance(self):
         rows = [state(t, goals=['BirthGoal@2'], phase='term', waitElapsed=t) for t in range(1202)]
         self.assertFalse(checks.progress(timeline.states(rows)))

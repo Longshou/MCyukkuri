@@ -120,7 +120,7 @@ public final class PlantBedding {
         if(!ForageClaims.owns(level,target.block(),claim)||!(Grazing.edible(target.state())?Grazing.graze(level,target.block()):level.setBlock(target.block(),
                 Blocks.AIR.defaultBlockState(),3))){stop();return ItemStack.EMPTY;}
         level.levelEvent(2001,target.block(),Block.getId(target.state()));
-        GameplayLog.event(entity, "habitat", "gathered item={} count={} source={} holder=mouth",
+        GameplayLog.event(entity, "habitat", "gathered item={} count={} source={}",
                 result.getItem(), result.getCount(), target.block());
         stop();return result;
     }
