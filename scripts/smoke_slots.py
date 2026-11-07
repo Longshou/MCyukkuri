@@ -43,7 +43,8 @@ def others():
 
 
 def describe(rows):
-    return ', '.join(f'{row["kind"]} {row["label"]} (pid {row["pid"]})' for row in rows) or 'none'
+    return ', '.join(f'{row["kind"]} {row["label"][:60]}{"..." if len(row["label"]) > 60 else ""} (pid {row["pid"]})'
+                     for row in rows) or 'none'
 
 
 @contextmanager
