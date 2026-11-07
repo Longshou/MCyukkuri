@@ -128,10 +128,17 @@ def fetch(name, refresh):
 
 def show(names, titles):
     for name in names:
+        # A page belongs to every cached category that lists it, not only the
+        # category that happened to fetch its source first.
+        member_ids = set()
+        category_path = CACHE / 'categories' / f'{slug(name)}.json'
+        if category_path.exists():
+            members = json.loads(category_path.read_text(encoding='utf-8'))['pages']
+            member_ids = {member['pageid'] for member in members}
         pages = []
         for path in sorted((CACHE / 'pages').glob('*.json')):
             record = json.loads(path.read_text(encoding='utf-8'))
-            if record['category'] == name:
+            if record['category'] == name or record['pageid'] in member_ids:
                 pages.append(record)
         if titles:
             pages = [r for r in pages if r['title'] in titles]
@@ -193,7 +200,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument('command', choices=['fetch', 'list', 'show', 'check'])
     parser.add_argument('--category', nargs='+', default=list(CATEGORIES),
-                        help='categories to fetch or show (default: Behavior Biology)')
+                        help='categories to fetch or show (default: all six)')
     parser.add_argument('--page', nargs='+', help='show only these page titles')
     parser.add_argument('--refresh', action='store_true',
                         help='re-request category lists and cached pages')
