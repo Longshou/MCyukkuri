@@ -12,7 +12,6 @@
 | 观测层 S2：时间线与服务端自动检查（卡住、循环、瞬移、物品守恒、遗弃幼体、卡顿） | `.worktrees/wp-by-timeline-checks` | scripts/timeline.py、scripts/smoke_checks.py、scripts/fixtures/timeline/、scripts/smoke_fate.py、scripts/smoke_museum.py、scripts/headless_server.py、scripts/feedback_intake.py |
 | 工具：统一导出入口与动作流水线（按家族／改动选导出器、依赖排序、全量 --check、冲突后一键重建、保存登记一条命令） | `.worktrees/wp-bz-export-pipeline` | scripts/export.py（新）、scripts/README.md、art/runtime-sources.json 与 art/catalog.json 的结构、lore author.py 导出开关、旧 *_preview.py |
 | 观测层 G2b：三个帽船搬运片段倾斜 38°→12° 内、上船合计倾角预算、boat_toilet 例外导出 | `.worktrees/wp-ca-tilt-refit` | lore/recipe.json（三个 carry 片段）、toilet-contact 配方与构建、scripts/export_motion_corrections.py、运行动作 JSON、pose/Overlays.java |
-| 演出夸张化样例：屋檐发抖、雷声缩身、呼唤孩子、吃饱瘫软（只改数据） | `.worktrees/wp-cb-exaggerate-samples` | standards/yukkuri-library/presentation/moments.json（四行）及其导出 |
 | 噗咕多版供选（看 wiki 原版表现，并排预览给用户选） | `.worktrees/wp-cc-puku-variants` | moments.json 噗咕相关行、motions/base 或 lore 新增噗咕变体片段 |
 
 ## 玩法待办
