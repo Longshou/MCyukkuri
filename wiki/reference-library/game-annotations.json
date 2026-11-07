@@ -7582,35 +7582,11 @@
       "state": "overview_not_selected"
     },
     {
-      "id": "EH02-001",
-      "state": "overview_not_selected"
-    },
-    {
-      "id": "EH03-001",
-      "state": "overview_not_selected"
-    },
-    {
       "id": "EH04-001",
       "state": "out_of_scope"
     },
     {
-      "id": "EH05-001",
-      "state": "overview_not_selected"
-    },
-    {
-      "id": "EH06-001",
-      "state": "overview_not_selected"
-    },
-    {
-      "id": "EH07-001",
-      "state": "overview_not_selected"
-    },
-    {
       "id": "EH08-001",
-      "state": "overview_not_selected"
-    },
-    {
-      "id": "EH09-001",
       "state": "overview_not_selected"
     },
     {
@@ -7620,10 +7596,6 @@
     {
       "id": "EH11-001",
       "state": "overview_not_selected"
-    },
-    {
-      "id": "EH12-001",
-      "state": "out_of_scope"
     },
     {
       "id": "EH01-002",
@@ -7823,26 +7795,6 @@
     },
     {
       "id": "EH14-007",
-      "state": "overview_not_selected"
-    },
-    {
-      "id": "EH14-008",
-      "state": "overview_not_selected"
-    },
-    {
-      "id": "EH15-001",
-      "state": "overview_not_selected"
-    },
-    {
-      "id": "EH16-001",
-      "state": "overview_not_selected"
-    },
-    {
-      "id": "EH17-001",
-      "state": "overview_not_selected"
-    },
-    {
-      "id": "EH18-001",
       "state": "overview_not_selected"
     },
     {

@@ -56,7 +56,7 @@ def read(path):
 def dump(path, data):
     path.parent.mkdir(parents=True, exist_ok=True)
     temporary = path.with_name(path.name + '.tmp')
-    temporary.write_text(json.dumps(data, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
+    temporary.write_text(json.dumps(data, ensure_ascii=False, indent=2) + '\n', encoding='utf-8', newline='\n')
     os.replace(temporary, path)
 
 
@@ -278,9 +278,13 @@ def run(args):
     last_start = [time.monotonic() - args.delay]
     executor = ThreadPoolExecutor(max_workers=args.workers)
     futures = {}
+    completed = set()
 
     def complete(future):
         nonlocal succeeded, failed
+        if future in completed:
+            return
+        completed.add(future)
         path = futures[future]
         relative = path.relative_to(ROOT).as_posix()
         item = by_path[relative]

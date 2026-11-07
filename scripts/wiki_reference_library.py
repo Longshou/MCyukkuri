@@ -92,7 +92,7 @@ def sha(data):
 
 def write_json(path, data):
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(data, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    path.write_text(json.dumps(data, ensure_ascii=False, indent=2) + "\n", encoding="utf-8", newline="\n")
 
 
 def fetch():
@@ -253,7 +253,7 @@ def catalog():
         lines.extend(["", "完整来源 URL、下载 URL、文件名、字节数、SHA-256 与逐图记录见 [manifest.json](../manifest.json)。",
                       "图片保留原字节与署名；研究留存不等于取得游戏贴图、宣传图或再发行授权。", "",
                       "本目录由 `scripts/wiki_reference_library.py catalog` 生成；逐图更正先改 manifest，再重新生成。", ""])
-        (out / f"{source['id']}.md").write_text('\n'.join(lines), encoding='utf-8')
+        (out / f"{source['id']}.md").write_text('\n'.join(lines), encoding='utf-8', newline='\n')
     print(f"Generated {len(data['sources'])} work indexes: {out}")
 
 

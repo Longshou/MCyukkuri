@@ -21,7 +21,7 @@ FACET_FILES={'entities':'entities','scenarios':'scenarios','emotions':'emotions'
 def read(path): return json.loads(path.read_text(encoding='utf-8'))
 def write(path,text):
     path.parent.mkdir(parents=True,exist_ok=True)
-    path.write_text(text,encoding='utf-8')
+    path.write_text(text,encoding='utf-8',newline='\n')
 def dump(path,data): write(path,json.dumps(data,ensure_ascii=False,indent=2)+'\n')
 def relative(path,folder=LIB): return Path(os.path.relpath(ROOT/path,folder)).as_posix()
 def cell(value): return str(value).replace('|','／').replace('\n',' ')

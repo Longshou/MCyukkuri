@@ -26,7 +26,7 @@ MANIFEST = LIB / 'manifest.json'
 
 def dump(path, data):
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(data, ensure_ascii=False, indent=2)+'\n', encoding='utf-8')
+    path.write_text(json.dumps(data, ensure_ascii=False, indent=2)+'\n', encoding='utf-8', newline='\n')
 
 def digest(data):
     return hashlib.sha256(data).hexdigest()
@@ -259,7 +259,7 @@ def catalog():
                 "[游戏参考库](../../../reference-library/README.md)\n\n"
                 "该入口超出当前纳入的实体范围，停止继续采集，不建立造型、情景或情绪参考。\n\n"
                 f"既有 {len(rows)} 个文件仅保留旧引用与出处追溯；技术记录见 [manifest](../manifest.json)。\n",
-                encoding='utf-8')
+                encoding='utf-8', newline='\n')
             continue
         rough='other:rough translation' in source['tags'] or '机翻' in source['title']
         lines=[f"# {source['id']} · {source['title']}",'',
@@ -277,7 +277,7 @@ def catalog():
             lines.append(f"| [{row['id']}](../{rel}) | {row['width']} × {row['height']} | {labels[row['review_status']]} | {note} |")
         lines.extend(['','完整页 URL、图片 URL、字节数、哈希、获取时间与站点转换说明见 [manifest](../manifest.json)。图片保留告知、水印和署名，不代表取得再发行或游戏贴图授权。','',
                       '目录由 `scripts/wiki_ehentai_reference.py catalog` 生成；先修改 manifest 的笔记，再重新生成。',''])
-        (out/f"{source['id']}.md").write_text('\n'.join(lines),encoding='utf-8')
+        (out/f"{source['id']}.md").write_text('\n'.join(lines),encoding='utf-8',newline='\n')
     print('Generated',len(data['sources']),'work indexes')
 
 if __name__=='__main__':

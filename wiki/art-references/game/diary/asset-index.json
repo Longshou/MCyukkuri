@@ -924,8 +924,7 @@
   {
     "id": 185,
     "type": "Texture2D",
-    "name": "yukkuri_Peni",
-    "export": "tex-185-yukkuri_Peni.png"
+    "name": "yukkuri_Peni"
   },
   {
     "id": 186,
