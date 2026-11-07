@@ -380,18 +380,24 @@ def jumps(samples, records=()):
                     out.append(result('JUMP', 'no-evidence', 'host frame/carrier positions missing', b))
                     continue
             else:
-                residual = [sb['p'][i] - sa['p'][i] - sa['v'][i] for i in range(3)]
                 # Subtract only the explicitly logged scene-setup input for this actor
                 # and tick; extra motion in the same tick is still checked.
                 placed = placements.get((b['u'], b['t']))
-                if placed is not None:
-                    residual = [residual[i] - placed[i] for i in range(3)]
-                if sa.get('g') or sb.get('g'):
-                    # YukkuriEntity sets STEP_HEIGHT=1, unlike vanilla's .6. Use the
-                    # recorded capability for upward steps; legacy logs keep their band.
-                    slack = sa['step'] if residual[1] > 0 and known(sa, 'step') else .6
-                    residual[1] = math.copysign(max(0, abs(residual[1]) - slack), residual[1])
-                r = math.sqrt(sum(v * v for v in residual))
+                # Samples are post-tick: an impulse applied during this tick is
+                # visible in its ending velocity, not the preceding one. Ordinary
+                # flight can instead match the preceding velocity before drag.
+                velocities = [sa['v'], sb['v']] if known(sb, 'v') else [sa['v']]
+                residuals = []
+                for velocity in velocities:
+                    residual = [sb['p'][i] - sa['p'][i] - velocity[i] for i in range(3)]
+                    if placed is not None:
+                        residual = [residual[i] - placed[i] for i in range(3)]
+                    if sa.get('g') or sb.get('g'):
+                        # Read actual upward step capability; legacy logs retain .6.
+                        slack = sa['step'] if residual[1] > 0 and known(sa, 'step') else .6
+                        residual[1] = math.copysign(max(0, abs(residual[1]) - slack), residual[1])
+                    residuals.append(math.sqrt(sum(v * v for v in residual)))
+                r = min(residuals)
             if r > .25:
                 out.append(result('JUMP', band(r, .25, 1), 'motion residual (blocks)', b, residual=r))
         if not pairs:

@@ -14,6 +14,17 @@ from cases import record, state, log, HOST, ACTOR
 
 
 class Calibration(unittest.TestCase):
+    def test_post_tick_velocity_explains_real_takeoff_acceleration(self):
+        # H: sail-23 t160696, dp=(.26581,.08,.01418), v0=(0,-.0784,0),
+        # v1 equals the actual takeoff displacement. Self-rescue's impulse is
+        # sampled after ordinary drag, leaving .159 blocks of residual.
+        for delta, velocity in (([.26581, .08, .01418], [.26581, .08, .01418]),
+                                ([.35, .3, 0], [.1911, .2156, 0])):
+            rows = [state(0, v=[0, -.0784, 0]), state(1, p=delta, v=velocity, g=False)]
+            self.assertFalse(checks.jumps(timeline.states(rows)))
+            rows[1]['st']['p'][0] += 2
+            self.assertTrue(any(f['verdict'] == 'fail' for f in checks.jumps(timeline.states(rows))))
+
     def test_slow_continuous_motion_does_not_create_stops(self):
         # H: forage-2 father 01d69f8d, t12843..12867: continuously advances
         # .005..028 blocks/tick while the old .01 threshold counts six stops.
