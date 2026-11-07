@@ -820,7 +820,8 @@ add('storm_cower', 'weather', '雷暴：胆小的缩成一团，淋雨的跑进�
     smoke=dict(ticks=1000, commands=[(300, 'summon minecraft:lightning_bolt ~16 ~ ~8')],
                expect=[r'\[weather\] reimu [^\n]* sheltered alone pose=cower',
                        r'\[weather\] reimu [^\n]* shelter response started sky=STORM',
-                       r'\[weather\][^\n]* thunder clap heard ']))
+                       r'\[weather\][^\n]* thunder clap heard '],
+               forbid=[r'\[body\][^\n]* invariant\b']))
 
 _roaming = [*shed(-16, 0, half=4), yk('marisa', -16, 1, 'roam_baby', stage='baby', lead=True), home('roam_baby', -16, 0)]
 for _i in range(4):
@@ -1583,7 +1584,8 @@ add('sunbathe', 'species', '冬日晴天怕冷的魔理沙晒太阳', '冬日晴
     reads=[('读晒太阳', f'yukkuri status {sel("basker")} raw')],
     capture=dict(shots=(1, 40, 200, 400, 600), sequences=((40, 600, 6),), follow='@e[tag=scn_basker,limit=1]', offset=(0, .9, 2.8)),
     smoke=dict(ticks=900, expect=[r'\[temperature\][^\n]* refuge route selected warming=true [^\n]*sun=true',
-                                  r'\[temperature\][^\n]* refuge stopped warming=true sun=true [^\n]*restTicks=(?:1\d\d|[2-9]\d\d)']))
+                                  r'\[temperature\][^\n]* refuge stopped warming=true sun=true [^\n]*restTicks=(?:1\d\d|[2-9]\d\d)'],
+               forbid=[r'\[body\][^\n]* invariant\b']))
 
 add('patchouli_vomit', 'species', '饿帕琪狼吞后呕吐', '饿帕琪狼吞后呕吐',
     '四只饿坏的帕琪（营养 10）面前各有苹果：饿极狼吞或两餐挨太近时，约四成概率把馅吐出来（苦脸、馅 -1、不安 +3）；同样饿的灵梦照常吃',

@@ -423,6 +423,8 @@ public final class Reactions {
         /** How far a sheltered body looks for someone to press against, how long it tries to reach them, and the fear that
          *  keeps two apart (as for a nuzzle). */
         static final int HUDDLE_SIGHT = 8, HUDDLE_APPROACH = 200, HUDDLE_FEAR = 60;
+        /** A lone sheltered body looks around for kin or a friend this often (ticks). */
+        static final int PARTNER_SCAN = 60;
         /** How far a pressed body may be pushed off its stand before it walks back in (blocks). */
         static final double HUDDLE_SLACK = .12;
         /** A lightning strike is heard this far off (blocks). */
@@ -438,10 +440,12 @@ public final class Reactions {
         private int searchOffset;
         /** HUDDLE: who it presses beside (null alone), whether it walked over (the other holds still), the tick the pair pressed
          *  together (their shared clip clock, -1 before), which side the partner is on and the way both face. */
-        private YukkuriEntity partner, candidate;
+        private YukkuriEntity partner, unreachable;
         private boolean leads, partnerLeft, onRight;
         private Vec3 stand;
         private long pressedAt = -1;
+        /** The huddle tick at which it set out toward its partner (its approach is timed from there). */
+        private int approachFrom;
         private float facing;
 
         Weather(YukkuriEntity y) { this.y = y; }
@@ -496,10 +500,16 @@ public final class Reactions {
             var life = y.life();
             return life.nutrition() < DRY_NUTRITION || life.bladder() >= 90 || life.energy() < 10;
         }
-        /** Something it is already doing comes first: a meal or other life task, its family, company, play, comfort. */
-        private static boolean busy(YukkuriEntity e) {
-            return !e.life().activity().equals(Behaviors.IDLE) || e.life().drowsy() || e.family().active() || e.dailyLife().active()
-                    || e.social().active() || e.groupInteraction().active() || e.playLife().active() || e.woundComfort().active();
+        /** Something it is already doing comes first: a meal or other life task, its family, company, play, comfort; null when idle. */
+        private static String busy(YukkuriEntity e) {
+            if (!e.life().activity().equals(Behaviors.IDLE)) return "life:" + e.life().activity();
+            if (e.life().drowsy()) return "drowsy";
+            if (e.family().active()) return "family";
+            if (e.dailyLife().active()) return "daily";
+            if (e.social().active()) return "social";
+            if (e.groupInteraction().active()) return "group";
+            if (e.playLife().active()) return "play";
+            return e.woundComfort().active() ? "comfort" : null;
         }
         /** Cold, or more uneasy than its boldness and age bear, or a timid one in a thunderstorm. */
         private boolean shaken() {
@@ -524,8 +534,13 @@ public final class Reactions {
             }
             if (BehaviorContinuity.emergency(y) || y.life().isSleeping() || !y.onGround()) return false;
             if (y.life().wetness() >= SHAKE_WETNESS && now >= shakeAfter) { planned = Stage.SHAKE; return true; }
-            if (now < huddleAfter || pressing() || busy(y) || !Sky.sheltered(y.level(), y.blockPosition()) || !shaken()) return false;
-            if (now >= partnerScanAfter) { partnerScanAfter = now + 60; candidate = seekPartner(); }
+            if (now < huddleAfter || pressing() || !Sky.sheltered(y.level(), y.blockPosition()) || !shaken()) return false;
+            var busy = busy(y);
+            if (busy != null) {
+                GameplayLog.limited(y, "weather", "huddle.busy." + busy, 1200, "sheltered and uneasy but busy={} unease={} cold={}",
+                        busy, Math.round(y.mind().unease()), y.life().temperature().cold());
+                return false;
+            }
             planned = Stage.HUDDLE;
             return true;
         }
@@ -648,49 +663,61 @@ public final class Reactions {
 
         // ---- huddle --------------------------------------------------------------------------------------------------
 
-        /** Kin first, then the most trusted friend in sight under the same rain; an aloof adult keeps to itself (attachment). */
-        private YukkuriEntity seekPartner() {
-            if (y.family().adult() && y.getRandom().nextFloat() >= y.life().personality().companionshipProbability()) return null;
+        /** Who it would press beside, or why the nearest one in sight is not that one (for the log). */
+        private record Seek(YukkuriEntity partner, String nearest) {}
+        /** Kin first, then the most trusted friend in sight under the same rain. Kin are always sought; a friend only when it
+         *  feels like company this time (attachment, as for any outing together). Not the one it could not reach this time. */
+        private Seek seekPartner() {
+            boolean company = !y.family().adult() || y.getRandom().nextFloat() < y.life().personality().companionshipProbability();
             YukkuriEntity best = null;
             int bestScore = Integer.MIN_VALUE;
+            String nearest = "none";
+            double nearestDistance = Double.MAX_VALUE;
             for (var other : y.level().getEntitiesOfClass(YukkuriEntity.class, y.getBoundingBox().inflate(HUDDLE_SIGHT, 2, HUDDLE_SIGHT),
-                    o -> o != y && welcomes(o, y) && y.hasLineOfSight(o))) {
-                int score = (kin(y, other) ? 1000 : 0) + y.life().personality().trust(other.getUUID()) - (int) y.distanceTo(other);
+                    o -> o != y && o != unreachable && y.hasLineOfSight(o))) {
+                boolean kin = kin(y, other);
+                var refusal = !kin && !company ? "no_company" : refusal(other, y);
+                if (refusal != null) {
+                    if (y.distanceToSqr(other) < nearestDistance) { nearestDistance = y.distanceToSqr(other); nearest = other.getUUID() + ":" + refusal; }
+                    continue;
+                }
+                int score = (kin ? 1000 : 0) + y.life().personality().trust(other.getUUID()) - (int) y.distanceTo(other);
                 if (score > bestScore) { bestScore = score; best = other; }
             }
-            return best;
+            return new Seek(best, nearest);
         }
         /** The other's own choice: sheltered and otherwise idle, nobody pressed against it yet, and it has this one (kin, or a
-         *  trusted friend), neither afraid of the other. */
-        private static boolean welcomes(YukkuriEntity other, YukkuriEntity asker) {
+         *  trusted friend), neither afraid of the other. Null when it welcomes the asker, else why not. */
+        private static String refusal(YukkuriEntity other, YukkuriEntity asker) {
             var theirs = other.status().reactions().weather;
-            if (!prey(other) || !free(other) || !other.onGround() || other.life().isSleeping() || other.isPanicking() || busy(other)
-                    || theirs.stage != Stage.NONE && (theirs.stage != Stage.HUDDLE || theirs.partner != null)
-                    || !Sky.sheltered(other.level(), other.blockPosition())
-                    || !other.life().canRecognize(asker) || !asker.life().canRecognize(other)
-                    || other.life().personality().fear(asker.getUUID()) >= HUDDLE_FEAR
-                    || asker.life().personality().fear(other.getUUID()) >= HUDDLE_FEAR) return false;
-            return kin(other, asker) || other.life().personality().trust(asker.getUUID()) > 0;
+            if (!prey(other) || !free(other) || !other.onGround() || other.life().isSleeping() || other.isPanicking()) return "unavailable";
+            var busy = busy(other);
+            if (busy != null) return "busy_" + busy;
+            if (theirs.stage != Stage.NONE && (theirs.stage != Stage.HUDDLE || theirs.partner != null)) return "weather_" + theirs.stage;
+            if (!Sky.sheltered(other.level(), other.blockPosition())) return "not_sheltered";
+            if (!other.life().canRecognize(asker) || !asker.life().canRecognize(other)) return "unrecognized";
+            if (other.life().personality().fear(asker.getUUID()) >= HUDDLE_FEAR || asker.life().personality().fear(other.getUUID()) >= HUDDLE_FEAR)
+                return "afraid";
+            return kin(other, asker) || other.life().personality().trust(asker.getUUID()) > 0 ? null : "stranger";
         }
         private void beginHuddle() {
-            pressedAt = -1;
-            var other = candidate;
-            candidate = null;
-            boolean storm = Sky.open(y.level(), y.blockPosition()) == Sky.STORM;
-            if (other != null && other.isAlive() && welcomes(other, y)) {
-                partner = other; leads = true; stand = null; facing = other.getYRot();
-                var theirs = other.status().reactions().weather;
-                theirs.stage = Stage.HUDDLE; theirs.ticks = 0; theirs.partner = y; theirs.leads = false; theirs.pressedAt = -1;
-                GameplayLog.limited(y, "weather", "huddle.start", 600,
-                        "huddle sought partner={} kin={} trust={} distance={} unease={} cold={} storm={}", other.getUUID(), kin(y, other),
-                        y.life().personality().trust(other.getUUID()), Math.round(y.distanceTo(other) * 10) / 10.0,
-                        Math.round(y.mind().unease()), y.life().temperature().cold(), storm);
-            } else {
-                partner = null;
-                GameplayLog.limited(y, "weather", "hunker.start", 600, "sheltered alone pose={} unease={} cold={} boldness={} attachment={}",
-                        storm ? "cower" : "tremble", Math.round(y.mind().unease()), y.life().temperature().cold(),
-                        y.life().personality().boldness(), y.life().personality().attachment());
-            }
+            pressedAt = -1; partner = unreachable = null;
+            var seek = seekPartner();
+            partnerScanAfter = y.level().getGameTime() + PARTNER_SCAN;
+            if (seek.partner() != null) { pair(seek.partner()); return; }
+            GameplayLog.limited(y, "weather", "hunker.start", 600, "sheltered alone pose={} unease={} cold={} boldness={} attachment={} nearest={}",
+                    Sky.open(y.level(), y.blockPosition()) == Sky.STORM ? "cower" : "tremble", Math.round(y.mind().unease()),
+                    y.life().temperature().cold(), y.life().personality().boldness(), y.life().personality().attachment(), seek.nearest());
+        }
+        /** It goes to press beside {@code other}, who holds still for it. */
+        private void pair(YukkuriEntity other) {
+            partner = other; leads = true; stand = null; facing = other.getYRot(); pressedAt = -1; approachFrom = ticks;
+            var theirs = other.status().reactions().weather;
+            theirs.stage = Stage.HUDDLE; theirs.ticks = 0; theirs.partner = y; theirs.leads = false; theirs.pressedAt = -1;
+            GameplayLog.limited(y, "weather", "huddle.start", 600,
+                    "huddle sought partner={} kin={} trust={} distance={} unease={} cold={} storm={}", other.getUUID(), kin(y, other),
+                    y.life().personality().trust(other.getUUID()), Math.round(y.distanceTo(other) * 10) / 10.0,
+                    Math.round(y.mind().unease()), y.life().temperature().cold(), Sky.open(y.level(), y.blockPosition()) == Sky.STORM);
         }
         /** Both still hold each other as partners, close enough to keep it up. */
         private boolean paired() {
@@ -718,15 +745,24 @@ public final class Reactions {
                 if (!leads) { end(0); return; }
             }
             if (ticks > HUDDLE_LIMIT || leads && ticks > 100 && !shaken()) { end(0); return; }
-            if (partner == null) { SurfaceApproach.halt(y); return; }
+            if (partner == null) {
+                // Alone it keeps an eye out: a kin or friend who comes in out of the rain or finishes what it was doing is sought.
+                SurfaceApproach.halt(y);
+                if (now < partnerScanAfter) return;
+                partnerScanAfter = now + PARTNER_SCAN;
+                var seek = seekPartner();
+                if (seek.partner() == null) return;
+                pair(seek.partner());
+            }
             if (leads && pressedAt >= 0 && y.position().subtract(stand).horizontalDistanceSqr() > HUDDLE_SLACK * HUDDLE_SLACK)
                 pressedAt = partner.status().reactions().weather.pressedAt = -1; // pushed off its place: it walks back in
             if (leads && pressedAt < 0) {
                 if (stand == null) stand = chooseStand(level);
-                if (stand == null || ticks > HUDDLE_APPROACH) {
+                if (stand == null || ticks - approachFrom > HUDDLE_APPROACH) {
                     GameplayLog.limited(y, "weather", "huddle.stand", 600, "huddle stand unavailable partner={} ticks={} distance={} stand={}",
-                            partner.getUUID(), ticks, Math.round(y.distanceTo(partner) * 10) / 10.0, stand);
-                    partner = null; stand = null; // the other is released by its own next check; this one trembles alone
+                            partner.getUUID(), ticks - approachFrom, Math.round(y.distanceTo(partner) * 10) / 10.0, stand);
+                    // The other is released by its own next check; this one trembles alone and looks to someone else this time.
+                    unreachable = partner; partner = null; stand = null;
                     SurfaceApproach.halt(y);
                     return;
                 }
