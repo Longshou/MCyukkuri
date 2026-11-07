@@ -8,7 +8,6 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
-| 生活演出·家庭日常：呼唤走散孩子、迎接归家、睡醒伸懒腰、饭后满足 | `.worktrees/wp-bb-life-family` | `standards/yukkuri-library/motions/`、家庭／作息／进食行为、`scripts/museum_*.py` |
 | 观测层 S1：status trace 改为 off/light/dense 结构化记录（只观察） | `.worktrees/wp-bv-trace-recorder` | status/StatusEvents、StatusLife、StatusCommands、GameplayLog、TraceRecorder、TraceWatchdog；CommonRegistration 监听 |
 
 ## 玩法待办
