@@ -1,20 +1,13 @@
 package io.github.longshou.mcyukkuri.pose;
 
 import com.google.gson.*;
+import java.util.function.Predicate;
 import org.joml.Vector3f;
 
 /** Authored mesh fit and motion revisions. Call in fit, motion, house, toilet order. */
 public final class Splice {
     private Splice() {}
-    private static float[] floats(JsonArray values) {
-        float[] result = new float[values.size()];
-        for (int i = 0; i < result.length; i++) {
-            result[i] = values.get(i).getAsFloat();
-            if (!Float.isFinite(result[i])) throw new IllegalArgumentException("Non-finite model value");
-        }
-        return result;
-    }
-    public static boolean fit(JsonObject data,JsonObject fit,java.util.function.Predicate<String> matches) {
+    public static boolean fit(JsonObject data,JsonObject fit,Predicate<String> matches) {
         if (!matches.test(fit.get("base_sha256").getAsString())) return false;
         JsonArray vertices=data.getAsJsonArray("vertices"),weights=data.getAsJsonArray("weights"),parts=data.getAsJsonArray("parts"),bones=data.getAsJsonArray("bones");
         for (var raw:fit.getAsJsonArray("parts")) {
@@ -22,7 +15,7 @@ public final class Splice {
             if (index<0||index>=parts.size()) throw new IllegalArgumentException("Invalid placement fit part");
             JsonObject part=parts.get(index).getAsJsonObject();
             if (!part.get("name").getAsString().equals(entry.get("name").getAsString())) throw new IllegalArgumentException("Placement fit part mismatch");
-            float[] source=floats(entry.getAsJsonArray("vertices"));JsonArray binding=entry.getAsJsonArray("weights"),indices=entry.getAsJsonArray("indices");
+            float[] source=Rig.floats(entry.getAsJsonArray("vertices"));JsonArray binding=entry.getAsJsonArray("weights"),indices=entry.getAsJsonArray("indices");
             int count=indices.size();boolean inplace=entry.get("inplace").getAsBoolean();
             if (count%3!=0||source.length%5!=0||binding.size()*5!=source.length*3||(inplace&&count!=part.get("count").getAsInt()))
                 throw new IllegalArgumentException("Invalid placement fit mesh");

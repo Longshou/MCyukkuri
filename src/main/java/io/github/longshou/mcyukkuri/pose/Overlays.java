@@ -40,14 +40,16 @@ public final class Overlays {
             contact.compose();float lowered=contact.minimumY();
             if(lowered<floor)Compose.raise(world,floor-lowered);
     }
+    /** Existing full pickup / put-down bow, degrees of forward pitch about the root (within the 12 degree body budget). */
+    public static final float CARRY_LEAN_DEGREES=9;
+    /** Walking under a load keeps this share less of the authored sway (project design). */
+    public static final float CARRY_GAIT_DAMP=.3f;
     public static void carryLean(Contact contact,float[][] pose,Matrix4f[] world,int root,float lean){
-        // Existing full pickup / put-down bow, within the 12-degree body budget.
-        float floor=contact.minimumY();pose[root][3]-=lean*9;contact.compose();
+        float floor=contact.minimumY();pose[root][3]-=lean*CARRY_LEAN_DEGREES;contact.compose();
         float lowered=contact.minimumY();if(lowered<floor)Compose.raise(world,floor-lowered);
     }
     public static void gait(float[][] pose,float[][] defaults,float load){
-        // Existing project-design carry sway damping.
-        float keep=1-.3f*load;
+        float keep=1-CARRY_GAIT_DAMP*load;
         for(int i=0;i<pose.length;i++)for(int k=0;k<9;k++)pose[i][k]=defaults[i][k]+(pose[i][k]-defaults[i][k])*keep;
     }
     public static void cheeks(float[] root,float amount){float wide=1+.2f*amount,tall=1+.14f*amount;root[6]*=wide;root[7]*=tall;root[8]*=wide;}
