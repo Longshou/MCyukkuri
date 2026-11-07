@@ -11,7 +11,6 @@
 | 观测层 S1：status trace 改为 off/light/dense 结构化记录（只观察） | `.worktrees/wp-bv-trace-recorder` | status/StatusEvents、StatusLife、StatusCommands、GameplayLog、TraceRecorder、TraceWatchdog；CommonRegistration 监听 |
 | 观测层 S2：时间线与服务端自动检查（卡住、循环、瞬移、物品守恒、遗弃幼体、卡顿） | `.worktrees/wp-by-timeline-checks` | scripts/timeline.py、scripts/smoke_checks.py、scripts/fixtures/timeline/、scripts/smoke_fate.py、scripts/smoke_museum.py、scripts/headless_server.py、scripts/feedback_intake.py |
 | 噗咕多版供选（看 wiki 原版表现，并排预览给用户选） | `.worktrees/wp-cc-puku-variants` | moments.json 噗咕相关行、motions/base 或 lore 新增噗咕变体片段 |
-| 流泪两帧表情：A/B 差别加大看得出泪在流、切换放慢；雷暴缩身与呼唤孩子两行的表情修正 | `.worktrees/wp-cd-tear-faces` | standards/yukkuri-library/expressions/（两帧泪脸）、expressions/runtime.json 帧时长、导出的表情贴图与补丁、moments.json 两行 |
 | 噗咕鼓腮：身体模型两腮外鼓（复刻原作ぷくー，比概念图更夸张） | `.worktrees/wp-ce-cheek-puff` | standards/yukkuri-library/body-standard/（鼓腮 puff_offsets）、导出的 yukkuri/*.json 模型数据、噗咕片段的 puff 通道 |
 | Wiki 图片库整理：按行为动作与形象标注全部图片、删去无用图片、稳定的批量流程 | `.worktrees/wp-cg-wiki-images` | wiki/art-references/、wiki/reference-library/、scripts/wiki_reference_topics.py、scripts/wiki_ehentai_reference.py、新批量标注脚本 |
 | 工具：动作编译增量化（改一个片段不再全量编译 2303 个片段约 16 分钟） | `.worktrees/wp-ch-motion-compile-speed` | scripts/export_motion_corrections.py、scripts/export.py（motion-corrections 选择）、编译缓存 |
