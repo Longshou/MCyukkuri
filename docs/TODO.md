@@ -10,7 +10,6 @@
 | --- | --- | --- |
 | 观测层 S1：status trace 改为 off/light/dense 结构化记录（只观察） | `.worktrees/wp-bv-trace-recorder` | status/StatusEvents、StatusLife、StatusCommands、GameplayLog、TraceRecorder、TraceWatchdog；CommonRegistration 监听 |
 | 演出组装件③：演出写成数据（moments.json：基本动作＋幅度节奏＋表情序列＋头顶符号＋粒子声音），迁移现有演出 | `.worktrees/wp-bu-moments` | standards/yukkuri-library/presentation/moments.json、social/EcologyPresentation、entity/presentation/、YukkuriSync、client 符号渲染、scripts/preview.py（moment） |
-| 观测层 G2：姿态度量与命令行（穿身、倾角、间隙、辫子触水、持物、朝向、姿态跳变 → JSON） | `.worktrees/wp-bx-pose-metrics` | pose/check/、pose/cli/、scripts/pose_check.py |
 | 观测层 S2：时间线与服务端自动检查（卡住、循环、瞬移、物品守恒、遗弃幼体、卡顿） | `.worktrees/wp-by-timeline-checks` | scripts/timeline.py、scripts/smoke_checks.py、scripts/fixtures/timeline/、scripts/smoke_fate.py、scripts/smoke_museum.py、scripts/headless_server.py、scripts/feedback_intake.py |
 | 工具：统一导出入口与动作流水线（按家族／改动选导出器、依赖排序、全量 --check、冲突后一键重建、保存登记一条命令） | `.worktrees/wp-bz-export-pipeline` | scripts/export.py（新）、scripts/README.md、art/runtime-sources.json 与 art/catalog.json 的结构、lore author.py 导出开关、旧 *_preview.py |
 
