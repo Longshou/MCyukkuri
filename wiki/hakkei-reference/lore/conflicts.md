@@ -33,6 +33,26 @@
 
 两种无胴体捕食种的直接图片已补入 EH02，妖梦同窝与侧面已补入 EH01；“完全没有参考图”的旧缺口已修正，但色板、翼根背面及多方向造型仍未补齐。完整观察与采用边界见[选页摘记](../../art-references/ehentai/reading-notes.md)。
 
+## yukkuri.fandom.com 行为与生物学条目
+
+站点条目按页登记在[行为与生物学来源](../sources-fandom.md)，每页同时声明自己的说法没有统一标准。下列写法已由游戏决定，按游戏实现记录；其余需要用户决定的冲突登记在[待办](../../../docs/TODO.md#待用户裁决)。
+
+| 主题 | 站点写法 | 项目采用（游戏实现） |
+| --- | --- | --- |
+| 繁殖主流 | 摩擦授精后茎上结实为“传统且常见”，体内怀胎后来更流行（[F33](https://yukkuri.fandom.com/wiki/Reproduction)） | 普通配对以胎生为主（概率 0.20），家油卵生 2–4 枚，捕食种茎生，受孕时定胎数 |
+| 茎生子代数量 | 单茎常见 3–7 只，多茎多与爱丽丝有关（[F34](https://yukkuri.fandom.com/wiki/Stalk)） | 单根主茎，每胎 1–5 只，爱丽丝另走“攻击素鸡立”的茎生 |
+| 水与游泳 | 有完全水生的种类，淋雨、浸水会溶解；帽子作船可航行（[F18](https://yukkuri.fandom.com/wiki/Water_Yukkuri)、[F27](https://yukkuri.fandom.com/wiki/Locomotion)） | 普通种不能自行渡水，落水挣扎并受溺水伤；帽船只给浮力，身体照常受水伤；螺壳较耐水 |
+| 失饰者的下场 | 失饰者被当作怪物、可被就地处死；饰物丢失在野外等于死刑（[F22](https://yukkuri.fandom.com/wiki/Accessory)） | 认不出（需智力 80）则好感下降与制裁，制裁只欺负不杀；亲缘与过去的关系照旧记录 |
+| 饰物修复 | 靠“相信之力”自修或重新长出，饰物随身体魔法长大（[F22](https://yukkuri.fandom.com/wiki/Accessory)） | 碎裂为 2–3 片，舔起碎片后 12000 tick 长合；尺寸随身体缩放，无超自然修复 |
+| 越冬 | 悬浮生命式冬眠，整冬不食也能醒来（[F05](https://yukkuri.fandom.com/wiki/Hibernation)） | 采用储粮与暖巢方案，饥饿、体感与消耗照常结算，不存“不饿的冬眠” |
+| 精神崩解 | “不如意症”可用好环境与安抚治好（[F01](https://yukkuri.fandom.com/wiki/Anti-yukkuritis)） | 非油症不可逆：狂乱期→衰竭期→由病变伤中枢死亡；只能靠降低不安避免进入 |
+| 幼体存活门槛 | 必须听到亲代回应“慢慢来”才算被允许活下去（[F17](https://yukkuri.fandom.com/wiki/Take_it_easy)） | 无此死亡规则；幼体存活由真实饥饿、伤势与照料结算（[待用户裁决](../../../docs/TODO.md#待用户裁决)） |
+| 建造与工具 | 石头、泥浆、蜡布建屋，砸窗进屋（[F07](https://yukkuri.fandom.com/wiki/Home_Declaration)） | 无手工艺：只有嘴、辫子、尾巴与推、压、堆；现成洞穴、纸箱与人造物可被认领 |
+| 超能力与飞行 | 各型继承原作人物的能力，会飞的型都能飞（[F35](https://yukkuri.fandom.com/wiki/Yukkuri)、[F36](https://yukkuri.fandom.com/wiki/Yukkuri_Types)） | 无超能力；飞行只属于蕾米莉亚与芙兰，且作为捕食移动 |
+| 个体与命名 | 个体共用种族名、无人另起名字；同类型几乎无法区分（[F35](https://yukkuri.fandom.com/wiki/Yukkuri)） | 个体由实体身份与关系区分；被取名是否定身份的事件，会推高不安 |
+| 族长的形成 | 多世袭、靠体型与超能力压服，可判死刑（[F19](https://yukkuri.fandom.com/wiki/Yukkuri_Clan)） | 族长由智力、自制与成年后时长选出；族规处置到驱逐与欺负为止 |
+| 计数上限 | 所有油库里只能数到三，之后都是“好多”（[F21](https://yukkuri.fandom.com/wiki/Yukkuri_vocabulary)） | 按阶段与智力：子油数到 3，成体说“好多好多”，帕秋莉数到 9 |
+
 ## 项目已经决定的边界
 
 [宠物生活专题](../../pet-life.md)中的 EH31 外出襁褓、EH33 成体穿戴和 EH34 家庭衣物，不能被 EH30 的约束用途概括；N29 的后天损伤不并入先天不足油。N30 的口香糖／襟章身份误认不等于正式徽章制度，也没有给出可用于全种的寿命或医学死因。
