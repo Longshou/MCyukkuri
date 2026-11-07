@@ -33,8 +33,8 @@ public final class GraveBlock extends Block implements EntityBlock {
     public static Direction head(BlockState state){return state.getValue(FACING).getOpposite();}
     /** Degrees about +Y that turn the mound and marker model (head toward +X) to {@link #head}. */
     public static float headYaw(BlockState state){return 270-head(state).toYRot();}
-    /** Distance of the marker from the mound centre along the head axis, 1/16 block: just past the mound's end, inside the block. */
-    public static float markerOffset(float scale){return Math.min(6.8f*scale+.1f,6.9f);}
+    /** Distance of the marker from the mound centre along the head axis, 1/16 block: just past the mound's end. */
+    public static float markerOffset(float scale){return 6.8f*scale+.1f;}
     /** A smaller marker for a small body's grave. */
     public static float markerScale(float scale){return Math.clamp(scale,.5f,1f);}
 
