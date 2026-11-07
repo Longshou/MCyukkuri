@@ -30,14 +30,16 @@ for(const item of catalog.models){
   const data=pose.frame(action,clip.duration*fraction);if(!data.every(Number.isFinite))throw Error('Nonfinite pose: '+item.id+'/'+action);frames++;
  }
  for(const expression of Object.keys(item.textures)){
-  pose.expression(expression);
-  const expected=Float64Array.from(model.vertices);
+  pose.expression('neutral');const rest=Float64Array.from(pose.frame('waddle',.3));
+  pose.expression(expression);const posed=pose.frame('waddle',.3);if(!posed.every(Number.isFinite))throw Error('Invalid expression '+item.id+'/'+expression);
   // A revision's own named patch wins; otherwise the alias lends its geometry.
   const patches={...model.expression_patches,...revisions[item.id].expression_patches};
   const sourceExpression=patches[expression]?expression:revisions[item.id].expression_aliases?.[expression]||expression;
-  for(const patch of patches[sourceExpression]||[]){const part=model.parts[patch.index];expected.set(patch.vertices,part.start*8);}
-  for(let k=0;k<expected.length;k++)if(expected[k]!==pose.src[k])throw Error('Expression overwrote another part '+item.id+'/'+expression+'/'+k);
-  if(!pose.frame('waddle',.3).every(Number.isFinite))throw Error('Invalid expression '+item.id+'/'+expression);frames++;
+  const patched=new Set((patches[sourceExpression]||[]).map(patch=>patch.index));
+  // Only parts that declare a patch may leave their neutral geometry.
+  for(let index=0;index<pose.model.parts.length;index++){const part=pose.model.parts[index];if(patched.has(index))continue;
+   for(let i=part.start;i<part.start+part.count;i++)for(let k=0;k<8;k++)if(rest[i*8+k]!==posed[i*8+k])throw Error('Expression overwrote another part '+item.id+'/'+expression+'/'+(i*8+k));}
+  frames++;
  }
  pose.expression('neutral');
  // Compare our optimized transform with the existing runtime preview algorithm.

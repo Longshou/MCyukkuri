@@ -47,7 +47,7 @@ let overlayLength=0;
 // body with the face at .5, v from top to sole), lifted a little along the normal.
 // Seam triangles wrap in game (repeat); the preview leaves the back seam out.
 function skinOverlay(pose,posed,names){
- const model=pose.model,src=pose.src,parts=model.parts.filter(p=>names.includes(p.name)),out=[];
+ const model=pose.model,src=model.vertices,parts=model.parts.filter(p=>names.includes(p.name)),out=[];
  let lo=[1e9,1e9,1e9],hi=[-1e9,-1e9,-1e9];
  for(const p of parts)for(let i=p.start;i<p.start+p.count;i++)for(let k=0;k<3;k++){lo[k]=Math.min(lo[k],src[i*8+k]);hi[k]=Math.max(hi[k],src[i*8+k]);}
  const cx=(lo[0]+hi[0])/2,cz=(lo[2]+hi[2])/2,hw=Math.max(.001,(hi[0]-lo[0])/2),hd=Math.max(.001,(hi[2]-lo[2])/2),h=Math.max(.001,hi[1]-lo[1]);
