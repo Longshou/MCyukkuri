@@ -50,8 +50,8 @@ public final class Moments {
     public static Frame frame(String id, float elapsed) {
         var row = row(id);
         float total = duration(id);
-        float time = row.get("loop").getAsBoolean() ? Math.max(0, elapsed) % total : Math.clamp(elapsed, 0, total);
-        float start = elapsed - time;
+        float start = row.get("loop").getAsBoolean() ? (float)Math.floor(Math.max(0, elapsed)/total)*total : 0;
+        float time = row.get("loop").getAsBoolean() ? Math.max(0, elapsed)-start : Math.clamp(elapsed, 0, total);
         var steps = row.getAsJsonArray("steps");
         for (int i = 0; i < steps.size(); i++) {
             var step = steps.get(i).getAsJsonObject();

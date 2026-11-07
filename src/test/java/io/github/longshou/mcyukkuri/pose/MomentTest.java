@@ -18,6 +18,8 @@ class MomentTest {
         assertEquals(0, Moments.frame("wet_relief", boundary-.001f).index());
         assertEquals(1, Moments.frame("wet_relief", boundary).index());
         assertEquals("satisfied", Moments.face("wet_relief", Moments.duration("wet_relief")+10, "neutral"));
+        assertEquals(Moments.frame("wet_relief", Moments.duration("wet_relief")).start(),
+                Moments.frame("wet_relief", Moments.duration("wet_relief")+10).start());
     }
     @Test void loopClockClosesAndFacePeriodRemainsAuthored() {
         String id = Moments.select("behaviors", "sing", "");

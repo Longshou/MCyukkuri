@@ -183,7 +183,7 @@
       ]
     },
     "behavior_meal_finish": {
-      "loop": true,
+      "loop": false,
       "steps": [
         {
           "clip": "shiawase",
@@ -199,7 +199,7 @@
       ]
     },
     "behavior_meal_content": {
-      "loop": true,
+      "loop": false,
       "steps": [
         {
           "clip": "meal_content",
@@ -405,7 +405,7 @@
       ]
     },
     "behavior_house_startled": {
-      "loop": true,
+      "loop": false,
       "steps": [
         {
           "clip": "startle",
@@ -501,7 +501,7 @@
       ]
     },
     "behavior_rain_shake": {
-      "loop": true,
+      "loop": false,
       "steps": [
         {
           "clip": "shake",
@@ -567,7 +567,7 @@
       ]
     },
     "behavior_thunder_startle": {
-      "loop": true,
+      "loop": false,
       "steps": [
         {
           "clip": "startle",
@@ -583,7 +583,7 @@
       ]
     },
     "behavior_sunbathe": {
-      "loop": true,
+      "loop": false,
       "steps": [
         {
           "clip": "sunbathe",
@@ -996,7 +996,7 @@
       ]
     },
     "behavior_independence_farewell": {
-      "loop": true,
+      "loop": false,
       "steps": [
         {
           "clip": "greet",
@@ -1012,7 +1012,7 @@
       ]
     },
     "behavior_independence_visit": {
-      "loop": true,
+      "loop": false,
       "steps": [
         {
           "clip": "greet",
@@ -1050,7 +1050,7 @@
       ]
     },
     "behavior_wake": {
-      "loop": true,
+      "loop": false,
       "steps": [
         {
           "clip": "wake",
@@ -1093,7 +1093,7 @@
       ]
     },
     "behavior_pairing_accept": {
-      "loop": true,
+      "loop": false,
       "steps": [
         {
           "clip": "greet",
@@ -1147,7 +1147,7 @@
       ]
     },
     "behavior_judgement_bow": {
-      "loop": true,
+      "loop": false,
       "steps": [
         {
           "clip": "bow",
@@ -1416,7 +1416,7 @@
       ]
     },
     "behavior_call_child": {
-      "loop": true,
+      "loop": false,
       "steps": [
         {
           "clip": "call_child",
@@ -1449,7 +1449,7 @@
       ]
     },
     "behavior_answer_call": {
-      "loop": true,
+      "loop": false,
       "steps": [
         {
           "clip": "boat_answer_call",
@@ -1482,7 +1482,7 @@
       ]
     },
     "behavior_postpartum": {
-      "loop": true,
+      "loop": false,
       "steps": [
         {
           "clip": "postpartum",
@@ -1559,7 +1559,7 @@
       ]
     },
     "behavior_water_impact": {
-      "loop": true,
+      "loop": false,
       "steps": [
         {
           "clip": "water_plunge",
@@ -1629,7 +1629,7 @@
       ]
     },
     "behavior_water_recover": {
-      "loop": true,
+      "loop": false,
       "steps": [
         {
           "clip": "water_recover",
@@ -1705,7 +1705,7 @@
       ]
     },
     "reaction_hello": {
-      "loop": true,
+      "loop": false,
       "steps": [
         {
           "clip": "greet",
@@ -1716,7 +1716,7 @@
       ]
     },
     "reaction_peer": {
-      "loop": true,
+      "loop": false,
       "steps": [
         {
           "clip": "greet",
@@ -1727,7 +1727,7 @@
       ]
     },
     "reaction_known_peer": {
-      "loop": true,
+      "loop": false,
       "steps": [
         {
           "clip": "greet",
@@ -1738,7 +1738,7 @@
       ]
     },
     "reaction_caregiver": {
-      "loop": true,
+      "loop": false,
       "steps": [
         {
           "clip": "greet",
@@ -1749,7 +1749,7 @@
       ]
     },
     "reaction_introduced": {
-      "loop": true,
+      "loop": false,
       "steps": [
         {
           "clip": "greet",
@@ -1760,7 +1760,7 @@
       ]
     },
     "reaction_gentle": {
-      "loop": true,
+      "loop": false,
       "steps": [
         {
           "clip": "greet",
@@ -1815,7 +1815,7 @@
       ]
     },
     "reaction_boat_rock_startle": {
-      "loop": true,
+      "loop": false,
       "steps": [
         {
           "clip": "startle",
@@ -1826,7 +1826,7 @@
       ]
     },
     "reaction_thunder": {
-      "loop": true,
+      "loop": false,
       "steps": [
         {
           "clip": "startle",
@@ -1914,7 +1914,7 @@
       ]
     },
     "reaction_washed": {
-      "loop": true,
+      "loop": false,
       "steps": [
         {
           "clip": "shake",
@@ -1936,7 +1936,7 @@
       ]
     },
     "reaction_newborn": {
-      "loop": true,
+      "loop": false,
       "steps": [
         {
           "clip": "first_wake",
@@ -1947,7 +1947,7 @@
       ]
     },
     "reaction_hatched": {
-      "loop": true,
+      "loop": false,
       "steps": [
         {
           "clip": "first_wake",
@@ -1958,7 +1958,7 @@
       ]
     },
     "reaction_birth": {
-      "loop": true,
+      "loop": false,
       "steps": [
         {
           "clip": "postpartum",
@@ -1969,7 +1969,7 @@
       ]
     },
     "reaction_birth_lost": {
-      "loop": true,
+      "loop": false,
       "steps": [
         {
           "clip": "bereaved",
@@ -1980,7 +1980,7 @@
       ]
     },
     "reaction_badge_thanks": {
-      "loop": true,
+      "loop": false,
       "steps": [
         {
           "clip": "bow",
@@ -2057,7 +2057,7 @@
       ]
     },
     "reaction_returned_accessory": {
-      "loop": true,
+      "loop": false,
       "steps": [
         {
           "clip": "shiawase",
@@ -2068,7 +2068,7 @@
       ]
     },
     "reaction_expecting": {
-      "loop": true,
+      "loop": false,
       "steps": [
         {
           "clip": "shiawase",
