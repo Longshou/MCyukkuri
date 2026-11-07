@@ -183,7 +183,9 @@ public final class SettlementSociety {
         var slave = LoadedGroupMembers.minimum(level(), box, LoadedGroupMembers.query(level(), group.id, box,
                 peer -> peer.settlement().society().slave() && entity.life().canRecognize(peer) && entity.hasLineOfSight(peer)),
                 entity::distanceToSqr);
-        if (slave != null) entity.dailyLife().console(slave);
+        if (slave == null || !entity.dailyLife().console(slave)) return;
+        GameplayLog.event(entity, "settlement", "pit care visit slave={} distance={}", slave.getUUID(),
+                String.format("%.1f", Math.sqrt(entity.distanceToSqr(slave))));
     }
 
     /** A gentle member's nuzzle with this slave has finished. */
