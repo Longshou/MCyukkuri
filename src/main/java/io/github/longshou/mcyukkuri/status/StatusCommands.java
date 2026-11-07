@@ -33,7 +33,7 @@ public final class StatusCommands {
                                 .executes(context -> window(context, null))
                                 .then(Commands.argument("field", StringArgumentType.word())
                                         .executes(context -> window(context, StringArgumentType.getString(context, "field"), null))
-                                        .then(Commands.argument("bounds", StringArgumentType.word())
+                                        .then(Commands.argument("bounds", StringArgumentType.greedyString())
                                                 .executes(context -> window(context, StringArgumentType.getString(context, "field"),
                                                         StringArgumentType.getString(context, "bounds")))))))
                         .then(Commands.argument("mode", StringArgumentType.word()).executes(context -> {
