@@ -17,24 +17,35 @@ const actors=job.actors.map(a=>{
  if(!a.prop&&faces)model.expression_patches={...model.expression_patches,...faces.models[a.id].expression_patches};
  const pose=a.prop?null:new RuntimePose(model,a.scale,revisions[a.id],fits[a.id]);
  if(pose&&!pose.clips[a.clip])throw Error('Unknown clip '+a.id+'/'+a.clip);
- if(pose&&job.times.some(t=>t>pose.clips[a.clip].duration))throw Error('Beat time exceeds clip duration: '+a.id+'/'+a.clip);
+ if(pose&&!a.moment&&job.times.some(t=>t>pose.clips[a.clip].duration))throw Error('Beat time exceeds clip duration: '+a.id+'/'+a.clip);
  return {...a,model,pose};
 });
 const frames=job.times.map(t=>{
  const vertices=[];
  for(const a of actors){
-  let phase=0;
+  let phase=0,clip=a.clip,time=t,intensity=1,momentFace=null;
+  if(a.moment){
+   for(const step of a.moment.steps){
+    const duration=a.pose.clips[step.clip].duration/step.tempo;
+    if(time>=duration){time-=duration;continue;}
+    clip=step.clip;intensity=step.intensity;
+    let faceTime=a.moment.face_period?t%a.moment.face_period:time;
+    momentFace='neutral';for(const [at,face] of step.faces)if(faceTime>=at)momentFace=face;
+    time*=step.tempo;break;
+   }
+  }
+  let selectedFace;
   if(a.pose){
-   let face=a.face||a.pose.expressionFor(a.clip,t);
+   let face=momentFace||a.face||a.pose.expressionFor(clip,time);
    if(faces){face=faces.aliases[face]||face;face=faces.models[a.id].face_aliases?.[face]||face;}
    const animation=faces?.animations[face];
    if(animation){phase=Math.floor(t*20/animation.frame_ticks)%2;face=animation.frames[phase];}
    if(faces&&!faces.models[a.id].selectable.includes(face))throw Error('Unknown face id: '+face);
    if(a.face&&!faces)throw Error('Checkout has no face library: '+job.root);
-   a.pose.expression(face);
+   a.pose.expression(face);selectedFace=face;
   }
-  const raw=a.pose?a.pose.frame(a.clip,t):a.model.vertices;
-  const parts=a.pose?[{start:0,count:raw.length/8,slot:a.slots[a.face?phase:0]}]:a.model.parts.map((p,i)=>({...p,slot:a.slots[i]}));
+  const raw=a.pose?a.pose.frame(clip,time,null,a.moment?intensity:null):a.model.vertices;
+  const parts=a.pose?[{start:0,count:raw.length/8,slot:a.faceSlots?a.faceSlots[selectedFace]:a.slots[a.face?phase:0]}]:a.model.parts.map((p,i)=>({...p,slot:a.slots[i]}));
   for(const p of parts)for(let i=p.start;i<p.start+p.count;i++){
    const k=i*8,v=Array.from(raw.slice(k,k+8));
    for(let c=0;c<3;c++)v[c]=(a.prop?v[c]*a.scale:v[c])+a.offset[c];

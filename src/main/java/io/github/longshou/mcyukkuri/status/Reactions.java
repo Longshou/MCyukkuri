@@ -8,6 +8,7 @@ import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriAction;
 import io.github.longshou.mcyukkuri.mind.MindLife;
 import io.github.longshou.mcyukkuri.social.Temperament;
+import io.github.longshou.mcyukkuri.social.EcologyPresentation;
 import io.github.longshou.mcyukkuri.social.Bonds;
 import io.github.longshou.mcyukkuri.social.BondLevels;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
@@ -429,7 +430,8 @@ public final class Reactions {
         static final double HUDDLE_SLACK = .12;
         /** A lightning strike is heard this far off (blocks). */
         static final int THUNDER_HEARD = 96;
-        static final int SHAKE_TICKS = YukkuriAction.SHAKE.durationTicks(), STARTLE_TICKS = YukkuriAction.STARTLE.durationTicks();
+        static final int SHAKE_TICKS = EcologyPresentation.duration(Behaviors.RAIN_SHAKE),
+                STARTLE_TICKS = EcologyPresentation.duration(Behaviors.THUNDER_STARTLE);
         private final YukkuriEntity y;
         private Stage stage = Stage.NONE, planned = Stage.NONE;
         private Sky sky = Sky.CLEAR;

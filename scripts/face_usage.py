@@ -29,6 +29,15 @@ def emitted_faces():
     for directory in ('yukkuri','yukkuri_presentation'):
         for path in sorted((ASSETS/directory).glob('*.json')):
             spans(json.loads(path.read_text(encoding='utf-8')),path.relative_to(ROOT).as_posix())
+    # Moment rows are data emitters, including condition overrides and predator remaps.
+    moments = ASSETS/'yukkuri_presentation/moments.json'
+    if moments.is_file():
+        data = json.loads(moments.read_text(encoding='utf-8'))
+        for ident,row in data['moments'].items():
+            for step in row['steps']:
+                for _,face in step['faces']: usage.setdefault(face,set()).add('moment:'+ident)
+            if 'condition_face' in row: usage.setdefault(row['condition_face'],set()).add('moment:'+ident)
+        for face in data['predator_faces'].values(): usage.setdefault(face,set()).add('moment:predator_faces')
     return usage
 
 

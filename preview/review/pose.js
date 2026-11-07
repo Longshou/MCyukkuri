@@ -92,9 +92,15 @@ class RuntimePose{
   this.src=Float64Array.from(this.model.vertices);
   for(const p of patches[name]||[]){const part=this.model.parts[p.index];if(!part||p.vertices.length!==part.count*8)throw Error('Invalid expression part');this.src.set(p.vertices,part.start*8);}
  }
- frame(action,t,rootAdjustment=null){
+ frame(action,t,rootAdjustment=null,intensity=null){
   const model=this.model,poses=model.bones.map(()=>[0,0,0,0,0,0,1,1,1]),world=[];
-  sample(this.clips.idle,0,poses);sample(this.clips[action],t,poses);
+  sample(this.clips.idle,0,poses);
+  const rest=intensity===null?null:poses.map(p=>p.slice());
+  sample(this.clips[action],t,poses);
+  if(intensity!==null){
+   for(let b=0;b<poses.length;b++)for(let c=0;c<9;c++)if(c!==3&&c!==5)poses[b][c]=rest[b][c]+(poses[b][c]-rest[b][c])*intensity;
+   const p=poses[this.rootBone],tilt=Math.abs(p[3])+Math.abs(p[5]);if(tilt>12){p[3]*=12/tilt;p[5]*=12/tilt;}
+  }
   if(rootAdjustment){
    const adjustment=poses[this.rootBone],translation=rootAdjustment.translation||[0,0,0];
    if(!Array.isArray(translation)||translation.length!==3)throw Error('Invalid root translation');

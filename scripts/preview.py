@@ -150,6 +150,16 @@ def render_strip(args, stage, times, before=False):
             animation = library['animations'].get(face)
             if animation:
                 images.append((images[0][0].with_name(animation['frames'][1]+'.png'),None,[0,0],[1,1]))
+        if getattr(args, 'moment', None) and not prop:
+            from face_usage import resolve
+            a['moment'] = args.moment
+            library = read(ASSETS/'yukkuri_presentation/face_library.json')
+            names = {'neutral'} | {face for step in args.moment['steps'] for _, face in step['faces']}
+            names = {resolve(library, model, face) for face in names}
+            names |= {phase for face in list(names) for phase in library['animations'].get(face, {}).get('frames', [])}
+            names = sorted(names)
+            a['faceSlots'] = {face: len(textures)+i for i,face in enumerate(names)}
+            images = [(ASSETS/'textures/entity'/model/(face+'.png'),None,[0,0],[1,1]) for face in names]
         a['slots'] = list(range(len(textures), len(textures)+len(images)))
         textures.extend(images)
         actors.append(a)
@@ -336,6 +346,57 @@ def collection(args, stage):
     return ''.join(media(copy_media(p, stage, p.stem), p.stem) for p in videos)
 
 
+def moment(args, stage):
+    from export_moments import validate
+    data = validate(read(ROOT/'standards/yukkuri-library/presentation/moments.json'))
+    row = data['moments'][args.topic]
+    model = read(ASSETS/'yukkuri'/(args.model+'.json'))
+    clips = {**model['clips'], **model.get('behavior_clips', {}),
+             **read(ASSETS/'yukkuri_presentation/motion_corrections.json')['models'][args.model]['clips']}
+    durations = [clips[step['clip']]['duration']/step['tempo'] for step in row['steps']]
+    total = sum(durations)
+    opts = argparse.Namespace(model=args.model, prop=None, clip=row['steps'][0]['clip'], face=None,
+            partner=None, before=None, size=[360,360], view=[26,10], node=args.node, moment=row)
+    times = [i/20 for i in range(math.ceil(total*20))]
+    frames = render_strip(opts, stage, times)
+    atlas = Image.open(ASSETS/'textures/emote/atlas.png').convert('RGBA')
+    metadata = read(ASSETS/'textures/emote/emotes.json')
+    icons = {r['id']: r['cell'] for r in metadata['emotes']}
+    rendered = []
+    for elapsed, frame in zip(times, frames):
+        time = elapsed
+        for step, duration in zip(row['steps'], durations):
+            if time < duration: break
+            time -= duration
+        # The right panel exercises the name-tag see-through pass against an opaque ceiling.
+        panels = []
+        for blocked in (False, True):
+            panel = Image.new('RGBA', (360,420), '#ddd8cf')
+            panel.alpha_composite(frame, (0,60))
+            draw = ImageDraw.Draw(panel)
+            draw.text((10,8), '头顶遮挡' if blocked else '无遮挡', font=font(18), fill='#30271d')
+            if blocked: draw.rectangle((80,32,280,96), fill='#55514d')
+            if step.get('emote') and time < 2:
+                x,y = icons[step['emote']]
+                cell = metadata['cell_size']
+                icon = atlas.crop((x*cell,y*cell,(x+1)*cell,(y+1)*cell)).resize((48,48), Image.Resampling.NEAREST)
+                if blocked: icon.putalpha(icon.getchannel('A').point(lambda a: a//4))
+                panel.alpha_composite(icon, (156,40))
+            panels.append(panel)
+        joined = Image.new('RGB',(720,420))
+        for i,panel in enumerate(panels): joined.paste(panel,(i*360,0))
+        rendered.append(joined)
+    with tempfile.TemporaryDirectory(dir=stage) as directory:
+        work = Path(directory)
+        for i,frame in enumerate(rendered): frame.save(work/f'{i:05d}.png')
+        subprocess.run([str(ffmpeg_path()),'-hide_banner','-loglevel','error','-y','-framerate','20',
+                        '-i',str(work/'%05d.png'),'-c:v','libx264','-pix_fmt','yuv420p','-movflags','+faststart',str(stage/'moment.mp4')],check=True)
+    indices = sorted({round(i*(len(rendered)-1)/7) for i in range(8)})
+    sheet([rendered[i] for i in indices],[f'{times[i]:.2f}s' for i in indices],stage/'strip.png',2,(720,420))
+    write_json(stage/'moment.json',row)
+    return '<p>真实运行模型与共享离线 pose 路径；右侧以不透明遮挡示意名牌的淡色透视通道。实际屋顶效果以游戏截图为准。</p>'+media('moment.mp4')+media('strip.png')
+
+
 def kit(args, stage):
     library = ROOT/'standards/yukkuri-library'
     entries = read(library/'provenance/standard-expressions.json')['entries']
@@ -379,6 +440,11 @@ def kit(args, stage):
         frames[0].save(stage/(ident+'.gif'),save_all=True,append_images=frames[1:],duration=max(20,round(clip['duration']*1000/12)),loop=0)
         count=len(re.findall(r'"'+re.escape(ident)+r'"|\b'+re.escape(ident.upper())+r'\b',java))
         body += f'<figure><img loading="lazy" src="{ident}.gif"><figcaption>{ident} · {clip["duration"]:g} 秒 · Java {count}'+(' · <strong>未使用</strong>' if count==0 else '')+'</figcaption></figure>'
+    moments = read(ROOT/'standards/yukkuri-library/presentation/moments.json')['moments']
+    body += '<h2>演出数据行</h2><ul>'+''.join('<li>'+E(ident)+'：'+E(' → '.join(s['clip'] for s in row['steps']))+'</li>' for ident,row in moments.items())+'</ul>'
+    emotes = read(ASSETS/'textures/emote/emotes.json')
+    shutil.copy2(ASSETS/'textures/emote/atlas.png',stage/'emotes.png')
+    body += '<h2>头顶符号</h2>'+media('emotes.png')+'<ul>'+''.join('<li>'+E(row['id']+'：'+row['meaning'])+'</li>' for row in emotes['emotes'])+'</ul>'
     return body
 
 
@@ -477,6 +543,12 @@ def parser():
             for key in ('title', 'url', 'decision'):
                 p.add_argument('--'+key, required=True)
     commands.add_parser('hub', help='register existing topic pages/media without rerendering')
+    mp = commands.add_parser('moment',help='render a presentation data row and its blocked-above emote pass')
+    mp.add_argument('topic',type=valid_topic)
+    mp.add_argument('--model',default='reimu')
+    mp.add_argument('--node',default='node')
+    mp.add_argument('--title')
+    mp.add_argument('--decision')
     kp = commands.add_parser('kit',help='approved faces and base/generic runtime clips')
     kp.set_defaults(topic='kit',title='表情与基本动作目录',decision=None)
     kp.add_argument('--node',default='node')

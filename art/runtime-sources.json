@@ -1,4 +1,9 @@
 {
+  "moments": {
+    "source": "standards/yukkuri-library/presentation/moments.json",
+    "exporter": "scripts/export_moments.py",
+    "runtime": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/moments.json"
+  },
   "adult_states": {
     "source": "standards/yukkuri-library/drafts/rapem-alice/pose-cues.json",
     "face_recipe": "standards/yukkuri-library/drafts/rapem-alice/face-design.json",

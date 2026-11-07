@@ -335,6 +335,9 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     }
     public String getAnimationId() { return sync().getAnimationId(); }
     public long getAnimationStartTick() { return sync().getAnimationStartTick(); }
+    public String getMomentId() { return sync().getMomentId(); }
+    public long getMomentStartTick() { return sync().getMomentStartTick(); }
+    public void setMoment(String id, long start) { sync().moment(id, start); }
     public String getExpressionId() { return sync().getExpressionId(); }
     public String getBehaviorId() { return sync().getBehaviorId(); }
     public long getBehaviorStartTick() { return sync().getBehaviorStartTick(); }

@@ -11,7 +11,7 @@ import io.github.longshou.mcyukkuri.event.WildEvents;
 import io.github.longshou.mcyukkuri.family.FamilyFeedingContact;
 import io.github.longshou.mcyukkuri.family.FamilyLife;
 import io.github.longshou.mcyukkuri.interaction.ItemContact;
-import io.github.longshou.mcyukkuri.motor.ClipMarkers;
+import io.github.longshou.mcyukkuri.social.EcologyPresentation;
 import io.github.longshou.mcyukkuri.pet.social.BadgeSocial;
 import io.github.longshou.mcyukkuri.registry.ModItems;
 import io.github.longshou.mcyukkuri.social.YukkuriPersonality.Trait;
@@ -249,7 +249,7 @@ final class LifeMeal {
     }
 
     /** After the swallow (tick 53) a full meal plays its contented melt for the clip's length; any other meal ends at tick 64. */
-    private int mealEnd() { return content ? 53 + ClipMarkers.of(Behaviors.MEAL_CONTENT).length() : 64; }
+    private int mealEnd() { return content ? 53 + EcologyPresentation.duration(Behaviors.MEAL_CONTENT) : 64; }
     boolean content() { return content; }
 
     /**

@@ -4,6 +4,8 @@ import io.github.longshou.mcyukkuri.pose.Clips;
 import io.github.longshou.mcyukkuri.pose.Clips.Clip;
 import io.github.longshou.mcyukkuri.pose.Clips.Track;
 import io.github.longshou.mcyukkuri.pose.Compose;
+import io.github.longshou.mcyukkuri.pose.Intensity;
+import io.github.longshou.mcyukkuri.entity.presentation.Moments;
 import io.github.longshou.mcyukkuri.pose.Overlays;
 import io.github.longshou.mcyukkuri.pose.Rig;
 import io.github.longshou.mcyukkuri.pose.Rig.Bone;
@@ -420,6 +422,7 @@ public final class YukkuriModel {
     }
     /** True when the model or its motion corrections ship this clip; otherwise rendering falls back to idle. */
     public boolean hasClip(String name) { return clips.containsKey(name); }
+    private Moments.Frame momentFrame;
     private int rootBone = -1;
     private int rootBone() {
         if (rootBone < 0) { rootBone = 0; for (int i = 0; i < bones.length; i++) if (bones[i].name().equals("root")) { rootBone = i; break; } }
@@ -774,7 +777,13 @@ public final class YukkuriModel {
         if (adultStatePose && !anatomyAction) selected="idle";
         float adultTime = adultStatePose ? (anatomyAction ? elapsed : 0)
                 : selected.equals(action) ? elapsed : behaviorTicks/20f;
+        if (momentFrame != null && !adultStatePose && selected.equals(action)) {
+            selected = momentFrame.clip();
+            adultTime = momentFrame.seconds()*momentFrame.tempo();
+        }
         clips.getOrDefault(selected, clips.get("idle")).sample(adultTime, pose);
+        if (momentFrame != null && !adultStatePose && selected.equals(momentFrame.clip()))
+            Intensity.apply(pose, defaultPose, rootBone(), momentFrame.intensity());
         if(reproductiveAnatomy!=null&&reproductiveAmount>0&&delivery==null) {
             Clip extend=clips.get("anatomy_"+reproductiveAnatomy+"_extend");
             if(extend!=null)for(var track:extend.tracks)if(bones[track.bone].name.startsWith("anatomy_"))
@@ -1066,7 +1075,11 @@ public final class YukkuriModel {
             // Taking the cap buffer here would end the body's buffer before any body vertices are written.
             hatDamageDraw.deferCaps();
             long bodyStart=woundDisplay==null?0:WoundLod.start();
-            render(action,elapsed,stack,buffer,light,overlay,accessory||pieces||hatMotion.equals("HAT_REMOVE"),behavior,behaviorTicks,hairLoss);
+            momentFrame = entity.getMomentId().isEmpty() ? null : Moments.frame(entity.getMomentId(),
+                    elapsed+(entity.getAnimationStartTick()-entity.getMomentStartTick())/20f);
+            try {
+                render(action,elapsed,stack,buffer,light,overlay,accessory||pieces||hatMotion.equals("HAT_REMOVE"),behavior,behaviorTicks,hairLoss);
+            } finally { momentFrame = null; }
             if(woundDisplay!=null)WoundLod.time(WoundLod.BODY,bodyStart);
             // The shared per-asset model keeps the last capture; every mouth-held prop, including a Myon's
             // free-mouth stick sword, must refresh it or it renders at a stale/root origin under the body.

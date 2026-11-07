@@ -4,7 +4,7 @@ import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriAction;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
-import io.github.longshou.mcyukkuri.motor.ClipMarkers;
+import io.github.longshou.mcyukkuri.social.EcologyPresentation;
 import io.github.longshou.mcyukkuri.motor.MotorOwner;
 import io.github.longshou.mcyukkuri.motor.action.Face;
 import io.github.longshou.mcyukkuri.motor.action.Gesture;
@@ -66,7 +66,7 @@ final class ChildCall {
         };
     }
 
-    private static int length(String clip) { return ClipMarkers.of(clip).length(); }
+    private static int length(String behavior) { return EcologyPresentation.duration(behavior); }
 
     /** Call rounds a parent makes for one missing child: one when cold, up to four when warm (project design). */
     private static int rounds(YukkuriEntity parent) { return 1 + Math.round(3 * parent.life().personality().friendliness() / 100f); }
@@ -124,7 +124,7 @@ final class ChildCall {
             case CALL -> { if (ticks >= length(Behaviors.CALL_CHILD)) { phase = Phase.LISTEN; ticks = 0; } }
             case LISTEN -> {
                 if (answered) { e.showReaction("surprise", "", 30); walkOn(now, "answered", child); return false; }
-                if (ticks >= length(YukkuriAction.LOOK_AROUND.id())) {
+                if (ticks >= length(Behaviors.CALL_LISTEN)) {
                     phase = Phase.DROOP; ticks = 0;
                     GameplayLog.event(e, "family", "child call unanswered child={} round={}/{} distance={}",
                             child.getUUID(), rounds, rounds(e), Math.round(e.distanceTo(child) * 10) / 10.0);
@@ -132,7 +132,7 @@ final class ChildCall {
             }
             case DROOP -> {
                 if (answered) { e.showReaction("surprise", "", 30); walkOn(now, "answered", child); return false; }
-                if (ticks >= length(YukkuriAction.DROOP.id())) { phase = Phase.NONE; nextCall = now + interval(e); return false; }
+                if (ticks >= length(Behaviors.CALL_UNANSWERED)) { phase = Phase.NONE; nextCall = now + interval(e); return false; }
             }
             default -> { }
         }
@@ -185,7 +185,7 @@ final class ChildCall {
     boolean tickAnswer() {
         if (phase != Phase.ANSWER) return false;
         var e = o.entity();
-        if (++ticks <= length(Behaviors.BOAT_ANSWER_CALL)) { SurfaceApproach.halt(e); return true; }
+        if (++ticks <= length(Behaviors.ANSWER_CALL)) { SurfaceApproach.halt(e); return true; }
         if (!hopped) {
             hopped = true;
             if (e.motor().run(body, new Gesture(Gesture.Kind.HOP_SMALL))) return true;

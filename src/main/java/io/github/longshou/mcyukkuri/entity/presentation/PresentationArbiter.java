@@ -40,6 +40,7 @@ public final class PresentationArbiter {
 
     private void publish(String id, Presentation result) {
         result.publish();
+        publishMoment(id);
         state.expression(expression());
         var e = state.owner();
         if (e.level().isClientSide) return;
@@ -56,6 +57,29 @@ public final class PresentationArbiter {
             lastEntityTick = state.owner().tickCount;
             lastGameTick = state.owner().level().getGameTime();
         }
+    }
+
+    private void publishMoment(String source) {
+        var e = state.owner();
+        String id = "";
+        if ((source.startsWith("goal.") || source.startsWith("state.")) && state.requestedAction() == null
+                && !e.operations().active()) {
+            String candidate = Moments.select("groups", e.getBehaviorId(), EcologyPresentation.moment(e.getBehaviorId()));
+            if (!candidate.equals("fallback_idle") && e.getAnimationId().equals(Moments.clip(candidate))) id = candidate;
+            else if (state.reactionTicks() > 0) {
+                candidate = Moments.select("reactions", state.reactionEvent(), "fallback_idle");
+                if (!candidate.equals("fallback_idle") && e.getAnimationId().equals(Moments.clip(candidate))) id = candidate;
+            }
+        }
+        long now = e.level().getGameTime();
+        long start = e.getAnimationStartTick();
+        boolean changed = !id.equals(e.getMomentId()) || start != e.getMomentStartTick();
+        e.setMoment(id, start);
+        if (id.isEmpty()) return;
+        var frame = Moments.frame(id, (now-start)/20f);
+        var previous = Moments.frame(id, (now-start-1)/20f);
+        if (changed || frame.index() != previous.index() || frame.start() != previous.start())
+            MomentEffects.start(e, id, frame);
     }
 
     /** Physical operation, reaction, injury/crying, emotion, then the selected behavior and authored face. */
@@ -84,6 +108,10 @@ public final class PresentationArbiter {
             case Behaviors.TOILET,Behaviors.GROUND_TOILET,Behaviors.BOAT_TOILET,Behaviors.TOILET_ACCIDENT,
                  Behaviors.FIRST_TOILET_ASSIST,Behaviors.FIRST_TOILET_WAIT,Behaviors.FIRST_TOILET_STIMULATED->{clip=e.getBehaviorId();start=e.getBehaviorStartTick();}
         }
+        if (!e.getMomentId().isEmpty()) {
+            String selected = Moments.face(e.getMomentId(), (e.level().getGameTime()-e.getMomentStartTick())/20f, "");
+            if (!selected.isEmpty()) return EcologyPresentation.expression(e, selected);
+        }
         return ExpressionClips.sample(e.subspecies().assetId(),clip,Math.max(0,e.level().getGameTime()-start)/20f,e.getExpressionId());
     }
 
@@ -101,6 +129,8 @@ public final class PresentationArbiter {
             tag.putLong("LastTick", lastGameTick);
         }
         if (current) tag.putString("Source", lastSource);
+        tag.putString("Moment", state.owner().getMomentId());
+        tag.putLong("MomentStart", state.owner().getMomentStartTick());
         return tag;
     }
 
