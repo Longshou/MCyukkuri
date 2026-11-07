@@ -139,7 +139,7 @@ def fetch(limit_override=None, source_ids=None):
                 raise ValueError('No public gallery content; stop and inspect manually')
             if 'selected_pages' in source:
                 selected = source['selected_pages']
-                if (not selected or any(type(n) is not int or not 1 <= n <= source['total_pages'] for n in selected)
+                if (any(type(n) is not int or not 1 <= n <= source['total_pages'] for n in selected)
                         or selected != sorted(set(selected))):
                     raise ValueError('selected_pages must be unique, ascending gallery page numbers')
                 selected = selected[:limit_override] if limit_override else selected

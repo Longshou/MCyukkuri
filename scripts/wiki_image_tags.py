@@ -10,6 +10,8 @@ from __future__ import annotations
 import argparse
 from collections import Counter
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from contextlib import contextmanager
+import copy
 from datetime import datetime, timezone
 import hashlib
 import json
@@ -27,7 +29,13 @@ CLASSIFICATIONS = LIB / 'classifications.json'
 GAME_ANNOTATIONS = LIB / 'game-annotations.json'
 QUALITY = LIB / 'quality-selection.json'
 MANIFESTS = [ROOT / 'wiki/art-references/manifest.json', ROOT / 'wiki/art-references/ehentai/manifest.json']
+EH_REGISTRY = ROOT / 'wiki/art-references/ehentai/sources.json'
+BLOG_REGISTRY = ROOT / 'wiki/art-references/sources.json'
+METADATA_PATHS = [CLASSIFICATIONS, GAME_ANNOTATIONS, QUALITY, *MANIFESTS, EH_REGISTRY, BLOG_REGISTRY]
 LOG = ROOT / '.local/reports/wiki-image-tags.jsonl'
+DELETION_JOURNAL = ROOT / '.local/wiki-image-tags-deletion.json'
+DELETION_HISTORY = ROOT / '.local/wiki-image-tags-deletion-history'
+DELETION_TRASH = ROOT / '.local/wiki-image-tags-trash'
 EXTENSIONS = {'.png', '.jpg', '.jpeg', '.gif', '.webp', '.bmp'}
 KIMI = [
     'D:/NodeJs/node.exe',
@@ -50,6 +58,36 @@ def dump(path, data):
     temporary = path.with_name(path.name + '.tmp')
     temporary.write_text(json.dumps(data, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
     os.replace(temporary, path)
+
+
+@contextmanager
+def inventory_lock():
+    """Exclude other writers; the OS releases this lock even after forced termination."""
+    path = ROOT / '.local/wiki-image-tags.lock'
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open('a+b') as stream:
+        stream.seek(0, os.SEEK_END)
+        if stream.tell() == 0:
+            stream.write(b'\0')
+            stream.flush()
+        stream.seek(0)
+        try:
+            if os.name == 'nt':
+                import msvcrt
+                msvcrt.locking(stream.fileno(), msvcrt.LK_NBLCK, 1)
+            else:
+                import fcntl
+                fcntl.flock(stream.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+        except OSError as error:
+            raise SystemExit('Another wiki image tagging or deletion process is active') from error
+        try:
+            yield
+        finally:
+            stream.seek(0)
+            if os.name == 'nt':
+                msvcrt.locking(stream.fileno(), msvcrt.LK_UNLCK, 1)
+            else:
+                fcntl.flock(stream.fileno(), fcntl.LOCK_UN)
 
 
 def sha256(path):
@@ -94,6 +132,9 @@ def sync_inventory():
         relative = path.relative_to(ROOT).as_posix()
         iid = item_id(path, manifests)
         item = by_path.get(relative) or by_id.get(iid)
+        current_hash = sha256(path)
+        if item is not None and item.get('image_tags') and 'tagged_sha256' not in item['image_tags']:
+            item['image_tags']['tagged_sha256'] = item['sha256']
         if item is None:
             item = {
                 'id': iid,
@@ -104,7 +145,7 @@ def sync_inventory():
                 'classified_on': datetime.now(timezone.utc).date().isoformat(),
             }
         item['path'] = relative
-        item['sha256'] = sha256(path)
+        item['sha256'] = current_hash
         items.append(item)
     config['schema_version'] = 2
     config['items'] = items
@@ -146,9 +187,9 @@ def validate_result(result, facets):
             raise ValueError(f'{key} must be an array of strings')
         if len(values) != len(set(values)) or not set(values) <= set(facets[key]['values']):
             raise ValueError(f'{key} contains duplicate or unknown values')
-    if result['reference_value'] not in {'high', 'medium', 'low', 'none'}:
+    if not isinstance(result['reference_value'], str) or result['reference_value'] not in {'high', 'medium', 'low', 'none'}:
         raise ValueError('unknown reference_value')
-    if result['delete_candidate'] not in {'none', 'blank', 'unreadable', 'ui_only', 'no_game_value'}:
+    if not isinstance(result['delete_candidate'], str) or result['delete_candidate'] not in {'none', 'blank', 'unreadable', 'ui_only', 'no_game_value'}:
         raise ValueError('unknown delete_candidate')
     for key in ['observation', 'game_use', 'delete_reason']:
         if not isinstance(result[key], str) or len(result[key]) > 500:
@@ -186,7 +227,8 @@ def kimi(path):
 
 def tag_one(path, delay, rate_lock, last_start):
     relative = path.relative_to(ROOT).as_posix()
-    log_event({'event': 'start', 'path': relative})
+    original_hash = sha256(path)
+    log_event({'event': 'start', 'path': relative, 'sha256': original_hash})
     error = None
     for attempt in [1, 2]:
         with rate_lock:
@@ -199,9 +241,12 @@ def tag_one(path, delay, rate_lock, last_start):
             result = kimi(path)
             _, facets = taxonomy()
             validate_result(result, facets)
+            tagged_hash = sha256(path)
+            if tagged_hash != original_hash:
+                raise ValueError('image bytes changed during the model call')
             log_event({'event': 'model_success', 'path': relative, 'attempt': attempt,
                        'seconds': round(time.monotonic() - started, 3)})
-            return result
+            return result, tagged_hash
         except (ValueError, RuntimeError, subprocess.TimeoutExpired) as exc:
             error = str(exc)
             log_event({'event': 'invalid', 'path': relative, 'attempt': attempt, 'error': error})
@@ -209,6 +254,8 @@ def tag_one(path, delay, rate_lock, last_start):
 
 
 def run(args):
+    if DELETION_JOURNAL.exists() and not read(DELETION_JOURNAL)['done']:
+        raise SystemExit('An image deletion transaction is unfinished; resume its original plan first')
     config, paths = sync_inventory()
     selected = [path for path in paths if not args.path or any(part in path.relative_to(ROOT).as_posix() for part in args.path)]
     by_path = {item['path']: item for item in config['items']}
@@ -218,51 +265,65 @@ def run(args):
         relative = path.relative_to(ROOT).as_posix()
         item = by_path[relative]
         tags = item.get('image_tags')
-        if tags and item['sha256'] == sha256(path) and tags.get('prompt_version') == taxonomy()[0]['prompt_version']:
+        if tags and tags.get('tagged_sha256') == sha256(path) and tags.get('prompt_version') == taxonomy()[0]['prompt_version']:
             skipped += 1
         else:
             pending.append(path)
+    total_pending = len(pending)
     if args.limit is not None:
         pending = pending[:args.limit]
-    print(json.dumps({'images': len(paths), 'selected': len(selected), 'pending': len(pending), 'skipped': skipped}, ensure_ascii=False), flush=True)
+    print(json.dumps({'images': len(paths), 'selected': len(selected), 'pending': total_pending, 'scheduled': len(pending), 'skipped': skipped}, ensure_ascii=False), flush=True)
     succeeded, failed, interrupted = 0, 0, False
     rate_lock = threading.Lock()
     last_start = [time.monotonic() - args.delay]
     executor = ThreadPoolExecutor(max_workers=args.workers)
-    futures = {executor.submit(tag_one, path, args.delay, rate_lock, last_start): path for path in pending}
+    futures = {}
+
+    def complete(future):
+        nonlocal succeeded, failed
+        path = futures[future]
+        relative = path.relative_to(ROOT).as_posix()
+        item = by_path[relative]
+        try:
+            result, tagged_hash = future.result()
+            if sha256(path) != tagged_hash:
+                raise ValueError('image bytes changed before saving')
+        except Exception as exc:
+            failed += 1
+            log_event({'event': 'failed', 'path': relative, 'error': str(exc)})
+            print(f'FAIL {relative}: {exc}', flush=True)
+            return
+        item['image_tags'] = {
+            **result,
+            'model': 'kimi-coding/k3.1-pro',
+            'prompt_version': taxonomy()[0]['prompt_version'],
+            'tagged_sha256': tagged_hash,
+            'tagged_at': datetime.now(timezone.utc).isoformat(),
+        }
+        dump(CLASSIFICATIONS, config)
+        succeeded += 1
+        log_event({'event': 'saved', 'path': relative, 'reference_value': result['reference_value']})
+        print(f'OK {relative}: {result["reference_value"]} ({succeeded + failed}/{len(pending)})', flush=True)
+
     try:
+        for path in pending:
+            futures[executor.submit(tag_one, path, args.delay, rate_lock, last_start)] = path
         for future in as_completed(futures):
-            path = futures[future]
-            relative = path.relative_to(ROOT).as_posix()
-            item = by_path[relative]
-            try:
-                result = future.result()
-            except Exception as exc:
-                failed += 1
-                log_event({'event': 'failed', 'path': relative, 'error': str(exc)})
-                print(f'FAIL {relative}: {exc}', flush=True)
-                continue
-            item['image_tags'] = {
-                **result,
-                'model': 'kimi-coding/k3.1-pro',
-                'prompt_version': taxonomy()[0]['prompt_version'],
-                'tagged_at': datetime.now(timezone.utc).isoformat(),
-            }
-            dump(CLASSIFICATIONS, config)
-            succeeded += 1
-            log_event({'event': 'saved', 'path': relative, 'reference_value': result['reference_value']})
-            print(f'OK {relative}: {result["reference_value"]} ({succeeded + failed}/{len(pending)})', flush=True)
+            complete(future)
     except KeyboardInterrupt:
         interrupted = True
         for future in futures:
             future.cancel()
-        executor.shutdown(wait=False, cancel_futures=True)
+        running = [future for future in futures if not future.cancelled()]
+        for future in as_completed(running):
+            complete(future)
+        executor.shutdown(wait=True)
         log_event({'event': 'interrupted', 'saved_this_run': succeeded})
-        print('INTERRUPTED: completed images were saved; rerun the same command to resume.', flush=True)
+        print('INTERRUPTED: queued calls were cancelled and completed calls saved; rerun to resume.', flush=True)
     else:
         executor.shutdown()
     summary = {'tagged': succeeded, 'skipped': skipped, 'failed': failed,
-               'remaining_selected': len(pending) - succeeded - failed, 'interrupted': interrupted}
+               'remaining_selected': total_pending - succeeded - failed, 'interrupted': interrupted}
     print(json.dumps(summary, ensure_ascii=False), flush=True)
     if failed:
         raise SystemExit(1)
@@ -287,6 +348,7 @@ def validate_inventory(config, paths):
         tags = item.get('image_tags')
         assert tags, f'untagged image: {relative}'
         assert tags['model'] == 'kimi-coding/k3.1-pro' and tags['prompt_version'] == tagging['prompt_version'], relative
+        assert tags['tagged_sha256'] == item['sha256'], f'stale tagged SHA: {relative}'
         validate_result({key: tags[key] for key in set(TAG_FACETS) | {'reference_value', 'delete_candidate', 'observation', 'game_use', 'delete_reason'}}, facets)
         for key in TAG_FACETS:
             counts[key].update(tags[key])
@@ -320,67 +382,120 @@ def summary():
                       'reference_value': values, 'delete_candidates': candidates, 'categories': counts}, ensure_ascii=False))
 
 
-def apply_deletions(args):
+def deletion_plan(args):
     plan = read(Path(args.plan))
     entries = plan['deletions'] if isinstance(plan, dict) else plan
     assert isinstance(entries, list) and entries, 'deletion plan is empty'
     paths = {entry['path'] for entry in entries}
     assert len(paths) == len(entries), 'duplicate paths in deletion plan'
-    config = read(CLASSIFICATIONS)
-    by_path = {item['path']: item for item in config['items']}
     for entry in entries:
         assert set(entry) == {'path', 'reason', 'detail'}, entry
-        assert entry['reason'] in DELETE_REASONS and entry['detail'].strip(), entry
-        assert entry['path'] in by_path and (ROOT / entry['path']).is_file(), entry['path']
+        assert isinstance(entry['detail'], str) and entry['reason'] in DELETE_REASONS and entry['detail'].strip(), entry
         if entry['reason'] == 'exact_duplicate':
             assert entry['detail'].startswith('same SHA-256 as '), entry
-            canonical = entry['detail'].removeprefix('same SHA-256 as ').strip()
-            assert canonical in by_path and (ROOT / canonical).is_file(), entry
-            assert sha256(ROOT / canonical) == sha256(ROOT / entry['path']), entry
-    annotations = read(GAME_ANNOTATIONS)
-    quality = read(QUALITY)
-    manifest_data = [read(path) for path in MANIFESTS]
+    return entries
+
+
+def staged_path(relative):
+    return DELETION_TRASH / hashlib.sha256(relative.encode('utf-8')).hexdigest() / Path(relative).name
+
+
+def deletion_metadata(entries, snapshots):
+    data = copy.deepcopy(snapshots)
+    key = lambda path: path.relative_to(ROOT).as_posix()
+    paths = {entry['path'] for entry in entries}
+    config = data[key(CLASSIFICATIONS)]
+    by_path = {item['path']: item for item in config['items']}
     deleted_ids = {by_path[path]['id'] for path in paths}
-    for data in manifest_data:
-        data['images'] = [row for row in data['images'] if row['path'] not in paths]
-    eh = manifest_data[1]
-    for source in eh['sources']:
-        removed = [row['gallery_page'] for row in read(MANIFESTS[1])['images']
-                   if row['source_id'] == source['id'] and row['path'] in paths]
+    manifest_data = [data[key(path)] for path in MANIFESTS]
+    original_eh_rows = manifest_data[1]['images']
+    original_blog_rows = manifest_data[0]['images']
+    for manifest in manifest_data:
+        manifest['images'] = [row for row in manifest['images'] if row['path'] not in paths]
+    for source in manifest_data[1]['sources']:
+        removed = [row['gallery_page'] for row in original_eh_rows if row['source_id'] == source['id'] and row['path'] in paths]
         if removed:
             source['selected_pages'] = [page for page in source['selected_pages'] if page not in removed]
-    eh_registry_path = ROOT / 'wiki/art-references/ehentai/sources.json'
-    eh_registry = read(eh_registry_path)
-    for source in eh_registry['sources']:
-        removed = [row['gallery_page'] for row in read(MANIFESTS[1])['images']
-                   if row['source_id'] == source['id'] and row['path'] in paths]
+    manifest_sources = {source['id']: source for source in manifest_data[1]['sources']}
+    for source in data[key(EH_REGISTRY)]['sources']:
+        removed = [row['gallery_page'] for row in original_eh_rows if row['source_id'] == source['id'] and row['path'] in paths]
         if removed:
-            source['selected_pages'] = [page for page in source['selected_pages'] if page not in removed]
-    blog = manifest_data[0]
-    blog_registry_path = ROOT / 'wiki/art-references/sources.json'
-    blog_registry = read(blog_registry_path)
-    for dataset in [blog, blog_registry]:
+            selected = manifest_sources[source['id']]['selected_pages']
+            source['selected_pages'] = [page for page in selected if page not in removed]
+    for dataset in [manifest_data[0], data[key(BLOG_REGISTRY)]]:
         for source in dataset['sources']:
-            removed = [row['article_image_order'] for row in read(MANIFESTS[0])['images']
-                       if row['source_id'] == source['id'] and row['path'] in paths]
+            removed = [row['article_image_order'] for row in original_blog_rows if row['source_id'] == source['id'] and row['path'] in paths]
             if removed:
                 source['excluded_images'] = sorted(set(source.get('excluded_images', [])) | set(removed))
     config['items'] = [item for item in config['items'] if item['path'] not in paths]
     for topic in config['topics']:
         topic['featured'] = [iid for iid in topic['featured'] if iid not in deleted_ids]
-    annotations['images'] = [item for item in annotations['images'] if item['id'] not in deleted_ids]
-    annotations['image_queue'] = [item for item in annotations['image_queue'] if item['id'] not in deleted_ids]
-    quality['items'] = [item for item in quality['items'] if item['id'] not in deleted_ids]
-    dump(CLASSIFICATIONS, config)
-    dump(GAME_ANNOTATIONS, annotations)
-    dump(QUALITY, quality)
-    for path, data in zip(MANIFESTS, manifest_data):
-        dump(path, data)
-    dump(eh_registry_path, eh_registry)
-    dump(blog_registry_path, blog_registry)
+    for field in ['images', 'image_queue']:
+        data[key(GAME_ANNOTATIONS)][field] = [item for item in data[key(GAME_ANNOTATIONS)][field] if item['id'] not in deleted_ids]
+    data[key(QUALITY)]['items'] = [item for item in data[key(QUALITY)]['items'] if item['id'] not in deleted_ids]
+    return {path: data[key(path)] for path in METADATA_PATHS}
+
+
+def apply_deletions(args):
+    entries = deletion_plan(args)
+    journal = read(DELETION_JOURNAL) if DELETION_JOURNAL.exists() else None
+    if journal and journal['done']:
+        if journal['plan'] == entries:
+            print(json.dumps({'deleted': 0, 'already_deleted': len(entries), 'by_reason': Counter(entry['reason'] for entry in entries)}, ensure_ascii=False))
+            return
+        DELETION_HISTORY.mkdir(parents=True, exist_ok=True)
+        identity = hashlib.sha256(json.dumps(journal['plan'], ensure_ascii=False, sort_keys=True).encode('utf-8')).hexdigest()[:16]
+        dump(DELETION_HISTORY / f'{identity}.json', journal)
+        DELETION_JOURNAL.unlink()
+        journal = None
+    elif journal and journal['plan'] != entries:
+        raise SystemExit('A different deletion transaction is unfinished; resume its original plan first')
+
+    paths = {entry['path'] for entry in entries}
+    if journal is None:
+        config = read(CLASSIFICATIONS)
+        by_path = {item['path']: item for item in config['items']}
+        hashes = {}
+        for entry in entries:
+            relative = entry['path']
+            assert relative in by_path and (ROOT / relative).is_file(), relative
+            hashes[relative] = sha256(ROOT / relative)
+            assert hashes[relative] == by_path[relative]['sha256'], f'stale classification SHA: {relative}'
+            if entry['reason'] == 'exact_duplicate':
+                canonical = entry['detail'].removeprefix('same SHA-256 as ').strip()
+                assert canonical in by_path and (ROOT / canonical).is_file(), entry
+                hashes[canonical] = sha256(ROOT / canonical)
+                assert hashes[canonical] == hashes[relative], entry
+        journal = {'plan': entries, 'hashes': hashes, 'done': False,
+                   'metadata': {path.relative_to(ROOT).as_posix(): read(path) for path in METADATA_PATHS}}
+        dump(DELETION_JOURNAL, journal)
+
+    for relative in paths:
+        source = ROOT / relative
+        staged = staged_path(relative)
+        if source.is_file():
+            assert sha256(source) == journal['hashes'][relative], f'image changed before deletion: {relative}'
+            staged.parent.mkdir(parents=True, exist_ok=True)
+            assert not staged.exists(), f'two copies encountered while staging: {relative}'
+            os.replace(source, staged)
+        elif staged.is_file():
+            assert sha256(staged) == journal['hashes'][relative], f'staged image changed: {relative}'
+    for entry in entries:
+        if entry['reason'] != 'exact_duplicate':
+            continue
+        canonical = entry['detail'].removeprefix('same SHA-256 as ').strip()
+        if canonical not in paths:
+            assert sha256(ROOT / canonical) == journal['hashes'][canonical], entry
+    desired = deletion_metadata(entries, journal['metadata'])
+    for path in METADATA_PATHS:
+        dump(path, desired[path])
     for relative in sorted(paths):
-        (ROOT / relative).unlink()
+        staged = staged_path(relative)
+        if staged.is_file():
+            staged.unlink()
         print(f'DELETED {relative}')
+    journal['done'] = True
+    dump(DELETION_JOURNAL, journal)
     print(json.dumps({'deleted': len(paths), 'by_reason': Counter(entry['reason'] for entry in entries)}, ensure_ascii=False))
 
 
@@ -400,13 +515,15 @@ def main():
     if args.command == 'run':
         if args.workers < 1 or args.delay < 0 or (args.limit is not None and args.limit < 1):
             parser.error('workers and limit must be positive; delay cannot be negative')
-        run(args)
+        with inventory_lock():
+            run(args)
     elif args.command == 'check':
         check()
     elif args.command == 'summary':
         summary()
     else:
-        apply_deletions(args)
+        with inventory_lock():
+            apply_deletions(args)
 
 
 if __name__ == '__main__':

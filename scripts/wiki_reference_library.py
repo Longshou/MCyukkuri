@@ -242,7 +242,7 @@ def catalog():
                  "[参考库](../README.md) · [按用途查图](../visual-guide.md)", "",
                  f"来源：[作品转载页]({source['url']})。署名：{source['attribution_on_page']}。",
                  f"核对边界：{source['attribution_status']}。原图抓取日期见 manifest；作品页缓存日期 {source['retrieved_date']}。", "",
-                 f"正文检出 {source['available_images']} 张，保存前 {len(rows)} 张。序号指页面图片顺序，不保证等于印刷页码；未保存部分不算已读。",
+                 f"正文前 {min(source['limit'], source['available_images'])} 张中保存 {len(rows)} 张。序号指页面图片顺序，不保证等于印刷页码；未保存部分不算已读。",
                  f"检索主题：{'、'.join(source['tags'])}。", "",
                  f"已看画面总览 {overview_count} 张，其中原图重点核对 {detail_count} 张；核对限下表列明的结构、画格或署名，不表示全文翻译。原作含伤害、死亡等情节，具体页另标。",
                  "", "| 原图 | 尺寸 | 核对层级 | 可观察内容与使用边界 |", "| --- | --- | --- | --- |"]

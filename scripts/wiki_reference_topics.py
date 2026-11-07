@@ -11,6 +11,8 @@ import json
 import os
 from pathlib import Path
 
+from wiki_image_tags import TAG_FACETS, validate_result
+
 ROOT=Path(__file__).resolve().parents[1]
 LIB=ROOT/'wiki/reference-library'
 MANIFESTS=['wiki/art-references/manifest.json','wiki/art-references/ehentai/manifest.json']
@@ -71,6 +73,8 @@ def collect():
         assert c['path'] and c['sha256'] and (ROOT/c['path']).is_file(),c['id']
         tags=c.get('image_tags');assert tags,c['id']
         assert tags['model']=='kimi-coding/k3.1-pro' and tags['prompt_version']==annotations['image_tagging']['prompt_version'],c['id']
+        assert tags['tagged_sha256']==c['sha256'],c['id']
+        validate_result({key:tags[key] for key in set(TAG_FACETS)|{'reference_value','delete_candidate','observation','game_use','delete_reason'}},all_facets)
         row=dict(id=c['id'],path=c['path'],source_id=c['source_id'],kind=c['kind'],sha256=c['sha256'],
             reference_value=tags['reference_value'],delete_candidate=tags['delete_candidate'],observation=tags['observation'],
             game_use=tags['game_use'],delete_reason=tags['delete_reason'])
