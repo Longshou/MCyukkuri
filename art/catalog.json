@@ -9,7 +9,7 @@
       {"id": "house-bodies", "prefixes": ["standards/yukkuri-library/ecology/house-yukkuri/", "art/source/standard-runtime/house_"], "ids": ["house_reimu", "house_marisa"]}
     ]},
     {"id": "expressions", "label": "表情", "families": [
-      {"id": "standard-expressions", "label": "标准表情、部件与叠加效果", "prefixes": ["standards/yukkuri-library/expressions/", "standards/yukkuri-library/STANDARD-EXPRESSIONS.md"], "library": ["expressions", "effects"]},
+      {"id": "standard-expressions", "label": "标准表情、部件与叠加效果", "prefixes": ["standards/yukkuri-library/expressions/", "standards/yukkuri-library/STANDARD-EXPRESSIONS.md", "src/main/resources/assets/mcyukkuri/yukkuri_presentation/face_library.json"], "library": ["expressions", "effects"], "registry": ["face_library"]},
       {"id": "derived-faces", "label": "派生表情（沮丧、害怕）", "prefixes": ["standards/yukkuri-library/expressions/derived/"], "registry": ["derived_faces"], "ids": ["sad", "afraid"]},
       {"id": "ecology-expressions", "prefixes": ["art/source/ecology/"], "registry": ["ecology_expressions"]},
       {"id": "adult-states", "prefixes": ["art/source/adult-states/", "standards/yukkuri-library/drafts/rapem-alice/"], "registry": ["adult_states", "alice_appearance"]},
@@ -86,7 +86,7 @@
       {"id": "audio-reference", "label": "声音来源边界与声音事件登记", "prefixes": ["art/audio/reference/", "art/audio/DIARY_AUDIO_RESEARCH.md", "art/audio/README.md", "art/audio/requirements.txt", "src/main/resources/assets/mcyukkuri/sounds.json"]}
     ]},
     {"id": "motions", "label": "动作与姿势", "families": [
-      {"id": "standard-motions", "label": "基础与复合动作、设定动作配方", "prefixes": ["standards/yukkuri-library/motions/", "standards/yukkuri-library/motion_library.py"], "library": ["motions"]},
+      {"id": "standard-motions", "label": "基础与复合动作、设定动作配方", "prefixes": ["standards/yukkuri-library/motions/", "standards/yukkuri-library/motion_library.py", "src/main/resources/assets/mcyukkuri/yukkuri_presentation/side_profile.json"], "library": ["motions"]},
       {"id": "motion-corrections", "prefixes": ["art/source/motion-corrections/"], "registry": ["motion_corrections"], "ids": ["motion_corrections"]},
       {"id": "placement-fit", "prefixes": ["art/source/placement-fit/", "standards/yukkuri-library/presentation/"], "registry": ["placement_fit"]},
       {"id": "hat-interactions", "prefixes": ["art/source/hat-interactions/"], "registry": ["hat_interactions", "hat_care_contact"], "ids": ["hat_seat"]},
