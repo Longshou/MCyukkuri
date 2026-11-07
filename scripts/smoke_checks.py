@@ -295,7 +295,10 @@ def loops(records, samples):
         key = row['u'], row.get('cat'), signature(msg)
         bucket = buckets[key]
         # Count only repeats at the same block ±1 with no observed progress in between.
-        prior = bucket[-1][0] if bucket else None
+        # Progress is cumulative from this repeat interval's first event. Using
+        # only the preceding event mislabels steady sub-half-block advances as
+        # an unchanged loop forever (e.g. completed short paddle segments).
+        prior = bucket[0][0] if bucket else None
         ticks = actor_ticks.get(row['u'], [])
         between = actors[row['u']][bisect_left(ticks, prior['t']):bisect_right(ticks, row['t'])] if prior else []
         enough = len(between) >= 2 and all(progress_known(s['state']) for s in between)

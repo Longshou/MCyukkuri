@@ -14,6 +14,14 @@ from cases import record, state, log, HOST, ACTOR
 
 
 class Calibration(unittest.TestCase):
+    def test_short_completed_advances_accumulate_for_loop_progress(self):
+        for stride, expected in ((.2, False), (0, True)):
+            rows = []
+            for t in range(25):
+                rows += [state(t, p=[t * stride, 0, 0]), record('ev', t,
+                    cat='action', msg='end id=paddle outcome=DONE detail=arrived', pos=[int(t * stride),0,0])]
+            self.assertEqual(expected, any(f['verdict']=='fail' for f in checks.loops(rows,timeline.states(rows))))
+
     def test_reviewed_vantage_size_controls_keep_occlusion_and_offscreen_warnings(self):
         for visible, share, expected in ((9, .0697396, 'pass'), (9, .0337174, 'suspect'),
                                          (0, .13, 'suspect'), (9, 0, 'suspect')):
