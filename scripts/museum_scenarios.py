@@ -3252,6 +3252,9 @@ _smoke('colony_migrate', 7200, [r'\[settlement\][^\n]* migration phase=DISCUSS',
 _THROWN = r'\[body\][^\n]* dismount [^\n]*cause=(?:thrown|hull_rock|brim_hard_rock)\b'   # a rider the hull really threw off
 _STEPS_IN = r'\[action\][^\n]* start id=step_in\b'                                       # an owner wading out to her hat
 _FATES = {
+    'remains_forms': [dict(kind='death', match=r'cause=(?:starve|inFire|anvil|mob|freeze|drown)\b|internal=(?:old_age|mold)\b|core hurt \(mold\)',
+                           why='all live actors are the eight death-form victims and the starved baby buried for its marker'),
+                      dict(kind='drown', why='the pool victim is deliberately killed by drowning')],
     'den_family': [dict(kind='death', who=f'uuid={_uuid_text("den_family", "father")} ', match=r'cause=genericKill\b',
                         why='the smoke kills the father to widow the mother')],
     'settle_pit_famine': [dict(kind='starve', who=r'pit slave ', why='an empty pit: the slave at nutrition 0 really starves')],
