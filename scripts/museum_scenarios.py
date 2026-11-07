@@ -784,7 +784,7 @@ add('rain_life', 'weather', '屋檐下躲雨，饿的冒雨吃苹果', '屋檐�
 _hm, _hr = uid('rain_huddle', 'shy'), uid('rain_huddle', 'mate')
 _hm_t, _hr_t = (str(uuid.UUID(bytes=b''.join((n & 0xffffffff).to_bytes(4, 'big') for n in u))) for u in (_hm, _hr))
 add('rain_huddle', 'weather', '屋檐下怕雨的贴着伴侣发抖', '屋檐下怕雨的贴着伴侣发抖',
-    '下雨，石顶下：胆小、已经不安（mood.unease=30）的魔理沙走到伴侣灵梦身边侧身贴紧，两只同步发抖（behavior.reaction 含 huddle partner=… pressed=true，日志 [weather] huddle pressed），贴着时不安下降；'
+    '下雨，石顶下：胆小、已经不安（mood.unease=30）的魔理沙走到伴侣灵梦身边侧身贴紧，两只同步发抖（behavior.reaction 含 huddle partner=… pressed=true，日志 [weather] huddle pressed），贴着时不安不再上升（mood.unease，独处的那只会升）；'
     '按“附近落雷”：两只一起受惊再贴紧（[weather] thunder clap heard）。后排独处的胆小灵梦没有亲友，只自己发抖（hunker.start pose=tremble）',
     '约 10–40 秒', [
         yk('marisa', 1, 0, 'shy', uuid=_hm, yaw=180, lead=True, boldness=20, kin=kin_of(Partner=_hr), **pair_ready()),
