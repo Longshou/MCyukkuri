@@ -1293,21 +1293,22 @@ _form_lines += [
     remains(-5, 10, 'soaking', dy=-1, soak=5400, cause='minecraft:drown', category='drowned', food=0),
     remains(5, 10, 'melting', dy=-1, soak=23400, cause='minecraft:mob_attack', category='violent'),
     remains(12, -10, 'dry_control', soak=23400, cause='minecraft:mob_attack', category='violent'),
-    yk('reimu', -12, -8, 'buried_baby', stage='baby', **pair_ready()), f'damage {sel("buried_baby")} 100 minecraft:starve']
-add('remains_forms', 'body', '八种死因遗体，水里溶化，安葬立碑', '八种死因遗体，水里溶化，安葬立碑',
+    yk('reimu', -3, -7, 'buried_baby', stage='baby', **pair_ready()), f'damage {sel("buried_baby")} 100 minecraft:starve']
+add('remains_forms', 'body', '八种死因遗体，溶化与立碑', '八种死因遗体，溶化与立碑',
     '七只灵梦各死于真实死因：寿命（约10秒）、饥饿、着火、落砧、近战击打、冻伤、终末油霉（约25秒内）；南边水池里一只溺死。'
     '遗体按存下的死因类别换死亡脸、姿态和表层：寿终凹缝眼灰白、饿死干瘪、烧死焦黑带灰、压死压扁带馅渍、打死歪倒垂舌且身下渗馅、冻死挺圆结霜、病死发黄起霉点、溺死白眼泡胀冷白滴水。'
     '水池另有两具已泡水的遗体：左边溺死遗体约30–60秒后泡软（更胀、发白斑）；右边被打死后落水、尚有6份余量，约30–60秒后溶化成沉底残渣，余量6→0、不能取核。'
     '浮在水面时只有实际浸水的 tick 计入水钟，漂起的瞬间不计，所以时间会比 30 秒长。'
     '岸上同样水钟的打死遗体不再前进，仍为泡软、余量6。用“读遗体”核对 category、water(soak)、food 和 core。'
-    '观察台前右侧一只饿死的赤油已安葬：小土冢头端立着小石碑，正面朝北对着你；右键土冢或石碑，像告示牌一样读出“无名之墓”、种类与年龄段、死因和安葬日。'
+    '观察点前方约 5 格偏右，一只饿死的赤油已安葬：小土冢头端立着小石碑，正面朝北对着你；右键土冢或石碑，像告示牌一样读出“无名之墓”、种类与年龄段、死因和安葬日。'
     '给了一把铁锹：在草地上右键其他遗体即可安葬，石碑正面朝向你，生前有名字（这里是头顶的标签）的写作“某某之墓”。退出重进后读到的仍是同一死者',
     '约 30–60 秒；泡软与溶化也可等真实浸水 5／20 分钟', _form_lines,
     give=['minecraft:iron_shovel'], note=NEW, vantage=(0, 12),
-    late=['execute positioned ~-12 ~ ~-8 rotated 0 0 run yukkuri body bury @e[type=mcyukkuri:yukkuri_remains,distance=..2,limit=1,sort=nearest]'],
+    late=['execute positioned ~-3 ~ ~-7 rotated 0 0 run yukkuri body bury @e[type=mcyukkuri:yukkuri_remains,distance=..2,limit=1,sort=nearest]'],
     reads=[('读遗体', 'yukkuri body info @e[type=mcyukkuri:yukkuri_remains,distance=..40,sort=nearest]')],
     smoke=dict(ticks=200, expect=[r'\[remains\][^\n]* buried by \S+ grave=[^\n]* facing=north [^\n]* stage=baby category=starved'],
-               forbid=[r'\[body\][^\n]* invariant\b']))
+               forbid=[r'\[body\][^\n]* invariant\b']),
+    capture=dict(shots=(1, 30, 60, 100, 200, 400), sequences=()))
 
 _carrion_lines = []
 for _label, _x, _z, _friend, _control, _bold in (
