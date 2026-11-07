@@ -819,7 +819,8 @@ add('storm_cower', 'weather', '雷暴：胆小的缩成一团，淋雨的跑进�
                  follow='@e[tag=scn_timid,limit=1]', offset=(0, .8, 2.6)),
     smoke=dict(ticks=1000, commands=[(300, 'summon minecraft:lightning_bolt ~16 ~ ~8')],
                expect=[r'\[weather\] reimu [^\n]* sheltered alone pose=cower',
-                       r'\[weather\] reimu [^\n]* shelter response started sky=STORM',
+                       # vanilla ramps the thunder level up over a few seconds after `weather thunder`: the first run may still read RAIN
+                       r'\[weather\] reimu [^\n]* shelter response started sky=(?:RAIN|STORM)',
                        r'\[weather\][^\n]* thunder clap heard '],
                forbid=[r'\[body\][^\n]* invariant\b']))
 
@@ -2422,11 +2423,11 @@ pond('self_rescue', '落水后游回自己的帽子', '落水后游回自己的�
                                    r'\[method\][^\n]* pick intent=escape_water method=(?:own_hat|right_own_hat)\b'],
                 forbid=_WATER_SMOKE_FORBID, verify=water_aftermath, readout=_water_readouts('a')))
 
-# An ordinary land Reimu shoved off the bank: nobody fetches it, it gets out by itself and, wet on dry ground, shakes the water off.
+# An ordinary land Reimu just fallen into the water two blocks off the bank: nobody fetches it, it gets out by itself and, wet on dry ground, shakes the water off.
 pond('shake_ashore', '落水灵梦爬上岸甩水', '落水灵梦爬上岸甩水',
-     '普通灵梦站在岸边，被推下水：自己游回岸上（[intent] end id=escape_water），在干地上停下甩水（[weather] shaking water off … after=water，播甩水片段），甩完湿度减半（shook the water off wetness=A -> A/2）；之后自然晾干，不会反复甩',
+     '普通灵梦刚掉进岸边两格外的池水里：自己游回岸上（[intent] end id=escape_water），在干地上停下甩水（[weather] shaking water off … after=water，播甩水片段），甩完湿度减半（shook the water off wetness=A -> A/2）；之后自然晾干，不会反复甩',
      '约 20–40 秒',
-     [yk('reimu', bank_dx(0), 0, 'a', yaw=-90, lead=True, **pair_ready())], late=[shoved('a', .5)], note=NEW, vantage=(bank_dx(0) - 5, 3, -120, 15),
+     [yk('reimu', bank_dx(0) + 2, 0, 'a', dy=-1, yaw=90, lead=True, **pair_ready())], note=NEW, vantage=(bank_dx(0) - 5, 3, -120, 15),
      reads=[('读湿度与甩水', f'yukkuri status {sel("a")} raw')],
      capture=dict(shots=(1, 40, 400, 800), sequences=((40, 800, 4),), observe=False,
                   follow='@e[tag=scn_a,limit=1]', offset=(-1.6, 1.0, 2.2)),
