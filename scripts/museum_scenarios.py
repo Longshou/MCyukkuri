@@ -3258,6 +3258,8 @@ _FATES = {
     'aftermath_depletion': [dict(kind='starve', who=r'aftermath reserved ', why='the stem drains the depleted mother'),
                             dict(kind='death', who=r'aftermath reserved ', match=r'stem_depletion=true\b', why='she dies of the stem')],
     'growth': [dict(kind='death', who=r'lifespan reached', match=r'internal=old_age\b', why='the fifth starts one tick before its lifespan')],
+    'sacrifice': [dict(kind='death', who=f'uuid={_uuid_text("sacrifice", "parent")} ', match=r'cause=mob\b',
+                       why='the parent that draws the hunt may be killed by it')],
     'hat_push': [dict(kind='drown', who=_THROWN, why='the fast boat capsizes the far hat and throws its rider in')],
     'hat_grounded_capsized': [dict(kind='drown', who=_THROWN, why='falling water and a hard rock throw the crews in')],
     'shake_capsize': [dict(kind='drown', who=_THROWN, why='three shakes capsize the hat and throw every rider in')],
