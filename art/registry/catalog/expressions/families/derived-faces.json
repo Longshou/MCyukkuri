@@ -1,0 +1,15 @@
+{
+  "id": "derived-faces",
+  "label": "派生表情（沮丧、害怕）",
+  "prefixes": [
+    "standards/yukkuri-library/expressions/derived/"
+  ],
+  "registry": [
+    "derived_faces"
+  ],
+  "ids": [
+    "sad",
+    "afraid"
+  ],
+  "_order": 1
+}

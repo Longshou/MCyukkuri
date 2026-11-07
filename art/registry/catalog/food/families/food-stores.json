@@ -1,0 +1,14 @@
+{
+  "id": "food-stores",
+  "label": "陆上储粮堆、油粮与食物碎屑",
+  "ids": [
+    "forage_pile",
+    "oil_grain_*",
+    "food_scrap",
+    "spicy_grain",
+    "wheat_flour",
+    "custard_pudding",
+    "sweet_candy"
+  ],
+  "_order": 1
+}

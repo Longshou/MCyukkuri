@@ -1,0 +1,27 @@
+{
+  "source": "standards/yukkuri-library/ecology/house-nest",
+  "recipe": "standards/yukkuri-library/ecology/house-nest/recipe.json",
+  "exporter": "standards/yukkuri-library/ecology/house-nest/build.py",
+  "snapshot": "art/source/house-ecology",
+  "manifest": "art/source/house-ecology/manifest.json",
+  "runtime_catalog": "src/main/resources/assets/mcyukkuri/yukkuri_props/house-ecology-index.json",
+  "note": "2026-10-18: nest_lint and food_scrap are no longer player items; they remain registered only as internal carriers for ground debris, mouth and nest display. Models and textures are unchanged; no new art was added by the house ecology rework.",
+  "models": [
+    "nest_lint",
+    "house_lint_bedding",
+    "house_eggshell"
+  ],
+  "item_models": [
+    "nest_lint",
+    "house_egg"
+  ],
+  "existing_approved_models_reused": [
+    "house_egg",
+    "house_egg_cracked"
+  ],
+  "status": "pending_user_confirmation",
+  "preview_source": "standards/yukkuri-library/ecology/house-nest/render_preview.py",
+  "preview": ".local/previews/house-ecology/house-ecology.png",
+  "geometry_export": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/house_egg_geometry.json",
+  "scope": "Cotton lint and dust for nest building; empty lower eggshell derived from approved intact egg. Approved egg meshes remain unchanged; the shared 2.4 world scale and four spaced slots fit the unchanged 0.32 newborn. Hatching choreography is original adaptation."
+}

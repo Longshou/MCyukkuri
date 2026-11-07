@@ -1,0 +1,222 @@
+{
+  "selected_model": "standards/yukkuri-library/ecology/house-yukkuri/assembled/house_marisa.bbmodel",
+  "selected_model_sha256": "03fed7f599fbec0908e258587c8ba1d3217b98047ba8d1cb0c0696250398345e",
+  "selected_rig": "standards/yukkuri-library/ecology/house-yukkuri/assembled/house_marisa.rig.json",
+  "selected_rig_sha256": "5d35dd470cb944c74b9684694940cbd6b2a871b5a58c6dd117194a5c56ab0eea",
+  "standard_motion_source": "standards/yukkuri-library/assembled/marisa/animation-rig.json",
+  "standard_motion_sha256": "c2761d1ff6774dea4d43b7b6249120effc2f36a50aa8a78dd79e6354d726bddc",
+  "snapshot": "art/source/standard-runtime/house_marisa/house_marisa.bbmodel",
+  "rig": "art/source/standard-runtime/house_marisa/animation-rig.json",
+  "runtime": "src/main/resources/assets/mcyukkuri/yukkuri/house_marisa.json",
+  "runtime_sha256": "400afc82e93a2ddd81f74368f6244647123da67ae56aa0b4cc1528687cebccf4",
+  "geometry_identifier": "house_marisa",
+  "bone_count": 268,
+  "clips": [
+    "idle",
+    "stretch_shape",
+    "side_bend",
+    "waddle",
+    "puff",
+    "brace",
+    "startle",
+    "turn",
+    "hop",
+    "stretch",
+    "exercise_vertical",
+    "exercise_sides",
+    "press",
+    "taiso",
+    "flee",
+    "anatomy_mamu_extend",
+    "anatomy_mamu_retract",
+    "anatomy_peni_extend",
+    "anatomy_peni_retract"
+  ],
+  "textures": {
+    "neutral": {
+      "source": "standards/yukkuri-library/ecology/house-yukkuri/assembled/house_marisa_neutral.png",
+      "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/house_marisa/neutral.png",
+      "sha256": "af6c00936afe90d4a8d61cb2ef87a94828410415567410ff87973b295631c0c0"
+    },
+    "happy": {
+      "source": "standards/yukkuri-library/ecology/house-yukkuri/assembled/house_marisa_happy.png",
+      "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/house_marisa/happy.png",
+      "sha256": "f008765037048ed56e475b5c035cbc682b1f45395be5b69d969f10e0134ff41a"
+    },
+    "cry": {
+      "source": "standards/yukkuri-library/ecology/house-yukkuri/assembled/house_marisa_cry.png",
+      "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/house_marisa/cry.png",
+      "sha256": "10b8e2b5bedf7a97d03679bd416f362093c28936d6786c92d6d51cd208925690"
+    },
+    "teary": {
+      "source": "standards/yukkuri-library/ecology/house-yukkuri/assembled/house_marisa_teary.png",
+      "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/house_marisa/teary.png",
+      "sha256": "c2665c0ee4c234fa92005019b1308b1f57e899670a619a3172510bb080aae025"
+    },
+    "drool": {
+      "source": "standards/yukkuri-library/ecology/house-yukkuri/assembled/house_marisa_drool.png",
+      "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/house_marisa/drool.png",
+      "sha256": "eb4f450f0f58a9145cdc6f2dd14227d74ac5166671cf90f1c13c83b68f6e83e0"
+    },
+    "confused": {
+      "source": "standards/yukkuri-library/ecology/house-yukkuri/assembled/house_marisa_confused.png",
+      "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/house_marisa/confused.png",
+      "sha256": "cdb3c489f0ba67e018f91e2fe972087dfbabc4079491fa071b22fd469f97f56f"
+    },
+    "yawn": {
+      "source": "standards/yukkuri-library/ecology/house-yukkuri/assembled/house_marisa_yawn.png",
+      "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/house_marisa/yawn.png",
+      "sha256": "61f9ca6e83ac83c7445d5c210d7e57476a845b5d08c9a7b3ba5a7f093e7eb5f9"
+    },
+    "sleep": {
+      "source": "standards/yukkuri-library/ecology/house-yukkuri/assembled/house_marisa_sleep.png",
+      "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/house_marisa/sleep.png",
+      "sha256": "3c66a2c076886a54bbde3287a8c17ff2f559883880d4b81f0a1aecb0e0b120c2"
+    },
+    "angry": {
+      "source": "standards/yukkuri-library/ecology/house-yukkuri/assembled/house_marisa_angry.png",
+      "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/house_marisa/angry.png",
+      "sha256": "b435c36536583a5dae76384544b071f92dd39dfffa1f848d46f71fb04b193b68"
+    },
+    "surprise": {
+      "source": "standards/yukkuri-library/ecology/house-yukkuri/assembled/house_marisa_surprise.png",
+      "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/house_marisa/surprise.png",
+      "sha256": "5c50fce8b0aa046947c5205ee1a7e68e3fed3dd8bb1180e8cd0c079084bf2639"
+    },
+    "sleepy": {
+      "source": "standards/yukkuri-library/ecology/house-yukkuri/assembled/house_marisa_sleepy.png",
+      "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/house_marisa/sleepy.png",
+      "sha256": "7c395495130924ce57196ed8ce073d64e23e49578f2bf432a93f7d35fe7a916d"
+    }
+  },
+  "shape_status": "pending_confirmation",
+  "game_acceptance": "current_face_motion_recheck_pending",
+  "retargeting": {
+    "method": "house_lower_body_bow_and_short_lock_grip",
+    "behavior_clips": [
+      "house_pickup",
+      "house_carry",
+      "house_deposit",
+      "house_crawl"
+    ],
+    "grip": {
+      "bones": [
+        "hand_right_tip",
+        "hand_right_tip"
+      ],
+      "points": [
+        [
+          2.116,
+          1.474,
+          -1.54
+        ],
+        [
+          2.116,
+          1.474,
+          -1.54
+        ]
+      ],
+      "contact_seconds": 0.65,
+      "release_seconds": 0.65
+    },
+    "carry_pose": {
+      "status": "runtime_motion_adaptation",
+      "method": "rigid_short_locks_hold_above_forehead",
+      "half_grip_width": 0.28,
+      "contact_height": 0.45,
+      "lift_height": 4.6,
+      "vertical_reach_share": 0.92,
+      "units": "model_units_16_per_block",
+      "preserves": [
+        "rest_shape",
+        "lock_length",
+        "floor_contact",
+        "pickup_and_deposit_timing",
+        "waddle_face_anchors"
+      ]
+    },
+    "crawl": {
+      "method": "bowed_abdominal_drag",
+      "duration": 0.6,
+      "period_ticks": 12,
+      "reach_tick": 4,
+      "gather_tick": 5,
+      "settle_tick": 10,
+      "stroke_units": 0.2,
+      "travel_units": 1.92,
+      "drag_share": 0.6,
+      "bow_degrees": [
+        4,
+        8
+      ],
+      "peak_length_stretch": 0.042,
+      "peak_squash": 0.04,
+      "hop_units": 0.1,
+      "upper_reach_units": 0.025,
+      "max_upper_drop_units": 0.02,
+      "reference": "https://ncode.syosetu.com/n5569bl/8/",
+      "rigid_face_support_from_y": 0.85,
+      "interpretation": "original_model_adaptation_of_described_dragging"
+    },
+    "walking": {
+      "method": "continuous_house_rear_sway",
+      "duration_seconds": 1.2,
+      "shape_changed": false,
+      "status": "pending_visual_confirmation"
+    },
+    "face_motion": {
+      "recipe": "art/source/standard-runtime/face-motion/recipe.json",
+      "recipe_sha256": "330b3309d426db531cfc4548583eb9e485747fd8af7801b188b9633532ac90d1",
+      "author": "scripts/runtime_house_face.py",
+      "author_sha256": "ab0f78dc51ebdb74df1391fc48a0b503f201e8defebe735dc3471f4353b101f9",
+      "manifest": "art/source/standard-runtime/face-motion/manifest.json",
+      "shape_changed": false,
+      "affected_clip": "waddle",
+      "affected_bones": [
+        "face_blush_left_skin_anchor",
+        "face_blush_right_skin_anchor",
+        "face_brow_left_skin_anchor",
+        "face_brow_right_skin_anchor",
+        "face_effect_mouth_skin_anchor",
+        "face_eye_left_skin_anchor",
+        "face_eye_right_skin_anchor",
+        "face_mouth_skin_anchor",
+        "face_tear_left_skin_anchor",
+        "face_tear_right_skin_anchor"
+      ]
+    },
+    "carry_motion": {
+      "recipe": "art/source/standard-runtime/carry-motion/recipe.json",
+      "recipe_sha256": "20446cfbeacf071018022e8805bd988163b1c6eeef51d8aa101597c860ff477a",
+      "author": "scripts/runtime_house_interactions.py",
+      "author_sha256": "fc04cba6c4a25b90e092058afa2420b4aeb768fbe37bd44a74f83472c9d1afe2",
+      "manifest": "art/source/standard-runtime/carry-motion/manifest.json",
+      "shape_changed": false,
+      "affected_bones": [
+        "hand_left",
+        "hand_right"
+      ],
+      "affected_clips": [
+        "house_pickup",
+        "house_carry",
+        "house_deposit"
+      ],
+      "carry_pose": {
+        "status": "runtime_motion_adaptation",
+        "method": "rigid_short_locks_hold_above_forehead",
+        "half_grip_width": 0.28,
+        "contact_height": 0.45,
+        "lift_height": 4.6,
+        "vertical_reach_share": 0.92,
+        "units": "model_units_16_per_block",
+        "preserves": [
+          "rest_shape",
+          "lock_length",
+          "floor_contact",
+          "pickup_and_deposit_timing",
+          "waddle_face_anchors"
+        ]
+      }
+    }
+  }
+}

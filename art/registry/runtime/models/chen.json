@@ -1,0 +1,102 @@
+{
+  "selected_model": "standards/yukkuri-library/assembled/chen/chen.bbmodel",
+  "selected_model_sha256": "c35275c744c9e5dde415efc45ff2d58137ec2f5d652c90bab2b14da6888067b1",
+  "selected_rig": "standards/yukkuri-library/assembled/chen/animation-rig.json",
+  "selected_rig_sha256": "0c87a033ee9f9dc0241de99f40933f46780c347d2886774a2fd79b4e731f0c09",
+  "standard_motion_source": "standards/yukkuri-library/assembled/chen/animation-rig.json",
+  "standard_motion_sha256": "0c87a033ee9f9dc0241de99f40933f46780c347d2886774a2fd79b4e731f0c09",
+  "snapshot": "art/source/standard-runtime/chen/chen.bbmodel",
+  "rig": "art/source/standard-runtime/chen/animation-rig.json",
+  "runtime": "src/main/resources/assets/mcyukkuri/yukkuri/chen.json",
+  "runtime_sha256": "88371831c4d0251338e6ac5bcdf21d9a55153aa0d804017350ad4b381f739c43",
+  "geometry_identifier": "chen",
+  "bone_count": 202,
+  "clips": [
+    "idle",
+    "stretch_shape",
+    "side_bend",
+    "waddle",
+    "puff",
+    "brace",
+    "startle",
+    "turn",
+    "hop",
+    "stretch",
+    "exercise_vertical",
+    "exercise_sides",
+    "press",
+    "taiso",
+    "flee",
+    "anatomy_mamu_extend",
+    "anatomy_mamu_retract",
+    "anatomy_peni_extend",
+    "anatomy_peni_retract"
+  ],
+  "textures": {
+    "neutral": {
+      "source": "standards/yukkuri-library/assembled/chen/textures/neutral.png",
+      "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/chen/neutral.png",
+      "sha256": "13e89d3db1862250290f12f0bf27ef099d628e7b5ea3adb63eae034cdb66c676"
+    },
+    "happy": {
+      "source": "standards/yukkuri-library/assembled/chen/textures/happy.png",
+      "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/chen/happy.png",
+      "sha256": "ca040409bc93ca0a48a57c25cd61dc355beab33404120c66155f80e9d4df5c9f"
+    },
+    "cry": {
+      "source": "standards/yukkuri-library/assembled/chen/textures/cry.png",
+      "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/chen/cry.png",
+      "sha256": "559c5b390036d82f580f6b45e3b2c1cb3381955fc5bac4b5dcaa5a628881d442"
+    },
+    "teary": {
+      "source": "standards/yukkuri-library/assembled/chen/textures/teary.png",
+      "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/chen/teary.png",
+      "sha256": "8a751b7eb92c24bdf0790cfb6fcda391bbcbd3c35decfccc7845bad1ca7325fe"
+    },
+    "drool": {
+      "source": "standards/yukkuri-library/assembled/chen/textures/drool.png",
+      "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/chen/drool.png",
+      "sha256": "f692afeb8c7140a2393b46e80048977d276893f18472b1f85dc92873d0066081"
+    },
+    "confused": {
+      "source": "standards/yukkuri-library/assembled/chen/textures/confused.png",
+      "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/chen/confused.png",
+      "sha256": "647cd21a5753e4c9616826d392c8b21d93c5a5257f43caf64fe208e49681c2b3"
+    },
+    "yawn": {
+      "source": "standards/yukkuri-library/assembled/chen/textures/yawn.png",
+      "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/chen/yawn.png",
+      "sha256": "61e007659139925c191b9282ea463013c7771172af300f51ba7e4b5177bb9220"
+    },
+    "sleep": {
+      "source": "standards/yukkuri-library/assembled/chen/textures/sleep.png",
+      "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/chen/sleep.png",
+      "sha256": "fa922e0891db52278215e74cca80428bc63b5d8792ed7ac864541b72522a5f19"
+    },
+    "angry": {
+      "source": "standards/yukkuri-library/assembled/chen/textures/angry.png",
+      "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/chen/angry.png",
+      "sha256": "309b944a754cdc2f09c23f49bb75a6a7c5b94179de0289b363f205fed8761a72"
+    },
+    "surprise": {
+      "source": "standards/yukkuri-library/assembled/chen/textures/surprise.png",
+      "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/chen/surprise.png",
+      "sha256": "7bb0eba29d5b98f141f5d3456294dfcd92ea45d8db9fc17a92311393ec9984fa"
+    },
+    "sleepy": {
+      "source": "standards/yukkuri-library/assembled/chen/textures/sleepy.png",
+      "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/chen/sleepy.png",
+      "sha256": "d3821ef756d97eaf25cdf5d7ed0b473a0e9d47697120afb7a352d4c8243a6f1f"
+    }
+  },
+  "shape_status": "selected_standard_export",
+  "game_acceptance": "not_executed",
+  "retargeting": {
+    "walking": {
+      "method": "enhanced_standard_rump_sway",
+      "duration_seconds": 1.2,
+      "shape_changed": false,
+      "status": "pending_visual_confirmation"
+    }
+  }
+}

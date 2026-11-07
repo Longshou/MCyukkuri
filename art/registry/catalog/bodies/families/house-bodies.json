@@ -1,0 +1,12 @@
+{
+  "id": "house-bodies",
+  "prefixes": [
+    "standards/yukkuri-library/ecology/house-yukkuri/",
+    "art/source/standard-runtime/house_"
+  ],
+  "ids": [
+    "house_reimu",
+    "house_marisa"
+  ],
+  "_order": 5
+}

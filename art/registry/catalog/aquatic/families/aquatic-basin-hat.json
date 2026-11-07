@@ -1,0 +1,15 @@
+{
+  "id": "aquatic-basin-hat",
+  "prefixes": [
+    "standards/yukkuri-library/interactions/aquatic-marisa-hat/",
+    "art/source/aquatic-basin-hat/"
+  ],
+  "registry": [
+    "aquatic_basin_hat"
+  ],
+  "ids": [
+    "aquatic_*",
+    "lilypad_*"
+  ],
+  "_order": 0
+}

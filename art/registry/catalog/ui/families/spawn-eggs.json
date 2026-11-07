@@ -1,0 +1,9 @@
+{
+  "id": "spawn-eggs",
+  "label": "实体生成蛋与野外笔记图标",
+  "ids": [
+    "*_spawn_egg",
+    "field_notebook"
+  ],
+  "_order": 2
+}

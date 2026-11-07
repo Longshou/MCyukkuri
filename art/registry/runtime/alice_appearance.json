@@ -1,0 +1,8 @@
+{
+  "source": "standards/yukkuri-library/body-standard/features/alice-hakkei",
+  "texture_style": "standards/yukkuri-library/characters/alice.json",
+  "exporter": "scripts/export_alice_appearance.py",
+  "status": "selected_for_runtime_pending_visual_feedback",
+  "scope": "Alice hair, headband and open-eye irises; all existing selected expressions, including adult states",
+  "shared_expression_shapes": "preserved"
+}

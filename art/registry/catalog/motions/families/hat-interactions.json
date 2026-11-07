@@ -1,0 +1,14 @@
+{
+  "id": "hat-interactions",
+  "prefixes": [
+    "art/source/hat-interactions/"
+  ],
+  "registry": [
+    "hat_interactions",
+    "hat_care_contact"
+  ],
+  "ids": [
+    "hat_seat"
+  ],
+  "_order": 3
+}

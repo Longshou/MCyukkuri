@@ -1,0 +1,10 @@
+{
+  "id": "supply-icons",
+  "prefixes": [
+    "art/props/supply-icons/"
+  ],
+  "registry": [
+    "supply_icons"
+  ],
+  "_order": 1
+}

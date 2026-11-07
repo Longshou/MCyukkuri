@@ -1,0 +1,8 @@
+{
+  "id": "aquestalk",
+  "prefixes": [
+    "art/audio/aquestalk/",
+    "src/main/resources/assets/mcyukkuri/sounds/voice/"
+  ],
+  "_order": 0
+}

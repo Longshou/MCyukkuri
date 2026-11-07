@@ -1,0 +1,13 @@
+{
+  "id": "predator-props",
+  "prefixes": [
+    "art/props/predators/"
+  ],
+  "ids": [
+    "predator_nest",
+    "flandre_bonnet",
+    "remilia_bonnet",
+    "predators-index"
+  ],
+  "_order": 1
+}

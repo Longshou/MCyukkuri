@@ -1,0 +1,10 @@
+{
+  "id": "ecology-expressions",
+  "prefixes": [
+    "art/source/ecology/"
+  ],
+  "registry": [
+    "ecology_expressions"
+  ],
+  "_order": 2
+}

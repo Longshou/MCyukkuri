@@ -1,0 +1,11 @@
+{
+  "id": "placement-fit",
+  "prefixes": [
+    "art/source/placement-fit/",
+    "standards/yukkuri-library/presentation/"
+  ],
+  "registry": [
+    "placement_fit"
+  ],
+  "_order": 2
+}

@@ -1,0 +1,9 @@
+{
+  "source_exporter": "standards/yukkuri-library/drafts/consumables/build.py",
+  "editable_source": "standards/yukkuri-library/drafts/consumables/assembled/food_mash_serving/food_mash_serving.bbmodel",
+  "selected_snapshot": "art/props/consumables/selected/food_mash_serving",
+  "runtime_mesh": "src/main/resources/assets/mcyukkuri/yukkuri_props/food_mash_serving.json",
+  "runtime_texture": "src/main/resources/assets/mcyukkuri/textures/props/food_mash_serving.png",
+  "role": "soft food prepared by a parent; preserves the original serving and nutrition",
+  "status": "pending_user_confirmation"
+}

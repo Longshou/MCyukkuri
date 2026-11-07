@@ -1,0 +1,14 @@
+{
+  "id": "pet-goods",
+  "prefixes": [
+    "art/props/pet-goods/"
+  ],
+  "registry": [
+    "pet_goods"
+  ],
+  "ids": [
+    "care_wear",
+    "pet_harness"
+  ],
+  "_order": 5
+}

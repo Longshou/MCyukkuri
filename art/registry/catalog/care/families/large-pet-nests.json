@@ -1,0 +1,14 @@
+{
+  "id": "large-pet-nests",
+  "label": "宠物编织大窝与款式",
+  "prefixes": [
+    "art/props/large-nests/"
+  ],
+  "registry": [
+    "large_nests"
+  ],
+  "ids": [
+    "large_yukkuri_nest*"
+  ],
+  "_order": 4
+}

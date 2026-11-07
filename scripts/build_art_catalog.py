@@ -245,7 +245,7 @@ def render(categories, members, records, found, unknown_keys):
     language = read(ASSETS + "lang/zh_cn.json")
     runtime_files = sorted(p for paths in members.values() for p in paths if p.startswith(ASSETS))
     source_files = sorted(p for paths in members.values() for p in paths if not p.startswith(ASSETS))
-    lines = ["# 美术素材目录", "", "<!-- 由 scripts/build_art_catalog.py 生成；修改 art/catalog.json 后重建。 -->", "",
+    lines = ["# 美术素材目录", "", "<!-- 由 scripts/build_art_catalog.py 生成；登记源在 art/registry/，先用 scripts/export.py --registries 汇总再重建。 -->", "",
              "按游戏主题查找现有素材；目录不移动文件，也不替代各包的认可登记。文件数包含制作脚本、配方与登记；同族的网格、贴图与语音合并显示。", "",
              "来源：`git ls-files`、[运行选用登记](runtime-sources.json)、[标准库目录](../standards/yukkuri-library/catalog-data.json)及包内 manifest／provenance／selection。运行路径相对 `src/main/resources/assets/mcyukkuri/`，其他路径相对仓库根。", "",
              "“游戏引用”逐文件查 Java 字符串及运行 JSON 的资源路径／资源 ID（排除自身引用），只证明存在静态引用，不代表可达、已启用或试玩通过；动态拼接未命中时仍待核实。共享运行文件另列，不重复计入分类文件数。预览只链接当前工作树 `.local/previews/` 中存在且登记提到的文件，可为空。", "",

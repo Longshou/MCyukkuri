@@ -1,0 +1,11 @@
+{
+  "id": "body-core-cavity",
+  "label": "中枢与体腔",
+  "prefixes": [
+    "art/source/body-core-cavity/"
+  ],
+  "registry": [
+    "body_core_cavity"
+  ],
+  "_order": 3
+}

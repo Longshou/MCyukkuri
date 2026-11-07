@@ -1,0 +1,17 @@
+{
+  "id": "wild-shelters",
+  "prefixes": [
+    "art/props/wild-shelters/",
+    "standards/yukkuri-library/ecology/wild-shelters/"
+  ],
+  "registry": [
+    "wild_shelters"
+  ],
+  "ids": [
+    "cardboard_shelter",
+    "nest_boundary",
+    "nest_lining",
+    "shelters-index"
+  ],
+  "_order": 0
+}

@@ -146,7 +146,7 @@ def main():
     source_hashes = {path: sha(path) for path in source_files}
     cfg = json.loads((SOURCE/'recipe.json').read_text(encoding='utf-8'))
     compile_revision = runpy.run_path(str(SOURCE/'author.py'))['compile_revision']
-    resource_revision = runpy.run_path(str(LORE/'author.py'))['AQUATIC_REVISION']
+    resource_revision = runpy.run_path(str(LORE/'author.py'))['RUNTIME_REVISION']
     reference = json.loads((ASSETS/'yukkuri'/(cfg['derived_mouth_from']+'.json')).read_text(encoding='utf-8'))
     transform = mouth_transform(reference)
     ref_patch, _ = mouth_patch(reference, transform)
@@ -209,6 +209,10 @@ def main():
                 'exporter': rel(Path(__file__)), 'exporter_sha256': sha(Path(__file__)),
                 'placement_fit': rel(fit_path), 'placement_fit_sha256': sha(fit_path),
                 'runtime': rel(OUTPUT), 'runtime_sha256': hashlib.sha256(payload.encode()).hexdigest(), 'models': inputs}
+    for field, filename in (('birth_pose', 'live_birth_pose.json'), ('side_profile', 'side_profile.json')):
+        derived = PRESENTATION/filename
+        manifest[field] = rel(derived)
+        manifest[field+'_sha256'] = sha(derived)
     if args.update_only:
         previous = json.loads(OUTPUT.read_text(encoding='utf-8'))
         previous['models'].update(models)

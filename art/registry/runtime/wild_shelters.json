@@ -1,0 +1,39 @@
+{
+  "source_exporter": "standards/yukkuri-library/ecology/wild-shelters/build.py",
+  "selected_snapshot": "art/props/wild-shelters",
+  "manifest": "standards/yukkuri-library/ecology/wild-shelters/manifest.json",
+  "exports": {
+    "forest_burrow": {
+      "editable_source": "standards/yukkuri-library/ecology/wild-shelters/assembled/forest_burrow.bbmodel",
+      "selected": "art/props/wild-shelters/forest_burrow.bbmodel",
+      "runtime_mesh": "src/main/resources/assets/mcyukkuri/yukkuri_props/forest_burrow.json",
+      "runtime_texture": "src/main/resources/assets/mcyukkuri/textures/props/forest_burrow.png",
+      "role": "shared family bed: 16x16 hollow sized for 12.8-15.4 wide adults (rim inner foot 7.8 out); leaf-litter pad with lining leaves and moss over the whole cell, exposed sides get a rim of loose dry grass pressed down in layers, nothing tied (crest 10.3 out, 5 back / 4 sides / 2.4 front high) with twigs and loose stems, built in the neighbouring block space"
+    },
+    "personal_leaf_nest": {
+      "editable_source": "standards/yukkuri-library/ecology/wild-shelters/assembled/personal_leaf_nest.bbmodel",
+      "selected": "art/props/wild-shelters/personal_leaf_nest.bbmodel",
+      "runtime_mesh": "src/main/resources/assets/mcyukkuri/yukkuri_props/personal_leaf_nest.json",
+      "runtime_texture": "src/main/resources/assets/mcyukkuri/textures/props/personal_leaf_nest.png",
+      "role": "growing child's own bed, kept as a subadult and adult: oval hollow about 15.6x14.4, three build layers (scattered leaves and litter, low rough grass ring, bowl of loose grass pressed down in layers with twigs and loose stems)"
+    },
+    "bedding_bundle": {
+      "editable_source": "standards/yukkuri-library/ecology/wild-shelters/assembled/bedding_bundle.bbmodel",
+      "selected": "art/props/wild-shelters/bedding_bundle.bbmodel",
+      "runtime_mesh": "src/main/resources/assets/mcyukkuri/yukkuri_props/bedding_bundle.json",
+      "runtime_texture": "src/main/resources/assets/mcyukkuri/textures/props/bedding_bundle.png",
+      "role": "finite harvested leaves and grass held at the mouth and placed before spreading: a small loose mouthful of dry grass and a leaf, not tied"
+    }
+  },
+  "status": "pending_user_confirmation",
+  "kit_authored": {
+    "author": "standards/yukkuri-library/drafts/care-props/wild.py",
+    "models": [
+      "forest_burrow",
+      "personal_leaf_nest",
+      "bedding_bundle"
+    ],
+    "kit": "standards/yukkuri-library/drafts/care-props/wild_kit.py",
+    "note": "Self-built nests of wild yukkuri share the hand-drawn wild_kit atlas with the forage pile and large_wild_nest (16x16 tiles and cut-out sprites, 1 texel per unit, no vanilla files or references). forest_burrow render units: 1 bedding, 2-5 side mids N/E/S/W, 6-9 corner arcs, 10-17 side ends (client/ShelterRenderer.sharedLeafLayers picks them so a connected nest gets one round-cornered rim); personal_leaf_nest units 1-3 unchanged."
+  }
+}

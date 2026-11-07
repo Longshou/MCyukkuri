@@ -1,0 +1,102 @@
+{
+  "selected_model": "standards/yukkuri-library/assembled/alice/alice.bbmodel",
+  "selected_model_sha256": "839e27f34774390d664d30086480664905890d3542f2d1e7f0965038bad955fb",
+  "selected_rig": "standards/yukkuri-library/assembled/alice/animation-rig.json",
+  "selected_rig_sha256": "07d017dfd5c857e101041978af2a02434cb39b883381e39d56e6a571e975636b",
+  "standard_motion_source": "standards/yukkuri-library/assembled/alice/animation-rig.json",
+  "standard_motion_sha256": "07d017dfd5c857e101041978af2a02434cb39b883381e39d56e6a571e975636b",
+  "snapshot": "art/source/standard-runtime/alice/alice.bbmodel",
+  "rig": "art/source/standard-runtime/alice/animation-rig.json",
+  "runtime": "src/main/resources/assets/mcyukkuri/yukkuri/alice.json",
+  "runtime_sha256": "7cb5c4d0dde5f76abff7e8b651c247335163b1d63d35e38b3c02a28e8c8e5370",
+  "geometry_identifier": "alice",
+  "bone_count": 198,
+  "clips": [
+    "idle",
+    "stretch_shape",
+    "side_bend",
+    "waddle",
+    "puff",
+    "brace",
+    "startle",
+    "turn",
+    "hop",
+    "stretch",
+    "exercise_vertical",
+    "exercise_sides",
+    "press",
+    "taiso",
+    "flee",
+    "anatomy_mamu_extend",
+    "anatomy_mamu_retract",
+    "anatomy_peni_extend",
+    "anatomy_peni_retract"
+  ],
+  "textures": {
+    "neutral": {
+      "source": "standards/yukkuri-library/assembled/alice/textures/neutral.png",
+      "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/alice/neutral.png",
+      "sha256": "908da885e32b1d7bbe0512a7a7edd8066f4c498a5598b3791de2a513a3f21e2b"
+    },
+    "happy": {
+      "source": "standards/yukkuri-library/assembled/alice/textures/happy.png",
+      "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/alice/happy.png",
+      "sha256": "28e11d86580c356ca59bdd2762c1ef5ea05189944673828aa377aa1249a0233a"
+    },
+    "cry": {
+      "source": "standards/yukkuri-library/assembled/alice/textures/cry.png",
+      "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/alice/cry.png",
+      "sha256": "cdb1f96ed06db8e9427a8a6d6e711a7357540cc944379947576b7564c7c599a6"
+    },
+    "teary": {
+      "source": "standards/yukkuri-library/assembled/alice/textures/teary.png",
+      "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/alice/teary.png",
+      "sha256": "2ae068e47734b72b6be576cf474545045ab9afcea7d3642c039455f9c33cf6d8"
+    },
+    "drool": {
+      "source": "standards/yukkuri-library/assembled/alice/textures/drool.png",
+      "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/alice/drool.png",
+      "sha256": "5f1fb77d120a4f8f1fa33b2281d6cbce04a5ea30347ee06f95fbfbbdb78701df"
+    },
+    "confused": {
+      "source": "standards/yukkuri-library/assembled/alice/textures/confused.png",
+      "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/alice/confused.png",
+      "sha256": "3f58128309c55c184468c84175627745a4bb2682fd4b20a83eb66120235c0c94"
+    },
+    "yawn": {
+      "source": "standards/yukkuri-library/assembled/alice/textures/yawn.png",
+      "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/alice/yawn.png",
+      "sha256": "6821af52264fb0ce60772d16eaf4df63328580da1affba042f7bba78579b6990"
+    },
+    "sleep": {
+      "source": "standards/yukkuri-library/assembled/alice/textures/sleep.png",
+      "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/alice/sleep.png",
+      "sha256": "62b1c3fad4cfa8a8fe941c4635ffcd785ec000ced833136b241dd5b0c64a5759"
+    },
+    "angry": {
+      "source": "standards/yukkuri-library/assembled/alice/textures/angry.png",
+      "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/alice/angry.png",
+      "sha256": "7dc10930202e2ffe795cc024e2503c8f60544d15162eff04492392740e806d32"
+    },
+    "surprise": {
+      "source": "standards/yukkuri-library/assembled/alice/textures/surprise.png",
+      "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/alice/surprise.png",
+      "sha256": "775e51f43e4ede0281c504fb8e45ae997d21d0569c744a8d4202b4e7e22e6bc7"
+    },
+    "sleepy": {
+      "source": "standards/yukkuri-library/assembled/alice/textures/sleepy.png",
+      "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/alice/sleepy.png",
+      "sha256": "b8e8e86c3b28d345ef7b9bbfe4130576098da4c2145152c9ab35a34c5e9d2d52"
+    }
+  },
+  "shape_status": "selected_standard_export",
+  "game_acceptance": "not_executed",
+  "retargeting": {
+    "walking": {
+      "method": "enhanced_standard_rump_sway",
+      "duration_seconds": 1.2,
+      "shape_changed": false,
+      "status": "pending_visual_confirmation"
+    }
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "id": "care-props",
+  "prefixes": [
+    "standards/yukkuri-library/drafts/care-props/",
+    "art/props/runtime-peripheral/"
+  ],
+  "registry": [
+    "care_props"
+  ],
+  "_order": 0
+}

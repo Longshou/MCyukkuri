@@ -1,0 +1,17 @@
+{
+  "id": "standard-expressions",
+  "label": "标准表情、部件与叠加效果",
+  "prefixes": [
+    "standards/yukkuri-library/expressions/",
+    "standards/yukkuri-library/STANDARD-EXPRESSIONS.md",
+    "src/main/resources/assets/mcyukkuri/yukkuri_presentation/face_library.json"
+  ],
+  "library": [
+    "expressions",
+    "effects"
+  ],
+  "registry": [
+    "face_library"
+  ],
+  "_order": 0
+}

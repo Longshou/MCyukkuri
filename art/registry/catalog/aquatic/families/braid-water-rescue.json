@@ -1,0 +1,10 @@
+{
+  "id": "braid-water-rescue",
+  "prefixes": [
+    "standards/yukkuri-library/interactions/braid-water-rescue/"
+  ],
+  "registry": [
+    "braid_water_rescue"
+  ],
+  "_order": 4
+}

@@ -1,0 +1,10 @@
+{
+  "clips": {
+    "author": "standards/yukkuri-library/motions/variants/lore/aquatic_tools.py",
+    "exporter": "standards/yukkuri-library/motions/variants/lore/author.py --export-aquatic",
+    "runtime": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/motion_corrections.json"
+  },
+  "preview": "standards/yukkuri-library/motions/variants/lore/aquatic_paddle_preview.py",
+  "status": "pending_user_review",
+  "scope": "Braid cradle, mouth bite (two hard yanks per loop), capsize, self-rescue and hull-life clips (project original / ecology design D 3.4). The game draws the real vanilla stick the braid holds; the withdrawn `paddle_stick` and `marisa_hat_wetline` props stay out of the export."
+}

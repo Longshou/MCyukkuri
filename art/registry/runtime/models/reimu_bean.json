@@ -1,0 +1,175 @@
+{
+  "geometry_identifier": "reimu_bean",
+  "base_species": "reimu",
+  "selected_model": "standards/yukkuri-library/subspecies/deficient/assembled/reimu_bean/reimu_bean.bbmodel",
+  "selected_model_sha256": "1713055b8f5d275494b96fc8efed2dc03c6a195c9799359e1511ca4d55df5dbf",
+  "selected_rig": "standards/yukkuri-library/subspecies/deficient/assembled/reimu_bean/animation-rig.json",
+  "selected_rig_sha256": "4f16dbfb99c60e2b6d48d614677f4450f7bcf5ef4bd9b009ac599ff440ac4e52",
+  "snapshot": "art/source/subspecies-runtime/reimu_bean/reimu_bean.bbmodel",
+  "runtime": "src/main/resources/assets/mcyukkuri/yukkuri/reimu_bean.json",
+  "runtime_sha256": "801b806781f5db7796c56c68e7fe313d593b88b4d254aee4b46978dacabae18d",
+  "bone_count": 197,
+  "clips": [
+    "idle",
+    "stretch_shape",
+    "side_bend",
+    "waddle",
+    "puff",
+    "brace",
+    "startle",
+    "turn",
+    "hop",
+    "stretch",
+    "exercise_vertical",
+    "exercise_sides",
+    "press",
+    "taiso",
+    "flee",
+    "anatomy_mamu_extend",
+    "anatomy_mamu_retract",
+    "anatomy_peni_extend",
+    "anatomy_peni_retract"
+  ],
+  "textures": {
+    "neutral": {
+      "source": "art/source/standard-runtime/reimu/textures/neutral.png",
+      "sha256": "3ab104970773f942d3fb85a6cf98450ddccecfe4e7162827fb57b6f985362ba4",
+      "snapshot": "art/source/subspecies-runtime/reimu_bean/textures/neutral.png",
+      "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_bean/neutral.png",
+      "width": 128,
+      "height": 128
+    },
+    "happy": {
+      "source": "art/source/standard-runtime/reimu/textures/happy.png",
+      "sha256": "0ad761cb67df50ddea4abbb9e44927a58e0e73bda4b93825f7851cd224278f4d",
+      "snapshot": "art/source/subspecies-runtime/reimu_bean/textures/happy.png",
+      "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_bean/happy.png",
+      "width": 128,
+      "height": 128
+    },
+    "cry": {
+      "source": "art/source/standard-runtime/reimu/textures/cry.png",
+      "sha256": "b7d7551c53229272bb9380654a4883d9e15f1e9780db45cb980736b59e72e36e",
+      "snapshot": "art/source/subspecies-runtime/reimu_bean/textures/cry.png",
+      "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_bean/cry.png",
+      "width": 128,
+      "height": 128
+    },
+    "teary": {
+      "source": "art/source/standard-runtime/reimu/textures/teary.png",
+      "sha256": "bebe2ce7865657862ba50b96e840c67becee016e37ac35bc6f52ceac4f4e02f8",
+      "snapshot": "art/source/subspecies-runtime/reimu_bean/textures/teary.png",
+      "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_bean/teary.png",
+      "width": 128,
+      "height": 128
+    },
+    "drool": {
+      "source": "art/source/standard-runtime/reimu/textures/drool.png",
+      "sha256": "49006ee83f2357c048ce2e61923b18c1975bc9b8ac408dd43a30d7463efc42b0",
+      "snapshot": "art/source/subspecies-runtime/reimu_bean/textures/drool.png",
+      "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_bean/drool.png",
+      "width": 128,
+      "height": 128
+    },
+    "confused": {
+      "source": "art/source/standard-runtime/reimu/textures/confused.png",
+      "sha256": "1282deefff7ce3b1aabf9c7f6a196d1b233501fad356eb486de8c8f43b14a72b",
+      "snapshot": "art/source/subspecies-runtime/reimu_bean/textures/confused.png",
+      "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_bean/confused.png",
+      "width": 128,
+      "height": 128
+    },
+    "yawn": {
+      "source": "art/source/standard-runtime/reimu/textures/yawn.png",
+      "sha256": "3d09e92603f0f4cc2b850fe97dd0afb3180f46b26159d9f19a6b97ee9d78bef1",
+      "snapshot": "art/source/subspecies-runtime/reimu_bean/textures/yawn.png",
+      "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_bean/yawn.png",
+      "width": 128,
+      "height": 128
+    },
+    "sleep": {
+      "source": "art/source/standard-runtime/reimu/textures/sleep.png",
+      "sha256": "8cdd3a2433143bd9f96ccb361ed79a8a5befe532837d2d2047e17760f762da7f",
+      "snapshot": "art/source/subspecies-runtime/reimu_bean/textures/sleep.png",
+      "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_bean/sleep.png",
+      "width": 128,
+      "height": 128
+    },
+    "angry": {
+      "source": "art/source/standard-runtime/reimu/textures/angry.png",
+      "sha256": "23f76a6ac011b5ce87db415d651651f5b1ce9cbe8285ccd5844bf774961e7045",
+      "snapshot": "art/source/subspecies-runtime/reimu_bean/textures/angry.png",
+      "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_bean/angry.png",
+      "width": 128,
+      "height": 128
+    },
+    "surprise": {
+      "source": "art/source/standard-runtime/reimu/textures/surprise.png",
+      "sha256": "acd88aec7d7ba28a95141d2252eab37809e523a882c413399b37e40b343e305e",
+      "snapshot": "art/source/subspecies-runtime/reimu_bean/textures/surprise.png",
+      "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_bean/surprise.png",
+      "width": 128,
+      "height": 128
+    },
+    "sleepy": {
+      "source": "art/source/standard-runtime/reimu/textures/sleepy.png",
+      "sha256": "d00813efd0df9649b142d24a3a00ea0b3f90382f3afd1c6fd5af4c698aad668b",
+      "snapshot": "art/source/subspecies-runtime/reimu_bean/textures/sleepy.png",
+      "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_bean/sleepy.png",
+      "width": 128,
+      "height": 128
+    },
+    "closed_smile": {
+      "source": "standards/yukkuri-library/assembled/reimu/textures/closed_smile.png",
+      "sha256": "9ad775ee7913a3e5ff0d3d8f55ebe1b00d1094f62d03864a3a741e25cf417e96",
+      "snapshot": "art/source/subspecies-runtime/reimu_bean/textures/closed_smile.png",
+      "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_bean/closed_smile.png",
+      "width": 128,
+      "height": 128
+    },
+    "chewing": {
+      "source": "standards/yukkuri-library/assembled/reimu/textures/chewing.png",
+      "sha256": "891e338183663a384624e3eee343993596ec534a67b142cc6b3d4f8617c6a8bd",
+      "snapshot": "art/source/subspecies-runtime/reimu_bean/textures/chewing.png",
+      "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_bean/chewing.png",
+      "width": 128,
+      "height": 128
+    },
+    "chewing_closed": {
+      "source": "standards/yukkuri-library/assembled/reimu/textures/chewing_closed.png",
+      "sha256": "38b2fed4bbf34f6b08152d727467ba5ce37b8572c85a1c0fa0b631fe6b608962",
+      "snapshot": "art/source/subspecies-runtime/reimu_bean/textures/chewing_closed.png",
+      "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_bean/chewing_closed.png",
+      "width": 128,
+      "height": 128
+    },
+    "satisfied": {
+      "source": "standards/yukkuri-library/assembled/reimu/textures/satisfied.png",
+      "sha256": "6080bd0c201475a8bf6f48ee1dd2018a33b1a0a3998f58adc82dbcec02306359",
+      "snapshot": "art/source/subspecies-runtime/reimu_bean/textures/satisfied.png",
+      "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_bean/satisfied.png",
+      "width": 128,
+      "height": 128
+    },
+    "open_smile": {
+      "source": "standards/yukkuri-library/assembled/reimu/textures/open_smile.png",
+      "sha256": "30bbb90fc520294c27a5341a536f9a78438e6dd01f49355e38aece16573d5efc",
+      "snapshot": "art/source/subspecies-runtime/reimu_bean/textures/open_smile.png",
+      "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_bean/open_smile.png",
+      "width": 128,
+      "height": 128
+    }
+  },
+  "motion_source": "src/main/resources/assets/mcyukkuri/yukkuri/reimu.json",
+  "motion_source_sha256": "82c740702a5a2e3dc2918d1d1e56a0ac1a53c2f82bd3fb7a2254b7409cf4041a",
+  "shape_status": "pending_user_confirmation",
+  "approval_note": "",
+  "runtime_acceptance": "not_executed",
+  "rig": "art/source/subspecies-runtime/reimu_bean/animation-rig.json",
+  "hair_revision": "bean-profile-fit",
+  "author": "standards/yukkuri-library/subspecies/deficient/bean_hair.py",
+  "author_sha256": "25cae5f4660aaa2af8145e0808628374c26c7253bea5219ff7985b0f8be25c6c",
+  "face_revision": "bean-skin-anchor-motion",
+  "face_author": "standards/yukkuri-library/subspecies/deficient/bean_face.py",
+  "face_author_sha256": "093d9f7b281c5f41cb0c23d3eae678ce558d6c0879bd5053d8ab320de2fdb12c"
+}

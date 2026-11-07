@@ -1,0 +1,13 @@
+{
+  "id": "house-ecology",
+  "prefixes": [
+    "art/source/house-ecology/",
+    "art/source/house-ecology-presentation/",
+    "standards/yukkuri-library/ecology/house-nest/"
+  ],
+  "registry": [
+    "house_ecology",
+    "house_ecology_presentation"
+  ],
+  "_order": 3
+}

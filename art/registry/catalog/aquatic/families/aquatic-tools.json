@@ -1,0 +1,11 @@
+{
+  "id": "aquatic-tools",
+  "label": "划行、游泳与水上工具动作",
+  "prefixes": [
+    "standards/yukkuri-library/motions/variants/lore/aquatic"
+  ],
+  "registry": [
+    "aquatic_tools"
+  ],
+  "_order": 3
+}

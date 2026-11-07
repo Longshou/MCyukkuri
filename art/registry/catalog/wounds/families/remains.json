@@ -1,0 +1,18 @@
+{
+  "id": "remains",
+  "prefixes": [
+    "standards/yukkuri-library/drafts/remains/",
+    "art/source/remains/",
+    "src/main/resources/assets/mcyukkuri/textures/entity/remains/"
+  ],
+  "registry": [
+    "remains_art",
+    "grave_marker"
+  ],
+  "ids": [
+    "burial_mound",
+    "grave_marker",
+    "yukkuri_remains"
+  ],
+  "_order": 5
+}

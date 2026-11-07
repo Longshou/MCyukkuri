@@ -1,0 +1,9 @@
+{
+  "source": "standards/yukkuri-library/drafts/body-marks",
+  "builder": "standards/yukkuri-library/drafts/body-marks/export_wounds.py",
+  "preview_script": "standards/yukkuri-library/drafts/body-marks/export_wounds.py --preview",
+  "provenance": "art/source/body-wound-materials/manifest.json",
+  "runtime_textures": "src/main/resources/assets/mcyukkuri/textures/props/body_wounds/",
+  "geometry": "client/WoundRenderer uses body/BodySigns for stable mould sites, continuous sole projection and actual deep wounds; surface materials shared with body_wounds.surface_materials",
+  "standard_status": "user_requested_selection_pending_runtime_review"
+}

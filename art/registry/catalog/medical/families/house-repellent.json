@@ -1,0 +1,11 @@
+{
+  "id": "house-repellent",
+  "prefixes": [
+    "art/source/house-repellent/",
+    "standards/yukkuri-library/ecology/house-repellent/"
+  ],
+  "registry": [
+    "house_repellent"
+  ],
+  "_order": 3
+}

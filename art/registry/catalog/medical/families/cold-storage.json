@@ -1,0 +1,8 @@
+{
+  "id": "cold-storage",
+  "prefixes": [
+    "art/props/cold-storage/",
+    "standards/yukkuri-library/drafts/cold-storage/"
+  ],
+  "_order": 2
+}

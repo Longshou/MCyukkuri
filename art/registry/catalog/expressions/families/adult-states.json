@@ -1,0 +1,12 @@
+{
+  "id": "adult-states",
+  "prefixes": [
+    "art/source/adult-states/",
+    "standards/yukkuri-library/drafts/rapem-alice/"
+  ],
+  "registry": [
+    "adult_states",
+    "alice_appearance"
+  ],
+  "_order": 3
+}

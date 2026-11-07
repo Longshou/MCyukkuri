@@ -1,0 +1,9 @@
+{
+  "selection": "art/source/subspecies-runtime/manifest.json",
+  "wound_selection": "art/source/subspecies-runtime/wounds-manifest.json",
+  "exporter": "scripts/export_subspecies.py",
+  "wound_exporter": "scripts/export_subspecies_wounds.cjs",
+  "preview": "art/source/subspecies-runtime/preview.html",
+  "validation": "docs/FEATURES.md",
+  "scope": "Two named subspecies, six congenital forms, one actual hat boat and the matching detachable shell; confirmation status belongs to each selected record"
+}

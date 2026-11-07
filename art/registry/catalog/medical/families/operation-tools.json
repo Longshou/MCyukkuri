@@ -1,0 +1,15 @@
+{
+  "id": "operation-tools",
+  "prefixes": [
+    "art/props/operation-tools/",
+    "standards/yukkuri-library/drafts/operation-tools/"
+  ],
+  "ids": [
+    "operations-index",
+    "iron_enclosure*",
+    "restraint_frame*",
+    "wrap_sling*",
+    "kanroken"
+  ],
+  "_order": 0
+}

@@ -169,15 +169,21 @@ def compile_revision(model, cfg, face):
         owned = set(lore['TOOLS']['EXPORT_CLIPS'])  # aquatic_tools lays the braid itself in these clips
         cfg = dict(cfg, braid_follow=dict(cfg['braid_follow'], actions=[a for a in cfg['braid_follow']['actions']+lore_cfg['braid_follow'] if a not in owned]))
     result.update(braid_follow(model, cfg, result))
-    chain = braid_chain.chain({b['name']: i for i, b in enumerate(model['bones'])})
-    if chain:  # the braid swing runs down the chain in every clip that moves it
-        result = {k: clip if k in owned else braid_chain.follow(chain, clip, cfg['braid_chain']) for k, clip in result.items()}
+    result = finish_chain(model, cfg, result, owned)
     revision = {'bone_names': [b['name'] for b in model['bones']], 'clips': result,
                 'expression_aliases': {'cheek_puff': 'neutral'},
                 'body_height': height, 'hop_height': height*cfg['hop_height_body_ratio']}
     if face.get('mouth_patch'):
         revision['expression_patches'] = {'cheek_puff': [face['mouth_patch']]}
     return revision
+
+
+def finish_chain(model, cfg, clips, owned):
+    """Shared final chain propagation for full and selected-family exports."""
+    chain = braid_chain.chain({b['name']: i for i, b in enumerate(model['bones'])})
+    if not chain:
+        return clips
+    return {k: clip if k in owned else braid_chain.follow(chain, clip, cfg['braid_chain']) for k, clip in clips.items()}
 
 
 # ---------------------------------------------------- single braid follow (v8)

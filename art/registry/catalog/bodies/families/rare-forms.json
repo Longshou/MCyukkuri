@@ -1,0 +1,19 @@
+{
+  "id": "rare-forms",
+  "prefixes": [
+    "standards/yukkuri-library/subspecies/rare-forms/",
+    "art/source/rare-forms-runtime/",
+    "standards/yukkuri-library/TSUMURI.md"
+  ],
+  "registry": [
+    "rare_forms"
+  ],
+  "ids": [
+    "myon",
+    "myon_redeye",
+    "chen_longtail",
+    "chen_roundtail",
+    "marisa_kotatsu"
+  ],
+  "_order": 3
+}

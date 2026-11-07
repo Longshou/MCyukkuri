@@ -1,0 +1,12 @@
+{
+  "id": "emote-symbols",
+  "label": "头顶情绪符号（汗滴、怒筋、Zzz 等 9 个）",
+  "prefixes": [
+    "standards/yukkuri-library/emotes/",
+    "src/main/resources/assets/mcyukkuri/textures/emote/"
+  ],
+  "registry": [
+    "emote_symbols"
+  ],
+  "_order": 4
+}

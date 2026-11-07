@@ -1,0 +1,28 @@
+{
+  "source": "standards/yukkuri-library/drafts/care-props",
+  "authors": {
+    "large_yukkuri_nest": "standards/yukkuri-library/drafts/care-props/placed.py:large_yukkuri_nest",
+    "large_wild_nest": "standards/yukkuri-library/drafts/care-props/wild.py:large_wild_nest (called by vanilla_props.py:large_wild_nest)"
+  },
+  "exporter": "standards/yukkuri-library/drafts/care-props/large_nests.py",
+  "snapshot": "art/props/large-nests",
+  "manifest": "art/props/large-nests/manifest.json",
+  "preview_source": "standards/yukkuri-library/drafts/care-props/preview_large_nests.py",
+  "exports": {
+    "large_yukkuri_nest": {
+      "runtime_mesh": "src/main/resources/assets/mcyukkuri/yukkuri_props/large_yukkuri_nest.json",
+      "runtime_texture": "src/main/resources/assets/mcyukkuri/textures/props/large_yukkuri_nest.png",
+      "block_model": "src/main/resources/assets/mcyukkuri/models/block/large_yukkuri_nest.json",
+      "role": "pet family bed: rounded-square woven basket, wicker wall 1.3 thick and 7 high at the back and sides (collision follows the visible shape: yukkuri_presentation/care_collision.json) with a braided top, a quilted pad with a rolled hem at about 1.7 inside; front opening down to the floor; dye styles ship as runtime-peripheral attachments"
+    },
+    "large_wild_nest": {
+      "runtime_mesh": "src/main/resources/assets/mcyukkuri/yukkuri_props/large_wild_nest.json",
+      "runtime_texture": "src/main/resources/assets/mcyukkuri/textures/props/large_wild_nest.png",
+      "block_model": "src/main/resources/assets/mcyukkuri/models/block/large_wild_nest.json",
+      "role": "wild family bedding (wild_kit atlas): leaf-litter pad at the collision floor 0.5 with lining leaves, moss and hay, no marked places; rim of loose dry grass pressed down in layers, up to 3 high, following the collision rim and front shoulders, twigs worked in, open front"
+    }
+  },
+  "geometry": "2x2 block footprint (32 x 32 units) centred on the origin = shared corner of the four blocks; entrance +z; 31-cell rounded (squircle n=4) outline at half-extent 15.5, one-cell rim leaving a 29-unit interior (collision interior 28.5), rim at most 3 high, down to the floor across 14 units of the south side and 2 high to |x| 11; family members settle anywhere",
+  "vanilla_texture_references": "none: all tiles hand-drawn in vanilla_props.py",
+  "status": "pending_user_confirmation"
+}

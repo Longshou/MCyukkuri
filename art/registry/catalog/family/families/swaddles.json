@@ -1,0 +1,12 @@
+{
+  "id": "swaddles",
+  "label": "布与树叶襁褓、花纹与穿戴",
+  "prefixes": [
+    "art/props/pet-goods/swaddle",
+    "src/main/resources/assets/mcyukkuri/textures/misc/swaddle"
+  ],
+  "ids": [
+    "swaddle*"
+  ],
+  "_order": 1
+}

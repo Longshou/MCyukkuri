@@ -1,0 +1,10 @@
+{
+  "id": "house-care",
+  "prefixes": [
+    "art/props/house-care/"
+  ],
+  "ids": [
+    "house_supplies"
+  ],
+  "_order": 4
+}

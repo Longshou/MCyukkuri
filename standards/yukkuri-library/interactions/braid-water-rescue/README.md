@@ -16,7 +16,7 @@
 
 ```powershell
 python -B standards/yukkuri-library/interactions/braid-water-rescue/author.py
-python -B standards/yukkuri-library/motions/variants/lore/author.py --export-distress
+<py> scripts/export.py --family distress
 ```
 
 以上仅导出资源。离线预览：划桨姿势看 `motions/variants/lore/aquatic_paddle_preview.py`（`.local/previews/aquatic-paddle/paddle.png`），帽船与乘员看 `interactions/aquatic-marisa-hat/preview.py`；产物不入库。

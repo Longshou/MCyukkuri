@@ -1,0 +1,11 @@
+{
+  "id": "carry-hold",
+  "label": "多只运输、口中放出与辫子持物",
+  "prefixes": [
+    "standards/yukkuri-library/motions/variants/lore/carry_hold"
+  ],
+  "registry": [
+    "carry_hold"
+  ],
+  "_order": 2
+}

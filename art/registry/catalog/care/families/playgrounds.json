@@ -1,0 +1,11 @@
+{
+  "id": "playgrounds",
+  "prefixes": [
+    "art/props/playgrounds/",
+    "standards/yukkuri-library/drafts/playgrounds/"
+  ],
+  "ids": [
+    "playgrounds-index"
+  ],
+  "_order": 6
+}

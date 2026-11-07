@@ -1,0 +1,12 @@
+{
+  "id": "care-facilities",
+  "prefixes": [
+    "art/props/care-facilities/"
+  ],
+  "ids": [
+    "facilities-index",
+    "care_collision",
+    "living"
+  ],
+  "_order": 1
+}

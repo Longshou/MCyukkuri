@@ -1,0 +1,175 @@
+{
+  "geometry_identifier": "marisa_bean",
+  "base_species": "marisa",
+  "selected_model": "standards/yukkuri-library/subspecies/deficient/assembled/marisa_bean/marisa_bean.bbmodel",
+  "selected_model_sha256": "b9e90addb3a384da1e2e768fef1137ab02618004bc8c6bdd5eb053560500b1cc",
+  "selected_rig": "standards/yukkuri-library/subspecies/deficient/assembled/marisa_bean/animation-rig.json",
+  "selected_rig_sha256": "3ffb1b8869f70474a9f656f72acd5bc42ac742fb440626abe96549372f21a166",
+  "snapshot": "art/source/subspecies-runtime/marisa_bean/marisa_bean.bbmodel",
+  "runtime": "src/main/resources/assets/mcyukkuri/yukkuri/marisa_bean.json",
+  "runtime_sha256": "418e8625bacbfc15e96cbc8310bc4a10371965dd0b9cdafb7d575bcb65afc869",
+  "bone_count": 204,
+  "clips": [
+    "idle",
+    "stretch_shape",
+    "side_bend",
+    "waddle",
+    "puff",
+    "brace",
+    "startle",
+    "turn",
+    "hop",
+    "stretch",
+    "exercise_vertical",
+    "exercise_sides",
+    "press",
+    "taiso",
+    "flee",
+    "anatomy_mamu_extend",
+    "anatomy_mamu_retract",
+    "anatomy_peni_extend",
+    "anatomy_peni_retract"
+  ],
+  "textures": {
+    "neutral": {
+      "source": "art/source/standard-runtime/marisa/textures/neutral.png",
+      "sha256": "af6c00936afe90d4a8d61cb2ef87a94828410415567410ff87973b295631c0c0",
+      "snapshot": "art/source/subspecies-runtime/marisa_bean/textures/neutral.png",
+      "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_bean/neutral.png",
+      "width": 128,
+      "height": 128
+    },
+    "happy": {
+      "source": "art/source/standard-runtime/marisa/textures/happy.png",
+      "sha256": "f008765037048ed56e475b5c035cbc682b1f45395be5b69d969f10e0134ff41a",
+      "snapshot": "art/source/subspecies-runtime/marisa_bean/textures/happy.png",
+      "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_bean/happy.png",
+      "width": 128,
+      "height": 128
+    },
+    "cry": {
+      "source": "art/source/standard-runtime/marisa/textures/cry.png",
+      "sha256": "10b8e2b5bedf7a97d03679bd416f362093c28936d6786c92d6d51cd208925690",
+      "snapshot": "art/source/subspecies-runtime/marisa_bean/textures/cry.png",
+      "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_bean/cry.png",
+      "width": 128,
+      "height": 128
+    },
+    "teary": {
+      "source": "art/source/standard-runtime/marisa/textures/teary.png",
+      "sha256": "c2665c0ee4c234fa92005019b1308b1f57e899670a619a3172510bb080aae025",
+      "snapshot": "art/source/subspecies-runtime/marisa_bean/textures/teary.png",
+      "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_bean/teary.png",
+      "width": 128,
+      "height": 128
+    },
+    "drool": {
+      "source": "art/source/standard-runtime/marisa/textures/drool.png",
+      "sha256": "eb4f450f0f58a9145cdc6f2dd14227d74ac5166671cf90f1c13c83b68f6e83e0",
+      "snapshot": "art/source/subspecies-runtime/marisa_bean/textures/drool.png",
+      "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_bean/drool.png",
+      "width": 128,
+      "height": 128
+    },
+    "confused": {
+      "source": "art/source/standard-runtime/marisa/textures/confused.png",
+      "sha256": "cdb3c489f0ba67e018f91e2fe972087dfbabc4079491fa071b22fd469f97f56f",
+      "snapshot": "art/source/subspecies-runtime/marisa_bean/textures/confused.png",
+      "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_bean/confused.png",
+      "width": 128,
+      "height": 128
+    },
+    "yawn": {
+      "source": "art/source/standard-runtime/marisa/textures/yawn.png",
+      "sha256": "61f9ca6e83ac83c7445d5c210d7e57476a845b5d08c9a7b3ba5a7f093e7eb5f9",
+      "snapshot": "art/source/subspecies-runtime/marisa_bean/textures/yawn.png",
+      "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_bean/yawn.png",
+      "width": 128,
+      "height": 128
+    },
+    "sleep": {
+      "source": "art/source/standard-runtime/marisa/textures/sleep.png",
+      "sha256": "3c66a2c076886a54bbde3287a8c17ff2f559883880d4b81f0a1aecb0e0b120c2",
+      "snapshot": "art/source/subspecies-runtime/marisa_bean/textures/sleep.png",
+      "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_bean/sleep.png",
+      "width": 128,
+      "height": 128
+    },
+    "angry": {
+      "source": "art/source/standard-runtime/marisa/textures/angry.png",
+      "sha256": "b435c36536583a5dae76384544b071f92dd39dfffa1f848d46f71fb04b193b68",
+      "snapshot": "art/source/subspecies-runtime/marisa_bean/textures/angry.png",
+      "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_bean/angry.png",
+      "width": 128,
+      "height": 128
+    },
+    "surprise": {
+      "source": "art/source/standard-runtime/marisa/textures/surprise.png",
+      "sha256": "5c50fce8b0aa046947c5205ee1a7e68e3fed3dd8bb1180e8cd0c079084bf2639",
+      "snapshot": "art/source/subspecies-runtime/marisa_bean/textures/surprise.png",
+      "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_bean/surprise.png",
+      "width": 128,
+      "height": 128
+    },
+    "sleepy": {
+      "source": "art/source/standard-runtime/marisa/textures/sleepy.png",
+      "sha256": "7c395495130924ce57196ed8ce073d64e23e49578f2bf432a93f7d35fe7a916d",
+      "snapshot": "art/source/subspecies-runtime/marisa_bean/textures/sleepy.png",
+      "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_bean/sleepy.png",
+      "width": 128,
+      "height": 128
+    },
+    "closed_smile": {
+      "source": "standards/yukkuri-library/assembled/marisa/textures/closed_smile.png",
+      "sha256": "acc3d8f46dd43a5af8efc0a3ee8b3daa6405a5b9dbeef228f8d847380cdf3fe7",
+      "snapshot": "art/source/subspecies-runtime/marisa_bean/textures/closed_smile.png",
+      "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_bean/closed_smile.png",
+      "width": 128,
+      "height": 128
+    },
+    "chewing": {
+      "source": "standards/yukkuri-library/assembled/marisa/textures/chewing.png",
+      "sha256": "a39445b24cecfd133b1ef01eed254fc342084dc98156206e0f79ae27a11c4030",
+      "snapshot": "art/source/subspecies-runtime/marisa_bean/textures/chewing.png",
+      "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_bean/chewing.png",
+      "width": 128,
+      "height": 128
+    },
+    "chewing_closed": {
+      "source": "standards/yukkuri-library/assembled/marisa/textures/chewing_closed.png",
+      "sha256": "d99e040a4b1715c74e77b9e2fb97eef098bac4c9ce1fdb2b8e2b23847fb852ad",
+      "snapshot": "art/source/subspecies-runtime/marisa_bean/textures/chewing_closed.png",
+      "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_bean/chewing_closed.png",
+      "width": 128,
+      "height": 128
+    },
+    "satisfied": {
+      "source": "standards/yukkuri-library/assembled/marisa/textures/satisfied.png",
+      "sha256": "4fc20b4c26c3cf79ef9d57b192df367baa1f4af463e8b41aeb64e74a4d452e4b",
+      "snapshot": "art/source/subspecies-runtime/marisa_bean/textures/satisfied.png",
+      "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_bean/satisfied.png",
+      "width": 128,
+      "height": 128
+    },
+    "open_smile": {
+      "source": "standards/yukkuri-library/assembled/marisa/textures/open_smile.png",
+      "sha256": "23130c29b838732e18f016ca6489f71e5ed00be32d3edcfa23645a95e54e7875",
+      "snapshot": "art/source/subspecies-runtime/marisa_bean/textures/open_smile.png",
+      "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_bean/open_smile.png",
+      "width": 128,
+      "height": 128
+    }
+  },
+  "motion_source": "src/main/resources/assets/mcyukkuri/yukkuri/marisa.json",
+  "motion_source_sha256": "dadff8a769e7a3c244a0a1f0206c63d4c9541fa69bb88f6c43345287b4e44917",
+  "shape_status": "pending_user_confirmation",
+  "approval_note": "",
+  "runtime_acceptance": "not_executed",
+  "rig": "art/source/subspecies-runtime/marisa_bean/animation-rig.json",
+  "hair_revision": "bean-profile-fit",
+  "author": "standards/yukkuri-library/subspecies/deficient/bean_hair.py",
+  "author_sha256": "6f75a3364f41dbe1f65ce5b2b66129d89edddfcd7f4500d100251e9f825ac50a",
+  "face_revision": "bean-skin-anchor-motion",
+  "face_author": "standards/yukkuri-library/subspecies/deficient/bean_face.py",
+  "face_author_sha256": "a93cb5bf7f7dc4d40ea6b99285c59e9c6d9f93c076435e402a6d2959ceef2ad4"
+}

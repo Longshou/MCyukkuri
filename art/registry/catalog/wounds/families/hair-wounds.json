@@ -1,0 +1,13 @@
+{
+  "id": "hair-wounds",
+  "label": "头发与身体伤口网格、分级图集",
+  "prefixes": [
+    "standards/yukkuri-library/drafts/body-marks/hair-wounds/",
+    "art/source/hair-wounds/",
+    "src/main/resources/assets/mcyukkuri/yukkuri_wounds/hair/"
+  ],
+  "registry": [
+    "hair_wounds"
+  ],
+  "_order": 2
+}

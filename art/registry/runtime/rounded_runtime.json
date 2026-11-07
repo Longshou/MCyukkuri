@@ -1,0 +1,6 @@
+{
+  "manifest": "art/source/rounded-runtime/manifest.json",
+  "preview": ".local/previews/rounded-runtime/index.html",
+  "source": "standards/yukkuri-library/body-standard",
+  "automatic_promotion": false
+}

@@ -1,0 +1,14 @@
+{
+  "selection": "art/source/hat-interactions/recipe.json",
+  "exporter": "scripts/export_hat_interactions.py",
+  "runtime": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/hat_interactions.json",
+  "scope": [
+    "marisa",
+    "marisa_sparse",
+    "marisa_face",
+    "marisa_bean",
+    "house_marisa"
+  ],
+  "validation": "art/source/hat-interactions/reports/current/verification.md",
+  "head": "Per variant `head`: the bare head's flat top (hat off) as [x0, z0, x1, z1, top] support cells in the hat_follow frame within HEAD_BAND (0.5 model units) of the hair peak, margin and obstacles in the ring schema (project design, user 2026-11-04)."
+}

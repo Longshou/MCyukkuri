@@ -1,0 +1,15 @@
+{
+  "id": "body-wounds",
+  "prefixes": [
+    "art/props/body-wounds/",
+    "standards/yukkuri-library/ecology/body-wounds/",
+    "src/main/resources/assets/mcyukkuri/yukkuri_wounds/"
+  ],
+  "registry": [
+    "body_wounds"
+  ],
+  "ids": [
+    "body_wounds"
+  ],
+  "_order": 0
+}

@@ -1,0 +1,12 @@
+{
+  "id": "wound-materials",
+  "label": "伤口材质（擦伤、凹陷、撕裂、焦痕、疤、脏污与霉斑）",
+  "prefixes": [
+    "standards/yukkuri-library/drafts/body-marks/",
+    "art/source/body-wound-materials/"
+  ],
+  "registry": [
+    "body_marks"
+  ],
+  "_order": 1
+}

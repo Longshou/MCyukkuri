@@ -1,0 +1,11 @@
+{
+  "id": "toilet-contact",
+  "prefixes": [
+    "standards/yukkuri-library/interactions/toilet-contact/",
+    "art/source/toilet-contact/"
+  ],
+  "registry": [
+    "toilet_contact"
+  ],
+  "_order": 8
+}

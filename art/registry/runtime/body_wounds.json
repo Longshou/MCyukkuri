@@ -1,0 +1,9 @@
+{
+  "selected_source": "art/props/body-wounds/selected/wound-surface.js",
+  "provenance": "art/props/body-wounds/provenance.json",
+  "exporter": "scripts/export_wound_surfaces.cjs",
+  "runtime_directory": "src/main/resources/assets/mcyukkuri/yukkuri_wounds",
+  "preview": "art/props/body-wounds/previews/current/index.html",
+  "standard_status": "pending_user_confirmation",
+  "approval": "standards/yukkuri-library/ecology/body-wounds/approval.json"
+}

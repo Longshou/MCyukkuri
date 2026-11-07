@@ -1,0 +1,12 @@
+{
+  "id": "audio-reference",
+  "label": "声音来源边界与声音事件登记",
+  "prefixes": [
+    "art/audio/reference/",
+    "art/audio/DIARY_AUDIO_RESEARCH.md",
+    "art/audio/README.md",
+    "art/audio/requirements.txt",
+    "src/main/resources/assets/mcyukkuri/sounds.json"
+  ],
+  "_order": 3
+}

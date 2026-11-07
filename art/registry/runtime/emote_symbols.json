@@ -1,0 +1,14 @@
+{
+  "source": "standards/yukkuri-library/emotes/emotes.py",
+  "exporter": "standards/yukkuri-library/emotes/emotes.py",
+  "assembled": "standards/yukkuri-library/emotes/assembled",
+  "preview_source": "standards/yukkuri-library/emotes/preview.py",
+  "preview": ".local/previews/emote-atlas/index.html",
+  "concept": ".local/generated-images/emotes/sheet.png (image liaison concept; redrawn at 16 px, not copied)",
+  "runtime": [
+    "src/main/resources/assets/mcyukkuri/textures/emote/atlas.png",
+    "src/main/resources/assets/mcyukkuri/textures/emote/emotes.json"
+  ],
+  "status": "pending_user_review",
+  "scope": "Nine 16x16 above-head emote symbols (sweat, anger, zzz, exclaim, question, note, heart, gloom, shiver; the user merged sparkle and idea into exclaim, steam into anger) in one 3x3 atlas with an id/meaning/use/cell registry; project design. No renderer yet: the billboard and sync arrive with the moments package."
+}

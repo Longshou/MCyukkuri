@@ -1,0 +1,9 @@
+{
+  "builder": "standards/yukkuri-library/drafts/remains/grave_marker.py",
+  "runtime_model": "src/main/resources/assets/mcyukkuri/yukkuri_props/grave_marker.json",
+  "runtime_index": "src/main/resources/assets/mcyukkuri/yukkuri_props/index.json",
+  "runtime_texture": "src/main/resources/assets/mcyukkuri/textures/props/grave_marker.png",
+  "use": "small stone marker at the head end of a burial mound, facing the burier (client/GraveRenderer, body/GraveBlock)",
+  "origin": "project original; direction chosen from a local concept sheet and two rendered candidates; stone faces sample the vanilla smooth_stone texture by reference, the carved lines are project-drawn",
+  "standard_status": "pending_user_confirmation"
+}

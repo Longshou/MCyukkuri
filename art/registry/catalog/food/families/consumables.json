@@ -1,0 +1,14 @@
+{
+  "id": "consumables",
+  "prefixes": [
+    "art/props/consumables/",
+    "standards/yukkuri-library/drafts/consumables/"
+  ],
+  "registry": [
+    "food_mash_serving"
+  ],
+  "ids": [
+    "consumables-index"
+  ],
+  "_order": 0
+}

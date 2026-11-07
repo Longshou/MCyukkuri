@@ -1,0 +1,13 @@
+{
+  "id": "motion-corrections",
+  "prefixes": [
+    "art/source/motion-corrections/"
+  ],
+  "registry": [
+    "motion_corrections"
+  ],
+  "ids": [
+    "motion_corrections"
+  ],
+  "_order": 1
+}

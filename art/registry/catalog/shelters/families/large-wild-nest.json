@@ -1,0 +1,11 @@
+{
+  "id": "large-wild-nest",
+  "label": "野生大窝",
+  "prefixes": [
+    "art/props/large-nests/large_wild_nest/"
+  ],
+  "ids": [
+    "large_wild_nest"
+  ],
+  "_order": 2
+}

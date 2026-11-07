@@ -1,0 +1,113 @@
+{
+  "selected_model": "standards/yukkuri-library/assembled/patchouli/patchouli.bbmodel",
+  "selected_model_sha256": "37accb8a583d7e0f142b187c8dc335338a75c115ccb6570cafc0ecc9e964edac",
+  "selected_rig": "standards/yukkuri-library/assembled/patchouli/animation-rig.json",
+  "selected_rig_sha256": "1c5809cdb588ea4bad588e46812729f6c687c9893a46711749702866951537a3",
+  "standard_motion_source": "standards/yukkuri-library/assembled/patchouli/animation-rig.json",
+  "standard_motion_sha256": "1c5809cdb588ea4bad588e46812729f6c687c9893a46711749702866951537a3",
+  "snapshot": "art/source/standard-runtime/patchouli/patchouli.bbmodel",
+  "rig": "art/source/standard-runtime/patchouli/animation-rig.json",
+  "runtime": "src/main/resources/assets/mcyukkuri/yukkuri/patchouli.json",
+  "runtime_sha256": "4dc27caa8d6132b171a9847b409a02d9f27c995862fee74c9078b083ec075394",
+  "geometry_identifier": "patchouli",
+  "bone_count": 201,
+  "clips": [
+    "idle",
+    "stretch_shape",
+    "side_bend",
+    "waddle",
+    "puff",
+    "brace",
+    "startle",
+    "turn",
+    "hop",
+    "stretch",
+    "exercise_vertical",
+    "exercise_sides",
+    "press",
+    "taiso",
+    "flee",
+    "anatomy_mamu_extend",
+    "anatomy_mamu_retract",
+    "anatomy_peni_extend",
+    "anatomy_peni_retract"
+  ],
+  "textures": {
+    "neutral": {
+      "source": "standards/yukkuri-library/assembled/patchouli/textures/neutral.png",
+      "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/patchouli/neutral.png",
+      "sha256": "9faf498ff9c81610ff4d49fd37eab2af22d5b21cd0bf7b75b123edd6ab1de847"
+    },
+    "happy": {
+      "source": "standards/yukkuri-library/assembled/patchouli/textures/happy.png",
+      "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/patchouli/happy.png",
+      "sha256": "18a49770b927159133badbe0440311e4314187d3823289fb6bf1d18a7fc38bdf"
+    },
+    "cry": {
+      "source": "standards/yukkuri-library/assembled/patchouli/textures/cry.png",
+      "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/patchouli/cry.png",
+      "sha256": "b5f5ac3736ef7c2ac3488c7278daacadf3d563cdc77916f155b8f18799e51157"
+    },
+    "teary": {
+      "source": "standards/yukkuri-library/assembled/patchouli/textures/teary.png",
+      "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/patchouli/teary.png",
+      "sha256": "f1cc89a59a926e8c964ba3fc71f8e02d4abea4e8c3c3bfe076643eb25a7108b5"
+    },
+    "drool": {
+      "source": "standards/yukkuri-library/assembled/patchouli/textures/drool.png",
+      "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/patchouli/drool.png",
+      "sha256": "b8c2fad5b04998385a5ae89e8728823e93e07cd782911d745e33fd412b851114"
+    },
+    "confused": {
+      "source": "standards/yukkuri-library/assembled/patchouli/textures/confused.png",
+      "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/patchouli/confused.png",
+      "sha256": "656cd0df5fda2139775547128c6e69de11644e1aafb452f422ac57316e59eb78"
+    },
+    "yawn": {
+      "source": "standards/yukkuri-library/assembled/patchouli/textures/yawn.png",
+      "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/patchouli/yawn.png",
+      "sha256": "40ffb363e8056eef2611da45dab51c6db14dd2152163ef7a768b6162f63286b2"
+    },
+    "sleep": {
+      "source": "standards/yukkuri-library/assembled/patchouli/textures/sleep.png",
+      "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/patchouli/sleep.png",
+      "sha256": "8ca31ad6474562e1eb84a5a5f49f30589321f1baeab5a726827331d1beb44eac"
+    },
+    "angry": {
+      "source": "standards/yukkuri-library/assembled/patchouli/textures/angry.png",
+      "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/patchouli/angry.png",
+      "sha256": "94c07495a35c317def52a8978bea23a01e5427252341db0a12bff50f133800f7"
+    },
+    "surprise": {
+      "source": "standards/yukkuri-library/assembled/patchouli/textures/surprise.png",
+      "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/patchouli/surprise.png",
+      "sha256": "a60ad5dc18995937cc8990ba370a4c66b9e647988b0a612fca355b1714564e38"
+    },
+    "sleepy": {
+      "source": "standards/yukkuri-library/assembled/patchouli/textures/sleepy.png",
+      "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/patchouli/sleepy.png",
+      "sha256": "4a97de1fa119caf32ea95d9f84b85483ba6834dcacebbe72c898e03afd0dc099"
+    }
+  },
+  "shape_status": "selected_standard_export",
+  "game_acceptance": "not_executed",
+  "retargeting": {
+    "method": "weighted_lower_hair_ground_contact",
+    "sample_seconds": 0.02,
+    "fixed_attachment_height": 8.48,
+    "max_contact_lift_by_clip": {
+      "side_bend": 0.820599,
+      "puff": 0.140586,
+      "brace": 1.235174,
+      "exercise_sides": 0.820599,
+      "press": 1.235174,
+      "taiso": 1.235174
+    },
+    "walking": {
+      "method": "enhanced_standard_rump_sway",
+      "duration_seconds": 1.2,
+      "shape_changed": false,
+      "status": "pending_visual_confirmation"
+    }
+  }
+}

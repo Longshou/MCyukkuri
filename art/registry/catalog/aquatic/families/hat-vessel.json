@@ -1,0 +1,14 @@
+{
+  "id": "hat-vessel",
+  "prefixes": [
+    "standards/yukkuri-library/interactions/marisa-hat-vessel/"
+  ],
+  "registry": [
+    "hat_vessel"
+  ],
+  "ids": [
+    "marisa_hat_turned",
+    "marisa_aquatic_hat"
+  ],
+  "_order": 1
+}

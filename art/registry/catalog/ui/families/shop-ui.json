@@ -1,0 +1,8 @@
+{
+  "id": "shop-ui",
+  "prefixes": [
+    "art/props/ui/",
+    "src/main/resources/assets/mcyukkuri/textures/gui/"
+  ],
+  "_order": 0
+}

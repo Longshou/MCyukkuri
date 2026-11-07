@@ -1,0 +1,15 @@
+{
+  "id": "core-filling",
+  "label": "中枢馅与漏馅",
+  "prefixes": [
+    "art/props/body-marks/"
+  ],
+  "registry": [
+    "core_filling"
+  ],
+  "ids": [
+    "leaked_filling",
+    "body_marks"
+  ],
+  "_order": 4
+}

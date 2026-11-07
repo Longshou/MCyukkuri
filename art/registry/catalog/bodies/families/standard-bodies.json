@@ -1,0 +1,27 @@
+{
+  "id": "standard-bodies",
+  "prefixes": [
+    "standards/yukkuri-library/assembled/",
+    "standards/yukkuri-library/body-standard/",
+    "standards/yukkuri-library/characters/",
+    "standards/yukkuri-library/components/",
+    "standards/yukkuri-library/rigs/",
+    "standards/yukkuri-library/bindings/",
+    "standards/yukkuri-library/profiles/",
+    "standards/yukkuri-library/textures/",
+    "standards/yukkuri-library/drafts/rounded-standard-body/",
+    "art/source/rounded-runtime/",
+    "art/source/standard-runtime/",
+    "src/main/resources/assets/mcyukkuri/yukkuri/",
+    "src/main/resources/assets/mcyukkuri/textures/entity/"
+  ],
+  "registry": [
+    "models",
+    "rounded_runtime"
+  ],
+  "library": [
+    "models",
+    "standardComponents.roundedBody"
+  ],
+  "_order": 0
+}

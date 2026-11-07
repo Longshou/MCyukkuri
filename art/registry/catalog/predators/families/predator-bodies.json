@@ -1,0 +1,14 @@
+{
+  "id": "predator-bodies",
+  "prefixes": [
+    "standards/yukkuri-library/subspecies/predator/",
+    "art/source/predator-runtime/",
+    "art/source/standard-runtime/flandre/",
+    "art/source/standard-runtime/remilia/"
+  ],
+  "ids": [
+    "flandre",
+    "remilia"
+  ],
+  "_order": 0
+}

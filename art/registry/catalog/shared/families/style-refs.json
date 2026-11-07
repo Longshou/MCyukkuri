@@ -1,0 +1,8 @@
+{
+  "id": "style-refs",
+  "label": "生图画风参考（非运行美术）",
+  "prefixes": [
+    "standards/yukkuri-library/style-refs/"
+  ],
+  "_order": 2
+}

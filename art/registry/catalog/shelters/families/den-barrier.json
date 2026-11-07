@@ -1,0 +1,11 @@
+{
+  "id": "den-barrier",
+  "label": "洞口结界屏障",
+  "prefixes": [
+    "art/source/den-barrier/"
+  ],
+  "registry": [
+    "den_barrier"
+  ],
+  "_order": 1
+}

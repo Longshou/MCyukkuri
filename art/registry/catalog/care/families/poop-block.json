@@ -1,0 +1,11 @@
+{
+  "id": "poop-block",
+  "label": "嗯嗯方块与分档堆形",
+  "prefixes": [
+    "art/source/poop-block/"
+  ],
+  "registry": [
+    "poop_block"
+  ],
+  "_order": 7
+}

@@ -1,0 +1,9 @@
+{
+  "builder": "art/props/body-marks/core_filling.py",
+  "runtime_model": "src/main/resources/assets/mcyukkuri/yukkuri_props/core_filling.json",
+  "runtime_index": "src/main/resources/assets/mcyukkuri/yukkuri_props/body-index.json",
+  "runtime_texture": "src/main/resources/assets/mcyukkuri/textures/props/core_filling.png",
+  "use": "item and dropped-portion look of a leaked_filling stack with Composition core (client/PropItemRenderer, client/MaterialDropRenderer)",
+  "origin": "project original; no external reference image",
+  "standard_status": "pending_user_confirmation"
+}

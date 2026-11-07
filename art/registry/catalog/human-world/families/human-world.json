@@ -1,0 +1,12 @@
+{
+  "id": "human-world",
+  "prefixes": [
+    "art/structures/human-world/",
+    "art/source/human-runtime/",
+    "standards/yukkuri-library/assembled/humans/",
+    "standards/yukkuri-library/characters/humans.json",
+    "standards/yukkuri-library/textures/humans/",
+    "src/main/resources/assets/mcyukkuri/textures/entity/human/"
+  ],
+  "_order": 0
+}

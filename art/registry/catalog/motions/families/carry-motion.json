@@ -1,0 +1,8 @@
+{
+  "id": "carry-motion",
+  "label": "口含与搬运姿势",
+  "prefixes": [
+    "art/source/standard-runtime/carry-motion/"
+  ],
+  "_order": 4
+}

@@ -1,0 +1,102 @@
+{
+  "selected_model": "standards/yukkuri-library/assembled/reimu/reimu.bbmodel",
+  "selected_model_sha256": "bd547c233344616640fdb9cc934e7a2d05b1d02d78640e50bfd7f24b07d32b0d",
+  "selected_rig": "standards/yukkuri-library/assembled/reimu/animation-rig.json",
+  "selected_rig_sha256": "0890e2f5d9fe3ed4689a106391050ff2649f48f45e7be0476598adf0d1c929d3",
+  "standard_motion_source": "standards/yukkuri-library/assembled/reimu/animation-rig.json",
+  "standard_motion_sha256": "0890e2f5d9fe3ed4689a106391050ff2649f48f45e7be0476598adf0d1c929d3",
+  "snapshot": "art/source/standard-runtime/reimu/reimu.bbmodel",
+  "rig": "art/source/standard-runtime/reimu/animation-rig.json",
+  "runtime": "src/main/resources/assets/mcyukkuri/yukkuri/reimu.json",
+  "runtime_sha256": "1bde83ccce00a7ce52ebf45dcd33fd3f275f3991135fd1ad3cdf81de08a6b4c4",
+  "geometry_identifier": "reimu",
+  "bone_count": 197,
+  "clips": [
+    "idle",
+    "stretch_shape",
+    "side_bend",
+    "waddle",
+    "puff",
+    "brace",
+    "startle",
+    "turn",
+    "hop",
+    "stretch",
+    "exercise_vertical",
+    "exercise_sides",
+    "press",
+    "taiso",
+    "flee",
+    "anatomy_mamu_extend",
+    "anatomy_mamu_retract",
+    "anatomy_peni_extend",
+    "anatomy_peni_retract"
+  ],
+  "textures": {
+    "neutral": {
+      "source": "standards/yukkuri-library/assembled/reimu/textures/neutral.png",
+      "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu/neutral.png",
+      "sha256": "3ab104970773f942d3fb85a6cf98450ddccecfe4e7162827fb57b6f985362ba4"
+    },
+    "happy": {
+      "source": "standards/yukkuri-library/assembled/reimu/textures/happy.png",
+      "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu/happy.png",
+      "sha256": "0ad761cb67df50ddea4abbb9e44927a58e0e73bda4b93825f7851cd224278f4d"
+    },
+    "cry": {
+      "source": "standards/yukkuri-library/assembled/reimu/textures/cry.png",
+      "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu/cry.png",
+      "sha256": "b7d7551c53229272bb9380654a4883d9e15f1e9780db45cb980736b59e72e36e"
+    },
+    "teary": {
+      "source": "standards/yukkuri-library/assembled/reimu/textures/teary.png",
+      "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu/teary.png",
+      "sha256": "bebe2ce7865657862ba50b96e840c67becee016e37ac35bc6f52ceac4f4e02f8"
+    },
+    "drool": {
+      "source": "standards/yukkuri-library/assembled/reimu/textures/drool.png",
+      "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu/drool.png",
+      "sha256": "49006ee83f2357c048ce2e61923b18c1975bc9b8ac408dd43a30d7463efc42b0"
+    },
+    "confused": {
+      "source": "standards/yukkuri-library/assembled/reimu/textures/confused.png",
+      "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu/confused.png",
+      "sha256": "1282deefff7ce3b1aabf9c7f6a196d1b233501fad356eb486de8c8f43b14a72b"
+    },
+    "yawn": {
+      "source": "standards/yukkuri-library/assembled/reimu/textures/yawn.png",
+      "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu/yawn.png",
+      "sha256": "3d09e92603f0f4cc2b850fe97dd0afb3180f46b26159d9f19a6b97ee9d78bef1"
+    },
+    "sleep": {
+      "source": "standards/yukkuri-library/assembled/reimu/textures/sleep.png",
+      "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu/sleep.png",
+      "sha256": "8cdd3a2433143bd9f96ccb361ed79a8a5befe532837d2d2047e17760f762da7f"
+    },
+    "angry": {
+      "source": "standards/yukkuri-library/assembled/reimu/textures/angry.png",
+      "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu/angry.png",
+      "sha256": "23f76a6ac011b5ce87db415d651651f5b1ce9cbe8285ccd5844bf774961e7045"
+    },
+    "surprise": {
+      "source": "standards/yukkuri-library/assembled/reimu/textures/surprise.png",
+      "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu/surprise.png",
+      "sha256": "acd88aec7d7ba28a95141d2252eab37809e523a882c413399b37e40b343e305e"
+    },
+    "sleepy": {
+      "source": "standards/yukkuri-library/assembled/reimu/textures/sleepy.png",
+      "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu/sleepy.png",
+      "sha256": "d00813efd0df9649b142d24a3a00ea0b3f90382f3afd1c6fd5af4c698aad668b"
+    }
+  },
+  "shape_status": "selected_standard_export",
+  "game_acceptance": "not_executed",
+  "retargeting": {
+    "walking": {
+      "method": "enhanced_standard_rump_sway",
+      "duration_seconds": 1.2,
+      "shape_changed": false,
+      "status": "pending_visual_confirmation"
+    }
+  }
+}

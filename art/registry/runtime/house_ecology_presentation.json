@@ -1,0 +1,7 @@
+{
+  "source": "art/source/house-ecology-presentation/recipe.json",
+  "exporter": "art/source/house-ecology-presentation/build.mjs",
+  "runtime": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/house_ecology.json",
+  "status": "pending_user_review",
+  "scope": "Original peek, tend, listen, startled and lost-home motion adaptation; not a frame-by-frame reconstruction of published artwork."
+}

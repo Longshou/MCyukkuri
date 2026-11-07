@@ -1,0 +1,20 @@
+{
+  "id": "deficient-forms",
+  "prefixes": [
+    "standards/yukkuri-library/subspecies/deficient/",
+    "art/source/subspecies-runtime/"
+  ],
+  "registry": [
+    "subspecies"
+  ],
+  "ids": [
+    "reimu_bean",
+    "reimu_face",
+    "reimu_sparse",
+    "marisa_bean",
+    "marisa_face",
+    "marisa_sparse",
+    "marisa_shell"
+  ],
+  "_order": 2
+}

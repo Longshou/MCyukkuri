@@ -1,0 +1,14 @@
+{
+  "id": "hat-damage",
+  "prefixes": [
+    "art/props/hat-damage/",
+    "src/main/resources/assets/mcyukkuri/yukkuri_presentation/hat_damage.json"
+  ],
+  "ids": [
+    "accessory_*",
+    "hat-damage-index",
+    "hat_damage_inner",
+    "trimmed_hair"
+  ],
+  "_order": 0
+}

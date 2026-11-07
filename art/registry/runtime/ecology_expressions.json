@@ -1,0 +1,6 @@
+{
+  "selection": "art/source/ecology/expressions.json",
+  "exporter": "scripts/export_ecology_expressions.py",
+  "scope": "Five approved expression atlases for seven existing rigs; geometry and animation bindings are unchanged",
+  "validation": "docs/FEATURES.md"
+}

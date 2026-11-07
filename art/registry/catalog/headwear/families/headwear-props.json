@@ -1,0 +1,13 @@
+{
+  "id": "headwear-props",
+  "label": "脱落头饰与佩戴附件",
+  "ids": [
+    "alice_headband",
+    "chen_hat",
+    "marisa_hat",
+    "myon_hairband",
+    "patchouli_bonnet",
+    "reimu_ribbon"
+  ],
+  "_order": 1
+}

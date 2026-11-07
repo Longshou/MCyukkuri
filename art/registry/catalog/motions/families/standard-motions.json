@@ -1,0 +1,13 @@
+{
+  "id": "standard-motions",
+  "label": "基础与复合动作、设定动作配方",
+  "prefixes": [
+    "standards/yukkuri-library/motions/",
+    "standards/yukkuri-library/motion_library.py",
+    "src/main/resources/assets/mcyukkuri/yukkuri_presentation/side_profile.json"
+  ],
+  "library": [
+    "motions"
+  ],
+  "_order": 0
+}

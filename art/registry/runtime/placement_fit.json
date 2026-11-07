@@ -1,0 +1,41 @@
+{
+  "manifest": "art/source/placement-fit/manifest.json",
+  "source": "standards/yukkuri-library/presentation/placement-fit",
+  "runtime": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/placement_fit.json",
+  "format": 1,
+  "revision": "placement-fit-20261007-v1",
+  "applied_before": "motion_corrections",
+  "models": [
+    "reimu",
+    "reimu_face",
+    "reimu_sparse",
+    "reimu_wasa",
+    "reimu_deibu",
+    "reimu_wasa_deibu",
+    "marisa",
+    "marisa_face",
+    "marisa_sparse",
+    "marisa_tsumuri",
+    "chen",
+    "alice"
+  ],
+  "checked_unchanged": [
+    "reimu_bean",
+    "house_reimu",
+    "marisa_bean",
+    "house_marisa",
+    "patchouli",
+    "remilia",
+    "flandre"
+  ],
+  "status": "pending_user_review",
+  "geometry_modified": false,
+  "runtime_fit_geometry_modified": true,
+  "derived_reexports": [
+    "src/main/resources/assets/mcyukkuri/yukkuri_presentation/motion_corrections.json",
+    "src/main/resources/assets/mcyukkuri/yukkuri_presentation/hat_interactions.json",
+    "src/main/resources/assets/mcyukkuri/yukkuri_presentation/family.json"
+  ],
+  "current_previews": "art/source/placement-fit/previews/current",
+  "current_reports": "art/source/placement-fit/reports/current"
+}

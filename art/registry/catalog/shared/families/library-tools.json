@@ -1,0 +1,20 @@
+{
+  "id": "library-tools",
+  "label": "素材库构建、校验与来源登记",
+  "prefixes": [
+    "standards/yukkuri-library/tools/",
+    "standards/yukkuri-library/provenance/",
+    "standards/yukkuri-library/runtime/",
+    "standards/yukkuri-library/tests/",
+    "standards/yukkuri-library/AGENTS.md",
+    "standards/yukkuri-library/README.md",
+    "standards/yukkuri-library/author_standard_species.py",
+    "standards/yukkuri-library/build.py",
+    "standards/yukkuri-library/catalog-data.",
+    "standards/yukkuri-library/character_appearance.py",
+    "standards/yukkuri-library/geometry.py",
+    "standards/yukkuri-library/validate.py",
+    "standards/yukkuri-library/drafts/README.md"
+  ],
+  "_order": 0
+}

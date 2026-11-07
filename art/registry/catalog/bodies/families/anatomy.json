@@ -1,0 +1,15 @@
+{
+  "id": "anatomy",
+  "label": "身体伸缩结构",
+  "prefixes": [
+    "standards/yukkuri-library/anatomy_",
+    "standards/yukkuri-library/ANATOMY.md",
+    "standards/yukkuri-library/behaviors/anatomy.json",
+    "standards/yukkuri-library/components/common/anatomy.json"
+  ],
+  "registry": [],
+  "library": [
+    "standardComponents.anatomy"
+  ],
+  "_order": 1
+}

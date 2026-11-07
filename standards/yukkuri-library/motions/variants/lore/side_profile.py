@@ -6,7 +6,7 @@ depth (model units, front -Z to back +Z): every triangle is sampled at under hal
 fills every cell it spans, not only the cells of its corners; rain_huddle_left gives the reach toward -X. Hair, hat, braid and bow count; the anatomy and face
 decals do not. The server adds two such reaches cell by cell (motor/geom/SideProfile) to stand two bodies side by side, the
 second a little in front or behind when that lets their bows and hair pass each other: at the nestle they just meet and nothing
-passes through. Called by author.py --export-weather after the clips are written; writes yukkuri_presentation/side_profile.json.
+passes through. Called by export.py --family weather after the clips are written; writes yukkuri_presentation/side_profile.json.
 """
 from pathlib import Path
 import json, runpy

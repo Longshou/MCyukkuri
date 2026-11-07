@@ -1,0 +1,109 @@
+{
+  "selected_model": "standards/yukkuri-library/subspecies/predator/assembled/flandre/flandre.bbmodel",
+  "selected_model_sha256": "4982b2c8710833fd6ca02b3a9ad836e2188b3fa2b5143b80dd33548e8f3dcbf4",
+  "selected_rig": "standards/yukkuri-library/subspecies/predator/assembled/flandre/animation-rig.json",
+  "selected_rig_sha256": "fa73f4d0938009eb40704d0f86e8a05cde6820181c0eb8d7885d44ae36a5a70e",
+  "standard_motion_source": "standards/yukkuri-library/subspecies/predator/assembled/flandre/animation-rig.json",
+  "standard_motion_sha256": "fa73f4d0938009eb40704d0f86e8a05cde6820181c0eb8d7885d44ae36a5a70e",
+  "snapshot": "art/source/standard-runtime/flandre/flandre.bbmodel",
+  "rig": "art/source/standard-runtime/flandre/animation-rig.json",
+  "runtime": "src/main/resources/assets/mcyukkuri/yukkuri/flandre.json",
+  "runtime_sha256": "de6dd48e2785399b5e72365d1d666a9a4089e6f0c275d880155a278038196ec4",
+  "geometry_identifier": "flandre",
+  "bone_count": 274,
+  "clips": [
+    "idle",
+    "stretch_shape",
+    "side_bend",
+    "waddle",
+    "puff",
+    "brace",
+    "startle",
+    "turn",
+    "hop",
+    "stretch",
+    "exercise_vertical",
+    "exercise_sides",
+    "press",
+    "taiso",
+    "flee",
+    "anatomy_mamu_extend",
+    "anatomy_mamu_retract",
+    "anatomy_peni_extend",
+    "anatomy_peni_retract"
+  ],
+  "behavior_clips": [
+    "predator_fly",
+    "predator_dive",
+    "predator_land",
+    "predator_bite"
+  ],
+  "textures": {
+    "neutral": {
+      "source": "standards/yukkuri-library/subspecies/predator/assembled/flandre/textures/neutral.png",
+      "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/flandre/neutral.png",
+      "sha256": "a731584876aa3a5faa634b294e3923d8fee5c4d094d974a4107c4bc1206f6920"
+    },
+    "happy": {
+      "source": "standards/yukkuri-library/subspecies/predator/assembled/flandre/textures/happy.png",
+      "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/flandre/happy.png",
+      "sha256": "168143d77c12935b3f06202ae82909fad57ae321e1da160ef784c2dafb740904"
+    },
+    "cry": {
+      "source": "standards/yukkuri-library/subspecies/predator/assembled/flandre/textures/cry.png",
+      "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/flandre/cry.png",
+      "sha256": "1f1c2c5fa68e6c1be4bdc42a449cbafc0fef034d8cdaf0096a8dc893290e5224"
+    },
+    "teary": {
+      "source": "standards/yukkuri-library/subspecies/predator/assembled/flandre/textures/teary.png",
+      "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/flandre/teary.png",
+      "sha256": "db3461c3f738c13395f6e4d40f5cc4bd13f9da97e9804062e8ba3b3e24098b1a"
+    },
+    "drool": {
+      "source": "standards/yukkuri-library/subspecies/predator/assembled/flandre/textures/drool.png",
+      "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/flandre/drool.png",
+      "sha256": "8095b6b829ca9e0d772d790cdb84a35666d3b412fbc8cc73531c30f2ecb2e2c9"
+    },
+    "confused": {
+      "source": "standards/yukkuri-library/subspecies/predator/assembled/flandre/textures/confused.png",
+      "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/flandre/confused.png",
+      "sha256": "fa2104d158fd1964ff82c9a16b16ee748ba5a7f165f6cab994c8709dd09aedcd"
+    },
+    "yawn": {
+      "source": "standards/yukkuri-library/subspecies/predator/assembled/flandre/textures/yawn.png",
+      "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/flandre/yawn.png",
+      "sha256": "9da3697d7077ccaa6bdaad7e957ed183aeda893768bb70cf3035d51d479bcea0"
+    },
+    "sleep": {
+      "source": "standards/yukkuri-library/subspecies/predator/assembled/flandre/textures/sleep.png",
+      "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/flandre/sleep.png",
+      "sha256": "afa1d14deab633d3d6827214b7bfd96a3b3ebb09fa214d615a109db7c8cbab3a"
+    },
+    "angry": {
+      "source": "standards/yukkuri-library/subspecies/predator/assembled/flandre/textures/angry.png",
+      "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/flandre/angry.png",
+      "sha256": "64c7a3e55a8476a5cf34f5956fef2b1e3678af36642643b95cf0594ca4036c3e"
+    },
+    "surprise": {
+      "source": "standards/yukkuri-library/subspecies/predator/assembled/flandre/textures/surprise.png",
+      "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/flandre/surprise.png",
+      "sha256": "ff84a96476fc029f04f70004da9fdca26c649b084c2508c3b0c46808116aa1e3"
+    },
+    "sleepy": {
+      "source": "standards/yukkuri-library/subspecies/predator/assembled/flandre/textures/sleepy.png",
+      "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/flandre/sleepy.png",
+      "sha256": "d04de44d75ed988cafa4908188aff954520acd26dede723423a4035d70a8630b"
+    },
+    "biting": {
+      "source": "standards/yukkuri-library/subspecies/predator/assembled/flandre/textures/biting.png",
+      "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/flandre/biting.png",
+      "sha256": "7956bf4028882e18db61b4098f7604d2367c82b003d2ad09176e11a36708b29b"
+    }
+  },
+  "shape_status": "pending_confirmation",
+  "game_acceptance": "not_executed",
+  "retargeting": {
+    "body": "shared profile with continuous two-bone binding",
+    "wings": "one articulated hinge per complete wing"
+  }
+}

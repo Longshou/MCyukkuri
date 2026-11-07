@@ -1,0 +1,14 @@
+{
+  "id": "badges",
+  "prefixes": [
+    "art/props/badges/"
+  ],
+  "registry": [
+    "badge_attachments"
+  ],
+  "ids": [
+    "badge_handbook",
+    "*_yukkuri_badge"
+  ],
+  "_order": 1
+}

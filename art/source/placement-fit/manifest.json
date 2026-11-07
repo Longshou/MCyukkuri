@@ -4,9 +4,9 @@
   "recipe": "standards/yukkuri-library/presentation/placement-fit/recipe.json",
   "recipe_sha256": "8ded4b74df9c27f51da1a4e2fd6da92ac6796ca542d88b9d76f989b30068efc3",
   "author": "standards/yukkuri-library/presentation/placement-fit/author.cjs",
-  "author_sha256": "20cc50b18336ec00aecb0eb79946245deedc52f92731104702b4f261c5dddacd",
+  "author_sha256": "fd45ae79844f5b3033206e096eac00c2e0ad1e299f71acde07553e5f1fb55981",
   "exporter": "scripts/export_placement_fit.cjs",
-  "exporter_sha256": "fbdf6ed6893ba4768e969b46dc7b52e4d67d0008a0bb6f023715896f404fc9aa",
+  "exporter_sha256": "bc629c630190ce0cb0b9508c4ad0fd74a0a2db6d46b76dd6252d5dbc4ae0f913",
   "runtime": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/placement_fit.json",
   "models": {
     "reimu": {

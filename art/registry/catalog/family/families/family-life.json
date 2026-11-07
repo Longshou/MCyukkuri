@@ -1,0 +1,19 @@
+{
+  "id": "family-life",
+  "prefixes": [
+    "art/props/family-life/",
+    "standards/yukkuri-library/motions/procedural/",
+    "standards/yukkuri-library/ecology/house-egg/"
+  ],
+  "registry": [
+    "family_stem",
+    "shed_stem"
+  ],
+  "ids": [
+    "house_egg*",
+    "live_birth_pose",
+    "reproductive_filling",
+    "family-index"
+  ],
+  "_order": 0
+}
