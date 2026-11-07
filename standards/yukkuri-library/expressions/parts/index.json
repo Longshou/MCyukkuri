@@ -1326,5 +1326,37 @@
       16
     ],
     "sha256": "3383f8bb0f00a2393ae48e18ecd686884db070d61cc5fbdfcbb94b77c96fe720"
+  },
+  "bb35fc07a0836cfeaa51": {
+    "path": "expressions/parts/bb35fc07a0836cfeaa51.png",
+    "size": [
+      15,
+      16
+    ],
+    "sha256": "25581dd913488954501a6f78bf197613bc331ec35821841913894540c8cfacb8"
+  },
+  "d2a2c88cc967ec56126a": {
+    "path": "expressions/parts/d2a2c88cc967ec56126a.png",
+    "size": [
+      15,
+      16
+    ],
+    "sha256": "0c1d083b7e5be30516464c7cf69c0afaf275748430521b4e591c45b43106e6af"
+  },
+  "4f3b6fe7e25d8dcde0b3": {
+    "path": "expressions/parts/4f3b6fe7e25d8dcde0b3.png",
+    "size": [
+      15,
+      16
+    ],
+    "sha256": "cb73ffecb96737c4051e4b01ba4b44aea9d509c43a3c233fc1b27f0ee225170e"
+  },
+  "e5b7303ef44a844374b8": {
+    "path": "expressions/parts/e5b7303ef44a844374b8.png",
+    "size": [
+      15,
+      16
+    ],
+    "sha256": "11aedb1259397f13fb6b657d29ce0f68b4330ab163336f18222b546f3ff7d44c"
   }
 }

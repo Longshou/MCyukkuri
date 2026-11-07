@@ -33,6 +33,11 @@ OUTLINED = dict(trail=lambda n: ['OFFO'] + ['OHFO']*(n-2) + ['.OO.'][:n-1], drop
 TWO_TONE = dict(trail=lambda n: ['.FF.'] + ['.HF.']*(n-2) + ['..F.'][:n-1], drop=('.FF.', 'FHFF', 'FFFF', '.FF.'),
                 tall=('FHFF', '.FF.'))
 TALL = 1.5  # B texel height (in A texels) from which the two-row drop is used
+# Faces whose own tear is a wide pool or a faint wet line get a spill sized and coloured like that tear, so A -> B
+# reads as the same tear moving (user 2026-11-08): `sag` lets the wide pool's bottom open and hang as a drop as wide
+# as the pool's lower edge; `thin` runs a two-texel trail and drop in the wet line's own colours.
+MATCHED = {'squeezed_teary': 'sag', 'blank_cry': 'sag', 'teary_tongue': 'thin'}
+THIN = dict(trail=TWO_TONE['trail'], drop=('.FF.', '.HF.', '.FF.'))
 # Lowest unshifted tile row a drop may reach: lower rows sit past the rounded face front and float below the chin.
 BOTTOM = 12
 
@@ -59,7 +64,7 @@ def transform(offsets):
            (lambda y: centre[1] + (y-centre[1])*scale[1] - position[1]/UNIT[1], scale[1])
 
 
-def flow(a, b, slot, cry):
+def flow(a, b, slot, cry, style=None):
     """A's pool placed on B's quad, then the spilled trail, a one-row gap and the drop stamped on B's own texels."""
     a_offsets = a.get('geometry_offsets', {}).get(slot, {}); b_offsets = b.get('geometry_offsets', {}).get(slot, {})
     (ax, asx, apx), (ay, asy) = transform(a_offsets)
@@ -78,10 +83,26 @@ def flow(a, b, slot, cry):
             found = [v for (x, y), v in cells.items() if bx(c) <= ax(x+.5) < bx(c+1) and by(r) <= ay(y+.5) < by(r+1)]
             if found:
                 im.putpixel((c, r), max(found, key=lambda v: (rank.get(v, -1), v[3])))
-    shape = TWO_TONE if out is None else OUTLINED
-    drop = shape['tall'] if bsy/asy >= TALL else shape['drop']
     bottom = max(r for r in range(SIZE[1]) if any(im.getpixel((c, r))[3] for c in range(SIZE[0])))
     lowest = max(r for r in range(SIZE[1]) if by(r+1) <= BOTTOM+1)
+    if style == 'sag':  # the pool's lower outline opens; the tear hangs below it, as wide as that edge
+        assert bsy == asy and bsx == asx, (a['id'], slot)
+        edge = [c for c in range(SIZE[0]) if im.getpixel((c, bottom))[3]]
+        x0, width = edge[0], len(edge)
+        rows = ['O'+'F'*(width-2)+'O']*(lowest-bottom-1) + ['.O'+'F'*(width-4)+'O.', '..'+'O'*(width-4)+'..']
+        rows[1] = 'OH'+rows[1][2:]
+        for dy, row in enumerate(rows):
+            for dx, key in enumerate(row):
+                if key != '.':
+                    im.putpixel((x0+dx, bottom+dy), {'O': out, 'F': fill, 'H': glint}[key])
+        name = 'expressions/parts/' + hashlib.sha256(im.tobytes()).hexdigest()[:20] + '.png'
+        buf = io.BytesIO(); im.save(buf, format='PNG')
+        return name, buf.getvalue()
+    if style == 'thin':  # the wet line's own translucent colours: its middle tone and its glint
+        line = sorted(set(cells.values()), key=lambda c: c[3])
+        out, fill, glint = None, line[1], line[-1]
+    shape = THIN if style == 'thin' else TWO_TONE if out is None else OUTLINED
+    drop = shape['tall'] if bsy/asy >= TALL else shape['drop']
     trail = lowest - len(drop) - (bottom+1)
     assert trail >= 0, (a['id'], slot, bottom, lowest)
     centre = (min(x for x, _ in cells) + max(x for x, _ in cells) + 1)/2  # A texel units
@@ -104,7 +125,7 @@ def outputs():
         a_id, b_id = animations[ident]['frames']
         a = read(LIB/index['presets'][a_id]); b_path = LIB/index['presets'][b_id]; b = read(b_path)
         for slot in SLOTS:
-            name, data = flow(a, b, slot, ident == 'cry')
+            name, data = flow(a, b, slot, ident == 'cry', MATCHED.get(ident))
             files[LIB/name] = data
             registry[Path(name).stem] = dict(path=name, size=list(SIZE), sha256=hashlib.sha256(data).hexdigest())
             b['parts'][slot] = name
