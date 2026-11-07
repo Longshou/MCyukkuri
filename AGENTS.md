@@ -68,7 +68,7 @@
 
 - 版本以 `gradle.properties` 为准（Minecraft 1.21.1、JDK 21、NeoForge 21.1.250）。`.github/workflows/build.yml` 在 `main` 推送、PR 和手动触发时执行 `./gradlew build`，产物 `mcyukkuri-<sha>`（开发 Jar）与 `mcyukkuri-runtime-<sha>`（运行包），并运行身体层纯函数单元测试（`src/test/java`，不依赖 Minecraft，不算试玩验收，不设 GameTest）；失败用 `gh run view <id> --log-failed`。本机不执行 Gradle，启动时不自动编译，代理不启动游戏客户端。
 - Python：PATH 上的 `python` 是坏的商店存根；用 `C:/Users/Administrator/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/python.exe`，并设 `PYTHONUTF8=1`（下文 `<py>`）。仓库脚本是 bash；PowerShell 里用 `& 'C:\Program Files\Git\bin\bash.exe' <脚本>`（裸 `bash` 可能是 WSL），且不用 Set-Content、Out-File 或 `>` 写源码与文档（BOM／UTF-16）。
-- 自查：`bash scripts/javac_check.sh <工作树>`（javac 与纯函数测试，不经 Gradle，不算验收）。`<py> scripts/smoke_museum.py [--worktree F:/yukkuri/.worktrees/<分支>] [场景ID ...]` 无界面冒烟：读主检出已装 CI 运行包，缺失即报错，不跑 Gradle，客户端或 Minecraft 运行时拒绝启动；不带 `--worktree` 时运行包提交须与当前检出提交一致，否则报错改走 `--worktree` 或先更新运行包；产物在主检出 `.local/smoke/`，只查场景初态与链路读数。`--layout [场景ID ...]` 改查生成后的世界：每个场景的实体和玩家落点须站在空位与实地上、在本场地内，违例即失败（默认全部场景）。`<py> scripts/capture_museum.py --worktree <工作树> <场景>` 出截图联系表。资源导出脚本多支持 `--check`（按需使用，不作合并门槛）；`scripts/check_museum_pack.py` 只读核对试玩场数据包。
+- 自查：`bash scripts/javac_check.sh <工作树>`（javac 与纯函数测试，不经 Gradle，不算验收）。`<py> scripts/smoke_museum.py [--worktree F:/yukkuri/.worktrees/<分支>] [场景ID ...]` 无界面冒烟：读主检出已装 CI 运行包，缺失即报错，不跑 Gradle；用户试玩客户端运行时或全机名额（默认 4）占满时排队等待（`--no-wait` 改为拒绝），截图同样排队；不带 `--worktree` 时运行包提交须与当前检出提交一致，否则报错改走 `--worktree` 或先更新运行包；产物在主检出 `.local/smoke/`，只查场景初态、链路读数与个体命运（死亡、溺水、窒息、饥饿、同一拒绝反复 400 次以上即失败，场景真实路径内的结局以 `allow_fate` 声明）。`--repeat N` 出各场景通过数，`--compare` 对照主线基线（缓存，只补跑缺的次数），细节见[脚本说明](scripts/README.md)。`--layout [场景ID ...]` 改查生成后的世界：每个场景的实体和玩家落点须站在空位与实地上、在本场地内，违例即失败（默认全部场景）。`<py> scripts/capture_museum.py --worktree <工作树> <场景>` 出截图联系表。资源导出脚本多支持 `--check`（按需使用，不作合并门槛）；`scripts/check_museum_pack.py` 只读核对试玩场数据包。
 - 试玩场：根目录 `启动动作博物馆.cmd`（`-Fresh` 全新世界、`-Resume` 保留世界、`-Menu` 主菜单）。场景、读数和按钮源在 `scripts/museum_*.py`。清场与场景边界见[功能说明](docs/FEATURES.md#试玩场与动作博物馆)。
 - 日志与排查：读 `.local/experimental-map/play-museum/process.json` 与同场 `.session.json` 得启动时间、PID、世界；原生日志 `.local/experimental-map/museum/logs/latest.log`、`debug.log`（旧场次查日期归档 `.log.gz`）。版本取 `.session.json` 的 `runtimeConfig.commit/run`，无证据写“版本待核实”；原日志保留；`<py> scripts/feedback_intake.py [--session <id>]` 把该场日志复制到 `.local/reports/playtest-<日期>-<时间>/` 并写 `summary.md`（死亡、溺水、`inWall`、饥饿、拒绝原因与各场景断言行）。`/yukkuri status trace true` 开启细密采样。
 - SERVER 配置在世界 `serverconfig/`：`mcyukkuri-server.toml`（生活、生态、聚落）、`mcyukkuri-family.toml`（家庭繁殖）、`mcyukkuri-human-world.toml`（人类、商贸、工厂）；分组是键路径的一部分，如 `seasons.biomeSeasons`。
@@ -81,7 +81,7 @@
 - 数值与状态变化符合预期而演出缺失，记“数值通过·演出待补”。配音与台词最后统一补，用户明确要求前不单独开工；表情与简单演出用“基本动作＋表情库”组装（用户 2026-11-07），要夸张到玩家看得出，不为简单演出新做片段。复测失败写明现象，移除矛盾的“已接入”表述；同一待试玩行为链只修复测失败，不叠加新内容。
 - 每项修复注明场景及应观察的状态／数值；新增或改名的试玩场景在交付时写明所在场地与按钮名。“清空本场地”后重开须恢复实体、账本和地形初态，提供合适群系、真实有限物资和链路阶段读数；场景出错先修场景。
 - 场景只提供被测行为所需的真实起点，不指定 Goal 或直接完成被测环节，不绕过碰撞、护幼或性格条件。后半段行为可用已有帽船、库存和乘员作为初态，但准备成功不算行为成功；一个场景一条真实路径，按钮名就是玩家看到的内容；参数不同的重复按钮合并，真实路径不同的边界保留。
-- 冒烟只作试玩前自查，不算验收，用户游戏运行时不跑。冒烟没有固定随机种子：判断修复是否有效须与主线同批、同场景各跑至少 20 次并逐场记录，3–10 次的差异不作结论。
+- 冒烟只作试玩前自查，不算验收，用户游戏运行时不跑（脚本自动等待）。冒烟没有固定随机种子：判断修复是否有效须与主线同批、同场景各跑至少 20 次并逐场记录（`smoke_museum.py --repeat 20 --compare`），3–10 次的差异不作结论。
 - 交付和 PR 简述改动、提交号、实际做了的检查、缺口与试玩入口（场地与按钮）；没做的检查直接说明。
 
 ## 8. 日志留痕
@@ -114,9 +114,9 @@
 - 范围：只改当前任务需要的内容，不顺手重构、改名或改写文档；完成步骤确实需要的文件都在范围内（记入 Decisions）；只有点名的并行工人的文件不碰，必要时做最小改动而不是停下。复用最近的实现，保留他人未提交改动，不替别人暂存、提交或丢弃改动；移动文件时更新引用。
 - 修整类问题：列出到达该行为的所有入口、出口与中断路径（含搬运、自救道具等），说明每条都用上修复；不用改变所有生物的全局绕法（如给方块加路径代价）。任务说明要求“复用 X”时不在 X 旁另起路径，认为 X 不行先在 Decisions 说明。
 - 新常数写明依据，并确认它定义的区间在正常情况下确实关闭。同一问题需要第三次提交时停下，报告测到的问题，不叠补丁。
-- 冒烟与验证：冒烟是完成的一部分，只有脚本自己拒绝才算跑不了，并原样报告它的消息。冒烟或截图前先提交并 `git fetch -q origin && git rebase origin/main`。PASS 行不是结论：读日志确认被测个体全程的命运（死亡、饥饿或受伤、卡住、错配）。验证器在目标死亡或行为没发生时仍打印 PASS 就是缺陷，在范围内修好。不放宽验证器（`expect`、`forbid`、阈值、时长）；期望确实错了要给证据。`expect`／`forbid` 模式必须匹配代码真实打印的行；改场景保留仍存在行为的全部断言；用场景已提交的期望判定，不用本地包装放宽。检查器要逐项给出被它抓住的故意破坏输入，并写明哪些没查。
-- 偶发问题报告通过率而非最好的一次，关键场景至少跑两次并贴出各次结果；“主线通过、这里失败”的回归先二分。主线对比用独立检出 `git worktree add --detach .worktrees/<名>-main origin/main`。
-- 资源：同一时间只开一个冒烟或截图服务器；用户的试玩客户端开着时冒烟会拒绝，先提交，再每 5 分钟重试（最长 3 小时）。长批次前先提交并写好报告，批次逐条命令运行。临时文件放本工作树 `.local/tmp/`，用完删除自己的临时脚本。
+- 冒烟与验证：冒烟是完成的一部分，只有脚本自己拒绝才算跑不了，并原样报告它的消息。冒烟或截图前先提交并 `git fetch -q origin && git rebase origin/main`。PASS 行不是结论：冒烟已对死亡、溺水、窒息、饥饿与同一拒绝的反复自动判失败，受伤、卡住不动和错配仍要读日志确认被测个体全程的命运。验证器在目标死亡或行为没发生时仍打印 PASS 就是缺陷，在范围内修好。不放宽验证器（`expect`、`forbid`、阈值、时长）；期望确实错了要给证据。`expect`／`forbid` 模式必须匹配代码真实打印的行；改场景保留仍存在行为的全部断言；用场景已提交的期望判定，不用本地包装放宽。检查器要逐项给出被它抓住的故意破坏输入，并写明哪些没查。
+- 偶发问题报告通过率而非最好的一次，关键场景至少跑两次并贴出各次结果；“主线通过、这里失败”的回归先二分。主线对比用 `smoke_museum.py --worktree <工作树> --repeat N --compare`（合并基点的主线基线按提交缓存，只补跑缺的次数）；机器空闲时 `smoke_baseline.py` 为当前 `origin/main` 预先补基线。
+- 资源：同一时间只开一个冒烟或截图服务器；用户的试玩客户端开着或全机名额占满时冒烟与截图自动排队等待，先提交再启动，不必手动重试。长批次前先提交并写好报告，批次逐条命令运行。临时文件放本工作树 `.local/tmp/`，用完删除自己的临时脚本。
 - 只报告本次复现的结果：命令、PASS／FAIL 行和证明结果的日志行；没跑的写明。
 - 实现者不推送、不合入、不更新运行包、不移动主检出。报告写到 `.local/refactor/reports/<包名>.md`（英文）：提交、检查与结果、Decisions、遗留问题、需要改的待办文字；最终消息不超过 15 行，最后一行恰为 `STATUS: DONE` 或 `STATUS: BLOCKED: <原因>`。
 - 审查者与作者不是同一个模型：按本文件红线与用户原话审净差异；复跑关键场景（至少两次）；可见动作看截图联系表；小问题自己修并写明。通过后由审查者或总负责人合入：rebase 最新 `origin/main`、`javac_check.sh`、`git push origin HEAD:main`，同一提交删除待办“进行中”行，再删除工作树和本地分支，不留远端分支。提交信息具体说明改动。

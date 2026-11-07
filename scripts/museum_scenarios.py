@@ -378,7 +378,6 @@ add('settle_pit_famine', 'biomes', '坑里没排泄物，奴隶挨饿', '坑里�
                commands=[(300, f'execute as {_SLAVE} run yukkuri status set @s needs.nutrition 0')],
                expect=[r'pit slave hungry reason=no_droppings', r'starvation damage'],
                forbid=[r'pit slave eats droppings', r'\[body\][^\n]* invariant\b'],
-               allow_fate=[dict(kind='starve', who=r'pit slave ', why='an empty pit: the slave at nutrition 0 really starves')],
                verify=lambda window: pit_level(window) or starves_without_pit_food(window)))
 
 # The origin loop with no scene special case: one grown member loses its accessory for good and the colony's own harsh
@@ -3224,8 +3223,6 @@ _smoke('den_family', 6000, [r'\[habitat\] reimu [^\n]* home chosen', r'\[habitat
                             r'\[forage\] reimu [^\n]* begin role='])
 # The widowed mother takes over the trips: the father is killed once the family has settled.
 next(s for s in S if s.id == 'den_family').smoke['commands'] = [(2400, f'kill {sel("father")}')]
-next(s for s in S if s.id == 'den_family').smoke['allow_fate'] = [
-    dict(kind='death', who=f'uuid={_uuid_text("den_family", "father")} ', match=r'cause=genericKill\b', why='the smoke kills the father')]
 _smoke('indep_near', 7200, [r'\[independence\][^\n]* farewell started'])
 next(s for s in S if s.id == 'indep_near').smoke['verify'] = _distinct(r'\[independence\] \w+ #\d+ uuid=(\S+)[^\n]* departed ', 2, 'teens that left home')
 _smoke('forage', 6000, [r'\[forage\][^\n]* begin role=', r'\[forage\][^\n]* deposit home='])
@@ -3235,14 +3232,9 @@ _smoke('alice_hunt', 1200, [r'\[agitation\][^\n]* phase=ALICE_APPROACH -> ALICE_
 _smoke('aftermath_growth', 3600, [r'\[family\][^\n]* stem drain stage'])
 next(s for s in S if s.id == 'aftermath_growth').smoke['verify'] = _distinct(r'\[family\] reimu #\d+ uuid=(\S+)[^\n]* aftermath reserved ', 2, 'aftermath broods')
 _smoke('aftermath_depletion', 3600, [r'\[family\][^\n]* aftermath reserved ', r'\[body\][^\n]* death settled[^\n]* stem_depletion=true'])
-next(s for s in S if s.id == 'aftermath_depletion').smoke['allow_fate'] = [
-    dict(kind='starve', who=r'aftermath reserved ', why='the depleted mother starves while the stem drains her'),
-    dict(kind='death', who=r'aftermath reserved ', match=r'stem_depletion=true', why='she dies of the stem (the scene expects it)')]
 _smoke('growth', 200, [r'\[growth\][^\n]* stage=BABY -> JUVENILE', r'\[growth\][^\n]* age boundary [^\n]*subadult=true',
                        r'\[growth\][^\n]* stage=JUVENILE -> ADULT', r'\[growth\][^\n]* age boundary [^\n]*elder=true',
                        r'\[growth\][^\n]* lifespan reached'])
-next(s for s in S if s.id == 'growth').smoke['allow_fate'] = [
-    dict(kind='death', who=r'lifespan reached', match=r'internal=old_age\b', why='the fifth starts one tick before its lifespan')]
 _smoke('family_search', 7200, [r'\[family\][^\n]* child search reunited', r'\[family\][^\n]* parent dismissed '])
 _smoke('rain_open', 1200, [r'\[weather\][^\n]* shelter response started', r'\[needs\][^\n]* soaking damage '])
 _smoke('treatment_scars', 1600, [r'\[body\][^\n]* wound healing ', r'\[body\][^\n]* scar (?:formed|not formed) from '])
@@ -3254,3 +3246,33 @@ _smoke('feed_wild', 2400, [r'\[npc-care\][^\n]* action=begin_meal '])
 _smoke('shop_build', 1200, [r'\[npc-care\][^\n]* action=begin_meal '])
 _smoke('colony_migrate', 7200, [r'\[settlement\][^\n]* migration phase=DISCUSS', r'\[settlement\][^\n]* migration phase=MARCH',
                                 r'\[settlement\][^\n]* migration pivot arrived '])
+
+# Actor fates that are a scene's real path; scripts/smoke_fate.py fails every other death, drowning, suffocation, starvation and
+# refusal loop. who: a pattern of a line the individual itself prints (omitted: any individual); match: a pattern of the fate line.
+_THROWN = r'\[body\][^\n]* dismount [^\n]*cause=(?:thrown|hull_rock|brim_hard_rock)\b'   # a rider the hull really threw off
+_STEPS_IN = r'\[action\][^\n]* start id=step_in\b'                                       # an owner wading out to her hat
+_FATES = {
+    'den_family': [dict(kind='death', who=f'uuid={_uuid_text("den_family", "father")} ', match=r'cause=genericKill\b',
+                        why='the smoke kills the father to widow the mother')],
+    'settle_pit_famine': [dict(kind='starve', who=r'pit slave ', why='an empty pit: the slave at nutrition 0 really starves')],
+    'aftermath_depletion': [dict(kind='starve', who=r'aftermath reserved ', why='the stem drains the depleted mother'),
+                            dict(kind='death', who=r'aftermath reserved ', match=r'stem_depletion=true\b', why='she dies of the stem')],
+    'growth': [dict(kind='death', who=r'lifespan reached', match=r'internal=old_age\b', why='the fifth starts one tick before its lifespan')],
+    'hat_push': [dict(kind='drown', who=_THROWN, why='the fast boat capsizes the far hat and throws its rider in')],
+    'hat_grounded_capsized': [dict(kind='drown', who=_THROWN, why='falling water and a hard rock throw the crews in')],
+    'shake_capsize': [dict(kind='drown', who=_THROWN, why='three shakes capsize the hat and throw every rider in')],
+    'self_rescue': [dict(kind='drown', who=r'scenario afloat prepared [^\n]*owner_aboard=false', why='the owner is pushed off the bank')],
+    'shore_capsized_far': [dict(kind='drown', who=_STEPS_IN, why='her hat is beyond the bank reach: she wades in and swims')],
+    'worn_hat_boat': [dict(kind='drown', who=f'uuid={_uuid_text("worn_hat_boat", "c")} ', why='the young drops into the water')],
+    'cargo': [dict(kind='drown', who=_THROWN, why='the shaken full hat capsizes and throws its owner in'),
+              dict(kind='drown', who=_STEPS_IN, why='the empty hat\'s owner starts ashore and wades out to reclaim it')],
+    'hat_crowd': [dict(kind='drown', why='overloaded hats capsize and throw the families in'),
+                  dict(kind='death', match=r'category=drowned\b', why='the scene keeps real water damage: survival is not guaranteed')],
+    'rescue_child': [dict(kind='drown', who=f'uuid=(?:{_uuid_text("rescue_child", "c1")}|{_uuid_text("rescue_child", "k1")}) ',
+                          why='both young are shoved off the bank to be rescued')],
+    'rescue_no_seat': [dict(kind='drown', who=f'uuid={_uuid_text("rescue_no_seat", "c1")} ', why='the newborn floats in open water')],
+    'birth_hat_own': [dict(kind='drown', who=_THROWN, why='the father\'s hat is shaken over'),
+                      dict(kind='drown', who=r'birth landed [^\n]*outcome=WATER\b', why='a newborn may land in the water and be rescued')],
+}
+for _sid, _allow in _FATES.items():
+    next(s for s in S if s.id == _sid).smoke['allow_fate'] = _allow

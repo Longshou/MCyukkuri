@@ -390,7 +390,9 @@ def tally(results):
 
 
 def reasons_text(reasons):
-    return '; '.join(f'{reason} ({count})' for reason, count in sorted(reasons.items(), key=lambda item: -item[1]))
+    """Failure reasons with the number of runs each occurred in (long patterns shortened; the JSON keeps them whole)."""
+    return '; '.join(f'{reason if len(reason) <= 160 else reason[:157] + "..."} ({count})'
+                     for reason, count in sorted(reasons.items(), key=lambda item: -item[1]))
 
 
 def print_table(table, title):

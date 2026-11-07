@@ -8,17 +8,21 @@
 
 `<py> scripts/pkg.py <命令>`（`PYTHONUTF8=1`）是总负责人的包生命周期入口，出错即停并给出原因，不静默兜底：`start <名> --title <条目> --files <主要文件> [--art]` 要求主检出干净，`pull --ff-only`，在待办“进行中”表加行并以 `TODO: register <名>` 推送，基于 `origin/main` 建 `.worktrees/<名>`，缺省时写 `.local/refactor/briefs/<名>.md` 骨架（`--art` 加 `_build-common.md` 指引）；`land <名> [--scene ID ...] [--dry-run]` 要求工作树干净，rebase `origin/main`，改动含 Java 时跑 `javac_check.sh`，列出场景则调用本工作树的 `smoke_museum.py --worktree`（非零退出码原样返回并中止），`--dry-run` 把上述全部检查移到 `.local/tmp/pkg-dry-<名>` 的临时 detached 副本上（不动该包分支，检查完删除副本），通过后不推送、不改行、不删工作树，以 `TODO: <名> landed` 删除进行中行，`git push origin HEAD:main`，快进主检出，移除工作树（占用时 `git worktree prune` 重试，仍失败则报告残留路径）并删除本地分支，打印推送提交；`runtime [--commit <sha>] [--dry-run]` 等该提交（默认 `origin/main`）的 Build 完成，失败打印日志尾部，成功后等无冒烟／截图服务器和试玩客户端，再快进主检出并运行 `update_museum_runtime.py --run <run-id>`（`--dry-run` 在此之前停止），适合合入后后台运行；`status` 每包一行（工作树、分支、领先 `origin/main` 的提交数、未提交文件数、报告 STATUS 行、待办行是否存在），并列出行无工作树、工作树无行、报告 DONE 但未合入。
 
-`scripts/smoke_museum.py`：用法与自查边界见[开发命令](../AGENTS.md#开发命令)。与截图共用 `headless_server.require_closed`：仅拦截游戏目录在 `.local/experimental-map/museum/` 内的客户端，或 `play-museum/process.json` 记录且启动时间吻合的 PID；独立截图客户端与冒烟服务器可并行。重复场景的日志与最终读数按本次参数顺序编号保存，保留每轮结果。
+`scripts/smoke_museum.py`：用法与自查边界见[环境与命令](../AGENTS.md#6-环境与命令)。与截图共用 `headless_server`：只把游戏目录在 `.local/experimental-map/museum/` 内的客户端、或 `play-museum/process.json` 记录且启动时间吻合的 PID 当作用户客户端；它运行时冒烟与截图排队等待（提示一次后静默轮询），`--no-wait` 改为直接拒绝。每个冒烟服务器与截图客户端启动前在主检出 `.local/smoke/slots/` 取一个全机名额（默认 4，`--slots` 或环境变量 `MCY_SMOKE_SLOTS`；记录 pid 与进程启动时间，进程退出的记录自动回收），名额满时先来先得地等待；`python scripts/smoke_slots.py` 列出占用与排队。重复场景的日志与最终读数按运行顺序编号保存，保留每轮结果。
+
+每轮冒烟另做个体命运检查（`smoke_fate.py`）：窗口内任何油库里死亡或进入濒死、受溺水伤、受 `inWall` 窒息伤、受饥饿伤，或同一个体以同一原因重复同一拒绝 400 次以上（含限频的 `suppressed=N`），都按 FAIL 打印对应日志行。场景真实路径包含的结局在 `smoke['allow_fate']` 声明：`kind`（`death`／`drown`／`in_wall`／`starve`／`loop`）、`who`（该个体自己打印的某行的模式，如 `uuid=…` 或 `pit slave `；省略为任何个体）、`match`（命运行须匹配的模式，如死因）与 `why`。`python scripts/smoke_fate.py [--scene 场景ID] <日志> ...` 复查已存的场景日志。
+
+`--repeat N` 在一个服务器里把每个场景各跑 N 次，打印“场景 × 通过数 × 各失败原因次数”，并写入主检出 `.local/smoke/results/<commit>-<时间>.json`。`--baseline` 改跑本树与 `origin/main` 的合并基点（`--base-commit` 可指定）：用 `git archive` 导出该提交的 `scripts/`、`src/` 与 `gradle.properties` 到 `.local/smoke/baseline/`（用完即删）编译运行，按提交与命运检查版本把各场景的通过数与失败原因累计在 `.local/smoke/baseline/<commit>.json`，只补跑不足 `--repeat` 的次数；同一提交的基线同一时间只有一个在跑。`--compare` 先跑本分支，再补齐基线，逐场景对照并列出只在本分支出现的失败原因。`python scripts/smoke_baseline.py [--repeat N，默认 2] [场景ID ...]` 拉取 `origin/main` 后，仅在机器空闲（无用户客户端、无人占用或等待名额）时补它的基线，一旦有人要用就在下一个场景前停下。
 
 `--layout` 读取生成初态、40 tick 初始化及场景延迟召唤后的实体包围盒、方块碰撞形状和水面。初始无支撑者须在初始化内落稳；已落稳者随后正常跳跃不算坏起点。覆盖命令生成的聚落、人员、帽船、场景道具及玩家，排除地形施工掉落物；同场地互斥按钮共用地块，群系各用所属地块。生成失败、延迟演员缺失、函数加载失败、穿模或越界均返回非零；每场 `*.layout.json` 保留读数。
 
-`python scripts/capture_museum.py [--worktree <工作树>] [--smoke-commands] <场景ID> [...]` 复用已装 CI 运行包，在主检出 `.local/captures/<run>/` 的独立世界启动隐藏客户端，按按钮入口和观察点录制 PNG、带 tick 标签的联系表与 `frames.json`（请求／实际 tick、耗时、窗口状态）；需 Windows、Pillow、nbtlib，`--worktree` 仅 javac 组装，用户客户端运行时拒绝启动。`--smoke-commands` 按场景 `smoke.commands` 的 tick 执行真实交互（如摇帽），不改行为结果；捕获窗口仍由 `capture` 决定，须覆盖待测事件。时序在场景的 `capture=`（`shots` 与含首尾的 `sequences=(起点,终点,步长)`）；捕获开关下另有客户端 `/museumcapture shot <延迟tick>`、`/museumcapture sequence <秒数> <fps>`。只作视觉自查，不算试玩验收，不操作桌面或用户世界。
+`python scripts/capture_museum.py [--worktree <工作树>] [--smoke-commands] <场景ID> [...]` 复用已装 CI 运行包，在主检出 `.local/captures/<run>/` 的独立世界启动隐藏客户端，按按钮入口和观察点录制 PNG、带 tick 标签的联系表与 `frames.json`（请求／实际 tick、耗时、窗口状态）；需 Windows、Pillow、nbtlib，`--worktree` 仅 javac 组装，用户客户端运行时排队等待（`--no-wait` 拒绝）。`--smoke-commands` 按场景 `smoke.commands` 的 tick 执行真实交互（如摇帽），不改行为结果；捕获窗口仍由 `capture` 决定，须覆盖待测事件。时序在场景的 `capture=`（`shots` 与含首尾的 `sequences=(起点,终点,步长)`）；捕获开关下另有客户端 `/museumcapture shot <延迟tick>`、`/museumcapture sequence <秒数> <fps>`。只作视觉自查，不算试玩验收，不操作桌面或用户世界。
 
 场景 `vantage=(横向偏移,纵向偏移,朝向[,俯角])` 落在该列地面；五项形式在俯角前指定相对场地基准脚底高度的偏移，以避开屋顶与柱子。俯角默认 20 度。`capture` 的 `observe=False` 仅在截图时关闭头顶状态字，不影响普通场景读数。
 
 `capture.follow` 可指定跟随的实体选择器；多个观察角度用 `capture.views={名字: {follow: 选择器, offset: (左右, 高度, 前后)}}`，偏移按被观察实体的本地朝向计算。每个角度重新运行真实场景，只移动旁观者；清场会取消跟随。跟随截图关闭观察标签与聊天覆盖，PNG 与联系表按角度名字分目录。
 
-截图运行独占主检出 `.local/captures/capture.lock` 的文件锁；后来的截图命令等待前一次结束后自动运行，冒烟不取此锁。
+截图运行独占主检出 `.local/captures/capture.lock` 的文件锁；后来的截图命令等待前一次结束后自动运行，冒烟不取此锁。截图同样占一个全机名额，并支持 `--no-wait`、`--slots`。
 
 
 
