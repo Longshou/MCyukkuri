@@ -106,7 +106,6 @@
 - **洞口结界屏障外观**：`mcyukkuri:den_barrier`（[规则](FEATURES.md#野外住所)）细枝插靠成堆、格心落叶、有缝；制作源 `ecology/wild-shelters/den_barrier.py`，快照 `art/source/den-barrier/`。看 `den_barrier` 左洞灵梦封口后洞外近处与约 8 格外、洞内背面；不穿洞壁洞顶，缝里能看到灵梦。
 - **水生表情与帽冠外观**（`sad`／`afraid` 表情、破损帽外观；观察并入水生模块 P0-11）：表情由 `expressions/derived/faces.py` 从已认可贴图派生，是项目设计候选，未进标准表情集合。看 `afloat_family` 孩子探头与幼体小帽；`sail` 翻船后漂浮帽、破损帽放成船；自救成功与警报安抚的沮丧脸、受惊的害怕脸。完成：表情写入标准登记，破损外观登记认可。
 - **水生种伤口与头饰损坏的配套美术**（[5a5711245](https://github.com/Longshou/MCyukkuri/commit/5a5711245) 反馈 17）：未做。用户认为与水生种伤口、头饰损坏规则相匹配的美术也缺；先对照上条破损帽外观与 `hat_damage`、`hat_shatter` 现有素材核对缺口，再按[制作约定](../standards/yukkuri-library/AGENTS.md)补。完成：水生圆盆帽的损坏阶段与碎片、水生种伤口，在 `hat_damage`、`hat_shatter` 与伤口场景远近看，与陆生种同套风格，用户确认。
-- **伤口材质贴图画风**：未做。`textures/props/body_wounds/` 13 张（擦伤、凹陷、撕裂、焦痕、疤、脏污 1–3、霉斑 1–4、焦底）是羽化半透明渐变，与其余 16 像素硬边素材不一致（2026-11-01 画风复查）；用户：在用的不删，换不换看过预览再定。下一步：以 2026-11-06 Codex 试画 E5 为起点出 16 像素硬边候选，在 `treatment_scars` 等伤病场景同视角远近出新旧对比预览给用户看；用户决定换才替换（路径不变）。
 - **水中游泳动作**：水里划行播专用 `water_swim`（81858504b 起各运行包已含），真实挣扎才播挣扎片段；划行连续性见“连续游泳与划船”。完成：`self_rescue`、`shore_capsized_far` 水里个体有可见划行动作，速度与节奏一致，用户确认。
 
 ## 流程与工具
