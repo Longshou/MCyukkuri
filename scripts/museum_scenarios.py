@@ -779,6 +779,49 @@ add('rain_life', 'weather', '屋檐下躲雨，饿的冒雨吃苹果', '屋檐�
     '约1–2分钟', _rain_life, env={'time':'noon','weather':'rain'}, spot='dry_life', vantage=(0,14),
     reads=[('读普通雨天活动', f'yukkuri status {sel("ordinary")} raw'), ('读饿油冒雨', f'yukkuri status {sel("hungry")} raw')])
 
+# Under the field's stone roof in the rain: a timid, already uneasy Marisa and her calm mate, and a timid stranger alone.
+# Nothing is told to huddle: the uneasy one seeks its kin, the mate has her, the stranger has nobody (trust 0) and trembles.
+_hm, _hr = uid('rain_huddle', 'shy'), uid('rain_huddle', 'mate')
+_hm_t, _hr_t = (str(uuid.UUID(bytes=b''.join((n & 0xffffffff).to_bytes(4, 'big') for n in u))) for u in (_hm, _hr))
+add('rain_huddle', 'weather', '屋檐下怕雨的贴着伴侣发抖，落雷一起受惊', '屋檐下怕雨的贴着伴侣发抖，落雷一起受惊',
+    '下雨，石顶下：胆小、已经不安（mood.unease=30）的魔理沙走到伴侣灵梦身边侧身贴紧，两只同步发抖（behavior.reaction 含 huddle partner=… pressed=true，日志 [weather] huddle pressed），贴着时不安下降；'
+    '按“附近落雷”：两只一起受惊再贴紧（[weather] thunder clap heard）。后排独处的胆小灵梦没有亲友，只自己发抖（hunker.start pose=tremble）',
+    '约 10–40 秒', [
+        yk('marisa', 1, 0, 'shy', uuid=_hm, yaw=180, lead=True, boldness=20, kin=kin_of(Partner=_hr), **pair_ready()),
+        yk('reimu', -1, 0, 'mate', uuid=_hr, yaw=180, boldness=70, kin=kin_of(Partner=_hm), **pair_ready()),
+        yk('reimu', 0, -3, 'alone', yaw=180, boldness=20, **pair_ready()),
+        set_status('shy', 'mood.unease', 30), set_status('alone', 'mood.unease', 30)],
+    env={'time': 'noon', 'weather': 'rain'}, spot='roof', vantage=(0, 9),
+    reads=[('附近落雷', 'summon minecraft:lightning_bolt ~14 ~ ~6'), ('读贴靠的魔理沙', f'yukkuri status {sel("shy")} raw'),
+           ('读伴侣灵梦', f'yukkuri status {sel("mate")} raw'), ('读独处灵梦', f'yukkuri status {sel("alone")} raw')],
+    capture=dict(shots=(1, 40, 200, 400, 700, 900), sequences=((60, 900, 6),),
+                 follow='@e[tag=scn_mate,limit=1]', offset=(0, .9, 3.4)),
+    smoke=dict(ticks=1200, commands=[(700, 'summon minecraft:lightning_bolt ~14 ~ ~6')],
+               expect=[rf'\[weather\] marisa [^\n]*uuid={_hm_t} [^\n]* huddle sought partner={_hr_t} kin=true',
+                       rf'\[weather\] marisa [^\n]*uuid={_hm_t} [^\n]* huddle pressed partner={_hr_t} ',
+                       r'\[weather\] reimu [^\n]* sheltered alone pose=tremble',
+                       rf'\[weather\] marisa [^\n]*uuid={_hm_t} [^\n]* thunder clap heard [^\n]*stage=HUDDLE partner={_hr_t}'],
+               forbid=[r'\[body\][^\n]* invariant\b', r'\[weather\][^\n]* huddle stand unavailable']))
+
+# A thunderstorm: a timid one under the roof cowers flat; a bold one under the same roof only waits; one caught out in the open
+# runs in under the roof, flinching at the claps.
+add('storm_cower', 'weather', '雷暴：胆小的在石顶下缩成一团，空地上的冒雨跑进来', '雷暴：胆小的在石顶下缩成一团，空地上的冒雨跑进来',
+    '雷暴，石顶下：胆小灵梦压扁发抖、偷看一眼又缩回（hunker.start pose=cower）；同在顶下的胆大魔理沙只是等雨停。'
+    '东边空地上的灵梦冒雨跑向石顶（shelter response started sky=STORM），落雷时原地一缩再跑。按“附近落雷”看受惊；很饿的仍会冒雨找吃的（见“屋檐下躲雨”场景）',
+    '约 10–40 秒', [
+        yk('reimu', -1, 0, 'timid', yaw=180, lead=True, boldness=15, **pair_ready()),
+        yk('marisa', 2, -2, 'bold', yaw=180, boldness=85, **pair_ready()),
+        yk('reimu', 12, 0, 'runner', yaw=90, boldness=55, **pair_ready())],
+    env={'time': 'noon', 'weather': 'thunder'}, spot='roof', vantage=(4, 10),
+    reads=[('附近落雷', 'summon minecraft:lightning_bolt ~16 ~ ~8'), ('读缩身的灵梦', f'yukkuri status {sel("timid")} raw'),
+           ('读胆大魔理沙', f'yukkuri status {sel("bold")} raw'), ('读冒雨跑来的', f'yukkuri status {sel("runner")} raw')],
+    capture=dict(shots=(1, 40, 200, 400, 600, 800), sequences=((60, 800, 6),),
+                 follow='@e[tag=scn_timid,limit=1]', offset=(0, .8, 2.6)),
+    smoke=dict(ticks=1000, commands=[(300, 'summon minecraft:lightning_bolt ~16 ~ ~8')],
+               expect=[r'\[weather\] reimu [^\n]* sheltered alone pose=cower',
+                       r'\[weather\] reimu [^\n]* shelter response started sky=STORM',
+                       r'\[weather\][^\n]* thunder clap heard ']))
+
 _roaming = [*shed(-16, 0, half=4), yk('marisa', -16, 1, 'roam_baby', stage='baby', lead=True), home('roam_baby', -16, 0)]
 for _i in range(4):
     _roaming.append(yk('marisa', _i*4-4, 6, f'explorer{_i}', stage='child', boldness=85, intelligence=70, nutrition=95, energy=95))
@@ -1527,6 +1570,20 @@ kotatsu('kotatsu_winter', '暖桌魔理沙在雪原不怕冷', '暖桌魔理沙�
         '雪原：普通魔理沙觉得冷（needs.temperature=cold），暖桌魔理沙不冷、也不进洞冬居（identity.kotatsu=winter_active），时不时说“暖和”')
 kotatsu('kotatsu_summer', '暖桌魔理沙在沙漠躲热', '暖桌魔理沙在沙漠躲热', 'minecraft:desert',
         '沙漠：暖桌魔理沙嫌热，白天也回棚下睡（先避暑）；普通魔理沙照常活动，时不时说“热”', roofed=True)
+
+# A clear winter noon on the kotatsu plot with no heat source: the chilled one finds its own sunny spot (not the tree's shade).
+add('sunbathe', 'species', '冬日晴天怕冷的魔理沙晒太阳', '冬日晴天怕冷的魔理沙晒太阳',
+    '雪原晴天正午、附近没有火和暖桌：普通魔理沙觉得冷（needs.temperature=cold），在阳光下停下、压扁闭眼、脸朝上晒太阳（behavior=sunbathe，日志 refuge route selected … sun=true），'
+    '一轮晒完暖和了圆回来，约一分钟内不再找太阳；树荫下不算阳光，阴天、下雨和夜里也不晒',
+    '约 10–30 秒', [
+        'fillbiome ~-12 56 ~-12 ~12 100 ~12 minecraft:snowy_plains',
+        box(-4, 0, -3, -4, 3, -3, 'minecraft:spruce_log'), box(-6, 4, -5, -2, 5, -1, 'minecraft:spruce_leaves[persistent=true]', 'keep'),
+        yk('marisa', -4, -1, 'basker', yaw=180, lead=True, **pair_ready())],
+    env=DAY, spot='kotatsu', note=NEW, vantage=(0, 8),
+    reads=[('读晒太阳', f'yukkuri status {sel("basker")} raw')],
+    capture=dict(shots=(1, 40, 200, 400, 600), sequences=((40, 600, 6),), follow='@e[tag=scn_basker,limit=1]', offset=(0, .9, 2.8)),
+    smoke=dict(ticks=900, expect=[r'\[temperature\][^\n]* refuge route selected warming=true [^\n]*sun=true',
+                                  r'\[temperature\][^\n]* refuge stopped warming=true sun=true [^\n]*restTicks=(?:1\d\d|[2-9]\d\d)']))
 
 add('patchouli_vomit', 'species', '饿帕琪狼吞后呕吐', '饿帕琪狼吞后呕吐',
     '四只饿坏的帕琪（营养 10）面前各有苹果：饿极狼吞或两餐挨太近时，约四成概率把馅吐出来（苦脸、馅 -1、不安 +3）；同样饿的灵梦照常吃',
@@ -2363,6 +2420,18 @@ pond('self_rescue', '落水后游回自己的帽子', '落水后游回自己的�
                                    r'\[method\][^\n]* pick intent=escape_water method=(?:own_hat|right_own_hat)\b'],
                 forbid=_WATER_SMOKE_FORBID, verify=water_aftermath, readout=_water_readouts('a')))
 
+# An ordinary land Reimu shoved off the bank: nobody fetches it, it gets out by itself and, wet on dry ground, shakes the water off.
+pond('shake_ashore', '落水的灵梦自己爬上岸，甩掉身上的水', '落水的灵梦自己爬上岸，甩掉身上的水',
+     '普通灵梦站在岸边，被推下水：自己游回岸上（[intent] end id=escape_water），在干地上停下甩水（[weather] shaking water off … after=water，播甩水片段），甩完湿度减半（shook the water off wetness=A -> A/2）；之后自然晾干，不会反复甩',
+     '约 20–40 秒',
+     [yk('reimu', bank_dx(0) - 1, 0, 'a', yaw=-90, lead=True, **pair_ready())], late=[shoved('a', .5)], note=NEW, vantage=(bank_dx(0) - 5, 3, -120, 15),
+     reads=[('读湿度与甩水', f'yukkuri status {sel("a")} raw')],
+     capture=dict(shots=(1, 40, 400, 800), sequences=((40, 800, 4),), observe=False,
+                  follow='@e[tag=scn_a,limit=1]', offset=(-1.6, 1.0, 2.2)),
+     smoke=dict(ticks=1200, expect=[*_WATER_ESCAPE, r'\[weather\][^\n]* shaking water off wetness=[^\n]* after=water\b',
+                                   r'\[weather\][^\n]* shook the water off wetness='],
+                forbid=_WATER_SMOKE_FORBID))
+
 def reclaim_facing_once(window):
     """The bank reclaim turns to the hat once: a turn Face has already completed is never issued again (the beckon that comes
     after it is the real proof, and a loop in front of it keeps it from starting)."""
@@ -3147,7 +3216,7 @@ POND_TOUR = (
     'water_colony', 'sail', 'afloat_stick', 'cargo',
     'afloat_family', 'afloat_family_gather', 'afloat_family_ashore', 'shore_family',
     'kid_boat_play', 'boat_toilet', 'first_voyage', 'first_voyage_brim', 'hat_crowd',
-    'self_rescue', 'worn_hat_boat', 'rescue_child', 'rescue_no_seat',
+    'self_rescue', 'shake_ashore', 'worn_hat_boat', 'rescue_child', 'rescue_no_seat',
     'birth_boat_missed', 'birth_hat_own', 'shore_capsized', 'shore_capsized_far',
     'hat_swap', 'shake_capsize', 'hat_push', 'hat_current',
     'hat_grounded_capsized')
@@ -3163,7 +3232,7 @@ TOPICS = {
     'sleep': 'D1', 'fatigue': 'R1', 'fatigue_predator': 'R2', 'nutrition_age': 'D1', 'meet': 'D1', 'toilet': 'F5', 'hurt': 'F3',
     'birth_land_caught': 'F1', 'birth_land_missed': 'F1', 'feed': 'F2', 'first_toilet': 'F2', 'hop': 'F2', 'growth': 'F4',
     'leaf_swaddle': 'F2', 'leaf_swaddle_neglect': 'F2', 'family_distance': 'F8', 'family_search': 'F8', 'birth_nest_safe': 'F1', 'birth_nest_stem': 'F1', 'birth_stem_caught': 'F1', 'family_nests': 'F4', 'carry_home': 'F4', 'infant_starvation': 'F2',
-    'forage_empty': 'R1', 'rain_life': 'R1', 'marisa_explore': 'R1', 'rain_shelter': 'R1', 'rain_open': 'R1', 'pred_watch': 'R2', 'pred_range': 'R2', 'pred_pets': 'R2', 'shared_body': 'R3',
+    'forage_empty': 'R1', 'rain_life': 'R1', 'rain_huddle': 'R1', 'storm_cower': 'R1', 'marisa_explore': 'R1', 'rain_shelter': 'R1', 'rain_open': 'R1', 'pred_watch': 'R2', 'pred_range': 'R2', 'pred_pets': 'R2', 'shared_body': 'R3',
     'house_empty': 'H1', 'house_pair': 'H2', 'house_eggs': 'H3',
     'shop_build': 'M1', 'factory_labor': 'M2', 'factory_manju': 'M2', 'factory_bag': 'M2', 'harness_walk': 'M3', 'swaddle_worn': 'M3', 'feed_wild': 'M3', 'oniisan_prey': 'M4', 'attack_witness': 'M4',
     'wild': 'M5', 'badge': 'M5', 'exam': 'M5', 'date': 'M5', 'transport': 'M5', 'custody_death': 'M5',
@@ -3173,9 +3242,9 @@ TOPICS = {
     'hat_push': 'A1', 'hat_current': 'A1', 'hat_grounded_capsized': 'A4', 'cargo': 'A2', 'hat_crowd': 'A3', 'shake_capsize': 'A4',
     'water_colony': 'A6', 'sail': 'A6', 'afloat_stick': 'A6', 'afloat_family': 'A6', 'afloat_family_gather': 'A6', 'afloat_family_ashore': 'A6', 'shore_family': 'A6', 'kid_boat_play': 'A6', 'boat_toilet': 'A6',
     'rescue_child': 'A5', 'rescue_no_seat': 'A5', 'birth_boat_missed': 'A6', 'birth_hat_own': 'A6', 'first_voyage': 'A6', 'first_voyage_brim': 'A6',
-    'self_rescue': 'A5', 'shore_capsized': 'A5', 'shore_capsized_far': 'A5', 'worn_hat_boat': 'A5', 'hat_swap': 'C1', 'hat_damage': 'C1', 'hat_shatter': 'C1', 'hatless_kin': 'C2', 'hatless_scorn': 'C2',
+    'self_rescue': 'A5', 'shake_ashore': 'A5', 'shore_capsized': 'A5', 'shore_capsized_far': 'A5', 'worn_hat_boat': 'A5', 'hat_swap': 'C1', 'hat_damage': 'C1', 'hat_shatter': 'C1', 'hatless_kin': 'C2', 'hatless_scorn': 'C2',
     'hatless_monster': 'C2', 'puff_response': 'C2',
-    'myon_stick': 'S1', 'myon_brave': 'S1', 'species_fatigue': 'S1', 'rare_forms': 'S2', 'kotatsu_winter': 'S2', 'kotatsu_summer': 'S2',
+    'myon_stick': 'S1', 'myon_brave': 'S1', 'species_fatigue': 'S1', 'rare_forms': 'S2', 'kotatsu_winter': 'S2', 'kotatsu_summer': 'S2', 'sunbathe': 'S2',
     'alice_chores': 'S3', 'patchouli_vomit': 'S3', 'chen_speed': 'S3', 'marisa_sumo': 'S3',
     'colony_hunt': 'B2', 'colony_ration': 'B2', 'colony_judge': 'B2', 'colony_migrate': 'B2', 'colony_migrate_babies': 'B2',
 }

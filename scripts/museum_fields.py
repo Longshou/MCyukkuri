@@ -355,7 +355,7 @@ class Weather(Field):
         cx, cz = self.cx, self.cz
         self.roof_at = (cx - 22, cz)
         self.spots = {'shelter': (cx - 22 + 28, cz - 6), 'open': (cx + 26, cz - 6), 'pred': (cx + 2, cz + 14), 'dry_life': (cx, cz - 12),
-                      'roaming': (cx, cz)}
+                      'roaming': (cx, cz), 'roof': self.roof_at}
         self.anchor = self.spots['shelter']
 
     def features(self):
