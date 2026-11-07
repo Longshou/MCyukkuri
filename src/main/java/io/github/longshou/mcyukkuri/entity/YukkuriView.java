@@ -86,8 +86,8 @@ public interface YukkuriView {
 
     String getAnimationId();
     long getAnimationStartTick();
+    /** Synchronized presentation row; its clock is the animation start tick. */
     String getMomentId();
-    long getMomentStartTick();
     /** Synchronized current action id of the body driver ("" when idle); never read from the server component. */
     String motorAction();
     /** Synchronized start tick of the current action (clip phase). */

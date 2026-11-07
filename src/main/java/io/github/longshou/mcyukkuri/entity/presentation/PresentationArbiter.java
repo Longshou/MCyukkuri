@@ -71,11 +71,10 @@ public final class PresentationArbiter {
                 if (!candidate.equals("fallback_idle") && e.getAnimationId().equals(Moments.clip(candidate))) id = candidate;
             }
         }
-        long now = e.level().getGameTime();
-        long start = e.getAnimationStartTick();
-        boolean changed = !id.equals(e.getMomentId()) || start != e.getMomentStartTick();
-        e.setMoment(id, start);
+        boolean changed = !id.equals(e.getMomentId());
+        e.setMoment(id);
         if (id.isEmpty()) return;
+        long start = e.getAnimationStartTick(), now = e.level().getGameTime();
         var frame = Moments.frame(id, (now-start)/20f);
         var previous = Moments.frame(id, (now-start-1)/20f);
         if (changed || frame.index() != previous.index() || frame.start() != previous.start())
@@ -109,7 +108,7 @@ public final class PresentationArbiter {
                  Behaviors.FIRST_TOILET_ASSIST,Behaviors.FIRST_TOILET_WAIT,Behaviors.FIRST_TOILET_STIMULATED->{clip=e.getBehaviorId();start=e.getBehaviorStartTick();}
         }
         if (!e.getMomentId().isEmpty() && clip.equals(e.getAnimationId())) {
-            String selected = Moments.face(e.getMomentId(), (e.level().getGameTime()-e.getMomentStartTick())/20f, "");
+            String selected = Moments.face(e.getMomentId(), (e.level().getGameTime()-e.getAnimationStartTick())/20f, "");
             if (!selected.isEmpty()) return EcologyPresentation.expression(e, selected);
         }
         return ExpressionClips.sample(e.subspecies().assetId(),clip,Math.max(0,e.level().getGameTime()-start)/20f,e.getExpressionId());
@@ -130,7 +129,6 @@ public final class PresentationArbiter {
         }
         if (current) tag.putString("Source", lastSource);
         tag.putString("Moment", state.owner().getMomentId());
-        tag.putLong("MomentStart", state.owner().getMomentStartTick());
         return tag;
     }
 

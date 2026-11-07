@@ -27,7 +27,7 @@ final class MomentEmote {
         var mc = Minecraft.getInstance();
         if (e.getMomentId().isEmpty() || e.isInvisible() || !e.isAlive()
                 || mc.gameRenderer.getMainCamera().getPosition().distanceToSqr(e.position()) > 256) return;
-        float elapsed = (e.level().getGameTime()-e.getMomentStartTick()+partial)/20f;
+        float elapsed = (e.level().getGameTime()-e.getAnimationStartTick()+partial)/20f;
         // A looping body pose must not turn a short punctuation mark into a permanent status icon.
         if (elapsed >= Moments.duration(e.getMomentId())) return;
         var frame = Moments.frame(e.getMomentId(), elapsed);

@@ -1075,8 +1075,8 @@ public final class YukkuriModel {
             // Taking the cap buffer here would end the body's buffer before any body vertices are written.
             hatDamageDraw.deferCaps();
             long bodyStart=woundDisplay==null?0:WoundLod.start();
-            momentFrame = entity.getMomentId().isEmpty() ? null : Moments.frame(entity.getMomentId(),
-                    elapsed+(entity.getAnimationStartTick()-entity.getMomentStartTick())/20f);
+            // The moment row runs on the animation clock, which `elapsed` already samples.
+            momentFrame = entity.getMomentId().isEmpty() ? null : Moments.frame(entity.getMomentId(), elapsed);
             try {
                 render(action,elapsed,stack,buffer,light,overlay,accessory||pieces||hatMotion.equals("HAT_REMOVE"),behavior,behaviorTicks,hairLoss);
             } finally { momentFrame = null; }

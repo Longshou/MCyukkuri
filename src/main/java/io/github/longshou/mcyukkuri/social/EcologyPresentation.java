@@ -32,7 +32,7 @@ public final class EcologyPresentation {
         if (e.life().constipated() && e.life().bladder() >= 70) return condition("discomfort");
         String id = moment(e.getBehaviorId());
         var row = Moments.row(id);
-        long start = id.equals(e.getMomentId()) ? e.getMomentStartTick() : e.getBehaviorStartTick();
+        long start = id.equals(e.getMomentId()) ? e.getAnimationStartTick() : e.getBehaviorStartTick();
         String expression = Moments.face(id, (e.level().getGameTime()-start)/20f, "");
         if (row.has("face_condition")) {
             boolean active = switch (row.get("face_condition").getAsString()) {

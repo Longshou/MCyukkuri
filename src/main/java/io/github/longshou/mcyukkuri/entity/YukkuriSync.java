@@ -31,7 +31,6 @@ final class YukkuriSync {
     private static final EntityDataAccessor<String> ANIMATION = YukkuriEntity.defineSyncedValue( EntityDataSerializers.STRING);
     private static final EntityDataAccessor<Long> ANIMATION_START = YukkuriEntity.defineSyncedValue( EntityDataSerializers.LONG);
     private static final EntityDataAccessor<String> MOMENT = YukkuriEntity.defineSyncedValue(EntityDataSerializers.STRING);
-    private static final EntityDataAccessor<Long> MOMENT_START = YukkuriEntity.defineSyncedValue(EntityDataSerializers.LONG);
     private static final EntityDataAccessor<String> EXPRESSION = YukkuriEntity.defineSyncedValue( EntityDataSerializers.STRING);
     private static final EntityDataAccessor<String> BEHAVIOR = YukkuriEntity.defineSyncedValue( EntityDataSerializers.STRING);
     private static final EntityDataAccessor<Long> BEHAVIOR_START = YukkuriEntity.defineSyncedValue( EntityDataSerializers.LONG);
@@ -133,11 +132,7 @@ final class YukkuriSync {
     }
     boolean predatorFlying() { return owner.getEntityData().get(PREDATOR_FLIGHT); }
     String getMomentId() { return owner.getEntityData().get(MOMENT); }
-    long getMomentStartTick() { return owner.getEntityData().get(MOMENT_START); }
-    void moment(String id, long start) {
-        owner.getEntityData().set(MOMENT, id);
-        owner.getEntityData().set(MOMENT_START, start);
-    }
+    void moment(String id) { owner.getEntityData().set(MOMENT, id); }
     String getAnimationId() { return owner.getEntityData().get(ANIMATION); }
     long getAnimationStartTick() { return owner.getEntityData().get(ANIMATION_START); }
     String getExpressionId() { return owner.getEntityData().get(EXPRESSION); }
@@ -353,7 +348,6 @@ final class YukkuriSync {
         builder.define(ANIMATION, "idle");
         builder.define(ANIMATION_START, 0L);
         builder.define(MOMENT, "");
-        builder.define(MOMENT_START, 0L);
         builder.define(EXPRESSION, "neutral");
         builder.define(BEHAVIOR, "idle"); builder.define(DIALOGUE, "");
         builder.define(SPEECH_START, 0L); builder.define(SPEECH_END, 0L); builder.define(SPEECH_SEQUENCE, 0);
