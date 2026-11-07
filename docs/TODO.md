@@ -11,6 +11,7 @@
 | 观测层 S1：status trace 改为 off/light/dense 结构化记录（只观察） | `.worktrees/wp-bv-trace-recorder` | status/StatusEvents、StatusLife、StatusCommands、GameplayLog、TraceRecorder、TraceWatchdog；CommonRegistration 监听 |
 | 演出组装件③：演出写成数据（moments.json：基本动作＋幅度节奏＋表情序列＋头顶符号＋粒子声音），迁移现有演出 | `.worktrees/wp-bu-moments` | standards/yukkuri-library/presentation/moments.json、social/EcologyPresentation、entity/presentation/、YukkuriSync、client 符号渲染、scripts/preview.py（moment） |
 | 观测层 G2：姿态度量与命令行（穿身、倾角、间隙、辫子触水、持物、朝向、姿态跳变 → JSON） | `.worktrees/wp-bx-pose-metrics` | pose/check/、pose/cli/、scripts/pose_check.py |
+| 观测层 S2：时间线与服务端自动检查（卡住、循环、瞬移、物品守恒、遗弃幼体、卡顿） | `.worktrees/wp-by-timeline-checks` | scripts/timeline.py、scripts/smoke_checks.py、scripts/fixtures/timeline/、scripts/smoke_fate.py、scripts/smoke_museum.py、scripts/headless_server.py、scripts/feedback_intake.py |
 
 ## 玩法待办
 
