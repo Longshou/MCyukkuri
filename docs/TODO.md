@@ -9,7 +9,6 @@
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
 | 工具：冒烟个体命运检查、重复次数与通过率、主线基线、全机排队 | `.worktrees/wp-bh-smoke-verify` | `scripts/smoke_museum.py`、`scripts/headless_server.py`、`scripts/museum_scenarios.py`（预期死亡声明） |
-| 工具：场景截图对照用户原话的视觉审核命令 | `.worktrees/wp-bk-capture-review` | `.local/tools/capture_review.py`（本机）、`AGENTS.md` 第 5 节一行 |
 | 生活演出·天气与取暖：雨中相依、雷暴缩身与找掩体、出水抖身、晒太阳、钻暖桌被炉 | `.worktrees/wp-ba-life-weather` | `standards/yukkuri-library/motions/`、天气／取暖行为、`scripts/museum_*.py` |
 | 生活演出·家庭日常：呼唤走散孩子、迎接归家、睡醒伸懒腰、饭后满足 | `.worktrees/wp-bb-life-family` | `standards/yukkuri-library/motions/`、家庭／作息／进食行为、`scripts/museum_*.py` |
 | 美术：安葬土冢上的小墓碑与右键信息 | `.worktrees/wp-bc-grave-marker` | `body/GraveBlockEntity.java`、`client/GraveRenderer.java`、墓碑美术源 |
@@ -115,7 +114,6 @@
 - **美术动作一条命令**：未做。导出片段、三视角离线渲染条、逐帧自动检查（俯仰横滚 ≤12°、循环首尾、身体／辫子／帽／持物穿模、关键帧标记）、与分镜节拍并排的预览页；“保存 xx”与新素材登记一条命令；动作源冲突后一键重建全部生成输出。按本批制作包报告里的“工具痛点”设计。完成：下一个动作包全程不写临时脚本。
 - **场景录像预览**：未做。`capture_museum.py` 已存全部帧，加出 MP4／GIF 与预览页，用户不进游戏也能先看动作与美术替换效果，视觉审核也看连续帧。完成：任一场景一条命令出可播放的录像。
 - **生图风格参考包**：未做。从已认可的标准身体、道具与贴图挑一组参考图，所有 Codex 生图都带上，统一画风、减少返工。完成：参考包登记在制作源，分镜与概念图流程默认使用。
-- **截图审核取景**：部分接入（`.local/tools/capture_review.py`）。现从 320×204 缩略图切格，穿模判断弱；远景个体太小时报“不可读”。完成：用全分辨率帧并裁到被测个体附近，场景取景问题与动作问题分开报告。
 
 ## 低优先级
 
