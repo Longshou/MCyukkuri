@@ -151,24 +151,36 @@
 - 未做：[认屋成员脱离聚落、解除伴侣与强盗团离开消散](FEATURES.md#野外事件)；[运行资源瘦身](../AGENTS.md)（先测完整 Jar 大小与加载耗时）。
 - 未做：饥荒断粮献身（`HabitatLife.quarrel` 处衔接，目前粮尽只有争吵与外出觅食）；迁徙行军觅食阈值未定；亲代拒绝分食目前只降低好感；红灵梦、早苗种、穴ゆ、牧ゆ、兄貴種、身體種、嗚箱讲堂名称无规则未做；Patchouli／Jade 等可选兼容未接入（见[季节](FEATURES.md#季节体感温度与储粮)、[聚落](FEATURES.md#聚落族规与迁徙)、[基础生活](FEATURES.md#基础生活与饲养操作)）。
 
-## 运行证据索引（2026-10-21–31）
+## 运行证据索引
 
-编号只定位运行版本与反馈，日志用于诊断，不代替用户试玩验收。会话与日志在 `.local/experimental-map/`，E8–E10 副本在 `.local/reports/birth-aquatic-fix/`。
+用户试玩的运行版本在此登记一次，条目只写版本链接与反馈编号；日志用于诊断，不代替用户试玩验收。会话与原日志在 `.local/experimental-map/`，副本见各行。
 
 | 编号 | 运行版本 | 已确认现象／边界 |
 | --- | --- | --- |
 | **E1** | 10-21 22:41 至 10-22 00:04，[f4872105](https://github.com/Longshou/MCyukkuri/commit/f4872105)，[CI 39595554878](https://github.com/Longshou/MCyukkuri/actions/runs/39595554878) | 头饰、捕食、遗体／治疗及出生与成长反馈的共同运行包。 |
 | **E2** | 10-22 00:10–00:39，[372fa23d](https://github.com/Longshou/MCyukkuri/commit/372fa23d)，[CI 39630804471](https://github.com/Longshou/MCyukkuri/actions/runs/39630804471) | 中枢按钮卡死、岩浆块过快致死、护尸走停、治疗持物不可见。 |
 | **E3** | 00:45–01:09，[cc0e78ff](https://github.com/Longshou/MCyukkuri/commit/cc0e78ff)，[CI 39634939963](https://github.com/Longshou/MCyukkuri/actions/runs/39634939963) | 天气、捕食、睡眠与闲逛场景反馈。 |
-| **E4** | 01:25:54 起 [d1cf4f1f](https://github.com/Longshou/MCyukkuri/commit/d1cf4f1f)，[CI 39641090628](https://github.com/Longshou/MCyukkuri/actions/runs/39641090628)（此前仍为 E3） | 桌面复测未再卡死且有取核／治疗日志（仅诊断）；01:29–01:38 护尸、移速反馈归属 d1cf。 |
+| **E4** | 01:25:54 起 [d1cf4f1f](https://github.com/Longshou/MCyukkuri/commit/d1cf4f1f)，[CI 39641090628](https://github.com/Longshou/MCyukkuri/actions/runs/39641090628)（此前仍为 E3） | 桌面复测未再卡死（仅诊断）；01:29–01:38 护尸、移速反馈归属 d1cf。 |
 | **E5** | 01:44–01:58，[193a87ae](https://github.com/Longshou/MCyukkuri/commit/193a87ae)，[CI 39644324457](https://github.com/Longshou/MCyukkuri/actions/runs/39644324457) | 天气、捕食、困倦、认窝与通用身体复测。 |
 | **E6** | 10-25 16:08–16:09，[303d10d0](https://github.com/Longshou/MCyukkuri/commit/303d10d0)，[CI 40173988194](https://github.com/Longshou/MCyukkuri/actions/runs/40173988194) | `core_exposed` 多只伤员同屏明显卡顿，服务端无落后记录；发面伤口处头发穿透／缺口。 |
-| **E7** | 16:45–16:51，[b1b7d88f](https://github.com/Longshou/MCyukkuri/commit/b1b7d88f)，[CI 40177589999](https://github.com/Longshou/MCyukkuri/actions/runs/40177589999) | `core_exposed` 全程严重卡顿；全身烧伤斑驳、侧边部件错位、泪痕浮出；前刘海爆裂伤洞口褐色污渍、断发参差；头顶深伤交界露肤色细缝。 |
-| **E8** | 10-27 21:50–22:37，[ce9c0bfc](https://github.com/Longshou/MCyukkuri/commit/ce9c0bfc)，[CI 40465587203](https://github.com/Longshou/MCyukkuri/actions/runs/40465587203) | 出生与水上链路反馈。 |
-| **E9** | 10-28 00:15–00:20，[7e99a8bd](https://github.com/Longshou/MCyukkuri/commit/7e99a8bd)，[CI 40536690947](https://github.com/Longshou/MCyukkuri/actions/runs/40536690947) | 自救、扶正后登船、换船与返岸仍失败；满粮救援有真实拒绝抽签，不算事件未触发；未复测出生链。 |
-| **E10** | 01:52–02:02，[98038210](https://github.com/Longshou/MCyukkuri/commit/98038210)，[CI 40550269285](https://github.com/Longshou/MCyukkuri/actions/runs/40550269285) | 出生、水上与动作细节复测；下文时间为录像“屏幕录制 2026-10-28 020258.mp4”偏移，抽帧在 `.local/screenshots/birth-aquatic-20261028-020258/`。 |
+| **E7** | 16:45–16:51，[b1b7d88f](https://github.com/Longshou/MCyukkuri/commit/b1b7d88f)，[CI 40177589999](https://github.com/Longshou/MCyukkuri/actions/runs/40177589999) | `core_exposed` 全程严重卡顿；烧伤斑驳、侧边部件错位、泪痕浮出；爆裂伤洞口污渍、断发参差、头顶深伤交界细缝。 |
+| — | 10-25 21:35–22:10，[ac4ba87b](https://github.com/Longshou/MCyukkuri/commit/ac4ba87b)，[CI 40196337976](https://github.com/Longshou/MCyukkuri/actions/runs/40196337976) | 捕食、妖梦、迁徙、嗯嗯坑反馈；日志副本 `.local/experimental-map/play-museum/20261025-211412-264.log`。 |
+| — | 22:24–22:38，[dd75d650](https://github.com/Longshou/MCyukkuri/commit/dd75d650)，[CI 40200352271](https://github.com/Longshou/MCyukkuri/actions/runs/40200352271) | 茎生、窝与接生反馈。 |
+| — | 10-27 03:21–03:31，[1325c6bd](https://github.com/Longshou/MCyukkuri/commit/1325c6bd)，[CI 40380823130](https://github.com/Longshou/MCyukkuri/actions/runs/40380823130) | 水生首轮试玩，下水、找回帽子、扶正、跳出帽船与亲油施救均阻塞；副本 `.local/reports/aquatic-1325c6bd/`。 |
+| **E8** | 10-27 21:50–22:37，[ce9c0bfc](https://github.com/Longshou/MCyukkuri/commit/ce9c0bfc)，[CI 40465587203](https://github.com/Longshou/MCyukkuri/actions/runs/40465587203) | 出生与水上链路反馈；E8–E10 副本在 `.local/reports/birth-aquatic-fix/`。 |
+| **E9** | 10-28 00:15–00:20，[7e99a8bd](https://github.com/Longshou/MCyukkuri/commit/7e99a8bd)，[CI 40536690947](https://github.com/Longshou/MCyukkuri/actions/runs/40536690947) | 自救、扶正后登船、换船与返岸仍失败；未复测出生链。 |
+| **E10** | 01:52–02:02，[98038210](https://github.com/Longshou/MCyukkuri/commit/98038210)，[CI 40550269285](https://github.com/Longshou/MCyukkuri/actions/runs/40550269285) | 出生、水上与动作细节复测；条目中的时间为录像“屏幕录制 2026-10-28 020258.mp4”偏移，抽帧在 `.local/screenshots/birth-aquatic-20261028-020258/`。 |
 | **E11** | 03:22–03:37，[2715d9c1](https://github.com/Longshou/MCyukkuri/commit/2715d9c1)，CI 待核实 | 陆地接生收尾、宠物窝入睡、赤油取食与水上自救、帽子归属回归。 |
-| **E12** | 10-31 14:07–14:31，[55449fd63](https://github.com/Longshou/MCyukkuri/commit/55449fd6381619dec7d211af4748778c5ac76e54)，[CI 41131967155](https://github.com/Longshou/MCyukkuri/actions/runs/41131967155) | 陆地接生与水生复测；用户反馈水生魔理沙几乎全部演出有问题。各场景现象见所属条目；暂停时间不计行为观察时长。 |
+| — | 10-30 01:09–01:34，[405bf290](https://github.com/Longshou/MCyukkuri/commit/405bf290)，[CI 40908737713](https://github.com/Longshou/MCyukkuri/actions/runs/40908737713) | 陆地接生与水上反馈。 |
+| — | 02:32–02:46，[a9b60f00](https://github.com/Longshou/MCyukkuri/commit/a9b60f00)，[CI 40928640596](https://github.com/Longshou/MCyukkuri/actions/runs/40928640596) | 陆地接生、茎生与落水反馈。 |
+| — | 22:35–23:02，[b333bfc0](https://github.com/Longshou/MCyukkuri/commit/b333bfc0)，[CI 41070657813](https://github.com/Longshou/MCyukkuri/actions/runs/41070657813) | 水生重建后首轮复测与陆地接生反馈。 |
+| **E12** | 10-31 14:07–14:31，[55449fd63](https://github.com/Longshou/MCyukkuri/commit/55449fd6381619dec7d211af4748778c5ac76e54)，[CI 41131967155](https://github.com/Longshou/MCyukkuri/actions/runs/41131967155) | 陆地接生与水生复测；用户反馈水生魔理沙几乎全部演出有问题；暂停时间不计观察时长。 |
+| — | 11-02 01:44 起，[4064a9234](https://github.com/Longshou/MCyukkuri/commit/4064a9234)，[CI 41332517724](https://github.com/Longshou/MCyukkuri/actions/runs/41332517724) | 2026-11-02 试玩反馈 1–18。 |
+| — | 11-02 20:40–21:22，[bbd16394b](https://github.com/Longshou/MCyukkuri/commit/bbd16394b)，[CI 41438818895](https://github.com/Longshou/MCyukkuri/actions/runs/41438818895) | 11-02 反馈复测；20:57:24 服务端落后 265 tick。 |
+| — | 11-04 00:16–01:18，[5a5711245](https://github.com/Longshou/MCyukkuri/commit/5a5711245)，[CI 41615566507](https://github.com/Longshou/MCyukkuri/actions/runs/41615566507) | 11-04 反馈 1–17；会话 20261104-001607-669、20261104-002901-312，副本 `.local/reports/playtest-1104/`。 |
+| — | 11-05 01:14–01:41，[81858504b](https://github.com/Longshou/MCyukkuri/commit/81858504b)，[CI 41863598091](https://github.com/Longshou/MCyukkuri/actions/runs/41863598091) | 11-05 反馈 1–13；会话 20261105-011400-077，副本 `.local/reports/playtest-1105/latest-20261105-011400.log`。 |
+| — | 11-06 00:08 起，[6ace787dc](https://github.com/Longshou/MCyukkuri/commit/6ace787dc)，[CI 42042884686](https://github.com/Longshou/MCyukkuri/actions/runs/42042884686) | 11-06 反馈 1–6 与分娩卡顿；副本 `.local/reports/playtest-1106/`。 |
+| — | 11-06 19:57 起，[f90b78a3c](https://github.com/Longshou/MCyukkuri/commit/f90b78a3c)，[CI 42185057018](https://github.com/Longshou/MCyukkuri/actions/runs/42185057018) | 亲代运输复测、演示场景梳理请求；副本 `.local/reports/playtest-1106b/`。 |
 
 ## 实时日志发现的问题
 
@@ -295,7 +307,7 @@
 - 重建后复测：[b333bfc0](https://github.com/Longshou/MCyukkuri/commit/b333bfc0)（CI 41070657813，10-30 22:35–23:02）复测失败：`birth_boat_caught`（现并入 `birth_boat_missed`）／`birth_boat_missed` 初态帽船翻覆、母油在岸上；`rescue_child` 生成时亲油也落水；自救难、扶正后再爬不上去（已改：爬帽不再被脱困目标提前结束，水中伤害只扣血不打断，[88627705](https://github.com/Longshou/MCyukkuri/commit/88627705)）；辫子中段到末端僵直（已改待试玩：每节编织段一根骨链，抓取／托举／取戴帽／划桨／拨水／挣扎沿全长弯曲，[a1b06cf6](https://github.com/Longshou/MCyukkuri/commit/a1b06cf6) 前三提交；越檐托举辫根头发略露帽檐，划桨末段发尾转折偏快）；亲子出航与“赤油长成子油后自帽试航、成功后才具备航行与自救能力、途中由亲油救援”无关；船上油库里像浮着；空帽船摇几下定变可拾取物品并掉出食物。已接入待试玩（W1 [a7cebede](https://github.com/Longshou/MCyukkuri/commit/a7cebede) 前三提交）：场景初态、帽檐搭岸、辫子拨水引帽、可航行技能与首航（`first_voyage` 失败到次日早晨再试）；旧重心翻覆已下线（反例见下条）；试玩场里已有的亚成体无航行标记，落水只能等救。更早一轮（均已改，待复测）：[a9b60f00](https://github.com/Longshou/MCyukkuri/commit/a9b60f00)（CI 40928640596，10-30 02:32–02:46）落水游得太快，扶正被泡水伤反复打断、一卡一卡未成功，扶正时播挣扎动作；无辫一侧鬓发被当成手摆动；子油不会把戴着的帽子放成船、直接游回岸。[405bf290](https://github.com/Longshou/MCyukkuri/commit/405bf290)（CI 40908737713，10-30 01:09–01:34）`hat_float`（现并入 `kid_boat_play`）父油与子油穿模；`hat_crowd` 挤动因穿模看不出效果；落水后不先扶正自己的帽子、直接游岸，上岸常失败卡在岸边（旧落水逻辑）。
 - 完成（用户全量复测）：陆地出生 `birth_land_caught`／`birth_land_missed`／`birth_stem_caught`／`birth_nest_safe`／`birth_nest_stem`；赤油 `infant_starvation`、`colony_migrate_babies`；帽子 `hat_float`（现并入 `kid_boat_play`）／`hat_push`／`shake_capsize`／`hat_crowd`／`hat_swap`；落水 `self_rescue`／`shore_capsized`／`fall_in_pond`（已移除）／`worn_hat_boat`；水上生活 `water_colony`／`sail`／`afloat_family`／`shore_family`；家庭 `rescue_child`／`birth_boat_caught`（现并入 `birth_boat_missed`）。看点见场景说明，下列 P0 为水上部分的验收标准。
 
-**本轮复测（E12）**：运行版本与 CI 见[运行证据索引](#运行证据索引2026-10-2131)，未完成链路保持复测失败。
+**本轮复测（E12）**：运行版本与 CI 见[运行证据索引](#运行证据索引)，未完成链路保持复测失败。
 
 WP-C 本机自查证据（非试玩验收、无 CI）：复用主线 [85a0aac95](https://github.com/Longshou/MCyukkuri/commit/85a0aac95) `instance-2cf67b776c5d`；分支 `ee8703ad9`（本地未推送） `instance-3e04f2839928`、[7b287d6b6](https://github.com/Longshou/MCyukkuri/commit/7b287d6b6)（冒烟时为 rebase 前的 fa3fff74c，Java 相同）`instance-e512e12197f1`，同表各 35 场原始结果 30／16／31 PASS、溺亡 0／9／0。补核自救完成断言后主线／最终分支为 29／30 PASS；日志均在 `.local/smoke/`，逐场证据见 `.local/refactor/reports/wp-c-places.md`。当前回归见下对应条目；`kid_boat_play` 舱内转向 `NO_ROOM` 随帽檐玩耍包处理。
 
