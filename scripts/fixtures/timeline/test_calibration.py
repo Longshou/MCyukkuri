@@ -14,6 +14,19 @@ from cases import record, state, log, HOST, ACTOR
 
 
 class Calibration(unittest.TestCase):
+    def test_logged_host_contact_travel_explains_only_its_actual_displacement(self):
+        # H shake_capsize-18 t144663: contact moves the hull .354 blocks,
+        # while its retained drift velocity is only .001 blocks/tick.
+        rows = [state(0), state(1)]
+        for row in rows:
+            row['st'] = {'p':[0,0,0], 'v':[.001,0,0], 'frame':{}, 'riders':[]}
+        rows[1]['st']['p'] = [-.35448,0,-.08104]
+        move = record('ev',1,cat='hat',msg='travel at=(-.35448,0,-.08104) delta=(-.35448,0,-.08104) velocity=(.001,0,0)')
+        self.assertFalse(checks.jumps(timeline.states(rows),[move]))
+        self.assertTrue(checks.jumps(timeline.states(rows),[move | {'u':HOST}]))
+        rows[1]['st']['p'][0] += 2
+        self.assertTrue(any(f['verdict']=='fail' for f in checks.jumps(timeline.states(rows),[move])))
+
     def test_short_completed_advances_accumulate_for_loop_progress(self):
         for stride, expected in ((.2, False), (0, True)):
             rows = []

@@ -351,7 +351,15 @@ def local_point(p, frame):
 def jumps(samples, records=()):
     out = []
     placements = {}
+    host_travel = {}
     for row in records:
+        if row['k'] == 'ev' and row.get('cat') == 'hat':
+            match = re.match(r'travel at=\([^)]+\) delta=\(([^)]+)\) velocity=', row.get('msg', ''))
+            if match:
+                # Hull contact can displace a hat without retaining that push
+                # in velocity. This is the existing Motor.move result, not a
+                # guessed force or an exemption for all host movement.
+                host_travel[row['u'], row['t']] = [float(x) for x in match[1].split(',')]
         if row['k'] == 'ev' and row.get('cat') == 'body':
             match = re.fullmatch(r'relocate cause=scenario_initial_seat from=\(([^)]+)\) to=\(([^)]+)\)', row.get('msg', ''))
             if match:
@@ -394,6 +402,8 @@ def jumps(samples, records=()):
                 # visible in its ending velocity, not the preceding one. Ordinary
                 # flight can instead match the preceding velocity before drag.
                 velocities = [sa['v'], sb['v']] if known(sb, 'v') else [sa['v']]
+                if hat_pair and (b['u'], b['t']) in host_travel:
+                    velocities.append(host_travel[b['u'], b['t']])
                 residuals = []
                 for velocity in velocities:
                     residual = [sb['p'][i] - sa['p'][i] - velocity[i] for i in range(3)]
