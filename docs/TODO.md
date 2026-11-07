@@ -13,6 +13,7 @@
 | 工具：动作编译增量化（改一个片段不再全量编译 2303 个片段约 16 分钟） | `.worktrees/wp-ch-motion-compile-speed` | scripts/export_motion_corrections.py、scripts/export.py（motion-corrections 选择）、编译缓存 |
 | 观测层：服务端检查校准（主线零误报、已知问题仍抓到） | `.worktrees/wp-ck-check-calibration` | scripts/smoke_checks.py、scripts/timeline.py、scripts/fixtures/timeline/ |
 | 观测层 S3：试玩场景结束条件与里程碑（冒烟自动判断行为链是否走完） | `.worktrees/wp-cl-scene-ends` | scripts/museum_scenarios.py（end、里程碑、视角） |
+| Wiki：引入 fandom 已实现种族与其亚种条目 | `.worktrees/wp-cm-fandom-species` | wiki/hakkei-reference/lore/species/、wiki/hakkei-reference/sources-fandom.md、wiki/hakkei-reference/lore/conflicts.md、wiki/glossary.md、docs/TODO.md 待用户裁决 |
 
 ## 玩法待办
 
