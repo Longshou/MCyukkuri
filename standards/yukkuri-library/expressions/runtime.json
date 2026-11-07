@@ -1513,157 +1513,223 @@
         "cry",
         "cry_b"
       ],
-      "frame_ticks": 8
+      "frame_ticks": [
+        20,
+        10
+      ]
     },
     "teary": {
       "frames": [
         "teary",
         "teary_b"
       ],
-      "frame_ticks": 8
+      "frame_ticks": [
+        28,
+        12
+      ]
     },
     "drool": {
       "frames": [
         "drool",
         "drool_b"
       ],
-      "frame_ticks": 8
+      "frame_ticks": [
+        24,
+        16
+      ]
     },
     "teary_smile": {
       "frames": [
         "teary_smile",
         "teary_smile_b"
       ],
-      "frame_ticks": 8
+      "frame_ticks": [
+        28,
+        12
+      ]
     },
     "yawn": {
       "frames": [
         "yawn",
         "yawn_b"
       ],
-      "frame_ticks": 8
+      "frame_ticks": [
+        16,
+        16
+      ]
     },
     "sleep": {
       "frames": [
         "sleep",
         "sleep_b"
       ],
-      "frame_ticks": 20
+      "frame_ticks": [
+        20,
+        20
+      ]
     },
     "tear_sleep": {
       "frames": [
         "tear_sleep",
         "tear_sleep_b"
       ],
-      "frame_ticks": 8
+      "frame_ticks": [
+        36,
+        14
+      ]
     },
     "squeezed_teary": {
       "frames": [
         "squeezed_teary",
         "squeezed_teary_b"
       ],
-      "frame_ticks": 8
+      "frame_ticks": [
+        20,
+        10
+      ]
     },
     "squeezed_frown": {
       "frames": [
         "squeezed_frown",
         "squeezed_frown_b"
       ],
-      "frame_ticks": 8
+      "frame_ticks": [
+        20,
+        10
+      ]
     },
     "pin_cry": {
       "frames": [
         "pin_cry",
         "pin_cry_b"
       ],
-      "frame_ticks": 8
+      "frame_ticks": [
+        20,
+        10
+      ]
     },
     "tongue_cry": {
       "frames": [
         "tongue_cry",
         "tongue_cry_b"
       ],
-      "frame_ticks": 8
+      "frame_ticks": [
+        20,
+        10
+      ]
     },
     "blank_cry": {
       "frames": [
         "blank_cry",
         "blank_cry_b"
       ],
-      "frame_ticks": 8
+      "frame_ticks": [
+        20,
+        10
+      ]
     },
     "teary_pant": {
       "frames": [
         "teary_pant",
         "teary_pant_b"
       ],
-      "frame_ticks": 8
+      "frame_ticks": [
+        28,
+        12
+      ]
     },
     "teary_tongue": {
       "frames": [
         "teary_tongue",
         "teary_tongue_b"
       ],
-      "frame_ticks": 8
+      "frame_ticks": [
+        28,
+        12
+      ]
     },
     "horrified": {
       "frames": [
         "horrified",
         "horrified_b"
       ],
-      "frame_ticks": 8
+      "frame_ticks": [
+        20,
+        10
+      ]
     },
     "side_teary": {
       "frames": [
         "side_teary",
         "side_teary_b"
       ],
-      "frame_ticks": 8
+      "frame_ticks": [
+        28,
+        12
+      ]
     },
     "teary_frown": {
       "frames": [
         "teary_frown",
         "teary_frown_b"
       ],
-      "frame_ticks": 8
+      "frame_ticks": [
+        28,
+        12
+      ]
     },
     "open_drool": {
       "frames": [
         "open_drool",
         "open_drool_b"
       ],
-      "frame_ticks": 8
+      "frame_ticks": [
+        24,
+        16
+      ]
     },
     "open_cry": {
       "frames": [
         "open_cry",
         "open_cry_b"
       ],
-      "frame_ticks": 8
+      "frame_ticks": [
+        20,
+        10
+      ]
     },
     "cold": {
       "frames": [
         "cold",
         "cold_b"
       ],
-      "frame_ticks": 8
+      "frame_ticks": [
+        30,
+        12
+      ]
     },
     "dying": {
       "frames": [
         "dying",
         "dying_b"
       ],
-      "frame_ticks": 8
+      "frame_ticks": [
+        36,
+        14
+      ]
     },
     "dying_closed": {
       "frames": [
         "dying_closed",
         "dying_closed_b"
       ],
-      "frame_ticks": 8
+      "frame_ticks": [
+        36,
+        14
+      ]
     }
   },
-  "timing_basis": "项目设计：滴泪／口水每相位 8 tick，睡眠每相位 20 tick；纯客户端循环。",
+  "timing_basis": "项目设计：frame_ticks 逐帧给出时长（tick），与 frames 一一对应。含泪脸 A 帧是泪盈眼眶的停留，B 帧是泪溢出、泪珠顺脸颊流下的短帧：哭喊类 20/10，含泪类 28/12，睡中与虚弱 36/14，发冷 30/12；口水 24/16，哈欠 16/16，睡眠 20/20。纯客户端循环。",
   "kit_clips": [
     "idle",
     "stretch_shape",

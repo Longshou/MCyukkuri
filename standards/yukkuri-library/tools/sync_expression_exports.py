@@ -1,6 +1,6 @@
 """Refresh named expression atlases and preview patches without rebuilding geometry.
 
-Usage: python tools/sync_expression_exports.py ID [ID ...]
+Usage: python tools/sync_expression_exports.py [--thumbnails-only] ID [ID ...]
 Only library assembled exports are touched; game snapshots are independent.
 """
 from pathlib import Path
@@ -38,10 +38,11 @@ def write_text_retry(path, content):
             time.sleep(.2 * (attempt + 1))
 
 
-def refresh(ids):
+def refresh(ids, thumbnails_only=False):
     index = read(R / 'expressions/index.json')
     presets = {id: read(R / index['presets'][id]) for id in ids}
-    for path in sorted((R / 'characters').glob('*.json')):
+    # Rounded mesh characters have no cube elements to patch here; --thumbnails-only refreshes the shared thumbnails.
+    for path in ([] if thumbnails_only else sorted((R / 'characters').glob('*.json'))):
         c = read(path)
         out = R / 'assembled' / c['id']
         html_path = out / 'index.html'
@@ -120,6 +121,7 @@ def refresh(ids):
 
 
 if __name__ == '__main__':
-    if len(sys.argv) < 2:
+    ids = [a for a in sys.argv[1:] if a != '--thumbnails-only']
+    if not ids:
         raise SystemExit('Supply one or more expression IDs.')
-    refresh(sys.argv[1:])
+    refresh(ids, '--thumbnails-only' in sys.argv)

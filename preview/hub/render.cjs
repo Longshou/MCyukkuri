@@ -38,7 +38,7 @@ const frames=job.times.map(t=>{
    let face=momentFace||a.face||a.pose.expressionFor(clip,time);
    if(faces){face=faces.aliases[face]||face;face=faces.models[a.id].face_aliases?.[face]||face;}
    const animation=faces?.animations[face];
-   if(animation){phase=Math.floor(t*20/animation.frame_ticks)%2;face=animation.frames[phase];}
+   if(animation){let tick=Math.floor(t*20)%animation.frame_ticks.reduce((a,b)=>a+b,0);while(tick>=animation.frame_ticks[phase])tick-=animation.frame_ticks[phase++];face=animation.frames[phase];}
    if(faces&&!faces.models[a.id].selectable.includes(face))throw Error('Unknown face id: '+face);
    if(a.face&&!faces)throw Error('Checkout has no face library: '+job.root);
    a.pose.expression(face);selectedFace=face;

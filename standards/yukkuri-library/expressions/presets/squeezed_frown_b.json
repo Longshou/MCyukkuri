@@ -6,7 +6,7 @@
     "eyes": "squeeze",
     "brows": "sad",
     "mouth": "frown_open",
-    "tears": "flow_b",
+    "tears": "tear flow from N016 pool (tools/author_tear_frames.py)",
     "blush": "normal",
     "effect": "stress"
   },
@@ -14,11 +14,11 @@
     "face_eye_left": "expressions/parts/3b9c6d89915676f44eaa.png",
     "face_brow_left": "expressions/parts/6c43e5c9d5978be4060c.png",
     "face_blush_left": "expressions/parts/83cd598f7e2b72f72b9b.png",
-    "face_tear_left": "expressions/parts/abce6e4112b0c8fbdc05.png",
+    "face_tear_left": "expressions/parts/b7c38d5cf624235daef5.png",
     "face_eye_right": "expressions/parts/566eded4a7f31e2afb97.png",
     "face_brow_right": "expressions/parts/37e940968392d59867a9.png",
     "face_blush_right": "expressions/parts/83cd598f7e2b72f72b9b.png",
-    "face_tear_right": "expressions/parts/0c487c2bfc397c4c4b75.png",
+    "face_tear_right": "expressions/parts/d1fe621d04424c7c5a38.png",
     "face_mouth": "expressions/parts/c7733b57eafee3c403e5.png",
     "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
   },

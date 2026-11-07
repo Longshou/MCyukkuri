@@ -73,7 +73,9 @@ def outputs():
                             expression_patches=patches,face_aliases=row['face_aliases'],
                             selectable=sorted(set(faces)|set(row['existing_textures'])|set(row['legacy_faces'])))
     animations = selection['animations']
-    assert all(a in faces and b['frames'][1] in faces and b['frame_ticks']>0 for a,b in animations.items())
+    # One duration (ticks) per frame; the client cycles them in order.
+    assert all(a == b['frames'][0] and set(b['frames']) <= set(faces) and len(b['frame_ticks']) == len(b['frames']) >= 2
+               and all(t > 0 for t in b['frame_ticks']) for a,b in animations.items())
     files[ASSETS/'yukkuri_presentation/face_library.json'] = encoded(dict(format=1,faces=list(faces),aliases={**index['aliases'],**selection['aliases']},animations=animations,models=models,face_fallback=selection['face_fallback']))
     ledger = read(ROOT/'art/runtime-sources.json')
     ledger['face_library'] = dict(selection='standards/yukkuri-library/expressions/runtime.json',

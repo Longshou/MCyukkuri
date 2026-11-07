@@ -8,25 +8,26 @@
       "face_eye_left": "O04",
       "face_brow_left": "O04",
       "face_blush_left": "O04",
-      "face_tear_left": "N052",
+      "face_tear_left": "O04",
       "face_eye_right": "O04",
       "face_brow_right": "O04",
       "face_blush_right": "O04",
-      "face_tear_right": "N052",
+      "face_tear_right": "O04",
       "face_mouth": "O04",
       "face_effect_mouth": "O04"
     },
-    "retained_special": []
+    "retained_special": [],
+    "tears": "tear flow from O04 pool (tools/author_tear_frames.py)"
   },
   "parts": {
     "face_eye_left": "expressions/parts/3b9c6d89915676f44eaa.png",
     "face_brow_left": "expressions/parts/38cbe6444a87b1b263e8.png",
     "face_blush_left": "expressions/parts/83cd598f7e2b72f72b9b.png",
-    "face_tear_left": "expressions/parts/70d38ef30d920ef604f2.png",
+    "face_tear_left": "expressions/parts/7e1f6c7c15d2509e1c60.png",
     "face_eye_right": "expressions/parts/566eded4a7f31e2afb97.png",
     "face_brow_right": "expressions/parts/72256f4d77b93cdc9da0.png",
     "face_blush_right": "expressions/parts/bd95916065ebe3bd678c.png",
-    "face_tear_right": "expressions/parts/dc96140aab738d6ad443.png",
+    "face_tear_right": "expressions/parts/7e1f6c7c15d2509e1c60.png",
     "face_mouth": "expressions/parts/89d9d82b758ecf3447d8.png",
     "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
   },

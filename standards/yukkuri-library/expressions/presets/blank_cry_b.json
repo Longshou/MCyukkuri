@@ -6,7 +6,7 @@
     "eyes": "hollow",
     "brows": "sad",
     "mouth": "wail",
-    "tears": "flow_b",
+    "tears": "tear flow from N027 pool (tools/author_tear_frames.py)",
     "blush": "normal",
     "effect": "none"
   },
@@ -14,11 +14,11 @@
     "face_eye_left": "expressions/parts/8b678087ea009dbded48.png",
     "face_brow_left": "expressions/parts/6c43e5c9d5978be4060c.png",
     "face_blush_left": "expressions/parts/83cd598f7e2b72f72b9b.png",
-    "face_tear_left": "expressions/parts/257e131aa3a5584d429b.png",
+    "face_tear_left": "expressions/parts/5ee75b8d63e6f601f2dd.png",
     "face_eye_right": "expressions/parts/8b678087ea009dbded48.png",
     "face_brow_right": "expressions/parts/37e940968392d59867a9.png",
     "face_blush_right": "expressions/parts/83cd598f7e2b72f72b9b.png",
-    "face_tear_right": "expressions/parts/adfe6d4fa3984a539160.png",
+    "face_tear_right": "expressions/parts/15b55afb696c355ddc84.png",
     "face_mouth": "expressions/parts/89d9d82b758ecf3447d8.png",
     "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
   },
