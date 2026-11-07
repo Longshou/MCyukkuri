@@ -39,6 +39,8 @@ public final class DailyLife {
     private Session session;
     /** A lonely individual walks to a trusted friend it can see this far off and asks for a nuzzle. */
     private static final int NUZZLE_SIGHT = 16;
+    /** A nuzzle broken off before any contact (the one who asked was called away by its own need) is asked for again soon. */
+    private static final int INTERRUPTED_COOLDOWN = 200;
     private static final double LEAN = 1.1;
     private int affection = 20, boredom = 20, clock, cooldown, scanWait;
     private int nuzzles, songs, exercises;
@@ -336,8 +338,13 @@ public final class DailyLife {
                 current.kind,current.companion==null?null:current.companion.getUUID(),current.elapsed,current.contact);
         if (current.companion != null) current.leader.life().personality().releaseRelation(current.companion.getUUID());
         if (current.companion instanceof YukkuriEntity peer) peer.life().personality().releaseRelation(current.leader.getUUID());
+        boolean unanswered = current.kind == Kind.NUZZLE && current.contact == 0;
         current.leader.dailyLife().session = null; current.leader.getNavigation().stop();
-        if (current.companion instanceof YukkuriEntity peer) { peer.dailyLife().session = null; peer.getNavigation().stop(); }
+        if (unanswered) current.leader.dailyLife().cooldown = INTERRUPTED_COOLDOWN;
+        if (current.companion instanceof YukkuriEntity peer) {
+            peer.dailyLife().session = null; peer.getNavigation().stop();
+            if (unanswered) peer.dailyLife().cooldown = INTERRUPTED_COOLDOWN;
+        }
     }
     public CompoundTag save() {
         var tag = new CompoundTag(); tag.putInt("Affection", affection); tag.putInt("Boredom", boredom);
