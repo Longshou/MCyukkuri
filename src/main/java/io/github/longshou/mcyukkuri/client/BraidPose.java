@@ -1,10 +1,8 @@
 package io.github.longshou.mcyukkuri.client;
 
-import static io.github.longshou.mcyukkuri.client.YukkuriModel.DEGREES;
+import io.github.longshou.mcyukkuri.pose.Overlays;
 import io.github.longshou.mcyukkuri.motor.geom.BraidChain;
 import java.util.ArrayList;
-import org.joml.Matrix4f;
-import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
 /**
@@ -14,6 +12,7 @@ import org.joml.Vector3f;
  */
 final class BraidPose {
     private final YukkuriModel o;
+    private final Overlays.BraidScratch scratch=new Overlays.BraidScratch();
     /** Chain bones root to tail (empty without a braid) and their rest joints, then the rest tuft end, in model units. */
     private int[] chain;
     private float[] rest;
@@ -49,42 +48,12 @@ final class BraidPose {
     /** Carry the hat (bone {@code hat} and every bone under it) so its braid grip lies on the braid tip, by this share. */
     void holdHat(int hat,float share,Vector3f grip){
         if(hat<0||share<=0||!resolve())return;
-        var bones=o.bones();var world=o.world();int n=chain.length;
-        var move=new Matrix4f().translation(world[chain[n-1]].transformPosition(new Vector3f(rest[3*n],rest[3*n+1],rest[3*n+2]))
-                .sub(world[hat].transformPosition(new Vector3f(grip))).mul(share));
-        for(int i=0;i<bones.length;i++)if(o.descends(i,hat))world[i].set(new Matrix4f(move).mul(world[i]));
+        Overlays.holdHat(o.bones(),o.world(),chain,rest,hat,share,grip);
     }
 
     /** BraidChain constrains the bend toward model forward/down; each posed segment turns about its joint, weighted over the clip. */
     void pose(){
         if(!resolve())return;
-        var bones=o.bones();var world=o.world();var pose=o.pose();int n=chain.length;
-        double[] joints=new double[3*n+3];var p=new Vector3f();
-        for(int i=0;i<=n;i++){
-            world[chain[Math.min(i,n-1)]].transformPosition(p.set(rest[3*i],rest[3*i+1],rest[3*i+2]));
-            joints[3*i]=p.x;joints[3*i+1]=p.y;joints[3*i+2]=p.z;
-        }
-        double[] solved=BraidChain.reach(joints,tip.x,tip.y,tip.z);
-        var at=new Vector3f((float)joints[0],(float)joints[1],(float)joints[2]);Vector3f from=new Vector3f(),to=new Vector3f();
-        // Each segment swings from where the one above carried it, so the lobes never twist against each other.
-        Quaternionf turn=new Quaternionf(),full=new Quaternionf(),above=new Quaternionf();var dir=new Vector3f();
-        for(int i=0;i<n;i++){
-            from.set((float)(joints[3*i+3]-joints[3*i]),(float)(joints[3*i+4]-joints[3*i+1]),(float)(joints[3*i+5]-joints[3*i+2]));
-            to.set((float)(solved[3*i+3]-solved[3*i]),(float)(solved[3*i+4]-solved[3*i+1]),(float)(solved[3*i+5]-solved[3*i+2]));
-            above.transform(dir.set(from));
-            if(dir.lengthSquared()>1e-10f&&to.lengthSquared()>1e-10f)above.set(full.rotationTo(dir.x,dir.y,dir.z,to.x,to.y,to.z).mul(above));
-            turn.identity().slerp(above,weight);
-            world[chain[i]].set(new Matrix4f().translation(at).rotate(turn).translate((float)-joints[3*i],(float)-joints[3*i+1],(float)-joints[3*i+2])
-                    .mul(world[chain[i]]));
-            at.add(turn.transform(from));
-        }
-        // Any other bone under the chain (none on the authored rigs) follows its re-posed parent.
-        for(int i=0;i<bones.length;i++){
-            var bone=bones[i];if(bone.parent()<0||!o.descends(i,chain[0]))continue;
-            boolean inChain=false;for(int c:chain)inChain|=c==i;if(inChain)continue;
-            float[] v=pose[i];
-            world[i].set(world[bone.parent()]).translate(bone.x()+v[0],bone.y()+v[1],bone.z()+v[2]).rotateZYX(v[5]*DEGREES,v[4]*DEGREES,v[3]*DEGREES)
-                    .scale(v[6],v[7],v[8]).translate(-bone.x(),-bone.y(),-bone.z());
-        }
+        Overlays.braid(o.bones(),o.world(),o.pose(),chain,rest,tip,weight,scratch);
     }
 }

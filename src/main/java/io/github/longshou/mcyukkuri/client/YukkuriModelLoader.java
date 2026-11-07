@@ -1,6 +1,6 @@
 package io.github.longshou.mcyukkuri.client;
 
-import com.google.gson.JsonArray;
+import io.github.longshou.mcyukkuri.pose.Splice;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import io.github.longshou.mcyukkuri.MCYukkuri;
@@ -100,44 +100,8 @@ final class YukkuriModelLoader {
     }
 
     static void applyRevision(String id,JsonObject data,JsonObject revision) {
-        JsonArray expected = revision.getAsJsonArray("bone_names"), actual = data.getAsJsonArray("bones");
-        boolean compatible = expected.size() == actual.size();
-        for (int i=0; compatible && i<expected.size(); i++)
-            compatible = expected.get(i).getAsString().equals(actual.get(i).getAsJsonObject().get("name").getAsString());
-        if (!compatible) { LoggerFactory.getLogger(YukkuriModel.class).warn("Motion corrections skipped for incompatible skeleton: {}",id); return; }
-        revision.getAsJsonObject("clips").entrySet().forEach(e -> data.getAsJsonObject("clips").add(e.getKey(),e.getValue()));
-        if (revision.has("expression_aliases")) data.add("expression_aliases",revision.get("expression_aliases"));
-        if (revision.has("expression_patches")) {
-            if (!data.has("expression_patches")) data.add("expression_patches",new JsonObject());
-            revision.getAsJsonObject("expression_patches").entrySet().forEach(e -> data.getAsJsonObject("expression_patches").add(e.getKey(),e.getValue()));
-        }
-        if (revision.has("puff_surface")) {
-            JsonObject surface=revision.getAsJsonObject("puff_surface").deepCopy();
-            appendPuffPart(data,surface);data.add("puff_surface",surface);
-        }
-        if (revision.has("puff_attachments")) {
-            JsonArray attachments=revision.getAsJsonArray("puff_attachments").deepCopy();
-            for(var raw:attachments)appendPuffPart(data,raw.getAsJsonObject());
-            data.add("puff_attachments",attachments);
-        }
-        if (revision.has("puff_offsets")) data.add("puff_offsets",revision.get("puff_offsets"));
-    }
-
-    /** Expand a shared-corner puff mesh into the vertex list; offsets are full xyz per corner. */
-    private static void appendPuffPart(JsonObject data,JsonObject part) {
-        JsonArray source=part.getAsJsonArray("vertices"),indices=part.getAsJsonArray("indices"),offsets=part.getAsJsonArray("offsets");
-        int start=data.getAsJsonArray("vertices").size()/8,count=indices==null?source.size()/8:indices.size();
-        if(source.size()%8!=0||count%3!=0||offsets==null||offsets.size()*8!=source.size()*3)throw new IllegalArgumentException("Invalid puff mesh");
-        JsonArray expandedOffsets=new JsonArray();
-        for(int i=0;i<count;i++){
-            int index=indices==null?i:indices.get(i).getAsInt();
-            if(index<0||index*8+8>source.size())throw new IllegalArgumentException("Invalid puff index");
-            for(int k=0;k<8;k++)data.getAsJsonArray("vertices").add(source.get(index*8+k));
-            for(int k=0;k<3;k++)expandedOffsets.add(offsets.get(index*3+k));
-            JsonArray binding=new JsonArray();binding.add(part.get("bone"));binding.add(part.get("bone"));binding.add(0);data.getAsJsonArray("weights").add(binding);
-        }
-        part.remove("vertices");part.remove("indices");part.addProperty("start",start);part.addProperty("count",count);
-        part.add("offsets",expandedOffsets);
+        if(!Splice.revision(data,revision))
+            LoggerFactory.getLogger(YukkuriModel.class).warn("Motion corrections skipped for incompatible skeleton: {}",id);
     }
 
     private YukkuriModelLoader(){}

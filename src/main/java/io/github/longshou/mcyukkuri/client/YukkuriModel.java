@@ -1,5 +1,15 @@
 package io.github.longshou.mcyukkuri.client;
 
+import io.github.longshou.mcyukkuri.pose.Clips;
+import io.github.longshou.mcyukkuri.pose.Clips.Clip;
+import io.github.longshou.mcyukkuri.pose.Clips.Track;
+import io.github.longshou.mcyukkuri.pose.Compose;
+import io.github.longshou.mcyukkuri.pose.Overlays;
+import io.github.longshou.mcyukkuri.pose.Rig;
+import io.github.longshou.mcyukkuri.pose.Rig.Bone;
+import io.github.longshou.mcyukkuri.pose.Skin;
+import io.github.longshou.mcyukkuri.pose.Skin.Binding;
+import io.github.longshou.mcyukkuri.pose.Skin.Patch;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -58,14 +68,13 @@ public final class YukkuriModel {
         if(sourceHash.matches(mount.get("model_sha256").getAsString())&&belongs){badgeMount=mount;return true;}
         return false;
     }
-    static final float DEGREES = (float) (Math.PI / 180);
+    static final float DEGREES = Compose.DEGREES;
     private final float[] vertices;
     private final float[] restVertices;
     private final int[] featureBones;
     private final Map<Integer,Matrix4f> featureTransforms=new HashMap<>();
-    private record ExpressionPatch(int start,float[] values) {}
-    private final Map<String,List<ExpressionPatch>> expressionPatches=new HashMap<>();
-    private List<ExpressionPatch> activePatches=List.of();
+    private final Map<String,List<Patch>> expressionPatches=new HashMap<>();
+    private List<Patch> activePatches=List.of();
     private final String id;
     private final ModelFingerprint sourceHash;
     private boolean warnedWoundMismatch;
@@ -80,8 +89,14 @@ public final class YukkuriModel {
     private AngleNormals skinNormals,puffSkinNormals;
     private final SkinningCache skinningCache;
     private final int[] bodyFloorVertices;
-    private final float[][] defaultPose, lastLocalPose;
-    private final Matrix4f[] localMatrices;
+    private final float[][] defaultPose;
+    private final Compose composer;
+    private final Skin.Deform woundDeform=(index,point)->this.woundDisplay.deform(index,point);
+    private final Overlays.Contact contact=new Overlays.Contact(){
+        public void compose(){composeWorld();}
+        public float minimumY(){return bodyMinimumY();}
+        public Vector3f mouth(){return mouthPoint();}
+    };
     private final int[] quadFourth;
     private final byte[] quadRotation;
     private final Vector3f fourthCorner=new Vector3f();
@@ -137,11 +152,8 @@ public final class YukkuriModel {
         for(int i=0;i<bones.length;i++){
             Bone bone=bones[i];float[] v=sampled[i];
             transforms[i]=bone.parent<0?new Matrix4f():new Matrix4f(transforms[bone.parent]);
-            transforms[i].translate(bone.x+v[0],bone.y+v[1],bone.z+v[2])
-                    // Birth opening is elastic tissue; the inspection clip's hinge rotation
-                    // must not turn the entire outlet into a downward-opening flap.
-                    .rotateZYX(0,0,0)
-                    .scale(v[6],v[7],v[8]).translate(-bone.x,-bone.y,-bone.z);
+            // The birth opening uses the inspection clip's scale without its hinge rotation.
+            Compose.unrotated(transforms[i],bone,v);
         }
         var output=new ArrayList<Float>();
         for(var part:parts){
@@ -150,8 +162,7 @@ public final class YukkuriModel {
                 int offset=vertex*8;Binding binding=bindings[vertex];
                 var point=new Vector3f(restVertices[offset],restVertices[offset+1],restVertices[offset+2]);
                 var other=new Vector3f(point);
-                transforms[binding.first].transformPosition(point);
-                if(binding.weight>0)point.lerp(transforms[binding.second].transformPosition(other),binding.weight);
+                Skin.blend(point,other,binding,transforms);
                 output.add(point.x);output.add(point.y);output.add(point.z);
                 for(int k=3;k<8;k++)output.add(restVertices[offset+k]);
             }
@@ -223,10 +234,6 @@ public final class YukkuriModel {
      *  a mouth that takes babies in opens (0..1) and the body fills out with the babies inside (0..1, as the puff clip swells). */
     private float carryLoad,carryLean,carryCurlLeft,carryCurlRight,carryMouth,carryCheeks;
     private CarryTailCurl tailCurl;private boolean tailCurlChecked;
-    /** Walking under a load keeps this share less of the authored sway (project design). */
-    private static final float CARRY_GAIT_DAMP=.3f;
-    /** Full pick-up / put-down bow, degrees of forward pitch about the root (within the 12 degree body budget). */
-    private static final float CARRY_LEAN_DEGREES=9;
     void setCarryPose(float load,float lean,float curlLeft,float curlRight){
         carryLoad=Math.clamp(load,0,1);carryLean=Math.clamp(lean,0,1);carryCurlLeft=Math.clamp(curlLeft,0,1);carryCurlRight=Math.clamp(curlRight,0,1);
     }
@@ -281,15 +288,8 @@ public final class YukkuriModel {
         return false;
     }
 
-    private static float smooth(float x) { x=Math.clamp(x,0,1); return x*x*(3-2*x); }
-
-    /** Inflate, hold (with an optional tremor that only shrinks the cheeks) and release. */
-    static float puffEnvelope(float[] e,float time){
-        float u=(time-e[0])/(e[1]-e[0]),base=smooth(u/e[2])*smooth((1-u)/e[2]);
-        if(base<=0||e.length<5)return base;
-        float hold=smooth((u-e[2])/e[2])*smooth((1-e[2]-u)/e[2]);
-        return base*(1-e[3]*hold*(float)(.5-.5*Math.cos(2*Math.PI*e[4]*(time-e[0]))));
-    }
+    private static float smooth(float x){return Clips.smooth(x);}
+    static float puffEnvelope(float[] e,float time){return Clips.puffEnvelope(e,time);}
 
     // Rendering is serial on the render thread; these buffers are not entity state.
     private final Matrix4f[] world;
@@ -299,8 +299,6 @@ public final class YukkuriModel {
     private final Matrix4f featureParentInverse = new Matrix4f();
     private final float[] triangleUv = new float[6];
 
-    record Bone(String name, int parent, float x, float y, float z) {}
-    private record Binding(int first, int second, float weight) {}
     record Part(String name, int start, int count, String anatomy) {}
     /** Share light across a deforming skin plane, while preserving authored hard edges. */
     private static final class HouseNormals {
@@ -458,27 +456,6 @@ public final class YukkuriModel {
             for(int vertex=part.start;vertex<part.start+part.count;vertex++)depth=Math.max(depth,-vertices[vertex*8+2]/16f);
         return depth;
     }
-    private record Track(int bone, int offset, float[][] keys) {
-        void sample(float time, float[] target) {
-            int low = 0, high = keys.length - 1;
-            while (high - low > 1) {
-                int middle = (low + high) >>> 1;
-                if (keys[middle][0] <= time) low = middle;
-                else high = middle;
-            }
-            float[] a = keys[low], b = keys[Math.min(low + 1, keys.length - 1)];
-            float q = b[0] == a[0] ? 0 : Math.clamp((time - a[0]) / (b[0] - a[0]), 0f, 1f);
-            for (int i = 0; i < a.length - 1; i++) target[offset + i] = a[i + 1] + (b[i + 1] - a[i + 1]) * q;
-        }
-    }
-    private record Clip(float duration, boolean loop, List<Track> tracks) {
-        float time(float elapsed) { return loop ? Math.max(0, elapsed) % duration : Math.clamp(elapsed, 0f, duration); }
-        void sample(float elapsed, float[][] pose) {
-            float time = time(elapsed);
-            for (Track track : tracks) track.sample(time, pose[track.bone]);
-        }
-    }
-
     public static YukkuriModel get(String id) {
         YukkuriModel model = models.get(id);
         if (model == null) throw new IllegalStateException("Yukkuri resources were not loaded: " + id);
@@ -554,21 +531,11 @@ public final class YukkuriModel {
             throw new IllegalArgumentException("Unsupported Yukkuri model format");
         vertices = floats(data.getAsJsonArray("vertices"));
         restVertices=vertices.clone();featureBones=new int[vertices.length/8];Arrays.fill(featureBones,-1);
-        JsonArray sourceBones = data.getAsJsonArray("bones");
-        bones = new Bone[sourceBones.size()];
-        world = new Matrix4f[bones.length];
-        localMatrices=new Matrix4f[bones.length];lastLocalPose=new float[bones.length][9];
-        defaultPose=new float[bones.length][9];
-        pose = new float[bones.length][9];
-        for (int i = 0; i < bones.length; i++) {
-            JsonObject bone = sourceBones.get(i).getAsJsonObject();
-            float[] pivot = floats(bone.getAsJsonArray("pivot"));
-            int parent = bone.get("parent").getAsInt();
-            if (parent < -1 || parent >= i) throw new IllegalArgumentException("Unordered bone hierarchy");
-            bones[i] = new Bone(bone.get("name").getAsString(), parent, pivot[0], pivot[1], pivot[2]);
-            world[i] = new Matrix4f();localMatrices[i]=new Matrix4f();
-            Arrays.fill(lastLocalPose[i],Float.NaN);defaultPose[i][6]=defaultPose[i][7]=defaultPose[i][8]=1;
-        }
+        bones=Rig.bones(data.getAsJsonArray("bones"));
+        world=Rig.matrices(bones.length);
+        composer=new Compose(bones);
+        defaultPose=Rig.values(bones.length);
+        pose=new float[bones.length][9];
         JsonArray sourceBindings = data.getAsJsonArray("weights");
         bindings = new Binding[sourceBindings.size()];
         if (vertices.length != bindings.length * 8) throw new IllegalArgumentException("Invalid vertex stride");
@@ -611,10 +578,10 @@ public final class YukkuriModel {
             }
         }
         if(data.has("expression_patches"))for(var entry:data.getAsJsonObject("expression_patches").entrySet()){
-            var list=new ArrayList<ExpressionPatch>();for(var raw:entry.getValue().getAsJsonArray()){
+            var list=new ArrayList<Patch>();for(var raw:entry.getValue().getAsJsonArray()){
                 var patch=raw.getAsJsonObject();int index=patch.get("index").getAsInt();if(index<0||index>=parts.size())throw new IllegalArgumentException("Invalid expression part");
                 var part=parts.get(index);float[] values=floats(patch.getAsJsonArray("vertices"));if(values.length!=part.count*8)throw new IllegalArgumentException("Expression topology differs");
-                list.add(new ExpressionPatch(part.start*8,values));
+                list.add(new Patch(part.start*8,values));
             }expressionPatches.put(entry.getKey(),List.copyOf(list));
         }
         // Parsing below only reads clip trees; only the top-level behavior overrides need a copy.
@@ -628,26 +595,7 @@ public final class YukkuriModel {
         }
         for (var entry : allClips.entrySet()) {
             JsonObject clip = entry.getValue().getAsJsonObject();
-            List<Track> tracks = new ArrayList<>();
-            for (var value : clip.getAsJsonArray("tracks")) {
-                JsonObject track = value.getAsJsonObject();
-                int offset = switch (track.get("channel").getAsString()) {
-                    case "position" -> 0;
-                    case "rotation" -> 3;
-                    case "scale" -> 6;
-                    default -> throw new IllegalArgumentException("Unknown animation channel");
-                };
-                JsonArray keys = track.getAsJsonArray("keys");
-                float[][] samples = new float[keys.size()][];
-                for (int i = 0; i < samples.length; i++) samples[i] = floats(keys.get(i).getAsJsonArray());
-                int bone = track.get("bone").getAsInt();
-                if (bone < 0 || bone >= bones.length || samples.length == 0)
-                    throw new IllegalArgumentException("Invalid animation track");
-                tracks.add(new Track(bone, offset, samples));
-            }
-            float duration = clip.get("duration").getAsFloat();
-            if (!(duration > 0)) throw new IllegalArgumentException("Invalid clip duration");
-            clips.put(entry.getKey(), new Clip(duration, clip.get("loop").getAsBoolean(), tracks));
+            clips.put(entry.getKey(),Clips.read(clip,bones.length));
             if(entry.getKey().equals("water_hat_flip")&&clip.has("hat_transfer")){
                 var transfer=clip.getAsJsonObject("hat_transfer");
                 selfHatTransfer=new HatTransfer(transfer.get("remove_ticks").getAsFloat(),transfer.get("return_ticks").getAsFloat(),
@@ -698,13 +646,13 @@ public final class YukkuriModel {
         }
         boolean[] expressionVertices=new boolean[bindings.length];
         for(var patches:expressionPatches.values())for(var patch:patches)
-            Arrays.fill(expressionVertices,patch.start/8,(patch.start+patch.values.length)/8,true);
+            Arrays.fill(expressionVertices,patch.start()/8,(patch.start()+patch.values().length)/8,true);
         woundExpressionVertices=expressionVertices;
         skinningCache=new SkinningCache(bindings.length,index->{
             if(expressionVertices[index])return null;
             int offset=index*8;Binding binding=bindings[index];
             return new SkinningCache.Key(restVertices[offset],restVertices[offset+1],restVertices[offset+2],
-                    binding.first,binding.second,binding.weight,featureBones[index],
+                    binding.first(),binding.second(),binding.weight(),featureBones[index],
                     puffOffsets==null?0:puffOffsets[index*3],puffOffsets==null?0:puffOffsets[index*3+1],
                     puffOffsets==null?0:puffOffsets[index*3+2]);
         });
@@ -777,15 +725,8 @@ public final class YukkuriModel {
     Matrix4f[] world(){return world;}
     float[][] pose(){return pose;}
     /** Whether {@code bone} is {@code ancestor} or hangs under it. */
-    boolean descends(int bone,int ancestor){for(int at=bone;at>=0;at=bones[at].parent())if(at==ancestor)return true;return false;}
-    static float[] floats(JsonArray values) {
-        float[] result = new float[values.size()];
-        for (int i = 0; i < result.length; i++) {
-            result[i] = values.get(i).getAsFloat();
-            if (!Float.isFinite(result[i])) throw new IllegalArgumentException("Non-finite model value");
-        }
-        return result;
-    }
+    boolean descends(int bone,int ancestor){return Rig.descends(bones,bone,ancestor);}
+    static float[] floats(JsonArray values) {return Rig.floats(values);}
 
     public void render(String action, float elapsed, PoseStack stack, VertexConsumer buffer, int light, int overlay) {
         render(action, elapsed, stack, buffer, light, overlay, true, Behaviors.IDLE, 0);
@@ -840,9 +781,7 @@ public final class YukkuriModel {
                 track.sample(extend.duration*reproductiveAmount,pose[track.bone]);
         }
         if(carryLoad>0&&selected.equals("waddle")){
-            // A carrier walks steadier: the same step with less sway, so riders are not flung about.
-            float keep=1-CARRY_GAIT_DAMP*carryLoad;
-            for(int i=0;i<pose.length;i++)for(int k=0;k<9;k++)pose[i][k]=defaultPose[i][k]+(pose[i][k]-defaultPose[i][k])*keep;
+            Overlays.gait(pose,defaultPose,carryLoad);
         }
         puffAmount=0;
         float[] envelope=puffEnvelopes.get(selected);
@@ -854,7 +793,7 @@ public final class YukkuriModel {
         }
         if(carryCheeks>0){
             // Babies in the mouth fill her out like the puff clip's held root swell, more with each one (up to 1.2 wide at three).
-            var root=pose[rootBone()];float wide=1+.2f*carryCheeks,tall=1+.14f*carryCheeks;root[6]*=wide;root[7]*=tall;root[8]*=wide;
+            Overlays.cheeks(pose[rootBone()],carryCheeks);
         }
         // The gripping locks and the wound renderer own different contact
         // geometry. Keep their original mesh until those combined poses have
@@ -894,52 +833,19 @@ public final class YukkuriModel {
         }
         var hat=HatGeometry.worn(id);
         if(hat!=null&&!hatMotion.isEmpty()){
-            float q=Math.clamp(hatPhase,0,1);if(hatMotion.equals("HAT_RETURN"))q=1-q;
-            float rise=Math.min(1,q/.55f);rise=rise*rise*(3-2*rise);
-            float forward=Math.max(0,(q-.4f)/.6f);forward=forward*forward*(3-2*forward);
-            var root=pose[hat.get("bone").getAsInt()];root[1]+=hat.get("lift").getAsFloat()*rise;
-            root[2]+=hat.get("forward").getAsFloat()*forward;
+            Overlays.hat(pose[hat.get("bone").getAsInt()],hatPhase,hatMotion.equals("HAT_RETURN"),hat.get("lift").getAsFloat(),hat.get("forward").getAsFloat());
         }
         boolean careContact=Float.isFinite(careTargetMouthY)&&(behavior.equals(Behaviors.FEED_CHILD)||behavior.equals(Behaviors.BOAT_FEED_YOUNG)||ToiletPresentation.rearCare(behavior));
         if(Float.isFinite(boardingPitch)){
-            // The server owns position, pitch, roll and squash; only a small authored yaw wriggle may show.
-            var root=pose[rootBone()];
-            root[4]=Math.clamp(root[4],-8,8)*boardingYaw;
-            root[0]=root[1]=root[2]=0;root[3]=Math.clamp(boardingPitch,-12,12);root[5]=Math.clamp(boardingRoll,-12,12);
-            float wide=1+(1-boardingSquash)*.5f;
-            root[6]=wide;root[7]=boardingSquash;root[8]=wide;
+            Overlays.boarding(pose[rootBone()],boardingPitch,boardingRoll,boardingSquash,boardingYaw);
         }
         composeWorld();
         if(careContact){
-            // Source and contact tracking share one total inclination budget. Adding a separate
-            // 50-degree reach on top of the authored feeding lean made the parent tip forward.
-            // A tiny child is expressed through proximity, face changes and speech, not a dive.
-            float floor=bodyMinimumY();float[] root=pose[rootBone()];
-            boolean feeding=!ToiletPresentation.rearCare(behavior);
-            float maximumPitch=feeding?10:12;
-            root[3]=Math.max(-maximumPitch,root[3]);composeWorld();
-            float basePitch=root[3],baseMouth=mouthY();
-            float target=baseMouth+(careTargetMouthY+(feeding?0:.035f*16)-baseMouth)*careBlend;
-            float low=0,high=Math.max(0,maximumPitch+basePitch)*careBlend;
-            if(baseMouth>target)for(int i=0;i<7;i++){
-                float pitch=(low+high)*.5f;root[3]=basePitch-pitch;composeWorld();
-                float lifted=Math.max(0,floor-bodyMinimumY());
-                if(mouthY()+lifted>target)low=pitch;else high=pitch;
-            }
-            root[3]=basePitch-(baseMouth>target?high:0);composeWorld();
-            // Pitch changes the mouth's depth. Align the composed anchor, rather than estimating
-            // reach from the upright face mesh; keep the extra lean small and tied to real contact.
-            var mouth=mouthPoint();
-            float lateral=feeding?.02f:.04f,forward=feeding?.03f:.18f;
-            root[0]+=Math.clamp((careTargetMouthX-mouth.x)*careBlend,-lateral*16,lateral*16);
-            root[2]+=Math.clamp((careTargetMouthZ+(feeding?0:.07f*16)-mouth.z)*careBlend,-forward*16,forward*16);
-            composeWorld();float lowered=bodyMinimumY();
-            if(lowered<floor)raiseWorld(floor-lowered);
+            Overlays.care(contact,pose,world,rootBone(),!ToiletPresentation.rearCare(behavior),
+                    careTargetMouthX,careTargetMouthY,careTargetMouthZ,careBlend);
         }
         if(carryLean>0&&!careContact&&!Float.isFinite(boardingPitch)){
-            // Bow to take up or set down a child; the lowest body point stays on the ground.
-            float floor=bodyMinimumY();pose[rootBone()][3]-=carryLean*CARRY_LEAN_DEGREES;composeWorld();
-            float lowered=bodyMinimumY();if(lowered<floor)raiseWorld(floor-lowered);
+            Overlays.carryLean(contact,pose,world,rootBone(),carryLean);
         }
         if(!tailCurlChecked){tailCurlChecked=true;tailCurl=CarryTailCurl.of(this);}
         if(tailCurl!=null){if(carryCurlLeft>0||carryCurlRight>0)tailCurl.pose(world,carryCurlLeft,carryCurlRight);else tailCurl.clear();}
@@ -954,21 +860,12 @@ public final class YukkuriModel {
             boolean own=clipProps.containsKey(selected);String from=own?selected:heldClip();
             var props=clipProps.get(from);var prop=props==null?null:props.get("item");
             if(prop!=null){
-                var bone=bones[prop.bone];float[] v=new float[6];
-                prop.sample(clips.get(from).time(own?adultTime:0),v);
-                var turn=new Quaternionf().rotationZYX(v[5]*DEGREES,v[4]*DEGREES,v[3]*DEGREES);
                 var heldProps=own&&hold>0?clipProps.get(heldClip()):null;var grip=heldProps==null?null:heldProps.get("item");
-                if(grip!=null&&grip.bone==prop.bone){
-                    float[] h=new float[6];grip.sample(0,h);
-                    for(int k=0;k<3;k++)v[k]+=(h[k]-v[k])*hold;
-                    turn.slerp(new Quaternionf().rotationZYX(h[5]*DEGREES,h[4]*DEGREES,h[3]*DEGREES),hold);
-                }
-                itemAttachment=new Matrix4f().scaling(1/16f).mul(world[prop.bone])
-                        .translate(bone.x+v[0],bone.y+v[1],bone.z+v[2]).rotate(turn).scale(16);
+                itemAttachment=Overlays.item(bones,world,prop,grip,clips.get(from).time(own?adultTime:0),hold);
             }
         }
         if (delivery != null) delivery.follow(world[rootBone()]);
-        featureTransforms.forEach((bone,matrix)->{matrix.set(world[bone]);if(bones[bone].parent>=0)matrix.mul(featureParentInverse.set(world[bones[bone].parent]).invert());});
+        featureTransforms.forEach((bone,matrix)->Compose.feature(bones,world,bone,matrix,featureParentInverse));
         // Contact solvers above change the bones repeatedly. Cache only after the final pose.
         skinningCache.begin();
         try {
@@ -1111,21 +1008,8 @@ public final class YukkuriModel {
     }
 
     private void composeWorld(){
-        for (int i = 0; i < bones.length; i++) {
-            Bone bone = bones[i];float[] v = pose[i];Matrix4f matrix = world[i];
-            var local=localMatrices[i];
-            if(!Arrays.equals(v,lastLocalPose[i])){
-                local.identity().translate(bone.x+v[0],bone.y+v[1],bone.z+v[2])
-                        .rotateZYX(v[5]*DEGREES,v[4]*DEGREES,v[3]*DEGREES)
-                        .scale(v[6],v[7],v[8]).translate(-bone.x,-bone.y,-bone.z);
-                System.arraycopy(v,0,lastLocalPose[i],0,9);
-            }
-            if(bone.parent<0)matrix.set(local);else matrix.set(world[bone.parent]).mul(local);
-            if(hatScale!=1&&i==hatFollowBone()){
-                var a=HatGeometry.anchor();matrix.translate(a).scale(hatScale).translate(a.negate());
-            }
-            if(i==hatFollowBone()&&selfHatPose!=null)matrix.set(selfHatPose);
-        }
+        int hat=hatFollowBone();
+        composer.world(pose,world,hat,hatScale,hatScale!=1&&hat>=0?HatGeometry.anchor():null,selfHatPose);
     }
 
     /** Minimum y of the true body skin after the current root pose, in model units. */
@@ -1138,19 +1022,12 @@ public final class YukkuriModel {
         return minimum==Float.MAX_VALUE?0:minimum;
     }
 
-    /** Current rendered mouth height in the same model units as the root and body floor. */
-    private float mouthY(){
-        return mouthPoint().y;
-    }
     Vector3f mouthPoint(){
         var mouth=LivingPresentation.variants.get(id);if(mouth==null)return new Vector3f();
         var point=new Vector3f(mouth.x()*16,mouth.y()*16,mouth.z()*16);
         LiveBirthGeometry.deform(point,pregnancyBelly,0);
         world[rootBone()].transformPosition(point);return point;
     }
-
-    /** Apply a world-space model-unit lift to every bone so child attachments follow the landed body. */
-    private void raiseWorld(float lift){for(var matrix:world)matrix.m31(matrix.m31()+lift);}
 
     /** Squared distance from the camera to the entity origin: the render pose is camera-relative. */
     private static float cameraDistanceSquared(PoseStack stack){var pose=stack.last().pose();return pose.m30()*pose.m30()+pose.m31()*pose.m31()+pose.m32()*pose.m32();}
@@ -1313,9 +1190,9 @@ public final class YukkuriModel {
     private void setExpression(String name){
         // A revision may carry its own named patch; otherwise borrow the alias's geometry.
         if(!expressionPatches.containsKey(name))name=geometryExpression(name);
-        for(var patch:activePatches)System.arraycopy(restVertices,patch.start,vertices,patch.start,patch.values.length);
-        activePatches=expressionPatches.getOrDefault(name,List.of());
-        for(var patch:activePatches)System.arraycopy(patch.values,0,vertices,patch.start,patch.values.length);
+        var next=expressionPatches.getOrDefault(name,List.of());
+        Skin.expression(restVertices,vertices,activePatches,next);
+        activePatches=next;
     }
 
     private void cacheHairVisibility(Part part,boolean[] expressionVertices){
@@ -1342,8 +1219,7 @@ public final class YukkuriModel {
     }
     /** Ground the shared adult-state rotation and scale, including visible hair and accessories. */
     float presentationLift(float[] value, boolean accessory, int loss) {
-        var transform = new Matrix4f().rotateZYX(value[2]*DEGREES, value[1]*DEGREES, value[0]*DEGREES)
-                .scale(value[3], value[4], value[5]);
+        var transform = Overlays.presentation(value);
         var point = new Vector3f();
         float minimum = Float.MAX_VALUE;
         for (var part : parts) {
@@ -1376,11 +1252,7 @@ public final class YukkuriModel {
     }
     void skin(int index, Vector3f target) {
         skinBase(index,target);
-        if(pregnancyBelly>0){
-            int group=rigidGroups==null?0:rigidGroups[index];
-            if(group==1)target.add(crownLift);else if(group==2)target.add(braidLift);
-            else LiveBirthGeometry.deform(target,pregnancyBelly,pregnancyContraction);
-        }
+        Skin.pregnancy(target,pregnancyBelly,pregnancyContraction,rigidGroups==null?0:rigidGroups[index],crownLift,braidLift);
         if(wearClear&&overWearVertex(index))CareWearRenderer.clearHair(target);
     }
     private int hatFollowBone(){
@@ -1396,7 +1268,7 @@ public final class YukkuriModel {
             rigidGroups=new byte[bindings.length];var prefixes=LivingPresentation.variants.get(id).accessoryPrefixes();
             for(var part:parts){
                 byte group=prefixes.stream().anyMatch(part.name::startsWith)?(byte)1:part.name.startsWith("braid_lock")&&braid>=0
-                        &&descends(bindings[part.start].first,braid)?(byte)2:0;
+                        &&descends(bindings[part.start].first(),braid)?(byte)2:0;
                 for(int i=part.start;i<part.start+part.count;i++)rigidGroups[i]=group;
             }
         }
@@ -1411,18 +1283,8 @@ public final class YukkuriModel {
         // Only vertices a wound actually moved leave the shared cache; the rest still match their rest-point key.
         boolean moved=woundDisplay!=null&&woundDisplay.moved(index);
         if(!moved&&skinningCache.read(index,target))return;
-        int offset = index * 8;
-        Binding binding = bindings[index];
-        target.set(vertices[offset], vertices[offset + 1], vertices[offset + 2]);
-        if(woundDisplay!=null)woundDisplay.deform(index,target);
-        if(puffAmount>0)target.add(puffAmount*puffOffsets[index*3],puffAmount*puffOffsets[index*3+1],puffAmount*puffOffsets[index*3+2]);
-        if (binding.weight > 0) {
-            second.set(target);
-            world[binding.second].transformPosition(second);
-        }
-        world[binding.first].transformPosition(target);
-        if (binding.weight > 0) target.lerp(second, binding.weight);
-        int feature=featureBones[index];if(feature>=0)featureTransforms.get(feature).transformPosition(target);
+        Skin.base(index,target,second,vertices,bindings,world,woundDisplay==null?null:woundDeform,
+                puffAmount,puffOffsets,featureBones,featureTransforms);
         // Pregnancy and rigid accessory lifts happen in skin(), after this cached base position.
         if(!moved)skinningCache.write(index,target);
     }
@@ -1434,17 +1296,8 @@ public final class YukkuriModel {
         woundSkin(triangle,a,b,c,rest,target,true);
     }
     void woundSkin(int triangle,float a,float b,float c,Vector3f rest,Vector3f target,boolean pregnancy){
-        target.zero();
-        for(int corner=0;corner<3;corner++){
-            int index=triangle+corner;Binding binding=bindings[index];
-            float bary=corner==0?a:corner==1?b:c;
-            second.set(rest);world[binding.first].transformPosition(second);
-            target.fma(bary*(1-binding.weight),second);
-            if(binding.weight>0){second.set(rest);world[binding.second].transformPosition(second);target.fma(bary*binding.weight,second);}
-        }
-        int feature=featureBones[triangle];if(feature>=0)featureTransforms.get(feature).transformPosition(target);
-        if(pregnancy&&pregnancyBelly>0){int group=rigidGroups==null?0:rigidGroups[triangle];
-            if(group==1)target.add(crownLift);else if(group==2)target.add(braidLift);else LiveBirthGeometry.deform(target,pregnancyBelly,pregnancyContraction);}
+        Skin.fragment(triangle,a,b,c,rest,target,second,bindings,world,featureBones,featureTransforms);
+        if(pregnancy)Skin.pregnancy(target,pregnancyBelly,pregnancyContraction,rigidGroups==null?0:rigidGroups[triangle],crownLift,braidLift);
         if(hatDamageDraw.fit()<.999f&&woundAccessoryVertex(triangle))target.sub(hatDamageDraw.seat()).mul(hatDamageDraw.fit()).add(hatDamageDraw.seat());
         if(wearClear&&overWearVertex(triangle))CareWearRenderer.clearHair(target);
     }

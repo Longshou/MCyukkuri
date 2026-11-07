@@ -13,6 +13,7 @@ JAVAC=$(find "$R/.local/tools/java" -name javac.exe -o -name javac -type f 2>/de
 JAVA=$(dirname "$JAVAC")/java
 JUNIT=$(find "$R/.local/tools/junit" -name 'junit-platform-console-standalone-*.jar' | head -1)
 GSON=$(find "$R/.local/gradle-home" -name 'gson-2.10.1.jar' | head -1)
+JOML=$(find "$R/.local/gradle-home" -name 'joml-1.10.5.jar' | head -1)
 M=$(cygpath -m "$R" 2>/dev/null || echo "$R")
 CP="$M/build/moddev/artifacts/neoforge-21.1.250-merged.jar"
 for j in $(find "$R/.local/gradle-home" -name '*.jar' 2>/dev/null); do CP="$CP;$(cygpath -m "$j" 2>/dev/null || echo "$j")"; done
@@ -25,15 +26,15 @@ rm -rf "$OUT" "$OUT-test"; mkdir -p "$OUT" "$OUT-test"
 RC=${PIPESTATUS[0]}
 if [ -d "$W/src/test/java" ] && [ "$RC" = 0 ]; then
   winlist "$W/src/test/java" > "$OUT.tsrc"
-  "$JAVAC" -proc:none -nowarn -encoding UTF-8 -cp "$(mp "$OUT");$(mp "$JUNIT");$(mp "$GSON")" -d "$(mp "$OUT-test")" @"$(mp "$OUT.tsrc")" 2>&1 | grep -av "^Note:" | head -40
+  "$JAVAC" -proc:none -nowarn -encoding UTF-8 -cp "$(mp "$OUT");$(mp "$JUNIT");$(mp "$GSON");$(mp "$JOML")" -d "$(mp "$OUT-test")" @"$(mp "$OUT.tsrc")" 2>&1 | grep -av "^Note:" | head -40
   TRC=${PIPESTATUS[0]}
   echo "test javac exit=$TRC"
   # Tests run WITHOUT Minecraft on the classpath, like CI: a test that loads a Minecraft class fails here too.
   RC=$TRC
   if [ "$TRC" = 0 ]; then
-  "$JAVA" -jar "$(mp "$JUNIT")" execute -cp "$(mp "$OUT");$(mp "$OUT-test");$(mp "$GSON");$(mp "$W/src/main/resources")" \
+  "$JAVA" -jar "$(mp "$JUNIT")" execute -cp "$(mp "$OUT");$(mp "$OUT-test");$(mp "$GSON");$(mp "$JOML");$(mp "$W/src/main/resources");$(mp "$W/src/test/resources")" \
     --select-package io.github.longshou.mcyukkuri.motor.geom --select-package io.github.longshou.mcyukkuri.intent --select-package io.github.longshou.mcyukkuri.aquatic \
-    --select-package io.github.longshou.mcyukkuri.family \
+    --select-package io.github.longshou.mcyukkuri.family --select-package io.github.longshou.mcyukkuri.pose \
     --details=tree --disable-banner --disable-ansi-colors 2>&1 | grep -aE "tests (successful|failed|found)|✘|\[X\]|expected|Exception" | head -30
   RC=${PIPESTATUS[0]}
   fi

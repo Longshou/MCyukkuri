@@ -16,6 +16,10 @@ import java.util.function.IntPredicate;
 import java.util.stream.IntStream;
 import java.util.zip.GZIPInputStream;
 import org.joml.Matrix4f;
+import io.github.longshou.mcyukkuri.pose.Clips;
+import io.github.longshou.mcyukkuri.pose.Compose;
+import io.github.longshou.mcyukkuri.pose.Overlays;
+import io.github.longshou.mcyukkuri.pose.Skin;
 import org.joml.Vector3f;
 import io.github.longshou.mcyukkuri.headwear.HatGeometry;
 import io.github.longshou.mcyukkuri.family.PregnancyAttachments;
@@ -282,8 +286,7 @@ public final class WoundSurface {
         }
     }
     public static Vector3f tangent(Vector3f n){return Math.abs(n.y)>.9?new Vector3f(1,0,0):new Vector3f(0,1,0).cross(n).normalize();}
-    public Vector3f skin(int i,Vector3f p,Matrix4f[] world){var out=new Vector3f();var temp=new Vector3f();var w=weights[i];for(int k=0;k<w.length;
-            k+=2){world[(int)w[k]].transformPosition(p,temp);out.fma(w[k+1],temp);}return out;}
+    public Vector3f skin(int i,Vector3f p,Matrix4f[] world){return Skin.weighted(weights[i],p,world,new Vector3f(),new Vector3f());}
     public Vector3f posed(int i,Matrix4f[] world,List<BodyWound> wounds){return skin(i,deform(rest(i),wounds),world);}
     public Vector3f posedDisplay(int i,Matrix4f[] world,List<BodyWound> wounds){return skin(i,deformDisplay(rest(i),wounds),world);}
     public Vector3f pointDisplay(BodyWound w,Matrix4f[] world,List<BodyWound> wounds){var h=displaySite(w);
@@ -304,10 +307,7 @@ public final class WoundSurface {
     private float[][] poseValues(String action,float elapsed,String hatMotion,float hatPhase){float[][] values=new float[bones.size()][9];for(var v:values)v[6]=v[7]=v[8]=1;sample(clips.get("idle"),0,values);
         sample(clips.getOrDefault(action,clips.get("idle")),elapsed,values);
         if(hatMotion.equals("HAT_REMOVE")||hatMotion.equals("HAT_RETURN")){
-            var hat=HatGeometry.worn(assetId);if(hat!=null){float q=Math.clamp(hatPhase,0,1);if(hatMotion.equals("HAT_RETURN"))q=1-q;
-                float rise=Math.min(1,q/.55f);rise=rise*rise*(3-2*rise);
-                float forward=Math.max(0,(q-.4f)/.6f);forward=forward*forward*(3-2*forward);
-                var root=values[hat.get("bone").getAsInt()];root[1]+=hat.get("lift").getAsFloat()*rise;root[2]+=hat.get("forward").getAsFloat()*forward;}
+            var hat=HatGeometry.worn(assetId);if(hat!=null)Overlays.hat(values[hat.get("bone").getAsInt()],hatPhase,hatMotion.equals("HAT_RETURN"),hat.get("lift").getAsFloat(),hat.get("forward").getAsFloat());
         }
         return values;
     }
@@ -324,8 +324,7 @@ public final class WoundSurface {
     public Matrix4f[] pose(String action,float elapsed,String hatMotion,float hatPhase){
         var values=poseValues(action,elapsed,hatMotion,hatPhase);var world=new Matrix4f[bones.size()];
         for(int i=0;i<world.length;i++){var p=pivots[i];int parent=
-                parents[i];var v=values[i];world[i]=parent<0?new Matrix4f():new Matrix4f(world[parent]);world[i].translate(p[0]+v[0],
-                p[1]+v[1],p[2]+v[2]).rotateZYX(v[5]*(float)Math.PI/180,v[4]*(float)Math.PI/180,v[3]*(float)Math.PI/180).scale(v[6],v[7],v[8]).translate(-p[0],-p[1],-p[2]);
+                parents[i];var v=values[i];world[i]=parent<0?new Matrix4f():new Matrix4f(world[parent]);Compose.woundLocal(world[i],p,v);
         }return world;
     }
     /** Compose an authored stable root track on the selected common-side skeleton. */
@@ -334,18 +333,12 @@ public final class WoundSurface {
             var bone=bones.get(i).getAsJsonObject();if(!bone.get("name").getAsString().equals("root"))continue;
             float[] pivot=floats(bone.getAsJsonArray("pivot"));int parent=bone.get("parent").getAsInt();
             var root=parent<0?new Matrix4f():new Matrix4f(pose("idle",0)[parent]);
-            return root.translate(pivot[0]+values[0],pivot[1]+values[1],pivot[2]+values[2])
-                    .rotateZYX(values[5]*(float)Math.PI/180,values[4]*(float)Math.PI/180,values[3]*(float)Math.PI/180)
-                    .scale(values[6],values[7],values[8]).translate(-pivot[0],-pivot[1],-pivot[2]);
+            return Compose.woundLocal(root,pivot,values);
         }
         throw new IllegalStateException("Selected skin has no root bone");
     }
     private void sample(WoundMotion.Clip clip,float elapsed,float[][] values){float duration=clip.duration();float time=
             clip.loop()?Math.max(0,elapsed)%duration:Math.clamp(elapsed,0,duration);
-        for(var t:clip.tracks()){var keys=t.keys();int lo=0,hi=keys.length/4-1;
-                while(hi-lo>1){int mid=(lo+hi)>>>1;if(keys[mid*4]<=time)lo=mid;else hi=mid;}
-            int a=lo*4,b=Math.min(lo+1,keys.length/4-1)*4;float q=keys[a]==keys[b]?0:
-                    Math.clamp((time-keys[a])/(keys[b]-keys[a]),0,1);var target=values[t.bone()];for(int k=0;k<3;k++)target[t.offset()+k]=keys[a+k+1]+(keys[b+k+1]-keys[a+k+1])*q;
-        }
+        for(var t:clip.tracks())Clips.sample(t.keys(),t.offset(),time,values[t.bone()]);
     }
 }
