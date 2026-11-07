@@ -293,10 +293,13 @@ def jumps(samples):
         pairs = 0
         for a, b in zip(rows, rows[1:]):
             sa, sb = a['state'], b['state']
-            if b['t'] - a['t'] != 1 or not known(sa, 'p', 'v', 'att', 'g') or not known(sb, 'p', 'att', 'g'):
+            hat_pair = known(sa, 'p', 'v', 'frame', 'riders') and known(sb, 'p', 'frame', 'riders')
+            body_pair = known(sa, 'p', 'v', 'att', 'g') and known(sb, 'p', 'att', 'g')
+            if b['t'] - a['t'] != 1 or not (hat_pair or body_pair):
                 continue
             pairs += 1
-            aa, ab = sa['att'], sb['att']
+            # Placed hats are free-moving hosts; their schema has frame/riders, not a body's att/g.
+            aa, ab = (sa.get('att', {}), sb.get('att', {}))
             host = aa.get('host')
             if host and host == ab.get('host'):
                 if aa.get('frame') and ab.get('frame'):
@@ -309,7 +312,7 @@ def jumps(samples):
                     continue
             else:
                 residual = [sb['p'][i] - sa['p'][i] - sa['v'][i] for i in range(3)]
-                if sa['g'] or sb['g']:
+                if sa.get('g') or sb.get('g'):
                     residual[1] = math.copysign(max(0, abs(residual[1]) - .6), residual[1])
                 r = math.sqrt(sum(v * v for v in residual))
             if r > .25:
@@ -527,9 +530,21 @@ def observations(records, issues=(), raw='', allow=(), end=(), seed=None, rerun=
         findings.append(result('FATE' if not reason.startswith('fate loop') else 'LOOP', 'fail', text, actor))
     if not any(EVENT.search(line) for line in raw.splitlines()):
         findings.append(result('FATE', 'no-evidence', 'no legacy fate log supplied'))
+    allowed_actors = {entry['who']: {event['uuid'] for line in raw.splitlines()
+                      if re.search(entry['who'], line) and (event := EVENT.search(line))}
+                      for entry in allow if entry.get('who') is not None}
+    damage_lines = defaultdict(list)
+    for line in raw.splitlines():
+        if event := EVENT.search(line):
+            damage_lines[event['uuid'], int(re.search(r'\bt=(\d+)', line)[1]), event['cat']].append(line)
     for r in records:
         if r['k'] == 'ev' and re.search(r'damage .*cause=', r.get('msg', '')):
-            cause = re.search(r'cause=(\w+)', r['msg'])[1]
+            cause = re.search(r'cause=(\S+)', r['msg'])[1].rsplit('.', 1)[-1]
+            kind = {'drown': 'drown', 'inWall': 'in_wall', 'starve': 'starve'}.get(cause)
+            if any(entry['kind'] == kind and (entry.get('who') is None or r['u'] in allowed_actors[entry['who']])
+                   and (entry.get('match') is None or any(re.search(entry['match'], line)
+                        for line in damage_lines[r['u'], r['t'], r.get('cat')])) for entry in allow):
+                continue
             if cause not in ('drown', 'inWall'):
                 findings.append(result('FATE', 'fail' if cause in ('fall', 'soaking', 'starve') else 'suspect', r['msg'], r))
     findings += progress(samples) + loops(records, samples) + jumps(samples) + ledger(records, samples, dense) + orphans(samples)
