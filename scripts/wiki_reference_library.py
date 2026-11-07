@@ -130,6 +130,8 @@ def fetch():
                       "license": "未发现明确开放授权；不视为可直接复用的游戏资源"}
             data["sources"] = [x for x in data["sources"] if x["id"] != sid] + [record]
             for index, item in enumerate(parser.images[:source["limit"]], 1):
+                if index in source.get("excluded_images", []):
+                    continue
                 iid = f"{sid}-{index:03}"
                 existing = next((x for x in data["images"] if x["id"] == iid), None)
                 if existing:
@@ -180,7 +182,8 @@ def check():
     assert len(sources) == len(data["sources"]), "Duplicate source IDs"
     for sid, source in sources.items():
         count = sum(row["source_id"] == sid for row in data["images"])
-        assert count == min(source["limit"], source["available_images"]), f"Incomplete source: {sid}"
+        excluded = sum(1 for index in source.get("excluded_images", []) if index <= min(source["limit"], source["available_images"]))
+        assert count == min(source["limit"], source["available_images"]) - excluded, f"Incomplete source: {sid}"
     for row in data["images"]:
         assert row["id"] not in ids, f"Duplicate ID: {row['id']}"
         ids.add(row["id"])

@@ -34,7 +34,7 @@ def collect():
             sources[s['id']]=s
     images={a['id']:a for a in raw};classes={a['id']:a for a in config['items']}
     assert len(images)==len(raw)
-    assert len(classes)==len(config['items']) and set(classes)==set(images)
+    assert len(classes)==len(config['items']) and set(images)<=set(classes)
     scope={e['id']:e for e in annotations['entity_scope']}
     assert len(scope)==len(annotations['entity_scope'])
     for e in scope.values(): assert (ROOT/e['basis']).is_file(),e
@@ -66,6 +66,20 @@ def collect():
     for aid,state in queue.items():
         assert (state=='out_of_scope')==(images[aid]['source_id'] in annotations['excluded_sources']),aid
         assert classes[aid]['kind']!='reference' and not classes[aid]['topics'],aid
+    image_facets=annotations['image_tagging']['facets'];all_facets={**annotations['facets'],**image_facets};inventory=[]
+    for c in config['items']:
+        assert c['path'] and c['sha256'] and (ROOT/c['path']).is_file(),c['id']
+        tags=c.get('image_tags');assert tags,c['id']
+        assert tags['model']=='kimi-coding/k3.1-pro' and tags['prompt_version']==annotations['image_tagging']['prompt_version'],c['id']
+        row=dict(id=c['id'],path=c['path'],source_id=c['source_id'],kind=c['kind'],sha256=c['sha256'],
+            reference_value=tags['reference_value'],delete_candidate=tags['delete_candidate'],observation=tags['observation'],
+            game_use=tags['game_use'],delete_reason=tags['delete_reason'])
+        assert row['reference_value'] in {'high','medium','low','none'},c['id']
+        for facet,spec in all_facets.items():
+            values=tags[facet]
+            assert len(values)==len(set(values)) and set(values)<=set(spec['values']),c['id']
+            row[facet]=values
+        inventory.append(row)
     cards=read(ROOT/'wiki/novel-reading/cards.json')['cards'];cards_by_id={c['id']:c for c in cards}
     assert len(cards_by_id)==len(cards)
     assert {n['id'] for n in annotations['texts']}|set(annotations['excluded_texts'])==cards_by_id.keys()
@@ -87,9 +101,11 @@ def collect():
         image_unique_hashes=len({a['sha256'] for a in raw}),game_images=len(active_images),game_texts=len(annotations['texts']),
         game_image_sources=len({a['source_id'] for a in assets if a['media']=='image'}),quality_selected=len(selected),quality_reviewed=len(reviewed),
         scanned_sheets=len(annotations['scanned_sheets']),scanned_images=len(active_images)+states['overview_not_selected'],
-        out_of_scope=states['out_of_scope'],overview_not_selected=states['overview_not_selected'],pending_purpose_review=states['pending_purpose_review'])
-    return dict(schema_version=3,updated_on=annotations['reviewed_on'],stats=stats,facets=annotations['facets'],
-        entity_scope=annotations['entity_scope'],topics=config['topics'],quality_review={k:v for k,v in quality.items() if k!='items'},assets=assets)
+        out_of_scope=states['out_of_scope'],overview_not_selected=states['overview_not_selected'],pending_purpose_review=states['pending_purpose_review'],
+        wiki_images=len(inventory),tagged_images=len(inventory))
+    return dict(schema_version=4,updated_on=annotations['reviewed_on'],stats=stats,facets=annotations['facets'],
+        entity_scope=annotations['entity_scope'],topics=config['topics'],quality_review={k:v for k,v in quality.items() if k!='items'},
+        assets=assets,image_facets=image_facets,image_inventory=inventory)
 
 def table(assets,folder=LIB):
     out=['| 实体 · 情景 · 情绪 | 看哪一处 | 用于游戏制作 | 材料与出处 |','| --- | --- | --- | --- |']
@@ -110,6 +126,7 @@ def render(data):
         '从要做的游戏内容出发找图：选实体，再叠加情景、情绪或制作目标。每条记录指向具体画格，并说明能用于哪个模型部位、动作、表情、道具、场景或事件。作品编号只用来追溯出处。','',
         f"当前游戏参考为 **{s['game_images']} 张图片、{s['game_texts']} 张文字卡**，图片覆盖 **{s['game_image_sources']} 个来源入口**。现有扫图登记覆盖 {s['scanned_images']} 张已存图片，选用画面均注明制作用途；各批次实际阅读范围见来源登记，扫图不等于全文核读。",'',
         f"其中 {s['quality_selected']} 张保留原文件清晰度与画风精选标签。筛选器默认显示全部已写明用途的游戏图片，精选优先排列；可再开启“只看美术精选”。",'',
+        f"[全 Wiki 图片标签](image-tags.md) 另有 {s['tagged_images']} 张库存图的逐图观察、行为与形象分类；模型标签用于检索，不自动成为人工精选或游戏采用依据。",'',
         '| 查找方向 | 入口与用途 |','| --- | --- |',
         '| 实体 | [实体索引](entities.md)：角色、已纳入形态，以及帽船、茎果、窝和徽章等对象 |',
         '| 情景 | [情景索引](scenarios.md)：进食、照料、睡眠、避险、交往、考核、搬运等 |',
@@ -145,6 +162,16 @@ def render(data):
         out=[f"# {t['title']}",'','[游戏参考库](../README.md) · [实体／情景／情绪筛选](../gallery.html) · [造型与动作参考](../production-briefs.md)','',
             '旧主题兼容入口；主分类以实体、情景、情绪和制作目标为准。','']+table(subset,folder)+['']
         write(folder/f"{t['id']}.md",'\n'.join(out))
+    inventory_lines=['# 全 Wiki 图片标签','','[游戏参考库](README.md) · [人工精选筛选](gallery.html)','',
+        f"当前 {len(data['image_inventory'])} 张图片均有逐图标签。实体、情景、情绪和制作目标沿用人工索引分类；行为动作与形象细节只用于库存检索。",'',
+        '标签由固定提示词的视觉模型生成并经过格式校验；观察与用途是候选整理，不代表人工精选、全文核读或游戏已经采用。删除候选仍须人工确认。','',
+        '| 图片 | 实体 | 情景 | 行为动作 | 形象细节 | 情绪 | 制作目标 | 参考价值 | 观察与候选用途 |','| --- | --- | --- | --- | --- | --- | --- | --- | --- |']
+    for a in data['image_inventory']:
+        tags=['、'.join(a[k]) or '—' for k in ['entities','scenarios','behaviors','appearance','emotions','targets']]
+        use=cell(a['observation'])+' '+cell(a['game_use'])
+        if a['delete_candidate']!='none':use+=' 删除候选：'+cell(a['delete_reason'])
+        inventory_lines.append(f"| [{a['id']}]({relative(a['path'])}) | "+' | '.join(tags)+f" | {a['reference_value']} | {use} |")
+    write(LIB/'image-tags.md','\n'.join(inventory_lines)+'\n')
     build_quality(data,write);build_gallery(data,write)
     return outputs
 
@@ -165,7 +192,8 @@ def build_quality(data,write):
     write(LIB/'quality-picks.md','\n'.join(out)+'\n')
 
 def build_gallery(data,write):
-    payload={**data,'assets':[{**a,'href':relative(a['path']),'source_href':relative(a.get('source_index',a['path']))} for a in data['assets']]}
+    gallery_data={k:v for k,v in data.items() if k!='image_inventory'}
+    payload={**gallery_data,'assets':[{**a,'href':relative(a['path']),'source_href':relative(a.get('source_index',a['path']))} for a in data['assets']]}
     encoded=json.dumps(payload,ensure_ascii=False).replace('</','<\\/')
     template=(ROOT/'scripts/wiki_reference_gallery.html').read_text(encoding='utf-8')
     write(LIB/'gallery.html',template.replace('__DATA__',encoded))
@@ -176,9 +204,12 @@ def check():
         assert path.is_file() and path.read_text(encoding='utf-8')==expected,f'Generated file is stale: {path.relative_to(ROOT)}; run build'
     for a in current['assets']:
         if a['media']=='image':assert hashlib.sha256((ROOT/a['path']).read_bytes()).hexdigest()==a['sha256'],a['id']
+    for a in current['image_inventory']:
+        assert hashlib.sha256((ROOT/a['path']).read_bytes()).hexdigest()==a['sha256'],a['id']
     page=(LIB/'gallery.html').read_text(encoding='utf-8');marker='<script id="data" type="application/json">'
     start=page.index(marker)+len(marker);payload=json.loads(page[start:page.index('</script>',start)])
-    expected={**current,'assets':[{**a,'href':relative(a['path']),'source_href':relative(a.get('source_index',a['path']))} for a in current['assets']]}
+    gallery_data={k:v for k,v in current.items() if k!='image_inventory'}
+    expected={**gallery_data,'assets':[{**a,'href':relative(a['path']),'source_href':relative(a.get('source_index',a['path']))} for a in current['assets']]}
     assert payload==expected,'Gallery payload differs from catalog'
     for a in payload['assets']:assert (LIB/a['href']).is_file() and (LIB/a['source_href']).is_file(),a['id']
     assert '<script src=' not in page
