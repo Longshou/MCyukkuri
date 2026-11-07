@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.pose;
 
 import com.google.gson.*;
+import com.google.gson.stream.JsonReader;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
@@ -12,9 +13,14 @@ import static org.junit.jupiter.api.Assertions.*;
 
 /** Frozen pre-extraction client outputs, all vertices (not selected probes), no Minecraft on the classpath. */
 class PoseGoldenTest {
-    static JsonArray golden()throws IOException{
-        try(var in=new GZIPInputStream(PoseGoldenTest.class.getResourceAsStream("/pose/golden.json.gz"))){
-            return JsonParser.parseReader(new InputStreamReader(in,StandardCharsets.UTF_8)).getAsJsonArray();
+    /** Rows are streamed one at a time: the 62 MB golden does not fit a CI test worker heap as one tree. */
+    interface RowSink { void accept(JsonObject row)throws Exception; }
+    static void rows(RowSink sink)throws Exception{
+        try(var in=new GZIPInputStream(PoseGoldenTest.class.getResourceAsStream("/pose/golden.json.gz"));
+            var reader=new JsonReader(new InputStreamReader(in,StandardCharsets.UTF_8))){
+            reader.beginArray();
+            while(reader.hasNext())sink.accept(JsonParser.parseReader(reader).getAsJsonObject());
+            reader.endArray();
         }
     }
     static JsonObject model(String id)throws IOException{
@@ -39,9 +45,9 @@ class PoseGoldenTest {
         assertTrue(max<=1e-5f,label+" max="+max+" at="+at);
     }
     @Test void clientGoldenParity()throws Exception{
-        var sources=new HashMap<String,JsonObject>();var framesByCase=new HashMap<String,Frame>();int frames=0;
-        for(var raw:golden()){
-            var row=raw.getAsJsonObject();String name=row.get("case").getAsString();if(name.equals("wounds"))continue;
+        var sources=new HashMap<String,JsonObject>();var framesByCase=new HashMap<String,Frame>();int[] frames={0};
+        rows(row->{
+            String name=row.get("case").getAsString();if(name.equals("wounds"))return;
             String id=row.get("model").getAsString();if(!sources.containsKey(id))sources.put(id,model(id));
             if(!framesByCase.containsKey(name))framesByCase.put(name,new Frame(sources.get(id),id));
             var frame=framesByCase.get(name);frame.run(row);
@@ -52,13 +58,14 @@ class PoseGoldenTest {
                 if(name.equals("pregnancy"))Skin.pregnancy(p,.7f,.4f,row.getAsJsonArray("groups").get(i).getAsInt(),new Vector3f(Rig.floats(row.getAsJsonArray("crownLift"))),new Vector3f(Rig.floats(row.getAsJsonArray("braidLift"))));
                 points[i*3]=p.x;points[i*3+1]=p.y;points[i*3+2]=p.z;
             }
-            near(row.getAsJsonArray("vertices"),points,name+" vertices");frames++;
-        }
-        assertEquals(33,frames);
+            near(row.getAsJsonArray("vertices"),points,name+" vertices");frames[0]++;
+        });
+        assertEquals(33,frames[0]);
         System.out.println("PASS pose golden: 33 client frames, every matrix and vertex <= 1e-5 model units");
     }
     @Test void woundGoldenParity()throws Exception{
-        JsonObject row=null;for(var raw:golden())if(raw.getAsJsonObject().get("case").getAsString().equals("wounds"))row=raw.getAsJsonObject();
+        JsonObject[] found={null};rows(row->{if(row.get("case").getAsString().equals("wounds"))found[0]=row;});
+        JsonObject row=found[0];
         assertNotNull(row);
         // Common-side selected skeleton, local pose and wound-deformed rest points are explicit inputs.
         var bones=Rig.bones(row.getAsJsonArray("bones"));
