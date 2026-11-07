@@ -168,7 +168,7 @@ def render(data):
         write(folder/f"{t['id']}.md",'\n'.join(out))
     inventory_lines=['# 全 Wiki 图片标签','','[游戏参考库](README.md) · [人工精选筛选](gallery.html)','',
         f"当前 {len(data['image_inventory'])} 张图片均有逐图标签。实体、情景、情绪和制作目标沿用人工索引分类；行为动作与形象细节只用于库存检索。",'',
-        '标签由固定提示词的视觉模型生成并经过格式校验；观察与用途是候选整理，不代表人工精选、全文核读或游戏已经采用。删除候选仍须人工确认。','',
+        '模型标签与候选用途仅供检索，不代表人工精选、全文阅读或游戏采用依据。','',
         '| 图片 | 实体 | 情景 | 行为动作 | 形象细节 | 情绪 | 制作目标 | 参考价值 | 观察与候选用途 |','| --- | --- | --- | --- | --- | --- | --- | --- | --- |']
     for a in data['image_inventory']:
         tags=['、'.join(a[k]) or '—' for k in ['entities','scenarios','behaviors','appearance','emotions','targets']]

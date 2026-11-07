@@ -4,7 +4,7 @@
 
 当前 799 张图片均有逐图标签。实体、情景、情绪和制作目标沿用人工索引分类；行为动作与形象细节只用于库存检索。
 
-标签由固定提示词的视觉模型生成并经过格式校验；观察与用途是候选整理，不代表人工精选、全文核读或游戏已经采用。删除候选仍须人工确认。
+模型标签与候选用途仅供检索，不代表人工精选、全文阅读或游戏采用依据。
 
 | 图片 | 实体 | 情景 | 行为动作 | 形象细节 | 情绪 | 制作目标 | 参考价值 | 观察与候选用途 |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -430,7 +430,7 @@
 | [game/hakkei-u-expression-audit/sprites/sprite-6594.png](../art-references/game/hakkei-u-expression-audit/sprites/sprite-6594.png) | 通用油库里 | — | — | 脸部 | 担忧、悲伤 | 表情 | medium | 通用油库里的脸部特写，圆眼带高光，眉毛弯曲，小嘴呈倒V形并有粉色红晕。 可作为担忧或悲伤表情的脸部贴图与神态参考。 |
 | [game/hakkei-u-expression-audit/sprites/sprite-6602.png](../art-references/game/hakkei-u-expression-audit/sprites/sprite-6602.png) | 通用油库里 | — | — | 脸部、像素Sprite | 惊讶 | 表情 | high | 白色背景上是一张大眼睛、张口并带腮红的油库里脸部特写。 可作为油库里惊讶表情的脸部贴图参考，突出大眼高光、红色张口和淡色腮红。 |
 | [game/hakkei-u-expression-audit/sprites/sprite-6604.png](../art-references/game/hakkei-u-expression-audit/sprites/sprite-6604.png) | 通用油库里 | — | — | 脸部、像素Sprite | 喜悦 | 表情 | medium | 白色背景上的油库里脸部特写，双眼弯起、张嘴并带有红晕。 可用作通用油库里喜悦或大笑表情的脸部贴图参考。 |
-| [game/hakkei-u-expression-audit/sprites/sprite-6616.png](../art-references/game/hakkei-u-expression-audit/sprites/sprite-6616.png) | 通用油库里 | — | — | 脸部、像素Sprite | 悲伤、痛苦 | 表情 | medium | 白色背景上的油库里脸部特写，紧皱眉眼并张口，脸颊泛红且带蓝色汗滴。 可用作悲伤或痛苦表情及汗滴、腮红细节的绘制参考。 |
+| [game/hakkei-u-expression-audit/sprites/sprite-6616.png](../art-references/game/hakkei-u-expression-audit/sprites/sprite-6616.png) | 通用油库里 | — | — | 脸部、像素Sprite | 悲伤、痛苦 | 表情 | medium | 透明背景上的油库里哭泣表情部件，嘴部扭曲，脸颊泛红且眼下积有泪水。 可用作悲伤或痛苦表情及泪水、腮红细节的绘制参考。 |
 | [game/hakkei-u-expression-audit/sprites/sprite-6626.png](../art-references/game/hakkei-u-expression-audit/sprites/sprite-6626.png) | 通用油库里 | — | — | 脸部、像素Sprite | 喜悦 | 模型、表情 | medium | 画面是通用油库里的正面脸部特写，带空白大眼、红色小嘴和粉色脸颊。 可用作Minecraft油库里平静或喜悦状态的脸部贴图与表情参考。 |
 | [game/hakkei-u-expression-audit/sprites/sprite-6637.png](../art-references/game/hakkei-u-expression-audit/sprites/sprite-6637.png) | 通用油库里 | — | — | 脸部、像素Sprite | 喜悦 | 表情 | medium | 特写呈现通用油库里的大眼睛、红色嘴形和粉色脸颊，神态开心。 可作为通用油库里开心表情的脸部贴图及眼嘴布局参考。 |
 | [game/hakkei-u-expression-audit/sprites/sprite-6706.png](../art-references/game/hakkei-u-expression-audit/sprites/sprite-6706.png) | 通用油库里 | — | — | 脸部、像素Sprite | 悲伤、愤怒 | 表情 | medium | 一张油库里脸部表情图，紧皱眉头并闭眼流泪，张开红色大嘴，两侧有粉色脸颊。 可用作油库里悲伤哭喊或愤怒叫喊时的脸部表情参考。 |
@@ -442,7 +442,7 @@
 | [game/hakkei-u-expression-audit/sprites/sprite-6831.png](../art-references/game/hakkei-u-expression-audit/sprites/sprite-6831.png) | 通用油库里 | — | — | 脸部、像素Sprite | 悲伤 | 表情 | medium | 透明底像素脸部素材，可见八字眉、紧闭的双眼、红色小嘴和两侧白色泪花。 可用作油库里哭泣或悲伤表情的脸部贴图参考。 |
 | [game/hakkei-u-expression-audit/sprites/sprite-6860.png](../art-references/game/hakkei-u-expression-audit/sprites/sprite-6860.png) | 通用油库里 | — | — | 脸部、像素Sprite | 悲伤、惊讶 | 表情 | high | 油库里脸部特写，眉头下压、双眼圆睁并张开红色大嘴，脸颊带紫色红晕和浅蓝色泪痕。 可作为油库里哭泣或受惊尖叫时的脸部表情与泪痕Sprite参考。 |
 | [game/hakkei-u-expression-audit/sprites/sprite-6863.png](../art-references/game/hakkei-u-expression-audit/sprites/sprite-6863.png) | 通用油库里 | — | — | 脸部、像素Sprite | 喜悦 | 表情 | medium | 画面展示紧闭的弯眼、猫嘴和粉色脸颊等脸部表情素材。 可用作通用油库里开心或满足状态的闭眼笑脸贴图参考。 |
-| [game/hakkei-u-expression-audit/sprites/sprite-6868.png](../art-references/game/hakkei-u-expression-audit/sprites/sprite-6868.png) | 通用油库里 | — | — | 脸部、颜色材质、像素Sprite | 担忧 | 表情 | medium | 透明背景上的油库里脸部特写，双眼圆睁，眉头上挑，嘴呈小尖角并带粉色脸颊。 可作为通用油库里担忧或委屈表情的脸部贴图参考。 |
+| [game/hakkei-u-expression-audit/sprites/sprite-6868.png](../art-references/game/hakkei-u-expression-audit/sprites/sprite-6868.png) | 通用油库里 | — | — | 脸部、颜色材质、像素Sprite | 担忧 | 表情 | medium | 透明背景上的油库里哭泣表情部件，眼下积有泪水，嘴呈小尖角并带粉色脸颊。 可作为通用油库里担忧或委屈表情的脸部贴图参考。 |
 | [game/hakkei-u-expression-audit/sprites/sprite-6882.png](../art-references/game/hakkei-u-expression-audit/sprites/sprite-6882.png) | 通用油库里 | — | — | 脸部 | 愤怒、悲伤 | 表情 | medium | 透明背景上绘有倒竖眉毛、紧闭流泪的双眼、粉色脸颊和红色大张嘴巴的愤怒哭喊表情。 可用于通用油库里愤怒哭喊时的眉眼、泪珠和张嘴表情参考。 |
 | [game/hakkei-u-expression-audit/sprites/sprite-6927.png](../art-references/game/hakkei-u-expression-audit/sprites/sprite-6927.png) | 通用油库里 | — | — | 脸部、颜色材质 | 愤怒、痛苦 | 表情 | high | 画面是紧闭双眼、流泪并张嘴大喊的油库里脸部特写，眉眼显得愤怒而痛苦。 可用作油库里愤怒哭喊或痛苦挣扎时的夸张脸部贴图参考。 |
 | [game/hakkei-u-expression-audit/sprites/sprite-6939.png](../art-references/game/hakkei-u-expression-audit/sprites/sprite-6939.png) | 通用油库里 | — | — | 脸部 | 认真 | 表情 | medium | 黑色背景上绘有一双高光大眼睛、斜向下的眉毛、粉色脸颊和微张的红色嘴部。 可参考制作通用油库里的认真神情脸部贴图，用于威吓或争执等近景演出。 |
