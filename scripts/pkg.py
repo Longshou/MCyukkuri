@@ -84,8 +84,8 @@ def write_lines(path, lines):
 
 def cmd_start(args):
     name = args.name
-    if '|' in args.title or '|' in args.files:
-        raise Fail('--title/--files must not contain "|" (table cell separator)')
+    if any(sep in args.title or sep in args.files for sep in ('|', '\n')):
+        raise Fail('--title/--files must not contain "|" or newlines (table cell separator)')
     require_main_branch()
     require_clean(MAIN, 'main checkout')
     git(MAIN, 'pull', '--ff-only')
@@ -122,6 +122,25 @@ def cmd_start(args):
     print(f'registered {name}: commit {git(MAIN, "rev-parse", "--short", "HEAD")} pushed; worktree {wt}')
 
 
+def dry_copy(name, wt):
+    """Temporary detached copy for land --dry-run; rebasing it cannot move the package branch."""
+    tmp = MAIN / '.local/tmp' / f'pkg-dry-{name}'
+    if tmp.exists():
+        raise Fail(f'temp copy already exists: {tmp}')
+    tmp.parent.mkdir(parents=True, exist_ok=True)
+    git(MAIN, 'worktree', 'add', '--detach', str(tmp), git(wt, 'rev-parse', 'HEAD'))
+    return tmp
+
+
+def drop_worktree(path):
+    """Remove a worktree that holds no uncommitted state; never leave it silently."""
+    done = subprocess.run(['git', 'worktree', 'remove', '--force', str(path)], cwd=MAIN, text=True, capture_output=True)
+    if done.returncode:
+        git(MAIN, 'worktree', 'prune')
+        if path.exists():
+            raise Fail(f'cannot remove {path}: {(done.stderr or done.stdout).strip()}')
+
+
 def cmd_land(args):
     name = args.name
     wt = worktree_path(name)
@@ -130,30 +149,37 @@ def cmd_land(args):
     require_clean(wt, 'worktree')
     require_main_branch()
     git(wt, 'fetch', '-q', 'origin')
-    git(wt, 'rebase', 'origin/main')
-    changed = git(wt, 'diff', '--name-only', 'origin/main...HEAD').splitlines()
-    if any(path.endswith('.java') for path in changed):
-        print('java changed: javac_check.sh', flush=True)
-        if subprocess.run(['bash', 'scripts/javac_check.sh', str(wt)], cwd=wt).returncode:
-            raise Fail('javac_check.sh failed')
-    if args.scene:
-        print(f'smoke: {" ".join(args.scene)}', flush=True)
-        code = subprocess.run([sys.executable, str(wt / 'scripts/smoke_museum.py'), '--worktree', str(wt), *args.scene], cwd=wt).returncode
-        if code:
-            print(f'pkg: smoke_museum.py exited {code}; not landing', file=sys.stderr)
-            raise SystemExit(code)
-    todo = wt / TODO
-    text = todo.read_text(encoding='utf-8')
-    rows = row_names(text)
-    if name not in rows:
-        raise Fail(f'{TODO} has no row for {name} (worktree .worktrees/{name})')
+    tree = dry_copy(name, wt) if args.dry_run else wt
+    try:
+        git(tree, 'rebase', 'origin/main')
+        changed = git(tree, 'diff', '--name-only', 'origin/main...HEAD').splitlines()
+        if any(path.endswith('.java') for path in changed):
+            print('java changed: javac_check.sh', flush=True)
+            if subprocess.run(['bash', 'scripts/javac_check.sh', str(tree)], cwd=tree).returncode:
+                raise Fail('javac_check.sh failed')
+        if args.scene:
+            print(f'smoke: {" ".join(args.scene)}', flush=True)
+            code = subprocess.run([sys.executable, str(tree / 'scripts/smoke_museum.py'), '--worktree', str(tree), *args.scene], cwd=tree).returncode
+            if code:
+                print(f'pkg: smoke_museum.py exited {code}; not landing', file=sys.stderr)
+                raise SystemExit(code)
+        text = (tree / TODO).read_text(encoding='utf-8')
+        if name not in row_names(text):
+            raise Fail(f'{TODO} has no row for {name} (worktree .worktrees/{name})')
+        head = git(tree, 'rev-parse', 'HEAD')
+    finally:
+        if tree is not wt:
+            drop_worktree(tree)
+    if args.dry_run:
+        print(f'dry run: {name} would land at {head} (rebased, checks passed); no push/row/worktree changes')
+        return
     lines = text.splitlines()
-    lines.remove(rows[name])
-    write_lines(todo, lines)
-    git(wt, 'add', TODO)
-    git(wt, 'commit', '-q', '-m', f'TODO: {name} landed')
-    git(wt, 'push', 'origin', 'HEAD:main')
-    pushed = git(wt, 'rev-parse', 'HEAD')
+    lines.remove(row_names(text)[name])
+    write_lines(tree / TODO, lines)
+    git(tree, 'add', TODO)
+    git(tree, 'commit', '-q', '-m', f'TODO: {name} landed')
+    git(tree, 'push', 'origin', 'HEAD:main')
+    pushed = git(tree, 'rev-parse', 'HEAD')
     git(MAIN, 'pull', '--ff-only')
     removed = False
     for attempt in range(2):
@@ -177,6 +203,7 @@ def client_busy():
              'ConvertTo-Json -Compress -InputObject @(Get-CimInstance Win32_Process '
              '-Filter "Name = \'java.exe\' OR Name = \'javaw.exe\'" | Select-Object Name,ProcessId,CommandLine)')
     rows = json.loads(subprocess.check_output(['powershell.exe', '-NoProfile', '-Command', query], encoding='utf-8'))
+    # TODO: also read .local/smoke/slots/ (machine-wide smoke slots) once wp-bh-smoke-verify lands
     busy = [f'{r["Name"]} PID={r["ProcessId"]} (smoke/capture)' for r in rows if BUSY_PROCESS.search(r['CommandLine'] or '')]
     try:
         server.require_closed()
@@ -292,6 +319,7 @@ def main():
     p = sub.add_parser('land', help='rebase, check, smoke, drop the TODO row, push, fast-forward main, remove worktree')
     p.add_argument('name')
     p.add_argument('--scene', action='append', default=[], metavar='ID', nargs='+')
+    p.add_argument('--dry-run', action='store_true', help='run every check on a temporary detached copy; no push/row/worktree changes')
     p.set_defaults(run=cmd_land)
     p = sub.add_parser('runtime', help='wait for CI on a commit, then fast-forward main and install the runtime')
     p.add_argument('--commit')
