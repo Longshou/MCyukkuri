@@ -8,7 +8,6 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
-| 噗咕多版供选（看 wiki 原版表现，并排预览给用户选） | `.worktrees/wp-cc-puku-variants` | moments.json 噗咕相关行、motions/base 或 lore 新增噗咕变体片段 |
 | 噗咕鼓腮：身体模型两腮外鼓（复刻原作ぷくー，比概念图更夸张） | `.worktrees/wp-ce-cheek-puff` | standards/yukkuri-library/body-standard/（鼓腮 puff_offsets）、导出的 yukkuri/*.json 模型数据、噗咕片段的 puff 通道 |
 | 观测层：服务端检查校准（主线零误报、已知问题仍抓到） | `.worktrees/wp-ck-check-calibration` | scripts/smoke_checks.py、scripts/timeline.py、scripts/fixtures/timeline/ |
 | 观测层 S3：试玩场景结束条件与里程碑（冒烟自动判断行为链是否走完） | `.worktrees/wp-cl-scene-ends` | scripts/museum_scenarios.py（end、里程碑、视角） |
