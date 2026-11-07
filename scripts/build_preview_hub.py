@@ -130,6 +130,9 @@ def main():
     manifest['generatedAt'] = datetime.now(timezone(timedelta(hours=8))).isoformat(timespec='seconds')
     manifest['assetFingerprint'] = hashlib.sha256((ROOT / 'src/main/resources/assets/mcyukkuri/yukkuri_presentation/motion_corrections.json').read_bytes()).hexdigest()
     digest = hashlib.sha256((OUT / 'models/catalog.js').read_bytes())
+    from pose_check import preview_sources
+    for source in preview_sources():
+        digest.update(source.relative_to(ROOT).as_posix().encode());digest.update(source.read_bytes())
     for relative in ('scripts/build_preview_hub.py', 'scripts/render_preview_models.cjs',
                      'preview/review/pose.js', 'standards/yukkuri-library/runtime/render.js'):
         digest.update((ROOT / relative).read_bytes())

@@ -14,8 +14,12 @@ public final class PoseCli {
     private static final Gson JSON = new GsonBuilder().serializeNulls().disableHtmlEscaping().create();
     private PoseCli() {}
     public static JsonObject run(Path assets, JsonObject request) throws IOException {
+        if(request.has("op")) return List.of("render","register","release").contains(request.get("op").getAsString())
+                ? RenderPose.run(request) : Authoring.run(request);
         var metrics = new ArrayList<String>(); for (var m : PoseChecks.need(request, "metric").getAsJsonArray()) metrics.add(m.getAsString());
         var frames = new ArrayList<JsonObject>(); var out = new JsonObject();
+        var passResults = new JsonArray();
+        boolean streamPass = !request.has("frames") && metrics.contains("pass") && !request.has("pose_out");
         if (request.has("frames")) {
             for (var f : request.getAsJsonArray("frames")) {
                 var frame = f.getAsJsonObject();
@@ -67,6 +71,10 @@ public final class PoseCli {
                 }
                 // Explicit evidence augments the contract; no water/partner/prop/server state is invented.
                 if (request.has("context")) for (var e : request.getAsJsonObject("context").entrySet()) frame.add(e.getKey(), e.getValue());
+                if(streamPass) {
+                    passResults.addAll(PoseChecks.evaluate(List.of(frame), List.of("pass")));
+                    frame.remove("meshes");frame.remove("pairs");
+                }
                 frames.add(frame);
             }
             out.addProperty("model", model.id); out.addProperty("fp", model.fingerprint); out.addProperty("clip", clip);
@@ -77,7 +85,13 @@ public final class PoseCli {
                 out.addProperty("vertices_frame", times.getLast()); out.addProperty("vertices_count", model.bindings.length);
             }
         }
-        var results = PoseChecks.evaluate(frames, metrics); out.add("results", results);
+        JsonArray results;
+        if(streamPass) {
+            var remaining=new ArrayList<>(metrics);remaining.remove("pass");
+            var other=PoseChecks.evaluate(frames,remaining);results=new JsonArray();int n=0;
+            for(int i=0;i<frames.size();i++)for(String metric:metrics)results.add(metric.equals("pass")?passResults.get(i):other.get(n++));
+        } else results=PoseChecks.evaluate(frames,metrics);
+        out.add("results", results);
         if (request.has("pose_out")) {
             try (var writer = Files.newBufferedWriter(Path.of(request.get("pose_out").getAsString()), StandardCharsets.UTF_8)) {
                 for (var f : frames) {
@@ -114,7 +128,7 @@ public final class PoseCli {
     private static JsonObject handle(Path assets, String input) {
         try { return run(assets, JsonParser.parseString(input).getAsJsonObject()); }
         catch (IOException | JsonParseException | IllegalArgumentException | IllegalStateException | IndexOutOfBoundsException e) {
-            var out = new JsonObject(); out.addProperty("error", e.getMessage()); return out;
+            var out = new JsonObject(); out.addProperty("error", e.getMessage()+(e.getCause()==null?"":"; "+e.getCause())); return out;
         }
     }
     public static void main(String[] args) throws IOException {

@@ -4,8 +4,8 @@ Uses the client's T(p + position) Rz Ry Rx S T(-p) convention. The selected
 editable model stays untouched; extra bones only compress the lower hair when
 the shared body motion would put it below the ground plane.
 """
-import bisect
 import math
+from pose_client import compose
 
 
 def compile_tracks(clip):
@@ -14,31 +14,11 @@ def compile_tracks(clip):
 
 
 def matrices(bones, defaults, tracks, time):
-    poses = {b['name']: [0, 0, 0, 0, 0, 0, 1, 1, 1] for b in bones}
-    for layer, at in ((defaults, 0), (tracks, time)):
-        for name, channel, keys in layer:
-            i = max(0, min(len(keys)-2, bisect.bisect_right(keys, (at, [math.inf]*3))-1))
-            ta, a = keys[i]; tb, b = keys[min(i+1, len(keys)-1)]
-            q = max(0, min(1, (at-ta)/(tb-ta))) if tb != ta else 0
-            offset = {'position': 0, 'rotation': 3, 'scale': 6}[channel]
-            poses[name][offset:offset+3] = [x+(y-x)*q for x, y in zip(a, b)]
-    world = {}
-    for bone in bones:
-        v = poses[bone['name']]; p = bone['pivot']
-        x, y, z = [math.radians(a) for a in v[3:6]]
-        cx, sx, cy, sy, cz, sz = math.cos(x), math.sin(x), math.cos(y), math.sin(y), math.cos(z), math.sin(z)
-        a, b, d = v[6:9]
-        m = [cz*cy*a, (cz*sy*sx-sz*cx)*b, (cz*sy*cx+sz*sx)*d, 0,
-             sz*cy*a, (sz*sy*sx+cz*cx)*b, (sz*sy*cx-cz*sx)*d, 0,
-             -sy*a, cy*sx*b, cy*cx*d, 0]
-        for r in range(3):
-            m[r*4+3] = p[r]+v[r]-sum(m[r*4+k]*p[k] for k in range(3))
-        if bone['parent'] is not None:
-            w = world[bone['parent']]
-            m = [sum(w[r*4+j]*m[j*4+k] for j in range(3)) + (w[r*4+3] if k == 3 else 0)
-                 for r in range(3) for k in range(4)]
-        world[bone['name']] = m
-    return world
+    def rows(layer):
+        return [dict(bone=name, channel=channel, keys=[[t, *v] for t, v in keys])
+                for name, channel, keys in layer]
+    world = compose(bones, rows(tracks), rows(defaults), time)
+    return {b['name']: [x for row in m for x in row] for b, m in zip(bones, world)}
 
 
 def local_vertical(m, rise):

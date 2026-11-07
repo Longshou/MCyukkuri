@@ -10,6 +10,10 @@ degrees, the game's rotateZYX.
 """
 import math
 import numpy as np
+from pathlib import Path
+import sys
+sys.path.insert(0, str(Path(__file__).resolve().parents[5]/'scripts'))
+from pose_client import request
 
 MAX_TURN = 40.
 
@@ -25,6 +29,7 @@ def chain(names):
 
 
 def euler(r):
+    # Authoring rotations (wave/sag key generation), not a sampled bone palette.
     x, y, z = np.radians(r)
     cx, sx, cy, sy, cz, sz = math.cos(x), math.sin(x), math.cos(y), math.sin(y), math.cos(z), math.sin(z)
     return np.array([[cz*cy, cz*sy*sx-sz*cx, cz*sy*cx+sz*sx], [sz*cy, sz*sy*sx+cz*cx, sz*sy*cx-cz*sx], [-sy, cy*sx, cy*cx]])
@@ -65,55 +70,16 @@ def partial(R, q):
     return np.eye(3)+math.sin(a)*K+(1-math.cos(a))*K@K
 
 
-def _central(k, seg):
-    return 2*np.arcsin(np.clip(k*seg/2, 0, 1))
-
-
 def arc(joints, target, max_turn=MAX_TURN):
     """Joints (root first) bent so the last lies on `target`: a circular arc through the joints, lengths kept.
 
     The bulge projects model forward plus half-strength down onto the chord's normal plane. Nearer than
     the tightest allowed curl, the curl folds further (FABRIK) until the end is on the target; farther than
     the braid's length, the braid points straight at it."""
-    P = np.asarray(joints, float); root = P[0]; seg = np.linalg.norm(np.diff(P, axis=0), axis=1)
-    target = np.asarray(target, float); to = target-root; d = float(np.linalg.norm(to))
-    if len(seg) == 0 or d < 1e-6 or seg.min() < 1e-9:
-        return P.copy()
-    u = to/d; flat = lambda v: v-u*float(v@u); length = float(seg.sum())
-    if d >= length:
-        return np.vstack([root, root+np.outer(np.cumsum(seg), u)])
-    p = flat(np.array([0., -.5, -1.]))
-    if np.linalg.norm(p) < 1e-6:
-        p = flat(np.array([0., -1., 0.]))
-    p = p/np.linalg.norm(p)
-    turn = lambda k: max(((a+b)/2 for a, b in zip(_central(k, seg)[:-1], _central(k, seg)[1:])), default=0.)
-    total = lambda k: float(_central(k, seg).sum())
-    chord = lambda k: 2*math.sin(total(k)/2)/k if k > 1e-9 else length
-    lo, hi = 0., 1.999/float(seg.max())
-    for _ in range(50):  # the tightest curl inside the joint limit and short of a full turn
-        k = (lo+hi)/2
-        lo, hi = (k, hi) if turn(k) <= math.radians(max_turn) and total(k) <= 1.9*math.pi else (lo, k)
-    k = lo; folded = chord(k) > d
-    if not folded:
-        a, b = 0., k
-        for _ in range(60):
-            m = (a+b)/2; a, b = (m, b) if chord(m) > d else (a, m)
-        k = (a+b)/2
-    out = P.copy()
-    if k > 1e-9:
-        phi = np.cumsum(_central(k, seg)); whole = total(k)
-        t0 = math.cos(whole/2)*u+math.sin(whole/2)*p; n0 = math.sin(whole/2)*u-math.cos(whole/2)*p
-        out[1:] = root+np.outer(np.sin(phi)/k, t0)+np.outer((1-np.cos(phi))/k, n0)
-    if folded:  # FABRIK from the tightest arc
-        for _ in range(32):
-            out[-1] = target
-            for i in range(len(seg)-1, -1, -1):
-                v = out[i]-out[i+1]; out[i] = out[i+1]+v*seg[i]/max(np.linalg.norm(v), 1e-12)
-            out[0] = root
-            for i in range(len(seg)):
-                v = out[i+1]-out[i]; out[i+1] = out[i]+v*seg[i]/max(np.linalg.norm(v), 1e-12)
-            if np.linalg.norm(out[-1]-target) < 1e-4: break
-    return out
+    if max_turn != MAX_TURN:
+        raise ValueError('The runtime braid joint limit is fixed at 40 degrees')
+    return np.array(request(dict(op='arc', joints=np.asarray(joints, float).ravel().tolist(),
+                                 target=np.asarray(target, float).tolist()))['joints']).reshape(-1, 3)
 
 
 def rotations(rest, solved):

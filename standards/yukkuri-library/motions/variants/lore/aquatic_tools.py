@@ -21,6 +21,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]/'contact-safe'))
 import braid_chain
 
 ROOT = Path(__file__).resolve().parents[5]
+sys.path.insert(0, str(ROOT/'scripts'))
+from pose_client import compose as core_compose
 ASSETS = ROOT/'src/main/resources/assets/mcyukkuri'
 BRAID = ASSETS/'yukkuri_presentation/braid_rescue.json'
 BOUNDS = json.loads((ASSETS/'yukkuri_presentation/hull_bounds/aquatic_basin_hat_turned.json').read_text(encoding='utf-8'))
@@ -69,9 +71,7 @@ def keyed_linear(t, rows):
 
 
 def euler(r):
-    x, y, z = np.radians(r)
-    cx, sx, cy, sy, cz, sz = math.cos(x), math.sin(x), math.cos(y), math.sin(y), math.cos(z), math.sin(z)
-    return np.array([[cz*cy, cz*sy*sx-sz*cx, cz*sy*cx+sz*sx], [sz*cy, sz*sy*sx+cz*cx, sz*sy*cx-cz*sx], [-sy, cy*sx, cy*cx]])
+    return braid_chain.euler(r)
 
 
 def to_euler(R):
@@ -415,17 +415,8 @@ def sample(keys, t):
 
 def palette(model, tracks, t):
     """World matrices exactly as the game composes them: idle at 0 under this clip's tracks."""
-    pose = {}
-    idle = model['clips']['idle']
-    for clip_tracks, at in ((idle['tracks'], 0), (tracks, t)):
-        for tr in clip_tracks: pose.setdefault(tr['bone'], {})[tr['channel']] = sample(tr['keys'], at)
-    out = []
-    for i, b in enumerate(model['bones']):
-        p = pose.get(i, {}); m = np.eye(4)
-        m[:3, :3] = euler(p.get('rotation', [0, 0, 0]))*np.array(p.get('scale', [1, 1, 1]))
-        pv = np.array(b['pivot']); m[:3, 3] = pv+np.array(p.get('position', [0, 0, 0]))-m[:3, :3]@pv
-        out.append(out[b['parent']]@m if b['parent'] >= 0 and b['parent'] != i else m)
-    return np.array(out)
+    world = core_compose(model['bones'], tracks, model['clips']['idle']['tracks'], t)
+    return np.array([m+[[0, 0, 0, 1]] for m in world])
 
 
 def bone_index(model, name):
@@ -718,14 +709,11 @@ def stow_gate(model, action, tracks, prop, holds, c):
             for tr in braid_keys:
                 h = np.array(sample(tr['keys'], 0), float); now = pose.setdefault(tr['bone'], {}).get(tr['channel'], np.ones(3) if tr['channel'] == 'scale' else np.zeros(3))
                 pose[tr['bone']][tr['channel']] = now+(h-now)*share
-            M = []
-            for i, b in enumerate(bones):
-                p = pose.get(i, {}); L = np.eye(4); pv = np.array(b['pivot'], float)
-                L[:3, :3] = euler(p.get('rotation', [0, 0, 0]))*np.array(p.get('scale', [1, 1, 1])); L[:3, 3] = pv+np.array(p.get('position', [0, 0, 0]))-L[:3, :3]@pv
-                Wm = M[b['parent']]@L if b['parent'] >= 0 else L
-                if i == hat and k != 1: S = np.eye(4); S[:3, :3] *= k; S[:3, 3] = anchor*(1-k); Wm = Wm@S
-                M.append(Wm)
-            M = np.array(M); q = (tick-g0)/max(1, r0-g0); ride = smooth(q*4)*smooth((1-q)*4)
+            values = [list(pose.get(i, {}).get('position', [0, 0, 0]))+
+                      list(pose.get(i, {}).get('rotation', [0, 0, 0]))+
+                      list(pose.get(i, {}).get('scale', [1, 1, 1])) for i in range(len(bones))]
+            world = core_compose(bones, values=values, hat=hat, hat_scale=k, hat_anchor=anchor.tolist())
+            M = np.array([m+[[0, 0, 0, 1]] for m in world]); q = (tick-g0)/max(1, r0-g0); ride = smooth(q*4)*smooth((1-q)*4)
             if ride > 0:
                 T = np.eye(4); T[:3, 3] = ((M[tip]@np.r_[tuft_end, 1])[:3]-(M[hat]@np.r_[grip, 1])[:3])*ride
                 for i in under_hat: M[i] = T@M[i]

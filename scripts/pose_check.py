@@ -12,6 +12,14 @@ import tempfile
 ROOT = Path(__file__).resolve().parents[1]
 
 
+def preview_sources():
+    """Inputs that invalidate cached core-backed preview pixels."""
+    base = ROOT / 'src/main/java/io/github/longshou/mcyukkuri'
+    return [*sorted((base/'pose').rglob('*.java')), base/'motor/geom/BraidChain.java',
+            base/'body/ModelFingerprint.java', *[ROOT/'scripts'/name for name in
+            ('pose_check.py', 'pose_client.py', 'pose_client.cjs', 'pose_worker.cjs')]]
+
+
 def java_command():
     common = Path(subprocess.check_output(
         ['git', 'rev-parse', '--path-format=absolute', '--git-common-dir'], cwd=ROOT, text=True).strip()).parent

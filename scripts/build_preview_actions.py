@@ -1,7 +1,7 @@
 """Build cached local animated action previews from preview/hub/actions.json.
 
-Uses the review viewer's RuntimePose and software renderer; it never starts a browser,
-Minecraft, Gradle, or Java. Final media is .local/previews/actions/<id>.{gif,png}.
+Uses the core-backed RuntimePose and software renderer; it never starts a browser,
+Minecraft or Gradle. Final media is .local/previews/actions/<id>.{gif,png}.
 """
 from __future__ import annotations
 
@@ -154,6 +154,8 @@ def prepared_textures(clips: list[dict], work: Path) -> tuple[dict, list[Path]]:
 
 def fingerprint(clip: dict, sources: list[Path], frames: int) -> str:
     digest = hashlib.sha256(json.dumps({'clip': clip, 'frames': frames}, ensure_ascii=False, sort_keys=True).encode())
+    from pose_check import preview_sources
+    sources = [*sources, *preview_sources()]
     for source in [ROOT/'scripts/build_preview_actions.py', ROOT/'scripts/render_preview_actions.cjs', ROOT/'preview/review/pose.js', ROOT/'standards/yukkuri-library/runtime/render.js', ASSETS/'yukkuri_presentation/living.json', ASSETS/'yukkuri_presentation/adult_states.json', ASSETS/'yukkuri_presentation/motion_corrections.json', ASSETS/'yukkuri_presentation/placement_fit.json', ROOT/'standards/yukkuri-library/interactions/marisa-hat-vessel/geometry.json', *sources]:
         digest.update(source.relative_to(ROOT).as_posix().encode()); digest.update(source.read_bytes())
     return digest.hexdigest()

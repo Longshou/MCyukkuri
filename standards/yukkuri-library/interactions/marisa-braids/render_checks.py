@@ -13,27 +13,17 @@ HERE = Path(__file__).resolve().parent
 sys.path[:0] = [str(HERE), str(HERE.parents[1]/'tools')]
 import build
 from static_preview_sheet import draw, read_png, write_png
-
-def matrix(bone, pose):
-    p = pose.get(bone['name'], {})
-    x, y, z = [math.radians(v) for v in p.get('rotation', [0, 0, 0])]
-    a, b, d = p.get('scale', [1, 1, 1]); t = p.get('position', [0, 0, 0]); pv = bone['pivot']
-    cx, sx, cy, sy, cz, sz = math.cos(x), math.sin(x), math.cos(y), math.sin(y), math.cos(z), math.sin(z)
-    m = [[cz*cy*a, (cz*sy*sx-sz*cx)*b, (cz*sy*cx+sz*sx)*d],
-         [sz*cy*a, (sz*sy*sx+cz*cx)*b, (sz*sy*cx-cz*sx)*d],
-         [-sy*a, cy*sx*b, cy*cx*d]]
-    return [row+[pv[r]+t[r]-sum(row[k]*pv[k] for k in range(3))] for r, row in enumerate(m)]
-
-def compose(parent, child):
-    return [[sum(parent[r][k]*child[k][c] for k in range(3))+(parent[r][3] if c == 3 else 0) for c in range(4)] for r in range(3)]
+sys.path.insert(0, str(HERE.parents[3]/'scripts'))
+from pose_client import compose
 
 RAW = [build.vertices(e, 256) for e in build.elements]
 
 def triangles(action, t):
-    pose, _ = build.state(action, t); world = {}
-    for bone in build.bones:
-        m = matrix(bone, pose)
-        world[bone['name']] = compose(world[bone['parent']], m) if bone['parent'] else m
+    pose, _ = build.state(action, t)
+    values = [pose.get(b['name'], {}).get('position', [0, 0, 0])+
+              pose.get(b['name'], {}).get('rotation', [0, 0, 0])+
+              pose.get(b['name'], {}).get('scale', [1, 1, 1]) for b in build.bones]
+    world = dict(zip((b['name'] for b in build.bones), compose(build.bones, values=values)))
     tris = []
     for vv, group in zip(RAW, build.groups):
         m = world[group]

@@ -1,13 +1,31 @@
-"""Serve the read-only review page on localhost; no browser control and no writes."""
+"""Serve review media and the read-only pose core on localhost; no browser control."""
 from functools import partial
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import unquote,urlsplit
 import argparse
 import json
+from threading import Lock
+from pose_client import request
+
+POSE_LOCK=Lock()
 
 ROOT=Path(__file__).resolve().parents[1]
 class Handler(SimpleHTTPRequestHandler):
+    def do_POST(self):
+        if self.path != '/pose':
+            self.send_error(404);return
+        try:
+            value=json.loads(self.rfile.read(int(self.headers['Content-Length'])))
+            if value.get('op') not in ('register','render','release'):
+                raise ValueError('Expected preview register/render request')
+            with POSE_LOCK:
+                result=request(value)
+            status=200
+        except (ValueError,RuntimeError) as error:
+            result={'error':str(error)};status=400
+        body=json.dumps(result).encode()
+        self.send_response(status);self.send_header('Content-Type','application/json');self.send_header('Content-Length',str(len(body)));self.end_headers();self.wfile.write(body)
     def do_GET(self):
         if urlsplit(self.path).path=='/review-health':
             body=json.dumps({'project':'MCyukkuri','root':str(ROOT),'review':1}).encode()

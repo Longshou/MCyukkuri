@@ -34,4 +34,8 @@
 
 服务请求格式为 `{"model":"marisa","clip":"idle","t":"0:1:0.05","metric":["tilt"]}` 或 `{"frames":[...],"metric":[...]}`；可带 `partner` 字符串列表、`care` xyz 数组、`water` 数值、`context` 对象、`vertices` 和 `pose_out` 文件路径。单次命令输入/证据错误退出 2；有效检查（包括 fail）退出 0。服务保持一行输入一行 JSON，错误在该行返回，不中断后续请求。
 
+制作工具通过 `scripts/pose_client.py`／`pose_client.cjs` 复用同一 JSON 行服务。未导出的骨架用 `op=compose`，输入 `bones`（父索引）、`defaults`／`tracks`（标准轨道）、`time`，或直接给 `values`（每骨骼 position、rotation、scale 共九值）；输出 `world` 是逐骨骼 3×4 行主序矩阵。帽缩放可给 `hat`、`hat_scale`、`hat_anchor`。`op=arc` 接收平铺的 `joints` 和 xyz `target`，调用运行时 BraidChain 的固定 40° 关节限制。
+
+光栅预览先用 `op=register` 提供 `model`、可选 `fit`／`revision`，取得 `id` 与拼接后的模型；随后 `op=render` 提供 `id`、`action`、`time`、`expression`、`scale`，可带 `adjustment`、`intensity` 或 `care:{anchor,target,blend}`，返回八值顶点（xyz、uv、法线）、行主序骨骼与根姿态。顶点经共享 Skin，护理经共享 Overlays；预览不再自算骨骼。两个活动模型常驻，其他登记输入压缩保存，用完调用 `op=release`。交互页通过本机预览服务的 `/pose` 接口使用相同协议，需要 JDK；不适合直接以文件方式打开。生成模型序列的 `pass` 即算即释放碰撞网格，避免按采样数累计网格内存；要求完整 `pose_out` 的证据仍会保留。
+
 F 覆盖：29=`row29BraidAndChildPenetration`，30=`row30BraidAndDeclaredBladeWet`，31=`row31TiltRelativeToCarrierHead`，32=`row32FloatingRiderGap`，33=`row33SustainedBodyYawLagAndWrap`，34=`row34ClipFlickerAndAuthoredTransition`，35=`row35HeldSwordAnchorAndMissingDraw`，36=`row36HatCutsHairAndHollowControl`。另测无内部顶点的薄面交叉、空心帽、覆盖不足的局部允许区、帽船支撑与 12–15° 疑似带、单位边界、缺证据和确定性。未查摄影可读性、未声明配对或允许区内的穿模、采样间不可见的动作以及没有原始数据的历史截图；速度带与间距带仍需按观测层校准规则审图。
