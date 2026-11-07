@@ -41,22 +41,22 @@ def parse_lines(lines):
     """Merge copied/rotated logs, deduplicate identical records, and expose corrupt/lost evidence."""
     records, issues, seen = [], [], {}
     for number, line in enumerate(lines, 1):
-            payload = line.split('[trace] ', 1)[1] if '[trace] ' in line else line.strip()
-            structured = '[trace] ' in line or payload.startswith('{')
-            if not structured:
+        payload = line.split('[trace] ', 1)[1] if '[trace] ' in line else line.strip()
+        structured = '[trace] ' in line or payload.startswith('{')
+        if not structured:
+            continue
+        try:
+            row = json.loads(payload)
+            validate(row)
+            key = row['src'], row['run'], row['seq']
+            if key in seen:
+                if seen[key] != row:
+                    issues.append(f'conflicting record {key}')
                 continue
-            try:
-                row = json.loads(payload)
-                validate(row)
-                key = row['src'], row['run'], row['seq']
-                if key in seen:
-                    if seen[key] != row:
-                        issues.append(f'conflicting record {key}')
-                    continue
-                seen[key] = row
-                records.append(row)
-            except (ValueError, TypeError) as error:
-                issues.append(f'line {number}: {error}')
+            seen[key] = row
+            records.append(row)
+        except (ValueError, TypeError) as error:
+            issues.append(f'line {number}: {error}')
     records.sort(key=lambda r: (str(r['run']), r['src'], r['seq']))
     previous = {}
     windows = {}

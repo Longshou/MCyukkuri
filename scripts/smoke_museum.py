@@ -214,6 +214,7 @@ def run_scene(st, scene, builder, run_index=1):
     server.run_cmd(st, 'yukkuri status trace dense')
     server.run_cmd(st, 'kill @e[tag=mcyv]')
     server.run_cmd(st, 'summon minecraft:marker 0 100 0 {Tags:["mcyv"]}')
+    server.jfr_start(st, f'{scene.id}-{run_index}')
     offset = server.log_offset(st)
     # Execute as the virtual observer so the scene's own view sets its exact position/yaw/pitch in the same tick.
     server.run_cmd(st, f'execute as @e[tag=mcyv,limit=1] run function mcylab:start/{scene.id}')

@@ -659,6 +659,13 @@ def report_log(log, output, smoke=None, seed=None, rerun=None, evidence='R', den
         scoped = [r for r in records if timeline.scope(r) == key]
         scene_id = scoped[0]['win']
         spec = smoke.get(scene_id, {})
+        command = [sys.executable, str(Path(__file__).with_name('smoke_museum.py')), '--worktree',
+                   str(Path(__file__).resolve().parent.parent)]
+        if seed is not None:
+            command += ['--seed', str(seed)]
+        if scene_id is not None:
+            command.append(scene_id)
+        scene_rerun = rerun or subprocess.list2cmdline(command)
         # Legacy events carry tick/dimension/actor identity. Do not attribute other windows' fates to this one.
         first_tick, last_tick = min(r['t'] for r in scoped), max(r['t'] for r in scoped)
         actors = {r['u'] for r in scoped if r['u'] is not None}
@@ -666,7 +673,7 @@ def report_log(log, output, smoke=None, seed=None, rerun=None, evidence='R', den
                          and event['uuid'] in actors and first_tick <= int(re.search(r'\bt=(\d+)', line)[1]) <= last_tick
                          and f'dim={key[1]} ' in line)
         reports.append(dict(scope=key, scene=scene_id, **observations(scoped, issues, legacy,
-                       spec.get('allow_fate', ()), spec.get('end', ()), seed, rerun, evidence, dense)))
+                       spec.get('allow_fate', ()), spec.get('end', ()), seed, scene_rerun, evidence, dense)))
     if not reports:
         reports.append(observations([], issues, raw, seed=seed, rerun=rerun, evidence=evidence, dense=dense))
     (output / 'checks.json').write_text(json.dumps(reports, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')

@@ -58,8 +58,7 @@ def read_lines(path):
 
 def observation_summary(log, dest, scenes, sid):
     """Use trace windows, independent of chat headings and other fields' simultaneous scenes."""
-    rerun = smoke_checks.subprocess.list2cmdline([sys.executable, str(HERE / 'feedback_intake.py'), '--session', sid])
-    reports = smoke_checks.report_log(log, dest / 'observations', scenes, rerun=rerun, evidence='H')
+    reports = smoke_checks.report_log(log, dest / 'observations', scenes, evidence='H')
     out = ['## 结构化时间线与自动检查', '',
            '- 完整个体／世界时间线：`observations/timelines/index.json`；检查与异常前后记录：`observations/checks.json`。',
            '- 以下仅为报告，缺读数记 no-evidence，不代表试玩通过。']

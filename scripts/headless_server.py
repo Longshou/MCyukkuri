@@ -241,8 +241,7 @@ def build_java_cmd(runtime, java, rundir, mod, seed=None):
             continue
         out.append(prog[i])
         i += 1
-    observed = [] if seed is None else [f'-Dmcyukkuri.seed={seed}',
-        f'-XX:StartFlightRecording=name=mcy_smoke,settings=profile,dumponexit=true,filename={(rundir.parent / "server.jfr").as_posix()}']
+    observed = [] if seed is None else [f'-Dmcyukkuri.seed={seed}']
     return ([str(java), '-Xmx2G', '-Xms512m'] + observed + vm + cp
             + [f'-Dfml.modFolders=mcyukkuri%%{mod}', 'net.neoforged.devlaunch.Main', main,
                '--launchTarget', 'forgeserverdev', '--gameDir', str(rundir)] + out + ['--nogui'])
@@ -363,25 +362,37 @@ def sample_methods(events):
     return [dict(method=method, samples=count) for method, count in counts.most_common(15)]
 
 
+def jfr_start(st, name):
+    path = Path(st['rundir']).parent / f'{name}.jfr'
+    run = subprocess.run([str(Path(st['java']).with_name('jcmd.exe')), str(st['pid']), 'JFR.start',
+                          'name=mcy_smoke', 'settings=profile', 'dumponexit=true', f'filename={path.as_posix()}'],
+                         capture_output=True, text=True, encoding='utf-8')
+    st['jfr_start'] = dict(ok=run.returncode == 0, detail=run.stderr or run.stdout)
+
+
 def jfr_summary(st, name):
-    """Dump the existing recording and summarize sampled server methods; no gameplay commands."""
+    """Stop this scene's recording and summarize sampled server methods; no gameplay commands."""
     path = Path(st['rundir']).parent / f'{name}.jfr'
     java = Path(st['java'])
-    dump = subprocess.run([str(java.with_name('jcmd.exe')), str(st['pid']), 'JFR.dump', 'name=mcy_smoke',
+    if not st['jfr_start']['ok']:
+        return dict(verdict='no-evidence', detail=st['jfr_start']['detail'])
+    dump = subprocess.run([str(java.with_name('jcmd.exe')), str(st['pid']), 'JFR.stop', 'name=mcy_smoke',
                            f'filename={path.as_posix()}'], capture_output=True, text=True, encoding='utf-8')
     if dump.returncode:
         return dict(verdict='no-evidence', detail=dump.stderr or dump.stdout)
     printed = path.with_suffix('.samples.json')
     with printed.open('w', encoding='utf-8') as output:
-        run = subprocess.run([str(java.with_name('jfr.exe')), 'print', '--json', '--events',
+        run = subprocess.run([str(java.with_name('jfr.exe')), 'print', '--json', '--stack-depth', '1', '--events',
                               'jdk.ExecutionSample,jdk.NativeMethodSample', str(path)], stdout=output,
                              stderr=subprocess.PIPE, text=True, encoding='utf-8')
     if run.returncode:
         return dict(verdict='no-evidence', detail=run.stderr, path=str(path))
     with printed.open(encoding='utf-8') as source:
         events = json.load(source)['recording']['events']
-    return dict(verdict='observed', path=str(path), scope='cumulative session to this scene end',
-                server_samples=sum(r['samples'] for r in sample_methods(events)), top_methods=sample_methods(events))
+    printed.unlink()
+    return dict(verdict='observed', path=str(path), scope='this scene run',
+                server_samples=sum(1 for e in events if (e['values'].get('sampledThread') or {}).get('javaName') == 'Server thread'),
+                top_methods=sample_methods(events))
 
 
 def sprint(st, ticks):
