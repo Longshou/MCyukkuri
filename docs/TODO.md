@@ -14,6 +14,7 @@
 | 演出组装件②：头顶符号 16px 像素图集（汗滴、怒筋、Zzz 等 12 个） | `.worktrees/wp-bt-emote-atlas` | standards/yukkuri-library/emotes/、src/main/resources/assets/mcyukkuri/textures/emote/、art/catalog.json、art/runtime-sources.json |
 | 工具：清空本场地按出现过的 UUID 名单复位（收押、家庭账本、静态表、地形、时间天气与预约函数） | `.worktrees/wp-bq-field-reset` | PlaygroundTools、SceneReset、FamilyData／YukkuriWorldData 清场路径、scripts/build_museum_full.py、scripts/museum_fields.py |
 | 工具：冒烟列全部缺失、期望与主线不同时警告、javac_check 并发、safe_edit | `.worktrees/wp-br-small-tools` | scripts/smoke_museum.py（FAIL 输出与漂移警告）、scripts/javac_check.sh、scripts/safe_edit.py |
+| 观测层 S1：status trace 改为 off/light/dense 结构化记录（只观察） | `.worktrees/wp-bv-trace-recorder` | status/StatusEvents、StatusLife、StatusCommands、GameplayLog、TraceRecorder、TraceWatchdog；CommonRegistration 监听 |
 
 ## 玩法待办
 
