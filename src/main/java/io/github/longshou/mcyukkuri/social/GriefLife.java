@@ -4,6 +4,8 @@ import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.life.YukkuriConfig;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
+import io.github.longshou.mcyukkuri.entity.presentation.Moments;
+import io.github.longshou.mcyukkuri.motor.ClipMarkers;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import net.minecraft.world.entity.ai.goal.Goal;
@@ -41,6 +43,12 @@ public final class GriefLife {
     public String activity() { return protecting ? (tauntTicks > 0 ? Behaviors.PROTECT_TAUNT : Behaviors.PROTECT_APPROACH) : null; }
 
     public GriefLife(YukkuriEntity entity) { this.entity = entity; }
+
+    /** Ticks of the protect-taunt clip (moment table) up to its authored flee marker. */
+    private static int tauntHoldTicks() {
+        var clip = ClipMarkers.of(Moments.clip(EcologyPresentation.moment(Behaviors.PROTECT_TAUNT)));
+        return clip.ticks("flee", clip.length());
+    }
 
     private ServerLevel level() { return (ServerLevel) entity.level(); }
     /** Read-only status detail; a danger is rolled once, then retained until that exact chase ends. */
@@ -188,7 +196,8 @@ public final class GriefLife {
             protectTicks++;
             entity.getLookControl().setLookAt(challenger,30,30);
             if (decision.equals("diverted")) {
-                if (++tauntTicks >= 12) { entity.fleeFrom(challenger); protectTicks = 160; }
+                // The frightened puff holds until its clip's own flee beat (its nerve gives as it glances away), then it runs.
+                if (++tauntTicks >= tauntHoldTicks()) { entity.fleeFrom(challenger); protectTicks = 160; }
                 return;
             }
             if (entity.distanceToSqr(challenger) > 36 || !entity.hasLineOfSight(challenger)) {

@@ -1351,6 +1351,9 @@
       "duration": 3.2,
       "loop": true,
       "applies": "all",
+      "markers": {
+        "flee": 1.5
+      },
       "height_keys": [
         [
           0,
