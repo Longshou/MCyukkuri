@@ -71,7 +71,7 @@
 - 日志与排查：读 `.local/experimental-map/play-museum/process.json` 与同场 `.session.json` 得启动时间、PID、世界；原生日志 `.local/experimental-map/museum/logs/latest.log`、`debug.log`（旧场次查日期归档 `.log.gz`）。版本取 `.session.json` 的 `runtimeConfig.commit/run`，无证据写“版本待核实”；原日志保留，副本放 `.local/reports/<主题>/`。`/yukkuri status trace true` 开启细密采样。
 - SERVER 配置在世界 `serverconfig/`：`mcyukkuri-server.toml`（生活、生态、聚落）、`mcyukkuri-family.toml`（家庭繁殖）、`mcyukkuri-human-world.toml`（人类、商贸、工厂）；分组是键路径的一部分，如 `seasons.biomeSeasons`。
 - 场景准备命令依赖落地的须在召唤后 2 秒执行；`/tick` 需等级 3，函数和命令方块仅等级 2；直接 `/function mcylab:scn/<id>` 不清场；`build_museum_full.py --pack-only --output` 须为 `.local/experimental-map/` 或 `.local/smoke/` 下不存在的新目录；清理 `.local/setup/runtime-*`、`ci-*` 前核对配置与进程。
-- 运行包更新：在实际游玩的机器关闭试玩场，确认没有冒烟或截图在跑（脚本会删除旧运行包），主检出 `git merge --ff-only origin/main` 到目标提交后执行 `<py> scripts/update_museum_runtime.py --run <该提交成功的 Build run ID>`（`gh run list --workflow build.yml`）。需要 `git`、已登录的 `gh` 和 `.local/experimental-map/museum-runtime.json`，运行包位于 `.local/setup/runtime-*`。脚本核对 CI 与当前提交一致后恢复资源、校验哈希、切换配置并删除旧运行包，不编译、不启动游戏；切换前失败不删除原运行包。启动器在生成世界前对照运行包提交与当前代码、资源、场景和构建配置，不一致即停止并提示更新。
+- 运行包更新：在实际游玩的机器执行 `<py> scripts/pkg.py runtime [--commit <sha>]`（等该提交的 Build 完成、没有冒烟／截图／试玩客户端在跑，再把主检出快进到该提交并调用 `update_museum_runtime.py --run <run-id>`；失败打印 `--log-failed` 尾部并停止）。以下为该脚本的前提与行为。需要 `git`、已登录的 `gh` 和 `.local/experimental-map/museum-runtime.json`，运行包位于 `.local/setup/runtime-*`。脚本核对 CI 与当前提交一致后恢复资源、校验哈希、切换配置并删除旧运行包，不编译、不启动游戏；切换前失败不删除原运行包。启动器在生成世界前对照运行包提交与当前代码、资源、场景和构建配置，不一致即停止并提示更新。
 
 ## 7. 试玩场景与验收
 
@@ -123,7 +123,7 @@
 
 - 职责：总负责人拥有流程、优先级、派活与合入决定，不停下等用户；只把设定、配音、玩法取舍等用户层面的设计问题交给用户；仓库整理类不可逆操作（删除分支、工作树、过时文件）可自行决定（用户 2026-11-07 授权），其他代理的不可逆操作须经总负责人。普通调度（派活、顺序、并发、合入、清理）全部自行决定，不请示。汇报给结论与建议，不给菜单。执行中发现规则不管用就修订本文件。
 - 派活前：用户反馈原话记入待办，试玩日志复制到 `.local/reports/playtest-<日期>/`；查已有成果（待办、素材目录、`.local/previews/`、`.local/refactor/reports/`），不重做已探索或已做过的东西；设计问题先自己想清楚（见第 3 节“区间而非阈值”）。
-- 一个包对应一个工作树 `.worktrees/<名>`（基于 `origin/main`）、一份任务说明 `.local/refactor/briefs/<名>.md`、一份报告。开工前由总负责人把待办“进行中”行推到 `main`（工作树与主要文件），已登记区域先协调，不同时改；交接时核对这张表与 `git worktree list` 一致。
+- 一个包对应一个工作树 `.worktrees/<名>`（基于 `origin/main`）、一份任务说明 `.local/refactor/briefs/<名>.md`、一份报告。开工前由总负责人把待办“进行中”行推到 `main`（工作树与主要文件），已登记区域先协调，不同时改；交接时核对这张表与 `git worktree list` 一致。生命周期用 `<py> scripts/pkg.py`（用法见[脚本说明](scripts/README.md)）：`start <名> --title <条目> --files <文件> [--art]` 登记行、推送、建工作树与任务说明骨架；`land <名> [--scene ID ...]` rebase、javac／冒烟、删行、推送、快进主检出、清理工作树和分支；`status` 列出各包并指出行与工作树不一致；`runtime` 见第 6 节。不再手工逐步操作。
 - 包要小：一个包只做一条玩家看得见的行为链或一件工具，便于审查和定位。失败过的链路先写一页设计，交另一个模型审过再实现。已接入待试玩的行为链积压超过 10 条时暂停新内容（用户明确要求的除外），先修复测失败、等用户试玩。
 - 任务说明要短：指向本文件与模型笔记而不复述规则；验收标准用用户原话，总负责人自加的数值只是暂定；写明硬门槛（死亡、溺水、新循环）与只报告项、改动适用的确切情形、同批并行工人及其文件；美术与动作任务必须含分镜／概念与视觉审核（第 5 节）；不设代码行数目标。同批共用的规则写成一份公共说明。
 - 渠道：Claude（Opus、Sonnet）用 Agent 工具后台派出，提示里指向任务说明、本文件与模型笔记。外部 AI 走 herdr：`PYTHONUTF8=1 <py> .local/tools/herdr_task.py run <名> --kind pi|codex --cd <工作树> --brief <路径> --model M --effort E`（后台运行；`tail`／`say`／`wait`／`close` 跟进）。pi 会话装有 pi-agents-team，外部任务大到需要多个工人协作时可让 pi 当协调者用 `/team` 派内部工人。生图走 Codex（`storyboard.py`，用户的 ChatGPT 登录）。
@@ -142,5 +142,5 @@
 - 额度：`bash .local/tools/claude_quota.sh` 看 5 小时与周用量；快满时暂停，重置后继续；额度紧张时只记入待办不开工；临近重置仍有余量就用掉。pi 模型与 Codex 不占 Claude 额度；工作量在 Claude、Codex、kimi、DeepSeek 之间分摊，不压在一家。
 - 并发：用户同时在玩游戏（约 8 GB），同时最多 3 个跑冒烟或截图的工人。限流会一次停掉所有子代理，工作已提交，开新代理“从提交继续”。
 - 失败处理：同一链路失败两轮就换思路，由总负责人写设计，不再调参；卡住的工人加人组队，不让它空转；偶发回归找隐藏的起始状态分叉，主线与分支各 20 次以上对比，修在共享归属处。
-- 合入顺序：大段文档改写先合；共用动作源的包按顺序 rebase，冲突时合并制作源再重建输出。合入后 CI 成功、且没有冒烟或截图在跑时，按第 6 节更新运行包。
+- 合入顺序：大段文档改写先合；共用动作源的包按顺序 rebase，冲突时合并制作源再重建输出。合入后后台运行 `pkg.py runtime`，CI 成功且没有冒烟或截图在跑时更新运行包（第 6 节）。
 - 交接：`.local/HANDOFF.md` 只写当前状态（运行包版本、进行中的包、等用户决定的事），不写规则；本地文件的清理见第 9 节。
