@@ -26,6 +26,7 @@ const frames=job.times.map(t=>{
   let phase=0;
   if(a.pose){
    let face=a.face||a.pose.expressionFor(a.clip,t);
+   if(faces){face=faces.aliases[face]||face;face=faces.models[a.id].face_aliases?.[face]||face;}
    const animation=faces?.animations[face];
    if(animation){phase=Math.floor(t*20/animation.frame_ticks)%2;face=animation.frames[phase];}
    if(faces&&!faces.models[a.id].selectable.includes(face))throw Error('Unknown face id: '+face);

@@ -142,9 +142,12 @@ def render_strip(args, stage, times, before=False):
     for model, prop, offset in specs:
         a, images = actor(model, prop, args.clip, offset, source_root)
         if getattr(args, 'face', None) and not prop:
-            a['face'] = args.face
-            images = [(source_root/'src/main/resources/assets/mcyukkuri/textures/entity'/model/(args.face+'.png'),None,[0,0],[1,1])]
-            animation = read(source_root/'src/main/resources/assets/mcyukkuri/yukkuri_presentation/face_library.json')['animations'].get(args.face)
+            from face_usage import resolve
+            library = read(source_root/'src/main/resources/assets/mcyukkuri/yukkuri_presentation/face_library.json')
+            face = resolve(library,model,args.face)
+            a['face'] = face
+            images = [(source_root/'src/main/resources/assets/mcyukkuri/textures/entity'/model/(face+'.png'),None,[0,0],[1,1])]
+            animation = library['animations'].get(face)
             if animation:
                 images.append((images[0][0].with_name(animation['frames'][1]+'.png'),None,[0,0],[1,1]))
         a['slots'] = list(range(len(textures), len(textures)+len(images)))

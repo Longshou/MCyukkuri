@@ -23,7 +23,10 @@ final class FaceLibrary {
     static String expression(YukkuriView entity, String expression) {
         var aliases = data.getAsJsonObject("aliases");
         if (aliases.has(expression)) expression = aliases.get(expression).getAsString();
-        var faces = data.getAsJsonObject("models").getAsJsonObject(entity.assetId()).getAsJsonArray("selectable");
+        var model = data.getAsJsonObject("models").getAsJsonObject(entity.assetId());
+        var localAliases = model.getAsJsonObject("face_aliases");
+        if (localAliases.has(expression)) expression = localAliases.get(expression).getAsString();
+        var faces = model.getAsJsonArray("selectable");
         boolean known = false;
         for (var face : faces) if (face.getAsString().equals(expression)) { known = true; break; }
         if (!known) {

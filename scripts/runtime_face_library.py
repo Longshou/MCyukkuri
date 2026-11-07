@@ -70,10 +70,11 @@ def outputs():
             if entries:
                 patches[name] = entries
         models[ident] = dict(bone_names=[b['name'] for b in model['bones']],clips={},
-                            expression_patches=patches,selectable=sorted(set(faces)|set(row['existing_textures'])|set(row['legacy_faces'])))
+                            expression_patches=patches,face_aliases=row['face_aliases'],
+                            selectable=sorted(set(faces)|set(row['existing_textures'])|set(row['legacy_faces'])))
     animations = selection['animations']
     assert all(a in faces and b['frames'][1] in faces and b['frame_ticks']>0 for a,b in animations.items())
-    files[ASSETS/'yukkuri_presentation/face_library.json'] = encoded(dict(format=1,faces=list(faces),aliases=index['aliases'],animations=animations,models=models,face_fallback=selection['face_fallback']))
+    files[ASSETS/'yukkuri_presentation/face_library.json'] = encoded(dict(format=1,faces=list(faces),aliases={**index['aliases'],**selection['aliases']},animations=animations,models=models,face_fallback=selection['face_fallback']))
     ledger = read(ROOT/'art/runtime-sources.json')
     ledger['face_library'] = dict(selection='standards/yukkuri-library/expressions/runtime.json',
         exporter='scripts/export_ecology_expressions.py', helper='scripts/runtime_face_library.py',
