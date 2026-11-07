@@ -489,6 +489,6 @@ final class YukkuriGoals {
     }
     List<String> runningGoalIds() {
         return goalSelector.getAvailableGoals().stream().filter(WrappedGoal::isRunning)
-                .map(goal -> goal.getGoal().getClass().getSimpleName() + "@" + goal.getPriority()).toList();
+                .map(goal -> goal.getGoal().toString() + "@" + goal.getPriority()).toList();
     }
 }

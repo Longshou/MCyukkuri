@@ -65,7 +65,7 @@ public final class TraceRecorder {
     private static final double GROUNDED_VERTICAL_SLACK = .6;
     /** Existing local-interaction range; scope only, never a gameplay decision. */
     private static final double NEAR_ITEM_RANGE_SQR = 16 * 16;
-    private static final Gson GSON = new GsonBuilder().disableHtmlEscaping().create();
+    private static final Gson GSON = new GsonBuilder().disableHtmlEscaping().serializeNulls().create();
     private static final Object LOG_LOCK = new Object();
     private static final Map<UUID, ActorCache> ACTORS = new HashMap<>();
     private static final Map<ResourceKey<Level>, SceneWindow> WINDOWS = new HashMap<>();
@@ -686,6 +686,14 @@ public final class TraceRecorder {
 
     private static JsonArray vec(Vec3 value) { return vec(value.x, value.y, value.z); }
 
+    private static JsonArray block(BlockPos value) {
+        var out = new JsonArray();
+        out.add(value.getX());
+        out.add(value.getY());
+        out.add(value.getZ());
+        return out;
+    }
+
     private static JsonArray vec(double x, double y, double z) {
         var out = new JsonArray();
         out.add(x);
@@ -699,7 +707,7 @@ public final class TraceRecorder {
         JsonObject body = new JsonObject();
         body.addProperty("cat", category);
         body.addProperty("msg", message);
-        body.add("pos", vec(source.blockPosition().getX(), source.blockPosition().getY(), source.blockPosition().getZ()));
+        body.add("pos", block(source.blockPosition()));
         if (suppressed > 0) body.addProperty("sup", suppressed);
         emit(source, windowFor(source), "ev", body);
     }
@@ -760,7 +768,8 @@ public final class TraceRecorder {
         envelope.addProperty("u", uuid);
         envelope.addProperty("k", kind);
         envelope.addProperty("src", "server");
-        for (String key : body.keySet()) envelope.add(key, body.get(key));
+        if (kind.equals("st")) envelope.add("st", body); // The state velocity key v cannot replace the envelope's schema v.
+        else for (String key : body.keySet()) envelope.add(key, body.get(key));
         String line = GSON.toJson(envelope);
         MCYukkuri.LOGGER.info("[trace] {}", line);
         modeBytes += line.getBytes(StandardCharsets.UTF_8).length + 1L;
