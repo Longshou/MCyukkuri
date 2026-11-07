@@ -758,10 +758,12 @@ public final class Reactions {
             if (leads && pressedAt >= 0 && y.position().subtract(stand).horizontalDistanceSqr() > HUDDLE_SLACK * HUDDLE_SLACK)
                 pressedAt = partner.status().reactions().weather.pressedAt = -1; // pushed off its place: it walks back in
             if (leads && pressedAt < 0) {
-                if (stand == null) stand = chooseStand(level);
+                // Someone else sitting on its place sends it to the partner's other side.
+                if (stand == null || occupied(level, stand)) stand = chooseStand(level);
                 if (stand == null || ticks - approachFrom > HUDDLE_APPROACH) {
-                    GameplayLog.limited(y, "weather", "huddle.stand", 600, "huddle stand unavailable partner={} ticks={} distance={} stand={}",
-                            partner.getUUID(), ticks - approachFrom, Math.round(y.distanceTo(partner) * 10) / 10.0, stand);
+                    GameplayLog.limited(y, "weather", "huddle.stand", 600,
+                            "huddle stand unavailable partner={} reason={} ticks={} distance={} stand={}", partner.getUUID(),
+                            stand == null ? "no_free_side" : "not_reached", ticks - approachFrom, Math.round(y.distanceTo(partner) * 10) / 10.0, stand);
                     // The other is released by its own next check; this one trembles alone and looks to someone else this time.
                     unreachable = partner; partner = null; stand = null;
                     SurfaceApproach.halt(y);
@@ -778,10 +780,15 @@ public final class Reactions {
             Vec3 best = null;
             for (boolean right : new boolean[] {true, false}) {
                 var at = SurfaceApproach.floor(y, SideContact.beside(y, partner, facing, right));
-                if (at == null || Math.abs(at.y - partner.getY()) > .5 || !Sky.sheltered(level, BlockPos.containing(at))) continue;
+                if (at == null || Math.abs(at.y - partner.getY()) > .5 || !Sky.sheltered(level, BlockPos.containing(at)) || occupied(level, at)) continue;
                 if (best == null || y.distanceToSqr(at) < y.distanceToSqr(best)) { best = at; onRight = right; }
             }
             return best;
+        }
+        /** Another body (not this one or its partner) sits where this one would stand at {@code at}. */
+        private boolean occupied(ServerLevel level, Vec3 at) {
+            var body = y.getBoundingBox().move(at.subtract(y.position())).deflate(.005);
+            return !level.getEntitiesOfClass(LivingEntity.class, body, o -> o != y && o != partner && o.isAlive()).isEmpty();
         }
         /** Pressed together at its stand: on the partner's right it has the partner on its left, and both face the same way. */
         private void press(long now) {
