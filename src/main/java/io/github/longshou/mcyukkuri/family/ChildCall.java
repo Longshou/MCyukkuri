@@ -9,6 +9,8 @@ import io.github.longshou.mcyukkuri.motor.MotorOwner;
 import io.github.longshou.mcyukkuri.motor.action.Face;
 import io.github.longshou.mcyukkuri.motor.action.Gesture;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
@@ -17,7 +19,7 @@ import net.minecraft.world.phys.Vec3;
  * A parent who has lost sight of her dependent child calls for it, and the child that hears answers (project design, user
  * 2026-11-07 life presentation). The search walk itself is {@link FamilyLife}'s, its time limit {@link FamilySeparation}'s.
  *
- * <p>Parent: while she searches and the child is out of sight ({@link FamilySeparation#near}), she stops, turns toward where the family
+ * <p>Parent: while she searches and the child is out of sight, she stops, turns toward where the family
  * last knew the child (the ledger position), calls ({@code call_child}) and listens ({@code look_around}). An answer sends her on at
  * once; silence makes her droop ({@code droop}) before she walks on. Warm parents call more rounds and sooner again, cold ones fewer and
  * later. Every pause lasts its clip.</p>
@@ -36,9 +38,8 @@ final class ChildCall {
     /** Parent: the child her rounds count for, the tick her current call began and the earliest tick of the next one. */
     private UUID called;
     private long callStart = -1, nextCall;
-    /** Child: the parent and the call it answered last, where that call came from, and whether its hop has been asked for. */
-    private UUID answeredParent;
-    private long answeredCall = -1;
+    /** Child: the latest call answered for each parent, where the current answer came from, and whether its hop was asked for. */
+    private final Map<UUID,Long> answeredCalls = new HashMap<>(2);
     private Vec3 heardFrom;
     private boolean hopped;
     /** The turn and the answering hop belong to the call while a phase runs. */
@@ -102,7 +103,8 @@ final class ChildCall {
         long now = o.level().getGameTime();
         if (phase == Phase.NONE) {
             if (!child.getUUID().equals(called)) { called = child.getUUID(); rounds = 0; nextCall = 0; }
-            if (now < nextCall || rounds >= rounds(e) || !e.onGround() || e.hasReaction() || FamilySeparation.near(e, child)) return false;
+            if (now < nextCall || rounds >= rounds(e) || !e.onGround() || e.hasReaction() || FamilySeparation.near(e, child)
+                    || e.hasLineOfSight(child)) return false;
             Vec3 toward = lastKnown(child);
             phase = Phase.CALL; ticks = 0; rounds++; callStart = now;
             SurfaceApproach.halt(e);
@@ -117,7 +119,7 @@ final class ChildCall {
         SurfaceApproach.halt(e);
         ticks++;
         boolean answered = child.family().call().answered(e.getUUID(), callStart);
-        if (FamilySeparation.near(e, child)) { walkOn(now, "in_sight", child); return false; }
+        if (FamilySeparation.near(e, child) || e.hasLineOfSight(child)) { walkOn(now, "in_sight", child); return false; }
         switch (phase) {
             case CALL -> { if (ticks >= length(Behaviors.CALL_CHILD)) { phase = Phase.LISTEN; ticks = 0; } }
             case LISTEN -> {
@@ -150,7 +152,7 @@ final class ChildCall {
     // ------------------------------------------------------------------------------------------------ the child
 
     /** This child answered the call {@code parent} began at {@code start}. */
-    boolean answered(UUID parent, long start) { return start >= 0 && start == answeredCall && parent.equals(answeredParent); }
+    boolean answered(UUID parent, long start) { return start >= 0 && start == answeredCalls.getOrDefault(parent, -1L); }
 
     /** A call of its own parent it hears now (within earshot, out of sight) and has not answered yet, else null. */
     YukkuriEntity heard() {
@@ -160,7 +162,7 @@ final class ChildCall {
             if (id == null || !(o.level().getEntity(id) instanceof YukkuriEntity parent) || !parent.isAlive()) continue;
             var call = parent.family().call();
             if (call.audible() && !answered(id, call.callStart) && e.distanceToSqr(parent) <= EARSHOT * EARSHOT
-                    && !FamilySeparation.near(e, parent)) return parent;
+                    && !FamilySeparation.near(e, parent) && !e.hasLineOfSight(parent)) return parent;
         }
         return null;
     }
@@ -168,7 +170,7 @@ final class ChildCall {
     /** It answers {@code parent}'s call: turns to her and calls back; {@link #tickAnswer} then hops, and its search walks on. */
     Vec3 answer(YukkuriEntity parent) {
         var e = o.entity();
-        answeredParent = parent.getUUID(); answeredCall = parent.family().call().callStart;
+        answeredCalls.put(parent.getUUID(), parent.family().call().callStart);
         heardFrom = parent.position();
         phase = Phase.ANSWER; ticks = 0; hopped = false;
         SurfaceApproach.halt(e);

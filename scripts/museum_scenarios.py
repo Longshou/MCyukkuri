@@ -714,7 +714,7 @@ def _family_call_verify(log):
 
 
 add('family_search', 'family', '走散亲子：走得到就重逢，隔玻璃就放弃', '走散亲子：走得到就重逢，隔玻璃就放弃',
-    '两对无巢亲子各相隔 30 格。北边一对之间是空地：孩子寻亲、亲油主动接近，重新靠近后恢复自由活动。'
+    '两对无巢亲子各相隔 30 格。北边一对之间是一堵可绕行的石砖矮墙：彼此被遮住时呼唤，孩子寻亲、亲油主动接近，重新靠近后恢复自由活动。'
     '南边的子油被真实玻璃围住：亲油搜寻受阻、计时后单向放弃；低胆量孩子不安可越过非油症阈值；可手动拆玻璃对照重逢，不能把放弃误认成寻回。不会传送或生成替代亲人。'
     '看不见孩子时亲油会停下、朝孩子最后所在处伸长身体呼唤三声，再左右张望着听：24 格内的孩子转向她回应、跳一下再朝呼唤处走（玻璃里的孩子在 24 格内也回应，但走不出来）；'
     '没有回应就低落一会儿再接着找。北边亲油友善 95，最多喊四轮、约 10 秒一轮；南边亲油友善 0，只喊一轮',
@@ -722,6 +722,7 @@ add('family_search', 'family', '走散亲子：走得到就重逢，隔玻璃就
         yk('reimu', -15, -4, 'search_parent', uuid=_fs['parent'], label='寻子亲油·友善95', friendliness=95, lead=True, **pair_ready()),
         yk('reimu', 15, -4, 'search_child', uuid=_fs['child'], stage='child', label='走散子油', boldness=40,
            kin=f'Mother:{uuid_nbt(_fs["parent"])}', **pair_ready()),
+        box(0, 0, -8, 0, 1, 0, 'minecraft:stone_bricks'),
         box(13, -1, 3, 17, 3, 7, 'minecraft:glass', 'hollow'),
         yk('reimu', -15, 5, 'lost_mother', uuid=_fs['lost_mother'], label='隔玻璃的亲油', friendliness=0, self_control=0, boldness=0),
         yk('reimu', 15, 5, 'lost_child', uuid=_fs['lost_child'], stage='child', label='被围住的子油', boldness=0,
