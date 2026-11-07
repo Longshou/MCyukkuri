@@ -67,7 +67,7 @@ lore 通用宠物联系表 `pet_motions_preview.py` 已由 `preview.py strip <�
 
 ## 预览与导出
 
-`<py> scripts/check_pose_consumers.py <基线提交> [--lore]` 与 `node scripts/check_pose_consumers.cjs <基线提交>` 对照同一批输入的 Python 制作门槛、矩阵、辫链及软件渲染；`--lore` 执行全部 lore 家族的真实门槛。`--inject-arc`／`--inject-vertex` 是应非零退出的破坏对照。报告放 `.local/reports/pose-consumers*`；不登记用户收件箱，不代替美术或玩法验收。制作桥接与交互页的核心服务接口见下文的姿态检查接口。
+`<py> scripts/check_pose_consumers.py <基线提交> [--lore] [--stow]` 与 `node scripts/check_pose_consumers.cjs <基线提交>` 对照同一批输入的 Python 制作门槛、矩阵、辫链及软件渲染；`--lore` 执行全部 lore 家族的真实门槛，`--stow` 直接复核戴帽／脱帽分别从岸上与船上持棍姿态进入的门槛。`--inject-arc`／`--inject-vertex` 是应非零退出的破坏对照。报告放 `.local/reports/pose-consumers*`；不登记用户收件箱，不代替美术或玩法验收。制作桥接与交互页的核心服务接口见下文的姿态检查接口。
 
 `<py> scripts/pose_check.py --model marisa --clip bank_beckon --t 0:1.6:0.05 --metric tilt,wet,pass [--water 0.5] [--partner child=marisa:baby@0,8,-2] [--care x,y,z]` 用共享 Java 姿态核心输出含单位、判定带和证据位置的 JSON；`--frames <capture>/pose.jsonl` 重算捕获证据，`--serve` 每行接收一个 JSON 请求，`--vertices out.f32` 输出最后一帧皮肤点，`--pose-out pose.jsonl` 保存可回放姿态。只编译并缓存纯核心及其纯函数依赖，不跑 Gradle、不启动游戏；需要本机 JDK 21 和已有 Gson/JOML jar。七项检查只报告，缺水面、道具尖端、伙伴或时序证据时报错，不把缺证据算通过；输入/证据错误退出 2，有效报告（含 fail）退出 0。坐标、配对、允许区、假设带、服务协议与覆盖边界见[姿态检查接口](../src/main/java/io/github/longshou/mcyukkuri/pose/check/README.md)。
 

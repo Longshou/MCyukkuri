@@ -20,6 +20,7 @@ def main():
     ap.add_argument('before_ref')
     ap.add_argument('--lore', action='store_true', help='run every lore export family and its unmodified gates')
     ap.add_argument('--inject-arc', action='store_true', help='negative control: displace a solved joint')
+    ap.add_argument('--stow', action='store_true', help='exercise both hat/held-stick gates directly from exported fixtures')
     args = ap.parse_args()
     args.before_ref = subprocess.check_output(['git', 'rev-parse', args.before_ref], cwd=ROOT, text=True).strip()
     original_run = runpy.run_path
@@ -58,6 +59,15 @@ def main():
             render['draw'](image, 0, (160, 140), ts.tolist(), texture, 32, -16, 4, 8.5)
             pixels.append(np.array(image, dtype=int))
         generated = {}; log = io.StringIO()
+        if args.stow:
+            import placement_fit
+            fitted = placement_fit.fitted(ROOT/'src/main/resources/assets/mcyukkuri/yukkuri/marisa.json', placement_fit.load())
+            recipe = json.loads((LIB/'motions/variants/lore/recipe.json').read_text(encoding='utf-8'))
+            holds = dict(ashore=revision['clips']['braid_item_hold'], aboard=revision['clips']['boat_paddle'])
+            with contextlib.redirect_stdout(log):
+                for action in ('hat_off_self_aq', 'hat_on_self_aq'):
+                    clip = revision['clips'][action]
+                    aquatic['stow_gate'](fitted, action, clip['tracks'], clip['props']['item'], holds, recipe['clips'][action])
         if args.lore:
             def run(path, *a, **kw):
                 return aquatic if Path(path).resolve() == (LIB/'motions/variants/lore/aquatic_tools.py').resolve() else original_run(path, *a, **kw)
@@ -86,6 +96,10 @@ def main():
     changed = max(float(np.any(x != y, axis=2).mean()) for x, y in zip(a['pixels'], b['pixels']))
     assert changed < .01, ('marisa-braids pixel fraction', changed)
     rows.append(dict(consumer='marisa-braids pixels', changed_fraction=changed, tolerance=.01))
+    if args.stow:
+        assert a['log'] == b['log'], 'Stow gate observations differ'
+        print(a['log'], end='')
+        print('PASS both hat clips from both holds: identical stow gate observations / verdicts')
     if args.lore:
         folder = ROOT/'.local/reports/pose-consumers'; folder.mkdir(parents=True, exist_ok=True)
         for side, result in [('before', a), ('after', b)]:
