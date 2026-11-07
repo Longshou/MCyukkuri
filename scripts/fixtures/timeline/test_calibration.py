@@ -46,7 +46,7 @@ class Calibration(unittest.TestCase):
             self.assertEqual(expected, any(f['verdict']=='fail' for f in checks.loops(rows,timeline.states(rows))))
 
     def test_reviewed_vantage_size_controls_keep_occlusion_and_offscreen_warnings(self):
-        for visible, share, expected in ((9, .0697396, 'pass'), (9, .0337174, 'suspect'),
+        for visible, share, expected in ((9, .0697396, 'pass'), (9, .0498926, 'pass'), (9, .0337174, 'suspect'),
                                          (0, .13, 'suspect'), (9, 0, 'suspect')):
             rows = [record('geo', 1, player=True, vis=visible, scr=share)]
             report = checks.observations(rows)
@@ -261,6 +261,14 @@ class Calibration(unittest.TestCase):
         # The same physical change with no successful transaction must remain a failure.
         rows = [state(0), state(1, hold={'mouth': [{'item': 'minecraft:short_grass', 'n': 1}]})]
         self.assertTrue(any(f['verdict'] == 'fail' for f in checks.ledger(rows, timeline.states(rows))))
+
+    def test_logged_loose_accessory_pickup_explains_only_the_hat(self):
+        item = 'mcyukkuri:marisa_aquatic_hat'
+        rows = [state(0, hold={'mouth':[{'item':item,'n':1}]}), state(1),
+                record('ev',1,cat='headwear',msg=f'received loose accessory item={item} state=worn damage=0 player=null')]
+        self.assertFalse(checks.ledger(rows,timeline.states(rows)))
+        rows[-1]['msg'] = 'received loose accessory item=mcyukkuri:reimu_bow state=worn damage=0 player=null'
+        self.assertTrue(any(f['verdict']=='fail' for f in checks.ledger(rows,timeline.states(rows))))
 
     def test_acquisition_cannot_explain_a_different_item_or_a_late_change(self):
         for item, tick in (('minecraft:apple', 1), ('minecraft:short_grass', 4)):

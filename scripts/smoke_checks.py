@@ -457,7 +457,7 @@ def inventory(s):
 
 def ledger(records, samples, dense=False):
     out, ticks, current = [], defaultdict(list), {}
-    explanations = [r for r in records if r['k'] == 'ev' and re.search(r'\b(eat|ate|swallow|consum|place|pickup|interaction|received item=|gathered item=|shed stem delivered|deposit home=|granary deposit|feed portion reserved|feed plant harvested|feed mash prepared|feed handed to meal|nest material|pack store=|carried meal|stores (?:put|taken|spilled))', r.get('msg', ''), re.I)
+    explanations = [r for r in records if r['k'] == 'ev' and re.search(r'\b(eat|ate|swallow|consum|place|pickup|interaction|received (?:loose accessory )?item=|gathered item=|shed stem delivered|deposit home=|granary deposit|feed portion reserved|feed plant harvested|feed mash prepared|feed handed to meal|nest material|pack store=|carried meal|stores (?:put|taken|spilled))', r.get('msg', ''), re.I)
                     or r['k'] == 'life' and (r.get('out') in ('unloaded', 'scope_exit', 'changed_dimension')
                         or r.get('out') == 'discarded' and known(r, 'age', 'lifespan', 'item') and r['age'] >= r['lifespan'])]
     explained_items = defaultdict(set)
@@ -930,10 +930,11 @@ def observations(records, issues=(), raw='', allow=(), end=(), seed=None, rerun=
             # SceneGeometry encodes a centre outside the frustum as scr=0.
             if not known(r, 'vis', 'scr'):
                 findings.append(result('VANTAGE', 'no-evidence', 'visibility/screen share missing', r))
-            # Reviewed fixed-view controls: the huddle is readable at .06974;
-            # distant birth bodies at .03372 are not. .06 separates those
-            # controls without changing the collider-ray/frustum contract.
-            elif r['vis'] < 5 or r['scr'] < .06:
+            # Reviewed fixed-view controls: shore/self-rescue at .04989 and
+            # the huddle at .06974 are readable; birth bodies at .03372 are not.
+            # .04 separates these approximate collider-height controls
+            # without changing the collider-ray/frustum contract.
+            elif r['vis'] < 5 or r['scr'] < .04:
                 findings.append(result('VANTAGE', 'suspect', 'subject poorly visible from vantage', r))
         if start is not None and r['t'] - start in (1, 20):
             if not known(r, 'clear', 'drop'):
