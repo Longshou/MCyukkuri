@@ -813,7 +813,7 @@ add('storm_cower', 'weather', '雷暴：胆小的缩成一团，淋雨的跑进�
         yk('reimu', -1, 0, 'timid', yaw=180, lead=True, boldness=15, **pair_ready()),
         yk('marisa', 2, -2, 'bold', yaw=180, boldness=85, **pair_ready()),
         yk('reimu', 12, 0, 'runner', yaw=90, boldness=55, **pair_ready())],
-    env={'time': 'noon', 'weather': 'thunder'}, spot='roof', vantage=(4, 10),
+    env={'time': 'noon', 'weather': 'thunder'}, spot='roof', vantage=(-1, -3),
     reads=[('附近落雷', 'summon minecraft:lightning_bolt ~16 ~ ~8'), ('读缩身的灵梦', f'yukkuri status {sel("timid")} raw'),
            ('读胆大魔理沙', f'yukkuri status {sel("bold")} raw'), ('读冒雨跑来的', f'yukkuri status {sel("runner")} raw')],
     capture=dict(shots=(1, 40, 200, 400, 600, 800), sequences=((60, 800, 6),),

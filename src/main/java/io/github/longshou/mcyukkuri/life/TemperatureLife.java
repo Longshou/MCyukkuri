@@ -38,7 +38,7 @@ public final class TemperatureLife {
     public static final double SWADDLE_WARMTH = .5, SWADDLE_CAP = 1.5;
     /** Warmth the direct sun of a clear cold day gives a chilled body that holds still and flat in it (project design). */
     public static final double SUN_BASK = .3;
-    /** After a whole bask the body carries the warmth this long before it looks for the sun again (project design). */
+    /** After a whole bask it waits this long before seeking the sun again; other thermal refuges remain available (project design). */
     static final int BASK_REST = 1200;
     /** A bask lasts the authored sunbathe clip: settle, soak, round up. */
     static final int BASK_TICKS = ClipMarkers.of("sunbathe").length();
@@ -46,7 +46,7 @@ public final class TemperatureLife {
     private Conditions current = new Conditions(.8, false, false, 0, false);
     private boolean initialSample = true;
     /** Sampling is staggered; exposure keeps its legacy 20 loaded-and-AI-enabled tick cadence. */
-    private int sampleTicks, temperatureSampleTicks, coldExposure, damageTicks, coldTicks, hotTicks, cooldown, taskTicks, restTicks;
+    private int sampleTicks, temperatureSampleTicks, coldExposure, damageTicks, coldTicks, hotTicks, cooldown, baskCooldown, taskTicks, restTicks;
     private BlockPos target, temporarySleepSite;
     private boolean seekingWarmth, basking;
 
@@ -72,6 +72,7 @@ public final class TemperatureLife {
     public void tick() {
         if (entity.level().isClientSide || !entity.isAlive() || entity.isNoAi()) return;
         if (cooldown > 0) cooldown--;
+        if (baskCooldown > 0) baskCooldown--;
         if (initialSample) {
             // A loaded entity has a useful current reading at once, without advancing exposure.
             current = sample(entity.blockPosition(), baskingNow());
@@ -232,7 +233,7 @@ public final class TemperatureLife {
         for (var pos : BlockPos.betweenClosed(center.offset(-TravelRange.search(entity,6), -2, -TravelRange.search(entity,6)), center.offset(TravelRange.search(entity,6), 2, TravelRange.search(entity,6)))) {
             if (!safeStand(pos)) continue;
             if (!mayUse(pos)) continue;
-            var at = sample(pos, sources, seekingWarmth);
+            var at = sample(pos, sources, seekingWarmth && baskCooldown == 0);
             if (!refuge(at)) continue;
             double distance = pos.distSqr(center);
             // Seeking warmth means seeking the warmest place within reach, not just the nearest merely comfortable one:
@@ -364,9 +365,9 @@ public final class TemperatureLife {
                 "refuge ended gate={} warming={} target={} felt={} exposure={}", gate, seekingWarmth, target, current.felt(), coldExposure);
         if (target != null) GameplayLog.limited(entity, "temperature", "refuge.stop", 1200,
                 "refuge stopped warming={} sun={} target={} elapsed={} restTicks={} felt={}", seekingWarmth, basking, target, taskTicks, restTicks, current.felt());
-        // A place that went cold because the heat itself walked on is looked for again on the next plan, not given up on;
-        // a whole bask in the sun leaves the body warm for a while.
-        cooldown = "lost_refuge".equals(gate) ? 0 : "rested".equals(gate) && basking ? BASK_REST : Math.max(cooldown, 60);
+        // Only another sun bask rests for a minute: a real heat source or shade can still meet a new thermal need.
+        if ("rested".equals(gate) && basking) baskCooldown = BASK_REST;
+        cooldown = "lost_refuge".equals(gate) ? 0 : Math.max(cooldown, 60);
         target = temporarySleepSite = null; taskTicks = restTicks = 0; basking = false;
     }
 
