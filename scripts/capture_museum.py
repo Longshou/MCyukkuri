@@ -13,6 +13,7 @@ from pathlib import Path
 
 sys.dont_write_bytecode = True
 import smoke_museum as smoke
+import smoke_slots as slots
 from PIL import Image, ImageDraw
 
 server = smoke.server
@@ -84,9 +85,16 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--worktree', type=Path, help='Assemble this tree with javac against installed CI dependencies')
     parser.add_argument('--smoke-commands', action='store_true', help='Run each scene\'s timed smoke interactions during capture')
+    parser.add_argument('--no-wait', action='store_true', help="Refuse instead of waiting while the user's museum client runs")
+    parser.add_argument('--slots', type=int, help=f'Machine-wide limit of smoke/capture servers (default {slots.DEFAULT_SLOTS})')
     parser.add_argument('scenes', nargs='+', help='Museum scene IDs')
     args = parser.parse_args()
-    server.require_closed()
+    with slots.slot('capture', ' '.join(args.scenes), args.slots):
+        return capture(parser, args)
+
+
+def capture(parser, args):
+    server.wait_closed(not args.no_wait)
     runtime, java = server.installed_runtime()
     source = server.ROOT if args.worktree is None else args.worktree.resolve(strict=True)
     if args.worktree is None:
@@ -146,7 +154,7 @@ def main():
         dirty=bool(subprocess.check_output(['git', '-C', str(source), 'status', '--porcelain'])),
         scenes=args.scenes, smoke_commands=args.smoke_commands, self_check=True), indent=2), encoding='utf-8')
     command = client_command(runtime, java, instance, mod, output)
-    server.require_closed()
+    server.wait_closed(not args.no_wait)
     startup = subprocess.STARTUPINFO()
     startup.dwFlags |= subprocess.STARTF_USESHOWWINDOW
     startup.wShowWindow = 0

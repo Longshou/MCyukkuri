@@ -42,8 +42,8 @@ def is_museum_client(row, museum_pid):
     return path.is_absolute() and path.resolve().is_relative_to(COMMON / '.local/experimental-map/museum')
 
 
-def require_closed():
-    """Protect the user's museum; isolated capture clients and smoke servers may coexist."""
+def museum_clients():
+    """The user's running museum clients; isolated capture clients and smoke servers do not count."""
     query = ('$ErrorActionPreference = "Stop"; '
              '[Console]::OutputEncoding = [System.Text.UTF8Encoding]::new($false); '
              'ConvertTo-Json -Compress -InputObject @(Get-CimInstance Win32_Process '
@@ -58,9 +58,27 @@ def require_closed():
         # Launcher timestamps are .NET ticks (year 1); Win32 FILETIME starts in 1601. Reject reused PIDs.
         if process_started(session['pid']) == int(session['startedTicks']) - 504911232000000000:
             museum_pid = session['pid']
-    running = [f'{row["Name"]} PID={row["ProcessId"]}' for row in rows if is_museum_client(row, museum_pid)]
+    return [f'{row["Name"]} PID={row["ProcessId"]}' for row in rows if is_museum_client(row, museum_pid)]
+
+
+def require_closed():
+    """Protect the user's museum: refuse while its client runs."""
+    running = museum_clients()
     if running:
         raise RuntimeError("Close the user's museum client before running checks: " + ', '.join(running))
+
+
+def wait_closed(wait=True, poll=30):
+    """Wait while the user's museum client runs (one notice, then quiet polling); wait=False refuses instead."""
+    if not wait:
+        return require_closed()
+    announced = False
+    while running := museum_clients():
+        if not announced:
+            print(f"The user's museum client is running ({', '.join(running)}); waiting until it closes "
+                  f'(polling every {poll} s; --no-wait refuses instead)', flush=True)
+            announced = True
+        time.sleep(poll)
 
 
 def read_args_file(path):
@@ -108,11 +126,11 @@ def process_started(pid):
 
 
 @contextmanager
-def instance_lock():
+def instance_lock(name='MCyukkuriSmokeLaunch'):
     # Share port handoff and stale recovery across worktrees; Windows releases abandoned mutexes.
     k = ctypes.windll.kernel32
     k.CreateMutexW.restype = ctypes.c_void_p
-    handle = k.CreateMutexW(None, False, 'Local\\MCyukkuriSmokeLaunch')
+    handle = k.CreateMutexW(None, False, 'Local\\' + name)
     if not handle:
         raise ctypes.WinError()
     try:

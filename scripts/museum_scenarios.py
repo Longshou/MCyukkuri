@@ -378,6 +378,7 @@ add('settle_pit_famine', 'biomes', '坑里没排泄物，奴隶挨饿', '坑里�
                commands=[(300, f'execute as {_SLAVE} run yukkuri status set @s needs.nutrition 0')],
                expect=[r'pit slave hungry reason=no_droppings', r'starvation damage'],
                forbid=[r'pit slave eats droppings', r'\[body\][^\n]* invariant\b'],
+               allow_fate=[dict(kind='starve', who=r'pit slave ', why='an empty pit: the slave at nutrition 0 really starves')],
                verify=lambda window: pit_level(window) or starves_without_pit_food(window)))
 
 # The origin loop with no scene special case: one grown member loses its accessory for good and the colony's own harsh
@@ -3223,6 +3224,8 @@ _smoke('den_family', 6000, [r'\[habitat\] reimu [^\n]* home chosen', r'\[habitat
                             r'\[forage\] reimu [^\n]* begin role='])
 # The widowed mother takes over the trips: the father is killed once the family has settled.
 next(s for s in S if s.id == 'den_family').smoke['commands'] = [(2400, f'kill {sel("father")}')]
+next(s for s in S if s.id == 'den_family').smoke['allow_fate'] = [
+    dict(kind='death', who=f'uuid={_uuid_text("den_family", "father")} ', match=r'cause=genericKill\b', why='the smoke kills the father')]
 _smoke('indep_near', 7200, [r'\[independence\][^\n]* farewell started'])
 next(s for s in S if s.id == 'indep_near').smoke['verify'] = _distinct(r'\[independence\] \w+ #\d+ uuid=(\S+)[^\n]* departed ', 2, 'teens that left home')
 _smoke('forage', 6000, [r'\[forage\][^\n]* begin role=', r'\[forage\][^\n]* deposit home='])
@@ -3232,9 +3235,14 @@ _smoke('alice_hunt', 1200, [r'\[agitation\][^\n]* phase=ALICE_APPROACH -> ALICE_
 _smoke('aftermath_growth', 3600, [r'\[family\][^\n]* stem drain stage'])
 next(s for s in S if s.id == 'aftermath_growth').smoke['verify'] = _distinct(r'\[family\] reimu #\d+ uuid=(\S+)[^\n]* aftermath reserved ', 2, 'aftermath broods')
 _smoke('aftermath_depletion', 3600, [r'\[family\][^\n]* aftermath reserved ', r'\[body\][^\n]* death settled[^\n]* stem_depletion=true'])
+next(s for s in S if s.id == 'aftermath_depletion').smoke['allow_fate'] = [
+    dict(kind='starve', who=r'aftermath reserved ', why='the depleted mother starves while the stem drains her'),
+    dict(kind='death', who=r'aftermath reserved ', match=r'stem_depletion=true', why='she dies of the stem (the scene expects it)')]
 _smoke('growth', 200, [r'\[growth\][^\n]* stage=BABY -> JUVENILE', r'\[growth\][^\n]* age boundary [^\n]*subadult=true',
                        r'\[growth\][^\n]* stage=JUVENILE -> ADULT', r'\[growth\][^\n]* age boundary [^\n]*elder=true',
                        r'\[growth\][^\n]* lifespan reached'])
+next(s for s in S if s.id == 'growth').smoke['allow_fate'] = [
+    dict(kind='death', who=r'lifespan reached', match=r'internal=old_age\b', why='the fifth starts one tick before its lifespan')]
 _smoke('family_search', 7200, [r'\[family\][^\n]* child search reunited', r'\[family\][^\n]* parent dismissed '])
 _smoke('rain_open', 1200, [r'\[weather\][^\n]* shelter response started', r'\[needs\][^\n]* soaking damage '])
 _smoke('treatment_scars', 1600, [r'\[body\][^\n]* wound healing ', r'\[body\][^\n]* scar (?:formed|not formed) from '])
