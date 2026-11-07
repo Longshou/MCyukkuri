@@ -35,12 +35,12 @@
 | 咻咻车 | L36 以木板、瓶盖和相信之力构成的非现实小车例子 | 不能据此推定普通车辆具备超自然移动能力；见[资源生态](hakkei-reference/world/resources-ecology.md#咻咻车与相信之力) |
 | 鬼威惨／鬼意惨 | 人类虐待者的作品称呼及项目 NPC 类型 | 不是所有店员、工人或成年男性的统一身份 |
 | 辫子动作／ぴこぴこ・わさわさ | Reimu 系把发胶起的筋称为 piko piko，Wasa Wasa 指更蓬松的发型；站点记载这些筋后来被画成能动、像粗笨肢体一样拿东西。[W，F31](https://yukkuri.fandom.com/wiki/Piko_piko) | 本项目的辫子、尾巴、嘴都只是真实可用的拿取部位，不存在“后来长出的能力”；日文词只作查找线索 |
-| 先生／Mister | 站点对一切经历到的事物加敬称，物件、人、食物都叫“先生”；“Mister Treasure”即幼体的小玩具 | 不是称呼主人或亲属的专用词；项目对白里的称呼见[通用短语](hakkei-reference/dialogue/common-phrases.md) |
-| 嗯嗯、嘘嘘／Poo Poo・Pee Pee | 站点把两者都当“过期馅料”与糖水排出，排出部位分别为 anyaru 与 yurethra | 项目的嗯嗯是真实方块（份数、四档外观）；嘘嘘不单独做成物品，只作卫生状态影响 |
-| 中枢馅／Paste Core | 站点写作身体中央或头后部的小球，兼管行为与身份，可移植、可用别人的馅“杂合” | 项目的中枢馅只作致命弱点与可取出的宝物，没有移植或杂合机制 |
-| 不良油、优良油／Shithead・Nicehead | 站点用一个标签概括品行好坏的二分，并自称“界限模糊、不好用” | 项目用五项属性与具体行为判定，不设全局好坏标签（[性格与社会关系](hakkei-reference/world/personality-social.md)） |
-| 垃圾油／Gutter Trash | 站点对城市流浪、失饰与脏污个体的统称 | 项目用身份（流浪、聚落、有主）与卫生状态分别描述，不合成一个“品种” |
-| 不如意症／Anti-yukkuritis | 站点把它写成“不能慢慢来”导致的抑郁，早期可用更好的环境治好 | 项目的非油症是不可逆的终末阶段（狂乱→衰竭→死亡），不设治愈；见[性格与社会关系](hakkei-reference/world/personality-social.md) |
+| 先生／Mister | 站点把接触到的事物都加敬称，物件、人、食物都叫“先生”；“Mister Treasure”即幼体的小玩具。[W，F21](https://yukkuri.fandom.com/wiki/Yukkuri_vocabulary)、[F35](https://yukkuri.fandom.com/wiki/Yukkuri)、[F11](https://yukkuri.fandom.com/wiki/Mister_Treasure) | 不是称呼主人或亲属的专用词；项目对白里的称呼见[通用短语](hakkei-reference/dialogue/common-phrases.md) |
+| 嗯嗯、嘘嘘／Poo Poo・Pee Pee | 站点把两者分别当“过期馅料”与糖水排出，排出部位分别为 anyaru 与 yurethra。[W，F32](https://yukkuri.fandom.com/wiki/Poo_poo)、[F12](https://yukkuri.fandom.com/wiki/Pee_pee)、[F23](https://yukkuri.fandom.com/wiki/Anyaru)、[F37](https://yukkuri.fandom.com/wiki/Yurethra) | 项目的嗯嗯是真实方块（份数、四档外观）；嘘嘘不单独做成物品，只作卫生状态影响 |
+| 中枢馅／Paste Core | 站点写作身体中央或头后部的小球，兼管行为与身份，可移植、可用别人的馅“杂合”。[W，F29](https://yukkuri.fandom.com/wiki/Paste_Core) | 项目的中枢馅只作致命弱点与可取出的宝物，没有移植或杂合机制 |
+| 不良油、优良油／Shithead・Nicehead | 站点用一个标签概括品行好坏的二分，并自称“界限模糊、不好用”。[W，F15](https://yukkuri.fandom.com/wiki/Shithead) | 项目用五项属性与具体行为判定，不设全局好坏标签（[性格与社会关系](hakkei-reference/world/personality-social.md)） |
+| 垃圾油／Gutter Trash | 站点对城市流浪、失饰与脏污个体的统称。[W，F04](https://yukkuri.fandom.com/wiki/Gutter_Trash_Yukkuris) | 项目用身份（流浪、聚落、有主）与卫生状态分别描述，不合成一个“品种” |
+| 不如意症／Anti-yukkuritis | 站点把它写成“不能慢慢来”导致的抑郁，早期可用更好的环境治好。[W，F01](https://yukkuri.fandom.com/wiki/Anti-yukkuritis) | 项目的非油症是不可逆的终末阶段（狂乱→衰竭→死亡），不设治愈；见[性格与社会关系](hakkei-reference/world/personality-social.md) |
 
 种族索引见[种族与变体](hakkei-reference/lore/species/README.md)，冲突采用见[差异表](hakkei-reference/lore/conflicts.md)。
 

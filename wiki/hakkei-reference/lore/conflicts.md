@@ -35,25 +35,55 @@
 
 ## yukkuri.fandom.com 行为与生物学条目
 
-站点条目按页登记在[行为与生物学来源](../sources-fandom.md)，每页同时声明自己的说法没有统一标准。下列写法已由游戏决定，按游戏实现记录；其余需要用户决定的冲突登记在[待办](../../../docs/TODO.md#待用户裁决)。
+站点条目按页登记在[行为与生物学来源](../sources-fandom.md)，每页同时声明自己的说法没有统一标准。下表记录这些条目与项目的全部冲突：游戏已实现的按游戏实现，仍开放的选择链接到[待办](../../../docs/TODO.md#待用户裁决)，用户已经决定的取舍列在下一节。
 
-| 主题 | 站点写法 | 项目采用（游戏实现） |
+| 主题 | 站点写法 | 项目采用或开放选择 |
 | --- | --- | --- |
-| 繁殖主流 | 摩擦授精后茎上结实为“传统且常见”，体内怀胎后来更流行（[F33](https://yukkuri.fandom.com/wiki/Reproduction)） | 普通配对以胎生为主（概率 0.20），家油卵生 2–4 枚，捕食种茎生，受孕时定胎数 |
+| 世界与种族原型 | 各型源于东方角色，故事可使用幻想乡与匿名者背景（[F35](https://yukkuri.fandom.com/wiki/Yukkuri)、[F36](https://yukkuri.fandom.com/wiki/Yukkuri_Types)） | 世界由人类与油库里共同生活，东方人物不存在；角色名只作种族名，不继承人物身份与经历 |
+| 体型与成长 | 成体约篮球大小、3 kg，食物充足可长到两米以上；幼体超过橘子即算成年（[F35](https://yukkuri.fandom.com/wiki/Yukkuri)、[F09](https://yukkuri.fandom.com/wiki/Koyukkuri)） | 按赤油、子油、亚成油、成油与真实年龄成长，体型是相对标准成体的分档范围，总寿命约 44 个游戏日，不无限增体 |
+| 配对类型 | 油库里雌雄同体，同种之间通常不能受孕，需要不同种的馅料（[F28](https://yukkuri.fandom.com/wiki/Mamu_Mamu)、[F30](https://yukkuri.fandom.com/wiki/Peni_Peni)、[F33](https://yukkuri.fandom.com/wiki/Reproduction)） | 同种可以配对；实际限制是生育资格、近亲、家油／非家油、捕食／普通与水生／非水生等真实条件，父母角色不由性别决定 |
+| 繁殖方式 | 擦脸授精对应茎生，注入馅料对应胎生；日常摩擦也可能转成繁殖（[F33](https://yukkuri.fandom.com/wiki/Reproduction)、[F14](https://yukkuri.fandom.com/wiki/Rub_Rub)） | 日常蹭蹭不自动受孕；配对需双方接纳与真实接触。普通配对胎生概率 0.20，其余茎生；家油卵生 2–4 枚，捕食种茎生，受孕时定胎数 |
 | 茎生子代数量 | 单茎常见 3–7 只，多茎多与爱丽丝有关（[F34](https://yukkuri.fandom.com/wiki/Stalk)） | 单根主茎，每胎 1–5 只，爱丽丝另走“攻击素鸡立”的茎生 |
-| 水与游泳 | 有完全水生的种类，淋雨、浸水会溶解；帽子作船可航行（[F18](https://yukkuri.fandom.com/wiki/Water_Yukkuri)、[F27](https://yukkuri.fandom.com/wiki/Locomotion)） | 普通种不能自行渡水，落水挣扎并受溺水伤；帽船只给浮力，身体照常受水伤；螺壳较耐水 |
-| 失饰者的下场 | 失饰者被当作怪物、可被就地处死；饰物丢失在野外等于死刑（[F22](https://yukkuri.fandom.com/wiki/Accessory)） | 认不出（需智力 80）则好感下降与制裁，制裁只欺负不杀；亲缘与过去的关系照旧记录 |
+| 茎与新生首餐 | 首餐必须是母体嚼软的茎，茎含强化免疫的成分（[F09](https://yukkuri.fandom.com/wiki/Koyukkuri)、[F34](https://yukkuri.fandom.com/wiki/Stalk)） | 新生赤油由仍认领它的亲油喂糜；整根空茎是一份 +20 营养、+2 生命的食物，没有额外免疫状态 |
+| 幼体发育与自立 | 每两小时喂食，出生至少三天通常不能移动，超过橘子即成年（[F09](https://yukkuri.fandom.com/wiki/Koyukkuri)） | 初生以爬行为主；年龄≥84000 且成长营养≥63000 才能独立吃固体，年龄与营养共同决定分床，阶段由真实年龄推进 |
+| 幼体出生回应 | 未获回应会悲伤；综述进一步写拒食、停止活动，约二十四小时未听到回应便可能死亡（[F17](https://yukkuri.fandom.com/wiki/Take_it_easy)、[F35](https://yukkuri.fandom.com/wiki/Yukkuri)） | 项目已有出生问候，没有回应拒食或死亡门槛，幼体按真实饥饿、伤势与照料结算；是否增加该门槛见[待用户裁决](../../../docs/TODO.md#待用户裁决) |
+| 先天记忆与学习 | 幼体由遗传记忆得到语言、生活规则与种族行为，中枢馅保存遗传和认知（[F09](https://yukkuri.fandom.com/wiki/Koyukkuri)、[F29](https://yukkuri.fandom.com/wiki/Paste_Core)） | 五属性按亲本遗传，后天修正与技能、徽章不遗传；语言按成长阶段与所学规则表现，不移植完整记忆 |
+| 献身 | 说出“请吃了我”后身体裂开供食，亲友不算杀亲，并传递更多遗传记忆（[F02](https://yukkuri.fandom.com/wiki/Eat_up)） | 按真实需求、关系与性格概率触发献身，留下六份真实遗体；不是一句话自动裂开，不传递记忆 |
+| 摄入与馅料转化 | 几乎什么都能吃并变成该种馅料，包括垃圾、排泄物与泥土，放射性废弃物则可能致死（[F03](https://yukkuri.fandom.com/wiki/Food_and_Diet)、[F35](https://yukkuri.fandom.com/wiki/Yukkuri)） | 只结算真实食物项与营养，没有垃圾、泥土或放射性废弃物的转化取食 |
+| 味觉与食物接受 | 甜食普遍最爱，也有种族口味例外；成长经历决定能否接受储备粮，咸味可耐受，辛辣与苦味几乎不能处理（[F03](https://yukkuri.fandom.com/wiki/Food_and_Diet)、[F26](https://yukkuri.fandom.com/wiki/Injuries)） | 按苦、辣、有毒、腐臭结算，甜食降低一次不安；不按成长经历改变可食范围，也不设逐种最爱或口味豁免 |
+| 捕食与同类相食 | 蕾米莉亚、芙兰主动捕食，其他种类也普遍觉得同类好吃，失饰者或遗体常被吃（[F03](https://yukkuri.fandom.com/wiki/Food_and_Diet)、[F26](https://yukkuri.fandom.com/wiki/Injuries)） | 只有蕾米莉亚与芙兰主动捕猎；普通自由成体只在缺食且营养极低时考虑尸体，同类相食是族规重罪，亲属可护尸 |
+| 排泄物食用 | 粪便是无毒但缺乏营养的过期馅，可被误食或在受压时吃下（[F32](https://yukkuri.fandom.com/wiki/Poo_poo)） | 嗯嗯奴隶可吃真实排泄物，每份 +20 营养并降低卫生，其余个体不按一般食物取食 |
+| 觅食、财产与储粮 | hunt hunt 兼含捕、种、捡、偷，垃圾与作物被视为自然生长；冬眠和雨季前集中搬运（[F08](https://yukkuri.fandom.com/wiki/Hunt_hunt)、[F35](https://yukkuri.fandom.com/wiki/Yukkuri)） | “狩猎”是采草，住所与公仓都是真实库存；没有年度集中狩猎、偷农地或以乞讨表演换钱的规则 |
+| 宝物与玩具 | 宝物多少决定“轻松”与地位，爱丽丝型以制作像样玩具证明成年（[F11](https://yukkuri.fandom.com/wiki/Mister_Treasure)） | 成体可收藏真实小物，幼体可玩毛线球；不以所有物衡量处境，也没有玩具制作成年资格或血统能力 |
+| 街沟身份与徽章 | 街沟油库里是一类贫民生态，假章、偷章与社区服务徽章影响其求生（[F04](https://yukkuri.fandom.com/wiki/Gutter_Trash_Yukkuris)） | 流浪、聚落、有主与卫生分别记录，不合成新品种；没有徽章造假、偷章或社区服务徽章机制 |
+| 捕食者范围 | 鸟、鼠、猫、狗会伤害油库里，Letty、Yoshika 等型也捕食同类（[F04](https://yukkuri.fandom.com/wiki/Gutter_Trash_Yukkuris)、[F36](https://yukkuri.fandom.com/wiki/Yukkuri_Types)） | 当前只实现蕾米莉亚与芙兰两个捕食种；环境捕食者与扩大名单见[待用户裁决](../../../docs/TODO.md#待用户裁决) |
+| 认屋与屏障 | 宣称后无人应答即算空巢，枝条石子屏障是产权标记，强势个体可夺取住所（[F07](https://yukkuri.fandom.com/wiki/Home_Declaration)） | 住所由真实区域勘测与认领决定，细枝屏风只是可推开的物理枝叶，不是产权或防御凭证 |
+| 建造与工具 | 石头、泥浆、蜡布建屋，砸窗进屋（[F07](https://yukkuri.fandom.com/wiki/Home_Declaration)、[F35](https://yukkuri.fandom.com/wiki/Yukkuri)） | 无手工艺：只有嘴、辫子、尾巴与推、压、堆；现成洞穴、纸箱与人造物可被认领，软土小穴按真实施工形成 |
+| 失饰者的下场 | 失饰者被当作怪物、可被就地处死；饰物丢失在野外等于死刑（[F22](https://yukkuri.fandom.com/wiki/Accessory)） | 普通观察者需智力 80 才认得出，水生魔理沙例外；认不出则好感下降与制裁，制裁只欺负不杀；亲缘与过去的关系照旧记录 |
 | 饰物修复 | 靠“相信之力”自修或重新长出，饰物随身体魔法长大（[F22](https://yukkuri.fandom.com/wiki/Accessory)） | 碎裂为 2–3 片，舔起碎片后 12000 tick 长合；尺寸随身体缩放，无超自然修复 |
+| 临时替代饰物 | 纸盒、瓶盖、冰淇淋筒等可顶替失饰，同种同形替代可恢复轻松，粗糙替代仍被认出但遭鄙视（[F04](https://yukkuri.fandom.com/wiki/Gutter_Trash_Yukkuris)、[F22](https://yukkuri.fandom.com/wiki/Accessory)） | 项目只认原饰物与兼容的同种碎片；是否让临时替代帽参与外观或识别见[待用户裁决](../../../docs/TODO.md#待用户裁决) |
 | 越冬 | 悬浮生命式冬眠，整冬不食也能醒来（[F05](https://yukkuri.fandom.com/wiki/Hibernation)） | 采用储粮与暖巢方案，饥饿、体感与消耗照常结算，不存“不饿的冬眠” |
-| 精神崩解 | “不如意症”可用好环境与安抚治好（[F01](https://yukkuri.fandom.com/wiki/Anti-yukkuritis)） | 非油症不可逆：狂乱期→衰竭期→由病变伤中枢死亡；只能靠降低不安避免进入 |
-| 幼体存活门槛 | 必须听到亲代回应“慢慢来”才算被允许活下去（[F17](https://yukkuri.fandom.com/wiki/Take_it_easy)） | 无此死亡规则；幼体存活由真实饥饿、伤势与照料结算（[待用户裁决](../../../docs/TODO.md#待用户裁决)） |
-| 建造与工具 | 石头、泥浆、蜡布建屋，砸窗进屋（[F07](https://yukkuri.fandom.com/wiki/Home_Declaration)） | 无手工艺：只有嘴、辫子、尾巴与推、压、堆；现成洞穴、纸箱与人造物可被认领 |
-| 超能力与飞行 | 各型继承原作人物的能力，会飞的型都能飞（[F35](https://yukkuri.fandom.com/wiki/Yukkuri)、[F36](https://yukkuri.fandom.com/wiki/Yukkuri_Types)） | 无超能力；飞行只属于蕾米莉亚与芙兰，且作为捕食移动 |
+| 水与游泳 | 有完全水生的种类，淋雨、浸水会溶解；帽子作船可航行（[F18](https://yukkuri.fandom.com/wiki/Water_Yukkuri)、[F27](https://yukkuri.fandom.com/wiki/Locomotion)） | 普通种不能自行渡水，落水挣扎并受水伤；帽船只给浮力，身体照常受水伤，螺壳较耐水；其他水生类型见[待用户裁决](../../../docs/TODO.md#待用户裁决) |
+| 移动方式 | 从早期悬空演变为跳跃、蛇行与滚动，部分型飞行或游泳（[F27](https://yukkuri.fandom.com/wiki/Locomotion)） | 没有悬空漂移；跳高跳远由真实能力决定，滚动是休闲动作，飞行只属于两个捕食种，帽船提供浮力 |
+| 举高 | 幼体与成体以被举起、坐上帽檐或 U-Pack 获得高处视野与快乐（[F06](https://yukkuri.fandom.com/wiki/High_high)） | 项目采用亲子帽檐、尾巴、嘴与头顶运输，没有 U-Pack 或独立的举高玩耍流程 |
+| 鼓脸 | 吸气膨大以骗过按体型判断强弱的动物，也可对同伴或人类示威（[F13](https://yukkuri.fandom.com/wiki/Puff_Puff)） | 噗咕是定向挑衅、护崽、守尸与制裁宣告，不改变体型，也不按大小判定胜负 |
+| 排泄、清洁与便秘 | 幼体需舔腹刺激或学习排便操，长期沾湿会致病；便秘可膨胀至破裂（[F12](https://yukkuri.fandom.com/wiki/Pee_pee)、[F16](https://yukkuri.fandom.com/wiki/Stretch_Stretch)、[F23](https://yukkuri.fandom.com/wiki/Anyaru)、[F26](https://yukkuri.fandom.com/wiki/Injuries)、[F37](https://yukkuri.fandom.com/wiki/Yurethra)） | 首餐后的首便由亲油连续舔舐辅助，幼体体操后可缓解排便；湿度与卫生影响油霉，排泄物是实体方块，不设膨胀破裂 |
+| 伤病治疗 | 橙汁或含糖饮料可治多数非致命伤，舔拭用于清洁和轻伤，兽医可处理精神或身体疾病（[F10](https://yukkuri.fandom.com/wiki/Lick_Lick)、[F26](https://yukkuri.fandom.com/wiki/Injuries)） | 橙汁清 1–3 级活动伤并补满生命，不清感染、油霉与旧疤；亲缘舔舐只降 1–2 级伤，没有兽医痊愈路径 |
+| 霉变 | 霉可经蹭蹭和舔拭传染，侵入馅层后需开刀刮除，宠物需隔离（[F12](https://yukkuri.fandom.com/wiki/Pee_pee)、[F26](https://yukkuri.fandom.com/wiki/Injuries)） | 湿度与卫生持续越界才发霉，按 1–8 级结算，去霉药治 1–5 级；没有接触传染与手术路径 |
+| 精神崩解 | “不如意症”可用好环境与安抚治好，疯狂可交兽医术后复诊（[F01](https://yukkuri.fandom.com/wiki/Anti-yukkuritis)、[F20](https://yukkuri.fandom.com/wiki/Yukkuri_insanity)） | 非油症不可逆：狂乱期→衰竭期→由病变伤中枢死亡；只能靠降低不安避免进入 |
+| 品行评价 | nicehead／shithead 二分概括品行，但页面承认界限模糊（[F15](https://yukkuri.fandom.com/wiki/Shithead)、[F35](https://yukkuri.fandom.com/wiki/Yukkuri)） | 使用五项连续属性、关系与真实行为评价，不设固定好坏类别 |
+| 族群组织 | 多世袭、靠体型与超能力压服，可判死刑（[F19](https://yukkuri.fandom.com/wiki/Yukkuri_Clan)） | 族长由智力、自制与成年后时长选出；族规处置到驱逐与欺负为止 |
+| 核心短语与评价 | Take it easy 是语言核心，Easy／Uneasy 同时评价食物、住所、饰物与社会地位（[F17](https://yukkuri.fandom.com/wiki/Take_it_easy)、[F21](https://yukkuri.fandom.com/wiki/Yukkuri_vocabulary)） | 台词按种族、关系与成长阶段选择；不安是独立连续数值，不把 Easy 当成统一语言或地位规则 |
+| 认知与推理 | 所有个体都有幼儿式错判，不理解意外、反话与公私边界，最聪明也只相当于人类小孩（[F21](https://yukkuri.fandom.com/wiki/Yukkuri_vocabulary)、[F35](https://yukkuri.fandom.com/wiki/Yukkuri)） | 智力与认知是连续个体差异，学习、记忆与辨认按真实规则结算，不设全局“笨”阈值 |
+| 计数上限 | 所有油库里只能数到三，之后都是“好多”（[F21](https://yukkuri.fandom.com/wiki/Yukkuri_vocabulary)、[F35](https://yukkuri.fandom.com/wiki/Yukkuri)） | 按阶段与种族：赤油数到 2，普通个体数到 3 后说“好多好多”，帕秋莉数到 9，妖梦数到 3 |
 | 个体与命名 | 个体共用种族名、无人另起名字；同类型几乎无法区分（[F35](https://yukkuri.fandom.com/wiki/Yukkuri)） | 个体由实体身份与关系区分；被取名是否定身份的事件，会推高不安 |
-| 族长的形成 | 多世袭、靠体型与超能力压服，可判死刑（[F19](https://yukkuri.fandom.com/wiki/Yukkuri_Clan)） | 族长由智力、自制与成年后时长选出；族规处置到驱逐与欺负为止 |
-| 计数上限 | 所有油库里只能数到三，之后都是“好多”（[F21](https://yukkuri.fandom.com/wiki/Yukkuri_vocabulary)） | 按阶段与智力：子油数到 3，成体说“好多好多”，帕秋莉数到 9 |
+| 中枢馅 | 兼作脑与遗传核，可移植、换心或以馅料污染制造混合特征（[F29](https://yukkuri.fandom.com/wiki/Paste_Core)） | 中枢是致命弱点，并可从符合条件的新鲜遗体取出；没有移植、换心或杂合机制 |
+| 超能力与飞行 | 各型继承原作人物的能力，辫子经“相信之力”进化为持物部位，会飞的型都能飞（[F31](https://yukkuri.fandom.com/wiki/Piko_piko)、[F35](https://yukkuri.fandom.com/wiki/Yukkuri)、[F36](https://yukkuri.fandom.com/wiki/Yukkuri_Types)） | 已实现的普通种无超能力，辫子等只是真实身体部位；飞行只属于蕾米莉亚与芙兰，且作为捕食移动 |
 
 ## 项目已经决定的边界
+
+- **混血、身体种与半血：不做（用户决定）。** 站点记录胴体、杂种、半血与相关身体类型（[F24](https://yukkuri.fandom.com/wiki/Bodied_Yukkuri)、[F25](https://yukkuri.fandom.com/wiki/Hybrids)、[F36](https://yukkuri.fandom.com/wiki/Yukkuri_Types)）；项目不实现这些类型，子代只承父母的一种类型，外形保持既定的无胴体与不足形态范围。
+- **幼体筛选：不做（用户决定）。** 站点写流浪家庭压死较弱幼体、冬季幼体拖垮全家（[F04](https://yukkuri.fandom.com/wiki/Gutter_Trash_Yukkuris)、[F05](https://yukkuri.fandom.com/wiki/Hibernation)）；游戏没有体质数值，不加入按强弱筛选或主动压死幼体的行为，存活只按真实营养、伤势与照料结算。
 
 [宠物生活专题](../../pet-life.md)中的 EH31 外出襁褓、EH33 成体穿戴和 EH34 家庭衣物，不能被 EH30 的约束用途概括；N29 的后天损伤不并入先天不足油。N30 的口香糖／襟章身份误认不等于正式徽章制度，也没有给出可用于全种的寿命或医学死因。
 

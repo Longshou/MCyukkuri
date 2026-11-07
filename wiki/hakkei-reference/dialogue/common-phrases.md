@@ -61,4 +61,3 @@
 **W：[F17](https://yukkuri.fandom.com/wiki/Take_it_easy)** 把「Take it easy」写成油库里语言的核心：幼体出生后第一句话就是它（含混作「Chake id eaji」），亲代和姐妹要立刻回一句「Take it easy, little one!」，否则幼体会沮丧、觉得自己被拒；它也被用来确认对方是正常的油库里，或安慰紧张、生气的人类。同一体系里 Easy／Uneasy 是评价尺度：好食物、好住所、完整饰物算 Easy，缺食、缺住所、失饰算 Uneasy，由此还有「The Big Easy」「永远慢慢来」一类死亡婉辞。项目按种族与成长阶段固定欢迎语和口癖，见上表，不把评价当语言规则。
 
 **W：[F21](https://yukkuri.fandom.com/wiki/Yukkuri_vocabulary)** 收录的口吻包括：一律用第三人称自称，幼体还会在自称里夸自己可爱；紧张、疼痛或委屈时吐字变糊；对身边一切称「先生」；想讨好人时叫「人类先生」「饲主先生」，被拒或态度恶劣时改用贬称；数字只到三，更多一律叫「很多」，并常用「很多就够了」「现在就要」表示数量与催促；动作用叠词：鼓脸是 puff puff、伸展是 stretch stretch、互相摩擦是 rub rub、舔是 lick lick、甜食是 sweet sweets、尿是 pee pee、嗯嗯是 poo poo。页面另称最聪明的个体也只相当于人类小孩的心智，项目以连续的智力与认知数值区分个体，幼体只数到三。表中已有的固定词形照旧，动作本身的写法另见[身体动作与展示](../lore/behavior-actions.md)。
-
