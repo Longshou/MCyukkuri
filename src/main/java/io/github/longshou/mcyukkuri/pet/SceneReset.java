@@ -9,7 +9,6 @@ import io.github.longshou.mcyukkuri.headwear.Sanction;
 import io.github.longshou.mcyukkuri.intent.AskLedger;
 import io.github.longshou.mcyukkuri.intent.Conductor;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
-import io.github.longshou.mcyukkuri.status.StatusEvents;
 import java.util.Set;
 import java.util.UUID;
 import net.minecraft.server.level.ServerLevel;
@@ -43,7 +42,6 @@ public final class SceneReset {
         GameplayLog.forget(level, ids);
         var clock = level.getServer().tickRateManager();
         clock.stopSprinting(); clock.stopStepping(); clock.setFrozen(false); clock.setTickRate(20);
-        StatusEvents.trace(false);
         // Vanilla noon and the vanilla minimum clear-weather duration (five real minutes at normal speed).
         level.setDayTime(6000);
         level.setWeatherParameters(6000, 0, false, false);
