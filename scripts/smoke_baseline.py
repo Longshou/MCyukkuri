@@ -27,6 +27,8 @@ def main():
     parser.add_argument('--slots', type=int, help=f'Machine-wide limit of smoke/capture servers (default {slots.DEFAULT_SLOTS})')
     parser.add_argument('scenes', nargs='*', help='Scene IDs (default: every smoke scene of origin/main)')
     args = parser.parse_args()
+    if args.repeat < 1 or args.slots is not None and args.slots < 1:
+        parser.error('--repeat and --slots are at least 1')
     subprocess.run(['git', '-C', str(server.COMMON), 'fetch', '-q', 'origin'], check=True)
     commit = smoke.git(server.COMMON, 'rev-parse', 'origin/main')
     reason = busy()

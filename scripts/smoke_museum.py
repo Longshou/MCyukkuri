@@ -219,10 +219,12 @@ def run_scene(st, scene, builder, run_index=1):
                         for command in scene.smoke.get('readout', ()))
     (Path(st['rundir']).parent / f'{scene.id}-{run_index}.readout.txt').write_text(readout, encoding='utf-8')
     end_tick = re.search(r'\d+', server.run_cmd(st, 'time query gametime'))[0]
-    window = server.log_text(st, offset) + f'\nMCYSMOKE_END_TICK {end_tick}\n'
+    raw_window = server.log_text(st, offset)
+    window = raw_window + f'\nMCYSMOKE_END_TICK {end_tick}\n'
     log = Path(st['rundir']).parent / f'{scene.id}-{run_index}.log'
     log.write_text(window, encoding='utf-8')
-    problems = [problem for problem in [failure(scene.smoke, window)] if problem]
+    problems = [] if raw_window.strip() else [('empty log', 'empty server log window')]
+    problems += [problem for problem in [failure(scene.smoke, window)] if problem]
     problems += fate.fates(window, scene.smoke.get('allow_fate', ()))
     for _, text in problems:
         print(f'FAIL {scene.id}: {text}', flush=True)
@@ -487,8 +489,10 @@ def compare(source, args, table):
     commit = git(source, 'merge-base', 'HEAD', 'origin/main')
     command = [sys.executable, str(Path(__file__).resolve()), '--baseline', '--base-commit', commit, '--repeat', str(args.repeat),
                *(['--no-wait'] if args.no_wait else []), *(['--slots', str(args.slots)] if args.slots else []), *table]
+    baseline_ok = True
     if subprocess.run(command).returncode:
-        print('The baseline run did not finish; comparing with what is cached', flush=True)
+        print('The baseline run did not finish; comparing with what is cached, and failing this comparison', flush=True)
+        baseline_ok = False
     path = BASELINE / f'{commit}.json'
     cached = json.loads(path.read_text(encoding='utf-8'))['scenes'] if path.is_file() else {}
     print(f'Branch vs main {commit[:9]} (fate checker {fate.CHECKER}):', flush=True)
@@ -502,6 +506,7 @@ def compare(source, args, table):
             only = {reason: count for reason, count in row['reasons'].items() if reason not in base['reasons']}
         extra = f'  only on the branch: {reasons_text(only)}' if only else ''
         print(f'  {sid:<{width}}  branch {row["passed"]}/{row["runs"]}  main {main_text}{extra}', flush=True)
+    return baseline_ok
 
 
 def main():
@@ -544,13 +549,12 @@ def main():
     table = tally(results)
     print_table(table, f'Results {commit[:9]}{" with uncommitted changes" if dirty else ""} (fate checker {fate.CHECKER}):')
     RESULTS.mkdir(parents=True, exist_ok=True)
-    record = RESULTS / f'{commit}-{time.strftime("%Y%m%d-%H%M%S")}.json'
+    record = RESULTS / f'{commit}-{time.strftime("%Y%m%d-%H%M%S")}-{secrets.token_hex(3)}.json'
     record.write_text(json.dumps(dict(commit=commit, dirty=dirty, source=str(source), checker=fate.CHECKER, repeat=args.repeat,
                                       scenes=table, runs=results), indent=2, ensure_ascii=False), encoding='utf-8')
     print(f'Results written to {record}', flush=True)
-    if args.compare:
-        compare(source, args, table)
-    return 0 if all(run['passed'] for run in results) else 1
+    comparison_ok = compare(source, args, table) if args.compare else True
+    return 0 if all(run['passed'] for run in results) and comparison_ok else 1
 
 
 if __name__ == '__main__':

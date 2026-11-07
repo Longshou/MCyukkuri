@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""Machine-wide queue for smoke servers and capture clients across all worktrees: at most N at once (default 4,
+"""Machine-wide queue for smoke servers and capture clients across all worktrees: at most N at once (default 3,
 ``--slots`` or MCY_SMOKE_SLOTS), first come first served. Records live in the main checkout's .local/smoke/slots/
 (pid and process start time; records of exited runners are reclaimed). ``python scripts/smoke_slots.py`` lists them."""
 import json
@@ -10,7 +10,7 @@ from contextlib import contextmanager
 import headless_server as server
 
 DIRECTORY = server.COMMON / '.local/smoke/slots'
-DEFAULT_SLOTS = 4
+DEFAULT_SLOTS = 3
 ENVIRONMENT = 'MCY_SMOKE_SLOTS'
 
 

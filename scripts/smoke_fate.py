@@ -109,7 +109,17 @@ def main():
         check_allowances(allow)
     failed = False
     for log in args.logs:
-        problems = fates(log.read_text(encoding='utf-8', errors='replace'), allow)
+        try:
+            window = log.read_text(encoding='utf-8')
+        except (OSError, UnicodeError) as error:
+            failed = True
+            print(f'{log}: FAIL unreadable log: {error}', file=sys.stderr)
+            continue
+        if not window.strip():
+            failed = True
+            print(f'{log}: FAIL empty log')
+            continue
+        problems = fates(window, allow)
         failed |= bool(problems)
         print(f'{log}: {len(problems)} fate problem(s)')
         for _, text in problems:

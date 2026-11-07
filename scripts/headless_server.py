@@ -273,7 +273,7 @@ def log_text(st, offset=0):
         return ''
     with path.open('rb') as log:
         log.seek(offset)
-        return log.read().decode('utf-8', errors='replace')
+        return log.read().decode('utf-8')
 
 
 def wait_log(st, pattern, offset=0, timeout=600):
