@@ -1,10 +1,10 @@
 # 当前游戏选用素材
 
-`art/` 保存 Minecraft 当前选用的素材快照。制作源在[标准素材库](../standards/yukkuri-library/README.md)，选用快照与运行资源映射由 [`runtime-sources.json`](runtime-sources.json) 管理；标准库的修改不会自动替换游戏资源。
+`art/` 保存 Minecraft 当前选用的素材快照。制作源在[标准素材库](../standards/yukkuri-library/README.md)，选用快照与运行资源映射由 [`runtime-sources.json`](runtime-sources.json) 管理；登记源按条目拆在 `art/registry/runtime/`，汇总文件用 `<py> scripts/export.py --registries` 重建，不手改。标准库的修改不会自动替换游戏资源。
 
 当前素材检查入口为项目根目录 `打开素材检查.cmd`，集中预览入口见[预览说明](../preview/README.md)。
 
-按游戏主题查找制作源、选用快照、运行资源及登记状态，统一见[素材目录](CATALOG.md)。分类源为 [`catalog.json`](catalog.json)，使用 `python scripts/build_art_catalog.py` 重建。
+按游戏主题查找制作源、选用快照、运行资源及登记状态，统一见[素材目录](CATALOG.md)。分类登记源在 `art/registry/catalog/`，汇总 [`catalog.json`](catalog.json) 与登记汇总一起由 `scripts/export.py --registries` 重建；目录页用 `python scripts/build_art_catalog.py` 重建。
 
 ## 运行资源
 
