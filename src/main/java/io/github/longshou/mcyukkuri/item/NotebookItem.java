@@ -12,7 +12,6 @@ import io.github.longshou.mcyukkuri.settlement.SettlementObservation;
 import io.github.longshou.mcyukkuri.settlement.ShelterBlock;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 import java.util.UUID;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.GlobalPos;
@@ -114,7 +113,7 @@ public final class NotebookItem extends Item {
                 Component.translatable("notebook.mcyukkuri.dispositions",personality.intelligence(),personality.friendliness(),personality.boldness(),personality.attachment(),personality.selfControl(),Component.translatable("decision.mcyukkuri."+personality.lastDecision())),
                 Component.translatable("notebook.mcyukkuri.memory", personality.trust(player.getUUID()), personality.fear(player.getUUID()),
                         personality.knowsWait() ? "✓" : "—"),
-                Component.translatable("notebook.mcyukkuri.growth",Component.translatable("stage.mcyukkuri."+(entity.family().subadult()?"subadult":entity.family().stage().name().toLowerCase(Locale.ROOT))),
+                Component.translatable("notebook.mcyukkuri.growth",Component.translatable("stage.mcyukkuri."+entity.family().stageId()),
                         Math.round(entity.family().scale()*100),entity.family().age()/1200,entity.family().lifespan()/1200,
                         Component.translatable(entity.family().youngVoice()?"voice.mcyukkuri.young":"voice.mcyukkuri.adult")),
                 Component.translatable("notebook.mcyukkuri.family",identity(entity.family().mother()),identity(entity.family().father()),

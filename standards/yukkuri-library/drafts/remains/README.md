@@ -10,6 +10,7 @@
 | `build.py` | 生成 `assembled/<模型>/remains_<形态>.png`、`assembled/shared/overlay_*.png`、`decal_*.png` 与 `assembled/manifest.json` |
 | `export.py` | 复制到 `art/source/remains/` 快照和运行资源，写出 `yukkuri_presentation/remains_forms.json`，登记 `art/runtime-sources.json` 的 `remains_art` |
 | `render.cjs`、`preview.py` | 用运行网格、表情补丁与库内软件渲染器出预览 |
+| `grave_marker.py` | 土冢头端的小石碑：写出 `yukkuri_props/grave_marker.json`、`textures/props/grave_marker.png` 和共享 `yukkuri_props/index.json` 的 `grave_marker` 条目（owner `grave_marker`）；`--preview` 出主仓 `.local/previews/grave-marker/` |
 
 八种形态：寿终／未知 `natural`、饿死 `starved`、烧死 `burned`、压死 `crushed`、外伤 `violent`、溺死 `drowned`、冻死 `frozen`、病死 `sick`；另有溶化图集 `dissolving`。泡软不换图集，只叠加姿态与 `soaked` 表层。
 
@@ -21,6 +22,8 @@
 - **姿态**只用整体缩放与不超过 12° 的侧倾，绕着地点；与饱腹塌陷、腐败塌陷相乘，高度下限 0.15。压死、外伤和溶化另画地面贴花（馅渍、侧边渗出的馅、面皮残渣），离地 0.02 格避免闪烁。
 - 色板、形状、比例与纹样均为项目美术设计，不复制外部图片。
 
+- **小石碑**（项目设计）：安葬者做的小标记，方向先由概念图选出石碑与木墓标两款，渲染比较后选石碑（远看最像墓、在草地与土冢上对比清楚）。宽 4、高 6.5（另埋入 1）、厚 2 单位，阶梯圆顶；四个面直接采样原版 `smooth_stone` 贴图内部纹素（每 1/16 格一纹素，不复制原版像素），正面刻字是本项目 32×32 贴图上的四行横线（每 1/16 格两纹素，首行最短像名字），贴在正面前 0.04 单位。摆放与缩放见 `body/GraveBlock`。
+
 ## 选用范围与边界
 
 图集覆盖九个圆润运行模型（灵梦、魔理沙、橙、爱丽丝、帕秋莉、螺壳魔理沙、和灵梦、灵胖、和灵胖）。和灵梦与灵胖类按圆润导出器的做法，把灵梦死亡脸的五官框移到各自图集；灵胖类不套成熟脸风格。家油、豆型、半身、稀有形态等没有专用图集，保留睡脸与既有全身烧伤脸，只换姿态、表层与贴花。献身分体与切面不在本包。
@@ -29,4 +32,5 @@
 python standards/yukkuri-library/drafts/remains/build.py      # --check 只读核对
 python standards/yukkuri-library/drafts/remains/export.py     # --check 只读核对
 python standards/yukkuri-library/drafts/remains/preview.py    # 输出主仓 .local/previews/remains/
+python standards/yukkuri-library/drafts/remains/grave_marker.py  # --check 只读核对，--preview 出预览
 ```

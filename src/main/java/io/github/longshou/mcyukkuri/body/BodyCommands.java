@@ -6,11 +6,13 @@ import io.github.longshou.mcyukkuri.entity.RemainsEntity;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
+import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 
 /**
  * {@code /yukkuri body core <remains>}: cut the centre filling out of remains without a player; {@code rot|soak <remains> <ticks>}: set the
- * decay or water clock (tests and the showcase); {@code info <remains>}: read the stored cause category, form and clocks.
+ * decay or water clock (tests and the showcase); {@code bury <remains>}: shovel remains into a grave like a player standing at the
+ * command's position and rotation (showcase start); {@code info <remains>}: read the stored cause category, form and clocks.
  */
 public final class BodyCommands {
     private BodyCommands() {}
@@ -56,6 +58,17 @@ public final class BodyCommands {
                             context.getSource().sendSuccess(() -> Component.literal("soaked " + total + " remains to " + ticks), true);
                             return total;
                         }))))
+                // Showcase start: the same burial as a shovel, by whoever runs the command; the marker faces against its rotation.
+                .then(Commands.literal("bury").then(Commands.argument("remains", EntityArgument.entities()).executes(context -> {
+                    int count = 0;
+                    var source = context.getSource();
+                    for (var entity : EntityArgument.getEntities(context, "remains"))
+                        if (entity instanceof RemainsEntity remains && remains.bury(source.getTextName(), Direction.fromYRot(source.getRotation().y))) count++;
+                    int total = count;
+                    if (total > 0) source.sendSuccess(() -> Component.literal("buried " + total + " remains"), true);
+                    else source.sendFailure(Component.literal("no remains buried (they must lie on soil with room above)"));
+                    return total;
+                })))
                 // Read-only: the stored cause, form and decay/water state of remains.
                 .then(Commands.literal("info").then(Commands.argument("remains", EntityArgument.entities()).executes(context -> {
                     int count = 0;

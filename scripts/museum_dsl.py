@@ -115,14 +115,14 @@ def yk(kind, dx, dz, name, *, dy=0, stage='adult', share=None, yaw=180, label=No
 
 
 def remains(dx, dz, name, *, variant='reimu', food=6, capacity=6, rot=0, ident=None, partner=None, offered_to=None, kept=False,
-            accessory=True, core_hurt=False, dy=0, soak=0, cause=None, category=None):
+            accessory=True, core_hurt=False, dy=0, soak=0, cause=None, category=None, age='adult'):
     """Remains lying on the ground, in the form a real death leaves them (``RemainsEntity.snapshot``). ``rot`` is the decay clock
     (24000 stale, 72000 rotten); ``soak`` the water clock (6000 softened, 24000 dissolving, body/RemainsWater); ``cause``/``category`` the
     damage ID and cause category a death of that kind stores; ``ident`` the dead one's UUID, which relatives recognise before making their
-    own eating or guarding decision."""
+    own eating or guarding decision; ``age`` its age stage at death (baby, juvenile, subadult, adult)."""
     stage = 2 if rot >= 72000 else 1 if rot >= 24000 else 0
     data = [f'Variant:"{variant}"', f'Model:"{variant}"', f'FoodRemaining:{food}f', f'FoodCapacity:{capacity}f', f'Rot:{rot}L', f'RotStage:{stage}',
-            f'Accessory:{1 if accessory else 0}b', f'Kept:{1 if kept else 0}b', 'RenderScale:1f', 'SourceScale:1f', 'DiedAt:0L',
+            f'Accessory:{1 if accessory else 0}b', f'Kept:{1 if kept else 0}b', 'RenderScale:1f', 'SourceScale:1f', 'DiedAt:0L', f'Stage:"{age}"',
             'Body:{CoreHurt:' + ('1b' if core_hurt else '0b') + '}']
     if soak:
         data += [f'Soak:{soak}L', f'WaterStage:{2 if soak >= 24000 else 1 if soak >= 6000 else 0}']

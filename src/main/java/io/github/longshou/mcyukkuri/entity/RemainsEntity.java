@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.entity;
 
+import io.github.longshou.mcyukkuri.body.GraveBlock;
 import io.github.longshou.mcyukkuri.body.GraveBlockEntity;
 import io.github.longshou.mcyukkuri.human.FactoryProduction;
 import io.github.longshou.mcyukkuri.registry.ModBlocks;
@@ -39,6 +40,8 @@ import net.minecraft.world.damagesource.DamageTypes;
 
 /** Persistent physical remains. Only deliberate collection transfers them to an inventory. */
 public final class RemainsEntity extends Entity {
+    /** Translation key of the remains name ("X's remains"); its one argument is the name the body had alive. */
+    public static final String NAMED="item.mcyukkuri.yukkuri_remains.named";
     private static final EntityDataAccessor<ItemStack> REMAINS=SynchedEntityData.defineId(RemainsEntity.class,EntityDataSerializers.ITEM_STACK);
     public RemainsEntity(EntityType<? extends RemainsEntity> type,Level level){super(type,level);}
     @Override protected void defineSynchedData(SynchedEntityData.Builder builder){builder.define(REMAINS,ItemStack.EMPTY);}
@@ -116,6 +119,7 @@ public final class RemainsEntity extends Entity {
             tag.putBoolean("Accessory",source.life().hasAccessory());tag.putInt("Medal",source.pet().visibleGrade().id());
             tag.putInt("Headwear",source.visibleHeadwear());
             tag.putLong("DiedAt",source.level().getGameTime());
+            tag.putString("Stage",source.family().stageId());
             // Who the body belonged to for the living: kept individuals are never eaten, and a partner remembers it was theirs.
             tag.putBoolean("Kept",source.pet().isPet()||source.pet().owner()!=null||source.profile().houseBody());
             if(source.family().partner()!=null)tag.putUUID("Partner",source.family().partner());
@@ -131,7 +135,7 @@ public final class RemainsEntity extends Entity {
             if(internalCause!=null&&!internalCause.isEmpty())tag.putString(RemainsCause.INTERNAL,internalCause);
             tag.putString(RemainsCause.CATEGORY,RemainsCause.category(cause,internalCause,stemDepletion&&cause!=null&&cause.is(DamageTypes.STARVE),sukkiriExhaustion));
         });
-        result.set(DataComponents.CUSTOM_NAME,Component.translatable("item.mcyukkuri.yukkuri_remains.named",source.getName()));return result;
+        result.set(DataComponents.CUSTOM_NAME,Component.translatable(NAMED,source.getName()));return result;
     }
     public static boolean place(Level level,Vec3 position,float yaw,ItemStack stack,boolean checkCollision){
         if(level.isClientSide||!stack.is(ModItems.REMAINS.get()))return false;
@@ -180,21 +184,41 @@ public final class RemainsEntity extends Entity {
         return core;
     }
     private InteractionResult bury(Player player,InteractionHand hand){
-        BlockPos top=BlockPos.containing(getX(),getY()+.05,getZ()),soil=top.below();
+        BlockPos top=graveTop();
         var tool=player.getItemInHand(hand);
-        if(!onGround()||!level().getBlockState(soil).is(BlockTags.DIRT)||!level().isEmptyBlock(top)
-                ||!level().mayInteract(player,top)||!level().mayInteract(player,soil)
+        if(!buryable(top)||!level().mayInteract(player,top)||!level().mayInteract(player,top.below())
                 ||!player.mayUseItemAt(top,Direction.UP,tool))return InteractionResult.FAIL;
         if(level().isClientSide)return InteractionResult.SUCCESS;
-        if(!level().setBlockAndUpdate(top,ModBlocks.GRAVE.get().defaultBlockState()))return InteractionResult.FAIL;
+        if(!bury(player.getGameProfile().getName(),player.getDirection()))return InteractionResult.FAIL;
+        if(!player.getAbilities().instabuild)tool.hurtAndBreak(1,player,LivingEntity.getSlotForHand(hand));
+        return InteractionResult.CONSUME;
+    }
+    private BlockPos graveTop(){return BlockPos.containing(getX(),getY()+.05,getZ());}
+    /** Remains can be shovelled into a mound where they lie on soil, with room above. */
+    private boolean buryable(BlockPos top){return onGround()&&level().getBlockState(top.below()).is(BlockTags.DIRT)&&level().isEmptyBlock(top);}
+    /**
+     * Server side: shovel these remains into a mound where they lie (a player's shovel, or /yukkuri body bury as a showcase start).
+     * The grave keeps the remains record plus its name and burial day; the marker faces {@code burier}, who looks {@code looking}.
+     */
+    public boolean bury(String burier,Direction looking){
+        BlockPos top=graveTop();
+        if(level().isClientSide||isRemoved()||!buryable(top))return false;
+        // The marker faces the one who buried the body; the mound's head end is away from them.
+        var facing=looking.getOpposite();
+        if(!level().setBlockAndUpdate(top,ModBlocks.GRAVE.get().defaultBlockState().setValue(GraveBlock.FACING,facing)))return false;
         if(!(level().getBlockEntity(top) instanceof GraveBlockEntity grave)){
-            level().removeBlock(top,false);return InteractionResult.FAIL;
+            level().removeBlock(top,false);return false;
         }
         var buried=data();var name=remains().get(DataComponents.CUSTOM_NAME);
         if(name!=null)buried.putString("Name",Component.Serializer.toJson(name,level().registryAccess()));
-        grave.bury(buried);discard();
-        if(!player.getAbilities().instabuild)tool.hurtAndBreak(1,player,LivingEntity.getSlotForHand(hand));
-        return InteractionResult.CONSUME;
+        buried.putLong(GraveBlockEntity.BURIED_DAY,level().getDayTime()/24000);
+        grave.bury(buried);
+        GameplayLog.event(this,"remains","buried by {} grave={} facing={} identity={} variant={} stage={} category={} buried_day={} rot={} water={}",
+                burier,top.toShortString(),facing.getName(),buried.hasUUID("Identity")?buried.getUUID("Identity"):"none",
+                buried.getString("Variant"),buried.contains("Stage")?buried.getString("Stage"):"none",RemainsCause.of(buried),
+                buried.getLong(GraveBlockEntity.BURIED_DAY),RemainsRot.id(stage()),RemainsWater.id(waterStage));
+        discard();
+        return true;
     }
     @Override public void tick(){
         super.tick();

@@ -32,7 +32,7 @@
       {"id": "hair-wounds", "label": "头发与身体伤口网格、分级图集", "prefixes": ["standards/yukkuri-library/drafts/body-marks/hair-wounds/", "art/source/hair-wounds/", "src/main/resources/assets/mcyukkuri/yukkuri_wounds/hair/"], "registry": ["hair_wounds"]},
       {"id": "body-core-cavity", "label": "中枢与体腔", "prefixes": ["art/source/body-core-cavity/"], "registry": ["body_core_cavity"]},
       {"id": "core-filling", "label": "中枢馅与漏馅", "prefixes": ["art/props/body-marks/"], "registry": ["core_filling"], "ids": ["leaked_filling", "body_marks"]},
-      {"id": "remains", "prefixes": ["standards/yukkuri-library/drafts/remains/", "art/source/remains/", "src/main/resources/assets/mcyukkuri/textures/entity/remains/"], "registry": ["remains_art"], "ids": ["burial_mound", "yukkuri_remains"]}
+      {"id": "remains", "prefixes": ["standards/yukkuri-library/drafts/remains/", "art/source/remains/", "src/main/resources/assets/mcyukkuri/textures/entity/remains/"], "registry": ["remains_art", "grave_marker"], "ids": ["burial_mound", "grave_marker", "yukkuri_remains"]}
     ]},
     {"id": "family", "label": "家庭、出生与成长", "families": [
       {"id": "family-life", "prefixes": ["art/props/family-life/", "standards/yukkuri-library/motions/procedural/", "standards/yukkuri-library/ecology/house-egg/"], "registry": ["family_stem", "shed_stem"], "ids": ["house_egg*", "live_birth_pose", "reproductive_filling", "family-index"]},

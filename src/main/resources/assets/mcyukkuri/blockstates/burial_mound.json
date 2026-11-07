@@ -1,6 +1,15 @@
 {
   "variants": {
-    "": {
+    "facing=east": {
+      "model": "mcyukkuri:block/burial_mound"
+    },
+    "facing=north": {
+      "model": "mcyukkuri:block/burial_mound"
+    },
+    "facing=south": {
+      "model": "mcyukkuri:block/burial_mound"
+    },
+    "facing=west": {
       "model": "mcyukkuri:block/burial_mound"
     }
   }

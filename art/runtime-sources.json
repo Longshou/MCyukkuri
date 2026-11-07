@@ -4186,6 +4186,15 @@
     "status": "selected_for_runtime_pending_user_review",
     "scope": "Eight death-cause forms and the dissolving residue for the nine rounded runtime bodies: accepted standard dead faces (N068/N044/N027/N045/N026/N069/N060/N070) on each body atlas, skin/hair/accessory recolouring, cylindrical skin overlays and two ground decals. House and rare forms keep the sleep face with the same pose and overlays. Deibu bodies use the ordinary reimu dead faces without the mature-face treatment. No user visual acceptance yet."
   },
+  "grave_marker": {
+    "builder": "standards/yukkuri-library/drafts/remains/grave_marker.py",
+    "runtime_model": "src/main/resources/assets/mcyukkuri/yukkuri_props/grave_marker.json",
+    "runtime_index": "src/main/resources/assets/mcyukkuri/yukkuri_props/index.json",
+    "runtime_texture": "src/main/resources/assets/mcyukkuri/textures/props/grave_marker.png",
+    "use": "small stone marker at the head end of a burial mound, facing the burier (client/GraveRenderer, body/GraveBlock)",
+    "origin": "project original; direction chosen from a local concept sheet and two rendered candidates; stone faces sample the vanilla smooth_stone texture by reference, the carved lines are project-drawn",
+    "standard_status": "pending_user_confirmation"
+  },
   "poop_block": {
     "source": "standards/yukkuri-library/drafts/care-props/poop_block.py",
     "exporter": "standards/yukkuri-library/drafts/care-props/poop_block.py",
