@@ -537,8 +537,9 @@ public final class TraceRecorder {
         out.addProperty("g", entity.onGround());
         out.addProperty("w", entity.isInWater());
         out.addProperty("wr", entity.rawInWater());
-        out.addProperty("iw", entity.isInWall());
-        out.addProperty("iwr", entity.rawInWall());
+        Boolean rawWall = TraceBlocks.inWall(entity);
+        out.addProperty("iw", entity.getVehicle() instanceof YukkuriEntity ? Boolean.FALSE : rawWall);
+        out.addProperty("iwr", rawWall);
         out.addProperty("hp", entity.getHealth());
         out.add("att", attachment(entity));
         out.addProperty("veh", entity.getVehicle() == null ? null : entity.getVehicle().getUUID().toString());
