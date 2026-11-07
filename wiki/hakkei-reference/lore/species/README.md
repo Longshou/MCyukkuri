@@ -36,7 +36,7 @@
 | [F65](https://yukkuri.fandom.com/wiki/Yukkuri_Akyu) 阿求型 | 爱称 Akyun，淡粉花饰与小槌，见同类就打，馅为捣碎的樱桃。 |
 | [F67](https://yukkuri.fandom.com/wiki/Yukkuri_Anonymous) 匿名者型 | 以匿名黑客组织为原型，面具饰物可当盾，能短时间改发色与眼色。 |
 | [F68](https://yukkuri.fandom.com/wiki/Yukkuri_Aya) 文型 | 通称 Kimeemaru，鸦天狗原型，速度极快、带相机，常配非人形胴体。 |
-| [F69](https://yukkuri.fandom.com/wiki/Yukkuri_Benben) 弁弁型 | 新出的乐器型，带琵琶或小花饰，喜欢与别的乐手型组“乐队”。 |
+| [F69](https://yukkuri.fandom.com/wiki/Yukkuri_Benben) 弁弁型 | 乐器型，带琵琶或小花饰，喜欢与别的乐手型组“乐队”。 |
 | [F70](https://yukkuri.fandom.com/wiki/Yukkuri_Boyfriend) 男朋友型 | 《Friday Night Funkin'》联动，只会用电子音交流，馅为甜甜圈。 |
 | [F71](https://yukkuri.fandom.com/wiki/Yukkuri_Bumblebirb) 蜂鸟型 | 《Terraria》灾厄模组联动，极罕见，号称有该 Boss 的全部能力。 |
 | [F72](https://yukkuri.fandom.com/wiki/Yukkuri_Byakuren) 白莲型 | 爱称 Byakkuri，不把别的个体分成“能慢慢来”与“不能”，带卷轴与召唤同伴的佛号。 |
@@ -50,7 +50,7 @@
 | [F81](https://yukkuri.fandom.com/wiki/Yukkuri_Doremy) 多莉米型 | 圣诞帽与梦境原型，能吃梦、进梦。 |
 | [F82](https://yukkuri.fandom.com/wiki/Yukkuri_Eika) 惠香型 | 无饰物，馅写作“叠起来的石头”，主要活动就是叠石。 |
 | [F83](https://yukkuri.fandom.com/wiki/Yukkuri_Eirin) 永琳型 | 护士帽与药馅，会配药、做陷阱，是同类里的医生。 |
-| [F84](https://yukkuri.fandom.com/wiki/Yukkuri_Elly) 艾丽型 | 旧作门卫型，持镰刀，如今几乎绝迹。 |
+| [F84](https://yukkuri.fandom.com/wiki/Yukkuri_Elly) 艾丽型 | 旧作门卫型，持镰刀，页面称几乎绝迹。 |
 | [F85](https://yukkuri.fandom.com/wiki/Yukkuri_Eternity) 永恒型 | 蝶翼、叶冠与触角，会撒鳞粉烦人。 |
 | [F87](https://yukkuri.fandom.com/wiki/Yukkuri_Futo) 布都型 | 蓝帽缠白绳，会把东西摆到“完美”，也能自燃。 |
 | [F88](https://yukkuri.fandom.com/wiki/Yukkuri_Gabriel) 加百列型 | 《废天使》联动，光环与羽翼，会飞、射箭、吹小号。 |
@@ -107,7 +107,7 @@
 | [F139](https://yukkuri.fandom.com/wiki/Yukkuri_Mystia) 米斯蒂娅型 | 小鸟翼，会飞会唱。 |
 | [F140](https://yukkuri.fandom.com/wiki/Yukkuri_Naruto) 鸣人型 | 《火影》联动，能分身与掷手里剑，极稀有。 |
 | [F141](https://yukkuri.fandom.com/wiki/Yukkuri_Nazrin) 娜兹玲型 | 鼠耳，善闯屋，会破解粘板与鼠夹。 |
-| [F142](https://yukkuri.fandom.com/wiki/Yukkuri_Nitori) 似鸟型 | 能潜水与射水，带“诡异”胴体的写法。 |
+| [F142](https://yukkuri.fandom.com/wiki/Yukkuri_Nitori) 荷取型 | 能潜水与射水，带“诡异”胴体的写法。 |
 | [F143](https://yukkuri.fandom.com/wiki/Yukkuri_Nue) 鵺型 | 能改外形与假装受伤诱捕，潜入窝里吃幼体。 |
 | [F144](https://yukkuri.fandom.com/wiki/Yukkuri_Observer) 观察者型 | 网络怪谈联动，偷东西再放到别处。 |
 | [F145](https://yukkuri.fandom.com/wiki/Yukkuri_Orin) 阿燐型 | 极好动，发情时会强上同类。 |
@@ -158,9 +158,9 @@
 | [F191](https://yukkuri.fandom.com/wiki/Yukkuri_Yatsunash%C4%B1) 八桥型 | 身边常有五线谱，喜欢弁弁型。 |
 | [F192](https://yukkuri.fandom.com/wiki/Yukkuri_Yoshika) 芳香型 | 什么小东西都往嘴里塞。 |
 | [F194](https://yukkuri.fandom.com/wiki/Yukkuri_Yukari) 紫型 | 能用极有限的“隙间”，个体差异极大。 |
-| [F195](https://yukkuri.fandom.com/wiki/Yukkuri_Yuki) 幽鬼型 | PC-98 角色原型，能变形，只对同型好。 |
+| [F195](https://yukkuri.fandom.com/wiki/Yukkuri_Yuki) 幽鬼型 | PC-98 角色原型，把其他个体转化成同型，只亲近同型。 |
 | [F196](https://yukkuri.fandom.com/wiki/Yukkuri_Yumeko) 梦子型 | 尖牙能当弹丸射。 |
-| [F197](https://yukkuri.fandom.com/wiki/Yukkuri_YuugenMagan) 梦幻冠型 | 能造假分身当监视器。 |
+| [F197](https://yukkuri.fandom.com/wiki/Yukkuri_YuugenMagan) 幽幻魔眼型 | 能造假分身当监视器。 |
 | [F198](https://yukkuri.fandom.com/wiki/Yukkuri_Yuugi) 勇仪型 | 力气极大、爱开宴会。 |
 | [F199](https://yukkuri.fandom.com/wiki/Yukkuri_Yuuka) 幽香型 | 是第一种会自己种食物的型，会用锄头与水壶。 |
 | [F200](https://yukkuri.fandom.com/wiki/Yukkuri_Yuyuko) 幽幽子型 | 食量极大。 |
