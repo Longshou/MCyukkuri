@@ -9,10 +9,12 @@ const assets=path.join(job.root,'src/main/resources/assets/mcyukkuri');
 const read=p=>JSON.parse(fs.readFileSync(p,'utf8'));
 const revisions=read(path.join(assets,'yukkuri_presentation/motion_corrections.json')).models;
 const fits=read(path.join(assets,'yukkuri_presentation/placement_fit.json')).models;
-const faces=read(path.join(assets,'yukkuri_presentation/face_library.json'));
+// A --before checkout can predate the face library; its ordinary strips still render.
+const facePath=path.join(assets,'yukkuri_presentation/face_library.json');
+const faces=fs.existsSync(facePath)?read(facePath):null;
 const actors=job.actors.map(a=>{
  const model=read(a.path);
- if(!a.prop)model.expression_patches={...model.expression_patches,...faces.models[a.id].expression_patches};
+ if(!a.prop&&faces)model.expression_patches={...model.expression_patches,...faces.models[a.id].expression_patches};
  const pose=a.prop?null:new RuntimePose(model,a.scale,revisions[a.id],fits[a.id]);
  if(pose&&!pose.clips[a.clip])throw Error('Unknown clip '+a.id+'/'+a.clip);
  if(pose&&job.times.some(t=>t>pose.clips[a.clip].duration))throw Error('Beat time exceeds clip duration: '+a.id+'/'+a.clip);
@@ -24,9 +26,10 @@ const frames=job.times.map(t=>{
   let phase=0;
   if(a.pose){
    let face=a.face||a.pose.expressionFor(a.clip,t);
-   const animation=faces.animations[face];
+   const animation=faces?.animations[face];
    if(animation){phase=Math.floor(t*20/animation.frame_ticks)%2;face=animation.frames[phase];}
-   if(!faces.models[a.id].selectable.includes(face))throw Error('Unknown face id: '+face);
+   if(faces&&!faces.models[a.id].selectable.includes(face))throw Error('Unknown face id: '+face);
+   if(a.face&&!faces)throw Error('Checkout has no face library: '+job.root);
    a.pose.expression(face);
   }
   const raw=a.pose?a.pose.frame(a.clip,t):a.model.vertices;
