@@ -503,7 +503,8 @@ public final class Reactions {
         /** Something it is already doing comes first: a meal or other life task, its family, company, play, comfort; null when idle. */
         private static String busy(YukkuriEntity e) {
             if (!e.life().activity().equals(Behaviors.IDLE)) return "life:" + e.life().activity();
-            if (e.life().drowsy()) return "drowsy";
+            // Nobody dozes off through a thunderstorm (the darkened sky counts as night for sleep).
+            if (e.life().drowsy() && Sky.open(e.level(), e.blockPosition()) != Sky.STORM) return "drowsy";
             if (e.family().active()) return "family";
             if (e.dailyLife().active()) return "daily";
             if (e.social().active()) return "social";

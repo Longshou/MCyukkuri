@@ -1572,14 +1572,14 @@ kotatsu('kotatsu_winter', '暖桌魔理沙在雪原不怕冷', '暖桌魔理沙�
 kotatsu('kotatsu_summer', '暖桌魔理沙在沙漠躲热', '暖桌魔理沙在沙漠躲热', 'minecraft:desert',
         '沙漠：暖桌魔理沙嫌热，白天也回棚下睡（先避暑）；普通魔理沙照常活动，时不时说“热”', roofed=True)
 
-# A clear winter noon on the kotatsu plot with no heat source: the chilled one finds its own sunny spot (not the tree's shade).
-add('sunbathe', 'species', '冬日晴天怕冷的魔理沙晒太阳', '冬日晴天怕冷的魔理沙晒太阳',
-    '雪原晴天正午、附近没有火和暖桌：普通魔理沙觉得冷（needs.temperature=cold），在阳光下停下、压扁闭眼、脸朝上晒太阳（behavior=sunbathe，日志 refuge route selected … sun=true），'
-    '一轮晒完暖和了圆回来，约一分钟内不再找太阳；树荫下不算阳光，阴天、下雨和夜里也不晒',
+# A clear cold (autumn taiga) noon on the kotatsu plot with no heat source: the chilled one settles in its own sunny spot.
+add('sunbathe', 'species', '寒冷晴天怕冷的魔理沙晒太阳', '寒冷晴天怕冷的魔理沙晒太阳',
+    '寒冷的针叶林（秋）晴天正午、附近没有火和暖桌：普通魔理沙觉得冷（needs.temperature=cold），在阳光下停下、压扁闭眼、脸朝上晒太阳（behavior=sunbathe，日志 refuge route selected … sun=true），'
+    '一轮晒完暖和了圆回来，约一分钟内不再找太阳；树荫下不算阳光，阴天、下雨和夜里也不晒；冬天雪原太冷，晒太阳不够，只能找真正的热源',
     '约 10–30 秒', [
-        'fillbiome ~-12 56 ~-12 ~12 100 ~12 minecraft:snowy_plains',
+        'fillbiome ~-12 56 ~-12 ~12 100 ~12 minecraft:taiga',
         box(-4, 0, -3, -4, 3, -3, 'minecraft:spruce_log'), box(-6, 4, -5, -2, 5, -1, 'minecraft:spruce_leaves[persistent=true]', 'keep'),
-        yk('marisa', -4, -1, 'basker', yaw=180, lead=True, **pair_ready())],
+        yk('marisa', 0, 1, 'basker', yaw=180, lead=True, **pair_ready())],
     env=DAY, spot='kotatsu', note=NEW, vantage=(0, 8),
     reads=[('读晒太阳', f'yukkuri status {sel("basker")} raw')],
     capture=dict(shots=(1, 40, 200, 400, 600), sequences=((40, 600, 6),), follow='@e[tag=scn_basker,limit=1]', offset=(0, .9, 2.8)),
@@ -2426,13 +2426,13 @@ pond('self_rescue', '落水后游回自己的帽子', '落水后游回自己的�
 pond('shake_ashore', '落水灵梦爬上岸甩水', '落水灵梦爬上岸甩水',
      '普通灵梦站在岸边，被推下水：自己游回岸上（[intent] end id=escape_water），在干地上停下甩水（[weather] shaking water off … after=water，播甩水片段），甩完湿度减半（shook the water off wetness=A -> A/2）；之后自然晾干，不会反复甩',
      '约 20–40 秒',
-     [yk('reimu', bank_dx(0) - 1, 0, 'a', yaw=-90, lead=True, **pair_ready())], late=[shoved('a', .5)], note=NEW, vantage=(bank_dx(0) - 5, 3, -120, 15),
+     [yk('reimu', bank_dx(0), 0, 'a', yaw=-90, lead=True, **pair_ready())], late=[shoved('a', .5)], note=NEW, vantage=(bank_dx(0) - 5, 3, -120, 15),
      reads=[('读湿度与甩水', f'yukkuri status {sel("a")} raw')],
      capture=dict(shots=(1, 40, 400, 800), sequences=((40, 800, 4),), observe=False,
                   follow='@e[tag=scn_a,limit=1]', offset=(-1.6, 1.0, 2.2)),
      smoke=dict(ticks=1200, expect=[*_WATER_ESCAPE, r'\[weather\][^\n]* shaking water off wetness=[^\n]* after=water\b',
                                    r'\[weather\][^\n]* shook the water off wetness='],
-                forbid=_WATER_SMOKE_FORBID))
+                forbid=_WATER_SMOKE_FORBID, readout=_water_readouts('a')))
 
 def reclaim_facing_once(window):
     """The bank reclaim turns to the hat once: a turn Face has already completed is never issued again (the beckon that comes
