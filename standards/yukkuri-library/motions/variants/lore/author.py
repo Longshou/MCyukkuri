@@ -30,6 +30,8 @@ BIRTH_CLIPS=('labor','boat_labor','midwife','postpartum','first_wake','hat_hold'
 BADGE_CLIPS=('snatch_pull','stand_ground','offer_bite')
 # Worried comfort lick for an injured mate or kin, exported alone by --export-comfort.
 COMFORT_CLIPS=('comfort_lick',)
+# Weather and warmth moments (rain huddle on either side, thunderstorm cower, winter sunbathing), exported by --export-weather.
+WEATHER_CLIPS=('rain_huddle_right','rain_huddle_left','thunder_cower','sunbathe')
 TILT_FIX_CLIPS=('eat','drink','first_toilet_assist','newborn_crawl','nest_harvest','nest_place','nest_spread','greet',
                 'hat_off_aq','hat_on_aq','water_plunge','water_recover','water_hat_pull','water_hat_over')
 # Body pitch -8..+6, roll <= 6 (hard cap 12): effort is squash, stretch, shift, yaw and the face, never a whole-body flip.
@@ -363,6 +365,40 @@ def state(action, t, c, height):
     elif action == 'shake':
         fade = (1-t/d)**2; w = math.sin(2*math.pi*t/c['shake_seconds'])
         r[1] = c['turn']*w*fade; s = [1+.03*abs(w)*fade, 1-.03*abs(w)*fade, 1+.03*abs(w)*fade]
+    elif action in ('rain_huddle_left', 'rain_huddle_right'):
+        # Project design (TODO 陆 14): pressed against a partner on its `side` (+1: toward +X, the body's right). A nestle opens each cycle (squash
+        # low and wide, slide and lean into the partner), then the pressed hold with a shiver and a breath. The shiver is not
+        # mirrored: two partners on one clip clock shiver in step. Pitch |lean| + roll + shiver roll stay under 12 degrees.
+        side, nest = c['side'], c['nestle']
+        press = c['hold']+(1-c['hold'])*bump(t/nest)
+        hold = min(1., max(0., (t-nest)/(d-nest)))
+        calm = 1-.5*smooth(hold)
+        w = math.sin(2*math.pi*c['shiver_hz']*t)
+        k, wide = c['squash']*press, c['widen']*press
+        s = [1+wide, 1-k+c['breath']*math.sin(math.pi*hold)**2, 1+.4*wide]
+        r = [c['lean'], 0., -side*c['roll']*press+c['shiver_roll']*w*calm]
+        shift[0] = side*c['slide']*height*press+c['shiver_ratio']*height*w*calm
+    elif action == 'thunder_cower':
+        # Project design (TODO 陆 14 thunderstorm): flattened, leaning back from the open side and trembling; it rises a little to
+        # peek out with a small look aside (yaw only), then a rumble flattens it again. Pitch back <= lean_back, roll <= 1.5.
+        p0, p1 = c['peek_start'], c['peek_end']
+        rise = keyed(t, [(0, 0), (p0, 0), (p0+.35, 1), (p1-.2, 1), (p1, 0), (d, 0)])
+        flinch = bump((t-p1)/.35) if p1 <= t < p1+.35 else 0.
+        k = c['flat']*(1-.6*rise)+.03*flinch
+        trem = 1-.7*rise
+        w = math.sin(2*math.pi*c['shiver_hz']*t)
+        s = [1+.5*k, 1-k, 1+.4*k]
+        glance = keyed(t, [(0, 0), (p0+.35, 0), (p0+.6, 1), (p1-.3, 1), (p1, 0), (d, 0)])
+        r = [c['lean_back']*(1-.5*rise), c['glance']*glance, 1.5*w*trem]
+        shift[0] = c['shiver_ratio']*height*w*trem
+    elif action == 'sunbathe':
+        # Project design (art-dir-life 晒太阳): settles flat in the winter sun, face a little up and eyes closed, slow breaths and a
+        # soft sway, then rounds back up warm. Pitch up <= chin_up, roll <= sway.
+        settle = keyed(t, [(0, 0), (c['settle'], 1), (d-c['rise'], 1), (d, 0)])
+        k = c['flat']*settle
+        b = math.sin(2*math.pi*t/c['breath_seconds'])
+        s = [1+.55*k, 1-k+c['breath']*settle*b, 1+.45*k]
+        r = [c['chin_up']*settle, 0., c['sway']*settle*math.sin(2*math.pi*t/c['sway_seconds'])]
     elif action == 'brood':
         b = (1-math.cos(2*math.pi*t/d))/2
         s = [1-c['breath']*.3*b, 1+c['breath']*b, 1-c['breath']*.3*b]
@@ -806,6 +842,8 @@ def compile_clips(model, cfg, root, ground, height):
     out = {}; ident = model['id']
     hat = runpy.run_path(str(Path(__file__).resolve().parent/'hat.py'))
     for name, base in cfg['clips'].items():
+        if 'base' in base:  # the same clip with its own overrides (e.g. the other side), authored once
+            base = {**cfg['clips'][base['base']], **{k: v for k, v in base.items() if k != 'base'}}
         if not applies(cfg, base['applies'], ident): continue
         c = variant(base, ident)
         if 'hat' in c:  # the braid works the hat (hat.py): its own root, hat and braid tracks
@@ -855,7 +893,7 @@ def compile_clips(model, cfg, root, ground, height):
     return out
 
 
-def export_distress_clips(include_pet=False, include_birth=False, include_carry=False, include_badge=False, include_comfort=False, include_aquatic=False, prune_only=False, check=False, include_brim=False):
+def export_distress_clips(include_pet=False, include_birth=False, include_carry=False, include_badge=False, include_comfort=False, include_aquatic=False, prune_only=False, check=False, include_brim=False, include_weather=False):
     """Export only this new clip family, preserving unrelated selected meshes, cheek morphs and existing clips."""
     import hashlib,sys
     sys.path.insert(0,str(ROOT/'scripts'))
@@ -871,8 +909,9 @@ def export_distress_clips(include_pet=False, include_birth=False, include_carry=
     cfg=json.loads((here/'recipe.json').read_text(encoding='utf-8'))
     contact_cfg=json.loads((here.parent/'contact-safe/recipe.json').read_text(encoding='utf-8'))
     authored_names=set(cfg['clips']) | set(contact_cfg['actions']) | set(contact_cfg['braid_follow']['actions'])
-    contact_author=runpy.run_path(str(here.parent/'contact-safe/author.py')) if include_pet or include_birth or include_badge or include_comfort else None
-    names=BRIM_CARRY_CLIPS if include_brim else TOOLS['EXPORT_CLIPS'] if include_aquatic else COMFORT_CLIPS if include_comfort else ('boat_carry_young','boat_be_carried','boat_prepare_carry','boat_release_carry','mouth_release') if include_carry else BIRTH_CLIPS if include_birth else BADGE_CLIPS+TILT_FIX_CLIPS if include_badge else DISTRESS_CLIPS
+    follows=include_pet or include_birth or include_badge or include_comfort or include_weather
+    contact_author=runpy.run_path(str(here.parent/'contact-safe/author.py')) if follows else None
+    names=WEATHER_CLIPS if include_weather else BRIM_CARRY_CLIPS if include_brim else TOOLS['EXPORT_CLIPS'] if include_aquatic else COMFORT_CLIPS if include_comfort else ('boat_carry_young','boat_be_carried','boat_prepare_carry','boat_release_carry','mouth_release') if include_carry else BIRTH_CLIPS if include_birth else BADGE_CLIPS+TILT_FIX_CLIPS if include_badge else DISTRESS_CLIPS
     if include_pet:
         names+=('think','nervous','proud','joy_jump','sulk','hide_face','beg','bow','shy','doze_off','struggle','basket_in','basket_out','ignore','restrain')
     cfg['clips']={name:cfg['clips'][name] for name in names}
@@ -894,7 +933,7 @@ def export_distress_clips(include_pet=False, include_birth=False, include_carry=
             row=np.array([sz*cy,(sz*sy*sx+cz*cx),(sz*sy*cx-cz*sx)])*scale
             return floor-((points-pivot)@row+pivot[1]).min()
         authored=compile_clips(model,cfg,root,ground,height)
-        if include_pet or include_birth or include_badge or include_comfort:
+        if follows:
             follow=dict(contact_cfg['braid_follow'],actions=[name for name in cfg['braid_follow'] if name in names and name in authored])
             authored.update(contact_author['braid_follow'](model,dict(contact_cfg,braid_follow=follow),authored))
         if include_birth:
@@ -914,14 +953,20 @@ def export_distress_clips(include_pet=False, include_birth=False, include_carry=
     if include_birth:
         write(resource.parent/'live_birth_pose.json',json.dumps(birth_poses,ensure_ascii=False,separators=(',',':'))+'\n')
     if not prune_only and not include_brim:
-        payload['revision']=AQUATIC_REVISION if include_aquatic else 'comfort-lick-20261017-v29' if include_comfort else 'hat-care-contact-20261017-v26' if include_carry else 'birth-staging-20261017-v27' if include_birth else 'badge-motion-20261017-v28' if include_badge else 'braid-reach-low-20261018-v30'
+        payload['revision']='life-weather-20261107-v38' if include_weather else AQUATIC_REVISION if include_aquatic else 'comfort-lick-20261017-v29' if include_comfort else 'hat-care-contact-20261017-v26' if include_carry else 'birth-staging-20261017-v27' if include_birth else 'badge-motion-20261017-v28' if include_badge else 'braid-reach-low-20261018-v30'
     write(resource,json.dumps(payload,ensure_ascii=False,separators=(',',':'))+'\n')
+    if include_weather:  # the side reach of every model through its huddle loop, for the server's side-by-side stand
+        write(resource.parent/'side_profile.json',runpy.run_path(str(here/'side_profile.py'))['build']())
     entry=json.loads(manifest.read_text(encoding='utf-8'))
     for field,path in (('lore_recipe',here/'recipe.json'),('lore_author',here/'author.py'),('lore_aquatic_tools',here/'aquatic_tools.py'),('runtime',resource),
                        ('braid_rescue_recipe',ROOT/'standards/yukkuri-library/interactions/braid-water-rescue/recipe.json'),
                        ('braid_rescue_author',ROOT/'standards/yukkuri-library/interactions/braid-water-rescue/author.py'),
                        ('braid_rescue_geometry',ROOT/'src/main/resources/assets/mcyukkuri/yukkuri_presentation/braid_rescue.json')):
         entry[field]=path.relative_to(ROOT).as_posix();entry[field+'_sha256']=hashlib.sha256(path.read_bytes()).hexdigest()
+    if include_weather:
+        profile_path=resource.parent/'side_profile.json'
+        entry['side_profile']=profile_path.relative_to(ROOT).as_posix()
+        entry['side_profile_sha256']=hashlib.sha256(profile_path.read_bytes()).hexdigest()
     if include_birth:
         pose_path=resource.parent/'live_birth_pose.json'
         entry['birth_pose']=pose_path.relative_to(ROOT).as_posix()
@@ -944,6 +989,7 @@ if __name__=='__main__':
     parser.add_argument('--export-comfort',action='store_true',help='Export the comfort_lick clip only, preserving other runtime clips.')
     parser.add_argument('--export-brim-carry',action='store_true',help='Export the braid brim lift and lowering (BRIM_CARRY_CLIPS, braid_keys.py) only.')
     parser.add_argument('--export-aquatic',action='store_true',help='Export the paddle, braid cradle, mouth bite, capsize and self-rescue clips (aquatic_tools.py) only.')
+    parser.add_argument('--export-weather',action='store_true',help='Export the rain huddle, thunderstorm cower and sunbathing clips (WEATHER_CLIPS) only.')
     args=parser.parse_args()
     if args.prune:export_distress_clips(prune_only=True,check=args.check)
     if args.export_distress or args.export_pet_and_distress:export_distress_clips(args.export_pet_and_distress,check=args.check)
@@ -953,3 +999,4 @@ if __name__=='__main__':
     if args.export_comfort:export_distress_clips(include_comfort=True,check=args.check)
     if args.export_aquatic:export_distress_clips(include_aquatic=True,check=args.check)
     if args.export_brim_carry:export_distress_clips(include_brim=True,check=args.check)
+    if args.export_weather:export_distress_clips(include_weather=True,check=args.check)

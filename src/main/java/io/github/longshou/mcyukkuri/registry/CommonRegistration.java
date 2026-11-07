@@ -37,6 +37,7 @@ import io.github.longshou.mcyukkuri.settlement.ShelterIndexEvents;
 import io.github.longshou.mcyukkuri.settlement.SiteClaimer;
 import io.github.longshou.mcyukkuri.shop.ShopCourier;
 import io.github.longshou.mcyukkuri.shop.ShopPerformance;
+import io.github.longshou.mcyukkuri.status.Reactions;
 import io.github.longshou.mcyukkuri.world.SearchBudgetEvents;
 import java.util.function.Consumer;
 import net.neoforged.bus.api.EventPriority;
@@ -113,6 +114,8 @@ public final class CommonRegistration {
         // Restore staging before cognition mirrors the entity's saved state.
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, EntityJoinLevelEvent.class, Staging::joining);
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, EntityJoinLevelEvent.class, GroupMemberEvents::joining);
+        // A lightning strike: every yukkuri in earshot hears the thunder clap.
+        NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, EntityJoinLevelEvent.class, Reactions::lightning);
         // Last, after every listener that may refuse the join: a naturally spawned aquatic marisa is seated on her hat.
         NeoForge.EVENT_BUS.addListener(EventPriority.LOWEST, false, EntityJoinLevelEvent.class, AquaticLife::joined);
 

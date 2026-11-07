@@ -146,7 +146,13 @@ public enum YukkuriAction {
     SNATCH_PULL("snatch_pull", 1.2, false),
     STAND_GROUND("stand_ground", 1.6, true),
     OFFER_BITE("offer_bite", 1.4, false),
-    BOAT_LABOR("boat_labor", 12.0, true);
+    BOAT_LABOR("boat_labor", 12.0, true),
+    // Weather and warmth moments (lore recipe v18, all standard forms): pressed beside a partner on its left or right in the rain,
+    // flattened from a thunderstorm, basking flat in the winter sun.
+    RAIN_HUDDLE_LEFT("rain_huddle_left", 4.0, true),
+    RAIN_HUDDLE_RIGHT("rain_huddle_right", 4.0, true),
+    THUNDER_COWER("thunder_cower", 3.2, true),
+    SUNBATHE("sunbathe", 4.0, true);
 
     private final String id;
     private final double duration;

@@ -90,6 +90,10 @@
     ],
     "blank_cry": [
       "cry"
+    ],
+    "squeezed_cry_tears": [
+      "cry",
+      "teary"
     ]
   },
   "groups": {
@@ -6304,6 +6308,122 @@
           "rest"
         ]
       ]
+    },
+    "thunder_cower": {
+      "label": "雷暴缩身",
+      "duration": 3.2,
+      "loop": true,
+      "applies": "all",
+      "flat": 0.16,
+      "lean_back": 4,
+      "shiver_hz": 12.5,
+      "shiver_ratio": 0.008,
+      "peek_start": 1.3,
+      "peek_end": 2.4,
+      "glance": 14,
+      "faces": [
+        [
+          0,
+          1.4,
+          "squeezed_cry_tears"
+        ],
+        [
+          1.4,
+          2.4,
+          "teary"
+        ],
+        [
+          2.4,
+          3.2,
+          "squeezed_cry_tears"
+        ]
+      ],
+      "lore": "Project design (TODO 陆 14 thunderstorm): flattened low and wide under a roof, leaning back from the open side and trembling with eyes squeezed; it rises a little and peeks out with a small look aside (yaw only), then a rumble flattens it again. Pitch back at most 4, roll at most 1.5.",
+      "triggers": [
+        "sheltered alone in a thunderstorm while frightened (Reactions.Weather HUDDLE without a partner)"
+      ]
+    },
+    "sunbathe": {
+      "label": "晒太阳",
+      "duration": 10.0,
+      "loop": false,
+      "applies": "all",
+      "settle": 1.2,
+      "rise": 1.0,
+      "flat": 0.1,
+      "chin_up": 4,
+      "breath": 0.012,
+      "breath_seconds": 2.5,
+      "sway": 2,
+      "sway_seconds": 5.0,
+      "faces": [
+        [
+          0,
+          0.8,
+          "teary"
+        ],
+        [
+          0.8,
+          9.2,
+          "closed_smile"
+        ],
+        [
+          9.2,
+          70,
+          "happy"
+        ]
+      ],
+      "lore": "Project design (art-dir-life 晒太阳): a chilled body settles flat in a patch of winter sun with its face turned a little up and eyes closed, breathes slowly with a soft sway, and rounds back up warm at the end. The bask lasts this clip (TemperatureLife BASK_TICKS). Pitch up at most 4, roll at most 2.",
+      "triggers": [
+        "cold, a clear day, a sunlit stand reached (TemperatureLife refuge with sun)"
+      ]
+    },
+    "rain_huddle_right": {
+      "label": "雨中贴靠（同伴在右）",
+      "duration": 4.0,
+      "loop": true,
+      "applies": "all",
+      "side": 1,
+      "nestle": 0.6,
+      "hold": 0.6,
+      "squash": 0.07,
+      "widen": 0.045,
+      "slide": 0.02,
+      "roll": 5,
+      "lean": -2,
+      "shiver_hz": 12,
+      "shiver_ratio": 0.008,
+      "shiver_roll": 1.0,
+      "breath": 0.012,
+      "faces": [
+        [
+          0,
+          0.6,
+          "squeezed_cry_tears"
+        ],
+        [
+          0.6,
+          2.8,
+          "teary"
+        ],
+        [
+          2.8,
+          4.0,
+          "sleepy"
+        ]
+      ],
+      "lore": "Project design (TODO 陆 14, art-dir-life rain_huddle): pressed against a kin or friend under a roof in the rain. Each cycle opens with a nestle (squash low and wide, slide and lean into the partner, eyes squeezed), then holds pressed with a shiver that is not mirrored, so a pair started on one clip clock shivers in step, and a slow breath with calmer half-closed eyes; it eases back to the held pose at the seam. A thunder clap restarts the cycle after the startle, which reads as nestling closer. side +1: the partner is toward model +X, the body's right (the game turns the model by 180 - yaw, its face is -Z).",
+      "triggers": [
+        "weather huddle pressed (Reactions.Weather HUDDLE), partner on its right"
+      ]
+    },
+    "rain_huddle_left": {
+      "base": "rain_huddle_right",
+      "label": "雨中贴靠（同伴在左）",
+      "side": -1,
+      "triggers": [
+        "weather huddle pressed (Reactions.Weather HUDDLE), partner on its left"
+      ]
     }
   },
   "flourishes": {
@@ -6381,7 +6501,11 @@
     "stand_ground",
     "offer_bite",
     "comfort_lick",
-    "hop_leg"
+    "hop_leg",
+    "rain_huddle_left",
+    "rain_huddle_right",
+    "thunder_cower",
+    "sunbathe"
   ],
   "braid_use": {
     "note": "Project design (user 2026-11-05 feedback 2: what the braid already holds decides what it can do): clips whose own authored braid grips, carries or strokes something (the hat, a child, a brim, the water; in the water she flails and swims with it while the stack stays in her hat) use the braid, so the game never lays the held stack's hold over them; a held stack shows there only by the clip's own props.item, otherwise it stays stowed in her hat and is not drawn. A hat clip with `hat.stick` (her own hat on and off at the water, the clips the game plays while she holds the stick) keeps the stick in the tuft: it lies along the brim the tuft hooks, its long end along the keyed direction in the worn hat's frame ([t, x, y, z]: out to her braid side on the worn brim, out over the water on the hat set down; re-aimed in the tuft while the hat swings over) and turning with the hat, so the stick never leaves the braid, never pops and never crosses her face (user 2026-11-05 feedback 2; user 2026-11-04 feedback 6: held in the braid, not hidden). Markers `braid_busy` (the braid has left the hold by here) and `braid_free` (from here it returns to the hold by the clip's end) let a one-shot clip hand the braid over from and back to the hold. Exported as the clip field braid_use.",
@@ -6424,5 +6548,5 @@
       "braid_brim_lower"
     ]
   },
-  "revision": 17
+  "revision": 18
 }

@@ -25,8 +25,13 @@ public final class EcologyPresentation {
             case Behaviors.SEEK_WARMTH, Behaviors.WARM_UP -> YukkuriAction.TREMBLE;
             // status hub reactions: predator in view, rain or snow on the body
             case Behaviors.THREAT_WATCH -> YukkuriAction.LOOK_AROUND;
-            case Behaviors.THREAT_HIDE, Behaviors.RAIN_WAIT, Behaviors.RAIN_HUDDLE -> YukkuriAction.TREMBLE;
+            case Behaviors.THREAT_HIDE, Behaviors.RAIN_WAIT -> YukkuriAction.TREMBLE;
             case Behaviors.RAIN_SHAKE -> YukkuriAction.SHAKE;
+            case Behaviors.RAIN_HUDDLE_LEFT -> YukkuriAction.RAIN_HUDDLE_LEFT;
+            case Behaviors.RAIN_HUDDLE_RIGHT -> YukkuriAction.RAIN_HUDDLE_RIGHT;
+            case Behaviors.THUNDER_COWER -> YukkuriAction.THUNDER_COWER;
+            case Behaviors.THUNDER_STARTLE -> YukkuriAction.STARTLE;
+            case Behaviors.SUNBATHE -> YukkuriAction.SUNBATHE;
             case Behaviors.SEEK_SHADE -> YukkuriAction.LOOK_AROUND;
             case Behaviors.INDEPENDENCE_BUILD, Behaviors.NEST_BUILD, Behaviors.NEST_PLACE, Behaviors.NEST_SPREAD, Behaviors.NEST_PRESS, Behaviors.NEST_HARVEST -> YukkuriAction.BRACE;
             // These distinct care/learning states select matching authored clips in YukkuriModel.
@@ -91,7 +96,7 @@ public final class EcologyPresentation {
         return switch (event) {
             case "hello", "peer", "known_peer", "caregiver", "introduced", "gentle" -> YukkuriAction.GREET;
             case "afraid", "wounded", "water_help", "family_alarm_flee" -> YukkuriAction.TREMBLE;
-            case "boat_rock_startle" -> YukkuriAction.STARTLE;
+            case "boat_rock_startle", "thunder" -> YukkuriAction.STARTLE;
             // The protective puff keeps its authored body clip on land and for a hat rider; a running hold keeps its own pose.
             case "protect_taunt" -> YukkuriAction.PUFF;
             case "lost_accessory", "family_died", "lost_parent", "cold", "settlement_hurt", "settlement_submit" -> YukkuriAction.DROOP;
@@ -153,7 +158,10 @@ public final class EcologyPresentation {
             case Behaviors.SEEK_WARMTH, Behaviors.WARM_UP -> "teary";
             case Behaviors.THREAT_WATCH, Behaviors.THREAT_RETREAT -> "surprise";
             case Behaviors.HURT_CRY -> "cry";
-            case Behaviors.THREAT_HIDE, Behaviors.RAIN_RUN, Behaviors.RAIN_WAIT, Behaviors.RAIN_HUDDLE -> "teary";
+            case Behaviors.THREAT_HIDE, Behaviors.RAIN_RUN, Behaviors.RAIN_WAIT, Behaviors.RAIN_HUDDLE_LEFT, Behaviors.RAIN_HUDDLE_RIGHT,
+                 Behaviors.THUNDER_COWER -> "teary";
+            case Behaviors.THUNDER_STARTLE -> "surprise";
+            case Behaviors.SUNBATHE -> "closed_smile";
             case Behaviors.RAIN_SHAKE -> "neutral";
             case Behaviors.SEEK_SHADE, Behaviors.SHADE_REST -> "sleepy";
             case Behaviors.WAKE -> "yawn";

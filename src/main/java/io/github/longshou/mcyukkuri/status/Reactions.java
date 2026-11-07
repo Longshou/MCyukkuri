@@ -5,12 +5,16 @@ import io.github.longshou.mcyukkuri.life.BehaviorContinuity;
 import io.github.longshou.mcyukkuri.life.TravelRange;
 
 import io.github.longshou.mcyukkuri.entity.Behaviors;
+import io.github.longshou.mcyukkuri.entity.YukkuriAction;
+import io.github.longshou.mcyukkuri.mind.MindLife;
+import io.github.longshou.mcyukkuri.social.Temperament;
 import io.github.longshou.mcyukkuri.social.Bonds;
 import io.github.longshou.mcyukkuri.social.BondLevels;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.human.HumanCommerce;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.settlement.DenSeal;
+import io.github.longshou.mcyukkuri.motor.SideContact;
 import io.github.longshou.mcyukkuri.settlement.SearchBudget;
 import io.github.longshou.mcyukkuri.settlement.ShelterBlock;
 import java.util.ArrayList;
@@ -19,6 +23,7 @@ import java.util.EnumSet;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.LightningBolt;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.ai.goal.Goal;
@@ -31,6 +36,7 @@ import java.util.Locale;
 import java.util.UUID;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.levelgen.Heightmap;
+import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
 
 /**
  * Perception and reaction arbitration for ordinary (prey) individuals.
@@ -399,30 +405,71 @@ public final class Reactions {
 
     // ---- weather ----------------------------------------------------------------------------------------------
 
+    /**
+     * Rain, storm and wet fur, from what this body feels where it stands. In the open it looks for a roof (RUN, SEARCH) and a
+     * thunder clap makes it flinch on the way. A wet body on a dry spot shakes the water off (SHAKE: arriving under a roof, the
+     * rain stopping, out of the water after the breath). Under a roof while it rains, a cold or frightened one that is otherwise
+     * idle presses beside a kin or friend who will have it, the other holding still (HUDDLE with a partner), or alone trembles in
+     * rain and cowers in a storm. A clap startles a pressed pair together, and they nestle in again after it.
+     */
     public static final class Weather {
-        public enum Stage { NONE, RUN, WAIT, SEARCH, SHAKE }
-        /** Wetness above which an arriving body shakes the rain off before it settles (rain adds 3 per 20 ticks). */
+        public enum Stage { NONE, RUN, WAIT, SEARCH, SHAKE, HUDDLE }
+        /** Wetness above which a body on a dry spot shakes the water off (rain adds 3 per 20 ticks). */
         static final float SHAKE_WETNESS = 10;
+        /** A body shakes once per wetting, not every time it is still a little damp: ticks after a shake before the next. */
+        static final int SHAKE_REST = 400;
+        /** A sheltered huddle or cower lasts at most this long, then this long passes before the next (project design). */
+        static final int HUDDLE_LIMIT = 1200, HUDDLE_REST = 600;
+        /** How far a sheltered body looks for someone to press against, how long it tries to reach them, and the fear that
+         *  keeps two apart (as for a nuzzle). */
+        static final int HUDDLE_SIGHT = 8, HUDDLE_APPROACH = 200, HUDDLE_FEAR = 60;
+        /** How far a pressed body may be pushed off its stand before it walks back in (blocks). */
+        static final double HUDDLE_SLACK = .12;
+        /** A lightning strike is heard this far off (blocks). */
+        static final int THUNDER_HEARD = 96;
+        static final int SHAKE_TICKS = YukkuriAction.SHAKE.durationTicks(), STARTLE_TICKS = YukkuriAction.STARTLE.durationTicks();
         private final YukkuriEntity y;
-        private Stage stage = Stage.NONE;
+        private Stage stage = Stage.NONE, planned = Stage.NONE;
         private Sky sky = Sky.CLEAR;
         private BlockPos cover;
-        private long cooldownUntil, searchAfter, stepAfter;
+        private long cooldownUntil, searchAfter, stepAfter, shakeAfter, huddleAfter, partnerScanAfter, startled = Long.MIN_VALUE / 2;
         private int ticks;
         private boolean spoke;
         private int searchOffset;
+        /** HUDDLE: who it presses beside (null alone), whether it walked over (the other holds still), the tick the pair pressed
+         *  together (their shared clip clock, -1 before), which side the partner is on and the way both face. */
+        private YukkuriEntity partner, candidate;
+        private boolean leads, partnerLeft, onRight;
+        private Vec3 stand;
+        private long pressedAt = -1;
+        private float facing;
 
         Weather(YukkuriEntity y) { this.y = y; }
 
         public Stage stage() { return stage; }
         public Sky sky() { return sky; }
-        String activity() {
-            return switch (stage) { case RUN, SEARCH -> Behaviors.RAIN_RUN; case WAIT -> Behaviors.RAIN_WAIT;
-                     case SHAKE -> Behaviors.RAIN_SHAKE; default -> Behaviors.IDLE; };
+        /** Behavior id of the running response (PresentationGoals.WEATHER, EcologyPresentation). */
+        public String activity() {
+            if (startledNow() && (stage == Stage.RUN || stage == Stage.SEARCH || stage == Stage.HUDDLE)) return Behaviors.THUNDER_STARTLE;
+            return switch (stage) {
+                case RUN, SEARCH -> Behaviors.RAIN_RUN;
+                case WAIT -> Behaviors.RAIN_WAIT;
+                case SHAKE -> Behaviors.RAIN_SHAKE;
+                case HUDDLE -> pressedAt >= 0 ? partnerLeft ? Behaviors.RAIN_HUDDLE_LEFT : Behaviors.RAIN_HUDDLE_RIGHT
+                        : partner != null ? leads ? Behaviors.RAIN_WAIT : Behaviors.IDLE
+                        : Sky.open(y.level(), y.blockPosition()) == Sky.STORM ? Behaviors.THUNDER_COWER : Behaviors.RAIN_WAIT;
+                default -> Behaviors.IDLE;
+            };
         }
+        /** The pressed pair's shared clip start, so both shiver in step; -1 when not pressed (or flinching). */
+        public long huddleClock() { return stage == Stage.HUDDLE && pressedAt >= 0 && !startledNow() ? pressedAt : -1; }
+        /** Pressed against its partner right now (the comfort of company, MindLife). */
+        public boolean huddled() { return stage == Stage.HUDDLE && partner != null && pressedAt >= 0; }
+        private boolean startledNow() { return y.level().getGameTime() - startled < STARTLE_TICKS; }
         String describe() { return "weather:" + stage.name().toLowerCase(Locale.ROOT) + " sky=" + sky.name().toLowerCase(Locale.ROOT)
                 + " searchRadius=" + TravelRange.search(y, 16) + " keepDry=" + keepDry(y)
-                + " hungryRain=" + (y.life().nutrition() < 20) + (cover == null ? "" : " cover=" + cover.toShortString()); }
+                + " hungryRain=" + (y.life().nutrition() < 20) + (cover == null ? "" : " cover=" + cover.toShortString())
+                + (partner == null ? "" : " partner=#" + partner.getId() + (leads ? " leads" : " holds") + " pressed=" + (pressedAt >= 0)); }
 
         void scan() {
             sky = prey(y) ? Sky.at(y.level(), y.blockPosition()) : Sky.CLEAR;
@@ -449,38 +496,73 @@ public final class Reactions {
             var life = y.life();
             return life.nutrition() < DRY_NUTRITION || life.bladder() >= 90 || life.energy() < 10;
         }
+        /** Something it is already doing comes first: a meal or other life task, its family, company, play, comfort. */
+        private static boolean busy(YukkuriEntity e) {
+            return !e.life().activity().equals(Behaviors.IDLE) || e.life().drowsy() || e.family().active() || e.dailyLife().active()
+                    || e.social().active() || e.groupInteraction().active() || e.playLife().active() || e.woundComfort().active();
+        }
+        /** Cold, or more uneasy than its boldness and age bear, or a timid one in a thunderstorm. */
+        private boolean shaken() {
+            var personality = y.life().personality();
+            float bearable = MindLife.UNEASY * (.5f + personality.boldness() / 100f) * (y.family().adult() ? 1 : .75f);
+            return y.life().temperature().cold() || y.mind().unease() >= bearable
+                    || Sky.open(y.level(), y.blockPosition()) == Sky.STORM && personality.boldness() < Temperament.BOLDNESS_AT_35;
+        }
         boolean wants() {
             if (stage != Stage.NONE) return true;
             long now = y.level().getGameTime();
-            if (!bothered() || now < cooldownUntil || !free(y) || y.isPanicking() || pressing()) return false;
-            if (now >= searchAfter) {
-                if (!SearchBudget.take((ServerLevel) y.level())) return false;
-                cover = findCover();
-                searchAfter = now + 80;
+            if (now < cooldownUntil || !free(y) || y.isPanicking()) return false;
+            if (bothered()) {
+                if (pressing()) return false;
+                if (now >= searchAfter) {
+                    if (!SearchBudget.take((ServerLevel) y.level())) return false;
+                    cover = findCover();
+                    searchAfter = now + 80;
+                }
+                planned = cover != null ? Stage.RUN : Stage.SEARCH;
+                return true;
             }
+            if (BehaviorContinuity.emergency(y) || y.life().isSleeping() || !y.onGround()) return false;
+            if (y.life().wetness() >= SHAKE_WETNESS && now >= shakeAfter) { planned = Stage.SHAKE; return true; }
+            if (now < huddleAfter || pressing() || busy(y) || !Sky.sheltered(y.level(), y.blockPosition()) || !shaken()) return false;
+            if (now >= partnerScanAfter) { partnerScanAfter = now + 60; candidate = seekPartner(); }
+            planned = Stage.HUDDLE;
             return true;
         }
         boolean keeps() {
             if (stage == Stage.NONE) return false;
             if (stage == Stage.WAIT && !rainAt(y, y.blockPosition())) return false;
             if (!free(y) || y.isPanicking() || pressing()) return false;
-            return stage == Stage.SHAKE || y.level().isRaining();
+            return stage == Stage.SHAKE || stage == Stage.HUDDLE || y.level().isRaining();
         }
         void start() {
             ticks = 0;
-            y.life().wakeForDanger("weather");
-            y.life().interrupt();
-            stage = cover != null ? Stage.RUN : Stage.SEARCH;
-            GameplayLog.limited(y, "weather", "start", 1200, "shelter response started sky={} stage={} cover={}", sky, stage, cover);
-            stepAfter = 0;
-            if (!spoke) {
-                spoke = true;
-                boolean storm = sky == Sky.STORM;
-                y.mind().felt(EmotionEvent.CHILLED); y.showReaction(storm ? "surprise" : "neutral", "cold", 80);
+            stage = planned;
+            switch (stage) {
+                case SHAKE -> GameplayLog.limited(y, "weather", "shake.start", 600, "shaking water off wetness={} after={}",
+                        y.life().wetness(), y.waterDistress().closedWithin(200) ? "water" : y.level().isRaining() ? "rain" : "rain_stopped");
+                case HUDDLE -> beginHuddle();
+                default -> {
+                    y.life().wakeForDanger("weather");
+                    y.life().interrupt();
+                    GameplayLog.limited(y, "weather", "start", 1200, "shelter response started sky={} stage={} cover={}", sky, stage, cover);
+                    stepAfter = 0;
+                    if (!spoke) {
+                        spoke = true;
+                        boolean storm = sky == Sky.STORM;
+                        y.mind().felt(EmotionEvent.CHILLED); y.showReaction(storm ? "surprise" : "neutral", "cold", 80);
+                    }
+                }
             }
         }
         void end(int cooldown) {
-            if (stage != Stage.NONE) GameplayLog.limited(y, "weather", "end", 1200,
+            if (stage == Stage.SHAKE && ticks < SHAKE_TICKS) shakeAfter = y.level().getGameTime() + SHAKE_TICKS; // cut off: it shakes again soon
+            if (stage == Stage.HUDDLE) {
+                GameplayLog.limited(y, "weather", "huddle.end", 600, "huddle ended partner={} pressed={} ticks={} unease={} cold={}",
+                        partner == null ? null : partner.getUUID(), pressedAt >= 0, ticks, Math.round(y.mind().unease()), y.life().temperature().cold());
+                huddleAfter = y.level().getGameTime() + HUDDLE_REST;
+                partner = null; pressedAt = -1;
+            } else if (stage != Stage.NONE) GameplayLog.limited(y, "weather", "end", 1200,
                     "shelter response ended stage={} phaseTicks={} cover={} cooldown={}", stage, ticks, cover, cooldown);
             stage = Stage.NONE; ticks = 0; cover = null;
             cooldownUntil = y.level().getGameTime() + cooldown;
@@ -499,6 +581,8 @@ public final class Reactions {
             var level = (ServerLevel) y.level();
             var life = y.life();
             boolean raining = level.isRaining();
+            // A thunder clap: it flinches where it is, on the run or pressed under a roof.
+            if (startledNow() && stage != Stage.SHAKE) { SurfaceApproach.halt(y); return; }
             // Reaching any roof ends the run, whether or not it was the chosen one. A soaked body shakes the rain off first.
             if ((stage == Stage.RUN || stage == Stage.SEARCH) && raining && Sky.at(level, y.blockPosition()) == Sky.CLEAR
                     && life.covered(y.blockPosition()) && ticks > 20) {
@@ -531,7 +615,7 @@ public final class Reactions {
                         return;
                     }
                     if (!raining) { stage = Stage.SHAKE; ticks = 0; }
-                    else end(0); // dry-area planning resumes; navigation preserves the rain preference
+                    else end(0); // dry-area planning resumes (a shaken body then huddles); navigation preserves the rain preference
                 }
                 case SEARCH -> {
                     long now = level.getGameTime();
@@ -550,12 +634,145 @@ public final class Reactions {
                     if (!raining) { stage = Stage.SHAKE; ticks = 0; }
                 }
                 case SHAKE -> {
-                    y.getNavigation().stop();
-                    if (ticks >= 40) end(0);
+                    SurfaceApproach.halt(y);
+                    if (ticks < SHAKE_TICKS) return;
+                    float before = life.shakeOff();
+                    shakeAfter = level.getGameTime() + SHAKE_REST;
+                    GameplayLog.limited(y, "weather", "shake.done", 600, "shook the water off wetness={} -> {}", before, life.wetness());
+                    end(0);
                 }
+                case HUDDLE -> huddle(level);
                 default -> { }
             }
         }
+
+        // ---- huddle --------------------------------------------------------------------------------------------------
+
+        /** Kin first, then the most trusted friend in sight under the same rain; an aloof adult keeps to itself (attachment). */
+        private YukkuriEntity seekPartner() {
+            if (y.family().adult() && y.getRandom().nextFloat() >= y.life().personality().companionshipProbability()) return null;
+            YukkuriEntity best = null;
+            int bestScore = Integer.MIN_VALUE;
+            for (var other : y.level().getEntitiesOfClass(YukkuriEntity.class, y.getBoundingBox().inflate(HUDDLE_SIGHT, 2, HUDDLE_SIGHT),
+                    o -> o != y && welcomes(o, y) && y.hasLineOfSight(o))) {
+                int score = (kin(y, other) ? 1000 : 0) + y.life().personality().trust(other.getUUID()) - (int) y.distanceTo(other);
+                if (score > bestScore) { bestScore = score; best = other; }
+            }
+            return best;
+        }
+        /** The other's own choice: sheltered and otherwise idle, nobody pressed against it yet, and it has this one (kin, or a
+         *  trusted friend), neither afraid of the other. */
+        private static boolean welcomes(YukkuriEntity other, YukkuriEntity asker) {
+            var theirs = other.status().reactions().weather;
+            if (!prey(other) || !free(other) || !other.onGround() || other.life().isSleeping() || other.isPanicking() || busy(other)
+                    || theirs.stage != Stage.NONE && (theirs.stage != Stage.HUDDLE || theirs.partner != null)
+                    || !Sky.sheltered(other.level(), other.blockPosition())
+                    || !other.life().canRecognize(asker) || !asker.life().canRecognize(other)
+                    || other.life().personality().fear(asker.getUUID()) >= HUDDLE_FEAR
+                    || asker.life().personality().fear(other.getUUID()) >= HUDDLE_FEAR) return false;
+            return kin(other, asker) || other.life().personality().trust(asker.getUUID()) > 0;
+        }
+        private void beginHuddle() {
+            pressedAt = -1;
+            var other = candidate;
+            candidate = null;
+            boolean storm = Sky.open(y.level(), y.blockPosition()) == Sky.STORM;
+            if (other != null && other.isAlive() && welcomes(other, y)) {
+                partner = other; leads = true; stand = null; facing = other.getYRot();
+                var theirs = other.status().reactions().weather;
+                theirs.stage = Stage.HUDDLE; theirs.ticks = 0; theirs.partner = y; theirs.leads = false; theirs.pressedAt = -1;
+                GameplayLog.limited(y, "weather", "huddle.start", 600,
+                        "huddle sought partner={} kin={} trust={} distance={} unease={} cold={} storm={}", other.getUUID(), kin(y, other),
+                        y.life().personality().trust(other.getUUID()), Math.round(y.distanceTo(other) * 10) / 10.0,
+                        Math.round(y.mind().unease()), y.life().temperature().cold(), storm);
+            } else {
+                partner = null;
+                GameplayLog.limited(y, "weather", "hunker.start", 600, "sheltered alone pose={} unease={} cold={} boldness={} attachment={}",
+                        storm ? "cower" : "tremble", Math.round(y.mind().unease()), y.life().temperature().cold(),
+                        y.life().personality().boldness(), y.life().personality().attachment());
+            }
+        }
+        /** Both still hold each other as partners, close enough to keep it up. */
+        private boolean paired() {
+            if (partner == null || !partner.isAlive() || partner.isRemoved() || partner.level() != y.level()
+                    || y.distanceToSqr(partner) > (HUDDLE_SIGHT + 2) * (HUDDLE_SIGHT + 2)) return false;
+            var theirs = partner.status().reactions().weather;
+            return theirs.stage == Stage.HUDDLE && theirs.partner == y && free(partner);
+        }
+        private void huddle(ServerLevel level) {
+            long now = level.getGameTime();
+            if (!level.isRaining()) {
+                // The rain is over: a wet body shakes it off, a dry one goes about its day.
+                if (y.life().wetness() >= SHAKE_WETNESS && now >= shakeAfter) {
+                    GameplayLog.limited(y, "weather", "huddle.end", 600, "huddle ended partner={} pressed={} ticks={} reason=rain_stopped",
+                            partner == null ? null : partner.getUUID(), pressedAt >= 0, ticks);
+                    partner = null; pressedAt = -1; huddleAfter = now + HUDDLE_REST;
+                    stage = Stage.SHAKE; ticks = 0;
+                } else end(0);
+                return;
+            }
+            if (Sky.at(level, y.blockPosition()).wet() && ticks > 20) { end(0); return; } // in the rain again: look for a roof
+            if (partner != null && !paired()) {
+                // The other left (its own need, a fright): a leader still shaken stays put alone, the one that held still is free.
+                partner = null; pressedAt = -1;
+                if (!leads) { end(0); return; }
+            }
+            if (ticks > HUDDLE_LIMIT || leads && ticks > 100 && !shaken()) { end(0); return; }
+            if (partner == null) { SurfaceApproach.halt(y); return; }
+            if (leads && pressedAt >= 0 && y.position().subtract(stand).horizontalDistanceSqr() > HUDDLE_SLACK * HUDDLE_SLACK)
+                pressedAt = partner.status().reactions().weather.pressedAt = -1; // pushed off its place: it walks back in
+            if (leads && pressedAt < 0) {
+                if (stand == null) stand = chooseStand(level);
+                if (stand == null || ticks > HUDDLE_APPROACH) {
+                    GameplayLog.limited(y, "weather", "huddle.stand", 600, "huddle stand unavailable partner={} ticks={} distance={} stand={}",
+                            partner.getUUID(), ticks, Math.round(y.distanceTo(partner) * 10) / 10.0, stand);
+                    partner = null; stand = null; // the other is released by its own next check; this one trembles alone
+                    SurfaceApproach.halt(y);
+                    return;
+                }
+                if (!SurfaceApproach.walkAround(y, stand, partner, .8)) return;
+                press(now);
+            }
+            SurfaceApproach.halt(y);
+            if (pressedAt >= 0) SurfaceApproach.face(y, facing);
+        }
+        /** The nearer of the two sheltered stands pressed against the partner's sides, both facing the way it already faces. */
+        private Vec3 chooseStand(ServerLevel level) {
+            Vec3 best = null;
+            for (boolean right : new boolean[] {true, false}) {
+                var at = SurfaceApproach.floor(y, SideContact.beside(y, partner, facing, right));
+                if (at == null || Math.abs(at.y - partner.getY()) > .5 || !Sky.sheltered(level, BlockPos.containing(at))) continue;
+                if (best == null || y.distanceToSqr(at) < y.distanceToSqr(best)) { best = at; onRight = right; }
+            }
+            return best;
+        }
+        /** Pressed together at its stand: on the partner's right it has the partner on its left, and both face the same way. */
+        private void press(long now) {
+            var theirs = partner.status().reactions().weather;
+            partnerLeft = onRight; theirs.partnerLeft = !onRight; theirs.facing = facing;
+            pressedAt = theirs.pressedAt = now;
+            var to = partner.position().subtract(y.position());
+            GameplayLog.limited(y, "weather", "huddle.pressed", 600, "huddle pressed partner={} side={} centres={} afterTicks={}",
+                    partner.getUUID(), partnerLeft ? "left" : "right", Math.round(to.horizontalDistance() * 100) / 100.0, ticks);
+        }
+        /** A thunder clap it heard: it flinches; a pressed pair, startled together, nestles in again after it. */
+        void clap(long now, double distance) {
+            if (!prey(y) || y.life().isSleeping() || y.isInWaterOrBubble()) return;
+            startled = now;
+            y.mind().felt(EmotionEvent.FRIGHTENED);
+            if (pressedAt >= 0) pressedAt = now + STARTLE_TICKS;
+            if (stage == Stage.NONE) y.showReaction("surprise", "thunder", STARTLE_TICKS);
+            GameplayLog.limited(y, "weather", "thunder", 600, "thunder clap heard distance={} stage={} partner={}",
+                    Math.round(distance), stage, partner == null ? null : partner.getUUID());
+        }
+    }
+
+    /** Every yukkuri within earshot of a lightning strike hears the clap (CommonRegistration). */
+    public static void lightning(EntityJoinLevelEvent event) {
+        if (event.loadedFromDisk() || !(event.getEntity() instanceof LightningBolt bolt) || !(event.getLevel() instanceof ServerLevel level)) return;
+        long now = level.getGameTime();
+        for (var y : level.getEntitiesOfClass(YukkuriEntity.class, bolt.getBoundingBox().inflate(Weather.THUNDER_HEARD, 48, Weather.THUNDER_HEARD),
+                Reactions::prey)) y.status().reactions().weather.clap(now, Math.sqrt(y.distanceToSqr(bolt)));
     }
 
     // ---- goals ------------------------------------------------------------------------------------------------

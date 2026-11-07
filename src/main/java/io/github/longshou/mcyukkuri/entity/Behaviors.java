@@ -149,7 +149,8 @@ public final class Behaviors {
     public static final String PREDATOR_RETURN = "predator_return";
     public static final String PREDATOR_TAKEOFF = "predator_takeoff";
     public static final String PROTECT_PEER = "protect_peer";
-    public static final String RAIN_HUDDLE = "rain_huddle";
+    /** Pressed beside a kin or friend under a roof in the rain, the partner on its left or right (the clip leans that way). */
+    public static final String RAIN_HUDDLE_LEFT = "rain_huddle_left", RAIN_HUDDLE_RIGHT = "rain_huddle_right";
     public static final String ROAM = "roam";
     public static final String PROTECT_APPROACH = "protect_approach", PROTECT_TAUNT = "protect_taunt";
     public static final String RAIN_RUN = "rain_run";
@@ -195,6 +196,8 @@ public final class Behaviors {
     public static final String THREAT_HIDE = "threat_hide";
     public static final String THREAT_RETREAT = "threat_retreat";
     public static final String THREAT_WATCH = "threat_watch";
+    /** Flattened under a roof in a thunderstorm; the flinch at a thunder clap. */
+    public static final String THUNDER_COWER = "thunder_cower", THUNDER_STARTLE = "thunder_startle";
     public static final String TOILET = "toilet";
     public static final String TOILET_ACCIDENT = "toilet_accident";
     public static final String TOY = "toy";
@@ -205,6 +208,8 @@ public final class Behaviors {
     public static final String WAIT_CHILD = "wait_child";
     public static final String WAKE = "wake";
     public static final String WARM_UP = "warm_up";
+    /** A chilled body basking still and flat in direct sun on a clear cold day. */
+    public static final String SUNBATHE = "sunbathe";
     public static final String WATER_EXHAUSTED = "water_exhausted";
     public static final String WATER_IMPACT = "water_impact";
     public static final String WATER_RECOVER = "water_recover";

@@ -16,6 +16,7 @@ import io.github.longshou.mcyukkuri.social.Cannibalism;
 import io.github.longshou.mcyukkuri.social.GroupInteractionGoal;
 import io.github.longshou.mcyukkuri.social.SelfOffering;
 import io.github.longshou.mcyukkuri.social.TreasureLife;
+import io.github.longshou.mcyukkuri.status.Reactions;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.IdentityHashMap;
@@ -54,12 +55,8 @@ public final class PresentationGoals {
         case HIDE -> Behaviors.THREAT_HIDE;
         default -> null;
     });
-    public static final Source<Goal> WEATHER = state("weather", e -> switch (e.status().reactions().weather().stage()) {
-        case RUN, SEARCH -> Behaviors.RAIN_RUN;
-        case WAIT -> Behaviors.RAIN_WAIT;
-        case SHAKE -> Behaviors.RAIN_SHAKE;
-        default -> null;
-    });
+    public static final Source<Goal> WEATHER = state("weather", e -> e.status().reactions().weather().stage() == Reactions.Weather.Stage.NONE
+            ? null : e.status().reactions().weather().activity());
     public static final Source<Goal> SANCTION = state("sanction", e -> e.sanction().active() ? e.sanction().activity() : null);
     public static final ComponentSource<CareApproach> CARE_RECEIVER = component("care_receiver",
             (e, care) -> care.waiting() ? care.activity() : null);

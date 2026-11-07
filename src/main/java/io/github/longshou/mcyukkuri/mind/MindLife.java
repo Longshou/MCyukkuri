@@ -255,7 +255,7 @@ public final class MindLife {
         if (life.isSleeping()) put("sleep", -1);
         if (atHome(identity)) put("home", -1);
         if (entity.dailyLife().nuzzlePartnerId() >= 0 && entity.dailyLife().inContact() || entity.woundComfort().receiving() && entity.woundComfort().inContact()
-                || entity.contactPose().equals("RUB")) put("comfort", -6);
+                || entity.status().reactions().weather().huddled() || entity.contactPose().equals("RUB")) put("comfort", -6);
         float rate = 0;
         for (var e : causes.entrySet()) rate += e.getValue() < 0 && nonYukkuri() ? e.getValue() * .5f : e.getValue();
         unease = Math.clamp(unease + rate * PER_SAMPLE, 0f, 100f);

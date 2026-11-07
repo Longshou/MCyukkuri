@@ -307,6 +307,8 @@ public final class YukkuriLife {
     private void emotionTick(){ doses.emotionTick(); }
     public boolean spray(){ return doses.spray(); }
     public void poolRinse(){hygiene=Math.min(100,hygiene+15);wetness=Math.min(100,wetness+5);}
+    /** A finished shake throws half the water off the body (project design); returns the wetness before. */
+    public float shakeOff(){float before=wetness;wetness=wetness/2;return before;}
     public long ageTicks() { return ageTicks; }
     public GlobalPos home(){ return home.home(); }
     public boolean naturalHome(){ return home.naturalHome(); }
@@ -384,6 +386,8 @@ public final class YukkuriLife {
     }
     private int restThreshold() { return entity.family().needsMash() ? 65 : 35; }
     private int restInterval() { return entity.family().needsMash() ? 200 : 1200; }
+    /** Tired enough, or it is its rest time: sleep, not some other pastime, is what it wants next. */
+    public boolean drowsy() { return energy <= restThreshold() || restTime(); }
     boolean restTime() { return entity.profile().houseBody() ? !level().isNight() : level().isNight() || RareForms.summerDormant(entity); }
 
     public void tick() {

@@ -263,6 +263,11 @@ public final class PresentationArbiter {
                 long start=e.family().courtAnimationStart();
                 if(start>=0&&e.getAnimationStartTick()!=start)state.animationStart(start);
             }
+            // A pressed pair samples one clip clock, so the two shiver in step.
+            else if(action==YukkuriAction.RAIN_HUDDLE_LEFT||action==YukkuriAction.RAIN_HUDDLE_RIGHT) {
+                long start=e.status().reactions().weather().huddleClock();
+                if(start>=0&&e.getAnimationStartTick()!=start)state.animationStart(start);
+            }
             // Partners sample the authoritative contraction, rescaling the shorter hat clips.
             int phase = action == YukkuriAction.LABOR || action == YukkuriAction.BOAT_LABOR ? e.liveDeliveryTicks()
                     : (action == YukkuriAction.MIDWIFE || action == YukkuriAction.HAT_HOLD || action == YukkuriAction.HAT_HOLD_AQ)
