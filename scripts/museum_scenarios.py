@@ -2251,7 +2251,7 @@ pond('hat_push', '木船轻碰只推开，猛撞才翻', '木船轻碰只推开�
      note='木船只在初态给速度，之后按真实碰撞运动；读 trigger=impact、value 与 capsizes。近处帽船 capsizes=0，远处帽船只记一次猛撞翻覆。',
      reads=_HULL_READS + [('读猛撞船主', f'yukkuri status {sel("fast")} raw')],
      capture=dict(shots=(1, 40, 300, 600), sequences=((60, 200, 2),)),
-     smoke=dict(ticks=600, commands=[(1, 'yukkuri status trace true'), (599, 'yukkuri status trace false')],
+     smoke=dict(ticks=600,
                 expect=[r'\[hat\][^\n]* capsized cause=impact value=[^\n]*count=1'],
                 forbid=[r'\[hat\][^\n]* capsized cause=(?:shake|turbulence)\b', r'\[body\][^\n]* invariant\b'],
                 verify=push_smooth,
@@ -2317,7 +2317,7 @@ pond('hat_current', '帽子顺缓流漂到浅滩搁浅', '帽子顺缓流漂到�
      note='观察船长带着头顶的子油离帽、自己走上干岸（头顶子油不会自己跳，随亲体离帽），四份苹果和一根木棍各掉出，帽主接触头饰即戴回；帽船搁浅不算翻覆。倒扣边界与载人翻覆见“落水掀翻帽子与帽子搁浅”。',
      reads=_HULL_READS + [('读子油', f'yukkuri status {sel("child")} raw')],
      capture=dict(shots=(1, 40, 300, 600, 900), sequences=((60, 200, 2), (220, 1100, 20))),
-     smoke=dict(ticks=1100, commands=[(1, 'yukkuri status trace true'), (1099, 'yukkuri status trace false')],
+     smoke=dict(ticks=1100,
                 expect=[r'\[hat\][^\n]* scenario afloat prepared[^\n]*young=1[^\n]*food=4',
                         r'\[body\][^\n]* dismount [^\n]*cause=grounded',
                         r'\[hat\][^\n]* stores spilled [^\n]*cause=grounded', r'\[hat\][^\n]* kit dropped cause=grounded',
@@ -2351,7 +2351,7 @@ def _grounded_smoke():
     inverted hat (grounding) and the hat under the waterfall (turbulence)."""
     a, child, inverted, falling = (_uuid_text('hat_grounded_capsized', slot) for slot in ('a', 'child', 'inverted', 'falling'))
     return dict(
-        ticks=1800, commands=[(1, 'yukkuri status trace true'), (1799, 'yukkuri status trace false')],
+        ticks=1800,
         expect=[rf'\[hat\][^\n]*uuid={a}[^\n]* scenario afloat prepared [^\n]*owner_aboard=true[^\n]*young=1[^\n]*food=4',
                 rf'\[hat\][^\n]*uuid={inverted}[^\n]* scenario afloat prepared [^\n]*owner_aboard=false',
                 rf'\[hat\][^\n]*uuid={falling}[^\n]* scenario afloat prepared [^\n]*owner_aboard=true[^\n]*young=0',
@@ -2524,7 +2524,7 @@ pond('shore_capsized', '岸边用辫子拨回漂远的帽子', '岸边用辫子�
           '[action] end id=beckon outcome=DONE detail=at_bank → [action] start id=right … push= → [hat] righted cause=reclaim → '
           '[headwear] reclaim done how=worn；三格内不下水，不出现 step_in／swim（三格外的远帽见“远处的帽子游过去扶正”）；水伤不打断，死亡、帽子离开或玩家干预会终止。',
      reads=[('读船主', f'yukkuri status {sel("a")} raw'), ('读帽子', f'data get entity {_HAT}')],
-     smoke=dict(ticks=2400, commands=[(1, 'yukkuri status trace true'), (2399, 'yukkuri status trace false')],
+     smoke=dict(ticks=2400,
                 expect=[r'\[action\][^\n]* start id=beckon[^\n]*wet=false',
                         r'\[action\][^\n]* end id=beckon outcome=DONE\b[^\n]*detail=at_bank',
                         r'\[action\][^\n]* start id=right[^\n]*push=', r'\[hat\][^\n]* righted cause=reclaim',
@@ -2691,7 +2691,7 @@ pond('sail', '捡棍放帽出航，饿了返岸', '捡棍放帽出航，饿了�
           '[aquatic] route purpose=cruise → [intent] start id=come_ashore（why 中 hunger、food_aboard=false、land_food=true）→ [aquatic] route purpose=come_ashore → [hat] left → '
           '[action] end id=take_prop outcome=DONE。取到棍后木棍始终握在辫梢（划桨、坐着、待机都不松手），读 aquatic.stick_in_braid=true，帽内腔不再另画一根。上岸后饥饿仍压住出航欲望，不会马上再上船。' + _DESIRE_NOTE,
      reads=[('读船主', f'yukkuri status {sel("a")} raw'), ('读帽子', f'data get entity {_HAT}')],
-     smoke=dict(ticks=3600, commands=[(1, 'yukkuri status trace true'), (3599, 'yukkuri status trace false')],
+     smoke=dict(ticks=3600,
                 expect=[r'\[intent\][^\n]* start id=set_out\b',
                                     r'\[hat\][^\n]* placed [^\n]*water=true kit=minecraft:stick\b',
                                     r'\[body\][^\n]* mount [^\n]*cause=hop_contact\b',

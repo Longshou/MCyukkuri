@@ -243,6 +243,9 @@ def build_pack(world):
         f = BY_ID[s.field]
         ax, az = s.anchor
         body = s.body()
+        bx1, by1, bz1, bx2, by2, bz2 = f.clear_box()
+        bounds = ','.join(str(value) for value in (bx1, by1, bz1, bx2, by2, bz2))
+        body.insert(0, f'yukkuri status trace window {s.id} {f.id} {bounds}')
         if s.late:
             late_lines = [f'execute positioned {ax}.0 {FEET} {az}.0 run {line}' for line in s.late if isinstance(line, str)]
             for ri, retry in enumerate(r for r in s.late if not isinstance(r, str)):
@@ -377,7 +380,7 @@ def build_pack(world):
        ['tellraw @s ' + _text('更新 .local/experimental-map/museum-runtime.json 指向的运行产物（用含 command/Scenario*.java 的 CI 构建）。', 'yellow')])
 
     # ---------------------------------------------------------------- load / tick / prepare / build
-    fn('load', [f'scoreboard objectives add {OBJ} dummy',
+    fn('load', ['yukkuri status trace light', f'scoreboard objectives add {OBJ} dummy',
                 f'scoreboard players set #probe {OBJ} 0', f'function {NS}:probe',
                 f'execute unless score #probe {OBJ} matches 1 run scoreboard players set #ready {OBJ} 0',
                 f'execute if score #probe {OBJ} matches 1 unless score #built {OBJ} matches 1 run function {NS}:prepare',
