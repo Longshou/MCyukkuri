@@ -33,14 +33,11 @@ import java.util.Collection;
 public final class SettlementData extends SavedData {
     public enum Kind { FAMILY, FOREST, BANDITS }
     public enum Role { FREE, MEMBER, LEADER, SHUNNED, OUTCAST, UNUN_SLAVE }
-    /** Real acts of kindness a slave in the pit needs from members before it is a member again (project design). */
-    public static final int GENTLE_TREATMENTS = 5;
 
     /** Social standing never replaces membership, ancestry, or the previous office. */
     public static final class Member {
         public Role role, previousRole;
-        public int rejections, gentleness;
-        public boolean hatlessAccepted;
+        public int rejections;
         public long nextObservation, rememberedUntil, assignedUntil;
         public long knownLeaderLoss;
         public UUID observer, assignedBy;
@@ -419,14 +416,12 @@ public final class SettlementData extends SavedData {
         setDirty();
     }
 
-    public void restore(Group group, UUID id, long now, boolean acceptHatless) {
+    public void restore(Group group, UUID id, long now) {
         var member = member(group, id);
         if (member == null || member.rejections == 0 && member.role != Role.SHUNNED && member.role != Role.OUTCAST && member.role != Role.UNUN_SLAVE) return;
         member.role = member.previousRole == Role.LEADER && id.equals(group.leader) ? Role.LEADER : Role.MEMBER;
         member.previousRole = member.role;
         member.rejections = 0;
-        member.gentleness = 0;
-        member.hatlessAccepted |= acceptHatless;
         member.nextObservation = now + 200;
         member.rememberedUntil = now + 2400;
         assign(group,member,null,0);
@@ -506,8 +501,6 @@ public final class SettlementData extends SavedData {
                 record.putString("Role", member.role.name());
                 record.putString("PreviousRole", member.previousRole.name());
                 record.putInt("Rejections", member.rejections);
-                record.putInt("Gentleness", member.gentleness);
-                record.putBoolean("HatlessAccepted", member.hatlessAccepted);
                 record.putLong("NextObservation", member.nextObservation);
                 record.putLong("RememberedUntil", member.rememberedUntil);
                 record.putLong("AssignedUntil", member.assignedUntil);
@@ -644,8 +637,6 @@ public final class SettlementData extends SavedData {
             if (record.contains("PreviousRole")) member.previousRole = "LEADER".equals(record.getString("PreviousRole")) && base == Role.LEADER
                     ? Role.LEADER : Role.MEMBER;
             member.rejections = Math.clamp(record.getInt("Rejections"), 0, 5);
-            member.gentleness = Math.max(0, record.getInt("Gentleness"));
-            member.hatlessAccepted = record.getBoolean("HatlessAccepted");
             member.nextObservation = Math.max(0, record.getLong("NextObservation"));
             member.rememberedUntil = Math.max(0, record.getLong("RememberedUntil"));
             member.assignedUntil = Math.max(0, record.getLong("AssignedUntil"));

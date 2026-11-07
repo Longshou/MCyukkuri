@@ -15,11 +15,11 @@
 ### 复测失败/待修复
 - **陆地家庭在场（审计 P1，[规则](FEATURES.md)）**：已接入待试玩（分支 wp-aq-family，本机冒烟非验收）。看得见的近处孩子只看着（走失才寻）、窝内的孩子不算走失、受饿幼体留在亲油身边、目睹亲缘死亡当场悲伤（`witnessed kin death`）、离家孩子在 4 格内看得见处告别、一只赤油只由一个亲油去抬且无路站位即放弃（`carry pickup stand blocked`，赤油自己回窝）、孕母在窝里安住、进不了床的孩子原地歇（`child rests short of its bed`）、隔玻璃的亲子走到最近处等待呼唤、走失幼体在最后所知处附近继续找、亲属问候算重逢、该问候时先问候再蹭蹭；求偶超时记 `courtship stopped reason=time_cap`。未做：求偶超时本身本机 7 场未复现，另 2 场两只发情成体从未开始求偶、各自走远（`HEAT_UNMET`，主线 2/2 受孕，样本小未作结论）；母油在孩子看不见时死亡，孤儿不知其死（台账已记 DEAD）仍不去找。完成：`den_family`、`hop` 无近处 `family search started`（本机 5 次重逢／0 次，审计时 52／约 20）；`settle_snow` 窝内不再反复 `child separation lost`；`offering` 献身仪式成形；`indep_near` 告别 `contact=100`；`family_search` 母油走到玻璃前等待至放弃；`last_words` 亲缘目睹死亡播 bereaved。
 - **聚落、无头饰与人类的社会生活（11-07 审计 P5，[规则](FEATURES.md)）**：已接入待试玩（分支 wp-ax-society，本机冒烟非验收，运行版本待核实）。看点：
-  - 坑边照料：`settle_pit_release` 温和成员到坑沿俯身蹭蹭坑里的奴隶（共用蹭蹭流程，可跨一格坑沿），完成一次才记一次 `pit slave treated`；本机 4 场在 8.1k–15.3k tick 攒满 5 次并复原（主线仅隔 6 格看一眼，4.5k–18.7k），奴隶全程未饿死；`settle_pit_famine` 营养<30 时对坑沿成员 `pit slave begs`。
+  - 坑边乞食：`settle_pit_famine` 营养<30 时对坑沿成员 `pit slave begs`。
   - 拒斥与审判：`settle_pit_drive` 同一观察者两次拒斥至少隔 1200 tick、被拒者躲开；`colony_judge` 受审者 `hearing stance`（鞠躬／求饶／站稳）、被逐者 2400 tick 内不报 `returned_exile`、视线内亲属低落。`colony_hunt` 拒绝出猎按依恋／友善／自制判定（`hunt call refused`）。
   - 无头饰：`hatless_scorn`、`hatless_kin` 被鄙视者按性格 `puff response=`（逃开／鼓腹／忽略）并对鄙视者好感同降，鄙视者不再按时钟走开；`hat_shatter` 三块碎片落点各异、逐块 `piece gathered`。
   - 人类与宠物：`treatment_care` 照料上限从接触起算，第一剂不再被收回；`feed_wild` 被喂后鞠躬；`myon_stick` 无木棍的妖梦走到树边 `twig pull` 后才 `kanroken acquired`；`den_move`、`den_family` 配偶先看伴侣的家、搬家只起一次。
-  - 未做／待玩家：主人死亡时名下宠物悲伤（`custody_death`，不安量按亲缘死亡 × 依恋，暂定，需用户确认）、`exam` 饿考生由考官喂食（需玩家）；被逐者主动离开领地（现只加宽限期）；搬家“全员装得下才提交”（自检中一次子油先占了远处大洞，双亲因此不搬，场景波动待定）；NPC 作为觅食目的地；坑边照料仍比主线略慢（8k–15k tick），是否够快由用户判断。
+  - 未做／待玩家：主人死亡时名下宠物悲伤（`custody_death`，不安量按亲缘死亡 × 依恋，暂定，需用户确认）、`exam` 饿考生由考官喂食（需玩家）；被逐者主动离开领地（现只加宽限期）；搬家“全员装得下才提交”（自检中一次子油先占了远处大洞，双亲因此不搬，场景波动待定）；NPC 作为觅食目的地。
 - **陆地休闲、同伴与亡者（审计 P2，[规则](FEATURES.md)）**：已接入待试玩（分支 wp-ar-leisure，本机冒烟非验收）。休闲统一门、孤独者走向朋友蹭蹭、同伴闲逛靠近、目睹受伤／濒死亲缘去安抚、悲伤时不躲臭味、躲臭味走出半径。问候后才蹭蹭已由家庭包（下条）接入。完成：`meet` 孤独者走近信任朋友蹭蹭（`session reserved kind=NUZZLE` 带 distance）、`last_words` 亲缘在濒死期内走到身边（`[comfort] cause=dying`）、`hurt` 目睹后安抚（`cause=witnessed_hurt`）。
 - **首次加载卡顿余项**：部分接入（分支 wp-an-perf3，本机冒烟非验收）：伤口网格改流式载入、表情点位按需读、动作片段紧凑存放并在实体首次上线后由后台线程预热（单模型约 8 MB，原约 110 MB），可达性查询 40 tick 内同块复用、找屋顶按不同屋顶测试、流浪游走每轮两次路线测试、放下点最多 6 个被拒站位。剩余：陆产接生“接住”路线搜索（`BirthLaunch.catches` → `HullProfile` 表面采样）单 tick 可达 0.2–1.2 s；场景布置帧约 0.5 s 不属代码。完成标准：首次出现时无可见卡顿。
 - **帽檐上不会玩的幼体进不了舱（审计 M4，`rescue_child`）**：部分接入（分支 wp-ah-young-aboard，本机冒烟非验收）：被救起放到帽檐的幼体，落水收口后干爽即可被安抚；但 `TakeSeat` 对帽檐上的幼体不出手（放开会让被照料的新生儿离开接触，`birth_hat_own` 首便失败），辫子 `Release` 即使舱内有位也把它放回帽檐，且 `CareApproach` 对帽檐上的幼体报 `no_reachable_meeting`，安抚与托入无从落地。完成：舱内有空位时，被救的幼体进到舱内（自己爬入或辫子放入），亲油随后安抚。
@@ -402,7 +402,7 @@ WP-C2 本机自查（非试玩验收、无 CI）：主线 `136b6f124`（独立�
 ### 其他已接入玩法
 
 - **陆地食物与喂养（11-07 审计 P4，[规则](FEATURES.md#野外住所)）**：已接入待试玩（本机冒烟非验收，运行版本待核实）。看点：
-  - 池岸停滞：`settle_pit_slave`、`settle_pit_release` 长跑饮水后不再在池岸反复 `ground path stopped`、无成员饿死；站在岸沿的身体先挪到本格中央再沿岸走。奴隶到休息时间在坑里睡（`begin source=life`），不再靠疲劳小盹。
+  - 池岸停滞：`settle_pit_slave` 长跑饮水后不再在池岸反复 `ground path stopped`、无成员饿死；站在岸沿的身体先挪到本格中央再沿岸走。奴隶到休息时间在坑里睡（`begin source=life`），不再靠疲劳小盹。
   - 外出觅食：`forage`、`cheek_forage` 由近及远选草场，`end ok=true reason=full`，不再 `no_meadow`、回程失败不在路边 `drop` 所衔的草；有饥饿幼体时 `den_family`、`forage` 的 `deposit … stock=` 先入粮堆、再铺床。
   - 亲代喂幼：`birth_land_caught` 两亲代喂不同孩子（无 `receiver_already_waiting`），营养≥40 且仍有等着喂的孩子时不自己吃草；饥饿新生儿 `[childhood] hungry baby begs`（`beg` 动作）。`chen_speed` 先到者先吃。`settle_snow` 营养≥30 的成年不为冷处的草离开暖处。
   - 未做：幼体饥饿时保持跟随亲代（审计 8 的 P1 半，`FamilyLife.canUse` 在紧急需求下仍丢弃 FOLLOW，`offering` 中幼体仍饿死）；`aftermath_growth` 母亲吃不到脚边苹果是场景里三个窝相距 2 格互相挡路（读数 `[meal] loose food in reach but not planned … unreachable=1`，归场景整理）；亲代喂幼的就近草被吃光后仍只搜 8 格内（`food_search_exhausted`）。
@@ -419,10 +419,10 @@ WP-C2 本机自查（非试玩验收、无 CI）：主线 `136b6f124`（独立�
   - `colony_judge` 族规·审判：陆 32（45）逐案走近、相向听审再裁决。
   - **野外嗯嗯坑与山脚穴居聚落**：已接入待试玩（[聚落场地](FEATURES.md#聚落族规与迁徙)、[群系适居](FEATURES.md#聚落族规与迁徙)）。首版 [98b93c71](https://github.com/Longshou/MCyukkuri/commit/98b93c71) 美术复审不通过（缓坡家洞像土屋、土柱），已改后复审通过；收尾项：补土约每两格降一格、门前只一格砾石、倒木两三格长、坑约 4×3／6×3。完成：`settle_forest`（村）、`settle_taiga`、`settle_cherry`、`settle_hills`、`settle_savanna` 家洞挖进北侧坡、洞口朝南，补土处顺坡无露土竖墙，坑是低一格凹地，只有可饮水群系有塘；`settle_plains` 洞岸补起；`settle_pit` 去不了时 `toilet pit refused reason=…` 并改用离家 4 格外地面；新开世界聚落只在适居群系坡脚；用户认可外观与如厕行为。
   - **嗯嗯落块、坑边排泄与嗯嗯奴隶坑中生活**：已接入待试玩（[落块](FEATURES.md#日常生态)、[奴隶](FEATURES.md#聚落族规与迁徙)）。ac4ba87b（CI `40196337976`）`settle_pit`（21:58）：成员走进坑底排泄、排泄物是掉落物、奴隶只分四分之一口粮；用户据此要求落成有容量分档的方块、奴隶留坑吃排泄物并受羞辱、成员只站坑沿排泄。完成：`settle_pit` 便意升到 90 后成员站坑沿背对坑口排泄，坑格出“嗯嗯”方块、份数档位增加，满 8 份溢到相邻格（`toilet pit edge reached` → `poop placed … overflow`）；`settle_pit_slave` 一只成体成奴隶：留坑，营养≤50 时到份数最多的格吃一份（`pit slave eats droppings`，份数减一、营养 +20、卫生下降），坑空则 `pit slave hungry reason=no_droppings` 且营养继续下降；他人排泄后 `pit mockery`。已知边界：不提供玩家强迫食糞；玩家放下的废物仍落“地面零碎”、奴隶不吃；`alley-sniff` 仍只找掉落的废物；住所内部排泄仍是掉落物。2026-11-02 反馈的“演示失效”是 634e32879 把两个坑场景的 `spot` 丢了，锚点落到群系地块中缝、坑被规划到邻块山顶（`pit slave return failed reason=no_path pit=(-766,72,507)`）；已改回森林地块锚点，两场景补了 smoke（坑落在场地高度：`toilet pit trip start pit=` 的 y 在 `FEET-2..FEET`；成员到坑沿排泄；奴隶回坑、营养≤50 时取一份或报 `no_droppings`）。坑边取食改用共享地面接近：原来在坑里隔一格也报 `meal refused reason=no_path`。洞内／坡上成员去坑 `no_path` 并就地排泄（原现象版本待核实）已接入待试玩；完成：`settle_pit` 各成员从洞内／坡上走到坑沿（`toilet pit trip start` → `toilet pit edge reached` → `relieved source=pit`），无 `no_path` 或地面排泄。
-    2026-11-02 反馈 4（运行 [bbd16394b](https://github.com/Longshou/MCYukkuri/commit/bbd16394b)）复测失败：奴隶在坑里长期脏、被嫌恶且头饰不归还，失饰 +5／分、坑内排泄物 +0.5／分、被冷落 +1／分，只减“轻松”1／分，约四个游戏日甜化、疯狂后死亡，身份无法长期存在；产生只靠指令、每群可多只，也没有温和对待的恢复路。
-    已接入待试玩：奴隶的脏污、失饰蔑视、食糞及呕吐压力只到“不安”，饥饿／伤病／恐慌照常；一份排泄物喂 20 营养；它的家事（找孩子、安抚）让位给坑、幼体由其他成员照看，同群成员不再像对待陌生失饰者那样打它。温和照顾 5 次恢复原有成员或族长身份，聚落持续接纳，不再拒斥或制裁，也不再累积上述身份压力。
-    2026-11-02 反馈（运行 [bbd16394b](https://github.com/Longshou/MCyukkuri/commit/bbd16394b)）复测失败：两场长跑里坑本身正常，但聚落成员饿死（3–5 天窗口内 3–5 只，含被释放的族长困在土丘顶 y=73；另 1 只溺水）；丘顶的成员看不到坡下的草、走动每 120 tick 就改道，展出那 4 堆落地苹果 5 分钟就消失，不够撑过窗口。已改：找食按每列地面高度算（丘顶能看到并走下去吃坡下的草）、没目标时的走动一次走到底、两场长跑改为场地外圈真实草地（约两千丛，吃一丛退一阶、半天长回，无指令补货）。剩余：成员在饮水后停在与水面齐平的池岸（`mud` 14/16 高、比草地低一格）上，每段路线都 `no_progress`，饿死后气味又让同伴循环躲避——归上条“出水与爬岸”。
-    完成：`settle_pit_slave`（72000 tick，首领＋一家三口＋一家两口，奴隶是有幼体的亲代）长期取食且无奴隶饿死或甜化，`settle_pit_famine`（6000）空坑真实饿伤，`settle_pit_drive`（20000）失饰拒斥后入坑，`settle_pit_release`（120000）恢复后跨过 24000 tick 和另一拒斥窗口，无拒斥、殴打、伤口或死亡；四场景均不得有聚落成员因饥饿或困在丘顶、池岸而死亡，用户试玩确认长期生存与产生／恢复闭环。
+    2026-11-02 反馈 4（运行 [bbd16394b](https://github.com/Longshou/MCYukkuri/commit/bbd16394b)）复测失败：奴隶在坑里长期脏、被嫌恶且头饰不归还，失饰 +5／分、坑内排泄物 +0.5／分、被冷落 +1／分，只减“轻松”1／分，约四个游戏日甜化、疯狂后死亡，身份无法长期存在；产生只靠指令、每群可多只。
+    已接入待试玩：奴隶的脏污、失饰蔑视、食糞及呕吐压力只到“不安”，饥饿／伤病／恐慌照常；一份排泄物喂 20 营养；它的家事（找孩子、安抚）让位给坑、幼体由其他成员照看，同群成员不再像对待陌生失饰者那样打它。
+    2026-11-02 反馈（运行 [bbd16394b](https://github.com/Longshou/MCyukkuri/commit/bbd16394b)）复测失败：两场长跑里坑本身正常，但聚落成员饿死（3–5 天窗口内 3–5 只，含困在土丘顶 y=73 的成员；另 1 只溺水）；丘顶的成员看不到坡下的草、走动每 120 tick 就改道，展出那 4 堆落地苹果 5 分钟就消失，不够撑过窗口。已改：找食按每列地面高度算（丘顶能看到并走下去吃坡下的草）、没目标时的走动一次走到底、两场长跑改为场地外圈真实草地（约两千丛，吃一丛退一阶、半天长回，无指令补货）。剩余：成员在饮水后停在与水面齐平的池岸（`mud` 14/16 高、比草地低一格）上，每段路线都 `no_progress`，饿死后气味又让同伴循环躲避——归上条“出水与爬岸”。
+    完成：`settle_pit_slave`（72000 tick，首领＋一家三口＋一家两口，奴隶是有幼体的亲代）长期取食且无奴隶饿死或甜化，`settle_pit_famine`（6000）空坑真实饿伤，`settle_pit_drive`（20000）失饰拒斥后入坑；三场景均不得有聚落成员因饥饿或困在丘顶、池岸而死亡，用户试玩确认长期生存与产生闭环。
 - **日常草地**：`meet` 已建立关系的两只个体普通问候与蹭蹭。
 - **出生与成长**
   - `birth_land_caught`、`birth_land_missed` 陆地接生：陆 25（41）复测失败，按“出生与成长”反馈 3 复测，不能以真实入帽算整链通过；临产出窝与大窝生产见反馈 4。

@@ -73,7 +73,6 @@ public final class Contempt {
     public static int react(ServerLevel level, YukkuriEntity observer, YukkuriEntity target) {
         if (!Recognition.unrecognizedHatless(observer, target) || !observer.headwear().readyForHatlessContact(target)) return IDLE_WAIT;
         boolean grotesque = Recognition.grotesque(target);
-        if (!grotesque && SettlementSociety.acceptsHatless(observer, target)) return IDLE_WAIT;
         int wait = grotesque ? monster(level, observer, target) : scorn(level, observer, target);
         observer.headwear().recordContact(target, grotesque);
         observer.headwear().coolHatlessContact(target, wait);

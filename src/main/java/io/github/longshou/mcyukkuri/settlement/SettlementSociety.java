@@ -24,10 +24,10 @@ public final class SettlementSociety {
     }
     /** Stands in the group as an 嗯嗯奴隶 (settlement/PitSlave owns what that life is). */
     public boolean slave() { return role() == SettlementData.Role.UNUN_SLAVE; }
-    /** Current pit slave, or a former slave whose colony accepted it gently: only their own pit/social pressures are bounded. */
+    /** Current pit slave: only its own pit/social pressures are bounded. */
     public boolean pitPressureProtected() {
         var record = record();
-        return record != null && (record.role == SettlementData.Role.UNUN_SLAVE || record.hatlessAccepted);
+        return record != null && record.role == SettlementData.Role.UNUN_SLAVE;
     }
     public SettlementData.Member record() {
         if (entity.level().isClientSide) return null;
@@ -39,16 +39,9 @@ public final class SettlementSociety {
         var other = second.settlement().group();
         return first != second && first.level() == second.level() && group != null && other != null && group.id.equals(other.id);
     }
-    /** The colony's lasting acceptance of this hatless member, distinct from an observer's innate recognition. */
-    public static boolean acceptsHatless(YukkuriEntity observer, YukkuriEntity target) {
-        if (!sameGroup(observer, target)) return false;
-        var record = target.settlement().society().record();
-        return record != null && record.hatlessAccepted;
-    }
-    /** The group's own 嗯嗯奴隶, or a hatless member the colony has accepted: never beaten for being hatless. */
+    /** The group's own 嗯嗯奴隶: never beaten for being hatless. */
     public static boolean sparesHatlessBlame(YukkuriEntity observer, YukkuriEntity target) {
-        return sameGroup(observer, target)
-                && (target.settlement().society().slave() || acceptsHatless(observer, target));
+        return sameGroup(observer, target) && target.settlement().society().slave();
     }
     public static boolean accepted(YukkuriEntity member) {
         var role = member.settlement().society().role();
@@ -66,7 +59,7 @@ public final class SettlementSociety {
     /** Recognition past a missing hat is the observer's intellect (headwear.Recognition). */
     public static boolean rejects(YukkuriEntity observer, YukkuriEntity target) {
         return sameGroup(observer, target) && accepted(observer) && harsh(observer)
-                && !acceptsHatless(observer, target) && !observer.life().canRecognize(target);
+                && !observer.life().canRecognize(target);
     }
     public static boolean avoids(YukkuriEntity observer, YukkuriEntity target) {
         if (!sameGroup(observer, target)) return false;
@@ -76,7 +69,6 @@ public final class SettlementSociety {
                 && record.rememberedUntil > observer.level().getGameTime();
     }
     public void tick() {
-        if (entity.tickCount % 20 == 0 && entity.isAlive() && entity.settlement().group() != null) comfortSlave();
         if (entity.tickCount % 100 != 0 || !entity.isAlive()) return;
         var group = entity.settlement().group();
         if (group == null) return;
@@ -89,11 +81,9 @@ public final class SettlementSociety {
         if (entity.life().hasAccessory() && record.rejections > 0) { restored("accessory"); return; }
         if (now < record.nextObservation) return;
         var box = entity.getBoundingBox().inflate(6);
-        // A slave already lives at the bottom of the pit: only real contact from a gentle member (kindContact) changes its standing;
-        // the harsh witnesses below are what put a member there.
+        // A slave already lives at the bottom of the pit: the harsh witnesses below are what put a member there, and the pit is
+        // not another hatless encounter for it.
         if (record.role == SettlementData.Role.UNUN_SLAVE) return;
-        // Sustained kindness is durable colony acceptance itself (`Member.hatlessAccepted`): there is no second timer for it.
-        if (record.hatlessAccepted) return;
         var observers = LoadedGroupMembers.query(level(), group.id, box,
                 peer -> available(peer) && rejects(peer, entity) && peer.hasLineOfSight(entity)
                         && !(peer.getUUID().equals(record.observer) && now - (record.nextObservation - REJECT_GAP) < ENCOUNTER_GAP));
@@ -172,45 +162,15 @@ public final class SettlementSociety {
         }
     }
 
-    /**
-     * A gentle, recognising member that finds the group's slave beside it at the pit (typically just after its own relief there) goes over
-     * and nuzzles it (the shared nuzzle session); each finished nuzzle is one kind treatment (kindContact).
-     */
-    private void comfortSlave() {
-        if (!Temperament.lenient(entity.life().personality()) || !accepted(entity) || !available(entity)) return;
-        var group = entity.settlement().group();
-        var box = entity.getBoundingBox().inflate(8);
-        var slave = LoadedGroupMembers.minimum(level(), box, LoadedGroupMembers.query(level(), group.id, box,
-                peer -> peer.settlement().society().slave() && entity.life().canRecognize(peer) && entity.hasLineOfSight(peer)),
-                entity::distanceToSqr);
-        if (slave == null || !entity.dailyLife().console(slave)) return;
-        GameplayLog.event(entity, "settlement", "pit care visit slave={} distance={}", slave.getUUID(),
-                String.format("%.1f", Math.sqrt(entity.distanceToSqr(slave))));
-    }
-
-    /** A gentle member's nuzzle with this slave has finished. */
-    public void kindContact(YukkuriEntity member) {
-        var record = record();
-        record.gentleness++;
-        YukkuriWorldData.get(level()).relate(member.getUUID(), entity.getUUID(), 2);
-        entity.mind().felt(EmotionEvent.COMFORTED);
-        entity.showReaction("teary", "gentle", 100);
-        GameplayLog.event(entity, "settlement", "pit slave treated by={} gentleness={}/{}", member.getUUID(), record.gentleness,
-                SettlementData.GENTLE_TREATMENTS);
-        if (record.gentleness >= SettlementData.GENTLE_TREATMENTS) restored("gentle_treatment");
-        SettlementData.get(level()).setDirty();
-    }
-
     public void restored(String cause) {
         var group = entity.settlement().group();
         if (group == null) return;
         var record = record();
         if (record.rejections == 0) return;
-        int gentleness = record.gentleness;
-        SettlementData.get(level()).restore(group, entity.getUUID(), level().getGameTime(), cause.equals("gentle_treatment"));
+        SettlementData.get(level()).restore(group, entity.getUUID(), level().getGameTime());
         entity.settlement().duties().cancelAssignment();
         entity.life().personality().decided("settlement_restored");
-        GameplayLog.event(entity, "settlement", "hatless outcome role={} cause={} gentleness={}", role(), cause, gentleness);
+        GameplayLog.event(entity, "settlement", "hatless outcome role={} cause={}", role(), cause);
         // No affinity reset: the actual prior interactions remain in YukkuriWorldData.
     }
     public boolean dejected() {
