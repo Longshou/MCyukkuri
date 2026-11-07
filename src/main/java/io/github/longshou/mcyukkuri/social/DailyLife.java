@@ -197,8 +197,11 @@ public final class DailyLife {
     public boolean plan() {
         if (active()) return valid();
         if (cooldown > 0 || entity.social().active()) return false;
-        if (entity.tickCount % 10 == 0 && welcomeHome()) return true;
+        if (entity.tickCount % 10 == 0 && welcomeHome() == Welcome.STARTED) return true;
         if (scanWait > 0 || !available(entity)) return false;
+        // Someone of its own just came in and is still busy (setting its load down, eating): it keeps an eye on them for the
+        // welcome rather than starting a song or a game of its own.
+        if (welcomeHome() == Welcome.WATCHING) { scanWait = 10; return false; }
         scanWait = 100;
         if (boredom < 45 && affection < entity.life().personality().affectionThreshold()
                 && !entity.life().constipated()) return false;
@@ -234,20 +237,22 @@ public final class DailyLife {
      * A member of its own family (mate, parent or child) that just came home after a real absence, seen from inside the same home:
      * it gets up, goes to greet it and nuzzles it (project design, user 2026-11-07 life presentation). A dependent young always goes
      * to its returning parent; others as their attachment moves them. Each homecoming is answered once; a busy arrival is asked
-     * again while the window lasts.
+     * again while the window lasts, and meanwhile it is WATCHING.
      */
-    private boolean welcomeHome() {
+    private Welcome welcomeHome() {
         var family = entity.family();
         long now = level().getGameTime();
-        if (!entity.life().activity().equals(Behaviors.IDLE) || !family.atHome() || now - family.cameHomeAt() <= WELCOME_WINDOW) return false;
+        if (!entity.life().activity().equals(Behaviors.IDLE) || !family.atHome() || now - family.cameHomeAt() <= WELCOME_WINDOW) return Welcome.NONE;
         welcomed.values().removeIf(at -> now - at > WELCOME_WINDOW);
         var arrivals = level().getEntitiesOfClass(YukkuriEntity.class, entity.getBoundingBox().inflate(NUZZLE_SIGHT), peer -> peer != entity
                 && now - peer.family().cameHomeAt() <= WELCOME_WINDOW && !welcomed.containsKey(peer.getUUID())
                 && Bonds.comfortFamily(entity, peer) && peer.family().atHome() && family.sharesHome(peer));
-        if (arrivals.isEmpty() || !available(entity)) return false;
+        if (arrivals.isEmpty() || !available(entity)) return Welcome.NONE;
         arrivals.sort(Comparator.comparingDouble(entity::distanceToSqr));
+        var result = Welcome.NONE;
         for (var peer : arrivals) {
-            if (!entity.hasLineOfSight(peer) || !unafraid(peer) || !available(peer) || peer.dailyLife().active()) continue;
+            if (!entity.hasLineOfSight(peer) || !unafraid(peer)) continue;
+            if (!available(peer) || peer.dailyLife().active()) { result = Welcome.WATCHING; continue; }
             welcomed.put(peer.getUUID(), peer.family().cameHomeAt());
             boolean young = !family.adult() && Bonds.parentOf(peer, entity);
             float chance = young ? 1 : entity.life().personality().companionshipProbability();
@@ -259,11 +264,12 @@ public final class DailyLife {
             if (begin(Kind.NUZZLE, peer, true)) {
                 GameplayLog.event(entity, "family", "welcome home started member={} cameHomeAgo={} distance={} young={}", peer.getUUID(),
                         now - peer.family().cameHomeAt(), Math.round(entity.distanceTo(peer) * 10) / 10.0, young);
-                return true;
+                return Welcome.STARTED;
             }
         }
-        return false;
+        return result;
     }
+    private enum Welcome { NONE, WATCHING, STARTED }
     /** Songs and exercise are shared only with a companion close by; a far friend is for the nuzzle walk. */
     private YukkuriEntity inEarshot(YukkuriEntity companion) { return companion != null && entity.distanceToSqr(companion) <= 25 ? companion : null; }
 

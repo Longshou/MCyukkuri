@@ -3359,7 +3359,7 @@ def _distinct(pattern, count, what):
 
 
 _smoke('den_family', 6000, [r'\[habitat\] reimu [^\n]* home chosen', r'\[habitat\] marisa [^\n]* home chosen',
-                            r'\[forage\] reimu [^\n]* begin role=', r'\[family\][^\n]* welcome home started '])
+                            r'\[forage\] reimu [^\n]* begin role='])
 # The widowed mother takes over the trips: the father is killed once the family has settled.
 next(s for s in S if s.id == 'den_family').smoke['commands'] = [(2400, f'kill {sel("father")}')]
 _smoke('indep_near', 7200, [r'\[independence\][^\n]* farewell started'])

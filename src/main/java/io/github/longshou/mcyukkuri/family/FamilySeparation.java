@@ -16,7 +16,8 @@ final class FamilySeparation {
     private final Map<UUID,Integer> searching=new HashMap<>();
     private boolean lost, desperate;
     private int hungerDecision;
-    /** Loaded ticks spent away from home, and the tick it last came home after a real absence (transient; kin at home welcome it). */
+    /** Loaded ticks spent away from the home it has (none before it has one), and the tick it last came home after a real absence
+     *  (transient; kin at home welcome it). */
     private int away;
     private long cameHome=-1;
     /** An absence shorter than this (30 s, project design) is a step out of the door, not a homecoming. */
@@ -70,7 +71,7 @@ final class FamilySeparation {
         if(atHome(e)){
             if(away>=ABSENCE){cameHome=o.level().getGameTime();GameplayLog.event(e,"family","came home away={} home={}",away,e.habitat().shelter()==null?null:e.habitat().shelter().getBlockPos());}
             away=0;
-        }else away=Math.min(away+20,1_000_000);
+        }else if(FamilyNest.care(e)!=null||e.habitat().shelter()!=null)away=Math.min(away+20,1_000_000);
         boolean wasLost=lost;lost=false;
         if(!o.adult()&&!o.subadult()&&!o.awaitingLanding()&&(o.mother()!=null||o.father()!=null)){
             boolean nearby=false,sameNest=false,knownAlive=false;
