@@ -8,7 +8,6 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
-| 观测层 S1：status trace 改为 off/light/dense 结构化记录（只观察） | `.worktrees/wp-bv-trace-recorder` | status/StatusEvents、StatusLife、StatusCommands、GameplayLog、TraceRecorder、TraceWatchdog；CommonRegistration 监听 |
 | 观测层 S2：时间线与服务端自动检查（卡住、循环、瞬移、物品守恒、遗弃幼体、卡顿） | `.worktrees/wp-by-timeline-checks` | scripts/timeline.py、scripts/smoke_checks.py、scripts/fixtures/timeline/、scripts/smoke_fate.py、scripts/smoke_museum.py、scripts/headless_server.py、scripts/feedback_intake.py |
 | 噗咕多版供选（看 wiki 原版表现，并排预览给用户选） | `.worktrees/wp-cc-puku-variants` | moments.json 噗咕相关行、motions/base 或 lore 新增噗咕变体片段 |
 | 噗咕鼓腮：身体模型两腮外鼓（复刻原作ぷくー，比概念图更夸张） | `.worktrees/wp-ce-cheek-puff` | standards/yukkuri-library/body-standard/（鼓腮 puff_offsets）、导出的 yukkuri/*.json 模型数据、噗咕片段的 puff 通道 |
