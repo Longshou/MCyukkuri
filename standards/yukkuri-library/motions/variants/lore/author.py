@@ -32,6 +32,8 @@ BADGE_CLIPS=('snatch_pull','stand_ground','offer_bite')
 COMFORT_CLIPS=('comfort_lick',)
 # Weather and warmth moments (rain huddle on either side, thunderstorm cower, winter sunbathing), exported by --export-weather.
 WEATHER_CLIPS=('rain_huddle_right','rain_huddle_left','thunder_cower','sunbathe')
+# Everyday family and routine moments (storyboarded life beats), exported alone by --export-life.
+LIFE_CLIPS=('call_child','wake','meal_content')
 TILT_FIX_CLIPS=('eat','drink','first_toilet_assist','newborn_crawl','nest_harvest','nest_place','nest_spread','greet',
                 'hat_off_aq','hat_on_aq','water_plunge','water_recover','water_hat_pull','water_hat_over')
 # Body pitch -8..+6, roll <= 6 (hard cap 12): effort is squash, stretch, shift, yaw and the face, never a whole-body flip.
@@ -260,17 +262,16 @@ def state(action, t, c, height):
         b = (1-math.cos(2*math.pi*t/d))/2
         wide = 1+(1-c['height'])*.6-c['breath']*.3*b
         s = [wide, c['height']+c['breath']*b, wide]; r = [c['slump'], 0., c['tilt']]
-    elif action == 'wake':
-        # Starts from the sleep pose so waking does not pop.
-        rest, yawn = 1+(1-.94)*.6, c['yawn_height']
-        if t < .7:
-            a = smooth(t/.7); s = [lerp(rest, .96, a), lerp(.94, yawn, a), lerp(rest, .96, a)]
-            r = [lerp(-3, c['lean_back'], a), 0., lerp(4, 0, a)]
-        elif t < .9:
-            a = smooth((t-.7)/.2); s = [lerp(.96, 1, a), lerp(yawn, 1, a), lerp(.96, 1, a)]
-            r[0] = lerp(c['lean_back'], 0, a)
-        else:
-            r[1] = c['shake']*math.sin(2*math.pi*(t-.9)/.23)*(1-(t-.9)/(d-.9))**2
+    elif 'height_keys' in c:
+        # Storyboarded life beats (wake stretch, call_child, meal_content): eased height keys with a volume-keeping width,
+        # an optional quiver while held at the top, forward reach (share of the body height, toward the face) and angle keys.
+        h = keyed(t, c['height_keys'])
+        if 'quiver' in c:
+            a, b, amount, hz = c['quiver']
+            if a <= t <= b: h += amount*math.sin(2*math.pi*hz*(t-a))*bump((t-a)/(b-a))
+        w = h**-.5; s = [w, h, w]
+        r = [keyed(t, c[k]) if k in c else 0. for k in ('pitch_keys', 'yaw_keys', 'roll_keys')]
+        if 'reach_keys' in c: shift[1] = -keyed(t, c['reach_keys'])*height
     elif action == 'aquatic_hat_care':
         shake = (1-smooth(t/.9))*math.sin(2*math.pi*t/.22)
         tidy = smooth((t-.6)/.5)*(1-smooth((t-1.8)/.6))
@@ -893,7 +894,7 @@ def compile_clips(model, cfg, root, ground, height):
     return out
 
 
-def export_distress_clips(include_pet=False, include_birth=False, include_carry=False, include_badge=False, include_comfort=False, include_aquatic=False, prune_only=False, check=False, include_brim=False, include_weather=False):
+def export_distress_clips(include_pet=False, include_birth=False, include_carry=False, include_badge=False, include_comfort=False, include_aquatic=False, prune_only=False, check=False, include_brim=False, include_weather=False, include_life=False):
     """Export only this new clip family, preserving unrelated selected meshes, cheek morphs and existing clips."""
     import hashlib,sys
     sys.path.insert(0,str(ROOT/'scripts'))
@@ -909,9 +910,9 @@ def export_distress_clips(include_pet=False, include_birth=False, include_carry=
     cfg=json.loads((here/'recipe.json').read_text(encoding='utf-8'))
     contact_cfg=json.loads((here.parent/'contact-safe/recipe.json').read_text(encoding='utf-8'))
     authored_names=set(cfg['clips']) | set(contact_cfg['actions']) | set(contact_cfg['braid_follow']['actions'])
-    follows=include_pet or include_birth or include_badge or include_comfort or include_weather
+    follows=include_pet or include_birth or include_badge or include_comfort or include_weather or include_life
     contact_author=runpy.run_path(str(here.parent/'contact-safe/author.py')) if follows else None
-    names=WEATHER_CLIPS if include_weather else BRIM_CARRY_CLIPS if include_brim else TOOLS['EXPORT_CLIPS'] if include_aquatic else COMFORT_CLIPS if include_comfort else ('boat_carry_young','boat_be_carried','boat_prepare_carry','boat_release_carry','mouth_release') if include_carry else BIRTH_CLIPS if include_birth else BADGE_CLIPS+TILT_FIX_CLIPS if include_badge else DISTRESS_CLIPS
+    names=WEATHER_CLIPS if include_weather else LIFE_CLIPS if include_life else BRIM_CARRY_CLIPS if include_brim else TOOLS['EXPORT_CLIPS'] if include_aquatic else COMFORT_CLIPS if include_comfort else ('boat_carry_young','boat_be_carried','boat_prepare_carry','boat_release_carry','mouth_release') if include_carry else BIRTH_CLIPS if include_birth else BADGE_CLIPS+TILT_FIX_CLIPS if include_badge else DISTRESS_CLIPS
     if include_pet:
         names+=('think','nervous','proud','joy_jump','sulk','hide_face','beg','bow','shy','doze_off','struggle','basket_in','basket_out','ignore','restrain')
     cfg['clips']={name:cfg['clips'][name] for name in names}
@@ -952,7 +953,7 @@ def export_distress_clips(include_pet=False, include_birth=False, include_carry=
         print('Exported selected lore clips:',ident,flush=True)
     if include_birth:
         write(resource.parent/'live_birth_pose.json',json.dumps(birth_poses,ensure_ascii=False,separators=(',',':'))+'\n')
-    if not prune_only and not include_brim:
+    if not prune_only and not include_brim and not include_life:
         payload['revision']='life-weather-20261107-v38' if include_weather else AQUATIC_REVISION if include_aquatic else 'comfort-lick-20261017-v29' if include_comfort else 'hat-care-contact-20261017-v26' if include_carry else 'birth-staging-20261017-v27' if include_birth else 'badge-motion-20261017-v28' if include_badge else 'braid-reach-low-20261018-v30'
     write(resource,json.dumps(payload,ensure_ascii=False,separators=(',',':'))+'\n')
     if include_weather:  # the side reach of every model through its huddle loop, for the server's side-by-side stand
@@ -988,6 +989,7 @@ if __name__=='__main__':
     parser.add_argument('--export-badge',action='store_true',help='Export the badge-arc clips (BADGE_CLIPS) and the tilt-refitted clips (TILT_FIX_CLIPS) only.')
     parser.add_argument('--export-comfort',action='store_true',help='Export the comfort_lick clip only, preserving other runtime clips.')
     parser.add_argument('--export-brim-carry',action='store_true',help='Export the braid brim lift and lowering (BRIM_CARRY_CLIPS, braid_keys.py) only.')
+    parser.add_argument('--export-life',action='store_true',help='Export the family and routine life beats (LIFE_CLIPS: call_child, wake, meal_content) only.')
     parser.add_argument('--export-aquatic',action='store_true',help='Export the paddle, braid cradle, mouth bite, capsize and self-rescue clips (aquatic_tools.py) only.')
     parser.add_argument('--export-weather',action='store_true',help='Export the rain huddle, thunderstorm cower and sunbathing clips (WEATHER_CLIPS) only.')
     args=parser.parse_args()
@@ -1000,3 +1002,4 @@ if __name__=='__main__':
     if args.export_aquatic:export_distress_clips(include_aquatic=True,check=args.check)
     if args.export_brim_carry:export_distress_clips(include_brim=True,check=args.check)
     if args.export_weather:export_distress_clips(include_weather=True,check=args.check)
+    if args.export_life:export_distress_clips(include_life=True,check=args.check)

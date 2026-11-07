@@ -1231,6 +1231,107 @@
         "meal_finish"
       ]
     },
+    "meal_content": {
+      "label": "吃饱满足瘫软",
+      "duration": 3.6,
+      "loop": false,
+      "applies": "all",
+      "height_keys": [
+        [
+          0,
+          1
+        ],
+        [
+          0.35,
+          0.99
+        ],
+        [
+          1.2,
+          0.84
+        ],
+        [
+          1.65,
+          0.855
+        ],
+        [
+          2.1,
+          0.84
+        ],
+        [
+          2.55,
+          0.852
+        ],
+        [
+          3.3,
+          1
+        ],
+        [
+          3.6,
+          1
+        ]
+      ],
+      "pitch_keys": [
+        [
+          0,
+          0
+        ],
+        [
+          1.2,
+          2
+        ],
+        [
+          2.6,
+          2
+        ],
+        [
+          3.3,
+          0
+        ]
+      ],
+      "roll_keys": [
+        [
+          0,
+          0
+        ],
+        [
+          1.3,
+          0
+        ],
+        [
+          1.75,
+          3
+        ],
+        [
+          2.3,
+          -3
+        ],
+        [
+          2.8,
+          0
+        ]
+      ],
+      "faces": [
+        [
+          0,
+          0.9,
+          "closed_smile"
+        ],
+        [
+          0.9,
+          2.9,
+          "satisfied"
+        ],
+        [
+          2.9,
+          63.6,
+          "closed_smile"
+        ]
+      ],
+      "lore": "The bite that leaves it full: eyes narrow, it melts lower and wider in place for a contented moment (しあわせー), sways a little and rises again (project design, user 2026-11-07 life presentation).",
+      "triggers": [
+        "meal_content"
+      ]
+    },
     "drink": {
       "label": "饮水",
       "duration": 1.6,
@@ -1299,36 +1400,156 @@
       ]
     },
     "wake": {
-      "label": "醒来",
-      "duration": 1.6,
+      "label": "醒来伸懒腰",
+      "duration": 3.4,
       "loop": false,
       "applies": "all",
-      "yawn_height": 1.1,
-      "lean_back": 5,
-      "shake": 10,
+      "height_keys": [
+        [
+          0,
+          0.94
+        ],
+        [
+          0.45,
+          0.95
+        ],
+        [
+          1.05,
+          1.15
+        ],
+        [
+          1.85,
+          1.17
+        ],
+        [
+          2.15,
+          0.93
+        ],
+        [
+          2.4,
+          1
+        ],
+        [
+          3.4,
+          1
+        ]
+      ],
+      "pitch_keys": [
+        [
+          0,
+          -3
+        ],
+        [
+          0.45,
+          -2
+        ],
+        [
+          1.05,
+          5
+        ],
+        [
+          1.85,
+          5
+        ],
+        [
+          2.15,
+          -1
+        ],
+        [
+          2.4,
+          0
+        ],
+        [
+          3.4,
+          0
+        ]
+      ],
+      "roll_keys": [
+        [
+          0,
+          4
+        ],
+        [
+          0.45,
+          3
+        ],
+        [
+          1.05,
+          0
+        ],
+        [
+          3.4,
+          0
+        ]
+      ],
+      "yaw_keys": [
+        [
+          0,
+          0
+        ],
+        [
+          2.4,
+          0
+        ],
+        [
+          2.52,
+          10
+        ],
+        [
+          2.66,
+          -9
+        ],
+        [
+          2.8,
+          6
+        ],
+        [
+          2.92,
+          -3
+        ],
+        [
+          3.05,
+          0
+        ],
+        [
+          3.4,
+          0
+        ]
+      ],
+      "quiver": [
+        1.1,
+        1.85,
+        0.006,
+        9
+      ],
       "faces": [
         [
           0,
-          0.15,
+          0.2,
           "sleep"
         ],
         [
-          0.15,
-          0.7,
-          "yawn"
-        ],
-        [
-          0.7,
-          0.95,
+          0.2,
+          0.5,
           "sleepy"
         ],
         [
-          0.95,
-          61.6,
+          0.5,
+          2.0,
+          "yawn"
+        ],
+        [
+          2.0,
+          2.4,
+          "sleepy"
+        ],
+        [
+          2.4,
+          63.4,
           "neutral"
         ]
       ],
-      "lore": "waking with a yawn (project stages)",
+      "lore": "Waking rested: from the sleep pose it stirs, rises into one long vertical stretch with a yawn and a small quiver at the top, lets go with a soft squash and shakes the sleep off (project stages; stretch user 2026-11-07 life presentation).",
       "triggers": [
         "wake"
       ]
@@ -1785,6 +2006,197 @@
       "triggers": [
         "search_family",
         "wait_child"
+      ]
+    },
+    "call_child": {
+      "label": "呼唤走散的孩子",
+      "duration": 3.2,
+      "loop": false,
+      "applies": "not_house",
+      "height_keys": [
+        [
+          0,
+          1
+        ],
+        [
+          0.22,
+          0.93
+        ],
+        [
+          0.48,
+          1.1
+        ],
+        [
+          0.78,
+          1.09
+        ],
+        [
+          1.0,
+          1.04
+        ],
+        [
+          1.25,
+          1.1
+        ],
+        [
+          1.52,
+          1.09
+        ],
+        [
+          1.72,
+          1.03
+        ],
+        [
+          2.0,
+          1.13
+        ],
+        [
+          2.7,
+          1.12
+        ],
+        [
+          3.2,
+          1
+        ]
+      ],
+      "reach_keys": [
+        [
+          0,
+          0
+        ],
+        [
+          0.22,
+          -0.01
+        ],
+        [
+          0.48,
+          0.04
+        ],
+        [
+          0.78,
+          0.035
+        ],
+        [
+          1.0,
+          0.015
+        ],
+        [
+          1.25,
+          0.04
+        ],
+        [
+          1.52,
+          0.035
+        ],
+        [
+          1.72,
+          0.015
+        ],
+        [
+          2.0,
+          0.05
+        ],
+        [
+          2.7,
+          0.045
+        ],
+        [
+          3.2,
+          0
+        ]
+      ],
+      "pitch_keys": [
+        [
+          0,
+          0
+        ],
+        [
+          0.22,
+          -2
+        ],
+        [
+          0.48,
+          4
+        ],
+        [
+          0.78,
+          3
+        ],
+        [
+          1.0,
+          1
+        ],
+        [
+          1.25,
+          4
+        ],
+        [
+          1.52,
+          3
+        ],
+        [
+          1.72,
+          1
+        ],
+        [
+          2.0,
+          5
+        ],
+        [
+          2.7,
+          4
+        ],
+        [
+          3.2,
+          0
+        ]
+      ],
+      "quiver": [
+        2.0,
+        2.7,
+        0.006,
+        9
+      ],
+      "faces": [
+        [
+          0,
+          0.3,
+          "teary"
+        ],
+        [
+          0.3,
+          0.8,
+          "cry"
+        ],
+        [
+          0.8,
+          1.1,
+          "teary"
+        ],
+        [
+          1.1,
+          1.55,
+          "cry"
+        ],
+        [
+          1.55,
+          1.8,
+          "teary"
+        ],
+        [
+          1.8,
+          2.75,
+          "cry"
+        ],
+        [
+          2.75,
+          63.2,
+          "teary"
+        ]
+      ],
+      "lore": "A parent who has lost sight of her dependent child stops, gathers, then stretches up and toward the child's last-known place calling three times, the last the longest; she then listens (look_around) and, unanswered, droops (project design, user 2026-11-07 life presentation).",
+      "triggers": [
+        "call_child"
       ]
     },
     "shake": {
@@ -6505,7 +6917,9 @@
     "rain_huddle_left",
     "rain_huddle_right",
     "thunder_cower",
-    "sunbathe"
+    "sunbathe",
+    "call_child",
+    "meal_content"
   ],
   "braid_use": {
     "note": "Project design (user 2026-11-05 feedback 2: what the braid already holds decides what it can do): clips whose own authored braid grips, carries or strokes something (the hat, a child, a brim, the water; in the water she flails and swims with it while the stack stays in her hat) use the braid, so the game never lays the held stack's hold over them; a held stack shows there only by the clip's own props.item, otherwise it stays stowed in her hat and is not drawn. A hat clip with `hat.stick` (her own hat on and off at the water, the clips the game plays while she holds the stick) keeps the stick in the tuft: it lies along the brim the tuft hooks, its long end along the keyed direction in the worn hat's frame ([t, x, y, z]: out to her braid side on the worn brim, out over the water on the hat set down; re-aimed in the tuft while the hat swings over) and turning with the hat, so the stick never leaves the braid, never pops and never crosses her face (user 2026-11-05 feedback 2; user 2026-11-04 feedback 6: held in the braid, not hidden). Markers `braid_busy` (the braid has left the hold by here) and `braid_free` (from here it returns to the hold by the clip's end) let a one-shot clip hand the braid over from and back to the hold. Exported as the clip field braid_use.",

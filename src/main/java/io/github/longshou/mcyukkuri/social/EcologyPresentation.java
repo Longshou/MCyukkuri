@@ -15,6 +15,7 @@ public final class EcologyPresentation {
             case Behaviors.TAKE_FOOD, Behaviors.CHEW, Behaviors.FAMILY_CHEW, Behaviors.SWALLOW -> YukkuriAction.EAT;
             case Behaviors.RECEIVE_MASH -> YukkuriAction.DRINK;
             case Behaviors.MEAL_FINISH -> YukkuriAction.SHIAWASE;
+            case Behaviors.MEAL_CONTENT -> YukkuriAction.MEAL_CONTENT;
             case Behaviors.DRINK -> YukkuriAction.DRINK;
             case Behaviors.SLEEP_ENTER, Behaviors.SLEEP, Behaviors.SHADE_REST -> YukkuriAction.SLEEP;
             case Behaviors.HOUSE_SLEEP, Behaviors.HOUSE_HIDE -> YukkuriAction.SLEEP;
@@ -70,6 +71,10 @@ public final class EcologyPresentation {
             case Behaviors.SING -> YukkuriAction.SING;
             case Behaviors.LISTEN_SONG, Behaviors.EXERCISE_WATCH -> YukkuriAction.SWAY;
             case Behaviors.SEARCH_FAMILY, Behaviors.WAIT_CHILD, Behaviors.STAY_HOME -> YukkuriAction.LOOK_AROUND;
+            case Behaviors.CALL_CHILD -> YukkuriAction.CALL_CHILD;
+            case Behaviors.CALL_LISTEN -> YukkuriAction.LOOK_AROUND;
+            case Behaviors.CALL_UNANSWERED -> YukkuriAction.DROOP;
+            case Behaviors.ANSWER_CALL -> YukkuriAction.BOAT_ANSWER_CALL;
             case Behaviors.TEND_BROOD -> YukkuriAction.BROOD;
             case Behaviors.LABOR -> YukkuriAction.LABOR;
             case Behaviors.POSTPARTUM -> YukkuriAction.POSTPARTUM;
@@ -129,7 +134,7 @@ public final class EcologyPresentation {
             case Behaviors.NUZZLE, Behaviors.LISTEN_SONG, Behaviors.EXERCISE_WATCH -> "closed_smile";
             case Behaviors.PAIRING_ACCEPT -> "happy";
             case Behaviors.PAIRING -> "closed_smile";
-            case Behaviors.MEAL_FINISH -> "satisfied";
+            case Behaviors.MEAL_FINISH, Behaviors.MEAL_CONTENT -> "satisfied";
             case Behaviors.INDEPENDENCE_FAREWELL, Behaviors.INDEPENDENCE_VISIT -> "happy";
             case Behaviors.INDEPENDENCE_BUILD, Behaviors.NEST_BUILD, Behaviors.NEST_PLACE, Behaviors.NEST_SPREAD, Behaviors.NEST_PRESS, Behaviors.NEST_HARVEST -> "chewing_closed";
             case Behaviors.FEED_CHILD -> "happy";

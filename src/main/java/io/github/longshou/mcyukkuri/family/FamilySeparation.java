@@ -16,6 +16,12 @@ final class FamilySeparation {
     private final Map<UUID,Integer> searching=new HashMap<>();
     private boolean lost, desperate;
     private int hungerDecision;
+    /** Loaded ticks spent away from home, and the tick it last came home after a real absence (transient; kin at home welcome it). */
+    private int away;
+    private long cameHome=-1;
+    /** An absence shorter than this (30 s, project design) is a step out of the door, not a homecoming. */
+    private static final int ABSENCE=600;
+    long cameHome(){return cameHome;}
     FamilySeparation(FamilyLife owner){o=owner;}
     boolean emergencyForaging(){return desperate&&o.stage()==FamilyLife.Stage.BABY&&o.entity().life().nutrition()<10&&!o.awaitingLanding();}
     String describe(){return "lost="+lost+" searches="+searching+" limit="+searchLimit()+" dismissed="+FamilyData.get(o.level()).dismissedChildren(o.entity().getUUID())+" emergencyFood="+emergencyForaging();}
@@ -43,7 +49,7 @@ final class FamilySeparation {
     /** The parent reached the child it searched for (FamilyLife.reached): the one place the reunion is greeted and logged. */
     void reunited(YukkuriEntity child){
         var e=o.entity();
-        searching.remove(child.getUUID());
+        searching.remove(child.getUUID());o.call().found(child.getUUID());
         e.showReaction("happy","caregiver",80);BirthStaging.affection(e);
         GameplayLog.event(e,"family","child search reunited child={} distance={}",child.getUUID(),Math.round(e.distanceTo(child)*100)/100.0);
     }
@@ -61,6 +67,10 @@ final class FamilySeparation {
                 GameplayLog.event(e,"family","infant starvation decision accepted={} score={} threshold=45 nutrition={}",desperate,score,e.life().nutrition());
             }
         }else desperate=false;
+        if(atHome(e)){
+            if(away>=ABSENCE){cameHome=o.level().getGameTime();GameplayLog.event(e,"family","came home away={} home={}",away,e.habitat().shelter()==null?null:e.habitat().shelter().getBlockPos());}
+            away=0;
+        }else away=Math.min(away+20,ABSENCE);
         boolean wasLost=lost;lost=false;
         if(!o.adult()&&!o.subadult()&&!o.awaitingLanding()&&(o.mother()!=null||o.father()!=null)){
             boolean nearby=false,sameNest=false,knownAlive=false;
@@ -84,7 +94,7 @@ final class FamilySeparation {
             if(record==null||!e.getUUID().equals(record.mother)||!data.acknowledgesChild(e.getUUID(),id))continue;
             if(!(o.level().getEntity(id) instanceof YukkuriEntity child)||!child.isAlive()||child.family().adult()||child.family().subadult())continue;
             if(child.family().awaitingLanding()||child.isPassenger()||near(e,child)||atHome(child)){
-                searching.remove(id);
+                searching.remove(id);o.call().found(id);
                 continue;
             }
             int elapsed=searching.merge(id,20,Integer::sum);

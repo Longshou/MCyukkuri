@@ -37,6 +37,10 @@ public final class Behaviors {
     public static final String BOAT_RIM_PEEK = "boat_rim_peek";
     public static final String KID_HIDE_BEHIND = "kid_hide_behind";
     public static final String BREEDING_PERIOD = "breeding_period";
+    /** A parent who lost sight of her child calls for it, listens, and droops when nothing answers (family/ChildCall). */
+    public static final String CALL_CHILD = "call_child", CALL_LISTEN = "call_listen", CALL_UNANSWERED = "call_unanswered";
+    /** A child that heard its parent call turns to her and answers. */
+    public static final String ANSWER_CALL = "answer_call";
     public static final String BULLY_PEER = "bully_peer";
     public static final String SELF_DEFENSE = "self_defense";
     public static final String CARE_FINISH = "care_finish";
@@ -120,6 +124,8 @@ public final class Behaviors {
     public static final String BEG_FOOD = "beg_food";
     public static final String LISTEN_SONG = "listen_song";
     public static final String MEAL_FINISH = "meal_finish";
+    /** The bite that left it full: a contented melt in place. */
+    public static final String MEAL_CONTENT = "meal_content";
     public static final String MIDWIFE = "midwife";
     public static final String NEST_BUILD = "nest_build";
     public static final String NEST_CARRY = "nest_carry";

@@ -444,7 +444,8 @@ def _sleep_doorway_verify(log):
     return None if sleepers else 'no sleeper inside its bed'
 
 
-add('sleep', 'meadow', '困了走回有顶的窝睡觉', '困了走回有顶的窝睡觉', '灵梦困了，自己走回有顶的窝里睡觉', '约 1 分钟', [
+add('sleep', 'meadow', '困了走回有顶的窝睡觉', '困了走回有顶的窝睡觉',
+    '灵梦困了，自己走回有顶的窝里睡觉；睡足醒来先在窝里伸一个长懒腰、打哈欠，再抖抖身子起来（饿醒的直接起身）', '约 1 分钟', [
     *shed(7, 0), yk('reimu', 0, 0, 'a', energy=95, rest_wait=0, yaw=-90, lead=True), home('a', 7, 0)], vantage=(7, -7, 0, 35), env=DAY,
     # The home is set two seconds after the summon, so the tiredness comes only once the nest is hers (energy below the rest
     # threshold, above the in-place nap's 25).
@@ -454,7 +455,7 @@ add('sleep', 'meadow', '困了走回有顶的窝睡觉', '困了走回有顶的�
     smoke=dict(ticks=2600, forbid=[r'\[home\][^\n]*nest_not_inside\b', r'\[home\][^\n]*reason=doorway_unreachable\b',
                                   r'\[home\][^\n]*bed crossing[^\n]*opening=false source=walk'],
                expect=[r'\[sleep\] [^\n]*begin source=life occupancy=INSIDE_SUPPORTED',
-                       r'\[sleep\] [^\n]*end source=life',
+                       r'\[sleep\] [^\n]*end source=life[^\n]*stretched=true',
                        r'\[home\][^\n]*bed crossing[^\n]*direction=in side=north opening=true',
                        r'\[home\][^\n]*bed crossing[^\n]*direction=out side=north opening=true'],
                readout=[f'yukkuri status {sel("a")} raw'], verify=_sleep_doorway_verify))
@@ -498,6 +499,35 @@ add('meet', 'meadow', '熟的走近蹭蹭，生的先问候', '熟的走近蹭�
     env=DAY, vantage=None, give=['mcyukkuri:field_notebook'],
     reads=[('读熟识一对', f'execute as {sel("a")} run yukkuri status @s raw'),
            ('读陌生橙的首次接触', f'yukkuri status {sel("stranger_a")} raw'), ('读陌生爱丽丝的首次接触', f'yukkuri status {sel("stranger_b")} raw')])
+
+# Three hungry-ish bodies, each with an apple at its feet: the bite takes each past full (nutrition 60 + 20 > 75). The adult and the
+# child melt in contentment; the composed adult (self-control 95) keeps to the ordinary after-meal face.
+_content_ids = {name: uid('meal_content', name) for name in ('adult', 'child', 'composed')}
+
+
+def _meal_content_verify(log):
+    """The adult and the child melt after the filling bite; the composed adult goes full without melting."""
+    ids = {k: _uuid_of(v) for k, v in _content_ids.items()}
+    for name in ('adult', 'child'):
+        if not re.search(rf'\[meal\][^\n]*uuid={ids[name]}[^\n]*full nutrition=[^\n]*content=true', log):
+            return f'{name} never melted after a filling bite'
+    if not re.search(rf'\[meal\][^\n]*uuid={ids["composed"]}[^\n]*full nutrition=[^\n]*content=false reason=composed', log):
+        return 'the composed adult did not go full with composure'
+    return None
+
+
+add('meal_content', 'meadow', '吃饱了原地瘫软一会儿', '吃饱了原地瘫软一会儿',
+    '三只脚边各有一个苹果：左边营养 60 的成年灵梦吃下后营养过了 75（饱了），原地慢慢压扁、眯眼满足一会儿再起身；中间营养相同的子油也会；'
+    '右边自制 95 的稳重灵梦吃饱后只做普通的饭后表情、不瘫软。刚瘫软过的个体隔一会儿才会再瘫软；苦草、辣、有毒或坐在帽船里吃饱不瘫软',
+    '约 10–30 秒', [
+        yk('reimu', -4, 0, 'adult', uuid=_content_ids['adult'], label='成年·自制70', nutrition=60, lead=True),
+        item('minecraft:apple', 1, -4, -1, name='apple_adult'),
+        yk('reimu', 0, 0, 'child', uuid=_content_ids['child'], stage='child', label='子油', nutrition=60),
+        item('minecraft:apple', 1, 0, -1, name='apple_child'),
+        yk('reimu', 4, 0, 'composed', uuid=_content_ids['composed'], label='成年·自制95', nutrition=60, self_control=95),
+        item('minecraft:apple', 1, 4, -1, name='apple_composed')],
+    env=DAY, vantage=(0, 7), note='待验证：新场景，尚未在游戏里实测。',
+    reads=[('读成年灵梦', f'yukkuri status {sel("adult")} raw'), ('读稳重灵梦', f'yukkuri status {sel("composed")} raw')])
 
 # Two wounded young or mates, each beside the one who knows it: a mate (north, each with a nest of her own: homeless adults are
 # busy looking for a den and would not come to lick) and a mother with her child (south).
@@ -655,11 +685,33 @@ add('family_distance', 'family', '胆大子油跑得远，普通的早回来', '
     reads=[('读普通子油', f'yukkuri status {sel("child_near")} raw'), ('读大胆子油', f'yukkuri status {sel("child_bold")} raw')])
 
 _fs = {k: uid('family_search', k) for k in ('parent', 'child', 'lost_mother', 'lost_child')}
+
+
+def _uuid_of(ints):
+    return str(uuid.UUID(bytes=b''.join((n & 0xffffffff).to_bytes(4, 'big') for n in ints)))
+
+
+def _family_call_verify(log):
+    """Both searching parents call; the cold one (friendliness 0) calls one round only; each child in earshot answers (behind glass too)."""
+    ids = {k: _uuid_of(v) for k, v in _fs.items()}
+    for parent in ('parent', 'lost_mother'):
+        if not re.search(rf'uuid={ids[parent]}[^\n]*child call started', log):
+            return f'{parent} never called'
+    if re.search(rf'uuid={ids["lost_mother"]}[^\n]*child call started[^\n]*round=2/', log):
+        return 'the cold mother called a second round'
+    for child in ('child', 'lost_child'):
+        if not re.search(rf'uuid={ids[child]}[^\n]*child heard parent call', log):
+            return f'{child} never answered a call'
+    return None
+
+
 add('family_search', 'family', '走散亲子：走得到就重逢，隔玻璃就放弃', '走散亲子：走得到就重逢，隔玻璃就放弃',
     '两对无巢亲子各相隔 30 格。北边一对之间是空地：孩子寻亲、亲油主动接近，重新靠近后恢复自由活动。'
-    '南边的子油被真实玻璃围住：亲油搜寻受阻、计时后单向放弃；低胆量孩子不安可越过非油症阈值；可手动拆玻璃对照重逢，不能把放弃误认成寻回。不会传送或生成替代亲人',
+    '南边的子油被真实玻璃围住：亲油搜寻受阻、计时后单向放弃；低胆量孩子不安可越过非油症阈值；可手动拆玻璃对照重逢，不能把放弃误认成寻回。不会传送或生成替代亲人。'
+    '看不见孩子时亲油会停下、朝孩子最后所在处伸长身体呼唤三声，再左右张望着听：24 格内的孩子转向她回应、跳一下再朝呼唤处走（玻璃里的也会回应）；'
+    '没有回应就低落一会儿再接着找。北边亲油友善 95，最多喊四轮、约 10 秒一轮；南边亲油友善 0，只喊一轮',
     '重逢约 30–60 秒；放弃约 2 分钟以上，孩子不安需更久', [
-        yk('reimu', -15, -4, 'search_parent', uuid=_fs['parent'], label='寻子亲油', lead=True, **pair_ready()),
+        yk('reimu', -15, -4, 'search_parent', uuid=_fs['parent'], label='寻子亲油·友善95', friendliness=95, lead=True, **pair_ready()),
         yk('reimu', 15, -4, 'search_child', uuid=_fs['child'], stage='child', label='走散子油', boldness=40,
            kin=f'Mother:{uuid_nbt(_fs["parent"])}', **pair_ready()),
         box(13, -1, 3, 17, 3, 7, 'minecraft:glass', 'hollow'),
@@ -3237,7 +3289,7 @@ TOPICS = {
     'balance_traits': 'N1', 'balance_relation': 'N1', 'balance_forms': 'N1', 'balance_deibu': 'N1',
     'agitation_relief': 'D2', 'adult_pairing': 'F6', 'widow_repair': 'F6', 'alice_hunt': 'R4', 'aftermath_growth': 'F7', 'aftermath_depletion': 'F7',
     'den_family': 'W1', 'dig': 'W2', 'indep_near': 'W3', 'den_move': 'W4', 'forage': 'W5', 'graze': 'W6', 'den_barrier': 'W8',
-    'sleep': 'D1', 'fatigue': 'R1', 'fatigue_predator': 'R2', 'nutrition_age': 'D1', 'meet': 'D1', 'toilet': 'F5', 'hurt': 'F3',
+    'sleep': 'D1', 'meal_content': 'D1', 'fatigue': 'R1', 'fatigue_predator': 'R2', 'nutrition_age': 'D1', 'meet': 'D1', 'toilet': 'F5', 'hurt': 'F3',
     'birth_land_caught': 'F1', 'birth_land_missed': 'F1', 'feed': 'F2', 'first_toilet': 'F2', 'hop': 'F2', 'growth': 'F4',
     'leaf_swaddle': 'F2', 'leaf_swaddle_neglect': 'F2', 'family_distance': 'F8', 'family_search': 'F8', 'birth_nest_safe': 'F1', 'birth_nest_stem': 'F1', 'birth_stem_caught': 'F1', 'family_nests': 'F4', 'carry_home': 'F4', 'infant_starvation': 'F2',
     'forage_empty': 'R1', 'rain_life': 'R1', 'rain_huddle': 'R1', 'storm_cower': 'R1', 'marisa_explore': 'R1', 'rain_shelter': 'R1', 'rain_open': 'R1', 'pred_watch': 'R2', 'pred_range': 'R2', 'pred_pets': 'R2', 'shared_body': 'R3',
@@ -3304,6 +3356,8 @@ _smoke('indep_near', 7200, [r'\[independence\][^\n]* farewell started'])
 next(s for s in S if s.id == 'indep_near').smoke['verify'] = _distinct(r'\[independence\] \w+ #\d+ uuid=(\S+)[^\n]* departed ', 2, 'teens that left home')
 _smoke('forage', 6000, [r'\[forage\][^\n]* begin role=', r'\[forage\][^\n]* deposit home='])
 _smoke('graze', 1200, [r'\[meal\][^\n]* swallowed item=minecraft:apple\b', r'\[meal\][^\n]* swallowed item=minecraft:short_grass\b'])
+_smoke('meal_content', 900, [r'\[meal\][^\n]* full nutrition=[^\n]*content=true'])
+next(s for s in S if s.id == 'meal_content').smoke['verify'] = _meal_content_verify
 _smoke('meet', 2400, [r'\[social\][^\n]* greet [^\n]*why=first_meet', r'\[daily\][^\n]* session result kind=NUZZLE'])
 _smoke('alice_hunt', 1200, [r'\[agitation\][^\n]* phase=ALICE_APPROACH -> ALICE_ACT'])
 _smoke('aftermath_growth', 3600, [r'\[family\][^\n]* stem drain stage'])
@@ -3312,7 +3366,9 @@ _smoke('aftermath_depletion', 3600, [r'\[family\][^\n]* aftermath reserved ', r'
 _smoke('growth', 200, [r'\[growth\][^\n]* stage=BABY -> JUVENILE', r'\[growth\][^\n]* age boundary [^\n]*subadult=true',
                        r'\[growth\][^\n]* stage=JUVENILE -> ADULT', r'\[growth\][^\n]* age boundary [^\n]*elder=true',
                        r'\[growth\][^\n]* lifespan reached'])
-_smoke('family_search', 7200, [r'\[family\][^\n]* child search reunited', r'\[family\][^\n]* parent dismissed '])
+_smoke('family_search', 7200, [r'\[family\][^\n]* child search reunited', r'\[family\][^\n]* parent dismissed ',
+                               r'\[family\][^\n]* child call started ', r'\[family\][^\n]* child heard parent call '])
+next(s for s in S if s.id == 'family_search').smoke['verify'] = _family_call_verify
 _smoke('rain_open', 1200, [r'\[weather\][^\n]* shelter response started', r'\[needs\][^\n]* soaking damage '])
 _smoke('treatment_scars', 1600, [r'\[body\][^\n]* wound healing ', r'\[body\][^\n]* scar (?:formed|not formed) from '])
 _smoke('wound_materials', 400, [], forbid=[r'\[body\][^\n]* death settled'])

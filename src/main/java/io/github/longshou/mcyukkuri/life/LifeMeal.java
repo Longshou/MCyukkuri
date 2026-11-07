@@ -5,11 +5,13 @@ import io.github.longshou.mcyukkuri.body.BodyEffects;
 import io.github.longshou.mcyukkuri.body.BodyFood;
 import io.github.longshou.mcyukkuri.body.FillingResource;
 import io.github.longshou.mcyukkuri.body.MouthPlacement;
+import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.event.WildEvents;
 import io.github.longshou.mcyukkuri.family.FamilyFeedingContact;
 import io.github.longshou.mcyukkuri.family.FamilyLife;
 import io.github.longshou.mcyukkuri.interaction.ItemContact;
+import io.github.longshou.mcyukkuri.motor.ClipMarkers;
 import io.github.longshou.mcyukkuri.pet.social.BadgeSocial;
 import io.github.longshou.mcyukkuri.registry.ModItems;
 import io.github.longshou.mcyukkuri.social.YukkuriPersonality.Trait;
@@ -37,6 +39,12 @@ final class LifeMeal {
     private int mealTicks, mealHold;
     private UUID feeder;
     private boolean sharedMeal, preparedMeal, bowlMeal;
+    /** Nutrition above which it wants no more food: the bite that takes it past this leaves it full. */
+    static final float FULL = 75;
+    /** This meal left it full and it lets itself melt in contentment after the swallow (meal_content); transient, like the clock below. */
+    private boolean content;
+    /** No contented melt before this tick: a moment after a filling meal, not a habit. */
+    private long contentAfter;
     ItemStack mouth() { return mouth; }
     BodyFood.Bite mouthBodyFood() { return bodyFood; }
 
@@ -44,7 +52,7 @@ final class LifeMeal {
 
     int mealTicks() { return mealTicks; }
 
-    boolean needsFood() { return o.nutrition() <= 75 && !hasMouthFood() && mealTicks == 0; }
+    boolean needsFood() { return o.nutrition() <= FULL && !hasMouthFood() && mealTicks == 0; }
 
     boolean edible(ItemStack food){return food.is(YukkuriEntity.FOOD)||o.entity().profile().diet().eats(food)||Toxins.dose(food)>0&&o.nutrition()<Toxins.STARVING||Consumables.kind(food)==Consumables.Kind.SPICY
             ||FillingResource.isFilling(food)||o.entity().profile().houseBody()&&food.is(ModItems.FOOD_SCRAP.get())
@@ -88,6 +96,7 @@ final class LifeMeal {
         feeder = null;
         sharedMeal = true;
         preparedMeal = false;
+        content = false;
         mealTicks = 1;
         o.beginConsumption();
         o.entity().getNavigation().stop();
@@ -117,7 +126,7 @@ final class LifeMeal {
         bowlMeal = false;
         bodyFood = BodyFood.Bite.EMPTY;
         syncBodyFood();
-        mouth = transferred.copy(); mealHold = 0; feeder = fromPlayer; sharedMeal = alreadyShared; preparedMeal = InfantFood.isMash(transferred); mealTicks = 1;
+        mouth = transferred.copy(); mealHold = 0; feeder = fromPlayer; sharedMeal = alreadyShared; preparedMeal = InfantFood.isMash(transferred); content = false; mealTicks = 1;
         o.beginConsumption(); o.entity().getNavigation().stop(); o.entity().setPersistenceRequired();
         o.entity().showReaction("happy", reaction, 60); return true;
     }
@@ -222,6 +231,7 @@ final class LifeMeal {
                 GameplayLog.event(o.entity(),"meal","swallowed item={} count={} nutrition={} -> {} feeder={} prepared={} shared={}",
                         swallowed.getItem(),swallowed.getCount(),nutritionBefore,o.nutrition(),feeder,preparedMeal,sharedMeal);
                 o.entity().childhood().firstMealSwallowed();
+                sated(nutritionBefore,!spicy&&toxic==0&&!grass&&!waste);
                 if(spicy)o.entity().body().poisoned(Toxins.SPICY_DOSE);
                 else if(toxic>0)o.entity().body().poisoned(toxic);
                 if(waste)o.changeHygiene(-PIT_MEAL_DIRT);
@@ -233,9 +243,30 @@ final class LifeMeal {
                 if(!spicy&&toxic==0&&!grass&&!waste)o.level().sendParticles(ParticleTypes.HEART, o.entity().getX(), o.entity().getY()+o.entity().getBbHeight(), o.entity().getZ(), 3, .1, .05, .1, 0);
                 }
             }
-            if (mealTicks >= 64) { mealTicks = 0; sharedMeal = false; preparedMeal = false; o.finishConsumption(); }
+            if (mealTicks >= mealEnd()) { mealTicks = 0; sharedMeal = false; preparedMeal = false; content = false; o.finishConsumption(); }
         }
         return true;
+    }
+
+    /** After the swallow (tick 53) a full meal plays its contented melt for the clip's length; any other meal ends at tick 64. */
+    private int mealEnd() { return content ? 53 + ClipMarkers.of(Behaviors.MEAL_CONTENT).length() : 64; }
+    boolean content() { return content; }
+
+    /**
+     * The bite that takes it past {@link #FULL}: it melts in place a moment (しあわせー, project design), unless the food was unpleasant,
+     * it rides a host, it is a composed adult (self-control 90 and above), or it melted not long ago (a young one sooner again).
+     */
+    private void sated(float before, boolean pleasant) {
+        if (before > FULL || o.nutrition() <= FULL) return;
+        var e = o.entity();
+        long now = o.level().getGameTime();
+        boolean young = !e.family().adult();
+        int composure = o.personality().selfControl();
+        String reason = !pleasant ? "unpleasant" : e.isPassenger() ? "aboard" : !young && composure >= 90 ? "composed" : now < contentAfter ? "recent" : null;
+        content = reason == null;
+        if (content) contentAfter = now + 1200 + (young ? 0 : 24 * composure);
+        GameplayLog.event(e, "meal", "full nutrition={} -> {} content={} reason={} selfControl={}", before, o.nutrition(), content,
+                reason == null ? "melt" : reason, composure);
     }
 
     private void swallowBodyFood() {
@@ -249,6 +280,7 @@ final class LifeMeal {
         o.addBladder(gain * .5f);
         GameplayLog.event(o.entity(),"meal","swallowed bodyFood portions={} odor={} nutrition={} -> {}",swallowed.portions(),swallowed.odor(),nutritionBefore,o.nutrition());
         o.entity().childhood().firstMealSwallowed();
+        sated(nutritionBefore, swallowed.odor() < 40);
         if (swallowed.odor() >= 40) o.entity().body().contaminated();
         o.personality().fed(null);
         o.entity().pet().contact(null, true);
@@ -263,7 +295,7 @@ final class LifeMeal {
     void beginDose(ItemStack one, UUID player, boolean returnBottle) {
         bodyFood = BodyFood.Bite.EMPTY;
         syncBodyFood();
-        mouth=one.copy();mealHold=0;feeder=player;sharedMeal=true;o.doses().returnBottle(returnBottle);mealTicks=1;
+        mouth=one.copy();mealHold=0;feeder=player;sharedMeal=true;content=false;o.doses().returnBottle(returnBottle);mealTicks=1;
     }
     boolean releaseForInterrupt() {
         if (!bodyFood.isEmpty()) {

@@ -4,6 +4,7 @@ import io.github.longshou.mcyukkuri.family.ParentCarry;
 
 import io.github.longshou.mcyukkuri.settlement.GroupPits;
 import io.github.longshou.mcyukkuri.family.FamilyNest;
+import io.github.longshou.mcyukkuri.motor.ClipMarkers;
 import io.github.longshou.mcyukkuri.motor.surface.Occupancy;
 
 import io.github.longshou.mcyukkuri.status.GameplayLog;
@@ -365,8 +366,9 @@ public final class YukkuriLife {
     public String activity() {
         if (fatigueActive()) return Behaviors.SLEEP;
         if (mealTicks() > 0) {
-            if (meal.preparedMeal()) return mealTicks() < 53 ? Behaviors.RECEIVE_MASH : Behaviors.MEAL_FINISH;
-            return mealTicks() < 10 ? Behaviors.TAKE_FOOD : mealTicks() < 45 ? Behaviors.CHEW : mealTicks() < 53 ? Behaviors.SWALLOW : Behaviors.MEAL_FINISH;
+            String after = meal.content() ? Behaviors.MEAL_CONTENT : Behaviors.MEAL_FINISH;
+            if (meal.preparedMeal()) return mealTicks() < 53 ? Behaviors.RECEIVE_MASH : after;
+            return mealTicks() < 10 ? Behaviors.TAKE_FOOD : mealTicks() < 45 ? Behaviors.CHEW : mealTicks() < 53 ? Behaviors.SWALLOW : after;
         }
         if (task == Task.SLEEP) return sleepTicks < 20 ? Behaviors.SLEEP_ENTER : sleepTicks >= 620 ? Behaviors.WAKE : Behaviors.SLEEP;
         return switch (task) { case FOOD -> Behaviors.SEEK_FOOD; case WINTER_FOOD -> Behaviors.SHELTER_STOCK; case HOME -> Behaviors.RETURN_HOME; case TOILET -> toiletTicks > 0
@@ -813,10 +815,15 @@ public final class YukkuriLife {
                             energy,nutrition,drugSleep());
                 }
                 if (sleepTicks >= 20 && sleepTicks < 620) energy = Math.min(100, energy + .5f);
-                if (drugSleep()==0 && sleepTicks >= sleepDuration() && (energy >= 95 || nutrition < 15
-                        || homeProvider().finishRestEarly(this))) sleepTicks = Math.max(sleepTicks, 620);
-                if (sleepTicks >= 640) {
-                    GameplayLog.event(entity,"sleep","end source=life ticks={} energy={} nutrition={}",sleepTicks,energy,nutrition);
+                // Waking rested it lies there one long stretch and yawn (the wake clip); hunger gets it straight up to eat.
+                int stretch = ClipMarkers.of(Behaviors.WAKE).length();
+                boolean stretched = sleepTicks > 620;
+                if (drugSleep()==0 && sleepTicks >= sleepDuration() && sleepTicks < 620) {
+                    if (nutrition < 15) sleepTicks = 620 + stretch;
+                    else if (energy >= 95 || homeProvider().finishRestEarly(this)) sleepTicks = 620;
+                }
+                if (sleepTicks >= 620 + stretch) {
+                    GameplayLog.event(entity,"sleep","end source=life ticks={} energy={} nutrition={} stretched={}",sleepTicks,energy,nutrition,stretched);
                     entity.pet().routineCompleted(2);
                     temperature.stop();
                     task = Task.NONE; restWait = restInterval(); sleepTicks = 0;
