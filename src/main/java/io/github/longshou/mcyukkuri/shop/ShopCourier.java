@@ -42,6 +42,7 @@ public final class ShopCourier {
     private static final int LEG = 400, STALL = 120, SPRAY_TRIES = 8, BASKET_TICKS = 16, WAKE_TICKS = 100;
 
     public static void started(ServerStartingEvent event) { JOBS.clear(); IN_FLIGHT.clear(); }
+    public static void reset() { JOBS.clear(); IN_FLIGHT.clear(); }
     public static void stopped(ServerStoppedEvent event) { JOBS.clear(); IN_FLIGHT.clear(); }
 
     /** True while the keeper runs a job: its routine and wandering goals stand aside. */

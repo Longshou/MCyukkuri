@@ -46,6 +46,7 @@ public final class YukkuriCommands {
                 .then(HumanCommands.command())
                 .then(ScenarioCommands.command())
                 .then(ScenarioCommands.clear())
+                .then(ScenarioCommands.field())
                 .then(ScenarioCommands.observe())
                 .then(ScenarioCommands.speed())
                 .then(ScenarioCommands.relay())

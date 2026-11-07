@@ -3,6 +3,7 @@ package io.github.longshou.mcyukkuri.human;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.Set;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -22,6 +23,11 @@ public final class CustodyData extends SavedData {
 
     public Custody.OwnerKind kind(UUID owner) { return knownOwnerKinds.getOrDefault(owner, Custody.OwnerKind.UNKNOWN); }
     public boolean deadNpc(UUID owner) { return owner != null && deadNpcOwners.containsKey(owner); }
+    public void forget(Set<UUID> ids) {
+        boolean changed = knownOwnerKinds.keySet().removeAll(ids);
+        changed |= deadNpcOwners.keySet().removeAll(ids);
+        if (changed) setDirty();
+    }
 
     /** Only actual entities, explicit typed assignment, or an existing persisted type supply evidence. */
     public void remember(UUID owner, Custody.OwnerKind kind) {

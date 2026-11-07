@@ -27,6 +27,7 @@ import io.github.longshou.mcyukkuri.network.ReadoutNetworking;
 import io.github.longshou.mcyukkuri.network.BodyEffectNetworking;
 import io.github.longshou.mcyukkuri.pet.LeashGuard;
 import io.github.longshou.mcyukkuri.pet.SceneReset;
+import io.github.longshou.mcyukkuri.command.PlaygroundFields;
 import io.github.longshou.mcyukkuri.pet.exam.ExamSession;
 import io.github.longshou.mcyukkuri.pet.stage.Staging;
 import io.github.longshou.mcyukkuri.settlement.ForageClaims;
@@ -147,6 +148,8 @@ public final class CommonRegistration {
 
         // Commerce already ran at the end of YukkuriEntity.tick; carrying precedes discovery.
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, EntityTickEvent.Post.class, WildEvents::discover);
+        NeoForge.EVENT_BUS.addListener(EventPriority.HIGHEST, false, EntityJoinLevelEvent.class, PlaygroundFields::joining);
+        NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, EntityTickEvent.Post.class, PlaygroundFields::tick);
 
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, ServerStartingEvent.class, SceneReset::started);
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, ServerStartingEvent.class, ResourceWarmup::started);

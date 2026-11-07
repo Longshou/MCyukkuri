@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
+import java.util.Set;
 import java.util.function.DoubleSupplier;
 import net.minecraft.world.entity.Entity;
 
@@ -119,6 +120,10 @@ public final class AskLedger {
 
     /** Forgets everything (server stop), so a new world never inherits an old incident's decisions. */
     public void clear() { open.clear(); settled.clear(); }
+    public void forget(Set<UUID> ids) {
+        open.values().removeIf(i -> ids.stream().anyMatch(id -> mine(i, id)));
+        settled.values().removeIf(i -> ids.stream().anyMatch(id -> mine(i, id)));
+    }
 
     /** The newest incident this body owns or is decided in, read off the kept decisions: who answered and how that run ended, or empty. */
     public String outcome(UUID body) {

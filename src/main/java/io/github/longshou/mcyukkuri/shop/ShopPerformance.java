@@ -57,6 +57,7 @@ public final class ShopPerformance {
 
     /** Transient scenes and pen reservations never outlive their server (singleplayer world switches). */
     public static void started(ServerStartingEvent event) { TASKS.clear(); RESERVED.clear(); APPEAL.clear(); }
+    public static void reset() { TASKS.clear(); RESERVED.clear(); APPEAL.clear(); }
     public static void stopped(ServerStoppedEvent event) { TASKS.clear(); RESERVED.clear(); APPEAL.clear(); }
 
     public static void tick(ServerTickEvent.Post event) {

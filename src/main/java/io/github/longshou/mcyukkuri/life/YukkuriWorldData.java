@@ -262,17 +262,25 @@ public final class YukkuriWorldData extends SavedData {
     }
     /**
      * Playground field clear only (command/PlaygroundTools): acquaintances and pending accessory losses of individuals the clear
-     * removed. Custody records are kept: a carrier or freezer may still hold the token.
+     * removed, including their custody tokens and freezer leases. Old container copies become inert.
      */
-    public void forgetIndividuals(Set<UUID> ids) {
-        if (ids == null || ids.isEmpty()) return;
+    public record Forgotten(int relations, int captives, int freezerLeases) {}
+    public Forgotten forgetIndividuals(Set<UUID> ids) {
+        int relationCount = relations.size(), captiveCount = captives.size(), leases = 0;
         boolean changed = relations.keySet().removeIf(edge -> ids.contains(edge.from) || ids.contains(edge.to));
         boolean clearedCleanup = cleanupEdges.removeIf(edge -> ids.contains(edge.from) || ids.contains(edge.to));
         clearRelationProtections(ids);
         if (changed || clearedCleanup) relationsIndexDirty = true;
         changed |= accessoryConfiscations.keySet().removeAll(ids);
         changed |= accessoryTransfers.keySet().removeAll(ids);
+        for (var token : captives.entrySet().stream().filter(e -> ids.contains(e.getValue().entity)).map(Map.Entry::getKey).toList()) {
+            if (freezer.contains(token)) leases++;
+            freezer.remove(token);
+            forgetCustody(captives.remove(token).entity);
+            changed = true;
+        }
         if (changed || clearedCleanup) setDirty();
+        return new Forgotten(relationCount - relations.size(), captiveCount - captives.size(), leases);
     }
     /** Playground field clear only: a custody token whose delivery record was dropped with its shop or factory. Freezer leases stay. */
     public void forgetCaptive(UUID token) {

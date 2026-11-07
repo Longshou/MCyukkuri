@@ -27,6 +27,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.AABB;
 import net.neoforged.neoforge.common.util.FakePlayerFactory;
 import io.github.longshou.mcyukkuri.family.FamilyData;
 import net.minecraft.commands.CommandSource;
@@ -297,6 +298,19 @@ public final class ScenarioCommands {
                                 .executes(c -> clearField(c, null))
                                 .then(Commands.argument("tag", StringArgumentType.word())
                                         .executes(c -> clearField(c, StringArgumentType.getString(c, "tag"))))));
+    }
+
+    /** Register museum history without clearing the field, including after a world reload. */
+    public static LiteralArgumentBuilder<CommandSourceStack> field() {
+        return Commands.literal("field").requires(s -> s.hasPermission(2))
+                .then(Commands.argument("from", BlockPosArgument.blockPos())
+                        .then(Commands.argument("to", BlockPosArgument.blockPos())
+                                .then(Commands.argument("tag", StringArgumentType.word()).executes(c -> {
+                                    var first = BlockPosArgument.getBlockPos(c, "from");
+                                    var second = BlockPosArgument.getBlockPos(c, "to");
+                                    return PlaygroundFields.register(c.getSource().getLevel(), StringArgumentType.getString(c, "tag"),
+                                            new AABB(Vec3.atLowerCornerOf(first), Vec3.atLowerCornerOf(second.offset(1, 1, 1))));
+                                }))));
     }
 
     private static int clearField(CommandContext<CommandSourceStack> c, String tag) {

@@ -221,6 +221,8 @@ def build_pack(world):
         bx1, by1, bz1, bx2, by2, bz2 = f.clear_box()
         cancel = []
         for scenario in f.scenarios:
+            cancel += [f'schedule clear {NS}:smoke/{scenario.id}/{i}'
+                       for i, _ in enumerate((scenario.smoke or {}).get('commands', ()))]
             if scenario.late:
                 cancel.append(f'schedule clear {NS}:scn/{scenario.id}_late')
                 for ri, retry in enumerate(r for r in scenario.late if not isinstance(r, str)):
@@ -239,7 +241,7 @@ def build_pack(world):
         sweep = cancel + trial_cleanup + [clear_entities,
                  f'kill @e[type=!minecraft:player,tag=scn_prop,x={bx1},y={by1},z={bz1},dx={bx2 - bx1},dy={by2 - by1},dz={bz2 - bz1}]',
                  f'function {NS}:field/{f.id}/terrain',
-                 clear_entities]  # Replacing nests and containers can create fresh drops after the first sweep.
+                 f'yukkuri clear {bx1} {by1} {bz1} {bx2} {by2} {bz2}']  # Remove drops from rebuilt containers without resetting twice.
         fn(f'field/{f.id}/clear', sweep + ([f'function {NS}:clip/cast'] if f.id == 'clips' else [])
            + [f'tellraw {near_field(f)} ' + _text(f'{f.title}：已清空（本场地所有油库里、遗骸、放下的帽子、掉落物和走出场地的个体，家族与认知等记录，地形已恢复）。', 'green')])
         # Keep manual diagnostic functions available without putting readout buttons on the deck.
@@ -334,12 +336,12 @@ def build_pack(world):
     fn('util/creative', ['gamemode creative @s'])
     fn('util/observe_on', ['yukkuri observe on'])
     fn('util/observe_off', ['yukkuri observe off'])
-    # Every two seconds, everything standing in a field's box gets that field's mark, so its clear can find it after it has left.
+    # Register every field before scenes run. Java records joins and movement, including objects later unloaded or captured.
     marks = []
     for f in FIELDS:
         bx1, by1, bz1, bx2, by2, bz2 = f.clear_box()
-        marks.append(f'tag @e[type=!minecraft:player,tag=!{field_mark(f)},x={bx1},y={by1},z={bz1},dx={bx2 - bx1},dy={by2 - by1},dz={bz2 - bz1}] add {field_mark(f)}')
-    fn('util/tag_fields', marks + [f'schedule function {NS}:util/tag_fields 40t replace'])
+        marks.append(f'yukkuri field {bx1} {by1} {bz1} {bx2} {by2} {bz2} {field_mark(f)}')
+    fn('util/tag_fields', marks)
     fn('util/lead', ['execute unless entity @e[tag=scn_lead,distance=..250] run return run tellraw @s ' + _text('这个场景没有主角（先生成一个场景）。', 'yellow'),
                      'tp @s @e[tag=scn_lead,distance=..250,limit=1,sort=nearest]'])
     fn('util/clear_all_do', [f'function {NS}:field/{f.id}/clear' for f in FIELDS] +

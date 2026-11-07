@@ -62,10 +62,11 @@ class Field:
         self.anchor = (cx, cz)    # default block the scenarios stand around
         # observation deck: north of the field, looking south into it
         self.deck = (cx - 14, self.z1 - 6 - deck_depth + 1, cx + 14, self.z1 - 6)
-        self.gate = (cx, self.z2 + 4)   # return posts just outside the field (never cleared)
+        self.gate = (cx, self.z2 + 8)   # the whole return pad stays outside the clear margin
 
     def rect(self):
-        return (self.x1 - 2, self.z1 - 2, self.x2 + 2, self.z2 + 2)
+        x1, _, z1, x2, _, z2 = self.clear_box()
+        return (x1, z1, x2, z2)
 
     def plot_rect(self, x, z):
         return self.x1, self.z1, self.x2, self.z2
@@ -91,10 +92,11 @@ class Field:
         return (self.x1 - 4, GROUND - 6, self.z1 - 4, self.x2 + 4, SKY + 8, self.z2 + 4)
 
     def base(self):
-        # The two dirt layers under the turf too: planned settlements dig ponds and clay pits into them (SiteBuilder, y=61..62).
-        out = big_fill(self.x1, GROUND - 2, self.z1, self.x2, GROUND - 1, self.z2, 'minecraft:dirt')
-        out += big_fill(self.x1, GROUND, self.z1, self.x2, GROUND, self.z2, self.ground)
-        out += big_fill(self.x1, GROUND + 1, self.z1, self.x2, SKY, self.z2, 'minecraft:air')
+        x1, y1, z1, x2, y2, z2 = self.clear_box()
+        out = big_fill(x1, y1, z1, x2, GROUND - 1, z2, 'minecraft:dirt')
+        out += big_fill(x1, GROUND, z1, x2, GROUND, z2, self.ground)
+        out += big_fill(x1, GROUND + 1, z1, x2, y2, z2, 'minecraft:air')
+        out += fillbiome_boxes(x1, z1, x2, z2, self.biome, y1, y2)
         return out
 
     def terrain(self):
@@ -520,8 +522,7 @@ class Lot(Field):
 # ----------------------------------------------------------------------------------------------- clips
 class Clips(Field):
     def base(self):
-        return (big_fill(self.x1, GROUND, self.z1, self.x2, GROUND, self.z2, 'minecraft:smooth_quartz')
-                + big_fill(self.x1, GROUND + 1, self.z1, self.x2, SKY, self.z2, 'minecraft:air'))
+        return super().base()
 
 
 FIELDS = [

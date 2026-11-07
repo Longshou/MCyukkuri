@@ -89,6 +89,11 @@ public final class Sanction extends Goal {
     }
     public static boolean enabled() { return YukkuriConfig.SANCTION.get(); }
     private static Map<UUID, Case> cases(ServerLevel level) { return CASES.computeIfAbsent(level, k -> new HashMap<>()); }
+    public static void forget(ServerLevel level, Set<UUID> ids) {
+        cases(level).entrySet().removeIf(e -> ids.contains(e.getKey()) || ids.contains(e.getValue().accuser));
+        var respite = Respite.get(level);
+        if (respite.until.keySet().removeAll(ids)) respite.setDirty();
+    }
     /** The hatless / monster / frenzy grounds of {@code reason}. */
     public static boolean spontaneous(String reason) { return SPONTANEOUS.contains(reason); }
 

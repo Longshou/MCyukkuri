@@ -18,6 +18,13 @@ public final class FreezerStorage {
     public FreezerStorage(YukkuriWorldData world) { this.world = world; }
     public int count(UUID owner) { return vaults.getOrDefault(owner, List.of()).size(); }
     public boolean contains(UUID token) { return vaults.values().stream().anyMatch(v -> v.contains(token)); }
+    /** Museum clear invalidates a token even when a player's vault held it. */
+    public void remove(UUID token) {
+        boolean changed = false;
+        for (var slots : vaults.values()) changed |= slots.remove(token);
+        vaults.values().removeIf(List::isEmpty);
+        if (changed) world.setDirty();
+    }
     public List<CompoundTag> occupants(UUID owner) {
         return vaults.getOrDefault(owner, List.of()).stream().map(world::captiveSnapshot).toList();
     }

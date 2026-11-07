@@ -26,6 +26,7 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.level.saveddata.SavedData;
 import java.util.Collection;
 
@@ -289,6 +290,12 @@ public final class SettlementData extends SavedData {
         cleanupGroups.add(group.id);group.commons.retainWith(this::retain);retain(group.leader);setDirty();
     }
     public void remove(UUID id) { if (groups.remove(id) != null) { cachedGroups = null;cleanupGroups.remove(id);setDirty(); } }
+    public void forgetDiscovery(AABB box) {
+        if (discovered.removeIf(region -> {
+            int x = ChunkPos.getX(region) * 64, z = ChunkPos.getZ(region) * 64;
+            return x < box.maxX && x + 64 > box.minX && z < box.maxZ && z + 64 > box.minZ;
+        })) setDirty();
+    }
 
     /** A successful household move changes membership without deleting the family ledger. */
     public void leave(Group group, UUID id) {

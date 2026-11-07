@@ -7,6 +7,8 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.WeakHashMap;
+import java.util.Set;
+import java.util.UUID;
 import java.util.function.Supplier;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
@@ -22,6 +24,10 @@ public final class GameplayLog {
     private static final Map<ServerLevel, Map<String, Window>> WORLD_WINDOWS = new WeakHashMap<>();
 
     private GameplayLog() {}
+    public static void forget(ServerLevel level, Set<UUID> ids) {
+        WINDOWS.keySet().removeIf(entity -> ids.contains(entity.getUUID()));
+        WORLD_WINDOWS.remove(level);
+    }
 
     /** Detail switch for per-frame sampling ("[aqdiag]"); off by default: {@code /yukkuri aqdiag on|off} or -Dmcyukkuri.aqdiag=true. */
     private static volatile boolean detail = Boolean.getBoolean("mcyukkuri.aqdiag");

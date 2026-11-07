@@ -14,6 +14,9 @@ import io.github.longshou.mcyukkuri.settlement.Grazing;
 import io.github.longshou.mcyukkuri.settlement.SettlementData;
 import io.github.longshou.mcyukkuri.shop.ShopDeliveries;
 import io.github.longshou.mcyukkuri.shop.ShopRegistry;
+import io.github.longshou.mcyukkuri.pet.SceneReset;
+import io.github.longshou.mcyukkuri.status.GameplayLog;
+import io.github.longshou.mcyukkuri.human.CustodyData;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -51,8 +54,8 @@ public final class PlaygroundTools {
     /**
      * Removes every mod entity and dropped item inside the block box and the settlement groups and sites centred in it.
      * Discarding is not death: the ordinary removal interrupts release activities and cancel the unborn broods.
-     * With a field {@code tag} (the mark the data pack gives everything that stood in the field, see util/tag_fields) this is
-     * "clear this field": the loaded entities carrying the mark go too, wherever they wandered, and the world ledgers forget
+     * With a registered field {@code tag}, its historical UUID roster also finds entities that left or entered custody.
+     * Unloaded copies are invalidated by the field epoch; fresh summons may reuse the UUID. World ledgers forget
      * what the field left behind ({@link #forgetLedgers}), so a scene started after the clear begins from the same records
      * every time. Without a tag only entities and settlements are removed, as an ordinary non-death removal (the
      * playground's REMOVED control). Blocks are not touched: the data pack rebuilds the field's terrain.
@@ -61,9 +64,17 @@ public final class PlaygroundTools {
     static int clear(ServerLevel level, BlockPos first, BlockPos second, String tag) {
         var box = new AABB(Math.min(first.getX(), second.getX()), Math.min(first.getY(), second.getY()), Math.min(first.getZ(), second.getZ()),
                 Math.max(first.getX(), second.getX()) + 1, Math.max(first.getY(), second.getY()) + 1, Math.max(first.getZ(), second.getZ()) + 1);
-        var found = new LinkedHashSet<Entity>(level.getEntities((Entity)null, box, PlaygroundTools::removable));
-        if (tag != null) for (var entity : level.getAllEntities()) if (entity != null && entity.getTags().contains(tag) && removable(entity)) found.add(entity);
         var ids = new HashSet<UUID>();
+        if (tag != null) {
+            ids.addAll(PlaygroundFields.get(level).clear(level, tag, box));
+            // The following terrain function must be able to write every block, including chunks outside the player's view.
+            for (int x = Math.floorDiv((int)box.minX, 16); x <= Math.floorDiv((int)box.maxX - 1, 16); x++)
+                for (int z = Math.floorDiv((int)box.minZ, 16); z <= Math.floorDiv((int)box.maxZ - 1, 16); z++) level.getChunk(x, z);
+        }
+        var found = new LinkedHashSet<Entity>(level.getEntities((Entity)null, box,
+                entity -> tag != null ? !(entity instanceof Player) : removable(entity)));
+        if (tag != null) for (var dimension : level.getServer().getAllLevels())
+            for (var entity : dimension.getAllEntities()) if (ids.contains(entity.getUUID())) found.add(entity);
         int removed = 0;
         for (var entity : found) {
             LABELLED.remove(entity);
@@ -75,11 +86,15 @@ public final class PlaygroundTools {
             removed++;
         }
         var settlements = SettlementData.get(level);
-        for (var group : settlements.groups()) if (box.contains(group.center.getX() + .5, group.center.getY() + .5, group.center.getZ() + .5)) {
+        int groupsBefore = settlements.groups().size(), sitesBefore = settlements.sites().size();
+        for (var group : settlements.groups()) if (box.contains(group.center.getX() + .5, group.center.getY() + .5, group.center.getZ() + .5)
+                || tag != null && ids.stream().anyMatch(id -> settlements.existingMember(group, id) != null)) {
+            if (tag != null && group.siteId != null) settlements.removeSite(group.siteId);
             settlements.remove(group.id);
         }
         for (var site : settlements.sites()) if (box.contains(site.origin.getX() + .5, site.origin.getY() + .5, site.origin.getZ() + .5)) settlements.removeSite(site.id);
-        if (tag != null) forgetLedgers(level, box, ids);
+        if (tag != null) forgetLedgers(level, box, ids, removed,
+                groupsBefore - settlements.groups().size(), sitesBefore - settlements.sites().size());
         return removed;
     }
 
@@ -87,23 +102,28 @@ public final class PlaygroundTools {
      * Field clear only. Each ledger owner drops its own records: family records of the removed individuals and of everybody last
      * registered in the box (fixed scenario UUIDs, deaths of the previous run) with their broods; their object relationships,
      * acquaintances, wild events and home claims; regrowth, shed stems, household activity and spray anchors inside the box;
-     * shops and factories that stood there. Kept on purpose: custody records (a carrier or a freezer may still hold the token),
-     * confirmed NPC deaths ({@code CustodyData}) and player-wide records.
+     * shops and factories that stood there. Tokens and NPC death records are invalidated too; player-wide records stay.
      */
-    private static void forgetLedgers(ServerLevel level, AABB box, Set<UUID> removed) {
+    private static void forgetLedgers(ServerLevel level, AABB box, Set<UUID> removed, int entities, int groups, int sites) {
         var custody = YukkuriWorldData.get(level);
-        var forgotten = FamilyData.get(level).forgetPlayground(level, box, removed, custody::isCaptured);
+        var forgotten = FamilyData.get(level).forgetPlayground(level, box, removed);
         var individuals = new HashSet<UUID>(removed);
         individuals.addAll(forgotten.people());
         HomeClaim.forget(level, box, individuals);
         WildEvents.forget(level, box, individuals);
-        custody.forgetIndividuals(individuals);
+        var records = custody.forgetIndividuals(individuals);
+        CustodyData.get(level).forget(individuals);
+        SettlementData.get(level).forgetDiscovery(box);
         ShedStemDrops.get(level).forget(level, box, forgotten.broods());
         Grazing.forget(level, box);
         HouseholdEcologyData.get(level).forget(box);
         HouseholdProtection.get(level).removeWithin(box);
         ShopRegistry.get(level).forget(level, box, removed);
         for (var token : ShopDeliveries.get(level).forget(level, box, removed)) custody.forgetCaptive(token);
+        SceneReset.field(level, box, individuals);
+        GameplayLog.world(level, "scene", "clear ids={} entities={} people={} broods={} captives={} freezer_leases={} relations={} groups={} sites={} box={}",
+                individuals.size(), entities, forgotten.people().size(), forgotten.broods().size(), records.captives(), records.freezerLeases(),
+                records.relations(), groups, sites, box);
     }
 
     static void observe(boolean on, MinecraftServer server) {

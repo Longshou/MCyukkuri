@@ -8,6 +8,8 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.event.server.ServerStoppedEvent;
 import net.neoforged.neoforge.event.server.ServerStartingEvent;
 
@@ -43,5 +45,9 @@ public final class ForageClaims {
     public static void release(Claim claim) { if (claim != null) CLAIMS.release(claim.key, claim); }
     public static void started(ServerStartingEvent event) { CLAIMS.clear(); }
     public static void stopped(ServerStoppedEvent event) { CLAIMS.clear(); }
+    public static void forget(ServerLevel level, AABB box) {
+        CLAIMS.removeKeys(key -> key.server == level.getServer() && key.dimension.equals(level.dimension())
+                && box.contains(Vec3.atCenterOf(BlockPos.of(key.pos))));
+    }
     private ForageClaims() {}
 }

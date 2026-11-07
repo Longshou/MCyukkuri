@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.Set;
 import java.util.function.Function;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
@@ -107,4 +108,5 @@ public final class Conductor {
 
     /** Forgets every conductor (server stop). */
     public static void reset() { LIVE.clear(); }
+    public static void forget(Set<UUID> ids) { LIVE.keySet().removeAll(ids); }
 }
