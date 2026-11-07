@@ -11,7 +11,6 @@
 | 工具：冒烟个体命运检查、重复次数与通过率、主线基线、全机排队 | `.worktrees/wp-bh-smoke-verify` | `scripts/smoke_museum.py`、`scripts/headless_server.py`、`scripts/museum_scenarios.py`（预期死亡声明） |
 | 生活演出·天气与取暖：雨中相依、雷暴缩身与找掩体、出水抖身、晒太阳、钻暖桌被炉 | `.worktrees/wp-ba-life-weather` | `standards/yukkuri-library/motions/`、天气／取暖行为、`scripts/museum_*.py` |
 | 生活演出·家庭日常：呼唤走散孩子、迎接归家、睡醒伸懒腰、饭后满足 | `.worktrees/wp-bb-life-family` | `standards/yukkuri-library/motions/`、家庭／作息／进食行为、`scripts/museum_*.py` |
-| 美术：安葬土冢上的小墓碑与右键信息 | `.worktrees/wp-bc-grave-marker` | `body/GraveBlockEntity.java`、`client/GraveRenderer.java`、墓碑美术源 |
 | 演出：出生落点（飞出窝外惊叫、落地扬尘弹跳、弹进帽、母油目送） | `.worktrees/wp-bd-birth-landing` | 出生／`LiveDelivery` 演出、动作源 |
 | 演出：甜化与非油症专属表现、遗体记录甜度与非油症 | `.worktrees/wp-be-sweet-states` | 心理状态演出、动作源、遗体快照 |
 | 美术：照料小道具重做（油粮袋、清洗布、毛线球、运输篮）与寿终遗体缎带下垂 | `.worktrees/wp-bf-props-ribbon` | 道具制作源与模型、遗体姿态 |
