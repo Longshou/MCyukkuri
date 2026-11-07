@@ -29,10 +29,12 @@ public final class DailyLife {
         final YukkuriEntity leader;
         final Entity companion;
         final Kind kind;
+        /** A comfort visit to a suffering group-mate, not a nuzzle between friends. */
+        final boolean pity;
         int elapsed, contact, greetHold;
         boolean ended, greeted;
-        Session(YukkuriEntity leader, Entity companion, Kind kind) {
-            this.leader = leader; this.companion = companion; this.kind = kind;
+        Session(YukkuriEntity leader, Entity companion, Kind kind, boolean pity) {
+            this.leader = leader; this.companion = companion; this.kind = kind; this.pity = pity;
         }
     }
     private final YukkuriEntity entity;
@@ -98,9 +100,7 @@ public final class DailyLife {
         if (active() && !valid()) stop();
     }
     private static boolean available(YukkuriEntity e) { return available(e, false); }
-    private static boolean available(YukkuriEntity e, boolean continuing) { return available(e, continuing, false); }
-    /** {@code receiving}: the nuzzled companion, to whom an uneasy mind is a reason for comfort, not against it. */
-    private static boolean available(YukkuriEntity e, boolean continuing, boolean receiving) {
+    private static boolean available(YukkuriEntity e, boolean continuing) {
         return !WildEvents.reserved(e) && e.isAlive() && !e.isRemoved() && !e.isNoAi()
                 // A session under way survives the step down a bank it is walking to (a friend in a hollow); a new one starts on the ground.
                 && (continuing || e.onGround()) && !e.isPassenger()
@@ -110,7 +110,7 @@ public final class DailyLife {
                 && e.life().activity().equals(Behaviors.IDLE)
                 && e.life().nutrition() >= (continuing ? 15 : 40) && e.life().energy() >= (continuing ? 15 : 35)
                 && !e.childhood().needsNewbornCare() && e.body().condition().readyForAffection() && e.life().spicyTicks() == 0
-                && wellAndFree(e, continuing, receiving)
+                && wellAndFree(e, continuing)
                 && !e.groupInteraction().active() && !e.playLife().active() && !e.pet().busy()
                 && !e.family().active() && !e.house().active() && !e.habitat().active()
                 && !e.independence().active() && !e.forageTrip().outing() && !e.settlement().active() && !e.settlement().duties().active()
@@ -121,9 +121,8 @@ public final class DailyLife {
      * (an own newborn awaiting its first meal or toilet within 12, a swaddle needing care, a comfort walk under way, a heat with its partner in sight)
      * is what songs, exercise and cards need. The scans run only when a session is being admitted, never while one continues.
      */
-    public static boolean wellAndFree(YukkuriEntity e, boolean continuing) { return wellAndFree(e, continuing, false); }
-    private static boolean wellAndFree(YukkuriEntity e, boolean continuing, boolean receiving) {
-        if (e.body().weak() || !receiving && e.mind().unease() >= MindLife.UNEASY || e.leafSwaddle().needsCare() || e.woundComfort().active()) return false;
+    public static boolean wellAndFree(YukkuriEntity e, boolean continuing) {
+        if (e.body().weak() || e.mind().unease() >= MindLife.UNEASY || e.leafSwaddle().needsCare() || e.woundComfort().active()) return false;
         if (continuing || !e.family().adult()) return true;
         if (e.family().inBreedingPeriod() && e.family().partner() != null
                 && e.level() instanceof ServerLevel level && level.getEntity(e.family().partner()) instanceof YukkuriEntity mate
@@ -138,6 +137,16 @@ public final class DailyLife {
     private boolean unafraid(YukkuriEntity peer) {
         return entity.life().canRecognize(peer) && peer.life().canRecognize(entity)
                 && entity.life().personality().fear(peer.getUUID()) < 60 && peer.life().personality().fear(entity.getUUID()) < 60;
+    }
+    /**
+     * One may be comforted while it is starving or chewing the portion it was given: that distress is the reason to come, not a
+     * reason to stay away. Only a body that cannot take part at all (asleep, carried, panicking, in an operation) is out.
+     */
+    private static boolean receptiveToComfort(YukkuriEntity peer) {
+        return !WildEvents.reserved(peer) && peer.isAlive() && !peer.isRemoved() && !peer.isNoAi()
+                && peer.onGround() && !peer.isPassenger() && !peer.isPanicking() && !peer.isCommandPlaying()
+                && !peer.isOnFire() && !peer.isInWaterOrBubble() && !peer.life().isSleeping()
+                && !peer.operations().active() && !peer.predator().active();
     }
     private boolean trusted(Player player) {
         return player.isAlive() && !player.isSpectator() && player.level() == entity.level()
@@ -158,11 +167,11 @@ public final class DailyLife {
                 return false;
             }
         } else if (!(companion instanceof Player player) || !trusted(player)) return false;
-        return begin(Kind.NUZZLE, companion);
+        return begin(Kind.NUZZLE, companion, pity);
     }
     /** Why this one cannot nuzzle {@code peer} right now (null: it can); the comfort of a suffering group-mate reports it. */
     private String refusal(YukkuriEntity peer, boolean pity) {
-        if (!available(peer, false, true)) return "companion_busy";
+        if (pity ? !receptiveToComfort(peer) : !available(peer)) return "companion_busy";
         if (peer.dailyLife().active()) return "companion_session";
         if (peer.dailyLife().cooldown > 0) return "companion_cooldown";
         if (pity ? !unafraid(peer) : !closePeer(peer)) return "companion_untrusted";
@@ -180,13 +189,14 @@ public final class DailyLife {
                 && entity.distanceToSqr(listener) <= 36 && entity.hasLineOfSight(listener) && closePeer(listener)
                 && begin(Kind.SING, listener);
     }
-    private boolean begin(Kind kind, Entity companion) {
+    private boolean begin(Kind kind, Entity companion) { return begin(kind, companion, false); }
+    private boolean begin(Kind kind, Entity companion, boolean pity) {
         if (entity.level().isClientSide || !available(entity) || active() || cooldown > 0) return false;
         if (kind == Kind.EXERCISE && (!entity.childhood().canExercise()
                 || companion instanceof YukkuriEntity peer && !peer.childhood().canExercise())) return false;
         if (kind != Kind.NUZZLE && !room()) return false;
         entity.social().stop();
-        session = new Session(entity, companion, kind); cooldown = 600;
+        session = new Session(entity, companion, kind, pity); cooldown = 600;
         if (companion != null) entity.life().personality().protectRelation(companion.getUUID());
         if (companion instanceof YukkuriEntity peer) {
             peer.social().stop(); peer.life().personality().protectRelation(entity.getUUID()); peer.dailyLife().session = session; peer.dailyLife().cooldown = 600;
@@ -252,7 +262,7 @@ public final class DailyLife {
                 || session.leader.distanceToSqr(other) > (session.kind == Kind.NUZZLE ? NUZZLE_SIGHT * NUZZLE_SIGHT : 36)
                 || session.leader.distanceToSqr(other) > 4 && !session.leader.hasLineOfSight(other)) return false;
         if (other instanceof YukkuriEntity peer)
-            return available(peer, true, session.kind == Kind.NUZZLE) && peer.dailyLife().session == session
+            return (session.pity ? receptiveToComfort(peer) : available(peer, true)) && peer.dailyLife().session == session
                     && peer.life().personality().fear(session.leader.getUUID()) < 60
                     && session.leader.life().personality().fear(peer.getUUID()) < 60;
         return other instanceof Player player && player.isAlive() && session.leader.life().personality().fear(player.getUUID()) < 60;
