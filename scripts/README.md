@@ -19,6 +19,7 @@ lore 通用宠物联系表 `pet_motions_preview.py` 已由 `preview.py strip <�
 试玩场默认使用 `/yukkuri status trace light`；`off` 关闭，`dense` 每 tick 输出完整状态及耗时。结构化 `[trace]` 行写入服务端原日志，`st` 中缺失的键表示不变，`null` 表示未知。light 每 tick 观察依附关系、持物、动作身份和危险状态，位置、速度、帽船坐标系及其他连续读数每 40 tick 比较一次，仅写变化；异常跳变保留前后两帧。详细状态表的 `ch` 在 light 每 200 tick 观察一次（dense 为 20 tick），不保留其间的短暂诊断变化，也不重复输出同一次状态变化的文本和 `ev`；普通玩法事件照常记录。场景窗口重置后首帧完整，未加载区块的窒息几何记为未知，不为录制加载区块。
 
 演出数据：`export_moments.py [--check]` 导出并检查片段、表情及符号引用；`test_moments.py` 用错误引用与非法时间检查拒绝行为。`preview.py moment <ID>` 输出渲染条与 MP4，`preview.py kit` 包含演出行与头顶符号目录。格式见[演出数据](../standards/yukkuri-library/presentation/README.md)。
+`<py> scripts/timeline.py <日志或 .log.gz> [pose.jsonl ...] --output <目录>` 合并结构化 `[trace]` 记录，按运行、维度、场景窗口与个体输出 JSONL、世界流和 `index.json`；重复拷贝去重，同名场景再次开启分开登记，缺号、冲突与坏记录写进索引。`<py> scripts/smoke_checks.py <日志...> [--scene ID] [--dense] [--seed N] [--evidence H|C|F|R] [--rerun 命令] [--output checks.json]` 独立报告 FATE、LOOP、PROGRESS、JUMP、LEDGER、ORPHAN、END、LAG、SPAWN、VANTAGE，附种子、证据等级、重跑命令和异常前后 100 tick 的记录；`--dense` 仅用于逐 tick 全量记录，启用个体无离场记录却消失的检查。缺数据记 `no-evidence`，报告退出码不因异常改变；既有命运门槛及 `allow_fate` 仍由兼容入口 `smoke_fate.py` 执行。`<py> scripts/fixtures/timeline/test_timeline.py` 运行十项检查各自的故障、干净与缺数据样例，以及移动、库存、日志边界与命运门槛对照；这些离线样例不替代真实日志校准。
 
 `python scripts/check_architecture.py --check` 是 Python 3.10+ 标准库的只读架构建议工具；默认不带 `--check` 也只读。它只扫描本仓库 `src/main/java/**/*.java`，不扫描 `.worktrees`、`.local`、资源或文档，不调用 Git、Java、Gradle、游戏、网络，也不修改文件。不接入 CI、pre-commit 或合并门槛，不替代远端编译或用户试玩。
 

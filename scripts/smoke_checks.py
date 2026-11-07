@@ -346,7 +346,7 @@ def inventory(s):
     return total
 
 
-def ledger(records, samples):
+def ledger(records, samples, dense=False):
     out, ticks, current = [], defaultdict(list), {}
     explanations = [r for r in records if r['k'] == 'ev' and re.search(r'\b(eat|ate|swallow|consum|place|pickup|interaction)', r.get('msg', ''), re.I)
                     or r['k'] == 'life' and r.get('out') in ('unloaded', 'scope_exit', 'changed_dimension')]
@@ -356,8 +356,15 @@ def ledger(records, samples):
     for row in samples:
         ticks[row['t']].append(row)
     initial_tick = min((r['t'] for r in samples), default=None)
+    final_tick = max((r['t'] for r in samples), default=None)
     for rows in actor_samples(samples).values():
         first = rows[0]
+        last = rows[-1]
+        if dense and last['t'] < final_tick and 'stage' in last['state']:
+            exits = [r for r in records if r['k'] == 'life' and r['u'] == last['u'] and r.get('out')
+                     and 0 <= r['t'] - last['t'] <= 2]
+            if not exits:
+                out.append(result('LEDGER', 'fail', 'dense actor disappeared without lifecycle exit', last))
         if first['t'] != initial_tick and 'stage' in first['state']:
             entries = [r for r in records if r['k'] == 'life' and r['u'] == first['u']
                        and r.get('in') in ('spawn', 'birth', 'chunk_load', 'scope_enter') and 0 <= first['t'] - r['t'] <= 2]
@@ -510,12 +517,14 @@ def endings(records, samples, end):
     return out
 
 
-def observations(records, issues=(), raw='', allow=(), end=(), seed=None, rerun=None, evidence='F'):
+def observations(records, issues=(), raw='', allow=(), end=(), seed=None, rerun=None, evidence='F', dense=False):
     """One scope only. New checks NEVER determine the smoke exit code; fates() alone keeps that gate."""
     samples = timeline.states(records)
     findings = []
     for reason, text in fates(raw, allow):
-        findings.append(result('FATE' if not reason.startswith('fate loop') else 'LOOP', 'fail', text))
+        event = EVENT.search(text)
+        actor = dict(u=event['uuid'], t=int(re.search(r'\bt=(\d+)', text)[1])) if event else None
+        findings.append(result('FATE' if not reason.startswith('fate loop') else 'LOOP', 'fail', text, actor))
     if not any(EVENT.search(line) for line in raw.splitlines()):
         findings.append(result('FATE', 'no-evidence', 'no legacy fate log supplied'))
     for r in records:
@@ -523,7 +532,7 @@ def observations(records, issues=(), raw='', allow=(), end=(), seed=None, rerun=
             cause = re.search(r'cause=(\w+)', r['msg'])[1]
             if cause not in ('drown', 'inWall'):
                 findings.append(result('FATE', 'fail' if cause in ('fall', 'soaking', 'starve') else 'suspect', r['msg'], r))
-    findings += progress(samples) + loops(records, samples) + jumps(samples) + ledger(records, samples) + orphans(samples)
+    findings += progress(samples) + loops(records, samples) + jumps(samples) + ledger(records, samples, dense) + orphans(samples)
     findings += endings(records, samples, end)
     lag = [r for r in records if r['k'] == 'lag']
     for r in lag:
@@ -602,6 +611,7 @@ def main():
     ap.add_argument('--rerun')
     ap.add_argument('--evidence', choices=('H', 'C', 'F', 'R'), default='H')
     ap.add_argument('--fate-only', action='store_true')
+    ap.add_argument('--dense', action='store_true', help='Input covers every actor every tick (enables actor-disappearance check)')
     args = ap.parse_args()
     if args.fate_only:
         sys.argv = [sys.argv[0]] + ([ '--scene', args.scene] if args.scene else []) + [str(p) for p in args.logs]
@@ -622,7 +632,7 @@ def main():
     for key in dict.fromkeys(timeline.scope(r) for r in records):
         scoped = [r for r in records if timeline.scope(r) == key]
         reports.append(dict(scope=key, **observations(scoped, issues, raw, smoke.get('allow_fate', ()),
-                            smoke.get('end', ()), args.seed, args.rerun, args.evidence)))
+                            smoke.get('end', ()), args.seed, args.rerun, args.evidence, args.dense)))
     if not reports:
         reports.append(observations([], issues, raw, seed=args.seed, rerun=args.rerun, evidence=args.evidence))
     text = json.dumps(reports, ensure_ascii=False, indent=2)

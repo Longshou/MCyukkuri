@@ -147,6 +147,12 @@ class Checks(unittest.TestCase):
         self.assertTrue(any('actor appeared' in r['detail'] for r in checks.ledger(rows, timeline.states(rows))))
         rows.append(record('life', 4, HOST, **{'in': 'birth'}))
         self.assertFalse(any('actor appeared' in r['detail'] for r in checks.ledger(rows, timeline.states(rows))))
+        left = state(0)
+        left['u'] = HOST
+        vanished = [left, state(0), state(1)]
+        self.assertTrue(any('disappeared' in r['detail'] for r in checks.ledger(vanished, timeline.states(vanished), dense=True)))
+        vanished.append(record('life', 1, HOST, out='unloaded'))
+        self.assertFalse(any('disappeared' in r['detail'] for r in checks.ledger(vanished, timeline.states(vanished), dense=True)))
         apple = copy.deepcopy(BASE['hold']) | {'mouth': [{'item': 'minecraft:apple', 'n': 1}]}
         for duration, verdict in ((4, 'suspect'), (21, 'fail')):
             rows = [state(0, hold=apple), state(1), state(1 + duration, hold=apple)]
@@ -157,6 +163,8 @@ class Checks(unittest.TestCase):
         self.assertEqual(checks.endings(rows, timeline.states(rows), [('actor', 'place=cabin')])[0]['verdict'], 'pass')
         rows += [record('ev', 150, cat='family', msg='real lift')]
         self.assertEqual(checks.endings(rows, timeline.states(rows), [('actor', 'seen:family:real lift')])[0]['verdict'], 'pass')
+        dead = [state(0), record('life', 1, out='killed'), record('lag', 100, None, ms=20)]
+        self.assertEqual(checks.endings(dead, timeline.states(dead), [('actor', 'alive=false')])[0]['verdict'], 'pass')
 
     def test_invalid_external_records(self):
         for payload in ('[]', '{', json.dumps(dict(state(1), st=[])), json.dumps(dict(state(1), st={'p': [1]}))):
