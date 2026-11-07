@@ -6,7 +6,7 @@
     "eyes": "hollow",
     "brows": "sad",
     "mouth": "wail",
-    "tears": "flow",
+    "tears": "lower-eyelid sheen, as pressed_cry / cut_cry (user 2026-11-08)",
     "blush": "normal",
     "effect": "none"
   },
@@ -14,11 +14,11 @@
     "face_eye_left": "expressions/parts/8b678087ea009dbded48.png",
     "face_brow_left": "expressions/parts/6c43e5c9d5978be4060c.png",
     "face_blush_left": "expressions/parts/83cd598f7e2b72f72b9b.png",
-    "face_tear_left": "expressions/parts/97ba5043859e5125be77.png",
+    "face_tear_left": "expressions/parts/70d38ef30d920ef604f2.png",
     "face_eye_right": "expressions/parts/8b678087ea009dbded48.png",
     "face_brow_right": "expressions/parts/37e940968392d59867a9.png",
     "face_blush_right": "expressions/parts/83cd598f7e2b72f72b9b.png",
-    "face_tear_right": "expressions/parts/0c07c0e27873a7528c5d.png",
+    "face_tear_right": "expressions/parts/dc96140aab738d6ad443.png",
     "face_mouth": "expressions/parts/89d9d82b758ecf3447d8.png",
     "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
   },
@@ -53,14 +53,14 @@
     }
   ],
   "status": "accepted",
-  "art": "Draft adaptation; requires redraw before production use",
+  "art": "Tears redrawn as the lower-eyelid sheen of pressed_cry / cut_cry",
   "aliases": [],
   "review_code": "N027",
   "origin": "new",
   "review_pair": null,
   "review_decision": {
     "status": "accepted",
-    "date": "2026-09-12",
-    "note": "用户将 89 项已核对表情保存为标准；沿用当前展示造型，仅补齐正式确认状态。"
+    "date": "2026-11-08",
+    "note": "用户 2026-11-08 要求：挤眼含泪删去（与挤眼哭丧重复，原用处改用挤眼哭丧）；白眼哭喊的泪改成与挤脸哭喊、受损哭喊相同的下眼睑湿痕；含泪伸舌眼中的泪更明显。待用户在对比页确认。"
   }
 }

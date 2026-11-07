@@ -23,8 +23,6 @@
     "sleep_b": "expressions/presets/sleep_b.json",
     "tear_sleep": "expressions/presets/tear_sleep.json",
     "tear_sleep_b": "expressions/presets/tear_sleep_b.json",
-    "squeezed_teary": "expressions/presets/squeezed_teary.json",
-    "squeezed_teary_b": "expressions/presets/squeezed_teary_b.json",
     "squeezed_frown": "expressions/presets/squeezed_frown.json",
     "squeezed_frown_b": "expressions/presets/squeezed_frown_b.json",
     "waking": "expressions/presets/waking.json",

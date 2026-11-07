@@ -1,12 +1,12 @@
-"""Copy two confirmed standard expressions into the game textures for the bereaved reaction.
+"""Copy a confirmed standard expression into the game textures for the bereaved reaction.
 
-`blank_confused` (N007, white blank eyes) becomes the runtime `dazed` face and `blank_cry`
-keeps its name. Both are in the confirmed standard set (provenance/standard-expressions.json).
+`blank_confused` (N007, white blank eyes) becomes the runtime `dazed` face; it is in the confirmed
+standard set (provenance/standard-expressions.json). `blank_cry` ships through the face library.
 Only species whose runtime neutral atlas is byte-identical to the current standard export
 (the rounded body standard re-rendered every atlas, so the cube-era hashes in the provenance
 no longer apply) receive them, from that same export; a form whose runtime atlas is that same
 export (the bushy Reimu, `reimu_wasa`, shares Reimu's face sheet) receives its base's faces. Other forms fall back along the lore recipe's
-`face_fallback` (dazed -> surprise, blank_cry -> cry). Writes art/source/motion-corrections/extra-faces.json.
+`face_fallback` (dazed -> surprise). Writes art/source/motion-corrections/extra-faces.json.
 
   python faces.py [--check]
 """
@@ -16,7 +16,7 @@ import argparse, hashlib, json
 HERE = Path(__file__).resolve().parent
 LIB = HERE.parents[2]; ROOT = LIB.parents[1]
 TEXTURES = ROOT/'src/main/resources/assets/mcyukkuri/textures/entity'
-FACES = {'dazed': 'blank_confused', 'blank_cry': 'blank_cry'}
+FACES = {'dazed': 'blank_confused'}
 SPECIES = ['reimu', 'marisa', 'alice', 'chen', 'patchouli', 'marisa_tsumuri']
 SAME_AS = {'reimu_wasa': 'reimu'}  # forms drawn on their base's face sheet
 OUT = ROOT/'art/source/motion-corrections/extra-faces.json'

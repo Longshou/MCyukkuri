@@ -19,7 +19,6 @@
         "puff",
         "angry",
         "surprise",
-        "blank_cry",
         "squeezed_cry_tears",
         "flushed_tongue",
         "open_drool",
@@ -78,7 +77,6 @@
         "remains_starved": "art/source/remains/textures/alice/remains_starved.png",
         "remains_violent": "art/source/remains/textures/alice/remains_violent.png",
         "state_recover": "art/source/adult-states/state_recover.png",
-        "blank_cry": "standards/yukkuri-library/assembled/alice/textures/blank_cry.png",
         "dazed": "standards/yukkuri-library/assembled/alice/textures/blank_confused.png"
       },
       "face_aliases": {
@@ -103,7 +101,6 @@
         "puff",
         "angry",
         "surprise",
-        "blank_cry",
         "squeezed_cry_tears",
         "flushed_tongue",
         "chewing",
@@ -156,7 +153,6 @@
         "remains_sick": "art/source/remains/textures/chen/remains_sick.png",
         "remains_starved": "art/source/remains/textures/chen/remains_starved.png",
         "remains_violent": "art/source/remains/textures/chen/remains_violent.png",
-        "blank_cry": "standards/yukkuri-library/assembled/chen/textures/blank_cry.png",
         "dazed": "standards/yukkuri-library/assembled/chen/textures/blank_confused.png"
       },
       "face_aliases": {
@@ -181,7 +177,6 @@
         "puff",
         "angry",
         "surprise",
-        "blank_cry",
         "squeezed_cry_tears",
         "flushed_tongue",
         "chewing",
@@ -210,7 +205,6 @@
         "puff": "art/source/rare-forms-runtime/chen_longtail/textures/puff.png",
         "angry": "art/source/rare-forms-runtime/chen_longtail/textures/angry.png",
         "surprise": "art/source/rare-forms-runtime/chen_longtail/textures/surprise.png",
-        "blank_cry": "art/source/rare-forms-runtime/chen_longtail/textures/blank_cry.png",
         "squeezed_cry_tears": "art/source/rare-forms-runtime/chen_longtail/textures/squeezed_cry_tears.png",
         "flushed_tongue": "art/source/rare-forms-runtime/chen_longtail/textures/flushed_tongue.png",
         "chewing": "art/source/rare-forms-runtime/chen_longtail/textures/chewing.png",
@@ -243,7 +237,6 @@
         "puff",
         "angry",
         "surprise",
-        "blank_cry",
         "squeezed_cry_tears",
         "flushed_tongue",
         "chewing",
@@ -272,7 +265,6 @@
         "puff": "art/source/rare-forms-runtime/chen_longtail/textures/puff.png",
         "angry": "art/source/rare-forms-runtime/chen_longtail/textures/angry.png",
         "surprise": "art/source/rare-forms-runtime/chen_longtail/textures/surprise.png",
-        "blank_cry": "art/source/rare-forms-runtime/chen_longtail/textures/blank_cry.png",
         "squeezed_cry_tears": "art/source/rare-forms-runtime/chen_longtail/textures/squeezed_cry_tears.png",
         "flushed_tongue": "art/source/rare-forms-runtime/chen_longtail/textures/flushed_tongue.png",
         "chewing": "art/source/rare-forms-runtime/chen_longtail/textures/chewing.png",
@@ -443,7 +435,6 @@
         "puff",
         "angry",
         "surprise",
-        "blank_cry",
         "squeezed_cry_tears",
         "flushed_tongue",
         "chewing",
@@ -496,7 +487,6 @@
         "remains_sick": "art/source/remains/textures/marisa/remains_sick.png",
         "remains_starved": "art/source/remains/textures/marisa/remains_starved.png",
         "remains_violent": "art/source/remains/textures/marisa/remains_violent.png",
-        "blank_cry": "standards/yukkuri-library/assembled/marisa/textures/blank_cry.png",
         "dazed": "standards/yukkuri-library/assembled/marisa/textures/blank_confused.png"
       },
       "face_aliases": {
@@ -623,7 +613,6 @@
         "puff",
         "angry",
         "surprise",
-        "blank_cry",
         "squeezed_cry_tears",
         "flushed_tongue",
         "chewing",
@@ -652,7 +641,6 @@
         "puff": "art/source/rare-forms-runtime/marisa_kotatsu/textures/puff.png",
         "angry": "art/source/rare-forms-runtime/marisa_kotatsu/textures/angry.png",
         "surprise": "art/source/rare-forms-runtime/marisa_kotatsu/textures/surprise.png",
-        "blank_cry": "art/source/rare-forms-runtime/marisa_kotatsu/textures/blank_cry.png",
         "squeezed_cry_tears": "art/source/rare-forms-runtime/marisa_kotatsu/textures/squeezed_cry_tears.png",
         "flushed_tongue": "art/source/rare-forms-runtime/marisa_kotatsu/textures/flushed_tongue.png",
         "chewing": "art/source/rare-forms-runtime/marisa_kotatsu/textures/chewing.png",
@@ -738,7 +726,6 @@
         "puff",
         "angry",
         "surprise",
-        "blank_cry",
         "squeezed_cry_tears",
         "flushed_tongue",
         "chewing",
@@ -791,7 +778,6 @@
         "remains_sick": "art/source/remains/textures/marisa_tsumuri/remains_sick.png",
         "remains_starved": "art/source/remains/textures/marisa_tsumuri/remains_starved.png",
         "remains_violent": "art/source/remains/textures/marisa_tsumuri/remains_violent.png",
-        "blank_cry": "standards/yukkuri-library/assembled/marisa_tsumuri/textures/blank_cry.png",
         "dazed": "standards/yukkuri-library/assembled/marisa_tsumuri/textures/blank_confused.png"
       },
       "face_aliases": {
@@ -816,7 +802,6 @@
         "puff",
         "angry",
         "surprise",
-        "blank_cry",
         "squeezed_cry_tears",
         "flushed_tongue",
         "open_drool",
@@ -849,7 +834,6 @@
         "puff": "art/source/rare-forms-runtime/myon/textures/puff.png",
         "angry": "art/source/rare-forms-runtime/myon/textures/angry.png",
         "surprise": "art/source/rare-forms-runtime/myon/textures/surprise.png",
-        "blank_cry": "art/source/rare-forms-runtime/myon/textures/blank_cry.png",
         "squeezed_cry_tears": "art/source/rare-forms-runtime/myon/textures/squeezed_cry_tears.png",
         "flushed_tongue": "art/source/rare-forms-runtime/myon/textures/flushed_tongue.png",
         "open_drool": "art/source/rare-forms-runtime/myon/textures/open_drool.png",
@@ -886,7 +870,6 @@
         "puff",
         "angry",
         "surprise",
-        "blank_cry",
         "squeezed_cry_tears",
         "flushed_tongue",
         "open_drool",
@@ -919,7 +902,6 @@
         "puff": "art/source/rare-forms-runtime/myon_redeye/textures/puff.png",
         "angry": "art/source/rare-forms-runtime/myon/textures/angry.png",
         "surprise": "art/source/rare-forms-runtime/myon_redeye/textures/surprise.png",
-        "blank_cry": "art/source/rare-forms-runtime/myon_redeye/textures/blank_cry.png",
         "squeezed_cry_tears": "art/source/rare-forms-runtime/myon_redeye/textures/squeezed_cry_tears.png",
         "flushed_tongue": "art/source/rare-forms-runtime/myon_redeye/textures/flushed_tongue.png",
         "open_drool": "art/source/rare-forms-runtime/myon/textures/open_drool.png",
@@ -956,7 +938,6 @@
         "puff",
         "angry",
         "surprise",
-        "blank_cry",
         "squeezed_cry_tears",
         "flushed_tongue",
         "chewing",
@@ -1009,7 +990,6 @@
         "remains_sick": "art/source/remains/textures/patchouli/remains_sick.png",
         "remains_starved": "art/source/remains/textures/patchouli/remains_starved.png",
         "remains_violent": "art/source/remains/textures/patchouli/remains_violent.png",
-        "blank_cry": "standards/yukkuri-library/assembled/patchouli/textures/blank_cry.png",
         "dazed": "standards/yukkuri-library/assembled/patchouli/textures/blank_confused.png"
       },
       "face_aliases": {
@@ -1034,7 +1014,6 @@
         "puff",
         "angry",
         "surprise",
-        "blank_cry",
         "squeezed_cry_tears",
         "flushed_tongue",
         "chewing",
@@ -1087,7 +1066,6 @@
         "remains_sick": "art/source/remains/textures/reimu/remains_sick.png",
         "remains_starved": "art/source/remains/textures/reimu/remains_starved.png",
         "remains_violent": "art/source/remains/textures/reimu/remains_violent.png",
-        "blank_cry": "standards/yukkuri-library/assembled/reimu/textures/blank_cry.png",
         "dazed": "standards/yukkuri-library/assembled/reimu/textures/blank_confused.png"
       },
       "face_aliases": {
@@ -1338,7 +1316,6 @@
         "puff",
         "angry",
         "surprise",
-        "blank_cry",
         "chewing",
         "chewing_closed",
         "satisfied",
@@ -1387,7 +1364,6 @@
         "remains_sick": "art/source/remains/textures/reimu_wasa/remains_sick.png",
         "remains_starved": "art/source/remains/textures/reimu_wasa/remains_starved.png",
         "remains_violent": "art/source/remains/textures/reimu/remains_violent.png",
-        "blank_cry": "standards/yukkuri-library/assembled/reimu/textures/blank_cry.png",
         "dazed": "standards/yukkuri-library/assembled/reimu/textures/blank_confused.png"
       },
       "face_aliases": {
@@ -1576,16 +1552,6 @@
       "frame_ticks": [
         36,
         14
-      ]
-    },
-    "squeezed_teary": {
-      "frames": [
-        "squeezed_teary",
-        "squeezed_teary_b"
-      ],
-      "frame_ticks": [
-        20,
-        10
       ]
     },
     "squeezed_frown": {

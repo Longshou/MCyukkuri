@@ -26,8 +26,6 @@ O 为原有版，N 为新增配方；标准认可范围见 [标准集合](../pro
 | N011 | 睡眠 · 滴落 | 新增 | sleep_b |
 | N012 | 含泪睡眠 | 新增 | tear_sleep |
 | N013 | 含泪睡眠 · 泪帧 B | 新增 | tear_sleep_b |
-| N014 | 挤眼含泪 | 新增 | squeezed_teary |
-| N015 | 挤眼含泪 · 泪帧 B | 新增 | squeezed_teary_b |
 | N016 | 挤眼哭丧 | 新增 | squeezed_frown |
 | N017 | 挤眼哭丧 · 泪帧 B | 新增 | squeezed_frown_b |
 | N018 | 刚睡醒 | 新增 | waking |

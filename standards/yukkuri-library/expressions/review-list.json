@@ -154,20 +154,6 @@
     "pair": null
   },
   {
-    "code": "N014",
-    "id": "squeezed_teary",
-    "label": "挤眼含泪",
-    "origin": "new",
-    "pair": null
-  },
-  {
-    "code": "N015",
-    "id": "squeezed_teary_b",
-    "label": "挤眼含泪 · 泪帧 B",
-    "origin": "new",
-    "pair": null
-  },
-  {
     "code": "N016",
     "id": "squeezed_frown",
     "label": "挤眼哭丧",

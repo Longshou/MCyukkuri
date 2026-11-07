@@ -731,7 +731,7 @@
         }
       ],
       "status": "needs-redraw",
-      "target": "expressions/presets/squeezed_teary.json"
+      "target": "expressions/presets/squeezed_frown.json"
     },
     {
       "field": "基本バツ涙目顔２グラベース",
@@ -765,7 +765,7 @@
         }
       ],
       "status": "needs-redraw",
-      "target": "expressions/presets/squeezed_teary_b.json"
+      "target": "expressions/presets/squeezed_frown_b.json"
     },
     {
       "field": "基本バツ涙目顔Bグラベース",
