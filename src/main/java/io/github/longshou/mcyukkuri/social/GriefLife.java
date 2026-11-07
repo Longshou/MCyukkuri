@@ -200,7 +200,7 @@ public final class GriefLife {
             SurfaceApproach.face(entity,SurfaceApproach.yaw(entity.position(),challenger.position()));
             if (++tauntTicks == 1) {
                 decision = "taunting";
-                entity.showReaction("cheek_puff","protect_taunt",45);
+                entity.showReaction("puff_teary","protect_taunt",45);
                 GameplayLog.event(entity,"grief","protection taunt predator={} child={} distance={}",challenger.getUUID(),protectedChild.getUUID(),entity.distanceTo(challenger));
             }
             if (challenger.predator().divert(entity,protectedChild)) {

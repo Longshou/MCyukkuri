@@ -14,7 +14,7 @@ CATEGORIES = [
         ('exercise_vertical','纵向体操'),('exercise_sides','横向体操'),('press','挤压'),('taiso','广播体操')]),
     ('日常生活', [('eat','进食'),('shiawase','饭后幸福'),('meal_content','吃饱满足瘫软'),('drink','饮水'),('sleep','睡觉'),('wake','醒来'),('shake','甩水'),('sunbathe','晒太阳')]),
     ('交流与情绪', [('nuzzle','蹭蹭'),('comfort_lick','担心舔舐'),('sing','唱歌'),('sway','摇摆'),('greet','打招呼'),('look_around','张望'),
-        ('puff','鼓腮'),('push','推挤'),('startle','受惊'),('tremble','发抖'),('droop','低落'),('flee','逃跑'),
+        ('puff','鼓腮'),('puku_teary','含泪硬撑噗咕'),('push','推挤'),('startle','受惊'),('tremble','发抖'),('droop','低落'),('flee','逃跑'),
         ('rain_huddle_left','雨中贴靠（同伴在左）'),('rain_huddle_right','雨中贴靠（同伴在右）'),('thunder_cower','雷暴缩身')]),
     ('家庭与照料', [('brood','安胎与照看胎儿'),('labor','分娩'),('midwife','接生'),('bereaved','失去幼体后的悲伤'),
         ('postpartum','产后休息'),('first_wake','初生醒来'),('call_child','呼唤走散的孩子'),('hat_cradle','幼油在帽托中休息'),('mouth_release','灵梦张嘴放出幼油')]),

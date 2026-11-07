@@ -250,7 +250,9 @@ def state(action, t, c, height):
         if 'quiver' in c:
             a, b, amount, hz = c['quiver']
             if a <= t <= b: h += amount*math.sin(2*math.pi*hz*(t-a))*bump((t-a)/(b-a))
-        w = h**-.5; s = [w, h, w]
+        # swell_keys: a uniform enlargement on top (puku).
+        g = keyed(t, c['swell_keys']) if 'swell_keys' in c else 1.
+        w = h**-.5; s = [w*g, h*g, w*g]
         r = [keyed(t, c[k]) if k in c else 0. for k in ('pitch_keys', 'yaw_keys', 'roll_keys')]
         if 'reach_keys' in c: shift[1] = -keyed(t, c['reach_keys'])*height
     elif action == 'aquatic_hat_care':

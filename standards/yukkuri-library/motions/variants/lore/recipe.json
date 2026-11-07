@@ -3,7 +3,7 @@
   "runtime_revision": "life-weather-20261107-v38",
   "export_families": {
     "weather": {"clips": ["rain_huddle_right", "rain_huddle_left", "thunder_cower", "sunbathe"], "braid_follow": true, "side_profile": true},
-    "life": {"clips": ["call_child", "wake", "meal_content"], "braid_follow": true},
+    "life": {"clips": ["call_child", "wake", "meal_content", "puku_teary"], "braid_follow": true},
     "comfort": {"clips": ["comfort_lick"], "braid_follow": true},
     "brim-carry": {"clips": ["braid_brim_lift", "braid_brim_lower"]},
     "carry": {"clips": ["boat_carry_young", "boat_be_carried", "boat_prepare_carry", "boat_release_carry", "mouth_release"]},
@@ -1344,6 +1344,189 @@
       "lore": "The bite that leaves it full: eyes narrow, it melts lower and wider in place for a contented moment (しあわせー), sways a little and rises again (project design, user 2026-11-07 life presentation).",
       "triggers": [
         "meal_content"
+      ]
+    },
+    "puku_teary": {
+      "label": "噗咕·含泪硬撑",
+      "duration": 3.2,
+      "loop": true,
+      "applies": "all",
+      "height_keys": [
+        [
+          0,
+          1
+        ],
+        [
+          0.25,
+          1
+        ],
+        [
+          0.55,
+          1.03
+        ],
+        [
+          1.15,
+          1.03
+        ],
+        [
+          1.35,
+          1.02
+        ],
+        [
+          1.8,
+          1.02
+        ],
+        [
+          2.05,
+          1.04
+        ],
+        [
+          2.75,
+          1.04
+        ],
+        [
+          3.05,
+          1
+        ],
+        [
+          3.2,
+          1
+        ]
+      ],
+      "swell_keys": [
+        [
+          0,
+          1
+        ],
+        [
+          0.25,
+          1
+        ],
+        [
+          0.55,
+          1.06
+        ],
+        [
+          1.15,
+          1.055
+        ],
+        [
+          1.35,
+          1.035
+        ],
+        [
+          1.8,
+          1.035
+        ],
+        [
+          2.05,
+          1.07
+        ],
+        [
+          2.75,
+          1.068
+        ],
+        [
+          3.05,
+          1
+        ],
+        [
+          3.2,
+          1
+        ]
+      ],
+      "pitch_keys": [
+        [
+          0,
+          0
+        ],
+        [
+          0.15,
+          4
+        ],
+        [
+          0.55,
+          3
+        ],
+        [
+          2.05,
+          2
+        ],
+        [
+          2.75,
+          2
+        ],
+        [
+          3.05,
+          0
+        ],
+        [
+          3.2,
+          0
+        ]
+      ],
+      "yaw_keys": [
+        [
+          0,
+          0
+        ],
+        [
+          1.1,
+          0
+        ],
+        [
+          1.35,
+          -16
+        ],
+        [
+          1.7,
+          -14
+        ],
+        [
+          1.95,
+          0
+        ],
+        [
+          3.2,
+          0
+        ]
+      ],
+      "quiver": [
+        0.3,
+        3.0,
+        0.008,
+        11
+      ],
+      "faces": [
+        [
+          0,
+          0.25,
+          "squeezed_frown"
+        ],
+        [
+          0.25,
+          1.2,
+          "puff_teary"
+        ],
+        [
+          1.2,
+          1.9,
+          "side_teary"
+        ],
+        [
+          1.9,
+          2.95,
+          "puff_teary"
+        ],
+        [
+          2.95,
+          63.2,
+          "teary"
+        ]
+      ],
+      "lore": "ぷくー when scared but standing its ground (ecology: puku can be startled or wary as well as threatening; face after the Hakkei U side ぷくー2 sprite with tears): startled, it leans back and puffs with tears, trembling; its nerve slips as it glances away and the puff sags, then it turns back and puffs bigger again (project design; user 2026-11-08 kept it for the scenes where a frightened yukkuri still puffs, beside the original puff).",
+      "triggers": [
+        "protect_taunt: a parent standing between a predator and its child (GriefLife)"
       ]
     },
     "drink": {
@@ -6935,7 +7118,8 @@
     "thunder_cower",
     "sunbathe",
     "call_child",
-    "meal_content"
+    "meal_content",
+    "puku_teary"
   ],
   "braid_use": {
     "note": "Project design (user 2026-11-05 feedback 2: what the braid already holds decides what it can do): clips whose own authored braid grips, carries or strokes something (the hat, a child, a brim, the water; in the water she flails and swims with it while the stack stays in her hat) use the braid, so the game never lays the held stack's hold over them; a held stack shows there only by the clip's own props.item, otherwise it stays stowed in her hat and is not drawn. A hat clip with `hat.stick` (her own hat on and off at the water, the clips the game plays while she holds the stick) keeps the stick in the tuft: it lies along the brim the tuft hooks, its long end along the keyed direction in the worn hat's frame ([t, x, y, z]: out to her braid side on the worn brim, out over the water on the hat set down; re-aimed in the tuft while the hat swings over) and turning with the hat, so the stick never leaves the braid, never pops and never crosses her face (user 2026-11-05 feedback 2; user 2026-11-04 feedback 6: held in the braid, not hidden). Markers `braid_busy` (the braid has left the hold by here) and `braid_free` (from here it returns to the hold by the clip's end) let a one-shot clip hand the braid over from and back to the hold. Exported as the clip field braid_use.",

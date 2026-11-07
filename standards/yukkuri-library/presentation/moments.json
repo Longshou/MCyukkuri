@@ -1916,7 +1916,8 @@
               2.352,
               "cheek_puff"
             ]
-          ]
+          ],
+          "emote": "anger"
         }
       ]
     },
@@ -1924,10 +1925,32 @@
       "loop": true,
       "steps": [
         {
-          "clip": "puff",
+          "clip": "puku_teary",
           "intensity": 1,
           "tempo": 1,
-          "faces": []
+          "faces": [
+            [
+              0,
+              "squeezed_frown"
+            ],
+            [
+              0.25,
+              "puff_teary"
+            ],
+            [
+              1.2,
+              "side_teary"
+            ],
+            [
+              1.9,
+              "puff_teary"
+            ],
+            [
+              2.95,
+              "teary"
+            ]
+          ],
+          "emote": "sweat"
         }
       ]
     },
@@ -3018,7 +3041,8 @@
           "clip": "puff",
           "intensity": 1,
           "tempo": 1,
-          "faces": []
+          "faces": [],
+          "emote": "anger"
         }
       ]
     },
@@ -3336,7 +3360,8 @@
           "clip": "puff",
           "intensity": 1,
           "tempo": 1,
-          "faces": []
+          "faces": [],
+          "emote": "anger"
         }
       ]
     },
@@ -3347,7 +3372,8 @@
           "clip": "puff",
           "intensity": 1,
           "tempo": 1,
-          "faces": []
+          "faces": [],
+          "emote": "anger"
         }
       ]
     },
@@ -3358,7 +3384,8 @@
           "clip": "puff",
           "intensity": 1,
           "tempo": 1,
-          "faces": []
+          "faces": [],
+          "emote": "anger"
         }
       ]
     },

@@ -154,7 +154,9 @@ public enum YukkuriAction {
     RAIN_HUDDLE_LEFT("rain_huddle_left", 4.0, true),
     RAIN_HUDDLE_RIGHT("rain_huddle_right", 4.0, true),
     THUNDER_COWER("thunder_cower", 3.2, true),
-    SUNBATHE("sunbathe", 10.0, true);
+    SUNBATHE("sunbathe", 10.0, true),
+    // A frightened puff with tears (lore recipe): a parent taunting a predator away from its child (moment behavior_protect_taunt).
+    PUKU_TEARY("puku_teary", 3.2, true);
 
     private final String id;
     private final double duration;

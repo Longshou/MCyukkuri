@@ -8,7 +8,7 @@
 
 ## 制作与导出
 
-`author.py` 求值动作，`hat.py` 求解帽子、帽子实体位置和辫子接触。家族选择由 `recipe.json` 的 `export_families` 维护；新增家族只加数据。`life` 包含寻子呼唤 `call_child`、醒来伸懒腰 `wake`、吃饱瘫软 `meal_content`，按配方 `height_keys` 等关键帧求值，宽度随高度保体积。统一入口见[脚本说明](../../../../../scripts/README.md)。运行资源与指纹由 `art/source/motion-corrections/manifest.json` 登记。
+`author.py` 求值动作，`hat.py` 求解帽子、帽子实体位置和辫子接触。家族选择由 `recipe.json` 的 `export_families` 维护；新增家族只加数据。`life` 包含寻子呼唤 `call_child`、醒来伸懒腰 `wake`、吃饱瘫软 `meal_content` 与含泪噗咕 `puku_teary`，按配方 `height_keys` 等关键帧求值，宽度随高度保体积，可选 `swell_keys` 在其上整体放大。统一入口见[脚本说明](../../../../../scripts/README.md)。运行资源与指纹由 `art/source/motion-corrections/manifest.json` 登记。
 
 ```powershell
 <py> scripts/export.py --family weather --family life
