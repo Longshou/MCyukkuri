@@ -15,7 +15,10 @@ ENVIRONMENT = 'MCY_SMOKE_SLOTS'
 
 
 def limit(override=None):
-    return override if override is not None else int(os.environ.get(ENVIRONMENT, DEFAULT_SLOTS))
+    count = override if override is not None else int(os.environ.get(ENVIRONMENT, DEFAULT_SLOTS))
+    if count < 1:
+        raise ValueError('Smoke/capture slots must be at least 1')
+    return count
 
 
 def _write(path, row):
@@ -75,8 +78,9 @@ def slot(kind, label, slots=None):
             time.sleep(5)
         yield
     finally:
-        hold.unlink(missing_ok=True)
-        wait.unlink(missing_ok=True)
+        with server.instance_lock('MCyukkuriSmokeSlots'):
+            hold.unlink(missing_ok=True)
+            wait.unlink(missing_ok=True)
 
 
 if __name__ == '__main__':
