@@ -1,0 +1,71 @@
+{
+ "purpose": "Style only (voxel look, colour ramps, face pixel art). Never proportions or numbers: those come from the real model.",
+ "note": "sha256 = this pack file; source_sha256 = sha256 of the concatenated per-file hashes of the listed source files",
+ "files": [
+  {
+   "file": "reimu_front.png",
+   "shows": "Standard Reimu body, current runtime model, front view, neutral face",
+   "source": [
+    "src/main/resources/assets/mcyukkuri/textures/entity/reimu/neutral.png"
+   ],
+   "source_sha256": "b895bde3cf1ff585197ef3409cbb6cb9f9216658d5980c0fc24d6a40f696507e",
+   "sha256": "778851ec395f1f1d4d212dfd33afe687794fcfc1c5d0c47ac893892355a6507e"
+  },
+  {
+   "file": "reimu_three_quarter.png",
+   "shows": "Standard Reimu body, current runtime model, three-quarter view, neutral face",
+   "source": [
+    "src/main/resources/assets/mcyukkuri/textures/entity/reimu/neutral.png"
+   ],
+   "source_sha256": "b895bde3cf1ff585197ef3409cbb6cb9f9216658d5980c0fc24d6a40f696507e",
+   "sha256": "37be68972d3e71ae80649d9098acf56168c63f164459984e6bed544462212d6d"
+  },
+  {
+   "file": "marisa_front.png",
+   "shows": "Standard Marisa body with hat and braid, front view, neutral face",
+   "source": [
+    "src/main/resources/assets/mcyukkuri/textures/entity/marisa/neutral.png"
+   ],
+   "source_sha256": "61057ec8982c965508f9ce226a873299b4d484a192f40d39c6e53b4890707fb5",
+   "sha256": "27ffc8e503cc244a54d15ee7123bcf4129f78fec3d20a8851dfd6ebf6abd7839"
+  },
+  {
+   "file": "marisa_three_quarter.png",
+   "shows": "Standard Marisa body with hat and braid, three-quarter view, neutral face",
+   "source": [
+    "src/main/resources/assets/mcyukkuri/textures/entity/marisa/neutral.png"
+   ],
+   "source_sha256": "61057ec8982c965508f9ce226a873299b4d484a192f40d39c6e53b4890707fb5",
+   "sha256": "6ab6daff0937608d0cf77b361df0478e2c2aed19151d12688af744481dc91cfd"
+  },
+  {
+   "file": "marisa_hat.png",
+   "shows": "In-use prop: Marisa hat item render (chunky stepped voxel boxes, flat colour ramps)",
+   "source": [
+    "src/main/resources/assets/mcyukkuri/yukkuri_props/marisa_hat.json"
+   ],
+   "source_sha256": "37245b36ad2da86c491264ca4b5b9b8b0c23d45bc30c29a76e7c683b961d7605",
+   "sha256": "2deaf71517bd7bbe1c67756a3d3f1165bf6dab83d5d13a67df76f6f744924a22"
+  },
+  {
+   "file": "face_decals.png",
+   "shows": "Approved standard expression faces (12 of 89) as a decal sheet: pixel-art eyes, cheeks, mouths on skin colour",
+   "source": [
+    "standards/yukkuri-library/expressions/thumbnails/neutral.png",
+    "standards/yukkuri-library/expressions/thumbnails/open_smile.png",
+    "standards/yukkuri-library/expressions/thumbnails/happy.png",
+    "standards/yukkuri-library/expressions/thumbnails/closed_smile.png",
+    "standards/yukkuri-library/expressions/thumbnails/smug.png",
+    "standards/yukkuri-library/expressions/thumbnails/cry.png",
+    "standards/yukkuri-library/expressions/thumbnails/teary.png",
+    "standards/yukkuri-library/expressions/thumbnails/angry.png",
+    "standards/yukkuri-library/expressions/thumbnails/surprise.png",
+    "standards/yukkuri-library/expressions/thumbnails/sleepy.png",
+    "standards/yukkuri-library/expressions/thumbnails/satisfied.png",
+    "standards/yukkuri-library/expressions/thumbnails/confused.png"
+   ],
+   "source_sha256": "69a14ab028ff1f2fe453e2a51419ba873261d7b9f1fbedc18c9a7a1c83c7d030",
+   "sha256": "c3d7698b97ea2b6fcbe653e5e74a64684c6007b80015a831908023631d8cb8b4"
+  }
+ ]
+}
