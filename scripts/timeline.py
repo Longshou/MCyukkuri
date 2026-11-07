@@ -34,10 +34,13 @@ def validate(row):
 
 
 def parse(texts):
+    return parse_lines(line for text in texts for line in text.splitlines())
+
+
+def parse_lines(lines):
     """Merge copied/rotated logs, deduplicate identical records, and expose corrupt/lost evidence."""
     records, issues, seen = [], [], {}
-    for text in texts:
-        for number, line in enumerate(text.splitlines(), 1):
+    for number, line in enumerate(lines, 1):
             payload = line.split('[trace] ', 1)[1] if '[trace] ' in line else line.strip()
             structured = '[trace] ' in line or payload.startswith('{')
             if not structured:
@@ -78,7 +81,15 @@ def read_text(path):
 
 
 def read(paths):
-    return parse([read_text(p) for p in paths])
+    return parse_lines(lines(paths))
+
+
+def lines(paths):
+    for path in paths:
+        path = Path(path)
+        opener = gzip.open if path.suffix == '.gz' else open
+        with opener(path, 'rt', encoding='utf-8-sig') as source:
+            yield from source
 
 
 def scope(row):
@@ -115,7 +126,9 @@ def export(records, directory, issues=()):
         folder.mkdir(exist_ok=True)
         name = 'world' if actor is None else hashlib.sha256(str(actor).encode()).hexdigest()[:24]
         path = folder / f'{name}.jsonl'
-        path.write_text(''.join(json.dumps(r, ensure_ascii=False) + '\n' for r in rows), encoding='utf-8')
+        with path.open('w', encoding='utf-8') as target:
+            for row in rows:
+                target.write(json.dumps(row, ensure_ascii=False) + '\n')
         entries.append(dict(run=run, dim=dim, win=win, actor=actor, records=len(rows),
                             path=path.relative_to(directory).as_posix()))
     index = dict(schema=1, issues=list(issues), streams=entries)

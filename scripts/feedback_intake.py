@@ -20,6 +20,8 @@ sys.dont_write_bytecode = True
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 from playtest_list import ROOT, PLAY_DIR, sessions  # noqa: E402
+import smoke_checks
+import timeline
 
 GAME_LOGS = ROOT / '.local/experimental-map/museum/logs'
 SERVER = 'MCYukkuri/]: '
@@ -50,7 +52,21 @@ def pick_session(arg):
 
 
 def read_lines(path):
-    return path.read_text(encoding='utf-8', errors='replace').splitlines()
+    with path.open(encoding='utf-8', errors='replace') as source:
+        return [line.rstrip('\r\n') for line in source if '[trace]' not in line]
+
+
+def observation_summary(log, dest, scenes, sid):
+    """Use trace windows, independent of chat headings and other fields' simultaneous scenes."""
+    rerun = smoke_checks.subprocess.list2cmdline([sys.executable, str(HERE / 'feedback_intake.py'), '--session', sid])
+    reports = smoke_checks.report_log(log, dest / 'observations', scenes, rerun=rerun, evidence='H')
+    out = ['## 结构化时间线与自动检查', '',
+           '- 完整个体／世界时间线：`observations/timelines/index.json`；检查与异常前后记录：`observations/checks.json`。',
+           '- 以下仅为报告，缺读数记 no-evidence，不代表试玩通过。']
+    for report in reports:
+        out.append(f'- 窗口 {report.get("scope", "无结构化记录")}；种子 {report["seed"]}：' +
+                   '，'.join(f'{row["check"]}={row["verdict"]}' for row in report['summary']))
+    return out + ['']
 
 
 def stamp_lines(lines, start):
@@ -146,6 +162,9 @@ def main():
     end = max((t for t, _ in stamped if t), default=start)
     cfg = data.get('runtimeConfig', {})
     by_title, by_field = scene_titles()
+    trace_log = dest / log.name
+    if not any('[trace]' in line for line in timeline.lines([trace_log])) and (dest / 'latest.log').exists():
+        trace_log = dest / 'latest.log'
     opens = [(i, m[1], t) for i, (t, l) in enumerate(stamped) if t and (m := START.search(l))]
     out = [f'# 试玩反馈入档：会话 {sid}', '',
            f'- 运行版本：commit {cfg.get("commit", "版本待核实")}，CI run {cfg.get("run", "未知")}',
@@ -153,6 +172,7 @@ def main():
            f'- 副本：{dest}', f'- 打开过的场景启动 {len(opens)} 次（按聊天标题 `【…】看点：` 识别）']
     out += [f'- 注意：{n}' for n in notes]
     out.append('')
+    out += observation_summary(trace_log, dest, {s.id: s.smoke or {} for s in by_title.values()}, sid)
     groups = {}
     for n, (i, title, t) in enumerate(opens):
         stop = opens[n + 1][0] if n + 1 < len(opens) else len(stamped)

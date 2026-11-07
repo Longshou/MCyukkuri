@@ -21,6 +21,7 @@ sys.dont_write_bytecode = True
 import headless_server as server
 import smoke_fate as fate
 import smoke_slots as slots
+import smoke_checks
 
 RESULTS = server.COMMON / '.local/smoke/results'
 BASELINE = server.COMMON / '.local/smoke/baseline'
@@ -88,6 +89,18 @@ def build_pack(builder, pack_root, layout=False):
     world.mkdir(parents=True, exist_ok=False)
     checks, shown, _ = builder.build_pack(world)
     pack = world / 'datapacks' / builder.NS
+    if not layout:
+        observation = pack / 'data' / builder.NS / 'function/observe'
+        observation.mkdir()
+        (observation / 'first.mcfunction').write_text('yukkuri scenario geometry record\n', encoding='utf-8')
+        (observation / 'loop.mcfunction').write_text(
+            'yukkuri scenario geometry record\nschedule function mcylab:observe/loop 20t replace\n', encoding='utf-8')
+        for path in (pack / 'data' / builder.NS / 'function/scn').glob('*.mcfunction'):
+            if path.stem not in {s.id for s in builder.museum_scenarios.S}:
+                continue
+            with path.open('a', encoding='utf-8') as output:
+                output.write('\nschedule function mcylab:observe/first 1t replace\n'
+                             'schedule function mcylab:observe/loop 20t replace\n')
     if layout:
         (pack / 'data' / builder.NS / 'function/layout_ready.mcfunction').write_text('say MCYLAYOUT_READY\n', encoding='utf-8')
         # Observe creation results at the point they occur, before death/consumption can remove an actor.
@@ -194,10 +207,18 @@ def failure(smoke, window):
 
 
 def run_scene(st, scene, builder, run_index=1):
+    server.run_cmd(st, 'schedule clear mcylab:observe/loop')
+    server.run_cmd(st, 'schedule clear mcylab:observe/first')
     clear_all(st, builder.FIELDS)
     load_field(st, builder.BY_ID[scene.field], builder.FEET)
+    server.run_cmd(st, 'yukkuri status trace dense')
+    server.run_cmd(st, 'kill @e[tag=mcyv]')
+    server.run_cmd(st, 'summon minecraft:marker 0 100 0 {Tags:["mcyv"]}')
     offset = server.log_offset(st)
-    server.run_cmd(st, f'function mcylab:start/{scene.id}')
+    # Execute as the virtual observer so the scene's own view sets its exact position/yaw/pitch in the same tick.
+    server.run_cmd(st, f'execute as @e[tag=mcyv,limit=1] run function mcylab:start/{scene.id}')
+    if scene.vantage is None:
+        server.run_cmd(st, f'execute as @e[tag=mcyv,limit=1] run function mcylab:go/{scene.field}')
     if 'commands' in scene.smoke:
         server.run_cmd(st, f'function mcylab:smoke/{scene.id}/start')
     x, z = scene.anchor
@@ -227,11 +248,19 @@ def run_scene(st, scene, builder, run_index=1):
                         for command in scene.smoke.get('readout', ()))
     (Path(st['rundir']).parent / f'{scene.id}-{run_index}.readout.txt').write_text(readout, encoding='utf-8')
     end_tick = re.search(r'\d+', server.run_cmd(st, 'time query gametime'))[0]
-    raw_window = server.log_text(st, offset)
-    window = raw_window + f'\nMCYSMOKE_END_TICK {end_tick}\n'
     log = Path(st['rundir']).parent / f'{scene.id}-{run_index}.log'
-    log.write_text(window, encoding='utf-8')
-    problems = [] if raw_window.strip() else [('empty log', 'empty server log window')]
+    legacy = []
+    nonempty = False
+    end_offset = server.log_offset(st)
+    with log.open('w', encoding='utf-8') as output:
+        for line in server.log_lines(st, offset, end_offset):
+            nonempty |= bool(line.strip())
+            output.write(line)
+            if '[trace]' not in line:
+                legacy.append(line)
+        output.write(f'\nMCYSMOKE_END_TICK {end_tick}\n')
+    window = ''.join(legacy) + f'\nMCYSMOKE_END_TICK {end_tick}\n'
+    problems = [] if nonempty else [('empty log', 'empty server log window')]
     problems += failure(scene.smoke, window)
     problems += fate.fates(window, scene.smoke.get('allow_fate', ()))
     for _, text in problems:
@@ -239,7 +268,18 @@ def run_scene(st, scene, builder, run_index=1):
     if not problems:
         print(f'PASS {scene.id}: {len(scene.smoke["expect"])} expected patterns; no forbidden lines; no undeclared actor fate',
               flush=True)
+    rerun = subprocess.list2cmdline([sys.executable, str(Path(__file__).resolve()), '--worktree',
+                    str(builder.ROOT), '--seed', str(st['seed']), scene.id])
+    observations_dir = log.with_suffix('')
+    reports = smoke_checks.report_log(log, observations_dir, {scene.id: scene.smoke}, st['seed'], rerun, dense=True)
+    jfr = server.jfr_summary(st, f'{scene.id}-{run_index}')
+    (observations_dir / 'jfr.json').write_text(json.dumps(jfr, indent=2), encoding='utf-8')
+    summary = [r for r in reports if r.get('scene') == scene.id]
+    for report in summary:
+        print(f'REPORT {scene.id}: seed={st["seed"]} ' + ' '.join(f'{r["check"]}={r["verdict"]}' for r in report['summary']), flush=True)
+    print(f'JFR {scene.id}: {jfr["verdict"]}; {jfr.get("top_methods", [])[:3]}; {observations_dir}', flush=True)
     return dict(scene=scene.id, index=run_index, log=str(log), passed=not problems,
+                seed=st['seed'], rerun=rerun, observations=str(observations_dir / 'checks.json'), jfr=jfr,
                 reasons=list(dict.fromkeys(reason for reason, _ in problems)), problems=[text for _, text in problems])
 
 
@@ -466,7 +506,7 @@ def session(source, compile_tree, builder, scenes, args, label, stop=None):
         datapack = build_pack(builder, instances / f'pack-{run_id}', args.layout)
         mod = assemble_mod(source, runtime, java, instances / name) if compile_tree else runtime / 'mod'
         server.wait_closed(not args.no_wait)
-        st = server.start(runtime, java, datapack, name, mod, instances)
+        st = server.start(runtime, java, datapack, name, mod, instances, seed=args.seed)
         try:
             server.wait_log(st, r'MCYMUSEUM_BUILD_COMPLETE')
             if 'Failed to load function' in server.log_text(st):
@@ -626,6 +666,7 @@ def main():
                         help='Run the merge-base of this tree with origin/main instead, topping its cached counts up to --repeat runs')
     parser.add_argument('--base-commit', help='With --baseline: this commit instead of the merge-base')
     parser.add_argument('--compare', action='store_true', help='Then top up the main baseline (only missing runs) and print branch vs main')
+    parser.add_argument('--seed', type=int, default=secrets.randbits(63), help='Post-join actor RNG seed; partial replay only (see trace seed log)')
     parser.add_argument('--no-wait', action='store_true', help="Refuse instead of waiting while the user's museum client runs")
     parser.add_argument('--slots', type=int, help=f'Machine-wide limit of smoke/capture servers (default {slots.DEFAULT_SLOTS} or %%{slots.ENVIRONMENT}%%)')
     parser.add_argument('scenes', nargs='*', help='Scene IDs (default: all scenes with smoke metadata)')

@@ -11,6 +11,7 @@ import socket
 import struct
 import subprocess
 import time
+from collections import Counter
 from pathlib import Path
 
 
@@ -226,7 +227,7 @@ def run_cmd(st, cmd, timeout=30):
         rcon.sock.close()
 
 
-def build_java_cmd(runtime, java, rundir, mod):
+def build_java_cmd(runtime, java, rundir, mod, seed=None):
     vm = [a for a in read_args_file(runtime / 'clientRunVmArgs.txt') if not a.startswith('-Dneoforge.enableGameTest')]
     cp = read_args_file(runtime / 'clientRunClasspath.txt')[:2]
     cp[1] = ';'.join(str(mod) if Path(entry) == runtime / 'mod' else entry for entry in cp[1].split(';'))
@@ -240,7 +241,9 @@ def build_java_cmd(runtime, java, rundir, mod):
             continue
         out.append(prog[i])
         i += 1
-    return ([str(java), '-Xmx2G', '-Xms512m'] + vm + cp
+    observed = [] if seed is None else [f'-Dmcyukkuri.seed={seed}',
+        f'-XX:StartFlightRecording=name=mcy_smoke,settings=profile,dumponexit=true,filename={(rundir.parent / "server.jfr").as_posix()}']
+    return ([str(java), '-Xmx2G', '-Xms512m'] + observed + vm + cp
             + [f'-Dfml.modFolders=mcyukkuri%%{mod}', 'net.neoforged.devlaunch.Main', main,
                '--launchTarget', 'forgeserverdev', '--gameDir', str(rundir)] + out + ['--nogui'])
 
@@ -276,31 +279,54 @@ def log_text(st, offset=0):
         return log.read().decode('utf-8')
 
 
+def log_lines(st, offset=0, end=None):
+    """Stream a fixed byte interval, without copying a dense scene window into one string."""
+    with (Path(st['rundir']) / 'logs/latest.log').open('rb') as source:
+        source.seek(offset)
+        while end is None or source.tell() < end:
+            line = source.readline(-1 if end is None else end - source.tell())
+            if not line:
+                break
+            yield line.decode('utf-8')
+
+
 def wait_log(st, pattern, offset=0, timeout=600):
     deadline = time.monotonic() + timeout
+    cursor, tail = offset, ''
     while time.monotonic() < deadline:
         if process_started(st['pid']) != st['started']:
             raise RuntimeError(f'Server exited; see {Path(st["rundir"]).parent / "stdout.log"}')
-        window = log_text(st, offset)
-        if re.search(pattern, window):
-            return window
+        # Keep only the boundary tail; do not reread tens of MB on every poll during tick sprint.
+        path = Path(st['rundir']) / 'logs/latest.log'
+        if not path.exists():
+            time.sleep(.2)
+            continue
+        with path.open('rb') as source:
+            source.seek(cursor)
+            while chunk := source.read(65536):
+                cursor += len(chunk)
+                window = tail + chunk.decode('utf-8', errors='replace')
+                if re.search(pattern, window):
+                    return window
+                tail = window[-8192:]
         time.sleep(0.2)
     raise TimeoutError(f'Timed out waiting for /{pattern}/; see {st["rundir"]}/logs/latest.log')
 
 
 @instance_lock()
-def start(runtime, java, datapack, name, mod, instances):
+def start(runtime, java, datapack, name, mod, instances, seed=None):
     record = instances / name / 'server.json'
     rundir = record.parent / 'run'
     rundir.mkdir(parents=True, exist_ok=False)
     (rundir / 'eula.txt').write_text('eula=true\n', encoding='utf-8')
     shutil.copytree(datapack, rundir / 'world/datapacks' / datapack.name)
     st = {'name': name, 'runtime': str(runtime), 'mod': str(mod), 'rundir': str(rundir),
+          'seed': seed, 'java': str(java),
           'game_port': free_port(), 'rcon_port': free_port(), 'rcon_password': secrets.token_hex(8)}
     while st['rcon_port'] == st['game_port']:
         st['rcon_port'] = free_port()
     write_props(rundir, st)
-    cmd = build_java_cmd(runtime, java, rundir, mod)
+    cmd = build_java_cmd(runtime, java, rundir, mod, seed)
     require_closed()
     with (record.parent / 'stdout.log').open('wb') as out:
         proc = subprocess.Popen(cmd, cwd=rundir, stdin=subprocess.DEVNULL, stdout=out, stderr=subprocess.STDOUT,
@@ -320,6 +346,42 @@ def start(runtime, java, datapack, name, mod, instances):
         stop(st)
         raise
     return st
+
+
+def sample_methods(events):
+    counts = Counter()
+    for event in events:
+        stack = event['values'].get('stackTrace')
+        if not stack or not stack.get('frames'):
+            continue
+        # Execution samples describe the sampled thread; report server-thread samples separately.
+        thread = event['values'].get('sampledThread') or {}
+        if thread.get('javaName') != 'Server thread':
+            continue
+        method = stack['frames'][0]['method']
+        counts[method['type']['name'].replace('/', '.') + '.' + method['name']] += 1
+    return [dict(method=method, samples=count) for method, count in counts.most_common(15)]
+
+
+def jfr_summary(st, name):
+    """Dump the existing recording and summarize sampled server methods; no gameplay commands."""
+    path = Path(st['rundir']).parent / f'{name}.jfr'
+    java = Path(st['java'])
+    dump = subprocess.run([str(java.with_name('jcmd.exe')), str(st['pid']), 'JFR.dump', 'name=mcy_smoke',
+                           f'filename={path.as_posix()}'], capture_output=True, text=True, encoding='utf-8')
+    if dump.returncode:
+        return dict(verdict='no-evidence', detail=dump.stderr or dump.stdout)
+    printed = path.with_suffix('.samples.json')
+    with printed.open('w', encoding='utf-8') as output:
+        run = subprocess.run([str(java.with_name('jfr.exe')), 'print', '--json', '--events',
+                              'jdk.ExecutionSample,jdk.NativeMethodSample', str(path)], stdout=output,
+                             stderr=subprocess.PIPE, text=True, encoding='utf-8')
+    if run.returncode:
+        return dict(verdict='no-evidence', detail=run.stderr, path=str(path))
+    with printed.open(encoding='utf-8') as source:
+        events = json.load(source)['recording']['events']
+    return dict(verdict='observed', path=str(path), scope='cumulative session to this scene end',
+                server_samples=sum(r['samples'] for r in sample_methods(events)), top_methods=sample_methods(events))
 
 
 def sprint(st, ticks):

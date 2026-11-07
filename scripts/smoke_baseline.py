@@ -6,6 +6,7 @@ import argparse
 import subprocess
 import sys
 import time
+import secrets
 
 sys.dont_write_bytecode = True
 import headless_server as server
@@ -24,6 +25,7 @@ def busy():
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--repeat', type=int, default=2, help='Runs per scene to reach (default 2)')
+    parser.add_argument('--seed', type=int, default=secrets.randbits(63), help='Post-join actor RNG seed (partial replay)')
     parser.add_argument('--slots', type=int, help=f'Machine-wide limit of smoke/capture servers (default {slots.DEFAULT_SLOTS})')
     parser.add_argument('scenes', nargs='*', help='Scene IDs (default: every smoke scene of origin/main)')
     args = parser.parse_args()

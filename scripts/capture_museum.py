@@ -141,7 +141,7 @@ def capture(parser, args):
             with clear.open('a', encoding='utf-8') as output_file:
                 output_file.write(f'\nschedule clear mcylab:capture/{view_id}_camera\n')
         (functions / f'capture/{view_id}.mcfunction').write_text(
-            f'execute as @a at @s run function mcylab:start/{scene.id}\n{camera}' + interactions
+            f'yukkuri status trace dense\nexecute as @a at @s run function mcylab:start/{scene.id}\n{camera}' + interactions
             + ('execute as @a run yukkuri observe off\n' if scene.capture.get('observe') is False else ''), encoding='utf-8')
         plan.append(dict(id=view_id, field=scene.field, ticks=capture_ticks(scene.capture),
                          chunks=sorted(builder.BY_ID[scene.field].chunks()), view=view,

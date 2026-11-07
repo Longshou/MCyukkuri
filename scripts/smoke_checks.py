@@ -617,7 +617,7 @@ def main():
         sys.argv = [sys.argv[0]] + ([ '--scene', args.scene] if args.scene else []) + [str(p) for p in args.logs]
         return fate_main()
     records, issues = timeline.read(args.logs)
-    raw = '\n'.join(timeline.read_text(p) for p in args.logs)
+    raw = ''.join(line for line in timeline.lines(args.logs) if '[trace]' not in line)
     if args.seed is None:
         seeds = set(re.findall(r'\[seed\].*?\brun=(-?\d+)\b', raw))
         args.seed = int(next(iter(seeds))) if len(seeds) == 1 else None
@@ -641,6 +641,36 @@ def main():
     else:
         print(text)
     return 0
+
+
+def report_log(log, output, smoke=None, seed=None, rerun=None, evidence='R', dense=False):
+    """Shared smoke/intake path: stream input, export full timelines, report each trace window independently."""
+    smoke = smoke or {}
+    records, issues = timeline.read([log])
+    output = Path(output)
+    output.mkdir(parents=True, exist_ok=True)
+    timeline.export(records, output / 'timelines', issues)
+    raw = ''.join(line for line in timeline.lines([log]) if '[trace]' not in line)
+    if seed is None:
+        seeds = set(re.findall(r'\[seed\].*?\brun=(-?\d+)\b', raw))
+        seed = int(next(iter(seeds))) if len(seeds) == 1 else None
+    reports = []
+    for key in dict.fromkeys(timeline.scope(r) for r in records):
+        scoped = [r for r in records if timeline.scope(r) == key]
+        scene_id = scoped[0]['win']
+        spec = smoke.get(scene_id, {})
+        # Legacy events carry tick/dimension/actor identity. Do not attribute other windows' fates to this one.
+        first_tick, last_tick = min(r['t'] for r in scoped), max(r['t'] for r in scoped)
+        actors = {r['u'] for r in scoped if r['u'] is not None}
+        legacy = ''.join(line for line in raw.splitlines(keepends=True) if (event := EVENT.search(line))
+                         and event['uuid'] in actors and first_tick <= int(re.search(r'\bt=(\d+)', line)[1]) <= last_tick
+                         and f'dim={key[1]} ' in line)
+        reports.append(dict(scope=key, scene=scene_id, **observations(scoped, issues, legacy,
+                       spec.get('allow_fate', ()), spec.get('end', ()), seed, rerun, evidence, dense)))
+    if not reports:
+        reports.append(observations([], issues, raw, seed=seed, rerun=rerun, evidence=evidence, dense=dense))
+    (output / 'checks.json').write_text(json.dumps(reports, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
+    return reports
 
 
 if __name__ == '__main__':

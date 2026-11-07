@@ -127,7 +127,8 @@ final class SceneGeometry {
             row.add("scr", null);
             return;
         }
-        Vec3 eye = viewer.getEyePosition();
+        // mcyv is a virtual standing player in headless runs; Marker itself has zero eye height.
+        Vec3 eye = viewer.position().add(0, 1.62, 0);
         var box = target.getBoundingBox();
         int visible = 0;
         for (int xi = 0; xi < 3; xi++) for (int yi = 0; yi < 3; yi++) {
