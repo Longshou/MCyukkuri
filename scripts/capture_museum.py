@@ -88,6 +88,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--worktree', type=Path, help='Assemble this tree with javac against installed CI dependencies')
     parser.add_argument('--smoke-commands', action='store_true', help='Run each scene\'s timed smoke interactions during capture')
+    parser.add_argument('--vantage', action='store_true', help='Use the fixed visitor view checked by the server, without follow/observe cameras')
     parser.add_argument('--no-wait', action='store_true', help="Refuse instead of waiting while the user's museum client runs")
     parser.add_argument('--view', action='append', help='Capture only this declared full view ID; repeatable')
     parser.add_argument('--slots', type=int, help=f'Machine-wide limit of smoke/capture servers (default {slots.DEFAULT_SLOTS})')
@@ -112,7 +113,7 @@ def capture(parser, args):
     selected = [scenes[sid] for sid in dict.fromkeys(args.scenes)]
     views = [(scene, f'{scene.id}_{name}' if name else scene.id, view)
              for scene in selected
-             for name, view in scene.capture.get('views', {'': dict(follow=scene.capture.get('follow'))}).items()]
+             for name, view in ({'': {}} if args.vantage else scene.capture.get('views', {'': dict(follow=scene.capture.get('follow'))})).items()]
     if args.view:
         unknown_views=set(args.view)-{view_id for _,view_id,_ in views}
         if unknown_views:
@@ -143,6 +144,13 @@ def capture(parser, args):
         interactions = (f'function mcylab:smoke/{scene.id}/start\n'
                         if args.smoke_commands and scene.smoke and scene.smoke.get('commands') else '')
         camera = ''
+        geometry = ''
+        if args.vantage:
+            geometry = f'tag @a add mcyv\nfunction mcylab:capture/{view_id}_geometry\n'
+            (functions / f'capture/{view_id}_geometry.mcfunction').write_text(
+                f'yukkuri scenario geometry record\nschedule function mcylab:capture/{view_id}_geometry 20t replace\n', encoding='utf-8')
+            with (functions / f'field/{scene.field}/clear.mcfunction').open('a', encoding='utf-8') as output_file:
+                output_file.write(f'\nschedule clear mcylab:capture/{view_id}_geometry\n')
         follow = settings.get('follow')
         if follow:
             settings = dict(settings, offset=settings.get('offset', (-1.4, .65, .8)))
@@ -155,7 +163,8 @@ def capture(parser, args):
                 output_file.write(f'\nschedule clear mcylab:capture/{view_id}_camera\n')
         (functions / f'capture/{view_id}.mcfunction').write_text(
             f'yukkuri status trace dense\nexecute as @a at @s run function mcylab:start/{scene.id}\n{camera}' + interactions
-            + ('execute as @a run yukkuri observe off\n' if scene.capture.get('observe') is False else ''), encoding='utf-8')
+            + ('execute as @a run yukkuri observe off\n' if args.vantage or scene.capture.get('observe') is False else '')
+            + geometry, encoding='utf-8')
         plan.append(dict(id=view_id, field=scene.field, ticks=capture_ticks(scene.capture), settings=settings,
                          milestones=scene.smoke.get('milestones', []) if scene.smoke else [],
                          chunks=sorted(builder.BY_ID[scene.field].chunks()), view=view,
@@ -166,7 +175,7 @@ def capture(parser, args):
     revision = subprocess.check_output(['git', '-C', str(source), 'rev-parse', 'HEAD'], text=True).strip()
     (output / 'run.json').write_text(json.dumps(dict(source=str(source), commit=revision, runtime=str(runtime),
         dirty=bool(subprocess.check_output(['git', '-C', str(source), 'status', '--porcelain'])),
-        scenes=args.scenes, smoke_commands=args.smoke_commands, self_check=True), indent=2), encoding='utf-8')
+        scenes=args.scenes, smoke_commands=args.smoke_commands, vantage=args.vantage, self_check=True), indent=2), encoding='utf-8')
     command = client_command(runtime, java, instance, mod, output)
     server.wait_closed(not args.no_wait)
     startup = subprocess.STARTUPINFO()
