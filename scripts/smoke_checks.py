@@ -397,7 +397,10 @@ def jumps(samples, records=()):
                         slack = sa['step'] if residual[1] > 0 and known(sa, 'step') else .6
                         residual[1] = math.copysign(max(0, abs(residual[1]) - slack), residual[1])
                     residuals.append(math.sqrt(sum(v * v for v in residual)))
-                r = min(residuals)
+                # A retained velocity can be blocked by contact or an active
+                # motor hold. Missing expected travel is not a position jump:
+                # the unexplained jump cannot exceed the actual displacement.
+                r = min(*residuals, distance(sa['p'], sb['p']))
             if r > .25:
                 out.append(result('JUMP', band(r, .25, 1), 'motion residual (blocks)', b, residual=r))
         if not pairs:

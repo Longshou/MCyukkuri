@@ -142,6 +142,14 @@ class Calibration(unittest.TestCase):
         self.assertFalse(checks.jumps(timeline.states(rows)))
         rows[1]['st']['p'][1] = 2.5
         self.assertTrue(any(f['verdict'] == 'fail' for f in checks.jumps(timeline.states(rows))))
+
+    def test_retained_velocity_while_held_still_is_not_a_position_jump(self):
+        # birth_stem_caught-39 t303143: take_prop holds position while
+        # the post-tick velocity remains (.266, -.0784, -.160).
+        rows = [state(0, v=[.232, -.0784, -.151]), state(1, v=[.266, -.0784, -.160])]
+        self.assertFalse(checks.jumps(timeline.states(rows)))
+        rows[1]['st']['p'] = [0, 0, 3]
+        self.assertTrue(any(f['verdict'] == 'fail' for f in checks.jumps(timeline.states(rows))))
         rows = [state(0, step=1, g=False), state(1, step=1, g=False, p=[0, 1.1, 0])]
         self.assertTrue(any(f['verdict'] == 'fail' for f in checks.jumps(timeline.states(rows))))
 
