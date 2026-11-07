@@ -239,7 +239,7 @@ public final class DailyLife {
     private boolean welcomeHome() {
         var family = entity.family();
         long now = level().getGameTime();
-        if (!family.atHome() || now - family.cameHomeAt() <= WELCOME_WINDOW) return false;
+        if (!entity.life().activity().equals(Behaviors.IDLE) || !family.atHome() || now - family.cameHomeAt() <= WELCOME_WINDOW) return false;
         welcomed.values().removeIf(at -> now - at > WELCOME_WINDOW);
         var arrivals = level().getEntitiesOfClass(YukkuriEntity.class, entity.getBoundingBox().inflate(NUZZLE_SIGHT), peer -> peer != entity
                 && now - peer.family().cameHomeAt() <= WELCOME_WINDOW && !welcomed.containsKey(peer.getUUID())

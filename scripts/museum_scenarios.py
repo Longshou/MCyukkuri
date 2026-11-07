@@ -523,13 +523,13 @@ add('meal_content', 'meadow', '吃饱了原地瘫软一会儿', '吃饱了原地
     '三只脚边各有一个苹果：左边营养 60 的成年灵梦吃下后营养过了 75（饱了），原地慢慢压扁、眯眼满足一会儿再起身；中间营养相同的子油也会；'
     '右边自制 95 的稳重灵梦吃饱后只做普通的饭后表情、不瘫软。刚瘫软过的个体隔一会儿才会再瘫软；苦草、辣、有毒或坐在帽船里吃饱不瘫软',
     '约 10–30 秒', [
-        yk('reimu', -4, 0, 'adult', uuid=_content_ids['adult'], label='成年·自制70', nutrition=60, lead=True),
-        item('minecraft:apple', 1, -4, -1, name='apple_adult'),
+        yk('reimu', -3, 0, 'adult', uuid=_content_ids['adult'], label='成年·自制70', nutrition=60, lead=True),
+        item('minecraft:apple', 1, -3, -1, name='apple_adult'),
         yk('reimu', 0, 0, 'child', uuid=_content_ids['child'], stage='child', label='子油', nutrition=60),
         item('minecraft:apple', 1, 0, -1, name='apple_child'),
-        yk('reimu', 4, 0, 'composed', uuid=_content_ids['composed'], label='成年·自制95', nutrition=60, self_control=95),
-        item('minecraft:apple', 1, 4, -1, name='apple_composed')],
-    env=DAY, vantage=(0, 7), note='待验证：新场景，尚未在游戏里实测。',
+        yk('reimu', 3, 0, 'composed', uuid=_content_ids['composed'], label='成年·自制95', nutrition=60, self_control=95),
+        item('minecraft:apple', 1, 3, -1, name='apple_composed')],
+    env=DAY, vantage=(0, 4), note='待验证：新场景，尚未在游戏里实测。',
     capture=dict(shots=(1, 40, 300), sequences=((50, 190, 3),), observe=False),
     reads=[('读成年灵梦', f'yukkuri status {sel("adult")} raw'), ('读稳重灵梦', f'yukkuri status {sel("composed")} raw')])
 
