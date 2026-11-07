@@ -9,7 +9,6 @@
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
 | 工具：冒烟个体命运检查、重复次数与通过率、主线基线、全机排队 | `.worktrees/wp-bh-smoke-verify` | `scripts/smoke_museum.py`、`scripts/headless_server.py`、`scripts/museum_scenarios.py`（预期死亡声明） |
-| 工具：包生命周期命令（开工／合入／状态）与合入后运行包更新 | `.worktrees/wp-bi-lead-pipeline` | `scripts/pkg.py`、`scripts/README.md`、`AGENTS.md` 第 11 节 |
 | 工具：试玩清单生成与反馈入档 | `.worktrees/wp-bj-playtest-loop` | `scripts/playtest_list.py`、`scripts/feedback_intake.py`、`scripts/README.md` |
 | 工具：场景截图对照用户原话的视觉审核命令 | `.worktrees/wp-bk-capture-review` | `.local/tools/capture_review.py`（本机）、`AGENTS.md` 第 5 节一行 |
 | 生活演出·天气与取暖：雨中相依、雷暴缩身与找掩体、出水抖身、晒太阳、钻暖桌被炉 | `.worktrees/wp-ba-life-weather` | `standards/yukkuri-library/motions/`、天气／取暖行为、`scripts/museum_*.py` |
