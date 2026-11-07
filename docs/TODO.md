@@ -9,10 +9,6 @@
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
 | 删除温和成员照料坑中奴隶并复原的机制与 `settle_pit_release` 场景 | `.worktrees/wp-ay-remove-gentle-care` | `settlement/SettlementSociety.java`、`settlement/SettlementData.java`、`social/DailyLife.java`、`scripts/museum_*.py`、`docs/FEATURES.md` |
-| 美术探索：魔理沙单辫造型去方块感（候选，待用户选） | `.worktrees/art-braid-shape` | `standards/yukkuri-library/drafts/marisa-braid-shape/` |
-| 美术探索：伤口贴图 16 像素硬边重画（候选） | `.worktrees/art-wound-pixel` | `standards/yukkuri-library/drafts/body-marks/wound-pixel/` |
-| 美术探索：水中游泳动作片段（候选） | `.worktrees/art-swim-cycle` | `standards/yukkuri-library/drafts/swim-cycle/` |
-| 美术探索：生活演出片段 `rain_huddle`／`call_child`／`kotatsu_tuck_in`（候选） | `.worktrees/art-life-clips` | `standards/yukkuri-library/drafts/life-clips/` |
 
 ## 玩法待办
 
