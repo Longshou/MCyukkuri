@@ -4,7 +4,8 @@ Generates the pack into a scratch directory below .local/experimental-map and th
 
   * every `yukkuri ...` command in any function (and in every command block) is a path of the Brigadier tree that the
     Java sources register (literals and argument counts are parsed from the Java command classes);
-  * every `function mcylab:x`, `schedule function` and `schedule clear` target exists in the pack;
+  * every `function mcylab:x` and `schedule function` target exists in the pack (a `schedule clear` may name a smoke-runner
+    function, which only the smoke tool writes);
   * every scenario has a start function and a body and a button on its field's deck; every deck and every field gate has a way back to the
     lobby; every deck has clear (unconditional), lobby, time, weather, speed, advance, observe and mode buttons;
     every field teleports to its deck and belongs to a theme group listed in the lobby;
@@ -441,9 +442,14 @@ def main():
                         yukkuri_seen.add(' '.join(words[1:3]) if words[1:2] in (['scenario'], ['settlement']) else words[1])
                         if not matches_root(tree, words):
                             findings.append(f'{where}: command not in the Java command tree: {cmd[:120]}')
-                    for ref in re.findall(r'(?:function|schedule clear) mcylab:([\w/]+)', text):
+                    for ref in re.findall(r'function mcylab:([\w/]+)', text):
                         if ref not in pack:
                             findings.append(f'{where}: function mcylab:{ref} does not exist')
+                    # A clear cancels smoke-runner functions the tool writes into the pack, never the shipped pack itself;
+                    # ``schedule clear`` of a missing id is a no-op, unlike ``schedule function``.
+                    for ref in re.findall(r'schedule clear mcylab:([\w/]+)', text):
+                        if ref not in pack and not ref.startswith('smoke/'):
+                            findings.append(f'{where}: schedule clear of a missing function mcylab:{ref}')
                     for ref in re.findall(r'schedule function mcylab:([\w/]+)', text):
                         if ref not in pack:
                             findings.append(f'{where}: scheduled function mcylab:{ref} does not exist')
