@@ -8,13 +8,18 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
-| 聚落、无帽与人类的社会生活（审计 P5：坑边接触照料、拒绝与流放按次、狩猎拒绝按特质、奴隶乞食、宠物主人悲伤、NPC 看护上限与进食、嘲笑按性格回应、Myon 取树枝、碎片分散、喂食后鞠躬、配偶同居同迁） | `.worktrees/wp-ax-society` | `settlement/SettlementSociety`、`settlement/CommonHunt`、`settlement/CommunityRules`、`settlement/Judgement`、`settlement/PitSlave`、`settlement/HabitatHomes`、`headwear/Contempt`、`headwear/Headwear`、`human/HumanNpc`、`human/Custody`、`pet/PetLife`、`rare/MyonLife` |
 | 全游戏演示场景梳理与取名（非池塘场地合并同路径演示、改名、迁徙两场找回、生成点与初态核对） | `.worktrees/wp-au-scene-curation` | `scripts/museum_*.py`、`scripts/smoke_museum.py`、`docs/TODO.md` |
 
 ## 玩法待办
 
 ### 复测失败/待修复
 - **陆地家庭在场（审计 P1，[规则](FEATURES.md)）**：已接入待试玩（分支 wp-aq-family，本机冒烟非验收）。看得见的近处孩子只看着（走失才寻）、窝内的孩子不算走失、受饿幼体留在亲油身边、目睹亲缘死亡当场悲伤（`witnessed kin death`）、离家孩子在 4 格内看得见处告别、一只赤油只由一个亲油去抬且无路站位即放弃（`carry pickup stand blocked`，赤油自己回窝）、孕母在窝里安住、进不了床的孩子原地歇（`child rests short of its bed`）、隔玻璃的亲子走到最近处等待呼唤、走失幼体在最后所知处附近继续找、亲属问候算重逢、该问候时先问候再蹭蹭；求偶超时记 `courtship stopped reason=time_cap`。未做：求偶超时本身本机 7 场未复现，另 2 场两只发情成体从未开始求偶、各自走远（`HEAT_UNMET`，主线 2/2 受孕，样本小未作结论）；母油在孩子看不见时死亡，孤儿不知其死（台账已记 DEAD）仍不去找。完成：`den_family`、`hop` 无近处 `family search started`（本机 5 次重逢／0 次，审计时 52／约 20）；`settle_snow` 窝内不再反复 `child separation lost`；`offering` 献身仪式成形；`indep_near` 告别 `contact=100`；`family_search` 母油走到玻璃前等待至放弃；`last_words` 亲缘目睹死亡播 bereaved。
+- **聚落、无头饰与人类的社会生活（11-07 审计 P5，[规则](FEATURES.md)）**：已接入待试玩（分支 wp-ax-society，本机冒烟非验收，运行版本待核实）。看点：
+  - 坑边照料：`settle_pit_release` 温和成员在坑沿走到奴隶身边蹭蹭，完成一次才记一次 `pit slave treated`（本机 6 场中 3 场在 12 万 tick 内攒满 5 次，最快 1.9 万、最慢约 10 万 tick，原视线计数 3800 tick 内即满；场景的延时与按钮节奏待调）；`settle_pit_famine` 奴隶营养<30 时对坑沿成员 `pit slave begs`。
+  - 拒斥与审判：`settle_pit_drive` 同一观察者两次拒斥至少隔 1200 tick、被拒者躲开；`colony_judge` 受审者 `hearing stance`（鞠躬／求饶／站稳）、被逐者 2400 tick 内不报 `returned_exile`、视线内亲属低落。`colony_hunt` 拒绝出猎按依恋／友善／自制判定（`hunt call refused`）。
+  - 无头饰：`hatless_scorn`、`hatless_kin` 被鄙视者按性格 `puff response=`（逃开／鼓腹／忽略）并对鄙视者好感同降，鄙视者不再按时钟走开；`hat_shatter` 三块碎片落点各异、逐块 `piece gathered`。
+  - 人类与宠物：`treatment_care` 照料上限从接触起算，第一剂不再被收回；`feed_wild` 被喂后鞠躬；`myon_stick` 无木棍的妖梦走到树边 `twig pull` 后才 `kanroken acquired`；`den_move`、`den_family` 配偶先看伴侣的家、搬家只起一次。
+  - 未做／待玩家：主人死亡时名下宠物悲伤（`custody_death`，不安量按亲缘死亡 × 依恋，暂定，需用户确认）、`exam` 饿考生由考官喂食（需玩家）；被逐者主动离开领地（现只加宽限期）；搬家“全员装得下才提交”；NPC 作为觅食目的地；坑边照料在 `settle_pit_release` 现场节奏需用户判断是否过慢。
 - **陆地休闲、同伴与亡者（审计 P2，[规则](FEATURES.md)）**：已接入待试玩（分支 wp-ar-leisure，本机冒烟非验收）。休闲统一门、孤独者走向朋友蹭蹭、同伴闲逛靠近、目睹受伤／濒死亲缘去安抚、悲伤时不躲臭味、躲臭味走出半径。问候后才蹭蹭已由家庭包（下条）接入。完成：`meet` 孤独者走近信任朋友蹭蹭（`session reserved kind=NUZZLE` 带 distance）、`last_words` 亲缘在濒死期内走到身边（`[comfort] cause=dying`）、`hurt` 目睹后安抚（`cause=witnessed_hurt`）。
 - **首次加载卡顿余项**：部分接入（分支 wp-an-perf3，本机冒烟非验收）：伤口网格改流式载入、表情点位按需读、动作片段紧凑存放并在实体首次上线后由后台线程预热（单模型约 8 MB，原约 110 MB），可达性查询 40 tick 内同块复用、找屋顶按不同屋顶测试、流浪游走每轮两次路线测试、放下点最多 6 个被拒站位。剩余：陆产接生“接住”路线搜索（`BirthLaunch.catches` → `HullProfile` 表面采样）单 tick 可达 0.2–1.2 s；场景布置帧约 0.5 s 不属代码。完成标准：首次出现时无可见卡顿。
 - **帽檐上不会玩的幼体进不了舱（审计 M4，`rescue_child`）**：部分接入（分支 wp-ah-young-aboard，本机冒烟非验收）：被救起放到帽檐的幼体，落水收口后干爽即可被安抚；但 `TakeSeat` 对帽檐上的幼体不出手（放开会让被照料的新生儿离开接触，`birth_hat_own` 首便失败），辫子 `Release` 即使舱内有位也把它放回帽檐，且 `CareApproach` 对帽檐上的幼体报 `no_reachable_meeting`，安抚与托入无从落地。完成：舱内有空位时，被救的幼体进到舱内（自己爬入或辫子放入），亲油随后安抚。
