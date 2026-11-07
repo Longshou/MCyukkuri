@@ -11,7 +11,6 @@
 | 生活演出·家庭日常：呼唤走散孩子、迎接归家、睡醒伸懒腰、饭后满足 | `.worktrees/wp-bb-life-family` | `standards/yukkuri-library/motions/`、家庭／作息／进食行为、`scripts/museum_*.py` |
 | 工具：清空本场地按出现过的 UUID 名单复位（收押、家庭账本、静态表、地形、时间天气与预约函数） | `.worktrees/wp-bq-field-reset` | PlaygroundTools、SceneReset、FamilyData／YukkuriWorldData 清场路径、scripts/build_museum_full.py、scripts/museum_fields.py |
 | 观测层 S1：status trace 改为 off/light/dense 结构化记录（只观察） | `.worktrees/wp-bv-trace-recorder` | status/StatusEvents、StatusLife、StatusCommands、GameplayLog、TraceRecorder、TraceWatchdog；CommonRegistration 监听 |
-| 观测层 G1：骨骼合成与蒙皮收为纯 Java pose 包（像素与数值不变） | `.worktrees/wp-bw-pose-core` | pose/（新）、src/test/java/.../pose/、client/YukkuriModel、YukkuriModelLoader、BraidPose、body/WoundSurface、build.gradle |
 
 ## 玩法待办
 
