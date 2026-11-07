@@ -41,7 +41,7 @@
 - Java 根为 `src/main/java/io/github/longshou/mcyukkuri/`。客户端类只放 `client/`；服务端拥有生态状态和决策，成长、饥饿、繁殖不依赖客户端帧率。
 - 组件、保存和事件契约：`YukkuriEntity` 委托 `YukkuriComponents` 登记的组件（`ComponentKey`／`ComponentSpec`，分 EARLY／READY 初始化；一个组件可登记多项存读）。新增组件沿用此方式；领域组件拥有权威数据，状态登记不存副本。拆分保持完整 NBT 路径、类型、写入时机和已有读取条件，`YukkuriVersion` 为 1；`YukkuriVariant` ordinal 只能末尾追加；当前试玩场的数据结构调整不另增旧存档迁移或补偿层。公共／客户端事件分别接入 `CommonRegistration`、`ClientRegistration`，保留顺序、优先级与取消策略，避免重复订阅。
 - `registerGoals` 在父构造期运行，其中赋值的字段不得带初始化器（含 `= null`）；早期构造不得读取未就绪的 variant 或组件。
-- 显示只观察实际运行的 Goal，不启动或探测业务。客户端经 `YukkuriView` / `HatBoatView` 读同步展示数据，不调用服务端组件 getter。
+- 显示只观察实际运行的 Goal，不启动或探测业务。客户端经 `YukkuriView` / `PlacedHatView` 读同步展示数据，不调用服务端组件 getter。
 - 行为 ID 使用 `Behaviors`，类型使用 import，避免内联全限定名。`scripts/check_architecture.py --check` 仅为按需只读建议，边界见[脚本说明](scripts/README.md)。
 - 不写防御性代码：不为代码自身契约排除的状态加空值／范围检查、try/catch、兜底、默认值、重试、标志或“以防万一”分支；不可能的状态让它大声失败；只在真实外部边界（玩家输入、文件、网络、可能确实缺失的 Minecraft 查询）校验。
 
