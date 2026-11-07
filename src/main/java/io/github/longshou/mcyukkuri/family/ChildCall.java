@@ -23,8 +23,8 @@ import net.minecraft.world.phys.Vec3;
  * later. Every pause lasts its clip.</p>
  *
  * <p>Child: a dependent child that hears its own parent's call within {@link #EARSHOT} and cannot see her turns to her, answers
- * ({@code boat_answer_call}), hops if it can, and sets out for where the call came from. It answers each call once. Transient: a reload
- * starts with no call under way.</p>
+ * ({@code boat_answer_call}), hops if it can, and sets out for where the call came from. It answers each call once; a baby kept to
+ * its nest stays home instead. Transient: a reload starts with no call under way.</p>
  */
 final class ChildCall {
     enum Phase { NONE, CALL, LISTEN, DROOP, ANSWER }

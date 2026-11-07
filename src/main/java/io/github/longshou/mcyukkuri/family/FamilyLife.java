@@ -954,13 +954,14 @@ public final class FamilyLife {
                 GameplayLog.limited(entity,"family","wait.carrier",1200,"baby waits for parent carry");
                 return false;
             }
-            var heard=call.heard();
-            if(heard!=null){task=Task.SEARCH;target=null;searchAt=call.answer(heard);taskTicks=0;return true;}
             var home=earlyHomeStand();
             if(home!=null) {
                 if(entity.distanceToSqr(Vec3.atBottomCenterOf(home))>4) { task=Task.STAY_HOME;target=null;taskTicks=0;return true; }
                 return false;
             }
+            // Only a child not kept to its nest leaves to answer a call; one at home stays there for the parent to come.
+            var heard=call.heard();
+            if(heard!=null){task=Task.SEARCH;target=null;searchAt=call.answer(heard);taskTicks=0;return true;}
             target=closestParent();
             if(target!=null&&!withinFollowDistance(target)) { task=Task.FOLLOW;taskTicks=0;return true; }
             if(target==null) {
