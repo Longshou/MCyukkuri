@@ -8,7 +8,7 @@
 
 ## 制作与导出
 
-`author.py` 求值动作，`hat.py` 求解帽子、帽子实体位置和辫子接触。`--export-birth`、`--export-distress`、`--export-comfort`、`--export-carry` 与 `--export-badge` 分别更新对应片段；完整导出使用 `python scripts/export_motion_corrections.py`。运行资源与指纹由 `art/source/motion-corrections/manifest.json` 登记。
+`author.py` 求值动作，`hat.py` 求解帽子、帽子实体位置和辫子接触。`--export-birth`、`--export-distress`、`--export-comfort`、`--export-carry`、`--export-badge` 与 `--export-life` 分别更新对应片段（`--export-life`：寻子呼唤 `call_child`、醒来伸懒腰 `wake`、吃饱瘫软 `meal_content`，按配方 `height_keys` 等关键帧求值，宽度随高度保体积）；完整导出使用 `python scripts/export_motion_corrections.py`。运行资源与指纹由 `art/source/motion-corrections/manifest.json` 登记。
 
 ```powershell
 python standards/yukkuri-library/motions/variants/lore/author.py --export-birth
@@ -16,6 +16,7 @@ python standards/yukkuri-library/motions/variants/lore/author.py --export-distre
 python standards/yukkuri-library/motions/variants/lore/author.py --export-comfort
 python standards/yukkuri-library/motions/variants/lore/author.py --export-carry
 python standards/yukkuri-library/motions/variants/lore/author.py --export-badge
+python standards/yukkuri-library/motions/variants/lore/author.py --export-life
 python standards/yukkuri-library/motions/variants/lore/author.py --export-aquatic
 ```
 

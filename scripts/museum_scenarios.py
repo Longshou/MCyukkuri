@@ -692,23 +692,23 @@ def _uuid_of(ints):
 
 
 def _family_call_verify(log):
-    """Both searching parents call; the cold one (friendliness 0) calls one round only; each child in earshot answers (behind glass too)."""
+    """Both searching parents call; the cold one (friendliness 0) calls one round only, from wherever she is (often beyond the
+    glass-walled child's earshot); the north child, in earshot of the warm parent's calls, answers."""
     ids = {k: _uuid_of(v) for k, v in _fs.items()}
     for parent in ('parent', 'lost_mother'):
         if not re.search(rf'uuid={ids[parent]}[^\n]*child call started', log):
             return f'{parent} never called'
     if re.search(rf'uuid={ids["lost_mother"]}[^\n]*child call started[^\n]*round=2/', log):
         return 'the cold mother called a second round'
-    for child in ('child', 'lost_child'):
-        if not re.search(rf'uuid={ids[child]}[^\n]*child heard parent call', log):
-            return f'{child} never answered a call'
+    if not re.search(rf'uuid={ids["child"]}[^\n]*child heard parent call', log):
+        return 'the north child never answered a call'
     return None
 
 
 add('family_search', 'family', '走散亲子：走得到就重逢，隔玻璃就放弃', '走散亲子：走得到就重逢，隔玻璃就放弃',
     '两对无巢亲子各相隔 30 格。北边一对之间是空地：孩子寻亲、亲油主动接近，重新靠近后恢复自由活动。'
     '南边的子油被真实玻璃围住：亲油搜寻受阻、计时后单向放弃；低胆量孩子不安可越过非油症阈值；可手动拆玻璃对照重逢，不能把放弃误认成寻回。不会传送或生成替代亲人。'
-    '看不见孩子时亲油会停下、朝孩子最后所在处伸长身体呼唤三声，再左右张望着听：24 格内的孩子转向她回应、跳一下再朝呼唤处走（玻璃里的也会回应）；'
+    '看不见孩子时亲油会停下、朝孩子最后所在处伸长身体呼唤三声，再左右张望着听：24 格内的孩子转向她回应、跳一下再朝呼唤处走（玻璃里的孩子在 24 格内也回应，但走不出来）；'
     '没有回应就低落一会儿再接着找。北边亲油友善 95，最多喊四轮、约 10 秒一轮；南边亲油友善 0，只喊一轮',
     '重逢约 30–60 秒；放弃约 2 分钟以上，孩子不安需更久', [
         yk('reimu', -15, -4, 'search_parent', uuid=_fs['parent'], label='寻子亲油·友善95', friendliness=95, lead=True, **pair_ready()),
