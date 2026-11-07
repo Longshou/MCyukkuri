@@ -14,6 +14,20 @@ from cases import record, state, log, HOST, ACTOR
 
 
 class Calibration(unittest.TestCase):
+    def test_startup_refusal_with_real_progress_is_not_a_setup_block(self):
+        # H: den_family-1/forage-2/carry_home-15 refuse optional leaf wrapping,
+        # then walk 1.7–2.4 blocks within the same first 40 ticks.
+        base = [record('win', 0, None), record('ev', 1, cat='family',
+                    msg='leaf swaddle refused reason=no_reachable_leaf_block', pos=[0,0,0]),
+                record('geo', 1, clear=True, supported=True, drop=0),
+                record('geo', 20, clear=True, supported=True, drop=0)]
+        for moved, expected in ((2, False), (0, True)):
+            rows = base + [state(1, goals=['RoamingGoal']), state(40, p=[moved,0,0], goals=['RoamingGoal'])]
+            findings = checks.observations(rows, [])['findings']
+            self.assertEqual(expected, any(f['check']=='SPAWN' and f['detail']=='early scene refusal' for f in findings))
+        rows = base + [state(1, goals=['RoamingGoal'])]
+        self.assertTrue(any(f['check']=='SPAWN' and f['verdict']=='no-evidence' for f in checks.observations(rows, [])['findings']))
+
     def test_post_tick_velocity_explains_real_takeoff_acceleration(self):
         # H: sail-23 t160696, dp=(.26581,.08,.01418), v0=(0,-.0784,0),
         # v1 equals the actual takeoff displacement. Self-rescue's impulse is

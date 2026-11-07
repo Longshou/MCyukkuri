@@ -916,9 +916,17 @@ def observations(records, issues=(), raw='', allow=(), end=(), seed=None, rerun=
     for r in first:
         if r['state'].get('iwr'):
             findings.append(result('SPAWN', 'fail', 'first actor sample inside wall', r))
+    startup = actor_samples([r for r in samples if start is not None and 0 <= r['t'] - start <= 40])
     for r in records:
         if start is not None and r['k'] == 'ev' and 0 <= r['t'] - start <= 40 and is_refusal(r.get('cat'), r.get('msg', '')):
-            findings.append(result('SPAWN', 'suspect', 'early scene refusal', r))
+            following = [s for s in startup.get(r['u'], ()) if s['t'] >= r['t']]
+            if len(following) < 2 or not all(progress_known(s['state']) for s in following):
+                findings.append(result('SPAWN', 'no-evidence', 'early refusal lacks startup progress samples', r))
+            elif not any(changed(following[0]['state'], s['state']) for s in following[1:]):
+                # An optional candidate can be refused while the actor's real
+                # activity starts normally. Only unresolved startup refusals
+                # suggest a setup problem; geometry failures above stay strict.
+                findings.append(result('SPAWN', 'suspect', 'early scene refusal', r))
     if not lag or any(not known(r, 'ms') and 'stall_ms' not in r for r in lag):
         findings.append(result('LAG', 'no-evidence', 'tick timing missing'))
     if not geo:

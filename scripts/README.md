@@ -35,6 +35,8 @@ LOOP 的挂接循环按同一对持有状态累计，实际搬运前进半格会
 
 JUMP 的自由运动残差同时核对前后两次 tick 末速度：本 tick 起跳的新冲量只出现在后一次采样，持续飞行则可能匹配前一次速度。仍使用 0.25／1 格告警分界，不免除动作中的额外位移。
 
+SPAWN 的早期拒绝提示核对同一个体在启动前 40 tick 内的后续进展；已正常移动或推进实际工作时，不把可选候选的拒绝当成初态阻塞。缺后续样本记 `no-evidence`，几何碰撞、支撑容差和初始卡墙仍独立检查。
+
 `python scripts/check_architecture.py --check` 是 Python 3.10+ 标准库的只读架构建议工具；默认不带 `--check` 也只读。它只扫描本仓库 `src/main/java/**/*.java`，不扫描 `.worktrees`、`.local`、资源或文档，不调用 Git、Java、Gradle、游戏、网络，也不修改文件。不接入 CI、pre-commit 或合并门槛，不替代远端编译或用户试玩。
 
 `bash scripts/javac_check.sh [工作树]` 用本机 JDK 直接 javac 编译主源码，并运行 `motor.geom`、`intent`、`aquatic`、`family`、`pose` 包的纯 Java 单元测试，约 20 秒；不经 Gradle、不启动游戏。依赖 `.local/tools/` 下的 JDK 与 JUnit 控制台 jar，以及主检出里已有的 `build/moddev`、`.local/gradle-home` 依赖 jar。只作提交前自查，不替代 CI，也不算试玩验收。
