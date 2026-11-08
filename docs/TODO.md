@@ -13,6 +13,7 @@
 | 表情预设偏移规则合为一份：草稿预览与烘焙模型一致（观测层 2 收尾） | `.worktrees/wp-cw-face-offsets` | scripts/runtime_face_library.py、standards/yukkuri-library/body-standard/build.py、standards/yukkuri-library/tools/sync_expression_exports.py |
 | 截图审图覆盖：无姿态视角不中断、hurt 伤口视角、myon 持物检查 | `.worktrees/wp-cx-capture-coverage` | client/capture/、scripts/capture_review.py、scripts/capture_readout.py、museum_scenarios.py（hurt／myon_stick 视角） |
 | 截图告警标定集与判定带校准（gap／yaw／posejump／held） | `.worktrees/wp-cy-capture-labels` | pose/check/、scripts/fixtures/capture_readout/ |
+| 无台词表情反应不再进入台词计算（坑地离水恢复服务器空指针崩溃） | `.worktrees/wp-cz-silent-reaction` | entity/YukkuriEntity.java（showReaction／forceReaction） |
 
 ## 玩法待办
 
