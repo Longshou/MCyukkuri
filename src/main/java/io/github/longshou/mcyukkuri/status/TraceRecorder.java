@@ -85,6 +85,8 @@ public final class TraceRecorder {
     private static StackTraceElement[] stallStack;
     /** The actor random seed of the current scene run; null in ordinary play, where every actor keeps its own stream. */
     private static Long runSeed;
+    /** UUIDs seeded in this run only. The trace actor bound also bounds this smoke-only run state. */
+    private static final Set<UUID> RANDOM_SEEDED = new HashSet<>();
 
     private static long modeStartedNanos;
     private static long modeTicks;
@@ -116,13 +118,19 @@ public final class TraceRecorder {
 
     public static Mode mode() { return mode; }
 
-    /** The seed of the current scene run, or null in ordinary play. */
-    public static Long runSeed() { return runSeed; }
+    /** Returns the current run seed once per actor. Reloads in the same run keep the actor's random stream. */
+    public static Long runSeedForFirstAdd(UUID id) {
+        if (runSeed == null || RANDOM_SEEDED.contains(id)) return null;
+        if (RANDOM_SEEDED.size() >= MAX_ACTORS) throw new IllegalStateException("Run-seeded actor limit: " + MAX_ACTORS);
+        RANDOM_SEEDED.add(id);
+        return runSeed;
+    }
 
     /** {@code /yukkuri status seed}: every actor first added from now on mixes this seed with its UUID, and the run's
      * proven coverage is recorded once for the scene. */
     public static void setRunSeed(ServerLevel level, long seed) {
         runSeed = seed;
+        RANDOM_SEEDED.clear();
         GameplayLog.world(level, "seed",
                 "run={} covered=first_add_entity_random,fixed_uuid_scene_actors uncovered=level.random,uuid,newborn_identity,pre_join,speechRandom,tick_order", seed);
     }
@@ -149,6 +157,7 @@ public final class TraceRecorder {
         lastTick = lastTickLevel.getGameTime();
         ACTORS.clear();
         WINDOWS.clear();
+        RANDOM_SEEDED.clear();
         modeStartedNanos = System.nanoTime();
         modeTicks = modeWorkNanos = modeRecorderNanos = modeBytes = 0;
         if (mode != Mode.OFF) startWatchdog();
@@ -161,6 +170,7 @@ public final class TraceRecorder {
         ACTORS.clear();
         WINDOWS.clear();
         runSeed = null;
+        RANDOM_SEEDED.clear();
         serverThread = null;
         lastTickEndNanos = 0;
     }

@@ -208,8 +208,6 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     private int reactionTicks;
     /** The running reaction is held: nothing replaces it before it has run its ticks (a startle that must be seen whole). */
     private boolean reactionHeld;
-    /** The run seed was applied once; a chunk reload or a loaded save must not restart this actor's random stream. */
-    private boolean randomSeeded;
     private final SpeechTiming speechTiming = new SpeechTiming();
     private final RandomSource speechRandom = RandomSource.create();
     private String reactionExpression = "neutral";
@@ -249,11 +247,9 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
 
     @Override public void onAddedToLevel() {
         super.onAddedToLevel();
-        if (level().isClientSide || randomSeeded) return;
-        Long seed = TraceRecorder.runSeed();
-        if (seed == null) return;
-        getRandom().setSeed(mixSeed(seed, getUUID()));
-        randomSeeded = true;
+        if (level().isClientSide) return;
+        Long seed = TraceRecorder.runSeedForFirstAdd(getUUID());
+        if (seed != null) getRandom().setSeed(mixSeed(seed, getUUID()));
     }
 
     /** UUID mixing keeps fixed-UUID scene actors independent while sharing the run's seed. */
@@ -928,7 +924,6 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     public void addAdditionalSaveData(CompoundTag tag) {
         super.addAdditionalSaveData(tag);
         tag.putInt("YukkuriVersion", YukkuriComponents.SAVE_VERSION);
-        tag.putBoolean("RandomSeeded", randomSeeded);
         components.save(tag);
         // Command poses and transient anatomy states never survive a world reload.
     }
@@ -938,7 +933,6 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
         super.readAdditionalSaveData(tag);
         // Entity.load restores NeoForgeData before this override (NeoForge 21.1 / MC 1.21.1).
         getPersistentData().remove("SukkiriExhaustion");
-        randomSeeded = tag.getBoolean("RandomSeeded");
         damage().resetLoadedExhaustion();
         // Invalidate send signatures before component load, including equal-value set/no-callback loads.
         // Decoded snapshots still describe entityData; retain them until a slot actually changes.
