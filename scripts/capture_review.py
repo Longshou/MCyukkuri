@@ -22,6 +22,7 @@ def main():
     parser.add_argument('--worktree', type=Path, default=Path(__file__).resolve().parents[1])
     parser.add_argument('--criteria', help='User words or UTF-8 file; scene criteria are always included')
     parser.add_argument('--beats', type=Path)
+    parser.add_argument('--ref', nargs='*', default=[])
     parser.add_argument('--reuse', type=Path)
     parser.add_argument('--out', type=Path)
     parser.add_argument('--compare-old', type=Path, help='Preserved old capture_review.py: same images, original prompt')
@@ -31,7 +32,7 @@ def main():
     cap = args.reuse
     if cap is None:
         result = subprocess.run([sys.executable, str(args.worktree/'scripts/capture_museum.py'), '--worktree', str(args.worktree), args.scene],
-                                text=True, encoding='utf-8', stdout=subprocess.PIPE, stderr=subprocess.STDOUT, env={**os.environ, 'PYTHONUTF8':'1'})
+                                text=True, encoding='utf-8', errors='replace', stdout=subprocess.PIPE, stderr=subprocess.STDOUT, env={**os.environ, 'PYTHONUTF8':'1'})
         print(result.stdout, flush=True)
         match = re.search(r'Capture output: (.+)', result.stdout)
         if result.returncode or not match:
@@ -58,7 +59,7 @@ def main():
         raise ValueError('no selected frame manifests; postprocess the capture first')
 
     def ask(job):
-        images = [job['file'], job['first']]
+        images = [job['file'], job['first'], *args.ref]
         prompt = (f'Image 1 is the current frame at scene tick {job["frame"]["tick"]}, view {job["view"]}. '
                   f'Image 2 is this view at its start. User criteria: {criteria}\nView criteria: {job["criteria"]}\n'
                   f'Time-aligned intended beat: {job["beat"]}\n'

@@ -84,6 +84,8 @@ def main():
                     raise ValueError('pose evidence must be beside frames JSONL')
                 with gzip.open(evidence, 'rt', encoding='utf-8') as source:
                     request['frames'][index] = json.load(source)
+                    if 'server' in frame:
+                        request['frames'][index]['server'] = frame['server']
         else:
             request.update(model=args.model, clip=args.clip, t=args.t, partner=args.partner)
         for key in ('water', 'vertices', 'pose_out'):

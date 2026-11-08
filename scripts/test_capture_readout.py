@@ -1,8 +1,35 @@
 import unittest
-from capture_readout import select_frames, beat_at, geometry_report
+import json
+import tempfile
+from pathlib import Path
+from unittest.mock import patch
+from capture_readout import select_frames, beat_at, geometry_report, postprocess
 
 
 class CaptureReadoutTest(unittest.TestCase):
+    def test_yaw_requires_exact_actor_dimension_tick_and_milestones_map_by_time(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root=Path(temp); view=root/'scene'; view.mkdir()
+            rows=[dict(k='pose', u='actor', run='client', win='scene', dim='overworld', t=t, pt=0, f=t,
+                       yawsrc='body', yaw=0, markers=[], m=[]) for t in (10,11)]
+            (view/'pose.jsonl').write_text(''.join(json.dumps(r)+'\n' for r in rows), encoding='utf-8')
+            server=[dict(k='st',u='other',dim='overworld',t=10,st=dict(by=90)),
+                    dict(k='st',u='actor',dim='nether',t=10,st=dict(by=90)),
+                    dict(k='st',u='actor',dim='overworld',t=9,st=dict(by=90)),
+                    dict(k='st',u='actor',dim='overworld',t=11,st=dict(by=3)),
+                    dict(k='ev',u='actor',dim='overworld',t=11,cat='family',msg='reunited')]
+            (root/'stdout.log').write_text(''.join('[trace] '+json.dumps(r)+'\n' for r in server), encoding='utf-8')
+            (root/'plan.json').write_text(json.dumps([dict(id='scene',milestones=[dict(steps=[['actor','seen:family:reunited']])])]),encoding='utf-8')
+            frames=[dict(gameTime=10,tick=0,poseFrame=10),dict(gameTime=11,tick=1,poseFrame=11)]
+            def evaluate(request):
+                a,b=request['frames']; self.assertNotIn('server',a); self.assertEqual(dict(t=11,by=3),b['server'])
+                return dict(results=[dict(metric='yaw',verdict='error'),dict(metric='yaw',verdict='pass')])
+            with patch('pose_client.request',side_effect=evaluate):
+                result=postprocess(view,frames)
+            self.assertEqual('error',result[0]['m'][0]['verdict'])
+            self.assertEqual('reunited',frames[1]['milestones'][0]['msg'])
+            self.assertTrue((view/'pose-analysis.jsonl').is_file())
+
     def test_short_marker_and_metric_survive_dense_early_frames(self):
         ticks = list(range(30)) + [200, 600]
         frames = [dict(gameTime=t, poseFrame=i) for i, t in enumerate(ticks)]

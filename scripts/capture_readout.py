@@ -63,6 +63,9 @@ def postprocess(directory, frames):
     for event in milestones:
         nearest = min(frames, key=lambda f: abs(f['gameTime']-event['t']))
         nearest.setdefault('milestones', []).append(dict(t=event['t'], cat=event['cat'], msg=event['msg']))
+    with (directory/'pose-analysis.jsonl').open('w', encoding='utf-8') as output:
+        for p in poses:
+            output.write(json.dumps(p, ensure_ascii=False)+'\n')
     return poses
 
 

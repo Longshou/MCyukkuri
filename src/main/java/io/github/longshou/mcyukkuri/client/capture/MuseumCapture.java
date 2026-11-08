@@ -45,6 +45,7 @@ public final class MuseumCapture {
     private static long nextReadyCheck;
     private static CompletableFuture<Integer> follow;
     private static int followId=-1;
+    private static long cameraFrame=-1;
 
     public static double[] camera(Camera camera,float partial) {
         if(current==null||current.settings==null)return null;
@@ -62,7 +63,9 @@ public final class MuseumCapture {
             tx=at.x;ty=at.y+entity.getBbHeight()*.6;tz=at.z;
         }
         double dx=tx-x,dy=ty-y,dz=tz-z;
-        return new double[]{x,y,z,Math.toDegrees(Math.atan2(-dx,dz)),-Math.toDegrees(Math.atan2(dy,Math.hypot(dx,dz)))};
+        var result=new double[]{x,y,z,Math.toDegrees(Math.atan2(-dx,dz)),-Math.toDegrees(Math.atan2(dy,Math.hypot(dx,dz)))};
+        cameraFrame=PoseTap.frameId();
+        return result;
     }
 
     private MuseumCapture() {}
@@ -101,7 +104,7 @@ public final class MuseumCapture {
         Minecraft.getInstance().options.hideGui = true;
         current = scene;
         nextFrame = 0;
-        follow=null;followId=-1;
+        follow=null;followId=-1;cameraFrame=-1;
         FRAMES.clear();
         WRITES.clear();
         began = System.nanoTime();
@@ -188,6 +191,7 @@ public final class MuseumCapture {
         boolean metricHit=PoseTap.evaluateFrame();
         boolean scheduled = nextFrame < current.ticks.length && tick >= current.ticks[nextFrame];
         boolean shot = scheduled || tick >= 0 && nextFrame < current.ticks.length && (PoseTap.markerFrame()||metricHit);
+        if(current.settings!=null&&(current.settings.has("follow")||current.settings.has("look_at")))shot&=cameraFrame==PoseTap.frameId();
         if (shot) {
             int requested = scheduled ? current.ticks[nextFrame++] : (int)tick;
             // Never fabricate missed frames by saving the same render repeatedly.
