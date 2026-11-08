@@ -51,6 +51,15 @@
   2. bbd16394b：宠物窝入窝、离窝都从任意一侧翻过窝沿，不走入口。
   3. E11：赤油极饿取食一卡一卡（每 100 tick 一次 `ground path stopped reason=no_progress`，`food found` 重复）。
   完成：`birth_land_caught` 每只赤油各有一条 `[body] dismount cause=release`（或 `hop … owner=leave_host`），之后不再回接生帽，全部离帽后才收帽；`sleep`、`carry_home` 身体步行从低沿入口进出（`[home] bed crossing … opening=true source=walk`），入睡 `occupancy=INSIDE_SUPPORTED`，无翻侧沿或长期卡住，亲代从沿上方放幼、身体挤碰不算步行；`infant_starvation` 极饿赤油连续走到食物、无 `no_progress`、`food found` 不重复。
+- **服务端检查校准中查到的真实问题**：未做（冒烟自查，非验收；分支 243503a7e 与主线 0c830e89b 本地组装，CI 运行号未核实；原始日志 `.local/smoke/instance-66f8d417c231`、`instance-23f142ac8cf9`）。
+  - `forage`／`den_family` 靠近同伴反复停走：forage-2 `c5d8ce7c` 在 2.27–2.73 格外停走 6 次，t13046 `social contact ended … greeted=false … elapsed=200/200`。完成：接近与接触连续可读，保留真实距离拒绝。
+  - 口部库存守恒（主线）：birth_nest_safe-536 亲油 `4715eefd` t3428777 喂食因幼体睡觉中断仍叼 1 份草，觅食接管后 t3428816 口中两份，t3428859 才吞一份。完成：进食、准备、拾取与中断归还共用同一口部占用，物品可见且守恒。
+  - `birth_land_caught` 摘帽接生时身体朝向逐 tick 来回：birth_land_caught-7 `0f606699` t102325–102329 身体 33.27°／21.55° 交替、头保持 21.55°。完成：保留完整接放幼链，无反复身体摆动。
+  - `birth_nest_safe` 喂食接近卡住：birth_nest_safe-9 幼体 `7a26ca55` 等 600 tick，照护者 `2d450150` t116101 `reason=stalled retries=0 stalled=51 bodyContacts=0`，t116430 才交付。完成：真实抵达并交付，失败按阻塞退出或改变条件。
+  - `hat_crowd` 初态位置跳变：hat_crowd-21 幼体 `9e710557` t152265–152266 帽内局部位置未变、世界位置从帽心跳到帽沿 0.82 格。完成：初态／重载后位置权威与显示一致。
+  - `shake_capsize` 搬起时幼体突抬：shake_capsize-173 `5402a6f7` t1124659–1124660 承载者几乎不动、幼体抬高 0.30 格（尚无画面确认）。完成：搬起放下接触连续。
+  - `hat_crowd` 救起又放回水里（主线）：hat_crowd-548 亲油 `72d7d4e6` t3465486 `rescue end result=EXHAUSTED … reason=DROPPED`，幼体 `7670a98f` t3465525、3465585 溺水伤 3→2→1。完成：救幼放到真实安全承托，保留容量不足与路径阻塞的后果。
+  - 固定观察点看不到主体：野外住所、觅食、坑地、迁徙被地形遮挡，`carry_home` 朝墙，部分水上场景主体不入镜（VANTAGE 报告）。完成：按钮初始视角看清个体与交接。
 
 ### 家庭、繁殖与照护
 
@@ -127,7 +136,7 @@
 提效类改动；状态与玩法条目相同，完成即删。用户 2026-11-07 决定：先完成本节基础建设，再继续游戏内容开发；高频公共需求封装成一条命令，代理不再每次重新摸索。设计审过后 3、4 并行，6 随后。
 
 2. **测试观测层（一页设计，另一模型审）**：部分接入。时间线格式与 `status trace off|light|dense`、离线与截图共用的几何检查器及 `pose_check.py` 命令、试玩轻量记录、反馈入档附时间线、截图端逐帧读数（见 4）已接入（[8e15f2dd8](https://github.com/Longshou/MCyukkuri/commit/8e15f2dd8)）；G4 骨骼合成与表情预设合成已收口到共享实现，`check_pose_consumers.py`／`.cjs` 夹具一致（[91e7b8a3c](https://github.com/Longshou/MCyukkuri/commit/91e7b8a3c)）。未做：表情几何偏移规则仍有三份（`runtime_face_library.compose_preset`、`body-standard/build.py`、`tools/sync_expression_exports.py`），同一预设在新旧烘焙模型上相差到 0.8 模型单位。完成：同一份夹具下各调用方结果一致，被替代的代码删除。
-3. **服务端记录与自动检查**：部分接入（记录 [d9de6af9c](https://github.com/Longshou/MCyukkuri/commit/d9de6af9c)、十项检查 [06169fa3d](https://github.com/Longshou/MCyukkuri/commit/06169fa3d)、场景结束条件 [c6feae322](https://github.com/Longshou/MCyukkuri/commit/c6feae322) 已接入，目前只报告；冒烟每轮独立种子并附重跑命令 [27bd4370d](https://github.com/Longshou/MCyukkuri/commit/27bd4370d)；主线误报校准进行中）。每次冒烟自动查卡住与原地断续、瞬移、物品凭空消失或出现、坠落溺水、遗弃幼体、服务端卡顿（附 tick 耗时与 JFR 汇总，取代各包手写的性能脚本）、观察点看不到被测个体；模组随机数可指定种子；失败附个体时间线、种子与重跑命令。检查先只报告，主线基线零误报后升为合入门槛。完成：设计页的过往失败实例在冒烟中能自动报出。
+3. **服务端记录与自动检查**：部分接入（记录 [d9de6af9c](https://github.com/Longshou/MCyukkuri/commit/d9de6af9c)、十项检查 [06169fa3d](https://github.com/Longshou/MCyukkuri/commit/06169fa3d)、场景结束条件 [c6feae322](https://github.com/Longshou/MCyukkuri/commit/c6feae322) 已接入，目前只报告；冒烟每轮独立种子并附重跑命令 [27bd4370d](https://github.com/Longshou/MCyukkuri/commit/27bd4370d)；主线 31 场景×20 次校准 [f63a79b10](https://github.com/Longshou/MCyukkuri/commit/f63a79b10)：FATE、ORPHAN、LAG、SPAWN、VANTAGE 零误报（gate-ready），8 个已知失败仍报出；LOOP 1、PROGRESS 10、JUMP 12、LEDGER 22 处误报因旧日志缺等待／碰撞／库存事务证据未取得资格，END 尚无场景声明）。每次冒烟自动查卡住与原地断续、瞬移、物品凭空消失或出现、坠落溺水、遗弃幼体、服务端卡顿（附 tick 耗时与 JFR 汇总，取代各包手写的性能脚本）、观察点看不到被测个体；模组随机数可指定种子；失败附个体时间线、种子与重跑命令。检查先只报告，主线基线零误报后升为合入门槛。完成：设计页的过往失败实例在冒烟中能自动报出。
 4. **截图姿态读数与审图**：部分接入。逐帧姿态读数、跟拍按画出的身体朝向、`look_at` 视角、按标记与事件挑约十帧、每个视角单独标准、按时间对齐的节拍、AI 只判可读性、一条命令出审图已接入（[8e15f2dd8](https://github.com/Longshou/MCyukkuri/commit/8e15f2dd8)）；朝向与骨骼角速度扣除片段自带转向和整体转身、逐帧缺证据单列、截图客户端崩溃已修（[7ac2fe4f0](https://github.com/Longshou/MCyukkuri/commit/7ac2fe4f0)，family_search 子视角疑似 136+5 失败降到 31+0）。未做：判定带只报告、告警未逐帧人工标注成标定集，`gap` 未校准；特殊伤口／破帽／产出替换表面、划水桨深与桨尖仍报缺证据；`hurt` 视角无姿态证据且中断审图后处理；`myon_stick` 持物检查全部跳过。完成：任一场景一条命令出审图结果，误报明显少于当前（48 帧中 2–32 帧）。
 6. **资源导出与动作流水线**：部分接入。统一导出、素材目录归类与分片登记删除已接入（[51e665bbd](https://github.com/Longshou/MCyukkuri/commit/51e665bbd)，Build [42446003796](https://github.com/Longshou/MCyukkuri/actions/runs/42446003796)）；全量 `--check` 63 PASS／27 NO CHECK、目录 0 未归类、分片删除后重建仍删除。完成：下一个动作包全程不写临时脚本。
 
