@@ -194,11 +194,15 @@ public final class PoseChecks {
     private static double time(JsonObject f) { return n(f, "t") + n(f, "pt"); }
     private static boolean contiguous(JsonObject a, JsonObject b) { double dt = time(b) - time(a); return dt > 0 && dt <= 1.000001; }
     private static double poseTime(JsonObject f){return f.has("render_seconds")?n(f,"render_seconds")*20:time(f);}
-    private static double yawError(JsonObject f) {
+    private static double drawnYaw(JsonObject f) { return n(f, f.has("body_yaw") ? "body_yaw" : "yaw"); }
+    private static double sameTickYawError(JsonObject f) {
         var server = obj(f, "server");
         if (n(server, "t") != n(f, "t")) throw new IllegalArgumentException("server by is not from the same tick");
-        double drawn = n(f, f.has("body_yaw") ? "body_yaw" : "yaw");
-        double error = Math.abs(Math.IEEEremainder(drawn - n(server, "by"), 360));
+        return Math.abs(Math.IEEEremainder(drawnYaw(f) - n(server, "by"), 360));
+    }
+    private static double yawError(JsonObject f) {
+        double drawn = drawnYaw(f), error = sameTickYawError(f);
+        var server = obj(f, "server");
         if (!server.has("window")) return error;
         // Vanilla ClientPacketListener interpolates movement/head packets over 3 ticks;
         // LivingEntityRenderer additionally blends yBodyRotO -> yBodyRot. This is an
@@ -220,6 +224,29 @@ public final class PoseChecks {
         }
         return error;
     }
+    private static double rotationTravel(List<JsonObject> fs, int first, int last, boolean server) {
+        double travel = 0;
+        for (int i = first + 1; i <= last; i++) {
+            double a = server ? n(obj(fs.get(i),"server"),"by") : drawnYaw(fs.get(i));
+            double b = server ? n(obj(fs.get(i-1),"server"),"by") : drawnYaw(fs.get(i-1));
+            travel += Math.IEEEremainder(a-b,360);
+        }
+        return travel;
+    }
+    private static double sustainedRotationLag(List<JsonObject> fs, int i, JsonObject r) {
+        if (sameTickYawError(fs.get(i)) <= 30) return 0;
+        int first = i;
+        while (first > 0) {
+            var prev = fs.get(first-1);
+            if (!contiguous(prev,fs.get(first)) || !s(prev,"yawsrc").equals("body") || sameTickYawError(prev) <= 30) break;
+            first--;
+        }
+        double duration = time(fs.get(i))-time(fs.get(first));
+        if (duration < 5) return 0;
+        double lag = Math.abs(rotationTravel(fs,first,i,true)-rotationTravel(fs,first,i,false));
+        if (lag > 30) r.addProperty("rotation_duration_ticks",duration);
+        return lag;
+    }
     private static void yaw(List<JsonObject> fs, int i, JsonObject r) {
         var f = fs.get(i);
         if (!s(f, "yawsrc").equals("body")) { skip(r, "yaw source is not body"); return; }
@@ -234,6 +261,14 @@ public final class PoseChecks {
                 start = time(prev);
             }
             if (time(f) - start < 5) r.addProperty("verdict", "suspect");
+        }
+        // A moving arc union cannot excuse a stale heading forever. Over the existing
+        // five-tick/30-degree divergence band, drawn rotation must follow the server's
+        // unwrapped per-tick rotation; a tracking three-tick delay still passes.
+        double rotationLag = sustainedRotationLag(fs,i,r);
+        if (rotationLag > 30) {
+            r.addProperty("verdict","fail"); r.addProperty("where","drawn yaw does not follow sustained server rotation");
+            r.addProperty("rotation_lag_deg",rotationLag);
         }
         r.getAsJsonObject("band").addProperty("fail_duration_ticks", 5); r.addProperty("duration_ticks", time(f) - start);
     }

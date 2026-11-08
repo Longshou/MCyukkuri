@@ -108,4 +108,29 @@ class CaptureLabelsTest {
         current.getAsJsonObject("authored_loop").addProperty("fp","different-assets");
         assertEquals("error",replay(f).get("verdict").getAsString());
     }
+    @Test void staleDrawnYawCannotRideRotatingInterpolationWindow() {
+        for(int step:new int[]{45,90}) {
+            var frames=new ArrayList<JsonObject>();
+            for(int t=4;t<=16;t++) {
+                var f=frame(t);f.addProperty("yaw",50);
+                var server=f.getAsJsonObject("server");server.addProperty("by",t*step);
+                var window=new JsonArray();
+                for(int k=t-4;k<=t;k++){var sample=new JsonObject();sample.addProperty("t",k);sample.addProperty("by",k*step);window.add(sample);}
+                server.add("window",window);frames.add(f);
+            }
+            var results=PoseChecks.evaluate(frames,List.of("yaw"));
+            var result=results.get(results.size()-1).getAsJsonObject();
+            assertEquals("fail",result.get("verdict").getAsString());
+            assertTrue(result.get("rotation_duration_ticks").getAsDouble()>=5);
+        }
+        var tracking=new ArrayList<JsonObject>();
+        for(int t=4;t<=16;t++) {
+            var f=frame(t);f.addProperty("yaw",(t-3)*45);
+            var server=f.getAsJsonObject("server");server.addProperty("by",t*45);
+            var window=new JsonArray();
+            for(int k=t-4;k<=t;k++){var sample=new JsonObject();sample.addProperty("t",k);sample.addProperty("by",k*45);window.add(sample);}
+            server.add("window",window);tracking.add(f);
+        }
+        verdict("pass","yaw",tracking.toArray(JsonObject[]::new));
+    }
 }
