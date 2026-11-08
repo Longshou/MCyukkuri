@@ -125,7 +125,7 @@
 提效类改动；状态与玩法条目相同，完成即删。用户 2026-11-07 决定：先完成本节基础建设，再继续游戏内容开发；高频公共需求封装成一条命令，代理不再每次重新摸索。设计审过后 3、4 并行，6 随后。
 
 2. **测试观测层（一页设计，另一模型审）**：部分接入。时间线格式与 `status trace off|light|dense`、离线与截图共用的几何检查器及 `pose_check.py` 命令、试玩轻量记录、反馈入档附时间线、截图端逐帧读数（见 4）已接入（[8e15f2dd8](https://github.com/Longshou/MCyukkuri/commit/8e15f2dd8)）；未做：G4 退役各处重复的合成与求解实现（`preview/review/pose.js`、`scripts/render_preview_actions.cjs`、`toilet-contact/check_reach.cjs`、`lore/aquatic_tools.py` 等先按共享 CLI 复核再删）。完成：同一份夹具下各调用方结果一致，被替代的代码删除。
-3. **服务端记录与自动检查**：未做（依 2）。每次冒烟自动查卡住与原地断续、瞬移、物品凭空消失或出现、坠落溺水、遗弃幼体、服务端卡顿（附 tick 耗时与 JFR 汇总，取代各包手写的性能脚本）、观察点看不到被测个体；模组随机数可指定种子；失败附个体时间线、种子与重跑命令。检查先只报告，主线基线零误报后升为合入门槛。完成：设计页的过往失败实例在冒烟中能自动报出。
+3. **服务端记录与自动检查**：部分接入（记录 [d9de6af9c](https://github.com/Longshou/MCyukkuri/commit/d9de6af9c)、十项检查 [06169fa3d](https://github.com/Longshou/MCyukkuri/commit/06169fa3d)、场景结束条件 [c6feae322](https://github.com/Longshou/MCyukkuri/commit/c6feae322) 已接入，目前只报告；主线误报校准进行中）。每次冒烟自动查卡住与原地断续、瞬移、物品凭空消失或出现、坠落溺水、遗弃幼体、服务端卡顿（附 tick 耗时与 JFR 汇总，取代各包手写的性能脚本）、观察点看不到被测个体；模组随机数可指定种子；失败附个体时间线、种子与重跑命令。检查先只报告，主线基线零误报后升为合入门槛。完成：设计页的过往失败实例在冒烟中能自动报出。
 4. **截图姿态读数与审图**：部分接入。逐帧姿态读数、跟拍按画出的身体朝向、`look_at` 视角、按标记与事件挑约十帧、每个视角单独标准、按时间对齐的节拍、AI 只判可读性、一条命令出审图已接入（[8e15f2dd8](https://github.com/Longshou/MCyukkuri/commit/8e15f2dd8)）。未做：`gap`／`yaw`／`posejump` 判定带未校准（只报告；该提交的 family_search 捕获有 `posejump` 1 处 fail 776°/s、`yaw` 疑似 165 条）；特殊伤口／破帽／产出替换表面与承托转换的支撑空隙、缺道具尖端仍报缺证据（`complete=false`）；持物与划水指标没有真实捕获覆盖。完成：任一场景一条命令出审图结果，误报明显少于当前（48 帧中 2–32 帧）。
 6. **资源导出与动作流水线**：部分接入。统一导出、素材目录归类与分片登记删除已接入（[51e665bbd](https://github.com/Longshou/MCyukkuri/commit/51e665bbd)，Build [42446003796](https://github.com/Longshou/MCyukkuri/actions/runs/42446003796)）；全量 `--check` 63 PASS／27 NO CHECK、目录 0 未归类、分片删除后重建仍删除。完成：下一个动作包全程不写临时脚本。
 
