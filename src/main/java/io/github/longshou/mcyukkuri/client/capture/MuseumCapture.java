@@ -31,7 +31,7 @@ import org.lwjgl.glfw.GLFW;
 /** Opt-in render-target recorder. Scene actions still run through the museum's normal start functions. */
 public final class MuseumCapture {
     private record Scene(String id, String field, int[] ticks, int[][] chunks, String view, String[] reads, JsonObject settings) {}
-    private record Frame(int requested, long tick, long gameTime, long poseFrame, double seconds, String file, boolean visible, boolean focused) {}
+    private record Frame(int requested, long tick, long gameTime, long poseFrame, double seconds, String file, boolean visible, boolean focused, boolean cameraReady) {}
     private static final Gson JSON = new Gson();
     private static final Path ROOT = Path.of(System.getProperty("mcyukkuri.capture.output"));
     private static final Scene[] PLAN = readPlan();
@@ -182,8 +182,11 @@ public final class MuseumCapture {
         if(tick>=0&&current.settings!=null&&current.settings.has("follow")&&follow==null) {
             var settings=current.settings;var server=mc.getSingleplayerServer();var observer=mc.player.getUUID();
             follow=server.submit(()->{
-                try{return new EntitySelectorParser(new StringReader(settings.get("follow").getAsString()),true).parse()
-                        .findSingleEntity(server.getPlayerList().getPlayer(observer).createCommandSourceStack()).getId();}
+                try{
+                    var targets=new EntitySelectorParser(new StringReader(settings.get("follow").getAsString()),true).parse()
+                            .findEntities(server.getPlayerList().getPlayer(observer).createCommandSourceStack());
+                    return targets.isEmpty()?-1:targets.getFirst().getId();
+                }
                 catch(CommandSyntaxException error){throw new IllegalArgumentException("Invalid capture follow selector",error);}
             });
         }
@@ -191,7 +194,8 @@ public final class MuseumCapture {
         boolean metricHit=PoseTap.evaluateFrame();
         boolean scheduled = nextFrame < current.ticks.length && tick >= current.ticks[nextFrame];
         boolean shot = scheduled || tick >= 0 && nextFrame < current.ticks.length && (PoseTap.markerFrame()||metricHit);
-        if(current.settings!=null&&(current.settings.has("follow")||current.settings.has("look_at")))shot&=cameraFrame==PoseTap.frameId();
+        boolean cameraReady=current.settings==null||!(current.settings.has("follow")||current.settings.has("look_at"))
+                ||cameraFrame==PoseTap.frameId();
         if (shot) {
             int requested = scheduled ? current.ticks[nextFrame++] : (int)tick;
             // Never fabricate missed frames by saving the same render repeatedly.
@@ -200,7 +204,7 @@ public final class MuseumCapture {
             long window = mc.getWindow().getWindow();
             FRAMES.add(new Frame(requested, tick, mc.level.getGameTime(), PoseTap.frameId(), (System.nanoTime() - began) / 1e9, file,
                     GLFW.glfwGetWindowAttrib(window, GLFW.GLFW_VISIBLE) != 0,
-                    GLFW.glfwGetWindowAttrib(window, GLFW.GLFW_FOCUSED) != 0));
+                    GLFW.glfwGetWindowAttrib(window, GLFW.GLFW_FOCUSED) != 0, cameraReady));
             Path output = ROOT.resolve(current.id).resolve(file);
             NativeImage pixels = Screenshot.takeScreenshot(mc.getMainRenderTarget());
             if (nextFrame == current.ticks.length) readScene(current, mc);

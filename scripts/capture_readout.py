@@ -128,6 +128,9 @@ def geometry_report(poses, frames=()):
         no_evidence.append(dict(metric='pose', verdict='no-evidence', u=None, f=None,
                                 reason='no recorded pose actor in this view'))
     for frame in frames:
+        if frame.get('cameraReady') is False:
+            no_evidence.append(dict(metric='camera', verdict='no-evidence', u=None, f=frame['poseFrame'],
+                                    reason='requested camera has no recorded target pose at screenshot frame'))
         present = {p['u'] for p in poses if p.get('k') == 'pose' and p['f'] == frame['poseFrame']}
         for actor in sorted(actors - present):
             no_evidence.append(dict(metric='pose', verdict='no-evidence', u=actor, f=frame['poseFrame'],

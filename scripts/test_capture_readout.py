@@ -98,6 +98,9 @@ class CaptureReadoutTest(unittest.TestCase):
         report = geometry_report([pose, dict(pose, f=2, t=2)], frames)
         self.assertEqual([1], [r['f'] for r in report['no_evidence']])
         self.assertEqual('a', report['no_evidence'][0]['u'])
+        frames[1]['cameraReady'] = False
+        report = geometry_report([pose, dict(pose, f=2, t=2)], frames)
+        self.assertEqual('camera', report['no_evidence'][0]['metric'])
         with self.assertRaises(KeyError):
             geometry_report([dict(pose, m=[dict(metric='held')])], frames)
         with self.assertRaisesRegex(ValueError, 'unknown metric'):
