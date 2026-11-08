@@ -83,6 +83,8 @@ public final class TraceRecorder {
     private static volatile long lastTick;
     private static boolean stallPending;
     private static StackTraceElement[] stallStack;
+    /** The actor random seed of the current scene run; null in ordinary play, where every actor keeps its own stream. */
+    private static Long runSeed;
 
     private static long modeStartedNanos;
     private static long modeTicks;
@@ -114,6 +116,17 @@ public final class TraceRecorder {
 
     public static Mode mode() { return mode; }
 
+    /** The seed of the current scene run, or null in ordinary play. */
+    public static Long runSeed() { return runSeed; }
+
+    /** {@code /yukkuri status seed}: every actor first added from now on mixes this seed with its UUID, and the run's
+     * proven coverage is recorded once for the scene. */
+    public static void setRunSeed(ServerLevel level, long seed) {
+        runSeed = seed;
+        GameplayLog.world(level, "seed",
+                "run={} covered=first_add_entity_random,fixed_uuid_scene_actors uncovered=level.random,uuid,newborn_identity,pre_join,speechRandom,tick_order", seed);
+    }
+
     public static void setMode(Mode next) {
         if (mode == next) return;
         costSummary();
@@ -138,9 +151,6 @@ public final class TraceRecorder {
         WINDOWS.clear();
         modeStartedNanos = System.nanoTime();
         modeTicks = modeWorkNanos = modeRecorderNanos = modeBytes = 0;
-        Long seed = Long.getLong("mcyukkuri.seed");
-        if (seed != null) GameplayLog.world(lastTickLevel, "seed",
-                "run={} covered=post_join_entity_random,fixed_uuid_scene_actors uncovered=level.random,uuid,newborn_identity,pre_join,speechRandom,tick_order", seed);
         if (mode != Mode.OFF) startWatchdog();
     }
 
@@ -150,6 +160,7 @@ public final class TraceRecorder {
         mode = Mode.OFF;
         ACTORS.clear();
         WINDOWS.clear();
+        runSeed = null;
         serverThread = null;
         lastTickEndNanos = 0;
     }

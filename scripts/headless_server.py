@@ -227,7 +227,7 @@ def run_cmd(st, cmd, timeout=30):
         rcon.sock.close()
 
 
-def build_java_cmd(runtime, java, rundir, mod, seed=None):
+def build_java_cmd(runtime, java, rundir, mod):
     vm = [a for a in read_args_file(runtime / 'clientRunVmArgs.txt') if not a.startswith('-Dneoforge.enableGameTest')]
     cp = read_args_file(runtime / 'clientRunClasspath.txt')[:2]
     cp[1] = ';'.join(str(mod) if Path(entry) == runtime / 'mod' else entry for entry in cp[1].split(';'))
@@ -241,8 +241,7 @@ def build_java_cmd(runtime, java, rundir, mod, seed=None):
             continue
         out.append(prog[i])
         i += 1
-    observed = [] if seed is None else [f'-Dmcyukkuri.seed={seed}']
-    return ([str(java), '-Xmx2G', '-Xms512m'] + observed + vm + cp
+    return ([str(java), '-Xmx2G', '-Xms512m'] + vm + cp
             + [f'-Dfml.modFolders=mcyukkuri%%{mod}', 'net.neoforged.devlaunch.Main', main,
                '--launchTarget', 'forgeserverdev', '--gameDir', str(rundir)] + out + ['--nogui'])
 
@@ -313,19 +312,19 @@ def wait_log(st, pattern, offset=0, timeout=600):
 
 
 @instance_lock()
-def start(runtime, java, datapack, name, mod, instances, seed=None):
+def start(runtime, java, datapack, name, mod, instances):
     record = instances / name / 'server.json'
     rundir = record.parent / 'run'
     rundir.mkdir(parents=True, exist_ok=False)
     (rundir / 'eula.txt').write_text('eula=true\n', encoding='utf-8')
     shutil.copytree(datapack, rundir / 'world/datapacks' / datapack.name)
     st = {'name': name, 'runtime': str(runtime), 'mod': str(mod), 'rundir': str(rundir),
-          'seed': seed, 'java': str(java),
+          'java': str(java),
           'game_port': free_port(), 'rcon_port': free_port(), 'rcon_password': secrets.token_hex(8)}
     while st['rcon_port'] == st['game_port']:
         st['rcon_port'] = free_port()
     write_props(rundir, st)
-    cmd = build_java_cmd(runtime, java, rundir, mod, seed)
+    cmd = build_java_cmd(runtime, java, rundir, mod)
     require_closed()
     with (record.parent / 'stdout.log').open('wb') as out:
         proc = subprocess.Popen(cmd, cwd=rundir, stdin=subprocess.DEVNULL, stdout=out, stderr=subprocess.STDOUT,

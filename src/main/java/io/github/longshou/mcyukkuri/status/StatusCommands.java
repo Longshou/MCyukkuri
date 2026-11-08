@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.status;
 
 import com.mojang.brigadier.arguments.IntegerArgumentType;
+import com.mojang.brigadier.arguments.LongArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
@@ -22,6 +23,7 @@ import java.util.ArrayList;
  * {@code ... raw}: the same as one SNBT compound. {@code status set <targets> <key> <value>}: controlled write.
  * {@code status relate <from> <to> <score>}: set an acquaintance score.
  * {@code status trace off|light|dense}: structured observation; {@code trace window <scene> [field] [x1,y1,z1,x2,y2,z2]} starts a scene window.
+ * {@code status seed <n>}: the actor seed of the run that starts next.
  */
 public final class StatusCommands {
     private static final DynamicCommandExceptionType INVALID_BOUNDS = new DynamicCommandExceptionType(
@@ -43,6 +45,12 @@ public final class StatusCommands {
                             context.getSource().sendSuccess(() -> Component.literal("status trace " + mode.id), true);
                             return mode == TraceRecorder.Mode.OFF ? 0 : 1;
                         })))
+                .then(Commands.literal("seed").then(Commands.argument("seed", LongArgumentType.longArg()).executes(context -> {
+                    long seed = LongArgumentType.getLong(context, "seed");
+                    TraceRecorder.setRunSeed(context.getSource().getLevel(), seed);
+                    context.getSource().sendSuccess(() -> Component.literal("status seed " + seed), true);
+                    return 1;
+                })))
                 .then(Commands.literal("set").then(Commands.argument("targets", EntityArgument.entities())
                         .then(Commands.argument("key", StringArgumentType.word())
                                 .suggests((context, builder) -> {

@@ -3,6 +3,7 @@
 a self-check, never playtest acceptance."""
 import argparse
 from contextlib import contextmanager
+import hashlib
 import importlib
 import inspect
 import json
@@ -206,7 +207,17 @@ def failure(smoke, window):
     return found
 
 
-def run_scene(st, scene, builder, run_index=1):
+def run_seed(session_seed, run_index):
+    """The seed of one run: the session seed itself for a session's first run, so a single run reproduces with
+    ``--seed <that run's seed>``, and a hash of both for every later run (fixed-UUID scene actors would otherwise replay
+    one random stream across repeats and overstate the pass count)."""
+    if run_index == 1:
+        return session_seed
+    digest = hashlib.sha256(f'{session_seed}:{run_index}'.encode('utf-8')).digest()
+    return int.from_bytes(digest[:8], 'big') & ((1 << 63) - 1)
+
+
+def run_scene(st, scene, builder, run_index, seed):
     server.run_cmd(st, 'schedule clear mcylab:observe/loop')
     server.run_cmd(st, 'schedule clear mcylab:observe/first')
     clear_all(st, builder.FIELDS)
@@ -216,6 +227,8 @@ def run_scene(st, scene, builder, run_index=1):
     server.run_cmd(st, 'summon minecraft:marker 0 100 0 {Tags:["mcyv"]}')
     server.jfr_start(st, f'{scene.id}-{run_index}')
     offset = server.log_offset(st)
+    # The run's seed before the scene's own actors exist, inside this run's window so its log names its seed.
+    server.run_cmd(st, f'yukkuri status seed {seed}')
     # Execute as the virtual observer so the scene's own view sets its exact position/yaw/pitch in the same tick.
     server.run_cmd(st, f'execute as @e[tag=mcyv,limit=1] run function mcylab:start/{scene.id}')
     if scene.vantage is None:
@@ -270,18 +283,18 @@ def run_scene(st, scene, builder, run_index=1):
         print(f'PASS {scene.id}: {len(scene.smoke["expect"])} expected patterns; no forbidden lines; no undeclared actor fate',
               flush=True)
     rerun = subprocess.list2cmdline([sys.executable, str(Path(__file__).resolve()), '--worktree',
-                    str(builder.ROOT), '--seed', str(st['seed']), scene.id])
+                    str(builder.ROOT), '--seed', str(seed), scene.id])
     observations_dir = log.with_suffix('')
-    reports = smoke_checks.report_log(log, observations_dir, {scene.id: scene.smoke}, st['seed'], rerun, dense=True,
+    reports = smoke_checks.report_log(log, observations_dir, {scene.id: scene.smoke}, seed, rerun, dense=True,
                                       only=scene.id)
     jfr = server.jfr_summary(st, f'{scene.id}-{run_index}')
     (observations_dir / 'jfr.json').write_text(json.dumps(jfr, indent=2), encoding='utf-8')
     summary = [r for r in reports if r.get('scene') == scene.id]
     for report in summary:
-        print(f'REPORT {scene.id}: seed={st["seed"]} ' + ' '.join(f'{r["check"]}={r["verdict"]}' for r in report['summary']), flush=True)
+        print(f'REPORT {scene.id}: seed={seed} ' + ' '.join(f'{r["check"]}={r["verdict"]}' for r in report['summary']), flush=True)
     print(f'JFR {scene.id}: {jfr["verdict"]}; {jfr.get("top_methods", [])[:3]}; {observations_dir}', flush=True)
     return dict(scene=scene.id, index=run_index, log=str(log), passed=not problems,
-                seed=st['seed'], rerun=rerun, observations=str(observations_dir / 'checks.json'), jfr=jfr,
+                seed=seed, rerun=rerun, observations=str(observations_dir / 'checks.json'), jfr=jfr,
                 reasons=list(dict.fromkeys(reason for reason, _ in problems)), problems=[text for _, text in problems])
 
 
@@ -509,7 +522,7 @@ def session(source, compile_tree, builder, scenes, args, label, stop=None):
         datapack = build_pack(builder, instances / f'pack-{run_id}', args.layout)
         mod = assemble_mod(source, runtime, java, instances / name) if compile_tree else runtime / 'mod'
         server.wait_closed(not args.no_wait)
-        st = server.start(runtime, java, datapack, name, mod, instances, seed=args.seed)
+        st = server.start(runtime, java, datapack, name, mod, instances)
         try:
             server.wait_log(st, r'MCYMUSEUM_BUILD_COMPLETE')
             if 'Failed to load function' in server.log_text(st):
@@ -524,7 +537,7 @@ def session(source, compile_tree, builder, scenes, args, label, stop=None):
                 if reason:
                     print(f'Stopping before {scene.id}: {reason}', flush=True)
                     break
-                results.append(run_scene(st, scene, builder, index))
+                results.append(run_scene(st, scene, builder, index, run_seed(args.seed, index)))
             return results
         finally:
             server.stop(st)
@@ -669,7 +682,7 @@ def main():
                         help='Run the merge-base of this tree with origin/main instead, topping its cached counts up to --repeat runs')
     parser.add_argument('--base-commit', help='With --baseline: this commit instead of the merge-base')
     parser.add_argument('--compare', action='store_true', help='Then top up the main baseline (only missing runs) and print branch vs main')
-    parser.add_argument('--seed', type=int, default=secrets.randbits(63), help='Post-join actor RNG seed; partial replay only (see trace seed log)')
+    parser.add_argument('--seed', type=int, default=secrets.randbits(63), help='Session seed; each run derives its own seed from it and its run index (see the trace seed log)')
     parser.add_argument('--no-wait', action='store_true', help="Refuse instead of waiting while the user's museum client runs")
     parser.add_argument('--slots', type=int, help=f'Machine-wide limit of smoke/capture servers (default {slots.DEFAULT_SLOTS} or %%{slots.ENVIRONMENT}%%)')
     parser.add_argument('scenes', nargs='*', help='Scene IDs (default: all scenes with smoke metadata)')
