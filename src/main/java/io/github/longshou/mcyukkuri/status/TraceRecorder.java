@@ -569,6 +569,8 @@ public final class TraceRecorder {
         out.addProperty("yaw", entity.getYRot());
         out.addProperty("by", entity.bodyYaw());
         out.addProperty("g", entity.onGround());
+        out.addProperty("hc", entity.horizontalCollision);
+        out.addProperty("vc", entity.verticalCollision);
         out.addProperty("step", entity.maxUpStep());
         out.addProperty("w", entity.isInWater());
         out.addProperty("wr", entity.rawInWater());

@@ -391,6 +391,24 @@ class Calibration(unittest.TestCase):
         rows[1]['st']['p'][0] -= 2
         self.assertTrue(any(f['verdict']=='fail' for f in checks.jumps(timeline.states(rows),[move])))
 
+    def test_observed_collision_truncation_is_not_extra_motion(self):
+        # Main land-410 t2633676: x hits the wall and becomes zero while
+        # z continues. Legacy endpoints omit the actual collision flags.
+        rows = [state(0, g=False, v=[-.523781, -.0784, .033834]),
+                state(1, g=False, p=[-.278154, 0, -.035672], v=[0, -.0784, .032344])]
+        self.assertTrue(checks.jumps(timeline.states(rows)))
+        rows[1]['st']['hc'] = True
+        self.assertFalse(checks.jumps(timeline.states(rows)))
+        rows[1]['st']['p'][0] = -2
+        self.assertTrue(any(f['verdict'] == 'fail' for f in checks.jumps(timeline.states(rows))))
+        rows[1]['st']['p'][0] = 2
+        self.assertTrue(any(f['verdict'] == 'fail' for f in checks.jumps(timeline.states(rows))))
+        rows[1]['st']['p'] = [-.278154, 2, -.035672]
+        self.assertTrue(any(f['verdict'] == 'fail' for f in checks.jumps(timeline.states(rows))))
+        rows[1]['st']['hc'] = 'true'
+        with self.assertRaises(ValueError):
+            timeline.validate(rows[1])
+
     def test_two_executed_hop_segments_share_one_tick(self):
         # Main hat_crowd-145 t928787: air=1 and air=2 execute on dismount.
         first = [.0000617681, .2712160268, -.1400758949]

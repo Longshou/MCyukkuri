@@ -573,6 +573,13 @@ def jumps(samples, records=()):
                     residual = [sb['p'][i] - sa['p'][i] - velocity[i] for i in range(3)]
                     if placed is not None:
                         residual = [residual[i] - placed[i] for i in range(3)]
+                    for i in range(3):
+                        if sb.get('vc' if i == 1 else 'hc') is True and known(sb, 'v') and sb['v'][i] == 0:
+                            # Vanilla collision can truncate this velocity component
+                            # to zero. Credit only travel between zero and its input;
+                            # extra or opposite travel remains unexplained.
+                            moved = residual[i] + velocity[i]
+                            residual[i] = moved - min(max(moved, min(0, velocity[i])), max(0, velocity[i]))
                     if sa.get('g') or sb.get('g'):
                         # Read actual upward step capability; legacy logs retain .6.
                         slack = sa['step'] if residual[1] > 0 and known(sa, 'step') else .6

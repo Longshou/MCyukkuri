@@ -38,6 +38,9 @@ def validate(row):
     for key in ('careParent', 'socialGreeting', 'waterPhase'):
         if s.get(key) is not None and not isinstance(s[key], str):
             raise ValueError(f'{key} must be a string or null')
+    for key in ('hc', 'vc'):
+        if s.get(key) is not None and type(s[key]) is not bool:
+            raise ValueError(f'{key} must be boolean or null')
     for key in ('waitElapsed', 'contactProgress', 'careChewTicks', 'dailyContactTicks',
                 'thermalRestTicks', 'dailyGreetingWait', 'defenseWait', 'step', 'scale'):
         if s.get(key) is not None and (type(s[key]) not in (int, float) or not math.isfinite(s[key])):
