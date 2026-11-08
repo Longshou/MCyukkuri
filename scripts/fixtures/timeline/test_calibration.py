@@ -588,6 +588,25 @@ class Calibration(unittest.TestCase):
         next(r for r in rows if r['u'] == ACTOR and r['t'] == 1)['st']['p'] = [0, 1, -3]
         self.assertTrue(any(f['verdict'] == 'fail' for f in checks.jumps(timeline.states(rows))))
 
+    def test_confirmed_passenger_requires_animated_carry_target(self):
+        rows = [state(0, by=180, hold={'carry': [{'child': ACTOR, 'hold': 'braid'}]}),
+                state(1, by=90, hold={'carry': [{'child': ACTOR, 'hold': 'braid'}]}),
+                state(0, p=[1, 1, 0], veh=HOST, att={'kind': 'held', 'host': HOST}),
+                state(1, p=[0, 1, -3], veh=HOST, att={'kind': 'held', 'host': HOST})]
+        for row in rows[:2]:
+            row['u'] = HOST
+        findings = checks.jumps(timeline.states(sorted(rows, key=lambda r: r['t'])))
+        self.assertEqual([(f['verdict'], f['detail']) for f in findings],
+                         [('no-evidence', 'animated carry target trajectory missing')])
+        # A free release still exposes the child's actual displacement.
+        rows[-1]['st'].update(veh=None, att={'kind': 'free', 'host': None})
+        self.assertTrue(any(f['verdict'] == 'fail' for f in checks.jumps(timeline.states(rows))))
+        # Nor does the child's missing grip trajectory excuse a carrier jump.
+        rows[-1]['st'].update(veh=HOST, att={'kind': 'held', 'host': HOST})
+        rows[1]['st']['p'] = [3, 0, 0]
+        self.assertTrue(any(f['actor'] == HOST and f['verdict'] == 'fail'
+                            for f in checks.jumps(timeline.states(rows))))
+
     def test_observed_idle_and_look_goals_are_not_stalled_jobs(self):
         for fields in (dict(behavior='idle', goals=['PitSlaveGoal@4']), dict(goals=['RandomLookAroundGoal@9'])):
             rows = [state(t, int=None, **fields) for t in range(1202)]

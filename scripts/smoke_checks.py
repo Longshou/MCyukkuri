@@ -520,6 +520,7 @@ def jumps(samples, records=()):
     by_tick = {(r['u'], r['t']): r['state'] for r in samples}
     for rows in actor_samples(samples).values():
         pairs = 0
+        carry_pose_missing = False
         for a, b in zip(rows, rows[1:]):
             sa, sb = a['state'], b['state']
             hat_pair = known(sa, 'p', 'v', 'frame', 'riders') and known(sb, 'p', 'frame', 'riders')
@@ -531,6 +532,19 @@ def jumps(samples, records=()):
             aa, ab = (sa.get('att', {}), sb.get('att', {}))
             host = aa.get('host')
             if host and host == ab.get('host'):
+                if aa.get('kind') == ab.get('kind') == 'held' and sa.get('veh') == sb.get('veh') == host and all(
+                    any(item.get('child') == b['u'] for item in
+                        by_tick.get((host, row['t']), {}).get('hold', {}).get('carry', ())) for row in (a, b)
+                ):
+                    # A confirmed passenger is drawn on the carrier's live
+                    # animated grip (ParentCarryPresentation.place), not at a
+                    # fixed carrier-local offset. Server p/bodyYaw alone cannot
+                    # establish its visible displacement during that hold.
+                    # Carrier travel and entry/exit transitions remain checked.
+                    if not carry_pose_missing:
+                        out.append(result('JUMP', 'no-evidence', 'animated carry target trajectory missing', b))
+                        carry_pose_missing = True
+                    continue
                 if aa.get('frame') and ab.get('frame'):
                     pa, pb = local_point(sa['p'], aa['frame']), local_point(sb['p'], ab['frame'])
                     delta = [(y - x) * ab['frame']['unit'] for x, y in zip(pa, pb)]
