@@ -21,6 +21,9 @@ def gameplay(path):
             text = re.sub(r'\b(?:t|tick)=\d+', 't=<tick>', text)
             text = re.sub(r'\bpos=-?\d+, -?\d+, -?\d+', 'pos=<pos>', text)
             text = re.sub(r'BlockPos\{x=-?\d+, y=-?\d+, z=-?\d+\}', '<pos>', text)
+            # Vanilla entity ids and diagnostic timings are not mod randomness.
+            text = re.sub(r'#\d+', '#<id>', text)
+            text = re.sub(r'elapsedMs=\d+', 'elapsedMs=<ms>', text)
             # GameplayLog.at and Vec3.toString coordinate tuples.
             number = r'[-+]?\d+(?:\.\d+)?(?:[eE][-+]?\d+)?'
             text = re.sub(r'\(' + number + r',\s*' + number + r',\s*' + number + r'\)', '<pos>', text)
