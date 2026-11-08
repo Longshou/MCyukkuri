@@ -214,7 +214,7 @@ def wait_build(sha, args):
         if run and run['status'] == 'completed':
             break
         time.sleep(args.poll)
-    if run['conclusion'] != 'success':
+    if run['conclusion'] not in ('success', 'cancelled'):
         log = subprocess.run(['gh', 'run', 'view', str(run['databaseId']), '--log-failed'], cwd=MAIN, text=True,
                              encoding='utf-8', capture_output=True).stdout.splitlines()
         print('\n'.join(log[-60:]))
@@ -227,6 +227,14 @@ def cmd_runtime(args):
     while True:
         sha = git(MAIN, 'rev-parse', args.commit or 'origin/main')
         run = wait_build(sha, args)
+        if run['conclusion'] == 'cancelled':
+            # A newer push cancels the older Build of the same branch; following main means following that push.
+            git(MAIN, 'fetch', '-q', 'origin')
+            moved = git(MAIN, 'rev-parse', 'origin/main')
+            if args.commit or moved == sha:
+                raise Fail(f'Build run {run["databaseId"]} for {sha} ended cancelled')
+            print(f'Build run {run["databaseId"]} for {sha[:9]} was cancelled; following origin/main {moved[:9]}', flush=True)
+            continue
         print(f'Build run {run["databaseId"]} succeeded; waiting for the museum client to close', flush=True)
         # Running smoke/capture servers keep the runtime dir they started with; the next update removes it once unused.
         server.wait_closed(poll=args.poll)
