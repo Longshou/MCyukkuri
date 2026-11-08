@@ -23,12 +23,7 @@ console.log('Rendered 21 current runtime poses.');
  parent.expression('chewing');child.expression('puff');
  const anchor=JSON.parse(fs.readFileSync(path.join(root,'src/main/resources/assets/mcyukkuri/yukkuri_presentation/living.json'),'utf8')).variants.marisa.mouth;
  const childScale=.2,childZ=-((.8+.8*childScale)*.5+.05)*16,target=[0,.04*16,childZ+.8*childScale*.55*16];
- const floorOf=pose=>{let floor=Infinity;for(const part of pose.model.parts)if(part.name.includes('body_surface'))for(let i=part.start;i<part.start+part.count;i++)floor=Math.min(floor,pose.output[i*8+1]);return floor;};
- parent.frame('first_toilet_assist',.225);const floor=floorOf(parent),basePitch=parent.rootPose[3];let low=0,high=28+basePitch;
- for(let i=0;i<7;i++){const mid=(low+high)/2;parent.frame('first_toilet_assist',.225,{pitch:-mid});if(parent.rootPoint(anchor)[1]+Math.max(0,floor-floorOf(parent))>target[1]+.035*16)low=mid;else high=mid;}
- parent.frame('first_toilet_assist',.225,{pitch:-high});let mouth=parent.rootPoint(anchor);const dz=Math.max(-.18*16,Math.min(.18*16,target[2]+.07*16-mouth[2]));
- parent.frame('first_toilet_assist',.225,{pitch:-high,translation:[0,0,dz]});const lift=Math.max(0,floor-floorOf(parent));
- const pv=parent.frame('first_toilet_assist',.225,{pitch:-high,translation:[0,lift,dz]});mouth=parent.rootPoint(anchor);
+ const pv=parent.careFrame('first_toilet_assist',.225,anchor,target),mouth=parent.rootPoint(anchor);
  const cv=child.frame('first_toilet_stimulated',.225),vertices=[];
  function add(v,scale,z,col,row){for(let i=0;i<v.length;i+=8)vertices.push(v[i]*scale,v[i+1]*scale,v[i+2]*scale+z,(v[i+3]+col)/2,(v[i+4]+row)/2,v[i+5],v[i+6],v[i+7]);}
  add(pv,1,0,0,0);const parentEnd=vertices.length;add(cv,childScale,childZ,1,0);const tongueStart=vertices.length;
