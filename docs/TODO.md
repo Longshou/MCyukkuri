@@ -10,7 +10,6 @@
 | --- | --- | --- |
 | 观测层：服务端检查校准（主线零误报、已知问题仍抓到） | `.worktrees/wp-ck-check-calibration` | scripts/smoke_checks.py、scripts/timeline.py、scripts/fixtures/timeline/ |
 | 搬运放下：接生、带回窝、托幼三链放不下孩子（先出设计，另一模型审） | `.worktrees/wp-cs-carry-putdown` | family/ParentCarry.java、motor/action/Release.java、life/SurfaceApproach.java |
-| 预览工具：多视角、草稿表情与新旧对照，退役重复的姿态合成实现（观测层 G4） | `.worktrees/wp-cu-preview-core` | scripts/preview.py、preview/review/pose.js、scripts/render_preview_actions.cjs、motions/variants/lore/aquatic_tools.py、preview/hub/ |
 | 截图审图判定带校准：gap／yaw／posejump 误报与缺证据 | `.worktrees/wp-cv-capture-bands` | scripts/capture_readout.py、scripts/capture_review.py、pose 指标阈值 |
 
 ## 玩法待办
