@@ -59,7 +59,7 @@ public final class Release implements Action {
     private Vec3 endpoint;
     private String placement;
     private Outcome outcome;
-    /** One action's budget, shared by initial selection and stale-candidate replacements. */
+    /** Endpoint stand searches (each uses the shared radial bearings), shared across the whole action's replacements. */
     private static final int STAND_TRIES = 6;
     private record Candidate(Vec3 endpoint, Vec3 stand, float facing) {}
     private final Set<Candidate> tried = new HashSet<>();
@@ -192,15 +192,19 @@ public final class Release implements Action {
                 double reach = ParentCarry.groundPoint(carrier, child, 0).subtract(carrier.position()).horizontalDistance() + .03;
                 var candidates = walk ? SurfaceApproach.contactStands(carrier, at, reach, null,
                         stand -> room(carrier, stand, facing(carrier, stand, at), at).ok()) : List.of(carrier.position());
+                boolean searched = false;
                 for (var stand : candidates) {
                     float yaw = facing(carrier, stand, at);
                     if (stand.subtract(at).horizontalDistance() > reach || !SurfaceApproach.supportedGround(carrier, stand)
                             || !room(carrier, stand, yaw, at).ok()) continue;
                     var candidate = new Candidate(at, stand, Mth.wrapDegrees(yaw));
                     if (tried.contains(candidate)) continue;
-                    if (stands >= STAND_TRIES) return Feasibility.of(Reason.NO_ROOM, 0, "release_search_exhausted");
+                    if (!searched) {
+                        if (stands >= STAND_TRIES) return Feasibility.of(Reason.NO_ROOM, 0, "release_search_exhausted");
+                        stands++;
+                        searched = true;
+                    }
                     tried.add(candidate);
-                    stands++;
                     if (walk && !Double.isFinite(SurfaceApproach.routeLength(carrier, stand, null))) { rejectedStand++; continue; }
                     endpoint = at;
                     facing = candidate.facing();
@@ -250,11 +254,10 @@ public final class Release implements Action {
         if (!space.ok()) return space;
         if (child.getDimensions(child.getPose()).makeBoundingBox(at).intersects(carrier.getBoundingBox().move(stand.subtract(carrier.position()))))
             return Feasibility.of(Reason.NO_ROOM, 0, "carrier_body");
-        if (ParentCarry.hold(carrier, child) == Hold.MOUTH) {
-            var host = ParentCarry.carryHost(carrier, child);
-            if (host != null && carrier.getVehicle() != host.entity() && ParentCarry.pinned(carrier, child, at) > at.y)
-                return Feasibility.of(Reason.NO_ROOM, 0, "carry_host");
-        }
+        // Every hold must agree with the same host-pinned height used by the actual release completion.
+        var host = ParentCarry.carryHost(carrier, child);
+        if (host != null && carrier.getVehicle() != host.entity() && ParentCarry.pinned(carrier, child, at) > at.y)
+            return Feasibility.of(Reason.NO_ROOM, 0, "carry_host");
         if (!clearTurn(carrier, stand, yaw)) return Feasibility.of(Reason.NO_ROOM, 0, "mouth_turn_blocked");
         var hold = ParentCarry.hold(carrier, child);
         if (hold == Hold.BRIM && !ParentCarry.brimLevel(stand, at)) return Feasibility.of(Reason.NO_ROOM, 0, "brim_release_off_level");
