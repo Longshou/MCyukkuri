@@ -468,13 +468,22 @@ def jumps(samples, records=()):
     out = []
     placements = {}
     host_travel = {}
-    travel_velocity, local_flight = {}, {}
+    travel_velocity, hop_velocity, local_flight = {}, {}, {}
     for row in records:
         if row['k'] == 'ev' and row.get('cat') == 'move':
             msg = row.get('msg', '')
             match = re.fullmatch(r'travel action=none at=\([^)]+\) velocity=\(([^)]+)\)', msg)
             if match:
                 travel_velocity[row['u'], row['t']] = [float(x) for x in match[1].split(',')]
+            match = re.fullmatch(r'travel action=hop at=\([^)]+\) velocity=\(([^)]+)\)', msg)
+            if match:
+                # A dismount can run two consumed Hop flight segments in one
+                # tick. Each velocity is its executed Motor.move input; neither
+                # endpoint alone represents the sum. Extra relocation still
+                # leaves a residual against these independently logged inputs.
+                key = row['u'], row['t']
+                prior = hop_velocity.get(key, [0, 0, 0])
+                hop_velocity[key] = [a + float(b) for a, b in zip(prior, match[1].split(','))]
             match = re.fullmatch(r'hop flight host=([\w-]+) localDelta=\(([^)]+)\)', msg)
             if match:
                 local_flight[row['u'], row['t']] = (match[1], [float(x) for x in match[2].split(',')])
@@ -537,6 +546,8 @@ def jumps(samples, records=()):
                 velocities = [sa['v'], sb['v']] if known(sb, 'v') else [sa['v']]
                 if (b['u'], b['t']) in travel_velocity:
                     velocities.append(travel_velocity[b['u'], b['t']])
+                if (b['u'], b['t']) in hop_velocity:
+                    velocities.append(hop_velocity[b['u'], b['t']])
                 if hat_pair and (b['u'], b['t']) in host_travel:
                     velocities.append(host_travel[b['u'], b['t']])
                 residuals = []

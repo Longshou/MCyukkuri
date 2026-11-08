@@ -339,6 +339,21 @@ class Calibration(unittest.TestCase):
         rows[1]['st']['p'][0] -= 2
         self.assertTrue(any(f['verdict']=='fail' for f in checks.jumps(timeline.states(rows),[move])))
 
+    def test_two_executed_hop_segments_share_one_tick(self):
+        # Main hat_crowd-145 t928787: air=1 and air=2 execute on dismount.
+        first = [.0000617681, .2712160268, -.1400758949]
+        second = [.0000562090, .1873917063, -.1274690644]
+        rows = [state(0, g=False), state(1, g=False, v=second,
+                p=[a+b for a,b in zip(first,second)])]
+        moves = [record('ev',1,cat='move',msg='travel action=hop at=(0,0,0) velocity=('+','.join(map(str,v))+')')
+                 for v in (first,second)]
+        self.assertTrue(checks.jumps(timeline.states(rows)))
+        self.assertFalse(checks.jumps(timeline.states(rows),moves))
+        self.assertTrue(checks.jumps(timeline.states(rows),[moves[1]]))
+        self.assertTrue(checks.jumps(timeline.states(rows),[r | {'u':HOST} for r in moves]))
+        rows[1]['st']['p'][0] += 2
+        self.assertTrue(any(f['verdict']=='fail' for f in checks.jumps(timeline.states(rows),moves)))
+
     def test_host_local_ballistic_segment_is_not_a_teleport(self):
         frame = dict(origin=[0,0,0],unit=2,yaw=0,pitch=0,roll=0)
         rows = [state(0,att={'host':HOST,'frame':frame}),
