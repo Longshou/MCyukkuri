@@ -20,7 +20,7 @@
 | `wet` | `parameters.stroke.depth` 为 mu；仅在 `clip_markers.contact..stroke` 内计算；`wet_tip` 必须为真实 BraidChain 终点或道具声明的 blade tip 经最终绘制变换后的点。水深至少 depth/2 通过，0 到 depth/2 疑似，高于水面失败。无 stroke 参数但有 `power_start..power_end` 时，动力段内报告缺少入水深度与桨尖契约，段外不适用；两者均无才视为无划水动作；活动区间缺水、未加载水面、缺尖端均报错。 |
 | `held` | `item:{held,id,place,drawn,grip,anchor}`，held 为服务端实际占用；drawn 是混合后的最终绘制矩阵，grip 为道具局部握点，anchor 为持有部位的最终锚点。drawn 显式 null 为持物未画出的失败；缺字段报错。距离≤0.02 格通过，≤0.08 疑似，其余失败。 |
 | `yaw` | 仅 `yawsrc=body`；客户端提供制作片段根骨转动前的 `body_yaw`，与 `server:{t,by}` 比较；后者必须来自同 tick 的密集服务端采样。离线或旧输入缺少 `body_yaw` 时沿用 `yaw`，旧捕获不能据此声称已排除制作片段转动。包角差≤10°通过，≤30°疑似；>30°连续至少 5 tick 失败，之前为疑似。重复同 tick 的渲染帧按 pt 计时，不按帧数计时，缺采样不跨越累计。 |
-| `posejump` | `bones:{name:matrix}`、`transition`（是否处于制作源声明的过渡）。按连续帧骨骼四元数最短转角算角速度；初帧、相隔>1 tick 或骨架不符报错。过渡期不适用。夹在其他片段间且持续<3 tick 的片段失败，需要后续帧才可判断；180/720°每秒的速度带是暂定假设，尚未校准。 |
+| `posejump` | `bones:{name:matrix}`、`transition`（是否处于制作源声明的过渡）。骨骼先按 `pose_basis` 换回制作坐标系，再按连续帧四元数最短转角算角速度；初帧、相隔>1 tick、骨架不符或两帧的 `pose_basis` 一侧缺失报错。过渡期不适用。夹在其他片段间且持续<3 tick 的片段失败，需要后续帧才可判断；180/720°每秒的速度带是暂定假设，尚未校准。 |
 
 客户端记录 `pose_basis`（制作片段前的实体绘制矩阵）；骨骼先变换回此坐标系，避免实体或承载者整体转向被当作骨骼抽跳。缺少此字段的旧输入仍按原始矩阵计算，不声称已消除整体转向。客户端以连续渲染帧号和单调 `render_seconds` 计算姿态角速度，避免游戏校时倒退；离线采样仍要求间隔不超过 1 tick。片段或阶段切换显式标为过渡。客户端 `gap_applicable=false` 只用于非乘员和嘴叼侧向接触，后者仍检查幼体与承载者的穿透。`pairs_complete=true` 的空配对明确表示该帧没有适用配对；缺配对字段仍报错。
 
