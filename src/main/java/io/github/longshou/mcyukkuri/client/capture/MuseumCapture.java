@@ -1,6 +1,11 @@
 package io.github.longshou.mcyukkuri.client.capture;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.mojang.brigadier.StringReader;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import net.minecraft.commands.arguments.selector.EntitySelectorParser;
+import net.minecraft.client.Camera;
 import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.logging.LogUtils;
@@ -25,7 +30,7 @@ import org.lwjgl.glfw.GLFW;
 
 /** Opt-in render-target recorder. Scene actions still run through the museum's normal start functions. */
 public final class MuseumCapture {
-    private record Scene(String id, String field, int[] ticks, int[][] chunks, String view, String[] reads) {}
+    private record Scene(String id, String field, int[] ticks, int[][] chunks, String view, String[] reads, JsonObject settings) {}
     private record Frame(int requested, long tick, long gameTime, long poseFrame, double seconds, String file, boolean visible, boolean focused) {}
     private static final Gson JSON = new Gson();
     private static final Path ROOT = Path.of(System.getProperty("mcyukkuri.capture.output"));
@@ -38,6 +43,27 @@ public final class MuseumCapture {
     private static int nextFrame;
     private static long began;
     private static long nextReadyCheck;
+    private static CompletableFuture<Integer> follow;
+    private static int followId=-1;
+
+    public static double[] camera(Camera camera,float partial) {
+        if(current==null||current.settings==null)return null;
+        var settings=current.settings;var eye=camera.getPosition();double x=eye.x,y=eye.y,z=eye.z,tx,ty,tz;
+        if(settings.has("look_at")) {
+            var target=settings.getAsJsonArray("look_at");tx=target.get(0).getAsDouble();ty=target.get(1).getAsDouble();tz=target.get(2).getAsDouble();
+        } else {
+            var mc=Minecraft.getInstance();var entity=mc.level.getEntity(followId);
+            if(entity==null)return null;
+            var pose=PoseTap.previous(entity.getUUID().toString());
+            if(pose==null)return null;
+            var at=entity.getPosition(partial);double yaw=Math.toRadians(pose.get("yaw").getAsDouble());
+            var offset=settings.getAsJsonArray("offset");double left=offset.get(0).getAsDouble(),up=offset.get(1).getAsDouble(),front=offset.get(2).getAsDouble();
+            x=at.x+left*Math.cos(yaw)-front*Math.sin(yaw);y=at.y+up;z=at.z+left*Math.sin(yaw)+front*Math.cos(yaw);
+            tx=at.x;ty=at.y+entity.getBbHeight()*.6;tz=at.z;
+        }
+        double dx=tx-x,dy=ty-y,dz=tz-z;
+        return new double[]{x,y,z,Math.toDegrees(Math.atan2(-dx,dz)),-Math.toDegrees(Math.atan2(dy,Math.hypot(dx,dz)))};
+    }
 
     private MuseumCapture() {}
 
@@ -66,7 +92,7 @@ public final class MuseumCapture {
     private static int manual(int[] ticks) {
         if (current != null) throw new IllegalStateException("A capture is already running");
         Minecraft mc = Minecraft.getInstance();
-        begin(new Scene("manual-" + System.currentTimeMillis(), "", ticks, new int[0][], "", new String[0]));
+        begin(new Scene("manual-" + System.currentTimeMillis(), "", ticks, new int[0][], "", new String[0],new JsonObject()));
         start = CompletableFuture.completedFuture(mc.level.getGameTime());
         return 1;
     }
@@ -75,6 +101,7 @@ public final class MuseumCapture {
         Minecraft.getInstance().options.hideGui = true;
         current = scene;
         nextFrame = 0;
+        follow=null;followId=-1;
         FRAMES.clear();
         WRITES.clear();
         began = System.nanoTime();
@@ -149,8 +176,18 @@ public final class MuseumCapture {
         }
         if (!start.isDone()) return;
         long tick = mc.level.getGameTime() - start.join();
+        if(tick>=0&&current.settings!=null&&current.settings.has("follow")&&follow==null) {
+            var settings=current.settings;var server=mc.getSingleplayerServer();var observer=mc.player.getUUID();
+            follow=server.submit(()->{
+                try{return new EntitySelectorParser(new StringReader(settings.get("follow").getAsString()),true).parse()
+                        .findSingleEntity(server.getPlayerList().getPlayer(observer).createCommandSourceStack()).getId();}
+                catch(CommandSyntaxException error){throw new IllegalArgumentException("Invalid capture follow selector",error);}
+            });
+        }
+        if(follow!=null&&follow.isDone())followId=follow.join();
+        boolean metricHit=PoseTap.evaluateFrame();
         boolean scheduled = nextFrame < current.ticks.length && tick >= current.ticks[nextFrame];
-        boolean shot = scheduled || tick >= 0 && nextFrame < current.ticks.length && PoseTap.markerFrame();
+        boolean shot = scheduled || tick >= 0 && nextFrame < current.ticks.length && (PoseTap.markerFrame()||metricHit);
         if (shot) {
             int requested = scheduled ? current.ticks[nextFrame++] : (int)tick;
             // Never fabricate missed frames by saving the same render repeatedly.

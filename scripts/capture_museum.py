@@ -14,7 +14,7 @@ from pathlib import Path
 sys.dont_write_bytecode = True
 import smoke_museum as smoke
 import smoke_slots as slots
-from capture_readout import read_pose, select_frames, geometry_report
+from capture_readout import postprocess, select_frames, geometry_report
 from PIL import Image, ImageDraw
 
 server = smoke.server
@@ -66,7 +66,7 @@ def client_command(runtime, java, instance, mod, output):
 def contact_sheet(directory):
     frames = json.loads((directory / 'frames.json').read_text(encoding='utf-8'))
     # Keep a readable overview; all full-resolution frames remain alongside it.
-    poses = read_pose(directory)
+    poses = postprocess(directory, frames)
     chosen = select_frames(frames, poses)
     (directory / 'selected-frames.json').write_text(json.dumps(chosen, indent=2), encoding='utf-8')
     (directory / 'geometry.json').write_text(json.dumps(geometry_report(poses), indent=2), encoding='utf-8')
@@ -135,10 +135,10 @@ def capture(parser, args):
         camera = ''
         follow = settings.get('follow')
         if follow:
-            offset = ' '.join(f'^{v}' for v in settings.get('offset', (-1.4, .65, .8)))
+            settings = dict(settings, offset=settings.get('offset', (-1.4, .65, .8)))
             camera = f'execute as @a run yukkuri observe off\nfunction mcylab:capture/{view_id}_camera\n'
             (functions / f'capture/{view_id}_camera.mcfunction').write_text(
-                f'gamemode spectator @a\nexecute at {follow} rotated as {follow} positioned {offset} anchored eyes run tp @a ~ ~-1.62 ~ facing entity {follow} eyes\n'
+                f'gamemode spectator @a\nexecute at {follow} run tp @a ~4 ~2 ~4 facing entity {follow} eyes\n'
                 f'schedule function mcylab:capture/{view_id}_camera 1t replace\n', encoding='utf-8')
             clear = functions / f'field/{scene.field}/clear.mcfunction'
             with clear.open('a', encoding='utf-8') as output_file:
@@ -146,7 +146,8 @@ def capture(parser, args):
         (functions / f'capture/{view_id}.mcfunction').write_text(
             f'yukkuri status trace dense\nexecute as @a at @s run function mcylab:start/{scene.id}\n{camera}' + interactions
             + ('execute as @a run yukkuri observe off\n' if scene.capture.get('observe') is False else ''), encoding='utf-8')
-        plan.append(dict(id=view_id, field=scene.field, ticks=capture_ticks(scene.capture),
+        plan.append(dict(id=view_id, field=scene.field, ticks=capture_ticks(scene.capture), settings=settings,
+                         milestones=scene.smoke.get('milestones', []) if scene.smoke else [],
                          chunks=sorted(builder.BY_ID[scene.field].chunks()), view=view,
                          reads=[f'execute positioned {scene.anchor[0]}.0 {builder.FEET} {scene.anchor[1]}.0 run {command}'
                                 for _, command in scene.reads]))

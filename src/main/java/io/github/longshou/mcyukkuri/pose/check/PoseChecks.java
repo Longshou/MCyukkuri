@@ -109,7 +109,9 @@ public final class PoseChecks {
         if (params.has("tilt_why")) r.getAsJsonObject("band").add("why", params.get("tilt_why"));
     }
     private static void penetration(JsonObject f, JsonObject r) {
+        if(f.has("geometry_error"))throw new IllegalArgumentException(s(f,"geometry_error"));
         var pairs = need(f, "pairs").getAsJsonArray();
+        if(pairs.isEmpty()&&f.has("pairs_complete")&&f.get("pairs_complete").getAsBoolean()){skip(r,"no applicable pair in observed neighborhood");return;}
         if (pairs.isEmpty()) throw new IllegalArgumentException("missing context: declared collision pairs");
         var meshes = obj(f, "meshes"); var cache = new HashMap<String, Geometry.Mesh>();
         double worst = 0; String where = "declared pairs";
@@ -129,6 +131,7 @@ public final class PoseChecks {
         bounded(r, worst, .1, .1, where);
     }
     private static void gap(JsonObject f, JsonObject r) {
+        if(f.has("gap_applicable")&&!f.get("gap_applicable").getAsBoolean()){skip(r,"free airborne body has no support contact");return;}
         var sup = obj(f, "sup"); var skin = new ArrayList<Vector3d>();
         for (var p : need(f, "skin_points").getAsJsonArray()) skin.add(vector(p));
         if (skin.isEmpty()) throw new IllegalArgumentException("missing context: rider skin points");
@@ -187,7 +190,11 @@ public final class PoseChecks {
         s(f, "run"); s(f, "u");
         boolean transition = need(f, "transition").getAsBoolean();
         if (transition) { skip(r, "authored transition"); return; }
-        if (i == 0 || !contiguous(fs.get(i - 1), f)) throw new IllegalArgumentException("missing context: contiguous previous pose");
+        if (i == 0) throw new IllegalArgumentException("missing context: contiguous previous pose");
+        var before=fs.get(i-1);
+        boolean renderedNeighbors=before.has("f")&&f.has("f")&&n(f,"f")==n(before,"f")+1;
+        if(time(f)==time(before)&&obj(f,"bones").equals(obj(before,"bones"))){skip(r,"unchanged pose at paused game time");return;}
+        if(!(time(f)>time(before)&&(renderedNeighbors||contiguous(before,f))))throw new IllegalArgumentException("missing context: contiguous previous pose");
         var prev = fs.get(i - 1); var bones = obj(f, "bones"); var old = obj(prev, "bones");
         if (bones.isEmpty() || !bones.keySet().equals(old.keySet())) throw new IllegalArgumentException("missing/mismatched bone matrices");
         double rate = 0; String where = "bones";

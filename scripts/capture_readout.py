@@ -5,7 +5,65 @@ from pathlib import Path
 
 def read_pose(directory):
     with (Path(directory) / 'pose.jsonl').open(encoding='utf-8') as source:
-        return [json.loads(line) for line in source if line.strip()]
+        rows = []
+        for line in source:
+            if not line.strip():
+                continue
+            row = json.loads(line)
+            for key in ('meshes', 'bones', 'skin', 'skin_points', 'pairs'):
+                row.pop(key, None)
+            if 'sup' in row:
+                row['sup'].pop('mesh', None)
+            rows.append(row)
+        return rows
+
+
+def postprocess(directory, frames):
+    """Join exact dense server ticks; do not interpolate or substitute synchronized yaw."""
+    from pose_client import request
+    import re
+    directory = Path(directory)
+    poses = read_pose(directory)
+    start = frames[0]['gameTime'] - frames[0]['tick']
+    end = frames[-1]['gameTime']
+    poses = [p for p in poses if start <= p['t'] <= end]
+    yaw, events = {}, []
+    with (directory.parent / 'stdout.log').open(encoding='utf-8') as log:
+        for line in log:
+            if '[trace] ' not in line:
+                continue
+            row = json.loads(line.split('[trace] ', 1)[1])
+            if not start <= row['t'] <= end:
+                continue
+            if row['k'] == 'st' and 'by' in row['st']:
+                yaw[row['dim'], row['u'], row['t']] = row['st']['by']
+            elif row['k'] == 'ev':
+                events.append(row)
+    plan = next(p for p in json.loads((directory.parent/'plan.json').read_text()) if p['id'] == directory.name)
+    patterns = []
+    for path in plan.get('milestones', []):
+        for _, predicate in path['steps']:
+            if predicate.startswith('seen:'):
+                _, category, pattern = predicate.split(':', 2)
+                patterns.append((category, re.compile(pattern)))
+    milestones = [e for e in events if any(e['cat'] == cat and pattern.search(e['msg']) for cat, pattern in patterns)]
+    groups = {}
+    for p in poses:
+        if p['k'] != 'pose':
+            continue
+        value = yaw.get((p['dim'], p['u'], p['t']))
+        if value is not None:
+            p['server'] = dict(t=p['t'], by=value)
+        groups.setdefault(p['u'], []).append(p)
+    fields = ('v', 'k', 'run', 'win', 'u', 't', 'pt', 'f', 'ct', 'yawsrc', 'yaw', 'server')
+    for rows in groups.values():
+        result = request(dict(frames=[{k: p[k] for k in fields if k in p} for p in rows], metric=['yaw']))
+        for p, metric in zip(rows, result['results'], strict=True):
+            p['m'] = [m for m in p['m'] if m['metric'] != 'yaw'] + [metric]
+    for event in milestones:
+        nearest = min(frames, key=lambda f: abs(f['gameTime']-event['t']))
+        nearest.setdefault('milestones', []).append(dict(t=event['t'], cat=event['cat'], msg=event['msg']))
+    return poses
 
 
 def select_frames(frames, poses, limit=10):
@@ -36,6 +94,9 @@ def select_frames(frames, poses, limit=10):
         previous[pose['u']] = state
         by_frame[pose['f']] = max(by_frame.get(pose['f'], 0), rank)
     chosen = {0, len(frames) - 1}
+    for f in frames:
+        if f.get('milestones'):
+            by_frame[f['poseFrame']] = max(2, by_frame.get(f['poseFrame'], 0))
     candidates = sorted(range(1, len(frames) - 1), key=lambda i: (-by_frame.get(frames[i]['poseFrame'], 0), frames[i]['gameTime']))
     for i in candidates:
         if len(chosen) >= limit or by_frame.get(frames[i]['poseFrame'], 0) == 0:

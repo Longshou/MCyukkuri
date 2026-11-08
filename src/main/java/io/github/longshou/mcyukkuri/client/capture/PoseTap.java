@@ -5,6 +5,13 @@ import io.github.longshou.mcyukkuri.client.YukkuriModel;
 import io.github.longshou.mcyukkuri.entity.YukkuriView;
 import io.github.longshou.mcyukkuri.headwear.PlacedHatView;
 import io.github.longshou.mcyukkuri.pose.check.PoseChecks;
+import io.github.longshou.mcyukkuri.pose.check.PoseGeometry;
+import io.github.longshou.mcyukkuri.client.PropModels;
+import net.minecraft.core.BlockPos;
+import net.minecraft.tags.FluidTags;
+import net.minecraft.client.Minecraft;
+import net.minecraft.core.Direction;
+import net.minecraft.util.RandomSource;
 import java.io.*;
 import java.nio.file.*;
 import java.util.*;
@@ -29,14 +36,15 @@ public final class PoseTap {
         return a;
     }
     public static boolean active() { return ENABLED && writer != null; }
+    public static JsonObject previous(String uuid){return PREVIOUS.get(uuid);}
     public static void begin(Path directory) {
         try { writer = Files.newBufferedWriter(directory.resolve("pose.jsonl")); }
         catch (IOException e) { throw new UncheckedIOException(e); }
         run = directory.getParent().getFileName().toString(); window = directory.getFileName().toString();
         frame = 0; CURRENT.clear(); PREVIOUS.clear();
     }
-    public static void model(YukkuriView entity, YukkuriModel model) {
-        if (active()) CURRENT.put(entity.getUUID().toString(), model.capturePose());
+    public static void model(YukkuriView entity, YukkuriModel model, boolean accessory, int hairLoss) {
+        if (active()) CURRENT.put(entity.getUUID().toString(), model.capturePose(accessory,hairLoss));
     }
     private static Matrix4f origin(YukkuriView entity, float partial) {
         var p = entity.getPosition(partial);
@@ -57,6 +65,10 @@ public final class PoseTap {
         var forward = root.transformDirection(new Vector3f(0, 0, -1));
         f.addProperty("yaw", Math.toDegrees(Math.atan2(-forward.x, forward.z)));
         f.add("root", matrix(root));
+        f.add("position",PoseGeometry.point(new Vector3f((float)entity.getPosition(partial).x*16,(float)entity.getPosition(partial).y*16,(float)entity.getPosition(partial).z*16)));
+        PoseGeometry.transform(f.getAsJsonObject("meshes"),transform);
+        if(f.has("head"))f.add("head",matrix(transform.mul(new Matrix4f(PoseChecks.matrix(f.get("head"))),new Matrix4f())));
+        for(String key:List.of("mouth_anchor","wet_tip"))if(f.has(key))f.add(key,PoseGeometry.point(transform.transformPosition(PoseGeometry.vector(f.get(key)))));
         var bones = f.getAsJsonObject("bones");
         for (String name : new ArrayList<>(bones.keySet()))
             bones.add(name, matrix(transform.mul(new Matrix4f(PoseChecks.matrix(bones.get(name))), new Matrix4f())));
@@ -65,11 +77,33 @@ public final class PoseTap {
         sup.add("host", entity.vehicleYukkuri()!=null ? new JsonPrimitive(entity.vehicleYukkuri().getUUID().toString())
                 : entity.vehicleHat()!=null ? new JsonPrimitive(entity.vehicleHat().getUUID().toString()) : JsonNull.INSTANCE);
         f.add("sup", sup);
+        f.addProperty("gap_applicable",entity.isPassenger()||entity.onGround());
+        if(sup.get("kind").getAsString().equals("ground")&&entity.onGround()) {
+            var ground=new JsonObject();ground.addProperty("closed",false);var ts=new JsonArray();ground.add("triangles",ts);
+            var box=entity.getBoundingBox().inflate(.5,1,.5);
+            for(var pos:BlockPos.betweenClosed(BlockPos.containing(box.minX,box.minY,box.minZ),BlockPos.containing(box.maxX,box.maxY,box.maxZ))) {
+                if(!entity.level().hasChunkAt(pos))continue;
+                for(var a:entity.level().getBlockState(pos).getCollisionShape(entity.level(),pos).toAabbs()) {
+                    float x=(float)(pos.getX()+a.minX)*16,X=(float)(pos.getX()+a.maxX)*16,z=(float)(pos.getZ()+a.minZ)*16,Z=(float)(pos.getZ()+a.maxZ)*16,y=(float)(pos.getY()+a.maxY)*16;
+                    for(Vector3f[] corners:List.of(new Vector3f[]{new Vector3f(x,y,z),new Vector3f(X,y,z),new Vector3f(X,y,Z)},new Vector3f[]{new Vector3f(x,y,z),new Vector3f(X,y,Z),new Vector3f(x,y,Z)})) {
+                        var triangle=new JsonArray();for(var p:corners)triangle.add(PoseGeometry.point(p));ts.add(triangle);
+                    }
+                }
+            }
+            sup.add("mesh",ground);
+        }
         var item = new JsonObject(); item.addProperty("held", !entity.getHeldItem().isEmpty());
         item.addProperty("id", BuiltInRegistries.ITEM.getKey(entity.getHeldItem().getItem()).toString());
         if (!entity.getHeldItem().isEmpty()) item.addProperty("place", entity.heldPlace().place().name());
         item.add("drawn", JsonNull.INSTANCE); f.add("item", item);
         var water = new JsonObject(); water.add("point", JsonNull.INSTANCE); f.add("water", water);
+        if(f.has("wet_tip")) {
+            var tip=PoseChecks.vector(f.get("wet_tip"));var pos=BlockPos.containing(tip.x/16,tip.y/16,tip.z/16);
+            if(entity.level().hasChunkAt(pos))for(int dy=1;dy>=-1;dy--) {
+                var at=pos.above(dy);var fluid=entity.level().getFluidState(at);
+                if(fluid.is(FluidTags.WATER)){water.addProperty("point",at.getY()+fluid.getHeight(entity.level(),at));break;}
+            }
+        }
         var crossed = new JsonArray(); var previous = PREVIOUS.get(uuid);
         for (var marker : f.getAsJsonObject("clip_markers").entrySet()) {
             if (!marker.getValue().isJsonPrimitive()) continue;
@@ -78,12 +112,27 @@ public final class PoseTap {
             if ((before <= now ? before < time : true) && time <= now) crossed.add(marker.getKey());
         }
         f.add("markers", crossed);
-        // Absence of authored transition evidence must remain visible to the shared checker.
+        f.addProperty("transition",previous==null||!previous.get("clip").equals(f.get("clip"))||!previous.get("phase").equals(f.get("phase")));
     }
-    public static void held(YukkuriView entity, Matrix4f drawn, float partial) {
+    public static void held(YukkuriView entity, Matrix4f drawn, Matrix4f anchor, float partial) {
         if (!active()) return;
         var item = CURRENT.get(entity.getUUID().toString()).getAsJsonObject("item");
         item.add("drawn", drawn == null ? JsonNull.INSTANCE : matrix(origin(entity, partial).mul(drawn)));
+        if(drawn==null)return;
+        var transform=origin(entity,partial).mul(drawn).translate(0,-5/16f,0).rotateZ((float)Math.PI/4).scale((float)Math.sqrt(.5)).translate(-.5f,-.5f,-.5f);
+        item.add("drawn",matrix(transform));item.add("grip",PoseGeometry.point(new Vector3f(.8125f,.8125f,.5f)));
+        if(anchor!=null)item.add("anchor",PoseGeometry.point(origin(entity,partial).mul(anchor).getTranslation(new Vector3f())));
+        var model=Minecraft.getInstance().getItemRenderer().getModel(entity.getHeldItem(),entity.level(),null,entity.getId());
+        var f=CURRENT.get(entity.getUUID().toString());
+        if(model.isCustomRenderer()){f.addProperty("geometry_error","custom held-item renderer");return;}
+        var mesh=new JsonObject();mesh.addProperty("closed",false);var triangles=new JsonArray();mesh.add("triangles",triangles);
+        var directions=new ArrayList<Direction>(Arrays.asList(Direction.values()));directions.add(null);
+        for(var direction:directions)for(var quad:model.getQuads(null,direction,RandomSource.create(42))) {
+            var vertices=quad.getVertices();int stride=vertices.length/4;
+            for(int[] corners:new int[][]{{0,1,2},{0,2,3}}){var tri=new JsonArray();for(int corner:corners){int i=corner*stride;
+                tri.add(PoseGeometry.point(transform.transformPosition(new Vector3f(Float.intBitsToFloat(vertices[i]),Float.intBitsToFloat(vertices[i+1]),Float.intBitsToFloat(vertices[i+2])))));}triangles.add(tri);}
+        }
+        f.getAsJsonObject("meshes").add("item",mesh);
     }
     public static void hat(PlacedHatView hat, Matrix4f start, Matrix4f drawn, float partial) {
         if (!active()) return;
@@ -94,6 +143,11 @@ public final class PoseTap {
         var transform = new Matrix4f().translation((float)p.x*16, (float)p.y*16, (float)p.z*16).scale(16)
                 .mul(new Matrix4f(start).invert()).mul(drawn);
         f.add("root", matrix(transform)); CURRENT.put(hat.getUUID().toString(), f);
+        f.add("position",PoseGeometry.point(new Vector3f((float)p.x*16,(float)p.y*16,(float)p.z*16)));
+        var meshes=new JsonObject();
+        var hull=new Matrix4f(transform).translate(0,(float)hat.profile().top()*hat.hullScale()/16,0).scale(hat.hullScale()/16,hat.hullScale()*(float)hat.profile().squash()/16,hat.hullScale()/16);
+        meshes.add("hat",PropModels.captureMesh(hat.profile().hull(),1,hull));f.add("meshes",meshes);
+        if(hat.hullDamage()>0)f.addProperty("geometry_error","damaged placed hat");
     }
     private static void envelope(JsonObject f, String uuid, long tick, String dimension, float partial) {
         f.addProperty("v", 1); f.addProperty("k", "pose"); f.addProperty("src", "client");
@@ -112,12 +166,13 @@ public final class PoseTap {
         }
         return false;
     }
-    public static void finishFrame(boolean shot) {
-        if (!active()) return;
-        try {
-            for (var entry : CURRENT.entrySet()) {
+    public static boolean evaluateFrame() {
+        boolean hit=false;
+        if(!active())return false;
+        for (var entry : CURRENT.entrySet()) {
                 var f = entry.getValue();
                 if (f.get("k").getAsString().equals("pose")) {
+                    PoseGeometry.context(f,CURRENT);
                     var sup = f.getAsJsonObject("sup");
                     if (!sup.get("host").isJsonNull()) {
                         var host = CURRENT.get(sup.get("host").getAsString());
@@ -125,15 +180,31 @@ public final class PoseTap {
                     }
                     var previous = PREVIOUS.get(entry.getKey());
                     var samples = previous == null ? List.of(f) : List.of(previous, f);
-                    var results = PoseChecks.evaluate(samples, PoseChecks.METRICS);
+                    var results = PoseChecks.evaluate(List.of(f), List.of("pass","tilt","gap","wet","held"));
+                    results.addAll(PoseChecks.evaluate(samples,List.of("posejump")));
                     var latest = new JsonArray();
                     for (var r : results) if (r.getAsJsonObject().get("f").equals(f.get("f"))) latest.add(r);
                     f.add("m", latest);
-                    PREVIOUS.put(entry.getKey(), f);
+                    if(previous!=null)for(var result:latest) {
+                        var r=result.getAsJsonObject();String verdict=r.get("verdict").getAsString();
+                        if(!List.of("fail","suspect").contains(verdict))continue;
+                        boolean existed=false;
+                        for(var old:previous.getAsJsonArray("m"))if(old.getAsJsonObject().get("metric").equals(r.get("metric"))&&old.getAsJsonObject().get("verdict").equals(r.get("verdict")))existed=true;
+                        hit|=!existed;
+                    }
                 }
-                var output = f.deepCopy();
-                if (!shot) { output.remove("bones"); output.remove("skin"); }
+        }
+        return hit;
+    }
+    public static void finishFrame(boolean shot) {
+        if (!active()) return;
+        try {
+            for (var entry : CURRENT.entrySet()) {
+                var f=entry.getValue();var output=new JsonObject();
+                for(var field:f.entrySet())if(shot||!List.of("bones","skin","meshes","skin_points","pairs").contains(field.getKey()))output.add(field.getKey(),field.getValue());
+                if(!shot&&output.has("sup")){var sup=output.getAsJsonObject("sup").deepCopy();sup.remove("mesh");output.add("sup",sup);}
                 writer.write(JSON.toJson(output)); writer.newLine();
+                if(f.get("k").getAsString().equals("pose"))PREVIOUS.put(entry.getKey(),f);
             }
             PREVIOUS.keySet().retainAll(CURRENT.keySet());
             CURRENT.clear(); frame++;

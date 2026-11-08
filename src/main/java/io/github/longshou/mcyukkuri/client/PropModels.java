@@ -19,6 +19,9 @@ import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Vector3f;
+import org.joml.Matrix4f;
+import com.google.gson.JsonArray;
+import io.github.longshou.mcyukkuri.pose.check.PoseGeometry;
 
 /** Static triangle props use the same eight-float layout as the authoring exports. */
 public final class PropModels {
@@ -89,6 +92,14 @@ public final class PropModels {
         return Map.copyOf(out);
     }
     public static boolean has(String name){return models.containsKey(name);}
+    /** Open authored prop triangles, transformed to the capture coordinate system; never fill the hull. */
+    public static JsonObject captureMesh(String name,int units,Matrix4f transform) {
+        var model=models.get(name);var result=new JsonObject();result.addProperty("closed",false);var triangles=new JsonArray();result.add("triangles",triangles);
+        for(var part:model.parts)if(part.unit<=units)for(int first=part.start;first<part.start+part.count;first+=3) {
+            var t=new JsonArray();for(int c=0;c<3;c++){int i=(first+c)*8;t.add(PoseGeometry.point(transform.transformPosition(new Vector3f(model.vertices[i],model.vertices[i+1],model.vertices[i+2]))));}triangles.add(t);
+        }
+        return result;
+    }
     /** The prop's named anchor, or null when the prop or anchor is missing. */
     public static Anchor anchor(String name,String anchor){var model=models.get(name);return model==null?null:model.anchors.get(anchor);}
     public static Vec3 socket(String name){return models.get(name).socket;}

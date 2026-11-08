@@ -3,6 +3,6 @@
   "minVersion": "0.8",
   "package": "io.github.longshou.mcyukkuri.client.capture.mixin",
   "compatibilityLevel": "JAVA_21",
-  "client": ["HiddenWindowMixin", "CaptureFocusMixin"],
+  "client": ["HiddenWindowMixin", "CaptureFocusMixin", "CaptureCameraMixin"],
   "injectors": {"defaultRequire": 1}
 }

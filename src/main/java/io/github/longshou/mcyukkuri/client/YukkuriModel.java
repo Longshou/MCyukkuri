@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.client;
 
 import io.github.longshou.mcyukkuri.client.capture.PoseTap;
+import io.github.longshou.mcyukkuri.pose.check.PoseGeometry;
 
 import io.github.longshou.mcyukkuri.pose.Clips;
 import io.github.longshou.mcyukkuri.pose.Clips.Clip;
@@ -89,7 +90,7 @@ public final class YukkuriModel {
     void poseFingerprint(String value) { poseFingerprint = value; }
 
     /** Snapshot before renderLiving clears its transient inputs; no animation is sampled here. */
-    public JsonObject capturePose() {
+    public JsonObject capturePose(boolean accessory, int hairLoss) {
         var out = new JsonObject();
         out.addProperty("fp", poseFingerprint);
         out.addProperty("clip", sampledClip); out.addProperty("ct", sampledTime);
@@ -100,6 +101,35 @@ public final class YukkuriModel {
         var matrices = new JsonObject();
         for (int i = 0; i < bones.length; i++) matrices.add(bones[i].name(), PoseTap.matrix(world[i]));
         out.add("bones", matrices);
+        var meshes = new JsonObject();
+        for (int index=0; index<parts.size(); index++) {
+            var part=puffAmount>0?(puffPartIndex==index?puffSurface:puffAttachments.getOrDefault(index,parts.get(index))):parts.get(index);
+            if (hairHidden(part,hairLoss) || ((!accessory || hatProp!=null) && accessoryPart(part)) || !part.anatomy.isEmpty()) continue;
+            String group=PoseGeometry.group(part.name);
+            if (group.equals("other")) continue;
+            var triangles=new JsonArray();
+            var curled=tailCurl==null?null:tailCurl.part(index);
+            for (int first=part.start;first<part.start+part.count;first+=3) {
+                var triangle=new JsonArray();
+                for (int corner=0;corner<3;corner++) {
+                    var point=new Vector3f(); skin(first+corner,point);
+                    if(curled!=null)curled.transformPosition(point);
+                    triangle.add(PoseGeometry.point(point));
+                }
+                triangles.add(triangle);
+            }
+            PoseGeometry.append(meshes,group,triangles,group.equals("body"));
+            if(part.name.equals("braid_lock_root")||part.name.equals("braid_lock_root_outer"))PoseGeometry.append(meshes,"root_ring",triangles,false);
+            if(part.name.startsWith("face_mouth"))PoseGeometry.append(meshes,"mouth",triangles,false);
+        }
+        // Specialized damaged surfaces are not represented by the ordinary core skin.
+        if(woundDisplay!=null||hatDamageDraw.level()>0||delivery!=null)out.addProperty("geometry_error","specialized wound/hat/delivery surface");
+        out.add("meshes",meshes);
+        var worn=HatGeometry.worn(id);
+        if(worn!=null)out.add("head",PoseTap.matrix(world[worn.getAsJsonObject("head").get("bone").getAsInt()]));
+        out.add("mouth_anchor",PoseGeometry.point(mouthPoint()));
+        for(int i=0;i<bones.length;i++)if(bones[i].name().equals("hand_right_tip"))
+            out.add("wet_tip",PoseGeometry.point(world[i].transformPosition(new Vector3f(bones[i].x,bones[i].y,bones[i].z))));
         var skin = new JsonObject();
         skin.addProperty("puff", puffAmount); skin.addProperty("belly", pregnancyBelly);
         skin.addProperty("contraction", pregnancyContraction); skin.addProperty("wear", wear);
@@ -1121,7 +1151,7 @@ public final class YukkuriModel {
                 woundDisplay.render(world,pregnancyBelly,stack,buffers,light,overlay);WoundLod.time(WoundLod.DISPLAY,displayStart);WoundLod.drawn(!woundDisplay.simple);}
             hatDamageDraw.drawCaps(buffers);
             if(accessory||pieces||hatMotion.equals("HAT_REMOVE"))renderReplacementHat(stack,buffers,light,overlay);
-            PoseTap.model(entity, this);
+            PoseTap.model(entity, this, accessory, hairLoss);
         }finally{wear=0;wearClear=false;woundDisplay=null;drain=0;adultStatePose=false;drawingWoundedBody=false;drawingSurfaceMarks=false;mouthHolding=false;carryLoad=carryLean=carryCurlLeft=carryCurlRight=carryMouth=carryCheeks=hatInBraid=0;hatMotion="";hatScale=1;hatProp=null;hatDamageDraw.reset();setCareContact(0,
                 Float.NaN,0,0);setBraidReach(null,0);
                 setBoardingPose(Float.NaN,0,1,0);setSelfHatPose(null);setExpression("");setReproductiveAnatomy(null,0);}
