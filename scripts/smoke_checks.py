@@ -186,6 +186,12 @@ def work_changed(a, b):
         # These actions expose ticks remaining, not distance. A real bounded
         # flight/wait advancing is work; a reset or stalled timer is not.
         return True
+    if (known(a, 'dailyGreetingWait') and known(b, 'dailyGreetingWait')
+            and 0 <= b['dailyGreetingWait'] < a['dailyGreetingWait']):
+        # Daily contact starts with an actual greeting before contactTicks.
+        # This clock only decreases while touching; a frozen/reset clock or
+        # subsequent failed approach is still checked.
+        return True
     if (not a.get('int') and not b.get('int') and not a.get('act') and not b.get('act')
             and known(b, 'waitElapsed') and (not known(a, 'waitElapsed') or b['waitElapsed'] > a['waitElapsed'])):
         # A choreography may hold one role while another runs a side job.

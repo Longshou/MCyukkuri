@@ -62,6 +62,8 @@ public final class DailyLife {
     public boolean inContact() { return active() && session.contact > 0; }
     /** Actual shared contact clock; observation does not evaluate session validity. */
     public int observedContactTicks() { return active() ? session.contact : 0; }
+    /** The greeting only counts down while the existing contact is touching. */
+    public int observedGreetingWait() { return active() ? session.greetHold : 0; }
     public String detail() {
         return !active() ? "idle" : "kind=" + session.kind
                 + " contact=" + session.contact + " elapsed=" + session.elapsed;

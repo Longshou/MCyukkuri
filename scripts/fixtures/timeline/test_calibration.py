@@ -14,6 +14,19 @@ from cases import record, state, log, HOST, ACTOR
 
 
 class Calibration(unittest.TestCase):
+    def test_daily_greeting_requires_actual_touching_countdown(self):
+        # Main birth_boat_missed-184 t1151665 precedes NUZZLE contactTicks;
+        # the existing greeting clock advances only at real touching contact.
+        def rows(end, frozen=False):
+            return [state(t, goals=['DailyGoal'], p=[(t//2)*.02,0,0],
+                          dailyGreetingWait=20 if frozen else max(0,20-t)) for t in range(end)]
+        self.assertFalse(checks.progress(timeline.states(rows(20))))
+        self.assertTrue(any(f['verdict']=='fail' for f in checks.progress(timeline.states(rows(60)))))
+        self.assertTrue(any(f['verdict']=='fail' for f in checks.progress(timeline.states(rows(20,True)))))
+        self.assertFalse(checks.work_changed(state(0,dailyGreetingWait=5)['st'],state(1,dailyGreetingWait=20)['st']))
+        _, issues=timeline.parse([log([state(0,dailyGreetingWait='not-a-counter')])])
+        self.assertTrue(issues)
+
     def test_shared_phase_wait_does_not_hide_a_stalled_side_job(self):
         rows=[state(t,goals=['BirthGoal'],waitElapsed=t,int={'id':'attend'},
                     act={'id':'walk','owner':'catcher','metric':1,'win':40}) for t in range(402)]

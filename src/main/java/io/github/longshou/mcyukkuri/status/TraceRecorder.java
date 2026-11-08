@@ -621,6 +621,7 @@ public final class TraceRecorder {
         out.addProperty("socialGreeting", socialGreeting == null ? null : socialGreeting.toString());
         out.addProperty("defenseWait", entity.groupInteraction().defense().observedStrikeWait());
         out.addProperty("dailyContactTicks", entity.dailyLife().observedContactTicks());
+        out.addProperty("dailyGreetingWait", entity.dailyLife().observedGreetingWait());
         out.addProperty("thermalRestTicks", entity.life().temperature().observedRestTicks());
         out.addProperty("pitPhase", entity.settlement().duties().pit().observedPhase());
         out.add("hold", hold(entity));
