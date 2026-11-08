@@ -9,6 +9,7 @@
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
 | 搬运放下：接生、带回窝、托幼三链放不下孩子（二分 `birth_land_caught` 回归中；第三轮 `carry_home` END 19/20，`birth_land_caught` 先放下再收帽 9/20、主线 16/20；报告 `.local/refactor/reports/wp-cs-carry-putdown.md`） | `.worktrees/wp-cs-carry-putdown` | family/ParentCarry.java、motor/action/Release.java、life/SurfaceApproach.java |
+| 试玩场演示编号（2026-11-09 生5） | `.worktrees/wp-ea-scene-numbers` | scripts/museum_scenarios.py、scripts/feedback_intake.py |
 
 ## 玩法待办
 
