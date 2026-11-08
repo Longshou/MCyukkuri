@@ -149,6 +149,29 @@ class ExportTests(unittest.TestCase):
             self.assertEqual(requests[0]['metric'], ['tilt', 'pass'])
             self.assertEqual((self.root/'motion/wake'/model/'metrics.jsonl').read_text(), response*2)
 
+    def test_motion_model_error_preserves_reason_and_checks_remaining_models(self):
+        import argparse
+        import contextlib
+        import io
+        beats = self.root/'beats.txt'
+        beats.write_text('0s start\n', encoding='utf-8')
+        args = argparse.Namespace(beats=beats, clips=['wake'], check=False,
+            model=['house_marisa', 'reimu'], metrics='tilt', context=None, water=None,
+            report=self.root/'results.json')
+        responses = iter(['{"error":"incompatible house_ecology for house_marisa"}\n',
+                          '{"results":[{"verdict":"pass"}]}\n'])
+        def run(command, **kwargs):
+            return subprocess.CompletedProcess(command, 0,
+                stdout=next(responses) if '--serve' in command else '', stderr='')
+        output = io.StringIO()
+        with patch.object(pipeline, 'run', return_value={'status': 'PASS'}), \
+             patch.object(registry, 'prepare_export'), patch.object(registry, 'finish_export'), \
+             patch.object(pipeline.subprocess, 'run', side_effect=run), contextlib.redirect_stdout(output):
+            self.assertEqual(pipeline.motion(args, pipeline.table()), 2)
+        self.assertIn('wake/house_marisa: pose service error', output.getvalue())
+        self.assertIn('incompatible house_ecology for house_marisa', output.getvalue())
+        self.assertTrue((self.root/'motion/wake/reimu/metrics.jsonl').exists())
+
     def test_failed_selected_source_blocks_owner_but_not_independent_export(self):
         self.seed()
         rows = {key: pipeline.exporter(key, 'scripts/export.py', []) for key in ('source', 'owner', 'independent')}

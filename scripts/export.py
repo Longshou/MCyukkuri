@@ -360,6 +360,7 @@ def motion(args, rows):
             finish_export(ROOT, before)
         if result['status'] != 'PASS':
             return 1
+    failed = 0
     for clip, model in product(args.clips, args.model):
         topic = 'motion-'+clip.replace('_', '-')+'-'+model.replace('_', '-')
         subprocess.run([sys.executable, 'scripts/preview.py', 'strip', topic, '--model', model,
@@ -386,20 +387,23 @@ def motion(args, rows):
         (folder/'metrics.jsonl').write_text(result.stdout, encoding='utf-8')
         (folder/'stderr.log').write_text(result.stderr, encoding='utf-8')
         if result.returncode:
-            print(f'{clip}: pose input/check error; see {folder}', flush=True)
-            return result.returncode
+            print(f'{clip}/{model}: pose input/check error; see {folder}', flush=True)
+            failed = 2
+            continue
         responses = [json.loads(line) for line in result.stdout.splitlines() if line.strip()]
         if len(responses) != len(times) or any('error' in row for row in responses):
-            print(f'{clip}: pose service did not return all beat results; see {folder}', flush=True)
-            return 2
+            errors = sorted({row['error'] for row in responses if 'error' in row})
+            print(f'{clip}/{model}: pose service error: {errors}; received {len(responses)}/{len(times)} beats; see {folder}', flush=True)
+            failed = 2
+            continue
         counts = {}
         for response in responses:
             for row in response['results']:
                 counts[row['verdict']] = counts.get(row['verdict'], 0)+1
         print(f'{clip}/{model}: pose report {counts}; {folder}', flush=True)
         if counts.get('error'):
-            return 2
-    return 0
+            failed = 2
+    return failed
 
 
 if __name__ == '__main__':
