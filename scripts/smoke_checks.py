@@ -209,8 +209,15 @@ def is_prop(s):
 PROGRESS_FIELDS = ('p', 'int', 'goals', 'phase', 'hold', 'need')
 
 
-def progress(rows):
+def progress(rows, records=()):
     out = []
+    contact_ticks = defaultdict(list)
+    for record in records:
+        if (record['k'] == 'ev' and record.get('cat') == 'social'
+                and record.get('msg', '').startswith('self defense strike ')):
+            hit = re.search(r'accepted=true health=([\d.]+) -> ([\d.]+)', record['msg'])
+            if hit and float(hit[2]) < float(hit[1]):
+                contact_ticks[record['u']].append(record['t'])
     for actor, samples in actor_samples(rows).items():
         if is_prop(samples[0]['state']):
             continue
@@ -228,7 +235,9 @@ def progress(rows):
             active = bool(s['int']) or bool(action) or (s.get('behavior') != 'idle' and any(
                 str(g).split('@')[0].lower() not in ('idle', 'look', 'random_look', 'randomlookaroundgoal', 'lookatplayergoal')
                 for g in s['goals']))
-            if not active or changed(a, s) or (action.get('deadline') is not None and row['t'] <= action['deadline']):
+            hits = contact_ticks[actor]
+            contacted = bisect_right(hits, row['t']) > bisect_right(hits, anchor['t'])
+            if not active or contacted or changed(a, s) or (action.get('deadline') is not None and row['t'] <= action['deadline']):
                 anchor = row
                 continue
             # A newly entered short action cannot retroactively shorten the
@@ -244,6 +253,7 @@ def progress(rows):
         prev_moving, prev_turn = None, 0
         for a, b in zip(valid, valid[1:]):
             if (b['t'] - a['t'] != 1 or work_changed(a['state'], b['state'])
+                    or bisect_right(contact_ticks[actor], b['t']) > bisect_right(contact_ticks[actor], a['t'])
                     or b['state'].get('alive') is False or b['state'].get('hp', 1) <= 0):
                 prev_moving, prev_turn = None, 0
                 transitions.clear()
@@ -363,7 +373,16 @@ def jumps(samples, records=()):
     out = []
     placements = {}
     host_travel = {}
+    travel_velocity, local_flight = {}, {}
     for row in records:
+        if row['k'] == 'ev' and row.get('cat') == 'move':
+            msg = row.get('msg', '')
+            match = re.fullmatch(r'travel action=none at=\([^)]+\) velocity=\(([^)]+)\)', msg)
+            if match:
+                travel_velocity[row['u'], row['t']] = [float(x) for x in match[1].split(',')]
+            match = re.fullmatch(r'hop flight host=([\w-]+) localDelta=\(([^)]+)\)', msg)
+            if match:
+                local_flight[row['u'], row['t']] = (match[1], [float(x) for x in match[2].split(',')])
         if row['k'] == 'ev' and row.get('cat') == 'hat':
             match = re.match(r'travel at=\([^)]+\) delta=\(([^)]+)\) velocity=', row.get('msg', ''))
             if match:
@@ -391,7 +410,15 @@ def jumps(samples, records=()):
             host = aa.get('host')
             if host and host == ab.get('host'):
                 if aa.get('frame') and ab.get('frame'):
-                    r = distance(local_point(sa['p'], aa['frame']), local_point(sb['p'], ab['frame'])) * ab['frame']['unit']
+                    pa, pb = local_point(sa['p'], aa['frame']), local_point(sb['p'], ab['frame'])
+                    delta = [(y - x) * ab['frame']['unit'] for x, y in zip(pa, pb)]
+                    flight = local_flight.get((b['u'], b['t']))
+                    # A host-local flight has zero retained world velocity. Use
+                    # its executed ballistic segment, not the actual travel or
+                    # the distance to its aim: extra relocation stays visible.
+                    r = distance(delta, [0, 0, 0])
+                    if flight and flight[0] == host:
+                        r = min(r, distance(delta, flight[1]))
                 elif (host, a['t']) in by_tick and (host, b['t']) in by_tick:
                     ca, cb = by_tick[host, a['t']], by_tick[host, b['t']]
                     if not known(ca, 'p', 'by') or not known(cb, 'p', 'by'):
@@ -413,6 +440,8 @@ def jumps(samples, records=()):
                 # visible in its ending velocity, not the preceding one. Ordinary
                 # flight can instead match the preceding velocity before drag.
                 velocities = [sa['v'], sb['v']] if known(sb, 'v') else [sa['v']]
+                if (b['u'], b['t']) in travel_velocity:
+                    velocities.append(travel_velocity[b['u'], b['t']])
                 if hat_pair and (b['u'], b['t']) in host_travel:
                     velocities.append(host_travel[b['u'], b['t']])
                 residuals = []
@@ -465,7 +494,7 @@ def inventory(s):
 
 def ledger(records, samples, dense=False):
     out, ticks, current = [], defaultdict(list), {}
-    explanations = [r for r in records if r['k'] == 'ev' and re.search(r'\b(eat|ate|swallow|consum|place|pickup|interaction|received (?:loose accessory )?item=|gathered item=|shed stem delivered|deposit home=|granary deposit|feed portion reserved|feed plant harvested|feed mash prepared|feed handed to meal|nest material|pack store=|carried meal|stores (?:put|taken|spilled))', r.get('msg', ''), re.I)
+    explanations = [r for r in records if r['k'] == 'ev' and re.search(r'\b(eat|ate|swallow|consum|place|pickup|interaction|interrupted item=|poop stays a loose item|received (?:loose accessory )?item=|gathered item=|shed stem delivered|deposit home=|granary deposit|feed portion reserved|feed plant harvested|feed mash prepared|feed handed to meal|nest material|pack store=|carried meal|stores (?:put|taken|spilled))', r.get('msg', ''), re.I)
                     or r['k'] == 'life' and (r.get('out') in ('unloaded', 'scope_exit', 'changed_dimension')
                         or r.get('out') == 'discarded' and known(r, 'age', 'lifespan', 'item') and r['age'] >= r['lifespan'])]
     explained_items = defaultdict(set)
@@ -475,6 +504,9 @@ def ledger(records, samples, dense=False):
         kinds = re.search(r'\bkinds=\{([^}]*)\}', msg)
         items = (set(re.findall(r'([a-z0-9_.-]+:[a-z0-9_/.-]+)=\d+', kinds[1])) if kinds
                  else {event.get('item') or (item[1] if item else None)})
+        if event.get('cat') == 'needs' and msg.startswith('poop stays a loose item '):
+            # ToiletContact logs this only after spawning the waste item.
+            items = {'mcyukkuri:yukkuri_waste'}
         for offset in range(-2, 3):
             explained_items[event['t'] + offset].update(items)
     for row in records:
@@ -922,7 +954,7 @@ def observations(records, issues=(), raw='', allow=(), end=(), seed=None, rerun=
                 continue
             if cause not in ('drown', 'inWall'):
                 findings.append(result('FATE', 'fail' if cause in ('fall', 'soaking', 'starve') else 'suspect', r['msg'], r))
-    findings += progress(samples) + loops(records, samples) + jumps(samples, records) + ledger(records, samples, dense) + orphans(samples, records)
+    findings += progress(samples, records) + loops(records, samples) + jumps(samples, records) + ledger(records, samples, dense) + orphans(samples, records)
     findings += endings(records, samples, end, raw if end_raw is None else end_raw)
     lag = [r for r in records if r['k'] == 'lag']
     for r in lag:

@@ -14,6 +14,45 @@ from cases import record, state, log, HOST, ACTOR
 
 
 class Calibration(unittest.TestCase):
+    def test_successful_defense_contacts_separate_attack_approaches(self):
+        rows = [state(t,p=[(t // 10)*.02,0,0]) for t in range(100)]
+        events = [record('ev',t,cat='social',msg='self defense strike attacker=fixture accepted=true health=10.0 -> 9.0 energy=38.0') for t in range(0,100,30)]
+        self.assertFalse(checks.progress(timeline.states(rows),events))
+        for event in events:event['msg']=event['msg'].replace('accepted=true','accepted=false')
+        self.assertTrue(any(f['verdict']=='fail' for f in checks.progress(timeline.states(rows),events)))
+
+    def test_collision_erased_impulse_uses_observed_pre_travel_velocity(self):
+        # R pit_slave-4 t27517: mob knockback moves the body before collision
+        # zeroes its x velocity. Neither post-tick endpoint retains that input.
+        rows = [state(0, v=[-.003669,-.0784,.016066]),
+                state(1, p=[-.322923,.4,-.132909], v=[0,.3136,-.072568], g=False)]
+        move = record('ev',1,cat='move',msg='travel action=none at=(0,0,0) velocity=(-.322923,.4,-.132909)')
+        self.assertTrue(checks.jumps(timeline.states(rows)))
+        self.assertFalse(checks.jumps(timeline.states(rows),[move]))
+        self.assertTrue(checks.jumps(timeline.states(rows),[move | {'u':HOST}]))
+        rows[1]['st']['p'][0] -= 2
+        self.assertTrue(any(f['verdict']=='fail' for f in checks.jumps(timeline.states(rows),[move])))
+
+    def test_host_local_ballistic_segment_is_not_a_teleport(self):
+        frame = dict(origin=[0,0,0],unit=2,yaw=0,pitch=0,roll=0)
+        rows = [state(0,att={'host':HOST,'frame':frame}),
+                state(1,p=[.3,.1,0],att={'host':HOST,'frame':frame})]
+        move = record('ev',1,cat='move',msg=f'hop flight host={HOST} localDelta=(.3,.1,0)')
+        self.assertTrue(checks.jumps(timeline.states(rows)))
+        self.assertFalse(checks.jumps(timeline.states(rows),[move]))
+        self.assertTrue(checks.jumps(timeline.states(rows),[move | {'msg':f'hop flight host={ACTOR} localDelta=(.3,.1,0)'}]))
+        rows[1]['st']['p'][0] += 2
+        self.assertTrue(any(f['verdict']=='fail' for f in checks.jumps(timeline.states(rows),[move])))
+
+    def test_logged_meal_drop_and_loose_waste_are_item_scoped(self):
+        for cat,message,item in (
+                ('meal','interrupted item=minecraft:short_grass count=1 phaseTick=12 drop=fixture','minecraft:short_grass'),
+                ('needs','poop stays a loose item reason=no_floor_cell meant=null','mcyukkuri:yukkuri_waste')):
+            rows=[state(0),state(1,hold={'mouth':[{'item':item,'n':1}]}),record('ev',1,cat=cat,msg=message)]
+            self.assertFalse(checks.ledger(rows,timeline.states(rows)))
+            rows[1]['st']['hold']['mouth'][0]['item']='minecraft:diamond'
+            self.assertTrue(any(f['verdict']=='fail' for f in checks.ledger(rows,timeline.states(rows))))
+
     def test_dead_actor_is_not_a_stalled_worker(self):
         rows = [state(t,goals=['ForageTrip@4'],hp=0) for t in range(1202)]
         self.assertFalse(checks.progress(timeline.states(rows)))

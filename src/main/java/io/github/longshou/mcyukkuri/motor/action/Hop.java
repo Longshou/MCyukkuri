@@ -510,6 +510,11 @@ public final class Hop implements Action {
         var contact = aboard ? null : ContactResolver.resolve(body);
         if (contact != null) return contact.refused() ? Outcome.of(Reason.NO_ROOM, 0, "mount_refused") : landed(body);
         // Cross a bank horizontally before descending, matching the clearance sweep.
+        if (aboard && StatusEvents.trace()) {
+            var prior = flight.get(air - 1);
+            GameplayLog.event(body, "move", "hop flight host={} localDelta={}", seatHost.entity().getUUID(),
+                    new Vec3(p.x() - prior.x(), p.y() - prior.y(), p.z() - prior.z()));
+        }
         if (delta.y < 0) Motor.move(body, new Vec3(delta.x, 0, delta.z), "hop_flight");
         Motor.move(body, delta.y < 0 ? new Vec3(0, delta.y, 0) : delta, "hop_flight");
         if (aboard) Motor.spot(seatHost, body, seatHost.frame().toLocal(body.position()), seatHost.riders().yaw(body.getUUID()), "hop_start");

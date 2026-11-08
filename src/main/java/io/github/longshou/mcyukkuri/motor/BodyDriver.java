@@ -127,8 +127,8 @@ public final class BodyDriver {
         if (body.level().isClientSide) return TravelMode.PASS;
         TravelMode mode = current == null ? fall() : drive();
         if (mode == TravelMode.PASS && body.isAlive() && body.isInWaterOrBubble() && !body.predatorFlying()) buoy();
-        if (StatusEvents.trace() && current != null) GameplayLog.event(body, "move",
-                "travel action={} at={} velocity={}", current.id(), body.position(), body.getDeltaMovement());
+        if (StatusEvents.trace()) GameplayLog.event(body, "move",
+                "travel action={} at={} velocity={}", current == null ? "none" : current.id(), body.position(), body.getDeltaMovement());
         return mode;
     }
 
