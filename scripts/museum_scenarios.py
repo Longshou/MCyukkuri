@@ -3744,7 +3744,7 @@ _scene_end('carry_home', [(f'{kind}_baby', _ASHORE) for kind in ('marisa', 'reim
            *[dict(each=f'{kind}_baby', autonomous_home=True, steps=[
               (f'{kind}_parent', r'seen:family:^carry pickup hold=\S+ .*child=$subject\b'),
               (f'{kind}_parent', r'seen:family:carry (?:set down started reason=arrived_home child=$subject\b|release target child=$subject placement=nest|lowering hold=\S+ child=$subject\b)'),
-              (f'{kind}_parent', r'seen:family:carry put down reason=arrived_home .*child=$subject .*nest=(?:INSIDE_SUPPORTED|PARTIAL)')],
+              (f'{kind}_parent', r'seen:family:carry put down reason=\S+ .*cause=release .*child=$subject .*nest=(?:INSIDE_SUPPORTED|PARTIAL)')],
               post=[('$subject', _ASHORE + f' and nest_of.{kind}_parent=true and nest=INSIDE_SUPPORTED')])
              for kind in ('marisa', 'reimu', 'chen')])
 next(s for s in S if s.id == 'carry_home').smoke['end']['carried_min'] = 2

@@ -235,6 +235,20 @@ class EndChecks(unittest.TestCase):
                 r['st']['nest'] = 'PARTIAL'
         self.assertEqual(verdict(rows, end), 'fail')
 
+    def test_carry_home_physical_nest_release_not_reason_name(self):
+        rows, end = self.carry_home_case()
+        for r in rows:
+            if r['k'] == 'ev' and r['msg'].startswith('carry set down started'):
+                child = r['msg'].split('child=')[1]
+                r['msg'] = f'carry release target child={child} placement=nest'
+            if r['k'] == 'ev' and r['msg'].startswith('carry put down'):
+                r['msg'] = r['msg'].replace('reason=arrived_home', 'reason=nest_rim_to_cushion')
+        self.assertEqual(verdict(rows, end), 'pass')
+        for r in rows:
+            if r['k'] == 'ev':
+                r['msg'] = r['msg'].replace('cause=release', 'cause=carry_child_hurt')
+        self.assertEqual(verdict(rows, end), 'fail')
+
     def test_carry_home_nest_before_stay_home_is_not_return(self):
         rows, end = self.carry_home_case()
         for r in rows:
