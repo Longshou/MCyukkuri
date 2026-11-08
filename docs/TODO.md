@@ -11,6 +11,7 @@
 | 噗咕鼓腮：身体模型两腮外鼓（复刻原作ぷくー，比概念图更夸张） | `.worktrees/wp-ce-cheek-puff` | standards/yukkuri-library/body-standard/（鼓腮 puff_offsets）、导出的 yukkuri/*.json 模型数据、噗咕片段的 puff 通道 |
 | 观测层：服务端检查校准（主线零误报、已知问题仍抓到） | `.worktrees/wp-ck-check-calibration` | scripts/smoke_checks.py、scripts/timeline.py、scripts/fixtures/timeline/ |
 | 运行包更新不等冒烟：只等试玩客户端，旧包仍被占用时保留，装最新构建成功的主线提交 | `.worktrees/wp-cr-runtime-anytime` | scripts/pkg.py、scripts/update_museum_runtime.py、scripts/README.md、AGENTS.md §6 |
+| 搬运放下：接生、带回窝、托幼三链放不下孩子（先出设计，另一模型审） | `.worktrees/wp-cs-carry-putdown` | family/ParentCarry.java、motor/action/Release.java、life/SurfaceApproach.java |
 
 ## 玩法待办
 
