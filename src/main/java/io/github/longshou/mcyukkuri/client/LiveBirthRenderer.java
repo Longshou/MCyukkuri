@@ -2,6 +2,8 @@ package io.github.longshou.mcyukkuri.client;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import io.github.longshou.mcyukkuri.client.capture.DrawEvidence;
+import io.github.longshou.mcyukkuri.client.capture.PoseTap;
 import com.mojang.math.Axis;
 import io.github.longshou.mcyukkuri.MCYukkuri;
 import io.github.longshou.mcyukkuri.entity.YukkuriView;
@@ -168,12 +170,15 @@ final class LiveBirthRenderer {
             }
             return true;
         }
-        void render(PoseStack pose,MultiBufferSource buffers,int light){
+        void render(PoseStack pose,MultiBufferSource buffers,int light,Matrix4f start,float partial){
+            var evidence=PoseTap.active()?new DrawEvidence(pose.last().pose()):null;
             if(visible){
                 var buffer=buffers.getBuffer(RenderType.entityCutoutNoCull(MCYukkuri.id("textures/entity/"+childId+"/sleep.png")));
+                if(evidence!=null)buffer=evidence.buffer("prop",buffer);
                 for(var tri:child)polygon(pose,buffer,light,OverlayTexture.NO_OVERLAY,placed(front(List.of(tri),plane)),255,255,255);
             }
             var ink=buffers.getBuffer(RenderType.entityCutoutNoCull(MCYukkuri.id("textures/entity/"+mother.assetId()+"/neutral.png")));
+            if(evidence!=null)ink=evidence.buffer("body",ink);
             // The closed state is the actual authored component. Opening only cuts and stretches
             // that same component; its existing UVs retain the approved skin and central mark.
             for(var tri:mamu){
@@ -196,6 +201,7 @@ final class LiveBirthRenderer {
                 var cap=new Vector3f(center).add(0,0,.16f);
                 polygon(pose,ink,light,OverlayTexture.NO_OVERLAY,placed(List.of(ink(cap),ink(backB),ink(backA))),255,255,255);
             }
+            if(evidence!=null)PoseTap.surfaces(mother,start,pose.last().pose(),partial,evidence.meshes);
         }
         private Vertex ink(Vector3f point){return new Vertex(point,markU,markV);}
         private float surfaceZ(float x,float y){

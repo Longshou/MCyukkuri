@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.client;
 
 import io.github.longshou.mcyukkuri.client.capture.PoseTap;
+import io.github.longshou.mcyukkuri.client.capture.DrawEvidence;
 import org.joml.Matrix4f;
 
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -52,14 +53,17 @@ public final class PlacedHatRenderer extends EntityRenderer<PlacedHatEntity> {
         pose.mulPose(new Quaternionf().rotationY((180-Mth.rotLerp(partial,hat.previousYaw(),hat.getYRot()))*Mth.DEG_TO_RAD)
                 .rotateZ(hat.roll(partial)*Mth.DEG_TO_RAD).rotateX(hat.pitch(partial)*Mth.DEG_TO_RAD));
         for(var layer:LAYERS){pose.pushPose();layer.render(hat,partial,pose,buffers,light);pose.popPose();}
-        PoseTap.hat(hat,start,pose.last().pose(),partial);
+        var drawn=PoseTap.active()?new Matrix4f(pose.last().pose()):null;
+        var evidence=PoseTap.active()?new DrawEvidence(drawn):null;
+        var hullBuffers=evidence==null?buffers:evidence.buffers("hat",buffers);
         // The kit is the owner's own stick and is drawn in her grip, not a second time inside the hollow.
         pose.translate(0,hat.profile().top()*unit,0);
         pose.scale(scale,scale*(float)hat.profile().squash(),scale);
         // The hull is the owner's own hat: its wear shows as the same square-cell damage as when worn.
         int damage=hat.hullDamage();
-        if(damage>0)PropModels.renderHat(hat.profile().hull(),damage,-1,pose,buffers,light,OverlayTexture.NO_OVERLAY);
-        else PropModels.render(hat.profile().hull(),1,pose,buffers,light,OverlayTexture.NO_OVERLAY);
+        if(damage>0)PropModels.renderHat(hat.profile().hull(),damage,-1,pose,hullBuffers,light,OverlayTexture.NO_OVERLAY);
+        else PropModels.render(hat.profile().hull(),1,pose,hullBuffers,light,OverlayTexture.NO_OVERLAY);
+        if(evidence!=null)PoseTap.hat(hat,start,drawn,partial,evidence.meshes);
         pose.popPose();
         super.render(source,yaw,partial,pose,buffers,light);
     }

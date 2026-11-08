@@ -122,7 +122,11 @@ public final class ClipMarkers {
                 }
                 case "parameters" -> {
                     reader.beginObject();
-                    while (reader.hasNext()) parameters.put(reader.nextName(), (float) reader.nextDouble());
+                    while (reader.hasNext()) {
+                        String key = reader.nextName();
+                        // Structured observation contracts share this object with numeric motion parameters.
+                        if (reader.peek() == JsonToken.NUMBER) parameters.put(key, (float) reader.nextDouble()); else reader.skipValue();
+                    }
                     reader.endObject();
                 }
                 case "tip" -> {

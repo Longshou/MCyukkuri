@@ -882,6 +882,10 @@ def compile_clips(model, cfg, root, ground, height, cache=None):
             cache.put(key, out[name])
     for name in cfg.get('braid_use', {}).get('clips', ()):
         if name in out: out[name]['braid_use'] = True  # its own braid grips, carries or strokes (recipe braid_use)
+    for name in ('boat_paddle', 'boat_paddle_braid'):
+        if name in out:
+            source = cfg['clips'][name]
+            out[name].setdefault('parameters', {})['stroke'] = dict(source['capture_stroke'] if 'capture_stroke' in source else source['stroke'])
     holds = {where: out[clip] for where, clip in (('ashore', 'braid_item_hold'), ('aboard', 'boat_paddle')) if clip in out}
     for name, clip in out.items():
         if 'hat' in cfg['clips'][name] and 'props' in clip:  # the hat clips that keep the held stick (hat.stick), from either hold

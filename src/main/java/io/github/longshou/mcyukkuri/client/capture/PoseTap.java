@@ -53,6 +53,13 @@ public final class PoseTap {
     public static void model(YukkuriView entity, YukkuriModel model, boolean accessory, int hairLoss) {
         if (active()) CURRENT.put(entity.getUUID().toString(), model.capturePose(accessory,hairLoss));
     }
+    /** Append surfaces emitted after the main model snapshot, in their actual draw frame. */
+    public static void surfaces(YukkuriView entity, Matrix4f start, Matrix4f drawn, float partial, JsonObject meshes) {
+        var transform=origin(entity,partial).mul(new Matrix4f(start).invert()).mul(drawn).scale(1/16f);
+        PoseGeometry.transform(meshes,transform);
+        var target=CURRENT.get(entity.getUUID().toString()).getAsJsonObject("meshes");
+        for(var entry:meshes.entrySet())PoseGeometry.append(target,entry.getKey(),entry.getValue().getAsJsonObject().getAsJsonArray("triangles"),false);
+    }
     private static Matrix4f origin(YukkuriView entity, float partial) {
         var p = entity.getPosition(partial);
         return new Matrix4f().translation((float)p.x * 16, (float)p.y * 16, (float)p.z * 16).scale(16);
@@ -127,6 +134,20 @@ public final class PoseTap {
         handover.addProperty("share",share);item.add("handover",handover);
         var model=Minecraft.getInstance().getItemRenderer().getModel(entity.getHeldItem(),entity.level(),null,entity.getId());
         var f=CURRENT.get(entity.getUUID().toString());
+        var parameters=f.getAsJsonObject("parameters");
+        if(parameters.has("stroke")) {
+            var stroke=parameters.getAsJsonObject("stroke");
+            if(stroke.has("blade_tip")&&stroke.get("item").getAsString().equals(item.get("id").getAsString())) {
+                var tip=origin(entity,partial).mul(drawn).transformPosition(PoseGeometry.vector(stroke.get("blade_tip")).div(16));
+                f.add("wet_tip",PoseGeometry.point(tip));
+                var water=f.getAsJsonObject("water");
+                var pos=BlockPos.containing(tip.x/16,tip.y/16,tip.z/16);
+                if(entity.level().hasChunkAt(pos))for(int dy=1;dy>=-1;dy--) {
+                    var at=pos.above(dy);var fluid=entity.level().getFluidState(at);
+                    if(fluid.is(FluidTags.WATER)){water.addProperty("point",at.getY()+fluid.getHeight(entity.level(),at));break;}
+                }
+            }
+        }
         if(model.isCustomRenderer()){f.addProperty("geometry_error","custom held-item renderer");return;}
         var mesh=new JsonObject();mesh.addProperty("closed",false);var triangles=new JsonArray();mesh.add("triangles",triangles);
         var directions=new ArrayList<Direction>(Arrays.asList(Direction.values()));directions.add(null);
@@ -137,7 +158,7 @@ public final class PoseTap {
         }
         f.getAsJsonObject("meshes").add("item",mesh);
     }
-    public static void hat(PlacedHatView hat, Matrix4f start, Matrix4f drawn, float partial) {
+    public static void hat(PlacedHatView hat, Matrix4f start, Matrix4f drawn, float partial, JsonObject meshes) {
         if (!active()) return;
         var f = new JsonObject();
         envelope(f, hat.getUUID().toString(), hat.level().getGameTime(), hat.level().dimension().location().toString(), partial);
@@ -147,10 +168,8 @@ public final class PoseTap {
                 .mul(new Matrix4f(start).invert()).mul(drawn);
         f.add("root", matrix(transform)); CURRENT.put(hat.getUUID().toString(), f);
         f.add("position",PoseGeometry.point(new Vector3f((float)p.x*16,(float)p.y*16,(float)p.z*16)));
-        var meshes=new JsonObject();
-        var hull=new Matrix4f(transform).translate(0,(float)hat.profile().top()*hat.hullScale()/16,0).scale(hat.hullScale()/16,hat.hullScale()*(float)hat.profile().squash()/16,hat.hullScale()/16);
-        meshes.add("hat",PropModels.captureMesh(hat.profile().hull(),1,hull));f.add("meshes",meshes);
-        if(hat.hullDamage()>0)f.addProperty("geometry_error","damaged placed hat");
+        PoseGeometry.transform(meshes,new Matrix4f(transform).scale(1/16f));
+        f.add("meshes",meshes);
     }
     /** The authored stick is centered on the mouth socket; vertices are model units. */
     public static void mouthProp(YukkuriView entity, String prop, Matrix4f start, Matrix4f drawn, float partial) {

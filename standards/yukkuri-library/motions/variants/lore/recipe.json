@@ -802,7 +802,15 @@
       ],
       "markers": {
         "power_start": 0.2,
-        "power_end": 1.0
+        "power_end": 1.0,
+        "contact": 0.2,
+        "stroke": 1.0
+      },
+      "capture_stroke": {
+        "depth": 3.0,
+        "tip": "item",
+        "item": "minecraft:stick",
+        "blade_tip": [0, -11, 0]
       },
       "braid_sweep": [
         6,
@@ -919,7 +927,8 @@
       "braid_curve": "loop",
       "stroke": {
         "water": "hull",
-        "depth": 1.8
+        "depth": 1.8,
+        "tip": "braid"
       },
       "base_pose": "boat_steady",
       "lean_stretch": 1.12

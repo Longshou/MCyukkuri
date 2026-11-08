@@ -248,7 +248,7 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
             if(contact.equals("VIBRATE"))model.renderSurfaceProp("care_vibrator",1,1,pose,buffers,packedLight,OverlayTexture.NO_OVERLAY);
             if(contact.equals("ASSIST"))LiveBirthRenderer.renderDose(entity,pose,buffers,packedLight);
             if(contact.equals("HOOK")||contact.equals("WRAPPED"))OperationAttachments.render(entity,model,pose,buffers,packedLight,contactAngle,lift,partialTick);
-            if(delivery!=null)delivery.render(pose,buffers,packedLight);
+            if(delivery!=null)delivery.render(pose,buffers,packedLight,start,partialTick);
             model.setDelivery(null);model.setPregnancy(0,0);
             pose.popPose();
             pose.popPose();

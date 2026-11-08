@@ -750,7 +750,7 @@ final class HairWoundRenderer {
         }
         void render(Matrix4f[] world,float pregnancy,PoseStack stack,MultiBufferSource buffers,int light,int overlay){
             this.world=world;pregnancyAmount=pregnancy;
-            if(cavity!=null)cavity.render(world,null,pregnancy,stack,buffers,light,overlay);
+            if(cavity!=null)cavity.render(world,null,pregnancy,stack,model.evidenceBuffers("body",buffers),light,overlay);
             for(var entry:layers.entrySet()){
                 var buffer=buffers.getBuffer(RenderType.entityTranslucent(entry.getKey()));
                 for(var tri:entry.getValue())emit(tri,stack,buffer,light,overlay,true,true);
@@ -795,6 +795,7 @@ final class HairWoundRenderer {
         private void emit(Triangle tri,PoseStack stack,VertexConsumer buffer,int light,int overlay,boolean offset,boolean layer){
             if(WoundLod.measuring())WoundLod.triangle(layer);
             String part=triangleParts.getOrDefault(tri.a.triangle,"");boolean pregnancy=!model.woundPregnancyFace(part);
+            buffer=model.evidenceBuffer(part,buffer);
             pose(tri.a,a,pregnancy);pose(tri.b,b,pregnancy);pose(tri.c,c,pregnancy);
             normal.set(b).sub(a).cross(edge.set(c).sub(a));if(normal.lengthSquared()<1e-12)return;normal.normalize();
             // Only actual projected overlays use a microscopic normal lift; solid
