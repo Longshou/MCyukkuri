@@ -20,6 +20,7 @@ def gameplay(path):
             text = match[1]
             text = re.sub(r'\b(?:t|tick)=\d+', 't=<tick>', text)
             text = re.sub(r'\bpos=-?\d+, -?\d+, -?\d+', 'pos=<pos>', text)
+            text = re.sub(r'BlockPos\{x=-?\d+, y=-?\d+, z=-?\d+\}', '<pos>', text)
             # GameplayLog.at and Vec3.toString coordinate tuples.
             number = r'[-+]?\d+(?:\.\d+)?(?:[eE][-+]?\d+)?'
             text = re.sub(r'\(' + number + r',\s*' + number + r',\s*' + number + r'\)', '<pos>', text)
