@@ -107,9 +107,6 @@ function careTarget(parent,child,q,time,clip){
  const [x,z]=inverseRotateXZ(childAt[0]+mouthX-parentAt[0],childAt[2]+mouthZ-parentAt[2],parentYaw);
  return {anchor:parentMouth,target:[x/parentScale,(childAt[1]+point[1]-parentAt[1])/parentScale,z/parentScale]};
 }
-function groundedCarePose(pose,action,time,anchor,target,blend=1){
- return pose.careFrame(action,time,anchor,target,blend);
-}
 function actorPerformance(pose,actor,vertices,time){
  if(actor.anatomy){
   const extended=pose.frame('anatomy_'+actor.anatomy+'_extend',Math.min(.24,Math.max(0,time-(actor._phaseStart??0))));
@@ -194,7 +191,7 @@ function sceneEntries(clip,time){
   let vertices,anchor=presentations[actor.model]?.mouth;
   if(Number.isInteger(actor.careTarget)){
    const child=actorAt(clip,actor.careTarget,time);if(!child)throw Error(`Inactive care target ${actor.careTarget}`);
-   const contact=careTarget(actor,child,q,time,clip);anchor=contact.anchor;vertices=groundedCarePose(pose,actor.action,actionTime,contact.anchor,contact.target,actor.careProgress??1);
+   const contact=careTarget(actor,child,q,time,clip);anchor=contact.anchor;vertices=pose.careFrame(actor.action,actionTime,contact.anchor,contact.target,actor.careProgress??1);
   }else vertices=pose.frame(actor.action,actionTime).slice();
   vertices=actorPerformance(pose,actor,vertices,time);
   // RuntimePose owns one output buffer per model; keep this actor's sampled

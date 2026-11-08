@@ -15,6 +15,44 @@ def read(path):
 def encoded(value):
     return (json.dumps(value, ensure_ascii=False, separators=(',', ':'))+'\n').encode()
 
+
+def compose_preset(model, preset, neutral_source, common, with_texture=True, library=LIB):
+    """Compose one preset for a model; also used for draft previews."""
+    assert any(p['name'].startswith('face_') for p in model['parts']), model['id']+' needs an explicit face_fallback row'
+    atlas = None
+    if with_texture:
+        size = Image.open(neutral_source).width
+        atlas = Image.open(neutral_source).convert('RGBA')
+        assert atlas.size == (size,size)
+        for p in model['parts']:
+            if not p['name'].startswith('face_'):
+                continue
+            v = model['vertices'][p['start']*8:(p['start']+p['count'])*8]
+            # Front-facing triangles carry the expression; side UVs can point at a palette texel.
+            front = [v[k:k+8] for k in range(0,len(v),8) if v[k+7] < -.5]
+            box = tuple(round(f([v[c] for v in front])*size) for c,f in [(3,min),(4,min),(3,max),(4,max)])
+            im = Image.open(library/preset['parts'][p['name']]).convert('RGBA')
+            atlas.paste(im.resize((box[2]-box[0],box[3]-box[1]),Image.Resampling.NEAREST),box[:2])
+    changes = copy.deepcopy(preset.get('geometry_offsets', {}))
+    if preset.get('cheek_scale',1) != 1:
+        for slot in ('face_blush_left','face_blush_right'):
+            changes[slot] = {'scale':[1,preset['cheek_scale'],1]}
+    entries = []
+    for i,p in enumerate(model['parts']):
+        if p['name'] not in changes:
+            continue
+        delta = changes[p['name']]
+        v = model['vertices'][p['start']*8:(p['start']+p['count'])*8].copy()
+        src = common[p['name']]
+        for c in range(2):
+            low,high = min(v[c::8]),max(v[c::8]); center = (low+high)/2
+            ratio = (high-low)/(src['to'][c]-src['from'][c])
+            for k in range(c,len(v),8):
+                v[k] = round(center+(v[k]-center)*delta.get('scale',[1,1,1])[c]+delta.get('position',[0,0,0])[c]*ratio,7)
+        entries.append(dict(index=i,vertices=v))
+    return atlas, entries
+
+
 def outputs():
     index = read(LIB/'expressions/index.json')
     approved = read(LIB/index['standard_set'])['entries']
@@ -28,49 +66,21 @@ def outputs():
         for name, source in row['retained_textures'].items():
             files[ASSETS/'textures/entity'/ident/(name+'.png')] = (ROOT/source).read_bytes()
         patches = {}
-        size = Image.open(ROOT/row['neutral_source']).width
-        boxes = {}
-        for p in model['parts']:
-            if not p['name'].startswith('face_'):
-                continue
-            v = model['vertices'][p['start']*8:(p['start']+p['count'])*8]
-            # Front-facing triangles carry the expression; side UVs can point at a palette texel.
-            front = [v[k:k+8] for k in range(0,len(v),8) if v[k+7] < -.5]
-            boxes[p['name']] = tuple(round(f([v[c] for v in front])*size) for c,f in [(3,min),(4,min),(3,max),(4,max)])
-        assert boxes, ident+' needs an explicit face_fallback row'
         for name, preset in faces.items():
             assert preset['status'] == 'accepted', name
+            composed = None
             if 'texture_source' in row:
                 files[ASSETS/'textures/entity'/ident/(name+'.png')] = (ROOT/row['texture_source']/(name+'.png')).read_bytes()
             elif name not in row['existing_textures']:
-                atlas = Image.open(ROOT/row['neutral_source']).convert('RGBA')
-                assert atlas.size == (size,size)
-                for slot, box in boxes.items():
-                    im = Image.open(LIB/preset['parts'][slot]).convert('RGBA')
-                    atlas.paste(im.resize((box[2]-box[0],box[3]-box[1]),Image.Resampling.NEAREST),box[:2])
-                buf = io.BytesIO(); atlas.save(buf,format='PNG')
+                composed = compose_preset(model, preset, ROOT/row['neutral_source'], common)
+                buf = io.BytesIO(); composed[0].save(buf,format='PNG')
                 files[ASSETS/'textures/entity'/ident/(name+'.png')] = buf.getvalue()
             if name in model.get('expression_patches', {}):
                 continue
-            changes = copy.deepcopy(preset.get('geometry_offsets', {}))
-            if preset.get('cheek_scale',1) != 1:
-                for slot in ('face_blush_left','face_blush_right'):
-                    changes[slot] = {'scale':[1,preset['cheek_scale'],1]}
-            entries = []
-            for i,p in enumerate(model['parts']):
-                if p['name'] not in changes:
-                    continue
-                delta = changes[p['name']]
-                v = model['vertices'][p['start']*8:(p['start']+p['count'])*8].copy()
-                src = common[p['name']]
-                for c in range(2):
-                    low,high = min(v[c::8]),max(v[c::8]); center = (low+high)/2
-                    ratio = (high-low)/(src['to'][c]-src['from'][c])
-                    for k in range(c,len(v),8):
-                        v[k] = round(center+(v[k]-center)*delta.get('scale',[1,1,1])[c]+delta.get('position',[0,0,0])[c]*ratio,7)
-                entries.append(dict(index=i,vertices=v))
-            if entries:
-                patches[name] = entries
+            if composed is None:
+                composed = compose_preset(model, preset, ROOT/row['neutral_source'], common, with_texture=False)
+            if composed[1]:
+                patches[name] = composed[1]
         models[ident] = dict(bone_names=[b['name'] for b in model['bones']],clips={},
                             expression_patches=patches,face_aliases=row['face_aliases'],
                             selectable=sorted(set(faces)|set(row['existing_textures'])|set(row['legacy_faces'])))

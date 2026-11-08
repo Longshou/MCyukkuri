@@ -11,6 +11,7 @@ import re
 import shutil
 import subprocess
 import sys
+import tarfile
 import tempfile
 
 from PIL import Image, ImageDraw, ImageFont, ImageOps
@@ -132,6 +133,29 @@ def actor(model, prop, clip, offset, root=ROOT):
                 scale=1.5 if model in ('reimu_deibu', 'reimu_wasa_deibu') and not prop else 1), textures
 
 
+def before_checkout(value, stage):
+    """Resolve a before checkout, or archive just the renderer inputs from a Git ref."""
+    path = Path(value).resolve()
+    if path.is_dir():
+        return path
+    result = subprocess.run(['git', 'rev-parse', '--verify', value+'^{commit}'], cwd=ROOT,
+                            text=True, capture_output=True)
+    if result.returncode:
+        raise ValueError(f'--before is neither a checkout nor a Git commit: {value}')
+    ref = result.stdout.strip()
+    work = stage/'before-source'
+    work.mkdir()
+    archive = work/'source.tar'
+    subprocess.run(['git', 'archive', '--format=tar', '--output', str(archive), ref, '--',
+                    'src/main/resources/assets/mcyukkuri', 'standards/yukkuri-library/runtime/render.js'],
+                   cwd=ROOT, check=True)
+    root = work/'checkout'
+    root.mkdir()
+    with tarfile.open(archive) as source:
+        source.extractall(root, filter='data')
+    return root
+
+
 def render_strip(args, stage, times, before=False):
     source_root = Path(args.before).resolve() if before else ROOT
     # A before reference is another checkout's actual model, fit and motion inputs.
@@ -141,7 +165,22 @@ def render_strip(args, stage, times, before=False):
         specs.append((args.partner, None, args.partner_offset))
     for model, prop, offset in specs:
         a, images = actor(model, prop, args.clip, offset, source_root)
-        if getattr(args, 'face', None) and not prop:
+        if getattr(args, 'face_preset', None) and not before and not prop:
+            from runtime_face_library import compose_preset
+            preset_path = Path(args.face_preset).resolve()
+            preset = read(preset_path)
+            selection = read(ROOT/'standards/yukkuri-library/expressions/runtime.json')
+            row = selection['models'][model]
+            library = preset_path.parents[2]
+            common = {e['name']: e for e in read(library/'components/common/face.json')['elements']}
+            atlas, patches = compose_preset(read(a['path']), preset, ROOT/row['neutral_source'], common, library=library)
+            a['face'] = preset_path.stem
+            a['draftFace'] = patches
+            draft_textures = stage/'draft-textures'
+            draft_textures.mkdir(exist_ok=True)
+            images = [(draft_textures/f'{model}.png',None,[0,0],[1,1])]
+            atlas.save(images[0][0])
+        elif getattr(args, 'face', None) and not prop:
             from face_usage import resolve
             library = read(source_root/'src/main/resources/assets/mcyukkuri/yukkuri_presentation/face_library.json')
             face = resolve(library,model,args.face)
@@ -204,19 +243,33 @@ def render_strip(args, stage, times, before=False):
 
 def strip(args, stage):
     times = beat_times(args)
-    frames = render_strip(args, stage, times)
-    labels = [f'{t:g}s / {t*20:g} tick' for t in times]
-    sheet(frames, labels, stage/'strip.png', args.columns, tuple(args.size))
+    views = args.view or [[26, 10]]
+    before_root = before_checkout(args.before, stage) if args.before else None
+    frames, labels, pairs, comparison_labels = [], [], [], []
+    for view in views:
+        view_args = argparse.Namespace(**{**vars(args), 'view': view,
+                                       'before': str(before_root) if before_root else None})
+        current = render_strip(view_args, stage, times)
+        view_labels = [f'{t:g}s / {t*20:g} tick' for t in times]
+        if len(views) > 1:
+            view_labels = [f'AZ {view[0]:g}° EL {view[1]:g}° · {label}' for label in view_labels]
+        frames.extend(current)
+        labels.extend(view_labels)
+        if before_root:
+            old = render_strip(view_args, stage, times, before=True)
+            pairs.extend(im for pair in zip(old, current) for im in pair)
+            comparison_labels.extend(f'{label} {version}' for label in view_labels for version in ('原版本', '当前'))
+    columns = len(times) if len(views) > 1 else args.columns
+    sheet(frames, labels, stage/'strip.png', columns, tuple(args.size))
     atlas = Image.new('RGBA', (args.size[0]*len(frames), args.size[1]))
     for i, image in enumerate(frames):
         atlas.paste(image, (i*args.size[0], 0))
     atlas.save(stage/'atlas.png')
-    write_json(stage/'atlas.json', dict(image='atlas.png', width=args.size[0], height=args.size[1], times=times))
+    write_json(stage/'atlas.json', dict(image='atlas.png', width=args.size[0], height=args.size[1], times=times,
+               views=[dict(az=v[0], el=v[1]) for v in views]))
     body = f'<p>{E(args.model or args.prop)} / {E(args.clip)}；离线片段，行为效果由试玩确认。</p>' + media('strip.png')
-    if args.before:
-        old = render_strip(args, stage, times, before=True)
-        pairs = [im for pair in zip(old, frames) for im in pair]
-        sheet(pairs, [f'{label} {version}' for label in labels for version in ('原版本', '当前')], stage/'compare.png', 2, tuple(args.size))
+    if before_root:
+        sheet(pairs, comparison_labels, stage/'compare.png', 2*len(times) if len(views) > 1 else 2, tuple(args.size))
         body += media('compare.png', '相同视角与时刻：原版本 / 当前')
     body += '<a href="atlas.png">帧图集</a> · <a href="atlas.json">时刻数据</a>'
     return body
@@ -515,14 +568,16 @@ def parser():
             group = p.add_mutually_exclusive_group(required=True)
             group.add_argument('--model'); group.add_argument('--prop')
             p.add_argument('--clip', default='idle')
-            p.add_argument('--face', help='runtime expression id (including geometry patches)')
+            p.add_argument('--face', help='runtime expression id; with --before and --face-preset, the before-side face')
+            p.add_argument('--face-preset', help='preset JSON composed as a draft with the runtime face library')
             time = p.add_mutually_exclusive_group()
             time.add_argument('--times', default='0s,0.25s,0.5s,0.75s')
             time.add_argument('--beats', help='one time (seconds or ticks), then optional label per line')
             p.add_argument('--partner'); p.add_argument('--partner-offset', type=float, nargs=3, default=[20, 0, 0])
-            p.add_argument('--before', help='checkout containing the before model/fit/motions')
+            p.add_argument('--before', help='before checkout path or Git ref, using the same camera and times')
             p.add_argument('--size', type=int, nargs=2, default=[360, 300])
-            p.add_argument('--view', type=float, nargs=2, default=[26, 10], metavar=('AZ', 'EL'))
+            p.add_argument('--view', type=float, nargs=2, action='append', metavar=('AZ', 'EL'),
+                           help='camera azimuth/elevation; repeat for one row per view')
             p.add_argument('--node', default='node')
         elif name == 'capture':
             p.add_argument('--source', required=True, help='.local/captures/<run>/<view>')
@@ -565,6 +620,8 @@ def main():
                 raise ValueError('columns must be positive')
             if args.command == 'strip' and min(args.size) < 1:
                 raise ValueError('size must be positive')
+            if args.command == 'strip' and args.face_preset and not args.model:
+                raise ValueError('--face-preset requires --model')
             if args.command == 'capture' and (args.zoom <= 0 or args.count < 2):
                 raise ValueError('zoom must be positive and count at least 2')
             with staging(args.topic) as stage:
