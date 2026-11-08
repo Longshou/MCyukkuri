@@ -14,6 +14,30 @@ from cases import record, state, log, HOST, ACTOR
 
 
 class Calibration(unittest.TestCase):
+    def test_orphan_danger_ends_at_observed_dry_recovery(self):
+        # Main hat_crowd-176 t1123939 is 44 ticks after supported RECOVER;
+        # hat_crowd-238 t1515807 is still STRUGGLE and takes later drown damage.
+        rows=[state(t,dep=True,distress=True) for t in range(221)]
+        recovery=record('ev',150,cat='water',msg='phase=STRUGGLE -> RECOVER previousTicks=263')
+        self.assertFalse(checks.orphans(timeline.states(rows),[recovery]))
+        self.assertTrue(checks.orphans(timeline.states(rows)))
+        self.assertTrue(checks.orphans(timeline.states(rows),[recovery | {'u':HOST}]))
+        # A new entry is always logged even when a phase log is throttled.
+        entered=record('ev',180,cat='water',msg='entered at=(0,0,0) action=none')
+        rows += [state(t,dep=True,distress=True) for t in range(221,401)]
+        self.assertTrue(any(f.get('duration',0)>=200 for f in checks.orphans(timeline.states(rows),[recovery,entered])))
+        for hazard in ({'wr':True},{'iwr':True},{'g':False,'v':[0,-.4,0]}):
+            danger=[state(t,dep=True,distress=True,waterPhase='RECOVER',**hazard) for t in range(241)]
+            self.assertTrue(checks.orphans(timeline.states(danger)))
+        # The snapshot covers an initially unlogged or throttled recovery;
+        # missing raw-water fields cannot establish safe dry support.
+        safe=[state(t,dep=True,distress=True,waterPhase='RECOVER') for t in range(221)]
+        self.assertFalse(checks.orphans(timeline.states(safe)))
+        for r in safe:del r['st']['wr']
+        self.assertTrue(checks.orphans(timeline.states(safe)))
+        later=record('ev',220,cat='water',msg='phase=STRUGGLE -> RECOVER previousTicks=300')
+        self.assertTrue(any(f['t']==200 for f in checks.orphans(timeline.states(rows[:221]),[later])))
+
     def test_daily_greeting_requires_actual_touching_countdown(self):
         # Main birth_boat_missed-184 t1151665 precedes NUZZLE contactTicks;
         # the existing greeting clock advances only at real touching contact.

@@ -728,18 +728,29 @@ def orphans(samples, records=()):
     out, all_ticks = [], defaultdict(dict)
     final_tick = max((r['t'] for r in samples), default=None)
     deaths = {}
+    water_phases = defaultdict(list)
     for r in records:
+        if r['k'] == 'ev' and r.get('cat') == 'water':
+            match = re.match(r'phase=\S+ -> (IDLE|IMPACT|STRUGGLE|EXHAUSTED|RECOVER)\b', r.get('msg', ''))
+            phase = match[1] if match else 'IMPACT' if r.get('msg', '').startswith('entered at=') else None
+            if phase:
+                water_phases[r['u']].append((r['t'], r['seq'], phase))
         if (r['k'] == 'life' and r.get('out') == 'killed' or
                 r['k'] == 'ev' and r.get('cat') == 'body' and r.get('msg', '').startswith('death settled into remains;')):
             deaths[r['u']] = min(deaths.get(r['u'], r['t']), r['t'])
     for r in samples:
         all_ticks[r['t']][r['u']] = r['state']
-    for rows in actor_samples(samples).values():
+    for actor, rows in actor_samples(samples).items():
         unsafe_since = falling_since = None
+        phases = iter(water_phases[actor])
+        change, phase = next(phases, None), None
         if is_prop(rows[0]['state']):
             continue
         for r in rows:
             s = r['state']
+            while change is not None and change[:2] <= (r['t'], r['seq']):
+                phase = change[2]
+                change = next(phases, None)
             if r['u'] in deaths and r['t'] >= deaths[r['u']]:
                 continue
             if not known(s, 'dep'):
@@ -752,7 +763,13 @@ def orphans(samples, records=()):
                 continue
             falling = not s['g'] and not s['att'].get('host') and not s['veh'] and s['v'][1] < -.3
             falling_since = (r['t'] if falling_since is None else falling_since) if falling else None
-            unsafe = s['distress'] or s['iwr'] or falling and r['t'] - falling_since >= 20
+            # WaterDistress remains active during its dry, supported recovery.
+            # That presentation is not continuing danger. Prefer the actual
+            # phase snapshot; old logs can prove a transition, but silence
+            # never supplies one. Reentry/wall/falling hazards remain checked.
+            recovering = ((s.get('waterPhase') or phase) == 'RECOVER'
+                          and known(s, 'w', 'wr') and not s['w'] and not s['wr'])
+            unsafe = s['distress'] and not recovering or s['iwr'] or falling and r['t'] - falling_since >= 20
             parents = s['parents'].values() if isinstance(s['parents'], dict) else s['parents']
             carers = [a for u, a in all_ticks[r['t']].items() if u in parents or
                       any(c['child'] == r['u'] for c in a.get('hold', {}).get('carry', []))]

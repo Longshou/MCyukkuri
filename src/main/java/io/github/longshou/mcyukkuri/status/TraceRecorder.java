@@ -627,6 +627,7 @@ public final class TraceRecorder {
         out.add("hold", hold(entity));
         out.addProperty("dep", entity.childhood().shouldStayWithParents());
         out.addProperty("distress", entity.waterDistress().active());
+        out.addProperty("waterPhase", entity.waterDistress().phase().name());
         out.addProperty("stage", entity.family().stage().name().toLowerCase(Locale.ROOT));
         JsonObject parents = new JsonObject();
         parents.addProperty("mother", entity.family().mother() == null ? null : entity.family().mother().toString());

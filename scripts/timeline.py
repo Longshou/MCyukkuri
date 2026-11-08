@@ -35,7 +35,7 @@ def validate(row):
     for key in ('hold', 'att', 'act', 'int', 'need'):
         if s.get(key) is not None and not isinstance(s[key], dict):
             raise ValueError(f'{key} must be an object or null')
-    for key in ('careParent', 'socialGreeting'):
+    for key in ('careParent', 'socialGreeting', 'waterPhase'):
         if s.get(key) is not None and not isinstance(s[key], str):
             raise ValueError(f'{key} must be a string or null')
     for key in ('waitElapsed', 'contactProgress', 'careChewTicks', 'dailyContactTicks',
