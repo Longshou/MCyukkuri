@@ -11,7 +11,6 @@
 | 噗咕鼓腮：身体模型两腮外鼓（复刻原作ぷくー，比概念图更夸张） | `.worktrees/wp-ce-cheek-puff` | standards/yukkuri-library/body-standard/（鼓腮 puff_offsets）、导出的 yukkuri/*.json 模型数据、噗咕片段的 puff 通道 |
 | 观测层：服务端检查校准（主线零误报、已知问题仍抓到） | `.worktrees/wp-ck-check-calibration` | scripts/smoke_checks.py、scripts/timeline.py、scripts/fixtures/timeline/ |
 | 观测层 S3：试玩场景结束条件与里程碑（冒烟自动判断行为链是否走完） | `.worktrees/wp-cl-scene-ends` | scripts/museum_scenarios.py（end、里程碑、视角） |
-| 观测层 G4：预览与检查脚本改用统一姿态命令，删除旧骨骼合成拷贝 | `.worktrees/wp-cn-pose-copies` | preview/review/pose.js、scripts/render_preview_actions.cjs、check_reach.cjs、aquatic_tools.py、render_checks.py、braid_chain.py、scripts/runtime_animation.py |
 
 ## 玩法待办
 
