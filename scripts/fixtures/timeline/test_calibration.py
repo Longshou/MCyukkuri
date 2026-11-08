@@ -14,6 +14,21 @@ from cases import record, state, log, HOST, ACTOR
 
 
 class Calibration(unittest.TestCase):
+    def test_executed_stationary_decision_requires_its_actual_advancing_clock(self):
+        # Main crowd-207: the second member waits while the first makes room;
+        # nearby bodies push that waiting member, which is not a walking job.
+        rows = [state(t, goals=['WildEventGoal'], p=[(t//2)*.02,0,0]) for t in range(40)]
+        events = [record('ev',t,cat='wild-event',msg=f'stationary wait scene=episode phase=APPROACH elapsed={t}') for t in range(40)]
+        self.assertFalse(checks.progress(timeline.states(rows),events))
+        for bad in ([],events[:1],[r | {'u':HOST} for r in events],
+                    [r | {'msg':'stationary wait scene=episode phase=APPROACH elapsed=0'} for r in events],
+                    [r | {'msg':f'stationary wait scene=episode{r["t"]} phase=APPROACH elapsed={r["t"]}'} for r in events]):
+            self.assertTrue(any(f['verdict']=='fail' for f in checks.progress(timeline.states(rows),bad)))
+        extended=rows+[state(t,goals=['WildEventGoal'],p=[(t//2)*.02,0,0]) for t in range(40,80)]
+        self.assertTrue(any(f['verdict']=='fail' for f in checks.progress(timeline.states(extended),events)))
+        for r in rows:r['st']['act']={'id':'walk','owner':'side_job','metric':1}
+        self.assertTrue(any(f['verdict']=='fail' for f in checks.progress(timeline.states(rows),events)))
+
     def test_orphan_danger_ends_at_observed_dry_recovery(self):
         # Main hat_crowd-176 t1123939 is 44 ticks after supported RECOVER;
         # hat_crowd-238 t1515807 is still STRUGGLE and takes later drown damage.

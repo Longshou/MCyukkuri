@@ -257,12 +257,23 @@ def progress(rows, records=()):
     care_parents = {r['state']['careParent'] for r in rows if r['state'].get('careParent')}
     parents = {(r['u'], r['t']): r['state'] for r in rows if r['u'] in care_parents and known(r['state'], 'p')}
     contact_ticks = defaultdict(list)
+    stationary_waits = {}
     for record in records:
+        if record['k'] == 'ev' and record.get('cat') == 'wild-event':
+            wait = re.fullmatch(r'stationary wait scene=(\S+) phase=(\S+) elapsed=(\d+)', record.get('msg', ''))
+            if wait:
+                stationary_waits[record['u'], record['t']] = (wait[1], wait[2], int(wait[3]))
         if (record['k'] == 'ev' and record.get('cat') == 'social'
                 and record.get('msg', '').startswith('self defense strike ')):
             hit = re.search(r'accepted=true health=([\d.]+) -> ([\d.]+)', record['msg'])
             if hit and float(hit[2]) < float(hit[1]):
                 contact_ticks[record['u']].append(record['t'])
+    def wait_advanced(a, b):
+        # This receipt is emitted only after an executed stationary decision,
+        # not merely because an event owns the actor or its deadline advances.
+        wa, wb = stationary_waits.get((a['u'], a['t'])), stationary_waits.get((b['u'], b['t']))
+        return (wa is not None and wb is not None and wa[:2] == wb[:2] and wb[2] > wa[2]
+                and not any(r['state'].get(k) for r in (a, b) for k in ('int', 'act')))
     for actor, samples in actor_samples(rows).items():
         if is_prop(samples[0]['state']):
             continue
@@ -279,7 +290,7 @@ def progress(rows, records=()):
             action = s['act'] or {}
             hits = contact_ticks[actor]
             contacted = bisect_right(hits, row['t']) > bisect_right(hits, anchor['t'])
-            if not active_work(s) or contacted or changed(a, s) or (action.get('deadline') is not None and row['t'] <= action['deadline']):
+            if not active_work(s) or contacted or changed(a, s) or wait_advanced(anchor, row) or (action.get('deadline') is not None and row['t'] <= action['deadline']):
                 anchor = row
                 continue
             # A newly entered short action cannot retroactively shorten the
@@ -307,7 +318,7 @@ def progress(rows, records=()):
                           and known(a['state'], 'defenseWait') and known(b['state'], 'defenseWait')
                           and 0 <= b['state']['defenseWait'] < a['state']['defenseWait'])
             if (b['t'] - a['t'] != 1 or not active_work(b['state']) or work_changed(a['state'], b['state'])
-                    or recovering
+                    or recovering or wait_advanced(a, b)
                     or a['state'].get('veh') != b['state'].get('veh')
                     or bisect_right(contact_ticks[actor], b['t']) > bisect_right(contact_ticks[actor], a['t'])
                     or b['state'].get('alive') is False or b['state'].get('hp', 1) <= 0):

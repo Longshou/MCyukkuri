@@ -14,6 +14,8 @@ import io.github.longshou.mcyukkuri.social.BondLevels;
 import io.github.longshou.mcyukkuri.social.Bonds;
 import io.github.longshou.mcyukkuri.social.DailyLife;
 import io.github.longshou.mcyukkuri.social.Temperament;
+import io.github.longshou.mcyukkuri.status.GameplayLog;
+import io.github.longshou.mcyukkuri.status.StatusEvents;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -332,6 +334,8 @@ public final class WildCards {
             navigate(e,peer.position(),s,1.5);return;
         }
         e.getNavigation().stop();
+        if (StatusEvents.trace()) GameplayLog.event(e, "wild-event", "stationary wait scene={} phase={} elapsed={}",
+                s.id, s.phase, s.phaseTicks);
     }
     private static void navigate(YukkuriEntity e,Vec3 point,Scene s,double distance) {
         if(e.distanceToSqr(point)<=distance*distance){e.getNavigation().stop();return;}
