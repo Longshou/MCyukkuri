@@ -164,6 +164,7 @@ public final class PoseChecks {
     }
     private static double time(JsonObject f) { return n(f, "t") + n(f, "pt"); }
     private static boolean contiguous(JsonObject a, JsonObject b) { double dt = time(b) - time(a); return dt > 0 && dt <= 1.000001; }
+    private static double poseTime(JsonObject f){return f.has("render_seconds")?n(f,"render_seconds")*20:time(f);}
     private static double yawError(JsonObject f) {
         var server = obj(f, "server");
         if (n(server, "t") != n(f, "t")) throw new IllegalArgumentException("server by is not from the same tick");
@@ -193,8 +194,8 @@ public final class PoseChecks {
         if (i == 0) throw new IllegalArgumentException("missing context: contiguous previous pose");
         var before=fs.get(i-1);
         boolean renderedNeighbors=f.has("src")&&s(f,"src").equals("client")&&before.has("f")&&f.has("f")&&n(f,"f")==n(before,"f")+1;
-        if(time(f)==time(before)&&obj(f,"bones").equals(obj(before,"bones"))){skip(r,"unchanged pose at paused game time");return;}
-        if(!(time(f)>time(before)&&(renderedNeighbors||contiguous(before,f))))throw new IllegalArgumentException("missing context: contiguous previous pose");
+        if(poseTime(f)==poseTime(before)&&obj(f,"bones").equals(obj(before,"bones"))){skip(r,"unchanged pose at paused game time");return;}
+        if(!(poseTime(f)>poseTime(before)&&(renderedNeighbors||contiguous(before,f))))throw new IllegalArgumentException("missing context: contiguous previous pose");
         var prev = fs.get(i - 1); var bones = obj(f, "bones"); var old = obj(prev, "bones");
         if (bones.isEmpty() || !bones.keySet().equals(old.keySet())) throw new IllegalArgumentException("missing/mismatched bone matrices");
         double rate = 0; String where = "bones";
@@ -202,7 +203,7 @@ public final class PoseChecks {
             var a = rotation(e.getValue());
             var b = rotation(old.get(e.getKey()));
             double angle = Math.toDegrees(2 * Math.acos(Math.clamp(Math.abs(a.dot(b)), 0, 1)));
-            double v = angle * 20 / (time(f) - time(prev));
+            double v = angle * 20 / (poseTime(f) - poseTime(prev));
             if (v > rate) { rate = v; where = e.getKey(); }
         }
         // Provisional bands: half turn per second / full turn per half second. No calibration or hard gate claimed.

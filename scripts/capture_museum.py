@@ -128,6 +128,7 @@ def capture(parser, args):
     functions = pack / 'data/mcylab/function'
     (functions / 'capture').mkdir()
     for scene, view_id, settings in views:
+        settings = {key: value for key, value in settings.items() if value is not None}
         if 'look_at' in settings:
             x, y, z = settings['look_at']
             settings = dict(settings, look_at=(scene.anchor[0]+x, builder.FEET+y, scene.anchor[1]+z))

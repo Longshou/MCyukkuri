@@ -4,6 +4,7 @@ import com.google.gson.*;
 import io.github.longshou.mcyukkuri.pose.check.PoseGeometry;
 import java.util.*;
 import org.joml.Matrix4f;
+import org.joml.Matrix4d;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 import static io.github.longshou.mcyukkuri.pose.PoseMetricsTest.*;
@@ -51,10 +52,16 @@ class PoseCaptureContextTest {
     }
     @Test void tinyAuthoredVisibilityScaleHasAValidRotationButZeroScaleDoesNot() {
         var a=frame(0);var b=frame(1);
-        var hidden=matrix(new org.joml.Matrix4d().scale(1e-6));
+        var hidden=matrix(new Matrix4d().scale(1e-6));
         a.getAsJsonObject("bones").add("puff",hidden);b.getAsJsonObject("bones").add("puff",hidden);
         verdict("pass","posejump",a,b);
-        b.getAsJsonObject("bones").add("puff",matrix(new org.joml.Matrix4d().scale(0)));
+        b.getAsJsonObject("bones").add("puff",matrix(new Matrix4d().scale(0)));
         verdict("error","posejump",a,b);
+    }
+    @Test void serverClockCorrectionDoesNotInvalidateConsecutiveRenderTimestamps() {
+        var a=frame(20);var b=frame(19);a.addProperty("src","client");b.addProperty("src","client");
+        a.addProperty("f",1);b.addProperty("f",2);a.addProperty("render_seconds",1);b.addProperty("render_seconds",1.05);
+        verdict("pass","posejump",a,b);
+        b.remove("render_seconds");a.remove("render_seconds");verdict("error","posejump",a,b);
     }
 }

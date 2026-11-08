@@ -31,6 +31,8 @@ public final class PoseTap {
     private static Path directory;
     private static String run, window;
     private static long frame, sequence;
+    private static long clockStart, timedFrame;
+    private static double renderSeconds;
 
     private PoseTap() {}
     public static JsonArray matrix(Matrix4f value) {
@@ -45,7 +47,7 @@ public final class PoseTap {
         try { writer = Files.newBufferedWriter(directory.resolve("pose.jsonl")); }
         catch (IOException e) { throw new UncheckedIOException(e); }
         run = directory.getParent().getFileName().toString(); window = directory.getFileName().toString();
-        frame = 0; CURRENT.clear(); PREVIOUS.clear();
+        frame = 0; timedFrame=-1;clockStart=System.nanoTime();CURRENT.clear(); PREVIOUS.clear();
     }
     public static void model(YukkuriView entity, YukkuriModel model, boolean accessory, int hairLoss) {
         if (active()) CURRENT.put(entity.getUUID().toString(), model.capturePose(accessory,hairLoss));
@@ -154,10 +156,12 @@ public final class PoseTap {
         if(hat.hullDamage()>0)f.addProperty("geometry_error","damaged placed hat");
     }
     private static void envelope(JsonObject f, String uuid, long tick, String dimension, float partial) {
+        if(timedFrame!=frame){timedFrame=frame;renderSeconds=(System.nanoTime()-clockStart)/1e9;}
         f.addProperty("v", 1); f.addProperty("k", "pose"); f.addProperty("src", "client");
         f.addProperty("run", run); f.addProperty("win", window); f.addProperty("seq", sequence++);
         f.addProperty("f", frame); f.addProperty("u", uuid); f.addProperty("t", tick);
         f.addProperty("dim", dimension); f.addProperty("pt", partial);
+        f.addProperty("render_seconds",renderSeconds);
     }
     public static long frameId() { return frame; }
     public static boolean markerFrame() {
