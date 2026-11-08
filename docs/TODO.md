@@ -12,6 +12,7 @@
 | 服务端检查第二轮：新基线复核 LOOP／PROGRESS／JUMP／LEDGER／END，过往失败目录逐行能自动报出 | `.worktrees/wp-dc-check-baseline2` | scripts/smoke_checks.py、scripts/timeline.py、scripts/fixtures/timeline/、smoke_museum.py GATING_CHECKS |
 | 模组随机数全部跟随运行种子（实体随机、新个体 UUID、世界随机源） | `.worktrees/wp-dd-mod-seed` | 模组各处随机调用（client/ 除外）、status/TraceRecorder.java、scripts/README.md 种子段 |
 | 截图特殊表面与划桨证据：伤口／破帽／产出表面入证据、桨尖与划深合同 | `.worktrees/wp-de-surface-evidence` | client/YukkuriModel.java（证据导出）、client/capture/、pose/check/、scripts/capture_readout.py、划桨片段动作源 |
+| 动作流水线演练：以 wake 片段走完整动作包流程，补齐仍需临时脚本之处 | `.worktrees/wp-dg-motion-rehearsal` | scripts/export.py、scripts/preview.py、scripts/pose_check.py、capture_review CLI、scripts/README.md |
 
 ## 玩法待办
 
