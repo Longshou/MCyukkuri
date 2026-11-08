@@ -1173,6 +1173,12 @@ def observations(records, issues=(), raw='', allow=(), end=(), seed=None, rerun=
     geo = [r for r in records if r['k'] == 'geo']
     starts = [r['t'] for r in records if r['k'] == 'win']
     start = min(starts) if starts else None
+    # An actor still falling at the first sample can be legitimately supported by the later
+    # one (the scene's loose food settles onto its pond): ordinary settling during
+    # initialization, the same rule the layout gate already allows. Only an actor that is
+    # unsupported at the later sample is a bad spawn; obstruction stays strict at both.
+    settling = {r.get('u') for r in geo if start is not None and r['t'] - start == 20
+                and r.get('supported') is True}
     for r in geo:
         if r.get('player'):
             # SceneGeometry encodes a centre outside the frustum as scr=0.
@@ -1187,7 +1193,8 @@ def observations(records, issues=(), raw='', allow=(), end=(), seed=None, rerun=
         if start is not None and r['t'] - start in (1, 20):
             if not known(r, 'clear', 'drop'):
                 findings.append(result('SPAWN', 'no-evidence', 'geometry clear/drop missing', r))
-            elif not r['clear'] or (r['drop'] > .0625 and r.get('supported') is not True):
+            elif not r['clear'] or (r['drop'] > .0625 and r.get('supported') is not True
+                                    and not (r['t'] - start == 1 and r.get('u') in settling)):
                 # SceneGeometry.supported includes fluid/contact support. Its drop scan can
                 # return the underwater floor before testing that surface; keep the frozen
                 # tolerance for unsupported actors and still reject every obstruction.

@@ -818,6 +818,20 @@ class Calibration(unittest.TestCase):
                 report = checks.observations(rows)
                 self.assertEqual(next(f['verdict'] for f in report['summary'] if f['check'] == 'SPAWN'), 'fail')
 
+    def test_spawn_settling_is_judged_by_the_later_sample_only(self):
+        # hat_crowd summons a real pile of apples over the pond; at +1 tick it is still
+        # above the surface (drop 3.05) and it floats on the water by +20.
+        def report(first_support, later_support, first_clear=True, later_clear=True):
+            rows = [record('win', 0, None), state(1), state(20)]
+            rows += [record('geo', 1, clear=first_clear, supported=first_support, drop=3.05),
+                     record('geo', 20, clear=later_clear, supported=later_support, drop=0.7237)]
+            return next(f['verdict'] for f in checks.observations(rows)['summary'] if f['check'] == 'SPAWN')
+        self.assertEqual(report(False, True), 'pass')
+        # Still unsupported when initialization ends, or obstructed at either sample, still fails.
+        self.assertEqual(report(False, False), 'fail')
+        self.assertEqual(report(False, True, first_clear=False), 'fail')
+        self.assertEqual(report(True, True, later_clear=False), 'fail')
+
 
 if __name__ == '__main__':
     unittest.main(verbosity=2)
