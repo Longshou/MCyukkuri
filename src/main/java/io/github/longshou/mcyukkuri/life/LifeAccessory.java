@@ -1,5 +1,7 @@
 package io.github.longshou.mcyukkuri.life;
 
+import io.github.longshou.mcyukkuri.random.ModRandom;
+
 import io.github.longshou.mcyukkuri.headwear.HatCustody;
 import io.github.longshou.mcyukkuri.mind.EmotionEvent;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
@@ -35,7 +37,7 @@ final class LifeAccessory {
     }
 
     UUID takeAccessory(UUID player) {
-        return takeAccessory(player,UUID.randomUUID());
+        return takeAccessory(player,ModRandom.identity(o.entity().getRandom()));
     }
 
     UUID takeAccessory(UUID player,UUID token) {

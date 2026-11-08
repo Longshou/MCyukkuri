@@ -1,5 +1,7 @@
 package io.github.longshou.mcyukkuri.human;
 
+import io.github.longshou.mcyukkuri.random.ModRandom;
+
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import java.util.UUID;
 import net.minecraft.core.BlockPos;
@@ -17,7 +19,7 @@ public final class FactoryTray extends PathfinderMob {
     private int stalled;
     private Vec3 lastPosition = Vec3.ZERO;
     public FactoryTray(EntityType<? extends FactoryTray> type, Level level) {
-        super(type, level); setPersistenceRequired();
+        super(type, level); ModRandom.construct(this); setPersistenceRequired();
     }
     public static AttributeSupplier.Builder attributes() {
         return Mob.createMobAttributes().add(Attributes.MAX_HEALTH, 20).add(Attributes.MOVEMENT_SPEED, .24)

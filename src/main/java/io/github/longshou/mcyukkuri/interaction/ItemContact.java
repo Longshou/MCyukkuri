@@ -1,5 +1,7 @@
 package io.github.longshou.mcyukkuri.interaction;
 
+import io.github.longshou.mcyukkuri.random.ModRandom;
+
 import io.github.longshou.mcyukkuri.body.MouthPlacement;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -49,7 +51,7 @@ public final class ItemContact {
     public static ItemEntity release(YukkuriEntity actor,ItemStack owned,int pickupDelay) {
         if(actor.level().isClientSide||owned.isEmpty())return null;
         Vec3 mouth=MouthPlacement.position(actor);
-        var dropped=new ItemEntity(actor.level(),mouth.x,mouth.y,mouth.z,owned.copy());
+        var dropped=ModRandom.created(new ItemEntity(actor.level(),mouth.x,mouth.y,mouth.z,owned.copy()), actor.getRandom());
         dropped.setDeltaMovement(MouthPlacement.outward(actor).scale(.025).add(0,-.015,0));
         dropped.setPickUpDelay(pickupDelay);
         return actor.level().addFreshEntity(dropped)?dropped:null;

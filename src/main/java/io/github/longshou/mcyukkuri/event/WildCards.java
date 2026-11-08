@@ -181,7 +181,7 @@ public final class WildCards {
                 all.stream().map(Entity::getUUID).toList(),player==null?null:player.getUUID(),level.getGameTime(),
                 () -> !card.equals("teach") || second.subspecies().acceptsLesson(first.getUUID()));
         if(scene!=null){if(resource!=null)scene.target=resource.getUUID();
-            if(card.equals("forest-find"))scene.sourceCount=Cognition.forestFindSucceeds(first,level.random.nextDouble())?1:0;
+            if(card.equals("forest-find"))scene.sourceCount=Cognition.forestFindSucceeds(first,first.getRandom().nextDouble())?1:0;
             if(card.equals("lookout")||card.equals("park-family")){var observer=level.getNearestPlayer(first,6);if(observer!=null)scene.player=observer.getUUID();}
             for(var e:all){e.social().stop();e.setPersistenceRequired();}}
         return scene;
@@ -223,7 +223,7 @@ public final class WildCards {
             if(s.phaseTicks>=70&&s.phaseTicks<105&&second.getDeltaMovement().y>.03)s.responses|=2;
             if(s.phaseTicks>=110) {
                 if(s.responses!=3){WildEvents.finish(level,s,Phase.INTERRUPTED,"demonstration_or_imitation_interrupted");return;}
-                if(!Cognition.learningSucceeds(second,level.random.nextDouble())) {
+                if(!Cognition.learningSucceeds(second,second.getRandom().nextDouble())) {
                     second.showReaction("neutral","heard",60);WildEvents.finish(level,s,Phase.REFUSED,"actual_imitation_not_learned");return;
                 }
                 s.sourceCount=1;

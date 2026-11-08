@@ -1,5 +1,7 @@
 package io.github.longshou.mcyukkuri.settlement;
 
+import io.github.longshou.mcyukkuri.random.ModRandom;
+
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.LinkedHashSet;
@@ -62,11 +64,11 @@ public final class Grazing {
             boolean grass = state.is(Blocks.TALL_GRASS);
             if (level.getBlockState(pos.above()).is(state.getBlock())) level.setBlock(pos.above(), Blocks.AIR.defaultBlockState(), 3);
             if (!level.setBlock(pos, (grass ? Blocks.SHORT_GRASS : Blocks.FERN).defaultBlockState(), 3)) return false;
-            ledger.add(pos, level.getGameTime() + TALL_DELAY + level.random.nextInt(TALL_DELAY / 2), grass ? Kind.TALL_GRASS : Kind.LARGE_FERN);
+            ledger.add(pos, level.getGameTime() + TALL_DELAY + ModRandom.world(level).nextInt(TALL_DELAY / 2), grass ? Kind.TALL_GRASS : Kind.LARGE_FERN);
         } else {
             boolean grass = state.is(Blocks.SHORT_GRASS);
             if (!level.setBlock(pos, Blocks.AIR.defaultBlockState(), 3)) return false;
-            ledger.add(pos, level.getGameTime() + SHORT_DELAY + level.random.nextInt(SHORT_DELAY / 2), grass ? Kind.SHORT_GRASS : Kind.FERN);
+            ledger.add(pos, level.getGameTime() + SHORT_DELAY + ModRandom.world(level).nextInt(SHORT_DELAY / 2), grass ? Kind.SHORT_GRASS : Kind.FERN);
         }
         return true;
     }

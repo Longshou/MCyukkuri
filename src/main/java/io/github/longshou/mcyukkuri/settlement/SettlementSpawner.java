@@ -1,5 +1,7 @@
 package io.github.longshou.mcyukkuri.settlement;
 
+import io.github.longshou.mcyukkuri.random.ModRandom;
+
 import io.github.longshou.mcyukkuri.MCYukkuri;
 import io.github.longshou.mcyukkuri.entity.DomainHooks;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
@@ -84,7 +86,7 @@ public final class SettlementSpawner {
         if (preset == Preset.BANDITS) return spawnBandits(level, origin, seed);
         boolean forest = preset == Preset.FOREST || preset == Preset.FOREST_LED;
         FAILURE.remove();
-        var composition = fixed != null ? fixed : SettlementComposition.sample(preset, level.random);
+        var composition = fixed != null ? fixed : SettlementComposition.sample(preset, ModRandom.world(level));
         int count = preset == Preset.WANDERER ? 1 : composition.size();
         int cap = forest ? Math.min(YukkuriConfig.COMMUNITY_SPAWN_CAP.get(), YukkuriConfig.COMMUNITY_POPULATION_CAP.get())
                 : Math.min(YukkuriConfig.LOCAL_SPAWN_CAP.get(), FamilyConfig.POPULATION_CAP.get());
@@ -114,12 +116,12 @@ public final class SettlementSpawner {
             // An aquatic marisa seeds an aquatic family: the species only pairs with its own kind (species fact, no boats here).
             boolean aquaticFamily = members.isEmpty() && seed != null && seed.profile().aquatic();
             // Most two-parent households are a Reimu mother and a Marisa father [original 4/5]; the rest stay mixed.
-            boolean couple = household.parents() == 2 && level.random.nextInt(5) != 0;
+            boolean couple = household.parents() == 2 && ModRandom.world(level).nextInt(5) != 0;
             for (int i = 0; i < household.size(); i++) {
                 YukkuriVariant variant = aquaticFamily ? YukkuriVariant.MARISA
                         : i < household.parents() ? couple ? (i == 0 ? YukkuriVariant.REIMU
-                        : family.getFirst().getVariant() == YukkuriVariant.MARISA ? YukkuriVariant.REIMU : YukkuriVariant.MARISA) : COMMON[level.random.nextInt(COMMON.length)]
-                        : family.get(level.random.nextInt(household.parents())).getVariant();
+                        : family.getFirst().getVariant() == YukkuriVariant.MARISA ? YukkuriVariant.REIMU : YukkuriVariant.MARISA) : COMMON[ModRandom.world(level).nextInt(COMMON.length)]
+                        : family.get(ModRandom.world(level).nextInt(household.parents())).getVariant();
                 YukkuriEntity member = members.isEmpty() && seed != null ? seed : ModEntities.forVariant(variant).create(level);
                 if (member == null) return List.of();
                 if (aquaticFamily && member != seed && i < household.parents())
@@ -130,7 +132,7 @@ public final class SettlementSpawner {
         }
         if ((composition.leader() && !seedLeader) || preset == Preset.WANDERER) {
             YukkuriEntity member = preset == Preset.WANDERER && seed != null ? seed
-                    : ModEntities.forVariant(composition.leader() ? YukkuriVariant.PATCHOULI : COMMON[level.random.nextInt(COMMON.length)]).create(level);
+                    : ModEntities.forVariant(composition.leader() ? YukkuriVariant.PATCHOULI : COMMON[ModRandom.world(level).nextInt(COMMON.length)]).create(level);
             if (member == null) return List.of();
             members.add(member);
         }
@@ -145,7 +147,7 @@ public final class SettlementSpawner {
             if (member == seed) continue;
             BlockPos start = sites.get(i);
             Motor.relocate(member, Vec3.atBottomCenterOf(start), member.getYRot(), "settlement_spawn"); member.setOnGround(true);
-            member.tickCount = level.random.nextInt(200); // spread every "tickCount % N" job over the colony
+            member.tickCount = member.getRandom().nextInt(200); // spread every "tickCount % N" job over the colony
             if (!level.noCollision(member) || !level.addFreshEntity(member)) {
                 trace("Member collision at "+start);
                 rollback(level,added,homes,seed,seedSnapshot,seedPartner);return List.of();
@@ -159,7 +161,7 @@ public final class SettlementSpawner {
             return List.copyOf(members);
         }
         var leader = composition.leader() ? members.get(seedLeader ? 0 : members.size() - 1).getUUID() : null;
-        var group = new SettlementData.Group(UUID.randomUUID(), forest ? SettlementData.Kind.FOREST : SettlementData.Kind.FAMILY,
+        var group = new SettlementData.Group(ModRandom.identity(ModRandom.world(level)), forest ? SettlementData.Kind.FOREST : SettlementData.Kind.FAMILY,
                 origin, leader);
         if (site != null) group.siteId = site.id;
         SettlementData.get(level).add(group);
@@ -198,7 +200,7 @@ public final class SettlementSpawner {
     }
     /** A rare band of 3-4 adult common yukkuri with no shelter and no family records; only some groups behave this way, wanderers in general do not. */
     private static List<YukkuriEntity> spawnBandits(ServerLevel level, BlockPos origin, YukkuriEntity seed) {
-        int count = 3 + level.random.nextInt(2);
+        int count = 3 + ModRandom.world(level).nextInt(2);
         int cap = Math.min(YukkuriConfig.LOCAL_SPAWN_CAP.get(), FamilyConfig.POPULATION_CAP.get());
         if (!level.hasChunkAt(origin) || FamilyData.get(level).population(level, origin) + count - (seed == null ? 0 : 1) > cap) return List.of();
         if (seed != null && !Arrays.asList(COMMON).contains(seed.getVariant())) return List.of();
@@ -218,17 +220,17 @@ public final class SettlementSpawner {
         List<YukkuriEntity> members = new ArrayList<>();
         List<YukkuriEntity> added = new ArrayList<>();
         for (int i = 0; i < count; i++) {
-            YukkuriEntity member = i == 0 && seed != null ? seed : ModEntities.forVariant(COMMON[level.random.nextInt(COMMON.length)]).create(level);
+            YukkuriEntity member = i == 0 && seed != null ? seed : ModEntities.forVariant(COMMON[ModRandom.world(level).nextInt(COMMON.length)]).create(level);
             if (member == null) { added.forEach(YukkuriEntity::discard); return List.of(); }
             if (member != seed) {
                 Motor.relocate(member, Vec3.atBottomCenterOf(sites.get(i)), member.getYRot(), "settlement_bandit_spawn"); member.setOnGround(true);
-            member.tickCount = level.random.nextInt(200); // spread every "tickCount % N" job over the colony
+            member.tickCount = member.getRandom().nextInt(200); // spread every "tickCount % N" job over the colony
                 if (!level.noCollision(member) || !level.addFreshEntity(member)) { added.forEach(YukkuriEntity::discard); return List.of(); }
                 added.add(member);
             }
             members.add(member);
         }
-        var group = new SettlementData.Group(UUID.randomUUID(), SettlementData.Kind.BANDITS, origin, null);
+        var group = new SettlementData.Group(ModRandom.identity(ModRandom.world(level)), SettlementData.Kind.BANDITS, origin, null);
         SettlementData.get(level).add(group);
         for (YukkuriEntity member : members) { member.settlement().join(group);  }
         return List.copyOf(members);

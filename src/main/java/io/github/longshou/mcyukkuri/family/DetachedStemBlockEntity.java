@@ -1,5 +1,7 @@
 package io.github.longshou.mcyukkuri.family;
 
+import io.github.longshou.mcyukkuri.random.ModRandom;
+
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 
 import io.github.longshou.mcyukkuri.mind.EmotionEvent;
@@ -17,6 +19,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.core.Direction;
@@ -28,7 +31,11 @@ import net.minecraft.world.phys.AABB;
 
 /** The block owns one existing brood by a durable token, never by a copied list of child entities. */
 public final class DetachedStemBlockEntity extends BlockEntity {
-    private UUID identity=UUID.randomUUID(),broodId;
+    private UUID identity,broodId;
+    @Override public void setLevel(Level level) {
+        super.setLevel(level);
+        if (identity == null) identity = ModRandom.identity(ModRandom.world(level));
+    }
     private int sugar,fuel,exposure,count,born,types;
     private float progress,variation=1;
     private YukkuriVariant source=YukkuriVariant.REIMU;

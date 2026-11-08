@@ -1,5 +1,7 @@
 package io.github.longshou.mcyukkuri.settlement;
 
+import io.github.longshou.mcyukkuri.random.ModRandom;
+
 import io.github.longshou.mcyukkuri.mind.EmotionEvent;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 
@@ -572,7 +574,7 @@ public final class HabitatLife {
         if(carrying.isEmpty()&&!nestMaterial.isEmpty()){carry(nestMaterial);nestMaterial=ItemStack.EMPTY;}
     }
     private void drop(ItemStack stack,boolean primary) {
-        var drop=new ItemEntity(level(),entity.getX(),entity.getY(),entity.getZ(),stack.copy());drop.setPickUpDelay(100);
+        var drop=ModRandom.created(new ItemEntity(level(),entity.getX(),entity.getY(),entity.getZ(),stack.copy()), entity.getRandom());drop.setPickUpDelay(100);
         if(level().addFreshEntity(drop)){
             GameplayLog.event(entity,"habitat","drop item={} count={} task={} drop={}",stack.getItem(),stack.getCount(),task,drop.getUUID());
             if(primary)carry(ItemStack.EMPTY);else nestMaterial=ItemStack.EMPTY;

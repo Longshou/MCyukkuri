@@ -1,5 +1,7 @@
 package io.github.longshou.mcyukkuri.entity;
 
+import io.github.longshou.mcyukkuri.random.ModRandom;
+
 import io.github.longshou.mcyukkuri.body.GraveBlock;
 import io.github.longshou.mcyukkuri.body.GraveBlockEntity;
 import io.github.longshou.mcyukkuri.human.FactoryProduction;
@@ -43,7 +45,7 @@ public final class RemainsEntity extends Entity {
     /** Translation key of the remains name ("X's remains"); its one argument is the name the body had alive. */
     public static final String NAMED="item.mcyukkuri.yukkuri_remains.named";
     private static final EntityDataAccessor<ItemStack> REMAINS=SynchedEntityData.defineId(RemainsEntity.class,EntityDataSerializers.ITEM_STACK);
-    public RemainsEntity(EntityType<? extends RemainsEntity> type,Level level){super(type,level);}
+    public RemainsEntity(EntityType<? extends RemainsEntity> type,Level level){super(type,level);ModRandom.construct(this);}
     @Override protected void defineSynchedData(SynchedEntityData.Builder builder){builder.define(REMAINS,ItemStack.EMPTY);}
     /** Game ticks these remains have lain in the world (decay clock, body/RemainsRot); carried, buried or frozen remains do not age. */
     private long rot;
@@ -179,7 +181,7 @@ public final class RemainsEntity extends Entity {
     /** Server side: take the centre filling out (EMPTY when there is none) and mark the remains. Also used by /yukkuri body. */
     public ItemStack cutCore(){
         var data=data();if(level().isClientSide||!hasCore(data))return ItemStack.EMPTY;
-        var core=FillingResource.core(data);
+        var core=FillingResource.core(data,getRandom());
         var stack=remains();CustomData.update(DataComponents.CUSTOM_DATA,stack,tag->tag.putBoolean("CoreTaken",true));setRemains(stack);
         return core;
     }

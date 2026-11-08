@@ -1,5 +1,7 @@
 package io.github.longshou.mcyukkuri.settlement;
 
+import io.github.longshou.mcyukkuri.random.ModRandom;
+
 import io.github.longshou.mcyukkuri.season.Season;
 import io.github.longshou.mcyukkuri.season.Seasons;
 import io.github.longshou.mcyukkuri.settlement.SettlementData.SiteState;
@@ -59,7 +61,7 @@ final class SiteUpkeep {
                 boolean strained = population * 10 >= capacity * 9 || Seasons.at(level, site.origin) == Season.WINTER && stock == 0;
                 site.state = population * 5 < capacity * 2 ? SiteState.DECLINING : strained ? SiteState.STRAINED : site.prosperity >= 1 ? SiteState.THRIVING : SiteState.FOUNDED;
                 boolean healthy = !strained && stock >= population;
-                if (level.random.nextInt(6) == 0) site.prosperity = Math.max(0, Math.min(3, site.prosperity + (healthy ? 1 : -1)));
+                if (ModRandom.world(level).nextInt(6) == 0) site.prosperity = Math.max(0, Math.min(3, site.prosperity + (healthy ? 1 : -1)));
                 if (site.prosperity >= 1) wearPath(level, site, true);
                 if (site.prosperity >= 1) regrow(level, site, population);
             }
@@ -72,7 +74,7 @@ final class SiteUpkeep {
     private static void wearPath(ServerLevel level, SettlementData.Site site, boolean walked) {
         var keys = new ArrayList<>(site.plan().paths.keySet());
         if (keys.isEmpty()) return;
-        long key = keys.get(level.random.nextInt(keys.size()));
+        long key = keys.get(ModRandom.world(level).nextInt(keys.size()));
         int x = SiteGeom.keyX(key), z = SiteGeom.keyZ(key);
         // Trails climb to the burrows on the slope: probe from well above the clearing.
         var probe = new BlockPos(x, site.origin.getY() + 8, z);
@@ -91,13 +93,13 @@ final class SiteUpkeep {
     /** One tuft per pass on bare turf of the meadow ring, only while the ring holds fewer tufts than the residents can eat. */
     private static void regrow(ServerLevel level, SettlementData.Site site, int population) {
         var plan = site.plan();
-        int dx = level.random.nextInt(site.tier.bound * 2 + 1) - site.tier.bound, dz = level.random.nextInt(site.tier.bound * 2 + 1) - site.tier.bound;
+        int dx = ModRandom.world(level).nextInt(site.tier.bound * 2 + 1) - site.tier.bound, dz = ModRandom.world(level).nextInt(site.tier.bound * 2 + 1) - site.tier.bound;
         int x = site.origin.getX() + dx, z = site.origin.getZ() + dz;
         if (Math.hypot(dx, dz) > plan.meadowOuter || plan.flat.contains(SiteGeom.key(x, z)) || plan.paths.containsKey(SiteGeom.key(x, z))
                 || plan.works.containsKey(SiteGeom.key(x, z))) return;
         int tufts = 0;
         for (int i = 0; i < 24; i++) {
-            var sample = new BlockPos(site.origin.getX() + level.random.nextInt(21) - 10, site.origin.getY(), site.origin.getZ() + level.random.nextInt(21) - 10);
+            var sample = new BlockPos(site.origin.getX() + ModRandom.world(level).nextInt(21) - 10, site.origin.getY(), site.origin.getZ() + ModRandom.world(level).nextInt(21) - 10);
             if (level.hasChunkAt(sample) && level.getBlockState(sample).is(Blocks.SHORT_GRASS)) tufts++;
         }
         if (tufts * 4 >= Math.min(24, population * MEADOW_PER_RESIDENT / 4)) return;

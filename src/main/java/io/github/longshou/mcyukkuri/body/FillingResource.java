@@ -1,8 +1,10 @@
 package io.github.longshou.mcyukkuri.body;
 
+import io.github.longshou.mcyukkuri.random.ModRandom;
+
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.registry.ModItems;
-import java.util.UUID;
+import net.minecraft.util.RandomSource;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -19,13 +21,13 @@ public final class FillingResource {
     }
 
     /** The centre filling taken from remains whose core was never hurt. */
-    public static ItemStack core(CompoundTag remains) {
+    public static ItemStack core(CompoundTag remains, RandomSource random) {
         ItemStack stack = new ItemStack(ModItems.CORE_FILLING.get());
         var body = remains.getCompound("Body");
         int sweetness = body.contains("CoreSweetness") ? Math.clamp(body.getInt("CoreSweetness"), 0, 100) : 90;
         CustomData.update(DataComponents.CUSTOM_DATA, stack, tag -> {
             tag.putInt("FillingVersion", 1);
-            tag.putUUID("Portion", UUID.randomUUID());
+            tag.putUUID("Portion", ModRandom.identity(random));
             if (remains.hasUUID("Identity")) tag.putUUID("Source", remains.getUUID("Identity"));
             tag.putString("Variant", remains.getString("Variant"));
             tag.putFloat("SourceScale", remains.contains("SourceScale") ? remains.getFloat("SourceScale") : 1);

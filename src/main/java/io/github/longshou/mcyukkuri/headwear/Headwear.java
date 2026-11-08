@@ -1,5 +1,7 @@
 package io.github.longshou.mcyukkuri.headwear;
 
+import io.github.longshou.mcyukkuri.random.ModRandom;
+
 import io.github.longshou.mcyukkuri.mind.EmotionEvent;
 
 import io.github.longshou.mcyukkuri.entity.Behaviors;
@@ -111,7 +113,7 @@ public final class Headwear extends Goal {
         fit=entity.family().scale();
         if (tag.getInt("HatPieces") > 0) {
             entity.life().removeAccessory();
-            shattered=true;shardToken=UUID.randomUUID();
+            shattered=true;shardToken=ModRandom.identity(entity.getRandom());
             shardsTotal=shardsHeld=Math.clamp(tag.getInt("HatPieces"),2,3);
             reassembly=Math.clamp(tag.getInt("HatReassembly"),0,REASSEMBLE-1);
             lastProgress=entity.level().getGameTime();
@@ -241,7 +243,7 @@ public final class Headwear extends Goal {
         damage = 0; mend = 0; reassembly = 0; shardsHeld = 0; cause = why;
         lastProgress = entity.level().getGameTime();
         shattered = !burned; lost = burned;
-        shardToken = burned ? null : UUID.randomUUID();
+        shardToken = burned ? null : ModRandom.identity(entity.getRandom());
         shardsTotal = burned ? 0 : 2 + entity.getRandom().nextInt(2);
         int emitted=0;
         for (int piece = 0; piece < shardsTotal; piece++) if(dropShard(item, piece))emitted++;
@@ -259,7 +261,7 @@ public final class Headwear extends Goal {
             // Its own piece number keeps the pieces from merging into one pile on the ground.
             tag.putInt("Piece", piece);
         });
-        var drop = new ItemEntity(entity.level(), entity.getX(), entity.getEyeY(), entity.getZ(), stack);
+        var drop = ModRandom.created(new ItemEntity(entity.level(), entity.getX(), entity.getEyeY(), entity.getZ(), stack), entity.getRandom());
         double angle = entity.getRandom().nextDouble() * Math.PI * 2;
         drop.setDeltaMovement(Math.cos(angle) * .12, .2, Math.sin(angle) * .12);
         drop.setPickUpDelay(40);
@@ -278,7 +280,7 @@ public final class Headwear extends Goal {
             shattered = true; lost = false;
             damage = mend = reassembly = 0;
             if (shardsTotal < 2 || shardsTotal > 3) shardsTotal = REPLACEMENT_SHARDS;
-            if (shardToken == null) shardToken = UUID.randomUUID();
+            if (shardToken == null) shardToken = ModRandom.identity(entity.getRandom());
             cause = "replacement_fragments";
             GameplayLog.event(entity,"headwear","fragment replacement started previous={} held={} total={} token={}",
                     previous,shardsHeld,shardsTotal,shardToken);

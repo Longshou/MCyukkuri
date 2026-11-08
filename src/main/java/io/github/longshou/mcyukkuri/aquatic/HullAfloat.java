@@ -203,7 +203,7 @@ public final class HullAfloat implements PlacedHatBehavior {
         if (body.getUUID().equals(hat.ownerYukkuri()) && (event.equals("growth") || body.getPassengers().isEmpty())) return;
         double ratio = hat.loadRatio(), capacity = HullBounds.capacity(scale(hat));
         double chance = HullTriggers.overloadChance(ratio);
-        double roll = hat.level().random.nextDouble();
+        double roll = hat.getRandom().nextDouble();
         boolean capsize = roll < chance;
         GameplayLog.event(hat, "aquatic", "load changed event={} body={} load={} capacity={} chance={} roll={} result={}",
                 event, body.getUUID(), ratio * capacity, capacity, chance, roll, capsize ? "capsize" : "afloat");

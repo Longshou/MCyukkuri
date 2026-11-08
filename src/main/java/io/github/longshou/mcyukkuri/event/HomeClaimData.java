@@ -1,5 +1,7 @@
 package io.github.longshou.mcyukkuri.event;
 
+import io.github.longshou.mcyukkuri.random.ModRandom;
+
 import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.coordination.DeadlineMap;
@@ -79,7 +81,7 @@ public final class HomeClaimData extends SavedData {
     public Claim start(List<UUID> members, GlobalPos site, UUID player) {
         if (members.isEmpty() || members.size()>6 || new HashSet<>(members).size()!=members.size()
                 || !EventReservations.free(server,members)) return null;
-        Claim claim=new Claim(UUID.randomUUID(),members,site); claim.player=player;
+        Claim claim=new Claim(ModRandom.identity(ModRandom.world(server.getLevel(site.dimension()))),members,site); claim.player=player;
         if (!EventReservations.acquire(server,members,new EventReservations.Token(EventReservations.Source.HOME,claim.id))) return null;
         claims.put(claim.id,claim); setDirty(); log(claim,"started"); return claim;
     }

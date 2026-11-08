@@ -1,5 +1,7 @@
 package io.github.longshou.mcyukkuri.settlement;
 
+import io.github.longshou.mcyukkuri.random.ModRandom;
+
 import io.github.longshou.mcyukkuri.life.YukkuriConfig;
 import io.github.longshou.mcyukkuri.settlement.site.SiteBuilder;
 import io.github.longshou.mcyukkuri.settlement.site.WildSettlementPiece;
@@ -65,8 +67,8 @@ public final class SiteClaimer {
                 if (!player.isSpectator() && player.distanceToSqr(site.origin.getX() + .5, site.origin.getY(), site.origin.getZ() + .5) <= reach) { near = true; break; }
             if (!near || !SiteBuilder.loaded(level, plan)) continue;
             SiteLife.clearLanes(level, site);
-            boolean leader = level.random.nextInt(100) < YukkuriConfig.LEADER_CHANCE.get();
-            var members = SettlementSpawner.spawnAtSite(level, site, SettlementComposition.forTier(site.tier, level.random, leader));
+            boolean leader = ModRandom.world(level).nextInt(100) < YukkuriConfig.LEADER_CHANCE.get();
+            var members = SettlementSpawner.spawnAtSite(level, site, SettlementComposition.forTier(site.tier, ModRandom.world(level), leader));
             if (members.isEmpty()) {
                 site.failures++;
                 site.retryAt = level.getGameTime() + (site.failures >= 5 ? RETRY_TICKS * 4L : RETRY_TICKS);

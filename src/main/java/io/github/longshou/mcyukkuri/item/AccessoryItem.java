@@ -1,5 +1,7 @@
 package io.github.longshou.mcyukkuri.item;
 
+import io.github.longshou.mcyukkuri.random.ModRandom;
+
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.interaction.InteractionDispatch;
 import io.github.longshou.mcyukkuri.registry.ModItems;
@@ -88,7 +90,7 @@ public final class AccessoryItem extends Item {
         CustomData.update(DataComponents.CUSTOM_DATA,one,tag->{tag.putLong("SuspensionAnchor",anchor.asLong());tag.putString("SuspensionDimension",
                 player.level().dimension().location().toString());tag.putInt("SuspensionTicks",600);});
         var position=Vec3.atBottomCenterOf(anchor).add(0,-.35,0);
-        var drop=new ItemEntity(player.level(),position.x,position.y,position.z,one);
+        var drop=ModRandom.created(new ItemEntity(player.level(),position.x,position.y,position.z,one), ModRandom.world(player.level()));
         drop.setDeltaMovement(Vec3.ZERO);drop.setNoGravity(true);drop.setPickUpDelay(20);
         if(!player.level().addFreshEntity(drop))return false;
         stack.shrink(1);return true;

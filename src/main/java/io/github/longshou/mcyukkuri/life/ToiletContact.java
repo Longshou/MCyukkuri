@@ -1,5 +1,7 @@
 package io.github.longshou.mcyukkuri.life;
 
+import io.github.longshou.mcyukkuri.random.ModRandom;
+
 import io.github.longshou.mcyukkuri.body.DetachedItems;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.entity.YukkuriView;
@@ -211,7 +213,7 @@ public final class ToiletContact {
     }
 
     private static ItemEntity loose(ServerLevel server, ItemStack stack, Vec3 at, Vec3 velocity, float yaw) {
-        var waste = new ItemEntity(server, at.x, at.y, at.z, stack);
+        var waste = ModRandom.created(new ItemEntity(server, at.x, at.y, at.z, stack), ModRandom.world(server));
         waste.setDefaultPickUpDelay();
         waste.setDeltaMovement(velocity);
         // Turned as the dropping was drawn leaving the body (the model frame turns by 180 - body yaw; the item is drawn turned by -yRot).

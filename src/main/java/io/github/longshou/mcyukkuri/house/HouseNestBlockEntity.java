@@ -1,5 +1,7 @@
 package io.github.longshou.mcyukkuri.house;
 
+import io.github.longshou.mcyukkuri.random.ModRandom;
+
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.FamilyConfig;
 import io.github.longshou.mcyukkuri.family.FamilyData;
@@ -23,6 +25,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
@@ -35,7 +38,11 @@ import net.minecraft.world.phys.HitResult;
 /** A physical home: finite stores, contact care, and four stable egg places backed by the family ledger. */
 public final class HouseNestBlockEntity extends BlockEntity {
     public static final int MATERIAL_COST=6,STOCK_CAP=24,EGG_CAP=4;
-    private UUID identity=UUID.randomUUID(),broodId,carer;
+    private UUID identity,broodId,carer;
+    @Override public void setLevel(Level level) {
+        super.setLevel(level);
+        if (identity == null) identity = ModRandom.identity(ModRandom.world(level));
+    }
     private int materials,food,dirt,pendingDebris,ticks,arrivalTicks,arrivals,careTicks,disturbedTicks,maintenanceWait,hatchWait,incubationFoodTicks;
     private boolean destroyed,founderReimu=true;
     private Direction entranceDirection=Direction.NORTH;

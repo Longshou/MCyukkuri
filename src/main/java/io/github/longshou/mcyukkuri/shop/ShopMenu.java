@@ -1,5 +1,7 @@
 package io.github.longshou.mcyukkuri.shop;
 
+import io.github.longshou.mcyukkuri.random.ModRandom;
+
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.entity.SpeciesProfile;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
@@ -199,7 +201,7 @@ public final class ShopMenu extends AbstractContainerMenu {
     static void deliver(ServerLevel level, UUID player, Vec3 at, ItemStack stack) {
         ServerPlayer sp = level.getServer().getPlayerList().getPlayer(player);
         if (sp != null) give(sp, stack);
-        else { var item = new ItemEntity(level, at.x, at.y + .15, at.z, stack); item.setDefaultPickUpDelay(); level.addFreshEntity(item); }
+        else { var item = ModRandom.created(new ItemEntity(level, at.x, at.y + .15, at.z, stack), ModRandom.world(level)); item.setDefaultPickUpDelay(); level.addFreshEntity(item); }
     }
     static boolean stockOf(YukkuriEntity y, UUID shop) { return HumanCommerce.ownedBy(y, shop) && (Custody.view(y).role() == Custody.Role.STOCK); }
     private static int stage(YukkuriEntity y) { return !y.family().adult() && y.childhood().canLiveIndependently() ? 3 : y.family().stage().ordinal(); }
@@ -364,7 +366,7 @@ public final class ShopMenu extends AbstractContainerMenu {
         int stockBefore=stocks.stock(level,shopId(),good), delivered=stack.getCount();
         var item=stack.getItem();
         // The shelf shows the plain knit; each swaddle cloth handed over is one of the styles at random (docs/FEATURES.md).
-        var style=stack.is(ModItems.SWADDLE_CLOTH.get())?SwaddleStyle.random(level.random):null;
+        var style=stack.is(ModItems.SWADDLE_CLOTH.get())?SwaddleStyle.random(ModRandom.world(level)):null;
         if(style!=null)style.apply(stack);
         if(!stocks.take(level, shopId(), good))return refused(p,"buy_good","stock_changed");
         debit(p, Items.EMERALD, price); give(p, stack); stocks.useTrade(level, shopId(), p.getUUID());

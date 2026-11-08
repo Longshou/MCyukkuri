@@ -1,5 +1,7 @@
 package io.github.longshou.mcyukkuri.social;
 
+import io.github.longshou.mcyukkuri.random.ModRandom;
+
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 
 import io.github.longshou.mcyukkuri.entity.Behaviors;
@@ -141,7 +143,7 @@ public final class TreasureLife extends Goal {
     @Override public void stop() {
         // A find that could not be taken home is put down where the individual stands, never destroyed.
         if (!carried.isEmpty() && entity.isAlive() && !entity.level().isClientSide) {
-            var drop = new ItemEntity(level(), entity.getX(), entity.getY() + .2, entity.getZ(), carried);
+            var drop = ModRandom.created(new ItemEntity(level(), entity.getX(), entity.getY() + .2, entity.getZ(), carried), entity.getRandom());
             boolean spawned = level().addFreshEntity(drop);
             GameplayLog.event(entity, "treasure", "carry ended item={} count={} drop={} spawned={} elapsed={}",
                     carried.getItem(), carried.getCount(), drop.getUUID(), spawned, elapsed);
@@ -180,7 +182,7 @@ public final class TreasureLife extends Goal {
     public void dropAll() {
         if (entity.level().isClientSide) return;
         int count = held.size(), spawned = 0;
-        for (var stack : held) if (level().addFreshEntity(new ItemEntity(level(), entity.getX(), entity.getY() + .2, entity.getZ(), stack))) spawned++;
+        for (var stack : held) if (level().addFreshEntity(ModRandom.created(new ItemEntity(level(), entity.getX(), entity.getY() + .2, entity.getZ(), stack), entity.getRandom()))) spawned++;
         held.clear();
         if (count > 0) GameplayLog.event(entity, "treasure", "death drop attempted={} spawned={} held=0", count, spawned);
     }

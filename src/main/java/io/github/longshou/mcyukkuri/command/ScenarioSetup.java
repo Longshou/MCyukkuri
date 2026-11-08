@@ -1,5 +1,7 @@
 package io.github.longshou.mcyukkuri.command;
 
+import io.github.longshou.mcyukkuri.random.ModRandom;
+
 import io.github.longshou.mcyukkuri.entity.DomainHooks;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.entity.YukkuriVariant;
@@ -45,7 +47,7 @@ final class ScenarioSetup {
     static int community(YukkuriEntity leader, List<YukkuriEntity> members, BlockPos centre) {
         if (!leader.family().adult() || !members.contains(leader) || members.stream().anyMatch(e -> e.settlement().group() != null)) return 0;
         var level = (ServerLevel) leader.level();
-        var group = new SettlementData.Group(UUID.randomUUID(), SettlementData.Kind.FOREST, centre, leader.getUUID());
+        var group = new SettlementData.Group(ModRandom.identity(leader.getRandom()), SettlementData.Kind.FOREST, centre, leader.getUUID());
         SettlementData.get(level).add(group);
         members.forEach(e -> e.settlement().join(group));
         GameplayLog.event(leader, "settlement", "scenario community initialized group={} centre={} members={}", group.id, centre, members.stream().map(YukkuriEntity::getUUID).toList());
@@ -223,7 +225,7 @@ final class ScenarioSetup {
         if (!level.getBlockState(home).isAir()) return "洞口格子被占用。";
         var plan = new ShelterPlacement.Plan(home, ShelterBlock.Kind.BURROW, Direction.SOUTH);
         if (!ShelterPlacement.canPlace(level, plan)) return "洞口位置放不下住所。";
-        var group = new SettlementData.Group(UUID.randomUUID(), SettlementData.Kind.FAMILY, home, null);
+        var group = new SettlementData.Group(ModRandom.identity(parent.getRandom()), SettlementData.Kind.FAMILY, home, null);
         var placed = ShelterPlacement.place(level, plan);
         if (placed == null) return "住所没能放进洞里。";
         placed.shelter().initializeEncounter(2);

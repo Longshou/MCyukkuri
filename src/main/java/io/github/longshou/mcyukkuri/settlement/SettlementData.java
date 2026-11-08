@@ -1,5 +1,7 @@
 package io.github.longshou.mcyukkuri.settlement;
 
+import io.github.longshou.mcyukkuri.random.ModRandom;
+
 import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.family.RelationshipCleanup;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
@@ -239,6 +241,7 @@ public final class SettlementData extends SavedData {
 
     public static SettlementData get(ServerLevel level) {
         var data=level.getDataStorage().computeIfAbsent(new Factory<>(SettlementData::new, SettlementData::load), "mcyukkuri_settlements");
+        data.randomLevel = level;
         if(data.logDimension==null) {
             data.logDimension=level.dimension().location().toString();
             for(var group:data.groups.values())group.commons.logContext(data.logDimension,group.id);
@@ -246,6 +249,7 @@ public final class SettlementData extends SavedData {
         return data;
     }
     private String logDimension;
+    private ServerLevel randomLevel;
 
     public Site site(UUID id) { return id == null ? null : sites.get(id); }
     public Collection<Site> sites() {
@@ -260,7 +264,7 @@ public final class SettlementData extends SavedData {
     public Site addSite(SitePlan plan, boolean auto) {
         Site known = siteAt(plan.ox, plan.oz);
         if (known != null) return known;
-        Site site = new Site(UUID.randomUUID(), plan.tier, plan.seed, plan.rotation, plan.palette, new BlockPos(plan.ox, plan.level, plan.oz), auto);
+        Site site = new Site(ModRandom.identity(ModRandom.world(randomLevel)), plan.tier, plan.seed, plan.rotation, plan.palette, new BlockPos(plan.ox, plan.level, plan.oz), auto);
         site.levels = plan.levels();
         sites.put(site.id, site);cachedSites = null;setDirty();
         return site;

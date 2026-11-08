@@ -183,7 +183,7 @@ public final class GroupCards {
                 at.getX() + .5, at.getY() + .5, at.getZ() + .5, 40, .8, .5, .8, .1);
         level.playSound(null, at, SoundEvents.GRAVEL_BREAK, SoundSource.BLOCKS, 1f, .7f);
         for (var resident : residents) {
-            if (resident.getHealth() > 3) resident.hurt(level.damageSources().generic(), 1 + level.random.nextInt(2));
+            if (resident.getHealth() > 3) resident.hurt(level.damageSources().generic(), 1 + resident.getRandom().nextInt(2));
             resident.mind().felt(EmotionEvent.FRIGHTENED); resident.showReaction("cry", "afraid", 80);
             resident.life().navigate(shelter.entrance(), 1.4, false);
         }

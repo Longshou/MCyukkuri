@@ -1,5 +1,7 @@
 package io.github.longshou.mcyukkuri.event;
 
+import io.github.longshou.mcyukkuri.random.ModRandom;
+
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.mind.EmotionEvent;
 
@@ -128,7 +130,7 @@ public final class HomeClaim {
     /** Called from {@link WildEvents#discover} for an available wild adult; true when a claim started. */
     public static boolean discover(YukkuriEntity e) {
         if (!(e.level() instanceof ServerLevel level) || !YukkuriConfig.HOME_CLAIMS.get() || !e.family().adult() || !eligible(e)) return false;
-        if (level.random.nextInt(YukkuriConfig.HOME_CLAIM_CHANCE.get())!=0) return false;
+        if (e.getRandom().nextInt(YukkuriConfig.HOME_CLAIM_CHANCE.get())!=0) return false;
         Player player=level.getNearestPlayer(e,WITNESS);
         if (player==null || !player.isAlive() || player.isSpectator()) return false;
         if (HomeClaimData.get(level).cooling(e.getUUID(),level.getGameTime())) return false;
@@ -266,11 +268,11 @@ public final class HomeClaim {
         for (var y:alive) if (!y.family().adult()) y.showReaction("teary","hungry",60);
         var adults=alive.stream().filter(y -> y.family().adult()).toList();
         if (adults.isEmpty()) return;
-        var a=adults.get(level.random.nextInt(adults.size()));
+        var a=adults.get(ModRandom.world(level).nextInt(adults.size()));
         a.showReaction("angry","mine",60);
         var others=alive.stream().filter(y -> y!=a).toList();
         if (others.isEmpty()) return;
-        var b=others.get(level.random.nextInt(others.size()));
+        var b=others.get(ModRandom.world(level).nextInt(others.size()));
         if (b.family().adult()) b.showReaction("angry","mine",60);
         relations.relate(a.getUUID(),b.getUUID(),-6); relations.relate(b.getUUID(),a.getUUID(),-6); // [original]
     }

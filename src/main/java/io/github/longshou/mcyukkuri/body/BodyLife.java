@@ -1,5 +1,7 @@
 package io.github.longshou.mcyukkuri.body;
 
+import io.github.longshou.mcyukkuri.random.ModRandom;
+
 import io.github.longshou.mcyukkuri.MCYukkuri;
 import io.github.longshou.mcyukkuri.entity.RemainsEntity;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
@@ -159,7 +161,7 @@ public final class BodyLife {
         final int removed=cut;
         CustomData.update(DataComponents.CUSTOM_DATA,stack,tag->{tag.putUUID("Source",entity.getUUID());tag.putString("Variant",entity.getVariant().assetId());
             tag.putInt("HairParts",removed);tag.putFloat("SourceScale",entity.growthScale()*entity.getScale()*(entity.profile().modelScale()));});
-        var drop=new ItemEntity(entity.level(),entity.getX(),entity.getY(),entity.getZ(),stack);
+        var drop=ModRandom.created(new ItemEntity(entity.level(),entity.getX(),entity.getY(),entity.getZ(),stack), entity.getRandom());
         if(!entity.level().addFreshEntity(drop))return false;
         hairLoss|=cut;entity.syncBody();entity.mind().felt(EmotionEvent.FRIGHTENED);
                 entity.showReaction("surprise","afraid",100);entity.life().personality().confiscated(player.getUUID());return true;
@@ -345,7 +347,7 @@ public final class BodyLife {
                 placed=old.struck(loss,severity,loss>=2);wounds.set(closest,placed);
                 checkSole(placed,mesh);refreshWounds();
             }else{
-                placed=new BodyWound(UUID.randomUUID(),strike.kind(),strike.hit().triangle(),strike.hit().u(),strike.hit().v(),
+                placed=new BodyWound(ModRandom.identity(entity.getRandom()),strike.kind(),strike.hit().triangle(),strike.hit().u(),strike.hit().v(),
                         severity,entity.profile().portionScale(),0,0,severity,strike.shape(),loss);
                 insertWound(placed);
                 for(var wound:wounds)if(wound.id().equals(placed.id())){placed=wound;break;}
@@ -424,13 +426,13 @@ public final class BodyLife {
         var woundKind=WoundKind.parse(kind);
         if(shape==null||shape.kind()!=woundKind)return false;
         var mesh=WoundSurface.get(entity.subspecies().assetId());var hit=part.site(mesh,new Random(entity.getRandom().nextLong()));if(hit==null)return false;
-        insertWound(new BodyWound(UUID.randomUUID(),woundKind,hit.triangle(),hit.u(),hit.v(),Math.clamp(severity,1,3),entity.profile().portionScale(),0,0,severity,shape));
+        insertWound(new BodyWound(ModRandom.identity(entity.getRandom()),woundKind,hit.triangle(),hit.u(),hit.v(),Math.clamp(severity,1,3),entity.profile().portionScale(),0,0,severity,shape));
         entity.syncBody();return true;
     }
     /** Burn the sole badly enough to lose its spring (scenario/status tool; actual sole burns use insertWound). */
     public boolean burnFoot(){
         var hit=soleSite();if(hit==null||entity.level().isClientSide||!entity.isAlive())return false;
-        insertWound(new BodyWound(UUID.randomUUID(),WoundKind.SCORCH,hit.triangle(),hit.u(),hit.v(),3,entity.profile().portionScale(),0,0));
+        insertWound(new BodyWound(ModRandom.identity(entity.getRandom()),WoundKind.SCORCH,hit.triangle(),hit.u(),hit.v(),3,entity.profile().portionScale(),0,0));
         return footBurned;
     }
     /** Restore sole mobility after treatment, also used by the status tool. */

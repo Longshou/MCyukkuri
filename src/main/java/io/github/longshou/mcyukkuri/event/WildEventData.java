@@ -1,5 +1,7 @@
 package io.github.longshou.mcyukkuri.event;
 
+import io.github.longshou.mcyukkuri.random.ModRandom;
+
 import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.coordination.DeadlineMap;
 import io.github.longshou.mcyukkuri.coordination.RegionKey;
@@ -99,7 +101,7 @@ public final class WildEventData extends SavedData {
     public Scene start(Kind kind, String card, GlobalPos origin, List<UUID> members, UUID player, long now,
                        BooleanSupplier prepare) {
         if (!canStart(origin,members,now)) return null;
-        Scene scene=new Scene(UUID.randomUUID(),kind,card,origin,members); scene.player=player;
+        Scene scene=new Scene(ModRandom.identity(ModRandom.world(server.getLevel(origin.dimension()))),kind,card,origin,members); scene.player=player;
         var token=new EventReservations.Token(EventReservations.Source.WILD,scene.id);
         if (!EventReservations.acquire(server,members,token)) return null;
         boolean committed=false;

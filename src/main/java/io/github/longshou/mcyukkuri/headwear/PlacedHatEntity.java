@@ -1,5 +1,7 @@
 package io.github.longshou.mcyukkuri.headwear;
 
+import io.github.longshou.mcyukkuri.random.ModRandom;
+
 import io.github.longshou.mcyukkuri.family.FamilyLife;
 import io.github.longshou.mcyukkuri.family.ParentCarry;
 
@@ -141,6 +143,7 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
 
     public PlacedHatEntity(EntityType<? extends PlacedHatEntity> type, Level level) { super(type, level); blocksBuilding = true; }
     @Override protected void defineSynchedData(SynchedEntityData.Builder builder) {
+        ModRandom.construct(this);
         builder.define(STATE, State.CRADLE.ordinal()); builder.define(OWNER, Optional.empty()); builder.define(SCALE, 1f);
         builder.define(RIDERS, new CompoundTag()); builder.define(HULL_DAMAGE, 0); builder.define(ROLL, 0f); builder.define(PITCH, 0f);
         builder.define(CONTENTS, new CompoundTag()); builder.define(FORM, HullProfile.CURRENT);
@@ -469,7 +472,7 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
     /** Turned over or destroyed: the stick falls out where it lies, a real floating item. */
     public void dropKit(Vec3 at, Vec3 v, String cause) {
         if (kit.isEmpty() || level().isClientSide) return;
-        var drop = new ItemEntity(level(), at.x, at.y, at.z, kit);
+        var drop = ModRandom.created(new ItemEntity(level(), at.x, at.y, at.z, kit), getRandom());
         Motor.velocity(drop, v, cause);
         drop.setDefaultPickUpDelay();
         kit(ItemStack.EMPTY);
@@ -664,7 +667,7 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
     public void dropAsItem(String cause) {
         var owner = owner();
         var stack = accessory;
-        var drop = new ItemEntity(level(), getX(), getY(), getZ(), stack);
+        var drop = ModRandom.created(new ItemEntity(level(), getX(), getY(), getZ(), stack), getRandom());
         Motor.velocity(drop, getDeltaMovement(), cause);
         drop.setDefaultPickUpDelay();
         if (!level().addFreshEntity(drop)) {
@@ -706,6 +709,8 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
             return refusePlacement(owner, at, "no_sturdy_floor", spot.below().toShortString() + " " + level.getBlockState(spot.below()).getBlock());
         var hat = ModEntities.PLACED_HAT.get().create(level);
         if (hat == null) return refusePlacement(owner, at, "entity_creation_failed", "");
+        hat.setUUID(ModRandom.identity(owner.getRandom()));
+        ModRandom.seedEntity(hat);
         hat.setYRot(yaw);
         hat.formId(HatGeometry.wornForm(owner).id());
         hat.syncHullScale(HatScale.of(owner));

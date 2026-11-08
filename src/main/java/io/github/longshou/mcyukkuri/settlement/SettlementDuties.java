@@ -1,5 +1,7 @@
 package io.github.longshou.mcyukkuri.settlement;
 
+import io.github.longshou.mcyukkuri.random.ModRandom;
+
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.life.CareBlock;
@@ -273,7 +275,7 @@ public final class SettlementDuties {
                 carrying = ItemStack.EMPTY; return true;
             }
         }
-        var drop = new ItemEntity(level(), entity.getX(), entity.getY(), entity.getZ(), carrying.copy());
+        var drop = ModRandom.created(new ItemEntity(level(), entity.getX(), entity.getY(), entity.getZ(), carrying.copy()), entity.getRandom());
         if (!level().addFreshEntity(drop)) return false;
         drop.setPickUpDelay(100); drop.getPersistentData().putLong("YukkuriClearedUntil", level().getGameTime() + 1200);
         carrying = ItemStack.EMPTY; return true;

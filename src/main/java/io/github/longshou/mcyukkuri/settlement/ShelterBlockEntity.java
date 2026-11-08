@@ -1,5 +1,7 @@
 package io.github.longshou.mcyukkuri.settlement;
 
+import io.github.longshou.mcyukkuri.random.ModRandom;
+
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
@@ -538,7 +540,7 @@ public final class ShelterBlockEntity extends BlockEntity {
         else if(rain)moisture=Math.min(100,moisture+(kind()==ShelterBlock.Kind.CARDBOARD?7:8));
         else moisture=Math.max(0,moisture-4);
         soaked=kind()==ShelterBlock.Kind.BURROW&&moisture>=90?soaked+100:0;
-        if(soaked>2400&&residents.size()>=3&&level instanceof ServerLevel server&&server.random.nextInt(YukkuriConfig.COLLAPSE_ONE_IN.get())==0
+        if(soaked>2400&&residents.size()>=3&&level instanceof ServerLevel server&&ModRandom.world(server).nextInt(YukkuriConfig.COLLAPSE_ONE_IN.get())==0
                 &&SettlementEvents.tryCollapse(server,this))return;
         int waste=wasteInside().stream().mapToInt(item->item.getItem().getCount()).sum();
         if(waste>0)dirt=Math.min(100,dirt+Math.min(10,waste*2));

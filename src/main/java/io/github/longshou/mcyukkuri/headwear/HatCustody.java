@@ -1,5 +1,7 @@
 package io.github.longshou.mcyukkuri.headwear;
 
+import io.github.longshou.mcyukkuri.random.ModRandom;
+
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.motor.Held;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
@@ -102,7 +104,7 @@ public final class HatCustody {
     /** The hat leaves the head to be this hull; returns the token it carries (the retained one, the last one, or a new one). */
     public UUID deploy(UUID hull) {
         if (!worn()) return null;
-        if (token == null) token = UUID.randomUUID();
+        if (token == null) token = ModRandom.identity(owner.getRandom());
         boat = hull;
         cause = "";
         go(State.DEPLOYED, "deploy");

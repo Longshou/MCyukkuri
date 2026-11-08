@@ -1,5 +1,7 @@
 package io.github.longshou.mcyukkuri.aquatic;
 
+import io.github.longshou.mcyukkuri.random.ModRandom;
+
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.headwear.PlacedHatEntity;
 import io.github.longshou.mcyukkuri.motor.action.Pick;
@@ -122,7 +124,7 @@ public final class HullLarder {
             var food = item(entry.getKey());
             for (int left = entry.getValue(); left > 0;) {
                 int count = Math.min(left, food.getMaxStackSize());
-                var drop = new ItemEntity(hat.level(), at.x, at.y, at.z, food.copyWithCount(count));
+                var drop = ModRandom.created(new ItemEntity(hat.level(), at.x, at.y, at.z, food.copyWithCount(count)), hat.getRandom());
                 drop.setDefaultPickUpDelay();
                 hat.level().addFreshEntity(drop);
                 left -= count;

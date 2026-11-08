@@ -1,5 +1,7 @@
 package io.github.longshou.mcyukkuri.pet;
 
+import io.github.longshou.mcyukkuri.random.ModRandom;
+
 import io.github.longshou.mcyukkuri.mind.EmotionEvent;
 
 import io.github.longshou.mcyukkuri.social.BondLevels;
@@ -102,7 +104,7 @@ public final class PetLife {
         if (g == null || g == BadgeGrade.NONE) { revoke(); return; }
         BadgeGrade previous = grade;
         if (grade == BadgeGrade.NONE) animal.getPersistentData().putInt("ExamUnauthBase", unauthorized); // births before the first badge are not held against it
-        grade = g; this.source = source; this.issuer = issuer; serial = UUID.randomUUID(); issuedAt = now(); expiresAt = expiry(g); worn = true; voidBadge = false;
+        grade = g; this.source = source; this.issuer = issuer; serial = ModRandom.identity(animal.getRandom()); issuedAt = now(); expiresAt = expiry(g); worn = true; voidBadge = false;
         GameplayLog.event(animal, "badge", "issued grade={} -> {} issuer={} serial={} source={} expiresAt={}", previous, grade, issuer, serial, source, expiresAt);
     }
     public void renew(UUID issuer) {
@@ -121,7 +123,7 @@ public final class PetLife {
     public ItemStack token() {
         if (grade == BadgeGrade.NONE) return ItemStack.EMPTY;
         var stack = new ItemStack(item(grade));
-        if (serial == null) serial = UUID.randomUUID();
+        if (serial == null) serial = ModRandom.identity(animal.getRandom());
         final var id = serial;
         CustomData.update(DataComponents.CUSTOM_DATA, stack, tag -> {
             tag.putUUID("BadgeAnimal", animal.getUUID()); tag.putUUID("BadgeSerial", id); tag.putInt("BadgeTier", grade.id());
@@ -148,8 +150,8 @@ public final class PetLife {
     }
     /** New serial, old tokens die; the caller charges the fee and hands the stack over. */
     /** A sold animal's badge: new serial (every earlier token dies, detached or not) and the badge is worn again. */
-    public void rotateSerial() { if (grade == BadgeGrade.NONE) return; serial = UUID.randomUUID(); worn = true; }
-    public ItemStack reissueToken() { if (grade == BadgeGrade.NONE) return ItemStack.EMPTY; serial = UUID.randomUUID(); worn = false; return token(); }
+    public void rotateSerial() { if (grade == BadgeGrade.NONE) return; serial = ModRandom.identity(animal.getRandom()); worn = true; }
+    public ItemStack reissueToken() { if (grade == BadgeGrade.NONE) return ItemStack.EMPTY; serial = ModRandom.identity(animal.getRandom()); worn = false; return token(); }
     private static void give(Player p, ItemStack stack) { if (!p.getInventory().add(stack)) p.drop(stack, false); }
     public void markAccessory(ItemStack accessory) {
         CustomData.update(DataComponents.CUSTOM_DATA, accessory, tag -> {

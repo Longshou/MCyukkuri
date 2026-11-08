@@ -1,5 +1,7 @@
 package io.github.longshou.mcyukkuri.status;
 
+import io.github.longshou.mcyukkuri.random.ModRandom;
+
 import io.github.longshou.mcyukkuri.body.BodyWound;
 import io.github.longshou.mcyukkuri.body.BodyPart;
 import io.github.longshou.mcyukkuri.body.WoundKind;
@@ -84,7 +86,7 @@ public final class Marks {
     }
     private boolean addScarAt(BodyWound site, int severity) {
         if (site == null || scars.size() >= MAX_SCARS) return false;
-        scars.add(new BodyWound(UUID.randomUUID(), WoundKind.SCAR, site.triangle(), site.u(), site.v(), Math.clamp(severity, 1, 3),
+        scars.add(new BodyWound(ModRandom.identity(entity.getRandom()), WoundKind.SCAR, site.triangle(), site.u(), site.v(), Math.clamp(severity, 1, 3),
                 .8f + entity.getRandom().nextFloat() * .6f, 0, 0));
         return true;
     }

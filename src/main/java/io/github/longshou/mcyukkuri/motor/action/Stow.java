@@ -1,5 +1,7 @@
 package io.github.longshou.mcyukkuri.motor.action;
 
+import io.github.longshou.mcyukkuri.random.ModRandom;
+
 import io.github.longshou.mcyukkuri.body.MouthPlacement;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.headwear.PlacedHatEntity;
@@ -168,7 +170,7 @@ public final class Stow implements Action, HeldMove {
         if (to == Place.GROUND) {
             var hat = PlacedHatEntity.find(body);
             if (custody.worn() && !custody.kit().isEmpty()) {
-                var drop = new ItemEntity(body.level(), ground.x, ground.y, ground.z, custody.takeKit());
+                var drop = ModRandom.created(new ItemEntity(body.level(), ground.x, ground.y, ground.z, custody.takeKit()), body.getRandom());
                 Motor.velocity(drop, Vec3.ZERO, "laid_down");
                 drop.setDefaultPickUpDelay();
                 body.level().addFreshEntity(drop);

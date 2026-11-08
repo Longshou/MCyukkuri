@@ -1,5 +1,7 @@
 package io.github.longshou.mcyukkuri.pet.exam;
 
+import io.github.longshou.mcyukkuri.random.ModRandom;
+
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.human.Custody;
 import io.github.longshou.mcyukkuri.social.Temperament;
@@ -67,7 +69,7 @@ public final class ExamSession implements ExamContext {
     }
     private static void give(ServerLevel level, Player p, Vec3 at, ItemStack stack) {
         if (p != null) { if (!p.getInventory().add(stack)) p.drop(stack, false); return; }
-        var item = new ItemEntity(level, at.x, at.y + .15, at.z, stack); item.setDefaultPickUpDelay(); level.addFreshEntity(item);
+        var item = ModRandom.created(new ItemEntity(level, at.x, at.y + .15, at.z, stack), ModRandom.world(level)); item.setDefaultPickUpDelay(); level.addFreshEntity(item);
     }
     public static void giveTo(Player p, ItemStack stack) { if (!p.getInventory().add(stack)) p.drop(stack, false); }
 
@@ -177,7 +179,7 @@ public final class ExamSession implements ExamContext {
 
     private final ServerLevel level; private final HumanNpc examiner; private final YukkuriEntity candidate; private final UUID ownerId;
     private final int type, fee; private final ExamHall hall; private final List<ExamItem> plan; private final BadgeGrade before;
-    private final Random random = new Random();
+    private final Random random;
     private final Walker walker = new Walker();
     private final List<ExamPlan.Result> taskResults = new ArrayList<>();
     private final List<UUID> cards = new ArrayList<>(), extraIds = new ArrayList<>();
@@ -199,6 +201,7 @@ public final class ExamSession implements ExamContext {
     private ExamSession(ServerLevel level, HumanNpc examiner, Player owner, YukkuriEntity candidate, int type, ExamHall hall, List<ExamItem> plan, int fee) {
         this.level = level; this.examiner = examiner; this.candidate = candidate; this.ownerId = owner.getUUID(); this.type = type; this.hall = hall; this.plan = plan; this.fee = fee;
         before = candidate.pet().grade(); unauthorizedBase = candidate.getPersistentData().getInt("ExamUnauthBase");
+        random = new Random(candidate.getRandom().nextLong());
         walker.look = examiner; lookTarget = candidate;
     }
 

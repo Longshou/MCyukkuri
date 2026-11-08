@@ -1,5 +1,7 @@
 package io.github.longshou.mcyukkuri.settlement;
 
+import io.github.longshou.mcyukkuri.random.ModRandom;
+
 import io.github.longshou.mcyukkuri.world.SearchBudget.Result;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.arguments.StringArgumentType;
@@ -172,13 +174,13 @@ public final class SettlementCommands {
         return spawnSite(source, tier, pos, null, false);
     }
     private static int spawnSite(CommandSourceStack source, SiteTier tier, BlockPos pos, Boolean led, boolean populate) {
-        return spawnSite(source, tier, pos, led, populate, leader -> SettlementComposition.forTier(tier, source.getLevel().random, leader));
+        return spawnSite(source, tier, pos, led, populate, leader -> SettlementComposition.forTier(tier, ModRandom.world(source.getLevel()), leader));
     }
     private static int spawnSite(CommandSourceStack source, SiteTier tier, BlockPos pos, Boolean led, boolean populate,
                                  Function<Boolean, SettlementComposition> composition) {
         var level = source.getLevel();
         var terrain = new SiteBuilder.LevelTerrain(level);
-        long seed = level.random.nextLong();
+        long seed = ModRandom.world(level).nextLong();
         int palette = SiteWorld.palette(level.getBiome(pos));
         // The burrows go into the highest ground around the given spot; on flat ground their banks are heaped up instead.
         int rotation = SitePlanner.bestRotation(tier, seed, pos.getX(), pos.getZ(), palette, terrain);
@@ -199,7 +201,7 @@ public final class SettlementCommands {
         var result = SiteBuilder.build(level, plan, clip, terrain, true, false);
         if (stale != null) data.removeSite(stale.id);
         var site = data.addSite(plan, false);
-        boolean leader = populate && (led != null ? led : level.random.nextInt(100) < YukkuriConfig.LEADER_CHANCE.get());
+        boolean leader = populate && (led != null ? led : ModRandom.world(level).nextInt(100) < YukkuriConfig.LEADER_CHANCE.get());
         SiteLife.clearLanes(level, site);
         if (!populate) {
             source.sendSuccess(() -> Component.literal("Vacant " + tier.name().toLowerCase(Locale.ROOT) + " site at " + pos.toShortString()

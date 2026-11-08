@@ -1,5 +1,7 @@
 package io.github.longshou.mcyukkuri.status;
 
+import io.github.longshou.mcyukkuri.random.ModRandom;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
@@ -83,8 +85,6 @@ public final class TraceRecorder {
     private static volatile long lastTick;
     private static boolean stallPending;
     private static StackTraceElement[] stallStack;
-    /** The actor random seed of the current scene run; null in ordinary play, where every actor keeps its own stream. */
-    private static Long runSeed;
     /** UUIDs seeded in this run only. The trace actor bound also bounds this smoke-only run state. */
     private static final Set<UUID> RANDOM_SEEDED = new HashSet<>();
 
@@ -120,19 +120,19 @@ public final class TraceRecorder {
 
     /** Returns the current run seed once per actor. Reloads in the same run keep the actor's random stream. */
     public static Long runSeedForFirstAdd(UUID id) {
-        if (runSeed == null || RANDOM_SEEDED.contains(id)) return null;
+        if (ModRandom.runSeed() == null || RANDOM_SEEDED.contains(id)) return null;
         if (RANDOM_SEEDED.size() >= MAX_ACTORS) throw new IllegalStateException("Run-seeded actor limit: " + MAX_ACTORS);
         RANDOM_SEEDED.add(id);
-        return runSeed;
+        return ModRandom.runSeed();
     }
 
     /** {@code /yukkuri status seed}: every actor first added from now on mixes this seed with its UUID, and the run's
      * proven coverage is recorded once for the scene. */
     public static void setRunSeed(ServerLevel level, long seed) {
-        runSeed = seed;
+        ModRandom.seed(seed);
         RANDOM_SEEDED.clear();
         GameplayLog.world(level, "seed",
-                "run={} covered=first_add_entity_random,fixed_uuid_scene_actors uncovered=level.random,uuid,newborn_identity,pre_join,speechRandom,tick_order", seed);
+                "run={} covered=entity_random,mod_world_random,mod_identity,newborn_identity,pre_join,speech uncovered=vanilla_random,pre_run_world_generation,tick_order,world_generation_order", seed);
     }
 
     public static void setMode(Mode next) {
@@ -169,7 +169,7 @@ public final class TraceRecorder {
         mode = Mode.OFF;
         ACTORS.clear();
         WINDOWS.clear();
-        runSeed = null;
+        ModRandom.clear();
         RANDOM_SEEDED.clear();
         serverThread = null;
         lastTickEndNanos = 0;

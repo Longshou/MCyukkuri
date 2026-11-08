@@ -1,5 +1,7 @@
 package io.github.longshou.mcyukkuri.life;
 
+import io.github.longshou.mcyukkuri.random.ModRandom;
+
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.FamilyData;
@@ -296,7 +298,7 @@ public final class YukkuriWorldData extends SavedData {
         if (token == null || freezer.contains(token)) return null;
         Captive held = captives.remove(token);
         if (held == null) return null;
-        UUID next = UUID.randomUUID(); captives.put(next, held); setDirty(); return next;
+        UUID next = ModRandom.identity(ModRandom.world(custodyLevel)); captives.put(next, held); setDirty(); return next;
     }
     /** Normalize the authoritative record before trade inspection; the returned copy cannot alter or duplicate custody. */
     public CompoundTag captiveSnapshot(UUID token) {
@@ -319,7 +321,7 @@ public final class YukkuriWorldData extends SavedData {
         entity.groupInteraction().stop();entity.playLife().stop();entity.social().stop();entity.pet().care().released();
         CompoundTag snapshot = new CompoundTag();
         if (!entity.save(snapshot)) return captureRefused(entity,"snapshot_failed");
-        UUID token = UUID.randomUUID();
+        UUID token = ModRandom.identity(entity.getRandom());
         putCaptive(token, new Captive(entity.getUUID(), snapshot)); setDirty();
         entity.discard();
         GameplayLog.event(entity,"transport","action=capture result=committed token={} owner={} role={} captive_count={}",

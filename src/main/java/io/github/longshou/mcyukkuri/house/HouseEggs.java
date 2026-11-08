@@ -1,5 +1,7 @@
 package io.github.longshou.mcyukkuri.house;
 
+import io.github.longshou.mcyukkuri.random.ModRandom;
+
 import io.github.longshou.mcyukkuri.family.FamilyConfig;
 import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.registry.ModItems;
@@ -54,7 +56,7 @@ public final class HouseEggs {
     }
     public static ItemStack extract(ServerLevel level,Ref ref,HouseNestBlockEntity nest) {
         var entry=resolve(level,ref);if(!belongs(entry,nest))return ItemStack.EMPTY;
-        var child=entry.child();child.eggToken=UUID.randomUUID();child.eggNest=null;child.eggNestId=null;
+        var child=entry.child();child.eggToken=ModRandom.identity(ModRandom.world(level));child.eggNest=null;child.eggNestId=null;
         var stack=new ItemStack(ModItems.HOUSE_EGG.get());var tag=ref.save();
         tag.putUUID("EggToken",child.eggToken);tag.putInt("Progress",Math.round(entry.progress()*100));
         tag.putString("Variant",child.variant.assetId());

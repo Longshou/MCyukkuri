@@ -1,5 +1,7 @@
 package io.github.longshou.mcyukkuri.pet.social;
 
+import io.github.longshou.mcyukkuri.random.ModRandom;
+
 import io.github.longshou.mcyukkuri.coordination.DeadlineMap;
 
 import io.github.longshou.mcyukkuri.item.AccessoryItem;
@@ -529,10 +531,10 @@ public final class BadgeArcs {
     /** The accessory (and with it the visible badge) drops as a real, permanent item that its owner fetches or the player returns; a fallback brings it back after 5 minutes. */
     private static boolean knockOff(ServerLevel level, YukkuriEntity victim, YukkuriEntity thief) {
         if (!victim.life().hasAccessory() || victim.isVehicle()) return false;
-        final UUID token = UUID.randomUUID();
+        final UUID token = ModRandom.identity(victim.getRandom());
         var stack = new ItemStack(ModItems.accessoryFor(victim));
         AccessoryItem.markSource(stack,victim);
-        var item = new ItemEntity(level, victim.getX(), victim.getY(), victim.getZ(), stack);
+        var item = ModRandom.created(new ItemEntity(level, victim.getX(), victim.getY(), victim.getZ(), stack), victim.getRandom());
         item.setDefaultPickUpDelay(); item.setUnlimitedLifetime();
         if (!level.addFreshEntity(item)) return false;
         if (victim.life().takeAccessory(thief.getUUID(), token) == null) { item.discard(); return false; }

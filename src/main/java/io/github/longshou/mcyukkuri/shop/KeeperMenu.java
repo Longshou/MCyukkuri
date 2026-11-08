@@ -1,5 +1,7 @@
 package io.github.longshou.mcyukkuri.shop;
 
+import io.github.longshou.mcyukkuri.random.ModRandom;
+
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.family.FamilyLife;
@@ -108,7 +110,7 @@ public final class KeeperMenu extends AbstractContainerMenu {
     static void refund(ServerLevel level, UUID player, Vec3 at) {
         var stack = new ItemStack(Items.EMERALD, FEE); ServerPlayer sp = level.getServer().getPlayerList().getPlayer(player);
         if (sp != null) { if (!sp.getInventory().add(stack)) sp.drop(stack, false); }
-        else { var item = new ItemEntity(level, at.x, at.y + .15, at.z, stack); item.setDefaultPickUpDelay(); level.addFreshEntity(item); }
+        else { var item = ModRandom.created(new ItemEntity(level, at.x, at.y + .15, at.z, stack), ModRandom.world(level)); item.setDefaultPickUpDelay(); level.addFreshEntity(item); }
     }
     private void put(int index, int value) { data.set(index, Math.clamp(value, -32768, 32767)); }
 

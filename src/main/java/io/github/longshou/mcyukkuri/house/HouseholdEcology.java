@@ -1,5 +1,7 @@
 package io.github.longshou.mcyukkuri.house;
 
+import io.github.longshou.mcyukkuri.random.ModRandom;
+
 import io.github.longshou.mcyukkuri.MCYukkuri;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.FamilyConfig;
@@ -364,7 +366,7 @@ public final class HouseholdEcology {
         if(den==null||watched(level,Vec3.atBottomCenterOf(den.site().relative(den.entrance())),WATCH_RANGE))return false;
         if(!level.getEntitiesOfClass(YukkuriEntity.class,new AABB(den.site()).inflate(20),e->e.isAlive()&&e.profile().houseBody()).isEmpty())return false;
         if(FamilyData.get(level).population(level,den.site())>=FamilyConfig.POPULATION_CAP.get())return false;
-        return spawnFounder(level,den,level.random.nextBoolean())!=null;
+        return spawnFounder(level,den,ModRandom.world(level).nextBoolean())!=null;
     }
     /** The pioneer appears in front of its hidden corner already knowing it as home. */
     public static YukkuriEntity spawnFounder(ServerLevel level,Den den,boolean reimu){
@@ -487,7 +489,7 @@ public final class HouseholdEcology {
             if(dx*dx+dz*dz<9||dx*dx+dz*dz>radius*radius||!level.hasChunkAt(pos))continue;
             if(walkable(level,pos)&&clear(level,pos.above())&&covered(level,pos)&&wallScore(level,pos)>0)cells.add(pos.immutable());
         }
-        Collections.shuffle(cells,new Random(level.random.nextLong()));
+        Collections.shuffle(cells,new Random(ModRandom.world(level).nextLong()));
         return cells;
     }
     /** A small local ground search keeps output on reachable floors rather than through adjacent room walls. */

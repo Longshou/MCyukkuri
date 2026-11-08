@@ -1,5 +1,7 @@
 package io.github.longshou.mcyukkuri.settlement.site;
 
+import io.github.longshou.mcyukkuri.random.ModRandom;
+
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -51,7 +53,7 @@ public final class WildSettlementStructure extends Structure {
         // Cheap rejections first: most start chunks lie in biomes that can never hold a site.
         if (!c.validBiome().test(biome) || biome.is(EDGE) && !nearAnchor(c, cx, cz, surface)) return Optional.empty();
         // Rarer country (savanna, bare hills, the dark forest) keeps only a share of its starts.
-        if (c.random().nextDouble() >= SiteProfile.accept(biome)) return Optional.empty();
+        if (ModRandom.world(c.random()).nextDouble() >= SiteProfile.accept(biome)) return Optional.empty();
         // No slope within ten blocks, no burrows to dig: flat country is left to the lone wanderers and natural hollows.
         int high = surface;
         for (int i = 0; i < 8; i++)
@@ -67,7 +69,7 @@ public final class WildSettlementStructure extends Structure {
             wet[iz * n + ix] = top != generator.getBaseHeight(x, z, Heightmap.Types.OCEAN_FLOOR_WG, c.heightAccessor(), c.randomState());
         }
         var terrain = new SiteBuilder.GridTerrain(x0, z0, STEP, n, n, heights);
-        long seed = c.random().nextLong();
+        long seed = ModRandom.world(c.random()).nextLong();
         int palette = SiteWorld.palette(biome);
         var plan = SitePlanner.choose(tier, seed, cx, cz, palette, terrain, SHIFT);
         if (plan == null || plan.level < generator.getSeaLevel() || plan.level + 24 > c.heightAccessor().getMaxBuildHeight()) return Optional.empty();

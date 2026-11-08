@@ -1,5 +1,7 @@
 package io.github.longshou.mcyukkuri.entity;
 
+import io.github.longshou.mcyukkuri.random.ModRandom;
+
 import java.util.Locale;
 import net.minecraft.network.chat.Component;
 
@@ -209,7 +211,6 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     /** The running reaction is held: nothing replaces it before it has run its ticks (a startle that must be seen whole). */
     private boolean reactionHeld;
     private final SpeechTiming speechTiming = new SpeechTiming();
-    private final RandomSource speechRandom = RandomSource.create();
     private String reactionExpression = "neutral";
     private String reactionEvent = "";
     private String pendingSpeech = "";
@@ -249,16 +250,9 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
         super.onAddedToLevel();
         if (level().isClientSide) return;
         Long seed = TraceRecorder.runSeedForFirstAdd(getUUID());
-        if (seed != null) getRandom().setSeed(mixSeed(seed, getUUID()));
+        if (seed != null) ModRandom.seedEntity(this);
     }
 
-    /** UUID mixing keeps fixed-UUID scene actors independent while sharing the run's seed. */
-    private static long mixSeed(long seed, UUID id) {
-        long z = seed + 0x9e3779b97f4a7c15L + id.getMostSignificantBits();
-        z = (z ^ (z >>> 30)) * 0xbf58476d1ce4e5b9L;
-        z = (z ^ (z >>> 27)) * 0x94d049bb133111ebL;
-        return (z ^ (z >>> 31)) ^ id.getLeastSignificantBits();
-    }
 
     // Keep the allocation call in the owning entity class (also avoids NeoForge's foreign-owner warning).
     static <T> EntityDataAccessor<T> defineSyncedValue(EntityDataSerializer<T> serializer) {
@@ -667,6 +661,7 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     @Override
     protected void defineSynchedData(SynchedEntityData.Builder builder) {
         super.defineSynchedData(builder);
+        ModRandom.construct(this);
         YukkuriSync.defineSynchedData(builder);
         YukkuriComponents.defineSynchedData(builder);
     }
@@ -853,7 +848,7 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
         }
         event = mind.voice(event); // a broken mind can only scream
         String species = variant.dialogueSpecies();
-        var line = NativeDialogue.select(species, tier, myon.quirk(), event, speechRandom);
+        var line = NativeDialogue.select(species, tier, myon.quirk(), event, getRandom());
         long now = level().getGameTime();
         if (line == null || !speechTiming.admit(this, now, line.ticks(), NativeDialogue.priority(event))) return false;
         sync().dialogue(line.key());

@@ -1,5 +1,7 @@
 package io.github.longshou.mcyukkuri.status;
 
+import io.github.longshou.mcyukkuri.random.ModRandom;
+
 import io.github.longshou.mcyukkuri.item.TreatmentItem;
 import io.github.longshou.mcyukkuri.body.BodyWound;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
@@ -502,7 +504,7 @@ public enum StatusKey {
         if (severity < 1 || severity > 3) return "severity must be 1-3";
         var site = y.status().marks().woundSite();
         if (site == null) return "no skin site available";
-        y.body().addWound(new BodyWound(UUID.randomUUID(), kind, site.triangle(), site.u(), site.v(), severity, 1, 0, 0));
+        y.body().addWound(new BodyWound(ModRandom.identity(y.getRandom()), kind, site.triangle(), site.u(), site.v(), severity, 1, 0, 0));
         return null;
     }
 }

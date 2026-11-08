@@ -1,5 +1,7 @@
 package io.github.longshou.mcyukkuri.settlement;
 
+import io.github.longshou.mcyukkuri.random.ModRandom;
+
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import static io.github.longshou.mcyukkuri.world.SearchBudget.generation;
 
@@ -108,7 +110,7 @@ public final class SettlementLife {
         var data = SettlementData.get(level());
         stop();
         duties.stop();
-        var household = new SettlementData.Group(UUID.randomUUID(), SettlementData.Kind.FAMILY, home.getBlockPos(), null);
+        var household = new SettlementData.Group(ModRandom.identity(entity.getRandom()), SettlementData.Kind.FAMILY, home.getBlockPos(), null);
         data.add(household);
         join(household);
     }

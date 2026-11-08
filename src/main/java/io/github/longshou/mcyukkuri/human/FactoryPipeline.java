@@ -1,5 +1,7 @@
 package io.github.longshou.mcyukkuri.human;
 
+import io.github.longshou.mcyukkuri.random.ModRandom;
+
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.FamilyData;
@@ -141,7 +143,7 @@ public final class FactoryPipeline {
         residents.add(y.getUUID());
         var tag=HumanCommerce.data(y).copy();
         if (tag.contains("FactoryStage")) return;
-        UUID batch=y.family().birthId()!=null ? y.family().birthId() : UUID.randomUUID();
+        UUID batch=y.family().birthId()!=null ? y.family().birthId() : ModRandom.identity(y.getRandom());
         tag.putUUID("FactoryBatch",batch); tag.putInt("BatchNumber",batches.computeIfAbsent(batch,k->++serial));
         tag.putString("FactoryStage","receive"); tag.putInt("StageWork",0);
         tag.putBoolean("FactoryYoung",Custody.fromData(tag).role()==Custody.Role.NURSERY); HumanCommerce.set(y,tag);

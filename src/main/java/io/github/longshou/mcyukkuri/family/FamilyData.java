@@ -1,5 +1,7 @@
 package io.github.longshou.mcyukkuri.family;
 
+import io.github.longshou.mcyukkuri.random.ModRandom;
+
 import io.github.longshou.mcyukkuri.mind.EmotionEvent;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 
@@ -428,11 +430,11 @@ public final class FamilyData extends SavedData {
             GameplayLog.limited(mother,"family","conceive.pair",200,"conceive refused father={} kind={} reason=pair",father.getUUID(),kind);return null;
         }
         long seed=plan.seed();int count=plan.count();var shelter=plan.shelter();boolean joinMother=plan.joinMother();float cost=plan.cost();
-        Brood brood=new Brood();brood.id=UUID.randomUUID();brood.mother=mother.getUUID();brood.father=father.getUUID();brood.kind=kind;brood.anchor=anchor;
+        Brood brood=new Brood();brood.id=ModRandom.identity(mother.getRandom());brood.mother=mother.getUUID();brood.father=father.getUUID();brood.kind=kind;brood.anchor=anchor;
         brood.duration=kind!=BirthKind.EGG?FamilyConfig.GESTATION.get():FamilyConfig.EGG_INCUBATION.get();
         Random random=new Random(seed);brood.variation=.93f+random.nextFloat()*.14f;
         for(int i=0;i<count;i++) {
-            Child child=new Child();child.id=UUID.randomUUID();child.variant=random.nextBoolean()?mother.getVariant():father.getVariant();
+            Child child=new Child();child.id=ModRandom.identity(mother.getRandom());child.variant=random.nextBoolean()?mother.getVariant():father.getVariant();
             child.subspeciesFlags=SubspeciesLife.birthFlags(child.id,child.variant,mother.subspecies().kind(),father.subspecies().kind());
             child.adultScale=Math.clamp((mother.family().adultScale()+father.family().adultScale())*.5f+(random.nextFloat()-.5f)*.12f,.8f,1.2f);
             child.birthProfile=inheritBirthProfile(child,mother,father);
@@ -486,12 +488,12 @@ public final class FamilyData extends SavedData {
         if(aftermathRefusal(victim,source)!=null)return null;
         var level=(ServerLevel)victim.level();
         long seed=aftermathSeed(victim,source);int count=offspringCount(victim.family().adultScale(),seed,victim.profile().aquatic());
-        var brood=new Brood();brood.id=UUID.randomUUID();brood.mother=victim.getUUID();brood.incidentSource=source.getUUID();
+        var brood=new Brood();brood.id=ModRandom.identity(victim.getRandom());brood.mother=victim.getUUID();brood.incidentSource=source.getUUID();
         brood.kind=BirthKind.STEM;brood.anchor=GlobalPos.of(level.dimension(),victim.blockPosition());
         brood.duration=FamilyConfig.GESTATION.get();
         var random=new Random(seed);brood.variation=.93f+random.nextFloat()*.14f;
         for(int i=0;i<count;i++) {
-            var child=new Child();child.id=UUID.randomUUID();child.variant=random.nextBoolean()?victim.getVariant():source.getVariant();
+            var child=new Child();child.id=ModRandom.identity(victim.getRandom());child.variant=random.nextBoolean()?victim.getVariant():source.getVariant();
             child.subspeciesFlags=SubspeciesLife.birthFlags(child.id,child.variant,victim.subspecies().kind(),source.subspecies().kind());
             child.adultScale=Math.clamp((victim.family().adultScale()+source.family().adultScale())*.5f+(random.nextFloat()-.5f)*.12f,.8f,1.2f);
             child.birthProfile=inheritBirthProfile(child,victim,source);brood.children.add(child);
@@ -530,10 +532,10 @@ public final class FamilyData extends SavedData {
         var level=(ServerLevel)mother.level();register(mother);
         long seed=mother.getUUID().getMostSignificantBits()^mother.family().conceptions();var random=new Random(seed);
         int count=offspringCount(mother.family().adultScale(),seed,mother.profile().aquatic());
-        var brood=new Brood();brood.id=UUID.randomUUID();brood.mother=mother.getUUID();brood.father=null;brood.kind=BirthKind.LIVE;
+        var brood=new Brood();brood.id=ModRandom.identity(mother.getRandom());brood.mother=mother.getUUID();brood.father=null;brood.kind=BirthKind.LIVE;
         brood.anchor=GlobalPos.of(level.dimension(),mother.life().homeStand());brood.duration=FamilyConfig.GESTATION.get();brood.variation=1;
         for(int i=0;i<count;i++){
-            var child=new Child();child.id=UUID.randomUUID();child.variant=mother.getVariant();child.adultScale=Math.clamp(mother.family().adultScale()+(random.nextFloat()-.5f)*.12f,.8f,1.2f);
+            var child=new Child();child.id=ModRandom.identity(mother.getRandom());child.variant=mother.getVariant();child.adultScale=Math.clamp(mother.family().adultScale()+(random.nextFloat()-.5f)*.12f,.8f,1.2f);
             child.subspeciesFlags=SubspeciesLife.birthFlags(child.id,child.variant,mother.subspecies().kind(),null);
             child.birthProfile=inheritBirthProfile(child,mother,null);
             brood.children.add(child);var person=new Person(child.id,child.variant.assetId(),brood.anchor);person.mother=brood.mother;person.brood=brood.id;
@@ -617,11 +619,11 @@ public final class FamilyData extends SavedData {
         if(!added)return refuse(brood,level,"entity_rejected");
         // One drawn impulse, then physics; on land the push is random, so a strong or crooked one carries the kit past the hat.
         if(mother!=null&&brood.kind==BirthKind.LIVE)entity.family().launch(hat!=null
-                ?BirthLaunch.intoHat(entity,hat,nominal,cabin?1:BirthLaunch.push(level.random),cabin?0:BirthLaunch.yaw(level.random))
-                :BirthLaunch.live(level.random,mother,entity,entity.position()),brood,index,hat);
+                ?BirthLaunch.intoHat(entity,hat,nominal,cabin?1:BirthLaunch.push(entity.getRandom()),cabin?0:BirthLaunch.yaw(entity.getRandom()))
+                :BirthLaunch.live(entity.getRandom(),mother,entity,entity.position()),brood,index,hat);
         else if(mother!=null&&brood.kind==BirthKind.STEM){
             var centre=FamilyNest.largeCentre(mother);double half=NestResting.LARGE.half();
-            entity.family().launch(BirthLaunch.stem(level.random,position,hat!=null?BirthLaunch.Target.HAT:centre!=null&&Math.abs(position.x-centre.x)<half
+            entity.family().launch(BirthLaunch.stem(entity.getRandom(),position,hat!=null?BirthLaunch.Target.HAT:centre!=null&&Math.abs(position.x-centre.x)<half
                     &&Math.abs(position.z-centre.z)<half?BirthLaunch.Target.NEST:BirthLaunch.Target.GROUND),brood,index,hat);
         }
         YukkuriEntity actualMother=level.getEntity(brood.mother) instanceof YukkuriEntity parent?parent:null;

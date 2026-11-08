@@ -1,5 +1,7 @@
 package io.github.longshou.mcyukkuri.settlement;
 
+import io.github.longshou.mcyukkuri.random.ModRandom;
+
 import io.github.longshou.mcyukkuri.mind.EmotionEvent;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 
@@ -398,7 +400,7 @@ public final class ForageTrip extends Goal {
     private void giveUp(String why) { reason = why; if (!KEEPS_LOAD.contains(why)) dropLoad(); finish(false); }
     private void dropLoad() {
         if (load.isEmpty() || entity.level().isClientSide) { load = ItemStack.EMPTY; return; }
-        var drop = new ItemEntity(level(), entity.getX(), entity.getY(), entity.getZ(), load.copy()); drop.setPickUpDelay(100);
+        var drop = ModRandom.created(new ItemEntity(level(), entity.getX(), entity.getY(), entity.getZ(), load.copy()), entity.getRandom()); drop.setPickUpDelay(100);
         if (level().addFreshEntity(drop)) {
             GameplayLog.event(entity,"forage","drop item={} count={} reason={} drop={}",load.getItem(),load.getCount(),reason,drop.getUUID());
             load = ItemStack.EMPTY;
