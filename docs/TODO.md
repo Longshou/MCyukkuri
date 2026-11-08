@@ -131,9 +131,9 @@
 
 ## 流程与工具
 
-提效类改动；状态与玩法条目相同，完成即删。用户 2026-11-07 决定：先完成本节基础建设，再继续游戏内容开发；高频公共需求封装成一条命令，代理不再每次重新摸索。设计审过后 3、4 并行，6 随后。
+提效类改动；状态与玩法条目相同，完成即删。用户 2026-11-07 决定：先完成本节基础建设，再继续游戏内容开发；高频公共需求封装成一条命令，代理不再每次重新摸索。以真实提效衡量，不追数据指标。
 
-4. **截图姿态读数与审图**：部分接入。逐帧姿态读数、跟拍按画出的身体朝向、`look_at` 视角、按标记与事件挑约十帧、每个视角单独标准、按时间对齐的节拍、AI 只判可读性、一条命令出审图已接入（[8e15f2dd8](https://github.com/Longshou/MCyukkuri/commit/8e15f2dd8)）；朝向与骨骼角速度扣除片段自带转向和整体转身、逐帧缺证据单列、截图客户端崩溃已修（[7ac2fe4f0](https://github.com/Longshou/MCyukkuri/commit/7ac2fe4f0)，family_search 子视角疑似 136+5 失败降到 31+0）。无姿态或跟拍主体缺失的机位也出完整审图并单列缺证据、`hurt` 正面伤口机位、妖梦木棍与交接途中持物按实际混合路径检查、机位不再继承整场景观察标准（[2b3ecd91b](https://github.com/Longshou/MCyukkuri/commit/2b3ecd91b)）。告警标定集（gap／yaw／posejump 各 30 个，已标误报 15→0，真实样例仍报出）与朝向插值窗口、循环片段接缝、支撑接触的修正已接入（[0329f63d2](https://github.com/Longshou/MCyukkuri/commit/0329f63d2)；family_search 子／亲视角 yaw 告警 31→4、18→6，hat_push posejump 19→9）。特殊伤口／破帽／产出表面与划桨深度、桨尖进入证据（[d04d37917](https://github.com/Longshou/MCyukkuri/commit/d04d37917)：缺证据样本 hat_push 564→4、sail 1073→1、hurt 1721→380）。未做：按节拍挑帧与家庭、天气两包同口径误报复测（进行中）；判定带只报告，未定标签多（hat_push 划桨 wet 109 处远景无法判定）；AI 可读性审图同图多次结论不稳。完成：任一场景一条命令出审图结果，误报明显少于当前（48 帧中 2–32 帧）。
+4. **截图姿态读数与审图**：部分接入。一条命令出任一场景的截图、逐帧姿态读数、共享几何检查（含特殊表面与划桨）、按机位标准的 AI 可读性审图已接入（[8e15f2dd8](https://github.com/Longshou/MCyukkuri/commit/8e15f2dd8)、[2b3ecd91b](https://github.com/Longshou/MCyukkuri/commit/2b3ecd91b)、[0329f63d2](https://github.com/Longshou/MCyukkuri/commit/0329f63d2)、[d04d37917](https://github.com/Longshou/MCyukkuri/commit/d04d37917)）。剩 `wp-dh-frame-beats`：给了节拍时必挑到对应时刻的帧、开场缺姿态的帧不送审（演练中审图漏掉了伸懒腰顶点）。完成：审图挑到被问的那一刻。
 
 ## 待用户裁决
 
@@ -147,8 +147,6 @@
 
 ## 低优先级
 
-- **其余服务端检查升门槛**：LOOP、PROGRESS、JUMP、LEDGER、END 仍只报告。主线新基线 576 窗口（[ac413be47](https://github.com/Longshou/MCyukkuri/commit/ac413be47)，证据 `.local/smoke/instance-c46f05ba1bac` 等，见报告）731 条发现中 113 真实、1 误报已修、617 未定；过往失败目录 44 行由 `scripts/fixtures/timeline/test_catalog.py` 自动报出。完成：用带新库存权威记录的冒烟复核未定标签，零误报的检查加入 `GATING_CHECKS`。
-- **首个真实动作包复核流水线**：`wake` 演练（[b358edf1a](https://github.com/Longshou/MCyukkuri/commit/b358edf1a)）已用仓库命令走完导出、多形态对比、指标、实机审图、源冲突重建与登记预演，全程无临时脚本；`pose_check` 对爱丽丝缺离线碰撞对、两个房屋模型输入不兼容。完成：下一个真实动作包全程不写临时脚本。
 - **陆 35 鬼威惨商店**（10）：未做。售卖虐油用具、劣质虐用个体和特殊处理过的个体，后续再做。
 - **陆 36 工厂重做**（6）：未做。重点是加工厂里的遭遇演出，不重机械，后续再做。
 - **宠物店与玩法补缺**：未做。地面甜食偷吃、店方向野外收购、金章自由活动、手册交流页、玩具分档、散步路线、货架实体；考试／课程／相亲／购买演出不跨重启恢复；胎次页与未知父体显示。
