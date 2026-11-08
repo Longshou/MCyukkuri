@@ -217,6 +217,21 @@ def run_seed(session_seed, run_index):
     return int.from_bytes(digest[:8], 'big') & ((1 << 63) - 1)
 
 
+# Checks that decide the run. Calibration on main 0c830e89b (31 scenes x 20) left no false positive for these two, so a fail
+# verdict here is a scene problem. FATE stays with fate.fates above (the same death must not be counted twice), LAG measures
+# the machine load of this instrumented run and VANTAGE the scene's fixed framing: both stay report-only.
+GATING_CHECKS = frozenset({'ORPHAN', 'SPAWN'})
+
+
+def gated_problems(reports):
+    """One (check, printed text) per gating-check finding that failed, with the report's own actor and tick; the reason
+    key is the check name, so main and branch compare by check."""
+    return [(finding['check'],
+             f'{finding["check"]} {finding["detail"]} (actor={finding["actor"]} t={finding["t"]})')
+            for report in reports for finding in report['findings']
+            if finding['check'] in GATING_CHECKS and finding['verdict'] == 'fail']
+
+
 def run_scene(st, scene, builder, run_index, seed):
     server.run_cmd(st, 'schedule clear mcylab:observe/loop')
     server.run_cmd(st, 'schedule clear mcylab:observe/first')
@@ -277,16 +292,17 @@ def run_scene(st, scene, builder, run_index, seed):
     problems = [] if nonempty else [('empty log', 'empty server log window')]
     problems += failure(scene.smoke, window)
     problems += fate.fates(window, scene.smoke.get('allow_fate', ()))
-    for _, text in problems:
-        print(f'FAIL {scene.id}: {text}', flush=True)
-    if not problems:
-        print(f'PASS {scene.id}: {len(scene.smoke["expect"])} expected patterns; no forbidden lines; no undeclared actor fate',
-              flush=True)
     rerun = subprocess.list2cmdline([sys.executable, str(Path(__file__).resolve()), '--worktree',
                     str(builder.ROOT), '--seed', str(seed), scene.id])
     observations_dir = log.with_suffix('')
     reports = smoke_checks.report_log(log, observations_dir, {scene.id: scene.smoke}, seed, rerun, dense=True,
                                       only=scene.id)
+    problems += gated_problems(reports)
+    for _, text in problems:
+        print(f'FAIL {scene.id}: {text}', flush=True)
+    if not problems:
+        print(f'PASS {scene.id}: {len(scene.smoke["expect"])} expected patterns; no forbidden lines; no undeclared actor fate; '
+              f'no gating check failure ({", ".join(sorted(GATING_CHECKS))})', flush=True)
     jfr = server.jfr_summary(st, f'{scene.id}-{run_index}')
     (observations_dir / 'jfr.json').write_text(json.dumps(jfr, indent=2), encoding='utf-8')
     summary = [r for r in reports if r.get('scene') == scene.id]

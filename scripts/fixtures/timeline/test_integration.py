@@ -12,6 +12,7 @@ sys.path.insert(0, str(SCRIPTS))
 import headless_server as server
 import feedback_intake as intake
 import smoke_checks
+import smoke_museum
 import timeline
 from cases import state, record, log
 from cases import ACTOR
@@ -126,6 +127,36 @@ class Integration(unittest.TestCase):
             rows = [record('st', 0, st=hat), record('st', 1, st=hat | {'p': [x, 0, 0]})]
             findings = smoke_checks.jumps(timeline.states(rows))
             self.assertEqual(any(r['verdict'] == 'fail' for r in findings), expected)
+
+
+class GatedChecks(unittest.TestCase):
+    """Which report verdicts decide the smoke run (see GATING_CHECKS in smoke_museum)."""
+
+    @staticmethod
+    def report(*findings):
+        return dict(scene='probe', findings=list(findings))
+
+    def test_gating_check_fail_is_a_scene_problem(self):
+        orphan = smoke_checks.result('ORPHAN', 'fail', 'dependent orphaned in hazard', dict(u=ACTOR, t=40))
+        self.assertEqual(smoke_museum.gated_problems([self.report(orphan)]),
+                         [('ORPHAN', f'ORPHAN dependent orphaned in hazard (actor={ACTOR} t=40)')])
+        spawn = smoke_checks.result('SPAWN', 'fail', 'spawn obstructed/unsupported', None, drop=.2)
+        self.assertEqual(smoke_museum.gated_problems([self.report(spawn)]),
+                         [('SPAWN', 'SPAWN spawn obstructed/unsupported (actor=None t=None)')])
+
+    def test_report_only_checks_and_softer_verdicts_never_gate(self):
+        for finding in (smoke_checks.result('ORPHAN', 'suspect', 'early scene refusal', dict(u=ACTOR, t=40)),
+                        smoke_checks.result('SPAWN', 'no-evidence', 'need window start and geometry at +1/+20 ticks'),
+                        smoke_checks.result('LAG', 'fail', 'tick work (ms)', None, ms=80),
+                        smoke_checks.result('VANTAGE', 'suspect', 'subject poorly visible from vantage', dict(u=ACTOR, t=20)),
+                        smoke_checks.result('FATE', 'fail', 'accepted damage cause=fall', dict(u=ACTOR, t=50))):
+            self.assertEqual(smoke_museum.gated_problems([self.report(finding)]), [], finding)
+
+    def test_one_gated_failure_inside_a_mixed_report_still_decides_it(self):
+        report = self.report(smoke_checks.result('LOOP', 'fail', 'stalled worker', dict(u=ACTOR, t=10)),
+                             smoke_checks.result('SPAWN', 'fail', 'first actor sample inside wall', dict(u=ACTOR, t=1)))
+        self.assertEqual(smoke_museum.gated_problems([report]),
+                         [('SPAWN', f'SPAWN first actor sample inside wall (actor={ACTOR} t=1)')])
 
 
 if __name__ == '__main__':
