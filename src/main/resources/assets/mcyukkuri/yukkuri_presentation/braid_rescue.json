@@ -2389,5 +2389,5 @@
   "source_recipe": "standards/yukkuri-library/interactions/braid-water-rescue/recipe.json",
   "source_recipe_sha256": "14f98a0ad4e248348106310d5250180b67960514753f978cf407f1de1752bcea",
   "source_braid_solver": "standards/yukkuri-library/motions/variants/contact-safe/braid_chain.py",
-  "source_braid_solver_sha256": "1d268e400587187da164c7efe3a54f28055e47e442d118516bfcafa48bebdf13"
+  "source_braid_solver_sha256": "0db153f83220e1cbc23f22430e1a20b21dfa0890630224ad8fea35f30f00e8e2"
 }
