@@ -1147,11 +1147,13 @@ def endings(records, samples, end, raw=''):
                         out.append(result('END', 'fail', 'carried child released OUTSIDE', outside[0]))
                         continue
                     if not picked:
-                        walked = any(r['state'].get('phase') == 'STAY_HOME' for r in context.samples.get(actor, ()))
-                        out.append(result('END', 'pass' if walked else 'fail', 'autonomous STAY_HOME return without pickup',
-                                          dict(u=actor, t=context.end)))
-                        out.extend(context.clauses([('$subject', 'alive=true and g=true and w=false and att.kind=free and nest=INSIDE_SUPPORTED')],
-                                                   context.end, {'subject': actor}, True))
+                        rows = context.samples.get(actor, ())
+                        started = next((r['t'] for r in rows if r['state'].get('phase') == 'STAY_HOME'), None)
+                        reached = next((r for r in rows if started is not None and r['t'] >= started
+                                        and context.test(actor, 'alive=true and g=true and w=false and att.kind=free and nest=INSIDE_SUPPORTED',
+                                                         r['t'], {'subject': actor}) is True), None)
+                        out.append(result('END', 'pass' if reached else 'fail', 'autonomous STAY_HOME reached supported nest without pickup',
+                                          dict(u=actor, t=reached['t'] if reached else context.end)))
                         continue
                 chain = context.path(path, {'subject': actor})
                 out.extend(chain)

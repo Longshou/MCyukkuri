@@ -3740,12 +3740,12 @@ _scene_end('colony_migrate_babies', [('migrant_baby', _ASHORE)],
               (f'migrant_{kind}', r'seen:family:carry pickup .*purpose=MIGRATE child=$subject\b'),
               ('$subject', f'seen:settlement:dependent settled with parent=$migrant_{kind}\\b')])
              for kind in ('marisa', 'reimu', 'chen')])
-_scene_end('carry_home', [(f'{kind}_baby', _ASHORE + ' and nest=INSIDE_SUPPORTED') for kind in ('marisa', 'reimu', 'chen')],
+_scene_end('carry_home', [(f'{kind}_baby', _ASHORE) for kind in ('marisa', 'reimu', 'chen')],
            *[dict(each=f'{kind}_baby', autonomous_home=True, steps=[
               (f'{kind}_parent', r'seen:family:^carry pickup hold=\S+ .*child=$subject\b'),
               (f'{kind}_parent', r'seen:family:carry (?:set down started reason=arrived_home child=$subject\b|release target child=$subject placement=nest|lowering hold=\S+ child=$subject\b)'),
               (f'{kind}_parent', r'seen:family:carry put down reason=arrived_home .*child=$subject .*nest=(?:INSIDE_SUPPORTED|PARTIAL)')],
-              post=[('$subject', _ASHORE + f' and nest_of.{kind}_parent=true')])
+              post=[('$subject', _ASHORE + f' and nest_of.{kind}_parent=true and nest=INSIDE_SUPPORTED')])
              for kind in ('marisa', 'reimu', 'chen')])
 next(s for s in S if s.id == 'carry_home').smoke['end']['carried_min'] = 2
 _scene_end('hat_push', [('a', 'alive=true and distress=false'), ('fast', 'alive=true and distress=false')],
