@@ -11,7 +11,7 @@ import unittest
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 import smoke_checks as checks
 import timeline
-from cases import ACTOR, HOST, record, state, log
+from cases import ACTOR, HOST, fixture, record, state, log
 
 
 CATALOG = {
@@ -120,6 +120,27 @@ def catalog_report(number, kind):
     return checks.observations(records, raw=raw, end=end, evidence='F', dense=True)
 
 
+# D rows are setup geometry/visibility symptoms without an actor series of their
+# own; the shared SPAWN and VANTAGE controls are their committed evidence.
+# B rows 29-36 are the named pose metrics fixtures, C rows 37-40 have no check.
+GEOMETRY = {
+    41: ('SPAWN', 'start inside the wall'),
+    42: ('SPAWN', 'blocked or unsupported start'),
+    43: ('SPAWN', 'fall point'),
+    44: ('VANTAGE', 'approach visibility'),
+}
+NO_CHECK = range(37, 41)
+POSE_SOURCE = Path(__file__).resolve().parents[3] / 'src/test/java/io/github/longshou/mcyukkuri/pose/PoseMetricsTest.java'
+
+
+def geometry_report(number, kind):
+    check, _ = GEOMETRY[number]
+    text, end, expected = fixture(check, kind)
+    records, issues = timeline.parse([text])
+    assert not issues, issues
+    return checks.observations(records, issues, text, end=end, evidence='F'), expected
+
+
 class Catalog(unittest.TestCase):
     def test_all_server_catalog_rows_and_controls(self):
         for number, (check, symptom) in CATALOG.items():
@@ -129,6 +150,21 @@ class Catalog(unittest.TestCase):
                     verdict = next(r['verdict'] for r in report['summary'] if r['check'] == check)
                     self.assertIn(verdict, ('suspect', 'fail') if kind == 'positive' else
                                   ('pass',) if kind == 'clean' else ('no-evidence',))
+
+    def test_geometry_rows_and_controls(self):
+        for number, (check, symptom) in GEOMETRY.items():
+            for kind in ('positive', 'clean', 'missing'):
+                with self.subTest(row=number, symptom=symptom, kind=kind):
+                    report, expected = geometry_report(number, kind)
+                    verdict = next(r['verdict'] for r in report['summary'] if r['check'] == check)
+                    self.assertEqual(expected, verdict)
+
+    def test_all_catalog_rows_name_their_proof(self):
+        self.assertEqual(sorted(CATALOG), list(range(1, 29)))
+        self.assertEqual(sorted(GEOMETRY), [41, 42, 43, 44])
+        self.assertEqual(list(NO_CHECK), [37, 38, 39, 40])
+        pose = POSE_SOURCE.read_text(encoding='utf8')
+        self.assertEqual([n for n in range(29, 37) if f'void row{n}' not in pose], [])
 
 
 if __name__ == '__main__':
