@@ -53,8 +53,9 @@ def rebake_patch(model, bake, index, delta):
     patched = offset_element(element, delta, config['face_scale'],
                              lambda y: -profile_point(profile, y)[2]-config['face_clearance'])
     values = mesh_vertices(patched, bb['resolution']['width'])
+    # Shipped patches stay in bake space; the runtime exporter divides by overall_scale itself.
     for index in range(0, len(values), 8):
-        values[index:index+3] = [round(value/overall_scale, 7) for value in values[index:index+3]]
+        values[index:index+3] = [round(value, 7) for value in values[index:index+3]]
     return values
 
 

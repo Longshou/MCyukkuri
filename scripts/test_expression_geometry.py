@@ -5,7 +5,7 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from runtime_face_library import LIB, ROOT, compose_preset, read
+from runtime_face_library import LIB, ROOT, body_bake, compose_preset, read, rebake_patch
 from expression_geometry import offset_element, offset_vertices, preset_changes, profile_point
 from mesh_geometry import vertices as mesh_vertices
 
@@ -64,6 +64,20 @@ class ExpressionGeometryTests(unittest.TestCase):
         registered = next(entry for entry in model['expression_patches']['puff_teary'] if entry['index'] == mouth)
         self.assertAlmostEqual(moved['vertices'][1]-registered['vertices'][1], .27, places=7)
         print(f'changed puff_teary mouth movement: {moved["vertices"][1]-registered["vertices"][1]:.7f}; scratch rebake delta: {delta}')
+
+    def test_rebake_matches_scaled_model_patch(self):
+        model = read(ROOT/'src/main/resources/assets/mcyukkuri/yukkuri/reimu_deibu.json')
+        bake = body_bake('reimu_deibu', LIB)
+        changes = preset_changes(read(LIB/'expressions/presets/smug.json'))
+        shipped = model['expression_patches']['smug']
+        entries = [dict(index=entry['index'], vertices=rebake_patch(model, bake, entry['index'],
+                       changes[model['parts'][entry['index']]['name']]))
+                   for entry in shipped]
+        self.assertEqual([entry['index'] for entry in entries], [entry['index'] for entry in shipped])
+        delta = max(abs(a-b) for entry, other in zip(entries, shipped)
+                    for a, b in zip(entry['vertices'], other['vertices']))
+        print(f'reimu_deibu/smug rebake delta: {delta}')
+        self.assertLess(delta, 1e-9)
 
 
 if __name__ == '__main__':
