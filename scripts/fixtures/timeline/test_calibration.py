@@ -14,6 +14,19 @@ from cases import record, state, log, HOST, ACTOR
 
 
 class Calibration(unittest.TestCase):
+    def test_dead_actor_is_not_a_stalled_worker(self):
+        rows = [state(t,goals=['ForageTrip@4'],hp=0) for t in range(1202)]
+        self.assertFalse(checks.progress(timeline.states(rows)))
+        for row in rows:row['st']['hp']=10
+        self.assertTrue(any(f['verdict']=='fail' for f in checks.progress(timeline.states(rows))))
+
+    def test_new_short_action_does_not_inherit_a_longer_goal_wait(self):
+        rows=[state(t,goals=['FamilyGoal@5'],phase='SEARCH') for t in range(454)]
+        rows[-1]['st']['act']={'id':'face','owner':'family_call','win':40}
+        self.assertFalse(checks.progress(timeline.states(rows)))
+        rows += [state(t,goals=['FamilyGoal@5'],phase='SEARCH',act={'id':'face','owner':'family_call','win':40}) for t in range(454,1202)]
+        self.assertTrue(any(f['verdict']=='fail' for f in checks.progress(timeline.states(rows))))
+
     def test_unsafe_last_sample_before_death_is_not_the_window_end(self):
         rows = [state(0,dep=True,distress=True),state(1,dep=True,distress=True),state(1000)]
         rows[-1]['u'] = HOST
@@ -46,7 +59,7 @@ class Calibration(unittest.TestCase):
             self.assertEqual(expected, any(f['verdict']=='fail' for f in checks.loops(rows,timeline.states(rows))))
 
     def test_reviewed_vantage_size_controls_keep_occlusion_and_offscreen_warnings(self):
-        for visible, share, expected in ((9, .0697396, 'pass'), (9, .0498926, 'pass'), (9, .0337174, 'suspect'),
+        for visible, share, expected in ((9, .0697396, 'pass'), (9, .0498926, 'pass'), (9, .0392784, 'pass'), (9, .0337174, 'suspect'),
                                          (0, .13, 'suspect'), (9, 0, 'suspect')):
             rows = [record('geo', 1, player=True, vis=visible, scr=share)]
             report = checks.observations(rows)

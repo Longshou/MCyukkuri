@@ -221,6 +221,9 @@ def progress(rows):
         anchor = valid[0]
         for row in valid[1:]:
             s, a = row['state'], anchor['state']
+            if s.get('alive') is False or s.get('hp', 1) <= 0:
+                anchor = row
+                continue
             action = s['act'] or {}
             active = bool(s['int']) or bool(action) or (s.get('behavior') != 'idle' and any(
                 str(g).split('@')[0].lower() not in ('idle', 'look', 'random_look', 'randomlookaroundgoal', 'lookatplayergoal')
@@ -228,7 +231,11 @@ def progress(rows):
             if not active or changed(a, s) or (action.get('deadline') is not None and row['t'] <= action['deadline']):
                 anchor = row
                 continue
-            window = 5 * action['win'] if action.get('win') else 600
+            # A newly entered short action cannot retroactively shorten the
+            # interval that belonged to its preceding goal/action.
+            anchor_action = a['act'] or {}
+            window = max(5 * action['win'] if action.get('win') else 600,
+                         5 * anchor_action['win'] if anchor_action.get('win') else 600)
             age = row['t'] - anchor['t']
             if age >= window:
                 out.append(result('PROGRESS', band(age, window, 2 * window), 'no observed progress', row, duration=age, window=window))
@@ -236,7 +243,8 @@ def progress(rows):
         transitions, reversals, positions = deque(), deque(), deque()
         prev_moving, prev_turn = None, 0
         for a, b in zip(valid, valid[1:]):
-            if b['t'] - a['t'] != 1 or work_changed(a['state'], b['state']):
+            if (b['t'] - a['t'] != 1 or work_changed(a['state'], b['state'])
+                    or b['state'].get('alive') is False or b['state'].get('hp', 1) <= 0):
                 prev_moving, prev_turn = None, 0
                 transitions.clear()
                 reversals.clear()
@@ -930,11 +938,11 @@ def observations(records, issues=(), raw='', allow=(), end=(), seed=None, rerun=
             # SceneGeometry encodes a centre outside the frustum as scr=0.
             if not known(r, 'vis', 'scr'):
                 findings.append(result('VANTAGE', 'no-evidence', 'visibility/screen share missing', r))
-            # Reviewed fixed-view controls: shore/self-rescue at .04989 and
-            # the huddle at .06974 are readable; birth bodies at .03372 are not.
-            # .04 separates these approximate collider-height controls
+            # Reviewed fixed-view controls: afloat bodies at .03928, shore
+            # rescue at .04989 and huddle at .06974 are readable; distant
+            # birth bodies at .03372 are not. .035 separates these controls
             # without changing the collider-ray/frustum contract.
-            elif r['vis'] < 5 or r['scr'] < .04:
+            elif r['vis'] < 5 or r['scr'] < .035:
                 findings.append(result('VANTAGE', 'suspect', 'subject poorly visible from vantage', r))
         if start is not None and r['t'] - start in (1, 20):
             if not known(r, 'clear', 'drop'):
