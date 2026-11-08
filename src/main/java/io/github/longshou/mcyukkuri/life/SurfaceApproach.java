@@ -20,6 +20,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.Predicate;
+import java.util.function.Consumer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.tags.FluidTags;
@@ -42,6 +43,12 @@ public final class SurfaceApproach {
     private static final int SAMPLE_TICKS = 20, RETRY = 20, HATS_CHECK = 15;
     SurfaceApproach() {}
     private record Route(Path path,double length) {}
+    /** Observation of the first failed test, captured where that test actually ran. */
+    public record Rejection(Vec3 at, String test, String measured) {}
+    private static boolean reject(Consumer<Rejection> observer, Vec3 at, String test, String measured) {
+        if (observer != null) observer.accept(new Rejection(at, test, measured));
+        return false;
+    }
     public enum Result { ARRIVED, MOVING, WAITING, BLOCKED }
     /** Owned by this entity's life component. Navigation alone owns the path and its node progress. */
     private static final class Approach {
@@ -85,6 +92,9 @@ public final class SurfaceApproach {
     public static Vec3 restingFloor(YukkuriEntity actor, Vec3 near) {
         return floor(actor,near,true);
     }
+    public static Vec3 restingFloor(YukkuriEntity actor, Vec3 near, Consumer<Rejection> observer) {
+        return floor(actor, near, true, observer);
+    }
     /** The highest collision top under the body's square footprint within half a block of {@code near}, unchecked. */
     public static Vec3 surface(YukkuriEntity actor, Vec3 near) { return top(actor,near); }
     private static Vec3 top(YukkuriEntity actor, Vec3 near) {
@@ -97,8 +107,15 @@ public final class SurfaceApproach {
         return Double.isFinite(top)?new Vec3(near.x,top,near.z):null;
     }
     private static Vec3 floor(YukkuriEntity actor, Vec3 near, boolean planning) {
+        return floor(actor, near, planning, null);
+    }
+    private static Vec3 floor(YukkuriEntity actor, Vec3 near, boolean planning, Consumer<Rejection> observer) {
         var at=top(actor,near);
-        return at!=null&&supported(actor,at,planning)?at:null;
+        if (at == null) {
+            reject(observer, near, "support", "surface=none probeY=" + (near.y - .5) + ".." + (near.y + .5));
+            return null;
+        }
+        return supported(actor,at,planning,observer)?at:null;
     }
 
     public static boolean supported(YukkuriEntity actor, Vec3 feet) {
@@ -110,23 +127,46 @@ public final class SurfaceApproach {
     }
     /** Terrain and weather only; carry planning checks occupants separately to report the actual blocker. */
     public static boolean supportedGround(YukkuriEntity actor, Vec3 feet) {
-        return supported(actor,feet,true) && Reactions.Weather.allowsStep(actor,BlockPos.containing(feet));
+        return supportedGround(actor, feet, null);
+    }
+    public static boolean supportedGround(YukkuriEntity actor, Vec3 feet, Consumer<Rejection> observer) {
+        return supported(actor,feet,true,observer) && (Reactions.Weather.allowsStep(actor,BlockPos.containing(feet))
+                || reject(observer, feet, "weather", "allowsStep=false"));
     }
     /** Distance from the centre to the sole samples required by walking, including a bank-edge stand. */
     public static double supportRadius(YukkuriEntity actor) { return actor.getBbWidth() * .42; }
     private static boolean supported(YukkuriEntity actor, Vec3 feet, boolean planning) {
+        return supported(actor, feet, planning, null);
+    }
+    private static boolean supported(YukkuriEntity actor, Vec3 feet, boolean planning, Consumer<Rejection> observer) {
         var level = actor.level();
-        if (!planning && !Reactions.Weather.allowsStep(actor,BlockPos.containing(feet))) return false;
-        if (!level.hasChunkAt(BlockPos.containing(feet)) || wet(actor, feet)) return false;
+        if (!planning && !Reactions.Weather.allowsStep(actor,BlockPos.containing(feet))) return reject(observer, feet, "weather", "allowsStep=false");
+        if (!level.hasChunkAt(BlockPos.containing(feet))) return reject(observer, feet, "support", "chunk=false");
+        double water = wetArea(actor, feet, false);
+        if (water > 0) return reject(observer, feet, "wet", "area=" + water);
         AABB body = actor.getBoundingBox().move(feet.subtract(actor.position())).deflate(.005);
-        if (planning ? level.getBlockCollisions(actor,body).iterator().hasNext() : !level.noCollision(actor, body)) return false;
+        if (planning ? level.getBlockCollisions(actor,body).iterator().hasNext() : !level.noCollision(actor, body))
+            return reject(observer, feet, "collision", observer == null ? "" : collisionDetail(actor, body));
         double radius = supportRadius(actor);
         for (int x : new int[]{-1, 1}) for (int z : new int[]{-1, 1}) {
             double px = feet.x + x * radius, pz = feet.z + z * radius;
             var foot = new AABB(px-.015, feet.y-.08, pz-.015, px+.015, feet.y+.005, pz+.015);
-            if (!level.getBlockCollisions(actor, foot).iterator().hasNext()) return false;
+            if (!level.getBlockCollisions(actor, foot).iterator().hasNext())
+                return reject(observer, feet, "support", "missingCorner=" + x + "," + z + " foot=" + foot);
         }
         return true;
+    }
+
+    /** Bounded geometry/identity read after a collision has already rejected a sample. */
+    public static String collisionDetail(YukkuriEntity actor, AABB box) {
+        var shapes = new ArrayList<AABB>();
+        for (var shape : actor.level().getBlockCollisions(actor, box)) {
+            shapes.add(shape.bounds());
+            if (shapes.size() == 3) break;
+        }
+        var bodies = actor.level().getEntities(actor, box, e -> e instanceof YukkuriEntity).stream()
+                .limit(3).map(e -> e.getUUID() + ":" + e.getBoundingBox()).toList();
+        return "box=" + box + " blocks=" + shapes + " bodies=" + bodies;
     }
 
     /**
@@ -151,9 +191,6 @@ public final class SurfaceApproach {
                         * (Math.min(box.maxZ, cell.getZ() + 1) - Math.max(box.minZ, cell.getZ()));
         return wet;
     }
-
-    /** Any water under the footprint at all: a stand or a destination on the land has none. */
-    private static boolean wet(YukkuriEntity actor, Vec3 feet) { return wetArea(actor, feet, false) > 0; }
 
     /** The straight step to {@code to} never puts more of the body over water than it already is (sampled every .1 blocks). */
     public static boolean dryStep(YukkuriEntity actor, Vec3 from, Vec3 to) {
@@ -187,10 +224,14 @@ public final class SurfaceApproach {
     }
 
     private static boolean clearLastStep(YukkuriEntity actor,Vec3 start,Vec3 destination){
-        if(NestDoorway.blocksLine(actor,start,destination))return false;
+        return clearLastStep(actor, start, destination, null);
+    }
+    private static boolean clearLastStep(YukkuriEntity actor,Vec3 start,Vec3 destination,Consumer<Rejection> observer){
+        if(NestDoorway.blocksLine(actor,start,destination))return reject(observer, destination, "rim", "doorwayLine=" + start + "->" + destination);
         double reach=Math.max(1.5,actor.getBbWidth()+.5),step=actor.maxUpStep();
-        if (destination.y-start.y > step || start.y-destination.y > 1 || start.distanceToSqr(destination) > reach*reach) return false;
-        if (!supported(actor, destination)) return false;
+        if (destination.y-start.y > step || start.y-destination.y > 1 || start.distanceToSqr(destination) > reach*reach)
+            return reject(observer, destination, "segment_range", "dy=" + (destination.y-start.y) + " up=" + step + " down=1 distance=" + start.distanceTo(destination) + " reach=" + reach);
+        if (!supported(actor, destination, false, observer)) return false;
         int samples = Math.max(1, (int)Math.ceil(start.distanceTo(destination)/Math.min(.05, actor.getBbWidth()*.25)));
         double wet = wetArea(actor, start, false);
         double previous=start.y;
@@ -200,7 +241,11 @@ public final class SurfaceApproach {
             // Partly over an edge (a nest rim or step it is stepping down from): the top under part of the sole is enough
             // for this sample; requiring all four feet here stranded wide bodies on a rim above the floor they walk to.
             var surface=top(actor,sample);
-            if(surface==null||surface.y-previous>step||previous-surface.y>1||!supportedStep(actor,surface,wet))return false;
+            if(surface==null||surface.y-previous>step||previous-surface.y>1)
+                return reject(observer, sample, "segment_surface", "sample=" + i + "/" + samples + " top=" + surface + " previousY=" + previous + " up=" + step + " down=1");
+            if(!supportedStep(actor,surface,wet)) return reject(observer, surface, "segment_support", observer == null ? "" :
+                    "sample=" + i + "/" + samples + " water=" + wetArea(actor,surface,false) + " initialWater=" + wet
+                            + " " + collisionDetail(actor, actor.getBoundingBox().move(surface.subtract(actor.position())).deflate(.005)));
             previous=surface.y;
         }
         return true;
@@ -238,13 +283,17 @@ public final class SurfaceApproach {
 
     /** Read-only planning, including the last step from a vanilla node to the exact physical stand. */
     public static double routeLength(YukkuriEntity actor,Vec3 destination,AABB obstacle){
+        return routeLength(actor, destination, obstacle, null);
+    }
+    public static double routeLength(YukkuriEntity actor,Vec3 destination,AABB obstacle,Consumer<Rejection> observer){
         var goal=outside(actor,destination,obstacle);
         var bed=goal==null?null:NestDoorway.at(actor,goal);
         if(bed!=null){
             if(NestDoorway.at(actor,actor.position())==bed)return actor.position().distanceTo(goal);
             goal=NestDoorway.stand(actor,bed,goal);
         }
-        var route=goal==null?null:plan(actor,goal,obstacle,true);
+        if (goal == null) reject(observer, destination, "stand_unresolved", "outside_or_doorway=null");
+        var route=goal==null?null:plan(actor,goal,obstacle,true,false,observer);
         return route==null?Double.POSITIVE_INFINITY:route.length();
     }
 
@@ -316,9 +365,14 @@ public final class SurfaceApproach {
 
     /** Geometric stands only; the caller can bound route searches across several endpoints. */
     public static List<Vec3> contactStands(YukkuriEntity actor, Vec3 point, double distance, Entity peer, Predicate<Vec3> contact) {
+        return contactStands(actor, point, distance, peer, contact, null);
+    }
+    public static List<Vec3> contactStands(YukkuriEntity actor, Vec3 point, double distance, Entity peer,
+                                          Predicate<Vec3> contact, Consumer<Rejection> observer) {
         var candidates = new ArrayList<Vec3>();
-        for (var raw : radialStands(actor, point, distance)) {
+        for (var raw : radialStands(actor, point, distance, observer)) {
             var at = outside(actor, raw, peer == null ? null : peer.getBoundingBox());
+            if (at == null) reject(observer, raw, "stand_unresolved", "outside=null");
             if (at != null && contact.test(at) && !candidates.contains(at)) candidates.add(at);
         }
         candidates.sort(Comparator.comparingDouble(actor::distanceToSqr));
@@ -326,6 +380,9 @@ public final class SurfaceApproach {
     }
 
     private static ArrayList<Vec3> radialStands(YukkuriEntity actor, Vec3 point, double distance) {
+        return radialStands(actor, point, distance, null);
+    }
+    private static ArrayList<Vec3> radialStands(YukkuriEntity actor, Vec3 point, double distance, Consumer<Rejection> observer) {
         var directions = new ArrayList<Vec3>();
         var toward = actor.position().subtract(point).multiply(1, 0, 1);
         if (toward.horizontalDistanceSqr() > .0001) directions.add(toward.normalize());
@@ -335,7 +392,8 @@ public final class SurfaceApproach {
         }
         var candidates = new ArrayList<Vec3>();
         for (var direction : directions) {
-            var at = floor(actor, point.add(direction.scale(distance)));
+            var at = floor(actor, point.add(direction.scale(distance)), false, observer == null ? null :
+                    r -> reject(observer, r.at(), "stand_unresolved", "subtest=" + r.test() + " " + r.measured()));
             if (at != null) candidates.add(at);
         }
         return candidates;
@@ -454,8 +512,13 @@ public final class SurfaceApproach {
     }
 
     private static Route plan(YukkuriEntity actor,Vec3 destination,AABB body,boolean straight,boolean diagnose){
-        if(!supported(actor,destination)||TravelRange.keepBabyHome(actor)&&!TravelRange.babyDestination(actor,BlockPos.containing(destination)))
-            return rejected(actor, destination, body, "destination_support_or_range", diagnose);
+        return plan(actor, destination, body, straight, diagnose, null);
+    }
+    private static Route plan(YukkuriEntity actor,Vec3 destination,AABB body,boolean straight,boolean diagnose,Consumer<Rejection> observer){
+        var details = observer == null ? null : new ArrayList<Rejection>();
+        Consumer<Rejection> collect = details == null ? null : details::add;
+        if(!supported(actor,destination,false,collect)||TravelRange.keepBabyHome(actor)&&!TravelRange.babyDestination(actor,BlockPos.containing(destination)))
+            return rejected(actor, destination, body, "destination_support_or_range", diagnose, observer, "tests=" + details);
         if(straight&&clearOf(actor,actor.position(),destination,body)&&(arrived(actor,destination)||clearLastStep(actor,destination)&&walkable(actor,destination)))
             return new Route(null,actor.position().distanceTo(destination));
         // A containing block is not an exact stand. Offer only node centres with a clear, supported final segment.
@@ -463,31 +526,38 @@ public final class SurfaceApproach {
         int x=Mth.floor(destination.x-offset+.5),z=Mth.floor(destination.z-offset+.5);
         var targets=new LinkedHashSet<BlockPos>();
         for(int dx=-1;dx<=1;dx++)for(int dz=-1;dz<=1;dz++){
-            var at=floor(actor,new Vec3(x+dx+offset,destination.y,z+dz+offset));
-            if(at!=null&&clearOf(actor,at,destination,body)&&clearLastStep(actor,at,destination))
-                targets.add(new BlockPos(x+dx,Mth.floor(at.y+.5),z+dz));
+            var at=floor(actor,new Vec3(x+dx+offset,destination.y,z+dz+offset),false,collect);
+            if(at!=null) {
+                if (!clearOf(actor,at,destination,body)) reject(collect, at, "body_overlap", "peer=" + body + " to=" + destination);
+                else if (clearLastStep(actor,at,destination,collect)) targets.add(new BlockPos(x+dx,Mth.floor(at.y+.5),z+dz));
+            }
         }
-        if(targets.isEmpty())return rejected(actor, destination, body, "no_final_node", diagnose);
+        if(targets.isEmpty())return rejected(actor, destination, body, "no_final_node", diagnose, observer, "nodes=" + details);
         var navigation=actor.getNavigation();
         var path=navigation instanceof YukkuriGroundNavigation ground?ground.createApproachPath(targets,body,destination):navigation.createPath(targets,0);
-        if(path==null||!path.canReach()||path.getNodeCount()==0)return rejected(actor, destination, body, "incomplete_path", diagnose);
+        if(path==null||!path.canReach()||path.getNodeCount()==0)return rejected(actor, destination, body, "incomplete_path", diagnose, observer,
+                "targets=" + targets.size() + " reachable=" + (path != null && path.canReach()) + " nodes=" + (path == null ? 0 : path.getNodeCount()));
         var first=floor(actor,path.getEntityPosAtNode(actor,0));
         if(first!=null&&actor.onGround()&&NestDoorway.at(actor,actor.position())==null&&Math.abs(first.y-actor.getY())<=.25&&!clearLastStep(actor,first))
-            return rejected(actor, first, body, "first_segment", diagnose);
+            return rejected(actor, first, body, "first_segment", diagnose, observer, "from=" + actor.position() + " to=" + first + " distance=" + actor.position().distanceTo(first));
         Vec3 before=actor.position();double length=0;
         for(int i=0;i<path.getNodeCount();i++){
             var next=path.getEntityPosAtNode(actor,i);
-            if(!clearOf(actor,before,next,body)||!dryStep(actor,before,next))return rejected(actor, next, body, "path_segment_from=" + before, diagnose);
+            if(!clearOf(actor,before,next,body)||!dryStep(actor,before,next))return rejected(actor, next, body, "path_segment_from=" + before, diagnose, observer,
+                    "node=" + i + " distance=" + before.distanceTo(next) + " peer=" + body);
             length+=before.distanceTo(next);before=next;
         }
         // Recheck the chosen endpoint: vanilla may return a partial route, or a node at a different height.
-        var end=floor(actor,before);
-        if(end==null||!clearOf(actor,end,destination,body)||!clearLastStep(actor,end,destination))
-            return rejected(actor, destination, body, "final_segment_from=" + end, diagnose);
+        if (details != null) details.clear();
+        var end=floor(actor,before,false,collect);
+        if(end==null||!clearOf(actor,end,destination,body)||!clearLastStep(actor,end,destination,collect))
+            return rejected(actor, destination, body, "final_segment_from=" + end, diagnose, observer, "tests=" + details);
         return new Route(path,length+end.distanceTo(destination));
     }
 
-    private static Route rejected(YukkuriEntity actor, Vec3 at, AABB body, String why, boolean diagnose) {
+    private static Route rejected(YukkuriEntity actor, Vec3 at, AABB body, String why, boolean diagnose,
+                                  Consumer<Rejection> observer, String measured) {
+        reject(observer, at, "route." + why.split("=")[0], "subtest=" + why + " " + measured);
         if (diagnose) GameplayLog.limited(actor, "approach", "route_rejected", 200,
                 "surface route rejected test={} from={} to={} peerBox={} blocks={}", why, actor.position(), at, body, blocks(actor, at));
         return null;

@@ -11,6 +11,8 @@ import io.github.longshou.mcyukkuri.entity.component.SyncSlot;
 import io.github.longshou.mcyukkuri.headwear.HatGeometry;
 import io.github.longshou.mcyukkuri.headwear.HatScale;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
+import io.github.longshou.mcyukkuri.life.SurfaceApproach.Rejection;
+import java.util.function.Consumer;
 import io.github.longshou.mcyukkuri.motor.Attach;
 import io.github.longshou.mcyukkuri.motor.AttachState;
 import io.github.longshou.mcyukkuri.motor.BodyAbility;
@@ -582,12 +584,21 @@ public final class ParentCarry {
     }
     /** Every tick of a tuft ride clear of blocks, the carrier at {@code stand} turned to {@code yaw}: the feet the ride itself takes. */
     private static boolean rideClear(YukkuriEntity carrier, YukkuriEntity child, Vec3 stand, float yaw, IntFunction<Vector3f> feet, int from, int to) {
+        return rideClear(carrier, child, stand, yaw, feet, from, to, null);
+    }
+    private static boolean rideClear(YukkuriEntity carrier, YukkuriEntity child, Vec3 stand, float yaw, IntFunction<Vector3f> feet, int from, int to,
+                                     Consumer<Rejection> observer) {
         Vec3 previous = null;
         for (int t = from; t <= to; t++) {
             var p = feet.apply(t).mul((float) size(carrier) / 16).rotateY((180 - yaw) * Mth.DEG_TO_RAD);
             var at = stand.add(p.x, p.y, p.z);
             var box = child.getDimensions(child.getPose()).makeBoundingBox(at).deflate(.02);
-            if (child.level().getBlockCollisions(child, previous == null ? box : box.expandTowards(previous.subtract(at))).iterator().hasNext()) return false;
+            var sweep = previous == null ? box : box.expandTowards(previous.subtract(at));
+            if (child.level().getBlockCollisions(child, sweep).iterator().hasNext()) {
+                if (observer != null) observer.accept(new Rejection(at, "lowering_sweep", "tick=" + t + " from=" + previous
+                        + " " + SurfaceApproach.collisionDetail(child, sweep)));
+                return false;
+            }
             previous = at;
         }
         return true;
@@ -656,9 +667,12 @@ public final class ParentCarry {
     public static boolean brimLevel(Vec3 stand, Vec3 at) { return Math.abs(at.y - stand.y) <= BRIM_STEP; }
     /** Release's check of a brim lowering from {@code stand} turned to {@code yaw} onto {@code endpoint}: the same ride, clear of blocks. */
     public static boolean clearLowering(YukkuriEntity carrier, YukkuriEntity child, Vec3 stand, float yaw, Vec3 endpoint) {
+        return clearLowering(carrier, child, stand, yaw, endpoint, null);
+    }
+    public static boolean clearLowering(YukkuriEntity carrier, YukkuriEntity child, Vec3 stand, float yaw, Vec3 endpoint, Consumer<Rejection> observer) {
         var d = endpoint.subtract(stand);
         var to = new Vector3f((float) d.x, (float) d.y, (float) d.z).rotateY(-(180 - yaw) * Mth.DEG_TO_RAD).mul(16 / (float) size(carrier));
-        return rideClear(carrier, child, stand, yaw, t -> lowerFeet(to, t), mark(BRIM_LOWER, "lift_start"), mark(BRIM_LOWER, "place"));
+        return rideClear(carrier, child, stand, yaw, t -> lowerFeet(to, t), mark(BRIM_LOWER, "lift_start"), mark(BRIM_LOWER, "place"), observer);
     }
     private static Vector3f tail(YukkuriView carrier, Hold hold) {
         var tail = TAILS.getOrDefault(carrier.assetId(), TAILS.get("chen"))[hold == Hold.TAIL_LEFT ? 0 : 1];
@@ -1648,6 +1662,9 @@ public final class ParentCarry {
     /** Release's check of a head young's lowering from {@code stand} turned to {@code yaw} onto {@code endpoint}: the route the lowering
      *  itself takes ({@link #transferPoint}), clear of her body and of blocks. */
     public static boolean clearHeadLowering(YukkuriEntity carrier, YukkuriEntity child, Vec3 stand, float yaw, Vec3 endpoint) {
+        return clearHeadLowering(carrier, child, stand, yaw, endpoint, null);
+    }
+    public static boolean clearHeadLowering(YukkuriEntity carrier, YukkuriEntity child, Vec3 stand, float yaw, Vec3 endpoint, Consumer<Rejection> observer) {
         var shift = stand.subtract(carrier.position());
         var e = trialLowering(carrier, child, "braid_head_take");
         var body = carrier.getBoundingBox().move(shift);
@@ -1655,7 +1672,11 @@ public final class ParentCarry {
         for (int i = 1; i <= WAY_SAMPLES; i++) {
             var at = transferPoint(carrier, child, e, endpoint.subtract(shift), ticks * i / (double) WAY_SAMPLES, 1, yaw).add(shift);
             var box = child.getDimensions(child.getPose()).makeBoundingBox(at);
-            if (box.intersects(body) || child.level().getBlockCollisions(child, box).iterator().hasNext()) return false;
+            if (box.intersects(body) || child.level().getBlockCollisions(child, box).iterator().hasNext()) {
+                if (observer != null) observer.accept(new Rejection(at, "lowering_sweep", "sample=" + i + "/" + WAY_SAMPLES
+                        + " carrier=" + carrier.getUUID() + " carrierBox=" + body + " " + SurfaceApproach.collisionDetail(child, box)));
+                return false;
+            }
         }
         return true;
     }
