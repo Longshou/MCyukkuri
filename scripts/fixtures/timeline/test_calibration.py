@@ -14,6 +14,24 @@ from cases import record, state, log, HOST, ACTOR
 
 
 class Calibration(unittest.TestCase):
+    def test_resource_drop_from_untraced_actor_requires_observed_drop_id(self):
+        rows = [state(0),state(1)]
+        rows[1]['st']={'item':'minecraft:short_grass','n':1,'p':[0,0,0]}
+        raw=f'[family] marisa #7 uuid={HOST} t=1 dim=minecraft:overworld pos=0, 0, 0 feed reserved portion dropped item=1 minecraft:short_grass drop={ACTOR}'
+        self.assertFalse(checks.ledger([],timeline.states(rows),raw=raw))
+        self.assertTrue(any(f['verdict']=='fail' for f in checks.ledger([],timeline.states(rows),raw=raw.replace(f'drop={ACTOR}',f'drop={HOST}'))))
+        self.assertTrue(any(f['verdict']=='fail' for f in checks.ledger([],timeline.states(rows),raw=raw.replace('minecraft:short_grass','minecraft:diamond'))))
+        pickup=f'[habitat] reimu #8 uuid={HOST} t=2 dim=minecraft:overworld pos=0, 0, 0 pickup item=minecraft:short_grass count=1 source={ACTOR} remaining=0 holder=mouth'
+        rows.append(state(2))
+        self.assertFalse(checks.ledger([],timeline.states(rows),raw=raw+'\n'+pickup))
+
+    def test_actual_leaf_wrap_explains_only_its_consumed_leaves(self):
+        rows=[state(0,hold={'mouth':[{'item':'minecraft:oak_leaves','n':1}]}),state(1)]
+        event=record('ev',1,cat='family',msg='leaf swaddle wrapped child=fixture leaves=1xminecraft:oak_leaves unease=0.5 friendliness=90')
+        self.assertFalse(checks.ledger([event],timeline.states(rows)))
+        rows[0]['st']['hold']['mouth'][0]['item']='minecraft:diamond'
+        self.assertTrue(any(f['verdict']=='fail' for f in checks.ledger([event],timeline.states(rows))))
+
     def test_successful_defense_contacts_separate_attack_approaches(self):
         rows = [state(t,p=[(t // 10)*.02,0,0]) for t in range(100)]
         events = [record('ev',t,cat='social',msg='self defense strike attacker=fixture accepted=true health=10.0 -> 9.0 energy=38.0') for t in range(0,100,30)]

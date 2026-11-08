@@ -192,10 +192,10 @@ public final class ToiletContact {
                 return true;
             }
         }
-        boolean spawned = loose(server, stack, outlet, Vec3.ZERO, actor.yBodyRot) != null;
-        if (spawned) GameplayLog.limited(actor, "needs", "poop_loose", 200, "poop stays a loose item reason={} meant={}",
-                origin == null ? "no_floor_cell" : "no_cell_within_" + Poops.SPREAD, origin);
-        return spawned;
+        var spawned = loose(server, stack, outlet, Vec3.ZERO, actor.yBodyRot);
+        if (spawned != null) GameplayLog.event(actor, "needs", "poop stays a loose item reason={} meant={} item={} drop={}",
+                origin == null ? "no_floor_cell" : "no_cell_within_" + Poops.SPREAD, origin, stack.getItem(), spawned.getUUID());
+        return spawned != null;
     }
 
     /**

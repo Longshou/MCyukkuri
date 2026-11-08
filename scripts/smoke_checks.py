@@ -492,15 +492,26 @@ def inventory(s):
     return total
 
 
-def ledger(records, samples, dense=False):
+def ledger(records, samples, dense=False, raw=''):
     out, ticks, current = [], defaultdict(list), {}
-    explanations = [r for r in records if r['k'] == 'ev' and re.search(r'\b(eat|ate|swallow|consum|place|pickup|interaction|interrupted item=|poop stays a loose item|received (?:loose accessory )?item=|gathered item=|shed stem delivered|deposit home=|granary deposit|feed portion reserved|feed plant harvested|feed mash prepared|feed handed to meal|nest material|pack store=|carried meal|stores (?:put|taken|spilled))', r.get('msg', ''), re.I)
+    # An untagged actor can drop an item into the traced field. Its GameplayLog
+    # line exists even though it has no actor stream; accept only an explicit
+    # drop/source UUID that belongs to this scope, never unrelated transactions.
+    observed = {r['u'] for r in samples}
+    boundary = []
+    for line in raw.splitlines():
+        event = EVENT.search(line)
+        drop = re.search(r'\b(?:drop|source)=([0-9a-f-]{36})\b', event['msg']) if event else None
+        if drop and drop[1] in observed:
+            boundary.append(dict(k='ev',u=event['uuid'],t=int(re.search(r'\bt=(\d+)',line)[1]),
+                                 cat=event['cat'],msg=event['msg']))
+    explanations = [r for r in [*records, *boundary] if r['k'] == 'ev' and re.search(r'\b(eat|ate|swallow|consum|place|pickup|interaction|interrupted item=|poop stays a loose item|received (?:loose accessory )?item=|gathered item=|shed stem delivered|deposit home=|granary deposit|feed portion reserved|feed reserved portion dropped|leaf swaddle wrapped|feed plant harvested|feed mash prepared|feed handed to meal|nest material|pack store=|carried meal|stores (?:put|taken|spilled))', r.get('msg', ''), re.I)
                     or r['k'] == 'life' and (r.get('out') in ('unloaded', 'scope_exit', 'changed_dimension')
                         or r.get('out') == 'discarded' and known(r, 'age', 'lifespan', 'item') and r['age'] >= r['lifespan'])]
     explained_items = defaultdict(set)
     for event in explanations:
         msg = event.get('msg', '')
-        item = re.search(r'\b(?:item|kind)=(?:\d+ )?([a-z0-9_.-]+:[a-z0-9_/.-]+)', msg)
+        item = re.search(r'\b(?:item|kind|leaves)=(?:\d+[ x])?([a-z0-9_.-]+:[a-z0-9_/.-]+)', msg)
         kinds = re.search(r'\bkinds=\{([^}]*)\}', msg)
         items = (set(re.findall(r'([a-z0-9_.-]+:[a-z0-9_/.-]+)=\d+', kinds[1])) if kinds
                  else {event.get('item') or (item[1] if item else None)})
@@ -954,7 +965,7 @@ def observations(records, issues=(), raw='', allow=(), end=(), seed=None, rerun=
                 continue
             if cause not in ('drown', 'inWall'):
                 findings.append(result('FATE', 'fail' if cause in ('fall', 'soaking', 'starve') else 'suspect', r['msg'], r))
-    findings += progress(samples, records) + loops(records, samples) + jumps(samples, records) + ledger(records, samples, dense) + orphans(samples, records)
+    findings += progress(samples, records) + loops(records, samples) + jumps(samples, records) + ledger(records, samples, dense, raw) + orphans(samples, records)
     findings += endings(records, samples, end, raw if end_raw is None else end_raw)
     lag = [r for r in records if r['k'] == 'lag']
     for r in lag:
