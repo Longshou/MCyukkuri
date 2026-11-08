@@ -105,7 +105,7 @@ public final class YukkuriModel {
         for (int index=0; index<parts.size(); index++) {
             var part=puffAmount>0?(puffPartIndex==index?puffSurface:puffAttachments.getOrDefault(index,parts.get(index))):parts.get(index);
             if (hairHidden(part,hairLoss) || ((!accessory || hatProp!=null) && accessoryPart(part)) || !part.anatomy.isEmpty()) continue;
-            String group=PoseGeometry.group(part.name);
+            String group=accessoryPart(part)?"hat":PoseGeometry.group(part.name);
             if (group.equals("other")) continue;
             var triangles=new JsonArray();
             var curled=tailCurl==null?null:tailCurl.part(index);
@@ -114,6 +114,7 @@ public final class YukkuriModel {
                 for (int corner=0;corner<3;corner++) {
                     var point=new Vector3f(); skin(first+corner,point);
                     if(curled!=null)curled.transformPosition(point);
+                    if(accessoryPart(part)&&hatDamageDraw.fit()<.999f)point.sub(hatDamageDraw.seat()).mul(hatDamageDraw.fit()).add(hatDamageDraw.seat());
                     triangle.add(PoseGeometry.point(point));
                 }
                 triangles.add(triangle);

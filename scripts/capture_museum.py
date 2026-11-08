@@ -89,6 +89,7 @@ def main():
     parser.add_argument('--worktree', type=Path, help='Assemble this tree with javac against installed CI dependencies')
     parser.add_argument('--smoke-commands', action='store_true', help='Run each scene\'s timed smoke interactions during capture')
     parser.add_argument('--no-wait', action='store_true', help="Refuse instead of waiting while the user's museum client runs")
+    parser.add_argument('--view', action='append', help='Capture only this declared full view ID; repeatable')
     parser.add_argument('--slots', type=int, help=f'Machine-wide limit of smoke/capture servers (default {slots.DEFAULT_SLOTS})')
     parser.add_argument('scenes', nargs='+', help='Museum scene IDs')
     args = parser.parse_args()
@@ -112,6 +113,11 @@ def capture(parser, args):
     views = [(scene, f'{scene.id}_{name}' if name else scene.id, view)
              for scene in selected
              for name, view in scene.capture.get('views', {'': dict(follow=scene.capture.get('follow'))}).items()]
+    if args.view:
+        unknown_views=set(args.view)-{view_id for _,view_id,_ in views}
+        if unknown_views:
+            parser.error('Unknown views: '+', '.join(sorted(unknown_views)))
+        views=[entry for entry in views if entry[1] in args.view]
     output = server.COMMON / '.local/captures' / (time.strftime('%Y%m%d-%H%M%S') + '-' + secrets.token_hex(3))
     instance = output / 'instance'
     pack = smoke.build_pack(builder, instance)

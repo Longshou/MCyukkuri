@@ -24,6 +24,7 @@ def main():
     parser.add_argument('--beats', type=Path)
     parser.add_argument('--ref', nargs='*', default=[])
     parser.add_argument('--reuse', type=Path)
+    parser.add_argument('--view', action='append', help='Review only this declared full view ID; repeatable')
     parser.add_argument('--out', type=Path)
     parser.add_argument('--compare-old', type=Path, help='Preserved old capture_review.py: same images, original prompt')
     args = parser.parse_args()
@@ -31,7 +32,8 @@ def main():
     out.mkdir(parents=True, exist_ok=True)
     cap = args.reuse
     if cap is None:
-        result = subprocess.run([sys.executable, str(args.worktree/'scripts/capture_museum.py'), '--worktree', str(args.worktree), args.scene],
+        view_args=[arg for view in args.view or [] for arg in ('--view',view)]
+        result = subprocess.run([sys.executable, str(args.worktree/'scripts/capture_museum.py'), '--worktree', str(args.worktree), args.scene, *view_args],
                                 text=True, encoding='utf-8', errors='replace', stdout=subprocess.PIPE, stderr=subprocess.STDOUT, env={**os.environ, 'PYTHONUTF8':'1'})
         print(result.stdout, flush=True)
         match = re.search(r'Capture output: (.+)', result.stdout)
@@ -45,9 +47,13 @@ def main():
         spec = importlib.util.spec_from_file_location('legacy_capture_review', args.compare_old)
         legacy = importlib.util.module_from_spec(spec); spec.loader.exec_module(legacy)
     plans = {p['id']: p for p in json.loads((cap/'plan.json').read_text())}
+    if args.view and set(args.view)-plans.keys():
+        raise ValueError('requested view absent from capture plan')
     jobs, geometry = [], {}
     for manifest in sorted(cap.glob(f'{args.scene}*/selected-frames.json')):
         view = manifest.parent.name
+        if args.view and view not in args.view:
+            continue
         frames = json.loads(manifest.read_text())
         geometry[view] = json.loads((manifest.parent/'geometry.json').read_text())
         for i, frame in enumerate(frames):

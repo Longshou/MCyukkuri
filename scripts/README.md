@@ -53,7 +53,7 @@ lore 通用宠物联系表 `pet_motions_preview.py` 已由 `preview.py strip <�
 
 `capture.follow` 可指定跟随的实体选择器；多个观察角度用 `capture.views={名字: {follow: 选择器, offset: (左右, 高度, 前后), criteria: 本机位观察标准}}`，摄影机偏移按上一渲染帧实际画出的身体朝向计算。方块使用 `look_at: (x,y,z)`，目标相对场景 anchor 与脚底高度，保留原观察点的摄影机位置。每个角度重新运行真实场景，跟随只移动旁观者与摄影机；清场会取消跟随。跟随截图关闭观察标签与聊天覆盖，PNG 与联系表按角度名字分目录。
 
-`<py> scripts/capture_review.py --worktree <工作树> <场景> [--criteria <原话或文件>] [--beats <时间节拍文件>]` 一条命令捕获并审图；`--reuse <捕获目录>` 复用已有结果。AI 只判断各机位下的动作是否看得懂，几何问题只来自共享指标，均保留为报告项；缺证据或审图服务错误退出 2。`--compare-old <旧审图脚本>` 对同一组图额外运行旧提示词，保存两份判断；旧提示词的报警不自动等于误报，须结合原尺寸画面与指标证据复核。报告在主检出 `.local/reports/capture-review/`，不自动登记用户待查看页。
+`<py> scripts/capture_review.py --worktree <工作树> <场景> [--criteria <原话或文件>] [--beats <时间节拍文件>]` 一条命令捕获并审图；`--reuse <捕获目录>` 复用已有结果。审图和捕获命令均可用 `--view <完整机位ID>` 复查指定机位（可重复，如 `carry_home_chen`），不改变场景时长与断言。AI 只判断各机位下的动作是否看得懂，几何问题只来自共享指标，均保留为报告项；缺证据或审图服务错误退出 2。`--compare-old <旧审图脚本>` 对同一组图额外运行旧提示词，保存两份判断；旧提示词的报警不自动等于误报，须结合原尺寸画面与指标证据复核。报告在主检出 `.local/reports/capture-review/`，不自动登记用户待查看页。
 
 截图运行独占主检出 `.local/captures/capture.lock` 的文件锁；后来的截图命令等待前一次结束后自动运行，冒烟不取此锁。截图同样占一个全机名额，并支持 `--no-wait`、`--slots`。
 
