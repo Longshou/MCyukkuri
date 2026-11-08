@@ -46,7 +46,7 @@ public final class PlacedHatRenderer extends EntityRenderer<PlacedHatEntity> {
         if(hat.state()==PlacedHatEntity.State.RESCUED)return;  // back on its owner's head (the braid clip carries it there)
         float scale=hat.hullScale(), unit=scale/16;
         var at=hat.getPosition(partial);
-        var start=new Matrix4f(pose.last().pose());
+        var start=PoseTap.active()?new Matrix4f(pose.last().pose()):null;
         pose.pushPose();
         pose.translate(at.x-source.getX(),at.y-source.getY(),at.z-source.getZ());
         pose.mulPose(new Quaternionf().rotationY((180-Mth.rotLerp(partial,hat.previousYaw(),hat.getYRot()))*Mth.DEG_TO_RAD)
