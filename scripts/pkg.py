@@ -19,7 +19,6 @@ import headless_server as server  # noqa: E402  (git common root, user-client de
 MAIN = server.COMMON
 TODO = 'docs/TODO.md'
 SECTION = '## 进行中'
-BUSY_PROCESS = re.compile(r'[\\/]\.local[\\/](smoke|captures)[\\/]', re.IGNORECASE)
 
 
 class Fail(SystemExit):
@@ -198,20 +197,6 @@ def cmd_land(args):
     print(f'landed {name}: pushed {pushed}')
 
 
-def client_busy():
-    query = ('$ErrorActionPreference = "Stop"; [Console]::OutputEncoding = [System.Text.UTF8Encoding]::new($false); '
-             'ConvertTo-Json -Compress -InputObject @(Get-CimInstance Win32_Process '
-             '-Filter "Name = \'java.exe\' OR Name = \'javaw.exe\'" | Select-Object Name,ProcessId,CommandLine)')
-    rows = json.loads(subprocess.check_output(['powershell.exe', '-NoProfile', '-Command', query], encoding='utf-8'))
-    # TODO: also read .local/smoke/slots/ (machine-wide smoke slots) once wp-bh-smoke-verify lands
-    busy = [f'{r["Name"]} PID={r["ProcessId"]} (smoke/capture)' for r in rows if BUSY_PROCESS.search(r['CommandLine'] or '')]
-    try:
-        server.require_closed()
-    except RuntimeError as error:
-        busy.append(str(error))
-    return busy
-
-
 def find_run(sha):
     out = subprocess.check_output(['gh', 'run', 'list', '--workflow', 'build.yml', '--commit', sha,
                                    '--json', 'databaseId,status,conclusion', '-L', '5'], cwd=MAIN, text=True, encoding='utf-8')
@@ -219,9 +204,7 @@ def find_run(sha):
     return runs[0] if runs else None
 
 
-def cmd_runtime(args):
-    git(MAIN, 'fetch', '-q', 'origin')
-    sha = git(MAIN, 'rev-parse', args.commit or 'origin/main')
+def wait_build(sha, args):
     print(f'waiting for Build run of {sha[:9]}', flush=True)
     appear_deadline = time.monotonic() + args.appear_timeout
     while True:
@@ -236,13 +219,24 @@ def cmd_runtime(args):
                              encoding='utf-8', capture_output=True).stdout.splitlines()
         print('\n'.join(log[-60:]))
         raise Fail(f'Build run {run["databaseId"]} for {sha} ended {run["conclusion"]}')
-    print(f'Build run {run["databaseId"]} succeeded; waiting for smoke/capture/museum client to close', flush=True)
+    return run
+
+
+def cmd_runtime(args):
+    git(MAIN, 'fetch', '-q', 'origin')
     while True:
-        busy = client_busy()
-        if not busy:
+        sha = git(MAIN, 'rev-parse', args.commit or 'origin/main')
+        run = wait_build(sha, args)
+        print(f'Build run {run["databaseId"]} succeeded; waiting for the museum client to close', flush=True)
+        # Running smoke/capture servers keep the runtime dir they started with; the next update removes it once unused.
+        server.wait_closed(poll=args.poll)
+        if args.commit:
             break
-        print('busy: ' + '; '.join(busy), flush=True)
-        time.sleep(args.poll)
+        git(MAIN, 'fetch', '-q', 'origin')
+        moved = git(MAIN, 'rev-parse', 'origin/main')
+        if moved == sha:
+            break
+        print(f'origin/main moved to {moved[:9]} while waiting; following it', flush=True)
     require_main_branch()
     require_clean(MAIN, 'main checkout')
     if args.dry_run:

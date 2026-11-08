@@ -1,7 +1,9 @@
-"""Install a successful CI runtime for this checkout, removing the previous runtime after switching.
+"""Install a successful CI runtime for this checkout, then remove the older runtime dirs nothing uses.
 
 Run with the playground closed: python scripts/update_museum_runtime.py --run <GitHub run ID>
 Requires git, gh, and an existing museum-runtime.json with a prepared NeoForge runtime. Never compiles or starts the game.
+A runtime directory still referenced by a running smoke server or capture client is kept: those sessions already read their
+config, so swapping the config is safe and the kept directory goes on the next update once no process references it.
 """
 import argparse
 import hashlib
@@ -57,6 +59,21 @@ def require_closed():
             alive = False
     if alive:
         raise ValueError('Close the running playground before updating its runtime.')
+
+
+def runtime_dirs_in_use(dirs):
+    """Running java PIDs whose command line names each runtime directory."""
+    query = ('$ErrorActionPreference = "Stop"; [Console]::OutputEncoding = [System.Text.UTF8Encoding]::new($false); '
+             'ConvertTo-Json -Compress -InputObject @(Get-CimInstance Win32_Process '
+             '-Filter "Name = \'java.exe\' OR Name = \'javaw.exe\'" | Select-Object ProcessId,CommandLine)')
+    rows = json.loads(command('powershell.exe', '-NoProfile', '-Command', query))
+    used = {path: [] for path in dirs}
+    for row in rows:
+        line = (row['CommandLine'] or '').lower()
+        for path in dirs:
+            if str(path).lower() in line or path.as_posix().lower() in line:
+                used[path].append(row['ProcessId'])
+    return used
 
 
 def unpack_code(archive, mod):
@@ -129,6 +146,8 @@ def main():
     bootstrap = ('clientRunClasspath.txt', 'clientRunVmArgs.txt', 'clientRunProgramArgs.txt')
     if not all((old_runtime / name).is_file() for name in bootstrap):
         parser.error('The existing NeoForge runtime is incomplete; prepare its dependencies first.')
+    # Collected before the new runtime exists, so this lists exactly the directories the update may clean up.
+    runtimes = sorted(path for path in (ROOT / '.local/setup').glob('runtime-*') if path.is_dir())
     suffix = f'{commit[:12]}-{uuid.uuid4().hex[:8]}'
     update = ROOT / '.local/experimental-map/updates' / suffix
     artifact = update / 'artifact'
@@ -176,11 +195,16 @@ def main():
     readback = read_json(CONFIG)
     if readback['commit'] != commit or (ROOT / readback['runtime']).resolve() != new_runtime.resolve():
         raise ValueError('Runtime configuration readback did not match the installed runtime.')
-    # Delete only the validated previous runtime after the new configuration has been read back.
-    shutil.rmtree(old_runtime)
+    # The new configuration has been read back; drop every older runtime that no running process holds.
+    in_use = runtime_dirs_in_use(runtimes)
+    for path in runtimes:
+        if in_use[path]:
+            print(f'kept {path}: in use by PID {", ".join(str(pid) for pid in in_use[path])}')
+        else:
+            shutil.rmtree(path)
+            print(f'Previous runtime removed: {path}')
     shutil.rmtree(update)
     print(f'Installed CI runtime {commit}; verified {len(manifest["resources"])} resources.')
-    print(f'Previous runtime removed: {old_runtime}')
     print('Background music muted; other sound categories preserved.')
     print('Launch with 启动动作博物馆.cmd. In-game behavior still needs your playthrough.')
 

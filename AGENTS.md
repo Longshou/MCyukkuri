@@ -73,7 +73,7 @@
 - 日志与排查：读 `.local/experimental-map/play-museum/process.json` 与同场 `.session.json` 得启动时间、PID、世界；原生日志 `.local/experimental-map/museum/logs/latest.log`、`debug.log`（旧场次查日期归档 `.log.gz`）。版本取 `.session.json` 的 `runtimeConfig.commit/run`，无证据写“版本待核实”；原日志保留；`<py> scripts/feedback_intake.py [--session <id>]` 把该场日志复制到 `.local/reports/playtest-<日期>-<时间>/` 并写 `summary.md`（死亡、溺水、`inWall`、饥饿、拒绝原因与各场景断言行）。`/yukkuri status trace true` 开启细密采样。
 - SERVER 配置在世界 `serverconfig/`：`mcyukkuri-server.toml`（生活、生态、聚落）、`mcyukkuri-family.toml`（家庭繁殖）、`mcyukkuri-human-world.toml`（人类、商贸、工厂）；分组是键路径的一部分，如 `seasons.biomeSeasons`。
 - 场景准备命令依赖落地的须在召唤后 2 秒执行；`/tick` 需等级 3，函数和命令方块仅等级 2；直接 `/function mcylab:scn/<id>` 不清场；`build_museum_full.py --pack-only --output` 须为 `.local/experimental-map/` 或 `.local/smoke/` 下不存在的新目录；清理 `.local/setup/runtime-*`、`ci-*` 前核对配置与进程。
-- 运行包更新：在实际游玩的机器执行 `<py> scripts/pkg.py runtime [--commit <sha>]`（等该提交的 Build 完成、没有冒烟／截图／试玩客户端在跑，再把主检出快进到该提交并调用 `update_museum_runtime.py --run <run-id>`；失败打印 `--log-failed` 尾部并停止）。以下为该脚本的前提与行为。需要 `git`、已登录的 `gh` 和 `.local/experimental-map/museum-runtime.json`，运行包位于 `.local/setup/runtime-*`。脚本核对 CI 与当前提交一致后恢复资源、校验哈希、切换配置并删除旧运行包，不编译、不启动游戏；切换前失败不删除原运行包。启动器在生成世界前对照运行包提交与当前代码、资源、场景和构建配置，不一致即停止并提示更新。
+- 运行包更新：在实际游玩的机器执行 `<py> scripts/pkg.py runtime [--commit <sha>]`（等该提交的 Build 完成、试玩客户端关闭，再把主检出快进到该提交并调用 `update_museum_runtime.py --run <run-id>`；不带 `--commit` 时等待期间 `origin/main` 前进就改等新提交的 Build；失败打印 `--log-failed` 尾部并停止）。以下为该脚本的前提与行为。需要 `git`、已登录的 `gh` 和 `.local/experimental-map/museum-runtime.json`，运行包位于 `.local/setup/runtime-*`。脚本核对 CI 与当前提交一致后恢复资源、校验哈希、切换配置并删除旧运行包，不编译、不启动游戏；切换前失败不删除原运行包。运行中的冒烟与截图沿用它们启动时的旧运行包，更新只保留仍在使用的目录，下次更新再清理。启动器在生成世界前对照运行包提交与当前代码、资源、场景和构建配置，不一致即停止并提示更新。
 
 ## 7. 试玩场景与验收
 
@@ -147,5 +147,5 @@
 - 额度：`bash .local/tools/claude_quota.sh` 看 5 小时与周用量；快满时暂停，重置后继续；额度紧张时只记入待办不开工；临近重置仍有余量就用掉。pi 模型与 Codex 不占 Claude 额度；工作量在 Claude、Codex、kimi、DeepSeek 之间分摊，不压在一家。
 - 并发：用户同时在玩游戏（约 8 GB），同时最多 3 个跑冒烟或截图的工人。限流会一次停掉所有子代理，工作已提交，开新代理“从提交继续”。
 - 失败处理：同一链路失败两轮就换思路，由总负责人写设计，不再调参；卡住的工人加人组队，不让它空转；偶发回归找隐藏的起始状态分叉，主线与分支各 20 次以上对比，修在共享归属处。
-- 合入顺序：大段文档改写先合；共用动作源的包按顺序 rebase，冲突时合并制作源再重建输出。合入后后台运行 `pkg.py runtime`，CI 成功且没有冒烟或截图在跑时更新运行包（第 6 节）。
+- 合入顺序：大段文档改写先合；共用动作源的包按顺序 rebase，冲突时合并制作源再重建输出。合入后后台运行 `pkg.py runtime`，CI 成功且试玩客户端关闭时更新运行包；运行中的冒烟与截图继续用旧包，下次更新清理（第 6 节）。
 - 交接：`.local/HANDOFF.md` 只写当前状态（运行包版本、进行中的包、等用户决定的事），不写规则；本地文件的清理见第 9 节。
