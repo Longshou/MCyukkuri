@@ -78,6 +78,23 @@ public final class NestDoorway {
         return null;
     }
 
+    /** A stand must be a supported doorway goal or clear the ordinary route exclusion with its whole body. */
+    public static CareBlockEntity rimAt(YukkuriEntity actor, Vec3 point) {
+        var interior = at(actor, point);
+        double radius = actor.getBbWidth() * .5;
+        var area = new AABB(point, point).inflate(radius + 1, 0, radius + 1);
+        for (var pos : BlockPos.betweenClosed(BlockPos.containing(area.minX, area.minY - 1, area.minZ),
+                BlockPos.containing(area.maxX, area.maxY, area.maxZ))) {
+            var bed = bed(actor, pos);
+            if (bed == null || bed == interior) continue;
+            var centre = bed.centre();
+            double outer = shape(bed).outer() + radius;
+            if (point.y >= centre.y - 1 && point.y < centre.y + 1
+                    && Math.abs(point.x - centre.x) < outer && Math.abs(point.z - centre.z) < outer) return bed;
+        }
+        return null;
+    }
+
     private static boolean opening(YukkuriEntity actor, CareBlockEntity bed, Vec3 point) {
         var d=shape(bed);var p=point.subtract(bed.centre());
         return Math.abs(p.x)+passFoot(actor)<=d.opening()+SurfaceApproach.ARRIVAL

@@ -7,6 +7,7 @@ import io.github.longshou.mcyukkuri.family.ParentCarry.Hold;
 import io.github.longshou.mcyukkuri.headwear.HatGeometry;
 import io.github.longshou.mcyukkuri.headwear.HullBounds;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
+import io.github.longshou.mcyukkuri.life.NestDoorway;
 import io.github.longshou.mcyukkuri.motor.ContactGeometry;
 import io.github.longshou.mcyukkuri.motor.Action;
 import io.github.longshou.mcyukkuri.motor.ClipMarkers;
@@ -84,7 +85,7 @@ public final class Release implements Action {
         private final Map<String, Integer> bodies = new LinkedHashMap<>();
         private final List<Failure> nearest = new ArrayList<>();
         Diagnostics() {
-            for (var test : List.of("support", "wet", "body_overlap", "collision", "stand_unresolved", "route", "turn",
+            for (var test : List.of("support", "wet", "body_overlap", "collision", "stand_unresolved", "stand_in_rim_band", "route", "turn",
                     "lowering_sweep", "reach", "carry_host", "brim_level", "weather", "duplicate", "budget")) counts.put(test, 0);
         }
         void rejected(YukkuriEntity carrier, Candidate triple, Rejection rejection) {
@@ -323,6 +324,13 @@ public final class Release implements Action {
     }
     private Feasibility room(YukkuriEntity carrier, Vec3 stand, float yaw, Vec3 at, boolean diagnose) {
         var observer = diagnose ? observe(carrier, at, stand, yaw) : null;
+        var rim = NestDoorway.rimAt(carrier, stand);
+        if (rim != null) {
+            if (diagnose) reject(carrier, at, stand, yaw, "stand_in_rim_band", "nest=" + rim.getBlockPos()
+                    + " relative=" + stand.subtract(rim.centre()) + " radius=" + carrier.getBbWidth() * .5
+                    + " outer=" + NestDoorway.shape(rim).outer() + " supportedInterior=false");
+            return Feasibility.of(Reason.NO_ROOM, 0, "stand_in_rim_band");
+        }
         var space = space(carrier, at, observer);
         if (!space.ok()) return space;
         if (child.getDimensions(child.getPose()).makeBoundingBox(at).intersects(carrier.getBoundingBox().move(stand.subtract(carrier.position())))) {
