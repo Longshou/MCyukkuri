@@ -127,6 +127,7 @@ public final class YukkuriModel {
         out.add("meshes",meshes);
         var worn=HatGeometry.worn(id);
         if(worn!=null)out.add("head",PoseTap.matrix(world[worn.getAsJsonObject("head").get("bone").getAsInt()]));
+        else for(int i=0;i<bones.length;i++)if(bones[i].name().equals("head"))out.add("head",PoseTap.matrix(world[i]));
         out.add("mouth_anchor",PoseGeometry.point(mouthPoint()));
         var tip=braidPose.drawnTip();
         if(tip!=null)out.add("wet_tip",PoseGeometry.point(tip));

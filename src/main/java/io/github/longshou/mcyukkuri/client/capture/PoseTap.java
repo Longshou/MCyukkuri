@@ -3,6 +3,7 @@ package io.github.longshou.mcyukkuri.client.capture;
 import com.google.gson.*;
 import io.github.longshou.mcyukkuri.client.YukkuriModel;
 import io.github.longshou.mcyukkuri.entity.YukkuriView;
+import io.github.longshou.mcyukkuri.family.ParentCarry;
 import io.github.longshou.mcyukkuri.headwear.PlacedHatView;
 import io.github.longshou.mcyukkuri.pose.check.PoseChecks;
 import io.github.longshou.mcyukkuri.pose.check.PoseGeometry;
@@ -83,21 +84,10 @@ public final class PoseTap {
         sup.add("host", entity.vehicleYukkuri()!=null ? new JsonPrimitive(entity.vehicleYukkuri().getUUID().toString())
                 : entity.vehicleHat()!=null ? new JsonPrimitive(entity.vehicleHat().getUUID().toString()) : JsonNull.INSTANCE);
         f.add("sup", sup);
-        f.addProperty("gap_applicable",entity.isPassenger()||entity.onGround());
-        if(sup.get("kind").getAsString().equals("ground")&&entity.onGround()) {
-            var ground=new JsonObject();ground.addProperty("closed",false);var ts=new JsonArray();ground.add("triangles",ts);
-            var box=entity.getBoundingBox().inflate(.5,1,.5);
-            for(var pos:BlockPos.betweenClosed(BlockPos.containing(box.minX,box.minY,box.minZ),BlockPos.containing(box.maxX,box.maxY,box.maxZ))) {
-                if(!entity.level().hasChunkAt(pos))continue;
-                for(var a:entity.level().getBlockState(pos).getCollisionShape(entity.level(),pos).toAabbs()) {
-                    float x=(float)(pos.getX()+a.minX)*16,X=(float)(pos.getX()+a.maxX)*16,z=(float)(pos.getZ()+a.minZ)*16,Z=(float)(pos.getZ()+a.maxZ)*16,y=(float)(pos.getY()+a.maxY)*16;
-                    for(Vector3f[] corners:List.of(new Vector3f[]{new Vector3f(x,y,z),new Vector3f(X,y,z),new Vector3f(X,y,Z)},new Vector3f[]{new Vector3f(x,y,z),new Vector3f(X,y,Z),new Vector3f(x,y,Z)})) {
-                        var triangle=new JsonArray();for(var p:corners)triangle.add(PoseGeometry.point(p));ts.add(triangle);
-                    }
-                }
-            }
-            sup.add("mesh",ground);
-        }
+        var hold=entity.vehicleYukkuri()==null?null:ParentCarry.hold(entity.vehicleYukkuri(),entity);
+        if(hold!=null)sup.addProperty("hold",hold.name());
+        // Gap measures lower-surface rider support. A mouth grip is lateral contact (checked by pass).
+        f.addProperty("gap_applicable",entity.isPassenger()&&hold!=ParentCarry.Hold.MOUTH);
         var item = new JsonObject(); item.addProperty("held", !entity.getHeldItem().isEmpty());
         item.addProperty("id", BuiltInRegistries.ITEM.getKey(entity.getHeldItem().getItem()).toString());
         if (!entity.getHeldItem().isEmpty()) item.addProperty("place", entity.heldPlace().place().name());

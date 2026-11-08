@@ -131,7 +131,7 @@ public final class PoseChecks {
         bounded(r, worst, .1, .1, where);
     }
     private static void gap(JsonObject f, JsonObject r) {
-        if(f.has("gap_applicable")&&!f.get("gap_applicable").getAsBoolean()){skip(r,"free airborne body has no support contact");return;}
+        if(f.has("gap_applicable")&&!f.get("gap_applicable").getAsBoolean()){skip(r,"no lower-surface rider contact");return;}
         var sup = obj(f, "sup"); var skin = new ArrayList<Vector3d>();
         for (var p : need(f, "skin_points").getAsJsonArray()) skin.add(vector(p));
         if (skin.isEmpty()) throw new IllegalArgumentException("missing context: rider skin points");
