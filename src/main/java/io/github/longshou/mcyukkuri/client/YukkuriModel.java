@@ -1,5 +1,7 @@
 package io.github.longshou.mcyukkuri.client;
 
+import io.github.longshou.mcyukkuri.client.capture.PoseTap;
+
 import io.github.longshou.mcyukkuri.pose.Clips;
 import io.github.longshou.mcyukkuri.pose.Clips.Clip;
 import io.github.longshou.mcyukkuri.pose.Clips.Track;
@@ -79,6 +81,31 @@ public final class YukkuriModel {
     private List<Patch> activePatches=List.of();
     private final String id;
     private final ModelFingerprint sourceHash;
+    private String poseFingerprint;
+    private final Map<String, JsonObject> poseClips = new HashMap<>();
+    private String sampledClip;
+    private float sampledTime;
+
+    void poseFingerprint(String value) { poseFingerprint = value; }
+
+    /** Snapshot before renderLiving clears its transient inputs; no animation is sampled here. */
+    public JsonObject capturePose() {
+        var out = new JsonObject();
+        out.addProperty("fp", poseFingerprint);
+        out.addProperty("clip", sampledClip); out.addProperty("ct", sampledTime);
+        var clip = poseClips.get(sampledClip);
+        out.add("parameters", clip.has("parameters") ? clip.get("parameters") : new JsonObject());
+        out.add("clip_markers", clip.has("markers") ? clip.get("markers") : new JsonObject());
+        out.add("root", PoseTap.matrix(rootPose()));
+        var matrices = new JsonObject();
+        for (int i = 0; i < bones.length; i++) matrices.add(bones[i].name(), PoseTap.matrix(world[i]));
+        out.add("bones", matrices);
+        var skin = new JsonObject();
+        skin.addProperty("puff", puffAmount); skin.addProperty("belly", pregnancyBelly);
+        skin.addProperty("contraction", pregnancyContraction); skin.addProperty("wear", wear);
+        skin.addProperty("wounded", woundDisplay != null); out.add("skin", skin);
+        return out;
+    }
     private boolean warnedWoundMismatch;
     private JsonObject badgeMount;
     private final BadgeDraw badgeDraw=new BadgeDraw(this);
@@ -598,6 +625,7 @@ public final class YukkuriModel {
         }
         for (var entry : allClips.entrySet()) {
             JsonObject clip = entry.getValue().getAsJsonObject();
+            poseClips.put(entry.getKey(), clip);
             clips.put(entry.getKey(),Clips.read(clip,bones.length));
             if(entry.getKey().equals("water_hat_flip")&&clip.has("hat_transfer")){
                 var transfer=clip.getAsJsonObject("hat_transfer");
@@ -782,6 +810,8 @@ public final class YukkuriModel {
             adultTime = momentFrame.seconds()*momentFrame.tempo();
         }
         clips.getOrDefault(selected, clips.get("idle")).sample(adultTime, pose);
+        sampledClip = clips.containsKey(selected) ? selected : "idle";
+        sampledTime = clips.get(sampledClip).time(adultTime);
         if (momentFrame != null && !adultStatePose && selected.equals(momentFrame.clip()))
             Intensity.apply(pose, defaultPose, rootBone(), momentFrame.intensity());
         if(reproductiveAnatomy!=null&&reproductiveAmount>0&&delivery==null) {
@@ -1091,6 +1121,7 @@ public final class YukkuriModel {
                 woundDisplay.render(world,pregnancyBelly,stack,buffers,light,overlay);WoundLod.time(WoundLod.DISPLAY,displayStart);WoundLod.drawn(!woundDisplay.simple);}
             hatDamageDraw.drawCaps(buffers);
             if(accessory||pieces||hatMotion.equals("HAT_REMOVE"))renderReplacementHat(stack,buffers,light,overlay);
+            PoseTap.model(entity, this);
         }finally{wear=0;wearClear=false;woundDisplay=null;drain=0;adultStatePose=false;drawingWoundedBody=false;drawingSurfaceMarks=false;mouthHolding=false;carryLoad=carryLean=carryCurlLeft=carryCurlRight=carryMouth=carryCheeks=hatInBraid=0;hatMotion="";hatScale=1;hatProp=null;hatDamageDraw.reset();setCareContact(0,
                 Float.NaN,0,0);setBraidReach(null,0);
                 setBoardingPose(Float.NaN,0,1,0);setSelfHatPose(null);setExpression("");setReproductiveAnatomy(null,0);}

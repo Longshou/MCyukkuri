@@ -52,19 +52,22 @@ final class YukkuriModelLoader {
             try (var stream = manager.getResourceOrThrow(MCYukkuri.id("yukkuri/" + id + ".json")).open()) {
                 byte[] bytes=stream.readAllBytes();
                 var hash=ModelFingerprint.of(bytes);
+                var chain=new StringBuilder(hash.lf());
                 JsonObject data = JsonParser.parseString(new String(bytes,StandardCharsets.UTF_8)).getAsJsonObject();
                 // Seat headwear and round the hair first; motion revisions were authored on the fitted mesh.
                 JsonObject fit = placementFits.getAsJsonObject(id);
-                if (fit != null) applyFit(id,data,fit,hash);
+                if (fit != null && applyFit(id,data,fit,hash)) chain.append('\n').append("placement_fit").append('\n').append(fit);
                 JsonObject revision = motionRevisions.getAsJsonObject(id);
-                if (revision != null) applyRevision(id,data,revision);
+                if (revision != null && applyRevision(id,data,revision)) chain.append('\n').append("motion_corrections").append('\n').append(revision);
                 JsonObject houseRevision=houseEcology.getAsJsonObject(id);
-                if(houseRevision!=null)applyRevision(id,data,houseRevision);
+                if(houseRevision!=null&&applyRevision(id,data,houseRevision))chain.append('\n').append("house_ecology").append('\n').append(houseRevision);
                 JsonObject toiletRevision=toiletContact.getAsJsonObject(id);
-                if(toiletRevision!=null)applyRevision(id,data,toiletRevision);
-                applyRevision(id,data,faceLibrary.getAsJsonObject(id));
+                if(toiletRevision!=null&&applyRevision(id,data,toiletRevision))chain.append('\n').append("toilet_contact").append('\n').append(toiletRevision);
+                var faceRevision=faceLibrary.getAsJsonObject(id);
+                if(applyRevision(id,data,faceRevision))chain.append('\n').append("face_library").append('\n').append(faceRevision);
                 // Hash still identifies unchanged base geometry for wounds and badges.
                 var model=new YukkuriModel(data,hash);
+                model.poseFingerprint(ModelFingerprint.of(chain.toString().getBytes(StandardCharsets.UTF_8)).lf());
                 try{model.hatSampler(HatDamageFaces.load(manager,MCYukkuri.id("textures/entity/"+id+"/neutral.png")));}
                 catch(Exception ignored){model.hatSampler(null);}
                 loaded.put(id, model);
@@ -94,14 +97,18 @@ final class YukkuriModelLoader {
         YukkuriModel.install(Map.copyOf(loaded),null);
     }
 
-    static void applyFit(String id,JsonObject data,JsonObject fit,ModelFingerprint hash) {
-        if (!ModelPlacementFit.apply(id,data,fit,hash))
+    static boolean applyFit(String id,JsonObject data,JsonObject fit,ModelFingerprint hash) {
+        boolean applied=ModelPlacementFit.apply(id,data,fit,hash);
+        if (!applied)
             LoggerFactory.getLogger(YukkuriModel.class).warn("Placement fit skipped for changed base geometry: {}",id);
+        return applied;
     }
 
-    static void applyRevision(String id,JsonObject data,JsonObject revision) {
-        if(!Splice.revision(data,revision))
+    static boolean applyRevision(String id,JsonObject data,JsonObject revision) {
+        boolean applied=Splice.revision(data,revision);
+        if(!applied)
             LoggerFactory.getLogger(YukkuriModel.class).warn("Motion corrections skipped for incompatible skeleton: {}",id);
+        return applied;
     }
 
     private YukkuriModelLoader(){}

@@ -1,5 +1,7 @@
 package io.github.longshou.mcyukkuri.client;
 
+import io.github.longshou.mcyukkuri.client.capture.PoseTap;
+
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import io.github.longshou.mcyukkuri.body.MouthPlacement;
@@ -102,6 +104,7 @@ final class HeldItemPresentation {
         var from=frame(entity,model,now.held,now.from,toOrigin,partial);
         var to=now.from==now.to?from:frame(entity,model,now.held,now.to,toOrigin,partial);
         var drawn=from==null?to:to==null?from:blend(from,to,now.share);
+        PoseTap.held(entity,to==null&&now.share>=1?null:drawn,partial);
         if(drawn==null)return;
         if(to==null&&now.share>=1)return;
         pose.pushPose();

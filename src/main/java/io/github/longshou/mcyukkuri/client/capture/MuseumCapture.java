@@ -26,7 +26,7 @@ import org.lwjgl.glfw.GLFW;
 /** Opt-in render-target recorder. Scene actions still run through the museum's normal start functions. */
 public final class MuseumCapture {
     private record Scene(String id, String field, int[] ticks, int[][] chunks, String view, String[] reads) {}
-    private record Frame(int requested, long tick, double seconds, String file, boolean visible, boolean focused) {}
+    private record Frame(int requested, long tick, long gameTime, long poseFrame, double seconds, String file, boolean visible, boolean focused) {}
     private static final Gson JSON = new Gson();
     private static final Path ROOT = Path.of(System.getProperty("mcyukkuri.capture.output"));
     private static final Scene[] PLAN = readPlan();
@@ -80,6 +80,7 @@ public final class MuseumCapture {
         began = System.nanoTime();
         try {
             Files.createDirectory(ROOT.resolve(scene.id));
+            PoseTap.begin(ROOT.resolve(scene.id));
         } catch (IOException ex) {
             throw new UncheckedIOException(ex);
         }
@@ -148,13 +149,15 @@ public final class MuseumCapture {
         }
         if (!start.isDone()) return;
         long tick = mc.level.getGameTime() - start.join();
-        if (nextFrame < current.ticks.length && tick >= current.ticks[nextFrame]) {
-            int requested = current.ticks[nextFrame++];
+        boolean scheduled = nextFrame < current.ticks.length && tick >= current.ticks[nextFrame];
+        boolean shot = scheduled || tick >= 0 && nextFrame < current.ticks.length && PoseTap.markerFrame();
+        if (shot) {
+            int requested = scheduled ? current.ticks[nextFrame++] : (int)tick;
             // Never fabricate missed frames by saving the same render repeatedly.
             while (nextFrame < current.ticks.length && current.ticks[nextFrame] <= tick) nextFrame++;
-            String file = String.format("tick-%06d-at-%06d.png", requested, tick);
+            String file = String.format("tick-%06d-at-%06d-frame-%06d.png", requested, tick, PoseTap.frameId());
             long window = mc.getWindow().getWindow();
-            FRAMES.add(new Frame(requested, tick, (System.nanoTime() - began) / 1e9, file,
+            FRAMES.add(new Frame(requested, tick, mc.level.getGameTime(), PoseTap.frameId(), (System.nanoTime() - began) / 1e9, file,
                     GLFW.glfwGetWindowAttrib(window, GLFW.GLFW_VISIBLE) != 0,
                     GLFW.glfwGetWindowAttrib(window, GLFW.GLFW_FOCUSED) != 0));
             Path output = ROOT.resolve(current.id).resolve(file);
@@ -168,10 +171,12 @@ public final class MuseumCapture {
                 }
             }, Util.ioPool()));
         }
+        PoseTap.finishFrame(shot);
         if (nextFrame != current.ticks.length || WRITES.stream().anyMatch(write -> !write.isDone())) return;
         WRITES.forEach(CompletableFuture::join);
         try {
             Files.writeString(ROOT.resolve(current.id).resolve("frames.json"), JSON.toJson(FRAMES));
+            PoseTap.end();
             LogUtils.getLogger().info("[capture] scene={} frames={} seconds={}", current.id, FRAMES.size(), (System.nanoTime() - began) / 1e9);
             current = null;
             start = null;

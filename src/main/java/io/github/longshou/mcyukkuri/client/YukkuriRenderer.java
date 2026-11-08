@@ -1,5 +1,7 @@
 package io.github.longshou.mcyukkuri.client;
 
+import io.github.longshou.mcyukkuri.client.capture.PoseTap;
+
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import io.github.longshou.mcyukkuri.body.BodySigns;
@@ -177,6 +179,7 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
             model.renderLiving(operated||behavior.equals(Behaviors.SLIDE_DOWN)?"idle":action, operated?0:clock, pose, buffer, packedLight, overlay,
                     entity.hasVisibleAccessory(), operated?Behaviors.IDLE:behavior,phaseTicks,entity.visibleHairLoss(),entity,buffers);
             // Captured before anything else poses this shared model (stem fruits reuse it).
+            PoseTap.body(entity,start,pose.last().pose(),partialTick);
             if(!carried)ParentCarryPresentation.capture(entity,model,start,pose.last().pose(),renderedBodyYaw,partialTick);
             ToiletPresentation.renderTongue(entity,behavior,phaseTicks,partialTick,model,pose,buffers,packedLight,overlay);
             // The stool keeps the clock its body clip is sampled on (YukkuriModel: the action's own clock when the action is that clip), so

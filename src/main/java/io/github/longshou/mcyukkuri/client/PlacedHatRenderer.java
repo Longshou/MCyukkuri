@@ -1,5 +1,8 @@
 package io.github.longshou.mcyukkuri.client;
 
+import io.github.longshou.mcyukkuri.client.capture.PoseTap;
+import org.joml.Matrix4f;
+
 import com.mojang.blaze3d.vertex.PoseStack;
 import io.github.longshou.mcyukkuri.MCYukkuri;
 import io.github.longshou.mcyukkuri.registry.ModEntities;
@@ -43,11 +46,13 @@ public final class PlacedHatRenderer extends EntityRenderer<PlacedHatEntity> {
         if(hat.state()==PlacedHatEntity.State.RESCUED)return;  // back on its owner's head (the braid clip carries it there)
         float scale=hat.hullScale(), unit=scale/16;
         var at=hat.getPosition(partial);
+        var start=new Matrix4f(pose.last().pose());
         pose.pushPose();
         pose.translate(at.x-source.getX(),at.y-source.getY(),at.z-source.getZ());
         pose.mulPose(new Quaternionf().rotationY((180-Mth.rotLerp(partial,hat.previousYaw(),hat.getYRot()))*Mth.DEG_TO_RAD)
                 .rotateZ(hat.roll(partial)*Mth.DEG_TO_RAD).rotateX(hat.pitch(partial)*Mth.DEG_TO_RAD));
         for(var layer:LAYERS){pose.pushPose();layer.render(hat,partial,pose,buffers,light);pose.popPose();}
+        PoseTap.hat(hat,start,pose.last().pose(),partial);
         // The kit is the owner's own stick and is drawn in her grip, not a second time inside the hollow.
         pose.translate(0,hat.profile().top()*unit,0);
         pose.scale(scale,scale*(float)hat.profile().squash(),scale);
