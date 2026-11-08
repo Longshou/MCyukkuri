@@ -30,10 +30,12 @@ public final class ModRandom {
         seedEntity(entity);
         return entity;
     }
-    /** Called before mod components are constructed; loaded / scene UUIDs may subsequently replace this identity. */
+    /** Identity and stream before mod components exist: the entity's own random (vanilla's identity source, never shared
+     * with another thread) unless a run seed is set, in which case the thread-safe run stream replaces it. Loaded / scene
+     * UUIDs may subsequently replace this identity. */
     public static void construct(Entity entity) {
         if (entity.level().isClientSide) return;
-        entity.setUUID(identity(world(entity.level())));
+        entity.setUUID(identity(world(entity.getRandom())));
         seedEntity(entity);
     }
     public static void seedEntity(Entity entity) {
