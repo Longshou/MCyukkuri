@@ -9,6 +9,7 @@ A derived form keeps its base's vertex count and part order, so every base entry
 over under the form's id with the form's own model hash; only data of parts the recipe changed is rebuilt.
 Per-model motion corrections, placement fit, hat interactions and badge mounts belong to their own exporters,
 which cover every runtime model including these forms.
+Derived sad/afraid faces, cheek_puff, birth poses and fitted operation props also belong to their dedicated exporters.
 Run it after any exporter that rewrites the shared presentation files (it only touches its own keys).
 Writes the snapshot art/source/rare-forms-runtime/, yukkuri_presentation/hat_seat.json and the 'rare_forms' record in
 art/runtime-sources.json.
@@ -35,7 +36,6 @@ ASSETS = ROOT / 'src/main/resources/assets/mcyukkuri'
 SNAPSHOT = ROOT / 'art/source/rare-forms-runtime'
 PRESENTATION = ASSETS / 'yukkuri_presentation'
 PROPS = ASSETS / 'yukkuri_props'
-OPERATION_PROPS = ('iron_enclosure_{}', 'restraint_frame_{}', 'restraint_frame_{}_bare', 'wrap_sling_{}', 'wrap_sling_{}_bare')
 # Base variants get their own living entry (the species list); appearance subspecies go to subspecies.json.
 SPECIES_FORMS = {'myon'}
 # Accessory items of the new forms, built from the form's accessory parts.
@@ -188,8 +188,7 @@ def outputs():
     recipe = read(LIB / 'recipe.json')
     files = {}
     staged = {name: read(PRESENTATION / (name + '.json')) for name in
-              ('body_geometry', 'family', 'live_birth_pose', 'living', 'subspecies', 'toilet_contact')}
-    operations_index = read(PROPS / 'operations-index.json')
+              ('body_geometry', 'family', 'living', 'subspecies', 'toilet_contact')}
     rounded_index = read(PROPS / 'rounded-index.json')
     item_index = read(PROPS / 'index.json')
     records = {}
@@ -210,7 +209,8 @@ def outputs():
         files[ASSETS / 'yukkuri' / (form + '.json')] = data
         files[SNAPSHOT / form / 'runtime.model.json'] = data
         for png in sorted((folder / 'textures').glob('*.png')):
-            files[ASSETS / 'textures/entity' / form / png.name] = png.read_bytes()
+            if png.stem not in ('sad','afraid','cheek_puff'):
+                files[ASSETS / 'textures/entity' / form / png.name] = png.read_bytes()
             files[SNAPSHOT / form / 'textures' / png.name] = png.read_bytes()
         # Wound surface: base skin (unchanged body), this model's hash, envelope rebuilt for the changed parts.
         wounds = json.loads(gzip.decompress((ASSETS / 'yukkuri_wounds' / (base + '.json.gz')).read_bytes()))
@@ -222,7 +222,7 @@ def outputs():
                                      and not any(n.startswith(c) for c in derived['operations'].get('collapsed_parts', []))]
         files[ASSETS / 'yukkuri_wounds' / (form + '.json.gz')] = gz(wounds)
         # Presentation entries keyed by asset id.
-        for name, path in (('body_geometry', 'variants'), ('live_birth_pose', 'variants'), ('toilet_contact', 'models')):
+        for name, path in (('body_geometry', 'variants'), ('toilet_contact', 'models')):
             source = staged[name][path].get(base)
             if source is not None:
                 staged[name][path][form] = copy.deepcopy(source)
@@ -233,17 +233,6 @@ def outputs():
             staged['family']['variants'][form] = copy.deepcopy(staged['family']['variants'][base])
         else:
             staged['subspecies'][form] = living
-        # Restraint / sling / enclosure props share the base silhouette.
-        for pattern in OPERATION_PROPS:
-            source, target = pattern.format(base), pattern.format(form)
-            if not (PROPS / (source + '.json')).is_file():
-                continue
-            files[PROPS / (target + '.json')] = (PROPS / (source + '.json')).read_bytes()
-            files[ASSETS / 'textures/props' / (target + '.png')] = (ASSETS / 'textures/props' / (source + '.png')).read_bytes()
-            item = ASSETS / 'models/item' / (source + '.json')
-            if item.is_file():
-                files[ASSETS / 'models/item' / (target + '.json')] = item.read_bytes().replace(source.encode(), target.encode())
-            operations_index[target] = copy.deepcopy(operations_index[source])
         # Detached accessory as worn by this form.
         texture = f'mcyukkuri:textures/entity/{form}/neutral.png'
         prefixes = living['accessory_prefixes']
@@ -269,10 +258,10 @@ def outputs():
             'source': (folder / 'runtime.model.json').relative_to(ROOT).as_posix(), 'recipe': (LIB / 'recipe.json').relative_to(ROOT).as_posix(),
             'runtime': f'src/main/resources/assets/mcyukkuri/yukkuri/{form}.json', 'runtime_sha256': digest,
             'snapshot': (SNAPSHOT / form).relative_to(ROOT).as_posix(), 'textures': sorted(derived['textures']),
-            'carried_from_base': ['wounds (body skin)', 'body_geometry', 'live_birth_pose', 'toilet_contact', 'operation props'],
+            'carried_from_base': ['wounds (body skin)', 'body_geometry', 'toilet_contact'],
             'rebuilt': sorted(changed | moved), 'shape_status': 'pending_confirmation', 'game_acceptance': 'not_executed'}
     containers = {'body_geometry': ('variants',), 'family': ('variants',),
-                  'live_birth_pose': ('variants',), 'living': ('variants',), 'subspecies': (), 'toilet_contact': ('models',)}
+                  'living': ('variants',), 'subspecies': (), 'toilet_contact': ('models',)}
     forms = list(recipe['forms'])
     # Seat parts of accessories that reach the ground: a small (regrowing) one is scaled about them (headwear.HatSeat).
     files[PRESENTATION / 'hat_seat.json'] = text({'format': 1, 'source': (LIB / 'recipe.json').relative_to(ROOT).as_posix(), 'models': {
@@ -286,8 +275,7 @@ def outputs():
         for key in containers[name]:
             node = node[key]
         files[PRESENTATION / (name + '.json')] = styled(PRESENTATION / (name + '.json'), value, containers[name], [f for f in forms if f in node])
-    for name, value, keys in (('operations-index', operations_index, [k for k in operations_index if any(k.endswith('_' + f) or k.endswith('_' + f + '_bare') for f in forms)]),
-                              ('rounded-index', rounded_index, [f'accessory_{f}' for f in forms]),
+    for name, value, keys in (('rounded-index', rounded_index, [f'accessory_{f}' for f in forms]),
                               ('index', item_index, list(ACCESSORY_ITEMS.values()) + ['kanroken'])):
         files[PROPS / (name + '.json')] = styled(PROPS / (name + '.json'), value, (), keys)
     sources = read(ROOT / 'art/runtime-sources.json')

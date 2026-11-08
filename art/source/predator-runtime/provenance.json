@@ -1,6 +1,6 @@
 {
   "exporter": "scripts/export_predator_assets.py",
-  "exporter_sha256": "bebd6caaee84834b45d2c66d31e0bf5b758538aa43639e725c55dc3436bad804",
+  "exporter_sha256": "9f6f2211903147718e75668c0bcfaf48264ae88e64ed485da2c9a59985ba2a21",
   "entities": {
     "remilia": {
       "selected_model": "standards/yukkuri-library/subspecies/predator/assembled/remilia/remilia.bbmodel",

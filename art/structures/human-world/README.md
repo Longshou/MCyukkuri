@@ -1,6 +1,6 @@
 # 人类商店与加工所
 
-`build.py` 是原创方块布局和模板内实体的制作源；`manifest.json` 记录尺寸与数量，`exports.json` 记录本模块源与运行导出的 SHA-256。统一入口为 `python scripts/export_human_world.py`，检查使用 `--check`。
+`build.py` 是原创方块布局和模板内实体的制作源；`language.json` 保存本模块当前中英文界面文案。`manifest.json` 记录尺寸与数量，`exports.json` 记录本模块源与运行导出的 SHA-256。统一入口为 `<py> scripts/export.py --family human-world`，检查加 `--check`。
 
 当前自然生成商店、劳力工场、馒头工厂和活体袋装厂。三类工厂独立生成，后两类各有亲代与子油育成间。
 

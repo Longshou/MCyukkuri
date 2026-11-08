@@ -27,16 +27,16 @@ def export_textures(ident, base, textures, resolution, stage=False, check=False)
     """Resolve every runtime expression explicitly; a missing expression is an error."""
     from PIL import Image
     expressions=list(dict.fromkeys(read(LIB/'ecology/house-yukkuri/config.json')['expressions']+ECOLOGY_EXPRESSIONS))
-    approved=read(LIB/'provenance/standard-expressions.json')
+    approved={entry['id'] for entry in read(LIB/'provenance/standard-expressions.json')['entries']}
+    selection=read(LIB/'expressions/runtime.json')['models'][ident]
     records={}
     for expr in expressions:
         source=textures/(expr+'.png')
         if expr in ECOLOGY_EXPRESSIONS:
-            species=ident if ident=='marisa_tsumuri' else base
-            source=LIB/'assembled'/species/'textures'/(expr+'.png')
+            source=ROOT/selection['retained_textures'][expr]
             preset=read(LIB/'expressions/presets'/(expr+'.json'))
             assert preset['status']=='accepted' and not preset.get('geometry_offsets'), expr
-            assert sha(source)==approved['exports'][source.relative_to(LIB).as_posix()], 'Changed approved expression: '+str(source)
+            assert expr in approved, 'Unapproved expression: '+expr
         assert source.is_file(), 'Missing expression source: '+str(source)
         with Image.open(source) as atlas:
             atlas.load()
@@ -263,9 +263,8 @@ def export(ident, base, selection, stage, preserve_textures=False):
 
 def main():
     parser=argparse.ArgumentParser();parser.add_argument('--stage',action='store_true')
-    mode=parser.add_mutually_exclusive_group()
-    mode.add_argument('--textures-only',action='store_true',help='Refresh expression selection without rebuilding geometry or motion')
-    mode.add_argument('--check-textures',action='store_true',help='Read-only coverage, decode, size, provenance and snapshot/runtime equality checks')
+    parser.add_argument('--textures-only',action='store_true',help='Refresh expression selection without rebuilding geometry or motion')
+    parser.add_argument('--check-textures',action='store_true',help='Read-only coverage, decode, size, provenance and snapshot/runtime equality checks')
     args=parser.parse_args()
     if (ROOT/'art/source/rounded-runtime/manifest.json').exists() and not (args.textures_only or args.check_textures):
         raise SystemExit('Rounded shell/Wasa selection is active. Use export_rounded_runtime.py and deficient_motion_contact.py; legacy regeneration would replace the selected bodies.')

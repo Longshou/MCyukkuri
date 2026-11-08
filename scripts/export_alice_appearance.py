@@ -60,8 +60,12 @@ def outputs():
             files[source] = content(SOURCE / 'textures/neutral.png') if folder == DRAFT and source.stem == 'breeding_period' else png(source.read_bytes())
 
     runtime = ASSETS / 'textures/entity/alice'
+    selection = read(LIB / 'expressions/runtime.json')['models']['alice']
+    standard_faces = {entry['id'] for entry in read(LIB / 'provenance/standard-expressions.json')['entries']}
     aliases = {'dazed': 'blank_confused'}
     for target in sorted(runtime.glob('*.png')):
+        if target.stem in standard_faces and target.stem not in selection['existing_textures']:
+            continue  # Composed for the runtime UVs by the shared face library.
         name = aliases.get(target.stem, target.stem)
         source = SOURCE / 'textures' / (name + '.png')
         if not source.exists():
@@ -71,6 +75,10 @@ def outputs():
         elif name == 'cheek_puff':
             # This atlas has a separately authored mouth. Keep it and recolour the eyes.
             files[target] = png(target.read_bytes())
+        elif target.stem in selection['legacy_faces']:
+            # Derived emotions and remains have their own exporters. Their source
+            # atlases already use Alice's palette; this exporter does not own them.
+            continue
         else:
             raise ValueError('Unregistered Alice face: ' + target.name)
         snapshot = SELECTED / 'textures' / target.name

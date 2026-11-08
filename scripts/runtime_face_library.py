@@ -40,7 +40,9 @@ def outputs():
         assert boxes, ident+' needs an explicit face_fallback row'
         for name, preset in faces.items():
             assert preset['status'] == 'accepted', name
-            if name not in row['existing_textures']:
+            if 'texture_source' in row:
+                files[ASSETS/'textures/entity'/ident/(name+'.png')] = (ROOT/row['texture_source']/(name+'.png')).read_bytes()
+            elif name not in row['existing_textures']:
                 atlas = Image.open(ROOT/row['neutral_source']).convert('RGBA')
                 assert atlas.size == (size,size)
                 for slot, box in boxes.items():

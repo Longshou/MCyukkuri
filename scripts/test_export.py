@@ -82,6 +82,30 @@ class ExportTests(unittest.TestCase):
         with patch.object(pipeline.subprocess, 'run', side_effect=FileNotFoundError('node missing')):
             self.assertEqual(pipeline.run(row, True, self.root)['status'], 'FAIL')
 
+    def test_concurrent_checks_keep_all_failures_and_declared_report_order(self):
+        import threading
+        rows = {key: pipeline.exporter(key, 'scripts/export.py', []) for key in ('broken', 'independent')}
+        together = threading.Barrier(2)
+        def check(row, readonly, _):
+            self.assertTrue(readonly)
+            together.wait(timeout=5)
+            return dict(id=row['id'], status='FAIL' if row['id']=='broken' else 'PASS', seconds=0, detail='control')
+        with patch.object(pipeline, 'table', return_value=rows), patch.object(pipeline, 'run', side_effect=check), \
+             patch.object(registry, 'registries'), patch('sys.argv', ['export.py', '--check', '--jobs', '2', '--report', str(self.root/'result.json')]):
+            self.assertEqual(pipeline.main(), 1)
+        result = registry.load(self.root/'result.json')
+        self.assertEqual([r['id'] for r in result], ['broken', 'independent', 'registries'])
+        self.assertEqual([r['status'] for r in result], ['FAIL', 'PASS', 'PASS'])
+
+    def test_concurrency_rejects_writes_and_nonpositive_worker_count(self):
+        import contextlib
+        import io
+        for args in (['--family', 'rare-forms', '--jobs', '2'], ['--check', '--jobs', '0']):
+            with self.subTest(args=args), patch('sys.argv', ['export.py', *args]), \
+                 contextlib.redirect_stderr(io.StringIO()), self.assertRaises(SystemExit) as error:
+                pipeline.main()
+            self.assertEqual(error.exception.code, 2)
+
     def test_declared_audio_dependencies_use_shared_checkout(self):
         row = pipeline.exporter('audio', 'scripts/build_ecology_audio.py', [])
         row['pythonpath'] = '.local/python-audio'
@@ -149,18 +173,42 @@ class ExportTests(unittest.TestCase):
         registry.registries(self.root, True)
 
     def test_migration_preserves_existing_reader_data_and_priority(self):
-        self.seed()
         original = {'categories': [dict(id='z-first', label='优先', families=[
             dict(id='z-specific', prefixes=['specific/']), dict(id='a-general', prefixes=['general/'])]),
             dict(id='a-last', label='其后', families=[])]}
+        pipeline.write(self.root/'art/runtime-sources.json', {'existing': {'source': 'a'}})
         pipeline.write(self.root/'art/catalog.json', original)
         # Start with this fixture's source, including a deliberately nonalphabetic order.
-        for path in (self.root/'art/registry/catalog').glob('*/category.json'):
-            path.unlink()
         registry.import_registries(self.root)
         result = registry.assembled(self.root)
         self.assertEqual(result['catalog'], original)
         self.assertEqual(result['runtime-sources'], {'existing': {'source': 'a'}})
+
+    def test_deletions_survive_rebuild_and_managed_legacy_export(self):
+        self.seed()
+        registry.register(self.root, {'runtime': {'models': {'removed': {'source': 'model'}}},
+            'catalog': [dict(category='motions', family=dict(id='removed', prefixes=['gone/']))]})
+        registry.registries(self.root)
+        paths = ['runtime/existing.json', 'runtime/models/removed.json', 'catalog/motions/families/removed.json']
+        for path in paths:
+            (self.root/'art/registry'/path).unlink()
+        # Stale aggregates deliberately still contain every deleted entry.
+        with self.assertRaisesRegex(ValueError, 'shards already exist'):
+            registry.import_registries(self.root)
+        registry.registries(self.root)
+        for path in paths:
+            self.assertFalse((self.root/'art/registry'/path).exists())
+        before = registry.prepare_export(self.root)
+        data = registry.load(self.root/'art/runtime-sources.json')
+        data['another-export'] = {'source': 'new'}
+        registry.save(self.root/'art/runtime-sources.json', data)
+        registry.finish_export(self.root, before)
+        registry.registries(self.root, True)
+        self.assertEqual(registry.load(self.root/'art/runtime-sources.json'), {'another-export': {'source': 'new'}})
+        self.assertEqual(registry.load(self.root/'art/catalog.json')['categories'][0]['families'], [])
+        for path in paths:
+            self.assertFalse((self.root/'art/registry'/path).exists())
+        print('Delete runtime key + last model + catalog family -> rebuild -> export -> still deleted: PASS')
 
     def test_legacy_export_keeps_pending_registration(self):
         self.seed()

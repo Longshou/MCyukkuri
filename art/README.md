@@ -1,6 +1,6 @@
 # 当前游戏选用素材
 
-`art/` 保存 Minecraft 当前选用的素材快照。制作源在[标准素材库](../standards/yukkuri-library/README.md)，选用快照与运行资源映射由 [`runtime-sources.json`](runtime-sources.json) 管理；登记源按条目拆在 `art/registry/runtime/`，汇总文件用 `<py> scripts/export.py --registries` 重建，不手改。标准库的修改不会自动替换游戏资源。
+`art/` 保存 Minecraft 当前选用的素材快照。制作源在[标准素材库](../standards/yukkuri-library/README.md)，选用快照与运行资源映射由 [`runtime-sources.json`](runtime-sources.json) 管理；唯一登记源按条目拆在 `art/registry/runtime/`，增删均改分片，汇总文件用 `<py> scripts/export.py --registries` 重建，不手改。标准库的修改不会自动替换游戏资源。
 
 当前素材检查入口为项目根目录 `打开素材检查.cmd`，集中预览入口见[预览说明](../preview/README.md)。
 

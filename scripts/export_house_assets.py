@@ -18,7 +18,8 @@ def outputs():
     for name,model in recipe['blocks'].items():
         elements=[{'from':box[:3],'to':box[3:],'faces':{face:{'texture':'#base'} for face in ['north','south','east','west','up','down']}} for box in model['boxes']]
         emit(ASSETS/f'models/block/{name}.json',{'parent':'minecraft:block/block','textures':{'base':model['texture'],'particle':model['texture']},'elements':elements})
-        emit(ASSETS/f'blockstates/{name}.json',{'variants':{'':{'model':f'mcyukkuri:block/{name}'}}})
+        states=['facing='+f for f in ('east','north','south','west')] if model.get('facing') else ['']
+        emit(ASSETS/f'blockstates/{name}.json',{'variants':{state:{'model':f'mcyukkuri:block/{name}'} for state in states}})
     for name,texture in recipe['items'].items():emit(ASSETS/f'models/item/{name}.json',{'parent':'minecraft:item/generated','textures':{'layer0':texture}})
     # Explicit renderer configurations are selected sources, not placeholder icons.
     selected={ROOT/path:(ROOT/path).read_bytes() for path in recipe.get('item_models',{}).values()}

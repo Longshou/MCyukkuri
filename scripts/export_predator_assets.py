@@ -95,7 +95,11 @@ def main():
     put_json(PREVIEW/'provenance.json',dict(exporter=relative(Path(__file__)),exporter_sha256=sha(Path(__file__)),entities=records),True)
     ledger=ROOT/'art/runtime-sources.json';data=read(ledger)
     data['models']={**data.get('models',{}),**records};data['predator_preview']=relative(PREVIEW/'preview.html')
-    put_json(ledger,data,True)
+    if CHECK:
+        assert read(ledger)==data,'Outdated predator registry: '+relative(ledger)
+    else:
+        from export_registry import save
+        save(ledger,data)
     print('verified' if CHECK else 'exported',len(records),'predator models')
 
 

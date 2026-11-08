@@ -33,7 +33,7 @@ RECIPES={
  'stimulant_serving':[rod([-.55,0,0],[0,0,0],.25,4),rod([0,0,0],[.55,0,0],.25,0),ball([-.55,0,0],[.25,.25,.25],4),ball([.55,0,0],[.25,.25,.25],0)],
  'sitataran_serving':[ball([0,0,0],[.6,.25,.4],5)],
 }
-LABELS={'yogurt_drink':['酸奶饮品','Yogurt drink'],'stimulant':['兴奋药','Stimulant'],'sitataran':['幼语药（シタタラン）','Sitataran baby-talk medicine'],'sleep_spray':['助眠喷雾','Sleep spray'],'spicy_grain':['超辣油粮','Extra-spicy yukkuri feed'],'reproductive_filling':['生殖用馅','Reproductive filling'],'wheat_flour':['小麦粉','Wheat flour'],'flour_paste':['小麦粉糊','Wheat flour paste']}
+LABELS={'yogurt_drink':['酸奶饮品','Yogurt drink'],'stimulant':['兴奋药','Stimulant'],'sitataran':['幼语药（シタタラン）','Sitataran baby-talk medicine'],'sleep_spray':['弹珠汽水喷雾','Ramune spray'],'spicy_grain':['超辣油粮','Extra-spicy yukkuri feed'],'reproductive_filling':['生殖用馅','Reproductive filling'],'wheat_flour':['小麦粉','Wheat flour'],'flour_paste':['小麦粉糊','Wheat flour paste']}
 INGREDIENTS={'yogurt_drink':['minecraft:milk_bucket','minecraft:sugar','minecraft:glass_bottle'],'stimulant':['minecraft:sugar','minecraft:redstone','minecraft:glass_bottle'],
  'sitataran':['minecraft:paper','minecraft:amethyst_shard','minecraft:glass_bottle'],'sleep_spray':['minecraft:poppy','minecraft:brown_mushroom','minecraft:glass_bottle'],'spicy_grain':['mcyukkuri:oil_grain_regular','minecraft:blaze_powder'],
  'reproductive_filling':['minecraft:sugar','minecraft:wheat','minecraft:milk_bucket','minecraft:paper'],
@@ -79,7 +79,7 @@ def outputs():
  for n,locale in enumerate(['zh_cn','en_us']):
   path=ASSETS/f'lang/{locale}.json';data=json.loads(path.read_text(encoding='utf8'));strings={'item.mcyukkuri.'+k:v[n] for k,v in LABELS.items()}
   strings.update({'activity.mcyukkuri.drink':['饮水','Drinking'][n],'activity.mcyukkuri.seek_water':['寻找饮水处','Seeking drinking water'][n],
-   'notebook.mcyukkuri.consumables':['饮用与药效\n干燥程度：%s／100\n便秘：%s\n辣味不适：%s 秒\n喷雾起效剩余：%s 秒\n助眠剩余：%s 秒\n兴奋状态：%s 秒\n幼语药效：%s','Drinks and medicine\nDryness: %s/100\nConstipation: %s\nSpicy irritation: %s s\nSpray onset: %s s\nSleep remaining: %s s\nStimulation: %s s\nBaby talk: %s'][n],
+   'notebook.mcyukkuri.consumables':['饮用与药效\n干燥程度：%s／100\n便秘：%s\n辣味不适：%s 秒\n喷雾起效剩余：%s 秒\n困倦剩余：%s 秒\n兴奋状态：%s 秒\n幼语药效：%s','Drinks and medicine\nDryness: %s/100\nConstipation: %s\nSpicy irritation: %s s\nSpray onset: %s s\nSleep remaining: %s s\nStimulation: %s s\nBaby talk: %s'][n],
    'death.attack.mcyukkuri.spicy_food':['%s 没能撑过超辣食物的不适','%s succumbed to extra-spicy food'][n]})
   if any(data.get(k)!=v for k,v in strings.items()):data.update(strings);result[path]=(json.dumps(data,ensure_ascii=False,indent=2)+'\n').encode()
  emit(SELECTED/'manifest.json',{'status':'pending-review-game-adaptation','source':HERE.relative_to(ROOT).as_posix()+'/build.py','inputs':fingerprints(ROOT,{p:p.read_bytes() for p in [Path(__file__).resolve(),BASE]},previous.get('inputs',{})),'files':fingerprints(ROOT,{p:v for p,v in result.items() if p.parent.name!='lang'},previous.get('files',{}))})

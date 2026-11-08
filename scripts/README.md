@@ -4,7 +4,7 @@
 
 动作源合并后用 `export.py --rebuild-motion` 重建完整动作、天气接触轮廓和生活片段。家族在 lore `recipe.json` 的 `export_families` 登记片段及必要派生输出，不再新增命令行开关。`export.py motion call_child wake --beats beats.txt --model reimu` 导出所属家族，调用 `preview.py strip` 输出各片段的节拍渲染条，再通过 `pose_check.py --serve` 把同一组任意秒时刻逐帧送检，输出在 `.local/reports/export/motion/<片段>/`。默认只查 `tilt`；例如 `--model marisa --metrics tilt,pass` 加辫身穿透。其他单帧检查用 `--metrics wet,gap,held`，必要证据由 `--water`／`--context` 提供；时序检查直接用 G2 的 `--frames`，不把稀疏节拍伪装成连续采样。几何 fail／疑似均如实保留在报告，缺证据、未知输入或未合入 G2 则非零退出。节拍格式沿用下文预览命令。
 
-登记源拆为 `art/registry/runtime/<登记键>.json`（模型再拆为 `runtime/models/<模型>.json`）、`art/registry/catalog/<类别>/category.json` 与 `families/<家族>.json`。现有 `art/runtime-sources.json`、`art/catalog.json` 是兼容汇总；原有读取方不变。登记文件中的 `_order` 只保留原分类优先顺序，不进入汇总，新项按 ID 稳定排序。独立包只改各自登记源，合并后 `export.py --registries` 重建汇总，`--registries --check` 只读比较。旧导出器改汇总时，统一入口仅回写实际变动的登记项，再汇总；直接运行旧导出器后须执行 `--import-registries` 导入其更改。
+登记源拆为 `art/registry/runtime/<登记键>.json`（模型再拆为 `runtime/models/<模型>.json`）、`art/registry/catalog/<类别>/category.json` 与 `families/<家族>.json`。现有 `art/runtime-sources.json`、`art/catalog.json` 是生成的兼容汇总；原有读取方不变。登记文件中的 `_order` 只保留原分类优先顺序，不进入汇总，新项按 ID 稳定排序。独立包只改各自登记源，删除分片即删除登记，合并后 `export.py --registries` 重建汇总，`--registries --check` 只读比较。统一入口在每个旧导出器运行前先从分片重建汇总，运行后仅接收该导出器实际产生的登记变化，再重建汇总；动作节拍入口遵守同一规则。旧导出器须经统一入口运行。`--import-registries` 只供尚无分片的仓库一次性迁移，已有分片时拒绝导入，不能用汇总恢复已删除的登记。
 
 “保存 xx”使用 `export.py --register entry.json`，一条命令登记素材与认可文件的 SHA-256，不改其他包的文件，也不立即改兼容汇总；后续导出／合并重建汇总。输入示例（`approval` 仅在用户已认可时提供，路径相对仓库根）：
 
@@ -13,6 +13,10 @@
 ```
 
 认可登记写 `standards/yukkuri-library/provenance/selections/<ID>.json`；输入全数校验后才落盘，JSON 写入用同目录临时文件原子替换。工具自查：`<py> scripts/test_export.py`（含真实双分支登记合并、失败传播、只读边界和指纹反例）。
+
+`library-validation` 在全量导出检查中只读验证标准库；圆润角色按各自 `export` 路径检查连续网格、组件导出一致性、骨骼、解剖动作和逐像素图集，旧方块角色仍按共享组件与 UV 绑定检查。`<py> scripts/test_library_validation.py` 注入非有限顶点、错误动作轨道和同尺寸错误贴图作为反例。单独运行 `standards/yukkuri-library/validate.py` 时报告写 `.local/reports/library-validation/`，加 `--check` 只打印结果。
+
+全量只读检查可加 `--jobs 3` 并发执行独立检查，报告仍按声明顺序排列，任一失败仍返回非零；默认顺序执行。并发仅供 `--check`，写入导出保持依赖顺序执行。
 
 lore 通用宠物联系表 `pet_motions_preview.py` 已由 `preview.py strip <主题> --model <模型> --clip <片段> --times <秒列表>` 接替；出生兼容入口 `birth_performance_preview.py` 移除，专用剖面直接用 `mamu_birth_preview.py`。保留的专门组合：`aquatic_family_preview.py`／`first_voyage_preview.py`（船上乘员与投喂交接）、`aquatic_paddle_preview.py`／`aquatic_strokes_preview.py`（船体、水线、岸边与辫节弯曲带）、`carry_hold_preview.py`（口中放幼、双尾承托、持物，侧面轮廓导出亦复用其蒙皮）、`birth_catching_preview.py`／`mamu_birth_preview.py`（出生出口剖切与接幼）、`weather_preview.py`（按真实侧面轮廓排列双体；雷雨与晒太阳的单体渲染已委托统一 strip）。这些依赖的 lore `preview.py` 是场景蒙皮辅助库，不是命令入口；`page.py` 的完整设定动作目录也保留。`aquatic_preview.py` 的旧帽船与木棍组合由上述水上专门预览覆盖。
 

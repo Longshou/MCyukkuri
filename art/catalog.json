@@ -804,6 +804,19 @@
           "prefixes": [
             "art/source/standard-runtime/face-motion/"
           ]
+        },
+        {
+          "id": "moments",
+          "prefixes": [
+            "standards/yukkuri-library/presentation/moments.json",
+            "src/main/resources/assets/mcyukkuri/yukkuri_presentation/moments.json"
+          ],
+          "registry": [
+            "moments"
+          ],
+          "ids": [
+            "moments"
+          ]
         }
       ]
     },

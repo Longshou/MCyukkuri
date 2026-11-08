@@ -22,6 +22,7 @@ def exporter(ident, path, sources, deps=(), check=('--check',), args=(), note=''
 
 
 TABLE = [
+    exporter('library-validation', 'standards/yukkuri-library/validate.py', ['standards/yukkuri-library/']),
     exporter('rounded', 'scripts/export_rounded_runtime.py', ['standards/yukkuri-library/body-standard/'], check=None),
     exporter('placement-fit', 'scripts/export_placement_fit.cjs', ['standards/yukkuri-library/presentation/placement-fit/', 'src/main/resources/assets/mcyukkuri/yukkuri/']),
     exporter('motion-corrections', 'scripts/export_motion_corrections.py', ['standards/yukkuri-library/motions/', 'art/source/motion-corrections/',
@@ -39,7 +40,7 @@ TABLE = [
     exporter('wound-surfaces', 'scripts/export_wound_surfaces.cjs', ['art/source/standard-runtime/', 'src/main/resources/assets/mcyukkuri/yukkuri/']),
     exporter('rounded-wounds', 'scripts/rounded_wound_surface.cjs', ['art/source/rounded-runtime/'], check=None),
     exporter('subspecies-wounds', 'scripts/export_subspecies_wounds.cjs', ['art/source/subspecies-runtime/'], check=None),
-    exporter('subspecies', 'scripts/export_subspecies.py', ['standards/yukkuri-library/subspecies/deficient/'], check=('--check-textures',), note='Check covers textures only, not geometry.'),
+    exporter('subspecies', 'scripts/export_subspecies.py', ['standards/yukkuri-library/subspecies/deficient/'], check=('--check-textures',), args=('--textures-only',), note='Exports and checks textures only, preserving selected geometry.'),
     exporter('rare-forms', 'scripts/export_rare_forms.py', ['standards/yukkuri-library/subspecies/rare-forms/']),
     exporter('predator-assets', 'scripts/export_predator_assets.py', ['standards/yukkuri-library/subspecies/predator/']),
     exporter('predator-language', 'scripts/export_predator_language.py', ['standards/yukkuri-library/subspecies/predator/'], check=None),
@@ -62,7 +63,7 @@ TABLE = [
     exporter('house-face-motion', 'scripts/export_house_face_motion.py', ['art/source/standard-runtime/face-motion/'], check=None, args=('--publish',)),
     exporter('house-carry-motion', 'scripts/export_house_carry_motion.py', ['art/source/standard-runtime/carry-motion/'], check=None),
     exporter('runtime-models', 'scripts/export_runtime_models.py', ['art/source/standard-runtime/'], check=None, note='Legacy seven-model recipe; refuses current rounded selections.'),
-    exporter('moments', 'scripts/export_moments.py', ['standards/yukkuri-library/presentation/moments.json'], ['ecology-expressions'], note='wp-bu exporter; may not yet be on this checkout.'),
+    exporter('moments', 'scripts/export_moments.py', ['standards/yukkuri-library/presentation/moments.json'], ['ecology-expressions']),
     exporter('ecology-audio', 'scripts/build_ecology_audio.py', ['art/audio/ecology/']),
     exporter('lore-faces', LORE+'/faces.py', [LORE+'/faces.py']),
 ]
@@ -238,6 +239,7 @@ def main():
     select.add_argument('--registries', action='store_true')
     select.add_argument('--import-registries', action='store_true')
     ap.add_argument('--check', action='store_true')
+    ap.add_argument('--jobs', type=int, default=1, help='Concurrent independent read-only checks (default: 1)')
     ap.add_argument('--full', action='store_true', help='Force motion compilation without cache reuse')
     ap.add_argument('--list', action='store_true')
     ap.add_argument('--beats', type=Path)
@@ -247,6 +249,8 @@ def main():
     ap.add_argument('--water', type=float)
     ap.add_argument('--report', type=Path, default=ROOT/'.local/reports/export/results.json')
     args = ap.parse_args()
+    if args.jobs < 1 or (args.jobs != 1 and not args.check):
+        ap.error('--jobs must be positive and requires --check for concurrent execution')
     args.report = args.report.resolve()
     if args.beats:
         args.beats = args.beats.resolve()
@@ -259,7 +263,7 @@ def main():
         for row in rows.values():
             print(f"{row['id']} | {row['path']} | check={row['check']} | requires={','.join(row['deps'])} | after={','.join(row.get('after', []))} | inputs={row.get('input_ledger', '')} | changed={'auto' if row.get('auto', True) else 'manual'} | {row['note']}")
         return 0
-    from export_registry import registries, register, import_registries
+    from export_registry import registries, register, import_registries, prepare_export, finish_export
     if args.register:
         if args.check:
             ap.error('--register cannot be combined with --check')
@@ -298,18 +302,25 @@ def main():
         ap.error('Unknown families: '+', '.join(sorted(unknown)))
     results = []
     failed = set()
-    for row in ordered(rows, selected):
+    checks = ordered(rows, selected)
+    if args.jobs > 1:
+        from concurrent.futures import ThreadPoolExecutor
+        # Checkers never publish producer outputs, so dependencies do not impose
+        # execution order. Keep the report in declared order despite completion order.
+        with ThreadPoolExecutor(max_workers=args.jobs) as pool:
+            results = list(pool.map(lambda row: run(row, True, args.report.parent/(args.report.stem+'-logs')), checks))
+        failed = {r['id'] for r in results if r['status'] in ('FAIL', 'MISSING', 'BLOCKED')}
+        checks = []
+    for row in checks:
         # Independent checks always run, even when a producer check fails.
         if not args.check and failed.intersection([*row['deps'], *row.get('after', [])]):
             result = dict(id=row['id'], status='BLOCKED', seconds=0, detail='Failed dependency')
             print(f"{row['id']}: BLOCKED 0s Failed dependency", flush=True)
         else:
-            before = {p: (ROOT/p).read_bytes() for p in ('art/runtime-sources.json', 'art/catalog.json')} if not args.check else {}
+            before = prepare_export(ROOT) if not args.check else None
             result = run(row, args.check, args.report.parent/(args.report.stem+'-logs'))
             if not args.check:
-                # Existing exporters still write aggregates. Import only their actual edits;
-                # newly registered shards never get overwritten by an unchanged aggregate.
-                import_registries(ROOT, before)
+                finish_export(ROOT, before)
         results.append(result)
         if result['status'] in ('FAIL', 'MISSING', 'BLOCKED'):
             failed.add(row['id'])
@@ -341,7 +352,12 @@ def motion(args, rows):
             raise ValueError('No declared family for clip: '+clip)
         families += matches[:1]
     for name in dict.fromkeys(families):
-        if run(rows[name], args.check, args.report.parent/(args.report.stem+'-logs'))['status'] != 'PASS':
+        from export_registry import prepare_export, finish_export
+        before = prepare_export(ROOT) if not args.check else None
+        result = run(rows[name], args.check, args.report.parent/(args.report.stem+'-logs'))
+        if not args.check:
+            finish_export(ROOT, before)
+        if result['status'] != 'PASS':
             return 1
     for clip in args.clips:
         topic = 'motion-'+clip.replace('_', '-')

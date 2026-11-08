@@ -159,7 +159,7 @@
         "biting": "puff"
       }
     },
-    "chen_longtail": {
+    "chen_longtail": {"texture_source":"standards/yukkuri-library/subspecies/rare-forms/assembled/chen_longtail/textures",
       "model": "src/main/resources/assets/mcyukkuri/yukkuri/chen_longtail.json",
       "neutral_source": "art/source/rare-forms-runtime/chen_longtail/textures/neutral.png",
       "existing_textures": [
@@ -211,15 +211,13 @@
         "chewing_closed": "art/source/rare-forms-runtime/chen_longtail/textures/chewing_closed.png",
         "satisfied": "art/source/rare-forms-runtime/chen_longtail/textures/satisfied.png",
         "sleepy": "art/source/rare-forms-runtime/chen_longtail/textures/sleepy.png",
-        "afraid": "art/source/rare-forms-runtime/chen_longtail/textures/afraid.png",
-        "dazed": "art/source/rare-forms-runtime/chen_longtail/textures/dazed.png",
-        "sad": "art/source/rare-forms-runtime/chen_longtail/textures/sad.png"
+        "dazed": "art/source/rare-forms-runtime/chen_longtail/textures/dazed.png"
       },
       "face_aliases": {
         "biting": "puff"
       }
     },
-    "chen_roundtail": {
+    "chen_roundtail": {"texture_source":"standards/yukkuri-library/subspecies/rare-forms/assembled/chen_roundtail/textures",
       "model": "src/main/resources/assets/mcyukkuri/yukkuri/chen_roundtail.json",
       "neutral_source": "art/source/rare-forms-runtime/chen_longtail/textures/neutral.png",
       "existing_textures": [
@@ -271,9 +269,7 @@
         "chewing_closed": "art/source/rare-forms-runtime/chen_longtail/textures/chewing_closed.png",
         "satisfied": "art/source/rare-forms-runtime/chen_longtail/textures/satisfied.png",
         "sleepy": "art/source/rare-forms-runtime/chen_longtail/textures/sleepy.png",
-        "afraid": "art/source/rare-forms-runtime/chen_longtail/textures/afraid.png",
-        "dazed": "art/source/rare-forms-runtime/chen_longtail/textures/dazed.png",
-        "sad": "art/source/rare-forms-runtime/chen_longtail/textures/sad.png"
+        "dazed": "art/source/rare-forms-runtime/chen_longtail/textures/dazed.png"
       },
       "face_aliases": {
         "biting": "puff"
@@ -595,7 +591,7 @@
         "biting": "puff"
       }
     },
-    "marisa_kotatsu": {
+    "marisa_kotatsu": {"texture_source":"standards/yukkuri-library/subspecies/rare-forms/assembled/marisa_kotatsu/textures",
       "model": "src/main/resources/assets/mcyukkuri/yukkuri/marisa_kotatsu.json",
       "neutral_source": "art/source/rare-forms-runtime/marisa_kotatsu/textures/neutral.png",
       "existing_textures": [
@@ -647,9 +643,7 @@
         "chewing_closed": "art/source/rare-forms-runtime/marisa_kotatsu/textures/chewing_closed.png",
         "satisfied": "art/source/rare-forms-runtime/marisa_kotatsu/textures/satisfied.png",
         "sleepy": "art/source/rare-forms-runtime/marisa_kotatsu/textures/sleepy.png",
-        "afraid": "art/source/rare-forms-runtime/marisa_kotatsu/textures/afraid.png",
-        "dazed": "art/source/rare-forms-runtime/marisa_kotatsu/textures/dazed.png",
-        "sad": "art/source/rare-forms-runtime/marisa_kotatsu/textures/sad.png"
+        "dazed": "art/source/rare-forms-runtime/marisa_kotatsu/textures/dazed.png"
       },
       "face_aliases": {
         "biting": "puff"
@@ -784,7 +778,7 @@
         "biting": "puff"
       }
     },
-    "myon": {
+    "myon": {"texture_source":"standards/yukkuri-library/subspecies/rare-forms/assembled/myon/textures",
       "model": "src/main/resources/assets/mcyukkuri/yukkuri/myon.json",
       "neutral_source": "art/source/rare-forms-runtime/myon/textures/neutral.png",
       "existing_textures": [
@@ -841,18 +835,16 @@
         "chewing_closed": "art/source/rare-forms-runtime/myon/textures/chewing_closed.png",
         "satisfied": "art/source/rare-forms-runtime/myon/textures/satisfied.png",
         "sleepy": "art/source/rare-forms-runtime/myon/textures/sleepy.png",
-        "afraid": "art/source/rare-forms-runtime/myon/textures/afraid.png",
         "alice_agitated": "art/source/rare-forms-runtime/myon/textures/alice_agitated.png",
         "breeding_period": "art/source/rare-forms-runtime/myon/textures/breeding_period.png",
         "dazed": "art/source/rare-forms-runtime/myon/textures/dazed.png",
-        "sad": "art/source/rare-forms-runtime/myon/textures/sad.png",
         "state_recover": "art/source/rare-forms-runtime/myon/textures/state_recover.png"
       },
       "face_aliases": {
         "biting": "puff"
       }
     },
-    "myon_redeye": {
+    "myon_redeye": {"texture_source":"standards/yukkuri-library/subspecies/rare-forms/assembled/myon_redeye/textures",
       "model": "src/main/resources/assets/mcyukkuri/yukkuri/myon_redeye.json",
       "neutral_source": "art/source/rare-forms-runtime/myon/textures/neutral.png",
       "existing_textures": [
@@ -909,11 +901,9 @@
         "chewing_closed": "art/source/rare-forms-runtime/myon_redeye/textures/chewing_closed.png",
         "satisfied": "art/source/rare-forms-runtime/myon_redeye/textures/satisfied.png",
         "sleepy": "art/source/rare-forms-runtime/myon_redeye/textures/sleepy.png",
-        "afraid": "art/source/rare-forms-runtime/myon_redeye/textures/afraid.png",
         "alice_agitated": "art/source/rare-forms-runtime/myon/textures/alice_agitated.png",
         "breeding_period": "art/source/rare-forms-runtime/myon/textures/breeding_period.png",
         "dazed": "art/source/rare-forms-runtime/myon_redeye/textures/dazed.png",
-        "sad": "art/source/rare-forms-runtime/myon/textures/sad.png",
         "state_recover": "art/source/rare-forms-runtime/myon/textures/state_recover.png"
       },
       "face_aliases": {

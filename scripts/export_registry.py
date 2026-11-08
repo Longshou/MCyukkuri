@@ -33,8 +33,10 @@ def ident(value):
 
 
 def import_registries(root, before=None):
-    """Migrate existing entries, or import only legacy exporters' changed entries."""
+    """Bootstrap once, or capture only changes made by a managed legacy exporter."""
     base = root/'art/registry'
+    if before is None and base.exists():
+        raise ValueError('Registry shards already exist; edit shards and run --registries. Aggregates are generated.')
     for name in ('runtime-sources', 'catalog'):
         path = root/'art'/(name+'.json')
         current = load(path)
@@ -107,6 +109,18 @@ def registries(root, check=False):
                 raise ValueError('Stale registry aggregate: '+str(path))
         else:
             save(path, value)
+
+
+def prepare_export(root):
+    """Legacy exporters read a freshly generated aggregate, including deletions."""
+    registries(root)
+    return {p: (root/p).read_bytes() for p in ('art/runtime-sources.json', 'art/catalog.json')}
+
+
+def finish_export(root, before):
+    """Capture exporter-produced metadata, then discard its aggregate formatting."""
+    import_registries(root, before)
+    registries(root)
 
 
 def register(root, entry):

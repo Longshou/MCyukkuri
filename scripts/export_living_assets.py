@@ -74,10 +74,15 @@ def outputs():
             inputs[model_path] = data
         selected_path = manifest_path.parent / 'presentation.json'
         selected = json.loads(selected_path.read_text(encoding='utf-8'))['living']
-        if selected != recipe['presentation']:
+        if (any(selected[k] != v for k,v in recipe['presentation'].items() if k != 'variants') or
+                any(selected['variants'][k] != v for k,v in recipe['presentation']['variants'].items())):
             raise ValueError('Rounded living selection differs from its recipe and source meshes')
         inputs[selected_path] = selected_path.read_bytes()
-    emit(ASSETS / 'yukkuri_presentation/living.json', recipe['presentation'])
+    living_path = ASSETS / 'yukkuri_presentation/living.json'
+    living = json.loads(living_path.read_text(encoding='utf-8'))
+    living.update({k:v for k,v in recipe['presentation'].items() if k != 'variants'})
+    living['variants'].update(recipe['presentation']['variants'])
+    emit(living_path, living)
     records = {'role':'P1/P2 game integration; standard character shape and source fingerprints unchanged',
                'inputs':fingerprints(ROOT,inputs,previous.get('inputs',{})),
                'outputs':fingerprints(ROOT,result,previous.get('outputs',{}))}

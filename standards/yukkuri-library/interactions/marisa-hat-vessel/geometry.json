@@ -1,7 +1,7 @@
 {
   "note": "Marisa's own hat turned upside down, its crown pressed flat: the cradle on land and the boat afloat.",
   "source_model": "src/main/resources/assets/mcyukkuri/yukkuri/marisa.json",
-  "source_model_sha256": "dadff8a769e7a3c244a0a1f0206c63d4c9541fa69bb88f6c43345287b4e44917",
+  "source_model_sha256": "5031923ebbe12b881e9371d24060c36bec5c4a527ec7904ea7333b807787f202",
   "prop": "marisa_hat_turned",
   "scale": {
     "aquatic_marisa": 1.4

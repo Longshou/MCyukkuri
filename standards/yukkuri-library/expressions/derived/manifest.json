@@ -206,31 +206,31 @@
     "myon": {
       "sad": {
         "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/myon/sad.png",
-        "sha256": "6e646578de4d161ce68a6ea5740247f06231ae4bb0db69570dbc1433e3a008e0"
+        "sha256": "b9c6a4668cad0ff02dab389100f308e136b073ff5cd829988e5e1b37c3a6190e"
       },
       "afraid": {
         "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/myon/afraid.png",
-        "sha256": "1680bbc41c56a09b094edc8ff5295baa4ab31aec4e9a8ea023424eec154dfede"
+        "sha256": "fc5b14a10008f75c5abc138eb9f7cd5805330b027a8879a35070e2dd92544fc0"
       },
       "from": {
-        "teary": "c24d400821aec1be9d949b6d6eeaf3df49a906f12cce0a2562c28dee131872e2",
-        "neutral": "5e87fc1223f78f2cf484bef7ece44bcc4dd39e3b42dfe40dcf47e7b1beedadd9",
-        "surprise": "777d9ba04ab7683cdfefcd11b9a6d227226392af8600850cdbbdf89df39173dd"
+        "teary": "bbabad6de8f1ce4831cbf4a0c092a62a944171d3edc52c9838e44ee8db70cf74",
+        "neutral": "db13d431109dc66d1bc11925fc4a692164eb3647371d115d93c27f972935b387",
+        "surprise": "5b6b32801a8a3563076206cd6cf82cb547a10d294c73399e1a53a007b7c572d9"
       }
     },
     "myon_redeye": {
       "sad": {
         "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/myon_redeye/sad.png",
-        "sha256": "e8acb9cb810c4909eff3a1925b98b0b2f833dfcbbb834edd75bc568ae4fce51c"
+        "sha256": "b9c6a4668cad0ff02dab389100f308e136b073ff5cd829988e5e1b37c3a6190e"
       },
       "afraid": {
         "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/myon_redeye/afraid.png",
-        "sha256": "e6f6aca79788f7385bb7c29d0fe88e8416a0db447c55f7785e455f19c99988ce"
+        "sha256": "ce49fb9f91f216dbca60ec0edadfd58b20d25cb4ad16b89785a7d85caadebb6f"
       },
       "from": {
-        "teary": "bb7e3a9119fa7a83dc9c47a2dd2b02e1a0757f1f8791e9b76a916ee287c5ea33",
-        "neutral": "db22c96fff753207ecce63b6adf886cef201a9d13fd619ec745b2e44917e2c6e",
-        "surprise": "bd76655d342f39f51afc4402537446f95ba6b0adfaab8fc52fc62c0a623590c6"
+        "teary": "bbabad6de8f1ce4831cbf4a0c092a62a944171d3edc52c9838e44ee8db70cf74",
+        "neutral": "db13d431109dc66d1bc11925fc4a692164eb3647371d115d93c27f972935b387",
+        "surprise": "d68629a7ddba145bc5e95e4edfcfb18562e3fc33de74b46047510e0bb6684106"
       }
     },
     "patchouli": {
