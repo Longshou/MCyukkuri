@@ -12,6 +12,7 @@
 | 观测层：服务端检查校准（主线零误报、已知问题仍抓到） | `.worktrees/wp-ck-check-calibration` | scripts/smoke_checks.py、scripts/timeline.py、scripts/fixtures/timeline/ |
 | 搬运放下：接生、带回窝、托幼三链放不下孩子（先出设计，另一模型审） | `.worktrees/wp-cs-carry-putdown` | family/ParentCarry.java、motor/action/Release.java、life/SurfaceApproach.java |
 | 冒烟每轮独立种子：同一服务器重复各轮各用一个种子并记入该轮报告 | `.worktrees/wp-ct-run-seeds` | scripts/smoke_museum.py、entity/YukkuriEntity.java、status 命令、scripts/README.md |
+| 预览工具：多视角、草稿表情与新旧对照，退役重复的姿态合成实现（观测层 G4） | `.worktrees/wp-cu-preview-core` | scripts/preview.py、preview/review/pose.js、scripts/render_preview_actions.cjs、motions/variants/lore/aquatic_tools.py、preview/hub/ |
 
 ## 玩法待办
 
