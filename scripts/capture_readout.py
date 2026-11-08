@@ -95,7 +95,13 @@ def select_frames(frames, poses, limit=10):
         if pose['u'] in previous and previous[pose['u']] != state:
             rank = max(rank, 1)
         previous[pose['u']] = state
-        by_frame[pose['f']] = max(by_frame.get(pose['f'], 0), rank)
+        # Yaw is joined after capture; a hit can fall between screenshots. Preserve its
+        # actual source frame while selecting the nearest available visual evidence.
+        shot = min(frames, key=lambda f: abs(f['poseFrame'] - pose['f'])) if rank else None
+        if shot is not None:
+            by_frame[shot['poseFrame']] = max(by_frame.get(shot['poseFrame'], 0), rank)
+            if rank == 3 and shot['poseFrame'] != pose['f']:
+                shot.setdefault('nearby_metric_frames', []).append(dict(f=pose['f'], u=pose['u']))
     chosen = {0, len(frames) - 1}
     for f in frames:
         if f.get('milestones'):

@@ -48,6 +48,14 @@ class CaptureReadoutTest(unittest.TestCase):
             select_frames([dict(gameTime=0, poseFrame=0)], [])
         self.assertFalse(geometry_report([])['complete'])
 
+    def test_postprocessed_hit_between_shots_selects_nearest_without_claiming_exact_image(self):
+        frames=[dict(gameTime=i,poseFrame=i) for i in range(0,101,10)]
+        pose=dict(k='pose',f=31,u='actor',clip='idle',phase='rest',markers=[],
+                  m=[dict(metric='yaw',where='same-tick yaw',verdict='fail')])
+        selected=select_frames(frames,[pose],limit=3)
+        self.assertEqual([0,30,100],[f['poseFrame'] for f in selected])
+        self.assertEqual([dict(f=31,u='actor')],selected[1]['nearby_metric_frames'])
+
     def test_errors_and_unselected_faults_remain_in_report(self):
         pose = dict(k='pose', u='a', t=12, pt=.5, f=70,
                     m=[dict(metric='pass', verdict='error', where='missing mesh'),
