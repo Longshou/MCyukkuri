@@ -55,8 +55,8 @@ ADV={
 'observe':(['认识一只油库里','Meet a yukkuri','ゆっくりを知る'],['实际使用手册观察个体','Use the notebook on a living individual','実際に手帳で個体を観察する'],'mcyukkuri:field_notebook','root'),
 'supplies':(['准备生活空间','Prepare a home','生活の準備'],['同时备好食盆、草窝和油厕','Have a food bowl, nest and potty together','餌皿・巣・トイレを揃える'],'mcyukkuri:food_bowl','root'),
 'shelter':(['有个落脚处','A place to rest','休める場所'],['用手册成功安排真实住所','Successfully assign an actual home with the notebook','手帳で実際の住処を指定する'],'mcyukkuri:yukkuri_nest','observe'),
-'cold_storage':(['暂时安稳收容','Safe keeping','一時保管'],['把活体从运输篮存入个人收容库','Store a living occupant from its carrier','かごの生体を個人保管庫へ預ける'],'mcyukkuri:cold_storage','supplies'),
-'retrieve':(['接回同行','Reunited for travel','引き取り'],['用空运输篮取回原个体','Retrieve the original occupant into an empty carrier','空のかごへ元の個体を引き取る'],'mcyukkuri:yukkuri_carrier','cold_storage'),
+'cold_storage':(['暂时安稳收容','Safe keeping','一時保管'],['把活体从运输篮存入个人收容库','Store a living occupant from its transport basket','かごの生体を個人保管庫へ預ける'],'mcyukkuri:cold_storage','supplies'),
+'retrieve':(['接回同行','Reunited for travel','引き取り'],['用空运输篮取回原个体','Retrieve the original occupant into an empty transport basket','空のかごへ元の個体を引き取る'],'mcyukkuri:yukkuri_carrier','cold_storage'),
 'family_birth':(['家庭添丁','A new family member','新しい家族'],['你照顾的亲代有真实幼体出生','An animal in your care has a real offspring born','世話している親から実際に子が生まれる'],'mcyukkuri:yukkuri_nest','shelter'),
 }
 outputs={}

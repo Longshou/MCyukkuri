@@ -6,9 +6,7 @@
   "outputs": {
     "src/main/resources/assets/mcyukkuri/blockstates/burial_mound.json": "8d2d6e8ff790f762a46640243ed5f1c4c244f44f37ba92f52ab01662d4a45213",
     "src/main/resources/assets/mcyukkuri/models/item/herbal_medicine.json": "784484df4c2b237850fdb9ee0d0411e20212e41f6db0b62bb70c883ecf31c2be",
-    "src/main/resources/assets/mcyukkuri/models/item/yukkuri_remains.json": "1b7bc54eeba9b85388378f8672f05108b623873cab460e358fbae38b773a2d02",
-    "src/main/resources/data/mcyukkuri/recipe/food_scrap.json": "9a77b4a4a2e39a89b581674da7caf28134b0046ba733699610a0c9c90a74022a",
-    "src/main/resources/data/mcyukkuri/advancement/recipes/misc/food_scrap.json": "9766d0566696779a39ce64cbe5f67e2d88aa81b875744f0c00a98e0abaab9399"
+    "src/main/resources/assets/mcyukkuri/models/item/yukkuri_remains.json": "1b7bc54eeba9b85388378f8672f05108b623873cab460e358fbae38b773a2d02"
   },
   "selected_models": {
     "art/props/house-care/yukkuri_remains.item.json": "1b7bc54eeba9b85388378f8672f05108b623873cab460e358fbae38b773a2d02"
