@@ -1,6 +1,7 @@
 """Declared asset export pipeline. No game, browser, build or temporary authoring script."""
 import argparse
 import json
+from itertools import product
 import os
 from pathlib import Path
 import re
@@ -243,7 +244,7 @@ def main():
     ap.add_argument('--full', action='store_true', help='Force motion compilation without cache reuse')
     ap.add_argument('--list', action='store_true')
     ap.add_argument('--beats', type=Path)
-    ap.add_argument('--model', default='reimu')
+    ap.add_argument('--model', nargs='+', default=['reimu'], help='Models to preview/check; family export runs once')
     ap.add_argument('--metrics', default='tilt', help='Per-frame metrics (tilt,pass,wet,gap,held); verdicts are reports, not acceptance gates')
     ap.add_argument('--context', type=Path, help='Explicit pose evidence JSON for additional metrics')
     ap.add_argument('--water', type=float)
@@ -359,18 +360,18 @@ def motion(args, rows):
             finish_export(ROOT, before)
         if result['status'] != 'PASS':
             return 1
-    for clip in args.clips:
-        topic = 'motion-'+clip.replace('_', '-')
-        subprocess.run([sys.executable, 'scripts/preview.py', 'strip', topic, '--model', args.model,
+    for clip, model in product(args.clips, args.model):
+        topic = 'motion-'+clip.replace('_', '-')+'-'+model.replace('_', '-')
+        subprocess.run([sys.executable, 'scripts/preview.py', 'strip', topic, '--model', model,
                         '--clip', clip, '--beats', str(args.beats)], cwd=ROOT, check=True)
         if not (ROOT/'scripts/pose_check.py').exists():
             print('REMAINING: pose_check.py is not on this checkout; G2 metrics not run.', flush=True)
             return 1
-        folder = args.report.parent/'motion'/clip
+        folder = args.report.parent/'motion'/clip/model
         folder.mkdir(parents=True, exist_ok=True)
         requests = []
         for i, t in enumerate(times):
-            request = dict(model=args.model, clip=clip, t=str(t), metric=args.metrics.split(','),
+            request = dict(model=model, clip=clip, t=str(t), metric=args.metrics.split(','),
                            pose_out=str(folder/f'pose-{i:03}.jsonl'))
             if args.context:
                 request['context'] = read(args.context)
@@ -395,7 +396,7 @@ def motion(args, rows):
         for response in responses:
             for row in response['results']:
                 counts[row['verdict']] = counts.get(row['verdict'], 0)+1
-        print(f'{clip}: pose report {counts}; {folder}', flush=True)
+        print(f'{clip}/{model}: pose report {counts}; {folder}', flush=True)
         if counts.get('error'):
             return 2
     return 0

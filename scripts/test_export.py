@@ -124,6 +124,31 @@ class ExportTests(unittest.TestCase):
             self.assertEqual(pipeline.motion(args, pipeline.table()), 1)
         self.assertTrue(execute.call_args.args[1], 'motion --check must not export runtime assets')
 
+    def test_motion_models_keep_separate_evidence_and_export_once(self):
+        import argparse
+        beats = self.root/'beats.txt'
+        beats.write_text('0s start\n20t peak\n', encoding='utf-8')
+        args = argparse.Namespace(beats=beats, clips=['wake'], check=False,
+            model=['reimu', 'marisa'], metrics='tilt,pass', context=None, water=None,
+            report=self.root/'results.json')
+        response = json.dumps({'results': [{'verdict': 'pass'}]})+'\n'
+        with patch.object(pipeline, 'run', return_value={'status': 'PASS'}) as export, \
+             patch.object(registry, 'prepare_export'), patch.object(registry, 'finish_export'), \
+             patch.object(pipeline.subprocess, 'run', return_value=subprocess.CompletedProcess([], 0,
+                 stdout=response*2, stderr='')) as execute:
+            self.assertEqual(pipeline.motion(args, pipeline.table()), 0)
+        self.assertEqual(export.call_count, 1)
+        self.assertEqual(export.call_args.args[0]['id'], 'life')
+        calls = execute.call_args_list
+        self.assertEqual([calls[i].args[0][3] for i in (0, 2)],
+                         ['motion-wake-reimu', 'motion-wake-marisa'])
+        for model, call in zip(args.model, (calls[1], calls[3])):
+            requests = [json.loads(line) for line in call.kwargs['input'].splitlines()]
+            self.assertEqual([r['model'] for r in requests], [model, model])
+            self.assertEqual([r['t'] for r in requests], ['0.0', '1.0'])
+            self.assertEqual(requests[0]['metric'], ['tilt', 'pass'])
+            self.assertEqual((self.root/'motion/wake'/model/'metrics.jsonl').read_text(), response*2)
+
     def test_failed_selected_source_blocks_owner_but_not_independent_export(self):
         self.seed()
         rows = {key: pipeline.exporter(key, 'scripts/export.py', []) for key in ('source', 'owner', 'independent')}
