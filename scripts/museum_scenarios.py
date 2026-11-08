@@ -563,6 +563,9 @@ add('hurt', 'meadow', '受伤后伴侣和亲油来舔伤', '受伤后伴侣和�
         yk('chen', 4, 7, 'kid', stage='child', uuid=_hurt_victims['kid'], yaw=90, nutrition=90, energy=95),
         f'yukkuri scenario kin {sel("mom")} {sel("kid")} false',
         f'yukkuri scenario wound {sel("kid")}'], give=['mcyukkuri:orange_juice 2', 'mcyukkuri:flour_paste 2'], vantage=None,
+    capture=dict(shots=(1, 40, 200, 600, 1800), sequences=((60, 1800, 12),), observe=False,
+                 views=dict(wound=dict(follow=sel('a'), offset=(1.8, .9, 2.5),
+                                       criteria='看清橙正面的磕伤与伴侣靠近舔舐的接触，保留双方身体和伤口。'))),
     reads=[('读受伤的橙（伴侣）', f'yukkuri status {sel("a")} raw'), ('读受伤的小橙（亲子）', f'yukkuri status {sel("kid")} raw')])
 
 add('toilet', 'meadow', '便意急了走去厕所', '便意急了走去厕所', '橙有强烈便意：看它走向右边的厕所；拆掉厕所再看它在地面排便（从油菊排出）', '约 1 分钟', [

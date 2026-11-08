@@ -85,9 +85,43 @@ class CaptureReadoutTest(unittest.TestCase):
         self.assertIn(frames[-2], selected)
 
     def test_missing_pose_is_not_a_pass(self):
-        with self.assertRaises(ValueError):
-            select_frames([dict(gameTime=0, poseFrame=0)], [])
-        self.assertFalse(geometry_report([])['complete'])
+        frames = [dict(gameTime=0, poseFrame=0)]
+        self.assertEqual(frames, select_frames(frames, []))
+        report = geometry_report([], frames)
+        self.assertFalse(report['complete'])
+        self.assertEqual('no recorded pose actor in this view', report['no_evidence'][0]['reason'])
+
+    def test_disappearing_actor_malformed_frame_and_unknown_metric(self):
+        frames = [dict(gameTime=i, poseFrame=i) for i in range(3)]
+        pose = dict(k='pose', u='a', t=0, pt=0, f=0,
+                    m=[dict(metric='held', verdict='pass', where='grip')])
+        report = geometry_report([pose, dict(pose, f=2, t=2)], frames)
+        self.assertEqual([1], [r['f'] for r in report['no_evidence']])
+        self.assertEqual('a', report['no_evidence'][0]['u'])
+        with self.assertRaises(KeyError):
+            geometry_report([dict(pose, m=[dict(metric='held')])], frames)
+        with self.assertRaisesRegex(ValueError, 'unknown metric'):
+            geometry_report([dict(pose, m=[dict(metric='invented')])], frames)
+
+    def test_empty_view_does_not_abort_other_view_review(self):
+        import capture_review
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            (root/'stdout.log').write_text('', encoding='utf-8')
+            plans = [dict(id=name, settings={}) for name in ('scene_empty', 'scene_other')]
+            (root/'plan.json').write_text(json.dumps(plans), encoding='utf-8')
+            frames = [dict(gameTime=10, tick=0, poseFrame=0, file='frame.png')]
+            for plan in plans:
+                view = root/plan['id']; view.mkdir()
+                poses = postprocess(view, frames)
+                (view/'selected-frames.json').write_text(json.dumps(select_frames(frames, poses)), encoding='utf-8')
+                (view/'geometry.json').write_text(json.dumps(geometry_report(poses, frames)), encoding='utf-8')
+            with patch('sys.argv', ['capture_review.py', 'scene', '--reuse', str(root), '--out', str(root/'report')]), \
+                    patch.object(capture_review.storyboard, 'kimi', return_value=dict(readability='clear', issues=[], seen='fixture')):
+                self.assertEqual(2, capture_review.main())
+            report = json.loads((root/'report/review.json').read_text())
+            self.assertEqual(2, report['summary']['frames'])
+            self.assertEqual(['scene_empty', 'scene_other'], report['summary']['no_evidence_views'])
 
     def test_postprocessed_hit_between_shots_selects_nearest_without_claiming_exact_image(self):
         frames=[dict(gameTime=i,poseFrame=i) for i in range(0,101,10)]

@@ -4,6 +4,8 @@ from pathlib import Path
 
 
 def read_pose(directory):
+    if not (Path(directory) / 'pose.jsonl').exists():
+        return []
     with (Path(directory) / 'pose.jsonl').open(encoding='utf-8') as source:
         rows = []
         for line in source:
@@ -72,11 +74,10 @@ def postprocess(directory, frames):
 def select_frames(frames, poses, limit=10):
     """Keep endpoints, then distinct metric hits, markers and phase/clip changes.
 
-    Fill unused slots by distance in game time, not by frame-list index. Missing
-    pose evidence is an error: old captures cannot establish geometry results.
+    Fill unused slots by distance in game time, even without pose evidence.
     """
-    if not frames or not poses:
-        raise ValueError('frame selection requires screenshots and pose evidence')
+    if not frames:
+        raise ValueError('frame selection requires screenshots')
     by_frame = {}
     previous = {}
     seen_hits = set()
@@ -117,15 +118,26 @@ def select_frames(frames, poses, limit=10):
     return [frames[i] for i in sorted(chosen)]
 
 
-def geometry_report(poses):
+def geometry_report(poses, frames=()):
     """Report every evaluated frame, including faults between selected screenshots."""
     counts = {}
     findings = []
     no_evidence = []
+    actors = {p['u'] for p in poses if p.get('k') == 'pose'}
+    if not actors:
+        no_evidence.append(dict(metric='pose', verdict='no-evidence', u=None, f=None,
+                                reason='no recorded pose actor in this view'))
+    for frame in frames:
+        present = {p['u'] for p in poses if p.get('k') == 'pose' and p['f'] == frame['poseFrame']}
+        for actor in sorted(actors - present):
+            no_evidence.append(dict(metric='pose', verdict='no-evidence', u=actor, f=frame['poseFrame'],
+                                    reason='recorded actor absent at screenshot frame'))
     for pose in poses:
         if pose.get('k') != 'pose':
             continue
         for metric in pose['m']:
+            if metric['metric'] not in ('pass', 'tilt', 'gap', 'wet', 'held', 'yaw', 'posejump'):
+                raise ValueError(f"unknown metric: {metric['metric']}")
             # Preserve the original checker result. Missing observations are coverage
             # gaps, while malformed values and checker failures remain errors.
             reason = metric['where']

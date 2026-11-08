@@ -101,13 +101,15 @@ def main():
         results = list(executor.map(ask, jobs))
     errors = sum(r['readability']=='error' for r in results)
     incomplete = [view for view, report in geometry.items() if not report['complete']]
+    missing = [view for view, report in geometry.items() if report.get('no_evidence')]
     # Checks remain report-only until calibrated; no AI opinion can erase a measured finding.
     summary = dict(frames=len(results), readability_errors=errors,
                    unclear=sum(r['readability']=='unclear' for r in results), incomplete_geometry=incomplete,
                    old_body_flags=sum(r.get('old',{}).get('body_verdict')=='problem' for r in results),
                    geometry_fail_samples=sum(m['verdict']=='fail' for report in geometry.values() for m in report['findings']),
                    geometry_no_evidence_samples=sum(len(report.get('no_evidence', [])) for report in geometry.values()),
-                   exit_code=2 if errors or incomplete else 0, report_only=True)
+                   no_evidence_views=missing,
+                   exit_code=2 if errors or incomplete or missing else 0, report_only=True)
     payload = dict(scene=args.scene, capture=str(cap), criteria=criteria, summary=summary, geometry=geometry, frames=results)
     (out/'review.json').write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding='utf-8')
     lines = [f'# Capture review: {args.scene}', f'Capture: `{cap}`', '', json.dumps(summary,ensure_ascii=False), '',

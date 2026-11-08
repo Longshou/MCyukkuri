@@ -149,6 +149,20 @@ public final class PoseTap {
         meshes.add("hat",PropModels.captureMesh(hat.profile().hull(),1,hull));f.add("meshes",meshes);
         if(hat.hullDamage()>0)f.addProperty("geometry_error","damaged placed hat");
     }
+    /** The authored stick is centered on the mouth socket; vertices are model units. */
+    public static void mouthProp(YukkuriView entity, String prop, Matrix4f start, Matrix4f drawn, float partial) {
+        if (!active()) return;
+        var f = CURRENT.get(entity.getUUID().toString());
+        var transform = origin(entity, partial).mul(new Matrix4f(start).invert()).mul(drawn).scale(1/16f);
+        var item = f.getAsJsonObject("item");
+        item.addProperty("held", true);
+        item.addProperty("id", prop);
+        item.addProperty("place", "MOUTH");
+        item.add("drawn", matrix(transform));
+        item.add("grip", PoseGeometry.point(new Vector3f()));
+        item.add("anchor", f.get("mouth_anchor"));
+        f.getAsJsonObject("meshes").add("item", PropModels.captureMesh(prop, 1, transform));
+    }
     private static void envelope(JsonObject f, String uuid, long tick, String dimension, float partial) {
         if(timedFrame!=frame){timedFrame=frame;renderSeconds=(System.nanoTime()-clockStart)/1e9;}
         f.addProperty("v", 1); f.addProperty("k", "pose"); f.addProperty("src", "client");

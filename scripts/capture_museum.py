@@ -69,7 +69,7 @@ def contact_sheet(directory):
     poses = postprocess(directory, frames)
     chosen = select_frames(frames, poses)
     (directory / 'selected-frames.json').write_text(json.dumps(chosen, indent=2), encoding='utf-8')
-    (directory / 'geometry.json').write_text(json.dumps(geometry_report(poses), indent=2), encoding='utf-8')
+    (directory / 'geometry.json').write_text(json.dumps(geometry_report(poses, frames), indent=2), encoding='utf-8')
     sheet = Image.new('RGB', (4 * 320, ((len(chosen) + 3) // 4) * 204), '#20252b')
     draw = ImageDraw.Draw(sheet)
     for i, frame in enumerate(chosen):
