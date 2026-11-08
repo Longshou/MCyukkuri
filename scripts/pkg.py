@@ -15,6 +15,7 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 import headless_server as server  # noqa: E402  (git common root, user-client detection)
+import smoke_prune  # noqa: E402
 
 MAIN = server.COMMON
 TODO = 'docs/TODO.md'
@@ -195,6 +196,7 @@ def cmd_land(args):
         print(f'pkg: worktree directory left over (locked?): {wt}', file=sys.stderr)
     git(MAIN, 'branch', '-d', name)
     print(f'landed {name}: pushed {pushed}')
+    print(f'shed the large files of {smoke_prune.prune(quick=True)} old uncited smoke/capture runs')
 
 
 def find_run(sha):

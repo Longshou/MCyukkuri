@@ -4,14 +4,23 @@
 (pid and process start time; records of exited runners are reclaimed). ``python scripts/smoke_slots.py`` lists them."""
 import json
 import os
+import shutil
 import time
 from contextlib import contextmanager
 
 import headless_server as server
+import smoke_prune
 
 DIRECTORY = server.COMMON / '.local/smoke/slots'
 DEFAULT_SLOTS = 3
 ENVIRONMENT = 'MCY_SMOKE_SLOTS'
+# A dense-trace server's uncompressed stdout reaches tens of GB before it is gzipped at stop (F: filled up on 11-08 with three
+# running); below this a new server or client waits instead of filling the user's disk.
+MIN_FREE_GB = 50
+
+
+def free_gb():
+    return shutil.disk_usage(server.COMMON).free / 2 ** 30
 
 
 def limit(override=None):
@@ -58,9 +67,21 @@ def slot(kind, label, slots=None):
     me = dict(pid=pid, started=server.process_started(pid), kind=kind, label=label, since=time.time())
     hold, wait = DIRECTORY / f'hold-{pid}.json', DIRECTORY / f'wait-{pid}.json'
     count = limit(slots)
-    announced = False
+    announced = pruned = short = False
     try:
         while True:
+            if free_gb() < MIN_FREE_GB:
+                if not pruned:
+                    removed = smoke_prune.prune(quick=True)
+                    print(f'F: below {MIN_FREE_GB} GB free: shed the large files of {removed} old uncited smoke/capture runs', flush=True)
+                    pruned = True
+                    continue
+                if not short:
+                    print(f'Waiting: {free_gb():.0f} GB free, a run needs {MIN_FREE_GB} GB; free space or run '
+                          f'scripts/smoke_prune.py with a shorter --keep-hours', flush=True)
+                    short = True
+                time.sleep(30)
+                continue
             with server.instance_lock('MCyukkuriSmokeSlots'):
                 rows = entries()
                 holders = [row for path, row in rows if path.name.startswith('hold-')]
