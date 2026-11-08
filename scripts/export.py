@@ -251,6 +251,7 @@ def main():
     ap.add_argument('--water', type=float)
     ap.add_argument('--report', type=Path, default=ROOT/'.local/reports/export/results.json')
     args = ap.parse_args()
+    args.model = [name for value in args.model for name in value.split(',')]
     if args.dry_run and not args.register:
         ap.error('--dry-run requires --register')
     if args.jobs < 1 or (args.jobs != 1 and not args.check):

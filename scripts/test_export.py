@@ -140,13 +140,29 @@ class ExportTests(unittest.TestCase):
         self.assertEqual(export.call_count, 1)
         self.assertEqual(export.call_args.args[0]['id'], 'life')
         calls = execute.call_args_list
-        self.assertEqual([calls[i].args[0][3] for i in (0, 2)],
+        previews = [call.args[0] for call in calls if 'preview.py' in ' '.join(call.args[0])]
+        poses = [call for call in calls if 'pose_check.py' in ' '.join(call.args[0])]
+        self.assertEqual([command[3] for command in previews],
                          ['motion-wake-reimu', 'motion-wake-marisa'])
-        for model, call in zip(args.model, (calls[1], calls[3])):
+        for model, call in zip(args.model, poses):
             requests = [json.loads(line) for line in call.kwargs['input'].splitlines()]
             self.assertEqual([r['model'] for r in requests], [model, model])
             self.assertEqual([r['t'] for r in requests], ['0.0', '1.0'])
             self.assertEqual(requests[0]['metric'], ['tilt', 'pass'])
+            self.assertEqual((self.root/'motion/wake'/model/'metrics.jsonl').read_text(), response*2)
+
+    def test_comma_separated_models_are_expanded(self):
+        beats = self.root/'beats.txt'
+        beats.write_text('0s start\n20t peak\n', encoding='utf-8')
+        response = json.dumps({'results': [{'verdict': 'pass'}]})+'\n'
+        argv = ['export.py', 'motion', 'wake', '--beats', str(beats), '--model', 'reimu,marisa',
+                '--report', str(self.root/'results.json')]
+        with patch('sys.argv', argv), patch.object(pipeline, 'run', return_value={'status': 'PASS'}), \
+             patch.object(registry, 'prepare_export'), patch.object(registry, 'finish_export'), \
+             patch.object(pipeline.subprocess, 'run', return_value=subprocess.CompletedProcess([], 0,
+                 stdout=response*2, stderr='')):
+            self.assertEqual(pipeline.main(), 0)
+        for model in ('reimu', 'marisa'):
             self.assertEqual((self.root/'motion/wake'/model/'metrics.jsonl').read_text(), response*2)
 
     def test_motion_model_error_preserves_reason_and_checks_remaining_models(self):
