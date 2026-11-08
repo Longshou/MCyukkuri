@@ -3,10 +3,31 @@ import json
 import tempfile
 from pathlib import Path
 from unittest.mock import patch
-from capture_readout import select_frames, beat_at, geometry_report, postprocess
+from capture_readout import select_frames, beat_at, beat_frames, geometry_report, postprocess
 
 
 class CaptureReadoutTest(unittest.TestCase):
+    def test_nearest_beat_per_actor_occurrence_overrides_budget(self):
+        frames = [dict(tick=i, gameTime=i, poseFrame=i) for i in range(9)]
+        poses = [dict(k='pose', f=i, t=i, pt=0, u='a', clip='wake', ct=ct, m=[], markers=[], phase='')
+                 for i, ct in enumerate([0, .8, 1.1, 2, 0, .9, 1.3, 2, 3])]
+        # Another actor and an intervening non-screenshot pose cannot steal a beat.
+        poses += [dict(poses[0], u='b', f=1, ct=1), dict(poses[0], u='b', f=100, ct=1.01)]
+        required, missing = beat_frames('1s peak', frames, poses, 'wake')
+        self.assertEqual({1, 2, 5}, required)
+        self.assertEqual([], missing)
+        self.assertEqual([1, 2, 5], [f['poseFrame'] for f in select_frames(frames, poses, limit=2, required=required)])
+        self.assertEqual({4}, beat_frames('4t scene beat', frames, poses)[0])
+        absent, missing = beat_frames('1s peak', frames, poses, 'absent')
+        self.assertFalse(absent)
+        self.assertEqual('no-evidence', missing[0]['verdict'])
+
+    def test_game_time_correction_is_not_a_new_clip_occurrence(self):
+        frames = [dict(tick=i, gameTime=i, poseFrame=i) for i in range(3)]
+        poses = [dict(k='pose', f=i, u='a', clip='wake', ct=ct, t=t, pt=0)
+                 for i, (ct, t) in enumerate([(1.37, 4867), (1.08, 4861), (1.85, 4876)])]
+        self.assertEqual(({2}, []), beat_frames('1.85s peak', frames, poses, 'wake'))
+
     def test_real_paddle_phase_without_blade_contract_is_missing_evidence(self):
         from pose_client import request
         # boat_paddle in the sail baseline declares power markers, not stroke.depth.

@@ -9,7 +9,7 @@ import re
 import subprocess
 import sys
 import time
-from capture_readout import beat_at, read_pose
+from capture_readout import beat_at, beat_clocks, beat_frames, read_pose, select_frames
 
 ROOT = Path(subprocess.check_output(['git', 'rev-parse', '--path-format=absolute', '--git-common-dir'], text=True).strip()).parent
 sys.path.insert(0, str(ROOT / '.local/tools'))
@@ -29,10 +29,35 @@ def capture_output(command):
 
 
 def frame_beat(beats, frame, poses, clip=None):
-    if clip is None:
-        return beat_at(beats, frame['tick'])
-    matches = [p for p in poses if p['k'] == 'pose' and p['f'] == frame['poseFrame'] and p['clip'] == clip]
-    return '\n'.join(f'{p["u"]} {clip} at {p["ct"]:g}s: {beat_at(beats, p["ct"]*20)}' for p in matches)
+    clocks = beat_clocks([frame], poses, clip)
+    return '\n'.join((f'{actor} {clip} at {tick/20:g}s: ' if clip else '') + beat_at(beats, tick)
+                     for (actor, _), samples in clocks.items() for _, tick in samples)
+
+
+def review_frames(directory, beats, clip, geometry):
+    """Retain coverage gaps, but never offer an unready camera to the reviewer."""
+    frames = json.loads((directory/('frames.json' if beats else 'selected-frames.json')).read_text())
+    if beats:
+        prior = {f['poseFrame']: f for f in json.loads((directory/'selected-frames.json').read_text())}
+        for frame in frames:
+            if 'milestones' in prior.get(frame['poseFrame'], {}):
+                frame['milestones'] = prior[frame['poseFrame']]['milestones']
+    ready = [f for f in frames if f.get('cameraReady') is not False]
+    gaps = geometry.setdefault('no_evidence', [])
+    for frame in frames:
+        if frame.get('cameraReady') is False and not any(
+                gap['metric'] == 'camera' and gap['f'] == frame['poseFrame'] for gap in gaps):
+            gaps.append(dict(metric='camera', verdict='no-evidence', u=None, f=frame['poseFrame'],
+                             reason='requested camera has no recorded target pose at screenshot frame'))
+    poses = read_pose(directory) if beats else []
+    if beats:
+        required, missing = beat_frames(beats, ready, poses, clip)
+        gaps.extend(missing)
+        # Preserve postprocessed metric priorities when reselecting existing captures.
+        analysis = directory/'pose-analysis.jsonl'
+        ranked = [json.loads(line) for line in analysis.read_text(encoding='utf-8').splitlines() if line.strip()] if analysis.exists() else poses
+        ready = select_frames(ready, ranked, required=required) if ready else []
+    return ready, poses
 
 
 def main():
@@ -74,18 +99,18 @@ def main():
         view = manifest.parent.name
         if args.view and view not in args.view:
             continue
-        frames = json.loads(manifest.read_text())
-        poses = read_pose(manifest.parent) if args.beat_clip else []
         geometry[view] = json.loads((manifest.parent/'geometry.json').read_text())
+        frames, poses = review_frames(manifest.parent, beats, args.beat_clip, geometry[view])
+        selected = out/view
+        selected.mkdir(parents=True, exist_ok=True)
+        (selected/'selected-frames.json').write_text(json.dumps(frames, ensure_ascii=False, indent=2), encoding='utf-8')
         for i, frame in enumerate(frames):
             jobs.append(dict(view=view, panel=i+1, count=len(frames), frame=frame,
                              file=str(manifest.parent/frame['file']), first=str(manifest.parent/frames[0]['file']),
                              criteria=plans[view]['settings'].get('criteria', ''),
                              beat=frame_beat(beats, frame, poses, args.beat_clip)))
-    if not jobs:
+    if not geometry:
         raise ValueError('no selected frame manifests; postprocess the capture first')
-    if args.beat_clip and not any(job['beat'] for job in jobs):
-        raise ValueError(f'no selected frame contains clip {args.beat_clip}; no clip-aligned review possible')
 
     def ask(job):
         images = [job['file'], job['first'], *args.ref]

@@ -132,7 +132,7 @@ def postprocess(directory, frames):
     return poses
 
 
-def select_frames(frames, poses, limit=10):
+def select_frames(frames, poses, limit=10, required=()):
     """Keep endpoints, then distinct metric hits, markers and phase/clip changes.
 
     Fill unused slots by distance in game time, even without pose evidence.
@@ -164,7 +164,10 @@ def select_frames(frames, poses, limit=10):
             by_frame[shot['poseFrame']] = max(by_frame.get(shot['poseFrame'], 0), rank)
             if rank == 3 and shot['poseFrame'] != pose['f']:
                 shot.setdefault('nearby_metric_frames', []).append(dict(f=pose['f'], u=pose['u']))
-    chosen = {0, len(frames) - 1}
+    chosen = {i for i, frame in enumerate(frames) if frame['poseFrame'] in required}
+    for i in (0, len(frames) - 1):
+        if len(chosen) < limit:
+            chosen.add(i)
     for f in frames:
         if f.get('milestones'):
             by_frame[f['poseFrame']] = max(2, by_frame.get(f['poseFrame'], 0))
@@ -228,8 +231,7 @@ def geometry_report(poses, frames=()):
                 complete=bool(counts) and not any(c.get('error') for c in counts.values()))
 
 
-def beat_at(beats, tick):
-    """Latest explicit second/tick beat at a scene-relative tick; never a panel index."""
+def parse_beats(beats):
     import re
     parsed = []
     for line in beats.splitlines():
@@ -240,5 +242,50 @@ def beat_at(beats, tick):
             raise ValueError('beats must use explicit times, e.g. "0.5s lift" or "20t land"')
         time = float(match[1]) * (20 if match[2] == 's' else 1)
         parsed.append((time, match[3]))
-    eligible = [row for row in parsed if row[0] <= tick]
+    return parsed
+
+
+def beat_at(beats, tick):
+    """Latest explicit second/tick beat; never a panel index."""
+    eligible = [row for row in parse_beats(beats) if row[0] <= tick]
     return max(eligible)[1] if eligible else ''
+
+
+def beat_clocks(frames, poses, clip=None):
+    """Exact screenshot clocks, grouped by actor and continuous clip occurrence."""
+    if clip is None:
+        return {(None, 0): [(frame, frame['tick']) for frame in frames]}
+    shots = {frame['poseFrame']: frame for frame in frames}
+    previous, occurrences, groups = {}, {}, {}
+    for pose in poses:
+        if pose['k'] != 'pose':
+            continue
+        actor = pose['u']
+        before = previous.get(actor)
+        previous[actor] = pose
+        if pose['clip'] != clip:
+            continue
+        # Client game time can move backward when synchronized to the server;
+        # that is the same occurrence, not an animation restart.
+        if (before is None or before['clip'] != clip or
+                (pose['ct'] < before['ct'] and pose['t'] + pose['pt'] >= before['t'] + before['pt'])):
+            occurrences[actor] = occurrences.get(actor, 0) + 1
+        group = groups.setdefault((actor, occurrences[actor]), [])
+        if pose['f'] in shots:
+            group.append((shots[pose['f']], pose['ct'] * 20))
+    return groups
+
+
+def beat_frames(beats, frames, poses, clip=None):
+    required, missing = set(), []
+    groups = beat_clocks(frames, poses, clip)
+    for (actor, occurrence), samples in (groups or {(None, 0): []}).items():
+        for tick, label in parse_beats(beats):
+            if samples:
+                frame, _ = min(samples, key=lambda sample: abs(sample[1] - tick))
+                required.add(frame['poseFrame'])
+            else:
+                missing.append(dict(metric='beat', verdict='no-evidence', u=actor, f=None,
+                                    clip=clip, occurrence=occurrence, beat_tick=tick,
+                                    reason=f'no screenshot pose for beat {label} in {clip or "scene"}'))
+    return required, missing

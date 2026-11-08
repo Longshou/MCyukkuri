@@ -14,23 +14,40 @@ class CaptureReviewTests(unittest.TestCase):
     def setUp(self):
         (Path(__file__).resolve().parents[1]/'.local/tmp').mkdir(parents=True, exist_ok=True)
 
-    def test_absent_selected_clip_rejects_before_ai_review(self):
+    def test_absent_clip_reports_each_missing_beat_without_borrowing_idle(self):
         with tempfile.TemporaryDirectory(dir=Path(__file__).resolve().parents[1]/'.local/tmp') as temp:
             root = Path(temp)
             view = root/'sleep_face'
             view.mkdir()
             (root/'plan.json').write_text(json.dumps([dict(id='sleep_face', settings={})]), encoding='utf-8')
-            (view/'selected-frames.json').write_text(json.dumps([dict(tick=10, poseFrame=2, file='frame.png')]), encoding='utf-8')
-            (view/'geometry.json').write_text('{}', encoding='utf-8')
+            frames = [dict(tick=10, gameTime=10, poseFrame=2, file='frame.png')]
+            for name in ('frames.json', 'selected-frames.json'):
+                (view/name).write_text(json.dumps(frames), encoding='utf-8')
+            (view/'geometry.json').write_text(json.dumps(dict(complete=True, findings=[])), encoding='utf-8')
             beats = root/'beats.txt'
-            beats.write_text('0s start\n', encoding='utf-8')
+            beats.write_text('0s start\n1s peak\n', encoding='utf-8')
             argv = ['capture_review.py', 'sleep', '--reuse', str(root), '--out', str(root/'review'),
                     '--beats', str(beats), '--beat-clip', 'wake']
             with patch('sys.argv', argv), patch.object(review, 'read_pose', return_value=[]), \
-                 patch.object(review.storyboard, 'kimi') as ai:
-                with self.assertRaisesRegex(ValueError, 'no selected frame contains clip wake'):
-                    review.main()
-                ai.assert_not_called()
+                 patch.object(review.storyboard, 'kimi', return_value=dict(readability='clear', issues=[], seen='idle')):
+                self.assertEqual(2, review.main())
+            report = json.loads((root/'review/review.json').read_text())
+            self.assertEqual(2, report['summary']['geometry_no_evidence_samples'])
+            self.assertEqual('', report['frames'][0]['beat'])
+
+    def test_unready_camera_excluded_including_reference_and_all_missing(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            frames = [dict(tick=i, poseFrame=i, cameraReady=bool(i), file=f'{i}.png') for i in range(2)]
+            (root/'selected-frames.json').write_text(json.dumps(frames), encoding='utf-8')
+            geometry = {}
+            selected, _ = review.review_frames(root, '', None, geometry)
+            self.assertEqual([frames[1]], selected)
+            self.assertEqual('camera', geometry['no_evidence'][0]['metric'])
+            self.assertEqual(0, geometry['no_evidence'][0]['f'])
+            (root/'selected-frames.json').write_text(json.dumps(frames[:1]), encoding='utf-8')
+            self.assertEqual([], review.review_frames(root, '', None, geometry)[0])
+            self.assertEqual(1, len(geometry['no_evidence']))
 
     def test_clip_time_uses_exact_render_frame_and_actor(self):
         beats = '0s start\n20t peak\n2s release\n'
@@ -44,6 +61,34 @@ class CaptureReviewTests(unittest.TestCase):
                          'a wake at 1.2s: peak\nb wake at 0.5s: start')
         self.assertEqual(review.frame_beat(beats, dict(frame, poseFrame=51), poses, 'wake'), '')
         self.assertEqual(review.frame_beat(beats, frame, poses, 'absent'), '')
+
+    def test_cli_sends_nearest_beat_and_never_unready_current_or_reference(self):
+        with tempfile.TemporaryDirectory(dir=Path(__file__).resolve().parents[1]/'.local/tmp') as temp:
+            root = Path(temp)
+            view = root/'sleep_face'
+            view.mkdir()
+            (root/'plan.json').write_text(json.dumps([dict(id=view.name, settings={})]), encoding='utf-8')
+            frames = [dict(tick=i, gameTime=i, poseFrame=i, cameraReady=i != 0, file=f'{i}.png')
+                      for i in range(12)]
+            (view/'frames.json').write_text(json.dumps(frames), encoding='utf-8')
+            (view/'selected-frames.json').write_text(json.dumps([frames[i] for i in (0, 1, 11)]), encoding='utf-8')
+            (view/'geometry.json').write_text(json.dumps(dict(complete=True, findings=[], no_evidence=[])), encoding='utf-8')
+            poses = [dict(k='pose', u='a', f=i, t=i, pt=0, clip='wake', ct=i*.25,
+                          phase='wake', markers=[], m=[]) for i in range(12)]
+            beats = root/'beats.txt'
+            beats.write_text('1.85s peak\n', encoding='utf-8')
+            argv = ['capture_review.py', 'sleep', '--reuse', str(root), '--out', str(root/'review'),
+                    '--beats', str(beats), '--beat-clip', 'wake']
+            with patch('sys.argv', argv), patch.object(review, 'read_pose', return_value=poses), \
+                    patch.object(review.storyboard, 'kimi', return_value=dict(readability='clear', issues=[], seen='fixture')) as ai:
+                self.assertEqual(2, review.main())  # Retained camera coverage gap.
+            images = [call.args[0] for call in ai.call_args_list]
+            self.assertIn(str(view/'7.png'), [pair[0] for pair in images])
+            self.assertTrue(all(str(view/'0.png') not in pair for pair in images))
+            self.assertTrue(all(pair[1] == str(view/'1.png') for pair in images))
+            report = json.loads((root/'review/review.json').read_text())
+            self.assertEqual(1, report['summary']['geometry_no_evidence_samples'])
+            self.assertEqual(0, report['geometry'][view.name]['no_evidence'][0]['f'])
 
     def test_capture_relays_queue_before_wait_and_retains_failure(self):
         process = MagicMock()
