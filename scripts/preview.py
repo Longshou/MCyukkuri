@@ -622,6 +622,8 @@ def main():
                 raise ValueError('size must be positive')
             if args.command == 'strip' and args.face_preset and not args.model:
                 raise ValueError('--face-preset requires --model')
+            if args.command == 'strip' and args.face and args.face_preset and not args.before:
+                raise ValueError('--face only applies to the old side of --before when --face-preset is given')
             if args.command == 'capture' and (args.zoom <= 0 or args.count < 2):
                 raise ValueError('zoom must be positive and count at least 2')
             with staging(args.topic) as stage:
