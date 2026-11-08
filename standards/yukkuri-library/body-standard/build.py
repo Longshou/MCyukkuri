@@ -15,12 +15,13 @@ LIB = HERE.parent
 ROOT = LIB.parents[1]
 PREVIEW = ROOT/'.local/previews/body-standard'
 PREVIEW_HUB = ROOT/'.local/previews/index.html'
-sys.path[:0] = [str(LIB/'subspecies/predator'), str(LIB/'ecology/house-yukkuri'), str(LIB)]
+sys.path[:0] = [str(HERE), str(LIB/'subspecies/predator'), str(LIB/'ecology/house-yukkuri'), str(LIB)]
 from species_geometry import body
 from mesh_geometry import mesh, vertices, poly_mesh
 from anatomy_library import compile_anatomy
 from motion_library import MotionLibrary
 from character_appearance import apply_style as apply_character_style
+from expression_geometry import geometry_fingerprint, offset_element, preset_changes, profile_point
 
 
 def read(p):
@@ -53,11 +54,7 @@ def point(p):
 
 
 def profile_at(y):
-    for a, b in zip(PROFILE, PROFILE[1:]):
-        if y <= b[0]:
-            t = min(1, max(0, (y-a[0])/(b[0]-a[0])))
-            return [a[k]+(b[k]-a[k])*t for k in range(1, 4)]
-    return PROFILE[-1][1:]
+    return profile_point(PROFILE, y)
 
 
 def face_mesh(e):
@@ -361,21 +358,18 @@ def export(ident):
                bones=[dict(name=b['name'],parent=-1 if b['parent'] is None else names[b['parent']],pivot=b['pivot']) for b in rig['bones']],
                clips={k:dict(duration=c['duration'],loop=c['loop'],tracks=[dict(bone=names[n],channel=ch,keys=[[float(t),*v] for t,v in sorted(keys.items(),key=lambda p:float(p[0]))]) for n,channels in c['tracks'].items() for ch,keys in channels.items()]) for k,c in rig['clips'].items()})
     patches={}
+    fingerprints={}
     for expression in old_data['textures']:
         preset=LIB/'expressions/presets'/(expression+'.json')
         if not preset.exists():continue
-        data=read(preset);changes=copy.deepcopy(data.get('geometry_offsets',{}))
-        if data.get('cheek_scale',1)!=1:
-            for name in ['face_blush_left','face_blush_right']:changes[name]={'scale':[1,data['cheek_scale'],1]}
+        data=read(preset);changes=preset_changes(data);fingerprints[expression]=geometry_fingerprint(data)
         for i,e in enumerate(elements):
             if e['name'] not in changes:continue
-            delta=changes[e['name']];patched=copy.deepcopy(e)
-            center=[sum(p[k] for p in e['vertices'].values())/len(e['vertices']) for k in range(3)]
-            for p in patched['vertices'].values():
-                for k in range(2):p[k]=center[k]+(p[k]-center[k])*delta.get('scale',[1,1,1])[k]+delta.get('position',[0,0,0])[k]*CFG['face_scale'][k]
-                p[2]=-profile_at(p[1])[2]-CFG['face_clearance']
+            patched=offset_element(e,changes[e['name']],CFG['face_scale'],
+                                   lambda y:-profile_at(y)[2]-CFG['face_clearance'])
             patches.setdefault(expression,[]).append(dict(index=i,vertices=vertices(patched,atlas_size)))
     model['expression_patches']=patches
+    save(out/'expression-inputs.json',dict(format=1,presets=fingerprints),True)
     common_anatomy=copy.deepcopy(anatomy)
     scale=spec.get('overall_scale',1)
     if scale!=1:
@@ -485,7 +479,7 @@ def main():
    if(!channels||!Object.values(channels).flat().some(v=>Math.abs(v)>1e-9))continue;
   }""")
     (preview/'pose.js').write_text(core,encoding='utf-8')
-    inputs=[HERE/'recipe.json',HERE/'profile.json',Path(__file__),HERE/'runtime/birth.js',HERE/'inputs/manifest.json',LIB/'runtime/motion.js',LIB/'runtime/viewer.html',HERE/'features/hair-contact/recipe.json',HERE/'features/hair-contact/author.py']
+    inputs=[HERE/'recipe.json',HERE/'profile.json',Path(__file__),HERE/'expression_geometry.py',HERE/'runtime/birth.js',HERE/'inputs/manifest.json',LIB/'runtime/motion.js',LIB/'runtime/viewer.html',HERE/'features/hair-contact/recipe.json',HERE/'features/hair-contact/author.py']
     inputs.append(LIB/'character_appearance.py')
     for ident in CFG['characters']:
         registration=LIB/'characters'/(ident+'.json')

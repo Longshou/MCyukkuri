@@ -13,6 +13,8 @@ R=Path(__file__).resolve().parent
 def read(p):return json.loads((R/p).read_text(encoding='utf-8-sig'))
 def save(p,v):p=R/p;p.parent.mkdir(parents=True,exist_ok=True);p.write_text(json.dumps(v,ensure_ascii=False,separators=(',',':')),encoding='utf-8')
 from geometry import vertices
+sys.path.insert(0,str(R/'body-standard'))
+from expression_geometry import offset_element,preset_changes
 
 motions=MotionLibrary(R);motion_index=read('motions/index.json');expression_index=read('expressions/index.json');expressions={k:read(v) for k,v in expression_index['presets'].items()};compiled={id:motions.compile(id) for id in motions.data}
 face_names={e['name'] for e in read('components/common/face.json')['elements']};metadata={id:dict(id=id,label=c['label'],kind=c['kind'],duration=c['duration'],description=c.get('description',''),dependencies=motions.dependencies(id),source=motions.paths[id]) for id,c in motions.data.items()}
@@ -72,15 +74,12 @@ for name in character_names:
    u,v,U,V=uv_binding[n];im=Image.open(R/ref).convert('RGBA');im=im.resize((U-u,V-v),Image.Resampling.NEAREST);atlas.paste(im,(u,v))
   buf=io.BytesIO();atlas.save(buf,format='PNG');textures[id]='data:image/png;base64,'+base64.b64encode(buf.getvalue()).decode()
   (out/'textures').mkdir(exist_ok=True);atlas.save(out/f'textures/{id}.png')
-  changes=copy.deepcopy(expr.get('geometry_offsets',{}))
-  if expr.get('cheek_scale',1)!=1:
-   for part in ['face_blush_left','face_blush_right']:changes[part]={'scale':[1,expr['cheek_scale'],1]}
+  changes=preset_changes(expr)
   if changes:
    patch=[]
    for i in face_indices:
     if elements[i]['name'] not in changes:continue
-    e=copy.deepcopy(elements[i]);delta=changes[e['name']];center=[(a+b)/2 for a,b in zip(e['from'],e['to'])]
-    for key in ['from','to']:e[key]=[center[j]+(v-center[j])*delta.get('scale',[1,1,1])[j]+delta.get('position',[0,0,0])[j] for j,v in enumerate(e[key])]
+    e=offset_element(elements[i],changes[elements[i]['name']])
     patch.append(dict(index=i,vertices=vertices(e,texture_size)))
    patches[id]=patch
  effects={}

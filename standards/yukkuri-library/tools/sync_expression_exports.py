@@ -6,16 +6,16 @@ Only library assembled exports are touched; game snapshots are independent.
 from pathlib import Path
 from PIL import Image
 import base64
-import copy
 import io
 import json
 import sys
 import time
 
 R = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(R))
+sys.path[:0] = [str(R), str(R/'body-standard')]
 from geometry import vertices
 from character_appearance import apply_style
+from expression_geometry import offset_element, preset_changes
 
 
 def read(p):
@@ -63,20 +63,12 @@ def refresh(ids, thumbnails_only=False):
             buf = io.BytesIO()
             atlas.save(buf, format='PNG')
             data['textures'][id] = 'data:image/png;base64,' + base64.b64encode(buf.getvalue()).decode()
-            changes = copy.deepcopy(p.get('geometry_offsets', {}))
-            if p.get('cheek_scale', 1) != 1:
-                for slot in ['face_blush_left', 'face_blush_right']:
-                    changes[slot] = {'scale': [1, p['cheek_scale'], 1]}
+            changes = preset_changes(p)
             patches = []
             for i, src in enumerate(bb['elements']):
                 if src['name'] not in changes:
                     continue
-                e = copy.deepcopy(src)
-                d = changes[e['name']]
-                center = [(a+b)/2 for a, b in zip(e['from'], e['to'])]
-                for key in ['from', 'to']:
-                    e[key] = [center[j] + (v-center[j])*d.get('scale', [1]*3)[j] + d.get('position', [0]*3)[j]
-                              for j, v in enumerate(e[key])]
+                e = offset_element(src, changes[src['name']])
                 patches.append(dict(index=i, vertices=vertices(e, data['textureSize'])))
             data['model']['expressionPatches'].pop(id, None)
             if patches:
@@ -91,15 +83,9 @@ def refresh(ids, thumbnails_only=False):
              'face_blush_left', 'face_blush_right', 'face_tear_left', 'face_tear_right', 'face_effect_mouth']
     for id, p in presets.items():
         canvas = Image.new('RGBA', (128, 100), '#e5d0a7')
+        changes = preset_changes(p)
         for slot in order:
-            e = copy.deepcopy(geometry[slot])
-            d = p.get('geometry_offsets', {}).get(slot, {})
-            if slot.startswith('face_blush') and p.get('cheek_scale', 1) != 1:
-                d = {'scale': [1, p['cheek_scale'], 1]}
-            center = [(a+b)/2 for a, b in zip(e['from'], e['to'])]
-            for key in ['from', 'to']:
-                e[key] = [center[j]+(v-center[j])*d.get('scale', [1]*3)[j]+d.get('position', [0]*3)[j]
-                          for j, v in enumerate(e[key])]
+            e = offset_element(geometry[slot], changes.get(slot, {}))
             x, y, _ = e['from']; X, Y, _ = e['to']
             im = Image.open(R / p['parts'][slot]).convert('RGBA').resize((max(1, round((X-x)*8)), max(1, round((Y-y)*8))), Image.Resampling.NEAREST)
             canvas.alpha_composite(im, (round(64-X*8), round(82-Y*8)))
