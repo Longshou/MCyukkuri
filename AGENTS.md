@@ -137,8 +137,8 @@
   | 难度／类型 | 首选 | 备选 | 推理强度 |
   | --- | --- | --- | --- |
   | 机械活、文档、简单脚本 | DeepSeek | Sonnet | low |
-  | 简单修复、一般审查 | kimi（审查）、DeepSeek（代码加冒烟） | Sonnet | medium |
-  | 中等：普通功能、工具、多文件改动、用现成命令二分定位 | Codex `gpt-6.1-sol`、kimi（设计明确时） | Sonnet | high |
+  | 简单修复、一般审查、用现成命令二分定位 | kimi（审查）、DeepSeek（代码加冒烟、二分） | Sonnet | medium |
+  | 中等：普通功能、工具、多文件改动 | Codex `gpt-6.1-sol`、kimi（设计明确时） | Sonnet | high |
   | 困难：物理几何、公共基础设施、失败或回归过的链路的设计与修复 | Codex `gpt-6-astra`、Opus（需要大量阅读的根因排查） | — | xhigh／max |
   | 美术与动作制作 | Opus | — | high／xhigh |
   | 视觉与动作审查 | Codex `gpt-6-astra` | kimi | high |
