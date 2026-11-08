@@ -497,13 +497,14 @@ def session(source, compile_tree, builder, scenes, args, label, stop=None):
     """One server for ``scenes`` in order (repeats included), holding a machine-wide slot; one result per run."""
     instances = server.COMMON / '.local/smoke' if compile_tree else server.INSTANCES
     server.stop_stale(instances)
-    runtime, java = server.installed_runtime()
-    if not compile_tree:
-        require_runtime_commit(runtime)
     run_id = secrets.token_hex(6)
     name = f'instance-{run_id}'
     with slots.slot('smoke', label, args.slots):
         server.wait_closed(not args.no_wait)
+        # Read inside the slot: a runtime update while this session queued removes the runtime it would have read earlier.
+        runtime, java = server.installed_runtime()
+        if not compile_tree:
+            require_runtime_commit(runtime)
         print(f'Self-check only; runtime={runtime.name}; scripts={source / "scripts"}; scenes={", ".join(s.id for s in scenes)}', flush=True)
         datapack = build_pack(builder, instances / f'pack-{run_id}', args.layout)
         mod = assemble_mod(source, runtime, java, instances / name) if compile_tree else runtime / 'mod'
