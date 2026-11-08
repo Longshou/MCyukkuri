@@ -46,6 +46,7 @@ public final class Fetch implements HostIntent {
     private final YukkuriEntity taker;
     private final PlacedHatEntity hat;
     private final long started;
+    private Release release;
 
     public Fetch(YukkuriEntity child, YukkuriEntity taker, PlacedHatEntity hat) {
         this.child = child;
@@ -69,15 +70,13 @@ public final class Fetch implements HostIntent {
 
     /**
      * The intent ended without the young down — stopped by its parent, interrupted, out of time or out of attempts — while
-     * the taker still carries it. Left alone it would ride on into the next beat and end up on the hat as it goes back on
-     * a head, so it is set down where it actually stands, through the shared motor path ("搬运被打断").
+     * the taker still carries it. The ordinary set-down goal inherits the actual attempt and keeps the hold until a
+     * supported release is possible; an unchanged failure does not start again under its new owner.
      */
     @Override public void ended(IntentRunner.Result result) {
         if (result == IntentRunner.Result.DONE || !held()) return;
-        Vec3 at = child.position();
-        Release.now(taker, child, true, "fetch_ended");
-        GameplayLog.event(taker, "family", "fetch release child={} uuid={} at={} result={} cause=fetch_ended",
-                child.getId(), child.getUUID(), GameplayLog.at(at), result);
+        taker.family().carry().finish(child, "fetch_ended", release);
+        GameplayLog.event(taker, "family", "fetch handoff child={} result={} held=true", child.getUUID(), result);
     }
 
     @Override public List<Method> methods() {
@@ -140,7 +139,8 @@ public final class Fetch implements HostIntent {
             case 2:
                 // Lifting a young out of the hat wakes it.
                 child.life().wakeInHat();
-                return new Step.Do(new Release(child));
+                release = new Release(child);
+                return new Step.Do(release);
             default:
                 return null;
         }
@@ -150,7 +150,7 @@ public final class Fetch implements HostIntent {
      * Lets the young crawl to the brim on the taker's side by itself (its own {@link GetTo}) and then does the same carry from
      * the stand on its new bearing. The wait ends once the young is in reach from outside the brim (it came to the edge), has
      * stopped getting closer for {@link #STALL_TICKS}, or the host moved; the intent's deadline bounds it. When the taker
-     * already holds the young, the wait is skipped.
+     * already holds the young, this method is inapplicable: it cannot improve a failed Release.
      */
     private final class WaitThenRetry implements Method {
         private int state = -1;
@@ -161,7 +161,8 @@ public final class Fetch implements HostIntent {
 
         @Override public Feasibility applicable() {
             if (!child.isAlive()) return Feasibility.of(Reason.TARGET_GONE, 0, "child_gone");
-            return held() || stand() != null ? Feasibility.pass() : Feasibility.of(Reason.NO_SUPPORT, 0, "no_stand");
+            if (held()) return Feasibility.of(Reason.NO_CONTACT, 0, "already_held");
+            return stand() != null ? Feasibility.pass() : Feasibility.of(Reason.NO_SUPPORT, 0, "no_stand");
         }
 
         @Override public Set<Reason> reduces() {
@@ -171,13 +172,11 @@ public final class Fetch implements HostIntent {
 
         @Override public Step next() {
             if (state < 0) {
-                state = held() ? 2 : 0;
-                if (state == 0) {
-                    markAt = child.position();
-                    hatAt = hat.position();
-                    markTick = hat.level().getGameTime();
-                    return new Step.Wait(this::edged, (int) Math.max(1, deadline() - markTick), "child_to_edge");
-                }
+                state = 0;
+                markAt = child.position();
+                hatAt = hat.position();
+                markTick = hat.level().getGameTime();
+                return new Step.Wait(this::edged, (int) Math.max(1, deadline() - markTick), "child_to_edge");
             }
             return carry(state, state++ == 0 ? stand() : null);
         }

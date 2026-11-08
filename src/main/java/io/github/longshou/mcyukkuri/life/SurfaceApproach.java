@@ -304,6 +304,28 @@ public final class SurfaceApproach {
 
     /** A supported, reachable stand around a fixed contact point, admitted by the caller's shared contact ability. */
     public static Vec3 beside(YukkuriEntity actor, Vec3 point, double distance, Predicate<Vec3> contact) {
+        var candidates = radialStands(actor, point, distance);
+        candidates.removeIf(at -> !contact.test(at));
+        return nearestReachable(actor, candidates, null);
+    }
+
+    /** Pickup selection and execution route around the same live peer. Contact is tested at the resolved stand. */
+    public static Vec3 beside(YukkuriEntity actor, Vec3 point, double distance, Entity peer, Predicate<Vec3> contact) {
+        return nearestReachable(actor, contactStands(actor, point, distance, peer, contact), peer == null ? null : peer.getBoundingBox());
+    }
+
+    /** Geometric stands only; the caller can bound route searches across several endpoints. */
+    public static List<Vec3> contactStands(YukkuriEntity actor, Vec3 point, double distance, Entity peer, Predicate<Vec3> contact) {
+        var candidates = new ArrayList<Vec3>();
+        for (var raw : radialStands(actor, point, distance)) {
+            var at = outside(actor, raw, peer == null ? null : peer.getBoundingBox());
+            if (at != null && contact.test(at) && !candidates.contains(at)) candidates.add(at);
+        }
+        candidates.sort(Comparator.comparingDouble(actor::distanceToSqr));
+        return candidates;
+    }
+
+    private static ArrayList<Vec3> radialStands(YukkuriEntity actor, Vec3 point, double distance) {
         var directions = new ArrayList<Vec3>();
         var toward = actor.position().subtract(point).multiply(1, 0, 1);
         if (toward.horizontalDistanceSqr() > .0001) directions.add(toward.normalize());
@@ -314,9 +336,9 @@ public final class SurfaceApproach {
         var candidates = new ArrayList<Vec3>();
         for (var direction : directions) {
             var at = floor(actor, point.add(direction.scale(distance)));
-            if (at != null && contact.test(at)) candidates.add(at);
+            if (at != null) candidates.add(at);
         }
-        return nearestReachable(actor, candidates, null);
+        return candidates;
     }
 
     /** Physical contact uses square body boxes. A point on the centre-to-centre diagonal can be inside both bodies. */
@@ -428,7 +450,12 @@ public final class SurfaceApproach {
 
     /** {@code straight}: a direct last step (or the way round the first footprint on it) may serve instead of a route. */
     private static Route plan(YukkuriEntity actor,Vec3 destination,AABB body,boolean straight){
-        if(!supported(actor,destination)||TravelRange.keepBabyHome(actor)&&!TravelRange.babyDestination(actor,BlockPos.containing(destination)))return null;
+        return plan(actor, destination, body, straight, false);
+    }
+
+    private static Route plan(YukkuriEntity actor,Vec3 destination,AABB body,boolean straight,boolean diagnose){
+        if(!supported(actor,destination)||TravelRange.keepBabyHome(actor)&&!TravelRange.babyDestination(actor,BlockPos.containing(destination)))
+            return rejected(actor, destination, body, "destination_support_or_range", diagnose);
         if(straight&&clearOf(actor,actor.position(),destination,body)&&(arrived(actor,destination)||clearLastStep(actor,destination)&&walkable(actor,destination)))
             return new Route(null,actor.position().distanceTo(destination));
         // A containing block is not an exact stand. Offer only node centres with a clear, supported final segment.
@@ -440,22 +467,43 @@ public final class SurfaceApproach {
             if(at!=null&&clearOf(actor,at,destination,body)&&clearLastStep(actor,at,destination))
                 targets.add(new BlockPos(x+dx,Mth.floor(at.y+.5),z+dz));
         }
-        if(targets.isEmpty())return null;
+        if(targets.isEmpty())return rejected(actor, destination, body, "no_final_node", diagnose);
         var navigation=actor.getNavigation();
         var path=navigation instanceof YukkuriGroundNavigation ground?ground.createApproachPath(targets,body,destination):navigation.createPath(targets,0);
-        if(path==null||!path.canReach()||path.getNodeCount()==0)return null;
+        if(path==null||!path.canReach()||path.getNodeCount()==0)return rejected(actor, destination, body, "incomplete_path", diagnose);
         var first=floor(actor,path.getEntityPosAtNode(actor,0));
-        if(first!=null&&actor.onGround()&&NestDoorway.at(actor,actor.position())==null&&Math.abs(first.y-actor.getY())<=.25&&!clearLastStep(actor,first))return null;
+        if(first!=null&&actor.onGround()&&NestDoorway.at(actor,actor.position())==null&&Math.abs(first.y-actor.getY())<=.25&&!clearLastStep(actor,first))
+            return rejected(actor, first, body, "first_segment", diagnose);
         Vec3 before=actor.position();double length=0;
         for(int i=0;i<path.getNodeCount();i++){
             var next=path.getEntityPosAtNode(actor,i);
-            if(!clearOf(actor,before,next,body)||!dryStep(actor,before,next))return null;
+            if(!clearOf(actor,before,next,body)||!dryStep(actor,before,next))return rejected(actor, next, body, "path_segment_from=" + before, diagnose);
             length+=before.distanceTo(next);before=next;
         }
         // Recheck the chosen endpoint: vanilla may return a partial route, or a node at a different height.
         var end=floor(actor,before);
-        if(end==null||!clearOf(actor,end,destination,body)||!clearLastStep(actor,end,destination))return null;
+        if(end==null||!clearOf(actor,end,destination,body)||!clearLastStep(actor,end,destination))
+            return rejected(actor, destination, body, "final_segment_from=" + end, diagnose);
         return new Route(path,length+end.distanceTo(destination));
+    }
+
+    private static Route rejected(YukkuriEntity actor, Vec3 at, AABB body, String why, boolean diagnose) {
+        if (diagnose) GameplayLog.limited(actor, "approach", "route_rejected", 200,
+                "surface route rejected test={} from={} to={} peerBox={} blocks={}", why, actor.position(), at, body, blocks(actor, at));
+        return null;
+    }
+
+    /** Collision shapes at the rejected segment, bounded to six nearby blocks for the diagnostic. */
+    private static List<String> blocks(YukkuriEntity actor, Vec3 at) {
+        var area = actor.getBoundingBox().expandTowards(at.subtract(actor.position())).inflate(.01);
+        var blocks = new ArrayList<String>();
+        for (var pos : BlockPos.betweenClosed(BlockPos.containing(area.minX, area.minY, area.minZ), BlockPos.containing(area.maxX, area.maxY, area.maxZ))) {
+            var shape = actor.level().getBlockState(pos).getCollisionShape(actor.level(), pos);
+            if (shape.isEmpty() || !shape.bounds().move(pos).intersects(area)) continue;
+            blocks.add(pos.toShortString() + ":" + actor.level().getBlockState(pos));
+            if (blocks.size() == 6) break;
+        }
+        return blocks;
     }
 
     /** Plan the complete route around blocks and the partner together; never alternate isolated greedy corners. */
@@ -581,7 +629,7 @@ public final class SurfaceApproach {
                 return observed(actor,Result.MOVING);
             return blocked(actor,"last_step_blocked");
         }
-        var route=plan(actor,destination,body,!current.routed);
+        var route=plan(actor,destination,body,!current.routed,true);
         if(route!=null&&route.path()!=null&&navigation.moveTo(route.path(),speed)){
             current.target=navigation.getTargetPos();
             GameplayLog.limited(actor,"approach","route",200,
@@ -597,6 +645,12 @@ public final class SurfaceApproach {
     }
 
     private Result blocked(YukkuriEntity actor,String reason){
+        var path = actor.getNavigation().getPath();
+        var node = path == null || path.getNodeCount() == 0 ? null : path.getEntityPosAtNode(actor, path.getNodeCount() - 1);
+        GameplayLog.limited(actor,"approach","rejected_segment." + reason.split(" ")[0],200,
+                "surface rejected segment peer={} requested={} resolved={} finalNode={} lastStep={} from={} peerBox={} pathReachable={} nodes={} blocks={}",
+                current.peer,current.destination,current.goal,node,current.lastStep,actor.position(),current.body,
+                path != null && path.canReach(),path == null ? 0 : path.getNodeCount(),blocks(actor, current.goal == null ? current.destination : current.goal));
         stopInput(actor);current.target=null;current.lastStep=null;current.retryAt=actor.level().getGameTime()+RETRY;current.why=reason;
         GameplayLog.limited(actor,"approach","path_failed",200,
                 "surface path unavailable peer={} target={} reason={} retryAfter={}",current.peer,current.destination,reason,current.retryAt);

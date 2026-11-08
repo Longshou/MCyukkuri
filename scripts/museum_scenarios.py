@@ -2060,16 +2060,21 @@ def _carry_verify(log):
             return f'brim child {child} was not released after lowering'
     if not checked:
         return 'expected a brim grip/release pair with a constant brim-local seat'
-    return _carry_loads_verify(log) or _reimu_release_verify(log)
+    return _carry_chains_verify(log) or _reimu_release_verify(log)
 
 
-def _carry_loads_verify(log):
-    # A retrieval lifts every nearby young its holds can still carry before it leaves: Chen two, Marisa and Reimu more than one.
-    most = {}
-    for kind, aboard in re.findall(r'\[family\] (marisa|reimu|chen) #\d+ [^\n]*carry pickup hold=[^\n]* aboard=(\d+)', log):
-        most[kind] = max(most.get(kind, 0), int(aboard))
-    short = {kind: most.get(kind, 0) for kind in ('marisa', 'reimu', 'chen') if most.get(kind, 0) < 2}
-    return f'no simultaneous load of at least 2 young: {short} (most aboard {most})' if short else None
+def _carry_chains_verify(log):
+    # Distinct initial children carried home; autonomous STAY_HOME returns are checked by END.
+    carried = set()
+    for kind, _, count, _ in _carry_families:
+        for i in range(count):
+            child = _uuid_text('carry_home', f'{kind}_{i}')
+            pickup = re.search(rf'carry pickup hold=\S+ [^\n]*child={child}\b', log)
+            if re.search(rf'carry put down [^\n]*child={child}\b[^\n]*nest=OUTSIDE\b', log):
+                return f'initial child {child} released OUTSIDE'
+            if pickup and re.search(rf'carry put down reason=arrived_home [^\n]*child={child}\b[^\n]*nest=(?:INSIDE_SUPPORTED|PARTIAL)\b', log[pickup.end():]):
+                carried.add(child)
+    return f'fewer than two distinct initial children carried home: {len(carried)}' if len(carried) < 2 else None
 
 
 def _reimu_release_verify(log):
@@ -2100,8 +2105,7 @@ add('carry_home', 'family', '亲油把走远的赤油带回窝', '亲油把走�
                        r'\[family\] marisa #[^\n]* carry pickup hold=brim\b',
                        r'\[family\] reimu #[^\n]* carry pickup hold=mouth\b',
                        r'\[family\] chen #[^\n]* carry pickup hold=tail_(?:left|right)\b',
-                       *(rf'\[family\] {kind} #[^\n]* carry put down reason=arrived_home [^\n]*nest=(?:INSIDE_SUPPORTED|PARTIAL)\b' for kind, _, _, _ in _carry_families),
-                       *(rf'\[family\] {kind} #[^\n]* carry pickup [^\n]*aboard=[2-9]\b' for kind, _, _, _ in _carry_families)],
+                       *(rf'\[family\] {kind} #[^\n]* carry put down reason=arrived_home [^\n]*nest=(?:INSIDE_SUPPORTED|PARTIAL)\b' for kind, _, _, _ in _carry_families)],
                forbid=[r'\[home\][^\n]* assignment refused\b', r'\[family\][^\n]* task stopped task=SEARCH target=null\b',
                        r'\[home\][^\n]*bed crossing[^\n]*opening=false source=walk', r'\[home\][^\n]*nest_not_inside\b',
                        r'\[home\][^\n]*reason=doorway_unreachable\b',
@@ -3736,13 +3740,14 @@ _scene_end('colony_migrate_babies', [('migrant_baby', _ASHORE)],
               (f'migrant_{kind}', r'seen:family:carry pickup .*purpose=MIGRATE child=$subject\b'),
               ('$subject', f'seen:settlement:dependent settled with parent=$migrant_{kind}\\b')])
              for kind in ('marisa', 'reimu', 'chen')])
-_scene_end('carry_home', [(f'{kind}_baby', _DRY) for kind in ('marisa', 'reimu', 'chen')],
-           *[dict(each=f'{kind}_baby', steps=[
+_scene_end('carry_home', [(f'{kind}_baby', _ASHORE + ' and nest=INSIDE_SUPPORTED') for kind in ('marisa', 'reimu', 'chen')],
+           *[dict(each=f'{kind}_baby', autonomous_home=True, steps=[
               (f'{kind}_parent', r'seen:family:^carry pickup hold=\S+ .*child=$subject\b'),
               (f'{kind}_parent', r'seen:family:carry (?:set down started reason=arrived_home child=$subject\b|release target child=$subject placement=nest|lowering hold=\S+ child=$subject\b)'),
               (f'{kind}_parent', r'seen:family:carry put down reason=arrived_home .*child=$subject .*nest=(?:INSIDE_SUPPORTED|PARTIAL)')],
               post=[('$subject', _ASHORE + f' and nest_of.{kind}_parent=true')])
              for kind in ('marisa', 'reimu', 'chen')])
+next(s for s in S if s.id == 'carry_home').smoke['end']['carried_min'] = 2
 _scene_end('hat_push', [('a', 'alive=true and distress=false'), ('fast', 'alive=true and distress=false')],
            [('hat_of:fast', 'seen:hat:capsized cause=impact .*count=1')],
            forbid=[('hat_of:a', 'seen:hat:capsized')])

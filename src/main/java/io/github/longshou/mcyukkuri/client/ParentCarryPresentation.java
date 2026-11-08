@@ -94,6 +94,7 @@ final class ParentCarryPresentation {
     /** How far a Reimu's mouth child is in her mouth (0 at the lips .. 1 inside, unseen); 0 for every other hold. Letting it out, it is
      *  inside until the clip's open marker and out at its release marker. */
     private static float inside(YukkuriView carrier, YukkuriView child, float partial) {
+        if (ParentCarry.retainedLowering(carrier, child)) return 0;
         if (!ParentCarry.multi(carrier) || ParentCarry.hold(carrier, child) != Hold.MOUTH) return 0;
         float out = ParentCarry.mouthReleaseTicks(carrier, child, partial);
         if (out < 0) return ease(ParentCarry.sinceMouthLift(carrier, child, partial) / ENTER_TICKS);
@@ -104,6 +105,7 @@ final class ParentCarryPresentation {
     /** How wide Reimu's mouth is open for this child (0..1): from late in the lift until it is in, and from the release clip's start
      *  to its open marker until its closed marker. */
     private static float opening(YukkuriView carrier, YukkuriView child, float partial) {
+        if (ParentCarry.retainedLowering(carrier, child)) return 0;
         if (!ParentCarry.multi(carrier) || ParentCarry.hold(carrier, child) != Hold.MOUTH) return 0;
         float out = ParentCarry.mouthReleaseTicks(carrier, child, partial);
         if (out >= 0) {
@@ -353,6 +355,7 @@ final class ParentCarryPresentation {
             roll = Math.clamp(roll, -(TILT_BUDGET - Math.abs(pitch)), TILT_BUDGET - Math.abs(pitch));
             turnTo.rotateX(pitch * Mth.DEG_TO_RAD).rotateZ(roll * Mth.DEG_TO_RAD);
         }
+        if (ParentCarry.retainedLowering(carrier, child)) feet = seated;
         // Held over a host (the hat it came from) the feet stay on or above its surface, as the server seat does.
         feet.y = (float) (ParentCarry.pinned(carrier, child, origin.add(feet.x, feet.y, feet.z)) - origin.y);
         // Tail lifts keep their presentation arc. Mouth, brim and braid-tip children use the shared physical route above.

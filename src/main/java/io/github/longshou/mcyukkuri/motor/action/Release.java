@@ -34,6 +34,8 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
+import java.util.HashSet;
+import java.util.Set;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
@@ -57,10 +59,12 @@ public final class Release implements Action {
     private Vec3 endpoint;
     private String placement;
     private Outcome outcome;
-    /** Route plans one set-down search may spend on refused stands; the spots are tried nearest first. */
+    /** One action's budget, shared by initial selection and stale-candidate replacements. */
     private static final int STAND_TRIES = 6;
+    private record Candidate(Vec3 endpoint, Vec3 stand, float facing) {}
+    private final Set<Candidate> tried = new HashSet<>();
+    private int stands;
     private int failedWorld, rejectedSpace, rejectedStand, settling;
-    private long startTick;
     private Vec3 previousLocal;
     private double lowered;
     private final StowStep stow = new StowStep();
@@ -106,7 +110,14 @@ public final class Release implements Action {
             seat = nearest(carrier, places, facings(carrier));
             return seat != null ? Feasibility.pass() : Feasibility.of(Reason.NO_SUPPORT, 0, "transfer_blocked");
         }
-        return plan(carrier, false);
+        // A busy owner may defer start after this check; do not spend the same action's budget twice.
+        if (endpoint != null) return Feasibility.pass();
+        var result = plan(carrier);
+        if (!result.ok()) {
+            outcome = Outcome.of(result.reason(), result.shortfall(), result.detail());
+            failedWorld = world(carrier);
+        }
+        return result;
     }
 
     private List<Float> facings(YukkuriEntity carrier) {
@@ -157,10 +168,9 @@ public final class Release implements Action {
     }
 
     /** One endpoint/stand planner for cushions and nearby ground; execution uses the same room and turn tests. */
-    private Feasibility plan(YukkuriEntity carrier, boolean outside) {
+    private Feasibility plan(YukkuriEntity carrier) {
         var bed = BedContainer.of(child, nest);
-        for (int pass = outside || bed == null ? 1 : 0; pass < 2; pass++) {
-            int stands = 0;
+        for (int pass = bed == null ? 1 : 0; pass < 2; pass++) {
             var spots = new ArrayList<Vec3>();
             double half = pass == 0 ? ((FloorShape.RoundedRect) bed.floor()).half() : carrier.getBbWidth() * 2;
             double step = pass == 0 ? child.getBbWidth() / 2 : carrier.getBbWidth() / 2;
@@ -170,35 +180,52 @@ public final class Release implements Action {
                 if (pass == 1 || bed.standsInside(x, z, child.getBbWidth()))
                     spots.add(new Vec3(centre.x + x, pass == 0 ? bed.floorY() : centre.y, centre.z + z));
             spots.sort(Comparator.comparingDouble(carrier::distanceToSqr));
-            int free = 0;
+            var endpoints = new ArrayList<Vec3>();
             for (var point : spots) for (double down = 0; down <= (pass == 0 ? 0 : DROP); down += .5) {
-                if (stands >= STAND_TRIES) break;
                 var at = pass == 0 ? point : SurfaceApproach.restingFloor(child, point.add(0, .1 - down, 0));
                 if (at == null || !free(carrier, at)) { rejectedSpace++; continue; }
                 if (pass == 1 && bed != null && bed.floor().contains(bed.toPlane(at).x, bed.toPlane(at).z)) continue;
-                free++;
-                if (place(carrier, at)) { if (pass == 0) placement = "nest"; return Feasibility.pass(); }
-                rejectedStand++;
-                stands++;
+                if (!endpoints.contains(at)) endpoints.add(at);
             }
-            if (pass == 0) placement = free == 0 ? "nest_full" : "nest_unreachable";
+            // Exhaust this surface's no-walk choices before spending routes on stands around it.
+            for (boolean walk : new boolean[]{false, true}) for (var at : endpoints) {
+                double reach = ParentCarry.groundPoint(carrier, child, 0).subtract(carrier.position()).horizontalDistance() + .03;
+                var candidates = walk ? SurfaceApproach.contactStands(carrier, at, reach, null,
+                        stand -> room(carrier, stand, facing(carrier, stand, at), at).ok()) : List.of(carrier.position());
+                for (var stand : candidates) {
+                    float yaw = facing(carrier, stand, at);
+                    if (stand.subtract(at).horizontalDistance() > reach || !SurfaceApproach.supportedGround(carrier, stand)
+                            || !room(carrier, stand, yaw, at).ok()) continue;
+                    var candidate = new Candidate(at, stand, Mth.wrapDegrees(yaw));
+                    if (tried.contains(candidate)) continue;
+                    if (stands >= STAND_TRIES) return Feasibility.of(Reason.NO_ROOM, 0, "release_search_exhausted");
+                    tried.add(candidate);
+                    stands++;
+                    if (walk && !Double.isFinite(SurfaceApproach.routeLength(carrier, stand, null))) { rejectedStand++; continue; }
+                    endpoint = at;
+                    facing = candidate.facing();
+                    approach = stand.equals(carrier.position()) ? null : new Walk(stand);
+                    placement = pass == 0 ? "nest" : bed == null ? "ground" : "outside";
+                    return Feasibility.pass();
+                }
+            }
         }
         return Feasibility.of(Reason.NO_ROOM, 0, "no_supported_release_spot space=" + rejectedSpace + " stand=" + rejectedStand);
     }
 
-    /** An occupied destination or blocked approach ends the nest route; take a different, supported outside release. */
-    private Progress outsideAfter(YukkuriEntity carrier, Outcome refusal) {
-        if (!"nest".equals(placement)) return refusal;
-        if (approach != null) approach.abort(carrier, "nest_release_blocked");
+    /** Before lowering, replace a stale candidate within this action's remaining search budget. */
+    private Progress alternative(YukkuriEntity carrier, Outcome refusal) {
+        if (destination != null) return refusal;
+        if (approach != null) approach.abort(carrier, "release_candidate_blocked");
         approach = null;
         turn = null;
-        placement = "nest_blocked";
-        var outside = plan(carrier, true);
-        GameplayLog.event(carrier, "family", "carry nest release blocked child={} reason={} detail={} outside={}",
-                child.getUUID(), refusal.reason(), refusal, outside.ok() ? endpoint : outside.detail());
-        if (!outside.ok()) return Outcome.of(outside.reason(), outside.shortfall(), outside.detail());
-        start(carrier);
-        return new Running(3 * 360, TravelMode.CONSUMED, true);
+        var previous = endpoint;
+        var next = plan(carrier);
+        GameplayLog.event(carrier, "family", "carry release candidate blocked child={} at={} refusal={} next={} tries={}",
+                child.getUUID(), previous, refusal, next.ok() ? endpoint : next.detail(), stands);
+        if (!next.ok()) return Outcome.of(next.reason(), next.shortfall(), next.detail());
+        begin(carrier);
+        return new Running(3 * 360, TravelMode.CONSUMED);
     }
 
     private float facing(YukkuriEntity carrier, Vec3 stand, Vec3 at) {
@@ -206,30 +233,21 @@ public final class Release implements Action {
         return SurfaceApproach.yaw(stand, at) - SurfaceApproach.yaw(Vec3.ZERO, offset);
     }
 
-    private boolean place(YukkuriEntity carrier, Vec3 at) {
-        double distance = ParentCarry.groundPoint(carrier, child, 0).subtract(carrier.position()).horizontalDistance() + .03;
-        var stand = carrier.position();
-        if (!SurfaceApproach.supportedGround(carrier, stand) || stand.subtract(at).horizontalDistance() > distance
-                || !room(carrier, stand, facing(carrier, stand, at), at).ok())
-            stand = SurfaceApproach.beside(carrier, at, distance, candidate ->
-                    !child.getDimensions(child.getPose()).makeBoundingBox(at).inflate(.025, 0, .025)
-                            .intersects(carrier.getBoundingBox().move(candidate.subtract(carrier.position())))
-                            && room(carrier, candidate, facing(carrier, candidate, at), at).ok());
-        if (stand == null) return false;
-        endpoint = at;
-        facing = facing(carrier, stand, at);
-        approach = stand.equals(carrier.position()) ? null : new Walk(stand);
-        return true;
+    private boolean free(YukkuriEntity carrier, Vec3 at) {
+        return space(carrier, at).ok();
     }
 
-    private boolean free(YukkuriEntity carrier, Vec3 at) {
-        return SurfaceApproach.supportedGround(child, at)
-                && carrier.level().getEntitiesOfClass(YukkuriEntity.class, child.getDimensions(child.getPose()).makeBoundingBox(at).deflate(.005),
-                    other -> other != child && other != carrier && !carrier.hasPassenger(other)).isEmpty();
+    private Feasibility space(YukkuriEntity carrier, Vec3 at) {
+        if (!SurfaceApproach.supportedGround(child, at)) return Feasibility.of(Reason.NO_SUPPORT, 0, "unsupported_or_wet at=" + at);
+        var occupants = carrier.level().getEntitiesOfClass(YukkuriEntity.class, child.getDimensions(child.getPose()).makeBoundingBox(at).deflate(.005),
+                other -> other != child && other != carrier && !carrier.hasPassenger(other));
+        return occupants.isEmpty() ? Feasibility.pass()
+                : Feasibility.of(Reason.NO_ROOM, 0, "occupied child=" + occupants.getFirst().getUUID() + " box=" + occupants.getFirst().getBoundingBox());
     }
 
     private Feasibility room(YukkuriEntity carrier, Vec3 stand, float yaw, Vec3 at) {
-        if (!free(carrier, at)) return Feasibility.of(Reason.NO_ROOM, 0, "no_supported_body_space");
+        var space = space(carrier, at);
+        if (!space.ok()) return space;
         if (child.getDimensions(child.getPose()).makeBoundingBox(at).intersects(carrier.getBoundingBox().move(stand.subtract(carrier.position()))))
             return Feasibility.of(Reason.NO_ROOM, 0, "carrier_body");
         if (ParentCarry.hold(carrier, child) == Hold.MOUTH) {
@@ -266,7 +284,6 @@ public final class Release implements Action {
 
     private void begin(YukkuriEntity carrier) {
         begun = true;
-        startTick = carrier.level().getGameTime();
         if (endpoint != null) {
             ParentCarry.nestSpot(carrier, child, endpoint);
             GameplayLog.event(carrier, "family", "carry release target child={} placement={} at={}", child.getUUID(), placement == null ? "ground" : placement, endpoint);
@@ -322,21 +339,21 @@ public final class Release implements Action {
         }
         if (approach != null) {
             var progress = approach.tick(carrier);
-            if (progress instanceof Outcome outcome && outcome.reason() != null) return outsideAfter(carrier, outcome);
+            if (progress instanceof Outcome outcome && outcome.reason() != null) return alternative(carrier, outcome);
             if (!(progress instanceof Outcome.Done)) return progress instanceof Running running ? progress(running, 2) : progress;
             approach = null;
-            if (!clearTurn(carrier, carrier.position(), facing)) return outsideAfter(carrier, Outcome.of(Reason.NO_ROOM, 0, "mouth_turn_blocked"));
+            if (!clearTurn(carrier, carrier.position(), facing)) return alternative(carrier, Outcome.of(Reason.NO_ROOM, 0, "mouth_turn_blocked"));
             turn = new Face(facing);
             turn.start(carrier);
         }
         if (turn != null) {
             var turned = turn.tick(carrier);
             if (turned instanceof Running running) return progress(running, 1);
+            if (turned instanceof Outcome failed && failed.reason() != null) return alternative(carrier, failed);
             if (destination == null) {
                 var room = room(carrier, carrier.position(), carrier.bodyYaw(), ParentCarry.letGoPoint(carrier, child));
-                if (!room.ok()) return outsideAfter(carrier, Outcome.of(room.reason(), room.shortfall(), room.detail()));
+                if (!room.ok()) return alternative(carrier, Outcome.of(room.reason(), room.shortfall(), room.detail()));
             } else {
-                if (turned instanceof Outcome failed && failed.reason() != null) return failed;
                 String unavailable = seat.unavailable(child);
                 if (unavailable != null) return Outcome.of(Reason.NO_ROOM, 0, "place_lost_after_turn " + unavailable);
                 previousLocal = destination.frame().toLocal(child.position());
@@ -362,7 +379,12 @@ public final class Release implements Action {
             if (!seat.land(child, "braid_set_down")) return Outcome.of(Reason.NO_CONTACT, 0, "seat_contact_lost");
             if (seat.kind() != SeatTarget.Kind.HEAD) ParentCarry.released(carrier, child, "release");
             GameplayLog.event(child, "body", "seat landed host={} place={} cause=braid_set_down", destination.entity().getUUID(), seat.kind());
-        } else let(carrier, child, placement != null && !placement.equals("nest") ? placement : "release");
+        } else {
+            // Contact is authoritative. A sibling arriving during lowering leaves this child held at its measured pose.
+            var contact = space(carrier, child.position());
+            if (!contact.ok()) return Outcome.of(contact.reason(), contact.shortfall(), "contact " + contact.detail());
+            let(carrier, child, "release");
+        }
         released = true;
         var back = Stow.regrip(carrier, "release");
         if (stow.start(carrier, back)) return new Running(back.length(), TravelMode.CONSUMED, true);

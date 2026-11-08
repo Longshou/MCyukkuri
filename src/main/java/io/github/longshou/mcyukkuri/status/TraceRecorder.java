@@ -12,6 +12,7 @@ import io.github.longshou.mcyukkuri.MCYukkuri;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.entity.presentation.PresentationArbiter;
 import io.github.longshou.mcyukkuri.family.ParentCarry;
+import io.github.longshou.mcyukkuri.family.FamilyNest;
 import io.github.longshou.mcyukkuri.headwear.PlacedHatEntity;
 import io.github.longshou.mcyukkuri.intent.Conductor;
 import io.github.longshou.mcyukkuri.intent.IntentRunner;
@@ -638,6 +639,8 @@ public final class TraceRecorder {
         out.add("parents", parents);
         BlockPos home = entity.life().homeStand();
         out.add("home", home == null ? JsonNull.INSTANCE : vec(home.getX(), home.getY(), home.getZ()));
+        var nest = FamilyNest.bedOccupancy(entity, home);
+        out.addProperty("nest", nest == null ? null : nest.name());
         JsonObject needs = new JsonObject();
         needs.addProperty("nut", entity.life().nutrition());
         needs.addProperty("en", entity.life().energy());

@@ -182,6 +182,56 @@ class EndChecks(unittest.TestCase):
         rows[-3]['msg'] = 'carry pickup hold=brim purpose=RETRIEVE child=' + CHILD
         self.assertEqual(verdict(rows, end), 'pass')
 
+    def carry_home_case(self, carried=2, autonomous=True):
+        import museum_scenarios
+        scene = next(s for s in museum_scenarios.S if s.id == 'carry_home')
+        path = copy.deepcopy(scene.smoke['end']['paths'][0])
+        end = dict(paths=[path], carried_min=2,
+                   final=[('marisa_baby', 'alive=true and g=true and w=false and att.kind=free and nest=INSIDE_SUPPORTED')])
+        rows = [actor(t, ACTOR, 'marisa_parent') for t in (0, 200)]
+        for index, child in enumerate((CHILD, OTHER, HAT)):
+            rows += [actor(t, child, 'marisa_baby', stage='baby', nest='INSIDE_SUPPORTED' if t else 'OUTSIDE',
+                           phase='STAY_HOME' if autonomous and index >= carried else 'NONE',
+                           att={'kind': 'free'}) for t in (0, 60, 200)]
+            if index < carried:
+                rows += [dict(e, msg=e['msg'].replace(CHILD, child)) for e in self.events]
+        return rows, end
+
+    def test_carry_home_autonomous_pass_and_missing_return_failure(self):
+        rows, end = self.carry_home_case()
+        self.assertEqual(verdict(rows, end), 'pass')
+        broken = copy.deepcopy(rows)
+        for r in broken:
+            if r['k'] == 'st' and r['u'] == HAT:
+                r['st']['nest'] = 'OUTSIDE'
+        self.assertEqual(verdict(broken, end), 'fail')
+        rows, end = self.carry_home_case(autonomous=False)
+        self.assertEqual(verdict(rows, end), 'fail')
+
+    def test_carry_home_outside_then_walk_in_still_fails(self):
+        rows, end = self.carry_home_case()
+        rows += [event(10, ACTOR, 'family', 'carry pickup hold=brim child=' + HAT),
+                 event(40, ACTOR, 'family', 'carry put down reason=release cause=release child=' + HAT + ' nest=OUTSIDE')]
+        self.assertEqual(verdict(rows, end), 'fail')
+
+    def test_carry_home_requires_two_distinct_carried_children(self):
+        rows, end = self.carry_home_case(carried=1)
+        self.assertEqual(verdict(rows, end), 'fail')
+        rows += [dict(e, t=e['t'] + 50) for e in self.events]
+        self.assertEqual(verdict(rows, end), 'fail')
+        rows, end = self.carry_home_case(carried=2)
+        self.assertEqual(verdict(rows, end), 'pass')
+
+    def test_legacy_carry_minimum_and_outside_rejection(self):
+        import museum_scenarios as scenes
+        children = [scenes._uuid_text('carry_home', 'marisa_' + str(i)) for i in range(2)]
+        def chain(child, nest='INSIDE_SUPPORTED'):
+            return ('carry pickup hold=brim purpose=RETRIEVE child=' + child + '\n'
+                    'carry put down reason=arrived_home hold=brim cause=release child=' + child + ' nest=' + nest + '\n')
+        self.assertIsNone(scenes._carry_chains_verify(''.join(map(chain, children))))
+        self.assertIsNotNone(scenes._carry_chains_verify(chain(children[0]) * 2))
+        self.assertIsNotNone(scenes._carry_chains_verify(chain(children[0], 'OUTSIDE') + ''.join(map(chain, children))))
+
 
 if __name__ == '__main__':
     unittest.main(verbosity=2)

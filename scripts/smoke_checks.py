@@ -1130,15 +1130,38 @@ def endings(records, samples, end, raw=''):
         hits = [r for r in context.events if r['u'] in actors and r.get('cat') == cat
                 and re.search(context.expand(pattern, {}), r['msg'])]
         out.append(result('END', 'fail' if hits else 'pass', 'forbidden event: ' + seen, hits[0] if hits else None))
+    carried = set()
     for path in end.get('paths', ()):
         if 'each' in path:
             actors = context.select(path['each'], {})
             if not actors:
                 out.append(result('END', 'fail', 'missing path subject ' + path['each']))
             for actor in sorted(actors):
-                out.extend(context.path(path, {'subject': actor}))
+                if path.get('autonomous_home'):
+                    events = [r for r in context.events if r.get('cat') == 'family'
+                              and re.search(r'\bchild=' + re.escape(actor) + r'\b', r['msg'])]
+                    picked = any(r['msg'].startswith('carry pickup hold=') for r in events)
+                    outside = [r for r in events if r['msg'].startswith('carry put down reason=')
+                               and re.search(r'\bnest=OUTSIDE\b', r['msg'])]
+                    if outside:
+                        out.append(result('END', 'fail', 'carried child released OUTSIDE', outside[0]))
+                        continue
+                    if not picked:
+                        walked = any(r['state'].get('phase') == 'STAY_HOME' for r in context.samples.get(actor, ()))
+                        out.append(result('END', 'pass' if walked else 'fail', 'autonomous STAY_HOME return without pickup',
+                                          dict(u=actor, t=context.end)))
+                        out.extend(context.clauses([('$subject', 'alive=true and g=true and w=false and att.kind=free and nest=INSIDE_SUPPORTED')],
+                                                   context.end, {'subject': actor}, True))
+                        continue
+                chain = context.path(path, {'subject': actor})
+                out.extend(chain)
+                if path.get('autonomous_home') and all(r['verdict'] == 'pass' for r in chain):
+                    carried.add(actor)
         else:
             out.extend(context.path(path, {}))
+    if 'carried_min' in end:
+        out.append(result('END', 'pass' if len(carried) >= end['carried_min'] else 'fail',
+                          f'distinct initial children carried home: {len(carried)} required={end["carried_min"]}'))
     return out
 
 

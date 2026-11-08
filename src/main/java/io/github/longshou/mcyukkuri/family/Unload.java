@@ -34,8 +34,6 @@ public final class Unload implements HostIntent {
     public static final int DEADLINE_TICKS = 1200;
     /** Ticks a capable young gets to hop off by itself before the taker fetches it. */
     static final int HOP_WAIT_TICKS = 100;
-    /** Ticks the last carried young gets to be set down before waiting for it counts as no progress. */
-    static final int SET_DOWN_WAIT_TICKS = 60;
 
     private final PlacedHatEntity hat;
     private final YukkuriEntity taker;
@@ -107,9 +105,8 @@ public final class Unload implements HostIntent {
     private abstract class Riders implements Method {
         @Override public Step next() {
             var child = nearest();
-            // The last young leaves the rider list the moment it is grabbed, while the taker still carries it: wait for it
-            // to be set down instead of reporting no progress, and the runner's own satisfaction check ends this intent.
-            if (child == null) return new Step.Wait(Unload.this::satisfied, SET_DOWN_WAIT_TICKS, "young_set_down");
+            // A failed Fetch hands its hold to ParentCarry. This intent cannot wait/re-fetch over that same held child.
+            if (child == null || carrying()) return null;
             return stepFor(child);
         }
 
@@ -127,6 +124,7 @@ public final class Unload implements HostIntent {
         @Override public String id() { return "wait_child_hops"; }
 
         @Override public Feasibility applicable() {
+            if (carrying()) return Feasibility.of(Reason.NO_ROOM, 0, "young_still_held");
             var all = riders();
             if (all.isEmpty()) return Feasibility.of(Reason.NO_CONTACT, 0, "no_riders");
             for (var child : all) if (BodyAbility.of(child).canJump()) return Feasibility.pass();
@@ -142,6 +140,7 @@ public final class Unload implements HostIntent {
         @Override public String id() { return "fetch_riders"; }
 
         @Override public Feasibility applicable() {
+            if (carrying()) return Feasibility.of(Reason.NO_ROOM, 0, "young_still_held");
             return riders().isEmpty() ? Feasibility.of(Reason.NO_CONTACT, 0, "no_riders") : Feasibility.pass();
         }
 
