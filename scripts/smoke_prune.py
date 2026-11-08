@@ -66,12 +66,14 @@ def shed(path):
 
 
 def prune(keep_hours=24, quick=False):
-    """Delete the stale candidates (quick: only their large parts); returns how many were touched."""
-    paths = stale(keep_hours)
-    for path in paths:
-        shed(path)
-        if not quick:
-            shutil.rmtree(path)
+    """Delete the stale candidates (quick: only their large parts); returns how many were touched. Runners and
+    landings may prune at the same time, so one machine-wide lock serializes them."""
+    with server.instance_lock("MCyukkuriSmokePrune"):
+        paths = stale(keep_hours)
+        for path in paths:
+            shed(path)
+            if not quick:
+                shutil.rmtree(path)
     return len(paths)
 
 
