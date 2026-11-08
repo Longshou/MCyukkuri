@@ -9,7 +9,6 @@
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
 | 搬运放下：接生、带回窝、托幼三链放不下孩子（暂停至基建完成：第三轮 `carry_home` END 19/20，`birth_land_caught` 先放下再收帽 9/20、主线 16/20，待二分；报告 `.local/refactor/reports/wp-cs-carry-putdown.md`） | `.worktrees/wp-cs-carry-putdown` | family/ParentCarry.java、motor/action/Release.java、life/SurfaceApproach.java |
-| 服务端检查第二轮：新基线复核 LOOP／PROGRESS／JUMP／LEDGER／END，过往失败目录逐行能自动报出 | `.worktrees/wp-dc-check-baseline2` | scripts/smoke_checks.py、scripts/timeline.py、scripts/fixtures/timeline/、smoke_museum.py GATING_CHECKS |
 | 动作流水线演练：以 wake 片段走完整动作包流程，补齐仍需临时脚本之处 | `.worktrees/wp-dg-motion-rehearsal` | scripts/export.py、scripts/preview.py、scripts/pose_check.py、capture_review CLI、scripts/README.md |
 
 ## 玩法待办
