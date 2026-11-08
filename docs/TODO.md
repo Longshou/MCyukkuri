@@ -10,7 +10,6 @@
 | --- | --- | --- |
 | 观测层：服务端检查校准（主线零误报、已知问题仍抓到） | `.worktrees/wp-ck-check-calibration` | scripts/smoke_checks.py、scripts/timeline.py、scripts/fixtures/timeline/ |
 | 搬运放下：接生、带回窝、托幼三链放不下孩子（先出设计，另一模型审） | `.worktrees/wp-cs-carry-putdown` | family/ParentCarry.java、motor/action/Release.java、life/SurfaceApproach.java |
-| 截图审图判定带校准：gap／yaw／posejump 误报与缺证据 | `.worktrees/wp-cv-capture-bands` | scripts/capture_readout.py、scripts/capture_review.py、pose 指标阈值 |
 
 ## 玩法待办
 
