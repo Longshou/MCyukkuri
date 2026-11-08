@@ -49,6 +49,8 @@ lore 通用宠物联系表 `pet_motions_preview.py` 已由 `preview.py strip <�
 
 场景 `vantage=(横向偏移,纵向偏移,朝向[,俯角])` 落在该列地面；五项形式在俯角前指定相对场地基准脚底高度的偏移，以避开屋顶与柱子。俯角默认 20 度。`capture` 的 `observe=False` 仅在截图时关闭头顶状态字，不影响普通场景读数。
 
+捕获目录中的 `pose.jsonl` 记录已绘制主体的片段、实际片段时刻、根矩阵、跨越标记、混合后的持物矩阵和共享 `PoseChecks` 结果；截图帧另存骨骼与皮肤输入快照。`frames.json` 的 `gameTime`、`poseFrame` 对应绝对游戏 tick 与姿态帧号。片段／阶段变化和标记跨越会补截图；`capture_readout.py` 从这些证据选择约十帧，写 `selected-frames.json`、`geometry.json` 并生成联系表。几何缺失输入保留为 `error`，报告 `complete=false`，不能视作通过；当前尚缺完整碰撞与支撑网格、服务端同 tick 朝向、过渡声明、持物握点和水中尖端证据，不能替代完整审图。时间节拍须用 `0.5s 触碰` 或 `20t 落地`，不接受格序号。
+
 `capture.follow` 可指定跟随的实体选择器；多个观察角度用 `capture.views={名字: {follow: 选择器, offset: (左右, 高度, 前后)}}`，偏移按被观察实体的本地朝向计算。每个角度重新运行真实场景，只移动旁观者；清场会取消跟随。跟随截图关闭观察标签与聊天覆盖，PNG 与联系表按角度名字分目录。
 
 截图运行独占主检出 `.local/captures/capture.lock` 的文件锁；后来的截图命令等待前一次结束后自动运行，冒烟不取此锁。截图同样占一个全机名额，并支持 `--no-wait`、`--slots`。

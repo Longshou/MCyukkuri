@@ -14,6 +14,7 @@ from pathlib import Path
 sys.dont_write_bytecode = True
 import smoke_museum as smoke
 import smoke_slots as slots
+from capture_readout import read_pose, select_frames, geometry_report
 from PIL import Image, ImageDraw
 
 server = smoke.server
@@ -65,8 +66,10 @@ def client_command(runtime, java, instance, mod, output):
 def contact_sheet(directory):
     frames = json.loads((directory / 'frames.json').read_text(encoding='utf-8'))
     # Keep a readable overview; all full-resolution frames remain alongside it.
-    chosen = [frames[round(i * (len(frames) - 1) / min(23, len(frames) - 1))]
-              for i in range(min(24, len(frames)))] if len(frames) > 1 else frames
+    poses = read_pose(directory)
+    chosen = select_frames(frames, poses)
+    (directory / 'selected-frames.json').write_text(json.dumps(chosen, indent=2), encoding='utf-8')
+    (directory / 'geometry.json').write_text(json.dumps(geometry_report(poses), indent=2), encoding='utf-8')
     sheet = Image.new('RGB', (4 * 320, ((len(chosen) + 3) // 4) * 204), '#20252b')
     draw = ImageDraw.Draw(sheet)
     for i, frame in enumerate(chosen):
