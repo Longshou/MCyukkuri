@@ -352,8 +352,11 @@ public final class ShelterBlockEntity extends BlockEntity {
     }
     private void dropNestProject(UUID id){
         var project=nestProjects.remove(id);
-        if(project!=null&&level!=null&&!level.isClientSide)for(var material:project.materials)
+        if(project!=null&&level!=null&&!level.isClientSide)for(var material:project.materials){
             Containers.dropItemStack(level,worldPosition.getX()+.5,worldPosition.getY(),worldPosition.getZ()+.5,material.copy());
+            GameplayLog.world((ServerLevel)level,"habitat","nest material dropped holder={} owner={} item={} count={}",
+                    worldPosition,id,material.getItem(),material.getCount());
+        }
     }
     public boolean complete() {
         if(level==null)return false;

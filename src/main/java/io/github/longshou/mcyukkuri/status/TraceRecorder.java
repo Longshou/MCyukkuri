@@ -612,7 +612,17 @@ public final class TraceRecorder {
         else waitElapsed = role.choreography().observedWaitElapsed();
         out.addProperty("waitElapsed", waitElapsed);
         out.addProperty("contactProgress", entity.groupInteraction().active()
-                ? entity.groupInteraction().contactProgress() : entity.childhood().careProgress());
+                ? entity.groupInteraction().contactProgress()
+                : Math.max(entity.childhood().careProgress(), entity.careApproach().observedContactProgress()));
+        out.addProperty("careChewTicks", entity.family().careChewTicks());
+        UUID careParent = entity.careApproach().observedParent();
+        out.addProperty("careParent", careParent == null ? null : careParent.toString());
+        UUID socialGreeting = entity.social().observedGreeting();
+        out.addProperty("socialGreeting", socialGreeting == null ? null : socialGreeting.toString());
+        out.addProperty("defenseWait", entity.groupInteraction().defense().observedStrikeWait());
+        out.addProperty("dailyContactTicks", entity.dailyLife().observedContactTicks());
+        out.addProperty("thermalRestTicks", entity.life().temperature().observedRestTicks());
+        out.addProperty("pitPhase", entity.settlement().duties().pit().observedPhase());
         out.add("hold", hold(entity));
         out.addProperty("dep", entity.childhood().shouldStayWithParents());
         out.addProperty("distress", entity.waterDistress().active());

@@ -87,6 +87,10 @@ public final class YukkuriSocial implements MotorOwner {
             case TOY -> Behaviors.TOY; case TEACH -> Behaviors.TEACH; case WAIT -> Behaviors.WAIT; case ACCESSORY -> Behaviors.ACCESSORY; case ANSWER -> Behaviors.PEER; }; }
     public boolean holdingStill() { return task == Task.TEACH || task == Task.WAIT; }
     public boolean active() { return task != Task.NONE; }
+    /** The actual completed contact in the current social goal, without probing eligibility. */
+    public UUID observedGreeting() {
+        return (task == Task.PLAYER || task == Task.PEER) && greeted && !retreat ? target.getUUID() : null;
+    }
     @Override public String ownerId() { return "social:accessory"; }
     public boolean ownsBodyInWater() { return task == Task.ACCESSORY && entity.profile().aquatic(); }
     public int toyTouches() { return toyTouches; }

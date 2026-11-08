@@ -296,10 +296,12 @@ final class FamilyFeeding {
         if(++careCarryTicks<200)return;
         var home=o.entity().habitat().shelter();var heap=home==null?null:home.pile();
         if(home!=null&&heap!=null&&home.usable(o.entity())&&o.entity().distanceToSqr(heap.standPoint(o.entity()))<.64) {
+            var returnedItem=carrying.getItem();int returnedCount=carrying.getCount();
             carrying=home.returnFood(carrying);
             if(carrying.isEmpty()){
                 careCarryTicks=careChewTicks=careOfferTicks=0;
-                GameplayLog.event(o.entity(),"family","feed reserved portion returned store={}",home.getBlockPos());return;
+                GameplayLog.event(o.entity(),"family","feed reserved portion returned store={} item={} count={}",
+                        home.getBlockPos(),returnedItem,returnedCount);return;
             }
         }
         if(o.entity().life().dryStand(o.entity().blockPosition())) {

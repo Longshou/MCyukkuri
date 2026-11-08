@@ -60,6 +60,8 @@ public final class DailyLife {
     public int exercises() { return exercises; }
     public boolean active() { return session != null && !session.ended; }
     public boolean inContact() { return active() && session.contact > 0; }
+    /** Actual shared contact clock; observation does not evaluate session validity. */
+    public int observedContactTicks() { return active() ? session.contact : 0; }
     public String detail() {
         return !active() ? "idle" : "kind=" + session.kind
                 + " contact=" + session.contact + " elapsed=" + session.elapsed;

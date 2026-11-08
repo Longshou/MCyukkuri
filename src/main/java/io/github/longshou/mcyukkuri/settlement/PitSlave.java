@@ -37,6 +37,8 @@ public final class PitSlave {
     private boolean inside;
 
     public PitSlave(YukkuriEntity entity) { this.entity = entity; }
+    /** Executed duty phase, without refreshing pit cells or evaluating eligibility. */
+    public String observedPhase() { return phase.name(); }
     private ServerLevel level() { return (ServerLevel)entity.level(); }
 
     /** A grown member of a group whose standing is 嗯嗯奴隶. */

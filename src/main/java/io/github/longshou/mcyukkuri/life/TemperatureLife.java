@@ -56,6 +56,8 @@ public final class TemperatureLife {
     private double freezeLimit() { return Math.min(coldLimit(), YukkuriConfig.FREEZE_THRESHOLD.get()); }
     private double hotLimit() { return Math.max(coldLimit() + .5, YukkuriConfig.HOT_THRESHOLD.get()); }
     public int coldExposure() { return coldExposure; }
+    /** Actual reached-refuge rest counter, read without evaluating a thermal task. */
+    public int observedRestTicks() { return restTicks; }
     private boolean freezing(double felt) { return felt <= freezeLimit(); }
     private boolean tooCold(double felt) { return felt < coldLimit() || freezing(felt); }
     private boolean comfortable(double felt) { return !tooCold(felt) && felt < hotLimit(); }

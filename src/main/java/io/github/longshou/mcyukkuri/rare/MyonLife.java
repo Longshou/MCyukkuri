@@ -125,10 +125,12 @@ public final class MyonLife {
         near.getFirst().getItem().shrink(1);
         if (near.getFirst().getItem().isEmpty()) near.getFirst().discard();
         armed();
+        GameplayLog.event(entity,"myon","pickup item={} count=1 source={} remaining={} holder=kanroken",
+                Items.STICK,near.getFirst().getUUID(),near.getFirst().getItem().getCount());
     }
     private void armed() {
         kanroken = true;
-        GameplayLog.event(entity,"myon","kanroken acquired");
+        GameplayLog.event(entity,"myon","kanroken acquired; received item={} count=1 holder=kanroken",Items.STICK);
         entity.showReaction("happy", "kanroken_found", 40);
         entity.setPersistenceRequired();
     }
@@ -184,13 +186,21 @@ public final class MyonLife {
     public void drop() {
         if (!kanroken) return;
         kanroken = false;
-        GameplayLog.event(entity,"myon","kanroken dropped");
-        entity.spawnAtLocation(new ItemStack(Items.STICK));
+        var dropped = entity.spawnAtLocation(new ItemStack(Items.STICK));
+        if (dropped != null) GameplayLog.event(entity,"myon","kanroken dropped; drop item={} count=1 drop={}",
+                Items.STICK,dropped.getUUID());
+        else GameplayLog.event(entity,"myon","kanroken drop failed item={} count=1",Items.STICK);
         entity.showReaction("teary", "kanroken_lost", 50);
         searchCooldown = STICK_SEARCH * 3;
     }
     public void died() {
-        if (kanroken && entity.level() instanceof ServerLevel) { kanroken = false; entity.spawnAtLocation(new ItemStack(Items.STICK)); }
+        if (kanroken && entity.level() instanceof ServerLevel) {
+            kanroken = false;
+            var dropped = entity.spawnAtLocation(new ItemStack(Items.STICK));
+            if (dropped != null) GameplayLog.event(entity,"myon","kanroken dropped cause=death; drop item={} count=1 drop={}",
+                    Items.STICK,dropped.getUUID());
+            else GameplayLog.event(entity,"myon","kanroken drop failed cause=death item={} count=1",Items.STICK);
+        }
     }
 
     public CompoundTag save() {

@@ -173,18 +173,28 @@ def changed(a, b):
     return work_changed(a, b)
 
 
+def action_clock_advanced(a, b):
+    aa, ab = a.get('act') or {}, b.get('act') or {}
+    return (aa.get('id') in ('launch', 'await', 'gesture') and aa.get('id') == ab.get('id')
+            and aa.get('owner') == ab.get('owner') and known(aa, 'metric') and known(ab, 'metric')
+            and 0 <= ab['metric'] < aa['metric'])
+
+
 def work_changed(a, b):
     """Completed work/context changes, excluding displacement and action-id churn."""
-    aa, ab = a.get('act') or {}, b.get('act') or {}
-    if (aa.get('id') in ('launch', 'await') and aa.get('id') == ab.get('id')
-            and aa.get('owner') == ab.get('owner') and known(aa, 'metric') and known(ab, 'metric')
-            and 0 <= ab['metric'] < aa['metric']):
-        # These two actions expose ticks remaining, not distance. A real bounded
+    if action_clock_advanced(a, b):
+        # These actions expose ticks remaining, not distance. A real bounded
         # flight/wait advancing is work; a reset or stalled timer is not.
         return True
-    if known(b, 'waitElapsed') and (not known(a, 'waitElapsed') or b['waitElapsed'] > a['waitElapsed']):
+    if (not a.get('int') and not b.get('int') and not a.get('act') and not b.get('act')
+            and known(b, 'waitElapsed') and (not known(a, 'waitElapsed') or b['waitElapsed'] > a['waitElapsed'])):
+        # A choreography may hold one role while another runs a side job.
+        # Its phase clock does not prove that the active body's job advanced.
         return True
-    if known(a, 'contactProgress') and known(b, 'contactProgress') and b['contactProgress'] > a['contactProgress']:
+    for key in ('contactProgress', 'careChewTicks', 'dailyContactTicks', 'thermalRestTicks'):
+        if known(a, key) and known(b, key) and b[key] > a[key]:
+            return True
+    if 'socialGreeting' in a and b.get('socialGreeting') is not None and a['socialGreeting'] != b['socialGreeting']:
         return True
     if known(a, 'behavior') and known(b, 'behavior') and a['behavior'] != b['behavior']:
         return True
@@ -209,8 +219,37 @@ def is_prop(s):
 PROGRESS_FIELDS = ('p', 'int', 'goals', 'phase', 'hold', 'need')
 
 
+def active_work(state):
+    # A passive illness presentation can mask a resting duty's idle behavior.
+    # Read that duty's executed phase; never infer rest from its visible label.
+    resting_pit = state.get('pitPhase') in ('NONE', 'STAY')
+    return bool(state['int']) or bool(state['act']) or (state.get('behavior') != 'idle' and any(
+        str(goal).split('@')[0].lower() not in ('idle', 'look', 'random_look', 'randomlookaroundgoal', 'lookatplayergoal')
+        and not (resting_pit and str(goal).split('@')[0] == 'PitSlaveGoal')
+        for goal in state['goals']))
+
+
+def receiver_tracks_parent(a, b, parents):
+    parent = a['state'].get('careParent')
+    if not parent or parent != b['state'].get('careParent') or distance(a['state']['p'], b['state']['p']) > 1e-9:
+        return False
+    pa, pb = parents.get((parent, a['t'])), parents.get((parent, b['t']))
+    if pa is None or pb is None or distance(pa['p'], pb['p']) <= 1e-9:
+        return False
+    # FEED faces the caregiver; REAR faces away. Use the existing one-degree
+    # yaw deadband, and require the same actual facing side in both samples.
+    errors = []
+    for row, target in ((a, pa), (b, pb)):
+        s = row['state']
+        bearing = math.degrees(math.atan2(s['p'][0] - target['p'][0], target['p'][2] - s['p'][2]))
+        errors.append((s['yaw'] - bearing + 180) % 360 - 180)
+    return any(all(abs((error - offset + 180) % 360 - 180) <= 1 for error in errors) for offset in (0, 180))
+
+
 def progress(rows, records=()):
     out = []
+    care_parents = {r['state']['careParent'] for r in rows if r['state'].get('careParent')}
+    parents = {(r['u'], r['t']): r['state'] for r in rows if r['u'] in care_parents and known(r['state'], 'p')}
     contact_ticks = defaultdict(list)
     for record in records:
         if (record['k'] == 'ev' and record.get('cat') == 'social'
@@ -232,12 +271,9 @@ def progress(rows, records=()):
                 anchor = row
                 continue
             action = s['act'] or {}
-            active = bool(s['int']) or bool(action) or (s.get('behavior') != 'idle' and any(
-                str(g).split('@')[0].lower() not in ('idle', 'look', 'random_look', 'randomlookaroundgoal', 'lookatplayergoal')
-                for g in s['goals']))
             hits = contact_ticks[actor]
             contacted = bisect_right(hits, row['t']) > bisect_right(hits, anchor['t'])
-            if not active or contacted or changed(a, s) or (action.get('deadline') is not None and row['t'] <= action['deadline']):
+            if not active_work(s) or contacted or changed(a, s) or (action.get('deadline') is not None and row['t'] <= action['deadline']):
                 anchor = row
                 continue
             # A newly entered short action cannot retroactively shorten the
@@ -249,10 +285,24 @@ def progress(rows, records=()):
             if age >= window:
                 out.append(result('PROGRESS', band(age, window, 2 * window), 'no observed progress', row, duration=age, window=window))
         # Dense stop/go and yaw reversal cycles, in rolling 100-tick windows (5 seconds).
+        # A successful strike has an actual bounded recovery clock. Failed hits
+        # and frozen/reset clocks do not earn this interval; read its duration
+        # at the accepted strike instead of duplicating the gameplay constant.
+        hits = contact_ticks[actor]
+        hit_ticks = set(hits)
+        strike_waits = {r['t']: r['state']['defenseWait'] for r in valid
+                        if r['t'] in hit_ticks and known(r['state'], 'defenseWait')}
         transitions, reversals, positions = deque(), deque(), deque()
         prev_moving, prev_turn = None, 0
         for a, b in zip(valid, valid[1:]):
-            if (b['t'] - a['t'] != 1 or work_changed(a['state'], b['state'])
+            prior_hit = bisect_right(hits, a['t']) - 1
+            recovering = (prior_hit >= 0 and hits[prior_hit] in strike_waits
+                          and b['t'] <= hits[prior_hit] + strike_waits[hits[prior_hit]]
+                          and known(a['state'], 'defenseWait') and known(b['state'], 'defenseWait')
+                          and 0 <= b['state']['defenseWait'] < a['state']['defenseWait'])
+            if (b['t'] - a['t'] != 1 or not active_work(b['state']) or work_changed(a['state'], b['state'])
+                    or recovering
+                    or a['state'].get('veh') != b['state'].get('veh')
                     or bisect_right(contact_ticks[actor], b['t']) > bisect_right(contact_ticks[actor], a['t'])
                     or b['state'].get('alive') is False or b['state'].get('hp', 1) <= 0):
                 prev_moving, prev_turn = None, 0
@@ -275,7 +325,10 @@ def progress(rows, records=()):
             prev_moving = moving
             if known(a['state'], 'yaw') and known(b['state'], 'yaw'):
                 turn = (b['state']['yaw'] - a['state']['yaw'] + 180) % 360 - 180
-                if abs(turn) > 1:
+                if receiver_tracks_parent(a, b, parents):
+                    prev_turn = 0
+                    reversals.clear()
+                elif abs(turn) > 1:
                     # Apply the same deadband to counting and remembering a turn. Otherwise
                     # every small opposite step repeats the last significant reversal.
                     if turn * prev_turn < 0:
@@ -284,9 +337,12 @@ def progress(rows, records=()):
             for events in (transitions, reversals):
                 while events and events[0] <= b['t'] - 100:
                     events.popleft()
-            # Navigation steers around path nodes while travelling. Yaw-only oscillation
-            # is an in-place signal, using the existing half-block progress distance.
-            in_place = distance(positions[0]['state']['p'], b['state']['p']) < .5
+            # A small child's normal path can span several body lengths inside
+            # half a block (R birth_boat-153). Scale the adult in-place footprint
+            # by the recorded body size; legacy logs without size keep .5.
+            # This changes only yaw stutter, not the .5 stagnation threshold.
+            scale = b['state']['scale'] if known(b['state'], 'scale') else 1
+            in_place = distance(positions[0]['state']['p'], b['state']['p']) < .5 * scale
             cycles = max(len(transitions) // 2, len(reversals) // 2 if in_place else 0)
             if cycles >= 3:
                 out.append(result('PROGRESS', band(cycles, 3, 5), 'dense stutter cycles', b, cycles=cycles))
@@ -304,10 +360,43 @@ def loops(records, samples):
     out, buckets = [], defaultdict(list)
     actors = actor_samples(samples)
     actor_ticks = {actor: [r['t'] for r in rows] for actor, rows in actors.items()}
+    action_starts = {}
+    completed_intents = {(r['u'], r['t']) for r in records if r['k'] == 'ev' and r.get('cat') == 'intent'
+                         and re.match(r'end id=\S+ result=DONE\b', r.get('msg', ''))}
     for row in records:
         if row['k'] != 'ev':
             continue
         msg = row.get('msg', '')
+        if row.get('cat') == 'action' and msg.startswith('start id='):
+            action_starts[row['u']] = row['t']
+        completed = msg.startswith('end ') and (' outcome=DONE ' in msg or (
+            ' outcome=INTERRUPTED why=owner_inactive' in msg
+            and (row['u'], row['t']) in completed_intents)
+        )
+        if row.get('cat') == 'action' and completed:
+            start = action_starts.pop(row['u'], None)
+            ticks = actor_ticks.get(row['u'], [])
+            during = actors[row['u']][bisect_left(ticks, start - 1):bisect_right(ticks, row['t'])] if start is not None else []
+            moved = False
+            if msg.startswith('end id=walk ') and during and during[0]['t'] == start - 1 and during[-1]['t'] == row['t']:
+                a, b = during[0]['state'], during[-1]['state']
+                aa, ab = a.get('att') or {}, b.get('att') or {}
+                if aa.get('host') and aa.get('host') == ab.get('host') and known(aa, 'spot') and known(ab, 'spot'):
+                    moved = distance(aa['spot'], ab['spot']) > 1e-9
+                elif not aa.get('host') and not ab.get('host') and not a.get('veh') and not b.get('veh') and known(a, 'p') and known(b, 'p'):
+                    moved = distance(a['p'], b['p']) > 1e-9
+            # Completed work can be a short walk or an advancing clock.
+            # Holder drift alone, immediate condition churn, frozen clocks and
+            # timed-out/blocked actions still count. The .5 unfinished-work
+            # threshold and the independent 400-refusal gate are unchanged.
+            if moved or any(action_clock_advanced(a['state'], b['state']) for a, b in zip(during, during[1:])):
+                # Real completed work also closes prior repeats of other actions
+                # (e.g. face -> short walk -> face). Merely skipping this walk's
+                # own ending would leave the earlier face bucket accumulating.
+                for key in list(buckets):
+                    if key[0] == row['u']:
+                        del buckets[key]
+                continue
         if not (is_refusal(row.get('cat'), msg) or row.get('cat') == 'action' and msg.startswith('end ')):
             continue
         if not known(row, 'pos', 'u'):
@@ -323,9 +412,15 @@ def loops(records, samples):
         ticks = actor_ticks.get(row['u'], [])
         between = actors[row['u']][bisect_left(ticks, prior['t']):bisect_right(ticks, row['t'])] if prior else []
         enough = len(between) >= 2 and all(progress_known(s['state']) for s in between)
+        repeats = 1 + row.get('sup', 0)
         if prior and (distance(prior['pos'], row['pos']) > math.sqrt(3) or enough and changed(between[0]['state'], between[-1]['state'])):
             bucket.clear()
-        bucket.append((row, 1 + row.get('sup', 0)))
+            # Suppressed attempts occurred since the previous printed event,
+            # across the progress just observed. They cannot start the new
+            # unchanged interval; only this attempt belongs to that interval.
+            enough = False
+            repeats = 1
+        bucket.append((row, repeats))
         count = sum(n for r, n in bucket if r['t'] > row['t'] - 1200)
         if count >= 5:
             out.append(result('LOOP', band(count, 5, 20) if enough else 'no-evidence',
@@ -467,6 +562,11 @@ def jumps(samples, records=()):
 
 def inventory(s):
     total = Counter()
+    # The corpse retains synchronized mouth/carry display fields until vanilla
+    # removal. Death has already handed real resources to their new holders.
+    # Removing this holder still needs a logged transfer/consumption below.
+    if 'hold' in s and (s.get('alive') is False or s.get('hp', 1) <= 0):
+        return total
     def add(value):
         if isinstance(value, list):
             for child in value:
@@ -505,9 +605,9 @@ def ledger(records, samples, dense=False, raw=''):
         if drop and drop[1] in observed:
             boundary.append(dict(k='ev',u=event['uuid'],t=int(re.search(r'\bt=(\d+)',line)[1]),
                                  cat=event['cat'],msg=event['msg']))
-    explanations = [r for r in [*records, *boundary] if r['k'] == 'ev' and re.search(r'\b(eat|ate|swallow|consum|place|pickup|interaction|interrupted item=|poop stays a loose item|received (?:loose accessory )?item=|gathered item=|shed stem delivered|deposit home=|granary deposit|feed portion reserved|feed reserved portion dropped|leaf swaddle wrapped|feed plant harvested|feed mash prepared|feed handed to meal|nest material|pack store=|carried meal|stores (?:put|taken|spilled))', r.get('msg', ''), re.I)
-                    or r['k'] == 'life' and (r.get('out') in ('unloaded', 'scope_exit', 'changed_dimension')
-                        or r.get('out') == 'discarded' and known(r, 'age', 'lifespan', 'item') and r['age'] >= r['lifespan'])]
+    explanations = [r for r in [*records, *boundary] if r['k'] == 'ev' and re.search(r'\b(eat|ate|swallow|consum|place|pickup|interaction|interrupted item=|drop item=|poop stays a loose item|received (?:loose accessory )?item=|gathered item=|shed stem delivered|deposit home=|granary deposit|feed portion reserved|feed reserved portion dropped|feed reserved portion returned store=.*\bitem=|leaf swaddle (?:wrapped|leaf harvested item=)|feed plant harvested|feed mash prepared|feed handed to meal|nest material|pack store=|carried meal|stores (?:put|taken|spilled))', r.get('msg', ''), re.I)
+                    or r['k'] == 'life' and r.get('out') == 'discarded'
+                        and known(r, 'age', 'lifespan', 'item') and r['age'] >= r['lifespan']]
     explained_items = defaultdict(set)
     for event in explanations:
         msg = event.get('msg', '')
@@ -540,15 +640,36 @@ def ledger(records, samples, dense=False, raw=''):
                        and r.get('in') in ('spawn', 'birth', 'chunk_load', 'scope_enter') and 0 <= first['t'] - r['t'] <= 2]
             if not entries:
                 out.append(result('LEDGER', 'fail', 'actor appeared without lifecycle entry', first))
+    entries = {(r['u'], t): r['in'] for r in records if r['k'] == 'life'
+               and r.get('in') in ('chunk_load', 'scope_enter', 'changed_dimension')
+               for t in range(r['t'], r['t'] + 3)}
     previous, dip = None, None
     for tick, rows in sorted(ticks.items()):
+        # Lifecycle and reconstructed states were collected separately above;
+        # preserve their actual order within a tick, especially unload after
+        # the final snapshot. Otherwise that snapshot reintroduces the holder.
+        rows.sort(key=lambda row: row['seq'])
         prior_holders = dict(current)
+        boundary_delta = Counter()
+        boundary_holders = set()
         for row in rows:
             if row['k'] == 'life' and row.get('out'):
+                if row.get('out') in ('unloaded', 'scope_exit', 'changed_dimension'):
+                    boundary_delta.subtract(current.get(row['u']) or {})
+                    boundary_holders.add(row['u'])
                 current.pop(row['u'], None)
             elif row['k'] == 'st':
+                entry = entries.get((row['u'], tick))
+                # Loose items first discovered by proximity also say scope_enter,
+                # including newly created drops; that label is not a receipt.
+                entering = row['u'] not in current and entry is not None and (
+                    entry != 'scope_enter' or 'stage' in row['state'] or 'riders' in row['state'])
                 current[row['u']] = inventory(row['state'])
-                mouth = (row['state'].get('hold') or {}).get('mouth') or []
+                if entering:
+                    boundary_delta.update(current[row['u']] or {})
+                    boundary_holders.add(row['u'])
+                s = row['state']
+                mouth = ((s.get('hold') or {}).get('mouth') or []) if s.get('alive') is not False and s.get('hp', 1) > 0 else []
                 if sum(bool(store) for store in mouth) > 1:
                     out.append(result('LEDGER', 'suspect', 'two non-empty mouth stores', row))
         # A spawn event can precede the first snapshot by one tick. There is no
@@ -559,10 +680,19 @@ def ledger(records, samples, dense=False, raw=''):
             out.append(result('LEDGER', 'no-evidence', 'inventory authority missing', rows[-1]))
             continue
         total = sum(current.values(), Counter())
-        changed_items = {item for item in total.keys() | previous.keys() if total[item] != previous[item]} if previous is not None else set()
+        # Both comparison baselines follow the recorded scope flow. Otherwise
+        # an unrelated same-item creation can cancel an exiting holder, or a
+        # later entry can falsely close an existing unexplained dip.
+        if previous is not None:
+            previous.update(boundary_delta)
+        if dip:
+            dip[1].update(boundary_delta)
+        changed_items = {item for item in total.keys() | previous.keys()
+                         if total[item] != previous[item]} if previous is not None else set()
         explained = None in explained_items[tick] or changed_items <= explained_items[tick]
         if previous is not None and total != previous and not explained and dip is None:
-            affected = [r for r in rows if prior_holders.get(r['u']) != current.get(r['u'])]
+            affected = [r for r in rows if r['u'] not in boundary_holders
+                        and prior_holders.get(r['u']) != current.get(r['u'])]
             dip = (tick, previous, affected[0], {item: total[item] - previous[item] for item in changed_items})
         if dip and total == dip[1]:
             duration = tick - dip[0]

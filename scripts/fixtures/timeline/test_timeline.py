@@ -122,7 +122,7 @@ class Checks(unittest.TestCase):
             self.assertFalse(any(r['verdict'] == 'fail' for r in checks.progress(timeline.states(rows))))
 
     def test_stutter_and_stall(self):
-        rows = [state(t, p=[(t // 2) * .1, 0, 0]) for t in range(40)]
+        rows = [state(t, p=[(t // 2) * .1, 0, 0], int={'id':'travel'}) for t in range(40)]
         self.assertTrue(any(r['detail'] == 'dense stutter cycles' and r['verdict'] == 'fail' for r in checks.progress(timeline.states(rows))))
         text = log([record('lag', 0, None, stall_ms=6000, stack=['fixture.Block.wait'])])
         records, issues = timeline.parse([text])

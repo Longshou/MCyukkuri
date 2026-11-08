@@ -26,6 +26,8 @@ public final class PeerDefense extends Goal {
     }
 
     public boolean active() { return attacker != null; }
+    /** Existing strike cooldown, only while its combat goal still owns the response. */
+    public int observedStrikeWait() { return active() && !puffBack ? strikeWait : 0; }
     public String activity() { return !active() ? null : puffBack ? Behaviors.SANCTION_DECLARE : Behaviors.SELF_DEFENSE; }
     public String detail() {
         return "defense=" + (attacker == null ? "none" : attacker.getUUID()) + " decision=" + decision + " score=" + Math.round(score);

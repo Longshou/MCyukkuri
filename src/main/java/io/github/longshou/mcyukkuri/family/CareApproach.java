@@ -38,6 +38,10 @@ public final class CareApproach {
     private long lease;
 
     public CareApproach(YukkuriEntity owner) { this.owner = owner; }
+    /** Observe the existing incoming agreement without validating or cancelling it. */
+    public UUID observedParent() { return incoming == null ? null : incoming.owner.getUUID(); }
+    /** The receiver shares the caregiver's already accumulated contact; no eligibility probe. */
+    public int observedContactProgress() { return incoming == null ? 0 : incoming.owner.childhood().careProgress(); }
     public boolean mayTry(YukkuriEntity target) {
         return blocked.getOrDefault(target.getUUID(), 0L)<=owner.level().getGameTime();
     }
