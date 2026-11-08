@@ -169,7 +169,19 @@ public final class PoseChecks {
         if (!item.has("drawn")) throw new IllegalArgumentException("missing context: item.drawn");
         if (item.get("drawn").isJsonNull()) { r.addProperty("verdict", "fail"); r.addProperty("where", "server-held item not drawn"); return; }
         var grip = matrix(item.get("drawn")).transformPosition(vector(need(item, "grip")));
-        bounded(r, grip.distance(vector(need(item, "anchor"))) / 16, .02, .08, "drawn grip vs holder anchor");
+        Vector3d anchor;
+        if (item.has("handover")) {
+            var path = obj(item, "handover");
+            double share = n(path, "share");
+            if (share < 0 || share > 1) throw new IllegalArgumentException("handover share outside [0,1]");
+            if (!path.has("from") || !path.has("to")) throw new IllegalArgumentException("missing context: handover endpoints");
+            // The renderer uses the available endpoint when a real world grip is absent.
+            anchor = path.get("from").isJsonNull() ? vector(need(path, "to"))
+                    : path.get("to").isJsonNull() ? vector(need(path, "from"))
+                    : vector(path.get("from")).lerp(vector(path.get("to")), share);
+        } else anchor = vector(need(item, "anchor")); // Stationary props and captures before the handover contract.
+        bounded(r, grip.distance(anchor) / 16, .02, .08,
+                item.has("handover") ? "drawn grip vs blended holder anchors" : "drawn grip vs holder anchor");
     }
     private static double time(JsonObject f) { return n(f, "t") + n(f, "pt"); }
     private static boolean contiguous(JsonObject a, JsonObject b) { double dt = time(b) - time(a); return dt > 0 && dt <= 1.000001; }

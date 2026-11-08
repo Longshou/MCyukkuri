@@ -114,14 +114,17 @@ public final class PoseTap {
         f.add("markers", crossed);
         f.addProperty("transition",previous==null||!previous.get("clip").equals(f.get("clip"))||!previous.get("phase").equals(f.get("phase")));
     }
-    public static void held(YukkuriView entity, Matrix4f drawn, Matrix4f anchor, float partial) {
+    public static void held(YukkuriView entity, Matrix4f drawn, Matrix4f from, Matrix4f to, float share, float partial) {
         if (!active()) return;
         var item = CURRENT.get(entity.getUUID().toString()).getAsJsonObject("item");
         item.add("drawn", drawn == null ? JsonNull.INSTANCE : matrix(origin(entity, partial).mul(drawn)));
         if(drawn==null)return;
         var transform=origin(entity,partial).mul(drawn).translate(0,-5/16f,0).rotateZ((float)Math.PI/4).scale((float)Math.sqrt(.5)).translate(-.5f,-.5f,-.5f);
         item.add("drawn",matrix(transform));item.add("grip",PoseGeometry.point(new Vector3f(.8125f,.8125f,.5f)));
-        if(anchor!=null)item.add("anchor",PoseGeometry.point(origin(entity,partial).mul(anchor).getTranslation(new Vector3f())));
+        var handover=new JsonObject();
+        handover.add("from",from==null?JsonNull.INSTANCE:PoseGeometry.point(origin(entity,partial).mul(from).getTranslation(new Vector3f())));
+        handover.add("to",to==null?JsonNull.INSTANCE:PoseGeometry.point(origin(entity,partial).mul(to).getTranslation(new Vector3f())));
+        handover.addProperty("share",share);item.add("handover",handover);
         var model=Minecraft.getInstance().getItemRenderer().getModel(entity.getHeldItem(),entity.level(),null,entity.getId());
         var f=CURRENT.get(entity.getUUID().toString());
         if(model.isCustomRenderer()){f.addProperty("geometry_error","custom held-item renderer");return;}
