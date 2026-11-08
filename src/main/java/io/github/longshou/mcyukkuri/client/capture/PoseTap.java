@@ -68,7 +68,11 @@ public final class PoseTap {
                 : List.of("IMPACT", "STRUGGLE", "EXHAUSTED").contains(entity.waterDistressPhase()) ? "distress" : "body";
         f.addProperty("yawsrc", yawSource);
         var transform = origin(entity, partial).mul(new Matrix4f(start).invert()).mul(drawn).scale(1/16f);
+        f.add("pose_basis", matrix(transform));
         var root = transform.mul(new Matrix4f(PoseChecks.matrix(f.get("root"))), new Matrix4f());
+        // Server by describes the entity heading, before the authored root's look-around turn.
+        var bodyForward = transform.transformDirection(new Vector3f(0, 0, -1));
+        f.addProperty("body_yaw", Math.toDegrees(Math.atan2(-bodyForward.x, bodyForward.z)));
         var forward = root.transformDirection(new Vector3f(0, 0, -1));
         f.addProperty("yaw", Math.toDegrees(Math.atan2(-forward.x, forward.z)));
         f.add("root", matrix(root));

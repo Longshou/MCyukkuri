@@ -7,11 +7,37 @@ from capture_readout import select_frames, beat_at, geometry_report, postprocess
 
 
 class CaptureReadoutTest(unittest.TestCase):
+    def test_common_body_turn_is_not_a_bone_jump_but_relative_jump_is(self):
+        import math
+        from pose_client import request
+        def turn(degrees):
+            c, s = math.cos(math.radians(degrees)), math.sin(math.radians(degrees))
+            return [c, 0, -s, 0, 0, 1, 0, 0, s, 0, c, 0, 0, 0, 0, 1]
+        before = dict(k='pose', v=1, run='test', win='turn', u='a', t=0, pt=0,
+                      clip='idle', transition=False, pose_basis=turn(0), bones=dict(head=turn(0)))
+        after = dict(before, t=1, pose_basis=turn(90), bones=dict(head=turn(90)))
+        def verdict(frame):
+            return request(dict(frames=[before, frame], metric=['posejump']))['results'][-1]['verdict']
+        self.assertEqual('pass', verdict(after))
+        self.assertEqual('fail', verdict(dict(after, bones=dict(head=turn(180)))))
+
+    def test_labelled_authored_yaw_and_deliberate_heading_fault(self):
+        from pose_client import request
+        fixture = json.loads((Path(__file__).parent/'fixtures/capture_readout/yaw.json').read_text())
+        for label in fixture['labels']:
+            frame = dict(label['frame'], k='pose', v=1)
+            old = {k: v for k, v in frame.items() if k != 'body_yaw'}
+            self.assertEqual('suspect', request(dict(frames=[old], metric=['yaw']))['results'][0]['verdict'])
+            self.assertEqual('pass', request(dict(frames=[frame], metric=['yaw']))['results'][0]['verdict'])
+            broken = [dict(frame, t=frame['t']+i, body_yaw=180,
+                           server=dict(t=frame['t']+i, by=90)) for i in range(6)]
+            self.assertEqual('fail', request(dict(frames=broken, metric=['yaw']))['results'][-1]['verdict'])
+
     def test_yaw_requires_exact_actor_dimension_tick_and_milestones_map_by_time(self):
         with tempfile.TemporaryDirectory() as temp:
             root=Path(temp); view=root/'scene'; view.mkdir()
             rows=[dict(k='pose', u='actor', run='client', win='scene', dim='overworld', t=t, pt=0, f=t,
-                       yawsrc='body', yaw=0, markers=[], m=[]) for t in (10,11)]
+                       yawsrc='body', yaw=35, body_yaw=0, markers=[], m=[]) for t in (10,11)]
             (view/'pose.jsonl').write_text(''.join(json.dumps(r)+'\n' for r in rows), encoding='utf-8')
             server=[dict(k='st',u='other',dim='overworld',t=10,st=dict(by=90)),
                     dict(k='st',u='actor',dim='nether',t=10,st=dict(by=90)),
@@ -23,6 +49,8 @@ class CaptureReadoutTest(unittest.TestCase):
             frames=[dict(gameTime=10,tick=0,poseFrame=10),dict(gameTime=11,tick=1,poseFrame=11)]
             def evaluate(request):
                 a,b=request['frames']; self.assertNotIn('server',a); self.assertEqual(dict(t=11,by=3),b['server'])
+                self.assertEqual(0, b['body_yaw'])
+                self.assertEqual(35, b['yaw'])
                 return dict(results=[dict(metric='yaw',verdict='error'),dict(metric='yaw',verdict='pass')])
             with patch('pose_client.request',side_effect=evaluate):
                 result=postprocess(view,frames)
@@ -64,6 +92,27 @@ class CaptureReadoutTest(unittest.TestCase):
         self.assertFalse(report['complete'])
         self.assertEqual(2, len(report['findings']))
         self.assertEqual(70, report['findings'][0]['f'])
+
+    def test_missing_observation_is_local_and_never_a_pass(self):
+        reasons = ['missing context: wet_tip', 'missing context: server',
+                   'specialized wound/hat/delivery surface', 'partner: damaged placed hat',
+                   'partner: partner: specialized wound/hat/delivery surface',
+                   'no support triangle under lowest skin point']
+        poses = [dict(k='pose', u='a', t=i, pt=0, f=i,
+                      m=[dict(metric='gap', verdict='error', where=reason)])
+                 for i, reason in enumerate(reasons)]
+        report = geometry_report(poses)
+        self.assertTrue(report['complete'])  # Report processing, not geometry coverage.
+        self.assertEqual({'gap': {'no-evidence': len(reasons)}}, report['counts'])
+        self.assertEqual(reasons, [r['reason'] for r in report['no_evidence']])
+        self.assertEqual(list(range(len(reasons))), [r['f'] for r in report['no_evidence']])
+        self.assertTrue(all(r['verdict'] == 'no-evidence' for r in report['no_evidence']))
+        self.assertTrue(all(p['m'][0]['verdict'] == 'error' for p in poses))
+        # Deliberate invalid numeric input must still fail report processing.
+        poses[0]['m'][0]['where'] = 'non-finite input'
+        report = geometry_report(poses)
+        self.assertFalse(report['complete'])
+        self.assertEqual('error', report['findings'][0]['verdict'])
 
     def test_beats_use_time_and_reject_panel_numbers(self):
         self.assertEqual('touch', beat_at('0s start\n0.5s touch\n20t release', 15))

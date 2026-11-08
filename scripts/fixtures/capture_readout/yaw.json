@@ -1,0 +1,15 @@
+{
+  "capture": "20261108-162904-aceaa7",
+  "commit": "ef82301ee4f63fcbc8779a88b61c1d1d398576a9",
+  "view": "family_search_child",
+  "labels": [
+    {
+      "frame": {"run": "20261108-162904-aceaa7", "win": "family_search_child", "u": "042d387e-ad76-0007-fddb-a769c2cd7e59", "t": 2162, "pt": 0.060014606, "f": 268, "yawsrc": "body", "yaw": 125.0000035918688, "body_yaw": 90.0, "server": {"t": 2162, "by": 90.0}},
+      "metric": "yaw",
+      "label": "false",
+      "reason": "look_around root is 125 degrees; world_motion and server heading are 90 degrees. Authored root turn is not entity yaw lag.",
+      "body_yaw_source": "world_motion matrix in pose-268-042d387e-ad76-0007-fddb-a769c2cd7e59.json.gz; not a native body_yaw field in this baseline capture",
+      "image": "tick-000096-at-000096-frame-000268.png"
+    }
+  ]
+}

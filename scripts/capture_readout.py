@@ -55,7 +55,7 @@ def postprocess(directory, frames):
         if value is not None:
             p['server'] = dict(t=p['t'], by=value)
         groups.setdefault(p['u'], []).append(p)
-    fields = ('v', 'k', 'run', 'win', 'u', 't', 'pt', 'f', 'ct', 'yawsrc', 'yaw', 'server')
+    fields = ('v', 'k', 'run', 'win', 'u', 't', 'pt', 'f', 'ct', 'yawsrc', 'yaw', 'body_yaw', 'server')
     for rows in groups.values():
         result = request(dict(frames=[{k: p[k] for k in fields if k in p} for p in rows], metric=['yaw']))
         for p, metric in zip(rows, result['results'], strict=True):
@@ -121,17 +121,34 @@ def geometry_report(poses):
     """Report every evaluated frame, including faults between selected screenshots."""
     counts = {}
     findings = []
+    no_evidence = []
     for pose in poses:
         if pose.get('k') != 'pose':
             continue
         for metric in pose['m']:
+            # Preserve the original checker result. Missing observations are coverage
+            # gaps, while malformed values and checker failures remain errors.
+            reason = metric['where']
+            surface_reason = reason
+            while surface_reason.startswith('partner: '):
+                surface_reason = surface_reason.removeprefix('partner: ')
+            missing = metric['verdict'] == 'error' and (
+                reason.startswith('missing context: ')
+                or surface_reason in (
+                    'specialized wound/hat/delivery surface', 'damaged placed hat',
+                    'custom held-item renderer', 'missing skinned body surface',
+                    'no support triangle under lowest skin point'))
+            if missing:
+                no_evidence.append(dict(metric, verdict='no-evidence', reason=reason,
+                                        input_verdict='error', u=pose['u'], t=pose['t'],
+                                        pt=pose['pt'], f=pose['f']))
             key = metric['metric']
             count = counts.setdefault(key, {})
-            verdict = metric['verdict']
+            verdict = 'no-evidence' if missing else metric['verdict']
             count[verdict] = count.get(verdict, 0) + 1
             if verdict in ('fail', 'suspect', 'error'):
                 findings.append(dict(metric, u=pose['u'], t=pose['t'], pt=pose['pt'], f=pose['f']))
-    return dict(counts=counts, findings=findings, report_only=True,
+    return dict(counts=counts, findings=findings, no_evidence=no_evidence, report_only=True,
                 complete=bool(counts) and not any(c.get('error') for c in counts.values()))
 
 

@@ -106,6 +106,7 @@ def main():
                    unclear=sum(r['readability']=='unclear' for r in results), incomplete_geometry=incomplete,
                    old_body_flags=sum(r.get('old',{}).get('body_verdict')=='problem' for r in results),
                    geometry_fail_samples=sum(m['verdict']=='fail' for report in geometry.values() for m in report['findings']),
+                   geometry_no_evidence_samples=sum(len(report.get('no_evidence', [])) for report in geometry.values()),
                    exit_code=2 if errors or incomplete else 0, report_only=True)
     payload = dict(scene=args.scene, capture=str(cap), criteria=criteria, summary=summary, geometry=geometry, frames=results)
     (out/'review.json').write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding='utf-8')
@@ -113,6 +114,9 @@ def main():
              'Geometry comes from PoseChecks; AI judges readability only. Old flags are not automatically false positives.', '']
     for r in results:
         lines.append(f'- {r["view"]} tick {r["tick"]}: {r["readability"]}; {r.get("seen",r.get("error",""))}; {r.get("issues",[])}')
+    for view, report in geometry.items():
+        for gap in report.get('no_evidence', []):
+            lines.append(f'- {view} frame {gap["f"]} actor {gap["u"]} {gap["metric"]}: no-evidence; {gap["reason"]}')
     (out/'review.md').write_text('\n'.join(lines)+'\n', encoding='utf-8')
     print('report:', out, json.dumps(summary), flush=True)
     return summary['exit_code']

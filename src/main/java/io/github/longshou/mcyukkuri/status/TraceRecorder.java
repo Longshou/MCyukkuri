@@ -332,6 +332,7 @@ public final class TraceRecorder {
     }
 
     public static void leaving(EntityLeaveLevelEvent event) {
+        if (event.getLevel().isClientSide()) return;
         Entity entity = event.getEntity();
         ActorCache cache = ACTORS.remove(entity.getUUID());
         if (cache == null || mode == Mode.OFF) return;

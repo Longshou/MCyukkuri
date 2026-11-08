@@ -168,7 +168,7 @@ public final class PoseChecks {
     private static double yawError(JsonObject f) {
         var server = obj(f, "server");
         if (n(server, "t") != n(f, "t")) throw new IllegalArgumentException("server by is not from the same tick");
-        return Math.abs(Math.IEEEremainder(n(f, "yaw") - n(server, "by"), 360));
+        return Math.abs(Math.IEEEremainder(n(f, f.has("body_yaw") ? "body_yaw" : "yaw") - n(server, "by"), 360));
     }
     private static void yaw(List<JsonObject> fs, int i, JsonObject r) {
         var f = fs.get(i);
@@ -198,10 +198,14 @@ public final class PoseChecks {
         if(!(poseTime(f)>poseTime(before)&&(renderedNeighbors||contiguous(before,f))))throw new IllegalArgumentException("missing context: contiguous previous pose");
         var prev = fs.get(i - 1); var bones = obj(f, "bones"); var old = obj(prev, "bones");
         if (bones.isEmpty() || !bones.keySet().equals(old.keySet())) throw new IllegalArgumentException("missing/mismatched bone matrices");
+        // Skeletal motion is measured relative to the rendered entity/holder frame.
+        // Walking turns and a carrier's rotation move every bone together.
+        var basis = f.has("pose_basis") ? matrix(f.get("pose_basis")).invert() : new Matrix4d();
+        var oldBasis = prev.has("pose_basis") ? matrix(prev.get("pose_basis")).invert() : new Matrix4d();
         double rate = 0; String where = "bones";
         for (var e : bones.entrySet()) {
-            var a = rotation(e.getValue());
-            var b = rotation(old.get(e.getKey()));
+            var a = rotation(basis.mul(matrix(e.getValue()), new Matrix4d()));
+            var b = rotation(oldBasis.mul(matrix(old.get(e.getKey())), new Matrix4d()));
             double angle = Math.toDegrees(2 * Math.acos(Math.clamp(Math.abs(a.dot(b)), 0, 1)));
             double v = angle * 20 / (poseTime(f) - poseTime(prev));
             if (v > rate) { rate = v; where = e.getKey(); }
@@ -219,8 +223,7 @@ public final class PoseChecks {
             if (!authored) { r.addProperty("verdict", "fail"); r.addProperty("where", "clip flicker < 3 ticks"); r.addProperty("flicker_ticks", time(fs.get(end)) - time(fs.get(first))); }
         }
     }
-    private static Quaterniond rotation(JsonElement value) {
-        var m = matrix(value);
+    private static Quaterniond rotation(Matrix4d m) {
         // Authored hidden puff bones use a nonzero 1e-6 scale. Scale does not invalidate their rotation.
         if (m.determinant3x3() == 0) throw new IllegalArgumentException("singular bone matrix");
         return m.getUnnormalizedRotation(new Quaterniond()).normalize();
