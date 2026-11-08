@@ -210,6 +210,38 @@ class ExportTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             registry.register(self.root, {'runtime': {'../escape': {}}})
 
+    def test_registration_dry_run_matches_writes_without_creating_entries(self):
+        import contextlib
+        import io
+        self.seed()
+        (self.root/'source.txt').write_bytes(b'accepted source')
+        entry = {'runtime': {'new-entry': {'source': 'source.txt'}},
+                 'approval': dict(id='wake', decision='save wake', files=['source.txt'])}
+        pipeline.write(self.root/'entry.json', entry)
+        before = {p.relative_to(self.root): p.read_bytes() for p in self.root.rglob('*') if p.is_file()}
+        output = io.StringIO()
+        with patch.object(pipeline, 'ROOT', self.root), patch.object(pipeline, 'table', return_value={}), \
+             patch('sys.argv', ['export.py', '--register', str(self.root/'entry.json'), '--dry-run']), \
+             contextlib.redirect_stdout(output):
+            self.assertEqual(pipeline.main(), 0)
+        after = {p.relative_to(self.root): p.read_bytes() for p in self.root.rglob('*') if p.is_file()}
+        self.assertEqual(before, after)
+        planned = json.loads(output.getvalue())
+        self.assertEqual(planned[1]['value']['files']['source.txt'], hashlib.sha256(b'accepted source').hexdigest())
+        registry.register(self.root, entry)
+        for row in planned:
+            self.assertEqual(registry.load(self.root/row['path']), row['value'])
+        with self.assertRaises(FileNotFoundError):
+            registry.register(self.root, {'approval': dict(id='missing', decision='save', files=['absent'])}, dry_run=True)
+
+    def test_registration_dry_run_rejects_export_mode(self):
+        import contextlib
+        import io
+        with patch('sys.argv', ['export.py', '--family', 'life', '--dry-run']), \
+             contextlib.redirect_stderr(io.StringIO()), self.assertRaises(SystemExit) as error:
+            pipeline.main()
+        self.assertEqual(error.exception.code, 2)
+
     def test_readonly_check_detects_stale_aggregate(self):
         self.seed()
         registry.registries(self.root, True)

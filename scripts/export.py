@@ -240,6 +240,7 @@ def main():
     select.add_argument('--registries', action='store_true')
     select.add_argument('--import-registries', action='store_true')
     ap.add_argument('--check', action='store_true')
+    ap.add_argument('--dry-run', action='store_true', help='Inspect --register destinations and fingerprints without writing')
     ap.add_argument('--jobs', type=int, default=1, help='Concurrent independent read-only checks (default: 1)')
     ap.add_argument('--full', action='store_true', help='Force motion compilation without cache reuse')
     ap.add_argument('--list', action='store_true')
@@ -250,6 +251,8 @@ def main():
     ap.add_argument('--water', type=float)
     ap.add_argument('--report', type=Path, default=ROOT/'.local/reports/export/results.json')
     args = ap.parse_args()
+    if args.dry_run and not args.register:
+        ap.error('--dry-run requires --register')
     if args.jobs < 1 or (args.jobs != 1 and not args.check):
         ap.error('--jobs must be positive and requires --check for concurrent execution')
     args.report = args.report.resolve()
@@ -268,7 +271,7 @@ def main():
     if args.register:
         if args.check:
             ap.error('--register cannot be combined with --check')
-        register(ROOT, read(args.register))
+        register(ROOT, read(args.register), dry_run=args.dry_run)
         return 0
     if args.import_registries:
         if args.check:

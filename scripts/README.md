@@ -6,7 +6,7 @@
 
 登记源拆为 `art/registry/runtime/<登记键>.json`（模型再拆为 `runtime/models/<模型>.json`）、`art/registry/catalog/<类别>/category.json` 与 `families/<家族>.json`。现有 `art/runtime-sources.json`、`art/catalog.json` 是生成的兼容汇总；原有读取方不变。登记文件中的 `_order` 只保留原分类优先顺序，不进入汇总，新项按 ID 稳定排序。独立包只改各自登记源，删除分片即删除登记，合并后 `export.py --registries` 重建汇总，`--registries --check` 只读比较。统一入口在每个旧导出器运行前先从分片重建汇总，运行后仅接收该导出器实际产生的登记变化，再重建汇总；动作节拍入口遵守同一规则。旧导出器须经统一入口运行。`--import-registries` 只供尚无分片的仓库一次性迁移，已有分片时拒绝导入，不能用汇总恢复已删除的登记。
 
-“保存 xx”使用 `export.py --register entry.json`，一条命令登记素材与认可文件的 SHA-256，不改其他包的文件，也不立即改兼容汇总；后续导出／合并重建汇总。输入示例（`approval` 仅在用户已认可时提供，路径相对仓库根）：
+“保存 xx”使用 `export.py --register entry.json`，一条命令登记素材与认可文件的 SHA-256，不改其他包的文件，也不立即改兼容汇总；后续导出／合并重建汇总。加 `--dry-run` 只校验并打印目标文件与认可指纹，不写入；可用于假设性登记演练。实际写入时，`approval` 仅在用户已认可时提供。输入示例（路径相对仓库根）：
 
 ```json
 {"runtime":{"example":{"source":"standards/yukkuri-library/motions/variants/lore/recipe.json"}},"catalog":[{"category":"motions","family":{"id":"example","prefixes":["art/source/example/"]}}],"approval":{"id":"example","decision":"用户认可的具体内容","files":["standards/yukkuri-library/motions/variants/lore/recipe.json"]}}

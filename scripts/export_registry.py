@@ -123,7 +123,7 @@ def finish_export(root, before):
     registries(root)
 
 
-def register(root, entry):
+def register(root, entry, dry_run=False):
     """Register independent sources only. Aggregates are rebuilt after merge/export.
 
     {"runtime": {"stable_id": {...}}, "catalog": [{"category": "motions",
@@ -167,6 +167,10 @@ def register(root, entry):
         raise ValueError('Entry contains no registrations')
     for path, value in writes:
         json.dumps(value, ensure_ascii=False)
+    if dry_run:
+        print(json.dumps([dict(path=path.relative_to(root).as_posix(), value=value)
+                          for path, value in writes], ensure_ascii=False, indent=2))
+        return
     for path, value in writes:
         save(path, value)
     print(f'Registered {len(writes)} source entries; export.py --registries rebuilds compatible aggregates.')
