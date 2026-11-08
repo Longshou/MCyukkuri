@@ -10,7 +10,6 @@
 | --- | --- | --- |
 | 噗咕鼓腮：身体模型两腮外鼓（复刻原作ぷくー，比概念图更夸张） | `.worktrees/wp-ce-cheek-puff` | standards/yukkuri-library/body-standard/（鼓腮 puff_offsets）、导出的 yukkuri/*.json 模型数据、噗咕片段的 puff 通道 |
 | 观测层：服务端检查校准（主线零误报、已知问题仍抓到） | `.worktrees/wp-ck-check-calibration` | scripts/smoke_checks.py、scripts/timeline.py、scripts/fixtures/timeline/ |
-| 观测层 G3：截图逐帧姿态读数、按画出朝向跟拍、按事件挑帧、AI 只判断看不看得懂 | `.worktrees/wp-cq-capture-readout` | client/capture/PoseTap.java、client/capture/MuseumCapture.java、YukkuriRenderer/PlacedHatRenderer/HeldItemPresentation 各一处调用、scripts/capture_museum.py、.local/tools/capture_review.py |
 
 ## 玩法待办
 
