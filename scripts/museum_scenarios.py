@@ -619,8 +619,10 @@ def land_birth(sid, title, hint, outcome, father_kind, watch, spot, smoke=None, 
 
 land_birth('birth_land_caught', '父油摘帽接住新生儿再戴回', '父油摘帽接住新生儿再戴回', 'caught', 'marisa',
            '父油（戴帽魔理沙）察觉临产，先走到母油身边、双方走到共同选定的安全位置（途中不被普通觅食或闲逛抢走），父油守在母油身旁看着她，快生了才摘帽翻面放好，放帽后站定看着母油、不来回抖动（日志 [choreo] catcher attending）；母油走到实际帽后方并转向，到位后生产，新生儿落进帽里；之后逐只取出幼体（嘴够得着就叼，够不着的转身伸辫卷起，日志 [action] start id=grab reach=mouth／braid）、放到帽外地面，再走回放帽站位戴回帽子（摘帽、戴帽时帽子挂在辫梢随动作移动，地上的帽在辫子托起时消失、放下时出现，不重复、不瞬移）', 'land_caught', smoke=_LAND_BIRTH_SMOKE, wait='约 30 秒临产，之后看照护',
-           # The wait beside her (meeting about 190 ticks in), the hat going down at term (about 440) and the labour after it.
-           capture=dict(shots=(1, 40, 200, 420), sequences=((180, 1000, 8),), observe=False,
+           # Include attending, birth, supported releases and empty-hat recovery.
+           capture=dict(shots=(1, 40, 200, 420, _LAND_BIRTH_SMOKE['ticks']),
+                        sequences=((40, 2400, 4), (2400, _LAND_BIRTH_SMOKE['ticks'], 20)), observe=False,
+                        follow='@e[tag=scn_father,limit=1]', offset=(1.8, 1.4, 1.8),
                         views={'catch': dict(follow=f'@e[tag={tag("father")},limit=1]', offset=(2.4, 1.1, .8),
                                              criteria='父油守在母油身旁看着她，快生了才摘帽；放帽后站定看着母油，不来回抖动；帽子接住新生儿')}))
 land_birth('birth_land_missed', '没帽接生，新生儿落地摔伤', '没帽接生，新生儿落地摔伤', 'natural', 'reimu',
