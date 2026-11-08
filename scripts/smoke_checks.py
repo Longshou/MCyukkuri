@@ -454,8 +454,9 @@ def loops(records, samples):
                 # repeated ownership churn at the same place.
                 values.clear()
                 flips.clear()
-            # Frame/spot motion is geometry, not a change of attachment ownership.
-            attachment = tuple(s['att'].get(k) for k in ('kind', 'host', 'place')) if s['att'].get('host') else None
+            # Frame, spot and cabin/brim labels describe geometry on one host,
+            # not a transfer of attachment ownership.
+            attachment = tuple(s['att'].get(k) for k in ('kind', 'host')) if s['att'].get('host') else None
             value = (attachment, s['veh'], s['hold'].get('carry'))
             if not values or values[-1][1] != value:
                 values.append((row, value))

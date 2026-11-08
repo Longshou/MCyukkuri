@@ -702,9 +702,13 @@ class Calibration(unittest.TestCase):
             self.assertTrue(any(f['verdict'] == 'fail' for f in checks.ledger(rows, timeline.states(rows))))
 
     def test_attachment_geometry_is_not_ownership_flipping(self):
-        rows = [state(t, att={'kind': 'on_host', 'host': HOST, 'place': 'cabin',
+        # Main stem-318 t2054644 walks continuously across cabin/brim labels
+        # on the same host; the actual walk completes2054665.
+        rows = [state(t, att={'kind': 'on_host', 'host': HOST, 'place': 'cabin' if t % 2 else 'brim',
                               'spot': [0, t % 2, 0], 'frame': {'yaw': t % 2}}) for t in range(20)]
         self.assertFalse(checks.loops(rows, timeline.states(rows)))
+        for r in rows:r['st']['att']['kind']='held' if r['t'] % 2 else 'on_host'
+        self.assertTrue(any(f['verdict']=='fail' for f in checks.loops(rows,timeline.states(rows))))
         rows = [state(t, att={'kind': 'on_host', 'host': HOST if t % 2 else None, 'place': 'cabin'})
                 for t in range(20)]
         self.assertTrue(any(f['verdict'] == 'fail' for f in checks.loops(rows, timeline.states(rows))))
