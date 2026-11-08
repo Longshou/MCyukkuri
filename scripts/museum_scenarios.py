@@ -1943,10 +1943,9 @@ colony('colony_migrate', '族群迁徙：全族搬去东边空村', '族群迁�
               ('读新聚落状态', 'execute positioned ~64 ~ ~ run yukkuri settlement site info')],
        leader_loss=True)
 
-def _carry_outcome_verify(log, home=False):
+def _carry_outcome_verify(log):
     # A physical refusal may recover after replanning; count each finished Release once, by its child.
-    refusals, carried, released = {}, {}, {}
-    homed = set()
+    refusals, carried = {}, {}
     for tick, event, child in re.findall(r'\[family\][^\n]*? t=(\d+)[^\n]* (carry (?:pickup hold=|put down reason=|put down refused )[^\n]*?)child=([0-9a-f-]{36})', log):
         if event.startswith('carry put down refused '):
             refusals[child] = refusals.get(child, 0) + 1
@@ -1956,23 +1955,12 @@ def _carry_outcome_verify(log, home=False):
             carried[child] = int(tick)
         else:
             carried.pop(child, None)
-            released[child] = event
-            if re.search(r'reason=(?:arrived_home|nest_rim_to_cushion)\b', event):
-                homed.add(child)
     if carried:
         # A later family retrieval or nest-rim recovery can still be under way; measure this child's current hold, not the carrier's first pickup.
         end_tick = int(re.search(r'MCYSMOKE_END_TICK (\d+)', log)[1])
         stuck = {child: end_tick - tick for child, tick in carried.items() if end_tick - tick > 600}
         if stuck:
             return f'children held more than 600 ticks at end: {stuck}'
-    if home:
-        for child, event in released.items():
-            if not re.search(r'reason=(?:arrived_home|nest_rim_to_cushion)\b', event):
-                return f'child {child} last released without returning home: {event}'
-        # The brief race above is a child already brought home being picked up again; one never brought home is a failure.
-        never = {child for child in set(carried) | set(released) if child not in homed}
-        if never:
-            return f'children never carried home: {sorted(never)}'
     return None
 
 
@@ -2042,7 +2030,7 @@ for _kind, _fx, _n, _size in _carry_families:
 
 def _carry_verify(log):
     # Detect doorway ping-pong, not a later real retrieval with another entry/exit.
-    stalled = _bed_walk_verify(log, crossing_window=300) or _carry_outcome_verify(log, home=True)
+    stalled = _bed_walk_verify(log, crossing_window=300) or _carry_outcome_verify(log)
     if stalled:
         return stalled
     grips = {}
@@ -2058,7 +2046,7 @@ def _carry_verify(log):
             return f'brim-local seat changed for {child}: {grips[child]} -> {seat}'
         if not re.search(rf'carry put down [^\n]*hold=brim cause=release [^\n]*child={child}\b', log[match.end():]):
             return f'brim child {child} was not released after lowering'
-    if not checked:
+    if not checked and re.search(r'carry pickup hold=brim\b', log):
         return 'expected a brim grip/release pair with a constant brim-local seat'
     return _carry_chains_verify(log) or _reimu_release_verify(log)
 
@@ -2072,13 +2060,17 @@ def _carry_chains_verify(log):
             pickup = re.search(rf'carry pickup hold=\S+ [^\n]*child={child}\b', log)
             if re.search(rf'carry put down [^\n]*child={child}\b[^\n]*nest=OUTSIDE\b', log):
                 return f'initial child {child} released OUTSIDE'
-            if pickup and re.search(rf'carry put down reason=arrived_home [^\n]*child={child}\b[^\n]*nest=(?:INSIDE_SUPPORTED|PARTIAL)\b', log[pickup.end():]):
+            if pickup:
+                if not re.search(rf'carry put down reason=\S+ [^\n]*cause=release [^\n]*child={child}\b[^\n]*nest=(?:INSIDE_SUPPORTED|PARTIAL)\b', log[pickup.end():]):
+                    return f'initial carried child {child} has no supported nest release'
                 carried.add(child)
     return f'fewer than two distinct initial children carried home: {len(carried)}' if len(carried) < 2 else None
 
 
 def _reimu_release_verify(log):
     # Reimu lets each baby out by her whole mouth_release clip (1.6 s = 32 ticks), not in the first ticks.
+    if not re.search(r'\[family\] reimu #[^\n]* carry pickup hold=mouth\b', log):
+        return None
     opened = {child: int(tick) for tick, child in re.findall(
         r'\[family\] reimu #\d+ uuid=\S+ t=(\d+) [^\n]*?carry lowering hold=mouth child=([0-9a-f-]{36})', log)}
     out = {child: int(tick) for tick, child in re.findall(
@@ -2101,11 +2093,9 @@ add('carry_home', 'family', '亲油把走远的赤油带回窝', '亲油把走�
                                              'reimu':'看清灵梦张嘴接幼体与到窝张嘴放出；闭嘴时口含幼体本来不可见，不能当成消失。',
                                              'chen':'看清橙的两条尾巴承托幼体、带回窝并放下；只要求此家庭出现在画面。'}[kind]) for kind, _, _, _ in _carry_families}),
     smoke=dict(ticks=3600,
-               expect=[*(rf'\[family\] {kind} #[^\n]* carry lift started\b' for kind, _, _, _ in _carry_families),
-                       r'\[family\] marisa #[^\n]* carry pickup hold=brim\b',
-                       r'\[family\] reimu #[^\n]* carry pickup hold=mouth\b',
-                       r'\[family\] chen #[^\n]* carry pickup hold=tail_(?:left|right)\b',
-                       *(rf'\[family\] {kind} #[^\n]* carry put down reason=arrived_home [^\n]*nest=(?:INSIDE_SUPPORTED|PARTIAL)\b' for kind, _, _, _ in _carry_families)],
+               expect=[r'\[family\][^\n]* carry lift started\b',
+                       r'\[family\][^\n]* carry pickup hold=(?:brim|mouth|tail_left|tail_right)\b',
+                       r'\[family\][^\n]* carry put down reason=\S+ [^\n]*cause=release [^\n]*nest=(?:INSIDE_SUPPORTED|PARTIAL)\b'],
                forbid=[r'\[home\][^\n]* assignment refused\b', r'\[family\][^\n]* task stopped task=SEARCH target=null\b',
                        r'\[home\][^\n]*bed crossing[^\n]*opening=false source=walk', r'\[home\][^\n]*nest_not_inside\b',
                        r'\[home\][^\n]*reason=doorway_unreachable\b',

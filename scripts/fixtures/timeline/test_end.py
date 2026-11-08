@@ -1,5 +1,6 @@
 """END grammar controls and deliberate breaks; no gameplay simulation or other-check calibration."""
 import copy
+import re
 from pathlib import Path
 import sys
 import unittest
@@ -274,6 +275,25 @@ class EndChecks(unittest.TestCase):
         self.assertIsNone(scenes._carry_chains_verify(''.join(map(chain, children))))
         self.assertIsNotNone(scenes._carry_chains_verify(chain(children[0]) * 2))
         self.assertIsNotNone(scenes._carry_chains_verify(chain(children[0], 'OUTSIDE') + ''.join(map(chain, children))))
+
+    def test_legacy_carry_home_does_not_require_each_species_to_be_carried(self):
+        import museum_scenarios as scenes
+        smoke = next(s.smoke for s in scenes.S if s.id == 'carry_home')
+        children = [scenes._uuid_text('carry_home', 'chen_' + str(i)) for i in range(2)]
+        prefix = '[family] chen #1 uuid=' + ACTOR + ' t=40 dim=minecraft:overworld '
+        def chain(child):
+            return '\n'.join(prefix + msg for msg in (
+                'carry lift started child=' + child,
+                'carry pickup hold=tail_left purpose=RETRIEVE child=' + child,
+                'carry put down reason=nest_rim_to_cushion hold=tail_left cause=release child=' + child + ' nest=INSIDE_SUPPORTED')) + '\n'
+        text = ''.join(map(chain, children)) + 'MCYSMOKE_END_TICK 100\n'
+        self.assertTrue(all(re.search(pattern, text) for pattern in smoke['expect']))
+        self.assertIsNone(smoke['verify'](text))
+        self.assertIsNotNone(smoke['verify'](text.replace('nest=INSIDE_SUPPORTED', 'nest=OUTSIDE', 1)))
+        self.assertIsNotNone(smoke['verify'](chain(children[0]) + 'MCYSMOKE_END_TICK 100\n'))
+        self.assertIsNotNone(smoke['verify'](text.replace('cause=release', 'cause=fetch_ended', 1)))
+        self.assertIsNotNone(smoke['verify'](text + '[family] marisa #2 carry pickup hold=brim child=' + HAT))
+        self.assertIsNotNone(scenes._reimu_release_verify('[family] reimu #3 carry pickup hold=mouth child=' + HAT))
 
 
 if __name__ == '__main__':
