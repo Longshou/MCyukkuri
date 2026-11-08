@@ -26,11 +26,13 @@
 
 ## 标定输入与边界
 
+特殊表面与划桨捕获新增 119 条 gap、109 条 wet 标签：1 条可见悬空为 real，其余为 unresolved；其中 42 条没有同帧截图，不使用邻帧代替。带图样本保留截图帧号与原尺寸裁剪范围。wet 回放保留疑似／失败读数；原有正例与控制仍由 `PoseMetricsTest` 覆盖。没有据此放宽判定带，也未证明告警已达到可作为门槛的标定要求。
+
 客户端身体与帽的证据直接旁录实际绘制的顶点流，包括伤口替换片、破帽方格与补面、缩帽贴合、替代帽和落地帽；不再用完整原网格替代破损表面。开放伤口不声明闭合实体。产出过程中母体表面的裁切随主绘制取证，另行绘制的出口与尚未出生的幼体分别追加到 body／prop。旁录不改变缓冲区、顶点属性或绘制顺序。
 
 `boat_paddle` 的 `stroke` 来自制作源：深度 3 mu，木棍尖端为持物握点坐标系的 `[0,-11,0]` mu（源中 blade_length），仅对实际持有 `minecraft:stick` 取证，最终交接混合矩阵用于定位。`boat_paddle_braid` 使用源中 1.8 mu 深度与实际辫尖。参数和标记由动作导出器生成，动作轨道不因观测合同改变。
 
-小样本在 `scripts/fixtures/capture_readout/labels/`，`CaptureLabelsTest` 回放；每项包含四场景的 30 条历史告警及控制／已知正例。标签 `real` 必须报警，`false` 必须无告警，`unresolved` 保留理由、读数与对应图片，不能计为正确或误报。三项均有 unresolved，均**未达到 gate-ready**；`held` 另行标定，不在此集合内。目录不提交截图或网格；`gap` 保存最低点间距及表面接触距离的充分标量，几何计算本身另由真实三角面单元测试覆盖。G2 第 29–36 项仍由 `PoseMetricsTest` 保留正例与控制。
+小样本在 `scripts/fixtures/capture_readout/labels/`，`CaptureLabelsTest` 回放；gap／yaw／posejump 各包含四场景的 30 条历史告警及控制／已知正例。标签 `real` 必须报警，`false` 必须无告警，`unresolved` 保留理由、读数与对应图片，不能计为正确或误报。四项均有 unresolved，均**未达到 gate-ready**；`held` 另行标定，不在此集合内。目录不提交截图或网格；`gap` 保存最低点间距及表面接触距离的充分标量，几何计算本身另由真实三角面单元测试覆盖。G2 第 29–36 项仍由 `PoseMetricsTest` 保留正例与控制。
 
 - `gap`：最低点距支撑为正时，还取身体皮肤顶点到支撑三角面的最近距离；圆身体侧下方接触帽沿也属于真实接触，不强求全身最低点碰帽底。负间距仍按原值报警，其他接触不能抵消穿透。标注中的帽沿接触约 0.00509 格，G2 的 0.03 格接触控制通过，±0.125 格已知间距／穿透报警；保留夹在这些控制之间的 0.03／0.1 格原判定带，不凭遮挡的 0.03–0.09 格样本扩大通过带。宽视角下水面、帽沿遮挡的接触仍是 unresolved；未引入像素／FOV 猜测值，也未宣称这些样本证明了可见间距的完整分界。
 - `yaw`：可增加 `server.window=[{t,by},…]`，必须是 `t-4..t` 的五条连续密集记录且末条等于 `server.by`。与这些记录相邻包角弧的距离比较；缺窗口沿用同 tick 检查，不补造中间值。窗口依据 Minecraft 1.21.1 的 `ClientPacketListener.handleMoveEntity`／`handleRotateMob`（3 tick 插值）和 `LivingEntityRenderer.render`（`yBodyRotO→yBodyRot` 帧内插值）；`LivingEntity.aiStep` 递减插值步数。可在本机 `build/moddev/artifacts/neoforge-21.1.250-sources.jar` 对照上述类，分别约 599／617、59、2670 行。`LivingEntity.tickHeadTurn` 的身体平滑和网络到达时刻不由此窗口精确复原，相关剩余样本保留 unresolved。10°／30°及连续 5 tick 的带不变；窗口过期后的持续偏离仍报警，同 tick 偏离持续达到原 5 tick 时还比较绘制与服务端逐 tick 展开的累计转角，防止固定朝向不断借新旋转弧逃避报警，正常跟随的三 tick 延迟不因累计圈数误报。

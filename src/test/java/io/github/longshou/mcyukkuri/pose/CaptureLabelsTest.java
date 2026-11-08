@@ -72,6 +72,18 @@ class CaptureLabelsTest {
             System.out.println("MUTATION caught: "+metric);
         }
     }
+    @Test void replayCapturedStrokeLabelsWithoutTurningUnresolvedIntoPasses() throws Exception {
+        var rows=labels("wet");
+        assertFalse(rows.isEmpty());
+        int unresolved=0;
+        for(var row:rows) {
+            assertFalse(row.get("reason").getAsString().isBlank());
+            check(row);
+            assertEquals(row.get("verdict").getAsString(),replay(row).get("verdict").getAsString());
+            if(row.get("label").getAsString().equals("unresolved"))unresolved++;
+        }
+        System.out.printf("LABEL wet: captured=%d unresolved=%d%n",rows.size(),unresolved);
+    }
     @Test void rimContactUsesBodySurfaceAndDoesNotErasePenetration() {
         var f=frame(0);var support=surface();
         support.getAsJsonArray("triangles").add(JsonParser.parseString("[[3,3,-1],[5,3,-1],[4,3,1]]"));
