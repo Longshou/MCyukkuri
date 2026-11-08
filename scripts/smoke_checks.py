@@ -632,6 +632,11 @@ def inventory(s):
     elif 'hold' in s:
         if s['hold'] is None:
             return None
+        if s['hold'].get('mouthAuthority') != 'components':
+            # Older traces expose a priority-selected CARRYING display. A leaf
+            # can hide habitat food without any physical item leaving its store.
+            # Missing authority is unknown, never a certified inventory total.
+            return None
         # Hat ownership state is not a second copy of the physical hat's inventory.
         for key in ('braid', 'mouth', 'kit'):
             add(s['hold'].get(key))
@@ -644,6 +649,7 @@ def inventory(s):
 
 def ledger(records, samples, dense=False, raw=''):
     out, ticks, current = [], defaultdict(list), {}
+    missing_authorities = set()
     # An untagged actor can drop an item into the traced field. Its GameplayLog
     # line exists even though it has no actor stream; accept only an explicit
     # drop/source UUID that belongs to this scope, never unrelated transactions.
@@ -727,7 +733,12 @@ def ledger(records, samples, dense=False, raw=''):
         if not current and previous is None:
             continue
         if any(v is None for v in current.values()):
-            out.append(result('LEDGER', 'no-evidence', 'inventory authority missing', rows[-1]))
+            for actor, value in current.items():
+                if value is None and actor not in missing_authorities:
+                    out.append(result('LEDGER', 'no-evidence', 'inventory authority missing',
+                                      dict(u=actor, t=tick)))
+                    missing_authorities.add(actor)
+            previous, dip = None, None
             continue
         total = sum(current.values(), Counter())
         # Both comparison baselines follow the recorded scope flow. Otherwise

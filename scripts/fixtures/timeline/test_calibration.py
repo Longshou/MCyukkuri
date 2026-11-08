@@ -234,14 +234,14 @@ class Calibration(unittest.TestCase):
         entry=record('life',1,u=HOST,**{'in':'chunk_load'})
         self.assertFalse(checks.ledger([entry],timeline.states(rows)))
         self.assertTrue(any(f['verdict']=='fail' for f in checks.ledger([],timeline.states(rows))))
-        rows[1]['st']['hold']={'mouth':[{'item':'minecraft:apple','n':1}]}
+        rows[1]['st']['hold']['mouth']=[{'item':'minecraft:apple','n':1}]
         self.assertTrue(any(f['verdict']=='fail' for f in checks.ledger([entry],timeline.states(rows))))
         # The same item's unrelated creation is not hidden by another holder's exit.
         rows=[state(0),state(0,hold={'mouth':[{'item':'minecraft:apple','n':24}]}) | {'u':HOST},
               state(1,hold={'mouth':[{'item':'minecraft:apple','n':1}]})]
         leaving=record('life',1,u=HOST,out='scope_exit')
         self.assertTrue(any(f['verdict']=='fail' for f in checks.ledger([leaving],timeline.states(rows))))
-        rows[-1]['st']['hold']={'mouth':[]}
+        rows[-1]['st']['hold']['mouth']=[]
         self.assertFalse(checks.ledger([leaving],timeline.states(rows)))
         loose=[state(0),state(1),record('st',1,u=HOST,st={'item':'minecraft:apple','n':1})]
         discovered=record('life',1,u=HOST,**{'in':'scope_enter'})

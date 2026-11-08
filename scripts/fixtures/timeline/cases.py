@@ -11,7 +11,7 @@ HOST = '00000000-0000-0000-0000-000000000002'
 BASE = dict(p=[0, 0, 0], v=[0, 0, 0], yaw=0, by=0, g=True, w=False, wr=False,
             iw=False, iwr=False, hp=10, att=dict(kind='ground', host=None, place='ground'),
             veh=False, act={}, int={}, goals=[], phase='',
-            hold=dict(braid=[], mouth=[], kit={}, hat={}, carry=[]),
+            hold=dict(braid=[], mouth=[], mouthAuthority='components', kit={}, hat={}, carry=[]),
             dep=False, distress=False, stage='adult', parents=[], home=[0, 0, 0],
             need=dict(nut=10, en=10, wet=0), scale=1, alive=True, tags=['scn_actor'])
 
@@ -22,6 +22,8 @@ def record(k, t, u=ACTOR, **values):
 
 
 def state(t, **values):
+    if isinstance(values.get('hold'), dict):
+        values['hold'] = {'mouthAuthority': 'components'} | values['hold']
     return record('st', t, st=copy.deepcopy(BASE) | values)
 
 

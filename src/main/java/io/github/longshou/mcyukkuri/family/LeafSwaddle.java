@@ -212,6 +212,8 @@ public final class LeafSwaddle {
     }
     /** The first carried leaf, shown in the mouth like other carried material. */
     public ItemStack carried() { return leaves.isEmpty() ? ItemStack.EMPTY : leaves.getFirst(); }
+    /** Read-only observation of all carried leaves, before display priority selects one. */
+    public List<ItemStack> carriedItems() { return leaves.stream().map(ItemStack::copy).toList(); }
     public boolean active() { return task != Task.NONE; }
 
     /**
