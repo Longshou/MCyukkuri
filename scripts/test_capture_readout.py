@@ -7,6 +7,17 @@ from capture_readout import select_frames, beat_at, geometry_report, postprocess
 
 
 class CaptureReadoutTest(unittest.TestCase):
+    def test_real_paddle_phase_without_blade_contract_is_missing_evidence(self):
+        from pose_client import request
+        # boat_paddle in the sail baseline declares power markers, not stroke.depth.
+        fixture = json.loads((Path(__file__).parent/'fixtures/capture_readout/paddle.json').read_text())
+        frame = fixture['frame']
+        result = request(dict(frames=[frame], metric=['wet']))['results'][0]
+        self.assertEqual('error', result['verdict'])
+        self.assertIn('power stroke depth and declared blade tip', result['where'])
+        frame['ct'] = 1.1
+        self.assertEqual('skipped', request(dict(frames=[frame], metric=['wet']))['results'][0]['verdict'])
+
     def test_common_body_turn_is_not_a_bone_jump_but_relative_jump_is(self):
         import math
         from pose_client import request
@@ -20,6 +31,8 @@ class CaptureReadoutTest(unittest.TestCase):
             return request(dict(frames=[before, frame], metric=['posejump']))['results'][-1]['verdict']
         self.assertEqual('pass', verdict(after))
         self.assertEqual('fail', verdict(dict(after, bones=dict(head=turn(180)))))
+        self.assertEqual('error', verdict(dict(after, pose_basis=[0] * 16)))
+        self.assertEqual('error', verdict({k: v for k, v in after.items() if k != 'pose_basis'}))
 
     def test_labelled_authored_yaw_and_deliberate_heading_fault(self):
         from pose_client import request

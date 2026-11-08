@@ -1,0 +1,24 @@
+{
+  "capture": "20261108-162904-aceaa7",
+  "view": "sail",
+  "frame": {
+    "v": 1,
+    "k": "pose",
+    "run": "20261108-162904-aceaa7",
+    "win": "sail",
+    "u": "52a06b86-5105-4bc1-8592-adb68cf91215",
+    "t": 14575,
+    "pt": 0.060023785,
+    "f": 336,
+    "ct": 0.353256,
+    "parameters": {
+      "captain_yaw": 15
+    },
+    "clip_markers": {
+      "power_start": 0.2,
+      "power_end": 1.0
+    }
+  },
+  "label": "no-evidence",
+  "reason": "Power stroke observed, but depth and blade tip are not declared in the capture contract."
+}

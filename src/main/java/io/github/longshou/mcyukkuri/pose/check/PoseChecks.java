@@ -141,7 +141,16 @@ public final class PoseChecks {
     }
     private static void wet(JsonObject f, JsonObject r) {
         var params = obj(f, "parameters");
-        if (!params.has("stroke")) { skip(r, "clip has no stroke parameters"); return; }
+        if (!params.has("stroke")) {
+            var markers = obj(f, "clip_markers");
+            if (markers.has("power_start") && markers.has("power_end")) {
+                double t = n(f, "ct");
+                if (t >= n(markers, "power_start") && t <= n(markers, "power_end"))
+                    throw new IllegalArgumentException("missing context: power stroke depth and declared blade tip");
+                skip(r, "outside power_start..power_end");
+            } else skip(r, "clip has no stroke parameters");
+            return;
+        }
         var stroke = obj(params, "stroke"); var markers = obj(f, "clip_markers");
         double t = n(f, "ct"), start = n(markers, "contact"), end = n(markers, "stroke");
         if (t < start || t > end) { skip(r, "outside contact..stroke"); return; }
@@ -200,8 +209,9 @@ public final class PoseChecks {
         if (bones.isEmpty() || !bones.keySet().equals(old.keySet())) throw new IllegalArgumentException("missing/mismatched bone matrices");
         // Skeletal motion is measured relative to the rendered entity/holder frame.
         // Walking turns and a carrier's rotation move every bone together.
-        var basis = f.has("pose_basis") ? matrix(f.get("pose_basis")).invert() : new Matrix4d();
-        var oldBasis = prev.has("pose_basis") ? matrix(prev.get("pose_basis")).invert() : new Matrix4d();
+        if (f.has("pose_basis") != prev.has("pose_basis")) throw new IllegalArgumentException("missing context: paired pose_basis");
+        var basis = inverseBasis(f);
+        var oldBasis = inverseBasis(prev);
         double rate = 0; String where = "bones";
         for (var e : bones.entrySet()) {
             var a = rotation(basis.mul(matrix(e.getValue()), new Matrix4d()));
@@ -222,6 +232,12 @@ public final class PoseChecks {
             for (int j = first; j <= end; j++) authored |= need(fs.get(j), "transition").getAsBoolean();
             if (!authored) { r.addProperty("verdict", "fail"); r.addProperty("where", "clip flicker < 3 ticks"); r.addProperty("flicker_ticks", time(fs.get(end)) - time(fs.get(first))); }
         }
+    }
+    private static Matrix4d inverseBasis(JsonObject f) {
+        if (!f.has("pose_basis")) return new Matrix4d();
+        var basis = matrix(f.get("pose_basis"));
+        if (basis.determinant3x3() == 0) throw new IllegalArgumentException("singular pose basis");
+        return basis.invert();
     }
     private static Quaterniond rotation(Matrix4d m) {
         // Authored hidden puff bones use a nonzero 1e-6 scale. Scale does not invalidate their rotation.
