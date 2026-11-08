@@ -11,6 +11,7 @@
 | 搬运放下：接生、带回窝、托幼三链放不下孩子（暂停至基建完成：第三轮 `carry_home` END 19/20，`birth_land_caught` 先放下再收帽 9/20、主线 16/20，待二分；报告 `.local/refactor/reports/wp-cs-carry-putdown.md`） | `.worktrees/wp-cs-carry-putdown` | family/ParentCarry.java、motor/action/Release.java、life/SurfaceApproach.java |
 | 截图审图覆盖：无姿态视角不中断、hurt 伤口视角、myon 持物检查 | `.worktrees/wp-cx-capture-coverage` | client/capture/、scripts/capture_review.py、scripts/capture_readout.py、museum_scenarios.py（hurt／myon_stick 视角） |
 | 截图告警标定集与判定带校准（gap／yaw／posejump／held） | `.worktrees/wp-cy-capture-labels` | pose/check/、scripts/fixtures/capture_readout/ |
+| 服务端检查第二轮：新基线复核 LOOP／PROGRESS／JUMP／LEDGER／END，过往失败目录逐行能自动报出 | `.worktrees/wp-dc-check-baseline2` | scripts/smoke_checks.py、scripts/timeline.py、scripts/fixtures/timeline/、smoke_museum.py GATING_CHECKS |
 
 ## 玩法待办
 
