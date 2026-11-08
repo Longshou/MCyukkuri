@@ -8,7 +8,6 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
-| 噗咕鼓腮：身体模型两腮外鼓（复刻原作ぷくー，比概念图更夸张） | `.worktrees/wp-ce-cheek-puff` | standards/yukkuri-library/body-standard/（鼓腮 puff_offsets）、导出的 yukkuri/*.json 模型数据、噗咕片段的 puff 通道 |
 | 观测层：服务端检查校准（主线零误报、已知问题仍抓到） | `.worktrees/wp-ck-check-calibration` | scripts/smoke_checks.py、scripts/timeline.py、scripts/fixtures/timeline/ |
 | 搬运放下：接生、带回窝、托幼三链放不下孩子（先出设计，另一模型审） | `.worktrees/wp-cs-carry-putdown` | family/ParentCarry.java、motor/action/Release.java、life/SurfaceApproach.java |
 | 冒烟每轮独立种子：同一服务器重复各轮各用一个种子并记入该轮报告 | `.worktrees/wp-ct-run-seeds` | scripts/smoke_museum.py、entity/YukkuriEntity.java、status 命令、scripts/README.md |
@@ -89,7 +88,7 @@
 - **吃饱满足瘫软（meal_content）**：已接入待试玩。日常草地「吃饱了原地瘫软一会儿」。看：自制70 成体和子油吃下苹果后原地压扁眯眼一会儿再起来，自制95 的只做普通饭后表情。日志 `[meal] full ... content=true|false reason=`。完成：用户试玩认可。
 
 - **现有演出夸张化调优**：部分接入。四个样例（屋檐发抖、雷声缩身、呼唤孩子、吃饱满足）用户 2026-11-08 认可并已合入（[010a608c5](https://github.com/Longshou/MCyukkuri/commit/010a608c5)）；小瑕疵用户原话：「雷暴锁身用了两个几乎一样的表情。 表情集里可能也要处理 如果要表现流眼泪动态，需要调整更好，这两版差距不大。 呼唤的问题则是泪留痕和泪盈眼眶切换太快了，观感不太好」。其余演出是否按同样方式重做待用户决定；规则见[制作约定](../standards/yukkuri-library/AGENTS.md)。
-- **噗咕多版供选**：部分接入。用户 2026-11-08 看了四版：「噗咕先用原版 加上符号 硬撑那个也可以保留一些场景使用」（原版加怒筋；含泪硬撑用于受惊仍示威的场合，其余三版删除）；另：「wiki里漫画原版是鼓腮的 现在油库里的身体没有鼓腮的感觉 你能复刻吗 可以先让codex出图」；看过 Codex 概念图：「codex的示意图感觉是对的 … 可以把腮更夸张化一些」——身体模型做两腮外鼓（比概念图更夸张），噗咕片段驱动。全部 24 个形态的第一版（未合入）用户 2026-11-08 否决：「这版用不了，噗咕的腮不圆润，同时把腮红也扯开了」。完成：先在灵梦一个形态上出粗样，腮圆润、腮红不被拉扯，用户认可后再铺到全部形态。
+- **噗咕两版**：已接入待试玩。原版加怒筋，亲油挡捕食种时用含泪硬撑（[规则](FEATURES.md#对白与配音)）。身体鼓腮试过两版，用户决定不做，保留原身体。完成：用户试玩认可两版的使用场合。
 - **甜化与非油症专属表现**：未做。现复用 hop／struggle／tremble／droop，遗体快照未记录死者甜度与非油症状态。
 - **出生落点演出**：未做。随机弹道已接入，缺飞出窝外惊叫、落地扬尘弹跳、碰帽檐弹进帽声音、母油目送；`LiveDelivery` 欢迎／漏接字幕按 `outcome`（窝垫、窝沿滚入、帽中、飞出窝外、落帽外）区分。
 - **生殖行为演出**：已接入待试玩。擦脸前段、父方绕后、佩妮佩妮／马姆马姆、共享接触节拍与粒子；爱丽丝追击保持佩妮佩妮，受方压制显示马姆马姆。完成：`adult_pairing` 正侧背面看清回应、擦脸、绕后、接触，`home.family_state` 的 `court=` 中 `align` 不计有效接触、`contact` 后父母角色与账本一致；`alice_hunt` 追击器官不消失，喷雾、受击或遮挡后只收势。
