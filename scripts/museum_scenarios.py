@@ -1932,7 +1932,7 @@ add('carry_home', 'family', '亲油把走远的赤油带回窝', '亲油把走�
     reads=[('读承托状态（home.family_state 的 carry=）', 'yukkuri status @e[type=#mcylab:yukkuri,tag=scn,distance=..48] raw')],
     capture=dict(shots=(1, 40, 1200, 2400, 3600), sequences=((2, 1000, 4), (2500, 3300, 10)), observe=False,
                  views={kind: dict(follow=f'@e[tag=scn_{kind}_parent,limit=1]',
-                                   offset=(-1.4, .65, -.8 if kind == 'chen' else .8),
+                                   offset={'marisa':(-2.2,1.15,1.2),'reimu':(-1.4,.65,.8),'chen':(-1.8,.9,-1)}[kind],
                                    criteria={'marisa':'看清魔理沙用辫子抬幼体、帽檐承托以及到窝放下；按当前阶段判断，不要求抬起前已经携带。',
                                              'reimu':'看清灵梦张嘴接幼体与到窝张嘴放出；闭嘴时口含幼体本来不可见，不能当成消失。',
                                              'chen':'看清橙的两条尾巴承托幼体、带回窝并放下；只要求此家庭出现在画面。'}[kind]) for kind, _, _, _ in _carry_families}),
