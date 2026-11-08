@@ -798,16 +798,18 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     public boolean hasReaction() { return reactionTicks > 0; }
     /** A newborn's first wake after it landed (the first_wake clip and its first greeting). */
     public boolean firstWaking() { return reactionTicks > 0 && "newborn".equals(reactionEvent); }
-    /** A reaction and its line; while a held one runs it is dropped, unless it is pain or danger ({@link #forceReaction}). */
+    /** A reaction and its line; while a held one runs it is dropped, unless it is pain or danger ({@link #forceReaction}).
+     *  An empty or {@code null} dialogue is a face-only reaction: it shows the face and says nothing. */
     public void showReaction(String expression, String dialogue, int ticks) {
         if (level().isClientSide || held() && !urgent(dialogue)) return;
         forceReaction(expression, dialogue, ticks);
     }
-    /** A reaction that ends any held one (pain, danger, panic); its line is spoken. */
+    /** A reaction that ends any held one (pain, danger, panic); its line is spoken, or nothing when it has none
+     *  ({@code ""} or {@code null}, the entry callers use for a face-only reaction). */
     public void forceReaction(String expression, String dialogue, int ticks) {
         if (level().isClientSide) return;
         reactionTicks = ticks; reactionHeld = false; reactionExpression = expression; reactionEvent = dialogue == null ? "" : dialogue;
-        speak(dialogue);
+        speak(reactionEvent);
     }
     /** The same reaction, held for all its ticks: any reaction but pain or danger shown meanwhile is dropped, so the face cannot
      *  flip back and forth. */
@@ -838,7 +840,9 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
 
     /** Say a line of this event in the given voice tier (its fallback chain as {@link NativeDialogue#select}). */
     public boolean speak(String event, String tier) {
-        if (level().isClientSide || !isAlive()) return false;
+        // An empty event is "no line": a reaction that shows only its face says nothing at all, in every voice
+        // (a deficient yukkuri's babble is a line for a real event, not for a missing one).
+        if (level().isClientSide || !isAlive() || event.isEmpty()) return false;
         if (subspecies.congenital() != SubspeciesLife.Congenital.NORMAL) {
             long now = level().getGameTime();
             if (!speechTiming.admit(this, now, 40, NativeDialogue.priority(event))) return false;
