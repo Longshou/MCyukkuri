@@ -123,13 +123,13 @@ public final class YukkuriModel {
             if(part.name.startsWith("face_mouth"))PoseGeometry.append(meshes,"mouth",triangles,false);
         }
         // Specialized damaged surfaces are not represented by the ordinary core skin.
-        if(woundDisplay!=null||hatDamageDraw.level()>0||delivery!=null)out.addProperty("geometry_error","specialized wound/hat/delivery surface");
+        if(woundDisplay!=null||hatDamageDraw.level()>0||delivery!=null||hatProp!=null)out.addProperty("geometry_error","specialized wound/hat/delivery surface");
         out.add("meshes",meshes);
         var worn=HatGeometry.worn(id);
         if(worn!=null)out.add("head",PoseTap.matrix(world[worn.getAsJsonObject("head").get("bone").getAsInt()]));
         out.add("mouth_anchor",PoseGeometry.point(mouthPoint()));
-        for(int i=0;i<bones.length;i++)if(bones[i].name().equals("hand_right_tip"))
-            out.add("wet_tip",PoseGeometry.point(world[i].transformPosition(new Vector3f(bones[i].x,bones[i].y,bones[i].z))));
+        var tip=braidPose.drawnTip();
+        if(tip!=null)out.add("wet_tip",PoseGeometry.point(tip));
         var skin = new JsonObject();
         skin.addProperty("puff", puffAmount); skin.addProperty("belly", pregnancyBelly);
         skin.addProperty("contraction", pregnancyContraction); skin.addProperty("wear", wear);

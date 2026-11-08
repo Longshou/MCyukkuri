@@ -128,6 +128,9 @@ def capture(parser, args):
     functions = pack / 'data/mcylab/function'
     (functions / 'capture').mkdir()
     for scene, view_id, settings in views:
+        if 'look_at' in settings:
+            x, y, z = settings['look_at']
+            settings = dict(settings, look_at=(scene.anchor[0]+x, builder.FEET+y, scene.anchor[1]+z))
         start_lines = (functions / f'start/{scene.id}.mcfunction').read_text(encoding='utf-8').splitlines()
         view = next((line for line in start_lines if line.startswith(('tp @s ', 'function mcylab:view/'))), f'function mcylab:go/{scene.field}')
         interactions = (f'function mcylab:smoke/{scene.id}/start\n'

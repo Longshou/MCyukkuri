@@ -49,9 +49,11 @@ lore 通用宠物联系表 `pet_motions_preview.py` 已由 `preview.py strip <�
 
 场景 `vantage=(横向偏移,纵向偏移,朝向[,俯角])` 落在该列地面；五项形式在俯角前指定相对场地基准脚底高度的偏移，以避开屋顶与柱子。俯角默认 20 度。`capture` 的 `observe=False` 仅在截图时关闭头顶状态字，不影响普通场景读数。
 
-捕获目录中的 `pose.jsonl` 记录已绘制主体的片段、实际片段时刻、根矩阵、跨越标记、混合后的持物矩阵和共享 `PoseChecks` 结果；截图帧另存骨骼与皮肤输入快照。`frames.json` 的 `gameTime`、`poseFrame` 对应绝对游戏 tick 与姿态帧号。片段／阶段变化和标记跨越会补截图；`capture_readout.py` 从这些证据选择约十帧，写 `selected-frames.json`、`geometry.json` 并生成联系表。几何缺失输入保留为 `error`，报告 `complete=false`，不能视作通过；当前尚缺完整碰撞与支撑网格、服务端同 tick 朝向、过渡声明、持物握点和水中尖端证据，不能替代完整审图。时间节拍须用 `0.5s 触碰` 或 `20t 落地`，不接受格序号。
+捕获目录中的 `pose.jsonl` 记录已绘制主体的片段、实际片段时刻、根矩阵、跨越标记、混合后的持物矩阵和共享 `PoseChecks` 结果；截图帧另存骨骼与皮肤输入，完整几何证据以 `evidence` 指向同目录的 `.json.gz`，`pose_check.py --frames` 可读取。`frames.json` 的 `gameTime`、`poseFrame` 对应绝对游戏 tick 与姿态帧号。片段／阶段变化、标记跨越与新指标异常会补截图；`capture_readout.py` 按标记、指标和服务端里程碑选择约十帧，写 `selected-frames.json`、`geometry.json` 并生成联系表。朝向与密集服务端样本按主体、维度、绝对 tick 精确对齐；骨骼角速度按相邻渲染帧的实际时间差计算，排除片段／阶段切换。几何缺失输入保留为 `error`，报告 `complete=false`，不能视作通过；特殊伤口／破帽／产出替换表面、缺失的道具尖端仍会报缺证据。时间节拍须用 `0.5s 触碰` 或 `20t 落地`，不接受格序号。
 
-`capture.follow` 可指定跟随的实体选择器；多个观察角度用 `capture.views={名字: {follow: 选择器, offset: (左右, 高度, 前后)}}`，偏移按被观察实体的本地朝向计算。每个角度重新运行真实场景，只移动旁观者；清场会取消跟随。跟随截图关闭观察标签与聊天覆盖，PNG 与联系表按角度名字分目录。
+`capture.follow` 可指定跟随的实体选择器；多个观察角度用 `capture.views={名字: {follow: 选择器, offset: (左右, 高度, 前后), criteria: 本机位观察标准}}`，摄影机偏移按上一渲染帧实际画出的身体朝向计算。方块使用 `look_at: (x,y,z)`，目标相对场景 anchor 与脚底高度，保留原观察点的摄影机位置。每个角度重新运行真实场景，跟随只移动旁观者与摄影机；清场会取消跟随。跟随截图关闭观察标签与聊天覆盖，PNG 与联系表按角度名字分目录。
+
+`<py> scripts/capture_review.py --worktree <工作树> <场景> [--criteria <原话或文件>] [--beats <时间节拍文件>]` 一条命令捕获并审图；`--reuse <捕获目录>` 复用已有结果。AI 只判断各机位下的动作是否看得懂，几何问题只来自共享指标，均保留为报告项；缺证据或审图服务错误退出 2。`--compare-old <旧审图脚本>` 对同一组图额外运行旧提示词，保存两份判断；旧提示词的报警不自动等于误报，须结合原尺寸画面与指标证据复核。报告在主检出 `.local/reports/capture-review/`，不自动登记用户待查看页。
 
 截图运行独占主检出 `.local/captures/capture.lock` 的文件锁；后来的截图命令等待前一次结束后自动运行，冒烟不取此锁。截图同样占一个全机名额，并支持 `--no-wait`、`--slots`。
 

@@ -44,8 +44,17 @@ class PoseCaptureContextTest {
     }
     @Test void slowConsecutiveRenderedFramesAreTimeNormalizedButMissingFramesAreErrors() {
         var a=frame(0);var b=frame(4);a.addProperty("f",0);b.addProperty("f",1);
+        a.addProperty("src","client");b.addProperty("src","client");
         verdict("pass","posejump",a,b);
         b.addProperty("f",2);verdict("error","posejump",a,b);
         b.addProperty("transition",true);verdict("skipped","posejump",a,b);
+    }
+    @Test void tinyAuthoredVisibilityScaleHasAValidRotationButZeroScaleDoesNot() {
+        var a=frame(0);var b=frame(1);
+        var hidden=matrix(new org.joml.Matrix4d().scale(1e-6));
+        a.getAsJsonObject("bones").add("puff",hidden);b.getAsJsonObject("bones").add("puff",hidden);
+        verdict("pass","posejump",a,b);
+        b.getAsJsonObject("bones").add("puff",matrix(new org.joml.Matrix4d().scale(0)));
+        verdict("error","posejump",a,b);
     }
 }

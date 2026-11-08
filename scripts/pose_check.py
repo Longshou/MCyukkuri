@@ -8,6 +8,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import gzip
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -75,6 +76,14 @@ def main():
         request = {'metric': args.metric.split(',')}
         if args.frames:
             request['frames'] = [json.loads(line) for line in args.frames.read_text(encoding='utf-8').splitlines() if line.strip()]
+            for index, frame in enumerate(request['frames']):
+                if 'evidence' not in frame:
+                    continue
+                evidence = (args.frames.parent / frame['evidence']).resolve()
+                if evidence.parent != args.frames.parent.resolve():
+                    raise ValueError('pose evidence must be beside frames JSONL')
+                with gzip.open(evidence, 'rt', encoding='utf-8') as source:
+                    request['frames'][index] = json.load(source)
         else:
             request.update(model=args.model, clip=args.clip, t=args.t, partner=args.partner)
         for key in ('water', 'vertices', 'pose_out'):

@@ -730,8 +730,8 @@ add('family_search', 'family', '走散亲子：走得到就重逢，隔玻璃就
     env=DAY, spot='hurt_kin', vantage=(0, 14),
     # The calls: once following the warm parent (in front of her face while she calls), once following the north child.
     capture=dict(shots=(1, 40, 600), sequences=((100, 340, 3),), observe=False,
-                 views={'parent': dict(follow=f'@e[tag={tag("search_parent")},limit=1]', offset=(0, .9, 2.4)),
-                        'child': dict(follow=f'@e[tag={tag("search_child")},limit=1]', offset=(0, .5, 1.5))}),
+                 views={'parent': dict(follow=f'@e[tag={tag("search_parent")},limit=1]', offset=(0, .9, 2.4), criteria='北边亲油的呼唤、伸长身体和左右张望能看清；不要求这一机位同时看见远处孩子或南边玻璃围栏。'),
+                        'child': dict(follow=f'@e[tag={tag("search_child")},limit=1]', offset=(0, .5, 1.5), criteria='北边孩子转向、回应和接近亲油的动作能看清；只判断当前时刻已经发生的动作，不要求早期画面已经重逢。')}),
     reads=[('读寻子亲油', f'yukkuri status {sel("search_parent")} raw'), ('读寻亲子油', f'yukkuri status {sel("search_child")} raw'),
            ('读搜索时长与断亲', f'yukkuri status {sel("lost_mother")} raw'), ('读被围子油不安', f'yukkuri status {sel("lost_child")} raw')])
 
@@ -860,9 +860,9 @@ add('rain_huddle', 'weather', '屋檐下怕雨的贴着伴侣发抖', '屋檐下
     reads=[('附近落雷', 'summon minecraft:lightning_bolt ~14 ~ ~6'), ('读贴靠的魔理沙', f'yukkuri status {sel("shy")} raw'),
            ('读伴侣灵梦', f'yukkuri status {sel("mate")} raw'), ('读独处灵梦', f'yukkuri status {sel("alone")} raw')],
     capture=dict(shots=(1, 40, 200, 400, 700, 900), sequences=((60, 900, 6),),
-                 views={'front': dict(follow='@e[tag=scn_shy,limit=1]', offset=(.6, 1.0, 3.0)),
-                        'above': dict(follow='@e[tag=scn_shy,limit=1]', offset=(1.0, 1.7, 1.6)),
-                        'roof': dict(follow='@e[tag=scn_shy,limit=1]', offset=(1.0, 4.0, 1.6))}),
+                 views={'front': dict(follow='@e[tag=scn_shy,limit=1]', offset=(.6, 1.0, 3.0), criteria='看清屋檐下魔理沙靠向伴侣、两者表情和发抖；独处灵梦不必在此镜头内。'),
+                        'above': dict(follow='@e[tag=scn_shy,limit=1]', offset=(1.0, 1.7, 1.6), criteria='看清两者侧面贴靠关系、帽和身体轮廓；屋顶遮挡时只报机位问题。'),
+                        'roof': dict(look_at=(0, 3, 0), criteria='看清遮雨屋顶与屋檐的空间关系；此机位不要求看见屋顶下个体的细小表情。')}),
     smoke=dict(ticks=1200, commands=[(700, 'summon minecraft:lightning_bolt ~14 ~ ~6')],
                expect=[rf'\[weather\] marisa [^\n]*uuid={_hm_t} [^\n]* huddle sought partner={_hr_t} kin=true',
                        rf'\[weather\] marisa [^\n]*uuid={_hm_t} [^\n]* huddle pressed partner={_hr_t} ',
@@ -1932,7 +1932,10 @@ add('carry_home', 'family', '亲油把走远的赤油带回窝', '亲油把走�
     reads=[('读承托状态（home.family_state 的 carry=）', 'yukkuri status @e[type=#mcylab:yukkuri,tag=scn,distance=..48] raw')],
     capture=dict(shots=(1, 40, 1200, 2400, 3600), sequences=((2, 1000, 4), (2500, 3300, 10)), observe=False,
                  views={kind: dict(follow=f'@e[tag=scn_{kind}_parent,limit=1]',
-                                   offset=(-1.4, .65, -.8 if kind == 'chen' else .8)) for kind, _, _, _ in _carry_families}),
+                                   offset=(-1.4, .65, -.8 if kind == 'chen' else .8),
+                                   criteria={'marisa':'看清魔理沙用辫子抬幼体、帽檐承托以及到窝放下；按当前阶段判断，不要求抬起前已经携带。',
+                                             'reimu':'看清灵梦张嘴接幼体与到窝张嘴放出；闭嘴时口含幼体本来不可见，不能当成消失。',
+                                             'chen':'看清橙的两条尾巴承托幼体、带回窝并放下；只要求此家庭出现在画面。'}[kind]) for kind, _, _, _ in _carry_families}),
     smoke=dict(ticks=3600,
                expect=[*(rf'\[family\] {kind} #[^\n]* carry lift started\b' for kind, _, _, _ in _carry_families),
                        r'\[family\] marisa #[^\n]* carry pickup hold=brim\b',
@@ -3447,7 +3450,7 @@ def _scene_end(sid, final, *paths, forbid=()):
         views = {'': {key: scene.capture[key] for key in ('follow', 'offset') if key in scene.capture}}
         scene.capture['views'] = views
     for view in views.values():
-        view['criteria'] = scene.watch
+        view.setdefault('criteria', scene.watch)
 
 
 _DRY = 'alive=true and w=false and distress=false and iwr=false'

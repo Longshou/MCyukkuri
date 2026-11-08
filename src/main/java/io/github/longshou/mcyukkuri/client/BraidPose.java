@@ -46,6 +46,12 @@ final class BraidPose {
     }
 
     /** Carry the hat (bone {@code hat} and every bone under it) so its braid grip lies on the braid tip, by this share. */
+    Vector3f drawnTip(){
+        if(!resolve())return null;
+        int end=rest.length-3;
+        return o.world()[chain[chain.length-1]].transformPosition(new Vector3f(rest[end],rest[end+1],rest[end+2]));
+    }
+
     void holdHat(int hat,float share,Vector3f grip){
         if(hat<0||share<=0||!resolve())return;
         Overlays.holdHat(o.bones(),o.world(),chain,rest,hat,share,grip);

@@ -45,6 +45,7 @@ public final class PoseGeometry {
     /** Nearby means two blocks between body origins, as specified for partner/hat observation. */
     public static void context(JsonObject f,Map<String,JsonObject> actors) {
         var meshes=f.getAsJsonObject("meshes");var pairs=new JsonArray();f.add("pairs",pairs);
+        if(!meshes.has("body"))f.addProperty("geometry_error","missing skinned body surface");
         if(meshes.has("braid")&&meshes.has("body"))pair(pairs,"braid","body",meshes.has("root_ring")?region(meshes.getAsJsonObject("root_ring"),"drawn braid root ring"):new JsonArray());
         var sup=f.getAsJsonObject("sup");String hostId=sup.get("host").isJsonNull()?null:sup.get("host").getAsString();
         if(meshes.has("body"))f.add("skin_points",points(meshes.getAsJsonObject("body")));
@@ -56,6 +57,7 @@ public final class PoseGeometry {
             boolean host=entry.getKey().equals(hostId);
             double distance=PoseChecks.vector(f.get("position")).distance(PoseChecks.vector(other.get("position")));
             if(!host&&distance>32)continue;
+            if(other.has("geometry_error"))f.addProperty("geometry_error","partner: "+other.get("geometry_error").getAsString());
             String prefix=entry.getKey()+"/";
             for(String group:List.of("body","hair","hat","tail"))if(om.has(group))meshes.add(prefix+group,om.get(group));
             if(host) {

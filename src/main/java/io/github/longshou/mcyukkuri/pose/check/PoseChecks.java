@@ -192,7 +192,7 @@ public final class PoseChecks {
         if (transition) { skip(r, "authored transition"); return; }
         if (i == 0) throw new IllegalArgumentException("missing context: contiguous previous pose");
         var before=fs.get(i-1);
-        boolean renderedNeighbors=before.has("f")&&f.has("f")&&n(f,"f")==n(before,"f")+1;
+        boolean renderedNeighbors=f.has("src")&&s(f,"src").equals("client")&&before.has("f")&&f.has("f")&&n(f,"f")==n(before,"f")+1;
         if(time(f)==time(before)&&obj(f,"bones").equals(obj(before,"bones"))){skip(r,"unchanged pose at paused game time");return;}
         if(!(time(f)>time(before)&&(renderedNeighbors||contiguous(before,f))))throw new IllegalArgumentException("missing context: contiguous previous pose");
         var prev = fs.get(i - 1); var bones = obj(f, "bones"); var old = obj(prev, "bones");
@@ -220,7 +220,8 @@ public final class PoseChecks {
     }
     private static Quaterniond rotation(JsonElement value) {
         var m = matrix(value);
-        if (Math.abs(m.determinant3x3()) < 1e-12) throw new IllegalArgumentException("singular bone matrix");
+        // Authored hidden puff bones use a nonzero 1e-6 scale. Scale does not invalidate their rotation.
+        if (m.determinant3x3() == 0) throw new IllegalArgumentException("singular bone matrix");
         return m.getUnnormalizedRotation(new Quaterniond()).normalize();
     }
 }

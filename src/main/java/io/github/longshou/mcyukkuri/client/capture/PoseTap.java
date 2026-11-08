@@ -15,6 +15,8 @@ import net.minecraft.util.RandomSource;
 import java.io.*;
 import java.nio.file.*;
 import java.util.*;
+import java.util.zip.GZIPOutputStream;
+import java.nio.charset.StandardCharsets;
 import net.minecraft.core.registries.BuiltInRegistries;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
@@ -26,6 +28,7 @@ public final class PoseTap {
     private static final Map<String, JsonObject> CURRENT = new LinkedHashMap<>();
     private static final Map<String, JsonObject> PREVIOUS = new HashMap<>();
     private static BufferedWriter writer;
+    private static Path directory;
     private static String run, window;
     private static long frame, sequence;
 
@@ -38,6 +41,7 @@ public final class PoseTap {
     public static boolean active() { return ENABLED && writer != null; }
     public static JsonObject previous(String uuid){return PREVIOUS.get(uuid);}
     public static void begin(Path directory) {
+        PoseTap.directory=directory;
         try { writer = Files.newBufferedWriter(directory.resolve("pose.jsonl")); }
         catch (IOException e) { throw new UncheckedIOException(e); }
         run = directory.getParent().getFileName().toString(); window = directory.getFileName().toString();
@@ -201,8 +205,13 @@ public final class PoseTap {
         try {
             for (var entry : CURRENT.entrySet()) {
                 var f=entry.getValue();var output=new JsonObject();
-                for(var field:f.entrySet())if(shot||!List.of("bones","skin","meshes","skin_points","pairs").contains(field.getKey()))output.add(field.getKey(),field.getValue());
-                if(!shot&&output.has("sup")){var sup=output.getAsJsonObject("sup").deepCopy();sup.remove("mesh");output.add("sup",sup);}
+                for(var field:f.entrySet())if(!List.of("meshes","skin_points","pairs").contains(field.getKey())&&(shot||!List.of("bones","skin").contains(field.getKey())))output.add(field.getKey(),field.getValue());
+                if(output.has("sup")){var sup=output.getAsJsonObject("sup").deepCopy();sup.remove("mesh");output.add("sup",sup);}
+                if(shot){
+                    String evidence="pose-"+frame+"-"+entry.getKey()+".json.gz";
+                    try(var compressed=new OutputStreamWriter(new GZIPOutputStream(Files.newOutputStream(directory.resolve(evidence))),StandardCharsets.UTF_8)){JSON.toJson(f,compressed);}
+                    output.addProperty("evidence",evidence);
+                }
                 writer.write(JSON.toJson(output)); writer.newLine();
                 if(f.get("k").getAsString().equals("pose"))PREVIOUS.put(entry.getKey(),f);
             }
