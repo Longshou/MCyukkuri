@@ -66,9 +66,11 @@ def shed(path):
 
 
 def prune(keep_hours=24, quick=False):
-    """Delete the stale candidates (quick: only their large parts); returns how many were touched. Runners and
-    landings may prune at the same time, so one machine-wide lock serializes them."""
-    with server.instance_lock("MCyukkuriSmokePrune"):
+    """Delete the stale candidates (quick: only their large parts, and skip when another prune is already running);
+    returns how many were touched. One machine-wide lock keeps concurrent prunes off the same directories."""
+    with server.instance_lock('MCyukkuriSmokePrune', blocking=not quick) as held:
+        if not held:
+            return 0
         paths = stale(keep_hours)
         for path in paths:
             shed(path)
@@ -82,13 +84,13 @@ def main():
     ap.add_argument('--keep-hours', type=float, default=24)
     ap.add_argument('--apply', action='store_true')
     args = ap.parse_args()
+    if args.apply:
+        print(f'{prune(args.keep_hours)} removed')
+        return
     paths = stale(args.keep_hours)
     for path in paths:
-        if args.apply:
-            shed(path)
-            shutil.rmtree(path)
-        print(('removed ' if args.apply else 'would remove ') + str(path.relative_to(ROOT)))
-    print(f'{len(paths)} {"removed" if args.apply else "to remove (dry run: add --apply to delete)"}')
+        print('would remove ' + str(path.relative_to(ROOT)))
+    print(f'{len(paths)} to remove (dry run: add --apply to delete)')
 
 
 if __name__ == '__main__':

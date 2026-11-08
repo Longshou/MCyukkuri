@@ -127,19 +127,23 @@ def process_started(pid):
 
 
 @contextmanager
-def instance_lock(name='MCyukkuriSmokeLaunch'):
+def instance_lock(name='MCyukkuriSmokeLaunch', blocking=True):
     # Share port handoff and stale recovery across worktrees; Windows releases abandoned mutexes.
+    # Yields whether the lock is held: only a non-blocking caller can get False (another holder has it).
     k = ctypes.windll.kernel32
     k.CreateMutexW.restype = ctypes.c_void_p
     handle = k.CreateMutexW(None, False, 'Local\\' + name)
     if not handle:
         raise ctypes.WinError()
     try:
-        result = k.WaitForSingleObject(ctypes.c_void_p(handle), 0xFFFFFFFF)
+        result = k.WaitForSingleObject(ctypes.c_void_p(handle), 0xFFFFFFFF if blocking else 0)
+        if result == 0x102 and not blocking:  # WAIT_TIMEOUT
+            yield False
+            return
         if result not in (0, 0x80):  # Acquired normally, or inherited from a terminated runner.
             raise ctypes.WinError()
         try:
-            yield
+            yield True
         finally:
             k.ReleaseMutex(ctypes.c_void_p(handle))
     finally:
