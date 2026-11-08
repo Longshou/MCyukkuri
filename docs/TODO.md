@@ -130,9 +130,8 @@
 
 ## 流程与工具
 
-提效类改动；状态与玩法条目相同，完成即删。用户 2026-11-07 决定：先完成本节基础建设，再继续游戏内容开发；高频公共需求封装成一条命令，代理不再每次重新摸索。以真实提效衡量，不追数据指标。
+提效类改动；状态与玩法条目相同，完成即删。以真实提效衡量，不追数据指标。目前无未完成项。
 
-4. **截图姿态读数与审图**：部分接入。一条命令出任一场景的截图、逐帧姿态读数、共享几何检查（含特殊表面与划桨）、按机位标准的 AI 可读性审图已接入（[8e15f2dd8](https://github.com/Longshou/MCyukkuri/commit/8e15f2dd8)、[2b3ecd91b](https://github.com/Longshou/MCyukkuri/commit/2b3ecd91b)、[0329f63d2](https://github.com/Longshou/MCyukkuri/commit/0329f63d2)、[d04d37917](https://github.com/Longshou/MCyukkuri/commit/d04d37917)）。剩 `wp-dh-frame-beats`：给了节拍时必挑到对应时刻的帧、开场缺姿态的帧不送审（演练中审图漏掉了伸懒腰顶点）。完成：审图挑到被问的那一刻。
 
 ## 待用户裁决
 
