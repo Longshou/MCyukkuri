@@ -12,6 +12,7 @@
 | 试玩场演示编号（2026-11-09 生5） | `.worktrees/wp-ea-scene-numbers` | scripts/museum_scenarios.py、scripts/feedback_intake.py |
 | 夜里不困也睡（2026-11-09 生9） | `.worktrees/wp-eb-night-sleep` | life/YukkuriLife.java、home/HomeProvider.java |
 | 茎生母油转向让实子落窝内（2026-11-09 生7） | `.worktrees/wp-ec-stem-facing` | family/LiveBirth.java |
+| 油库里用语语料库（2026-11-09 生1） | `.worktrees/wp-ed-speech-corpus` | art/dialogue/corpus/、wiki/hakkei-reference/dialogue/ |
 
 ## 玩法待办
 
