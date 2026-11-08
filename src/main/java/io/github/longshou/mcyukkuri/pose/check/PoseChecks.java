@@ -137,7 +137,15 @@ public final class PoseChecks {
         if (skin.isEmpty()) throw new IllegalArgumentException("missing context: rider skin points");
         var direction = s(sup, "kind").equals("ground") ? new Vector3d(0, 1, 0) : up(need(sup, "frame"));
         double g = Geometry.gap(skin, mesh(need(sup, "mesh")), direction) / 16;
-        bounded(r, Math.abs(g), .03, .1, "lowest skin vs support triangles"); r.addProperty("signed", g);
+        gapBand(r,g);
+    }
+    /** Replay the measured signed clearance without embedding captured meshes in fixtures. */
+    public static JsonObject gapReading(JsonObject frame, double signedBlocks) {
+        if (!Double.isFinite(signedBlocks)) throw new IllegalArgumentException("non-finite gap");
+        var r=result(frame,"gap");gapBand(r,signedBlocks);return r;
+    }
+    private static void gapBand(JsonObject r,double g) {
+        bounded(r, Math.abs(g), .03, .1, "body contact vs support surface"); r.addProperty("signed", g);
     }
     private static void wet(JsonObject f, JsonObject r) {
         var params = obj(f, "parameters");
@@ -189,13 +197,35 @@ public final class PoseChecks {
     private static double yawError(JsonObject f) {
         var server = obj(f, "server");
         if (n(server, "t") != n(f, "t")) throw new IllegalArgumentException("server by is not from the same tick");
-        return Math.abs(Math.IEEEremainder(n(f, f.has("body_yaw") ? "body_yaw" : "yaw") - n(server, "by"), 360));
+        double drawn = n(f, f.has("body_yaw") ? "body_yaw" : "yaw");
+        double error = Math.abs(Math.IEEEremainder(drawn - n(server, "by"), 360));
+        if (!server.has("window")) return error;
+        // Vanilla ClientPacketListener interpolates movement/head packets over 3 ticks;
+        // LivingEntityRenderer additionally blends yBodyRotO -> yBodyRot. This is an
+        // envelope of those observed headings, not an invented packet arrival time.
+        var window = server.getAsJsonArray("window");
+        if (window.size() != 5) throw new IllegalArgumentException("yaw window needs five dense server ticks");
+        for (int i = 0; i < window.size(); i++) {
+            var sample = window.get(i).getAsJsonObject();
+            if (n(sample,"t") != n(f,"t") - 4 + i) throw new IllegalArgumentException("noncontiguous yaw window");
+            double a = n(sample,"by");
+            if (i == 4 && a != n(server,"by")) throw new IllegalArgumentException("yaw window endpoint mismatch");
+        }
+        for (int i = 1; i < window.size(); i++) {
+            double a = n(window.get(i).getAsJsonObject(),"by");
+            double b = n(window.get(i-1).getAsJsonObject(),"by");
+            double arc = Math.IEEEremainder(a-b,360), offset = Math.IEEEremainder(drawn-b,360);
+            if (offset >= Math.min(0,arc) && offset <= Math.max(0,arc)) return 0;
+            error = Math.min(error, Math.min(Math.abs(offset), Math.abs(Math.IEEEremainder(drawn-a,360))));
+        }
+        return error;
     }
     private static void yaw(List<JsonObject> fs, int i, JsonObject r) {
         var f = fs.get(i);
         if (!s(f, "yawsrc").equals("body")) { skip(r, "yaw source is not body"); return; }
         s(f, "run"); s(f, "u");
-        double error = yawError(f); bounded(r, error, 10, 30, "drawn yaw vs same-tick server by");
+        double error = yawError(f); bounded(r, error, 10, 30,
+                obj(f,"server").has("window") ? "drawn yaw vs vanilla interpolation window" : "drawn yaw vs same-tick server by");
         double start = time(f);
         if (error > 30) {
             for (int j = i - 1; j >= 0; j--) {
@@ -225,24 +255,46 @@ public final class PoseChecks {
         var basis = inverseBasis(f);
         var oldBasis = inverseBasis(prev);
         double rate = 0; String where = "bones";
+        JsonObject authored = f.has("authored_loop") ? obj(f,"authored_loop") : null;
+        if (authored != null && (!s(f,"clip").equals(s(prev,"clip")) || n(f,"ct") >= n(prev,"ct")
+                || !s(authored,"fp").equals(s(f,"fp")) || !s(f,"fp").equals(s(prev,"fp"))
+                || !s(authored,"clip").equals(s(f,"clip")) || n(authored,"duration") <= 0
+                || n(prev,"ct") < n(authored,"duration")/2 || n(prev,"ct") >= n(authored,"duration")
+                || n(f,"ct") < 0 || n(f,"ct") >= n(authored,"duration")/2))
+            throw new IllegalArgumentException("authored loop does not match captured pair");
         for (var e : bones.entrySet()) {
             var a = rotation(basis.mul(matrix(e.getValue()), new Matrix4d()));
             var b = rotation(oldBasis.mul(matrix(old.get(e.getKey())), new Matrix4d()));
-            double angle = Math.toDegrees(2 * Math.acos(Math.clamp(Math.abs(a.dot(b)), 0, 1)));
+            var delta = new Quaterniond(b).invert().mul(a);
+            if (authored != null) {
+                String bone=e.getKey();
+                var start=rotation(matrix(need(obj(authored,"start"),bone)));
+                var end=rotation(matrix(need(obj(authored,"end"),bone)));
+                // 0.01 degree covers float composition and the 1 microsecond end probe;
+                // it is numerical seam equality, not an animation-speed allowance.
+                if (turn(new Quaterniond(start).invert().mul(end)) <= .01) {
+                    var from=rotation(matrix(need(obj(authored,"before"),bone)));
+                    var to=rotation(matrix(need(obj(authored,"after"),bone)));
+                    var expected=new Quaterniond(from).invert().mul(to);
+                    delta.premul(expected.invert());
+                }
+            }
+            double angle = turn(delta);
             double v = angle * 20 / (poseTime(f) - poseTime(prev));
             if (v > rate) { rate = v; where = e.getKey(); }
         }
         // Provisional bands: half turn per second / full turn per half second. No calibration or hard gate claimed.
         bounded(r, rate, 180, 720, where);
         r.getAsJsonObject("band").addProperty("rate_calibrated", false);
+        if(authored!=null)r.getAsJsonObject("band").addProperty("authored_loop_residual",true);
         int first = i, end = i + 1;
         while (first > 0 && s(fs.get(first - 1), "clip").equals(s(f, "clip")) && contiguous(fs.get(first - 1), fs.get(first))) first--;
         while (end < fs.size() && s(fs.get(end), "clip").equals(s(f, "clip")) && contiguous(fs.get(end - 1), fs.get(end))) end++;
         if (first > 0 && end < fs.size() && contiguous(fs.get(first - 1), fs.get(first)) && contiguous(fs.get(end - 1), fs.get(end))
                 && time(fs.get(end)) - time(fs.get(first)) < 3) {
-            boolean authored = false;
-            for (int j = first; j <= end; j++) authored |= need(fs.get(j), "transition").getAsBoolean();
-            if (!authored) { r.addProperty("verdict", "fail"); r.addProperty("where", "clip flicker < 3 ticks"); r.addProperty("flicker_ticks", time(fs.get(end)) - time(fs.get(first))); }
+            boolean transitionSeen = false;
+            for (int j = first; j <= end; j++) transitionSeen |= need(fs.get(j), "transition").getAsBoolean();
+            if (!transitionSeen) { r.addProperty("verdict", "fail"); r.addProperty("where", "clip flicker < 3 ticks"); r.addProperty("flicker_ticks", time(fs.get(end)) - time(fs.get(first))); }
         }
     }
     private static Matrix4d inverseBasis(JsonObject f) {
@@ -250,6 +302,9 @@ public final class PoseChecks {
         var basis = matrix(f.get("pose_basis"));
         if (basis.determinant3x3() == 0) throw new IllegalArgumentException("singular pose basis");
         return basis.invert();
+    }
+    private static double turn(Quaterniond q) {
+        return Math.toDegrees(2*Math.acos(Math.clamp(Math.abs(q.normalize().w),0,1)));
     }
     private static Quaterniond rotation(Matrix4d m) {
         // Authored hidden puff bones use a nonzero 1e-6 scale. Scale does not invalidate their rotation.

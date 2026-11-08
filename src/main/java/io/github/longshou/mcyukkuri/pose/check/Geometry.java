@@ -141,6 +141,14 @@ public final class Geometry {
             if (!found || Math.abs(nearest) > Math.abs(worst)) worst = -nearest;
             found = true;
         }
+        // A rounded body can rest on a rim away from its globally lowest vertex.
+        // Preserve penetration below the support; for positive clearance include
+        // actual body-surface contacts instead of assuming support is a flat floor.
+        if (worst > 0) for (var p : skin) worst = supportedGap(worst, support.distance(p));
         return worst;
+    }
+    /** Sufficient scalar observations for a compact contact-band replay (model units). */
+    public static double supportedGap(double lowest, double contactDistance) {
+        return lowest > 0 ? Math.min(lowest, contactDistance) : lowest;
     }
 }

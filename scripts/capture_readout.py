@@ -3,6 +3,36 @@ import json
 from pathlib import Path
 
 
+def loop_context(before, after):
+    """Supply authored motion only for a saved pair crossing a loop seam."""
+    import tempfile
+    from pose_client import request
+    root = Path(__file__).resolve().parents[1]
+    assets = root/'src/main/resources/assets/mcyukkuri'
+    model, clip = after['model'], after['clip']
+    data = json.loads((assets/'yukkuri'/f'{model}.json').read_text(encoding='utf-8'))
+    spec = data.get('clips', {}).get(clip)
+    for name in ('placement_fit', 'motion_corrections', 'house_ecology', 'toilet_contact', 'face_library'):
+        revision = json.loads((assets/'yukkuri_presentation'/f'{name}.json').read_text(encoding='utf-8'))['models'].get(model, {})
+        spec = revision.get('clips', {}).get(clip, spec)
+    spec = data.get('behavior_clips', {}).get(clip, spec)
+    if (spec is None or not spec['loop'] or before['ct'] < spec['duration']/2
+            or after['ct'] >= spec['duration']/2):
+        return None
+    work = root/'.local/tmp'
+    work.mkdir(parents=True, exist_ok=True)
+    samples = {}
+    with tempfile.TemporaryDirectory(prefix='loop-evidence-', dir=work) as directory:
+        output = Path(directory)/'pose.jsonl'
+        for name, time in (('start', 0), ('end', spec['duration']-1e-6),
+                           ('before', before['ct']), ('after', after['ct'])):
+            result = request(dict(model=model, clip=clip, t=str(time), metric=[], pose_out=str(output)))
+            if result['fp'] != after['fp'] or before['fp'] != after['fp']:
+                return None  # A different asset bundle cannot reconstruct the captured clip.
+            samples[name] = json.loads(output.read_text(encoding='utf-8'))['bones']
+    return dict(samples, fp=after['fp'], clip=clip, duration=spec['duration'])
+
+
 def read_pose(directory):
     if not (Path(directory) / 'pose.jsonl').exists():
         return []
@@ -21,7 +51,7 @@ def read_pose(directory):
 
 
 def postprocess(directory, frames):
-    """Join exact dense server ticks; do not interpolate or substitute synchronized yaw."""
+    """Join dense server ticks, including vanilla's finite yaw interpolation window."""
     from pose_client import request
     import re
     directory = Path(directory)
@@ -35,11 +65,11 @@ def postprocess(directory, frames):
             if '[trace] ' not in line:
                 continue
             row = json.loads(line.split('[trace] ', 1)[1])
-            if not start <= row['t'] <= end:
+            if not start - 4 <= row['t'] <= end:
                 continue
             if row['k'] == 'st' and 'by' in row['st']:
                 yaw[row['dim'], row['u'], row['t']] = row['st']['by']
-            elif row['k'] == 'ev':
+            elif row['k'] == 'ev' and row['t'] >= start:
                 events.append(row)
     plan = next(p for p in json.loads((directory.parent/'plan.json').read_text()) if p['id'] == directory.name)
     patterns = []
@@ -56,12 +86,43 @@ def postprocess(directory, frames):
         value = yaw.get((p['dim'], p['u'], p['t']))
         if value is not None:
             p['server'] = dict(t=p['t'], by=value)
+            # Three packet lerp steps plus the renderer's previous/current tick blend.
+            ticks = range(p['t'] - 4, p['t'] + 1)
+            if all((p['dim'], p['u'], t) in yaw for t in ticks):
+                p['server']['window'] = [dict(t=t, by=yaw[p['dim'], p['u'], t]) for t in ticks]
         groups.setdefault(p['u'], []).append(p)
     fields = ('v', 'k', 'run', 'win', 'u', 't', 'pt', 'f', 'ct', 'yawsrc', 'yaw', 'body_yaw', 'server')
     for rows in groups.values():
         result = request(dict(frames=[{k: p[k] for k in fields if k in p} for p in rows], metric=['yaw']))
         for p, metric in zip(rows, result['results'], strict=True):
             p['m'] = [m for m in p['m'] if m['metric'] != 'yaw'] + [metric]
+    # Re-evaluate complete saved geometry; unsaved frames retain their measured
+    # findings. A nearby screenshot is never substituted for missing matrices.
+    import gzip
+    previous = {}
+    for p in poses:
+        if p['k'] != 'pose':
+            continue
+        if 'evidence' not in p:
+            previous.pop(p['u'], None)
+            continue
+        evidence = (directory/p['evidence']).resolve()
+        if evidence.parent != directory.resolve():
+            raise ValueError('pose evidence must be beside frames JSONL')
+        with gzip.open(evidence, 'rt', encoding='utf-8') as source:
+            full = json.load(source)
+        if full.get('gap_applicable'):
+            gap = request(dict(frames=[full], metric=['gap']))['results'][0]
+            p['m'] = [m for m in p['m'] if m['metric'] != 'gap'] + [gap]
+        before = previous.get(p['u'])
+        if (before and full['f'] == before['f']+1 and full['clip'] == before['clip']
+                and full['ct'] < before['ct'] and not full['transition']):
+            context = loop_context(before, full)
+            if context is not None:
+                full['authored_loop'] = context
+                jump = request(dict(frames=[before, full], metric=['posejump']))['results'][-1]
+                p['m'] = [m for m in p['m'] if m['metric'] != 'posejump'] + [jump]
+        previous[p['u']] = full
     for event in milestones:
         nearest = min(frames, key=lambda f: abs(f['gameTime']-event['t']))
         nearest.setdefault('milestones', []).append(dict(t=event['t'], cat=event['cat'], msg=event['msg']))
