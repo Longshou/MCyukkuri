@@ -12,6 +12,7 @@
 | 生5 演示编号：按钮、标题、指南与大厅牌加稳定短编号 | `.worktrees/wp-ea-scene-numbers` | scripts/museum_scenarios.py、scripts/museum_scene_numbers.json（新）、scripts/build_museum_full.py、scripts/feedback_intake.py、scripts/playtest_list.py、scripts/build_preview_library.py |
 | 生1 语料库：按共同／品种／阶段／特殊形态／情境分轴的可机读语料（只数据，不接线） | `.worktrees/wp-ei-speech-corpus` | art/dialogue/corpus/（新）、wiki/hakkei-reference/dialogue/README.md |
 | 生9 夜里自己醒来：夜间入睡后睡到天亮，只有真实原因才醒 | `.worktrees/wp-eb-night-sleep` | life/YukkuriLife.java、home/HomeProvider.java、docs/FEATURES.md |
+| 草4 第一步：社交靠近每 tick 驱动（停走爬行） | `.worktrees/wp-ed-approach-tick` | social/YukkuriSocial.java、social/SelfOffering.java |
 
 ## 玩法待办
 
