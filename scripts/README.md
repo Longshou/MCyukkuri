@@ -14,6 +14,8 @@
 
 认可登记写 `standards/yukkuri-library/provenance/selections/<ID>.json`；输入全数校验后才落盘，JSON 写入用同目录临时文件原子替换。工具自查：`<py> scripts/test_export.py`（含真实双分支登记合并、失败传播、只读边界和指纹反例）。
 
+动作三级目录以 `standards/yukkuri-library/motions/tiers.json` 为唯一归属，字段与读法见[动作库分级目录](../standards/yukkuri-library/motions/README.md)。`<py> standards/yukkuri-library/motions/check_tiers.py --check` 只读核对全部动作源与 `YukkuriAction` 覆盖、组合与近似引用、Java／moments 双向调用覆盖、Wiki 来源 ID 和缺口闭合，不导出或运行游戏。
+
 `library-validation` 在全量导出检查中只读验证标准库；圆润角色按各自 `export` 路径检查连续网格、组件导出一致性、骨骼、解剖动作和逐像素图集，旧方块角色仍按共享组件与 UV 绑定检查。`<py> scripts/test_library_validation.py` 注入非有限顶点、错误动作轨道和同尺寸错误贴图作为反例。单独运行 `standards/yukkuri-library/validate.py` 时报告写 `.local/reports/library-validation/`，加 `--check` 只打印结果。
 
 全量只读检查可加 `--jobs 3` 并发执行独立检查，报告仍按声明顺序排列，任一失败仍返回非零；默认顺序执行。并发仅供 `--check`，写入导出保持依赖顺序执行。
