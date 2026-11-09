@@ -342,7 +342,7 @@
     {
       "id": "pet_identity_voice",
       "zh": "宠物身份不改变种族声线，主人称呼必须有真实饲养关系。",
-      "ja": "宠物身份は種族声を変えず、飼い主呼称には実際の飼育関係が必要。",
+      "ja": "寵物身分は種族声を変えず、飼い主呼称には実際の飼育関係が必要。",
       "en": "Pet status does not change species voice; owner address requires an actual care relationship.",
       "basis": ["F40", "P"],
       "status": "rule",
@@ -351,7 +351,7 @@
     {
       "id": "swaddled_voice",
       "zh": "襁褓只叠加冷暖、脏污或求助情绪，不改变年龄声线。",
-      "ja": "襁褓は寒暖・汚れ・求助の感情を重ねるだけで、年齢声線を変えない。",
+      "ja": "襁褓は寒暖・汚れ・助けを求める感情を重ねるだけで、年齢声線を変えない。",
       "en": "Swaddling overlays comfort, dirt, or help-seeking without changing age voice.",
       "basis": ["L31", "P"],
       "status": "rule",

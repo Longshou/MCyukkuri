@@ -91,6 +91,7 @@ def main():
         species_count += len(records) if isinstance(records, list) else 0
 
     situation = documents['situation']
+    common_ids = {entry.get('id') for entry in documents['common'].get('entries', [])}
     events = situation.get('events', [])
     lines = situation.get('lines', [])
     planned = situation.get('planned', [])
@@ -118,7 +119,9 @@ def main():
         else:
             covered_by_event[event] += 1
         common_ref = line.get('common_ref')
-        if common_ref and common_ref not in {entry.get('id') for entry in documents['common'].get('entries', [])}:
+        if common_ref and not common_ref.startswith('common.'):
+            errors.append(f'situation.lines[{index}]: common_ref must be scoped as common.<id>, got {common_ref!r}')
+        elif common_ref and common_ref[len('common.'):] not in common_ids:
             errors.append(f'situation.lines[{index}]: unknown common_ref {common_ref!r}')
     for index, event in enumerate(events):
         if not isinstance(event, dict):
