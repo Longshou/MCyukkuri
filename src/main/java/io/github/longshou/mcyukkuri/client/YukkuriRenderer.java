@@ -67,10 +67,11 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
                        MultiBufferSource buffers, int packedLight) {
         YukkuriView entity=source;
         if(entity.isDeadOrDying())return;
-        shadowRadius = (entity.profile().shadowRadius())*entity.growthScale();
-        // A baby inside its parent's closed mouth is not seen.
         var holder=entity.vehicleYukkuri();
-        if(holder!=null&&ParentCarryPresentation.swallowed(entity,holder,partialTick)){shadowRadius=0;return;}
+        // A carried child (any hold) rides on its carrier above the ground: only the carrier casts a shadow.
+        shadowRadius=holder!=null&&holder.hasPassengerId(entity.getUUID())?0:entity.profile().shadowRadius()*entity.growthScale();
+        // A baby inside its parent's closed mouth is not seen.
+        if(holder!=null&&ParentCarryPresentation.swallowed(entity,holder,partialTick))return;
         if (!entity.isInvisible()) {
             var start=new Matrix4f(pose.last().pose());
             pose.pushPose();
