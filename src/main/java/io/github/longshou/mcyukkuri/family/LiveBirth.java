@@ -17,6 +17,7 @@ import io.github.longshou.mcyukkuri.intent.Method;
 import io.github.longshou.mcyukkuri.intent.Rendezvous;
 import io.github.longshou.mcyukkuri.intent.Step;
 import io.github.longshou.mcyukkuri.intent.WorldSignature;
+import io.github.longshou.mcyukkuri.life.NestResting;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.motor.ContactGeometry;
 import io.github.longshou.mcyukkuri.motor.ClipMarkers;
@@ -27,6 +28,7 @@ import io.github.longshou.mcyukkuri.motor.action.Gesture;
 import io.github.longshou.mcyukkuri.motor.action.PlaceProp;
 import io.github.longshou.mcyukkuri.motor.action.TakeProp;
 import io.github.longshou.mcyukkuri.motor.action.Walk;
+import io.github.longshou.mcyukkuri.motor.geom.Ballistic;
 import io.github.longshou.mcyukkuri.motor.geom.Vec;
 import io.github.longshou.mcyukkuri.motor.surface.Occupancy;
 import io.github.longshou.mcyukkuri.motor.surface.SurfaceHost;
@@ -65,7 +67,7 @@ final class LiveBirth extends Choreography {
     /** Her turns from facing the catcher a meeting site tries, in sixteenths, the least first (her stand and the catcher's
      *  outside the brim may need more room than one eighth leaves beside a wall or a tree). */
     private static final float[] TURNS={0,22.5f,-22.5f,45,-45,67.5f,-67.5f,90,-90,112.5f,-112.5f,135,-135,157.5f,-157.5f,180};
-    private static final Set<String> BEFORE_HAT=Set.of("site","meet","regroup","self_wait","place"),LABOUR=Set.of("term","exit","exit_any","push","drop");
+    private static final Set<String> BEFORE_HAT=Set.of("site","meet","regroup","hat_wait","place"),LABOUR=Set.of("term","exit","exit_any","push","drop");
     /** Where the newborns are meant to come down ({@code Receiver}); a placed hat's host is set once it is down. */
     sealed interface Receiver permits PlacedHat, Cabin, Nest, Ground { default String kind(){return getClass().getSimpleName();} }
     record PlacedHat(UUID host) implements Receiver {}
@@ -140,18 +142,19 @@ final class LiveBirth extends Choreography {
         t.put("site",new Beat.Perform(Beat.roles(MOTHER,this::site),()->Math.max(PAUSE,toTerm()),"sited","sited"));
         t.put("sited",new Beat.Branch(r->{
             recastIfBare();
-            return interrupted(r)?"site":receiver instanceof PlacedHat p&&p.host()==null?self()?"self_wait":"find":labour;
+            return interrupted(r)?"site":receiver instanceof PlacedHat p&&p.host()==null?self()?"hat_wait":"find":labour;
         }));
         // A failed site stays out for NEST_GRACE ticks: the search picks another one or waits for the world to change.
         t.put("find",new Beat.Branch(r->(meeting=meet())!=null?"meet":!excluded.isEmpty()&&window()>PAUSE?"regroup":nocatch("no_site")));
         t.put("meet",new Beat.Perform(Beat.roles(CATCHER,()->meeting.forB(),MOTHER,()->meeting.forA()),this::window,"met","nocatch"));
         t.put("met",new Beat.Branch(r->{
-            if(r.done())return "place";
+            if(r.done())return "hat_wait";
             if(!interrupted(r)){if(excluded.size()>=32)excluded.removeFirst();excluded.add(new Excluded(meeting.site().a(),meeting.site().b(),now()+NEST_GRACE));}
             return window()>PAUSE?"regroup":nocatch("rendezvous_"+r.detail());
         }));
         t.put("regroup",new Beat.Await(Beat.roles(MOTHER,null),()->false,()->PAUSE,"find","find"));
-        t.put("self_wait",new Beat.Await(Beat.roles(MOTHER,null),()->brood()==null||brood().elapsed>=brood().duration-(live?2:200),this::window,"place","nocatch"));
+        // At her side (or, catching herself, where she stands) until labour is near: the hat comes off only then.
+        t.put("hat_wait",new Beat.Await(Beat.roles(MOTHER,null,CATCHER,null),this::labourNear,this::window,"place","nocatch"));
         t.put("place",new Beat.Perform(Beat.roles(CATCHER,this::placeHat,MOTHER,null),()->Math.max(40,window()),"placed","nocatch"));
         t.put("placed",new Beat.Branch(this::placed));
         t.put("nocatch",new Beat.Branch(r->nocatch("placement_timeout")));
@@ -206,6 +209,7 @@ final class LiveBirth extends Choreography {
         var c=catcher();
         switch(beat){
             case "meet" -> BirthStaging.caption(c,"父油察觉母油临产，走向她面前的出口");
+            case "hat_wait" -> { if(!self())BirthStaging.caption(c,"接生者守在母油身旁看着她，快生了才摘帽"); }
             case "place" -> BirthStaging.caption(c,self()?"母油自己摘下帽子（hat_off_self）":"接生者走到出口前方，用辫子摘下自己的帽子（hat_off）");
             case "exit","exit_any","push" -> {
                 boolean widening=beat.equals("exit_any")&&!unprotected;
@@ -421,7 +425,45 @@ final class LiveBirth extends Choreography {
             target=FamilyNest.restPosition(m,o.nestStand());
             if(target==null&&receiver instanceof Nest)target=FamilyNest.bedMiddle(m,o.nestStand());
         }
-        return target==null?null:new GoTo("birth_site",m,target,now()+Math.max(PAUSE,toTerm()));
+        if(target==null)return null;
+        var go=new GoTo("birth_site",m,target,now()+Math.max(PAUSE,toTerm()));
+        var b=brood();var centre=FamilyNest.largeCentre(m);
+        return !live&&receiver instanceof Nest&&b!=null&&centre!=null?go.facing(stemFacing(m,b,target,centre)):go;
+    }
+    /** A stem mother's yaw in her large nest: the least turn from the way she arrives (TURNS) that keeps every fruit, tossed its
+     *  farthest, a fruit's radius inside the nest floor; when none does, the turn with the best margin. Her stand stays her bed slot. */
+    private static float stemFacing(YukkuriEntity m,FamilyData.Brood b,Vec3 stand,Vec3 centre){
+        float arrive=SurfaceApproach.arrived(m,stand)?m.yBodyRot:SurfaceApproach.yaw(m.position(),stand),best=arrive;
+        double margin=Double.NEGATIVE_INFINITY;
+        for(float turn:TURNS){
+            double fit=stemMargin(m,b,stand,arrive+turn,centre);
+            if(fit>margin){margin=fit;best=arrive+turn;}
+            if(fit>=0)break;
+        }
+        GameplayLog.event(m,"family","stem site facing yaw={} margin={} turn={} fruits={} stand={} centre={}",String.format(Locale.ROOT,"%.1f",Mth.wrapDegrees(best)),
+                String.format(Locale.ROOT,"%.3f",margin),String.format(Locale.ROOT,"%.1f",Mth.wrapDegrees(best-arrive)),b.unborn(),GameplayLog.at(stand),GameplayLog.at(centre));
+        return best;
+    }
+    /** The least room (blocks) a fruit keeps inside the large nest floor (NestResting.LARGE, square) when she stands at
+     *  {@code stand} turned to {@code yaw}: each drops from its hang point (the drop beat's own childBase) and its body, tossed
+     *  its farthest sideways, must stay on the floor. Negative: some fruit would come down on the rim or outside. */
+    private static double stemMargin(YukkuriEntity m,FamilyData.Brood b,Vec3 stand,float yaw,Vec3 centre){
+        double half=NestResting.LARGE.half(),least=Double.POSITIVE_INFINITY;int n=b.children.size();
+        for(int i=0;i<n;i++){
+            var child=b.children.get(i);
+            if(child.born)continue;
+            var at=FamilyGeometry.toWorld(stand,yaw,m.getScale(),FamilyGeometry.childBase(n,i,1,m.growthScale(),b.variation,m.getVariant(),child.variant,GrowthSize.physicalBirth(b.kind,child)));
+            double radius=LiveBirthGeometry.unbornDimensions(b.kind,child).scale(m.getScale()).width()/2;
+            least=Math.min(least,half-radius-tossReach(at.y-stand.y)-Math.max(Math.abs(at.x-centre.x),Math.abs(at.z-centre.z)));
+        }
+        return least;
+    }
+    /** How far sideways the strongest stem toss (BirthLaunch.STEM_MAX) carries a fruit while it falls {@code drop} blocks
+     *  (vanilla air steps, Ballistic). */
+    private static double tossReach(double drop){
+        double x=0,y=0,vx=BirthLaunch.STEM_MAX,vy=BirthLaunch.STEM_DROP;
+        while(y>-drop){x+=vx;y+=vy;vx*=Ballistic.AIR_DRAG;vy=(vy-Ballistic.GRAVITY)*Ballistic.VERTICAL_DRAG;}
+        return x;
     }
     private static Vec3 leaveNest(YukkuriEntity m,BlockPos bed,String why){
         for(var side:Direction.Plane.HORIZONTAL){
@@ -525,12 +567,12 @@ final class LiveBirth extends Choreography {
         return null;
     }
     /**
-     * The catcher with the hat from the first birth until it goes back on (项目设计): at a stand outside its brim, turned to the
-     * young, watching, its greeting hop included (the hop's one owner). Through the labour the clip's own stand first, then the
-     * other stands round the hat (HatGeometry.stands) off her side of it; after the labour where it stands (outside the brim
-     * and near), then the nearest ones. A stand it cannot get to is not chosen again in the same world, so the next one is. It
-     * only attends the young ({@code unloads()} false): the crawlers gather at its side, nobody is asked off. Never satisfied,
-     * the beat ends it.
+     * The catcher with the hat from the first birth until it goes back on (项目设计): at a stand outside its brim, turned where
+     * its eyes are ({@link #watchPoint}), watching, its greeting hop included (the hop's one owner). Through the labour the
+     * clip's own stand first, then the other stands round the hat (HatGeometry.stands) off her side of it; after the labour
+     * where it stands (outside the brim and near), then the nearest ones. A stand it cannot get to is not chosen again in the
+     * same world, so the next one is. It only attends the young ({@code unloads()} false): the crawlers gather at its side,
+     * nobody is asked off. Never satisfied, the beat ends it.
      */
     private final class Attend implements HostIntent {
         /** How far out (blocks from the hat's middle) a catcher already outside the brim may stay where it is. */
@@ -543,15 +585,14 @@ final class LiveBirth extends Choreography {
         private Welcome hopped;
         private Attend(PlacedHatEntity hat,YukkuriEntity c){
             this.hat=hat;this.c=c;var m=o.entity();
-            var own=HatGeometry.stand(HatGeometry.poseOf(hat),c);
             var here=HatGeometry.outside(hat,c,c.position(),Math.min(WATCH_REACH,c.position().subtract(hat.position()).horizontalDistance()));
-            var first=labour?new Watch("clip",own.at(),own.yaw()):new Watch("here",here,SurfaceApproach.yaw(here,hat.position()));
+            var first=labour?new Watch("clip",HatGeometry.stand(HatGeometry.poseOf(hat),c).at()):new Watch("here",here);
             var all=HatGeometry.stands(hat,c);
             for(int i=0;i<all.size();i++){
                 var s=all.get(i);
                 // Through the labour none between her and the hat, where the newborns come over the near brim.
                 if(labour&&s.at().distanceToSqr(m.position())<hat.position().distanceToSqr(m.position()))continue;
-                stands.add(new Watch("stand_"+i,s.at(),labour?s.yaw():SurfaceApproach.yaw(s.at(),hat.position())));
+                stands.add(new Watch("stand_"+i,s.at()));
             }
             stands.sort(Comparator.comparingDouble(w->((Watch)w).stand.distanceToSqr(c.position())));
             stands.addFirst(first);
@@ -565,9 +606,9 @@ final class LiveBirth extends Choreography {
         private final class Watch implements Method {
             private final String id;
             private final Vec3 stand;
-            private final float yaw;
             private Vec3 at;
-            private Watch(String id,Vec3 stand,float yaw){this.id=id;this.stand=stand;this.yaw=yaw;}
+            private boolean settled;
+            private Watch(String id,Vec3 stand){this.id=id;this.stand=stand;}
             @Override public String id(){return id;}
             @Override public Feasibility applicable(){
                 if(hat.isRemoved()||!hat.catches())return Feasibility.of(Reason.TARGET_GONE,0,"hat_gone");
@@ -576,7 +617,15 @@ final class LiveBirth extends Choreography {
             @Override public Set<Reason> reduces(){return Set.of(Reason.NO_PATH,Reason.NO_PROGRESS,Reason.NO_SUPPORT);}
             @Override public Step next(){
                 if(!SurfaceApproach.arrived(c,at))return new Step.Do(labour?Walk.around(at,o.entity()):new Walk(at));
+                // Turned the way its eyes look, from where it really stands (the look control's own bearing): the body follows the
+                // head there by itself, so a turn is owed only on arrival or when what it watches has moved.
+                var look=watchPoint();float yaw=SurfaceApproach.yaw(c.position(),look);
                 if(Math.abs(Mth.wrapDegrees(yaw-c.yBodyRot))>Face.FACE_ARRIVED)return new Step.Do(new Face(yaw));
+                if(!settled){
+                    settled=true;
+                    GameplayLog.limited(c,"choreo","catcher_attending."+id,1200,"catcher attending yaw={} stand={} look={} beat={} hat={}",
+                            String.format(Locale.ROOT,"%.1f",c.yBodyRot),id,GameplayLog.at(look),beat(),hat.getUUID());
+                }
                 var hello=c.family().greetHop();
                 if(hello!=null&&!hello.equals(hopped)){hopped=hello;return new Step.Do(new Gesture(Gesture.Kind.HOP_SMALL));}
                 long end=Math.min(until,now()+20);
@@ -743,11 +792,21 @@ final class LiveBirth extends Choreography {
     String hold(){return hold;}
     /** The labour (or the drops) is on: the catcher holds the hat's brim, or cheers beside the outlet. */
     boolean attending(){return LABOUR.contains(beat());}
-    /** The catcher watches the young: the labour, the linger after it and the waits of the cleanup. */
-    boolean watching(){return attending()||"linger".equals(beat())||"rest".equals(beat());}
+    /** The catcher watches: her while it waits beside her for labour and through the labour, the young in the linger after it
+     *  and in the waits of the cleanup. */
+    boolean watching(){return attending()||"hat_wait".equals(beat())||"linger".equals(beat())||"rest".equals(beat());}
+    /** The one point a watching catcher looks at (FamilyLife.watchBirth) and so turns to (Attend): her outlet until the labour
+     *  is over, then the young in the hat. */
+    Vec3 watchPoint(){var hat=attending()?null:placedHat();return hat!=null?hat.position():LiveBirthGeometry.position(o.entity(),0);}
     String describe(){return "beat="+beat()+" receiver="+receiver.kind()+" roles="+roles().keySet()+" hold="+hold;}
     private int firstUnborn(){var b=brood();int next=0;while(b!=null&&next<b.children.size()-1&&b.children.get(next).born)next++;return next;}
     private int toTerm(){var b=brood();return b==null?0:Math.max(0,b.duration-b.elapsed);}
+    /** Labour is near enough for the hat to come off: its clip (ClipMarkers, the release marker) sets it down by term, or for a
+     *  stem by the hold 200 ticks before it (advance), so the catch neither waits on the hat nor the hat long on the young. */
+    private boolean labourNear(){
+        int release=ClipMarkers.of(new HatProp(catcher(),self()).clip(false)).ticks(PlaceProp.RELEASE_MARKER,0);
+        return toTerm()<=(live?0:200)+release;
+    }
     /** Ticks left of the one placement window (the rest of the gestation plus CATCH_WAIT), fixed the first time it is asked. */
     private int window(){if(windowEnd==0)windowEnd=now()+toTerm()+CATCH_WAIT;return (int)Math.max(1,windowEnd-now());}
     private int cleanupLeft(){return (int)Math.max(1,cleanupEnd-now());}

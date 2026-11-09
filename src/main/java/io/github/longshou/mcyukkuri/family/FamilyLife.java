@@ -356,11 +356,12 @@ public final class FamilyLife {
         if(LiveBirth.MOTHER.equals(role.role())&&"linger".equals(role.choreography().beat()))recoveryBeats((int)(level().getGameTime()-role.choreography().beatTick()));
         else watchBirth(role);
     }
-    /** The catcher's eyes while it watches: on the outlet through the labour, then on the young in the hat. */
+    /** The catcher's eyes while it watches: its birth's one watch point (her outlet, then the young in the hat), the same point
+     *  its Attend turns the body to, so the look never pulls the body off a yaw the birth asked for. */
     public void watchBirth(Conductor.Role role) {
         var mom=role.choreography().host();
         if(mom==entity||!(role.choreography() instanceof LiveBirth b)||!b.watching())return;
-        var hat=b.attending()?null:b.placedHat();var at=hat!=null?hat.position():LiveBirthGeometry.position(mom,0);
+        var at=b.watchPoint();
         entity.getLookControl().setLookAt(at.x,at.y+.1,at.z,20,20);
     }
     /** A role's intent starts in BirthGoal: the father who notices the labour shows it (project original staging). */

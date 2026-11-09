@@ -147,7 +147,7 @@ final class ScenarioSetup {
 
     /**
      * A real LIVE conception for an adult pair, then the brood is brought to the end of its term. {@code caught}: a Marisa
-     * father has time to come over and take off his hat; {@code natural}: the full approach lead before term (the site beat needs more than the nest grace to walk into her nest), the same lead a catcher gets. Who
+     * father has time to come over (400 ticks before term; he takes his hat off near term); {@code natural}: the full approach lead before term (the site beat needs more than the nest grace to walk into her nest). Who
      * catches, and whether there is a hat, a nest or her own boat, comes from the real pair and their home (decision R5), never
      * from here.
      * {@code stem}: a real STEM conception brought to 400 ticks before term (a hatted Marisa father sets the hat under it).
@@ -193,9 +193,9 @@ final class ScenarioSetup {
             data.setDirty();
         } else {
             var helper = FamilyLife.catcher(mother, brood);
-            // A catcher needs the same full lead: joining her, taking his hat off and placing it takes longer than the term grace,
-            // and a shorter lead made her labour start before the hat was down (whole brood born on the ground).
-            int lead = outcome.equals("near_term") ? FamilyLife.shoreBirthLead() + 800 : FamilyLife.shoreBirthLead();
+            // A catcher joins her at once and takes his hat off only near term (LiveBirth hat_wait); joining her and setting the hat
+            // down took 143-358 ticks in ten smoke runs and her labour waits for the hat, so 400 ticks start the scene close to term.
+            int lead = outcome.equals("near_term") ? FamilyLife.shoreBirthLead() + 800 : outcome.equals("caught") ? 400 : FamilyLife.shoreBirthLead();
             brood.elapsed = Math.max(0, brood.duration - lead);
             data.setDirty();
             if (outcome.equals("caught") && helper == null)

@@ -96,7 +96,11 @@ public final class FamilyGeometry {
         return pendant(motherScale)+hangClearance(progress,child,birthScale)-hangingAnchor(progress,child,birthScale).y;
     }
     public static Vec3 toWorld(YukkuriEntity mother,Vec3 local) {
-        return mother.position().add(local.yRot((float)Math.toRadians(180-mother.yBodyRot)).scale(mother.getScale()));
+        return toWorld(mother.position(),mother.yBodyRot,mother.getScale(),local);
+    }
+    /** A point of the mother's local frame for her standing at {@code at} turned to {@code yaw} (a stand she is still to take). */
+    public static Vec3 toWorld(Vec3 at,float yaw,float scale,Vec3 local) {
+        return at.add(local.yRot((float)Math.toRadians(180-yaw)).scale(scale));
     }
     private FamilyGeometry() {}
 }
