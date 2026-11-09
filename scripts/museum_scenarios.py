@@ -771,14 +771,19 @@ add('birth_nest_stem', 'family', '大窝里茎生，实子落在垫上', '大窝
     reads=[('读母油产程', f'yukkuri status {sel("mother")} raw'), ('读所有赤油', f'yukkuri status {NEWBORNS} raw')])
 
 _nest_ids={name:uid('family_nests',name) for name in ['mother','father','b0','b1','b2','b3']}
+# Ages that cross BABY_END (72000) about 27 s / 45 s / 64 s into the scene's 3x clock, so three of the four young are released
+# from the shared nest one after another while the observer watches; the fourth stays a baby in the same nest.
+_NEST_SHARE={'b0':.2095,'b1':.2062,'b2':.2028,'b3':.18}
 add('family_nests', 'family', '一家六口同窝，长大再分窝', '一家六口同窝，长大再分窝',
-    '父母和四赤油认领同一大窝；旁边普通窝提供长成子油后的真实空位。读床位、亲密与不安；物品栏可摆放两种大窝。成长用本区已有时间倍率，不直接写成功状态',
-    '先看认窝，再观察成长', [*shed(0, 0, half=5), *large_nest(0, 0, 'mcyukkuri:large_yukkuri_nest'),
+    '六口开场都不困，全部认领同一个大窝（读“同居与床位”看六口床位都在这一个窝）。场景切到 3 倍速：约半分钟内开始有子油长成、被大窝按容量让出（日志 '
+    'growth released shared nest，一次一只），最后一只仍是赤油留在大窝；两边普通窝是长成后要用的空位。困了会回窝（约数分钟）；按观察台“1倍速”可恢复正常速度',
+    '先看认窝，再看 3 倍速下约 30 秒起一只只长成、被让出大窝', ['function mcylab:util/speed_3x',
+    *shed(0, 0, half=5), *large_nest(0, 0, 'mcyukkuri:large_yukkuri_nest'),
     block(-3, 0, 0, 'mcyukkuri:yukkuri_nest'), block(3, 0, 0, 'mcyukkuri:yukkuri_nest'),
-    yk('reimu', -1, -.5, 'mother', uuid=_nest_ids['mother'], energy=35, rest_wait=0, lead=True),
-    yk('marisa', 2, 2, 'father', uuid=_nest_ids['father'], energy=35, rest_wait=0),
+    yk('reimu', -1, -.5, 'mother', uuid=_nest_ids['mother'], lead=True),
+    yk('marisa', 2, 2, 'father', uuid=_nest_ids['father']),
     f'yukkuri scenario bond {sel("mother")} {sel("father")}',
-    *[yk('reimu', x, z, f'b{i}', stage='baby', uuid=_nest_ids[f'b{i}'], energy=35, rest_wait=0,
+    *[yk('reimu', x, z, f'b{i}', stage='baby', share=_NEST_SHARE[f'b{i}'], uuid=_nest_ids[f'b{i}'],
          kin=f'Mother:{uuid_nbt(_nest_ids["mother"])},Father:{uuid_nbt(_nest_ids["father"])}') for i,(x,z) in enumerate([(-.9,2.1),(.2,2.6),(1.2,2),(2.2,2.8)])],
     *[home(name, 0, 0) for name in _nest_ids]], spot='pet_birth',
     give=['mcyukkuri:large_yukkuri_nest 2','mcyukkuri:large_wild_nest 2','mcyukkuri:yukkuri_nest 6'],
@@ -1186,27 +1191,44 @@ add('adult_pairing', 'meadow', '两只伴侣走近擦脸后素鸡立', '两只�
     reads=[('读母方配对阶段', f'yukkuri status {sel("mother")} raw'), ('读父方配对阶段', f'yukkuri status {sel("father")} raw')])
 
 _widow, _new_partner = (uid('widow_repair', slot) for slot in ('widow', 'new_partner'))
+# A real heat period long enough to watch the couple and press the button: three minutes at 1x, one at 3x. Every 200 ticks of heat costs
+# the bearer 1 nutrition, so a much longer one would leave her too hungry to conceive after the wait.
+_WIDOW_HEAT = 3600
+
+
+def widow_death_prompt():
+    """A player-pressed, real death of the original partner: the ledger records DEAD and only then may the candidate pair with her."""
+    kill = f'/execute positioned ~ ~ ~ run kill @e[tag={tag("old_partner")},distance=..140,limit=1,sort=nearest]'
+    return 'tellraw @s ' + json.dumps([
+        {'text': '看过同窝与候选被拒后点 ', 'color': 'gray'},
+        {'text': '【结束原伴侣】', 'color': 'red', 'bold': True, 'clickEvent': {'action': 'run_command', 'value': kill}},
+        {'text': '（真实死亡，账本记 DEAD），再等候选自己求偶。', 'color': 'gray'}], ensure_ascii=False, separators=(',', ':'))
+
+
 add('widow_repair', 'meadow', '原伴侣死后才肯和新候选配对', '原伴侣死后才肯和新候选配对',
-    '原伴侣在场时不接受候选；先用收纳篮带走原伴侣，仍不能再配对。放回后输入 /kill @e[tag=scn_old_partner,limit=1]，死亡账本确认后才允许与候选自然求偶、受孕',
-    '先观察约半分钟，再分步操作；确认死亡后约半分钟至数分钟', [
-        *shed(5, 0), *shed(5, 6),
-        block(4, 0, 0, 'mcyukkuri:yukkuri_nest'), block(6, 0, 0, 'mcyukkuri:yukkuri_nest'),
+    '一张大窝里住着一对真伴侣（寡妇与原伴侣，两只的床位都在这个窝）。寡妇与旁边候选都在发情期、彼此都有交配许可（约 3 分钟）；原伴侣不在发情期，所以这对老伴侣不会马上怀孕。'
+    '看点：①两人同窝、寡妇不跟候选走（原伴侣在世时不会与候选配对；拒绝的可见演出由 wp-ep 补）；②按聊天里的【结束原伴侣】按钮——原伴侣走真实死亡，账本记 DEAD（日志 death settled … cause=genericKill）；'
+    '③之后候选自己走近寡妇求偶，受孕时写 partnership formed … allowWidow=true（这就是账本确认死亡的证据）。读数看双方 partner、发情与求偶阶段',
+    '先看同窝与候选被拒约半分钟，再点按钮；按下后约半分钟至数分钟', [
+        *shed(5, 0), *shed(5, 6), *large_nest(4, 0, 'mcyukkuri:large_yukkuri_nest'),
         block(4, 0, 6, 'mcyukkuri:yukkuri_nest'), block(6, 0, 6, 'mcyukkuri:yukkuri_nest'),
-        yk('reimu', 0, 1, 'widow', lead=True, uuid=_widow, label='待再配对者',
-           kin='SexDrive:1200', extra=pairing_permission(_new_partner), **pair_ready()),
+        yk('reimu', 3, 1, 'widow', lead=True, uuid=_widow, label='待再配对者',
+           kin=f'SexDrive:{_WIDOW_HEAT}', extra=pairing_permission(_new_partner), **pair_ready()),
         # A fresh UUID allows restarting this scene after the ledger has recorded the previous original partner's death.
-        yk('marisa', 10, 1, 'old_partner', label='原伴侣',
-           kin=f'Partner:{uuid_nbt(_widow)}', extra=agitation_start('IDLE'), **pair_ready()),
-        yk('marisa', 0, 3, 'new_partner', uuid=_new_partner, label='新候选',
-           kin='SexDrive:1200', extra=pairing_permission(_widow), **pair_ready()),
+        yk('marisa', 6, 1, 'old_partner', label='原伴侣',
+           kin=f'Partner:{uuid_nbt(_widow)}', extra=pairing_permission(_widow), **pair_ready()),
+        yk('marisa', 3, 3, 'new_partner', uuid=_new_partner, label='新候选',
+           kin=f'SexDrive:{_WIDOW_HEAT}', extra=pairing_permission(_widow), **pair_ready()),
         f'data modify entity {sel("widow")} YukkuriFamily.Partner set from entity {sel("old_partner")} UUID',
         *own('widow'), *own('old_partner'), *own('new_partner'),
         f'yukkuri scenario bond {sel("widow")} {sel("new_partner")}',
         f'yukkuri scenario bond {sel("widow")} {sel("old_partner")}',
-        home('widow', 5, 0), home('new_partner', 5, 6)], env=DAY,
+        home('widow', 4, 0), home('old_partner', 4, 0), home('new_partner', 5, 6),
+        widow_death_prompt()], env=DAY,
     give=['mcyukkuri:yukkuri_carrier 1', 'minecraft:apple 16'],
-    note='不调用 mate、不预设胎次。原 Partner 在确认死亡后仍保留，直到正常受孕写入新伴侣；REMOVED 对照操作和存档重载步骤见试玩场说明。',
-    reads=[('读再配对状态', f'yukkuri status {sel("widow")}'), ('读候选状态', f'yukkuri status {sel("new_partner")}')])
+    note='不调用 mate、不预设胎次。原伴侣在确认死亡后仍保留，直到正常受孕写入新伴侣；REMOVED 对照操作和存档重载步骤见试玩场说明。',
+    reads=[('读寡妇的关系与求偶阶段', f'yukkuri status {sel("widow")} raw'),
+           ('读候选的关系与求偶阶段', f'yukkuri status {sel("new_partner")} raw')])
 
 add('alice_hunt', 'meadow', '发情爱丽丝追袭素鸡立', '发情爱丽丝追袭素鸡立',
     '爱丽丝从搜寻宣言开始伸出佩妮佩妮，锁定目标后追击；目标发现她会喊出警报台词并逃跑。接触后攻方佩妮佩妮与受方马姆马姆同时可见：攻方前倾反复摩擦，受方前趴挣扎喊叫；末尾三段完成台词与释放特效、可能结算茎生胎次，随后可能立刻寻找下一个目标。'
@@ -1220,7 +1242,9 @@ add('alice_hunt', 'meadow', '发情爱丽丝追袭素鸡立', '发情爱丽丝�
     reads=[('读攻击魔状态（含中断结果）', f'yukkuri status {sel("hunter")} raw'), ('读受方状态', f'yukkuri status {sel("prey")} raw')])
 
 def _aftermath_pens(lanes):
-    """One fenced pen per lane with a nest under a shed; only the mother's nutrition, energy and health differ."""
+    """One fenced pen per lane with a nest under a shed; the mother's nutrition, energy and health and the lane's label differ.
+    The source Alice stands right behind the pen's north fence, so the panic has a visible cause while the fence still blocks sight
+    (a predator in plain view would keep the mother in a threat reaction)."""
     out = []
     for lane, dx, nutrition, energy, label in lanes:
         out += [
@@ -1230,23 +1254,25 @@ def _aftermath_pens(lanes):
             *shed(dx + 3, 2), block(dx + 1, 0, 2, 'mcyukkuri:yukkuri_nest'), block(dx + 5, 0, 2, 'mcyukkuri:yukkuri_nest'),
             yk('reimu', dx, 0, f'affected_{lane}', label=label, lead=lane == lanes[0][0], nutrition=nutrition, energy=energy,
                extra=agitation_start('IDLE') + (',Health:2f' if lane == 'depletion' else '')),
-            yk('alice', dx, -9, f'source_{lane}', extra=agitation_start('IDLE'), **pair_ready()),
+            yk('alice', dx, -7, f'source_{lane}', extra=agitation_start('IDLE'), **pair_ready()),
             *own(f'affected_{lane}'), *own(f'source_{lane}'), home(f'affected_{lane}', dx + 3, 2),
             *([item('minecraft:apple', 16, dx, 3)] if lane == 'growth' else [])]
     return out
 
 
 def aftermath(sid, seen, watch, lanes, vantage):
-    add(sid, 'meadow', seen, seen, watch, '数分钟，可倍速；生长与存活由营养、体力和健康决定', _aftermath_pens(lanes),
+    add(sid, 'meadow', seen, seen, watch,
+        '场景已切 3 倍速：茎约 15 秒长到结果，胎次约 100 秒走完，耗竭那只约 40 秒后真的饿死（按“1倍速”恢复原速则是三倍时间）',
+        ['function mcylab:util/speed_3x', *_aftermath_pens(lanes)],
         env=DAY, give=['minecraft:apple 16'], vantage=vantage,
-        note='通过场景入口建立事后胎次；北边的爱丽丝只作血缘登记的来源。',
+        note='通过场景入口建立事后胎次；每个围栏北侧栅栏外坐着的爱丽丝只作血缘登记的来源（让开场惊慌有个看得见的对象）。',
         late=[f'yukkuri scenario aftermath {sel(f"affected_{lane}")} {sel(f"source_{lane}")}' for lane, *_ in lanes],
-        reads=[(f'读{label}的母体', f'yukkuri status {sel(f"affected_{lane}")}') for lane, _, _, _, label in lanes])
+        reads=[(f'读{label}的母体与茎生进度', f'yukkuri status {sel(f"affected_{lane}")} raw') for lane, _, _, _, label in lanes])
 
 
 aftermath('aftermath_growth', '事后茎生：吃饱的茎长，饿的茎垂', '两个围栏里各有一只刚被素鸡立过的灵梦，场景给它们建立事后真实茎生胎次：从无茎开始萌生，首次萌茎说出困惑台词（aftermath_realize）；'
-          '茎持续汲取母体营养。左边吃饱、有苹果，茎正常生长；右边营养 45，营养下降后茎低垂、停育，负担仍继续',
-          (('growth', -8, 75, 60, '吃饱·营养75'), ('burden', 8, 45, 60, '营养45')), (0, 16))
+          '茎持续汲取母体营养。左边营养与体力都满（100），茎一路长到结果、胎次照常推进；右边营养 55 只比 50 的界线高一点，观察期内就看得到它掉进第二级（疲惫垂眼、身形收窄），负担仍继续',
+          (('growth', -8, 100, 100, '吃饱·营养100'), ('burden', 8, 55, 60, '营养55')), (0, 16))
 aftermath('aftermath_depletion', '事后茎生耗竭：濒死耗馅后死去', '刚被素鸡立过的灵梦营养已耗尽、健康偏低，场景给它建立事后真实茎生胎次：濒死耗馅后死亡，死后释放未出生胎次预留',
           (('depletion', 0, 0, 10, '耗竭·营养0'),), (0, 12))
 
@@ -2072,16 +2098,26 @@ add('balance_traits', 'meadow', '五属性20／50／80／90对照', '五属性20
     give=['mcyukkuri:field_notebook', 'minecraft:cookie 16'],
     reads=[('读五属性与行为参数', 'yukkuri status @e[tag=scn,type=mcyukkuri:reimu,distance=..40] raw')])
 
-add('balance_relation', 'meadow', '亲近玩家但恐惧0／40／80', '亲近玩家但恐惧0／40／80',
-    '三只对玩家亲近80，恐惧分别0、40、80。观察正常亲近、谨慎等待和高恐惧下保持距离；真实进食和排便后再读关系，亲近不会自动抹掉恐惧',
+# The three stand on an arc in front of the arrival point (vantage below): nine to ten blocks from it and at least eight apart, so a peer
+# is never inside the six-block social scan and no floor food competes with the apple the player holds.
+_BALANCE_ARC = ((0, -5), (-8, -8), (8, -8))
+_BALANCE_FEAR = ((0, '0'), (45, '45'), (70, '70'))
+add('balance_relation', 'meadow', '亲近玩家但对玩家的恐惧0／45／70', '亲近玩家但对玩家的恐惧0／45／70',
+    '三只对玩家好感都是80，恐惧分别是 0／45／70（恰好落在代码分档 30／60 的两侧），彼此相距八格以上、地上没有苹果。按顺序试：'
+    '①站住不动等它靠近→恐惧 0 自己走过来打招呼；45／70 先站着看几秒（胆子越大越快）再靠近问候。'
+    '②朝一只走近（进到六格内）→45／70 在观察期里被逼近就后退，0 迎着走过来。'
+    '③手里拿着苹果（十格内）→只有 0 会过来（<30）；45／70 不来。'
+    '④右键递苹果→三只都吃（进食不看恐惧，吃完好感 +8、恐惧 −5）。'
+    '⑤空手右键／护理菜单想抱起与抚摸→只有 0 接受（抱起 <40、抚摸 <25）；45／70 拒绝。'
+    '70 还有更细的差别：靠近到 1.5 格内会缩开、不能一起休闲／贴贴／舔伤（≥60）；45 只是谨慎。读“对象关系”看 closeness／fear／fear_band 真实值',
     '约30–60秒', [
-        *[command for n, fear in enumerate((0, 40, 80))
-          for command in (yk('reimu', (n - 1) * 4, 0, f'fear{fear}', label=f'亲近80 恐惧{fear}',
-                             lead=n == 0, social_wait=0, bladder=80, nutrition=65),
+        *[command for n, (fear, text) in enumerate(_BALANCE_FEAR)
+          for command in (yk('reimu', *_BALANCE_ARC[n], f'fear{fear}', label=f'好感80 恐惧{text}',
+                             lead=n == 0, nutrition=90),
                           f'yukkuri status relate {sel(f"fear{fear}")} @s 80',
-                          f'yukkuri status fear {sel(f"fear{fear}")} @s {fear}')],
-        item('minecraft:apple', 6, 0, 3)], env=DAY, give=['minecraft:apple 6'],
-    reads=[('读对象关系', 'yukkuri status @e[tag=scn,type=mcyukkuri:reimu,distance=..40] raw')])
+                          f'yukkuri status fear {sel(f"fear{fear}")} @s {fear}')]],
+    env=DAY, give=['minecraft:apple 6'],
+    reads=[('读三只关系', 'yukkuri status @e[tag=scn,type=mcyukkuri:reimu,distance=..40] raw')])
 
 add('balance_forms', 'meadow', '不足油与多毛灵梦的属性上下限', '不足油与多毛灵梦的属性上下限',
     '不足油仅含混发声，智力不超过25、友善不低于75；多毛友善和自制不超过25、依恋不低于75。正常灵梦作对照；真实学习仍可改善合法区间内的属性',
@@ -3482,6 +3518,15 @@ _smoke('meal_content', 900, [r'\[meal\][^\n]* full nutrition=[^\n]*content=true'
 next(s for s in S if s.id == 'meal_content').smoke['verify'] = _meal_content_verify
 _smoke('meet', 2400, [r'\[social\][^\n]* greet [^\n]*why=first_meet', r'\[daily\][^\n]* session result kind=NUZZLE'])
 _smoke('alice_hunt', 1200, [r'\[agitation\][^\n]* phase=ALICE_APPROACH -> ALICE_ACT'])
+# The shared nest releases the young it may no longer hold as each one grows: three of the four cross BABY_END inside the window.
+_smoke('family_nests', 4200, [r'\[home\][^\n]* growth released shared nest '])
+next(s for s in S if s.id == 'family_nests').smoke['verify'] = _distinct(
+    r'\[home\] reimu #\d+ uuid=(\S+)[^\n]* growth released shared nest ', 3, 'young released from the shared nest')
+# The scene's own button ends the original partner; the widow may accept the candidate only once the ledger holds that death.
+_smoke('widow_repair', 2400, [r'\[body\][^\n]* death settled[^\n]*cause=genericKill\b',
+                                r'\[family\][^\n]* partnership formed [^\n]*allowWidow=true',
+                                r'\[family\][^\n]* courtship contact ended [^\n]*conceived=true'])
+next(s for s in S if s.id == 'widow_repair').smoke['commands'] = [(400, f'kill {sel("old_partner")}')]
 _smoke('aftermath_growth', 3600, [r'\[family\][^\n]* stem drain stage'])
 next(s for s in S if s.id == 'aftermath_growth').smoke['verify'] = _distinct(r'\[family\] reimu #\d+ uuid=(\S+)[^\n]* aftermath reserved ', 2, 'aftermath broods')
 _smoke('aftermath_depletion', 3600, [r'\[family\][^\n]* aftermath reserved ', r'\[body\][^\n]* death settled[^\n]* stem_depletion=true'])
@@ -3516,6 +3561,8 @@ _FATES = {
                       dict(kind='drown', why='the pool victim is deliberately killed by drowning')],
     'den_family': [dict(kind='death', who=f'uuid={_uuid_text("den_family", "father")} ', match=r'cause=genericKill\b',
                         why='the smoke kills the father to widow the mother')],
+    'widow_repair': [dict(kind='death', match=r'cause=genericKill\b',
+                          why='the scene button ends the original partner through the real death path')],
     'settle_pit_famine': [dict(kind='starve', who=r'pit slave ', why='an empty pit: the slave at nutrition 0 really starves')],
     'aftermath_depletion': [dict(kind='starve', who=r'aftermath reserved ', why='the stem drains the depleted mother'),
                             dict(kind='death', who=r'aftermath reserved ', match=r'stem_depletion=true\b', why='she dies of the stem')],
