@@ -187,7 +187,7 @@ def load_museum():
     """{scene id: (field, button)} and [(field title, [scene ids])] in museum order."""
     import museum_scenarios as ms
     from museum_fields import FIELDS
-    scenes = {s.id: (f.title, s.hint or s.title) for f in FIELDS for s in f.scenarios}
+    scenes = {s.id: (f.title, s.label) for f in FIELDS for s in f.scenarios}
     return scenes, [(f.title, [s.id for s in f.scenarios]) for f in FIELDS]
 
 

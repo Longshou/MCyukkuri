@@ -13,10 +13,17 @@ import re
 import json
 import sys
 import uuid
+from pathlib import Path
 
 sys.dont_write_bytecode = True
 from museum_dsl import (yk, yk_on_nest, human, item, block, large_nest, box, shed, home, sel, sel_all, tag, say, uid, uuid_nbt, family, remains, aquatic_spawn, _text)  # noqa: E402
-from museum_fields import BY_ID, FEET  # noqa: E402
+from museum_fields import FIELDS, BY_ID, FEET  # noqa: E402
+
+# Scene numbers: the field's code and a two-digit index (``PD-03``), so a visitor can name a scene out loud. The file is the
+# registry of them: its ``numbers`` entries are appended in field order and are never reordered or renumbered, so a scene
+# keeps its number when other scenes are added, removed or the deck is reordered (a removed scene keeps its line and its
+# number is not given to another one). Field codes are fixed there too, one per field.
+NUMBERS = json.loads((Path(__file__).with_name('museum_scene_numbers.json')).read_text(encoding='utf-8'))
 
 CHILDHOOD_CAN_JUMP_SOON = 'Version:1,Newborn:1b,Landed:1b,FirstToiletDone:1b,Crawled:1b,Jumped:0b,CrawlDistance:1.0d'
 # A real infant ready to follow its parent to the bank: it has already eaten, relieved itself and crawled, but cannot jump.
@@ -46,6 +53,7 @@ class Scenario:
     def __init__(self, sid, field, title, hint, watch, wait, lines, give=(), env=None, spot=None, retry='先按“清空本场地”，再重新生成',
                  asks='', note='', sub=None, vantage=(0, 14), reads=(), late=(), smoke=None, capture=None):
         self.id, self.field, self.title, self.hint = sid, field, title, hint
+        # self.number is set once every scenario exists (``_number_scenes``), so that the pond tour order is known.
         self.watch, self.wait, self.retry, self.asks, self.note = watch, wait, retry, asks, note
         self.lines, self.give, self.env = surface_demo_lines(sid,lines), list(give), env or {}
         # settings that need the individuals to stand on the ground (a home, a conception, a boat) run two seconds after the summons
@@ -66,12 +74,17 @@ class Scenario:
         self.layout_ticks = max([40] + [40 + r.first + (r.tries - 1) * 20 for r in self.late if isinstance(r, Retry) and r.command.startswith('summon ')])
 
     @property
+    def label(self):
+        """How the scene is written wherever the player reads it: its number, then the name."""
+        return f'{self.number} {self.title}'
+
+    @property
     def tag(self):
         return PENDING if self.note.startswith(PENDING) else ('待验证' if self.note.startswith('待验证') else '')
 
     def body(self):
         """Commands of ``scn/<id>``: heading, the scenario itself, items for the player."""
-        head = [say(f'【{self.title}】看点：{self.watch}', 'aqua'), say(f'预计：{self.wait}。没反应：{self.retry}。', 'yellow')]
+        head = [say(f'【{self.label}】看点：{self.watch}', 'aqua'), say(f'预计：{self.wait}。没反应：{self.retry}。', 'yellow')]
         if self.note:
             head.append(say(f'注意：{self.note}', 'red'))
         return head + self.lines + [f'give @s {g}' for g in self.give]
@@ -3302,6 +3315,31 @@ POND_TOUR = (
     'hat_grounded_capsized')
 assert sorted(POND_TOUR) == sorted(scenario.id for scenario in BY_ID['pond'].scenarios), 'the pond tour must list every pond scene'
 BY_ID['pond'].scenarios.sort(key=lambda scenario: POND_TOUR.index(scenario.id))
+
+
+def _number_scenes():
+    """Give every scene the number the registry holds, and refuse a registry that breaks the append-only rule."""
+    codes, numbers = NUMBERS['fields'], NUMBERS['numbers']
+    assert set(codes) == {field.id for field in FIELDS}, 'every field needs a scene-number code'
+    field_of = {code: fid for fid, code in codes.items()}
+    assert len(field_of) == len(codes), 'two fields share a scene-number code'
+    last = dict.fromkeys(codes, 0)
+    used = {}
+    for sid, number in numbers.items():
+        match = re.fullmatch(r'([A-Z]{1,2})-(\d\d)', number)
+        assert match and match[1] in field_of, (sid, number, 'a number is a known field code, a dash and two digits')
+        assert number not in used, (sid, number, 'two scenes share a number', used.get(number))
+        used[number] = sid
+        assert int(match[2]) == last[field_of[match[1]]] + 1, \
+            (sid, number, 'numbers are append-only: an entry takes the next free index of its field')
+        last[field_of[match[1]]] = int(match[2])
+    for scenario in S:
+        assert scenario.id in numbers, f'scene {scenario.id} has no number in museum_scene_numbers.json'
+        scenario.number = numbers[scenario.id]
+        assert field_of[scenario.number.split('-')[0]] == scenario.field, (scenario.id, scenario.number, scenario.field)
+
+
+_number_scenes()
 
 
 # Topic codes are shared by the scene buttons, signs, and readouts.

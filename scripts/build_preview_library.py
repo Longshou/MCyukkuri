@@ -190,7 +190,7 @@ def build(manifest, catalog, out):
     topic_category = {topic:c['id'] for c in categories for topic in c['topics']}
     for scenario in museum_scenarios.S:
         category = config['scenarioOverrides'].get(scenario.id, topic_category.get(scenario.asks, 'other'))
-        add(dict(id='scenario:'+scenario.id, category=category, kind='scenario', title=scenario.title,
+        add(dict(id='scenario:'+scenario.id, category=category, kind='scenario', title=scenario.label,
                  summary=scenario.watch, field=BY_ID[scenario.field].title, wait=scenario.wait,
                  note=scenario.note, retry=scenario.retry, sceneId=scenario.id,
                  source='docs/FEATURES.md', visual='游戏试玩入口'))

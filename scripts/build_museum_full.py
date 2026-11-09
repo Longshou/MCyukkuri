@@ -125,7 +125,7 @@ def book_command(shown):
         for f in FIELDS:
             if f.group != gid:
                 continue
-            entries = [f'· {s.title}' + (f'（{s.tag}）' if s.tag else '') for s in f.scenarios]
+            entries = [f'· {s.label}' + (f'（{s.tag}）' if s.tag else '') for s in f.scenarios]
             # A book page shows about 14 short lines and does not scroll: the field's blurb on a page of its own, then six scenes a page.
             pages.append(f'{gtitle} · {f.title}\n\n{f.blurb}\n\n共 {len(entries)} 个场景，见后页')
             for start in range(0, len(entries), 6):
@@ -456,7 +456,7 @@ def field_deck_controls(f, land):
     rows.append([(f'function {NS}:util/time_{t}', c, '', False) for t, c in (('dawn', '清晨'), ('noon', '正午'), ('dusk', '黄昏'), ('night', '夜晚'))]
                 + [(f'function {NS}:util/weather_clear', '放晴', '', False), (f'function {NS}:util/weather_rain', '下雨', '', False),
                    (f'function {NS}:util/weather_thunder', '雷暴', '', False)])
-    start = [(f'function {NS}:start/{s.id}', s.hint, s.tag, True) for s in f.scenarios]
+    start = [(f'function {NS}:start/{s.id}', s.label, s.tag, True) for s in f.scenarios]
     start += [(f'function {NS}:{name}', caption, hint, True) for name, caption, hint in f.extras]
     for i in range(0, len(start), 9):
         rows.append(start[i:i + 9])
@@ -511,7 +511,7 @@ def build_lobby():
             z += 3
             for f in [f for f in FIELDS if f.group == gid]:
                 s += button(bx, FEET, z, f'function {NS}:go/{f.id}', f.title, '', nav=True, context=f'lobby {f.id}', color='gold')
-                names = wrap('、'.join(sc.title for sc in f.scenarios) or f.blurb, 44)
+                names = wrap('、'.join(sc.label for sc in f.scenarios) or f.blurb, 44)
                 if len(names) > 6:
                     # A cut list says so: the deck holds every scene.
                     names = names[:5] + [f'……共 {len(f.scenarios)} 个场景，全在观察台']
@@ -530,7 +530,7 @@ def inputs_sha256():
     """Hash of everything that decides what the generated world looks like."""
     h = hashlib.sha256()
     assets = ROOT / 'src/main/resources/assets/mcyukkuri'
-    files = (sorted(HERE.glob('museum_*.py')) + [Path(__file__).resolve(), ROOT / 'src/main/java/io/github/longshou/mcyukkuri/entity/YukkuriAction.java',
+    files = (sorted(HERE.glob('museum_*.py')) + [Path(__file__).resolve(), HERE / 'museum_scene_numbers.json', ROOT / 'src/main/java/io/github/longshou/mcyukkuri/entity/YukkuriAction.java',
                                                   ROOT / 'src/main/resources/assets/mcyukkuri/dialogue/catalog.json']
              + sorted((assets / 'yukkuri').glob('*.json')) + sorted((assets / 'yukkuri_presentation').glob('*.json')))
     for path in files:

@@ -4,8 +4,9 @@
 
 Copies the session JSON, the session's stdout/stderr logs and (when this is the latest session) the game's `latest.log` /
 `debug.log`; originals stay untouched. Scenes the user opened are found from the chat heading the museum prints on every
-scene start (`【<title>】看点：`). A scene's window runs from its start to the next scene start (or the log end), so
-scenes running side by side in different fields share windows; read the lines with that in mind.
+scene start (`【<number> <title>】看点：`; logs from before the numbers carry the bare title). A scene's window runs from
+its start to the next scene start (or the log end), so scenes running side by side in different fields share windows; read
+the lines with that in mind.
 Writes `summary.md` beside the copies and prints it.
 """
 import argparse
@@ -85,9 +86,10 @@ def stamp_lines(lines, start):
 
 
 def scene_titles():
+    """Every heading a scene may have printed: its numbered label and the bare title older logs carry."""
     import museum_scenarios as ms
     from museum_fields import BY_ID
-    return {s.title: s for s in ms.S}, BY_ID
+    return {name: s for s in ms.S for name in (s.label, s.title)}, BY_ID
 
 
 def clip(line):
@@ -178,7 +180,7 @@ def main():
         groups.setdefault(title, []).append((t, stamped[i + 1:stop]))
     for title, runs in groups.items():
         scene = by_title.get(title)
-        where = f'{by_field[scene.field].title} → {scene.hint or scene.title}（{scene.id}）' if scene else '场景源码里已找不到这个标题'
+        where = f'{by_field[scene.field].title} → {scene.label}（{scene.id}）' if scene else '场景源码里已找不到这个标题'
         out += [f'## {title}', '', f'- 位置：{where}', f'- 打开 {len(runs)} 次：{"，".join(f"{t:%H:%M:%S}" for t, _ in runs)}']
         for k, (t, window) in enumerate(runs, 1):
             span = window[-1][0] - t if window and window[-1][0] else timedelta()

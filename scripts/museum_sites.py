@@ -16,7 +16,7 @@ VIOLATIONS = []        # text that does not fit its board or label
 TEXTS = []             # (kind, context, [line, ...]) of every text display, for the offline fit check
 
 # Widths are in half-em units (an ASCII character is 1, a CJK character is 2).
-LIMITS = {'button': (16, 3), 'wall': (30, 3), 'board': (46, 11), 'title': (34, 2), 'banner': (40, 4)}
+LIMITS = {'button': (16, 4), 'wall': (30, 3), 'board': (46, 11), 'title': (34, 2), 'banner': (40, 4)}
 YAW = {'south': 0, 'west': 90, 'north': 180, 'east': -90}
 
 
@@ -77,7 +77,7 @@ def button(x, y, z, command, caption, hint='', *, nav=False, context='', scale=.
     CONTROLS.append((x, y - 2, z))
     if nav:
         command = f'execute as @p[distance=..8] at @s run {command}'
-    parts = [('\n'.join(wrap(caption)), color, True)]
+    parts = [('\n'.join(wrap(caption, 16)), color, True)]
     if hint:
         parts.append(('\n' + '\n'.join(wrap(hint, 16)), 'gray'))
     out = [f'setblock {x} {y - 2} {z} minecraft:command_block{{Command:{_q(command)},TrackOutput:0b}}',
