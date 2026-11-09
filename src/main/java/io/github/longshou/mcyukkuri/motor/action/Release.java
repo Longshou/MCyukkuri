@@ -205,7 +205,11 @@ public final class Release implements Action {
                 if (at != null && !turnable.contains(at) && !onPad(bed, at) && open(carrier, at)) turnable.add(at);
             }
             if (turnHere) for (var at : turnable) if (admits(carrier, here, at)) return choose(carrier, here, at, where);
-            for (var at : pass == 0 ? pad : ground(carrier, bed))
+            // Endpoints she walks for lie at least half her width apart: a closer one is reached from the same stands.
+            var walked = new ArrayList<Vec3>();
+            for (var at : pass == 0 ? pad : ground(carrier, bed)) {
+                if (near(walked, at, carrier.getBbWidth() * .5)) continue;
+                walked.add(at);
                 for (var stand : SurfaceApproach.contactStands(carrier, at, reach, null, s -> !near(failedStands, s, carrier.getBbWidth() * .5))) {
                     if (stand.subtract(at).horizontalDistance() > reach || !admits(carrier, stand, at)) continue;
                     if (routes++ == ROUTES) return exhausted(carrier, "release_routes_exhausted");
@@ -213,6 +217,7 @@ public final class Release implements Action {
                     refused.merge("no_route", 1, Integer::sum);
                     failedStands.add(stand);
                 }
+            }
         }
         return exhausted(carrier, "no_supported_release_spot");
     }
@@ -326,9 +331,6 @@ public final class Release implements Action {
 
     /** The one admission test of a candidate, planned and re-run at her real pose: the same geometry the lowering then closes on. */
     private Feasibility room(YukkuriEntity carrier, Vec3 stand, float yaw, Vec3 at) {
-        if (NestDoorway.rimAt(carrier, stand) != null) return Feasibility.of(Reason.NO_ROOM, 0, "stand_in_rim_band");
-        var space = space(carrier, at);
-        if (!space.ok()) return space;
         if (child.getDimensions(child.getPose()).makeBoundingBox(at).intersects(carrier.getBoundingBox().move(stand.subtract(carrier.position()))))
             return Feasibility.of(Reason.NO_ROOM, 0, "carrier_body");
         // The lowering ends where the feet meet the surface that holds them (ParentCarry.pinned: the host the carry began on or beside):
@@ -336,6 +338,9 @@ public final class Release implements Action {
         var host = ParentCarry.carryHost(carrier, child);
         if (host != null && carrier.getVehicle() != host.entity() && ParentCarry.pinned(carrier, child, at) > at.y)
             return Feasibility.of(Reason.NO_ROOM, 0, "carry_host");
+        var space = space(carrier, at);
+        if (!space.ok()) return space;
+        if (NestDoorway.rimAt(carrier, stand) != null) return Feasibility.of(Reason.NO_ROOM, 0, "stand_in_rim_band");
         if (!clearTurn(carrier, stand, yaw)) return Feasibility.of(Reason.NO_ROOM, 0, "mouth_turn_blocked");
         var hold = ParentCarry.hold(carrier, child);
         if (hold == Hold.BRIM && !ParentCarry.brimLevel(stand, at)) return Feasibility.of(Reason.NO_ROOM, 0, "brim_release_off_level");
