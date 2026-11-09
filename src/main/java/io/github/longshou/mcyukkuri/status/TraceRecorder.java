@@ -568,6 +568,7 @@ public final class TraceRecorder {
         out.add("v", vec(entity.getDeltaMovement()));
         out.addProperty("yaw", entity.getYRot());
         out.addProperty("by", entity.bodyYaw());
+        out.addProperty("hy", entity.getYHeadRot());
         out.addProperty("g", entity.onGround());
         out.addProperty("hc", entity.horizontalCollision);
         out.addProperty("vc", entity.verticalCollision);
