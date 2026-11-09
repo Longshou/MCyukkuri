@@ -3496,6 +3496,7 @@ _LICK = [r'\[comfort\][^\n]* approach started', r'\[comfort\][^\n]* mouth contac
 _smoke('hurt', 1800, _LICK)
 next(s for s in S if s.id == 'hurt').smoke['verify'] = _two_lickers
 _smoke('birth_nest_safe', 3000, [r'\[family\][^\n]* birth landed [^\n]*outcome=CUSHION\b'])
+_smoke('birth_nest_stem', 3000, [r'\[family\][^\n]* stem site facing ', r'\[family\][^\n]* birth landed [^\n]*outcome=CUSHION\b'])
 
 
 def _alice_share_home(window):
