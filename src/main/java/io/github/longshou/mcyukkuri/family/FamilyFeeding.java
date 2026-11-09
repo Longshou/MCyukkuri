@@ -141,6 +141,8 @@ final class FamilyFeeding {
     boolean hungryOwnChild(YukkuriEntity child) {
         return child!=o.entity()&&child.isAlive()&&!child.family().adult()&&!child.family().awaitingLanding()
                 &&o.caresFor(child)&&o.entity().life().canRecognize(child)&&child.life().canReceiveCareFood()
+                // A sleeping child cannot be served (CareApproach stills a sleeping actor), so it is no request to walk after now.
+                &&!child.life().isSleeping()
                 &&(carrying.isEmpty()||child.life().canReceiveCareFood(carrying))
                 &&(!child.isPassenger()||carriedCheck&&child.getVehicle()==o.entity())
                 &&(!child.childhood().firstMealDone()||child.life().nutrition()<o.entity().life().nutrition()-o.entity().species().traits().dote())

@@ -148,16 +148,27 @@ public final class YukkuriLife {
         if (fatigueTicks == 0) return;
         SurfaceApproach.halt(entity);
         // A nap is leisure: real hunger ends it so the body can eat (a full sleep at energy 0 goes on to the end).
-        if (!fullFatigueSleep && nutrition < 30) { stopFatigueRest(); return; }
+        if (!fullFatigueSleep && nutrition < 30) { stopFatigueRest("hunger"); return; }
         energy = Math.min(100, energy + (fullFatigueSleep ? 100f/fatigueLength : .05f));
-        // A full sleep at energy 0 ends by the same rule as the ordinary life sleep: at the body's own sleep time it goes on until
-        // that time is over; outside it, at its full length.
-        if (++fatigueTicks > fatigueLength && (!fullFatigueSleep || !sleepTime())) stopFatigueRest();
+        fatigueTicks++;
+        if (!fullFatigueSleep) {
+            if (fatigueTicks > fatigueLength) stopFatigueRest();
+            return;
+        }
+        // A full sleep at energy 0 ends by the same decisions as the ordinary life sleep: a real need ends it at once, and at the
+        // body's own sleep time it goes on until that time is over instead of ending at its full length.
+        String need = fatigueTicks % 20 == 0 ? needWakeCause() : null;
+        if (need != null) stopFatigueRest(need);
+        else if (fatigueTicks > fatigueLength && !sleepTime()) stopFatigueRest("rested");
     }
-    public void stopFatigueRest() {
+    public void stopFatigueRest() { stopFatigueRest(null); }
+    /** Ends the rest; {@code cause} names the real reason when one ended it, and the [sleep] end line then says night= too. */
+    private void stopFatigueRest(String cause) {
         if(fatigueTicks == 0)return;
         accountEnvironmentalWake();
-        GameplayLog.event(entity,"sleep","end source=fatigue full={} ticks={} energy={}",fullFatigueSleep,fatigueTicks,energy);
+        if (cause == null) GameplayLog.event(entity,"sleep","end source=fatigue full={} ticks={} energy={}",fullFatigueSleep,fatigueTicks,energy);
+        else GameplayLog.event(entity,"sleep","end source=fatigue full={} cause={} night={} ticks={} energy={}",
+                fullFatigueSleep,cause,level().isNight(),fatigueTicks,energy);
         boolean rested = fullFatigueSleep && fatigueTicks > fatigueLength;
         if(!fullFatigueSleep) napCooldown = NAP_MIN_GAP;
         fatigueTicks = 0; napReady = false;
@@ -364,6 +375,13 @@ public final class YukkuriLife {
     private boolean bladderUrgent() {
         return bladder >= 90 && !constipated() && entity.childhood().firstToiletDone() && !entity.leafSwaddle().wrapped()
                 && (dryStand(entity.blockPosition()) || nearestCare(CareBlock.Kind.TOILET, false) != null);
+    }
+    /** The real need that ends any full life sleep at once (same thresholds the daytime plan uses), or null: a drink in reach, a full
+     * bladder with somewhere to go, or an own hungry child awake within the family care range. */
+    private String needWakeCause() {
+        if (thirstUrgent()) return "thirst";
+        if (bladderUrgent()) return "toilet";
+        return entity.family().hasChildAwaitingFeed() ? "child_hungry" : null;
     }
     public boolean isSleeping() { return fatigueActive() || task == Task.SLEEP && sleepTicks >= 20 && wakeAt == 0 || entity.house().sleeping(); }
     /** The house goal owns the physical entry and waking sequence; only real grounded rest restores energy. */
@@ -844,10 +862,9 @@ public final class YukkuriLife {
                 if (drugged && drugSleep() == 0) wakeAt = SLEEP_TICKS + stretch; // a drug's sleep keeps its own finite wake
                 else if (wakeAt == 0 && drugSleep() == 0) {
                     // Real needs end a sleep at once, with the thresholds the daytime plan uses (checked once a second, like the nest sample).
+                    String need = sleepTicks % 20 == 0 ? needWakeCause() : null;
                     if (sleepTicks >= sleepDuration() && nutrition < 15) wakeNow("hunger");
-                    else if (sleepTicks % 20 == 0 && thirstUrgent()) wakeNow("thirst");
-                    else if (sleepTicks % 20 == 0 && bladderUrgent()) wakeNow("toilet");
-                    else if (sleepTicks % 20 == 0 && entity.family().hasChildAwaitingFeed()) wakeNow("child_hungry");
+                    else if (need != null) wakeNow(need);
                     // A sleep taken at its own rest time (the night, or a house body's day) goes on past the full stretch, so a night sleep
                     // lasts until that time is over; the rested wake clip then runs as usual.
                     else if (sleepTicks >= SLEEP_TICKS && !sleepTime()) wakeAt = sleepTicks + stretch;

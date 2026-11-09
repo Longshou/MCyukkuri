@@ -830,6 +830,23 @@ add('night_sleep', 'family', '夜里睡到天亮，惊扰才醒', '夜里睡到�
                readout=[f'yukkuri status {sel("mother")} raw'], verify=_night_sleep_verify),
     reads=[('读一家四口的睡眠与精力', f'yukkuri status @e[tag=scn,distance=..48] raw')])
 
+_night_feed_ids = {name: uid('night_hungry_child', name) for name in ('mother', 'baby')}
+add('night_hungry_child', 'family', '夜里赤油饿了，睡着的亲油起来喂', '夜里赤油饿了，睡着的亲油起来喂',
+    '夜里：亲油精力耗尽，就地躺下睡（这本是睡几百 tick 就自己醒的一觉，现在一直睡）；赤油不困、守在旁边。约 10 秒后孩子饿到 12 开始求食，睡着的亲油因为自家孩子等着喂而醒来（日志 cause=child_hungry），再照常找粮、嚼糜、递到孩子嘴里。看亲油有没有自己提前醒、是否真弄到粮并真喂进去',
+    '约 1–2 分钟', [*shed(0, 0, half=4), block(0, 0, 0, 'mcyukkuri:yukkuri_nest'),
+    yk('chen', -1.5, .5, 'mother', uuid=_night_feed_ids['mother'], energy=0, nutrition=100, friendliness=95, lead=True),
+    yk('reimu', 1.5, .5, 'baby', stage='baby', uuid=_night_feed_ids['baby'], energy=100, nutrition=100, rest_wait=1200,
+       kin=f'Mother:{uuid_nbt(_night_feed_ids["mother"])}'),
+    item('minecraft:apple', 2, 0, 3)],
+    env={'time': 'night'}, spot='pet_birth', vantage=(0, -7, 0, 10),
+    late=[Retry(f'yukkuri status set {sel("baby")} needs.nutrition 12', sel('baby'), tries=1, first=260)],
+    smoke=dict(ticks=1800,
+               expect=[r'\[sleep\] [^\n]*end source=fatigue[^\n]*cause=child_hungry',
+                       r'\[family\][^\n]*feed started'],
+               forbid=[r'\[sleep\] [^\n]*end source=fatigue[^\n]*cause=rested'],
+               readout=[f'yukkuri status {sel("mother")} raw']),
+    reads=[('读亲油与孩子的需要', f'yukkuri status @e[tag=scn,distance=..48] raw')])
+
 add('infant_starvation', 'family', '饿极赤油：胆大的自己爬去吃草', '饿极赤油：胆大的自己爬去吃草',
     '三只赤油：普通饥饿不能自食；极饿胆大者自行走出3格范围取食；极饿胆小低智者拒绝冒险。每只前方8格有一株真实草，可读决策与营养变化',
     '约 1–3 分钟', [
@@ -3393,7 +3410,7 @@ TOPICS = {
     'balance_traits': 'N1', 'balance_relation': 'N1', 'balance_forms': 'N1', 'balance_deibu': 'N1',
     'agitation_relief': 'D2', 'adult_pairing': 'F6', 'widow_repair': 'F6', 'alice_hunt': 'R4', 'aftermath_growth': 'F7', 'aftermath_depletion': 'F7',
     'den_family': 'W1', 'dig': 'W2', 'indep_near': 'W3', 'den_move': 'W4', 'forage': 'W5', 'graze': 'W6', 'den_barrier': 'W8',
-    'sleep': 'D1', 'night_sleep': 'D1', 'meal_content': 'D1', 'fatigue': 'R1', 'fatigue_predator': 'R2', 'nutrition_age': 'D1', 'meet': 'D1', 'toilet': 'F5', 'hurt': 'F3',
+    'sleep': 'D1', 'night_sleep': 'D1', 'night_hungry_child': 'D1', 'meal_content': 'D1', 'fatigue': 'R1', 'fatigue_predator': 'R2', 'nutrition_age': 'D1', 'meet': 'D1', 'toilet': 'F5', 'hurt': 'F3',
     'birth_land_caught': 'F1', 'birth_land_missed': 'F1', 'feed': 'F2', 'first_toilet': 'F2', 'hop': 'F2', 'growth': 'F4',
     'leaf_swaddle': 'F2', 'leaf_swaddle_neglect': 'F2', 'family_distance': 'F8', 'family_search': 'F8', 'birth_nest_safe': 'F1', 'birth_nest_stem': 'F1', 'birth_stem_caught': 'F1', 'family_nests': 'F4', 'carry_home': 'F4', 'infant_starvation': 'F2',
     'forage_empty': 'R1', 'rain_life': 'R1', 'rain_huddle': 'R1', 'storm_cower': 'R1', 'marisa_explore': 'R1', 'rain_shelter': 'R1', 'rain_open': 'R1', 'pred_watch': 'R2', 'pred_range': 'R2', 'pred_pets': 'R2', 'shared_body': 'R3',
