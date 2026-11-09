@@ -1270,7 +1270,7 @@ def _aftermath_pens(lanes):
 
 def aftermath(sid, seen, watch, lanes, vantage):
     add(sid, 'meadow', seen, seen, watch,
-        '场景已切 3 倍速：茎约 15 秒长到结果，胎次约 100 秒走完，耗竭那只约 40 秒后真的饿死（按“1倍速”恢复原速则是三倍时间）',
+        '场景已切 3 倍速：茎约 15 秒长满结果，之后随营养下降转级；耗竭那只两次饿伤后约 40 秒真的饿死（按“1倍速”恢复原速则是三倍时间）',
         ['function mcylab:util/speed_3x', *_aftermath_pens(lanes)],
         env=DAY, give=['minecraft:apple 16'], vantage=vantage,
         note='通过场景入口建立事后胎次；每个围栏北侧栅栏外坐着的爱丽丝只作血缘登记的来源（让开场惊慌有个看得见的对象）。',
@@ -1279,7 +1279,8 @@ def aftermath(sid, seen, watch, lanes, vantage):
 
 
 aftermath('aftermath_growth', '事后茎生：吃饱的茎长，饿的茎垂', '两个围栏里各有一只刚被素鸡立过的灵梦，场景给它们建立事后真实茎生胎次：从无茎开始萌生，首次萌茎说出困惑台词（aftermath_realize）；'
-          '茎持续汲取母体营养。左边营养与体力都满（100），茎一路长到结果、胎次照常推进；右边营养 55 只比 50 的界线高一点，观察期内就看得到它掉进第二级（疲惫垂眼、身形收窄），负担仍继续',
+          '茎持续汲取母体营养。左边营养与体力都满（100）：茎长满结果，约 40 秒才因真实消耗掉到第二级，约 55 秒到第三级、茎暂时停长；右边营养 55 只比 50 的界线高一点，'
+          '几秒就掉进第二级（疲惫垂眼、身形收窄）、二十秒内到第三级，茎很短一直不长。两边都能投喂苹果改变结果',
           (('growth', -8, 100, 100, '吃饱·营养100'), ('burden', 8, 55, 60, '营养55')), (0, 16))
 aftermath('aftermath_depletion', '事后茎生耗竭：濒死耗馅后死去', '刚被素鸡立过的灵梦营养已耗尽、健康偏低，场景给它建立事后真实茎生胎次：濒死耗馅后死亡，死后释放未出生胎次预留',
           (('depletion', 0, 0, 10, '耗竭·营养0'),), (0, 12))
@@ -3530,14 +3531,20 @@ _smoke('alice_hunt', 1200, [r'\[agitation\][^\n]* phase=ALICE_APPROACH -> ALICE_
 _smoke('family_nests', 4200, [r'\[home\][^\n]* growth released shared nest '])
 next(s for s in S if s.id == 'family_nests').smoke['verify'] = _distinct(
     r'\[home\] reimu #\d+ uuid=(\S+)[^\n]* growth released shared nest ', 3, 'young released from the shared nest')
+next(s for s in S if s.id == 'family_nests').smoke['readout'] = ['yukkuri status @e[tag=scn,type=mcyukkuri:reimu,distance=..48] raw']
 # The scene's own button ends the original partner; the widow may accept the candidate only once the ledger holds that death.
 _smoke('widow_repair', 3600, [r'\[body\][^\n]* death settled[^\n]*cause=genericKill\b',
                                 r'\[family\][^\n]* partnership formed [^\n]*allowWidow=true',
                                 r'\[family\][^\n]* courtship contact ended [^\n]*conceived=true'])
 next(s for s in S if s.id == 'widow_repair').smoke['commands'] = [(400, f'kill {sel("old_partner")}')]
+next(s for s in S if s.id == 'widow_repair').smoke['readout'] = [f'yukkuri status {sel("widow")} raw',
+                                                                 f'yukkuri status {sel("new_partner")} raw']
 _smoke('aftermath_growth', 3600, [r'\[family\][^\n]* stem drain stage'])
 next(s for s in S if s.id == 'aftermath_growth').smoke['verify'] = _distinct(r'\[family\] reimu #\d+ uuid=(\S+)[^\n]* aftermath reserved ', 2, 'aftermath broods')
+next(s for s in S if s.id == 'aftermath_growth').smoke['readout'] = [f'yukkuri status {sel("affected_growth")} raw',
+                                                                   f'yukkuri status {sel("affected_burden")} raw']
 _smoke('aftermath_depletion', 3600, [r'\[family\][^\n]* aftermath reserved ', r'\[body\][^\n]* death settled[^\n]* stem_depletion=true'])
+next(s for s in S if s.id == 'aftermath_depletion').smoke['readout'] = [f'yukkuri status {sel("affected_depletion")} raw']
 _smoke('growth', 200, [r'\[growth\][^\n]* stage=BABY -> JUVENILE', r'\[growth\][^\n]* age boundary [^\n]*subadult=true',
                        r'\[growth\][^\n]* stage=JUVENILE -> ADULT', r'\[growth\][^\n]* age boundary [^\n]*elder=true',
                        r'\[growth\][^\n]* lifespan reached'])
