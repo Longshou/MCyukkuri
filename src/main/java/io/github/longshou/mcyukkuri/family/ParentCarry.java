@@ -466,6 +466,12 @@ public final class ParentCarry {
         return (hold == Hold.BRAID ? setDown(entry(carrier, child.getUUID())) : restTip()).mul(1, 0, 1);
     }
     private static Vector3f restTip() { var tip = ContactGeometry.braidTipModel(); return new Vector3f((float) tip.x, (float) MOUTH_FLOOR, (float) tip.z); }
+    /** The braid tip's set-down beside her braid side, clear of her body and of the child's headwear (carrier model units). */
+    private static Vector3f braidRest(YukkuriView carrier, YukkuriView child) {
+        var rest = restTip();
+        rest.x = Math.max(rest.x, (float) (CarryGeometry.BODY_HIGH.x() + headwearRadius(child) * 16 / size(carrier) + .3));
+        return rest;
+    }
     private static Vector3f setDown(CompoundTag e) {
         return e.contains("X") ? new Vector3f(e.getFloat("X"), e.contains("RY") ? e.getFloat("RY") : e.getFloat("PH"), e.getFloat("Z")) : restTip();
     }
@@ -505,8 +511,7 @@ public final class ParentCarry {
         e.putBoolean("L", lean);
         e.putFloat("Y", carrier.bodyYaw());
         e.putFloat("PX", from.x); e.putFloat("PY", from.y); e.putFloat("PZ", from.z);
-        var rest = restTip();
-        rest.x = Math.max(rest.x, (float) (CarryGeometry.BODY_HIGH.x() + headwearRadius(child) * 16 / s + .3));
+        var rest = braidRest(carrier, child);
         e.putFloat("X", rest.x); e.putFloat("Z", rest.z); e.putFloat("PH", high);
         e.putFloat("RY", (float) Math.max(MOUTH_FLOOR, (floor + child.getBbHeight() - carrier.getY()) * 16 / s));
         e.putLong("T", carrier.level().getGameTime() + (head ? 0 : BraidFetch.marker(BraidFetch.HOLD, "lift_start") - BraidFetch.marker(BraidFetch.HOLD, "grip")));
@@ -1728,6 +1733,12 @@ public final class ParentCarry {
         var at = modelAt(carrier, carrier.bodyYaw(), child.position());
         next.putFloat("LX", at.x); next.putFloat("LY", at.y); next.putFloat("LZ", at.z);
         if (holdOf(e) == Hold.BRIM) next.putByte("H", (byte) Hold.BRAID.ordinal());
+        // A brim or head child stopped on the braid is a braid-tip child now: its let-go point is the braid's own set-down, not its
+        // old spot on the brim or the head.
+        if (holdOf(next) == Hold.BRAID) {
+            var rest = braidRest(carrier, child);
+            next.putFloat("X", rest.x); next.putFloat("Z", rest.z);
+        }
         next.remove("D"); next.remove("T"); next.remove("LV");
         next.remove("RY");
         next.remove("DX"); next.remove("DY"); next.remove("DZ");

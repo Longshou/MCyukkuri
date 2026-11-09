@@ -189,7 +189,8 @@ public final class Release implements Action {
         refused.clear();
         var bed = BedContainer.of(child, nest);
         var here = carrier.position();
-        double reach = ParentCarry.groundPoint(carrier, child, 0).subtract(here).horizontalDistance() + .03;
+        // Her hold's own let-go distance; an endpoint up to the contact slack beyond it is still in reach.
+        double natural = ParentCarry.groundPoint(carrier, child, 0).subtract(here).horizontalDistance(), reach = natural + .03;
         boolean turnHere = SurfaceApproach.supportedGround(carrier, here);
         int routes = 0;
         for (int pass = bed == null ? 1 : 0; pass < 2; pass++) {
@@ -210,8 +211,13 @@ public final class Release implements Action {
             for (var at : pass == 0 ? pad : ground(carrier, bed)) {
                 if (near(walked, at, carrier.getBbWidth() * .5)) continue;
                 walked.add(at);
-                for (var stand : SurfaceApproach.contactStands(carrier, at, reach, null, s -> !near(failedStands, s, carrier.getBbWidth() * .5))) {
-                    if (stand.subtract(at).horizontalDistance() > reach || !admits(carrier, stand, at)) continue;
+                for (var stand : SurfaceApproach.contactStands(carrier, at, natural, null, s -> !near(failedStands, s, carrier.getBbWidth() * .5))) {
+                    if (stand.subtract(at).horizontalDistance() > reach) {
+                        // Moved clear of a hat's brim beyond her reach of this endpoint.
+                        refused.merge("reach", 1, Integer::sum);
+                        continue;
+                    }
+                    if (!admits(carrier, stand, at)) continue;
                     if (routes++ == ROUTES) return exhausted(carrier, "release_routes_exhausted");
                     if (Double.isFinite(SurfaceApproach.routeLength(carrier, stand, null))) return choose(carrier, stand, at, where);
                     refused.merge("no_route", 1, Integer::sum);
@@ -338,7 +344,10 @@ public final class Release implements Action {
 
     /** The one admission test of a candidate, planned and re-run at her real pose: the same geometry the lowering then closes on. */
     private Feasibility room(YukkuriEntity carrier, Vec3 stand, float yaw, Vec3 at) {
-        if (child.getDimensions(child.getPose()).makeBoundingBox(at).intersects(carrier.getBoundingBox().move(stand.subtract(carrier.position()))))
+        // A stand she still walks to is reached within the walk's arrival tolerance: her body must clear the child from anywhere in it.
+        double arrival = stand.equals(carrier.position()) ? 0 : SurfaceApproach.ARRIVAL;
+        if (child.getDimensions(child.getPose()).makeBoundingBox(at)
+                .intersects(carrier.getBoundingBox().move(stand.subtract(carrier.position())).inflate(arrival, 0, arrival)))
             return Feasibility.of(Reason.NO_ROOM, 0, "carrier_body");
         // The lowering ends where the feet meet the surface that holds them (ParentCarry.pinned: the host the carry began on or beside):
         // an endpoint that host still holds up is never reached, whatever the hold.
