@@ -11,8 +11,6 @@ import io.github.longshou.mcyukkuri.entity.component.SyncSlot;
 import io.github.longshou.mcyukkuri.headwear.HatGeometry;
 import io.github.longshou.mcyukkuri.headwear.HatScale;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
-import io.github.longshou.mcyukkuri.life.SurfaceApproach.Rejection;
-import java.util.function.Consumer;
 import io.github.longshou.mcyukkuri.motor.Attach;
 import io.github.longshou.mcyukkuri.motor.AttachState;
 import io.github.longshou.mcyukkuri.motor.BodyAbility;
@@ -98,6 +96,9 @@ public final class ParentCarry {
     static final int HOLD_TICKS = 100, FEED_HOLD_TICKS = 200;
     /** After the carrier has settled at the destination the child is kept at most this long while it inherits the home. */
     static final int ARRIVE_GRACE_TICKS = 600;
+    /** A retrieval has arrived home within this distance of its centre (blocks): the walk ends and the children go onto its pad
+     *  (project design: a nest and the doorway stand in front of it). */
+    private static final double HOME_REACH = 2.5;
     private static final int MAX_CARRY_TICKS = 12000;
     /** A mouth or braid-tip hold takes a child up to this share of the carrier's volume, scaled by strength (project design). */
     static final double HOLD_FRACTION = .20;
@@ -584,21 +585,12 @@ public final class ParentCarry {
     }
     /** Every tick of a tuft ride clear of blocks, the carrier at {@code stand} turned to {@code yaw}: the feet the ride itself takes. */
     private static boolean rideClear(YukkuriEntity carrier, YukkuriEntity child, Vec3 stand, float yaw, IntFunction<Vector3f> feet, int from, int to) {
-        return rideClear(carrier, child, stand, yaw, feet, from, to, null);
-    }
-    private static boolean rideClear(YukkuriEntity carrier, YukkuriEntity child, Vec3 stand, float yaw, IntFunction<Vector3f> feet, int from, int to,
-                                     Consumer<Rejection> observer) {
         Vec3 previous = null;
         for (int t = from; t <= to; t++) {
             var p = feet.apply(t).mul((float) size(carrier) / 16).rotateY((180 - yaw) * Mth.DEG_TO_RAD);
             var at = stand.add(p.x, p.y, p.z);
             var box = child.getDimensions(child.getPose()).makeBoundingBox(at).deflate(.02);
-            var sweep = previous == null ? box : box.expandTowards(previous.subtract(at));
-            if (child.level().getBlockCollisions(child, sweep).iterator().hasNext()) {
-                if (observer != null) observer.accept(new Rejection(at, "lowering_sweep", "tick=" + t + " from=" + previous
-                        + " " + SurfaceApproach.collisionDetail(child, sweep)));
-                return false;
-            }
+            if (child.level().getBlockCollisions(child, previous == null ? box : box.expandTowards(previous.subtract(at))).iterator().hasNext()) return false;
             previous = at;
         }
         return true;
@@ -667,12 +659,9 @@ public final class ParentCarry {
     public static boolean brimLevel(Vec3 stand, Vec3 at) { return Math.abs(at.y - stand.y) <= BRIM_STEP; }
     /** Release's check of a brim lowering from {@code stand} turned to {@code yaw} onto {@code endpoint}: the same ride, clear of blocks. */
     public static boolean clearLowering(YukkuriEntity carrier, YukkuriEntity child, Vec3 stand, float yaw, Vec3 endpoint) {
-        return clearLowering(carrier, child, stand, yaw, endpoint, null);
-    }
-    public static boolean clearLowering(YukkuriEntity carrier, YukkuriEntity child, Vec3 stand, float yaw, Vec3 endpoint, Consumer<Rejection> observer) {
         var d = endpoint.subtract(stand);
         var to = new Vector3f((float) d.x, (float) d.y, (float) d.z).rotateY(-(180 - yaw) * Mth.DEG_TO_RAD).mul(16 / (float) size(carrier));
-        return rideClear(carrier, child, stand, yaw, t -> lowerFeet(to, t), mark(BRIM_LOWER, "lift_start"), mark(BRIM_LOWER, "place"), observer);
+        return rideClear(carrier, child, stand, yaw, t -> lowerFeet(to, t), mark(BRIM_LOWER, "lift_start"), mark(BRIM_LOWER, "place"));
     }
     private static Vector3f tail(YukkuriView carrier, Hold hold) {
         var tail = TAILS.getOrDefault(carrier.assetId(), TAILS.get("chen"))[hold == Hold.TAIL_LEFT ? 0 : 1];
@@ -1425,8 +1414,7 @@ public final class ParentCarry {
         if (now % 5 == 0 && hold != Hold.BRIM && seat(carrier, child) == null) return "seat_blocked";
         if (child.life().nutrition() < 30 && carrier.family().feeding().hasCarriedOpportunity(child)) return "feeding";
         if (purpose == Purpose.MIGRATE && carrier.settlement().migrationLanded() && child.settlement().migrationLanded()) return "arrived_destination";
-        var home = purpose == Purpose.RETRIEVE ? child.family().carryHome() : null;
-        if (home != null && carrier.distanceToSqr(Vec3.atBottomCenterOf(home)) <= 2.5 * 2.5) return "arrived_home";
+        if (purpose == Purpose.RETRIEVE && atHome(child.family().carryHome())) return "arrived_home";
         if (purpose == Purpose.NEST_RIM) return "nest_rim_to_cushion";
         return null;
     }
@@ -1517,9 +1505,18 @@ public final class ParentCarry {
         if (!motor.run(owner, settingDown) && motor.refusal() != null) settingDown.finished(carrier, motor.refusal());
     }
 
+    /** The surface a set-down asks for belongs to the request, never to the hold or the reason: the rim child's nest, the child's
+     *  home while the carrier stands at it (or the migration's new home on arrival), else the ground beside her; on her own hull,
+     *  the hull. */
     private BlockPos setDownHome(YukkuriEntity child, String reason) {
-        return purpose == Purpose.NEST_RIM ? rimNest
-                : reason.equals("arrived_home") || reason.equals("arrived_destination") ? child.family().carryHome() : null;
+        if (carrier.getVehicle() instanceof SurfaceHost) return null;
+        if (purpose == Purpose.NEST_RIM) return rimNest;
+        var home = child.family().carryHome();
+        return reason.equals("arrived_destination") || atHome(home) ? home : null;
+    }
+
+    private boolean atHome(BlockPos home) {
+        return home != null && carrier.distanceToSqr(Vec3.atBottomCenterOf(home)) <= HOME_REACH * HOME_REACH;
     }
 
     /**
@@ -1542,7 +1539,7 @@ public final class ParentCarry {
         var home = child.family().carryHome();
         if (home == null) { giveUp = "no_home"; return false; }
         var centre = Vec3.atBottomCenterOf(home);
-        if (carrier.distanceToSqr(centre) <= 2.5 * 2.5) return true;
+        if (atHome(home)) return true;
         var entrance = carrier.life().entrance(home);
         var approach = entrance == null ? centre : Vec3.atBottomCenterOf(entrance);
         var floor = SurfaceApproach.restingFloor(carrier, approach.add(0, .1, 0));
@@ -1662,9 +1659,6 @@ public final class ParentCarry {
     /** Release's check of a head young's lowering from {@code stand} turned to {@code yaw} onto {@code endpoint}: the route the lowering
      *  itself takes ({@link #transferPoint}), clear of her body and of blocks. */
     public static boolean clearHeadLowering(YukkuriEntity carrier, YukkuriEntity child, Vec3 stand, float yaw, Vec3 endpoint) {
-        return clearHeadLowering(carrier, child, stand, yaw, endpoint, null);
-    }
-    public static boolean clearHeadLowering(YukkuriEntity carrier, YukkuriEntity child, Vec3 stand, float yaw, Vec3 endpoint, Consumer<Rejection> observer) {
         var shift = stand.subtract(carrier.position());
         var e = trialLowering(carrier, child, "braid_head_take");
         var body = carrier.getBoundingBox().move(shift);
@@ -1672,11 +1666,7 @@ public final class ParentCarry {
         for (int i = 1; i <= WAY_SAMPLES; i++) {
             var at = transferPoint(carrier, child, e, endpoint.subtract(shift), ticks * i / (double) WAY_SAMPLES, 1, yaw).add(shift);
             var box = child.getDimensions(child.getPose()).makeBoundingBox(at);
-            if (box.intersects(body) || child.level().getBlockCollisions(child, box).iterator().hasNext()) {
-                if (observer != null) observer.accept(new Rejection(at, "lowering_sweep", "sample=" + i + "/" + WAY_SAMPLES
-                        + " carrier=" + carrier.getUUID() + " carrierBox=" + body + " " + SurfaceApproach.collisionDetail(child, box)));
-                return false;
-            }
+            if (box.intersects(body) || child.level().getBlockCollisions(child, box).iterator().hasNext()) return false;
         }
         return true;
     }

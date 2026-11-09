@@ -6,8 +6,8 @@ import io.github.longshou.mcyukkuri.family.BraidFetch;
 import io.github.longshou.mcyukkuri.family.ParentCarry.Hold;
 import io.github.longshou.mcyukkuri.headwear.HatGeometry;
 import io.github.longshou.mcyukkuri.headwear.HullBounds;
-import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.life.NestDoorway;
+import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.motor.ContactGeometry;
 import io.github.longshou.mcyukkuri.motor.Action;
 import io.github.longshou.mcyukkuri.motor.ClipMarkers;
@@ -34,23 +34,36 @@ import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Objects;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.LinkedHashMap;
+import java.util.Locale;
 import java.util.Map;
-import java.util.function.Consumer;
-import io.github.longshou.mcyukkuri.life.SurfaceApproach.Rejection;
+import java.util.Objects;
+import java.util.TreeMap;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
 
-/** Turn a mouth hold to clear ground if needed, lower the child, then dismount at its measured feet. A braid that lowers a brim or
- *  head child first moves her held stick out of the way ({@link Stow}); once the braid is free again it takes the stick back. */
+/**
+ * Put a held child down on supported ground (or, with a destination, onto a host's place). One candidate is an endpoint, the stand
+ * she lowers it from and her facing there: she first turns where she stands so her hold's own let-go point lies over free ground,
+ * and only walks to a stand when no bearing round her is free. Then she turns, lowers the child and it dismounts at its measured
+ * feet. A blocked candidate (a walk that does not arrive, room lost at the real pose, a body at contact) is left out with its
+ * footprint and the next one begun inside this same action, the child still held where it is. A braid that lowers a brim or head
+ * child first moves her held stick out of the way ({@link Stow}); once the braid is free again it takes the stick back.
+ */
 public final class Release implements Action {
     public static final String ID = "release";
     /** How far below the let-go feet support or water has to exist (blocks). */
     private static final double DROP = 1.5;
+    /** Candidates one set-down begins at most; each blocked one is left out and replaced, one failure counted once, here only. */
+    private static final int TRIES = 6;
+    /** Route plans one search may spend on stands she would walk to: one per bearing of the shared stand ring
+     *  ({@link SurfaceApproach#contactStands}). */
+    private static final int ROUTES = 16;
+    /** Bearings of the turn ring round her stand, 15 degrees apart (the mouth's turn sweep is sampled every 5). */
+    private static final int BEARINGS = 24;
+    /** Progress phases: lowering, turning (at most 180 degrees), walking, moving the stick. One candidate spans them all, so the next
+     *  candidate's metric starts below every value of the one before it and gets its own watchdog window. */
+    private static final double PHASE = 360, SPAN = 5 * PHASE;
 
     private final YukkuriEntity child;
     private YukkuriEntity carrier;
@@ -61,69 +74,20 @@ public final class Release implements Action {
     private SeatTarget seat;
     private boolean released;
     private BlockPos nest;
-    private Vec3 endpoint;
+    private Vec3 endpoint, stand;
     private String placement;
     private Outcome outcome;
-    /** Endpoint stand searches (each uses the shared radial bearings), shared across the whole action's replacements. */
-    private static final int STAND_TRIES = 6;
-    private record Candidate(Vec3 endpoint, Vec3 stand, float facing) {}
-    private final Set<Candidate> tried = new HashSet<>();
-    private final Diagnostics diagnostics = new Diagnostics();
-    private int stands;
-    private int failedWorld, rejectedSpace, rejectedStand, settling;
+    /** This set-down's own search: footprints it failed at and stands it failed to reach or route to. They end with the action. */
+    private final List<Vec3> failedEndpoints = new ArrayList<>(), failedStands = new ArrayList<>();
+    /** Why the last search left candidates out, by refusal, for its exhaustion line. */
+    private final Map<String, Integer> refused = new TreeMap<>();
+    private int tries, failedWorld, settling;
+    private double approachBest;
+    private long approachSince;
     private Vec3 previousLocal;
     private double lowered;
     private final StowStep stow = new StowStep();
     private boolean begun;
-
-    /** Bounded observations only; neither counts nor examples participate in placement decisions. */
-    private static final class Diagnostics {
-        private record Failure(Candidate triple, String test, String measured, double distance) {}
-        private final Map<String, Integer> counts = new LinkedHashMap<>();
-        private final Map<String, Integer> subtests = new LinkedHashMap<>();
-        private final Map<String, Failure> first = new LinkedHashMap<>();
-        private final Map<String, Integer> bodies = new LinkedHashMap<>();
-        private final List<Failure> nearest = new ArrayList<>();
-        Diagnostics() {
-            for (var test : List.of("support", "wet", "body_overlap", "collision", "stand_unresolved", "stand_in_rim_band", "route", "turn",
-                    "lowering_sweep", "reach", "carry_host", "brim_level", "weather", "duplicate", "budget")) counts.put(test, 0);
-        }
-        void rejected(YukkuriEntity carrier, Candidate triple, Rejection rejection) {
-            var parts = rejection.test().split(":", 2);
-            String test = parts[0];
-            counts.merge(test.split("\\.")[0], 1, Integer::sum);
-            subtests.merge(test, 1, Integer::sum);
-            if (parts.length == 2 && (bodies.containsKey(parts[1]) || bodies.size() < 64)) bodies.merge(parts[1], 1, Integer::sum);
-            var failure = new Failure(triple, test, rejection.measured(), carrier.distanceToSqr(triple.endpoint())
-                    + (triple.stand() == null ? 0 : carrier.distanceToSqr(triple.stand())));
-            first.putIfAbsent(test, failure);
-            // Endpoint-only rejections have no stand/facing yet; keep those in firstByTest, never invent a triple.
-            if (triple.stand() == null) return;
-            if (nearest.stream().anyMatch(f -> f.triple().equals(triple))) return;
-            nearest.add(failure);
-            nearest.sort(Comparator.comparingDouble(Failure::distance));
-            if (nearest.size() > 3) nearest.removeLast();
-        }
-        void exhausted(YukkuriEntity carrier, YukkuriEntity child, String reason, int searches) {
-            GameplayLog.limited(carrier, "family", "release.exhaustion." + child.getUUID(), 200,
-                    "carry release exhaustion child={} reason={} standSearches={} from={} yaw={} carrierWidth={} childWidth={} counts={} subtests={} bodyUUIDs={} nearestBy=endpointPlusStandDistanceSquared nearest={} firstByTest={}",
-                    child.getUUID(), reason, searches, carrier.position(), carrier.bodyYaw(), carrier.getBbWidth(), child.getBbWidth(), counts, subtests, bodies, nearest, first);
-        }
-    }
-
-    private Consumer<Rejection> observe(YukkuriEntity carrier, Vec3 at, Vec3 stand, float yaw) {
-        var triple = new Candidate(at, stand, Mth.wrapDegrees(yaw));
-        return rejection -> diagnostics.rejected(carrier, triple, rejection);
-    }
-
-    private void reject(YukkuriEntity carrier, Vec3 at, Vec3 stand, float yaw, String test, String measured) {
-        observe(carrier, at, stand, yaw).accept(new Rejection(at, test, measured));
-    }
-
-    private Feasibility exhausted(YukkuriEntity carrier, String reason) {
-        diagnostics.exhausted(carrier, child, reason, stands);
-        return Feasibility.of(Reason.NO_ROOM, 0, reason);
-    }
 
     public Release(YukkuriEntity child) { this(child, null); }
     public Release(YukkuriEntity child, SurfaceHost destination) {
@@ -165,14 +129,7 @@ public final class Release implements Action {
             seat = nearest(carrier, places, facings(carrier));
             return seat != null ? Feasibility.pass() : Feasibility.of(Reason.NO_SUPPORT, 0, "transfer_blocked");
         }
-        // A busy owner may defer start after this check; do not spend the same action's budget twice.
-        if (endpoint != null) return Feasibility.pass();
-        var result = plan(carrier);
-        if (!result.ok()) {
-            outcome = Outcome.of(result.reason(), result.shortfall(), result.detail());
-            failedWorld = world(carrier);
-        }
-        return result;
+        return plan(carrier);
     }
 
     private List<Float> facings(YukkuriEntity carrier) {
@@ -222,83 +179,136 @@ public final class Release implements Action {
         return !body.overlaps(at.x, at.y, at.z, hat, .3 / HullBounds.SCALE);
     }
 
-    /** One endpoint/stand planner for cushions and nearby ground; execution uses the same room and turn tests. */
+    /**
+     * The next candidate on the requested surface — this nest's pad, then supported ground outside it; or the ground round her. On
+     * each she first turns where she stands (her hold's let-go point on the ring round her, or a pad point in reach; the smallest
+     * turn first), then walks to a stand from which an endpoint is in reach (nearest endpoint first, a planned route). Footprints and
+     * stands this set-down already failed at are left out.
+     */
     private Feasibility plan(YukkuriEntity carrier) {
+        refused.clear();
         var bed = BedContainer.of(child, nest);
+        var here = carrier.position();
+        double reach = ParentCarry.groundPoint(carrier, child, 0).subtract(here).horizontalDistance() + .03;
+        boolean turnHere = SurfaceApproach.supportedGround(carrier, here);
+        int routes = 0;
         for (int pass = bed == null ? 1 : 0; pass < 2; pass++) {
-            var spots = new ArrayList<Vec3>();
-            double half = pass == 0 ? ((FloorShape.RoundedRect) bed.floor()).half() : carrier.getBbWidth() * 2;
-            double step = pass == 0 ? child.getBbWidth() / 2 : carrier.getBbWidth() / 2;
-            var centre = pass == 0 ? Vec3.ZERO.subtract(bed.toPlane(Vec3.ZERO)) : carrier.position();
-            if (pass == 1) spots.add(ParentCarry.groundPoint(carrier, child, carrier.bodyYaw()));
-            for (double x = -half; x <= half; x += step) for (double z = -half; z <= half; z += step)
-                if (pass == 1 || bed.standsInside(x, z, child.getBbWidth()))
-                    spots.add(new Vec3(centre.x + x, pass == 0 ? bed.floorY() : centre.y, centre.z + z));
-            spots.sort(Comparator.comparingDouble(carrier::distanceToSqr));
-            var endpoints = new ArrayList<Vec3>();
-            for (var point : spots) for (double down = 0; down <= (pass == 0 ? 0 : DROP); down += .5) {
-                var probe = point.add(0, .1 - down, 0);
-                var at = pass == 0 ? point : SurfaceApproach.restingFloor(child, probe,
-                        observe(carrier, probe, null, Float.NaN));
-                if (at == null || !space(carrier, at, observe(carrier, at, null, Float.NaN)).ok()) { rejectedSpace++; continue; }
-                if (pass == 1 && bed != null && bed.floor().contains(bed.toPlane(at).x, bed.toPlane(at).z)) continue;
-                if (!endpoints.contains(at)) endpoints.add(at);
+            String where = pass == 0 ? "nest" : bed == null ? "ground" : "outside";
+            var pad = pass == 0 ? pad(carrier, bed) : null;
+            var turnable = new ArrayList<Vec3>();
+            if (pass == 0) {
+                for (var at : pad) if (at.subtract(here).horizontalDistance() <= reach) turnable.add(at);
+                turnable.sort(Comparator.comparingDouble(at -> Math.abs(Mth.wrapDegrees(facing(carrier, here, at) - carrier.bodyYaw()))));
+            } else for (int i = 0; i < BEARINGS; i++) {
+                float yaw = carrier.bodyYaw() + (i + 1) / 2 * (i % 2 == 0 ? 1 : -1) * 360f / BEARINGS;
+                var at = floorUnder(ParentCarry.groundPoint(carrier, child, yaw));
+                if (at != null && !turnable.contains(at) && !onPad(bed, at) && open(carrier, at)) turnable.add(at);
             }
-            // Exhaust this surface's no-walk choices before spending routes on stands around it.
-            for (boolean walk : new boolean[]{false, true}) for (var at : endpoints) {
-                double reach = ParentCarry.groundPoint(carrier, child, 0).subtract(carrier.position()).horizontalDistance() + .03;
-                var candidates = walk ? SurfaceApproach.contactStands(carrier, at, reach, null,
-                        stand -> room(carrier, stand, facing(carrier, stand, at), at, true).ok(),
-                        r -> observe(carrier, at, r.at(), facing(carrier, r.at(), at)).accept(r)) : List.of(carrier.position());
-                boolean searched = false;
-                for (var stand : candidates) {
-                    float yaw = facing(carrier, stand, at);
-                    double distance = stand.subtract(at).horizontalDistance();
-                    if (distance > reach) {
-                        reject(carrier, at, stand, yaw, "reach", "distance=" + distance + " reach=" + reach);
-                        continue;
-                    }
-                    if (!SurfaceApproach.supportedGround(carrier, stand, observe(carrier, at, stand, yaw))
-                            || !room(carrier, stand, yaw, at, true).ok()) continue;
-                    var candidate = new Candidate(at, stand, Mth.wrapDegrees(yaw));
-                    if (tried.contains(candidate)) {
-                        reject(carrier, at, stand, yaw, "duplicate", "alreadyTried=true");
-                        continue;
-                    }
-                    if (!searched) {
-                        if (stands >= STAND_TRIES) {
-                            reject(carrier, at, stand, yaw, "budget", "searched=" + stands + " limit=" + STAND_TRIES + " routeNotTested=true");
-                            return exhausted(carrier, "release_search_exhausted");
-                        }
-                        stands++;
-                        searched = true;
-                    }
-                    tried.add(candidate);
-                    if (walk && !Double.isFinite(SurfaceApproach.routeLength(carrier, stand, null, observe(carrier, at, stand, yaw)))) { rejectedStand++; continue; }
-                    endpoint = at;
-                    facing = candidate.facing();
-                    approach = stand.equals(carrier.position()) ? null : new Walk(stand);
-                    placement = pass == 0 ? "nest" : bed == null ? "ground" : "outside";
-                    return Feasibility.pass();
+            if (turnHere) for (var at : turnable) if (admits(carrier, here, at)) return choose(carrier, here, at, where);
+            for (var at : pass == 0 ? pad : ground(carrier, bed))
+                for (var stand : SurfaceApproach.contactStands(carrier, at, reach, null, s -> !near(failedStands, s, carrier.getBbWidth() * .5))) {
+                    if (stand.subtract(at).horizontalDistance() > reach || !admits(carrier, stand, at)) continue;
+                    if (routes++ == ROUTES) return exhausted(carrier, "release_routes_exhausted");
+                    if (Double.isFinite(SurfaceApproach.routeLength(carrier, stand, null))) return choose(carrier, stand, at, where);
+                    refused.merge("no_route", 1, Integer::sum);
+                    failedStands.add(stand);
                 }
-            }
         }
-        return exhausted(carrier, "no_supported_release_spot space=" + rejectedSpace + " stand=" + rejectedStand);
+        return exhausted(carrier, "no_supported_release_spot");
     }
 
-    /** Before lowering, replace a stale candidate within this action's remaining search budget. */
-    private Progress alternative(YukkuriEntity carrier, Outcome refusal) {
-        if (destination != null) return refusal;
+    /** Supported pad points of this nest for the child's own footprint, nearest her first. */
+    private List<Vec3> pad(YukkuriEntity carrier, BedContainer bed) {
+        double half = ((FloorShape.RoundedRect) bed.floor()).half(), step = child.getBbWidth() / 2;
+        var centre = Vec3.ZERO.subtract(bed.toPlane(Vec3.ZERO));
+        var out = new ArrayList<Vec3>();
+        for (double x = -half; x <= half; x += step) for (double z = -half; z <= half; z += step) {
+            var at = new Vec3(centre.x + x, bed.floorY(), centre.z + z);
+            if (bed.standsInside(x, z, child.getBbWidth()) && open(carrier, at)) out.add(at);
+        }
+        out.sort(Comparator.comparingDouble(carrier::distanceToSqr));
+        return out;
+    }
+
+    /** Supported ground within two of her widths round her (off the requested nest's pad), nearest her first. */
+    private List<Vec3> ground(YukkuriEntity carrier, BedContainer bed) {
+        double half = carrier.getBbWidth() * 2, step = carrier.getBbWidth() / 2;
+        var out = new ArrayList<Vec3>();
+        for (double x = -half; x <= half; x += step) for (double z = -half; z <= half; z += step) {
+            var at = floorUnder(carrier.position().add(x, 0, z));
+            if (at != null && !out.contains(at) && !onPad(bed, at) && open(carrier, at)) out.add(at);
+        }
+        out.sort(Comparator.comparingDouble(carrier::distanceToSqr));
+        return out;
+    }
+
+    /** The highest resting floor for the child at or below {@code point}, down to {@link #DROP}. */
+    private Vec3 floorUnder(Vec3 point) {
+        for (double down = 0; down <= DROP; down += .5) {
+            var at = SurfaceApproach.restingFloor(child, point.add(0, .1 - down, 0));
+            if (at != null) return at;
+        }
+        return null;
+    }
+
+    private static boolean onPad(BedContainer bed, Vec3 at) {
+        return bed != null && bed.floor().contains(bed.toPlane(at).x, bed.toPlane(at).z);
+    }
+
+    /** A footprint not failed at already, with support and no other body on it. */
+    private boolean open(YukkuriEntity carrier, Vec3 at) {
+        if (near(failedEndpoints, at, child.getBbWidth())) return false;
+        var space = space(carrier, at);
+        if (!space.ok()) refused.merge(space.detail().split(" ")[0], 1, Integer::sum);
+        return space.ok();
+    }
+
+    private boolean admits(YukkuriEntity carrier, Vec3 stand, Vec3 at) {
+        var room = room(carrier, stand, facing(carrier, stand, at), at);
+        if (!room.ok()) refused.merge(room.detail().split(" ")[0], 1, Integer::sum);
+        return room.ok();
+    }
+
+    private static boolean near(List<Vec3> failed, Vec3 at, double radius) {
+        for (var point : failed) if (point.subtract(at).horizontalDistanceSqr() < radius * radius && Math.abs(point.y - at.y) < .5) return true;
+        return false;
+    }
+
+    private Feasibility choose(YukkuriEntity carrier, Vec3 stand, Vec3 at, String where) {
+        this.stand = stand;
+        endpoint = at;
+        facing = facing(carrier, stand, at);
+        placement = where;
+        approach = stand.equals(carrier.position()) ? null : new Walk(stand);
+        return Feasibility.pass();
+    }
+
+    private Feasibility exhausted(YukkuriEntity carrier, String reason) {
+        GameplayLog.limited(carrier, "family", "release.exhaustion." + child.getUUID(), 200,
+                "carry release exhaustion child={} reason={} tries={} from={} yaw={} refused={} failedEndpoints={} failedStands={}",
+                child.getUUID(), reason, tries, carrier.position(), carrier.bodyYaw(), refused, failedEndpoints.size(), failedStands.size());
+        return Feasibility.of(Reason.NO_ROOM, 0, reason + " refused=" + refused);
+    }
+
+    /**
+     * A blocked candidate: the lowering stops where the child is (never wound back), its footprint — and, when the walk or the turn
+     * there failed, its stand — is left out, and the next candidate is begun. After {@link #TRIES} candidates the set-down ends
+     * with the child still held.
+     */
+    private Progress retarget(YukkuriEntity carrier, Outcome refusal, boolean standFailed) {
         if (approach != null) approach.abort(carrier, "release_candidate_blocked");
         approach = null;
         turn = null;
-        var previous = endpoint;
-        var next = plan(carrier);
-        GameplayLog.event(carrier, "family", "carry release candidate blocked child={} at={} refusal={} next={} tries={}",
-                child.getUUID(), previous, refusal, next.ok() ? endpoint : next.detail(), stands);
+        ParentCarry.stopLowering(carrier, child);
+        failedEndpoints.add(endpoint);
+        if (standFailed) failedStands.add(stand);
+        var failed = endpoint;
+        var next = tries < TRIES ? plan(carrier) : Feasibility.of(refusal.reason(), refusal.shortfall(), "release_tries_exhausted");
+        GameplayLog.event(carrier, "family", "carry release candidate blocked child={} at={} standFailed={} refusal={} next={} tries={}",
+                child.getUUID(), failed, standFailed, refusal, next.ok() ? endpoint : next.detail(), tries);
         if (!next.ok()) return Outcome.of(next.reason(), next.shortfall(), next.detail());
         begin(carrier);
-        return new Running(3 * 360, TravelMode.CONSUMED);
+        return progress(new Running(0, TravelMode.CONSUMED), 2);
     }
 
     private float facing(YukkuriEntity carrier, Vec3 stand, Vec3 at) {
@@ -307,71 +317,40 @@ public final class Release implements Action {
     }
 
     private Feasibility space(YukkuriEntity carrier, Vec3 at) {
-        return space(carrier, at, null);
-    }
-    private Feasibility space(YukkuriEntity carrier, Vec3 at, Consumer<Rejection> observer) {
-        if (!SurfaceApproach.supportedGround(child, at, observer)) return Feasibility.of(Reason.NO_SUPPORT, 0, "unsupported_or_wet at=" + at);
+        if (!SurfaceApproach.supportedGround(child, at)) return Feasibility.of(Reason.NO_SUPPORT, 0, "unsupported_or_wet at=" + at);
         var occupants = carrier.level().getEntitiesOfClass(YukkuriEntity.class, child.getDimensions(child.getPose()).makeBoundingBox(at).deflate(.005),
                 other -> other != child && other != carrier && !carrier.hasPassenger(other));
-        if (!occupants.isEmpty() && observer != null) observer.accept(new Rejection(at, "body_overlap:" + occupants.getFirst().getUUID(),
-                "childBox=" + child.getDimensions(child.getPose()).makeBoundingBox(at).deflate(.005) + " otherBox=" + occupants.getFirst().getBoundingBox()));
         return occupants.isEmpty() ? Feasibility.pass()
                 : Feasibility.of(Reason.NO_ROOM, 0, "occupied child=" + occupants.getFirst().getUUID() + " box=" + occupants.getFirst().getBoundingBox());
     }
 
+    /** The one admission test of a candidate, planned and re-run at her real pose: the same geometry the lowering then closes on. */
     private Feasibility room(YukkuriEntity carrier, Vec3 stand, float yaw, Vec3 at) {
-        return room(carrier, stand, yaw, at, false);
-    }
-    private Feasibility room(YukkuriEntity carrier, Vec3 stand, float yaw, Vec3 at, boolean diagnose) {
-        var observer = diagnose ? observe(carrier, at, stand, yaw) : null;
-        var rim = NestDoorway.rimAt(carrier, stand);
-        if (rim != null) {
-            if (diagnose) reject(carrier, at, stand, yaw, "stand_in_rim_band", "nest=" + rim.getBlockPos()
-                    + " relative=" + stand.subtract(rim.centre()) + " radius=" + carrier.getBbWidth() * .5
-                    + " outer=" + NestDoorway.shape(rim).outer() + " supportedInterior=false");
-            return Feasibility.of(Reason.NO_ROOM, 0, "stand_in_rim_band");
-        }
-        var space = space(carrier, at, observer);
+        if (NestDoorway.rimAt(carrier, stand) != null) return Feasibility.of(Reason.NO_ROOM, 0, "stand_in_rim_band");
+        var space = space(carrier, at);
         if (!space.ok()) return space;
-        if (child.getDimensions(child.getPose()).makeBoundingBox(at).intersects(carrier.getBoundingBox().move(stand.subtract(carrier.position())))) {
-            if (diagnose) reject(carrier, at, stand, yaw, "body_overlap:" + carrier.getUUID(), "childBox=" + child.getDimensions(child.getPose()).makeBoundingBox(at)
-                    + " carrierBox=" + carrier.getBoundingBox().move(stand.subtract(carrier.position())));
+        if (child.getDimensions(child.getPose()).makeBoundingBox(at).intersects(carrier.getBoundingBox().move(stand.subtract(carrier.position()))))
             return Feasibility.of(Reason.NO_ROOM, 0, "carrier_body");
-        }
-        // Every hold must agree with the same host-pinned height used by the actual release completion.
+        // The lowering ends where the feet meet the surface that holds them (ParentCarry.pinned: the host the carry began on or beside):
+        // an endpoint that host still holds up is never reached, whatever the hold.
         var host = ParentCarry.carryHost(carrier, child);
-        if (host != null && carrier.getVehicle() != host.entity()) {
-            double pinned = ParentCarry.pinned(carrier, child, at);
-            if (pinned > at.y) {
-                if (diagnose) reject(carrier, at, stand, yaw, "carry_host", "host=" + host.entity().getUUID() + " pinnedY=" + pinned + " endpointY=" + at.y);
-                return Feasibility.of(Reason.NO_ROOM, 0, "carry_host");
-            }
-        }
-        if (!clearTurn(carrier, stand, yaw, observer)) return Feasibility.of(Reason.NO_ROOM, 0, "mouth_turn_blocked");
+        if (host != null && carrier.getVehicle() != host.entity() && ParentCarry.pinned(carrier, child, at) > at.y)
+            return Feasibility.of(Reason.NO_ROOM, 0, "carry_host");
+        if (!clearTurn(carrier, stand, yaw)) return Feasibility.of(Reason.NO_ROOM, 0, "mouth_turn_blocked");
         var hold = ParentCarry.hold(carrier, child);
-        if (hold == Hold.BRIM && !ParentCarry.brimLevel(stand, at)) {
-            if (diagnose) reject(carrier, at, stand, yaw, "brim_level", "dy=" + (at.y - stand.y) + " allowed=false");
-            return Feasibility.of(Reason.NO_ROOM, 0, "brim_release_off_level");
-        }
-        if (hold == Hold.BRIM && !ParentCarry.clearLowering(carrier, child, stand, yaw, at, observer)
-                || hold == Hold.HEAD && !ParentCarry.clearHeadLowering(carrier, child, stand, yaw, at, observer))
+        if (hold == Hold.BRIM && !ParentCarry.brimLevel(stand, at)) return Feasibility.of(Reason.NO_ROOM, 0, "brim_release_off_level");
+        if (hold == Hold.BRIM && !ParentCarry.clearLowering(carrier, child, stand, yaw, at)
+                || hold == Hold.HEAD && !ParentCarry.clearHeadLowering(carrier, child, stand, yaw, at))
             return Feasibility.of(Reason.NO_ROOM, 0, "lowering_route_blocked");
         return Feasibility.pass();
     }
 
     private boolean clearTurn(YukkuriEntity carrier, Vec3 stand, float yaw) {
-        return clearTurn(carrier, stand, yaw, null);
-    }
-    private boolean clearTurn(YukkuriEntity carrier, Vec3 stand, float yaw, Consumer<Rejection> observer) {
         if (ParentCarry.hold(carrier, child) != Hold.MOUTH) return true;
         float span = Mth.wrapDegrees(yaw - carrier.bodyYaw());
         for (int i = 0, steps = Math.max(1, Mth.ceil(Math.abs(span) / 5)); i <= steps; i++) {
             var at = ParentCarry.mouthAt(carrier, child, carrier.bodyYaw() + span * i / steps).add(stand.subtract(carrier.position()));
-            if (!child.level().noCollision(child, child.getDimensions(child.getPose()).makeBoundingBox(at))) {
-                if (observer != null) observer.accept(new Rejection(at, "turn", "sample=" + i + "/" + steps + " yaw=" + (carrier.bodyYaw() + span * i / steps)
-                        + " " + SurfaceApproach.collisionDetail(child, child.getDimensions(child.getPose()).makeBoundingBox(at))));
-                return false;
-            }
+            if (!child.level().noCollision(child, child.getDimensions(child.getPose()).makeBoundingBox(at))) return false;
         }
         return true;
     }
@@ -387,8 +366,12 @@ public final class Release implements Action {
     private void begin(YukkuriEntity carrier) {
         begun = true;
         if (endpoint != null) {
+            tries++;
+            approachBest = Double.POSITIVE_INFINITY;
+            approachSince = carrier.level().getGameTime();
             ParentCarry.nestSpot(carrier, child, endpoint);
-            GameplayLog.event(carrier, "family", "carry release target child={} placement={} at={}", child.getUUID(), placement == null ? "ground" : placement, endpoint);
+            GameplayLog.event(carrier, "family", "carry release target child={} placement={} at={} stand={} try={}/{}",
+                    child.getUUID(), placement, endpoint, stand, tries, TRIES);
         }
         if (approach != null) {
             approach.start(carrier);
@@ -412,7 +395,7 @@ public final class Release implements Action {
         }
         if (!begun) {
             var cleared = stow.tick(carrier);
-            if (cleared instanceof Running running) return new Running(running.metric() + 4 * 360, TravelMode.CONSUMED);
+            if (cleared instanceof Running running) return progress(running, 4);
             if (cleared instanceof Outcome outcome && outcome.reason() != null) return outcome;
             begin(carrier);
         }
@@ -441,21 +424,34 @@ public final class Release implements Action {
         }
         if (approach != null) {
             var progress = approach.tick(carrier);
-            if (progress instanceof Outcome outcome && outcome.reason() != null) return alternative(carrier, outcome);
-            if (!(progress instanceof Outcome.Done)) return progress instanceof Running running ? progress(running, 2) : progress;
+            if (progress instanceof Outcome walked && walked.reason() != null) return retarget(carrier, walked, true);
+            if (progress instanceof Running running) {
+                // A walk that stops gaining (pressed against a body at its last step) is judged here at half the driver's window, so this
+                // candidate is replaced before the watchdog would end the whole set-down.
+                long now = carrier.level().getGameTime();
+                if (running.metric() < approachBest - progressEpsilon() || running.replanned()) {
+                    approachBest = Math.min(approachBest, running.metric());
+                    approachSince = now;
+                } else if (now - approachSince >= progressWindow() / 2)
+                    return retarget(carrier, Outcome.of(Reason.NO_PROGRESS, running.metric(),
+                            String.format(Locale.ROOT, "approach_stalled left=%.2f", running.metric())), true);
+                return progress(running, 2);
+            }
+            if (!(progress instanceof Outcome.Done)) return progress;
             approach = null;
-            if (!clearTurn(carrier, carrier.position(), facing)) return alternative(carrier, Outcome.of(Reason.NO_ROOM, 0, "mouth_turn_blocked"));
+            if (!clearTurn(carrier, carrier.position(), facing)) return retarget(carrier, Outcome.of(Reason.NO_ROOM, 0, "mouth_turn_blocked"), true);
             turn = new Face(facing);
             turn.start(carrier);
         }
         if (turn != null) {
             var turned = turn.tick(carrier);
             if (turned instanceof Running running) return progress(running, 1);
-            if (turned instanceof Outcome failed && failed.reason() != null) return alternative(carrier, failed);
             if (destination == null) {
+                if (turned instanceof Outcome failed && failed.reason() != null) return retarget(carrier, failed, true);
                 var room = room(carrier, carrier.position(), carrier.bodyYaw(), ParentCarry.letGoPoint(carrier, child));
-                if (!room.ok()) return alternative(carrier, Outcome.of(room.reason(), room.shortfall(), room.detail()));
+                if (!room.ok()) return retarget(carrier, Outcome.of(room.reason(), room.shortfall(), room.detail()), false);
             } else {
+                if (turned instanceof Outcome failed && failed.reason() != null) return failed;
                 String unavailable = seat.unavailable(child);
                 if (unavailable != null) return Outcome.of(Reason.NO_ROOM, 0, "place_lost_after_turn " + unavailable);
                 previousLocal = destination.frame().toLocal(child.position());
@@ -482,9 +478,9 @@ public final class Release implements Action {
             if (seat.kind() != SeatTarget.Kind.HEAD) ParentCarry.released(carrier, child, "release");
             GameplayLog.event(child, "body", "seat landed host={} place={} cause=braid_set_down", destination.entity().getUUID(), seat.kind());
         } else {
-            // Contact is authoritative. A sibling arriving during lowering leaves this child held at its measured pose.
+            // Contact is authoritative: a body that came onto the footprint during the lowering sends the child to the next candidate.
             var contact = space(carrier, child.position());
-            if (!contact.ok()) return Outcome.of(contact.reason(), contact.shortfall(), "contact " + contact.detail());
+            if (!contact.ok()) return retarget(carrier, Outcome.of(contact.reason(), contact.shortfall(), "contact " + contact.detail()), false);
             let(carrier, child, "release");
         }
         released = true;
@@ -494,8 +490,7 @@ public final class Release implements Action {
     }
 
     private Running progress(Running step, int phase) {
-        // Separate nearby walking, turning (at most 180 degrees) and lowering without compressing real progress.
-        return new Running((("nest".equals(placement) ? 3 : 0) + phase) * 360 + step.metric(), step.travel(), step.replanned());
+        return new Running((TRIES - tries) * SPAN + phase * PHASE + step.metric(), step.travel(), step.replanned());
     }
 
     /** A child set down with the braid plays the braid clip's own set-down (place to release): the braid lowers it, opens and comes back. */
@@ -558,8 +553,7 @@ public final class Release implements Action {
         outcome = result;
         failedWorld = world(carrier);
         if (result.reason() != null) GameplayLog.limited(carrier, "family", "release." + child.getUUID() + "." + result.reason(), 200,
-                "carry put down refused child={} outcome={} space={} stand={}",
-                child.getUUID(), result, rejectedSpace, rejectedStand);
+                "carry put down refused child={} outcome={} tries={}", child.getUUID(), result, tries);
     }
 
     /** Failed attempts belong to this child. Elapsed time and unrelated motor outcomes cannot reopen them. */
