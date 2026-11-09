@@ -215,7 +215,8 @@ public final class SelfOffering extends Goal {
         }
         if (phase == Phase.APPROACH) {
             if (entity.distanceToSqr(child) > 6 || !entity.hasLineOfSight(child)) {
-                if (elapsed % 10 == 1) EcologyMovement.approach(entity, child, 1.1);
+                // Every tick: the shared approach's last step is a one-tick MoveControl input, so a throttled call crawls.
+                EcologyMovement.approach(entity, child, 1.1);
                 return;
             }
             EcologyMovement.halt(entity);
