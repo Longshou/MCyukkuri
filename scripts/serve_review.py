@@ -56,7 +56,7 @@ class Handler(SimpleHTTPRequestHandler):
             super().log_message(format,*args)
 
 if __name__=='__main__':
-    parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--port',type=int,default=8765);args=parser.parse_args()
+    parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--port',type=int,default=8766);args=parser.parse_args()
     server=ThreadingHTTPServer(('127.0.0.1',args.port),partial(Handler,directory=str(ROOT)))
     print(f'http://127.0.0.1:{args.port}/.local/previews/index.html',flush=True)
     server.serve_forever()

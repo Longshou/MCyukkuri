@@ -1,4 +1,4 @@
-param([int]$Port=8765,[switch]$NoOpen)
+param([int]$Port=8766,[switch]$NoOpen)
 $ErrorActionPreference='Stop'
 $root=Split-Path $PSScriptRoot -Parent
 $url="http://127.0.0.1:$Port/.local/previews/index.html"

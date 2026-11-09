@@ -639,7 +639,7 @@ def main():
         from build_preview_hub import register_topics
         register_topics(OUT)
         relative = f'{args.topic}/index.html' if hasattr(args, 'topic') else ('inbox/index.html' if args.command == 'inbox' else 'index.html')
-        print('http://127.0.0.1:8765/.local/previews/'+relative)
+        print('http://127.0.0.1:8766/.local/previews/'+relative)
     except (ValueError, OSError, subprocess.CalledProcessError) as error:
         print(f'preview: {error}', file=sys.stderr)
         return 1
