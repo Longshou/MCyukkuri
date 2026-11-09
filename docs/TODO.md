@@ -14,6 +14,7 @@
 | 动作库分级 M1：wiki 常见行为→现有片段→基础／组装／特殊分级目录 | `.worktrees/wp-em1-motion-tiers` | standards/yukkuri-library/motions/index.json、standards/yukkuri-library/motions/README.md |
 | 生7 茎生母油朝向巢、生11 接生父油平静等待不抽搐（关闭“摘帽接生朝向逐 tick 来回”） | `.worktrees/wp-ec-birth-facing` | family/LiveBirth.java、family/FamilyLife.java（watchBirth）、command/ScenarioSetup.java（出生提前量） |
 | 生10 帽上子油无地面影子、辫子上伸不转圈 | `.worktrees/wp-ef-carry-hat-fixes` | client/YukkuriRenderer.java（影子）、standards/yukkuri-library/motions/variants/lore/braid_keys.py、contact-safe/braid_chain.py 与 motion 导出 |
+| 生4 放松与玩耍在家附近、产后亲油守着未断奶孩子（照料窝算住所） | `.worktrees/wp-eg-home-leisure` | settlement/HabitatLife.java、social/DailyLife.java、entity/RoamingGoal.java、family/FamilyLife.java（一个谓词） |
 
 ## 玩法待办
 
