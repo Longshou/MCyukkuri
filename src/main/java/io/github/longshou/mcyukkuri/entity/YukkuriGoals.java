@@ -251,7 +251,8 @@ final class YukkuriGoals {
         @Override public void stop() { owner.life().stopFatigueRest(); }
     }
     private final class LifeGoal extends Goal {
-        @Override public boolean isInterruptable() { return BehaviorContinuity.emergency(owner) || !(owner.life().protectsStep()); }
+        @Override public boolean isInterruptable() { return BehaviorContinuity.emergency(owner) || owner.family().carry().setDownDue()
+                || !(owner.life().protectsStep()); }
         LifeGoal() { setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK)); }
         @Override public boolean canUse() { return owner.life().plan(); }
         @Override public boolean canContinueToUse() { return owner.life().plan(); }
