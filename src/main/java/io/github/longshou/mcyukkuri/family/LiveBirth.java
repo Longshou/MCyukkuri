@@ -615,8 +615,11 @@ final class LiveBirth extends Choreography {
                 return (at=SurfaceApproach.floor(c,stand))==null?Feasibility.of(Reason.NO_SUPPORT,0,"no_floor"):Feasibility.pass();
             }
             @Override public Set<Reason> reduces(){return Set.of(Reason.NO_PATH,Reason.NO_PROGRESS,Reason.NO_SUPPORT);}
+            /** At its stand: arrived the first time; once settled, jostled by no more than the walking slack the stand keeps from
+             *  the brim (Walk.STAND_ARRIVED within HatGeometry.STAND_MARGIN), so a bump never sends it round on a step back. */
+            private boolean there(){return settled?c.position().subtract(at).horizontalDistance()<=Walk.STAND_ARRIVED:SurfaceApproach.arrived(c,at);}
             @Override public Step next(){
-                if(!SurfaceApproach.arrived(c,at))return new Step.Do(labour?Walk.around(at,o.entity()):new Walk(at));
+                if(!there())return new Step.Do(labour?Walk.around(at,o.entity()):new Walk(at));
                 // Turned the way its eyes look, from where it really stands (the look control's own bearing): the body follows the
                 // head there by itself, so a turn is owed only on arrival or when what it watches has moved.
                 var look=watchPoint();float yaw=SurfaceApproach.yaw(c.position(),look);
@@ -629,7 +632,7 @@ final class LiveBirth extends Choreography {
                 var hello=c.family().greetHop();
                 if(hello!=null&&!hello.equals(hopped)){hopped=hello;return new Step.Do(new Gesture(Gesture.Kind.HOP_SMALL));}
                 long end=Math.min(until,now()+20);
-                return new Step.Wait(()->now()>=end||!SurfaceApproach.arrived(c,at)||c.family().greetHop() instanceof Welcome w&&!w.equals(hopped),(int)(end-now())+2,"attend");
+                return new Step.Wait(()->now()>=end||!there()||c.family().greetHop() instanceof Welcome w&&!w.equals(hopped),(int)(end-now())+2,"attend");
             }
         }
     }
@@ -801,10 +804,10 @@ final class LiveBirth extends Choreography {
     String describe(){return "beat="+beat()+" receiver="+receiver.kind()+" roles="+roles().keySet()+" hold="+hold;}
     private int firstUnborn(){var b=brood();int next=0;while(b!=null&&next<b.children.size()-1&&b.children.get(next).born)next++;return next;}
     private int toTerm(){var b=brood();return b==null?0:Math.max(0,b.duration-b.elapsed);}
-    /** Labour is near enough for the hat to come off: its clip (ClipMarkers, the release marker) sets it down by term, or for a
-     *  stem by the hold 200 ticks before it (advance), so the catch neither waits on the hat nor the hat long on the young. */
+    /** Labour is near enough for the hat to come off: the clip sets it down (PlaceProp's own release tick) by term, or for a
+     *  stem by the hold 200 ticks before it (advance), so the labour does not wait on the hat nor the hat long on the ground. */
     private boolean labourNear(){
-        int release=ClipMarkers.of(new HatProp(catcher(),self()).clip(false)).ticks(PlaceProp.RELEASE_MARKER,0);
+        int release=new PlaceProp(new HatProp(catcher(),self()),o.entity().position(),0).releaseTicks();
         return toTerm()<=(live?0:200)+release;
     }
     /** Ticks left of the one placement window (the rest of the gestation plus CATCH_WAIT), fixed the first time it is asked. */
