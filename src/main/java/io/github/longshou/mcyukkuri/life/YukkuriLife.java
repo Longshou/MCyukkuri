@@ -67,9 +67,13 @@ public final class YukkuriLife {
     private int metabolismTicks, energyTicks, hygieneTicks;
     private int immersionTicks, dryTicks;
     private static final int DRY_RESET_TICKS = 40;
+    /** Project design: the asleep stretch of a full life sleep before the wake clip (about 31 s); a sleep taken at the body's rest time goes on past it. */
+    private static final int SLEEP_TICKS = 620;
     private final LifeMeal meal = new LifeMeal(this);
     private final LifeHome home = new LifeHome(this);
     private int homeWait, planWait, restWait = 200, sleepTicks, toiletTicks;
+    /** Project design: the {@link #sleepTicks} at which the wake clip has run out and the body gets up; 0 while the sleep is still asleep. */
+    private int wakeAt;
     private Task task = Task.NONE;
     private ItemEntity targetFood;
     private BlockPos targetBlock;
@@ -184,8 +188,10 @@ public final class YukkuriLife {
     void increaseDryness(float amount) { dryness = Math.min(100, dryness + amount); }
     void relieveDryness(float amount) { dryness = Math.max(0, dryness - amount); }
     void leaked() { bladder=Math.max(0,bladder-40);hygiene=Math.max(0,hygiene-15); }
-    void beginConsumption() { sleepTicks=0;task=Task.NONE; }
-    void beginDrugSleep() { task=Task.SLEEP;sleepTicks=0; }
+    /** No sleep bookkeeping outlives a sleep: the next one starts from the enter clip with no wake tick. */
+    private void resetSleep() { sleepTicks = 0; wakeAt = 0; }
+    void beginConsumption() { resetSleep();task=Task.NONE; }
+    void beginDrugSleep() { task=Task.SLEEP;resetSleep(); }
     void beginDoseMeal(ItemStack one, UUID player, boolean returnBottle) {
         meal.beginDose(one, player, returnBottle);
     }
@@ -346,7 +352,7 @@ public final class YukkuriLife {
     public boolean canReceiveCareFood(){ return meal.canReceiveCareFood(); }
     public boolean canReceiveCareFood(ItemStack food){ return meal.canReceiveCareFood(food); }
     public boolean hasUrgentNeed() { return nutrition < 30 || energy < 25 || bladder >= 90 && !constipated() || entity.isInWaterOrBubble() || entity.isOnFire() || wetness > 40; }
-    public boolean isSleeping() { return fatigueActive() || task == Task.SLEEP && sleepTicks >= 20 && sleepTicks < 620 || entity.house().sleeping(); }
+    public boolean isSleeping() { return fatigueActive() || task == Task.SLEEP && sleepTicks >= 20 && wakeAt == 0 || entity.house().sleeping(); }
     /** The house goal owns the physical entry and waking sequence; only real grounded rest restores energy. */
     public void restInHouse() {
         if (!entity.level().isClientSide && entity.house().sleeping() && !entity.isPanicking()
@@ -356,7 +362,7 @@ public final class YukkuriLife {
         if (task != Task.SLEEP) return;
         boolean rested = sleepTicks >= 220;
         if(sleepTicks>=20)GameplayLog.event(entity,"sleep","end source=hat ticks={} energy={} nutrition={} rested={}",sleepTicks,energy,nutrition,rested);
-        task = Task.NONE; sleepTicks = 0; restWait = restInterval();
+        task = Task.NONE; resetSleep(); restWait = restInterval();
         if (rested && !entity.family().woke()) entity.showReaction("neutral", "awake", 40);
     }
     public boolean wantsCrawl() {
@@ -370,7 +376,7 @@ public final class YukkuriLife {
             if (meal.preparedMeal()) return mealTicks() < 53 ? Behaviors.RECEIVE_MASH : after;
             return mealTicks() < 10 ? Behaviors.TAKE_FOOD : mealTicks() < 45 ? Behaviors.CHEW : mealTicks() < 53 ? Behaviors.SWALLOW : after;
         }
-        if (task == Task.SLEEP) return sleepTicks < 20 ? Behaviors.SLEEP_ENTER : sleepTicks >= 620 ? Behaviors.WAKE : Behaviors.SLEEP;
+        if (task == Task.SLEEP) return sleepTicks < 20 ? Behaviors.SLEEP_ENTER : wakeAt > 0 ? Behaviors.WAKE : Behaviors.SLEEP;
         return switch (task) { case FOOD -> Behaviors.SEEK_FOOD; case WINTER_FOOD -> Behaviors.SHELTER_STOCK; case HOME -> Behaviors.RETURN_HOME; case TOILET -> toiletTicks > 0
                 ? Behaviors.TOILET : Behaviors.SEEK_TOILET;
             case GROUND_TOILET -> toiletTicks > 0 ? toiletAccident ? Behaviors.TOILET_ACCIDENT : Behaviors.GROUND_TOILET : Behaviors.SEEK_TOILET;
@@ -391,6 +397,9 @@ public final class YukkuriLife {
     /** Tired enough, or it is its rest time: sleep, not some other pastime, is what it wants next. */
     public boolean drowsy() { return energy <= restThreshold() || restTime(); }
     boolean restTime() { return entity.profile().houseBody() ? !level().isNight() : level().isNight() || RareForms.summerDormant(entity); }
+    /** Project design: the day/night half of the rest time, which is what a sleep runs out: the night for ordinary bodies, the day for a house
+     * body. Seasonal dormancy (a summer Kotatsu) makes the body drowsy all day but never ends, so it does not hold one sleep going. */
+    private boolean sleepTime() { return entity.profile().houseBody() ? !level().isNight() : level().isNight(); }
 
     public void tick() {
         if (entity.level().isClientSide || !entity.isAlive()) return;
@@ -498,7 +507,7 @@ public final class YukkuriLife {
                 sleepTicks,energy,nutrition,entity.isPanicking(),entity.isInWaterOrBubble(),entity.isOnFire());
         meal.clearInterrupted(); doses.clearReturnBottle();
         doses.stopSedation();drinkTicks=0;
-        sleepTicks = toiletTicks = 0; task = Task.NONE; targetFood = null; targetBlock = null;
+        resetSleep(); toiletTicks = 0; task = Task.NONE; targetFood = null; targetBlock = null;
         planWait = 20; entity.getNavigation().stop();
     }
     public boolean wash(UUID player) {
@@ -558,10 +567,10 @@ public final class YukkuriLife {
             stopGoal(); planWait = 0;
         }
         if ((task == Task.SLEEP || task == Task.HOME) && drugSleep() == 0 && temperature.unsafeSleep() && temperature.plan()) {
-            task = Task.TEMPERATURE; sleepTicks = 0; return true;
+            task = Task.TEMPERATURE; resetSleep(); return true;
         }
         if (task != Task.NONE) return true;
-        if(drugSleep()>0){task=Task.SLEEP;sleepTicks=20;return true;}
+        if(drugSleep()>0){task=Task.SLEEP;resetSleep();sleepTicks=20;return true;}
         if (planWait > 0) return false;
         planWait = 20;
         if(dryness>=40||spicyTicks()>0){targetBlock=nearestDrink();if(targetBlock!=null){task=Task.DRINK;drinkTicks=pursuitTicks=0;return true;}}
@@ -616,7 +625,7 @@ public final class YukkuriLife {
                 && homeProvider().ordinaryRestAllowed(this) && followsRule(PetSkill.BEDTIME)) {
             // On a migration there is no burrow to walk back to: rest on dry ground where it stands, then walk on.
             if (entity.settlement().underway()) {
-                if (dryStand(entity.blockPosition()) && restable(entity.blockPosition())) { task = Task.SLEEP; sleepTicks = 0; return true; }
+                if (dryStand(entity.blockPosition()) && restable(entity.blockPosition())) { task = Task.SLEEP; resetSleep(); return true; }
                 return false;
             }
             // A slave kept in the waste pit has no bed to go to: it sleeps where it is once it cannot go on (energy 10 or less).
@@ -629,7 +638,7 @@ public final class YukkuriLife {
             // A slave in the open pit curls up where it stands at rest time: dry ground is all the pit has to offer.
             boolean penSleep = penned && dryStand(entity.blockPosition()) && !level().isRainingAt(entity.blockPosition());
             if (targetBlock != null || energy <= 10 || penSleep || entity.family().needsMash() && entity.childhood().landed()
-                    && dryStand(entity.blockPosition()) && restable(entity.blockPosition())) { task = Task.SLEEP; sleepTicks = 0; return true; }
+                    && dryStand(entity.blockPosition()) && restable(entity.blockPosition())) { task = Task.SLEEP; resetSleep(); return true; }
         }
         return false;
     }
@@ -701,7 +710,7 @@ public final class YukkuriLife {
             case TEMPERATURE -> {
                 if (!temperature.tickGoal()) stopGoal();
                 else if (restWait == 0 && (energy <= restThreshold() || restTime()) && temperature.beginSleepAtRefuge()) {
-                    task = Task.SLEEP; sleepTicks = 0; targetBlock = null;
+                    task = Task.SLEEP; resetSleep(); targetBlock = null;
                 }
             }
             case DRINK -> {
@@ -742,7 +751,7 @@ public final class YukkuriLife {
                 if (entity.distanceToSqr(bedCentre) >= .16 || !inside) SurfaceApproach.walk(entity, bedCentre, 1.15);
                 if (entity.distanceToSqr(bedCentre) < .16 && restable(entity.blockPosition()) && inside) {
                     SurfaceApproach.halt(entity);
-                    if (restWait == 0 && (energy <= restThreshold() || restTime())) { task = Task.SLEEP; sleepTicks = 0; }
+                    if (restWait == 0 && (energy <= restThreshold() || restTime())) { task = Task.SLEEP; resetSleep(); }
                     // Awake arrival ends the trip, even while rain continues above the roof.
                     else { task = Task.NONE; targetBlock = null; planWait = 0; }
                 } else if (pursuitTicks > 60 && entity.getNavigation().isDone() && entity.distanceToSqr(bedCentre) > 4 && !reachable(targetBlock, false)) stopGoal();
@@ -810,23 +819,28 @@ public final class YukkuriLife {
                 }
                 if (sleepTicks == 20) {
                     entity.speak("sleep");
-                    GameplayLog.event(entity,"sleep","begin source=life occupancy={} bed={} energy={} nutrition={} drugTicks={}",
+                    GameplayLog.event(entity,"sleep","begin source=life occupancy={} bed={} energy={} nutrition={} drugTicks={} reason={}",
                             nestOccupancy == null ? "none" : nestOccupancy.name(), nestOccupancy == null ? "none" : site,
-                            energy,nutrition,drugSleep());
+                            energy,nutrition,drugSleep(),restTime()?"rest_time":"energy");
                 }
-                if (sleepTicks >= 20 && sleepTicks < 620) energy = Math.min(100, energy + .5f);
+                if (sleepTicks >= 20 && wakeAt == 0) energy = Math.min(100, energy + .5f);
                 // Waking rested it lies there one long stretch and yawn (the wake clip); hunger gets it straight up to eat.
                 int stretch = ClipMarkers.of(Behaviors.WAKE).length();
-                boolean stretched = sleepTicks > 620;
-                if (drugSleep()==0 && sleepTicks >= sleepDuration() && sleepTicks < 620) {
-                    if (nutrition < 15) sleepTicks = 620 + stretch;
-                    else if (energy >= 95 || homeProvider().finishRestEarly(this)) sleepTicks = 620;
+                if (wakeAt == 0 && drugSleep() == 0) {
+                    if (sleepTicks >= sleepDuration() && nutrition < 15) wakeAt = sleepTicks;
+                    // A sleep taken at its own rest time (the night, or a house body's day) goes on past the full stretch, so a night sleep
+                    // lasts until that time is over; the rested wake clip then runs as usual.
+                    else if (sleepTicks >= SLEEP_TICKS && !sleepTime()) wakeAt = sleepTicks + stretch;
                 }
-                if (sleepTicks >= 620 + stretch) {
-                    GameplayLog.event(entity,"sleep","end source=life ticks={} energy={} nutrition={} stretched={}",sleepTicks,energy,nutrition,stretched);
+                if (wakeAt > 0 && sleepTicks >= wakeAt) {
+                    // The sleep ran past a full one only because its sleep time was still on, so it got up at that time's end (dawn; dusk for a
+                    // house body). [sleep] end is the one line a playtest asks "why did it wake" of.
+                    String cause = nutrition < 15 ? "hunger" : sleepTicks > SLEEP_TICKS + stretch ? "rested_dawn" : "rested";
+                    GameplayLog.event(entity,"sleep","end source=life cause={} night={} ticks={} energy={} nutrition={} stretched={}",
+                            cause,level().isNight(),sleepTicks,energy,nutrition,sleepTicks > SLEEP_TICKS);
                     entity.pet().routineCompleted(2);
                     temperature.stop();
-                    task = Task.NONE; restWait = restInterval(); sleepTicks = 0;
+                    task = Task.NONE; restWait = restInterval(); resetSleep();
                     if(!entity.family().woke())entity.showReaction("neutral", "awake", 60);
                 }
             }
@@ -928,7 +942,7 @@ public final class YukkuriLife {
                 sleepTicks,energy,nutrition,entity.isPanicking(),entity.isInWaterOrBubble(),level().isRainingAt(entity.blockPosition()));
         temperature.stop();
         entity.wintering().stopMeal();
-        task = Task.NONE; targetFood = null; targetBlock = null; toiletPitCell = null; pitEdgeTicks = 0; sleepTicks = toiletTicks = 0; planWait = 30;
+        task = Task.NONE; targetFood = null; targetBlock = null; toiletPitCell = null; pitEdgeTicks = 0; resetSleep(); toiletTicks = 0; planWait = 30;
         entity.getNavigation().stop();
     }
 
@@ -1041,6 +1055,6 @@ public final class YukkuriLife {
         meal.load(tag);
         home.load(tag); accessory.load(tag);
         personality=new YukkuriPersonality(entity); personality.load(tag.getCompound("Personality"));
-        task=Task.NONE; targetFood=null; targetBlock=null; sleepTicks=toiletTicks=0; homeWait=20; planWait=0;
+        task=Task.NONE; targetFood=null; targetBlock=null; resetSleep(); toiletTicks=0; homeWait=20; planWait=0;
     }
 }
