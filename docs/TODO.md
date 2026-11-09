@@ -13,6 +13,7 @@
 | 生1 语料库：按共同／品种／阶段／特殊形态／情境分轴的可机读语料（只数据，不接线） | `.worktrees/wp-ei-speech-corpus` | art/dialogue/corpus/（新）、wiki/hakkei-reference/dialogue/README.md |
 | 生9 夜里自己醒来：夜间入睡后睡到天亮，只有真实原因才醒 | `.worktrees/wp-eb-night-sleep` | life/YukkuriLife.java、home/HomeProvider.java、docs/FEATURES.md |
 | 草4 第一步：社交靠近每 tick 驱动（停走爬行） | `.worktrees/wp-ed-approach-tick` | social/YukkuriSocial.java、social/SelfOffering.java |
+| 动作库分级 M1：wiki 常见行为→现有片段→基础／组装／特殊分级目录 | `.worktrees/wp-em1-motion-tiers` | standards/yukkuri-library/motions/index.json、standards/yukkuri-library/motions/README.md |
 
 ## 玩法待办
 
