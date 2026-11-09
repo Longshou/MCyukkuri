@@ -13,7 +13,6 @@
 | 生7 茎生母油朝向巢、生11 接生父油平静等待不抽搐（关闭“摘帽接生朝向逐 tick 来回”） | `.worktrees/wp-ec-birth-facing` | family/LiveBirth.java、family/FamilyLife.java（watchBirth）、command/ScenarioSetup.java（出生提前量） |
 | 生10 帽上子油无地面影子、辫子上伸不转圈 | `.worktrees/wp-ef-carry-hat-fixes` | client/YukkuriRenderer.java（影子）、standards/yukkuri-library/motions/variants/lore/braid_keys.py、contact-safe/braid_chain.py 与 motion 导出 |
 | 生4 放松与玩耍在家附近、产后亲油守着未断奶孩子（照料窝算住所） | `.worktrees/wp-eg-home-leisure` | settlement/HabitatLife.java、social/DailyLife.java、entity/RoamingGoal.java、family/FamilyLife.java（一个谓词） |
-| 草5 饭后瘫软的表情按个体区分（只用现有表情） | `.worktrees/wp-ee-meal-face` | life/LifeMeal.java |
 | 生8 同窝、草2 事后茎生（场景部分）、草3 恐惧三档、草6 寡妇再配对（场景部分）：真实起点 | `.worktrees/wp-eh-scene-fixes` | scripts/museum_scenarios.py（family_nests、aftermath_growth、aftermath_depletion、balance_relation、widow_repair） |
 
 ## 玩法待办
