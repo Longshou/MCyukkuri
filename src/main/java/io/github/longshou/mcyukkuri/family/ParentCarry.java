@@ -897,12 +897,14 @@ public final class ParentCarry {
         var raw = rawSeat(carrier, child, hold == Hold.BRIM ? 0 : 1);
         if (hold == Hold.BRAID) return clear(carrier, child, raw) ? raw : null;
         if ((hold == Hold.BRIM || hold == Hold.HEAD) && lowering(carrier, child, 0) < 0) return raw;
-        for (double t : new double[]{0, .35, .7, 1}) {
+        for (double t : SEAT_PULL) {
             var at = new Vec3(Mth.lerp(t, raw.x, carrier.getX()), raw.y, Mth.lerp(t, raw.z, carrier.getZ()));
             if (clear(carrier, child, at)) return at;
         }
         return null;
     }
+    /** How far a held seat is pulled toward the carrier's middle, in turn, until the child fits there. */
+    private static final double[] SEAT_PULL = {0, .35, .7, 1};
     private static boolean clear(YukkuriEntity carrier, YukkuriEntity child, Vec3 at) {
         var e = entry(carrier, child.getUUID());
         var host = carryHost(carrier, child);
@@ -1589,8 +1591,13 @@ public final class ParentCarry {
         return world(carrier, 1, ground(carrier, child, hold(carrier, child)), yaw);
     }
 
-    public static Vec3 mouthAt(YukkuriEntity carrier, YukkuriEntity child, float yaw) {
-        return pinnedAt(carrier, child, worldAt(carrier, yaw, mouthSeat(carrier, child)));
+    /** Whether a mouth child finds its place as the passenger update gives it ({@link #seat}: the mouth seat, or pulled toward her
+     *  middle) with the carrier standing at {@code stand} turned to {@code yaw}: Release's turn sweep tests the same seat. */
+    public static boolean mouthSeatable(YukkuriEntity carrier, YukkuriEntity child, Vec3 stand, float yaw) {
+        var raw = pinnedAt(carrier, child, worldAt(carrier, yaw, mouthSeat(carrier, child))).add(stand.subtract(carrier.position()));
+        for (double t : SEAT_PULL)
+            if (clear(carrier, child, new Vec3(Mth.lerp(t, raw.x, stand.x), raw.y, Mth.lerp(t, raw.z, stand.z)))) return true;
+        return false;
     }
 
     /** Release starts lowering from the hold to the ground; a braid-tip hold already there opens over its clip markers. */

@@ -218,6 +218,9 @@ public final class Release implements Action {
                     failedStands.add(stand);
                 }
             }
+            if (pass == 0) GameplayLog.limited(carrier, "family", "release.nest_refused." + child.getUUID(), 200,
+                    "carry release nest refused child={} nest={} from={} free={} refused={} next=outside",
+                    child.getUUID(), nest, here, pad.size(), refused);
         }
         return exhausted(carrier, "no_supported_release_spot");
     }
@@ -354,13 +357,12 @@ public final class Release implements Action {
         return Feasibility.pass();
     }
 
+    /** A mouth child keeps a place through the whole turn, seated as the passenger update seats it. */
     private boolean clearTurn(YukkuriEntity carrier, Vec3 stand, float yaw) {
         if (ParentCarry.hold(carrier, child) != Hold.MOUTH) return true;
         float span = Mth.wrapDegrees(yaw - carrier.bodyYaw());
-        for (int i = 0, steps = Math.max(1, Mth.ceil(Math.abs(span) / 5)); i <= steps; i++) {
-            var at = ParentCarry.mouthAt(carrier, child, carrier.bodyYaw() + span * i / steps).add(stand.subtract(carrier.position()));
-            if (!child.level().noCollision(child, child.getDimensions(child.getPose()).makeBoundingBox(at))) return false;
-        }
+        for (int i = 0, steps = Math.max(1, Mth.ceil(Math.abs(span) / 5)); i <= steps; i++)
+            if (!ParentCarry.mouthSeatable(carrier, child, stand, carrier.bodyYaw() + span * i / steps)) return false;
         return true;
     }
 
@@ -448,7 +450,8 @@ public final class Release implements Action {
             }
             if (!(progress instanceof Outcome.Done)) return progress;
             approach = null;
-            if (!clearTurn(carrier, carrier.position(), facing)) return retarget(carrier, Outcome.of(Reason.NO_ROOM, 0, "mouth_turn_blocked"), true);
+            // She is there: a turn blocked from the yaw she arrived with leaves the stand usable for another endpoint.
+            if (!clearTurn(carrier, carrier.position(), facing)) return retarget(carrier, Outcome.of(Reason.NO_ROOM, 0, "mouth_turn_blocked"), false);
             turn = new Face(facing);
             turn.start(carrier);
         }
