@@ -784,6 +784,52 @@ add('family_nests', 'family', '一家六口同窝，长大再分窝', '一家六
     give=['mcyukkuri:large_yukkuri_nest 2','mcyukkuri:large_wild_nest 2','mcyukkuri:yukkuri_nest 6'],
     reads=[('读同居与床位', f'yukkuri status @e[tag=scn,distance=..48] raw')])
 
+_night_ids = {name: uid('night_sleep', name) for name in ('mother', 'father', 'b0', 'b1')}
+
+
+def _night_sleep_verify(log):
+    """A night in the nest: each one that lies down sleeps from the night rest time until dawn and never wakes by itself. A member
+    still keeping its home or looking for a child is another module's work; the scene shows at least a pair sleeping."""
+    begins = re.findall(r'\[sleep\] \w+ #\d+ uuid=(\S+)[^\n]*begin source=life[^\n]*reason=(\w+)', log)
+    actors = [actor for actor, _ in begins]
+    if len(set(actors)) < 2:
+        return f'only {len(set(actors))} of the four fell asleep at night'
+    if len(actors) != len(set(actors)):
+        return 'a night sleep began twice: sleep/wake repeating'
+    for actor, reason in begins:
+        if reason != 'rest_time':
+            return f'sleeper {actor} began with reason={reason}, not the night rest time'
+    woken = {}
+    for actor, cause, night in re.findall(r'\[sleep\] \w+ #\d+ uuid=(\S+)[^\n]*end source=life cause=(\w+) night=(\w+)', log):
+        if cause != 'rested_dawn' or night != 'false':
+            return f'sleeper {actor} woke cause={cause} night={night}, not rested at dawn'
+        woken[actor] = cause
+    asleep = [actor for actor in actors if actor not in woken]
+    if asleep:
+        return f'{len(asleep)} sleeper(s) never woke from the night sleep'
+    return None
+
+
+add('night_sleep', 'family', '夜里睡到天亮，惊扰才醒', '夜里睡到天亮，惊扰才醒',
+    '夜里（正午按钮可换白天对照）：父母和两只赤油精力满、困值不满，到了作息时间照样认窝、进窝睡下；睡下的那几只整夜不自己醒，约两分钟后自动天亮，它们伸懒腰打哈欠醒来（日志 cause=rested_dawn）。还在储粮或找孩子的那只不一定整夜在窝里；中途按“夜晚”重开或打雷、搬走窝才提前醒',
+    '整夜约2分钟，天亮后自动醒', [*shed(0, 0, half=4), *large_nest(0, 0, 'mcyukkuri:large_yukkuri_nest'),
+    yk('reimu', -1, -.5, 'mother', uuid=_night_ids['mother'], energy=100, nutrition=100, rest_wait=60, lead=True),
+    yk('marisa', 2, 2, 'father', uuid=_night_ids['father'], energy=100, nutrition=100, rest_wait=60),
+    f'yukkuri scenario bond {sel("mother")} {sel("father")}',
+    *[yk('reimu', x, z, f'b{i}', stage='baby', uuid=_night_ids[f'b{i}'], energy=100, nutrition=100, rest_wait=60,
+         kin=f'Mother:{uuid_nbt(_night_ids["mother"])},Father:{uuid_nbt(_night_ids["father"])}')
+      for i, (x, z) in enumerate([(-.9, 2.1), (1.2, 2)])],
+    *[home(name, 0, 0) for name in _night_ids]],
+    env={'time': 'night'}, spot='pet_birth', vantage=(0, -7, 0, 10),
+    late=['schedule function mcylab:util/time_dawn 2400t replace'],
+    smoke=dict(ticks=3000,
+               expect=[r'\[sleep\] [^\n]*begin source=life[^\n]*reason=rest_time',
+                       r'\[sleep\] [^\n]*end source=life cause=rested_dawn night=false'],
+               forbid=[r'\[sleep\] [^\n]*end source=life cause=rested night=true',
+                       r'\[sleep\] [^\n]*begin source=life[^\n]*reason=energy'],
+               readout=[f'yukkuri status {sel("mother")} raw'], verify=_night_sleep_verify),
+    reads=[('读一家四口的睡眠与精力', f'yukkuri status @e[tag=scn,distance=..48] raw')])
+
 add('infant_starvation', 'family', '饿极赤油：胆大的自己爬去吃草', '饿极赤油：胆大的自己爬去吃草',
     '三只赤油：普通饥饿不能自食；极饿胆大者自行走出3格范围取食；极饿胆小低智者拒绝冒险。每只前方8格有一株真实草，可读决策与营养变化',
     '约 1–3 分钟', [
@@ -3347,7 +3393,7 @@ TOPICS = {
     'balance_traits': 'N1', 'balance_relation': 'N1', 'balance_forms': 'N1', 'balance_deibu': 'N1',
     'agitation_relief': 'D2', 'adult_pairing': 'F6', 'widow_repair': 'F6', 'alice_hunt': 'R4', 'aftermath_growth': 'F7', 'aftermath_depletion': 'F7',
     'den_family': 'W1', 'dig': 'W2', 'indep_near': 'W3', 'den_move': 'W4', 'forage': 'W5', 'graze': 'W6', 'den_barrier': 'W8',
-    'sleep': 'D1', 'meal_content': 'D1', 'fatigue': 'R1', 'fatigue_predator': 'R2', 'nutrition_age': 'D1', 'meet': 'D1', 'toilet': 'F5', 'hurt': 'F3',
+    'sleep': 'D1', 'night_sleep': 'D1', 'meal_content': 'D1', 'fatigue': 'R1', 'fatigue_predator': 'R2', 'nutrition_age': 'D1', 'meet': 'D1', 'toilet': 'F5', 'hurt': 'F3',
     'birth_land_caught': 'F1', 'birth_land_missed': 'F1', 'feed': 'F2', 'first_toilet': 'F2', 'hop': 'F2', 'growth': 'F4',
     'leaf_swaddle': 'F2', 'leaf_swaddle_neglect': 'F2', 'family_distance': 'F8', 'family_search': 'F8', 'birth_nest_safe': 'F1', 'birth_nest_stem': 'F1', 'birth_stem_caught': 'F1', 'family_nests': 'F4', 'carry_home': 'F4', 'infant_starvation': 'F2',
     'forage_empty': 'R1', 'rain_life': 'R1', 'rain_huddle': 'R1', 'storm_cower': 'R1', 'marisa_explore': 'R1', 'rain_shelter': 'R1', 'rain_open': 'R1', 'pred_watch': 'R2', 'pred_range': 'R2', 'pred_pets': 'R2', 'shared_body': 'R3',
