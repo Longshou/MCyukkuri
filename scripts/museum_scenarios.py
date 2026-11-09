@@ -1193,7 +1193,7 @@ add('adult_pairing', 'meadow', '两只伴侣走近擦脸后素鸡立', '两只�
 _widow, _new_partner = (uid('widow_repair', slot) for slot in ('widow', 'new_partner'))
 # A real heat period long enough to watch the couple and press the button: three minutes at 1x, one at 3x. Every 200 ticks of heat costs
 # the bearer 1 nutrition, so a much longer one would leave her too hungry to conceive after the wait.
-_WIDOW_HEAT = 3600
+_WIDOW_HEAT = 1200      # the saved breeding period the game writes on its own (FamilyLife.BREEDING_PERIOD_TICKS); load clamps it
 
 
 def widow_death_prompt():
@@ -1206,18 +1206,22 @@ def widow_death_prompt():
 
 
 add('widow_repair', 'meadow', '原伴侣死后才肯和新候选配对', '原伴侣死后才肯和新候选配对',
-    '一张大窝里住着一对真伴侣（寡妇与原伴侣，两只的床位都在这个窝）。寡妇与旁边候选都在发情期、彼此都有交配许可（约 3 分钟）；原伴侣不在发情期，所以这对老伴侣不会马上怀孕。'
-    '看点：①两人同窝、寡妇不跟候选走（原伴侣在世时不会与候选配对；拒绝的可见演出由 wp-ep 补）；②按聊天里的【结束原伴侣】按钮——原伴侣走真实死亡，账本记 DEAD（日志 death settled … cause=genericKill）；'
-    '③之后候选自己走近寡妇求偶，受孕时写 partnership formed … allowWidow=true（这就是账本确认死亡的证据）。读数看双方 partner、发情与求偶阶段',
-    '先看同窝与候选被拒约半分钟，再点按钮；按下后约半分钟至数分钟', [
+    '玻璃围栏里一张大窝住着一对真伴侣（寡妇与原伴侣，两只床位都在这个窝），南边小棚里是候选的窝。寡妇与候选都在发情期（1 分钟），交配许可彼此都给了，但没有给原伴侣。'
+    '看点：①两人同窝贴着坐、寡妇不跟候选走（原伴侣在世时她不会与候选配对；拒绝的可见演出由 wp-ep 补）；'
+    '②按聊天里的【结束原伴侣】按钮——原伴侣走真实死亡，账本记 DEAD（日志 death settled … cause=genericKill），地上留下遗骸；'
+    '③之后候选自己走近寡妇求偶，受孕时写 partnership formed … allowWidow=true（就是账本确认死亡的证据）。读数看双方 partner、发情与求偶阶段',
+    '先看同窝与候选被拒约半分钟，再点按钮；按下后约半分钟至两分钟（发情期刚好结束时求偶会中断一次，之后会重来）', [
+        # A glass yard keeps the three beside their own nests (a loose pet wanders off on its own); glass does not hide the bodies.
+        box(1, 0, -3, 9, 2, -3, 'minecraft:glass_pane'), box(1, 0, 9, 9, 2, 9, 'minecraft:glass_pane'),
+        box(1, 0, -2, 1, 2, 8, 'minecraft:glass_pane'), box(9, 0, -2, 9, 2, 8, 'minecraft:glass_pane'),
         *shed(5, 0), *shed(5, 6), *large_nest(4, 0, 'mcyukkuri:large_yukkuri_nest'),
         block(4, 0, 6, 'mcyukkuri:yukkuri_nest'), block(6, 0, 6, 'mcyukkuri:yukkuri_nest'),
-        yk('reimu', 3, 1, 'widow', lead=True, uuid=_widow, label='待再配对者',
+        yk('reimu', 4, 2, 'widow', lead=True, uuid=_widow, label='待再配对者', boldness=15, attachment=90,
            kin=f'SexDrive:{_WIDOW_HEAT}', extra=pairing_permission(_new_partner), **pair_ready()),
         # A fresh UUID allows restarting this scene after the ledger has recorded the previous original partner's death.
-        yk('marisa', 6, 1, 'old_partner', label='原伴侣',
+        yk('marisa', 5, 2, 'old_partner', label='原伴侣', boldness=15, attachment=90,
            kin=f'Partner:{uuid_nbt(_widow)}', extra=pairing_permission(_widow), **pair_ready()),
-        yk('marisa', 3, 3, 'new_partner', uuid=_new_partner, label='新候选',
+        yk('marisa', 4, 4, 'new_partner', uuid=_new_partner, label='新候选', boldness=15, attachment=90,
            kin=f'SexDrive:{_WIDOW_HEAT}', extra=pairing_permission(_widow), **pair_ready()),
         f'data modify entity {sel("widow")} YukkuriFamily.Partner set from entity {sel("old_partner")} UUID',
         *own('widow'), *own('old_partner'), *own('new_partner'),
@@ -1226,7 +1230,8 @@ add('widow_repair', 'meadow', '原伴侣死后才肯和新候选配对', '原伴
         home('widow', 4, 0), home('old_partner', 4, 0), home('new_partner', 5, 6),
         widow_death_prompt()], env=DAY,
     give=['mcyukkuri:yukkuri_carrier 1', 'minecraft:apple 16'],
-    note='不调用 mate、不预设胎次。原伴侣在确认死亡后仍保留，直到正常受孕写入新伴侣；REMOVED 对照操作和存档重载步骤见试玩场说明。',
+    note='不调用 mate、不预设胎次。三只都很胆小（活动半径约 10 格），所以就在自己窝边活动；寡妇的交配许可只写了候选，老伴侣因此不会在场景里立刻怀上。'
+         '原伴侣在确认死亡后仍保留，直到正常受孕写入新伴侣；REMOVED 对照操作和存档重载步骤见试玩场说明。',
     reads=[('读寡妇的关系与求偶阶段', f'yukkuri status {sel("widow")} raw'),
            ('读候选的关系与求偶阶段', f'yukkuri status {sel("new_partner")} raw')])
 
@@ -3523,7 +3528,7 @@ _smoke('family_nests', 4200, [r'\[home\][^\n]* growth released shared nest '])
 next(s for s in S if s.id == 'family_nests').smoke['verify'] = _distinct(
     r'\[home\] reimu #\d+ uuid=(\S+)[^\n]* growth released shared nest ', 3, 'young released from the shared nest')
 # The scene's own button ends the original partner; the widow may accept the candidate only once the ledger holds that death.
-_smoke('widow_repair', 2400, [r'\[body\][^\n]* death settled[^\n]*cause=genericKill\b',
+_smoke('widow_repair', 3600, [r'\[body\][^\n]* death settled[^\n]*cause=genericKill\b',
                                 r'\[family\][^\n]* partnership formed [^\n]*allowWidow=true',
                                 r'\[family\][^\n]* courtship contact ended [^\n]*conceived=true'])
 next(s for s in S if s.id == 'widow_repair').smoke['commands'] = [(400, f'kill {sel("old_partner")}')]
