@@ -780,7 +780,7 @@ _NEST_CELLS=((-0.5, -0.5), (0.5, -0.5), (-0.5, 0.5), (0.5, 0.5))
 add('family_nests', 'family', '一家六口同窝，长大再分窝', '一家六口同窝，长大再分窝',
     '六口开场都不困：四只赤油平平地躺在大窝的四个格上，父母贴着窝边（读“同居与床位”看六口床位都在这一个窝）。场景切到 3 倍速：约半分钟内开始有子油长成、被大窝按容量让出（日志 '
     'growth released shared nest，一次一只），最后一只仍是赤油留在大窝。两边普通窝空着；但引擎现在没有把长成的子油安排进普通窝（待办），它会被让出后贴在棚下。困了会回窝（约数分钟）；按观察台“1倍速”可恢复正常速度',
-    '先看六口同窝，再看 3 倍速下约 30 秒起一只只长成、被让出大窝', ['function mcylab:util/speed_3x',
+    '先看六口同窝，再看 3 倍速下约 30 秒起一只只长成、被让出大窝；清空或重开场景会恢复 1 倍速', ['function mcylab:util/speed_3x',
     *shed(0, 0, half=5), *large_nest(0, 0, 'mcyukkuri:large_yukkuri_nest'),
     block(-3, 0, 0, 'mcyukkuri:yukkuri_nest'), block(3, 0, 0, 'mcyukkuri:yukkuri_nest'),
     yk('reimu', -1, -.5, 'mother', uuid=_nest_ids['mother'], lead=True),
@@ -1209,7 +1209,7 @@ def widow_death_prompt():
 
 
 add('widow_repair', 'meadow', '原伴侣死后才肯和新候选配对', '原伴侣死后才肯和新候选配对',
-    '玻璃围栏里一张大窝住着一对真伴侣（寡妇与原伴侣，两只床位都在这个窝），南边小棚里是候选的窝。寡妇与候选都在发情期（1 分钟），交配许可彼此都给了，但没有给原伴侣。'
+    '玻璃围栏里一张大窝住着一对真伴侣（寡妇与原伴侣，两只床位都在这个窝），同棚旁边的小窝是候选的窝。寡妇与候选都在发情期（1 分钟），交配许可彼此都给了，但没有给原伴侣。'
     '看点：①两人同窝贴着坐、寡妇不跟候选走（原伴侣在世时她不会与候选配对；拒绝的可见演出由 wp-ep 补）；'
     '②按聊天里的【结束原伴侣】按钮——原伴侣走真实死亡，账本记 DEAD（日志 death settled … cause=genericKill），地上留下遗骸；'
     '③之后候选自己走近寡妇求偶，受孕时写 partnership formed … allowWidow=true（就是账本确认死亡的证据）。读数看双方 partner、发情与求偶阶段',
@@ -1217,20 +1217,21 @@ add('widow_repair', 'meadow', '原伴侣死后才肯和新候选配对', '原伴
         # A glass yard keeps the three beside their own nests (a loose pet wanders off on its own); glass does not hide the bodies.
         box(1, 0, -3, 9, 2, -3, 'minecraft:glass_pane'), box(1, 0, 9, 9, 2, 9, 'minecraft:glass_pane'),
         box(1, 0, -2, 1, 2, 8, 'minecraft:glass_pane'), box(9, 0, -2, 9, 2, 8, 'minecraft:glass_pane'),
-        *shed(5, 0), *shed(5, 6), *large_nest(4, 0, 'mcyukkuri:large_yukkuri_nest'),
-        block(4, 0, 6, 'mcyukkuri:yukkuri_nest'), block(6, 0, 6, 'mcyukkuri:yukkuri_nest'),
+        *shed(5, 0), *large_nest(4, 0, 'mcyukkuri:large_yukkuri_nest'),
+        # The candidate's own nest is three blocks from the couple's: close enough for natural courtship scans to recur after a refusal.
+        block(7, 0, 0, 'mcyukkuri:yukkuri_nest'),
         yk('reimu', 4, 2, 'widow', lead=True, uuid=_widow, label='待再配对者', boldness=15, attachment=90,
            kin=f'SexDrive:{_WIDOW_HEAT}', extra=pairing_permission(_new_partner), **pair_ready()),
         # A fresh UUID allows restarting this scene after the ledger has recorded the previous original partner's death.
         yk('marisa', 5, 2, 'old_partner', label='原伴侣', boldness=15, attachment=90,
            kin=f'Partner:{uuid_nbt(_widow)}', extra=pairing_permission(_widow), **pair_ready()),
-        yk('marisa', 4, 4, 'new_partner', uuid=_new_partner, label='新候选', boldness=15, attachment=90,
+        yk('marisa', 6, 2, 'new_partner', uuid=_new_partner, label='新候选', boldness=15, attachment=90,
            kin=f'SexDrive:{_WIDOW_HEAT}', extra=pairing_permission(_widow), **pair_ready()),
         f'data modify entity {sel("widow")} YukkuriFamily.Partner set from entity {sel("old_partner")} UUID',
         *own('widow'), *own('old_partner'), *own('new_partner'),
         f'yukkuri scenario bond {sel("widow")} {sel("new_partner")}',
         f'yukkuri scenario bond {sel("widow")} {sel("old_partner")}',
-        home('widow', 4, 0), home('old_partner', 4, 0), home('new_partner', 5, 6),
+        home('widow', 4, 0), home('old_partner', 4, 0), home('new_partner', 7, 0),
         widow_death_prompt()], env=DAY,
     give=['mcyukkuri:yukkuri_carrier 1', 'minecraft:apple 16'],
     note='不调用 mate、不预设胎次。三只都很胆小（活动半径约 10 格），所以就在自己窝边活动；寡妇的交配许可只写了候选，老伴侣因此不会在场景里立刻怀上。'
@@ -1270,7 +1271,7 @@ def _aftermath_pens(lanes):
 
 def aftermath(sid, seen, watch, lanes, vantage):
     add(sid, 'meadow', seen, seen, watch,
-        '场景已切 3 倍速：茎约 15 秒长满结果，之后随营养下降转级；耗竭那只两次饿伤后约 40 秒真的饿死（按“1倍速”恢复原速则是三倍时间；不按的话下一个场景也継续 3 倍速）',
+        '场景已切 3 倍速：茎约 15 秒长满结果，之后随营养下降转级；耗竭那只两次饿伤后约 40 秒真的饿死（按“1倍速”恢复原速则是三倍时间；清空或重开场景也会恢复 1 倍速）',
         ['function mcylab:util/speed_3x', *_aftermath_pens(lanes)],
         env=DAY, give=['minecraft:apple 16'], vantage=vantage,
         note='通过场景入口建立事后胎次；每个围栏北侧栅栏外坐着的爱丽丝只作血缘登记的来源（让开场惊慌有个看得见的对象）。',

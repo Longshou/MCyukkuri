@@ -232,7 +232,7 @@ def build_pack(world):
             cancel.append(f'schedule clear {NS}:clip/rest')
         # Java retains every UUID that visited the field, even after capture, death or unloading.
         clear_entities = f'yukkuri clear {bx1} {by1} {bz1} {bx2} {by2} {bz2} {field_mark(f)}'
-        sweep = cancel + [clear_entities,
+        sweep = [f'function {NS}:util/speed_1x'] + cancel + [clear_entities,
                  f'function {NS}:field/{f.id}/terrain',
                  f'yukkuri clear {bx1} {by1} {bz1} {bx2} {by2} {bz2}']  # Remove drops from rebuilt containers without resetting twice.
         fn(f'field/{f.id}/clear', sweep + ([f'function {NS}:clip/cast'] if f.id == 'clips' else [])
