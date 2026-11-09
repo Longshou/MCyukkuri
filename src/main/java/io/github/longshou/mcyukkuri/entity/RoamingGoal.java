@@ -67,7 +67,7 @@ public final class RoamingGoal extends Goal {
                     animal.life().nutrition(),animal.life().energy(),radius);
             if (expedition) radius *= 2;
         }
-        // Parents of unweaned young stay near them; other adults with a home stroll around it (an expedition leaves home on purpose).
+        // Parents of unweaned young stay near them; other adults with a home stroll around it (expeditions and migration excepted).
         homeRadius = animal.family().tendsUnweaned() ? TravelRange.NURSE_RADIUS : radius;
         destination = choose();
         result = destination == null ? "no_reachable_destination" : "planned";
@@ -95,7 +95,7 @@ public final class RoamingGoal extends Goal {
         var home = baby ? animal.life().homeStand() : null;
         var shelter = baby ? animal.habitat().shelter() : null;
         boolean preferInside = baby && home != null && animal.getRandom().nextInt(5) != 0;
-        BlockPos anchor = baby || expedition ? null : animal.life().homeStand();
+        BlockPos anchor = baby || expedition || animal.settlement().underway() ? null : animal.life().homeStand();
         // Already outside the home range: head back toward the home instead of choosing another point out there.
         boolean outside = anchor != null && origin.distSqr(anchor) > homeRadius * homeRadius;
         int paths = 0;
