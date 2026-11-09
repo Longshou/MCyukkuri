@@ -75,8 +75,12 @@ def expected_clips():
     actions = re.findall(r'^\s*[A-Z][A-Z0-9_]*\("([^"]+)"', action_text, re.MULTILINE)
     if len(actions) != len(set(actions)):
         raise ValueError("duplicate action id in YukkuriAction.java")
+    anatomy = set(load_json(ROOT / "standards/yukkuri-library/behaviors/anatomy.json")["exported_actions"])
     for action in actions:
-        expected.setdefault(action, "anatomy")
+        if action in anatomy:
+            expected.setdefault(action, "anatomy")
+        elif action not in expected:
+            raise ValueError(f"YukkuriAction {action!r} is neither an authored clip nor an anatomy action")
     return expected, set(actions)
 
 
@@ -266,8 +270,8 @@ def validate():
                 if row.get("tier") != "composite":
                     errors.append(f"{where}: really_composite must have composite tier")
                 ingredients = classification.get("base_motions", [])
-                if not ingredients:
-                    errors.append(f"{where}: really_composite needs base_motions")
+                if len(ingredients) < 2:
+                    errors.append(f"{where}: really_composite needs at least two base_motions")
                 for ingredient in ingredients:
                     target = clips.get(ingredient)
                     gap = next((gap for gap in gaps if gap["id"] == ingredient), None)
