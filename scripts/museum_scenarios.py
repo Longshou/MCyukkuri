@@ -1270,7 +1270,7 @@ def _aftermath_pens(lanes):
 
 def aftermath(sid, seen, watch, lanes, vantage):
     add(sid, 'meadow', seen, seen, watch,
-        '场景已切 3 倍速：茎约 15 秒长满结果，之后随营养下降转级；耗竭那只两次饿伤后约 40 秒真的饿死（按“1倍速”恢复原速则是三倍时间）',
+        '场景已切 3 倍速：茎约 15 秒长满结果，之后随营养下降转级；耗竭那只两次饿伤后约 40 秒真的饿死（按“1倍速”恢复原速则是三倍时间；不按的话下一个场景也継续 3 倍速）',
         ['function mcylab:util/speed_3x', *_aftermath_pens(lanes)],
         env=DAY, give=['minecraft:apple 16'], vantage=vantage,
         note='通过场景入口建立事后胎次；每个围栏北侧栅栏外坐着的爱丽丝只作血缘登记的来源（让开场惊慌有个看得见的对象）。',
