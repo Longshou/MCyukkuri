@@ -313,8 +313,12 @@ public final class Release implements Action {
                 child.getUUID(), failed, standFailed, refusal, next.ok() ? endpoint : next.detail(), tries);
         if (!next.ok()) return Outcome.of(next.reason(), next.shortfall(), next.detail());
         begin(carrier);
-        return progress(new Running(0, TravelMode.CONSUMED), 2);
+        // The top of the new candidate's span: every metric it reports lies below, so its own progress opens a fresh window.
+        return new Running((TRIES - tries + 1) * SPAN, TravelMode.CONSUMED, true);
     }
+
+    /** Twice an action's ordinary window: the walk inside is judged at the ordinary one and replaced before this one runs out. */
+    @Override public int progressWindow() { return 2 * Action.super.progressWindow(); }
 
     private float facing(YukkuriEntity carrier, Vec3 stand, Vec3 at) {
         var offset = ParentCarry.groundPoint(carrier, child, 0).subtract(carrier.position());
@@ -431,13 +435,13 @@ public final class Release implements Action {
             var progress = approach.tick(carrier);
             if (progress instanceof Outcome walked && walked.reason() != null) return retarget(carrier, walked, true);
             if (progress instanceof Running running) {
-                // A walk that stops gaining (pressed against a body at its last step) is judged here at half the driver's window, so this
-                // candidate is replaced before the watchdog would end the whole set-down.
+                // A walk that stops gaining (pressed against a body at its last step) is judged here at an action's ordinary window, and
+                // this candidate is replaced; the set-down's own window is twice that (progressWindow), so the watchdog never ends it first.
                 long now = carrier.level().getGameTime();
                 if (running.metric() < approachBest - progressEpsilon() || running.replanned()) {
                     approachBest = Math.min(approachBest, running.metric());
                     approachSince = now;
-                } else if (now - approachSince >= progressWindow() / 2)
+                } else if (now - approachSince >= Action.super.progressWindow())
                     return retarget(carrier, Outcome.of(Reason.NO_PROGRESS, running.metric(),
                             String.format(Locale.ROOT, "approach_stalled left=%.2f", running.metric())), true);
                 return progress(running, 2);
