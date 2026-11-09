@@ -12,6 +12,7 @@
 | 生9 夜里自己醒来：夜间入睡后睡到天亮，只有真实原因才醒 | `.worktrees/wp-eb-night-sleep` | life/YukkuriLife.java、home/HomeProvider.java、docs/FEATURES.md |
 | 草4 第一步：社交靠近每 tick 驱动（停走爬行） | `.worktrees/wp-ed-approach-tick` | social/YukkuriSocial.java、social/SelfOffering.java |
 | 动作库分级 M1：wiki 常见行为→现有片段→基础／组装／特殊分级目录 | `.worktrees/wp-em1-motion-tiers` | standards/yukkuri-library/motions/index.json、standards/yukkuri-library/motions/README.md |
+| 生7 茎生母油朝向巢、生11 接生父油平静等待不抽搐（关闭“摘帽接生朝向逐 tick 来回”） | `.worktrees/wp-ec-birth-facing` | family/LiveBirth.java、family/FamilyLife.java（watchBirth）、command/ScenarioSetup.java（出生提前量） |
 
 ## 玩法待办
 
