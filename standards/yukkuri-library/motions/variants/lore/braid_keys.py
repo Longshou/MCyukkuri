@@ -3,20 +3,27 @@
 The braid is too short and thick to hook over her own brim (root under the brim, 9.7 units long, ~2.5 thick), so these clips
 never ask it to: it curls under a young on the ground beside her braid side, swings it out in an arc that stays outside her
 body and hat, rises along the outside of the brim edge and holds the young level with the brim just outside it; the young
-steps onto the brim itself (user 2026-11-05). The lowering is its own loop: up close outside her cheek, out wide and down, so it never
-retraces the way up (a recipe `mirror` still plays a clip's keys and body backwards).
+steps onto the brim itself (user 2026-11-05). The lowering is its own loop: the tuft curls up close outside her cheek, then
+swings out wide and down, so it never retraces the way up (a recipe `mirror` still plays a clip's keys and body backwards).
 
-A key (`braid_keys`: [t, "rest"] or [t, {"tip", "root", "arrive"}, "stop"?]) gives the tuft end (the farthest tuft vertex,
-where the young sits) and two directions in the model frame at that moment: the braid leaves its root along `root` and
-reaches the tip coming from `arrive`. The chain is laid along a cubic Bezier guide through them, every segment keeping its
-authored length, the guide's handles scaled until the last joint lands on the tip. Between keys the tip and both directions
-follow C1 cubics with Catmull-Rom tangents, zero only at keys marked "stop" (holds, the ends), and the chain is laid again on
-every sample, so the braid passes its other keys without stopping, turning back or re-folding.
+A key (`braid_keys`: [t, "rest"] or [t, {"tip", "root", "arrive"}], then "stop" and/or "turn") gives the tuft end (the
+farthest tuft vertex, where the young sits) and two directions in the model frame at that moment: the braid leaves its root
+along `root` and reaches the tip coming from `arrive`. The chain is laid along a cubic Bezier guide through them, every segment
+keeping its authored length, the guide's handles scaled until the last joint lands on the tip. Between keys the tip and both
+directions follow C1 cubics with Catmull-Rom tangents, zero only at keys marked "stop" (holds, the ends), and the chain is laid
+again on every sample, so the braid passes its other keys without stopping, turning back or re-folding.
+
+A key marked "turn" is reached by turning the chain bones from the key before's laid pose to its own instead (shortest arc).
+Between the hanging rest and a raised pose the braid has slack the guide can only take up by folding back on itself, and a
+chain laid on such a fold kinks and jumps from sample to sample (seen as the braid spinning round as it rises). Off rest the
+tuft leads and the root follows (`LEAD`), so the tuft curls up close beside her before the braid lifts; onto rest the root
+leads, the same curl played back.
 
 The exported clip carries `tip`: the tuft end per sample from the exported tracks' own forward kinematics, which is where
 the game seats the young (family/ParentCarry). `gate` checks every sample: braid against her body skin (beyond its rest
 contact) and every hat cuboid, the floor, and the young (a cylinder on the tip, smallest and largest brim size) against body
-and hat while it rides. Run with `--check` for the report on the exported clips.
+and hat while it rides, and `continuity` the chain's turn between samples. Run with `--check` for the report on the exported
+clips (`continuity` on every Marisa braid_* clip).
 """
 from pathlib import Path
 import json, math, sys
@@ -32,6 +39,11 @@ RECIPE = json.loads((HERE/'recipe.json').read_text(encoding='utf-8'))
 TOUCH = .1  # model units a surface may be pressed in between the drawn meshes (resting contact)
 YOUNG = ((.7, .53), (1.7, 1.28))  # radius and height (model units) of the smallest and largest young the brim seats
 HAT = ('brim_', 'hat_', 'bow_')
+LEAD = .6  # share of a "turn" span the root starts after the tuft (project design: the tuft curls up beside her cheek first)
+# Degrees a braid joint may turn between two exported samples (0.04 s): the chain's whole per-joint bend allowance
+# (motor/geom/BraidChain MAX_TURN). A joint turning further inside one sample jumps rather than swings, and the game lerps
+# each Euler channel between samples (pose/Clips.sample), so a channel stepping half a turn or more spins it.
+STEP = braid_chain.MAX_TURN
 
 
 def smooth(x):
@@ -155,7 +167,8 @@ def tracks(model, name, c, samples, root_tracks, palette):
     source's keys posed on this clip's root tracks read back through the same map). Every sample lays the chain on a guide whose
     tip, root and arrival directions follow C1 cubics through the keys', so the braid between keys is itself a guide-laid curve
     and the tip runs one smooth path; a "rest" key is the rest braid's own guide, its small difference from the exact rest pose
-    easing out over the next key's span."""
+    easing out over the next key's span. A key marked "turn" is reached by turning every chain bone from the key before's laid
+    pose to its own (shortest arc, each bone eased over its share of the span, the tuft first off rest, the root first back)."""
     chain = Chain(model); of, c, at, back = source(name, c)
     own = [{'bone': tr['bone'], 'channel': tr['channel'], 'keys': [[k[0], *sample_root(tr['keys'], back(k[0]))] for k in tr['keys']]}
            for tr in root_tracks] if of != name else root_tracks
@@ -169,14 +182,23 @@ def tracks(model, name, c, samples, root_tracks, palette):
         return np.array([rotvec(R) for R in braid_chain.rotations(chain.rest, chain.lay(tip, *dirs))])
     # The rest guide is laid in the chain's own rest frame; its offset from the true rest eases out away from each rest key.
     offset = -lay(rest, 0, False)
-    rows, last = {b: [] for b in chain.bones}, {}
-    for t in samples:
-        u = at(t); spec = {f: hermite(times, [s[f] for s in specs], stops, u) for f in ('tip', 'root', 'arrive')}
-        v = lay(spec, u, True)
+    def laid(u):
+        v = lay({f: hermite(times, [s[f] for s in specs], stops, u) for f in ('tip', 'root', 'arrive')}, u, True)
         for j, k in enumerate(keys):
             if k[1] != 'rest': continue
             span = times[j+1]-times[j] if j+1 < len(keys) else times[j]-times[j-1]
             v = v+offset*(1-smooth(abs(u-times[j])/span))
+        return v
+    ends = {j: [[matrix(x) for x in laid(times[i])] for i in (j-1, j)] for j, k in enumerate(keys) if 'turn' in k[2:]}
+    def pose(u):
+        j = next((j for j in ends if times[j-1] < u <= times[j]), None)
+        if j is None: return laid(u)
+        s = (u-times[j-1])/(times[j]-times[j-1]); n = len(chain.bones)-1; off = keys[j-1][1] == 'rest'
+        delay = [LEAD*(n-k)/n if off else LEAD*k/n for k in range(n+1)]  # chain bones root (k = 0) to tuft (k = n)
+        return np.array([rotvec(A@braid_chain.partial(A.T@B, smooth((s-d)/(1-LEAD)))) for d, (A, B) in zip(delay, zip(*ends[j]))])
+    rows, last = {b: [] for b in chain.bones}, {}
+    for t in samples:
+        v = pose(at(t))
         for b, x in zip(chain.bones, v):
             last[b] = braid_chain.to_euler(matrix(x), last.get(b)); rows[b].append([round(t, 8), *[round(y, 5) for y in last[b]]])
     return [{'bone': b, 'channel': 'rotation', 'keys': rows[b]} for b in chain.bones]
@@ -255,21 +277,51 @@ def gate(model, name, samples, all_tracks, tip, c, palette):
                 note('young_body', -_closest(Y, S).min(), t)
                 note('young_hat', max(depth(Y, P[q]).max() for q in hats), t)
     print(f'  {name}: '+', '.join(f'{k} {v[0]:+.2f}@{v[1]:.2f}' for k, v in worst.items()), flush=True)
+    continuity(model, name, all_tracks)
     bad = {k: v for k, v in worst.items() if v[0] > TOUCH}
     if bad: raise ValueError(f'{model["id"]} {name}: braid or young passes into her body, hat or the floor {bad}')
     return worst
 
 
+def continuity(model, name, tracks):
+    """The braid chain's largest turn between two samples as the game draws it (each Euler channel lerped between the keys,
+    degrees, with its bone and time) and its whole turns: a channel stepping half a turn or more between two samples, or
+    starting or ending the clip past half a turn (carried into whatever the game blends next). Raises past STEP or on any."""
+    chain = braid_chain.chain({b['name']: i for i, b in enumerate(model['bones'])})
+    worst, turns = [0., 0., ''], []
+    for tr in tracks:
+        if tr['channel'] != 'rotation' or tr['bone'] not in chain: continue
+        bone, keys = model['bones'][tr['bone']]['name'], tr['keys']
+        turns += [f'{bone}@{k[0]:.2f} ends at {k[1:]}' for k in (keys[0], keys[-1]) if max(map(abs, k[1:])) > 180]
+        for a, b in zip(keys, keys[1:]):
+            x, y = np.array(a[1:]), np.array(b[1:])
+            if abs(y-x).max() >= 180: turns.append(f'{bone}@{a[0]:.2f} steps {np.round(y-x, 1).tolist()}')
+            R = [braid_chain.euler(x+(y-x)*q) for q in np.linspace(0, 1, 9)]
+            swept = sum(math.degrees(math.acos(max(-1., min(1., (np.trace(P.T@Q)-1)/2)))) for P, Q in zip(R, R[1:]))
+            if swept > worst[0]: worst = [round(swept, 1), round(a[0], 3), bone]
+    print(f'  {name}: braid joint step {worst[0]:.1f} deg@{worst[1]:.2f} ({worst[2]}), whole turns {len(turns)}', flush=True)
+    if worst[0] > STEP or turns:
+        raise ValueError(f'{model["id"]} {name}: braid joint turns {worst[0]} degrees in one sample (> {STEP:g}) or whole turns {turns[:4]}')
+    return worst
+
+
 if __name__ == '__main__':
     import argparse
-    ap = argparse.ArgumentParser(description='Gate the exported braid-key clips (no re-authoring).')
+    ap = argparse.ArgumentParser(description='Gate the exported braid-key clips and the braid continuity of every braid_* clip (no re-authoring).')
     ap.add_argument('--check', action='store_true')
     ap.parse_args()
     sys.path.insert(0, str(HERE)); import aquatic_tools as A
     model = A.runtime_model(); names = {b['name']: i for i, b in enumerate(model['bones'])}
     rev = json.loads((ROOT/'src/main/resources/assets/mcyukkuri/yukkuri_presentation/motion_corrections.json').read_text(encoding='utf-8'))['models']['marisa']
-    for name, c in RECIPE['clips'].items():
-        if not authored(c): continue
+    keyed = [name for name, c in RECIPE['clips'].items() if authored(c)]
+    failed = []
+    for name in keyed+sorted(n for n in rev['clips'] if n.startswith('braid_') and n not in keyed):
         clip = rev['clips'][name]
         tr = [dict(t, bone=names[rev['bone_names'][t['bone']]]) for t in clip['tracks'] if rev['bone_names'][t['bone']] in names]
-        gate(model, name, [k[0] for k in clip['tip']], tr, clip['tip'], dict(c, markers=clip['markers']), A.palette)
+        try:
+            if name in keyed: gate(model, name, [k[0] for k in clip['tip']], tr, clip['tip'], dict(RECIPE['clips'][name], markers=clip['markers']), A.palette)
+            else: continuity(model, name, tr)
+        except ValueError as error:
+            print(f'  FAIL {error}', flush=True); failed.append(name)
+    print(f'braid_keys: {"FAIL "+", ".join(failed) if failed else "PASS"}', flush=True)
+    sys.exit(1 if failed else 0)
