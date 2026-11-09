@@ -774,17 +774,20 @@ _nest_ids={name:uid('family_nests',name) for name in ['mother','father','b0','b1
 # Ages that cross BABY_END (72000) about 27 s / 45 s / 64 s into the scene's 3x clock, so three of the four young are released
 # from the shared nest one after another while the observer watches; the fourth stays a baby in the same nest.
 _NEST_SHARE={'b0':.2095,'b1':.2062,'b2':.2028,'b3':.18}
+# The four young start on the four cells of the one large nest (an awake baby more than 1.5 blocks from its bed counts as lost and
+# sends both parents off searching). yk_on_nest places a body on the real bed surface; the +1 offset is its large-nest centring.
+_NEST_CELLS=((-0.5, -0.5), (0.5, -0.5), (-0.5, 0.5), (0.5, 0.5))
 add('family_nests', 'family', '一家六口同窝，长大再分窝', '一家六口同窝，长大再分窝',
-    '六口开场都不困，全部认领同一个大窝（读“同居与床位”看六口床位都在这一个窝）。场景切到 3 倍速：约半分钟内开始有子油长成、被大窝按容量让出（日志 '
+    '六口开场都不困：四只赤油平平地躺在大窝的四个格上，父母贴着窝边（读“同居与床位”看六口床位都在这一个窝）。场景切到 3 倍速：约半分钟内开始有子油长成、被大窝按容量让出（日志 '
     'growth released shared nest，一次一只），最后一只仍是赤油留在大窝；两边普通窝是长成后要用的空位。困了会回窝（约数分钟）；按观察台“1倍速”可恢复正常速度',
-    '先看认窝，再看 3 倍速下约 30 秒起一只只长成、被让出大窝', ['function mcylab:util/speed_3x',
+    '先看六口同窝，再看 3 倍速下约 30 秒起一只只长成、被让出大窝', ['function mcylab:util/speed_3x',
     *shed(0, 0, half=5), *large_nest(0, 0, 'mcyukkuri:large_yukkuri_nest'),
     block(-3, 0, 0, 'mcyukkuri:yukkuri_nest'), block(3, 0, 0, 'mcyukkuri:yukkuri_nest'),
     yk('reimu', -1, -.5, 'mother', uuid=_nest_ids['mother'], lead=True),
     yk('marisa', 2, 2, 'father', uuid=_nest_ids['father']),
     f'yukkuri scenario bond {sel("mother")} {sel("father")}',
-    *[yk('reimu', x, z, f'b{i}', stage='baby', share=_NEST_SHARE[f'b{i}'], uuid=_nest_ids[f'b{i}'],
-         kin=f'Mother:{uuid_nbt(_nest_ids["mother"])},Father:{uuid_nbt(_nest_ids["father"])}') for i,(x,z) in enumerate([(-.9,2.1),(.2,2.6),(1.2,2),(2.2,2.8)])],
+    *[yk_on_nest('reimu', x, z, f'b{i}', large=True, stage='baby', share=_NEST_SHARE[f'b{i}'], uuid=_nest_ids[f'b{i}'],
+                 kin=f'Mother:{uuid_nbt(_nest_ids["mother"])},Father:{uuid_nbt(_nest_ids["father"])}') for i,(x,z) in enumerate(_NEST_CELLS)],
     *[home(name, 0, 0) for name in _nest_ids]], spot='pet_birth',
     give=['mcyukkuri:large_yukkuri_nest 2','mcyukkuri:large_wild_nest 2','mcyukkuri:yukkuri_nest 6'],
     reads=[('读同居与床位', f'yukkuri status @e[tag=scn,distance=..48] raw')])
