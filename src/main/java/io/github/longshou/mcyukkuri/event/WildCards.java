@@ -9,6 +9,7 @@ import io.github.longshou.mcyukkuri.event.WildEventData.Scene;
 import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.item.AccessoryItem;
 import io.github.longshou.mcyukkuri.life.Facilities;
+import io.github.longshou.mcyukkuri.life.TravelRange;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.social.BondLevels;
 import io.github.longshou.mcyukkuri.social.Bonds;
@@ -108,6 +109,8 @@ public final class WildCards {
                 ||!WildEvents.available(p)||!close(first,p,6)||!first.life().reachable(p.blockPosition(),false)))return null;
         // Cards are leisure: everyone in a play card, and the carer of a care card, must be well and free (the daily-life gate).
         if(!(CARE_CARDS.contains(card)?List.of(first):all).stream().allMatch(p -> DailyLife.wellAndFree(p,false)))return null;
+        // Play cards happen near home, like songs; care cards go where the one needing care is.
+        if(!CARE_CARDS.contains(card)&&!all.stream().allMatch(TravelRange::nearHomeForLeisure))return null;
         var data=WildEventData.get(level);
         if (!data.canStart(GlobalPos.of(level.dimension(),first.blockPosition()), all.stream().map(Entity::getUUID).toList(), level.getGameTime())) return null;
         var relations=YukkuriWorldData.get(level);var family=FamilyData.get(level);

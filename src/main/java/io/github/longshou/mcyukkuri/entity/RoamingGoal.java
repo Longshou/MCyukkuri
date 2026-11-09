@@ -19,7 +19,7 @@ public final class RoamingGoal extends Goal {
     private final YukkuriEntity animal;
     private BlockPos origin, destination;
     private long nextWalk, nextExpedition;
-    private int radius, elapsed, failures, roll = -1;
+    private int radius, homeRadius, elapsed, failures, roll = -1;
     private boolean expedition, active, returning;
     private String result = "none";
     private Vec3 progressPosition;
@@ -67,6 +67,8 @@ public final class RoamingGoal extends Goal {
                     animal.life().nutrition(),animal.life().energy(),radius);
             if (expedition) radius *= 2;
         }
+        // Parents of unweaned young stay near them; other adults with a home stroll around it (an expedition leaves home on purpose).
+        homeRadius = animal.family().tendsUnweaned() ? TravelRange.NURSE_RADIUS : radius;
         destination = choose();
         result = destination == null ? "no_reachable_destination" : "planned";
         if (expedition && destination == null) GameplayLog.event(animal,"explore","start refused reason={} radius={}",result,radius);
@@ -93,14 +95,19 @@ public final class RoamingGoal extends Goal {
         var home = baby ? animal.life().homeStand() : null;
         var shelter = baby ? animal.habitat().shelter() : null;
         boolean preferInside = baby && home != null && animal.getRandom().nextInt(5) != 0;
+        BlockPos anchor = baby || expedition ? null : animal.life().homeStand();
+        // Already outside the home range: head back toward the home instead of choosing another point out there.
+        boolean outside = anchor != null && origin.distSqr(anchor) > homeRadius * homeRadius;
         int paths = 0;
         BlockPos companion = companionSpot();
         for (int attempt = 0; attempt < 16; attempt++) {
-            Vec3 point = companion == null ? LandRandomPos.getPos(animal, radius, 3)
+            Vec3 point = outside ? LandRandomPos.getPosTowards(animal, radius, 3, Vec3.atBottomCenterOf(anchor))
+                    : companion == null ? LandRandomPos.getPos(animal, radius, 3)
                     : LandRandomPos.getPosTowards(animal, radius, 3, Vec3.atBottomCenterOf(companion));
             if (point == null) continue;
             BlockPos pos = BlockPos.containing(point);
             if (origin.distSqr(pos) > radius * radius || !TravelRange.babyDestination(animal,pos)) continue;
+            if (anchor != null && (outside ? pos.distSqr(anchor) >= origin.distSqr(anchor) : pos.distSqr(anchor) > homeRadius * homeRadius)) continue;
             if (expedition && origin.distSqr(pos) <= radius * radius / 4) continue;
             if (!expedition && !animal.family().allowsIdleWalk(point)) continue;
             if (companion != null && companion.distSqr(pos) > 64) continue;

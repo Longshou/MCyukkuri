@@ -1142,6 +1142,16 @@ public final class FamilyLife {
         return home!=null&&home==child.habitat().shelter()&&home.usable(child)&&home.contains(child.blockPosition())
                 &&!child.isPanicking()&&!child.isInWaterOrBubble()&&!child.isOnFire();
     }
+    /** An adult whose own BABY-stage young live at the same home: while they are unweaned she keeps near them (outings, strolls, leisure);
+     *  hunger still sends her to forage through the ordinary need, and she comes back. */
+    public boolean tendsUnweaned() {
+        if(!adult())return false;
+        var home=entity.life().homeStand();
+        if(home==null)return false;
+        for(var id:FamilyData.get(level()).children(entity.getUUID()))
+            if(level().getEntity(id) instanceof YukkuriEntity child&&child.isAlive()&&child.family().stage()==Stage.BABY&&home.equals(child.life().homeStand()))return true;
+        return false;
+    }
     /** Idle roaming must not immediately undo the child's decision to wait in the family shelter. */
     public boolean allowsIdleWalk(Vec3 destination) {
         if(ParentCarry.awaitsCarrier(entity))return false;

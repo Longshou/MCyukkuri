@@ -2,6 +2,7 @@ package io.github.longshou.mcyukkuri.social;
 
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
+import io.github.longshou.mcyukkuri.life.TravelRange;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.event.WildEvents;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
@@ -175,7 +176,7 @@ public final class DailyLife {
         if (entity.level().isClientSide || !available(entity) || active() || cooldown > 0) return false;
         if (kind == Kind.EXERCISE && (!entity.childhood().canExercise()
                 || companion instanceof YukkuriEntity peer && !peer.childhood().canExercise())) return false;
-        if (kind != Kind.NUZZLE && !room()) return false;
+        if (kind != Kind.NUZZLE && (!room() || !TravelRange.nearHomeForLeisure(entity))) return false;
         entity.social().stop();
         session = new Session(entity, companion, kind, welcome); cooldown = 600;
         if (companion != null) entity.life().personality().protectRelation(companion.getUUID());
@@ -188,8 +189,9 @@ public final class DailyLife {
         if (kind == Kind.NUZZLE && !welcome) entity.speak("want_nuzzle");
         if (kind == Kind.NUZZLE) entity.life().personality().decided("seek_companion");
         GameplayLog.limited(entity,"daily","started."+kind,1200,
-                "session reserved kind={} companion={} distance={} affectionNeed={} boredom={}",
-                kind,companion==null?null:companion.getUUID(),companion==null?0:Math.round(entity.distanceTo(companion)*10)/10.0,affection,boredom);
+                "session reserved kind={} companion={} distance={} affectionNeed={} boredom={} homeDistance={}",
+                kind,companion==null?null:companion.getUUID(),companion==null?0:Math.round(entity.distanceTo(companion)*10)/10.0,affection,boredom,
+                entity.life().homeStand()==null?"none":Math.round(Math.sqrt(entity.distanceToSqr(Vec3.atBottomCenterOf(entity.life().homeStand())))*10)/10.0);
         return true;
     }
     private boolean room() {

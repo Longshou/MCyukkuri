@@ -105,7 +105,7 @@ public final class HabitatLife {
             tag.putInt("Ticks",ticks);if(targetBlock!=null)tag.putString("Target",targetBlock.toShortString());return tag;}
     public String activity() { return task==Task.CLEAN?Behaviors.SHELTER_CLEAN:task==Task.NEST_BUILD?nestActivity():(task==Task.NEST_HARVEST||task==Task.HARVEST)
             &&plants.harvesting()?Behaviors.NEST_HARVEST:task==Task.NEST_PICKUP||task==Task.NEST_HARVEST?Behaviors.NEST_GATHER:task==Task.DEPOSIT||task==Task.SHARE
-            ||task==Task.GRAIN_PUT?Behaviors.SHELTER_CARRY:task==Task.STAY||task==Task.SIESTA?Behaviors.IDLE:task==Task.HARVEST||task==Task.PICKUP?Behaviors.SHELTER_GATHER:Behaviors.SHELTER_STOCK; }
+            ||task==Task.GRAIN_PUT?Behaviors.SHELTER_CARRY:task==Task.STAY||task==Task.SIESTA?Behaviors.IDLE:task==Task.ROAM?Behaviors.ROAM:task==Task.HARVEST||task==Task.PICKUP?Behaviors.SHELTER_GATHER:Behaviors.SHELTER_STOCK; }
     private String nestActivity(){
         var value=shelter();if(value==null||targetBlock==null||!SurfaceApproach.arrived(entity,Vec3.atBottomCenterOf(targetBlock)))return Behaviors.NEST_CARRY;
         int phase=value.nestWork(entity.getUUID())%60;return phase<20?Behaviors.NEST_PLACE:phase<40?Behaviors.NEST_SPREAD:Behaviors.NEST_PRESS;
@@ -123,7 +123,9 @@ public final class HabitatLife {
     public Residence residence() {
         if(!wildLiver())return Residence.ELSEWHERE;
         if(home!=null)return Residence.HOUSED;
-        return grownEnough()?Residence.VAGRANT:Residence.DEPENDENT;
+        // A player-placed care nest that is this individual's address is a home too: no vagrant dig or roam.
+        if(grownEnough())return entity.life().homeStand()!=null?Residence.HOUSED:Residence.VAGRANT;
+        return Residence.DEPENDENT;
     }
     public boolean vagrant() { return residence()==Residence.VAGRANT; }
     /** Share of the hollow in progress that is already dug, 0 when none. */
@@ -287,6 +289,8 @@ public final class HabitatLife {
         var value=shelter();boolean housed=value!=null&&value.usable(entity);
         if(!housed) {
             if(hasNestProject())cancelNestProject();
+            if(residence()==Residence.HOUSED&&home==null)
+                GameplayLog.limited(entity,"habitat","care.housed",6000,"housed by care nest address={} no vagrant project",entity.life().homeStand());
             var project=homes.vagrantProject();
             if(project==Result.DEFERRED)return false;
             if(project==Result.FOUND)return true;

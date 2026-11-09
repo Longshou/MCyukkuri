@@ -12,6 +12,17 @@ public final class TravelRange {
     public static final int PATH_RANGE = 64;
     public static final int BABY_RADIUS = 3;
 
+    /** Singing, exercise and play cards start only this near the home: about half the adult stroll (20), so the song carries to the nest. */
+    public static final int LEISURE_RADIUS = 10;
+    /** A parent of unweaned young strolls this far from them: three baby radii, inside the leisure radius, still in sight of the nest. */
+    public static final int NURSE_RADIUS = 3 * BABY_RADIUS;
+
+    /** Whether a new leisure session may start here: no home means unrestricted (homeless and migrating ones are excluded elsewhere). */
+    public static boolean nearHomeForLeisure(YukkuriEntity animal) {
+        BlockPos home = animal.life().homeStand();
+        return home == null || animal.distanceToSqr(Vec3.atBottomCenterOf(home)) <= LEISURE_RADIUS * LEISURE_RADIUS;
+    }
+
     public static int search(YukkuriEntity animal, int previous) {
         return animal.family().stage() == Stage.BABY && !animal.family().emergencyForaging() ? Math.min(previous, BABY_RADIUS) : previous * SCALE;
     }
