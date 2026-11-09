@@ -10,7 +10,6 @@
 | --- | --- | --- |
 | 搬运放下：接生、带回窝、托幼三链放不下孩子（二分 `birth_land_caught` 回归中；第三轮 `carry_home` END 19/20，`birth_land_caught` 先放下再收帽 9/20、主线 16/20；报告 `.local/refactor/reports/wp-cs-carry-putdown.md`） | `.worktrees/wp-cs-carry-putdown` | family/ParentCarry.java、motor/action/Release.java、life/SurfaceApproach.java |
 | 生9 夜里自己醒来：夜间入睡后睡到天亮，只有真实原因才醒 | `.worktrees/wp-eb-night-sleep` | life/YukkuriLife.java、home/HomeProvider.java、docs/FEATURES.md |
-| 草4 第一步：社交靠近每 tick 驱动（停走爬行） | `.worktrees/wp-ed-approach-tick` | social/YukkuriSocial.java、social/SelfOffering.java |
 | 动作库分级 M1：wiki 常见行为→现有片段→基础／组装／特殊分级目录 | `.worktrees/wp-em1-motion-tiers` | standards/yukkuri-library/motions/index.json、standards/yukkuri-library/motions/README.md |
 | 生7 茎生母油朝向巢、生11 接生父油平静等待不抽搐（关闭“摘帽接生朝向逐 tick 来回”） | `.worktrees/wp-ec-birth-facing` | family/LiveBirth.java、family/FamilyLife.java（watchBirth）、command/ScenarioSetup.java（出生提前量） |
 | 生10 帽上子油无地面影子、辫子上伸不转圈 | `.worktrees/wp-ef-carry-hat-fixes` | client/YukkuriRenderer.java（影子）、standards/yukkuri-library/motions/variants/lore/braid_keys.py、contact-safe/braid_chain.py 与 motion 导出 |
