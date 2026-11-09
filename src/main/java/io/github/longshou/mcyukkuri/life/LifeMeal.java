@@ -43,6 +43,12 @@ final class LifeMeal {
     static final float FULL = 75;
     /** This meal left it full and it lets itself melt in contentment after the swallow (meal_content); transient, like the clock below. */
     private boolean content;
+    /** The face this individual melts with and the one it stands up with (see {@link #sated}); null when this meal shows no melt face. */
+    private String meltFace, meltTail;
+    /** A composed adult never melts, but its meal finish keeps a restrained face instead of the ordinary finish that ends on a broad smile. */
+    private String finishFace;
+    /** The stand-up beat after the melt: one second of the face it leaves the melt with (project design, no clip authors it). */
+    private static final int MELT_TAIL_TICKS = 20;
     /** No contented melt before this tick: a moment after a filling meal, not a habit. */
     private long contentAfter;
     ItemStack mouth() { return mouth; }
@@ -96,7 +102,7 @@ final class LifeMeal {
         feeder = null;
         sharedMeal = true;
         preparedMeal = false;
-        content = false;
+        content = false; meltFace = meltTail = finishFace = null;
         mealTicks = 1;
         o.beginConsumption();
         o.entity().getNavigation().stop();
@@ -126,7 +132,8 @@ final class LifeMeal {
         bowlMeal = false;
         bodyFood = BodyFood.Bite.EMPTY;
         syncBodyFood();
-        mouth = transferred.copy(); mealHold = 0; feeder = fromPlayer; sharedMeal = alreadyShared; preparedMeal = InfantFood.isMash(transferred); content = false; mealTicks = 1;
+        mouth = transferred.copy(); mealHold = 0; feeder = fromPlayer; sharedMeal = alreadyShared; preparedMeal = InfantFood.isMash(transferred); content = false;
+        meltFace = meltTail = finishFace = null; mealTicks = 1;
         o.beginConsumption(); o.entity().getNavigation().stop(); o.entity().setPersistenceRequired();
         o.entity().showReaction("happy", reaction, 60);
         GameplayLog.event(o.entity(), "meal", "received item={} count={} holder=mouth feeder={} prepared={} shared={}",
@@ -241,12 +248,23 @@ final class LifeMeal {
                 if(!filling&&!spicy&&toxic==0&&!waste)o.entity().heal(2); o.personality().fed(feeder); o.entity().pet().contact(feeder,
                         true); WildEvents.fed(o.entity(),feeder); String treat = Sweets.eaten(o.entity(), swallowed, feeder); o.entity().mind().ate(swallowed, treat != null); feeder = null;
                 if (bowlMeal) { o.entity().pet().routineCompleted(0); bowlMeal = false; }
+                // A melting meal keeps the swallow face only to the end of the swallow (tick 53 starts the melt), so it cannot cover the after-meal clip.
                 o.entity().gameEvent(GameEvent.EAT); if(!o.entity().body().sick()||!(spicy||toxic>0))o.entity().showReaction(spicy||toxic>0?"surprise":grass||waste?"teary":"happy",
-                        spicy||toxic>0?"hurt":grass||waste?"bitter":treat!=null?treat:"fed", 100);
+                        spicy||toxic>0?"hurt":grass||waste?"bitter":treat!=null?treat:"fed", content ? 8 : 100);
                 if(!spicy&&toxic==0&&!grass&&!waste)o.level().sendParticles(ParticleTypes.HEART, o.entity().getX(), o.entity().getY()+o.entity().getBbHeight(), o.entity().getZ(), 3, .1, .05, .1, 0);
                 }
             }
-            if (mealTicks >= mealEnd()) { mealTicks = 0; sharedMeal = false; preparedMeal = false; content = false; o.finishConsumption(); }
+            if (mealTicks == 53) {
+                // The after-meal clip now carries the face: this individual's melt, or the composed adult's restraint over the finish.
+                if (meltFace != null) o.entity().showReaction(meltFace, "", EcologyPresentation.duration(Behaviors.MEAL_CONTENT));
+                else if (finishFace != null) o.entity().showReaction(finishFace, "", EcologyPresentation.duration(Behaviors.MEAL_FINISH));
+            }
+            if (mealTicks >= mealEnd()) {
+                mealTicks = 0; sharedMeal = false; preparedMeal = false; content = false;
+                if (meltTail != null) o.entity().showReaction(meltTail, "", MELT_TAIL_TICKS);
+                meltFace = meltTail = finishFace = null;
+                o.finishConsumption();
+            }
         }
         return true;
     }
@@ -267,9 +285,21 @@ final class LifeMeal {
         int composure = o.personality().selfControl();
         String reason = !pleasant ? "unpleasant" : e.isPassenger() ? "aboard" : !young && composure >= 90 ? "composed" : now < contentAfter ? "recent" : null;
         content = reason == null;
-        if (content) contentAfter = now + 1200 + (young ? 0 : 24 * composure);
-        GameplayLog.event(e, "meal", "full nutrition={} -> {} content={} reason={} selfControl={}", before, o.nutrition(), content,
-                reason == null ? "melt" : reason, composure);
+        meltFace = null; meltTail = null; finishFace = null;
+        if (content) {
+            contentAfter = now + 1200 + (young ? 0 : 24 * composure);
+            // The melt face is this body's own, from values it already has (bands, not scene literals):
+            // an overshoot or a body under the tired line (25, the same line EcologyPresentation draws the tired face at) drowses off;
+            // one that was starving before the bite is moved by it; greedy young ones drool; a bold loner is pleased with itself.
+            if (o.nutrition() >= 95 || o.energy() < 25) { meltFace = "sleepy"; meltTail = "yawn"; }
+            else if (before < 25) { meltFace = "teary_smile"; meltTail = "satisfied"; }
+            else if (young) { meltFace = "drool"; meltTail = "open_smile"; }
+            else if (composure < 40) { meltFace = "open_drool"; meltTail = "open_smile"; }
+            else if (o.personality().boldness() >= 70 && o.personality().friendliness() < 40) { meltFace = "smug"; meltTail = "closed_smile"; }
+            else { meltFace = "satisfied"; meltTail = "closed_smile"; }
+        } else if (reason.equals("composed")) finishFace = "closed_smile";
+        GameplayLog.event(e, "meal", "full nutrition={} -> {} content={} reason={} selfControl={} face={}", before, o.nutrition(), content,
+                reason == null ? "melt" : reason, composure, meltFace != null ? meltFace : finishFace != null ? finishFace : "-");
     }
 
     private void swallowBodyFood() {
@@ -290,15 +320,16 @@ final class LifeMeal {
         WildEvents.fed(o.entity(), null);
         o.entity().mind().ate(swallowed);
         if (bowlMeal) { o.entity().pet().routineCompleted(0); bowlMeal = false; }
+        // Same rule as an item meal: a melting body keeps the swallow face only to the end of the swallow.
         o.entity().gameEvent(GameEvent.EAT);
-        o.entity().showReaction(swallowed.odor() >= 40 ? "teary" : "happy", swallowed.odor() >= 40 ? "hurt" : "fed", 100);
+        o.entity().showReaction(swallowed.odor() >= 40 ? "teary" : "happy", swallowed.odor() >= 40 ? "hurt" : "fed", content ? 8 : 100);
     }
     boolean preparedMeal() { return preparedMeal; }
     void bowlMeal() { bowlMeal = true; }
     void beginDose(ItemStack one, UUID player, boolean returnBottle) {
         bodyFood = BodyFood.Bite.EMPTY;
         syncBodyFood();
-        mouth=one.copy();mealHold=0;feeder=player;sharedMeal=true;content=false;o.doses().returnBottle(returnBottle);mealTicks=1;
+        mouth=one.copy();mealHold=0;feeder=player;sharedMeal=true;content=false; meltFace = meltTail = finishFace = null; o.doses().returnBottle(returnBottle);mealTicks=1;
     }
     boolean releaseForInterrupt() {
         if (!bodyFood.isEmpty()) {
@@ -321,6 +352,7 @@ final class LifeMeal {
         bodyFood = BodyFood.Bite.EMPTY;
         syncBodyFood();
         mealTicks = 0; mealHold = 0; feeder = null; sharedMeal = false;preparedMeal=false;
+        content = false; meltFace = meltTail = finishFace = null;
     }
     void save(CompoundTag tag) {
         if (!mouth.isEmpty()) tag.put("Mouth", mouth.save(o.entity().registryAccess()));
