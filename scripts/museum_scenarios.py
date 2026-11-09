@@ -621,7 +621,7 @@ land_birth('birth_stem_caught', '茎生实子落进父油的帽子', '茎生实�
            '魔理沙父油把帽子放到茎下（帽口对准实子，近侧帽檐可伸到母油身前）：实子带一点随机横向力脱落，落在帽上的都坐上帽子、不会穿过帽子掉到帽下地面：落在帽檐上的先坐上帽檐再滚进帽腔（日志 [body] contact … occupancy=ON_RIM、newborn on hat rim rolls inward、[action] start id=gesture … brim=into_hollow），帽腔挤满时从帽檐外侧滚落、落地摔伤；只有落到帽外（或只擦到帽檐外缘）的才受摔伤（日志 birth landed outcome=HAT/GROUND，birth impact injury；没接住看 falling newborn not caught reason=）；母油静止时花梗竖直不摆；多重复几次看比例',
            'land_caught', smoke=dict(ticks=6000,
                expect=[r'birth landed [^\n]*outcome=HAT\b'],
-               forbid=[r'birth landed [^\n]*outcome=WATER\b', r'\[body\][^\n]* invariant\b']))
+               forbid=[r'birth landed [^\n]*outcome=WATER\b', r'\[body\][^\n]* invariant\b']), wait='约 30 秒临产，之后看照护')
 
 add('feed', 'family', '饿赤油求食，亲油找粮嚼糜喂', '饿赤油求食，亲油找粮嚼糜喂',
     '三家饥饿赤油：前排孩子在窝、后排亲油在窝、最右低友善对照。左侧16格外只有两份苹果，另有一株草；看接受后找粮、真实采食、嚼糜和窝内外交接。低友善仍可能接受；无粮须显示搜索结束原因，可手动补苹果再观察',
