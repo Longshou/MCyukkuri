@@ -1,0 +1,421 @@
+{
+  "axis": "stage",
+  "tiers": ["baby", "juvenile", "young", "adult"],
+  "policy": "Rules for a later authoring build; existing hand-written line pairs remain authoritative. Never mechanically rewrite all text.",
+  "entries": [
+    {
+      "id": "baby_frame",
+      "zh": "赤油：简短词句，通常只表达一个眼前需求。",
+      "ja": "赤体：短い語句で、目の前の必要を一つ表す。",
+      "en": "Baby: short words or phrases, normally one immediate need.",
+      "basis": ["P"],
+      "status": "rule",
+      "data": {"clause_range": [0, 1], "focus": ["caregiver", "food", "warmth", "following", "stop", "close"], "tone": ["fixed_lisp", "reduplication", "pause", "partial_imitation"]}
+    },
+    {
+      "id": "baby_cognition",
+      "zh": "赤油不强塞路线、配给或交易逻辑；幼语不等于无认知。",
+      "ja": "赤体に経路・配給・取引の論理を押し込まず、幼語を無知と同一視しない。",
+      "en": "Do not force routing, rationing, or trade logic onto babies; lisping is not absence of cognition.",
+      "basis": ["P", "L36", "F09"],
+      "status": "rule",
+      "data": {"allowed": ["immediate_cause", "simple_request", "recognition"], "avoid": ["route_plan", "ration_plan", "trade_logic"]}
+    },
+    {
+      "id": "baby_syntax",
+      "zh": "允许单词、叠词、停顿与半句模仿。",
+      "ja": "単語・反復・間・半身の模倣を許す。",
+      "en": "Allow single words, reduplication, pauses, and partial imitation.",
+      "basis": ["P", "F09"],
+      "status": "rule",
+      "data": {"structures": ["single_word", "reduplication", "pause", "partial_imitation"]}
+    },
+    {
+      "id": "baby_counting_cap",
+      "zh": "现有制作源中赤油数到二，之后说“好多好多”。",
+      "ja": "現在の制作源では赤体は二まで数え、その後は「たくさん」と言う。",
+      "en": "In the current authoring source, babies count to two, then say lots.",
+      "basis": ["P"],
+      "status": "rule",
+      "data": {"cap": 2, "overflow": {"zh": "好多好多", "ja": "いっぱい", "en": "lots"}}
+    },
+    {
+      "id": "baby_self_name",
+      "zh": "赤油用幼称或短鸣自称，优先沿用角色呼名。",
+      "ja": "赤体は幼称や短い鳴き声で自称し、役割の呼名を優先する。",
+      "en": "Babies use a juvenile self-name or cry, preferring the established character name.",
+      "basis": ["F21", "P"],
+      "status": "rule",
+      "data": {"slot": "{nb}", "fallback": "{c}"}
+    },
+    {
+      "id": "baby_caregiver_address",
+      "zh": "只对比对当前可辨认的照看者使用妈妈、爸爸等称呼。",
+      "ja": "現在識別できる世話役にだけ母父の呼称を使う。",
+      "en": "Use parent terms only for a currently recognized caregiver.",
+      "basis": ["L36", "P"],
+      "status": "rule",
+      "data": {"requires": ["recognized_target", "actual_relationship"]}
+    },
+    {
+      "id": "baby_action_narration",
+      "zh": "赤油以动作词或需求词为主，不写复杂计划自白。",
+      "ja": "赤体は動作語や欲求語を中心にし、複雑な計画の自白を避ける。",
+      "en": "Babies favour action and need words over complex plan narration.",
+      "basis": ["P", "L36"],
+      "status": "rule",
+      "data": {"preferred": ["action_word", "need_word"], "avoid": ["complex_plan"]}
+    },
+    {
+      "id": "baby_cry_slot",
+      "zh": "用 {c} 插入种族短鸣，不把短鸣当完整语义。",
+      "ja": "{c} に種族の短い鳴き声を入れ、それだけを完全な意味としない。",
+      "en": "Use {c} for the species cry; a cry alone is not a complete proposition.",
+      "basis": ["P"],
+      "status": "rule",
+      "data": {"slot": "{c}", "source_axis": "species"}
+    },
+    {
+      "id": "juvenile_frame",
+      "zh": "子油：一至两个小句，能问简单因果。",
+      "ja": "子体：一つか二つの小文で、簡単な因果を尋ねられる。",
+      "en": "Juvenile: one or two short clauses and simple cause-and-effect questions.",
+      "basis": ["P"],
+      "status": "rule",
+      "data": {"clause_range": [1, 2], "allowed": ["simple_cause", "learned_task", "peer_comparison"]}
+    },
+    {
+      "id": "juvenile_cognition",
+      "zh": "子油围绕学会一件事、被认可与同伴比较；懂得的事可以说清楚。",
+      "ja": "子体は学習・承認・仲間の比較を話題にし、分かることは明確に言える。",
+      "en": "Juveniles discuss learning, recognition, and peers; they can state what they understand clearly.",
+      "basis": ["P"],
+      "status": "rule",
+      "data": {"focus": ["learning", "recognition", "peer_comparison"], "avoid": ["universal_ignorance", "universal_malice"]}
+    },
+    {
+      "id": "juvenile_tone",
+      "zh": "保留幼语词形与模仿成体的语尾，好奇和自信交替。",
+      "ja": "幼語と成体を真似た語尾を残し、好奇と自信を行き来させる。",
+      "en": "Keep juvenile word forms and imitated adult endings; alternate curiosity and confidence.",
+      "basis": ["P", "E06"],
+      "status": "rule",
+      "data": {"tone": ["curious", "confident"], "inherit": ["baby_word_forms", "species_ending"]}
+    },
+    {
+      "id": "juvenile_reuse_baby",
+      "zh": "旧版缺少独立子油词表时，子油可沿用赤油固定词形，但整句仍单独撰写。",
+      "ja": "独立した子体語表がない場合は固定語形を赤体から継承し、全文は別に作る。",
+      "en": "Where no separate juvenile vocabulary exists, reuse baby fixed forms but author the full line separately.",
+      "basis": ["P", "D01"],
+      "status": "rule",
+      "data": {"reuse": ["welcome", "core_word", "sweet_sweets", "happiness", "marisa_ending"], "copy_whole_lines": false}
+    },
+    {
+      "id": "juvenile_counting_cap",
+      "zh": "普通子油数到三，更多叫“很多”。",
+      "ja": "通常の子体は三まで数え、それ以上を「たくさん」と言う。",
+      "en": "Ordinary juveniles count to three, then say lots.",
+      "basis": ["F21", "L36", "P"],
+      "status": "rule",
+      "data": {"cap": 3, "overflow": {"zh": "好多好多", "ja": "いっぱい、いっぱい", "en": "lots and lots"}}
+    },
+    {
+      "id": "juvenile_self_name",
+      "zh": "子油用 {n} 槽插入幼称，用 {e} 插入种族语尾。",
+      "ja": "子体は {n} に幼称、{e} に種族語尾を入れる。",
+      "en": "Juveniles use {n} for their self-name and {e} for the species ending.",
+      "basis": ["P", "F21"],
+      "status": "rule",
+      "data": {"self_name_slot": "{n}", "ending_slot": "{e}", "prefix_slot": "{p}"}
+    },
+    {
+      "id": "juvenile_address",
+      "zh": "子油称呼比赤油完整，但保留しゃん等幼语音。",
+      "ja": "子体の呼称は赤体より完全だが、しゃんなどの幼語音を残す。",
+      "en": "Juvenile address forms are fuller than baby forms while retaining sounds such as shan.",
+      "basis": ["P", "D01"],
+      "status": "rule",
+      "data": {"mother": {"zh": "妈妈", "ja": "おかーしゃん", "en": "Mama"}, "father": {"zh": "爸爸", "ja": "おとーしゃん", "en": "Papa"}, "human": {"zh": "人类先生", "ja": "にんげんしゃん", "en": "Mr. Human"}}
+    },
+    {
+      "id": "young_legacy_frame",
+      "zh": "亚成油沿用现有 young 兼容声线，是手写台词层，不自动由成体句改写。",
+      "ja": "young は既存の互換声線で、手書き行の層であり、成体文の自動変換ではない。",
+      "en": "Young is the existing hand-authored compatibility voice, not an automatic rewrite of adult lines.",
+      "basis": ["P"],
+      "status": "rule",
+      "data": {"runtime_tier": "young", "automatic_rewrite": false}
+    },
+    {
+      "id": "young_fallback",
+      "zh": "现有回退链为赤油→young、子油→young、young→子油。",
+      "ja": "既存の代替順は baby→young、juvenile→young、young→juvenile。",
+      "en": "Existing fallbacks are baby to young, juvenile to young, and young to juvenile.",
+      "basis": ["P"],
+      "status": "rule",
+      "data": {"fallbacks": {"baby": "young", "juvenile": "young", "young": "juvenile"}}
+    },
+    {
+      "id": "young_adult_voice",
+      "zh": "成体可因既有 youngVoice 设置保留 young 声线，不改实际年龄。",
+      "ja": "成体も既存の youngVoice 設定で young 声線を保て、実年齢は変えない。",
+      "en": "An adult may retain the young voice through the existing youngVoice setting without changing age.",
+      "basis": ["P", "E13"],
+      "status": "rule",
+      "data": {"speaker_stage": "adult", "voice_tier": "young", "changes_stage": false}
+    },
+    {
+      "id": "adult_frame",
+      "zh": "成油：一至三个较完整的小句，不写成长篇人类议论文。",
+      "ja": "成体：一つから三つの比較的完全な小文で、長い人間の議論文にしない。",
+      "en": "Adult: one to three relatively complete clauses, not a long human essay.",
+      "basis": ["P"],
+      "status": "rule",
+      "data": {"clause_range": [1, 3], "avoid": ["long_essay"]}
+    },
+    {
+      "id": "adult_cognition",
+      "zh": "成油可谈今天与明天的简单安排、照看、协商与经验。",
+      "ja": "成体は今日と明日の簡単な予定・世話・相談・経験を話せる。",
+      "en": "Adults can discuss simple plans for today and tomorrow, care, negotiation, and experience.",
+      "basis": ["P", "L36"],
+      "status": "rule",
+      "data": {"focus": ["simple_plan", "care", "negotiation", "remembered_experience"]}
+    },
+    {
+      "id": "adult_tone",
+      "zh": "大多使用完整句，保留少量种族节奏和物品昵称。",
+      "ja": "完全文を中心に、少量の種族調と愛称を残す。",
+      "en": "Use mostly complete sentences while retaining light species rhythm and object nicknames.",
+      "basis": ["P", "L36"],
+      "status": "rule",
+      "data": {"preferred": "complete_sentence", "retain": ["species_rhythm", "object_san"]}
+    },
+    {
+      "id": "adult_counting_cap",
+      "zh": "普通成油数到三，更多叫“很多”。",
+      "ja": "通常の成体は三まで数え、それ以上を「たくさん」と言う。",
+      "en": "Ordinary adults count to three, then say lots.",
+      "basis": ["F21", "L36"],
+      "status": "rule",
+      "data": {"cap": 3, "overflow": {"zh": "好多好多", "ja": "たくさん、たくさん", "en": "lots and lots"}}
+    },
+    {
+      "id": "adult_self_name",
+      "zh": "成油优先用既定呼名作第三人称自称。",
+      "ja": "成体も既定の呼名による三人称自称を優先する。",
+      "en": "Adults also prefer third-person self-reference by their established name.",
+      "basis": ["F21"],
+      "status": "rule",
+      "data": {"self_name_slot": "{n}", "english_slot": "{N}"}
+    },
+    {
+      "id": "adult_address",
+      "zh": "成油称呼用较完整形式，关系与态度仍优先于阶段。",
+      "ja": "成体は完全な呼称を使い、関係と態度を段階より優先する。",
+      "en": "Adults use fuller address forms, while relationship and attitude still outrank stage.",
+      "basis": ["L36", "P"],
+      "status": "rule",
+      "data": {"mother": {"zh": "妈妈", "ja": "おかあさん", "en": "Mama"}, "father": {"zh": "爸爸", "ja": "おとうさん", "en": "Papa"}, "human": {"zh": "人类先生", "ja": "にんげんさん", "en": "Mr. Human"}}
+    },
+    {
+      "id": "adult_may_keep_baby_talk",
+      "zh": "成体也可能保留幼态说法；不得自动校正全部台词。",
+      "ja": "成体も幼い言い方を保つことがあり、全行を自動修正しない。",
+      "en": "Adults may retain childish speech; do not automatically correct every line.",
+      "basis": ["L36", "E13"],
+      "status": "rule",
+      "data": {"allow_voice_stage_mismatch": true}
+    },
+    {
+      "id": "stage_not_intelligence",
+      "zh": "口吻、年龄、智力和行动能力分别判断。",
+      "ja": "話し方・年齢・知能・行動能力を別々に判断する。",
+      "en": "Judge voice, age, intelligence, and capability independently.",
+      "basis": ["L36", "P"],
+      "status": "rule",
+      "data": {"independent_axes": ["voice", "life_stage", "intelligence", "capability"]}
+    },
+    {
+      "id": "stage_not_body_size",
+      "zh": "年龄不明时用简短完整句，不凭体型推定年龄。",
+      "ja": "年齢不明では短い完全文を使い、体格から年齢を推定しない。",
+      "en": "With unknown age, use a short complete sentence rather than inferring age from size.",
+      "basis": ["P", "E05"],
+      "status": "rule",
+      "data": {"unknown_age_fallback": "short_complete_sentence"}
+    },
+    {
+      "id": "explicit_editing_only",
+      "zh": "近音字必须逐条显式编辑，不做任意字符替换。",
+      "ja": "近似音の字は個別に編集し、任意の文字置換を行わない。",
+      "en": "Review near-phonetic forms individually; never apply arbitrary character substitution.",
+      "basis": ["P"],
+      "status": "rule",
+      "data": {"automatic_global_rewrite": false}
+    },
+    {
+      "id": "zh_wo_to_wo_lisp",
+      "zh": "我 → 窝（编辑候选）。",
+      "ja": "中国語の一人称を「窝」とする編集候補。",
+      "en": "Chinese first-person wo to the lisped 窝 (editing candidate).",
+      "basis": ["P"],
+      "status": "candidate",
+      "data": {"language": "zh", "from": "我", "to": "窝", "scope": "review_each_line"}
+    },
+    {
+      "id": "zh_zhe_to_jie",
+      "zh": "这 → 介（编辑候选）。",
+      "ja": "「这」を「介」とする編集候補。",
+      "en": "Chinese zhe to the near-phonetic 介 (editing candidate).",
+      "basis": ["P"],
+      "status": "candidate",
+      "data": {"language": "zh", "from": "这", "to": "介", "scope": "review_each_line"}
+    },
+    {
+      "id": "zh_xiansheng_to_xiansen",
+      "zh": "先生 → 先森（编辑候选）。",
+      "ja": "「先生」を「先森」とする編集候補。",
+      "en": "Chinese xiansheng to the near-phonetic 先森 (editing candidate).",
+      "basis": ["P"],
+      "status": "candidate",
+      "data": {"language": "zh", "from": "先生", "to": "先森", "scope": "review_each_line"}
+    },
+    {
+      "id": "zh_re_to_re_lisp",
+      "zh": "语尾近音可写作“惹”，如惹杰／惹哟；按种族固定词形逐条使用。",
+      "ja": "語尾の近似音に「惹」を使い、惹杰・惹哟など種族の固定形を個別に適用する。",
+      "en": "Use re-lisped endings such as 惹杰 or 惹哟 only as species-specific reviewed forms.",
+      "basis": ["D01", "P"],
+      "status": "ready",
+      "data": {"language": "zh", "from": "语尾", "to": "惹", "scope": "species_fixed_endings_only", "examples": {"marisa": "惹杰", "reimu": "惹哟"}}
+    },
+    {
+      "id": "zh_hao_to_gao",
+      "zh": "好甜好甜 → 搞甜搞甜（固定用例，不全局替换“好”）。",
+      "ja": "好甜好甜を搞甜搞甜とする固定例で、「好」全体は置換しない。",
+      "en": "Use 搞甜搞甜 for the baby sweet-sweets form; never globally replace hao.",
+      "basis": ["D01"],
+      "status": "ready",
+      "data": {"language": "zh", "from": "好甜好甜", "to": "搞甜搞甜", "scope": "fixed_phrase_only"}
+    },
+    {
+      "id": "ja_yukkuri_to_yukkuchi",
+      "zh": "ゆっくり → ゆっくち（固定幼语词形）。",
+      "ja": "ゆっくりをゆっくちとする固定幼語形。",
+      "en": "Yukkuri to yukkuchi as a fixed baby form.",
+      "basis": ["D01"],
+      "status": "ready",
+      "data": {"language": "ja", "from": "ゆっくり", "to": "ゆっくち", "scope": "fixed_phrase_or_reviewed_line"}
+    },
+    {
+      "id": "ja_nai_to_nyai",
+      "zh": "ない → にゃい（现有幼语句中的否定近音候选）。",
+      "ja": "ないをにゃいとする既存幼語行の否定候補。",
+      "en": "Nai to nyai in reviewed baby negatives.",
+      "basis": ["P"],
+      "status": "candidate",
+      "data": {"language": "ja", "from": "ない", "to": "にゃい", "scope": "review_each_line"}
+    },
+    {
+      "id": "ja_tsu_to_chu",
+      "zh": "つ → ちゅ（ひとつ→ひとちゅ等现有候选）。",
+      "ja": "つをちゅとする候補（ひとつ→ひとちゅなど）。",
+      "en": "Tsu to chu in reviewed forms such as hitotsu to hitochu.",
+      "basis": ["P"],
+      "status": "candidate",
+      "data": {"language": "ja", "from": "つ", "to": "ちゅ", "scope": "review_each_line", "examples": {"ひとつ": "ひとちゅ", "ふたつ": "ふたちゅ", "みっつ": "みっちゅ"}}
+    },
+    {
+      "id": "ja_su_to_shu",
+      "zh": "す → しゅ（すっきり→しゅっきち等现有候选）。",
+      "ja": "すをしゅとする候補（すっきり→しゅっきちなど）。",
+      "en": "Su to shu in reviewed forms such as sukkiri to shukkichi.",
+      "basis": ["P"],
+      "status": "candidate",
+      "data": {"language": "ja", "from": "す", "to": "しゅ", "scope": "review_each_line", "examples": {"すっきり": "しゅっきち"}}
+    },
+    {
+      "id": "ja_arigatou_to_arigacho",
+      "zh": "ありがとう → ありがちょ（现有赤油候选）。",
+      "ja": "ありがとうをありがちょとする既存赤体候補。",
+      "en": "Arigatou to arigacho in reviewed baby thanks.",
+      "basis": ["P"],
+      "status": "candidate",
+      "data": {"language": "ja", "from": "ありがとう", "to": "ありがちょ", "scope": "review_each_line"}
+    },
+    {
+      "id": "ja_kudasai_to_chorai",
+      "zh": "ください → ちょーらい（现有赤油候选）。",
+      "ja": "くださいをちょーらいとする既存赤体候補。",
+      "en": "Kudasai to chorai in reviewed baby requests.",
+      "basis": ["P"],
+      "status": "candidate",
+      "data": {"language": "ja", "from": "ください", "to": "ちょーらい", "scope": "review_each_line"}
+    },
+    {
+      "id": "ja_gomen_to_gomenyashai",
+      "zh": "ごめんなさい → ごめにゃしゃい（现有赤油候选）。",
+      "ja": "ごめんなさいをごめにゃしゃいとする既存赤体候補。",
+      "en": "Gomennasai to gomenyashai in reviewed baby apologies.",
+      "basis": ["P"],
+      "status": "candidate",
+      "data": {"language": "ja", "from": "ごめんなさい", "to": "ごめにゃしゃい", "scope": "review_each_line"}
+    },
+    {
+      "id": "ja_oishii_to_oichi",
+      "zh": "おいしい → おいち（现有赤油候选）。",
+      "ja": "おいしいをおいちとする既存赤体候補。",
+      "en": "Oishii to oichi in reviewed baby food lines.",
+      "basis": ["P"],
+      "status": "candidate",
+      "data": {"language": "ja", "from": "おいしい", "to": "おいち", "scope": "review_each_line"}
+    },
+    {
+      "id": "ja_kowai_to_koai",
+      "zh": "こわい → こあい（现有赤油候选）。",
+      "ja": "こわいをこあいとする既存赤体候補。",
+      "en": "Kowai to koai in reviewed baby fear lines.",
+      "basis": ["P"],
+      "status": "candidate",
+      "data": {"language": "ja", "from": "こわい", "to": "こあい", "scope": "review_each_line"}
+    },
+    {
+      "id": "ja_san_to_shan",
+      "zh": "さん → しゃん／しゃ（称呼中的幼语候选，不全局替换）。",
+      "ja": "さんをしゃん・しゃとする呼称候補で、全体置換はしない。",
+      "en": "San to shan or sha in reviewed address forms only.",
+      "basis": ["P", "D01"],
+      "status": "candidate",
+      "data": {"language": "ja", "from": "さん", "to": ["しゃん", "しゃ"], "scope": "address_forms_only"}
+    },
+    {
+      "id": "patchouli_counting_override",
+      "zh": "帕秋莉是现有制作源中的数数例外，可数到九。",
+      "ja": "パチュリーは現在の制作源で九まで数える例外。",
+      "en": "Patchouli is the existing authoring exception and counts to nine.",
+      "basis": ["P", "L36", "F147"],
+      "status": "rule",
+      "data": {"species": "patchouli", "cap": 9, "tiers": ["juvenile", "young", "adult"]}
+    },
+    {
+      "id": "fixed_forms_not_error_correction",
+      "zh": "保留既定幼语近音字，不把它们当错别字统一修正。",
+      "ja": "既定の幼語を誤字として一括修正しない。",
+      "en": "Preserve established juvenile near-phonetic forms instead of correcting them as typos.",
+      "basis": ["D01", "P"],
+      "status": "rule",
+      "data": {"normalize_to_adult": false}
+    },
+    {
+      "id": "stress_slur_not_stage",
+      "zh": "疼痛或受压的含糊发音不能当幼语替换表。",
+      "ja": "痛みや圧迫の不明瞭な発音を幼語表として使わない。",
+      "en": "Pain- or pressure-induced slurring is not a baby-speech substitution table.",
+      "basis": ["F54", "P"],
+      "status": "rule",
+      "data": {"separate_overlay": "muffled_pain"}
+    }
+  ]
+}

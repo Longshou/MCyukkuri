@@ -1,0 +1,699 @@
+{
+  "axis": "common",
+  "entries": [
+    {
+      "id": "welcome_take_it_easy",
+      "zh": "油库里洗跌一跌捏！",
+      "ja": "ゆっくりしていってね！",
+      "en": "Take it easy!",
+      "basis": ["D01", "F17", "P"],
+      "status": "ready",
+      "kind": "fixed_phrase",
+      "forms": {
+        "baby": {"zh": "油库气洗切一切捏！", "ja": "ゆっくち しちぇいっちぇにぇ！", "en": "Chake id eaji!"},
+        "juvenile": {"zh": "油库气洗切一切捏！", "ja": "ゆっくち しちぇいっちぇにぇ！", "en": "Chake id eaji!"},
+        "adult": {"zh": "油库里洗跌一跌捏！", "ja": "ゆっくりしていってね！", "en": "Take it easy!"}
+      },
+      "notes": "Juvenile reuse of the baby form is a project writing rule."
+    },
+    {
+      "id": "newborn_welcome_reply",
+      "zh": "小贝比酱，油库里洗跌一跌捏！",
+      "ja": "おちびちゃん、ゆっくりしていってね！",
+      "en": "Take it easy, little one!",
+      "basis": ["F17", "D01", "P"],
+      "status": "ready",
+      "kind": "family_response"
+    },
+    {
+      "id": "invitation_take_it_slow",
+      "zh": "一起慢慢来！",
+      "ja": "いっしょにゆっくりしよう！",
+      "en": "Let's take it slow together!",
+      "basis": ["L36", "P"],
+      "status": "ready",
+      "kind": "invitation"
+    },
+    {
+      "id": "core_word",
+      "zh": "油库里",
+      "ja": "ゆっくり",
+      "en": "take it easy",
+      "basis": ["D01", "P"],
+      "status": "ready",
+      "kind": "fixed_word",
+      "forms": {
+        "baby": {"zh": "油库气", "ja": "ゆっくち", "en": "yukkuchi"},
+        "juvenile": {"zh": "油库气", "ja": "ゆっくち", "en": "yukkuchi"},
+        "adult": {"zh": "油库里", "ja": "ゆっくり", "en": "yukkuri"}
+      }
+    },
+    {
+      "id": "easy_yes",
+      "zh": "可以油库里。",
+      "ja": "ゆっくりできる。",
+      "en": "I can take it easy.",
+      "basis": ["D01", "P"],
+      "status": "ready",
+      "kind": "evaluation"
+    },
+    {
+      "id": "uneasy_no",
+      "zh": "不能油库里。",
+      "ja": "ゆっくりできない。",
+      "en": "I can't take it easy.",
+      "basis": ["D01", "P"],
+      "status": "ready",
+      "kind": "evaluation"
+    },
+    {
+      "id": "uneasy_feeling",
+      "zh": "总觉得不能油库里。",
+      "ja": "なんだかゆっくりできない。",
+      "en": "Somehow, I can't take it easy here.",
+      "basis": ["L36", "P"],
+      "status": "ready",
+      "kind": "intuition_not_detection"
+    },
+    {
+      "id": "easy_feeling",
+      "zh": "好像很能油库里。",
+      "ja": "なんだかゆっくりできそう。",
+      "en": "This feels like a place to take it easy.",
+      "basis": ["L36", "P"],
+      "status": "ready",
+      "kind": "intuition_not_detection"
+    },
+    {
+      "id": "cry_yu",
+      "zh": "油……",
+      "ja": "ゆ……",
+      "en": "Yu...",
+      "basis": ["D01"],
+      "status": "ready",
+      "kind": "cry"
+    },
+    {
+      "id": "cry_yuu",
+      "zh": "油呜……",
+      "ja": "ゆぅ……",
+      "en": "Yuu...",
+      "basis": ["D01"],
+      "status": "ready",
+      "kind": "cry"
+    },
+    {
+      "id": "cry_yuyu_question",
+      "zh": "油油？",
+      "ja": "ゆゆっ？",
+      "en": "Yu-yu?",
+      "basis": ["D01", "P"],
+      "status": "ready",
+      "kind": "confused_cry"
+    },
+    {
+      "id": "chew",
+      "zh": "嚼嚼。",
+      "ja": "むーしゃむーしゃ。",
+      "en": "Munch munch.",
+      "basis": ["D01", "P"],
+      "status": "ready",
+      "kind": "action_reduplication",
+      "forms": {
+        "baby": {"zh": "吧唧，吧唧。", "ja": "むーちゃ、むーちゃ。", "en": "Nom, nom."},
+        "adult": {"zh": "嚼嚼。", "ja": "むーしゃむーしゃ。", "en": "Munch munch."}
+      }
+    },
+    {
+      "id": "nuzzle",
+      "zh": "擦擦脸。",
+      "ja": "すーりすーり。",
+      "en": "Rub rub.",
+      "basis": ["E06", "D01"],
+      "status": "ready",
+      "kind": "affection_action",
+      "forms": {
+        "baby": {"zh": "渣渣脸。", "ja": "すーり、すーり。", "en": "Nuzzle nuzzle."},
+        "adult": {"zh": "擦擦脸。", "ja": "すーりすーり。", "en": "Rub rub."}
+      }
+    },
+    {
+      "id": "puff",
+      "zh": "噗咕——",
+      "ja": "ぷくー",
+      "en": "Puff puff!",
+      "basis": ["E04", "D01"],
+      "status": "ready",
+      "kind": "display_action"
+    },
+    {
+      "id": "sweet_sweets",
+      "zh": "好甜好甜！",
+      "ja": "あまあま！",
+      "en": "Sweet sweets!",
+      "basis": ["D01", "P"],
+      "status": "ready",
+      "kind": "food_word",
+      "forms": {
+        "baby": {"zh": "搞甜搞甜！", "ja": "あまあま！", "en": "Swee-swee!"},
+        "juvenile": {"zh": "搞甜搞甜！", "ja": "あまあま！", "en": "Swee-swee!"},
+        "adult": {"zh": "好甜好甜！", "ja": "あまあま！", "en": "Sweet sweets!"}
+      }
+    },
+    {
+      "id": "happiness",
+      "zh": "幸福！",
+      "ja": "しあわせ！",
+      "en": "So happy!",
+      "basis": ["D01", "P"],
+      "status": "ready",
+      "kind": "feeling",
+      "forms": {
+        "baby": {"zh": "粉幸福！幸胡！", "ja": "しあわちぇ！", "en": "So happy!"},
+        "juvenile": {"zh": "粉幸福！幸胡！", "ja": "しあわちぇ！", "en": "So happy!"},
+        "adult": {"zh": "幸福！", "ja": "しあわせ！", "en": "So happy!"}
+      }
+    },
+    {
+      "id": "little_one",
+      "zh": "小贝比酱",
+      "ja": "おちびちゃん",
+      "en": "little one",
+      "basis": ["D01"],
+      "status": "ready",
+      "kind": "address",
+      "conditions": ["actual_child", "care_or_family_relation"]
+    },
+    {
+      "id": "thing_san",
+      "zh": "宝物先生",
+      "ja": "たからものさん",
+      "en": "Mr. Treasure",
+      "basis": ["L36", "F21", "F11", "P"],
+      "status": "ready",
+      "kind": "object_personification"
+    },
+    {
+      "id": "food_san",
+      "zh": "饭先生",
+      "ja": "ごはんさん",
+      "en": "Mr. Food",
+      "basis": ["E03", "P"],
+      "status": "ready",
+      "kind": "object_personification",
+      "forms": {
+        "baby": {"zh": "饭鲜笋", "ja": "まんま", "en": "Num-num"},
+        "adult": {"zh": "饭先生", "ja": "ごはんさん", "en": "Mr. Food"}
+      }
+    },
+    {
+      "id": "home_san",
+      "zh": "家先生",
+      "ja": "おうちさん",
+      "en": "Mr. Home",
+      "basis": ["D01", "P"],
+      "status": "ready",
+      "kind": "object_personification"
+    },
+    {
+      "id": "glass_san",
+      "zh": "玻璃先森",
+      "ja": "ガラスさん",
+      "en": "Mr. Glass",
+      "basis": ["L36", "P"],
+      "status": "ready",
+      "kind": "object_personification"
+    },
+    {
+      "id": "accessory_san",
+      "zh": "头饰先生",
+      "ja": "かざりさん",
+      "en": "Mr. Hair Thing",
+      "basis": ["L36", "P"],
+      "status": "ready",
+      "kind": "object_personification"
+    },
+    {
+      "id": "refusal_da",
+      "zh": "不要哒。",
+      "ja": "いやだ。",
+      "en": "No!",
+      "basis": ["D01"],
+      "status": "ready",
+      "kind": "refusal"
+    },
+    {
+      "id": "unun",
+      "zh": "嗯嗯",
+      "ja": "うんうん",
+      "en": "poo poo",
+      "basis": ["D01", "F21"],
+      "status": "ready",
+      "kind": "body_word"
+    },
+    {
+      "id": "home_declaration_term",
+      "zh": "家园宣言",
+      "ja": "おうち宣言",
+      "en": "home declaration",
+      "basis": ["E10", "E12"],
+      "status": "ready",
+      "kind": "terminology_not_dialogue"
+    },
+    {
+      "id": "home_declaration_question",
+      "zh": "这里能做我的家先生吗？",
+      "ja": "ここをわたしのおうちさんにしてもいい？",
+      "en": "Can this be my home, Mr. Home?",
+      "basis": ["E10", "E12", "P"],
+      "status": "ready",
+      "kind": "home_declaration"
+    },
+    {
+      "id": "easy_place",
+      "zh": "油库里普雷斯",
+      "ja": "ゆっくりプレイス",
+      "en": "easy place",
+      "basis": ["E12", "D01", "P"],
+      "status": "ready",
+      "kind": "place_word",
+      "forms": {
+        "baby": {"zh": "油库气普雷啾", "ja": "ゆっくちぷれいちゅ", "en": "easy pway"},
+        "adult": {"zh": "油库里普雷斯", "ja": "ゆっくりプレイス", "en": "easy place"}
+      }
+    },
+    {
+      "id": "flying_feeling",
+      "zh": "像在空中飞一样！",
+      "ja": "おそらをとんでるみたい！",
+      "en": "It feels like flying in the sky!",
+      "basis": ["L36", "P"],
+      "status": "ready",
+      "kind": "sensation_not_ability"
+    },
+    {
+      "id": "greeting_calm",
+      "zh": "油库里洗跌一跌捏！",
+      "ja": "ゆっくりしていってね！",
+      "en": "Take it easy!",
+      "basis": ["D01", "P"],
+      "status": "ready",
+      "kind": "intent_greeting",
+      "tone": "calm"
+    },
+    {
+      "id": "greeting_nervous",
+      "zh": "油……你要过来吗？",
+      "ja": "ゆ……こっちにくるの？",
+      "en": "Yu... are you coming over?",
+      "basis": ["P"],
+      "status": "ready",
+      "kind": "intent_greeting",
+      "tone": "nervous"
+    },
+    {
+      "id": "greeting_close",
+      "zh": "给你留了能油库里的位置！",
+      "ja": "ゆっくりできる場所を残しておいたよ！",
+      "en": "I saved you a place to take it easy!",
+      "basis": ["P"],
+      "status": "ready",
+      "kind": "intent_greeting",
+      "tone": "close"
+    },
+    {
+      "id": "ask_food_calm",
+      "zh": "还有好甜好甜吗？",
+      "ja": "あまあまはまだある？",
+      "en": "Are there any sweet sweets left?",
+      "basis": ["D01", "P"],
+      "status": "ready",
+      "kind": "intent_request_food",
+      "tone": "calm"
+    },
+    {
+      "id": "ask_food_nervous",
+      "zh": "油……能分一点吗？",
+      "ja": "ゆ……少し分けてくれる？",
+      "en": "Yu... could you share a little?",
+      "basis": ["P"],
+      "status": "ready",
+      "kind": "intent_request_food",
+      "tone": "nervous"
+    },
+    {
+      "id": "share_food_close",
+      "zh": "这一份一起吃。",
+      "ja": "これをいっしょにたべよう。",
+      "en": "Let's share this portion.",
+      "basis": ["P"],
+      "status": "ready",
+      "kind": "intent_share",
+      "tone": "close"
+    },
+    {
+      "id": "propose_explore",
+      "zh": "去树根那边看看。",
+      "ja": "木の根のほうを見にいこう。",
+      "en": "Let's look over by the tree roots.",
+      "basis": ["P"],
+      "status": "ready",
+      "kind": "intent_proposal"
+    },
+    {
+      "id": "propose_together_nervous",
+      "zh": "一起去，好吗……？",
+      "ja": "いっしょにいこう、いい……？",
+      "en": "Shall we go together...?",
+      "basis": ["P"],
+      "status": "ready",
+      "kind": "intent_proposal",
+      "tone": "nervous"
+    },
+    {
+      "id": "follow_close",
+      "zh": "你带路，我跟着。",
+      "ja": "案内して、ついていくよ。",
+      "en": "You lead; I'll follow.",
+      "basis": ["P"],
+      "status": "ready",
+      "kind": "intent_follow",
+      "tone": "close"
+    },
+    {
+      "id": "refuse_rest",
+      "zh": "今天想先油库里。",
+      "ja": "きょうはまずゆっくりしたい。",
+      "en": "I want to take it easy first today.",
+      "basis": ["D01", "P"],
+      "status": "ready",
+      "kind": "intent_refusal"
+    },
+    {
+      "id": "refuse_close",
+      "zh": "先不要靠这么近哒……",
+      "ja": "まだそんなに近づかないで……",
+      "en": "Please don't come so close yet...",
+      "basis": ["D01", "P"],
+      "status": "ready",
+      "kind": "intent_refusal",
+      "tone": "nervous"
+    },
+    {
+      "id": "play_later",
+      "zh": "等歇好了，再一起玩。",
+      "ja": "休んだら、またいっしょにあそぼう。",
+      "en": "After a rest, let's play together.",
+      "basis": ["P"],
+      "status": "ready",
+      "kind": "intent_defer",
+      "tone": "close"
+    },
+    {
+      "id": "thanks_received",
+      "zh": "谢谢，已经收好。",
+      "ja": "ありがとう、もうしまったよ。",
+      "en": "Thank you; I've put it away.",
+      "basis": ["P"],
+      "status": "ready",
+      "kind": "intent_thanks"
+    },
+    {
+      "id": "thanks_comfort",
+      "zh": "油呜……可以油库里了。",
+      "ja": "ゆぅ……ゆっくりできるよ。",
+      "en": "Yuu... I can take it easy now.",
+      "basis": ["D01", "P"],
+      "status": "ready",
+      "kind": "intent_thanks",
+      "tone": "relieved"
+    },
+    {
+      "id": "thanks_return",
+      "zh": "下次也给你留一份。",
+      "ja": "こんどもひとつ残しておくよ。",
+      "en": "I'll save a portion for you next time too.",
+      "basis": ["P"],
+      "status": "ready",
+      "kind": "intent_thanks",
+      "tone": "close"
+    },
+    {
+      "id": "confused_how",
+      "zh": "油油？这个怎么做？",
+      "ja": "ゆゆっ？これはどうするの？",
+      "en": "Yu-yu? How does this work?",
+      "basis": ["D01", "P"],
+      "status": "ready",
+      "kind": "intent_confused"
+    },
+    {
+      "id": "repeat_request",
+      "zh": "再说一遍，可以吗？",
+      "ja": "もう一度いってくれる？",
+      "en": "Could you say that again?",
+      "basis": ["P"],
+      "status": "ready",
+      "kind": "intent_confused",
+      "tone": "nervous"
+    },
+    {
+      "id": "teach_slowly",
+      "zh": "慢慢教我。",
+      "ja": "ゆっくり教えて。",
+      "en": "Teach me slowly.",
+      "basis": ["P"],
+      "status": "ready",
+      "kind": "intent_learning",
+      "tone": "close"
+    },
+    {
+      "id": "forage_failure",
+      "zh": "今天没找到多少。",
+      "ja": "きょうはあまり見つからなかった。",
+      "en": "I didn't find much today.",
+      "basis": ["P"],
+      "status": "ready",
+      "kind": "intent_failure"
+    },
+    {
+      "id": "too_tired",
+      "zh": "油……有点走不动了。",
+      "ja": "ゆ……もうあまり歩けないよ。",
+      "en": "Yu... I can hardly walk any more.",
+      "basis": ["P"],
+      "status": "ready",
+      "kind": "intent_rest",
+      "tone": "tired"
+    },
+    {
+      "id": "return_home_together",
+      "zh": "一起回家先生，下次再来。",
+      "ja": "いっしょにおうちさんへ帰って、またこよう。",
+      "en": "Let's go home together and come back next time.",
+      "basis": ["P"],
+      "status": "ready",
+      "kind": "intent_failure",
+      "tone": "close"
+    },
+    {
+      "id": "boast_hunt",
+      "zh": "我完成了一场英勇的大狩猎！",
+      "ja": "わたしは勇ましい大狩りをやったぞ！",
+      "en": "I completed a heroic hunt!",
+      "basis": ["L36", "P"],
+      "status": "ready",
+      "kind": "self_boast_not_fact"
+    },
+    {
+      "id": "boast_meal",
+      "zh": "这是特别盛大的一餐！",
+      "ja": "これは特別に盛大な食事だ！",
+      "en": "This is an especially grand meal!",
+      "basis": ["L36", "P"],
+      "status": "ready",
+      "kind": "self_boast_not_fact"
+    },
+    {
+      "id": "self_pity",
+      "zh": "为什么只有我遇不到好事……",
+      "ja": "どうしてわたしだけいいことがないの……",
+      "en": "Why do good things never happen to me...",
+      "basis": ["L36", "P"],
+      "status": "ready",
+      "kind": "self_pity_not_fact"
+    },
+    {
+      "id": "third_person_self",
+      "zh": "用角色名自称，不默认用“我”。",
+      "ja": "一人称の代わりに自分の呼名を使う。",
+      "en": "Prefer the character's name over a generic first-person pronoun.",
+      "basis": ["F21"],
+      "status": "rule",
+      "kind": "grammar_rule"
+    },
+    {
+      "id": "cute_self_boast",
+      "zh": "幼体可在自称里夸自己可爱。",
+      "ja": "幼体は自称にかわいさの自慢を添えられる。",
+      "en": "Young speakers may call themselves cute in self-reference.",
+      "basis": ["F21"],
+      "status": "rule",
+      "kind": "grammar_rule"
+    },
+    {
+      "id": "narrate_own_action",
+      "zh": "把自己正在做或打算做的事直接说出来。",
+      "ja": "自分の行動や予定をそのまま口に出す。",
+      "en": "Narrate the speaker's own current action or plan directly.",
+      "basis": ["L36"],
+      "status": "rule",
+      "kind": "narration_rule"
+    },
+    {
+      "id": "counting_lots",
+      "zh": "普通个体数到三，更多叫“很多”。",
+      "ja": "通常は三まで数え、それ以上を「たくさん」と言う。",
+      "en": "Ordinary speakers count to three, then say lots.",
+      "basis": ["F21", "L36"],
+      "status": "rule",
+      "kind": "counting_rule"
+    },
+    {
+      "id": "lots_enough",
+      "zh": "很多就够了！",
+      "ja": "たくさんあれば十分だ！",
+      "en": "Lots is enough!",
+      "basis": ["F21", "P"],
+      "status": "ready",
+      "kind": "quantity_expression"
+    },
+    {
+      "id": "want_now",
+      "zh": "现在就要！",
+      "ja": "いま欲しい！",
+      "en": "I want it now!",
+      "basis": ["F21", "P"],
+      "status": "ready",
+      "kind": "urgency_expression"
+    },
+    {
+      "id": "stretch_stretch",
+      "zh": "伸伸——",
+      "ja": "のびのびー",
+      "en": "Stretch stretch!",
+      "basis": ["F21", "P"],
+      "status": "ready",
+      "kind": "action_reduplication"
+    },
+    {
+      "id": "lick_lick",
+      "zh": "舔舔。",
+      "ja": "ぺろぺろ。",
+      "en": "Lick lick.",
+      "basis": ["F21", "P"],
+      "status": "ready",
+      "kind": "action_reduplication"
+    },
+    {
+      "id": "pee_pee",
+      "zh": "嘘嘘。",
+      "ja": "おしっこ。",
+      "en": "Pee pee.",
+      "basis": ["F21", "P"],
+      "status": "ready",
+      "kind": "body_word"
+    },
+    {
+      "id": "address_forms",
+      "zh": "称呼随真实关系、识别结果和态度变化，不由种族或体型自动生成。",
+      "ja": "呼称は実関係・識別・態度で変え、種族や体格から自動生成しない。",
+      "en": "Address follows actual relationship, recognition, and attitude, never species or size alone.",
+      "basis": ["L36", "F21", "P"],
+      "status": "rule",
+      "kind": "address_table",
+      "data": {"baby": {"mother": "麻麻", "father": "拔拔", "human": "人类先先", "owner": "饲主先生"}, "juvenile": {"mother": "妈妈", "father": "爸爸", "human": "人类先生", "owner": "饲主先生"}, "adult": {"mother": "妈妈", "father": "爸爸", "human": "人类先生", "owner": "饲主先生"}, "hostile": {"old": "臭老太婆", "man": "粪老头"}, "requires_recognition": true}
+    },
+    {
+      "id": "human_kind_address",
+      "zh": "人类先生",
+      "ja": "にんげんさん",
+      "en": "Mr. Human",
+      "basis": ["L36", "P"],
+      "status": "ready",
+      "kind": "relationship_address"
+    },
+    {
+      "id": "human_brother_address",
+      "zh": "大哥哥",
+      "ja": "おにいさん",
+      "en": "big brother",
+      "basis": ["L36", "P"],
+      "status": "ready",
+      "kind": "relationship_address"
+    },
+    {
+      "id": "human_sister_address",
+      "zh": "大姐姐",
+      "ja": "おねえさん",
+      "en": "big sister",
+      "basis": ["L36", "P"],
+      "status": "ready",
+      "kind": "relationship_address"
+    },
+    {
+      "id": "owner_address",
+      "zh": "饲主先生",
+      "ja": "かいぬしさん",
+      "en": "Mr. Owner",
+      "basis": ["L36", "P"],
+      "status": "ready",
+      "kind": "relationship_address"
+    },
+    {
+      "id": "hostile_old_address",
+      "zh": "臭老太婆",
+      "ja": "くそばばあ",
+      "en": "old hag",
+      "basis": ["L36", "P"],
+      "status": "ready",
+      "kind": "hostile_relationship_address"
+    },
+    {
+      "id": "hostile_man_address",
+      "zh": "粪老头",
+      "ja": "くそじじい",
+      "en": "old geezer",
+      "basis": ["L36", "P"],
+      "status": "ready",
+      "kind": "hostile_relationship_address"
+    },
+    {
+      "id": "big_easy",
+      "zh": "大油库里",
+      "ja": "大いなるゆっくり",
+      "en": "the Big Easy",
+      "basis": ["F17", "P"],
+      "status": "candidate",
+      "kind": "death_euphemism"
+    },
+    {
+      "id": "forever_easy",
+      "zh": "永远慢慢来",
+      "ja": "永遠にゆっくりする",
+      "en": "take it easy forever",
+      "basis": ["F17", "P"],
+      "status": "candidate",
+      "kind": "death_euphemism"
+    },
+    {
+      "id": "muffled_pain",
+      "zh": "受压或疼痛时吐字更浊、更含糊。",
+      "ja": "圧迫や痛みでは発音を濁らせ、不明瞭にする。",
+      "en": "Under pressure or pain, make speech heavier and less distinct.",
+      "basis": ["F54"],
+      "status": "rule",
+      "kind": "performance_rule_not_baby_rule"
+    }
+  ]
+}

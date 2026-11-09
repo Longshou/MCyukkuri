@@ -1,0 +1,430 @@
+{
+  "axis": "special",
+  "composition_order": ["valid_intent", "recognized_relationship", "individual_voice", "base_species_and_stage", "special_override", "mood_and_situation"],
+  "entries": [
+    {
+      "id": "deficient_babble",
+      "zh": "油嗶——",
+      "ja": "ゆぴー",
+      "en": "Yupi!",
+      "basis": ["P"],
+      "status": "candidate",
+      "kind": "deficient_voice",
+      "data": {"form": "deficient", "short_cry_only_when_runtime_selects_babble": true, "intelligence_inference": false}
+    },
+    {
+      "id": "deficient_face_inherits_species",
+      "zh": "面部不足仍保留原种与实际年龄的口癖。",
+      "ja": "顔の不足でも元種と実年齢の口癖を保つ。",
+      "en": "Facial deficiency retains base-species and actual-age speech.",
+      "basis": ["P"],
+      "status": "rule",
+      "data": {"form": "face_deficient", "inherit": ["species", "stage"]}
+    },
+    {
+      "id": "slender_deficient_rhythm",
+      "zh": "油呜……等等窝。",
+      "ja": "ゆぅ……まって。",
+      "en": "Yuu... wait for me.",
+      "basis": ["P"],
+      "status": "ready",
+      "kind": "slender_deficient_voice",
+      "data": {"form": "slender", "rhythm": "short", "inherit": ["species", "stage"]}
+    },
+    {
+      "id": "slender_not_longbody",
+      "zh": "细长豆形与长条种分开，不能仅凭外形套同一短鸣。",
+      "ja": "細長豆形と長条種を分け、外見だけで同じ短鳴を当てない。",
+      "en": "Slender bean bodies and long-bodied forms are distinct; do not assign one cry by shape alone.",
+      "basis": ["P"],
+      "status": "rule",
+      "data": {"form_distinction": ["slender_deficient", "long_body_unimplemented"]}
+    },
+    {
+      "id": "wasa_reimu",
+      "zh": "软软的介里……一起来惹哟。",
+      "ja": "ふわふわのここ……いっしょにこようぢゃよ。",
+      "en": "This soft place... come here too, jayo.",
+      "basis": ["E05", "D01", "P"],
+      "status": "ready",
+      "kind": "special_form_sample",
+      "data": {"form": "wasa_reimu", "inherit_species": "reimu", "learning_difficulty_is_not_mutism": true}
+    },
+    {
+      "id": "wasa_adult_form_uncertain",
+      "zh": "多毛灵梦成年形态与唯一语尾未核验，沿用个体实际年龄口吻。",
+      "ja": "わされいむの成年形と唯一の語尾は未確認で、個体の実年齢の口調を使う。",
+      "en": "Wasa Reimu's adult form and unique ending are unverified; use the individual's actual-age voice.",
+      "basis": ["E05", "P"],
+      "status": "rule",
+      "data": {"form": "wasa_reimu", "force_unique_adult_ending": false}
+    },
+    {
+      "id": "shell_marisa_base",
+      "zh": "窝在介里等惹杰。",
+      "ja": "まりちゃはここでまっているのじぇ。",
+      "en": "I'll wait here, je.",
+      "basis": ["E05", "D01", "P"],
+      "status": "ready",
+      "kind": "special_form_sample",
+      "data": {"form": "shell_marisa", "voice": "marisa", "tier": "baby"}
+    },
+    {
+      "id": "shell_marisa_voice_options",
+      "zh": "螺壳魔理沙有灵梦式与魔理沙式记录，先采用个体明确设定。",
+      "ja": "つむりには霊夢式と魔理沙式の記録があり、個体の明示設定を優先する。",
+      "en": "Shell Marisa has Reimu-like and Marisa-like records; individual explicit voice wins.",
+      "basis": ["E05"],
+      "status": "rule",
+      "data": {"form": "shell_marisa", "allowed_base_voices": ["marisa", "reimu"], "default_override": false}
+    },
+    {
+      "id": "shell_adult_baby_voice",
+      "zh": "成体螺壳保留幼语只是可行个体设定，不推广到全部壳体。",
+      "ja": "成体つむりの幼語は個体設定として可能で、全つむりに広げない。",
+      "en": "An adult shell may retain baby talk as an individual trait, not a shell-wide rule.",
+      "basis": ["E13"],
+      "status": "rule",
+      "data": {"form": "shell_marisa", "allow_stage_voice_mismatch": true, "apply_to_all": false}
+    },
+    {
+      "id": "kotatsu_marisa_base",
+      "zh": "介里可以油库气惹杰。",
+      "ja": "ここでゆっくちできるのじぇ。",
+      "en": "I can take it easy here, je.",
+      "basis": ["L12", "D01", "P"],
+      "status": "ready",
+      "kind": "special_form_sample",
+      "data": {"form": "kotatsu_marisa", "inherit_species": "marisa", "tier": "baby"}
+    },
+    {
+      "id": "kotatsu_warm",
+      "zh": "被炉先生暖暖的，靠近一点就能油库里贼。",
+      "ja": "こたつさんはぽかぽかだ、近づけばゆっくりできるぜ。",
+      "en": "Mr. Kotatsu is warm; come closer and take it easy, ze.",
+      "basis": ["L12", "P"],
+      "status": "ready",
+      "kind": "special_state_sample",
+      "data": {"form": "kotatsu_marisa", "state": "warm"}
+    },
+    {
+      "id": "kotatsu_hot",
+      "zh": "油呜……太热啦，要去阴凉的地方歇歇贼。",
+      "ja": "ゆぅ……暑いから日陰で休むぜ。",
+      "en": "Yuu... too hot; I'll rest in the shade, ze.",
+      "basis": ["P"],
+      "status": "ready",
+      "kind": "special_state_sample",
+      "data": {"form": "kotatsu_marisa", "state": "hot"}
+    },
+    {
+      "id": "kotatsu_no_generation_claim",
+      "zh": "被炉台词不得声称凭空生成茶杯或橘子。",
+      "ja": "被炉の台詞で茶碗や蜜柑の無償生成を主張しない。",
+      "en": "Kotatsu lines must not claim conjured cups or oranges.",
+      "basis": ["L23", "P"],
+      "status": "rule",
+      "data": {"form": "kotatsu_marisa", "generated_items": false}
+    },
+    {
+      "id": "aquatic_marisa_base",
+      "zh": "帽船先生要稳稳的，身体不要掉进水里贼。",
+      "ja": "帽船さんを安定させて、体は水に落とさないぜ。",
+      "en": "Keep Mr. Hat Boat steady and don't fall into the water, ze.",
+      "basis": ["L25", "P"],
+      "status": "ready",
+      "kind": "special_form_sample",
+      "data": {"form": "aquatic_marisa", "inherit_species": "marisa", "body_waterproof": false}
+    },
+    {
+      "id": "aquatic_not_shell",
+      "zh": "水生帽船型不套螺壳的耐水台词，也不把浮力说成会游泳。",
+      "ja": "帽船型につむりの耐水台詞を使わず、浮力を游泳能力と言わない。",
+      "en": "Hat-boat Marisa does not use shell-waterproof claims or call buoyancy swimming.",
+      "basis": ["L25", "F18", "P"],
+      "status": "rule",
+      "data": {"form": "aquatic_marisa", "inherits_shell_water_resistance": false}
+    },
+    {
+      "id": "dos_marisa_base",
+      "zh": "都到树根旁边来，一起商量贼。",
+      "ja": "木の根のそばに集まって、いっしょに相談するぜ。",
+      "en": "Gather by the tree roots and let's discuss, ze.",
+      "basis": ["E05", "D01", "P"],
+      "status": "ready",
+      "kind": "special_form_sample",
+      "data": {"form": "dos_marisa", "inherit_species": "marisa", "role_from_actual_position": true}
+    },
+    {
+      "id": "dos_not_automatic_leader",
+      "zh": "体型不自动产生领导口吻；只有实际族长才发号施令。",
+      "ja": "体格だけで指導者口調にせず、実際の族長だけが指示する。",
+      "en": "Size alone does not create leader speech; only an actual chief issues role commands.",
+      "basis": ["E05", "P"],
+      "status": "rule",
+      "data": {"form": "dos_marisa", "leadership_source": "actual_role"}
+    },
+    {
+      "id": "deibu_reimu_base",
+      "zh": "灵胖沿用灵梦声线，不使用 Weibu 称呼。",
+      "ja": "霊胖は霊夢の声を継承し、Weibu の呼称を使わない。",
+      "en": "Deibu retains Reimu voice and does not use Weibu address.",
+      "basis": ["F151", "P"],
+      "status": "rule",
+      "data": {"form": "deibu_reimu", "inherit_species": "reimu", "weibu": false}
+    },
+    {
+      "id": "medicine_youngvoice",
+      "zh": "成体也可保留 young 声线，不能据此降低认知或行动能力。",
+      "ja": "成体も young 声線を保て、認知や行動能力をそれで下げない。",
+      "en": "An adult may retain the young voice without reduced cognition or capability.",
+      "basis": ["P", "E13", "L36"],
+      "status": "rule",
+      "data": {"state": "youngVoice", "voice_tier": "young", "actual_stage": "adult"}
+    },
+    {
+      "id": "hatless_scorn",
+      "zh": "没有头饰的家伙，才不是油库里！",
+      "ja": "かざりのないやつはゆっくりじゃない！",
+      "en": "Someone with no hair thing is no yukkuri!",
+      "basis": ["F22", "P"],
+      "status": "ready",
+      "kind": "social_state_sample",
+      "data": {"state": "observer_scorns_hatless", "actual_blood_relation_unchanged": true}
+    },
+    {
+      "id": "hatless_monster",
+      "zh": "没有头饰的怪物……！别过来！",
+      "ja": "かざりのないかいぶつ……！こっちにこないで！",
+      "en": "A monster with no hair thing...! Stay away!",
+      "basis": ["F22", "P"],
+      "status": "ready",
+      "kind": "social_state_sample",
+      "data": {"state": "hatless_unrecognized", "recognition_requires_badge_or_exception": true}
+    },
+    {
+      "id": "hatless_self_pity",
+      "zh": "油呜……我的头饰先生没有了，还会被认出来吗？",
+      "ja": "ゆぅ……かざりさんがない、もう分かってもらえないの？",
+      "en": "Yuu... my hair thing is gone; will anyone recognise me?",
+      "basis": ["F22", "P"],
+      "status": "ready",
+      "kind": "social_state_sample",
+      "data": {"state": "hatless_self", "response_depends_on_personality": true}
+    },
+    {
+      "id": "unrecognized_kin",
+      "zh": "没有认出的对象不能直接叫妈妈、爸爸或名字。",
+      "ja": "識別できていない相手を母父や名前で直接呼ばない。",
+      "en": "Do not use a parent term or personal name for an unrecognized target.",
+      "basis": ["F22", "P"],
+      "status": "rule",
+      "data": {"state": "unrecognized", "fallback_address": ["你", "那边"], "blood_relation_does_not_bypass_recognition": true}
+    },
+    {
+      "id": "non_yukkuri_scream",
+      "zh": "油库己！油库己！油库己——！",
+      "ja": "ゆっくち！ゆっくち！ゆっくちぃぃ！",
+      "en": "Yukkuchi! Yukkuchi! Yukkuchiii!",
+      "basis": ["L36", "P"],
+      "status": "ready",
+      "kind": "broken_mind_voice",
+      "data": {"state": "non_yukkuri", "replaces_normal_intent": true, "reversible_by_comfort": false}
+    },
+    {
+      "id": "uneasy_voice",
+      "zh": "没办法慢慢来……",
+      "ja": "ゆっくりできない……",
+      "en": "I can't take it easy...",
+      "basis": ["F01", "P"],
+      "status": "ready",
+      "kind": "mood_state_sample",
+      "data": {"state": "uneasy", "before_terminal_non_yukkuri": true}
+    },
+    {
+      "id": "renamed_upset",
+      "zh": "我就是我！才不是那种名字！",
+      "ja": "わたしはわたし！そんな名前じゃない！",
+      "en": "I am me! That is not my name!",
+      "basis": ["L36", "P"],
+      "status": "ready",
+      "kind": "identity_state_sample",
+      "data": {"state": "renamed_upset", "use_species_self_name_slot": true}
+    },
+    {
+      "id": "kind_overlay",
+      "zh": "你先拿一块。",
+      "ja": "あなたが先にひとつ取って。",
+      "en": "You take a piece first.",
+      "basis": ["P"],
+      "status": "ready",
+      "kind": "personality_overlay",
+      "data": {"trait": "kind", "changes": ["politeness", "sharing"], "changes_species_or_stage": false}
+    },
+    {
+      "id": "impatient_overlay",
+      "zh": "我已经等好久啦！",
+      "ja": "もうずいぶん待ったよ！",
+      "en": "I've been waiting for so long!",
+      "basis": ["P"],
+      "status": "ready",
+      "kind": "personality_overlay",
+      "data": {"trait": "impatient", "changes": ["urgency", "sentence_rhythm"], "changes_species_or_stage": false}
+    },
+    {
+      "id": "timid_overlay",
+      "zh": "等等我……我也想看看。",
+      "ja": "まって……わたしも見てみたい。",
+      "en": "Wait for me... I want to see too.",
+      "basis": ["P"],
+      "status": "ready",
+      "kind": "personality_overlay",
+      "data": {"trait": "timid", "changes": ["pause", "volume", "request_form"]}
+    },
+    {
+      "id": "tired_overlay",
+      "zh": "我有点累……在这里歇歇吧。",
+      "ja": "少し疲れた……ここで休もう。",
+      "en": "I'm a little tired... let's rest here.",
+      "basis": ["P"],
+      "status": "ready",
+      "kind": "immediate_state_overlay",
+      "data": {"state": "tired", "adjust": ["sentence_length", "volume", "action"]}
+    },
+    {
+      "id": "hungry_overlay",
+      "zh": "油……先找食物先生，之后再玩吧。",
+      "ja": "ゆ……まずごはんさんを探して、あとはあとであそぼう。",
+      "en": "Yu... find Mr. Food first; play later.",
+      "basis": ["P"],
+      "status": "ready",
+      "kind": "immediate_state_overlay",
+      "data": {"state": "hungry", "priority": "food_before_play"}
+    },
+    {
+      "id": "close_overlay",
+      "zh": "今天也和你一起去。",
+      "ja": "きょうもあなたといっしょにいくよ。",
+      "en": "I'll go with you today too.",
+      "basis": ["P"],
+      "status": "ready",
+      "kind": "relationship_overlay",
+      "data": {"state": "close", "requires": ["recognized_target", "actual_relationship"]}
+    },
+    {
+      "id": "leader_overlay",
+      "zh": "听见了！大家先停一下。",
+      "ja": "聞こえた！みんな、いったん止まるぞ。",
+      "en": "I hear you! Everyone stop for a moment.",
+      "basis": ["P"],
+      "status": "ready",
+      "kind": "actual_role_overlay",
+      "data": {"role": "leader", "requires_actual_role": true}
+    },
+    {
+      "id": "nickname_individual_only",
+      "zh": "独特昵称只用于相应个体，不推广成变体通称。",
+      "ja": "固有愛称はその個体にだけ使い、変体の通称に広げない。",
+      "en": "A unique nickname belongs to its individual, not to an entire variant.",
+      "basis": ["P"],
+      "status": "rule",
+      "data": {"scope": "individual", "variant_name_inference": false}
+    },
+    {
+      "id": "house_yu_voice",
+      "zh": "家油沿用原种与阶段声线，室内寄居不创造新口癖。",
+      "ja": "家ゆっくりは元種と段階の声を使い、室内寄生で新しい口癖を作らない。",
+      "en": "House yu retain base species and stage voice; indoor habitation adds no tic.",
+      "basis": ["F63", "P"],
+      "status": "rule",
+      "data": {"form": "house_yu", "inherit": ["species", "stage"], "perpetual_juvenile_voice": false}
+    },
+    {
+      "id": "pet_identity_voice",
+      "zh": "宠物身份不改变种族声线，主人称呼必须有真实饲养关系。",
+      "ja": "宠物身份は種族声を変えず、飼い主呼称には実際の飼育関係が必要。",
+      "en": "Pet status does not change species voice; owner address requires an actual care relationship.",
+      "basis": ["F40", "P"],
+      "status": "rule",
+      "data": {"identity": "pet", "owner_term_requires_claim": true}
+    },
+    {
+      "id": "swaddled_voice",
+      "zh": "襁褓只叠加冷暖、脏污或求助情绪，不改变年龄声线。",
+      "ja": "襁褓は寒暖・汚れ・求助の感情を重ねるだけで、年齢声線を変えない。",
+      "en": "Swaddling overlays comfort, dirt, or help-seeking without changing age voice.",
+      "basis": ["L31", "P"],
+      "status": "rule",
+      "data": {"state": "swaddled", "inherit": ["species", "stage"]}
+    },
+    {
+      "id": "swaddled_dirty_request",
+      "zh": "油呜……叶叶脏了，想要擦干净。",
+      "ja": "ゆぅ……葉っぱが汚れた、きれいにしてほしい。",
+      "en": "Yuu... the leaf is dirty; I want to be cleaned.",
+      "basis": ["P"],
+      "status": "ready",
+      "kind": "special_state_sample",
+      "data": {"state": "swaddled_dirty"}
+    },
+    {
+      "id": "red_eyed_myon",
+      "zh": "红眼妖梦保留自身口癖，群体不祥评价不改变声音。",
+      "ja": "赤眼妖夢は自分の口癖を保ち、集団の不吉評価で声を変えない。",
+      "en": "Red-eyed Myon keeps its tic; group superstition does not change its voice.",
+      "basis": ["L05", "P"],
+      "status": "rule",
+      "data": {"form": "red_eyed_myon", "inherit_individual_quirk": true}
+    },
+    {
+      "id": "dying_last_wish",
+      "zh": "还想……再多……慢慢来一下……",
+      "ja": "もっと……ゆっくり……したかった……",
+      "en": "I wanted... to take it easy... a little longer...",
+      "basis": ["L36", "P"],
+      "status": "ready",
+      "kind": "terminal_state_sample",
+      "data": {"state": "dying", "adjust": ["pause", "short_clause"]}
+    },
+    {
+      "id": "grief_overlay",
+      "zh": "……醒醒……别把我留下……",
+      "ja": "……おきて……わたしを置いていかないで……",
+      "en": "...wake up... don't leave me behind...",
+      "basis": ["P"],
+      "status": "ready",
+      "kind": "grief_state_sample",
+      "data": {"state": "grief", "requires": ["actual_kin_or_bond", "target_present_or_remains"]}
+    },
+    {
+      "id": "self_offering_parent",
+      "zh": "没关系……吃了我，要长大哦……",
+      "ja": "いいの……わたしをたべて、おおきくなってね……",
+      "en": "It's alright... eat me and grow up big...",
+      "basis": ["L36", "P"],
+      "status": "ready",
+      "kind": "self_offering_sample",
+      "data": {"state": "offer_give", "actual_situation_required": true}
+    },
+    {
+      "id": "stench_disgust",
+      "zh": "好臭……这里没法慢慢来……",
+      "ja": "くさい……ここはゆっくりできない……",
+      "en": "It reeks... I can't take it easy here...",
+      "basis": ["L36", "P"],
+      "status": "ready",
+      "kind": "sensory_state_sample",
+      "data": {"state": "stench", "do_not_apply_to_fresh_filling": true}
+    },
+    {
+      "id": "stress_muffled_overlay",
+      "zh": "油……痛痛……听不清也没关系，先别碰……",
+      "ja": "ゆ……いたい……まず触らないで……",
+      "en": "Yu... it hurts... don't touch yet...",
+      "basis": ["F54", "P"],
+      "status": "candidate",
+      "kind": "stress_voice_sample",
+      "data": {"state": "pain", "slur_without_changing_stage": true}
+    }
+  ]
+}

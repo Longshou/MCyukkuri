@@ -1,0 +1,141 @@
+{
+  "axis": "species",
+  "species": "marisa",
+  "entries": [
+    {
+      "id": "voice_slots",
+      "zh": "魔理沙槽位：幼称魔理沙，短鸣油，成体语尾贼、幼体语尾惹杰。",
+      "ja": "魔理沙の槽：幼称まりちゃ、鳴き声ゆっ、語尾は成体だぜ・幼体なのじぇ。",
+      "en": "Marisa slots: maricha self-name, yu cry, da-ze adult and nanoje juvenile endings.",
+      "basis": ["D01", "P"],
+      "status": "rule",
+      "data": {"self_name": {"baby": "まりちゃ", "juvenile": "まりちゃ", "adult": "まりさ"}, "cry": {"ja": "ゆっ、ゆっ", "zh": "油、油", "en": "Yu, yu"}, "prefix": {"ja": "", "zh": "", "en": ""}, "ending": {"baby": {"ja": "のじぇ", "zh": "惹杰"}, "juvenile": {"ja": "なのじぇ", "zh": "惹杰"}, "adult": {"ja": "だぜ", "zh": "贼"}}}
+    },
+    {
+      "id": "adult_fixed_ending",
+      "zh": "贼",
+      "ja": "のぜ／だぜ",
+      "en": "ze",
+      "basis": ["D01", "E03"],
+      "status": "ready",
+      "kind": "fixed_ending",
+      "applies_to": ["adult"]
+    },
+    {
+      "id": "baby_fixed_ending",
+      "zh": "惹杰",
+      "ja": "のじぇ",
+      "en": "je",
+      "basis": ["D01"],
+      "status": "ready",
+      "kind": "fixed_ending",
+      "applies_to": ["baby", "juvenile"],
+      "notes": "Juvenile reuse is a project rule."
+    },
+    {
+      "id": "phonetic_overrides",
+      "zh": "魔理沙语尾按阶段用贼／惹杰；窝、介仍是逐句审核候选。",
+      "ja": "語尾は段階別に贼・惹杰とし、窝・介は個別審査の候補とする。",
+      "en": "Use ze/je by stage; wo/jie near-phonetic Chinese remains line-reviewed.",
+      "basis": ["D01", "P"],
+      "status": "rule",
+      "data": {"baby": {"ja": {"のぜ": "のじぇ"}, "zh": {"贼": "惹杰", "我": "窝", "这": "介"}}, "juvenile": {"zh": {"贼": "惹杰"}}, "scope": "review_each_line"}
+    },
+    {
+      "id": "address_forms",
+      "zh": "按真实关系使用妈妈、爸爸、姐姐、族长先生与人类称呼。",
+      "ja": "実際の関係で母父・姉・族長さん・人間の呼称を使う。",
+      "en": "Use parent, sibling, chief, and human forms only for real recognized relationships.",
+      "basis": ["L36", "P"],
+      "status": "rule",
+      "data": {"common_ref": "common.address_forms", "leader": {"zh": "族长先生", "ja": "ぞくちょうさん", "en": "Mr. Chief"}, "requires_recognition": true}
+    },
+    {
+      "id": "lexical_preferences",
+      "zh": "常以自信口吻提议行动、探险和自夸；自夸不等于真实能力。",
+      "ja": "自信のある行動・探検・自慢を好むが、自慢は実能力の証拠ではない。",
+      "en": "Often proposes action, adventure, and boasts confidently; boasting is not proof of ability.",
+      "basis": ["L09", "L36", "P"],
+      "status": "rule",
+      "data": {"preferred_topics": ["expedition", "leading", "self_boast"], "personality_overlay": true}
+    },
+    {
+      "id": "adult_example",
+      "zh": "那边我见过，跟着走贼！",
+      "ja": "あっちは知っている、ついてくるぜ！",
+      "en": "I know that way. Follow me, ze!",
+      "basis": ["D01", "P"],
+      "status": "ready",
+      "kind": "sample_line",
+      "tier": "adult"
+    },
+    {
+      "id": "baby_example",
+      "zh": "窝也去惹杰！",
+      "ja": "まりちゃもいくのじぇ！",
+      "en": "I'm going too, je!",
+      "basis": ["D01", "P"],
+      "status": "ready",
+      "kind": "sample_line",
+      "tier": "baby"
+    },
+    {
+      "id": "juvenile_expedition",
+      "zh": "那边有搞甜搞甜吗？窝想去看惹杰！",
+      "ja": "あっちにあまあまがある？まりちゃも見にいきたいのじぇ！",
+      "en": "Are there sweet sweets over there? I want to look, je!",
+      "basis": ["D01", "P"],
+      "status": "ready",
+      "kind": "sample_line",
+      "tier": "juvenile",
+      "situation": "expedition"
+    },
+    {
+      "id": "adult_prepare_expedition",
+      "zh": "先带一点吃的，累了就回来贼。",
+      "ja": "少し食べ物を持って、疲れたら帰るぜ。",
+      "en": "Bring a little food and come back when tired, ze.",
+      "basis": ["D01", "P"],
+      "status": "ready",
+      "kind": "sample_line",
+      "tier": "adult",
+      "situation": "expedition"
+    },
+    {
+      "id": "shell_overlay_ref",
+      "zh": "螺壳魔理沙先选基础口吻与语言阶段，不强行统一成体语尾。",
+      "ja": "つむりは基礎声と言語段階を先に選び、成体語尾を一律にしない。",
+      "en": "Shell Marisa selects base voice and language stage first; do not force one adult ending.",
+      "basis": ["E05", "E13", "P"],
+      "status": "rule",
+      "data": {"special_ref": "shell_marisa"}
+    },
+    {
+      "id": "kotatsu_overlay_ref",
+      "zh": "被炉魔理沙继承魔理沙声线，不照搬异作成长年限。",
+      "ja": "被炉魔理沙は魔理沙の声を継承し、異作の成長年数を移さない。",
+      "en": "Kotatsu Marisa inherits Marisa voice without importing another work's growth schedule.",
+      "basis": ["L12", "E14", "P"],
+      "status": "rule",
+      "data": {"special_ref": "kotatsu_marisa"}
+    },
+    {
+      "id": "dos_overlay_ref",
+      "zh": "DOS 沿用魔理沙声线，职位来自真实身份而非体型。",
+      "ja": "ドスも魔理沙の声を使い、役職は体格ではなく実身份から取る。",
+      "en": "DOS uses Marisa voice; role comes from actual social position, not size.",
+      "basis": ["E05", "P"],
+      "status": "rule",
+      "data": {"special_ref": "dos_marisa"}
+    },
+    {
+      "id": "aquatic_overlay_ref",
+      "zh": "水生魔理沙沿用魔理沙声线，帽船不另造口癖。",
+      "ja": "水生魔理沙は魔理沙の声を使い、帽船で別の口癖を作らない。",
+      "en": "Aquatic Marisa uses Marisa voice; the hat boat adds no new tic.",
+      "basis": ["L25", "P"],
+      "status": "rule",
+      "data": {"special_ref": "aquatic_marisa"}
+    }
+  ]
+}

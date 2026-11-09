@@ -1,0 +1,143 @@
+{
+  "axis": "species",
+  "species": "chen",
+  "entries": [
+    {
+      "id": "voice_slots",
+      "zh": "橙槽位：自称橙，短鸣油／喵，当前子油与成油语尾哟——。",
+      "ja": "橙の槽：自称ちぇん、鳴き声ゆ・にゃっ、現在の語尾はだよぅ・だよー。",
+      "en": "Chen slots: Chen self-name, yu/nya cry, current dayou/dayoo endings.",
+      "basis": ["P"],
+      "status": "rule",
+      "data": {"self_name": {"baby": "ちぇん", "juvenile": "ちぇん", "adult": "ちぇん"}, "cry": {"ja": "ゆ、にゃっ", "zh": "油、喵", "en": "Yu, nya"}, "prefix": {"ja": "", "zh": "", "en": ""}, "ending": {"juvenile": {"ja": "だよぅ", "zh": "哟——"}, "adult": {"ja": "だよー", "zh": "哟——"}}}
+    },
+    {
+      "id": "understand_adult",
+      "zh": "瓦卡鲁哟",
+      "ja": "わかるよー",
+      "en": "I get it!",
+      "basis": ["E04", "E06", "P"],
+      "status": "ready",
+      "kind": "original_chinese_transliteration",
+      "applies_to": ["adult"]
+    },
+    {
+      "id": "not_understand_adult",
+      "zh": "瓦卡拉奈哟",
+      "ja": "わからないよー",
+      "en": "I don't get it.",
+      "basis": ["F74", "P"],
+      "status": "ready",
+      "kind": "original_chinese_transliteration",
+      "applies_to": ["adult"]
+    },
+    {
+      "id": "understand_baby",
+      "zh": "瓦卡呜哟",
+      "ja": "わかるよぅ",
+      "en": "I get it!",
+      "basis": ["P"],
+      "status": "ready",
+      "kind": "original_chinese_transliteration",
+      "applies_to": ["baby", "juvenile"]
+    },
+    {
+      "id": "not_understand_baby",
+      "zh": "瓦卡呐奈哟",
+      "ja": "わからないよぅ",
+      "en": "I don't get it.",
+      "basis": ["P"],
+      "status": "ready",
+      "kind": "original_chinese_transliteration",
+      "applies_to": ["baby", "juvenile"]
+    },
+    {
+      "id": "ran_address",
+      "zh": "蓝大人／蓝大银",
+      "ja": "藍さま",
+      "en": "Ran-sama",
+      "basis": ["F74", "P"],
+      "status": "candidate",
+      "kind": "relationship_address",
+      "notes": "Original Chinese forms; the name does not imply that Ran exists in the project."
+    },
+    {
+      "id": "phonetic_overrides",
+      "zh": "橙的理解／不理解词形成幼分开；不懂时不能用肯定口癖。",
+      "ja": "理解・不理解の語形を成幼で分け、不理解に肯定語尾を使わない。",
+      "en": "Keep Chen's get-it forms stage-specific; never use the affirmative form while confused.",
+      "basis": ["E04", "E06", "P"],
+      "status": "rule",
+      "data": {"adult": {"positive": "瓦卡鲁哟", "negative": "瓦卡拉奈哟"}, "baby": {"positive": "瓦卡呜哟", "negative": "瓦卡呐奈哟"}, "semantic_consistency": true}
+    },
+    {
+      "id": "address_forms",
+      "zh": "普通称呼按真实关系使用，蓝大人只在相应关系存在时使用。",
+      "ja": "通常の呼称は実関係で選び、藍さまも対応する関係がある時だけ使う。",
+      "en": "Use ordinary relationship addresses; Ran-sama only where that relationship actually exists.",
+      "basis": ["L36", "F74", "P"],
+      "status": "rule",
+      "data": {"common_ref": "common.address_forms", "ran_requires_actual_character": true}
+    },
+    {
+      "id": "lexical_preferences",
+      "zh": "有限短句可配合视线与尾部动作；橙并不承担固定聚落职责。",
+      "ja": "短い文を視線と尾の動作で補い、集落の固定職には置かない。",
+      "en": "Short lines may be supported by gaze and tails; Chen has no fixed settlement duty.",
+      "basis": ["L03", "F74", "P"],
+      "status": "rule",
+      "data": {"nonverbal_channels": ["gaze", "tail"], "fixed_role": false}
+    },
+    {
+      "id": "adult_example",
+      "zh": "要轮流呀，瓦卡鲁哟！",
+      "ja": "交代でやるんだよ、わかるよー！",
+      "en": "We take turns, I get it!",
+      "basis": ["E04", "P"],
+      "status": "ready",
+      "kind": "sample_line",
+      "tier": "adult"
+    },
+    {
+      "id": "juvenile_expedition",
+      "zh": "要一起走呀，瓦卡呜哟！",
+      "ja": "いっしょにいくよぅ、わかるよぅ！",
+      "en": "Let's go together, I get it!",
+      "basis": ["P"],
+      "status": "ready",
+      "kind": "sample_line",
+      "tier": "juvenile",
+      "situation": "expedition"
+    },
+    {
+      "id": "weather_example",
+      "zh": "天上暗下来了，瓦卡鲁哟。",
+      "ja": "空が暗くなってきたよ、わかるよー。",
+      "en": "The sky is getting dark, I get it.",
+      "basis": ["E04", "P"],
+      "status": "ready",
+      "kind": "sample_line",
+      "situation": "rain"
+    },
+    {
+      "id": "confused_example",
+      "zh": "瓦卡拉奈哟……这个记号，能教教我吗？",
+      "ja": "わからないよー……この印を教えてくれる？",
+      "en": "I don't get it... can you teach me this mark?",
+      "basis": ["P"],
+      "status": "ready",
+      "kind": "sample_line",
+      "tier": "adult",
+      "situation": "new_mark"
+    },
+    {
+      "id": "song_example",
+      "zh": "大家坐一起，瓦卡鲁哟，暖暖呀！",
+      "ja": "みんなで座るよ、わかるよー、ぽかぽかだ！",
+      "en": "Everyone sit together, I get it; warm and warm!",
+      "basis": ["P"],
+      "status": "ready",
+      "kind": "original_short_verse"
+    }
+  ]
+}

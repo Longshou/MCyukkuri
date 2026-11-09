@@ -1,0 +1,122 @@
+{
+  "axis": "species",
+  "species": "alice",
+  "entries": [
+    {
+      "id": "voice_slots",
+      "zh": "爱丽丝槽位：幼称ありちゅ，短鸣油，当前子油语尾哟、成油语尾呢；固定旧译另有哇。",
+      "ja": "アリスの槽：幼称ありちゅ、鳴き声ゆっ、現在の語尾は子体にょ・成体わ。",
+      "en": "Alice slots: arichu self-name, yu cry, current nyo juvenile and wa adult endings.",
+      "basis": ["P"],
+      "status": "rule",
+      "data": {"self_name": {"baby": "ありちゅ", "juvenile": "ありちゅ", "adult": "ありす"}, "cry": {"ja": "ゆっ、ゆっ", "zh": "油、油", "en": "Yu, yu"}, "prefix": {"ja": "", "zh": "", "en": ""}, "ending": {"juvenile": {"ja": "にょ", "zh": "哟"}, "adult": {"ja": "わ", "zh": "呢"}}}
+    },
+    {
+      "id": "adult_fixed_ending",
+      "zh": "哇",
+      "ja": "わ",
+      "en": "wa",
+      "basis": ["D01"],
+      "status": "ready",
+      "kind": "legacy_fixed_form",
+      "applies_to": ["adult"]
+    },
+    {
+      "id": "city_sect_candidate",
+      "zh": "都凯哈",
+      "ja": "とかいは",
+      "en": "city sect",
+      "basis": ["E04", "P"],
+      "status": "candidate",
+      "kind": "transliteration_candidate",
+      "notes": "Chinese transliteration is project-original, not verified Hakkei wording."
+    },
+    {
+      "id": "phonetic_overrides",
+      "zh": "爱丽丝成人可用哇；都凯哈仅作都会派候选，不与灵梦幼语ぢゃよ混用。",
+      "ja": "成体はわを使い、とかいはは都会派の候補として霊夢のぢゃよと混ぜない。",
+      "en": "Adult Alice may use wa; tokaiha is a city-sect candidate, distinct from Reimu's baby jayo.",
+      "basis": ["D01", "E04", "P"],
+      "status": "candidate",
+      "data": {"adult": {"zh": {"语尾": "哇", "都会派": "都凯哈"}}, "scope": "review_each_line"}
+    },
+    {
+      "id": "address_forms",
+      "zh": "称呼按真实关系选择，城市派审美不改变亲属识别规则。",
+      "ja": "呼称は実関係で選び、都会派の趣味も親族識別を変えない。",
+      "en": "Address follows actual relationships; city-sect style does not change recognition.",
+      "basis": ["L36", "P"],
+      "status": "rule",
+      "data": {"common_ref": "common.address_forms", "requires_recognition": true}
+    },
+    {
+      "id": "lexical_preferences",
+      "zh": "可偏好整齐、持家和都会派评价；不强制冷静或擅长手工艺。",
+      "ja": "整頓・家事・都会派の評価を好めるが、冷静さや細工を全個体に強制しない。",
+      "en": "May favour tidiness, housekeeping, and city-sect judgments; never force calmness or crafting skill.",
+      "basis": ["L36", "L06", "P"],
+      "status": "rule",
+      "data": {"preferred_topics": ["tidiness", "home", "city_sect"], "crafting_inference": false}
+    },
+    {
+      "id": "adult_example",
+      "zh": "放在这边更整齐哇，都凯哈！",
+      "ja": "こちらに置くほうが整っているわ、とかいは！",
+      "en": "It is tidier over here, wa. Very city sect!",
+      "basis": ["D01", "E04", "P"],
+      "status": "ready",
+      "kind": "sample_line",
+      "tier": "adult"
+    },
+    {
+      "id": "nest_example",
+      "zh": "再铺一层叶子哇，试试软不软。",
+      "ja": "葉をもう一枚敷くわ、やわらかいか試して。",
+      "en": "Add another leaf, wa, and see whether it is soft.",
+      "basis": ["D01", "P"],
+      "status": "ready",
+      "kind": "sample_line",
+      "situation": "nest"
+    },
+    {
+      "id": "collection_example",
+      "zh": "这片叶子的颜色，和你的很配哇。",
+      "ja": "この葉の色はあなたに似合うわ。",
+      "en": "This leaf's colour suits you, wa.",
+      "basis": ["D01", "P"],
+      "status": "ready",
+      "kind": "sample_line",
+      "situation": "collection"
+    },
+    {
+      "id": "refusal_example",
+      "zh": "今天先不换，下次再一起看哇。",
+      "ja": "きょうは交換しないわ、またいっしょに見ましょう。",
+      "en": "No trade today, wa; let's look together next time.",
+      "basis": ["D01", "P"],
+      "status": "ready",
+      "kind": "sample_line",
+      "situation": "collection"
+    },
+    {
+      "id": "juvenile_map_example",
+      "zh": "画个记号，介样下次就认得啦。",
+      "ja": "印をつければ、こんどは分かるよ。",
+      "en": "I'll make a mark so I can recognise it next time.",
+      "basis": ["P"],
+      "status": "ready",
+      "kind": "sample_line",
+      "tier": "juvenile",
+      "situation": "map"
+    },
+    {
+      "id": "personality_boundary",
+      "zh": "爱丽丝也有不同个体，不能由种族直接写成攻击魔。",
+      "ja": "個体差があり、種族だけで攻撃的な役に固定しない。",
+      "en": "Individuals vary; species alone must not assign an aggressive role.",
+      "basis": ["L36", "F66", "P"],
+      "status": "rule",
+      "data": {"fixed_personality": false}
+    }
+  ]
+}

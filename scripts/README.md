@@ -137,6 +137,7 @@ SPAWN 保留 0.0625 格支撑容差、碰撞与初始卡墙检查；初始化内
 | `catalogue_hakkei_dialogue.py` | 只读原版八景 U 角色 CSV 与 ModLab 翻译／新增 TSV，生成分离的对白检索与来源指纹 | 写 `art/dialogue/native-u/`，不写来源游戏和运行资源 |
 | `build_aquestalk_dialogue.py` | 读取选句与配方，调用本机 AquesTalkPlayer，输出 288 条 WAV／OGG、发音符号及试听页；204 原版与 84 原创分别标注 | Windows 本机制作；`--work-directory` 隔离工具副本，匹配文本、参数和指纹时复用录音；不打包程序、字典或 DLL |
 | `export_dialogue.py` | 核对原句／原创来源与录音文本，导出台词、语言资源、OGG、时长及声音索引，保留其他任务条目 | 默认写运行资源；`--stage` 先导出到指定待核对目录；`--check` 只读检查，不启动游戏 |
+| `check_speech_corpus.py` | 检查分轴语料的 JSON、必填字段、ID、物种与全部现有情境事件映射 | `--check` 只读；语料尚未接入对白生成器，不写现有选句或运行资源 |
 | `export_runtime_models.py` | 旧七模型批量接入配方；当前圆润选用存在时拒绝执行，避免覆盖模型 | 当前圆润形态用 `export_rounded_runtime.py`；家油定向导出仍复用其函数，见对应制作包 |
 | `runtime_house_interactions.py` | 供模型导出器调用；制作家油俯身夹取、短辫持物、放下与蠕动曲线，登记辫梢挂点 | 无独立启动入口，不改标准造型 |
 | `runtime_waddle.py` | 供模型导出器调用；将家油走动适配至实际连续身体截面，增强五种普通角色的油菊摆动 | 不写文件，不改标准造型，保留 1.2 秒周期 |

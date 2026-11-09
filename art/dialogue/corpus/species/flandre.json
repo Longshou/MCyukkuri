@@ -1,0 +1,120 @@
+{
+  "axis": "species",
+  "species": "flandre",
+  "entries": [
+    {
+      "id": "voice_slots",
+      "zh": "芙兰槽位：幼称ふりゃん，句首与短鸣呜——。",
+      "ja": "フランドールの槽：幼称ふりゃん、句頭と短鳴にうーを使う。",
+      "en": "Flandre slots: furyan self-name and uu prefix/cry.",
+      "basis": ["P"],
+      "status": "rule",
+      "data": {"self_name": {"baby": "ふりゃん", "juvenile": "ふりゃん", "adult": "ふらん"}, "cry": {"ja": "うー、うー", "zh": "呜——、呜——", "en": "Uu, uu"}, "prefix": {"ja": "うー、", "zh": "呜——", "en": "Uu... "}, "ending": {"juvenile": {"ja": "よぅ", "zh": "哦"}, "adult": {"ja": "よ", "zh": "哦"}}}
+    },
+    {
+      "id": "uu_candidate",
+      "zh": "呜——",
+      "ja": "うー",
+      "en": "Uu...",
+      "basis": ["E03", "F86", "P"],
+      "status": "candidate",
+      "kind": "original_chinese_transliteration"
+    },
+    {
+      "id": "phonetic_overrides",
+      "zh": "与蕾米莉亚一样保留呜——；没有证据支持必须有独占口癖。",
+      "ja": "レミリアと同じくうーを保ち、独占口癖を必須とする証拠はない。",
+      "en": "Share uu with Remilia; no evidence requires an exclusive tic.",
+      "basis": ["E03", "P"],
+      "status": "rule",
+      "data": {"slots": ["{p}", "{c}"], "exclusive_tic": false}
+    },
+    {
+      "id": "address_forms",
+      "zh": "按真实关系称呼，天真或暴烈的作品标签不自动决定礼貌。",
+      "ja": "実関係で呼び、天真・激烈という作品札で礼儀を自動決定しない。",
+      "en": "Address follows real relationships; innocent or violent story labels do not set politeness.",
+      "basis": ["L36", "F86", "P"],
+      "status": "rule",
+      "data": {"common_ref": "common.address_forms", "requires_recognition": true}
+    },
+    {
+      "id": "lexical_preferences",
+      "zh": "可用好奇与游戏邀请区分芙兰；不直接写成必折磨他者。",
+      "ja": "好奇や遊びの誘いで個性を出し、必ず他者を虐める役にはしない。",
+      "en": "Use curiosity and play invitations for distinction; do not make tormenting others mandatory.",
+      "basis": ["E03", "F86", "P"],
+      "status": "rule",
+      "data": {"preferred_topics": ["curiosity", "play", "peers"], "fixed_cruelty": false}
+    },
+    {
+      "id": "adult_example",
+      "zh": "呜——这是什么？让我也看看！",
+      "ja": "うー、これは何？わたしにも見せて！",
+      "en": "Uu—what is this? Let me see too!",
+      "basis": ["E03", "P"],
+      "status": "ready",
+      "kind": "sample_line",
+      "tier": "adult"
+    },
+    {
+      "id": "play_invitation",
+      "zh": "呜——一起玩！你先藏好，我来找。",
+      "ja": "うー、いっしょにあそぼう！隠れて、わたしが探すよ。",
+      "en": "Uu—let's play! Hide and I'll find you.",
+      "basis": ["E03", "P"],
+      "status": "ready",
+      "kind": "sample_line",
+      "situation": "play"
+    },
+    {
+      "id": "baby_example",
+      "zh": "呜——、呜——！",
+      "ja": "うー、うー！",
+      "en": "Uu, uu!",
+      "basis": ["E03", "P"],
+      "status": "ready",
+      "kind": "sample_line",
+      "tier": "baby"
+    },
+    {
+      "id": "hatless_example",
+      "zh": "呜——没有头饰的家伙，才不是油库里哦！",
+      "ja": "うー、かざりのないやつはゆっくりじゃないよ！",
+      "en": "Uu—someone with no hair thing is no yukkuri!",
+      "basis": ["F22", "P"],
+      "status": "ready",
+      "kind": "sample_line",
+      "situation": "hatless_scorn"
+    },
+    {
+      "id": "hunt_example",
+      "zh": "呜——肚子饿了，要去捕猎哦。",
+      "ja": "うー、おなかがすいたから狩りにいくよ。",
+      "en": "Uu—I'm hungry, so I'm going hunting.",
+      "basis": ["P"],
+      "status": "ready",
+      "kind": "sample_line",
+      "situation": "hunt",
+      "notes": "Hunting follows actual hunger, not decoration or entertainment."
+    },
+    {
+      "id": "no_special_ability_claim",
+      "zh": "台词不能声称尖桩巢饰、秒级再生或超自然破坏。",
+      "ja": "杭の巣飾り・即時再生・超自然的破壊を事実として主張しない。",
+      "en": "Lines must not claim spike decorations, instant regeneration, or supernatural destruction.",
+      "basis": ["F86", "P"],
+      "status": "rule",
+      "data": {"project_conflicts": ["spike_decorations", "instant_regeneration", "supernatural_destruction"]}
+    },
+    {
+      "id": "remilia_distinction",
+      "zh": "与蕾米莉亚共享短鸣，不把欺负蕾米莉亚写成固定台词主题。",
+      "ja": "レミリアと短鳴を共有し、いじめを固定話題にしない。",
+      "en": "Share uu with Remilia without making bullying Remilia a fixed topic.",
+      "basis": ["F86", "P"],
+      "status": "rule",
+      "data": {"fixed_bullying_topic": false}
+    }
+  ]
+}

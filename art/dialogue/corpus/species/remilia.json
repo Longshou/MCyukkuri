@@ -1,0 +1,119 @@
+{
+  "axis": "species",
+  "species": "remilia",
+  "entries": [
+    {
+      "id": "voice_slots",
+      "zh": "蕾米莉亚槽位：幼称れみりゃ，句首与短鸣呜——。",
+      "ja": "レミリアの槽：幼称れみりゃ、句頭と短鳴にうーを使う。",
+      "en": "Remilia slots: remirya self-name and uu prefix/cry.",
+      "basis": ["P"],
+      "status": "rule",
+      "data": {"self_name": {"baby": "れみりゃ", "juvenile": "れみりゃ", "adult": "れみりあ"}, "cry": {"ja": "うー、うー", "zh": "呜——、呜——", "en": "Uu, uu"}, "prefix": {"ja": "うー、", "zh": "呜——", "en": "Uu... "}, "ending": {"juvenile": {"ja": "なのだ", "zh": "呀"}, "adult": {"ja": "のだ", "zh": "呀"}}}
+    },
+    {
+      "id": "uu_candidate",
+      "zh": "呜——",
+      "ja": "うー",
+      "en": "Uu...",
+      "basis": ["E03", "E05", "P"],
+      "status": "candidate",
+      "kind": "original_chinese_transliteration"
+    },
+    {
+      "id": "phonetic_overrides",
+      "zh": "保留呜——短鸣；不直接套用东方吸血鬼对白。",
+      "ja": "うーの短鳴を保ち、東方の吸血鬼の台詞を直接当てない。",
+      "en": "Keep the uu cry; do not import Touhou vampire dialogue.",
+      "basis": ["E03", "E05", "P"],
+      "status": "rule",
+      "data": {"slots": ["{p}", "{c}"], "character_dialogue_import": false}
+    },
+    {
+      "id": "address_forms",
+      "zh": "捕食种也按真实关系和识别结果称呼目标。",
+      "ja": "捕食種も実関係と識別結果に従って相手を呼ぶ。",
+      "en": "Predators also address targets by actual relationship and recognition.",
+      "basis": ["L36", "P"],
+      "status": "rule",
+      "data": {"common_ref": "common.address_forms", "requires_recognition": true}
+    },
+    {
+      "id": "lexical_preferences",
+      "zh": "可谈食物、飞行、同伴与捕猎；智能和口吻按个体而非捕食身份。",
+      "ja": "食事・飛行・仲間・狩りを話題にし、知能や話し方は捕食身份ではなく個体で決める。",
+      "en": "Food, flight, peers, and hunting are topics; intelligence and voice remain individual.",
+      "basis": ["L36", "F153", "P"],
+      "status": "rule",
+      "data": {"preferred_topics": ["food", "flight", "peers", "hunt"], "fixed_intelligence": false}
+    },
+    {
+      "id": "adult_example",
+      "zh": "呜——今天的好甜好甜，一起摆好！",
+      "ja": "うー、きょうのあまあまをいっしょに並べるのだ！",
+      "en": "Uu—let's lay out today's sweet sweets together!",
+      "basis": ["E03", "P"],
+      "status": "ready",
+      "kind": "sample_line",
+      "tier": "adult"
+    },
+    {
+      "id": "predator_call_example",
+      "zh": "呜——看见那边的食物先生了，先过去看看。",
+      "ja": "うー、あっちにごはんさんが見える、まず近づいてみるのだ。",
+      "en": "Uu—I see Mr. Food over there; I'll approach and look first.",
+      "basis": ["P"],
+      "status": "ready",
+      "kind": "sample_line",
+      "notes": "Project-original scenario line; do not treat as a reliable detection rule."
+    },
+    {
+      "id": "baby_example",
+      "zh": "呜——、呜——！",
+      "ja": "うー、うー！",
+      "en": "Uu, uu!",
+      "basis": ["E03", "P"],
+      "status": "ready",
+      "kind": "sample_line",
+      "tier": "baby"
+    },
+    {
+      "id": "hatless_example",
+      "zh": "呜——没有头饰的怪物呀……！别过来！",
+      "ja": "うー、かざりのないかいぶつなのだ……！こっちにこないで！",
+      "en": "Uu—a monster with no hair thing! Stay away!",
+      "basis": ["F22", "P"],
+      "status": "ready",
+      "kind": "sample_line",
+      "situation": "hatless_monster"
+    },
+    {
+      "id": "no_special_ability_claim",
+      "zh": "台词不能声称秒级再生、不死或必吃布丁。",
+      "ja": "即時再生・不死・プリン限定を台詞の事実として主張しない。",
+      "en": "Lines must not claim instant regeneration, immortality, or a pudding-only diet.",
+      "basis": ["F153", "P"],
+      "status": "rule",
+      "data": {"project_conflicts": ["instant_regeneration", "immortality", "pudding_only"]}
+    },
+    {
+      "id": "flight_sensation_example",
+      "zh": "呜——从上面看得好远！",
+      "ja": "うー、上からは遠くまで見えるのだ！",
+      "en": "Uu—I can see so far from up here!",
+      "basis": ["L36", "P"],
+      "status": "ready",
+      "kind": "sample_line",
+      "situation": "airborne"
+    },
+    {
+      "id": "flandre_distinction",
+      "zh": "与芙兰共享短鸣时，以好奇或整理等具体意图区分，不发明独占语尾。",
+      "ja": "フランと短鳴を共有しても、具体的な意図で区別し、独占語尾を作らない。",
+      "en": "When sharing uu with Flandre, distinguish intent rather than inventing an exclusive ending.",
+      "basis": ["E03", "P"],
+      "status": "rule",
+      "data": {"exclusive_ending_required": false}
+    }
+  ]
+}

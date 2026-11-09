@@ -1,0 +1,120 @@
+{
+  "axis": "species",
+  "species": "patchouli",
+  "entries": [
+    {
+      "id": "voice_slots",
+      "zh": "帕秋莉槽位：幼称ぱちゅ，短鸣姆啾，句首姆啾，子油语尾惹哇、成油语尾哇。",
+      "ja": "パチュリーの槽：幼称ぱちゅ、鳴き声むきゅっ、前置むきゅ、語尾は子体わ・成体わ。",
+      "en": "Patchouli slots: pachu self-name, mukyu cry and prefix, wa endings.",
+      "basis": ["P"],
+      "status": "rule",
+      "data": {"self_name": {"baby": "ぱちゅ", "juvenile": "ぱちゅ", "adult": "ぱちゅりー"}, "cry": {"ja": "む、きゅっ", "zh": "姆、啾", "en": "Mu, kyu"}, "prefix": {"ja": "むきゅ。", "zh": "姆啾。", "en": "Mukyu. "}, "ending": {"juvenile": {"ja": "わ", "zh": "惹哇"}, "adult": {"ja": "わ", "zh": "哇"}}}
+    },
+    {
+      "id": "mukyu_candidate",
+      "zh": "姆啾",
+      "ja": "むきゅ",
+      "en": "mukyu",
+      "basis": ["E04", "E06", "P"],
+      "status": "candidate",
+      "kind": "original_chinese_transliteration",
+      "notes": "Chinese sound form is a project candidate, not verified Hakkei translation."
+    },
+    {
+      "id": "phonetic_overrides",
+      "zh": "姆啾可位于句首或作短鸣；不自动改成普通感叹词。",
+      "ja": "むきゅは句頭や短い鳴き声に使い、普通の感嘆詞へ自動変換しない。",
+      "en": "Mukyu may be a prefix or cry; never replace it automatically with a generic interjection.",
+      "basis": ["E04", "E06", "P"],
+      "status": "rule",
+      "data": {"slots": ["{p}", "{c}"], "zh": {"むきゅ": "姆啾"}}
+    },
+    {
+      "id": "counting_override",
+      "zh": "帕秋莉可以数到九，之后再说很多。",
+      "ja": "パチュリーは九まで数え、その後をたくさんと言える。",
+      "en": "Patchouli can count to nine before saying lots.",
+      "basis": ["P", "L36", "F147"],
+      "status": "rule",
+      "data": {"cap": 9, "overflow": "lots", "stage_ref": "stage.patchouli_counting_override"}
+    },
+    {
+      "id": "address_forms",
+      "zh": "称呼按真实关系选择，知识声望不替代关系识别。",
+      "ja": "呼称は実関係で選び、知識の評判を関係識別の代わりにしない。",
+      "en": "Use actual relationships for address; knowledge reputation is not recognition.",
+      "basis": ["L36", "P"],
+      "status": "rule",
+      "data": {"common_ref": "common.address_forms", "requires_recognition": true}
+    },
+    {
+      "id": "lexical_preferences",
+      "zh": "解释前先观察，可谈阅读、记录与指导；可能懂也可能不懂。",
+      "ja": "説明前に観察し、読書・記録・指導を話題にできるが、知らないこともある。",
+      "en": "Observe before explaining; reading, records, and guidance are topics, not guaranteed knowledge.",
+      "basis": ["L36", "L11", "F147", "P"],
+      "status": "rule",
+      "data": {"preferred_topics": ["observation", "books", "teaching", "stock"], "omniscient": false}
+    },
+    {
+      "id": "adult_example",
+      "zh": "姆啾……这条路还没见过，先看看。",
+      "ja": "むきゅ……この道はまだ知らない、まず見てみるわ。",
+      "en": "Mukyu... I haven't seen this path; I'll look first.",
+      "basis": ["E04", "P"],
+      "status": "ready",
+      "kind": "sample_line",
+      "tier": "adult"
+    },
+    {
+      "id": "weather_example",
+      "zh": "姆啾……云变多了，今天别走太远。",
+      "ja": "むきゅ……雲が増えたわ、きょうは遠くへいかない。",
+      "en": "Mukyu... more clouds; let's not go far today.",
+      "basis": ["E04", "P"],
+      "status": "ready",
+      "kind": "sample_line",
+      "situation": "weather"
+    },
+    {
+      "id": "stock_example",
+      "zh": "姆啾，留一点，冷的时候就安心些。",
+      "ja": "むきゅ、少し残しておけば寒い時も安心だわ。",
+      "en": "Mukyu, save a little so cold days feel safer.",
+      "basis": ["E04", "P"],
+      "status": "ready",
+      "kind": "sample_line",
+      "situation": "stock"
+    },
+    {
+      "id": "organize_example",
+      "zh": "姆啾，今天吃的分出来，剩下的收好。",
+      "ja": "むきゅ、きょう食べる分を出して、残りをしまうわ。",
+      "en": "Mukyu, set out today's food and put the rest away.",
+      "basis": ["E04", "P"],
+      "status": "ready",
+      "kind": "sample_line",
+      "situation": "stock"
+    },
+    {
+      "id": "sport_example",
+      "zh": "姆啾，这次走短的那边。",
+      "ja": "むきゅ、こんどは短いほうをいくわ。",
+      "en": "Mukyu, take the shorter route this time.",
+      "basis": ["E04", "P"],
+      "status": "ready",
+      "kind": "sample_line",
+      "situation": "sport"
+    },
+    {
+      "id": "frailty_boundary",
+      "zh": "体弱可影响句长与休息，不把咳嗽或姆啾当作认知等级。",
+      "ja": "体力の弱さは文長や休息に影響しても、咳やむきゅを認知段階にしない。",
+      "en": "Frailty may affect line length and rest; coughing or mukyu is not a cognition tier.",
+      "basis": ["F147", "P"],
+      "status": "rule",
+      "data": {"special_ref": "tired_overlay", "intelligence_inference": false}
+    }
+  ]
+}

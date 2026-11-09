@@ -1,0 +1,120 @@
+{
+  "axis": "species",
+  "species": "reimu",
+  "entries": [
+    {
+      "id": "voice_slots",
+      "zh": "灵梦槽位：幼称灵梦，短鸣油，当前子油语尾捏、成油语尾哦。",
+      "ja": "霊夢の槽：幼称れいみゅ、鳴き声ゆっ、現在の語尾は子体にぇ・成体よ。",
+      "en": "Reimu slots: reimyu self-name, yu cry, current nye juvenile and yo adult endings.",
+      "basis": ["P"],
+      "status": "rule",
+      "data": {"self_name": {"baby": "れいみゅ", "juvenile": "れいみゅ", "adult": "れいむ"}, "cry": {"ja": "ゆっ、ゆっ", "zh": "油、油", "en": "Yu, yu"}, "prefix": {"ja": "", "zh": "", "en": ""}, "ending": {"juvenile": {"ja": "にぇ", "zh": "捏"}, "adult": {"ja": "よ", "zh": "哦"}}}
+    },
+    {
+      "id": "baby_fixed_ending",
+      "zh": "惹哟／哟",
+      "ja": "ぢゃよ",
+      "en": "jayo / yo",
+      "basis": ["D01"],
+      "status": "ready",
+      "kind": "legacy_fixed_form",
+      "applies_to": ["baby"]
+    },
+    {
+      "id": "phonetic_overrides",
+      "zh": "灵梦赤体称呼可用ぢゃよ／惹哟；不套魔理沙的惹杰。",
+      "ja": "霊夢の赤体はぢゃよ・惹哟を使い、魔理沙の惹杰を流用しない。",
+      "en": "Baby Reimu may use jayo / 惹哟, never Marisa's 惹杰.",
+      "basis": ["D01"],
+      "status": "ready",
+      "data": {"baby": {"ja": {"さん": "しゃ", "語尾": "ぢゃよ"}, "zh": {"先生": "先森", "语尾": "惹哟"}}, "scope": "review_each_line"}
+    },
+    {
+      "id": "address_forms",
+      "zh": "妈妈、爸爸、姐姐、人类先生、大哥哥、大姐姐、饲主先生。",
+      "ja": "おかあさん、おとうさん、おねえさん、にんげんさん、おにいさん、おねえさん、かいぬしさん。",
+      "en": "Mama, Papa, big sister, Mr. Human, big brother, big sister, Mr. Owner.",
+      "basis": ["L36", "P"],
+      "status": "rule",
+      "data": {"baby": {"mother": "麻麻", "father": "拔拔", "human": "人类先先"}, "juvenile": {"mother": "妈妈", "father": "爸爸", "human": "人类先生"}, "adult": {"mother": "妈妈", "father": "爸爸", "human": "人类先生"}, "requires_recognition": true}
+    },
+    {
+      "id": "lexical_preferences",
+      "zh": "保留“油”与固定欢迎语；亲昵和歌唱是倾向，不强制每只灵梦母性强或会唱歌。",
+      "ja": "「油」と固定挨拶を保ち、親愛や歌唱は傾向であって全個体の義務ではない。",
+      "en": "Keep yu and the fixed greeting; affection and singing are tendencies, not universal traits.",
+      "basis": ["D01", "L09", "L36"],
+      "status": "rule",
+      "data": {"preferred_slots": ["{c}", "welcome_take_it_easy"], "optional_topics": ["kin", "care", "song"], "forbidden_inference": "universal_maternal_or_musical_personality"}
+    },
+    {
+      "id": "adult_example",
+      "zh": "这边可以，里面有人在油库里呢。",
+      "ja": "こちらならいいよ、奥でゆっくりしている子がいるよ。",
+      "en": "This side is fine; someone is taking it easy inside.",
+      "basis": ["P"],
+      "status": "ready",
+      "kind": "sample_line",
+      "situation": "home_negotiation"
+    },
+    {
+      "id": "baby_example",
+      "zh": "油……介里软软惹哟。",
+      "ja": "ゆ……ここはやわらかいぢゃよ。",
+      "en": "Yu... it's soft here, jayo.",
+      "basis": ["D01", "P"],
+      "status": "ready",
+      "kind": "sample_line",
+      "tier": "baby"
+    },
+    {
+      "id": "juvenile_example",
+      "zh": "可以轮到窝了惹哟？",
+      "ja": "れいみゅの番でいいぢゃよ？",
+      "en": "Can it be my turn now, jayo?",
+      "basis": ["P"],
+      "status": "ready",
+      "kind": "sample_line",
+      "tier": "juvenile"
+    },
+    {
+      "id": "song_example",
+      "zh": "叶子摇呀摇，小窝暖呀暖。",
+      "ja": "葉がゆらゆら、おうちはぽかぽか。",
+      "en": "Leaves sway and sway; our little home is warm.",
+      "basis": ["P"],
+      "status": "ready",
+      "kind": "original_short_verse",
+      "notes": "Original wording, not a quoted song."
+    },
+    {
+      "id": "piko_piko_term",
+      "zh": "辫子动作可叫 Piko Piko 先生，但不代表飞行能力。",
+      "ja": "鬢の動きをピコピコさんと呼べるが、飛行能力を意味しない。",
+      "en": "Piko Piko may name braid motion; it does not imply flight.",
+      "basis": ["F151", "F31", "P"],
+      "status": "candidate",
+      "kind": "object_nickname",
+      "data": {"ability_inference": false}
+    },
+    {
+      "id": "wasa_overlay_ref",
+      "zh": "多毛灵梦沿用灵梦声线与实际阶段，教育困难不等于不会说话。",
+      "ja": "わされいむは霊夢の声と実段階を継承し、学習困難を失語としない。",
+      "en": "Wasa Reimu inherits Reimu voice and actual stage; learning difficulty is not loss of speech.",
+      "basis": ["E05", "L09", "P"],
+      "status": "rule",
+      "data": {"special_ref": "wasa_reimu"}
+    },
+    {
+      "id": "deibu_overlay_ref",
+      "zh": "灵胖仍用灵梦声线，肥胖与愤怒不自动生成新口癖。",
+      "ja": "霊胖も霊夢の声を使い、体格や怒りから新しい語尾を作らない。",
+      "en": "Deibu retains Reimu voice; body shape and anger do not create a new tic.",
+      "basis": ["F151", "P"],
+      "status": "rule",
+      "data": {"special_ref": "deibu_reimu", "weibu_address": false}
+    }
+  ]
+}

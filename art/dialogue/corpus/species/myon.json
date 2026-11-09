@@ -1,0 +1,128 @@
+{
+  "axis": "species",
+  "species": "myon",
+  "entries": [
+    {
+      "id": "voice_slots",
+      "zh": "妖梦槽位：自称妖梦，具有互斥的咪呦或金宝口癖。",
+      "ja": "妖夢の槽：自称みょん、個体ごとに排他的なみょん・ちーんぽの口癖を持つ。",
+      "en": "Myon slots: Myon self-name and one mutually exclusive myon or chinpo tic.",
+      "basis": ["L36", "P"],
+      "status": "rule",
+      "data": {"self_name": {"baby": "みょん", "juvenile": "みょん", "adult": "みょん"}, "ending": {"juvenile": {"ja": "みょ", "zh": "哦"}, "adult": {"ja": "よ", "zh": "哦"}}, "quirk_required": true}
+    },
+    {
+      "id": "myon_candidate",
+      "zh": "妙",
+      "ja": "みょん",
+      "en": "myon",
+      "basis": ["E03", "E04", "P"],
+      "status": "candidate",
+      "kind": "original_chinese_transliteration"
+    },
+    {
+      "id": "miyo_tic",
+      "zh": "咪呦！／咪、咪呦",
+      "ja": "みょん！／みょ、みょん",
+      "en": "Myon! / Myo, myon",
+      "basis": ["L36", "P"],
+      "status": "ready",
+      "kind": "individual_exclusive_tic",
+      "data": {"quirk": "miyo", "prefix": {"ja": "みょん！", "zh": "咪呦！", "en": "Myon! "}, "cry": {"ja": "みょ、みょん", "zh": "咪、咪呦", "en": "Myo, myon"}, "exclusive_with": "kinbao"}
+    },
+    {
+      "id": "kinbao_tic",
+      "zh": "金寶！／金、金寶",
+      "ja": "ちーんぽ！／ちん、ちーんぽ",
+      "en": "Chinpo! / Chin, chinpo",
+      "basis": ["L36", "P"],
+      "status": "ready",
+      "kind": "individual_exclusive_tic",
+      "data": {"quirk": "kinbao", "prefix": {"ja": "ちーんぽ！", "zh": "金寶！", "en": "Chinpo! "}, "cry": {"ja": "ちん、ちーんぽ", "zh": "金、金寶", "en": "Chin, chinpo"}, "exclusive_with": "miyo"}
+    },
+    {
+      "id": "tic_exclusivity",
+      "zh": "每个妖梦个体只拥有一种固定口癖，不在同句或同个体间轮换。",
+      "ja": "個体は一口癖だけを持ち、同じ文や個体で切り替えない。",
+      "en": "Each Myon owns exactly one fixed tic; never rotate tics within a line or individual.",
+      "basis": ["L36", "P"],
+      "status": "rule",
+      "data": {"slot": "{t}", "baby_cry_slot": "{c}", "stored_per_individual": true, "selection": "exactly_one"}
+    },
+    {
+      "id": "phonetic_overrides",
+      "zh": "{t} 插入该个体的口癖，{c} 插入对应短鸣；妙只是候选译音。",
+      "ja": "{t} に個体の口癖、{c} に対応する短鳴を入れ、妙は音訳候補とする。",
+      "en": "Use {t} for the individual tic and {c} for its cry; 妙 is only a Chinese sound candidate.",
+      "basis": ["E04", "L36", "P"],
+      "status": "rule",
+      "data": {"frame_slots": ["{t}", "{c}"], "no_cross_quirk_reuse": true}
+    },
+    {
+      "id": "address_forms",
+      "zh": "礼貌称呼按真实关系使用，勇气或忠诚不自动决定称谓。",
+      "ja": "礼儀正しい呼称も実関係で選び、勇気や忠誠で自動決定しない。",
+      "en": "Polite address follows actual relationships, not presumed courage or loyalty.",
+      "basis": ["L36", "F193", "P"],
+      "status": "rule",
+      "data": {"common_ref": "common.address_forms", "requires_recognition": true}
+    },
+    {
+      "id": "lexical_preferences",
+      "zh": "可谈工作、护卫、木棍和礼貌问候；个体也可能胆小。",
+      "ja": "仕事・護衛・木の棒・挨拶を話題にできるが、臆病な個体もいる。",
+      "en": "Work, guarding, sticks, and polite greetings are possible topics; timid individuals also exist.",
+      "basis": ["L05", "L06", "L36", "F193", "P"],
+      "status": "rule",
+      "data": {"preferred_topics": ["forage", "guard", "kanroken", "greeting"], "fixed_courage": false}
+    },
+    {
+      "id": "adult_example",
+      "zh": "我在这里看着，放心找妙。",
+      "ja": "ここで見ているから、安心して探すみょん。",
+      "en": "I'll watch here; forage without worry, myon.",
+      "basis": ["E04", "P"],
+      "status": "ready",
+      "kind": "sample_line",
+      "tier": "adult"
+    },
+    {
+      "id": "miyo_frame_example",
+      "zh": "{t}我会守住这里哦。",
+      "ja": "{t}ここを守るみょ。",
+      "en": "{t}I will guard this place.",
+      "basis": ["P"],
+      "status": "ready",
+      "kind": "slot_frame",
+      "data": {"quirk": "miyo"}
+    },
+    {
+      "id": "kinbao_frame_example",
+      "zh": "{t}找到木棍先生了哦。",
+      "ja": "{t}棒さんを見つけたよ。",
+      "en": "{t}I found Mr. Stick.",
+      "basis": ["P"],
+      "status": "ready",
+      "kind": "slot_frame",
+      "data": {"quirk": "kinbao"}
+    },
+    {
+      "id": "red_eye_overlay_ref",
+      "zh": "红眼妖梦保留个体口癖；不祥只是群体信念，不是新声线。",
+      "ja": "赤眼妖夢も個体口癖を保ち、不吉という集団の信念を新声線にしない。",
+      "en": "Red-eyed Myon keeps its individual tic; group superstition is not a new voice.",
+      "basis": ["L05", "P"],
+      "status": "rule",
+      "data": {"special_ref": "red_eyed_myon"}
+    },
+    {
+      "id": "ghost_boundary",
+      "zh": "不因妖梦称呼增加幽灵或半灵台词对象。",
+      "ja": "妖夢の呼称から幽霊や半霊の対話相手を増やさない。",
+      "en": "Do not add a ghost or half-phantom interlocutor merely because the speaker is Myon.",
+      "basis": ["F193", "P"],
+      "status": "rule",
+      "data": {"ghost_entity_inference": false}
+    }
+  ]
+}
