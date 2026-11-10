@@ -46,6 +46,7 @@ public final class MuseumCapture {
     private static CompletableFuture<Integer> follow;
     private static int followId=-1;
     private static long cameraFrame=-1;
+    private static boolean rateSet;
 
     public static double[] camera(Camera camera,float partial) {
         if(current==null||current.settings==null)return null;
@@ -105,6 +106,7 @@ public final class MuseumCapture {
         current = scene;
         nextFrame = 0;
         follow=null;followId=-1;cameraFrame=-1;
+        rateSet=false;
         FRAMES.clear();
         WRITES.clear();
         began = System.nanoTime();
@@ -166,8 +168,6 @@ public final class MuseumCapture {
             Scene scene = current;
             start = server.submit(() -> {
                 var source = server.getPlayerList().getPlayer(uuid).createCommandSourceStack().withPermission(4);
-                if (scene.settings != null && scene.settings.has("tick_rate"))
-                    server.getCommands().performPrefixedCommand(source, "tick rate " + scene.settings.get("tick_rate").getAsFloat());
                 if (nextScene > 1) server.getCommands().performPrefixedCommand(source,
                         "function mcylab:field/" + PLAN[nextScene - 2].field + "/clear");
                 // A human reaches the field before pressing its button; load that same terrain first.
@@ -181,6 +181,18 @@ public final class MuseumCapture {
         }
         if (!start.isDone()) return;
         long tick = mc.level.getGameTime() - start.join();
+        if (tick >= 20 && !rateSet) {
+            rateSet = true;
+            // The ordinary scene reset restores 20 TPS. Apply the capture rate after that reset,
+            // one vanilla second after the button, before the requested recording window;
+            // never alter the reset or the scene itself.
+            if (current.settings != null && current.settings.has("tick_rate")) {
+                float rate = current.settings.get("tick_rate").getAsFloat();
+                var server = mc.getSingleplayerServer(); var observer = mc.player.getUUID();
+                server.execute(() -> server.getCommands().performPrefixedCommand(
+                        server.getPlayerList().getPlayer(observer).createCommandSourceStack().withPermission(4), "tick rate " + rate));
+            }
+        }
         if(tick>=0&&current.settings!=null&&current.settings.has("follow")&&follow==null) {
             var settings=current.settings;var server=mc.getSingleplayerServer();var observer=mc.player.getUUID();
             follow=server.submit(()->{

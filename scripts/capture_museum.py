@@ -95,11 +95,11 @@ def main():
     parser.add_argument('--slots', type=int, help=f'Machine-wide limit of smoke/capture servers (default {slots.DEFAULT_SLOTS})')
     parser.add_argument('--sample-window', type=int, nargs=3, metavar=('FIRST', 'LAST', 'STEP'),
                         help='Capture only this tick interval; does not change scene preparation or behaviour')
-    parser.add_argument('--tick-rate', type=float, default=20, help='Capture server ticks per second (0 < rate <= 20)')
+    parser.add_argument('--tick-rate', type=float, default=20, help='Capture server ticks per second (1 <= rate <= 20)')
     parser.add_argument('scenes', nargs='+', help='Museum scene IDs')
     args = parser.parse_args()
-    if not math.isfinite(args.tick_rate) or not 0 < args.tick_rate <= 20:
-        parser.error('--tick-rate must be finite and greater than 0, at most 20')
+    if not math.isfinite(args.tick_rate) or not 1 <= args.tick_rate <= 20:
+        parser.error('--tick-rate must be finite and between 1 and 20')
     if args.sample_window and (args.sample_window[0] < 0 or args.sample_window[1] < args.sample_window[0] or args.sample_window[2] <= 0):
         parser.error('--sample-window requires 0 <= FIRST <= LAST and STEP > 0')
     with slots.slot('capture', ' '.join(args.scenes), args.slots):
