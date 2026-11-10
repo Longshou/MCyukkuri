@@ -47,16 +47,16 @@ def squash(a, wide=.06, low=.1, deep=.04): return [1+wide*a, 1-low*a, 1+deep*a]
 def times(scale, other): return [x*y for x, y in zip(scale, other)]
 
 
-def hop(t, start, takeoff, land, end, height):
-    """Crouch, jump and land. Returns (scale, lift, air) for a small hop."""
+def hop(t, start, takeoff, land, end, height, crouch=1.):
+    """Crouch, jump and land. Returns (scale, lift, air) for a small hop; `crouch` scales the take-off crouch."""
     if t < start or t >= end:
         return [1., 1., 1.], 0., 0.
     if t < takeoff:
-        return squash(smooth((t-start)/(takeoff-start))), 0., 0.
+        return squash(crouch*smooth((t-start)/(takeoff-start))), 0., 0.
     if t < land:
         air = (t-takeoff)/(land-takeoff); e = math.sin(math.pi*air)
         release = 1-smooth(air/.25)  # the crouch springs open at take-off
-        return times(squash(release), [1-.04*e, 1+.1*e, 1-.03*e]), height*4*air*(1-air), e
+        return times(squash(crouch*release), [1-.04*e, 1+.1*e, 1-.03*e]), height*4*air*(1-air), e
     return squash(bump((t-land)/(end-land)), .05, .08, .03), 0., 0.
 
 
@@ -334,8 +334,9 @@ def state(action, t, c, height):
         else:
             r[0] = c['look_up']*bump((t-.95)/(d-.95))
     elif action == 'greet':
-        s, lift, _ = hop(t, 0, .2, .6, .75, height*c['hop_ratio'])
-        r[0] = c['bow']*bump((t-.8)/.5) if .8 <= t <= 1.3 else 0.
+        # A readable anticipation: a deeper, slightly longer crouch springs into the hop, then the bow after landing.
+        s, lift, _ = hop(t, 0, .28, .68, .83, height*c['hop_ratio'], c['crouch'])
+        r[0] = c['bow']*bump((t-.86)/.5) if .86 <= t <= 1.36 else 0.
     elif action == 'tremble':
         w = math.sin(2*math.pi*c['shiver_hz']*t); k = c['shrink']
         r = [c['lean_back'], 0., 1.5*w]; s = [1-.6*k, 1-k, 1-.6*k]; shift[0] = c['shiver_ratio']*height*w
