@@ -134,7 +134,7 @@ public final class ParentCarry {
     public static double biteForward(MouthLane lane) { return LIP_GAP + LANE_FORWARD * lane.side() * lane.side(); }
     /** The lowest a hanging child's feet are above the carrier's feet (carrier model units). */
     public static final double MOUTH_FLOOR = .2;
-    private record Pause(long until, String reason) {}
+    private record Pause(long until, String reason, Vec3 failedPickup) {}
 
     private final YukkuriEntity carrier;
     private final Map<UUID, Pause> pauses = new HashMap<>();
@@ -348,7 +348,10 @@ public final class ParentCarry {
     private static Vec3 worldAt(YukkuriEntity carrier, float yaw, Vector3f model) { return world(carrier, 1, new Vector3f(model), yaw); }
     /** A world point in the carrier's model units with it turned to {@code yaw}. */
     private static Vector3f modelAt(YukkuriView carrier, float yaw, Vec3 world) {
-        var d = world.subtract(carrier.position());
+        return modelAt(carrier, carrier.position(), yaw, world);
+    }
+    private static Vector3f modelAt(YukkuriView carrier, Vec3 stand, float yaw, Vec3 world) {
+        var d = world.subtract(stand);
         return new Vector3f((float) d.x, (float) d.y, (float) d.z).rotateY(-(180 - yaw) * Mth.DEG_TO_RAD).mul(16 / (float) size(carrier));
     }
 
@@ -578,6 +581,10 @@ public final class ParentCarry {
         var at = child.position();
         return Math.max(Math.abs(at.y - stand.y) - BRIM_STEP, Math.abs(Math.hypot(at.x - stand.x, at.z - stand.z) - brimReach(carrier)));
     }
+    /** The same tuft ride checked before the clip starts, from a proposed stand. */
+    public static boolean brimRouteClear(YukkuriEntity carrier, YukkuriEntity child, Vec3 stand, float yaw) {
+        return brimRideClear(carrier, child, stand, yaw, modelAt(carrier, stand, yaw, child.position()).sub(groundTuft()));
+    }
     /** The young rides the tuft from the lift's grip to its place, its own offset from the grip ({@code off}) easing out by lift_end. */
     private static Vector3f liftFeet(Vector3f off, float t) {
         int start = mark(BRIM_LIFT, "lift_start"), end = mark(BRIM_LIFT, "lift_end");
@@ -611,13 +618,16 @@ public final class ParentCarry {
         }
         return true;
     }
+    private static boolean brimRideClear(YukkuriEntity carrier, YukkuriEntity child, Vec3 stand, float yaw, Vector3f off) {
+        return rideClear(carrier, child, stand, yaw, t -> liftFeet(off, t), mark(BRIM_LIFT, "lift_start"), mark(BRIM_LIFT, "place"));
+    }
     /**
      * The braid's lift clip began at {@code start} and its tuft has closed under the young (lift_start): the ride and the young's walk
      * to its spot go into the hold record, the carrier where it stands. False when the ride would pass through a block.
      */
     public static boolean brimLifted(YukkuriEntity carrier, YukkuriEntity child, long start) {
         var off = modelAt(carrier, carrier.bodyYaw(), child.position()).sub(groundTuft());
-        if (!rideClear(carrier, child, carrier.position(), carrier.bodyYaw(), t -> liftFeet(off, t), mark(BRIM_LIFT, "lift_start"), mark(BRIM_LIFT, "place")))
+        if (!brimRideClear(carrier, child, carrier.position(), carrier.bodyYaw(), off))
             return false;
         var e = entry(carrier, child.getUUID()).copy();
         e.putLong("T", start);
@@ -1120,9 +1130,20 @@ public final class ParentCarry {
     /** Structural ability only (size, form, a free hold); the child waits for such a carrier instead of walking off. */
     public boolean capable(YukkuriEntity child) { return capacityProblem(carrier, child) == null; }
 
+    /** A dry child stops its own movement only while its parent's accepted Grab is reaching for it. */
+    public static boolean bracingForPickup(YukkuriEntity child) {
+        if (!(child.level() instanceof ServerLevel level) || child.family().adult() || !FamilyLife.ordinaryLandFree(child)
+                || child.isPanicking() || child.isOnFire() || child.hurtTime > 0) return false;
+        for (var id : new UUID[]{child.family().mother(), child.family().father()})
+            if (id != null && level.getEntity(id) instanceof YukkuriEntity parent
+                    && parent.motor().current() instanceof Grab grab && grab.target() == child) return true;
+        return false;
+    }
+
     /** A dependent baby waits for a parent who is marching or coming to carry it, instead of crawling after that parent. */
     public static boolean awaitsCarrier(YukkuriEntity child) {
         if (!needsCarry(child) || !(child.level() instanceof ServerLevel level)) return false;
+        if (bracingForPickup(child)) return true;
         for (var id : new UUID[]{child.family().mother(), child.family().father()})
             if (id != null && level.getEntity(id) instanceof YukkuriEntity parent && parent.isAlive() && parent.family().adult()) {
                 var carry = parent.family().carry();
@@ -1239,6 +1260,9 @@ public final class ParentCarry {
             if (child.life().nutrition() >= 40) { pauses.remove(child.getUUID()); return false; }
             return true;
         }
+        // A failed grip ends this pickup. Revisit only after the child has moved a full grip window.
+        if (pause.failedPickup() != null && child.position().distanceToSqr(pause.failedPickup()) < Grab.GRIP_SLACK * Grab.GRIP_SLACK * 4)
+            return true;
         if (now >= pause.until()) { pauses.remove(child.getUUID()); return false; }
         return true;
     }
@@ -1275,9 +1299,11 @@ public final class ParentCarry {
     /** One tick of walking to the child, standing over it and lifting it with the shared Grab (into the hold it chooses). A failed
      *  pickup leaves the child alone a while ({@link #HOLD_TICKS}): it comes home by itself, and the next try starts from where it is. */
     Step tickPickup(YukkuriEntity child, int taskTicks) {
+        boolean finishing = child.getUUID().equals(lifting);
         var step = pickupStep(child);
         if (step == Step.FAILED)
-            pauses.put(child.getUUID(), new Pause(carrier.level().getGameTime() + HOLD_TICKS, "pickup_failed"));
+            pauses.put(child.getUUID(), new Pause(carrier.level().getGameTime() + HOLD_TICKS, "pickup_failed",
+                    finishing && carrier.motor().last() instanceof Outcome.Blocked ? child.position() : null));
         return step;
     }
     private Step pickupStep(YukkuriEntity child) {
@@ -1300,16 +1326,18 @@ public final class ParentCarry {
         if (carrier.motor().current() != null) return Step.WORKING;
         var grab = new Grab(child);
         var feasibility = grab.check(carrier);
-        if (feasibility.reason() == Reason.NO_CONTACT) {
+        if (feasibility.reason() == Reason.NO_CONTACT || feasibility.reason() == Reason.NO_SUPPORT) {
             // Nothing reaches yet: the stand beside the child (the braid turns its side to it on the lift).
             var stand = grab.contactStand(carrier);
             if (stand == null) {
-                GameplayLog.limited(carrier, "family", "carry.approach", 200, "carry pickup refused child={} reason=no_supported_contact_stand", child.getUUID());
+                GameplayLog.limited(carrier, "family", "carry.approach", 200,
+                        "carry pickup refused child={} reason=no_supported_contact_stand contact={} detail={}",
+                        child.getUUID(), feasibility.reason(), feasibility.detail());
                 return Step.FAILED;
             }
             return approachStand(child, stand);
         }
-        carrier.getNavigation().stop();
+        SurfaceApproach.halt(carrier);
         carrier.getLookControl().setLookAt(child, 30, 30);
         if (child.life().mealTicks() > 0 || child.isPanicking() || child.isInWaterOrBubble() || child.operations().active()) return Step.WORKING;
         if (!feasibility.ok()) {
@@ -1342,19 +1370,11 @@ public final class ParentCarry {
         rimNest = rim == null ? null : rim.getBlockPos();
     }
 
-    /** The outcome of this carrier's own Grab: lost contact is approached again, anything else ends the task. */
+    /** A failed Grab ends this pickup and releases the child to move or be picked up by another adult. */
     private Step grabOutcome(YukkuriEntity child) {
         var outcome = carrier.motor().last();
-        var reason = outcome == null ? null : outcome.reason();
-        if (reason == Reason.NO_CONTACT) {
-            var stand = new Grab(child).contactStand(carrier);
-            if (stand != null && carrier.position().distanceToSqr(stand) > .01) {
-                GameplayLog.event(carrier, "family", "carry contact lost child={} shortfall={} approach={}", child.getUUID(), outcome.shortfall(), stand);
-                return approachStand(child, stand);
-            }
-        }
         GameplayLog.event(carrier, "family", "carry grab failed child={} outcome={} reason={}", child.getUUID(),
-                outcome == null ? "none" : outcome.label(), reason);
+                outcome.label(), outcome.reason());
         return Step.FAILED;
     }
 
@@ -1874,7 +1894,7 @@ public final class ParentCarry {
         if (child.getUUID().equals(lifting)) lifting = null;
         child.fallDistance = 0;
         long now = carrier.level().getGameTime();
-        pauses.put(child.getUUID(), new Pause(now + (reason.equals("feeding") ? FEED_HOLD_TICKS : HOLD_TICKS), reason));
+        pauses.put(child.getUUID(), new Pause(now + (reason.equals("feeding") ? FEED_HOLD_TICKS : HOLD_TICKS), reason, null));
         GameplayLog.event(carrier, "family", "carry put down reason={} hold={} cause={} purpose={} child={} at={} carriedTicks={} nutrition={} remaining={} nest={} {}",
                 reason, hold.key(), cause, purpose, child.getUUID(), GameplayLog.at(child.position()), now - since, child.life().nutrition(),
                 carrier.getPassengers().size(), FamilyNest.bedOccupancy(child, child.family().carryHome()), readout);

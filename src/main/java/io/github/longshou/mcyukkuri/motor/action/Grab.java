@@ -21,6 +21,7 @@ import io.github.longshou.mcyukkuri.motor.Reason;
 import io.github.longshou.mcyukkuri.motor.Running;
 import io.github.longshou.mcyukkuri.motor.TravelMode;
 import io.github.longshou.mcyukkuri.motor.surface.SurfaceHost;
+import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.Locale;
 import net.minecraft.world.phys.Vec3;
 
@@ -40,7 +41,7 @@ public final class Grab implements Action {
     public static final int LIFT_TICKS = 14;
     /** How far (blocks) a target that drifted while the braid closed may lie past the braid's tip and still be gripped: a hand's breadth,
      *  well inside what the lift's own swing hides. */
-    private static final double GRIP_SLACK = .05;
+    public static final double GRIP_SLACK = .05;
     /** The braid's clips: it reaches, closes on the child by {@code lift_start}, lifts it by {@code lift_end} and sets it down by
      *  {@code place}; the low lean reaches lower and farther. */
     public static final String BRAID_LIFT = "braid_cradle_lift", BRAID_LEAN = "braid_reach_low";
@@ -56,6 +57,7 @@ public final class Grab implements Action {
     private int ticks, lift, way, held;
     private boolean mounted, fromHead, begun;
     private long startTick, clipStart;
+    private Vec3 startStand, startTarget;
     private final StowStep clear = new StowStep();
     private Hop brimHop;
 
@@ -82,7 +84,7 @@ public final class Grab implements Action {
         // The brim lift takes the young off the ground at its clip's grip: the stand is where that grip lies on it.
         if (!holds.isEmpty() && holds.get(0) == Hold.BRIM)
             return SurfaceApproach.beside(carrier, target.position(), ParentCarry.brimReach(carrier), target,
-                    at -> ParentCarry.brimGap(carrier, at, target) <= GRIP_SLACK && free(carrier, at));
+                    at -> brimContact(carrier, at, ParentCarry.brimYaw(at, target.position())).ok());
         boolean mouth = holds.stream().anyMatch(h -> h.reach() == Reach.MOUTH);
         boolean braid = holds.stream().anyMatch(h -> h.reach() == Reach.BRAID);
         // Sixteen bearings round the target, not four: young already set down on the bank are obstacles to stand round, so a stand
@@ -98,6 +100,15 @@ public final class Grab implements Action {
         var body = carrier.getBoundingBox().move(at.subtract(carrier.position())).deflate(.005);
         return !body.intersects(target.getBoundingBox()) && carrier.level().getEntitiesOfClass(YukkuriEntity.class, body,
                 other -> other != carrier && other != target && other.getVehicle() == null).isEmpty();
+    }
+
+    private Feasibility brimContact(YukkuriEntity carrier, Vec3 stand, float yaw) {
+        double gap = ParentCarry.brimGap(carrier, stand, target);
+        if (gap > GRIP_SLACK) return Feasibility.of(Reason.NO_CONTACT, gap, "brim_gap");
+        if (!free(carrier, stand)) return Feasibility.of(Reason.NO_CONTACT, 0, "brim_stand_occupied");
+        if (!ParentCarry.brimRouteClear(carrier, target, stand, yaw))
+            return Feasibility.of(Reason.NO_SUPPORT, 0, "brim_lift_blocked");
+        return Feasibility.pass();
     }
 
     @Override public Feasibility check(YukkuriEntity carrier) {
@@ -140,10 +151,10 @@ public final class Grab implements Action {
         for (var candidate : holds) {
             if (candidate == Hold.BRIM) {
                 // The brim comes first while it has room: a young off the braid's grip is stepped to (contactStand), not mouthed.
-                double brim = ParentCarry.brimGap(carrier, carrier.position(), target);
-                if (brim > GRIP_SLACK) return Feasibility.of(Reason.NO_CONTACT, brim, String.format(Locale.ROOT, "brim_gap=%.2f", brim));
+                var ready = brimContact(carrier, carrier.position(), ParentCarry.brimYaw(carrier.position(), target.position()));
+                if (!ready.ok()) return ready;
                 rejected = "mouth:" + mouthWhy;
-                return chosen(candidate, false, brim);
+                return chosen(candidate, false, ParentCarry.brimGap(carrier, carrier.position(), target));
             }
             if (candidate.reach() == Reach.MOUTH && mouth) {
                 rejected = "braid:" + braidWhy;
@@ -182,6 +193,8 @@ public final class Grab implements Action {
         ticks = held = 0;
         clipStart = -1;
         mounted = begun = false;
+        startStand = carrier.position();
+        startTarget = target.position();
         // The part that grips the child is cleared of her held stick first; the hold record starts only after it.
         if (clear.start(carrier, hold.reach() == Reach.BRAID ? Stow.freeBraid(carrier, "grab") : Stow.freeMouth(carrier, "grab"))) return;
         begin(carrier);
@@ -276,15 +289,20 @@ public final class Grab implements Action {
             return left > 0 ? new Running(left, TravelMode.CONSUMED) : completed(carrier);
         }
         if (!target.isAlive()) return Outcome.of(Reason.TARGET_GONE, 0, "target_gone");
+        if (target.operations().active()) return Outcome.of(Reason.TARGET_GONE, 0, "target_operated");
+        if (target.isPanicking() || target.isOnFire() || target.isInWaterOrBubble()) return new Outcome.Interrupted("brim_target_in_danger");
+        gap = ParentCarry.brimGap(carrier, carrier.position(), target);
+        if (gap > GRIP_SLACK) return Outcome.of(Reason.NO_CONTACT, gap, "brim_grip_out_of_reach stand=" + GameplayLog.at(carrier.position()));
         if (clipStart < 0) {
-            if (turn.tick(carrier) instanceof Running turning) return new Running(turning.metric() + lift + way, TravelMode.CONSUMED);
+            var turning = turn.tick(carrier);
+            if (turning instanceof Running progress) return new Running(progress.metric() + lift + way, TravelMode.CONSUMED);
+            if (!(turning instanceof Outcome.Done)) return turning;
+            var ready = brimContact(carrier, carrier.position(), carrier.bodyYaw());
+            if (!ready.ok()) return Outcome.of(ready.reason(), ready.shortfall(), ready.detail());
             clipStart = carrier.level().getGameTime();
         }
         int t = (int) (carrier.level().getGameTime() - clipStart);
         if (t < lift) return new Running(lift + way - t, TravelMode.CONSUMED);
-        if (target.operations().active()) return Outcome.of(Reason.TARGET_GONE, 0, "target_operated");
-        gap = ParentCarry.brimGap(carrier, carrier.position(), target);
-        if (gap > GRIP_SLACK) return Outcome.of(Reason.NO_CONTACT, gap, "brim_grip_out_of_reach");
         if (!ParentCarry.brimLifted(carrier, target, clipStart)) return Outcome.of(Reason.NO_SUPPORT, 0, "brim_lift_blocked");
         if (target.getVehicle() != carrier && !Motor.mount(target, carrier, "grab")) return Outcome.of(Reason.NO_CONTACT, 0, "mount_refused");
         target.fallDistance = 0;
@@ -321,12 +339,14 @@ public final class Grab implements Action {
     }
 
     @Override public String startDetail() {
-        return String.format(Locale.ROOT, "reach=%s hold=%s gap=%.2f lean=%b lift=%d way=%d target=%s", hold.reach().name().toLowerCase(Locale.ROOT),
-                hold.key(), gap, lean, lift, way, target.getUUID());
+        return String.format(Locale.ROOT, "reach=%s hold=%s gap=%.2f lean=%b lift=%d way=%d target=%s stand=%s targetPos=%s",
+                hold.reach().name().toLowerCase(Locale.ROOT), hold.key(), gap, lean, lift, way, target.getUUID(),
+                GameplayLog.at(startStand), GameplayLog.at(startTarget));
     }
 
     @Override public String endDetail(Outcome outcome) {
-        return String.format(Locale.ROOT, "reach=%s hold=%s facing=%.1f", hold.reach().name().toLowerCase(Locale.ROOT), hold.key(), facing);
+        return String.format(Locale.ROOT, "reach=%s hold=%s facing=%.1f target=%s targetPos=%s clipStarted=%b",
+                hold.reach().name().toLowerCase(Locale.ROOT), hold.key(), facing, target.getUUID(), GameplayLog.at(target.position()), clipStart >= 0);
     }
 
     /** The structural refusal vocabulary of {@code ParentCarry}, mapped onto the fixed outcome classes by its first word. */

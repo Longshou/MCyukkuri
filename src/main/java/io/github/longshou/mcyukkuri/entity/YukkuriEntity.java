@@ -49,6 +49,7 @@ import io.github.longshou.mcyukkuri.interaction.OperationLife;
 import io.github.longshou.mcyukkuri.life.AgitationLife;
 import io.github.longshou.mcyukkuri.life.Facilities;
 import io.github.longshou.mcyukkuri.life.SpeciesLife;
+import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.life.SurfaceLife;
 import io.github.longshou.mcyukkuri.life.WaterDistress;
 import io.github.longshou.mcyukkuri.life.YukkuriLife;
@@ -383,7 +384,11 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     @Override public void travel(Vec3 input) {
         if (!level().isClientSide && motor.tickTravel(input) == TravelMode.CONSUMED) return;
         if (!level().isClientSide && family.birthTravel()) return;
-        if (predatorFlying()) {
+        if (ParentCarry.bracingForPickup(this)) {
+            SurfaceApproach.halt(this);
+            crawlNudgeX = crawlNudgeZ = 0;
+            super.travel(Vec3.ZERO);
+        } else if (predatorFlying()) {
             if (isControlledByLocalInstance()) {
                 Vec3 controlled = level().isClientSide ? null : predator.flightStep(getDeltaMovement());
                 if (controlled == null) moveRelative(.1f, input);
