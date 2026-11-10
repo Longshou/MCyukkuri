@@ -177,6 +177,8 @@
     "marisa_sumo": "SC-09",
     "waste_volume": "FM-19",
     "leaf_swaddle_neglect_stages": "MD-16",
-    "family_search_pane": "FM-20"
+    "family_search_pane": "FM-20",
+    "family_walk_home": "FM-21",
+    "family_flight_home": "FM-22"
   }
 }

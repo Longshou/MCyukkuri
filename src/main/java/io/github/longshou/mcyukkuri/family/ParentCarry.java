@@ -52,13 +52,14 @@ import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
 /**
- * A parent carries a dependent baby over land as a real passenger, in the hold the shared Grab chose for it:
+ * A parent carries a dependent young over land as a real passenger, in the hold the shared Grab chose for it:
  * a hatted Marisa's braid lifts it onto her brim while the brim has free room, then one more goes in her mouth; Chen holds
  * one on each tail; Reimu holds several in her mouth within a volume budget; a hatless Marisa takes one in her mouth or at
  * her braid tip; everyone else one in the mouth (project design). A retrieval lifts every nearby dependent the live holds can
@@ -69,7 +70,7 @@ import org.joml.Vector3f;
  * drawn pose follows the live carrier model in client ParentCarryPresentation.
  */
 public final class ParentCarry {
-    public enum Purpose { MIGRATE, RETRIEVE, NEST_RIM }
+    public enum Purpose { MIGRATE, RETRIEVE, NEST_RIM, PROTECT }
     public enum Step { WORKING, FAILED }
     /** How one carried child is held. */
     public enum Hold {
@@ -107,9 +108,14 @@ public final class ParentCarry {
     static final double MOUTH_LOAD_FRACTION = .05, LIP_WIDTH_FRACTION = .28;
     /** Chen's tails: one baby per tail, each up to this fraction of her volume times strength (project design, measured so the two babies clear each other and her body). */
     static final double TAIL_BABY_FRACTION = .027;
+    /** The last fifth of the working load gives a visible warning before the hold is full. */
+    private static final double STRAIN_LOAD = .8;
     /** A retrieval takes the dependents this close before it leaves, for at most this many ticks of its walk (project design). */
     private static final double GATHER_RANGE = 8;
     private static final int GATHER_TICKS = 600;
+    /** One nearby gathering beat, long enough to approach and complete the brim lift while the threat is still distant. */
+    private static final int FLIGHT_GATHER_TICKS = 80;
+    private static final double FLIGHT_GATHER_RANGE = 2.5, IMMEDIATE_DANGER = 4;
     /** Reimu lets a baby out of her mouth by this clip: it opens, the baby leaves by {@code release} and the lips shut by {@code closed}. */
     public static final String MOUTH_RELEASE = "mouth_release";
     /** Tail seat: the shelf of the curled tail behind and beside the body (model units, idle pose, full curl). */
@@ -146,6 +152,7 @@ public final class ParentCarry {
     /** The dependent this retrieval goes for next, recomputed every tick while it still has holds for one (no reservation: the
      *  child's own wait for a carrying parent reads it, {@link #awaitsCarrier}). */
     private UUID gathering;
+    private long flightUntil, flightRetryAt;
     private Release settingDown;
     /** The last set-down of one of her children that failed, whoever ran it; an ended intent's handoff inherits it. */
     private Release failedRelease;
@@ -1010,12 +1017,29 @@ public final class ParentCarry {
 
     /** Dependents that cannot keep up on their own: babies, and young crawlers (hurt foot, not yet able to jump). */
     public static boolean needsCarry(YukkuriEntity child) {
-        return child.isAlive() && !child.family().adult() && !child.family().awaitingLanding() && child.childhood().shouldStayWithParents()
+        return dependentYoung(child)
                 && (child.family().stage() == FamilyLife.Stage.BABY || child.canCrawlNow());
+    }
+    private static boolean dependentYoung(YukkuriEntity child) {
+        return child.isAlive() && !child.family().awaitingLanding() && child.childhood().shouldStayWithParents();
     }
     private static double volume(YukkuriView e) { return e.getBbWidth() * e.getBbWidth() * e.getBbHeight(); }
     private static double strength(YukkuriEntity carrier) {
-        return Math.clamp((carrier.life().energy() - 8) / 60.0, .2, 1) * Math.clamp(carrier.species().traits().might(), .8, 1.5);
+        double commitment = .9 + carrier.life().personality().attachment() / 500.0;
+        return Math.clamp((carrier.life().energy() - 8) / 60.0, .2, 1)
+                * Math.clamp(carrier.species().traits().might(), .8, 1.5) * commitment;
+    }
+    private static double load(YukkuriEntity carrier, YukkuriEntity child, Hold hold, boolean ongoing) {
+        double carriedVolume = volume(child);
+        if (hold == Hold.BRIM || hold == Hold.MOUTH && multi(carrier)) {
+            for (var rider : riders(carrier, hold)) {
+                if (rider == child) { if (ongoing) break; continue; }
+                carriedVolume += volume(rider);
+            }
+        }
+        double fraction = hold.tail() ? TAIL_BABY_FRACTION
+                : hold == Hold.MOUTH && multi(carrier) ? MOUTH_LOAD_FRACTION : HOLD_FRACTION;
+        return carriedVolume / (fraction * strength(carrier) * volume(carrier));
     }
     private static boolean mouthFree(YukkuriEntity carrier) {
         return carrier.getMouthItem().isEmpty() && carrier.getMouthBodyFood().isEmpty() && carrier.habitat().carrying().isEmpty();
@@ -1045,7 +1069,6 @@ public final class ParentCarry {
     public static String holdProblem(YukkuriEntity carrier, YukkuriEntity child, Hold hold, boolean ongoing, SurfaceHost destination) {
         var problem = common(carrier, child);
         if (problem != null) return problem;
-        double ratio = volume(child) / Math.max(1e-6, volume(carrier)), strength = strength(carrier);
         switch (hold) {
             case HEAD -> {
                 var e = entry(carrier, child.getUUID());
@@ -1053,39 +1076,34 @@ public final class ParentCarry {
             }
             case TAIL_LEFT, TAIL_RIGHT -> {
                 if (carrier.getVariant() != YukkuriVariant.CHEN) return "no_tail";
-                if (ratio > TAIL_BABY_FRACTION * strength) return "too_big";
+                if (load(carrier, child, hold, ongoing) > 1) return "too_big";
                 for (var rider : riders(carrier, hold)) if (rider != child) return "occupied";
                 return null;
             }
             case BRIM -> {
                 if (!brimmed(carrier)) return "no_brim";
                 if (!brimClips(carrier)) return "no_brim_clip";
+                if (load(carrier, child, hold, ongoing) > 1) return "too_big";
                 return ongoing || freeBrimSpot(carrier, child, brimDiscs(carrier, child)) != null ? null : "brim_full";
             }
             case BRAID -> {
                 if (!ContactGeometry.braided(carrier)) return "no_braid";
                 // A hatted Marisa's braid lifts onto her brim instead.
                 if (brimmed(carrier)) return "brim";
-                if (destination == null && child.family().stage() != FamilyLife.Stage.BABY) return "not_baby";
-                if (ratio > HOLD_FRACTION * strength) return "too_big";
+                if (load(carrier, child, hold, ongoing) > 1) return "too_big";
                 for (var rider : riders(carrier, hold)) if (rider != child) return "occupied";
                 return null;
             }
             default -> {
                 if (carrier.getVariant() == YukkuriVariant.CHEN) return "tails";
-                if (ratio > HOLD_FRACTION * strength) return "too_big";
                 if (!mouthFree(carrier)) return "mouth_full";
-                // Babies already in the mouth (for a rider: those ahead of it) share it.
-                double load = volume(child);
-                int count = 1;
-                for (var rider : riders(carrier, Hold.MOUTH)) {
-                    if (rider == child) { if (ongoing) break; continue; }
-                    load += volume(rider);
-                    count++;
+                if (!multi(carrier)) {
+                    if (load(carrier, child, hold, ongoing) > 1) return "too_big";
+                    for (var rider : riders(carrier, Hold.MOUTH)) if (rider != child) return "occupied";
+                    return null;
                 }
-                if (!multi(carrier)) return count > 1 ? "occupied" : null;
                 if (child.getBbWidth() > LIP_WIDTH_FRACTION * carrier.getBbWidth()) return "lips";
-                return load > MOUTH_LOAD_FRACTION * strength * volume(carrier) ? "mouth_load" : null;
+                return load(carrier, child, hold, ongoing) > 1 ? "mouth_load" : null;
             }
         }
     }
@@ -1133,17 +1151,23 @@ public final class ParentCarry {
     /** A dry child stops its own movement only while its parent's accepted Grab is reaching for it. */
     public static boolean bracingForPickup(YukkuriEntity child) {
         if (!(child.level() instanceof ServerLevel level) || child.family().adult() || !FamilyLife.ordinaryLandFree(child)
-                || child.isPanicking() || child.isOnFire() || child.hurtTime > 0) return false;
+                || child.isOnFire() || child.hurtTime > 0) return false;
         for (var id : new UUID[]{child.family().mother(), child.family().father()})
             if (id != null && level.getEntity(id) instanceof YukkuriEntity parent
-                    && parent.motor().current() instanceof Grab grab && grab.target() == child) return true;
+                    && parent.motor().current() instanceof Grab grab && grab.target() == child
+                    && (!child.isPanicking() || parent.family().carry().protectiveGrip(child))) return true;
         return false;
+    }
+
+    public boolean protectiveGrip(YukkuriEntity child) {
+        return purpose == Purpose.PROTECT && child.getUUID().equals(lifting);
     }
 
     /** A dependent baby waits for a parent who is marching or coming to carry it, instead of crawling after that parent. */
     public static boolean awaitsCarrier(YukkuriEntity child) {
-        if (!needsCarry(child) || !(child.level() instanceof ServerLevel level)) return false;
+        if (!(child.level() instanceof ServerLevel level)) return false;
         if (bracingForPickup(child)) return true;
+        if (!needsCarry(child)) return false;
         for (var id : new UUID[]{child.family().mother(), child.family().father()})
             if (id != null && level.getEntity(id) instanceof YukkuriEntity parent && parent.isAlive() && parent.family().adult()) {
                 var carry = parent.family().carry();
@@ -1267,14 +1291,27 @@ public final class ParentCarry {
         return true;
     }
 
+    /** The gap this child would lose on the walk compared with the distance it normally follows at. */
+    private boolean fallsBehind(YukkuriEntity child, double distance) {
+        if (needsCarry(child)) return distance > 4;
+        double relativePace = BodyAbility.of(child).walkSpeed() / BodyAbility.of(carrier).walkSpeed();
+        return distance * (1 - relativePace) > child.family().followRadius();
+    }
+
     /** Why this child should be carried now: during a family march, or home after straying out of the nest. */
     Purpose purposeFor(YukkuriEntity child) {
-        if (!needsCarry(child) || child.isPassenger() || blocked(child)) return null;
-        if (carrier.settlement().familyMarching() && child.family().familyTravelling()) return Purpose.MIGRATE;
-        if (FamilyNest.rimNest(child) != null) return Purpose.NEST_RIM;
-        var home = child.family().carryHome();
-        if (home != null && child.distanceToSqr(Vec3.atBottomCenterOf(home)) > 4 * 4 && !fetchedByOther(child)) return Purpose.RETRIEVE;
+        if (!dependentYoung(child) || child.isPassenger() || blocked(child)) return null;
+        if (carrier.settlement().familyMarching() && child.family().familyTravelling()
+                && (needsCarry(child) || fallsBehind(child, GATHER_RANGE))) return Purpose.MIGRATE;
+        if (needsCarry(child) && FamilyNest.rimNest(child) != null) return Purpose.NEST_RIM;
+        var home = destination(child);
+        if (home != null && fallsBehind(child, child.position().distanceTo(Vec3.atBottomCenterOf(home))) && !fetchedByOther(child)) return Purpose.RETRIEVE;
         return null;
+    }
+
+    private BlockPos destination(YukkuriEntity child) {
+        var home = child.family().carryHome();
+        return home == null ? carrier.life().homeStand() : home;
     }
     /** One lifter: the child's other parent is already going for it to carry it, gathering it, or lifting it. */
     private boolean fetchedByOther(YukkuriEntity child) {
@@ -1298,16 +1335,19 @@ public final class ParentCarry {
     boolean lifting() { return lifting != null; }
     /** One tick of walking to the child, standing over it and lifting it with the shared Grab (into the hold it chooses). A failed
      *  pickup leaves the child alone a while ({@link #HOLD_TICKS}): it comes home by itself, and the next try starts from where it is. */
-    Step tickPickup(YukkuriEntity child, int taskTicks) {
+    Step tickPickup(YukkuriEntity child) {
+        return tickPickup(child, purposeFor(child));
+    }
+
+    private Step tickPickup(YukkuriEntity child, Purpose intent) {
         boolean finishing = child.getUUID().equals(lifting);
-        var step = pickupStep(child);
+        var step = pickupStep(child, intent);
         if (step == Step.FAILED)
             pauses.put(child.getUUID(), new Pause(carrier.level().getGameTime() + HOLD_TICKS, "pickup_failed",
                     finishing && carrier.motor().last() instanceof Outcome.Blocked ? child.position() : null));
         return step;
     }
-    private Step pickupStep(YukkuriEntity child) {
-        var intent = purposeFor(child);
+    private Step pickupStep(YukkuriEntity child, Purpose intent) {
         if (child.getUUID().equals(lifting)) {
             // This carrier's own Grab is the pickup: still lifting, or finished with an outcome to read here.
             if (carrier.motor().current() instanceof Grab) return Step.WORKING;
@@ -1315,7 +1355,8 @@ public final class ParentCarry {
             return grabOutcome(child);
         }
         var problem = capacityProblem(carrier, child);
-        boolean ready = ready();
+        boolean urgent = intent == Purpose.PROTECT;
+        boolean ready = urgent ? FamilyLife.ordinaryLandFree(carrier) && !carrier.isOnFire() : ready();
         if (problem != null || !ready) {
             GameplayLog.limited(carrier, "family", "carry.refused", 400, "carry pickup refused child={} reason={} ready={}", child.getUUID(),
                     problem == null ? "carrier_busy" : problem, ready);
@@ -1339,11 +1380,12 @@ public final class ParentCarry {
         }
         SurfaceApproach.halt(carrier);
         carrier.getLookControl().setLookAt(child, 30, 30);
-        if (child.life().mealTicks() > 0 || child.isPanicking() || child.isInWaterOrBubble() || child.operations().active()) return Step.WORKING;
+        if (child.life().mealTicks() > 0 || !urgent && child.isPanicking() || child.isInWaterOrBubble() || child.operations().active())
+            return urgent ? Step.FAILED : Step.WORKING;
         if (!feasibility.ok()) {
             GameplayLog.limited(carrier, "family", "carry.grab", 100, "carry grab refused child={} reason={} {}",
                     child.getUUID(), feasibility.reason(), feasibility.detail());
-            return Step.WORKING;
+            return urgent ? Step.FAILED : Step.WORKING;
         }
         lifting = child.getUUID();
         // Only an accepted Grab lifts the child: a refusal here is this pickup's real failure, never an unchanged retry.
@@ -1357,6 +1399,87 @@ public final class ParentCarry {
                 grab.hold().key(), grab.hold().reach().name().toLowerCase(Locale.ROOT), intent, child.getUUID(), child.blockPosition().toShortString(),
                 carrier.blockPosition().toShortString(), child.life().nutrition());
         return Step.WORKING;
+    }
+
+    /** Starts a bounded gathering choice inside the existing flight or shelter goal. */
+    public void startFlight(String cause, LivingEntity threat) {
+        if (!carrier.family().adult() || !FamilyLife.ordinaryLandFree(carrier) || carrier.isOnFire()) return;
+        if (!ours().isEmpty() || lifting != null && carrier.motor().owner() == owner && carrier.motor().current() instanceof Grab)
+            purpose = Purpose.PROTECT;
+        long now = carrier.level().getGameTime();
+        if (now < flightRetryAt || flightYoung().isEmpty()) return;
+        flightRetryAt = now + FLIGHT_GATHER_TICKS + HOLD_TICKS;
+        var personality = carrier.life().personality();
+        int resolve = (personality.boldness() + personality.attachment()) / 2;
+        int fear = threat == null ? 0 : personality.fear(threat.getUUID());
+        boolean gather = resolve >= 30 + fear / 3 && !tooClose(threat);
+        GameplayLog.event(carrier, "family", "carry flight choice cause={} gather={} resolve={} fear={}", cause, gather, resolve, fear);
+        flightUntil = gather ? now + FLIGHT_GATHER_TICKS : now;
+    }
+
+    /** Flight can wait for one reachable young at a time, within the original decision's window. */
+    public boolean tickFlight(LivingEntity threat) {
+        if (flightUntil == 0) return false;
+        if (carrier.motor().owner() == owner && carrier.motor().current() instanceof Grab grab && carrier.hasPassenger(grab.target()))
+            return true;
+        if (carrier.level().getGameTime() >= flightUntil || tooClose(threat)) {
+            endFlight();
+            return false;
+        }
+        if (lifting != null && ((ServerLevel) carrier.level()).getEntity(lifting) instanceof YukkuriEntity child) {
+            if (tickPickup(child, Purpose.PROTECT) == Step.WORKING) return true;
+        }
+        var next = flightYoung().stream().filter(child -> !blocked(child) && !fetchedByOther(child) && capable(child))
+                .min(Comparator.<YukkuriEntity>comparingDouble(ParentCarry::volume)
+                        .thenComparingDouble(child -> BodyAbility.of(child).walkSpeed())
+                        .thenComparingDouble(carrier::distanceToSqr)).orElse(null);
+        if (next != null && tickPickup(next, Purpose.PROTECT) == Step.WORKING) return true;
+        endFlight();
+        return false;
+    }
+
+    public void endFlight() {
+        if (flightUntil == 0) return;
+        flightUntil = 0;
+        if (carrier.motor().owner() == owner && carrier.motor().current() instanceof Grab grab && !carrier.hasPassenger(grab.target())) {
+            carrier.motor().cancel(owner, "flight_departing");
+            lifting = null;
+        }
+        var walkers = flightYoung();
+        if (!walkers.isEmpty()) carrier.speak("afraid");
+        GameplayLog.event(carrier, "family", "carry flight pickup ended aboard={} follow={}", ours().size(),
+                walkers.stream().map(Entity::getUUID).toList());
+    }
+
+    private boolean tooClose(LivingEntity threat) {
+        return threat != null && carrier.distanceToSqr(threat) < IMMEDIATE_DANGER * IMMEDIATE_DANGER;
+    }
+
+    private List<YukkuriEntity> flightYoung() {
+        return carrier.level().getEntitiesOfClass(YukkuriEntity.class, carrier.getBoundingBox().inflate(FLIGHT_GATHER_RANGE),
+                child -> dependentYoung(child) && FamilyLife.ordinaryLandFree(child) && Bonds.parentOf(carrier, child)
+                        && carrier.distanceToSqr(child) <= FLIGHT_GATHER_RANGE * FLIGHT_GATHER_RANGE
+                        && !FamilyNest.atAssignedNest(child) && carrier.life().canRecognize(child));
+    }
+
+    /** A walking child can follow a recognised parent moving clear of the same threat. */
+    public static YukkuriEntity flightEscort(YukkuriEntity child, LivingEntity threat) {
+        if (!dependentYoung(child)) return null;
+        var level = (ServerLevel) child.level();
+        return level.getEntitiesOfClass(YukkuriEntity.class, child.getBoundingBox().inflate(12),
+                parent -> parent != threat && parent.isAlive() && Bonds.parentOf(parent, child) && child.life().canRecognize(parent)
+                        && (threat == null || parent.distanceToSqr(threat) > child.distanceToSqr(threat)))
+                .stream().min(Comparator.comparingDouble(child::distanceToSqr)).orElse(null);
+    }
+
+    public boolean shelteredFrom(LivingEntity threat) {
+        if (purpose != Purpose.PROTECT || !carrying()) return false;
+        var home = destination(carried());
+        return atHome(home) && (threat == null || Vec3.atBottomCenterOf(home).distanceToSqr(threat.position()) > 25);
+    }
+
+    public void reachedCover() {
+        if (purpose == Purpose.PROTECT && carrying()) giveUp = "reached_cover";
     }
 
     /** The lift commits the carry: the purpose and its clock start when the Grab starts, so the passive tick cannot re-adopt it. */
@@ -1415,7 +1538,11 @@ public final class ParentCarry {
         GameplayLog.event(carrier, "family", "carry pickup hold={} purpose={} child={} childStage={} seat={} nutrition={} volume={}/{} aboard={}",
                 hold(carrier, child).key(), purpose, child.getUUID(), child.family().stage(), child.position(), child.life().nutrition(),
                 String.format(Locale.ROOT, "%.3f", volume(child)), String.format(Locale.ROOT, "%.3f", volume(carrier)), carrier.getPassengers().size());
-        carrier.showReaction("happy", "gentle", 40);
+        var hold = hold(carrier, child);
+        boolean strained = load(carrier, child, hold, true) >= STRAIN_LOAD;
+        carrier.showReaction(strained ? "tired" : "happy", strained ? "puff" : "gentle", 40);
+        if (strained) GameplayLog.event(carrier, "family", "carry strain hold={} child={} load={}", hold.key(),
+                child.getUUID(), load(carrier, child, hold, true));
     }
 
     // ------------------------------------------------------------------------------------------ carrying (server)
@@ -1427,6 +1554,8 @@ public final class ParentCarry {
      */
     void tick() {
         prune();
+        if (lifting != null && !(carrier.motor().current() instanceof Grab) && flightUntil == 0
+                && carrier.family().task() != FamilyLife.Task.SEARCH && carrier.family().task() != FamilyLife.Task.CARRY) lifting = null;
         var all = riders();
         if (all.isEmpty()) {
             if (purpose != null && lifting == null) purpose = null;
@@ -1446,7 +1575,7 @@ public final class ParentCarry {
             String childHard = !child.isAlive() ? "died" : child.operations().active() ? "operation" : null;
             if (childHard != null) child.motor().interrupt(childHard);
         }
-        if (!ours.isEmpty() && (purpose == Purpose.RETRIEVE || purpose == Purpose.NEST_RIM)) carrier.family().beginCarry();
+        if (!ours.isEmpty() && purpose != Purpose.MIGRATE && !carrier.isPanicking()) carrier.family().beginCarry();
     }
 
     /** The riders this carry looks after: lifted by its own pick-up (and kept so over a reload), or found with no record at all. */
@@ -1510,7 +1639,9 @@ public final class ParentCarry {
         if (now % 5 == 0 && hold != Hold.BRIM && seat(carrier, child) == null) return "seat_blocked";
         if (child.life().nutrition() < 30 && carrier.family().feeding().hasCarriedOpportunity(child)) return "feeding";
         if (purpose == Purpose.MIGRATE && carrier.settlement().migrationLanded() && child.settlement().migrationLanded()) return "arrived_destination";
-        if (purpose == Purpose.RETRIEVE && atHome(child.family().carryHome())) return "arrived_home";
+        if (purpose == Purpose.RETRIEVE && atHome(destination(child))) return "arrived_home";
+        if (purpose == Purpose.PROTECT && shelteredFrom(carrier.isPanicking() ? carrier.getLastHurtByMob()
+                : carrier.status().reactions().threat().source())) return "arrived_home";
         if (purpose == Purpose.NEST_RIM) return "nest_rim_to_cushion";
         return null;
     }
@@ -1610,7 +1741,7 @@ public final class ParentCarry {
     private BlockPos setDownHome(YukkuriEntity child, String reason) {
         if (carrier.getVehicle() instanceof SurfaceHost) return null;
         if (purpose == Purpose.NEST_RIM) return rimNest;
-        var home = child.family().carryHome();
+        var home = destination(child);
         return reason.equals("arrived_destination") || atHome(home) ? home : null;
     }
 
@@ -1627,15 +1758,15 @@ public final class ParentCarry {
         var child = carried();
         if (child == null || giveUp != null) return false;
         if (purpose == Purpose.NEST_RIM) return true;
-        var more = lifting != null || walkTo == null && taskTicks < GATHER_TICKS ? dependent() : null;
+        var more = purpose != Purpose.PROTECT && (lifting != null || walkTo == null && taskTicks < GATHER_TICKS) ? dependent() : null;
         // The dependent this retrieval goes for next stops its own walking and waits for the lift ({@link #awaitsCarrier}).
         if (more != null && !more.getUUID().equals(gathering)) SurfaceApproach.stopWalking(more);
         gathering = more == null ? null : more.getUUID();
         if (more != null) {
-            tickPickup(more, taskTicks);
+            tickPickup(more);
             return true;
         }
-        var home = child.family().carryHome();
+        var home = destination(child);
         if (home == null) { giveUp = "no_home"; return false; }
         var centre = Vec3.atBottomCenterOf(home);
         if (atHome(home)) return true;

@@ -8,6 +8,7 @@ import io.github.longshou.mcyukkuri.event.HomeClaimGoal;
 import io.github.longshou.mcyukkuri.event.WildEventGoal;
 import io.github.longshou.mcyukkuri.event.WildEvents;
 import io.github.longshou.mcyukkuri.family.LeaveHostGoal;
+import io.github.longshou.mcyukkuri.family.ParentCarry;
 import io.github.longshou.mcyukkuri.intent.AskLedger;
 import io.github.longshou.mcyukkuri.intent.Conductor;
 import io.github.longshou.mcyukkuri.intent.Drive;
@@ -27,7 +28,6 @@ import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -185,20 +185,27 @@ final class YukkuriGoals {
     private final class FleeGoal extends Goal {
         FleeGoal() { setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK)); }
         @Override public boolean canUse() { return owner.panicTicksValue() > 0 && !owner.predator().recoveringFlight()
-                && !owner.grief().protecting() && !owner.shellRetracts(); }
+                && !owner.grief().protecting() && !owner.shellRetracts() && !owner.isPassenger()
+                && !owner.family().carry().shelteredFrom(owner.getLastHurtByMob()); }
+        @Override public void start() {
+            if (owner.getLastHurtByMob() != null) owner.family().carry().startFlight("panic", owner.getLastHurtByMob());
+        }
         @Override public boolean requiresUpdateEveryTick() { return true; }
         @Override public void tick() {
             if (owner.panicTicksValue() > 100) { owner.directNavigation().stop(); return; }
+            if (owner.family().carry().tickFlight(owner.getLastHurtByMob())) return;
             // A clever wild Reimu that has run into her den seals its mouth (settlement/DenSeal); the sealing owns the body meanwhile.
             if (owner.getLastHurtByMob() instanceof YukkuriEntity danger && danger.profile().dangerToYukkuri()
                     && owner.status().reactions().threat().seal().drive(danger)) return;
             if (owner.directNavigation().isDone() || owner.tickCount % 10 == 0) {
-                if (owner.getLastHurtByMob() instanceof YukkuriEntity threat && threat.profile().dangerToYukkuri()) {
+                var threat = owner.getLastHurtByMob();
+                if (threat != null) {
                     if (owner.pet().fleeToOwner()) return;
                     var safe = owner.life().homeStand();
-                    if (safe != null && owner.life().navigate(safe, 1.2, false)) return;
+                    if (safe != null && Vec3.atBottomCenterOf(safe).distanceToSqr(threat.position()) > 25
+                            && owner.life().navigate(safe, 1.2, false)) return;
                     // A young runs to the parent it recognises; a body without a home runs for cover, then for a dry point away.
-                    var parent = recognisedParent(threat);
+                    var parent = ParentCarry.flightEscort(owner, threat);
                     if (parent != null && owner.life().navigate(parent.blockPosition(), 1.2, false)) {
                         GameplayLog.limited(owner, "threat", "flight.parent", 200, "fleeing to parent #{} distance={} danger=#{}",
                                 parent.getId(), Math.round(owner.distanceTo(parent)), threat.getId());
@@ -211,17 +218,7 @@ final class YukkuriGoals {
                 if (target != null) owner.directNavigation().moveTo(target.x, target.y, target.z, 1.2);
             }
         }
-        /** The mother or father this young keeps to, while that parent is near enough to run to and is no danger itself. */
-        private YukkuriEntity recognisedParent(YukkuriEntity danger) {
-            if (!owner.childhood().shouldStayWithParents()) return null;
-            for (var id : new UUID[] { owner.family().mother(), owner.family().father() }) {
-                if (id == null || id.equals(danger.getUUID())) continue;
-                if (owner.level() instanceof ServerLevel level && level.getEntity(id) instanceof YukkuriEntity parent && parent.isAlive()
-                        && owner.distanceToSqr(parent) <= 144 && owner.life().canRecognize(parent)) return parent;
-            }
-            return null;
-        }
-        @Override public void stop() { owner.directNavigation().stop(); }
+        @Override public void stop() { owner.family().carry().endFlight(); owner.directNavigation().stop(); }
     }
     /** A hurt newborn stays where it is and cries; fire, water, being carried or held still override it. */
     private final class HurtCryGoal extends Goal {

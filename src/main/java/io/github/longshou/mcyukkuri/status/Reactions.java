@@ -12,6 +12,7 @@ import io.github.longshou.mcyukkuri.social.EcologyPresentation;
 import io.github.longshou.mcyukkuri.social.Bonds;
 import io.github.longshou.mcyukkuri.social.BondLevels;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.family.ParentCarry;
 import io.github.longshou.mcyukkuri.human.HumanCommerce;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.settlement.DenSeal;
@@ -36,6 +37,7 @@ import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import java.util.Locale;
 import java.util.UUID;
 import net.minecraft.core.Direction;
+import net.minecraft.tags.FluidTags;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
 
@@ -246,10 +248,12 @@ public final class Reactions {
 
         boolean wants() {
             var s = source();
-            if (s == null || !free(y) || y.hurtCrying() || y.grief().protecting() || y.myon().fighting() || y.isPanicking() || y.level().getGameTime() < cooldownUntil) return false;
+            if (s == null || !free(y) || y.hurtCrying() || y.grief().protecting() || y.myon().fighting() || y.isPanicking()
+                    || y.family().carry().shelteredFrom(s) || y.level().getGameTime() < cooldownUntil) return false;
             return stage != Stage.NONE || s.distanceToSqr(y) <= 256 || s == heard;
         }
-        boolean keeps() { return stage != Stage.NONE && free(y) && !y.hurtCrying() && !y.grief().protecting() && !y.myon().fighting() && !y.isPanicking(); }
+        boolean keeps() { return stage != Stage.NONE && free(y) && !y.hurtCrying() && !y.grief().protecting() && !y.myon().fighting()
+                && !y.isPanicking() && !y.family().carry().shelteredFrom(source()); }
         void start() {
             // Seeing the source of a warning is enough to retreat; unseen warnings retain the short listening phase.
             var danger = source();
@@ -258,6 +262,7 @@ public final class Reactions {
             GameplayLog.limited(y, "threat", "start", 1200, "response started source={} stage={}",
                     danger == null ? null : danger.getUUID(), stage);
             y.life().interrupt();
+            y.family().carry().startFlight("threat", danger);
             long now = y.level().getGameTime();
             var s = source();
             // Already cried out about (scan) or heard of (kin): no second start for the same danger.
@@ -267,6 +272,7 @@ public final class Reactions {
             if (s != null) know(s, now);
         }
         void end(int cooldown) {
+            y.family().carry().endFlight();
             seal.reset();
             if (stage != Stage.NONE) GameplayLog.limited(y, "threat", "end", 1200,
                     "response ended stage={} phaseTicks={} cooldown={}", stage, ticks, cooldown);
@@ -275,6 +281,7 @@ public final class Reactions {
         }
 
         void tick() {
+            if (y.family().carry().tickFlight(source())) return;
             ticks++;
             var s = source();
             long now = y.level().getGameTime();
@@ -329,6 +336,8 @@ public final class Reactions {
             }
             var home = y.life().homeStand();
             if (home != null && home.distSqr(s.blockPosition()) > 25 && y.life().navigate(home, 1.2, false)) return;
+            var parent = ParentCarry.flightEscort(y, s);
+            if (parent != null && y.life().navigate(parent.blockPosition(), 1.2, false)) return;
             flight(s, 10);
         }
         /** Runs for cover away from one danger, else for a dry point away; the cover is searched at most every 80 ticks. */
@@ -421,7 +430,7 @@ public final class Reactions {
      * rain and cowers in a storm. A clap startles a pressed pair together, and they nestle in again after it.
      */
     public static final class Weather {
-        public enum Stage { NONE, RUN, WAIT, SEARCH, SHAKE, HUDDLE }
+        public enum Stage { NONE, RUN, WAIT, SEARCH, SHAKE, HUDDLE, FLOOD }
         /** Wetness above which a body on a dry spot shakes the water off (rain adds 3 per 20 ticks). */
         static final float SHAKE_WETNESS = 10;
         /** A body shakes once per wetting, not every time it is still a little damp: ticks after a shake before the next. */
@@ -465,7 +474,7 @@ public final class Reactions {
         public String activity() {
             if (startledNow() && (stage == Stage.RUN || stage == Stage.SEARCH || stage == Stage.HUDDLE)) return Behaviors.THUNDER_STARTLE;
             return switch (stage) {
-                case RUN, SEARCH -> Behaviors.RAIN_RUN;
+                case RUN, SEARCH, FLOOD -> Behaviors.RAIN_RUN;
                 case WAIT -> Behaviors.RAIN_WAIT;
                 case SHAKE -> Behaviors.RAIN_SHAKE;
                 case HUDDLE -> pressedAt >= 0 ? partnerLeft ? Behaviors.RAIN_HUDDLE_LEFT : Behaviors.RAIN_HUDDLE_RIGHT
@@ -532,6 +541,7 @@ public final class Reactions {
             if (stage != Stage.NONE) return true;
             long now = y.level().getGameTime();
             if (now < cooldownUntil || !free(y) || y.isPanicking()) return false;
+            if (approachingWater(3) != null) { planned = Stage.FLOOD; return true; }
             if (bothered()) {
                 if (pressing()) return false;
                 if (now >= searchAfter) {
@@ -557,7 +567,9 @@ public final class Reactions {
         boolean keeps() {
             if (stage == Stage.NONE) return false;
             if (stage == Stage.WAIT && !rainAt(y, y.blockPosition())) return false;
-            if (!free(y) || y.isPanicking() || pressing()) return false;
+            if (!free(y) || y.isPanicking()) return false;
+            if (stage == Stage.FLOOD) return true;
+            if (pressing()) return false;
             return stage == Stage.SHAKE || stage == Stage.HUDDLE || y.level().isRaining();
         }
         void start() {
@@ -570,6 +582,8 @@ public final class Reactions {
                 default -> {
                     y.life().wakeForDanger("weather");
                     y.life().interrupt();
+                    if (stage != Stage.FLOOD || approachingWater(1) == null)
+                        y.family().carry().startFlight(stage == Stage.FLOOD ? "rising_water" : "weather", null);
                     GameplayLog.limited(y, "weather", "start", 1200, "shelter response started sky={} stage={} cover={}", sky, stage, cover);
                     stepAfter = 0;
                     if (!spoke) {
@@ -581,6 +595,7 @@ public final class Reactions {
             }
         }
         void end(int cooldown) {
+            y.family().carry().endFlight();
             if (stage == Stage.SHAKE && ticks < SHAKE_TICKS) shakeAfter = y.level().getGameTime() + SHAKE_TICKS; // cut off: it shakes again soon
             if (stage == Stage.HUDDLE) {
                 GameplayLog.limited(y, "weather", "huddle.end", 600, "huddle ended partner={} pressed={} ticks={} unease={} cold={}",
@@ -599,9 +614,33 @@ public final class Reactions {
             y.getNavigation().stop();
         }
 
-        private BlockPos findCover() { return Reactions.findCover(y, null, searchOffset++); }
+        private BlockPos findCover() {
+            var parent = ParentCarry.flightEscort(y, null);
+            if (parent != null) {
+                var shelter = parent.status().reactions().weather.cover;
+                if (shelter != null && y.life().reachable(shelter, false)) return shelter;
+            }
+            return Reactions.findCover(y, null, searchOffset++);
+        }
+
+        /** Water at foot level flowing toward this dry stand. Still pools and water below a bank do not start a flight. */
+        private BlockPos approachingWater(int range) {
+            var origin = y.blockPosition();
+            var level = y.level();
+            for (int distance = 1; distance <= range; distance++) {
+                for (var direction : Direction.Plane.HORIZONTAL) {
+                    var at = origin.relative(direction, distance);
+                    var fluid = level.getFluidState(at);
+                    if (!fluid.is(FluidTags.WATER)) continue;
+                    var flow = fluid.getFlow(level, at);
+                    if (flow.x * direction.getStepX() + flow.z * direction.getStepZ() < 0) return at;
+                }
+            }
+            return null;
+        }
 
         void tick() {
+            if ((stage == Stage.RUN || stage == Stage.SEARCH) && y.family().carry().tickFlight(null)) return;
             ticks++;
             var level = (ServerLevel) y.level();
             var life = y.life();
@@ -612,6 +651,7 @@ public final class Reactions {
             if ((stage == Stage.RUN || stage == Stage.SEARCH) && raining && Sky.at(level, y.blockPosition()) == Sky.CLEAR
                     && life.covered(y.blockPosition()) && ticks > 20) {
                 y.getNavigation().stop();
+                y.family().carry().reachedCover();
                 stage = life.wetness() >= SHAKE_WETNESS ? Stage.SHAKE : Stage.WAIT;
                 ticks = 0;
                 if (stage == Stage.SHAKE) GameplayLog.limited(y, "weather", "shake.arrival", 1200,
@@ -619,13 +659,27 @@ public final class Reactions {
                 return;
             }
             switch (stage) {
+                case FLOOD -> {
+                    var water = approachingWater(3);
+                    if (water == null) {
+                        y.family().carry().reachedCover();
+                        end(40);
+                        return;
+                    }
+                    if (approachingWater(1) != null) y.family().carry().endFlight();
+                    else if (y.family().carry().tickFlight(null)) return;
+                    if (ticks % 10 == 1 || y.getNavigation().isDone()) {
+                        var away = awayFrom(y, 8, Vec3.atCenterOf(water));
+                        if (away != null) life.navigate(BlockPos.containing(away), 1.4, false);
+                    }
+                }
                 case RUN -> {
                     if (cover == null || !life.dryStand(cover)) { searchOnFoot(); return; }
                     Vec3 spot = Vec3.atBottomCenterOf(cover);
                     double reach = y.distanceToSqr(spot);
                     // The path stops up to half a block short; the last step is walked on the supported surface.
                     if (reach < .16 || reach < 2.25 && Sky.at(level, y.blockPosition()) == Sky.CLEAR) {
-                        SurfaceApproach.halt(y); stage = Stage.WAIT; ticks = 0; return;
+                        SurfaceApproach.halt(y); y.family().carry().reachedCover(); stage = Stage.WAIT; ticks = 0; return;
                     }
                     if (reach < 6.25) SurfaceApproach.walk(y, spot, 1.3);
                     else if (ticks % 10 == 1 || y.getNavigation().isDone()) {

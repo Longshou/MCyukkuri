@@ -669,6 +669,7 @@ public final class YukkuriLife {
             if (targetBlock == null && !penned && entity.habitat().vagrant() && homeProvider().temporaryCoverAllowed()) targetBlock = nearestDryCover();
             // A nest bed is slept in only from inside it: a footprint on the rim walks to its own place first.
             var nestOccupancy = targetBlock == null ? null : FamilyNest.bedOccupancy(entity, targetBlock);
+            if (targetBlock != null && entity.family().prepareHomeCarry()) return false;
             if (targetBlock != null && (entity.distanceToSqr(Vec3.atBottomCenterOf(targetBlock)) > .16 || !restable(entity.blockPosition())
                     || nestOccupancy != null && nestOccupancy != Occupancy.INSIDE_SUPPORTED)) { task = Task.HOME; pursuitTicks = 0; return true; }
             // A slave in the open pit curls up where it stands at rest time: dry ground is all the pit has to offer.

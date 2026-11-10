@@ -290,7 +290,8 @@ public final class Grab implements Action {
         }
         if (!target.isAlive()) return Outcome.of(Reason.TARGET_GONE, 0, "target_gone");
         if (target.operations().active()) return Outcome.of(Reason.TARGET_GONE, 0, "target_operated");
-        if (target.isPanicking() || target.isOnFire() || target.isInWaterOrBubble()) return new Outcome.Interrupted("brim_target_in_danger");
+        if (target.isPanicking() && !carrier.family().carry().protectiveGrip(target) || target.isOnFire() || target.isInWaterOrBubble())
+            return new Outcome.Interrupted("brim_target_in_danger");
         gap = ParentCarry.brimGap(carrier, carrier.position(), target);
         if (gap > GRIP_SLACK) return Outcome.of(Reason.NO_CONTACT, gap, "brim_grip_out_of_reach stand=" + GameplayLog.at(carrier.position()));
         if (clipStart < 0) {

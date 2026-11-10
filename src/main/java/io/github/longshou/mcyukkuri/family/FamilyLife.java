@@ -264,6 +264,16 @@ public final class FamilyLife {
         wait=40;
         return feeding.startCare()||startLandChildSearch();
     }
+    /** The bedtime walk yields to the same search that normally fetches a dependent home. */
+    public boolean prepareHomeCarry() {
+        if(!adult()||!ordinaryLandFree(entity)||entity.dailyLife().active()||urgentNeed())return false;
+        if(task==Task.CARRY||task==Task.SEARCH&&carry.lifting())return true;
+        if(task==Task.SEARCH&&target!=null)return carry.pickupWanted(target);
+        if(task!=Task.NONE||wait>0)return false;
+        var child=closestSeparatedDependentChild();
+        if(child==null||!carry.pickupWanted(child))return false;
+        return startLandChildSearch(child);
+    }
     /** In its nest or inside its own home (FamilySeparation's test). */
     public boolean atHome() { return FamilySeparation.atHome(entity); }
     /** The tick it last came home after a real absence, or -1; kin at home who see it come in may welcome it. */
@@ -1061,6 +1071,9 @@ public final class FamilyLife {
     private boolean startLandChildSearch() {
         var child=closestSeparatedDependentChild();
         if(child==null)return false;
+        return startLandChildSearch(child);
+    }
+    private boolean startLandChildSearch(YukkuriEntity child) {
         task=Task.SEARCH;target=child;searchAt=null;taskTicks=0;entity.showReaction("teary","wait_family",80);return true;
     }
     private YukkuriEntity closestParent() {
@@ -1134,6 +1147,7 @@ public final class FamilyLife {
         if(entity.childhood().shouldStayWithParents())radius*=1.20-.004*personality.attachment();
         return radius*radius;
     }
+    double followRadius() { return Math.sqrt(familyRadiusSqr()); }
     /** The new mutual search is only for ordinary land families that can all move freely; independent young are never recalled.
      *  A child near in the separation sense is watched, not searched: the search starts beyond it and ends at {@link #reached}. */
     private YukkuriEntity closestSeparatedDependentChild() {
@@ -1309,7 +1323,7 @@ public final class FamilyLife {
                     if(!carry.lifting()&&taskTicks%10==1&&glass.start(target))return;
                     if(carry.pickupWanted(target)) {
                         // Lift the baby instead of waiting for it to walk over; a march carries on, a stray goes back to its nest.
-                        if(carry.tickPickup(target,taskTicks)==ParentCarry.Step.FAILED)stop();
+                        if(carry.tickPickup(target)==ParentCarry.Step.FAILED)stop();
                         return;
                     }
                     if(!ordinaryLandFree(entity)||!ordinaryLandFree(target)||!entity.life().canRecognize(target)){stop();return;}

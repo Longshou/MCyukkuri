@@ -2334,6 +2334,46 @@ add('carry_home', 'family', '亲油把走远的赤油带回窝', '亲油把走�
                readout=['yukkuri status @e[type=#mcylab:yukkuri,tag=scn] raw'],
                verify=_carry_verify))
 
+# Both families start outdoors with unmounted children and a real, shared dry nest.
+_walk_home = 'family_walk_home'
+_flight_home = 'family_flight_home'
+_carry_nest = [*shed(0, 0), *large_nest(0, 0, 'mcyukkuri:large_yukkuri_nest')]
+_carry_transport_forbid = [r'\[family\][^\n]* carry put down forced\b',
+                           r'\[family\][^\n]* cause=carry_release_blocked\b']
+_walk_parent = uid(_walk_home, 'mother')
+_flight_parent = uid(_flight_home, 'mother')
+
+add(_walk_home, 'family', '天晚了，亲油抱赤油和小子油回窝', '天晚了，亲油抱赤油和小子油回窝',
+    '魔理沙和两只赤油、一只刚长成的子油离窝几格。看亲油把能承托的幼体带回来，逐只放到窝里。',
+    '约半分钟开始接抱', [*_carry_nest,
+        yk('marisa', 0, 6, 'mother', uuid=_walk_parent, yaw=0, lead=True, rest_wait=60,
+           fam='Version:2,Initialized:1b,Stage:"ADULT",Age:672000L,Nourishment:672000L,Maturity:336000L,Lifespan:1056000L,AdultScale:1.2f,Scale:1.2f'),
+        *[yk('marisa', x, z, name, stage=stage, share=share, uuid=uid(_walk_home, name), yaw=180,
+             kin=kin_of(Mother=_walk_parent), childhood=CHILDHOOD_HOPPING)
+          for x, z, name, stage, share in [(-.8, 7.2, 'baby_a', 'baby', None), (.8, 7.3, 'baby_b', 'baby', None),
+                                          (.1, 8.3, 'small_child', 'child', .215)]],
+        *[home(name, 0, 0) for name in ('mother', 'baby_a', 'baby_b', 'small_child')]],
+    env={'time': 'night'}, spot='carry_home', vantage=(.5, 13, 180, 20),
+    reads=[('读亲油与幼体的承托', 'yukkuri status @e[tag=scn,distance=..48] raw')],
+    smoke=dict(ticks=2200, expect=[r'\[family\][^\n]*carry pickup .*purpose=RETRIEVE .*childStage=JUVENILE\b'],
+               forbid=_carry_transport_forbid))
+
+add(_flight_home, 'family', '捕食种靠近，亲油抱起赤油躲回窝', '捕食种靠近，亲油抱起赤油躲回窝',
+    '灵梦与两只赤油在窝外。蕾米莉亚来到附近时，亲油就近接抱，随后退回窝边把孩子放到窝里。',
+    '几秒内接抱，约半分钟回窝', [*_carry_nest,
+        yk('reimu', 0, 8, 'mother', uuid=_flight_parent, yaw=180, lead=True, boldness=75, attachment=85),
+        *[yk('reimu', x, 7.5, name, stage='baby', uuid=uid(_flight_home, name),
+             kin=kin_of(Mother=_flight_parent), childhood=CHILDHOOD_CRAWLING_READY)
+          for x, name in [(-.45, 'baby_a'), (.65, 'baby_b')]],
+        *[home(name, 0, 0) for name in ('mother', 'baby_a', 'baby_b')]],
+    late=[Retry(yk('remilia', 0, 18, 'predator', uuid=uid(_flight_home, 'predator'), yaw=180,
+                   label='路过的捕食种', nutrition=100, energy=100), sel('mother'), tries=1, first=1)],
+    env=DAY, spot='carry_home', vantage=(5, 12, 120, 20),
+    reads=[('读威胁反应与幼体承托', 'yukkuri status @e[tag=scn,distance=..48] raw')],
+    smoke=dict(ticks=1600, expect=[r'\[family\][^\n]*carry flight choice .*gather=true',
+                                  r'\[family\][^\n]*carry flight pickup ended aboard=2\b'],
+               forbid=_carry_transport_forbid))
+
 # ====================================================================================================== which concern each scenario answers
 # Fresh NPC UUID on every start: confirmed death records are intentionally never reset by scene cleanup.
 _custody_lines = [human('caretaker_brother', 0, -3, 'custody_owner', 1, label='NPC主人')]
@@ -3724,7 +3764,7 @@ _number_scenes()
 TOPICS = {
     'home_pane': 'W7', 'home_open': 'W7',
     'balance_traits': 'N1', 'balance_relation': 'N1', 'balance_forms': 'N1', 'balance_deibu': 'N1',
-    'waste_volume': 'F5',
+    'waste_volume': 'F5', 'family_walk_home': 'F4', 'family_flight_home': 'F4',
     'agitation_relief': 'D2', 'adult_pairing': 'F6', 'widow_repair': 'F6', 'alice_hunt': 'R4', 'aftermath_growth': 'F7', 'aftermath_depletion': 'F7',
     'den_family': 'W1', 'dig': 'W2', 'indep_near': 'W3', 'den_move': 'W4', 'forage': 'W5', 'graze': 'W6', 'den_barrier': 'W8',
     'sleep': 'D1', 'night_sleep': 'D1', 'night_hungry_child': 'D1', 'meal_content': 'D1', 'fatigue': 'R1', 'fatigue_predator': 'R2', 'nutrition_age': 'D1', 'meet': 'D1', 'toilet': 'F5', 'hurt': 'F3',
@@ -4007,6 +4047,15 @@ _scene_end('carry_home', [(f'{kind}_baby', _ASHORE) for kind in ('marisa', 'reim
               post=[('$subject', _ASHORE + f' and nest_of.{kind}_parent=true and nest=INSIDE_SUPPORTED')])
              for kind in ('marisa', 'reimu', 'chen')])
 next(s for s in S if s.id == 'carry_home').smoke['end']['carried_min'] = 2
+for _sid, _purpose, _children in [
+        (_walk_home, 'RETRIEVE', ('baby_a', 'baby_b', 'small_child')),
+        (_flight_home, 'PROTECT', ('baby_a', 'baby_b'))]:
+    _scene_end(_sid, [(child, _ASHORE) for child in _children],
+               *[dict(each=child, steps=[
+                   ('mother', rf'seen:family:^carry pickup .*purpose={_purpose} child=$subject\b'),
+                   ('mother', rf'seen:family:carry put down .*cause=release purpose={_purpose} child=$subject .*nest=INSIDE_SUPPORTED')],
+                   post=[('$subject', _ASHORE + ' and nest_of.mother=true and nest=INSIDE_SUPPORTED')])
+                 for child in _children])
 _scene_end('hat_push', [('a', 'alive=true and distress=false'), ('fast', 'alive=true and distress=false')],
            [('hat_of:fast', 'seen:hat:capsized cause=impact .*count=1')],
            forbid=[('hat_of:a', 'seen:hat:capsized')])
