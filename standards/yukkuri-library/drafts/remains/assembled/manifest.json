@@ -1,5 +1,5 @@
 {
-  "recipe_sha256": "b9fc9868b3589cde1052fb97bbce294e6b90f7cc15cd0a631ba026bc7253330d",
+  "recipe_sha256": "33a919576a175cd2dfe462f81f39ade9715b2fedd624895640e5fde7a4c42bd2",
   "builder_sha256": "b8650e518b1c316b9204d5336821b7dd3edf775706dfcb1b94bb2a8c80b221fd",
   "standard_confirmation": "standards/yukkuri-library/provenance/standard-expressions.json",
   "atlases": {
@@ -43,6 +43,11 @@
         "face": "dying_closed",
         "face_source": "standards/yukkuri-library/assembled/reimu/textures/dying_closed.png",
         "sha256": "0e9b1ed4b533d1c51282a7f9fb86946391bcd46877bb8b9f4dbee03346306681"
+      },
+      "retained": {
+        "face": "old_dead",
+        "face_source": "standards/yukkuri-library/assembled/reimu/textures/old_dead.png",
+        "sha256": "36c95bf8c033cab533dfaa21bf570274019ffa6c6577f7c9c7b9699591fbc398"
       },
       "dissolving": {
         "face": "dying_blank",
@@ -91,6 +96,11 @@
         "face_source": "standards/yukkuri-library/assembled/marisa/textures/dying_closed.png",
         "sha256": "fd9d4dc9dde12a2c6e9db73f0420f48c3a7a07392f03b2f2383ad2ecfe387524"
       },
+      "retained": {
+        "face": "old_dead",
+        "face_source": "standards/yukkuri-library/assembled/marisa/textures/old_dead.png",
+        "sha256": "287eff1a8bc5156f7435f8e8127531eaae15d972986797c096c743f0c0675887"
+      },
       "dissolving": {
         "face": "dying_blank",
         "face_source": "standards/yukkuri-library/assembled/marisa/textures/dying_blank.png",
@@ -137,6 +147,11 @@
         "face": "dying_closed",
         "face_source": "standards/yukkuri-library/assembled/chen/textures/dying_closed.png",
         "sha256": "9d50c27f67481f9bd670891d44b61c84cc0330593295581e19ab25a4df4b8413"
+      },
+      "retained": {
+        "face": "old_dead",
+        "face_source": "standards/yukkuri-library/assembled/chen/textures/old_dead.png",
+        "sha256": "4e679a54baf2972b67c64e6a44cae74db10684fa3382be7f710975b38cd887ea"
       },
       "dissolving": {
         "face": "dying_blank",
@@ -185,6 +200,11 @@
         "face_source": "standards/yukkuri-library/assembled/alice/textures/dying_closed.png",
         "sha256": "0d5dc72aaf88731a2971ed44c901ecc4f28db8a08cd28c1e4aa05498c22d241f"
       },
+      "retained": {
+        "face": "old_dead",
+        "face_source": "standards/yukkuri-library/assembled/alice/textures/old_dead.png",
+        "sha256": "5de48a1eae05d8aba5fb55c887f7a32ba755f46f23e53f1691f22ef7df1872b0"
+      },
       "dissolving": {
         "face": "dying_blank",
         "face_source": "standards/yukkuri-library/assembled/alice/textures/dying_blank.png",
@@ -231,6 +251,11 @@
         "face": "dying_closed",
         "face_source": "standards/yukkuri-library/assembled/patchouli/textures/dying_closed.png",
         "sha256": "52864b7b1104cfe72097ad69cdc066ff7f5829b1e2f556f2ed7ced2c45a4d41a"
+      },
+      "retained": {
+        "face": "old_dead",
+        "face_source": "standards/yukkuri-library/assembled/patchouli/textures/old_dead.png",
+        "sha256": "cb257d729f44d5b7316e525da58037ae8773c722130768066a15eb3549fa2b8d"
       },
       "dissolving": {
         "face": "dying_blank",
@@ -279,6 +304,11 @@
         "face_source": "standards/yukkuri-library/assembled/marisa_tsumuri/textures/dying_closed.png",
         "sha256": "eb6833a36596707547b09336154ac635a94b84bb030e2f2c9ba8396bd817b58e"
       },
+      "retained": {
+        "face": "old_dead",
+        "face_source": "standards/yukkuri-library/assembled/marisa_tsumuri/textures/old_dead.png",
+        "sha256": "08101d24a67f6c196ddd099865ada2d862f3154eb1c65c52eed92100802836fb"
+      },
       "dissolving": {
         "face": "dying_blank",
         "face_source": "standards/yukkuri-library/assembled/marisa_tsumuri/textures/dying_blank.png",
@@ -325,6 +355,11 @@
         "face": "dying_closed",
         "face_source": "standards/yukkuri-library/assembled/reimu/textures/dying_closed.png",
         "sha256": "415d688e6311c86df614d50dc19cadbeb30e8542d61d948ed6241bbe977d47ab"
+      },
+      "retained": {
+        "face": "old_dead",
+        "face_source": "standards/yukkuri-library/assembled/reimu/textures/old_dead.png",
+        "sha256": "715d84689fd9aad6a457ba3ddf1a700d2c60f2bd58cb0ae3dba91053dd6a81a6"
       },
       "dissolving": {
         "face": "dying_blank",
@@ -373,6 +408,11 @@
         "face_source": "standards/yukkuri-library/assembled/reimu/textures/dying_closed.png",
         "sha256": "15efa16c8033a7f7c408b3bbe97353693885339ff4a652d98348ff886c855f07"
       },
+      "retained": {
+        "face": "old_dead",
+        "face_source": "standards/yukkuri-library/assembled/reimu/textures/old_dead.png",
+        "sha256": "f812a3a2f643bfc4cb3d851474da89739670451575d742a35c0b8d2b6cecf092"
+      },
       "dissolving": {
         "face": "dying_blank",
         "face_source": "standards/yukkuri-library/assembled/reimu/textures/dying_blank.png",
@@ -419,6 +459,11 @@
         "face": "dying_closed",
         "face_source": "standards/yukkuri-library/assembled/reimu/textures/dying_closed.png",
         "sha256": "415d688e6311c86df614d50dc19cadbeb30e8542d61d948ed6241bbe977d47ab"
+      },
+      "retained": {
+        "face": "old_dead",
+        "face_source": "standards/yukkuri-library/assembled/reimu/textures/old_dead.png",
+        "sha256": "715d84689fd9aad6a457ba3ddf1a700d2c60f2bd58cb0ae3dba91053dd6a81a6"
       },
       "dissolving": {
         "face": "dying_blank",

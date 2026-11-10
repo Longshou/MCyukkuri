@@ -28,7 +28,10 @@ final class RenderPose implements Overlays.Contact {
     final int root;
     final Vector3f scratch=new Vector3f();
     Vector3f anchor;
-    float puff;
+    float puff,retention;
+    /** Rest body frame of the swaddle retention swelling (Skin.retentionFrame); the request's "retention" is its amount, 0..1. */
+    final float[] body;
+    private final Skin.Deform retain;
     RenderPose(JsonObject request) {
         data=request.getAsJsonObject("model");
         if(request.has("fit")&&!request.get("fit").isJsonNull())Splice.fit(data,request.getAsJsonObject("fit"),hash->true);
@@ -51,13 +54,17 @@ final class RenderPose implements Overlays.Contact {
         data.getAsJsonObject("clips").entrySet().forEach(e->clips.put(e.getKey(),Clips.read(e.getValue().getAsJsonObject(),bones.length)));
         if(data.has("behavior_clips"))data.getAsJsonObject("behavior_clips").entrySet().forEach(e->clips.put(e.getKey(),Clips.read(e.getValue().getAsJsonObject(),bones.length)));
         clips.get("idle").sample(0,defaults);
+        var ranges=new ArrayList<Integer>();
+        for(var raw:data.getAsJsonArray("parts")){var p=raw.getAsJsonObject();if(OfflineModel.group(p.get("name").getAsString()).equals("body")){ranges.add(start(p));ranges.add(count(p));}}
+        body=Skin.retentionFrame(rest,ranges.stream().mapToInt(Integer::intValue).toArray());
+        retain=(index,point)->Skin.deformRetention(point,retention,body);
     }
     private static int start(JsonObject p){return p.get("start").getAsInt();}
     private static int count(JsonObject p){return p.get("count").getAsInt();}
     private void offsets(JsonObject p){var v=Rig.floats(p.getAsJsonArray("offsets"));System.arraycopy(v,0,offsets,start(p)*3,v.length);}
     public void compose(){composer.world(pose,world,-1,1,null,null);updateFeatures();}
     private void updateFeatures(){featureTransforms.forEach((b,m)->Compose.feature(bones,world,b,m,new Matrix4f()));}
-    private Vector3f skin(int i){var p=new Vector3f();Skin.base(i,p,scratch,source,bindings,world,null,puff,offsets,features,featureTransforms);return p;}
+    private Vector3f skin(int i){var p=new Vector3f();Skin.base(i,p,scratch,source,bindings,world,retention>0?retain:null,puff,offsets,features,featureTransforms);return p;}
     public float minimumY(){float min=Float.POSITIVE_INFINITY;for(var raw:data.getAsJsonArray("parts")){
         var p=raw.getAsJsonObject();if(OfflineModel.group(p.get("name").getAsString()).equals("body"))for(int i=start(p);i<start(p)+count(p);i++)min=Math.min(min,skin(i).y);
     }return min;}
@@ -77,6 +84,7 @@ final class RenderPose implements Overlays.Contact {
         var clip=data.getAsJsonObject("clips").getAsJsonObject(action);
         if(data.has("behavior_clips")&&data.getAsJsonObject("behavior_clips").has(action))clip=data.getAsJsonObject("behavior_clips").getAsJsonObject(action);
         puff=clip.has("puff_envelope")?Clips.puffEnvelope(Rig.floats(clip.getAsJsonArray("puff_envelope")),clips.get(action).time(t)):0;
+        retention=request.has("retention")?request.get("retention").getAsFloat():0;
         source=rest.clone();String expression=request.get("expression").getAsString();
         var patches=data.getAsJsonObject("expression_patches");
         if(patches!=null&&!patches.has(expression)&&data.has("expression_aliases")&&data.getAsJsonObject("expression_aliases").has(expression))expression=data.getAsJsonObject("expression_aliases").get(expression).getAsString();

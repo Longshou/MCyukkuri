@@ -25,6 +25,21 @@ STYLES = (('knit', '奶油针织（项目设计）'), ('frill', '荷叶边蝴蝶
           ('outing', '外出款（EH31 第2页）'), ('fleece', '防寒厚绒（N91 用途）'), ('gingham', '格纹（项目设计）'), ('floral', '碎花（项目设计）'))
 BG = (226, 228, 222)
 
+# --neglect: one Reimu baby (赤油 .18) at the leaf stages of a neglected wrap and its retention remains, the placeholder look beside the
+# current one, from the front three-quarter, the side and the back (LeafSwaddle.wearBits: stage, loads, swelling; RemainsAssets forms).
+NEGLECT_SCALE = .18
+NEGLECT_VIEWS = (('3/4', .75), ('侧面', 1.5708), ('背面', 3.14159))
+NEGLECT_STATES = (
+    ('0 新叶', {'stage': 0, 'soil': 0, 'swell': 0, 'face': 'happy'}, None),
+    ('1 积便', {'stage': 1, 'soil': 1, 'swell': 0, 'face': 'cry'}, None),
+    ('2 干黄（肿胀 .3）', {'stage': 2, 'soil': 2, 'swell': .3, 'face': 'squeezed_frown'}, None),
+    ('3 硬褐（肿胀满）', {'stage': 3, 'soil': 3, 'swell': 1, 'face': 'squeezed_cry'}, None),
+    ('便秘遗体', {'skin': 'remains:reimu:retained', 'stage': 3, 'soil': 3, 'swell': 1}, 'retained'),
+)
+NEGLECT_FACES = ('happy', 'cry', 'squeezed_frown', 'squeezed_cry')
+NEGLECT_REMAINS = {'sick': ASSETS / 'textures/entity/reimu/remains_sick.png',
+                   'retained': ROOT / 'standards/yukkuri-library/drafts/remains/assembled/reimu/remains_retained.png'}
+
 
 def textures():
     """Raw RGBA of every texture the port samples, keyed by the names it uses."""
@@ -32,7 +47,7 @@ def textures():
     out = {}
 
     def raw(name, path):
-        image = Image.open(path).convert('RGBA')
+        image = (path if isinstance(path, Image.Image) else Image.open(path)).convert('RGBA')
         file = WORK / (name.replace(':', '_') + '.rgba')
         file.write_bytes(image.tobytes())
         out[name] = {'file': str(file), 'w': image.width, 'h': image.height}
@@ -40,6 +55,12 @@ def textures():
         for face in FACES:
             raw(f'entity:{model}:{face}', ASSETS / f'textures/entity/{model}/{face}.png')
     raw('leaf', ASSETS / 'textures/misc/swaddle_leaf_wear.png')
+    # the former 32x64 sheet (fresh leaf and its stained copy) is the first stage of the current one, for the placeholder look
+    raw('leaf_old', Image.open(ASSETS / 'textures/misc/swaddle_leaf_wear.png').crop((0, 0, 32, 64)))
+    for face in NEGLECT_FACES:
+        raw(f'entity:reimu:{face}', ASSETS / f'textures/entity/reimu/{face}.png')
+    for form, path in NEGLECT_REMAINS.items():
+        raw(f'remains:reimu:{form}', path)
     raw('trim', ASSETS / 'textures/misc/swaddle_trim.png')
     for fabric in FABRICS:
         raw(fabric, ASSETS / f'textures/misc/swaddle/{fabric}.png')
@@ -89,6 +110,29 @@ def leaf_panels():
             {'model': 'marisa', 'action': 'idle', 'scale': .18, 'at': [3.5, 0, -.5], 'wear': 'leaf'}]})
         sizes.append((pid, label))
     rows.append(sizes)
+    return panels, rows
+
+
+def neglect_panels():
+    recipe = json.loads((ROOT / 'standards/yukkuri-library/drafts/remains/recipe.json').read_text(encoding='utf-8'))['forms']
+    panels, rows = [], []
+    for label, state, form in NEGLECT_STATES:
+        row = []
+        for old in (True, False):
+            for vname, az in NEGLECT_VIEWS:
+                actor = {'model': 'reimu', 'action': 'idle', 'scale': NEGLECT_SCALE, 'wear': 'leaf', **state}
+                if form:
+                    # before: the sick remains form without the leaf; now: the retention form keeps the swollen body in its hard leaf
+                    look = recipe['sick' if old else form]
+                    actor.update(face=look['face'], squash=look['scale'], roll=look.get('roll', 0), skin=f"remains:reimu:{'sick' if old else form}")
+                    if old:
+                        actor.pop('wear')
+                elif old:
+                    actor['placeholder'] = True
+                pid = f'neglect-{len(rows)}-{len(row)}'
+                panels.append({'id': pid, 'azimuth': az, 'span': 11 * NEGLECT_SCALE, 'centerY': 6.5 * NEGLECT_SCALE, 'actors': [actor]})
+                row.append((pid, f"{'旧' if old else '新'} {label} {vname}"))
+        rows.append(row)
     return panels, rows
 
 
@@ -163,10 +207,10 @@ def icons():
         tray.alpha_composite(icon, (42, 76))
         image.paste(tray.convert('RGB'), (x, 30))
         draw.text((x, 134), STYLES[n][1].split('（')[0], font=font, fill=(10, 10, 10))
-    draw.text((8, 160), '身上贴图：单片树叶（干净／积便染色，8x）　布料平铺 2×2（8x）　装饰图集（4x）', font=font, fill=(10, 10, 10))
+    draw.text((8, 160), '身上贴图：单片树叶（四个失护阶段，各为干净／积便染色，2x）　布料平铺 2×2（8x）　装饰图集（4x）', font=font, fill=(10, 10, 10))
     leaf = Image.open(ASSETS / 'textures/misc/swaddle_leaf_wear.png').convert('RGBA')
     panel = Image.new('RGBA', (256, 512), (110, 110, 110, 255))
-    panel.alpha_composite(leaf.resize((256, 512), Image.NEAREST))
+    panel.alpha_composite(leaf.resize((64, 512), Image.NEAREST), (96, 0))
     image.paste(panel.convert('RGB').resize((224, 448), Image.NEAREST), (10, 184))
     for n, fabric in enumerate(FABRICS):
         tile = Image.open(ASSETS / f'textures/misc/swaddle/{fabric}.png').convert('RGBA')
@@ -184,6 +228,17 @@ def icons():
 
 
 def main():
+    if '--neglect' in sys.argv:
+        panels, rows = neglect_panels()
+        tasks = {'width': W, 'height': H, 'work': str(WORK), 'textures': textures(), 'panels': panels}
+        task_file = WORK / 'tasks.json'
+        task_file.write_text(json.dumps(tasks), encoding='utf-8')
+        subprocess.run(['node', str(Path(__file__).with_name('preview_wear.cjs')), '--tasks', str(task_file)], check=True)
+        target = OUT.parent / 'swaddle-neglect-art'
+        target.mkdir(parents=True, exist_ok=True)
+        sheet(rows, '树叶襁褓失护：灵梦赤油 0–3 段与便秘遗体；左三列旧占位（顶点染色、叶缘外扩、病死遗体），右三列新（叶片分段贴图、身体潴留肿胀、苍白遗体保留肿胀与硬叶）',
+              target / 'neglect.png')
+        return
     leaf, leaf_rows = leaf_panels()
     cloth, cloth_rows = cloth_panels()
     fit, fit_rows = fit_panels()

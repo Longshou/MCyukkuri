@@ -463,7 +463,19 @@ public final class YukkuriModel {
     private boolean wearClear;
     /** Per vertex: lies over a swaddle (overWear), lazy. */
     private boolean[] overWearVertices;
-    public void setWear(int bits){wear=bits;}
+    /** Swaddle retention swelling of the body being drawn (wear bits 9-12, also after the leaf is gone), 0..1; its rest body frame, lazy. */
+    private float retention;
+    private float[] retentionBody;
+    private final Skin.Deform retain=(index,point)->Skin.deformRetention(point,retention,retentionBody());
+    private final Skin.Deform woundAndRetain=(index,point)->{woundDeform.deform(index,point);retain.deform(index,point);};
+    private final Vector3f retainedRest=new Vector3f();
+    public void setWear(int bits){wear=bits;retention=(bits>>9&15)/15f;}
+    private float[] retentionBody(){
+        if(retentionBody==null){var ranges=new ArrayList<Integer>();
+            for(var part:parts)if(bodySurface(part.name)){ranges.add(part.start);ranges.add(part.count);}
+            retentionBody=Skin.retentionFrame(restVertices,ranges.stream().mapToInt(Integer::intValue).toArray());}
+        return retentionBody;
+    }
     private boolean overWearVertex(int index){
         if(overWearVertices==null){
             var flags=new boolean[bindings.length];
@@ -557,7 +569,9 @@ public final class YukkuriModel {
      * body itself (CareWearRenderer): the body surface with its rump mark (a raised patch that shells must close over); the first
      * {@link #wearBodyLength()} floats are valid. The hair is not part of it: it lies over the wrap. Render thread only.
      */
-    float[] posedWear() {
+    float[] posedWear(int bits) {
+        float drawn = retention;
+        retention = (bits >> 9 & 15) / 15f;
         int count = 0;
         for (var part : parts) if (wornBody(part.name)) count += part.count;
         if (wearBuffer.length < count * 3) wearBuffer = new float[count * 3];
@@ -565,6 +579,7 @@ public final class YukkuriModel {
         for (var part : parts) if (wornBody(part.name))
             for (int i = part.start; i < part.start + part.count; i++) { skin(i, point); wearBuffer[k++] = point.x / 16; wearBuffer[k++] = point.y / 16; wearBuffer[k++] = point.z / 16; }
         wearBody = k;
+        retention = drawn;
         return wearBuffer;
     }
     int wearBodyLength() { return wearBody; }
@@ -1151,7 +1166,7 @@ public final class YukkuriModel {
             hatDamageDraw.drawCaps(evidenceBuffers("hat",buffers));
             if(accessory||pieces||hatMotion.equals("HAT_REMOVE"))renderReplacementHat(stack,buffers,light,overlay);
             PoseTap.model(entity, this, accessory, hairLoss);
-        }finally{drawEvidence=null;wear=0;wearClear=false;woundDisplay=null;drain=0;adultStatePose=false;drawingWoundedBody=false;drawingSurfaceMarks=false;mouthHolding=false;carryLoad=carryLean=carryCurlLeft=carryCurlRight=carryMouth=carryCheeks=hatInBraid=0;hatMotion="";hatScale=1;hatProp=null;hatDamageDraw.reset();setCareContact(0,
+        }finally{drawEvidence=null;wear=0;retention=0;wearClear=false;woundDisplay=null;drain=0;adultStatePose=false;drawingWoundedBody=false;drawingSurfaceMarks=false;mouthHolding=false;carryLoad=carryLean=carryCurlLeft=carryCurlRight=carryMouth=carryCheeks=hatInBraid=0;hatMotion="";hatScale=1;hatProp=null;hatDamageDraw.reset();setCareContact(0,
                 Float.NaN,0,0);setBraidReach(null,0);
                 setBoardingPose(Float.NaN,0,1,0);setSelfHatPose(null);setExpression("");setReproductiveAnatomy(null,0);}
     }
@@ -1356,7 +1371,7 @@ public final class YukkuriModel {
         // Only vertices a wound actually moved leave the shared cache; the rest still match their rest-point key.
         boolean moved=woundDisplay!=null&&woundDisplay.moved(index);
         if(!moved&&skinningCache.read(index,target))return;
-        Skin.base(index,target,second,vertices,bindings,world,woundDisplay==null?null:woundDeform,
+        Skin.base(index,target,second,vertices,bindings,world,woundDisplay==null?retention>0?retain:null:retention>0?woundAndRetain:woundDeform,
                 puffAmount,puffOffsets,featureBones,featureTransforms);
         // Pregnancy and rigid accessory lifts happen in skin(), after this cached base position.
         if(!moved)skinningCache.write(index,target);
@@ -1369,6 +1384,7 @@ public final class YukkuriModel {
         woundSkin(triangle,a,b,c,rest,target,true);
     }
     void woundSkin(int triangle,float a,float b,float c,Vector3f rest,Vector3f target,boolean pregnancy){
+        if(retention>0){Skin.deformRetention(retainedRest.set(rest),retention,retentionBody());rest=retainedRest;}
         Skin.fragment(triangle,a,b,c,rest,target,second,bindings,world,featureBones,featureTransforms);
         if(pregnancy)Skin.pregnancy(target,pregnancyBelly,pregnancyContraction,rigidGroups==null?0:rigidGroups[triangle],crownLift,braidLift);
         if(hatDamageDraw.fit()<.999f&&woundAccessoryVertex(triangle))target.sub(hatDamageDraw.seat()).mul(hatDamageDraw.fit()).add(hatDamageDraw.seat());

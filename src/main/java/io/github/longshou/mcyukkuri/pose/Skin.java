@@ -59,4 +59,29 @@ public final class Skin {
         float squeeze=1+.035f*contraction;
         point.set(point.x*s*(1+LOW_WIDE*belly*low)*squeeze,point.y*s*(1-.04f*contraction),point.z*s*(1+(LOW_DEEP+LOW_FRONT*front)*belly*low)*squeeze);
     }
+    /**
+     * Swaddle retention swelling (project design, art decision swaddle-neglect): the bottom and the rear of the body round out under the
+     * hard leaf. RETAIN_OUT is the outward growth at full swelling, most at the back and none in front of RETAIN_FRONT (the share of the
+     * body depth from the face), so the face plane stays put; it reaches up to RETAIN_TOP_SIDE of the body height at the sides and
+     * RETAIN_TOP_BACK at the back (under the hanging back hair, which moves with it), fullest at RETAIN_PEAK and rounding in to RETAIN_FOOT
+     * of that at the ground contact, so the bottom bulges like a full sack rather than flaring. Heights never change.
+     */
+    public static final float RETAIN_OUT=.6f, RETAIN_FRONT=.15f, RETAIN_PEAK=.14f, RETAIN_FOOT=.6f, RETAIN_TOP_SIDE=.30f, RETAIN_TOP_BACK=.50f;
+    /** Rest space, model units, before the bones: every part (skin, hair, locks) takes the same field. {@code body} is retentionFrame. */
+    public static void deformRetention(Vector3f point,float swell,float[] body){
+        if(swell<=0)return;
+        float front=body[0],back=body[1],rear=Clips.smooth(((point.z-front)/(back-front)-RETAIN_FRONT)/(1-RETAIN_FRONT));
+        float u=point.y/body[2],top=RETAIN_TOP_SIDE+(RETAIN_TOP_BACK-RETAIN_TOP_SIDE)*rear;
+        float shape=u<RETAIN_PEAK?RETAIN_FOOT+(1-RETAIN_FOOT)*Clips.smooth(u/RETAIN_PEAK):1-Clips.smooth((u-RETAIN_PEAK)/(top-RETAIN_PEAK));
+        float s=RETAIN_OUT*swell*rear*shape;
+        point.x+=point.x*s;point.z+=(point.z-(front+back)/2)*s;
+    }
+    /** The rest body frame of deformRetention, {front z, back z, height}, from the body surface vertices [start, start + count) of each part. */
+    public static float[] retentionFrame(float[] vertices,int[] ranges){
+        float[] frame={Float.MAX_VALUE,-Float.MAX_VALUE,0};
+        for(int r=0;r<ranges.length;r+=2)for(int i=ranges[r];i<ranges[r]+ranges[r+1];i++){
+            frame[0]=Math.min(frame[0],vertices[i*8+2]);frame[1]=Math.max(frame[1],vertices[i*8+2]);frame[2]=Math.max(frame[2],vertices[i*8+1]);
+        }
+        return frame;
+    }
 }

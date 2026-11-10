@@ -17,7 +17,7 @@ class RuntimePose{
  expression(name){this.selectedExpression=name;}
  dispose(){request({op:'release',id:this.id});}
  frame(action,t,adjustment=null,intensity=null,care=null){
-  const result=request({op:'render',id:this.id,action,time:t,adjustment,intensity,expression:this.selectedExpression,scale:this.scale,...(care?{care}: {})});
+  const result=request({op:'render',id:this.id,action,time:t,adjustment,intensity,expression:this.selectedExpression,scale:this.scale,...(care?{care}: {}),...(this.retention?{retention:this.retention}:{})});
   this.output=Float64Array.from(result.vertices);this.world=result.world;this.rootPose=result.root_pose;return this.output;
  }
  careFrame(action,t,anchor,target,blend=1){return this.frame(action,t,null,null,{anchor,target,blend});}

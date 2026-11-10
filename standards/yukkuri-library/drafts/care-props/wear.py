@@ -4,8 +4,9 @@ its trim sheet.
 Drawn here in the vanilla item style of supplies.py (hue-shifted local ramps, the outline is the darkest step of its own
 material, no black, no anti-aliasing, no partial alpha). Nothing is copied from vanilla files.
 
-swaddle_leaf_wear.png, 32x64: one broad leaf, clean in rows 0-31 and stool-stained in rows 32-63 (the same pixels mixed towards
-a muted brownish yellow, outline kept). u runs from the petiole (x 0-4, a two-pixel stalk on rows 15-16) to the pointed tip at
+swaddle_leaf_wear.png, 32x256: one broad leaf at the four stages of a neglected wrap (STAGES, 64 rows each: fresh, soiled,
+dry yellow-brown, hard brown), each clean in its first 32 rows and stool-stained in the next 32 (the same pixels mixed towards the
+stage's stool tone, outline kept; stage 1 only in one patch round the middle). u runs from the petiole (x 0-4, a two-pixel stalk on rows 15-16) to the pointed tip at
 x 31; v runs across the blade, midrib on row 16. The renderer lays it as a diaper: petiole and blade base at the anus on the
 back, the broadest part under the body, the tip up over the front outlet below the mouth (CareWearRenderer.leafWrap).
 
@@ -69,8 +70,8 @@ def half_width(x, top):
     return w - NICKS.get((x, top), 0)
 
 
-def leaf_cell():
-    cell = Image.new('RGBA', (32, 32), (0, 0, 0, 0))
+def leaf_steps():
+    """The fresh leaf as ramp steps: blade pixels -> step (0 outline .. 6 midrib), the margin band, and the petiole pixels -> petiole step."""
     inside = set()
     for x in range(32):
         for top in (True, False):
@@ -82,13 +83,14 @@ def leaf_cell():
                 if 0 <= y < 32 and d <= w + .3:
                     inside.add((x, y))
     rng = random.Random(41)
-    colour = {}
+    colour, margin = {}, set()
     for x, y in inside:
         d = abs(y - MID)
         w = half_width(x, y < MID)
-        step = 3 if y < MID else 3
+        step = 3
         if w - d < 2.2:
             step = 2                                            # a darker band along the margin rounds the blade
+            margin.add((x, y))
         if y < MID and d < 5 and x < 20:
             step = 4                                            # soft sheen on one side of the midrib
         if rng.random() < .05:
@@ -105,38 +107,103 @@ def leaf_cell():
         if (x, MID) in inside or x < BLADE0:
             colour[(x, MID)] = 6 if x < 22 else 5
     # outline: the darkest step on the outer margin, one lighter where the blade meets the light (upper side)
+    outline = set()
     for x, y in inside:
         out = [(x + dx, y + dy) not in inside for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1))]
         if any(out):
             colour[(x, y)] = 1 if (out[3] and y < MID and not out[0]) else 0
-    for xy, step in colour.items():
-        cell.putpixel(xy, rgba(LEAF[step]))
+            outline.add((x, y))
+    petiole = {}
     for x in range(0, BLADE0):                                  # the petiole: a two-pixel stalk running into the midrib
-        cell.putpixel((x, MID - 1), rgba(PETIOLE[2 if x < 4 else 1]))
-        cell.putpixel((x, MID), rgba(PETIOLE[1]))
-    cell.putpixel((0, MID - 1), rgba(PETIOLE[1])); cell.putpixel((0, MID), rgba(PETIOLE[0]))
+        petiole[(x, MID - 1)] = 2 if x < 4 else 1
+        petiole[(x, MID)] = 1
+    petiole[(0, MID - 1)] = 1; petiole[(0, MID)] = 0
+    return inside, colour, margin - outline, outline, petiole
+
+
+def crease(colour, inside, outline, rng, count):
+    """Dry crinkles: short dark folds running across the blade, each with a lit pixel on its tip side, kept off the outline and midrib."""
+    blade = sorted(p for p in inside if p not in outline and p[1] != MID and p[0] > BLADE0 + 1)
+    for _ in range(count):
+        x, y = rng.choice(blade)
+        dy = 1 if y > MID else -1
+        for k in range(rng.choice((2, 3, 3, 4))):
+            p, lit = (x + (k // 2) * rng.choice((0, 1)), y + dy * k), None
+            if p not in inside or p in outline or p[1] == MID:
+                break
+            colour[p] = 1
+            lit = (p[0] + 1, p[1])
+            if lit in inside and lit not in outline and lit[1] != MID:
+                colour[lit] = min(6, colour[lit] + 1)
+
+
+# Leaf stages of a neglected wrap (FEATURES 树叶襁褓; art decision swaddle-neglect, palette A): 0 fresh, 1 soiled (yellowing margin, the
+# stool soaked in as one patch), 2 dry yellow-brown with a darker dry edge and crinkles, 3 hard brown, crinkled, a taut sheen under the body.
+DRY = ['#3e2c10', '#5a4318', '#77601f', '#94802a', '#ac9a36', '#c4b24c', '#dacb76']
+HARD = ['#2a170a', '#3f2410', '#563217', '#6c401d', '#835226', '#9a6634', '#b4834c']
+PETIOLE_DRY = ['#4a3c16', '#6b5a22', '#8c7a34']
+PETIOLE_HARD = ['#2e1c0c', '#4a2e14', '#664222']
+STAGES = (  # ramp, petiole ramp, margin mix towards DRY, crinkles, margin darker by, sheen, stain colour, stain amount, patch only
+    (LEAF, PETIOLE, 0, 0, 0, False, STAIN, (.6, .75), False),
+    (LEAF, PETIOLE, .45, 0, 0, False, STAIN, (.6, .75), True),
+    (DRY, PETIOLE_DRY, 0, 9, 1, False, (128, 92, 40), (.4, .5), False),
+    (HARD, PETIOLE_HARD, 0, 15, 1, True, (74, 46, 24), (.12, .18), False),
+)
+
+
+def mix(a, b, k):
+    return tuple(round(x * (1 - k) + y * k) for x, y in zip(a[:3], b[:3])) + (255,)
+
+
+def leaf_cell(stage):
+    ramp, petiole_ramp, yellow, creases, edge, sheen = STAGES[stage][:6]
+    inside, colour, margin, outline, petiole = leaf_steps()
+    rng = random.Random(70 + stage)
+    if creases:
+        crease(colour, inside, outline, rng, creases)
+    for p in margin:
+        colour[p] = max(1, colour[p] - edge)                    # the drying edge goes first
+    if sheen:                                                   # stretched taut over the swollen bottom: one step lighter under the body
+        for x, y in inside:
+            if 11 <= x <= 17 and 2 <= abs(y - MID) <= 7 and (x, y) not in outline and colour[(x, y)] != 1:
+                colour[(x, y)] = min(5, colour[(x, y)] + 1)
+    cell = Image.new('RGBA', (32, 32), (0, 0, 0, 0))
+    for xy, step in colour.items():
+        c = rgba(ramp[step])
+        if yellow and (xy in margin or xy in outline):
+            c = mix(c, rgba(DRY[step]), yellow)
+        cell.putpixel(xy, c)
+    for xy, step in petiole.items():
+        cell.putpixel(xy, rgba(petiole_ramp[step]))
     return cell
 
 
-def stained(cell, seed):
-    """The same leaf soaked through: every blade pixel mixed 60-75% towards STAIN, keeping its own light and dark steps."""
+def stained(cell, stage):
+    """The same leaf with the stool soaked in, keeping its own light and dark steps: through the whole blade, or (stage 1) one patch round
+    the middle of the blade, so the first soiling reads as a stain rather than a different leaf."""
+    tone, (lo, hi), patch = STAGES[stage][6:9]
     out = cell.copy()
-    rng = random.Random(seed)
+    rng = random.Random(5 + stage)
     for x in range(cell.width):
         for y in range(cell.height):
             r, g, b, a = cell.getpixel((x, y))
             if a == 0:
                 continue
-            k = .6 + .15 * rng.random()
+            if patch:
+                reach = 5.5 + 1.5 * math.sin(x * 1.3) + rng.random()
+                if abs(y - MID) > reach or x < BLADE0 + 3:
+                    continue
+            k = lo + (hi - lo) * rng.random()
             lum = (r + g + b) / 3 / 105
-            out.putpixel((x, y), tuple(min(255, round((c * (1 - k) + s * k * lum))) for c, s in zip((r, g, b), STAIN)) + (255,))
+            out.putpixel((x, y), tuple(min(255, round((c * (1 - k) + s * k * lum))) for c, s in zip((r, g, b), tone)) + (255,))
     return out
 
 
 def leaf_sheet():
-    sheet = Image.new('RGBA', (32, 64), (0, 0, 0, 0))
-    leaf = leaf_cell()
-    sheet.paste(leaf, (0, 0)); sheet.paste(stained(leaf, 5), (0, 32))
+    sheet = Image.new('RGBA', (32, 64 * len(STAGES)), (0, 0, 0, 0))
+    for stage in range(len(STAGES)):
+        leaf = leaf_cell(stage)
+        sheet.paste(leaf, (0, 64 * stage)); sheet.paste(stained(leaf, stage), (0, 64 * stage + 32))
     return sheet
 
 
