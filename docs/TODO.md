@@ -13,6 +13,7 @@
 | 生10 帽上子油无地面影子、辫子上伸不转圈 | `.worktrees/wp-ef-carry-hat-fixes` | client/YukkuriRenderer.java（影子）、standards/yukkuri-library/motions/variants/lore/braid_keys.py、contact-safe/braid_chain.py 与 motion 导出 |
 | 生4 放松与玩耍在家附近、产后亲油守着未断奶孩子（照料窝算住所） | `.worktrees/wp-eg-home-leisure` | settlement/HabitatLife.java、social/DailyLife.java、entity/RoamingGoal.java、family/FamilyLife.java（一个谓词） |
 | 生8 同窝、草2 事后茎生（场景部分）、草3 恐惧三档、草6 寡妇再配对（场景部分）：真实起点 | `.worktrees/wp-eh-scene-fixes` | scripts/museum_scenarios.py（family_nests、aftermath_growth、aftermath_depletion、balance_relation、widow_repair） |
+| 生3 成体撞碎玻璃板（共享动作）与住家宣言破窗入空屋 | `.worktrees/wp-el-pane-bash` | motor/action/（新撞击动作）、event/HomeClaim.java、event/HomeClaimGoal.java、scripts/museum_scenarios.py（新增一场） |
 
 ## 玩法待办
 
