@@ -3,96 +3,136 @@ package io.github.longshou.mcyukkuri.client;
 import io.github.longshou.mcyukkuri.MCYukkuri;
 import io.github.longshou.mcyukkuri.entity.YukkuriView;
 import io.github.longshou.mcyukkuri.registry.ModItems;
+import net.minecraft.client.Camera;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.util.Mth;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.phys.AABB;
-import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.bus.api.EventPriority;
 import net.neoforged.neoforge.client.event.CalculatePlayerTurnEvent;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
+import net.neoforged.neoforge.client.event.RenderHandEvent;
 import net.neoforged.neoforge.client.event.ViewportEvent;
-import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
 
 /** Client half of the magnifying glass: a smooth close zoom, scaled mouse and a crosshair status strip. */
 public final class MagnifierClient {
-    private static final float ZOOM_FOV = 0.28f;   // a magnifier, not a telescope
-    private static final float MOUSE_SCALE = 0.3f; // sensitivity at full zoom
-    private static final double REACH = 12.0;      // extended pick distance
-    private static final float INFLATE = 0.4f;     // small bodies are hard to hit
-    private static float zoom;                     // 0..1, eased every tick
-    private static YukkuriView aim;
-
-    public static void register() {
-        NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, ViewportEvent.ComputeFov.class, MagnifierClient::fov);
-        NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, CalculatePlayerTurnEvent.class, MagnifierClient::mouse);
-        NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, ClientTickEvent.Post.class, MagnifierClient::tick);
-    }
+    private static final float ZOOM_FOV = 0.28f;
+    private static final double MOUSE_SCALE = 0.3;
+    private static final double REACH = 12.0;
+    private static final double AIM_ASSIST = 0.12; // Allow a narrow margin around a small body.
+    private static float previousZoom;
+    private static float zoom;
 
     public static void registerHud(RegisterGuiLayersEvent event) {
-        event.registerAboveAll(MCYukkuri.id("magnifier_status"), MagnifierClient::renderStrip);
+        event.registerAbove(VanillaGuiLayers.CROSSHAIR, MCYukkuri.id("magnifier_status"), MagnifierClient::renderStrip);
     }
 
-    private static boolean scoping(LocalPlayer player) {
-        return player.isUsingItem() && player.getUseItem().is(ModItems.MAGNIFYING_GLASS.get());
-    }
-
-    private static void tick(ClientTickEvent.Post event) {
-        var minecraft = Minecraft.getInstance();
+    private static LocalPlayer observer(Minecraft minecraft) {
         var player = minecraft.player;
-        float target = player != null && scoping(player) ? 1f : 0f;
-        zoom = Mth.approach(zoom, target, 0.12f);
-        aim = zoom > 0.01f && player != null ? pick(player) : null;
+        if (player == null || !player.isAlive() || minecraft.screen != null || minecraft.getOverlay() != null
+                || !minecraft.options.getCameraType().isFirstPerson() || minecraft.getCameraEntity() != player) return null;
+        var glass = ModItems.MAGNIFYING_GLASS.get();
+        return player.isHolding(glass) && (!player.isUsingItem() || player.getUseItem().is(glass)) ? player : null;
     }
 
-    private static void fov(ViewportEvent.ComputeFov event) {
-        if (zoom > 0.001f) event.setFOV(event.getFOV() * (1f - zoom * (1f - ZOOM_FOV)));
+    private static boolean scoping(Minecraft minecraft, LocalPlayer player) {
+        return minecraft.options.keyUse.isDown() && player.isUsingItem()
+                && player.getItemInHand(player.getUsedItemHand()).is(ModItems.MAGNIFYING_GLASS.get());
     }
 
-    private static void mouse(CalculatePlayerTurnEvent event) {
-        if (zoom > 0.001f) event.setMouseSensitivity(event.getMouseSensitivity() * (1f - zoom * (1f - MOUSE_SCALE)));
+    static void tick(ClientTickEvent.Post event) {
+        var minecraft = Minecraft.getInstance();
+        var player = observer(minecraft);
+        if (player == null) {
+            previousZoom = zoom = 0f;
+            return;
+        }
+        previousZoom = zoom;
+        zoom = Mth.approach(zoom, scoping(minecraft, player) ? 1f : 0f, 0.12f);
+    }
+
+    static void fov(ViewportEvent.ComputeFov event) {
+        if (!event.usedConfiguredFov() || observer(Minecraft.getInstance()) == null) return;
+        float amount = Mth.lerp((float) event.getPartialTick(), previousZoom, zoom);
+        event.setFOV(event.getFOV() * Mth.lerp(amount, 1f, ZOOM_FOV));
+    }
+
+    static void mouse(CalculatePlayerTurnEvent event) {
+        if (zoom == 0f || observer(Minecraft.getInstance()) == null) return;
+        // MouseHandler cubes (0.6 * sensitivity + 0.2) to get the actual turn rate.
+        double base = event.getMouseSensitivity() * 0.6f + 0.2f;
+        double scaled = base * Math.cbrt(Mth.lerp(zoom, 1.0, MOUSE_SCALE));
+        event.setMouseSensitivity((scaled - 0.2f) / 0.6f);
+    }
+
+    static void renderHand(RenderHandEvent event) {
+        var minecraft = Minecraft.getInstance();
+        var player = observer(minecraft);
+        if (player != null && scoping(minecraft, player)) event.setCanceled(true);
     }
 
     private static void renderStrip(GuiGraphics g, DeltaTracker delta) {
-        if (aim == null || aim.isRemoved()) return;
         var minecraft = Minecraft.getInstance();
-        if (minecraft.player == null) return;
+        var player = observer(minecraft);
+        if (minecraft.options.hideGui || player == null || !scoping(minecraft, player)) return;
+        var aim = pick(player, minecraft.gameRenderer.getMainCamera());
+        if (aim == null) return;
         var font = minecraft.font;
-        int width = minecraft.getWindow().getGuiScaledWidth();
-        int height = minecraft.getWindow().getGuiScaledHeight();
-        int y = height / 2 + 12;
+        int width = g.guiWidth();
+        int y = g.guiHeight() / 2 + 12;
         for (var line : StatusStrip.lines(aim)) {
-            g.drawString(font, line, (width - font.width(line)) / 2, y, 0xFFFFFFFF, true);
+            g.drawCenteredString(font, GuiKit.ellipsize(font, line, width - 8), width / 2, y, 0xFFFFFFFF);
             y += 10;
         }
     }
 
-    private static YukkuriView pick(LocalPlayer player) {
-        Vec3 eye = player.getEyePosition();
-        Vec3 end = eye.add(player.getViewVector(1f).scale(REACH));
-        BlockHitResult block = player.level().clip(
-                new ClipContext(eye, end, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, player));
-        double limit = block.getType() == HitResult.Type.MISS ? REACH : eye.distanceTo(block.getLocation());
-        YukkuriView best = null;
-        double bestDist = limit * limit;
-        AABB box = new AABB(eye, end).inflate(1.0);
-        for (Entity entity : player.level().getEntities(player, box, e -> e instanceof YukkuriView)) {
-            var hit = entity.getBoundingBox().inflate(INFLATE).clip(eye, end);
-            if (hit.isEmpty()) continue;
-            double d = eye.distanceToSqr(hit.get());
-            if (d < bestDist) {
-                bestDist = d;
-                best = (YukkuriView) entity;
+    private static YukkuriView pick(LocalPlayer player, Camera camera) {
+        Vec3 eye = camera.getPosition();
+        Vec3 end = eye.add(new Vec3(camera.getLookVector()).scale(REACH));
+        var candidates = player.level().getEntities(player, new AABB(eye, end).inflate(AIM_ASSIST),
+                e -> e instanceof YukkuriView && e.isPickable() && !e.isInvisibleTo(player));
+        if (candidates.isEmpty()) return null;
+        end = player.level().clip(outlineRay(player, eye, end)).getLocation();
+
+        YukkuriView direct = null, assisted = null;
+        double directDistance = eye.distanceToSqr(end), assistedDistance = directDistance;
+        for (var entity : candidates) {
+            AABB body = entity.getBoundingBox();
+            Vec3 hit = firstHit(body, eye, end);
+            if (hit != null) {
+                double distance = eye.distanceToSqr(hit);
+                if (distance < directDistance) {
+                    directDistance = distance;
+                    direct = (YukkuriView) entity;
+                }
+                continue;
+            }
+            if (direct != null) continue;
+            Vec3 near = firstHit(body.inflate(AIM_ASSIST), eye, end);
+            if (near == null) continue;
+            Vec3 surface = new Vec3(Mth.clamp(near.x, body.minX, body.maxX),
+                    Mth.clamp(near.y, body.minY, body.maxY), Mth.clamp(near.z, body.minZ, body.maxZ));
+            double distance = eye.distanceToSqr(surface);
+            if (distance < assistedDistance && player.level().clip(outlineRay(player, eye, surface)).getType() == HitResult.Type.MISS) {
+                assistedDistance = distance;
+                assisted = (YukkuriView) entity;
             }
         }
-        return best;
+        return direct != null ? direct : assisted;
+    }
+
+    private static Vec3 firstHit(AABB bounds, Vec3 eye, Vec3 end) {
+        return bounds.contains(eye) ? eye : bounds.clip(eye, end).orElse(null);
+    }
+
+    private static ClipContext outlineRay(LocalPlayer player, Vec3 start, Vec3 end) {
+        return new ClipContext(start, end, ClipContext.Block.OUTLINE, ClipContext.Fluid.NONE, player);
     }
 
     private MagnifierClient() {}

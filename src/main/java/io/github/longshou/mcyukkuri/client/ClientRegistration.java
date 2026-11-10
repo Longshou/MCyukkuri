@@ -12,14 +12,17 @@ import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.config.ModConfig;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
+import net.neoforged.neoforge.client.event.CalculatePlayerTurnEvent;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.event.InputEvent;
 import net.neoforged.neoforge.client.event.RegisterClientReloadListenersEvent;
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
 import net.neoforged.neoforge.client.event.RenderFrameEvent;
+import net.neoforged.neoforge.client.event.RenderHandEvent;
 import net.neoforged.neoforge.client.event.RegisterClientCommandsEvent;
 import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
+import net.neoforged.neoforge.client.event.ViewportEvent;
 import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.level.LevelEvent;
@@ -52,8 +55,11 @@ public final class ClientRegistration {
         modBus.addListener(EventPriority.NORMAL, false, FMLClientSetupEvent.class, ClientEvents::registerItemProperties);
 
         modBus.addListener(EventPriority.NORMAL, false, RegisterGuiLayersEvent.class, MagnifierClient::registerHud);
-        MagnifierClient.register();
 
+        NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, ViewportEvent.ComputeFov.class, MagnifierClient::fov);
+        NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, CalculatePlayerTurnEvent.class, MagnifierClient::mouse);
+        NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, RenderHandEvent.class, MagnifierClient::renderHand);
+        NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, ClientTickEvent.Post.class, MagnifierClient::tick);
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, ClientTickEvent.Post.class, DialogueAudio::tick);
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, ClientTickEvent.Post.class, EcologyAudio::tick);
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, ClientTickEvent.Post.class, BodyEffectsRenderer::tick);
