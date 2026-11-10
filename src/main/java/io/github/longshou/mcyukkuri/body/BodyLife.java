@@ -526,9 +526,9 @@ public final class BodyLife {
         if(wound.severity()==1){wounds.remove(index);entity.status().marks().healed(wound);}
         else wounds.set(index,wound.heal());
         GameplayLog.event(entity,"body","wound healing {}/{}:{} -> {}; wound={}",wound.kind().id(),wound.shape().id(),wound.severity(),Math.max(0,wound.severity()-1),wound.id());}
-    /** Internal attrition through the generic carrier; the cause is kept only for a death this very hit causes. */
     /** Must exceed the ordinary 1-health/600-tick food regeneration even on a small child. */
     public void swaddleRetentionDamage(){damage(1+entity.getMaxHealth()*.08f,"swaddle_retention");}
+    /** Internal attrition through the generic carrier; the cause is kept only for a death this very hit causes. */
     private void damage(float amount,String cause){
         String previous=internalDamageCause;internalDamageCause=cause;
         try{entity.hurtInternal(entity.damageSources().generic(),amount);}finally{internalDamageCause=previous;}
