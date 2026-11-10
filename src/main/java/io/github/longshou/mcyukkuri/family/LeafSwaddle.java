@@ -118,7 +118,9 @@ public final class LeafSwaddle {
                 life.changeHygiene(1); entity.mind().add(-1, "leaf_swaddle");
                 if (wearClock % FRIENDLY_TICKS == 0) entity.life().personality().experienced(Trait.FRIENDLINESS, 1);
             } else {
-                life.changeHygiene(-(float)soil); entity.mind().add((float)soil, "soiled_swaddle");
+                // The cost follows the soiled stage the wrap shows (wearBits), not the raw volume: a newborn's wrap is as unpleasant as a child's.
+                float stage = (float)Math.ceil(soil);
+                life.changeHygiene(-stage); entity.mind().add(stage, "soiled_swaddle");
                 if (!life.isSleeping()) entity.showReaction("teary", "leak", 60);
             }
             if (wearClock % FRIENDLY_TICKS == 0) GameplayLog.limited(entity, "family", "leaf_swaddle.wear", FRIENDLY_TICKS,
