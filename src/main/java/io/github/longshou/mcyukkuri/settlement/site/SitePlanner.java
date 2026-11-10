@@ -12,9 +12,9 @@ import net.minecraft.core.Direction;
 
 /**
  * Procedural, rotation-aware layout of a settlement site (project-original; the wiki supports the loose elements: burrows
- * dug into banks and under roots, a trodden open ground they face, stores, a little brush that stops nothing). The burrows
- * are dug into the slope on one side of the clearing (the "hill side"), every mouth facing down the slope; the waste pit
- * and, where water belongs, a pond lie on the opposite, low side.
+ * dug into banks and under roots, a trodden open ground they face, stores, a little brush that stops nothing). The homes
+ * share one side of the clearing. Each uses the bank behind its door where there is one, or stands in a low earth mound.
+ * The waste pit and, where water belongs, a pond lie on the opposite side.
  * Pure function of its inputs; the layout is made in a local frame (clearing centre at 0,0, z south, hill to the north)
  * and rotated by quarter turns afterwards. The terrain only decides where the layout goes ({@link #choose},
  * {@link #bestRotation}), the standing level of every part and which parts fit; it never moves a part.
@@ -59,8 +59,7 @@ public final class SitePlanner {
 
     /**
      * @param ground samples natural ground for the terrain checks; null skips them (every level is then 64)
-     * @param strict true for generated sites: the clearing must lie at the foot of a slope that most burrows can be dug
-     *               into; false for deliberate placement (commands, museum), where a missing bank is heaped up instead
+     * @param strict true for generated sites: check the clearing and the terrain around the doors
      * @return null when no layout fits the terrain ({@link #lastFailure} says why)
      */
     public static SitePlan plan(SiteTier tier, long seed, int rotation, int ox, int oz, int palette, Ground ground, boolean strict) {
@@ -80,16 +79,21 @@ public final class SitePlanner {
             }
             int level = ground == null ? 64 : ground.at(ox, oz);
             int[] levels = new int[parts.size()];
+            var hillside = new HashSet<Part>();
             for (int i = 0; i < levels.length; i++) {
-                levels[i] = ground == null ? level : partLevel(parts.get(i), ground);
+                var part = parts.get(i);
+                levels[i] = ground == null ? level : partLevel(part, ground);
                 // Water gathers in low ground only: a pond above the clearing would be a made thing.
-                if (parts.get(i).kind() == Kind.POOL && levels[i] != SiteGeom.SKIP && levels[i] > level) levels[i] = SiteGeom.SKIP;
+                if (part.kind() == Kind.POOL && levels[i] != SiteGeom.SKIP && levels[i] > level) levels[i] = SiteGeom.SKIP;
                 // A home whose mouth would open far up the slope or down a drop is left out: the others are the settlement.
-                if (ground != null && tier != SiteTier.DEMO && parts.get(i).kind() == Kind.HOME && Math.abs(levels[i] - level) > MAX_DOOR_RISE)
+                if (ground != null && tier != SiteTier.DEMO && part.kind() == Kind.HOME && Math.abs(levels[i] - level) > MAX_DOOR_RISE)
                     levels[i] = SiteGeom.SKIP;
+                if (ground != null && levels[i] != SiteGeom.SKIP && (part.kind() == Kind.HOME || part.kind() == Kind.HALL)
+                        && backRise(part, levels[i], ground) >= DUG_RISE)
+                    hillside.add(part);
             }
             var plan = new SitePlan(tier, seed, rotation, ox, oz, level, palette, parts, turn(local.paths(), rotation, ox, oz),
-                    turn(local.works(), rotation, ox, oz), 0, tier.bound - 1.5, levels);
+                    turn(local.works(), rotation, ox, oz), 0, tier.bound - 1.5, levels, hillside);
             if (strict && ground != null && tier != SiteTier.DEMO) {
                 String bad = unfit(plan, ground);
                 if (bad != null) { FAILURE.set(bad); return null; }
@@ -115,8 +119,8 @@ public final class SitePlanner {
     private static Local why(String part) { FAILURE.set("no room for the " + part + " in " + ATTEMPTS + " layouts"); return null; }
 
     /**
-     * Why a generated site would not be a hill-foot settlement, or null: the clearing must be near-level, the burrow doors
-     * near the clearing level, the longhouse and at least three in five burrows backed by a slope at least {@link #DUG_RISE} blocks high.
+     * Why a generated site would not fit, or null: a near-level clearing with enough homes, doors near clearing level,
+     * and no dwelling under a cliff.
      */
     private static String unfit(SitePlan plan, Ground ground) {
         int low = Integer.MAX_VALUE, high = Integer.MIN_VALUE;
@@ -125,8 +129,7 @@ public final class SitePlanner {
             low = Math.min(low, h); high = Math.max(high, h);
         }
         if (high - low > 3) return "the clearing is not level (" + (high - low) + " blocks)";
-        int burrows = 0, dug = 0, homes = 0;
-        boolean hall = !plan.tier.hall;
+        int homes = 0;
         for (int i = 0; i < plan.parts.size(); i++) {
             var p = plan.parts.get(i);
             if (!p.mound() || !plan.used(i)) continue;
@@ -135,21 +138,20 @@ public final class SitePlanner {
             if (p.kind() == Kind.GRANARY) continue;
             if (p.kind() == Kind.HOME) homes++;
             if (rise > 12) return p.kind() + " lies under a cliff (" + rise + " blocks)";
-            burrows++;
-            if (rise >= DUG_RISE) { dug++; if (p.kind() == Kind.HALL) hall = true; }
         }
-        if (homes < (plan.tier.hall ? 4 : 2)) return "only " + homes + " homes fit below the slope";
-        if (!hall) return "no slope behind the longhouse";
-        if (dug * 5 < burrows * 3) return "only " + dug + " of " + burrows + " burrows have a slope behind them";
+        if (homes < (plan.tier.hall ? 4 : 2)) return "only " + homes + " homes fit around the clearing";
         return null;
     }
     /** How far the natural ground at the back wall of the burrow rises above the door's standing level. */
-    private static int backRise(Part p, int door, Ground ground) { return ground.at(SiteGeom.fx(p, 0, 4), SiteGeom.fz(p, 0, 4)) - door; }
+    private static int backRise(Part p, int door, Ground ground) {
+        int back = SiteGeom.dims(p)[1];
+        return ground.at(SiteGeom.fx(p, 0, back), SiteGeom.fz(p, 0, back)) - door;
+    }
 
     /**
      * Where a generated site goes: the plaza is moved by up to {@code shift} blocks around {@code (cx, cz)} and the layout
-     * turned so that the hill side faces up the slope. Candidates whose probe finds no slope are not planned at all; of the
-     * rest the best scoring hill-foot plan is taken. Null when none fits.
+     * turned so that available banks face the clearing. The centre is always considered, including in flat country;
+     * shifted candidates are considered when their probe finds a bank. Null when none fits.
      */
     public static SitePlan choose(SiteTier tier, long seed, int cx, int cz, int palette, Ground ground, int shift) {
         SitePlan best = null;
@@ -157,13 +159,13 @@ public final class SitePlanner {
         String why = null;
         int step = Math.max(1, shift);
         for (int dx = -shift; dx <= shift; dx += step) for (int dz = -shift; dz <= shift; dz += step) for (int rotation = 0; rotation < 4; rotation++) {
-            if (!slopes(ground, cx + dx, cz + dz, rotation)) continue;
+            if ((dx != 0 || dz != 0) && !slopes(ground, cx + dx, cz + dz, rotation)) continue;
             var plan = plan(tier, seed, rotation, cx + dx, cz + dz, palette, ground, true);
             if (plan == null) { why = lastFailure(); continue; }
             double score = score(plan, ground);
             if (score > bestScore) { bestScore = score; best = plan; }
         }
-        if (best == null) FAILURE.set(why == null ? "no slope to dig into" : why);
+        if (best == null) FAILURE.set(why);
         return best;
     }
     /** A cheap look before planning: the ground behind the clearing rises, the ground in front of it does not. */
@@ -287,7 +289,7 @@ public final class SitePlanner {
         }
         if (pit == null) return why("waste pit");
         d.avoid.add(new double[]{pit.x(), pit.z(), village ? 10 : 8});
-        // Every burrow is dug into the bank behind the clearing, its mouth facing down the slope.
+        // Homes face the clearing from the side where the terrain can provide a bank.
         if (tier.hall) {
             Part hall = null;
             for (int tries = 0; tries < 30 && hall == null; tries++) {

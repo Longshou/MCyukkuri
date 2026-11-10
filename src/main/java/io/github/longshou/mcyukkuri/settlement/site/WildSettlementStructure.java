@@ -19,10 +19,9 @@ import net.minecraft.world.level.levelgen.structure.Structure;
 import net.minecraft.world.level.levelgen.structure.StructureType;
 
 /**
- * Generated settlement ground: one piece holding the plan inputs. A site is a hill-foot settlement: it is only placed where
- * the clearing lies level at the foot of a slope that the burrows can be dug into ({@link SitePlanner#choose}), dry, below
- * the snow line. Core biomes take it wherever that holds; the edge biomes (#mcyukkuri:settlement_edge) only when a woodland
- * or river biome lies within about 40 blocks.
+ * Generated settlement ground: one piece holding the plan inputs. The clearing is near-level ({@link SitePlanner#choose}),
+ * dry and below the snow line. Core biomes take it wherever that holds; the edge biomes (#mcyukkuri:settlement_edge) only
+ * when a woodland or river biome lies within about 40 blocks.
  */
 public final class WildSettlementStructure extends Structure {
     public static final MapCodec<WildSettlementStructure> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
@@ -54,11 +53,6 @@ public final class WildSettlementStructure extends Structure {
         if (!c.validBiome().test(biome) || biome.is(EDGE) && !nearAnchor(c, cx, cz, surface)) return Optional.empty();
         // Rarer country (savanna, bare hills, the dark forest) keeps only a share of its starts.
         if (ModRandom.world(c.random()).nextDouble() >= SiteProfile.accept(biome)) return Optional.empty();
-        // No slope within ten blocks, no burrows to dig: flat country is left to the lone wanderers and natural hollows.
-        int high = surface;
-        for (int i = 0; i < 8; i++)
-            high = Math.max(high, surface(c, cx + (int)Math.round(Math.cos(i * Math.PI / 4) * 10), cz + (int)Math.round(Math.sin(i * Math.PI / 4) * 10)));
-        if (high - surface < 3) return Optional.empty();
         int reach = tier.bound + SHIFT, n = reach * 2 / STEP + 1;
         int x0 = cx - reach, z0 = cz - reach;
         int[] heights = new int[n * n];

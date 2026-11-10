@@ -29,7 +29,7 @@ public enum SiteProfile {
             Blocks.MOSS_BLOCK, Blocks.BIRCH_LEAVES, Blocks.BIRCH_LOG, Blocks.STONE,
             new Block[]{Blocks.SHORT_GRASS, Blocks.SHORT_GRASS, Blocks.FERN, Blocks.SHORT_GRASS, Blocks.LILY_OF_THE_VALLEY},
             new Item[]{Items.SHORT_GRASS, Items.BROWN_MUSHROOM, Items.SWEET_BERRIES}, new int[]{4, 2, 2}, true, true),
-    /** Open grassland: only where a bank or a wooded rise breaks the flat, so sites here are few. */
+    /** Open grassland: settlements require nearby woods or a river. */
     PLAINS (0.80, Blocks.GRASS_BLOCK, Blocks.DIRT, 5, 0, 0.8, new Block[]{Blocks.DIRT, Blocks.COARSE_DIRT, Blocks.DIRT, Blocks.ROOTED_DIRT},
             Blocks.ROOTED_DIRT, Blocks.OAK_LEAVES, Blocks.OAK_LOG, Blocks.ANDESITE,
             new Block[]{Blocks.SHORT_GRASS, Blocks.SHORT_GRASS, Blocks.SHORT_GRASS, Blocks.DANDELION, Blocks.SHORT_GRASS, Blocks.AZURE_BLUET},

@@ -227,7 +227,7 @@ class Forage(Field):
 # ----------------------------------------------------------------------------------------------- biome settlements
 BIOME_PLOTS = [  # id, biome, ground block, trunk, leaves, title, hill block (None: flat plot)
     # the season follows the biome (docs/FEATURES.md); the forest village digs into its hill, the plains one stands on flat ground
-    # with built-up banks, and each hill band shows its own site profile
+    # with earth mounds, and each hill band shows its own site profile
     ('forest', 'minecraft:forest', 'minecraft:grass_block', 'minecraft:oak_log', 'minecraft:oak_leaves', '森林', 'minecraft:dirt'),
     ('plains', 'minecraft:plains', 'minecraft:grass_block', None, None, '平原', None),
     ('taiga', 'minecraft:taiga', 'minecraft:grass_block', 'minecraft:spruce_log', 'minecraft:spruce_leaves', '针叶林', 'minecraft:dirt'),
@@ -247,7 +247,7 @@ COLONY_PLOTS = [  # the plains village of the colony scenes and, 64 blocks east,
 class Biomes(Field):
     """63x63 plots in a grid of ``cols`` columns, one biome each; a plot holds a whole village (SiteTier.VILLAGE.bound 29), so
     neighbours never share ground. Plots with a hill block have a slope rising in their north part, its foot five blocks north of
-    the plot centre, so a settlement spawned at the centre digs its burrows into the bank; flat plots get built-up banks. Every
+    the plot centre, so a settlement spawned at the centre can dig its burrows into the bank; flat plots get earth mounds. Every
     clear puts the plots' ground, hill, trees and biomes back."""
     HILL_FOOT = 5          # blocks north of the plot centre where the slope begins
     HILL_TOP = 9           # height of the hill crest above the ground

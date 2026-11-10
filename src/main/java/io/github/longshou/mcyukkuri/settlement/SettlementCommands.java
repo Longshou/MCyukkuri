@@ -182,7 +182,7 @@ public final class SettlementCommands {
         var terrain = new SiteBuilder.LevelTerrain(level);
         long seed = ModRandom.world(level).nextLong();
         int palette = SiteWorld.palette(level.getBiome(pos));
-        // The burrows go into the highest ground around the given spot; on flat ground their banks are heaped up instead.
+        // Face the available banks; the planner chooses the shape of each dwelling from its own ground.
         int rotation = SitePlanner.bestRotation(tier, seed, pos.getX(), pos.getZ(), palette, terrain);
         var plan = SitePlanner.plan(tier, seed, rotation, pos.getX(), pos.getZ(), palette, terrain, false);
         if (plan == null) { source.sendFailure(Component.translatable("commands.mcyukkuri.settlement.site.fail", SitePlanner.lastFailure())); return 0; }

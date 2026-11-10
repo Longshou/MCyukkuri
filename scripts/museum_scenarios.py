@@ -264,6 +264,26 @@ for _plot, _kind, _seen in (('forest', 'village', '秋·森林村落，洞挖进
                             ('snow', 'band', '冬·雪原小群的寒冷生活'), ('desert', 'band', '夏·沙漠小群的炎热生活')):
     settlement(_plot, _kind, _seen)
 
+_mixed_x, _mixed_z = BY_ID['biomes'].spots['plains']
+add('settle_mixed_dens', 'biomes', '同一聚落的山洞与平地土丘洞', '山洞与平地土丘洞',
+    '同一个聚落里，西边家洞挖进坡面，东边家洞在平地的圆土丘里。看两户从空地进出各自的洞口，在洞里休息和存粮',
+    '数分钟（可倍速）', [
+        # Keep the clearing and the east side level. The north bank backs the hall; the west bank backs one household.
+        *[box(-3, y, -12, 3, y, -6 - y, 'minecraft:grass_block') for y in range(3)],
+        *[box(-12, y, -2, -5 - y, y, 2, 'minecraft:grass_block') for y in range(3)],
+        'yukkuri settlement spawn demo ~ ~ ~', LEAD_ANY], env=DAY, spot='plains', vantage=(0, 17),
+    retry='先“清空本场地”再按一次', reads=[('读两种住所的场地勘测', 'yukkuri settlement site check')],
+    smoke=dict(ticks=3000, expect=[r'\[habitat\][^\n]* home chosen',
+               *[rf'\[habitat\][^\n]* home chosen [^\n]*home=BlockPos\{{x={_mixed_x + dx}, y={FEET}, z={_mixed_z}\}} bed='
+                 for dx in (-4, 4)], r'MCYSMOKE_MIXED_DEN_ROOFS', r'MCYSMOKE_MIXED_DEN_SITE_OK'],
+               forbid=[r'\[body\][^\n]* invariant\b'],
+               commands=[(1, 'execute if block ~-5 ~2 ~ minecraft:grass_block if block ~-5 ~3 ~ minecraft:air '
+                             'if block ~5 ~4 ~ minecraft:grass_block run say MCYSMOKE_MIXED_DEN_ROOFS'),
+                         (2, 'execute store success score #mixed_den_site museum run yukkuri settlement site check'),
+                         (3, 'execute if score #mixed_den_site museum matches 1 '
+                             'if entity @e[tag=scn_lead,distance=..12] run say MCYSMOKE_MIXED_DEN_SITE_OK')],
+               readout=['yukkuri settlement site check']))
+
 # The waste pit in use: a hill-foot band whose adults all need to go soon after they have moved in.
 _PIT_ADULTS = '@e[type=#mcylab:yukkuri,distance=..30]'
 _PIT_READS = [('读聚落场地、嗯嗯坑存量与奴隶', 'yukkuri settlement site info'), ('读群体成员与奴隶数', 'yukkuri settlement info')]

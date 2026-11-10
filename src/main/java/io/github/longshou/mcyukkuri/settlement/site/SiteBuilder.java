@@ -70,6 +70,7 @@ public final class SiteBuilder {
             var site = NaturalShelter.survey(level, slot.anchor(), slot.facing(), core == null ? null : core.pileCell());
             if (site == null) return slot.kind() + " at " + slot.anchor().toShortString() + " fails the burrow survey";
             if (site.beds().size() < Math.min(slot.capacity(), 9)) return slot.kind() + " at " + slot.anchor().toShortString() + " has only " + site.beds().size() + " beds";
+            for (var bed : site.sleeping()) if (!walkable(level, bed)) return "blocked bed " + bed.toShortString();
         }
         var start = plan.slots().stream().filter(s -> s.kind() == SiteSlot.Kind.PLAZA).findFirst().orElse(null);
         if (start == null) return "no plaza";
@@ -210,7 +211,8 @@ public final class SiteBuilder {
                 var part = plan.parts.get(i);
                 G = plan.levelAt(i);
                 switch (part.kind()) {
-                    case HOME, HALL, GRANARY -> burrow(part);
+                    case HOME, HALL -> burrow(part, plan.hillside(part));
+                    case GRANARY -> burrow(part, true);
                     case PLAZA -> plaza(part);
                     case POOL -> pool(part);
                     case PIT -> pit(part);
@@ -294,11 +296,9 @@ public final class SiteBuilder {
             }
         }
 
-        // ---- burrows: holes dug into the bank of the slope. Where the slope is too low to cover a burrow, the bank is made up
-        // with soil under turf and eased back into the natural ground a block per block, so it reads as part of the hillside:
-        // no walls, crowns or steps of bare earth. The geometry keeps NaturalShelter.survey true: the mouth open to the sky, the
-        // cavity roofed with earth and earth on both sides of it.
-        void burrow(Part p) {
+        // Both styles share the open mouth and the same roofed chamber. The hill bank eases into the slope, while the
+        // flat-ground mound has the old rounded skirt and a crown over the chamber within its own footprint.
+        void burrow(Part p, boolean hillside) {
             int[] d = SiteGeom.dims(p);
             int halfW = d[0], depth = d[1], cavHalf = d[2], cavDepth = d[3];
             boolean granary = p.kind() == SiteGeom.Kind.GRANARY;
@@ -309,24 +309,19 @@ public final class SiteBuilder {
                 if (w == 0 && u == 0) continue;
                 boolean cavity = Math.abs(u) <= cavHalf && w >= 1 && w <= cavDepth;
                 int r = cavity ? G + 3 : w == 0 && Math.abs(u) > 1 ? G + 1 : G + 2;
-                need.put(SiteGeom.key(SiteGeom.fx(p, u, w), SiteGeom.fz(p, u, w)), r);
+                int x = SiteGeom.fx(p, u, w), z = SiteGeom.fz(p, u, w);
+                if (!hillside) {
+                    boolean corner = Math.abs(u) == halfW && (w == 0 || w == depth);
+                    if (cavity) r = G + (u == 0 && w == 2 ? 5 : 4);
+                    else if (!corner && hash(x, z, 14) >= .35) r = G + 3;
+                }
+                need.put(SiteGeom.key(x, z), r);
             }
-            var own = SiteGeom.cells(p);
-            // the made-up bank runs out into the slope around it, a block lower about every two blocks: few, wide steps
-            int[] box = SiteGeom.bounds(need.keySet());
-            for (int x = box[0] - 5; x <= box[2] + 5; x++) for (int z = box[1] - 5; z <= box[3] + 5; z++) {
-                long key = SiteGeom.key(x, z);
-                if (own.contains(key) || plan.flat.contains(key)) continue;
-                int target = Integer.MIN_VALUE;
-                for (var e : need.entrySet())
-                    target = Math.max(target, e.getValue() - (int)Math.ceil(Math.hypot(x - SiteGeom.keyX(e.getKey()), z - SiteGeom.keyZ(e.getKey())) * .6 - .01));
-                raise(x, z, target);
-            }
+            if (hillside) easeBank(p, need);
             for (int u = -halfW; u <= halfW; u++) for (int w = 0; w <= depth; w++) {
                 int x = SiteGeom.fx(p, u, w), z = SiteGeom.fz(p, u, w);
                 if (!inClip(x, z)) continue;
                 int n = nat(x, z);
-                double h = hash(x, z, 11);
                 if (w == 0 && u == 0) {
                     // the mouth: a notch in the bank face, open to the sky, a little worn
                     set(x, G - 1, z, Blocks.COARSE_DIRT.defaultBlockState());
@@ -369,6 +364,20 @@ public final class SiteBuilder {
             if (granary) {
                 var pile = ModBlocks.FORAGE_PILE.get().defaultBlockState();
                 for (int side = -1; side <= 1; side += 2) set(SiteGeom.fx(p, side, 1), G, SiteGeom.fz(p, side, 1), pile);
+            }
+        }
+
+        /** The made-up bank runs out into the slope, a block lower about every two blocks. */
+        void easeBank(Part p, Map<Long, Integer> need) {
+            var own = SiteGeom.cells(p);
+            int[] box = SiteGeom.bounds(need.keySet());
+            for (int x = box[0] - 5; x <= box[2] + 5; x++) for (int z = box[1] - 5; z <= box[3] + 5; z++) {
+                long key = SiteGeom.key(x, z);
+                if (own.contains(key) || plan.flat.contains(key)) continue;
+                int target = Integer.MIN_VALUE;
+                for (var e : need.entrySet())
+                    target = Math.max(target, e.getValue() - (int)Math.ceil(Math.hypot(x - SiteGeom.keyX(e.getKey()), z - SiteGeom.keyZ(e.getKey())) * .6 - .01));
+                raise(x, z, target);
             }
         }
 

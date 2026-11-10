@@ -15,8 +15,8 @@ import net.minecraft.core.Direction;
 /**
  * The finished layout of one site in world coordinates. Pure data: it is computed once from (tier, seed, rotation, origin,
  * profile, ground samples) and can be re-derived at any time. The layout itself never depends on the terrain; what the
- * terrain decides is the standing level of every part ({@link #levelAt}) and which parts the ground allows. Those levels are
- * the only terrain data that has to be stored with a site.
+ * terrain decides is the standing level of every part ({@link #levelAt}), which parts fit and which homes use a bank.
+ * Only the standing levels are needed after building, since both home styles have the same slots.
  */
 public final class SitePlan {
     public final SiteTier tier;
@@ -32,13 +32,15 @@ public final class SitePlan {
     public final int minX, minZ, maxX, maxZ;
     public final Set<Long> flat = new HashSet<>();
     private final int[] levels;
+    private final Set<Part> hillside;
     private List<SiteSlot> slots;
     private List<int[]> reserved;
 
     public SitePlan(SiteTier tier, long seed, int rotation, int ox, int oz, int level, int palette, List<Part> parts,
-                    Map<Long, Byte> paths, Map<Long, Byte> works, double meadowInner, double meadowOuter, int[] levels) {
+                    Map<Long, Byte> paths, Map<Long, Byte> works, double meadowInner, double meadowOuter, int[] levels, Set<Part> hillside) {
         this.tier = tier; this.seed = seed; this.rotation = rotation; this.ox = ox; this.oz = oz; this.level = level; this.palette = palette;
         this.parts = List.copyOf(parts); this.paths = paths; this.works = works; this.meadowInner = meadowInner; this.meadowOuter = meadowOuter;
+        this.hillside = Set.copyOf(hillside);
         this.levels = new int[parts.size()];
         Arrays.fill(this.levels, level);
         if (levels != null && levels.length == this.levels.length) System.arraycopy(levels, 0, this.levels, 0, levels.length);
@@ -48,13 +50,14 @@ public final class SitePlan {
 
     /** The same layout with the standing levels that were stored when the site was built. */
     public SitePlan withLevels(int[] stored) {
-        return new SitePlan(tier, seed, rotation, ox, oz, level, palette, parts, paths, works, meadowInner, meadowOuter, stored);
+        return new SitePlan(tier, seed, rotation, ox, oz, level, palette, parts, paths, works, meadowInner, meadowOuter, stored, hillside);
     }
     public SiteProfile profile() { return SiteProfile.byOrdinal(palette); }
     public BlockPos center() { return new BlockPos(ox, level, oz); }
     public Part plaza() { for (var part : parts) if (part.kind() == Kind.PLAZA) return part; return null; }
     public int levelAt(int index) { return levels[index]; }
     public boolean used(int index) { return levels[index] != SiteGeom.SKIP; }
+    public boolean hillside(Part part) { return hillside.contains(part); }
     /** A copy of the stored levels (one per part, {@link SiteGeom#SKIP} for parts the ground did not allow). */
     public int[] levels() { return levels.clone(); }
 
