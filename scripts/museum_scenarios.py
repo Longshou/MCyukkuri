@@ -1971,11 +1971,12 @@ for _sid, _window, _title in (
                                    (21,'gamerule mobGriefing true'),
                                    (1190,'execute if block ~2 ~ ~3 minecraft:glass run say HOME_PANE_FULL_GLASS_INTACT')]}
                       if _sid=='home_pane' else {})),
-        # Real profile contact plus a three-quarter view of the retained cracks and entry. Markers add beat frames.
+        # Fixed world views: the outside oblique profile clears the recessed pane's stone jamb;
+        # the inside three-quarter view keeps crack stages in front of the actor. Never follows its yaw.
         capture=(dict(shots=(40,120,200,400,800,1200), sequences=((40,1200,8),), observe=False,
-                      views={'side':dict(follow='@e[tag=scn_bold,limit=1]',offset=(2.0,.65,0),
+                      views={'side':dict(position=(-1.0,.65,5.2),look_at=(.5,.65,3.5625),
                                          criteria='侧面约两格，检查魔理沙身体与帽檐不穿玻璃、蓄力、撞击接触和反冲。'),
-                             'crack':dict(follow='@e[tag=scn_bold,limit=1]',offset=(1.6,.75,-1.2),
+                             'crack':dict(position=(-1.0,.85,1.7),look_at=(.5,.65,3.5625),
                                           criteria='看清撞击后裂纹增长，安慰期间裂纹保留，碎开一块玻璃板、真实进入空屋并宣言。')}) if _sid=='home_pane'
                  else dict(shots=(40,80,120,200,400), sequences=((40,200,4),))))
 

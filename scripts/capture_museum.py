@@ -145,9 +145,10 @@ def capture(parser, args):
     for scene, view_id, settings in views:
         settings = {key: value for key, value in settings.items() if value is not None}
         settings['tick_rate'] = args.tick_rate
-        if 'look_at' in settings:
-            x, y, z = settings['look_at']
-            settings = dict(settings, look_at=(scene.anchor[0]+x, builder.FEET+y, scene.anchor[1]+z))
+        for point in ('look_at', 'position'):
+            if point in settings:
+                x, y, z = settings[point]
+                settings = dict(settings, **{point:(scene.anchor[0]+x, builder.FEET+y, scene.anchor[1]+z)})
         start_lines = (functions / f'start/{scene.id}.mcfunction').read_text(encoding='utf-8').splitlines()
         view = next((line for line in start_lines if line.startswith(('tp @s ', 'function mcylab:view/'))), f'function mcylab:go/{scene.field}')
         interactions = (f'function mcylab:smoke/{scene.id}/start\n'
@@ -161,6 +162,11 @@ def capture(parser, args):
             with (functions / f'field/{scene.field}/clear.mcfunction').open('a', encoding='utf-8') as output_file:
                 output_file.write(f'\nschedule clear mcylab:capture/{view_id}_geometry\n')
         follow = settings.get('follow')
+        if 'position' in settings:
+            x,y,z=settings['position'];tx,ty,tz=settings['look_at']
+            # Keep vanilla's spectator/chunk visibility at the same fixed world view as the render camera.
+            camera=(f'execute as @a run yukkuri observe off\ngamemode spectator @a\n'
+                    f'tp @a {x} {y} {z} facing {tx} {ty} {tz}\n')
         if follow:
             settings = dict(settings, offset=settings.get('offset', (-1.4, .65, .8)))
             camera = f'execute as @a run yukkuri observe off\nfunction mcylab:capture/{view_id}_camera\n'

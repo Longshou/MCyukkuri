@@ -52,6 +52,9 @@ public final class MuseumCapture {
         if(current==null||current.settings==null)return null;
         var settings=current.settings;var eye=camera.getPosition();double x=eye.x,y=eye.y,z=eye.z,tx,ty,tz;
         if(settings.has("look_at")) {
+            if(settings.has("position")) {
+                var fixed=settings.getAsJsonArray("position");x=fixed.get(0).getAsDouble();y=fixed.get(1).getAsDouble();z=fixed.get(2).getAsDouble();
+            }
             var target=settings.getAsJsonArray("look_at");tx=target.get(0).getAsDouble();ty=target.get(1).getAsDouble();tz=target.get(2).getAsDouble();
         } else {
             var mc=Minecraft.getInstance();var entity=mc.level.getEntity(followId);
