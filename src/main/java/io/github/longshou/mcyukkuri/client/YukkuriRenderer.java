@@ -1,4 +1,5 @@
 package io.github.longshou.mcyukkuri.client;
+import io.github.longshou.mcyukkuri.body.DetachedItems;
 
 import io.github.longshou.mcyukkuri.client.capture.PoseTap;
 
@@ -211,6 +212,11 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
                     float portionScale=entity.profile().portionScale();
                     pose.scale(portionScale,portionScale,portionScale);
                     PropModels.render("food_mash_serving",1,pose,buffers,packedLight,overlay);pose.popPose();continue;
+                }
+                if(held.is(ModItems.WASTE.get())){
+                    float inverseBody=1/(entity.growthScale()*entity.getScale());pose.scale(inverseBody,inverseBody,inverseBody);
+                    WastePresentation.render(DetachedItems.volume(held),false,pose,buffers,packedLight,overlay);
+                    pose.popPose();continue;
                 }
                 String houseProp=grip==null?null:HouseScrapRenderer.smallProp(held);
                 if(houseProp!=null){
