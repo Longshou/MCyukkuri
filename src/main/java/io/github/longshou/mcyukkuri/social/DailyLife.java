@@ -11,7 +11,9 @@ import io.github.longshou.mcyukkuri.mind.EmotionEvent;
 import io.github.longshou.mcyukkuri.mind.MindLife;
 import io.github.longshou.mcyukkuri.motor.ClipMarkers;
 import io.github.longshou.mcyukkuri.motor.Motor;
+import io.github.longshou.mcyukkuri.motor.MotorOwner;
 import io.github.longshou.mcyukkuri.motor.SideContact;
+import io.github.longshou.mcyukkuri.motor.action.Face;
 import io.github.longshou.mcyukkuri.settlement.SettlementSeasons;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -20,6 +22,7 @@ import java.util.UUID;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
@@ -44,6 +47,11 @@ public final class DailyLife {
     }
     private final YukkuriEntity entity;
     private Session session;
+    /** The session's own turn request: the greeting beats turn both bodies to face each other, before the side press. */
+    private final MotorOwner body = new MotorOwner() {
+        @Override public String ownerId() { return "daily_nuzzle"; }
+        @Override public boolean active() { return DailyLife.this.active(); }
+    };
     /** A lonely individual walks to a trusted friend it can see this far off and asks for a nuzzle. */
     private static final int NUZZLE_SIGHT = 16;
     /** A nuzzle broken off before any contact (the one who asked was called away by its own need) is asked for again soon. */
@@ -311,6 +319,18 @@ public final class DailyLife {
                     && session.leader.life().personality().fear(peer.getUUID()) < 60;
         return other instanceof Player player && player.isAlive() && session.leader.life().personality().fear(player.getUUID()) < 60;
     }
+    /**
+     * One motor turn of the whole body toward {@code other}: the look control only tilts the head, so a body left facing away
+     * answers with its back to the one it answers. Requested once per missing facing, at the ability's turn rate.
+     */
+    private void turnToFace(Entity other) {
+        float yaw = SurfaceApproach.yaw(entity.position(), other.position());
+        if (Math.abs(Mth.wrapDegrees(yaw - entity.yBodyRot)) <= Face.FACE_ARRIVED || entity.motor().current() instanceof Face) return;
+        GameplayLog.limited(entity, "daily", "greet_face." + other.getUUID(), 200,
+                "greet face turn to={} yaw={} bodyYaw={}", other.getUUID(), Math.round(yaw * 10) / 10.0,
+                Math.round(entity.yBodyRot * 10) / 10.0);
+        entity.motor().run(body, new Face(yaw));
+    }
     /** A stand beside the other at its own height, or (a bank over a hollow) a block above or below it. */
     private Vec3 standBeside(Entity other, double distance) {
         var stand = SurfaceApproach.beside(entity, other, distance, LEAN);
@@ -360,8 +380,12 @@ public final class DailyLife {
                         peer.social().answerGreeting(entity, "greet", "nuzzle");
                     current.greetHold--;
                 }
+                // Both keep facing each other through the greet and the reply; the side press turns them only when its clip starts.
+                turnToFace(other);
                 return;
             }
+            // One that touches first still waits for the other peer, which decides the greeting on its own tick.
+            if (!current.greeted && other instanceof YukkuriEntity) { turnToFace(other); return; }
         }
         if (current.kind == Kind.SING) EcologyMovement.halt(entity);
         else entity.getNavigation().stop();

@@ -17,6 +17,7 @@ import io.github.longshou.mcyukkuri.motor.ClipMarkers;
 import io.github.longshou.mcyukkuri.motor.ContactGeometry;
 import io.github.longshou.mcyukkuri.motor.MotorOwner;
 import io.github.longshou.mcyukkuri.motor.Outcome;
+import io.github.longshou.mcyukkuri.motor.action.Face;
 import io.github.longshou.mcyukkuri.motor.action.StepIn;
 import io.github.longshou.mcyukkuri.settlement.SettlementSociety;
 import io.github.longshou.mcyukkuri.pet.PetSkill;
@@ -29,6 +30,7 @@ import java.util.Set;
 import java.util.UUID;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.util.DefaultRandomPos;
@@ -260,6 +262,7 @@ public final class YukkuriSocial implements MotorOwner {
         entity.getLookControl().setLookAt(target, 25, 25);
         if (task == Task.ANSWER) {
             EcologyMovement.halt(entity);
+            if (target instanceof YukkuriEntity peer) turnToFace(peer);
             if (elapsed == answerDelay && target instanceof YukkuriEntity other) {
                 if (answerScorn) Contempt.react((ServerLevel) entity.level(), entity, other);
                 else { answerGreeting(other, "greet", answerWhy); }
@@ -432,6 +435,18 @@ public final class YukkuriSocial implements MotorOwner {
         task = Task.PEER; duration = 200; elapsed = 0; greeted = false; greetWhy = why;
         chooseApproach(target);
         if (!retreat && target instanceof YukkuriEntity peer) peer.social().noticeApproach(entity);
+    }
+    /**
+     * One motor turn of the whole body toward the peer it answers: the look control only tilts the head, so a reply from a body
+     * still facing away is delivered with its back to the greeter. Requested once per missing facing, at the ability's turn rate.
+     */
+    private void turnToFace(YukkuriEntity peer) {
+        float yaw = SurfaceApproach.yaw(entity.position(), peer.position());
+        if (Math.abs(Mth.wrapDegrees(yaw - entity.yBodyRot)) <= Face.FACE_ARRIVED || entity.motor().current() instanceof Face) return;
+        GameplayLog.limited(entity, "social", "answer_face." + peer.getUUID(), ANSWER_EXPIRY,
+                "answer face turn to={} yaw={} bodyYaw={}", peer.getUUID(), Math.round(yaw * 10) / 10.0,
+                Math.round(entity.yBodyRot * 10) / 10.0);
+        entity.motor().run(this, new Face(yaw));
     }
     /** The greeter is still walking up to this one, not yet arrived. */
     private boolean approachedBy(Entity other) {
