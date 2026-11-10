@@ -9,6 +9,7 @@
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
 | 生3 成体撞碎玻璃板（共享动作）与住家宣言破窗入空屋 | `.worktrees/wp-el-pane-bash` | motor/action/（新撞击动作）、event/HomeClaim.java、event/HomeClaimGoal.java、scripts/museum_scenarios.py（新增一场） |
+| 载乘时转身平滑：魔理沙帽檐载赤油不再每 tick 甩头 65–82° | `.worktrees/wp-ex-carrier-turn` | motor/（转向速率，按实际归属）、family/ParentCarry.java（只读或最小改动） |
 
 ## 玩法待办
 
