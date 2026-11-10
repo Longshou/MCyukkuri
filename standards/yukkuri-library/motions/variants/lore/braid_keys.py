@@ -193,15 +193,23 @@ def tracks(model, name, c, samples, root_tracks, palette):
     def pose(u):
         j = next((j for j in ends if times[j-1] < u <= times[j]), None)
         if j is None: return laid(u)
-        s = (u-times[j-1])/(times[j]-times[j-1]); n = len(chain.bones)-1; off = keys[j-1][1] == 'rest'
-        delay = [LEAD*(n-k)/n if off else LEAD*k/n for k in range(n+1)]  # chain bones root (k = 0) to tuft (k = n)
-        return np.array([rotvec(A@braid_chain.partial(A.T@B, smooth((s-d)/(1-LEAD)))) for d, (A, B) in zip(delay, zip(*ends[j]))])
+        s = (u-times[j-1])/(times[j]-times[j-1])
+        return np.array([rotvec(R) for R in turned(*ends[j], s, keys[j-1][1] == 'rest')])
     rows, last = {b: [] for b in chain.bones}, {}
     for t in samples:
         v = pose(at(t))
         for b, x in zip(chain.bones, v):
             last[b] = braid_chain.to_euler(matrix(x), last.get(b)); rows[b].append([round(t, 8), *[round(y, 5) for y in last[b]]])
     return [{'bone': b, 'channel': 'rotation', 'keys': rows[b]} for b in chain.bones]
+
+
+def turned(start, end, s, off):
+    """The chain bones (rotations, root first) a share s of a "turn" span from the poses `start` to `end`: each bone turns
+    by the shortest arc over its own share of the span, the tuft first when the span leaves rest (`off`), the root first
+    otherwise. Shared with the braid_path clips (aquatic_tools.path_tracks)."""
+    n = len(start)-1
+    delay = [LEAD*(n-k)/n if off else LEAD*k/n for k in range(n+1)]  # chain bones root (k = 0) to tuft (k = n)
+    return [A@braid_chain.partial(A.T@B, smooth((s-d)/(1-LEAD))) for d, A, B in zip(delay, start, end)]
 
 
 def sample_root(keys, t):

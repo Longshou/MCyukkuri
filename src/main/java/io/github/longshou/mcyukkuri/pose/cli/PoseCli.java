@@ -61,13 +61,6 @@ public final class PoseCli {
                         }
                     }
                     frame.add("meshes", meshes); frame.add("pairs", pairs);
-                    if (c.has("contacts")) for (var contact : c.getAsJsonArray("contacts")) {
-                        var declared = contact.getAsJsonObject();
-                        for (var raw : pairs) { var p = raw.getAsJsonObject();
-                            if (p.get("a").equals(declared.get("a")) && p.get("b").equals(declared.get("b")))
-                                p.getAsJsonArray("allowed").addAll(PoseChecks.need(declared, "allowed").getAsJsonArray());
-                        }
-                    }
                 }
                 // Explicit evidence augments the contract; no water/partner/prop/server state is invented.
                 if (request.has("context")) for (var e : request.getAsJsonObject("context").entrySet()) frame.add(e.getKey(), e.getValue());

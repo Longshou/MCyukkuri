@@ -5451,7 +5451,7 @@
     },
     "braid_head_set": {
       "label": "辫梢把幼油放上头顶",
-      "duration": 2.4,
+      "duration": 3.0,
       "loop": false,
       "applies": "aquatic_marisa",
       "faces": [
@@ -5467,11 +5467,11 @@
         ],
         [
           1.5,
-          2.4,
+          3.0,
           "closed_smile"
         ]
       ],
-      "lore": "Project design (user 2026-11-04: babies that do not fit the basin, or have grown, go on her head; modelled on the brim set-down, the braid's endpoint on her head instead of the brim). braid_cradle_lift's structure and markers: she leans to her braid side to take the child (contact_closed), comes upright and sinks a little as the braid raises it over her head (lift_start..lift_end), swings it in over the crown (over_end), sets it on the hair top with a small weight bob (place) and lets go (release). The server owns the child's path; the braid follows the held child at run time.",
+      "lore": "Project design (user 2026-11-04: babies that do not fit the basin, or have grown, go on her head; modelled on the brim set-down, the braid's endpoint on her head instead of the brim). braid_cradle_lift's structure and markers: she leans to her braid side to take the child (contact_closed), comes upright and sinks a little as the braid raises it over her head (lift_start..lift_end), swings it in over the crown (over_end), sets it on the hair top with a small weight bob (place) and lets go (release). The server owns the child's path; the braid follows the held child at run time. After the release the braid turns back off her crown to its rest over the brim (a \"turn\" key, root first, over 0.7 s: braid_head_take's rise played back).",
       "triggers": [
         "ParentCarry HEAD set-down (parent)"
       ],
@@ -5536,34 +5536,35 @@
           0.5
         ],
         [
-          2.4,
-          "rest"
+          3.0,
+          "rest",
+          "turn"
         ]
       ]
     },
     "braid_head_take": {
       "label": "辫梢把头顶的幼油抱下来",
-      "duration": 2.4,
+      "duration": 2.6,
       "loop": false,
       "applies": "aquatic_marisa",
       "faces": [
         [
           0,
-          0.9,
+          1.1,
           "closed_smile"
         ],
         [
-          0.9,
-          1.9,
+          1.1,
+          2.1,
           "chewing_closed"
         ],
         [
-          1.9,
-          2.4,
+          2.1,
+          2.6,
           "neutral"
         ]
       ],
-      "lore": "Project design: braid_head_set run backwards through its own markers (mirror: [take second, set second]); the braid closes on the head rider (contact_closed), lifts it off the crown (lift_end), swings it out on the braid side (over_end), lowers it to the destination (place) and lets go (release). The server owns the path.",
+      "lore": "Project design: braid_head_set run backwards through its own markers (mirror: [take second, set second]); the braid closes on the head rider (contact_closed), lifts it off the crown (lift_end), swings it out on the braid side (over_end), lowers it to the destination (place) and lets go (release). The server owns the path. The braid rises off its rest over the brim onto her crown over 0.7 s as a \"turn\" key (tuft first, then the root; braid_head_set's return after its release is the same turn played back): laid on the arc, the bulge would flip side as the chord swings through upright and whip the braid round.",
       "triggers": [
         "ParentCarry HEAD pick-up (parent)"
       ],
@@ -5575,38 +5576,38 @@
             2.4
           ],
           [
-            0.5,
+            0.7,
             1.9
           ],
           [
-            0.9,
+            1.1,
             1.7
           ],
           [
-            1.35,
+            1.55,
             1.5
           ],
           [
-            1.9,
+            2.1,
             1.05
           ],
           [
-            2.3,
+            2.5,
             0.5
           ],
           [
-            2.4,
+            2.6,
             0
           ]
         ]
       },
       "markers": {
-        "contact_closed": 0.5,
-        "lift_start": 0.5,
-        "lift_end": 0.9,
-        "over_end": 1.35,
-        "place": 1.9,
-        "release": 2.3
+        "contact_closed": 0.7,
+        "lift_start": 0.7,
+        "lift_end": 1.1,
+        "over_end": 1.55,
+        "place": 2.1,
+        "release": 2.5
       },
       "contacts": {
         "braid_cradle": {
@@ -5625,37 +5626,38 @@
           "rest"
         ],
         [
-          0.5,
+          0.7,
           1.5,
           12.6,
-          0.5
+          0.5,
+          "turn"
         ],
         [
-          0.9,
+          1.1,
           4.0,
           14.5,
           -0.5
         ],
         [
-          1.35,
+          1.55,
           9.0,
           15.5,
           -2.0
         ],
         [
-          1.9,
+          2.1,
           16.6,
           3.8,
           -3.0
         ],
         [
-          2.3,
+          2.5,
           16.6,
           3.9,
           -3.0
         ],
         [
-          2.4,
+          2.6,
           "rest"
         ]
       ]

@@ -19,6 +19,8 @@ import json, math, sys
 import numpy as np
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]/'contact-safe'))
 import braid_chain
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import braid_keys
 
 ROOT = Path(__file__).resolve().parents[5]
 sys.path.insert(0, str(ROOT/'scripts'))
@@ -344,7 +346,7 @@ def stroke(u, p):
 def path_target(t, c):
     """The braid_path tuft-end target at t (model units in the clip's seat frame): keys [t, x, y, z], or [t, 'rest'] for
     the shared boat_braid rest tuck, eased between (`braid_curve` "loop": one closed curve through them, `looped`);
-    'stroke' strokes the water before her (`stroke`, in its own frame)."""
+    'stroke' strokes the water before her (`stroke`, in its own frame). A trailing "turn" on a key is read by `path_tracks`."""
     if c['braid_path'] == 'stroke':
         b = c['stroke']; y, z = stroke(paddle_phase(t, c), b); return np.array([b['x'], b['water']+y, z])
     keys = [(k[0], np.array(BOAT_BRAID['rest'] if k[1] == 'rest' else k[1:4], float)) for k in c['braid_path']]
@@ -370,7 +372,11 @@ def path_tracks(model, action, samples, tracks, c):
     The tuft keeps the clip's own tip_rotation (curl, hook) on top. A water stroke's target stays in its own frame, and its
     root lock keeps its natural size on her squashed body (the inverse of her scale, unturned), the braid below it reaching
     as far as it really is long. `lean_stretch` (boat_paddle_braid): leaning out she draws the braid taut over the brim, up to
-    that share longer along it (hat.py stretches the braid the same way, its tuft kept its size)."""
+    that share longer along it (hat.py stretches the braid the same way, its tuft kept its size).
+    A key ending in "turn" is reached as braid_keys reaches its "turn" keys (`braid_keys.turned`): every chain bone turns
+    from the pose laid at the key before to the one laid at this key, instead of laying each sample on the arc. Between
+    the rest tuck over the brim and her crown the target's chord swings through upright, where the arc's bulge flips
+    side and the braid whips round from one sample to the next."""
     bones = model['bones']; names = {b['name']: i for i, b in enumerate(bones)}; chain = braid_chain.chain(names)
     body = names['root']; pivot = np.array(bones[body]['pivot'], float)
     own = {tr['channel']: tr['keys'] for tr in tracks if tr['bone'] == body}; lock = []; water = c['braid_path'] == 'stroke'
@@ -382,17 +388,25 @@ def path_tracks(model, action, samples, tracks, c):
     top = np.array(bones[chain[0]]['pivot'], float); end = tuft[np.argmax(np.linalg.norm(tuft-top, axis=1))]
     rest = np.array([bones[i]['pivot'] for i in chain]+[end.tolist()], float)
     rows, last, sizes = {i: [] for i in chain}, {}, []; stretch = c.get('lean_stretch')
-    for t in samples:
+    def size(t): return 1+(stretch-1)*lean_share(paddle_phase(t, c)) if stretch else 1.
+    def laid(t):
         yaw = sample(own['rotation'], t)[1] if 'rotation' in own else 0.
         shift = sample(own['position'], t) if 'position' in own else [0., 0., 0.]
         x, y, z = path_target(t, c); flat = euler([0, yaw, 0])@(np.array([x, 0., z])-[pivot[0], 0., pivot[2]])
         world = np.array([x, y, z]) if water else np.array([flat[0]+pivot[0]+shift[0], y, flat[2]+pivot[2]+shift[2]])
         M = palette(model, tracks, t); local = (np.linalg.inv(M[bones[chain[0]]['parent']])@np.r_[world, 1])[:3]
-        sy = 1+(stretch-1)*lean_share(paddle_phase(t, c)) if stretch else 1.; sizes.append((t, sy))
-        taut = rest[0]+(rest-rest[0])*[1., sy, 1.]
+        taut = rest[0]+(rest-rest[0])*[1., size(t), 1.]
         solved = braid_chain.rotations(taut, braid_chain.arc(taut, local))
         curl = tip_rotation(action, t, c)
         if curl is not None: solved[-1] = solved[-1]@euler(curl)
+        return solved
+    keys = [] if water else c['braid_path']
+    turns = [(a[0], b[0], a[1] == 'rest') for a, b in zip(keys, keys[1:]) if 'turn' in b[2:]]
+    ends = {span: (laid(span[0]), laid(span[1])) for span in turns}
+    for t in samples:
+        sizes.append((t, size(t)))
+        span = next((s for s in turns if s[0] < t <= s[1]), None)
+        solved = laid(t) if span is None else braid_keys.turned(*ends[span], (t-span[0])/(span[1]-span[0]), span[2])
         for i, R in zip(chain, solved):
             last[i] = braid_chain.to_euler(R, last.get(i)); rows[i].append([round(t, 8), *[round(v, 5) for v in last[i]]])
     out = lock+[{'bone': i, 'channel': 'rotation', 'keys': rows[i]} for i in chain]
