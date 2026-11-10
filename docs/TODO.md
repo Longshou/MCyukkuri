@@ -12,7 +12,6 @@
 | 暂停待用户评估：载乘时转身平滑（分支 f95aeea96，载乘转角约 90°→12°/tick；meet／迁徙影响未定） | `.worktrees/wp-ex-carrier-turn` | motor/（转向速率，按实际归属）、family/ParentCarry.java（只读或最小改动） |
 | 接生父油安慰摔伤新生儿时不挡母油出口，下一只不因此丢失 | `.worktrees/wp-ey-birth-outlet-comfort` | family/FamilyLife.java（birthRole 护理让路）、family/LiveBirth.java（出口判定只读） |
 | 暂停待用户评估：辫子头顶抓放不再一帧跳转（分支 6a24ad5ee，未导出） | `.worktrees/wp-ez-braid-head-clips` | standards/yukkuri-library/motions/variants/lore/（braid_head_* 的生成源）与 motion 导出 |
-| 彩蛋：漫画版魔理沙 Blender 制作源入库 | `.worktrees/marisa-manga-egg` | standards/yukkuri-library/easter-eggs/marisa-manga/ |
 
 ## 玩法待办
 
