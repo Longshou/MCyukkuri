@@ -2098,6 +2098,9 @@ for _kind, _fx, _n, _size in _carry_families:
 def _carry_verify(log):
     if not re.search(r'\[family\] marisa[^\n]* brim hop child=[0-9a-f-]+ hops=[1-9]\d*\b', log):
         return 'Marisa never completed the brim hop move'
+    for walk in re.finditer(r'\[family\] marisa[^\n]* brim hop walk child=([0-9a-f-]{36})\b', log):
+        if not re.search(rf'carry pickup hold=brim [^\n]*child={walk[1]}\b', log[walk.end():]):
+            return f'brim walk alternative never completed for {walk[1]}'
     # Detect doorway ping-pong, not a later real retrieval with another entry/exit.
     stalled = _bed_walk_verify(log, crossing_window=300) or _carry_outcome_verify(log)
     if stalled:

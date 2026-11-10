@@ -27,6 +27,7 @@ final class CarriedHop {
     private int hops;
     private long start;
     private int span;
+    private String obstruction;
 
     CarriedHop(YukkuriEntity carrier, Vec3 destination) {
         this.carrier = carrier;
@@ -55,8 +56,11 @@ final class CarriedHop {
                     }
                     return true;
                 }, true, false);
-        if (result instanceof ArcSolver.Blocked blocked)
-            return Feasibility.of(Reason.NO_ROOM, blocked.shortfall(), "carried_hop_sweep");
+        if (result instanceof ArcSolver.Blocked blocked) {
+            GameplayLog.event(carrier, "family", "brim hop refused child={} blocker={} from={} to={}",
+                    body.getUUID(), obstruction, from, to);
+            return Feasibility.of(Reason.NO_ROOM, blocked.shortfall(), "carried_hop_sweep blocker=" + obstruction);
+        }
         plan = (ArcSolver.Plan) result;
         return Feasibility.pass();
     }
@@ -67,9 +71,16 @@ final class CarriedHop {
 
     private boolean clear(YukkuriEntity body, Vec3 previous, Vec3 at) {
         var box = body.getBoundingBox().move(previous.subtract(body.position())).expandTowards(at.subtract(previous));
-        if (body.level().getBlockCollisions(body, box).iterator().hasNext()) return false;
-        for (var passenger : carrier.getPassengers())
-            if (passenger != body && box.intersects(passenger.getBoundingBox())) return false;
+        if (body.level().getBlockCollisions(body, box).iterator().hasNext()) {
+            obstruction = "world_blocks@" + GameplayLog.at(at);
+            return false;
+        }
+        // Same-host riders already have non-overlapping planned seats. Only the host itself
+        // and world blocks can refuse this move across its brim.
+        if (box.intersects(carrier.getBoundingBox())) {
+            obstruction = "host:" + carrier.getUUID();
+            return false;
+        }
         return true;
     }
 
@@ -92,7 +103,8 @@ final class CarriedHop {
         double now = carrier.level().getGameTime();
         if (!clear(body, world(position(motion, now - 1)), world(position(motion, now)))) {
             freeze(body, now - 1);
-            return Outcome.of(Reason.NO_ROOM, 0, "carried_hop_obstructed");
+            GameplayLog.event(carrier, "family", "brim hop refused child={} blocker={} during=flight", body.getUUID(), obstruction);
+            return Outcome.of(Reason.NO_ROOM, 0, "carried_hop_obstructed blocker=" + obstruction);
         }
         if (now - start < span) return new Running(span - (now - start), TravelMode.CONSUMED);
         hops++;
@@ -120,6 +132,9 @@ final class CarriedHop {
     static Vec3 position(CompoundTag motion, double now) {
         var from = new Vec3(motion.getDouble("X"), motion.getDouble("Y"), motion.getDouble("Z"));
         if (!motion.contains("Start")) return from;
+        if (motion.getBoolean("Walk")) return from.lerp(
+                new Vec3(motion.getDouble("TX"), motion.getDouble("TY"), motion.getDouble("TZ")),
+                Math.clamp((now - motion.getLong("Start")) / motion.getInt("Ticks"), 0, 1));
         double age = now - motion.getLong("Start") - marker("takeoff");
         if (age <= 0) return from;
         double air = motion.getDouble("Air");

@@ -4,6 +4,7 @@ import argparse
 from contextlib import contextmanager
 import importlib
 import json
+import math
 import msvcrt
 import secrets
 import subprocess
@@ -92,8 +93,15 @@ def main():
     parser.add_argument('--no-wait', action='store_true', help="Refuse instead of waiting while the user's museum client runs")
     parser.add_argument('--view', action='append', help='Capture only this declared full view ID; repeatable')
     parser.add_argument('--slots', type=int, help=f'Machine-wide limit of smoke/capture servers (default {slots.DEFAULT_SLOTS})')
+    parser.add_argument('--sample-window', type=int, nargs=3, metavar=('FIRST', 'LAST', 'STEP'),
+                        help='Capture only this tick interval; does not change scene preparation or behaviour')
+    parser.add_argument('--tick-rate', type=float, default=20, help='Capture server ticks per second (0 < rate <= 20)')
     parser.add_argument('scenes', nargs='+', help='Museum scene IDs')
     args = parser.parse_args()
+    if not math.isfinite(args.tick_rate) or not 0 < args.tick_rate <= 20:
+        parser.error('--tick-rate must be finite and greater than 0, at most 20')
+    if args.sample_window and (args.sample_window[0] < 0 or args.sample_window[1] < args.sample_window[0] or args.sample_window[2] <= 0):
+        parser.error('--sample-window requires 0 <= FIRST <= LAST and STEP > 0')
     with slots.slot('capture', ' '.join(args.scenes), args.slots):
         return capture(parser, args)
 
@@ -136,6 +144,7 @@ def capture(parser, args):
     (functions / 'capture').mkdir()
     for scene, view_id, settings in views:
         settings = {key: value for key, value in settings.items() if value is not None}
+        settings['tick_rate'] = args.tick_rate
         if 'look_at' in settings:
             x, y, z = settings['look_at']
             settings = dict(settings, look_at=(scene.anchor[0]+x, builder.FEET+y, scene.anchor[1]+z))
@@ -165,7 +174,9 @@ def capture(parser, args):
             f'yukkuri status trace dense\nexecute as @a at @s run function mcylab:start/{scene.id}\n{camera}' + interactions
             + ('execute as @a run yukkuri observe off\n' if args.vantage or scene.capture.get('observe') is False else '')
             + geometry, encoding='utf-8')
-        plan.append(dict(id=view_id, field=scene.field, ticks=capture_ticks(scene.capture), settings=settings,
+        ticks = capture_ticks(scene.capture) if args.sample_window is None else list(range(
+            args.sample_window[0], args.sample_window[1] + 1, args.sample_window[2]))
+        plan.append(dict(id=view_id, field=scene.field, ticks=ticks, settings=settings,
                          milestones=scene.smoke.get('milestones', []) if scene.smoke else [],
                          chunks=sorted(builder.BY_ID[scene.field].chunks()), view=view,
                          reads=[f'execute positioned {scene.anchor[0]}.0 {builder.FEET} {scene.anchor[1]}.0 run {command}'
@@ -188,7 +199,7 @@ def capture(parser, args):
                                 creationflags=subprocess.CREATE_NO_WINDOW)
         try:
             # World generation/loading plus real-time scene duration; no tick sprint during visual capture.
-            timeout = 600 + sum(entry['ticks'][-1] / 20 * 3 for entry in plan)
+            timeout = 600 + sum(entry['ticks'][-1] / args.tick_rate * 3 for entry in plan)
             deadline = time.monotonic() + timeout
             while proc.poll() is None:
                 if list((instance / 'crash-reports').glob('*.txt')):

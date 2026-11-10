@@ -85,6 +85,8 @@ def main():
     parser.add_argument('--ref', nargs='*', default=[])
     parser.add_argument('--reuse', type=Path)
     parser.add_argument('--view', action='append', help='Review only this declared full view ID; repeatable')
+    parser.add_argument('--sample-window', type=int, nargs=3, metavar=('FIRST', 'LAST', 'STEP'))
+    parser.add_argument('--tick-rate', type=float, default=20)
     parser.add_argument('--out', type=Path)
     parser.add_argument('--compare-old', type=Path, help='Preserved old capture_review.py: same images, original prompt')
     args = parser.parse_args()
@@ -95,7 +97,9 @@ def main():
     cap = args.reuse
     if cap is None:
         view_args=[arg for view in args.view or [] for arg in ('--view',view)]
-        code, output = capture_output([sys.executable, str(args.worktree/'scripts/capture_museum.py'), '--worktree', str(args.worktree), args.scene, *view_args])
+        window_args=[] if args.sample_window is None else ['--sample-window', *map(str, args.sample_window)]
+        code, output = capture_output([sys.executable, str(args.worktree/'scripts/capture_museum.py'), '--worktree', str(args.worktree), args.scene,
+                                       *view_args, *window_args, '--tick-rate', str(args.tick_rate)])
         match = re.search(r'Capture output: (.+)', output)
         if code or not match:
             raise RuntimeError(f'capture failed with exit {code}')

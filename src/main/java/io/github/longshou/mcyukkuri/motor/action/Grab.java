@@ -255,10 +255,19 @@ public final class Grab implements Action {
                 if (brimHop == null) {
                     brimHop = Hop.carried(carrier, ParentCarry.brimDestination(carrier, target));
                     var ready = brimHop.check(target);
-                    if (!ready.ok()) return Outcome.of(ready.reason(), ready.shortfall(), ready.detail());
+                    if (!ready.ok()) {
+                        ParentCarry.brimWalkInstead(carrier, target, ready.reason() + ":" + ready.detail());
+                        brimHop = null;
+                        return new Running(ParentCarry.placingLeft(carrier, target), TravelMode.CONSUMED, true);
+                    }
                     brimHop.start(target);
                 }
                 var progress = brimHop.tick(target);
+                if (progress instanceof Outcome outcome && !(outcome instanceof Outcome.Done) && target.getVehicle() == carrier) {
+                    ParentCarry.brimWalkInstead(carrier, target, outcome.toString());
+                    brimHop = null;
+                    return new Running(ParentCarry.placingLeft(carrier, target), TravelMode.CONSUMED, true);
+                }
                 if (starting && progress instanceof Running running)
                     return new Running(running.metric(), running.travel(), true);
                 if (!(progress instanceof Outcome.Done)) return progress;

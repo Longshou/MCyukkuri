@@ -166,6 +166,8 @@ public final class MuseumCapture {
             Scene scene = current;
             start = server.submit(() -> {
                 var source = server.getPlayerList().getPlayer(uuid).createCommandSourceStack().withPermission(4);
+                if (scene.settings != null && scene.settings.has("tick_rate"))
+                    server.getCommands().performPrefixedCommand(source, "tick rate " + scene.settings.get("tick_rate").getAsFloat());
                 if (nextScene > 1) server.getCommands().performPrefixedCommand(source,
                         "function mcylab:field/" + PLAN[nextScene - 2].field + "/clear");
                 // A human reaches the field before pressing its button; load that same terrain first.

@@ -646,6 +646,8 @@ public final class ParentCarry {
             return t < place + walk ? edge().lerp(brimPoint(carrier, child, partial), (t - place) / walk) : null;
         }
         if (motion.getBoolean("Done")) return null;
+        if (motion.getBoolean("Walk") && carrier.level().getGameTime() + partial >= motion.getLong("Start") + motion.getInt("Ticks"))
+            return null;
         var at = Hop.carriedPosition(motion, carrier.level().getGameTime() + partial);
         return new Vector3f((float) at.x, (float) at.y, (float) at.z);
     }
@@ -655,17 +657,31 @@ public final class ParentCarry {
         var e = entry(carrier, child.getUUID()).copy();
         e.put("BH", motion); write(carrier, child.getUUID(), e);
     }
+    /** A refused hop yields once to the existing walking seat motion, from the actual retained point. */
+    public static void brimWalkInstead(YukkuriEntity carrier, YukkuriEntity child, String reason) {
+        var from = Hop.carriedPosition(brimMotion(carrier, child), carrier.level().getGameTime());
+        var to = brimDestination(carrier, child);
+        int ticks = CarryGeometry.motionTicks(from.distanceTo(to) * size(carrier) / 16, BodyAbility.of(child).walkSpeed());
+        var motion = new CompoundTag();
+        motion.putDouble("X", from.x); motion.putDouble("Y", from.y); motion.putDouble("Z", from.z);
+        motion.putDouble("TX", to.x); motion.putDouble("TY", to.y); motion.putDouble("TZ", to.z);
+        motion.putLong("Start", carrier.level().getGameTime()); motion.putInt("Ticks", ticks); motion.putBoolean("Walk", true);
+        brimMotion(carrier, child, motion);
+        GameplayLog.event(carrier, "family", "brim hop walk child={} reason={} from={} spot={} ticks={}",
+                child.getUUID(), reason, from, to, ticks);
+    }
     public static Vec3 brimDestination(YukkuriView carrier, YukkuriView child) {
         var at = brimPoint(carrier, child, 0);
         return new Vec3(at.x, at.y, at.z);
     }
     public static boolean brimHopReady(YukkuriView carrier, YukkuriView child) {
         var e = entry(carrier, child.getUUID());
-        return e.contains("BH") && carrier.level().getGameTime() - e.getLong("T") >= mark(BRIM_LIFT, "place");
+        return e.contains("BH") && !e.getCompound("BH").getBoolean("Walk")
+                && carrier.level().getGameTime() - e.getLong("T") >= mark(BRIM_LIFT, "place");
     }
     public static boolean brimHopping(YukkuriView carrier, YukkuriView child) {
         var motion = brimMotion(carrier, child);
-        return motion.contains("Start") && !motion.getBoolean("Done") && !entry(carrier, child.getUUID()).contains("D");
+        return motion.contains("Start") && !motion.getBoolean("Walk") && !motion.getBoolean("Done") && !entry(carrier, child.getUUID()).contains("D");
     }
     public static float brimHopClock(YukkuriView carrier, YukkuriView child, float partial) {
         return Hop.carriedClock(brimMotion(carrier, child), carrier.level().getGameTime() + partial);
@@ -674,6 +690,9 @@ public final class ParentCarry {
     public static int placingLeft(YukkuriView carrier, YukkuriView child) {
         var e = entry(carrier, child.getUUID());
         if (holdOf(e) != Hold.BRIM || !e.contains("T")) return 0;
+        var motion = e.getCompound("BH");
+        if (motion.getBoolean("Walk")) return (int) Math.max(0, Math.max(motion.getLong("Start") + motion.getInt("Ticks"),
+                e.getLong("T") + ClipMarkers.of(BRIM_LIFT).length()) - carrier.level().getGameTime());
         if (e.contains("BH") && !e.getCompound("BH").getBoolean("Done"))
             return (int) Math.max(1, mark(BRIM_LIFT, "place") - (carrier.level().getGameTime() - e.getLong("T")));
         int end = Math.max(ClipMarkers.of(BRIM_LIFT).length(), mark(BRIM_LIFT, "place") + e.getInt("W"));
@@ -685,6 +704,9 @@ public final class ParentCarry {
         if (holdOf(e) != Hold.BRIM) return false;
         long now = carrier.level().getGameTime();
         int walk = e.getInt("W");
+        var motion = e.getCompound("BH");
+        if (!e.contains("D") && motion.getBoolean("Walk"))
+            return now + partial < motion.getLong("Start") + motion.getInt("Ticks");
         if (e.contains("D")) {
             if (!BRIM_LOWER.equals(e.getString("LC"))) return false;
             float on = now - e.getLong("D") + partial - lowerStart(e) - mark(BRIM_LOWER, "lift_start");
