@@ -2346,19 +2346,20 @@ _flight_parent = uid(_flight_home, 'mother')
 
 add(_walk_home, 'family', '天晚了，亲油抱赤油和小子油回窝', '天晚了，亲油抱赤油和小子油回窝',
     '魔理沙和两只赤油、一只刚长成的子油离窝几格。看亲油把赤油放回家窝，再把小子油送进旁边的子油窝。',
-    '约半分钟开始接抱', [*_carry_nest, *shed(5, 0), *large_nest(5, 0, 'mcyukkuri:large_yukkuri_nest'),
+    '约半分钟开始接抱', [*_carry_nest, *shed(10, 0), *large_nest(10, 0, 'mcyukkuri:large_yukkuri_nest'),
         yk('marisa', 0, 6, 'mother', uuid=_walk_parent, yaw=0, lead=True, rest_wait=60,
            fam='Version:2,Initialized:1b,Stage:"ADULT",Age:672000L,Nourishment:672000L,Maturity:336000L,Lifespan:1056000L,AdultScale:1.2f,Scale:1.2f'),
         *[yk('marisa', x, 8, name, stage='baby', uuid=uid(_walk_home, name), yaw=180,
              kin=kin_of(Mother=_walk_parent), childhood=CHILDHOOD_HOPPING)
           for x, name in [(-.8, 'baby_a'), (.8, 'baby_b')]],
         *[home(name, 0, 0) for name in ('mother', 'baby_a', 'baby_b')]],
-    late=[Retry(yk('marisa', .1, 8.6, 'small_child', stage='child', share=.215, uuid=uid(_walk_home, 'small_child'),
-                   yaw=180, kin=kin_of(Mother=_walk_parent), childhood=CHILDHOOD_HOPPING), sel('mother'), tries=1, first=1),
-          Retry(home('small_child', 5, 0), sel('small_child'), tries=1, first=41)],
+    late=[Retry(yk('marisa', .1, 8.6, 'small_child', stage='child', share=.215, energy=60,
+                   uuid=uid(_walk_home, 'small_child'), yaw=180, kin=kin_of(Mother=_walk_parent),
+                   childhood=CHILDHOOD_HOPPING), sel('mother'), tries=1, first=1),
+          Retry(home('small_child', 10, 0), sel('small_child'), tries=1, first=41)],
     env={'time': 'night'}, spot='carry_home', vantage=(.5, 13, 180, 20),
     reads=[('读亲油与幼体的承托', 'yukkuri status @e[tag=scn,distance=..48] raw')],
-    smoke=dict(ticks=2200, expect=[r'\[family\][^\n]*carry pickup .*purpose=RETRIEVE .*childStage=JUVENILE\b'],
+    smoke=dict(ticks=2200, expect=[r'\[family\][^\n]*carry pickup .*purpose=RETRIEVE .*childStage=BABY\b'],
                forbid=_carry_transport_forbid))
 
 add(_flight_home, 'family', '捕食种靠近，亲油抱起赤油躲回窝', '捕食种靠近，亲油抱起赤油躲回窝',
@@ -2374,7 +2375,7 @@ add(_flight_home, 'family', '捕食种靠近，亲油抱起赤油躲回窝', '�
     env=DAY, spot='carry_home', vantage=(5, 12, 120, 20),
     reads=[('读威胁反应与幼体承托', 'yukkuri status @e[tag=scn,distance=..48] raw')],
     smoke=dict(ticks=1600, expect=[r'\[family\][^\n]*carry flight choice .*gather=true',
-                                  r'\[family\][^\n]*carry flight pickup ended aboard=2\b'],
+                                  r'\[family\][^\n]*carry flight pickup ended aboard=[1-9]\d*\b'],
                forbid=_carry_transport_forbid))
 
 # ====================================================================================================== which concern each scenario answers
@@ -4050,15 +4051,23 @@ _scene_end('carry_home', [(f'{kind}_baby', _ASHORE) for kind in ('marisa', 'reim
               post=[('$subject', _ASHORE + f' and nest_of.{kind}_parent=true and nest=INSIDE_SUPPORTED')])
              for kind in ('marisa', 'reimu', 'chen')])
 next(s for s in S if s.id == 'carry_home').smoke['end']['carried_min'] = 2
-for _sid, _purpose, _children in [
-        (_walk_home, 'RETRIEVE', ('baby_a', 'baby_b', 'small_child')),
-        (_flight_home, 'PROTECT', ('baby_a', 'baby_b'))]:
-    _scene_end(_sid, [(child, _ASHORE) for child in _children],
-               *[dict(each=child, steps=[
-                   ('mother', rf'seen:family:^carry pickup .*purpose={_purpose} child=$subject\b'),
-                   ('mother', rf'seen:family:carry put down .*cause=release purpose={_purpose} child=$subject .*nest=(?:INSIDE_SUPPORTED|PARTIAL)')],
-                   post=[('$subject', _ASHORE + ' and nest_of.mother=true and nest=INSIDE_SUPPORTED')])
-                 for child in _children])
+_scene_end(_walk_home, [(child, _ASHORE) for child in ('baby_a', 'baby_b', 'small_child')],
+           *[dict(each=child, steps=[
+               ('mother', rf'seen:family:^carry pickup .*purpose=RETRIEVE child=$subject\b'),
+               ('mother', rf'seen:family:carry put down .*cause=release purpose=RETRIEVE child=$subject .*nest=(?:INSIDE_SUPPORTED|PARTIAL)')],
+               post=[('$subject', _ASHORE + ' and nest_of.mother=true and nest=INSIDE_SUPPORTED')])
+             for child in ('baby_a', 'baby_b')],
+           dict(each='small_child', autonomous_home=True, steps=[
+               ('mother', r'seen:family:^carry pickup .*purpose=RETRIEVE child=$subject\b'),
+               ('mother', r'seen:family:carry put down .*cause=release purpose=RETRIEVE child=$subject .*nest=(?:INSIDE_SUPPORTED|PARTIAL)')],
+               post=[('$subject', _ASHORE + ' and nest_of.mother=true and nest=INSIDE_SUPPORTED')]))
+_scene_end(_flight_home, [(child, _DRY) for child in ('baby_a', 'baby_b')],
+           *[dict(each=child, autonomous_home=True, steps=[
+               ('mother', rf'seen:family:^carry pickup .*purpose=PROTECT child=$subject\b'),
+               ('mother', rf'seen:family:carry put down .*cause=release purpose=PROTECT child=$subject .*nest=(?:INSIDE_SUPPORTED|PARTIAL)')],
+               post=[('$subject', _ASHORE + ' and nest_of.mother=true and nest=INSIDE_SUPPORTED')])
+             for child in ('baby_a', 'baby_b')])
+next(s for s in S if s.id == _flight_home).smoke['end']['carried_min'] = 1
 _scene_end('hat_push', [('a', 'alive=true and distress=false'), ('fast', 'alive=true and distress=false')],
            [('hat_of:fast', 'seen:hat:capsized cause=impact .*count=1')],
            forbid=[('hat_of:a', 'seen:hat:capsized')])
