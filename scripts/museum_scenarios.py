@@ -1219,8 +1219,8 @@ add('leaf_swaddle_neglect', 'meadow', '没人照看，襁褓里积满便便', '�
     reads=[*leaf_reads(('刚积便子油（含失护阶段）', 'kid'), ('积满子油（含失护阶段）', 'kid_full')),
            ('解开积满子油襁褓', f'yukkuri scenario unwrap {sel("kid_full")}')],
     capture=dict(shots=(1, 40, 200, 600, 1000), sequences=((60, 1200, 20),), observe=False,
-                 views={'': dict(), 'kid_side': dict(follow=f'@e[tag={tag("kid")},limit=1]', offset=(1.6, .45, 0)),
-                        'full_rear': dict(follow=f'@e[tag={tag("kid_full")},limit=1]', offset=(1.1, .5, -1.3))}),
+                 views={'': dict(), 'kid_side': dict(follow=f'@e[tag={tag("kid")},limit=1]', offset=(.9, .3, 0)),
+                        'full_rear': dict(follow=f'@e[tag={tag("kid_full")},limit=1]', offset=(.55, .35, -.75))}),
     smoke=dict(ticks=1200,expect=[r'leaf swaddle soiled [^\n]*volume=',r'leaf swaddle overflowed',r'poop placed [^\n]*volume='],forbid=[]))
 
 # Art proof of the later neglect stages (art decision swaddle-neglect): the wraps start at real neglect values one band apart, so the
@@ -1242,13 +1242,14 @@ add('leaf_swaddle_neglect_stages', 'meadow', '襁褓失护各段：变色、肿�
     reads=[*leaf_reads(('致死段赤油', 'dying'), ('后排赤油', 'unwrapped'), ('硬褐赤油', 's3')),
            ('解开后排赤油襁褓', f'yukkuri scenario unwrap {sel("unwrapped")}')],
     capture=dict(shots=(1, 40, 200, 600, 1300, 1500), sequences=((60, 1560, 30),), observe=False,
-                 views={'': dict(),
-                        's1_front': dict(follow=f'@e[tag={tag("s1")},limit=1]', offset=(.5, .35, 1.3)),
-                        's2_rear': dict(follow=f'@e[tag={tag("s2")},limit=1]', offset=(1.0, .4, -1.2)),
-                        's3_side': dict(follow=f'@e[tag={tag("s3")},limit=1]', offset=(1.5, .3, 0)),
-                        's3_rear': dict(follow=f'@e[tag={tag("s3")},limit=1]', offset=(.9, .45, -1.2)),
-                        'unwrap_side': dict(follow=f'@e[tag={tag("unwrapped")},limit=1]', offset=(1.5, .35, -.3)),
-                        'remains': dict(follow=f'@e[tag={tag("sleeper")},limit=1]', offset=(-.9, .4, 1.3))}),
+                 # a baby is about a sixth of a block tall: the cameras stand about half a block off, near its eye level
+                 views={'': dict(follow=f'@e[tag={tag("s3a")},limit=1]', offset=(.45, .25, .45)),
+                        's1_front': dict(follow=f'@e[tag={tag("s1")},limit=1]', offset=(.2, .2, .6)),
+                        's2_rear': dict(follow=f'@e[tag={tag("s2")},limit=1]', offset=(.35, .22, -.5)),
+                        's3_side': dict(follow=f'@e[tag={tag("s3")},limit=1]', offset=(.65, .18, -.1)),
+                        's3_rear': dict(follow=f'@e[tag={tag("s3")},limit=1]', offset=(.35, .22, -.5)),
+                        'unwrap_side': dict(follow=f'@e[tag={tag("unwrapped")},limit=1]', offset=(.6, .2, -.15)),
+                        'remains': dict(follow=f'@e[tag={tag("sleeper")},limit=1]', offset=(-.4, .22, .6))}),
     smoke=dict(ticks=1600, commands=[(200, f'yukkuri scenario unwrap {sel("unwrapped")}')],
                expect=[r'leaf swaddle kept on remains reason=retention', r'death settled into remains[^\n]*internal=swaddle_retention category=retained',
                        r'swaddle neglect stage=0 [^\n]*releasedVolume=3'], forbid=[]))

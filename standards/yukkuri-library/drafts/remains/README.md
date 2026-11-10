@@ -12,7 +12,7 @@
 | `render.cjs`、`preview.py` | 用运行网格、表情补丁与库内软件渲染器出预览 |
 | `grave_marker.py` | 土冢头端的小石碑：写出 `yukkuri_props/grave_marker.json`、`textures/props/grave_marker.png` 和共享 `yukkuri_props/index.json` 的 `grave_marker` 条目（owner `grave_marker`）；`--preview` 出主仓 `.local/previews/grave-marker/` |
 
-八种形态：寿终／未知 `natural`、饿死 `starved`、烧死 `burned`、压死 `crushed`、外伤 `violent`、溺死 `drowned`、冻死 `frozen`、病死 `sick`；另有溶化图集 `dissolving`。草稿形态便秘死 `retained`（叶襁褓潴留：苍白、凹缝眼，身体保留潴留肿胀并带着硬褐叶）只生成图集，待美术裁定后再导出并接入遗体。泡软不换图集，只叠加姿态与 `soaked` 表层。
+九种形态：寿终／未知 `natural`、饿死 `starved`、烧死 `burned`、压死 `crushed`、外伤 `violent`、溺死 `drowned`、冻死 `frozen`、病死 `sick`；另有溶化图集 `dissolving`。便秘死 `retained`（叶襁褓潴留：苍白、凹缝眼，身体保留潴留肿胀并带着硬褐叶，叶与肿胀由 `RemainsRenderer` 按遗体记录 `LeafSwaddle` 画出）。泡软不换图集，只叠加姿态与 `soaked` 表层。
 
 ## 做法
 
