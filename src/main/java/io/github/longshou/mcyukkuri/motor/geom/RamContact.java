@@ -18,12 +18,18 @@ public record RamContact(double impact, double turn, double[] front, float launc
     private static final Map<String,RamContact> CACHE = new ConcurrentHashMap<>();
     public static RamContact of(String model) { return CACHE.computeIfAbsent(model,RamContact::read); }
 
-    /** Root-to-plane distance in model units. Launch closes the gap; authored recoil opens it again. */
-    public double distance(double seconds) {
-        double q = seconds <= strike ? Math.clamp((seconds-launch)/(strike-launch),0,1)
-                : Math.clamp((settled-seconds)/(settled-strike),0,1);
+    /** Keep the admission stand. Launch closes its measured gap to the swept front, then recoil gives that travel back. */
+    public double distance(double stand, double seconds) {
+        if (seconds < launch) return stand;
         int i = Math.min(front.length-1,(int)Math.ceil(seconds*SAMPLES));
-        return Math.max(front[Math.max(0,i)],turn+(impact-turn)*q);
+        if (seconds <= strike) {
+            // The brim's furthest pose can precede impact. The launch must clear that whole remaining sweep.
+            double reach = impact;
+            for (int sample=Math.max(0,i);sample<=Math.round(strike*SAMPLES);sample++) reach=Math.max(reach,front[sample]);
+            return reach;
+        }
+        double recoil = Math.clamp((seconds-strike)/(settled-strike),0,1);
+        return Math.max(front[Math.max(0,i)],impact+(stand-impact)*recoil);
     }
 
     private static JsonObject json(String path) { return JsonParser.parseString(new String(bytes(path),StandardCharsets.UTF_8)).getAsJsonObject(); }

@@ -5,4 +5,7 @@ public interface MotorOwner {
     String ownerId();
 
     boolean active();
+
+    /** Observe the real result, even if the goal stopped during a short uninterruptible action. Never starts another action. */
+    default void finished(Action action, Outcome outcome) {}
 }

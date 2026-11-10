@@ -88,7 +88,7 @@ public final class BodyDriver {
         return true;
     }
 
-    /** Ends the current action at the owner's request, keeping the physical state; an uninterruptible stretch (a flight) finishes first, then ends {@link Outcome.Interrupted}. */
+    /** Ends the current action at the owner's request, keeping the physical state; an uninterruptible stretch finishes first. A real Done result survives cancellation. */
     public void cancel(MotorOwner candidate, String why) {
         if (current == null || owner == null || candidate == null) return;
         if (candidate.ownerId() == null || !candidate.ownerId().equals(owner.ownerId())) return;
@@ -191,7 +191,7 @@ public final class BodyDriver {
         return running.travel();
     }
 
-    /** The interrupt bridge (fright, hurt, death, water, panic, a lost hat): an interruptible action stops now, an uninterruptible one finishes and ends {@link Outcome.Interrupted}. */
+    /** The interrupt bridge: stop now if interruptible, otherwise finish the short physical stretch; a real completion remains Done. */
     public void interrupt(String why) {
         stop(why);
         Release.interrupted(body, why == null ? "interrupted" : why);
@@ -263,8 +263,13 @@ public final class BodyDriver {
     private void finish(Outcome raw) {
         Action action = current;
         if (action == null) return;
+        MotorOwner completedOwner = owner;
         Outcome outcome = raw == null ? Outcome.of(Reason.NO_PROGRESS, 0, "no outcome") : raw;
-        if (interrupted && !(outcome instanceof Outcome.Interrupted)) outcome = new Outcome.Interrupted(interruptedWhy);
+        if (interrupted) {
+            outcome = outcome.afterCancellation(interruptedWhy);
+            if (outcome instanceof Outcome.Done)
+                GameplayLog.event(body,"action","completed id={} despite cancellation={}",action.id(),interruptedWhy);
+        }
         current = null;
         owner = null;
         interrupted = false;
@@ -272,6 +277,7 @@ public final class BodyDriver {
         last = outcome;
         lastTick = now();
         action.finished(body, outcome);
+        completedOwner.finished(action, outcome);
         Attach.settle(body, "action_end:" + outcome.label());
         String detail = action.endDetail(outcome);
         GameplayLog.event(body, "action", detail.isEmpty() ? "end id={} outcome={} {}" : "end id={} outcome={} {} {}",

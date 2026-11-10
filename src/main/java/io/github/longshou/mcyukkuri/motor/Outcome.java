@@ -69,6 +69,11 @@ public sealed interface Outcome extends Progress
         return this instanceof Blocked blocked ? blocked.shortfall() : 0;
     }
 
+    /** A completed physical result cannot be undone by cancellation during its last uninterruptible stretch. */
+    default Outcome afterCancellation(String why) {
+        return this instanceof Done || this instanceof Interrupted ? this : new Interrupted(why);
+    }
+
     private static void requireBlocked(Reason reason) {
         if (reason == null || reason.kind() != Reason.Kind.BLOCKED) {
             throw new IllegalArgumentException("Not a blocked reason: " + reason);

@@ -112,12 +112,15 @@ public final class HomeClaimGoal extends Goal implements MotorOwner {
                 HomeClaim.of(entity).panes.computeIfAbsent(opening.pane(),ignored -> new Bash.Damage(0,0)),
                 HomeClaim.of(entity).paneDisplayId(opening.pane()));
         else {
-            var bash=(Bash)action;
-            GameplayLog.event(entity,"home","pane opened block={} hits={} actor={}",bash.pane(),bash.hits(),entity.getUUID());
             next=new Walk(Vec3.atBottomCenterOf(opening.beyond()));
         }
         action=next;
         if (!entity.motor().run(this,next)) endPane(entity.motor().refusal());
+    }
+    @Override public void finished(Action completed, Outcome outcome) {
+        if (completed instanceof Bash bash && outcome instanceof Outcome.Done
+                && !entity.level().getBlockState(bash.pane()).is(Tags.Blocks.GLASS_PANES))
+            GameplayLog.event(entity,"home","pane opened block={} hits={} actor={}",bash.pane(),bash.hits(),entity.getUUID());
     }
     private void endPane(Outcome outcome) {
         if (outcome!=null && !(outcome instanceof Outcome.Interrupted) && !(outcome instanceof Outcome.Done)) {

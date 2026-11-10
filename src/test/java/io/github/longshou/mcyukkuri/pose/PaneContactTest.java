@@ -11,8 +11,8 @@ class PaneContactTest {
     @Test void brimAndTurnUseSkinnedPartsAndAuthoredImpact() throws Exception {
         var contact=RamContact.of("marisa");
         assertTrue(contact.turn()>contact.impact(),"turning the wide brim needs more room than a frontal ram");
-        assertEquals(contact.impact(),contact.distance(contact.strike()),1e-5);
-        assertEquals(contact.turn(),contact.distance(contact.settled()),1e-5);
+        assertEquals(contact.impact(),contact.distance(contact.turn(),contact.strike()),1e-5);
+        assertEquals(contact.turn(),contact.distance(contact.turn(),contact.settled()),1e-5);
         var assets=Path.of(getClass().getResource("/assets/mcyukkuri/yukkuri/marisa.json").toURI()).getParent().getParent();
         var request=JsonParser.parseString("""
                 {"model":"marisa","clip":"lunge_ram","t":"0.52","metric":["plane"],
@@ -27,6 +27,18 @@ class PaneContactTest {
         result=PoseCli.run(assets,request).getAsJsonArray("results").get(0).getAsJsonObject();
         assertEquals("fail",result.get("verdict").getAsString());
         assertEquals(1,result.get("value").getAsDouble(),1e-5);
+    }
+    @Test void strokeKeepsItsActualStandAndClearsEveryPartThroughLaunchAndRecoil() {
+        var contact=RamContact.of("marisa");
+        // Different admitted stands must change travel, never the impact face or the returned stand.
+        for(double stand:new double[]{contact.turn(),contact.turn()+contact.impact()}) {
+            assertEquals(stand,contact.distance(stand,Math.nextDown(contact.launch())));
+            assertEquals(contact.impact(),contact.distance(stand,contact.strike()),1e-5);
+            assertEquals(stand,contact.distance(stand,contact.settled()),1e-5);
+            for(int i=0;i<contact.front().length;i++)
+                assertTrue(contact.distance(stand,i/100.0)+1e-5>=contact.front()[i],"part crosses plane at sample "+i);
+            assertTrue(contact.distance(stand,contact.launch())<stand,"launch must physically close the measured gap");
+        }
     }
     @Test void planeRejectsMissingMeshesAndChecksTheHat() {
         var f=PoseMetricsTest.frame(0);f.add("plane",PoseMetricsTest.json("{\"normal\":[0,0,1],\"offset\":0}"));
