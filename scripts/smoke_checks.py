@@ -968,7 +968,7 @@ class EndContext:
             return {None}
         if selector == 'actors':
             return {u for u, rows in self.samples.items() if 'stage' in rows[0]['state']} | {r['u'] for r in self.events if r['u']}
-        if selector.startswith(('child_of:', 'newborn_of:')):
+        if selector.startswith(('child_of:', 'newborn_of:', 'caught_child_of:')):
             kind, parent = selector.split(':', 1)
             parents = self.select(parent, bindings)
             children = {u for u, rows in self.samples.items() if any(parents.intersection(
@@ -976,6 +976,9 @@ class EndContext:
                 else r['state'].get('parents', [])) for r in rows)}
             if kind == 'newborn_of':
                 children &= {r['u'] for r in self.records if r['k'] == 'life' and r.get('in') == 'birth'}
+            elif kind == 'caught_child_of':
+                children &= {r['u'] for r in self.events if r.get('cat') == 'family'
+                             and re.search(r'^birth landed .*\boutcome=HAT\b', r['msg'])}
             return children
         if selector.startswith('hat_of:'):
             owners = self.select(selector[7:], bindings)

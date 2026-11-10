@@ -84,6 +84,44 @@ class EndChecks(unittest.TestCase):
         self.assertEqual(verdict(rows, end), 'pass')
         self.assertEqual(verdict([r for r in rows if r['k'] != 'life'], end), 'fail')
 
+    def test_every_caught_child_requires_supported_release(self):
+        rows = self.rows + [actor(t, OTHER, 'sibling', parents={'mother': ACTOR},
+                                 att={'kind': 'free'}) for t in (0, 200)]
+        births = [event(10, child, 'family', 'birth landed outcome=HAT') for child in (CHILD, OTHER)]
+        end = dict(paths=[dict(each='caught_child_of:parent', steps=[
+            ('$subject', 'seen:family:birth landed .*outcome=HAT'),
+            ('parent', r'seen:family:carry put down .*cause=release child=$subject\b')],
+            post=[('$subject', 'att.kind=free and g=true')])])
+        drops = [event(40, ACTOR, 'family', 'carry put down cause=release child=' + child)
+                 for child in (CHILD, OTHER)]
+        self.assertEqual(verdict(rows + births + drops, end), 'pass')
+        self.assertEqual(verdict(rows + births + drops[:1], end), 'fail')
+        self.assertEqual(verdict(rows + drops, end), 'fail')
+        broken = copy.deepcopy(drops)
+        broken[1]['msg'] = broken[1]['msg'].replace('cause=release', 'cause=fetch_ended')
+        self.assertEqual(verdict(rows + births + broken, end), 'fail')
+        airborne = copy.deepcopy(rows)
+        for r in airborne:
+            if r['u'] == OTHER:
+                r['st']['g'] = False
+        self.assertEqual(verdict(airborne + births + drops, end), 'fail')
+
+    def test_caught_birth_rejects_missing_forced_and_late_release(self):
+        import museum_scenarios as scenes
+        def line(cat, who, msg):
+            return f'[{cat}] marisa #1 uuid={who} t=10 {msg}\n'
+        births = ''.join(line('family', child, 'birth landed outcome=HAT') for child in (CHILD, OTHER))
+        drops = [line('family', ACTOR, 'carry put down cause=release child=' + child)
+                 for child in (CHILD, OTHER)]
+        worn = line('headwear', ACTOR, 'custody DEPLOYED -> WORN')
+        verify = scenes._caught_birth_release_verify
+        self.assertIsNone(verify(births + ''.join(drops) + worn))
+        for broken in (births + drops[0] + worn,
+                       births + ''.join(drops).replace('cause=release', 'cause=fetch_ended', 1) + worn,
+                       births + drops[0] + worn + drops[1] + worn,
+                       births + ''.join(drops), ''.join(drops) + worn):
+            self.assertIsNotNone(verify(broken))
+
     def test_world_events_bound_to_same_group_and_scene_leader(self):
         rows = self.rows + [event(10, None, 'settlement', 'migration phase=MARCH group=group-a'),
                             event(20, None, 'settlement', 'migration pivot arrived group=group-a leader=' + ACTOR)]

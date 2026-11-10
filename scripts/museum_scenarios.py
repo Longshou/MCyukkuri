@@ -595,7 +595,25 @@ add('toilet', 'meadow', '便意急了走去厕所', '便意急了走去厕所', 
 NEWBORNS = '@e[type=#mcylab:yukkuri,distance=..48,nbt={YukkuriFamily:{Stage:"BABY"}}]'
 
 
-_LAND_BIRTH_SMOKE = dict(ticks=6000,
+def _caught_birth_release_verify(log):
+    events = list(re.finditer(r'\[(family|headwear)\] \w+ #\d+ uuid=(\S+)[^\n]*', log))
+    caught = [e for e in events if ' birth landed ' in e[0] and 'outcome=HAT' in e[0]]
+    if not caught:
+        return 'no newborn caught in hat'
+    for birth in caught:
+        child = birth[2]
+        drops = [e for e in events if e.start() > birth.start() and ' carry put down ' in e[0]
+                 and re.search(r'\bchild=' + re.escape(child) + r'\b', e[0])]
+        if not drops or not re.search(r'\bcause=release\b', drops[0][0]):
+            return f'caught newborn lacks physical release: {child}'
+        release = drops[0]
+        recovered = next((e for e in events if e.start() > birth.start() and e[2] == release[2]
+                          and 'custody DEPLOYED -> WORN' in e[0]), None)
+        if recovered is None or recovered.start() < release.start():
+            return f'caught newborn not released before first hat recovery: {child}'
+
+
+_LAND_BIRTH_SMOKE = dict(ticks=6000, verify=_caught_birth_release_verify,
     expect=[r'\[family\][^\n]* birth landed [^\n]*outcome=HAT\b',
             r'\[action\][^\n]* end id=take_prop outcome=DONE detail=prop=hat worn=true\b',
             r'\[intent\][^\n]* end id=take_hat result=DONE\b'],
@@ -3698,8 +3716,14 @@ _scene_end('sleep', [('a', _DRY)],
 _scene_end('birth_land_caught', [('mother', _DRY), ('father', _DRY + ' and hold.hat.state=worn'),
                                  ('child_of:mother', _ASHORE)],
            [('child_of:mother', 'seen:family:birth landed .*outcome=(?:HAT|GROUND)')],
-           [('father', 'seen:family:carry put down .*cause=release'),
-            ('father', 'seen:action:end id=take_prop outcome=DONE detail=prop=hat worn=true')])
+           dict(each='caught_child_of:mother', steps=[
+               ('$subject', 'seen:family:birth landed .*outcome=HAT'),
+               ('father', r'seen:family:carry put down .*cause=release .*child=$subject\b')],
+               post=[('$subject', _ASHORE)]),
+           dict(each='caught_child_of:mother', steps=[
+               ('$subject', 'seen:family:birth landed .*outcome=HAT'),
+               ('father', r'seen:family:carry put down .*cause=release .*child=$subject\b'),
+               ('father', 'seen:action:end id=take_prop outcome=DONE detail=prop=hat worn=true')]))
 _scene_end('birth_stem_caught', [('mother', _DRY), ('father', _DRY), ('child_of:mother', _DRY)],
            [('child_of:mother', 'seen:family:birth landed .*outcome=(?:HAT|GROUND)')])
 _scene_end('birth_nest_safe', [('mother', _ASHORE), ('child_of:mother', _ASHORE)],
