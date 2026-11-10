@@ -5,6 +5,7 @@ import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriAction;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.entity.YukkuriVariant;
+import io.github.longshou.mcyukkuri.entity.presentation.AdultFaces;
 import io.github.longshou.mcyukkuri.family.FamilyConfig;
 import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.family.FamilyLife;
@@ -102,7 +103,7 @@ public final class AgitationLife {
         // tongue-out face in the act; the pinned victim wails with squeezed tears where the
         // species carries the standard atlas, otherwise the stock crying face.
         return switch (phase) {
-            case HEAT_RELIEVED -> "satisfied";
+            case HEAT_RELIEVED -> reliefBeatsDone ? "satisfied" : AdultFaces.face("relief", phaseTicks / (float) RELIEF_TICKS);
             case RECOVER, HEAT_UNMET -> "sleepy";
             case ALICE_WATCH, ALICE_APPROACH -> "open_drool";
             case ALICE_ACT -> "flushed_tongue";
@@ -576,6 +577,7 @@ public final class AgitationLife {
         controlling = true;
         target = attacker;
         phaseTicks = 0;
+        phaseStart = entity.level().getGameTime();
         entity.getNavigation().stop();
         entity.speak("rapem_victim");
         GameplayLog.event(entity,"agitation","held attacker={} energy={}",attacker.getUUID(),entity.life().energy());
@@ -609,6 +611,7 @@ public final class AgitationLife {
         var tag = new CompoundTag();
         tag.putString("Phase", activePresentation() ? phase.name() : Phase.IDLE.name());
         tag.putLong("Start", phaseStart);
+        if (phase == Phase.HEAT_RELIEVED) tag.putBoolean("ReliefBeatsDone", reliefBeatsDone);
         tag.putInt("TargetId", activePresentation() && target != null && (alicePhase() || phase == Phase.ALICE_ACT || phase == Phase.HELD)
                 ? target.getId() : -1);
         return tag;

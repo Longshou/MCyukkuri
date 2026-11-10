@@ -100,6 +100,8 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
                 pose.mulPose(Axis.YP.rotationDegrees(180-bodyYaw));
                 renderedBodyYaw=bodyYaw;
             }
+            var reproduction=ReproductionPresentation.frame(entity,partialTick);
+            if(!hatCarrier&&!carried)pose.translate(0,0,reproduction.offset());
             if (entity.deathTicks() > 0) pose.mulPose(Axis.ZP.rotationDegrees(Math.min(90, (entity.deathTicks() + partialTick) * 4.5f)));
             pose.scale(entity.getScale(),entity.getScale(),entity.getScale());
             // Keep the body, badges, carried items and stem family under the same daily-motion transform.
@@ -175,7 +177,7 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
                     :brimHopping?ParentCarry.brimHopClock(parent,entity,partialTick)
                     :carriedHop?(entity.level().getGameTime()-parent.motorStart()+partialTick)/20f
                     :cradled||stepping?(entity.level().getGameTime()+partialTick)/20f:carried?0:elapsed;
-            var anatomy=ReproductionPresentation.anatomy(entity);
+            var anatomy=reproduction.anatomy();
             model.setReproductiveAnatomy(anatomy==null?null:anatomy.part(),anatomy==null?0:anatomy.amount());
             if(!carried)ParentCarryPresentation.configure(entity,model,heldNow,partialTick);
             // The worn wrap lies under the hair; the model lifts the hair over it as it draws (CareWearRenderer.clearHair).

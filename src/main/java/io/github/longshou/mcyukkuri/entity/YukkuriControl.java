@@ -34,6 +34,8 @@ public final class YukkuriControl {
         // Preserve physical precedence and short-circuit reads; this never probes Goal eligibility.
         if ((owner.waterDistress().active() || owner.waterDistress().airbornePlunge())
                 && !owner.isCommandPlaying() && !owner.operations().active()) return Takeover.WATER_DISTRESS;
+        // The pin already holds the body in place, even while the chase's fright timer runs.
+        if (owner.agitation().held() && !owner.shellRetraction().active()) return Takeover.AGITATION;
         if (panic > 0 && !owner.isCommandPlaying() && !owner.operations().active()) return Takeover.PANIC;
         return Takeover.NONE;
     }

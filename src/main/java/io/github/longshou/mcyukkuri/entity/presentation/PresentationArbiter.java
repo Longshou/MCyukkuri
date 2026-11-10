@@ -97,8 +97,14 @@ public final class PresentationArbiter {
         String mood=e.mind().face("neutral");
         if(!mood.equals("neutral"))return mood;
         var court=e.family().courtshipState();
-        if(court.getString("Phase").equals("CONTACT")&&e.getBehaviorId().equals(Behaviors.PAIRING))
-            return court.getString("Role").equals("PENI")?"flushed_tongue":"satisfied";
+        if(court.getString("Phase").equals("CONTACT")&&e.getBehaviorId().equals(Behaviors.PAIRING)) {
+            float progress=(e.level().getGameTime()-court.getLong("Start"))/(float)court.getInt("Required");
+            return AdultFaces.face(court.getString("Role").equals("PENI")?"pair_peni":"pair_mamu",progress);
+        }
+        // Agitation already published these faces. The generic idle/tremble clip must not replace them.
+        switch(e.getBehaviorId()) {
+            case Behaviors.HEAT_RELIEF, Behaviors.ALICE_ACT, Behaviors.RAPEM_HELD -> { return e.getExpressionId(); }
+        }
         // Stem drain: tears first, then the dry face's own tired (2) and closed (3) lids on a plain face.
         if(e.aftermathDrain()>0&&(e.getBehaviorId().equals(Behaviors.IDLE)||e.getBehaviorId().equals(Behaviors.TEND_BROOD)))
             return e.aftermathDrain()==1?"teary":"neutral";

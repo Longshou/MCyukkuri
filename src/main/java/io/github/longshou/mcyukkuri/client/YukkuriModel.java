@@ -52,6 +52,7 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
+import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
@@ -146,6 +147,7 @@ public final class YukkuriModel {
     private AngleNormals skinNormals,puffSkinNormals;
     private final SkinningCache skinningCache;
     private final int[] bodyFloorVertices;
+    private final float bodyFrontDepth, bodyRearDepth;
     private final float[][] defaultPose;
     private final Compose composer;
     private final Skin.Deform woundDeform=(index,point)->this.woundDisplay.deform(index,point);
@@ -526,6 +528,21 @@ public final class YukkuriModel {
             for(int vertex=part.start;vertex<part.start+part.count;vertex++)depth=Math.max(depth,-vertices[vertex*8+2]/16f);
         return depth;
     }
+    /** Rest skin depth in blocks, excluding hair, accessories and anatomy. */
+    float bodyDepth(boolean rear) { return rear ? bodyRearDepth : bodyFrontDepth; }
+
+    /** Extent of the posed skin along the local horizontal bearing to the other body. */
+    double bodyReach(float[] cue, Vec3 bearing) {
+        var transform=Overlays.presentation(cue);
+        var point=new Vector3f();
+        double reach=0;
+        for(int index:bodyFloorVertices) {
+            int v=index*8;
+            transform.transformPosition(point.set(restVertices[v],restVertices[v+1],restVertices[v+2]));
+            reach=Math.max(reach,point.x*bearing.x+point.z*bearing.z);
+        }
+        return reach/16;
+    }
     public static YukkuriModel get(String id) {
         YukkuriModel model = models.get(id);
         if (model == null) throw new IllegalStateException("Yukkuri resources were not loaded: " + id);
@@ -755,6 +772,13 @@ public final class YukkuriModel {
         for(var part:parts)if(bodySurface(part.name))
             Arrays.fill(bodyVertices,part.start,part.start+part.count,true);
         bodyFloorVertices=skinningCache.uniqueIndices(index->bodyVertices[index]);
+        float front=0,rear=0;
+        for(int index:bodyFloorVertices) {
+            float z=restVertices[index*8+2]/16;
+            front=Math.max(front,-z);
+            rear=Math.max(rear,z);
+        }
+        bodyFrontDepth=front;bodyRearDepth=rear;
         for(var part:parts)cacheHairVisibility(part,expressionVertices);
         for(var part:puffAttachments.values())cacheHairVisibility(part,expressionVertices);
         if(puffSurface!=null)cacheHairVisibility(puffSurface,expressionVertices);

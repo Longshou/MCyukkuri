@@ -12,7 +12,6 @@ import java.io.UncheckedIOException;
 import java.lang.ref.WeakReference;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 import java.util.WeakHashMap;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
@@ -23,13 +22,9 @@ import net.minecraft.world.level.Level;
 final class AgitationPresentation {
     private AgitationPresentation() {}
     static final ResourceManagerReloadListener RELOAD = AgitationPresentation::reload;
+    static final int PIN_CYCLE_TICKS = 20;
     private static final int TRANSITION_TICKS = 12, HISTORY_TICKS = 20;
     private static final String[] CHANNELS = {"pitch", "yaw", "roll", "sx", "sy", "sz"};
-    /** Standard faces selected for the act (provenance-checked standard expressions). */
-    static final String HUNTER_FACE = "open_drool", ACT_FACE = "flushed_tongue", VICTIM_FACE = "squeezed_cry_tears";
-    /** Species whose runtime folder carries the standard victim face; others keep the stock cry. */
-    private static final Set<String> VICTIM_FACE_IDS =
-            Set.of("reimu", "marisa", "alice", "chen", "patchouli");
     private static Map<String, float[][]> cues = Map.of();
     private static float mamuRearOffset;
     // Values never strongly hold their key or level. Unloaded entities/worlds cannot be retained by a pose.
@@ -148,50 +143,26 @@ final class AgitationPresentation {
         return !behavior.isEmpty() && behavior.equals(entity.getBehaviorId());
     }
 
-    /** Keep the same face on the texture, facial geometry and wound surface. */
-    static String expression(YukkuriView entity, String otherwise) {
-        if (selected(entity)) {
-            String phase = entity.agitationState().getString("Phase");
-            // Standard confirmed faces: the hunter drools open-eyed through the hunt and switches
-            // to the flushed tongue-out face in the act; the pinned body wails with squeezed tears
-            // (stock cry where that species has no standard atlas).
-            String id = entity.assetId();
-            return switch (phase) {
-                case "HEAT_RELIEVED" -> "satisfied";
-                case "HEAT_UNMET", "RECOVER" -> "sleepy";
-                case "ALICE_WATCH", "ALICE_APPROACH" -> HUNTER_FACE;
-                case "ALICE_ACT" -> ACT_FACE;
-                case "HELD" -> VICTIM_FACE_IDS.contains(id) ? VICTIM_FACE : "cry";
-                default -> otherwise;
-            };
-        }
-        String phase2 = entity.agitationState().getString("Phase");
-        if (phase2.equals("HELD")) {
-            String id = entity.assetId();
-            return VICTIM_FACE_IDS.contains(id) ? VICTIM_FACE : "cry";
-        }
-        return otherwise;
-    }
-
     static void pose(YukkuriView entity, float partialTick, PoseStack pose) {
         long gameTick = entity.level().getGameTime();
         prune(entity, gameTick);
         if (!selected(entity)) return;
         double now = (double) gameTick + (Float.isFinite(partialTick) ? Mth.clamp(partialTick, 0, 1) : 0);
-        long start = entity.agitationState().getLong("Start");
+        var agitation = entity.agitationState();
+        long start = agitation.getLong("Start");
         float ticks = (float) Math.max(0, now - start);
-        String phase = entity.agitationState().getString("Phase");
+        String phase = agitation.getString("Phase");
         float progress = switch (phase) {
             // A quiet attention loop; only the server's family timer can end the period.
             case "HEAT" -> ticks % 160 / 160;
             // One-shot staged bounce across 120 ticks, then the unmet droop shares the recovery curve.
-            case "HEAT_RELIEVED" -> Mth.clamp(ticks / 120, 0, 1);
+            case "HEAT_RELIEVED" -> agitation.getBoolean("ReliefBeatsDone") ? 1 : Mth.clamp(ticks / 120, 0, 1);
             case "HEAT_UNMET", "RECOVER" -> .68f + .32f * Mth.clamp(ticks / 100, 0, 1);
             case "ALICE_WATCH" -> .3f * Mth.clamp(ticks / 60, 0, 1);
             case "ALICE_APPROACH" -> .3f + .24f * Mth.clamp(ticks / 160, 0, 1);
             // The act thrusts once per second (1.12 rubs every ~30 frames); the pinned victim
             // bobs on the same clock, pressed forward under each thrust.
-            case "ALICE_ACT", "HELD" -> ticks % 20 / 20f;
+            case "ALICE_ACT", "HELD" -> ticks % PIN_CYCLE_TICKS / PIN_CYCLE_TICKS;
             default -> 1;
         };
         float[][] keys = cues.get(phase.equals("HEAT") ? "heat" : phase.equals("HEAT_RELIEVED") ? "relief"
@@ -238,7 +209,7 @@ final class AgitationPresentation {
     static float mamuRearOffset() { return mamuRearOffset; }
 
     static float[] sample(String branch,float progress) {
-        float[][] keys=cues.get(branch);if(keys==null)return null;
+        float[][] keys=cues.get(branch);
         int i=0;while(i+2<keys.length&&progress>keys[i+1][0])i++;
         float[] a=keys[i],b=keys[i+1],value=new float[6];
         float mix=Mth.clamp((progress-a[0])/(b[0]-a[0]),0,1);mix=smooth(mix);
