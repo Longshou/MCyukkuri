@@ -607,8 +607,11 @@ public final class SurfaceApproach {
         if(current.lastStep!=null){
             // Natural path completion hands over one physical endpoint; an interrupted path never reaches here.
             if(arrived(actor,current.lastStep)){
-                haltInput(actor);current.target=null;current.lastStep=null;
-                return observed(actor,Result.ARRIVED);
+                // The node is reached, but the requested stand can still lie beyond it.
+                current.lastStep=null;
+                if(direct(actor,destination,body)&&steer(actor,destination,speed))
+                    return observed(actor,Result.MOVING);
+                return blocked(actor,"last_segment_blocked");
             }
             if(direct(actor,current.lastStep,body)&&steer(actor,current.lastStep,speed))
                 return observed(actor,Result.MOVING);
