@@ -16,6 +16,7 @@
 | 生6 粪便统一按体积：每次排便量随体型，各去处按体积计 | `.worktrees/wp-ek-waste-volume` | body/DetachedItems.java、life/YukkuriLife.java（排便量）、life/ToiletContact.java、Poops/PoopBlock、CareBlockEntity 与 CareRenderer、family/LeafSwaddle.java（soil 计量）、WashClothItem、HouseNestBlockEntity（debris） |
 | 动作库 M2 第一批基本动作：前冲撞击 lunge_ram、点头（bow 参数化）、贴靠（rain_huddle 参数化） | `.worktrees/wp-m2a-base-motions` | standards/yukkuri-library/motions/base/、motions/tiers.json、motions/index.json、variants/lore/recipe.json（bow、rain_huddle）与 motion 导出 |
 | 草6 寡妇再配对：伴侣在世时可见拒绝、COURT 被打断后重试、配偶死亡服丧与遗骸躲避 | `.worktrees/wp-ep-court-refusal` | family/Courtship.java、family/FamilyLife.java（COURT canContinue、died）、family/Cannibalism.java 或其所在文件、scripts/museum_scenarios.py（widow_repair 断言） |
+| 生8 长成子油被大窝让出后认领空的普通窝床位 | `.worktrees/wp-es-grown-child-bed` | life/CareBlockEntity.java（reconcileGrowth）、home/ 的床位认领（按实际归属） |
 
 ## 玩法待办
 
