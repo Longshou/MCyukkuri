@@ -202,7 +202,10 @@ public final class YukkuriLife {
     void addBladder(float amount) { bladder = Math.min(100, bladder + amount); }
     void increaseDryness(float amount) { dryness = Math.min(100, dryness + amount); }
     void relieveDryness(float amount) { dryness = Math.max(0, dryness - amount); }
-    private void releaseWaste() { bladder=Math.max(0,bladder-(float)(40*DetachedItems.volume(DetachedItems.waste(entity)))); }
+    private void releaseWaste() {
+        double volume=DetachedItems.wasteAmount(entity);
+        bladder=Math.max(0,bladder-(float)(40*volume/DetachedItems.wasteVolume(entity)));
+    }
     void leaked() { releaseWaste();hygiene=Math.max(0,hygiene-15); }
     /** No sleep bookkeeping outlives a sleep: the next one starts from the enter clip with no wake tick. */
     private void resetSleep() { sleepTicks = 0; wakeAt = 0; wakeCause = null; }

@@ -71,7 +71,7 @@ public final class ToiletContact {
         double[] along = posed(pose, pivot, DIRECTION, false);
         double bodyScale=actor.growthScale()*actor.getScale();
         double q = Math.clamp((tick - EMERGE_FROM_TICKS) / (double) (DROP_TICKS - EMERGE_FROM_TICKS), 0, 1),
-                size = Math.cbrt(DetachedItems.wasteVolume((float)bodyScale*actor.profile().modelScale()))/bodyScale;
+                size = Math.cbrt(actor.toiletVolume())/bodyScale;
         q = q * q * (3 - 2 * q);
         return new Stool(new Vec3(start[0], start[1], start[2]).scale(1 / 16.0), new Vec3(along[0], along[1], along[2]).normalize(),
                 LENGTH * size * q, RADIUS * size * (.55 + .45 * q), q);

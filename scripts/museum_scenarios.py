@@ -666,7 +666,9 @@ add('waste_volume', 'family', '赤油与成油的地面排便量', '赤油与成
     give=['mcyukkuri:wash_cloth[minecraft:custom_data={Water:8}]'],
     reads=[('读赤油排便',f'yukkuri status {sel("baby")} raw'),('读成油排便',f'yukkuri status {sel("adult")} raw')],
     smoke=dict(ticks=1200,expect=[r'first toilet completed',r'relieved source=ground',r'poop placed [^\n]*volume='],forbid=[]),
-    capture=dict(shots=(1,40,200,600,1200),sequences=((40,300,4),)))
+    capture=dict(shots=(1,40,200,600,1200),sequences=((40,300,8),),observe=False,
+                 views={'':dict(), 'baby':dict(follow=sel('baby'),offset=(.6,.4,1.1)),
+                        'adult':dict(follow=sel('adult'),offset=(1,.7,2))}))
 
 add('hop', 'family', '子油跟着亲油学会起跳', '子油跟着亲油学会起跳', '子油先爬行试探，亲油示范起跳，子油跟着练到学会', '约 1–2 分钟', [
     yk('reimu', 0, 0, 'mom', yaw=-90, **pair_ready()),

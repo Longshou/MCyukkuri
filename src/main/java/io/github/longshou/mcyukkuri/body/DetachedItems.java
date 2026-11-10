@@ -13,6 +13,10 @@ public final class DetachedItems {
     public static double wasteVolume(YukkuriEntity source) {
         return wasteVolume(source.growthScale()*source.getScale()*source.profile().modelScale());
     }
+    /** Bladder is relative fullness (0..100), not adult-volume units. */
+    public static double wasteAmount(YukkuriEntity source) {
+        return wasteVolume(source)*Math.min(1,source.life().bladder()/40.0);
+    }
     public static double volume(ItemStack stack) {
         var tag=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();
         return stack.getCount()*(tag.contains("Volume")?tag.getDouble("Volume"):1);
@@ -24,7 +28,7 @@ public final class DetachedItems {
     }
     private DetachedItems(){}
     public static ItemStack waste(YukkuriEntity source){
-        var stack=waste(Math.min(wasteVolume(source),source.life().bladder()/40.0));
+        var stack=waste(wasteAmount(source));
         CustomData.update(DataComponents.CUSTOM_DATA,stack,tag->{tag.putUUID("Source",source.getUUID());
             tag.putString("Variant",source.getVariant().assetId());});
         return stack;

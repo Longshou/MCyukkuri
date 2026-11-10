@@ -33,6 +33,7 @@ public interface YukkuriView {
     boolean isBaby();
     default boolean adult() { return lifeStage() == FamilyLife.Stage.ADULT.ordinal(); }
     float growthScale();
+    float toiletVolume();
     float getScale();
     int getId();
     UUID getUUID();

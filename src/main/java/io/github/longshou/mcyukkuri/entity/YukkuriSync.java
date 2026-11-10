@@ -2,6 +2,7 @@ package io.github.longshou.mcyukkuri.entity;
 
 import io.github.longshou.mcyukkuri.life.EcologyRoutines;
 import io.github.longshou.mcyukkuri.body.BodyFood;
+import io.github.longshou.mcyukkuri.body.DetachedItems;
 import io.github.longshou.mcyukkuri.body.BodyWound;
 import io.github.longshou.mcyukkuri.entity.YukkuriSyncState.Field;
 import io.github.longshou.mcyukkuri.entity.component.SyncSlot;
@@ -37,6 +38,7 @@ final class YukkuriSync {
     private static final EntityDataAccessor<Integer> NUZZLE_PARTNER = YukkuriEntity.defineSyncedValue( EntityDataSerializers.INT);
     private static final EntityDataAccessor<Integer> CARE_PARTNER = YukkuriEntity.defineSyncedValue( EntityDataSerializers.INT);
     private static final EntityDataAccessor<Float> CARE_PROGRESS = YukkuriEntity.defineSyncedValue( EntityDataSerializers.FLOAT);
+    private static final EntityDataAccessor<Float> TOILET_VOLUME = YukkuriEntity.defineSyncedValue(EntityDataSerializers.FLOAT);
     private static final EntityDataAccessor<Boolean> CRAWLING = YukkuriEntity.defineSyncedValue( EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Long> CRAWL_START = YukkuriEntity.defineSyncedValue( EntityDataSerializers.LONG);
     private static final EntityDataAccessor<String> DIALOGUE = YukkuriEntity.defineSyncedValue( EntityDataSerializers.STRING);
@@ -141,6 +143,7 @@ final class YukkuriSync {
     int nuzzlePartnerId() { return owner.getEntityData().get(NUZZLE_PARTNER); }
     int carePartnerId() { return owner.getEntityData().get(CARE_PARTNER); }
     float careContactProgress() { return owner.getEntityData().get(CARE_PROGRESS); }
+    float toiletVolume() { return owner.getEntityData().get(TOILET_VOLUME); }
     boolean isCrawling() { return owner.getEntityData().get(CRAWLING); }
     long getCrawlStartTick() { return owner.getEntityData().get(CRAWL_START); }
     void syncCrawl(boolean active) {
@@ -299,6 +302,7 @@ final class YukkuriSync {
     void syncAgitation() { owner.getEntityData().set(AGITATION, owner.agitation().state()); }
     void syncHairLoss() { owner.getEntityData().set(HAIR_LOSS, owner.body().hairLoss()); }
     void syncCarryingAndCare() {
+        setChanged(TOILET_VOLUME,(float)DetachedItems.wasteAmount(owner));
         owner.getEntityData().set(CARRYING,
                 (!owner.family().carrying().isEmpty()?owner.family().carrying():!owner.independence().carrying().isEmpty()
                         ?owner.independence().carrying():!owner.settlement().duties().carrying().isEmpty()?owner.settlement().duties().carrying()
@@ -353,6 +357,7 @@ final class YukkuriSync {
         builder.define(SPEECH_START, 0L); builder.define(SPEECH_END, 0L); builder.define(SPEECH_SEQUENCE, 0);
         builder.define(BEHAVIOR_START, 0L);
         builder.define(NUZZLE_PARTNER, -1); builder.define(CARE_PARTNER, -1); builder.define(CARE_PROGRESS, 0f);
+        builder.define(TOILET_VOLUME,0f);
         builder.define(CRAWLING, false); builder.define(CRAWL_START, 0L);
         builder.define(PREDATOR_FLIGHT, false);
         builder.define(MEDAL, 0); builder.define(MOUTH, ItemStack.EMPTY); builder.define(MOUTH_BODY_FOOD, new CompoundTag()); builder.define(ACCESSORY, true);

@@ -4,7 +4,6 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.mojang.blaze3d.vertex.PoseStack;
 import io.github.longshou.mcyukkuri.MCYukkuri;
-import io.github.longshou.mcyukkuri.body.DetachedItems;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriView;
 import io.github.longshou.mcyukkuri.family.FamilyFeedingContact;
@@ -120,13 +119,13 @@ final class ToiletPresentation {
      */
     static void renderStool(YukkuriView actor, String behavior, float ticks, PoseStack pose, MultiBufferSource buffers, int light) {
         if (!(behavior.equals(Behaviors.TOILET) || behavior.equals(Behaviors.GROUND_TOILET) || behavior.equals(Behaviors.BOAT_TOILET) || behavior.equals(Behaviors.TOILET_ACCIDENT))) return;
-        if (ticks < ToiletContact.EMERGE_FROM_TICKS || ticks > ToiletContact.DROP_TICKS) return;
+        if (ticks < ToiletContact.EMERGE_FROM_TICKS || ticks >= ToiletContact.DROP_TICKS) return;
         var stool = ToiletContact.stool(actor, behavior, ticks);
         if (stool == null) return;
         var at = stool.bottom();
         // Never nothing: a small first knob at the opening that swells to the full dropping.
         float bodyScale=actor.growthScale()*actor.getScale();
-        float scale = WastePresentation.scale(DetachedItems.wasteVolume(bodyScale*actor.profile().modelScale())) / bodyScale
+        float scale = WastePresentation.scale(actor.toiletVolume()) / bodyScale
                 * (float) (EMERGING + (1 - EMERGING) * stool.grown());
         pose.pushPose();
         pose.translate(at.x, at.y, at.z);

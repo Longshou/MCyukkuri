@@ -29,8 +29,6 @@ import net.minecraft.world.phys.shapes.VoxelShape;
  */
 public final class PoopBlock extends Block implements EntityBlock {
     public static final IntegerProperty TIER = IntegerProperty.create("tier", 1, Poops.TIERS);
-    private static final VoxelShape[] OUTLINES = {
-            box(4, 0, 4, 12, 2, 12), box(2, 0, 2, 14, 4, 14), box(1, 0, 1, 15, 6, 15), box(0, 0, 0, 16, 8, 16)};
     public PoopBlock(Properties properties) {
         super(properties);
         registerDefaultState(stateDefinition.any().setValue(TIER, 1));
@@ -38,7 +36,12 @@ public final class PoopBlock extends Block implements EntityBlock {
     @Override protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) { builder.add(TIER); }
     @Override public BlockEntity newBlockEntity(BlockPos pos, BlockState state) { return new PoopBlockEntity(pos, state); }
     @Override protected RenderShape getRenderShape(BlockState state) { return RenderShape.ENTITYBLOCK_ANIMATED; }
-    @Override protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) { return OUTLINES[state.getValue(TIER) - 1]; }
+    @Override protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+        if(!(level.getBlockEntity(pos) instanceof PoopBlockEntity heap))return Shapes.empty();
+        // Existing yukkuri_waste mesh bounds: x/z +/-2.5 px, height 3.5 px, at reference display scale .5.
+        double size=Math.cbrt(heap.count());
+        return box(8-1.25*size,0,8-1.25*size,8+1.25*size,1.75*size,8+1.25*size);
+    }
     @Override protected VoxelShape getCollisionShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) { return Shapes.empty(); }
     @Override protected boolean isPathfindable(BlockState state, PathComputationType type) { return type == PathComputationType.LAND; }
     @Override protected boolean canSurvive(BlockState state, LevelReader level, BlockPos pos) { return SupplyPiles.supported(level, pos); }

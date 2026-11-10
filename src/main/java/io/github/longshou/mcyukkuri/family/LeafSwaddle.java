@@ -140,7 +140,7 @@ public final class LeafSwaddle {
     public boolean soil(String cause) {
         var life = entity.life();
         float bladder = life.bladder(), hygiene = life.hygiene();
-        double volume=DetachedItems.volume(DetachedItems.waste(entity)), before=soil;
+        double volume=DetachedItems.wasteAmount(entity), before=soil;
         if (soil+volume <= MAX_SOIL) {
             life.releaseIntoWrap(); soil+=volume;
             entity.mind().add(6, "soiled_swaddle");

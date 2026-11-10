@@ -1,4 +1,5 @@
 package io.github.longshou.mcyukkuri.entity;
+import io.github.longshou.mcyukkuri.body.DetachedItems;
 
 import io.github.longshou.mcyukkuri.random.ModRandom;
 
@@ -352,6 +353,7 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     public int nuzzlePartnerId() { return sync().nuzzlePartnerId(); }
     public int carePartnerId() { return sync().carePartnerId(); }
     public float careContactProgress() { return sync().careContactProgress(); }
+    public float toiletVolume() { return level().isClientSide?sync().toiletVolume():(float)DetachedItems.wasteAmount(this); }
     public boolean isCrawling() { return sync().isCrawling(); }
     public long getCrawlStartTick() { return sync().getCrawlStartTick(); }
     /** Blocks the crawl gait covers per tick on average: one stroke's travel spread over its period, at this body's size and speed. */
