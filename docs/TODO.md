@@ -9,7 +9,6 @@
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
 | 生3 成体撞碎玻璃板（共享动作）与住家宣言破窗入空屋 | `.worktrees/wp-el-pane-bash` | motor/action/（新撞击动作）、event/HomeClaim.java、event/HomeClaimGoal.java、scripts/museum_scenarios.py（新增一场） |
-| 生10 新抬上帽檐的赤油自己蹦到位置，不再直线滑过去 | `.worktrees/wp-er-brim-hop` | family/ParentCarry.java（brimRide）、client/YukkuriRenderer.java（stepping 动画） |
 
 ## 玩法待办
 
