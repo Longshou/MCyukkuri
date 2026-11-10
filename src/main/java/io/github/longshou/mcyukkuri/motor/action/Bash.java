@@ -83,6 +83,7 @@ public final class Bash implements Action {
         Vec3 toward = Vec3.atBottomCenterOf(pane).subtract(body.position()).multiply(1, 0, 1).normalize();
         Motor.velocity(body, toward.scale(BodyAbility.of(body).walkSpeed()).add(0, body.getDeltaMovement().y, 0), "bash_press");
         if (++ticks % length == 0) {
+            if (!body.horizontalCollision) return Outcome.of(Reason.NO_CONTACT, 0, "stroke_without_contact");
             var level = (ServerLevel) body.level();
             var state = level.getBlockState(pane);
             double resistance = state.getDestroySpeed(level, pane);

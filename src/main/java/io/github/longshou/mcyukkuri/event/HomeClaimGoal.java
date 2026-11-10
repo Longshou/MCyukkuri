@@ -82,7 +82,8 @@ public final class HomeClaimGoal extends Goal implements MotorOwner {
         if (claim==null || !HomeClaim.mayAct(entity)) return false;
         if (opening!=null) return claim.stage!=HomeClaimData.Stage.RETREAT;
         if (crop!=null) return elapsed<300 && HomeClaim.cropEdible(entity,crop);
-        return HomeClaim.away(entity,claim,homing);
+        return HomeClaim.away(entity,claim,homing) && (claim.stage==HomeClaimData.Stage.RETREAT
+                || entity.life().reachable(claim.site.pos(),false));
     }
     @Override public boolean requiresUpdateEveryTick() { return true; }
     @Override public void tick() {

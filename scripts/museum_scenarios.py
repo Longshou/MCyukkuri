@@ -1934,6 +1934,8 @@ def home_pane_result(window):
         return f'expected one broken pane, observed {len(broken)}'
     if not hits or max(int(n) for _, n in hits) != int(broken[0][1]):
         return 'break was not preceded by its real strokes'
+    if any(block != broken[0][0] for block, _ in hits):
+        return 'strokes and break name different panes'
     if window.find('GATHER -> HOLD') < window.find('break id=bash'):
         return 'claim declared before opening its route'
     if re.search(r'\[action\][^\n]* start id=bash', window[window.find('break id=bash') + 1:]):
@@ -1950,7 +1952,7 @@ for _sid, _window, _title in (
         '整块玻璃作旁边的封闭窗，始终保留。胆小伴侣可以从已经打开的入口跟进。',
         '约 10–60 秒', [
             'fill ~-6 ~ ~-6 ~6 ~5 ~10 minecraft:air',
-            'fill ~-3 ~ ~-3 ~3 ~2 ~3 minecraft:stone_bricks hollow',
+            'fill ~-3 ~-1 ~-3 ~3 ~2 ~3 minecraft:stone_bricks hollow',
             'setblock ~ ~ ~ minecraft:crafting_table',
             f'setblock ~ ~ ~3 {_window}',
             'setblock ~2 ~ ~3 minecraft:glass',
@@ -1964,9 +1966,9 @@ for _sid, _window, _title in (
                    forbid=[r'\[body\][^\n]* invariant',r'family_collapsed',r'never_arrived'],
                    **({'verify':home_pane_result,
                        'commands':[(1,'gamerule mobGriefing false'),
-                                   (200,'execute if block ~ ~ ~3 minecraft:glass_pane run say HOME_PANE_GRIEF_OFF_CHECK'),
-                                   (201,'gamerule mobGriefing true'),
-                                   (202,'yukkuri homeclaim start'),
+                                   (10,'yukkuri homeclaim start'),
+                                   (20,'execute if block ~ ~ ~3 minecraft:glass_pane run say HOME_PANE_GRIEF_OFF_CHECK'),
+                                   (21,'gamerule mobGriefing true'),
                                    (1190,'execute if block ~2 ~ ~3 minecraft:glass run say HOME_PANE_FULL_GLASS_INTACT')]}
                       if _sid=='home_pane' else {})),
         capture=dict(shots=(40,80,120,200,400), sequences=((40,200,4),)))
@@ -3817,6 +3819,12 @@ def _scene_end(sid, final, *paths, forbid=()):
 
 _DRY = 'alive=true and w=false and distress=false and iwr=false'
 _ASHORE = _DRY + ' and veh=false and att.kind=free and g=true'
+
+_scene_end('home_pane', [('bold',_ASHORE),('timid',_ASHORE)],
+           [('bold','seen:action:start id=bash'),('bold','seen:action:hit id=bash'),
+            ('bold','seen:home:pane opened'),('world','seen:home-claim:.*GATHER -> HOLD')])
+_scene_end('home_open', [('bold',_ASHORE),('timid',_ASHORE)],
+           [('world','seen:home-claim:.*GATHER -> HOLD')])
 
 _scene_end('den_family', [('mother', _DRY), ('child', _ASHORE), ('father', 'alive=false')],
            [('mother', 'seen:habitat:home chosen'), ('mother', 'seen:forage:begin role='),

@@ -21,7 +21,7 @@ public record PaneOpening(BlockPos pane, Vec3 stand, BlockPos beyond) {
         var seen = new HashSet<BlockPos>();
         var queue = new ArrayDeque<BlockPos>();
         var candidates = new ArrayList<PaneOpening>();
-        if (!body.life().dryStand(room)) return List.of();
+        if (!floor(body,room)) return List.of();
         seen.add(room); queue.add(room);
         while (!queue.isEmpty()) {
             var cell = queue.remove();
@@ -29,7 +29,7 @@ public record PaneOpening(BlockPos pane, Vec3 stand, BlockPos beyond) {
                 return List.of();
             for (var direction : Direction.Plane.HORIZONTAL) {
                 var next = cell.relative(direction);
-                if (body.life().dryStand(next)) {
+                if (floor(body,next)) {
                     if (seen.add(next)) {
                         if (seen.size() > 512 || Math.abs(next.getX()-room.getX()) > 15 || Math.abs(next.getZ()-room.getZ()) > 15)
                             return List.of();
@@ -37,7 +37,7 @@ public record PaneOpening(BlockPos pane, Vec3 stand, BlockPos beyond) {
                     }
                 } else if (level.getBlockState(next).is(Tags.Blocks.GLASS_PANES)) {
                     var other = next.relative(direction);
-                    if (!body.life().dryStand(other)) continue;
+                    if (!floor(body,other)) continue;
                     var approach = exit ? cell : other;
                     var beyond = exit ? other : cell;
                     if (!body.life().reachable(approach, false)) continue;
@@ -62,5 +62,14 @@ public record PaneOpening(BlockPos pane, Vec3 stand, BlockPos beyond) {
         }
         return candidates.stream().filter(p -> !seen.contains(p.beyond()) || !exit)
                 .sorted(Comparator.comparingDouble(p -> body.distanceToSqr(p.stand()))).toList();
+    }
+
+    /** Room topology ignores occupants so the separate empty-room test cannot skip their blocked cells. */
+    private static boolean floor(YukkuriEntity body, BlockPos pos) {
+        var level=body.level();
+        var box=body.getBoundingBox().move(Vec3.atBottomCenterOf(pos).subtract(body.position()));
+        return level.hasChunkAt(pos) && level.getFluidState(pos).isEmpty() && level.getFluidState(pos.below()).isEmpty()
+                && level.getBlockState(pos.below()).isFaceSturdy(level,pos.below(),Direction.UP)
+                && !level.getBlockCollisions(body,box).iterator().hasNext();
     }
 }
