@@ -1272,11 +1272,12 @@ add('widow_repair', 'meadow', '原伴侣死后才肯和新候选配对', '原伴
     '③寡妇先露出丧失亲属的呆住、哭泣反应，反应结束后候选自己走近求偶；受孕时写 partnership formed … allowWidow=true。读数看双方 partner、发情与求偶阶段',
     '先看寡妇没跟候选走约半分钟，再点按钮；按下后约十秒到半分钟（发情期刚好结束时求偶会中断一次，之后会重来）', [
         # A glass yard keeps the three beside their own nests (a loose pet wanders off on its own); glass does not hide the bodies.
-        box(1, 0, -2, 7, 2, -2, 'minecraft:glass_pane'), box(1, 0, 7, 7, 2, 7, 'minecraft:glass_pane'),
-        box(1, 0, -1, 1, 2, 6, 'minecraft:glass_pane'), box(7, 0, -1, 7, 2, 6, 'minecraft:glass_pane'),
+        box(1, 0, -2, 6, 2, -2, 'minecraft:glass_pane'), box(1, 0, 6, 6, 2, 6, 'minecraft:glass_pane'),
+        box(1, 0, -1, 1, 2, 5, 'minecraft:glass_pane'), box(6, 0, -1, 6, 2, 5, 'minecraft:glass_pane'),
         # A single roof keeps real homes covered without pillars between the pair or the contact camera.
-        box(1, 3, -2, 7, 3, 7, 'minecraft:oak_planks'),
-        *large_nest(4, 0, 'mcyukkuri:large_yukkuri_nest'), block(5, 0, 5, 'mcyukkuri:yukkuri_nest'),
+        box(1, 3, -2, 6, 3, 6, 'minecraft:oak_planks'),
+        # Low wild bedding leaves the actual eye-to-eye ray clear; cushion bolsters hid a death across the yard.
+        *large_nest(3, 0, 'mcyukkuri:large_wild_nest'), *large_nest(4, 4, 'mcyukkuri:large_wild_nest'),
         # Close enough to witness the real death through glass. The mate's body is grieved, not fled from.
         box(-3, 0, -1, 0, 2, -1, 'minecraft:glass_pane'), box(-3, 0, 4, 0, 2, 4, 'minecraft:glass_pane'),
         box(-3, 0, 0, -3, 2, 3, 'minecraft:glass_pane'), box(0, 0, 0, 0, 2, 3, 'minecraft:glass_pane'),
@@ -1284,20 +1285,20 @@ add('widow_repair', 'meadow', '原伴侣死后才肯和新候选配对', '原伴
         # selected adult bodies are .6 high, with eyes about .32 above their feet: sight fits below .5, bodies do not.
         box(-3, 0, -1, 0, 0, -1, 'minecraft:stone_slab[type=top]'), box(-3, 0, 4, 0, 0, 4, 'minecraft:stone_slab[type=top]'),
         box(-3, 0, 0, -3, 0, 3, 'minecraft:stone_slab[type=top]'), box(0, 0, 0, 0, 0, 3, 'minecraft:stone_slab[type=top]'),
-        box(1, 0, -1, 1, 0, 6, 'minecraft:stone_slab[type=top]'),
-        box(-3, 3, -1, 0, 3, 4, 'minecraft:oak_planks'), block(-2, 0, 1, 'mcyukkuri:yukkuri_nest'),
+        box(1, 0, -1, 1, 0, 5, 'minecraft:stone_slab[type=top]'),
+        box(-3, 3, -1, 0, 3, 4, 'minecraft:oak_planks'), *large_nest(-2, 0, 'mcyukkuri:large_wild_nest'),
         yk('reimu', 4, 2, 'widow', lead=True, uuid=_widow, label='待再配对者', boldness=15, attachment=90,
            kin=f'SexDrive:{_WIDOW_HEAT}', extra=pairing_permission(_new_partner), **pair_ready()),
         # A fresh UUID allows restarting this scene after the ledger has recorded the previous original partner's death.
-        yk('marisa', -2, 2, 'old_partner', label='原伴侣', boldness=15, attachment=90,
+        yk('marisa', -2, 3, 'old_partner', label='原伴侣', boldness=15, attachment=90,
            kin=f'Partner:{uuid_nbt(_widow)}', extra=pairing_permission(_widow), **pair_ready()),
-        yk('marisa', 4, 4, 'new_partner', uuid=_new_partner, label='新候选', boldness=15, attachment=90,
+        yk('marisa', 3, 4, 'new_partner', uuid=_new_partner, label='新候选', boldness=15, attachment=90,
            kin=f'SexDrive:{_WIDOW_HEAT}', extra=pairing_permission(_widow), **pair_ready()),
         f'data modify entity {sel("widow")} YukkuriFamily.Partner set from entity {sel("old_partner")} UUID',
         *own('widow'), *own('old_partner'), *own('new_partner'),
         f'yukkuri scenario bond {sel("widow")} {sel("new_partner")}',
         f'yukkuri scenario bond {sel("widow")} {sel("old_partner")}',
-        home('widow', 4, 0), home('old_partner', -2, 1), home('new_partner', 5, 5),
+        home('widow', 3, 0), home('old_partner', -2, 0), home('new_partner', 4, 4),
         widow_death_prompt()], env=DAY,
     give=['mcyukkuri:yukkuri_carrier 1', 'minecraft:apple 16'],
     note='不调用 mate、不预设胎次。三只都很胆小（活动半径约 10 格），所以就在自己窝边活动；寡妇的交配许可只写了候选，原伴侣因此不会在场景里立刻怀上。'
