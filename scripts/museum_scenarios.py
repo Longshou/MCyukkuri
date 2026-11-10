@@ -3603,6 +3603,10 @@ def _family_nests_release(log):
 _smoke('family_nests', 4200, [r'\[home\][^\n]* growth released shared nest ', r'\[home\][^\n]* released child claimed a free nest '])
 next(s for s in S if s.id == 'family_nests').smoke['verify'] = _family_nests_release
 next(s for s in S if s.id == 'family_nests').smoke['readout'] = ['yukkuri status @e[tag=scn,type=mcyukkuri:reimu,distance=..48] raw']
+_smoke('adult_pairing', 1800, [r'\[family\][^\n]* courtship acceptance started ',
+                                 r'\[family\][^\n]* courtship contact ended [^\n]*conceived=true'])
+next(s for s in S if s.id == 'adult_pairing').smoke['readout'] = [f'yukkuri status {sel("mother")} raw',
+                                                                  f'yukkuri status {sel("father")} raw']
 # The scene's own button ends the original partner; the widow may accept the candidate only once the ledger holds that death.
 _smoke('widow_repair', 3600, [r'\[family\][^\n]* court refused reason=partner_alive\b',
                                 r'\[body\][^\n]* death settled[^\n]*cause=genericKill\b',
