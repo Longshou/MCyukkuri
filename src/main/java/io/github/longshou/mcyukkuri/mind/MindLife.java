@@ -280,6 +280,7 @@ public final class MindLife {
         for (Entity other : level.getEntities(entity, entity.getBoundingBox().inflate(6))) {
             double d = other.distanceToSqr(entity);
             if (other instanceof YukkuriEntity y) {
+                if (d <= 9 && y.leafSwaddle().smells()) waste = true;
                 var group = entity.settlement().groupId();
                 if (d <= 6.25 && y.isAlive() && !Bonds.recordedMate(entity, y) && (group == null || !group.equals(y.settlement().groupId()))
                         && !Bonds.biological(entity, y)) strangers++;

@@ -37,7 +37,7 @@ public final class RemainsCause {
         if (detail.startsWith("core_")) return VIOLENT;
         switch (detail) {
             case "old_age", "offering" -> { return NATURAL; }
-            case "poison", "mold", "non_yukkuri", "infection", "toxin" -> { return SICK; }
+            case "poison", "mold", "non_yukkuri", "infection", "toxin", "swaddle_retention" -> { return SICK; }
             case "leak" -> { return VIOLENT; }
             case "burn" -> { return BURNED; }
             default -> { }

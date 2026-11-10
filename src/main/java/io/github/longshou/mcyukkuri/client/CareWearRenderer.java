@@ -187,10 +187,13 @@ final class CareWearRenderer {
         // Everything is measured from the body skin alone; the hair, sidelocks and braids are lifted over the wrap as the model draws them
         // (clearHair). One buffer at a time: a batched source may flush the previous one when another texture is requested.
         profile(pts, body, cx, cz, minY, h);
-        if ((cloth || leaf && !open) && !skinTable(SKIN)) return;
+        if ((cloth || leaf && !open || (wear >> 9 & 15) > 0) && !skinTable(SKIN)) return;
         if (cloth) swaddle(buffers, last, STYLES[wear >> 6 & 7], initial(model.id()), cx, cz, minY, h, light, overlay);
         if (open) groundLeaf(buffers.getBuffer(RenderType.entityCutoutNoCull(LEAF)), last, cx, cz, h, light, overlay);
-        else if (leaf) leafWrap(buffers.getBuffer(RenderType.entityCutoutNoCull(LEAF)), last, cx, cz, minY, h, wear >> 4 & 3, light, overlay);
+        else if (leaf) leafWrap(buffers.getBuffer(RenderType.entityCutoutNoCull(LEAF)), last, cx, cz, minY, h, wear >> 4 & 3, wear >> 6 & 7, wear >> 9 & 15, light, overlay);
+        if ((!leaf || open) && !cloth && (wear >> 9 & 15) > 0)
+            recoveryBulge(buffers.getBuffer(RenderType.entityCutoutNoCull(MCYukkuri.id("textures/props/body_cavity_white.png"))),
+                    last, cx, cz, minY, h, (wear >> 9 & 15) / 15f, light, overlay);
         // The harness follows the body itself, so its back ring stays where the lead attaches (YukkuriInteractions.getLeashOffset).
         if ((wear & HARNESS) != 0) harness(buffers.getBuffer(RenderType.entityCutoutNoCull(TEXTURE)), last, cx, cz, minY, h,
                 cloth || leaf && !open ? out + .03f * h : .03f * h, light, overlay);
@@ -801,7 +804,7 @@ final class CareWearRenderer {
      * over the leaf, clearHair) up to MAX_WRAP radians; the margins rise and curl out so the leaf cups the bottom like a diaper and shows
      * on the flanks. Grid cells below the soiled height use the stool-stained copy of the leaf, higher with every load.
      */
-    private static void leafWrap(VertexConsumer b, PoseStack.Pose pose, float cx, float cz, float minY, float h, int soil,
+    private static void leafWrap(VertexConsumer b, PoseStack.Pose pose, float cx, float cz, float minY, float h, int soil, int stage, int swell,
                                  int light, int overlay) {
         float base = LEAF_LIFT * h, half = LEAF_HALF * h;
         float[] along = new float[LEAF_ROWS + 1];
@@ -847,6 +850,12 @@ final class CareWearRenderer {
                 GRID[at] = PT[0]; GRID[at + 1] = PT[1]; GRID[at + 2] = PT[2]; GRID[at + 3] = f;
             }
         }
+        // Art plug point: replace this small lower-wrap expansion with the authored retention deform.
+        for (int at = 0; at < GRID.length; at += 4) {
+            float expand = swell / 15f * .12f * Math.clamp(1 - GRID[at + 3] / .3f, 0, 1);
+            GRID[at] += (GRID[at] - cx) * expand;
+            GRID[at + 2] += (GRID[at + 2] - cz) * expand;
+        }
         for (int i = 0; i < LEAF_ROWS; i++) {
             boolean under = i >= STALK_ROWS + BACK_ROWS && i < STALK_ROWS + BACK_ROWS + UNDER_ROWS;
             for (int j = 0; j < ACROSS; j++) {
@@ -856,10 +865,10 @@ final class CareWearRenderer {
                 float nx = mx / ml * side, ny = -(1 - side), nz = mz / ml * side, u0 = along[i], u1 = along[i + 1];
                 float midF = (GRID[c00 + 3] + GRID[c11 + 3]) / 2, cell = midF < soilHeight(soil) ? STAINED_V : 0;
                 float v0 = cell + CELL_V * j / ACROSS, v1 = cell + CELL_V * (j + 1) / ACROSS;
-                gridVertex(b, pose, c00, u0, v0, light, overlay, nx, ny, nz, soil);
-                gridVertex(b, pose, c10, u1, v0, light, overlay, nx, ny, nz, soil);
-                gridVertex(b, pose, c11, u1, v1, light, overlay, nx, ny, nz, soil);
-                gridVertex(b, pose, c01, u0, v1, light, overlay, nx, ny, nz, soil);
+                gridVertex(b, pose, c00, u0, v0, light, overlay, nx, ny, nz, soil, stage);
+                gridVertex(b, pose, c10, u1, v0, light, overlay, nx, ny, nz, soil, stage);
+                gridVertex(b, pose, c11, u1, v1, light, overlay, nx, ny, nz, soil, stage);
+                gridVertex(b, pose, c01, u0, v1, light, overlay, nx, ny, nz, soil, stage);
             }
         }
     }
@@ -878,11 +887,28 @@ final class CareWearRenderer {
     }
 
     /** A full wrap (three loads) also darkens its very base towards brown, so soiling never reads as autumn leaves. */
-    private static void gridVertex(VertexConsumer b, PoseStack.Pose pose, int at, float u, float v, int light, int overlay, float nx, float ny, float nz, int soil) {
+    private static void gridVertex(VertexConsumer b, PoseStack.Pose pose, int at, float u, float v, int light, int overlay, float nx, float ny, float nz, int soil, int stage) {
         float blotch = soil >= MAX_SOIL_SHOWN ? Math.clamp(1 - (GRID[at + 3] - CUP_BASE) / .07f, 0f, 1f) : 0;
         b.addVertex(pose.pose(), GRID[at], GRID[at + 1], GRID[at + 2])
-                .setColor(Math.round(255 - 70 * blotch), Math.round(255 - 95 * blotch), Math.round(255 - 125 * blotch), 255)
+                .setColor(Math.round((255 - 70 * blotch) * (stage >= 2 ? .85f : 1)),
+                        Math.round((255 - 95 * blotch) * (stage >= 3 ? .55f : stage >= 2 ? .8f : 1)),
+                        Math.round((255 - 125 * blotch) * (stage >= 2 ? .35f : 1)), 255)
                 .setUv(u, v).setOverlay(overlay).setLight(light).setNormal(pose, nx, ny, nz);
+    }
+
+    /** Placeholder skin-coloured rear shell; the server supplies its recovery size, also after the leaf is gone. */
+    private static void recoveryBulge(VertexConsumer b, PoseStack.Pose pose, float cx, float cz, float minY, float h,
+                                      float swell, int light, int overlay) {
+        for (int row = 0; row < 6; row++) for (int col = 0; col < 12; col++) {
+            for (int corner = 0; corner < 4; corner++) {
+                float f = .03f + (row + (corner == 1 || corner == 2 ? 1 : 0)) / 6f * .25f;
+                float a = (float)Math.PI * (col + (corner >= 2 ? 1 : 0)) / 12f;
+                float r = radiusAround(SKIN, f, a) + h * .06f * swell * (float)Math.sin((f - .03f) / .25f * Math.PI);
+                b.addVertex(pose.pose(), cx + (float)Math.cos(a) * r, minY + f * h, cz + (float)Math.sin(a) * r)
+                        .setColor(255, 232, 206, 255).setUv(.5f, .5f).setOverlay(overlay).setLight(light)
+                        .setNormal(pose, (float)Math.cos(a), 0, (float)Math.sin(a));
+            }
+        }
     }
 
     /** Hull radius at height fraction f and a continuous angle: bilinear in a skin table between height cells and neighbouring bins. */

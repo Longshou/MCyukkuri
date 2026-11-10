@@ -1184,12 +1184,14 @@ def agitation_start(phase):
 
 add('leaf_swaddle_neglect', 'meadow', '没人照看，襁褓里积满便便', '没人照看，襁褓里积满便便',
     '两只裹着树叶襁褓的子油没有亲油：便意 95 的一只马上把便便排进襁褓（soil 按体积增加，卫生、不安恶化，襁褓下沿染色）；'
-    '已积 3 体积单位的一只再满就从肛门溢到地上。之后每 30 秒按积便扣卫生、加不安；丢苹果喂食可让便意继续积累',
-    '立即；之后每 30 秒一次变化', [
+    '已积 3 体积单位的一只早期再满就溢到地上。失护约 1.25／2.5／3.75 天（随体质平移）后依次黄褐干枯、停止溢出并肿胀、损失生命直至便秘死亡；'
+    '用观察台倍速和推进按钮加快，持续喂苹果维持真实供食。按“解开积满子油襁褓”调用亲油同一解开动作，积便按体积落地，肿胀和虚弱逐渐恢复',
+    '立即积便；长期后果用倍速观察', [
         yk('reimu', 0, 0, 'kid', stage='child', yaw=180, lead=True, nutrition=80, bladder=95, hygiene=80, extra=leaf_wrap()),
         yk('marisa', 3, 0, 'kid_full', stage='child', yaw=180, nutrition=80, bladder=92, hygiene=50, extra=leaf_wrap(soil=3))],
-    give=['minecraft:apple 4'], env=DAY, vantage=(1, 8),
-    reads=leaf_reads(('刚积便子油', 'kid'), ('积满子油', 'kid_full')),
+    give=['minecraft:apple 64'], env=DAY, vantage=(1, 8),
+    reads=[*leaf_reads(('刚积便子油（含失护阶段）', 'kid'), ('积满子油（含失护阶段）', 'kid_full')),
+           ('解开积满子油襁褓', f'yukkuri scenario unwrap {sel("kid_full")}')],
     smoke=dict(ticks=1200,expect=[r'leaf swaddle soiled [^\n]*volume=',r'leaf swaddle overflowed',r'poop placed [^\n]*volume='],forbid=[]))
 
 add('agitation_relief', 'meadow', '发情期的爱丽丝想素鸡立', '发情期的爱丽丝想素鸡立',

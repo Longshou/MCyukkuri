@@ -19,6 +19,8 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 
@@ -62,6 +64,10 @@ public final class LeafSwaddle {
     // child side: the wrap on this body
     private boolean worn, open;
     private double soil;
+    // Project design: roughly 1.25 / 2.5 / 3.75 days, shifted by innate constitution.
+    // The same value decays after release; no second recovery or stage ledger.
+    private int neglect;
+    private static final int NEGLECT_BAND = 30000, RECOVERY_RATE = 12;
     private int wearClock, openClock;
     private Vec3 openAt;
     private long soilRetryAt;
@@ -81,6 +87,16 @@ public final class LeafSwaddle {
     public boolean worn() { return worn; }
     public boolean open() { return worn && open; }
     public double soil() { return soil; }
+    private double constitution() {
+        return entity.profile().traits().might() / entity.profile().traits().fatigue()
+                * (.9 + entity.life().personality().innate(Trait.SELF_CONTROL) / 500.0);
+    }
+    private double neglectAge() { return neglect / constitution(); }
+    public int neglectStage() { return wrapped() && soil > 0 ? Math.min(4, 1 + (int)(neglectAge() / NEGLECT_BAND)) : 0; }
+    /** Presentation and appetite read the one child-side authority, including recovery after unwrapping. */
+    public float swelling() { return (float)Math.clamp((neglectAge() - NEGLECT_BAND * 1.5) / NEGLECT_BAND, 0, 1); }
+    public boolean retaining() { return neglectStage() >= 3; }
+    public boolean smells() { return neglectStage() >= 2; }
     /** A closed wrap: the child cannot relieve itself and an involuntary release goes into the wrap. */
     public boolean wrapped() { return worn && !open; }
     /**
@@ -88,9 +104,10 @@ public final class LeafSwaddle {
      * opened; elsewhere the opened wrap is not drawn), bits 4-5 the stool loads inside.
      */
     public int wearBits() {
-        if (!worn) return 0;
-        if (open) return openAt != null && entity.position().distanceToSqr(openAt) < .25 ? 4 | 8 : 0;
-        return 4 | Math.min(3, (int)Math.ceil(soil)) << 4;
+        int recovery = Math.round(swelling() * 15) << 9;
+        if (!worn) return recovery;
+        if (open) return recovery | (openAt != null && entity.position().distanceToSqr(openAt) < .25 ? 4 | 8 : 0);
+        return 4 | Math.min(3, (int)Math.ceil(soil)) << 4 | neglectStage() << 6 | recovery;
     }
     /** A closed wrap catches an involuntary release (LifeDoses). */
     public boolean catchesRelease() { return wrapped() && entity.isAlive(); }
@@ -103,12 +120,18 @@ public final class LeafSwaddle {
         if (entity.level().isClientSide || !entity.isAlive()) return;
         if (pollWait > 0) pollWait--;
         tickCarry();
+        if (!wrapped() || soil == 0) changeNeglect(Math.max(0, neglect - RECOVERY_RATE));
+        if (swelling() > 0 && entity.tickCount % 20 == 0) {
+            entity.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 40, 0, false, false, true));
+            entity.addEffect(new MobEffectInstance(MobEffects.WEAKNESS, 40, 0, false, false, true));
+        }
         if (!worn) return;
         String off = !swaddleAge(entity) ? "outgrown"
                 : entity.isOnFire() ? "fire" : entity.isInWaterOrBubble() ? "water" : entity.pet().care().swaddled() ? "cloth_swaddle"
                 : open && ++openClock > OPEN_LIMIT ? "left_open" : null;
         if (off != null) { remove(off); return; }
         if (open) return;
+        if (soil > 0) changeNeglect(neglect + 1);
         var life = entity.life();
         if (life.bladder() >= SOIL_URGE && !life.constipated() && entity.level().getGameTime() >= soilRetryAt) soil("held");
         wearClock++;
@@ -119,7 +142,7 @@ public final class LeafSwaddle {
                 if (wearClock % FRIENDLY_TICKS == 0) entity.life().personality().experienced(Trait.FRIENDLINESS, 1);
             } else {
                 // The cost follows the soiled stage the wrap shows (wearBits), not the raw volume: a newborn's wrap is as unpleasant as a child's.
-                float stage = (float)Math.ceil(soil);
+                float stage = (float)Math.ceil(soil) + neglectStage() - 1;
                 life.changeHygiene(-stage); entity.mind().add(stage, "soiled_swaddle");
                 if (!life.isSleeping()) entity.showReaction("teary", "leak", 60);
             }
@@ -127,6 +150,8 @@ public final class LeafSwaddle {
                     "leaf swaddle wear soil={} hygiene={} -> {} unease={} -> {} friendliness={}", soil, hygiene, life.hygiene(),
                     unease, entity.mind().unease(), life.personality().friendliness());
         }
+        if (retaining() && entity.tickCount % 120 == 0) entity.showReaction("teary", "hurt", 100);
+        if (neglectStage() == 4 && entity.tickCount % EFFECT_TICKS == 0) entity.body().swaddleRetentionDamage();
         if (needsCare() && entity.tickCount % 120 == 0 && !life.isSleeping() && !entity.isPanicking()) {
             entity.showReaction("teary", "need_toilet", 50);
             GameplayLog.limited(entity, "family", "leaf_swaddle.waiting", 1200,
@@ -135,16 +160,29 @@ public final class LeafSwaddle {
         }
     }
 
+    private void changeNeglect(int value) {
+        int before = neglectStage();
+        neglect = value;
+        logStageChange(before);
+    }
+
+    private void logStageChange(int before) {
+        if (before != neglectStage()) GameplayLog.event(entity, "care", "swaddle neglect stage={} neglect={} soil={} swelling={}",
+                neglectStage(), neglect, soil, swelling());
+    }
+
     /**
      * The stool goes into the closed wrap; once it is full, the load overflows onto the ground (or over a hat's brim). False when
      * nothing was released: a blocked overflow keeps the load and waits a few seconds before trying again.
      */
     public boolean soil(String cause) {
+        int previousStage = neglectStage();
         var life = entity.life();
         float bladder = life.bladder(), hygiene = life.hygiene();
         double volume=DetachedItems.wasteAmount(entity), before=soil;
-        if (soil+volume <= MAX_SOIL) {
+        if (retaining() || soil+volume <= MAX_SOIL) {
             life.releaseIntoWrap(); soil+=volume;
+            logStageChange(previousStage);
             entity.mind().add(6, "soiled_swaddle");
             entity.showReaction("teary", "leak", 80);
             GameplayLog.event(entity, "family", "leaf swaddle soiled cause={} volume={} -> {} bladder={} -> {} hygiene={} -> {}",
@@ -180,7 +218,9 @@ public final class LeafSwaddle {
     }
 
     /** Opens the wrap for care. A soiled wrap is thrown away with its stool: each load lands as real waste and the leaves are spent. */
-    private int openForCare() {
+    public int openForCare() {
+        int stage = neglectStage();
+        double released = soil;
         int dropped = 0;
         if (soil > 0) {
             var waste=DetachedItems.waste(soil);
@@ -188,10 +228,13 @@ public final class LeafSwaddle {
             dropped=1;
             worn = false; open = false; openAt = null; soil = 0; material.clear(); wearClock = openClock = 0;
         } else { open = true; openClock = 0; openAt = entity.position(); }
+        GameplayLog.event(entity, "care", "swaddle neglect stage={} neglect={} releasedVolume={} previousStage={} swelling={}",
+                neglectStage(), neglect, released, stage, swelling());
         return dropped;
     }
 
     private void remove(String reason) {
+        int previousStage = neglectStage();
         int leafCount = material.stream().mapToInt(ItemStack::getCount).sum();
         boolean fire = reason.equals("fire"), drop = soil == 0 && !fire;
         int waste = 0;
@@ -201,6 +244,7 @@ public final class LeafSwaddle {
         GameplayLog.event(entity, "family", "leaf swaddle off reason={} leaves={} droppedLeaves={} soil={} droppedWaste={} burnedLoads={}",
                 reason, leafCount, drop, soil, waste, fire ? soil : 0);
         worn = open = false; openAt = null; soil = wearClock = openClock = 0; material.clear(); wrapper = null;
+        logStageChange(previousStage);
     }
 
     // ---- parent side ----------------------------------------------------------------------------------------------
@@ -512,12 +556,14 @@ public final class LeafSwaddle {
 
     /** One status line for both roles (status key needs.leaf_swaddle). */
     public String statusDetail() {
-        String child = worn ? (open ? "open" : "closed") + " soil=" + soil + " leaves=" + describe(material) : "none";
+        String child = (worn ? (open ? "open" : "closed") + " soil=" + soil + " leaves=" + describe(material) : "none")
+                + " neglect=" + neglect + " stage=" + neglectStage() + " swelling=" + swelling();
         return "wrap=" + child + " task=" + task.name().toLowerCase() + " carried=" + describe(leaves) + " folded=" + folded;
     }
 
     public CompoundTag save() {
         var tag = new CompoundTag();
+        tag.putInt("Neglect", neglect);
         tag.putBoolean("Worn", worn); tag.putBoolean("Open", open); tag.putDouble("Soil", soil); tag.putInt("WearClock", wearClock); tag.putInt("OpenClock", openClock);
         if (openAt != null) { tag.putDouble("OpenX", openAt.x); tag.putDouble("OpenY", openAt.y); tag.putDouble("OpenZ", openAt.z); }
         tag.put("Material", stacks(material));
@@ -528,7 +574,8 @@ public final class LeafSwaddle {
 
     public void load(CompoundTag tag) {
         stop("load");
-        worn = tag.getBoolean("Worn"); open = worn && tag.getBoolean("Open"); soil = worn ? Math.clamp(tag.getDouble("Soil"), 0, MAX_SOIL) : 0;
+        worn = tag.getBoolean("Worn"); open = worn && tag.getBoolean("Open"); soil = worn ? Math.max(0, tag.getDouble("Soil")) : 0;
+        neglect = Math.max(0, tag.getInt("Neglect"));
         wearClock = Math.max(0, tag.getInt("WearClock")); openClock = Math.clamp(tag.getInt("OpenClock"), 0, OPEN_LIMIT);
         openAt = open && tag.contains("OpenX") ? new Vec3(tag.getDouble("OpenX"), tag.getDouble("OpenY"), tag.getDouble("OpenZ")) : null;
         read(tag.getList("Material", Tag.TAG_COMPOUND), material);

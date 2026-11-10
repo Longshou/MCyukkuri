@@ -230,16 +230,21 @@ public final class Cannibalism extends Goal {
         }
         if (smellWait == 0 && nutrition >= 8 && !entity.grieving()) {
             var source = RemainsRot.source(level(), entity.position());
-            if (source != null) {
+            var wrap = level().getEntitiesOfClass(YukkuriEntity.class, entity.getBoundingBox().inflate(3),
+                    other -> other != entity && other.isAlive() && other.leafSwaddle().smells()
+                            && !entity.family().caresFor(other) && entity.distanceToSqr(other) <= 9).stream()
+                    .min(Comparator.comparingDouble(entity::distanceToSqr)).orElse(null);
+            Vec3 smellAt = source != null ? source.position() : wrap != null ? wrap.position() : null;
+            if (smellAt != null) {
                 // The destination lies beyond the smell, not merely away from the body.
-                double clear = RemainsRot.radius(source.stage()) + 2;
-                var spot = DefaultRandomPos.getPosAway(entity, (int) clear + 2, 6, source.position());
-                if (spot != null && spot.distanceToSqr(source.position()) < clear * clear) spot = null;
+                double clear = source != null ? RemainsRot.radius(source.stage()) + 2 : 5;
+                var spot = DefaultRandomPos.getPosAway(entity, (int) clear + 2, 6, smellAt);
+                if (spot != null && spot.distanceToSqr(smellAt) < clear * clear) spot = null;
                 if (spot == null) {
                     // No random spot fitted the navigation: walk straight away from the smell instead.
-                    var dir = entity.position().subtract(source.position()).multiply(1, 0, 1);
+                    var dir = entity.position().subtract(smellAt).multiply(1, 0, 1);
                     dir = dir.lengthSqr() < 1e-4 ? new Vec3(1, 0, 0) : dir.normalize();
-                    spot = source.position().add(dir.scale(clear));
+                    spot = smellAt.add(dir.scale(clear));
                 }
                 away = spot; return begin(Mode.AVOID, "stench");
             }

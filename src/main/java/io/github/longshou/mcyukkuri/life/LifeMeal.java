@@ -59,7 +59,7 @@ final class LifeMeal {
 
     int mealTicks() { return mealTicks; }
 
-    boolean needsFood() { return o.nutrition() <= FULL && !hasMouthFood() && mealTicks == 0; }
+    boolean needsFood() { return o.nutrition() <= FULL - 20 * o.entity().leafSwaddle().swelling() && !hasMouthFood() && mealTicks == 0; }
 
     boolean edible(ItemStack food){return food.is(YukkuriEntity.FOOD)||o.entity().profile().diet().eats(food)||Toxins.dose(food)>0&&o.nutrition()<Toxins.STARVING||Consumables.kind(food)==Consumables.Kind.SPICY
             ||FillingResource.isFilling(food)||o.entity().profile().houseBody()&&food.is(ModItems.FOOD_SCRAP.get())

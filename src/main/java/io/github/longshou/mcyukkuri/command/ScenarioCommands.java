@@ -88,6 +88,14 @@ public final class ScenarioCommands {
 
     public static LiteralArgumentBuilder<CommandSourceStack> command() {
         return Commands.literal("scenario").requires(s -> s.hasPermission(2))
+                .then(Commands.literal("unwrap").then(Commands.argument("targets", EntityArgument.entities()).executes(c -> {
+                    int count = 0;
+                    for (var target : EntityArgument.getEntities(c, "targets"))
+                        if (target instanceof YukkuriEntity y && y.isAlive() && y.leafSwaddle().wrapped()) {
+                            y.leafSwaddle().openForCare(); count++;
+                        }
+                    return count;
+                })))
                 .then(Commands.literal("geometry").executes(c -> SceneGeometry.read(c.getSource()))
                         .then(Commands.literal("record").executes(c -> SceneGeometry.record(c.getSource()))))
                 .then(Commands.literal("community").then(Commands.argument("leader", EntityArgument.entity())
