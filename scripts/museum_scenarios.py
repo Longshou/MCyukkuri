@@ -1979,11 +1979,11 @@ for _sid, _window, _title in (
         # the inside three-quarter view keeps crack stages in front of the actor; the far inside corner sees the window and
         # the declaration spot together. Never follows its yaw.
         capture=(dict(shots=(40,120,200,400,800,1200), sequences=((40,1200,8),), observe=False,
-                      views={'side':dict(position=(-1.9,.6,4.05),look_at=(.5,.6,4.0),
+                      views={'side':dict(position=(-1.9,.6,3.8),look_at=(.5,.6,3.8),
                                          criteria='侧面约两格，检查魔理沙身体与帽檐不穿玻璃、蓄力、撞击接触和反冲。'),
                              'crack':dict(position=(-1.0,.85,1.7),look_at=(.5,.65,3.5625),
                                           criteria='看清撞击后裂纹增长，安慰期间裂纹保留，碎开一块玻璃板、真实进入空屋。'),
-                             'home':dict(position=(2.5,1.2,-1.6),look_at=(.5,.5,1.5),
+                             'home':dict(position=(2.6,1.3,-1.9),look_at=(.5,.4,.6),
                                          criteria='屋内远角同时看到窗和宣言处：破窗后魔理沙真实进屋，在工作台旁宣言。')}) if _sid=='home_pane'
                  else dict(shots=(40,80,120,200,400), sequences=((40,200,4),))))
 
