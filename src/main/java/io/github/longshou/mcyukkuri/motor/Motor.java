@@ -101,12 +101,16 @@ public final class Motor {
         } else riderFacing(body, yaw);
     }
 
-    /** Replace vanilla's instant body alignment; an attached body's host remains its facing authority. */
+    /** Replace vanilla's instant body alignment; only the body yaw is rate-limited, the head and facing stay with their owners. */
     public static void bodyTurn(YukkuriEntity body) {
         if (body.isPassenger()) return;
         double dx = body.getX() - body.xo, dz = body.getZ() - body.zo;
-        face(body, dx * dx + dz * dz > MoveControl.MIN_SPEED_SQR
-                ? body.getYRot() : body.getYHeadRot());
+        if (dx * dx + dz * dz > MoveControl.MIN_SPEED_SQR) {
+            body.setYBodyRot(turnYaw(body, body.getYRot()));
+            body.setYHeadRot(Mth.rotateIfNecessary(body.bodyYaw(), body.getYHeadRot(), (float) body.getMaxHeadYRot()));
+        } else {
+            body.setYBodyRot(turnYaw(body, body.getYHeadRot()));
+        }
     }
 
     /** Apply the host-derived facing on both sides; it is never a second rider authority. */

@@ -738,6 +738,8 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     @Override
     protected float tickHeadTurn(float yRot, float animStep) {
         if (!level().isClientSide) {
+            // Flying predators keep vanilla's fast turn; they never carry and their flee would be slowed otherwise.
+            if (predatorFlying()) return super.tickHeadTurn(yRot, animStep);
             Motor.bodyTurn(this);
             return animStep;
         }
