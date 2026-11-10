@@ -1942,14 +1942,15 @@ def home_pane_result(window):
         return 'a second bash started after the one opening was enough'
 
 
-# The pane window is a flush 3x2 glass section: an adult's brim, side hair and hat are wider and taller than one block,
-# so at impact they meet the neighbouring panes' common face instead of entering stone jambs and a lintel.
+# The glass door is one pane column set in iron bars of the same face: an adult's brim, side hair and hat are wider and
+# taller than one block, so at impact they meet that common face instead of entering stone jambs and a lintel.
 for _sid, _window, _title in (
-        ('home_pane', 'fill ~-1 ~ ~3 ~1 ~1 ~3 minecraft:glass_pane', '成体撞碎玻璃板，入屋宣言'),
-        ('home_open', 'setblock ~ ~ ~3 minecraft:air', '野生一家进入敞口空屋宣言')):
+        ('home_pane', ('fill ~-2 ~ ~3 ~1 ~1 ~3 minecraft:iron_bars', 'fill ~ ~ ~3 ~ ~1 ~3 minecraft:glass_pane'),
+         '成体撞碎玻璃板，入屋宣言'),
+        ('home_open', ('setblock ~ ~ ~3 minecraft:air',), '野生一家进入敞口空屋宣言')):
     _bold, _timid = uid(_sid, 'bold'), uid(_sid, 'timid')
     add(_sid, 'forage', _title, _title,
-        '空石屋南面只有一处落地入口（撞玻璃场景为与墙面齐平的三宽两高玻璃板窗，敞口场景为一格空门）；'
+        '空石屋南面只有一处落地入口（撞玻璃场景为铁栏杆窗中间一列两块玻璃板，敞口场景为一格空门）；'
         '野生成年魔理沙胆量100、成年女儿灵梦胆量0。家园事件自己选择入口：'
         '魔理沙走近玻璃板，转正，逐次用身体撞击，出现裂纹、碎屑、声音与轻微反冲；玻璃板碎后进入才宣言，洞口保持开放。'
         '亲属安抚会暂停撞击，安抚后保留已有裂纹继续。整块玻璃作旁边的封闭窗，始终保留。胆小女儿可以从已经打开的入口跟进。',
@@ -1957,7 +1958,7 @@ for _sid, _window, _title in (
             'fill ~-6 ~ ~-6 ~6 ~5 ~10 minecraft:air',
             'fill ~-3 ~-1 ~-3 ~3 ~2 ~3 minecraft:stone_bricks hollow',
             'setblock ~ ~ ~ minecraft:crafting_table',
-            _window,
+            *_window,
             'setblock ~2 ~ ~3 minecraft:glass',
             yk('marisa',0,6,'bold',uuid=_bold,yaw=180,lead=True,boldness=100,**pair_ready()),
             yk('reimu',2,7,'timid',uuid=_timid,yaw=180,boldness=0,kin=kin_of(Mother=_bold),**pair_ready())],
@@ -1974,10 +1975,10 @@ for _sid, _window, _title in (
                                    (21,'gamerule mobGriefing true'),
                                    (1190,'execute if block ~2 ~ ~3 minecraft:glass run say HOME_PANE_FULL_GLASS_INTACT')]}
                       if _sid=='home_pane' else {})),
-        # Fixed world views: the outside profile runs along the glass, just clear of the stone wall's face;
+        # Fixed world views: the outside profile runs along the glass in front of the bars, clear of the stone;
         # the inside three-quarter view keeps crack stages in front of the actor. Never follows its yaw.
         capture=(dict(shots=(40,120,200,400,800,1200), sequences=((40,1200,8),), observe=False,
-                      views={'side':dict(position=(-1.6,.6,4.15),look_at=(.5,.6,4.0),
+                      views={'side':dict(position=(-1.9,.6,4.05),look_at=(.5,.6,4.0),
                                          criteria='侧面约两格，检查魔理沙身体与帽檐不穿玻璃、蓄力、撞击接触和反冲。'),
                              'crack':dict(position=(-1.0,.85,1.7),look_at=(.5,.65,3.5625),
                                           criteria='看清撞击后裂纹增长，安慰期间裂纹保留，碎开一块玻璃板、真实进入空屋并宣言。')}) if _sid=='home_pane'
