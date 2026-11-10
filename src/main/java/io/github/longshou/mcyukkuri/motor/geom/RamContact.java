@@ -22,14 +22,13 @@ public record RamContact(double impact, double turn, double[] front, float launc
     public double distance(double stand, double seconds) {
         if (seconds < launch) return stand;
         int i = Math.min(front.length-1,(int)Math.ceil(seconds*SAMPLES));
-        if (seconds <= strike) {
-            // The brim's furthest pose can precede impact. The launch must clear that whole remaining sweep.
-            double reach = impact;
-            for (int sample=Math.max(0,i);sample<=Math.round(strike*SAMPLES);sample++) reach=Math.max(reach,front[sample]);
-            return reach;
-        }
+        // Every position clears the rest of the stroke's sweep: the brim peaks before impact, and the drawn body trails
+        // this position (network interpolation) while the drawn clip clock does not, so a later pose meets an earlier position.
+        double ahead = 0;
+        for (int sample=Math.max(0,i);sample<front.length;sample++) ahead=Math.max(ahead,front[sample]);
+        if (seconds <= strike) return Math.max(impact,ahead);
         double recoil = Math.clamp((seconds-strike)/(settled-strike),0,1);
-        return Math.max(front[Math.max(0,i)],impact+(stand-impact)*recoil);
+        return Math.max(ahead,impact+(stand-impact)*recoil);
     }
 
     private static JsonObject json(String path) { return JsonParser.parseString(new String(bytes(path),StandardCharsets.UTF_8)).getAsJsonObject(); }

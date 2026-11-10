@@ -35,8 +35,9 @@ class PaneContactTest {
             assertEquals(stand,contact.distance(stand,Math.nextDown(contact.launch())));
             assertEquals(contact.impact(),contact.distance(stand,contact.strike()),1e-5);
             assertEquals(stand,contact.distance(stand,contact.settled()),1e-5);
-            for(int i=0;i<contact.front().length;i++)
-                assertTrue(contact.distance(stand,i/100.0)+1e-5>=contact.front()[i],"part crosses plane at sample "+i);
+            // A drawn body trails its position while its clip clock does not: every later pose must clear it too.
+            for(int i=0;i<contact.front().length;i++)for(int later=i;later<contact.front().length;later++)
+                assertTrue(contact.distance(stand,i/100.0)+1e-5>=contact.front()[later],"pose "+later+" crosses plane from sample "+i);
             assertTrue(contact.distance(stand,contact.launch())<stand,"launch must physically close the measured gap");
         }
     }

@@ -3,7 +3,6 @@ package io.github.longshou.mcyukkuri.event;
 import javax.annotation.Nullable;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
-import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.motor.Action;
 import io.github.longshou.mcyukkuri.motor.BodyAbility;
 import io.github.longshou.mcyukkuri.motor.MotorOwner;
@@ -107,7 +106,7 @@ public final class HomeClaimGoal extends Goal implements MotorOwner {
             if (!entity.level().getBlockState(opening.pane()).is(Tags.Blocks.GLASS_PANES)) {
                 opening=null; return;
             }
-            next=new Face(SurfaceApproach.yaw(entity.position(),Vec3.atCenterOf(opening.pane())));
+            next=new Face(Bash.squareYaw(entity,opening.pane()));
         } else if (action instanceof Face) next=new Bash(opening.pane(),
                 HomeClaim.of(entity).panes.computeIfAbsent(opening.pane(),ignored -> new Bash.Damage(0,0)),
                 HomeClaim.of(entity).paneDisplayId(opening.pane()));

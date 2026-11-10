@@ -47,6 +47,7 @@ public final class MuseumCapture {
     private static int followId=-1;
     private static long cameraFrame=-1;
     private static boolean rateSet;
+    private static boolean sectionsRefreshed;
 
     public static double[] camera(Camera camera,float partial) {
         if(current==null||current.settings==null)return null;
@@ -108,7 +109,7 @@ public final class MuseumCapture {
         Minecraft.getInstance().options.hideGui = true;
         current = scene;
         nextFrame = 0;
-        follow=null;followId=-1;cameraFrame=-1;
+        follow=null;followId=-1;cameraFrame=-1;sectionsRefreshed=false;
         rateSet=false;
         FRAMES.clear();
         WRITES.clear();
@@ -184,6 +185,12 @@ public final class MuseumCapture {
         }
         if (!start.isDone()) return;
         long tick = mc.level.getGameTime() - start.join();
+        if (tick >= 0 && !sectionsRefreshed) {
+            // Vanilla rebuilds the visible-section graph only when the camera crosses an 8-block cell. A fixed camera set
+            // before the field's chunks arrived would keep an empty graph (sky only, no terrain or entities) all scene long.
+            sectionsRefreshed = true;
+            mc.levelRenderer.needsUpdate();
+        }
         if (tick >= 20 && !rateSet) {
             rateSet = true;
             // The ordinary scene reset restores 20 TPS. Apply the capture rate after that reset,

@@ -15,6 +15,7 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.common.Tags;
@@ -85,20 +86,30 @@ public final class Bash implements Action {
         return Feasibility.pass();
     }
 
+    /** The collider face the body's centre line meets on its level way to the pane. */
+    private static BlockHitResult contact(YukkuriEntity body, BlockPos pane) {
+        var from = body.position().add(0, body.getBbHeight() / 2, 0);
+        Vec3 aim = Vec3.atCenterOf(pane);
+        return body.level().clip(new ClipContext(from, new Vec3(aim.x, from.y, aim.z),
+                ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, body));
+    }
+    private static float square(Vec3 outward) { return SurfaceApproach.yaw(Vec3.ZERO, outward.reverse()); }
+    /** Squared up to the pane face: the authored straight-ahead reach is then the reach into the pane, even off its centre line. */
+    public static float squareYaw(YukkuriEntity body, BlockPos pane) {
+        return square(Vec3.atLowerCornerOf(contact(body, pane).getDirection().getNormal()));
+    }
+
     @Override public Feasibility check(YukkuriEntity body) {
         var allowed = allowed(body, pane);
         if (!allowed.ok()) return allowed;
-        Vec3 aim = Vec3.atCenterOf(pane);
-        float yaw = SurfaceApproach.yaw(body.position(), aim);
-        if (Math.abs(Mth.wrapDegrees(yaw - body.yBodyRot)) > Face.FACE_ARRIVED)
+        var hit = contact(body, pane);
+        var normal = Vec3.atLowerCornerOf(hit.getDirection().getNormal());
+        if (Math.abs(Mth.wrapDegrees(square(normal) - body.yBodyRot)) > Face.FACE_ARRIVED)
             return Feasibility.of(Reason.NO_CONTACT, 0, "face_pane_first");
-        var from = body.position().add(0, body.getBbHeight() / 2, 0);
-        var hit = body.level().clip(new ClipContext(from, new Vec3(aim.x, from.y, aim.z),
-                ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, body));
         if (hit.getType() != HitResult.Type.BLOCK || !hit.getBlockPos().equals(pane))
             return Feasibility.of(Reason.NO_CONTACT, 0, "front_obstructed");
-        // PaneOpening adds half the walk arrival margin outside the rotational envelope.
-        double gap = hit.getLocation().distanceTo(from) - standOff(body) - Walk.STAND_ARRIVED/2;
+        // PaneOpening adds half the walk arrival margin outside the rotational envelope, along the face normal.
+        double gap = body.position().subtract(hit.getLocation()).dot(normal) - standOff(body) - Walk.STAND_ARRIVED/2;
         return gap <= Walk.STAND_ARRIVED ? Feasibility.pass()
                 : Feasibility.of(Reason.NO_CONTACT, gap, "approach_pane_first");
     }
@@ -106,8 +117,7 @@ public final class Bash implements Action {
     @Override public void start(YukkuriEntity body) {
         body.getNavigation().stop();
         startTick = body.level().getGameTime();
-        var from=body.position().add(0,body.getBbHeight()/2,0);
-        var hit=body.level().clip(new ClipContext(from,Vec3.atCenterOf(pane),ClipContext.Block.COLLIDER,ClipContext.Fluid.NONE,body));
+        var hit=contact(body,pane);
         outward=Vec3.atLowerCornerOf(hit.getDirection().getNormal());
         face=new Vec3(pane.getX()+.5,body.getY(),pane.getZ()+.5);
         face=face.add(outward.scale(hit.getLocation().subtract(face).dot(outward)));
@@ -117,8 +127,7 @@ public final class Bash implements Action {
 
     @Override public Progress tick(YukkuriEntity body) {
         // The stroke is a physical, bounded launch/recoil. A competing need takes over at its settled marker.
-        float heading = SurfaceApproach.yaw(body.position(), Vec3.atCenterOf(pane));
-        Motor.face(body, body.yBodyRot + (float) Effort.turn(body.yBodyRot, heading, BodyAbility.of(body).turnRate()));
+        Motor.face(body, body.yBodyRot + (float) Effort.turn(body.yBodyRot, square(outward), BodyAbility.of(body).turnRate()));
         boolean opened=damage.broken()>=1 && !body.level().getBlockState(pane).is(Tags.Blocks.GLASS_PANES);
         if (!opened) {
             var feasible = check(body);
