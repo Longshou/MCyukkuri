@@ -134,7 +134,7 @@ public final class SettlementCommands {
             var cells = new StringBuilder();
             int total = 0;
             for (var cell : pit) {
-                int portions = Poops.portions(level, cell);
+                double portions = Poops.portions(level, cell);
                 total += portions;
                 cells.append(portions == 0 ? " 0" : " " + portions + "(tier " + Poops.tier(portions) + ")");
             }

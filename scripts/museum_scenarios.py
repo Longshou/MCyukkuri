@@ -582,7 +582,8 @@ add('hurt', 'meadow', '受伤后伴侣和亲油来舔伤', '受伤后伴侣和�
     reads=[('读受伤的橙（伴侣）', f'yukkuri status {sel("a")} raw'), ('读受伤的小橙（亲子）', f'yukkuri status {sel("kid")} raw')])
 
 add('toilet', 'meadow', '便意急了走去厕所', '便意急了走去厕所', '橙有强烈便意：看它走向右边的厕所；拆掉厕所再看它在地面排便（从油菊排出）', '约 1 分钟', [
-    block(6, 0, 0, 'mcyukkuri:yukkuri_toilet'), yk('chen', 0, 0, 'a', bladder=95, yaw=-90, lead=True)], vantage=None)
+    block(6, 0, 0, 'mcyukkuri:yukkuri_toilet'), yk('chen', 0, 0, 'a', bladder=95, yaw=-90, lead=True)], vantage=None,
+    smoke=dict(ticks=1200,expect=[r'relieved source=facility',r'toilet stored [^\n]*volume='],forbid=[]))
 
 # ====================================================================================================== family and growth
 # Newborns carry no scn tag; the selector finds them by stage instead (the function runs positioned at the anchor).
@@ -650,7 +651,22 @@ add('first_toilet', 'family', '新生儿吃第一口后才首次排便', '新生
     yk('reimu', 3, 0, 'baby', stage='baby', nutrition=32, bladder=30, yaw=90, lead=True),
     f'yukkuri scenario kin {sel("mom")} {sel("baby")} true'], give=['minecraft:apple 3'], spot='first_toilet', vantage=(0, 10),
     reads=[('读首餐与首便', f'data get entity {sel("baby")} YukkuriChildhood'),
-           ('读亲代照护决定', f'yukkuri status {sel("mom")} raw')])
+           ('读亲代照护决定', f'yukkuri status {sel("mom")} raw')],
+    smoke=dict(ticks=2400,commands=[(100,item('minecraft:apple',3,0,0))],
+               expect=[r'first toilet completed',r'poop placed [^\n]*volume='],forbid=[]))
+
+add('waste_volume', 'family', '赤油与成油的地面排便量', '赤油与成油的地面排便量',
+    '赤油已经吃过首餐，亲油辅助它首次排便；旁边便意强烈的成油自行寻找地面排便。对比两者落地粪便大小；湿抹布收集后体积保持不变',
+    '约 1 分钟', [
+        yk('chen', 0, 0, 'mom', yaw=-90, **pair_ready()),
+        yk('reimu', 2, 0, 'baby', stage='baby', nutrition=90, bladder=30, yaw=90, lead=True,
+           childhood='Version:1,Newborn:1b,Landed:1b,FirstMealDone:1b,FirstToiletDone:0b'),
+        f'yukkuri scenario kin {sel("mom")} {sel("baby")} false',
+        yk('reimu', -4, 0, 'adult', bladder=95, nutrition=90)], env=DAY, spot='first_toilet', vantage=(0,8),
+    give=['mcyukkuri:wash_cloth[minecraft:custom_data={Water:8}]'],
+    reads=[('读赤油排便',f'yukkuri status {sel("baby")} raw'),('读成油排便',f'yukkuri status {sel("adult")} raw')],
+    smoke=dict(ticks=1200,expect=[r'first toilet completed',r'relieved source=ground',r'poop placed [^\n]*volume='],forbid=[]),
+    capture=dict(shots=(1,40,200,600,1200),sequences=((40,300,4),)))
 
 add('hop', 'family', '子油跟着亲油学会起跳', '子油跟着亲油学会起跳', '子油先爬行试探，亲油示范起跳，子油跟着练到学会', '约 1–2 分钟', [
     yk('reimu', 0, 0, 'mom', yaw=-90, **pair_ready()),
@@ -682,7 +698,7 @@ def leaf_reads(*names):
 
 add('leaf_swaddle', 'family', '亲油采叶包襁褓、解开换便', '亲油采叶包襁褓、解开换便',
     '友善、聪明的亲油先照护两只已裹着树叶襁褓的子油：便意 55 的一只被解开（这片叶摊在身下）、舔舐后排出一份便便、舔净、重新包好；'
-    '已积 2 份的一只解开时两份便便落地、脏叶作废，舔净后要另采叶子。随后亲油从左侧叶丛衔下一片叶（叶块真实消失）、原地整理，'
+    '已积 2 体积单位的一只解开时实际积便落地、脏叶作废，舔净后要另采叶子。随后亲油从左侧叶丛衔下一片叶（叶块真实消失）、原地整理，'
     '走到赤油和脏襁褓子油身后包上：叶柄在身后油菊处，叶片兜过底部包到前下方排泄口。亚成油不包；右侧低友善亲油不制作。丢苹果喂子油可再次积起便意',
     '约 2–4 分钟（可倍速）', [
         yk('reimu', 0, 0, 'mom', yaw=-90, friendliness=85, intelligence=75, **pair_ready()),
@@ -697,7 +713,8 @@ add('leaf_swaddle', 'family', '亲油采叶包襁褓、解开换便', '亲油采
         f'yukkuri scenario kin {sel("cold")} {sel("cold_baby")} false',
         block(9, 0, 3, LEAF_BUSH), block(10, 0, 3, LEAF_BUSH)],
     give=['minecraft:apple 4'], env=DAY, spot='leaf_swaddle', vantage=(5, 10),
-    reads=leaf_reads(('亲油', 'mom'), ('赤油', 'baby'), ('便意子油', 'kid'), ('积便子油', 'kid_soiled'), ('亚成油', 'teen'), ('低友善亲油', 'cold')))
+    reads=leaf_reads(('亲油', 'mom'), ('赤油', 'baby'), ('便意子油', 'kid'), ('积便子油', 'kid_soiled'), ('亚成油', 'teen'), ('低友善亲油', 'cold')),
+    smoke=dict(ticks=2400,expect=[r'leaf swaddle opened [^\n]*soil=2',r'poop placed [^\n]*volume='],forbid=[]))
 
 _fd = {k: uid('family_distance', k) for k in ('parent_near', 'child_near', 'parent_bold', 'child_bold')}
 add('family_distance', 'family', '胆大子油跑得远，普通的早回来', '胆大子油跑得远，普通的早回来',
@@ -1164,13 +1181,14 @@ def agitation_start(phase):
 
 
 add('leaf_swaddle_neglect', 'meadow', '没人照看，襁褓里积满便便', '没人照看，襁褓里积满便便',
-    '两只裹着树叶襁褓的子油没有亲油：便意 95 的一只马上把便便排进襁褓（soil 加 1，卫生、不安恶化，襁褓下沿染色）；'
-    '已积 3 份的一只再满就从肛门溢到地上。之后每 30 秒按积便扣卫生、加不安；丢苹果喂食可让便意继续积累',
+    '两只裹着树叶襁褓的子油没有亲油：便意 95 的一只马上把便便排进襁褓（soil 按体积增加，卫生、不安恶化，襁褓下沿染色）；'
+    '已积 3 体积单位的一只再满就从肛门溢到地上。之后每 30 秒按积便扣卫生、加不安；丢苹果喂食可让便意继续积累',
     '立即；之后每 30 秒一次变化', [
         yk('reimu', 0, 0, 'kid', stage='child', yaw=180, lead=True, nutrition=80, bladder=95, hygiene=80, extra=leaf_wrap()),
         yk('marisa', 3, 0, 'kid_full', stage='child', yaw=180, nutrition=80, bladder=92, hygiene=50, extra=leaf_wrap(soil=3))],
     give=['minecraft:apple 4'], env=DAY, vantage=(1, 8),
-    reads=leaf_reads(('刚积便子油', 'kid'), ('积满子油', 'kid_full')))
+    reads=leaf_reads(('刚积便子油', 'kid'), ('积满子油', 'kid_full')),
+    smoke=dict(ticks=1200,expect=[r'leaf swaddle soiled [^\n]*volume=',r'leaf swaddle overflowed',r'poop placed [^\n]*volume='],forbid=[]))
 
 add('agitation_relief', 'meadow', '发情期的爱丽丝想素鸡立', '发情期的爱丽丝想素鸡立',
     '爱丽丝处于持续发情期：空闲观察时偶尔说想素鸡立；喂食、避险会暂停表现但保留剩余期，期满未配对改播heat_unmet未解台词。给对照个体喂催情剂可现场听heat_start开始台词', '约一分钟', [
@@ -3468,6 +3486,7 @@ _number_scenes()
 # Topic codes are shared by the scene buttons, signs, and readouts.
 TOPICS = {
     'balance_traits': 'N1', 'balance_relation': 'N1', 'balance_forms': 'N1', 'balance_deibu': 'N1',
+    'waste_volume': 'F5',
     'agitation_relief': 'D2', 'adult_pairing': 'F6', 'widow_repair': 'F6', 'alice_hunt': 'R4', 'aftermath_growth': 'F7', 'aftermath_depletion': 'F7',
     'den_family': 'W1', 'dig': 'W2', 'indep_near': 'W3', 'den_move': 'W4', 'forage': 'W5', 'graze': 'W6', 'den_barrier': 'W8',
     'sleep': 'D1', 'night_sleep': 'D1', 'night_hungry_child': 'D1', 'meal_content': 'D1', 'fatigue': 'R1', 'fatigue_predator': 'R2', 'nutrition_age': 'D1', 'meet': 'D1', 'toilet': 'F5', 'hurt': 'F3',

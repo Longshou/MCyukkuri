@@ -69,7 +69,9 @@ public final class ToiletContact {
         double[] site = numbers(outlet.getAsJsonArray("site_px")), pivot = numbers(outlet.getAsJsonArray("pivot_px"));
         double[] start = posed(pose, pivot, new double[]{site[0] + INSIDE[0], site[1] + INSIDE[1], site[2] + INSIDE[2]}, true);
         double[] along = posed(pose, pivot, DIRECTION, false);
-        double q = Math.clamp((tick - EMERGE_FROM_TICKS) / (double) (DROP_TICKS - EMERGE_FROM_TICKS), 0, 1), size = actor.getVariant().width() / .75;
+        double bodyScale=actor.growthScale()*actor.getScale();
+        double q = Math.clamp((tick - EMERGE_FROM_TICKS) / (double) (DROP_TICKS - EMERGE_FROM_TICKS), 0, 1),
+                size = Math.cbrt(DetachedItems.wasteVolume((float)bodyScale*actor.profile().modelScale()))/bodyScale;
         q = q * q * (3 - 2 * q);
         return new Stool(new Vec3(start[0], start[1], start[2]).scale(1 / 16.0), new Vec3(along[0], along[1], along[2]).normalize(),
                 LENGTH * size * q, RADIUS * size * (.55 + .45 * q), q);
@@ -181,22 +183,24 @@ public final class ToiletContact {
      * cell can take it (water, a ledge, a shelter's inside, everything around full) does it stay a loose item as before.
      */
     public static boolean drop(YukkuriEntity actor, Vec3 outlet, BlockPos pit) {
+        return drop(actor,outlet,pit,DetachedItems.waste(actor));
+    }
+    public static boolean drop(YukkuriEntity actor, Vec3 outlet, BlockPos pit, ItemStack stack) {
         if (!(actor.level() instanceof ServerLevel server) || outlet == null) return false;
-        var stack = DetachedItems.waste(actor);
         var origin = pit != null ? pit : floorUnder(server, outlet);
         var group = actor.settlement().group();
         if (origin != null) {
             var cells = pit == null || group == null ? List.<BlockPos>of() : GroupPits.cells(server, group);
             var placed = Poops.place(server, origin, stack.copy(), cells.isEmpty() ? null : cell -> GroupPits.inCells(cells, cell));
             if (placed != null) {
-                GameplayLog.event(actor, "needs", "poop placed at={} meant={} tier={} -> {} portions={} overflow={} pit={}",
-                        placed.at(), origin, placed.tierBefore(), placed.tierAfter(), placed.after(), placed.overflow(), pit != null);
+                GameplayLog.event(actor, "needs", "poop placed at={} meant={} tier={} -> {} volume={} -> {} overflow={} pit={}",
+                        placed.at(), origin, placed.tierBefore(), placed.tierAfter(), placed.before(), placed.after(), placed.overflow(), pit != null);
                 return true;
             }
         }
         var spawned = loose(server, stack, outlet, Vec3.ZERO, actor.yBodyRot);
-        if (spawned != null) GameplayLog.event(actor, "needs", "poop stays a loose item reason={} meant={} item={} drop={}",
-                origin == null ? "no_floor_cell" : "no_cell_within_" + Poops.SPREAD, origin, stack.getItem(), spawned.getUUID());
+        if (spawned != null) GameplayLog.event(actor, "needs", "poop stays a loose item reason={} meant={} item={} drop={} volume=0 -> {}",
+                origin == null ? "no_floor_cell" : "no_cell_within_" + Poops.SPREAD, origin, stack.getItem(), spawned.getUUID(),DetachedItems.volume(stack));
         return spawned != null;
     }
 
@@ -230,7 +234,7 @@ public final class ToiletContact {
     /** Stand on the actual collision surface, facing along the tray's longer axis. */
     public static Vec3 facilitySeat(YukkuriEntity actor, BlockPos pos) {
         if (pos == null || !(actor.level().getBlockEntity(pos) instanceof CareBlockEntity care)
-                || care.kind() != CareBlock.Kind.TOILET || care.waste() >= care.capacity()) return null;
+                || care.kind() != CareBlock.Kind.TOILET || !care.acceptsWaste(DetachedItems.waste(actor))) return null;
         var shape = actor.level().getBlockState(pos).getCollisionShape(actor.level(), pos);
         if (shape.isEmpty()) return null;
         var bounds = shape.bounds();

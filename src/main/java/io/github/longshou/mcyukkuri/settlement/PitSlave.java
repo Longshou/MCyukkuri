@@ -125,7 +125,7 @@ public final class PitSlave {
             return true;
         }
         SurfaceApproach.halt(entity);
-        int before = heap.count();
+        double before = heap.count();
         var portion = heap.takeOne();
         if (portion.isEmpty()) return false;
         if (!entity.life().beginMeal(portion.copy(), null, false)) {
@@ -136,7 +136,7 @@ public final class PitSlave {
             return false;
         }
         var recorded = portion.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag();
-        GameplayLog.event(entity, "settlement", "pit slave eats droppings heap={} portions={} -> {} nutrition={} producer={}", cell, before, before - 1,
+        GameplayLog.event(entity, "settlement", "pit slave eats droppings heap={} volume={} -> {} nutrition={} producer={}", cell, before, heap.count(),
                 entity.life().nutrition(), recorded.hasUUID("Source") ? recorded.getUUID("Source") : "unknown");
         phase = Phase.NONE;
         return true;

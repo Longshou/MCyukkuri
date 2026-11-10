@@ -25,7 +25,7 @@ public final class CareRenderer implements BlockEntityRenderer<CareBlockEntity> 
         String model=switch(care.kind()){
             case BOWL -> "food_bowl";
             case NEST -> "yukkuri_nest";
-            case TOILET -> care.waste()>0?"yukkuri_toilet_dirty":"yukkuri_toilet";
+            case TOILET -> "yukkuri_toilet";
             case MAT -> ((CareBlock)care.getBlockState().getBlock()).style();
         };
         String style=((CareBlock)care.getBlockState().getBlock()).style();
@@ -47,10 +47,9 @@ public final class CareRenderer implements BlockEntityRenderer<CareBlockEntity> 
         PropModels.render(model,units,pose,buffers,light,overlay);
         if(fill!=null)PropModels.render(fill,units,pose,buffers,light,overlay);
         pose.popPose();
-        if(!style.isEmpty()&&care.kind()==CareBlock.Kind.TOILET&&care.waste()>0){
-            int shown=Math.min(8,care.waste());
-            for(int i=0;i<shown;i++){pose.pushPose();pose.translate(.25+(i%4)*.16,style.equals("covered_toilet")?.094:.0625,.35+(i/4)*.23);pose.scale(.5f,.5f,.5f);
-                PropModels.render("toilet_waste",0,pose,buffers,light,overlay);pose.popPose();}
+        if(care.kind()==CareBlock.Kind.TOILET&&care.waste()>0){
+            pose.pushPose();pose.translate(.5,style.equals("covered_toilet")?.094:.0625,.5);
+            WastePresentation.render(care.waste(),pose,buffers,light,overlay);pose.popPose();
         }
         if(care.kind()!=CareBlock.Kind.BOWL||grain||grass||wheat)return;
         ItemStack shown = care.kind() == CareBlock.Kind.BOWL ? care.displayFood()

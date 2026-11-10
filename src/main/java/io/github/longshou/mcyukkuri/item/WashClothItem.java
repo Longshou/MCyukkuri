@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.item;
 
 import io.github.longshou.mcyukkuri.body.FillingResource;
+import io.github.longshou.mcyukkuri.body.DetachedItems;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.house.HouseNestBlockEntity;
 import io.github.longshou.mcyukkuri.house.HouseholdEcology;
@@ -81,23 +82,23 @@ public final class WashClothItem extends Item {
                 var level=context.getLevel();
                 var center=level.getBlockEntity(context.getClickedPos()) instanceof SupplyPileBlockEntity?context.getClickedPos():context.getClickedPos().above();
                 var area=new AABB(center).inflate(1);
-                int removed=0;
+                double removed=0;
                 for(var cursor:BlockPos.betweenClosed(center.offset(-1,0,-1),center.offset(1,0,1))){
                     var pos=cursor.immutable();
                     if(!level.hasChunkAt(pos)||!SupplyPiles.supported(level,pos)||!level.getBlockState(pos).getCollisionShape(level,pos).isEmpty())continue;
                     var point=Vec3.atBottomCenterOf(pos).add(0,.025,0);
                     if(player.getEyePosition().distanceToSqr(point)>25||level.clip(new ClipContext(player.getEyePosition(),point,
                             ClipContext.Block.COLLIDER,ClipContext.Fluid.NONE,player)).getType()!=HitResult.Type.MISS)continue;
-                    if(level.getBlockEntity(pos) instanceof SupplyPileBlockEntity pile)removed+=pile.takeAll().getCount();
+                    if(level.getBlockEntity(pos) instanceof SupplyPileBlockEntity pile){var contents=pile.takeAll();removed+=SupplyPiles.waste(contents)?DetachedItems.volume(contents):contents.getCount();}
                     HouseholdEcology.cleaned((ServerLevel)level,pos);
                 }
                 var loose=context.getLevel().getEntitiesOfClass(ItemEntity.class,area,
                         item->item.isAlive()&&player.distanceToSqr(item)<=25&&player.hasLineOfSight(item)
                                 &&((item.getItem().is(ModItems.FILLING.get())&&!FillingResource.isCore(item.getItem()))||SupplyPiles.material(item.getItem())));
-                for(var item:loose){removed+=item.getItem().getCount();item.discard();}
+                for(var item:loose){removed+=SupplyPiles.waste(item.getItem())?DetachedItems.volume(item.getItem()):item.getItem().getCount();item.discard();}
                 HouseholdEcology.cleaned((ServerLevel)level,center);
                 if(removed>0){
-                    SupplyPiles.give(player,new ItemStack(ModItems.WASTE.get(),removed));if(water(context.getItemInHand())>0)useWater(context.getItemInHand());
+                    SupplyPiles.give(player,DetachedItems.waste(removed));if(water(context.getItemInHand())>0)useWater(context.getItemInHand());
                 }
                 player.displayClientMessage(Component.translatable("house.mcyukkuri.supplies.cleaned",removed),true);
             }
@@ -107,7 +108,7 @@ public final class WashClothItem extends Item {
         if (!context.getLevel().isClientSide && care.waste()>0) {
             var portions=care.cleanItems();useWater(context.getItemInHand());
             Player player=context.getPlayer();
-            for(var waste:portions)if (player!=null && !player.getInventory().add(waste)) player.drop(waste,false);
+            for(var waste:portions)if(player!=null)SupplyPiles.give(player,waste);else Block.popResource(context.getLevel(),context.getClickedPos(),waste);
         }
         return InteractionResult.sidedSuccess(context.getLevel().isClientSide);
     }

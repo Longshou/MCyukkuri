@@ -3,6 +3,7 @@ package io.github.longshou.mcyukkuri.client;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import io.github.longshou.mcyukkuri.house.SupplyPileBlockEntity;
+import io.github.longshou.mcyukkuri.body.DetachedItems;
 import io.github.longshou.mcyukkuri.registry.ModItems;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -28,6 +29,10 @@ public final class SupplyPileRenderer implements BlockEntityRenderer<SupplyPileB
         int count=pile.count();if(count<=0)return;
         double distance=Minecraft.getInstance().gameRenderer.getMainCamera().getPosition().distanceToSqr(pile.pickupPosition());
         if(distance>144)return;
+        if(pile.is(ModItems.WASTE.get())) {
+            pose.pushPose();pose.translate(.5,.025,.5);
+            WastePresentation.render(DetachedItems.volume(pile.contents()),pose,buffers,light,overlay);pose.popPose();return;
+        }
         int clusters=Math.min(count,distance<=16?4:distance<=64?2:1);
         String prop=pile.is(ModItems.FOOD_SCRAP.get())?"food_scrap":pile.is(ModItems.NEST_LINT.get())?"nest_lint"
                 :pile.is(ModItems.WASTE.get())?"yukkuri_waste":null;

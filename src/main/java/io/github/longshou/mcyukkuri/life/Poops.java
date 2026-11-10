@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.life;
 
 import io.github.longshou.mcyukkuri.house.SupplyPiles;
+import io.github.longshou.mcyukkuri.body.DetachedItems;
 import io.github.longshou.mcyukkuri.registry.ModBlocks;
 import io.github.longshou.mcyukkuri.registry.ModItems;
 import io.github.longshou.mcyukkuri.settlement.GroupPits;
@@ -20,9 +21,9 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
 /**
- * Where droppings lie (project design). Excrement is no loose item: it is set down as a portion on a ground cell's
- * {@link PoopBlock}. One cell holds {@link #CAPACITY} portions in {@link #TIERS} looks (1 to 2 portions: tier 1, 3 to 4:
- * tier 2, 5 to 6: tier 3, 7 to 8: tier 4). A full cell passes the portion on, in this order: a cell of the preferred set
+ * Droppings lie on a ground cell's {@link PoopBlock}, holding {@link #CAPACITY} volume units.
+ * Its {@link #TIERS} readout bands follow volume; its mesh scales continuously, including below one unit.
+ * A cell without enough room passes the dropping on, in this order: a cell of the preferred set
  * (the waste pit) first, a cell nearby that already holds droppings before a clean one, then the nearer cell; two blocks
  * out at most. Nothing is made or lost: a portion no cell can take stays a real item for the caller to drop.
  */
@@ -32,12 +33,12 @@ public final class Poops {
     public static final int SPREAD = 2;
 
     /** {@code overflow}: the portion could not stay on the cell it was meant for. {@code before}/{@code after}: portions on {@code at}. */
-    public record Placement(BlockPos at, int before, int after, boolean overflow) {
+    public record Placement(BlockPos at, double before, double after, boolean overflow) {
         public int tierBefore() { return before == 0 ? 0 : tier(before); }
         public int tierAfter() { return tier(after); }
     }
 
-    public static int tier(int portions) { return Math.clamp((portions + 1) / 2, 1, TIERS); }
+    public static int tier(double volume) { return Math.clamp((int)Math.ceil(volume / 2), 1, TIERS); }
 
     // ---- index of loaded heaps (transient, server side, never saved) --------------------------------------------------
     private static final Map<Level, Set<BlockPos>> INDEX = new WeakHashMap<>();
@@ -67,12 +68,12 @@ public final class Poops {
     }
 
     /** Portions lying on exactly these cells. */
-    public static int portions(ServerLevel level, Collection<BlockPos> cells) {
-        int total = 0;
+    public static double portions(ServerLevel level, Collection<BlockPos> cells) {
+        double total = 0;
         for (var cell : cells) if (level.hasChunkAt(cell) && level.getBlockEntity(cell) instanceof PoopBlockEntity heap) total += heap.count();
         return total;
     }
-    public static int portions(ServerLevel level, BlockPos cell) { return portions(level, List.of(cell)); }
+    public static double portions(ServerLevel level, BlockPos cell) { return portions(level, List.of(cell)); }
 
     /** The fullest heap among these cells (the best meal), nearest first among equals, or null when none holds a portion. */
     public static PoopBlockEntity richest(ServerLevel level, Collection<BlockPos> cells, Vec3 from) {
@@ -105,7 +106,7 @@ public final class Poops {
         if (!portion.is(ModItems.WASTE.get()) || portion.getCount() != 1) return null;
         BlockPos target = null;
         boolean overflow = false;
-        if (canTake(level, origin)) target = origin.immutable();
+        if (canTake(level, origin) && fits(level, origin, portion)) target = origin.immutable();
         else {
             overflow = true;
             var candidates = new ArrayList<BlockPos>();
@@ -113,7 +114,7 @@ public final class Poops {
                 if (dx == 0 && dz == 0) continue;
                 for (int dy : new int[]{0, -1, 1}) {
                     var cell = origin.offset(dx, dy, dz);
-                    if (canTake(level, cell)) { candidates.add(cell.immutable()); break; }
+                    if (canTake(level, cell) && fits(level, cell, portion)) { candidates.add(cell.immutable()); break; }
                 }
             }
             candidates.sort(Comparator.<BlockPos>comparingInt(cell -> prefer != null && prefer.test(cell) ? 0 : 1)
@@ -125,10 +126,13 @@ public final class Poops {
         boolean fresh = !(level.getBlockEntity(target) instanceof PoopBlockEntity);
         if (fresh && !level.setBlock(target, ModBlocks.POOP.get().defaultBlockState(), 3)) return null;
         if (!(level.getBlockEntity(target) instanceof PoopBlockEntity heap)) { level.removeBlock(target, false); return null; }
-        int before = heap.count();
+        double before = heap.count();
         if (!heap.add(portion.copy())) { if (fresh) level.removeBlock(target, false); return null; }
         return new Placement(target, before, heap.count(), overflow);
     }
 
+    private static boolean fits(ServerLevel level, BlockPos cell, ItemStack portion) {
+        return portions(level, cell)+DetachedItems.volume(portion)<=CAPACITY;
+    }
     private Poops() {}
 }

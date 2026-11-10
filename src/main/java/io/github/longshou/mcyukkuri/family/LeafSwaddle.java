@@ -1,4 +1,5 @@
 package io.github.longshou.mcyukkuri.family;
+import io.github.longshou.mcyukkuri.body.DetachedItems;
 
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
@@ -60,7 +61,8 @@ public final class LeafSwaddle {
     private final PlantBedding plants;
     // child side: the wrap on this body
     private boolean worn, open;
-    private int soil, wearClock, openClock;
+    private double soil;
+    private int wearClock, openClock;
     private Vec3 openAt;
     private long soilRetryAt;
     private final List<ItemStack> material = new ArrayList<>();
@@ -78,7 +80,7 @@ public final class LeafSwaddle {
     // ---- child side -----------------------------------------------------------------------------------------------
     public boolean worn() { return worn; }
     public boolean open() { return worn && open; }
-    public int soil() { return soil; }
+    public double soil() { return soil; }
     /** A closed wrap: the child cannot relieve itself and an involuntary release goes into the wrap. */
     public boolean wrapped() { return worn && !open; }
     /**
@@ -88,7 +90,7 @@ public final class LeafSwaddle {
     public int wearBits() {
         if (!worn) return 0;
         if (open) return openAt != null && entity.position().distanceToSqr(openAt) < .25 ? 4 | 8 : 0;
-        return 4 | Math.min(3, soil) << 4;
+        return 4 | Math.min(3, (int)Math.ceil(soil)) << 4;
     }
     /** A closed wrap catches an involuntary release (LifeDoses). */
     public boolean catchesRelease() { return wrapped() && entity.isAlive(); }
@@ -116,7 +118,7 @@ public final class LeafSwaddle {
                 life.changeHygiene(1); entity.mind().add(-1, "leaf_swaddle");
                 if (wearClock % FRIENDLY_TICKS == 0) entity.life().personality().experienced(Trait.FRIENDLINESS, 1);
             } else {
-                life.changeHygiene(-soil); entity.mind().add(soil, "soiled_swaddle");
+                life.changeHygiene(-(float)soil); entity.mind().add((float)soil, "soiled_swaddle");
                 if (!life.isSleeping()) entity.showReaction("teary", "leak", 60);
             }
             if (wearClock % FRIENDLY_TICKS == 0) GameplayLog.limited(entity, "family", "leaf_swaddle.wear", FRIENDLY_TICKS,
@@ -138,12 +140,13 @@ public final class LeafSwaddle {
     public boolean soil(String cause) {
         var life = entity.life();
         float bladder = life.bladder(), hygiene = life.hygiene();
-        if (soil < MAX_SOIL) {
-            life.releaseIntoWrap(); soil++;
+        double volume=DetachedItems.volume(DetachedItems.waste(entity)), before=soil;
+        if (soil+volume <= MAX_SOIL) {
+            life.releaseIntoWrap(); soil+=volume;
             entity.mind().add(6, "soiled_swaddle");
             entity.showReaction("teary", "leak", 80);
-            GameplayLog.event(entity, "family", "leaf swaddle soiled cause={} soil={} bladder={} -> {} hygiene={} -> {}",
-                    cause, soil, bladder, life.bladder(), hygiene, life.hygiene());
+            GameplayLog.event(entity, "family", "leaf swaddle soiled cause={} volume={} -> {} bladder={} -> {} hygiene={} -> {}",
+                    cause, before, soil, bladder, life.bladder(), hygiene, life.hygiene());
             return true;
         }
         if (!dropStool(true)) {
@@ -178,7 +181,9 @@ public final class LeafSwaddle {
     private int openForCare() {
         int dropped = 0;
         if (soil > 0) {
-            for (int i = 0; i < soil; i++) if (dropStool(false)) dropped++;
+            var waste=DetachedItems.waste(soil);
+            if (!ToiletContact.drop(entity,ToiletContact.anus(entity,0),null,waste)) entity.spawnAtLocation(waste);
+            dropped=1;
             worn = false; open = false; openAt = null; soil = 0; material.clear(); wearClock = openClock = 0;
         } else { open = true; openClock = 0; openAt = entity.position(); }
         return dropped;
@@ -189,7 +194,7 @@ public final class LeafSwaddle {
         boolean fire = reason.equals("fire"), drop = soil == 0 && !fire;
         int waste = 0;
         if (drop) material.forEach(stack -> entity.spawnAtLocation(stack.copy()));
-        else if (!fire) for (int i = 0; i < soil; i++) if (dropStool(false)) waste++;
+        else if (!fire) { entity.spawnAtLocation(DetachedItems.waste(soil));waste=1; }
         // Fire burns the leaves together with the stool they held; those loads are gone, not dropped.
         GameplayLog.event(entity, "family", "leaf swaddle off reason={} leaves={} droppedLeaves={} soil={} droppedWaste={} burnedLoads={}",
                 reason, leafCount, drop, soil, waste, fire ? soil : 0);
@@ -419,7 +424,8 @@ public final class LeafSwaddle {
             }
             case UNWRAP -> {
                 if (contactTicks < UNWRAP_TICKS) return;
-                int soiled = wrap.soil, leafCount = wrap.material.stream().mapToInt(ItemStack::getCount).sum();
+                double soiled = wrap.soil;
+                int leafCount = wrap.material.stream().mapToInt(ItemStack::getCount).sum();
                 int dropped = wrap.openForCare();
                 GameplayLog.event(entity, "family", "leaf swaddle opened child={} soil={} droppedWaste={} discardedLeaves={} bladder={} constipated={}",
                         target, soiled, dropped, soiled > 0 ? leafCount : 0, life.bladder(), life.constipated());
@@ -510,7 +516,7 @@ public final class LeafSwaddle {
 
     public CompoundTag save() {
         var tag = new CompoundTag();
-        tag.putBoolean("Worn", worn); tag.putBoolean("Open", open); tag.putInt("Soil", soil); tag.putInt("WearClock", wearClock); tag.putInt("OpenClock", openClock);
+        tag.putBoolean("Worn", worn); tag.putBoolean("Open", open); tag.putDouble("Soil", soil); tag.putInt("WearClock", wearClock); tag.putInt("OpenClock", openClock);
         if (openAt != null) { tag.putDouble("OpenX", openAt.x); tag.putDouble("OpenY", openAt.y); tag.putDouble("OpenZ", openAt.z); }
         tag.put("Material", stacks(material));
         if (wrapper != null) tag.putUUID("Wrapper", wrapper);
@@ -520,7 +526,7 @@ public final class LeafSwaddle {
 
     public void load(CompoundTag tag) {
         stop("load");
-        worn = tag.getBoolean("Worn"); open = worn && tag.getBoolean("Open"); soil = worn ? Math.clamp(tag.getInt("Soil"), 0, MAX_SOIL) : 0;
+        worn = tag.getBoolean("Worn"); open = worn && tag.getBoolean("Open"); soil = worn ? Math.clamp(tag.getDouble("Soil"), 0, MAX_SOIL) : 0;
         wearClock = Math.max(0, tag.getInt("WearClock")); openClock = Math.clamp(tag.getInt("OpenClock"), 0, OPEN_LIMIT);
         openAt = open && tag.contains("OpenX") ? new Vec3(tag.getDouble("OpenX"), tag.getDouble("OpenY"), tag.getDouble("OpenZ")) : null;
         read(tag.getList("Material", Tag.TAG_COMPOUND), material);

@@ -4,6 +4,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.mojang.blaze3d.vertex.PoseStack;
 import io.github.longshou.mcyukkuri.MCYukkuri;
+import io.github.longshou.mcyukkuri.body.DetachedItems;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriView;
 import io.github.longshou.mcyukkuri.family.FamilyFeedingContact;
@@ -124,7 +125,9 @@ final class ToiletPresentation {
         if (stool == null) return;
         var at = stool.bottom();
         // Never nothing: a small first knob at the opening that swells to the full dropping.
-        float scale = HouseScrapRenderer.WASTE_GROUND * actor.profile().modelScale() * (float) (EMERGING + (1 - EMERGING) * stool.grown());
+        float bodyScale=actor.growthScale()*actor.getScale();
+        float scale = WastePresentation.scale(DetachedItems.wasteVolume(bodyScale*actor.profile().modelScale())) / bodyScale
+                * (float) (EMERGING + (1 - EMERGING) * stool.grown());
         pose.pushPose();
         pose.translate(at.x, at.y, at.z);
         pose.scale(scale, scale, scale);

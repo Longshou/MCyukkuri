@@ -25,9 +25,7 @@ import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
 /**
- * Droppings on the ground (嗯嗯): a non-solid heap that bodies walk through, holding up to {@link Poops#CAPACITY} real
- * portions. {@link #TIER} (1 to 4) follows the count and picks one of four block models (yukkuri_poop_tier1..4, made by
- * standards/yukkuri-library/drafts/care-props/poop_block.py); each outline encloses its model and the heap has no collision.
+ * Non-solid droppings. Tier is a volume readout; the block entity renders the shared stool mesh continuously.
  */
 public final class PoopBlock extends Block implements EntityBlock {
     public static final IntegerProperty TIER = IntegerProperty.create("tier", 1, Poops.TIERS);
@@ -39,7 +37,7 @@ public final class PoopBlock extends Block implements EntityBlock {
     }
     @Override protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) { builder.add(TIER); }
     @Override public BlockEntity newBlockEntity(BlockPos pos, BlockState state) { return new PoopBlockEntity(pos, state); }
-    @Override protected RenderShape getRenderShape(BlockState state) { return RenderShape.MODEL; }
+    @Override protected RenderShape getRenderShape(BlockState state) { return RenderShape.ENTITYBLOCK_ANIMATED; }
     @Override protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) { return OUTLINES[state.getValue(TIER) - 1]; }
     @Override protected VoxelShape getCollisionShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) { return Shapes.empty(); }
     @Override protected boolean isPathfindable(BlockState state, PathComputationType type) { return type == PathComputationType.LAND; }

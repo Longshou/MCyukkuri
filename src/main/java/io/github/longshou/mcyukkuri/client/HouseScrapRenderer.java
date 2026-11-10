@@ -3,6 +3,7 @@ package io.github.longshou.mcyukkuri.client;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import io.github.longshou.mcyukkuri.house.HouseEggGeometry;
+import io.github.longshou.mcyukkuri.body.DetachedItems;
 import io.github.longshou.mcyukkuri.life.Facilities;
 import io.github.longshou.mcyukkuri.registry.ModItems;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -18,8 +19,6 @@ import net.minecraft.world.item.component.CustomData;
 /** A food scrap is a ground-level crumb at the same size as a house lock grip. */
 public final class HouseScrapRenderer extends ItemEntityRenderer {
     static final float HELD_SCALE=.18f;
-    /** A dropping on the ground is drawn at this share of its prop (the vanilla ground display scale it had as a bobbing item). */
-    static final float WASTE_GROUND=.5f;
     static String smallProp(ItemStack item){
         if(item.is(ModItems.NEST_LINT.get()))return "nest_lint";
         if(!item.is(ModItems.HOUSE_EGG.get()))return null;
@@ -47,11 +46,8 @@ public final class HouseScrapRenderer extends ItemEntityRenderer {
             // A loose dropping lies where it really is, on its own bottom (the stool it continues: ToiletContact.Stool.bottom), at the
             // ground size of its source body, turned as it left the body; it never hovers, bobs or spins like a vanilla item, so leaving
             // the body it does not jump (ToiletPresentation.renderStool draws the same prop while it comes out).
-            var data=entity.getItem().getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();
-            float scale=WASTE_GROUND*Math.clamp(data.contains("SourceScale")?data.getFloat("SourceScale"):1,.05f,4f);
-            pose.pushPose();pose.mulPose(Axis.YP.rotationDegrees(-entity.getYRot()));pose.scale(scale,scale,scale);
-            PropModels.center("yukkuri_waste",pose,true);
-            PropModels.render("yukkuri_waste",8,pose,buffers,light,OverlayTexture.NO_OVERLAY);
+            pose.pushPose();pose.mulPose(Axis.YP.rotationDegrees(-entity.getYRot()));
+            WastePresentation.render(DetachedItems.volume(entity.getItem()),pose,buffers,light,OverlayTexture.NO_OVERLAY);
             pose.popPose();return;
         }
         if(!entity.getItem().is(ModItems.FOOD_SCRAP.get())){super.render(entity,yaw,partialTick,pose,buffers,light);return;}

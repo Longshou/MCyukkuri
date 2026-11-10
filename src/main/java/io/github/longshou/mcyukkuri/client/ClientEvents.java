@@ -30,6 +30,7 @@ public final class ClientEvents {
         event.registerEntityRenderer(ModEntities.MATERIAL_DROP.get(),MaterialDropRenderer::new);
         event.registerEntityRenderer(ModEntities.REMAINS.get(),RemainsRenderer::new);
         event.registerBlockEntityRenderer(ModBlocks.CARE.get(), CareRenderer::new);
+        event.registerBlockEntityRenderer(ModBlocks.POOP_ENTITY.get(), PoopRenderer::new);
         event.registerBlockEntityRenderer(Playgrounds.ENTITY.get(),PlaygroundRenderer::new);
         event.registerBlockEntityRenderer(ModBlocks.SHELTER_ENTITY.get(), ShelterRenderer::new);
         event.registerBlockEntityRenderer(ModBlocks.FORAGE_PILE_ENTITY.get(), ForagePileRenderer::new);

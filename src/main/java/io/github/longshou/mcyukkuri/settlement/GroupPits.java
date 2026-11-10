@@ -1,4 +1,5 @@
 package io.github.longshou.mcyukkuri.settlement;
+import io.github.longshou.mcyukkuri.body.DetachedItems;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.life.Poops;
@@ -114,7 +115,7 @@ public final class GroupPits {
         var nearest = cells.stream().min(Comparator.comparingDouble(c -> c.distSqr(here))).orElseThrow();
         if (nearest.distSqr(here) > REACH * REACH) { refuse(entity, "too_far", nearest); return null; }
         var ordered = new ArrayList<BlockPos>(cells);
-        ordered.sort(Comparator.<BlockPos>comparingInt(c -> Math.min(waste(level, c), Poops.CAPACITY)).thenComparingDouble(c -> c.distSqr(here)));
+        ordered.sort(Comparator.<BlockPos>comparingDouble(c -> Math.min(waste(level, c), Poops.CAPACITY)).thenComparingDouble(c -> c.distSqr(here)));
         // A slave lives in the pit: it lets go where it stands, on the nearest cell, instead of climbing out to the bank.
         boolean resident = entity.settlement().duties().pit().slave();
         if (resident) ordered.sort(Comparator.comparingDouble(c -> c.distSqr(here)));
@@ -185,9 +186,9 @@ public final class GroupPits {
     }
 
     /** Portions lying on the cell: placed ones and any loose item (a fallback drop) in it. */
-    public static int waste(ServerLevel level, BlockPos cell) {
+    public static double waste(ServerLevel level, BlockPos cell) {
         return Poops.portions(level, cell) + level.getEntitiesOfClass(ItemEntity.class, new AABB(Vec3.atBottomCenterOf(cell), Vec3.atBottomCenterOf(cell)).inflate(.5, .6, .5),
-                item -> item.isAlive() && item.getItem().is(ModItems.WASTE.get())).size();
+                item -> item.isAlive() && item.getItem().is(ModItems.WASTE.get())).stream().mapToDouble(item -> DetachedItems.volume(item.getItem())).sum();
     }
     private GroupPits() {}
 }

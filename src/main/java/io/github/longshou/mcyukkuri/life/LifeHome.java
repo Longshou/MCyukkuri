@@ -1,4 +1,5 @@
 package io.github.longshou.mcyukkuri.life;
+import io.github.longshou.mcyukkuri.body.DetachedItems;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -211,7 +212,7 @@ final class LifeHome {
         BlockPos best = null; double distance = Double.MAX_VALUE;
         for (BlockPos scan : BlockPos.betweenClosed(o.entity().blockPosition().offset(-TravelRange.search(o.entity(),8),-2,-TravelRange.search(o.entity(),8)), o.entity().blockPosition().offset(TravelRange.search(o.entity(),8),2,TravelRange.search(o.entity(),8)))) {
             if (!TravelRange.babyDestination(o.entity(),scan) || !o.level().hasChunkAt(scan) || !(o.level().getBlockEntity(scan) instanceof CareBlockEntity care) || care.kind() != kind) continue;
-            if (requireFood && !care.hasFood(o::acceptsFood) || kind == CareBlock.Kind.TOILET && care.waste() >= care.capacity()
+            if (requireFood && !care.hasFood(o::acceptsFood) || kind == CareBlock.Kind.TOILET && !care.acceptsWaste(DetachedItems.waste(o.entity()))
                     || kind == CareBlock.Kind.NEST && !care.canClaim(o.entity())) continue;
             double candidate = o.entity().distanceToSqr(Vec3.atCenterOf(scan));
             if (candidate < distance) {

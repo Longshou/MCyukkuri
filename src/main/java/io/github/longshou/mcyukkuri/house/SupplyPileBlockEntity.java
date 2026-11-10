@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.house;
 
 import io.github.longshou.mcyukkuri.registry.ModBlocks;
+import io.github.longshou.mcyukkuri.body.DetachedItems;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -30,18 +31,20 @@ public final class SupplyPileBlockEntity extends BlockEntity {
     public boolean crumb(){return SupplyPiles.crumb(contents);}
     public Component displayName(){return contents.getHoverName();}
     public int count(){return contents.getCount();}
+    public double volume(){return SupplyPiles.waste(contents)?DetachedItems.volume(contents):count();}
     public Vec3 pickupPosition(){return pickup;}
     public boolean accepts(ItemStack stack){return SupplyPiles.material(stack)&&(contents.isEmpty()||ItemStack.isSameItemSameComponents(contents,stack));}
     /** Returns the amount stored; the caller owns and debits the source stack. */
     public int deposit(ItemStack stack,int limit){
         if(level==null||level.isClientSide||isRemoved()||level.getBlockEntity(worldPosition)!=this||!accepts(stack))return 0;
-        int amount=Math.min(Math.min(stack.getCount(),Math.max(0,limit)),CAPACITY-count());
+        double unit=SupplyPiles.waste(stack)?DetachedItems.volume(stack)/stack.getCount():1;
+        int amount=Math.min(Math.min(stack.getCount(),Math.max(0,limit)),(int)Math.floor((CAPACITY-volume())/unit));
         if(amount==0)return 0;
         if(contents.isEmpty())contents=stack.copyWithCount(amount);else contents.grow(amount);
         touched=level.getGameTime();changed();return amount;
     }
     public ItemStack takeOne(){return take(1);}
-    public ItemStack takeAll(){return take(CAPACITY);}
+    public ItemStack takeAll(){return take(count());}
     private ItemStack take(int amount){
         if(level==null||level.isClientSide||isRemoved())return ItemStack.EMPTY;
         var taken=contents.split(amount);
@@ -63,7 +66,6 @@ public final class SupplyPileBlockEntity extends BlockEntity {
     @Override protected void loadAdditional(CompoundTag tag,HolderLookup.Provider registries){
         super.loadAdditional(tag,registries);contents=ItemStack.parseOptional(registries,tag.getCompound("Contents"));
         if(!SupplyPiles.material(contents))contents=ItemStack.EMPTY;
-        else contents.setCount(Math.min(CAPACITY,contents.getCount()));
         touched=tag.getLong("Touched");
     }
     @Override public CompoundTag getUpdateTag(HolderLookup.Provider registries){return saveWithoutMetadata(registries);}

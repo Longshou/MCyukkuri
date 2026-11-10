@@ -1,4 +1,5 @@
 package io.github.longshou.mcyukkuri.life;
+import io.github.longshou.mcyukkuri.body.DetachedItems;
 
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.body.BodyEffects;
@@ -225,7 +226,7 @@ final class LifeMeal {
                 ItemStack swallowed=mouth.copy();
                 float nutritionBefore=o.nutrition();
                 float gain = filling?FillingResource.nutrition(mouth):scrap?10:food == null ? 20 : Math.clamp(food.nutrition() * 5, 10, 35);
-                if(waste)gain=PIT_MEAL_NUTRITION;
+                if(waste)gain=PIT_MEAL_NUTRITION*(float)DetachedItems.volume(mouth);
                 else if(mouth.is(ModItems.GRAIN_BUDGET.get()))gain=12;
                 else if(mouth.is(ModItems.GRAIN_PREMIUM.get()))gain=30;
                 if(sweet)gain=Sweets.nutrition(mouth);

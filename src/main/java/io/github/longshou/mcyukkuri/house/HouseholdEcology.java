@@ -1,4 +1,5 @@
 package io.github.longshou.mcyukkuri.house;
+import io.github.longshou.mcyukkuri.body.DetachedItems;
 
 import io.github.longshou.mcyukkuri.random.ModRandom;
 
@@ -91,7 +92,7 @@ public final class HouseholdEcology {
         final ArrayDeque<UUID> villagers=new ArrayDeque<>();
         int playerCursor;
     }
-    public record Stock(int piles,int supplies,int lint,int crumbs) {}
+    public record Stock(int piles,double supplies,int lint,int crumbs) {}
     public record Snapshot(HouseholdEcologyData.State activity,Stock stock,boolean suppressed,boolean recentlyActive) {}
     /** A hidden corner suitable for a home: the cell itself and the open side from which it is entered. */
     public record Den(BlockPos site,Direction entrance) {}
@@ -344,10 +345,11 @@ public final class HouseholdEcology {
     private static int capacity(ServerLevel level,BlockPos pos,SupplyPileView view,ItemStack kind){
         var stock=view.region(pos);var column=view.column(pos);boolean existing=level.getBlockEntity(pos) instanceof SupplyPileBlockEntity;
         if(stock.piles()>MAX_PILES||stock.piles()==MAX_PILES&&!existing||column.piles()>MAX_CHUNK_PILES||column.piles()==MAX_CHUNK_PILES&&!existing)return 0;
-        int room=Math.min(MAX_SUPPLIES-stock.supplies(),MAX_CHUNK_SUPPLIES-column.supplies());
+        double room=Math.min(MAX_SUPPLIES-stock.supplies(),MAX_CHUNK_SUPPLIES-column.supplies());
         if(SupplyPiles.lint(kind))room=Math.min(room,MAX_LINT-stock.lint());
         else if(SupplyPiles.crumb(kind))room=Math.min(room,MAX_CRUMBS-stock.crumbs());
-        return Math.max(0,room);
+        double unit=SupplyPiles.waste(kind)?DetachedItems.volume(kind)/kind.getCount():1;
+        return Math.max(0,(int)Math.floor(room/unit));
     }
 
     // ------------------------------------------------------------------------------------------------ moving in
@@ -547,9 +549,9 @@ public final class HouseholdEcology {
     public static List<String> report(ServerLevel level,BlockPos at){
         var lines=new ArrayList<String>();var state=HouseholdEcologyData.get(level).state(at);
         var view=new SupplyPileView(level);var stock=view.region(at);
-        int lint=0,crumb=0,waste=0;
+        int lint=0,crumb=0;double waste=0;
         for(var pile:view.nearby(at,12,2)){
-            if(pile.lint())lint+=pile.count();else if(pile.crumb())crumb+=pile.count();else waste+=pile.count();
+            if(pile.lint())lint+=pile.count();else if(pile.crumb())crumb+=pile.count();else waste+=pile.volume();
         }
         lines.add("region piles="+stock.piles()+" units="+stock.supplies()+"; within 12 blocks lint="+lint+" crumbs="+crumb+" waste="+waste);
         lines.add("activity dust="+state.dustTicks()+"/"+DUST_TICKS+" settle="+state.settlementTicks()+"/"+SETTLEMENT_TICKS

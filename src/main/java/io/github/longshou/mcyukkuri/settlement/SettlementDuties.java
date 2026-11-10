@@ -158,7 +158,7 @@ public final class SettlementDuties {
                 .filter(pos -> entity.life().dryStand(pos) && entity.life().reachable(pos, false)).findFirst().orElse(null);
         if (heap != null) {
             task = Task.SCOOP; elapsed = 0;
-            GameplayLog.event(entity, "settlement", "cleanup start source=heap at={} portions={} dump={} assigner={}", heap,
+            GameplayLog.event(entity, "settlement", "cleanup start source=heap at={} volume={} dump={} assigner={}", heap,
                     Poops.portions(level(), heap), destination, assigner.getUUID());
             return true;
         }
@@ -270,8 +270,8 @@ public final class SettlementDuties {
             var cells = GroupPits.cells(level(), group);
             var placed = Poops.place(level(), entity.blockPosition(), carrying.copy(), cells.isEmpty() ? null : cell -> GroupPits.inCells(cells, cell));
             if (placed != null) {
-                GameplayLog.event(entity, "settlement", "cleanup placed at={} tier={} -> {} portions={} overflow={}", placed.at(),
-                        placed.tierBefore(), placed.tierAfter(), placed.after(), placed.overflow());
+                GameplayLog.event(entity, "settlement", "cleanup placed at={} tier={} -> {} volume={} -> {} overflow={}", placed.at(),
+                        placed.tierBefore(), placed.tierAfter(), placed.before(), placed.after(), placed.overflow());
                 carrying = ItemStack.EMPTY; return true;
             }
         }

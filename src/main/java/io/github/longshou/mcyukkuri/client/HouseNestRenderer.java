@@ -31,8 +31,8 @@ public final class HouseNestRenderer implements BlockEntityRenderer<HouseNestBlo
         // One visible cluster per four stored portions, never an invented meal at an empty nest.
         for(int i=0;i<(nest.food()+3)/4;i++)
             draw(new ItemStack(ModItems.FOOD_SCRAP.get()),.24+(i%3)*.065,.045+(i/3)*.012,.24+(i/3)*.065,.18f,nest,pose,buffers,light,overlay);
-        for(int i=0;i<(nest.dirt()+2)/3;i++)
-            draw(new ItemStack(ModItems.WASTE.get()),.78+(i%2)*.045,.035,.27+(i/2)*.06,.16f,nest,pose,buffers,light,overlay);
+        if(nest.dirt()>0){pose.pushPose();pose.translate(.78,.035,.27);
+            WastePresentation.render(nest.dirt(),pose,buffers,light,overlay);pose.popPose();}
         double clock=nest.getLevel()==null?0:nest.getLevel().getGameTime()+(double)partial;
         boolean incubating=nest.built()&&nest.careTicks()>0&&nest.disturbedTicks()==0&&nest.food()>0&&nest.dirt()<6;
         for(int slot=0;slot<4;slot++) {
