@@ -5,7 +5,6 @@ import io.github.longshou.mcyukkuri.entity.RemainsEntity;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.headwear.Recognition;
-import io.github.longshou.mcyukkuri.human.Custody;
 import io.github.longshou.mcyukkuri.mind.EmotionEvent;
 import io.github.longshou.mcyukkuri.social.Bonds;
 import java.util.Comparator;
@@ -192,7 +191,7 @@ public final class LeaderSuccession {
     private static boolean strictAvailable(ServerLevel level, SettlementData data, SettlementData.Group group, YukkuriEntity member,
                                            BlockPos point, long now) {
         return coreEligible(level, data, group, member) && atMeeting(member, group, point, now)
-                && Custody.view(member).wild() && (member.life().home() == null || member.life().naturalHome())
+                && member.status().identity().free() && (member.life().home() == null || member.life().naturalHome())
                 && !member.isPanicking() && !member.isCommandPlaying() && !member.operations().active()
                 && !member.isPassenger() && !member.isLeashed() && !member.isInWaterOrBubble() && !member.isOnFire()
                 && !member.life().hasUrgentNeed() && Behaviors.IDLE.equals(member.life().activity()) && !member.social().active()

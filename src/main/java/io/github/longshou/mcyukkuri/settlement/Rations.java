@@ -183,7 +183,7 @@ public final class Rations {
         boolean urgent = present.stream().anyMatch(m -> m.life().nutrition() < 30 && mouth(m, group, level.getGameTime()).weight() > 0);
         if (!urgent && (time < START || time >= END)) return;
         var helper = present.stream().filter(m -> m.family().adult() && SettlementSociety.accepted(m) && available(m)
-                        && SettlementEvents.unowned(m) && !m.profile().dangerToYukkuri() && !m.profile().houseBody()
+                        && m.status().identity().wild() && !m.profile().dangerToYukkuri()
                         && Temperament.protects(m.life().personality()) && !Levy.greedy(m)
                         && m.distanceToSqr(Vec3.atBottomCenterOf(group.center)) <= 16 * 16)
                 .min(Comparator.comparingInt((YukkuriEntity m) -> -m.life().personality().friendliness())

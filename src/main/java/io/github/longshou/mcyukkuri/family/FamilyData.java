@@ -8,6 +8,7 @@ import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.entity.YukkuriVariant;
 import io.github.longshou.mcyukkuri.human.Custody;
+import io.github.longshou.mcyukkuri.status.Identity;
 import io.github.longshou.mcyukkuri.human.HumanCommerce;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.motor.Motor;
@@ -382,7 +383,7 @@ public final class FamilyData extends SavedData {
         return shelter != null && shelter.kind() == ShelterBlock.Kind.BURROW
                 && !mother.profile().houseBody() && !father.profile().houseBody()
                 && !mother.profile().dangerToYukkuri() && !father.profile().dangerToYukkuri()
-                && Custody.view(mother).unassigned() && Custody.view(father).unassigned();
+                && mother.status().identity().free() && father.status().identity().free();
     }
     /** The checked facts of a prospective conception; refusal is null when every gate passes. */
     private record Plan(String refusal,long seed,int count,ShelterBlockEntity shelter,boolean joinMother,float cost){}
@@ -634,6 +635,8 @@ public final class FamilyData extends SavedData {
         YukkuriEntity actualFather=brood.father!=null&&level.getEntity(brood.father) instanceof YukkuriEntity parent?parent:null;
         if(actualMother!=null)HumanCommerce.inheritFactoryChild(entity,actualMother);
         HumanCommerce.inheritPet(entity,actualMother,actualFather);
+        if ((actualMother != null && actualMother.status().identity() == Identity.STRAY)
+                || (actualFather != null && actualFather.status().identity() == Identity.STRAY)) entity.pet().markTownRoots();
         for(var parent:new YukkuriEntity[]{actualMother,actualFather})if(parent!=null){
             var custody=Custody.view(parent);
             if(custody.owner()!=null&&level.getServer().getPlayerList().getPlayer(custody.owner()) instanceof ServerPlayer owner)

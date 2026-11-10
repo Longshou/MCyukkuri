@@ -7,7 +7,6 @@ import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.life.YukkuriConfig;
 import io.github.longshou.mcyukkuri.life.EcologyMovement;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
-import io.github.longshou.mcyukkuri.status.Identity;
 import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.UUID;
@@ -71,8 +70,7 @@ public final class SelfOffering extends Goal {
     public void force() { forced = true; scanWait = 0; }
 
     private boolean free() {
-        Identity id = entity.status().identity();
-        return id == Identity.WILD || id == Identity.STRAY || id == Identity.SETTLER;
+        return entity.status().identity().free();
     }
     private boolean eligible() {
         return entity.isAlive() && !entity.isNoAi() && !entity.isPanicking() && !entity.isCommandPlaying() && free() && entity.family().adult()

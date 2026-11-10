@@ -84,23 +84,23 @@ public final class BadgeArcs {
         if (o.distanceToSqr(s) > 144 || !o.hasLineOfSight(s)) return "not_in_sight";
         switch (arc) {
             case BEG_BITE -> {
-                if (o.pet().owner() != null) return "observer_owned";
+                if (!o.status().identity().free()) return "observer_owned";
                 if (!eating(s)) return "subject_not_eating";
                 if (!o.life().canEat() || o.life().nutrition() >= 75) return "observer_not_hungry";
             }
             case PLEA -> {
-                if (o.pet().owner() != null) return "observer_owned";
+                if (!o.status().identity().free()) return "observer_owned";
                 if (player == null || !WildEvents.playerNear(o, player)) return "no_player_near";
             }
             case BOAST -> { if (!o.pet().isPet()) return "observer_not_pet"; }
             case HOME_CLAIM -> {
                 if (s.life().home() == null || s.life().naturalHome()) return "subject_has_no_home";
-                if (o.pet().owner() != null) return "observer_owned";
+                if (!o.status().identity().free()) return "observer_owned";
             }
             case SNATCH -> {
                 if (!BadgeSocial.snatchEnabled()) return "snatch_disabled";
                 if (!s.life().hasAccessory() || s.isVehicle()) return "subject_has_no_accessory";
-                if (o.pet().owner() != null) return "observer_owned";
+                if (!o.status().identity().free()) return "observer_owned";
             }
             default -> { }
         }

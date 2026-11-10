@@ -92,7 +92,7 @@ public final class ExamSession implements ExamContext {
         if (y == null || !y.isAlive() || y.level() != p.level() || y.distanceToSqr(p) > 64) return "far";
         if (!examiner.level().isDay()) return "night";
         if (active(examiner)) return "busy";
-        var pet = y.pet(); boolean mine = pet.owned(p);
+        var pet = y.pet(); boolean mine = pet.isPet() && pet.owned(p);
         if (!mine) {
             if (pet.owner() != null || !WildEvents.canAdopt(y, p)) return "not_owned";
             if (type != SIMPLE) return "wild_simple_only";

@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.social;
 
 import io.github.longshou.mcyukkuri.status.GameplayLog;
+import io.github.longshou.mcyukkuri.status.Identity;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.event.WildCards;
@@ -332,9 +333,15 @@ public final class YukkuriSocial implements MotorOwner {
             return;
         }
         if ((task == Task.PLAYER || task == Task.PEER) && retreat) {
-            if (!greeted) { greeted = true;
-                    if (personality().fear(target.getUUID()) > BondLevels.FEAR_AT_15) entity.mind().felt(EmotionEvent.FRIGHTENED);
-                    entity.showReaction("surprise", personality().fear(target.getUUID()) > BondLevels.FEAR_AT_15 ? "afraid" : "shy", 80); }
+            if (!greeted) {
+                greeted = true;
+                var identity = entity.status().identity();
+                boolean afraid = personality().fear(target.getUUID()) > BondLevels.FEAR_AT_15 || task == Task.PLAYER && identity.wild();
+                if (afraid) entity.mind().felt(EmotionEvent.FRIGHTENED);
+                entity.showReaction("surprise", afraid ? "afraid" : "shy", 80);
+                if (task == Task.PLAYER) GameplayLog.limited(entity, "social", "human_retreat." + target.getUUID(), 200,
+                        "human retreat identity={} player={} afraid={}", identity.id(), target.getUUID(), afraid);
+            }
             if (elapsed % 10 == 1) {
                 Vec3 away = DefaultRandomPos.getPosAway(entity, 5, 2, target.position());
                 if (away != null) entity.life().navigate(BlockPos.containing(away), 1.1, false);
@@ -361,7 +368,15 @@ public final class YukkuriSocial implements MotorOwner {
                 && entity.dailyLife().nuzzleOnArrival(peer)) return;
         if (!greeted) {
             greeted = true;
-            if (task == Task.PLAYER) entity.showReaction("happy", personality().trust(target.getUUID()) >= BondLevels.TRUST_AT_20 ? "caregiver" : "hello", 80);
+            if (task == Task.PLAYER) {
+                var identity = entity.status().identity();
+                boolean begging = identity == Identity.STRAY && entity.life().nutrition() < 50;
+                boolean keeper = identity.companion() && entity.pet().ownedBy(target.getUUID());
+                String line = begging ? "hungry" : keeper || personality().trust(target.getUUID()) >= BondLevels.TRUST_AT_20 ? "caregiver" : "hello";
+                entity.showReaction(begging ? "teary" : "happy", line, 80);
+                GameplayLog.limited(entity, "social", "human_greeting." + target.getUUID(), 200,
+                        "human greeting identity={} player={} line={}", identity.id(), target.getUUID(), line);
+            }
             else if (task == Task.PEER && target instanceof YukkuriEntity peer) {
                 if (entity.life().canRecognize(peer)) {
                     YukkuriWorldData relations = YukkuriWorldData.get((ServerLevel)entity.level());
@@ -427,6 +442,7 @@ public final class YukkuriSocial implements MotorOwner {
         noteContact(peer);
         GameplayLog.limited(entity, "social", "answer." + peer.getUUID(), 200,
                 "greet answer from={} to={} why={} answer={}", entity.getUUID(), peer.getUUID(), why, clip);
+        entity.settlement().society().welcome(peer);
     }
     private void logGreet(YukkuriEntity other, String why) {
         GameplayLog.limited(entity, "social", "greet." + other.getUUID(), 200, "greet from={} to={} why={}", entity.getUUID(), other.getUUID(), why);
@@ -500,8 +516,12 @@ public final class YukkuriSocial implements MotorOwner {
     private void chooseApproach(Entity other) {
         protectContact(other);
         var fear = personality().fearBand(other.getUUID());
-        cautious = personality().trust(other.getUUID()) > 0 && fear != YukkuriPersonality.FearBand.NORMAL;
-        retreat = personality().trust(other.getUUID()) <= 0 && fear == YukkuriPersonality.FearBand.AFRAID;
+        int trust = personality().trust(other.getUUID());
+        var identity = entity.status().identity();
+        boolean unknownHuman = task == Task.PLAYER && trust <= 0;
+        cautious = trust > 0 && fear != YukkuriPersonality.FearBand.NORMAL || unknownHuman && identity == Identity.STRAY;
+        retreat = trust <= 0 && fear == YukkuriPersonality.FearBand.AFRAID || unknownHuman && identity.wild();
+        if (retreat) cautious = false;
         observedDistance = entity.distanceTo(other);
     }
     public void stop() {

@@ -104,7 +104,7 @@ public final class Marks {
         float hygiene = entity.life().hygiene();
         if (lastHygiene >= 0 && hygiene - lastHygiene >= 10 && grime > 0) { grime--; soil = 0; }   // a real wash
         lastHygiene = hygiene;
-        if (identity == Identity.STRAY && grime < 2 && hygiene < 80 && ++soil >= 360) { grime++; soil = 0; }  // ~6 min wandering
+        if (identity.free() && entity.habitat().vagrant() && grime < 2 && hygiene < 80 && ++soil >= 360) { grime++; soil = 0; }  // ~6 min wandering
         if (Sky.at(entity.level(), entity.blockPosition()).wet()) {
             if (grime > 0 && ++rain >= 40) { grime--; rain = 0; }  // ~40 s in the rain
         } else rain = 0;

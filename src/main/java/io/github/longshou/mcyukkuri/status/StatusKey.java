@@ -300,7 +300,7 @@ public enum StatusKey {
     KOTATSU("identity", "kotatsu", 0, y -> RareForms.winterActive(y) ? "winter_active"
             : RareForms.summerDormant(y) ? "summer_dormant"
             : RareForms.kotatsu(y) ? "wearing" : "none", null),
-    KIND("identity", "kind", 0, y -> YukkuriStatus.identity(y).name().toLowerCase(Locale.ROOT), null),
+    KIND("identity", "kind", 0, y -> YukkuriStatus.identity(y).id(), null),
     PREDATOR("identity", "predator", 0, y -> y.profile().dangerToYukkuri(), null),
     OWNER("identity", "owner", 0, y -> uuid(y.pet().owner()), null),
     PET_GRADE("identity", "pet_grade", 0, y -> y.pet().effectiveGrade().name().toLowerCase(Locale.ROOT), null),

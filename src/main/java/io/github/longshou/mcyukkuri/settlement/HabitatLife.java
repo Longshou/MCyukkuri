@@ -8,7 +8,8 @@ import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.world.SearchBudget.Result;
 import io.github.longshou.mcyukkuri.world.SearchBudget.Purpose;
 import io.github.longshou.mcyukkuri.world.SearchBudget.Lease;
-import io.github.longshou.mcyukkuri.human.Custody;
+import io.github.longshou.mcyukkuri.status.Identity;
+import io.github.longshou.mcyukkuri.status.YukkuriStatus;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.FamilyData;
@@ -113,9 +114,8 @@ public final class HabitatLife {
     public BlockPos homeStand() { var value=shelter();return value!=null&&value.usable(entity)?value.bed(entity.getUUID()):null; }
     /** Wild individuals live in recognised homes; pets, house yukkuri, predators, hat-boat families and raiding bands have other arrangements. */
     public boolean wildLiver() {
-        var human = Custody.view(entity);
         return !entity.profile().houseBody()&&!entity.profile().dangerToYukkuri()&&!entity.profile().aquatic()&&!roaming()
-                &&human.wild();
+                &&entity.status().identity().free();
     }
     boolean grownEnough() { return entity.family().adult()||entity.independence().independent()||entity.childhood().canLiveIndependently(); }
     /** HOUSED: belongs to a recognised land home. VAGRANT: a grown wild individual with none
@@ -167,6 +167,12 @@ public final class HabitatLife {
         if(old!=value||!owned)GameplayLog.event(entity,"habitat","home chosen old={} home={} bed={}",
                 old==null?null:old.getBlockPos(),value.getBlockPos(),bed);
         homes.homeChosen();
+        if (entity.status().identity() == Identity.STRAY && grownEnough() && value.kind() == ShelterBlock.Kind.BURROW
+                && !level().isCloseToVillage(value.getBlockPos(), 1)
+                && (entity.life().hasAccessory() || entity.pet().visibleEffective().id() > 0)) {
+            entity.pet().leaveTownLife();
+            YukkuriStatus.identityChanged(entity, Identity.STRAY, "wilderness_home");
+        }
         entity.independence().settled(value);return true;
     }
     private boolean homeReachable(BlockPos bed) { SearchBudget.path(entity);return entity.life().reachable(bed,false); }

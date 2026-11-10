@@ -116,7 +116,7 @@ public final class BadgeSocial {
         var viewer = level.getNearestPlayer(subject, AUDIENCE_RADIUS);
         for (var o : level.getEntitiesOfClass(YukkuriEntity.class, subject.getBoundingBox().inflate(SCAN_RADIUS, 3, SCAN_RADIUS), peer -> peer != subject && peer.isAlive()
                 && !peer.isRemoved() && !peer.isPassenger() && !peer.profile().houseBody() && !peer.profile().dangerToYukkuri() && !peer.life().isSleeping()
-                && peer.pet().owner() == null && !peer.pet().isPet() && peer.life().nutrition() >= 30 && peer.life().nutrition() < 50)) {
+                && peer.status().identity().free() && peer.life().nutrition() >= 30 && peer.life().nutrition() < 50)) {
             if (!o.pet().calm() || WildEvents.reserved(o) || !o.hasLineOfSight(subject) || !inFront(o, subject)) continue;
             sighted(level, o, subject, viewer, List.of(subject), now, false, Arc.BEG_BITE);
             if (subject.life().mealHeld()) return; // one beggar at a time
@@ -166,7 +166,7 @@ public final class BadgeSocial {
     }
 
     private static YukkuriEntity extraFor(Arc arc, YukkuriEntity o, YukkuriEntity s, List<YukkuriEntity> seen) {
-        if (arc == Arc.GLANCE && !o.family().adult()) return seen.stream().filter(p -> p != s && WildEvents.childOf(p, o) && p.pet().owner() == null).findFirst().orElse(null);
+        if (arc == Arc.GLANCE && !o.family().adult()) return seen.stream().filter(p -> p != s && WildEvents.childOf(p, o) && p.status().identity().free()).findFirst().orElse(null);
         if (arc == Arc.ELDER_WARN) return seen.stream().filter(p -> p != s && WildEvents.childOf(o, p)).findFirst().orElse(null);
         return null;
     }
@@ -182,12 +182,12 @@ public final class BadgeSocial {
     }
 
     static BadgeArcPolicy.Subject subject(ServerLevel level, YukkuriEntity o, YukkuriEntity s, Player viewer) {
-        boolean pet = s.pet().owner() != null;
+        boolean pet = s.pet().isPet();
         boolean eating = s.life().mealTicks() > 0 && s.life().mealTicks() < 36 && !s.life().mouth().isEmpty();
         boolean ownerNear = ownerWithin(level, s, 12) != null;
         boolean ownerOnScene = ownerWithin(level, s, 24) != null;
         boolean trusted = false;
-        if (o.pet().owner() == null && viewer != null && WildEvents.playerNear(o, viewer) && viewer.distanceToSqr(o) <= 100) trusted = WildEvents.canAdopt(o, viewer);
+        if (viewer != null && WildEvents.playerNear(o, viewer) && viewer.distanceToSqr(o) <= 100) trusted = WildEvents.canAdopt(o, viewer);
         var home = s.life().home();
         boolean homeNear = pet && home != null && !s.life().naturalHome() && home.dimension().equals(level.dimension()) && home.pos().distSqr(o.blockPosition()) <= 36;
         return new BadgeArcPolicy.Subject(s.pet().visibleEffective().id(), pet, eating, ownerNear, trusted, homeNear, pet && !ownerNear && ownerOnScene,

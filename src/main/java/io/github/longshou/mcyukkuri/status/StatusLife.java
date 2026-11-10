@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.status;
 
+import io.github.longshou.mcyukkuri.entity.component.SyncSlot;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.entity.SpeciesProfile.Ecology;
 import java.util.EnumMap;
@@ -7,6 +8,7 @@ import java.util.Map;
 import net.minecraft.core.particles.DustParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.damagesource.DamageSource;
 import org.joml.Vector3f;
@@ -17,6 +19,7 @@ import org.joml.Vector3f;
  * appearance data current. The numbers themselves stay in the components the register reads from.
  */
 public final class StatusLife {
+    public static final SyncSlot<String> IDENTITY = new SyncSlot<>(EntityDataSerializers.STRING, () -> "");
     private static final Vector3f ORANGE = new Vector3f(1f, .55f, .1f);
     /** A regular jump reaches about 1.25 blocks and the trampoline bounce about 1.60. */
     private static final double AIRBORNE_HEIGHT = 1.75;
@@ -43,6 +46,12 @@ public final class StatusLife {
     /** Server side, once per entity tick (after the components have ticked). */
     public void tick() {
         if (entity.level().isClientSide || !entity.isAlive()) return;
+        boolean firstIdentity = entity.identityTranslationKey().isEmpty();
+        if (firstIdentity || entity.tickCount % 20 == 1) {
+            var identity = identity();
+            entity.syncComponentData(IDENTITY, identity.translationKey());
+            if (firstIdentity && TraceRecorder.recorded(entity)) StatusEvents.note(entity, "identity observed kind=" + identity.id());
+        }
         entity.mind().ensureGivenName();
         if (glow > 0) glowTick();
         if (entity.isNoAi()) return;

@@ -8,6 +8,8 @@ import io.github.longshou.mcyukkuri.social.BondLevels;
 import io.github.longshou.mcyukkuri.social.Temperament;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
+import io.github.longshou.mcyukkuri.status.YukkuriStatus;
+import io.github.longshou.mcyukkuri.status.Identity;
 import io.github.longshou.mcyukkuri.entity.component.Interrupt;
 import io.github.longshou.mcyukkuri.human.*;
 import io.github.longshou.mcyukkuri.pet.exam.ExamSession;
@@ -43,7 +45,7 @@ public final class PetLife {
     private UUID serial, issuer, lockedBy, formerOwner;
     private int neglect, neglectClock, searchClock, abandonedGrade, abandonStage, joyDelay;
     private long lastContact, abandonedAt, dropPos;
-    private boolean voidBadge, reunionDue, noticeSent, waits;
+    private boolean voidBadge, reunionDue, noticeSent, waits, townRoots;
     private String lockKind;
     private Director director;
     private final PetLessons lessons;
@@ -59,7 +61,7 @@ public final class PetLife {
     // ownership
     public UUID owner() { return Custody.view(animal).owner(); }
     public boolean ownedBy(UUID id) { return id != null && id.equals(owner()); }
-    public boolean isPet() { return owner() != null && (Custody.view(animal).role() == Custody.Role.COMPANION); }
+    public boolean isPet() { return animal.status().identity().companion(); }
     public boolean owned(Player p) { return ownedBy(p.getUUID()); }
     public boolean near(Player p) {
         return !animal.level().isClientSide && p != null && p.isAlive() && !p.isSpectator() && animal.isAlive()
@@ -231,6 +233,10 @@ public final class PetLife {
     /** Former owner while the abandonment record stands; cleared by the next owner. */
     public UUID formerOwner() { return formerOwner; }
     public boolean abandoned() { return formerOwner != null && owner() == null; }
+    /** An unkept individual still tied to human-town life, including offspring raised in it. */
+    public boolean townRoots() { return townRoots; }
+    public void markTownRoots() { townRoots = true; }
+    public void leaveTownLife() { townRoots = false; waits = false; }
     /** Owner feeding, talking or caring for the pet, or merely being near it. Cruel actions refresh presence only. */
     public void contact(UUID who, boolean care) {
         if (animal.level().isClientSide || !ownedBy(who) || !isPet()) return;
@@ -259,6 +265,14 @@ public final class PetLife {
                 if (animal.level() instanceof ServerLevel level && level.getServer().getPlayerList().getPlayer(owner()) instanceof ServerPlayer sp)
                     sp.displayClientMessage(Component.translatable("pet.mcyukkuri.neglect.notice", animal.getDisplayName()), true);
             }
+            if (neglect == 100 && animal.status().identity() == Identity.PET && !busy()) {
+                var player = animal.level().getPlayerByUUID(owner());
+                if (player == null || player.distanceToSqr(animal) > 256) {
+                    Custody.release(animal, Custody.ReleaseReason.LOST_CONTACT, owner(), null);
+                    return;
+                }
+                contact(player.getUUID(), true);
+            }
         }
         if (neglect > 0 && --searchClock <= 0) {
             searchClock = 2400 + animal.getRandom().nextInt(2400);
@@ -268,6 +282,7 @@ public final class PetLife {
     /** Called by WildEvents.abandon before the owner is cleared. A worn badge stays on but its registry entry is void. */
     public void abandonedBy(UUID former) {
         if (animal.level() instanceof ServerLevel sl) AbandonLog.get(sl).record(former, now());
+        townRoots = true;
         care.ownerChanged(null);
         formerOwner = former; abandonedAt = now(); abandonedGrade = grade.id(); dropPos = animal.blockPosition().asLong(); abandonStage = 0; searchClock = 0;
         voidBadge = grade != BadgeGrade.NONE && worn && animal.life().hasAccessory();
@@ -278,13 +293,15 @@ public final class PetLife {
     /** HumanCommerce.assign: any new owner ends the abandoned state. The former owner returning gets one tremble then joy, and the registry entry is honoured again; trust is left as it is. */
     public void newOwner(UUID owner) {
         care.ownerChanged(owner);
+        lastContact = now(); neglect = 0; neglectClock = 0; reunionDue = false; noticeSent = false;
         if (formerOwner == null) return;
         boolean same = formerOwner.equals(owner);
-        formerOwner = null; abandonStage = 0; waits = false; lastContact = now(); neglect = 0; neglectClock = 0; reunionDue = false; noticeSent = false;
+        formerOwner = null; abandonStage = 0; waits = false;
         if (same) { voidBadge = false; animal.playAction("tremble"); joyDelay = 30; }
     }
     /** Confirmed NPC owner death: end control without abandonment, badge invalidation or erasing history. */
     public void ownerDied(UUID former) {
+        townRoots = true;
         care.ownerChanged(null);
         care.walk().tick(); // no owner/lead: clear only the transient walking position
         if (care.requests().pending() != null) care.requests().tick();
@@ -294,6 +311,13 @@ public final class PetLife {
         reunionDue = false; noticeSent = false; joyDelay = 0;
         if (former.equals(examTemporaryOwner)) { examWildTag = null; examTemporaryOwner = null; }
     }
+    public void lostContact() {
+        townRoots = true;
+        care.ownerChanged(null);
+        neglect = 0; neglectClock = 0; searchClock = 0; reunionDue = false; noticeSent = false;
+        animal.mind().felt(EmotionEvent.SEPARATED);
+        animal.showReaction("teary", "lost_parent", 100);
+    }
     private void tickAbandoned() {
         if (joyDelay > 0 && --joyDelay == 0) { animal.playAction("joy_jump"); animal.showReaction("happy", "hello", 80); }
         if (formerOwner == null || owner() != null || now() - abandonedAt < 240 || !calm()) return;
@@ -302,7 +326,7 @@ public final class PetLife {
             abandonStage = 1;
             if (!waits && p.friendliness() <= 60) { animal.playAction("proud"); animal.showReaction("smug", "hello", 80); return; }
         }
-        if (!waits || now() - abandonedAt > 24000) return; // gives up: an ordinary wild yukkuri, the record only keeps the badge void
+        if (!waits || now() - abandonedAt > 24000) return;
         if (--searchClock > 0) return;
         searchClock = (animal.family().adult() ? 500 : 250) + animal.getRandom().nextInt(300);
         var drop = BlockPos.of(dropPos);
@@ -376,7 +400,7 @@ public final class PetLife {
     }
     /** A wild observer pauses to stare at a visible silver/gold badge before it reacts, once per pair per 10 minutes. */
     private boolean startStare(YukkuriEntity peer) {
-        if (owner() != null || peer.pet().visibleEffective().id() < BadgeGrade.SILVER.id() || !animal.hasLineOfSight(peer)) return false;
+        if (!animal.status().identity().free() || peer.pet().visibleEffective().id() < BadgeGrade.SILVER.id() || !animal.hasLineOfSight(peer)) return false;
         long t = now(); Long last = noticed.get(peer.getUUID());
         if (last != null && t - last < 12000) return false;
         noticed.values().removeIf(v -> t - v > 12000); noticed.put(peer.getUUID(), t);
@@ -411,7 +435,7 @@ public final class PetLife {
     }
     /** Wild individuals notice nearby visible silver/gold badges without waiting for a formal greeting. */
     private void scanBadges() {
-        if (owner() != null || socialCooldown > 0 || stareTicks > 0 || !calm()) return;
+        if (!animal.status().identity().free() || socialCooldown > 0 || stareTicks > 0 || !calm()) return;
         var peer = animal.level().getEntitiesOfClass(YukkuriEntity.class, animal.getBoundingBox().inflate(6), y -> y != animal && y.isAlive()
                 && y.pet().visibleEffective().id() >= BadgeGrade.SILVER.id() && animal.hasLineOfSight(y)).stream()
                 .min(Comparator.comparingDouble(animal::distanceToSqr)).orElse(null);
@@ -428,7 +452,7 @@ public final class PetLife {
             if (y == null || !calm() || !animal.hasLineOfSight(y)) { stareTicks = 0; return; }
             if (stareTicks == 0 && socialCooldown == 0) react(y);
         } else if (animal.tickCount % 40 == 7) { if (BadgeSocial.enabled()) BadgeSocial.scan(animal); else scanBadges(); }
-        else if (animal.tickCount % 40 == 27 && owner() == null && socialCooldown == 0 && !BadgeSocial.enabled()) WildEncounter.scan(animal);
+        else if (animal.tickCount % 40 == 27 && socialCooldown == 0 && !BadgeSocial.enabled()) WildEncounter.scan(animal);
     }
 
     public void tick() {
@@ -456,6 +480,7 @@ public final class PetLife {
         tag.putInt("Neglect", neglect); tag.putLong("LastContact", lastContact); tag.putBoolean("ReunionDue", reunionDue); tag.putBoolean("NoticeSent", noticeSent);
         tag.putBoolean("VoidBadge", voidBadge); tag.putLong("AbandonedAt", abandonedAt); tag.putInt("AbandonedGrade", abandonedGrade); tag.putLong("DropPos", dropPos);
         tag.putBoolean("Waits", waits); tag.putInt("AbandonStage", abandonStage); if (formerOwner != null) tag.putUUID("FormerOwner", formerOwner);
+        tag.putBoolean("TownRoots", townRoots);
         tag.putInt("Cooldown", cooldown); tag.putInt("Unauthorized", unauthorized); tag.putInt("LessonsToday",
                 lessons.today()); tag.putInt("LessonDayClock", lessons.dayClock());
         if (serial != null) tag.putUUID("Serial", serial); if (issuer != null) tag.putUUID("Issuer", issuer);
@@ -478,6 +503,7 @@ public final class PetLife {
         neglect = Math.clamp(tag.getInt("Neglect"), 0, 100); lastContact = tag.getLong("LastContact"); reunionDue = tag.getBoolean("ReunionDue"); noticeSent = tag.getBoolean("NoticeSent");
         voidBadge = tag.getBoolean("VoidBadge"); abandonedAt = tag.getLong("AbandonedAt"); abandonedGrade = Math.clamp(tag.getInt("AbandonedGrade"), 0, 3); dropPos = tag.getLong("DropPos");
         waits = tag.getBoolean("Waits"); abandonStage = tag.getInt("AbandonStage"); formerOwner = tag.hasUUID("FormerOwner") ? tag.getUUID("FormerOwner") : null;
+        townRoots = tag.contains("TownRoots") ? tag.getBoolean("TownRoots") : formerOwner != null;
         ledger.load(tag.getCompound("BadgeLedger"));
         examWildTag = tag.contains("ExamWildTag", 10) && tag.hasUUID("ExamTemporaryOwner") ? tag.getCompound("ExamWildTag").copy() : null;
         examTemporaryOwner = examWildTag == null ? null : tag.getUUID("ExamTemporaryOwner");

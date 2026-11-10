@@ -235,7 +235,7 @@ public final class HumanNpc extends PathfinderMob {
     }
     /** The cooldown belongs to the wild individual, so several residents cannot take turns feeding it. */
     private boolean residentWildFeedAllowed(YukkuriEntity y) {
-        if (job() != Job.RESIDENT || !Custody.view(y).wild()) return true;
+        if (job() != Job.RESIDENT || !y.status().identity().free()) return true;
         var tag = HumanCommerce.data(y);
         return y.life().nutrition() <= RESIDENT_WILD_FEED_NUTRITION
                 && (!tag.contains(RESIDENT_WILD_FEED_AFTER) || level().getGameTime() >= tag.getLong(RESIDENT_WILD_FEED_AFTER));
@@ -266,7 +266,7 @@ public final class HumanNpc extends PathfinderMob {
         }
         if (attitude() == Attitude.CRUEL || (Custody.view(y).role() == Custody.Role.INPUT) && !FactoryPipeline.stage(y).equals("observe")) return false;
         if (y.life().canEat() && careFood > 0 && residentWildFeedAllowed(y) && y.life().beginMeal(new ItemStack(ModItems.GRAIN_REGULAR.get()), getUUID(), true)) {
-            if (job() == Job.RESIDENT && Custody.view(y).wild()) recordResidentWildFeed(y);
+            if (job() == Job.RESIDENT && y.status().identity().free()) recordResidentWildFeed(y);
             careFood--; swing(InteractionHand.MAIN_HAND);
             GameplayLog.event(this, "npc-care", "action=begin_meal target={} food={}->{} nutrition={} result=accepted", y.getUUID(), careFood + 1, careFood, y.life().nutrition());
             return true;

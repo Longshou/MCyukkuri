@@ -1,19 +1,35 @@
 package io.github.longshou.mcyukkuri.status;
 
+import io.github.longshou.mcyukkuri.human.Custody;
+import java.util.Locale;
+
 /** What an individual is to the world. Derived on demand from the owning components, never stored twice. */
 public enum Identity {
-    /** House yukkuri (the small kind): their own ecology. */
     HOUSE,
-    /** Owned and kept as a companion. */
     PET,
-    /** Owned for another use (shop stock, factory worker, captive). */
+    NPC_COMPANION,
     OWNED,
-    /** Member of a settlement group. */
-    SETTLER,
-    /** Free individual without any home: lost, abandoned or wandering. */
+    STOCK,
     STRAY,
-    /** Free individual with a home or territory. */
-    WILD;
+    WILD_SETTLEMENT,
+    WILD_FAMILY;
 
-    public boolean free() { return this == STRAY || this == WILD || this == SETTLER; }
+    public static Identity resolve(Custody.View custody, boolean houseBody, boolean townRoots, boolean settlement) {
+        if (custody.role() == Custody.Role.STOCK) return STOCK;
+        if (custody.ownerKind() == Custody.OwnerKind.PLAYER) return PET;
+        if (custody.owner() != null) {
+            if (custody.role() != Custody.Role.COMPANION) return OWNED;
+            return custody.ownerKind() == Custody.OwnerKind.NPC ? NPC_COMPANION : PET;
+        }
+        if (custody.hasPendingStaffRole() || custody.hasFactoryStage()) return OWNED;
+        if (houseBody) return HOUSE;
+        if (townRoots) return STRAY;
+        return settlement ? WILD_SETTLEMENT : WILD_FAMILY;
+    }
+
+    public boolean companion() { return this == PET || this == NPC_COMPANION; }
+    public boolean wild() { return this == WILD_FAMILY || this == WILD_SETTLEMENT; }
+    public boolean free() { return this == STRAY || wild(); }
+    public String id() { return name().toLowerCase(Locale.ROOT); }
+    public String translationKey() { return "identity.mcyukkuri." + id(); }
 }

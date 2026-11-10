@@ -2,7 +2,6 @@ package io.github.longshou.mcyukkuri.settlement;
 
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 
-import io.github.longshou.mcyukkuri.human.Custody;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.season.Season;
@@ -39,7 +38,7 @@ public final class WinteringLife extends Goal {
     public String activity() { return staying ? Behaviors.WINTER_STAY : Behaviors.WINTER_RETURN; }
     public boolean usesWinterStores() {
         return !entity.level().isClientSide && winter(entity) && !entity.profile().houseBody() && !entity.profile().dangerToYukkuri()
-                && (Custody.view(entity).owner() == null);
+                && entity.status().identity().free();
     }
     private boolean migrating() {
         var group = entity.settlement().group();
@@ -54,7 +53,7 @@ public final class WinteringLife extends Goal {
                 && !entity.isInWaterOrBubble() && !entity.isOnFire() && !entity.life().isSleeping()
                 && entity.life().mealTicks() == 0 && entity.life().drugSleep() == 0 && entity.life().sprayDelay() == 0
                 && !SettlementEvents.homeClaimHeld(entity) && !migrating() && !SettlementEvents.reserved(entity)
-                && (Custody.view(entity).owner() == null);
+                && entity.status().identity().free();
     }
     public ShelterBlockEntity stockedHome() {
         if (!usesWinterStores()) return null;

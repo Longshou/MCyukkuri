@@ -51,7 +51,7 @@ public final class SettlementDuties {
 
     private boolean ready() {
         var brood = entity.family().brood();
-        return entity.isAlive() && !entity.isNoAi() && !entity.isPanicking() && !entity.isCommandPlaying()
+        return entity.isAlive() && entity.status().identity().wild() && !entity.isNoAi() && !entity.isPanicking() && !entity.isCommandPlaying()
                 && !entity.operations().active() && !entity.isPassenger()
                 && !entity.isInWaterOrBubble() && !entity.isOnFire()
                 && !(active() ? entity.life().nutrition() < 15 || entity.life().energy() < 15 : entity.life().hasUrgentNeed())
@@ -63,6 +63,7 @@ public final class SettlementDuties {
                 && !SettlementEvents.reserved(entity) && entity.onGround();
     }
     private YukkuriEntity assigner() {
+        if (!entity.status().identity().wild()) return null;
         if (!entity.family().adult() && !entity.family().readyForOwnNest()) return null;
         if (entity.settlement().society().role() != SettlementData.Role.UNUN_SLAVE) return null;
         var record = entity.settlement().society().record();

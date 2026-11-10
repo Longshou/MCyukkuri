@@ -2,7 +2,6 @@ package io.github.longshou.mcyukkuri.settlement;
 
 import io.github.longshou.mcyukkuri.mind.EmotionEvent;
 
-import io.github.longshou.mcyukkuri.human.Custody;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.social.Bonds;
@@ -68,10 +67,6 @@ public final class CommunityRules {
     static YukkuriEntity leader(ServerLevel level, SettlementData.Group group) {
         UUID id = SettlementData.get(level).activeLeader(group);
         return id != null && level.getEntity(id) instanceof YukkuriEntity y && y.isAlive() ? y : null;
-    }
-    private static boolean wild(YukkuriEntity entity) {
-        var human = Custody.view(entity);
-        return human.wild();
     }
 
     // ---- detection ----------------------------------------------------------------------------------------------
@@ -251,7 +246,7 @@ public final class CommunityRules {
         long now = level.getGameTime();
         var commons = group.commons;
         var near = level.getEntitiesOfClass(YukkuriEntity.class, member.getBoundingBox().inflate(PATROL_RANGE), other -> other != member && other.isAlive()
-                && !other.isNoAi() && !other.profile().dangerToYukkuri() && !other.profile().houseBody() && wild(other) && member.hasLineOfSight(other));
+                && !other.isNoAi() && !other.profile().dangerToYukkuri() && other.status().identity().free() && member.hasLineOfSight(other));
         for (var other : near) {
             boolean same = group.id.equals(other.settlement().groupId());
             if (same) {

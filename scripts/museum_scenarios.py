@@ -1091,6 +1091,25 @@ add('house_eggs', 'house', '窝脏了，家油把卵叼去新窝', '窝脏了，
     late=['execute if data block ~-5 ~ ~-2 EggSlots[{Present:1b}] run data merge block ~-5 ~ ~-2 {Dirt:8}'])
 
 # ====================================================================================================== town
+add('social_identity', 'town', '宠物、流浪与野生四类对照', '宠物、流浪与野生四类对照',
+    '四只从左到右是玩家的宠物、认得玩家的饥饿流浪油、聚落成员、独居的野生油。空手站在附近，观察迎人、讨食与退避；手册可核对身份。',
+    '先站着观察，再靠近操作', [
+    *shed(-5, -4), *shed(-2, -4, half=1),
+    yk('reimu', -5, 0, 'identity_pet', label='灵梦', nutrition=90, social_wait=0, lead=True),
+    *own('identity_pet'),
+    f'yukkuri status relate {sel("identity_pet")} @s 30',
+    yk('marisa', -2, 0, 'identity_stray', label='魔理沙', nutrition=48, social_wait=0,
+       extra='YukkuriPet:{FormerOwner:' + uuid_nbt(uid('social_identity', 'former_owner')) + '}'),
+    f'yukkuri status relate {sel("identity_stray")} @s 12',
+    yk('patchouli', 2, 0, 'identity_settlement', label='帕秋莉', social_wait=0),
+    f'yukkuri scenario community {sel("identity_settlement")} {sel("identity_settlement")}',
+    yk('chen', 5, 0, 'identity_family', label='橙', social_wait=0)],
+    env=DAY, vantage=(0, 5),
+    late=[home('identity_pet', -5, -4), home('identity_stray', -2, -4)],
+    give=['mcyukkuri:field_notebook', 'minecraft:apple 4'],
+    note='靠近后潜行空手右键，进「饰物与管理」。收养魔理沙，再对灵梦选择「解除饲养关系（弃养）」。观察表情与手册标签；需要时先喂食提高信任。',
+    reads=[('读四只的身份', 'yukkuri status @e[tag=scn,type=#mcylab:yukkuri,distance=..24]')])
+
 add('wild', 'town', '饿野油来讨宠物的苹果', '饿野油来讨宠物的苹果', '宠物（银章）在进食；饥饿的野生魔理沙走来讨吃，看宠物是不理会、报告主人，还是没忍住', '约 1–3 分钟', [
     yk('reimu', 0, 0, 'pet', grade=2, nutrition=38, yaw=-90, lead=True, boldness=60), *own('pet'), item('minecraft:apple', 1, 3, 0),
     yk('marisa', 6, 0, 'wild', nutrition=34, yaw=90, boldness=45)], vantage=(0, 12))
@@ -3674,7 +3693,7 @@ TOPICS = {
     'forage_empty': 'R1', 'rain_life': 'R1', 'rain_huddle': 'R1', 'storm_cower': 'R1', 'marisa_explore': 'R1', 'rain_shelter': 'R1', 'rain_open': 'R1', 'pred_watch': 'R2', 'pred_range': 'R2', 'pred_pets': 'R2', 'shared_body': 'R3',
     'house_empty': 'H1', 'house_pair': 'H2', 'house_eggs': 'H3',
     'shop_build': 'M1', 'factory_labor': 'M2', 'factory_manju': 'M2', 'factory_bag': 'M2', 'harness_walk': 'M3', 'swaddle_worn': 'M3', 'feed_wild': 'M3', 'oniisan_prey': 'M4', 'attack_witness': 'M4',
-    'wild': 'M5', 'badge': 'M5', 'exam': 'M5', 'date': 'M5', 'transport': 'M5', 'custody_death': 'M5',
+    'wild': 'M5', 'badge': 'M5', 'exam': 'M5', 'date': 'M5', 'transport': 'M5', 'custody_death': 'M5', 'social_identity': 'M5',
     'airborne': 'R8', 'house_health': 'R9',
     'body_mold': 'R5', 'wound_materials': 'R5', 'thermal_body': 'R5', 'wound_sources': 'R5', 'wound_leak': 'R5', 'treatment_severe': 'R5', 'treatment_scars': 'R5', 'treatment_care': 'R5', 'magma_sole': 'R5', 'core_exposed': 'R5', 'core_filling': 'R5', 'remains_rot': 'R6', 'remains_forms': 'R6', 'carrion': 'R6', 'cannibal_hunt': 'R6',
     'last_words': 'R7', 'offering': 'R7', 'sacrifice': 'R7',
@@ -3726,6 +3745,16 @@ def _distinct(pattern, count, what):
         found = set(re.findall(pattern, window))
         return None if len(found) >= count else f'{what}: {len(found)} of {count} ({sorted(found)})'
     return verify
+
+
+_smoke('social_identity', 240, [
+    rf'\[status\] {species} #[^\n]* identity observed kind={kind}\b'
+    for species, kind in (('reimu', 'pet'), ('marisa', 'stray'), ('patchouli', 'wild_settlement'), ('chen', 'wild_family'))],
+    readout=[f'yukkuri status {sel("identity_" + kind)} raw' for kind in ('pet', 'stray', 'settlement', 'family')])
+_smoke('balance_relation', 600, [r'\[status\] reimu [^\n]* identity observed kind=wild_family\b'],
+    readout=[f'yukkuri status {sel(f"fear{fear}")} raw' for fear, _ in _BALANCE_FEAR])
+next(s for s in S if s.id == 'balance_relation').smoke['verify'] = _distinct(
+    r'\[status\] reimu #\d+ uuid=(\S+)[^\n]* identity observed kind=wild_family\b', 3, 'relation fixtures')
 
 
 _smoke('den_family', 6000, [r'\[habitat\] reimu [^\n]* home chosen', r'\[habitat\] marisa [^\n]* home chosen',

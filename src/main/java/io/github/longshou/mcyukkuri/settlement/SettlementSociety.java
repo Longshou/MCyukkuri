@@ -4,8 +4,11 @@ import io.github.longshou.mcyukkuri.mind.EmotionEvent;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
+import io.github.longshou.mcyukkuri.social.BondLevels;
 import io.github.longshou.mcyukkuri.social.Temperament;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
+import io.github.longshou.mcyukkuri.status.Identity;
+import io.github.longshou.mcyukkuri.status.YukkuriStatus;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.WeakHashMap;
@@ -46,6 +49,22 @@ public final class SettlementSociety {
     public static boolean accepted(YukkuriEntity member) {
         var role = member.settlement().society().role();
         return role == SettlementData.Role.MEMBER || role == SettlementData.Role.LEADER;
+    }
+    /** A friendly answer from an actual resident can welcome a familiar stray into the community. */
+    public void welcome(YukkuriEntity guest) {
+        if (guest.status().identity() != Identity.STRAY || !guest.family().adult()
+                || entity.status().identity() != Identity.WILD_SETTLEMENT || !accepted(entity)) return;
+        var group = entity.settlement().group();
+        if (group == null || group.kind != SettlementData.Kind.FOREST || !entity.life().canRecognize(guest)
+                || guest.blockPosition().distSqr(group.center) > CommunityRules.TERRITORY * CommunityRules.TERRITORY
+                || CommunityRules.banished(group, guest.getUUID(), level().getGameTime())) return;
+        var relations = YukkuriWorldData.get(level());
+        if (relations.affinity(entity.getUUID(), guest.getUUID()) < BondLevels.AFFINITY_ACQUAINTED
+                || relations.affinity(guest.getUUID(), entity.getUUID()) < BondLevels.AFFINITY_NEUTRAL) return;
+        guest.settlement().join(group);
+        guest.pet().leaveTownLife();
+        guest.showReaction("happy", "known_peer", 80);
+        YukkuriStatus.identityChanged(guest, Identity.STRAY, "settlement_welcome");
     }
     private static boolean harsh(YukkuriEntity observer) {
         var p = observer.life().personality();
@@ -100,6 +119,7 @@ public final class SettlementSociety {
         }
         if (record.rejections >= 2 && accepted(entity)) record.role = SettlementData.Role.SHUNNED;
         if (record.rejections >= 5 && record.role == SettlementData.Role.SHUNNED) {
+            var beforeIdentity = entity.status().identity();
             var p = entity.life().personality();
             // These thresholds are project design. Attachment alone is never equated with obedience.
             boolean docile = entity.family().adult() && p.friendliness() >= 60 && p.selfControl() >= Temperament.SELF_CONTROL_AT_50
@@ -107,6 +127,7 @@ public final class SettlementSociety {
             // A colony keeps one 嗯嗯奴隶 (project design, feedback 4): its place in the pit is single, the next one is driven off.
             boolean taken = data.hasSlave(group, entity.getUUID());
             record.role = docile && !taken ? SettlementData.Role.UNUN_SLAVE : SettlementData.Role.OUTCAST;
+            YukkuriStatus.identityChanged(entity, beforeIdentity, "settlement_outcast");
             if (before < 5) {
                 CommunityRules.hatlessOutcome(entity, group, record.role);
                 GameplayLog.event(entity, "settlement", "hatless outcome role={} rejections={} observer={} docile={} slave_place_taken={}",
@@ -167,7 +188,9 @@ public final class SettlementSociety {
         if (group == null) return;
         var record = record();
         if (record.rejections == 0) return;
+        var beforeIdentity = entity.status().identity();
         SettlementData.get(level()).restore(group, entity.getUUID(), level().getGameTime());
+        YukkuriStatus.identityChanged(entity, beforeIdentity, "settlement_restored");
         entity.settlement().duties().cancelAssignment();
         entity.life().personality().decided("settlement_restored");
         GameplayLog.event(entity, "settlement", "hatless outcome role={} cause={}", role(), cause);

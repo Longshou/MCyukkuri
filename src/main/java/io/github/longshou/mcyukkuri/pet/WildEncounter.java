@@ -50,7 +50,7 @@ public final class WildEncounter {
 
     /** Called every 2 s for an unowned animal (PetLife.tickPerformance). */
     public static void scan(YukkuriEntity wild) {
-        if (!(wild.level() instanceof ServerLevel level) || wild.profile().dangerToYukkuri() || wild.profile().houseBody() || wild.pet().owner() != null || !free(wild)) return;
+        if (!(wild.level() instanceof ServerLevel level) || wild.profile().dangerToYukkuri() || !wild.status().identity().free() || !free(wild)) return;
         long now = level.getGameTime();
         if (held(WILD, wild.getUUID(), now)) return;
         int bold = wild.life().personality().boldness();

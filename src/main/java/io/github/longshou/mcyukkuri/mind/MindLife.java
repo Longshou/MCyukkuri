@@ -246,7 +246,7 @@ public final class MindLife {
         if (entity.level().isRaining() && entity.level().getBiome(entity.blockPosition()).value()
                 .getPrecipitationAt(entity.blockPosition()) == Biome.Precipitation.RAIN)
             put(entity.level().isThundering() ? "thunder" : "rain", entity.level().isThundering() ? 5 : 2.5f);
-        if (identity == Identity.STRAY) put("homeless", .3f);
+        if (entity.habitat().vagrant()) put("homeless", .3f);
         if (entity.settlement().groupId() != null && entity.settlement().society().dejected()
                 && !entity.settlement().society().pitPressureProtected()) put("shunned", 1);
         surroundings(identity);
@@ -288,7 +288,7 @@ public final class MindLife {
             else if (other instanceof ItemEntity item && d <= 9 && item.getItem().is(ModItems.WASTE.get())) waste = true;
         }
         // Kept and house individuals live in pens and colonies by design; their keepers manage the pressure.
-        if (identity != Identity.PET && identity != Identity.OWNED && identity != Identity.HOUSE) {
+        if (identity.free()) {
             if (strangers >= 10) put("crowded", 2); else if (strangers >= 6) put("crowded", 1);
         }
         if (corpse) put("corpse", 1);

@@ -18,7 +18,6 @@ import io.github.longshou.mcyukkuri.body.MouthPlacement;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.phys.HitResult;
-import io.github.longshou.mcyukkuri.status.Identity;
 import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.UUID;
@@ -101,8 +100,7 @@ public final class Cannibalism extends Goal {
                 + " body=" + (body == null ? null : body.getUUID()) + " target=" + (prey == null ? null : prey.getUUID());
     }
     private boolean free() {
-        Identity id = entity.status().identity();
-        return id == Identity.WILD || id == Identity.STRAY || id == Identity.SETTLER;
+        return entity.status().identity().free();
     }
     private boolean eligible() {
         return entity.isAlive() && !entity.isNoAi() && !entity.isPanicking() && !entity.isCommandPlaying() && !entity.profile().houseBody()

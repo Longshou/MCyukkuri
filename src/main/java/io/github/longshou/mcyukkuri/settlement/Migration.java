@@ -463,7 +463,7 @@ final class Migration {
         var role = group.role(e.getUUID());
         return e.isAlive() && (e.family().adult() || e.family().stage() == FamilyLife.Stage.JUVENILE)
                 && (role == SettlementData.Role.MEMBER || role == SettlementData.Role.LEADER)
-                && !e.profile().dangerToYukkuri() && !e.profile().houseBody() && !SettlementEvents.homeClaimHeld(e) && SettlementEvents.unowned(e);
+                && !e.profile().dangerToYukkuri() && e.status().identity().wild() && !SettlementEvents.homeClaimHeld(e);
     }
 
     /** Old-home chores wait until the member has reached the destination and finished its bounded home search. */

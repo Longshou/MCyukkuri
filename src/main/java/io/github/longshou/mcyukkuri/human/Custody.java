@@ -3,6 +3,7 @@ package io.github.longshou.mcyukkuri.human;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.mind.EmotionEvent;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
+import io.github.longshou.mcyukkuri.status.YukkuriStatus;
 import java.util.UUID;
 import javax.annotation.Nullable;
 import net.minecraft.nbt.CompoundTag;
@@ -20,7 +21,7 @@ import java.util.Set;
 /** Queries and ownership transitions for the existing NeoForgeData.HumanCommerce storage. */
 public final class Custody {
     public enum OwnerKind { NONE, UNKNOWN, PLAYER, NPC }
-    public enum ReleaseReason { ABANDON, DELIVERY_FAILED, EXAM_ROLLBACK, OWNER_DIED }
+    public enum ReleaseReason { ABANDON, LOST_CONTACT, DELIVERY_FAILED, EXAM_ROLLBACK, OWNER_DIED }
     private static final String PENDING_RELEASE = "PendingCustodyRelease";
     private static final List<String> ACTIVE_KEYS = List.of(
             "Owner", "OwnerKind", "Use", "PendingRole", "FactoryStage", "StageWork", "LastFactoryWork",
@@ -52,8 +53,6 @@ public final class Custody {
                        String pendingStaffRole, boolean hasPendingStaffRole,
                        String factoryStage, boolean hasFactoryStage) {
         public boolean ownedBy(UUID id) { return owner != null && owner.equals(id); }
-        public boolean unassigned() { return owner == null && !hasPendingStaffRole; }
-        public boolean wild() { return unassigned() && !hasFactoryStage; }
     }
 
     /** Live-tag compatibility access; server reads backfill positive identity and normalize confirmed deaths, without world effects. */
@@ -139,7 +138,7 @@ public final class Custody {
             animal.pet().ownerDied(former);
             animal.social().stop(); animal.dailyLife().stop(); animal.getNavigation().stop(); animal.setPersistenceRequired();
             var done = data(animal).copy(); done.remove(PENDING_RELEASE); store(animal, done);
-            GameplayLog.event(animal, "custody", "owner death cleanup completed formerOwner={}", former);
+            GameplayLog.event(animal, "custody", "owner death cleanup completed formerOwner={} identity={}", former, animal.status().identity().id());
             return true;
         } finally { CLEANING.remove(animal); }
     }
@@ -249,10 +248,15 @@ public final class Custody {
     /** Callers retain scene creation and exam eligibility guards; each reason keeps its original cleanup order. */
     public static void release(YukkuriEntity animal, ReleaseReason reason, @Nullable UUID formerOwner, @Nullable CompoundTag previous) {
         switch (reason) {
-            case ABANDON -> {
-                animal.pet().abandonedBy(Objects.requireNonNull(formerOwner));
+            case ABANDON, LOST_CONTACT -> {
+                var before = animal.status().identity();
+                if (reason == ReleaseReason.ABANDON) animal.pet().abandonedBy(Objects.requireNonNull(formerOwner));
+                animal.settlement().exile();
                 var tag = data(animal).copy(); tag.remove("Owner"); tag.remove("Use"); tag.remove("OwnerKind"); set(animal, tag);
+                if (reason == ReleaseReason.LOST_CONTACT) animal.pet().lostContact();
+                animal.habitat().release();
                 animal.life().releaseHome(); animal.social().stop(); animal.dailyLife().stop(); animal.setPersistenceRequired();
+                YukkuriStatus.identityChanged(animal, before, reason == ReleaseReason.ABANDON ? "abandon" : "lost_contact");
             }
             case DELIVERY_FAILED -> { set(animal, new CompoundTag()); animal.life().releaseHome(); }
             case EXAM_ROLLBACK -> restore(animal, Objects.requireNonNull(previous));

@@ -90,7 +90,7 @@ public final class PetLessons {
     public String refusal(Player player, PetSkill skill) {
         if (knows(skill)) return "already_known";
         if (animal.isPassenger()) return "not_ready";
-        if (!animal.pet().readyFor(player)) return "not_ready";
+        if (!animal.pet().isPet() || !animal.pet().readyFor(player)) return "not_ready";
         if (animal.pet().cooldown() > 0) return "cooldown";
         return preconditionOk(player, skill) ? null : "need_" + skill.key();
     }

@@ -4,7 +4,6 @@ import io.github.longshou.mcyukkuri.status.GameplayLog;
 
 import io.github.longshou.mcyukkuri.mind.EmotionEvent;
 
-import io.github.longshou.mcyukkuri.human.Custody;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
@@ -72,9 +71,7 @@ public final class IndependenceLife extends Goal {
     public void arm() { armed = true; wait = 0; }
 
     private boolean wild() {
-        var human = Custody.view(entity);
-        return !entity.profile().houseBody() && !entity.profile().dangerToYukkuri()
-                && human.wild();
+        return !entity.profile().dangerToYukkuri() && entity.status().identity().free();
     }
     /** Unknown/unloaded living children are conservatively treated as dependent. */
     private boolean hasDependents() {

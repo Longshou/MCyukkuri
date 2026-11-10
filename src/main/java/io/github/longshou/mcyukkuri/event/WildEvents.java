@@ -31,6 +31,8 @@ import net.neoforged.neoforge.event.tick.EntityTickEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
 import io.github.longshou.mcyukkuri.pet.social.BadgeArcs;
 import io.github.longshou.mcyukkuri.settlement.SettlementData;
+import io.github.longshou.mcyukkuri.status.Identity;
+import io.github.longshou.mcyukkuri.status.YukkuriStatus;
 import java.util.Locale;
 import java.util.stream.StreamSupport;
 
@@ -118,7 +120,7 @@ public final class WildEvents {
         return ((ServerLevel)e.level()).isCloseToVillage(e.blockPosition(),2) || e.habitat().shelter()!=null;
     }
     public static boolean unowned(YukkuriEntity e) {
-        return Custody.view(e).unassigned();
+        return e.status().identity().free();
     }
     public static List<YukkuriEntity> nearby(YukkuriEntity e) {
         return e.level().getEntitiesOfClass(YukkuriEntity.class,e.getBoundingBox().inflate(6),p -> p!=e && available(p)
@@ -334,7 +336,14 @@ public final class WildEvents {
     }
     public static boolean adopt(YukkuriEntity e, Player player) {
         if(!(e.level() instanceof ServerLevel level)||!safe(e)||!playerNear(e,player)||e.distanceToSqr(player)>16||!canAdopt(e,player))return false;
+        var before = e.status().identity();
         Custody.assign(e, player, Custody.Role.COMPANION);
+        e.settlement().exile();
+        if (e.habitat().hasMemory()) {
+            e.habitat().release();
+            e.life().releaseHome();
+        }
+        YukkuriStatus.identityChanged(e, before, "adopt");
         Scene s=WildEventData.get(level).forMember(e.getUUID(),scene -> scene.kind==Kind.ADOPTION || pleading(scene,e));
         if(s!=null && s.kind==Kind.ADOPTION){s.player=player.getUUID();WildEventData.get(level).phase(s,Phase.RESPONDING);}
         else if(s!=null && s.kind==Kind.BADGE_ARC && s.active())BadgeArcs.adopted(level,s,e,player);
@@ -342,7 +351,7 @@ public final class WildEvents {
     }
     public static boolean abandon(YukkuriEntity e, Player player) {
         if(!(e.level() instanceof ServerLevel level)||!safe(e)||!playerNear(e,player)||e.distanceToSqr(player)>16
-                ||!HumanCommerce.ownedBy(e,player.getUUID())||Custody.view(e).role() != Custody.Role.COMPANION)return false;
+                ||e.status().identity()!=Identity.PET||!HumanCommerce.ownedBy(e,player.getUUID()))return false;
         var data=WildEventData.get(level);Scene old=data.forMember(e.getUUID());
         if(old!=null)return false;
         Scene scene=data.start(Kind.ABANDONMENT,"abandonment",GlobalPos.of(level.dimension(),e.blockPosition()),List.of(e.getUUID()),player.getUUID(),level.getGameTime());

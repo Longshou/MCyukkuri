@@ -6,7 +6,6 @@ import io.github.longshou.mcyukkuri.mind.EmotionEvent;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 
 import io.github.longshou.mcyukkuri.world.SearchBudget.Purpose;
-import io.github.longshou.mcyukkuri.human.Custody;
 import javax.annotation.Nullable;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
@@ -135,8 +134,7 @@ public final class ForageTrip extends Goal {
     // ---- who is who ----
     private ShelterBlockEntity shelter() { var value = entity.habitat().shelter(); return value != null && value.usable(entity) ? value : null; }
     private boolean wild() {
-        var human = Custody.view(entity);
-        return human.wild();
+        return entity.status().identity().free();
     }
     private boolean body() {
         return entity.isAlive() && !entity.isNoAi() && !entity.isPassenger() && entity.family().adult()
