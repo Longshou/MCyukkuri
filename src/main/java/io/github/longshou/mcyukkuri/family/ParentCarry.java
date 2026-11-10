@@ -96,7 +96,6 @@ public final class ParentCarry {
     /** Pause before the same child is picked up again after an interruption; feeding gets longer. */
     static final int HOLD_TICKS = 100, FEED_HOLD_TICKS = 200;
     /** After the carrier has settled at the destination the child is kept at most this long while it inherits the home. */
-    static final int ARRIVE_GRACE_TICKS = 600;
     /** A retrieval has arrived home within this distance of its centre (blocks): the walk ends and the children go onto its pad
      *  (project design: a nest and the doorway stand in front of it). */
     private static final double HOME_REACH = 2.5;

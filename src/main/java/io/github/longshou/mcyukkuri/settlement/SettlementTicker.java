@@ -150,7 +150,7 @@ public final class SettlementTicker {
         }
 
         // Continue only an already admitted decision; pressure, sightings and seasons keep their 100-tick sample.
-        if (Migration.phase(group, now) == Migration.Phase.PICK_SITE) {
+        if (Migration.moving(group) && Migration.phase(group, now) == Migration.Phase.PICK_SITE) {
             var participant = members.stream().map(Submission::entity).filter(entity -> Migration.joins(entity, group))
                     .min(Comparator.comparing(entity -> !entity.getUUID().equals(group.leader))).orElse(null);
             if (participant != null) Migration.continueRecovery(level, group, participant, now);

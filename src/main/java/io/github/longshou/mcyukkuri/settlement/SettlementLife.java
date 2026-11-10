@@ -22,6 +22,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.pathfinder.Path;
 import net.minecraft.world.phys.Vec3;
 import io.github.longshou.mcyukkuri.status.StatusEvents;
 import io.github.longshou.mcyukkuri.status.YukkuriStatus;
@@ -53,6 +54,7 @@ public final class SettlementLife {
     private Result settlementResult;
     /** Walking to a migration site lifts the ordinary 48-block return leash. */
     private boolean marching;
+    private Path marchRoute;
     private BlockPos marchStart;
     private BlockPos blockedAt, blockedTarget;
     private long blockedLegAt;
@@ -148,7 +150,7 @@ public final class SettlementLife {
         var member = group == null ? null : SettlementData.get(level()).existingMember(group, entity.getUUID());
         return "origin=" + position(origin) + " settlingAt=" + position(settlingAt) + " result="
                 + (settlementResult == null ? "none" : settlementResult.name().toLowerCase(Locale.ROOT))
-                + " retry=" + retry + " phase=" + phase + " reason=" + (group == null ? "none" : group.commons.migrateReason)
+                + " retry=" + retry + " phase=" + phase + " reason=" + (group == null ? "none" : Migration.reason(group))
                 + " vanguard=" + (group != null && Migration.isVanguard(entity, group)) + " migration_care=" + entity.family().migrationCareActive()
                 + " succession_meeting=" + successionMeeting
                 + " leader_loss_known=" + (group != null && group.leaderDied && member != null && member.knownLeaderLoss >= group.leaderLossAt);
@@ -565,8 +567,8 @@ public final class SettlementLife {
         if (lease == null) return false;
         try (lease; var scope = lease.bind(entity)) {
             SearchBudget.path(entity);
-            var route = entity.life().dryTravelPath(Migration.approaches(entity, destination, group.migrateLeg == Migration.Leg.DETOUR));
-            if (!entity.getNavigation().moveTo(route, 1)) {
+            marchRoute = entity.life().dryTravelPath(Migration.approaches(entity, destination, group.migrateLeg == Migration.Leg.DETOUR));
+            if (marchRoute == null) {
                 marchBlocked(group, destination, "no_dry_route");
                 return false;
             }
@@ -576,6 +578,11 @@ public final class SettlementLife {
         elapsed = 0;
         marching = true;
         return true;
+    }
+
+    /** The previous goal may clear navigation in stop(); install the chosen path once this goal owns MOVE. */
+    public void startGoal() {
+        if (marching) entity.getNavigation().moveTo(marchRoute, 1);
     }
 
     private void marchBlocked(SettlementData.Group group, BlockPos destination, String reason) {
@@ -755,6 +762,7 @@ public final class SettlementLife {
         boolean wasMarching = marching;
         target = null;
         marching = false;
+        marchRoute = null;
         successionMeeting = false;
         wait = wasMarching ? 20 : 100;
         entity.getNavigation().stop();

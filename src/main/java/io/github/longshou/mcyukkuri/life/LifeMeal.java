@@ -67,12 +67,16 @@ final class LifeMeal {
 
     boolean acceptsFood(ItemStack food){return edible(food)&&(!FillingResource.isFilling(food)||FillingResource.acceptable(o.entity(),food));}
 
-    boolean readyForFood() { return needsFood() && !o.entity().body().dying() && !o.entity().family().awaitingLanding() && !o.entity().isPanicking() && !o.entity().isCommandPlaying() && o.entity().isAlive(); }
+    private boolean mouthForMeal() {
+        return !o.entity().settlement().familyMarching() || !o.entity().family().carry().mouthBusy();
+    }
+
+    boolean readyForFood() { return needsFood() && mouthForMeal() && !o.entity().body().dying() && !o.entity().family().awaitingLanding() && !o.entity().isPanicking() && !o.entity().isCommandPlaying() && o.entity().isAlive(); }
 
     boolean canEat() { return readyForFood() && o.entity().family().canEatIndependently() && o.entity().childhood().canEatSolid(); }
 
     boolean canTakeSweet(ItemStack food) {
-        return Sweets.is(food) && o.nutrition() <= Sweets.FULL && !hasMouthFood() && mealTicks == 0 && !o.entity().family().awaitingLanding() && !o.entity().isPanicking()
+        return Sweets.is(food) && o.nutrition() <= Sweets.FULL && mouthForMeal() && !hasMouthFood() && mealTicks == 0 && !o.entity().family().awaitingLanding() && !o.entity().isPanicking()
                 && !o.entity().isCommandPlaying() && o.entity().isAlive() && o.entity().family().canEatIndependently() && o.entity().childhood().canEatSolid();
     }
 

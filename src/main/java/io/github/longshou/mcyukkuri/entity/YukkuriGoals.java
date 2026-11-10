@@ -286,6 +286,7 @@ final class YukkuriGoals {
         SettlementGoal() { setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK)); }
         @Override public boolean canUse() { return !HomeClaim.holds(owner) && !owner.agitation().hunting() && !owner.settlement().underway() && owner.settlement().canUse(); }
         @Override public boolean canContinueToUse() { return !HomeClaim.holds(owner) && owner.settlement().canContinue(); }
+        @Override public void start() { owner.settlement().startGoal(); }
         @Override public boolean requiresUpdateEveryTick() { return true; }
         @Override public void tick() { owner.settlement().tickGoal(); }
         @Override public void stop() { owner.settlement().stop(); }
@@ -295,6 +296,7 @@ final class YukkuriGoals {
         MigrationGoal() { setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK)); }
         @Override public boolean canUse() { return !HomeClaim.holds(owner) && !owner.agitation().hunting() && owner.settlement().underway() && owner.settlement().canUse(); }
         @Override public boolean canContinueToUse() { return !HomeClaim.holds(owner) && owner.settlement().canContinue(); }
+        @Override public void start() { owner.settlement().startGoal(); }
         @Override public boolean requiresUpdateEveryTick() { return true; }
         @Override public void tick() { owner.settlement().tickGoal(); }
         @Override public void stop() { owner.settlement().stop(); }

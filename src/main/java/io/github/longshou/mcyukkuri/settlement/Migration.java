@@ -88,7 +88,7 @@ final class Migration {
 
     static boolean moving(SettlementData.Group group) { return group != null && group.migrateTo != null; }
     static Phase phase(SettlementData.Group group, long now) {
-        if (!moving(group)) return Phase.NONE;
+        if (!moving(group)) return searching(group) ? Phase.PICK_SITE : Phase.NONE;
         long t = now - group.migrateSince;
         if (t < DISCUSS_TICKS) return Phase.DISCUSS;
         if (t < DISCUSS_TICKS + PREPARE_TICKS) return Phase.PREPARE;
@@ -219,7 +219,7 @@ final class Migration {
         var logged = new LoggedPhase(group.migrateSince, phase);
         if (logged.equals(LOGGED_PHASES.put(group, logged))) return;
         GameplayLog.world(level, "settlement", "migration phase={} group={} origin={} destination={} reason={} elapsed={}",
-                phase, group.id, group.center, group.migrateTo, group.commons.migrateReason, now - group.migrateSince);
+                phase, group.id, group.center, group.migrateTo, reason(group), moving(group) ? now - group.migrateSince : 0);
     }
 
     static boolean expired(SettlementData.Group group, long now) {
@@ -427,11 +427,16 @@ final class Migration {
     /** The leader's review: records the pressure and decides to move when it reaches the threshold. */
     private static final Map<SettlementData.Group, MigrationSearch> SEARCHES = new WeakHashMap<>();
     static boolean searching(SettlementData.Group group) { return SEARCHES.containsKey(group); }
+    static String reason(SettlementData.Group group) {
+        var search = SEARCHES.get(group);
+        return search == null ? group.commons.migrateReason : search.reason;
+    }
     static void cancelSearch(YukkuriEntity entity, SettlementData.Group group) {
         var search = SEARCHES.get(group);
         // A leaving member must not discard the leader's in-progress search.
         if (search != null && search.ownedBy(entity)) {
             search.cancel(); SEARCHES.remove(group);
+            LOGGED_PHASES.remove(group);
         }
     }
     static void continueSearch(YukkuriEntity leader, SettlementData.Group group, long now) {
@@ -541,13 +546,15 @@ final class Migration {
         if (search == null) {
             search = new MigrationSearch(level, leader, group, force, reason, Set.of(), null);
             SEARCHES.put(group, search);
+            logPhase(level, group, Phase.PICK_SITE, level.getGameTime());
         }
         var result = search.advance(level, leader, group);
         if (result == Result.DEFERRED) return result;
         SEARCHES.remove(group); search.cancel();
         if (result == Result.NOT_FOUND) {
+            LOGGED_PHASES.remove(group);
             group.commons.migrateReason = search.failure();
-            GameplayLog.world(level, "settlement", "migration site refused group={} reason={}", group.id, search.failure());
+            GameplayLog.world(level, "settlement", "migration site refused group={} reason={} {}", group.id, search.failure(), search.progress());
             SettlementData.get(level).setDirty();
             return result;
         }

@@ -20,10 +20,11 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.level.levelgen.Heightmap;
 
-/** Searches one candidate or one walker's whole route per admission. Only the chosen position survives the search. */
+/** Surveys a candidate, then checks a bounded batch of whole routes per admission. */
 final class MigrationSearch {
     static final int SEARCH_TICKS = 1200;
-    private static final int COLUMNS = 24, THREAT_GAP = 24;
+    private static final int COLUMNS = 24, THREAT_GAP = 24, PATHS_PER_SLICE = 24;
+    private static final Cost HOUSING_SLICE = new Cost(6144, 0, 0);
 
     private final WeakReference<YukkuriEntity> owner;
     private final WeakReference<ServerLevel> world;
@@ -41,6 +42,7 @@ final class MigrationSearch {
     private BlockPos candidate;
     private long lastSlice = Long.MIN_VALUE;
     private String failure = "no_dry_site";
+    private String routeRefusal = "none";
 
     MigrationSearch(ServerLevel level, YukkuriEntity leader, SettlementData.Group group, boolean forced, String reason,
                     Set<BlockPos> excluded, List<BlockPos> nearbySites) {
@@ -83,6 +85,10 @@ final class MigrationSearch {
     }
     BlockPos result() { return candidate; }
     String failure() { return failure; }
+    String progress() {
+        return "planned=" + siteIndex + "/" + sites.size() + " columns=" + columns + " walker=" + walkerIndex + "/" + walkers.size()
+                + " candidate=" + candidate + " last_route=" + routeRefusal;
+    }
 
     Result advance(ServerLevel level, YukkuriEntity owner, SettlementData.Group group) {
         long now = level.getGameTime();
@@ -91,7 +97,9 @@ final class MigrationSearch {
             return Result.NOT_FOUND;
         }
         if (lastSlice == now) return Result.DEFERRED;
-        var lease = SearchBudget.request(level, owner, Purpose.PICK_SITE, generation, new Cost(SearchBudget.PER_TICK, 0, 0));
+        int end = Math.min(walkers.size(), walkerIndex + PATHS_PER_SLICE);
+        var cost = candidate == null ? HOUSING_SLICE : new Cost(0, 0, end - walkerIndex);
+        var lease = SearchBudget.request(level, owner, Purpose.PICK_SITE, generation, cost);
         if (lease == null) return Result.DEFERRED;
         lastSlice = now;
         try (lease; var scope = lease.bind(owner)) {
@@ -108,22 +116,28 @@ final class MigrationSearch {
                 }
                 candidate = next;
                 walkerIndex = 0;
-            }
-            if (walkerIndex >= walkers.size()) return Result.FOUND;
-            UUID id = walkers.get(walkerIndex);
-            if (!(level.getEntity(id) instanceof YukkuriEntity walker) || !walker.isAlive() || !Migration.walks(walker, group)) {
-                walkerIndex++;
                 return Result.DEFERRED;
             }
-            if (!Migration.readyToPlan(walker)) return Result.DEFERRED;
-            try (var walkScope = lease.bind(walker)) {
-                SearchBudget.path(walker);
-                if (walker.life().dryTravelPath(Migration.approaches(walker, candidate, false)) == null) {
-                    candidate = null;
-                    failure = "no_dry_route";
-                } else walkerIndex++;
+            while (walkerIndex < end) {
+                UUID id = walkers.get(walkerIndex);
+                if (level.getEntity(id) instanceof YukkuriEntity walker && walker.isAlive() && Migration.walks(walker, group)) {
+                    if (!Migration.readyToPlan(walker)) {
+                        routeRefusal = "unready:" + id + "@" + walker.blockPosition().toShortString();
+                        return Result.DEFERRED;
+                    }
+                    try (var walkScope = lease.bind(walker)) {
+                        SearchBudget.path(walker);
+                        if (walker.life().dryTravelPath(Migration.approaches(walker, candidate, false)) == null) {
+                            routeRefusal = "no_dry_route:" + id + "@" + walker.blockPosition().toShortString() + "->" + candidate.toShortString();
+                            candidate = null;
+                            failure = "no_dry_route";
+                            return Result.DEFERRED;
+                        }
+                    }
+                }
+                walkerIndex++;
             }
-            return Result.DEFERRED;
+            return walkerIndex == walkers.size() ? Result.FOUND : Result.DEFERRED;
         }
     }
 
