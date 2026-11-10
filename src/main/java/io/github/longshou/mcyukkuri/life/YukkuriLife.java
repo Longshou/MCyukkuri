@@ -998,6 +998,8 @@ public final class YukkuriLife {
     public boolean assignHome(GlobalPos selected){ return home.assignHome(selected); }
     public boolean assignNaturalHome(BlockPos selected){ return home.assignNaturalHome(selected); }
     public void releaseHome(){ home.releaseHome(); }
+    /** An individual without an address takes the nearest free nest its stage and body fit (also the shared nest's release of a grown child). */
+    boolean claimNearestNest(){ return home.claimNearestNest(); }
     public BlockPos homeStand(){ return home.homeStand(); }
     private boolean maintainHome(){ return home.maintainHome(); }
     private BlockPos nearestCare(CareBlock.Kind kind, boolean requireFood){ return home.nearestCare(kind, requireFood); }

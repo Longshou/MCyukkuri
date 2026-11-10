@@ -78,7 +78,13 @@ public final class CareBlockEntity extends BlockEntity implements Container {
             else {
                 release(member);
                 GameplayLog.event(actor,"home","growth released shared nest nest={} oldStage={} stage={}",worldPosition,previous,stage);
-                var address=actor.life().home();if(address!=null&&address.dimension().equals(server.dimension())&&address.pos().equals(worldPosition))actor.life().releaseHome();
+                var address=actor.life().home();
+                if(address!=null&&address.dimension().equals(server.dimension())&&address.pos().equals(worldPosition)){
+                    actor.life().releaseHome();
+                    // The released child takes its own bed the ordinary way; a free nest nowhere near means it rests beside its parents.
+                    if(actor.life().claimNearestNest())GameplayLog.event(actor,"home","released child claimed a free nest nest={} stage={}",actor.life().home().pos(),stage);
+                    else GameplayLog.event(actor,"home","released child has no bed nest={} stage={} reason=no_claimable_nest",worldPosition,stage);
+                }
             }
         }
     }

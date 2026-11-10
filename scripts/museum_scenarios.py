@@ -806,7 +806,7 @@ _NEST_SHARE={'b0':.2095,'b1':.2062,'b2':.2028,'b3':.18}
 _NEST_CELLS=((-0.5, -0.5), (0.5, -0.5), (-0.5, 0.5), (0.5, 0.5))
 add('family_nests', 'family', '一家六口同窝，长大再分窝', '一家六口同窝，长大再分窝',
     '六口开场都不困：四只赤油平平地躺在大窝的四个格上，父母贴着窝边（读“同居与床位”看六口床位都在这一个窝）。场景切到 3 倍速：约半分钟内开始有子油长成、被大窝按容量让出（日志 '
-    'growth released shared nest，一次一只），最后一只仍是赤油留在大窝。两边普通窝空着；但引擎现在没有把长成的子油安排进普通窝（待办），它会被让出后贴在棚下。困了会回窝（约数分钟）；按观察台“1倍速”可恢复正常速度',
+    'growth released shared nest，一次一只），让出的子油自己走到两边空着的普通窝里认领床位（日志 released child claimed a free nest，三只分住这两个窝），最后一只仍是赤油留在大窝。困了会回自己的窝；按观察台“1倍速”可恢复正常速度',
     '先看六口同窝，再看 3 倍速下约 30 秒起一只只长成、被让出大窝；清空或重开场景会恢复 1 倍速', ['function mcylab:util/speed_3x',
     *shed(0, 0, half=5), *large_nest(0, 0, 'mcyukkuri:large_yukkuri_nest'),
     block(-3, 0, 0, 'mcyukkuri:yukkuri_nest'), block(3, 0, 0, 'mcyukkuri:yukkuri_nest'),
@@ -3567,10 +3567,19 @@ _smoke('meal_content', 900, [r'\[meal\][^\n]* full nutrition=[^\n]*content=true'
 next(s for s in S if s.id == 'meal_content').smoke['verify'] = _meal_content_verify
 _smoke('meet', 2400, [r'\[social\][^\n]* greet [^\n]*why=first_meet', r'\[daily\][^\n]* session result kind=NUZZLE'])
 _smoke('alice_hunt', 1200, [r'\[agitation\][^\n]* phase=ALICE_APPROACH -> ALICE_ACT'])
-# The shared nest releases the young it may no longer hold as each one grows: three of the four cross BABY_END inside the window.
-_smoke('family_nests', 4200, [r'\[home\][^\n]* growth released shared nest '])
-next(s for s in S if s.id == 'family_nests').smoke['verify'] = _distinct(
-    r'\[home\] reimu #\d+ uuid=(\S+)[^\n]* growth released shared nest ', 3, 'young released from the shared nest')
+# The shared nest releases the young it may no longer hold as each one grows: three of the four cross BABY_END inside the window,
+# and each released child then claims one of the two free ordinary nests standing beside the shared one.
+def _family_nests_release(log):
+    released = set(re.findall(r'\[home\] \w+ #\d+ uuid=(\S+)[^\n]* growth released shared nest ', log))
+    if len(released) < 3:
+        return f'young released from the shared nest: {len(released)} of 3 ({sorted(released)})'
+    bedded = set(re.findall(r'\[home\] \w+ #\d+ uuid=(\S+)[^\n]* released child claimed a free nest ', log))
+    left = sorted(released - bedded)
+    return f'{len(left)} released young stayed bedless ({left})' if left else None
+
+
+_smoke('family_nests', 4200, [r'\[home\][^\n]* growth released shared nest ', r'\[home\][^\n]* released child claimed a free nest '])
+next(s for s in S if s.id == 'family_nests').smoke['verify'] = _family_nests_release
 next(s for s in S if s.id == 'family_nests').smoke['readout'] = ['yukkuri status @e[tag=scn,type=mcyukkuri:reimu,distance=..48] raw']
 # The scene's own button ends the original partner; the widow may accept the candidate only once the ledger holds that death.
 _smoke('widow_repair', 3600, [r'\[body\][^\n]* death settled[^\n]*cause=genericKill\b',

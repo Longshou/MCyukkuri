@@ -191,8 +191,7 @@ final class LifeHome {
         var search=o.homeProvider().findHome(o.entity());
         if(search==HomeProvider.SearchResult.DEFERRED)return true;
         if(search==HomeProvider.SearchResult.FOUND)return false;
-        BlockPos nest = nearestCare(CareBlock.Kind.NEST, false);
-        if (nest != null && assignHome(GlobalPos.of(o.level().dimension(), nest))) return false;
+        if (claimNearestNest()) return false;
         // A wild individual without a recognised home is a vagrant: any dry roof is only a refuge for the night, never an address.
         if (o.entity().habitat().wildLiver()) return false;
         var found = new ArrayList<BlockPos>();
@@ -206,6 +205,12 @@ final class LifeHome {
             GameplayLog.event(o.entity(),"home","assigned kind=roof home={}",home);
         }
         return false;
+    }
+
+    /** The nearest nest this stage and body fit that no one holds yet, taken through the ordinary care-nest assignment. */
+    boolean claimNearestNest() {
+        BlockPos nest = nearestCare(CareBlock.Kind.NEST, false);
+        return nest != null && assignHome(GlobalPos.of(o.level().dimension(), nest));
     }
 
     BlockPos nearestCare(CareBlock.Kind kind, boolean requireFood) {
