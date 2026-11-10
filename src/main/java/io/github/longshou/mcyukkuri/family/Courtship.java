@@ -422,7 +422,11 @@ final class Courtship {
     }
 
     /** He leaves for a partner another goal took him away from: a real walk back, never a second try at the same spot. */
-    void beginComeback() { resetAttempt();returning=true; }
+    void beginComeback() {
+        resetAttempt();returning=true;
+        GameplayLog.limited(o.entity(),"family","court.comeback",200,"courtship comeback partner={} distance={}",
+                roundPeer,Math.round(o.entity().distanceTo(o.target())*10)/10.0);
+    }
 
     /** This round is a refusal he will hear: her standing partner, not the walk, is what keeps the pair apart. */
     void beginDecline() { resetAttempt();declinedRound=true; }
