@@ -292,12 +292,6 @@ SETTLE = {
         'baby': ('{c}♪ まんま、もらった！ ありがちょ！', '{c}♪ 拿到饭饭了！谢谢！', '{c}! Got num-num! Thank you!'),
         'juvenile': ('{p}ごはんさん、もらった{e}！ ありがとう！', '{p}拿到食物先生了{e}！谢谢！', '{p}I got Mr. Food! Thank you!'),
         'adult': ('{p}ごはんさん、ありがたくいただく{e}。', '{p}食物先生，我就心怀感激地收下了{e}。', '{p}Thank you, I will gladly take Mr. Food.')},
-    'rule_rebuke': {
-        'adult': ('{p}それはだめ{e}！ みんなのきまりを、まもる{e}！', '{p}那样不行{e}！大家的规矩要遵守{e}！', '{p}That is not allowed! Keep the rules we all share!')},
-    'rule_punished': {
-        'baby': ('{c}ーっ！ ごめにゃしゃい、ごめにゃしゃい……', '{c}——！对不起，对不起……', '{c}! Sorry, sorry...'),
-        'juvenile': ('{p}ごめんなさい{e}……。もうしない{e}……', '{p}对不起{e}……。不会再做了{e}……', '{p}Sorry... I will not do it again...'),
-        'adult': ('{p}{n}がわるかった{e}……。きまりは、まもる{e}……', '{p}是{n}不好{e}……。规矩会遵守的{e}……', '{p}{N} was wrong... I will keep the rules...')},
     'rule_blocked': {
         'baby': ('{c}……だめ？ ちょっとだけ、だめ？', '{c}……不行吗？一点点也不行吗？', '{c}... no? Not even a little?'),
         'juvenile': ('{p}ここは、はいっちゃだめ{e}……？', '{p}这里不能进去{e}……？', '{p}I am not allowed in here...?'),

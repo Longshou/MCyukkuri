@@ -100,10 +100,8 @@ public final class CommonsCommands {
         out.append("pressure now ").append(pressure.text()).append(" main ").append(pressure.main()).append('\n');
         out.append("pressure at last review ").append(c.pressureText.isEmpty() ? "-" : c.pressureText).append('\n');
         c.standing.forEach((who, s) -> {
-            if (s.banishedUntil <= now && s.intrusions == 0) return;
-            out.append("  standing ").append(id(who))
-                    .append(s.banishedUntil > now ? " banished " + (s.banishedUntil - now) : "")
-                    .append(s.intrusions > 0 ? " intrusions " + s.intrusions : "").append('\n');
+            if (s.intrusions == 0) return;
+            out.append("  standing ").append(id(who)).append(" intrusions ").append(s.intrusions).append('\n');
         });
         int skip = Math.max(0, c.log.size() - 20), i = 0;
         for (CompoundTag e : c.log) {

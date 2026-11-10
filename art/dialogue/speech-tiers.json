@@ -23384,58 +23384,6 @@
    "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
   },
   {
-   "id": "reimu.adult.s_rule_rebuke",
-   "species": "reimu",
-   "age": "adult",
-   "events": [
-    "rule_rebuke"
-   ],
-   "japanese": "それはだめよ！ みんなのきまりを、まもるよ！",
-   "chinese": "那样不行哦！大家的规矩要遵守哦！",
-   "english": "That is not allowed! Keep the rules we all share!",
-   "origin": "project-original",
-   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
-  },
-  {
-   "id": "reimu.baby.s_rule_punished",
-   "species": "reimu",
-   "age": "baby",
-   "events": [
-    "rule_punished"
-   ],
-   "japanese": "ゆっ、ゆっーっ！ ごめにゃしゃい、ごめにゃしゃい……",
-   "chinese": "油、油——！对不起，对不起……",
-   "english": "Yu, yu! Sorry, sorry...",
-   "origin": "project-original",
-   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
-  },
-  {
-   "id": "reimu.juvenile.s_rule_punished",
-   "species": "reimu",
-   "age": "juvenile",
-   "events": [
-    "rule_punished"
-   ],
-   "japanese": "ごめんなさいにぇ……。もうしないにぇ……",
-   "chinese": "对不起捏……。不会再做了捏……",
-   "english": "Sorry... I will not do it again...",
-   "origin": "project-original",
-   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
-  },
-  {
-   "id": "reimu.adult.s_rule_punished",
-   "species": "reimu",
-   "age": "adult",
-   "events": [
-    "rule_punished"
-   ],
-   "japanese": "れいむがわるかったよ……。きまりは、まもるよ……",
-   "chinese": "是灵梦不好哦……。规矩会遵守的哦……",
-   "english": "Reimu was wrong... I will keep the rules...",
-   "origin": "project-original",
-   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
-  },
-  {
    "id": "reimu.baby.s_rule_blocked",
    "species": "reimu",
    "age": "baby",
@@ -23835,58 +23783,6 @@
    "japanese": "ごはんさん、ありがたくいただくだぜ。",
    "chinese": "食物先生，我就心怀感激地收下了贼。",
    "english": "Thank you, I will gladly take Mr. Food.",
-   "origin": "project-original",
-   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
-  },
-  {
-   "id": "marisa.adult.s_rule_rebuke",
-   "species": "marisa",
-   "age": "adult",
-   "events": [
-    "rule_rebuke"
-   ],
-   "japanese": "それはだめだぜ！ みんなのきまりを、まもるだぜ！",
-   "chinese": "那样不行贼！大家的规矩要遵守贼！",
-   "english": "That is not allowed! Keep the rules we all share!",
-   "origin": "project-original",
-   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
-  },
-  {
-   "id": "marisa.baby.s_rule_punished",
-   "species": "marisa",
-   "age": "baby",
-   "events": [
-    "rule_punished"
-   ],
-   "japanese": "ゆっ、ゆっーっ！ ごめにゃしゃい、ごめにゃしゃい……",
-   "chinese": "油、油——！对不起，对不起……",
-   "english": "Yu, yu! Sorry, sorry...",
-   "origin": "project-original",
-   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
-  },
-  {
-   "id": "marisa.juvenile.s_rule_punished",
-   "species": "marisa",
-   "age": "juvenile",
-   "events": [
-    "rule_punished"
-   ],
-   "japanese": "ごめんなさいなのじぇ……。もうしないなのじぇ……",
-   "chinese": "对不起惹杰……。不会再做了惹杰……",
-   "english": "Sorry... I will not do it again...",
-   "origin": "project-original",
-   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
-  },
-  {
-   "id": "marisa.adult.s_rule_punished",
-   "species": "marisa",
-   "age": "adult",
-   "events": [
-    "rule_punished"
-   ],
-   "japanese": "まりさがわるかっただぜ……。きまりは、まもるだぜ……",
-   "chinese": "是魔理沙不好贼……。规矩会遵守的贼……",
-   "english": "Marisa was wrong... I will keep the rules...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
   },
@@ -24294,58 +24190,6 @@
    "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
   },
   {
-   "id": "alice.adult.s_rule_rebuke",
-   "species": "alice",
-   "age": "adult",
-   "events": [
-    "rule_rebuke"
-   ],
-   "japanese": "それはだめわ！ みんなのきまりを、まもるわ！",
-   "chinese": "那样不行呢！大家的规矩要遵守呢！",
-   "english": "That is not allowed! Keep the rules we all share!",
-   "origin": "project-original",
-   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
-  },
-  {
-   "id": "alice.baby.s_rule_punished",
-   "species": "alice",
-   "age": "baby",
-   "events": [
-    "rule_punished"
-   ],
-   "japanese": "ゆっ、ゆっーっ！ ごめにゃしゃい、ごめにゃしゃい……",
-   "chinese": "油、油——！对不起，对不起……",
-   "english": "Yu, yu! Sorry, sorry...",
-   "origin": "project-original",
-   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
-  },
-  {
-   "id": "alice.juvenile.s_rule_punished",
-   "species": "alice",
-   "age": "juvenile",
-   "events": [
-    "rule_punished"
-   ],
-   "japanese": "ごめんなさいにょ……。もうしないにょ……",
-   "chinese": "对不起哟……。不会再做了哟……",
-   "english": "Sorry... I will not do it again...",
-   "origin": "project-original",
-   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
-  },
-  {
-   "id": "alice.adult.s_rule_punished",
-   "species": "alice",
-   "age": "adult",
-   "events": [
-    "rule_punished"
-   ],
-   "japanese": "ありすがわるかったわ……。きまりは、まもるわ……",
-   "chinese": "是爱丽丝不好呢……。规矩会遵守的呢……",
-   "english": "Alice was wrong... I will keep the rules...",
-   "origin": "project-original",
-   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
-  },
-  {
    "id": "alice.baby.s_rule_blocked",
    "species": "alice",
    "age": "baby",
@@ -24745,58 +24589,6 @@
    "japanese": "ごはんさん、ありがたくいただくだよー。",
    "chinese": "食物先生，我就心怀感激地收下了哟——。",
    "english": "Thank you, I will gladly take Mr. Food.",
-   "origin": "project-original",
-   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
-  },
-  {
-   "id": "chen.adult.s_rule_rebuke",
-   "species": "chen",
-   "age": "adult",
-   "events": [
-    "rule_rebuke"
-   ],
-   "japanese": "それはだめだよー！ みんなのきまりを、まもるだよー！",
-   "chinese": "那样不行哟——！大家的规矩要遵守哟——！",
-   "english": "That is not allowed! Keep the rules we all share!",
-   "origin": "project-original",
-   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
-  },
-  {
-   "id": "chen.baby.s_rule_punished",
-   "species": "chen",
-   "age": "baby",
-   "events": [
-    "rule_punished"
-   ],
-   "japanese": "ゆ、にゃっーっ！ ごめにゃしゃい、ごめにゃしゃい……",
-   "chinese": "油、喵——！对不起，对不起……",
-   "english": "Yu, nya! Sorry, sorry...",
-   "origin": "project-original",
-   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
-  },
-  {
-   "id": "chen.juvenile.s_rule_punished",
-   "species": "chen",
-   "age": "juvenile",
-   "events": [
-    "rule_punished"
-   ],
-   "japanese": "ごめんなさいだよぅ……。もうしないだよぅ……",
-   "chinese": "对不起哟——……。不会再做了哟——……",
-   "english": "Sorry... I will not do it again...",
-   "origin": "project-original",
-   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
-  },
-  {
-   "id": "chen.adult.s_rule_punished",
-   "species": "chen",
-   "age": "adult",
-   "events": [
-    "rule_punished"
-   ],
-   "japanese": "ちぇんがわるかっただよー……。きまりは、まもるだよー……",
-   "chinese": "是橙不好哟——……。规矩会遵守的哟——……",
-   "english": "Chen was wrong... I will keep the rules...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
   },
@@ -25204,58 +24996,6 @@
    "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
   },
   {
-   "id": "patchouli.adult.s_rule_rebuke",
-   "species": "patchouli",
-   "age": "adult",
-   "events": [
-    "rule_rebuke"
-   ],
-   "japanese": "むきゅ。それはだめわ！ みんなのきまりを、まもるわ！",
-   "chinese": "姆啾。那样不行哇！大家的规矩要遵守哇！",
-   "english": "Mukyu. That is not allowed! Keep the rules we all share!",
-   "origin": "project-original",
-   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
-  },
-  {
-   "id": "patchouli.baby.s_rule_punished",
-   "species": "patchouli",
-   "age": "baby",
-   "events": [
-    "rule_punished"
-   ],
-   "japanese": "む、きゅっーっ！ ごめにゃしゃい、ごめにゃしゃい……",
-   "chinese": "姆、啾——！对不起，对不起……",
-   "english": "Mu, kyu! Sorry, sorry...",
-   "origin": "project-original",
-   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
-  },
-  {
-   "id": "patchouli.juvenile.s_rule_punished",
-   "species": "patchouli",
-   "age": "juvenile",
-   "events": [
-    "rule_punished"
-   ],
-   "japanese": "むきゅ。ごめんなさいわ……。もうしないわ……",
-   "chinese": "姆啾。对不起惹哇……。不会再做了惹哇……",
-   "english": "Mukyu. Sorry... I will not do it again...",
-   "origin": "project-original",
-   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
-  },
-  {
-   "id": "patchouli.adult.s_rule_punished",
-   "species": "patchouli",
-   "age": "adult",
-   "events": [
-    "rule_punished"
-   ],
-   "japanese": "むきゅ。ぱちゅりーがわるかったわ……。きまりは、まもるわ……",
-   "chinese": "姆啾。是帕秋莉不好哇……。规矩会遵守的哇……",
-   "english": "Mukyu. Patchouli was wrong... I will keep the rules...",
-   "origin": "project-original",
-   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
-  },
-  {
    "id": "patchouli.baby.s_rule_blocked",
    "species": "patchouli",
    "age": "baby",
@@ -25659,58 +25399,6 @@
    "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
   },
   {
-   "id": "remilia.adult.s_rule_rebuke",
-   "species": "remilia",
-   "age": "adult",
-   "events": [
-    "rule_rebuke"
-   ],
-   "japanese": "うー、それはだめのだ！ みんなのきまりを、まもるのだ！",
-   "chinese": "呜——那样不行呀！大家的规矩要遵守呀！",
-   "english": "Uu... That is not allowed! Keep the rules we all share!",
-   "origin": "project-original",
-   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
-  },
-  {
-   "id": "remilia.baby.s_rule_punished",
-   "species": "remilia",
-   "age": "baby",
-   "events": [
-    "rule_punished"
-   ],
-   "japanese": "うー、うーーっ！ ごめにゃしゃい、ごめにゃしゃい……",
-   "chinese": "呜——、呜————！对不起，对不起……",
-   "english": "Uu, uu! Sorry, sorry...",
-   "origin": "project-original",
-   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
-  },
-  {
-   "id": "remilia.juvenile.s_rule_punished",
-   "species": "remilia",
-   "age": "juvenile",
-   "events": [
-    "rule_punished"
-   ],
-   "japanese": "うー、ごめんなさいなのだ……。もうしないなのだ……",
-   "chinese": "呜——对不起呀……。不会再做了呀……",
-   "english": "Uu... Sorry... I will not do it again...",
-   "origin": "project-original",
-   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
-  },
-  {
-   "id": "remilia.adult.s_rule_punished",
-   "species": "remilia",
-   "age": "adult",
-   "events": [
-    "rule_punished"
-   ],
-   "japanese": "うー、れみりあがわるかったのだ……。きまりは、まもるのだ……",
-   "chinese": "呜——是蕾米莉亚不好呀……。规矩会遵守的呀……",
-   "english": "Uu... Remilia was wrong... I will keep the rules...",
-   "origin": "project-original",
-   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
-  },
-  {
    "id": "remilia.baby.s_rule_blocked",
    "species": "remilia",
    "age": "baby",
@@ -26110,58 +25798,6 @@
    "japanese": "うー、ごはんさん、ありがたくいただくよ。",
    "chinese": "呜——食物先生，我就心怀感激地收下了哦。",
    "english": "Uu... Thank you, I will gladly take Mr. Food.",
-   "origin": "project-original",
-   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
-  },
-  {
-   "id": "flandre.adult.s_rule_rebuke",
-   "species": "flandre",
-   "age": "adult",
-   "events": [
-    "rule_rebuke"
-   ],
-   "japanese": "うー、それはだめよ！ みんなのきまりを、まもるよ！",
-   "chinese": "呜——那样不行哦！大家的规矩要遵守哦！",
-   "english": "Uu... That is not allowed! Keep the rules we all share!",
-   "origin": "project-original",
-   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
-  },
-  {
-   "id": "flandre.baby.s_rule_punished",
-   "species": "flandre",
-   "age": "baby",
-   "events": [
-    "rule_punished"
-   ],
-   "japanese": "うー、うーーっ！ ごめにゃしゃい、ごめにゃしゃい……",
-   "chinese": "呜——、呜————！对不起，对不起……",
-   "english": "Uu, uu! Sorry, sorry...",
-   "origin": "project-original",
-   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
-  },
-  {
-   "id": "flandre.juvenile.s_rule_punished",
-   "species": "flandre",
-   "age": "juvenile",
-   "events": [
-    "rule_punished"
-   ],
-   "japanese": "うー、ごめんなさいよぅ……。もうしないよぅ……",
-   "chinese": "呜——对不起哦……。不会再做了哦……",
-   "english": "Uu... Sorry... I will not do it again...",
-   "origin": "project-original",
-   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
-  },
-  {
-   "id": "flandre.adult.s_rule_punished",
-   "species": "flandre",
-   "age": "adult",
-   "events": [
-    "rule_punished"
-   ],
-   "japanese": "うー、ふらんがわるかったよ……。きまりは、まもるよ……",
-   "chinese": "呜——是芙兰不好哦……。规矩会遵守的哦……",
-   "english": "Uu... Flandre was wrong... I will keep the rules...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
   },
@@ -26575,62 +26211,6 @@
    "japanese": "みょん！ごはんさん、ありがたくいただくよ。",
    "chinese": "咪呦！食物先生，我就心怀感激地收下了哦。",
    "english": "Myon! Thank you, I will gladly take Mr. Food.",
-   "origin": "project-original",
-   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
-  },
-  {
-   "id": "myon.miyo.adult.s_rule_rebuke",
-   "species": "myon",
-   "age": "adult",
-   "quirk": "miyo",
-   "events": [
-    "rule_rebuke"
-   ],
-   "japanese": "みょん！それはだめよ！ みんなのきまりを、まもるよ！",
-   "chinese": "咪呦！那样不行哦！大家的规矩要遵守哦！",
-   "english": "Myon! That is not allowed! Keep the rules we all share!",
-   "origin": "project-original",
-   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
-  },
-  {
-   "id": "myon.miyo.baby.s_rule_punished",
-   "species": "myon",
-   "age": "baby",
-   "quirk": "miyo",
-   "events": [
-    "rule_punished"
-   ],
-   "japanese": "みょ、みょんーっ！ ごめにゃしゃい、ごめにゃしゃい……",
-   "chinese": "咪、咪呦——！对不起，对不起……",
-   "english": "Myo, myon! Sorry, sorry...",
-   "origin": "project-original",
-   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
-  },
-  {
-   "id": "myon.miyo.juvenile.s_rule_punished",
-   "species": "myon",
-   "age": "juvenile",
-   "quirk": "miyo",
-   "events": [
-    "rule_punished"
-   ],
-   "japanese": "みょん！ごめんなさいみょ……。もうしないみょ……",
-   "chinese": "咪呦！对不起哦……。不会再做了哦……",
-   "english": "Myon! Sorry... I will not do it again...",
-   "origin": "project-original",
-   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
-  },
-  {
-   "id": "myon.miyo.adult.s_rule_punished",
-   "species": "myon",
-   "age": "adult",
-   "quirk": "miyo",
-   "events": [
-    "rule_punished"
-   ],
-   "japanese": "みょん！みょんがわるかったよ……。きまりは、まもるよ……",
-   "chinese": "咪呦！是妖梦不好哦……。规矩会遵守的哦……",
-   "english": "Myon! Myon was wrong... I will keep the rules...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
   },
@@ -27065,62 +26645,6 @@
    "japanese": "ちーんぽ！ごはんさん、ありがたくいただくよ。",
    "chinese": "金寶！食物先生，我就心怀感激地收下了哦。",
    "english": "Chinpo! Thank you, I will gladly take Mr. Food.",
-   "origin": "project-original",
-   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
-  },
-  {
-   "id": "myon.kinbao.adult.s_rule_rebuke",
-   "species": "myon",
-   "age": "adult",
-   "quirk": "kinbao",
-   "events": [
-    "rule_rebuke"
-   ],
-   "japanese": "ちーんぽ！それはだめよ！ みんなのきまりを、まもるよ！",
-   "chinese": "金寶！那样不行哦！大家的规矩要遵守哦！",
-   "english": "Chinpo! That is not allowed! Keep the rules we all share!",
-   "origin": "project-original",
-   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
-  },
-  {
-   "id": "myon.kinbao.baby.s_rule_punished",
-   "species": "myon",
-   "age": "baby",
-   "quirk": "kinbao",
-   "events": [
-    "rule_punished"
-   ],
-   "japanese": "ちん、ちーんぽーっ！ ごめにゃしゃい、ごめにゃしゃい……",
-   "chinese": "金、金寶——！对不起，对不起……",
-   "english": "Chin, chinpo! Sorry, sorry...",
-   "origin": "project-original",
-   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
-  },
-  {
-   "id": "myon.kinbao.juvenile.s_rule_punished",
-   "species": "myon",
-   "age": "juvenile",
-   "quirk": "kinbao",
-   "events": [
-    "rule_punished"
-   ],
-   "japanese": "ちーんぽ！ごめんなさいみょ……。もうしないみょ……",
-   "chinese": "金寶！对不起哦……。不会再做了哦……",
-   "english": "Chinpo! Sorry... I will not do it again...",
-   "origin": "project-original",
-   "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
-  },
-  {
-   "id": "myon.kinbao.adult.s_rule_punished",
-   "species": "myon",
-   "age": "adult",
-   "quirk": "kinbao",
-   "events": [
-    "rule_punished"
-   ],
-   "japanese": "ちーんぽ！みょんがわるかったよ……。きまりは、まもるよ……",
-   "chinese": "金寶！是妖梦不好哦……。规矩会遵守的哦……",
-   "english": "Chinpo! Myon was wrong... I will keep the rules...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518764/11518780 speech rules (third-person self-name, \"-san\" nouns, count 1-2-3 then \"lots\"); settlement and headwear events of this project; project-original wording, unvoiced"
   },

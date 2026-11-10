@@ -141,7 +141,7 @@ public final class Commons {
 
     // ---- standing of individuals (members and strangers) --------------------------------------------------------
     public static final class Standing {
-        public long banishedUntil, lastIntrusion, illicitCourtship, lastBlocked;
+        public long lastIntrusion, illicitCourtship, lastBlocked;
         public int intrusions;
     }
     public final Map<UUID, Standing> standing = new HashMap<>();
@@ -158,7 +158,6 @@ public final class Commons {
     private static boolean expired(Standing s,long now) {
         return s.lastIntrusion>=0&&s.lastIntrusion<=now
                 &&s.illicitCourtship>=0&&s.illicitCourtship<=now&&s.lastBlocked>=0&&s.lastBlocked<=now
-                &&s.banishedUntil>=0&&s.banishedUntil<=now
                 &&(s.intrusions==0?now-s.lastIntrusion>=CommunityRules.INTRUSION_GAP:elapsed(now,s.lastIntrusion,24000))
                 &&(s.illicitCourtship==0||elapsed(now,s.illicitCourtship,CommunityRules.COURTSHIP_MEMORY))
                 &&(s.lastBlocked==0||elapsed(now,s.lastBlocked,2400));
@@ -273,7 +272,7 @@ public final class Commons {
         standing.forEach((id, s) -> {
             var e = new CompoundTag();
             e.putUUID("Id", id);
-            e.putLong("BanishedUntil", s.banishedUntil); e.putLong("LastIntrusion", s.lastIntrusion);
+            e.putLong("LastIntrusion", s.lastIntrusion);
             e.putInt("Intrusions", s.intrusions); e.putLong("IllicitCourtship", s.illicitCourtship);
             standingList.add(e);
         });
@@ -326,7 +325,7 @@ public final class Commons {
             var e = (CompoundTag)raw;
             if (!e.hasUUID("Id")) continue;
             var s = new Standing();
-            s.banishedUntil = e.getLong("BanishedUntil"); s.lastIntrusion = e.getLong("LastIntrusion"); s.intrusions = Math.max(0, e.getInt("Intrusions"));
+            s.lastIntrusion = e.getLong("LastIntrusion"); s.intrusions = Math.max(0, e.getInt("Intrusions"));
             s.illicitCourtship = e.getLong("IllicitCourtship");
             standing.put(e.getUUID("Id"), s);
             cleanupStanding.add(e.getUUID("Id"));retain.accept(e.getUUID("Id"));

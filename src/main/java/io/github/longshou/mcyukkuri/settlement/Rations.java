@@ -73,7 +73,7 @@ public final class Rations {
 
     // ---- weights --------------------------------------------------------------------------------------------------
     record Mouth(float weight, float priority) {}
-    static Mouth mouth(YukkuriEntity m, SettlementData.Group group, long now) {
+    static Mouth mouth(YukkuriEntity m, SettlementData.Group group) {
         var role = group.role(m.getUUID());
         if (role == SettlementData.Role.OUTCAST) return new Mouth(0, 0);
         // A slave kept in the waste pit lives on what lies there (PitSlave): the common store owes it nothing.
@@ -109,9 +109,8 @@ public final class Rations {
     }
     /** One day of the whole loaded community's need, in portions. */
     static int communityNeed(ServerLevel level, SettlementData.Group group) {
-        long now = level.getGameTime();
         float weight = 0;
-        for (var m : members(level, group)) weight += mouth(m, group, now).weight();
+        for (var m : members(level, group)) weight += mouth(m, group).weight();
         return (int)Math.ceil(weight * PER_MOUTH);
     }
     /** What the common store aims to hold: {@value #STORE_DAYS} days of current need, at most 80 % of its room. */
@@ -122,10 +121,9 @@ public final class Rations {
     static int minimumDays(ServerLevel level, SettlementData.Group group) { return Seasons.on(level, group.center, Season.WINTER) ? 2 : 1; }
     /** The household living in {@code home} holds less than its minimum (counting its loaded residents of this community). */
     public static boolean isShort(ServerLevel level, SettlementData.Group group, ShelterBlockEntity home) {
-        long now = level.getGameTime();
         float weight = 0;
         for (UUID id : home.residentIds())
-            if (level.getEntity(id) instanceof YukkuriEntity m && m.isAlive() && group.id.equals(m.settlement().groupId())) weight += mouth(m, group, now).weight();
+            if (level.getEntity(id) instanceof YukkuriEntity m && m.isAlive() && group.id.equals(m.settlement().groupId())) weight += mouth(m, group).weight();
         if (weight <= 0) return false;
         return home.food() < Math.ceil(weight * PER_MOUTH) * minimumDays(level, group);
     }
@@ -138,12 +136,11 @@ public final class Rations {
 
     /** Report lines (operator command): each loaded household with its pile, food, minimum and whether it is short. */
     static List<String> households(ServerLevel level, SettlementData.Group group) {
-        long now = level.getGameTime();
         var commonPiles = CommonStore.piles(level, group);
         Map<Long, Household> homes = new LinkedHashMap<>();
         for (var m : membersInEncounterOrder(level, group)) {
             var home = m.habitat().shelter();
-            var mouth = mouth(m, group, now);
+            var mouth = mouth(m, group);
             if (home == null || mouth.weight() <= 0) continue;
             var h = homes.computeIfAbsent(key(home), k -> new Household(home));
             h.people.add(m); h.weight += mouth.weight();
@@ -170,7 +167,7 @@ public final class Rations {
         dailyCheck(level, group, leader);
     }
 
-    /** A willing adult can organise relief while the incumbent is absent or unable; this grants no office or judgement. */
+    /** A willing adult can organise relief while the incumbent is absent or unable without taking office. */
     static void tickEmergency(ServerLevel level, SettlementData.Group group, List<YukkuriEntity> present) {
         if (!CommunityRules.ruled(group) || Migration.moving(group)
                 || group.commons.checkDay == level.getDayTime() / 24000 || CommonStore.piles(level, group).isEmpty()) return;
@@ -178,7 +175,7 @@ public final class Rations {
         if (leader != null && available(leader)
                 && (SettlementSeasons.confined(leader) || leader.distanceToSqr(Vec3.atBottomCenterOf(group.center)) <= 16 * 16)) return;
         long time = level.getDayTime() % 24000;
-        boolean urgent = present.stream().anyMatch(m -> m.life().nutrition() < 30 && mouth(m, group, level.getGameTime()).weight() > 0);
+        boolean urgent = present.stream().anyMatch(m -> m.life().nutrition() < 30 && mouth(m, group).weight() > 0);
         if (!urgent && (time < START || time >= END)) return;
         var helper = present.stream().filter(m -> m.family().adult() && SettlementSociety.accepted(m) && available(m)
                         && m.status().identity().wild() && !m.profile().dangerToYukkuri()
@@ -241,7 +238,7 @@ public final class Rations {
         float totalWeight = 0;
         for (var m : members) {
             if (m.life().nutrition() < 30) hungry++;
-            var mouth = mouth(m, group, now);
+            var mouth = mouth(m, group);
             totalWeight += mouth.weight();
             var home = m.habitat().shelter();
             if (home == null || mouth.weight() <= 0) continue;

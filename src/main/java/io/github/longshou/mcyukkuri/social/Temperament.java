@@ -4,17 +4,12 @@ package io.github.longshou.mcyukkuri.social;
 public final class Temperament {
     public static final int HARSH_FRIENDLINESS = 45;
     public static final int PROTECT_FRIENDLINESS = 55;
-    public static final int LENIENT_FRIENDLINESS = 60;
-    public static final int LENIENT_SELF_CONTROL = 65;
 
     public static boolean harsh(YukkuriPersonality personality) {
         return personality.friendliness() < HARSH_FRIENDLINESS;
     }
     public static boolean harshForContempt(YukkuriPersonality personality) { return harsh(personality); }
     public static boolean harshForSettlement(YukkuriPersonality personality) { return harsh(personality); }
-    public static boolean lenient(YukkuriPersonality personality) {
-        return personality.selfControl() >= LENIENT_SELF_CONTROL && personality.friendliness() >= LENIENT_FRIENDLINESS;
-    }
     public static boolean protects(YukkuriPersonality personality) {
         return personality.friendliness() >= PROTECT_FRIENDLINESS;
     }

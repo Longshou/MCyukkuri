@@ -22,7 +22,7 @@ public final class Sanction {
         /**
          * Carry out a sanction (bullying). Server thread only; {@code enforcer} may be null (the handler picks a fitting member).
          *
-         * @param offence the {@link CommunityRules.Offence} id, e.g. {@code kin_kill}, {@code returned_exile}, {@code hatless}
+         * @param offence the {@link CommunityRules.Offence} id for a hatless intruder
          * @return true when the handler took the case (it will act through real behaviour); false to let the rules fall back
          */
         boolean punish(YukkuriEntity offender, YukkuriEntity enforcer, int severity, String offence);

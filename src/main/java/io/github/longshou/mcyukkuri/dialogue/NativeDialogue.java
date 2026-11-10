@@ -95,8 +95,8 @@ public final class NativeDialogue {
             // The dead and the smell of them: the stench, the taboo meal and the hunt of a hatless monster answer something happening right now.
             case "stench", "eat_kin", "hunt_sweet" -> 2;
             // Settlement calls and headwear beats: a hunt call, a ration, a scolding or a torn / mended ornament answers something that just happened.
-            case "accessory_torn", "rule_punished", "famine" -> 3;
-            case "hunt_call", "hunt_join", "hunt_refuse", "hunt_back", "ration_give", "ration_get", "rule_rebuke", "rule_blocked",
+            case "accessory_torn", "famine" -> 3;
+            case "hunt_call", "hunt_join", "hunt_refuse", "hunt_back", "ration_give", "ration_get", "rule_blocked",
                  "migrate_discuss", "migrate_object", "migrate_agree", "migrate_pack", "shard_gathered", "accessory_mended",
                  "hatless_scorn", "hatless_monster" -> 2;
             case "idle", "chew", "sleep", "house_peek", "peer", "known_peer" -> 0;

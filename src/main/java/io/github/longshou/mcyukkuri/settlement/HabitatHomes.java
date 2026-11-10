@@ -248,13 +248,11 @@ final class HabitatHomes {
             var core=search.cores.get(search.core++);
             SearchBudget.probe(level());
             if(!level().hasChunkAt(core.getBlockPos())||level().getBlockEntity(core.getBlockPos())!=core||core.isRemoved())return Result.DEFERRED;
-            if(!CommunityRules.barred(o.entity(),core.getBlockPos())&&o.choose(core))return Result.FOUND;
+            if(o.choose(core))return Result.FOUND;
             return Result.DEFERRED;
         }
         // A dependent child follows its parents' home; only a grown individual founds a home of its own.
         if(!o.grownEnough()||!EventHooks.canEntityGrief(level(),o.entity()))return Result.NOT_FOUND;
-        // Banished from this territory: it must not found a home inside it (package 12).
-        if(CommunityRules.barred(o.entity(),o.entity().blockPosition()))return Result.NOT_FOUND;
         if(!search.scanned) {
             BlockPos pos=search.pendingCell;
             boolean resumed=pos!=null;
@@ -305,12 +303,6 @@ final class HabitatHomes {
         if(pendingDig!=null&&!pendingDig.equals(digContext()))cancelVagrantProject();
         if(searchWait>0)return pendingDig==null?Result.NOT_FOUND:deferVagrantProject();
         searchWait=100;
-        // Banished from this territory: move on instead of settling in it (package 12).
-        if(CommunityRules.barred(o.entity(),o.entity().blockPosition())) {
-            cancelVagrantProject();
-            SearchBudget.cancel(level(),o.entity(),Purpose.FIND_HOME,homeGeneration);
-            return Result.of(roamWait<=0&&startRoam());
-        }
         if(pendingDig==null) {
             var found=findHome();
             if(found==Result.DEFERRED)return deferVagrantProject();

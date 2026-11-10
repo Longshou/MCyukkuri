@@ -7,7 +7,6 @@ import io.github.longshou.mcyukkuri.social.Temperament;
 import java.util.Comparator;
 import java.util.Locale;
 import java.util.UUID;
-import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.damagesource.DamageSource;
 import java.util.function.Predicate;
@@ -25,26 +24,19 @@ import java.util.function.ToDoubleFunction;
  *
  * <p>Project design (numbers and witnesses): only a community with a leader office has rules; an offence counts
  * only when a real member saw it (awake, within range, line of sight, recognising the offender), and is recorded in the
- * community log. A hatless stranger is driven off and, on repeat, bullied ({@link Sanction}); so is an intruder that keeps
- * coming back.
+ * community log. A hatless stranger is driven off and, on repeat, bullied ({@link Sanction}).
  */
 public final class CommunityRules {
     public enum Offence {
         THEFT("theft", 1, Commons.NO_THEFT), DEFIANCE("defiance", 1, Commons.OBEY_CALL),
         ILLICIT_BIRTH("illicit_birth", 2, Commons.BIRTH_LIMIT), HATLESS("hatless", 2, Commons.NO_HATLESS),
-        RETURNED_EXILE("returned_exile", 3, Commons.OBEY_CALL),
         KIN_KILL("kin_kill", 4, Commons.NO_KIN_KILL), CANNIBAL("cannibal", 4, Commons.NO_CANNIBAL);
         public final String id; public final int base, rule;
         Offence(String id, int base, int rule) { this.id = id; this.base = base; this.rule = rule; }
-        public static Offence byId(String id) {
-            for (var o : values()) if (o.id.equals(id)) return o;
-            return null;
-        }
     }
     /** [original] distances and durations. */
     static final double WITNESS_RANGE = 10, PATROL_RANGE = 8, TERRITORY = 40;
-    public static final long BANISH_TICKS = 72000;
-    static final long INTRUSION_GAP = 600, COURTSHIP_MEMORY = 48000, EXILE_GRACE = 2400;
+    static final long INTRUSION_GAP = 600, COURTSHIP_MEMORY = 48000;
 
     // ---- who has rules ------------------------------------------------------------------------------------------
     /** A forest community with a leader office keeps rules (also during a vacancy); leaderless groups and families have none. */
@@ -104,20 +96,6 @@ public final class CommunityRules {
         return true;
     }
 
-    public static boolean banished(SettlementData.Group group, UUID id, long now) {
-        var s = group == null ? null : group.commons.existing(id);
-        return s != null && s.banishedUntil > now;
-    }
-
-    /** True when {@code pos} lies in the territory of a community that has banished {@code entity}: it must not settle there. */
-    public static boolean barred(YukkuriEntity entity, BlockPos pos) {
-        if (!(entity.level() instanceof ServerLevel level)) return false;
-        long now = level.getGameTime();
-        for (var group : SettlementData.get(level).groups())
-            if (ruled(group) && banished(group, entity.getUUID(), now) && pos.distSqr(group.center) <= TERRITORY * TERRITORY) return true;
-        return false;
-    }
-
     // ---- patrol: strangers without accessories, returning exiles, visible illicit pregnancies -------------------
     /** Every ~10 s per accepted, awake member of a ruled community (called from SettlementLife). */
     static void patrol(YukkuriEntity member, SettlementData.Group group) {
@@ -144,11 +122,7 @@ public final class CommunityRules {
             var s = commons.standing(other.getUUID());
             if (now - s.lastIntrusion < INTRUSION_GAP) continue;
             boolean recognised = member.life().canRecognize(other);
-            // A sentence leaves time to go: only an exile still or again inside the territory after the grace is an offence.
-            if (recognised && banished(group, other.getUUID(), now) && now - (s.banishedUntil - BANISH_TICKS) >= EXILE_GRACE) {
-                s.lastIntrusion = now;
-                report(other, group, Offence.RETURNED_EXILE, member, "came_back");
-            } else if (!recognised && group.commons.has(Commons.NO_HATLESS)) {
+            if (!recognised && group.commons.has(Commons.NO_HATLESS)) {
                 var p = member.life().personality();
                 if (p.friendliness() > 50
                         && p.friendliness() > 40) { member.mind().felt(EmotionEvent.REJECTED); member.showReaction("surprise", "unrecognized",
@@ -237,7 +211,7 @@ public final class CommunityRules {
     /**
      * Called from {@link SettlementSeasons#mayCourt} before a courtship starts. The birth rule stops a household that already
      * raises {@link Commons#birthLimit} young, and everyone in a famine. Law-abiding individuals refrain; a defiant one
-     * (low self-control, low attachment) courts anyway and is marked, so that the pregnancy, once seen, is judged.
+     * (low self-control, low attachment) courts anyway and is marked so a witnessed pregnancy can be reported.
      */
     public static boolean mayCourt(YukkuriEntity entity) {
         if (!(entity.level() instanceof ServerLevel level)) return true;

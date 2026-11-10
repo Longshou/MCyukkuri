@@ -220,8 +220,6 @@
     {"id":"request_thanks","event":"request_thanks","zh":"","ja":"","en":"","basis":["P"],"status":"todo"},
     {"id":"returned_accessory","event":"returned_accessory","zh":"找回头饰","ja":"飾物が戻る","en":"Returned accessory","basis":["P"],"status":"ready","axis_refs":["common.accessory_san"]},
     {"id":"rule_blocked","event":"rule_blocked","zh":"规则阻挡","ja":"規則で阻止","en":"Blocked by rule","basis":["P"],"status":"ready","axis_refs":["common.refusal_da"]},
-    {"id":"rule_punished","event":"rule_punished","zh":"受规则处罚","ja":"規則で罰せられる","en":"Punished by rule","basis":["P"],"status":"rule","axis_refs":["common.self_pity"]},
-    {"id":"rule_rebuke","event":"rule_rebuke","zh":"斥责违规","ja":"違反を叱る","en":"Rebuke rule breach","basis":["P"],"status":"rule","axis_refs":["special.leader_overlay"]},
     {"id":"sacrifice","event":"sacrifice","zh":"舍身护幼","ja":"身代わりになる","en":"Sacrifice","basis":["P"],"status":"ready","axis_refs":["special.self_offering_parent"]},
     {"id":"self_rescue_climb","event":"self_rescue_climb","zh":"","ja":"","en":"","basis":["P"],"status":"todo"},
     {"id":"self_rescue_grip","event":"self_rescue_grip","zh":"","ja":"","en":"","basis":["P"],"status":"todo"},

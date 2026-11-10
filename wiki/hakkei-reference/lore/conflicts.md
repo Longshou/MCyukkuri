@@ -86,7 +86,7 @@
 | 精神崩解 | “不如意症”可用好环境与安抚治好，疯狂可交兽医术后复诊（[F01](https://yukkuri.fandom.com/wiki/Anti-yukkuritis)、[F20](https://yukkuri.fandom.com/wiki/Yukkuri_insanity)） | 非油症不可逆：狂乱期→衰竭期→由病变伤中枢死亡；只能靠降低不安避免进入 |
 | 品行评价 | nicehead／shithead 二分概括品行，但页面承认界限模糊（[F15](https://yukkuri.fandom.com/wiki/Shithead)、[F35](https://yukkuri.fandom.com/wiki/Yukkuri)） | 使用五项连续属性、关系与真实行为评价，不设固定好坏类别 |
 | 受攻击时的反应 | 受虐个体几乎不还手，最多噗咕（[F49](https://yukkuri.fandom.com/wiki/Abuse)） | 被同类攻击时按胆量与恐惧选择反击或逃跑，生命≤40%、虚弱、中枢受损、营养或精力<15 必须退避；制裁只到欺负，不杀 |
-| 族群组织 | 多世袭、靠体型与超能力压服，可判死刑（[F19](https://yukkuri.fandom.com/wiki/Yukkuri_Clan)） | 族长由智力、自制与成年后时长选出；族规处置到驱逐与欺负为止 |
+| 族群组织 | 多世袭、靠体型与超能力压服，可判死刑（[F19](https://yukkuri.fandom.com/wiki/Yukkuri_Clan)） | 族长由智力、自制与成年后时长选出；族长组织共同狩猎、分粮与迁徙 |
 | 核心短语与评价 | Take it easy 是语言核心，Easy／Uneasy 同时评价食物、住所、饰物与社会地位（[F17](https://yukkuri.fandom.com/wiki/Take_it_easy)、[F21](https://yukkuri.fandom.com/wiki/Yukkuri_vocabulary)） | 台词按种族、关系与成长阶段选择；不安是独立连续数值，不把 Easy 当成统一语言或地位规则 |
 | 自称与称呼 | 油库里通常用第三人称自称；几乎对任何对象或现象加敬称（[F54](https://yukkuri.fandom.com/wiki/Translator%27s_Guide)） | 自称与敬称按制作源、种族、关系和成长阶段选句，不把动作自述的概率与冷却当作第三人称自称的规则 |
 | 认知与推理 | 所有个体都有幼儿式错判，不理解意外、反话与公私边界，最聪明也只相当于人类小孩（[F21](https://yukkuri.fandom.com/wiki/Yukkuri_vocabulary)、[F35](https://yukkuri.fandom.com/wiki/Yukkuri)） | 智力与认知是连续个体差异，学习、记忆与辨认按真实规则结算，不设全局“笨”阈值 |
