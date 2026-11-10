@@ -16,6 +16,7 @@
 | 生3 成体撞碎玻璃板（共享动作）与住家宣言破窗入空屋 | `.worktrees/wp-el-pane-bash` | motor/action/（新撞击动作）、event/HomeClaim.java、event/HomeClaimGoal.java、scripts/museum_scenarios.py（新增一场） |
 | 草1 爱丽丝扑压：Motor 拥有的扑上与压住能力替换瞬移 | `.worktrees/wp-eo-agitation-pin` | motor/（新扑压能力）、life/AgitationLife.java |
 | 生6 粪便统一按体积：每次排便量随体型，各去处按体积计 | `.worktrees/wp-ek-waste-volume` | body/DetachedItems.java、life/YukkuriLife.java（排便量）、life/ToiletContact.java、Poops/PoopBlock、CareBlockEntity 与 CareRenderer、family/LeafSwaddle.java（soil 计量）、WashClothItem、HouseNestBlockEntity（debris） |
+| 动作库 M2 第一批基本动作：前冲撞击 lunge_ram、点头（bow 参数化）、贴靠（rain_huddle 参数化） | `.worktrees/wp-m2a-base-motions` | standards/yukkuri-library/motions/base/、motions/tiers.json、motions/index.json、variants/lore/recipe.json（bow、rain_huddle）与 motion 导出 |
 
 ## 玩法待办
 
