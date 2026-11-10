@@ -1229,14 +1229,16 @@ add('leaf_swaddle_neglect', 'meadow', '没人照看，襁褓里积满便便', '�
 _NEGLECT_ROW = (('s0', 0, 0), ('s1', 1, 15000), ('s2', 2, 45000), ('s3a', 3, 62000), ('s3', 3, 80000))
 add('leaf_swaddle_neglect_stages', 'meadow', '襁褓失护各段：变色、肿胀、便秘死', '襁褓失护各段：变色、肿胀、便秘死',
     '一排赤油的树叶襁褓按失护程度排开：新叶、积便渍斑、黄褐干枯（开始渐肿）、硬褐潴留（肿胀渐大到满）；右端一只已到致死段且生命很低，'
-    '约一分钟内便秘死：遗体苍白、仍裹着硬褐叶片并保留肿胀，旁边是一只熟睡的赤油可对照脸。后排一只满肿的按“解开后排赤油襁褓”（冒烟 200 tick 自动）'
+    '约一分钟内便秘死：遗体苍白、仍裹着硬褐叶片并保留肿胀，和一只熟睡的赤油同在小围栏里可对照脸。后排一只满肿的按“解开后排赤油襁褓”（冒烟 200 tick 自动）'
     '解开：积便按体积落地、脏叶作废，身体仍肿、随后逐渐消肿。失护值只是起点，之后照常推进',
     '约一分钟', [
         *(yk('reimu', round(i * 1.2, 1), 0, name, stage='baby', yaw=180, lead=name == 's3', nutrition=85, bladder=0, hygiene=40 if soil else 90,
              extra=leaf_wrap(soil=soil, neglect=neglect)) for i, (name, soil, neglect) in enumerate(_NEGLECT_ROW)),
-        yk('reimu', 6, 0, 'dying', stage='baby', yaw=180, nutrition=85, bladder=0, hygiene=30,
+        # a fence pen keeps the dying baby next to the sleeping one, so the remains and a sleeping face share the frame
+        *(block(x, 0, z, 'minecraft:oak_fence') for x in range(7, 11) for z in (-1, 0, 1) if x in (7, 10) or z != 0),
+        yk('reimu', 8, 0, 'dying', stage='baby', yaw=180, nutrition=85, bladder=0, hygiene=30,
            extra=leaf_wrap(soil=3, neglect=120000) + ',Health:2f'),
-        yk('reimu', 7, 0, 'sleeper', stage='baby', yaw=180, nutrition=85, energy=3, hygiene=90),
+        yk('reimu', 9, 0, 'sleeper', stage='baby', yaw=180, nutrition=85, energy=3, hygiene=90),
         yk('reimu', 2, 2, 'unwrapped', stage='baby', yaw=180, nutrition=85, bladder=0, hygiene=30, extra=leaf_wrap(soil=3, neglect=80000))],
     env=DAY, vantage=(3.5, 3, 180, 25),
     reads=[*leaf_reads(('致死段赤油', 'dying'), ('后排赤油', 'unwrapped'), ('硬褐赤油', 's3')),
@@ -1249,7 +1251,7 @@ add('leaf_swaddle_neglect_stages', 'meadow', '襁褓失护各段：变色、肿�
                         's3_side': dict(follow=f'@e[tag={tag("s3")},limit=1]', offset=(.65, .18, -.1)),
                         's3_rear': dict(follow=f'@e[tag={tag("s3")},limit=1]', offset=(.35, .22, -.5)),
                         'unwrap_side': dict(follow=f'@e[tag={tag("unwrapped")},limit=1]', offset=(.6, .2, -.15)),
-                        'remains': dict(follow=f'@e[tag={tag("sleeper")},limit=1]', offset=(-.4, .22, .6))}),
+                        'remains': dict(follow=f'@e[tag={tag("sleeper")},limit=1]', offset=(0, .3, 1.1))}),
     smoke=dict(ticks=1600, commands=[(200, f'yukkuri scenario unwrap {sel("unwrapped")}')],
                expect=[r'leaf swaddle kept on remains reason=retention', r'death settled into remains[^\n]*internal=swaddle_retention category=retained',
                        r'swaddle neglect stage=0 [^\n]*releasedVolume=3'], forbid=[]))
