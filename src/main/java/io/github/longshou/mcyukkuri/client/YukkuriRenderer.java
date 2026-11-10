@@ -169,8 +169,10 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
             String braidClip=carried?null:ParentCarryPresentation.liftClip(entity);
             // A brim young steps along the brim between the braid at its edge and its spot on its own feet.
             boolean stepping=carried&&ParentCarry.brimWalking(parent,entity,partialTick);
-            String action=braidClip!=null?braidClip:carriedHop?"boat_be_carried":cradled?"be_cradled":stepping?"waddle":carried?"idle":hatCarrier?ParentCarry.carryAction(entity):entity.getAnimationId();
+            boolean brimHopping=carried&&ParentCarry.brimHopping(parent,entity);
+            String action=braidClip!=null?braidClip:brimHopping?"hop_leg":carriedHop?"boat_be_carried":cradled?"be_cradled":stepping?"waddle":carried?"idle":hatCarrier?ParentCarry.carryAction(entity):entity.getAnimationId();
             float clock=braidClip!=null?Math.max(0,(entity.level().getGameTime()-entity.motorStart()+partialTick)/20f)
+                    :brimHopping?ParentCarry.brimHopClock(parent,entity,partialTick)
                     :carriedHop?(entity.level().getGameTime()-parent.motorStart()+partialTick)/20f
                     :cradled||stepping?(entity.level().getGameTime()+partialTick)/20f:carried?0:elapsed;
             var anatomy=ReproductionPresentation.anatomy(entity);

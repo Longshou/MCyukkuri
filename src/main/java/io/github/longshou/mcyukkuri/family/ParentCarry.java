@@ -591,7 +591,13 @@ public final class ParentCarry {
     }
     /** The walk on the brim between the braid at the edge and the spot, at the young's own pace. */
     private static int brimWalk(YukkuriEntity carrier, YukkuriEntity child) {
-        return CarryGeometry.motionTicks(edge().distance(brimPoint(carrier, child, 0)) * size(carrier) / 16, BodyAbility.of(child).walkSpeed());
+        return CarryGeometry.motionTicks(edge().distance(brimRest(carrier, child)) * size(carrier) / 16, BodyAbility.of(child).walkSpeed());
+    }
+    private static Vector3f brimRest(YukkuriView carrier, YukkuriView child) {
+        var motion = brimMotion(carrier, child);
+        if (motion.isEmpty() || motion.getBoolean("Done")) return brimPoint(carrier, child, 0);
+        var at = Hop.carriedPosition(motion, carrier.level().getGameTime());
+        return new Vector3f((float) at.x, (float) at.y, (float) at.z);
     }
     /** Every tick of a tuft ride clear of blocks, the carrier at {@code stand} turned to {@code yaw}: the feet the ride itself takes. */
     private static boolean rideClear(YukkuriEntity carrier, YukkuriEntity child, Vec3 stand, float yaw, IntFunction<Vector3f> feet, int from, int to) {
@@ -616,24 +622,59 @@ public final class ParentCarry {
         var e = entry(carrier, child.getUUID()).copy();
         e.putLong("T", start);
         e.putFloat("EX", off.x); e.putFloat("EY", off.y); e.putFloat("EZ", off.z);
-        e.putInt("W", brimWalk(carrier, child));
+        if (BodyAbility.of(child).canJump()) {
+            var motion = new CompoundTag();
+            var edge = edge();
+            motion.putDouble("X", edge.x); motion.putDouble("Y", edge.y); motion.putDouble("Z", edge.z);
+            e.put("BH", motion);
+        } else e.putInt("W", brimWalk(carrier, child));
         write(carrier, child.getUUID(), e);
         GameplayLog.event(carrier, "family", "brim lift child={} spot={} walk={} offset={}", child.getUUID(),
-                GameplayLog.at(worldAt(carrier, carrier.bodyYaw(), brimPoint(carrier, child, 0))), e.getInt("W"),
+                GameplayLog.at(worldAt(carrier, carrier.bodyYaw(), brimPoint(carrier, child, 0))), 0,
                 String.format(Locale.ROOT, "%.3f", off.length() * size(carrier) / 16));
         return true;
     }
     /** A brim young on its way up: riding the tuft until the lift's place, then walking from the edge to its spot; null once it sits. */
     private static Vector3f brimRide(YukkuriView carrier, YukkuriView child, CompoundTag e, float partial) {
         float t = carrier.level().getGameTime() - e.getLong("T") + partial;
-        int place = mark(BRIM_LIFT, "place"), walk = e.getInt("W");
+        int place = mark(BRIM_LIFT, "place");
         if (t < place) return liftFeet(new Vector3f(e.getFloat("EX"), e.getFloat("EY"), e.getFloat("EZ")), t);
-        return t < place + walk ? edge().lerp(brimPoint(carrier, child, partial), (t - place) / walk) : null;
+        var motion = e.getCompound("BH");
+        // A newborn that has not learned to jump still travels on its feet, at its real walking pace.
+        if (motion.isEmpty()) {
+            int walk = e.getInt("W");
+            return t < place + walk ? edge().lerp(brimPoint(carrier, child, partial), (t - place) / walk) : null;
+        }
+        if (motion.getBoolean("Done")) return null;
+        var at = Hop.carriedPosition(motion, carrier.level().getGameTime() + partial);
+        return new Vector3f((float) at.x, (float) at.y, (float) at.z);
+    }
+    /** The retained-passenger seat motion, committed only by Hop's motor execution. */
+    public static CompoundTag brimMotion(YukkuriView carrier, YukkuriView child) { return entry(carrier, child.getUUID()).getCompound("BH"); }
+    public static void brimMotion(YukkuriEntity carrier, YukkuriEntity child, CompoundTag motion) {
+        var e = entry(carrier, child.getUUID()).copy();
+        e.put("BH", motion); write(carrier, child.getUUID(), e);
+    }
+    public static Vec3 brimDestination(YukkuriView carrier, YukkuriView child) {
+        var at = brimPoint(carrier, child, 0);
+        return new Vec3(at.x, at.y, at.z);
+    }
+    public static boolean brimHopReady(YukkuriView carrier, YukkuriView child) {
+        var e = entry(carrier, child.getUUID());
+        return e.contains("BH") && carrier.level().getGameTime() - e.getLong("T") >= mark(BRIM_LIFT, "place");
+    }
+    public static boolean brimHopping(YukkuriView carrier, YukkuriView child) {
+        var motion = brimMotion(carrier, child);
+        return motion.contains("Start") && !motion.getBoolean("Done") && !entry(carrier, child.getUUID()).contains("D");
+    }
+    public static float brimHopClock(YukkuriView carrier, YukkuriView child, float partial) {
+        return Hop.carriedClock(brimMotion(carrier, child), carrier.level().getGameTime() + partial);
     }
     /** Ticks still to go of a brim young's way onto the brim (the lift clip to its end and its own walk to its spot); 0 for any other hold. */
     public static int placingLeft(YukkuriView carrier, YukkuriView child) {
         var e = entry(carrier, child.getUUID());
         if (holdOf(e) != Hold.BRIM || !e.contains("T")) return 0;
+        if (e.contains("BH") && !e.getCompound("BH").getBoolean("Done")) return 1;
         int end = Math.max(ClipMarkers.of(BRIM_LIFT).length(), mark(BRIM_LIFT, "place") + e.getInt("W"));
         return (int) Math.max(0, end - (carrier.level().getGameTime() - e.getLong("T")));
     }
@@ -662,7 +703,7 @@ public final class ParentCarry {
     private static Vector3f brimDown(YukkuriView carrier, YukkuriView child, CompoundTag e, float partial, Vector3f to) {
         float t = carrier.level().getGameTime() - e.getLong("D") + partial;
         int clip = lowerStart(e), on = clip + mark(BRIM_LOWER, "lift_start"), walk = e.getInt("W");
-        if (t < on) return brimPoint(carrier, child, partial).lerp(tuft(BRIM_LOWER, mark(BRIM_LOWER, "lift_start")), Math.clamp((t - on + walk) / walk, 0, 1));
+        if (t < on) return brimRest(carrier, child).lerp(tuft(BRIM_LOWER, mark(BRIM_LOWER, "lift_start")), Math.clamp((t - on + walk) / walk, 0, 1));
         return lowerFeet(to, t - clip);
     }
     /** Whether a brim young's endpoint lies level enough with the carrier's stand for the tuft ride to set it there ({@link #BRIM_STEP}). */

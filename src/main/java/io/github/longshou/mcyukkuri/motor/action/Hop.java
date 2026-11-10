@@ -37,10 +37,20 @@ import java.util.Map;
 import java.util.Optional;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.Mth;
 
 /** One collision-clear ballistic path; a seat's world point is sampled at take-off and attached at contact. */
 public final class Hop implements Action {
+    private CarriedHop carried;
+    /** A hop between local points while retaining the carrier's passenger relation. */
+    public static Hop carried(YukkuriEntity carrier, Vec3 destination) {
+        var hop = new Hop(Vec3.ZERO);
+        hop.carried = new CarriedHop(carrier, destination);
+        return hop;
+    }
+    public static Vec3 carriedPosition(CompoundTag motion, double now) { return CarriedHop.position(motion, now); }
+    public static float carriedClock(CompoundTag motion, double now) { return CarriedHop.clock(motion, now); }
     public static final String ID = "hop";
     private static final String CLIP = "hop_leg";
     static final int SETTLE = 10;
@@ -148,6 +158,7 @@ public final class Hop implements Action {
         Flight(Feasibility ready, SeatTarget seat, ArcSolver.Plan plan) { this(ready, seat, plan, false); }
     }
     @Override public Feasibility check(YukkuriEntity body) {
+        if (carried != null) return carried.check(body);
         return check(body, new Search());
     }
     /** {@link #check(YukkuriEntity)} within one decision that also asks other hops, sharing its memo. */
@@ -454,6 +465,7 @@ public final class Hop implements Action {
     }
 
     @Override public void start(YukkuriEntity body) {
+        if (carried != null) { carried.start(body); return; }
         departure = body.getVehicle() instanceof SurfaceHost host ? host : null;
         aboard = departure != null && departure == seatHost;
         takeoff = takeoffTicks();
@@ -463,6 +475,7 @@ public final class Hop implements Action {
     }
 
     @Override public Progress tick(YukkuriEntity body) {
+        if (carried != null) return carried.tick(body);
         if (rest != null) return finishSeating(body);
         if (recovery > 0) {
             if (--recovery > 0) return new Running(recovery, TravelMode.CONSUMED);
@@ -627,6 +640,9 @@ public final class Hop implements Action {
         return new Running(seatHost.riders().local(body.getUUID()).distanceTo(rest.local()), TravelMode.CONSUMED);
     }
 
+    @Override public void abort(YukkuriEntity body, String why) {
+        if (carried != null) carried.freeze(body, body.level().getGameTime());
+    }
     @Override public boolean interruptible() { return !launched && recovery == 0; }
     @Override public boolean airborne() { return launched; }
     @Override public MotionPose pose() {

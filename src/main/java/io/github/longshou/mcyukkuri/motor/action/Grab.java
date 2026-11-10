@@ -57,6 +57,7 @@ public final class Grab implements Action {
     private boolean mounted, fromHead, begun;
     private long startTick, clipStart;
     private final StowStep clear = new StowStep();
+    private Hop brimHop;
 
     public Grab(YukkuriEntity target) { this(target, null); }
     public Grab(YukkuriEntity target, SurfaceHost source) {
@@ -249,6 +250,16 @@ public final class Grab implements Action {
     private Progress brimTick(YukkuriEntity carrier) {
         if (mounted) {
             if (target.getVehicle() != carrier) return Outcome.of(Reason.DROPPED, 0, "let_go");
+            if (ParentCarry.brimHopReady(carrier, target)) {
+                if (brimHop == null) {
+                    brimHop = Hop.carried(carrier, ParentCarry.brimDestination(carrier, target));
+                    var ready = brimHop.check(target);
+                    if (!ready.ok()) return Outcome.of(ready.reason(), ready.shortfall(), ready.detail());
+                    brimHop.start(target);
+                }
+                var progress = brimHop.tick(target);
+                if (!(progress instanceof Outcome.Done)) return progress;
+            }
             int left = ParentCarry.placingLeft(carrier, target);
             return left > 0 ? new Running(left, TravelMode.CONSUMED) : completed(carrier);
         }
@@ -273,6 +284,14 @@ public final class Grab implements Action {
     private Outcome completed(YukkuriEntity carrier) {
         ParentCarry.pickupCompleted(carrier, target);
         return new Outcome.Done("mounted target=" + target.getUUID());
+    }
+
+    @Override public void abort(YukkuriEntity carrier, String why) {
+        if (brimHop != null && target.getVehicle() == carrier) brimHop.abort(target, why);
+    }
+    @Override public void finished(YukkuriEntity carrier, Outcome outcome) {
+        if (!(outcome instanceof Outcome.Done) && brimHop != null && target.getVehicle() == carrier)
+            brimHop.abort(target, outcome.label());
     }
 
     @Override public HeldMove heldMove() { return clear.move(); }
