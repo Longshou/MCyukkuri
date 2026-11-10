@@ -121,6 +121,7 @@ final class HabitatHomes {
     private record DigPending(UUID owner,ResourceKey<Level> dimension,UUID group,UUID site) {}
     private DigPending pendingDig;
     HabitatHomes(HabitatLife o) { this.o=o; }
+    void seekHomeNow() { searchWait=0; }
     private ServerLevel level() { return o.level(); }
     void clock() {
         if(roamWait>0)roamWait--;
@@ -215,15 +216,16 @@ final class HabitatHomes {
         if(o.roaming()||o.entity().profile().houseBody()||o.entity().profile().dangerToYukkuri()||o.unavailable()) {
             cancelHomeSearch();homeSearch=null;return Result.NOT_FOUND;
         }
-        if(homeSearch==null)homeSearch=new HomeSearch(this);
+        if(homeSearch==null) {
+            o.entity().settlement().homeSearchStarted();
+            homeSearch=new HomeSearch(this);
+        }
         // A planned community gets its allocated homes first. This has its own bounded lease;
         // never nest it under the wider local-cavity search.
         if(!homeSearch.siteChecked) {
             var site=SiteLife.of(o.entity());
             var settlement=o.entity().settlement();var group=settlement.group();
-            boolean arrived=group==null||group.migrateTo==null||settlement.settledAt(group.migrateTo)
-                    ||settlement.settlingAt(group.migrateTo)
-                    ||group.migrateTo.distSqr(o.entity().blockPosition())<=8*8;
+            boolean arrived=group==null||group.migrateTo==null||settlement.reached(group);
             if(site!=null&&arrived) {
                 var result=SiteLife.settle(o.entity(),o,site);
                 if(result!=Result.NOT_FOUND)return result;
@@ -317,21 +319,18 @@ final class HabitatHomes {
         if(started==Result.DEFERRED)return deferVagrantProject();
         pendingDig=null;
         if(started==Result.FOUND)return Result.FOUND;
-        var arrival = o.entity().settlement().arrivalSite();
-        if (arrival != null) {
-            var surface = startSurfaceNest(arrival);
-            if (surface != Result.NOT_FOUND) return surface;
-        }
+        var surface = startSurfaceNest();
+        if (surface != Result.NOT_FOUND) return surface;
         return Result.of(roamWait<=0&&startRoam());
     }
 
-    private Result startSurfaceNest(BlockPos arrival) {
+    private Result startSurfaceNest() {
         var entity = o.entity();
         if (entity.family().carry().mouthBusy() || !o.carrying().isEmpty() && !HabitatLife.nestBedding(o.carrying())) return Result.NOT_FOUND;
         var around = entity.blockPosition();
         var sites = new ArrayList<BlockPos>();
         for (var pos : BlockPos.betweenClosed(around.offset(-6, -1, -6), around.offset(6, 1, 6)))
-            if (pos.distSqr(arrival) <= 24 * 24 && ShelterPlacement.surfaceFootprint(level(), pos)) sites.add(pos.immutable());
+            if (ShelterPlacement.surfaceFootprint(level(), pos)) sites.add(pos.immutable());
         sites.sort(Comparator.comparingDouble(around::distSqr));
         for (var pos : sites.stream().limit(8).toList()) {
             if (!entity.life().reachable(pos.south(2), false)) continue;
@@ -348,7 +347,7 @@ final class HabitatHomes {
     }
 
     boolean canBuildSurfaceNest() {
-        return o.ticks() < 400 && EventHooks.canEntityGrief(level(), o.entity()) && o.entity().settlement().arrivalSite() != null;
+        return o.ticks() < 400 && EventHooks.canEntityGrief(level(), o.entity());
     }
 
     void tickSurfaceNest(PlantBedding plants) {
@@ -601,13 +600,11 @@ final class HabitatHomes {
     private boolean startRoam() {
         roamWait=300;
         int tests=0;
-        // A migrant at its new ground looks for soft soil near the chosen site; it does not wander off across the map.
-        var arrival=o.entity().settlement().arrivalSite();
-        int span=arrival==null?40:16;
+        int span=40;
         for(int attempt=0;attempt<8;attempt++) {
             int dx=o.entity().getRandom().nextInt(2*span+1)-span,dz=o.entity().getRandom().nextInt(2*span+1)-span;
-            if(arrival==null&&dx*dx+dz*dz<100)continue;
-            var column=(arrival==null?o.entity().blockPosition():arrival).offset(dx,0,dz);
+            if(dx*dx+dz*dz<100)continue;
+            var column=o.entity().blockPosition().offset(dx,0,dz);
             if(!level().hasChunkAt(column))continue;
             var ground=level().getHeightmapPos(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,column);
             if(!level().hasChunkAt(ground)||!o.entity().life().dryStand(ground))continue;

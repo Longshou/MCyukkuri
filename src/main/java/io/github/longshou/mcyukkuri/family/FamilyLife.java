@@ -991,14 +991,13 @@ public final class FamilyLife {
             if(!entity.childhood().shouldStayWithParents())return false;
             if(entity.getVehicle() instanceof YukkuriEntity)return false;
             // A baby a parent is coming to carry waits for the pickup, also on its way home: a walking baby slips the parent's mouth.
-            if(entity.settlement().migrationBed()==null&&ParentCarry.awaitsCarrier(entity)) {
+            if(ParentCarry.awaitsCarrier(entity)) {
                 GameplayLog.limited(entity,"family","wait.carrier",1200,"baby waits for parent carry");
                 return false;
             }
             var home=earlyHomeStand();
             if(home!=null) {
-                if(entity.distanceToSqr(Vec3.atBottomCenterOf(home))>4 || entity.settlement().migrationBed()!=null
-                        && FamilyNest.bedOccupancy(entity,home)!=Occupancy.INSIDE_SUPPORTED) { task=Task.STAY_HOME;target=null;taskTicks=0;return true; }
+                if(needsBedReturn(home)) { task=Task.STAY_HOME;target=null;taskTicks=0;return true; }
                 return false;
             }
             // Only a child not kept to its nest leaves to answer a call; one at home stays there for the parent to come.
@@ -1174,15 +1173,20 @@ public final class FamilyLife {
     }
     /** Early children wait by their real shared shelter instead of continually chasing a foraging parent. */
     private BlockPos earlyHomeStand() {
-        if(familyTravelling())return entity.settlement().migrationBed();
-        if(exploring()||emergencyForaging())return null;
+        if(familyTravelling()||exploring()||emergencyForaging())return null;
         var care=FamilyNest.care(entity);if(care!=null)return care.getBlockPos();
         if(readyForOwnNest()&&!parentForaging(mother)&&!parentForaging(father))return null;
         var home=entity.habitat().shelter();
         return home!=null&&home.usable(entity)?home.bed(entity.getUUID()):null;
     }
+    private boolean needsBedReturn(BlockPos home) {
+        var occupancy=FamilyNest.bedOccupancy(entity,home);
+        return entity.life().mayReturnToBed(home)&&(occupancy==null
+                ? entity.distanceToSqr(Vec3.atBottomCenterOf(home))>4 : occupancy!=Occupancy.INSIDE_SUPPORTED);
+    }
     /** Dependent walkers follow their real family on the march and on an aborted move's return route. */
     public boolean familyTravelling() {
+        if(entity.settlement().migrating())return entity.settlement().familyMarching();
         if(entity.settlement().familyMarching())return true;
         for(var id:new UUID[]{mother(),father()})if(id!=null&&level().getEntity(id) instanceof YukkuriEntity parent
                 &&parent.isAlive()&&parent.settlement().familyMarching())return true;
@@ -1243,7 +1247,7 @@ public final class FamilyLife {
             return false;
         }
         if(task==Task.STAY_HOME) {
-            var home=earlyHomeStand();return home!=null&&entity.distanceToSqr(Vec3.atBottomCenterOf(home))>4;
+            var home=earlyHomeStand();return home!=null&&needsBedReturn(home);
         }
         if(task==Task.FOLLOW&&earlyHomeStand()!=null)return false;
         if(task==Task.CARRY)return carry.carrying()&&taskTicks<2400;
@@ -1302,14 +1306,9 @@ public final class FamilyLife {
                 if(home==null){stop();return;}
                 var at=FamilyNest.restPosition(entity,home);
                 if(at==null){stop();return;}
-                if(entity.distanceToSqr(at)>.16)SurfaceApproach.walk(entity,at,1);
-                else {SurfaceApproach.halt(entity);stop();return;}
-                // No way to the bed (bodies in the doorway): rest where it stands a while instead of re-planning every 20 ticks.
-                if(SurfaceApproach.lastResult(entity,at)==SurfaceApproach.Result.BLOCKED){
-                    GameplayLog.limited(entity,"family","stay_home.blocked",400,"child rests short of its bed why={} distance={}",
-                            SurfaceApproach.why(entity,at),Math.round(Math.sqrt(entity.distanceToSqr(at))*10)/10.0);
-                    stop();wait=200;
-                }
+                if(entity.distanceToSqr(at)<=.16){SurfaceApproach.halt(entity);stop();return;}
+                if(!entity.life().walkToBed(home,at,1)){stop();return;}
+                if(SurfaceApproach.lastResult(entity,at)==SurfaceApproach.Result.BLOCKED){stop();wait=200;}
             }
             case FEED_CHILD -> feeding.tickCare();
             case WAIT_CHILD -> {

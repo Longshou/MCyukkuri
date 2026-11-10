@@ -77,6 +77,7 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
     private long crawlCheckTick;
     private Vec3 crawlCheckPos;
     private AABB planningObstacle;
+    private BlockPos surveyStart;
     private int followingNode=-1;
     private float searchMultiplier = 1;
 
@@ -94,18 +95,18 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
 
     /** Planning must not change the installed route's target or reset its stuck clocks. Vanilla createPath does both. */
     @Override protected Path createPath(Set<BlockPos> targets, int margin, boolean above, int accuracy, float range) {
-        if(targets.isEmpty()||mob.getY()<level.getMinBuildHeight()||!canUpdatePath())return null;
-        if(!forceSearch&&planningObstacle==null&&path!=null&&!path.isDone()&&path.canReach()
+        if(targets.isEmpty()||surveyStart==null&&(mob.getY()<level.getMinBuildHeight()||!canUpdatePath()))return null;
+        if(surveyStart==null&&!forceSearch&&planningObstacle==null&&path!=null&&!path.isDone()&&path.canReach()
                 &&walkingQuery!=null&&walkingQuery.obstacle()==null
                 &&targets.contains(path.getTarget())&&fits(walkingQuery)&&accuracy>=walkingQuery.accuracy())return path;
         long started=System.nanoTime();
         level.getProfiler().push("pathfind");
         Path result;
         try {
-            var centre=above?mob.blockPosition().above():mob.blockPosition();
+            var centre=surveyStart!=null?surveyStart:above?mob.blockPosition().above():mob.blockPosition();
             int span=(int)(range+margin);
             var region=new PathNavigationRegion(level,centre.offset(-span,-span,-span),centre.offset(span,span,span));
-            planning=planned(targets);
+            planning=surveyStart==null?planned(targets):List.of();
             result=planner.findPath(region,mob,targets,range,accuracy,searchMultiplier);
         } finally { planning=List.of();level.getProfiler().pop(); }
         if(result!=null){
@@ -124,8 +125,19 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
 
     /** A whole route between loaded travel sites, with room to go around terrain beyond the local path range. */
     public Path createTravelPath(Set<BlockPos> targets) {
+        return travelPath(mob.blockPosition(), targets);
+    }
+
+    /** Survey terrain with this body's abilities from a known standing cell. */
+    public Path surveyTravelPath(BlockPos from, Set<BlockPos> targets) {
+        surveyStart = from;
+        try { return travelPath(from, targets); }
+        finally { surveyStart = null; }
+    }
+
+    private Path travelPath(BlockPos from, Set<BlockPos> targets) {
         float range = TravelRange.PATH_RANGE;
-        for (var target : targets) range = Math.max(range, (float)Math.sqrt(target.distSqr(mob.blockPosition())) + 16);
+        for (var target : targets) range = Math.max(range, (float)Math.sqrt(target.distSqr(from)) + 16);
         return createPath(targets, 8, false, 0, range);
     }
 
@@ -242,6 +254,7 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
                 keepHome = mob instanceof YukkuriEntity animal && TravelRange.keepBabyHome(animal);
             }
             @Override public Node getStart(){
+                if(surveyStart!=null)return getStartNode(surveyStart);
                 if(mob instanceof YukkuriEntity actor){
                     var bed=NestDoorway.at(actor,actor.position());
                     if(bed==null)bed=NestDoorway.doorstep(actor);

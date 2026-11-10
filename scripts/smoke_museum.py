@@ -223,13 +223,13 @@ def run_seed(session_seed, run_index):
 GATING_CHECKS = frozenset({'ORPHAN', 'SPAWN'})
 
 
-def gated_problems(reports):
+def gated_problems(reports, checks=GATING_CHECKS):
     """One (check, printed text) per gating-check finding that failed, with the report's own actor and tick; the reason
     key is the check name, so main and branch compare by check."""
     return [(finding['check'],
              f'{finding["check"]} {finding["detail"]} (actor={finding["actor"]} t={finding["t"]})')
             for report in reports for finding in report['findings']
-            if finding['check'] in GATING_CHECKS and finding['verdict'] == 'fail']
+            if finding['check'] in checks and finding['verdict'] == 'fail']
 
 
 def run_scene(st, scene, builder, run_index, seed):
@@ -297,12 +297,13 @@ def run_scene(st, scene, builder, run_index, seed):
     observations_dir = log.with_suffix('')
     reports = smoke_checks.report_log(log, observations_dir, {scene.id: scene.smoke}, seed, rerun, dense=True,
                                       only=scene.id)
-    problems += gated_problems(reports)
+    gating_checks = GATING_CHECKS.union(scene.smoke.get('gating_checks', ()))
+    problems += gated_problems(reports, gating_checks)
     for _, text in problems:
         print(f'FAIL {scene.id}: {text}', flush=True)
     if not problems:
         print(f'PASS {scene.id}: {len(scene.smoke["expect"])} expected patterns; no forbidden lines; no undeclared actor fate; '
-              f'no gating check failure ({", ".join(sorted(GATING_CHECKS))})', flush=True)
+              f'no gating check failure ({", ".join(sorted(gating_checks))})', flush=True)
     jfr = server.jfr_summary(st, f'{scene.id}-{run_index}')
     (observations_dir / 'jfr.json').write_text(json.dumps(jfr, indent=2), encoding='utf-8')
     summary = [r for r in reports if r.get('scene') == scene.id]

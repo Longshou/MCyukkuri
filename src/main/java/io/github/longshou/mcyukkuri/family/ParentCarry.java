@@ -95,11 +95,11 @@ public final class ParentCarry {
     public static final SyncSlot<CompoundTag> HOLDS = new SyncSlot<>(EntityDataSerializers.COMPOUND_TAG, CompoundTag::new);
     /** Pause before the same child is picked up again after an interruption; feeding gets longer. */
     static final int HOLD_TICKS = 100, FEED_HOLD_TICKS = 200;
-    /** After the carrier has settled at the destination the child is kept at most this long while it inherits the home. */
     /** A retrieval has arrived home within this distance of its centre (blocks): the walk ends and the children go onto its pad
      *  (project design: a nest and the doorway stand in front of it). */
     private static final double HOME_REACH = 2.5;
     private static final int MAX_CARRY_TICKS = 12000;
+    private static final int MAX_MARCH_CARRY_TICKS = 1200;
     /** A mouth or braid-tip hold takes a child up to this share of the carrier's volume, scaled by strength (project design). */
     static final double HOLD_FRACTION = .20;
     /** Reimu's mouth cavity (measured on her model, project design): the summed volume of the babies in it stays within this
@@ -146,7 +146,7 @@ public final class ParentCarry {
     /** Grip-time diagnostics only, bounded by this carrier's passengers; never saved. */
     private final Map<UUID, String> holdChoices = new HashMap<>();
     private Purpose purpose;
-    private long since, arrivedAt;
+    private long since;
     private UUID lifting;
     /** The dependent this retrieval goes for next, recomputed every tick while it still has holds for one (no reservation: the
      *  child's own wait for a carrying parent reads it, {@link #awaitsCarrier}). */
@@ -1276,6 +1276,7 @@ public final class ParentCarry {
     }
     /** The mouth is taken by a child, so mash feeding and food packing cannot use it. */
     public boolean mouthBusy() { return mouthCarrying(carrier); }
+    public boolean migrationMouthBusy() { return purpose == Purpose.MIGRATE && mouthBusy(); }
 
     private boolean blocked(YukkuriEntity child) {
         var pause = pauses.get(child.getUUID());
@@ -1488,7 +1489,6 @@ public final class ParentCarry {
     private void begin(Purpose intent, YukkuriEntity child) {
         purpose = intent == null ? Purpose.RETRIEVE : intent;
         since = carrier.level().getGameTime();
-        arrivedAt = 0;
         walkTo = null;
         giveUp = null;
         var rim = purpose == Purpose.NEST_RIM ? FamilyNest.rimNest(child) : null;
@@ -1567,10 +1567,6 @@ public final class ParentCarry {
         long now = carrier.level().getGameTime();
         var ours = ours();
         if (purpose == null && !ours.isEmpty()) adopt(ours.get(0), now);
-        if (purpose == Purpose.MIGRATE && carrier.settlement().migrationLanded() && arrivedAt == 0) {
-            arrivedAt = now;
-            GameplayLog.event(carrier, "family", "carry destination reached aboard={}", carrier.getPassengers().size());
-        }
         String hard = !carrier.isAlive() ? "carrier_died" : carrier.isOnFire() ? "carrier_burning" : carrier.operations().active() ? "operation" : null;
         if (hard != null) { carrier.motor().interrupt(hard); return; }
         for (var child : all) {
@@ -1602,7 +1598,6 @@ public final class ParentCarry {
     private void adopt(YukkuriEntity child, long now) {
         purpose = carrier.settlement().familyMarching() ? Purpose.MIGRATE : Purpose.RETRIEVE;
         since = now;
-        arrivedAt = 0;
         walkTo = null;
         giveUp = null;
         GameplayLog.event(carrier, "family", "carry resumed hold={} purpose={} child={}", hold(carrier, child).key(), purpose, child.getUUID());
@@ -1612,15 +1607,16 @@ public final class ParentCarry {
     /** Ordinary reasons that end the whole carry: the carrier's own state, or the shared destination rule. */
     private String carrierReason(long now) {
         var life = carrier.life();
+        if (purpose == Purpose.MIGRATE) {
+            if (carrier.settlement().migrationLanded()) return "arrived_destination";
+            if (now - since >= MAX_MARCH_CARRY_TICKS) return "timeout";
+            if (!carrier.settlement().familyMarching()) return "migration_ended";
+        }
         if (life.isSleeping()) return "carrier_sleeping";
-        if (life.mealTicks() > 0 && mouthBusy()) return "carrier_eating";
+        if (purpose != Purpose.MIGRATE && life.mealTicks() > 0 && mouthBusy()) return "carrier_eating";
         if (life.hasUrgentNeed() && !carrier.settlement().marchTiredOnly()) return "carrier_need";
         if (now - since > MAX_CARRY_TICKS) return "timeout";
         if (giveUp != null) return giveUp;
-        if (purpose == Purpose.MIGRATE) {
-            boolean landed = carrier.settlement().migrationLanded();
-            if (!landed && !carrier.settlement().familyMarching()) return "migration_ended";
-        }
         return null;
     }
 
@@ -1632,7 +1628,6 @@ public final class ParentCarry {
         // A brim seat is fixed to the carrier's own hat and follows its route: a wall beside it is a clip, not a reason to let go.
         if (now % 5 == 0 && hold != Hold.BRIM && seat(carrier, child) == null) return "seat_blocked";
         if (child.life().nutrition() < 30 && carrier.family().feeding().hasCarriedOpportunity(child)) return "feeding";
-        if (purpose == Purpose.MIGRATE && carrier.settlement().migrationLanded() && child.settlement().migrationBed() != null) return "arrived_destination";
         if (purpose == Purpose.RETRIEVE && atHome(destination(child))) return "arrived_home";
         if (purpose == Purpose.PROTECT && shelteredFrom(carrier.isPanicking() ? carrier.getLastHurtByMob()
                 : carrier.status().reactions().threat().source())) return "arrived_home";
@@ -1644,7 +1639,7 @@ public final class ParentCarry {
     private Map.Entry<YukkuriEntity, String> due() {
         var next = requestedSetDown();
         if (next != null && settingDown != null && settingDown.child() == next.getKey()
-                && !settingDown.changed(carrier, setDownHost(), setDownHome(next.getKey(), next.getValue()))) return null;
+                && !settingDown.changed(carrier, setDownHost(), setDownHome(next.getKey()))) return null;
         return next;
     }
 
@@ -1718,11 +1713,10 @@ public final class ParentCarry {
         var motor = carrier.motor();
         if (motor.current() instanceof Release release && release.child() == child) return;
         if (motor.current() instanceof Walk && motor.owner() == owner) return;
-        var home = setDownHome(child, reason);
+        var home = setDownHome(child);
         var host = setDownHost();
         if (settingDown != null && settingDown.child() == child && !settingDown.changed(carrier, host, home)) return;
-        settingDown = host != null ? new Release(child, host) : reason.equals("arrived_destination")
-                ? Release.inNest(child, home) : Release.atNest(child, home);
+        settingDown = host != null ? new Release(child, host) : Release.atNest(child, home);
         settingWhy = reason;
         motor.run(owner, settingDown);
     }
@@ -1731,13 +1725,14 @@ public final class ParentCarry {
     private SurfaceHost setDownHost() { return carrier.getVehicle() instanceof SurfaceHost host ? host : null; }
 
     /** The surface a set-down asks for belongs to the request, never to the hold or the reason: the rim child's nest, the child's
-     *  home while the carrier stands at it (or the migration's new home on arrival), else the ground beside her; on her own hull,
+     *  home while the carrier stands at it, else the ground beside her; on her own hull,
      *  the hull. */
-    private BlockPos setDownHome(YukkuriEntity child, String reason) {
+    private BlockPos setDownHome(YukkuriEntity child) {
         if (carrier.getVehicle() instanceof SurfaceHost) return null;
         if (purpose == Purpose.NEST_RIM) return rimNest;
+        if (purpose == Purpose.MIGRATE) return null;
         var home = destination(child);
-        return reason.equals("arrived_destination") || atHome(home) ? home : null;
+        return atHome(home) ? home : null;
     }
 
     private boolean atHome(BlockPos home) {

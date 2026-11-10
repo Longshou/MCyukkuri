@@ -80,6 +80,7 @@ public final class YukkuriLife {
     private Task task = Task.NONE;
     private ItemEntity targetFood;
     private BlockPos targetBlock;
+    private BlockPos refusedBed;
     private int pursuitTicks, queueTicks, queueBudget, winterNeedCheckAt;
     private record RuleChoice(int until, boolean follows) {}
     private final EnumMap<PetSkill, RuleChoice> ruleChoices = new EnumMap<>(PetSkill.class);
@@ -218,6 +219,19 @@ public final class YukkuriLife {
         meal.beginDose(one, player, returnBottle);
     }
     void deferHomeMaintenance() { homeWait = 200; }
+    public void seekHomeNow() { homeWait = 0; }
+    public boolean mayReturnToBed(BlockPos bed) { return !bed.equals(refusedBed); }
+
+    public boolean walkToBed(BlockPos bed, Vec3 position, double speed) {
+        SurfaceApproach.walk(entity, position, speed);
+        if (entity.childhood().shouldStayWithParents()
+                && SurfaceApproach.lastResult(entity, position) == SurfaceApproach.Result.BLOCKED
+                && SurfaceApproach.why(entity, position).startsWith("no_complete_surface_route")) {
+            refusedBed = bed;
+            return false;
+        }
+        return true;
+    }
     void finishConsumption() { task = Task.NONE; planWait = 20; }
     public TemperatureLife temperature() { return temperature; }
     public YukkuriPersonality personality() { return personality; }
@@ -614,7 +628,7 @@ public final class YukkuriLife {
         // Getting out of the rain is the status module's weather reaction (Reactions.WeatherGoal); here only the walk back to the own nest.
         if (rainOutside() && !covered(entity.blockPosition()) && nutrition >= 30 && !entity.settlement().underway() && !ParentCarry.awaitsCarrier(entity)) {
             targetBlock = homeStand();
-            if (targetBlock != null && covered(targetBlock)) { task = Task.HOME; pursuitTicks = 0; return true; }
+            if (targetBlock != null && covered(targetBlock) && mayReturnToBed(targetBlock)) { task = Task.HOME; pursuitTicks = 0; return true; }
         }
         // A full bowel must not be starved by a permanently stocked food bowl.
         if (bladder >= 70 && planToilet()) return true;
@@ -668,14 +682,17 @@ public final class YukkuriLife {
             // A slave kept in the waste pit has no bed to go to: it sleeps where it is once it cannot go on (energy 10 or less).
             targetBlock = penned || ParentCarry.awaitsCarrier(entity) ? null : homeStand();
             if (targetBlock == null && !penned && entity.habitat().vagrant() && homeProvider().temporaryCoverAllowed()) targetBlock = nearestDryCover();
-            // A nest bed is slept in only from inside it: a footprint on the rim walks to its own place first.
             var nestOccupancy = targetBlock == null ? null : FamilyNest.bedOccupancy(entity, targetBlock);
             if (targetBlock != null && entity.family().prepareHomeCarry()) return false;
-            if (targetBlock != null && (entity.distanceToSqr(Vec3.atBottomCenterOf(targetBlock)) > .16 || !restable(entity.blockPosition())
+            boolean dependentAtHome = entity.childhood().shouldStayWithParents() && nestOccupancy == Occupancy.INSIDE_SUPPORTED;
+            boolean bedRefused = targetBlock != null && !mayReturnToBed(targetBlock) && !dependentAtHome;
+            if (bedRefused) targetBlock = null;
+            if (targetBlock != null && !dependentAtHome && (entity.distanceToSqr(Vec3.atBottomCenterOf(targetBlock)) > .16 || !restable(entity.blockPosition())
                     || nestOccupancy != null && nestOccupancy != Occupancy.INSIDE_SUPPORTED)) { task = Task.HOME; pursuitTicks = 0; return true; }
             // A slave in the open pit curls up where it stands at rest time: dry ground is all the pit has to offer.
             boolean penSleep = penned && dryStand(entity.blockPosition()) && !level().isRainingAt(entity.blockPosition());
-            if (targetBlock != null || energy <= 10 || penSleep || entity.family().needsMash() && entity.childhood().landed()
+            boolean restShort = bedRefused && SurfaceApproach.supportedGround(entity, entity.position()) && !level().isRainingAt(entity.blockPosition());
+            if (targetBlock != null || energy <= 10 || penSleep || restShort || entity.family().needsMash() && entity.childhood().landed()
                     && dryStand(entity.blockPosition()) && restable(entity.blockPosition())) { task = Task.SLEEP; resetSleep(); return true; }
         }
         return false;
@@ -788,7 +805,11 @@ public final class YukkuriLife {
                             "home walk stopped reason=nest_not_inside nest={} occupancy={} cause=no_rest_place", targetBlock, nestOccupancy);
                     stopGoal();return;
                 }
-                if (!restingHere && (entity.distanceToSqr(bedCentre) >= .16 || !inside)) SurfaceApproach.walk(entity, bedCentre, 1.15);
+                if (!restingHere && (entity.distanceToSqr(bedCentre) >= .16 || !inside)
+                        && (!mayReturnToBed(targetBlock) || !walkToBed(targetBlock, bedCentre, 1.15))) {
+                    stopGoal();
+                    return;
+                }
                 if ((restingHere || entity.distanceToSqr(bedCentre) < .16) && restable(entity.blockPosition()) && inside) {
                     SurfaceApproach.halt(entity);
                     if (restWait == 0 && (energy <= restThreshold() || restTime())) { task = Task.SLEEP; resetSleep(); }
@@ -1055,7 +1076,15 @@ public final class YukkuriLife {
     /** Full dry route for a land march. Planning leaves the actor's current movement alone. */
     public Path dryTravelPath(Set<BlockPos> targets) {
         var navigation = (YukkuriGroundNavigation)entity.getNavigation();
-        var route = navigation.createTravelPath(targets);
+        return dryTravel(navigation.createTravelPath(targets));
+    }
+
+    public boolean dryRouteFrom(BlockPos from, Set<BlockPos> targets) {
+        var navigation = (YukkuriGroundNavigation)entity.getNavigation();
+        return dryStand(from) && dryTravel(navigation.surveyTravelPath(from, targets)) != null;
+    }
+
+    private Path dryTravel(Path route) {
         if (route == null || !route.canReach()) return null;
         for (int i = 0; i < route.getNodeCount(); i++) {
             var node = route.getNodePos(i);

@@ -68,7 +68,8 @@ final class LifeMeal {
     boolean acceptsFood(ItemStack food){return edible(food)&&(!FillingResource.isFilling(food)||FillingResource.acceptable(o.entity(),food));}
 
     private boolean mouthForMeal() {
-        return !o.entity().settlement().familyMarching() || !o.entity().family().carry().mouthBusy();
+        var carry = o.entity().family().carry();
+        return !carry.migrationMouthBusy() && (!o.entity().settlement().familyMarching() || !carry.mouthBusy());
     }
 
     boolean readyForFood() { return needsFood() && mouthForMeal() && !o.entity().body().dying() && !o.entity().family().awaitingLanding() && !o.entity().isPanicking() && !o.entity().isCommandPlaying() && o.entity().isAlive(); }

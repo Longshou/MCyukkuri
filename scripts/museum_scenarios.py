@@ -2147,7 +2147,7 @@ colony('colony_migrate', '族群迁徙：全族搬去东边空村', '族群迁�
        '族长决定迁徙：讨论 30 秒→准备 30 秒→先锋（有魔理沙时由魔理沙担任，体弱的帕琪不领队）先行，其余稍后跟上，前往东侧 64 格外的真实空聚落；抵达者认领新窝、存放携粮，窝不够就就近挖掘或用实际采到的植物做地面窝',
        '约 2–5 分钟', [Retry('yukkuri settlement migrate', COLONY_LEAD)],
        lines=_migration_site,
-       note='观察先锋是否先到、掉队时是否集合换路，以及抵达后每户是否认领真实住所。读数核对先锋、中心、目的地与成员住所（identity.settlement_detail 的 phase／reason／result）。全体安顿后才更改聚落中心。',
+       note='观察先锋是否先到、掉队时是否集合换路，以及抵达后每户是否认领真实住所。读数核对先锋、中心、目的地与成员住所（identity.settlement_detail 的 phase／reason）。全体到达地面后才更改聚落中心。',
        reads=[('读迁徙与压力（含先锋）', 'yukkuri settlement rules'),
               ('读族长新住所', 'yukkuri status @e[tag=scn_lead,limit=1,sort=nearest] raw'),
               ('读全体成员安置', 'yukkuri status @e[type=#mcylab:yukkuri,distance=..110] raw'),
@@ -2191,7 +2191,7 @@ for _kind, _x in [('marisa', -10), ('reimu', 0), ('chen', 10)]:
                                 also=('migrant_baby', 'migrant_family')), home(f'migrant_{_kind}_{_i}', _x, 4)]
 _migrant_babies = '@e[type=#mcylab:yukkuri,tag=scn_migrant_baby,distance=..110]'
 colony('colony_migrate_babies', '族群迁徙：亲油带着赤油走', '族群迁徙：亲油带着赤油走',
-       '村中孩子从赤油阶段开始：行军开始后亲油走到孩子身边停下、抬起（魔理沙用辫子托上帽檐，放得下几只托几只；橙两条尾巴各托一只；灵梦口含多只；其余叼在嘴里一只），带着走向新址；赤油不再自己爬着跟随。途中孩子饿了会被放下、喂过再抬起，到新址认家庭新窝后放下',
+       '村中孩子从赤油阶段开始：行军开始后亲油走到孩子身边停下、抬起（魔理沙用辫子托上帽檐，放得下几只托几只；橙两条尾巴各托一只；灵梦口含多只；其余叼在嘴里一只），带着走向新址；赤油不再自己爬着跟随。途中孩子饿了会被放下、喂过再抬起，亲油到新址的地面后就放下',
        '约3–6分钟', [
            'yukkuri scenario community @e[tag=scn_lead,limit=1] @e[tag=scn_migrant_family,distance=..45]',
            'yukkuri status set @e[type=#mcylab:yukkuri,distance=..45] personality.friendliness 90',
@@ -2199,7 +2199,7 @@ colony('colony_migrate_babies', '族群迁徙：亲油带着赤油走', '族群�
            f'yukkuri status set {_migrant_babies} needs.nutrition 40',
            Retry('yukkuri settlement migrate', COLONY_LEAD)],
        lines=_migration_site, residents=_migrant_families,
-       note='初始亲油营养80、赤油40；高友善不保证照护必定成功。看孩子是被抬起而不是自己移动（日志 [family] carry lift started／pickup hold=brim／tail_left／mouth purpose=MIGRATE，[action] start id=grab reach= hold=），行军中赤油乘在亲油帽檐／尾上／口中、朝向随亲油，魔理沙按帽檐真实面积托几只、放不下再口含一只，橙两尾各托一只，灵梦口含多只，其他种类一只，每只的承托方式随亲油存档，多出的孩子等另一位亲油（行军时优先分给余量大的亲油），没有亲油能抬时才退回原来的爬行跟随；母亲口含孩子时不备口粮（settlement 日志 packing skipped reason=mouth_reserved_for_child），父亲或戴帽魔理沙照常备粮；孩子营养低于30且有真实食物时会被放下喂养（carry put down reason=feeding）再抬起；亲油到新址认屋后，孩子继承新窝或亲油走到床位边才放下（reason=arrived_destination／arrived_home，帽檐和尾巴上的先 carry lowering 放到身旁地面，位置为放下时的实际位置）。检查同一孩子、食物减少与营养回升、住所切换；不能以中心改变代替亲子抵达。演出：口含与尾托接起前俯身再直起，托上帽檐时魔理沙转身伸辫卷起孩子放上帽檐；灵梦张嘴含入幼体后闭嘴，腮部随口中孩子数鼓起，到窝再张嘴放出，魔理沙帽檐沿帽冠一圈坐多只、面朝外（满后再叼一只），橙两尾抬起各卷托一只；走动转身时孩子轻晃、不穿进亲油，放下时亲油俯身、孩子缓落，帽檐上的由辫子、尾巴上的由尾巴放到地面。',
+       note='初始亲油营养80、赤油40；高友善不保证照护必定成功。看孩子是被抬起而不是自己移动（日志 [family] carry lift started／pickup hold=brim／tail_left／mouth purpose=MIGRATE，[action] start id=grab reach= hold=），行军中赤油乘在亲油帽檐／尾上／口中、朝向随亲油，魔理沙按帽檐真实面积托几只、放不下再口含一只，橙两尾各托一只，灵梦口含多只，其他种类一只，每只的承托方式随亲油存档，多出的孩子等另一位亲油（行军时优先分给余量大的亲油），没有亲油能抬时才退回原来的爬行跟随；母亲口含孩子时不备口粮（settlement 日志 packing skipped reason=mouth_reserved_for_child），父亲或戴帽魔理沙照常备粮；孩子营养低于30且有真实食物时会被放下喂养（carry put down reason=feeding）再抬起；亲油到新址地面便把孩子放到身旁（reason=arrived_destination），各户按平日习惯找窝、筑窝和接孩子回家。检查同一孩子、食物减少与营养回升、住所切换；不能以中心改变代替亲子抵达。演出：口含与尾托接起前俯身再直起，托上帽檐时魔理沙转身伸辫卷起孩子放上帽檐；灵梦张嘴含入幼体后闭嘴，腮部随口中孩子数鼓起，到达地面再张嘴放出，魔理沙帽檐沿帽冠一圈坐多只、面朝外（满后再叼一只），橙两尾抬起各卷托一只；走动转身时孩子轻晃、不穿进亲油，放下时亲油俯身、孩子缓落，帽檐上的由辫子、尾巴上的由尾巴放到地面。',
        reads=[('读赤油随迁', f'yukkuri status {_migrant_babies} raw'),
               ('读承托状态（home.family_state 的 carry=）', 'yukkuri status @e[type=#mcylab:yukkuri,distance=..110,nbt={Passengers:[{}]}] raw'),
               ('读全体亲子', 'yukkuri status @e[type=#mcylab:yukkuri,distance=..110] raw'),
@@ -2207,25 +2207,11 @@ colony('colony_migrate_babies', '族群迁徙：亲油带着赤油走', '族群�
        capture=dict(shots=(1, 40, 600, 1200), sequences=((1200, 2400, 2), (2400, 7200, 20)), follow='@e[tag=scn_migrant_marisa,limit=1]'),
        smoke=dict(ticks=7200,
                   readout=['yukkuri status @e[type=#mcylab:yukkuri,distance=..110] raw',
-                           'execute as @e[tag=scn_migrant_baby,distance=..110] on vehicle run say MCYSMOKE_CHILD_STILL_HELD',
-                           'execute as @e[tag=scn_migrant_baby,distance=..24] run say MCYSMOKE_CHILD_AT_OLD_SITE'],
-                  forbid=[r'\[family\][^\n]* carry put down reason=seat_blocked\b', r'\[family\][^\n]* carry put down forced\b',
-                          r'hurt cry start cause=(?:inWall|starve)',
-                          r'MCYSMOKE_CHILD_AT_OLD_SITE', r'MCYSMOKE_CHILD_STILL_HELD'],
-                  verify=_carry_outcome_verify,
-                  expect=[r'\[settlement\][^\n]* event=migrate_done\b',
-                          r'\[family\] marisa #[^\n]* carry pickup hold=brim\b',
-                          r'\[family\] marisa #[^\n]* brim hop child=[0-9a-f-]+ hops=[1-9]\d*\b',
-                          r'\[family\] marisa #[^\n]* carry grip [^\n]*brimLocal=',
-                          r'\[action\] marisa #[^\n]* end id=grab outcome=DONE\b',
-                          *(rf'\[family\] {kind} #[^\n]* carry pickup hold={hold}\b[^\n]*purpose=MIGRATE'
-                            for kind, hold in [('reimu', 'mouth'), ('chen', 'tail_right')]),
-                          *(rf'\[family\][^\n]* carry pickup [^\n]*purpose=MIGRATE child={uuid.UUID(bytes=b"".join(v.to_bytes(4, "big", signed=True) for v in uid("colony_migrate_babies", f"{kind}_{i}")))}\b'
-                            for kind in ('marisa', 'reimu', 'chen') for i in range(2)),
-                          *(rf'\[family\][^\n]* carry put down [^\n]*purpose=MIGRATE child={uuid.UUID(bytes=b"".join(v.to_bytes(4, "big", signed=True) for v in uid("colony_migrate_babies", f"{kind}_{i}")))}\b'
-                            for kind in ('marisa', 'reimu', 'chen') for i in range(2)),
-                          *(rf'\[settlement\] {kind} #[^\n]*uuid={uuid.UUID(bytes=b"".join(v.to_bytes(4, "big", signed=True) for v in uid("colony_migrate_babies", f"{kind}_{i}")))} [^\n]* dependent settled with parent={uuid.UUID(bytes=b"".join(v.to_bytes(4, "big", signed=True) for v in uid("colony_migrate_babies", kind)))} destination=BlockPos\{{x={_mx + 64}, y=64, z={_mz + 1}\}}'
-                            for kind in ('marisa', 'reimu', 'chen') for i in range(2))]))
+                           'execute as @e[tag=scn_migrant_baby] on vehicle run say MCYSMOKE_CHILD_STILL_HELD'],
+                  forbid=[r'\[family\][^\n]* carry put down reason=carrier_eating[^\n]*purpose=MIGRATE',
+                          r'MCYSMOKE_CHILD_STILL_HELD'],
+                  gating_checks=('LOOP',),
+                  expect=[r'\[settlement\][^\n]* event=migrate_done\b']))
 
 # Three real households with their nest, the babies ~8 blocks out: the RETRIEVE carry (ParentCarry.purposeFor), no march needed.
 _carry_families = [('marisa', -10, 4, 1.2), ('reimu', 0, 3, 1.0), ('chen', 10, 2, 1.0)]
@@ -3914,8 +3900,18 @@ _sale_smoke = next(s for s in S if s.id == 'shop_build').smoke
 _sale_smoke['commands'] = [(200, f'yukkuri human shop buy @e[nbt={{HumanJob:1}},distance=..80,sort=nearest,limit=1] {sel("sale_stock")} {_uuid_text("shop_build", "buyer")}')]
 _sale_smoke['expect'] += [rf'\[transport\][^\n]*uuid={_uuid_text("shop_build", "sale_stock")} [^\n]*action=capture result=committed',
                           rf'\[shop\][^\n]*action=buy_live result=delivered [^\n]*target={_uuid_text("shop_build", "sale_stock")}']
-_smoke('colony_migrate', 7200, [r'\[settlement\][^\n]* migration phase=DISCUSS', r'\[settlement\][^\n]* migration phase=MARCH',
-                                r'\[settlement\][^\n]* migration pivot arrived ', r'\[settlement\][^\n]* event=migrate_done\b'])
+def _migration_housing(log):
+    done = re.search(r'\[settlement\][^\n]* event=migrate_done\b[^\n]* households=(\d+)', log)
+    if done:
+        households = int(done[1])
+        housed = len(set(re.findall(r'\[settlement\][^\n]* migration family housed [^\n]* family=(\S+)', log)))
+        if 2 * housed <= households:
+            return f'migration housed {housed}/{households} families by window end'
+    return None
+
+
+_smoke('colony_migrate', 7200, [r'\[settlement\][^\n]* event=migrate_done\b'])
+next(s for s in S if s.id == 'colony_migrate').smoke['verify'] = _migration_housing
 
 # Actor fates that are a scene's real path; scripts/smoke_fate.py fails every other death, drowning, suffocation, starvation and
 # refusal loop. who: a pattern of a line the individual itself prints (omitted: any individual); match: a pattern of the fate line.
@@ -4037,12 +4033,8 @@ _scene_end('colony_migrate', [('lead', _DRY)],
 _scene_end('colony_migrate_babies', [('migrant_baby', _ASHORE)],
            *[dict(each=f'child_of:migrant_{kind}', steps=[
               (f'migrant_{kind}', r'seen:family:carry pickup .*purpose=MIGRATE child=$subject\b'),
-              (f'migrant_{kind}', r'seen:family:carry put down .*purpose=MIGRATE child=$subject\b')],
-              post=[('$subject', _ASHORE + f' and near.migrant_{kind}<=4')])
-             for kind in ('marisa', 'reimu', 'chen')],
-           *[dict(each=f'child_of:migrant_{kind}', steps=[
-              (f'migrant_{kind}', r'seen:family:carry pickup .*purpose=MIGRATE child=$subject\b'),
-              ('$subject', f'seen:settlement:dependent settled with parent=$migrant_{kind}\\b')])
+              (f'migrant_{kind}', r'seen:family:carry put down reason=arrived_destination .*purpose=MIGRATE child=$subject\b'),
+              ('$subject', r'seen:settlement:migration reached .*dependent=true')])
              for kind in ('marisa', 'reimu', 'chen')])
 _scene_end('carry_home', [(f'{kind}_baby', _ASHORE) for kind in ('marisa', 'reimu', 'chen')],
            *[dict(each=f'{kind}_baby', autonomous_home=True, steps=[

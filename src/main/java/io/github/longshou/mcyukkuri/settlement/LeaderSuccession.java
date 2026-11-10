@@ -155,7 +155,7 @@ public final class LeaderSuccession {
         return switch (Migration.phase(group, now)) {
             case NONE, DISCUSS -> group.center;
             case PREPARE, REGROUP, PICK_SITE -> null;
-            case MARCH, HOUSING -> group.migrateTo;
+            case MARCH -> group.migrateTo;
         };
     }
 

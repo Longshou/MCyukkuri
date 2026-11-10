@@ -71,17 +71,12 @@ final class Migration {
     /** The leader reviews the pressure once a minute; a failed site search waits two minutes. */
     private static final int REVIEW_TICKS = 1200, NO_SITE_TICKS = 2400;
     static final int DISCUSS_TICKS = 600, PREPARE_TICKS = 600, SETTLE_TICKS = 48000;
-    /**
-     * Once the pivot (vanguard, or the leader when there is none) stands at the destination the group gets this long from that
-     * moment to dig or claim its homes; a slow march must not eat the building time.
-     */
-    static final int SETTLE_BUILD_TICKS = 6000;
     /** The others leave the old centre this long after the march begins, so the scout is really ahead. */
     static final int VANGUARD_HEAD_START = 160;
     static final long DEATH_WINDOW = 72000;
 
     private static final int REGROUP_TICKS = 600;
-    enum Phase { NONE, DISCUSS, PREPARE, MARCH, REGROUP, PICK_SITE, HOUSING }
+    enum Phase { NONE, DISCUSS, PREPARE, MARCH, REGROUP, PICK_SITE }
     enum Leg { DIRECT, REGROUP, DETOUR, PICK_SITE, REPLACEMENT, PICK_NEARBY, NEARBY }
     private record LoggedPhase(long startedAt, Phase phase) {}
     private static final Map<SettlementData.Group, LoggedPhase> LOGGED_PHASES = new WeakHashMap<>();
@@ -95,7 +90,7 @@ final class Migration {
         return switch (group.migrateLeg) {
             case REGROUP -> Phase.REGROUP;
             case PICK_SITE, PICK_NEARBY -> Phase.PICK_SITE;
-            default -> group.migrateArrivedAt > 0 ? Phase.HOUSING : Phase.MARCH;
+            default -> Phase.MARCH;
         };
     }
 
@@ -199,17 +194,17 @@ final class Migration {
                 return;
             }
             var site = SiteLife.bySpot(data, group.migrateTo);
-            if (!level.hasChunkAt(group.migrateTo) || site != null && (!group.id.equals(site.group) || !site.reservable())) {
+            if (!level.hasChunkAt(group.migrateTo) || site != null && !group.migrateTo.equals(group.center)
+                    && (!group.id.equals(site.group) || !site.reservable())) {
                 recover(level, data, group, caller, members, now, "destination_unavailable");
                 return;
             }
             trackPioneer(level, group, phase, now);
             if (arrived(level, members, group)) {
-                complete(data, group, caller, now);
+                complete(data, group, caller, now, Homes.migrationHouseholds(members, group));
                 return;
             }
-            if (expired(group, now)) recover(level, data, group, caller, members, now,
-                    phase == Phase.HOUSING ? "households_not_settled" : "march_deadline");
+            if (expired(group, now)) recover(level, data, group, caller, members, now, "march_deadline");
             return;
         }
         if (leader) review(caller, group, now, true);
@@ -224,7 +219,6 @@ final class Migration {
 
     static boolean expired(SettlementData.Group group, long now) {
         long deadline = Math.max(group.migrateLegAt, group.migrateSince + DISCUSS_TICKS + PREPARE_TICKS) + YukkuriConfig.MIGRATE_TIMEOUT.get();
-        if (group.migrateArrivedAt > 0) deadline = Math.max(deadline, group.migrateArrivedAt + SETTLE_BUILD_TICKS);
         return now >= deadline;
     }
 
@@ -247,7 +241,7 @@ final class Migration {
                 group.id, group.migrateLeg, group.migrateTo, reason);
         switch (group.migrateLeg) {
             case DIRECT -> {
-                var last = members.stream().filter(m -> walks(m, group) && !m.settlement().settledAt(group.migrateTo))
+                var last = members.stream().filter(m -> walks(m, group) && !m.settlement().reached(group))
                         .max(Comparator.comparingDouble(m -> m.distanceToSqr(Vec3.atBottomCenterOf(group.migrateTo)))).orElse(caller);
                 group.migrateRegroupAt = last.blockPosition();
                 setLeg(data, group, Leg.REGROUP, now, reason);
@@ -311,14 +305,13 @@ final class Migration {
                 previous, group.leader);
     }
 
-    /** The vanguard (leader if none) standing at the destination, for the arrival test and the build-time extension. */
+    /** The vanguard (leader if none) has reached destination ground. */
     private static boolean pivotAtDestination(ServerLevel level, SettlementData.Group group) {
         var pivot = vanguard(level, group);
         if (pivot == null && group.leader != null && level.getEntity(group.leader) instanceof YukkuriEntity chief && chief.isAlive()
                 && group.id.equals(chief.settlement().groupId())) pivot = chief;
         if (pivot == null || group.migrateTo == null) return false;
-        return pivot.settlement().settledAt(group.migrateTo)
-                || pivot.distanceToSqr(group.migrateTo.getX() + .5, group.migrateTo.getY(), group.migrateTo.getZ() + .5) <= ARRIVE_RANGE * ARRIVE_RANGE;
+        return pivot.settlement().reached(group);
     }
 
     private static void trackPioneer(ServerLevel level, SettlementData.Group group, Phase phase, long now) {
@@ -326,9 +319,8 @@ final class Migration {
         if (phase != Phase.MARCH || group.migrateArrivedAt > 0 || !pivotAtDestination(level, group)) return;
         group.migrateArrivedAt = now;
         SettlementData.get(level).setDirty();
-        GameplayLog.world(level, "settlement", "migration pivot arrived group={} destination={} vanguard={} leader={} elapsed={} build_deadline={}",
-                group.id, group.migrateTo, group.migrateVanguard, group.leader, now - group.migrateSince, now + SETTLE_BUILD_TICKS);
-        logPhase(level, group, Phase.HOUSING, now);
+        GameplayLog.world(level, "settlement", "migration pivot arrived group={} destination={} vanguard={} leader={} elapsed={}",
+                group.id, group.migrateTo, group.migrateVanguard, group.leader, now - group.migrateSince);
     }
 
     static void decay(SettlementData data, SettlementData.Group group, long now) {
@@ -448,13 +440,6 @@ final class Migration {
         boolean nearby = group.migrateLeg == Leg.PICK_NEARBY;
         logPhase(level, group, Phase.PICK_SITE, now);
         var search = SEARCHES.get(group);
-        if (now - group.migrateLegAt >= MigrationSearch.SEARCH_TICKS) {
-            if (search != null) search.cancel();
-            SEARCHES.remove(group);
-            if (nearby) abandon(data, group, caller, now, "nearby_search_deadline");
-            else setLeg(data, group, Leg.PICK_NEARBY, now, "replacement_search_deadline");
-            return;
-        }
         if (search != null && !search.ownedBy(caller)) {
             search.cancel();
             SEARCHES.remove(group);
@@ -470,7 +455,7 @@ final class Migration {
             search = new MigrationSearch(level, caller, group, true, group.commons.migrateReason, excluded, points);
             SEARCHES.put(group, search);
         }
-        var result = search.advance(level, caller, group);
+        var result = search.advance(level, caller, group, group.migrateLegAt + MigrationSearch.SEARCH_TICKS);
         if (result == Result.DEFERRED) return;
         SEARCHES.remove(group);
         search.cancel();
@@ -548,7 +533,7 @@ final class Migration {
             SEARCHES.put(group, search);
             logPhase(level, group, Phase.PICK_SITE, level.getGameTime());
         }
-        var result = search.advance(level, leader, group);
+        var result = search.advance(level, leader, group, Long.MAX_VALUE);
         if (result == Result.DEFERRED) return result;
         SEARCHES.remove(group); search.cancel();
         if (result == Result.NOT_FOUND) {
@@ -622,27 +607,32 @@ final class Migration {
                 && !e.profile().dangerToYukkuri() && e.status().identity().wild() && !SettlementEvents.homeClaimHeld(e);
     }
 
-    /** Old-home chores wait until the member has reached the destination and finished its bounded home search. */
+    /** Old-home chores wait until the member has reached the destination. */
     static boolean underway(YukkuriEntity e) {
         var group = e.settlement().group();
         if (group == null || !joins(e, group)) return false;
-        return moving(group) ? !e.settlement().settledAt(group.migrateTo) : e.settlement().straggler(group);
+        return moving(group) ? !e.settlement().reached(group) : e.settlement().straggler(group);
     }
 
-    /** Reads physical arrival and member-owned home handoffs without advancing either. */
+    /** A living participant remains due until it reaches the ground or actually leaves the party. */
     private static boolean arrived(ServerLevel level, List<YukkuriEntity> members, SettlementData.Group group) {
-        if (group.migrateArrivedAt == 0) return false;
-        var housed = new HashSet<UUID>();
-        for (var member : members) {
-            if (!member.settlement().settledAt(group.migrateTo) || member.life().homeStand() == null || member.isPassenger()) return false;
-            housed.add(member.getUUID());
-        }
         var family = FamilyData.get(level);
-        for (var id : group.migrateParty) if (!housed.contains(id)) {
+        for (var party = group.migrateParty.iterator(); party.hasNext();) {
+            var id = party.next();
             var person = family.person(id);
-            if (group.role(id) != SettlementData.Role.FREE && (person == null || person.status != FamilyData.Status.DEAD
-                    && person.status != FamilyData.Status.REMOVED)) return false;
+            String dropped = person != null && person.status == FamilyData.Status.DEAD ? "dead"
+                    : person != null && person.status == FamilyData.Status.REMOVED ? "removed"
+                    : group.role(id) == SettlementData.Role.FREE ? "left_group"
+                    : level.getEntity(id) instanceof YukkuriEntity member && !joins(member, group)
+                    && !member.childhood().shouldStayWithParents() ? "no_longer_eligible" : null;
+            if (dropped == null) continue;
+            party.remove();
+            SettlementData.get(level).setDirty();
+            GameplayLog.world(level, "settlement", "migration party dropped group={} member={} reason={}", group.id, id, dropped);
         }
+        if (members.stream().anyMatch(member -> !member.settlement().reached(group))) return false;
+        for (var id : group.migrateParty)
+            if (!(level.getEntity(id) instanceof YukkuriEntity member) || !member.settlement().reached(group)) return false;
         return true;
     }
 
@@ -657,7 +647,7 @@ final class Migration {
                     e -> group.id.equals(e.settlement().groupId()) && joins(e, group))) {
                 member.settlement().recoverDepartureForAbandon(group);
                 total++;
-                boolean isSettled = member.settlement().settledAt(group.migrateTo);
+                boolean isSettled = member.settlement().reached(group);
                 boolean isNear = member.distanceToSqr(gx, gy, gz) <= (ARRIVE_RANGE + 2) * (ARRIVE_RANGE + 2);
                 if (isSettled) settled++;
                 if (isNear) near++;
@@ -684,6 +674,7 @@ final class Migration {
 
     /** Claim an existing empty plan before announcing it; natural ground has no shared site record to reserve. */
     private static boolean reserveTarget(SettlementData data, SettlementData.Group group, BlockPos target) {
+        if (target.equals(group.center)) return true;
         var site = SiteLife.bySpot(data, target);
         if (site == null) return true;
         if (group.id.equals(site.group)) return site.reservable();
@@ -702,8 +693,8 @@ final class Migration {
         }
     }
 
-    /** Every participating household now has an address and its young have reached their beds. */
-    private static void complete(SettlementData data, SettlementData.Group group, YukkuriEntity caller, long now) {
+    /** Every remaining participant has stood on the destination ground. */
+    private static void complete(SettlementData data, SettlementData.Group group, YukkuriEntity caller, long now, int households) {
         var arrived = SiteLife.bySpot(data, group.migrateTo);
         // The old ground is left to the next settlers; the new one is lived in from now on. Moving onto natural ground
         // leaves the planned site behind too: before, the group kept its old siteId and arrivals re-homed into the old burrows.
@@ -715,7 +706,8 @@ final class Migration {
         }
         else group.siteId = null;
         var c = group.commons;
-        c.note(now, "migrate_done", caller.getUUID(), c.migrateReason + " at " + group.migrateTo.toShortString() + " after " + (now - group.migrateSince) + " ticks");
+        c.note(now, "migrate_done", caller.getUUID(), c.migrateReason + " at " + group.migrateTo.toShortString()
+                + " after " + (now - group.migrateSince) + " ticks households=" + households);
         LOGGED_PHASES.remove(group);
         group.center = group.migrateTo; group.migrateTo = null; group.migrateSince = 0;
         group.landCommons = null;
