@@ -192,7 +192,7 @@ public final class YukkuriSocial implements MotorOwner {
                     && !peer.isNoAi() && !peer.isPanicking() && !peer.life().isSleeping() && !peer.social().active() && Bonds.careKin(entity, peer)
                     && entity.hasLineOfSight(peer) && !SettlementSociety.avoids(entity, peer))
                     .stream().min(Comparator.comparingDouble(entity::distanceToSqr)).orElse(null);
-            if (target != null) { task = Task.PEER; duration = 200; elapsed = 0; greeted = false; greetWhy = "morning"; chooseApproach(target); return true; }
+            if (target != null) { approachPeer("morning"); return true; }
         }
         if (entity.getRandom().nextFloat() < .5f) {
             target = level.getEntitiesOfClass(ItemEntity.class, entity.getBoundingBox().inflate(6), item -> item.isAlive() && Facilities.toy(item.getItem()))
@@ -208,7 +208,7 @@ public final class YukkuriSocial implements MotorOwner {
                     && (!Recognition.unrecognizedHatless(entity, peer) || entity.headwear().readyForHatlessContact(peer)))
                     .stream().sorted(Comparator.comparingInt((YukkuriEntity peer) -> personality().trust(peer.getUUID())).reversed()
                             .thenComparingDouble(entity::distanceToSqr)).findFirst().orElse(null);
-            if (target != null) { task = Task.PEER; duration = 200; elapsed = 0; greeted = false; greetWhy = null; chooseApproach(target); return true; }
+            if (target != null) { approachPeer(null); return true; }
         }
         target = level.getEntitiesOfClass(LivingEntity.class, entity.getBoundingBox().inflate(6),
                 person -> (person instanceof Player player && !player.isSpectator() || person instanceof HumanNpc)
@@ -247,7 +247,8 @@ public final class YukkuriSocial implements MotorOwner {
         return task != Task.NONE && target != null && target.isAlive() && target.level() == entity.level()
                 && (task == Task.ACCESSORY || entity.hasLineOfSight(target)) && !entity.dailyLife().active() && !entity.life().isSleeping()
                 && entity.distanceToSqr(target) < 64 && !entity.isPanicking() && !urgent()
-                && entity.life().mealTicks() == 0 && !entity.isCommandPlaying() && elapsed < duration;
+                && entity.life().mealTicks() == 0 && !entity.isCommandPlaying() && elapsed < duration
+                && (task != Task.ANSWER || answerDelay > 0 || approachedBy(target));
     }
     public void tickGoal() {
         if (!canContinue()) { stop(); return; }
@@ -423,12 +424,37 @@ public final class YukkuriSocial implements MotorOwner {
     private void logGreet(YukkuriEntity other, String why) {
         GameplayLog.limited(entity, "social", "greet." + other.getUUID(), 200, "greet from={} to={} why={}", entity.getUUID(), other.getUUID(), why);
     }
+    private void approachPeer(String why) {
+        task = Task.PEER; duration = 200; elapsed = 0; greeted = false; greetWhy = why;
+        chooseApproach(target);
+        if (!retreat && target instanceof YukkuriEntity peer) peer.social().noticeApproach(entity);
+    }
+    /** The greeter is still walking up to this one, not yet arrived. */
+    private boolean approachedBy(Entity other) {
+        return other instanceof YukkuriEntity greeter && greeter.social().task == Task.PEER && greeter.social().target == entity
+                && !greeter.social().greeted && !greeter.social().retreat;
+    }
+    private boolean freeToAnswer(YukkuriEntity from) {
+        return !entity.level().isClientSide && entity.isAlive() && !entity.isNoAi() && !entity.life().isSleeping() && !entity.isPanicking()
+                && !entity.life().hasUrgentNeed() && entity.life().mealTicks() == 0 && !entity.isCommandPlaying() && !entity.operations().active()
+                && !entity.groupInteraction().active() && !entity.playLife().active() && !entity.family().laboring()
+                && entity.hasLineOfSight(from);
+    }
+    /**
+     * A free peer that sees another walk up to it stops where it is and watches it come, instead of wandering off before
+     * the greeting (project design). Its own leisure and errands win: only an idle one with no session notices. The watch is
+     * the answer task before its greeting, and ends as soon as the walker arrives, turns away or gives up.
+     */
+    private void noticeApproach(YukkuriEntity from) {
+        if (task != Task.NONE || entity.dailyLife().active() || !entity.life().activity().equals(Behaviors.IDLE) || !freeToAnswer(from)) return;
+        task = Task.ANSWER; target = from; elapsed = 0; greeted = false; answerScorn = false; answerWhy = null; answerDelay = 0;
+        duration = ANSWER_EXPIRY; answerUntil = entity.level().getGameTime() + ANSWER_EXPIRY;
+        GameplayLog.limited(entity, "social", "noticed." + from.getUUID(), 200, "approach noticed from={} distance={}",
+                from.getUUID(), Math.round(entity.distanceTo(from) * 10) / 10.0);
+    }
     /** A greeted peer turns to the greeter and answers about a second later, from its own social goal; hatless greeters get scorn instead. */
     public boolean receiveGreeting(YukkuriEntity from, boolean scorn, String why) {
-        if (task != Task.NONE || entity.level().isClientSide || !entity.isAlive() || entity.isNoAi() || entity.life().isSleeping() || entity.isPanicking()
-                || entity.life().hasUrgentNeed() || entity.life().mealTicks() > 0 || entity.isCommandPlaying() || entity.operations().active()
-                || entity.groupInteraction().active() || entity.playLife().active() || entity.family().laboring()
-                || !entity.hasLineOfSight(from)) return false;
+        if (task != Task.NONE && !(task == Task.ANSWER && target == from) || !freeToAnswer(from)) return false;
         if (entity.dailyLife().active()) {
             if (scorn) Contempt.react((ServerLevel) entity.level(), entity, from);
             else answerGreeting(from, "nod", why);
