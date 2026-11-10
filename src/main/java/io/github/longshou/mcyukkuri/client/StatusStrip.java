@@ -14,6 +14,7 @@ public final class StatusStrip {
 
         Component health = Component.translatable("magnifier.mcyukkuri.health",
                 Math.round(view.getHealth()), Math.round(view.getMaxHealth()));
+        Component identity = Component.translatable(view.identityTranslationKey());
         Component badge = Component.translatable("magnifier.mcyukkuri.badge",
                 Component.translatable("badge.mcyukkuri.profile.grade." + view.visibleMedal()));
         int mold = BodySigns.moldTier(view.visibleSigns() & BodySigns.MOLD_MASK);
@@ -23,6 +24,7 @@ public final class StatusStrip {
 
         MutableComponent readouts = Component.empty()
                 .append(health).append(" · ")
+                .append(identity).append(" · ")
                 .append(badge).append(" · ")
                 .append(dirt);
         if (view.liveChildCount() > Integer.bitCount(view.liveBornMask())) {
