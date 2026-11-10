@@ -21,12 +21,12 @@
 - **`rain_open`**：复测失败。雨中个体因湿透死亡；冒烟发现，版本 2067c2fcd 本地组装。完成：空地淋雨找掩体后不再湿死。
 - **`hat_current`**：复测失败。缓流漂帽个体受溺水伤；冒烟发现，版本 2067c2fcd 本地组装。完成：顺流搁浅全程无溺水伤。
 - **`hat_crowd`**：复测失败。满帽登船、湿木棍取用或跳岸拒绝反复，另见过早翻帽；冒烟发现，版本 2067c2fcd 本地组装。完成：超载前后各有可执行退路，无同因拒绝循环或警戒期翻帽。
-- **`rescue_no_seat`**：复测失败。4 次中 1 次赤油溺水（主线 2/2 通过，次数太少不作结论）；冒烟发现，版本 [8c46bdd17](https://github.com/Longshou/MCyukkuri/commit/8c46bdd17) 本地组装。满船托幼的整链也走不完（版本 [414547b70](https://github.com/Longshou/MCyukkuri/commit/414547b70)，S2 目录冒烟存档 `.local/smoke/instance-5a0da4a1c104`）：t=175983 `carry put down refused … reason=NO_ROOM detail=no_supported_body_space`、t=175984 `rescue end result=EXHAUSTED … aboard=false last=BLOCKED reason=NO_ROOM`，落水的新生赤油没有被放下到岸上。完成：落水者被真正放到干地，帽上自家孩子全部下船，最后收回空帽。
+- **`rescue_no_seat`**：已接入待试玩（wp-cs-carry-putdown）。被救者放到干燥地面、自家孩子全部离帽后才收回空帽。已知：放在岸边的赤油乞食时偶尔自己滑回水里再被救起（冒烟 20 次 1 次，主线 2 次）。完成：落水者真正放到干地，所有孩子离帽，再收回空帽。
 - **`kid_boat_play`**：复测失败。赤油玩帽场景反复跳岸拒绝；冒烟发现，版本 2067c2fcd 本地组装。完成：打雷躲避与玩帽切换无同因跳岸拒绝循环。
 - **`birth_boat_missed`**：复测失败。临产回岸场景接触站位不可达反复；冒烟发现，版本 2067c2fcd 本地组装。完成：放下孩子与生产交接无同因站位拒绝循环。
 - **`settle_pit_slave`**：复测失败。坑奴接触站位不可达反复，另见个体死亡；冒烟发现，版本 2067c2fcd 本地组装。身份也不稳（版本 [414547b70](https://github.com/Longshou/MCyukkuri/commit/414547b70)，同一存档）：t=24154 `[mind] stage uneasy -> sweetened (unease 63, sweetness 3)`，与“长期停在不安、不会甜化”相违。完成：取食接触有退路，无同因站位拒绝循环或意外死亡；奴隶长期停在“不安”一档，不出现 `sweetened`／非油症。
-- **`birth_land_caught`**：复测失败。父油把接住的赤油放下的整链走不完（版本 [414547b70](https://github.com/Longshou/MCyukkuri/commit/414547b70)，同一存档）：t=104452 `carry put down refused … reason=NO_PATH shortfall=0.38 … why=last_step_blocked`，t=104454 `carry put down reason=fetch_ended hold=braid cause=fetch_ended … rejected=braid_lift`，第二只重复于 t=104650／104653；戴回帽子不能代替放下。完成：每只被接住的赤油各有一次成功的 `carry put down … cause=release` 落到可支撑地面，之后才戴回空帽。
-- **`carry_home`**：复测失败。孩子的带回链多只不完整（版本 [414547b70](https://github.com/Longshou/MCyukkuri/commit/414547b70)，同一存档）：`15db71e1` 全程没有成功接起（只有 `carry pickup stand blocked … why=no_complete_surface_route`），`30276b56` 于 t=140356 `carry nest release blocked … reason=NO_ROOM … no_supported_body_space`、t=140458 `carry put down reason=arrived_home hold=brim cause=nest_blocked … nest=OUTSIDE`，另三只同样只有站位拒绝。完成：每只初始赤油各有自己的接起 → 到窝 → 支撑面真实放下的完整链，兄弟的成功不能代替。
+- **`birth_land_caught`**：已接入待试玩（wp-cs-carry-putdown）。父油把接住的赤油逐只转身放到可支撑地面，再戴回空帽；落点被挡时在同一次放下里换落点或走过去，不强放。完成：每只被接住的赤油各有一次 `carry put down … cause=release` 落到可支撑地面，之后才戴回空帽；戴回帽子不能代替放下。
+- **`carry_home`**：已接入待试玩（wp-cs-carry-putdown）。三家亲油到窝边转身把孩子并排放上窝垫（落点靠近窝沿），被挡时换落点。已知：放下后赤油常自己爬出窝垫。完成：每只初始赤油至少一次到窝内可支撑位置（自己走入或被带回放下），至少两只被带回，没有放在窝外。
 - **陆地家庭在场（审计 P1，[规则](FEATURES.md#子代生命周期与离家)）**：已接入待试玩（本机冒烟非验收；`den_family` 丧偶觅食复测失败，见本条末）。看点：近处看得见的孩子只看着、走失才寻，窝内孩子不算走失；受饿幼体留在亲油身边；一只赤油只由一个亲油去抬，无路站位即放弃（`carry pickup stand blocked`）；孕母在窝里安住；进不了床的孩子原地歇（`child rests short of its bed`）；走失幼体在最后所知处附近找；该问候时先问候再蹭蹭；求偶超时记 `courtship stopped reason=time_cap`。未做：母油在孩子看不见处死亡时，孤儿不知其死、不去找；本机偶见两只发情成体始终不开始求偶（`HEAT_UNMET`，样本小未定）。完成：`den_family`、`hop` 无近处 `family search started`；`settle_snow` 窝内不反复 `child separation lost`；`offering` 献身仪式成形；`indep_near` 告别 `contact=100`；`family_search` 隔玻璃的母油走到玻璃前等待至放弃；`last_words` 亲缘目睹死亡播 bereaved（`witnessed kin death`）。复测失败：`den_family` 父母可能选中不同洞穴，父油死亡后母油未开始家庭觅食（本地组装 16/20、主线 f3dcbb032 17/20，冒烟非试玩）。完成：共同入住，父油死亡后母油实际外出觅食、存粮、照料孩子；保留原有用户验收要求。
 - **聚落、无头饰与人类的社会生活（审计 P5，[规则](FEATURES.md#聚落族规与迁徙)）**：已接入待试玩（本机冒烟非验收，运行版本待核实）。看点：
   - 坑与审判：`settle_pit_famine` 营养<30 时向坑沿成员 `pit slave begs`；`settle_pit_drive` 同一观察者两次拒斥至少隔 1200 tick、被拒者躲开；`colony_judge` 受审者 `hearing stance`（鞠躬／求饶／站稳），被逐者 2400 tick 内不报 `returned_exile`，视线内亲属低落；`colony_hunt` 拒绝出猎按依恋／友善／自制判定（`hunt call refused`）。
@@ -133,7 +133,7 @@
 - **陆 24 献身分体**（37）：部分接入。现 GIVE 只停步、注视、低垂后进中枢濒死，遗体完整压低。要从中间劈成两半，横切面按构造分层，中枢馅／线也分两半，对应同一遗体资源；入口并入 `offering`。完成：分体可见、资源不重复（[受伤与遗体](FEATURES.md#伤口遗体与身体状态)）。
 - **亲代运输演出**（反馈 2、5；[规则](FEATURES.md#聚落族规与迁徙)）：复测失败（[f90b78a3c](https://github.com/Longshou/MCyukkuri/commit/f90b78a3c)），其后已改待试玩。
   - 试玩记录：[81858504b](https://github.com/Longshou/MCyukkuri/commit/81858504b)（一次运多只等其余部分没问题）用户：魔理沙辫子穿模、动作不自然，可以自己转身到有辫子的一侧；帽子一侧满时允许用不穿模的辫子动作接触帽子、子油自己移到帽上（可接受的取舍）；辫子像机械一样先往一个方向移动、停顿、再换方向，僵硬，没有生物的流畅感；灵梦放下时孩子不是从嘴巴处出来。f90b78a3c 用户：“亲油运输的魔理沙 不管是放上去还是放下来，这个辫子都与身体和帽子穿模 而且辫子动作很诡异啊”。辫子较粗的方块段看着偏僵（模型形状，待用户判断）。
-  - 已知缺口：嘴叼子油在子油体型约 0.35 以上时本身就穿身（姿态检查器测得）；帽船上辫子抬子油跳动时帽檐与亲油头发重叠。`carry_home` 魔理沙放第二、三只入窝常因落点与先放的相距 0.14 格被挡（`no_supported_body_space`，改放软垫）；窝沿／高处放下拒绝后重新规划、迁徙抓空／到达超时及二次取回收尾（`colony_migrate_babies` 偶见：魔理沙帽檐载两只后去新址 `route failed` 持续不动；灵梦只带走一只，另一只留在旧窝；本机冒烟分支 38/40、主线 39/40，版本待核实）、嘴部放出与双尾同时包裹、观察台遮挡辫子接放；被抬孩子的表情与对白留统一补。
+  - 已知缺口：嘴叼子油在子油体型约 0.35 以上时本身就穿身（姿态检查器测得）；帽船上辫子抬子油跳动时帽檐与亲油头发重叠。窝沿／高处放下拒绝后重新规划、迁徙抓空／到达超时及二次取回收尾（`colony_migrate_babies` 偶见：魔理沙帽檐载两只后去新址 `route failed` 持续不动；灵梦只带走一只，另一只留在旧窝；本机冒烟分支 38/40、主线 39/40，版本待核实）、嘴部放出与双尾同时包裹、观察台遮挡辫子接放；被抬孩子的表情与对白留统一补。
   - 完成：出生与成长“亲油把走远的赤油带回窝”（`carry_home`，一趟按体型带多只）与族群迁徙与族规“族群迁徙：亲油带着赤油走”（`colony_migrate_babies`）：魔理沙转向辫侧后一条连续顺滑的辫子路径抬过帽檐并平稳放下，不穿身不穿帽，帽满后叼嘴；灵梦张嘴含入、鼓腮、到窝从嘴部吐出（放出有可见动画），多只沿嘴横排互不穿插、腮更鼓；橙两尾各卷一只；真实体型无穿插、不浮不陷，窝内空位或窝外支撑点真实放下、不强放、不永久含住，行走／跳跃无异常掉落；每个亲油 `carry lift started` 与实际接起（`carry pickup hold=`）条数相符，无原地重复抬手、无 `seat_blocked`；`carry_home` 跳转点露天，三家从真实大窝认窝到接起、抵达、窝内放下，无 `assignment refused` 或 `target=null` 停搜；1.0 与 1.2 体型各看。
 
 ### 最后统一补：配音、台词与表情
@@ -367,6 +367,7 @@
 - **行为数值、成长与遗传**：已接入待试玩（[正式设计](FEATURES.md#行为性格与成长)）。完成：日常草地 `balance_traits`“五属性20／50／80／90对照”概率与任务预算符合公式；`growth` 按实际 tick 换阶段；`balance_forms` 形态不越界；`balance_deibu` 在成年边界锁定灵胖且不中断短动作；亲子分享、照护和翻船救援按友善作一次决策，普通失败冷却后才重选。
 - **数值改造适配**：已接入待试玩。完成：`shop_build` 受训库存有原定徽章与六项技能，购买放出及重载保持；`birth_land_caught` 新生儿读取亲子关系，收纳放出及重载继续累计；`meet` 南边陌生一对从亲近 0 开始普通问候并建立同伴关系，高恐惧仍按 `balance_relation` 退避。
 - **通用**：陆 1（23）场景北侧观察、个体初始朝北；陆 3（11）清空本场地后实体、账本和地形回到同一初始状态，无模组物品与拆窝掉落；[架构整理](../AGENTS.md)后的行为、显示顺序、保存契约与多人同步；同屏 1–15 只（污渍、孕肚、发言）的帧时间；单一血量下多日的死亡与繁殖节奏。
+- **迁徙后赤油从新窝沿回床**：未做。`colony_migrate_babies` 偶见赤油被放在新窝沿后 `return_home` 反复 `no_complete_surface_route`（LOOP），主线 85850236b 同见。完成：放在窝沿的赤油能自己走到床位或被亲油带进去，无同因反复。
 - **野外住所**：`den_family` 家庭洞（杀死父油即丧偶家庭）：陆 52 清醒饥饿翻倍，丧偶后母油接替外出存粮，未独立子油留洞内、不再进出循环。`indep_near` 独立（亲油在与不在各一只）：告别后释放旧床位，成为寻窝流浪油，亲缘与好感保留，尚不具备繁殖资格。
 - **流浪与觅食**：`dig` 流浪油挖穴（陆 29（47）内部 2 格高）；`forage` 外出觅食（陆 30（48）近处不足才远行：距离见[觅食](FEATURES.md#野外住所)）与灵梦颊囊（多捡、逐份放入）；`graze` 吃草（陆 31（49）优先非草、咽草嫌苦）。
   - 复测失败（本机冒烟，主线 [aa574abd4](https://github.com/Longshou/MCyukkuri/commit/aa574abd4) 同样）：`forage` 母油割满 6 份草后 `end ok=false phase=BACK reason=stuck_home`，草没有进洞。完成：父母带草进洞存入，日志有 `deposit home=`。
