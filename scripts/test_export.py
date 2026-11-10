@@ -206,15 +206,26 @@ class ExportTests(unittest.TestCase):
         self.assertEqual(visited, ['source', 'independent'])
         self.assertEqual(json.loads((self.root/'result.json').read_text())[1]['status'], 'BLOCKED')
 
-    def test_tilt_gate_covers_between_beats_and_combined_axes(self):
+    def test_tilt_gate_measures_composed_lean_across_the_clip(self):
         from motion_gate import check_body
         data = dict(bones=[dict(name='root')])
         idle = dict(tracks=[])
         clip = dict(duration=1, tracks=[dict(bone=0, channel='rotation',
-                    keys=[[0, 0, 0, 0], [.37, 7, 90, -6], [1, 0, 0, 0]])])
+                    keys=[[0, 0, 0, 0], [.37, 30, 0, 0], [1, 0, 0, 0]])])
         self.assertTrue(check_body(pipeline.ROOT, 'reimu', 'broken', data, clip, idle))
         clip['tracks'][0]['keys'][1] = [.37, 6, 180, -6]
-        self.assertFalse(check_body(pipeline.ROOT, 'reimu', 'boundary', data, clip, idle))
+        self.assertFalse(check_body(pipeline.ROOT, 'reimu', 'yaw_only', data, clip, idle))
+        # bank_beckon keeps its yaw: the channels sum to 69 degrees, the body leans under 9.
+        clip['tracks'][0]['keys'] = [[0, -34.99, 74.65, -33.94], [.37, -36.02, 75.04, -34.94], [1, -34.99, 74.65, -33.94]]
+        self.assertFalse(check_body(pipeline.ROOT, 'reimu', 'yawed', data, clip, idle))
+        clip['tracks'][0]['keys'] = [[0, 0, 0, 0], [.37, 12.1, 0, 0], [1, 0, 0, 0]]
+        self.assertTrue(check_body(pipeline.ROOT, 'reimu', 'over', data, clip, idle))
+        clip['tracks'][0]['keys'][1] = [.37, 11.9, 0, 0]
+        self.assertFalse(check_body(pipeline.ROOT, 'reimu', 'under', data, clip, idle))
+        # A clip's written tilt_max (with tilt_why) is the only way past the budget, as in PoseChecks.tilt.
+        clip['tracks'][0]['keys'][1] = [.37, 30, 0, 0]
+        clip['parameters'] = dict(tilt_max=31, tilt_why='test')
+        self.assertFalse(check_body(pipeline.ROOT, 'reimu', 'allowed', data, clip, idle))
 
     def test_contact_gate_reports_all_failures_and_skips_missing_context(self):
         import argparse
