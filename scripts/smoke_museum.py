@@ -470,6 +470,8 @@ def smoke_specs_on_main(source):
                                    stdout=subprocess.PIPE)
         with tarfile.open(fileobj=archive.stdout, mode='r|') as tar:
             tar.extractall(tree, filter='data')
+        # Git pads tar output beyond its end marker; drain the pipe before waiting for Git to exit.
+        archive.stdout.read()
         if archive.wait():
             raise subprocess.CalledProcessError(archive.returncode,
                                                 'git archive origin/main ' + ' '.join(MAIN_SCENE_INPUTS))
@@ -617,6 +619,7 @@ def export_tree(commit):
                                stdout=subprocess.PIPE)
     with tarfile.open(fileobj=archive.stdout, mode='r|') as tar:
         tar.extractall(tree, filter='data')
+    archive.stdout.read()
     if archive.wait():
         raise subprocess.CalledProcessError(archive.returncode, 'git archive ' + commit)
     return tree
