@@ -68,7 +68,8 @@ final class Courtship {
         var peer=roundPeer==null?null:o.level().getEntity(roundPeer);
         if(initiated&&peer instanceof YukkuriEntity mate&&o.entity().isAlive()) {
             if(declinedRound){askedUntilBy=roundPeer;askedUntil=o.level().getGameTime()+REFUSAL_PAUSE;}
-            else if(o.inBreedingPeriod()&&mate.family().inBreedingPeriod()&&pairingAllowed(mate))comeBack=roundPeer;
+            // One walk back per interruption: a round that is itself the comeback does not earn another.
+            else if(!returning&&o.inBreedingPeriod()&&mate.family().inBreedingPeriod()&&pairingAllowed(mate))comeBack=roundPeer;
         }
         resetCourtProgress();courtPathFailures=0;declinedRound=false;returning=false;declineTicks=0;refusalFaced=false;sawNotice=false;
         unauthorizedWith=null;roundPeer=null;initiated=false;
@@ -410,15 +411,16 @@ final class Courtship {
         return o.target()!=null&&o.target().family().target()==o.entity()&&askingForRefusal(o.target());
     }
 
-    /** The partner whose own work cut the last round short, once she is free, in reach and both are still in heat. */
+    /** The partner whose own work cut the last round short, once she is free, in reach, courtable again and both still in heat. */
     YukkuriEntity comeback() {
         if(comeBack==null)return null;
         var mate=o.level().getEntity(comeBack);
-        if(!(mate instanceof YukkuriEntity peer)||!peer.isAlive()||!pairingAllowed(peer)||!peer.family().inBreedingPeriod()) {
+        // Gone or out of heat: the window for this walk back has closed.
+        if(!(mate instanceof YukkuriEntity peer)||!peer.isAlive()||!o.inBreedingPeriod()||!peer.family().inBreedingPeriod()) {
             comeBack=null;return null;
         }
-        // Busy or far off just now: he keeps it in mind until the heat period ends.
-        return o.inBreedingPeriod()&&peer.family().task()==Task.NONE&&inComebackRange(peer)?peer:null;
+        // Busy just now: he keeps it in mind until the heat period ends.
+        return peer.family().task()==Task.NONE&&inComebackRange(peer)&&pairingAllowed(peer)?peer:null;
     }
 
     /** He leaves for a partner another goal took him away from: a real walk back, never a second try at the same spot. */
