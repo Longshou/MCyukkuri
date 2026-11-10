@@ -37,8 +37,12 @@ final class Courtship {
     private UUID arranged, unauthorizedWith;
     /** This round is the refusal he came to hear; this round is his walk back to a partner another goal took from him. */
     private boolean declinedRound, returning;
+    /** The partner of the round that just started or ended (kept across the stop, where the owner has already dropped its target). */
+    private UUID roundPeer;
+    /** This side opened that round; only an initiator's interrupted round leaves it a comeback or a refusal pause. */
+    private boolean initiated;
     /** The partner a cut-short round left him (kept until he can go back), the adult he just asked and when he may ask again. */
-    private UUID comeBack, asked, askedUntilBy;
+    private UUID comeBack, askedUntilBy;
     private long askedUntil;
     private int declineTicks;
     /** Her refusal answer has turned to look at him once; the turn away that follows is then really on screen. */
@@ -49,14 +53,25 @@ final class Courtship {
 
     Courtship(FamilyLife o) { this.o=o; }
     UUID arranged() { return arranged; }
-    void resetAttempt() { resetCourtProgress();courtPathFailures=0;declinedRound=false;returning=false;declineTicks=0;comeBack=null;asked=null;refusalFaced=false;sawNotice=false; }
+    void resetAttempt() {
+        roundPeer=o.target()==null?null:o.target().getUUID();
+        initiated=o.task()==Task.COURT;
+        resetCourtProgress();courtPathFailures=0;declinedRound=false;returning=false;declineTicks=0;comeBack=null;
+        refusalFaced=false;sawNotice=false;
+    }
     /**
-     * Ending a round keeps the comeback it just earned (the stop that follows the interruption must not erase it); a declined round
-     * that ends, answered or not, leaves that adult alone for a while: the same answer is never asked again at once.
+     * Ending a round: a declined round leaves that adult alone for a while (the same answer is never asked again at once), and an
+     * initiator's round that never reached its contact — the cap, the pair drifting apart, the other side's own work — leaves him a
+     * comeback he can really walk back. Every exit arrives here, including a goal another behaviour displaced.
      */
     void reset() {
-        if(declinedRound&&asked!=null){askedUntilBy=asked;askedUntil=o.level().getGameTime()+REFUSAL_PAUSE;}
-        resetCourtProgress();courtPathFailures=0;declinedRound=false;returning=false;declineTicks=0;asked=null;refusalFaced=false;sawNotice=false;unauthorizedWith=null;
+        var peer=roundPeer==null?null:o.level().getEntity(roundPeer);
+        if(initiated&&peer instanceof YukkuriEntity mate&&o.entity().isAlive()) {
+            if(declinedRound){askedUntilBy=roundPeer;askedUntil=o.level().getGameTime()+REFUSAL_PAUSE;}
+            else if(o.inBreedingPeriod()&&mate.family().inBreedingPeriod()&&pairingAllowed(mate))comeBack=roundPeer;
+        }
+        resetCourtProgress();courtPathFailures=0;declinedRound=false;returning=false;declineTicks=0;refusalFaced=false;sawNotice=false;
+        unauthorizedWith=null;roundPeer=null;initiated=false;
     }
 
     /** Both partners read the initiator's uninterrupted server clock, never their travel time. */
@@ -408,7 +423,7 @@ final class Courtship {
     void beginComeback() { resetAttempt();returning=true; }
 
     /** This round is a refusal he will hear: her standing partner, not the walk, is what keeps the pair apart. */
-    void beginDecline() { resetAttempt();declinedRound=true;asked=o.target()==null?null:o.target().getUUID(); }
+    void beginDecline() { resetAttempt();declinedRound=true; }
 
     /** In sight and within reach for the walk back; the court's own contact still needs the touch range. */
     private boolean inComebackRange(YukkuriEntity peer) {
@@ -418,10 +433,6 @@ final class Courtship {
     void courtStopped(String reason){
         var peer=o.target();
         var mother=peer==null?null:mother(o.entity(),peer);var father=mother==null?null:mother==o.entity()?peer:o.entity();
-        // A round another goal cut short leaves him a comeback: he walks back over once she is free and both are still in heat.
-        if(!returning&&!declinedRound&&peer!=null&&peer.isAlive()&&o.inBreedingPeriod()&&peer.family().inBreedingPeriod()
-                &&(reason.equals("partner_busy")||reason.equals("time_cap")||reason.equals("pair_requirements_changed"))
-                &&pairingAllowed(peer))comeBack=peer.getUUID();
         GameplayLog.limited(o.entity(),"family","court.stop."+reason,200,
                 "courtship stopped reason={} partner={} nearTicks={} contactTicks={} requiredTicks={} pathFailures={} distance={} rearDistance={} fatherNavDone={}",
                 reason,peer==null?null:peer.getUUID(),courtNearTicks,courtContactTicks,courtRequiredTicks,courtPathFailures,
