@@ -24,7 +24,7 @@
 
 ## 命令与文件
 
-- 动作包只用仓库命令（`export.py motion`、`preview.py`、`pose_check.py`、`capture_review.py`、`safe_edit.py`）；命令做不到的步骤补成命令选项，不写一次性脚本。生成脚本和模板留在原制作目录。认可集合和文件指纹由制作源登记保存。
+- 动作包只用仓库命令（`export.py motion`、`preview.py`、`pose_check.py`、`capture_review.py`、`safe_edit.py`）；`export.py motion` 导出后执行身体硬错误门槛，`--check` 对现有导出执行同样门槛，检查范围与缺证据处理见[脚本说明](../../scripts/README.md)。命令做不到的步骤补成命令选项，不写一次性脚本。生成脚本和模板留在原制作目录。认可集合和文件指纹由制作源登记保存。
 - 生成文件冲突先合并制作源（动作源 motions／variants／lore／recipe.json、author.py、motion_corrections.json；语言按键、台词按行 ID 合并）再重建受影响输出，不手工合并生成文件。
 - 目录与文件用稳定英文 ID 命名，不用“最终版／新版2”；当前导出放 `assembled/`，待确认方案放 `drafts/<主题>/`，被替代方案直接删除、不设 `archive/`；同包脚本留包内，跨目录脚本放 `scripts/` 并登记其 README；`standards/yukkuri-v1/` 仍被读取。
 - 报告、提交与范围同 [coder.md](coder.md#5-工作守则) 的工作守则。

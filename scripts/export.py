@@ -246,7 +246,7 @@ def main():
     ap.add_argument('--list', action='store_true')
     ap.add_argument('--beats', type=Path)
     ap.add_argument('--model', nargs='+', default=['reimu'], help='Models to preview/check; family export runs once')
-    ap.add_argument('--metrics', default='tilt', help='Per-frame metrics (tilt,pass,wet,gap,held); verdicts are reports, not acceptance gates')
+    ap.add_argument('--metrics', default='tilt', help='Beat metrics (tilt,pass,wet,gap,held); hard body and requested contact failures gate export')
     ap.add_argument('--context', type=Path, help='Explicit pose evidence JSON for additional metrics')
     ap.add_argument('--water', type=float)
     ap.add_argument('--report', type=Path, default=ROOT/'.local/reports/export/results.json')
@@ -365,7 +365,14 @@ def motion(args, rows):
         if result['status'] != 'PASS':
             return 1
     failed = 0
+    from motion_gate import body_gate
     for clip, model in product(args.clips, args.model):
+        try:
+            if body_gate(ROOT, model, clip):
+                failed = max(failed, 1)
+        except (ValueError, OSError, KeyError) as error:
+            print(f'{clip}/{model}: body check error: {error}', flush=True)
+            failed = 2
         topic = 'motion-'+clip.replace('_', '-')+'-'+model.replace('_', '-')
         subprocess.run([sys.executable, 'scripts/preview.py', 'strip', topic, '--model', model,
                         '--clip', clip, '--beats', str(args.beats)], cwd=ROOT, check=True)
@@ -375,8 +382,16 @@ def motion(args, rows):
         folder = args.report.parent/'motion'/clip/model
         folder.mkdir(parents=True, exist_ok=True)
         requests = []
+        metrics = []
+        for metric in args.metrics.split(','):
+            if metric in ('pass', 'gap', 'held') and not args.context:
+                print(f'{clip}/{model}: {metric} SKIPPED (no --context)', flush=True)
+            elif metric == 'wet' and args.water is None and not args.context:
+                print(f'{clip}/{model}: wet SKIPPED (no --water or --context)', flush=True)
+            else:
+                metrics.append(metric)
         for i, t in enumerate(times):
-            request = dict(model=model, clip=clip, t=str(t), metric=args.metrics.split(','),
+            request = dict(model=model, clip=clip, t=str(t), metric=metrics,
                            pose_out=str(folder/f'pose-{i:03}.jsonl'))
             if args.context:
                 request['context'] = read(args.context)
@@ -401,9 +416,12 @@ def motion(args, rows):
             failed = 2
             continue
         counts = {}
-        for response in responses:
+        for t, response in zip(times, responses):
             for row in response['results']:
                 counts[row['verdict']] = counts.get(row['verdict'], 0)+1
+                if row['verdict'] == 'fail' and row.get('metric') in ('pass', 'gap', 'held'):
+                    print(f'FAIL {clip}/{model} t={t:g}s {json.dumps(row, ensure_ascii=False)}', flush=True)
+                    failed = max(failed, 1)
         print(f'{clip}/{model}: pose report {counts}; {folder}', flush=True)
         if counts.get('error'):
             failed = 2

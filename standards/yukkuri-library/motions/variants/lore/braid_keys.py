@@ -301,7 +301,7 @@ def continuity(model, name, tracks):
             if swept > worst[0]: worst = [round(swept, 1), round(a[0], 3), bone]
     print(f'  {name}: braid joint step {worst[0]:.1f} deg@{worst[1]:.2f} ({worst[2]}), whole turns {len(turns)}', flush=True)
     if worst[0] > STEP or turns:
-        raise ValueError(f'{model["id"]} {name}: braid joint turns {worst[0]} degrees in one sample (> {STEP:g}) or whole turns {turns[:4]}')
+        raise ValueError(f'{model["id"]} {name}: braid joint turns {worst[0]} degrees at {worst[1]:.3f}s ({worst[2]}) in one sample (> {STEP:g}) or whole turns {turns[:4]}')
     return worst
 
 

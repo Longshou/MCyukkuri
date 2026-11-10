@@ -129,8 +129,9 @@ class ExportTests(unittest.TestCase):
         beats = self.root/'beats.txt'
         beats.write_text('0s start\n20t peak\n', encoding='utf-8')
         args = argparse.Namespace(beats=beats, clips=['wake'], check=False,
-            model=['reimu', 'marisa'], metrics='tilt,pass', context=None, water=None,
+            model=['reimu', 'marisa'], metrics='tilt,pass', context=self.root/'context.json', water=None,
             report=self.root/'results.json')
+        pipeline.write(args.context, {})
         response = json.dumps({'results': [{'verdict': 'pass'}]})+'\n'
         with patch.object(pipeline, 'run', return_value={'status': 'PASS'}) as export, \
              patch.object(registry, 'prepare_export'), patch.object(registry, 'finish_export'), \
@@ -204,6 +205,73 @@ class ExportTests(unittest.TestCase):
             self.assertEqual(pipeline.main(), 1)
         self.assertEqual(visited, ['source', 'independent'])
         self.assertEqual(json.loads((self.root/'result.json').read_text())[1]['status'], 'BLOCKED')
+
+    def test_tilt_gate_covers_between_beats_and_combined_axes(self):
+        from motion_gate import check_body
+        data = dict(bones=[dict(name='root')])
+        idle = dict(tracks=[])
+        clip = dict(duration=1, tracks=[dict(bone=0, channel='rotation',
+                    keys=[[0, 0, 0, 0], [.37, 7, 90, -6], [1, 0, 0, 0]])])
+        self.assertTrue(check_body(pipeline.ROOT, 'reimu', 'broken', data, clip, idle))
+        clip['tracks'][0]['keys'][1] = [.37, 6, 180, -6]
+        self.assertFalse(check_body(pipeline.ROOT, 'reimu', 'boundary', data, clip, idle))
+
+    def test_contact_gate_reports_all_failures_and_skips_missing_context(self):
+        import argparse
+        import contextlib
+        import io
+        pipeline.write(self.root/'context.json', {})
+        beats = self.root/'beats.txt'
+        beats.write_text('0s start\n', encoding='utf-8')
+        args = argparse.Namespace(beats=beats, clips=['wake'], check=True,
+            model=['reimu', 'marisa'], metrics='pass,gap,held', context=self.root/'context.json',
+            water=None, report=self.root/'results.json')
+        response = json.dumps({'results': [dict(metric=m, verdict='fail', value=9)
+                                          for m in ('pass', 'gap', 'held')]})+'\n'
+        for context in (args.context, None):
+            args.context = context
+            output = io.StringIO()
+            with patch.object(pipeline, 'run', return_value={'status': 'PASS'}), \
+                 patch('motion_gate.body_gate', return_value=False), \
+                 patch.object(pipeline.subprocess, 'run', return_value=subprocess.CompletedProcess(
+                     [], 0, stdout=response if context else '{"results":[]}\n', stderr='')) as execute, \
+                 contextlib.redirect_stdout(output):
+                self.assertEqual(pipeline.motion(args, pipeline.table()), 1 if context else 0)
+            requests = [json.loads(call.kwargs['input']) for call in execute.call_args_list if 'input' in call.kwargs]
+            self.assertEqual([r['metric'] for r in requests], [['pass', 'gap', 'held']]*2 if context else [[], []])
+            self.assertEqual(output.getvalue().count('FAIL wake/'), 6 if context else 0)
+            if not context:
+                self.assertIn('held SKIPPED (no --context)', output.getvalue())
+
+    def test_continuity_gate_reuses_joint_step_and_whole_turn_rules(self):
+        from motion_gate import check_body
+        data = dict(bones=[dict(name=n) for n in
+                          ('root', 'hand_right', 'hand_right_braid_1', 'hand_right_tip')], id='marisa')
+        clip = dict(duration=1, tracks=[dict(bone=3, channel='rotation',
+                    keys=[[0, 0, 0, 0], [.04, 89, 0, 0], [1, 0, 0, 0]])])
+        idle = dict(tracks=[])
+        self.assertTrue(check_body(pipeline.ROOT, 'marisa', 'braid_broken', data, clip, idle))
+        clip['tracks'][0]['keys'][1][1] = 1
+        self.assertFalse(check_body(pipeline.ROOT, 'marisa', 'braid_valid', data, clip, idle))
+        clip['tracks'][0]['keys'] = [[0, 181, 0, 0], [1, 181, 0, 0]]
+        self.assertTrue(check_body(pipeline.ROOT, 'marisa', 'braid_turn', data, clip, idle))
+
+    def test_body_failure_gates_export_and_readonly_even_without_tilt_metric(self):
+        import argparse
+        beats = self.root/'beats.txt'
+        beats.write_text('0s start\n', encoding='utf-8')
+        args = argparse.Namespace(beats=beats, clips=['wake'], check=False,
+            model=['reimu'], metrics='held', context=None, water=None,
+            report=self.root/'results.json')
+        for check in (False, True):
+            args.check = check
+            with patch.object(pipeline, 'run', return_value={'status': 'PASS'}), \
+                 patch.object(registry, 'prepare_export'), patch.object(registry, 'finish_export'), \
+                 patch('motion_gate.body_gate', return_value=True) as gate, \
+                 patch.object(pipeline.subprocess, 'run', return_value=subprocess.CompletedProcess(
+                     [], 0, stdout='{"results":[]}\n', stderr='')):
+                self.assertEqual(pipeline.motion(args, pipeline.table()), 1)
+            gate.assert_called_once_with(pipeline.ROOT, 'reimu', 'wake')
 
     def test_atomic_serialization(self):
         path = self.root/'current.json'
