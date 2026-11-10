@@ -172,9 +172,9 @@ def push_landing(tree, name):
         done = subprocess.run(['git', 'push', 'origin', 'HEAD:main'], cwd=tree, text=True, encoding='utf-8', capture_output=True)
         if not done.returncode:
             return git(tree, 'rev-parse', 'HEAD')
-        before = git(tree, 'rev-parse', 'origin/main')
         git(tree, 'fetch', '-q', 'origin')
-        if git(tree, 'rev-parse', 'origin/main') == before:
+        # Worktrees share remote refs, so another landing may already have fetched the new tip: compare with HEAD, not the old ref.
+        if not subprocess.run(['git', 'merge-base', '--is-ancestor', 'origin/main', 'HEAD'], cwd=tree).returncode:
             raise Fail(f'git push origin HEAD:main failed: {(done.stderr or done.stdout).strip()}')
         message = next((line.strip() for line in (done.stderr or done.stdout).splitlines()
                         if 'rejected' in line or line.startswith(('error:', 'fatal:'))), 'unknown')
