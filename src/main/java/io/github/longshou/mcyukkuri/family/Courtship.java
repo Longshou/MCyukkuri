@@ -29,6 +29,8 @@ final class Courtship {
     private static final double COMEBACK_RANGE=12;
     /** How far round from facing him her body has to be before her back is an answer he can read (a whole turn). */
     private static final float REFUSAL_TURN=160;
+    /** How near to facing him counts as her noticing him, the beat before she turns her back. */
+    private static final float REFUSAL_NOTICE=30;
     /** Minimum ticks her refusal round is shown for, so the turn is on screen and can be read. */
     private static final int REFUSAL_HOLD=20;
     /** Temporary arrangement and the owner-unpermitted courtship partner. */
@@ -41,18 +43,20 @@ final class Courtship {
     private int declineTicks;
     /** Her refusal answer has turned to look at him once; the turn away that follows is then really on screen. */
     private boolean refusalFaced;
+    /** He has watched her turn to him in this round, so her back after it is a turn and not a pose she already held. */
+    private boolean sawNotice;
     private boolean initiatorMother=true;
 
     Courtship(FamilyLife o) { this.o=o; }
     UUID arranged() { return arranged; }
-    void resetAttempt() { resetCourtProgress();courtPathFailures=0;declinedRound=false;returning=false;declineTicks=0;comeBack=null;asked=null;refusalFaced=false; }
+    void resetAttempt() { resetCourtProgress();courtPathFailures=0;declinedRound=false;returning=false;declineTicks=0;comeBack=null;asked=null;refusalFaced=false;sawNotice=false; }
     /**
      * Ending a round keeps the comeback it just earned (the stop that follows the interruption must not erase it); a declined round
      * that ends, answered or not, leaves that adult alone for a while: the same answer is never asked again at once.
      */
     void reset() {
         if(declinedRound&&asked!=null){askedUntilBy=asked;askedUntil=o.level().getGameTime()+REFUSAL_PAUSE;}
-        resetCourtProgress();courtPathFailures=0;declinedRound=false;returning=false;declineTicks=0;asked=null;refusalFaced=false;unauthorizedWith=null;
+        resetCourtProgress();courtPathFailures=0;declinedRound=false;returning=false;declineTicks=0;asked=null;refusalFaced=false;sawNotice=false;unauthorizedWith=null;
     }
 
     /** Both partners read the initiator's uninterrupted server clock, never their travel time. */
@@ -346,9 +350,12 @@ final class Courtship {
             return;
         }
         o.entity().getNavigation().stop();
+        if(peer.family().task()!=Task.RECEIVE_COURT||peer.family().target()!=o.entity())return;
         float facing=(float)(Mth.atan2(peer.getZ()-o.entity().getZ(),peer.getX()-o.entity().getX())*Mth.RAD_TO_DEG)-90;
-        if(peer.family().task()==Task.RECEIVE_COURT&&peer.family().target()==o.entity()
-                &&Math.abs(Mth.wrapDegrees(facing-peer.getYRot()))>=REFUSAL_TURN) {
+        double off=Math.abs(Mth.wrapDegrees(facing-peer.getYRot()));
+        if(off<=REFUSAL_NOTICE)sawNotice=true;
+        // She looked at him, then turned her back: that whole turn is the answer, and he gives up on her for a while.
+        if(sawNotice&&off>=REFUSAL_TURN) {
             o.entity().showReaction("confused","",80);
             o.stop();
         }
