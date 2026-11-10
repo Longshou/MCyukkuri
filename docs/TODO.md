@@ -9,7 +9,6 @@
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
 | 暂停待用户评估：载乘时转身平滑（分支 f95aeea96，载乘转角约 90°→12°/tick；meet／迁徙影响未定） | `.worktrees/wp-ex-carrier-turn` | motor/（转向速率，按实际归属）、family/ParentCarry.java（只读或最小改动） |
-| 暂停待用户评估：辫子头顶抓放不再一帧跳转（分支 6a24ad5ee，未导出） | `.worktrees/wp-ez-braid-head-clips` | standards/yukkuri-library/motions/variants/lore/（braid_head_* 的生成源）与 motion 导出 |
 | 任2 魔理沙抓赤油上帽抓空反复重试 | `.worktrees/wp-fc-hat-grab-miss` | family/ParentCarry.java、共享抓取动作（motor/action） |
 | 任4 移除族群审判 | `.worktrees/wp-fd-judgement-removal` | settlement/Judgement.java 及调用方、scripts/museum_scenarios.py（审判场景）、docs/FEATURES.md |
 | 任8 素鸡立演出重做（倾斜、相对位置、演出、表情） | `.worktrees/wp-ff-sukkiri-show` | standards/yukkuri-library/motions/（素鸡立片段）、表情库、family/Courtship.java（时序与偏移数据） |
