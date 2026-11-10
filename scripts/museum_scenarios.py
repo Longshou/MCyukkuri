@@ -516,9 +516,9 @@ add('meet', 'meadow', '熟的走近蹭蹭，生的先问候', '熟的走近蹭�
     yk('alice', 2, 3, 'stranger_b', label='陌生爱丽丝', yaw=90, attachment=95, affection=0, social_wait=0)],
     env=DAY, vantage=None, give=['mcyukkuri:field_notebook'],
     capture=dict(shots=(1, 40, 600), sequences=((20, 400, 4),), observe=False,
-                 views={'bonded': dict(follow=sel('a'), offset=(0, 1.4, 5),
+                 views={'bonded': dict(follow=f'@e[tag={tag("a")},limit=1]', offset=(0, 1.4, 5),
                                       criteria='熟识的一对连续走近、轮流问候，侧贴蹭蹭时身体接触而不重叠。'),
-                        'strangers': dict(follow=sel('stranger_a'), offset=(0, 1.4, 5),
+                        'strangers': dict(follow=f'@e[tag={tag("stranger_a")},limit=1]', offset=(0, 1.4, 5),
                                          criteria='陌生的一对接触时发起者问候，对方问候回礼；正在休闲时点头后继续。')}),
     reads=[('读熟识一对', f'execute as {sel("a")} run yukkuri status @s raw'),
            ('读陌生橙的首次接触', f'yukkuri status {sel("stranger_a")} raw'), ('读陌生爱丽丝的首次接触', f'yukkuri status {sel("stranger_b")} raw')])
