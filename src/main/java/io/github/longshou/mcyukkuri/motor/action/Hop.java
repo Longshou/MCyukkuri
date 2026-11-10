@@ -77,22 +77,22 @@ public final class Hop implements Action {
     private boolean underway;
 
     public Hop(Vec3 target) { this.target = target; seatHost = null; }
-    /** A running takeoff keeps its ground movement during the clip's preparation. The intercepted point
-     * is committed at admission; a change of course after that can evade the hop. */
+    /** A running interception springs from its current step, at the clip's takeoff marker. The
+     * intercepted point is committed at admission; a change of course in flight can evade the hop. */
     public Hop(YukkuriEntity body, Vec3 target) {
         this(target);
         runUp = BodyAbility.groundMotion(body);
     }
 
-    /** Extrapolate a moving ground destination over preparation and the body's full spring flight. */
+    /** Extrapolate a moving ground destination over the body's full spring flight. */
     public static Vec3 intercept(YukkuriEntity body, YukkuriEntity target, Vec3 stand) {
-        double ticks = takeoffTicks() - 1 + ArcSolver.flightTicks(BodyAbility.of(body).hopHeight(), stand.y - body.getY());
+        double ticks = ArcSolver.flightTicks(BodyAbility.of(body).hopHeight(), stand.y - body.getY());
         return stand.add(BodyAbility.groundMotion(target).scale(ticks));
     }
 
     /** Distance admission only. An out-of-range moving target remains a chase, never an action refusal. */
     public boolean withinReach(YukkuriEntity body) {
-        var origin = body.position().add(runUp.scale(takeoffTicks() - 1));
+        var origin = body.position();
         var ability = BodyAbility.of(body);
         return target.subtract(origin).horizontalDistance()
                 <= ability.runningReach(runUp.horizontalDistance(), target.y - origin.y) + ArcSolver.REACH_SLACK;
@@ -154,7 +154,7 @@ public final class Hop implements Action {
     public Feasibility check(YukkuriEntity body, Search search) {
         if (onEntryFloor(body)) return Feasibility.pass();
         long started = System.nanoTime();
-        var ready = solve(body, takeoffTicks() - 1, search).ready();
+        var ready = solve(body, runUp == null ? takeoffTicks() - 1 : 0, search).ready();
         timing(body, "check", started);
         if (bank != null && !ready.ok() && StatusEvents.trace()) GameplayLog.limited(body, "move", "exit." + ready.reason(), 200,
                 "exit refused brim={} bank={} reason={} detail={} width={}", target, bank, ready.reason(), ready.detail(), body.getBbWidth());
@@ -166,7 +166,7 @@ public final class Hop implements Action {
         return checkFrom(body, from, new Search());
     }
     public Feasibility checkFrom(YukkuriEntity body, Vec3 from, Search search) {
-        return solve(body, from, takeoffTicks() - 1, search).ready();
+        return solve(body, from, runUp == null ? takeoffTicks() - 1 : 0, search).ready();
     }
 
     /** A body that already settled into the interior resumes the same final seating move. */
@@ -312,13 +312,10 @@ public final class Hop implements Action {
     private Flight solve(YukkuriEntity body, int delay, Search search) {
         return solve(body, body.position(), delay, search);
     }
-    private Flight solve(YukkuriEntity body, Vec3 start, int delay, Search search) {
+    private Flight solve(YukkuriEntity body, Vec3 from, int delay, Search search) {
         SeatTarget candidate = null;
-        Vec3 from = runUp == null ? start : start.add(runUp.scale(delay));
-        if (runUp != null) {
-            if (!ground(body, start)) return new Flight(Feasibility.of(Reason.NO_SUPPORT, 0, "takeoff_support"), null, null);
-            if (!ground(body, from)) return new Flight(Feasibility.of(Reason.NO_SUPPORT, 0, "running_takeoff_support"), null, null);
-        }
+        if (runUp != null && !ground(body, from))
+            return new Flight(Feasibility.of(Reason.NO_SUPPORT, 0, "takeoff_support"), null, null);
         Vec3 to = target;
         if (seatHost == null && !ground(body, to))
             return new Flight(Feasibility.of(Reason.NO_SUPPORT, 0, "ground_centre"), null, null);
@@ -461,7 +458,7 @@ public final class Hop implements Action {
         aboard = departure != null && departure == seatHost;
         takeoff = takeoffTicks();
         from = body.position();
-        startTick = body.level().getGameTime();
+        startTick = body.level().getGameTime() - (runUp == null ? 0 : marker("takeoff"));
         underway = true;
     }
 
@@ -483,13 +480,6 @@ public final class Hop implements Action {
                 var turn = faceLeg(body);
                 turn.start(body);
                 turn.tick(body);
-                if (++crouch < takeoff) {
-                    if (!ground(body, body.position().add(runUp))) return Outcome.of(Reason.NO_SUPPORT, 0, "run_up_support_lost");
-                    var moved = Motor.move(body, runUp, "hop_run_up");
-                    Motor.velocity(body, runUp, "hop_run_up");
-                    if (moved.distanceTo(runUp) > TOUCH) return Outcome.of(Reason.NO_ROOM, moved.distanceTo(runUp), "run_up_blocked");
-                    return new Running(takeoff - crouch, TravelMode.CONSUMED);
-                }
             } else {
                 if (crouch == 0) {
                     if (legTurn == null) {
