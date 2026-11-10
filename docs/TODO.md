@@ -13,7 +13,6 @@
 | 接生父油安慰摔伤新生儿时不挡母油出口，下一只不因此丢失 | `.worktrees/wp-ey-birth-outlet-comfort` | family/FamilyLife.java（birthRole 护理让路）、family/LiveBirth.java（出口判定只读） |
 | 暂停待用户评估：辫子头顶抓放不再一帧跳转（分支 6a24ad5ee，未导出） | `.worktrees/wp-ez-braid-head-clips` | standards/yukkuri-library/motions/variants/lore/（braid_head_* 的生成源）与 motion 导出 |
 | 动作导出即门槛：`export.py motion` 对倾角、辫子连续与接触直接判失败 | `.worktrees/wp-fa-motion-export-gate` | scripts/export.py、scripts/pose_check.py（按需）、scripts/README.md |
-| 网页预览按地址预选新动作，并登记到“待你查看” | `.worktrees/wp-fb-viewer-link` | standards/yukkuri-library/runtime/viewer.html 及其生成脚本、scripts/preview.py、scripts/README.md |
 
 ## 玩法待办
 
