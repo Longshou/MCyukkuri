@@ -15,9 +15,8 @@ STATUSES = {"exists", "composable_from_existing_base", "base_missing", "needs_sp
 SOURCES = {"base", "composite", "lore", "procedural", "marisa_tsumuri", "anatomy"}
 CLASSIFICATIONS = {"really_base", "really_composite", "near_duplicate_of", "special"}
 REQUIRED_GAPS = {
-    "run", "lunge_ram", "low_crouch", "look_back", "nod", "head_shake", "bounce_in_place",
-    "lean_forward_press", "cling", "roll", "reject_or_spit", "emotional_hair", "chen_tail_signal",
-    "cough_mukyu", "crouch_watch", "glass_ram", "farewell", "greeting_return", "hop_chain", "snuggle",
+    "run", "roll", "reject_or_spit", "emotional_hair", "chen_tail_signal",
+    "cough_mukyu", "crouch_watch", "glass_ram", "farewell", "snuggle",
 }
 CUSTOM_JAVA_CALLERS = {
     "hop": {"Gesture.HOP_SMALL"},

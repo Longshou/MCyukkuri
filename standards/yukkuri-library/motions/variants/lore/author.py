@@ -355,11 +355,12 @@ def state(action, t, c, height):
         # Project design (TODO 陆 14): pressed against a partner on its `side` (+1: toward +X, the body's right). A nestle opens each cycle (squash
         # low and wide, slide and lean into the partner), then the pressed hold with a shiver and a breath. The shiver is not
         # mirrored: two partners on one clip clock shiver in step. Pitch |lean| + roll + shiver roll stay under 12 degrees.
+        # `shiver` scales the shiver (1 in the rain; the cling preset is the same side-press held calm with 0).
         side, nest = c['side'], c['nestle']
         press = c['hold']+(1-c['hold'])*bump(t/nest)
         hold = min(1., max(0., (t-nest)/(d-nest)))
         calm = 1-.5*smooth(hold)
-        w = math.sin(2*math.pi*c['shiver_hz']*t)
+        w = c.get('shiver', 1)*math.sin(2*math.pi*c['shiver_hz']*t)
         k, wide = c['squash']*press, c['widen']*press
         s = [1+wide, 1-k+c['breath']*math.sin(math.pi*hold)**2, 1+.4*wide]
         r = [c['lean'], 0., -side*c['roll']*press+c['shiver_roll']*w*calm]
@@ -538,10 +539,26 @@ def state(action, t, c, height):
         s = [1+.5*k, 1-k, 1+.5*k]; lift = c['bounce_ratio']*height*q
         shift = [0., -c['hop_shift']*height*q]
     elif action == 'bow':
-        if t < .45: a = smooth(t/.45)
-        elif t < .65: a = 1.
-        else: a = 1-smooth((t-.65)/.55)
+        # `repeat` dips share the clip evenly, each one the 1.2 s bow's down / hold / up beats scaled to its share (the nod preset).
+        n = c.get('repeat', 1); p = d/n; u = (t-p*min(int(t/p), n-1))*(1.2/p)
+        if u < .45: a = smooth(u/.45)
+        elif u < .65: a = 1.
+        else: a = 1-smooth((u-.65)/.55)
         r[0] = c['bow']*a; k = c['squash']*a; s = [1+.5*k, 1-k, 1+.5*k]; shift[1] = -c['push']*height*a
+    elif action == 'lunge_ram':
+        # Base ram (project design; wiki home invasion / defence pushes N1, F15, F07): crouch and draw back (wind-up), dart forward
+        # stretched with a small hop (launch..impact), flatten on the near contact face (impact..hold: the front stays where the dart
+        # left it, the body behind it squeezes forward, so nothing passes the surface), spring back with a small recoil hop, settle.
+        # Travel is the motor's; the clip's forward shift stays within the body. Pitch -8..+4, roll 0.
+        m = c['markers']; L, I, S = m['launch'], m['impact'], m['settled']; R = I+c['hold']; B = (R+S)/2
+        cr, st, fl, F = c['crouch'], c['stretch'], c['flatten'], c['front_ratio']
+        front = -c['lunge']-st*F  # the dart's farthest front, held through the flatten (fractions of the height, -Z forward)
+        s = [keyed(t, [(0, 1), (L, 1+.5*cr), (I-.04, 1-.3*st), (I, 1+.6*fl), (R, 1+.6*fl), (B, .99), (S, 1)]),
+             keyed(t, [(0, 1), (L, 1-cr), (I-.04, 1-.3*st), (I, 1+.4*fl), (R, 1+.4*fl), (B, 1.02), (S, 1)]),
+             keyed(t, [(0, 1), (L, 1+.4*cr), (I-.04, 1+st), (I, 1-fl), (R, 1-fl), (B, 1+.3*st), (S, 1)])]
+        r[0] = keyed(t, [(0, 0), (L, c['windup_lean']), (I-.04, c['dart_lean']), (I, c['impact_lean']), (R, c['impact_lean']), (B, c['recoil_lean']), (S, 0)])
+        shift[1] = height*keyed(t, [(0, 0), (L, c['draw_back']), (I-.04, front+st*F), (I, front-fl*F), (R, front-fl*F), (B, c['recoil']), (S, 0)])
+        lift = height*(c['dart_hop']*bump((t-L)/(I-.04-L)) + c['recoil_hop']*bump((t-R)/(S-R)))
     elif action == 'shy':
         # Face turned away with a small sway; once per cycle it peeks back and turns away again.
         ph = 2*math.pi*t/d; peek = max(0., math.sin(ph))**2
@@ -823,13 +840,21 @@ def faces(cfg, c, ident):
     return out
 
 
+def resolve(clips, name):
+    """A preset: its `base` clip (itself possibly a preset) with its own overrides, authored once. `motion` names the clip whose
+    motion code it plays (rain_huddle_left and cling_* play rain_huddle_right's, nod plays bow's)."""
+    entry = clips[name]
+    if 'base' not in entry: return entry
+    base = resolve(clips, entry['base'])
+    return {**base, 'motion': base.get('motion', entry['base']), **{k: v for k, v in entry.items() if k != 'base'}}
+
+
 def compile_clips(model, cfg, root, ground, height, cache=None):
     """ground(scale, rotation) -> y offset that keeps the lowest visible point on the floor."""
     out = {}; ident = model['id']
     hat = runpy.run_path(str(Path(__file__).resolve().parent/'hat.py'))
-    for name, base in cfg['clips'].items():
-        if 'base' in base:  # the same clip with its own overrides (e.g. the other side), authored once
-            base = {**cfg['clips'][base['base']], **{k: v for k, v in base.items() if k != 'base'}}
+    for name in cfg['clips']:
+        base = resolve(cfg['clips'], name)
         if not applies(cfg, base['applies'], ident): continue
         c = variant(base, ident)
         if cache:
@@ -859,7 +884,7 @@ def compile_clips(model, cfg, root, ground, height, cache=None):
         carry_floor=min(model['vertices'][(p['start']+i)*8+1] for p in model['parts'] if not p.get('anatomy') and not p['name'].startswith('puff_') for i in range(p['count'])) if carry_pose else 0
         keys = {'position': [], 'rotation': [], 'scale': []}
         for t in samples:
-            s, r, lift, shift = state(name, t, c, height)
+            s, r, lift, shift = state(c.get('motion', name), t, c, height)
             support=0 if c.get('root_support') in ('free_water','shared_braid') else TOOLS['bank_support'](model,s,r,shift,c['stroke']['edge']) if c.get('root_support')=='bank' else ground(s,r)-carry_floor
             for channel, value in (('position', [shift[0], support+lift, shift[1]]), ('rotation', r), ('scale', s)):
                 keys[channel].append([round(t, 8), *[round(x, 7) for x in value]])
@@ -925,7 +950,7 @@ def export_family(family, prune_only=False, check=False):
     include_weather=selection.get('side_profile',False)
     contact_author=runpy.run_path(str(here.parent/'contact-safe/author.py'))
     names=selection['clips'] if 'clips' in selection else runpy.run_path(str(here/selection['clip_source']))[selection['clip_field']]
-    cfg['clips']={name:cfg['clips'][name] for name in names}
+    cfg['clips']={name:resolve(cfg['clips'],name) for name in names}
     payload=json.loads(resource.read_text(encoding='utf-8'));fits=placement_fit.load()
     payload['revision']=RUNTIME_REVISION
     birth_poses={'format':1,'units':'model_pixels','ticks_per_second':20,'variants':{}}

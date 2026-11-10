@@ -8,7 +8,7 @@
 
 ## 制作与导出
 
-`author.py` 求值动作，`hat.py` 求解帽子、帽子实体位置和辫子接触。家族选择由 `recipe.json` 的 `export_families` 维护；新增家族只加数据。`life` 包含寻子呼唤 `call_child`、醒来伸懒腰 `wake`、吃饱瘫软 `meal_content` 与含泪噗咕 `puku_teary`，按配方 `height_keys` 等关键帧求值，宽度随高度保体积，可选 `swell_keys` 在其上整体放大。统一入口见[脚本说明](../../../../../scripts/README.md)。运行资源与指纹由 `art/source/motion-corrections/manifest.json` 登记。
+`author.py` 求值动作，`hat.py` 求解帽子、帽子实体位置和辫子接触。家族选择由 `recipe.json` 的 `export_families` 维护；新增家族只加数据。片段写 `base: <片段>` 即为该片段的参数预设：继承其配方（可逐级继承）、只写覆盖项，并沿用宿主片段的求值代码，如 `rain_huddle_left`、`cling_right/left`（贴靠，`shiver` 为 0）、`nod`（`bow` 的 `repeat` 次快速点头）。`base-motions` 家族导出动作库基本层的 lore 片段：`lunge_ram`（前冲撞击，标记 `launch`／`impact`／`settled`，位移只在身体范围内，行进归运动层）与上述预设。`life` 包含寻子呼唤 `call_child`、醒来伸懒腰 `wake`、吃饱瘫软 `meal_content` 与含泪噗咕 `puku_teary`，按配方 `height_keys` 等关键帧求值，宽度随高度保体积，可选 `swell_keys` 在其上整体放大。统一入口见[脚本说明](../../../../../scripts/README.md)。运行资源与指纹由 `art/source/motion-corrections/manifest.json` 登记。
 
 ```powershell
 <py> scripts/export.py --family weather --family life

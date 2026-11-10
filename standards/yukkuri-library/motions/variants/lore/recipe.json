@@ -10,6 +10,7 @@
     "birth": {"clips": ["labor", "boat_labor", "midwife", "postpartum", "first_wake", "hat_hold", "hat_hold_aq", "hat_off_self", "hat_on_self", "hat_off_self_aq", "hat_on_self_aq"], "braid_follow": true, "birth_pose": true},
     "badge": {"clips": ["snatch_pull", "stand_ground", "offer_bite", "eat", "drink", "first_toilet_assist", "newborn_crawl", "nest_harvest", "nest_place", "nest_spread", "greet", "hat_off_aq", "hat_on_aq", "water_plunge", "water_recover", "water_hat_pull", "water_hat_over"], "braid_follow": true},
     "distress": {"clips": ["hat_stumble", "hat_jostle", "water_plunge", "water_struggle", "water_swim", "water_gasp", "water_recover", "water_held_breath", "boat_reassure", "boat_alarm_call", "boat_alarm_wait", "boat_answer_call", "boat_flee", "boat_calm", "braid_rescue_reach", "braid_rescue_hold", "braid_rescue_settle", "water_hat_flip", "water_hat_grip", "water_hat_climb", "water_hat_pull", "water_hat_over", "hat_brim_offer", "hat_hop_up", "water_bob_lunge", "hat_slide_over", "water_mouth_grip", "water_hat_shake", "water_hat_push", "boat_nudge_young", "braid_reach_low"]},
+    "base-motions": {"clips": ["lunge_ram", "nod", "cling_right", "cling_left"], "braid_follow": true},
     "pet": {"clips": ["think", "nervous", "proud", "joy_jump", "sulk", "hide_face", "beg", "bow", "shy", "doze_off", "struggle", "basket_in", "basket_out", "ignore", "restrain"], "braid_follow": true},
     "aquatic": {"clip_source": "aquatic_tools.py", "clip_field": "EXPORT_CLIPS"}
   },
@@ -7047,6 +7048,114 @@
       "triggers": [
         "weather huddle pressed (Reactions.Weather HUDDLE), partner on its left"
       ]
+    },
+    "cling_right": {
+      "base": "rain_huddle_right",
+      "label": "依偎贴靠（同伴在右）",
+      "shiver": 0,
+      "faces": [
+        [
+          0,
+          4.0,
+          "closed_smile"
+        ]
+      ],
+      "lore": "Project design (motion library base cling, art decision B5/C6; wiki warm_huddle F05, F14, L36 and rub_nuzzle F14, L36, N2): the rain huddle's side-press (nestle, slide and lean into the partner, pressed hold, slow breath) held calm with no shiver and a closed-eye smile. Snuggling assembles it with nuzzle and sway.",
+      "triggers": [
+        "no caller yet (snuggle; a bonded pair's nuzzle hand-over), partner on its right"
+      ]
+    },
+    "cling_left": {
+      "base": "cling_right",
+      "label": "依偎贴靠（同伴在左）",
+      "side": -1,
+      "triggers": [
+        "no caller yet (snuggle), partner on its left"
+      ]
+    },
+    "nod": {
+      "base": "bow",
+      "label": "点头",
+      "duration": 0.9,
+      "repeat": 2,
+      "bow": -6,
+      "squash": 0.025,
+      "push": 0.012,
+      "faces": [
+        [
+          0,
+          0.7,
+          "closed_smile"
+        ],
+        [
+          0.7,
+          60.9,
+          "happy"
+        ]
+      ],
+      "lore": "Project design (motion library base nod, art decision B3; wiki greeting_bow N1, F17, L36): the bow at half its pitch, two quick dips, a small height dip and forward shift so it reads at real size; a busy yukkuri's reply to a greeting.",
+      "triggers": [
+        "no caller yet (greeting reply while busy)"
+      ]
+    },
+    "lunge_ram": {
+      "label": "前冲撞击",
+      "duration": 1.1,
+      "loop": false,
+      "applies": "all",
+      "markers": {
+        "launch": 0.36,
+        "impact": 0.52,
+        "settled": 1.1
+      },
+      "hold": 0.08,
+      "crouch": 0.06,
+      "stretch": 0.07,
+      "flatten": 0.16,
+      "front_ratio": 0.63,
+      "draw_back": 0.04,
+      "lunge": 0.1,
+      "recoil": 0.04,
+      "windup_lean": 3,
+      "dart_lean": -8,
+      "impact_lean": -5,
+      "recoil_lean": 4,
+      "dart_hop": 0.03,
+      "recoil_hop": 0.03,
+      "faces": [
+        [
+          0,
+          0.36,
+          "angry"
+        ],
+        [
+          0.36,
+          0.52,
+          "endure"
+        ],
+        [
+          0.52,
+          0.85,
+          "impact"
+        ],
+        [
+          0.85,
+          1.1,
+          "angry"
+        ]
+      ],
+      "variants": {
+        "bean": {
+          "match": [
+            "*bean*"
+          ],
+          "front_ratio": 0.39
+        }
+      },
+      "lore": "Project design (motion library base lunge_ram, art decision B1/C2; wiki defense_flee and home invasion pushes N1, F15, F07): crouch and draw back (wind-up), dart forward stretched with a small hop (launch), flatten on the near contact face (impact: the front stays at the dart's farthest point and the body squeezes in behind it, a physical squash), spring back with a recoil hop and settle. Travel belongs to the motor; the clip's own forward shift stays within the body. front_ratio is the rest face front ahead of the root pivot over the body height (rounded body 6.07/9.6, bean 5.11/13.14). Markers: launch, impact (hit timing), settled.",
+      "triggers": [
+        "no caller yet (bash at a pane, glass ram, push re-expression)"
+      ]
     }
   },
   "flourishes": {
@@ -7131,7 +7240,11 @@
     "sunbathe",
     "call_child",
     "meal_content",
-    "puku_teary"
+    "puku_teary",
+    "lunge_ram",
+    "nod",
+    "cling_right",
+    "cling_left"
   ],
   "braid_use": {
     "note": "Project design (user 2026-11-05 feedback 2: what the braid already holds decides what it can do): clips whose own authored braid grips, carries or strokes something (the hat, a child, a brim, the water; in the water she flails and swims with it while the stack stays in her hat) use the braid, so the game never lays the held stack's hold over them; a held stack shows there only by the clip's own props.item, otherwise it stays stowed in her hat and is not drawn. A hat clip with `hat.stick` (her own hat on and off at the water, the clips the game plays while she holds the stick) keeps the stick in the tuft: it lies along the brim the tuft hooks, its long end along the keyed direction in the worn hat's frame ([t, x, y, z]: out to her braid side on the worn brim, out over the water on the hat set down; re-aimed in the tuft while the hat swings over) and turning with the hat, so the stick never leaves the braid, never pops and never crosses her face (user 2026-11-05 feedback 2; user 2026-11-04 feedback 6: held in the braid, not hidden). Markers `braid_busy` (the braid has left the hold by here) and `braid_free` (from here it returns to the hold by the clip's end) let a one-shot clip hand the braid over from and back to the hold. Exported as the clip field braid_use.",
