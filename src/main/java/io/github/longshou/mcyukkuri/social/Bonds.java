@@ -70,11 +70,15 @@ public final class Bonds {
         var group = a.settlement().group();
         return group != null && group.kind == SettlementData.Kind.FAMILY && sameGroupId(a, b);
     }
+    /** The remains' own mate, recorded on either side and read from the corpse when that body is absent. */
+    public static boolean corpseMate(YukkuriEntity observer, UUID dead, UUID deadPartner) {
+        return dead != null && (dead.equals(observer.family().partner()) || observer.getUUID().equals(deadPartner));
+    }
     /** The corpse's partner copy is authoritative even when the other entity is absent. */
     public static boolean corpseKin(YukkuriEntity observer, UUID dead, UUID deadPartner) {
         var data = FamilyData.get((ServerLevel) observer.level());
-        return data.socialKin(observer.getUUID(), dead) || dead.equals(observer.family().partner())
-                || observer.getUUID().equals(deadPartner) || data.related(observer.getUUID(), dead);
+        return corpseMate(observer, dead, deadPartner) || data.socialKin(observer.getUUID(), dead)
+                || data.related(observer.getUUID(), dead);
     }
     /** Preserve list order and duplicates: this is an event recipient list, not a kinship set. */
     public static List<UUID> exileRelatives(YukkuriEntity offender) {

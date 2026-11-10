@@ -23,6 +23,7 @@ import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.UUID;
 import javax.annotation.Nullable;
+import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.ai.goal.Goal;
@@ -143,6 +144,12 @@ public final class Cannibalism extends Goal {
         var data = remains.data();
         return data.hasUUID("Identity") && kin(data.getUUID("Identity"), data.hasUUID("Partner") ? data.getUUID("Partner") : null);
     }
+    /** The remains of its own mate: what it mourns beside, never what it runs from. */
+    private boolean mateBody(RemainsEntity remains) {
+        var data = remains.data();
+        return Bonds.corpseMate(entity, data.hasUUID("Identity") ? data.getUUID("Identity") : null,
+                data.hasUUID("Partner") ? data.getUUID("Partner") : null);
+    }
     private double carrionScore(RemainsEntity remains) {
         var p = entity.life().personality();
         int stage = RemainsRot.stage(remains.data());
@@ -230,6 +237,7 @@ public final class Cannibalism extends Goal {
         }
         if (smellWait == 0 && nutrition >= 8 && !entity.grieving()) {
             var source = RemainsRot.source(level(), entity.position());
+            if (source != null && mateBody(source)) source = null;
             var wrap = level().getEntitiesOfClass(YukkuriEntity.class, entity.getBoundingBox().inflate(3),
                     other -> other != entity && other.isAlive() && other.leafSwaddle().smells()
                             && !entity.family().caresFor(other) && entity.distanceToSqr(other) <= 9).stream()
@@ -246,7 +254,11 @@ public final class Cannibalism extends Goal {
                     dir = dir.lengthSqr() < 1e-4 ? new Vec3(1, 0, 0) : dir.normalize();
                     spot = smellAt.add(dir.scale(clear));
                 }
-                away = spot; return begin(Mode.AVOID, "stench");
+                // The stand beyond the smell must be one it can really reach: walled in, it bears the stench where it stands
+                // instead of holding MOVE at a wall for the whole 240-tick cap.
+                if (EcologyMovement.reachable(entity, BlockPos.containing(spot))) {
+                    away = spot; return begin(Mode.AVOID, "stench");
+                }
             }
         }
         if (decision.equals("none")) lastReason = "nothing to do";

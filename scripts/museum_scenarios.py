@@ -1267,7 +1267,7 @@ def widow_death_prompt():
 add('widow_repair', 'meadow', '原伴侣死后才肯和新候选配对', '原伴侣死后才肯和新候选配对',
     '东边玻璃院子里寡妇守着自己的大窝，候选在小棚的窝里，两只都在发情期（1 分钟）；西边小围栏里是她的原伴侣（读数里寡妇的 partner 指向它）。'
     '交配许可寡妇和候选彼此都给了，但没有给原伴侣。'
-    '看点：①寡妇不跟候选走或接受（原伴侣在世时她不会与候选配对；拒绝的可见演出由 wp-ep 补）；'
+    '看点：①寡妇不跟候选走：候选走近求偶，她转过身背对着他、满脸没兴趣（日志 court refused reason=partner_alive），他随即放弃、一阵子不再找她；'
     '②按聊天里的【结束原伴侣】按钮——原伴侣走真实死亡，账本记 DEAD（日志 death settled … cause=genericKill），地上留下遗骸；'
     '③之后候选自己走近寡妇求偶，受孕时写 partnership formed … allowWidow=true（就是账本确认死亡的证据）。读数看双方 partner、发情与求偶阶段',
     '先看寡妇没跟候选走约半分钟，再点按钮；按下后约十秒到半分钟（发情期刚好结束时求偶会中断一次，之后会重来）', [
@@ -3604,10 +3604,11 @@ _smoke('family_nests', 4200, [r'\[home\][^\n]* growth released shared nest ', r'
 next(s for s in S if s.id == 'family_nests').smoke['verify'] = _family_nests_release
 next(s for s in S if s.id == 'family_nests').smoke['readout'] = ['yukkuri status @e[tag=scn,type=mcyukkuri:reimu,distance=..48] raw']
 # The scene's own button ends the original partner; the widow may accept the candidate only once the ledger holds that death.
-_smoke('widow_repair', 3600, [r'\[body\][^\n]* death settled[^\n]*cause=genericKill\b',
+_smoke('widow_repair', 3600, [r'\[family\][^\n]* court refused reason=partner_alive\b',
+                                r'\[body\][^\n]* death settled[^\n]*cause=genericKill\b',
                                 r'\[family\][^\n]* partnership formed [^\n]*allowWidow=true',
                                 r'\[family\][^\n]* courtship contact ended [^\n]*conceived=true'])
-next(s for s in S if s.id == 'widow_repair').smoke['commands'] = [(400, f'kill {sel("old_partner")}')]
+next(s for s in S if s.id == 'widow_repair').smoke['commands'] = [(600, f'kill {sel("old_partner")}')]
 next(s for s in S if s.id == 'widow_repair').smoke['readout'] = [f'yukkuri status {sel("widow")} raw',
                                                                  f'yukkuri status {sel("new_partner")} raw']
 _smoke('aftermath_growth', 3600, [r'\[family\][^\n]* stem drain stage'])
