@@ -418,6 +418,9 @@ def viewer(args, stage):
         fit = None
     for file in ('motion_corrections', 'house_ecology', 'toilet_contact', 'face_library'):
         revision = read(ASSETS/'yukkuri_presentation'/f'{file}.json')['models'].get(args.model)
+        # The loader skips a revision authored for another skeleton; so does this snapshot.
+        if revision is not None and revision['bone_names'] != [bone['name'] for bone in model['bones']]:
+            revision = None
         if revision is not None or fit is not None:
             result = request(dict(op='register', model=model, fit=fit, revision=revision))
             model = result['model']

@@ -54,7 +54,7 @@ class PreviewBoundaryTests(unittest.TestCase):
     def test_viewer_runtime_clips_links_and_refresh(self):
         from pose_client import request
         assets = ROOT/'src/main/resources/assets/mcyukkuri'
-        for model_id, clip in [('reimu', 'greet'), ('marisa', 'braid_head_set'), ('marisa', 'nod')]:
+        for model_id, clip in [('reimu', 'greet'), ('marisa', 'braid_head_set'), ('marisa', 'nod'), ('house_reimu', 'idle')]:
             with self.subTest(model=model_id, clip=clip):
                 result = self.run_cli('viewer', 'boundary', '--model', model_id, '--clip', clip,
                                       '--expression', 'happy', '--decision', 'Check this motion')
@@ -65,9 +65,11 @@ class PreviewBoundaryTests(unittest.TestCase):
                 selected = {**model['clips'], **model.get('behavior_clips', {})}
                 base = json.loads((assets/'yukkuri'/f'{model_id}.json').read_text(encoding='utf-8'))
                 expected = dict(base['clips'])
+                bones = [bone['name'] for bone in base['bones']]
                 for file in ('motion_corrections', 'house_ecology', 'toilet_contact', 'face_library'):
                     row = json.loads((assets/'yukkuri_presentation'/f'{file}.json').read_text(encoding='utf-8'))['models'].get(model_id, {})
-                    expected.update(row.get('clips', {}))
+                    if row.get('bone_names') == bones:
+                        expected.update(row.get('clips', {}))
                 expected.update(base.get('behavior_clips', {}))
                 self.assertEqual(selected[clip], expected[clip])
                 # The shipped viewer's core accepts and samples this exact generated model.
