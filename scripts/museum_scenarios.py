@@ -1976,12 +1976,15 @@ for _sid, _window, _title in (
                                    (1190,'execute if block ~2 ~ ~3 minecraft:glass run say HOME_PANE_FULL_GLASS_INTACT')]}
                       if _sid=='home_pane' else {})),
         # Fixed world views: the outside profile runs along the glass in front of the bars, clear of the stone;
-        # the inside three-quarter view keeps crack stages in front of the actor. Never follows its yaw.
+        # the inside three-quarter view keeps crack stages in front of the actor; the far inside corner sees the window and
+        # the declaration spot together. Never follows its yaw.
         capture=(dict(shots=(40,120,200,400,800,1200), sequences=((40,1200,8),), observe=False,
                       views={'side':dict(position=(-1.9,.6,4.05),look_at=(.5,.6,4.0),
                                          criteria='侧面约两格，检查魔理沙身体与帽檐不穿玻璃、蓄力、撞击接触和反冲。'),
                              'crack':dict(position=(-1.0,.85,1.7),look_at=(.5,.65,3.5625),
-                                          criteria='看清撞击后裂纹增长，安慰期间裂纹保留，碎开一块玻璃板、真实进入空屋并宣言。')}) if _sid=='home_pane'
+                                          criteria='看清撞击后裂纹增长，安慰期间裂纹保留，碎开一块玻璃板、真实进入空屋。'),
+                             'home':dict(position=(2.5,1.2,-1.6),look_at=(.5,.5,1.5),
+                                         criteria='屋内远角同时看到窗和宣言处：破窗后魔理沙真实进屋，在工作台旁宣言。')}) if _sid=='home_pane'
                  else dict(shots=(40,80,120,200,400), sequences=((40,200,4),))))
 
 # ---- colony rules: a village that is sure to have a leader (village_led), on the colony field's west plot

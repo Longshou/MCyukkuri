@@ -11,6 +11,9 @@ class PaneContactTest {
     @Test void brimAndTurnUseSkinnedPartsAndAuthoredImpact() throws Exception {
         var contact=RamContact.of("marisa");
         assertTrue(contact.turn()>contact.impact(),"turning the wide brim needs more room than a frontal ram");
+        double sampled=java.util.Arrays.stream(contact.front()).max().orElseThrow();
+        double top=java.util.Arrays.stream(contact.peaks()).max().orElseThrow();
+        assertTrue(top>sampled+.01,"the brim's top lies between 100 Hz samples: "+top+" vs "+sampled);
         assertEquals(contact.impact(),contact.distance(contact.turn(),contact.strike()),1e-5);
         assertEquals(contact.turn(),contact.distance(contact.turn(),contact.settled()),1e-5);
         var assets=Path.of(getClass().getResource("/assets/mcyukkuri/yukkuri/marisa.json").toURI()).getParent().getParent();
@@ -38,6 +41,9 @@ class PaneContactTest {
             // A drawn body trails its position while its clip clock does not: every later pose must clear it too.
             for(int i=0;i<contact.front().length;i++)for(int later=i;later<contact.front().length;later++)
                 assertTrue(contact.distance(stand,i/100.0)+1e-5>=contact.front()[later],"pose "+later+" crosses plane from sample "+i);
+            // The brim's forward swing tops out between samples; positions before that top clear it.
+            for(int p=0;p<contact.peaks().length;p++)for(int i=0;i/100.0<=contact.peakTimes()[p];i++)
+                assertTrue(contact.distance(stand,i/100.0)+1e-5>=contact.peaks()[p],"peak "+contact.peakTimes()[p]+" crosses plane from sample "+i);
             assertTrue(contact.distance(stand,contact.launch())<stand,"launch must physically close the measured gap");
         }
     }
