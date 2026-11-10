@@ -15,6 +15,7 @@
 | 生8 同窝、草2 事后茎生（场景部分）、草3 恐惧三档、草6 寡妇再配对（场景部分）：真实起点 | `.worktrees/wp-eh-scene-fixes` | scripts/museum_scenarios.py（family_nests、aftermath_growth、aftermath_depletion、balance_relation、widow_repair） |
 | 生3 成体撞碎玻璃板（共享动作）与住家宣言破窗入空屋 | `.worktrees/wp-el-pane-bash` | motor/action/（新撞击动作）、event/HomeClaim.java、event/HomeClaimGoal.java、scripts/museum_scenarios.py（新增一场） |
 | 草1 爱丽丝扑压：Motor 拥有的扑上与压住能力替换瞬移 | `.worktrees/wp-eo-agitation-pin` | motor/（新扑压能力）、life/AgitationLife.java |
+| 生6 粪便统一按体积：每次排便量随体型，各去处按体积计 | `.worktrees/wp-ek-waste-volume` | body/DetachedItems.java、life/YukkuriLife.java（排便量）、life/ToiletContact.java、Poops/PoopBlock、CareBlockEntity 与 CareRenderer、family/LeafSwaddle.java（soil 计量）、WashClothItem、HouseNestBlockEntity（debris） |
 
 ## 玩法待办
 
