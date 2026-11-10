@@ -251,6 +251,7 @@ public final class Grab implements Action {
         if (mounted) {
             if (target.getVehicle() != carrier) return Outcome.of(Reason.DROPPED, 0, "let_go");
             if (ParentCarry.brimHopReady(carrier, target)) {
+                boolean starting = brimHop == null;
                 if (brimHop == null) {
                     brimHop = Hop.carried(carrier, ParentCarry.brimDestination(carrier, target));
                     var ready = brimHop.check(target);
@@ -258,6 +259,8 @@ public final class Grab implements Action {
                     brimHop.start(target);
                 }
                 var progress = brimHop.tick(target);
+                if (starting && progress instanceof Running running)
+                    return new Running(running.metric(), running.travel(), true);
                 if (!(progress instanceof Outcome.Done)) return progress;
             }
             int left = ParentCarry.placingLeft(carrier, target);

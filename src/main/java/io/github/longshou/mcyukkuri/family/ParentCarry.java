@@ -630,7 +630,7 @@ public final class ParentCarry {
         } else e.putInt("W", brimWalk(carrier, child));
         write(carrier, child.getUUID(), e);
         GameplayLog.event(carrier, "family", "brim lift child={} spot={} walk={} offset={}", child.getUUID(),
-                GameplayLog.at(worldAt(carrier, carrier.bodyYaw(), brimPoint(carrier, child, 0))), 0,
+                GameplayLog.at(worldAt(carrier, carrier.bodyYaw(), brimPoint(carrier, child, 0))), e.getInt("W"),
                 String.format(Locale.ROOT, "%.3f", off.length() * size(carrier) / 16));
         return true;
     }
@@ -674,7 +674,8 @@ public final class ParentCarry {
     public static int placingLeft(YukkuriView carrier, YukkuriView child) {
         var e = entry(carrier, child.getUUID());
         if (holdOf(e) != Hold.BRIM || !e.contains("T")) return 0;
-        if (e.contains("BH") && !e.getCompound("BH").getBoolean("Done")) return 1;
+        if (e.contains("BH") && !e.getCompound("BH").getBoolean("Done"))
+            return (int) Math.max(1, mark(BRIM_LIFT, "place") - (carrier.level().getGameTime() - e.getLong("T")));
         int end = Math.max(ClipMarkers.of(BRIM_LIFT).length(), mark(BRIM_LIFT, "place") + e.getInt("W"));
         return (int) Math.max(0, end - (carrier.level().getGameTime() - e.getLong("T")));
     }

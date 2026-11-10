@@ -2069,6 +2069,7 @@ colony('colony_migrate_babies', '族群迁徙：亲油带着赤油走', '族群�
                           r'MCYSMOKE_CHILD_AT_OLD_SITE'],
                   verify=_carry_outcome_verify,
                   expect=[r'\[family\] marisa #[^\n]* carry pickup hold=brim\b',
+                          r'\[family\] marisa #[^\n]* brim hop child=[0-9a-f-]+ hops=[1-9]\d*\b',
                           r'\[family\] marisa #[^\n]* carry grip [^\n]*brimLocal=',
                           r'\[action\] marisa #[^\n]* end id=grab outcome=DONE\b',
                           *(rf'\[family\] {kind} #[^\n]* carry pickup hold={hold}\b[^\n]*purpose=MIGRATE'
@@ -2095,6 +2096,8 @@ for _kind, _fx, _n, _size in _carry_families:
                          home(f'{_kind}_baby', _fx, 0)]
 
 def _carry_verify(log):
+    if not re.search(r'\[family\] marisa[^\n]* brim hop child=[0-9a-f-]+ hops=[1-9]\d*\b', log):
+        return 'Marisa never completed the brim hop move'
     # Detect doorway ping-pong, not a later real retrieval with another entry/exit.
     stalled = _bed_walk_verify(log, crossing_window=300) or _carry_outcome_verify(log)
     if stalled:
