@@ -380,8 +380,9 @@ public final class DailyLife {
         }
         if (current.kind == Kind.SING && current.contact % 20 == 1)
             level().sendParticles(ParticleTypes.NOTE, entity.getX(), entity.getEyeY()+.2, entity.getZ(), 1, .15, .05, .15, 0);
-        int duration = current.kind == Kind.NUZZLE ? ClipMarkers.of("nuzzle").length()
-                + (current.companion instanceof YukkuriEntity ? ClipMarkers.of("cling_right").length() : 0)
+        int duration = current.kind == Kind.NUZZLE ? 60
+                + (current.companion instanceof YukkuriEntity && Math.abs(entity.getY() - other.getY()) <= .35
+                    ? ClipMarkers.of("cling_right").length() : 0)
                 : current.kind == Kind.SING ? 160 : 280;
         if (current.contact < duration) return;
         complete(current.leader, current.kind);
