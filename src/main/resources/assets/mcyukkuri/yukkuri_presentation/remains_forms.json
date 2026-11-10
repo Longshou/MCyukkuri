@@ -87,6 +87,15 @@
       "face": "dying_closed",
       "roll": -7,
       "overlay": "sallow"
+    },
+    "retained": {
+      "scale": [
+        1.0,
+        0.78,
+        1.0
+      ],
+      "face": "old_dead",
+      "roll": 6
     }
   },
   "water": {
@@ -120,6 +129,7 @@
       "drowned",
       "frozen",
       "natural",
+      "retained",
       "sick",
       "starved",
       "violent"
@@ -131,6 +141,7 @@
       "drowned",
       "frozen",
       "natural",
+      "retained",
       "sick",
       "starved",
       "violent"
@@ -142,6 +153,7 @@
       "drowned",
       "frozen",
       "natural",
+      "retained",
       "sick",
       "starved",
       "violent"
@@ -153,6 +165,7 @@
       "drowned",
       "frozen",
       "natural",
+      "retained",
       "sick",
       "starved",
       "violent"
@@ -164,6 +177,7 @@
       "drowned",
       "frozen",
       "natural",
+      "retained",
       "sick",
       "starved",
       "violent"
@@ -175,6 +189,7 @@
       "drowned",
       "frozen",
       "natural",
+      "retained",
       "sick",
       "starved",
       "violent"
@@ -186,6 +201,7 @@
       "drowned",
       "frozen",
       "natural",
+      "retained",
       "sick",
       "starved",
       "violent"
@@ -197,6 +213,7 @@
       "drowned",
       "frozen",
       "natural",
+      "retained",
       "sick",
       "starved",
       "violent"
@@ -208,6 +225,7 @@
       "drowned",
       "frozen",
       "natural",
+      "retained",
       "sick",
       "starved",
       "violent"

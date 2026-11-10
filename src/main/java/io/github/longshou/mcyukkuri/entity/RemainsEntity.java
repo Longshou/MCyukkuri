@@ -3,6 +3,7 @@ package io.github.longshou.mcyukkuri.entity;
 import io.github.longshou.mcyukkuri.random.ModRandom;
 
 import io.github.longshou.mcyukkuri.body.GraveBlock;
+import io.github.longshou.mcyukkuri.family.LeafSwaddle;
 import io.github.longshou.mcyukkuri.body.GraveBlockEntity;
 import io.github.longshou.mcyukkuri.human.FactoryProduction;
 import io.github.longshou.mcyukkuri.registry.ModBlocks;
@@ -135,6 +136,8 @@ public final class RemainsEntity extends Entity {
             if(sukkiriExhaustion)tag.putBoolean("SukkiriExhaustion",true);
             // The remains form follows the real cause; the internal cause survives a generic killing carrier.
             if(internalCause!=null&&!internalCause.isEmpty())tag.putString(RemainsCause.INTERNAL,internalCause);
+            // Died of retention: the hardened leaf stays on with the stool it held and the swelling (LeafSwaddle.died hands it over).
+            if(LeafSwaddle.RETENTION.equals(internalCause)&&source.leafSwaddle().wrapped())tag.put(LeafSwaddle.REMAINS_KEY,source.leafSwaddle().remainsWrap());
             tag.putString(RemainsCause.CATEGORY,RemainsCause.category(cause,internalCause,stemDepletion&&cause!=null&&cause.is(DamageTypes.STARVE),sukkiriExhaustion));
         });
         result.set(DataComponents.CUSTOM_NAME,Component.translatable(NAMED,source.getName()));return result;

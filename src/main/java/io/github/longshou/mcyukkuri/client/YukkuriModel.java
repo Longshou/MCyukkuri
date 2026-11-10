@@ -31,6 +31,7 @@ import io.github.longshou.mcyukkuri.body.WoundSurface;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriAction;
 import io.github.longshou.mcyukkuri.entity.YukkuriView;
+import io.github.longshou.mcyukkuri.family.LeafSwaddle;
 import io.github.longshou.mcyukkuri.family.LiveBirthGeometry;
 import io.github.longshou.mcyukkuri.family.PregnancyAttachments;
 import io.github.longshou.mcyukkuri.headwear.HatGeometry;
@@ -1172,7 +1173,7 @@ public final class YukkuriModel {
     }
     /** The remains data a frame reads, derived once per synced snapshot (RemainsRenderer caches it per entity). */
     record RemainsInputs(List<BodyWound> wounds,UUID seed,int rotStage,int packedSigns,float fullness,int subspeciesFlags,boolean accessory,
-                         int headwear,int hairLoss,boolean coreKept,int medal){}
+                         int headwear,int hairLoss,boolean coreKept,int medal,int wear){}
     RemainsInputs remainsInputs(CompoundTag data){
         var body=data.getCompound("Body");
         var mesh=WoundSurface.get(id);
@@ -1189,7 +1190,9 @@ public final class YukkuriModel {
         float foodCapacity=CorpseFood.capacity(data);
         float fullness=foodCapacity<=0?0:Math.clamp(CorpseFood.remaining(data)/foodCapacity,0,1);
         return new RemainsInputs(wounds,seed,rotStage,packedSigns,fullness,data.getInt("SubspeciesFlags"),
-                !data.contains("Accessory")||data.getBoolean("Accessory"),data.getInt("Headwear"),body.getInt("HairLoss"),!data.getBoolean("CoreTaken"),data.getInt("Medal"));
+                !data.contains("Accessory")||data.getBoolean("Accessory"),data.getInt("Headwear"),body.getInt("HairLoss"),!data.getBoolean("CoreTaken"),data.getInt("Medal"),
+                // a retention death keeps its hard leaf and swelling: the living wear bits, drawn the same way (RemainsRenderer)
+                data.getCompound(LeafSwaddle.REMAINS_KEY).getInt("Wear"));
     }
     void renderRemains(Object key,RemainsInputs in,RemainsAssets.Look look,PoseStack stack,VertexConsumer buffer,
                               MultiBufferSource buffers,int light,int overlay){
@@ -1199,7 +1202,7 @@ public final class YukkuriModel {
         var signs=WoundRenderer.signs(key,in.seed(),id,packedSigns,0,wounds);
         drawingSurfaceMarks=(!wounds.isEmpty()||!signs.isEmpty())&&woundGeometryCompatible();
         drawingWoundedBody=false;
-        setCarrying(false);setPregnancy(0,0);setDelivery(null);setExpression(face);
+        setCarrying(false);setPregnancy(0,0);setDelivery(null);setExpression(face);setWear(in.wear());
         hatScale=HatScale.factor(in.subspeciesFlags());
         hatProp=SubspeciesLife.Kind.values()[in.subspeciesFlags()&15].hatProp();
         boolean accessory=in.accessory();
@@ -1220,7 +1223,8 @@ public final class YukkuriModel {
             if(look.overlay()!=null)renderRemainsSkin(stack,buffers.getBuffer(RenderType.entityCutoutNoCullZOffset(look.overlay())),light,overlay);
             if(accessory)renderBadge(in.medal(),stack,buffers,light,overlay);
             if(accessory)renderReplacementHat(stack,buffers,light,overlay);
-        }finally{woundDisplay=null;drawingWoundedBody=false;drawingSurfaceMarks=false;hatScale=1;hatProp=null;hatDamageDraw.reset();setExpression("");}
+        }finally{woundDisplay=null;drawingWoundedBody=false;drawingSurfaceMarks=false;hatScale=1;hatProp=null;hatDamageDraw.reset();setExpression("");
+            wear=0;retention=0;wearClear=false;}
     }
     /** The prop uses the same authored hat frame, final braid pose and pregnancy lift as the original accessory. */
     private void renderReplacementHat(PoseStack stack,MultiBufferSource buffers,int light,int overlay){

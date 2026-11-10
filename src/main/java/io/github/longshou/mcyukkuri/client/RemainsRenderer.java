@@ -65,5 +65,7 @@ public final class RemainsRenderer extends EntityRenderer<RemainsEntity>{
     private static void draw(Object key,CompoundTag data,RemainsAssets.Look look,YukkuriModel.RemainsInputs inputs,PoseStack pose,MultiBufferSource buffers,int light,int overlay){
         var buffer=buffers.getBuffer(RenderType.entityCutoutNoCull(look.texture()));
         YukkuriModel.get(asset(data)).renderRemains(key,inputs,look,pose,buffer,buffers,light,overlay);
+        // The hard leaf of a retention death over the swollen body it was drawn with (the remains pose: squash, tilt).
+        if(inputs.wear()!=0)CareWearRenderer.render(YukkuriModel.get(asset(data)),inputs.wear(),pose,buffers,light,overlay);
     }
 }

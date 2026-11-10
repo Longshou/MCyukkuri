@@ -42,6 +42,8 @@ public final class LeafSwaddle {
     public static final int LEAVES_PER_WRAP = 1;
     /** A closed wrap asks for care from this bowel load (the ordinary toilet minimum); at the urgent load it soils the wrap. */
     public static final int CARE_URGE = 40, SOIL_URGE = 90;
+    /** The internal cause of a death by retention (BodyLife); the remains keep the wrap under REMAINS_KEY. */
+    public static final String RETENTION = "swaddle_retention", REMAINS_KEY = "LeafSwaddle";
     /** Stool loads a wrap holds; a further load overflows onto the ground. */
     public static final int MAX_SOIL = 3;
     /** Effect period of a worn wrap, ticks: a clean wrap restores 1 hygiene and eases 1 unease; each soiled load costs as much. */
@@ -245,6 +247,24 @@ public final class LeafSwaddle {
                 reason, leafCount, drop, soil, waste, fire ? soil : 0);
         worn = open = false; openAt = null; soil = wearClock = openClock = 0; material.clear(); wrapper = null;
         logStageChange(previousStage);
+    }
+
+    /**
+     * A death by retention: the remains snapshot (RemainsEntity.snapshot, settled before this) already holds the hard wrap with its
+     * leaves, stool volume and swelling, so nothing drops here; the stool stays in the wrap of the remains.
+     */
+    private void keptOnRemains() {
+        GameplayLog.event(entity, "family", "leaf swaddle kept on remains reason=retention leaves={} soil={} stage={} swelling={}",
+                describe(material), soil, neglectStage(), swelling());
+        worn = open = false; openAt = null; soil = wearClock = openClock = 0; material.clear(); wrapper = null;
+    }
+
+    /** What the remains of a retention death keep (RemainsEntity.snapshot, REMAINS_KEY): the wrap's wear bits as drawn on the living
+     *  child (the remains renderer draws the same leaf and swelling), the real stool volume and the real leaves. */
+    public CompoundTag remainsWrap() {
+        var tag = new CompoundTag();
+        tag.putInt("Wear", wearBits()); tag.putDouble("Soil", soil); tag.put("Material", stacks(material));
+        return tag;
     }
 
     // ---- parent side ----------------------------------------------------------------------------------------------
@@ -529,7 +549,8 @@ public final class LeafSwaddle {
     /** Death drops what really exists: the parent's carried leaves, the child's clean leaves or its stool. */
     public void died() {
         stop("death");
-        if (worn) remove("death");
+        if (wrapped() && RETENTION.equals(entity.body().settledCause())) keptOnRemains();
+        else if (worn) remove("death");
         int dropped = leafCount();
         if (dropped > 0) {
             leaves.forEach(stack -> entity.spawnAtLocation(stack.copy()));

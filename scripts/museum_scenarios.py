@@ -713,9 +713,9 @@ add('growth', 'family', '五只差1 tick到龄：长大、变老、寿终', '五
 LEAF_BUSH = 'minecraft:oak_leaves[persistent=true]'
 
 
-def leaf_wrap(soil=0, open_=False):
-    """A wrap already on the child: one real oak leaf inside, ``soil`` stool loads held."""
-    return (f'YukkuriLeafSwaddle:{{Worn:1b,Open:{1 if open_ else 0}b,Soil:{soil},'
+def leaf_wrap(soil=0, open_=False, neglect=0):
+    """A wrap already on the child: one real oak leaf inside, ``soil`` stool loads held, ``neglect`` ticks of dirty closed wear so far."""
+    return (f'YukkuriLeafSwaddle:{{Worn:1b,Open:{1 if open_ else 0}b,Soil:{soil},Neglect:{neglect},'
             'Material:[{id:"minecraft:oak_leaves",count:1}]}')
 
 
@@ -1215,10 +1215,43 @@ add('leaf_swaddle_neglect', 'meadow', '没人照看，襁褓里积满便便', '�
         # Early children have enough real childhood left to reach late neglect before outgrowing the leaf.
         yk('reimu', 0, 0, 'kid', stage='child', share=.23, yaw=180, lead=True, nutrition=80, bladder=95, hygiene=80, extra=leaf_wrap()),
         yk('marisa', 3, 0, 'kid_full', stage='child', share=.23, yaw=180, nutrition=80, bladder=92, hygiene=50, extra=leaf_wrap(soil=3))],
-    give=['minecraft:apple 64'], env=DAY, vantage=(1, 8),
+    give=['minecraft:apple 64'], env=DAY, vantage=(1.5, 3.5, 180, 20),
     reads=[*leaf_reads(('刚积便子油（含失护阶段）', 'kid'), ('积满子油（含失护阶段）', 'kid_full')),
            ('解开积满子油襁褓', f'yukkuri scenario unwrap {sel("kid_full")}')],
+    capture=dict(shots=(1, 40, 200, 600, 1000), sequences=((60, 1200, 20),), observe=False,
+                 views={'': dict(), 'kid_side': dict(follow=f'@e[tag={tag("kid")},limit=1]', offset=(1.6, .45, 0)),
+                        'full_rear': dict(follow=f'@e[tag={tag("kid_full")},limit=1]', offset=(1.1, .5, -1.3))}),
     smoke=dict(ticks=1200,expect=[r'leaf swaddle soiled [^\n]*volume=',r'leaf swaddle overflowed',r'poop placed [^\n]*volume='],forbid=[]))
+
+# Art proof of the later neglect stages (art decision swaddle-neglect): the wraps start at real neglect values one band apart, so the
+# leaf colours, the swelling at increasing amounts and its recovery after an unwrap, and a retention death are all on screen at once.
+# The neglect chain itself (soiling, overflow, the stages advancing) is leaf_swaddle_neglect; this scene only starts later along it.
+_NEGLECT_ROW = (('s0', 0, 0), ('s1', 1, 15000), ('s2', 2, 45000), ('s3a', 3, 62000), ('s3', 3, 80000))
+add('leaf_swaddle_neglect_stages', 'meadow', '襁褓失护各段：变色、肿胀、便秘死', '襁褓失护各段：变色、肿胀、便秘死',
+    '一排赤油的树叶襁褓按失护程度排开：新叶、积便渍斑、黄褐干枯（开始渐肿）、硬褐潴留（肿胀渐大到满）；右端一只已到致死段且生命很低，'
+    '约一分钟内便秘死：遗体苍白、仍裹着硬褐叶片并保留肿胀，旁边是一只熟睡的赤油可对照脸。后排一只满肿的按“解开后排赤油襁褓”（冒烟 200 tick 自动）'
+    '解开：积便按体积落地、脏叶作废，身体仍肿、随后逐渐消肿。失护值只是起点，之后照常推进',
+    '约一分钟', [
+        *(yk('reimu', round(i * 1.2, 1), 0, name, stage='baby', yaw=180, lead=name == 's3', nutrition=85, bladder=0, hygiene=40 if soil else 90,
+             extra=leaf_wrap(soil=soil, neglect=neglect)) for i, (name, soil, neglect) in enumerate(_NEGLECT_ROW)),
+        yk('reimu', 6, 0, 'dying', stage='baby', yaw=180, nutrition=85, bladder=0, hygiene=30,
+           extra=leaf_wrap(soil=3, neglect=120000) + ',Health:2f'),
+        yk('reimu', 7, 0, 'sleeper', stage='baby', yaw=180, nutrition=85, energy=3, hygiene=90),
+        yk('reimu', 2, 2, 'unwrapped', stage='baby', yaw=180, nutrition=85, bladder=0, hygiene=30, extra=leaf_wrap(soil=3, neglect=80000))],
+    env=DAY, vantage=(3.5, 3, 180, 25),
+    reads=[*leaf_reads(('致死段赤油', 'dying'), ('后排赤油', 'unwrapped'), ('硬褐赤油', 's3')),
+           ('解开后排赤油襁褓', f'yukkuri scenario unwrap {sel("unwrapped")}')],
+    capture=dict(shots=(1, 40, 200, 600, 1300, 1500), sequences=((60, 1560, 30),), observe=False,
+                 views={'': dict(),
+                        's1_front': dict(follow=f'@e[tag={tag("s1")},limit=1]', offset=(.5, .35, 1.3)),
+                        's2_rear': dict(follow=f'@e[tag={tag("s2")},limit=1]', offset=(1.0, .4, -1.2)),
+                        's3_side': dict(follow=f'@e[tag={tag("s3")},limit=1]', offset=(1.5, .3, 0)),
+                        's3_rear': dict(follow=f'@e[tag={tag("s3")},limit=1]', offset=(.9, .45, -1.2)),
+                        'unwrap_side': dict(follow=f'@e[tag={tag("unwrapped")},limit=1]', offset=(1.5, .35, -.3)),
+                        'remains': dict(follow=f'@e[tag={tag("sleeper")},limit=1]', offset=(-.9, .4, 1.3))}),
+    smoke=dict(ticks=1600, commands=[(200, f'yukkuri scenario unwrap {sel("unwrapped")}')],
+               expect=[r'leaf swaddle kept on remains reason=retention', r'death settled into remains[^\n]*internal=swaddle_retention category=retained',
+                       r'swaddle neglect stage=0 [^\n]*releasedVolume=3'], forbid=[]))
 
 add('agitation_relief', 'meadow', '发情期的爱丽丝想素鸡立', '发情期的爱丽丝想素鸡立',
     '爱丽丝处于持续发情期：空闲观察时偶尔说想素鸡立；喂食、避险会暂停表现但保留剩余期，期满未配对改播heat_unmet未解台词。给对照个体喂催情剂可现场听heat_start开始台词', '约一分钟', [
@@ -3525,7 +3558,7 @@ TOPICS = {
     'den_family': 'W1', 'dig': 'W2', 'indep_near': 'W3', 'den_move': 'W4', 'forage': 'W5', 'graze': 'W6', 'den_barrier': 'W8',
     'sleep': 'D1', 'night_sleep': 'D1', 'night_hungry_child': 'D1', 'meal_content': 'D1', 'fatigue': 'R1', 'fatigue_predator': 'R2', 'nutrition_age': 'D1', 'meet': 'D1', 'toilet': 'F5', 'hurt': 'F3',
     'birth_land_caught': 'F1', 'birth_land_missed': 'F1', 'feed': 'F2', 'first_toilet': 'F2', 'hop': 'F2', 'growth': 'F4',
-    'leaf_swaddle': 'F2', 'leaf_swaddle_neglect': 'F2', 'family_distance': 'F8', 'family_search': 'F8', 'birth_nest_safe': 'F1', 'birth_nest_stem': 'F1', 'birth_stem_caught': 'F1', 'family_nests': 'F4', 'carry_home': 'F4', 'infant_starvation': 'F2',
+    'leaf_swaddle': 'F2', 'leaf_swaddle_neglect': 'F2', 'leaf_swaddle_neglect_stages': 'F2', 'family_distance': 'F8', 'family_search': 'F8', 'birth_nest_safe': 'F1', 'birth_nest_stem': 'F1', 'birth_stem_caught': 'F1', 'family_nests': 'F4', 'carry_home': 'F4', 'infant_starvation': 'F2',
     'forage_empty': 'R1', 'rain_life': 'R1', 'rain_huddle': 'R1', 'storm_cower': 'R1', 'marisa_explore': 'R1', 'rain_shelter': 'R1', 'rain_open': 'R1', 'pred_watch': 'R2', 'pred_range': 'R2', 'pred_pets': 'R2', 'shared_body': 'R3',
     'house_empty': 'H1', 'house_pair': 'H2', 'house_eggs': 'H3',
     'shop_build': 'M1', 'factory_labor': 'M2', 'factory_manju': 'M2', 'factory_bag': 'M2', 'harness_walk': 'M3', 'swaddle_worn': 'M3', 'feed_wild': 'M3', 'oniisan_prey': 'M4', 'attack_witness': 'M4',
@@ -3667,6 +3700,8 @@ _FATES = {
     'aftermath_depletion': [dict(kind='starve', who=r'aftermath reserved ', why='the stem drains the depleted mother'),
                             dict(kind='death', who=r'aftermath reserved ', match=r'stem_depletion=true\b', why='she dies of the stem')],
     'growth': [dict(kind='death', who=r'lifespan reached', match=r'internal=old_age\b', why='the fifth starts one tick before its lifespan')],
+    'leaf_swaddle_neglect_stages': [dict(kind='death', match=r'internal=swaddle_retention\b',
+                                         why='the end of the row starts in the lethal stage with little health: it dies of retention')],
     'sacrifice': [dict(kind='death', who=f'uuid={_uuid_text("sacrifice", "parent")} ', match=r'cause=mob\b',
                        why='the parent that draws the hunt may be killed by it')],
     'hat_push': [dict(kind='drown', who=_THROWN, why='the fast boat capsizes the far hat and throws its rider in')],

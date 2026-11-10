@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.body;
 
+import io.github.longshou.mcyukkuri.family.LeafSwaddle;
 import io.github.longshou.mcyukkuri.life.Consumables;
 import io.github.longshou.mcyukkuri.life.YukkuriLife;
 import net.minecraft.nbt.CompoundTag;
@@ -16,7 +17,7 @@ import net.minecraft.world.damagesource.DamageTypes;
 public final class RemainsCause {
     public static final String CATEGORY = "CauseCategory", INTERNAL = "InternalCause";
     public static final String NATURAL = "natural", STARVED = "starved", BURNED = "burned", CRUSHED = "crushed", VIOLENT = "violent",
-            DROWNED = "drowned", FROZEN = "frozen", SICK = "sick", UNKNOWN = "unknown";
+            DROWNED = "drowned", FROZEN = "frozen", SICK = "sick", RETAINED = "retained", UNKNOWN = "unknown";
     private RemainsCause() {}
 
     /** Server side, at the death snapshot. {@code internal} is the body's own cause string, empty when none. */
@@ -37,7 +38,9 @@ public final class RemainsCause {
         if (detail.startsWith("core_")) return VIOLENT;
         switch (detail) {
             case "old_age", "offering" -> { return NATURAL; }
-            case "poison", "mold", "non_yukkuri", "infection", "toxin", "swaddle_retention" -> { return SICK; }
+            case "poison", "mold", "non_yukkuri", "infection", "toxin" -> { return SICK; }
+            // A neglected leaf swaddle that hardened and held the stool in (family/LeafSwaddle): the swollen body in its leaf.
+            case LeafSwaddle.RETENTION -> { return RETAINED; }
             case "leak" -> { return VIOLENT; }
             case "burn" -> { return BURNED; }
             default -> { }

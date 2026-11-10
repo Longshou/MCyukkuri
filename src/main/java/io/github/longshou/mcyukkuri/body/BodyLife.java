@@ -5,6 +5,7 @@ import io.github.longshou.mcyukkuri.random.ModRandom;
 import io.github.longshou.mcyukkuri.MCYukkuri;
 import io.github.longshou.mcyukkuri.entity.RemainsEntity;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.family.LeafSwaddle;
 import io.github.longshou.mcyukkuri.life.Consumables;
 import io.github.longshou.mcyukkuri.mind.EmotionEvent;
 import io.github.longshou.mcyukkuri.registry.ModItems;
@@ -527,7 +528,7 @@ public final class BodyLife {
         else wounds.set(index,wound.heal());
         GameplayLog.event(entity,"body","wound healing {}/{}:{} -> {}; wound={}",wound.kind().id(),wound.shape().id(),wound.severity(),Math.max(0,wound.severity()-1),wound.id());}
     /** Must exceed the ordinary 1-health/600-tick food regeneration even on a small child. */
-    public void swaddleRetentionDamage(){damage(1+entity.getMaxHealth()*.08f,"swaddle_retention");}
+    public void swaddleRetentionDamage(){damage(1+entity.getMaxHealth()*.08f,LeafSwaddle.RETENTION);}
     /** Internal attrition through the generic carrier; the cause is kept only for a death this very hit causes. */
     private void damage(float amount,String cause){
         String previous=internalDamageCause;internalDamageCause=cause;
@@ -556,6 +557,9 @@ public final class BodyLife {
         GameplayLog.event(entity,"body","herb changed infection {} -> {}",before,infection);
         entity.syncBody();entity.mind().felt(EmotionEvent.TREATED); entity.showReaction("happy","treated",80);return true;
     }
+    /** The internal cause of the death that settled into remains (empty while alive or when no remains were placed); not saved. */
+    private String settledCause="";
+    public String settledCause(){return settledCause;}
     public void died(){died(null);}
     public void died(DamageSource source){died(source,false);}
     public void died(DamageSource source,boolean stemDepletion){died(source,stemDepletion,false);}
@@ -564,7 +568,7 @@ public final class BodyLife {
         String internal=internalDeathCause();
         var remains=RemainsEntity.snapshot(entity,source,stemDepletion,sukkiriExhaustion,internal);
         if(!RemainsEntity.place(entity.level(),entity.position(),entity.yBodyRot,remains,false))return;
-        settled=true;entity.syncBody();
+        settled=true;settledCause=internal;entity.syncBody();
         var stored=remains.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();
         GameplayLog.event(entity,"body","death settled into remains; cause={} internal={} category={} core_hurt={} food={} stem_depletion={} sukkiri_exhaustion={}",
                 source==null?"none":source.getMsgId(),internal.isEmpty()?"none":internal,RemainsCause.of(stored),coreHurt,remainsFood(),stemDepletion,sukkiriExhaustion);

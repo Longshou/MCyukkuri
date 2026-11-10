@@ -313,9 +313,8 @@ function skinTable(P) {
     return r0 + (r1 - r0) * q;
   };
 }
-// actor.placeholder draws the look that the stage rows and Skin.deformRetention replace (vertex tint per stage, lower wrap pushed out by
-// the swelling, the former 32x64 sheet as leaf_old), for old/new comparisons only.
-function leafWrap(P, soil, stage, swell, placeholder) {
+// CareWearRenderer.leafWrap: the neglect stage picks the texture rows; a retention swelling is already in the posed body (Skin.deformRetention)
+function leafWrap(P, soil, stage) {
   const out = [], {h, minY, cx, cz} = P, around = skinTable(P);
   if (!around) return out;
   const base = LEAF_LIFT * h, half = LEAF_HALF * h, soilHeight = soil <= 0 ? -1 : .04 + .09 * Math.min(3, soil);
@@ -345,19 +344,17 @@ function leafWrap(P, soil, stage, swell, placeholder) {
       grid.push([...leafPoint(back, f, lateral, lift).slice(0, 3), f]);
     }
   }
-  if (placeholder) for (const g of grid) { const e = swell * .12 * clamp(1 - g[3] / .3, 0, 1); g[0] += (g[0] - cx) * e; g[2] += (g[2] - cz) * e; }
-  const tex = placeholder ? 'leaf_old' : 'leaf', cellV = placeholder ? .5 : CELL_V, row = placeholder ? 0 : STAGE_V * Math.min(LAST_STAGE, stage);
-  const tint = placeholder ? [stage >= 2 ? .85 : 1, stage >= 3 ? .55 : stage >= 2 ? .8 : 1, stage >= 2 ? .35 : 1] : [1, 1, 1];
+  const row = STAGE_V * Math.min(LAST_STAGE, stage);
   for (let i = 0; i < LEAF_ROWS; i++) {
     const under = i >= STALK_ROWS + BACK_ROWS && i < STALK_ROWS + BACK_ROWS + UNDER_ROWS;
     for (let j = 0; j < ACROSS; j++) {
       const g = (ii, jj) => grid[ii * (ACROSS + 1) + jj], c00 = g(i, j), c10 = g(i + 1, j), c11 = g(i + 1, j + 1), c01 = g(i, j + 1);
       const mx = (c00[0] + c11[0]) / 2 - cx, mz = (c00[2] + c11[2]) / 2 - cz, ml = Math.hypot(mx, mz) + 1e-6;
-      const cell = row + ((c00[3] + c11[3]) / 2 < soilHeight ? cellV : 0), u0 = along[i], u1 = along[i + 1], v0 = cell + cellV * j / ACROSS, v1 = cell + cellV * (j + 1) / ACROSS;
+      const cell = row + ((c00[3] + c11[3]) / 2 < soilHeight ? STAINED_V : 0), u0 = along[i], u1 = along[i + 1], v0 = cell + CELL_V * j / ACROSS, v1 = cell + CELL_V * (j + 1) / ACROSS;
       // CareWearRenderer darkens the base of a full wrap per vertex; the preview tints whole quads whose middle lies that low
       const blotch = soil >= MAX_SOIL_SHOWN && (c00[3] + c11[3]) / 2 < .05;
       const side = under ? Math.abs((j + .5) / ACROSS - .5) * 2 : 1;
-      Q(out, tex, (blotch ? [200, 172, 140] : WHITE).map((c, k) => Math.round(c * tint[k])), [mx / ml * side, -(1 - side), mz / ml * side],
+      Q(out, 'leaf', blotch ? [200, 172, 140] : WHITE, [mx / ml * side, -(1 - side), mz / ml * side],
         [[...c00.slice(0, 3), u0, v0], [...c10.slice(0, 3), u1, v0], [...c11.slice(0, 3), u1, v1], [...c01.slice(0, 3), u0, v1]]);
     }
   }
@@ -453,8 +450,8 @@ function clearHair(P, around, style, raw, model) {
 function actorVertices(actor) {
   const pose = poseFor(actor.model), duration = pose.clips[actor.action].duration;
   pose.expression(actor.face || 'neutral');
-  // YukkuriModel.setWear: the retention swelling (wear bits 9-12) is skinned into the body (Skin.deformRetention); the placeholder had none
-  pose.retention = actor.placeholder ? 0 : actor.swell || 0;
+  // YukkuriModel.setWear: the retention swelling (wear bits 9-12) is skinned into the body (Skin.deformRetention)
+  pose.retention = actor.swell || 0;
   const raw = pose.frame(actor.action, duration * (actor.phase ?? 0)).slice(), model = pose.model;
   pose.retention = 0;
   const pts = [];
@@ -473,7 +470,7 @@ function actorVertices(actor) {
   }
   if (actor.wear) {
     const quads = actor.wear === 'cloth' ? swaddle(P, style, initial(actor.model))
-      : actor.wear === 'open' ? groundLeaf(P) : leafWrap(P, actor.soil || 0, actor.stage || 0, actor.swell || 0, actor.placeholder);
+      : actor.wear === 'open' ? groundLeaf(P) : leafWrap(P, actor.soil || 0, actor.stage || 0);
     for (const q of quads) emitQuad(out, q, scale, at, yaw);
   }
   // RemainsRenderer: the remains look's squash, then its roll about the ground contact, round the actor's own spot

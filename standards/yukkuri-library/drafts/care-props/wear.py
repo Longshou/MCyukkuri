@@ -143,6 +143,7 @@ DRY = ['#3e2c10', '#5a4318', '#77601f', '#94802a', '#ac9a36', '#c4b24c', '#dacb7
 HARD = ['#2a170a', '#3f2410', '#563217', '#6c401d', '#835226', '#9a6634', '#b4834c']
 PETIOLE_DRY = ['#4a3c16', '#6b5a22', '#8c7a34']
 PETIOLE_HARD = ['#2e1c0c', '#4a2e14', '#664222']
+TIP = 19                                                        # first column of the front tip (CareWearRenderer: the upper front blade)
 STAGES = (  # ramp, petiole ramp, margin mix towards DRY, crinkles, margin darker by, sheen, stain colour, stain amount, patch only
     (LEAF, PETIOLE, 0, 0, 0, False, STAIN, (.6, .75), False),
     (LEAF, PETIOLE, .45, 0, 0, False, STAIN, (.78, .9), True),
@@ -167,6 +168,10 @@ def leaf_cell(stage):
         for x, y in inside:
             if 11 <= x <= 17 and 2 <= abs(y - MID) <= 7 and (x, y) not in outline and colour[(x, y)] != 1:
                 colour[(x, y)] = min(5, colour[(x, y)] + 1)
+        # the tip lies on the face under the mouth: the taut step, no darkest crinkle or edge pixels, so it reads as leaf, not a moustache
+        for x, y in inside:
+            if x >= TIP:
+                colour[(x, y)] = 4 if (x, y) in outline else max(5, colour[(x, y)])
     cell = Image.new('RGBA', (32, 32), (0, 0, 0, 0))
     for xy, step in colour.items():
         c = rgba(ramp[step])

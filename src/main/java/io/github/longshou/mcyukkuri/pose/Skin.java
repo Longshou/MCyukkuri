@@ -64,23 +64,31 @@ public final class Skin {
      * hard leaf. RETAIN_OUT is the outward growth at full swelling, most at the back and none in front of RETAIN_FRONT (the share of the
      * body depth from the face), so the face plane stays put; it reaches up to RETAIN_TOP_SIDE of the body height at the sides and
      * RETAIN_TOP_BACK at the back (under the hanging back hair, which moves with it), fullest at RETAIN_PEAK and rounding in to RETAIN_FOOT
-     * of that at the ground contact, so the bottom bulges like a full sack rather than flaring. Heights never change.
+     * of that at the ground contact, so the bottom bulges like a full sack rather than flaring. The sack grows backwards; sideways only
+     * RETAIN_SIDE of that, so seen from behind it fills out under the leaf instead of spreading. Heights never change.
      */
-    public static final float RETAIN_OUT=.5f, RETAIN_FRONT=.3f, RETAIN_PEAK=.22f, RETAIN_FOOT=.6f, RETAIN_TOP_SIDE=.32f, RETAIN_TOP_BACK=.58f;
-    /** Rest space, model units, before the bones: every part (skin, hair, locks) takes the same field. {@code body} is retentionFrame. */
+    public static final float RETAIN_OUT=.5f, RETAIN_SIDE=.5f, RETAIN_FRONT=.3f, RETAIN_PEAK=.22f, RETAIN_FOOT=.6f, RETAIN_TOP_SIDE=.32f,
+            RETAIN_TOP_BACK=.58f;
+    /**
+     * Rest space, model units, before the bones: every part takes the same field. A point outside the body's box (hanging hair, locks,
+     * braids, tails) moves only as far as the body surface under it, so hair rides on the bulge and is never fanned out past it.
+     * {@code body} is retentionFrame.
+     */
     public static void deformRetention(Vector3f point,float swell,float[] body){
         if(swell<=0)return;
-        float front=body[0],back=body[1],rear=Clips.smooth(((point.z-front)/(back-front)-RETAIN_FRONT)/(1-RETAIN_FRONT));
+        float front=body[0],back=body[1],mid=(front+back)/2,rear=Clips.smooth(((point.z-front)/(back-front)-RETAIN_FRONT)/(1-RETAIN_FRONT));
         float u=point.y/body[2],top=RETAIN_TOP_SIDE+(RETAIN_TOP_BACK-RETAIN_TOP_SIDE)*rear;
         float shape=u<RETAIN_PEAK?RETAIN_FOOT+(1-RETAIN_FOOT)*Clips.smooth(u/RETAIN_PEAK):1-Clips.smooth((u-RETAIN_PEAK)/(top-RETAIN_PEAK));
-        float s=RETAIN_OUT*swell*rear*shape;
-        point.x+=point.x*s;point.z+=(point.z-(front+back)/2)*s;
+        float dx=point.x,dz=point.z-mid,within=Math.min(1,Math.min(body[3]/Math.max(1e-4f,Math.abs(dx)),(back-mid)/Math.max(1e-4f,Math.abs(dz))));
+        float s=RETAIN_OUT*swell*rear*shape*within;
+        point.x+=dx*s*RETAIN_SIDE;point.z+=dz*s;
     }
-    /** The rest body frame of deformRetention, {front z, back z, height}, from the body surface vertices [start, start + count) of each part. */
+    /** The rest body frame of deformRetention, {front z, back z, height, half width}, from the body surface vertices [start, start + count) of each part. */
     public static float[] retentionFrame(float[] vertices,int[] ranges){
-        float[] frame={Float.MAX_VALUE,-Float.MAX_VALUE,0};
+        float[] frame={Float.MAX_VALUE,-Float.MAX_VALUE,0,0};
         for(int r=0;r<ranges.length;r+=2)for(int i=ranges[r];i<ranges[r]+ranges[r+1];i++){
             frame[0]=Math.min(frame[0],vertices[i*8+2]);frame[1]=Math.max(frame[1],vertices[i*8+2]);frame[2]=Math.max(frame[2],vertices[i*8+1]);
+            frame[3]=Math.max(frame[3],Math.abs(vertices[i*8]));
         }
         return frame;
     }
