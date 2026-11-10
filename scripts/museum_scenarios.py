@@ -1251,7 +1251,9 @@ add('leaf_swaddle_neglect_stages', 'meadow', '襁褓失护各段：变色、肿�
                         's3_side': dict(follow=f'@e[tag={tag("s3")},limit=1]', offset=(.65, .18, -.1)),
                         's3_rear': dict(follow=f'@e[tag={tag("s3")},limit=1]', offset=(.35, .22, -.5)),
                         'unwrap_side': dict(follow=f'@e[tag={tag("unwrapped")},limit=1]', offset=(.6, .2, -.15)),
-                        'remains': dict(follow=f'@e[tag={tag("sleeper")},limit=1]', offset=(0, .3, 1.1))}),
+                        'remains': dict(follow=f'@e[tag={tag("sleeper")},limit=1]', offset=(0, .3, 1.1)),
+                        'remains_side': dict(follow=f'@e[tag={tag("sleeper")},limit=1]', offset=(1.0, .3, .3)),
+                        'remains_rear': dict(follow=f'@e[tag={tag("sleeper")},limit=1]', offset=(0, .35, -1.1))}),
     smoke=dict(ticks=1600, commands=[(200, f'yukkuri scenario unwrap {sel("unwrapped")}')],
                expect=[r'leaf swaddle kept on remains reason=retention', r'death settled into remains[^\n]*internal=swaddle_retention category=retained',
                        r'swaddle neglect stage=0 [^\n]*releasedVolume=3'], forbid=[]))

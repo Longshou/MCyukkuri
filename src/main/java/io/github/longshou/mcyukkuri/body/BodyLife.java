@@ -566,6 +566,9 @@ public final class BodyLife {
     public void died(DamageSource source,boolean stemDepletion,boolean sukkiriExhaustion){
         if(settled||entity.level().isClientSide)return;
         String internal=internalDeathCause();
+        // Retention kills by holding everything in: nothing came out, so the body keeps its whole filling and its swollen shape
+        // (lead decision, art decision wp-eu full pass) instead of the empty-corpse balance of a body worn down to 0 health.
+        if(LeafSwaddle.RETENTION.equals(internal))deathFood=BodyFood.capacity(entity);
         var remains=RemainsEntity.snapshot(entity,source,stemDepletion,sukkiriExhaustion,internal);
         if(!RemainsEntity.place(entity.level(),entity.position(),entity.yBodyRot,remains,false))return;
         settled=true;settledCause=internal;entity.syncBody();

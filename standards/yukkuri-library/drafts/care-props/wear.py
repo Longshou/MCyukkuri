@@ -142,8 +142,30 @@ def crease(colour, inside, outline, rng, count):
 DRY = ['#3e2c10', '#5a4318', '#77601f', '#94802a', '#ac9a36', '#c4b24c', '#dacb76']
 HARD = ['#2a170a', '#3f2410', '#563217', '#6c401d', '#835226', '#9a6634', '#b4834c']
 PETIOLE_DRY = ['#4a3c16', '#6b5a22', '#8c7a34']
-PETIOLE_HARD = ['#2e1c0c', '#4a2e14', '#664222']
-TIP = 19                                                        # first column of the front tip (CareWearRenderer: the upper front blade)
+PETIOLE_HARD = ['#563217', '#6c401d', '#835226']           # not darker than the blade: the stalk stands off the back under the hair
+# A drying leaf curls back from its edge (art decision wp-eu full pass): from stage 2 the front blade, which CareWearRenderer.leafWrap lays
+# from x 16 (u .5) up the front, ends in a level edge at CURL_TOP of the body height, below the mouth, with a pale curled rim and no midrib
+# on the front. Its height at row share s and margin e is the renderer's RISE e^2 (1 - s) + CUP_BASE + (LEAF_FRONT - CUP_BASE) s^2.
+CURL_STAGE, CURL_TOP, FRONT_X, RISE, CUP_BASE, LEAF_FRONT = 2, .13, 16, .22, .015, .22
+
+
+def front_height(x, y):
+    s, e = (x + .5 - FRONT_X) / (32 - FRONT_X), (y + .5) / 32 * 2 - 1
+    return RISE * e * e * (1 - s) + CUP_BASE + (LEAF_FRONT - CUP_BASE) * s * s
+
+
+def curl(colour):
+    """Cut the front blade to a level edge, give the cut edge a pale rim and drop the midrib's light line on the front face."""
+    front = [p for p in colour if p[0] >= FRONT_X]
+    for p in front:
+        if front_height(*p) > CURL_TOP:
+            del colour[p]
+    for x, y in [p for p in colour if p[0] >= FRONT_X]:
+        if y == MID:
+            colour[(x, y)] = 3
+        if any((x + dx, y + dy) not in colour and x + dx >= FRONT_X and front_height(x + dx, y + dy) > CURL_TOP
+               for dx, dy in ((1, 0), (0, 1), (0, -1))):
+            colour[(x, y)] = 6
 STAGES = (  # ramp, petiole ramp, margin mix towards DRY, crinkles, margin darker by, sheen, stain colour, stain amount, patch only
     (LEAF, PETIOLE, 0, 0, 0, False, STAIN, (.6, .75), False),
     (LEAF, PETIOLE, .45, 0, 0, False, STAIN, (.78, .9), True),
@@ -168,11 +190,8 @@ def leaf_cell(stage):
         for x, y in inside:
             if 11 <= x <= 17 and 2 <= abs(y - MID) <= 7 and (x, y) not in outline and colour[(x, y)] != 1:
                 colour[(x, y)] = min(5, colour[(x, y)] + 1)
-        # the tip lies on the face under the mouth: the taut step with a light midrib, no darkest crinkle or edge pixels, so it reads as
-        # a leaf, not a moustache
-        for x, y in inside:
-            if x >= TIP:
-                colour[(x, y)] = 3 if (x, y) in outline else 6 if y == MID else max(4, colour[(x, y)])
+    if stage >= CURL_STAGE:
+        curl(colour)
     cell = Image.new('RGBA', (32, 32), (0, 0, 0, 0))
     for xy, step in colour.items():
         c = rgba(ramp[step])
