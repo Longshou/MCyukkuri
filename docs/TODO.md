@@ -8,7 +8,6 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
-| 任4 聚落迁移重做（选址可达可筑窝、失败改道、到达后安家） | `.worktrees/wp-fj-migration` | settlement/（Migration、MigrationSearch、SiteClaimer、SiteLife、Homes、ShelterPlacement、Burrowing、HabitatHomes）、scripts/museum_scenarios.py（colony_migrate*） |
 
 ## 玩法待办
 
