@@ -37,6 +37,13 @@ public record BodyAbility(boolean canJump, double hopHeight, double hopReach, do
         return ArcSolver.runningReach(hopHeight, hopReach, groundSpeed, rise);
     }
 
+    /** An adult's ram effort per stroke, from its current pace, fitness, size and species strength. */
+    public static double bashPower(YukkuriEntity body) {
+        var ability = of(body);
+        return body.family().adult() && ability.canJump()
+                ? ability.walkSpeed() * ability.scale() * ability.grip() * body.species().traits().might() : 0;
+    }
+
     /** Holding a body scales Walk and Swim by {@code 1 - .5 * heldWidth / carrierWidth}. */
     public static double carrying(YukkuriEntity body) {
         for (var passenger : body.getPassengers())

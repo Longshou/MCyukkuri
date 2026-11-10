@@ -3,6 +3,8 @@ package io.github.longshou.mcyukkuri.event;
 import io.github.longshou.mcyukkuri.random.ModRandom;
 
 import io.github.longshou.mcyukkuri.status.GameplayLog;
+import io.github.longshou.mcyukkuri.motor.action.Bash;
+import io.github.longshou.mcyukkuri.motor.action.PaneOpening;
 import io.github.longshou.mcyukkuri.mind.EmotionEvent;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
@@ -123,6 +125,7 @@ public final class HomeClaim {
             for (BlockPos stand:stands) {
                 if (paths++>=8) return null;
                 if (e.life().reachable(stand,false)) return stand;
+                if (!farm && PaneOpening.find(e,stand,false,true).stream().anyMatch(p -> Bash.allowed(e,p.pane()).ok())) return stand;
             }
         }
         return null;
@@ -215,7 +218,8 @@ public final class HomeClaim {
             case GATHER -> {
                 if (c.ticks>1200) { finish(level,data,c,alive,"never_arrived",null); return; }
                 var spot=Vec3.atBottomCenterOf(c.site.pos());
-                var first=alive.stream().filter(y -> y.family().adult() && y.distanceToSqr(spot)<=25).findFirst().orElse(null);
+                var first=alive.stream().filter(y -> y.family().adult() && y.distanceToSqr(spot)<=1
+                        && y.life().reachable(c.site.pos(),false)).findFirst().orElse(null);
                 if (first!=null) declare(level,c,first,alive);
             }
             case HOLD, ENCLOSED, COLLAPSING -> hold(level,data,c,alive,now);
@@ -373,7 +377,7 @@ public final class HomeClaim {
     public static boolean away(YukkuriEntity y, Claim c, boolean homing) {
         double d=y.distanceToSqr(Vec3.atBottomCenterOf(c.site.pos()));
         if (c.stage==Stage.RETREAT) return c.retreat!=null && d<256;
-        return d>(homing?16:c.stage==Stage.GATHER?9:36);
+        return c.stage==Stage.GATHER ? d>1 || !y.life().reachable(c.site.pos(),false) : d>(homing?16:36);
     }
     public static void step(YukkuriEntity y, Claim c) {
         if (!y.getNavigation().isDone() && y.tickCount%40!=0) return;

@@ -1921,6 +1921,56 @@ add('alice_chores', 'forage', '爱丽丝和灵梦一起做家务', '爱丽丝和
     env=DAY, spot='forage', vantage=(0, 16), note=NEW,
     reads=[('读爱丽丝家务', f'yukkuri status {sel("alice")} raw'), ('读灵梦家务', f'yukkuri status {sel("reimu")} raw')])
 
+# ---- home declaration: one real opening, with an open-door control for the same caller.
+def home_pane_result(window):
+    protected = window.find('HOME_PANE_GRIEF_OFF_CHECK')
+    if protected < 0 or 'start id=bash' in window[:protected]:
+        return 'mobGriefing=false window missing or allowed a bash'
+    if 'HOME_PANE_FULL_GLASS_INTACT' not in window:
+        return 'full glass did not survive'
+    hits = re.findall(r'\[action\][^\n]* hit id=bash block=([^\n]*?) hits=(\d+)', window)
+    broken = re.findall(r'\[action\][^\n]* break id=bash block=([^\n]*?) hits=(\d+)', window)
+    if len(broken) != 1:
+        return f'expected one broken pane, observed {len(broken)}'
+    if not hits or max(int(n) for _, n in hits) != int(broken[0][1]):
+        return 'break was not preceded by its real strokes'
+    if window.find('GATHER -> HOLD') < window.find('break id=bash'):
+        return 'claim declared before opening its route'
+    if re.search(r'\[action\][^\n]* start id=bash', window[window.find('break id=bash') + 1:]):
+        return 'a second bash started after the one opening was enough'
+
+
+for _sid, _window, _title in (
+        ('home_pane', 'minecraft:glass_pane', '成体撞碎玻璃板，入屋宣言'),
+        ('home_open', 'minecraft:air', '野生一家进入敞口空屋宣言')):
+    _bold, _timid = uid(_sid, 'bold'), uid(_sid, 'timid')
+    add(_sid, 'forage', _title, _title,
+        '空石屋只有南面一个落地开口；野生成年魔理沙胆量100、伴侣灵梦胆量0。家园事件自己选择入口：'
+        '魔理沙走近玻璃板，转正，逐次用身体撞击，出现裂纹、碎屑、声音与轻微反冲；玻璃板碎后进入才宣言，洞口保持开放。'
+        '整块玻璃作旁边的封闭窗，始终保留。胆小伴侣可以从已经打开的入口跟进。',
+        '约 10–60 秒', [
+            'fill ~-6 ~ ~-6 ~6 ~5 ~10 minecraft:air',
+            'fill ~-3 ~ ~-3 ~3 ~2 ~3 minecraft:stone_bricks hollow',
+            'setblock ~ ~ ~ minecraft:crafting_table',
+            f'setblock ~ ~ ~3 {_window}',
+            'setblock ~2 ~ ~3 minecraft:glass',
+            yk('marisa',0,6,'bold',uuid=_bold,yaw=180,lead=True,boldness=100,kin=kin_of(Partner=_timid),**pair_ready()),
+            yk('reimu',2,7,'timid',uuid=_timid,yaw=180,boldness=0,kin=kin_of(Partner=_bold),**pair_ready())],
+        late=['yukkuri homeclaim start'], env=DAY, spot='graze', vantage=(0,11,180),
+        reads=[('读家园阶段','yukkuri homeclaim status'),('读两只状态','yukkuri status @e[type=#mcylab:yukkuri,distance=..24] raw')],
+        smoke=dict(ticks=1200, expect=[r'\[home-claim\][^\n]* GATHER -> HOLD'] +
+                   ([r'\[action\][^\n]* start id=bash',r'\[action\][^\n]* hit id=bash',
+                     r'\[home\][^\n]* pane opened block=.* hits='] if _sid=='home_pane' else []),
+                   forbid=[r'\[body\][^\n]* invariant',r'family_collapsed',r'never_arrived'],
+                   **({'verify':home_pane_result,
+                       'commands':[(1,'gamerule mobGriefing false'),
+                                   (200,'execute if block ~ ~ ~3 minecraft:glass_pane run say HOME_PANE_GRIEF_OFF_CHECK'),
+                                   (201,'gamerule mobGriefing true'),
+                                   (202,'yukkuri homeclaim start'),
+                                   (1190,'execute if block ~2 ~ ~3 minecraft:glass run say HOME_PANE_FULL_GLASS_INTACT')]}
+                      if _sid=='home_pane' else {})),
+        capture=dict(shots=(40,80,120,200,400), sequences=((40,200,4),)))
+
 # ---- colony rules: a village that is sure to have a leader (village_led), on the colony field's west plot
 COLONY = BY_ID['colony']
 COLONY_LEAD = '@e[tag=scn_lead,distance=..70]'
@@ -3577,6 +3627,7 @@ _number_scenes()
 
 # Topic codes are shared by the scene buttons, signs, and readouts.
 TOPICS = {
+    'home_pane': 'W7', 'home_open': 'W7',
     'balance_traits': 'N1', 'balance_relation': 'N1', 'balance_forms': 'N1', 'balance_deibu': 'N1',
     'waste_volume': 'F5',
     'agitation_relief': 'D2', 'adult_pairing': 'F6', 'widow_repair': 'F6', 'alice_hunt': 'R4', 'aftermath_growth': 'F7', 'aftermath_depletion': 'F7',

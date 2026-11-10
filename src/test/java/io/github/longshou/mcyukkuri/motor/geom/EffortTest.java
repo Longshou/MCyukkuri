@@ -7,6 +7,20 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /** Body push shares, turn, and body lift. */
 class EffortTest {
+    @Test void paneResistanceNeedsFiniteStrokesAndStrengthHelps() {
+        assertEquals(0, Effort.bash(.1, -1));
+        assertEquals(0, Effort.bash(0, .3));
+        assertEquals(1, Effort.bash(.1, 0));
+        assertTrue(Effort.bash(.15, .3) > Effort.bash(.08, .3));
+        double progress=0;
+        int strokes=0;
+        while (progress<1 && strokes<100) { progress+=Effort.bash(.08,.3); strokes++; }
+        assertEquals(4,strokes);
+        assertEquals(0,Effort.bashChance(0,.1,.3));
+        assertEquals(0,Effort.bashChance(50,.1,.3));
+        assertEquals(1,Effort.bashChance(100,.1,.3));
+        assertTrue(Effort.bashChance(75,.1,.3) > Effort.bashChance(75,.02,.3));
+    }
     @Test void theLighterOneMovesMore() {
         assertEquals(.75, Effort.share(.3, .1), 1e-12);
         assertEquals(.25, Effort.share(.1, .3), 1e-12);

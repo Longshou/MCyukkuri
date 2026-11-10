@@ -26,6 +26,8 @@
     "forage": "FG-02",
     "graze": "FG-03",
     "alice_chores": "FG-04",
+    "home_pane": "FG-05",
+    "home_open": "FG-06",
     "settle_forest": "BM-01",
     "settle_plains": "BM-02",
     "settle_taiga": "BM-03",
