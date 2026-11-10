@@ -1298,7 +1298,8 @@ add('widow_repair', 'meadow', '原伴侣死后才肯和新候选配对', '原伴
     note='不调用 mate、不预设胎次。三只都很胆小（活动半径约 10 格），所以就在自己窝边活动；寡妇的交配许可只写了候选，原伴侣因此不会在场景里立刻怀上。'
          '原伴侣单独关在西边小围栏：它若死在寡妇脚边，遗骸的气味会把她熏到院子另一头，求偶就断了。'
          '原伴侣在确认死亡后仍保留，直到正常受孕写入新伴侣；REMOVED 对照操作和存档重载步骤见试玩场说明。',
-    capture=dict(shots=(1, 40, 200, 600, 900, 1200, 1800), sequences=((60, 160, 2), (700, 1000, 10))),
+    capture=dict(shots=(1, 40, 200, 600, 900, 1200, 1800), sequences=((60, 160, 2), (700, 1000, 10)),
+                 follow=sel('widow'), observe=False),
     reads=[('读寡妇的关系与求偶阶段', f'yukkuri status {sel("widow")} raw'),
            ('读候选的关系与求偶阶段', f'yukkuri status {sel("new_partner")} raw')])
 
