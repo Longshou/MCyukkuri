@@ -13,6 +13,7 @@
 | 草6 寡妇再配对：伴侣在世时可见拒绝、COURT 被打断后重试、配偶死亡服丧与遗骸躲避 | `.worktrees/wp-ep-court-refusal` | family/Courtship.java、family/FamilyLife.java（COURT canContinue、died）、family/Cannibalism.java 或其所在文件、scripts/museum_scenarios.py（widow_repair 断言） |
 | 生12 叶襁褓失护美术：叶片阶段贴图行、肿胀形变、便秘遗体形态 | `.worktrees/wp-eu-swaddle-neglect-art` | textures/misc/swaddle_leaf_wear.png（新增阶段行）、client/CareWearRenderer.java（贴图行与形变）、遗体形态资源与 RemainsCause 形态映射、art/ 制作源与 catalog |
 | 草4 被问候方面向问候者直到回礼结束，侧贴开始时再转 | `.worktrees/wp-ev-greet-facing` | social/YukkuriSocial.java、social/DailyLife.java（问候回礼与蹭蹭交接的朝向请求） |
+| 草4 greet 问候动作加大：起跳前挤压、跳高 0.1→0.16 | `.worktrees/wp-ew-greet-amplitude` | standards/yukkuri-library/motions/variants/lore/recipe.json（greet）与 motion 导出 |
 
 ## 玩法待办
 
