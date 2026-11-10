@@ -11,6 +11,9 @@ import io.github.longshou.mcyukkuri.motor.Progress;
 import io.github.longshou.mcyukkuri.motor.Reason;
 import io.github.longshou.mcyukkuri.motor.Running;
 import io.github.longshou.mcyukkuri.motor.TravelMode;
+import io.github.longshou.mcyukkuri.motor.geom.ArcSolver;
+import io.github.longshou.mcyukkuri.motor.geom.PinContact;
+import io.github.longshou.mcyukkuri.motor.geom.Vec;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
@@ -21,7 +24,7 @@ public final class Pin implements Action {
     private final YukkuriEntity target;
     private final int duration;
     private final Hop hop;
-    private final Vec3 landing;
+    private Vec3 landing;
     private Vec3 from, failedFrom, failedTarget;
     private int ticks;
     private boolean contact;
@@ -30,8 +33,23 @@ public final class Pin implements Action {
     public Pin(YukkuriEntity body, YukkuriEntity target, int duration) {
         this.target = target;
         this.duration = duration;
-        landing = stand(body, target);
-        hop = new Hop(landing);
+        hop = new Hop(delay -> landing = intercept(body, target, delay));
+    }
+
+    /** Forecast only: the shared Hop still checks the actual swept arc at takeoff. Three fixed-point
+     * passes refine flight time against a moving ground point; a dodge after launch remains a miss. */
+    private static Vec3 intercept(YukkuriEntity body, YukkuriEntity target, int delay) {
+        Vec3 rear = stand(body, target), aim = rear;
+        Vec3 motion = target.position().subtract(target.xo, target.yo, target.zo).multiply(1, 0, 1);
+        var ability = BodyAbility.of(body);
+        var from = new Vec(body.getX(), body.getY(), body.getZ());
+        for (int i = 0; i < 3; i++) {
+            var arc = ArcSolver.lowest(from, new Vec(aim.x, aim.y, aim.z), ability.hopHeight(),
+                    ability.hopReach(), ability.scale(), points -> true, true, false);
+            if (!(arc instanceof ArcSolver.Plan plan)) break;
+            aim = rear.add(motion.scale(delay + plan.ticks()));
+        }
+        return aim;
     }
 
     /** Tangency of the two collision boxes along the target's rear bearing; neither body overlaps at release. */
@@ -85,18 +103,25 @@ public final class Pin implements Action {
     @Override public Progress tick(YukkuriEntity body) {
         if (!contact) {
             var progress = hop.tick(body);
-            if (!(progress instanceof Outcome.Done)) return progress;
+            if (progress instanceof Outcome && !(progress instanceof Outcome.Done)) return progress;
+            if (!hop.contacted()) {
+                if (progress instanceof Running running)
+                    return new Running(duration + 1 + running.metric(), running.travel(), running.replanned());
+                return progress;
+            }
             var ready = free(body);
             if (!ready.ok()) return Outcome.of(ready.reason(), ready.shortfall(), ready.detail());
             // A moving target may evade the committed arc. Never correct the landing into contact.
             double gap = body.position().distanceTo(stand(body, target));
-            double touch = Math.min(body.getBbWidth(), target.getBbWidth()) * .25;
-            if (gap > touch || body.getBoundingBox().deflate(.001).intersects(target.getBoundingBox()))
+            Vec3 offset = body.position().subtract(target.position());
+            Vec3 forward = Vec3.directionFromRotation(0, target.getYRot());
+            if (!PinContact.touches(new Vec(offset.x, offset.y, offset.z), new Vec(forward.x, 0, forward.z),
+                    body.getBbWidth(), target.getBbWidth()))
                 return Outcome.of(Reason.TARGET_MOVED, gap, "prey_left_landing");
             contact = true;
             Motor.velocity(body, Vec3.ZERO, "pin_contact");
-            GameplayLog.event(body, "agitation", "pounce land target={} distance={} gap={} reason=contact",
-                    target.getUUID(), from.distanceTo(body.position()), gap);
+            GameplayLog.event(body, "agitation", "pounce land target={} distance={} gap={} reason=contact {}",
+                    target.getUUID(), from.distanceTo(body.position()), gap, hop.endDetail(new Outcome.Done("contact")));
             return new Running(duration + 1, TravelMode.CONSUMED, true);
         }
         if (!(target.motor().current() instanceof Held held) || held.pin != this)
@@ -105,8 +130,11 @@ public final class Pin implements Action {
         if (!ready.ok()) return Outcome.of(ready.reason(), ready.shortfall(), ready.detail());
         if (!Hop.ground(body, body.position())) return Outcome.of(Reason.NO_SUPPORT, 0, "pin_ground_lost");
         if (++ticks > duration) return new Outcome.Done("pin_released");
-        // Use the peer's real impulse (including its own struggle), capped by the slower body's ground pace.
-        Vec3 impulse = target.getDeltaMovement().multiply(1, 0, 1);
+        // Opposing contact pushes cancel; only net momentum (including the peer's struggle) moves the pair.
+        double mass = body.getBbWidth() * body.getBbWidth() * body.getBbHeight();
+        double peerMass = target.getBbWidth() * target.getBbWidth() * target.getBbHeight();
+        Vec3 impulse = body.getDeltaMovement().scale(mass).add(target.getDeltaMovement().scale(peerMass))
+                .scale(1 / (mass + peerMass)).multiply(1, 0, 1);
         double pace = Math.min(BodyAbility.of(body).walkSpeed(), BodyAbility.of(target).walkSpeed());
         if (impulse.length() > pace) impulse = impulse.normalize().scale(pace);
         if (clear(body, impulse) && clear(target, impulse)) {

@@ -256,8 +256,10 @@ public final class PresentationArbiter {
         var e = state.owner();
         return new Presentation(() -> {
             state.behavior(e.agitation().activity());
-            state.animation(m.distanceSquared() > .000001 && !e.agitation().poseLocked()
+            var pose = actionPose(e);
+            state.animation(pose != null ? pose.action() : m.distanceSquared() > .000001 && !e.agitation().poseLocked()
                     ? YukkuriAction.WADDLE : e.agitation().action());
+            if (pose != null) state.animationStart(pose.startTick());
             state.expression(e.agitation().expression());
             return;
         });

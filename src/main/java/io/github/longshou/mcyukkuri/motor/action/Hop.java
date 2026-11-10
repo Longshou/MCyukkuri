@@ -35,6 +35,7 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.IntFunction;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.util.Mth;
@@ -49,6 +50,7 @@ public final class Hop implements Action {
      *  clear, and the frames it is flown in differ from the forecast ones by less than this. Invisible. */
     private static final double HELD_GIVE = .01;
     private Vec3 target;
+    private IntFunction<Vec3> movingTarget;
     private SurfaceHost seatHost;
     private Vec3 bank;
     private boolean brimOnly;
@@ -76,6 +78,14 @@ public final class Hop implements Action {
     private boolean underway;
 
     public Hop(Vec3 target) { this.target = target; seatHost = null; }
+    /** Forecast a free-ground destination before takeoff; the argument is remaining preparation ticks.
+     * Once airborne the solved arc stays committed, so a moving target can evade it. */
+    public Hop(IntFunction<Vec3> target) {
+        this(target.apply(takeoffTicks() - 1));
+        movingTarget = target;
+    }
+    /** Real ground contact, before the landing clip finishes recovering. */
+    public boolean contacted() { return seatHost == null && completedLegs > 0; }
     public Hop(SurfaceHost host) { seatHost = host; target = null; }
     /** A destination on the host already carrying the body; the flight stays in its live frame. */
     public Hop(SurfaceHost host, Vec3 local) { seatHost = host; target = local; }
@@ -288,6 +298,7 @@ public final class Hop implements Action {
     }
     private Flight solve(YukkuriEntity body, Vec3 from, int delay, Search search) {
         SeatTarget candidate = null;
+        if (movingTarget != null) target = movingTarget.apply(delay);
         Vec3 to = target;
         if (seatHost == null && !ground(body, to))
             return new Flight(Feasibility.of(Reason.NO_SUPPORT, 0, "ground_centre"), null, null);

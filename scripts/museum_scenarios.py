@@ -1284,6 +1284,8 @@ add('alice_hunt', 'meadow', '发情爱丽丝追袭素鸡立', '发情爱丽丝�
         yk('marisa', 9, 3, 'witness', extra=agitation_start('IDLE'), **pair_ready()),
         *own('hunter'), *own('prey'), *own('witness')], env=DAY,
     give=['mcyukkuri:sleep_spray 2', 'mcyukkuri:yukkuri_carrier 1'],
+    capture=dict(shots=(1, 40, 700), sequences=((60, 660, 2),),
+                 follow='@e[tag=scn_hunter,limit=1]', offset=(3, 1.2, 4)),
     note='中断路径与自然完成共用同一入口；被打断的一轮不会结算胎次，受方只受惊吓与体力损耗。',
     reads=[('读攻击魔状态（含中断结果）', f'yukkuri status {sel("hunter")} raw'), ('读受方状态', f'yukkuri status {sel("prey")} raw')])
 
@@ -3567,7 +3569,7 @@ _smoke('meal_content', 900, [r'\[meal\][^\n]* full nutrition=[^\n]*content=true'
 next(s for s in S if s.id == 'meal_content').smoke['verify'] = _meal_content_verify
 _smoke('meet', 2400, [r'\[social\][^\n]* greet [^\n]*why=first_meet', r'\[daily\][^\n]* session result kind=NUZZLE'])
 _smoke('alice_hunt', 1200, [r'\[agitation\][^\n]* phase=ALICE_APPROACH -> ALICE_ACT',
-    r'\[agitation\][^\n]* outcome (?:target=|refused)', r'\[agitation\][^\n]* contact ended target='])
+    r'\[agitation\][^\n]* outcome (?:target=|refused)', r'\[agitation\][^\n]* contact (?:ended|interrupted) target='])
 # The shared nest releases the young it may no longer hold as each one grows: three of the four cross BABY_END inside the window,
 # and each released child then claims one of the two free ordinary nests standing beside the shared one.
 def _family_nests_release(log):
