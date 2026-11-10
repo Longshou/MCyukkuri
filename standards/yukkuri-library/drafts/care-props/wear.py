@@ -145,7 +145,7 @@ PETIOLE_DRY = ['#4a3c16', '#6b5a22', '#8c7a34']
 PETIOLE_HARD = ['#2e1c0c', '#4a2e14', '#664222']
 STAGES = (  # ramp, petiole ramp, margin mix towards DRY, crinkles, margin darker by, sheen, stain colour, stain amount, patch only
     (LEAF, PETIOLE, 0, 0, 0, False, STAIN, (.6, .75), False),
-    (LEAF, PETIOLE, .45, 0, 0, False, STAIN, (.6, .75), True),
+    (LEAF, PETIOLE, .45, 0, 0, False, STAIN, (.78, .9), True),
     (DRY, PETIOLE_DRY, 0, 9, 1, False, (128, 92, 40), (.4, .5), False),
     (HARD, PETIOLE_HARD, 0, 15, 1, True, (74, 46, 24), (.12, .18), False),
 )
@@ -190,7 +190,7 @@ def stained(cell, stage):
             if a == 0:
                 continue
             if patch:
-                reach = 5.5 + 1.5 * math.sin(x * 1.3) + rng.random()
+                reach = 7 + 1.5 * math.sin(x * 1.3) + rng.random()
                 if abs(y - MID) > reach or x < BLADE0 + 3:
                     continue
             k = lo + (hi - lo) * rng.random()

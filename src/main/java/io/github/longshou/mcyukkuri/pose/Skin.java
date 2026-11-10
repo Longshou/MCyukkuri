@@ -66,7 +66,7 @@ public final class Skin {
      * RETAIN_TOP_BACK at the back (under the hanging back hair, which moves with it), fullest at RETAIN_PEAK and rounding in to RETAIN_FOOT
      * of that at the ground contact, so the bottom bulges like a full sack rather than flaring. Heights never change.
      */
-    public static final float RETAIN_OUT=.6f, RETAIN_FRONT=.15f, RETAIN_PEAK=.14f, RETAIN_FOOT=.6f, RETAIN_TOP_SIDE=.30f, RETAIN_TOP_BACK=.50f;
+    public static final float RETAIN_OUT=.5f, RETAIN_FRONT=.3f, RETAIN_PEAK=.22f, RETAIN_FOOT=.6f, RETAIN_TOP_SIDE=.32f, RETAIN_TOP_BACK=.58f;
     /** Rest space, model units, before the bones: every part (skin, hair, locks) takes the same field. {@code body} is retentionFrame. */
     public static void deformRetention(Vector3f point,float swell,float[] body){
         if(swell<=0)return;
