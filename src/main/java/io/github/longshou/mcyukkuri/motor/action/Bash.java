@@ -23,15 +23,25 @@ public final class Bash implements Action {
     public static final String ID = "bash";
     // Replace this existing rough push with the motion track's ram composite here.
     private static final String CLIP = "push";
+    /** The caller owns this damage record across actions; a stroke is recorded exactly once. */
+    public static final class Damage {
+        private int hits;
+        private double broken;
+        public Damage(int hits, double broken) { this.hits=hits; this.broken=broken; }
+        public int hits() { return hits; }
+        public double broken() { return broken; }
+        private void strike(double effort) { hits++; broken+=effort; }
+        private int crack() { return hits==0 ? -1 : Math.min(9,(int)(broken*10)); }
+    }
     private final BlockPos pane;
-    private int ticks, hits;
-    private double broken;
+    private final Damage damage;
+    private int ticks;
     private long startTick;
     private final int length = ClipMarkers.of(CLIP).length();
 
-    public Bash(BlockPos pane) { this.pane = pane.immutable(); }
+    public Bash(BlockPos pane, Damage damage) { this.pane = pane.immutable(); this.damage=damage; }
     public BlockPos pane() { return pane; }
-    public int hits() { return hits; }
+    public int hits() { return damage.hits(); }
     @Override public String id() { return ID; }
 
     /** Also used during route choice: permissions are checked again on every stroke. */
@@ -75,6 +85,7 @@ public final class Bash implements Action {
     @Override public void start(YukkuriEntity body) {
         body.getNavigation().stop();
         startTick = body.level().getGameTime();
+        body.level().destroyBlockProgress(body.getId(),pane,damage.crack());
     }
 
     @Override public Progress tick(YukkuriEntity body) {
@@ -90,9 +101,8 @@ public final class Bash implements Action {
             var level = (ServerLevel) body.level();
             var state = level.getBlockState(pane);
             double resistance = state.getDestroySpeed(level, pane);
-            broken += Effort.bash(BodyAbility.bashPower(body), resistance);
-            hits++;
-            level.destroyBlockProgress(body.getId(), pane, Math.min(9, (int) (broken * 10)));
+            damage.strike(Effort.bash(BodyAbility.bashPower(body), resistance));
+            level.destroyBlockProgress(body.getId(), pane, damage.crack());
             var sound = state.getSoundType(level, pane, body);
             level.playSound(null, pane, sound.getHitSound(), SoundSource.BLOCKS, sound.getVolume(), sound.getPitch());
             level.sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, state), pane.getX()+.5, body.getY()+body.getBbHeight()/2,
@@ -101,21 +111,21 @@ public final class Bash implements Action {
             body.hurtInternal(body.damageSources().generic(), (float) resistance);
             body.showReaction("teary", "hurt", length);
             Motor.velocity(body, toward.scale(-BodyAbility.of(body).walkSpeed()).add(0, body.getDeltaMovement().y, 0), "bash_recoil");
-            GameplayLog.event(body, "action", "hit id=bash block={} hits={} progress={} health={} -> {}", pane, hits, broken, before, body.getHealth());
-            if (broken >= 1) {
+            GameplayLog.event(body, "action", "hit id=bash block={} hits={} progress={} health={} -> {}", pane, hits(), damage.broken(), before, body.getHealth());
+            if (damage.broken() >= 1) {
                 if (!level.destroyBlock(pane, false, body)) return Outcome.of(Reason.NO_TOOL, 0, "break_denied");
-                GameplayLog.event(body, "action", "break id=bash block={} hits={}", pane, hits);
-                return new Outcome.Done("pane_broken hits=" + hits);
+                GameplayLog.event(body, "action", "break id=bash block={} hits={}", pane, hits());
+                return new Outcome.Done("pane_broken hits=" + hits());
             }
         }
-        return new Running(Math.max(0, 1 - broken) + (length - ticks % length) / (double) length, TravelMode.PASS);
+        return new Running(Math.max(0, 1 - damage.broken()) + (length - ticks % length) / (double) length, TravelMode.PASS);
     }
 
     @Override public void finished(YukkuriEntity body, Outcome outcome) {
-        body.level().destroyBlockProgress(body.getId(), pane, -1);
+        if (!(outcome instanceof Outcome.Interrupted)) body.level().destroyBlockProgress(body.getId(), pane, -1);
         if (!(outcome instanceof Outcome.Done))
-            GameplayLog.event(body, "action", "blocked id=bash block={} hits={} outcome={}", pane, hits, outcome);
+            GameplayLog.event(body, "action", "blocked id=bash block={} hits={} outcome={}", pane, hits(), outcome);
     }
     @Override public MotionPose pose() { return new MotionPose(CLIP, startTick, true); }
-    @Override public String startDetail() { return "block=" + pane + " strokeTicks=" + length; }
+    @Override public String startDetail() { return "block=" + pane + " strokeTicks=" + length + " hits=" + hits() + " crack=" + damage.crack(); }
 }

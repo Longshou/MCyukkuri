@@ -60,10 +60,26 @@ public final class WildEvents {
                 && e.body().condition().readyForWildEvent() && e.life().wetness()<50;
     }
     public static boolean available(YukkuriEntity e) {
-        return e.level() instanceof ServerLevel level && safe(e) && WildEventData.get(level).membersFree(List.of(e.getUUID())) && e.onGround()
+        return available(e, false);
+    }
+    /** Housing may take participants out of optional play, but admission itself has no side effects. */
+    static boolean availableForHome(YukkuriEntity e) { return available(e, true); }
+    private static boolean leisure(Scene scene) { return scene.kind==Kind.CARD && WildCards.leisure(scene.card); }
+    private static boolean available(YukkuriEntity e, boolean housing) {
+        return e.level() instanceof ServerLevel level && safe(e) && e.onGround()
+                && EventReservations.owners(level.getServer(),e.getUUID()).stream().allMatch(token -> housing
+                    && token.source()==EventReservations.Source.WILD && leisure(WildEventData.get(level).scene(token.id())))
                 && !e.profile().houseBody() && !e.profile().dangerToYukkuri() && !HomeClaim.holds(e)
                 && !e.childhood().needsNewbornCare() && !e.dailyLife().active() && !e.social().active() && !e.groupInteraction().active() && !e.playLife().active()
                 && !e.family().active() && !e.house().active() && !e.habitat().active() && e.life().mealTicks()==0;
+    }
+    /** Only called after a homeless adult has found a valid claim and the entire family can be admitted. */
+    static void yieldLeisureToHome(ServerLevel level, List<YukkuriEntity> members) {
+        var data=WildEventData.get(level);
+        var scenes=members.stream().flatMap(e -> EventReservations.owners(level.getServer(),e.getUUID()).stream())
+                .filter(token -> token.source()==EventReservations.Source.WILD).map(token -> data.scene(token.id()))
+                .filter(WildEvents::leisure).distinct().toList();
+        for (var scene:scenes) finish(level,scene,Phase.INTERRUPTED,"housing_need");
     }
     public static boolean recognizes(YukkuriEntity a, YukkuriEntity b) {
         return a.life().canRecognize(b) && b.life().canRecognize(a);
@@ -150,10 +166,11 @@ public final class WildEvents {
         if(!(event.getEntity() instanceof YukkuriEntity e)||!(e.level() instanceof ServerLevel level))return;
         // Observe the single existing leisure scheduler; do not add another random song trigger.
         if(e.tickCount%10==0 && e.dailyLife().songListener()!=null)attachConcert(e,e.dailyLife().songListener());
-        if(Math.floorMod(e.tickCount+e.getId(),100)!=0 || !available(e))return;
+        if(Math.floorMod(e.tickCount+e.getId(),100)!=0)return;
+        if(HomeClaim.discover(e))return;
+        if(!available(e))return;
         var data=WildEventData.get(level);
         if(!data.canStart(GlobalPos.of(level.dimension(),e.blockPosition()),List.of(e.getUUID()),level.getGameTime()))return;
-        if(HomeClaim.discover(e))return;
         List<YukkuriEntity> peers=nearby(e);if(peers.isEmpty())return;
         Player player=level.getNearestPlayer(e,8);
         for(var peer:peers) {

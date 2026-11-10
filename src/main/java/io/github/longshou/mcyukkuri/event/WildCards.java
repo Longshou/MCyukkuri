@@ -40,6 +40,14 @@ import net.minecraft.nbt.CompoundTag;
 
 /** Small conditional scenes around existing life, relationships, toys and facilities. */
 public final class WildCards {
+    /** Optional play/social cards; care, conflict, food and weather keep their own priority. */
+    static boolean leisure(String card) {
+        return switch (card) {
+            case "sibling-game", "mate-touch", "imitate", "teach", "tank-corner", "tank-doll",
+                    "grave-quiet", "forest-family", "park-family", "park-race" -> true;
+            default -> false;
+        };
+    }
     private static final List<String> AMBIENT=List.of("weak-escort","little-gap","rivalry","crowd","territory","plea","lookout",
             "sibling-game","mate-touch","teach","imitate","ornament","deficient-wait","young-call","reconcile","group-turn","tank-corner","tank-doll",
             "grave-quiet","street-scraps","alley-sniff","alley-corner","forest-find","forest-family","park-family","park-race","rain-close","heat-rest");

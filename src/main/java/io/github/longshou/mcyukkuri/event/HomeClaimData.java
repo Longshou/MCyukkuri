@@ -4,6 +4,7 @@ import io.github.longshou.mcyukkuri.random.ModRandom;
 
 import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
+import io.github.longshou.mcyukkuri.motor.action.Bash;
 import io.github.longshou.mcyukkuri.coordination.DeadlineMap;
 import io.github.longshou.mcyukkuri.coordination.RegionKey;
 import net.minecraft.server.MinecraftServer;
@@ -45,6 +46,7 @@ public final class HomeClaimData extends SavedData {
         public int minX, minY, minZ, maxX, maxY, maxZ;
         public boolean hasBox, foodInside = true;
         public String result = "";
+        public final Map<BlockPos,Bash.Damage> panes = new LinkedHashMap<>();
         public final EventWatchdog.State supervision = new EventWatchdog.State();
         public Claim(UUID id, List<UUID> members, GlobalPos site) { this.id=id; this.members=List.copyOf(members); this.site=site; }
         public boolean active() { return stage != Stage.ENDED; }
@@ -132,7 +134,13 @@ public final class HomeClaimData extends SavedData {
             n.putIntArray("Box",new int[]{c.minX,c.minY,c.minZ,c.maxX,c.maxY,c.maxZ});
             if (c.player!=null) n.putUUID("Player",c.player);
             ListTag members=new ListTag(); for (UUID id:c.members) { CompoundTag m=new CompoundTag(); m.putUUID("Id",id); members.add(m); }
-            n.put("Members",members); list.add(n);
+            n.put("Members",members);
+            ListTag panes=new ListTag();
+            for (var entry:c.panes.entrySet()) {
+                CompoundTag p=new CompoundTag(); p.putLong("Pos",entry.getKey().asLong());
+                p.putInt("Hits",entry.getValue().hits()); p.putDouble("Broken",entry.getValue().broken()); panes.add(p);
+            }
+            n.put("Panes",panes); list.add(n);
         }
         tag.put("Claims",list); list=new ListTag();
         for (var e:cooldowns.snapshot().entrySet()) { CompoundTag n=new CompoundTag(); n.putUUID("Id",e.getKey()); n.putLong("Until",e.getValue()); list.add(n); }
@@ -162,6 +170,10 @@ public final class HomeClaimData extends SavedData {
                 int[] box=n.getIntArray("Box");
                 if (box.length==6) { c.minX=box[0]; c.minY=box[1]; c.minZ=box[2]; c.maxX=box[3]; c.maxY=box[4]; c.maxZ=box[5]; } else c.hasBox=false;
                 c.player=n.hasUUID("Player")?n.getUUID("Player"):null;
+                for (Tag pane:n.getList("Panes",Tag.TAG_COMPOUND)) {
+                    CompoundTag p=(CompoundTag)pane;
+                    c.panes.put(BlockPos.of(p.getLong("Pos")),new Bash.Damage(p.getInt("Hits"),p.getDouble("Broken")));
+                }
                 data.claims.putIfAbsent(c.id,c); // Conflicting members remain separate authoritative records.
             } catch (IllegalArgumentException ignored) { /* Unknown stages must not fabricate claims. */ }
         }

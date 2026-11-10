@@ -15,8 +15,8 @@ import io.github.longshou.mcyukkuri.motor.action.Walk;
 import io.github.longshou.mcyukkuri.motor.geom.Effort;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.EnumSet;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.ai.goal.Goal;
@@ -30,8 +30,8 @@ public final class HomeClaimGoal extends Goal implements MotorOwner {
     private boolean homing;
     private int cooldown, elapsed;
     private UUID consideredClaim;
-    // A choice is spent even if interrupted: goal re-entry never rolls the same pane again.
-    private final Set<BlockPos> consideredPanes = new HashSet<>();
+    // Keep the choice through interruptions; only a real refusal or failed route declines the pane.
+    private final Map<BlockPos,Boolean> paneChoices = new HashMap<>();
     private PaneOpening opening;
     private Action action;
     private boolean active;
@@ -53,19 +53,21 @@ public final class HomeClaimGoal extends Goal implements MotorOwner {
     @Override public boolean canUse() {
         var claim=HomeClaim.of(entity);
         if (claim==null || !HomeClaim.mayAct(entity)) return false;
-        if (!claim.id.equals(consideredClaim)) { consideredClaim=claim.id; consideredPanes.clear(); }
+        if (!claim.id.equals(consideredClaim)) { consideredClaim=claim.id; paneChoices.clear(); }
         if (cooldown<=0 && !entity.motor().heldByOther(ownerId())) {
             boolean entering=claim.stage==HomeClaimData.Stage.GATHER && !entity.life().reachable(claim.site.pos(),false);
             boolean exiting=claim.stage==HomeClaimData.Stage.ENCLOSED || claim.stage==HomeClaimData.Stage.COLLAPSING;
             if (entering || exiting) {
                 cooldown=40;
                 for (var candidate:PaneOpening.find(entity,claim.site.pos(),exiting,entering)) {
-                    if (!consideredPanes.add(candidate.pane())) continue;
+                    Boolean previous=paneChoices.get(candidate.pane());
+                    if (Boolean.FALSE.equals(previous)) continue;
                     var permission=Bash.allowed(entity,candidate.pane());
                     double chance=Effort.bashChance(entity.life().personality().boldness(),BodyAbility.bashPower(entity),
                             entity.level().getBlockState(candidate.pane()).getDestroySpeed(entity.level(),candidate.pane()));
-                    boolean chosen=permission.ok() && entity.getRandom().nextDouble()<chance;
-                    GameplayLog.event(entity,"home","pane choice block={} chosen={} chance={} reason={}",candidate.pane(),chosen,chance,permission.detail());
+                    boolean chosen=permission.ok() && (Boolean.TRUE.equals(previous) || entity.getRandom().nextDouble()<chance);
+                    paneChoices.put(candidate.pane(),chosen);
+                    GameplayLog.event(entity,"home","pane choice block={} chosen={} chance={} reason={} resumed={}",candidate.pane(),chosen,chance,permission.detail(),Boolean.TRUE.equals(previous));
                     if (chosen) { opening=candidate; crop=null; homing=false; action=null; return true; }
                 }
             }
@@ -100,23 +102,32 @@ public final class HomeClaimGoal extends Goal implements MotorOwner {
         if (action!=null && entity.motor().current()==action) return;
         Action next;
         if (action==null) next=Walk.stand(opening.stand(),1);
-        else if (!(entity.motor().last() instanceof Outcome.Done)) { opening=null; return; }
+        else if (!(entity.motor().last() instanceof Outcome.Done)) { endPane(entity.motor().last()); return; }
         else if (action instanceof Walk) {
             if (!entity.level().getBlockState(opening.pane()).is(Tags.Blocks.GLASS_PANES)) {
                 opening=null; return;
             }
             next=new Face(SurfaceApproach.yaw(entity.position(),Vec3.atCenterOf(opening.pane())));
-        } else if (action instanceof Face) next=new Bash(opening.pane());
+        } else if (action instanceof Face) next=new Bash(opening.pane(),
+                HomeClaim.of(entity).panes.computeIfAbsent(opening.pane(),ignored -> new Bash.Damage(0,0)));
         else {
             var bash=(Bash)action;
             GameplayLog.event(entity,"home","pane opened block={} hits={} actor={}",bash.pane(),bash.hits(),entity.getUUID());
             next=new Walk(Vec3.atBottomCenterOf(opening.beyond()));
         }
         action=next;
-        if (!entity.motor().run(this,next)) opening=null;
+        if (!entity.motor().run(this,next)) endPane(entity.motor().refusal());
+    }
+    private void endPane(Outcome outcome) {
+        if (outcome!=null && !(outcome instanceof Outcome.Interrupted) && !(outcome instanceof Outcome.Done)) {
+            paneChoices.put(opening.pane(),false);
+            GameplayLog.event(entity,"home","pane declined block={} outcome={}",opening.pane(),outcome);
+        }
+        opening=null;
     }
     @Override public void stop() {
         entity.motor().cancel(this,"home_claim_stopped");
+        if (opening!=null && action!=null) endPane(entity.motor().last());
         active=false; opening=null; action=null; crop=null; homing=false; entity.getNavigation().stop();
     }
 }
