@@ -14,7 +14,6 @@
 | 草6 寡妇再配对：伴侣在世时可见拒绝、COURT 被打断后重试、配偶死亡服丧与遗骸躲避 | `.worktrees/wp-ep-court-refusal` | family/Courtship.java、family/FamilyLife.java（COURT canContinue、died）、family/Cannibalism.java 或其所在文件、scripts/museum_scenarios.py（widow_repair 断言） |
 | 生8 长成子油被大窝让出后认领空的普通窝床位 | `.worktrees/wp-es-grown-child-bed` | life/CareBlockEntity.java（reconcileGrowth）、home/ 的床位认领（按实际归属） |
 | 草4 问候：忙碌时点头回应、问候播放 greet/nod、孤单伴侣接到蹭蹭、meet 场景如实 | `.worktrees/wp-ej-social-greeting` | social/YukkuriSocial.java、social/DailyLife.java（nuzzle 交接）、entity/presentation/PresentationArbiter.java（只读请求动作）、scripts/museum_scenarios.py（meet） |
-| 生12 树叶襁褓长期无人照料：分阶段变色、滞留肿胀、便秘致死，解开即救 | `.worktrees/wp-eq-swaddle-neglect` | family/LeafSwaddle.java、client/CareWearRenderer.java（变色色调）、body/RemainsCause.java、body/BodyLife.java（内因）、scripts/museum_scenarios.py（leaf_swaddle_neglect） |
 
 ## 玩法待办
 
