@@ -90,6 +90,18 @@ class CaptureReviewTests(unittest.TestCase):
             self.assertEqual(1, report['summary']['geometry_no_evidence_samples'])
             self.assertEqual(0, report['geometry'][view.name]['no_evidence'][0]['f'])
 
+    def test_default_review_dir_never_reuses_a_second_or_a_name(self):
+        with tempfile.TemporaryDirectory(dir=Path(__file__).resolve().parents[1]/'.local/tmp') as temp:
+            root = Path(temp)
+            with patch.object(review, 'ROOT', root), patch.object(review.time, 'strftime', return_value='20261110-093423'):
+                first = review.unique_out('carry_home', root/'.worktrees/wp-ef')
+                second = review.unique_out('carry_home', root/'.worktrees/wp-ef')
+                other = review.unique_out('carry_home', root/'.worktrees/wp-et-tool-gaps')
+            self.assertEqual(first.name, 'carry_home-20261110-093423-wp-ef')
+            self.assertEqual(second.name, 'carry_home-20261110-093423-wp-ef-2')
+            self.assertEqual(other.name, 'carry_home-20261110-093423-wp-et-tool-gaps')
+            self.assertEqual([first.is_dir(), second.is_dir(), other.is_dir()], [True, True, True])
+
     def test_capture_relays_queue_before_wait_and_retains_failure(self):
         process = MagicMock()
         process.__enter__.return_value = process

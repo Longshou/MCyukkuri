@@ -20,6 +20,7 @@ import smoke_prune  # noqa: E402
 MAIN = server.COMMON
 TODO = 'docs/TODO.md'
 SECTION = '## 进行中'
+PUSH_ATTEMPTS = 5
 
 
 class Fail(SystemExit):
@@ -141,6 +142,50 @@ def drop_worktree(path):
             raise Fail(f'cannot remove {path}: {(done.stderr or done.stdout).strip()}')
 
 
+def check_tree(tree, scenes):
+    """Compile check when Java changed, then the requested smoke scenes (never the whole battery)."""
+    changed = git(tree, 'diff', '--name-only', 'origin/main...HEAD').splitlines()
+    if any(path.endswith('.java') for path in changed):
+        print('java changed: javac_check.sh', flush=True)
+        if subprocess.run(['bash', 'scripts/javac_check.sh', str(tree)], cwd=tree).returncode:
+            raise Fail('javac_check.sh failed')
+    if scenes:
+        print(f'smoke: {" ".join(scenes)}', flush=True)
+        code = subprocess.run([sys.executable, str(tree / 'scripts/smoke_museum.py'), '--worktree', str(tree), *scenes], cwd=tree).returncode
+        if code:
+            print(f'pkg: smoke_museum.py exited {code}; not landing', file=sys.stderr)
+            raise SystemExit(code)
+
+
+def row_removed_in_head(tree, name):
+    """True when HEAD already carries this package's row removal; a rerun continues instead of refusing."""
+    subject = f'TODO: {name} landed'
+    if subject not in git(tree, 'log', '--format=%s', 'origin/main..HEAD').splitlines():
+        return False
+    print(f'{name}: row already removed by {subject}; continuing that landing', flush=True)
+    return True
+
+
+def push_landing(tree, name):
+    """A lost push race means another package landed: rebase onto it, recompile, push again."""
+    for attempt in range(1, PUSH_ATTEMPTS + 1):
+        done = subprocess.run(['git', 'push', 'origin', 'HEAD:main'], cwd=tree, text=True, encoding='utf-8', capture_output=True)
+        if not done.returncode:
+            return git(tree, 'rev-parse', 'HEAD')
+        before = git(tree, 'rev-parse', 'origin/main')
+        git(tree, 'fetch', '-q', 'origin')
+        if git(tree, 'rev-parse', 'origin/main') == before:
+            raise Fail(f'git push origin HEAD:main failed: {(done.stderr or done.stdout).strip()}')
+        message = next((line.strip() for line in (done.stderr or done.stdout).splitlines()
+                        if 'rejected' in line or line.startswith(('error:', 'fatal:'))), 'unknown')
+        print(f'{name}: push rejected ({attempt}/{PUSH_ATTEMPTS}): {message}; origin/main moved to '
+              f'{git(tree, "rev-parse", "--short", "origin/main")}, rebasing the landing commits', flush=True)
+        git(tree, 'rebase', 'origin/main')
+        # The scene content already ran its smoke; only the rebase needs the compile check.
+        check_tree(tree, [])
+    raise Fail(f'{name}: push still rejected after {PUSH_ATTEMPTS} attempts')
+
+
 def cmd_land(args):
     name = args.name
     wt = worktree_path(name)
@@ -152,34 +197,26 @@ def cmd_land(args):
     tree = dry_copy(name, wt) if args.dry_run else wt
     try:
         git(tree, 'rebase', 'origin/main')
-        changed = git(tree, 'diff', '--name-only', 'origin/main...HEAD').splitlines()
-        if any(path.endswith('.java') for path in changed):
-            print('java changed: javac_check.sh', flush=True)
-            if subprocess.run(['bash', 'scripts/javac_check.sh', str(tree)], cwd=tree).returncode:
-                raise Fail('javac_check.sh failed')
-        if args.scene:
-            print(f'smoke: {" ".join(args.scene)}', flush=True)
-            code = subprocess.run([sys.executable, str(tree / 'scripts/smoke_museum.py'), '--worktree', str(tree), *args.scene], cwd=tree).returncode
-            if code:
-                print(f'pkg: smoke_museum.py exited {code}; not landing', file=sys.stderr)
-                raise SystemExit(code)
+        check_tree(tree, args.scene)
+        landed = row_removed_in_head(tree, name)
         text = (tree / TODO).read_text(encoding='utf-8')
-        if name not in row_names(text):
+        row = row_names(text).get(name)
+        if not landed and row is None:
             raise Fail(f'{TODO} has no row for {name} (worktree .worktrees/{name})')
         head = git(tree, 'rev-parse', 'HEAD')
+        if not landed and not args.dry_run:
+            lines = text.splitlines()
+            lines.remove(row)
+            write_lines(tree / TODO, lines)
+            git(tree, 'add', TODO)
+            git(tree, 'commit', '-q', '-m', f'TODO: {name} landed')
     finally:
         if tree is not wt:
             drop_worktree(tree)
     if args.dry_run:
         print(f'dry run: {name} would land at {head} (rebased, checks passed); no push/row/worktree changes')
         return
-    lines = text.splitlines()
-    lines.remove(row_names(text)[name])
-    write_lines(tree / TODO, lines)
-    git(tree, 'add', TODO)
-    git(tree, 'commit', '-q', '-m', f'TODO: {name} landed')
-    git(tree, 'push', 'origin', 'HEAD:main')
-    pushed = git(tree, 'rev-parse', 'HEAD')
+    pushed = push_landing(tree, name)
     git(MAIN, 'pull', '--ff-only')
     removed = False
     for attempt in range(2):

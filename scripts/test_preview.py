@@ -67,6 +67,33 @@ class PreviewBoundaryTests(unittest.TestCase):
                                capture_output=True, text=True)
         self.assertIn('Duration: 00:02:10.00', probe.stderr)
 
+    def test_repeated_scene_tick_keeps_render_order_and_timing(self):
+        source = self.base/'capture'
+        source.mkdir()
+        rows, ticks = [], [1, 40, 42, 34, 46]
+        for i, tick in enumerate(ticks, start=1):
+            name = f'{i}.png'
+            Image.new('RGB', (32, 32), 'red').save(source/name)
+            rows.append(dict(tick=tick, seconds=i/20, file=name))
+        (source/'frames.json').write_text(json.dumps(rows))
+        result = self.run_cli('capture', 'boundary', '--source', str(source))
+        self.assertEqual(result.returncode, 0, result.stderr)
+        frames = json.loads((self.topic/'frames.json').read_text(encoding='utf-8'))['frames']
+        # The client clock is corrected backwards to the server's; frames keep their render order.
+        self.assertEqual([f['tick'] for f in frames], ticks)
+        self.assertAlmostEqual(sum(f['duration'] for f in frames), (39+2+1+12+1)/20)
+
+    def test_frames_out_of_render_order_are_rejected(self):
+        source = self.base/'capture'
+        source.mkdir()
+        rows = []
+        for i, seconds in ((1, .5), (2, .4)):
+            name = f'{i}.png'
+            Image.new('RGB', (32, 32), 'red').save(source/name)
+            rows.append(dict(tick=i*10, seconds=seconds, file=name))
+        (source/'frames.json').write_text(json.dumps(rows))
+        self.assert_rejected(self.run_cli('capture', 'boundary', '--source', str(source)), 'Capture frames must be in render order:')
+
     def test_inbox_import_add_remove_and_hub(self):
         target = self.out/'inbox'
         target.mkdir()

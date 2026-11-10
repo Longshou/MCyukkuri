@@ -279,8 +279,12 @@ def capture_rows(directory, bounds):
     rows = read(directory/'frames.json')
     if not rows:
         raise ValueError(f'No capture frames: {directory}')
-    if any(not isinstance(r['tick'], int) for r in rows) or any(b['tick'] <= a['tick'] for a, b in zip(rows, rows[1:])):
-        raise ValueError(f'Capture ticks must be strictly increasing: {directory}')
+    if any(not isinstance(r['tick'], int) for r in rows):
+        raise ValueError(f'Capture ticks must be integers: {directory}')
+    # The client clock is corrected backwards to the server's mid-scene, so a scene tick can repeat (same animation
+    # occurrence, later render). The frames stay in the recorded render order and the timing follows that order.
+    if all('seconds' in r for r in rows) and any(b['seconds'] <= a['seconds'] for a, b in zip(rows, rows[1:])):
+        raise ValueError(f'Capture frames must be in render order: {directory}')
     for row in rows:
         path = directory/row['file']
         if not path.is_file():
@@ -336,14 +340,15 @@ def capture(args, stage):
                 joined = Image.new('RGB', (image.width+right.width, max(image.height, right.height)))
                 joined.paste(image, (0, 0)); joined.paste(right, (image.width, 0)); image = joined
             image.save(work/f'{i}.png')
-            duration = ((rows[i+1]['tick']-row['tick'])/20 if i+1 < len(rows) else 1/20)
+            # A repeated scene tick still shows for one tick instead of a zero or negative frame duration.
+            duration = max(rows[i+1]['tick']-row['tick'], 1)/20 if i+1 < len(rows) else 1/20
             durations.append(duration)
             lines += [f"file '{i}.png'", 'option framerate 20', f'duration {duration:.9f}']
             if i in indices:
                 samples.append(image)
                 labels.append(f'#{i+1} · tick {row["tick"]}')
             if args.crop or args.zoom != 1:
-                shutil.copy2(work/f'{i}.png', stage/f'frame-{row["tick"]:06d}.png')
+                shutil.copy2(work/f'{i}.png', stage/f'frame-{i+1:03d}-tick-{row["tick"]:06d}.png')
         lines += [f"file '{len(rows)-1}.png'", 'option framerate 20']
         (work/'frames.txt').write_text('\n'.join(lines)+'\n', encoding='utf-8')
         subprocess.run([str(exe), '-hide_banner', '-loglevel', 'error', '-y', '-f', 'concat', '-safe', '0',
@@ -357,7 +362,7 @@ def capture(args, stage):
     body += media('capture.mp4', '左：当前输入；右：对比输入' if other else '1 倍速') + media('contact.png', '帧号与实际 tick')
     body += '<a href="frames.json">帧与时长数据</a>'
     if args.crop or args.zoom != 1:
-        body += '<p>原尺寸裁切／缩放帧：</p>' + ' '.join(f'<a href="frame-{r["tick"]:06d}.png">{r["tick"]}</a>' for r in rows)
+        body += '<p>原尺寸裁切／缩放帧：</p>' + ' '.join(f'<a href="frame-{i:03d}-tick-{r["tick"]:06d}.png">{r["tick"]}</a>' for i, r in enumerate(rows, start=1))
     return body
 
 

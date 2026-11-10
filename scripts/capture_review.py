@@ -2,6 +2,7 @@
 import argparse
 from concurrent.futures import ThreadPoolExecutor
 import importlib.util
+import itertools
 import json
 import os
 from pathlib import Path
@@ -60,6 +61,20 @@ def review_frames(directory, beats, clip, geometry):
     return ready, poses
 
 
+def unique_out(scene, worktree):
+    """Default report directory; two reviews of one scene in the same second never share a directory."""
+    base = ROOT/'.local/reports/capture-review'
+    base.mkdir(parents=True, exist_ok=True)
+    stem = f'{scene}-{time.strftime("%Y%m%d-%H%M%S")}-{worktree.name}'
+    for suffix in itertools.count(1):
+        candidate = base/(stem if suffix == 1 else f'{stem}-{suffix}')
+        try:
+            candidate.mkdir()
+        except FileExistsError:
+            continue
+        return candidate
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('scene')
@@ -75,7 +90,7 @@ def main():
     args = parser.parse_args()
     if args.beat_clip and not args.beats:
         parser.error('--beat-clip requires --beats')
-    out = args.out or ROOT/'.local/reports/capture-review'/f'{args.scene}-{time.strftime("%Y%m%d-%H%M%S")}'
+    out = args.out or unique_out(args.scene, args.worktree)
     out.mkdir(parents=True, exist_ok=True)
     cap = args.reuse
     if cap is None:
