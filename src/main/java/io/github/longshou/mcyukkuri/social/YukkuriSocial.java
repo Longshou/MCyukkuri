@@ -407,7 +407,7 @@ public final class YukkuriSocial implements MotorOwner {
         if (lastContact.size() >= 64 && !lastContact.containsKey(peer.getUUID())) lastContact.remove(lastContact.keySet().iterator().next());
         lastContact.put(peer.getUUID(), entity.level().getGameTime());
     }
-    /** Meeting this peer for a nuzzle: why it is greeted first (logged), or null; the greeting counts as this contact. */
+    /** Meeting this peer for a nuzzle: why it is greeted first, or null; the greeting counts as this contact (logged by startGreeting). */
     public String greetingDue(YukkuriEntity peer) {
         String why = greetReason(peer, YukkuriWorldData.get((ServerLevel) entity.level()));
         return why;
