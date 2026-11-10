@@ -560,14 +560,16 @@ public final class Release implements Action {
 
     /**
      * The carry side of the interrupt bridge: an interrupted carrier lets every child go where it is, and an interrupted held child
-     * (bar a fright) lets go of its carrier. A hit does not end a carry's own hold: a hit child stays held, and a hit carrier draws
-     * once for one young ({@link ParentCarry#struck}); a young still being lifted, or held by another intent, is let go as before.
+     * (bar a fright) lets go of its carrier. Fright keeps the family holds for flight. A hit child stays held, and a hit carrier
+     * draws once for one young ({@link ParentCarry#struck}); a young still being lifted can lose its grip on a real hit.
      */
     public static void interrupted(YukkuriEntity body, String why) {
         boolean hit = why.equals("hurt");
+        boolean fright = why.equals("fright");
         for (var rider : body.getPassengers())
-            if (rider instanceof YukkuriEntity child && !(hit && ParentCarry.keeps(body, child))) let(body, child, "carry_" + why);
-        if (!why.equals("fright") && body.getVehicle() instanceof YukkuriEntity carrier && !(hit && ParentCarry.keeps(carrier, body)))
+            if (rider instanceof YukkuriEntity child && !((hit || fright) && ParentCarry.keeps(body, child))
+                    && !(fright && body.family().carry().ownsLift(child))) let(body, child, "carry_" + why);
+        if (!fright && body.getVehicle() instanceof YukkuriEntity carrier && !(hit && ParentCarry.keeps(carrier, body)))
             let(carrier, body, "carry_child_" + why);
     }
 

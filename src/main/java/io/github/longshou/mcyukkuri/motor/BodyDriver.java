@@ -3,6 +3,7 @@ package io.github.longshou.mcyukkuri.motor;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.entity.component.SyncSlot;
 import io.github.longshou.mcyukkuri.life.YukkuriLife;
+import io.github.longshou.mcyukkuri.motor.action.Grab;
 import io.github.longshou.mcyukkuri.motor.action.Release;
 import io.github.longshou.mcyukkuri.motor.geom.Buoyancy;
 import io.github.longshou.mcyukkuri.motor.surface.SurfaceHost;
@@ -193,7 +194,9 @@ public final class BodyDriver {
 
     /** The interrupt bridge: stop now if interruptible, otherwise finish the short physical stretch; a real completion remains Done. */
     public void interrupt(String why) {
-        stop(why);
+        boolean holdingThroughFright = "fright".equals(why) && current instanceof Grab grab && body.hasPassenger(grab.target())
+                && body.family().carry().ownsLift(grab.target());
+        if (!holdingThroughFright) stop(why);
         Release.interrupted(body, why == null ? "interrupted" : why);
     }
 

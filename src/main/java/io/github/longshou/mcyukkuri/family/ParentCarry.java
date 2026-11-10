@@ -1160,8 +1160,11 @@ public final class ParentCarry {
     }
 
     public boolean protectiveGrip(YukkuriEntity child) {
-        return purpose == Purpose.PROTECT && child.getUUID().equals(lifting);
+        return purpose == Purpose.PROTECT && ownsLift(child);
     }
+
+    /** The family carry's current transfer, including the period between contact and reaching its seat. */
+    public boolean ownsLift(YukkuriEntity child) { return child.getUUID().equals(lifting); }
 
     /** A dependent baby waits for a parent who is marching or coming to carry it, instead of crawling after that parent. */
     public static boolean awaitsCarrier(YukkuriEntity child) {
