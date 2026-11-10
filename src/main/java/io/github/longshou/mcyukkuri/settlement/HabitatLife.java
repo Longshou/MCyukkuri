@@ -30,7 +30,7 @@ import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 
 /** A real resident, never a hidden duplicate: carries one resource, maintains stores and clears waste. */
 public final class HabitatLife {
-    enum Task { NONE, DIG, ROAM, FOOD, PICKUP, HARVEST, DEPOSIT, CLEAN, SHARE, STAY, SIESTA, NEST_PICKUP, NEST_HARVEST, NEST_BUILD, GRAIN_TAKE, GRAIN_PUT, RATION }
+    enum Task { NONE, DIG, ROAM, FOOD, PICKUP, HARVEST, DEPOSIT, CLEAN, SHARE, STAY, SIESTA, NEST_PICKUP, NEST_HARVEST, NEST_BUILD, SURFACE_NEST, GRAIN_TAKE, GRAIN_PUT, RATION }
     private final YukkuriEntity entity;
     private GlobalPos home;
     private ItemStack carrying=ItemStack.EMPTY;
@@ -104,7 +104,7 @@ public final class HabitatLife {
     public boolean active() { return task!=Task.NONE; }
     public CompoundTag debug(){var tag=plants.debug();tag.putString("Task",task.name());homes.debug(tag);tag.putString("Residence",residence().name());tag.putInt("Wait",wait);
             tag.putInt("Ticks",ticks);if(targetBlock!=null)tag.putString("Target",targetBlock.toShortString());return tag;}
-    public String activity() { return task==Task.CLEAN?Behaviors.SHELTER_CLEAN:task==Task.NEST_BUILD?nestActivity():(task==Task.NEST_HARVEST||task==Task.HARVEST)
+    public String activity() { return task==Task.CLEAN?Behaviors.SHELTER_CLEAN:task==Task.SURFACE_NEST?Behaviors.NEST_PLACE:task==Task.NEST_BUILD?nestActivity():(task==Task.NEST_HARVEST||task==Task.HARVEST)
             &&plants.harvesting()?Behaviors.NEST_HARVEST:task==Task.NEST_PICKUP||task==Task.NEST_HARVEST?Behaviors.NEST_GATHER:task==Task.DEPOSIT||task==Task.SHARE
             ||task==Task.GRAIN_PUT?Behaviors.SHELTER_CARRY:task==Task.STAY||task==Task.SIESTA?Behaviors.IDLE:task==Task.ROAM?Behaviors.ROAM:task==Task.HARVEST||task==Task.PICKUP?Behaviors.SHELTER_GATHER:Behaviors.SHELTER_STOCK; }
     private String nestActivity(){
@@ -336,7 +336,7 @@ public final class HabitatLife {
         if(targetItem!=null){task=Task.PICKUP;ticks=0;return true;}
         return planHarvest(value);
     }
-    private static boolean nestBedding(ItemStack stack) {
+    static boolean nestBedding(ItemStack stack) {
         return stack.is(ItemTags.LEAVES)||stack.is(Items.SHORT_GRASS)||stack.is(Items.WHEAT);
     }
     /** A late child builds only at its actual inherited burrow bed, never by creating or destroying blocks. */
@@ -404,6 +404,7 @@ public final class HabitatLife {
         if(!active()||!ready())return false;
         if(task==Task.DIG)return homes.canDigContinue();
         if(task==Task.ROAM)return homes.canRoamContinue();
+        if(task==Task.SURFACE_NEST)return homes.canBuildSurfaceNest();
         if(task==Task.SIESTA)return seasonal.canSiestaContinue();
         if(task==Task.STAY)return seasonal.canStayContinue();
         if(task==Task.NEST_PICKUP||task==Task.NEST_HARVEST||task==Task.NEST_BUILD)return ticks<600&&nestEligible(shelter())&&(task!=Task.NEST_HARVEST||EventHooks.canEntityGrief(level(),entity));
@@ -416,6 +417,7 @@ public final class HabitatLife {
         if(!canContinue()){stop();return;}ticks++;
         if(task==Task.DIG){homes.tickDig();return;}
         if(task==Task.ROAM){homes.tickRoam();return;}
+        if(task==Task.SURFACE_NEST){homes.tickSurfaceNest(plants);return;}
         var value=shelter();
         if(task==Task.STAY||task==Task.SIESTA){seasonal.tickRest(value);return;}
         if(task==Task.SHARE){seasonal.tickShare(value);return;}
@@ -544,6 +546,8 @@ public final class HabitatLife {
         }
         return false;
     }
+    boolean findSurfaceBedding(BlockPos nest) { return plants.find(nest, 10, pos -> !pos.closerThan(nest, 3)); }
+    boolean surfaceBeddingDeferred() { return plants.refused(); }
     public void stop() { if(entity.level() instanceof ServerLevel level)SearchBudget.cancel(level,entity,Purpose.GRANARY,0);Rations.fetchAbort(rationFetch);rationFetch=null;
             stealing=rationLoad=false;homes.stop(task);plants.stop();contact.reset();seasonal.resetLoad();task=Task.NONE;targetItem=null;targetBlock=null;
             seasonal.clearShareTarget();granary=null;wait=(int)(80/entity.species().traits().chore());ticks=buildTicks=0;entity.getNavigation().stop(); }

@@ -95,6 +95,10 @@ public final class SettlementData extends SavedData {
         public UUID migrateVanguard;
         /** Game time when the vanguard (or the leader, if no vanguard) first stood at the destination; 0 until then. */
         public long migrateArrivedAt;
+        Migration.Leg migrateLeg = Migration.Leg.DIRECT;
+        long migrateLegAt;
+        BlockPos migrateRegroupAt, migrateFirstSite;
+        final Set<UUID> migrateParty = new HashSet<>();
         public final Map<UUID, Long> sighted = new HashMap<>();
         public long decayAt, migrateRetry, attackedAt;
         /** What the group believes about humans and pets (see Rumours); saved. */
@@ -504,6 +508,17 @@ public final class SettlementData extends SavedData {
                 value.putLong("MigrateSince", group.migrateSince);
                 if (group.migrateVanguard != null) value.putUUID("MigrateVanguard", group.migrateVanguard);
                 value.putLong("MigrateArrivedAt", group.migrateArrivedAt);
+                value.putInt("MigrateLeg", group.migrateLeg.ordinal());
+                value.putLong("MigrateLegAt", group.migrateLegAt);
+                if (group.migrateRegroupAt != null) value.putLong("MigrateRegroupAt", group.migrateRegroupAt.asLong());
+                if (group.migrateFirstSite != null) value.putLong("MigrateFirstSite", group.migrateFirstSite.asLong());
+                var party = new ListTag();
+                for (var id : group.migrateParty) {
+                    var entry = new CompoundTag();
+                    entry.putUUID("Id", id);
+                    party.add(entry);
+                }
+                value.put("MigrateParty", party);
             }
             ListTag members = new ListTag();
             group.members.forEach((id, member) -> {
@@ -612,6 +627,12 @@ public final class SettlementData extends SavedData {
                     group.migrateSince = value.getLong("MigrateSince");
                     if (value.hasUUID("MigrateVanguard")) group.migrateVanguard = value.getUUID("MigrateVanguard");
                     group.migrateArrivedAt = value.getLong("MigrateArrivedAt");
+                    group.migrateLeg = Migration.Leg.values()[value.getInt("MigrateLeg")];
+                    group.migrateLegAt = value.getLong("MigrateLegAt");
+                    if (value.contains("MigrateRegroupAt")) group.migrateRegroupAt = BlockPos.of(value.getLong("MigrateRegroupAt"));
+                    if (value.contains("MigrateFirstSite")) group.migrateFirstSite = BlockPos.of(value.getLong("MigrateFirstSite"));
+                    for (Tag participant : value.getList("MigrateParty", Tag.TAG_COMPOUND))
+                        group.migrateParty.add(((CompoundTag)participant).getUUID("Id"));
                 }
                 data.groups.put(group.id, group);data.cleanupGroups.add(group.id);
             } catch (IllegalArgumentException ignored) { /* Unknown future kinds do not invent communities. */ }

@@ -2144,10 +2144,10 @@ colony('colony_ration', '黄昏族长给缺粮户分粮', '黄昏族长给缺粮
 _mx, _mz = COLONY.spots['colony']
 _migration_site = ['yukkuri settlement site vacant village ~64 ~ ~']
 colony('colony_migrate', '族群迁徙：全族搬去东边空村', '族群迁徙：全族搬去东边空村',
-       '族长决定迁徙：讨论 30 秒→准备 30 秒→先锋（有魔理沙时由魔理沙担任，体弱的帕琪不领队）先行，其余稍后跟上，前往东侧 64 格外的真实空聚落；抵达者认领新窝、存放携粮，窝不够就自己挖；掉队者继续赶往新址',
+       '族长决定迁徙：讨论 30 秒→准备 30 秒→先锋（有魔理沙时由魔理沙担任，体弱的帕琪不领队）先行，其余稍后跟上，前往东侧 64 格外的真实空聚落；抵达者认领新窝、存放携粮，窝不够就就近挖掘或用实际采到的植物做地面窝',
        '约 2–5 分钟', [Retry('yukkuri settlement migrate', COLONY_LEAD)],
        lines=_migration_site,
-       note='观察先锋是否先到、其余成员是否不再停在族长身后，以及抵达后是否留在新址认屋而不是折回旧址。读数核对先锋、中心、目的地与成员住所（identity.settlement_detail 的 result／vanguard）。行军超时且未到达会记失败（日志 migrate_failed 附到达数与已安顿数），中心不会直接跳到新址。',
+       note='观察先锋是否先到、掉队时是否集合换路，以及抵达后每户是否认领真实住所。读数核对先锋、中心、目的地与成员住所（identity.settlement_detail 的 phase／reason／result）。全体安顿后才更改聚落中心。',
        reads=[('读迁徙与压力（含先锋）', 'yukkuri settlement rules'),
               ('读族长新住所', 'yukkuri status @e[tag=scn_lead,limit=1,sort=nearest] raw'),
               ('读全体成员安置', 'yukkuri status @e[type=#mcylab:yukkuri,distance=..110] raw'),
@@ -2211,9 +2211,10 @@ colony('colony_migrate_babies', '族群迁徙：亲油带着赤油走', '族群�
                            'execute as @e[tag=scn_migrant_baby,distance=..24] run say MCYSMOKE_CHILD_AT_OLD_SITE'],
                   forbid=[r'\[family\][^\n]* carry put down reason=seat_blocked\b', r'\[family\][^\n]* carry put down forced\b',
                           r'hurt cry start cause=(?:inWall|starve)',
-                          r'MCYSMOKE_CHILD_AT_OLD_SITE'],
+                          r'MCYSMOKE_CHILD_AT_OLD_SITE', r'MCYSMOKE_CHILD_STILL_HELD'],
                   verify=_carry_outcome_verify,
-                  expect=[r'\[family\] marisa #[^\n]* carry pickup hold=brim\b',
+                  expect=[r'\[settlement\][^\n]* event=migrate_done\b',
+                          r'\[family\] marisa #[^\n]* carry pickup hold=brim\b',
                           r'\[family\] marisa #[^\n]* brim hop child=[0-9a-f-]+ hops=[1-9]\d*\b',
                           r'\[family\] marisa #[^\n]* carry grip [^\n]*brimLocal=',
                           r'\[action\] marisa #[^\n]* end id=grab outcome=DONE\b',
@@ -3914,7 +3915,7 @@ _sale_smoke['commands'] = [(200, f'yukkuri human shop buy @e[nbt={{HumanJob:1}},
 _sale_smoke['expect'] += [rf'\[transport\][^\n]*uuid={_uuid_text("shop_build", "sale_stock")} [^\n]*action=capture result=committed',
                           rf'\[shop\][^\n]*action=buy_live result=delivered [^\n]*target={_uuid_text("shop_build", "sale_stock")}']
 _smoke('colony_migrate', 7200, [r'\[settlement\][^\n]* migration phase=DISCUSS', r'\[settlement\][^\n]* migration phase=MARCH',
-                                r'\[settlement\][^\n]* migration pivot arrived '])
+                                r'\[settlement\][^\n]* migration pivot arrived ', r'\[settlement\][^\n]* event=migrate_done\b'])
 
 # Actor fates that are a scene's real path; scripts/smoke_fate.py fails every other death, drowning, suffocation, starvation and
 # refusal loop. who: a pattern of a line the individual itself prints (omitted: any individual); match: a pattern of the fate line.

@@ -11,7 +11,9 @@ import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.family.FamilyLife;
+import io.github.longshou.mcyukkuri.family.FamilyNest;
 import io.github.longshou.mcyukkuri.family.ParentCarry;
+import io.github.longshou.mcyukkuri.motor.surface.Occupancy;
 import io.github.longshou.mcyukkuri.life.YukkuriConfig;
 import io.github.longshou.mcyukkuri.season.Season;
 import io.github.longshou.mcyukkuri.season.Seasons;
@@ -51,6 +53,9 @@ public final class SettlementLife {
     private Result settlementResult;
     /** Walking to a migration site lifts the ordinary 48-block return leash. */
     private boolean marching;
+    private BlockPos marchStart;
+    private BlockPos blockedAt, blockedTarget;
+    private long blockedLegAt;
     /** The ordinary settlement Goal is attending a selected local succession meeting. */
     private boolean successionMeeting;
     /** The centre from which this member actually began the current march; retained until it has a settled outcome. */
@@ -143,7 +148,8 @@ public final class SettlementLife {
         var member = group == null ? null : SettlementData.get(level()).existingMember(group, entity.getUUID());
         return "origin=" + position(origin) + " settlingAt=" + position(settlingAt) + " result="
                 + (settlementResult == null ? "none" : settlementResult.name().toLowerCase(Locale.ROOT))
-                + " retry=" + retry + " phase=" + phase + " vanguard=" + (group != null && Migration.isVanguard(entity, group)) + " migration_care=" + entity.family().migrationCareActive()
+                + " retry=" + retry + " phase=" + phase + " reason=" + (group == null ? "none" : group.commons.migrateReason)
+                + " vanguard=" + (group != null && Migration.isVanguard(entity, group)) + " migration_care=" + entity.family().migrationCareActive()
                 + " succession_meeting=" + successionMeeting
                 + " leader_loss_known=" + (group != null && group.leaderDied && member != null && member.knownLeaderLoss >= group.leaderLossAt);
     }
@@ -161,7 +167,7 @@ public final class SettlementLife {
     public boolean familyMarching() {
         var group = group();
         if (group == null) return false;
-        if (Migration.moving(group)) return Migration.phase(group, entity.level().getGameTime()) == Migration.Phase.MARCH;
+        if (Migration.moving(group)) return Migration.onJourney(group, entity.level().getGameTime());
         return entity.childhood().shouldStayWithParents() && !settledAt(group.center)
                 || (entity.family().adult() || entity.family().stage() == FamilyLife.Stage.JUVENILE) && straggler(group);
     }
@@ -187,6 +193,25 @@ public final class SettlementLife {
         var home=parent.habitat().shelter();return home!=null&&home.usable(parent);
     }
 
+    /** A dependent's assigned new bed, even before it is physically down and counted as settled. */
+    public BlockPos migrationBed() {
+        var group = group();
+        if (group == null || !entity.childhood().shouldStayWithParents()) return null;
+        if (!Migration.moving(group) && settledAt(group.center)) return null;
+        var destination = Migration.moving(group) ? group.migrateTo : group.center;
+        for (UUID parentId : new UUID[]{entity.family().mother(), entity.family().father()}) {
+            if (parentId != null && level().getEntity(parentId) instanceof YukkuriEntity parent && parent.isAlive()
+                    && group.id.equals(parent.settlement().groupId()) && parent.settlement().settledAt(destination)
+                    && sharesResidence(parent)) return entity.family().carryHome();
+        }
+        return null;
+    }
+
+    private boolean sharesResidence(YukkuriEntity parent) {
+        var home = parent.habitat().shelter();
+        return home == null ? FamilyNest.sameNest(entity, parent) : entity.habitat().shelter() == home && home.usable(entity);
+    }
+
     /**
      * A dependent child arrives only by physically following a parent.  Its group entry already exists; do not call join,
      * which would overwrite the old address with the still-current centre before this real shelter handoff succeeds.
@@ -196,12 +221,17 @@ public final class SettlementLife {
         if (!group.id.equals(groupId)) return false;
         for (UUID parentId : new UUID[]{entity.family().mother(), entity.family().father()}) {
             if (parentId == null || !(level().getEntity(parentId) instanceof YukkuriEntity parent)) continue;
-            var parentHome = parent.habitat().shelter();
             if (!parent.isAlive() || !group.id.equals(parent.settlement().groupId()) || !parent.settlement().settledAt(arrival)
-                    || parent.distanceToSqr(entity) > 3 * 3 || !entity.hasLineOfSight(parent)
-                    || !entity.life().canRecognize(parent) || !parent.life().canRecognize(entity)
-                    || parentHome == null || !parentHome.usable(parent)) continue;
-            if (!entity.habitat().inherit(parent)) continue;
+                    || parent.family().carryHome() == null) continue;
+            if (!sharesResidence(parent)) {
+                if (entity.getVehicle() != parent && (parent.distanceToSqr(entity) > 3 * 3 || !entity.hasLineOfSight(parent)
+                        || !entity.life().canRecognize(parent) || !parent.life().canRecognize(entity))) continue;
+                boolean inherited = parent.habitat().shelter() != null ? entity.habitat().inherit(parent)
+                        : entity.life().assignHome(parent.life().home());
+                if (!inherited) continue;
+            }
+            var bed = entity.family().carryHome();
+            if (entity.isPassenger() || FamilyNest.bedOccupancy(entity, bed) != Occupancy.INSIDE_SUPPORTED) continue;
             origin = GlobalPos.of(level().dimension(), arrival);
             settlingAt = null;
             settlementResult = Result.FOUND;
@@ -232,7 +262,7 @@ public final class SettlementLife {
         driveSettling(group);
         if (entity.tickCount % 20 == 0 && entity.childhood().shouldStayWithParents()) {
             BlockPos arrival = Migration.moving(group)
-                    ? Migration.phase(group, level().getGameTime()) == Migration.Phase.MARCH ? group.migrateTo : null
+                    ? Migration.onJourney(group, level().getGameTime()) ? group.migrateTo : null
                     : group.center;
             if (arrival != null && !settledAt(arrival)) settleWithMigratingParent(group, arrival);
         }
@@ -377,7 +407,7 @@ public final class SettlementLife {
         if (group == null) return false;
         BlockPos destination;
         if (Migration.moving(group)) {
-            if (Migration.phase(group, entity.level().getGameTime()) != Migration.Phase.MARCH || group.migrateTo == null) return false;
+            if (!Migration.onJourney(group, entity.level().getGameTime()) || !group.migrateTo.equals(Migration.walkTarget(group))) return false;
             destination = group.migrateTo;
         } else {
             // A completed move may still have a real late migrant; a failed one keeps the old centre and gets no waiver.
@@ -436,10 +466,7 @@ public final class SettlementLife {
 
     private boolean regroup(SettlementData.Group group, double distance) {
         if (distance <= 8 * 8) return false; // the home search runs from tick() (driveSettling)
-        if (distance > 96 * 96 && !returnEligible() || navigateToward(group.center)!=Result.FOUND) return false;
-        target = group.center;
-        elapsed = 0;
-        marching = true;
+        if (distance > 96 * 96 && !returnEligible() || !march(group, group.center)) return false;
         GameplayLog.limited(entity, "settlement", "regroup", 1200,
                 "regroup route accepted group={} origin={} destination={} nutrition={} carried={}",
                 groupId, origin, target, entity.life().nutrition(), entity.habitat().carrying().getCount());
@@ -503,7 +530,9 @@ public final class SettlementLife {
             elapsed = 0;
             return true;
         }
-        Vec3 goal = Vec3.atBottomCenterOf(site);
+        var destination = Migration.walkTarget(group);
+        if (destination == null) return false;
+        Vec3 goal = Vec3.atBottomCenterOf(destination);
         double distance = entity.distanceToSqr(goal);
         // A resident already assigned to this destination may walk to its new home outside the plaza radius.
         if (settledAt(site)) return false;
@@ -518,17 +547,43 @@ public final class SettlementLife {
             wait = 20;
             return false;
         }
-        BlockPos destination = site;
-        wait = 40;
-        if (navigateToward(destination)!=Result.FOUND) return false;
-        target = destination;
-        elapsed = 0;
-        marching = true;
+        if (!march(group, destination)) return false;
         migrationDeparture = GlobalPos.of(entity.level().dimension(), group.center);
         GameplayLog.limited(entity, "settlement", "march", 1200,
                 "march route accepted group={} origin={} destination={} nutrition={} carried={}",
                 groupId, origin, target, entity.life().nutrition(), entity.habitat().carrying().getCount());
         return true;
+    }
+
+    private boolean march(SettlementData.Group group, BlockPos destination) {
+        wait = 20;
+        if (!Migration.readyToPlan(entity) || destination.equals(blockedTarget) && group.migrateLegAt == blockedLegAt
+                && entity.blockPosition().equals(blockedAt)) return false;
+        if (searchDestination == null) navigationGeneration = generation();
+        searchDestination = destination;
+        var lease = SearchBudget.request(level(), entity, Purpose.NAVIGATE, navigationGeneration, SearchBudget.NAVIGATE);
+        if (lease == null) return false;
+        try (lease; var scope = lease.bind(entity)) {
+            SearchBudget.path(entity);
+            var route = entity.life().dryTravelPath(Migration.approaches(entity, destination, group.migrateLeg == Migration.Leg.DETOUR));
+            if (!entity.getNavigation().moveTo(route, 1)) {
+                marchBlocked(group, destination, "no_dry_route");
+                return false;
+            }
+        }
+        target = destination;
+        marchStart = entity.blockPosition();
+        elapsed = 0;
+        marching = true;
+        return true;
+    }
+
+    private void marchBlocked(SettlementData.Group group, BlockPos destination, String reason) {
+        blockedAt = entity.blockPosition();
+        blockedTarget = destination;
+        blockedLegAt = group.migrateLegAt;
+        GameplayLog.limited(entity, "settlement", "march." + reason, 1200,
+                "march route blocked group={} destination={} leg={} reason={}", groupId, destination, group.migrateLeg, reason);
     }
 
     /**
@@ -540,7 +595,7 @@ public final class SettlementLife {
         if (entity.isPassenger() || entity.isPanicking() || entity.isCommandPlaying()) return null;
         BlockPos site;
         if (Migration.moving(group)) {
-            if (group.migrateTo == null || Migration.phase(group, level().getGameTime()) != Migration.Phase.MARCH) return null;
+            if (!Migration.onJourney(group, level().getGameTime()) || !group.migrateTo.equals(Migration.walkTarget(group))) return null;
             site = group.migrateTo;
             if (settledAt(site) || !Migration.joins(entity, group)) return null;
         } else {
@@ -565,13 +620,19 @@ public final class SettlementLife {
         if (entity.tickCount % 5 != 0) return;
         var site = settleTarget(group);
         if (site == null) return;
+        if (settlingAt(site) && settlementResult == Result.NOT_FOUND) {
+            var home = entity.life().homeStand();
+            if (home != null && home.distSqr(site) <= 32 * 32) settledAt(settlingAt, Result.FOUND);
+            return;
+        }
         var result = settleAt(site);
         settleWait = result == Result.DEFERRED ? 10 : result == Result.NOT_FOUND ? SETTLEMENT_RETRY_TICKS : 0;
     }
 
     private Result settleAt(BlockPos site) {
         var arrival=GlobalPos.of(entity.level().dimension(), site);
-        if(!arrival.equals(settlingAt)&&!arrival.equals(origin)) {
+        if (!arrival.equals(settlingAt)) {
+            if (arrival.equals(origin) && entity.life().homeStand() != null) return settledAt(arrival, Result.FOUND);
             // Preserve the old address until this first, bounded FIND_HOME lease has actually
             // been admitted. Later slices resume without releasing it again.
             var lease=entity.habitat().requestHomeSearch();
@@ -579,6 +640,7 @@ public final class SettlementLife {
             try(lease) {
                 settlingAt=arrival;
                 entity.habitat().release();
+                entity.life().releaseHome();
             }
             GameplayLog.event(entity,"settlement","settle started group={} destination={} origin={} independent={} nutrition={} energy={}",
                     groupId,arrival,origin,entity.family().adult()||entity.family().readyForOwnNest(),
@@ -651,12 +713,13 @@ public final class SettlementLife {
         var group = group();
         boolean settlingAtTarget = migrationSettleNearby(group);
         if (yieldsToMigrationCare(settlingAtTarget)) return false;
-        if (marching && !Migration.moving(group) && (group == null || !straggler(group) || target == null || !target.equals(group.center))) return false;
+        if (marching && (group == null || !(Migration.moving(group) ? target.equals(Migration.walkTarget(group))
+                : straggler(group) && target.equals(group.center)))) return false;
         return active() && !entity.independence().householdOuting() && !entity.wintering().active() && society.role() != SettlementData.Role.OUTCAST
                 && elapsed < (marching ? 1200 : 400) && !entity.isPanicking() && !SettlementSeasons.confined(entity) && !entity.isCommandPlaying()
                 && !urgentBlocks(settlingAtTarget) && entity.life().mealTicks() == 0
                 && (marching || entity.distanceToSqr(Vec3.atBottomCenterOf(target)) <= 48 * 48)
-                && entity.distanceToSqr(Vec3.atBottomCenterOf(target)) > 2.25;
+                && entity.distanceToSqr(Vec3.atBottomCenterOf(target)) > (marching ? 8 * 8 : 2.25);
     }
 
     private boolean staysInFamilyNest() {
@@ -665,6 +728,13 @@ public final class SettlementLife {
 
     public void tickGoal() {
         elapsed++;
+        if (marching) {
+            if (entity.getNavigation().isDone() && Migration.readyToPlan(entity)) {
+                if (marchStart.equals(entity.blockPosition())) marchBlocked(group(), target, "no_progress");
+                stop();
+            }
+            return;
+        }
         if (successionMeeting && target != null && entity.distanceToSqr(Vec3.atBottomCenterOf(target)) <= 2.25) {
             entity.getNavigation().stop();
             return;
@@ -682,11 +752,11 @@ public final class SettlementLife {
                 groupId, target, origin, elapsed, entity.distanceToSqr(Vec3.atBottomCenterOf(target)),
                 entity.life().nutrition(), entity.life().energy(), entity.isPanicking(), entity.life().mealTicks());
         cancelNavigation();
-        Migration.cancelSearch(entity,group());
+        boolean wasMarching = marching;
         target = null;
         marching = false;
         successionMeeting = false;
-        wait = 100;
+        wait = wasMarching ? 20 : 100;
         entity.getNavigation().stop();
     }
 
@@ -721,7 +791,7 @@ public final class SettlementLife {
     private void recoverLegacyDeparture() {
         if (migrationDeparture != null || origin == null || entity.level().isClientSide) return;
         var group = group();
-        if (group == null || Migration.phase(group, level().getGameTime()) != Migration.Phase.MARCH) return;
+        if (!Migration.onJourney(group, level().getGameTime())) return;
         recoverDepartureForAbandon(group);
     }
 

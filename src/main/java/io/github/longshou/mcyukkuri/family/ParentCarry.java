@@ -1620,14 +1620,6 @@ public final class ParentCarry {
         if (giveUp != null) return giveUp;
         if (purpose == Purpose.MIGRATE) {
             boolean landed = carrier.settlement().migrationLanded();
-            if (landed) {
-                // The baby inherits the home only beside the parent who holds it: put them down once the parent stands at her
-                // own bed (the census then finds them together), or the wait has run out. A child that already has the home
-                // is released on its own in childReason.
-                var stand = carrier.life().homeStand();
-                if (stand == null || carrier.distanceToSqr(Vec3.atBottomCenterOf(stand)) <= 9) return "arrived_home";
-                if (now - arrivedAt > ARRIVE_GRACE_TICKS) return "arrival_timeout";
-            }
             if (!landed && !carrier.settlement().familyMarching()) return "migration_ended";
         }
         return null;
@@ -1641,7 +1633,7 @@ public final class ParentCarry {
         // A brim seat is fixed to the carrier's own hat and follows its route: a wall beside it is a clip, not a reason to let go.
         if (now % 5 == 0 && hold != Hold.BRIM && seat(carrier, child) == null) return "seat_blocked";
         if (child.life().nutrition() < 30 && carrier.family().feeding().hasCarriedOpportunity(child)) return "feeding";
-        if (purpose == Purpose.MIGRATE && carrier.settlement().migrationLanded() && child.settlement().migrationLanded()) return "arrived_destination";
+        if (purpose == Purpose.MIGRATE && carrier.settlement().migrationLanded() && child.settlement().migrationBed() != null) return "arrived_destination";
         if (purpose == Purpose.RETRIEVE && atHome(destination(child))) return "arrived_home";
         if (purpose == Purpose.PROTECT && shelteredFrom(carrier.isPanicking() ? carrier.getLastHurtByMob()
                 : carrier.status().reactions().threat().source())) return "arrived_home";
@@ -1730,7 +1722,8 @@ public final class ParentCarry {
         var home = setDownHome(child, reason);
         var host = setDownHost();
         if (settingDown != null && settingDown.child() == child && !settingDown.changed(carrier, host, home)) return;
-        settingDown = host != null ? new Release(child, host) : Release.atNest(child, home);
+        settingDown = host != null ? new Release(child, host) : reason.equals("arrived_destination")
+                ? Release.inNest(child, home) : Release.atNest(child, home);
         settingWhy = reason;
         motor.run(owner, settingDown);
     }

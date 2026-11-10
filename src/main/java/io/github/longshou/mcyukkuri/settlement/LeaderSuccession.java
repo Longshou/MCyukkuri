@@ -154,13 +154,13 @@ public final class LeaderSuccession {
     private static BlockPos meetingPoint(SettlementData.Group group, long now) {
         return switch (Migration.phase(group, now)) {
             case NONE, DISCUSS -> group.center;
-            case PREPARE -> null;
-            case MARCH -> group.migrateTo;
+            case PREPARE, REGROUP, PICK_SITE -> null;
+            case MARCH, HOUSING -> group.migrateTo;
         };
     }
 
     private static boolean atMeeting(YukkuriEntity member, SettlementData.Group group, BlockPos point, long now) {
-        return Migration.phase(group, now) == Migration.Phase.MARCH
+        return Migration.onJourney(group, now)
                 ? member.settlement().settledAt(point)
                 : member.distanceToSqr(Vec3.atBottomCenterOf(point)) <= CENTER_RADIUS * CENTER_RADIUS;
     }

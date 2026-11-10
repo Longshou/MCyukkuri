@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.settlement;
 
 import io.github.longshou.mcyukkuri.registry.ModBlocks;
+import io.github.longshou.mcyukkuri.life.LargeNestBlock;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -11,6 +12,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.Shapes;
@@ -85,6 +87,33 @@ public final class ShelterPlacement {
         if(plan.kind==ShelterBlock.Kind.BURROW)core.setNaturalSite(NaturalShelter.survey(level,plan.center,plan.facing));
         Homes.registerLoaded(level,core);
         return new Placed(core,before);
+    }
+    /** A dry, level patch with standing room at the low southern entrance. */
+    static boolean surfaceFootprint(ServerLevel level, BlockPos origin) {
+        for (var cell : BlockPos.betweenClosed(origin, origin.offset(1, 0, 2))) {
+            if (!NaturalShelter.stand(level, cell) || !level.getBlockState(cell).isAir() || !level.getBlockState(cell.above()).isAir()
+                    || SettlementData.get(level).reserved(cell)) return false;
+        }
+        return true;
+    }
+
+    static boolean placeSurfaceNest(ServerLevel level, BlockPos origin) {
+        if (!surfaceFootprint(level, origin) || !level.getEntitiesOfClass(LivingEntity.class,
+                new AABB(origin).expandTowards(1, 0, 1), entity -> entity.isAlive() && !entity.isSpectator()).isEmpty()) return false;
+        var state = ModBlocks.LARGE_WILD_NEST.get().defaultBlockState();
+        for (int part = 0; part < 4; part++) {
+            if (!level.setBlock(origin.offset(part & 1, 0, part >> 1), state.setValue(LargeNestBlock.PART, part),
+                    Block.UPDATE_CLIENTS | Block.UPDATE_KNOWN_SHAPE)) {
+                removeSurfaceNest(level, origin);
+                return false;
+            }
+        }
+        return true;
+    }
+
+    static void removeSurfaceNest(ServerLevel level, BlockPos origin) {
+        for (var cell : BlockPos.betweenClosed(origin, origin.offset(1, 0, 1)))
+            if (level.getBlockState(cell).is(ModBlocks.LARGE_WILD_NEST.get())) level.removeBlock(cell, false);
     }
     private ShelterPlacement() {}
 }

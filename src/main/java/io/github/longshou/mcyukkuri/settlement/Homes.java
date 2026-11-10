@@ -1,12 +1,20 @@
 package io.github.longshou.mcyukkuri.settlement;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.settlement.site.SiteSlot;
+import io.github.longshou.mcyukkuri.world.SearchBudget;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.UUID;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import io.github.longshou.mcyukkuri.life.CareBlock;
 import io.github.longshou.mcyukkuri.life.CareBlockEntity;
+import net.neoforged.neoforge.event.EventHooks;
 
 /**
  * Entry points for the idea that a home is a recognised area (project design). A home is a roofed, dry cavity with a way in
@@ -37,6 +45,72 @@ public final class Homes {
     public static HabitatLife.Residence residence(YukkuriEntity entity) { return entity.habitat().residence(); }
     public static boolean vagrant(YukkuriEntity entity) { return entity.habitat().vagrant(); }
 
+    /** One home per independent household, with room for the adults and the family's shared bedding. */
+    static List<Integer> migrationNeeds(List<YukkuriEntity> members, SettlementData.Group group) {
+        var adults = new HashSet<UUID>();
+        for (var member : members) if (Migration.joins(member, group)) adults.add(member.getUUID());
+        var needs = new HashMap<UUID, Integer>();
+        for (var member : members) {
+            var id = member.getUUID();
+            if (!adults.contains(id)) continue;
+            var partner = member.family().partner();
+            int grown = adults.contains(partner) ? 2 : 1;
+            var household = grown == 2 && partner.compareTo(id) < 0 ? partner : id;
+            int young = Math.max(0, member.habitat().householdNeed() - (partner == null ? 1 : 2));
+            needs.merge(household, grown + ShelterBlockEntity.extraCells(young), Math::max);
+        }
+        return needs.values().stream().sorted(Comparator.reverseOrder()).toList();
+    }
+
+    /** Match distinct habitable footprints using the same geometry the digger or claimer will use. */
+    static boolean canHouseMigration(ServerLevel level, BlockPos at, SettlementData.Site site, List<Integer> required, YukkuriEntity owner) {
+        var needs = new ArrayList<>(required);
+        var used = new HashSet<BlockPos>();
+        for (var core : loadedWithin(level, at.offset(-24, -3, -24), at.offset(24, 3, 24))) {
+            if (core.residentIds().isEmpty() && core.sound() && core.moisture() < 85 && core.dirt() < 90)
+                takeHome(needs, core.capacity());
+            used.addAll(core.beds());
+        }
+        if (site != null) for (var slot : site.plan().slots()) {
+            if (needs.isEmpty()) return true;
+            if (!slot.dwelling() || slot.kind() == SiteSlot.Kind.NURSERY || level.getBlockEntity(slot.anchor()) != null) continue;
+            var layout = NaturalShelter.survey(level, slot.anchor(), slot.facing());
+            if (layout != null && layout.beds().stream().noneMatch(used::contains)) {
+                takeHome(needs, layout.sleeping().size());
+                used.addAll(layout.beds());
+            }
+        }
+        if (needs.isEmpty()) return true;
+        if (!EventHooks.canEntityGrief(level, owner)) return false;
+        int examined = 0;
+        for (var mouth : Burrowing.faces(level, at, 9)) {
+            if (++examined > 16) break;
+            for (var direction : Direction.Plane.HORIZONTAL) {
+                if (!Burrowing.soft(level, mouth.relative(direction))) continue;
+                var plan = Burrowing.plan(level, mouth, direction, Math.max(Burrowing.MIN_CELLS, needs.getFirst() + 2));
+                if (plan == null || plan.cells().stream().anyMatch(used::contains)) continue;
+                takeHome(needs, (int)plan.cells().stream().filter(cell -> cell.getY() == plan.doorway().getY()).count() - 2);
+                used.addAll(plan.cells());
+                if (needs.isEmpty()) return true;
+            }
+        }
+        if (needs.getFirst() > 4) return false;
+        int plants = 0, footprints = 0;
+        for (var pos : BlockPos.betweenClosed(at.offset(-10, -1, -10), at.offset(10, 2, 10))) {
+            SearchBudget.probe(level);
+            if (level.hasChunkAt(pos) && !PlantBedding.material(level.getBlockState(pos)).isEmpty()) plants++;
+            if (footprints < needs.size() && ((pos.getX() | pos.getZ()) & 1) == 0 && ShelterPlacement.surfaceFootprint(level, pos)) footprints++;
+            if (footprints >= needs.size() && plants >= needs.size()) return true;
+        }
+        return false;
+    }
+
+    private static void takeHome(List<Integer> needs, int capacity) {
+        for (int i = 0; i < needs.size(); i++) if (needs.get(i) <= capacity) {
+            needs.remove(i);
+            return;
+        }
+    }
 
     /**
      * Pets and other kept mothers sleep on a care-prop pet bed (one block, {@code CareBlock.Kind.NEST}). Giving birth needs a bigger bed:

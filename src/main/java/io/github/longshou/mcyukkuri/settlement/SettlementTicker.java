@@ -3,6 +3,7 @@ package io.github.longshou.mcyukkuri.settlement;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
@@ -149,7 +150,11 @@ public final class SettlementTicker {
         }
 
         // Continue only an already admitted decision; pressure, sightings and seasons keep their 100-tick sample.
-        if (!Migration.moving(group) && Migration.searching(group)) {
+        if (Migration.phase(group, now) == Migration.Phase.PICK_SITE) {
+            var participant = members.stream().map(Submission::entity).filter(entity -> Migration.joins(entity, group))
+                    .min(Comparator.comparing(entity -> !entity.getUUID().equals(group.leader))).orElse(null);
+            if (participant != null) Migration.continueRecovery(level, group, participant, now);
+        } else if (!Migration.moving(group) && Migration.searching(group)) {
             for (var member : members) {
                 var entity = member.entity();
                 if (member.migration() && current(level, group, entity) && entity.getUUID().equals(group.leader)

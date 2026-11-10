@@ -991,13 +991,14 @@ public final class FamilyLife {
             if(!entity.childhood().shouldStayWithParents())return false;
             if(entity.getVehicle() instanceof YukkuriEntity)return false;
             // A baby a parent is coming to carry waits for the pickup, also on its way home: a walking baby slips the parent's mouth.
-            if(ParentCarry.awaitsCarrier(entity)) {
+            if(entity.settlement().migrationBed()==null&&ParentCarry.awaitsCarrier(entity)) {
                 GameplayLog.limited(entity,"family","wait.carrier",1200,"baby waits for parent carry");
                 return false;
             }
             var home=earlyHomeStand();
             if(home!=null) {
-                if(entity.distanceToSqr(Vec3.atBottomCenterOf(home))>4) { task=Task.STAY_HOME;target=null;taskTicks=0;return true; }
+                if(entity.distanceToSqr(Vec3.atBottomCenterOf(home))>4 || entity.settlement().migrationBed()!=null
+                        && FamilyNest.bedOccupancy(entity,home)!=Occupancy.INSIDE_SUPPORTED) { task=Task.STAY_HOME;target=null;taskTicks=0;return true; }
                 return false;
             }
             // Only a child not kept to its nest leaves to answer a call; one at home stays there for the parent to come.
@@ -1107,7 +1108,7 @@ public final class FamilyLife {
                 ||entity.distanceToSqr(second)==entity.distanceToSqr(first)&&second.getUUID().compareTo(first.getUUID())<0))) {
             var swap=first;first=second;second=swap;
         }
-        if(entity.life().reachable(first.blockPosition(),false))return first;
+        if(ParentCarry.needsCarry(entity)||entity.life().reachable(first.blockPosition(),false))return first;
         return second!=null&&entity.life().reachable(second.blockPosition(),false)?second:null;
     }
     private boolean escortsMigratingChild(YukkuriEntity child) {
@@ -1173,7 +1174,8 @@ public final class FamilyLife {
     }
     /** Early children wait by their real shared shelter instead of continually chasing a foraging parent. */
     private BlockPos earlyHomeStand() {
-        if(familyTravelling()||exploring()||emergencyForaging())return null;
+        if(familyTravelling())return entity.settlement().migrationBed();
+        if(exploring()||emergencyForaging())return null;
         var care=FamilyNest.care(entity);if(care!=null)return care.getBlockPos();
         if(readyForOwnNest()&&!parentForaging(mother)&&!parentForaging(father))return null;
         var home=entity.habitat().shelter();

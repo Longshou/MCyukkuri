@@ -1,187 +1,145 @@
 package io.github.longshou.mcyukkuri.settlement;
 
-import static io.github.longshou.mcyukkuri.world.SearchBudget.generation;
-
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.life.YukkuriConfig;
 import io.github.longshou.mcyukkuri.settlement.site.SiteBuilder;
 import io.github.longshou.mcyukkuri.settlement.site.SiteSlot;
+import io.github.longshou.mcyukkuri.world.SearchBudget;
 import io.github.longshou.mcyukkuri.world.SearchBudget.Cost;
 import io.github.longshou.mcyukkuri.world.SearchBudget.Purpose;
 import io.github.longshou.mcyukkuri.world.SearchBudget.Result;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.level.levelgen.Heightmap;
 
-/** Server-thread, transient cursor; a slice never carries its lease into the next tick. */
+/** Searches one candidate or one walker's whole route per admission. Only the chosen position survives the search. */
 final class MigrationSearch {
-    private static final int SLICE = 4096, TRIES = 24, THREAT_GAP = 24;
-    private static final int ROOM_COST = 1 + 17 * 5 * 17 * 2, GRASS_COST = 21 * 7 * 21, DIG_COST = 19 * 5 * 19 + 400;
-    private enum Stage { SITES, COLUMNS, SCORE, FINISH }
-    private record Candidate(BlockPos pos, int grass) {}
+    static final int SEARCH_TICKS = 1200;
+    private static final int COLUMNS = 24, THREAT_GAP = 24;
 
     private final WeakReference<YukkuriEntity> owner;
     private final WeakReference<ServerLevel> world;
-    private final BlockPos from, danger;
-    private final UUID oldSite;
-    private final boolean fleeing, hungry;
-    private final int min, max;
-    private final long generation = generation();
+    private final BlockPos from;
+    private final long generation = SearchBudget.generation();
+    private final long deadline;
     final String reason;
     final boolean forced;
-    private final List<UUID> sites;
-    private final List<Candidate> candidates = new ArrayList<>();
-    private Stage stage = Stage.SITES;
-    private int siteIndex, tries, dy;
-    private UUID bestSite;
-    private double nearest = Double.MAX_VALUE, base;
-    private boolean bearingChosen;
-    private BlockPos column, scoring, result;
+    private final List<BlockPos> sites;
+    private final boolean nearby;
+    private final Set<BlockPos> tried;
+    private final List<UUID> walkers;
+    private final List<Integer> needs;
+    private int siteIndex, columns, walkerIndex;
+    private BlockPos candidate;
     private long lastSlice = Long.MIN_VALUE;
-    /** Extra scan cost of the last {@link #suitable} call beyond {@link #ROOM_COST}. */
-    private int extra;
+    private String failure = "no_dry_site";
 
-    MigrationSearch(ServerLevel level, YukkuriEntity leader, SettlementData.Group group, boolean forced, String reason) {
-        owner = new WeakReference<>(leader); world = new WeakReference<>(level);
-        from = group.center.immutable(); danger = group.threatPos == null ? null : group.threatPos.immutable();
-        oldSite = group.siteId; fleeing = danger != null && group.threat > 0;
-        min = YukkuriConfig.MIGRATE_MIN_DISTANCE.get(); max = Math.max(min, YukkuriConfig.MIGRATE_MAX_DISTANCE.get() * 2);
-        this.forced = forced; this.reason = reason;
-        hungry = "famine".equals(reason) || "worn_out".equals(reason);
-        sites = SettlementData.get(level).sites().stream().map(site -> site.id).toList();
+    MigrationSearch(ServerLevel level, YukkuriEntity leader, SettlementData.Group group, boolean forced, String reason,
+                    Set<BlockPos> excluded, List<BlockPos> nearbySites) {
+        owner = new WeakReference<>(leader);
+        world = new WeakReference<>(level);
+        from = group.center;
+        deadline = level.getGameTime() + SEARCH_TICKS;
+        this.forced = forced;
+        this.reason = reason;
+        tried = new HashSet<>(excluded);
+        nearby = nearbySites != null;
+        sites = nearby ? nearbySites : plannedSites(level, group);
+        var members = Migration.members(level, group);
+        walkers = members.stream().filter(member -> Migration.walks(member, group))
+                .sorted(Comparator.comparingDouble(member -> member.getAttributeValue(Attributes.MOVEMENT_SPEED)))
+                .map(YukkuriEntity::getUUID).toList();
+        needs = Homes.migrationNeeds(members, group);
+    }
+
+    private static List<BlockPos> plannedSites(ServerLevel level, SettlementData.Group group) {
+        var result = new ArrayList<BlockPos>();
+        for (var site : SettlementData.get(level).sites()) {
+            if (!site.vacant() || site.id.equals(group.siteId)) continue;
+            var plaza = SiteLife.anchor(site, SiteSlot.Kind.PLAZA);
+            if (plaza != null && plaza.distSqr(group.center) >= 24 * 24 && plaza.distSqr(group.center) <= 80 * 80)
+                result.add(plaza);
+        }
+        result.sort(Comparator.comparingDouble(group.center::distSqr));
+        return result;
     }
 
     boolean ownedBy(YukkuriEntity entity) { return owner.get() == entity; }
     boolean current(ServerLevel level, YukkuriEntity leader, SettlementData.Group group) {
-        return world.get() == level && ownedBy(leader) && from.equals(group.center)
-                && Objects.equals(danger, group.threatPos) && Objects.equals(oldSite, group.siteId)
-                && fleeing == (group.threatPos != null && group.threat > 0)
-                && min == YukkuriConfig.MIGRATE_MIN_DISTANCE.get()
-                && max == Math.max(min, YukkuriConfig.MIGRATE_MAX_DISTANCE.get() * 2);
+        return world.get() == level && ownedBy(leader) && from.equals(group.center);
     }
     void cancel() {
-        var level = world.get(); var entity = owner.get();
+        var level = world.get();
+        var entity = owner.get();
         if (level != null && entity != null) SearchBudget.cancel(level, entity, Purpose.PICK_SITE, generation);
     }
-    BlockPos result() { return result; }
+    BlockPos result() { return candidate; }
+    String failure() { return failure; }
 
-    Result advance(ServerLevel level, YukkuriEntity leader) {
-        if (lastSlice == level.getGameTime()) return Result.DEFERRED;
-        var lease = SearchBudget.request(level, leader, Purpose.PICK_SITE, generation, new Cost(SLICE, 0, 0));
+    Result advance(ServerLevel level, YukkuriEntity owner, SettlementData.Group group) {
+        long now = level.getGameTime();
+        if (now >= deadline) {
+            failure = "site_search_deadline";
+            return Result.NOT_FOUND;
+        }
+        if (lastSlice == now) return Result.DEFERRED;
+        var lease = SearchBudget.request(level, owner, Purpose.PICK_SITE, generation, new Cost(SearchBudget.PER_TICK, 0, 0));
         if (lease == null) return Result.DEFERRED;
-        lastSlice = level.getGameTime();
-        try (lease; var scope = lease.bind(leader)) {
-            int left = SLICE;
-            while (left > 0) {
-                switch (stage) {
-                    case SITES -> {
-                        if (siteIndex < sites.size()) {
-                            UUID id = sites.get(siteIndex++);
-                            var plaza = vacantSite(level, id); left--;
-                            if (plaza != null && plaza.distSqr(from) < nearest) {
-                                nearest = plaza.distSqr(from); bestSite = id;
-                            }
-                        } else {
-                            // Occupancy and loaded chunks may have changed while this cursor was waiting.
-                            if (bestSite != null) {
-                                result = vacantSite(level, bestSite); left--;
-                                if (result != null) return Result.FOUND;
-                            }
-                            stage = Stage.COLUMNS;
-                        }
-                    }
-                    case COLUMNS -> {
-                        if (candidates.size() >= 3 || column == null && tries >= TRIES) {
-                            stage = Stage.FINISH; continue;
-                        }
-                        if (column == null) {
-                            SearchBudget.probe(level); left--; tries++;
-                            if (!bearingChosen) {
-                                base = leader.getRandom().nextDouble() * Math.PI * 2;
-                                if (fleeing && (danger.getX() != from.getX() || danger.getZ() != from.getZ()))
-                                    base = Math.atan2(from.getZ() - danger.getZ(), from.getX() - danger.getX());
-                                bearingChosen = true;
-                            }
-                            double spread = fleeing ? Math.PI * 2 / 3 : Math.PI * 2;
-                            double angle = base + (leader.getRandom().nextDouble() - .5) * spread;
-                            double distance = min + leader.getRandom().nextDouble() * (max - min);
-                            var next = from.offset((int)Math.round(Math.cos(angle) * distance), 0, (int)Math.round(Math.sin(angle) * distance));
-                            if (!level.hasChunkAt(next) || nearDanger(next)) continue;
-                            column = next; dy = 10;
-                        }
-                        if (left < ROOM_COST) return Result.DEFERRED;
-                        var spot = column.offset(0, dy--, 0);
-                        boolean suitable = suitable(level, leader, spot); left -= spent();
-                        if (suitable) {
-                            scoring = spot.immutable(); column = null; stage = Stage.SCORE;
-                        } else if (dy < -12) column = null;
-                    }
-                    case SCORE -> {
-                        if (hungry && left < GRASS_COST) return Result.DEFERRED;
-                        int grass = hungry ? grazing(level, scoring) : 0;
-                        if (hungry) left -= GRASS_COST;
-                        candidates.add(new Candidate(scoring, grass)); scoring = null; stage = Stage.COLUMNS;
-                    }
-                    case FINISH -> {
-                        if (candidates.isEmpty()) return Result.NOT_FOUND;
-                        if (left < ROOM_COST) return Result.DEFERRED;
-                        Candidate best = candidates.getFirst();
-                        for (var candidate : candidates) if (candidate.grass > best.grass) best = candidate;
-                        candidates.remove(best);
-                        boolean valid = suitable(level, leader, best.pos); left -= spent();
-                        if (valid) { result = best.pos; return Result.FOUND; }
-                    }
+        lastSlice = now;
+        try (lease; var scope = lease.bind(owner)) {
+            if (candidate == null) {
+                if (siteIndex >= sites.size() && (nearby || columns >= COLUMNS)) return Result.NOT_FOUND;
+                var next = siteIndex < sites.size() ? sites.get(siteIndex++) : naturalSite(level, owner, group);
+                if (next == null || !tried.add(next) || !owner.life().dryStand(next)) return Result.DEFERRED;
+                if (!nearby && group.threatPos != null && next.distSqr(group.threatPos) < THREAT_GAP * THREAT_GAP) return Result.DEFERRED;
+                var site = SiteLife.bySpot(SettlementData.get(level), next);
+                if (site != null && (!site.vacant() || !SiteBuilder.loaded(level, site.plan()))) return Result.DEFERRED;
+                if (!Homes.canHouseMigration(level, next, site, needs, owner)) {
+                    failure = "no_family_homes";
+                    return Result.DEFERRED;
                 }
+                candidate = next;
+                walkerIndex = 0;
+            }
+            if (walkerIndex >= walkers.size()) return Result.FOUND;
+            UUID id = walkers.get(walkerIndex);
+            if (!(level.getEntity(id) instanceof YukkuriEntity walker) || !walker.isAlive() || !Migration.walks(walker, group)) {
+                walkerIndex++;
+                return Result.DEFERRED;
+            }
+            if (!Migration.readyToPlan(walker)) return Result.DEFERRED;
+            try (var walkScope = lease.bind(walker)) {
+                SearchBudget.path(walker);
+                if (walker.life().dryTravelPath(Migration.approaches(walker, candidate, false)) == null) {
+                    candidate = null;
+                    failure = "no_dry_route";
+                } else walkerIndex++;
             }
             return Result.DEFERRED;
         }
     }
 
-    private boolean nearDanger(BlockPos pos) { return danger != null && pos.distSqr(danger) < THREAT_GAP * THREAT_GAP; }
-    private BlockPos vacantSite(ServerLevel level, UUID id) {
-        SearchBudget.probe(level);
-        var site = SettlementData.get(level).site(id);
-        if (site == null || !site.vacant() || site.id.equals(oldSite)) return null;
-        var plaza = SiteLife.anchor(site, SiteSlot.Kind.PLAZA); var plan = site.plan();
-        if (plaza == null || plan == null || plaza.distSqr(from) < 24 * 24 || plaza.distSqr(from) > 80 * 80
-                || nearDanger(plaza) || !SiteBuilder.loaded(level, plan)) return null;
-        return plaza;
-    }
-    private boolean suitable(ServerLevel level, YukkuriEntity leader, BlockPos spot) {
-        SearchBudget.probe(level);
-        if (!level.hasChunkAt(spot) || nearDanger(spot) || !leader.life().dryStand(spot)) return false;
-        // The colony makes its own homes, so a ready cave is not required: three natural hollow cells within reach, or soft
-        // soil where the members can really scrape a hollow with their own bodies (Burrowing), is enough.
-        int found = 0;
-        for (BlockPos pos : BlockPos.betweenClosed(spot.offset(-8, -2, -8), spot.offset(8, 2, 8)))
-            if (NaturalShelter.enclosed(level, pos) && ++found >= 3) return true;
-        extra += DIG_COST;
-        return diggable(level, spot);
-    }
-    private int spent() { int cost = ROOM_COST + extra; extra = 0; return cost; }
-    /** At least one soil face near the spot where a real hollow plan fits (the same plan the diggers will follow). */
-    private static boolean diggable(ServerLevel level, BlockPos spot) {
-        int tried = 0;
-        for (var face : Burrowing.faces(level, spot, 9)) {
-            if (++tried > 12) break;
-            for (var direction : Direction.Plane.HORIZONTAL) {
-                if (!Burrowing.soft(level, face.relative(direction))) continue;
-                if (Burrowing.plan(level, face, direction, Burrowing.MIN_CELLS) != null) return true;
-            }
+    private BlockPos naturalSite(ServerLevel level, YukkuriEntity owner, SettlementData.Group group) {
+        columns++;
+        var random = owner.getRandom();
+        double angle = random.nextDouble() * 2 * Math.PI;
+        var danger = group.threatPos;
+        if (danger != null && group.threat > 0) {
+            double away = Math.atan2(from.getZ() - danger.getZ(), from.getX() - danger.getX());
+            angle = away + (random.nextDouble() - .5) * Math.PI * 4 / 3;
         }
-        return false;
-    }
-    private static int grazing(ServerLevel level, BlockPos spot) {
-        int count = 0;
-        for (BlockPos pos : BlockPos.betweenClosed(spot.offset(-10, -3, -10), spot.offset(10, 3, 10))) {
-            SearchBudget.probe(level);
-            if (level.hasChunkAt(pos) && Grazing.edible(level.getBlockState(pos))) count++;
-        }
-        return count;
+        int min = YukkuriConfig.MIGRATE_MIN_DISTANCE.get();
+        int max = Math.max(min, YukkuriConfig.MIGRATE_MAX_DISTANCE.get() * 2);
+        double distance = min + random.nextDouble() * (max - min);
+        var column = from.offset((int)Math.round(Math.cos(angle) * distance), 0, (int)Math.round(Math.sin(angle) * distance));
+        return level.hasChunkAt(column) ? level.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, column) : null;
     }
 }

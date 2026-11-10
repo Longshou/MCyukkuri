@@ -74,6 +74,7 @@ public final class Release implements Action {
     private SeatTarget seat;
     private boolean released;
     private BlockPos nest;
+    private boolean insideNest;
     private Vec3 endpoint, stand;
     private String placement;
     private Outcome outcome;
@@ -98,6 +99,13 @@ public final class Release implements Action {
     public static Release atNest(YukkuriEntity child, BlockPos nest) {
         var release = new Release(child);
         release.nest = nest;
+        return release;
+    }
+
+    /** The destination owns the handoff only once the whole young body is supported on its bed. */
+    public static Release inNest(YukkuriEntity child, BlockPos nest) {
+        var release = atNest(child, nest);
+        release.insideNest = true;
         return release;
     }
 
@@ -200,7 +208,7 @@ public final class Release implements Action {
         double natural = ParentCarry.groundPoint(carrier, child, 0).subtract(here).horizontalDistance(), reach = natural + .03;
         boolean turnHere = SurfaceApproach.supportedGround(carrier, here);
         int routes = 0;
-        for (int pass = bed == null ? 1 : 0; pass < 2; pass++) {
+        for (int pass = bed == null ? 1 : 0; pass < (insideNest ? 1 : 2); pass++) {
             String where = pass == 0 ? "nest" : bed == null ? "ground" : "outside";
             var pad = pass == 0 ? pad(carrier, bed) : null;
             var turnable = new ArrayList<Vec3>();
@@ -232,8 +240,8 @@ public final class Release implements Action {
                 }
             }
             if (pass == 0) GameplayLog.limited(carrier, "family", "release.nest_refused." + child.getUUID(), 200,
-                    "carry release nest refused child={} nest={} from={} free={} refused={} next=outside",
-                    child.getUUID(), nest, here, pad.size(), refused);
+                    "carry release nest refused child={} nest={} from={} free={} refused={} next={}",
+                    child.getUUID(), nest, here, pad.size(), refused, insideNest ? "changed_geometry" : "outside");
         }
         return exhausted(carrier, "no_supported_release_spot");
     }
@@ -509,6 +517,12 @@ public final class Release implements Action {
             // Contact is authoritative: a body that came onto the footprint during the lowering sends the child to the next candidate.
             var contact = space(carrier, child.position());
             if (!contact.ok()) return retarget(carrier, Outcome.of(contact.reason(), contact.shortfall(), "contact " + contact.detail()), false);
+            if (insideNest) {
+                var bed = BedContainer.of(child, nest);
+                var feet = bed == null ? null : bed.toPlane(child.position());
+                if (feet == null || !bed.standsInside(feet.x, feet.z, child.getBbWidth()))
+                    return retarget(carrier, Outcome.of(Reason.NO_SUPPORT, 0, "contact_outside_bed"), false);
+            }
             let(carrier, child, "release");
         }
         released = true;

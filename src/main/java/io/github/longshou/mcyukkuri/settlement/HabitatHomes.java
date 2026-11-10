@@ -22,6 +22,7 @@ import java.util.Set;
 import java.util.UUID;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.GlobalPos;
 import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
@@ -29,6 +30,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.event.EventHooks;
@@ -43,6 +45,7 @@ final class HabitatHomes {
     private String moveNote="";
     private boolean extending;
     private BlockPos roamTarget;
+    private BlockPos surfaceNest;
     /** Retained across interruption so the next attempt resumes the same hollow. */
     private BlockPos resumeMouth;
     private Direction resumeDirection;
@@ -151,6 +154,7 @@ final class HabitatHomes {
         }
         pendingDig=null;homeContext=false;homeSearch=null;homeDimension=null;homeAnchor=null;relocationHome=null;relocationSearch=null;
         if(task==Task.DIG){dig=null;digWork=0;}roamTarget=null;
+        if(task==Task.SURFACE_NEST)surfaceNest=null;
     }
     /** A load never resumes a live search cursor or its admission ticket. */
     void resetTransient() {
@@ -313,7 +317,58 @@ final class HabitatHomes {
         if(started==Result.DEFERRED)return deferVagrantProject();
         pendingDig=null;
         if(started==Result.FOUND)return Result.FOUND;
+        var arrival = o.entity().settlement().arrivalSite();
+        if (arrival != null) {
+            var surface = startSurfaceNest(arrival);
+            if (surface != Result.NOT_FOUND) return surface;
+        }
         return Result.of(roamWait<=0&&startRoam());
+    }
+
+    private Result startSurfaceNest(BlockPos arrival) {
+        var entity = o.entity();
+        if (entity.family().carry().mouthBusy() || !o.carrying().isEmpty() && !HabitatLife.nestBedding(o.carrying())) return Result.NOT_FOUND;
+        var around = entity.blockPosition();
+        var sites = new ArrayList<BlockPos>();
+        for (var pos : BlockPos.betweenClosed(around.offset(-6, -1, -6), around.offset(6, 1, 6)))
+            if (pos.distSqr(arrival) <= 24 * 24 && ShelterPlacement.surfaceFootprint(level(), pos)) sites.add(pos.immutable());
+        sites.sort(Comparator.comparingDouble(around::distSqr));
+        for (var pos : sites.stream().limit(8).toList()) {
+            if (!entity.life().reachable(pos.south(2), false)) continue;
+            if (o.carrying().isEmpty() && !o.findSurfaceBedding(pos)) {
+                if (o.surfaceBeddingDeferred()) { o.retrySearch(); return Result.DEFERRED; }
+                continue;
+            }
+            surfaceNest = pos;
+            o.task(Task.SURFACE_NEST);
+            o.resetTicks();
+            return Result.FOUND;
+        }
+        return Result.NOT_FOUND;
+    }
+
+    boolean canBuildSurfaceNest() {
+        return o.ticks() < 400 && EventHooks.canEntityGrief(level(), o.entity()) && o.entity().settlement().arrivalSite() != null;
+    }
+
+    void tickSurfaceNest(PlantBedding plants) {
+        if (o.carrying().isEmpty()) {
+            var gathered = plants.tick();
+            if (!gathered.isEmpty()) o.carry(gathered);
+            else if (!plants.active()) o.stop();
+            return;
+        }
+        var pos = surfaceNest;
+        if (!o.approach(pos.south(2))) return;
+        if (ShelterPlacement.placeSurfaceNest(level(), pos)) {
+            var portion = o.carrying().copyWithCount(1);
+            if (o.entity().life().assignHome(GlobalPos.of(level().dimension(), pos))) {
+                o.carrying().shrink(1);
+                if (o.carrying().isEmpty()) o.carry(ItemStack.EMPTY);
+                GameplayLog.event(o.entity(), "settlement", "surface nest built home={} material={}", pos, portion.getItem());
+            } else ShelterPlacement.removeSurfaceNest(level(), pos);
+        }
+        o.stop();
     }
     private Result deferVagrantProject() { searchWait=20;o.retrySearch();return Result.DEFERRED; }
     /** Cells the household wants in a new hollow: a nest and a store for the first, two more for everyone else. */

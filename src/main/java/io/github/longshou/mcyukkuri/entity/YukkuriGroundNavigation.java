@@ -122,6 +122,13 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
     /** Movement readiness is separate from a failed search; this does not calculate a path. */
     public boolean canPlanApproach(){return canUpdatePath();}
 
+    /** A whole route between loaded travel sites, with room to go around terrain beyond the local path range. */
+    public Path createTravelPath(Set<BlockPos> targets) {
+        float range = TravelRange.PATH_RANGE;
+        for (var target : targets) range = Math.max(range, (float)Math.sqrt(target.distSqr(mob.blockPosition())) + 16);
+        return createPath(targets, 8, false, 0, range);
+    }
+
     /** Whole vanilla routes to physically usable last-step nodes, with the interaction partner treated as an obstacle; footprints are kept clear as far as {@code goal} allows. */
     public Path createApproachPath(Set<BlockPos> targets,AABB obstacle,Vec3 goal){
         var previous=planningObstacle;boolean forced=forceSearch;var end=planGoal;

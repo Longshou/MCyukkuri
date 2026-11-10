@@ -17,6 +17,7 @@ import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.entity.YukkuriGroundNavigation;
 import io.github.longshou.mcyukkuri.social.YukkuriPersonality;
 import java.util.Comparator;
+import java.util.Set;
 import java.util.UUID;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -1047,6 +1048,19 @@ public final class YukkuriLife {
         var here = entity.blockPosition();
         if (!here.equals(reachFrom) || now - reachSince > REACH_MEMO || reachMemo.size() >= 32) { reachMemo.clear(); reachFrom = here; reachSince = now; }
         return reachMemo.computeIfAbsent(target.asLong() * 2 + (escapeWater ? 1 : 0), key -> path(target, escapeWater) != null);
+    }
+
+    /** Full dry route for a land march. Planning leaves the actor's current movement alone. */
+    public Path dryTravelPath(Set<BlockPos> targets) {
+        var navigation = (YukkuriGroundNavigation)entity.getNavigation();
+        var route = navigation.createTravelPath(targets);
+        if (route == null || !route.canReach()) return null;
+        for (int i = 0; i < route.getNodeCount(); i++) {
+            var node = route.getNodePos(i);
+            if (!level().hasChunkAt(node) || !level().getFluidState(node).isEmpty()
+                    || !level().getFluidState(node.below()).isEmpty()) return null;
+        }
+        return route;
     }
     /** Walk to a dry target on land: full paths within range, partial paths farther away until the full check comes near.
      * A step or short fall continues on landing; a genuinely unreachable destination still fails. */

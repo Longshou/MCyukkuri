@@ -54,6 +54,7 @@ final class LifeHome {
 
     boolean restable(BlockPos pos) {
         if(covered(pos))return true;
+        if(o.level().getBlockState(pos).is(ModBlocks.LARGE_WILD_NEST.get()) && !o.level().isRainingAt(pos))return true;
         var home=o.entity().habitat().shelter();
         return home!=null&&home.owns(o.entity().getUUID())&&home.contains(pos)&&home.sound()&&!o.level().isRainingAt(pos);
     }
@@ -100,7 +101,7 @@ final class LifeHome {
         var bed = NestDoorway.bed(o.entity(), nest);
         if (bed != null) {
             var stand = NestDoorway.stand(o.entity(), bed);
-            return stand != null && covered(BlockPos.containing(stand)) ? stand : null;
+            return stand != null && (covered(BlockPos.containing(stand)) || o.level().getBlockState(nest).is(ModBlocks.LARGE_WILD_NEST.get())) ? stand : null;
         }
         // Wide soft burrow bedding: find a real covered approach beyond that edge; never ignore its collision.
         for (int radius = 1; radius <= 2; radius++) for (Direction direction : Direction.Plane.HORIZONTAL) {
