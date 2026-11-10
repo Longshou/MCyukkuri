@@ -92,16 +92,20 @@ public final class HomeClaim {
     private static boolean needsHome(YukkuriEntity e) {
         return e.family().adult() && e.life().home()==null && e.habitat().shelter()==null;
     }
+    /** A jump delays evaluation; it is neither a choice nor evidence that a route is impossible. */
+    private static boolean decisionReady(YukkuriEntity e) { return e.onGround(); }
     private static boolean eligible(YukkuriEntity e, boolean housing) {
         return e.isAlive() && !e.profile().houseBody() && !e.profile().dangerToYukkuri() && WildEvents.unowned(e)
-                && (housing ? WildEvents.availableForHome(e) : WildEvents.available(e));
+                && WildEvents.availableForHome(e,housing);
     }
     private static List<YukkuriEntity> family(YukkuriEntity e) {
         var level=(ServerLevel)e.level(); var kin=FamilyData.get(level);
         List<YukkuriEntity> found=level.getEntitiesOfClass(YukkuriEntity.class,e.getBoundingBox().inflate(8),p -> p!=e && eligible(p,needsHome(e))
                 && (Bonds.careKin(e, p) || p.getUUID().equals(e.family().partner())) && WildEvents.recognizes(e,p)).stream()
                 .sorted(Comparator.comparingDouble(e::distanceToSqr)).limit(5).toList();
-        List<YukkuriEntity> all=new ArrayList<>(); all.add(e); all.addAll(found); return all;
+        List<YukkuriEntity> all=new ArrayList<>(); all.add(e); all.addAll(found);
+        // Keep airborne relatives in this readiness check instead of silently dropping them from the family.
+        return all.stream().allMatch(HomeClaim::decisionReady) ? all : List.of();
     }
     private static boolean crop(ServerLevel level, BlockPos pos, BlockState state) {
         return state.getBlock() instanceof CropBlock && level.getBlockState(pos.below()).is(Blocks.FARMLAND);
@@ -137,12 +141,12 @@ public final class HomeClaim {
     /** Called from {@link WildEvents#discover} for an available wild adult; true when a claim started. */
     public static boolean discover(YukkuriEntity e) {
         if (!(e.level() instanceof ServerLevel level) || !YukkuriConfig.HOME_CLAIMS.get() || !e.family().adult() || !eligible(e,needsHome(e))) return false;
+        List<YukkuriEntity> members=family(e);
+        if (members.size()<2) return false;
         if (e.getRandom().nextInt(YukkuriConfig.HOME_CLAIM_CHANCE.get())!=0) return false;
         Player player=level.getNearestPlayer(e,WITNESS);
         if (player==null || !player.isAlive() || player.isSpectator()) return false;
         if (HomeClaimData.get(level).cooling(e.getUUID(),level.getGameTime())) return false;
-        List<YukkuriEntity> members=family(e);
-        if (members.size()<2) return false;
         BlockPos stand=locate(e,e.blockPosition());
         return stand!=null && begin(level,members,stand,player,false)!=null;
     }
@@ -376,7 +380,7 @@ public final class HomeClaim {
 
     // --- movement (used by HomeClaimGoal) ---------------------------------------------------------------------
     public static boolean mayAct(YukkuriEntity y) {
-        if (!y.isAlive() || y.isNoAi() || y.isPanicking() || y.isCommandPlaying() || y.operations().active() || y.life().isSleeping()
+        if (!decisionReady(y) || !y.isAlive() || y.isNoAi() || y.isPanicking() || y.isCommandPlaying() || y.operations().active() || y.life().isSleeping()
                 || y.life().mealTicks()!=0 || y.isInWaterOrBubble() || y.isPassenger()) return false;
         var life=y.life(); // Only hunger may be answered here; other urgent needs go back to their own goals.
         return !life.hasUrgentNeed() || life.nutrition()<30 && life.energy()>=25 && life.wetness()<=40 && !y.isOnFire();

@@ -60,15 +60,13 @@ public final class WildEvents {
                 && e.body().condition().readyForWildEvent() && e.life().wetness()<50;
     }
     public static boolean available(YukkuriEntity e) {
-        return available(e, false);
+        return e.onGround() && available(e, false);
     }
-    /** Housing may take participants out of optional play, but admission itself has no side effects. */
-    static boolean availableForHome(YukkuriEntity e) { return available(e, true); }
+    /** Membership only: HomeClaim checks the whole family's footing before evaluating admission. */
+    static boolean availableForHome(YukkuriEntity e, boolean housing) { return available(e, housing); }
     private static boolean leisure(Scene scene) { return scene.kind==Kind.CARD && WildCards.leisure(scene.card); }
     private static boolean available(YukkuriEntity e, boolean housing) {
         return e.level() instanceof ServerLevel level && safe(e)
-                // Ending a play card does not cancel its real jump; followers can join the claim while landing.
-                && (e.onGround() || housing && WildEventData.get(level).forMember(e.getUUID(),WildEvents::leisure)!=null)
                 && EventReservations.owners(level.getServer(),e.getUUID()).stream().allMatch(token -> housing
                     && token.source()==EventReservations.Source.WILD && leisure(WildEventData.get(level).scene(token.id())))
                 && !e.profile().houseBody() && !e.profile().dangerToYukkuri() && !HomeClaim.holds(e)
