@@ -236,8 +236,7 @@ public final class Cannibalism extends Goal {
             }
         }
         if (smellWait == 0 && nutrition >= 8 && !entity.grieving()) {
-            var source = RemainsRot.source(level(), entity.position());
-            if (source != null && mateBody(source)) source = null;
+            var source = RemainsRot.source(level(), entity.position(), remains -> !mateBody(remains));
             var wrap = level().getEntitiesOfClass(YukkuriEntity.class, entity.getBoundingBox().inflate(3),
                     other -> other != entity && other.isAlive() && other.leafSwaddle().smells()
                             && !entity.family().caresFor(other) && entity.distanceToSqr(other) <= 9).stream()

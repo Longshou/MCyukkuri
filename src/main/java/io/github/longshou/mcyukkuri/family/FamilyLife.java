@@ -1003,21 +1003,22 @@ public final class FamilyLife {
             target=level().getEntitiesOfClass(YukkuriEntity.class,entity.getBoundingBox().inflate(3),
                     other->other.family().target()==entity&&Courtship.askingForRefusal(other)).stream().findFirst().orElse(null);
             if(target!=null) { task=Task.RECEIVE_COURT;courtship.resetAttempt();taskTicks=0;return true; }
-            // The round another goal cut short: he walks back to her once she is free and both are still in heat.
-            var awaiting=courtship.comeback();
-            if(awaiting!=null) { target=awaiting;task=Task.COURT;courtship.beginComeback();taskTicks=0;return true; }
-            target=level().getEntitiesOfClass(YukkuriEntity.class,entity.getBoundingBox().inflate(3),other->
+            target=courtship.comeback();
+            boolean comeback=target!=null,declined=false;
+            if(target==null)target=level().getEntitiesOfClass(YukkuriEntity.class,entity.getBoundingBox().inflate(3),other->
                     SettlementSeasons.mayCourt(entity)&&entity.getUUID().compareTo(other.getUUID())<0
-                            &&other.family().task()==Task.NONE&&!data.busyParent(other.getUUID())&&canReproduceWith(other))
+                            &&other.family().task()==Task.NONE&&other.competingMoveGoalId()==null&&!data.busyParent(other.getUUID())&&courtship.mayStart(other)&&canReproduceWith(other))
                     .stream().findFirst().orElse(null);
-            if(target!=null&&!allowCourt(target)){target=null;return false;}
-            if(target!=null) { task=Task.COURT;courtship.resetAttempt();taskTicks=0;entity.showReaction("happy","courtship",100);return true; }
             // Nobody free will have him: an adult whose partner still stands is courted anyway, and answers with her back.
-            target=level().getEntitiesOfClass(YukkuriEntity.class,entity.getBoundingBox().inflate(3),other->
-                    other.family().task()==Task.NONE&&!data.busyParent(other.getUUID())&&courtship.refusedPairing(other))
+            if(target==null) {
+                target=level().getEntitiesOfClass(YukkuriEntity.class,entity.getBoundingBox().inflate(3),other->
+                    other.family().task()==Task.NONE&&other.competingMoveGoalId()==null&&!data.busyParent(other.getUUID())&&courtship.refusedPairing(other))
                     .stream().findFirst().orElse(null);
+                declined=target!=null;
+            }
+            var releasedGoal=comeback?courtship.consumeComeback():null;
             if(target!=null&&!allowCourt(target)){target=null;return false;}
-            if(target!=null) { task=Task.COURT;courtship.beginDecline();taskTicks=0;entity.showReaction("happy","courtship",100);return true; }
+            if(target!=null) { task=Task.COURT;courtship.beginRound(declined,releasedGoal);taskTicks=0;entity.showReaction("happy","courtship",100);return true; }
         }
         return false;
     }
@@ -1184,11 +1185,11 @@ public final class FamilyLife {
         if(FamilyData.ordinaryWildBurrow(mother,entity,home)&&!home.owns(entity.getUUID()))entity.habitat().choose(home);
     }
     public boolean canContinue() {
-        if(task==Task.COURT&&!courtship.stillWanted())return false;
-        if(task==Task.RECEIVE_COURT&&!canReproduceWith(target)&&!courtship.answeringDecline())return false;
         if(task==Task.NONE||entity.isPanicking()||entity.life().mealTicks()>0||entity.isCommandPlaying())return false;
         if(task==Task.FEED_CHILD)return feeding.canContinue();
         if(urgentNeed())return false;
+        if(task==Task.COURT&&(taskTicks>=240||courtship.receiverInterrupted()||!courtship.stillWanted()))return false;
+        if(task==Task.RECEIVE_COURT&&!canReproduceWith(target)&&!courtship.answeringDecline())return false;
         if(task==Task.FETCH_HAT)return choreHat!=null&&!choreHat.isRemoved()&&choreHat.catches()&&taskTicks<2400&&Conductor.roleOf(entity)==null;
         if(task==Task.COMFORT)return comfortTicks>0;
         // She stays settled with the unborn until a real need (above) takes her out or the birth's own beats begin.
@@ -1303,8 +1304,8 @@ public final class FamilyLife {
         if(task!=Task.NONE&&task!=Task.FOLLOW&&task!=Task.STAY_HOME&&task!=Task.WAIT_CHILD)GameplayLog.limited(entity,"family","task.stop."+task,200,
                 "task stopped task={} target={} ticks={} carriedFood={}",
                 task,target==null?null:target.getUUID(),taskTicks,feeding.carrying());
-        if(task==Task.FEED_CHILD)entity.careApproach().cancel();task=Task.NONE;target=null;searchAt=null;taskTicks=0;feeding.reset();
         courtship.reset();
+        if(task==Task.FEED_CHILD)entity.careApproach().cancel();task=Task.NONE;target=null;searchAt=null;taskTicks=0;feeding.reset();
         wait=Math.max(wait,40);
     }
     public void died() {
@@ -1317,7 +1318,7 @@ public final class FamilyLife {
             if(age<1200&&(Bonds.parentOf(other, entity))) {
                 // A newborn lost at birth: the parents stare blankly, then cry.
                 other.life().personality().experienced(Trait.BOLDNESS,-3);other.bereave(EmotionEvent.BIRTH_LOSS);
-            } else if((Bonds.careKin(entity, other)||Bonds.eitherMate(entity, other))&&entity.distanceToSqr(other)<100&&other.life().canRecognize(entity)&&other.hasLineOfSight(entity)) {
+            } else if((Bonds.careKin(entity, other)||Bonds.eitherMate(entity, other))&&!other.life().isSleeping()&&entity.distanceToSqr(other)<100&&other.life().canRecognize(entity)&&other.hasLineOfSight(entity)) {
                 // Kin and the mate who see it die grieve where they stand (no walk to the body).
                 other.life().personality().experienced(Trait.BOLDNESS,-3);other.bereave(EmotionEvent.FAMILY_DEATH);
                 GameplayLog.event(other,"family","witnessed kin death dead={} distance={} mate={}",entity.getUUID(),Math.round(other.distanceTo(entity)*10)/10.0,Bonds.eitherMate(entity, other));

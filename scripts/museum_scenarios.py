@@ -1269,22 +1269,27 @@ add('widow_repair', 'meadow', '原伴侣死后才肯和新候选配对', '原伴
     '交配许可寡妇和候选彼此都给了，但没有给原伴侣。'
     '看点：①寡妇不跟候选走：候选走近求偶，她转过身背对着他、满脸没兴趣（日志 court refused reason=partner_alive），他随即放弃、一阵子不再找她；'
     '②按聊天里的【结束原伴侣】按钮——原伴侣走真实死亡，账本记 DEAD（日志 death settled … cause=genericKill），地上留下遗骸；'
-    '③之后候选自己走近寡妇求偶，受孕时写 partnership formed … allowWidow=true（就是账本确认死亡的证据）。读数看双方 partner、发情与求偶阶段',
+    '③寡妇先露出丧失亲属的呆住、哭泣反应，反应结束后候选自己走近求偶；受孕时写 partnership formed … allowWidow=true。读数看双方 partner、发情与求偶阶段',
     '先看寡妇没跟候选走约半分钟，再点按钮；按下后约十秒到半分钟（发情期刚好结束时求偶会中断一次，之后会重来）', [
         # A glass yard keeps the three beside their own nests (a loose pet wanders off on its own); glass does not hide the bodies.
-        box(1, 0, -3, 9, 2, -3, 'minecraft:glass_pane'), box(1, 0, 9, 9, 2, 9, 'minecraft:glass_pane'),
-        box(1, 0, -2, 1, 2, 8, 'minecraft:glass_pane'), box(9, 0, -2, 9, 2, 8, 'minecraft:glass_pane'),
-        *shed(5, 0), *shed(5, 6), *large_nest(4, 0, 'mcyukkuri:large_yukkuri_nest'),
-        block(4, 0, 6, 'mcyukkuri:yukkuri_nest'), block(6, 0, 6, 'mcyukkuri:yukkuri_nest'),
-        # The original partner waits in its own pen seven blocks west: its remains must stay outside the five-block smell radius of
-        # the court, or the widow's stench flight (Cannibalism.AVOID, up to 240 ticks holding MOVE) eats the initiator's 240-tick COURT.
-        box(-10, 0, -3, -4, 2, -3, 'minecraft:glass_pane'), box(-10, 0, 3, -4, 2, 3, 'minecraft:glass_pane'),
-        box(-10, 0, -2, -10, 2, 2, 'minecraft:glass_pane'), box(-4, 0, -2, -4, 2, 2, 'minecraft:glass_pane'),
-        *shed(-7, -1),
+        box(1, 0, -2, 7, 2, -2, 'minecraft:glass_pane'), box(1, 0, 7, 7, 2, 7, 'minecraft:glass_pane'),
+        box(1, 0, -1, 1, 2, 6, 'minecraft:glass_pane'), box(7, 0, -1, 7, 2, 6, 'minecraft:glass_pane'),
+        # A single roof keeps real homes covered without pillars between the pair or the contact camera.
+        box(1, 3, -2, 7, 3, 7, 'minecraft:oak_planks'),
+        *large_nest(4, 0, 'mcyukkuri:large_yukkuri_nest'), block(5, 0, 5, 'mcyukkuri:yukkuri_nest'),
+        # Close enough to witness the real death through glass. The mate's body is grieved, not fled from.
+        box(-3, 0, -1, 0, 2, -1, 'minecraft:glass_pane'), box(-3, 0, 4, 0, 2, 4, 'minecraft:glass_pane'),
+        box(-3, 0, 0, -3, 2, 3, 'minecraft:glass_pane'), box(0, 0, 0, 0, 2, 3, 'minecraft:glass_pane'),
+        # Minecraft sight rays collide with glass. Top slabs leave a real low viewing slit:
+        # selected adult bodies are .6 high, with eyes about .32 above their feet: sight fits below .5, bodies do not.
+        box(-3, 0, -1, 0, 0, -1, 'minecraft:stone_slab[type=top]'), box(-3, 0, 4, 0, 0, 4, 'minecraft:stone_slab[type=top]'),
+        box(-3, 0, 0, -3, 0, 3, 'minecraft:stone_slab[type=top]'), box(0, 0, 0, 0, 0, 3, 'minecraft:stone_slab[type=top]'),
+        box(1, 0, -1, 1, 0, 6, 'minecraft:stone_slab[type=top]'),
+        box(-3, 3, -1, 0, 3, 4, 'minecraft:oak_planks'), block(-2, 0, 1, 'mcyukkuri:yukkuri_nest'),
         yk('reimu', 4, 2, 'widow', lead=True, uuid=_widow, label='待再配对者', boldness=15, attachment=90,
            kin=f'SexDrive:{_WIDOW_HEAT}', extra=pairing_permission(_new_partner), **pair_ready()),
         # A fresh UUID allows restarting this scene after the ledger has recorded the previous original partner's death.
-        yk('marisa', -6, 0, 'old_partner', label='原伴侣', boldness=15, attachment=90,
+        yk('marisa', -2, 2, 'old_partner', label='原伴侣', boldness=15, attachment=90,
            kin=f'Partner:{uuid_nbt(_widow)}', extra=pairing_permission(_widow), **pair_ready()),
         yk('marisa', 4, 4, 'new_partner', uuid=_new_partner, label='新候选', boldness=15, attachment=90,
            kin=f'SexDrive:{_WIDOW_HEAT}', extra=pairing_permission(_widow), **pair_ready()),
@@ -1292,14 +1297,14 @@ add('widow_repair', 'meadow', '原伴侣死后才肯和新候选配对', '原伴
         *own('widow'), *own('old_partner'), *own('new_partner'),
         f'yukkuri scenario bond {sel("widow")} {sel("new_partner")}',
         f'yukkuri scenario bond {sel("widow")} {sel("old_partner")}',
-        home('widow', 4, 0), home('old_partner', -7, -1), home('new_partner', 5, 6),
+        home('widow', 4, 0), home('old_partner', -2, 1), home('new_partner', 5, 5),
         widow_death_prompt()], env=DAY,
     give=['mcyukkuri:yukkuri_carrier 1', 'minecraft:apple 16'],
     note='不调用 mate、不预设胎次。三只都很胆小（活动半径约 10 格），所以就在自己窝边活动；寡妇的交配许可只写了候选，原伴侣因此不会在场景里立刻怀上。'
-         '原伴侣单独关在西边小围栏：它若死在寡妇脚边，遗骸的气味会把她熏到院子另一头，求偶就断了。'
+         '原伴侣单独关在近处的玻璃围栏，寡妇能看见它死亡；气味仍会影响候选，配偶自己不逃离遗骸。'
          '原伴侣在确认死亡后仍保留，直到正常受孕写入新伴侣；REMOVED 对照操作和存档重载步骤见试玩场说明。',
-    capture=dict(shots=(1, 40, 200, 600, 900, 1200, 1800), sequences=((60, 160, 2), (700, 1000, 10)),
-                 follow=sel('widow'), observe=False),
+    capture=dict(shots=(1, 40, 200, 600, 900, 1200, 1800), sequences=((60, 300, 4), (600, 720, 4), (740, 1200, 10)),
+                 follow=sel('widow'), offset=(2.5, 1.25, 2.8), observe=False),
     reads=[('读寡妇的关系与求偶阶段', f'yukkuri status {sel("widow")} raw'),
            ('读候选的关系与求偶阶段', f'yukkuri status {sel("new_partner")} raw')])
 
@@ -3611,6 +3616,7 @@ next(s for s in S if s.id == 'adult_pairing').smoke['readout'] = [f'yukkuri stat
                                                                   f'yukkuri status {sel("father")} raw']
 # The scene's own button ends the original partner; the widow may accept the candidate only once the ledger holds that death.
 _smoke('widow_repair', 3600, [r'\[family\][^\n]* court refused reason=partner_alive\b',
+                                r'\[family\] reimu[^\n]* witnessed kin death [^\n]*mate=true',
                                 r'\[body\][^\n]* death settled[^\n]*cause=genericKill\b',
                                 r'\[family\][^\n]* partnership formed [^\n]*allowWidow=true',
                                 r'\[family\][^\n]* courtship contact ended [^\n]*conceived=true'])

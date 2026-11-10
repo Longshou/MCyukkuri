@@ -13,6 +13,7 @@ import io.github.longshou.mcyukkuri.social.Bonds;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.UUID;
 import net.minecraft.core.GlobalPos;
+import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
@@ -31,18 +32,14 @@ final class Courtship {
     private static final float REFUSAL_TURN=160;
     /** How near to facing him counts as her noticing him, the beat before she turns her back. */
     private static final float REFUSAL_NOTICE=30;
-    /** Minimum ticks her refusal round is shown for, so the turn is on screen and can be read. */
-    private static final int REFUSAL_HOLD=20;
     /** Temporary arrangement and the owner-unpermitted courtship partner. */
     private UUID arranged, unauthorizedWith;
     /** This round is the refusal he came to hear; this round is his walk back to a partner another goal took from him. */
     private boolean declinedRound, returning;
-    /** The partner of the round that just started or ended (kept across the stop, where the owner has already dropped its target). */
-    private UUID roundPeer;
-    /** This side opened that round; only an initiator's interrupted round leaves it a comeback or a refusal pause. */
-    private boolean initiated;
-    /** The partner a cut-short round left him (kept until he can go back), the adult he just asked and when he may ask again. */
-    private UUID comeBack, askedUntilBy;
+    /** One failed attempt's real geometry and, only for a MOVE interruption, its named blocker. Not saved. */
+    private record FailedCourt(UUID peer, BlockPos from, BlockPos to, boolean heat, boolean ready, String receiverGoal) {}
+    private FailedCourt failed;
+    private UUID askedUntilBy;
     private long askedUntil;
     private int declineTicks;
     /** Her refusal answer has turned to look at him once; the turn away that follows is then really on screen. */
@@ -54,25 +51,44 @@ final class Courtship {
     Courtship(FamilyLife o) { this.o=o; }
     UUID arranged() { return arranged; }
     void resetAttempt() {
-        roundPeer=o.target()==null?null:o.target().getUUID();
-        initiated=o.task()==Task.COURT;
-        resetCourtProgress();courtPathFailures=0;declinedRound=false;returning=false;declineTicks=0;comeBack=null;
+        resetCourtProgress();courtPathFailures=0;declinedRound=false;returning=false;declineTicks=0;failed=null;
         refusalFaced=false;sawNotice=false;
     }
-    /**
-     * Ending a round: a declined round leaves that adult alone for a while (the same answer is never asked again at once), and an
-     * initiator's round that never reached its contact — the cap, the pair drifting apart, the other side's own work — leaves him a
-     * comeback he can really walk back. Every exit arrives here, including a goal another behaviour displaced.
-     */
+    /** Called before FamilyLife drops its task/target. Cap and path failures never earn a comeback. */
     void reset() {
-        var peer=roundPeer==null?null:o.level().getEntity(roundPeer);
-        if(initiated&&peer instanceof YukkuriEntity mate&&o.entity().isAlive()) {
-            if(declinedRound){askedUntilBy=roundPeer;askedUntil=o.level().getGameTime()+REFUSAL_PAUSE;}
-            // One walk back per interruption: a round that is itself the comeback does not earn another.
-            else if(!returning&&o.inBreedingPeriod()&&mate.family().inBreedingPeriod()&&pairingAllowed(mate))comeBack=roundPeer;
+        var peer=o.target();
+        if(o.task()==Task.COURT&&peer!=null&&o.entity().isAlive()) {
+            if(declinedRound){askedUntilBy=peer.getUUID();askedUntil=o.level().getGameTime()+REFUSAL_PAUSE;}
+            else if(failed==null&&(courtRequiredTicks==0||courtContactTicks<courtRequiredTicks))
+                failed=failure(peer,null);
         }
         resetCourtProgress();courtPathFailures=0;declinedRound=false;returning=false;declineTicks=0;refusalFaced=false;sawNotice=false;
-        unauthorizedWith=null;roundPeer=null;initiated=false;
+        unauthorizedWith=null;
+    }
+
+    private FailedCourt failure(YukkuriEntity peer,String goal) {
+        return new FailedCourt(peer.getUUID(),o.entity().blockPosition(),peer.blockPosition(),
+                o.inBreedingPeriod()&&peer.family().inBreedingPeriod(),ready()&&peer.family().ready(),goal);
+    }
+
+    /** A failed court at unchanged geometry is not reopened by the selector's ordinary wait expiring. */
+    boolean mayStart(YukkuriEntity peer) {
+        return failed==null||!failed.peer().equals(peer.getUUID())
+                ||failed.receiverGoal()==null&&(failed.heat()!=(o.inBreedingPeriod()&&peer.family().inBreedingPeriod())
+                        ||failed.ready()!=(ready()&&peer.family().ready())
+                        ||!failed.from().equals(o.entity().blockPosition())||!failed.to().equals(peer.blockPosition()));
+    }
+
+    /** Only a receiver which was participating and actually lost MOVE can earn the one return. */
+    boolean receiverInterrupted() {
+        if(declinedRound||o.target()==null||!o.target().isAlive())return false;
+        var peer=o.target();var goal=peer.competingMoveGoalId();
+        if(goal==null)return false;
+        if(courtNearTicks>0&&o.inBreedingPeriod()&&peer.family().inBreedingPeriod()) {
+            failed=failure(peer,goal);
+            GameplayLog.event(o.entity(),"family","courtship interrupted partner={} receiverGoal={} nearTicks={}",peer.getUUID(),goal,courtNearTicks);
+        }
+        courtStopped("receiver_move_taken");return true;
     }
 
     /** Both partners read the initiator's uninterrupted server clock, never their travel time. */
@@ -114,7 +130,8 @@ final class Courtship {
     String describe() {
         return "phase="+(courtStart<0?"idle":courtContactTicks>0?"contact":courtNearTicks<=COURT_ACCEPT_TICKS?"accept":"align")
                 +" nearTicks="+courtNearTicks+" contactTicks="+courtContactTicks+" requiredTicks="+courtRequiredTicks
-                +" mother="+(courtStart<0?"pending":initiatorMother?"initiator":"receiver")+" pathFailures="+courtPathFailures;
+                +" mother="+(courtStart<0?"pending":initiatorMother?"initiator":"receiver")+" pathFailures="+courtPathFailures
+                +" returning="+returning+" failedPeer="+(failed==null?null:failed.peer())+" receiverGoal="+(failed==null?null:failed.receiverGoal());
     }
 
     void resetCourtProgress(){courtNearTicks=courtContactTicks=courtRequiredTicks=0;courtStart=courtContactStart=-1;}
@@ -142,7 +159,7 @@ final class Courtship {
     boolean ready(boolean needHome) {
         return o.adult()&&!o.sterile()&&!o.elder()&&o.recovery()==0&&o.entity().isAlive()&&!o.entity().body().dying()&&o.entity().body().coreIntact()&&!o.entity().isPanicking()
                 &&!o.entity().isCommandPlaying()&&!o.entity().operations().active()&&!o.entity().predator().active()&&!o.entity().agitation().blocksCourtship()
-                &&!o.entity().isNoAi()&&!o.entity().pet().busy()&&!o.entity().life().isSleeping()&&!o.entity().life().sedated()
+                &&!o.entity().isNoAi()&&!o.entity().pet().busy()&&!o.entity().life().isSleeping()&&!o.entity().life().sedated()&&!o.entity().grieving()
                 &&!o.entity().life().hasUrgentNeed()&&o.entity().life().nutrition()>=65&&o.entity().life().energy()>=50&&o.entity().life().hygiene()>=40
                 &&o.entity().getHealth()>=o.entity().getMaxHealth()*.8&&o.entity().body().condition().readyForReproduction()&&o.entity().life().mealTicks()==0&&(!needHome
                         ||o.nestStand()!=null);
@@ -184,11 +201,14 @@ final class Courtship {
      * shared nest area. Split out so a comeback can walk back to a partner it is no longer within the court's reach of.
      */
     private boolean pairingAllowed(YukkuriEntity other) {
+        return pairingAllowed(other,false);
+    }
+    private boolean pairingAllowed(YukkuriEntity other,boolean declined) {
         boolean arr=other.getUUID().equals(arranged)||o.entity().getUUID().equals(other.family().arrangedMate());
         if(other==o.entity()||!arr&&(o.entity().dailyLife().active()||other.dailyLife().active())||o.entity().level()!=other.level()||!ready(!arr)||!other.family().ready(!arr)
                 ||o.entity().profile().houseBody()!=other.profile().houseBody()||o.entity().profile().dangerToYukkuri()!=other.profile().dangerToYukkuri()||!arr
                         &&(!o.entity().life().canRecognize(other)||!other.life().canRecognize(o.entity())))return false;
-        if(!FamilyData.get(o.level()).canPair(o.entity(),other,true))return false;
+        if(!FamilyData.get(o.level()).canPair(o.entity(),other,true,declined))return false;
         // The aquatic kind only pairs within itself: aquatic couples are two aquatic Marisa.
         if(o.entity().profile().aquatic()!=other.profile().aquatic())return false;
         var relations=YukkuriWorldData.get(o.level());
@@ -259,22 +279,16 @@ final class Courtship {
         if(declinedRound){tickDeclined();return;}
         // The other goal must actually accept this individual, not merely happen to stand nearby.
         if(o.target().family().task()!=Task.RECEIVE_COURT||o.target().family().target()!=o.entity()) {
-            resetCourtProgress();o.entity().getNavigation().stop();
+            resetCourtProgress();
             if(o.target().family().task()!=Task.NONE){courtStopped("partner_busy");o.stop();return;}
-            // Free again and not yet answering: he really walks back over before her answer can begin.
-            if(returning&&o.taskTicks()%10==1) {
-                if(o.entity().life().navigate(o.target().blockPosition(),.8,false))courtPathFailures=0;
-                else if(++courtPathFailures>=3){courtStopped("path_failed");o.stop();}
-            }
+            if(o.entity().distanceToSqr(o.target())>2.25||!o.entity().hasLineOfSight(o.target()))approachPeer();
+            else o.entity().getNavigation().stop();
             return;
         }
         if(o.entity().distanceToSqr(o.target())>2.25||!o.entity().hasLineOfSight(o.target())||!o.target().hasLineOfSight(o.entity())
                 ||!o.supported()||!o.target().family().supported()) {
             resetCourtProgress();
-            if(o.taskTicks()%10==1) {
-                if(o.entity().life().navigate(o.target().blockPosition(),.8,false))courtPathFailures=0;
-                else if(++courtPathFailures>=3){courtStopped("path_failed");o.stop();}
-            }
+            approachPeer();
             return;
         }
         if(courtNearTicks==0){
@@ -342,9 +356,8 @@ final class Courtship {
 
     /** A pairing that only the ledger's standing partner blocks, both of them ready, in heat and free to answer. */
     private boolean declinedPairing(YukkuriEntity other) {
-        return other.isAlive()&&other.level()==o.entity().level()&&!other.dailyLife().active()
-                &&!standingPartner(o.entity())&&standingPartner(other)
-                &&ready()&&other.family().ready()&&o.inBreedingPeriod()&&other.family().inBreedingPeriod();
+        return !standingPartner(o.entity())&&standingPartner(other)&&pairingAllowed(other,true)&&withinCourtReach(other)
+                &&o.inBreedingPeriod()&&other.family().inBreedingPeriod();
     }
 
     /** A partner the ledger still holds as not dead: it blocks the pairing whether or not that partner is loaded right now. */
@@ -356,18 +369,21 @@ final class Courtship {
     }
 
     /** He walks up to her and waits where she stands: her back is the answer he came for, and he reads it from her body. */
+    private void approachPeer() {
+        if(o.taskTicks()%10!=1)return;
+        if(o.entity().life().navigate(o.target().blockPosition(),.8,false))courtPathFailures=0;
+        else if(++courtPathFailures>=3){courtStopped("path_failed");o.stop();}
+    }
+
     private void tickDeclined() {
         var peer=o.target();
         if(o.entity().distanceToSqr(peer)>2.25||!o.entity().hasLineOfSight(peer)) {
-            if(o.taskTicks()%10==1) {
-                if(o.entity().life().navigate(peer.blockPosition(),.8,false))courtPathFailures=0;
-                else if(++courtPathFailures>=3){courtStopped("path_failed");o.stop();}
-            }
+            approachPeer();
             return;
         }
         o.entity().getNavigation().stop();
         if(peer.family().task()!=Task.RECEIVE_COURT||peer.family().target()!=o.entity())return;
-        float facing=(float)(Mth.atan2(peer.getZ()-o.entity().getZ(),peer.getX()-o.entity().getX())*Mth.RAD_TO_DEG)-90;
+        float facing=(float)(Mth.atan2(o.entity().getZ()-peer.getZ(),o.entity().getX()-peer.getX())*Mth.RAD_TO_DEG)-90;
         double off=Math.abs(Mth.wrapDegrees(facing-peer.getYRot()));
         if(off<=REFUSAL_NOTICE)sawNotice=true;
         // She looked at him, then turned her back: that whole turn is the answer, and he gives up on her for a while.
@@ -397,7 +413,7 @@ final class Courtship {
             return;
         }
         float away=Mth.wrapDegrees(toward+180);
-        if(Math.abs(Mth.wrapDegrees(away-me.getYRot()))<=Face.FACE_ARRIVED&&declineTicks>REFUSAL_HOLD)o.stop();
+        if(Math.abs(Mth.wrapDegrees(away-me.getYRot()))<=Face.FACE_ARRIVED)o.stop();
         else o.face(away);
     }
 
@@ -413,25 +429,29 @@ final class Courtship {
 
     /** The partner whose own work cut the last round short, once she is free, in reach, courtable again and both still in heat. */
     YukkuriEntity comeback() {
-        if(comeBack==null)return null;
-        var mate=o.level().getEntity(comeBack);
-        // Gone or out of heat: the window for this walk back has closed.
-        if(!(mate instanceof YukkuriEntity peer)||!peer.isAlive()||!o.inBreedingPeriod()||!peer.family().inBreedingPeriod()) {
-            comeBack=null;return null;
+        if(failed==null||failed.receiverGoal()==null)return null;
+        var mate=o.level().getEntity(failed.peer());
+        if(!(mate instanceof YukkuriEntity peer)||!peer.isAlive())return null;
+        if(!o.inBreedingPeriod()||!peer.family().inBreedingPeriod()) {
+            consumeComeback();return null;
         }
-        // Busy just now: he keeps it in mind until the heat period ends.
-        return peer.family().task()==Task.NONE&&inComebackRange(peer)&&pairingAllowed(peer)?peer:null;
+        return !peer.runningGoalIds().contains(failed.receiverGoal())&&peer.competingMoveGoalId()==null
+                &&peer.family().task()==Task.NONE&&inComebackRange(peer)&&pairingAllowed(peer)?peer:null;
     }
 
-    /** He leaves for a partner another goal took him away from: a real walk back, never a second try at the same spot. */
-    void beginComeback() {
-        resetAttempt();returning=true;
-        GameplayLog.limited(o.entity(),"family","court.comeback",200,"courtship comeback partner={} distance={}",
-                roundPeer,Math.round(o.entity().distanceTo(o.target())*10)/10.0);
+    /** Consumed before the new round's permission roll, including a denied roll. */
+    String consumeComeback() {
+        var goal=failed.receiverGoal();
+        failed=new FailedCourt(failed.peer(),failed.from(),failed.to(),failed.heat(),failed.ready(),null);
+        return goal;
     }
 
-    /** This round is a refusal he will hear: her standing partner, not the walk, is what keeps the pair apart. */
-    void beginDecline() { resetAttempt();declinedRound=true; }
+    /** All initiator entries share one start after allowCourt; receiver entries join that existing round. */
+    void beginRound(boolean declined,String releasedGoal) {
+        resetAttempt();declinedRound=declined;returning=releasedGoal!=null;
+        if(returning)GameplayLog.event(o.entity(),"family","courtship comeback partner={} distance={} releasedGoal={}",
+                o.target().getUUID(),Math.round(o.entity().distanceTo(o.target())*10)/10.0,releasedGoal);
+    }
 
     /** In sight and within reach for the walk back; the court's own contact still needs the touch range. */
     private boolean inComebackRange(YukkuriEntity peer) {
@@ -442,11 +462,11 @@ final class Courtship {
         var peer=o.target();
         var mother=peer==null?null:mother(o.entity(),peer);var father=mother==null?null:mother==o.entity()?peer:o.entity();
         GameplayLog.limited(o.entity(),"family","court.stop."+reason,200,
-                "courtship stopped reason={} partner={} nearTicks={} contactTicks={} requiredTicks={} pathFailures={} distance={} rearDistance={} fatherNavDone={}",
+                "courtship stopped reason={} partner={} nearTicks={} contactTicks={} requiredTicks={} pathFailures={} distance={} rearDistance={} fatherNavDone={} receiverGoal={}",
                 reason,peer==null?null:peer.getUUID(),courtNearTicks,courtContactTicks,courtRequiredTicks,courtPathFailures,
                 peer==null?null:Math.round(o.entity().distanceTo(peer)*100)/100.0,
                 mother==null?null:Math.round(Math.sqrt(father.distanceToSqr(rearStand(mother,father)))*100)/100.0,
-                father==null?null:father.getNavigation().isDone());
+                father==null?null:father.getNavigation().isDone(),peer==null?null:peer.competingMoveGoalId());
     }
 
     void tickReceiver() {

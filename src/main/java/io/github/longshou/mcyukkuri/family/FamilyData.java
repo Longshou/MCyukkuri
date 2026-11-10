@@ -270,22 +270,26 @@ public final class FamilyData extends SavedData {
             partnerClaims.computeIfAbsent(person.partner,id->new HashSet<>()).add(person.id);
         partnerIndexDirty=false;
     }
-    private boolean availableFor(Person person,UUID other,boolean allowWidow) {
+    private boolean availableFor(Person person,UUID other,boolean allowWidow,boolean ignoreStandingPartner) {
         // An admitted returning entity may still be REMOVED until its periodic register; this is not death.
         if(person==null||person.status==Status.DEAD||person.status==Status.LOST||person.status==Status.UNBORN
                 ||person.partnerState==PartnerState.UNIMPORTED||person.partnerState==PartnerState.BLOCKED)return false;
-        if(person.partner!=null&&!person.partner.equals(other)&&!(allowWidow&&knownDead(person.partner)))return false;
+        if(!ignoreStandingPartner&&person.partner!=null&&!person.partner.equals(other)&&!(allowWidow&&knownDead(person.partner)))return false;
         for(UUID claimant:partnerClaims.getOrDefault(person.id,Set.of()))
-            if(!claimant.equals(other)&&!knownDead(claimant))return false;
+            if(!ignoreStandingPartner&&!claimant.equals(other)&&!knownDead(claimant))return false;
         return true;
     }
     /** Read eligibility after one-time migration; a single own slot may still have incoming claims. */
     boolean canPair(YukkuriEntity first,YukkuriEntity second,boolean allowWidow) {
+        return canPair(first,second,allowWidow,false);
+    }
+    /** Same admission/ledger checks; a declined court alone may ask despite the standing partner. */
+    boolean canPair(YukkuriEntity first,YukkuriEntity second,boolean allowWidow,boolean ignoreStandingPartner) {
         if(first==second||!first.isAlive()||!second.isAlive()||first.level()!=second.level()||!admitted(first)||!admitted(second))return false;
         importPartner(first);importPartner(second);
         if(partnerIndexDirty)rebuildPartnerIndex();
-        return availableFor(people.get(first.getUUID()),second.getUUID(),allowWidow)
-                &&availableFor(people.get(second.getUUID()),first.getUUID(),allowWidow);
+        return availableFor(people.get(first.getUUID()),second.getUUID(),allowWidow,ignoreStandingPartner)
+                &&availableFor(people.get(second.getUUID()),first.getUUID(),allowWidow,ignoreStandingPartner);
     }
     /** Both checks precede both writes; only successful introduce/conceive commits call this. */
     boolean pair(YukkuriEntity first,YukkuriEntity second,boolean allowWidow) {

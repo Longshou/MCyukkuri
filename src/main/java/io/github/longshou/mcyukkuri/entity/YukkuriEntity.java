@@ -779,7 +779,7 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     /** A death in the family before its eyes (a newborn lost at birth, a kin dying in sight): a blank stare, then crying and calling out (bereaved clip). */
     public void bereave(EmotionEvent loss) {
         if (level().isClientSide) return;
-        reactionTicks = 100; reactionHeld = false; reactionExpression = "surprise"; reactionEvent = "birth_lost"; mind.felt(loss);
+        reactionTicks = 100; reactionHeld = true; reactionExpression = "surprise"; reactionEvent = "birth_lost"; mind.felt(loss);
         pendingSpeech = "family_died"; pendingSpeechTicks = 32;
     }
 
@@ -1008,6 +1008,7 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     public RoamingGoal roaming() { return goals == null ? null : goals.roaming(); }
     /** Actual selector entries only; observing never starts or probes a Goal. */
     public List<String> runningGoalIds() { return goals.runningGoalIds(); }
+    public String competingMoveGoalId() { return goals.competingMoveGoalId(); }
     private YukkuriSync sync() {
         if (sync == null) sync = new YukkuriSync(this);
         return sync;

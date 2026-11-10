@@ -6,6 +6,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import java.util.function.Predicate;
 
 /**
  * Decay of remains and the smell of the dead (komicolle 11518847: the dead give off a stench only yukkuri can smell; stale filling
@@ -34,10 +35,14 @@ public final class RemainsRot {
 
     /** The strongest smelling remains whose smell reaches {@code pos}, or null. */
     public static RemainsEntity source(ServerLevel level, Vec3 pos) {
+        return source(level, pos, remains -> true);
+    }
+    /** Filter before ranking: an ignored body cannot mask another body's odor. */
+    public static RemainsEntity source(ServerLevel level, Vec3 pos, Predicate<RemainsEntity> eligible) {
         RemainsEntity best = null; float bestPressure = 0;
         for (var remains : level.getEntitiesOfClass(RemainsEntity.class, new AABB(pos, pos).inflate(radius(ROTTEN)))) {
             int stage = remains.stage();
-            if (offered(remains.data()) || remains.distanceToSqr(pos) > radius(stage) * radius(stage)) continue;
+            if (!eligible.test(remains) || offered(remains.data()) || remains.distanceToSqr(pos) > radius(stage) * radius(stage)) continue;
             float p = pressure(stage) - (float) remains.position().distanceTo(pos) * .05f;
             if (p > bestPressure) { best = remains; bestPressure = p; }
         }

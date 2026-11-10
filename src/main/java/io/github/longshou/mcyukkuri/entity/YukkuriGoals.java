@@ -46,6 +46,7 @@ import net.minecraft.world.phys.Vec3;
 
 /** Existing ordered goals and their presentation identity bindings. No second component catalogue. */
 final class YukkuriGoals {
+    private static final int FAMILY_PRIORITY = 5;
     private final YukkuriEntity owner;
     private final GoalSelector goalSelector;
     private PresentationGoals presentationGoals;
@@ -100,7 +101,7 @@ final class YukkuriGoals {
             @Override public boolean canUse() { return !owner.isPassenger() && owner.life().canEat() && super.canUse() && owner.life().personality().fear(player.getUUID()) < BondLevels.SOCIAL_FEAR_LIMIT; }
             @Override public boolean canContinueToUse() { return !owner.isPassenger() && owner.life().canEat() && super.canContinueToUse(); }
         }));
-        goalSelector.addGoal(5, landBinding(PresentationGoals.FAMILY, new FamilyGoal()));
+        goalSelector.addGoal(FAMILY_PRIORITY, landBinding(PresentationGoals.FAMILY, new FamilyGoal()));
         goalSelector.addGoal(5, new AgitationLife.BehaviorGoal(owner));
         goalSelector.addGoal(1, new AgitationLife.HeldGoal(owner));
         goalSelector.addGoal(4, landBinding(PresentationGoals.HOUSE, new HouseGoal()));
@@ -491,5 +492,11 @@ final class YukkuriGoals {
     List<String> runningGoalIds() {
         return goalSelector.getAvailableGoals().stream().filter(WrappedGoal::isRunning)
                 .map(goal -> goal.getGoal().toString() + "@" + goal.getPriority()).toList();
+    }
+    /** The actual higher-priority MOVE owner which can displace family, using the trace identity. */
+    String competingMoveGoalId() {
+        return goalSelector.getAvailableGoals().stream()
+                .filter(goal -> goal.isRunning() && goal.getPriority() < FAMILY_PRIORITY && goal.getFlags().contains(Goal.Flag.MOVE))
+                .map(goal -> goal.getGoal().toString() + "@" + goal.getPriority()).findFirst().orElse(null);
     }
 }
