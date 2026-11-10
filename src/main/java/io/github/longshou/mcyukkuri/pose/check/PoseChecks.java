@@ -9,7 +9,7 @@ import org.joml.Vector3d;
 /** Read-only, deterministic checks shared by capture and the CLI. JSON is the external evidence boundary. */
 public final class PoseChecks {
     private PoseChecks() {}
-    public static final List<String> METRICS = List.of("pass", "tilt", "gap", "wet", "held", "yaw", "posejump");
+    public static final List<String> METRICS = List.of("pass", "tilt", "gap", "wet", "held", "yaw", "posejump", "plane");
     public static JsonElement need(JsonObject o, String key) {
         if (!o.has(key) || o.get(key).isJsonNull()) throw new IllegalArgumentException("missing context: " + key);
         return o.get(key);
@@ -50,7 +50,7 @@ public final class PoseChecks {
         return new Geometry.Mesh(triangles, need(o, "closed").getAsBoolean());
     }
     private static String unit(String metric) {
-        return switch (metric) { case "pass", "wet" -> "mu"; case "tilt", "yaw" -> "deg"; case "posejump" -> "deg/s"; default -> "block"; };
+        return switch (metric) { case "pass", "wet", "plane" -> "mu"; case "tilt", "yaw" -> "deg"; case "posejump" -> "deg/s"; default -> "block"; };
     }
     private static JsonObject result(JsonObject frame, String metric) {
         var r = new JsonObject(); r.add("t", need(frame, "t")); r.addProperty("metric", metric);
@@ -82,6 +82,7 @@ public final class PoseChecks {
                 switch (metric) {
                     case "tilt" -> tilt(f, r);
                     case "pass" -> penetration(f, r);
+                    case "plane" -> plane(f, r);
                     case "gap" -> gap(f, r);
                     case "wet" -> wet(f, r);
                     case "held" -> held(f, r);
@@ -95,6 +96,23 @@ public final class PoseChecks {
             out.add(r);
         }
         return out;
+    }
+    private static void plane(JsonObject f, JsonObject r) {
+        var plane=obj(f,"plane");var normal=vector(need(plane,"normal"));double offset=n(plane,"offset");
+        if(Math.abs(normal.length()-1)>1e-6)throw new IllegalArgumentException("plane normal must be unit length");
+        var meshes=obj(f,"meshes");double minimum=Double.POSITIVE_INFINITY;String part="";
+        for(var entry:meshes.entrySet()) {
+            // Named partner/support evidence is not part of this actor.
+            if(entry.getKey().contains(".") || entry.getKey().contains("/"))continue;
+            for(var tri:need(entry.getValue().getAsJsonObject(),"triangles").getAsJsonArray())for(var vertex:tri.getAsJsonArray()) {
+                double gap=normal.dot(vector(vertex))-offset;
+                if(gap<minimum){minimum=gap;part=entry.getKey();}
+            }
+        }
+        if(!Double.isFinite(minimum))throw new IllegalArgumentException("missing actor mesh vertices");
+        r.addProperty("clearance",minimum);
+        bounded(r,Math.max(0,-minimum),0,0,part+" vs declared plane");
+        r.getAsJsonObject("band").addProperty("basis","geometry");
     }
     private static void tilt(JsonObject f, JsonObject r) {
         String contact = s(f, "contact");

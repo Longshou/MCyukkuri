@@ -66,6 +66,9 @@ def main():
     parser.add_argument('--frames', type=Path); parser.add_argument('--serve', action='store_true')
     parser.add_argument('--vertices', type=Path); parser.add_argument('--pose-out', type=Path)
     parser.add_argument('--context', type=Path, help='explicit additional frame context JSON; see pose/check/README.md')
+    parser.add_argument('--actor', help='captured actor UUID; filters frames before loading mesh evidence')
+    parser.add_argument('--from-tick', type=int); parser.add_argument('--until-tick', type=int)
+    parser.add_argument('--report', type=Path, help='write the exact checker result JSON')
     args = parser.parse_args()
     if not args.serve and not args.frames and (not args.model or not args.clip):
         parser.error('--model and --clip are required without --frames or --serve')
@@ -76,16 +79,11 @@ def main():
         request = {'metric': args.metric.split(',')}
         if args.frames:
             request['frames'] = [json.loads(line) for line in args.frames.read_text(encoding='utf-8').splitlines() if line.strip()]
-            for index, frame in enumerate(request['frames']):
-                if 'evidence' not in frame:
-                    continue
-                evidence = (args.frames.parent / frame['evidence']).resolve()
-                if evidence.parent != args.frames.parent.resolve():
-                    raise ValueError('pose evidence must be beside frames JSONL')
-                with gzip.open(evidence, 'rt', encoding='utf-8') as source:
-                    request['frames'][index] = json.load(source)
-                    if 'server' in frame:
-                        request['frames'][index]['server'] = frame['server']
+            request['frames'] = [f for f in request['frames'] if (not args.actor or f.get('u') == args.actor)
+                                 and (args.from_tick is None or f['t'] >= args.from_tick)
+                                 and (args.until_tick is None or f['t'] <= args.until_tick)]
+            if not request['frames']:
+                raise ValueError('no frames in requested actor/tick interval')
         else:
             request.update(model=args.model, clip=args.clip, t=args.t, partner=args.partner)
         for key in ('water', 'vertices', 'pose_out'):
@@ -96,11 +94,46 @@ def main():
             request['care'] = [float(v) for v in args.care.split(',')]
         if args.context:
             request['context'] = json.loads(args.context.read_text(encoding='utf-8'))
-        completed = subprocess.run(command, input=json.dumps(request, allow_nan=False), text=True, encoding='utf-8', stdout=subprocess.PIPE)
-        print(completed.stdout, end='')
-        if completed.returncode:
-            return completed.returncode
-        result = json.loads(completed.stdout)
+        def evidence(frame):
+            if 'evidence' in frame:
+                path = (args.frames.parent / frame['evidence']).resolve()
+                if path.parent != args.frames.parent.resolve():
+                    raise ValueError('pose evidence must be beside frames JSONL')
+                with gzip.open(path, 'rt', encoding='utf-8') as source:
+                    full = json.load(source)
+                if 'server' in frame:
+                    full['server'] = frame['server']
+                frame = full
+            frame.update(request.get('context', {}))
+            return frame
+        # Plane checks have no temporal state. Keep one mesh snapshot in memory for long captures.
+        if args.frames and request['metric'] == ['plane']:
+            result = dict(source='frames', results=[])
+            with subprocess.Popen(command + ['--serve'], stdin=subprocess.PIPE, stdout=subprocess.PIPE,
+                                  text=True, encoding='utf-8') as process:
+                try:
+                    for frame in request['frames']:
+                        process.stdin.write(json.dumps(dict(frames=[evidence(frame)], metric=['plane']), allow_nan=False)+'\n')
+                        process.stdin.flush()
+                        reply = json.loads(process.stdout.readline())
+                        if 'error' in reply:
+                            raise ValueError(reply['error'])
+                        result['results'].extend(reply['results'])
+                finally:
+                    process.stdin.close()
+                code = process.wait()
+            output = json.dumps(result, ensure_ascii=False)+'\n'
+        else:
+            if args.frames:
+                request['frames'] = [evidence(frame) for frame in request['frames']]
+            completed = subprocess.run(command, input=json.dumps(request, allow_nan=False), text=True, encoding='utf-8', stdout=subprocess.PIPE)
+            output, code = completed.stdout, completed.returncode
+        print(output, end='')
+        if args.report:
+            args.report.write_text(output, encoding='utf-8')
+        if code:
+            return code
+        result = json.loads(output)
         return 2 if any(r['verdict'] == 'error' for r in result['results']) else 0
     except (OSError, ValueError, RuntimeError, subprocess.CalledProcessError) as exc:
         print(json.dumps({'error': str(exc)}, ensure_ascii=False), file=sys.stderr)

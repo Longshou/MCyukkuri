@@ -97,7 +97,8 @@ public final class Bash implements Action {
                 ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, body));
         if (hit.getType() != HitResult.Type.BLOCK || !hit.getBlockPos().equals(pane))
             return Feasibility.of(Reason.NO_CONTACT, 0, "front_obstructed");
-        double gap = hit.getLocation().distanceTo(from) - standOff(body);
+        // PaneOpening adds half the walk arrival margin outside the rotational envelope.
+        double gap = hit.getLocation().distanceTo(from) - standOff(body) - Walk.STAND_ARRIVED/2;
         return gap <= Walk.STAND_ARRIVED ? Feasibility.pass()
                 : Feasibility.of(Reason.NO_CONTACT, gap, "approach_pane_first");
     }

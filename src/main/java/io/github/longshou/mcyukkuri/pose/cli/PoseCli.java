@@ -48,7 +48,7 @@ public final class PoseCli {
                     if (at > previous && at <= times.get(i)) crossed.add(marker.getKey());
                 }
                 if (request.has("water")) { var water = new JsonObject(); water.add("point", request.get("water")); frame.add("water", water); }
-                if (metrics.contains("pass")) {
+                if (metrics.contains("pass") || metrics.contains("plane")) {
                     var meshes = model.meshes(1, new Vector3f()); var pairs = new JsonArray();
                     if (meshes.has("braid")) { var braid = pair("braid", "body"); braid.add("allowed", model.rootRing()); pairs.add(braid); }
                     for (var partner : partners.entrySet()) {
