@@ -164,8 +164,13 @@ public final class FamilyNest {
             if(shared!=null&&shared.largeNest()&&shared!=c&&e.distanceToSqr(mate)<64&&shared.canClaim(e)&&e.life().assignHome(mate.life().home()))c=shared;
         }
         if(c!=null&&!c.claim(e.getUUID())){
-            GameplayLog.event(e,"home","nest no longer fits stage/body old={} stage={}",c.getBlockPos(),e.family().stage());
-            e.life().releaseHome();c=null;
+            // claim() may already have turned a grown child out and given it a new bed; only an address still on this nest is released here.
+            var address=e.life().home();
+            if(address==null||address.pos().equals(c.getBlockPos())){
+                GameplayLog.event(e,"home","nest no longer fits stage/body old={} stage={}",c.getBlockPos(),e.family().stage());
+                e.life().releaseHome();
+            }
+            c=null;
         }
         var shelter=e.habitat().shelter();
         if(shelter!=null)shelter.enforceBedCapacity(e);
