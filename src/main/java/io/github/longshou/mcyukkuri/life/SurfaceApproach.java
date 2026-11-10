@@ -606,7 +606,11 @@ public final class SurfaceApproach {
         }
         if(current.lastStep!=null){
             // Natural path completion hands over one physical endpoint; an interrupted path never reaches here.
-            if(!arrived(actor,current.lastStep)&&direct(actor,current.lastStep,body)&&steer(actor,current.lastStep,speed))
+            if(arrived(actor,current.lastStep)){
+                haltInput(actor);current.target=null;current.lastStep=null;
+                return observed(actor,Result.ARRIVED);
+            }
+            if(direct(actor,current.lastStep,body)&&steer(actor,current.lastStep,speed))
                 return observed(actor,Result.MOVING);
             return blocked(actor,"last_step_blocked");
         }
