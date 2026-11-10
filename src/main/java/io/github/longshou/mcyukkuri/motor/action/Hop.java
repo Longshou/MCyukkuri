@@ -35,7 +35,6 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
-import java.util.function.IntFunction;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.util.Mth;
@@ -50,7 +49,7 @@ public final class Hop implements Action {
      *  clear, and the frames it is flown in differ from the forecast ones by less than this. Invisible. */
     private static final double HELD_GIVE = .01;
     private Vec3 target;
-    private IntFunction<Vec3> movingTarget;
+    private Vec3 runUp;
     private SurfaceHost seatHost;
     private Vec3 bank;
     private boolean brimOnly;
@@ -78,11 +77,25 @@ public final class Hop implements Action {
     private boolean underway;
 
     public Hop(Vec3 target) { this.target = target; seatHost = null; }
-    /** Forecast a free-ground destination before takeoff; the argument is remaining preparation ticks.
-     * Once airborne the solved arc stays committed, so a moving target can evade it. */
-    public Hop(IntFunction<Vec3> target) {
-        this(target.apply(takeoffTicks() - 1));
-        movingTarget = target;
+    /** A running takeoff keeps its ground movement during the clip's preparation. The intercepted point
+     * is committed at admission; a change of course after that can evade the hop. */
+    public Hop(YukkuriEntity body, Vec3 target) {
+        this(target);
+        runUp = BodyAbility.groundMotion(body);
+    }
+
+    /** Extrapolate a moving ground destination over preparation and the body's full spring flight. */
+    public static Vec3 intercept(YukkuriEntity body, YukkuriEntity target, Vec3 stand) {
+        double ticks = takeoffTicks() - 1 + ArcSolver.flightTicks(BodyAbility.of(body).hopHeight(), stand.y - body.getY());
+        return stand.add(BodyAbility.groundMotion(target).scale(ticks));
+    }
+
+    /** Distance admission only. An out-of-range moving target remains a chase, never an action refusal. */
+    public boolean withinReach(YukkuriEntity body) {
+        var origin = body.position().add(runUp.scale(takeoffTicks() - 1));
+        var ability = BodyAbility.of(body);
+        return target.subtract(origin).horizontalDistance()
+                <= ability.runningReach(runUp.horizontalDistance(), target.y - origin.y) + ArcSolver.REACH_SLACK;
     }
     /** Real ground contact, before the landing clip finishes recovering. */
     public boolean contacted() { return seatHost == null && completedLegs > 0; }
@@ -261,8 +274,11 @@ public final class Hop implements Action {
         var frame = anchor == null ? null : anchor.frameAfter(delay);
         float yaw = heading(body, anchor, frame == null ? start : start.scale(1 / frame.unit()),
                 frame == null ? end : end.scale(1 / frame.unit()), body.yBodyRot);
-        var result = ArcSolver.lowest(from, to, ability.hopHeight(), ability.hopReach(), ability.scale(),
-                points -> clear(body, start, anchor, hosts, points, delay, yaw), visibleRise, diagnose);
+        var result = runUp == null
+                ? ArcSolver.lowest(from, to, ability.hopHeight(), ability.hopReach(), ability.scale(),
+                        points -> clear(body, start, anchor, hosts, points, delay, yaw), visibleRise, diagnose)
+                : ArcSolver.running(from, to, ability.hopHeight(), ability.hopReach(), vec(runUp),
+                        points -> clear(body, start, anchor, hosts, points, delay, yaw));
         timing(body, "arc", started);
         return result;
     }
@@ -296,9 +312,13 @@ public final class Hop implements Action {
     private Flight solve(YukkuriEntity body, int delay, Search search) {
         return solve(body, body.position(), delay, search);
     }
-    private Flight solve(YukkuriEntity body, Vec3 from, int delay, Search search) {
+    private Flight solve(YukkuriEntity body, Vec3 start, int delay, Search search) {
         SeatTarget candidate = null;
-        if (movingTarget != null) target = movingTarget.apply(delay);
+        Vec3 from = runUp == null ? start : start.add(runUp.scale(delay));
+        if (runUp != null) {
+            if (!ground(body, start)) return new Flight(Feasibility.of(Reason.NO_SUPPORT, 0, "takeoff_support"), null, null);
+            if (!ground(body, from)) return new Flight(Feasibility.of(Reason.NO_SUPPORT, 0, "running_takeoff_support"), null, null);
+        }
         Vec3 to = target;
         if (seatHost == null && !ground(body, to))
             return new Flight(Feasibility.of(Reason.NO_SUPPORT, 0, "ground_centre"), null, null);
@@ -459,26 +479,39 @@ public final class Hop implements Action {
                 double left = seatHost.riders().local(body.getUUID()).distanceTo(entry.local()) * seatHost.frame().unit();
                 return left > SurfaceApproach.ARRIVAL ? new Running(left, TravelMode.CONSUMED) : seatFromEntry(body);
             }
-            if (crouch == 0) {
-                if (legTurn == null) {
-                    var next = solve(body, takeoff - 1);
-                    if (!next.ready().ok()) return Outcome.of(next.ready().reason(), next.ready().shortfall(), next.ready().detail());
-                    seat = next.seat();
-                    legTurn = faceLeg(body);
-                    legTurn.start(body);
+            if (runUp != null) {
+                var turn = faceLeg(body);
+                turn.start(body);
+                turn.tick(body);
+                if (++crouch < takeoff) {
+                    if (!ground(body, body.position().add(runUp))) return Outcome.of(Reason.NO_SUPPORT, 0, "run_up_support_lost");
+                    var moved = Motor.move(body, runUp, "hop_run_up");
+                    Motor.velocity(body, runUp, "hop_run_up");
+                    if (moved.distanceTo(runUp) > TOUCH) return Outcome.of(Reason.NO_ROOM, moved.distanceTo(runUp), "run_up_blocked");
+                    return new Running(takeoff - crouch, TravelMode.CONSUMED);
                 }
+            } else {
+                if (crouch == 0) {
+                    if (legTurn == null) {
+                        var next = solve(body, takeoff - 1);
+                        if (!next.ready().ok()) return Outcome.of(next.ready().reason(), next.ready().shortfall(), next.ready().detail());
+                        seat = next.seat();
+                        legTurn = faceLeg(body);
+                        legTurn.start(body);
+                    }
+                    var turning = legTurn.tick(body);
+                    if (!(turning instanceof Outcome.Done)) return turning;
+                    legTurn = null;
+                    startTick = body.level().getGameTime();
+                }
+                if (++crouch < takeoff) return new Running(takeoff - crouch, TravelMode.CONSUMED);
+                // The host can drift during preparation; face the live leg before committing its impulse.
+                legTurn = faceLeg(body);
+                legTurn.start(body);
                 var turning = legTurn.tick(body);
                 if (!(turning instanceof Outcome.Done)) return turning;
                 legTurn = null;
-                startTick = body.level().getGameTime();
             }
-            if (++crouch < takeoff) return new Running(takeoff - crouch, TravelMode.CONSUMED);
-            // The host can drift during preparation; face the live leg before committing its impulse.
-            legTurn = faceLeg(body);
-            legTurn.start(body);
-            var turning = legTurn.tick(body);
-            if (!(turning instanceof Outcome.Done)) return turning;
-            legTurn = null;
             // A supported turn can change the sole height. Solve from the position it actually left behind.
             var launch = solve(body, 0);
             if (!launch.ready().ok()) return Outcome.of(launch.ready().reason(), launch.ready().shortfall(), launch.ready().detail());
@@ -612,7 +645,8 @@ public final class Hop implements Action {
         return rest != null ? MotionPose.NONE : new MotionPose(CLIP, startTick, false);
     }
     @Override public String startDetail() { return "from=" + GameplayLog.at(from) + " to=" + (seatHost == null ? GameplayLog.at(target) : seatHost.entity().getUUID())
-            + (bank == null ? "" : " bank=" + GameplayLog.at(bank)); }
+            + (bank == null ? "" : " bank=" + GameplayLog.at(bank))
+            + (runUp == null ? "" : " runSpeed=" + runUp.horizontalDistance()); }
     @Override public String endDetail(Outcome outcome) { return String.format(Locale.ROOT, "legs=%d peak=%.2f airTicks=%d", completedLegs, peak, air); }
 
     private boolean clear(YukkuriEntity body, Vec3 from, SurfaceHost anchor, List<SurfaceHost> hosts, List<Vec> points, int delay, float yaw) {

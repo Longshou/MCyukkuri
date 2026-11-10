@@ -458,8 +458,9 @@ public final class AgitationLife {
         // The mount is taken from behind (1.12 pins the body and leans on its back): steer to the
         // point directly behind the fleeing target, not to the target itself.
         var rear = Pin.stand(entity, target);
-        if (Pin.withinReach(entity, target) && (pin == null || pin.changed(entity))) {
-            pin = new Pin(entity, target, ACT_TICKS);
+        var candidate = new Pin(entity, target, ACT_TICKS);
+        if (candidate.withinReach(entity) && (pin == null || pin.changed(entity))) {
+            pin = candidate;
             if (!entity.motor().run(motorOwner, pin)) {
                 var refusal = entity.motor().refusal();
                 pin.refused(entity, refusal != null ? refusal : new Outcome.Interrupted(entity.motor().startRefusal().reason()));

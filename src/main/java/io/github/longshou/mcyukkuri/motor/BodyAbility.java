@@ -2,7 +2,10 @@ package io.github.longshou.mcyukkuri.motor;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.motor.geom.AbilityMath;
+import io.github.longshou.mcyukkuri.motor.geom.ArcSolver;
+import io.github.longshou.mcyukkuri.motor.geom.Ballistic;
 import java.util.Locale;
+import net.minecraft.world.phys.Vec3;
 
 /** What one body can do right now: the S/E/H/I/F formulas over {@link AbilityTable} coefficients and {@link AbilityModifier} factors; the host load L is 1 when a caller knows none. */
 public record BodyAbility(boolean canJump, double hopHeight, double hopReach, double stepUp, double walkSpeed,
@@ -21,6 +24,18 @@ public record BodyAbility(boolean canJump, double hopHeight, double hopReach, do
 
     /** The pace it presses or swims with (blocks a tick): its swim speed in water, its walk speed out of it. */
     public double pace(boolean inWater) { return inWater ? swimSpeed : walkSpeed; }
+
+    /** Vanilla stores ground velocity after friction. Recover its actual last ground step, rather than
+     * relying on position/old-position whose sampling depends on the entity's tick order. */
+    public static Vec3 groundMotion(YukkuriEntity body) {
+        var below = body.getBlockPosBelowThatAffectsMyMovement();
+        double friction = body.level().getBlockState(below).getFriction(body.level(), below, body);
+        return body.getDeltaMovement().multiply(1, 0, 1).scale(1 / (friction * Ballistic.AIR_DRAG));
+    }
+
+    public double runningReach(double groundSpeed, double rise) {
+        return ArcSolver.runningReach(hopHeight, hopReach, groundSpeed, rise);
+    }
 
     /** Holding a body scales Walk and Swim by {@code 1 - .5 * heldWidth / carrierWidth}. */
     public static double carrying(YukkuriEntity body) {

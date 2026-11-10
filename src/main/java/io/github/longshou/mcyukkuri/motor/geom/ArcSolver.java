@@ -27,6 +27,28 @@ public final class ArcSolver {
 
     private ArcSolver(){}
 
+    /** A running ground hop uses the body's full spring, retaining the run's travel budget. */
+    public static double flightTicks(double hopHeight,double rise){
+        return Ballistic.airTicks(vyFor(hopHeight),rise);
+    }
+
+    public static double runningReach(double hopHeight,double hopReach,double groundSpeed,double rise){
+        return hopReach+groundSpeed*flightTicks(hopHeight,rise);
+    }
+
+    /** The takeoff adds the spring to the running body's momentum. The launch speed compensates air drag,
+     * so its reachable distance is ground speed times flight time plus the standing hop reach. */
+    public static Result running(Vec from,Vec to,double hopHeight,double hopReach,Vec groundMotion,Clearance clearance){
+        Vec delta=to.sub(from);
+        double distance=delta.hlen(),rise=delta.y();
+        if(rise>hopHeight)return new Blocked(Kind.TOO_HIGH,rise-hopHeight);
+        double reach=runningReach(hopHeight,hopReach,groundMotion.hlen(),rise);
+        if(distance>reach+REACH_SLACK)return new Blocked(Kind.TOO_FAR,distance-reach-REACH_SLACK);
+        Vec direction=distance<1e-9?new Vec(1,0,0):new Vec(delta.x()/distance,0,delta.z()/distance);
+        Plan plan=attempt(hopHeight,rise,distance,direction,clearance);
+        return plan==null?new Blocked(Kind.TOO_HIGH,REPORT_RISE):plan;
+    }
+
     /** Solves the lowest arc from {@code from} to {@code to} for the given hop budget and sweep check. */
     public static Result lowest(Vec from,Vec to,double hopHeight,double hopReach,double scale,Clearance clearance){
         return lowest(from,to,hopHeight,hopReach,scale,clearance,false,true);

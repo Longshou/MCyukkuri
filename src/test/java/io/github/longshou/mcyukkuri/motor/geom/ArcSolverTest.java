@@ -23,6 +23,41 @@ class ArcSolverTest {
         return Ballistic.samples(new Vec(p.vh()*p.dir().x(),p.vy(),p.vh()*p.dir().z()),p.ticks());
     }
 
+    @Test void runningHopCarriesTheRunBeyondStandingReachAndLandsWithoutAHeightIncrease(){
+        double speed=.17;
+        double flight=Ballistic.airTicks(ArcSolver.vyFor(HOP_HEIGHT),0);
+        double reach=ArcSolver.runningReach(HOP_HEIGHT,HOP_REACH,speed,0);
+        assertEquals(HOP_REACH+speed*flight,reach,TOL);
+        assertTrue(reach>2,"the running body must not be capped at its standing reach");
+        var plan=assertInstanceOf(ArcSolver.Plan.class,
+                ArcSolver.running(Vec.ZERO,new Vec(reach,0,0),HOP_HEIGHT,HOP_REACH,new Vec(speed,0,0),OPEN));
+        assertEquals(flight,plan.ticks(),TOL);
+        assertEquals(HOP_HEIGHT,plan.apex(),TOL);
+        assertTrue(plan.vh()>speed,"the spring adds to the retained running speed");
+        assertEquals(reach,sweep(plan).getLast().x(),.02);
+        assertEquals(0,sweep(plan).getLast().y(),TOL);
+    }
+
+    @Test void runningReachDoesNotInventRunSpeedOrAllowOutOfRangeTargets(){
+        assertEquals(HOP_REACH,ArcSolver.runningReach(HOP_HEIGHT,HOP_REACH,0,0),TOL);
+        var stopped=assertInstanceOf(ArcSolver.Blocked.class,
+                ArcSolver.running(Vec.ZERO,new Vec(2,0,0),HOP_HEIGHT,HOP_REACH,Vec.ZERO,OPEN));
+        assertEquals(ArcSolver.Kind.TOO_FAR,stopped.kind());
+        double reach=ArcSolver.runningReach(HOP_HEIGHT,HOP_REACH,.17,0);
+        var far=assertInstanceOf(ArcSolver.Blocked.class,
+                ArcSolver.running(Vec.ZERO,new Vec(reach+.1,0,0),HOP_HEIGHT,HOP_REACH,new Vec(.17,0,0),OPEN));
+        assertEquals(ArcSolver.Kind.TOO_FAR,far.kind());
+    }
+
+    @Test void runningReachStillRejectsAWallAndAnUnreachableLandingHeight(){
+        var wall=assertInstanceOf(ArcSolver.Blocked.class,
+                ArcSolver.running(Vec.ZERO,new Vec(2,0,0),HOP_HEIGHT,HOP_REACH,new Vec(.17,0,0),gate(.5,1.5,1)));
+        assertEquals(ArcSolver.Kind.TOO_HIGH,wall.kind());
+        var high=assertInstanceOf(ArcSolver.Blocked.class,
+                ArcSolver.running(Vec.ZERO,new Vec(1,1,0),HOP_HEIGHT,HOP_REACH,new Vec(.17,0,0),OPEN));
+        assertEquals(ArcSolver.Kind.TOO_HIGH,high.kind());
+    }
+
     @Test void hullLegKeepsTheLowestClearanceAndAGroundHopJumps(){
         var lowest=assertInstanceOf(ArcSolver.Plan.class,ArcSolver.lowest(Vec.ZERO,new Vec(.5,0,0),HOP_HEIGHT,HOP_REACH,1,OPEN));
         assertEquals(Ballistic.GRAVITY,lowest.apex(),TOL);

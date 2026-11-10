@@ -11,7 +11,6 @@ import io.github.longshou.mcyukkuri.motor.Progress;
 import io.github.longshou.mcyukkuri.motor.Reason;
 import io.github.longshou.mcyukkuri.motor.Running;
 import io.github.longshou.mcyukkuri.motor.TravelMode;
-import io.github.longshou.mcyukkuri.motor.geom.ArcSolver;
 import io.github.longshou.mcyukkuri.motor.geom.PinContact;
 import io.github.longshou.mcyukkuri.motor.geom.Vec;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
@@ -24,7 +23,7 @@ public final class Pin implements Action {
     private final YukkuriEntity target;
     private final int duration;
     private final Hop hop;
-    private Vec3 landing;
+    private final Vec3 landing;
     private Vec3 from, failedFrom, failedTarget;
     private int ticks;
     private boolean contact;
@@ -33,23 +32,8 @@ public final class Pin implements Action {
     public Pin(YukkuriEntity body, YukkuriEntity target, int duration) {
         this.target = target;
         this.duration = duration;
-        hop = new Hop(delay -> landing = intercept(body, target, delay));
-    }
-
-    /** Forecast only: the shared Hop still checks the actual swept arc at takeoff. Three fixed-point
-     * passes refine flight time against a moving ground point; a dodge after launch remains a miss. */
-    private static Vec3 intercept(YukkuriEntity body, YukkuriEntity target, int delay) {
-        Vec3 rear = stand(body, target), aim = rear;
-        Vec3 motion = target.position().subtract(target.xo, target.yo, target.zo).multiply(1, 0, 1);
-        var ability = BodyAbility.of(body);
-        var from = new Vec(body.getX(), body.getY(), body.getZ());
-        for (int i = 0; i < 3; i++) {
-            var arc = ArcSolver.lowest(from, new Vec(aim.x, aim.y, aim.z), ability.hopHeight(),
-                    ability.hopReach(), ability.scale(), points -> true, true, false);
-            if (!(arc instanceof ArcSolver.Plan plan)) break;
-            aim = rear.add(motion.scale(delay + plan.ticks()));
-        }
-        return aim;
+        landing = Hop.intercept(body, target, stand(body, target));
+        hop = new Hop(body, landing);
     }
 
     /** Tangency of the two collision boxes along the target's rear bearing; neither body overlaps at release. */
@@ -60,10 +44,8 @@ public final class Pin implements Action {
         return target.position().subtract(forward.scale(spacing));
     }
 
-    /** Start only within this body's own leap reach. Admission still checks the complete swept arc. */
-    public static boolean withinReach(YukkuriEntity body, YukkuriEntity target) {
-        return body.position().distanceTo(stand(body, target)) <= BodyAbility.of(body).hopReach();
-    }
+    /** A prediction outside running reach is not an attempt; full admission still checks ground and sweep. */
+    public boolean withinReach(YukkuriEntity body) { return hop.withinReach(body); }
 
     /** A failed attempt cannot be restarted at the same geometry: at least half a body width must change. */
     public boolean changed(YukkuriEntity body) {
@@ -96,8 +78,8 @@ public final class Pin implements Action {
         from = body.position();
         body.getNavigation().stop();
         hop.start(body);
-        GameplayLog.event(body, "agitation", "pounce start target={} distance={} reason=chase",
-                target.getUUID(), from.distanceTo(landing));
+        GameplayLog.event(body, "agitation", "pounce start target={} distance={} reason=chase {}",
+                target.getUUID(), from.distanceTo(landing), hop.startDetail());
     }
 
     @Override public Progress tick(YukkuriEntity body) {
