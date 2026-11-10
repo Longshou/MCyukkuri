@@ -10,6 +10,7 @@
 | --- | --- | --- |
 | 生3 成体撞碎玻璃板（共享动作）与住家宣言破窗入空屋 | `.worktrees/wp-el-pane-bash` | motor/action/（新撞击动作）、event/HomeClaim.java、event/HomeClaimGoal.java、scripts/museum_scenarios.py（新增一场） |
 | 载乘时转身平滑：魔理沙帽檐载赤油不再每 tick 甩头 65–82° | `.worktrees/wp-ex-carrier-turn` | motor/（转向速率，按实际归属）、family/ParentCarry.java（只读或最小改动） |
+| 接生父油安慰摔伤新生儿时不挡母油出口，下一只不因此丢失 | `.worktrees/wp-ey-birth-outlet-comfort` | family/FamilyLife.java（birthRole 护理让路）、family/LiveBirth.java（出口判定只读） |
 
 ## 玩法待办
 
