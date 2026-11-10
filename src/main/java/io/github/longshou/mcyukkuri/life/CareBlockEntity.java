@@ -148,6 +148,8 @@ public final class CareBlockEntity extends BlockEntity implements Container {
     @Override protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.saveAdditional(tag, registries);
         ContainerHelper.saveAllItems(tag, items, registries);
+        // Keep the existing data-command readout; only WastePortions owns loaded contents.
+        tag.putDouble("Waste", waste());
         var portions=new ListTag();wastePortions.forEach(stack->portions.add(stack.save(registries)));tag.put("WastePortions",portions);
         if (resident() != null) {tag.putUUID("Resident", resident());tag.putInt("ResidentStage",residents.get(resident()));}
         tag.put("RestingPlaces",NestResting.save(resting));
