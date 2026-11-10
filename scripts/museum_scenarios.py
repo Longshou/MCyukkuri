@@ -1203,26 +1203,32 @@ def widow_death_prompt():
     """A player-pressed, real death of the original partner: the ledger records DEAD and only then may the candidate pair with her."""
     kill = f'/execute positioned ~ ~ ~ run kill @e[tag={tag("old_partner")},distance=..140,limit=1,sort=nearest]'
     return 'tellraw @s ' + json.dumps([
-        {'text': '看过同窝与候选被拒后点 ', 'color': 'gray'},
+        {'text': '看过寡妇没跟候选走后点 ', 'color': 'gray'},
         {'text': '【结束原伴侣】', 'color': 'red', 'bold': True, 'clickEvent': {'action': 'run_command', 'value': kill}},
         {'text': '（真实死亡，账本记 DEAD），再等候选自己求偶。', 'color': 'gray'}], ensure_ascii=False, separators=(',', ':'))
 
 
 add('widow_repair', 'meadow', '原伴侣死后才肯和新候选配对', '原伴侣死后才肯和新候选配对',
-    '玻璃围栏里一张大窝住着一对真伴侣（寡妇与原伴侣，两只床位都在这个窝），南边小棚里是候选的窝。寡妇与候选都在发情期（1 分钟），交配许可彼此都给了，但没有给原伴侣。'
-    '看点：①两人同窝贴着坐、寡妇不跟候选走（原伴侣在世时她不会与候选配对；拒绝的可见演出由 wp-ep 补）；'
+    '东边玻璃院子里寡妇守着自己的大窝，候选在小棚的窝里，两只都在发情期（1 分钟）；西边小围栏里是她的原伴侣（读数里寡妇的 partner 指向它）。'
+    '交配许可寡妇和候选彼此都给了，但没有给原伴侣。'
+    '看点：①寡妇不跟候选走或接受（原伴侣在世时她不会与候选配对；拒绝的可见演出由 wp-ep 补）；'
     '②按聊天里的【结束原伴侣】按钮——原伴侣走真实死亡，账本记 DEAD（日志 death settled … cause=genericKill），地上留下遗骸；'
     '③之后候选自己走近寡妇求偶，受孕时写 partnership formed … allowWidow=true（就是账本确认死亡的证据）。读数看双方 partner、发情与求偶阶段',
-    '先看同窝与候选被拒约半分钟，再点按钮；按下后约半分钟至两分钟（发情期刚好结束时求偶会中断一次，之后会重来）', [
+    '先看寡妇没跟候选走约半分钟，再点按钮；按下后约十秒到半分钟（发情期刚好结束时求偶会中断一次，之后会重来）', [
         # A glass yard keeps the three beside their own nests (a loose pet wanders off on its own); glass does not hide the bodies.
         box(1, 0, -3, 9, 2, -3, 'minecraft:glass_pane'), box(1, 0, 9, 9, 2, 9, 'minecraft:glass_pane'),
         box(1, 0, -2, 1, 2, 8, 'minecraft:glass_pane'), box(9, 0, -2, 9, 2, 8, 'minecraft:glass_pane'),
         *shed(5, 0), *shed(5, 6), *large_nest(4, 0, 'mcyukkuri:large_yukkuri_nest'),
         block(4, 0, 6, 'mcyukkuri:yukkuri_nest'), block(6, 0, 6, 'mcyukkuri:yukkuri_nest'),
+        # The original partner waits in its own pen seven blocks west: its remains must stay outside the five-block smell radius of
+        # the court, or the widow's stench flight (Cannibalism.AVOID, up to 240 ticks holding MOVE) eats the initiator's 240-tick COURT.
+        box(-10, 0, -3, -4, 2, -3, 'minecraft:glass_pane'), box(-10, 0, 3, -4, 2, 3, 'minecraft:glass_pane'),
+        box(-10, 0, -2, -10, 2, 2, 'minecraft:glass_pane'), box(-4, 0, -2, -4, 2, 2, 'minecraft:glass_pane'),
+        *shed(-7, -1),
         yk('reimu', 4, 2, 'widow', lead=True, uuid=_widow, label='待再配对者', boldness=15, attachment=90,
            kin=f'SexDrive:{_WIDOW_HEAT}', extra=pairing_permission(_new_partner), **pair_ready()),
         # A fresh UUID allows restarting this scene after the ledger has recorded the previous original partner's death.
-        yk('marisa', 5, 2, 'old_partner', label='原伴侣', boldness=15, attachment=90,
+        yk('marisa', -6, 0, 'old_partner', label='原伴侣', boldness=15, attachment=90,
            kin=f'Partner:{uuid_nbt(_widow)}', extra=pairing_permission(_widow), **pair_ready()),
         yk('marisa', 4, 4, 'new_partner', uuid=_new_partner, label='新候选', boldness=15, attachment=90,
            kin=f'SexDrive:{_WIDOW_HEAT}', extra=pairing_permission(_widow), **pair_ready()),
@@ -1230,10 +1236,11 @@ add('widow_repair', 'meadow', '原伴侣死后才肯和新候选配对', '原伴
         *own('widow'), *own('old_partner'), *own('new_partner'),
         f'yukkuri scenario bond {sel("widow")} {sel("new_partner")}',
         f'yukkuri scenario bond {sel("widow")} {sel("old_partner")}',
-        home('widow', 4, 0), home('old_partner', 4, 0), home('new_partner', 5, 6),
+        home('widow', 4, 0), home('old_partner', -7, -1), home('new_partner', 5, 6),
         widow_death_prompt()], env=DAY,
     give=['mcyukkuri:yukkuri_carrier 1', 'minecraft:apple 16'],
-    note='不调用 mate、不预设胎次。三只都很胆小（活动半径约 10 格），所以就在自己窝边活动；寡妇的交配许可只写了候选，老伴侣因此不会在场景里立刻怀上。'
+    note='不调用 mate、不预设胎次。三只都很胆小（活动半径约 10 格），所以就在自己窝边活动；寡妇的交配许可只写了候选，原伴侣因此不会在场景里立刻怀上。'
+         '原伴侣单独关在西边小围栏：它若死在寡妇脚边，遗骸的气味会把她熏到院子另一头，求偶就断了。'
          '原伴侣在确认死亡后仍保留，直到正常受孕写入新伴侣；REMOVED 对照操作和存档重载步骤见试玩场说明。',
     reads=[('读寡妇的关系与求偶阶段', f'yukkuri status {sel("widow")} raw'),
            ('读候选的关系与求偶阶段', f'yukkuri status {sel("new_partner")} raw')])
