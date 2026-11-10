@@ -2,6 +2,7 @@ package io.github.longshou.mcyukkuri.item;
 
 import io.github.longshou.mcyukkuri.body.FillingResource;
 import io.github.longshou.mcyukkuri.body.DetachedItems;
+import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.house.HouseNestBlockEntity;
 import io.github.longshou.mcyukkuri.house.HouseholdEcology;
@@ -62,6 +63,7 @@ public final class WashClothItem extends Item {
                 HouseholdEcology.cleaned((ServerLevel)context.getLevel(),context.getClickedPos());
                 if(dismantle)context.getLevel().removeBlock(context.getClickedPos(),false);
                 if(removed>0){if(water(context.getItemInHand())>0)useWater(context.getItemInHand());var waste=new ItemStack(ModItems.WASTE.get(),removed);
+                    GameplayLog.world((ServerLevel)context.getLevel(),"needs","waste recovered source=nest at={} volume={} -> 0 yieldVolume={}",context.getClickedPos(),removed,removed);
                     if(context.getPlayer()!=null)SupplyPiles.give(context.getPlayer(),waste);
                     else Block.popResource(context.getLevel(),context.getClickedPos(),waste);}}
             return InteractionResult.sidedSuccess(context.getLevel().isClientSide);
@@ -98,6 +100,7 @@ public final class WashClothItem extends Item {
                 for(var item:loose){removed+=SupplyPiles.waste(item.getItem())?DetachedItems.volume(item.getItem()):item.getItem().getCount();item.discard();}
                 HouseholdEcology.cleaned((ServerLevel)level,center);
                 if(removed>0){
+                    GameplayLog.world((ServerLevel)level,"needs","waste recovered source=sweep at={} volume={} -> 0 yieldVolume={}",center,removed,removed);
                     SupplyPiles.give(player,DetachedItems.waste(removed));if(water(context.getItemInHand())>0)useWater(context.getItemInHand());
                 }
                 player.displayClientMessage(Component.translatable("house.mcyukkuri.supplies.cleaned",removed),true);

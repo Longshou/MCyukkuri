@@ -53,8 +53,8 @@ public final class PoopBlock extends Block implements EntityBlock {
         if (!player.getMainHandItem().isEmpty()) return InteractionResult.PASS;
         if (!level.isClientSide && level.getBlockEntity(pos) instanceof PoopBlockEntity poop) {
             if (player.isSecondaryUseActive()) {
-                int taken = 0;
-                for (var portion : poop.drain()) { SupplyPiles.give(player, portion); taken++; }
+                double taken = poop.count();
+                for (var portion : poop.drain()) SupplyPiles.give(player, portion);
                 level.removeBlock(pos, false);
                 player.displayClientMessage(Component.translatable("care.mcyukkuri.poop.gathered", taken), true);
             } else player.displayClientMessage(Component.translatable("care.mcyukkuri.poop.level", poop.count(), Poops.CAPACITY), true);

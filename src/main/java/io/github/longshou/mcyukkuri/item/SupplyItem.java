@@ -2,6 +2,7 @@ package io.github.longshou.mcyukkuri.item;
 
 import io.github.longshou.mcyukkuri.house.SupplyPileBlockEntity;
 import io.github.longshou.mcyukkuri.house.SupplyPiles;
+import io.github.longshou.mcyukkuri.body.DetachedItems;
 import java.util.List;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -27,8 +28,9 @@ public final class SupplyItem extends Item {
         int limit=player!=null&&player.isSecondaryUseActive()?8:1;
         int accepted=SupplyPiles.offer(level,pos,stack,limit);
         if(accepted>0){
+            double volume=DetachedItems.volume(stack.copyWithCount(accepted));
             if(player==null||!player.getAbilities().instabuild)stack.shrink(accepted);
-            if(player!=null)player.displayClientMessage(Component.translatable("house.mcyukkuri.supplies.placed",accepted),true);
+            if(player!=null)player.displayClientMessage(Component.translatable("care.mcyukkuri.waste.placed",volume),true);
         }else if(player!=null)player.displayClientMessage(Component.translatable("house.mcyukkuri.supplies.blocked"),true);
     }
     @Override public InteractionResult useOn(UseOnContext context){
@@ -43,6 +45,7 @@ public final class SupplyItem extends Item {
     }
     @Override public void appendHoverText(ItemStack stack,TooltipContext context,List<Component> tooltip,TooltipFlag flag){
         if(SupplyPiles.waste(stack)){
+            tooltip.add(Component.translatable("care.mcyukkuri.waste.volume",DetachedItems.volume(stack)));
             tooltip.add(Component.translatable("house.mcyukkuri.supplies.waste_sink"));
             tooltip.add(Component.translatable("house.mcyukkuri.supplies.controls"));
         }else tooltip.add(Component.translatable("house.mcyukkuri.supplies.internal"));

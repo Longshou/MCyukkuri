@@ -2,6 +2,8 @@ package io.github.longshou.mcyukkuri.house;
 
 import io.github.longshou.mcyukkuri.registry.ModBlocks;
 import io.github.longshou.mcyukkuri.body.DetachedItems;
+import io.github.longshou.mcyukkuri.status.GameplayLog;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -40,14 +42,17 @@ public final class SupplyPileBlockEntity extends BlockEntity {
         double unit=SupplyPiles.waste(stack)?DetachedItems.volume(stack)/stack.getCount():1;
         int amount=Math.min(Math.min(stack.getCount(),Math.max(0,limit)),(int)Math.floor((CAPACITY-volume())/unit));
         if(amount==0)return 0;
+        double before=volume();
         if(contents.isEmpty())contents=stack.copyWithCount(amount);else contents.grow(amount);
+        if(SupplyPiles.waste(contents))GameplayLog.world((ServerLevel)level,"needs","waste stored at={} volume={} -> {}",worldPosition,before,volume());
         touched=level.getGameTime();changed();return amount;
     }
     public ItemStack takeOne(){return take(1);}
     public ItemStack takeAll(){return take(count());}
     private ItemStack take(int amount){
         if(level==null||level.isClientSide||isRemoved())return ItemStack.EMPTY;
-        var taken=contents.split(amount);
+        double before=volume();var taken=contents.split(amount);
+        if(SupplyPiles.waste(taken))GameplayLog.world((ServerLevel)level,"needs","waste taken at={} volume={} -> {}",worldPosition,before,volume());
         if(contents.isEmpty())level.removeBlock(worldPosition,false);else{touched=level.getGameTime();changed();}
         return taken;
     }
@@ -57,7 +62,8 @@ public final class SupplyPileBlockEntity extends BlockEntity {
         take(1);
     }
     /** Used by block removal after the stock has been cleared, preventing duplicate drops. */
-    public ItemStack drain(){var result=contents;contents=ItemStack.EMPTY;setChanged();return result;}
+    public ItemStack drain(){var result=contents;contents=ItemStack.EMPTY;setChanged();
+        if(SupplyPiles.waste(result))GameplayLog.world((ServerLevel)level,"needs","waste drained at={} volume={} -> 0",worldPosition,DetachedItems.volume(result));return result;}
     private void changed(){setChanged();level.sendBlockUpdated(worldPosition,getBlockState(),getBlockState(),3);}
     @Override protected void saveAdditional(CompoundTag tag,HolderLookup.Provider registries){
         super.saveAdditional(tag,registries);tag.putInt("Version",3);tag.putLong("Touched",touched);
