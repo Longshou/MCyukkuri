@@ -5471,7 +5471,7 @@
           "closed_smile"
         ]
       ],
-      "lore": "Project design (user 2026-11-04: babies that do not fit the basin, or have grown, go on her head; modelled on the brim set-down, the braid's endpoint on her head instead of the brim). braid_cradle_lift's structure and markers: she leans to her braid side to take the child (contact_closed), comes upright and sinks a little as the braid raises it over her head (lift_start..lift_end), swings it in over the crown (over_end), sets it on the hair top with a small weight bob (place) and lets go (release). The server owns the child's path; the braid follows the held child at run time. After the release the braid turns back off her crown to its rest over the brim (a \"turn\" key, root first, over 0.7 s: braid_head_take's rise played back).",
+      "lore": "Project design (user 2026-11-04: babies that do not fit the basin, or have grown, go on her head; modelled on the brim set-down, the braid's endpoint on her head instead of the brim). braid_cradle_lift's structure and markers: she leans to her braid side to take the child (contact_closed), comes upright and sinks a little as the braid raises it over her head (lift_start..lift_end), swings it in over the crown (over_end), sets it on the hair top with a small weight bob (place) and lets go (release). The server owns the child's path; the braid follows the held child at run time. After the release the braid lifts off her crown out over her braid side (laid on the arc, 0.3 s) and turns down to its rest over the brim (a \"turn\" key, root first, 0.4 s: braid_head_take's rise played back); a straight turn crown -> rest would swing it through her forehead.",
       "triggers": [
         "ParentCarry HEAD set-down (parent)"
       ],
@@ -5536,6 +5536,12 @@
           0.5
         ],
         [
+          2.6,
+          9.0,
+          15.5,
+          -2.0
+        ],
+        [
           3.0,
           "rest",
           "turn"
@@ -5564,7 +5570,7 @@
           "neutral"
         ]
       ],
-      "lore": "Project design: braid_head_set run backwards through its own markers (mirror: [take second, set second]); the braid closes on the head rider (contact_closed), lifts it off the crown (lift_end), swings it out on the braid side (over_end), lowers it to the destination (place) and lets go (release). The server owns the path. The braid rises off its rest over the brim onto her crown over 0.7 s as a \"turn\" key (tuft first, then the root; braid_head_set's return after its release is the same turn played back): laid on the arc, the bulge would flip side as the chord swings through upright and whip the braid round.",
+      "lore": "Project design: braid_head_set run backwards through its own markers (mirror: [take second, set second]); the braid closes on the head rider (contact_closed), lifts it off the crown (lift_end), swings it out on the braid side (over_end), lowers it to the destination (place) and lets go (release). The server owns the path. The braid rises off its rest over the brim to a point out over her braid side above the brim as a \"turn\" key (0.45 s, tuft first, then the root), then is laid on the arc in onto her crown (0.25 s; braid_head_set's return after its release is the same played back): laid on the arc, the bulge would flip side as the chord swings through upright and whip the braid round.",
       "triggers": [
         "ParentCarry HEAD pick-up (parent)"
       ],
@@ -5626,11 +5632,17 @@
           "rest"
         ],
         [
+          0.45,
+          9.0,
+          15.5,
+          -2.0,
+          "turn"
+        ],
+        [
           0.7,
           1.5,
           12.6,
-          0.5,
-          "turn"
+          0.5
         ],
         [
           1.1,
