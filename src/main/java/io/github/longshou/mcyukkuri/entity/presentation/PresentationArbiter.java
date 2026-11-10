@@ -316,7 +316,7 @@ public final class PresentationArbiter {
             boolean contactGoal = behavior.equals(Behaviors.PEER) || behavior.equals(Behaviors.SEEK_AFFECTION)
                     || behavior.equals(Behaviors.NUZZLE) || behavior.equals(Behaviors.SING)
                     || behavior.equals(Behaviors.LISTEN_SONG) || behavior.equals(Behaviors.EXERCISE_WATCH)
-                    || behavior.equals(Behaviors.UNUN_EXERCISE) || e.isPassenger();
+                    || behavior.equals(Behaviors.UNUN_EXERCISE);
             if (contactGoal && e.social().greeting()) {
                 state.animationId(e.social().greetingClip());
                 state.animationStart(e.social().greetStart());
