@@ -618,12 +618,13 @@ final class LiveBirth extends Choreography {
             /** At its stand: arrived the first time; once settled, jostled by no more than the walking slack the stand keeps from
              *  the brim (Walk.STAND_ARRIVED within HatGeometry.STAND_MARGIN), so a bump never sends it round on a step back. */
             private boolean there(){return settled?c.position().subtract(at).horizontalDistance()<=Walk.STAND_ARRIVED:SurfaceApproach.arrived(c,at);}
+            private boolean facingWatch(){return Math.abs(Mth.wrapDegrees(SurfaceApproach.yaw(c.position(),watchPoint())-c.yBodyRot))<=Face.FACE_ARRIVED;}
             @Override public Step next(){
                 if(!there())return new Step.Do(labour?Walk.around(at,o.entity()):new Walk(at));
                 // Turned the way its eyes look, from where it really stands (the look control's own bearing): the body follows the
                 // head there by itself, so a turn is owed only on arrival or when what it watches has moved.
-                var look=watchPoint();float yaw=SurfaceApproach.yaw(c.position(),look);
-                if(Math.abs(Mth.wrapDegrees(yaw-c.yBodyRot))>Face.FACE_ARRIVED)return new Step.Do(new Face(yaw));
+                var look=watchPoint();
+                if(!facingWatch())return new Step.Do(new Face(SurfaceApproach.yaw(c.position(),look)));
                 if(!settled){
                     settled=true;
                     GameplayLog.limited(c,"choreo","catcher_attending."+id,1200,"catcher attending yaw={} stand={} look={} beat={} hat={}",
@@ -631,8 +632,7 @@ final class LiveBirth extends Choreography {
                 }
                 var hello=c.family().greetHop();
                 if(hello!=null&&!hello.equals(hopped)){hopped=hello;return new Step.Do(new Gesture(Gesture.Kind.HOP_SMALL));}
-                long end=Math.min(until,now()+20);
-                return new Step.Wait(()->now()>=end||!there()||c.family().greetHop() instanceof Welcome w&&!w.equals(hopped),(int)(end-now())+2,"attend");
+                return new Step.Wait(()->!there()||!facingWatch()||c.family().greetHop() instanceof Welcome w&&!w.equals(hopped),(int)(until-now())+1,"attend");
             }
         }
     }
