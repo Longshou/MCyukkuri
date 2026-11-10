@@ -38,9 +38,9 @@ public final class YukkuriStatus {
 
     public static void identityChanged(YukkuriEntity y, Identity before, String cause) {
         var after = identity(y);
+        if (before == after) return;
         y.syncComponentData(StatusLife.IDENTITY, after.translationKey());
-        if (before != after)
-            GameplayLog.event(y, "identity", "changed from={} to={} cause={}", before.id(), after.id(), cause);
+        GameplayLog.event(y, "identity", "changed from={} to={} cause={}", before.id(), after.id(), cause);
     }
 
     public static Object get(YukkuriEntity y, StatusKey key) { return key.read(y); }

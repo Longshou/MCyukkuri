@@ -3751,6 +3751,9 @@ _smoke('social_identity', 240, [
     rf'\[status\] {species} #[^\n]* identity observed kind={kind}\b'
     for species, kind in (('reimu', 'pet'), ('marisa', 'stray'), ('patchouli', 'wild_settlement'), ('chen', 'wild_family'))],
     readout=[f'yukkuri status {sel("identity_" + kind)} raw' for kind in ('pet', 'stray', 'settlement', 'family')])
+_smoke('wild', 600, [r'\[status\] reimu [^\n]* identity observed kind=pet\b',
+                    r'\[status\] marisa [^\n]* identity observed kind=wild_family\b'],
+    readout=[f'yukkuri status {sel(kind)} raw' for kind in ('pet', 'wild')])
 _smoke('balance_relation', 600, [r'\[status\] reimu [^\n]* identity observed kind=wild_family\b'],
     readout=[f'yukkuri status {sel(f"fear{fear}")} raw' for fear, _ in _BALANCE_FEAR])
 next(s for s in S if s.id == 'balance_relation').smoke['verify'] = _distinct(

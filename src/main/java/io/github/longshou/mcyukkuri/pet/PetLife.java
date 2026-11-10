@@ -320,7 +320,7 @@ public final class PetLife {
     }
     private void tickAbandoned() {
         if (joyDelay > 0 && --joyDelay == 0) { animal.playAction("joy_jump"); animal.showReaction("happy", "hello", 80); }
-        if (formerOwner == null || owner() != null || now() - abandonedAt < 240 || !calm()) return;
+        if (!townRoots || !abandoned() || now() - abandonedAt < 240 || !calm()) return;
         var p = animal.life().personality();
         if (abandonStage == 0) {
             abandonStage = 1;

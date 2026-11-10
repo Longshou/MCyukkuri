@@ -170,6 +170,7 @@ public final class HabitatLife {
         if (entity.status().identity() == Identity.STRAY && grownEnough() && value.kind() == ShelterBlock.Kind.BURROW
                 && !level().isCloseToVillage(value.getBlockPos(), 1)
                 && (entity.life().hasAccessory() || entity.pet().visibleEffective().id() > 0)) {
+            if (entity.settlement().groupId() != null) entity.settlement().exile();
             entity.pet().leaveTownLife();
             YukkuriStatus.identityChanged(entity, Identity.STRAY, "wilderness_home");
         }

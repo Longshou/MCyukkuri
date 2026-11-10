@@ -252,7 +252,9 @@ public final class Custody {
                 var before = animal.status().identity();
                 if (reason == ReleaseReason.ABANDON) animal.pet().abandonedBy(Objects.requireNonNull(formerOwner));
                 animal.settlement().exile();
-                var tag = data(animal).copy(); tag.remove("Owner"); tag.remove("Use"); tag.remove("OwnerKind"); set(animal, tag);
+                var tag = data(animal).copy();
+                for (var key : ACTIVE_KEYS) tag.remove(key);
+                set(animal, tag);
                 if (reason == ReleaseReason.LOST_CONTACT) animal.pet().lostContact();
                 animal.habitat().release();
                 animal.life().releaseHome(); animal.social().stop(); animal.dailyLife().stop(); animal.setPersistenceRequired();

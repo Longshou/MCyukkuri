@@ -73,9 +73,12 @@ public final class SettlementLife {
     }
     private ServerLevel level() { return (ServerLevel)entity.level(); }
     public UUID groupId() { return groupId; }
+    private ServerLevel membershipLevel() {
+        return entity.level() instanceof ServerLevel level && origin != null
+                ? level.getServer().getLevel(origin.dimension()) : null;
+    }
     public boolean settlementMember() {
-        if (!(entity.level() instanceof ServerLevel level) || origin == null) return false;
-        var homeLevel = level.getServer().getLevel(origin.dimension());
+        var homeLevel = membershipLevel();
         var group = homeLevel == null ? null : SettlementData.get(homeLevel).group(groupId);
         if (group == null || group.kind == SettlementData.Kind.FAMILY) return false;
         var role = group.role(entity.getUUID());
@@ -87,9 +90,7 @@ public final class SettlementLife {
     }
 
     public void join(SettlementData.Group group) {
-        var previous = group();
-        if (!entity.level().isClientSide && previous != null && !previous.id.equals(group.id)) {
-            SettlementData.get(level()).leave(previous, entity.getUUID(), level().getGameTime());
+        if (leaveRecordedGroup(group)) {
             stop();
             duties.cancelAssignment();
         }
@@ -105,10 +106,11 @@ public final class SettlementLife {
     }
 
     public boolean inherit(YukkuriEntity parent) {
+        if (!parent.status().identity().wild()) return false;
         var group = parent.settlement().group();
         if (group == null) return false;
         join(group);
-        if (parent.status().identity().wild() && group.kind != SettlementData.Kind.FAMILY) entity.pet().leaveTownLife();
+        if (group.kind != SettlementData.Kind.FAMILY) entity.pet().leaveTownLife();
         return true;
     }
 
@@ -216,13 +218,14 @@ public final class SettlementLife {
         if (entity.level().isClientSide || entity.isNoAi()) return;
         if (wait > 0) wait--;
         if (navigationRetry > 0) navigationRetry--;
-        duties.clock();
-        if (!entity.status().identity().wild()) return;
         if (pendingNatural) {
             pendingNatural = false;
             SettlementSpawner.discover(entity);
         }
-        society.tick();
+        boolean wild = entity.status().identity().wild();
+        if (wild) society.tick();
+        duties.clock();
+        if (!wild) return;
         var group = group();
         if (group == null) return;
         SettlementTicker.submit(entity, group);
@@ -248,8 +251,7 @@ public final class SettlementLife {
     /** Expulsion by the community rules: no longer a member (the family ledger and kinship stay). */
     public void exile() {
         var before = entity.status().identity();
-        var group = group();
-        if (!entity.level().isClientSide && group != null) SettlementData.get(level()).leave(group, entity.getUUID(), level().getGameTime());
+        leaveRecordedGroup(null);
         stop();
         duties.cancelAssignment();
         groupId = null;
@@ -260,6 +262,15 @@ public final class SettlementLife {
         pendingNatural = false;
         LoadedGroupMembers.changed(entity);
         YukkuriStatus.identityChanged(entity, before, "settlement_departure");
+    }
+    private boolean leaveRecordedGroup(SettlementData.Group replacement) {
+        var homeLevel = membershipLevel();
+        if (homeLevel == null) return false;
+        var data = SettlementData.get(homeLevel);
+        var previous = data.group(groupId);
+        if (previous == null || previous == replacement) return false;
+        data.leave(previous, entity.getUUID(), homeLevel.getGameTime());
+        return true;
     }
 
     /** Winter: the first fair daytime after snowfall; spring: each morning. Either opens a short gathering at the centre. */

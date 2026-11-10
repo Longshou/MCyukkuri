@@ -336,7 +336,7 @@ public final class YukkuriSocial implements MotorOwner {
             if (!greeted) {
                 greeted = true;
                 var identity = entity.status().identity();
-                boolean afraid = personality().fear(target.getUUID()) > BondLevels.FEAR_AT_15 || task == Task.PLAYER && identity.wild();
+                boolean afraid = personality().fear(target.getUUID()) > BondLevels.FEAR_AT_15 || target instanceof Player && identity.wild();
                 if (afraid) entity.mind().felt(EmotionEvent.FRIGHTENED);
                 entity.showReaction("surprise", afraid ? "afraid" : "shy", 80);
                 if (task == Task.PLAYER) GameplayLog.limited(entity, "social", "human_retreat." + target.getUUID(), 200,
@@ -518,9 +518,9 @@ public final class YukkuriSocial implements MotorOwner {
         var fear = personality().fearBand(other.getUUID());
         int trust = personality().trust(other.getUUID());
         var identity = entity.status().identity();
-        boolean unknownHuman = task == Task.PLAYER && trust <= 0;
-        cautious = trust > 0 && fear != YukkuriPersonality.FearBand.NORMAL || unknownHuman && identity == Identity.STRAY;
-        retreat = trust <= 0 && fear == YukkuriPersonality.FearBand.AFRAID || unknownHuman && identity.wild();
+        boolean unknownPlayer = other instanceof Player && trust <= 0;
+        cautious = trust > 0 && fear != YukkuriPersonality.FearBand.NORMAL || unknownPlayer && identity == Identity.STRAY;
+        retreat = trust <= 0 && fear == YukkuriPersonality.FearBand.AFRAID || unknownPlayer && identity.wild();
         if (retreat) cautious = false;
         observedDistance = entity.distanceTo(other);
     }

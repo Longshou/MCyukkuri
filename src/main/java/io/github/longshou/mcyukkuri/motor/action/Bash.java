@@ -60,7 +60,7 @@ public final class Bash implements Action {
 
     /** Whether this actor may destroy panes; a denied permission is not a personality choice. */
     public static Feasibility permission(YukkuriEntity body) {
-        if (!Custody.view(body).unassigned() || Custody.protectedAnimal(body))
+        if (!body.status().identity().free() || Custody.protectedAnimal(body))
             return Feasibility.of(Reason.NO_TOOL, 0, "protected_animal");
         if (!EventHooks.canEntityGrief((ServerLevel) body.level(), body))
             return Feasibility.of(Reason.NO_TOOL, 0, "mob_griefing_denied");
