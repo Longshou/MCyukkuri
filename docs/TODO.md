@@ -13,6 +13,7 @@
 | 任4 移除族群审判 | `.worktrees/wp-fd-judgement-removal` | settlement/Judgement.java 及调用方、scripts/museum_scenarios.py（审判场景）、docs/FEATURES.md |
 | 任8 素鸡立演出重做（倾斜、相对位置、演出、表情） | `.worktrees/wp-ff-sukkiri-show` | standards/yukkuri-library/motions/（素鸡立片段）、表情库、family/Courtship.java（时序与偏移数据） |
 | 任7 玩家互动 UI 与右键判定精简 | `.worktrees/wp-fl-interaction-ui` | entity/YukkuriInteractions、interaction/（CareMenu、CareAction、InteractionDispatch、OperationLife）、client/CareScreen、item/ 中开菜单的道具 |
+| 任4 聚落迁移重做（选址可达可筑窝、失败改道、到达后安家） | `.worktrees/wp-fj-migration` | settlement/（Migration、MigrationSearch、SiteClaimer、SiteLife、Homes、ShelterPlacement、Burrowing、HabitatHomes）、scripts/museum_scenarios.py（colony_migrate*） |
 
 ## 玩法待办
 
