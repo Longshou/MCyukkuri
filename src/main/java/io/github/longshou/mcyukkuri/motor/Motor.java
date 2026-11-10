@@ -4,6 +4,7 @@ import io.github.longshou.mcyukkuri.MCYukkuri;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.motor.action.Grab;
+import io.github.longshou.mcyukkuri.motor.geom.Effort;
 import io.github.longshou.mcyukkuri.motor.surface.SurfaceHost;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.Locale;
@@ -11,6 +12,7 @@ import java.util.function.Consumer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.control.MoveControl;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.event.entity.EntityMountEvent;
@@ -85,12 +87,26 @@ public final class Motor {
         return body.position().subtract(from);
     }
 
-    /** Turns the whole body at once; the caller has already limited the step to the ability turn rate. */
+    /** All own-facing writers share the tick's starting body yaw, so multiple requests cannot multiply the turn rate. */
+    public static float turnYaw(YukkuriEntity body, float yaw) {
+        return body.yBodyRotO + (float) Effort.turn(body.yBodyRotO, yaw, BodyAbility.of(body).turnRate());
+    }
+
+    /** Turns the whole body within its ability; host-derived rider facing is applied separately. */
     public static void face(YukkuriEntity body, float yaw) {
         if (body == null) return;
+        yaw = turnYaw(body, yaw);
         if (Attach.of(body) instanceof AttachState.OnHost on) {
             spot(on.host(), body, on.local(), Mth.wrapDegrees(yaw - on.host().entity().getYRot()), "face");
         } else riderFacing(body, yaw);
+    }
+
+    /** Replace vanilla's instant body alignment; an attached body's host remains its facing authority. */
+    public static void bodyTurn(YukkuriEntity body) {
+        if (body.isPassenger()) return;
+        double dx = body.getX() - body.xo, dz = body.getZ() - body.zo;
+        face(body, dx * dx + dz * dz > MoveControl.MIN_SPEED_SQR
+                ? body.getYRot() : body.getYHeadRot());
     }
 
     /** Apply the host-derived facing on both sides; it is never a second rider authority. */

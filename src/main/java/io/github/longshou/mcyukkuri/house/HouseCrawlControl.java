@@ -2,6 +2,7 @@ package io.github.longshou.mcyukkuri.house;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
+import io.github.longshou.mcyukkuri.motor.Motor;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.entity.ai.control.MoveControl;
@@ -50,6 +51,10 @@ public final class HouseCrawlControl extends MoveControl {
                 && (!entity.childhood().canJump() || entity.body().footBurned() || entity.house().wantsCrawl() || entity.life().wantsCrawl());
         // On a host's surface the host walk owns the crawl (Walk); here only the ground gait.
         if (!entity.isPassenger()) entity.syncCrawl(crawl);
-        if (crawl) entity.yBodyRot = entity.getYRot();
+        if (crawl) Motor.face(entity, entity.getYRot());
+    }
+
+    @Override protected float rotlerp(float from, float to, float maxTurn) {
+        return Motor.turnYaw(entity, to);
     }
 }

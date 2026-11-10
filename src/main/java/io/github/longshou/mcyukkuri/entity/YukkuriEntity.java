@@ -737,7 +737,10 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
      *  (which lags a turn in place by up to 50 degrees, so every braid, mouth and brim point the server chose was drawn turned away). */
     @Override
     protected float tickHeadTurn(float yRot, float animStep) {
-        if (!level().isClientSide) return super.tickHeadTurn(yRot, animStep);
+        if (!level().isClientSide) {
+            Motor.bodyTurn(this);
+            return animStep;
+        }
         yBodyRot = sync().bodyYaw();
         return animStep;
     }
