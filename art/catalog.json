@@ -97,6 +97,13 @@
             "house_reimu",
             "house_marisa"
           ]
+        },
+        {
+          "id": "marisa-manga-easter-egg",
+          "label": "彩蛋：漫画版魔理沙",
+          "prefixes": [
+            "standards/yukkuri-library/easter-eggs/marisa-manga/"
+          ]
         }
       ]
     },

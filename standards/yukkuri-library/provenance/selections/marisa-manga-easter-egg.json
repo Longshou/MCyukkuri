@@ -1,0 +1,23 @@
+{
+  "status": "accepted",
+  "decision": "用户采用漫画版（M01）魔理沙作为彩蛋留在项目里；八景画风版不采用",
+  "files": {
+    "standards/yukkuri-library/easter-eggs/marisa-manga/README.md": "cd8157629433405b7f284076cdaedc906744ee86525a7727939068ac28926202",
+    "standards/yukkuri-library/easter-eggs/marisa-manga/animate.py": "6827bfa8ba5864edaef1138f0aa5f7faaf1fadcd756286dcaef129fd3ffeb6aa",
+    "standards/yukkuri-library/easter-eggs/marisa-manga/build.py": "4857213be49101fcaba120aeae2d39b18e4ded2a39aaeace4d783e0c35903c1c",
+    "standards/yukkuri-library/easter-eggs/marisa-manga/clip_sheets.py": "303fea5de6b508e4ebb512c493f96f28975380cecc9edda1f58f3d4e5622b704",
+    "standards/yukkuri-library/easter-eggs/marisa-manga/faces.py": "c1c62365e06f748ce944f43d455eb911eda5ac9e0519ae1415e9afde8898c962",
+    "standards/yukkuri-library/easter-eggs/marisa-manga/make.py": "754cd0fbf1b31d698318e9e504580b3a706e8a5723191980ca82812094e10f6a",
+    "standards/yukkuri-library/easter-eggs/marisa-manga/render_clips.py": "49e7160e70f02b377cfc6f0455a5472eeec7da01b1dd8c5759fe013afc2782fc",
+    "standards/yukkuri-library/easter-eggs/marisa-manga/stage.py": "ad55ebe8269c40b02f81c5364ffbb5a7d7ba9e4bd00fbff964df5ca007e8503c",
+    "standards/yukkuri-library/easter-eggs/marisa-manga/textures/marisa_blink.png": "e608c9be7c7481e3cbc0d2ad1e19bdf1ce7fa0237fd33d905a0738d44ff2d9c5",
+    "standards/yukkuri-library/easter-eggs/marisa-manga/textures/marisa_chew_closed.png": "45f21c246f613142fa24c9c8abd956a0703c14de75eeb2f6c12fda82d49573e2",
+    "standards/yukkuri-library/easter-eggs/marisa-manga/textures/marisa_chew_open.png": "1908335da4e9a059a4b84ecdd879d7e248f487fa0cf8c7eff2f4503b90af3238",
+    "standards/yukkuri-library/easter-eggs/marisa-manga/textures/marisa_content.png": "45f21c246f613142fa24c9c8abd956a0703c14de75eeb2f6c12fda82d49573e2",
+    "standards/yukkuri-library/easter-eggs/marisa-manga/textures/marisa_happy.png": "6281533c6b8fd0b20efeedb2d8cc43102189005e39bb9732060bb64795b63f6d",
+    "standards/yukkuri-library/easter-eggs/marisa-manga/textures/marisa_neutral.png": "9f9f158b98451f308f4cc746db10b110e1826d12bbc08abc5dfb6028747516ba",
+    "standards/yukkuri-library/easter-eggs/marisa-manga/textures/marisa_push.png": "bb8d15f1a8ac8d9ef6a07bc0c1698193edcb42339d8502004f51507272483af4",
+    "standards/yukkuri-library/easter-eggs/marisa-manga/textures/marisa_yu.png": "7402594863e3afd82bcb8a7fe7bae7530bde927ece3b5aa7f293b18a096269cb",
+    "standards/yukkuri-library/easter-eggs/marisa-manga/variants.json": "26062f04946096a43a7965751a5fa6fcc481d5984de8b8d76a3d6066f91e0295"
+  }
+}

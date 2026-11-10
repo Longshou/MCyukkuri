@@ -1,0 +1,63 @@
+{
+  "_doc": "Manga-reference Marisa (M01 child look), kept as an easter egg. Units: 1 = model pixel. X = Marisa's own left (braid side), face at -Y, Z up. profile rows: [height, half width, rear depth, front depth]. Proportions measured on the M01 panels: ball about as tall as wide, eyes ~0.18 W wide at ~0.66 H, black eyes with a white window, mouth between the eyes, braid ~0.1 W thick.",
+  "marisa": {
+    "ref": "wiki/art-references/images/M01/003-33d8597a.png",
+    "offset": [0, 0, 0],
+    "H": 10.0,
+    "profile": [[0.0, 2.6, 2.4, 2.3], [0.25, 3.9, 3.5, 3.4], [0.9, 4.7, 4.3, 4.2], [2.0, 5.08, 4.7, 4.6], [3.6, 5.15, 4.78, 4.68], [5.2, 4.98, 4.65, 4.55], [6.7, 4.6, 4.3, 4.2], [8.0, 3.95, 3.7, 3.6], [9.1, 2.85, 2.65, 2.6], [9.75, 1.45, 1.35, 1.35], [10.0, 0.3, 0.3, 0.3]],
+    "n_front": 2.2,
+    "n_rear": 2.1,
+    "outline": 0.07,
+    "face": {
+      "frame": [-6.5, 6.5, -1.0, 12.0],
+      "eye_x": 1.85,
+      "eye_y": 6.6,
+      "eye_w": 1.8,
+      "eye_h": 1.96,
+      "mouth_y": 6.15,
+      "blush_x": 2.85,
+      "blush_y": 5.15,
+      "blush_w": 1.6
+    },
+    "hair": {
+      "bangs": 7.75,
+      "bang_amp": 0.45,
+      "side": 4.6,
+      "back": 4.3,
+      "thick": 0.42,
+      "messy": 0.3,
+      "strand_w": 1.05,
+      "n_bangs": 9,
+      "n_back": 16,
+      "n_side": 6,
+      "wisps": 0,
+      "cluster": 1,
+      "cap_front": 9.2,
+      "ink": 0.42
+    },
+    "braid": {
+      "track": [[58, 8.4, 0.75], [66, 7.5, 0.95], [70, 6.6, 1.05], [72, 5.8, 1.1], [73, 5.1, 1.1], [73, 4.5, 1.05]],
+      "r": 0.52,
+      "bow_z": 5.0,
+      "bow": 0.72,
+      "tuft": 1.0
+    },
+    "hat": {
+      "seat": 9.35,
+      "brim_rx": 6.7,
+      "brim_ry": 6.1,
+      "brim_wave": 0.3,
+      "brim_droop": 0.45,
+      "frill": 0.42,
+      "rb": 3.85,
+      "hc": 5.6,
+      "tilt": [-6, 7, 0],
+      "bend": 1.35,
+      "droop": 0.4,
+      "crumple": 0.06,
+      "bow": 0.56,
+      "bow_x": -0.5
+    },
+    "colors": {"skin": "#ecb68f", "hair": "#f1cb5c", "hair_shade": "#c99434", "hair_light": "#f8db74", "hat": "#2a2633", "hat_inner": "#433a52", "white": "#fbf8f1", "white_shade": "#e2dbd0"}
+  }
+}
