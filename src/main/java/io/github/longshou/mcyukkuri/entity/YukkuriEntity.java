@@ -68,7 +68,6 @@ import io.github.longshou.mcyukkuri.rare.MyonLife;
 import io.github.longshou.mcyukkuri.settlement.WinteringLife;
 import io.github.longshou.mcyukkuri.settlement.ForageTrip;
 import io.github.longshou.mcyukkuri.settlement.HabitatLife;
-import io.github.longshou.mcyukkuri.settlement.Judgement;
 import io.github.longshou.mcyukkuri.settlement.SettlementLife;
 import io.github.longshou.mcyukkuri.social.Cannibalism;
 import io.github.longshou.mcyukkuri.social.DailyLife;
@@ -555,7 +554,6 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     public int subspeciesFlags() { return sync().subspeciesFlags(); }
     public void syncSubspecies(int flags) { sync().syncSubspecies(flags); }
     public SettlementLife settlement() { return settlement; }
-    public Judgement judgement() { return component(YukkuriComponents.JUDGEMENT); }
     /** The leaf swaddle on a child and its parents' care for it (docs/FEATURES.md). */
     public LeafSwaddle leafSwaddle() { return component(YukkuriComponents.LEAF_SWADDLE); }
     public HabitatLife habitat() { return habitat; }

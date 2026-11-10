@@ -162,7 +162,6 @@ public final class SettlementTicker {
 
         Submission leader = null;
         for (var member : members) if (leaderSample(batch, data, member)) { leader = member; break; }
-        if (leaderSample(batch, data, leader)) CommunityRules.tickLeader(leader.entity(), group);
         if (leaderSample(batch, data, leader)) Rations.tickLeader(leader.entity(), group);
         if (leaderSample(batch, data, leader)) CommonHunt.tickLeader(leader.entity(), group);
         if (sampled) {

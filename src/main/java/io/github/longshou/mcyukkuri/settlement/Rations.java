@@ -90,8 +90,6 @@ public final class Rations {
         if (m.getHealth() < m.getMaxHealth() * .6f || m.body().condition().needsExtraRation()) extra += .25f;
         priority += extra;
         float weight = base + extra;
-        var s = group.commons.existing(m.getUUID());
-        if (s != null && s.rationCutUntil > now) { weight *= .5f; priority *= .5f; }
         return new Mouth(weight, Math.min(priority, weight));
     }
     private static boolean nursing(YukkuriEntity parent) {

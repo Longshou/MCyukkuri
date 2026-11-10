@@ -1736,70 +1736,6 @@
         }
       ]
     },
-    "behavior_judgement_beg": {
-      "loop": true,
-      "steps": [
-        {
-          "clip": "beg",
-          "intensity": 1,
-          "tempo": 1,
-          "faces": [
-            [
-              0,
-              "teary"
-            ],
-            [
-              0.35,
-              "open_smile"
-            ],
-            [
-              0.7,
-              "teary"
-            ],
-            [
-              1.05,
-              "open_smile"
-            ]
-          ]
-        }
-      ]
-    },
-    "behavior_judgement_bow": {
-      "loop": false,
-      "steps": [
-        {
-          "clip": "bow",
-          "intensity": 1,
-          "tempo": 1,
-          "faces": [
-            [
-              0,
-              "closed_smile"
-            ],
-            [
-              0.7,
-              "happy"
-            ]
-          ]
-        }
-      ]
-    },
-    "behavior_judgement_stand": {
-      "loop": true,
-      "steps": [
-        {
-          "clip": "stand_ground",
-          "intensity": 1,
-          "tempo": 1,
-          "faces": [
-            [
-              0,
-              "angry"
-            ]
-          ]
-        }
-      ]
-    },
     "behavior_comfort_lick": {
       "loop": true,
       "steps": [
@@ -4005,9 +3941,6 @@
     "pairing_accept": "behavior_pairing_accept",
     "pairing": "behavior_pairing",
     "beg_food": "behavior_beg_food",
-    "judgement_beg": "behavior_judgement_beg",
-    "judgement_bow": "behavior_judgement_bow",
-    "judgement_stand": "behavior_judgement_stand",
     "comfort_lick": "behavior_comfort_lick",
     "shard_lick": "behavior_shard_lick",
     "shard_seek": "behavior_shard_seek",

@@ -2090,16 +2090,6 @@ colony('colony_hunt', '族长召集狩猎，猎物上缴公仓', '族长召集�
 colony('colony_ration', '黄昏族长给缺粮户分粮', '黄昏族长给缺粮户分粮',
        '黄昏时族长清点公仓：只给自家粮堆不够一天的“短缺户”分粮，其余不分；读数里看 SHORT 户和分配记录',
        '约 1.5 分钟后（家家吃掉一些存粮，才有短缺户）', [Retry('yukkuri settlement rules ration', COLONY_LEAD, first=1800)], env={'time': 'dusk'}, leader_loss=True)
-_judge = []
-for _i, _off in enumerate(('theft', 'hatless', 'returned_exile', 'cannibal'), 1):
-    _judge += [f'tag @e[type=#mcylab:yukkuri,tag=!scn_lead,tag=!scn_picked,nbt={{YukkuriFamily:{{Stage:"ADULT"}}}},distance=..45,limit=1,sort=random] add scn_off{_i}',
-               f'tag @e[tag=scn_off{_i},limit=1] add scn_picked',
-               f'execute as @e[tag=scn_off{_i},limit=1] run yukkuri settlement rules offend @s {_off}']
-colony('colony_judge', '族长审判四名犯规成员', '族长审判四名犯规成员',
-       '四只成员被记录不同罪名，族长逐案走近、停步相向、听取与训斥，再按罪重、前科和族长性格执行处罚；附近目击者作出反应',
-       '约 30–90 秒', _judge + ['yukkuri settlement rules judge'],
-       note='每案经过真实移动与短暂停留，不固定四只个体分别受哪一档处罚。欺负需要附近有凶悍成员，没有时只驱逐。',
-       reads=[('读待审阶段与判决', 'yukkuri settlement rules')])
 # The empty village 64 blocks east stands on the colony_dest plot.
 _mx, _mz = COLONY.spots['colony']
 _migration_site = ['yukkuri settlement site vacant village ~64 ~ ~']
@@ -3704,7 +3694,7 @@ TOPICS = {
     'hatless_monster': 'C2', 'puff_response': 'C2',
     'myon_stick': 'S1', 'myon_brave': 'S1', 'species_fatigue': 'S1', 'rare_forms': 'S2', 'kotatsu_winter': 'S2', 'kotatsu_summer': 'S2', 'sunbathe': 'S2',
     'alice_chores': 'S3', 'patchouli_vomit': 'S3', 'chen_speed': 'S3', 'marisa_sumo': 'S3',
-    'colony_hunt': 'B2', 'colony_ration': 'B2', 'colony_judge': 'B2', 'colony_migrate': 'B2', 'colony_migrate_babies': 'B2',
+    'colony_hunt': 'B2', 'colony_ration': 'B2', 'colony_migrate': 'B2', 'colony_migrate_babies': 'B2',
 }
 for _s in S:
     _s.asks = TOPICS.get(_s.id) or ('B1' if _s.id.startswith('settle_') else '')

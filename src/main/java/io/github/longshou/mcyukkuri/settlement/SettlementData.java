@@ -207,7 +207,7 @@ public final class SettlementData extends SavedData {
         Group group=cleanupGroup;
         cleanupCommonsTurn=!cleanupCommonsTurn;
         if(cleanupCommonsTurn) {
-            if(group.commons.cleanupStep(family,this,group,level.getGameTime()))setDirty();return;
+            if(group.commons.cleanupStep(this,group,level.getGameTime()))setDirty();return;
         }
         if(group.rosterRevision!=cleanupRevision) { startCleanup(group);return; }
         if(cleanupWaitingMember!=null) {

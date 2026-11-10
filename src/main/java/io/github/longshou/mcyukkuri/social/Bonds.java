@@ -3,8 +3,6 @@ package io.github.longshou.mcyukkuri.social;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.settlement.SettlementData;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import net.minecraft.server.level.ServerLevel;
@@ -79,18 +77,6 @@ public final class Bonds {
         var data = FamilyData.get((ServerLevel) observer.level());
         return corpseMate(observer, dead, deadPartner) || data.socialKin(observer.getUUID(), dead)
                 || data.related(observer.getUUID(), dead);
-    }
-    /** Preserve list order and duplicates: this is an event recipient list, not a kinship set. */
-    public static List<UUID> exileRelatives(YukkuriEntity offender) {
-        var data = FamilyData.get((ServerLevel) offender.level());
-        var person = data.person(offender.getUUID());
-        var relatives = new ArrayList<UUID>(data.children(offender.getUUID()));
-        if (person != null) {
-            if (person.mother != null) relatives.add(person.mother);
-            if (person.father != null) relatives.add(person.father);
-        }
-        if (offender.family().partner() != null) relatives.add(offender.family().partner());
-        return relatives;
     }
     public static boolean trustedPlayer(YukkuriEntity y, UUID player) {
         var p = y.life().personality();

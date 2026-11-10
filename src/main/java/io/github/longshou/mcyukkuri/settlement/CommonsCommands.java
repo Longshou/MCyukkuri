@@ -8,13 +8,11 @@ import java.util.UUID;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.SharedSuggestionProvider;
-import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import java.util.Locale;
-import net.minecraft.world.entity.Entity;
 
 /**
  * Operator report and test doors for package 12 ({@code /yukkuri settlement rules ...}). None of these gives a
@@ -28,24 +26,13 @@ public final class CommonsCommands {
                 .executes(context -> report(context.getSource()))
                 .then(Commands.literal("hunt").executes(context -> hunt(context.getSource())))
                 .then(Commands.literal("ration").executes(context -> ration(context.getSource())))
-                .then(Commands.literal("judge").executes(context -> judge(context.getSource())))
                 .then(Commands.literal("famine")
                         .then(Commands.argument("level", StringArgumentType.word())
                                 .suggests((c, b) -> SharedSuggestionProvider.suggest(new String[]{"auto", "0", "1", "2"}, b))
                                 .executes(context -> famine(context.getSource(), StringArgumentType.getString(context, "level")))))
                 .then(Commands.literal("birthlimit")
                         .then(Commands.argument("young", IntegerArgumentType.integer(1, 8))
-                                .executes(context -> birthLimit(context.getSource(), IntegerArgumentType.getInteger(context, "young")))))
-                .then(Commands.literal("offend")
-                        .then(Commands.argument("offender", EntityArgument.entity())
-                                .then(Commands.argument("offence", StringArgumentType.word())
-                                        .suggests((c, b) -> {
-                                            var ids = new String[CommunityRules.Offence.values().length];
-                                            for (int i = 0; i < ids.length; i++) ids[i] = CommunityRules.Offence.values()[i].id;
-                                            return SharedSuggestionProvider.suggest(ids, b);
-                                        })
-                                        .executes(context -> offend(context.getSource(), EntityArgument.getEntity(context, "offender"),
-                                                StringArgumentType.getString(context, "offence"))))));
+                                .executes(context -> birthLimit(context.getSource(), IntegerArgumentType.getInteger(context, "young")))));
     }
 
     private static SettlementData.Group nearest(CommandSourceStack source) {
@@ -112,19 +99,9 @@ public final class CommonsCommands {
                 .append(" deaths ").append(c.deaths.size()).append('\n');
         out.append("pressure now ").append(pressure.text()).append(" main ").append(pressure.main()).append('\n');
         out.append("pressure at last review ").append(c.pressureText.isEmpty() ? "-" : c.pressureText).append('\n');
-        out.append("pending ").append(c.pending.size());
-        for (var p : c.pending) {
-            out.append(" [").append(p.offence).append(' ').append(id(p.offender)).append(" age ").append(now - p.time)
-                    .append(" phase ").append(p.hearing.name().toLowerCase(Locale.ROOT));
-            if (p.hearingLeader != null) out.append(" leader ").append(id(p.hearingLeader));
-            if (p.forced) out.append(" forced");
-            out.append(']');
-        }
-        out.append('\n');
         c.standing.forEach((who, s) -> {
-            if (s.offences == 0 && s.rationCutUntil <= now && s.banishedUntil <= now && s.intrusions == 0) return;
-            out.append("  standing ").append(id(who)).append(" offences ").append(s.offences)
-                    .append(s.rationCutUntil > now ? " ration_cut " + (s.rationCutUntil - now) : "")
+            if (s.banishedUntil <= now && s.intrusions == 0) return;
+            out.append("  standing ").append(id(who))
                     .append(s.banishedUntil > now ? " banished " + (s.banishedUntil - now) : "")
                     .append(s.intrusions > 0 ? " intrusions " + s.intrusions : "").append('\n');
         });
@@ -157,16 +134,6 @@ public final class CommonsCommands {
         return ok(source, "food check: " + Rations.dailyCheck(level, group, leader(level, group)));
     }
 
-    /** Queue every pending offence for the leader's ordinary approach, hearing and sentence sequence. */
-    private static int judge(CommandSourceStack source) {
-        var level = source.getLevel();
-        var group = nearest(source);
-        if (group == null) return fail(source, "no community with rules nearby");
-        int count = Judgement.force(level, group);
-        return count == 0 ? fail(source, "nothing to judge")
-                : ok(source, "judgement queued: " + count + " pending case(s); approach in order, then ordinary absence rules if unreachable");
-    }
-
     private static int famine(CommandSourceStack source, String value) {
         var group = nearest(source);
         if (group == null) return fail(source, "no community with rules nearby");
@@ -185,19 +152,6 @@ public final class CommonsCommands {
         group.commons.birthLimit = young;
         SettlementData.get(source.getLevel()).setDirty();
         return ok(source, "birth limit " + young);
-    }
-
-    /** Test door: record an offence as if the nearest real witness had seen it (none: the leader learns of it anyway). */
-    private static int offend(CommandSourceStack source, Entity target, String name) {
-        if (!(target instanceof YukkuriEntity offender)) return fail(source, "not a yukkuri");
-        var offence = CommunityRules.Offence.byId(name);
-        if (offence == null) return fail(source, "unknown offence " + name);
-        var group = offender.settlement().group();
-        if (group == null) group = nearest(source);
-        if (!CommunityRules.ruled(group)) return fail(source, "the offender's community has no rules");
-        var witness = CommunityRules.witness(offender, group, CommunityRules.WITNESS_RANGE);
-        if (!CommunityRules.report(offender, group, offence, witness, "command")) return fail(source, "not recorded (rule off, leader, or a duplicate)");
-        return ok(source, "recorded " + offence.id + " by " + id(offender.getUUID()) + " witness " + (witness == null ? "-" : id(witness.getUUID())));
     }
 
     private CommonsCommands() {}

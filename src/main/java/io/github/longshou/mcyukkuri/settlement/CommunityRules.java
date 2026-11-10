@@ -3,8 +3,6 @@ package io.github.longshou.mcyukkuri.settlement;
 import io.github.longshou.mcyukkuri.mind.EmotionEvent;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
-import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
-import io.github.longshou.mcyukkuri.social.Bonds;
 import io.github.longshou.mcyukkuri.social.Temperament;
 import java.util.Comparator;
 import java.util.Locale;
@@ -16,7 +14,7 @@ import java.util.function.Predicate;
 import java.util.function.ToDoubleFunction;
 
 /**
- * Community rules (族规), judgement and punishment (package 12).
+ * Community rules (族规) and offence detection (package 12).
  *
  * <p>Lecture basis: komicolle 40720 No.11518859 (a community elects a leader; rules forbid eating one's own kind and limit
  * births, "to avoid unfairness and self-destruction"), No.11518794 (without proper rules yukkuri breed until the stores
@@ -25,13 +23,10 @@ import java.util.function.ToDoubleFunction;
  * without its accessory the victim is not recognised as kin). Ruling C10: the leader organises, nobody is given orders by
  * the player; C11: eating or killing an unrecognised (hatless) individual is not a kin offence.
  *
- * <p>Project design (numbers, ladder and witnesses): only a community with a leader office has rules; an offence counts
- * only when a real member saw it (awake, within range, line of sight, recognising the offender); the leader judges when
- * the offender is in front of it, or after a while in its absence. Severity = the offence's base + earlier offences of
- * the last three days (+1 for theft in famine, +1 under a harsh leader, -1 under a lenient one):
- * 1 rebuke, 2 ration cut for two days, 3 expulsion for three days, 4 expulsion plus bullying ({@link Sanction}); a return
- * is judged again, so the bullying repeats for as long as the offender keeps coming back.
- * Every punishment raises the offender's unease ({@code mind().add}); witnesses and the expelled one's family feel it too.
+ * <p>Project design (numbers and witnesses): only a community with a leader office has rules; an offence counts
+ * only when a real member saw it (awake, within range, line of sight, recognising the offender), and is recorded in the
+ * community log. A hatless stranger is driven off and, on repeat, bullied ({@link Sanction}); so is an intruder that keeps
+ * coming back.
  */
 public final class CommunityRules {
     public enum Offence {
@@ -46,17 +41,10 @@ public final class CommunityRules {
             return null;
         }
     }
-    public enum Punishment {
-        NONE, REBUKE, RATION_CUT, EXPEL, SANCTION;
-        public String id() { return name().toLowerCase(Locale.ROOT); }
-        static Punishment of(int score) { return score <= 1 ? REBUKE : score == 2 ? RATION_CUT : score == 3 ? EXPEL : SANCTION; }
-    }
-
     /** [original] distances and durations. */
-    static final double WITNESS_RANGE = 10, JUDGE_RANGE = 24, PATROL_RANGE = 8, TERRITORY = 40;
-    public static final long RATION_CUT_TICKS = 48000, BANISH_TICKS = 72000, MEMORY_TICKS = 72000;
-    static final long ABSENT_AFTER = 2400, LAPSE_AFTER = 24000, INTRUSION_GAP = 600, COURTSHIP_MEMORY = 48000, EXILE_GRACE = 2400;
-    private static final int PENDING_MAX = 16;
+    static final double WITNESS_RANGE = 10, PATROL_RANGE = 8, TERRITORY = 40;
+    public static final long BANISH_TICKS = 72000;
+    static final long INTRUSION_GAP = 600, COURTSHIP_MEMORY = 48000, EXILE_GRACE = 2400;
 
     // ---- who has rules ------------------------------------------------------------------------------------------
     /** A forest community with a leader office keeps rules (also during a vacancy); leaderless groups and families have none. */
@@ -100,26 +88,12 @@ public final class CommunityRules {
 
     /**
      * Public entry for every detector (this package, and others such as cannibalism): {@code witness} really saw
-     * {@code offender} commit {@code offence} against the rules of {@code group}. The leader judges it later
-     * ({@link #tickLeader}). Returns true when the offence was recorded.
+     * {@code offender} commit {@code offence} against the rules of {@code group}. Returns true when the offence was recorded.
      */
     public static boolean report(YukkuriEntity offender, SettlementData.Group group, Offence offence, YukkuriEntity witness, String detail) {
         if (!(offender.level() instanceof ServerLevel level) || !rule(group, offence.rule)) return false;
         var commons = group.commons;
         long now = level.getGameTime();
-        if (offender.getUUID().equals(group.leader)) {
-            // Nobody judges the leader: the members only feel the unfairness.
-            commons.note(now, "unjudged_" + offence.id, offender.getUUID(), detail);
-            if (witness != null) witness.mind().add(3, "unfair_leader");
-            SettlementData.get(level).setDirty();
-            return false;
-        }
-        for (var p : commons.pending) if (p.offender.equals(offender.getUUID()) && p.offence.equals(offence.id) && now - p.time < 600) return false;
-        if (commons.pending.size() >= PENDING_MAX) commons.removeFirstPending();
-        var p = new Commons.Pending();
-        p.offender = offender.getUUID(); p.witness = witness == null ? null : witness.getUUID();
-        p.offence = offence.id; p.detail = detail; p.time = now;
-        commons.addPending(p);
         commons.note(now, "offence_" + offence.id, offender.getUUID(), (detail == null ? "" : detail) + (witness == null ? "" : " seen_by " + witness.getUUID().toString().substring(0, 8)));
         if (witness != null) {
             witness.getLookControl().setLookAt(offender, 25, 25);
@@ -128,99 +102,6 @@ public final class CommunityRules {
         }
         SettlementData.get(level).setDirty();
         return true;
-    }
-
-    // ---- judgement -----------------------------------------------------------------------------------------------
-    static void tickLeader(YukkuriEntity leader, SettlementData.Group group) {
-        if (leader.level() instanceof ServerLevel level) Judgement.lapse(level, group);
-    }
-
-    /** The sentence the leader would give now (also used by the test command). */
-    public static Punishment sentence(SettlementData.Group group, YukkuriEntity offender, Offence offence, YukkuriEntity leader, long now) {
-        var s = group.commons.existing(offender.getUUID());
-        int prior = s == null || now - s.lastOffence > MEMORY_TICKS ? 0 : Math.min(2, s.offences);
-        int score = offence.base + prior;
-        if (offence == Offence.THEFT && group.commons.famine >= 2) score++;
-        if (leader != null) {
-            var p = leader.life().personality();
-            if (p.friendliness() <= 35) score++;
-            else if (Temperament.lenient(p) && offence.base <= 2) score--;
-        }
-        // The young are scolded and go hungry, but are not driven out or killed for their own deeds.
-        if (!offender.family().adult()) score = Math.min(score, 2);
-        return Punishment.of(Math.max(1, score));
-    }
-
-    /** Applies the leader's judgement now. {@code present}: the offender stands in front of the leader. */
-    public static Punishment judge(ServerLevel level, SettlementData.Group group, YukkuriEntity leader, YukkuriEntity offender, Offence offence, String detail, boolean present) {
-        long now = level.getGameTime();
-        var commons = group.commons;
-        var punishment = sentence(group, offender, offence, leader, now);
-        var s = commons.standing(offender.getUUID());
-        if (now - s.lastOffence > MEMORY_TICKS) s.offences = 0;
-        s.offences++; s.lastOffence = now;
-        if (present && leader != null) leader.getLookControl().setLookAt(offender, 25, 25);
-        switch (punishment) {
-            case REBUKE -> rebuke(leader, offender, present);
-            case RATION_CUT -> {
-                rebuke(leader, offender, present);
-                s.rationCutUntil = now + RATION_CUT_TICKS;
-                offender.mind().add(10, "ration_cut");
-            }
-            case EXPEL -> exile(offender, group, leader, now, offence.id);
-            case SANCTION -> {
-                // Bullied by members of its own community first (they are drawn while it still belongs), then expelled.
-                boolean taken = Sanction.punish(offender, leader, Sanction.SANCTION, offence.id);
-                commons.note(now, taken ? "sanction" : "sanction_deferred", offender.getUUID(), offence.id);
-                exile(offender, group, leader, now, offence.id);
-            }
-            default -> { }
-        }
-        commons.note(now, "judged_" + punishment.id(), offender.getUUID(), offence.id + (present ? " present" : " absent") + (detail == null || detail.isEmpty() ? "" : " " + detail));
-        SettlementData.get(level).setDirty();
-        return punishment;
-    }
-
-    private static void rebuke(YukkuriEntity leader, YukkuriEntity offender, boolean present) {
-        if (present && leader != null) {
-            leader.showReaction("angry", "rule_rebuke", 80);
-            if (leader.level() instanceof ServerLevel level) YukkuriWorldData.get(level).relate(leader.getUUID(), offender.getUUID(), -2);
-        }
-        offender.showReaction("teary", "rule_punished", 100);
-        offender.mind().add(present ? 6 : 3, "rule_rebuke");
-    }
-
-    /**
-     * Expulsion (驱逐): the offender leaves the community and its burrow there, is barred from the territory for
-     * {@link #BANISH_TICKS}, and is chased off if the leader is near. Kinship is untouched; the family stays.
-     */
-    public static void exile(YukkuriEntity offender, SettlementData.Group group, YukkuriEntity by, long now, String why) {
-        if (!(offender.level() instanceof ServerLevel level)) return;
-        var commons = group.commons;
-        commons.standing(offender.getUUID()).banishedUntil = now + BANISH_TICKS;
-        commons.hunt.party.remove(offender.getUUID());
-        var home = offender.habitat().shelter();
-        if (home != null && home.getBlockPos().distSqr(group.center) <= TERRITORY * TERRITORY) offender.habitat().release();
-        boolean wasMember = group.id.equals(offender.settlement().groupId());
-        if (wasMember) offender.settlement().exile();
-        if (by != null) {
-            by.showReaction("angry", "settlement_drive", 80);
-            if (by.distanceToSqr(offender) <= 16 * 16) offender.frightenFrom(by);
-        }
-        offender.mind().felt(EmotionEvent.SOCIAL_HURT); offender.showReaction("teary", "settlement_hurt", 100);
-        offender.mind().add(20, "exiled");
-        // The family left behind feels the disgrace.
-        var kin = Bonds.exileRelatives(offender);
-        for (UUID id : kin) if (level.getEntity(id) instanceof YukkuriEntity relative && relative.isAlive()
-                && group.id.equals(relative.settlement().groupId())) {
-            relative.mind().add(5, "kin_exiled");
-            if (relative.distanceToSqr(offender) <= WITNESS_RANGE * WITNESS_RANGE && relative.hasLineOfSight(offender)) {
-                relative.showReaction("teary", "kin_exiled", 100);
-                relative.mind().perform("droop", 80);
-            }
-        }
-        commons.note(now, "exiled", offender.getUUID(), why);
-        SettlementData.get(level).setDirty();
     }
 
     public static boolean banished(SettlementData.Group group, UUID id, long now) {
