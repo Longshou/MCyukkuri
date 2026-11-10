@@ -1949,7 +1949,7 @@ for _sid, _window, _title in (
     add(_sid, 'forage', _title, _title,
         '空石屋只有南面一个落地开口；野生成年魔理沙胆量100、成年女儿灵梦胆量0。家园事件自己选择入口：'
         '魔理沙走近玻璃板，转正，逐次用身体撞击，出现裂纹、碎屑、声音与轻微反冲；玻璃板碎后进入才宣言，洞口保持开放。'
-        '整块玻璃作旁边的封闭窗，始终保留。胆小女儿可以从已经打开的入口跟进。',
+        '亲属安抚会暂停撞击，安抚后保留已有裂纹继续。整块玻璃作旁边的封闭窗，始终保留。胆小女儿可以从已经打开的入口跟进。',
         '约 10–60 秒', [
             'fill ~-6 ~ ~-6 ~6 ~5 ~10 minecraft:air',
             'fill ~-3 ~-1 ~-3 ~3 ~2 ~3 minecraft:stone_bricks hollow',
@@ -1971,7 +1971,9 @@ for _sid, _window, _title in (
                                    (21,'gamerule mobGriefing true'),
                                    (1190,'execute if block ~2 ~ ~3 minecraft:glass run say HOME_PANE_FULL_GLASS_INTACT')]}
                       if _sid=='home_pane' else {})),
-        capture=dict(shots=(40,80,120,200,400), sequences=((40,200,4),)))
+        # Cover care and the existing 1200-tick gathering horizon; half-stroke samples retain impact/return poses.
+        capture=(dict(shots=(40,120,200,400,800,1200), sequences=((40,1200,12),)) if _sid=='home_pane'
+                 else dict(shots=(40,80,120,200,400), sequences=((40,200,4),))))
 
 # ---- colony rules: a village that is sure to have a leader (village_led), on the colony field's west plot
 COLONY = BY_ID['colony']

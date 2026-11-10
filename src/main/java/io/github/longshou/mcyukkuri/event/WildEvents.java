@@ -66,7 +66,9 @@ public final class WildEvents {
     static boolean availableForHome(YukkuriEntity e) { return available(e, true); }
     private static boolean leisure(Scene scene) { return scene.kind==Kind.CARD && WildCards.leisure(scene.card); }
     private static boolean available(YukkuriEntity e, boolean housing) {
-        return e.level() instanceof ServerLevel level && safe(e) && e.onGround()
+        return e.level() instanceof ServerLevel level && safe(e)
+                // Ending a play card does not cancel its real jump; followers can join the claim while landing.
+                && (e.onGround() || housing && WildEventData.get(level).forMember(e.getUUID(),WildEvents::leisure)!=null)
                 && EventReservations.owners(level.getServer(),e.getUUID()).stream().allMatch(token -> housing
                     && token.source()==EventReservations.Source.WILD && leisure(WildEventData.get(level).scene(token.id())))
                 && !e.profile().houseBody() && !e.profile().dangerToYukkuri() && !HomeClaim.holds(e)
