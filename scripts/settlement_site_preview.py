@@ -7,7 +7,7 @@ the waste pit. Renders an isometric view and a plan per case into ``.local/previ
 
 Usage: python settlement_site_preview.py [--seeds N] [--no-render]
   Terrain "hill" is a slope with a wavy foot five blocks north of the origin (generated sites use ``SitePlanner.choose``);
-  "flat" is a command placement on level ground, where banks are heaped up. Needs the JDK in .local/tools/java, the
+  "flat" is a command placement on level ground, where homes are low earth mounds. Needs the JDK in .local/tools/java, the
   NeoForge merged jar in build/moddev/artifacts and the Gradle cache in .local/gradle-home of the main checkout.
 """
 import argparse
@@ -383,7 +383,7 @@ def main():
                           + (' PROBLEMS ' + '; '.join(problems) if problems else ' ok'))
             if not rendered and not args.no_render:
                 rendered = True
-                title = f"{TITLES[profile]} · {'村落' if tier == 'village' else '小群'} · {'山脚坡地，挖进坡里' if mode == 'strict' else '平地命令放置，土岸补起'}"
+                title = f"{TITLES[profile]} · {'村落' if tier == 'village' else '小群'} · {'山脚坡地，挖进坡里' if mode == 'strict' else '平地命令放置，圆土丘'}"
                 render(head, blocks, problems, OUT / f'{profile.lower()}_{tier}_{terrain}.png', title, profile)
     print('\n'.join(report))
     print(f'{bad} problem runs')
