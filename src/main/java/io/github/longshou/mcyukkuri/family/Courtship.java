@@ -371,6 +371,8 @@ final class Courtship {
         if(off<=REFUSAL_NOTICE)sawNotice=true;
         // She looked at him, then turned her back: that whole turn is the answer, and he gives up on her for a while.
         if(sawNotice&&off>=REFUSAL_TURN) {
+            GameplayLog.limited(o.entity(),"family","court.giveup",200,"court gave up reason=partner_alive partner={} turnFromFacing={}",
+                    peer.getUUID(),Math.round(off));
             o.entity().showReaction("confused","",80);
             o.stop();
         }
