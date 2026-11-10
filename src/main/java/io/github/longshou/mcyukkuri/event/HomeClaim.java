@@ -174,6 +174,11 @@ public final class HomeClaim {
         var server=event.getServer();
         if (server.overworld().getGameTime()%TICK!=0) return;
         var data=HomeClaimData.get(server.overworld());
+        // Passive display refresh: no decision, action or body change. Retained damage outlives interruptions.
+        for(var c:data.all()) {
+            var level=server.getLevel(c.site.dimension());
+            if(level!=null)c.panes.forEach((pane,damage)->damage.display(level,pane,c.paneDisplayId(pane)));
+        }
         var active=data.active();
         for(var c:new ArrayList<>(progress(server).keySet())) {
             if(!active.contains(c)||c.stage!=Stage.HOLD) {

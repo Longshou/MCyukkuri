@@ -47,6 +47,8 @@ public final class HomeClaimData extends SavedData {
         public boolean hasBox, foodInside = true;
         public String result = "";
         public final Map<BlockPos,Bash.Damage> panes = new LinkedHashMap<>();
+        /** One vanilla display entry per saved claim/pane, independent of the actor that resumes it. */
+        public int paneDisplayId(BlockPos pane) { return Integer.MIN_VALUE | (31*id.hashCode()+pane.hashCode()); }
         public final EventWatchdog.State supervision = new EventWatchdog.State();
         public Claim(UUID id, List<UUID> members, GlobalPos site) { this.id=id; this.members=List.copyOf(members); this.site=site; }
         public boolean active() { return stage != Stage.ENDED; }

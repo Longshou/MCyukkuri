@@ -45,7 +45,7 @@ public record PaneOpening(BlockPos pane, Vec3 stand, BlockPos beyond) {
                     var shape = level.getBlockState(next).getCollisionShape(level, next).bounds();
                     double extent = normal.getAxis() == Direction.Axis.X ? shape.getXsize() : shape.getZsize();
                     var stand = Vec3.atBottomCenterOf(next).add(Vec3.atLowerCornerOf(normal.getNormal())
-                            .scale(body.getBbWidth()/2 + extent/2 + Walk.STAND_ARRIVED/2));
+                            .scale(Bash.standOff(body) + extent/2 + Walk.STAND_ARRIVED/2));
                     var box = body.getBoundingBox().move(stand.subtract(body.position()));
                     if (!level.noCollision(body, box)) continue;
                     var crossing = body.getBoundingBox().move(Vec3.atBottomCenterOf(next).subtract(body.position()));

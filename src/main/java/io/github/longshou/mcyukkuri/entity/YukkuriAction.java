@@ -156,7 +156,9 @@ public enum YukkuriAction {
     THUNDER_COWER("thunder_cower", 3.2, true),
     SUNBATHE("sunbathe", 10.0, true),
     // A frightened puff with tears (lore recipe): a parent taunting a predator away from its child (moment behavior_protect_taunt).
-    PUKU_TEARY("puku_teary", 3.2, true);
+    PUKU_TEARY("puku_teary", 3.2, true),
+    // Landed base rig: launch .36, impact .52, settled 1.1 seconds.
+    LUNGE_RAM("lunge_ram", 1.1, false);
 
     private final String id;
     private final double duration;
