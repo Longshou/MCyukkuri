@@ -27,8 +27,8 @@ final class Courtship {
     private static final int REFUSAL_PAUSE=600;
     /** How far he walks back to a partner whose own work cut the last round short (the family search range). */
     private static final double COMEBACK_RANGE=12;
-    /** How far round from facing him her body has to be before her back is an answer he can read. */
-    private static final float REFUSAL_TURN=60;
+    /** How far round from facing him her body has to be before her back is an answer he can read (a whole turn). */
+    private static final float REFUSAL_TURN=160;
     /** Minimum ticks her refusal round is shown for, so the turn is on screen and can be read. */
     private static final int REFUSAL_HOLD=20;
     /** Temporary arrangement and the owner-unpermitted courtship partner. */
@@ -39,18 +39,20 @@ final class Courtship {
     private UUID comeBack, asked, askedUntilBy;
     private long askedUntil;
     private int declineTicks;
+    /** Her refusal answer has turned to look at him once; the turn away that follows is then really on screen. */
+    private boolean refusalFaced;
     private boolean initiatorMother=true;
 
     Courtship(FamilyLife o) { this.o=o; }
     UUID arranged() { return arranged; }
-    void resetAttempt() { resetCourtProgress();courtPathFailures=0;declinedRound=false;returning=false;declineTicks=0;comeBack=null;asked=null; }
+    void resetAttempt() { resetCourtProgress();courtPathFailures=0;declinedRound=false;returning=false;declineTicks=0;comeBack=null;asked=null;refusalFaced=false; }
     /**
      * Ending a round keeps the comeback it just earned (the stop that follows the interruption must not erase it); a declined round
      * that ends, answered or not, leaves that adult alone for a while: the same answer is never asked again at once.
      */
     void reset() {
         if(declinedRound&&asked!=null){askedUntilBy=asked;askedUntil=o.level().getGameTime()+REFUSAL_PAUSE;}
-        resetCourtProgress();courtPathFailures=0;declinedRound=false;returning=false;declineTicks=0;asked=null;unauthorizedWith=null;
+        resetCourtProgress();courtPathFailures=0;declinedRound=false;returning=false;declineTicks=0;asked=null;refusalFaced=false;unauthorizedWith=null;
     }
 
     /** Both partners read the initiator's uninterrupted server clock, never their travel time. */
@@ -352,18 +354,25 @@ final class Courtship {
         }
     }
 
-    /** The paired adult's own answer: she turns her back on him and keeps one face until the turn is complete. */
+    /** The paired adult's own answer: she looks at him, then turns her back and keeps one face until the turn is complete. */
     void tickDeclinedAnswer(FamilyLife leader) {
         o.entity().getNavigation().stop();
+        var him=leader.entity();var me=o.entity();
         if(declineTicks++==0) {
-            o.entity().showReaction("dull","",80);
-            GameplayLog.limited(o.entity(),"family","court.refused.partner_alive",200,
+            me.showReaction("dull","",80);
+            GameplayLog.limited(me,"family","court.refused.partner_alive",200,
                     "court refused reason=partner_alive partner={} distance={}",
-                    leader.entity().getUUID(),Math.round(o.entity().distanceTo(leader.entity())*10)/10.0);
+                    him.getUUID(),Math.round(me.distanceTo(him)*10)/10.0);
         }
-        float away=(float)(Mth.atan2(o.entity().getZ()-leader.entity().getZ(),o.entity().getX()-leader.entity().getX())*Mth.RAD_TO_DEG)-90;
-        boolean turned=Math.abs(Mth.wrapDegrees(away-o.entity().getYRot()))<=Face.FACE_ARRIVED;
-        if(turned&&declineTicks>REFUSAL_HOLD)o.stop();
+        float toward=(float)(Mth.atan2(him.getZ()-me.getZ(),him.getX()-me.getX())*Mth.RAD_TO_DEG)-90;
+        if(!refusalFaced) {
+            // She notices him first, so the turn away that follows is a real turn and not a pose she was already in.
+            if(Math.abs(Mth.wrapDegrees(toward-me.getYRot()))<=Face.FACE_ARRIVED)refusalFaced=true;
+            else o.face(toward);
+            return;
+        }
+        float away=Mth.wrapDegrees(toward+180);
+        if(Math.abs(Mth.wrapDegrees(away-me.getYRot()))<=Face.FACE_ARRIVED&&declineTicks>REFUSAL_HOLD)o.stop();
         else o.face(away);
     }
 
