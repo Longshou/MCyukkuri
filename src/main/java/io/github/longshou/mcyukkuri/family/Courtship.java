@@ -122,6 +122,8 @@ final class Courtship {
         var court=leader.courtship();
         tag.putString("Phase",court.courtContactTicks>0?"CONTACT":court.courtNearTicks<=COURT_ACCEPT_TICKS?"ACCEPT":"ALIGN");
         tag.putLong("Start",courtAnimationStart());
+        // The contact cue spans the whole required contact, so its build-up ends on the climax at the real finish.
+        tag.putInt("Required",court.courtRequiredTicks);
         tag.putString("Role",o.entity()==court.mother(leader.entity(),leader.target())?"MAMU":"PENI");
         tag.putInt("TargetId",o.target().getId());
         return tag;

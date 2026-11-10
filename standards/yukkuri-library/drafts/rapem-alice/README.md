@@ -21,13 +21,15 @@
 | 标准表情 `open_drool`（N048） | 攻击魔搜寻与追击的攻方演出脸（由 scripts/export_adult_states.py 从标准库导出） |
 | 标准表情 `flushed_tongue`（N035） | 接触后素鸡立动作的攻方演出脸 |
 | 标准表情 `squeezed_cry_tears`（N030） | 被扑倒受方的演出脸（reimu/marisa/alice/chen/patchouli，其他形态回退 cry） |
-| `pose-cues.json` | heat为8秒左右观察：yaw 0/-4/0/+4/0/0，pitch/roll为0、scale恒1；relief为120tick单次弹动（两轻一重三次下压回弹，末尾归位）；rapem为搜寻找/追击前倾与动作阶段2秒循环摩擦采样；pinned为受方 -48°前倾压平随顶胯起伏；pair_peni/pair_mamu为普通配对的1秒共享压扁与回弹循环 |
+| `pose-cues.json` | 由 `author_cues.py` 按节拍表写出（项目设计），导出时检查整体倾角（俯仰与横滚合成）不超过 12°、表情在全部形态存在。heat为8秒左右观察：yaw 0/-4/0/+4/0/0，pitch/roll为0、scale恒1；relief为120tick完成段，按台词 1／46／91 tick 依次「ゆっ！」挤一下再弹起、「すっ！」再弹高、「すっきり～！」先蹲再整体伸长后仰并停住，末尾归位；rapem为搜寻／追击前倾（≤10°）；act／pinned为攻击素鸡立20tick顶送循环：攻方前倾≤10°伸长顶送，受方被压扁、前倾≤8°不再趴倒；pair_peni/pair_mamu覆盖整段普通配对接触（发情期60tick、其他120tick按同一进度放慢）：父方脸颊左右擦蹭她后背三下，再三次稳定顶送、四次加快，最后伸长前压颤抖到顶点、接触结束前归位；母方擦蹭时后靠并轮流回头，每次顶送晚一tick被压扁前推、其间后靠，随他颤抖；`faces` 为 pair_peni／pair_mamu／relief 同一进度上的表情表（待接线） |
 
-普通配对保留既有 `greet` 与 `nuzzle` 作为回应和擦脸前段，之后由服务端让父方真实绕到母方后方；CONTACT 阶段父方显示佩妮佩妮、母方显示马姆马姆。生殖层将马姆马姆转到后侧并向外推出 1.2 模型单位，不修改胎生前侧出口。器官显示独立于主动作，普通接触与爱丽丝追击不再被 `waddle` 等片段覆盖。收尾精餡色尘粒仅为项目表现适配，不形成物品或持久液体。
+普通配对的回应段用 `greet`（双方头顶爱心，开心转红脸），之后由服务端让父方真实绕到母方后方；绕后与接触段的身体片段为 `idle`（`nuzzle` 的前倾与侧摆叠上接触姿态会超出 12°），擦蹭、顶送与高潮全部来自 pair_peni/pair_mamu，按服务端同步的接触起点与所需时长取进度；CONTACT 阶段父方显示佩妮佩妮、母方显示马姆马姆。生殖层将马姆马姆转到后侧并向外推出 1.2 模型单位，不修改胎生前侧出口。器官显示独立于主动作，普通接触与爱丽丝追击不再被 `waddle` 等片段覆盖。收尾精餡色尘粒仅为项目表现适配，不形成物品或持久液体。
 
-素鸡立按用户指代的发情期展示；攻击序列按1.12骨架完整接入：动作阶段攻方前倾循环摩擦并保持 `anatomy_peni_extend`（对应1.12 op2器官显示），受方前趴挣扎、显示马姆马姆与含泪哭脸；三段完成台词（ゆっ！→すっ！→すっきり～！）、点评（まむまむ评价）、自助餐再猎与体力耗竭死亡均已接通。旧 `brief_relief.png` 闭眼呼气脸及一次抬身、卸力、疲惫恢复的短片剧情已删除。
+素鸡立按用户指代的发情期展示；攻击序列按1.12骨架完整接入：动作阶段攻方前倾循环摩擦并保持 `anatomy_peni_extend`（对应1.12 op2器官显示），受方被压扁挣扎、显示马姆马姆与含泪哭脸；三段完成台词（ゆっ！→すっ！→すっきり～！）、点评（まむまむ评价）、自助餐再猎与体力耗竭死亡均已接通。旧 `brief_relief.png` 闭眼呼气脸及一次抬身、卸力、疲惫恢复的短片剧情已删除。
 
 ## 可观看产物
+
+- `.local/previews/sukkiri-show/index.html`：普通配对改前／改后对照（`sukkiri_page.py` 生成）：侧面、正侧与背后节拍渲染条，体型与种类矩阵，正侧动图，以及爱丽丝动作段的倾角对照。`render_sukkiri.js` 按游戏同序合成服务端站位与朝向、接触时钟、根部姿态、片段、生殖层（马姆马姆转到后侧）和表情，`sukkiri_scene.js` 编排各段时序，节拍与站位在 `sukkiri-beats.json`。离线渲染，不是游戏录屏。
 
 - sequence.html：四段连播全序列演示页（发情期→搜寻追击→接触动作→完成结算），每段附原句台词与 AquesTalk 配音试听；交互页的“攻击素鸡立”状态现已同屏显示伸出的器官。
 
@@ -58,6 +60,9 @@ node standards/yukkuri-library/drafts/rapem-alice/render_contact.js
 node standards/yukkuri-library/drafts/rapem-alice/render_flows.js
 python standards/yukkuri-library/drafts/rapem-alice/render_flow_captions.py
 node standards/yukkuri-library/drafts/rapem-alice/verify.js
+python standards/yukkuri-library/drafts/rapem-alice/author_cues.py
+python scripts/export_adult_states.py
+python standards/yukkuri-library/drafts/rapem-alice/sukkiri_page.py .local/previews/sukkiri-show --before <改前提交>
 ```
 
 参数化面部源为 `face-design.json` 与 `build_faces.js`。参考图生成器为 `build_reference.py`，只读取明确列出的普通成体切片，依赖用户提供的本机1.12目录；不浏览混合状态图集。参考图留在本机，运行选用由 `art/runtime-sources.json` 登记；选用不等于标准认可。Python仅添加中文标签和编码GIF，需要Pillow和微软雅黑。渲染使用仓库软件光栅器，不运行浏览器、不编译游戏；试玩仍由用户使用唯一试玩场入口。

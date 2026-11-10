@@ -1659,18 +1659,15 @@
           "clip": "greet",
           "intensity": 1,
           "tempo": 1,
+          "emote": "heart",
           "faces": [
             [
               0,
               "happy"
             ],
             [
-              0.8,
-              "closed_smile"
-            ],
-            [
-              1.3,
-              "open_smile"
+              0.5,
+              "flushed_smile"
             ]
           ]
         }
@@ -1680,29 +1677,13 @@
       "loop": true,
       "steps": [
         {
-          "clip": "nuzzle",
+          "clip": "idle",
           "intensity": 1,
           "tempo": 1,
           "faces": [
             [
               0,
-              "closed_smile"
-            ],
-            [
-              0.15,
-              "satisfied"
-            ],
-            [
-              0.3,
-              "closed_smile"
-            ],
-            [
-              0.55,
-              "satisfied"
-            ],
-            [
-              0.7,
-              "closed_smile"
+              "flushed_smile"
             ]
           ]
         }

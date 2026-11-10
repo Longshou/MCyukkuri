@@ -1,0 +1,26 @@
+{
+ "pair": {"mother": "reimu", "father": "marisa", "gm": 1, "gf": 1, "distance": 0.9, "afterDistance": 0.72, "align": 12},
+ "animation": {"from": 0, "to": 222, "step": 2},
+ "strip": [
+  {"tick": 10, "label": "回应 ACCEPT 10t"},
+  {"tick": 34, "label": "转身绕后 ALIGN 6t"},
+  {"tick": 45, "label": "贴上擦蹭 CONTACT 5t"},
+  {"tick": 51, "label": "擦蹭另一侧 CONTACT 11t"},
+  {"tick": 64, "label": "顶 CONTACT 24t"},
+  {"tick": 67, "label": "回 CONTACT 27t"},
+  {"tick": 86, "label": "加快 CONTACT 46t"},
+  {"tick": 94, "label": "高潮颤抖 CONTACT 54t"},
+  {"tick": 103, "label": "ゆっ！ RELIEF 3t"},
+  {"tick": 156, "label": "すっ！ RELIEF 56t"},
+  {"tick": 195, "label": "すっきり～！ RELIEF 95t"},
+  {"tick": 218, "label": "余韵 RELIEF 118t"}
+ ],
+ "sizes": [
+  {"tick": 86, "label": "灵梦 1.0 / 魔理沙 1.0"},
+  {"tick": 86, "label": "灵梦 0.8 / 魔理沙 1.2", "gm": 0.8, "gf": 1.2},
+  {"tick": 86, "label": "灵梦 1.2 / 魔理沙 0.8", "gm": 1.2, "gf": 0.8},
+  {"tick": 86, "label": "魔理沙 / 爱丽丝", "mother": "marisa", "father": "alice"},
+  {"tick": 86, "label": "帕秋莉 / 橙", "mother": "patchouli", "father": "chen"},
+  {"tick": 86, "label": "爱丽丝 / 魔理沙（正面）", "mother": "alice", "father": "marisa", "view": "front"}
+ ]
+}

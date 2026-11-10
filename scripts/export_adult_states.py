@@ -2,6 +2,7 @@
 from pathlib import Path
 import argparse
 import json
+import math
 
 ROOT = Path(__file__).resolve().parents[1]
 SOURCE = ROOT / 'standards/yukkuri-library/drafts/rapem-alice'
@@ -19,6 +20,20 @@ STANDARD_FACES = {
     'patchouli': ('flushed_tongue', 'squeezed_cry_tears'),
     'marisa_tsumuri': ('flushed_tongue', 'squeezed_cry_tears'),
 }
+
+
+TILT_MAX = 12
+
+
+def tilt(a, b, q):
+    """Angle in degrees between the body's up axis and the world's at eased mix q of two [pitch, yaw, roll] keys."""
+    m = q*q*(3-2*q)
+    pitch, yaw, roll = (math.radians(x+(y-x)*m) for x, y in zip(a, b))
+    # Up axis (0,1,0) through Rx(pitch), then Ry(yaw), then Rz(roll); Ry keeps y, so only pitch and roll tilt it.
+    y1, z1 = math.cos(pitch), math.sin(pitch)
+    x2, y2 = z1*math.sin(yaw), y1
+    y3 = x2*math.sin(roll)+y2*math.cos(roll)
+    return math.degrees(math.acos(max(-1., min(1., y3))))
 
 
 def standard_face_outputs(outputs):
@@ -57,13 +72,26 @@ def main():
         assert keys[0][0] == 0 and keys[-1][0] == 1
         assert all(len(key) == 7 for key in keys)
         assert all(a[0] < b[0] for a, b in zip(keys, keys[1:]))
-        assert all(-35 <= value <= 35 for key in keys for value in key[1:4]) if branch != 'pinned' else \
-               all(-90 <= value <= 90 for key in keys for value in key[1:4]), branch
+        assert all(-35 <= value <= 35 for key in keys for value in key[1:4]), branch
         assert all(.75 <= value <= 1.2 for key in keys for value in key[4:])
+        # Whole-body lean of the eased cue (the body's up axis against the world's, Rz*Ry*Rx as the game composes it)
+        # stays within the 12 degree pitch-and-roll budget of the body rules; yaw is free.
+        worst = max(tilt(a[1:4], b[1:4], q/8) for a, b in zip(keys, keys[1:]) for q in range(9))
+        assert worst <= TILT_MAX, f'{branch}: body tilt {worst:.1f} > {TILT_MAX}'
         # heat/relief/rapem return to neutral; the thrust and pinned cycles only close their loop.
         if branch not in ('act', 'pinned', 'pair_peni', 'pair_mamu'):
             assert keys[-1][1:] == [0, 0, 0, 1, 1, 1]
         assert keys[0][1:] == keys[-1][1:], branch
+    # Face tables over the same clocks as their cues; every face must exist on every model's runtime face library.
+    library = json.loads((ASSETS/'yukkuri_presentation/face_library.json').read_text(encoding='utf-8'))
+    for branch, table in data['faces'].items():
+        assert branch in ('relief', 'act', 'pinned', 'pair_peni', 'pair_mamu'), branch
+        assert table[0][0] == 0 and all(a[0] < b[0] < 1 for a, b in zip(table, table[1:])), branch
+        for _, face in table:
+            face = library['aliases'].get(face, face)
+            for model, row in library['models'].items():
+                local = row.get('face_aliases', {}).get(face, face)
+                assert local in row['selectable'], f'{branch}: face {face} missing on {model}'
     outputs = {
         SNAPSHOT / 'pose-cues.json': cues,
         ASSETS / 'yukkuri_presentation/adult_states.json': cues,

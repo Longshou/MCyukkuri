@@ -72,12 +72,12 @@ final class ReproductionPresentation {
         return Mth.lerp(q,track.from,1);
     }
 
-    /** Small shared-clock body compression; actual positions still come from server navigation. */
+    /** Shared-clock rub, pushes and climax over the whole required contact; actual positions still come from server navigation. */
     static void pose(YukkuriView entity,float partialTick,PoseStack pose) {
         var court=entity.courtshipState();
         if(!court.getString("Phase").equals("CONTACT")||!entity.getBehaviorId().equals(Behaviors.PAIRING))return;
         float ticks=Math.max(0,entity.level().getGameTime()-court.getLong("Start")+partialTick);
-        float[] value=AgitationPresentation.sample(court.getString("Role").equals("PENI")?"pair_peni":"pair_mamu",ticks%20/20);
+        float[] value=AgitationPresentation.sample(court.getString("Role").equals("PENI")?"pair_peni":"pair_mamu",ticks/court.getInt("Required"));
         if(value==null)return;
         var model=YukkuriModel.get(entity.assetId());
         pose.translate(0,model.presentationLift(value,entity.hasVisibleAccessory(),entity.visibleHairLoss())*entity.growthScale(),0);
