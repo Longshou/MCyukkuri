@@ -20,6 +20,7 @@ import io.github.longshou.mcyukkuri.item.CompanionCordItem;
 import io.github.longshou.mcyukkuri.item.FillingItem;
 import io.github.longshou.mcyukkuri.item.HouseEggItem;
 import io.github.longshou.mcyukkuri.item.HouseholdSprayItem;
+import io.github.longshou.mcyukkuri.item.MagnifyingGlassItem;
 import io.github.longshou.mcyukkuri.item.OperationToolItem;
 import io.github.longshou.mcyukkuri.item.PetHarnessItem;
 import io.github.longshou.mcyukkuri.item.RemainsItem;
@@ -53,6 +54,7 @@ public final class ModItems {
     public static final DeferredItem<WashClothItem> WASH_CLOTH = ITEMS.register("wash_cloth", () -> new WashClothItem(new Item.Properties().stacksTo(1)));
     public static final DeferredItem<HouseholdSprayItem> HOUSEHOLD_GUARD=ITEMS.register("household_guard",()->new HouseholdSprayItem(new Item.Properties().stacksTo(1)));
     public static final DeferredItem<TeachingWhistleItem> WHISTLE = ITEMS.register("teaching_whistle", () -> new TeachingWhistleItem(new Item.Properties().stacksTo(1)));
+    public static final DeferredItem<MagnifyingGlassItem> MAGNIFYING_GLASS = ITEMS.register("magnifying_glass", () -> new MagnifyingGlassItem(new Item.Properties().stacksTo(1)));
     public static final DeferredItem<AccessoryItem> RIBBON = registerAccessory(YukkuriVariant.Accessory.RIBBON);
     public static final DeferredItem<AccessoryItem> HAT = registerAccessory(YukkuriVariant.Accessory.HAT);
     /** The aquatic Marisa's larger hat uses the shared shape with a separate accessory item. */

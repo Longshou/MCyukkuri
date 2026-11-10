@@ -522,7 +522,7 @@ add('nutrition_age', 'body', '各年龄饿得快慢，饿到0变虚弱', '各年
           for i,(stage,label) in enumerate((('baby','赤油'),('child','子油'),('teen','亚成体'),('adult','成体')))],
         yk('reimu', -5, 7, 'starving', label='营养0·虚弱缓慢', nutrition=0, energy=95),
         yk('reimu', 5, 7, 'fed', label='营养100·同种对照', nutrition=100, energy=95)],
-    env=DAY, give=['minecraft:apple 4'], vantage=(0, 16),
+    env=DAY, give=['minecraft:apple 4', 'mcyukkuri:magnifying_glass'], vantage=(0, 16),
     reads=[(f'读{stage}',f'yukkuri status {sel("age_"+stage)} raw') for stage in ('baby','child','teen','adult')]
         + [('读饥饿者',f'yukkuri status {sel("starving")} raw'),('读同种对照',f'yukkuri status {sel("fed")} raw'),('读原版效果',f'data get entity {sel("starving")} active_effects')])
 

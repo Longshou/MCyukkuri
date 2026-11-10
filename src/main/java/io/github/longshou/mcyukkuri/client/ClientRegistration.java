@@ -19,6 +19,7 @@ import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
 import net.neoforged.neoforge.client.event.RenderFrameEvent;
 import net.neoforged.neoforge.client.event.RegisterClientCommandsEvent;
+import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
 import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.level.LevelEvent;
@@ -49,6 +50,9 @@ public final class ClientRegistration {
         modBus.addListener(EventPriority.NORMAL, false, FMLClientSetupEvent.class, ReadoutClientEvents::setup);
         modBus.addListener(EventPriority.NORMAL, false, FMLClientSetupEvent.class, BodyEffectClientEvents::setup);
         modBus.addListener(EventPriority.NORMAL, false, FMLClientSetupEvent.class, ClientEvents::registerItemProperties);
+
+        modBus.addListener(EventPriority.NORMAL, false, RegisterGuiLayersEvent.class, MagnifierClient::registerHud);
+        MagnifierClient.register();
 
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, ClientTickEvent.Post.class, DialogueAudio::tick);
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, ClientTickEvent.Post.class, EcologyAudio::tick);
