@@ -1,0 +1,51 @@
+# 代码实现者
+
+适用于玩法、场景、工具与脚本的实现者；审查者按第 1 节红线审。通用规则见 [AGENTS.md](../../AGENTS.md)。
+
+## 1. 代码架构与红线
+
+- Java 根为 `src/main/java/io/github/longshou/mcyukkuri/`。客户端类只放 `client/`；服务端拥有生态状态和决策，成长、饥饿、繁殖不依赖客户端帧率。
+- 组件、保存和事件契约：`YukkuriEntity` 委托 `YukkuriComponents` 登记的组件（`ComponentKey`／`ComponentSpec`，分 EARLY／READY 初始化；一个组件可登记多项存读）。新增组件沿用此方式；领域组件拥有权威数据，状态登记不存副本。拆分保持完整 NBT 路径、类型、写入时机和已有读取条件，`YukkuriVersion` 为 1；`YukkuriVariant` ordinal 只能末尾追加；当前试玩场的数据结构调整不另增旧存档迁移或补偿层。公共／客户端事件分别接入 `CommonRegistration`、`ClientRegistration`，保留顺序、优先级与取消策略，避免重复订阅。
+- `registerGoals` 在父构造期运行，其中赋值的字段不得带初始化器（含 `= null`）；早期构造不得读取未就绪的 variant 或组件。
+- 显示只观察实际运行的 Goal，不启动或探测业务。客户端经 `YukkuriView` / `PlacedHatView` 读同步展示数据，不调用服务端组件 getter。
+- 行为 ID 使用 `Behaviors`，类型使用 import，避免内联全限定名。`scripts/check_architecture.py --check` 仅为按需只读建议，边界见[脚本说明](../../scripts/README.md)。
+- 不写防御性代码：不为代码自身契约排除的状态加空值／范围检查、try/catch、兜底、默认值、重试、标志或“以防万一”分支；不可能的状态让它大声失败；只在真实外部边界（玩家输入、文件、网络、可能确实缺失的 Minecraft 查询）校验。
+
+**架构红线**，命中任何一条退回：(1) `motor/` 之外写位置、速度、朝向或骑乘；(2) 新增预约、租约、席位、票据或 `pending` 桥接状态（`Attempts` 预算与等待动作期限除外）；(3) 失败后原样重试、改记失败分类、同一失败计入两个预算、Blocked 后立刻再 `run` 同一动作、等待—到期—再等待的循环；(4) 为某场景加条件分支，或底座出现 `isAquatic`、`boatHome()!=null` 一类分支，`aquatic/`、`client/aquatic/`、`registry/`、`CommonRegistration` 以外不 import `aquatic.`；(5) 行为或编排里写跳高、时长、曲线、冲量数值（高度距离来自 `BodyAbility`，时长来自物理或 `ClipMarkers`）；(6) 新拒绝原因没有对应手段；(7) 失败时倒放、回座、瞬移或直接改成功状态；(8) 被动时钟移动身体、调用 `run` 或改其他实体状态；(9) 为同一事实新增第二份存储，或客户端自行推导乘员是否在帽里；(10) `motor/geom/` 引用 `net.minecraft.*`；(11) 保留旧路径“以防万一”。
+
+## 2. 试玩场景
+
+- 每项修复注明场景及应观察的状态／数值；新增或改名的试玩场景在交付时写明所在场地与按钮名。“清空本场地”后重开须恢复实体、账本和地形初态，提供合适群系、真实有限物资和链路阶段读数；场景出错先修场景。清场与场景边界见[功能说明](../FEATURES.md#试玩场与动作博物馆)。
+- 场景只提供被测行为所需的真实起点，不指定 Goal 或直接完成被测环节，不绕过碰撞、护幼或性格条件。后半段行为可用已有帽船、库存和乘员作为初态，但准备成功不算行为成功；一个场景一条真实路径，按钮名就是玩家看到的内容；参数不同的重复按钮合并，真实路径不同的边界保留。
+- 场景、读数和按钮源在 `scripts/museum_*.py`。场景准备命令依赖落地的须在召唤后 2 秒执行；`/tick` 需等级 3，函数和命令方块仅等级 2；直接 `/function mcylab:scn/<id>` 不清场；`build_museum_full.py --pack-only --output` 须为 `.local/experimental-map/` 或 `.local/smoke/` 下不存在的新目录。
+
+## 3. 日志留痕
+
+- 改功能同时检查日志：玩家操作、关键链路开始／交接／完成／中断，以及伤病、亲缘、归属、库存的真实变化须有服务端记录；拒绝给实际原因。日志只观察已执行结果，不额外判断、抽签或改变业务。
+- 通过统一入口记录品种／类型、实体 ID、UUID、tick、维度和位置；涉及目标、资源、概率时记录身份、前后值、失败条件或已算出的概率，不把尝试写成成功。客户端不重复记服务端业务。
+- 关键事件默认 INFO；扫描无候选、持续寻路、每 tick 数值和几何采样不逐次 INFO。重复等待／拒绝按实体与原因限频，连续消耗记阈值、阶段或汇总；详尽采样需显式开关。缓存有界、不进存档，不转储完整 NBT、背包或长路径。
+- 公共入口 `status/GameplayLog`：`event(entity, category, message, values...)`（附品种、实体 ID、UUID、tick、维度、位置）、`world(level, ...)`（无存活实体的事务）、`limited`／`worldLimited`（按主体、类别、稳定原因键限频，缓存每桶最多 64 键、不入存档；下次输出带 `suppressed=N`，键不含动态坐标或时间）。跨重载关联用 UUID。
+- 稳定前缀按领域划分，如 `[species]` `[body]` `[remains]` `[family]` `[childhood]` `[choreo]` `[approach]` `[care]` `[offering]` `[incident]` `[water]` `[settlement]` `[habitat]` `[meal]` `[needs]` `[interaction]` `[shop]` `[exam]` `[custody]` `[badge]` `[intent]` `[method]` `[action]` `[aquatic]` `[hat]` `[headwear]` `[winter]` `[move]` `[social]` `[wild-event]` `[mind]` `[predator]`；新增前缀沿用此命名。默认省略每 tick 的移动、朝向、几何、动画、台词、代谢和寻路节点；接近、预留、获准路线不代表业务完成，初态准备成功不是玩法成功；读档与场景直接写初态不重放历史事务。
+- 调试开关默认关闭，用完关闭：`/yukkuri status trace true|false`（细密状态日志）、`debug.entitySaveViews`（完整实体保存视图）、客户端 `render.woundPerfLog`（`[render]` 伤口渲染耗时）、客户端参数 `-Dmcyukkuri.aqdiag=true`（`[hat-input]` 右键输入候选）。
+- 排查结合实际运行版本和现场读数；没有日志不等于行为未发生，限频后的沉默或缺日志不能单独证明行为没有发生。实时日志问题统一登记到待办的对应模块。
+
+## 4. 命令与自查
+
+- 自查：`bash scripts/javac_check.sh <工作树>`（javac 与纯函数测试，不经 Gradle，不算验收）。
+- 冒烟：`<py> scripts/smoke_museum.py [--worktree F:/yukkuri/.worktrees/<分支>] [场景ID ...]` 无界面冒烟：读主检出已装 CI 运行包，缺失即报错，不跑 Gradle；用户试玩客户端运行时或全机名额（默认 6）占满时排队等待（`--no-wait` 改为拒绝），截图同样排队；不带 `--worktree` 时运行包提交须与当前检出提交一致，否则报错改走 `--worktree` 或先更新运行包；产物在主检出 `.local/smoke/`，只查场景初态、链路读数与个体命运（死亡、溺水、窒息、饥饿、同一拒绝反复 400 次以上即失败，场景真实路径内的结局以 `allow_fate` 声明）。`--repeat N` 出各场景通过数，`--compare` 对照主线基线（缓存，只补跑缺的次数），细节见[脚本说明](../../scripts/README.md)。`--layout [场景ID ...]` 改查生成后的世界：每个场景的实体和玩家落点须站在空位与实地上、在本场地内，违例即失败（默认全部场景）。
+- 冒烟只作试玩前自查，不算验收。冒烟没有固定随机种子：判断修复是否有效须与主线同批、同场景各跑至少 20 次并逐场记录（`--repeat 20 --compare`），3–10 次的差异不作结论。
+- 截图：`<py> scripts/capture_museum.py --worktree <工作树> <场景>` 出截图联系表。资源导出脚本多支持 `--check`（按需使用，不作合并门槛）；`scripts/check_museum_pack.py` 只读核对试玩场数据包。
+- 日志与排查：读 `.local/experimental-map/play-museum/process.json` 与同场 `.session.json` 得启动时间、PID、世界；原生日志 `.local/experimental-map/museum/logs/latest.log`、`debug.log`（旧场次查日期归档 `.log.gz`）。版本取 `.session.json` 的 `runtimeConfig.commit/run`，无证据写“版本待核实”；原日志保留。
+- SERVER 配置在世界 `serverconfig/`：`mcyukkuri-server.toml`（生活、生态、聚落）、`mcyukkuri-family.toml`（家庭繁殖）、`mcyukkuri-human-world.toml`（人类、商贸、工厂）；分组是键路径的一部分，如 `seasons.biomeSeasons`。
+
+## 5. 工作守则
+
+- 开工前读任务说明。一次做到任务说明的完成标准，不停下提问、确认或给选项；需要选择时取与 AGENTS.md 一致的最简单方案，记在报告的 Decisions 下继续。只在硬阻塞时停（文件或工具缺失、任务说明自相矛盾、范围内修不好的检查失败）；工具或路径问题先用明显的本地变通。
+- 范围：只改当前任务需要的内容，不顺手重构、改名或改写文档；完成步骤确实需要的文件都在范围内（记入 Decisions）；只有点名的并行工人的文件不碰，必要时做最小改动而不是停下。复用最近的实现，保留他人未提交改动，不替别人暂存、提交或丢弃改动；移动文件时更新引用。
+- 修整类问题：列出到达该行为的所有入口、出口与中断路径（含搬运、自救道具等），说明每条都用上修复；不用改变所有生物的全局绕法（如给方块加路径代价）。任务说明要求“复用 X”时不在 X 旁另起路径，认为 X 不行先在 Decisions 说明。
+- 新常数写明依据，并确认它定义的区间在正常情况下确实关闭。同一问题需要第三次提交时停下，报告测到的问题，不叠补丁。
+- 冒烟与验证：冒烟是完成的一部分，只有脚本自己拒绝才算跑不了，并原样报告它的消息。冒烟或截图前先提交并 `git fetch -q origin && git rebase origin/main`。PASS 行不是结论：冒烟已对死亡、溺水、窒息、饥饿与同一拒绝的反复自动判失败，受伤、卡住不动和错配仍要读日志确认被测个体全程的命运。验证器在目标死亡或行为没发生时仍打印 PASS 就是缺陷，在范围内修好。不放宽验证器（`expect`、`forbid`、阈值、时长）；期望确实错了要给证据。`expect`／`forbid` 模式必须匹配代码真实打印的行；改场景保留仍存在行为的全部断言；用场景已提交的期望判定，不用本地包装放宽。检查器要逐项给出被它抓住的故意破坏输入，并写明哪些没查。
+- 偶发问题报告通过率而非最好的一次，关键场景至少跑两次并贴出各次结果；“主线通过、这里失败”的回归先二分。主线对比用 `smoke_museum.py --worktree <工作树> --repeat N --compare`（合并基点的主线基线按提交缓存，只补跑缺的次数）；机器空闲时 `smoke_baseline.py` 为当前 `origin/main` 预先补基线。
+- 资源：同一时间只开一个冒烟或截图服务器；用户的试玩客户端开着或全机名额占满时冒烟与截图自动排队等待，先提交再启动，不必手动重试。长批次前先提交并写好报告，批次逐条命令运行。
+- 只报告本次复现的结果：命令、PASS／FAIL 行和证明结果的日志行；没跑的写明。
+- 不推送、不合入、不更新运行包、不移动主检出。报告写到 `.local/refactor/reports/<包名>.md`（英文）：提交、检查与结果、Decisions、遗留问题、需要改的待办文字；最终消息不超过 15 行，最后一行恰为 `STATUS: DONE` 或 `STATUS: BLOCKED: <原因>`。

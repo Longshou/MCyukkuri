@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""Package lifecycle for the lead (AGENTS section 11): start, land, runtime, status.
+"""Package lifecycle for the lead (docs/roles/lead.md): start, land, runtime, status.
 
 Run with PYTHONUTF8=1: python scripts/pkg.py <start|land|runtime|status> ...
 Every step fails loudly with a message; nothing is retried silently.
@@ -106,12 +106,12 @@ def cmd_start(args):
     git(MAIN, 'worktree', 'add', '-b', name, str(wt), 'origin/main')
     brief = MAIN / '.local/refactor/briefs' / f'{name}.md'
     if not brief.exists():
-        art = ('Art / motion: also read `_build-common.md` (same folder): storyboard or concept first, visual review by another agent, '
-               'previews under `.local/previews/`.\n') if args.art else ''
+        art = ('Art / motion: role file `docs/roles/art.md` (storyboard or concept from the image liaison first, visual review by '
+               'another agent, previews under `.local/previews/`).\n') if args.art else ''
         brief.parent.mkdir(parents=True, exist_ok=True)
         brief.write_text(
             f'# {name} — {args.title}\n\n'
-            f'Worktree `F:/yukkuri/.worktrees/{name}`. Read `F:/yukkuri/AGENTS.md` sections ... and the model notes in `.local/refactor/model-notes/`.\n'
+            f'Worktree `F:/yukkuri/.worktrees/{name}`. Role: (TODO: coder / art / ...). Read `F:/yukkuri/AGENTS.md`, your role file under `docs/roles/` and the model notes in `.local/refactor/model-notes/`.\n'
             f'Owner files: {args.files}\n'
             f'{art}\n'
             '## Goal\n\n(TODO)\n\n'
@@ -355,7 +355,7 @@ def main():
     p.add_argument('name')
     p.add_argument('--title', required=True)
     p.add_argument('--files', required=True)
-    p.add_argument('--art', action='store_true', help='art/motion package: brief points at _build-common.md')
+    p.add_argument('--art', action='store_true', help='art/motion package: brief points at docs/roles/art.md')
     p.set_defaults(run=cmd_start)
     p = sub.add_parser('land', help='rebase, check, smoke, drop the TODO row, push, fast-forward main, remove worktree')
     p.add_argument('name')
