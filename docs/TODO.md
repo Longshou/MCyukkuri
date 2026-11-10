@@ -11,6 +11,7 @@
 | 生3 成体撞碎玻璃板（共享动作）与住家宣言破窗入空屋 | `.worktrees/wp-el-pane-bash` | motor/action/（新撞击动作）、event/HomeClaim.java、event/HomeClaimGoal.java、scripts/museum_scenarios.py（新增一场） |
 | 暂停待用户评估：载乘时转身平滑（分支 f95aeea96，载乘转角约 90°→12°/tick；meet／迁徙影响未定） | `.worktrees/wp-ex-carrier-turn` | motor/（转向速率，按实际归属）、family/ParentCarry.java（只读或最小改动） |
 | 暂停待用户评估：辫子头顶抓放不再一帧跳转（分支 6a24ad5ee，未导出） | `.worktrees/wp-ez-braid-head-clips` | standards/yukkuri-library/motions/variants/lore/（braid_head_* 的生成源）与 motion 导出 |
+| 任2 魔理沙抓赤油上帽抓空反复重试 | `.worktrees/wp-fc-hat-grab-miss` | family/ParentCarry.java、共享抓取动作（motor/action） |
 
 ## 玩法待办
 
