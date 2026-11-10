@@ -12,6 +12,7 @@
 | 任2 魔理沙抓赤油上帽抓空反复重试 | `.worktrees/wp-fc-hat-grab-miss` | family/ParentCarry.java、共享抓取动作（motor/action） |
 | 任4 移除族群审判 | `.worktrees/wp-fd-judgement-removal` | settlement/Judgement.java 及调用方、scripts/museum_scenarios.py（审判场景）、docs/FEATURES.md |
 | 任8 素鸡立演出重做（倾斜、相对位置、演出、表情） | `.worktrees/wp-ff-sukkiri-show` | standards/yukkuri-library/motions/（素鸡立片段）、表情库、family/Courtship.java（时序与偏移数据） |
+| 任7 玩家互动 UI 与右键判定精简 | `.worktrees/wp-fl-interaction-ui` | entity/YukkuriInteractions、interaction/（CareMenu、CareAction、InteractionDispatch、OperationLife）、client/CareScreen、item/ 中开菜单的道具 |
 
 ## 玩法待办
 
