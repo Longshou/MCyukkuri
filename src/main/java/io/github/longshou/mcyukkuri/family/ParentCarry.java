@@ -147,6 +147,8 @@ public final class ParentCarry {
      *  child's own wait for a carrying parent reads it, {@link #awaitsCarrier}). */
     private UUID gathering;
     private Release settingDown;
+    /** The last set-down of one of her children that failed, whoever ran it; an ended intent's handoff inherits it. */
+    private Release failedRelease;
     /** Where the carry's own Walk was last sent and started; why the retrieval gave up; why the child being set down comes down. */
     private Vec3 walkTo, walkFrom;
     private String giveUp, settingWhy;
@@ -352,15 +354,18 @@ public final class ParentCarry {
 
     /** Feet of the carried child before any collision adjustment, by its hold; a child being set down on its way to the ground. */
     public static Vec3 rawSeat(YukkuriView carrier, YukkuriView child, float partial) {
+        return rawSeat(carrier, child, partial, yaw(carrier, partial));
+    }
+    /** The same with the carrier turned to {@code yaw}: the passenger update and Release's turn admission read this one seat. */
+    private static Vec3 rawSeat(YukkuriView carrier, YukkuriView child, float partial, float yaw) {
         var record = entry(carrier, child.getUUID());
         if (!record.contains("D") && record.contains("LX"))
-            return world(carrier, partial, new Vector3f(record.getFloat("LX"), record.getFloat("LY"), record.getFloat("LZ")), yaw(carrier, partial));
+            return world(carrier, partial, new Vector3f(record.getFloat("LX"), record.getFloat("LY"), record.getFloat("LZ")), yaw);
         if (record.contains("D") && BRIM_LOWER.equals(record.getString("LC")))
-            return world(carrier, partial, brimDown(carrier, child, record, partial, modelAt(carrier, yaw(carrier, partial), letGoPoint(carrier, child, yaw(carrier, partial)))),
-                    yaw(carrier, partial));
+            return world(carrier, partial, brimDown(carrier, child, record, partial, modelAt(carrier, yaw, letGoPoint(carrier, child, yaw))), yaw);
         if (record.contains("D") && record.contains("LX") && hold(carrier, child).reach() == Reach.BRAID) {
-            return transferPoint(carrier, child, record, letGoPoint(carrier, child, yaw(carrier, partial)),
-                    carrier.level().getGameTime() - record.getLong("D") + partial, partial);
+            return transferPoint(carrier, child, record, letGoPoint(carrier, child, yaw),
+                    carrier.level().getGameTime() - record.getLong("D") + partial, partial, yaw);
         }
         var hold = hold(carrier, child);
         Vector3f model;
@@ -374,7 +379,7 @@ public final class ParentCarry {
                     model = brimPoint(carrier, child, partial);
                     var e = entry(carrier, child.getUUID());
                     var way = e.contains("T") ? brimRide(carrier, child, e, partial) : null;
-                    if (way != null) return world(carrier, partial, way, yaw(carrier, partial));
+                    if (way != null) return world(carrier, partial, way, yaw);
                 }
             }
             case TAIL_LEFT, TAIL_RIGHT -> model = tail(carrier, hold);
@@ -391,9 +396,9 @@ public final class ParentCarry {
                 carrier.level().getGameTime() + partial);
         if (record.contains("LX")) model = new Vector3f(record.getFloat("LX"), record.getFloat("LY"), record.getFloat("LZ"));
         float down = lowering(carrier, child, partial), drop = mouthDrop(carrier, child, partial);
-        var at = world(carrier, partial, model, yaw(carrier, partial));
+        var at = world(carrier, partial, model, yaw);
         if (down >= 0) {
-            var to = letGoPoint(carrier, child, yaw(carrier, partial));
+            var to = letGoPoint(carrier, child, yaw);
             at = at.lerp(to, drop >= 0 ? drop : ease(down));
         }
         return pinnedAt(carrier, child, at);
@@ -1430,7 +1435,7 @@ public final class ParentCarry {
     private Map.Entry<YukkuriEntity, String> due() {
         var next = requestedSetDown();
         if (next != null && settingDown != null && settingDown.child() == next.getKey()
-                && !settingDown.changed(carrier, setDownHome(next.getKey(), next.getValue()))) return null;
+                && !settingDown.changed(carrier, setDownHost(), setDownHome(next.getKey(), next.getValue()))) return null;
         return next;
     }
 
@@ -1462,20 +1467,19 @@ public final class ParentCarry {
         return carrier.isPassenger() && giveUp != null && !all.isEmpty() && !setDownDue() ? all.getFirst() : null;
     }
 
-    /** An ended intent hands its real passenger to the existing set-down goal, never to a forced drop. */
-    public void finish(YukkuriEntity child, String why) {
-        finish(child, why, null);
-    }
+    /** A Release of hers failed ({@link Release#changed} keeps its gate); the next handoff of that child inherits it. */
+    public void releaseFailed(Release release) { failedRelease = release; }
 
-    /** Keep the actual failed action across ownership handoff, including its unchanged-world gate. */
-    public void finish(YukkuriEntity child, String why, Release release) {
+    /** An ended intent hands its real passenger to the existing set-down goal, never to a forced drop, together with the last
+     *  failed Release of that child: its unchanged-world gate holds under the new owner. */
+    public void finish(YukkuriEntity child, String why) {
         var e = entry(carrier, child.getUUID()).copy();
         e.putBoolean("C", true);
         write(carrier, child.getUUID(), e);
         if (purpose == null) adopt(child, carrier.level().getGameTime());
         giveUp = why;
-        if (release != null) {
-            settingDown = release;
+        if (failedRelease != null && failedRelease.child() == child) {
+            settingDown = failedRelease;
             settingWhy = why;
         }
     }
@@ -1506,11 +1510,15 @@ public final class ParentCarry {
         if (motor.current() instanceof Release release && release.child() == child) return;
         if (motor.current() instanceof Walk && motor.owner() == owner) return;
         var home = setDownHome(child, reason);
-        if (settingDown != null && settingDown.child() == child && !settingDown.changed(carrier, home)) return;
-        settingDown = carrier.getVehicle() instanceof SurfaceHost host ? new Release(child, host) : Release.atNest(child, home);
+        var host = setDownHost();
+        if (settingDown != null && settingDown.child() == child && !settingDown.changed(carrier, host, home)) return;
+        settingDown = host != null ? new Release(child, host) : Release.atNest(child, home);
         settingWhy = reason;
-        if (!motor.run(owner, settingDown) && motor.refusal() != null) settingDown.finished(carrier, motor.refusal());
+        motor.run(owner, settingDown);
     }
+
+    /** The hull she rides, which a set-down while aboard puts the child on; null on the ground. */
+    private SurfaceHost setDownHost() { return carrier.getVehicle() instanceof SurfaceHost host ? host : null; }
 
     /** The surface a set-down asks for belongs to the request, never to the hold or the reason: the rim child's nest, the child's
      *  home while the carrier stands at it (or the migration's new home on arrival), else the ground beside her; on her own hull,
@@ -1596,10 +1604,11 @@ public final class ParentCarry {
         return world(carrier, 1, ground(carrier, child, hold(carrier, child)), yaw);
     }
 
-    /** Whether a mouth child finds its place as the passenger update gives it ({@link #seat}: the mouth seat, or pulled toward her
-     *  middle) with the carrier standing at {@code stand} turned to {@code yaw}: Release's turn sweep tests the same seat. */
+    /** Whether a mouth child finds its place as the passenger update gives it ({@link #seat}: its raw seat — a stopped lowering's
+     *  retained offset, else the mouth seat — or that pulled toward her middle) with the carrier standing at {@code stand} turned to
+     *  {@code yaw}: Release's turn sweep tests the same seat. */
     public static boolean mouthSeatable(YukkuriEntity carrier, YukkuriEntity child, Vec3 stand, float yaw) {
-        var raw = pinnedAt(carrier, child, worldAt(carrier, yaw, mouthSeat(carrier, child))).add(stand.subtract(carrier.position()));
+        var raw = rawSeat(carrier, child, 1, yaw).add(stand.subtract(carrier.position()));
         for (double t : SEAT_PULL)
             if (clear(carrier, child, new Vec3(Mth.lerp(t, raw.x, stand.x), raw.y, Mth.lerp(t, raw.z, stand.z)))) return true;
         return false;
@@ -1797,6 +1806,7 @@ public final class ParentCarry {
         boolean ours = settingDown != null && settingDown.child() == child;
         String reason = ours ? settingWhy : cause;
         if (ours) { settingDown = null; settingWhy = null; }
+        if (failedRelease != null && failedRelease.child() == child) failedRelease = null;
         if (child.getUUID().equals(lifting)) lifting = null;
         child.fallDistance = 0;
         long now = carrier.level().getGameTime();

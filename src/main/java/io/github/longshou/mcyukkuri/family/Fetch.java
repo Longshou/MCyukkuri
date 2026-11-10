@@ -46,7 +46,6 @@ public final class Fetch implements HostIntent {
     private final YukkuriEntity taker;
     private final PlacedHatEntity hat;
     private final long started;
-    private Release release;
 
     public Fetch(YukkuriEntity child, YukkuriEntity taker, PlacedHatEntity hat) {
         this.child = child;
@@ -75,7 +74,7 @@ public final class Fetch implements HostIntent {
      */
     @Override public void ended(IntentRunner.Result result) {
         if (result == IntentRunner.Result.DONE || !held()) return;
-        taker.family().carry().finish(child, "fetch_ended", release);
+        taker.family().carry().finish(child, "fetch_ended");
         GameplayLog.event(taker, "family", "fetch handoff child={} result={} held=true", child.getUUID(), result);
     }
 
@@ -139,8 +138,7 @@ public final class Fetch implements HostIntent {
             case 2:
                 // Lifting a young out of the hat wakes it.
                 child.life().wakeInHat();
-                release = new Release(child);
-                return new Step.Do(release);
+                return new Step.Do(new Release(child));
             default:
                 return null;
         }

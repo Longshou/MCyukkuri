@@ -113,7 +113,14 @@ public final class Release implements Action {
      *  back after it has finished). */
     public boolean released() { return released && !stow.running(); }
 
+    /** A set-down refused before it starts is a failed attempt like one that ends blocked: whoever holds the child next reads it. */
     @Override public Feasibility check(YukkuriEntity carrier) {
+        var feasibility = feasibility(carrier);
+        if (!feasibility.ok()) failed(carrier, Outcome.of(feasibility.reason(), feasibility.shortfall(), feasibility.detail()));
+        return feasibility;
+    }
+
+    private Feasibility feasibility(YukkuriEntity carrier) {
         if (!child.isAlive()) return Feasibility.of(Reason.TARGET_GONE, 0, "child_gone");
         if (child.getVehicle() != carrier) return Feasibility.of(Reason.NO_CONTACT, 0, "not_held");
         if (destination != null) {
@@ -571,15 +578,24 @@ public final class Release implements Action {
 
     @Override public void finished(YukkuriEntity carrier, Outcome result) {
         if (child.getVehicle() == carrier) ParentCarry.stopLowering(carrier, child);
+        failed(carrier, result);
+    }
+
+    /** The attempt's end, refused at its check or ended running; a real failure is told to the carrier's carry, so whoever holds
+     *  the child after an ended intent inherits it ({@link ParentCarry#finish}). */
+    private void failed(YukkuriEntity carrier, Outcome result) {
         outcome = result;
         failedWorld = world(carrier);
-        if (result.reason() != null) GameplayLog.limited(carrier, "family", "release." + child.getUUID() + "." + result.reason(), 200,
+        if (result.reason() == null) return;
+        carrier.family().carry().releaseFailed(this);
+        GameplayLog.limited(carrier, "family", "release." + child.getUUID() + "." + result.reason(), 200,
                 "carry put down refused child={} outcome={} tries={}", child.getUUID(), result, tries);
     }
 
-    /** Failed attempts belong to this child. Elapsed time and unrelated motor outcomes cannot reopen them. */
-    public boolean changed(YukkuriEntity carrier, BlockPos target) {
-        return outcome == null || !Objects.equals(nest, target)
+    /** Whether a set-down of this child onto {@code host} (null: the ground) at {@code target} may be tried anew. Failed attempts
+     *  belong to this child and this request; elapsed time and unrelated motor outcomes cannot reopen them, only a changed world. */
+    public boolean changed(YukkuriEntity carrier, SurfaceHost host, BlockPos target) {
+        return outcome == null || destination != host || !Objects.equals(nest, target)
                 || carrier.tickCount % 20 == 0 && failedWorld != world(carrier);
     }
 
