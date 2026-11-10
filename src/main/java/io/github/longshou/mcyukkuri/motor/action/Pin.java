@@ -74,6 +74,14 @@ public final class Pin implements Action {
         return ready.ok() ? hop.check(body) : ready;
     }
 
+    private Feasibility touching(YukkuriEntity body) {
+        Vec3 offset = body.position().subtract(target.position());
+        Vec3 forward = Vec3.directionFromRotation(0, target.getYRot());
+        return PinContact.touches(new Vec(offset.x, offset.y, offset.z), new Vec(forward.x, 0, forward.z),
+                body.getBbWidth(), target.getBbWidth()) ? Feasibility.pass()
+                : Feasibility.of(Reason.TARGET_MOVED, body.position().distanceTo(stand(body, target)), "prey_left_landing");
+    }
+
     @Override public void start(YukkuriEntity body) {
         from = body.position();
         body.getNavigation().stop();
@@ -94,16 +102,21 @@ public final class Pin implements Action {
             var ready = free(body);
             if (!ready.ok()) return Outcome.of(ready.reason(), ready.shortfall(), ready.detail());
             // A moving target may evade the committed arc. Never correct the landing into contact.
-            double gap = body.position().distanceTo(stand(body, target));
-            Vec3 offset = body.position().subtract(target.position());
-            Vec3 forward = Vec3.directionFromRotation(0, target.getYRot());
-            if (!PinContact.touches(new Vec(offset.x, offset.y, offset.z), new Vec(forward.x, 0, forward.z),
-                    body.getBbWidth(), target.getBbWidth()))
-                return Outcome.of(Reason.TARGET_MOVED, gap, "prey_left_landing");
+            var touch = touching(body);
+            if (!touch.ok()) return Outcome.of(touch.reason(), touch.shortfall(), touch.detail());
+            target.motor().interrupt("pin_contact");
             contact = true;
+            // Acquire during this landing's travel pass, before the prey can take another step.
+            // The same owner keeps both actions alive while the behaviour observes contact next tick.
+            if (!target.motor().run(body.motor().owner(), new Held(body, this))) {
+                contact = false;
+                var refusal = target.motor().refusal();
+                return refusal != null ? refusal : new Outcome.Interrupted(target.motor().startRefusal().reason());
+            }
             Motor.velocity(body, Vec3.ZERO, "pin_contact");
             GameplayLog.event(body, "agitation", "pounce land target={} distance={} gap={} reason=contact {}",
-                    target.getUUID(), from.distanceTo(body.position()), gap, hop.endDetail(new Outcome.Done("contact")));
+                    target.getUUID(), from.distanceTo(body.position()), body.position().distanceTo(stand(body, target)),
+                    hop.endDetail(new Outcome.Done("contact")));
             return new Running(duration + 1, TravelMode.CONSUMED, true);
         }
         if (!(target.motor().current() instanceof Held held) || held.pin != this)
@@ -173,7 +186,7 @@ public final class Pin implements Action {
         @Override public String id() { return "pinned"; }
         @Override public Feasibility check(YukkuriEntity body) {
             return attacker.motor().current() == pin && pin.contact() && pin.target == body
-                    ? Feasibility.pass() : Feasibility.of(Reason.NO_CONTACT, 0, "pin_ended");
+                    ? pin.touching(attacker) : Feasibility.of(Reason.NO_CONTACT, 0, "pin_ended");
         }
         @Override public void start(YukkuriEntity body) {
             body.getNavigation().stop();

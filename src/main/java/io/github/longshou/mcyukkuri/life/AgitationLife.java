@@ -433,11 +433,6 @@ public final class AgitationLife {
         actSettled = false;
         entity.getNavigation().stop();
         target.agitation().holdBy(entity);
-        target.motor().interrupt("pin_contact");
-        if (!target.motor().run(target.agitation().motorOwner, new Pin.Held(entity, pin))) {
-            interruptAct("目标无法保持接触，未结算");
-            return;
-        }
         entity.speak("rapem_act");
         encounterDescription = "已从背后压制目标，素鸡立进行中";
     }
