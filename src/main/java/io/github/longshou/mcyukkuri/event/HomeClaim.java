@@ -419,6 +419,7 @@ public final class HomeClaim {
         if (responsive(c)) driveOff((ServerLevel)e.level(),c,player,e);
     }
     /** The existing "decline event" operation on a claimant: the player asks them to leave. */
+    public static boolean canDecline(YukkuriEntity e) { return responsive(responsiveClaim(e)); }
     public static boolean declined(YukkuriEntity e, Player player) {
         Claim c=responsiveClaim(e);
         return responsive(c) && driveOff((ServerLevel)e.level(),c,player,null);

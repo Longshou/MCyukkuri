@@ -2,6 +2,7 @@ package io.github.longshou.mcyukkuri.social;
 
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.status.Identity;
+import io.github.longshou.mcyukkuri.shop.ShopMenu;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.event.WildCards;
@@ -76,12 +77,16 @@ public final class YukkuriSocial implements MotorOwner {
     }
 
     /** The existing empty-hand greeting, counted once at its actual player entry. */
-    public boolean clickedTalk(Player player) {
+    public void clickedTalk(Player player) {
+        if (ShopMenu.clickStock(player,entity)) return;
         boolean accepted = talk(player, true);
         greetClicks++;
-        if (accepted) greetingBody("greet");
+        if (accepted) {
+            greetingBody("greet");
+            entity.pet().lessons().praise(player);
+            entity.pet().care().praise(player);
+        }
         GameplayLog.event(entity, "interaction", "greet click player={} accepted={} clicks={}", player.getUUID(), accepted, greetClicks);
-        return accepted;
     }
     /** Greeting memory (runtime only): last contact per peer, the pending morning greeting and the answer a greeted peer owes. Project design. */
     private static final int REUNION_GAP = 6000, ANSWER_BASE = 20, ANSWER_SPREAD = 11, ANSWER_HOLD = 40, ANSWER_EXPIRY = 200;
@@ -120,8 +125,12 @@ public final class YukkuriSocial implements MotorOwner {
         if (teachingWait > 0) teachingWait--;
         if (active() && (entity.isPanicking() || urgent() || entity.isCommandPlaying())) stop();
     }
+    public boolean busyForTalk() {
+        return entity.isPanicking() || entity.dailyLife().active() || entity.life().isSleeping()
+                || entity.life().hasUrgentNeed() || entity.life().mealTicks() > 0;
+    }
     public boolean talk(Player player, boolean gentle) {
-        if (entity.isPanicking() || entity.dailyLife().active() || entity.life().isSleeping() || entity.life().hasUrgentNeed() || entity.life().mealTicks() > 0) {
+        if (busyForTalk()) {
             entity.showReaction("surprise", "busy", 60); return false;
         }
         if (!personality().talk(player.getUUID(), gentle)) {

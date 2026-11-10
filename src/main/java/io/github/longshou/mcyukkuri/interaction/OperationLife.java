@@ -10,18 +10,15 @@ import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.headwear.HatGeometry;
 import io.github.longshou.mcyukkuri.item.AccessoryItem;
 import io.github.longshou.mcyukkuri.item.OperationToolItem.Tool;
-import io.github.longshou.mcyukkuri.item.OperationToolItem;
-import io.github.longshou.mcyukkuri.life.Consumables;
 import io.github.longshou.mcyukkuri.life.Facilities;
 import io.github.longshou.mcyukkuri.mind.EmotionEvent;
 import io.github.longshou.mcyukkuri.motor.Motor;
 import io.github.longshou.mcyukkuri.registry.ModItems;
-import io.github.longshou.mcyukkuri.social.BondLevels;
-import io.github.longshou.mcyukkuri.social.Bonds;
 import io.github.longshou.mcyukkuri.social.DailyLife;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.Comparator;
 import java.util.EnumSet;
+import java.util.List;
 import java.util.UUID;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
@@ -54,10 +51,7 @@ public final class OperationLife {
     /** The dose occupies the same durable reservation slot as a physical tool. */
     public boolean beginAssistance(Player player,InteractionHand hand){
         var stack=player.getItemInHand(hand);
-        if(!(entity.level() instanceof ServerLevel level)||!InteractionDispatch.validCare(player,entity)
-                ||active()||!inserted.isEmpty()||cooldown>0||player.distanceToSqr(entity)>2.25
-                ||Consumables.kind(stack)!=Consumables.Kind.REPRODUCTIVE
-                ||!FamilyData.get(level).canAssist(entity))return false;
+        if(!FamilyData.get((ServerLevel)entity.level()).canAssist(entity))return false;
         if(!begin(player,Pose.ASSIST,60,null))return false;
         if(!player.getAbilities().instabuild)inserted=stack.split(1);
         player.swing(hand);return true;
@@ -72,29 +66,14 @@ public final class OperationLife {
     public UUID operator(){return operator;}
     public ItemStack inserted(){return inserted.copy();}
     public void damaged(DamageSource source){if(active()&&!ownDamage)end();}
-    public boolean canStart(Player player,CareAction action){
-        return InteractionDispatch.validCare(player,entity)&&!active()&&inserted.isEmpty()&&cooldown==0
-                &&(action.tool==null||player.getMainHandItem().is(action.tool.item()));
+    boolean canRelease(){return active()||!inserted.isEmpty();}
+    boolean ready(){return !canRelease()&&cooldown==0;}
+    boolean hasRoom(){
+        return !entity.level().getBlockCollisions(entity,entity.getBoundingBox().inflate(.6,0,.6)
+                .expandTowards(0,.4,0).move(0,.01,0)).iterator().hasNext();
     }
-    public boolean perform(Player player,CareAction action){
-        if(entity.level().isClientSide)return false;
-        if(!InteractionDispatch.validCare(player,entity)){
-            GameplayLog.limited(entity,"interaction","invalid_care:"+action,20,"care refused; player={} action={} reason=invalid_target_or_reach",player.getUUID(),action);
-            return false;
-        }
-        if(action==CareAction.RELEASE)return active()||!inserted.isEmpty()?end():false;
-        if(!canStart(player,action)){
-            GameplayLog.limited(entity,"interaction","start_refused:"+action,20,
-                    "care refused; player={} action={} active={} pending_item={} cooldown={} tool={}",
-                    player.getUUID(),action,active(),!inserted.isEmpty(),cooldown,player.getMainHandItem().getItem());
-            return false;
-        }
+    boolean perform(Player player,CareAction action){
         boolean done=switch(action){
-            case OBSERVE -> {
-                player.sendSystemMessage(Component.translatable("operation.mcyukkuri.observation",entity.getName(),
-                        Math.round(entity.getHealth()),Math.round(entity.life().nutrition()),entity.body().wound(),Math.round(entity.getMaxHealth())));yield true;
-            }
-            case GENTLE -> entity.social().talk(player,true);
             case COLD -> entity.social().talk(player,false);
             case ADOPT -> WildEvents.adopt(entity,player);
             case ABANDON -> WildEvents.abandon(entity,player);
@@ -103,15 +82,13 @@ public final class OperationLife {
             case EXERCISE -> entity.dailyLife().invite(player,DailyLife.Kind.EXERCISE);
             case FAVOR,DISLIKE -> {
                 boolean favored=action==CareAction.FAVOR;
-                if(!entity.life().personality().treatment(player.getUUID(),favored))yield false;
+                entity.life().personality().treatment(player.getUUID(),favored);
                 if (!favored) entity.mind().felt(EmotionEvent.FRIGHTENED); entity.showReaction(favored?"happy":"surprise",favored?"caregiver":"afraid",100);yield true;
             }
-            case LIFT -> !entity.isPanicking()&&Bonds.acceptsLift(entity, player.getUUID())&&begin(player,Pose.LIFT,160,null);
+            case LIFT -> begin(player,Pose.LIFT,160,null);
             case GRIP -> begin(player,Pose.GRIP,100,null);
             case RUB -> {
-                if(entity.isPanicking()||entity.life().hasUrgentNeed()||entity.life().isSleeping()||entity.life().mealTicks()>0
-                        ||entity.life().personality().fear(player.getUUID())>=BondLevels.AFFECTION_FEAR_LIMIT||player.distanceToSqr(entity)>2.25
-                        ||!entity.life().personality().talk(player.getUUID(),true))yield false;
+                entity.life().personality().talk(player.getUUID(),true);
                 entity.mind().felt(EmotionEvent.COMFORTED); entity.showReaction("happy","gentle",100);yield begin(player,Pose.RUB,40,null);
             }
             case FLICK,PUNCH,SLAP -> {
@@ -121,57 +98,66 @@ public final class OperationLife {
                 Motor.velocity(entity, away.scale(action==CareAction.FLICK?.25:.4).add(0,.16,0), "care_knockback");
                 if(entity.isAlive())begin(player,Pose.SLIDE,30,null);yield true;
             }
-            case ROLL -> entity.onGround()&&begin(player,Pose.ROLL,50,null);
-            case LAY_DOWN -> entity.onGround()&&begin(player,Pose.SUPINE,60,null);
-            case LIE_COMMAND,SHOW_RUMP -> {
-                if(!entity.life().personality().knowsWait()||entity.life().personality().trust(player.getUUID())<BondLevels.TRUST_FAMILIAR||entity.isPanicking())yield false;
-                yield begin(player,action==CareAction.SHOW_RUMP?Pose.RUMP:Pose.SUPINE,80,null);
-            }
+            case ROLL -> begin(player,Pose.ROLL,50,null);
+            case LAY_DOWN -> begin(player,Pose.SUPINE,60,null);
+            case LIE_COMMAND,SHOW_RUMP -> begin(player,action==CareAction.SHOW_RUMP?Pose.RUMP:Pose.SUPINE,80,null);
             case SHAKE_HOME -> shakeHome(player);
-            case PIN -> {if(!entity.onGround()||!strike(player,1,WoundShape.PUNCTURE)||!entity.isAlive())yield false;yield begin(player,Pose.PIN,240,Tool.PIN);}
+            case PIN -> {if(!strike(player,1,WoundShape.PUNCTURE)||!entity.isAlive())yield false;yield begin(player,Pose.PIN,240,Tool.PIN);}
             case MALLET -> strike(player,entity.getMaxHealth()+20,WoundShape.BLUNT);
-            case PIERCE -> strike(player,2,WoundShape.PUNCTURE);
-            case BURN -> {
-                if(!OperationToolItem.isHot(player.getMainHandItem(),entity.level()))yield false;
-                if(!strike(player,2,WoundShape.PUNCTURE))yield false;
-                yield true;
-            }
-            case FIX_SUPINE -> entity.onGround()&&begin(player,Pose.FIXED,400,Tool.RESTRAINT);
+            case PIERCE,BURN -> strike(player,2,WoundShape.PUNCTURE);
+            case FIX_SUPINE -> begin(player,Pose.FIXED,400,Tool.RESTRAINT);
             case WRAP_HANG,HOOK_HANG -> {
-                var support=ceiling();if(support==null){player.displayClientMessage(Component.translatable("operation.mcyukkuri.need_ceiling"),true);yield false;}
+                var support=ceiling();
                 if(action==CareAction.HOOK_HANG&&(!strike(player,1,WoundShape.PUNCTURE)||!entity.isAlive()))yield false;
                 ceiling=support;yield begin(player,action==CareAction.WRAP_HANG?Pose.WRAPPED:Pose.HOOK,300,action.tool);
             }
-            case TRIM_HAIR -> entity.body().cutHair(7,player);
-            case CUT_LEFT -> entity.body().cutHair(1,player);
-            case CUT_RIGHT -> entity.body().cutHair(2,player);
+            case TRIM_HAIR,CUT_LEFT,CUT_RIGHT -> entity.body().cutHair(action.hairParts(),player);
             case CUT_ACCESSORY -> cutAccessory(player);
-            case VIBRATE -> entity.family().adult()&&!entity.family().sterile()&&begin(player,Pose.VIBRATE,120,Tool.VIBRATOR);
+            case VIBRATE -> begin(player,Pose.VIBRATE,120,Tool.VIBRATOR);
             case STERILIZE -> {
-                if(!entity.family().adult()||entity.family().sterile()||entity.family().stimulation()==0)yield false;
                 if(!strike(player,2,WoundShape.CUT)||!entity.isAlive())yield false;
                 yield entity.family().sterilize();
             }
-            case ENCLOSE -> entity.onGround()&&begin(player,Pose.BOX,400,Tool.BOX);
+            case ENCLOSE -> begin(player,Pose.BOX,400,Tool.BOX);
             case CUT_STEM,BOTTLE_STEM -> DetachedStemBlockEntity.cut(entity,player,action==CareAction.BOTTLE_STEM);
             case TAKE_ACCESSORY,CONFISCATE -> takeAccessory(player,action==CareAction.CONFISCATE);
-            case HANG_ACCESSORY -> AccessoryItem.suspend(player,entity,player.getMainHandItem());
             case COLLECT_NEAREST -> collect(player);
             case ASK -> entity.pet().care().ask(player);
             case REMOVE_HARNESS -> entity.pet().care().takeOffHarness(player);
             case UNWRAP -> entity.pet().care().takeOffSwaddle(player);
-            case RELEASE -> false;
+            case RELEASE -> end();
         };
-        if(done){
-            if((action==CareAction.GENTLE||action==CareAction.COLD||action==CareAction.FLICK)&&entity.pet().lessons().awaitingFeedback())entity.pet().lessons().feedback(player,action);
-            entity.pet().care().feedback(player,action);
+        if(done&&action!=CareAction.RELEASE){
+            if(action==CareAction.COLD||action==CareAction.FLICK){
+                entity.pet().lessons().reprimand(player,action);
+                entity.pet().care().reprimand(player,action);
+            }
+            if(action==CareAction.RUB)entity.pet().care().affection(player);
             cooldown=20;player.swing(InteractionHand.MAIN_HAND);
             entity.pet().contact(player.getUUID(),!EnumSet.of(CareAction.FLICK,CareAction.PUNCH,CareAction.SLAP,CareAction.MALLET,CareAction.PIERCE,CareAction.BURN,CareAction.PIN).contains(action));
             if(action.tool!=null&&!action.tool.inserted)player.getMainHandItem().hurtAndBreak(1,player,EquipmentSlot.MAINHAND);
+            switch(action){
+                case VIBRATE -> entity.showReaction("surprise","",60);
+                case COLLECT_NEAREST -> message(player,"collected");
+                case STERILIZE -> message(player,"sterilized");
+                case ABANDON -> message(player,"abandoned");
+                case DECLINE_EVENT -> message(player,"declined");
+                default -> {}
+            }
         }
+        if(done&&action==CareAction.RELEASE)message(player,"released");
         GameplayLog.event(entity,"interaction","care result; player={} action={} success={} health={}/{} pose={}",
                 player.getUUID(),action,done,entity.getHealth(),entity.getMaxHealth(),pose);
         return done;
+    }
+    private void message(Player player,String result){
+        player.displayClientMessage(Component.translatable("operation.mcyukkuri.result."+result),true);
+    }
+    void finishHanging(Player player,InteractionHand hand){
+        cooldown=20;
+        player.swing(hand);
+        entity.pet().contact(player.getUUID(),true);
+        GameplayLog.event(entity,"interaction","accessory hung; player={}",player.getUUID());
     }
     private boolean strike(Player player,float amount,WoundShape shape){
         ownDamage=true;settlingShape=shape;
@@ -179,8 +165,6 @@ public final class OperationLife {
     }
     private boolean begin(Player player,Pose next,int duration,Tool binding){
         if(!entity.isAlive()||active())return false;
-        if((next==Pose.SUPINE||next==Pose.FIXED||next==Pose.ROLL||next==Pose.BOX)&&entity.level().getBlockCollisions(entity,
-                entity.getBoundingBox().inflate(.6,0,.6).expandTowards(0,.4,0).move(0,.01,0)).iterator().hasNext())return false;
         entity.life().interrupt();entity.social().stop();entity.house().stop();entity.family().stop();
         entity.getNavigation().stop();entity.setPersistenceRequired();
         pose=next;operator=player.getUUID();remaining=duration;elapsed=0;turn=abrasion=0;anchor=last=entity.position();
@@ -189,7 +173,7 @@ public final class OperationLife {
                 operator,pose,duration,inserted.getItem(),inserted.getCount());
         entity.syncOperation(pose.name(),0);entity.syncOperationAnchor(ceiling);return true;
     }
-    private BlockPos ceiling(){
+    BlockPos ceiling(){
         for(int dy=2;dy<=4;dy++){
             var pos=entity.blockPosition().above(dy);
             if(!entity.level().getBlockState(pos).getCollisionShape(entity.level(),pos).isEmpty())return pos;
@@ -201,7 +185,7 @@ public final class OperationLife {
         if(cooldown>0)cooldown--;
         if(!active()){if(!inserted.isEmpty())returnInserted();return;}
         var player=entity.level().getPlayerByUUID(operator);
-        if(player==null||!InteractionDispatch.validCare(player,entity)||entity.isInWaterOrBubble()||entity.isOnFire()||--remaining<=0){end();return;}
+        if(player==null||InteractionDispatch.reachRefusal(player,entity,5)!=null||entity.isInWaterOrBubble()||entity.isOnFire()||--remaining<=0){end();return;}
         elapsed++;
         if(pose==Pose.ASSIST){
             if(player.distanceToSqr(entity)>2.25||entity.position().distanceToSqr(anchor)>.04
@@ -285,7 +269,6 @@ public final class OperationLife {
         if(!active())begin(player,returning?Pose.HAT_RETURN:Pose.HAT_REMOVE,21,null);
     }
     private boolean cutAccessory(Player player){
-        if(!entity.life().hasAccessory()&&!entity.headwear().reassembling())return false;
         var token=ModRandom.identity(entity.getRandom());var stack=new ItemStack(ModItems.accessoryFor(entity));
         stack.set(DataComponents.CUSTOM_NAME,Component.translatable("item.mcyukkuri.cut_accessory",stack.getHoverName()));
         AccessoryItem.markSource(stack,entity);
@@ -296,22 +279,32 @@ public final class OperationLife {
         if(entity.isVehicle())entity.motor().interrupt("hat_taken");
         entity.life().personality().confiscated(player.getUUID());entity.mind().felt(EmotionEvent.ACCESSORY_LOST); entity.showReaction("surprise","lost_accessory",140);return true;
     }
-    private boolean collect(Player player){
-        var item=entity.level().getEntitiesOfClass(ItemEntity.class,entity.getBoundingBox().inflate(2),value->value.isAlive()
+    private ItemEntity nearestItem(Player player){
+        return entity.level().getEntitiesOfClass(ItemEntity.class,entity.getBoundingBox().inflate(2),value->value.isAlive()
                 &&player.distanceToSqr(value)<25&&player.hasLineOfSight(value)).stream().min(Comparator.comparingDouble(entity::distanceToSqr)).orElse(null);
-        if(item==null)return false;
+    }
+    boolean canCollect(Player player){
+        var item=nearestItem(player);
+        return item!=null&&(player.getAbilities().instabuild||player.getInventory().getFreeSlot()>=0
+                ||player.getInventory().getSlotWithRemainingSpace(item.getItem())>=0);
+    }
+    private boolean collect(Player player){
+        var item=nearestItem(player);
         var stack=item.getItem();int before=stack.getCount();player.getInventory().add(stack);
         if(stack.isEmpty())item.discard();else item.setItem(stack);
         return stack.getCount()<before;
     }
-    private boolean shakeHome(Player player){
+    List<YukkuriEntity> residents(Player player){
         BlockPos home=entity.house().nestPosition();
         if(home==null&&entity.life().home()!=null&&entity.life().home().dimension().equals(entity.level().dimension()))home=entity.life().home().pos();
-        if(home==null||entity.level().getBlockState(home).isAir()||player.distanceToSqr(Vec3.atCenterOf(home))>25)return false;
+        if(home==null||entity.level().getBlockState(home).isAir()||player.distanceToSqr(Vec3.atCenterOf(home))>25)return List.of();
         final BlockPos chosen=home;
-        var residents=entity.level().getEntitiesOfClass(YukkuriEntity.class,new AABB(home).inflate(6),other->other.isAlive()&&(
+        return entity.level().getEntitiesOfClass(YukkuriEntity.class,new AABB(home).inflate(6),other->other.isAlive()&&(
                 chosen.equals(other.house().nestPosition())||other.life().home()!=null&&other.life().home().dimension().equals(entity.level().dimension())&&chosen.equals(other.life().home().pos())));
-        residents.forEach(other->{other.life().interrupt();other.social().stop();other.mind().felt(EmotionEvent.FRIGHTENED); other.showReaction("surprise","afraid",100);});return !residents.isEmpty();
+    }
+    private boolean shakeHome(Player player){
+        residents(player).forEach(other->{other.life().interrupt();other.social().stop();other.mind().felt(EmotionEvent.FRIGHTENED); other.showReaction("surprise","afraid",100);});
+        return true;
     }
     public CompoundTag save(){
         var tag=new CompoundTag();tag.putInt("Version",1);tag.putInt("Cooldown",cooldown);

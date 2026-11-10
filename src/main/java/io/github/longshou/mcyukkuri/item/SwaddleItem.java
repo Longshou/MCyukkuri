@@ -1,6 +1,8 @@
 package io.github.longshou.mcyukkuri.item;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.interaction.CareAction;
+import io.github.longshou.mcyukkuri.interaction.InteractionDispatch;
 import java.util.List;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
@@ -22,7 +24,7 @@ public final class SwaddleItem extends Item {
     public SwaddleItem(Properties properties) { super(properties); }
     @Override public InteractionResult interactLivingEntity(ItemStack stack, Player player, LivingEntity target, InteractionHand hand) {
         if (!(target instanceof YukkuriEntity entity)) return InteractionResult.PASS;
-        if (!player.level().isClientSide && !entity.pet().care().putOnSwaddle(player, stack)) return InteractionResult.FAIL;
+        if (!player.level().isClientSide && !InteractionDispatch.fitWear(player,entity,stack,CareAction.UNWRAP)) return InteractionResult.FAIL;
         return InteractionResult.sidedSuccess(player.level().isClientSide);
     }
     @Override public void appendHoverText(ItemStack stack, Item.TooltipContext context, List<Component> tooltip, TooltipFlag flag) {

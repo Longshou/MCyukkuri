@@ -26,7 +26,7 @@ import io.github.longshou.mcyukkuri.motor.AbilityTable;
 import io.github.longshou.mcyukkuri.motor.Motor;
 import io.github.longshou.mcyukkuri.network.ReadoutNetworking;
 import io.github.longshou.mcyukkuri.network.BodyEffectNetworking;
-import io.github.longshou.mcyukkuri.pet.LeashGuard;
+import io.github.longshou.mcyukkuri.interaction.InteractionDispatch;
 import io.github.longshou.mcyukkuri.pet.SceneReset;
 import io.github.longshou.mcyukkuri.command.PlaygroundFields;
 import io.github.longshou.mcyukkuri.pet.exam.ExamSession;
@@ -142,9 +142,9 @@ public final class CommonRegistration {
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, BlockEvent.BreakEvent.class, HouseholdEcology::broke);
 
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, PlayerInteractEvent.EntityInteract.class, HouseholdEcology::sheared);
-        NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, PlayerInteractEvent.EntityInteract.class, Naming::nameTag);
-        NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, PlayerInteractEvent.EntityInteract.class, LeashGuard::interact);
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, PlayerInteractEvent.EntityInteract.class, MagnifyingGlassItem::blockCare);
+        NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, PlayerInteractEvent.EntityInteract.class, InteractionDispatch::interact);
+        NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, PlayerInteractEvent.EntityInteract.class, Naming::nameTag);
 
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, PlayerEvent.ItemCraftedEvent.class, HouseholdEcology::crafted);
 

@@ -1,6 +1,8 @@
 package io.github.longshou.mcyukkuri.item;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.interaction.CareAction;
+import io.github.longshou.mcyukkuri.interaction.InteractionDispatch;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
@@ -17,7 +19,7 @@ public final class PetHarnessItem extends Item {
     public PetHarnessItem(Properties properties) { super(properties); }
     @Override public InteractionResult interactLivingEntity(ItemStack stack, Player player, LivingEntity target, InteractionHand hand) {
         if (!(target instanceof YukkuriEntity entity)) return InteractionResult.PASS;
-        if (!player.level().isClientSide && !entity.pet().care().putOnHarness(player, stack)) return InteractionResult.FAIL;
+        if (!player.level().isClientSide && !InteractionDispatch.fitWear(player,entity,stack,CareAction.REMOVE_HARNESS)) return InteractionResult.FAIL;
         return InteractionResult.sidedSuccess(player.level().isClientSide);
     }
 }

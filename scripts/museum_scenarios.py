@@ -1107,7 +1107,7 @@ add('social_identity', 'town', '宠物、流浪与野生四类对照', '宠物�
     env=DAY, vantage=(0, 5),
     late=[home('identity_pet', -5, -4), home('identity_stray', -2, -4)],
     give=['mcyukkuri:field_notebook', 'minecraft:apple 4'],
-    note='靠近后潜行空手右键，进「饰物与管理」。收养魔理沙，再对灵梦选择「解除饲养关系（弃养）」。观察表情与手册标签；需要时先喂食提高信任。',
+    note='靠近后双手空着潜行右键，在「照料」一栏收养魔理沙，再对自己的灵梦选择「弃养」。观察菜单抬头的身份与操作后的反馈；收养未出现时，先喂食提高信任。',
     reads=[('读四只的身份', 'yukkuri status @e[tag=scn,type=#mcylab:yukkuri,distance=..24]')])
 
 add('wild', 'town', '饿野油来讨宠物的苹果', '饿野油来讨宠物的苹果', '宠物（银章）在进食；饥饿的野生魔理沙走来讨吃，看宠物是不理会、报告主人，还是没忍住', '约 1–3 分钟', [
@@ -1169,7 +1169,7 @@ for _i, (_style, _label) in enumerate(_SWADDLE_LOOKS):
                       f'data modify entity {sel(_pet)} YukkuriPet.Care.WearOwner set from entity @s UUID']
 add('swaddle_worn', 'town', '八款布襁褓穿上并排，可亲手包', '八款布襁褓穿上并排，可亲手包',
     '八只自家宠物赤油／子油（灵梦、魔理沙、爱丽丝轮流）已穿着八款襁褓并排站开，头顶名字是款式；最右一只赤油没包，右边木箱里有八款襁褓布，'
-    '手持右键它包上，护理菜单“解开”取回同款。看各款外观与图标同款、首字母款背后是本物种首字母、发辫尾巴在布外不穿模。'
+    '手持右键它包上，双手空着潜行右键后选「取下襁褓布」，也可手持襁褓布潜行右键取回同款。看各款外观与图标同款、首字母款背后是本物种首字母、发辫尾巴在布外不穿模。'
     '另给两块原色襁褓布和八种染料，在工作台用“襁褓布＋染料”合成改款',
     '随意', [*_swaddle_pets, *_swaddle_wear,
              yk('reimu', -5, 0, 'swaddle_bare', stage='baby', grade=1, label='未包', nutrition=90, energy=100, hygiene=100), *own('swaddle_bare'),
@@ -1179,7 +1179,7 @@ add('swaddle_worn', 'town', '八款布襁褓穿上并排，可亲手包', '八�
     reads=[(f'读{label}款襁褓', f'data get entity {sel("swaddle_" + style)} YukkuriPet.Care') for style, label in _SWADDLE_LOOKS], vantage=(0, 5))
 
 add('harness_walk', 'town', '亲手给宠物系胴带牵着走', '亲手给宠物系胴带牵着走',
-    '先用胴带右键宠物，再用拴绳牵引；戴上后短暂回应即恢复活动。走动、停下喂食，再解绳观察它恢复日常', '随意', [
+    '先用胴带右键宠物，再用拴绳牵引。走动后空手右键解绳，再潜行空手右键选「摘下胴带」；观察拴绳与胴带各归还一次，宠物恢复日常', '随意', [
         yk('reimu', 0, 0, 'harness_pet', grade=1, lead=True, nutrition=60, energy=100, hygiene=100), *own('harness_pet')],
     give=['mcyukkuri:pet_harness 1', 'minecraft:lead 1', 'minecraft:apple 6'],
     reads=[('读牵引宠物', f'yukkuri status {sel("harness_pet")} raw')], vantage=(0, 8))
@@ -1527,7 +1527,7 @@ _source_cases=(('cut',-12,0,'木剑刀割'),('blunt',-6,0,'空手钝击'),('arro
                ('thorn',6,0,'仙人掌细刺'),('cone',12,0,'滴水石尖锥'),('blast',-12,10,'真实爆炸'),
                ('heat',-6,10,'火烧与热地板'),('friction',0,10,'真实滚拖摩擦'))
 add('wound_sources','body','用真实武器和环境造成伤','用真实武器和环境造成伤',
-    '目标从健康无伤开始，玩家用有限工具真实命中，读实际扣血、wound_sites/anchors的shape与伤级；弓箭和三叉戟用真实投射物，仙人掌/石笋按实际接触，爆炸用TNT。右后玻璃围区有饥饿捕食种和猎物，普通AI自行追咬，观察bite。热地板只足烧，着火整体焦枯；滚拖用原生空手操作。一次MC命中不虚构逐齿逐刺落点',
+    '目标从健康无伤开始，玩家用有限工具真实命中，读实际扣血、wound_sites/anchors的shape与伤级；弓箭和三叉戟用真实投射物，仙人掌/石笋按实际接触，爆炸用TNT。右后玻璃围区有饥饿捕食种和猎物，普通AI自行追咬，观察bite。热地板只足烧，着火整体焦枯；滚拖从空手潜行右键的照料菜单操作。一次MC命中不虚构逐齿逐刺落点',
     '先看右后追咬，再逐类手动操作；清场恢复地形与实体',[
         *[yk('reimu',dx,dz,name,label=label,nutrition=90,energy=95,lead=i==0) for i,(name,dx,dz,label) in enumerate(_source_cases)],
         box(10,-1,7,20,5,17,'minecraft:glass','hollow'),
@@ -2337,7 +2337,7 @@ add('balance_relation', 'meadow', '亲近玩家但对玩家的恐惧0／45／70'
     '②朝一只走近（进到六格内）→45／70 在观察期里被逼近就后退，0 迎着走过来。'
     '③手里拿着苹果（十格内）→只有 0 会过来（<30）；45／70 不来。'
     '④右键递苹果→三只都吃（进食不看恐惧，吃完好感 +8、恐惧 −5）。'
-    '⑤空手右键／护理菜单想抱起与抚摸→只有 0 接受（抱起 <40、抚摸 <25）；45／70 拒绝。'
+    '⑤双手空着潜行右键，在「身体动作」找「轻抱」和「抚摸」→只有 0 可选（轻抱 <40、抚摸 <25，抚摸还需靠到 1.5 格内）；45／70 不显示。'
     '70 还有更细的差别：靠近到 1.5 格内会缩开、不能一起休闲／贴贴／舔伤（≥60）；45 只是谨慎。读“对象关系”看 closeness／fear／fear_band 真实值',
     '约30–60秒', [
         *[command for n, (fear, text) in enumerate(_BALANCE_FEAR)

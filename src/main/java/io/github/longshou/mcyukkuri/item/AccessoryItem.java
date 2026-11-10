@@ -6,7 +6,9 @@ import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.interaction.InteractionDispatch;
 import io.github.longshou.mcyukkuri.registry.ModItems;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
+import java.util.List;
 import java.util.UUID;
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
@@ -19,22 +21,27 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
 public final class AccessoryItem extends Item {
     public AccessoryItem(Properties properties) { super(properties); }
+    @Override public void appendHoverText(ItemStack stack,TooltipContext context,List<Component> lines,TooltipFlag flag){
+        lines.add(Component.translatable("operation.mcyukkuri.hint.accessory").withStyle(ChatFormatting.GRAY));
+    }
     @Override public InteractionResult interactLivingEntity(ItemStack stack, Player player, LivingEntity target, InteractionHand hand) {
         if (!(target instanceof YukkuriEntity entity)) return InteractionResult.PASS;
-        if(player.isSecondaryUseActive()){
-            InteractionDispatch.openCare(player,entity);return InteractionResult.sidedSuccess(player.level().isClientSide);
-        }
         if (!player.level().isClientSide) {
+            if(player.isSecondaryUseActive()){
+                return InteractionDispatch.hangAccessory(player,entity,hand)?InteractionResult.CONSUME:InteractionResult.FAIL;
+            }
             if (!receive(entity, stack, player.getUUID())) {
                 String reason = recipientMismatchReason(entity, stack);
                 if (reason == null) reason = entity.life().accessoryReceiptRefusalReason();
                 logRefusal(entity, player, reason == null ? "held_shards_not_released" : reason);
+                InteractionDispatch.refuse(player,entity,"return_accessory","accessory_fit");
                 return InteractionResult.FAIL;
             }
             stack.shrink(1);
@@ -78,15 +85,8 @@ public final class AccessoryItem extends Item {
         });
         owner.pet().markAccessory(stack);
     }
-    public static boolean suspend(Player player,YukkuriEntity owner,ItemStack stack){
-        if(!matches(owner,stack))return false;
-        BlockPos support=null;
-        for(int dy=2;dy<=4;dy++){
-            var pos=owner.blockPosition().above(dy);
-            if(!player.level().getBlockState(pos).getCollisionShape(player.level(),pos).isEmpty()){support=pos;break;}
-        }
-        if(support==null){player.displayClientMessage(Component.translatable("operation.mcyukkuri.need_ceiling"),true);return false;}
-        var one=stack.copyWithCount(1);final var anchor=support;
+    public static boolean suspend(Player player,ItemStack stack,BlockPos anchor){
+        var one=stack.copyWithCount(1);
         CustomData.update(DataComponents.CUSTOM_DATA,one,tag->{tag.putLong("SuspensionAnchor",anchor.asLong());tag.putString("SuspensionDimension",
                 player.level().dimension().location().toString());tag.putInt("SuspensionTicks",600);});
         var position=Vec3.atBottomCenterOf(anchor).add(0,-.35,0);

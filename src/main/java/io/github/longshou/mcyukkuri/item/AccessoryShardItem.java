@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.item;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.interaction.InteractionDispatch;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.List;
 import net.minecraft.ChatFormatting;
@@ -28,16 +29,15 @@ public final class AccessoryShardItem extends Item {
         if (!(target instanceof YukkuriEntity entity)) return InteractionResult.PASS;
         // The client predicts the item interaction; only the server reads the recipient's component state.
         if (player.level().isClientSide) return InteractionResult.SUCCESS;
-        if (!player.level().isClientSide) {
-            if (!entity.headwear().takeShard(stack, player)) {
-                GameplayLog.limited(entity,"headwear","shard_receive_refused",20,
-                        "shard receive refused reason={} player={}",entity.headwear().transferredShardRefusalReason(stack),player.getUUID());
-                return InteractionResult.FAIL;
-            }
-            int before=stack.getCount();stack.shrink(1);
-            GameplayLog.event(entity,"headwear","offered shard consumed player={} count={} -> {}",player.getUUID(),before,stack.getCount());
+        if (!entity.headwear().takeShard(stack, player)) {
+            GameplayLog.limited(entity,"headwear","shard_receive_refused",20,
+                    "shard receive refused reason={} player={}",entity.headwear().transferredShardRefusalReason(stack),player.getUUID());
+            InteractionDispatch.refuse(player,entity,"repair_accessory","accessory_fit");
+            return InteractionResult.FAIL;
         }
-        return InteractionResult.sidedSuccess(player.level().isClientSide);
+        int before=stack.getCount();stack.shrink(1);
+        GameplayLog.event(entity,"headwear","offered shard consumed player={} count={} -> {}",player.getUUID(),before,stack.getCount());
+        return InteractionResult.CONSUME;
     }
     @Override public int getEntityLifespan(ItemStack stack, Level level) { return LIFESPAN; }
     @Override public void onDestroyed(ItemEntity item) {

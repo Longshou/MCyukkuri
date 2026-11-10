@@ -11,6 +11,6 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 public final class ModMenus {
     public static final DeferredRegister<MenuType<?>> MENUS=DeferredRegister.create(Registries.MENU,MCYukkuri.MOD_ID);
     public static final DeferredHolder<MenuType<?>,MenuType<CareMenu>> CARE=MENUS.register("care_actions",
-            ()->IMenuTypeExtension.create((id,inventory,buffer)->new CareMenu(id,inventory,buffer.readVarInt())));
+            ()->IMenuTypeExtension.create((id,inventory,buffer)->new CareMenu(id,inventory,buffer.readVarInt(),buffer.readBoolean())));
     private ModMenus(){}
 }

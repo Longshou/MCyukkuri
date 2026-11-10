@@ -31,7 +31,7 @@ import net.neoforged.neoforge.event.tick.EntityTickEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
 import io.github.longshou.mcyukkuri.pet.social.BadgeArcs;
 import io.github.longshou.mcyukkuri.settlement.SettlementData;
-import io.github.longshou.mcyukkuri.status.Identity;
+import io.github.longshou.mcyukkuri.interaction.InteractionDispatch;
 import io.github.longshou.mcyukkuri.status.YukkuriStatus;
 import java.util.Locale;
 import java.util.stream.StreamSupport;
@@ -334,8 +334,12 @@ public final class WildEvents {
         return !e.profile().dangerToYukkuri()&&!e.profile().houseBody()&&HumanCommerce.mayCapture(player,e)
                 &&unowned(e)&&Bonds.trustedPlayer(e, player.getUUID());
     }
+    public static boolean canAdoptHere(YukkuriEntity e, Player player) {
+        return safe(e) && e.hasLineOfSight(player) && canAdopt(e,player);
+    }
     public static boolean adopt(YukkuriEntity e, Player player) {
-        if(!(e.level() instanceof ServerLevel level)||!safe(e)||!playerNear(e,player)||e.distanceToSqr(player)>16||!canAdopt(e,player))return false;
+        if(InteractionDispatch.reachRefusal(player,e,4)!=null||!canAdoptHere(e,player))return false;
+        var level=(ServerLevel)e.level();
         var before = e.status().identity();
         Custody.assign(e, player, Custody.Role.COMPANION);
         e.settlement().exile();
@@ -349,11 +353,13 @@ public final class WildEvents {
         else if(s!=null && s.kind==Kind.BADGE_ARC && s.active())BadgeArcs.adopted(level,s,e,player);
         e.showReaction("happy","caregiver",80);HomeClaim.adopted(e,player);return true;
     }
+    public static boolean canAbandon(YukkuriEntity e, Player player) {
+        return safe(e) && e.hasLineOfSight(player)
+                && WildEventData.get((ServerLevel)e.level()).forMember(e.getUUID())==null;
+    }
     public static boolean abandon(YukkuriEntity e, Player player) {
-        if(!(e.level() instanceof ServerLevel level)||!safe(e)||!playerNear(e,player)||e.distanceToSqr(player)>16
-                ||e.status().identity()!=Identity.PET||!HumanCommerce.ownedBy(e,player.getUUID()))return false;
-        var data=WildEventData.get(level);Scene old=data.forMember(e.getUUID());
-        if(old!=null)return false;
+        var level=(ServerLevel)e.level();
+        var data=WildEventData.get(level);
         Scene scene=data.start(Kind.ABANDONMENT,"abandonment",GlobalPos.of(level.dimension(),e.blockPosition()),List.of(e.getUUID()),player.getUUID(),level.getGameTime());
         if(scene==null)return false;
         Custody.release(e, Custody.ReleaseReason.ABANDON, player.getUUID(), null);
@@ -362,12 +368,16 @@ public final class WildEvents {
     private static boolean pleading(Scene scene, YukkuriEntity e) {
         return scene.kind==Kind.BADGE_ARC && Arc.byId(scene.card)==Arc.PLEA && scene.members.getFirst().equals(e.getUUID());
     }
+    private static Scene declineScene(YukkuriEntity e, Player player) {
+        return WildEventData.get((ServerLevel)e.level()).forMember(e.getUUID(),
+                scene -> player.getUUID().equals(scene.player) && scene.kind!=Kind.ABANDONMENT);
+    }
+    public static boolean canDecline(YukkuriEntity e, Player player) {
+        return e.hasLineOfSight(player) && (HomeClaim.canDecline(e) || declineScene(e,player)!=null);
+    }
     public static boolean decline(YukkuriEntity e, Player player) {
-        if(!(e.level() instanceof ServerLevel level)||!playerNear(e,player)||e.distanceToSqr(player)>16)return false;
         if(HomeClaim.declined(e,player))return true;
-        Scene s=WildEventData.get(level).forMember(e.getUUID(),scene -> player.getUUID().equals(scene.player) && scene.kind!=Kind.ABANDONMENT);
-        if(s==null||!player.getUUID().equals(s.player)||s.kind==Kind.ABANDONMENT)return false;
-        finish(level,s,Phase.REFUSED,"player_declined");return true;
+        finish((ServerLevel)e.level(),declineScene(e,player),Phase.REFUSED,"player_declined");return true;
     }
     private WildEvents() {}
 }

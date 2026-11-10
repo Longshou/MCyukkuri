@@ -916,7 +916,7 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     /** Server: everything worn on the body, as YukkuriView.visibleWear bits (pet harness and cloth swaddle, leaf swaddle). */
     public int wornBits() { return pet().care().wearBits() | leafSwaddle().wearBits(); }
     public void syncWear() { sync().setWear(wornBits()); }
-    /** Only a harnessed pet can be led; PetCare/LeashGuard further restrict this to the owner (the check below is the same on both sides). */
+    /** Only a harnessed pet can be led; InteractionDispatch checks who may attach the lead. */
     @Override public boolean canBeLeashed() { return interactions().canBeLeashed(); }
     @Override protected Vec3 getLeashOffset() { return interactions().getLeashOffset(); }
     /** It does not follow while something is urgent or it is busy: the lead only holds it back past 6 blocks. */

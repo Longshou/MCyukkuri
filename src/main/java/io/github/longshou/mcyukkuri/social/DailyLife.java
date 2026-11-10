@@ -185,9 +185,12 @@ public final class DailyLife {
                 && nuzzle(peer);
     }
     /** A care-menu invitation respects the same needs, trust, space and cooldown as autonomous leisure. */
+    public boolean canInvite(Player player, Kind kind) {
+        return trusted(player) && entity.hasLineOfSight(player) && canBegin(kind, player);
+    }
     public boolean invite(Player player, Kind kind) {
-        if (!trusted(player) || entity.distanceToSqr(player) > 16 || !entity.hasLineOfSight(player)) return false;
-        return kind == Kind.NUZZLE ? nuzzle(player) : begin(kind, player);
+        start(kind, player, false);
+        return true;
     }
     public boolean begin(Kind kind) { return kind != Kind.NUZZLE && begin(kind, null); }
     public boolean singTo(YukkuriEntity listener) {
@@ -197,11 +200,18 @@ public final class DailyLife {
                 && begin(Kind.SING, listener);
     }
     private boolean begin(Kind kind, Entity companion) { return begin(kind, companion, false); }
-    private boolean begin(Kind kind, Entity companion, boolean welcome) {
+    private boolean canBegin(Kind kind, Entity companion) {
         if (entity.level().isClientSide || !available(entity) || active() || cooldown > 0) return false;
         if (kind == Kind.EXERCISE && (!entity.childhood().canExercise()
                 || companion instanceof YukkuriEntity peer && !peer.childhood().canExercise())) return false;
-        if (kind != Kind.NUZZLE && (!room() || !TravelRange.nearHomeForLeisure(entity))) return false;
+        return kind == Kind.NUZZLE || room() && TravelRange.nearHomeForLeisure(entity);
+    }
+    private boolean begin(Kind kind, Entity companion, boolean welcome) {
+        if (!canBegin(kind, companion)) return false;
+        start(kind, companion, welcome);
+        return true;
+    }
+    private void start(Kind kind, Entity companion, boolean welcome) {
         entity.social().stop();
         session = new Session(entity, companion, kind, welcome); cooldown = 600;
         if (companion != null) entity.life().personality().protectRelation(companion.getUUID());
@@ -217,7 +227,6 @@ public final class DailyLife {
                 "session reserved kind={} companion={} distance={} affectionNeed={} boredom={} homeDistance={}",
                 kind,companion==null?null:companion.getUUID(),companion==null?0:Math.round(entity.distanceTo(companion)*10)/10.0,affection,boredom,
                 entity.life().homeStand()==null?"none":Math.round(Math.sqrt(entity.distanceToSqr(Vec3.atBottomCenterOf(entity.life().homeStand())))*10)/10.0);
-        return true;
     }
     private boolean room() {
         var pos = entity.blockPosition();

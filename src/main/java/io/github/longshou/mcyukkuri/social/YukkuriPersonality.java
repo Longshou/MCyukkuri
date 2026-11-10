@@ -296,8 +296,9 @@ public final class YukkuriPersonality {
     public boolean protects() { return friendliness() >= Temperament.PROTECT_FRIENDLINESS; }
     public int affectionThreshold() { return 65 - attachment() / 2; }
 
+    public boolean canTalk() { return talkWait == 0; }
     public boolean talk(UUID object, boolean gentle) {
-        if (talkWait > 0) return false;
+        if (!canTalk()) return false;
         talkWait = 160 + (100 - selfControl());
         relationshipChanged(object, gentle ? 3 : -6, gentle ? -2 : 8);
         return true;
@@ -312,7 +313,7 @@ public final class YukkuriPersonality {
     public void treasureTaken(UUID object) { relationshipChanged(object, -10, 14); }
     public void confiscated(UUID object) { relationshipChanged(object, -6, 8); }
     public boolean treatment(UUID object, boolean favored) {
-        if (talkWait > 0) return false;
+        if (!canTalk()) return false;
         talkWait = 240;
         relationshipChanged(object, favored ? 4 : -10, favored ? -3 : 12);
         return true;

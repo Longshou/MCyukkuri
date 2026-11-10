@@ -2,6 +2,7 @@ package io.github.longshou.mcyukkuri.client;
 
 import io.github.longshou.mcyukkuri.MCYukkuri;
 import io.github.longshou.mcyukkuri.entity.YukkuriVariant;
+import io.github.longshou.mcyukkuri.interaction.CareMenu;
 import io.github.longshou.mcyukkuri.item.SwaddleStyle;
 import io.github.longshou.mcyukkuri.life.Consumables;
 import io.github.longshou.mcyukkuri.life.Facilities;
@@ -10,6 +11,7 @@ import io.github.longshou.mcyukkuri.registry.ModBlocks;
 import io.github.longshou.mcyukkuri.registry.ModEntities;
 import io.github.longshou.mcyukkuri.registry.ModItems;
 import io.github.longshou.mcyukkuri.registry.ModMenus;
+import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
 import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -84,7 +86,8 @@ public final class ClientEvents {
     }
 
     public static void registerScreens(RegisterMenuScreensEvent event){
-        event.register(ModMenus.CARE.get(),CareScreen::new);
+        event.<CareMenu,AbstractContainerScreen<CareMenu>>register(ModMenus.CARE.get(),(menu,inventory,title)->menu.cutter()
+                ?new CutterScreen(menu,inventory,title):new CareScreen(menu,inventory,title));
     }
 
     private ClientEvents() {}

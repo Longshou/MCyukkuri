@@ -49,7 +49,7 @@ public final class Naming {
     /** Vanilla applies the tag after this event, inside Mob.interact; this only reacts (server side). */
 
     public static void nameTag(PlayerInteractEvent.EntityInteract event) {
-        if (event.getLevel().isClientSide() || !(event.getTarget() instanceof YukkuriEntity y) || !y.isAlive()) return;
+        if (event.getLevel().isClientSide() || !(event.getTarget() instanceof YukkuriEntity y)) return;
         var stack = event.getItemStack();
         if (!stack.is(Items.NAME_TAG)) return;
         var name = stack.get(DataComponents.CUSTOM_NAME);

@@ -7,6 +7,7 @@ import io.github.longshou.mcyukkuri.mind.EmotionEvent;
 import io.github.longshou.mcyukkuri.social.BondLevels;
 import io.github.longshou.mcyukkuri.social.Temperament;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.interaction.InteractionDispatch;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.status.YukkuriStatus;
 import io.github.longshou.mcyukkuri.status.Identity;
@@ -64,8 +65,7 @@ public final class PetLife {
     public boolean isPet() { return animal.status().identity().companion(); }
     public boolean owned(Player p) { return ownedBy(p.getUUID()); }
     public boolean near(Player p) {
-        return !animal.level().isClientSide && p != null && p.isAlive() && !p.isSpectator() && animal.isAlive()
-                && p.level() == animal.level() && p.distanceToSqr(animal) <= 64 && p.hasLineOfSight(animal);
+        return !animal.level().isClientSide && p != null && InteractionDispatch.reachRefusal(p,animal,8)==null;
     }
 
     // grade

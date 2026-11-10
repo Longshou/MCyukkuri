@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.life;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.interaction.InteractionDispatch;
 import io.github.longshou.mcyukkuri.MCYukkuri;
 import java.util.EnumMap;
 import net.minecraft.core.component.DataComponents;
@@ -58,9 +59,12 @@ public final class Consumables {
     }
     public static InteractionResult feed(YukkuriEntity entity,Player player,InteractionHand hand){
         var stack=player.getItemInHand(hand);
-        if(!player.hasLineOfSight(entity)||player.distanceToSqr(entity)>9)return InteractionResult.FAIL;
         if(!entity.level().isClientSide){
-            if(!entity.life().beginDose(stack.copyWithCount(1),player.getUUID(),!player.getAbilities().instabuild&&bottled(stack)))return InteractionResult.FAIL;
+            if(!InteractionDispatch.requireReach(player,entity,3))return InteractionResult.FAIL;
+            if(!entity.life().beginDose(stack.copyWithCount(1),player.getUUID(),!player.getAbilities().instabuild&&bottled(stack))){
+                entity.showReaction("cheek_puff","refuse",60);
+                return InteractionResult.FAIL;
+            }
             if(!player.getAbilities().instabuild)stack.shrink(1);
         }
         return InteractionResult.sidedSuccess(entity.level().isClientSide);
@@ -70,18 +74,18 @@ public final class Consumables {
         DoseItem(Kind kind,Properties properties){super(properties);this.kind=kind;}
         @Override public InteractionResult interactLivingEntity(ItemStack stack,Player player,LivingEntity target,InteractionHand hand){
             if(!(target instanceof YukkuriEntity entity))return InteractionResult.PASS;
-            if(kind==Kind.SPICY)return InteractionResult.PASS;
+            if(entity.level().isClientSide)return InteractionResult.SUCCESS;
             if(kind==Kind.REPRODUCTIVE){
-                if(entity.level().isClientSide)return InteractionResult.SUCCESS;
-                return entity.operations().beginAssistance(player,hand)?InteractionResult.CONSUME:InteractionResult.FAIL;
+                return InteractionDispatch.assist(player,entity,hand)?InteractionResult.CONSUME:InteractionResult.FAIL;
             }
             if(kind!=Kind.RAMUNE)return feed(entity,player,hand);
-            if(!player.hasLineOfSight(entity)||player.distanceToSqr(entity)>9)return InteractionResult.FAIL;
-            if(!player.level().isClientSide){
-                if(!entity.life().spray())return InteractionResult.FAIL;
-                if(!player.getAbilities().instabuild){stack.shrink(1);var empty=new ItemStack(Items.GLASS_BOTTLE);if(!player.getInventory().add(empty))player.drop(empty,false);}
+            if(!InteractionDispatch.requireReach(player,entity,3))return InteractionResult.FAIL;
+            if(!entity.life().spray()){
+                InteractionDispatch.refuse(player,entity,"spray","condition");
+                return InteractionResult.FAIL;
             }
-            return InteractionResult.sidedSuccess(player.level().isClientSide);
+            if(!player.getAbilities().instabuild){stack.shrink(1);var empty=new ItemStack(Items.GLASS_BOTTLE);if(!player.getInventory().add(empty))player.drop(empty,false);}
+            return InteractionResult.CONSUME;
         }
     }
     private Consumables(){}

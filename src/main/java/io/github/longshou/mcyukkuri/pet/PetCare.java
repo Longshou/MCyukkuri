@@ -55,19 +55,11 @@ public final class PetCare {
     public int wearBits() { return (harness ? 1 : 0) | (swaddle ? 2 | swaddleStyle.ordinal() << 6 : 0); }
     private void syncWear() { animal.syncWear(); }
     private void say(Player player, String key) { player.displayClientMessage(Component.translatable("pet.mcyukkuri." + key, animal.getDisplayName()), true); }
-    /** Whether this player may lead the pet right now (its owner, harness on, not busy): the lead guard asks this before vanilla ties the lead. */
-    public String leashRefusal(Player player) {
-        var pet = animal.pet();
-        if (!pet.isPet() || !pet.owned(player)) return "not_yours";
-        if (!harness) return "need_harness";
-        if (pet.busy()) return "busy";
-        return null;
-    }
     /** Right-click with the harness item: fit it on the owner's own independent pet. */
     public boolean putOnHarness(Player player, ItemStack stack) {
         var pet = animal.pet();
-        String why = !pet.isPet() || !pet.owned(player) ? "not_yours" : harness ? "already" : !animal.childhood().canLiveIndependently() ? "too_young"
-                : player.distanceToSqr(animal) > 9 ? "too_far" : pet.busy() || !pet.calm() ? "not_calm" : null;
+        String why = harness ? "already" : !animal.childhood().canLiveIndependently() ? "too_young"
+                : !pet.calm() ? "not_calm" : null;
         if (why != null) { say(player, "harness.refuse." + why); return false; }
         harness = true; wearOwner = player.getUUID(); syncWear();
         if (!player.getAbilities().instabuild) stack.shrink(1);
@@ -83,7 +75,7 @@ public final class PetCare {
     /** Right-click with the swaddle cloth: wrap the owner's own baby or young one (never one that can live on its own). */
     public boolean putOnSwaddle(Player player, ItemStack stack) {
         var pet = animal.pet();
-        String why = !pet.isPet() || !pet.owned(player) ? "not_yours" : swaddle ? "already" : !swaddleAge() ? "too_old" : player.distanceToSqr(animal) > 9 ? "too_far"
+        String why = swaddle ? "already" : !swaddleAge() ? "too_old"
                 : animal.isInWaterOrBubble() || animal.isOnFire() || animal.isPanicking() ? "not_calm" : null;
         if (why != null) { say(player, "swaddle.refuse." + why); return false; }
         swaddle = true; swaddleStyle = SwaddleStyle.of(stack); wearOwner = player.getUUID(); swaddleClock = 0; syncWear();
@@ -96,7 +88,6 @@ public final class PetCare {
     }
     /** CareAction.UNWRAP. */
     public boolean takeOffSwaddle(Player player) {
-        if (!swaddle || !animal.pet().owned(player)) return false;
         swaddle = false; syncWear();
         giveBack(swaddleStyle.stack(), player);
         GameplayLog.event(animal, "interaction", "swaddle off reason=owner player={} style={}", player.getUUID(), swaddleStyle.id);
@@ -106,10 +97,10 @@ public final class PetCare {
     private boolean swaddleAge() { return !animal.family().adult() && !animal.childhood().canLiveIndependently(); }
     /** CareAction.REMOVE_HARNESS: the harness comes off (the lead is returned first) and goes back to the owner. */
     public boolean takeOffHarness(Player player) {
-        if (!harness || !animal.pet().owned(player)) return false;
         if (animal.isLeashed()) animal.dropLeash(true, true);
         harness = false; syncWear();
         giveBack(new ItemStack(ModItems.PET_HARNESS.get()), player);
+        GameplayLog.event(animal, "interaction", "harness off player={}", player.getUUID());
         return true;
     }
     /** The lead goes back to the player who held it (nothing for creative mode); at a fence post or for a dead holder it drops at the pet. */
@@ -197,32 +188,35 @@ public final class PetCare {
      * The owner's reaction after a care action succeeded (OperationLife and the empty-hand talk). Gentle care inside the habit window is praise
      * (a little stress relief); a reprimand or a flick teaches nothing and only stresses the pet.
      */
-    public void feedback(Player player, CareAction action) {
-        if (animal.level().isClientSide || !animal.pet().owned(player)) return;
-        // Gentle words or a rub answer a pet that asked for affection; singing and exercise are answered when they finish (boredom drops).
-        if (requests.pending() == PetRequests.Kind.NUZZLE && (action == CareAction.GENTLE || action == CareAction.RUB)) {
+    public void affection(Player player) {
+        if (animal.pet().owned(player) && requests.pending() == PetRequests.Kind.NUZZLE) {
             animal.dailyLife().comfort(15); requests.answer(PetRequests.Kind.NUZZLE);
         }
-        if (habitLeft > 0) {
-            if (action == CareAction.GENTLE) {
-                habits++;
-                animal.pet().addStress(-1);
-                animal.playAction("joy_jump"); animal.mind().felt(EmotionEvent.PRAISED); animal.showReaction("happy", "lesson_praised", 70); Staging.sparkle(level(), markPos());
-                closeHabit();
-            } else if (action == CareAction.COLD || action == CareAction.FLICK) {
-                animal.pet().addStress(action == CareAction.COLD ? 2 : 4);
-                closeHabit();
-            }
+    }
+    public void praise(Player player) {
+        affection(player);
+        if (animal.pet().owned(player) && habitLeft > 0) {
+            habits++;
+            animal.pet().addStress(-1);
+            animal.playAction("joy_jump"); animal.mind().felt(EmotionEvent.PRAISED); animal.showReaction("happy", "lesson_praised", 70); Staging.sparkle(level(), markPos());
+            closeHabit();
+        }
+    }
+    public void reprimand(Player player, CareAction action) {
+        if (animal.pet().owned(player) && habitLeft > 0) {
+            animal.pet().addStress(action == CareAction.COLD ? 2 : 4);
+            closeHabit();
         }
     }
 
     // "ask how it is" (CareAction.ASK): say the open request again, otherwise tell the mood; what it can explain grows with its lessons
+    public boolean canAsk() {
+        return !animal.life().isSleeping() && !animal.isPanicking() && animal.life().mealTicks()==0
+                && animal.level().getGameTime() >= askUntil;
+    }
     public boolean ask(Player player) {
         var pet = animal.pet(); var life = animal.life(); var daily = animal.dailyLife();
-        if (animal.level().isClientSide || !pet.isPet() || !pet.owned(player) || pet.busy() || life.isSleeping() || animal.isPanicking() || life.mealTicks() > 0) return false;
-        long now = animal.level().getGameTime();
-        if (now < askUntil) return false;
-        askUntil = now + ASK_COOLDOWN;
+        askUntil = animal.level().getGameTime() + ASK_COOLDOWN;
         if (requests.repeat()) return true;
         boolean bad = pet.stress() >= BondLevels.UNEASE_SWEETENED || pet.neglect() >= 30 || life.hasUrgentNeed() || life.temperature().cold() || requests.sulking();
         boolean good = !bad && pet.stress() <= BondLevels.UNEASE_LOW_LIMIT && pet.neglect() == 0 && daily.affectionNeed() < 50 && daily.boredom() < 50 && life.nutrition() >= 50;

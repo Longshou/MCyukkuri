@@ -3,6 +3,7 @@ package io.github.longshou.mcyukkuri.item;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.coordination.LeaseTable;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.interaction.InteractionDispatch;
 import io.github.longshou.mcyukkuri.human.Custody;
 import io.github.longshou.mcyukkuri.human.HumanCommerce;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
@@ -56,25 +57,27 @@ public final class CarrierItem extends Item {
         SCENES.release(id, session); return true;
     }
     @Override public InteractionResult interactLivingEntity(ItemStack stack, Player player, LivingEntity target, InteractionHand hand) {
+        if (!(target instanceof YukkuriEntity entity)) return InteractionResult.PASS;
+        if (player.level().isClientSide) return token(stack)==null?InteractionResult.SUCCESS:InteractionResult.PASS;
         // Vanilla passes a disposable copy here in creative mode. Custody must reach the actual hand.
         stack = player.getItemInHand(hand);
-        if (!stack.is(this) || stack.getCount() != 1) {
-            GameplayLog.event(player,"carrier","action=capture result=refused reason=single_carrier_required count={}",stack.getCount());
+        if (stack.getCount() != 1) {
+            InteractionDispatch.refuse(player,entity,"capture","single_carrier");
             return InteractionResult.FAIL;
         }
-        if (!(target instanceof YukkuriEntity entity) || token(stack) != null) return InteractionResult.PASS;
-        if (player.level() instanceof ServerLevel level && player.distanceToSqr(entity) <= 16) {
-            if (!HumanCommerce.mayCapture(player, entity)) {
-                GameplayLog.event(player,"carrier","action=capture result=refused target={} reason={}",entity.getUUID(),
-                        Custody.view(entity).hasPendingStaffRole()?"pending_staff":"owned_by_other");
-                player.displayClientMessage(Component.translatable("human.mcyukkuri.owned"), true); return InteractionResult.FAIL;
+        if (token(stack) != null) return InteractionResult.PASS;
+        if (!InteractionDispatch.allowCapture(player,entity)) return InteractionResult.FAIL;
+        var level=(ServerLevel)player.level();
+        // A sedated animal cannot resist; otherwise only a pet, a lost animal or a wild one that trusts the player climbs in by itself.
+        if (entity.life().sedated()) {
+            if (!capture(level,player,hand,entity)) {
+                InteractionDispatch.refuse(player,entity,"capture","condition");
+                return InteractionResult.FAIL;
             }
-            // A sedated animal cannot resist; otherwise only a pet, a lost animal or a wild one that trusts the player climbs in by itself.
-            if (entity.life().sedated()) { if (!capture(level, player, hand, entity)) return InteractionResult.FAIL; }
-            else if (willing(player, entity)) welcome(level, player, hand, entity);
-            else refuse(level, player, entity);
         }
-        return InteractionResult.sidedSuccess(player.level().isClientSide);
+        else if (willing(player,entity)) welcome(level,player,hand,entity);
+        else refuse(level,player,entity);
+        return InteractionResult.CONSUME;
     }
     /** Trust at which a wild animal accepts the player (the same standing threshold as adoption): trust 10, fear under 25. */
     private static boolean willing(Player player, YukkuriEntity entity) {
@@ -86,7 +89,7 @@ public final class CarrierItem extends Item {
     private static void welcome(ServerLevel level, Player player, InteractionHand hand, YukkuriEntity entity) {
         var session = scene(level, entity.getUUID());
         if (session == null) {
-            GameplayLog.limited(player,"carrier","capture_scene_busy",40,"action=capture result=refused target={} reason=scene_busy",entity.getUUID());
+            InteractionDispatch.refuse(player,entity,"capture","busy");
             return;
         }
         GameplayLog.event(player,"carrier","action=capture result=accepted target={} completion=pending",entity.getUUID());
@@ -94,20 +97,21 @@ public final class CarrierItem extends Item {
         ShopPerformance.schedule(level, entity.getUUID(), age -> {
             if (age < 16) return false;
             if (!finishScene(entity.getUUID(), session)) return true;
-            if (entity.isAlive() && !entity.isRemoved() && !entity.isPanicking() && player.isAlive() && player.level() == level && player.distanceToSqr(entity) <= 36)
-                capture(level, player, hand, entity);
-            else GameplayLog.event(player,"carrier","action=capture result=cancelled target={} reason={} alive={} removed={} panic={} player_alive={} same_level={} distance_sqr={}",
-                    entity.getUUID(),!entity.isAlive()||entity.isRemoved()?"target_unavailable":entity.isPanicking()?"panic":!player.isAlive()?"player_dead":player.level()!=level?"different_level":"too_far",
-                    entity.isAlive(),entity.isRemoved(),entity.isPanicking(),player.isAlive(),player.level()==level,player.distanceToSqr(entity));
+            var reason=InteractionDispatch.rangeRefusal(player,entity,6);
+            if(reason==null&&entity.isPanicking())reason="fear";
+            if(reason==null&&!capture(level,player,hand,entity))reason="condition";
+            if(reason!=null)InteractionDispatch.refuse(player,entity,"capture",reason);
             return true;
         });
     }
     private static void refuse(ServerLevel level, Player player, YukkuriEntity entity) {
         GameplayLog.limited(player,"carrier","unwilling",40,"action=capture result=refused target={} reason=unwilling panic={} fire={} hurt_ticks={} predator_active={} owner={} role={}",
                 entity.getUUID(),entity.isPanicking(),entity.isOnFire(),entity.hurtTime,entity.predator().active(),Custody.view(entity).owner(),Custody.view(entity).role());
-        player.displayClientMessage(Component.translatable("care.mcyukkuri.carrier.refuse", entity.getName()), true);
         var session = scene(level, entity.getUUID());
-        if (session == null) return;
+        if (session == null) {
+            player.displayClientMessage(Component.translatable("care.mcyukkuri.carrier.refuse", entity.getName()), true);
+            return;
+        }
         entity.playAction("struggle"); entity.showReaction("teary", "basket_refuse", 60);
         Vec3 from = player.position();
         ShopPerformance.schedule(level, entity.getUUID(), age -> {
