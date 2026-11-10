@@ -132,12 +132,12 @@ public final class HomeClaim {
     /** Called from {@link WildEvents#discover} for an available wild adult; true when a claim started. */
     public static boolean discover(YukkuriEntity e) {
         if (!(e.level() instanceof ServerLevel level) || !YukkuriConfig.HOME_CLAIMS.get() || !e.family().adult() || !eligible(e,needsHome(e))) return false;
-        List<YukkuriEntity> members=family(e);
-        if (members.size()<2) return false;
         if (e.getRandom().nextInt(YukkuriConfig.HOME_CLAIM_CHANCE.get())!=0) return false;
         Player player=level.getNearestPlayer(e,WITNESS);
         if (player==null || !player.isAlive() || player.isSpectator()) return false;
         if (HomeClaimData.get(level).cooling(e.getUUID(),level.getGameTime())) return false;
+        List<YukkuriEntity> members=family(e);
+        if (members.size()<2) return false;
         BlockPos stand=locate(e,e.blockPosition());
         return stand!=null && begin(level,members,stand,player,false)!=null;
     }

@@ -186,9 +186,11 @@ public final class SurfaceApproach {
         return actor.onGround()&&clearLastStep(actor,actor.position(),destination);
     }
 
+    private static double reach(YukkuriEntity actor){return Math.max(1.5,actor.getBbWidth()+.5);}
+
     private static boolean clearLastStep(YukkuriEntity actor,Vec3 start,Vec3 destination){
         if(NestDoorway.blocksLine(actor,start,destination))return false;
-        double reach=Math.max(1.5,actor.getBbWidth()+.5),step=actor.maxUpStep();
+        double reach=reach(actor),step=actor.maxUpStep();
         if (destination.y-start.y > step || start.y-destination.y > 1 || start.distanceToSqr(destination) > reach*reach) return false;
         if (!supported(actor, destination)) return false;
         int samples = Math.max(1, (int)Math.ceil(start.distanceTo(destination)/Math.min(.05, actor.getBbWidth()*.25)));
@@ -463,7 +465,8 @@ public final class SurfaceApproach {
         var targets=new LinkedHashSet<BlockPos>();
         for(int dx=-1;dx<=1;dx++)for(int dz=-1;dz<=1;dz++){
             var at=floor(actor,new Vec3(x+dx+offset,destination.y,z+dz+offset));
-            if(at!=null&&clearOf(actor,at,destination,body)&&clearLastStep(actor,at,destination))
+            // The body may stop up to ARRIVAL short of this node: its remaining step must still fit inside the clear-step reach.
+            if(at!=null&&at.distanceTo(destination)<=reach(actor)-ARRIVAL&&clearOf(actor,at,destination,body)&&clearLastStep(actor,at,destination))
                 targets.add(new BlockPos(x+dx,Mth.floor(at.y+.5),z+dz));
         }
         if(targets.isEmpty())return null;
