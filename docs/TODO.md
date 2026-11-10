@@ -9,7 +9,6 @@
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
 | 任4 聚落迁移重做（选址可达可筑窝、失败改道、到达后安家） | `.worktrees/wp-fj-migration` | settlement/（Migration、MigrationSearch、SiteClaimer、SiteLife、Homes、ShelterPlacement、Burrowing、HabitatHomes）、scripts/museum_scenarios.py（colony_migrate*） |
-| 任1 亲油带赤油普及、危险时带走（两场演示） | `.worktrees/wp-fi-carry-common` | family/ParentCarry.java、family/FamilyLife.java（搬运需求）、scripts/museum_scenarios.py（新增两场） |
 
 ## 玩法待办
 
