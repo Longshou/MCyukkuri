@@ -12,7 +12,6 @@
 | 暂停待用户评估：辫子头顶抓放不再一帧跳转（分支 6a24ad5ee，未导出） | `.worktrees/wp-ez-braid-head-clips` | standards/yukkuri-library/motions/variants/lore/（braid_head_* 的生成源）与 motion 导出 |
 | 任2 魔理沙抓赤油上帽抓空反复重试 | `.worktrees/wp-fc-hat-grab-miss` | family/ParentCarry.java、共享抓取动作（motor/action） |
 | 任4 移除族群审判 | `.worktrees/wp-fd-judgement-removal` | settlement/Judgement.java 及调用方、scripts/museum_scenarios.py（审判场景）、docs/FEATURES.md |
-| 任3 山洞式与平地洞穴都生成 | `.worktrees/wp-fe-flat-dens` | settlement/（SettlementSpawner、ShelterPlacement、NaturalShelter、site/）、scripts/museum_scenarios.py（聚落场） |
 | 任8 素鸡立演出重做（倾斜、相对位置、演出、表情） | `.worktrees/wp-ff-sukkiri-show` | standards/yukkuri-library/motions/（素鸡立片段）、表情库、family/Courtship.java（时序与偏移数据） |
 | 任6 放大镜道具 | `.worktrees/wp-fh-magnifier` | item/（新道具）、client/（手持缩放与状态短条）、registry/、lang、art/（道具贴图） |
 | 任5 身份判定统一（宠物／流浪／野生·聚落／野生·家庭） | `.worktrees/wp-fk-identity` | 新身份权威（entity/ 或 pet/）、pet/、settlement/ 中的身份读取处、status/、scripts/museum_scenarios.py（新增一场） |
