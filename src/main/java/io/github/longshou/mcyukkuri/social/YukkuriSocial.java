@@ -177,12 +177,7 @@ public final class YukkuriSocial implements MotorOwner {
             if (entity.level().isDay() && day != morningDay) { morningPending = true; morningDay = day; }
         }
         if (!entity.childhood().canLearn()) return false;
-        if(task==Task.NONE && WildEvents.reserved(entity))return false;
-        if (entity.isPanicking() || entity.dailyLife().active() || entity.life().isSleeping() || entity.life().hasUrgentNeed() || entity.waterDistress().active() ||
-                entity.life().mealTicks() > 0 || entity.isCommandPlaying()||entity.operations().active()||(entity.groupInteraction().active()||entity.playLife().active())) return false;
-        if (entity.life().nutrition() < 40 || entity.life().energy() < 35 || entity.family().active()
-                || entity.habitat().active() || entity.settlement().active() || entity.settlement().duties().active()
-                || entity.forageTrip().outing() || entity.independence().active()) return false;
+        if (!freeForSocial()) return false;
         if (entity.life().socialWait() > 0) return false;
         entity.life().deferSocial(240 - personality().attachment());
         var level = entity.level();
@@ -222,6 +217,15 @@ public final class YukkuriSocial implements MotorOwner {
             return true;
         }
         return false;
+    }
+    /** Nothing of its own under way (needs, leisure, errands, events): it may take up a social goal now. */
+    private boolean freeForSocial() {
+        return !WildEvents.reserved(entity) && !entity.isPanicking() && !entity.dailyLife().active() && !entity.life().isSleeping()
+                && !entity.life().hasUrgentNeed() && !entity.waterDistress().active() && entity.life().mealTicks() == 0
+                && !entity.isCommandPlaying() && !entity.operations().active() && !entity.groupInteraction().active() && !entity.playLife().active()
+                && entity.life().nutrition() >= 40 && entity.life().energy() >= 35 && !entity.family().active()
+                && !entity.habitat().active() && !entity.settlement().active() && !entity.settlement().duties().active()
+                && !entity.forageTrip().outing() && !entity.independence().active();
     }
     /** Retrieving the real accessory has headwear priority, independent of optional greetings and their cooldown. */
     public boolean retrievingAccessory() { return task == Task.ACCESSORY; }
@@ -446,7 +450,7 @@ public final class YukkuriSocial implements MotorOwner {
      * the answer task before its greeting, and ends as soon as the walker arrives, turns away or gives up.
      */
     private void noticeApproach(YukkuriEntity from) {
-        if (task != Task.NONE || entity.dailyLife().active() || !entity.life().activity().equals(Behaviors.IDLE) || !freeToAnswer(from)) return;
+        if (task != Task.NONE || !entity.childhood().canLearn() || !freeForSocial() || !entity.life().activity().equals(Behaviors.IDLE) || !freeToAnswer(from)) return;
         task = Task.ANSWER; target = from; elapsed = 0; greeted = false; answerScorn = false; answerWhy = null; answerDelay = 0;
         duration = ANSWER_EXPIRY; answerUntil = entity.level().getGameTime() + ANSWER_EXPIRY;
         GameplayLog.limited(entity, "social", "noticed." + from.getUUID(), 200, "approach noticed from={} distance={}",
