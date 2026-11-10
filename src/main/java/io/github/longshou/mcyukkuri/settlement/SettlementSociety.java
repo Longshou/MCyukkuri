@@ -56,8 +56,7 @@ public final class SettlementSociety {
                 || entity.status().identity() != Identity.WILD_SETTLEMENT || !accepted(entity)) return;
         var group = entity.settlement().group();
         if (group == null || group.kind != SettlementData.Kind.FOREST || !entity.life().canRecognize(guest)
-                || guest.blockPosition().distSqr(group.center) > CommunityRules.TERRITORY * CommunityRules.TERRITORY
-                || CommunityRules.banished(group, guest.getUUID(), level().getGameTime())) return;
+                || guest.blockPosition().distSqr(group.center) > CommunityRules.TERRITORY * CommunityRules.TERRITORY) return;
         var relations = YukkuriWorldData.get(level());
         if (relations.affinity(entity.getUUID(), guest.getUUID()) < BondLevels.AFFINITY_ACQUAINTED
                 || relations.affinity(guest.getUUID(), entity.getUUID()) < BondLevels.AFFINITY_NEUTRAL) return;
