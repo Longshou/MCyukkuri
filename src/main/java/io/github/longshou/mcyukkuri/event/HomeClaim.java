@@ -3,8 +3,6 @@ package io.github.longshou.mcyukkuri.event;
 import io.github.longshou.mcyukkuri.random.ModRandom;
 
 import io.github.longshou.mcyukkuri.status.GameplayLog;
-import io.github.longshou.mcyukkuri.motor.action.Bash;
-import io.github.longshou.mcyukkuri.motor.action.PaneOpening;
 import io.github.longshou.mcyukkuri.mind.EmotionEvent;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
@@ -92,7 +90,7 @@ public final class HomeClaim {
     private static boolean needsHome(YukkuriEntity e) {
         return e.family().adult() && e.life().home()==null && e.habitat().shelter()==null;
     }
-    /** A jump delays evaluation; it is neither a choice nor evidence that a route is impossible. */
+    /** A jump delays action decisions, not membership or site discovery. */
     private static boolean decisionReady(YukkuriEntity e) { return e.onGround(); }
     private static boolean eligible(YukkuriEntity e, boolean housing) {
         return e.isAlive() && !e.profile().houseBody() && !e.profile().dangerToYukkuri() && WildEvents.unowned(e)
@@ -103,9 +101,7 @@ public final class HomeClaim {
         List<YukkuriEntity> found=level.getEntitiesOfClass(YukkuriEntity.class,e.getBoundingBox().inflate(8),p -> p!=e && eligible(p,needsHome(e))
                 && (Bonds.careKin(e, p) || p.getUUID().equals(e.family().partner())) && WildEvents.recognizes(e,p)).stream()
                 .sorted(Comparator.comparingDouble(e::distanceToSqr)).limit(5).toList();
-        List<YukkuriEntity> all=new ArrayList<>(); all.add(e); all.addAll(found);
-        // Keep airborne relatives in this readiness check instead of silently dropping them from the family.
-        return all.stream().allMatch(HomeClaim::decisionReady) ? all : List.of();
+        List<YukkuriEntity> all=new ArrayList<>(); all.add(e); all.addAll(found); return all;
     }
     private static boolean crop(ServerLevel level, BlockPos pos, BlockState state) {
         return state.getBlock() instanceof CropBlock && level.getBlockState(pos.below()).is(Blocks.FARMLAND);
@@ -113,7 +109,7 @@ public final class HomeClaim {
     private static boolean house(BlockState s) {
         return s.is(BlockTags.BEDS) || s.is(BlockTags.DOORS) || s.is(Blocks.CRAFTING_TABLE) || s.is(Blocks.CHEST) || s.is(Blocks.FURNACE);
     }
-    /** A reachable standing spot beside a human house block (covered) or crop, outside villages; null when none. */
+    /** A dry standing spot beside a human house block (covered) or crop, outside villages; routes are chosen after landing. */
     private static BlockPos locate(YukkuriEntity e, BlockPos center) {
         var level=(ServerLevel)e.level(); List<BlockPos> anchors=new ArrayList<>();
         for (BlockPos p:BlockPos.betweenClosed(center.offset(-10,-4,-10),center.offset(10,4,10))) {
@@ -122,7 +118,6 @@ public final class HomeClaim {
             if (crop(level,p,state) || house(state)) anchors.add(p.immutable());
         }
         anchors.sort(Comparator.comparingDouble(p -> p.distSqr(center)));
-        int paths=0;
         for (BlockPos anchor:anchors.stream().limit(24).toList()) {
             if (level.isVillage(anchor)) continue;
             boolean farm=crop(level,anchor,level.getBlockState(anchor));
@@ -130,11 +125,7 @@ public final class HomeClaim {
             for (BlockPos stand:BlockPos.betweenClosed(anchor.offset(-2,-1,-2),anchor.offset(2,1,2)))
                 if (e.life().dryStand(stand) && (farm || e.life().covered(stand))) stands.add(stand.immutable());
             stands.sort(Comparator.comparingDouble(p -> p.distSqr(anchor)));
-            for (BlockPos stand:stands) {
-                if (paths++>=8) return null;
-                if (e.life().reachable(stand,false)) return stand;
-                if (!farm && PaneOpening.find(e,stand,false,true).stream().anyMatch(p -> Bash.allowed(e,p.pane()).ok())) return stand;
-            }
+            if (!stands.isEmpty()) return stands.getFirst();
         }
         return null;
     }

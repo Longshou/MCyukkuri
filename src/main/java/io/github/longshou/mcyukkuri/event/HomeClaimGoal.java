@@ -54,7 +54,7 @@ public final class HomeClaimGoal extends Goal implements MotorOwner {
         var claim=HomeClaim.of(entity);
         if (claim==null || !HomeClaim.mayAct(entity)) return false;
         if (!claim.id.equals(consideredClaim)) { consideredClaim=claim.id; paneChoices.clear(); }
-        if (cooldown<=0 && !entity.motor().heldByOther(ownerId())) {
+        if (cooldown<=0 && !entity.motor().heldByOther(ownerId()) && Bash.permission(entity).ok()) {
             boolean entering=claim.stage==HomeClaimData.Stage.GATHER && !entity.life().reachable(claim.site.pos(),false);
             boolean exiting=claim.stage==HomeClaimData.Stage.ENCLOSED || claim.stage==HomeClaimData.Stage.COLLAPSING;
             if (entering || exiting) {

@@ -62,7 +62,7 @@ public final class WildEvents {
     public static boolean available(YukkuriEntity e) {
         return e.onGround() && available(e, false);
     }
-    /** Membership only: HomeClaim checks the whole family's footing before evaluating admission. */
+    /** Admission does not depend on footing; HomeClaim waits for landing before choosing actions. */
     static boolean availableForHome(YukkuriEntity e, boolean housing) { return available(e, housing); }
     private static boolean leisure(Scene scene) { return scene.kind==Kind.CARD && WildCards.leisure(scene.card); }
     private static boolean available(YukkuriEntity e, boolean housing) {

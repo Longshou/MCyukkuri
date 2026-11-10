@@ -44,14 +44,21 @@ public final class Bash implements Action {
     public int hits() { return damage.hits(); }
     @Override public String id() { return ID; }
 
-    /** Also used during route choice: permissions are checked again on every stroke. */
-    public static Feasibility allowed(YukkuriEntity body, BlockPos pane) {
-        if (!body.level().getBlockState(pane).is(Tags.Blocks.GLASS_PANES))
-            return Feasibility.of(Reason.NO_TOOL, 0, "not_glass_pane");
+    /** Whether this actor may destroy panes; a denied permission is not a personality choice. */
+    public static Feasibility permission(YukkuriEntity body) {
         if (!Custody.view(body).unassigned() || Custody.protectedAnimal(body))
             return Feasibility.of(Reason.NO_TOOL, 0, "protected_animal");
         if (!EventHooks.canEntityGrief((ServerLevel) body.level(), body))
             return Feasibility.of(Reason.NO_TOOL, 0, "mob_griefing_denied");
+        return Feasibility.pass();
+    }
+
+    /** Also used during route choice: permissions are checked again on every stroke. */
+    public static Feasibility allowed(YukkuriEntity body, BlockPos pane) {
+        if (!body.level().getBlockState(pane).is(Tags.Blocks.GLASS_PANES))
+            return Feasibility.of(Reason.NO_TOOL, 0, "not_glass_pane");
+        var permission = permission(body);
+        if (!permission.ok()) return permission;
         if (BodyAbility.bashPower(body) <= 0)
             return Feasibility.of(Reason.EXHAUSTED, 0, "adult_strength_required");
         if (!body.onGround() || body.isPassenger() || body.isInWaterOrBubble())
