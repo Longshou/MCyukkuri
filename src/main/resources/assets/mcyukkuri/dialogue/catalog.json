@@ -56474,5 +56474,53 @@
     ],
     "ticks": 75,
     "sound": ""
+  },
+  {
+    "id": "glass_wait.parent",
+    "key": "dialogue.mcyukkuri.original.glass_wait.parent",
+    "origin": "project-original",
+    "species": "*",
+    "age": "*",
+    "events": [
+      "glass_wait"
+    ],
+    "ticks": 151,
+    "sound": ""
+  },
+  {
+    "id": "give_up_search.parent_farewell",
+    "key": "dialogue.mcyukkuri.original.give_up_search.parent_farewell",
+    "origin": "project-original",
+    "species": "*",
+    "age": "*",
+    "events": [
+      "give_up_search"
+    ],
+    "ticks": 155,
+    "sound": ""
+  },
+  {
+    "id": "glass_child_answer.child",
+    "key": "dialogue.mcyukkuri.original.glass_child_answer.child",
+    "origin": "project-original",
+    "species": "*",
+    "age": "*",
+    "events": [
+      "glass_child_answer"
+    ],
+    "ticks": 103,
+    "sound": ""
+  },
+  {
+    "id": "glass_ram.before_hit",
+    "key": "dialogue.mcyukkuri.original.glass_ram.before_hit",
+    "origin": "project-original",
+    "species": "*",
+    "age": "*",
+    "events": [
+      "glass_ram"
+    ],
+    "ticks": 91,
+    "sound": ""
   }
 ]

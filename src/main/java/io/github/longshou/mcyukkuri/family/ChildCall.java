@@ -6,8 +6,11 @@ import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.social.EcologyPresentation;
 import io.github.longshou.mcyukkuri.motor.MotorOwner;
+import io.github.longshou.mcyukkuri.motor.Action;
+import io.github.longshou.mcyukkuri.motor.Outcome;
 import io.github.longshou.mcyukkuri.motor.action.Face;
 import io.github.longshou.mcyukkuri.motor.action.Gesture;
+import io.github.longshou.mcyukkuri.motor.action.Walk;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.HashMap;
 import java.util.Map;
@@ -42,10 +45,16 @@ final class ChildCall {
     private final Map<UUID,Long> answeredCalls = new HashMap<>(2);
     private Vec3 heardFrom;
     private boolean hopped;
+    private YukkuriEntity glassParent;
+    private Walk glassApproach;
     /** The turn and the answering hop belong to the call while a phase runs. */
     private final MotorOwner body = new MotorOwner() {
         @Override public String ownerId() { return "family_call"; }
         @Override public boolean active() { return phase != Phase.NONE; }
+        @Override public void finished(Action action, Outcome outcome) {
+            if (action==glassApproach && outcome instanceof Outcome.Done)
+                GameplayLog.event(o.entity(),"family","glass child at stand parent={}",glassParent.getUUID());
+        }
     };
 
     ChildCall(FamilyLife owner) { o = owner; }
@@ -61,7 +70,7 @@ final class ChildCall {
             case CALL -> Behaviors.CALL_CHILD;
             case LISTEN -> Behaviors.CALL_LISTEN;
             case DROOP -> Behaviors.CALL_UNANSWERED;
-            case ANSWER -> Behaviors.ANSWER_CALL;
+            case ANSWER -> waitingAtGlass() && ticks>length(Behaviors.ANSWER_CALL) ? Behaviors.CALL_LISTEN : Behaviors.ANSWER_CALL;
             case NONE -> null;
         };
     }
@@ -139,6 +148,23 @@ final class ChildCall {
         return true;
     }
 
+    /** Once at the barrier, the same call channel keeps the pair in earshot between rounds. */
+    void beginGlass(YukkuriEntity child) {
+        nextCall=0;
+        tickGlass(child);
+    }
+
+    void tickGlass(YukkuriEntity child) {
+        var e=o.entity();long now=o.level().getGameTime();
+        if (phase==Phase.CALL && ++ticks>=length(Behaviors.CALL_CHILD)) phase=Phase.LISTEN;
+        if (now<nextCall) return;
+        called=child.getUUID();callStart=now;nextCall=now+interval(e);
+        phase=Phase.CALL;ticks=0;
+        turnToward(child.position());
+        boolean spoken=e.speak("glass_wait");
+        GameplayLog.event(e,"family","glass call child={} spoken={}",called,spoken);
+    }
+
     private void walkOn(long now, String why, YukkuriEntity child) {
         var e = o.entity();
         GameplayLog.event(e, "family", "child call ended why={} child={} round={}/{} phase={} distance={}",
@@ -157,7 +183,8 @@ final class ChildCall {
     /** A call of its own parent it hears now (within earshot, out of sight) and has not answered yet, else null. */
     YukkuriEntity heard() {
         var e = o.entity();
-        if (o.adult() || phase != Phase.NONE || e.isPassenger() || e.life().isSleeping() || e.isPanicking()) return null;
+        if (o.adult() || phase != Phase.NONE && (!waitingAtGlass() || ticks<=length(Behaviors.ANSWER_CALL))
+                || e.isPassenger() || e.life().isSleeping() || e.isPanicking()) return null;
         for (UUID id : new UUID[]{o.mother(), o.father()}) {
             if (id == null || !(o.level().getEntity(id) instanceof YukkuriEntity parent) || !parent.isAlive()) continue;
             var call = parent.family().call();
@@ -172,20 +199,44 @@ final class ChildCall {
         var e = o.entity();
         answeredCalls.put(parent.getUUID(), parent.family().call().callStart);
         heardFrom = parent.position();
-        phase = Phase.ANSWER; ticks = 0; hopped = false;
-        SurfaceApproach.halt(e);
-        turnToward(heardFrom);
-        e.speak("lost_parent");
+        var glass=parent.family().glass();
+        var previous=glassParent;
+        glassParent=glass.callingTo(e)?parent:null;
+        if (glassParent!=previous && glassParent!=null) {
+            var stand=glass.childStand(e);
+            glassApproach=stand==null?null:Walk.stand(stand,1);
+        }
+        phase = Phase.ANSWER; ticks = 0;
+        if (glassParent==null || glassParent!=previous) hopped=false;
+        if (glassApproach==null || e.motor().current()!=glassApproach) {
+            SurfaceApproach.halt(e);
+            turnToward(heardFrom);
+        }
+        boolean spoken=e.speak(glassParent==null?"lost_parent":"glass_child_answer");
         GameplayLog.event(e, "family", "child heard parent call parent={} distance={} heardFrom={}",
                 parent.getUUID(), Math.round(e.distanceTo(parent) * 10) / 10.0, GameplayLog.at(heardFrom));
+        if (glassParent!=null) {
+            GameplayLog.event(e,"family","glass answer parent={} spoken={}",parent.getUUID(),spoken);
+            return e.position();
+        }
         return heardFrom;
     }
+
+    boolean waitingAtGlass() { return glassParent!=null && glassParent.family().glass().callingTo(o.entity()); }
 
     /** True while the answer holds the child: turning and calling back for the clip, then its hop toward her while in the air. */
     boolean tickAnswer() {
         if (phase != Phase.ANSWER) return false;
         var e = o.entity();
-        if (++ticks <= length(Behaviors.ANSWER_CALL)) { SurfaceApproach.halt(e); return true; }
+        if (++ticks <= length(Behaviors.ANSWER_CALL)) return true;
+        if (glassParent!=null) {
+            if (!waitingAtGlass()) { stop(); return false; }
+            if (!hopped) {
+                hopped=true;
+                if (glassApproach!=null) e.motor().run(body,glassApproach);
+            }
+            return true;
+        }
         if (!hopped) {
             hopped = true;
             if (e.motor().run(body, new Gesture(Gesture.Kind.HOP_SMALL))) return true;
@@ -200,6 +251,8 @@ final class ChildCall {
         if (phase == Phase.NONE) return;
         GameplayLog.limited(o.entity(), "family", "call.stop", 200, "child call interrupted phase={} ticks={}", phase, ticks);
         if (phase != Phase.ANSWER) nextCall = o.level().getGameTime() + interval(o.entity());
+        o.entity().motor().cancel(body,"family_call_ended");
+        glassParent=null;glassApproach=null;
         phase = Phase.NONE;
     }
 }

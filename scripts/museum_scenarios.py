@@ -777,47 +777,97 @@ add('family_distance', 'family', '胆大子油跑得远，普通的早回来', '
     reads=[('读普通子油', f'yukkuri status {sel("child_near")} raw'), ('读大胆子油', f'yukkuri status {sel("child_bold")} raw')])
 
 _fs = {k: uid('family_search', k) for k in ('parent', 'child', 'lost_mother', 'lost_child')}
+_fsp = {k: uid('family_search_pane', k) for k in ('parent', 'child')}
 
 
 def _uuid_of(ints):
     return str(uuid.UUID(bytes=b''.join((n & 0xffffffff).to_bytes(4, 'big') for n in ints)))
 
 
+def _family_search_order(log, steps, once=(), absent=()):
+    def pattern(actor, event):
+        return rf'uuid={_uuid_of(actor)}[^\n]* {event}'
+
+    after = 0
+    for actor, event in steps:
+        found = re.search(pattern(actor, event), log[after:])
+        if found is None:
+            return f'{_uuid_of(actor)} never reached {event} in order'
+        after += found.end()
+    for actor, event in once:
+        count = len(re.findall(pattern(actor, event), log))
+        if count != 1:
+            return f'{_uuid_of(actor)} reached {event} {count} times'
+    for actor, event in absent:
+        if re.search(pattern(actor, event), log):
+            return f'{_uuid_of(actor)} unexpectedly reached {event}'
+
+
 def _family_call_verify(log):
-    """Both searching parents call; the cold one (friendliness 0) calls one round only, from wherever she is (often beyond the
-    glass-walled child's earshot); the north child, in earshot of the warm parent's calls, answers."""
-    ids = {k: _uuid_of(v) for k, v in _fs.items()}
-    for parent in ('parent', 'lost_mother'):
-        if not re.search(rf'uuid={ids[parent]}[^\n]*child call started', log):
-            return f'{parent} never called'
-    if re.search(rf'uuid={ids["lost_mother"]}[^\n]*child call started[^\n]*round=2/', log):
-        return 'the cold mother called a second round'
-    if not re.search(rf'uuid={ids["child"]}[^\n]*child heard parent call', log):
-        return 'the north child never answered a call'
-    return None
+    full = _fs['lost_mother']
+    return _family_search_order(log, [
+        (_fs['parent'], 'child call started'),
+        (_fs['child'], 'child heard parent call'),
+        (_fs['parent'], 'child search reunited'),
+    ]) or _family_search_order(log, [
+        (full, 'glass approach'),
+        (full, 'glass vigil started'),
+        (full, 'glass call .*spoken=true'),
+        (_fs['lost_child'], 'glass answer .*spoken=true'),
+        (_fs['lost_child'], 'glass child at stand'),
+        (full, 'glass farewell .*reason=vigil_elapsed'),
+        (full, 'parent dismissed .*reason=vigil_elapsed'),
+    ], [(full, 'glass vigil started'), (full, 'glass farewell')], [(full, 'child search reunited'), (full, 'start id=bash')])
 
 
-add('family_search', 'family', '走散亲子：走得到就重逢，隔玻璃就放弃', '走散亲子：走得到就重逢，隔玻璃就放弃',
-    '两对无巢亲子各相隔 30 格。北边一对之间是一堵可绕行的石砖矮墙：彼此被遮住时呼唤，孩子寻亲、亲油主动接近，重新靠近后恢复自由活动。'
-    '南边的子油被真实玻璃围住：亲油搜寻受阻、计时后单向放弃；低胆量孩子不安可越过非油症阈值；可手动拆玻璃对照重逢，不能把放弃误认成寻回。不会传送或生成替代亲人。'
-    '看不见孩子时亲油会停下、朝孩子最后所在处伸长身体呼唤三声，再左右张望着听：24 格内的孩子转向她回应、跳一下再朝呼唤处走（玻璃里的孩子在 24 格内也回应，但走不出来）；'
-    '没有回应就低落一会儿再接着找。北边亲油友善 95，最多喊四轮、约 10 秒一轮；南边亲油友善 0，只喊一轮',
-    '重逢约 30–60 秒；放弃约 2 分钟以上，孩子不安需更久', [
+def _family_pane_verify(log):
+    parent, child = _fsp['parent'], _fsp['child']
+    return _family_search_order(log, [
+        (parent, 'glass approach'),
+        (parent, 'glass vigil started'),
+        (parent, 'glass call .*spoken=true'),
+        (child, 'glass answer .*spoken=true'),
+        (child, 'glass child at stand'),
+        (parent, 'glass pane choice .*chosen=true'),
+        (parent, 'hit id=bash'),
+        (parent, 'break id=bash'),
+        (parent, 'glass crossed'),
+        (parent, 'child search reunited'),
+    ], [(parent, 'glass vigil started'), (parent, 'break id=bash')], [(parent, 'parent dismissed')])
+
+
+add('family_search', 'family', '走散亲子：绕墙重逢，隔整块玻璃道别', '走散亲子：绕墙重逢，隔整块玻璃道别',
+    '北边一对无巢亲子隔着可绕行的石砖矮墙，彼此遮住时呼唤，重新靠近后恢复自由活动。'
+    '南边亲油隔一层整块玻璃看见子油，来到玻璃前呼唤；孩子回应，贴近玻璃内侧。亲油等候到期后道别离开。'
+    '可在道别后手动拆玻璃，让亲油看见实际通路再寻亲。',
+    '约 30–70 秒', [
         yk('reimu', -15, -4, 'search_parent', uuid=_fs['parent'], label='寻子亲油·友善95', friendliness=95, lead=True, **pair_ready()),
         yk('reimu', 15, -4, 'search_child', uuid=_fs['child'], stage='child', label='走散子油', boldness=40,
            kin=f'Mother:{uuid_nbt(_fs["parent"])}', **pair_ready()),
         box(0, 0, -8, 0, 1, 0, 'minecraft:stone_bricks'),
         box(13, -1, 3, 17, 3, 7, 'minecraft:glass', 'hollow'),
-        yk('reimu', -15, 5, 'lost_mother', uuid=_fs['lost_mother'], label='隔玻璃的亲油', friendliness=0, self_control=0, boldness=0),
+        yk('reimu', 7, 5, 'lost_mother', uuid=_fs['lost_mother'], label='隔玻璃的亲油', friendliness=65, self_control=20, boldness=0, **pair_ready()),
         yk('reimu', 15, 5, 'lost_child', uuid=_fs['lost_child'], stage='child', label='被围住的子油', boldness=0,
-           kin=f'Mother:{uuid_nbt(_fs["lost_mother"])}')],
+           kin=f'Mother:{uuid_nbt(_fs["lost_mother"])}', **pair_ready())],
     env=DAY, spot='hurt_kin', vantage=(0, 14),
     # The calls: once following the warm parent (in front of her face while she calls), once following the north child.
     capture=dict(shots=(1, 40, 600), sequences=((100, 340, 3),), observe=False,
                  views={'parent': dict(follow=f'@e[tag={tag("search_parent")},limit=1]', offset=(0, .9, 2.4), criteria='北边亲油的呼唤、伸长身体和左右张望能看清；不要求这一机位同时看见远处孩子或南边玻璃围栏。'),
                         'child': dict(follow=f'@e[tag={tag("search_child")},limit=1]', offset=(0, .5, 1.5), criteria='北边孩子转向、回应和接近亲油的动作能看清；只判断当前时刻已经发生的动作，不要求早期画面已经重逢。')}),
     reads=[('读寻子亲油', f'yukkuri status {sel("search_parent")} raw'), ('读寻亲子油', f'yukkuri status {sel("search_child")} raw'),
-           ('读搜索时长与断亲', f'yukkuri status {sel("lost_mother")} raw'), ('读被围子油不安', f'yukkuri status {sel("lost_child")} raw')])
+           ('读蹲守与寻亲记忆', f'yukkuri status {sel("lost_mother")} raw'), ('读被围子油不安', f'yukkuri status {sel("lost_child")} raw')])
+
+add('family_search_pane', 'family', '走散亲子：撞碎玻璃板后重逢', '走散亲子：撞碎玻璃板后重逢',
+    '胆量 100 的成年魔理沙与子油隔着铁栏窗中间的一列玻璃板相望。亲油在窗外呼唤，孩子回应并贴近内侧；亲油转正撞板，玻璃板碎后走过开口重逢。',
+    '约 10–30 秒', [
+        box(-3, -1, -3, 3, 2, 3, 'minecraft:stone_bricks', 'hollow'),
+        box(-2, 0, 3, 1, 1, 3, 'minecraft:iron_bars'),
+        box(0, 0, 3, 0, 1, 3, 'minecraft:glass_pane'),
+        yk('marisa', 0, 7, 'pane_parent', uuid=_fsp['parent'], label='撞玻璃板的亲油', yaw=180, boldness=100, lead=True, **pair_ready()),
+        yk('marisa', 0, 0, 'pane_child', uuid=_fsp['child'], label='窗内的子油', stage='child', boldness=0,
+           kin=f'Mother:{uuid_nbt(_fsp["parent"])}', **pair_ready())],
+    env=DAY, spot='hurt_kin', vantage=(0, 12, 180),
+    reads=[('读窗外亲油', f'yukkuri status {sel("pane_parent")} raw'), ('读窗内子油', f'yukkuri status {sel("pane_child")} raw')])
 
 # Real initial conditions for the retained birth/growth rules; no goal or successful outcome is assigned.
 add('birth_nest_safe', 'family', '母油走进大窝生产，赤油落垫上', '母油走进大窝生产，赤油落垫上',
@@ -3679,7 +3729,7 @@ TOPICS = {
     'den_family': 'W1', 'dig': 'W2', 'indep_near': 'W3', 'den_move': 'W4', 'forage': 'W5', 'graze': 'W6', 'den_barrier': 'W8',
     'sleep': 'D1', 'night_sleep': 'D1', 'night_hungry_child': 'D1', 'meal_content': 'D1', 'fatigue': 'R1', 'fatigue_predator': 'R2', 'nutrition_age': 'D1', 'meet': 'D1', 'toilet': 'F5', 'hurt': 'F3',
     'birth_land_caught': 'F1', 'birth_land_missed': 'F1', 'feed': 'F2', 'first_toilet': 'F2', 'hop': 'F2', 'growth': 'F4',
-    'leaf_swaddle': 'F2', 'leaf_swaddle_neglect': 'F2', 'leaf_swaddle_neglect_stages': 'F2', 'family_distance': 'F8', 'family_search': 'F8', 'birth_nest_safe': 'F1', 'birth_nest_stem': 'F1', 'birth_stem_caught': 'F1', 'family_nests': 'F4', 'carry_home': 'F4', 'infant_starvation': 'F2',
+    'leaf_swaddle': 'F2', 'leaf_swaddle_neglect': 'F2', 'leaf_swaddle_neglect_stages': 'F2', 'family_distance': 'F8', 'family_search': 'F8', 'family_search_pane': 'F8', 'birth_nest_safe': 'F1', 'birth_nest_stem': 'F1', 'birth_stem_caught': 'F1', 'family_nests': 'F4', 'carry_home': 'F4', 'infant_starvation': 'F2',
     'forage_empty': 'R1', 'rain_life': 'R1', 'rain_huddle': 'R1', 'storm_cower': 'R1', 'marisa_explore': 'R1', 'rain_shelter': 'R1', 'rain_open': 'R1', 'pred_watch': 'R2', 'pred_range': 'R2', 'pred_pets': 'R2', 'shared_body': 'R3',
     'house_empty': 'H1', 'house_pair': 'H2', 'house_eggs': 'H3',
     'shop_build': 'M1', 'factory_labor': 'M2', 'factory_manju': 'M2', 'factory_bag': 'M2', 'harness_walk': 'M3', 'swaddle_worn': 'M3', 'feed_wild': 'M3', 'oniisan_prey': 'M4', 'attack_witness': 'M4',
@@ -3801,8 +3851,12 @@ _smoke('growth', 200, [r'\[growth\][^\n]* stage=BABY -> JUVENILE', r'\[growth\][
                        r'\[growth\][^\n]* stage=JUVENILE -> ADULT', r'\[growth\][^\n]* age boundary [^\n]*elder=true',
                        r'\[growth\][^\n]* lifespan reached'])
 _smoke('family_search', 7200, [r'\[family\][^\n]* child search reunited', r'\[family\][^\n]* parent dismissed ',
-                               r'\[family\][^\n]* child call started ', r'\[family\][^\n]* child heard parent call '])
+                               r'\[family\][^\n]* child call started ', r'\[family\][^\n]* child heard parent call ',
+                               r'\[family\][^\n]* glass vigil started ', r'\[family\][^\n]* glass farewell '])
 next(s for s in S if s.id == 'family_search').smoke['verify'] = _family_call_verify
+_smoke('family_search_pane', 2400, [r'\[family\][^\n]* glass vigil started ', r'\[action\][^\n]* break id=bash ',
+                                    r'\[family\][^\n]* glass crossed ', r'\[family\][^\n]* child search reunited '])
+next(s for s in S if s.id == 'family_search_pane').smoke['verify'] = _family_pane_verify
 _smoke('rain_open', 1200, [r'\[weather\][^\n]* shelter response started', r'\[needs\][^\n]* soaking damage '])
 _smoke('treatment_scars', 1600, [r'\[body\][^\n]* wound healing ', r'\[body\][^\n]* scar (?:formed|not formed) from '])
 _smoke('wound_materials', 400, [], forbid=[r'\[body\][^\n]* death settled'])
@@ -4016,7 +4070,12 @@ _scene_end('first_voyage', [('c1', _DRY)],
            dict(steps=[('c1', 'seen:aquatic:first_voyage start'), ('c1', 'seen:aquatic:first_voyage rounded'),
                        ('c1', 'seen:childhood:sailing learned how=first_voyage'), ('c1', 'seen:aquatic:first_voyage success')],
                 post=[('c1', _ASHORE + ' and hold.hat.state=worn')]))
-_scene_end('family_search', [('search_parent', _DRY), ('search_child', _DRY), ('lost_child', _DRY)],
+_scene_end('family_search', [('search_parent', _DRY), ('search_child', _DRY), ('lost_mother', _DRY), ('lost_child', _DRY)],
            [('search_parent', 'seen:family:child call started'), ('search_child', 'seen:family:child heard parent call'),
             ('search_parent', 'seen:family:child search reunited')],
-           [('lost_mother', 'seen:family:child call started'), ('lost_mother', 'seen:family:parent dismissed')])
+           [('lost_mother', 'seen:family:glass vigil started'), ('lost_child', 'seen:family:glass child at stand'),
+            ('lost_mother', 'seen:family:glass farewell'), ('lost_mother', 'seen:family:parent dismissed')])
+_scene_end('family_search_pane', [('pane_parent', _DRY), ('pane_child', _DRY)],
+           [('pane_parent', 'seen:family:glass vigil started'), ('pane_child', 'seen:family:glass child at stand'),
+            ('pane_parent', 'seen:action:break id=bash'), ('pane_parent', 'seen:family:glass crossed'),
+            ('pane_parent', 'seen:family:child search reunited')])

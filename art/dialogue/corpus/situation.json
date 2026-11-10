@@ -2,11 +2,15 @@
   "axis": "situation",
   "line_mapping": {
     "source": "art/dialogue/speech-tiers.json",
-    "match": "A situation event maps to every existing line whose events[] contains the same event id.",
+    "match": "A situation event maps to lines with the same event id. Shared runtime lines are exported directly for any voice.",
     "generated_line_id_suffix": "s_<event>"
   },
   "default_axes": ["common", "species", "stage"],
   "events": [
+    {"id":"glass_wait","event":"glass_wait","zh":"隔玻璃唤子","ja":"ガラス越しに子を呼ぶ","en":"Call through glass","basis":["P"],"status":"ready","axis_refs":["common.glass_san","common.little_one"]},
+    {"id":"give_up_search","event":"give_up_search","zh":"走散亲油的道别","ja":"はぐれた子へのお別れ","en":"Farewell to a lost child","basis":["P"],"status":"ready","axis_refs":["common.little_one","common.cry_yuu"]},
+    {"id":"glass_child_answer","event":"glass_child_answer","zh":"隔玻璃回应亲油","ja":"ガラス越しに親に答える","en":"Answer through glass","basis":["P"],"status":"ready","axis_refs":["common.glass_san","stage.baby_caregiver_address"]},
+    {"id":"glass_ram","event":"glass_ram","zh":"撞开玻璃板","ja":"板ガラスに体当たり","en":"Ram a glass pane","basis":["P"],"status":"ready","axis_refs":["common.glass_san","common.narrate_own_action"]},
     {"id":"accessory_mended","event":"accessory_mended","zh":"头饰修复","ja":"飾物の修復","en":"Accessory mended","basis":["P"],"status":"rule","axis_refs":["common.accessory_san"]},
     {"id":"accessory_torn","event":"accessory_torn","zh":"头饰破损","ja":"飾物の破損","en":"Accessory torn","basis":["P"],"status":"rule","axis_refs":["common.accessory_san","special.hatless_self_pity"]},
     {"id":"addr_child","event":"addr_child","zh":"称呼孩子","ja":"子を呼ぶ","en":"Address child","basis":["P"],"status":"rule","axis_refs":["common.little_one"]},
@@ -330,52 +334,13 @@
     {"id":"house_arrival.declare","event":"house_arrival","zh":"这里软软的，能做我的家先生吗？","ja":"ここはやわらかい、わたしのおうちさんにしてもいい？","en":"It's soft here; can this be my Mr. Home?","basis":["E10","E12","P"],"status":"ready"},
     {"id":"rule_blocked.refuse","event":"rule_blocked","zh":"这里不能过去吗？那先换个入口看看。","ja":"ここは通れないの？それなら別の入口を見てみる。","en":"I can't pass here? Then I'll look for another entrance.","basis":["P"],"status":"ready"},
     {"id":"eat_kin.reluctant","event":"eat_kin","zh":"好臭……可是肚子好饿……对不起……","ja":"くさい……でもおなかがすいて……ごめんね……","en":"It reeks... but I'm so hungry... sorry...","basis":["L36","P"],"status":"ready"},
-    {"id":"hunt_sweet.driven","event":"hunt_sweet","zh":"那个不是油库里……是猎物……可是肚子好饿……","ja":"あれはゆっくりじゃない……獲物だ……でもおなかがすいた……","en":"That is no yukkuri... it is prey... but I am so hungry...","basis":["P"],"status":"ready"}
+    {"id":"hunt_sweet.driven","event":"hunt_sweet","zh":"那个不是油库里……是猎物……可是肚子好饿……","ja":"あれはゆっくりじゃない……獲物だ……でもおなかがすいた……","en":"That is no yukkuri... it is prey... but I am so hungry...","basis":["P"],"status":"ready"},
+    {"id":"glass_wait.parent","event":"glass_wait","zh":"玻璃先森，不要阻碍亲子团聚！让小贝比酱过来！","ja":"ガラスさん、親子の再会を邪魔しないで！おちびちゃんをこっちに通して！","en":"Mr. Glass, don't keep parent and child apart! Let the little one through!","basis":["P"],"status":"ready","shared_runtime":true},
+    {"id":"give_up_search.parent_farewell","event":"give_up_search","zh":"油呜……小贝比酱，要照顾好自己。这次真的要说再见了……","ja":"ゆぅ……おちびちゃん、自分を大事にしてね。こんどは本当にお別れだよ……","en":"Yuu... little one, take care of yourself. This time we really must say goodbye...","basis":["P"],"status":"ready","shared_runtime":true},
+    {"id":"glass_child_answer.child","event":"glass_child_answer","zh":"亲亲油，窝在这里！就在玻璃先森后面！","ja":"おやしゃ、ここだよ！ガラスさんの向こうだよ！","en":"I'm here! Right behind Mr. Glass!","basis":["P"],"status":"ready","shared_runtime":true},
+    {"id":"glass_ram.before_hit","event":"glass_ram","zh":"玻璃先森，让开！我要把你撞开！","ja":"ガラスさん、どいて！ぶつかって壊すよ！","en":"Move aside, Mr. Glass! I'm going to ram you open!","basis":["P"],"status":"ready","shared_runtime":true}
   ],
   "planned": [
-    {
-      "id": "glass_wait.parent",
-      "proposed_event": "glass_wait",
-      "fallback_event": "wait_family",
-      "future_line_id": "<species>.<tier>.s_glass_wait",
-      "zh": "玻璃先森，不要阻碍亲子团聚！让小贝比酱过来！",
-      "ja": "ガラスさん、親子の再会を邪魔しないで！おちびちゃんをこっちに通して！",
-      "en": "Mr. Glass, don't keep parent and child apart! Let the little one through!",
-      "basis": ["P"],
-      "status": "planned",
-      "speaker": {"stage": "adult", "role": "separated_parent"},
-      "axes": ["common", "species", "stage", "situation"],
-      "axis_refs": ["common.glass_san", "common.little_one"]
-    },
-    {
-      "id": "give_up_search.parent_farewell",
-      "proposed_event": "give_up_search",
-      "fallback_event": "migrate_pack",
-      "future_line_id": "<species>.<tier>.s_give_up_search",
-      "zh": "油呜……小贝比酱，要照顾好自己。这次真的要说再见了……",
-      "ja": "ゆぅ……おちびちゃん、自分を大事にしてね。こんどは本当にお別れだよ……",
-      "en": "Yuu... little one, take care of yourself. This time we really must say goodbye...",
-      "basis": ["P"],
-      "status": "planned",
-      "speaker": {"stage": "adult", "role": "parent_after_search_timeout"},
-      "axes": ["common", "species", "stage", "special", "situation"],
-      "axis_refs": ["common.little_one", "common.cry_yuu"]
-    },
-    {
-      "id": "glass_child_answer.child",
-      "proposed_event": "glass_child_answer",
-      "fallback_event": "wait_family",
-      "future_line_id": "<species>.<tier>.s_glass_child_answer",
-      "zh": "{parent}，我在这里！就在玻璃先森后面！",
-      "ja": "{parent}、ここだよ！ガラスさんの向こうだよ！",
-      "en": "{parent}, I'm here! Right behind Mr. Glass!",
-      "basis": ["P"],
-      "status": "planned",
-      "speaker": {"stage": ["baby", "juvenile"], "role": "separated_child"},
-      "axes": ["common", "species", "stage", "situation"],
-      "axis_refs": ["common.glass_san", "stage.baby_caregiver_address"],
-      "slots": {"parent": "Recognized actual parent address in the speaker's tier"}
-    },
     {
       "id": "home_declaration.after_entry",
       "proposed_event": "home_declaration",
@@ -389,20 +354,6 @@
       "speaker": {"stage": "adult", "role": "new_home_claimant"},
       "axes": ["common", "species", "stage", "situation"],
       "axis_refs": ["common.home_declaration_question", "common.easy_place"]
-    },
-    {
-      "id": "glass_ram.before_hit",
-      "proposed_event": "glass_ram",
-      "fallback_event": "rule_blocked",
-      "future_line_id": "<species>.<tier>.s_glass_ram",
-      "zh": "玻璃先森，让开！我要把你撞开！",
-      "ja": "ガラスさん、どいて！ぶつかって壊すよ！",
-      "en": "Move aside, Mr. Glass! I'm going to ram you open!",
-      "basis": ["P"],
-      "status": "planned",
-      "speaker": {"stage": "adult", "role": "capable_pane_rammer"},
-      "axes": ["common", "species", "stage", "situation"],
-      "axis_refs": ["common.glass_san", "common.narrate_own_action"]
     }
   ]
 }

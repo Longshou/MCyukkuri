@@ -105,6 +105,7 @@ public final class FamilyLife {
     private final Courtship courtship;
     /** The search's own calls: a parent calling for a lost child, the child answering (transient). */
     private final ChildCall call;
+    private final GlassVigil glass;
     /** The near-term birth this mother conducts (saved as {@code Birth}). */
     private final Conductor birth;
     /** A hurt newborn's fall (bump), a parent's comfort of it, and the hat errand of an orphaned catch hat; all transient. */
@@ -128,6 +129,7 @@ public final class FamilyLife {
         separation=new FamilySeparation(this);
         courtship=new Courtship(this);
         call=new ChildCall(this);
+        glass=new GlassVigil(this);
         birth=new Conductor(entity,"Birth");
     }
     /** Land transport of dependent babies (mouth, brim, tails or braid); see {@link ParentCarry}. */
@@ -135,6 +137,8 @@ public final class FamilyLife {
     /** One persistent parent-side decision per child-care need, shared by land and hat routes. */
     public CareDecisionLedger careDecisions(){return careDecisions;}
     FamilyFeeding feeding(){return feeding;}
+    GlassVigil glass(){return glass;}
+    void dismissAtGlass(YukkuriEntity child,String reason){separation.dismissAtGlass(child,reason);}
     /** Where a retrieved baby is set down: its care nest, else its own shelter bed. */
     public BlockPos carryHome(){
         var care=FamilyNest.care(entity);if(care!=null)return care.getBlockPos();
@@ -309,7 +313,7 @@ public final class FamilyLife {
         }
         return switch(task) {
             case COURT, RECEIVE_COURT -> courtActivity(); case BROOD -> Behaviors.TEND_BROOD; case FOLLOW -> Behaviors.FOLLOW_PARENT;
-            case WAIT_CHILD -> Behaviors.WAIT_CHILD; case SEARCH -> carry.lifting()?Behaviors.CARRY_LIFT:call.activity()!=null?call.activity():Behaviors.SEARCH_FAMILY;
+            case WAIT_CHILD -> Behaviors.WAIT_CHILD; case SEARCH -> carry.lifting()?Behaviors.CARRY_LIFT:call.activity()!=null?call.activity():glass.active()?glass.activity():Behaviors.SEARCH_FAMILY;
             case FEED_CHILD -> feeding.activity();
             case STAY_HOME -> Behaviors.STAY_HOME; default -> awaitingLanding?Behaviors.NEWBORN_FALL:Behaviors.IDLE;
         };
@@ -1134,7 +1138,7 @@ public final class FamilyLife {
      *  A child near in the separation sense is watched, not searched: the search starts beyond it and ends at {@link #reached}. */
     private YukkuriEntity closestSeparatedDependentChild() {
         return level().getEntitiesOfClass(YukkuriEntity.class,entity.getBoundingBox().inflate(FAMILY_SEARCH_RANGE),other->other.isAlive()
-                &&ordinaryLandFree(other)&&caresFor(other)&&other.childhood().shouldStayWithParents()&&entity.life().canRecognize(other)
+                &&ordinaryLandFree(other)&&caresFor(other)&&separation.searchingAllowed(other)&&other.childhood().shouldStayWithParents()&&entity.life().canRecognize(other)
                 &&escortsMigratingChild(other)&&!safeInSharedHome(other)
                 &&(!other.family().exploring()||other.life().hasUrgentNeed())
                 &&(!FamilySeparation.near(entity,other)||carry.pickupWanted(other)))
@@ -1229,8 +1233,9 @@ public final class FamilyLife {
         if(task==Task.CARRY)return carry.carrying()&&taskTicks<2400;
         if(task==Task.SEARCH&&target!=null)return ordinaryLandFree(entity)&&(ordinaryLandFree(target)||target.getVehicle()==entity&&carry.lifting())&&caresFor(target)
                 &&(carry.lifting()||escortsMigratingChild(target)&&!safeInSharedHome(target))
-                &&target.childhood().shouldStayWithParents()&&entity.life().canRecognize(target)&&taskTicks<1200&&target.level()==entity.level()
+                &&target.childhood().shouldStayWithParents()&&entity.life().canRecognize(target)&&(glass.active()||taskTicks<1200)&&target.level()==entity.level()
                 &&entity.distanceToSqr(target)<FAMILY_SEARCH_RANGE*FAMILY_SEARCH_RANGE;
+        if(task==Task.SEARCH&&call.waitingAtGlass())return true;
         return taskTicks<240
                 &&(task==Task.SEARCH||target!=null&&target.isAlive()&&target.level()==entity.level()&&entity.distanceToSqr(target)<256);
     }
@@ -1300,6 +1305,8 @@ public final class FamilyLife {
             case CARRY -> { if(!carry.tickHome(taskTicks))stop(); }
             case SEARCH -> {
                 if(target!=null) {
+                    if(glass.active()&&glass.tick())return;
+                    if(!carry.lifting()&&taskTicks%10==1&&glass.start(target))return;
                     if(carry.pickupWanted(target)) {
                         // Lift the baby instead of waiting for it to walk over; a march carries on, a stray goes back to its nest.
                         if(carry.tickPickup(target,taskTicks)==ParentCarry.Step.FAILED)stop();
@@ -1310,7 +1317,6 @@ public final class FamilyLife {
                     // Out of its sight she stops now and then to call for it and listen (ChildCall); her walk waits meanwhile.
                     if(call.tickParent(target))return;
                     if(taskTicks%10==1&&!navigateToward(target.blockPosition(),1.1)){stop();return;}
-                    // As near as the ground allows (a child behind glass): wait there facing it; her calls go on between.
                     if(entity.getNavigation().isDone())entity.getLookControl().setLookAt(target,20,20);
                 } else {
                     if(searchAt==null||entity.distanceToSqr(searchAt)<2){stop();return;}
@@ -1321,6 +1327,7 @@ public final class FamilyLife {
         }
     }
     public void stop() {
+        glass.stop();
         call.stop();
         if(chore!=null){chore.stop("family_goal_stopped");chore=null;if(task==Task.FETCH_HAT)choreRetry=level().getGameTime()+600;}
         choreHat=null;

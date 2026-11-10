@@ -36,32 +36,34 @@ public record PaneOpening(BlockPos pane, Vec3 stand, BlockPos beyond) {
                         queue.add(next);
                     }
                 } else if (level.getBlockState(next).is(Tags.Blocks.GLASS_PANES)) {
-                    var other = next.relative(direction);
-                    if (!floor(body,other)) continue;
-                    var approach = exit ? cell : other;
-                    var beyond = exit ? other : cell;
-                    if (!body.life().reachable(approach, false)) continue;
-                    var normal = exit ? direction.getOpposite() : direction;
-                    var shape = level.getBlockState(next).getCollisionShape(level, next).bounds();
-                    double extent = normal.getAxis() == Direction.Axis.X ? shape.getXsize() : shape.getZsize();
-                    var stand = Vec3.atBottomCenterOf(next).add(Vec3.atLowerCornerOf(normal.getNormal())
-                            .scale(Bash.standOff(body) + extent/2 + Walk.STAND_ARRIVED/2));
-                    var box = body.getBoundingBox().move(stand.subtract(body.position()));
-                    if (!level.noCollision(body, box)) continue;
-                    var crossing = body.getBoundingBox().move(Vec3.atBottomCenterOf(next).subtract(body.position()));
-                    boolean clear = true;
-                    for (var p : BlockPos.betweenClosed(BlockPos.containing(crossing.minX, crossing.minY, crossing.minZ),
-                            BlockPos.containing(crossing.maxX, crossing.maxY, crossing.maxZ))) {
-                        if (p.equals(next)) continue;
-                        for (var obstacle : level.getBlockState(p).getCollisionShape(level, p).toAabbs())
-                            if (obstacle.move(p).intersects(crossing)) clear = false;
-                    }
-                    if (clear) candidates.add(new PaneOpening(next.immutable(), stand, beyond.immutable()));
+                    var opening = at(body,next,exit ? direction.getOpposite() : direction);
+                    if (opening != null) candidates.add(opening);
                 }
             }
         }
         return candidates.stream().filter(p -> !seen.contains(p.beyond()) || !exit)
                 .sorted(Comparator.comparingDouble(p -> body.distanceToSqr(p.stand()))).toList();
+    }
+
+    /** From a known pane and its near-side normal, check the ram stand and the body-sized crossing. */
+    public static PaneOpening at(YukkuriEntity body, BlockPos pane, Direction normal) {
+        var level = body.level();
+        var approach = pane.relative(normal);
+        var beyond = pane.relative(normal.getOpposite());
+        if (!floor(body,approach) || !floor(body,beyond) || !body.life().reachable(approach,false)) return null;
+        var shape = level.getBlockState(pane).getCollisionShape(level,pane).bounds();
+        double extent = normal.getAxis() == Direction.Axis.X ? shape.getXsize() : shape.getZsize();
+        var stand = Vec3.atBottomCenterOf(pane).add(Vec3.atLowerCornerOf(normal.getNormal())
+                .scale(Bash.standOff(body) + extent/2 + Walk.STAND_ARRIVED/2));
+        if (!level.noCollision(body,body.getBoundingBox().move(stand.subtract(body.position())))) return null;
+        var crossing = body.getBoundingBox().move(Vec3.atBottomCenterOf(pane).subtract(body.position()));
+        for (var p : BlockPos.betweenClosed(BlockPos.containing(crossing.minX,crossing.minY,crossing.minZ),
+                BlockPos.containing(crossing.maxX,crossing.maxY,crossing.maxZ))) {
+            if (p.equals(pane)) continue;
+            for (var obstacle : level.getBlockState(p).getCollisionShape(level,p).toAabbs())
+                if (obstacle.move(p).intersects(crossing)) return null;
+        }
+        return new PaneOpening(pane.immutable(),stand,beyond);
     }
 
     /** Room topology ignores occupants so the separate empty-room test cannot skip their blocked cells. */

@@ -176,6 +176,7 @@
     "chen_speed": "SC-08",
     "marisa_sumo": "SC-09",
     "waste_volume": "FM-19",
-    "leaf_swaddle_neglect_stages": "MD-16"
+    "leaf_swaddle_neglect_stages": "MD-16",
+    "family_search_pane": "FM-20"
   }
 }

@@ -98,6 +98,8 @@ def main():
     check_records(events, 'situation.events', errors)
     check_records(lines, 'situation.lines', errors)
     check_records(planned, 'situation.planned', errors)
+    shared_events = {line.get('event') for line in lines if isinstance(line, dict) and line.get('shared_runtime')}
+    known_events |= shared_events
 
     event_ids = [record.get('event') for record in events if isinstance(record, dict)]
     for event, count in Counter(event_ids).items():
@@ -168,7 +170,7 @@ def main():
         f'situation={len(events)} events + {len(lines)} lines + {len(planned)} planned'
     )
     generated_id_events = sum(
-        any(event in line.get('events', []) and line.get('id', '').endswith(f'.s_{event}') for line in speech_lines)
+        event in shared_events or any(event in line.get('events', []) and line.get('id', '').endswith(f'.s_{event}') for line in speech_lines)
         for event in known_events
     )
     print(

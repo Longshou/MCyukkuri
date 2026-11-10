@@ -107,6 +107,18 @@ def outputs():
         locales['zh_cn'][key] = line['chinese']
         locales['ja_jp'][key] = line['japanese']
         locales['en_us'][key] = line['english']
+    situation = json.loads((ROOT / 'art/dialogue/corpus/situation.json').read_text(encoding='utf-8'))
+    for line in situation['lines']:
+        if not line.get('shared_runtime'):
+            continue
+        ident = line['id']
+        assert ident not in seen and line['status'] == 'ready', ident
+        seen.add(ident)
+        key = 'dialogue.mcyukkuri.original.' + ident
+        catalog.append(dict(id=ident, key=key, origin='project-original', species='*', age='*',
+                            events=[line['event']], ticks=max(50, min(180, len(line['ja']) * 4 + 15)), sound=''))
+        for locale in locales:
+            locales[locale][key] = line[locale[:2]]
     for locale, values in locales.items():
         values = place_dialogue(values, anchors[locale])
         files[ASSETS / f'lang/{locale}.json'] = (json.dumps(values, ensure_ascii=False, indent=2) + '\n').encode()

@@ -4,16 +4,29 @@ import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.mind.MindLife;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
+import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.ClipContext;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
+import net.neoforged.neoforge.common.Tags;
 
 /** Loaded server time, independent of goal interruptions. Genealogy remains in FamilyData. */
 final class FamilySeparation {
     private final FamilyLife o;
     private final Map<UUID,Integer> searching=new HashMap<>();
+    private final Set<UUID> glassDismissals=new HashSet<>();
     private boolean lost, desperate;
     private int hungerDecision;
     /** Loaded ticks spent away from the home it has (none before it has one), and the tick it last came home after a real absence
@@ -25,7 +38,7 @@ final class FamilySeparation {
     long cameHome(){return cameHome;}
     FamilySeparation(FamilyLife owner){o=owner;}
     boolean emergencyForaging(){return desperate&&o.stage()==FamilyLife.Stage.BABY&&o.entity().life().nutrition()<10&&!o.awaitingLanding();}
-    String describe(){return "lost="+lost+" searches="+searching+" limit="+searchLimit()+" dismissed="+FamilyData.get(o.level()).dismissedChildren(o.entity().getUUID())+" emergencyFood="+emergencyForaging();}
+    String describe(){return "lost="+lost+" searches="+searching+" limit="+searchLimit()+" glassDismissals="+glassDismissals+" dismissed="+FamilyData.get(o.level()).dismissedChildren(o.entity().getUUID())+" emergencyFood="+emergencyForaging();}
     private int searchLimit(){
         var p=o.entity().life().personality();
         long children=FamilyData.get(o.level()).children(o.entity().getUUID()).stream()
@@ -38,6 +51,26 @@ final class FamilySeparation {
         var home=a.habitat().shelter();
         return a.level()==b.level()&&a.distanceToSqr(b)<=64&&(a.hasLineOfSight(b)||home!=null&&home==b.habitat().shelter()
                 &&home.contains(a.blockPosition())&&home.contains(b.blockPosition()));
+    }
+    /** A search can recognize one glass collider. Every other collider still occludes, including a second glass cell. */
+    static BlockHitResult glassBetween(YukkuriEntity observer,Vec3 eye,YukkuriEntity kin){
+        var level=observer.level();var end=kin.getEyePosition();
+        var hit=level.clip(new ClipContext(eye,end,ClipContext.Block.COLLIDER,ClipContext.Fluid.NONE,observer));
+        if(hit.getType()!=HitResult.Type.BLOCK)return null;
+        var state=level.getBlockState(hit.getBlockPos());
+        if(!state.is(Tags.Blocks.GLASS_BLOCKS)&&!state.is(Tags.Blocks.GLASS_PANES))return null;
+        var beyond=level.clip(new ClipContext(eye,end,ClipContext.Block.COLLIDER,ClipContext.Fluid.NONE,observer){
+            @Override public VoxelShape getBlockShape(BlockState block,BlockGetter world,BlockPos pos){
+                return pos.equals(hit.getBlockPos())?Shapes.empty():super.getBlockShape(block,world,pos);
+            }
+        });
+        return beyond.getType()==HitResult.Type.MISS?hit:null;
+    }
+    boolean searchingAllowed(YukkuriEntity child){return !glassDismissals.contains(child.getUUID());}
+    void dismissAtGlass(YukkuriEntity child,String reason){
+        var id=child.getUUID();
+        searching.remove(id);glassDismissals.add(id);
+        GameplayLog.event(o.entity(),"family","parent dismissed child={} reason={} child_recognition=retained",id,reason);
     }
     /** In its nest, or anywhere inside its own home. */
     static boolean atHome(YukkuriEntity e){
@@ -57,6 +90,15 @@ final class FamilySeparation {
     void tick(){
         if(o.entity().tickCount%20!=0)return;
         var e=o.entity();var data=FamilyData.get(o.level());var p=e.life().personality();
+        glassDismissals.removeIf(id->{
+            var record=data.person(id);
+            if(record!=null&&record.status==FamilyData.Status.DEAD)return true;
+            if(!(o.level().getEntity(id) instanceof YukkuriEntity child)||!e.hasLineOfSight(child)
+                    ||e.distanceToSqr(child)>FamilyLife.FAMILY_SEARCH_RANGE*FamilyLife.FAMILY_SEARCH_RANGE
+                    ||!e.life().reachable(child.blockPosition(),false))return false;
+            GameplayLog.event(e,"family","glass search reopened child={} reason=clear_route",id);
+            return true;
+        });
         if(o.stage()==FamilyLife.Stage.BABY&&!o.awaitingLanding()){
             if(e.life().nutrition()>=10){desperate=false;hungerDecision=0;}
             else if((hungerDecision-=20)<=0){
@@ -93,7 +135,8 @@ final class FamilySeparation {
         if(o.adult())for(UUID id:data.children(e.getUUID())){
             var record=data.person(id);
             if(record==null||!e.getUUID().equals(record.mother)||!data.acknowledgesChild(e.getUUID(),id))continue;
-            if(!(o.level().getEntity(id) instanceof YukkuriEntity child)||!child.isAlive()||child.family().adult()||child.family().subadult())continue;
+            if(!(o.level().getEntity(id) instanceof YukkuriEntity child)||!child.isAlive()||child.family().adult()||child.family().subadult()
+                    ||!searchingAllowed(child))continue;
             if(child.family().awaitingLanding()||child.isPassenger()||near(e,child)||atHome(child)){
                 searching.remove(id);o.call().found(id);
                 continue;
@@ -102,7 +145,7 @@ final class FamilySeparation {
             // A slave is kept in the pit and cannot go to the child: that worry stays at 不安 with its other pit pressures.
             pressure(.12f,o.entity().settlement().society().slave()?MindLife.UNEASY:MindLife.BREAKING-10,"missing_child");
             if(elapsed==20){e.showReaction("teary","wait_family",100);GameplayLog.event(e,"family","child search clock started child={} limit={}",id,searchLimit());}
-            if(elapsed>=searchLimit()){
+            if(elapsed>=searchLimit()&&!o.glass().tracks(child)&&glassBetween(e,e.getEyePosition(),child)==null){
                 data.dismissChild(e,id);searching.remove(id);
                 e.showReaction("teary","mood_bad",120);BirthStaging.caption(e,"搜寻太久，母油放弃寻找；孩子仍然认得母油");
                 if(o.target()==child&&o.task()==FamilyLife.Task.SEARCH)o.stop();
@@ -114,9 +157,12 @@ final class FamilySeparation {
     void save(CompoundTag tag){
         var list=new ListTag();searching.forEach((id,ticks)->{var entry=new CompoundTag();entry.putUUID("Child",id);entry.putInt("Ticks",ticks);list.add(entry);});
         tag.put("ChildSearchClocks",list);tag.putBoolean("EmergencyForaging",desperate);tag.putInt("HungerDecision",hungerDecision);
+        var glass=new ListTag();for(var id:glassDismissals){var entry=new CompoundTag();entry.putUUID("Child",id);glass.add(entry);}
+        tag.put("GlassSearchDismissals",glass);
     }
     void load(CompoundTag tag){
         searching.clear();for(var raw:tag.getList("ChildSearchClocks",Tag.TAG_COMPOUND)){var entry=(CompoundTag)raw;if(entry.hasUUID("Child"))searching.put(entry.getUUID("Child"),Math.clamp(entry.getInt("Ticks"),0,14400));}
+        glassDismissals.clear();for(var raw:tag.getList("GlassSearchDismissals",Tag.TAG_COMPOUND)){var entry=(CompoundTag)raw;if(entry.hasUUID("Child"))glassDismissals.add(entry.getUUID("Child"));}
         desperate=tag.getBoolean("EmergencyForaging");hungerDecision=Math.clamp(tag.getInt("HungerDecision"),0,1200);lost=false;
     }
 }
