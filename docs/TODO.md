@@ -8,7 +8,6 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
-| 暂停待用户评估：载乘时转身平滑（分支 f95aeea96，载乘转角约 90°→12°/tick；meet／迁徙影响未定） | `.worktrees/wp-ex-carrier-turn` | motor/（转向速率，按实际归属）、family/ParentCarry.java（只读或最小改动） |
 | 任4 聚落迁移重做（选址可达可筑窝、失败改道、到达后安家） | `.worktrees/wp-fj-migration` | settlement/（Migration、MigrationSearch、SiteClaimer、SiteLife、Homes、ShelterPlacement、Burrowing、HabitatHomes）、scripts/museum_scenarios.py（colony_migrate*） |
 | 任1 亲油带赤油普及、危险时带走（两场演示） | `.worktrees/wp-fi-carry-common` | family/ParentCarry.java、family/FamilyLife.java（搬运需求）、scripts/museum_scenarios.py（新增两场） |
 | 生2 隔玻璃蹲守寻亲（简单版） | `.worktrees/wp-em-glass-search` | family/FamilySeparation.java、family/ChildCall.java、scripts/museum_scenarios.py（family_search） |
