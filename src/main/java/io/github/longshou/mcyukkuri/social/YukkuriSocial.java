@@ -59,17 +59,24 @@ public final class YukkuriSocial implements MotorOwner {
     private int toyContact, toyTouches;
     private int greetClicks;
     private long greetUntil;
+    private String greetClip = "greet";
     /** A stopped retrieval is not restarted on the next goal evaluation. */
     private long accessoryRetry;
     public int greetClicks() { return greetClicks; }
     public boolean greeting() { return entity.level().getGameTime() < greetUntil; }
-    public long greetStart() { return greetUntil - ClipMarkers.of("greet").length(); }
+    public long greetStart() { return greetUntil - ClipMarkers.of(greetClip).length(); }
+    public String greetingClip() { return greetClip; }
+    /** Presentation request only: no command goal and no interruption of the current leisure session. */
+    private void greetingBody(String clip) {
+        greetClip = clip;
+        greetUntil = entity.level().getGameTime() + ClipMarkers.of(clip).length();
+    }
 
     /** The existing empty-hand greeting, counted once at its actual player entry. */
     public boolean clickedTalk(Player player) {
         boolean accepted = talk(player, true);
         greetClicks++;
-        if (accepted) greetUntil = entity.level().getGameTime() + ClipMarkers.of("greet").length();
+        if (accepted) greetingBody("greet");
         GameplayLog.event(entity, "interaction", "greet click player={} accepted={} clicks={}", player.getUUID(), accepted, greetClicks);
         return accepted;
     }
@@ -250,7 +257,7 @@ public final class YukkuriSocial implements MotorOwner {
             EcologyMovement.halt(entity);
             if (elapsed == answerDelay && target instanceof YukkuriEntity other) {
                 if (answerScorn) Contempt.react((ServerLevel) entity.level(), entity, other);
-                else { entity.showReaction("happy", "hello", 80); logGreet(other, answerWhy); }
+                else { answerGreeting(other, "greet", answerWhy); }
             }
             return;
         }
@@ -342,6 +349,8 @@ public final class YukkuriSocial implements MotorOwner {
             return;
         }
         EcologyMovement.halt(entity);
+        if (!greeted && task == Task.PEER && target instanceof YukkuriEntity peer
+                && entity.dailyLife().nuzzleOnArrival(peer)) return;
         if (!greeted) {
             greeted = true;
             if (task == Task.PLAYER) entity.showReaction("happy", personality().trust(target.getUUID()) >= BondLevels.TRUST_AT_20 ? "caregiver" : "hello", 80);
@@ -354,7 +363,7 @@ public final class YukkuriSocial implements MotorOwner {
                     String why = greetReason(peer, relations);
                     if (why != null && Recognition.unrecognizedHatless(peer, entity)) peer.social().receiveGreeting(entity, true, why);
                     else if (why != null) {
-                        entity.showReaction("happy", "hello", 80); logGreet(peer, why);
+                        startGreeting(peer, why);
                         peer.social().receiveGreeting(entity, false, why);
                         relations.relate(entity.getUUID(), peer.getUUID(), 2);
                         if (peer.life().canRecognize(entity) && relations.affinity(peer.getUUID(), entity.getUUID()) >= BondLevels.AFFINITY_NEUTRAL)
@@ -396,8 +405,20 @@ public final class YukkuriSocial implements MotorOwner {
     /** Meeting this peer for a nuzzle: why it is greeted first (logged), or null; the greeting counts as this contact. */
     public String greetingDue(YukkuriEntity peer) {
         String why = greetReason(peer, YukkuriWorldData.get((ServerLevel) entity.level()));
-        if (why != null) logGreet(peer, why);
         return why;
+    }
+    public void startGreeting(YukkuriEntity peer, String why) {
+        greetingBody("greet");
+        entity.showReaction("happy", "hello", 80);
+        logGreet(peer, why);
+    }
+    public void answerGreeting(YukkuriEntity peer, String clip, String why) {
+        greetingBody(clip);
+        entity.getLookControl().setLookAt(peer, 30, 30);
+        entity.showReaction("happy", "hello", 80);
+        noteContact(peer);
+        GameplayLog.limited(entity, "social", "answer." + peer.getUUID(), 200,
+                "greet answer from={} to={} why={} answer={}", entity.getUUID(), peer.getUUID(), why, clip);
     }
     private void logGreet(YukkuriEntity other, String why) {
         GameplayLog.limited(entity, "social", "greet." + other.getUUID(), 200, "greet from={} to={} why={}", entity.getUUID(), other.getUUID(), why);
@@ -406,8 +427,13 @@ public final class YukkuriSocial implements MotorOwner {
     public boolean receiveGreeting(YukkuriEntity from, boolean scorn, String why) {
         if (task != Task.NONE || entity.level().isClientSide || !entity.isAlive() || entity.isNoAi() || entity.life().isSleeping() || entity.isPanicking()
                 || entity.life().hasUrgentNeed() || entity.life().mealTicks() > 0 || entity.isCommandPlaying() || entity.operations().active()
-                || entity.dailyLife().active() || entity.groupInteraction().active() || entity.playLife().active() || entity.family().laboring()
+                || entity.groupInteraction().active() || entity.playLife().active() || entity.family().laboring()
                 || !entity.hasLineOfSight(from)) return false;
+        if (entity.dailyLife().active()) {
+            if (scorn) Contempt.react((ServerLevel) entity.level(), entity, from);
+            else answerGreeting(from, "nod", why);
+            return true;
+        }
         task = Task.ANSWER; target = from; elapsed = 0; greeted = true; answerScorn = scorn; answerWhy = why;
         answerDelay = ANSWER_BASE + entity.getRandom().nextInt(ANSWER_SPREAD); duration = answerDelay + ANSWER_HOLD;
         answerUntil = entity.level().getGameTime() + ANSWER_EXPIRY;

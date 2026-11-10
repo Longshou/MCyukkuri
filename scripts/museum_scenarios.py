@@ -508,12 +508,12 @@ add('nutrition_age', 'body', '各年龄饿得快慢，饿到0变虚弱', '各年
 
 add('meet', 'meadow', '熟的走近蹭蹭，生的先问候', '熟的走近蹭蹭，生的先问候',
     '北边一对橙和爱丽丝互相认识、想亲近，会自己走近、问候、蹭蹭；南边一对橙和爱丽丝素不相识（亲近度 0），先普通问候，'
-    '之后读数里出现彼此的关系、亲近度大于 0；再靠近看陌生的两只能否主动问候中立的你', '约 1–2 分钟', [
+    '之后读数里出现彼此的关系、亲近度大于 0；再靠近看陌生的两只能否主动问候中立的你', '持续观察约 2 分钟（暂停不计时）', [
     yk('chen', -2, -3, 'a', yaw=-90, affection=95, social_wait=0, lead=True),
     yk('alice', 2, -3, 'b', yaw=90, affection=95, social_wait=0),
     f'yukkuri scenario bond {sel("a")} {sel("b")}',
-    yk('chen', -2, 3, 'stranger_a', label='陌生橙', yaw=-90, attachment=95, social_wait=0),
-    yk('alice', 2, 3, 'stranger_b', label='陌生爱丽丝', yaw=90, attachment=95, social_wait=0)],
+    yk('chen', -2, 3, 'stranger_a', label='陌生橙', yaw=-90, attachment=95, affection=0, social_wait=0),
+    yk('alice', 2, 3, 'stranger_b', label='陌生爱丽丝', yaw=90, attachment=95, affection=0, social_wait=0)],
     env=DAY, vantage=None, give=['mcyukkuri:field_notebook'],
     reads=[('读熟识一对', f'execute as {sel("a")} run yukkuri status @s raw'),
            ('读陌生橙的首次接触', f'yukkuri status {sel("stranger_a")} raw'), ('读陌生爱丽丝的首次接触', f'yukkuri status {sel("stranger_b")} raw')])
