@@ -9,7 +9,9 @@ import io.github.longshou.mcyukkuri.family.FamilyConfig;
 import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.family.FamilyLife;
 import io.github.longshou.mcyukkuri.family.ReproductionEffects;
-import io.github.longshou.mcyukkuri.motor.Motor;
+import io.github.longshou.mcyukkuri.motor.MotorOwner;
+import io.github.longshou.mcyukkuri.motor.Outcome;
+import io.github.longshou.mcyukkuri.motor.action.Pin;
 import java.util.Comparator;
 import java.util.EnumSet;
 import net.minecraft.core.BlockPos;
@@ -49,6 +51,13 @@ public final class AgitationLife {
     private long phaseStart;
     private boolean controlling, relieved, reliefBeatsDone, actSettled, rapistEpisode, buffet;
     private YukkuriEntity target;
+    private Pin pin;
+    private final MotorOwner motorOwner = new MotorOwner() {
+        @Override public String ownerId() { return Behaviors.ALICE_ACT; }
+        @Override public boolean active() {
+            return controlling && (phase == Phase.ALICE_APPROACH || phase == Phase.ALICE_ACT || phase == Phase.HELD);
+        }
+    };
     private Vec3 lastPosition;
     private String encounterDescription = "尚无素鸡立记录";
 
@@ -174,7 +183,8 @@ public final class AgitationLife {
             // Summoned and freshly loaded bodies may not have received their first grounded physics step.
             // Only that missing support gets a bounded grace period; water, handling, sleep and other danger do not.
             boolean landingGrace = !controlling && episodeTicks <= 40 && !grounded() && available(false);
-            if (episodeTicks > EPISODE_LIMIT || !available() && !landingGrace) stop();
+            // A real pounce takes travel time; the act has its own bounded duration once contact succeeds.
+            if (episodeTicks > EPISODE_LIMIT && phase != Phase.ALICE_ACT || !available() && !landingGrace) stop();
         }
     }
 
@@ -182,7 +192,8 @@ public final class AgitationLife {
     private void tickHeld() {
         var attacker = target;
         if (!entity.isAlive() || attacker == null || !attacker.isAlive() || attacker.level() != entity.level()
-                || attacker.agitation().phase() != Phase.ALICE_ACT) { release(false); return; }
+                || attacker.agitation().phase() != Phase.ALICE_ACT
+                || !(entity.motor().current() instanceof Pin.Held)) { release(false); return; }
         entity.getNavigation().stop();
     }
 
@@ -194,7 +205,10 @@ public final class AgitationLife {
         // The pinned body keeps facing away from the hunter; no look-back.
         phaseTicks++;
         // 1.12 struggles every ~20 frames; the 45-tick speech floor spaces the distress lines.
-        if (phaseTicks % 60 == 30) entity.speak("rapem_victim");
+        if (phaseTicks % 60 == 30) {
+            entity.speak("rapem_victim");
+            Pin.struggle(entity);
+        }
     }
 
     private boolean eligible() {
@@ -300,6 +314,7 @@ public final class AgitationLife {
         Phase previous=phase; int previousTicks=phaseTicks;
         var previousTarget=target==null?null:target.getUUID();
         phase = next;
+        if (next == Phase.ALICE_APPROACH) pin = null;
         phaseTicks = pathFailures = lostSightTicks = stalledTicks = 0;
         phaseStart = entity.level().getGameTime();
         lastPosition = entity.position();
@@ -412,26 +427,18 @@ public final class AgitationLife {
             witness.agitation().threatenedBy(entity);
     }
 
-    /** The stand point directly behind the victim, where the mount is taken from. */
-    private Vec3 rearStand(YukkuriEntity victim) {
-        var forward = Vec3.directionFromRotation(0, victim.getYRot());
-        double spacing = (entity.getBbWidth() + victim.getBbWidth()) * .5 * .9;
-        return victim.position().subtract(forward.scale(spacing));
-    }
-
     /** Contact made: pin the victim face-forward and take it from behind (1.12 label_2623). */
     private void beginAct() {
         enter(Phase.ALICE_ACT);
         actSettled = false;
         entity.getNavigation().stop();
-        // Align exactly behind the pinned body, both facing the same way.
-        var rear = rearStand(target);
-        float yaw = target.getYRot();
-        if (entity.level().noCollision(entity, entity.getBoundingBox().move(rear.subtract(entity.position()))))
-            Motor.relocate(entity, rear, yaw, "agitation_pin");
-        else Motor.face(entity, yaw);
-        entity.speak("rapem_act");
         target.agitation().holdBy(entity);
+        target.motor().interrupt("pin_contact");
+        if (!target.motor().run(target.agitation().motorOwner, new Pin.Held(entity, pin))) {
+            interruptAct("目标无法保持接触，未结算");
+            return;
+        }
+        entity.speak("rapem_act");
         encounterDescription = "已从背后压制目标，素鸡立进行中";
     }
 
@@ -443,14 +450,20 @@ public final class AgitationLife {
             return;
         }
         entity.getLookControl().setLookAt(target, 20, 20);
+        if (pin != null && pin.result() == null) {
+            if (pin.contact()) beginAct();
+            return;
+        }
         threaten(target);
         // The mount is taken from behind (1.12 pins the body and leans on its back): steer to the
         // point directly behind the fleeing target, not to the target itself.
-        var rear = rearStand(target);
-        double spacing = (entity.getBbWidth() + target.getBbWidth()) * .5 + .45;
-        double rearDistance = entity.distanceToSqr(rear);
-        if (rearDistance <= .6 * .6 || entity.distanceToSqr(target) <= spacing * spacing * .64) {
-            beginAct();
+        var rear = Pin.stand(entity, target);
+        if (Pin.withinReach(entity, target) && (pin == null || pin.changed(entity))) {
+            pin = new Pin(entity, target, ACT_TICKS);
+            if (!entity.motor().run(motorOwner, pin)) {
+                var refusal = entity.motor().refusal();
+                pin.refused(entity, refusal != null ? refusal : new Outcome.Interrupted(entity.motor().startRefusal().reason()));
+            }
             return;
         }
         if (entity.hasLineOfSight(target)) {
@@ -474,17 +487,11 @@ public final class AgitationLife {
 
     private void act() {
         if (target == null || !target.isAlive() || target.level() != entity.level() || !target.agitation().held()
-                || phaseTicks > ACT_TICKS + 20) {
+                || pin == null || !pin.contact() || phaseTicks > ACT_TICKS + 20) {
             interruptAct("目标在动作中脱离，未结算");
             return;
         }
         entity.getNavigation().stop();
-        // Stay glued behind the pinned body: same facing, no drift from collision pushes.
-        float yaw = target.getYRot();
-        var rear = rearStand(target);
-        if (entity.position().distanceToSqr(rear) > .09 && entity.level().noCollision(entity, entity.getBoundingBox().move(rear.subtract(entity.position()))))
-            Motor.relocate(entity, rear, yaw, "agitation_pin_hold");
-        else Motor.face(entity, yaw);
         // 1.12 spends 体力200 across the act; exhaustion death is checked at completion.
         if (phaseTicks % 20 == 0) entity.life().spendEnergy(1.5f);
         if (phaseTicks == 60 || phaseTicks == 120) entity.speak("rapem_moan");
@@ -528,6 +535,7 @@ public final class AgitationLife {
         YukkuriEntity victim = target;
         entity.speak("heat_relief_3");
         if (victim != null) victim.agitation().release(settled);
+        entity.motor().cancel(motorOwner, "act_complete");
         GameplayLog.event(entity,"agitation","contact ended target={} settled={} energy={}",
                 victim==null?null:victim.getUUID(),settled,entity.life().energy());
         if (entity.getRandom().nextBoolean()) entity.speak(entity.getRandom().nextBoolean() ? "rapem_review_bad" : "rapem_review_good");
@@ -553,7 +561,7 @@ public final class AgitationLife {
         GameplayLog.limited(entity,"agitation","contact.interrupted",200,
                 "contact interrupted target={} reason={} ticks={} settled={}",
                 victim==null?null:victim.getUUID(),reason,phaseTicks,actSettled);
-        if (victim != null && victim.agitation().held()) victim.agitation().release(false);
+        // The victim observes this owner's exit on its own tick; passive clocks never mutate another body.
         entity.speak("heat_refuse"); // 1.12 発情10: anger at whoever spoiled the sukkiri time
         enter(Phase.RECOVER);
     }
@@ -620,6 +628,7 @@ public final class AgitationLife {
     }
     public void load(CompoundTag tag) {
         controlling = false;
+        pin = null;
         target = null;
         lastPosition = null;
         threatCooldown = 0;
