@@ -168,10 +168,11 @@ def leaf_cell(stage):
         for x, y in inside:
             if 11 <= x <= 17 and 2 <= abs(y - MID) <= 7 and (x, y) not in outline and colour[(x, y)] != 1:
                 colour[(x, y)] = min(5, colour[(x, y)] + 1)
-        # the tip lies on the face under the mouth: the taut step, no darkest crinkle or edge pixels, so it reads as leaf, not a moustache
+        # the tip lies on the face under the mouth: the taut step with a light midrib, no darkest crinkle or edge pixels, so it reads as
+        # a leaf, not a moustache
         for x, y in inside:
             if x >= TIP:
-                colour[(x, y)] = 4 if (x, y) in outline else max(5, colour[(x, y)])
+                colour[(x, y)] = 3 if (x, y) in outline else 6 if y == MID else max(4, colour[(x, y)])
     cell = Image.new('RGBA', (32, 32), (0, 0, 0, 0))
     for xy, step in colour.items():
         c = rgba(ramp[step])
