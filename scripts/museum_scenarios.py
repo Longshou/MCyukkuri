@@ -2143,13 +2143,27 @@ def _reimu_release_verify(log):
     # Reimu lets each baby out by her whole mouth_release clip (1.6 s = 32 ticks), not in the first ticks.
     if not re.search(r'\[family\] reimu #[^\n]* carry pickup hold=mouth\b', log):
         return None
-    opened = {child: int(tick) for tick, child in re.findall(
-        r'\[family\] reimu #\d+ uuid=\S+ t=(\d+) [^\n]*?carry lowering hold=mouth child=([0-9a-f-]{36})', log)}
-    out = {child: int(tick) for tick, child in re.findall(
-        r'\[family\] reimu #\d+ uuid=\S+ t=(\d+) [^\n]*?carry put down reason=\w+ hold=mouth cause=release purpose=\w+ child=([0-9a-f-]{36})', log)}
-    if not opened or not out:
+    opened, quick, completed = {}, [], 0
+    events = re.finditer(
+        r'\[family\] reimu #\d+ uuid=(\S+) t=(\d+) [^\n]*?carry '
+        r'(lowering hold=mouth|put down reason=\w+ hold=mouth cause=release purpose=\w+) '
+        r'child=([0-9a-f-]{36})\b', log)
+    for event in events:
+        parent, tick, action, child = event.groups()
+        tick = int(tick)
+        key = parent, child
+        if action.startswith('lowering'):
+            # A resumed lowering begins its own clip; a later release belongs to this transaction.
+            opened[key] = tick
+        else:
+            if key not in opened:
+                return f'Reimu mouth release without its own lowering: parent={parent} child={child} tick={tick}'
+            start = opened.pop(key)
+            completed += 1
+            if tick - start < 32:
+                quick.append((child, start, tick, tick - start))
+    if not completed:
         return 'expected a Reimu mouth release (carry lowering hold=mouth, then carry put down hold=mouth)'
-    quick = {child: out[child] - tick for child, tick in opened.items() if child in out and out[child] - tick < 32}
     return f'Reimu released before her clip ended (ticks): {quick}' if quick else None
 
 
