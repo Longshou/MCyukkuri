@@ -999,6 +999,10 @@ public final class FamilyLife {
             target=level().getEntitiesOfClass(YukkuriEntity.class,entity.getBoundingBox().inflate(3),other->
                     other.family().task()==Task.COURT&&other.family().target()==entity&&canReproduceWith(other)).stream().findFirst().orElse(null);
             if(target!=null) { task=Task.RECEIVE_COURT;courtship.resetAttempt();taskTicks=0;entity.showReaction("happy","courtship",100);return true; }
+            // A candidate she cannot pair with while her partner stands still gets a real answer: she turns her back on him.
+            target=level().getEntitiesOfClass(YukkuriEntity.class,entity.getBoundingBox().inflate(3),
+                    other->other.family().target()==entity&&Courtship.askingForRefusal(other)).stream().findFirst().orElse(null);
+            if(target!=null) { task=Task.RECEIVE_COURT;courtship.resetAttempt();taskTicks=0;return true; }
             // The round another goal cut short: he walks back to her once she is free and both are still in heat.
             var awaiting=courtship.comeback();
             if(awaiting!=null) { target=awaiting;task=Task.COURT;courtship.beginComeback();taskTicks=0;return true; }

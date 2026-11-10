@@ -29,6 +29,8 @@ final class Courtship {
     private static final double COMEBACK_RANGE=12;
     /** How far round from facing him her body has to be before her back is an answer he can read. */
     private static final float REFUSAL_TURN=60;
+    /** Minimum ticks her refusal round is shown for, so the turn is on screen and can be read. */
+    private static final int REFUSAL_HOLD=20;
     /** Temporary arrangement and the owner-unpermitted courtship partner. */
     private UUID arranged, unauthorizedWith;
     /** This round is the refusal he came to hear; this round is his walk back to a partner another goal took from him. */
@@ -360,14 +362,19 @@ final class Courtship {
                     leader.entity().getUUID(),Math.round(o.entity().distanceTo(leader.entity())*10)/10.0);
         }
         float away=(float)(Mth.atan2(o.entity().getZ()-leader.entity().getZ(),o.entity().getX()-leader.entity().getX())*Mth.RAD_TO_DEG)-90;
-        if(Math.abs(Mth.wrapDegrees(away-o.entity().getYRot()))<=Face.FACE_ARRIVED)o.stop();
+        boolean turned=Math.abs(Mth.wrapDegrees(away-o.entity().getYRot()))<=Face.FACE_ARRIVED;
+        if(turned&&declineTicks>REFUSAL_HOLD)o.stop();
         else o.face(away);
+    }
+
+    /** Whether that individual's running round is a refusal it came to hear: the paired adult answers it. */
+    static boolean askingForRefusal(YukkuriEntity other) {
+        return other!=null&&other.family().task()==Task.COURT&&other.family().courtship().declinedRound;
     }
 
     /** Her round is the answer to a refusal he came to get: it stands without the pairing ever being possible. */
     boolean answeringDecline() {
-        return o.target()!=null&&o.target().family().task()==Task.COURT&&o.target().family().target()==o.entity()
-                &&o.target().family().courtship().declinedRound;
+        return o.target()!=null&&o.target().family().target()==o.entity()&&askingForRefusal(o.target());
     }
 
     /** The partner whose own work cut the last round short, once she is free, in reach and both are still in heat. */
