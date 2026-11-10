@@ -141,7 +141,7 @@ class CaptureReadoutTest(unittest.TestCase):
                 (view/'selected-frames.json').write_text(json.dumps(select_frames(frames, poses)), encoding='utf-8')
                 (view/'geometry.json').write_text(json.dumps(geometry_report(poses, frames)), encoding='utf-8')
             with patch('sys.argv', ['capture_review.py', 'scene', '--reuse', str(root), '--out', str(root/'report')]), \
-                    patch.object(capture_review.storyboard, 'kimi', return_value=dict(readability='clear', issues=[], seen='fixture')):
+                    patch.object(capture_review.storyboard, 'vision', return_value=dict(readability='clear', issues=[], seen='fixture')):
                 self.assertEqual(2, capture_review.main())
             report = json.loads((root/'report/review.json').read_text())
             self.assertEqual(2, report['summary']['frames'])

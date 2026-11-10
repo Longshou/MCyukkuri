@@ -141,7 +141,7 @@ def main():
                   'teleportation, physical correctness or item conservation: those are independently measured. '
                   'Answer JSON: {"readability":"clear|unclear","issues":["concrete readability issue, empty if clear"],"seen":"one sentence"}.')
         try:
-            result = storyboard.kimi(images, prompt)
+            result = storyboard.vision(images, prompt)
             if result.get('readability') not in ('clear', 'unclear') or not isinstance(result.get('issues'), list) or not result.get('seen'):
                 raise ValueError(f'invalid readability response: {result}')
             if (result['readability']=='clear') == bool(result['issues']):
@@ -152,7 +152,7 @@ def main():
                               f'Image 2 is panel 1 (start state). User criteria: {criteria}\n{job["criteria"]}\n'
                               f'{storyboard.BODY_RULES}\n{legacy.FIXED}\nJudge Image 1 only. Answer JSON: '
                               '{"body_verdict":"ok|problem","framing_verdict":"ok|problem","tilt_deg":0,"body_issues":[],"framing_issues":[],"seen":"one sentence"}.')
-                old = storyboard.kimi(images, old_prompt)
+                old = storyboard.vision(images, old_prompt)
                 if old.get('body_verdict') not in ('ok','problem'):
                     raise ValueError(f'invalid legacy response: {old}')
                 result['old'] = old

@@ -29,7 +29,7 @@ class CaptureReviewTests(unittest.TestCase):
             argv = ['capture_review.py', 'sleep', '--reuse', str(root), '--out', str(root/'review'),
                     '--beats', str(beats), '--beat-clip', 'wake']
             with patch('sys.argv', argv), patch.object(review, 'read_pose', return_value=[]), \
-                 patch.object(review.storyboard, 'kimi', return_value=dict(readability='clear', issues=[], seen='idle')):
+                 patch.object(review.storyboard, 'vision', return_value=dict(readability='clear', issues=[], seen='idle')):
                 self.assertEqual(2, review.main())
             report = json.loads((root/'review/review.json').read_text())
             self.assertEqual(2, report['summary']['geometry_no_evidence_samples'])
@@ -80,7 +80,7 @@ class CaptureReviewTests(unittest.TestCase):
             argv = ['capture_review.py', 'sleep', '--reuse', str(root), '--out', str(root/'review'),
                     '--beats', str(beats), '--beat-clip', 'wake']
             with patch('sys.argv', argv), patch.object(review, 'read_pose', return_value=poses), \
-                    patch.object(review.storyboard, 'kimi', return_value=dict(readability='clear', issues=[], seen='fixture')) as ai:
+                    patch.object(review.storyboard, 'vision', return_value=dict(readability='clear', issues=[], seen='fixture')) as ai:
                 self.assertEqual(2, review.main())  # Retained camera coverage gap.
             images = [call.args[0] for call in ai.call_args_list]
             self.assertIn(str(view/'7.png'), [pair[0] for pair in images])
@@ -130,7 +130,7 @@ class CaptureReviewTests(unittest.TestCase):
             with patch('sys.argv', argv), \
                  patch.object(review, 'capture_output', return_value=(0, f'Capture output: {root}\n')) as streamed, \
                  patch.object(review.subprocess, 'run', side_effect=AssertionError('capture must stream, never buffer')), \
-                 patch.object(review.storyboard, 'kimi', return_value=dict(readability='clear', issues=[], seen='visible')):
+                 patch.object(review.storyboard, 'vision', return_value=dict(readability='clear', issues=[], seen='visible')):
                 self.assertEqual(review.main(), 0)
             self.assertIn('capture_museum.py', ' '.join(streamed.call_args.args[0]))
             self.assertTrue((root/'review/review.json').exists())

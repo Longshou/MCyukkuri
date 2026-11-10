@@ -14,25 +14,25 @@
 - 一个包对应一个工作树 `.worktrees/<名>`（基于 `origin/main`）、一份任务说明 `.local/refactor/briefs/<名>.md`、一份报告。开工前把待办“进行中”行推到 `main`（工作树与主要文件），已登记区域先协调，不同时改；交接时核对这张表与 `git worktree list` 一致。生命周期用 `<py> scripts/pkg.py`（用法见[脚本说明](../../scripts/README.md)）：`start <名> --title <条目> --files <文件> [--art]` 登记行、推送、建工作树与任务说明骨架；`land <名> [--scene ID ...] [--dry-run]` rebase、javac／冒烟、删行、推送、快进主检出、清理工作树和分支（`--dry-run` 在临时副本上跑全部检查、不合入）；`status` 列出各包并指出行与工作树不一致；`runtime` 见下文。不手工逐步操作。
 - 包要小：一个包只做一条玩家看得见的行为链或一件工具，便于审查和定位。失败过的链路先写一页设计，交另一个模型审过再实现；由 Opus 实现的包由 Opus 自己设计并实现，不另写设计交审。已接入待试玩的行为链积压超过 10 条时暂停新内容（用户明确要求的除外），先修复测失败、等用户试玩。
 - 任务说明要短：写明角色，指向 AGENTS.md、角色文件与模型笔记而不复述规则；验收标准用用户原话，总负责人自加的数值只是暂定；写明硬门槛（死亡、溺水、新循环）与只报告项、改动适用的确切情形、同批并行工人及其文件；美术与动作任务必须含分镜／概念与视觉审核（[art.md](art.md)）；不设代码行数目标。同批共用的规则写成一份公共说明。
-- 美术与动作：派制作者之前先派生图专员（[image-liaison.md](image-liaison.md)）出分镜或概念图；裁定交美术裁定代理（[art-arbiter.md](art-arbiter.md)）。
+- 美术与动作：派制作者之前先写生图请求、派生图专员（[image-liaison.md](image-liaison.md)）出分镜或概念图，图包直接交美术裁定代理（[art-arbiter.md](art-arbiter.md)）裁定，不另派审图代理；裁定通过再派制作者。
 
 ## 渠道与模型
 
-- Claude（Opus、Sonnet）用 Agent 工具后台派出，提示里指向任务说明、AGENTS.md、角色文件与模型笔记。外部 AI 走 herdr：`PYTHONUTF8=1 <py> .local/tools/herdr_task.py run <名> --kind pi|codex --cd <工作树> --brief <路径> --model M --effort E`（后台运行；`tail`／`say`／`wait`／`close` 跟进）。pi 会话装有 pi-agents-team，外部任务大到需要多个工人协作时可让 pi 当协调者用 `/team` 派内部工人。生图走 Codex（`storyboard.py`，用户的 ChatGPT 登录）。
+- Claude（Opus、Sonnet）用 Agent 工具后台派出，提示里指向任务说明、AGENTS.md、角色文件与模型笔记。DeepSeek 走 Claude Code 外壳（直连 DeepSeek 官方接口，不占 Claude 额度，能读图）：`PYTHONUTF8=1 <py> .local/tools/cc_task.py run <名> --brief <路径> [--cd <工作树> | --new-worktree] [--model flash|pro] [--read-only]`，用 Bash 后台运行；`say <名> <消息>` 在同一会话里续聊，`show <名>` 看状态，`shell` 开交互会话。外部 AI 走 herdr：`PYTHONUTF8=1 <py> .local/tools/herdr_task.py run <名> --kind pi|codex --cd <工作树> --brief <路径> --model M --effort E`（后台运行；`tail`／`say`／`wait`／`close` 跟进）。pi 会话装有 pi-agents-team，外部任务大到需要多个工人协作时可让 pi 当协调者用 `/team` 派内部工人。生图走 Codex（`storyboard.py`，用户的 ChatGPT 登录）。
 - 模型分工：按难度选最便宜够用的模型，审查者与作者不同模型；每次派活明确设定模型与推理强度，不用默认值（Agent 工具不写 `model` 时子代理含 Explore 都继承主会话的 Opus）。
 
   | 难度／类型 | 首选 | 备选 | 推理强度 |
   | --- | --- | --- | --- |
-  | 机械活、文档、简单脚本 | DeepSeek | Sonnet | low |
-  | 简单修复、一般审查、用现成命令二分定位 | kimi（审查）、DeepSeek（代码加冒烟、二分） | Sonnet | medium |
-  | 中等：普通功能、工具、多文件改动 | Codex `gpt-6.1-sol`、kimi（设计明确时） | Sonnet | high |
+  | 机械活、文档、简单脚本 | DeepSeek flash | — | low |
+  | 简单修复、一般审查、用现成命令二分定位 | DeepSeek flash／pro | Codex `gpt-6.1-sol` | medium |
+  | 中等：普通功能、工具、多文件改动 | Codex `gpt-6.1-sol` | DeepSeek pro | high |
   | 困难：物理几何、公共基础设施、失败或回归过的链路的设计与修复 | Codex `gpt-6-astra`、Opus（需要大量阅读的根因排查） | — | xhigh／max |
   | 美术与动作制作 | Opus | — | high／xhigh |
-  | 视觉与动作审查 | Codex `gpt-6-astra` | kimi | high |
-  | 生图沟通与初审（生图专员） | Sonnet | — | low |
+  | 视觉与动作审查、美术裁定 | Codex `gpt-6.1-sol` | Codex `gpt-6-astra`（关键或有争议时） | high |
+  | 生图专员 | DeepSeek flash | — | — |
 
-  kimi（`kimi-coding/k3.1-pro`）是 pi 中最强的，关键场景必须复跑；DeepSeek 官方 `deepseek/deepseek-flash` 胜在快和便宜；GLM 5.3 只在前两者都不可用时备用。Codex 慢，不派简单活，推理强度不低于 medium；`gpt-6.1-sol` 便宜、`gpt-6-astra` 最强最贵。Claude 额度留给只有 Opus 做得好的事；不用 Fable。外部接口出故障（如 HTTP 500）时改派其他模型，不原地反复重试。各模型的倾向记在 `.local/refactor/model-notes/<模型>.md`，每次审查后按证据更新。
-- 额度：`bash .local/tools/claude_quota.sh` 看 5 小时与周用量；快满时暂停，重置后继续；额度紧张时只记入待办不开工；临近重置仍有余量就用掉。pi 模型与 Codex 不占 Claude 额度；工作量在 Claude、Codex、kimi、DeepSeek 之间分摊，不压在一家。
+  大部分工作交 Codex `gpt-6.1-sol` 或 DeepSeek；kimi 当前不可用，恢复前不派。DeepSeek 官方 `deepseek-flash` 快而便宜，`deepseek-v4-pro` 更强，关键场景由审查者复跑；GLM 5.3 只在前两者都不可用时经 pi 备用。Codex 慢，不派简单活，推理强度不低于 medium；`gpt-6.1-sol` 便宜、`gpt-6-astra` 最强最贵。Claude 额度留给只有 Opus 做得好的事；不用 Fable。外部接口出故障（如 HTTP 500）时改派其他模型，不原地反复重试。各模型的倾向记在 `.local/refactor/model-notes/<模型>.md`，每次审查后按证据更新。
+- 额度：`bash .local/tools/claude_quota.sh` 看 5 小时与周用量；快满时暂停，重置后继续；额度紧张时只记入待办不开工；临近重置仍有余量就用掉。DeepSeek（含 Claude Code 外壳）、pi 与 Codex 不占 Claude 额度；工作量在 Codex 与 DeepSeek 之间分摊，Claude 只留给 Opus 的活，不压在一家。
 - 并发：用户同时在玩游戏（约 8 GB），冒烟与截图服务器全机最多 6 个（用户放宽，名额排队自动管），一包不独占全部名额。F: 与用户其他数据共用，密集追踪的冒烟实例每个约 15–20 GB：批量前估产出；检查器校准优先重放已有日志，新采样每场景先 5 次、只对有分歧的加次数（20 次只用于判断偶发问题的修复是否有效）；产物清理见[脚本说明](../../scripts/README.md)，要保留的证据在报告里写明目录名。限流会一次停掉所有子代理，工作已提交，开新代理“从提交继续”。
 - 失败处理：同一链路失败两轮就换思路，由总负责人写设计（交 Opus 实现时由 Opus 设计），不再调参；卡住的工人加人组队，不让它空转；偶发回归找隐藏的起始状态分叉，主线与分支各 20 次以上对比，修在共享归属处。
 
