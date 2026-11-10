@@ -1,7 +1,9 @@
 """One offline preview command; run a subcommand with --help for its inputs."""
 import argparse
+import base64
 from contextlib import contextmanager
 import html
+import hashlib
 from html.parser import HTMLParser
 import json
 import math
@@ -13,6 +15,7 @@ import subprocess
 import sys
 import tarfile
 import tempfile
+from urllib.parse import urlencode
 
 from PIL import Image, ImageDraw, ImageFont, ImageOps
 
@@ -395,6 +398,55 @@ def motion(args, stage):
     return body
 
 
+def viewer_query(args):
+    return urlencode(dict(model=args.model, clip=args.clip, expression=args.expression, autoplay='1'))
+
+
+def viewer(args, stage):
+    """Snapshot the game resources into the existing core-backed review viewer."""
+    from pose_client import request
+    from build_review_catalog import current_roles
+    roles = {ident: (name, group) for ident, name, group in current_roles()}
+    if args.model not in roles:
+        raise ValueError(f'Unknown model: {args.model}')
+    raw = (ASSETS/'yukkuri'/f'{args.model}.json').read_bytes()
+    model = json.loads(raw)
+    # Follow YukkuriModelLoader's fit/revision order through the shared splice core.
+    fit = read(ASSETS/'yukkuri_presentation/placement_fit.json')['models'].get(args.model)
+    hashes = {hashlib.sha256(value).hexdigest() for value in (raw, raw.replace(b'\r\n', b'\n'))}
+    if fit and fit['base_sha256'] not in hashes:
+        fit = None
+    for file in ('motion_corrections', 'house_ecology', 'toilet_contact', 'face_library'):
+        revision = read(ASSETS/'yukkuri_presentation'/f'{file}.json')['models'].get(args.model)
+        if revision is not None or fit is not None:
+            result = request(dict(op='register', model=model, fit=fit, revision=revision))
+            model = result['model']
+            request(dict(op='release', id=result['id']))
+        fit = None
+    clips = {**model['clips'], **model.get('behavior_clips', {})}
+    if args.clip not in clips:
+        raise ValueError(f'Unknown clip {args.model}/{args.clip}')
+    textures = {p.stem: 'data:image/png;base64,' + base64.b64encode(p.read_bytes()).decode('ascii')
+                for p in sorted((ASSETS/'textures/entity'/args.model).glob('*.png'))}
+    if args.expression != 'auto' and args.expression not in textures:
+        raise ValueError(f'Unknown expression {args.model}/{args.expression}')
+    write_json(stage/'model.json', model)
+    # Already spliced above: the viewer must not apply these a second time.
+    write_json(stage/'motions.json', dict(models={}))
+    write_json(stage/'fit.json', dict(models={}))
+    name, group = roles[args.model]
+    entry = dict(id=args.model, name=name, group=group, url='model.json', textures=textures,
+                 formScale=1.5 if args.model in ('reimu_deibu', 'reimu_wasa_deibu') else 1,
+                 actions=list(clips), textureSize=model.get('texture_size', 128))
+    catalog = dict(models=[entry], audio=[], motions='motions.json', fit='fit.json')
+    (stage/'catalog.js').write_text('window.REVIEW_CATALOG='+json.dumps(catalog, ensure_ascii=False)+';\n', encoding='utf-8')
+    for source, target in [('index.html', 'viewer.html'), ('style.css', 'style.css'),
+                           ('app.js', 'app.js'), ('pose.js', 'pose.js'), ('route.js', 'route.js')]:
+        shutil.copy2(ROOT/'preview/review'/source, stage/target)
+    url = 'viewer.html?' + viewer_query(args)
+    return f'<p><a href="{E(url, quote=True)}">打开动作查看器：{E(name)} · {E(args.clip)}</a></p><iframe title="动作查看器" src="{E(url, quote=True)}"></iframe>'
+
+
 def collection(args, stage):
     """Page for an existing set of videos, e.g. the life-review batch."""
     source = Path(args.source).resolve()
@@ -614,6 +666,13 @@ def parser():
     kp = commands.add_parser('kit',help='approved faces and base/generic runtime clips')
     kp.set_defaults(topic='kit',title='表情与基本动作目录',decision=None)
     kp.add_argument('--node',default='node')
+    vp = commands.add_parser('viewer', help='one autoplaying link to an exported runtime clip')
+    vp.add_argument('topic', type=valid_topic)
+    vp.add_argument('--model', required=True)
+    vp.add_argument('--clip', required=True)
+    vp.add_argument('--expression', default='auto')
+    vp.add_argument('--title')
+    vp.add_argument('--decision')
     return ap
 
 
@@ -638,14 +697,17 @@ def main():
                 write_json(stage/'topic.json', dict(title=title, command=args.command, inputs=vars(args)))
             if args.decision:
                 inbox(argparse.Namespace(action='add', id=args.topic, title=title,
-                       url=f'../{args.topic}/index.html', decision=args.decision))
+                       url=(f'../{args.topic}/viewer.html?'+viewer_query(args) if args.command == 'viewer'
+                            else f'../{args.topic}/index.html'), decision=args.decision))
         elif args.command == 'inbox':
             inbox(args)
         from build_preview_hub import register_topics
         register_topics(OUT)
         relative = f'{args.topic}/index.html' if hasattr(args, 'topic') else ('inbox/index.html' if args.command == 'inbox' else 'index.html')
+        if args.command == 'viewer':
+            relative = f'{args.topic}/viewer.html?' + viewer_query(args)
         print('http://127.0.0.1:8766/.local/previews/'+relative)
-    except (ValueError, OSError, subprocess.CalledProcessError) as error:
+    except (ValueError, OSError, RuntimeError, subprocess.CalledProcessError) as error:
         print(f'preview: {error}', file=sys.stderr)
         return 1
     return 0

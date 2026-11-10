@@ -20,7 +20,7 @@
 
 - 美术裁定：概念图、分镜、新旧对比与美术取舍由美术裁定代理（[art-arbiter.md](art-arbiter.md)）裁定，不再等用户；用户试玩认可仍是完成标准。动作类包合入前，被测场景的录像交美术裁定代理看，它点头才合入。
 - 可见动作的交付：真实片段的离线渲染条与分镜节拍并排；`scripts/capture_museum.py` 截图联系表按实际大小看接触、穿模和观察点可读性，并由另一个代理对照用户原话审图后才能合入。每轮出图由另一个代理独立审图，作者自评不能代替。一条命令出审图：`<py> .local/tools/capture_review.py --worktree <工作树> <场景> --criteria <用户原话或文件> [--beats 节拍文件]`（截图后由视觉模型按全分辨率帧对照原话与固定检查，默认 DeepSeek，`MCY_VISION_MODEL` 可改；写 `.local/reports/capture-review/`；身体／动作问题退出 1，取景问题单列，审核错误退出 2）。
-- 新预览用 `<py> scripts/preview.py`（用法见[脚本说明](../../scripts/README.md)）输出 `.local/previews/<主题>/` 并自动登记总入口；需用户决定的带 `--decision` 登记待查看。同主题只留当前预览，不删制作输入、当前模型或原始参考图。改模型后出一张当前预览并贴在回复中。
+- 新预览用 `<py> scripts/preview.py`（用法见[脚本说明](../../scripts/README.md)）输出 `.local/previews/<主题>/` 并自动登记总入口；新动作以 `viewer <主题> --model <形态> --clip <片段> --decision <要用户决定什么>` 生成一个打开即播放的真实运行模型链接交给用户，并登记待查看。其他需用户决定的预览也带 `--decision`。同主题只留当前预览，不删制作输入、当前模型或原始参考图。改模型后出一张当前预览并贴在回复中。
 
 ## 命令与文件
 

@@ -42,7 +42,7 @@ def current_roles():
 
 def main():
     OUT.mkdir(parents=True, exist_ok=True)
-    for name in ('index.html', 'style.css', 'app.js', 'pose.js'):
+    for name in ('index.html', 'style.css', 'app.js', 'pose.js', 'route.js'):
         shutil.copy2(ROOT / 'preview/review' / name, OUT / name)
     models=[]
     runtime_actions = referenced_actions()

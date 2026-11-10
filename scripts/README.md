@@ -101,6 +101,8 @@ SPAWN 保留 0.0625 格支撑容差、碰撞与初始卡墙检查；初始化内
 
 `python scripts/build_art_catalog.py` 从 Git 跟踪文件、`art/runtime-sources.json`、标准库目录及包内登记生成[素材目录](../art/CATALOG.md)；分类树、路径前缀、运行资源 ID 模式及登记键维护在 `art/catalog.json`。运行 ID 优先，路径前缀取最长匹配，登记输出补齐未指定文件，共用资源另列；伤口目录按路径归类，不随种族 ID 分散。不扫描 Wiki。`--check` 只读检查未归类文件／登记族及目录过期，任一存在返回 1。新增文件先 `git add` 再生成；游戏使用只统计 Java／运行 JSON 的静态资源引用，动态加载不作否定结论，预览只链接工作树内已有文件。
 
+`<py> scripts/preview.py viewer <主题> --model marisa --clip braid_head_set --decision "确认动作节奏与接触"` 输出一个打开即播放的查看器链接，并把同一链接登记待查看；例如 `--model reimu --clip greet` 看灵梦问候。可带 `--expression happy` 固定表情，默认随动作。复用 `preview/review/` 查看器及共享姿态核心，保存当前工作树的实际运行模型、贴图和按游戏加载顺序合并的动作覆盖快照，包含 lore／variant 导出片段，不按玩法引用过滤；需要 JDK 21 和已有核心依赖，生成时只编译纯姿态核心，不用 Gradle。直达地址参数为 `model`、`clip`（兼容 `action`）、`expression`、`autoplay=1`；支持播放／暂停、时间轴、正侧背视角和拖动旋转。主题首页嵌入相同查看器，重复命令刷新快照。预览不代替游戏内道具、AI 与演出验收。
+
 所有新预览统一写到 `.local/previews/<主题>/`，总入口为 `.local/previews/index.html`。同主题只保留当前版本；截图和检查报告分别写到 `.local/screenshots/`、`.local/reports/`，不入库。
 
 `python scripts/build_preview_hub.py` 生成纯预览入口、当前模型／物品缩略图、声音索引与连续场景 GIF／可拖动帧序列；`--render` 另行生成专项图（部分依赖现有原版资源 jar）。需要 Pillow、numpy 和 Node.js。`build_preview_props.py` 复用制作源的软件渲染器，只读当前打包网格和贴图，不导出游戏资源。`python scripts/serve_review.py --port 8766` 只启动本机 HTTP 服务，再手动打开它输出的地址。页面模板在 `preview/hub/`，模型查看器源码在 `preview/review/`；收录与专项图片更新边界见[预览说明](../preview/README.md#内容与边界)。生成流程不启动浏览器、游戏或 Java 编译。

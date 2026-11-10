@@ -51,6 +51,63 @@ class PreviewBoundaryTests(unittest.TestCase):
     def test_unknown_clip_keeps_current_page(self):
         self.assert_rejected(self.run_cli('strip', 'boundary', '--model', 'reimu', '--clip', 'no_such_clip'), 'Unknown clip reimu/no_such_clip')
 
+    def test_viewer_runtime_clips_links_and_refresh(self):
+        from pose_client import request
+        assets = ROOT/'src/main/resources/assets/mcyukkuri'
+        for model_id, clip in [('reimu', 'greet'), ('marisa', 'braid_head_set'), ('marisa', 'nod')]:
+            with self.subTest(model=model_id, clip=clip):
+                result = self.run_cli('viewer', 'boundary', '--model', model_id, '--clip', clip,
+                                      '--expression', 'happy', '--decision', 'Check this motion')
+                self.assertEqual(result.returncode, 0, result.stderr)
+                link = result.stdout.splitlines()[-1]
+                self.assertIn(f'viewer.html?model={model_id}&clip={clip}&expression=happy&autoplay=1', link)
+                model = json.loads((self.topic/'model.json').read_text(encoding='utf-8'))
+                selected = {**model['clips'], **model.get('behavior_clips', {})}
+                base = json.loads((assets/'yukkuri'/f'{model_id}.json').read_text(encoding='utf-8'))
+                expected = dict(base['clips'])
+                for file in ('motion_corrections', 'house_ecology', 'toilet_contact', 'face_library'):
+                    row = json.loads((assets/'yukkuri_presentation'/f'{file}.json').read_text(encoding='utf-8'))['models'].get(model_id, {})
+                    expected.update(row.get('clips', {}))
+                expected.update(base.get('behavior_clips', {}))
+                self.assertEqual(selected[clip], expected[clip])
+                # The shipped viewer's core accepts and samples this exact generated model.
+                registered = request(dict(op='register', model=model))
+                try:
+                    frame = request(dict(op='render', id=registered['id'], action=clip,
+                                         time=selected[clip]['duration']/2, expression='happy', scale=1))
+                    self.assertEqual(len(frame['vertices']), len(model['vertices']))
+                finally:
+                    request(dict(op='release', id=registered['id']))
+                document = (self.topic/'viewer.html').read_text(encoding='utf-8')
+                for script in ('catalog.js', 'pose.js', 'route.js', 'app.js'):
+                    self.assertIn(f'src="{script}"', document)
+                items = json.loads((self.out/'inbox/items.json').read_text(encoding='utf-8'))
+                self.assertEqual(len(items), 1)
+                self.assertTrue(link.endswith(items[0]['url'].removeprefix('../')))
+                library = json.loads((self.out/'library.json').read_text(encoding='utf-8'))
+                self.assertIn('page:boundary', [entry['id'] for entry in library['entries']])
+
+    def test_viewer_unknown_inputs_keep_current_page(self):
+        for options, message in [(['--model', 'missing', '--clip', 'greet'], 'Unknown model:'),
+                                 (['--model', 'reimu', '--clip', 'missing'], 'Unknown clip reimu/missing'),
+                                 (['--model', 'reimu', '--clip', 'greet', '--expression', 'missing'], 'Unknown expression reimu/missing')]:
+            with self.subTest(options=options):
+                self.assert_rejected(self.run_cli('viewer', 'boundary', *options), message)
+
+    def test_viewer_url_contract_without_browser(self):
+        script = """
+const assert=require('node:assert/strict');
+const {viewerRoute}=require('./preview/review/route.js');
+assert.deepEqual(viewerRoute('?model=marisa&clip=braid_head_set&expression=happy&autoplay=1'),
+ {model:'marisa',action:'braid_head_set',expression:'happy',autoplay:true});
+assert.equal(viewerRoute('?clip=greet&action=idle').action,'greet');
+assert.equal(viewerRoute('?action=nod').action,'nod');
+assert.equal(viewerRoute('?clip=greet&autoplay=0').autoplay,false);
+assert.deepEqual(viewerRoute(''),{model:null,action:'idle',expression:'auto',autoplay:false});
+"""
+        result = subprocess.run(['node', '-'], input=script, cwd=ROOT, text=True, capture_output=True)
+        self.assertEqual(result.returncode, 0, result.stderr)
+
     def test_video_preserves_long_tick_gaps(self):
         source = self.base/'capture'
         source.mkdir()

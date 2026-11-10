@@ -10,10 +10,11 @@ const expressionNames={neutral:'常态',happy:'开心',angry:'生气',sad:'难�
 const eventNames={hello:'问候',newborn:'出生',hatched:'孵化',introduced:'介绍',peer:'同伴',known_peer:'熟悉的同伴',idle:'待机',wounded:'受伤',death:'死亡',hungry:'饥饿',eat:'进食',eating:'进食',full:'吃饱',sleep:'睡眠',sleeping:'睡眠',wake:'醒来',happy:'开心',angry:'生气',fear:'恐惧',pain:'疼痛',dirty:'脏污',clean:'清洁',rain:'下雨',wet:'潮湿',dry:'干燥',thirst:'口渴',thirsty:'口渴',drink:'饮水',learning:'学习',learn:'学习',learned:'学会',praise:'夸奖',song:'哼唱',nuzzle:'亲昵',want_nuzzle:'想要亲昵',nuzzle_done:'亲昵结束',exercise:'体操',leisure_done:'休闲结束',house_pickup:'家油夹取',house_carry:'家油搬运',house_deposit:'家油放下',house_arrival:'家油到达',accessory_lost:'丢失饰物',accessory_returned:'取回饰物'};
 Object.assign(eventNames,{afraid:'害怕',awake:'醒来',birth:'分娩',busy:'忙碌',caregiver:'照料者',chew:'咀嚼',cold:'寒冷',courtship:'求偶',expecting:'孕育中',family_died:'亲属死亡',fed:'被喂食',food_found:'发现食物',gentle:'温柔接触',grown:'成长',heard:'听见呼唤',house_peek:'家油探看',laid_eggs:'产卵',lesson_learned:'学会课程',lesson_progress:'学习进展',lesson_refused:'拒绝教学',lesson_start:'开始学习',lost_accessory:'丢失饰物',lost_parent:'与亲代走散',mine:'宣示所有',need_toilet:'想上厕所',puff:'鼓腮',returned_accessory:'取回饰物',share:'分享',shy:'害羞',take_food:'取走食物',toilet_done:'如厕完成',toy:'玩具',treated:'治疗',unrecognized:'未能认出',wait_family:'等待家人',wait_learned:'学会等待',wait_turn:'等待轮次',washed:'清洗'});
 const label=(id,map)=>map[id]||id;
-const routeKeys=['model','action','species','event','audioId','age','q'];
+const routeKeys=['model','action','clip','expression','species','event','audioId','age','q'];
 const routeParams=()=>new URLSearchParams(location.search);
 function writeRoute(changes={},options={}){
  const url=new URL(location.href);
+ if('action' in changes)url.searchParams.delete('clip');
  for(const key of routeKeys){if(!(key in changes))continue;const value=changes[key];if(value)url.searchParams.set(key,value);else url.searchParams.delete(key);}
  if(options.tab)url.hash=options.tab;
  const next=url.pathname+(url.search||'')+(url.hash||'');
@@ -28,7 +29,8 @@ function announceSelection(){
  if(!embedded||!canReportToParent||window.parent===window)return;
  window.parent.postMessage({type:'preview-selection',query:location.search,tab:currentTab(),model:selected?.id||null,action,species:$('voice-species')?.value||null,event:$('voice-event')?.value||null,audioId:activeAudio?.id||routeParams().get('audioId')||null},location.origin);
 }
-let selected=catalog.models.find(item=>item.id===initialRoute.get('model'))||catalog.models[0],model=null,pose=null,action=initialRoute.get('action')||'idle',expression='auto',time=0,playing=false,az=.45,el=.15,zoom=1,span=18,fitRadius=0,centerY=9,loadToken=0,dirty=true;
+const initialViewer=viewerRoute(location.search);
+let selected=catalog.models.find(item=>item.id===initialViewer.model)||catalog.models[0],model=null,pose=null,action=initialViewer.action,expression=initialViewer.expression,time=0,playing=false,az=.45,el=.15,zoom=1,span=18,fitRadius=0,centerY=9,loadToken=0,dirty=true;
 let motionPromise,fitPromise,appliedExpression=null,requestedExpression=null;
 expressionNames.auto='随动作自动切换';
 expressionNames.cheek_puff='鼓腮噗咕（怒目噘嘴）';
@@ -93,7 +95,7 @@ async function selectModel(item,{fromRoute=false}={}){
   const jump=motions.models[item.id]?.hop_height*item.formScale||0;
   centerY=(min+max+jump*.5)/2;span=Math.max((max-min)*.64+jump*.5,radius*.9,4);az=.45;el=.15;zoom=1;resize();
   $('time').max=pose.clips[action].duration;buildActions();const textureReady=await applyExpression();if(token!==loadToken||!textureReady)return;
-  $('loading').style.display='none';$('play').disabled=false;frameGeometry();dirty=true;const requested=routeParams();if(requested.get('autoplay')==='1'&&item.id===requested.get('model'))setPlaying(true);
+  $('loading').style.display='none';$('play').disabled=false;frameGeometry();dirty=true;const requested=viewerRoute(location.search);if(requested.autoplay&&(!requested.model||item.id===requested.model))setPlaying(true);
  }catch(error){if(token!==loadToken)return;$('loading').textContent=`模型未能载入：${error.message}。请启动本地预览服务后刷新。`;}
 }
 function buildActions(){
@@ -101,7 +103,7 @@ function buildActions(){
  for(const id of common.filter(id=>selected.actions.includes(id)&&pose.clips[id])){const b=document.createElement('button');b.textContent=label(id,labels);b.className=id===action?'active':'';b.onclick=()=>setAction(id);$('action-bank').append(b);}
 }
 function setAction(id,{fromRoute=false}={}){if(!pose||!pose.clips[id])return;action=id;time=0;$('action').value=id;$('time').max=pose.clips[id].duration;buildActions();applyExpression();if(!fromRoute){writeRoute({model:selected.id,action:id});announceSelection();}}
-$('model-search').oninput=buildModelList;$('model-group-filter').onchange=buildModelList;$('action').onchange=e=>setAction(e.target.value);$('expression').onchange=e=>{expression=e.target.value;applyExpression();};
+$('model-search').oninput=buildModelList;$('model-group-filter').onchange=buildModelList;$('action').onchange=e=>setAction(e.target.value);$('expression').onchange=e=>{expression=e.target.value;applyExpression();writeRoute({expression});};
 $('play').onclick=()=>{if(pose){if(time>=pose.clips[action].duration)time=0;setPlaying(!playing);}};
 $('time').oninput=e=>{setPlaying(false);time=+e.target.value;frameGeometry();dirty=true;};
 function step(delta){if(!pose)return;setPlaying(false);time=Math.max(0,Math.min(pose.clips[action].duration,time+delta));frameGeometry();dirty=true;}
@@ -166,8 +168,10 @@ function switchTab(id,{fromRoute=false}={}){
 }
 for(const tab of document.querySelectorAll('[data-tab]'))tab.onclick=()=>switchTab(tab.dataset.tab);
 function applyRoute({report=false}={}){
- const params=routeParams(),wanted=catalog.models.find(item=>item.id===params.get('model'))||catalog.models[0],requestedAction=params.get('action')||'idle',wantedAction=wanted.actions.includes(requestedAction)?requestedAction:(wanted.actions.includes('idle')?'idle':wanted.actions[0]);
+ const params=routeParams(),route=viewerRoute(location.search),wanted=catalog.models.find(item=>item.id===route.model)||catalog.models[0],requestedAction=route.action,wantedAction=wanted.actions.includes(requestedAction)?requestedAction:(wanted.actions.includes('idle')?'idle':wanted.actions[0]);
+ expression=route.expression==='auto'||wanted.textures[route.expression]?route.expression:'auto';
  if(renderer&&wanted.id!==selected.id){action=wantedAction;selectModel(wanted,{fromRoute:true});}else if(pose&&wantedAction!==action)setAction(wantedAction,{fromRoute:true});
+ if(pose&&wanted.id===selected.id){$('expression').value=expression;applyExpression();setPlaying(route.autoplay);}
  applyAudioRoute(params);switchTab(currentTab(),{fromRoute:true});if(report)announceSelection();
 }
 for(const group of [...new Set(catalog.models.map(item=>item.group))])$('model-group-filter').add(new Option(group,group));
