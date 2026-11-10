@@ -37,6 +37,7 @@ final class GlassVigil implements MotorOwner {
     @Override public boolean active() { return child!=null; }
     boolean tracks(YukkuriEntity target) { return child==target; }
     boolean callingTo(YukkuriEntity target) { return child==target && phase==Phase.WAIT; }
+    boolean finishing() { return active() && (phase==Phase.RAM || phase==Phase.CROSS || phase==Phase.FAREWELL); }
     String activity() {
         if (phase==Phase.FAREWELL) return Behaviors.INDEPENDENCE_FAREWELL;
         return phase==Phase.WAIT ? Behaviors.CALL_LISTEN : Behaviors.SEARCH_FAMILY;
@@ -45,7 +46,7 @@ final class GlassVigil implements MotorOwner {
     boolean start(YukkuriEntity target) {
         var hit=FamilySeparation.glassBetween(parent,parent.getEyePosition(),target);
         if (hit==null || parent.life().reachable(target.blockPosition(),false)) return false;
-        child=target; glass=hit.getBlockPos();
+        child=target; glass=hit.getBlockPos().immutable();
         family.call().stop();
         SurfaceApproach.halt(parent);
         Vec3 stand=nearestStand(parent,target,glass);
@@ -134,8 +135,8 @@ final class GlassVigil implements MotorOwner {
         // Project design: 20–70 seconds. Bonds and composure add up to 40 seconds, with up to 10 seconds of individual variation.
         int duration=400+3*p.attachment()+3*p.friendliness()+2*p.selfControl()+parent.getRandom().nextInt(201);
         deadline=now+duration;
-        // Give the first exchange time to play. Boldness moves the decision between 4 and 24 seconds after arriving.
-        ramAt=now+80+4*(100-p.boldness());
+        // Leave a speaking turn and an approach for the child. Boldness moves the decision between 10 and 30 seconds.
+        ramAt=now+200+4*(100-p.boldness());
         GameplayLog.event(parent,"family","glass vigil started child={} block={} duration={} attachment={} friendliness={} selfControl={}",
                 child.getUUID(),glass,duration,p.attachment(),p.friendliness(),p.selfControl());
         family.call().beginGlass(child);
@@ -173,8 +174,9 @@ final class GlassVigil implements MotorOwner {
         phase=Phase.FAREWELL; farewellReason=reason;
         int length=EcologyPresentation.duration(Behaviors.INDEPENDENCE_FAREWELL);
         deadline=family.level().getGameTime()+length;
-        parent.forceReaction("teary","give_up_search",length);
-        GameplayLog.event(parent,"family","glass farewell child={} block={} reason={}",child.getUUID(),glass,reason);
+        parent.forceReaction("teary","",length);
+        boolean spoken=parent.speak("give_up_search");
+        GameplayLog.event(parent,"family","glass farewell child={} block={} reason={} spoken={}",child.getUUID(),glass,reason,spoken);
     }
 
     void stop() {

@@ -293,7 +293,7 @@ public final class FamilyLife {
      * Before this the parent's standing "wait for the child" errand lasted as long as the child wandered, and the parent never noticed the wound.
      */
     public boolean yieldsToComfort() {
-        return !laboring()&&!inBirthBeat()&&!launchInFlight()&&!carry.lifting()&&comfortTicks==0
+        return !laboring()&&!inBirthBeat()&&!launchInFlight()&&!carry.lifting()&&!glass.finishing()&&comfortTicks==0
                 &&(task==Task.NONE||task==Task.WAIT_CHILD||task==Task.FOLLOW||task==Task.STAY_HOME||task==Task.SEARCH);
     }
     public String activity() {

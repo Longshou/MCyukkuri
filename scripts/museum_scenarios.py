@@ -815,7 +815,7 @@ def _family_call_verify(log):
         (full, 'glass call .*spoken=true'),
         (_fs['lost_child'], 'glass answer .*spoken=true'),
         (_fs['lost_child'], 'glass child at stand'),
-        (full, 'glass farewell .*reason=vigil_elapsed'),
+        (full, 'glass farewell .*reason=vigil_elapsed spoken=true'),
         (full, 'parent dismissed .*reason=vigil_elapsed'),
     ], [(full, 'glass vigil started'), (full, 'glass farewell')], [(full, 'child search reunited'), (full, 'start id=bash')])
 

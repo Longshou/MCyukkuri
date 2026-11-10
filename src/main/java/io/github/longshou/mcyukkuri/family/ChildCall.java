@@ -189,6 +189,7 @@ final class ChildCall {
             if (id == null || !(o.level().getEntity(id) instanceof YukkuriEntity parent) || !parent.isAlive()) continue;
             var call = parent.family().call();
             if (call.audible() && !answered(id, call.callStart) && e.distanceToSqr(parent) <= EARSHOT * EARSHOT
+                    && (!parent.family().glass().callingTo(e) || e.speechEnd()<=o.level().getGameTime())
                     && !FamilySeparation.near(e, parent) && !e.hasLineOfSight(parent)) return parent;
         }
         return null;
