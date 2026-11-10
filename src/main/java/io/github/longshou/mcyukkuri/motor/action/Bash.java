@@ -78,6 +78,9 @@ public final class Bash implements Action {
     }
 
     @Override public Progress tick(YukkuriEntity body) {
+        // Contact slides along the pane as the body presses; keep facing that actual contact at its own turn rate.
+        float heading = SurfaceApproach.yaw(body.position(), Vec3.atCenterOf(pane));
+        Motor.face(body, body.yBodyRot + (float) Effort.turn(body.yBodyRot, heading, BodyAbility.of(body).turnRate()));
         var feasible = check(body);
         if (!feasible.ok()) return Outcome.of(feasible.reason(), feasible.shortfall(), feasible.detail());
         Vec3 toward = Vec3.atBottomCenterOf(pane).subtract(body.position()).multiply(1, 0, 1).normalize();

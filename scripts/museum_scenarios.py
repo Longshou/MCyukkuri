@@ -1947,17 +1947,17 @@ for _sid, _window, _title in (
         ('home_open', 'minecraft:air', '野生一家进入敞口空屋宣言')):
     _bold, _timid = uid(_sid, 'bold'), uid(_sid, 'timid')
     add(_sid, 'forage', _title, _title,
-        '空石屋只有南面一个落地开口；野生成年魔理沙胆量100、伴侣灵梦胆量0。家园事件自己选择入口：'
+        '空石屋只有南面一个落地开口；野生成年魔理沙胆量100、成年女儿灵梦胆量0。家园事件自己选择入口：'
         '魔理沙走近玻璃板，转正，逐次用身体撞击，出现裂纹、碎屑、声音与轻微反冲；玻璃板碎后进入才宣言，洞口保持开放。'
-        '整块玻璃作旁边的封闭窗，始终保留。胆小伴侣可以从已经打开的入口跟进。',
+        '整块玻璃作旁边的封闭窗，始终保留。胆小女儿可以从已经打开的入口跟进。',
         '约 10–60 秒', [
             'fill ~-6 ~ ~-6 ~6 ~5 ~10 minecraft:air',
             'fill ~-3 ~-1 ~-3 ~3 ~2 ~3 minecraft:stone_bricks hollow',
             'setblock ~ ~ ~ minecraft:crafting_table',
             f'setblock ~ ~ ~3 {_window}',
             'setblock ~2 ~ ~3 minecraft:glass',
-            yk('marisa',0,6,'bold',uuid=_bold,yaw=180,lead=True,boldness=100,kin=kin_of(Partner=_timid),**pair_ready()),
-            yk('reimu',2,7,'timid',uuid=_timid,yaw=180,boldness=0,kin=kin_of(Partner=_bold),**pair_ready())],
+            yk('marisa',0,6,'bold',uuid=_bold,yaw=180,lead=True,boldness=100,**pair_ready()),
+            yk('reimu',2,7,'timid',uuid=_timid,yaw=180,boldness=0,kin=kin_of(Mother=_bold),**pair_ready())],
         late=['yukkuri homeclaim start'], env=DAY, spot='graze', vantage=(0,11,180),
         reads=[('读家园阶段','yukkuri homeclaim status'),('读两只状态','yukkuri status @e[type=#mcylab:yukkuri,distance=..24] raw')],
         smoke=dict(ticks=1200, expect=[r'\[home-claim\][^\n]* GATHER -> HOLD'] +
