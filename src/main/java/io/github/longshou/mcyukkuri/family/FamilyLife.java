@@ -48,6 +48,7 @@ import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import io.github.longshou.mcyukkuri.MCYukkuri;
 import io.github.longshou.mcyukkuri.interaction.OperationLife;
@@ -703,10 +704,16 @@ public final class FamilyLife {
         var baby=comfortBaby!=null&&level().getEntity(comfortBaby) instanceof YukkuriEntity found&&found.isAlive()?found:null;
         if(baby==null||!adult()){comfortTicks=0;comfortNear=0;return;}
         double near=(entity.getBbWidth()+baby.getBbWidth())*.5+.12;
-        if(entity.position().subtract(baby.position()).multiply(1,0,1).length()>near+.2||Math.abs(entity.getY()-baby.getY())>.35||!entity.hasLineOfSight(baby)
+        // Her outlet is no comfort stand while a child is still inside her: standing there holds the whole delivery.
+        var outlet=birthOutlet(baby);
+        boolean inside=outlet!=null&&inBirthOutlet(outlet,entity.position());
+        if(inside||entity.position().subtract(baby.position()).multiply(1,0,1).length()>near+.2||Math.abs(entity.getY()-baby.getY())>.35||!entity.hasLineOfSight(baby)
                 ||!supported()||!baby.family().supported()){
             comfortNear=0;entity.getLookControl().setLookAt(baby,20,20);
-            var stand=SurfaceApproach.beside(entity,baby,near,.35);
+            var stand=SurfaceApproach.beside(entity,baby,near,.35,Double.POSITIVE_INFINITY,at->outlet==null||!inBirthOutlet(outlet,at));
+            if(inside)GameplayLog.limited(entity,"comfort","birth_outlet."+baby.getUUID(),200,
+                    "comfort stand in the mother's outlet space; stepping out baby={} mother={} stand={}",
+                    baby.getUUID(),baby.family().mother(),stand);
             if(stand==null)SurfaceApproach.halt(entity);else SurfaceApproach.walkAround(entity,stand,baby,1.1);
             return;
         }
@@ -714,6 +721,23 @@ public final class FamilyLife {
         if(comfortNear==10){entity.showReaction("closed_smile","nuzzle",60);BirthStaging.affection(entity);BirthStaging.caption(entity,"蹭脸安抚");}
         if(comfortNear==70){entity.showReaction("open_smile","",40);BirthStaging.affection(entity);BirthStaging.caption(entity,"轻轻舔舐安抚");}
         if(comfortNear>=130){comfortTicks=0;comfortNear=0;}
+    }
+    /**
+     * The room a labouring mother's outlet needs right now, at the yaw she holds: the next unborn child's release box (the box
+     * {@link LiveBirthGeometry#clear} refuses a living body in) grown into her own body, so a stand in either is in the outlet's way.
+     * Null when the hurt one's mother has no live child left inside her (the comfort is then nobody's obstruction).
+     */
+    private AABB birthOutlet(YukkuriEntity baby){
+        if(!(baby.family().mother() instanceof UUID mom)||!(level().getEntity(mom) instanceof YukkuriEntity mother))return null;
+        var brood=mother.family().brood();
+        if(brood==null||brood.cancelled||brood.complete()||brood.kind!=FamilyData.BirthKind.LIVE)return null;
+        int index=0;while(brood.children.get(index).born||brood.children.get(index).eggLost)index++;
+        return LiveBirthGeometry.childDimensions(brood.children.get(index),mother.getScale())
+                .makeBoundingBox(LiveBirthGeometry.position(mother,index)).minmax(mother.getBoundingBox());
+    }
+    /** Whether this body, stood at {@code stand}, would lie in that outlet space (the tolerance {@link LiveBirthGeometry#clear} reads bodies with). */
+    private boolean inBirthOutlet(AABB outlet,Vec3 stand){
+        return entity.getBoundingBox().move(stand.subtract(entity.position())).inflate(.015).intersects(outlet);
     }
     /** A catch hat this body set down that no running birth uses any more, or a dead owner's hat with this body's own young aboard. */
     private PlacedHatEntity hatChore(){
