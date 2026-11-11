@@ -9,7 +9,6 @@
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
 | den_family 丧偶后母油不外出觅食 | `.worktrees/wp-fy-den-forage` | family 觅食分工、认窝 |
-| FM-21 完整回窝链：去子油单独的窝被堵、帽檐载两只时路线停滞 | `.worktrees/wp-fz-walk-home-chain` | family/ParentCarry、回窝路线 |
 
 ## 玩法待办
 
