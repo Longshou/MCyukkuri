@@ -2,6 +2,8 @@
 
 [Wiki](../README.md) · [世界观与生态来源](../hakkei-reference/sources-lore.md) · [对白与情节来源](../hakkei-reference/sources-events.md) · [统一参考库](../reference-library/README.md)
 
+[按情境查小说原句和释义](evidence.md) · [按种族、阶段与情境查作品对白](../hakkei-reference/dialogue/evidence.md)
+
 每张[作品卡](cards.json)保存作品题名、作者或转载署名、原始 URL、实际阅读范围、具体事实和该篇的限制。卡片只证明所记作品；未读续篇、评论、题名和搜索摘要不补成剧情或通则。同作译版、转载和改编关系见[交叉核对](../reference-library/cross-checks.md)，不重复计作独立见证。
 
 ## 高优先级综述点名的作品
