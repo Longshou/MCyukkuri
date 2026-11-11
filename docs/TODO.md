@@ -13,7 +13,6 @@
 | 茎生强制耗营养、耗尽致死（MD-11／MD-12） | `.worktrees/wp-gd-stem-forced` | family/FamilyLife 茎生、StemDrain、PresentationArbiter 耗馅脸、museum aftermath 场景 |
 | 嗯嗯坑绕行与坑沿排遗（BM） | `.worktrees/wp-ge-pit-rim` | settlement/GroupPits、YukkuriGroundNavigation |
 | 帽沿跳朝向与节奏 | `.worktrees/wp-gf-brim-hop` | motor/action/CarriedHop、client/ParentCarryPresentation |
-| 删 CL-05，迁徙场景加赤油，入档脚本修复 | `.worktrees/wp-gg-migrate-babies` | scripts/museum_scenarios.py 迁徙场景、scripts/feedback_intake.py、smoke_checks.py |
 | 互动菜单：模型视图、基本信息、关系谱系 | `.worktrees/wp-gh-care-inspect` | client/CareScreen、CareMenu、StatusStrip |
 | MD-16 肿胀穿模 | `.worktrees/wp-gi-swell-clip` | pose/Skin 肿胀变形、client/CareWearRenderer |
 | 憔悴脸重画、激动漏尿表情与表现 | `.worktrees/wp-gj-faces` | standards/yukkuri-library/expressions |
