@@ -775,9 +775,21 @@ final class LiveBirth extends Choreography {
         @Override public Set<Reason> reduces(){return Set.of(Reason.NO_PROGRESS);}
         @Override public Step next(){
             int left=(int)Math.max(1,deadline-now());
+            if(!any&&pushing>0&&placedHat()!=null){
+                var sibling=brood().children.get(pushing-1);
+                // The sibling can cover the outlet in flight and changes the hat's free room at contact.
+                if(inFlight(sibling)){
+                    rejection="sibling_in_flight";
+                    return new Step.Wait(()->!inFlight(sibling),left,"sibling_in_flight");
+                }
+            }
+            if(rejection.equals("sibling_in_flight"))rejection="";
             if(Float.isNaN(choose()))return new Step.Wait(()->false,left,"no_safe_exit");
             double tolerance=turnTolerance();
             return Math.abs(Mth.wrapDegrees(yaw-o.entity().yBodyRot))>tolerance?new Step.Do(new Face(yaw,tolerance)):new Step.Wait(this::satisfied,left,"outlet_clear");
+        }
+        private boolean inFlight(FamilyData.Child sibling){
+            return !sibling.landed&&o.level().getEntity(sibling.id) instanceof YukkuriEntity kit&&kit.isAlive();
         }
     }
     private boolean qualified(PlacedHatEntity hat){
