@@ -51,7 +51,8 @@ def capture_ticks(capture):
     return sorted(ticks)
 
 
-def client_command(runtime, java, instance, mod, output, height):
+def client_command(runtime, java, instance, mod, output, size):
+    width, height = size
     vm = [arg for arg in server.read_args_file(runtime / 'clientRunVmArgs.txt')
           if not arg.startswith('-Dneoforge.enableGameTest')]
     cp = server.read_args_file(runtime / 'clientRunClasspath.txt')[:2]
@@ -61,7 +62,7 @@ def client_command(runtime, java, instance, mod, output, height):
     return ([str(java), '-Xmx6G'] + vm + cp + [f'-Dfml.modFolders=mcyukkuri%%{mod}',
             '-Dmcyukkuri.capture=true', f'-Dmcyukkuri.capture.output={output}',
             'net.neoforged.devlaunch.Main'] + prog + ['--mixin', 'mcyukkuri.capture.mixins.json',
-            '--username', 'CapturePlayer', '--width', '1280', '--height', str(height),
+            '--username', 'CapturePlayer', '--width', str(width), '--height', str(height),
             '--quickPlaySingleplayer', 'MCyukkuri-Museum'])
 
 
@@ -99,9 +100,14 @@ def main():
     parser.add_argument('--tick-rate', type=float, default=20, help='Capture server ticks per second (1 <= rate <= 20)')
     parser.add_argument('--screen', action='append', nargs=3, metavar=('SCENE', 'KIND', 'SELECTOR'),
                         help='Capture a real menu or magnifier HUD; repeatable. Kinds: ' + ', '.join(SCREENS))
-    parser.add_argument('--gui-scale', type=int, default=2, choices=(2, 3), help='Minecraft GUI scale')
+    parser.add_argument('--gui-scale', type=int, default=2, choices=(2, 3, 4), help='Minecraft GUI scale')
+    parser.add_argument('--lang', default='zh_cn', choices=('zh_cn', 'en_us', 'ja_jp'), help='Minecraft language')
+    parser.add_argument('--size', type=int, nargs=2, default=(1280, 720), metavar=('WIDTH', 'HEIGHT'),
+                        help='Capture window size in physical pixels')
     parser.add_argument('scenes', nargs='*', help='Museum scene IDs for ordinary scene capture')
     args = parser.parse_args()
+    if min(args.size) <= 0:
+        parser.error('--size requires positive dimensions')
     if args.screen:
         if args.scenes or args.view or args.vantage or args.sample_window:
             parser.error('--screen selects its own scene, view and timing')
@@ -151,7 +157,7 @@ def capture(parser, args):
     seed = server.COMMON / '.local/experimental-map/museum-seed/level.dat'
     builder.level_metadata(seed).save(pack.parent.parent / 'level.dat')
     (instance / 'options.txt').write_text(
-        f'lang:zh_cn\nguiScale:{args.gui_scale}\nrenderDistance:10\nsimulationDistance:8\nmaxFps:60\nenableVsync:false\n'
+        f'lang:{args.lang}\nguiScale:{args.gui_scale}\nrenderDistance:10\nsimulationDistance:8\nmaxFps:60\nenableVsync:false\n'
         'onboardAccessibility:false\nautoJump:false\npauseOnLostFocus:false\ntutorialStep:none\n'
         'narrator:0\nsoundCategory_master:0.0\nchatVisibility:2\n', encoding='utf-8')
     (instance / 'config').mkdir()
@@ -206,11 +212,9 @@ def capture(parser, args):
     revision = subprocess.check_output(['git', '-C', str(source), 'rev-parse', 'HEAD'], text=True).strip()
     (output / 'run.json').write_text(json.dumps(dict(source=str(source), commit=revision, runtime=str(runtime),
         dirty=bool(subprocess.check_output(['git', '-C', str(source), 'status', '--porcelain'])),
-        scenes=scene_ids, screens=args.screen, gui_scale=args.gui_scale, smoke_commands=args.smoke_commands,
+        scenes=scene_ids, screens=args.screen, gui_scale=args.gui_scale, lang=args.lang, size=args.size, smoke_commands=args.smoke_commands,
         vantage=args.vantage, self_check=True), indent=2), encoding='utf-8')
-    # The fixed 294-pixel badge sheet needs 882 physical pixels at GUI scale 3.
-    height = 900 if args.gui_scale == 3 and any(kind == 'badge' for _, kind, _ in args.screen or ()) else 720
-    command = client_command(runtime, java, instance, mod, output, height)
+    command = client_command(runtime, java, instance, mod, output, args.size)
     server.wait_closed(not args.no_wait)
     startup = subprocess.STARTUPINFO()
     startup.dwFlags |= subprocess.STARTF_USESHOWWINDOW
