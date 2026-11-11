@@ -3,7 +3,6 @@ package io.github.longshou.mcyukkuri.motor.action;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.ParentCarry;
 import io.github.longshou.mcyukkuri.motor.BodyAbility;
-import io.github.longshou.mcyukkuri.motor.ClipMarkers;
 import io.github.longshou.mcyukkuri.motor.Feasibility;
 import io.github.longshou.mcyukkuri.motor.Outcome;
 import io.github.longshou.mcyukkuri.motor.Progress;
@@ -15,6 +14,7 @@ import io.github.longshou.mcyukkuri.motor.geom.Ballistic;
 import io.github.longshou.mcyukkuri.motor.geom.Vec;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
 
 /** Hop's retained-passenger execution, composed by the grip that placed the body on its carrier.
@@ -24,6 +24,7 @@ final class CarriedHop {
     private final Vec3 destination;
     private Vec3 from, to;
     private ArcSolver.Plan plan;
+    private float bearing;
     private int hops;
     private long start;
     private int span;
@@ -34,7 +35,6 @@ final class CarriedHop {
         this.destination = destination;
     }
 
-    private static int marker(String key) { return Math.round(ClipMarkers.of("hop_leg").markers().get(key) * 20); }
     private double unit() { return carrier.growthScale() * carrier.getScale() / 16; }
     private static Vec vec(Vec3 v) { return new Vec(v.x, v.y, v.z); }
 
@@ -42,6 +42,7 @@ final class CarriedHop {
         if (body.getVehicle() != carrier) return Feasibility.of(Reason.DROPPED, 0, "carrier_lost");
         var ability = BodyAbility.of(body);
         if (!ability.canJump()) return Feasibility.of(Reason.TOO_HIGH, 0, "cannot_jump");
+        if (ability.turnRate() <= 0) return Feasibility.of(Reason.NO_PROGRESS, 0, "cannot_turn");
         from = position(ParentCarry.brimMotion(carrier, body), carrier.level().getGameTime());
         double distance = from.distanceTo(destination) * unit();
         int legs = Math.max(1, (int) Math.ceil(distance / ability.hopReach()));
@@ -85,8 +86,19 @@ final class CarriedHop {
     }
 
     void start(YukkuriEntity body) {
-        start = carrier.level().getGameTime();
-        span = marker("takeoff") + (int) Math.ceil(plan.ticks()) + marker("settled") - marker("land");
+        // The braid holds the child at local yaw zero. All legs lie on the same line to its spot.
+        var direction = destination.subtract(from);
+        bearing = (float) Math.toDegrees(Math.atan2(-direction.x, -direction.z));
+        beginLeg(body, carrier.level().getGameTime());
+    }
+
+    private void beginLeg(YukkuriEntity body, long tick) {
+        start = tick;
+        double rate = BodyAbility.of(body).turnRate();
+        float outward = ParentCarry.brimSeat(carrier, body)[3];
+        int turnIn = hops == 0 ? turnTicks(0, bearing, rate) : 0;
+        int turnOut = to.equals(destination) ? turnTicks(bearing, outward, rate) : 0;
+        span = turnIn + Hop.takeoffTicks() + (int) Math.ceil(plan.ticks()) + Math.max(Hop.recoveryTicks(), turnOut);
         var motion = new CompoundTag();
         motion.putDouble("X", from.x); motion.putDouble("Y", from.y); motion.putDouble("Z", from.z);
         motion.putDouble("TX", to.x); motion.putDouble("TY", to.y); motion.putDouble("TZ", to.z);
@@ -94,20 +106,31 @@ final class CarriedHop {
         motion.putDouble("VY", plan.vy() / unit());
         motion.putDouble("VZ", plan.vh() * plan.dir().z() / unit());
         motion.putDouble("Unit", unit()); motion.putDouble("Air", plan.ticks()); motion.putLong("Start", start);
+        motion.putFloat("Bearing", bearing);
+        motion.putInt("TurnIn", turnIn);
+        motion.putInt("TurnOut", turnOut);
         ParentCarry.brimMotion(carrier, body, motion);
+    }
+
+    private static int turnTicks(float from, float to, double rate) {
+        return (int) Math.ceil(Math.abs(Mth.wrapDegrees(to - from)) / rate);
     }
 
     Progress tick(YukkuriEntity body) {
         if (body.getVehicle() != carrier) return Outcome.of(Reason.DROPPED, 0, "carrier_lost");
         var motion = ParentCarry.brimMotion(carrier, body);
-        double now = carrier.level().getGameTime();
+        long now = carrier.level().getGameTime();
         if (!clear(body, world(position(motion, now - 1)), world(position(motion, now)))) {
             freeze(body, now - 1);
-            GameplayLog.event(carrier, "family", "brim hop refused child={} blocker={} during=flight", body.getUUID(), obstruction);
+            GameplayLog.event(carrier, "family", "brim hop refused child={} blocker={} during=leg", body.getUUID(), obstruction);
             return Outcome.of(Reason.NO_ROOM, 0, "carried_hop_obstructed blocker=" + obstruction);
         }
         if (now - start < span) return new Running(span - (now - start), TravelMode.CONSUMED);
         hops++;
+        GameplayLog.event(carrier, "family",
+                "brim hop leg child={} leg={} start={} turnInTicks={} windUpTicks={} airTicks={} recoveryTicks={} turnOutTicks={} bearing={} elapsedTicks={}",
+                body.getUUID(), hops, start, motion.getInt("TurnIn"), Hop.takeoffTicks(), motion.getDouble("Air"),
+                Hop.recoveryTicks(), motion.getInt("TurnOut"), bearing, now - start);
         if (to.equals(destination)) {
             motion.putBoolean("Done", true);
             ParentCarry.brimMotion(carrier, body, motion);
@@ -116,8 +139,8 @@ final class CarriedHop {
         }
         var ready = check(body);
         if (!ready.ok()) { freeze(body, now); return Outcome.of(ready.reason(), ready.shortfall(), ready.detail()); }
-        start(body);
-        return new Running(span, TravelMode.CONSUMED, true);
+        beginLeg(body, now + 1);
+        return new Running(span + 1, TravelMode.CONSUMED, true);
     }
 
     void freeze(YukkuriEntity body, double now) {
@@ -135,7 +158,7 @@ final class CarriedHop {
         if (motion.getBoolean("Walk")) return from.lerp(
                 new Vec3(motion.getDouble("TX"), motion.getDouble("TY"), motion.getDouble("TZ")),
                 Math.clamp((now - motion.getLong("Start")) / motion.getInt("Ticks"), 0, 1));
-        double age = now - motion.getLong("Start") - marker("takeoff");
+        double age = now - motion.getLong("Start") - motion.getInt("TurnIn") - Hop.takeoffTicks();
         if (age <= 0) return from;
         double air = motion.getDouble("Air");
         if (age >= air) return new Vec3(motion.getDouble("TX"), motion.getDouble("TY"), motion.getDouble("TZ"));
@@ -151,9 +174,23 @@ final class CarriedHop {
 
     static float clock(CompoundTag motion, double now) {
         if (!motion.contains("Start")) return 0;
-        double age = now - motion.getLong("Start"), takeoff = marker("takeoff"), air = motion.getDouble("Air");
+        double age = Math.max(0, now - motion.getLong("Start") - motion.getInt("TurnIn"));
+        int takeoff = Hop.takeoffTicks(), land = Hop.landingMarker();
+        double air = motion.getDouble("Air");
         return (float) (age <= takeoff ? age : age < takeoff + air
-                ? takeoff + (age - takeoff) / air * (marker("land") - takeoff)
-                : marker("land") + age - takeoff - air) / 20;
+                ? takeoff + (age - takeoff) / air * (land - takeoff)
+                : land + Math.min(age - takeoff - air, Hop.recoveryTicks())) / 20;
+    }
+
+    /** The same committed timeline turns the rider on its stationary feet before takeoff and after contact. */
+    static float facing(CompoundTag motion, double now, float outward) {
+        double age = now - motion.getLong("Start");
+        float bearing = motion.getFloat("Bearing");
+        int turnIn = motion.getInt("TurnIn"), turnOut = motion.getInt("TurnOut");
+        if (turnIn > 0 && age < turnIn)
+            return Mth.rotLerp((float) Math.max(0, age / turnIn), 0, bearing);
+        double landed = age - turnIn - Hop.takeoffTicks() - motion.getDouble("Air");
+        return turnOut > 0 && landed > 0
+                ? Mth.rotLerp((float) Math.min(1, landed / turnOut), bearing, outward) : bearing;
     }
 }

@@ -299,8 +299,11 @@ final class ParentCarryPresentation {
                 roll = Math.clamp(me.roll * .4f + .8f * me.gait * Mth.sin(phase - .7f), -1.2f, 1.2f);
                 var seat = ParentCarry.brimSeat(carrier, child);
                 float out = seat == null ? 0 : seat[3];
-                // While the braid is still setting it there, the server's sweep is the position and it faces as the braid holds it.
-                if (ParentCarry.placing(carrier, child, partial)) feet = seated;
+                if (ParentCarry.placing(carrier, child, partial)) {
+                    feet = seated;
+                    if (ParentCarry.brimHopping(carrier, child))
+                        turnTo.rotateY(ParentCarry.brimHopFacing(carrier, child, partial, out) * Mth.DEG_TO_RAD);
+                }
                 else if (live && state.hat != null && seat != null) {
                     feet = state.hat.transformPosition(new Vector3f(seat[0], seat[1], seat[2]));
                     state.hat.getUnnormalizedRotation(turnTo).rotateY(out * Mth.DEG_TO_RAD);

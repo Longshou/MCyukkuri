@@ -738,6 +738,9 @@ public final class ParentCarry {
     public static float brimHopClock(YukkuriView carrier, YukkuriView child, float partial) {
         return Hop.carriedClock(brimMotion(carrier, child), carrier.level().getGameTime() + partial);
     }
+    public static float brimHopFacing(YukkuriView carrier, YukkuriView child, float partial, float outward) {
+        return Hop.carriedFacing(brimMotion(carrier, child), carrier.level().getGameTime() + partial, outward);
+    }
     /** Ticks still to go of a brim young's way onto the brim (the lift clip to its end and its own walk to its spot); 0 for any other hold. */
     public static int placingLeft(YukkuriView carrier, YukkuriView child) {
         var e = entry(carrier, child.getUUID());

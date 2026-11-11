@@ -52,6 +52,7 @@ public final class Hop implements Action {
     }
     public static Vec3 carriedPosition(CompoundTag motion, double now) { return CarriedHop.position(motion, now); }
     public static float carriedClock(CompoundTag motion, double now) { return CarriedHop.clock(motion, now); }
+    public static float carriedFacing(CompoundTag motion, double now, float outward) { return CarriedHop.facing(motion, now, outward); }
     public static final String ID = "hop";
     private static final String CLIP = "hop_leg";
     static final int SETTLE = 10;
@@ -419,6 +420,8 @@ public final class Hop implements Action {
 
     private static int marker(String name) { return Math.round(ClipMarkers.of(CLIP).markers().get(name) * 20); }
     static int takeoffTicks() { return marker("takeoff"); }
+    static int landingMarker() { return marker("land"); }
+    static int recoveryTicks() { return marker("settled") - landingMarker(); }
 
     /** Admit the bank leg after the host's drift, each landing beat and the supported turn, not at the old brim point. */
     private boolean exitClear(YukkuriEntity body, SurfaceHost host, int delay) {
@@ -438,7 +441,7 @@ public final class Hop implements Action {
             var height = host.turnSupport(at, body, yaw - host.entity().getYRot());
             if (height.isEmpty()) { obstruction = "landing_support"; return false; }
             local = new Vec3(at.x, height.getAsDouble(), at.z);
-            for (int tick = 0; tick <= marker("settled") - marker("land"); tick++, delay++) {
+            for (int tick = 0; tick <= recoveryTicks(); tick++, delay++) {
                 var stand = host.frameAfter(delay).toWorld(local);
                 if (!clear(body, stand, null, swept, List.of(Vec.ZERO), delay, yaw)) return false;
             }
@@ -538,13 +541,13 @@ public final class Hop implements Action {
             }
             launched = true;
             if (StatusEvents.trace()) GameplayLog.event(body, "move",
-                    "hop leg={} from={} to={} yaw={} bearing={} airTicks={} width={} apex={} ability={}",
+                    "hop leg={} from={} to={} yaw={} bearing={} airTicks={} width={} apex={} ability={} windUpTicks={} recoveryTicks={}",
                     completedLegs + 1, GameplayLog.at(body.position()), GameplayLog.at(seat == null ? target : seat.world()),
-                    body.yBodyRot, SurfaceApproach.yaw(body.position(), seat == null ? target : seat.world()), flight.size(),
-                    body.getBbWidth(), plan.apex(), BodyAbility.of(body).detail());
+                    body.yBodyRot, SurfaceApproach.yaw(body.position(), seat == null ? target : seat.world()), plan.ticks(),
+                    body.getBbWidth(), plan.apex(), BodyAbility.of(body).detail(), runUp == null ? takeoff : 0, recoveryTicks());
             // Consumed travel must advance the first flight segment on the takeoff tick too.
         }
-        startTick = body.level().getGameTime() - marker("land");
+        startTick = body.level().getGameTime() - landingMarker();
         if (seatHost != null && seatHost.entity().isRemoved()) return Outcome.of(Reason.TARGET_GONE, 0, "host_gone");
         if (aboard && body.getVehicle() != seatHost.entity()) return new Outcome.Interrupted("left_host");
         // A sampled endpoint is not ground contact. Let the final downward velocity meet the real floor before handing off.
@@ -599,8 +602,8 @@ public final class Hop implements Action {
     private Progress landed(YukkuriEntity body) {
         launched = false;
         completedLegs++;
-        recovery = marker("settled") - marker("land");
-        startTick = body.level().getGameTime() - marker("land");
+        recovery = recoveryTicks();
+        startTick = body.level().getGameTime() - landingMarker();
         return new Running(recovery, TravelMode.CONSUMED, true);
     }
 
