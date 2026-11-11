@@ -197,7 +197,7 @@ public final class YukkuriSocial implements MotorOwner {
             morningPending = false;
             target = level.getEntitiesOfClass(YukkuriEntity.class, entity.getBoundingBox().inflate(6), peer -> peer != entity && peer.isAlive()
                     && !peer.isNoAi() && !peer.isPanicking() && !peer.life().isSleeping() && !peer.social().active() && Bonds.careKin(entity, peer)
-                    && entity.hasLineOfSight(peer) && !SettlementSociety.avoids(entity, peer))
+                    && !attachedTo(peer) && entity.hasLineOfSight(peer) && !SettlementSociety.avoids(entity, peer))
                     .stream().min(Comparator.comparingDouble(entity::distanceToSqr)).orElse(null);
             if (target != null) { approachPeer("morning"); return true; }
         }
@@ -261,6 +261,7 @@ public final class YukkuriSocial implements MotorOwner {
     }
     public boolean canContinue() {
         return task != Task.NONE && target != null && target.isAlive() && target.level() == entity.level()
+                && !attachedTo(target)
                 && (task == Task.ACCESSORY || entity.hasLineOfSight(target)) && !entity.dailyLife().active() && !entity.life().isSleeping()
                 && entity.distanceToSqr(target) < 64 && !entity.isPanicking() && !urgent()
                 && entity.life().mealTicks() == 0 && !entity.isCommandPlaying() && elapsed < duration
@@ -482,7 +483,7 @@ public final class YukkuriSocial implements MotorOwner {
         return !entity.level().isClientSide && entity.isAlive() && !entity.isNoAi() && !entity.life().isSleeping() && !entity.isPanicking()
                 && !entity.life().hasUrgentNeed() && entity.life().mealTicks() == 0 && !entity.isCommandPlaying() && !entity.operations().active()
                 && !entity.groupInteraction().active() && !entity.playLife().active() && !entity.family().laboring()
-                && entity.hasLineOfSight(from);
+                && !attachedTo(from) && entity.hasLineOfSight(from);
     }
     /**
      * A free peer that sees another walk up to it stops where it is and watches it come, instead of wandering off before
@@ -515,8 +516,12 @@ public final class YukkuriSocial implements MotorOwner {
     }
     private boolean contactReady(Entity other) {
         var wait = contactWaits.get(other.getUUID());
-        return wait == null || entity.tickCount >= wait.until()
-                || personality().lastInteraction(other.getUUID()) != wait.lastInteraction();
+        return !attachedTo(other) && (wait == null || entity.tickCount >= wait.until()
+                || personality().lastInteraction(other.getUUID()) != wait.lastInteraction());
+    }
+    /** Turning toward one's rider or carrier turns the contact target along with the body. */
+    private boolean attachedTo(Entity other) {
+        return other.getVehicle() == entity || entity.getVehicle() == other;
     }
     private void protectContact(Entity other) {
         if (protectedContact != null) personality().releaseRelation(protectedContact);
