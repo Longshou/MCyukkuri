@@ -95,7 +95,18 @@ public final class Motor {
     /** Turns the whole body within its ability; host-derived rider facing is applied separately. */
     public static void face(YukkuriEntity body, float yaw) {
         if (body == null) return;
-        yaw = turnYaw(body, yaw);
+        applyFacing(body, turnYaw(body, yaw));
+    }
+
+    /** Sets the initial pose for a system placement, including before a destination is tested at that pose. */
+    public static void placementFacing(YukkuriEntity body, float yaw) {
+        applyFacing(body, yaw);
+        body.yRotO = body.getYRot();
+        body.yBodyRotO = body.yBodyRot;
+        body.yHeadRotO = body.getYHeadRot();
+    }
+
+    private static void applyFacing(YukkuriEntity body, float yaw) {
         if (Attach.of(body) instanceof AttachState.OnHost on) {
             spot(on.host(), body, on.local(), Mth.wrapDegrees(yaw - on.host().entity().getYRot()), "face");
         } else riderFacing(body, yaw);
@@ -144,7 +155,7 @@ public final class Motor {
         if (body == null || at == null) return;
         Vec3 from = body.position();
         body.setPos(at.x, at.y, at.z);
-        face(body, yaw);
+        placementFacing(body, yaw);
         body.setDeltaMovement(Vec3.ZERO);
         body.hasImpulse = true;
         // The same previous-position snapshot vanilla's moveTo takes, so the renderer does not glide the body across the gap.

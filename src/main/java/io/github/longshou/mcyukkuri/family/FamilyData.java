@@ -613,7 +613,6 @@ public final class FamilyData extends SavedData {
         // The newborn joins the world where the birth put it; its facing comes from the birth kind, never from a walk.
         float facing = brood.detachedHolder != null ? 180 : brood.kind == BirthKind.LIVE ? mother.yBodyRot : 0;
         Motor.relocate(entity, position, facing, "birth_spawn");
-        entity.yRotO = facing; entity.yBodyRotO = facing; entity.yHeadRotO = facing;
         entity.setPersistenceRequired();
         boolean cabin=mother!=null&&mother.family().cabinBirth();
         if(cabin?level.getBlockCollisions(entity,entity.getBoundingBox()).iterator().hasNext()

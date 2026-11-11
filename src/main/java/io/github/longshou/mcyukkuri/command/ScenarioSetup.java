@@ -269,7 +269,7 @@ final class ScenarioSetup {
         riders.addAll(young.stream().sorted(Comparator.comparingDouble((YukkuriEntity y) -> -y.growthScale() * y.getScale())).toList());
         for (var body : riders) {
             float yaw = hat.getYRot() + (body == owner ? facing : 0);
-            Motor.face(body, yaw);
+            Motor.placementFacing(body, yaw);
             var seat = hat.restSpot(body);
             if (seat == null) return body.getName().getString() + " 没有合适座位（no_room），已入座者保留原位。";
             Motor.relocate(body, seat.world(), yaw, "scenario_initial_seat");

@@ -11,7 +11,6 @@ import io.github.longshou.mcyukkuri.intent.Method;
 import io.github.longshou.mcyukkuri.intent.Step;
 import io.github.longshou.mcyukkuri.motor.ClipMarkers;
 import io.github.longshou.mcyukkuri.motor.ContactGeometry;
-import io.github.longshou.mcyukkuri.motor.Motor;
 import io.github.longshou.mcyukkuri.motor.action.Await;
 import io.github.longshou.mcyukkuri.motor.action.Face;
 import io.github.longshou.mcyukkuri.motor.action.Hop;
@@ -100,7 +99,7 @@ final class PlayAboard implements Intent {
                 return null;
             }
         }
-        return List.of(this::out, this::perform, this::quiet, this::inside, this::finish);
+        return List.of(this::out, this::turnOut, this::perform, this::quiet, this::inside, this::finish);
     }
 
     /** The brim place nearest this young that its own hop out of the hollow reaches (turn included). */
@@ -113,15 +112,27 @@ final class PlayAboard implements Intent {
 
     private Step out() { return outHop == null || !"cabin".equals(place(body, hat)) ? null : new Step.Do(outHop); }
 
+    private Step turnOut() {
+        var out = outward();
+        if (!waterAct(place(body, hat), out)) return null;
+        float yaw = braidOutYaw(out);
+        return braidOut(yaw) || !Face.admitted(body, yaw) ? null : new Step.Do(new Face(yaw));
+    }
+
+    private boolean waterAct(String place, Vec3 out) {
+        return !scared && "brim".equals(place) && out != null && ContactGeometry.braided(body) && wet(out);
+    }
+
+    private boolean braidOut(float yaw) {
+        return Math.abs(Mth.wrapDegrees(yaw - body.yBodyRot)) <= Face.FACE_ARRIVED;
+    }
+
     /** The act this young really performs where it now stands. */
     private Step perform() {
         if (act != null) return null;
         where = place(body, hat);
         var out = outward();
-        boolean water = !scared && "brim".equals(where) && out != null && ContactGeometry.braided(body) && wet(out);
-        // Neither the hollow nor the brim ring admits a walking turn, so the braid side is set over the water with the motor's own turn writer.
-        if (water) Motor.face(body, braidOutYaw(out));
-        boolean braidOut = water && Math.abs(Mth.wrapDegrees(braidOutYaw(out) - body.yBodyRot)) <= Face.FACE_ARRIVED;
+        boolean water = waterAct(where, out) && braidOut(braidOutYaw(out));
         boolean paddling = water && hat.owner() != null && hat.owner().motor().current() instanceof Paddle;
         String reason;
         if (scared) { act = Behaviors.KID_HIDE_BEHIND; reason = "fear:" + cause; }
@@ -132,7 +143,7 @@ final class PlayAboard implements Intent {
             hull.playEvent(act);
             if (scared) hull.playEvent("fear_" + cause);
         }
-        GameplayLog.event(body, "aquatic", "play kind={} start spot={} reason={} braid_out={} hat={}", act, where, reason, braidOut, hat.getUUID());
+        GameplayLog.event(body, "aquatic", "play kind={} start spot={} reason={} braid_out={} hat={}", act, where, reason, water, hat.getUUID());
         if (scared) return new Step.Do(Await.holding(() -> fear.get().equals("none"), (int) number("play_deadline") + 1, act,
                 ClipMarkers.of(act).ticks("tucked", 12), () -> false));
         return pause(act, (int) number("play_loops"));

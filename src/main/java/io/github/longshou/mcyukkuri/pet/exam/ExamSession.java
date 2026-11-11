@@ -169,10 +169,10 @@ public final class ExamSession implements ExamContext {
 
     /** Stands the animal still, optionally walking to a goal and looking at something; the PetLife.SessionGoal drives it. */
     private static final class Walker implements PetLife.Director {
-        BlockPos goal; Entity look; Vec3 lookPos;
+        BlockPos goal; Entity look; Float facing;
         @Override public void tick(YukkuriEntity a) {
             if (goal != null) Staging.walkTo(a, goal, 1.0); else a.getNavigation().stop();
-            if (lookPos != null) a.getLookControl().setLookAt(lookPos.x, lookPos.y, lookPos.z);
+            if (facing != null) Motor.face(a, facing);
             else if (look != null) a.getLookControl().setLookAt(look, 30, 30);
         }
     }
@@ -483,7 +483,7 @@ public final class ExamSession implements ExamContext {
                 candidate.playAction("sulk"); candidate.showReaction("teary", "", 80);
                 var p = owner(); double dx = p == null ? 0 : candidate.getX() - p.getX(), dz = p == null ? 1 : candidate.getZ() - p.getZ();
                 float yaw = (float)(Math.atan2(dz, dx) * 57.29578) - 90f;
-                walker.look = null; walker.lookPos = null; Motor.relocate(candidate, candidate.position(), yaw, "exam_sulk_turn");
+                walker.facing = yaw;
             }
             if (c >= 140) finish();
         }

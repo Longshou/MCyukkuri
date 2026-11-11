@@ -204,7 +204,7 @@ public final class AquaticLife {
             var parent = parent(body);
             var hat = parent == null ? null : hat(parent);
             if (!afloat(hat)) return "no_parent_hat";
-            Motor.face(body, hat.getYRot());
+            Motor.placementFacing(body, hat.getYRot());
             var seat = hat.restSpot(body);
             return seat == null ? "no_room" : board(body, hat, seat, cause, false);
         }
@@ -213,7 +213,7 @@ public final class AquaticLife {
         if (water == null) return "no_water";
         var hat = PlacedHatEntity.setDown(body, Waters.hatAt(water, body), water.yaw() + 90, HatGeometry.Role.SELF);
         if (hat == null) return "set_down_refused";
-        Motor.face(body, hat.getYRot());
+        Motor.placementFacing(body, hat.getYRot());
         return board(body, hat, hat.restSpot(body), cause, true);
     }
 
