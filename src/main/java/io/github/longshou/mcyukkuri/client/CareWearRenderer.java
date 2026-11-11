@@ -131,6 +131,10 @@ final class CareWearRenderer {
     /** Rows of the leaf grid per part (petiole, back, under, front) and columns across; the widest angle a margin wraps round the body. */
     private static final int STALK_ROWS = 2, BACK_ROWS = 7, UNDER_ROWS = 3, FRONT_ROWS = 8, ACROSS = 14;
     private static final int LEAF_ROWS = STALK_ROWS + BACK_ROWS + UNDER_ROWS + FRONT_ROWS;
+    /** Shorter chords keep the blade outside the swollen lower body's sharper curves between skin samples. */
+    private static final int SWOLLEN_DETAIL = 2;
+    /** Extra separation for the blade's straight faces at full swelling, in fractions of the posed height. */
+    private static final float RETENTION_LEAF_LIFT = .018f;
     private static final float MAX_WRAP = 1.6f;
     /** Texture v height of the leaf cell, the offset from the clean leaf to its stool-stained copy, and from one neglect stage to the next. */
     private static final float CELL_V = .125f, STAINED_V = .125f, STAGE_V = .25f;
@@ -147,7 +151,7 @@ final class CareWearRenderer {
     private static float sampleAngle;
     private static final float[] ANG = new float[BINS], HX = new float[BINS], HZ = new float[BINS], HULL_X = new float[2 * BINS + 1], HULL_Z = new float[2 * BINS + 1];
     private static final float[] BELT_LO = new float[BINS], BELT_HI = new float[BINS], TOP = new float[BINS], COPY = new float[BINS], ARC = new float[BINS + 1];
-    private static final float[] GRID = new float[(LEAF_ROWS + 1) * (ACROSS + 1) * 4];
+    private static final float[] GRID = new float[(LEAF_ROWS * SWOLLEN_DETAIL + 1) * (ACROSS * SWOLLEN_DETAIL + 1) * 4];
     /** Skin: hull radius per height cell (lower three quarters of the body) and bin, rebuilt for each wrap; cloth, leaf and clearHair read it. */
     private static final float[][] SKIN = new float[SKIN_CELLS][BINS];
     /** Cloth surface of the current swaddle: inset, shell offset and fullness (model units), the angle leafPoint last used, point scratch. */
@@ -163,7 +167,7 @@ final class CareWearRenderer {
      */
     private static final float CLEAR_MARGIN = .02f, CLEAR_REACH = .05f, CLEAR_DEPTH = .03f, CLEAR_FADE = .2f, CLEAR_RIM = .012f;
     /** Body frame and wrap of the model being drawn (prepareClearance), in blocks; the style, or null for the leaf. */
-    private static float clearCx, clearCz, clearMinY, clearH, clearTop;
+    private static float clearCx, clearCz, clearMinY, clearH, clearTop, clearLeafLift;
     private static Style clearStyle;
     private static final float[][] CLEAR_SKIN = new float[SKIN_CELLS][BINS];
     private static final float[] PT = new float[3], PT2 = new float[3];
@@ -196,7 +200,7 @@ final class CareWearRenderer {
         if (cloth) swaddle(buffers, last, STYLES[wear >> 6 & 7], initial(model.id()), cx, cz, minY, h, light, overlay);
         if (open) groundLeaf(buffers.getBuffer(RenderType.entityCutoutNoCull(LEAF)), last, cx, cz, h, light, overlay);
         else if (leaf) leafWrap(buffers.getBuffer(RenderType.entityCutoutNoCull(LEAF)), last, cx, cz, minY, h, wear >> 4 & 3, wear >> 6 & 7,
-                pts, (wear >> 9 & 15) > 0 ? body : 0, light, overlay);
+                pts, body, (wear >> 9 & 15) / 15f, light, overlay);
         // The harness follows the body itself, so its back ring stays where the lead attaches (YukkuriInteractions.getLeashOffset).
         if ((wear & HARNESS) != 0) harness(buffers.getBuffer(RenderType.entityCutoutNoCull(TEXTURE)), last, cx, cz, minY, h,
                 cloth || leaf && !open ? out + .03f * h : .03f * h, light, overlay);
@@ -229,6 +233,7 @@ final class CareWearRenderer {
         profile(pts, body, clearCx, clearCz, clearMinY, clearH);
         if (!skinTable(CLEAR_SKIN)) return false;
         clearStyle = cloth ? STYLES[wear >> 6 & 7] : null;
+        clearLeafLift = leafLift((wear >> 9 & 15) / 15f);
         clearTop = (cloth ? Math.max(clearStyle.back, clearStyle.front) : LEAF_TOP_BACK) + CLEAR_RIM + CLEAR_FADE;
         return true;
     }
@@ -268,7 +273,7 @@ final class CareWearRenderer {
         } else {
             top = rim(a, LEAF_TOP_FRONT, LEAF_TOP_BACK);
             float back = Math.abs(offset(a, (float) (Math.PI / 2)));
-            thick = LEAF_LIFT + CURL + (back < .45f && f > LEAF_BACK - .04f ? STALK_OUT : 0);
+            thick = clearLeafLift + CURL + (back < .45f && f > LEAF_BACK - .04f ? STALK_OUT : 0);
         }
         float fade = Math.clamp(1 - (f - top - CLEAR_RIM) / CLEAR_FADE, 0f, 1f);
         return fade <= 0 ? 0 : (thick + CLEAR_MARGIN) * fade;
@@ -800,8 +805,12 @@ final class CareWearRenderer {
 
     // ---- leaf swaddle ----------------------------------------------------------------------------------------------------
 
+    private static float leafLift(float swelling) {
+        return LEAF_LIFT + RETENTION_LEAF_LIFT * swelling;
+    }
+
     /**
-     * The leaf swaddle: one leaf laid like a diaper on a grid LEAF_ROWS long and ACROSS wide. The petiole stands off the back above the
+     * The leaf swaddle: one leaf laid like a diaper. The petiole stands off the back above the
      * anus; the blade runs down the back from LEAF_BACK, under the body and up the front to LEAF_FRONT, its pointed tip lying on the
      * body. Across the leaf every grid column keeps its lateral distance from the middle line, wrapping round the skin (the hair lies
      * over the leaf, clearHair) up to MAX_WRAP radians; the margins rise and curl out so the leaf cups the bottom like a diaper and shows
@@ -809,16 +818,23 @@ final class CareWearRenderer {
      * picks the leaf's texture rows. On a swollen body the grid clears the posed triangles between the profile samples, including the sole.
      */
     private static void leafWrap(VertexConsumer b, PoseStack.Pose pose, float cx, float cz, float minY, float h, int soil, int stage,
-                                 float[] skin, int swollenBody, int light, int overlay) {
-        float base = LEAF_LIFT * h, half = LEAF_HALF * h;
-        float[] along = new float[LEAF_ROWS + 1];
-        for (int row = 0; row <= LEAF_ROWS; row++) {
-            int part = row <= STALK_ROWS ? 0 : row <= STALK_ROWS + BACK_ROWS ? 1 : row < STALK_ROWS + BACK_ROWS + UNDER_ROWS ? 2 : 3;
+                                 float[] skin, int body, float swelling, int light, int overlay) {
+        float base = leafLift(swelling) * h, half = LEAF_HALF * h;
+        int detail = swelling > 0 ? SWOLLEN_DETAIL : 1, swollenBody = swelling > 0 ? body : 0;
+        // The petiole lies against the skin by the hard retention band, below the hanging hair.
+        float slack = Math.max(0, 1 - swelling / .6f);
+        float stalkHeight = STALK * (.125f + .875f * slack);
+        float stalkOut = STALK_OUT * slack - LEAF_LIFT * (1 - slack);
+        int stalkEnd = STALK_ROWS * detail, backEnd = stalkEnd + BACK_ROWS * detail, underEnd = backEnd + UNDER_ROWS * detail;
+        int rows = LEAF_ROWS * detail, across = ACROSS * detail, stride = (across + 1) * 4;
+        float[] along = new float[rows + 1];
+        for (int row = 0; row <= rows; row++) {
+            int part = row <= stalkEnd ? 0 : row <= backEnd ? 1 : row < underEnd ? 2 : 3;
             float s = switch (part) {
-                case 0 -> row / (float) STALK_ROWS;
-                case 1 -> (row - STALK_ROWS) / (float) BACK_ROWS;
-                case 2 -> (row - STALK_ROWS - BACK_ROWS) / (float) UNDER_ROWS;
-                default -> (row - STALK_ROWS - BACK_ROWS - UNDER_ROWS) / (float) FRONT_ROWS;
+                case 0 -> row / (float) stalkEnd;
+                case 1 -> (row - stalkEnd) / (float) (backEnd - stalkEnd);
+                case 2 -> (row - backEnd) / (float) (underEnd - backEnd);
+                default -> (row - underEnd) / (float) (rows - underEnd);
             };
             along[row] = switch (part) {
                 case 0 -> U_STALK * s;
@@ -826,9 +842,9 @@ final class CareWearRenderer {
                 case 2 -> U_UNDER + (U_FRONT - U_UNDER) * s;
                 default -> U_FRONT + (1 - U_FRONT) * s;
             };
-            for (int j = 0; j <= ACROSS; j++) {
-                float edge = (j / (float) ACROSS - .5f) * 2, lateral = edge * half * (part == 3 ? 1 - FRONT_NARROW * s : 1);
-                int at = (row * (ACROSS + 1) + j) * 4;
+            for (int j = 0; j <= across; j++) {
+                float edge = (j / (float) across - .5f) * 2, lateral = edge * half * (part == 3 ? 1 - FRONT_NARROW * s : 1);
+                int at = row * stride + j * 4;
                 float cup = RISE * edge * edge;
                 if (part == 2) {
                     // under the body: the middle runs straight across between the back and front of the blade at the base; towards the
@@ -852,23 +868,23 @@ final class CareWearRenderer {
                 }
                 boolean back = part < 2;
                 // on the front the margins' rise fades towards the tip, so the tip stands as a point above the margins sloping to the flanks
-                float f = part == 0 ? LEAF_BACK + STALK * (1 - s) : Math.min(.48f, cup * (part == 3 ? 1 - s : 1) + (part == 1
+                float f = part == 0 ? LEAF_BACK + stalkHeight * (1 - s) : Math.min(.48f, cup * (part == 3 ? 1 - s : 1) + (part == 1
                         ? LEAF_BACK + (CUP_BASE - LEAF_BACK) * (float) Math.pow(s, BACK_EASE)
                         : CUP_BASE + (LEAF_FRONT - CUP_BASE) * (float) Math.pow(s, FRONT_EASE)));
-                float lift = base + CURL * (part == 3 ? FRONT_CURL : 1) * h * edge * edge + (part == 0 ? STALK_OUT * h * (1 - s) * (1 - s) : 0);
+                float lift = base + CURL * (part == 3 ? FRONT_CURL : 1) * h * edge * edge + (part == 0 ? stalkOut * h * (1 - s) * (1 - s) : 0);
                 leafPoint(back, f, lateral, lift, cx, cz, minY, h, skin, swollenBody, PT);
                 GRID[at] = PT[0]; GRID[at + 1] = PT[1]; GRID[at + 2] = PT[2]; GRID[at + 3] = f;
             }
         }
-        for (int i = 0; i < LEAF_ROWS; i++) {
-            boolean under = i >= STALK_ROWS + BACK_ROWS && i < STALK_ROWS + BACK_ROWS + UNDER_ROWS;
-            for (int j = 0; j < ACROSS; j++) {
-                int c00 = (i * (ACROSS + 1) + j) * 4, c10 = ((i + 1) * (ACROSS + 1) + j) * 4, c11 = c10 + 4, c01 = c00 + 4;
+        for (int i = 0; i < rows; i++) {
+            boolean under = i >= backEnd && i < underEnd;
+            for (int j = 0; j < across; j++) {
+                int c00 = i * stride + j * 4, c10 = c00 + stride, c11 = c10 + 4, c01 = c00 + 4;
                 float mx = (GRID[c00] + GRID[c11]) / 2 - cx, mz = (GRID[c00 + 2] + GRID[c11 + 2]) / 2 - cz, ml = (float) Math.sqrt(mx * mx + mz * mz) + 1e-6f;
-                float side = under ? Math.abs((j + .5f) / ACROSS - .5f) * 2 : 1;
+                float side = under ? Math.abs((j + .5f) / across - .5f) * 2 : 1;
                 float nx = mx / ml * side, ny = -(1 - side), nz = mz / ml * side, u0 = along[i], u1 = along[i + 1];
                 float midF = (GRID[c00 + 3] + GRID[c11 + 3]) / 2, cell = STAGE_V * Math.min(LAST_STAGE, stage) + (midF < soilHeight(soil) ? STAINED_V : 0);
-                float v0 = cell + CELL_V * j / ACROSS, v1 = cell + CELL_V * (j + 1) / ACROSS;
+                float v0 = cell + CELL_V * j / across, v1 = cell + CELL_V * (j + 1) / across;
                 gridVertex(b, pose, c00, u0, v0, light, overlay, nx, ny, nz, soil);
                 gridVertex(b, pose, c10, u1, v0, light, overlay, nx, ny, nz, soil);
                 gridVertex(b, pose, c11, u1, v1, light, overlay, nx, ny, nz, soil);
