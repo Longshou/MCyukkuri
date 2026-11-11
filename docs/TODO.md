@@ -52,6 +52,7 @@
 - **服务端检查校准中查到的真实问题**：未做（冒烟自查，非验收；分支 243503a7e 与主线 0c830e89b 本地组装，CI 运行号未核实；原始日志 `.local/smoke/instance-66f8d417c231`、`instance-23f142ac8cf9`）。
   - 口部库存守恒（主线）：birth_nest_safe-536 亲油 `4715eefd` t3428777 喂食因幼体睡觉中断仍叼 1 份草，觅食接管后 t3428816 口中两份，t3428859 才吞一份。完成：进食、准备、拾取与中断归还共用同一口部占用，物品可见且守恒。
   - `birth_nest_safe` 喂食接近卡住：birth_nest_safe-9 幼体 `7a26ca55` 等 600 tick，照护者 `2d450150` t116101 `reason=stalled retries=0 stalled=51 bodyContacts=0`，t116430 才交付。完成：真实抵达并交付，失败按阻塞退出或改变条件。
+  - `kid_boat_play` 靠岸反复被拒（主线）：打雷回舱之后亲油靠岸，同一个体数千次 `hop shore stand refused reason=hop_arc`、`exit refused … NO_ROOM detail=turn:riders`、`NO_SUPPORT detail=takeoff_support`（[1c7e69755](https://github.com/Longshou/MCyukkuri/commit/1c7e69755) 本地组装，冒烟 8 次 5 次，`.local/smoke/instance-8ba30475ef08`）。完成：靠岸失败后换条件（换岸点、转帽船、让乘员先下）或放弃，不重复同一拒绝。
   - `hat_crowd` 初态位置跳变：hat_crowd-21 幼体 `9e710557` t152265–152266 帽内局部位置未变、世界位置从帽心跳到帽沿 0.82 格。完成：初态／重载后位置权威与显示一致。
   - `shake_capsize` 搬起时幼体突抬：shake_capsize-173 `5402a6f7` t1124659–1124660 承载者几乎不动、幼体抬高 0.30 格（尚无画面确认）。完成：搬起放下接触连续。
   - `hat_crowd` 救起又放回水里（主线）：hat_crowd-548 亲油 `72d7d4e6` t3465486 `rescue end result=EXHAUSTED … reason=DROPPED`，幼体 `7670a98f` t3465525、3465585 溺水伤 3→2→1。完成：救幼放到真实安全承托，保留容量不足与路径阻塞的后果。
