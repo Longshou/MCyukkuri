@@ -75,7 +75,7 @@ def outputs():
         elif name == 'cheek_puff':
             # This atlas has a separately authored mouth. Keep it and recolour the eyes.
             files[target] = png(target.read_bytes())
-        elif target.stem in selection['legacy_faces']:
+        elif target.stem in selection['legacy_faces'] or target.stem.startswith('remains_'):
             # Derived emotions and remains have their own exporters. Their source
             # atlases already use Alice's palette; this exporter does not own them.
             continue

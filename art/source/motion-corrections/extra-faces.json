@@ -8,49 +8,49 @@
       "dazed": {
         "source": "standards/yukkuri-library/assembled/reimu/textures/blank_confused.png",
         "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu/dazed.png",
-        "sha256": "a60af5a8b9faa5f09e52b9c36be19b2b99ec43221c1465222a313a90556ee34d"
+        "sha256": "9a52d55b723a15159052dc07c644ea34f7e659e32acc49463f9844de1634d7b0"
       }
     },
     "marisa": {
       "dazed": {
         "source": "standards/yukkuri-library/assembled/marisa/textures/blank_confused.png",
         "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa/dazed.png",
-        "sha256": "91ede6f4349b4b3dc033c729b126129f0c58474ede38f3ee6c2a0dd6008d738e"
+        "sha256": "bcdc519c94bb3e4a2966fbd16a724eb0c0cad38b6a6ab8b9b95d81919d5f98d1"
       }
     },
     "alice": {
       "dazed": {
         "source": "standards/yukkuri-library/assembled/alice/textures/blank_confused.png",
         "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/alice/dazed.png",
-        "sha256": "2beb3aac5311ae0bf4a67d8a2aac5d3ed50678a30edbf345b6071a0ddfd61396"
+        "sha256": "e9b371f6d812f844dec3c178a6c3ad39c6d227fb2c9d6d13b0f257d2ea7c2e7a"
       }
     },
     "chen": {
       "dazed": {
         "source": "standards/yukkuri-library/assembled/chen/textures/blank_confused.png",
         "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/chen/dazed.png",
-        "sha256": "300ebf5977ac5855debf7f571da8e129b76833041ca9dd2caf26b118fea4fa30"
+        "sha256": "f995053afcc2731737ed1121c44c1310d23a89482fd1e6d7c383eda5e82e1eec"
       }
     },
     "patchouli": {
       "dazed": {
         "source": "standards/yukkuri-library/assembled/patchouli/textures/blank_confused.png",
         "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/patchouli/dazed.png",
-        "sha256": "bdb1111c6438da42d432db7ce140107ab93c5cd5986eb9543d515c86f5595302"
+        "sha256": "53de04dd8cddf5192061b9eb8c9824f5a4299a844af52fe8172ba71f8cc15bc1"
       }
     },
     "marisa_tsumuri": {
       "dazed": {
         "source": "standards/yukkuri-library/assembled/marisa_tsumuri/textures/blank_confused.png",
         "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_tsumuri/dazed.png",
-        "sha256": "187158a5a039e06a90034efb8ecd605d58b5648b352e0e4f033750a2ff856b81"
+        "sha256": "a1169fad9b5e1b0c0eacb58d08cc8613fba0b6b49c030d257e9bc659e163fe2b"
       }
     },
     "reimu_wasa": {
       "dazed": {
         "source": "standards/yukkuri-library/assembled/reimu/textures/blank_confused.png",
         "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_wasa/dazed.png",
-        "sha256": "a60af5a8b9faa5f09e52b9c36be19b2b99ec43221c1465222a313a90556ee34d"
+        "sha256": "9a52d55b723a15159052dc07c644ea34f7e659e32acc49463f9844de1634d7b0"
       }
     }
   }

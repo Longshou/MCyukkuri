@@ -2,17 +2,19 @@
 
 Frames go to <previews>/sukkiri-plan/strips/, the page to <previews>/sukkiri-plan/index.html. Faces and clips are the
 exported runtime ones (tools/author_sukkiri_faces.py, motions/variants/lore recipe family `sukkiri`). The "before"
-frames (long tongue, first-round drafts, old organs) are strips saved from earlier renders and are only re-laid.
+frames of the long tongue are strips saved from the proposal round and are only re-laid; the organs compare against
+the main line before this package (--before).
 
     python standards/yukkuri-library/drafts/sukkiri/page.py [--skip-render]
 """
 from pathlib import Path
 import argparse, os, shutil, subprocess, sys
+from functools import lru_cache
 
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[3]
 sys.path.insert(0, str(ROOT/'scripts'))
-from preview import SHARED, sheet  # noqa: E402
+from preview import SHARED, sheet, read as read_json  # noqa: E402
 from PIL import Image  # noqa: E402
 
 OUT = SHARED/'.local/previews/sukkiri-plan'
@@ -52,13 +54,14 @@ CLIPS = [
     ('clip-manic', 'alice', 'sukkiri_after_manic', [0.6, 0.7, 3.2, 5.0], ['咯咯抖·右', '咯咯抖·左', '再一阵', '平静'], None),
     ('clip-tender', 'reimu', 'sukkiri_after_tender', [0.6, 1.8, 3.0], ['失神晃', '失神晃', '温柔满足'], None),
 ]
+ORGAN_BEFORE = '13d758f5a'  # main line before this package
 GAME = 72  # face frame shrunk to roughly how large the head reads at a few blocks in game
 REFS = {'EH27-007.jpg': 'ehentai/images/EH27/007.jpg', 'EH17-002.webp': 'ehentai/images/EH17/002.webp',
         'M02-003.png': 'images/M02/003-9a21620b.png', 'EH16-002.webp': 'ehentai/images/EH16/002.webp',
         'EH06-002.webp': 'ehentai/images/EH06/002.webp'}
 
 
-def strip(topic, model, times, face=None, clip='idle', views=((0, 5),), size=(400, 400), partner=None):
+def strip(topic, model, times, face=None, clip='idle', views=((0, 5),), size=(400, 400), partner=None, before=None):
     command = [sys.executable, str(ROOT/'scripts/preview.py'), 'strip', topic, '--model', model, '--clip', clip,
                '--size', *map(str, size), '--times', ','.join(f'{t:g}s' for t in times)]
     for az, el in views:
@@ -67,6 +70,8 @@ def strip(topic, model, times, face=None, clip='idle', views=((0, 5),), size=(40
         command += ['--face', face]
     if partner:
         command += ['--partner', partner[0], '--partner-offset', *map(str, partner[1])]
+    if before:
+        command += ['--before', before]
     subprocess.run(command, check=True, env={**os.environ, 'MCYUKKURI_PREVIEWS': str(STRIPS), 'PYTHONUTF8': '1'},
                    stdout=subprocess.DEVNULL)
 
@@ -89,14 +94,30 @@ def with_game_size(image):
     return out
 
 
+@lru_cache(None)
+def corrections():
+    return read_json(ROOT/'src/main/resources/assets/mcyukkuri/yukkuri_presentation/motion_corrections.json')
+
+
+def clip_face(model, clip, t):
+    spans = corrections()['models'][model]['clips'][clip]['expression_spans']
+    return next(face for start, end, face in spans if start <= t < end)
+
+
 def render():
     wanted = {(m, f) for m in MODELS for f in NEW} | {(m, f) for _, m, row in SEQUENCES for _, f in row}
     for model, face in sorted(wanted):
         strip(f'final-{model}-{face}', model, [0], face=face)
     for topic, model, clip, times, _, partner in CLIPS:
-        strip(topic, model, times, clip=clip, views=((90, 5), (30, 8)), size=(330, 330), partner=partner)
-    strip('organ-peni-new', 'reimu', [0.24], clip='anatomy_peni_extend', views=((0, -8), (60, -5), (90, 0)))
-    strip('organ-mamu-new', 'reimu', [0.24], clip='anatomy_mamu_extend', views=((180, -8), (140, -5), (90, 0)))
+        # The side row shares one camera, so the stroke reads as movement; the oblique row is one render per beat,
+        # so each frame wears the face the clip's own expression spans give at that time.
+        strip(f'{topic}-side', model, times, clip=clip, views=((90, 5),), size=(330, 330), partner=partner)
+        for i, t in enumerate(times):
+            strip(f'{topic}-{i}', model, [t], face=clip_face(model, clip, t), clip=clip, views=((30, 8),),
+                  size=(330, 330), partner=partner)
+    # Both organs sit on the lower front skin; compare against the main line before this package.
+    strip('organ-peni', 'reimu', [0.24], clip='anatomy_peni_extend', views=((0, -8), (60, -5), (90, 0)), before=ORGAN_BEFORE)
+    strip('organ-mamu', 'reimu', [0.24], clip='anatomy_mamu_extend', views=((0, -8), (40, -12), (0, -35)), before=ORGAN_BEFORE)
 
 
 def layout():
@@ -113,12 +134,11 @@ def layout():
         sheet([face_frame(model, f) for _, f in row], [f'{beat}：{LABEL[f]}' for beat, f in row],
               OUT/f'sequence-{i}.png', len(row), (310, 220))
     for topic, _, _, times, labels, _ in CLIPS:
-        sheet(frames(topic, 2*len(times)), [f'{label}·{view}' for view in ('侧面', '斜前') for label in labels],
+        side = frames(f'{topic}-side', len(times))
+        sheet(side+[frames(f'{topic}-{i}', 1)[0] for i in range(len(times))], [f'{label}·{view}' for view in ('侧面', '斜前') for label in labels],
               OUT/f'{topic}.png', len(times), (300, 300))
     for organ in ('peni', 'mamu'):
-        images = frames(f'organ-{organ}-old', 3)+frames(f'organ-{organ}-new', 3)
-        sheet(images, [f'{when}·{view}' for when in ('改前', '改后') for view in ('正', '斜', '侧')],
-              OUT/f'organ-{organ}.png', 3, (300, 300))
+        shutil.copy2(STRIPS/f'organ-{organ}'/'compare.png', OUT/f'organ-{organ}.png')
 
 
 def main():

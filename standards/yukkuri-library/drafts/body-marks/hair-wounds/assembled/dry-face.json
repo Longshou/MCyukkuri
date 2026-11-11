@@ -18156,6 +18156,1230 @@
         ]
       }
     },
+    "dry-face-reimu-sukkiri_dazed-1.png": {
+      "model": "reimu",
+      "expression": "sukkiri_dazed",
+      "grade": 1,
+      "scope": "whole_body",
+      "boxes": {
+        "face_eye_left": [
+          58,
+          0,
+          73,
+          12
+        ],
+        "face_eye_right": [
+          73,
+          0,
+          88,
+          12
+        ],
+        "face_brow_left": [
+          102,
+          0,
+          119,
+          6
+        ],
+        "face_brow_right": [
+          102,
+          6,
+          119,
+          12
+        ],
+        "face_mouth": [
+          0,
+          0,
+          28,
+          24
+        ],
+        "face_blush_left": [
+          88,
+          11,
+          98,
+          17
+        ],
+        "face_blush_right": [
+          58,
+          12,
+          68,
+          18
+        ],
+        "face_tear_left": [
+          28,
+          0,
+          43,
+          16
+        ],
+        "face_tear_right": [
+          43,
+          0,
+          58,
+          16
+        ],
+        "face_effect_mouth": [
+          88,
+          0,
+          102,
+          11
+        ]
+      }
+    },
+    "dry-face-reimu-sukkiri_dazed-2.png": {
+      "model": "reimu",
+      "expression": "sukkiri_dazed",
+      "grade": 2,
+      "scope": "whole_body",
+      "boxes": {
+        "face_eye_left": [
+          58,
+          0,
+          73,
+          12
+        ],
+        "face_eye_right": [
+          73,
+          0,
+          88,
+          12
+        ],
+        "face_brow_left": [
+          102,
+          0,
+          119,
+          6
+        ],
+        "face_brow_right": [
+          102,
+          6,
+          119,
+          12
+        ],
+        "face_mouth": [
+          0,
+          0,
+          28,
+          24
+        ],
+        "face_blush_left": [
+          88,
+          11,
+          98,
+          17
+        ],
+        "face_blush_right": [
+          58,
+          12,
+          68,
+          18
+        ],
+        "face_tear_left": [
+          28,
+          0,
+          43,
+          16
+        ],
+        "face_tear_right": [
+          43,
+          0,
+          58,
+          16
+        ],
+        "face_effect_mouth": [
+          88,
+          0,
+          102,
+          11
+        ]
+      }
+    },
+    "dry-face-reimu-sukkiri_dazed-3.png": {
+      "model": "reimu",
+      "expression": "sukkiri_dazed",
+      "grade": 3,
+      "scope": "whole_body",
+      "boxes": {
+        "face_eye_left": [
+          58,
+          0,
+          73,
+          12
+        ],
+        "face_eye_right": [
+          73,
+          0,
+          88,
+          12
+        ],
+        "face_brow_left": [
+          102,
+          0,
+          119,
+          6
+        ],
+        "face_brow_right": [
+          102,
+          6,
+          119,
+          12
+        ],
+        "face_mouth": [
+          0,
+          0,
+          28,
+          24
+        ],
+        "face_blush_left": [
+          88,
+          11,
+          98,
+          17
+        ],
+        "face_blush_right": [
+          58,
+          12,
+          68,
+          18
+        ],
+        "face_tear_left": [
+          28,
+          0,
+          43,
+          16
+        ],
+        "face_tear_right": [
+          43,
+          0,
+          58,
+          16
+        ],
+        "face_effect_mouth": [
+          88,
+          0,
+          102,
+          11
+        ]
+      }
+    },
+    "dry-face-reimu-sukkiri_grin-1.png": {
+      "model": "reimu",
+      "expression": "sukkiri_grin",
+      "grade": 1,
+      "scope": "whole_body",
+      "boxes": {
+        "face_eye_left": [
+          58,
+          0,
+          73,
+          12
+        ],
+        "face_eye_right": [
+          73,
+          0,
+          88,
+          12
+        ],
+        "face_brow_left": [
+          102,
+          0,
+          119,
+          6
+        ],
+        "face_brow_right": [
+          102,
+          6,
+          119,
+          12
+        ],
+        "face_mouth": [
+          0,
+          0,
+          28,
+          24
+        ],
+        "face_blush_left": [
+          88,
+          11,
+          98,
+          17
+        ],
+        "face_blush_right": [
+          58,
+          12,
+          68,
+          18
+        ],
+        "face_tear_left": [
+          28,
+          0,
+          43,
+          16
+        ],
+        "face_tear_right": [
+          43,
+          0,
+          58,
+          16
+        ],
+        "face_effect_mouth": [
+          88,
+          0,
+          102,
+          11
+        ]
+      }
+    },
+    "dry-face-reimu-sukkiri_grin-2.png": {
+      "model": "reimu",
+      "expression": "sukkiri_grin",
+      "grade": 2,
+      "scope": "whole_body",
+      "boxes": {
+        "face_eye_left": [
+          58,
+          0,
+          73,
+          12
+        ],
+        "face_eye_right": [
+          73,
+          0,
+          88,
+          12
+        ],
+        "face_brow_left": [
+          102,
+          0,
+          119,
+          6
+        ],
+        "face_brow_right": [
+          102,
+          6,
+          119,
+          12
+        ],
+        "face_mouth": [
+          0,
+          0,
+          28,
+          24
+        ],
+        "face_blush_left": [
+          88,
+          11,
+          98,
+          17
+        ],
+        "face_blush_right": [
+          58,
+          12,
+          68,
+          18
+        ],
+        "face_tear_left": [
+          28,
+          0,
+          43,
+          16
+        ],
+        "face_tear_right": [
+          43,
+          0,
+          58,
+          16
+        ],
+        "face_effect_mouth": [
+          88,
+          0,
+          102,
+          11
+        ]
+      }
+    },
+    "dry-face-reimu-sukkiri_grin-3.png": {
+      "model": "reimu",
+      "expression": "sukkiri_grin",
+      "grade": 3,
+      "scope": "whole_body",
+      "boxes": {
+        "face_eye_left": [
+          58,
+          0,
+          73,
+          12
+        ],
+        "face_eye_right": [
+          73,
+          0,
+          88,
+          12
+        ],
+        "face_brow_left": [
+          102,
+          0,
+          119,
+          6
+        ],
+        "face_brow_right": [
+          102,
+          6,
+          119,
+          12
+        ],
+        "face_mouth": [
+          0,
+          0,
+          28,
+          24
+        ],
+        "face_blush_left": [
+          88,
+          11,
+          98,
+          17
+        ],
+        "face_blush_right": [
+          58,
+          12,
+          68,
+          18
+        ],
+        "face_tear_left": [
+          28,
+          0,
+          43,
+          16
+        ],
+        "face_tear_right": [
+          43,
+          0,
+          58,
+          16
+        ],
+        "face_effect_mouth": [
+          88,
+          0,
+          102,
+          11
+        ]
+      }
+    },
+    "dry-face-reimu-sukkiri_manic-1.png": {
+      "model": "reimu",
+      "expression": "sukkiri_manic",
+      "grade": 1,
+      "scope": "whole_body",
+      "boxes": {
+        "face_eye_left": [
+          58,
+          0,
+          73,
+          12
+        ],
+        "face_eye_right": [
+          73,
+          0,
+          88,
+          12
+        ],
+        "face_brow_left": [
+          102,
+          0,
+          119,
+          6
+        ],
+        "face_brow_right": [
+          102,
+          6,
+          119,
+          12
+        ],
+        "face_mouth": [
+          0,
+          0,
+          28,
+          24
+        ],
+        "face_blush_left": [
+          88,
+          11,
+          98,
+          17
+        ],
+        "face_blush_right": [
+          58,
+          12,
+          68,
+          18
+        ],
+        "face_tear_left": [
+          28,
+          0,
+          43,
+          16
+        ],
+        "face_tear_right": [
+          43,
+          0,
+          58,
+          16
+        ],
+        "face_effect_mouth": [
+          88,
+          0,
+          102,
+          11
+        ]
+      }
+    },
+    "dry-face-reimu-sukkiri_manic-2.png": {
+      "model": "reimu",
+      "expression": "sukkiri_manic",
+      "grade": 2,
+      "scope": "whole_body",
+      "boxes": {
+        "face_eye_left": [
+          58,
+          0,
+          73,
+          12
+        ],
+        "face_eye_right": [
+          73,
+          0,
+          88,
+          12
+        ],
+        "face_brow_left": [
+          102,
+          0,
+          119,
+          6
+        ],
+        "face_brow_right": [
+          102,
+          6,
+          119,
+          12
+        ],
+        "face_mouth": [
+          0,
+          0,
+          28,
+          24
+        ],
+        "face_blush_left": [
+          88,
+          11,
+          98,
+          17
+        ],
+        "face_blush_right": [
+          58,
+          12,
+          68,
+          18
+        ],
+        "face_tear_left": [
+          28,
+          0,
+          43,
+          16
+        ],
+        "face_tear_right": [
+          43,
+          0,
+          58,
+          16
+        ],
+        "face_effect_mouth": [
+          88,
+          0,
+          102,
+          11
+        ]
+      }
+    },
+    "dry-face-reimu-sukkiri_manic-3.png": {
+      "model": "reimu",
+      "expression": "sukkiri_manic",
+      "grade": 3,
+      "scope": "whole_body",
+      "boxes": {
+        "face_eye_left": [
+          58,
+          0,
+          73,
+          12
+        ],
+        "face_eye_right": [
+          73,
+          0,
+          88,
+          12
+        ],
+        "face_brow_left": [
+          102,
+          0,
+          119,
+          6
+        ],
+        "face_brow_right": [
+          102,
+          6,
+          119,
+          12
+        ],
+        "face_mouth": [
+          0,
+          0,
+          28,
+          24
+        ],
+        "face_blush_left": [
+          88,
+          11,
+          98,
+          17
+        ],
+        "face_blush_right": [
+          58,
+          12,
+          68,
+          18
+        ],
+        "face_tear_left": [
+          28,
+          0,
+          43,
+          16
+        ],
+        "face_tear_right": [
+          43,
+          0,
+          58,
+          16
+        ],
+        "face_effect_mouth": [
+          88,
+          0,
+          102,
+          11
+        ]
+      }
+    },
+    "dry-face-reimu-sukkiri_smug-1.png": {
+      "model": "reimu",
+      "expression": "sukkiri_smug",
+      "grade": 1,
+      "scope": "whole_body",
+      "boxes": {
+        "face_eye_left": [
+          58,
+          0,
+          73,
+          12
+        ],
+        "face_eye_right": [
+          73,
+          0,
+          88,
+          12
+        ],
+        "face_brow_left": [
+          102,
+          0,
+          119,
+          6
+        ],
+        "face_brow_right": [
+          102,
+          6,
+          119,
+          12
+        ],
+        "face_mouth": [
+          0,
+          0,
+          28,
+          24
+        ],
+        "face_blush_left": [
+          88,
+          11,
+          98,
+          17
+        ],
+        "face_blush_right": [
+          58,
+          12,
+          68,
+          18
+        ],
+        "face_tear_left": [
+          28,
+          0,
+          43,
+          16
+        ],
+        "face_tear_right": [
+          43,
+          0,
+          58,
+          16
+        ],
+        "face_effect_mouth": [
+          88,
+          0,
+          102,
+          11
+        ]
+      }
+    },
+    "dry-face-reimu-sukkiri_smug-2.png": {
+      "model": "reimu",
+      "expression": "sukkiri_smug",
+      "grade": 2,
+      "scope": "whole_body",
+      "boxes": {
+        "face_eye_left": [
+          58,
+          0,
+          73,
+          12
+        ],
+        "face_eye_right": [
+          73,
+          0,
+          88,
+          12
+        ],
+        "face_brow_left": [
+          102,
+          0,
+          119,
+          6
+        ],
+        "face_brow_right": [
+          102,
+          6,
+          119,
+          12
+        ],
+        "face_mouth": [
+          0,
+          0,
+          28,
+          24
+        ],
+        "face_blush_left": [
+          88,
+          11,
+          98,
+          17
+        ],
+        "face_blush_right": [
+          58,
+          12,
+          68,
+          18
+        ],
+        "face_tear_left": [
+          28,
+          0,
+          43,
+          16
+        ],
+        "face_tear_right": [
+          43,
+          0,
+          58,
+          16
+        ],
+        "face_effect_mouth": [
+          88,
+          0,
+          102,
+          11
+        ]
+      }
+    },
+    "dry-face-reimu-sukkiri_smug-3.png": {
+      "model": "reimu",
+      "expression": "sukkiri_smug",
+      "grade": 3,
+      "scope": "whole_body",
+      "boxes": {
+        "face_eye_left": [
+          58,
+          0,
+          73,
+          12
+        ],
+        "face_eye_right": [
+          73,
+          0,
+          88,
+          12
+        ],
+        "face_brow_left": [
+          102,
+          0,
+          119,
+          6
+        ],
+        "face_brow_right": [
+          102,
+          6,
+          119,
+          12
+        ],
+        "face_mouth": [
+          0,
+          0,
+          28,
+          24
+        ],
+        "face_blush_left": [
+          88,
+          11,
+          98,
+          17
+        ],
+        "face_blush_right": [
+          58,
+          12,
+          68,
+          18
+        ],
+        "face_tear_left": [
+          28,
+          0,
+          43,
+          16
+        ],
+        "face_tear_right": [
+          43,
+          0,
+          58,
+          16
+        ],
+        "face_effect_mouth": [
+          88,
+          0,
+          102,
+          11
+        ]
+      }
+    },
+    "dry-face-reimu-sukkiri_squeeze-1.png": {
+      "model": "reimu",
+      "expression": "sukkiri_squeeze",
+      "grade": 1,
+      "scope": "whole_body",
+      "boxes": {
+        "face_eye_left": [
+          58,
+          0,
+          73,
+          12
+        ],
+        "face_eye_right": [
+          73,
+          0,
+          88,
+          12
+        ],
+        "face_brow_left": [
+          102,
+          0,
+          119,
+          6
+        ],
+        "face_brow_right": [
+          102,
+          6,
+          119,
+          12
+        ],
+        "face_mouth": [
+          0,
+          0,
+          28,
+          24
+        ],
+        "face_blush_left": [
+          88,
+          11,
+          98,
+          17
+        ],
+        "face_blush_right": [
+          58,
+          12,
+          68,
+          18
+        ],
+        "face_tear_left": [
+          28,
+          0,
+          43,
+          16
+        ],
+        "face_tear_right": [
+          43,
+          0,
+          58,
+          16
+        ],
+        "face_effect_mouth": [
+          88,
+          0,
+          102,
+          11
+        ]
+      }
+    },
+    "dry-face-reimu-sukkiri_squeeze-2.png": {
+      "model": "reimu",
+      "expression": "sukkiri_squeeze",
+      "grade": 2,
+      "scope": "whole_body",
+      "boxes": {
+        "face_eye_left": [
+          58,
+          0,
+          73,
+          12
+        ],
+        "face_eye_right": [
+          73,
+          0,
+          88,
+          12
+        ],
+        "face_brow_left": [
+          102,
+          0,
+          119,
+          6
+        ],
+        "face_brow_right": [
+          102,
+          6,
+          119,
+          12
+        ],
+        "face_mouth": [
+          0,
+          0,
+          28,
+          24
+        ],
+        "face_blush_left": [
+          88,
+          11,
+          98,
+          17
+        ],
+        "face_blush_right": [
+          58,
+          12,
+          68,
+          18
+        ],
+        "face_tear_left": [
+          28,
+          0,
+          43,
+          16
+        ],
+        "face_tear_right": [
+          43,
+          0,
+          58,
+          16
+        ],
+        "face_effect_mouth": [
+          88,
+          0,
+          102,
+          11
+        ]
+      }
+    },
+    "dry-face-reimu-sukkiri_squeeze-3.png": {
+      "model": "reimu",
+      "expression": "sukkiri_squeeze",
+      "grade": 3,
+      "scope": "whole_body",
+      "boxes": {
+        "face_eye_left": [
+          58,
+          0,
+          73,
+          12
+        ],
+        "face_eye_right": [
+          73,
+          0,
+          88,
+          12
+        ],
+        "face_brow_left": [
+          102,
+          0,
+          119,
+          6
+        ],
+        "face_brow_right": [
+          102,
+          6,
+          119,
+          12
+        ],
+        "face_mouth": [
+          0,
+          0,
+          28,
+          24
+        ],
+        "face_blush_left": [
+          88,
+          11,
+          98,
+          17
+        ],
+        "face_blush_right": [
+          58,
+          12,
+          68,
+          18
+        ],
+        "face_tear_left": [
+          28,
+          0,
+          43,
+          16
+        ],
+        "face_tear_right": [
+          43,
+          0,
+          58,
+          16
+        ],
+        "face_effect_mouth": [
+          88,
+          0,
+          102,
+          11
+        ]
+      }
+    },
+    "dry-face-reimu-sukkiri_tender-1.png": {
+      "model": "reimu",
+      "expression": "sukkiri_tender",
+      "grade": 1,
+      "scope": "whole_body",
+      "boxes": {
+        "face_eye_left": [
+          58,
+          0,
+          73,
+          12
+        ],
+        "face_eye_right": [
+          73,
+          0,
+          88,
+          12
+        ],
+        "face_brow_left": [
+          102,
+          0,
+          119,
+          6
+        ],
+        "face_brow_right": [
+          102,
+          6,
+          119,
+          12
+        ],
+        "face_mouth": [
+          0,
+          0,
+          28,
+          24
+        ],
+        "face_blush_left": [
+          88,
+          11,
+          98,
+          17
+        ],
+        "face_blush_right": [
+          58,
+          12,
+          68,
+          18
+        ],
+        "face_tear_left": [
+          28,
+          0,
+          43,
+          16
+        ],
+        "face_tear_right": [
+          43,
+          0,
+          58,
+          16
+        ],
+        "face_effect_mouth": [
+          88,
+          0,
+          102,
+          11
+        ]
+      }
+    },
+    "dry-face-reimu-sukkiri_tender-2.png": {
+      "model": "reimu",
+      "expression": "sukkiri_tender",
+      "grade": 2,
+      "scope": "whole_body",
+      "boxes": {
+        "face_eye_left": [
+          58,
+          0,
+          73,
+          12
+        ],
+        "face_eye_right": [
+          73,
+          0,
+          88,
+          12
+        ],
+        "face_brow_left": [
+          102,
+          0,
+          119,
+          6
+        ],
+        "face_brow_right": [
+          102,
+          6,
+          119,
+          12
+        ],
+        "face_mouth": [
+          0,
+          0,
+          28,
+          24
+        ],
+        "face_blush_left": [
+          88,
+          11,
+          98,
+          17
+        ],
+        "face_blush_right": [
+          58,
+          12,
+          68,
+          18
+        ],
+        "face_tear_left": [
+          28,
+          0,
+          43,
+          16
+        ],
+        "face_tear_right": [
+          43,
+          0,
+          58,
+          16
+        ],
+        "face_effect_mouth": [
+          88,
+          0,
+          102,
+          11
+        ]
+      }
+    },
+    "dry-face-reimu-sukkiri_tender-3.png": {
+      "model": "reimu",
+      "expression": "sukkiri_tender",
+      "grade": 3,
+      "scope": "whole_body",
+      "boxes": {
+        "face_eye_left": [
+          58,
+          0,
+          73,
+          12
+        ],
+        "face_eye_right": [
+          73,
+          0,
+          88,
+          12
+        ],
+        "face_brow_left": [
+          102,
+          0,
+          119,
+          6
+        ],
+        "face_brow_right": [
+          102,
+          6,
+          119,
+          12
+        ],
+        "face_mouth": [
+          0,
+          0,
+          28,
+          24
+        ],
+        "face_blush_left": [
+          88,
+          11,
+          98,
+          17
+        ],
+        "face_blush_right": [
+          58,
+          12,
+          68,
+          18
+        ],
+        "face_tear_left": [
+          28,
+          0,
+          43,
+          16
+        ],
+        "face_tear_right": [
+          43,
+          0,
+          58,
+          16
+        ],
+        "face_effect_mouth": [
+          88,
+          0,
+          102,
+          11
+        ]
+      }
+    },
     "dry-face-reimu-surprise-1.png": {
       "model": "reimu",
       "expression": "surprise",
@@ -39919,6 +41143,1230 @@
     "dry-face-marisa-squeezed_frown_b-3.png": {
       "model": "marisa",
       "expression": "squeezed_frown_b",
+      "grade": 3,
+      "scope": "whole_body",
+      "boxes": {
+        "face_eye_left": [
+          58,
+          0,
+          73,
+          12
+        ],
+        "face_eye_right": [
+          73,
+          0,
+          88,
+          12
+        ],
+        "face_brow_left": [
+          102,
+          0,
+          119,
+          6
+        ],
+        "face_brow_right": [
+          102,
+          6,
+          119,
+          12
+        ],
+        "face_mouth": [
+          0,
+          0,
+          28,
+          24
+        ],
+        "face_blush_left": [
+          88,
+          11,
+          98,
+          17
+        ],
+        "face_blush_right": [
+          58,
+          12,
+          68,
+          18
+        ],
+        "face_tear_left": [
+          28,
+          0,
+          43,
+          16
+        ],
+        "face_tear_right": [
+          43,
+          0,
+          58,
+          16
+        ],
+        "face_effect_mouth": [
+          88,
+          0,
+          102,
+          11
+        ]
+      }
+    },
+    "dry-face-marisa-sukkiri_dazed-1.png": {
+      "model": "marisa",
+      "expression": "sukkiri_dazed",
+      "grade": 1,
+      "scope": "whole_body",
+      "boxes": {
+        "face_eye_left": [
+          58,
+          0,
+          73,
+          12
+        ],
+        "face_eye_right": [
+          73,
+          0,
+          88,
+          12
+        ],
+        "face_brow_left": [
+          102,
+          0,
+          119,
+          6
+        ],
+        "face_brow_right": [
+          102,
+          6,
+          119,
+          12
+        ],
+        "face_mouth": [
+          0,
+          0,
+          28,
+          24
+        ],
+        "face_blush_left": [
+          88,
+          11,
+          98,
+          17
+        ],
+        "face_blush_right": [
+          58,
+          12,
+          68,
+          18
+        ],
+        "face_tear_left": [
+          28,
+          0,
+          43,
+          16
+        ],
+        "face_tear_right": [
+          43,
+          0,
+          58,
+          16
+        ],
+        "face_effect_mouth": [
+          88,
+          0,
+          102,
+          11
+        ]
+      }
+    },
+    "dry-face-marisa-sukkiri_dazed-2.png": {
+      "model": "marisa",
+      "expression": "sukkiri_dazed",
+      "grade": 2,
+      "scope": "whole_body",
+      "boxes": {
+        "face_eye_left": [
+          58,
+          0,
+          73,
+          12
+        ],
+        "face_eye_right": [
+          73,
+          0,
+          88,
+          12
+        ],
+        "face_brow_left": [
+          102,
+          0,
+          119,
+          6
+        ],
+        "face_brow_right": [
+          102,
+          6,
+          119,
+          12
+        ],
+        "face_mouth": [
+          0,
+          0,
+          28,
+          24
+        ],
+        "face_blush_left": [
+          88,
+          11,
+          98,
+          17
+        ],
+        "face_blush_right": [
+          58,
+          12,
+          68,
+          18
+        ],
+        "face_tear_left": [
+          28,
+          0,
+          43,
+          16
+        ],
+        "face_tear_right": [
+          43,
+          0,
+          58,
+          16
+        ],
+        "face_effect_mouth": [
+          88,
+          0,
+          102,
+          11
+        ]
+      }
+    },
+    "dry-face-marisa-sukkiri_dazed-3.png": {
+      "model": "marisa",
+      "expression": "sukkiri_dazed",
+      "grade": 3,
+      "scope": "whole_body",
+      "boxes": {
+        "face_eye_left": [
+          58,
+          0,
+          73,
+          12
+        ],
+        "face_eye_right": [
+          73,
+          0,
+          88,
+          12
+        ],
+        "face_brow_left": [
+          102,
+          0,
+          119,
+          6
+        ],
+        "face_brow_right": [
+          102,
+          6,
+          119,
+          12
+        ],
+        "face_mouth": [
+          0,
+          0,
+          28,
+          24
+        ],
+        "face_blush_left": [
+          88,
+          11,
+          98,
+          17
+        ],
+        "face_blush_right": [
+          58,
+          12,
+          68,
+          18
+        ],
+        "face_tear_left": [
+          28,
+          0,
+          43,
+          16
+        ],
+        "face_tear_right": [
+          43,
+          0,
+          58,
+          16
+        ],
+        "face_effect_mouth": [
+          88,
+          0,
+          102,
+          11
+        ]
+      }
+    },
+    "dry-face-marisa-sukkiri_grin-1.png": {
+      "model": "marisa",
+      "expression": "sukkiri_grin",
+      "grade": 1,
+      "scope": "whole_body",
+      "boxes": {
+        "face_eye_left": [
+          58,
+          0,
+          73,
+          12
+        ],
+        "face_eye_right": [
+          73,
+          0,
+          88,
+          12
+        ],
+        "face_brow_left": [
+          102,
+          0,
+          119,
+          6
+        ],
+        "face_brow_right": [
+          102,
+          6,
+          119,
+          12
+        ],
+        "face_mouth": [
+          0,
+          0,
+          28,
+          24
+        ],
+        "face_blush_left": [
+          88,
+          11,
+          98,
+          17
+        ],
+        "face_blush_right": [
+          58,
+          12,
+          68,
+          18
+        ],
+        "face_tear_left": [
+          28,
+          0,
+          43,
+          16
+        ],
+        "face_tear_right": [
+          43,
+          0,
+          58,
+          16
+        ],
+        "face_effect_mouth": [
+          88,
+          0,
+          102,
+          11
+        ]
+      }
+    },
+    "dry-face-marisa-sukkiri_grin-2.png": {
+      "model": "marisa",
+      "expression": "sukkiri_grin",
+      "grade": 2,
+      "scope": "whole_body",
+      "boxes": {
+        "face_eye_left": [
+          58,
+          0,
+          73,
+          12
+        ],
+        "face_eye_right": [
+          73,
+          0,
+          88,
+          12
+        ],
+        "face_brow_left": [
+          102,
+          0,
+          119,
+          6
+        ],
+        "face_brow_right": [
+          102,
+          6,
+          119,
+          12
+        ],
+        "face_mouth": [
+          0,
+          0,
+          28,
+          24
+        ],
+        "face_blush_left": [
+          88,
+          11,
+          98,
+          17
+        ],
+        "face_blush_right": [
+          58,
+          12,
+          68,
+          18
+        ],
+        "face_tear_left": [
+          28,
+          0,
+          43,
+          16
+        ],
+        "face_tear_right": [
+          43,
+          0,
+          58,
+          16
+        ],
+        "face_effect_mouth": [
+          88,
+          0,
+          102,
+          11
+        ]
+      }
+    },
+    "dry-face-marisa-sukkiri_grin-3.png": {
+      "model": "marisa",
+      "expression": "sukkiri_grin",
+      "grade": 3,
+      "scope": "whole_body",
+      "boxes": {
+        "face_eye_left": [
+          58,
+          0,
+          73,
+          12
+        ],
+        "face_eye_right": [
+          73,
+          0,
+          88,
+          12
+        ],
+        "face_brow_left": [
+          102,
+          0,
+          119,
+          6
+        ],
+        "face_brow_right": [
+          102,
+          6,
+          119,
+          12
+        ],
+        "face_mouth": [
+          0,
+          0,
+          28,
+          24
+        ],
+        "face_blush_left": [
+          88,
+          11,
+          98,
+          17
+        ],
+        "face_blush_right": [
+          58,
+          12,
+          68,
+          18
+        ],
+        "face_tear_left": [
+          28,
+          0,
+          43,
+          16
+        ],
+        "face_tear_right": [
+          43,
+          0,
+          58,
+          16
+        ],
+        "face_effect_mouth": [
+          88,
+          0,
+          102,
+          11
+        ]
+      }
+    },
+    "dry-face-marisa-sukkiri_manic-1.png": {
+      "model": "marisa",
+      "expression": "sukkiri_manic",
+      "grade": 1,
+      "scope": "whole_body",
+      "boxes": {
+        "face_eye_left": [
+          58,
+          0,
+          73,
+          12
+        ],
+        "face_eye_right": [
+          73,
+          0,
+          88,
+          12
+        ],
+        "face_brow_left": [
+          102,
+          0,
+          119,
+          6
+        ],
+        "face_brow_right": [
+          102,
+          6,
+          119,
+          12
+        ],
+        "face_mouth": [
+          0,
+          0,
+          28,
+          24
+        ],
+        "face_blush_left": [
+          88,
+          11,
+          98,
+          17
+        ],
+        "face_blush_right": [
+          58,
+          12,
+          68,
+          18
+        ],
+        "face_tear_left": [
+          28,
+          0,
+          43,
+          16
+        ],
+        "face_tear_right": [
+          43,
+          0,
+          58,
+          16
+        ],
+        "face_effect_mouth": [
+          88,
+          0,
+          102,
+          11
+        ]
+      }
+    },
+    "dry-face-marisa-sukkiri_manic-2.png": {
+      "model": "marisa",
+      "expression": "sukkiri_manic",
+      "grade": 2,
+      "scope": "whole_body",
+      "boxes": {
+        "face_eye_left": [
+          58,
+          0,
+          73,
+          12
+        ],
+        "face_eye_right": [
+          73,
+          0,
+          88,
+          12
+        ],
+        "face_brow_left": [
+          102,
+          0,
+          119,
+          6
+        ],
+        "face_brow_right": [
+          102,
+          6,
+          119,
+          12
+        ],
+        "face_mouth": [
+          0,
+          0,
+          28,
+          24
+        ],
+        "face_blush_left": [
+          88,
+          11,
+          98,
+          17
+        ],
+        "face_blush_right": [
+          58,
+          12,
+          68,
+          18
+        ],
+        "face_tear_left": [
+          28,
+          0,
+          43,
+          16
+        ],
+        "face_tear_right": [
+          43,
+          0,
+          58,
+          16
+        ],
+        "face_effect_mouth": [
+          88,
+          0,
+          102,
+          11
+        ]
+      }
+    },
+    "dry-face-marisa-sukkiri_manic-3.png": {
+      "model": "marisa",
+      "expression": "sukkiri_manic",
+      "grade": 3,
+      "scope": "whole_body",
+      "boxes": {
+        "face_eye_left": [
+          58,
+          0,
+          73,
+          12
+        ],
+        "face_eye_right": [
+          73,
+          0,
+          88,
+          12
+        ],
+        "face_brow_left": [
+          102,
+          0,
+          119,
+          6
+        ],
+        "face_brow_right": [
+          102,
+          6,
+          119,
+          12
+        ],
+        "face_mouth": [
+          0,
+          0,
+          28,
+          24
+        ],
+        "face_blush_left": [
+          88,
+          11,
+          98,
+          17
+        ],
+        "face_blush_right": [
+          58,
+          12,
+          68,
+          18
+        ],
+        "face_tear_left": [
+          28,
+          0,
+          43,
+          16
+        ],
+        "face_tear_right": [
+          43,
+          0,
+          58,
+          16
+        ],
+        "face_effect_mouth": [
+          88,
+          0,
+          102,
+          11
+        ]
+      }
+    },
+    "dry-face-marisa-sukkiri_smug-1.png": {
+      "model": "marisa",
+      "expression": "sukkiri_smug",
+      "grade": 1,
+      "scope": "whole_body",
+      "boxes": {
+        "face_eye_left": [
+          58,
+          0,
+          73,
+          12
+        ],
+        "face_eye_right": [
+          73,
+          0,
+          88,
+          12
+        ],
+        "face_brow_left": [
+          102,
+          0,
+          119,
+          6
+        ],
+        "face_brow_right": [
+          102,
+          6,
+          119,
+          12
+        ],
+        "face_mouth": [
+          0,
+          0,
+          28,
+          24
+        ],
+        "face_blush_left": [
+          88,
+          11,
+          98,
+          17
+        ],
+        "face_blush_right": [
+          58,
+          12,
+          68,
+          18
+        ],
+        "face_tear_left": [
+          28,
+          0,
+          43,
+          16
+        ],
+        "face_tear_right": [
+          43,
+          0,
+          58,
+          16
+        ],
+        "face_effect_mouth": [
+          88,
+          0,
+          102,
+          11
+        ]
+      }
+    },
+    "dry-face-marisa-sukkiri_smug-2.png": {
+      "model": "marisa",
+      "expression": "sukkiri_smug",
+      "grade": 2,
+      "scope": "whole_body",
+      "boxes": {
+        "face_eye_left": [
+          58,
+          0,
+          73,
+          12
+        ],
+        "face_eye_right": [
+          73,
+          0,
+          88,
+          12
+        ],
+        "face_brow_left": [
+          102,
+          0,
+          119,
+          6
+        ],
+        "face_brow_right": [
+          102,
+          6,
+          119,
+          12
+        ],
+        "face_mouth": [
+          0,
+          0,
+          28,
+          24
+        ],
+        "face_blush_left": [
+          88,
+          11,
+          98,
+          17
+        ],
+        "face_blush_right": [
+          58,
+          12,
+          68,
+          18
+        ],
+        "face_tear_left": [
+          28,
+          0,
+          43,
+          16
+        ],
+        "face_tear_right": [
+          43,
+          0,
+          58,
+          16
+        ],
+        "face_effect_mouth": [
+          88,
+          0,
+          102,
+          11
+        ]
+      }
+    },
+    "dry-face-marisa-sukkiri_smug-3.png": {
+      "model": "marisa",
+      "expression": "sukkiri_smug",
+      "grade": 3,
+      "scope": "whole_body",
+      "boxes": {
+        "face_eye_left": [
+          58,
+          0,
+          73,
+          12
+        ],
+        "face_eye_right": [
+          73,
+          0,
+          88,
+          12
+        ],
+        "face_brow_left": [
+          102,
+          0,
+          119,
+          6
+        ],
+        "face_brow_right": [
+          102,
+          6,
+          119,
+          12
+        ],
+        "face_mouth": [
+          0,
+          0,
+          28,
+          24
+        ],
+        "face_blush_left": [
+          88,
+          11,
+          98,
+          17
+        ],
+        "face_blush_right": [
+          58,
+          12,
+          68,
+          18
+        ],
+        "face_tear_left": [
+          28,
+          0,
+          43,
+          16
+        ],
+        "face_tear_right": [
+          43,
+          0,
+          58,
+          16
+        ],
+        "face_effect_mouth": [
+          88,
+          0,
+          102,
+          11
+        ]
+      }
+    },
+    "dry-face-marisa-sukkiri_squeeze-1.png": {
+      "model": "marisa",
+      "expression": "sukkiri_squeeze",
+      "grade": 1,
+      "scope": "whole_body",
+      "boxes": {
+        "face_eye_left": [
+          58,
+          0,
+          73,
+          12
+        ],
+        "face_eye_right": [
+          73,
+          0,
+          88,
+          12
+        ],
+        "face_brow_left": [
+          102,
+          0,
+          119,
+          6
+        ],
+        "face_brow_right": [
+          102,
+          6,
+          119,
+          12
+        ],
+        "face_mouth": [
+          0,
+          0,
+          28,
+          24
+        ],
+        "face_blush_left": [
+          88,
+          11,
+          98,
+          17
+        ],
+        "face_blush_right": [
+          58,
+          12,
+          68,
+          18
+        ],
+        "face_tear_left": [
+          28,
+          0,
+          43,
+          16
+        ],
+        "face_tear_right": [
+          43,
+          0,
+          58,
+          16
+        ],
+        "face_effect_mouth": [
+          88,
+          0,
+          102,
+          11
+        ]
+      }
+    },
+    "dry-face-marisa-sukkiri_squeeze-2.png": {
+      "model": "marisa",
+      "expression": "sukkiri_squeeze",
+      "grade": 2,
+      "scope": "whole_body",
+      "boxes": {
+        "face_eye_left": [
+          58,
+          0,
+          73,
+          12
+        ],
+        "face_eye_right": [
+          73,
+          0,
+          88,
+          12
+        ],
+        "face_brow_left": [
+          102,
+          0,
+          119,
+          6
+        ],
+        "face_brow_right": [
+          102,
+          6,
+          119,
+          12
+        ],
+        "face_mouth": [
+          0,
+          0,
+          28,
+          24
+        ],
+        "face_blush_left": [
+          88,
+          11,
+          98,
+          17
+        ],
+        "face_blush_right": [
+          58,
+          12,
+          68,
+          18
+        ],
+        "face_tear_left": [
+          28,
+          0,
+          43,
+          16
+        ],
+        "face_tear_right": [
+          43,
+          0,
+          58,
+          16
+        ],
+        "face_effect_mouth": [
+          88,
+          0,
+          102,
+          11
+        ]
+      }
+    },
+    "dry-face-marisa-sukkiri_squeeze-3.png": {
+      "model": "marisa",
+      "expression": "sukkiri_squeeze",
+      "grade": 3,
+      "scope": "whole_body",
+      "boxes": {
+        "face_eye_left": [
+          58,
+          0,
+          73,
+          12
+        ],
+        "face_eye_right": [
+          73,
+          0,
+          88,
+          12
+        ],
+        "face_brow_left": [
+          102,
+          0,
+          119,
+          6
+        ],
+        "face_brow_right": [
+          102,
+          6,
+          119,
+          12
+        ],
+        "face_mouth": [
+          0,
+          0,
+          28,
+          24
+        ],
+        "face_blush_left": [
+          88,
+          11,
+          98,
+          17
+        ],
+        "face_blush_right": [
+          58,
+          12,
+          68,
+          18
+        ],
+        "face_tear_left": [
+          28,
+          0,
+          43,
+          16
+        ],
+        "face_tear_right": [
+          43,
+          0,
+          58,
+          16
+        ],
+        "face_effect_mouth": [
+          88,
+          0,
+          102,
+          11
+        ]
+      }
+    },
+    "dry-face-marisa-sukkiri_tender-1.png": {
+      "model": "marisa",
+      "expression": "sukkiri_tender",
+      "grade": 1,
+      "scope": "whole_body",
+      "boxes": {
+        "face_eye_left": [
+          58,
+          0,
+          73,
+          12
+        ],
+        "face_eye_right": [
+          73,
+          0,
+          88,
+          12
+        ],
+        "face_brow_left": [
+          102,
+          0,
+          119,
+          6
+        ],
+        "face_brow_right": [
+          102,
+          6,
+          119,
+          12
+        ],
+        "face_mouth": [
+          0,
+          0,
+          28,
+          24
+        ],
+        "face_blush_left": [
+          88,
+          11,
+          98,
+          17
+        ],
+        "face_blush_right": [
+          58,
+          12,
+          68,
+          18
+        ],
+        "face_tear_left": [
+          28,
+          0,
+          43,
+          16
+        ],
+        "face_tear_right": [
+          43,
+          0,
+          58,
+          16
+        ],
+        "face_effect_mouth": [
+          88,
+          0,
+          102,
+          11
+        ]
+      }
+    },
+    "dry-face-marisa-sukkiri_tender-2.png": {
+      "model": "marisa",
+      "expression": "sukkiri_tender",
+      "grade": 2,
+      "scope": "whole_body",
+      "boxes": {
+        "face_eye_left": [
+          58,
+          0,
+          73,
+          12
+        ],
+        "face_eye_right": [
+          73,
+          0,
+          88,
+          12
+        ],
+        "face_brow_left": [
+          102,
+          0,
+          119,
+          6
+        ],
+        "face_brow_right": [
+          102,
+          6,
+          119,
+          12
+        ],
+        "face_mouth": [
+          0,
+          0,
+          28,
+          24
+        ],
+        "face_blush_left": [
+          88,
+          11,
+          98,
+          17
+        ],
+        "face_blush_right": [
+          58,
+          12,
+          68,
+          18
+        ],
+        "face_tear_left": [
+          28,
+          0,
+          43,
+          16
+        ],
+        "face_tear_right": [
+          43,
+          0,
+          58,
+          16
+        ],
+        "face_effect_mouth": [
+          88,
+          0,
+          102,
+          11
+        ]
+      }
+    },
+    "dry-face-marisa-sukkiri_tender-3.png": {
+      "model": "marisa",
+      "expression": "sukkiri_tender",
       "grade": 3,
       "scope": "whole_body",
       "boxes": {
