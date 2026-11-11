@@ -18853,6 +18853,61 @@
         "hatless_monster"
       ],
       "basis": "项目原创：用户修正（2026-10-18）——认不出失饰个体的油库里会鄙视、嫌恶它；无头饰且重伤的活体被当作怪物。依讲堂帖 komicolle 40720 No.11518829/11518847 的失饰社会性抹杀与不识同类，措辞沿用已核读的种族口吻；非原版引文，仅字幕，尚未配音。"
+    },
+    {
+      "id": "reimu.adult.o_glass_wait",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "ガラスさん！ おやこが あうのを じゃましないでよ！ ゆっくち おちびちゃんを とおしてよ！",
+      "chinese": "玻璃先生！不要阻止亲油团聚哟！油库气地让小贝比酱过来哟！",
+      "events": [
+        "glass_wait"
+      ],
+      "basis": "P（项目原创）：隔玻璃唤子。亲油把玻璃当作能商量的对象，直说想团聚。"
+    },
+    {
+      "id": "reimu.juvenile.o_glass_child_answer",
+      "species": "reimu",
+      "age": "juvenile",
+      "japanese": "ゆーっ！ おやしゃん、きょきょだよ！",
+      "chinese": "油——！亲亲油，窝在介里哟！",
+      "events": [
+        "glass_child_answer"
+      ],
+      "basis": "P（项目原创）：隔玻璃回应。子油用亲昵称呼答亲油，当前呼唤可来自母油或父油。"
+    },
+    {
+      "id": "reimu.adult.o_give_up_search",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "おちびちゃん……ゆぅ……すーりすーり したいよぉ……おちびちゃん……さよなら……",
+      "chinese": "小贝比酱……油呜……好想跟你擦擦脸哟……小贝比酱……再见哟……",
+      "events": [
+        "give_up_search"
+      ],
+      "basis": "P（项目原创）：隔玻璃道别。想亲昵却碰不到，用停顿和反复呼唤表现不舍。"
+    },
+    {
+      "id": "marisa.adult.o_glass_ram",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "ガラスさん！ ゆっくち おとなしく どくんだぜ！",
+      "chinese": "玻璃先生！油库气地乖乖让开贼！",
+      "events": [
+        "glass_ram"
+      ],
+      "basis": "P（项目原创）：撞玻璃板前。亲油理直气壮地命令玻璃让开。"
+    },
+    {
+      "id": "marisa.baby.o_fed",
+      "species": "marisa",
+      "age": "baby",
+      "japanese": "ごはんしゃん！ むーちゃむーちゃ、しゃーわちぇー！",
+      "chinese": "饭先森！嚼嚼，好幸乎！",
+      "events": [
+        "fed"
+      ],
+      "basis": "P（项目原创）：赤油吃下一口后的满足反应，保留幼语和吃东西时含混的口吻。"
     }
   ]
 }

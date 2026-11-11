@@ -22038,6 +22038,66 @@
     "sound": ""
   },
   {
+    "id": "reimu.adult.o_glass_wait",
+    "key": "dialogue.mcyukkuri.original.reimu.adult.o_glass_wait",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "adult",
+    "events": [
+      "glass_wait"
+    ],
+    "ticks": 180,
+    "sound": ""
+  },
+  {
+    "id": "reimu.juvenile.o_glass_child_answer",
+    "key": "dialogue.mcyukkuri.original.reimu.juvenile.o_glass_child_answer",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "juvenile",
+    "events": [
+      "glass_child_answer"
+    ],
+    "ticks": 87,
+    "sound": ""
+  },
+  {
+    "id": "reimu.adult.o_give_up_search",
+    "key": "dialogue.mcyukkuri.original.reimu.adult.o_give_up_search",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "adult",
+    "events": [
+      "give_up_search"
+    ],
+    "ticks": 175,
+    "sound": ""
+  },
+  {
+    "id": "marisa.adult.o_glass_ram",
+    "key": "dialogue.mcyukkuri.original.marisa.adult.o_glass_ram",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "adult",
+    "events": [
+      "glass_ram"
+    ],
+    "ticks": 111,
+    "sound": ""
+  },
+  {
+    "id": "marisa.baby.o_fed",
+    "key": "dialogue.mcyukkuri.original.marisa.baby.o_fed",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "baby",
+    "events": [
+      "fed"
+    ],
+    "ticks": 115,
+    "sound": ""
+  },
+  {
     "id": "reimu.baby.s_hello",
     "key": "dialogue.mcyukkuri.original.reimu.baby.s_hello",
     "origin": "project-original",

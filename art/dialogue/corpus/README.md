@@ -1,6 +1,6 @@
 # 分轴语料库
 
-本目录是后续对白制作的机器可读输入，**尚未接入** `build_speech_tiers.py`、运行时选句或打包资源。现有 `speech-tiers.json`、行 ID 和生成输出保持不变。
+本目录是对白制作的机器可读输入。标记 `shared_runtime` 的情境句由导出器直接打包，其余条目供人工选句和写作参考。
 
 ## 文件与记录
 
@@ -18,7 +18,7 @@
 
 `situation.json.events[]` 的 `event` 必须存在于 `speech-tiers.json`；已有行通过同一 `event` 直接查找。顶层 `situation.json.lines[]` 是可选的项目原创补充句，不改写已有行。`axes` 指明该情境需要组合的语料轴；`axis_refs` 可进一步指向具体规则 ID。
 
-顶层 `planned[]` 使用 `proposed_event`，并提供当前可映射的 `fallback_event` 与 `future_line_id`，供后续包建立新事件时采用；它们不伪装成已经存在的事件或行 ID。玻璃等待、放弃寻找的道别、隔玻璃回应、入住宣言和撞玻璃板的台词均先放在这里。
+顶层 `planned[]` 使用 `proposed_event`，并提供已有的 `fallback_event` 与待接入的 `future_line_id`。入住宣言和仅在确认呼唤者是母油时使用的隔玻璃回应登记在这里。
 
 组合顺序沿用 Wiki：真实对象与意图、可辨认的关系、个体明确声线、基础种族与阶段、特殊形态覆盖、即时情绪与场景。不能仅凭口音推断智力，不能凭体型推断年龄，不能对未认出的对象使用亲属称呼。
 

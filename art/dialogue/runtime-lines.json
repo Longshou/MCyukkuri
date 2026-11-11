@@ -31506,6 +31506,86 @@
       "events": [
         "expecting"
       ]
+    },
+    {
+      "id": "reimu.adult.o_glass_wait",
+      "origin": "project-original",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "ガラスさん！ おやこが あうのを じゃましないでよ！ ゆっくち おちびちゃんを とおしてよ！",
+      "chinese": "玻璃先生！不要阻止亲油团聚哟！油库气地让小贝比酱过来哟！",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.adult.o_glass_wait"
+      },
+      "source_sha256": "1ec2a0def079707f1449fd5ffa3d2e693674b60d580b5abc572e1ee53bea58c1",
+      "events": [
+        "glass_wait"
+      ]
+    },
+    {
+      "id": "reimu.juvenile.o_glass_child_answer",
+      "origin": "project-original",
+      "species": "reimu",
+      "age": "juvenile",
+      "japanese": "ゆーっ！ おやしゃん、きょきょだよ！",
+      "chinese": "油——！亲亲油，窝在介里哟！",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.juvenile.o_glass_child_answer"
+      },
+      "source_sha256": "7bcafdccea51f34aaeaf1b0eb512573973a02fbc17ad4e013ff468e006eb7b3d",
+      "events": [
+        "glass_child_answer"
+      ]
+    },
+    {
+      "id": "reimu.adult.o_give_up_search",
+      "origin": "project-original",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "おちびちゃん……ゆぅ……すーりすーり したいよぉ……おちびちゃん……さよなら……",
+      "chinese": "小贝比酱……油呜……好想跟你擦擦脸哟……小贝比酱……再见哟……",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.adult.o_give_up_search"
+      },
+      "source_sha256": "7c2f8ec75958b0d2b3d2b216ed558799cfb12c7bfb7d1984da51ac92a483b2cd",
+      "events": [
+        "give_up_search"
+      ]
+    },
+    {
+      "id": "marisa.adult.o_glass_ram",
+      "origin": "project-original",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "ガラスさん！ ゆっくち おとなしく どくんだぜ！",
+      "chinese": "玻璃先生！油库气地乖乖让开贼！",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.adult.o_glass_ram"
+      },
+      "source_sha256": "0d45c02eaffabca6479f92bc4e3b406bba6f28fd184667c8d47a25a2eb8827c1",
+      "events": [
+        "glass_ram"
+      ]
+    },
+    {
+      "id": "marisa.baby.o_fed",
+      "origin": "project-original",
+      "species": "marisa",
+      "age": "baby",
+      "japanese": "ごはんしゃん！ むーちゃむーちゃ、しゃーわちぇー！",
+      "chinese": "饭先森！嚼嚼，好幸乎！",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.baby.o_fed"
+      },
+      "source_sha256": "af4d78791e200b6fea3d3f7639c75bdc69d2137b03d1d591fc6248539c9d8787",
+      "events": [
+        "fed"
+      ]
     }
   ]
 }

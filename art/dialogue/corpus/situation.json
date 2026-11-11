@@ -354,6 +354,21 @@
       "speaker": {"stage": "adult", "role": "new_home_claimant"},
       "axes": ["common", "species", "stage", "situation"],
       "axis_refs": ["common.home_declaration_question", "common.easy_place"]
+    },
+    {
+      "id": "glass_child_answer.to_mother",
+      "proposed_event": "glass_child_answer_mother",
+      "fallback_event": "glass_child_answer",
+      "future_line_id": "reimu.juvenile.s_glass_child_answer_mother",
+      "zh": "油——！麻麻，窝在介里哟！",
+      "ja": "ゆーっ！ おかーしゃん、きょきょだよ！",
+      "en": "Yu! Mama, I'm right here!",
+      "basis": ["P"],
+      "status": "planned",
+      "speaker": {"species": "reimu", "stage": "juvenile", "role": "lost_child"},
+      "addressee": {"role": "mother"},
+      "axes": ["species", "stage", "situation"],
+      "axis_refs": ["stage.juvenile_address"]
     }
   ]
 }
