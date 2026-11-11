@@ -9,7 +9,6 @@
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
 | 台词审校与补充（用户与代理直接对话） | `.worktrees/wp-gb-speech-review` | art/dialogue/, src/main/resources/assets/mcyukkuri/dialogue/, lang/*.json |
-| MD-16 肿胀穿模 | `.worktrees/wp-gi-swell-clip` | pose/Skin 肿胀变形、client/CareWearRenderer |
 | 素鸡立：下身耸动、释放时刻、分角色表情（先出方案页） | `.worktrees/wp-gk-sukkiri` | adult_states.json pair_*、AdultFaces、表情库 |
 | 便便闭环：同格合并、小堆自消、标准份可堆叠、大小统一 | `.worktrees/wp-gn-waste-loop` | life/Poops、PoopBlock、CareBlockEntity 厕所、DetachedItems、WastePresentation |
 
