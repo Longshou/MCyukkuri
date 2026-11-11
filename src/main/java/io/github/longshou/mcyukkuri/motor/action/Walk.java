@@ -54,6 +54,9 @@ public final class Walk implements Action {
     private Vec3 goal;
     private boolean navDone;
     private int nodesLeft, replans, resets;
+    /** Offset between the direct approach's first samples and the first installed route's longer distance. */
+    private double groundRouteOffset;
+    private boolean measuredGroundRoute;
     /** The host route's waypoints (hat units, the target last) and the one being walked to. */
     private List<double[]> route = List.of();
     private int leg;
@@ -161,8 +164,9 @@ public final class Walk implements Action {
                 SurfaceApproach.halt(body);
                 return new Outcome.Done(String.format(Locale.ROOT, "at=%s settled", GameplayLog.at(body.position())));
             }
-            return new Running(near, TravelMode.PASS, false);
+            return new Running(near - groundRouteOffset, TravelMode.PASS, false);
         }
+        double beforeRoute = measuredGroundRoute ? 0 : remaining(body);
         double paceNow = speed * BodyAbility.carrying(body);
         boolean arrived = avoid == null
                 ? SurfaceApproach.walk(body, target, paceNow)
@@ -172,6 +176,12 @@ public final class Walk implements Action {
         double flat = body.position().subtract(goal).horizontalDistance();
         double left = remaining(body);
         readNavigation(body);
+        // A route around a corner can be longer than the direct distance measured while leaving a bed.
+        // Measure it from the same origin so planning a detour neither earns nor erases physical progress.
+        if (!measuredGroundRoute && !navDone) {
+            groundRouteOffset = Math.max(0, left - beforeRoute);
+            measuredGroundRoute = true;
+        }
         if (arrived || arrive > 0 && flat <= arrive) {
             if (!arrived) SurfaceApproach.halt(body);
             return new Outcome.Done(String.format(Locale.ROOT, "at=%s flat=%.2f", GameplayLog.at(body.position()), flat));
@@ -183,7 +193,7 @@ public final class Walk implements Action {
         boolean fresh = seen != replans && resets < REPLAN_RESETS;
         if (fresh) resets++;
         replans = seen;
-        return new Running(left, TravelMode.PASS, fresh);
+        return new Running(left - groundRouteOffset, TravelMode.PASS, fresh);
     }
 
     private static int replans(YukkuriEntity body) {
@@ -291,6 +301,6 @@ public final class Walk implements Action {
                 GameplayLog.at(host == null ? target : host.frame().toWorld(local)),
                 host == null ? "ground" : host.entity().getUUID(),
                 navigation.isDone(), nodes, owner == null ? "none" : owner.ownerId(),
-                String.format(Locale.ROOT, "%.2f", host == null ? remaining(body) : routeLeft(host.riders().local(body.getUUID()))));
+                String.format(Locale.ROOT, "%.2f", host == null ? remaining(body) - groundRouteOffset : routeLeft(host.riders().local(body.getUUID()))));
     }
 }
