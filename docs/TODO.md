@@ -9,6 +9,7 @@
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
 | 互动菜单美化与界面风格统一 | `.worktrees/wp-fm-menu-style` | client/*Screen.java、client/GuiKit.java、art/props/ui、capture |
+| 水上场景上帽落座失败（自检 1、4） | `.worktrees/wp-fn-afloat-facing` | museum/ScenarioSetup、Motor.face 调用方、帽船落座 |
 
 ## 玩法待办
 
