@@ -10,6 +10,7 @@
 | --- | --- | --- |
 | 台词审校与补充（用户与代理直接对话） | `.worktrees/wp-gb-speech-review` | art/dialogue/, src/main/resources/assets/mcyukkuri/dialogue/, lang/*.json |
 | 便便闭环：同格合并、小堆自消、标准份可堆叠、大小统一 | `.worktrees/wp-gn-waste-loop` | life/Poops、PoopBlock、CareBlockEntity 厕所、DetachedItems、WastePresentation |
+| 素鸡立演出接入：下身耸动、释放时刻、分角色表情 | `.worktrees/wp-go-sukkiri-wire` | AdultFaces、PresentationArbiter、AgitationLife、Courtship、ReproductionEffects、adult_states.json |
 
 ## 玩法待办
 
