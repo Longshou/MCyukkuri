@@ -2,11 +2,13 @@ package io.github.longshou.mcyukkuri.client.capture;
 
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.mojang.logging.LogUtils;
 import io.github.longshou.mcyukkuri.badge.BadgeMenu;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.human.HumanMenu;
 import io.github.longshou.mcyukkuri.human.HumanNpc;
 import io.github.longshou.mcyukkuri.interaction.CareAction;
+import io.github.longshou.mcyukkuri.interaction.CareLineage;
 import io.github.longshou.mcyukkuri.interaction.CareMenu;
 import io.github.longshou.mcyukkuri.interaction.InteractionDispatch;
 import io.github.longshou.mcyukkuri.item.OperationToolItem.Tool;
@@ -20,6 +22,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.commands.arguments.selector.EntitySelectorParser;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.ItemStack;
@@ -38,6 +41,7 @@ final class CaptureScreen {
     private CompletableFuture<Integer> target;
     private boolean startedUse;
     private boolean hover;
+    private int inspectionStep;
     private MagnifierFrame magnifierFrame;
 
     record MagnifierFrame(double fov, double distance, boolean useKey, boolean usingItem) {}
@@ -61,7 +65,14 @@ final class CaptureScreen {
             player.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
             player.setItemInHand(InteractionHand.OFF_HAND, ItemStack.EMPTY);
             switch (kind) {
-                case "care" -> InteractionDispatch.openCare(player, (YukkuriEntity) actor);
+                case "care", "care_inspect", "care_observe", "care_lineage" -> {
+                    var yukkuri = (YukkuriEntity) actor;
+                    InteractionDispatch.openCare(player, yukkuri);
+                    LogUtils.getLogger().info(
+                            "[capture] care subject={} stage={} carried={} hat={} pregnancy={}/{}",
+                            yukkuri.getVariant(), yukkuri.family().stageId(), yukkuri.isPassenger(),
+                            yukkuri.hasVisibleAccessory(), yukkuri.liveChildCount(), yukkuri.broodCount());
+                }
                 case "care_busy" -> {
                     var yukkuri = (YukkuriEntity) actor;
                     if (!InteractionDispatch.perform(player, yukkuri, CareAction.LAY_DOWN)) {
@@ -110,17 +121,63 @@ final class CaptureScreen {
                 if (magnifierDistance != null || mc.player.isUsingItem()) return true;
             }
         } else if (mc.screen instanceof AbstractContainerScreen<?> screen && matches(screen)) {
+            mc.getToasts().clear();
+            int before = inspectionStep;
+            if (kind.equals("care_inspect")) exerciseInspection(screen, tick);
+            if (inspectionStep == 0 && kind.equals("care_observe")) {
+                click(screen, "observe");
+                inspectionStep++;
+            }
+            if (inspectionStep == 0 && kind.equals("care_lineage")) {
+                click(screen, "lineage");
+                inspectionStep++;
+            }
             hover = kind.equals("care") && tick >= HOVER_TICK;
-            return true;
+            // Input is dispatched after the frame rendered. The next frame shows its result.
+            return inspectionStep == before;
         }
         if (tick > OPEN_TICK + 60) throw new IllegalStateException("Capture did not open " + kind + " on " + selector);
         return false;
     }
 
+    private void exerciseInspection(AbstractContainerScreen<?> screen, long tick) {
+        if (inspectionStep == 0) {
+            click(screen, "observe");
+        } else if (inspectionStep == 1 && tick >= 88) {
+            var tab = widget(screen, "actions");
+            double x = tab.getX() + 25, y = tab.getY() + tab.getHeight() + 24;
+            if (!screen.mouseClicked(x, y, 0) || !screen.mouseDragged(x + 48, y + 8, 0, 48, 8)
+                    || !screen.mouseReleased(x + 48, y + 8, 0) || !screen.mouseScrolled(x, y, 0, 2)) {
+                throw new IllegalStateException("Care inspection did not handle orbit and zoom input");
+            }
+        } else if (inspectionStep == 2 && tick >= 114) {
+            click(screen, "reset");
+        } else {
+            return;
+        }
+        inspectionStep++;
+    }
+
+    private static AbstractWidget widget(AbstractContainerScreen<?> screen, String key) {
+        Component label = Component.translatable(CareLineage.KEY + key);
+        for (var child : screen.children()) {
+            if (child instanceof AbstractWidget widget && widget.getMessage().equals(label)) return widget;
+        }
+        throw new IllegalStateException("Missing care widget " + label);
+    }
+
+    private static void click(AbstractContainerScreen<?> screen, String key) {
+        var widget = widget(screen, key);
+        double x = widget.getX() + widget.getWidth() / 2.0, y = widget.getY() + widget.getHeight() / 2.0;
+        if (!screen.mouseClicked(x, y, 0)) throw new IllegalStateException("Care widget did not handle click: " + widget.getMessage());
+        screen.mouseReleased(x, y, 0);
+    }
+
     private boolean matches(AbstractContainerScreen<?> screen) {
         var menu = screen.getMenu();
         return switch (kind) {
-            case "care", "care_busy", "cutter" -> menu instanceof CareMenu care && care.cutter() == kind.equals("cutter");
+            case "care", "care_busy", "care_inspect", "care_observe", "care_lineage", "cutter" ->
+                    menu instanceof CareMenu care && care.cutter() == kind.equals("cutter");
             case "badge" -> menu instanceof BadgeMenu;
             case "human" -> menu instanceof HumanMenu;
             case "shop" -> menu instanceof ShopMenu;

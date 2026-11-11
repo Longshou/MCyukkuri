@@ -19,7 +19,8 @@ from capture_readout import postprocess, select_frames, geometry_report
 from PIL import Image, ImageDraw
 
 server = smoke.server
-SCREENS = ('care', 'care_busy', 'cutter', 'human', 'shop', 'exam', 'badge', 'keeper', 'magnifier')
+SCREENS = ('care', 'care_busy', 'care_inspect', 'care_observe', 'care_lineage', 'cutter',
+           'human', 'shop', 'exam', 'badge', 'keeper', 'magnifier')
 
 
 @contextmanager
@@ -212,6 +213,8 @@ def capture(parser, args):
             args.sample_window[0], args.sample_window[1] + 1, args.sample_window[2]))
         if args.screen:
             ticks = [64, 86] if settings['screen'] == 'care' else [76]
+            if settings['screen'] == 'care_inspect':
+                ticks = [76, 102, 128]
             if 'magnifier_distance' in settings:
                 # Press at tick 70, release at 92. Sample both ends of the zoom transition.
                 ticks = [64, 71, 74, 78, 85, 91, 95, 99, 105]

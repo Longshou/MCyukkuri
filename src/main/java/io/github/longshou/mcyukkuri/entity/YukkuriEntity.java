@@ -286,7 +286,7 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     public CompoundTag carryHolds() { return componentData(ParentCarry.HOLDS); }
 
     public YukkuriVariant getVariant() { return variant; }
-    @Override protected Component getTypeName() {
+    @Override public Component getTypeName() {
         var kind=subspeciesKind();
         return kind!=kind.behaviorKind()?Component.translatable("subspecies.mcyukkuri.kind."+kind.name().toLowerCase(Locale.ROOT)):super.getTypeName();
     }

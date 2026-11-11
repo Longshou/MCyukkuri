@@ -116,10 +116,12 @@ public final class InteractionDispatch {
         if(requireReach(player,target,5))open(player,target,true);
     }
     private static void open(ServerPlayer player,YukkuriEntity target,boolean cutter){
-        player.openMenu(new SimpleMenuProvider((id,inventory,owner)->new CareMenu(id,inventory,target.getId(),cutter),
+        var lineage=cutter?null:CareLineage.of(player.serverLevel(),target);
+        player.openMenu(new SimpleMenuProvider((id,inventory,owner)->new CareMenu(id,inventory,target.getId(),cutter,lineage),
                 cutter?Component.translatable("item.mcyukkuri.cutting_knife"):target.getDisplayName()),buffer->{
             buffer.writeVarInt(target.getId());
             buffer.writeBoolean(cutter);
+            if(!cutter)lineage.write(buffer);
         });
     }
 

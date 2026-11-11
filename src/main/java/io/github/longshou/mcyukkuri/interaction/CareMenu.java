@@ -15,18 +15,21 @@ public final class CareMenu extends AbstractContainerMenu {
     private final YukkuriEntity target;
     private final Player player;
     private final boolean cutter;
+    private final CareLineage lineage;
     private final SimpleContainerData available=new SimpleContainerData(3);
 
-    public CareMenu(int id,Inventory inventory,int entityId,boolean cutter){
+    public CareMenu(int id,Inventory inventory,int entityId,boolean cutter,CareLineage lineage){
         super(ModMenus.CARE.get(),id);
         player=inventory.player;
         this.cutter=cutter;
+        this.lineage=lineage;
         target=player.level().getEntity(entityId) instanceof YukkuriEntity value?value:null;
         addDataSlots(available);
         if(!player.level().isClientSide)updateActions();
     }
     public YukkuriEntity target(){return target;}
     public boolean cutter(){return cutter;}
+    public CareLineage lineage(){return lineage;}
     public long actions(){
         // Vanilla menu data slots carry signed shorts.
         return (available.get(0)&0xffffL)|(available.get(1)&0xffffL)<<16|(available.get(2)&0xffffL)<<32;

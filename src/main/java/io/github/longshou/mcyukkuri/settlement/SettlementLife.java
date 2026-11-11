@@ -79,11 +79,14 @@ public final class SettlementLife {
                 ? level.getServer().getLevel(origin.dimension()) : null;
     }
     public boolean settlementMember() {
-        var homeLevel = membershipLevel();
-        var group = homeLevel == null ? null : SettlementData.get(homeLevel).group(groupId);
+        var group = recordedGroup();
         if (group == null || group.kind == SettlementData.Kind.FAMILY) return false;
         var role = group.role(entity.getUUID());
         return role != SettlementData.Role.FREE && role != SettlementData.Role.OUTCAST;
+    }
+    public SettlementData.Group recordedGroup() {
+        var homeLevel = membershipLevel();
+        return homeLevel == null ? null : SettlementData.get(homeLevel).group(groupId);
     }
     public SettlementData.Group group() {
         return entity.level().isClientSide || origin == null || !origin.dimension().equals(entity.level().dimension())

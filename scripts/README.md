@@ -65,6 +65,8 @@ SPAWN 保留 0.0625 格支撑容差、碰撞与初始卡墙检查；初始化内
 
 用 `capture_museum.py --worktree <工作树> --gui-scale 3 --screen social_identity care "@e[tag=scn_identity_pet,limit=1]"` 可在隐藏客户端打开真实菜单并截图，`--screen 场景ID 界面类型 实体选择器` 可重复，`--help` 列出界面类型。关怀菜单还会截一张悬停图。`--gui-scale` 可选 2、3、4，`--size 宽 高` 默认 1280×720，`--lang` 可选 `zh_cn`、`en_us`、`ja_jp`，默认简体中文。
 
+照料菜单的 `care_observe` 与 `care_lineage` 分别截取观察页和谱系页。`care_inspect` 依次截取初始视角、拖动缩放后的视角和重置后的视角。
+
 `--screen nutrition_age magnifier "@e[tag=scn_age_baby,limit=1]" --magnifier-distances 2.5 5 9` 按不同的水平距离拍摄放大镜按下、持续使用和松开的过程。`frames.json` 同时记录镜头视野、实际视线距离、使用键和物品使用状态。
 
 捕获目录中的 `pose.jsonl` 记录已绘制主体的片段、实际片段时刻、根矩阵、跨越标记、混合后的持物矩阵和共享 `PoseChecks` 结果；截图帧另存骨骼与皮肤输入，完整几何证据以 `evidence` 指向同目录的 `.json.gz`，`pose_check.py --frames` 可读取。`frames.json` 的 `gameTime`、`poseFrame` 对应绝对游戏 tick 与姿态帧号；客户端游戏时钟会被服务端校回，`tick` 可能比前一帧小（同一片段延续），读帧按录制顺序。片段／阶段变化、标记跨越与新指标异常会补截图；`capture_readout.py` 按标记、指标和服务端里程碑选择约十帧，写 `selected-frames.json`、`geometry.json` 并生成联系表。实体朝向（制作片段根骨转动之前的 `body_yaw`）与密集服务端样本按主体、维度、绝对 tick 精确对齐；含片段根骨转动的 `yaw` 仍用于跟拍；骨骼角速度在实体绘制坐标系 `pose_basis` 内按相邻渲染帧的实际时间差计算，排除整体转向及片段／阶段切换；旧输入没有该坐标系时仍按原始矩阵计算。原始检查中的缺输入仍保留为 `error`；汇总报告按主体、帧号和指标列为 `no-evidence` 并给出原因，不视作通过，也不使整个视角报 `complete=false`。`complete` 只表示报告处理完整，数值非法等输入错误仍使其为 false；覆盖范围须同时看 `no_evidence`。身体、伤口替换片、破帽与替代帽使用绘制时发出的三角面取证；产出出口与尚未出生的幼体分别归入 body／prop，缺失的道具尖端仍报明确的缺证据；只声明 `power_start..power_end`、未声明入水深度与桨尖的划水片段，在动力段内报缺证据，不再算作无划水动作。时间节拍须用 `0.5s 触碰` 或 `20t 落地`，不接受格序号。

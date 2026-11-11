@@ -34,6 +34,7 @@ public final class PoseTap {
     private static long frame, sequence;
     private static long clockStart, timedFrame;
     private static double renderSeconds;
+    private static boolean guiRender;
 
     private PoseTap() {}
     public static JsonArray matrix(Matrix4f value) {
@@ -41,7 +42,17 @@ public final class PoseTap {
         for (float x : value.get(new float[16])) a.add((double)x);
         return a;
     }
-    public static boolean active() { return ENABLED && writer != null; }
+    public static boolean active() { return ENABLED && writer != null && !guiRender; }
+    /** GUI geometry lives in screen space and must not replace a world pose sample. */
+    public static void inGui(Runnable render) {
+        boolean previous = guiRender;
+        guiRender = true;
+        try {
+            render.run();
+        } finally {
+            guiRender = previous;
+        }
+    }
     public static JsonObject previous(String uuid){return PREVIOUS.get(uuid);}
     public static void begin(Path directory) {
         PoseTap.directory=directory;

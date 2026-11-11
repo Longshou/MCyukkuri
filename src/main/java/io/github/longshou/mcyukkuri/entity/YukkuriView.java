@@ -62,6 +62,7 @@ public interface YukkuriView {
     boolean isVehicle();
     boolean onGround();
     boolean hasCustomName();
+    Component getTypeName();
     Component getDisplayName();
     float bodyYaw();
     float previousBodyYaw();

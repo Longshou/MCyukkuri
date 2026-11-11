@@ -66,29 +66,38 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
     @Override
     public void render(YukkuriEntity source, float yaw, float partialTick, PoseStack pose,
                        MultiBufferSource buffers, int packedLight) {
+        render(source, yaw, partialTick, pose, buffers, packedLight, false);
+    }
+
+    void renderPreview(YukkuriEntity entity, float partialTick, PoseStack pose, MultiBufferSource buffers, int packedLight) {
+        PoseTap.inGui(() -> render(entity, entity.getYRot(), partialTick, pose, buffers, packedLight, true));
+    }
+
+    private void render(YukkuriEntity source, float yaw, float partialTick, PoseStack pose,
+                        MultiBufferSource buffers, int packedLight, boolean preview) {
         YukkuriView entity=source;
         if(entity.isDeadOrDying())return;
         var holder=entity.vehicleYukkuri();
         // A carried child (any hold) rides on its carrier above the ground: only the carrier casts a shadow.
-        shadowRadius=holder!=null&&holder.hasPassengerId(entity.getUUID())?0:entity.profile().shadowRadius()*entity.growthScale();
+        if(!preview)shadowRadius=holder!=null&&holder.hasPassengerId(entity.getUUID())?0:entity.profile().shadowRadius()*entity.growthScale();
         // A baby inside its parent's closed mouth is not seen.
         if(holder!=null&&ParentCarryPresentation.swallowed(entity,holder,partialTick))return;
         if (!entity.isInvisible()) {
             var start=new Matrix4f(pose.last().pose());
             pose.pushPose();
-            var parent=entity.vehicleYukkuri();
+            var parent=holder;
             boolean carried=parent!=null&&parent.hasPassengerId(entity.getUUID());
             boolean hatCarrier=ParentCarry.brimCarrying(entity);
             var reproduction=ReproductionPresentation.frame(entity,partialTick);
-            if(!hatCarrier&&!carried) {
+            if(!preview&&!hatCarrier&&!carried) {
                 var offset=reproduction.offset();
                 pose.translate(offset.x,0,offset.z);
             }
             float renderedBodyYaw=Mth.rotLerp(partialTick,entity.previousBodyYaw(),entity.bodyYaw());
             // A carried child is drawn on the carrier's live lips, brim, tail or braid; a child just set down eases to the ground.
-            if(carried)renderedBodyYaw=ParentCarryPresentation.place(entity,parent,pose,partialTick);
+            if(carried&&!preview)renderedBodyYaw=ParentCarryPresentation.place(entity,parent,pose,partialTick);
             else {
-                ParentCarryPresentation.settle(entity,pose,partialTick);
+                if(!preview)ParentCarryPresentation.settle(entity,pose,partialTick);
                 float bodyYaw=renderedBodyYaw;
                 String waterPhase=entity.waterDistressPhase();
                 if(waterPhase.equals("IMPACT")||waterPhase.equals("STRUGGLE")||waterPhase.equals("EXHAUSTED")){
@@ -97,7 +106,7 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
                 }
                 // A rider stands on the hat's floor: it leans with the hull's synced tilt, about its own feet.
                 var host=entity.vehicleHat();
-                if(host!=null){
+                if(host!=null&&!preview){
                     float hostYaw=180-Mth.rotLerp(partialTick,host.previousYaw(),host.getYRot());
                     pose.mulPose(Axis.YP.rotationDegrees(hostYaw));pose.mulPose(Axis.ZP.rotationDegrees(host.roll(partialTick)));
                     pose.mulPose(Axis.XP.rotationDegrees(host.pitch(partialTick)));pose.mulPose(Axis.YP.rotationDegrees(-hostYaw));
@@ -137,7 +146,7 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
             int overlay = OverlayTexture.pack(0, entity.hurtTicks() > 0 || entity.deathTicks() > 0);
             var buffer = buffers.getBuffer(RenderType.entityCutoutNoCull(textureAt(entity, partialTick)));
             String behavior = hatCarrier||carried?Behaviors.IDLE:entity.getBehaviorId();
-            if(behavior.equals(Behaviors.SLIDE_DOWN)){
+            if(!preview&&behavior.equals(Behaviors.SLIDE_DOWN)){
                 var facility=PlayBlock.facility(entity.level(),entity.blockPosition());
                 if(facility!=null&&facility.kind()==PlayBlock.Kind.SLIDE){
                     var relative=entity.getPosition(partialTick).subtract(Vec3.atBottomCenterOf(facility.getBlockPos()));
@@ -184,19 +193,20 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
             model.setReproductiveAnatomy(anatomy==null?null:anatomy.part(),anatomy==null?0:anatomy.amount());
             if(!carried)ParentCarryPresentation.configure(entity,model,heldNow,partialTick);
             // The worn wrap lies under the hair; the model lifts the hair over it as it draws (CareWearRenderer.clearHair).
-            model.setWear(!hatCarrier&&!carried?entity.visibleWear():0);
+            int wear=preview||!hatCarrier&&!carried?entity.visibleWear():0;
+            model.setWear(wear);
             model.renderLiving(operated||behavior.equals(Behaviors.SLIDE_DOWN)?"idle":action, operated?0:clock, pose, buffer, packedLight, overlay,
                     entity.hasVisibleAccessory(), operated?Behaviors.IDLE:behavior,phaseTicks,entity.visibleHairLoss(),entity,buffers);
             // Captured before anything else poses this shared model (stem fruits reuse it).
             PoseTap.body(entity,start,pose.last().pose(),partialTick);
-            if(!carried)ParentCarryPresentation.capture(entity,model,start,pose.last().pose(),renderedBodyYaw,partialTick);
+            if(!preview&&!carried)ParentCarryPresentation.capture(entity,model,start,pose.last().pose(),renderedBodyYaw,partialTick);
             ToiletPresentation.renderTongue(entity,behavior,phaseTicks,partialTick,model,pose,buffers,packedLight,overlay);
             // The stool keeps the clock its body clip is sampled on (YukkuriModel: the action's own clock when the action is that clip), so
             // the server's release at clip tick DROP_TICKS is the tick this prop hands over to the item.
             ToiletPresentation.renderStool(entity,behavior,behavior.equals(action)?clock*20:phaseTicks,pose,buffers,packedLight);
             var root=model.rootPose();
             if(entity.hasVisibleAccessory()||contact.equals("HAT_REMOVE")) model.renderBadge(entity.visibleMedal(),pose,buffers,packedLight,overlay);
-            if(entity.visibleWear()!=0&&!hatCarrier&&!carried)CareWearRenderer.render(model,entity.visibleWear(),pose,buffers,packedLight,overlay);
+            if(wear!=0)CareWearRenderer.render(model,wear,pose,buffers,packedLight,overlay);
             var presentation=LivingPresentation.variants.get(entity.assetId());
             if(!entity.getMouthBodyFood().isEmpty()) {
                 pose.pushPose();
@@ -275,10 +285,12 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
             pose.popPose();
             pose.popPose();
         }
-        super.render(source, yaw, partialTick, pose, buffers, packedLight);
-        RapemOverlayRenderer.render(entity, partialTick, pose, buffers, packedLight);
-        SpeechBubble.render(entity, partialTick, pose, buffers, packedLight);
-        MomentEmote.render(entity, partialTick, pose, buffers, packedLight);
+        if(!preview){
+            super.render(source, yaw, partialTick, pose, buffers, packedLight);
+            RapemOverlayRenderer.render(entity, partialTick, pose, buffers, packedLight);
+            SpeechBubble.render(entity, partialTick, pose, buffers, packedLight);
+            MomentEmote.render(entity, partialTick, pose, buffers, packedLight);
+        }
     }
 
     /**
