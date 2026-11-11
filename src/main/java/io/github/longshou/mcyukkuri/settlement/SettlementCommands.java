@@ -132,7 +132,7 @@ public final class SettlementCommands {
         if (!pit.isEmpty()) {
             var level = source.getLevel();
             var cells = new StringBuilder();
-            int total = 0;
+            double total = 0;
             for (var cell : pit) {
                 double portions = Poops.portions(level, cell);
                 total += portions;
@@ -145,7 +145,8 @@ public final class SettlementCommands {
                 slaves++;
                 if (GroupPits.inCells(pit, member.blockPosition())) inPit++;
             }
-            final int sum = total, slaveCount = slaves, slavesInPit = inPit;
+            final double sum = total;
+            final int slaveCount = slaves, slavesInPit = inPit;
             final String perCell = cells.toString();
             source.sendSuccess(() -> Component.literal("Droppings in pit: " + sum + " of " + pit.size() * Poops.CAPACITY + " portions, per cell:" + perCell
                     + "; slaves " + slaveCount + " (in pit " + slavesInPit + ")"), false);
