@@ -75,7 +75,7 @@ public final class MagnifierClient {
     static void renderHand(RenderHandEvent event) {
         var minecraft = Minecraft.getInstance();
         var player = observer(minecraft);
-        if (player != null && scoping(minecraft, player)) event.setCanceled(true);
+        if (player != null && (scoping(minecraft, player) || previousZoom > 0f || zoom > 0f)) event.setCanceled(true);
     }
 
     private static void renderStrip(GuiGraphics g, DeltaTracker delta) {

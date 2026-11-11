@@ -54,7 +54,10 @@ final class CaptureScreen {
             var actor = new EntitySelectorParser(new StringReader(selector), true).parse().findSingleEntity(source);
             double offset = kind.equals("magnifier") ? 4.25 : actor instanceof YukkuriEntity ? 1.35 : 0;
             if (magnifierDistance == null) player.teleportTo(actor.getX() + offset, actor.getY(), actor.getZ());
-            else player.teleportTo(actor.getX(), actor.getY(), actor.getZ() + magnifierDistance);
+            else {
+                // Front-quarter view, away from the other actors lined up to the east.
+                player.teleportTo(actor.getX() - 0.6 * magnifierDistance, actor.getY(), actor.getZ() + 0.8 * magnifierDistance);
+            }
             player.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
             player.setItemInHand(InteractionHand.OFF_HAND, ItemStack.EMPTY);
             switch (kind) {

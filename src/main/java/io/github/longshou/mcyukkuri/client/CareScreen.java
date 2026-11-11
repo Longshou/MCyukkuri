@@ -3,12 +3,16 @@ package io.github.longshou.mcyukkuri.client;
 import io.github.longshou.mcyukkuri.interaction.CareAction;
 import io.github.longshou.mcyukkuri.interaction.CareMenu;
 import java.util.Arrays;
+import java.util.List;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipPositioner;
 import net.minecraft.network.chat.Component;
+import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.world.entity.player.Inventory;
+import org.joml.Vector2i;
 
 public final class CareScreen extends AbstractContainerScreen<CareMenu> {
     private static final int MARGIN = 6, GAP = 5, CARD_PAD = 4, SECTION_HEAD = 15, FOOT_HEIGHT = 16;
@@ -123,5 +127,15 @@ public final class CareScreen extends AbstractContainerScreen<CareMenu> {
     @Override public void render(GuiGraphics g, int mouseX, int mouseY, float partial) {
         super.render(g, mouseX, mouseY, partial);
         renderTooltip(g, mouseX, mouseY);
+    }
+
+    @Override public void setTooltipForNextRenderPass(List<FormattedCharSequence> lines,
+                                                      ClientTooltipPositioner vanilla, boolean override) {
+        super.setTooltipForNextRenderPass(lines, (w, h, x, y, tipW, tipH) -> {
+            var position = vanilla.positionTooltip(w, h, x, y, tipW, tipH);
+            // Keep vanilla horizontal placement and leave room for the tooltip border above the headings.
+            int aboveSections = topPos + SECTIONS_TOP - tipH - 6;
+            return new Vector2i(position.x(), Math.max(4, Math.min(position.y(), aboveSections)));
+        }, override);
     }
 }
