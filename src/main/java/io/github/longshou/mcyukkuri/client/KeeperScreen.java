@@ -16,14 +16,14 @@ public final class KeeperScreen extends AbstractContainerScreen<KeeperMenu> {
     public KeeperScreen(KeeperMenu menu, Inventory inv, Component title) { super(menu, inv, title); imageWidth = 300; imageHeight = 220; }
     @Override protected void init() {
         super.init();
-        add(KeeperMenu.ButtonId.NEXT_STUD, 236, 24, 24, Component.literal("<")); add(KeeperMenu.ButtonId.PREVIOUS_STUD, 264, 24, 24, Component.literal(">"));
+        add(KeeperMenu.ButtonId.NEXT_STUD, 236, 20, 24, Component.literal("<")); add(KeeperMenu.ButtonId.PREVIOUS_STUD, 264, 20, 24, Component.literal(">"));
         add(KeeperMenu.ButtonId.PREVIOUS_SUBJECT, 8, 144, 30, Component.literal("<")); add(KeeperMenu.ButtonId.NEXT_SUBJECT, 42, 144, 30, Component.literal(">"));
         add(KeeperMenu.ButtonId.BOOK, 78, 144, 214, Component.translatable("shop.mcyukkuri.keeper.book", KeeperMenu.FEE));
-        addRenderableWidget(Button.builder(Component.translatable("gui.done"), b -> onClose()).bounds(leftPos + 230, topPos + 192, 60, 20).build());
+        addRenderableWidget(Button.builder(Component.translatable("gui.done"), b -> onClose()).bounds(leftPos + 232, topPos + 192, 60, 20).build(ActionButton::new));
     }
     private void add(int id, int x, int y, int w, Component title) {
         actions[id] = addRenderableWidget(Button.builder(title, b -> { if (minecraft.gameMode != null) minecraft.gameMode.handleInventoryButtonClick(menu.containerId, id); })
-                .bounds(leftPos + x, topPos + y, w, 20).build());
+                .bounds(leftPos + x, topPos + y, w, 20).build(ActionButton::new));
     }
     @Override protected void containerTick() {
         super.containerTick();

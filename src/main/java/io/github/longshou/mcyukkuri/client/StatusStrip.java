@@ -3,18 +3,19 @@ package io.github.longshou.mcyukkuri.client;
 import io.github.longshou.mcyukkuri.body.BodySigns;
 import io.github.longshou.mcyukkuri.entity.YukkuriView;
 import io.github.longshou.mcyukkuri.family.FamilyLife;
-import java.util.List;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 
 /** Short crosshair status strip built from already-synced values. */
 public final class StatusStrip {
-    public static List<Component> lines(YukkuriView view) {
-        Component header = Component.translatable("magnifier.mcyukkuri.header", view.getDisplayName(), stage(view));
+    static final int CARD_HEIGHT = 40;
+    private static final int TEXT_LEFT = 25, CHIP_GAP = 5, PAD = 6, STATUS_TOP = 20;
 
+    static Readout of(YukkuriView view) {
         Component health = Component.translatable("magnifier.mcyukkuri.health",
                 Math.round(view.getHealth()), Math.round(view.getMaxHealth()));
-        Component identity = Component.translatable(view.identityTranslationKey());
         Component badge = Component.translatable("magnifier.mcyukkuri.badge",
                 Component.translatable("badge.mcyukkuri.profile.grade." + view.visibleMedal()));
         int mold = BodySigns.moldTier(view.visibleSigns() & BodySigns.MOLD_MASK);
@@ -24,13 +25,46 @@ public final class StatusStrip {
 
         MutableComponent readouts = Component.empty()
                 .append(health).append(" · ")
-                .append(identity).append(" · ")
                 .append(badge).append(" · ")
                 .append(dirt);
         if (view.liveChildCount() > Integer.bitCount(view.liveBornMask())) {
             readouts.append(" · ").append(Component.translatable("magnifier.mcyukkuri.pregnant"));
         }
-        return List.of(header, readouts);
+        return new Readout(Component.literal(view.getDisplayName().getString()), stage(view), view.identityTranslationKey(), readouts);
+    }
+
+    record Readout(Component name, Component stage, String identityKey, Component status) {
+        private Component title(Component displayedName) {
+            return Component.translatable("magnifier.mcyukkuri.header", displayedName, stage);
+        }
+
+        private int chipWidth(Font font, Component identity) {
+            return identityKey.isEmpty() ? 0 : font.width(identity) + 10;
+        }
+
+        Component renderCard(GuiGraphics g, Font font, int x, int y, int w, int h) {
+            GuiKit.statusCard(g, x, y, w, h);
+            GuiKit.icon(g, x + 5, y + 1, GuiKit.ICON_LIVE);
+            Component identity = Component.translatable(identityKey);
+            int chip = chipWidth(font, identity);
+            int titleRoom = w - TEXT_LEFT - PAD - (chip == 0 ? 0 : chip + CHIP_GAP);
+            Component shortName = GuiKit.ellipsize(font, name, titleRoom - font.width(title(Component.empty())));
+            g.drawString(font, title(shortName), x + TEXT_LEFT, y + 6, GuiKit.INK, false);
+            if (chip > 0) GuiKit.identityChip(g, font, identity, identityKey, x + w - PAD - chip, y + 4, chip);
+            var lines = font.split(status, w - 2 * PAD);
+            for (int line = 0; line < lines.size(); line++) {
+                g.drawString(font, lines.get(line), x + PAD, y + STATUS_TOP + line * font.lineHeight, GuiKit.INK, false);
+            }
+            return shortName == name ? null : title(name);
+        }
+
+        void renderHud(GuiGraphics g, Font font) {
+            int chip = chipWidth(font, Component.translatable(identityKey));
+            int w = Math.min(g.guiWidth() - 16,
+                    Math.max(font.width(status) + 2 * PAD, font.width(title(name)) + TEXT_LEFT + PAD + chip + CHIP_GAP));
+            int h = STATUS_TOP + font.split(status, w - 2 * PAD).size() * font.lineHeight + 4;
+            renderCard(g, font, (g.guiWidth() - w) / 2, g.guiHeight() / 2 + 12, w, h);
+        }
     }
 
     private static Component stage(YukkuriView view) {

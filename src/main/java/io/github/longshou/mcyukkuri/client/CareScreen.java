@@ -2,6 +2,7 @@ package io.github.longshou.mcyukkuri.client;
 
 import io.github.longshou.mcyukkuri.interaction.CareAction;
 import io.github.longshou.mcyukkuri.interaction.CareMenu;
+import java.util.Arrays;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.Tooltip;
@@ -10,50 +11,119 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 
 public final class CareScreen extends AbstractContainerScreen<CareMenu> {
-    private static final int COLUMN=101, BUTTON_TOP=52;
+    private static final int MARGIN = 6, GAP = 5, CARD_PAD = 4, SECTION_HEAD = 15, FOOT_HEIGHT = 16;
+    private static final int SECTIONS_TOP = MARGIN + StatusStrip.CARD_HEIGHT + GAP;
+    private final int[] rows = new int[CareAction.GROUP_COUNT];
+    private final int[] sectionX = new int[CareAction.GROUP_COUNT];
+    private final int[] sectionY = new int[CareAction.GROUP_COUNT];
+    private int columnWidth, rowPitch, sectionsHeight;
     private long actions;
-    public CareScreen(CareMenu menu,Inventory inventory,Component title){
-        super(menu,inventory,title);imageWidth=312;imageHeight=228;
+
+    public CareScreen(CareMenu menu, Inventory inventory, Component title) {
+        super(menu, inventory, title);
     }
-    @Override protected void init(){super.init();buttons();}
-    @Override protected void containerTick(){
+
+    @Override protected void init() {
+        super.init();
+        buttons();
+    }
+
+    @Override protected void containerTick() {
         super.containerTick();
-        if(actions!=menu.actions())buttons();
+        if (actions != menu.actions()) buttons();
     }
-    private void buttons(){
-        actions=menu.actions();
+
+    private static Component heading(int group) {
+        return Component.translatable("operation.mcyukkuri.group." + group);
+    }
+
+    private int sectionHeight(int rowCount) {
+        return SECTION_HEAD + rowCount * rowPitch + CARD_PAD;
+    }
+
+    private void buttons() {
+        actions = menu.actions();
         clearWidgets();
-        int[] rows=new int[CareAction.GROUP_COUNT];
-        for(var action:CareAction.values()){
-            if((actions&(1L<<action.id()))==0)continue;
-            addRenderableWidget(Button.builder(action.title(),button->minecraft.gameMode.handleInventoryButtonClick(menu.containerId,action.id()))
-                    .bounds(leftPos+6+action.group*COLUMN,topPos+BUTTON_TOP+rows[action.group]++*17,COLUMN-3,16)
-                    .tooltip(Tooltip.create(action.help())).build());
+        Arrays.fill(rows, 0);
+        int idealColumn = 106;
+        for (var action : CareAction.values()) {
+            if ((actions & (1L << action.id())) == 0) continue;
+            rows[action.group]++;
+            idealColumn = Math.max(idealColumn, font.width(action.title()) + 2 * CARD_PAD + 10);
         }
-        addRenderableWidget(Button.builder(Component.translatable("gui.done"),button->onClose())
-                .bounds(leftPos+107,topPos+205,98,18).build());
-    }
-    @Override protected void renderBg(GuiGraphics graphics,float partial,int mouseX,int mouseY){
-        graphics.fill(leftPos,topPos,leftPos+imageWidth,topPos+imageHeight,0xff263c3b);
-        graphics.fill(leftPos+3,topPos+3,leftPos+imageWidth-3,topPos+imageHeight-3,0xffe7dfcb);
-    }
-    @Override protected void renderLabels(GuiGraphics graphics,int mouseX,int mouseY){
-        if(menu.target()==null){
-            graphics.drawString(font,title,9,7,0xff243835,false);
-        }else{
-            var lines=StatusStrip.lines(menu.target());
-            graphics.drawString(font,font.plainSubstrByWidth(lines.getFirst().getString(),imageWidth-18),9,7,0xff243835,false);
-            graphics.drawWordWrap(font,lines.get(1),9,18,imageWidth-18,0xff5b645c);
+        int groups = 0, longest = 0;
+        for (int count : rows) {
+            if (count > 0) groups++;
+            longest = Math.max(longest, count);
         }
-        if(actions==0){
-            graphics.drawCenteredString(font,Component.translatable("operation.mcyukkuri.no_actions"),imageWidth/2,66,0xff5b645c);
-        }else{
-            for(int group=0;group<CareAction.GROUP_COUNT;group++){
-                graphics.drawString(font,Component.translatable("operation.mcyukkuri.group."+group),9+group*COLUMN,41,0xff243835,false);
+        int available = width - 4 * MARGIN;
+        int gaps = Math.max(0, groups - 1) * GAP;
+        columnWidth = Math.min(Math.min(132, idealColumn), (available - gaps) / Math.max(1, groups));
+        int contentWidth = groups * columnWidth + gaps;
+        imageWidth = Math.min(width - 2 * MARGIN, Math.max(218, contentWidth + 2 * MARGIN));
+
+        int footer = FOOT_HEIGHT + GAP + MARGIN;
+        int rowSpace = height - SECTIONS_TOP - footer - sectionHeight(0);
+        rowPitch = Math.min(19, Math.max(10, rowSpace / Math.max(1, longest)));
+        sectionsHeight = longest == 0 ? 22 : sectionHeight(longest);
+        imageHeight = SECTIONS_TOP + sectionsHeight + footer;
+        leftPos = (width - imageWidth) / 2;
+        topPos = (height - imageHeight) / 2;
+
+        int x = (imageWidth - contentWidth) / 2;
+        for (int group = 0; group < rows.length; group++) {
+            if (rows[group] == 0) continue;
+            sectionX[group] = x;
+            sectionY[group] = SECTIONS_TOP + (sectionsHeight - sectionHeight(rows[group])) / 2;
+            x += columnWidth + GAP;
+        }
+        int[] nextRow = new int[rows.length];
+        for (var action : CareAction.values()) {
+            if ((actions & (1L << action.id())) == 0) continue;
+            int group = action.group;
+            addRenderableWidget(Button.builder(action.title(), button -> minecraft.gameMode.handleInventoryButtonClick(menu.containerId, action.id()))
+                    .bounds(leftPos + sectionX[group] + CARD_PAD, topPos + sectionY[group] + SECTION_HEAD + nextRow[group]++ * rowPitch,
+                            columnWidth - 2 * CARD_PAD, rowPitch - 1)
+                    .tooltip(Tooltip.create(action.help())).build(GuiKit.ActionButton::new));
+        }
+        addRenderableWidget(Button.builder(Component.translatable("gui.done"), button -> onClose())
+                .bounds(leftPos + (imageWidth - 82) / 2, topPos + imageHeight - MARGIN - FOOT_HEIGHT, 82, FOOT_HEIGHT)
+                .build(GuiKit.ActionButton::new));
+    }
+
+    @Override protected void renderBg(GuiGraphics g, float partial, int mouseX, int mouseY) {
+        GuiKit.panel(g, leftPos, topPos, imageWidth, imageHeight);
+        for (int group = 0; group < rows.length; group++) {
+            if (rows[group] > 0) {
+                GuiKit.card(g, leftPos + sectionX[group], topPos + sectionY[group], columnWidth, sectionHeight(rows[group]), false);
             }
         }
     }
-    @Override public void render(GuiGraphics graphics,int mouseX,int mouseY,float partial){
-        super.render(graphics,mouseX,mouseY,partial);renderTooltip(graphics,mouseX,mouseY);
+
+    @Override protected void renderLabels(GuiGraphics g, int mouseX, int mouseY) {
+        int headerWidth = imageWidth - 2 * MARGIN;
+        if (menu.target() == null) {
+            GuiKit.statusCard(g, MARGIN, MARGIN, headerWidth, StatusStrip.CARD_HEIGHT);
+            var name = Component.literal(title.getString());
+            g.drawString(font, GuiKit.ellipsize(font, name, headerWidth - 12), MARGIN + 6, MARGIN + 6, GuiKit.INK, false);
+        } else {
+            var fullName = StatusStrip.of(menu.target()).renderCard(g, font, MARGIN, MARGIN, headerWidth, StatusStrip.CARD_HEIGHT);
+            if (fullName != null && GuiKit.over(mouseX, mouseY, leftPos + MARGIN, topPos + MARGIN, headerWidth, 18)) {
+                setTooltipForNextRenderPass(fullName);
+            }
+        }
+        if (actions == 0) {
+            var notice = Component.translatable("operation.mcyukkuri.no_actions");
+            g.drawString(font, notice, (imageWidth - font.width(notice)) / 2, SECTIONS_TOP + 7, GuiKit.SOFT, false);
+        } else {
+            for (int group = 0; group < rows.length; group++) {
+                if (rows[group] > 0) g.drawString(font, heading(group), sectionX[group] + CARD_PAD + 2, sectionY[group] + 4, GuiKit.INK, false);
+            }
+        }
+    }
+
+    @Override public void render(GuiGraphics g, int mouseX, int mouseY, float partial) {
+        super.render(g, mouseX, mouseY, partial);
+        renderTooltip(g, mouseX, mouseY);
     }
 }

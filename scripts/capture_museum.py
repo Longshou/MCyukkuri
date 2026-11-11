@@ -51,7 +51,7 @@ def capture_ticks(capture):
     return sorted(ticks)
 
 
-def client_command(runtime, java, instance, mod, output):
+def client_command(runtime, java, instance, mod, output, height):
     vm = [arg for arg in server.read_args_file(runtime / 'clientRunVmArgs.txt')
           if not arg.startswith('-Dneoforge.enableGameTest')]
     cp = server.read_args_file(runtime / 'clientRunClasspath.txt')[:2]
@@ -61,7 +61,7 @@ def client_command(runtime, java, instance, mod, output):
     return ([str(java), '-Xmx6G'] + vm + cp + [f'-Dfml.modFolders=mcyukkuri%%{mod}',
             '-Dmcyukkuri.capture=true', f'-Dmcyukkuri.capture.output={output}',
             'net.neoforged.devlaunch.Main'] + prog + ['--mixin', 'mcyukkuri.capture.mixins.json',
-            '--username', 'CapturePlayer', '--width', '1280', '--height', '720',
+            '--username', 'CapturePlayer', '--width', '1280', '--height', str(height),
             '--quickPlaySingleplayer', 'MCyukkuri-Museum'])
 
 
@@ -208,7 +208,9 @@ def capture(parser, args):
         dirty=bool(subprocess.check_output(['git', '-C', str(source), 'status', '--porcelain'])),
         scenes=scene_ids, screens=args.screen, gui_scale=args.gui_scale, smoke_commands=args.smoke_commands,
         vantage=args.vantage, self_check=True), indent=2), encoding='utf-8')
-    command = client_command(runtime, java, instance, mod, output)
+    # The fixed 294-pixel badge sheet needs 882 physical pixels at GUI scale 3.
+    height = 900 if args.gui_scale == 3 and any(kind == 'badge' for _, kind, _ in args.screen or ()) else 720
+    command = client_command(runtime, java, instance, mod, output, height)
     server.wait_closed(not args.no_wait)
     startup = subprocess.STARTUPINFO()
     startup.dwFlags |= subprocess.STARTF_USESHOWWINDOW

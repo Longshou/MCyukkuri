@@ -16,9 +16,9 @@ import static io.github.longshou.mcyukkuri.client.GuiKit.*;
 
 /** Tabbed shopkeeper screen: live stock, goods, buyback, consultation. Button and data slot ids are documented on ShopMenu (slot 56: highlighted live row, 1-4, 0 none). */
 public final class ShopScreen extends AbstractContainerScreen<ShopMenu> {
-    private static final int ROW = 57, ROW_X = 8, ROW_W = 256, ROW_H = 56, TOP = 32, FOOT = 224, LOW_HEALTH = 6, LOW_NUTRITION = 30;
+    private static final int ROW = 57, ROW_X = 8, ROW_W = 256, ROW_H = 56, TOP = 32, FOOT = 214, LOW_HEALTH = 6, LOW_NUTRITION = 30;
     private final Button[] actions = new Button[ShopMenu.ButtonId.COUNT];
-    public ShopScreen(ShopMenu menu, Inventory inv, Component title) { super(menu, inv, title); imageWidth = 340; imageHeight = 250; }
+    public ShopScreen(ShopMenu menu, Inventory inv, Component title) { super(menu, inv, title); imageWidth = 340; imageHeight = 240; }
     @Override protected void init() {
         super.init();
         int[] icons = {ICON_LIVE, ICON_GOODS, ICON_BUYBACK, ICON_CONSULT, ICON_PROFILE};
@@ -38,12 +38,12 @@ public final class ShopScreen extends AbstractContainerScreen<ShopMenu> {
         add(ShopMenu.ButtonId.PREVIOUS_SUBJECT, 8, FOOT, 40, Component.literal("<")); add(ShopMenu.ButtonId.NEXT_SUBJECT, 52, FOOT, 40, Component.literal(">"));
         add(ShopMenu.ButtonId.SELL, 100, FOOT, 160, Component.translatable("shop.mcyukkuri.sell"));
         add(ShopMenu.ButtonId.FORECAST, 100, FOOT, 160, Component.translatable("shop.mcyukkuri.forecast"));
-        addRenderableWidget(Button.builder(Component.translatable("gui.done"), b -> onClose()).bounds(leftPos + 272, topPos + FOOT, 60, 20).build());
+        addRenderableWidget(Button.builder(Component.translatable("gui.done"), b -> onClose()).bounds(leftPos + 272, topPos + FOOT, 60, 20).build(ActionButton::new));
     }
     private void press(int id) { if (minecraft.gameMode != null) minecraft.gameMode.handleInventoryButtonClick(menu.containerId, id); }
     private void add(int id, int x, int y, int w, Component title) { add(id, x, y, w, 20, title); }
     private void add(int id, int x, int y, int w, int h, Component title) {
-        actions[id] = addRenderableWidget(Button.builder(title, b -> press(id)).bounds(leftPos + x, topPos + y, w, h).build());
+        actions[id] = addRenderableWidget(Button.builder(title, b -> press(id)).bounds(leftPos + x, topPos + y, w, h).build(ActionButton::new));
     }
     @Override protected void containerTick() {
         super.containerTick();

@@ -9,6 +9,9 @@ Atlas map (x, y, w, h):
   bar track (0,24,8,6) caps 2                bar fills (8+8*i,24,8,4) i = manners, academics, wits, poise
   grade chips (0|9|18|27,48,9,9) bronze, silver, gold, expired
   icons 16x16 at (16*i,32): live, goods, buyback, consult, exam, profile, keeper
+  action buttons (0|16|32|48,64,16,16) corner 3: normal, hover, pressed, disabled
+  identity chips (0|16|32|48|64,80,16,16) corner 3: pet, stray, settlement, family, neutral
+  status backing (80,80,16,16) corner 3
 """
 import hashlib, json, shutil, sys
 from pathlib import Path
@@ -80,6 +83,23 @@ bevel(56, 0, 16, 16, OUT, LIGHT, SHADE, rgb('#d8c8a2'))
 bevel(72, 0, 16, 16, OUT, LIGHT, SHADE, rgb('#e2d5b2'))  # hover ~214, normal ~200, selected ~243 (luminance)
 bevel(88, 0, 16, 16, OUT, LIGHT, SHADE, LIGHT, notch=True)
 for i in range(1, 15): put(88 + i, 13, TEAL_L); put(88 + i, 14, TEAL)  # underline sits in the bottom border slice so it never stretches
+
+# Action keys: a raised paper key, bright green focus, inset press, and quiet disabled paper.
+bevel(0, 64, 16, 16, rgb('#79694d'), LIGHT, SHADE, rgb('#e8dab8'))
+bevel(16, 64, 16, 16, TEAL, rgb('#f9ffe8'), rgb('#87a275'), rgb('#e0ebc7'))
+bevel(32, 64, 16, 16, TEAL, rgb('#e4eacb'), rgb('#6b815b'), rgb('#b4c5a1'), inset=True)
+bevel(48, 64, 16, 16, rgb('#a3957b'), rgb('#ede6d6'), rgb('#c2b69f'), rgb('#dcd3c0'))
+
+for i, (rim, light, shade, paper) in enumerate((
+        ('#57714a', '#e8f0d4', '#9ead82', '#cdddb3'),
+        ('#8d6240', '#fae4c7', '#c7996f', '#efd0a9'),
+        ('#49716e', '#e3f0e7', '#90aaa2', '#bcd6ce'),
+        ('#77637b', '#efe4ef', '#b1a0b4', '#dccfdf'),
+        ('#7b7560', '#f6efd9', '#baaf92', '#e5dcc3'))):
+    bevel(i * 16, 80, 16, 16, *map(rgb, (rim, light, shade, paper)))
+
+bevel(80, 80, 16, 16, rgb('#8e7c5a'), LIGHT, SHADE, (*CARD[:3], 244))
+
 # --- stars 9x9
 STAR = ['....o....', '...oLo...', '...oMo...', 'ooooMoooo', 'oLMMMMMDo', '.oMMMMDo.', '.oMMMMDo.', '.oMDoMDo.', '.oo...oo.']
 def star(x0, pal):

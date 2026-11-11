@@ -45,8 +45,8 @@ final class CaptureScreen {
         try {
             var source = player.createCommandSourceStack().withPermission(4);
             var actor = new EntitySelectorParser(new StringReader(selector), true).parse().findSingleEntity(source);
-            boolean close = actor instanceof YukkuriEntity;
-            player.teleportTo(actor.getX() + (close ? 1.35 : 0), actor.getY(), actor.getZ());
+            double offset = kind.equals("magnifier") ? 4.25 : actor instanceof YukkuriEntity ? 1.35 : 0;
+            player.teleportTo(actor.getX() + offset, actor.getY(), actor.getZ());
             player.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
             player.setItemInHand(InteractionHand.OFF_HAND, ItemStack.EMPTY);
             switch (kind) {
@@ -79,6 +79,7 @@ final class CaptureScreen {
     boolean ready(Minecraft mc, long tick) {
         if (tick < OPEN_TICK) return false;
         if (target == null) {
+            mc.getToasts().clear();
             var server = mc.getSingleplayerServer();
             var uuid = mc.player.getUUID();
             target = server.submit(() -> open(server.getPlayerList().getPlayer(uuid)));

@@ -83,13 +83,7 @@ public final class MagnifierClient {
         if (minecraft.options.hideGui || player == null || !scoping(minecraft, player)) return;
         var aim = pick(player, minecraft.gameRenderer.getMainCamera());
         if (aim == null) return;
-        var font = minecraft.font;
-        int width = g.guiWidth();
-        int y = g.guiHeight() / 2 + 12;
-        for (var line : StatusStrip.lines(aim)) {
-            g.drawCenteredString(font, GuiKit.ellipsize(font, line, width - 8), width / 2, y, 0xFFFFFFFF);
-            y += 10;
-        }
+        StatusStrip.of(aim).renderHud(g, minecraft.font);
     }
 
     private static YukkuriView pick(LocalPlayer player, Camera camera) {

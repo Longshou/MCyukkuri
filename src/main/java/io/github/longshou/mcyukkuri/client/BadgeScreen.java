@@ -24,22 +24,22 @@ public final class BadgeScreen extends AbstractContainerScreen<BadgeMenu> {
             buttons[id] = addRenderableWidget(Button.builder(Component.translatable("badge.mcyukkuri.action." + id), b -> {
                 if (minecraft.gameMode != null) minecraft.gameMode.handleInventoryButtonClick(menu.containerId, id);
             }).bounds(leftPos + 10 + n % 3 * 115, topPos + 146 + n / 3 * 22, 110, 20)
-                    .tooltip(Tooltip.create(Component.translatable("badge.mcyukkuri.help." + id))).build());
+                    .tooltip(Tooltip.create(Component.translatable("badge.mcyukkuri.help." + id))).build(ActionButton::new));
         }
         for (int k = 0; k < PetSkill.values().length; k++) {
             final int id = BadgeMenu.ButtonId.LESSON_WAIT + k;
             var skill = PetSkill.values()[k];
-            buttons[id] = addRenderableWidget(Button.builder(ellipsize(font, Component.translatable("pet.mcyukkuri.skill." + skill.key()), 49), b -> {
+            buttons[id] = addRenderableWidget(Button.builder(Component.translatable("pet.mcyukkuri.skill." + skill.key()), b -> {
                 if (minecraft.gameMode != null) minecraft.gameMode.handleInventoryButtonClick(menu.containerId, id);
-            }).bounds(leftPos + 10 + k % LESSON_COLUMNS * 58, topPos + 192 + k / LESSON_COLUMNS * 22, 55, 20).build());
+            }).bounds(leftPos + 10 + k % LESSON_COLUMNS * 58, topPos + 192 + k / LESSON_COLUMNS * 22, 55, 20).build(ActionButton::new));
         }
         for (int k = 0; k < 3; k++) {
             final int id = BadgeMenu.ButtonId.NEXT_PARTNER + k;
             buttons[id] = addRenderableWidget(Button.builder(Component.translatable("badge.mcyukkuri.action." + id), b -> {
                 if (minecraft.gameMode != null) minecraft.gameMode.handleInventoryButtonClick(menu.containerId, id);
-            }).bounds(leftPos + 10 + k * 115, topPos + 266, 110, 20).tooltip(Tooltip.create(Component.translatable("badge.mcyukkuri.help." + id))).build());
+            }).bounds(leftPos + 10 + k * 115, topPos + 266, 110, 20).tooltip(Tooltip.create(Component.translatable("badge.mcyukkuri.help." + id))).build(ActionButton::new));
         }
-        addRenderableWidget(Button.builder(Component.translatable("gui.done"), b -> onClose()).bounds(leftPos+240, topPos+214, 110, 20).build());
+        addRenderableWidget(Button.builder(Component.translatable("gui.done"), b -> onClose()).bounds(leftPos+240, topPos+214, 110, 20).build(ActionButton::new));
     }
     @Override protected void containerTick() {
         super.containerTick(); boolean own = menu.value(BadgeMenu.Data.OWNED) == 1 && menu.value(BadgeMenu.Data.NEAR) == 1, idle = menu.value(BadgeMenu.Data.BUSY) == 0;

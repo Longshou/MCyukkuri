@@ -1,15 +1,18 @@
 package io.github.longshou.mcyukkuri.client;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import io.github.longshou.mcyukkuri.MCYukkuri;
+import java.util.ArrayList;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 
-/** Shop GUI kit drawn from one atlas (art/props/ui/author_shop_ui.py): 9-slice panel and cards, tabs, icons, and grade chips. */
+/** Shared menu and HUD kit drawn from art/props/ui/author_shop_ui.py. */
 public final class GuiKit {
     public static final ResourceLocation TEX = MCYukkuri.id("textures/gui/shop_ui.png");
     private static final int ATLAS = 256;
@@ -43,6 +46,25 @@ public final class GuiKit {
     /** Inset row background; the selected variant has a gold rim. */
     public static void card(GuiGraphics g, int x, int y, int w, int h, boolean selected) { nine(g, x, y, w, h, selected ? 40 : 24, 0, 16, 3); }
 
+    static void statusCard(GuiGraphics g, int x, int y, int w, int h) {
+        RenderSystem.enableBlend();
+        RenderSystem.defaultBlendFunc();
+        nine(g, x, y, w, h, 80, 80, 16, 3);
+        RenderSystem.disableBlend();
+    }
+
+    static void identityChip(GuiGraphics g, Font font, Component label, String key, int x, int y, int w) {
+        int cell = switch (key) {
+            case "identity.mcyukkuri.pet" -> 0;
+            case "identity.mcyukkuri.stray" -> 1;
+            case "identity.mcyukkuri.wild_settlement" -> 2;
+            case "identity.mcyukkuri.wild_family" -> 3;
+            default -> 4;
+        };
+        nine(g, x, y, w, 13, cell * 16, 80, 16, 3);
+        g.drawString(font, label, x + 5, y + 2, INK, false);
+    }
+
     public static void icon(GuiGraphics g, int x, int y, int icon) { blit(g, x, y, icon * 16, 32, 16, 16); }
     /** Little round badge for grade 1-3 (bronze, silver, gold), 9x9; grade 0 draws nothing. */
     public static void chip(GuiGraphics g, int x, int y, int grade) { if (grade >= 1 && grade <= 3) blit(g, x, y, (grade - 1) * 9, 48, 9, 9); }
@@ -58,10 +80,10 @@ public final class GuiKit {
     /** Keeps a one-line label inside its reserved width. The caller retains the original for its hover tooltip. */
     public static Component ellipsize(Font font, Component text, int maxWidth) {
         if (font.width(text) <= maxWidth) return text;
-        String whole = text.getString(), mark = "…";
-        int end = whole.length();
-        while (end > 0 && font.width(whole.substring(0, end) + mark) > maxWidth) end--;
-        return Component.literal(whole.substring(0, end) + mark);
+        String mark = "…";
+        int remaining = maxWidth - font.width(mark);
+        return remaining < 0 ? Component.empty()
+                : Component.literal(font.plainSubstrByWidth(text.getString(), remaining) + mark);
     }
     /** Mouse inside the rectangle (all in the same, absolute screen coordinates). */
     public static boolean over(int mx, int my, int x, int y, int w, int h) { return mx >= x && mx < x + w && my >= y && my < y + h; }
@@ -75,6 +97,41 @@ public final class GuiKit {
     /** Grade name greyed and struck through (expired badge). */
     public static MutableComponent expiredGradeName(int grade) {
         return Component.translatable("badge.mcyukkuri.profile.grade." + Math.max(0, Math.min(3, grade))).withStyle(s -> s.withColor(SOFT & 0xffffff).withStrikethrough(true));
+    }
+
+    /** Keeps vanilla click handling and narration while drawing the shared action sprites. */
+    public static final class ActionButton extends Button {
+        private boolean pressed;
+
+        public ActionButton(Builder builder) {
+            super(builder);
+        }
+
+        @Override public boolean mouseClicked(double x, double y, int button) {
+            pressed = super.mouseClicked(x, y, button);
+            return pressed;
+        }
+
+        @Override public void onRelease(double x, double y) {
+            pressed = false;
+        }
+
+        @Override protected void renderWidget(GuiGraphics g, int mx, int my, float partial) {
+            int u = !active ? 48 : pressed ? 32 : isHoveredOrFocused() ? 16 : 0;
+            nine(g, getX(), getY(), getWidth(), getHeight(), u, 64, 16, 3);
+            var minecraft = Minecraft.getInstance();
+            var font = minecraft.font;
+            Component full = getMessage();
+            Component label = ellipsize(font, full, getWidth() - 10);
+            int x = getX() + (getWidth() - font.width(label)) / 2;
+            int y = getY() + (getHeight() - 9) / 2 + (pressed && active ? 1 : 0);
+            g.drawString(font, label, x, y, active ? INK : 0xff60665d, false);
+            if (label != full && (isHovered() || isFocused() && minecraft.getLastInputType().isKeyboard())) {
+                var lines = new ArrayList<>(Tooltip.splitTooltip(minecraft, full));
+                if (getTooltip() != null) lines.addAll(getTooltip().toCharSequence(minecraft));
+                minecraft.screen.setTooltipForNextRenderPass(lines);
+            }
+        }
     }
 
     /** Tab with a 16x16 icon; the inactive (current) tab is drawn as selected. Click behaviour is the plain Button's. */

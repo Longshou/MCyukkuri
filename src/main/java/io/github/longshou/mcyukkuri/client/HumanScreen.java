@@ -2,33 +2,40 @@ package io.github.longshou.mcyukkuri.client;
 
 import io.github.longshou.mcyukkuri.human.HumanMenu;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.components.*;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 
 public final class HumanScreen extends AbstractContainerScreen<HumanMenu> {
+    private static final int LEFT = 12, RIGHT = 178, COLUMN = 150, ROW = 19, BUTTON_HEIGHT = 17;
     private final Button[] actions = new Button[HumanMenu.ButtonId.COUNT];
-    public HumanScreen(HumanMenu menu, Inventory inv, Component title) { super(menu, inv, title); imageWidth = 340; imageHeight = 270; }
+    public HumanScreen(HumanMenu menu, Inventory inv, Component title) { super(menu, inv, title); imageWidth = 340; imageHeight = 230; }
     @Override protected void init() {
         super.init();
         for (int i = 0; i < 4; i++) {
-            addAction(i, 10, 53 + i * 28, 155, Component.translatable("human.mcyukkuri.buy_supply", menu.supply(i).getHoverName(), menu.supply(i).getCount(), HumanMenu.supplyPrice(i)));
+            addAction(i, LEFT, 54 + i * ROW, COLUMN, Component.translatable("human.mcyukkuri.buy_supply", menu.supply(i).getHoverName(), menu.supply(i).getCount(), HumanMenu.supplyPrice(i)));
         }
-        for (int i = HumanMenu.ButtonId.DELIVER_INPUT; i < HumanMenu.ButtonId.GUIDE; i++) addAction(i, 10 + (i % 2) * 165, 170 +
-                ((i - HumanMenu.ButtonId.DELIVER_INPUT) / 2) * 25, 155, Component.translatable("human.mcyukkuri.action." + i));
-        addAction(HumanMenu.ButtonId.NEXT_PAGE,10,220,100,Component.literal(""));
-        addAction(HumanMenu.ButtonId.BUY_PRODUCT,115,220,105,Component.translatable("human.mcyukkuri.action.14"));
-        addAction(HumanMenu.ButtonId.REPLENISH,225,220,105,Component.translatable("human.mcyukkuri.action.15"));
-        addAction(HumanMenu.ButtonId.CYCLE_PURPOSE,175,53,155,Component.literal(""));addAction(HumanMenu.ButtonId.CYCLE_SALES,175,81,155,Component.literal(""));
-        addAction(HumanMenu.ButtonId.DELIVER_PARENT,175,109,155,Component.translatable("human.mcyukkuri.action.19"));
-                addAction(HumanMenu.ButtonId.REPAIR,175,137,155,Component.translatable("human.mcyukkuri.action.20"));
-        addAction(HumanMenu.ButtonId.GUIDE, 10, 246, 155, Component.translatable("human.mcyukkuri.action.12"));
-        addRenderableWidget(Button.builder(Component.translatable("gui.done"), b -> onClose()).bounds(leftPos + 175, topPos + 246, 155, 20).build());
+        for (int i = HumanMenu.ButtonId.DELIVER_INPUT; i < HumanMenu.ButtonId.GUIDE; i++) {
+            addAction(i, i % 2 == 0 ? LEFT : RIGHT, 140 + ((i - HumanMenu.ButtonId.DELIVER_INPUT) / 2) * ROW,
+                    COLUMN, Component.translatable("human.mcyukkuri.action." + i));
+        }
+        addAction(HumanMenu.ButtonId.NEXT_PAGE, LEFT, 178, 100, Component.empty());
+        addAction(HumanMenu.ButtonId.BUY_PRODUCT, 120, 178, 100, Component.translatable("human.mcyukkuri.action.14"));
+        addAction(HumanMenu.ButtonId.REPLENISH, 228, 178, 100, Component.translatable("human.mcyukkuri.action.15"));
+        addAction(HumanMenu.ButtonId.CYCLE_PURPOSE, RIGHT, 54, COLUMN, Component.empty());
+        addAction(HumanMenu.ButtonId.CYCLE_SALES, RIGHT, 73, COLUMN, Component.empty());
+        addAction(HumanMenu.ButtonId.DELIVER_PARENT, RIGHT, 92, COLUMN, Component.translatable("human.mcyukkuri.action.19"));
+        addAction(HumanMenu.ButtonId.REPAIR, RIGHT, 111, COLUMN, Component.translatable("human.mcyukkuri.action.20"));
+        addAction(HumanMenu.ButtonId.GUIDE, LEFT, 205, COLUMN, Component.translatable("human.mcyukkuri.action.12"));
+        addRenderableWidget(Button.builder(Component.translatable("gui.done"), b -> onClose())
+                .bounds(leftPos + 272, topPos + 205, 60, BUTTON_HEIGHT).build(GuiKit.ActionButton::new));
     }
     private void addAction(int id, int x, int y, int w, Component title) {
         actions[id] = addRenderableWidget(Button.builder(title, b -> { if (minecraft.gameMode != null) minecraft.gameMode.handleInventoryButtonClick(menu.containerId, id); })
-                .bounds(leftPos + x, topPos + y, w, 20).tooltip(Tooltip.create(Component.translatable("human.mcyukkuri.help." + id))).build());
+                .bounds(leftPos + x, topPos + y, w, BUTTON_HEIGHT)
+                .tooltip(Tooltip.create(Component.translatable("human.mcyukkuri.help." + id))).build(GuiKit.ActionButton::new));
     }
     @Override protected void containerTick() {
         super.containerTick();
@@ -61,16 +68,24 @@ public final class HumanScreen extends AbstractContainerScreen<HumanMenu> {
         actions[HumanMenu.ButtonId.DONATE].active = menu.value(HumanMenu.Data.CARE_FOOD) <= 248 && menu.value(HumanMenu.Data.DAYTIME) != 0;
     }
     @Override protected void renderBg(GuiGraphics g, float partial, int x, int y) {
-        g.fill(leftPos, topPos, leftPos + imageWidth, topPos + imageHeight, 0xff30484a);
-        g.fill(leftPos + 3, topPos + 3, leftPos + imageWidth - 3, topPos + imageHeight - 3, 0xfff1e7d2);
+        GuiKit.panel(g, leftPos, topPos, imageWidth, imageHeight);
+        GuiKit.card(g, leftPos + 8, topPos + 8, imageWidth - 16, 27, false);
+        GuiKit.card(g, leftPos + LEFT - 4, topPos + 39, COLUMN + 8, 93, false);
+        if (menu.value(HumanMenu.Data.PRODUCTION_KIND) >= 2) {
+            GuiKit.card(g, leftPos + RIGHT - 4, topPos + 39, COLUMN + 8, 93, false);
+        }
+        GuiKit.card(g, leftPos + 8, topPos + 136, imageWidth - 16, 63, false);
     }
     @Override protected void renderLabels(GuiGraphics g, int x, int y) {
-        g.drawString(font, title, 10, 9, 0xff253c3c, false);
-        g.drawString(font, Component.translatable("human.mcyukkuri.status", menu.value(HumanMenu.Data.TRADES_LEFT), menu.value(HumanMenu.Data.CARE_FOOD)), 10, 23, 0xff54665a, false);
-        g.drawString(font, Component.translatable("human.mcyukkuri.supplies"), 10, 40, 0xff253c3c, false);
-        if (menu.value(HumanMenu.Data.PRODUCTION_KIND)>=2) g.drawString(font,
-                Component.translatable("human.mcyukkuri.stage_progress",Component.translatable("human.mcyukkuri.pipeline_stage."+
-                        menu.value(HumanMenu.Data.STAGE)),menu.value(HumanMenu.Data.WORK)), 175, 40, 0xff253c3c, false);
+        g.drawString(font, GuiKit.ellipsize(font, title, imageWidth - 26), LEFT + 2, 13, GuiKit.INK, false);
+        g.drawString(font, Component.translatable("human.mcyukkuri.status", menu.value(HumanMenu.Data.TRADES_LEFT),
+                menu.value(HumanMenu.Data.CARE_FOOD)), LEFT + 2, 23, GuiKit.SOFT, false);
+        g.drawString(font, Component.translatable("human.mcyukkuri.supplies"), LEFT + 2, 43, GuiKit.INK, false);
+        if (menu.value(HumanMenu.Data.PRODUCTION_KIND) >= 2) {
+            var stage = Component.translatable("human.mcyukkuri.pipeline_stage." + menu.value(HumanMenu.Data.STAGE));
+            var progress = Component.translatable("human.mcyukkuri.stage_progress", stage, menu.value(HumanMenu.Data.WORK));
+            g.drawString(font, GuiKit.ellipsize(font, progress, COLUMN - 4), RIGHT + 2, 43, GuiKit.INK, false);
+        }
     }
     @Override public void render(GuiGraphics g, int x, int y, float partial) { super.render(g, x, y, partial); renderTooltip(g, x, y); }
 }
