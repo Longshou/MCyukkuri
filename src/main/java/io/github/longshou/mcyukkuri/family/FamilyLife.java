@@ -1220,13 +1220,23 @@ public final class FamilyLife {
         if(ParentCarry.awaitsCarrier(entity))return false;
         if(adult())return carry.allowsIdleWalk(destination);
         var bed=earlyHomeStand();
-        // Vanilla idle routes start by leaving the rimmed bed. A settled dependent waits inside
-        // until a need calls it out, instead of immediately undoing either home goal's arrival.
-        if(bed!=null&&NestDoorway.bed(entity,bed)!=null&&FamilyNest.bedOccupancy(entity,bed)==Occupancy.INSIDE_SUPPORTED)return false;
+        // Vanilla idle routes start by leaving the rimmed bed. A settled dependent rests
+        // there when it has arrived on its own or a nearby parent has set it down.
+        if(entity.childhood().shouldStayWithParents()&&settledInFamilyBed(bed))return false;
         if(stage==Stage.BABY)return TravelRange.babyDestination(entity,BlockPos.containing(destination));
         if(!entity.childhood().shouldStayWithParents()||bed==null)return true;
         var home=entity.habitat().shelter();
         return home!=null&&home.contains(BlockPos.containing(destination));
+    }
+    private boolean settledInFamilyBed(BlockPos assigned) {
+        if(assigned==null&&(exploring()||familyTravelling()||emergencyForaging()))return false;
+        var bed=NestDoorway.at(entity,entity.position());
+        // Release has reached the supported surface before vanilla sets the free child's onGround flag.
+        if(bed==null||!entity.onGround()&&!SurfaceApproach.stands(entity,entity.position()))return false;
+        if(assigned!=null)return assigned.equals(bed.getBlockPos());
+        for(var id:new UUID[]{mother,father})
+            if(id!=null&&bed.owns(id)&&level().getEntity(id) instanceof YukkuriEntity parent&&parent.isAlive()&&FamilySeparation.near(entity,parent))return true;
+        return false;
     }
     /** A failed conception-time path does not move either parent; retry only while this father's brood is pending. */
     private void retryMotherBurrow() {

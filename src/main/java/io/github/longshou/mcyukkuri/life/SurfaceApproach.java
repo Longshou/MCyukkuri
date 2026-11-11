@@ -571,6 +571,14 @@ public final class SurfaceApproach {
                     boolean arrived=ground.step(here==bed?destination:inner,speed);
                     return observed(actor,here==bed&&arrived?Result.ARRIVED:Result.MOVING);
                 }
+                // A nearby release or rest stand can shift the doorway alignment sideways. The
+                // capped ground turn can circle a close target, so close this clear segment
+                // with the same collision-resolved straight step as the crossing itself.
+                if(direct(actor,door,body)&&ground.aim(door,true)==door){
+                    navigation.stop();current.target=null;current.lastStep=null;
+                    ground.step(door,speed);
+                    return observed(actor,Result.MOVING);
+                }
                 destination=door;
             }
         }
