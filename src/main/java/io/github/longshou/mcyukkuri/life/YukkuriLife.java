@@ -786,11 +786,12 @@ public final class YukkuriLife {
             case FOOD -> seekFood();
             case WINTER_FOOD -> { if (!entity.wintering().tickMeal()) stopGoal(); }
             case HOME -> {
-                if (targetBlock == null || !dryStand(targetBlock) || !restable(targetBlock) || nutrition < 30) { stopGoal(); homeWait = 0; return; }
+                if (targetBlock == null || !restable(targetBlock) || nutrition < 30) { stopGoal(); homeWait = 0; return; }
                 var nestOccupancy = FamilyNest.bedOccupancy(entity, targetBlock);
                 boolean inside = nestOccupancy == null || nestOccupancy == Occupancy.INSIDE_SUPPORTED;
                 // A dependent already supported inside the assigned bed can rest at its actual feet.
                 boolean restingHere = nestOccupancy == Occupancy.INSIDE_SUPPORTED && entity.childhood().shouldStayWithParents();
+                if (!restingHere && !dryStand(targetBlock)) { stopGoal(); homeWait = 0; return; }
                 // The same pursuit budget ends a walk that never gets the whole footprint into the bed (no new wait).
                 if (pursuitTicks > 600) {
                     if (!inside) GameplayLog.limited(entity, "home", "nest_not_inside", 200,
@@ -799,7 +800,7 @@ public final class YukkuriLife {
                 }
                 // Vanilla pathing ends up to ~0.55 block short of the last node, so the final step is steered
                 // on the supported surface; otherwise the 0.4-block arrival test below could never be met.
-                Vec3 bedCentre = FamilyNest.restPosition(entity,targetBlock);
+                Vec3 bedCentre = restingHere ? entity.position() : FamilyNest.restPosition(entity,targetBlock);
                 if(bedCentre==null){
                     if(!inside) GameplayLog.limited(entity, "home", "nest_not_inside", 200,
                             "home walk stopped reason=nest_not_inside nest={} occupancy={} cause=no_rest_place", targetBlock, nestOccupancy);
@@ -810,7 +811,7 @@ public final class YukkuriLife {
                     stopGoal();
                     return;
                 }
-                if ((restingHere || entity.distanceToSqr(bedCentre) < .16) && restable(entity.blockPosition()) && inside) {
+                if (restingHere || inside && entity.distanceToSqr(bedCentre) < .16 && restable(entity.blockPosition())) {
                     SurfaceApproach.halt(entity);
                     if (restWait == 0 && (energy <= restThreshold() || restTime())) { task = Task.SLEEP; resetSleep(); }
                     // Awake arrival ends the trip, even while rain continues above the roof.
@@ -1020,6 +1021,14 @@ public final class YukkuriLife {
     public boolean covered(BlockPos pos){ return home.covered(pos); }
     private boolean rainOutside(){ return home.rainOutside(); }
     public BlockPos entrance(BlockPos nest){ var at=home.entrance(nest); return at==null?null:BlockPos.containing(at); }
+    /** The supported stand at its real coordinates, for callers that walk to it. */
+    public Vec3 homeApproach(BlockPos nest) {
+        var bed = NestDoorway.bed(entity, nest);
+        if (bed != null) return NestDoorway.stand(entity, bed);
+        var entrance = home.entrance(nest);
+        var near = entrance == null ? Vec3.atBottomCenterOf(nest) : entrance;
+        return SurfaceApproach.restingFloor(entity, near.add(0, .1, 0));
+    }
     public boolean assignHome(GlobalPos selected){ return home.assignHome(selected); }
     public boolean assignNaturalHome(BlockPos selected){ return home.assignNaturalHome(selected); }
     public void releaseHome(){ home.releaseHome(); }

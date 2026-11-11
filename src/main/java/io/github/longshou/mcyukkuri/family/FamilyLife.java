@@ -1218,8 +1218,13 @@ public final class FamilyLife {
     /** Idle roaming must not immediately undo the child's decision to wait in the family shelter. */
     public boolean allowsIdleWalk(Vec3 destination) {
         if(ParentCarry.awaitsCarrier(entity))return false;
+        if(adult())return carry.allowsIdleWalk(destination);
+        var bed=earlyHomeStand();
+        // Vanilla idle routes start by leaving the rimmed bed. A settled dependent waits inside
+        // until a need calls it out, instead of immediately undoing either home goal's arrival.
+        if(bed!=null&&NestDoorway.bed(entity,bed)!=null&&FamilyNest.bedOccupancy(entity,bed)==Occupancy.INSIDE_SUPPORTED)return false;
         if(stage==Stage.BABY)return TravelRange.babyDestination(entity,BlockPos.containing(destination));
-        if(!entity.childhood().shouldStayWithParents()||earlyHomeStand()==null)return true;
+        if(!entity.childhood().shouldStayWithParents()||bed==null)return true;
         var home=entity.habitat().shelter();
         return home!=null&&home.contains(BlockPos.containing(destination));
     }
@@ -1306,7 +1311,6 @@ public final class FamilyLife {
                 if(home==null){stop();return;}
                 var at=FamilyNest.restPosition(entity,home);
                 if(at==null){stop();return;}
-                if(entity.distanceToSqr(at)<=.16){SurfaceApproach.halt(entity);stop();return;}
                 if(!entity.life().walkToBed(home,at,1)){stop();return;}
                 if(SurfaceApproach.lastResult(entity,at)==SurfaceApproach.Result.BLOCKED){stop();wait=200;}
             }
@@ -1344,6 +1348,7 @@ public final class FamilyLife {
     public void stop() {
         glass.stop();
         call.stop();
+        if(task==Task.STAY_HOME)SurfaceApproach.halt(entity);
         if(chore!=null){chore.stop("family_goal_stopped");chore=null;if(task==Task.FETCH_HAT)choreRetry=level().getGameTime()+600;}
         choreHat=null;
         if(task==Task.COMFORT)comfortNear=0;

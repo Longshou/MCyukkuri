@@ -11,6 +11,7 @@ import io.github.longshou.mcyukkuri.entity.component.SyncSlot;
 import io.github.longshou.mcyukkuri.headwear.HatGeometry;
 import io.github.longshou.mcyukkuri.headwear.HatScale;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
+import io.github.longshou.mcyukkuri.motor.Action;
 import io.github.longshou.mcyukkuri.motor.Attach;
 import io.github.longshou.mcyukkuri.motor.AttachState;
 import io.github.longshou.mcyukkuri.motor.BodyAbility;
@@ -139,7 +140,36 @@ public final class ParentCarry {
     public static double biteForward(MouthLane lane) { return LIP_GAP + LANE_FORWARD * lane.side() * lane.side(); }
     /** The lowest a hanging child's feet are above the carrier's feet (carrier model units). */
     public static final double MOUTH_FLOOR = .2;
-    private record Pause(long until, String reason, Vec3 failedPickup) {}
+    private record Pause(long until, String reason, Vec3 failedPickup, FailedHome failedHome) {}
+
+    /** A failed trip shared by the young it set down. Recheck the route while considering a new retrieval. */
+    private static final class FailedHome {
+        final BlockPos home, from;
+        final Vec3 stand;
+        long checkAt;
+        boolean routeMissing;
+
+        FailedHome(YukkuriEntity carrier, BlockPos home, Vec3 stand, boolean routeMissing) {
+            this.home = home;
+            this.stand = stand;
+            this.from = carrier.blockPosition();
+            this.routeMissing = routeMissing;
+            this.checkAt = carrier.level().getGameTime() + HOLD_TICKS;
+        }
+
+        boolean reachableAgain(YukkuriEntity carrier, BlockPos destination) {
+            if (!home.equals(destination)) return true;
+            long now = carrier.level().getGameTime();
+            if (now < checkAt) return false;
+            checkAt = now + HOLD_TICKS;
+            var next = carrier.life().homeApproach(home);
+            if (next == null || !SurfaceApproach.canApproach(carrier, next)) {
+                routeMissing = true;
+                return false;
+            }
+            return routeMissing || !next.equals(stand) || !from.equals(carrier.blockPosition());
+        }
+    }
 
     private final YukkuriEntity carrier;
     private final Map<UUID, Pause> pauses = new HashMap<>();
@@ -155,8 +185,10 @@ public final class ParentCarry {
     private Release settingDown;
     /** The last set-down of one of her children that failed, whoever ran it; an ended intent's handoff inherits it. */
     private Release failedRelease;
-    /** Where the carry's own Walk was last sent and started; why the retrieval gave up; why the child being set down comes down. */
-    private Vec3 walkTo, walkFrom;
+    /** Destination of the carry's own Walk and the failure that ends its trip. */
+    private Vec3 walkTo;
+    private BlockPos walkHome;
+    private FailedHome failedHome;
     private String giveUp, settingWhy;
     /** The set-down goal is running. */
     private boolean setting;
@@ -164,6 +196,10 @@ public final class ParentCarry {
     private final MotorOwner owner = new MotorOwner() {
         @Override public String ownerId() { return "family_carry"; }
         @Override public boolean active() { return lifting != null || setting || purpose != null && carrier.family().task() == FamilyLife.Task.CARRY; }
+        @Override public void finished(Action action, Outcome outcome) {
+            if (action instanceof Walk && outcome instanceof Outcome.Blocked blocked)
+                homeWalkFailed(blocked.reason(), blocked.detail(), false);
+        }
     };
     /** NEST_RIM: the nest whose rim the child lay on; its baby cushion target is synced in the hold record. */
     private BlockPos rimNest;
@@ -1281,6 +1317,8 @@ public final class ParentCarry {
     private boolean blocked(YukkuriEntity child) {
         var pause = pauses.get(child.getUUID());
         if (pause == null) return false;
+        // A home route refusal only gates another retrieval to that home.
+        if (pause.failedHome() != null) return false;
         long now = carrier.level().getGameTime();
         if (pause.reason().equals("feeding")
                 && (child.life().nutrition() >= 40 || carrier.family().task() == FamilyLife.Task.FEED_CHILD && carrier.family().target() == child)) {
@@ -1308,8 +1346,34 @@ public final class ParentCarry {
                 && (needsCarry(child) || fallsBehind(child, GATHER_RANGE))) return Purpose.MIGRATE;
         if (needsCarry(child) && FamilyNest.rimNest(child) != null) return Purpose.NEST_RIM;
         var home = destination(child);
-        if (home != null && fallsBehind(child, child.position().distanceTo(Vec3.atBottomCenterOf(home))) && !fetchedByOther(child)) return Purpose.RETRIEVE;
+        if (home != null && fallsBehind(child, child.position().distanceTo(Vec3.atBottomCenterOf(home)))
+                && !fetchedByOther(child) && canRetryHome(child, home)) return Purpose.RETRIEVE;
         return null;
+    }
+
+    private boolean canRetryHome(YukkuriEntity child, BlockPos home) {
+        var pause = pauses.get(child.getUUID());
+        if (pause == null || pause.failedHome() == null) return true;
+        if (!atHome(home) && !pause.failedHome().reachableAgain(carrier, home)) return false;
+        GameplayLog.event(carrier, "family", "carry home retry available child={} oldHome={} home={}",
+                child.getUUID(), pause.failedHome().home, home);
+        pauses.remove(child.getUUID());
+        return true;
+    }
+
+    /** While the way home is closed, ordinary strolls stay within following distance of a child she put down. */
+    boolean allowsIdleWalk(Vec3 destination) {
+        var level = (ServerLevel) carrier.level();
+        for (var entry : pauses.entrySet()) {
+            var failed = entry.getValue().failedHome();
+            if (failed != null && level.getEntity(entry.getKey()) instanceof YukkuriEntity child
+                    && dependentYoung(child) && !child.isPassenger() && FamilySeparation.near(carrier, child)
+                    && failed.home.equals(destination(child)) && !FamilyNest.atAssignedNest(child)) {
+                double follow = child.family().followRadius();
+                if (child.distanceToSqr(destination) > Math.max(follow * follow, carrier.distanceToSqr(child))) return false;
+            }
+        }
+        return true;
     }
 
     private BlockPos destination(YukkuriEntity child) {
@@ -1347,7 +1411,7 @@ public final class ParentCarry {
         var step = pickupStep(child, intent);
         if (step == Step.FAILED)
             pauses.put(child.getUUID(), new Pause(carrier.level().getGameTime() + HOLD_TICKS, "pickup_failed",
-                    finishing && carrier.motor().last() instanceof Outcome.Blocked ? child.position() : null));
+                    finishing && carrier.motor().last() instanceof Outcome.Blocked ? child.position() : null, null));
         return step;
     }
     private Step pickupStep(YukkuriEntity child, Purpose intent) {
@@ -1490,6 +1554,8 @@ public final class ParentCarry {
         purpose = intent == null ? Purpose.RETRIEVE : intent;
         since = carrier.level().getGameTime();
         walkTo = null;
+        walkHome = null;
+        failedHome = null;
         giveUp = null;
         var rim = purpose == Purpose.NEST_RIM ? FamilyNest.rimNest(child) : null;
         rimNest = rim == null ? null : rim.getBlockPos();
@@ -1599,6 +1665,8 @@ public final class ParentCarry {
         purpose = carrier.settlement().familyMarching() ? Purpose.MIGRATE : Purpose.RETRIEVE;
         since = now;
         walkTo = null;
+        walkHome = null;
+        failedHome = null;
         giveUp = null;
         GameplayLog.event(carrier, "family", "carry resumed hold={} purpose={} child={}", hold(carrier, child).key(), purpose, child.getUUID());
         if (purpose == Purpose.RETRIEVE) carrier.family().beginCarry();
@@ -1758,12 +1826,8 @@ public final class ParentCarry {
         }
         var home = destination(child);
         if (home == null) { giveUp = "no_home"; return false; }
-        var centre = Vec3.atBottomCenterOf(home);
         if (atHome(home)) return true;
-        var entrance = carrier.life().entrance(home);
-        var approach = entrance == null ? centre : Vec3.atBottomCenterOf(entrance);
-        var floor = SurfaceApproach.restingFloor(carrier, approach.add(0, .1, 0));
-        return walk(floor == null ? approach : floor, taskTicks, "home_unreachable");
+        return walkHome(home, taskTicks);
     }
 
     /** The dependent under this carrier's Grab, else the nearest within reach that the retrieval would lift now and the live holds can carry. */
@@ -1778,18 +1842,29 @@ public final class ParentCarry {
                 .stream().min(Comparator.comparingDouble(carrier::distanceToSqr)).orElse(null);
     }
 
-    /** The shared Walk to {@code at}: being there is arrival, and a route that moved the carrier nowhere is not tried again unchanged. */
-    private boolean walk(Vec3 at, int taskTicks, String failure) {
+    /** A physical stand can disappear while a child is aboard; a refused or blocked Walk ends the trip. */
+    private boolean walkHome(BlockPos home, int taskTicks) {
         var motor = carrier.motor();
-        if (carrier.position().distanceToSqr(at) < .0625) return true;
-        boolean same = walkTo != null && at.distanceToSqr(walkTo) < .0625;
-        if (same && motor.current() instanceof Walk && motor.owner() == owner) return true;
-        if (same && walkFrom != null && carrier.position().distanceToSqr(walkFrom) < .0001) { giveUp = failure; return false; }
-        if (same && taskTicks % 10 != 1) return true;
-        walkFrom = carrier.position();
-        walkTo = at;
-        motor.run(owner, new Walk(at));
-        return true;
+        if (motor.current() instanceof Walk && motor.owner() == owner) return true;
+        if (home.equals(walkHome) && taskTicks % 10 != 1) return true;
+        walkHome = home;
+        walkTo = carrier.life().homeApproach(home);
+        if (walkTo == null) {
+            homeWalkFailed(Reason.NO_PATH, "no_supported_approach", true);
+            return false;
+        }
+        if (motor.run(owner, new Walk(walkTo))) return true;
+        if (!(motor.refusal() instanceof Outcome.Blocked blocked)) return true;
+        homeWalkFailed(blocked.reason(), blocked.detail(), blocked.reason() == Reason.NO_PATH);
+        return false;
+    }
+
+    private void homeWalkFailed(Reason reason, String detail, boolean routeMissing) {
+        giveUp = "home_unreachable";
+        if (purpose == Purpose.RETRIEVE)
+            failedHome = new FailedHome(carrier, walkHome, walkTo, routeMissing);
+        GameplayLog.event(carrier, "family", "carry home walk blocked home={} stand={} reason={} detail={}",
+                walkHome, walkTo, reason, detail);
     }
 
     /** Where this child would be let go, with its carrier facing the given yaw. */
@@ -2015,7 +2090,9 @@ public final class ParentCarry {
         if (child.getUUID().equals(lifting)) lifting = null;
         child.fallDistance = 0;
         long now = carrier.level().getGameTime();
-        pauses.put(child.getUUID(), new Pause(now + (reason.equals("feeding") ? FEED_HOLD_TICKS : HOLD_TICKS), reason, null));
+        var failed = reason.equals("home_unreachable") && failedHome != null && failedHome.home.equals(destination(child))
+                ? failedHome : null;
+        pauses.put(child.getUUID(), new Pause(now + (reason.equals("feeding") ? FEED_HOLD_TICKS : HOLD_TICKS), reason, null, failed));
         GameplayLog.event(carrier, "family", "carry put down reason={} hold={} cause={} purpose={} child={} at={} carriedTicks={} nutrition={} remaining={} nest={} {}",
                 reason, hold.key(), cause, purpose, child.getUUID(), GameplayLog.at(child.position()), now - since, child.life().nutrition(),
                 carrier.getPassengers().size(), FamilyNest.bedOccupancy(child, child.family().carryHome()), readout);
