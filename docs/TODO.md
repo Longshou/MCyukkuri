@@ -9,7 +9,6 @@
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
 | 回窝进出口往返与够不到窝时反复放下抱起（自检 2、3） | `.worktrees/wp-fo-home-entry-loops` | 家庭回窝、搬运 RETRIEVE、入窝判定 |
-| 考试界面缺失的词条 | `.worktrees/wp-fq-exam-lang` | lang/*.json |
 
 ## 玩法待办
 
