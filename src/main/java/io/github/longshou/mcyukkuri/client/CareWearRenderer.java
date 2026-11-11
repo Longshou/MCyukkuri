@@ -913,6 +913,15 @@ final class CareWearRenderer {
     private static float skinRay(float[] skin, int end, float x, float y, float z, float dx, float dy, float dz) {
         float far = 0;
         for (int i = 0; i < end; i += 9) {
+            // Rays are axis-aligned in one plane: skip triangles whose box misses it (most of them), the same hits at a fraction of the cost.
+            if (dy == 0) {
+                float lo = Math.min(skin[i + 1], Math.min(skin[i + 4], skin[i + 7])), hi = Math.max(skin[i + 1], Math.max(skin[i + 4], skin[i + 7]));
+                if (y < lo - 1e-4f || y > hi + 1e-4f) continue;
+            } else {
+                float xl = Math.min(skin[i], Math.min(skin[i + 3], skin[i + 6])), xh = Math.max(skin[i], Math.max(skin[i + 3], skin[i + 6]));
+                float zl = Math.min(skin[i + 2], Math.min(skin[i + 5], skin[i + 8])), zh = Math.max(skin[i + 2], Math.max(skin[i + 5], skin[i + 8]));
+                if (x < xl - 1e-4f || x > xh + 1e-4f || z < zl - 1e-4f || z > zh + 1e-4f) continue;
+            }
             float distance = Intersectionf.intersectRayTriangle(x, y, z, dx, dy, dz,
                     skin[i], skin[i + 1], skin[i + 2], skin[i + 3], skin[i + 4], skin[i + 5],
                     skin[i + 6], skin[i + 7], skin[i + 8], 1e-6f);
