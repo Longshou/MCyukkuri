@@ -4,38 +4,18 @@
     "face_recipe": "standards/yukkuri-library/drafts/rapem-alice/face-design.json",
     "face_author": "standards/yukkuri-library/drafts/rapem-alice/build_faces.js",
     "flow_preview_source": "standards/yukkuri-library/drafts/rapem-alice/flow-scenes.js",
-    "pairing_motion_source": "standards/yukkuri-library/motions/variants/lore/recipe.json (greet) + standards/yukkuri-library/presentation/moments.json (behavior_pairing_accept, behavior_pairing) + standards/yukkuri-library/drafts/rapem-alice/pose-cues.json (pair_peni, pair_mamu, relief, faces; authored by author_cues.py, reviewed with sukkiri_page.py)",
+    "pairing_motion_source": "standards/yukkuri-library/motions/variants/lore/recipe.json (greet, sukkiri) + standards/yukkuri-library/presentation/moments.json (behavior_pairing_accept, behavior_pairing)",
     "face_sources": [
       "standards/yukkuri-library/drafts/rapem-alice/variant/breeding_period.png",
       "standards/yukkuri-library/drafts/rapem-alice/variant/state_recover.png"
     ],
-    "act_faces": {
-      "selection": "standards/yukkuri-library/provenance/standard-expressions.json (accepted)",
-      "hunter": "open_drool (N048 睁眼流口水，搜寻与追击)",
-      "act": "flushed_tongue (N035 潮红闭眼伸舌，接触动作)",
-      "victim": "squeezed_cry_tears (N030 挤眼喊叫含泪，reimu/marisa/alice/chen/patchouli；其他形态回退 cry)",
-      "rejected": "1.12原帧合成 alice_agitated 与 rapem_victim 经用户视觉反馈否决后删除",
-      "sources": [
-        "standards/yukkuri-library/assembled/alice/textures/open_drool.png",
-        "standards/yukkuri-library/assembled/alice/textures/flushed_tongue.png",
-        "standards/yukkuri-library/assembled/alice/textures/squeezed_cry_tears.png",
-        "standards/yukkuri-library/assembled/reimu/textures/flushed_tongue.png",
-        "standards/yukkuri-library/assembled/marisa/textures/flushed_tongue.png",
-        "standards/yukkuri-library/assembled/chen/textures/flushed_tongue.png",
-        "standards/yukkuri-library/assembled/patchouli/textures/flushed_tongue.png",
-        "standards/yukkuri-library/assembled/marisa_tsumuri/textures/flushed_tongue.png",
-        "standards/yukkuri-library/assembled/reimu/textures/squeezed_cry_tears.png",
-        "standards/yukkuri-library/assembled/marisa/textures/squeezed_cry_tears.png",
-        "standards/yukkuri-library/assembled/chen/textures/squeezed_cry_tears.png",
-        "standards/yukkuri-library/assembled/patchouli/textures/squeezed_cry_tears.png"
-      ]
-    },
+    "sukkiri_faces": "expression_spans in the lore sukkiri clips, with sukkiri_manic also used during Alice watch and approach",
     "exporter": "scripts/export_adult_states.py",
     "selected_snapshot": "art/source/adult-states",
     "runtime_pose": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/adult_states.json",
     "runtime_faces": "src/main/resources/assets/mcyukkuri/textures/entity/alice/{breeding_period,state_recover,open_drool,flushed_tongue,squeezed_cry_tears}.png + {reimu,marisa,chen,patchouli,marisa_tsumuri}/{flushed_tongue,squeezed_cry_tears}.png",
     "status": "selected_for_runtime_pending_visual_feedback",
-    "note": "按用户提供的八景ver1.12包还原：行为骨架与台词取自 start.utf8.hsp 与 seima_serifu；状态脸仅 breeding_period/state_recover 保留1.12原帧合成；攻击魔演出表情改用标准确认表情；素鸡立动作与発情标记为原作 LR/rot 绿屏位图转换；受方 pinned 通道随顶胯压扁、前倾不超过 8°并显示马姆马姆；攻方器官在搜寻、追击和动作期保持显示。普通配对使用 pair_peni/pair_mamu 覆盖整段接触的擦蹭、顶送、加快与高潮颤抖，父方佩妮佩妮、母方马姆马姆；Courtship 的真实绕后 ALIGN 与有效 CONTACT 分离。生殖层将胎生前侧马姆马姆网格转到后侧并推出 1.2 模型单位，不改变胎生出口。预览室场景为 adult-pairing 与 alice-rapem。",
+    "note": "行为骨架与台词取自八景ver1.12的 start.utf8.hsp 与 seima_serifu。breeding_period 和 state_recover 保留原帧合成，発情标记来自原作 rot 位图。pose-cues.json 提供接触的外层倾斜、受方压扁和普通期内配对完成的外层弹动；顶送、颤抖与表情取自 lore 的 sukkiri 片段。生殖层将接触中的马姆马姆转到后侧并推出 1.2 模型单位。试玩入口为 adult_pairing 与 alice_hunt。",
     "face_author_112": "standards/yukkuri-library/drafts/rapem-alice/build_faces_112.py",
     "overlay_converter": "standards/yukkuri-library/drafts/rapem-alice/build_overlays_112.py",
     "overlay_sources": [

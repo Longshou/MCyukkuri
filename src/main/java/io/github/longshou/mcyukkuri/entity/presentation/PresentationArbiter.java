@@ -81,7 +81,7 @@ public final class PresentationArbiter {
             MomentEffects.start(e, id, frame);
     }
 
-    /** Physical operation, reaction, injury, stem drain, then mood and the authored face. */
+    /** Physical operation and active performance precede the ordinary expression rules. */
     private String expression(){
         var e=state.owner();
         if(e.operations().active())return switch(e.operations().pose()){

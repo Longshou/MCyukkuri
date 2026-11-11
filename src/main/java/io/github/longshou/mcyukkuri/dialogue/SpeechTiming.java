@@ -9,15 +9,17 @@ public final class SpeechTiming {
     private long end, next;
     private int priority = -1;
 
-    private boolean available(long now, int incomingPriority) {
-        if (now < end && incomingPriority <= priority) return false;
+    private boolean available(long now, int incomingPriority, boolean timedCue) {
+        // A synchronized performance beat may take over another priority-two line.
+        if (now < end && (incomingPriority < priority
+                || incomingPriority == priority && !(timedCue && incomingPriority == 2))) return false;
         if (now >= end && now < next && incomingPriority < 2) return false;
         return true;
     }
 
     /** Ordinary speech takes turns locally; important reactions bypass the shared quiet gap. */
-    public boolean admit(YukkuriEntity speaker, long now, int duration, int incomingPriority) {
-        if (!available(now, incomingPriority)) return false;
+    public boolean admit(YukkuriEntity speaker, long now, int duration, int incomingPriority, boolean timedCue) {
+        if (!available(now, incomingPriority, timedCue)) return false;
         if (incomingPriority < 2 && !speaker.level().getEntitiesOfClass(YukkuriEntity.class,
                 speaker.getBoundingBox().inflate(NEARBY_RADIUS), other -> other != speaker && other.isAlive()
                         && speaker.distanceToSqr(other) <= NEARBY_RADIUS * NEARBY_RADIUS
@@ -26,11 +28,14 @@ public final class SpeechTiming {
             next = Math.max(next, now + 40 + Math.floorMod(speaker.getUUID().hashCode(), 41));
             return false;
         }
-        return admit(now, duration, incomingPriority);
+        return begin(now, duration, incomingPriority);
     }
 
     public boolean admit(long now, int duration, int incomingPriority) {
-        if (!available(now, incomingPriority)) return false;
+        return available(now, incomingPriority, false) && begin(now, duration, incomingPriority);
+    }
+
+    private boolean begin(long now, int duration, int incomingPriority) {
         priority = incomingPriority;
         end = now + duration;
         next = end + (incomingPriority == 0 ? 200 : incomingPriority == 1 ? 120 : 30);

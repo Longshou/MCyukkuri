@@ -712,7 +712,8 @@ public final class AgitationLife {
         @Override public void start() {
             var life = entity.agitation();
             life.controlling = true;
-            life.phaseStart = entity.level().getGameTime() - life.phaseTicks;
+            // holdBy has already started the victim's clip on the attacker's contact tick.
+            if (life.phase != Phase.HELD) life.phaseStart = entity.level().getGameTime() - life.phaseTicks;
             entity.getNavigation().stop();
         }
         @Override public void tick() { entity.agitation().tickGoal(); }

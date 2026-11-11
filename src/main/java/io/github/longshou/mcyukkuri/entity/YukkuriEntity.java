@@ -848,21 +848,22 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
 
     /** A timed presentation line cannot consume the random stream of the behavior it accompanies. */
     public boolean speakCue(String event) {
-        return speak(event,speechTier(),RandomSource.create(getUUID().getLeastSignificantBits()^level().getGameTime()^event.hashCode()));
+        var random=RandomSource.create(getUUID().getLeastSignificantBits()^level().getGameTime()^event.hashCode());
+        return speak(event,speechTier(),random,true);
     }
 
     /** Say a line of this event in the given voice tier (its fallback chain as {@link NativeDialogue#select}). */
     public boolean speak(String event, String tier) {
-        return speak(event,tier,getRandom());
+        return speak(event,tier,getRandom(),false);
     }
 
-    private boolean speak(String event,String tier,RandomSource random) {
+    private boolean speak(String event,String tier,RandomSource random,boolean timedCue) {
         // An empty event is "no line": a reaction that shows only its face says nothing at all, in every voice
         // (a deficient yukkuri's babble is a line for a real event, not for a missing one).
         if (level().isClientSide || !isAlive() || event.isEmpty()) return false;
         if (subspecies.congenital() != SubspeciesLife.Congenital.NORMAL) {
             long now = level().getGameTime();
-            if (!speechTiming.admit(this, now, 40, NativeDialogue.priority(event))) return false;
+            if (!speechTiming.admit(this, now, 40, NativeDialogue.priority(event), timedCue)) return false;
             sync().dialogue("dialogue.mcyukkuri.deficient.babble");
             sync().speechStart(now); sync().speechEnd(speechTiming.end());
             sync().speechSequence(speechSequence() + 1);
@@ -872,7 +873,7 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
         String species = variant.dialogueSpecies();
         var line = NativeDialogue.select(species, tier, myon.quirk(), event, random);
         long now = level().getGameTime();
-        if (line == null || !speechTiming.admit(this, now, line.ticks(), NativeDialogue.priority(event))) return false;
+        if (line == null || !speechTiming.admit(this, now, line.ticks(), NativeDialogue.priority(event), timedCue)) return false;
         sync().dialogue(line.key());
         sync().speechStart(now); sync().speechEnd(speechTiming.end());
         sync().speechSequence(speechSequence() + 1);

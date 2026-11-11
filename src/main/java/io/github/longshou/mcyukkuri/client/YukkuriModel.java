@@ -898,7 +898,6 @@ public final class YukkuriModel {
                 ||behavior.equals(Behaviors.NEST_HARVEST)||behavior.equals(Behaviors.NEST_PLACE)||behavior.equals(Behaviors.NEST_SPREAD)||behavior.equals(Behaviors.NEST_PRESS))selected=behavior;
         if(carrying&&gripBones!=null&&(selected.equals("idle")||selected.equals("waddle")))selected="house_carry";
         gripping=carrying||selected.equals("house_pickup")||selected.equals("house_deposit")||selected.equals("house_carry");
-        // The exported adult-state cue owns the complete body pose. Do not add a second
         // Legacy idle cues suppress ordinary root clips. Authored sukkiri and anatomy clips keep their own clocks.
         boolean authoredAdult = action.startsWith("anatomy_")||YukkuriAction.sukkiri(action);
         if (adultStatePose && !authoredAdult) selected="idle";
