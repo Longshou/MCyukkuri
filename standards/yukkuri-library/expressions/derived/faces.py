@@ -16,9 +16,13 @@ Excited-leak faces (the manga look the user picked: huge round glossy eyes, a sm
 eye redrawn as one big round wet eye in the model's own outline, iris, lower-reflection and catch-light colours, the
 mouth redrawn on the 2-texel mouth grid at the box's own scale (predator fangs kept), the brows from the model's own
 surprise / teary atlas and the blush from its flushed_smile atlas:
-leak_startle: the startled instant - raised brows, small round open mouth, no tears.
-leak_flow: while it runs - worried brows, welling tears, a wider open wailing mouth with the tongue showing.
-leak_after: dazed and ashamed afterwards - the big eyes half-lidded, welling tears, a wavering mouth.
+leak_startle: the startled instant - raised brows, small round open mouth, no tears, the first trickle below the mouth.
+leak_flow (+ _b, _c): while it runs - worried brows, welling tears, a wide open mouth with the tongue; three outlined
+  sugar-water streams down the lower front (wiki F37: the opening lies below the chin) whose highlight runs down per frame.
+leak_after (+ _b): dazed and ashamed afterwards - half-lidded big eyes, welling tears, a wavering mouth; the streams dry to
+  broken remnants and a last drop hangs at the bottom (gone in frame b).
+The streams live in the decals that cover the lower front of rounded bodies (the mouth-effect cell, which runs from below
+the mouth over the bottom curve, and the lower rows of the tear cells); the body surface itself has no texture layout.
 
     python standards/yukkuri-library/expressions/derived/faces.py [--check]
 """
@@ -36,6 +40,12 @@ BROWS = ('face_brow_left', 'face_brow_right')
 BLUSH = ('face_blush_left', 'face_blush_right')
 LID = .25
 LEAK = ('leak_startle', 'leak_flow', 'leak_after')
+# Wet streaks drawn on the lower front of the body, in the face decals that cover it (rounded bodies: the mouth-effect cell
+# runs from below the mouth over the bottom curve; the lower rows of the tear cells cover the lower front beside it).
+# Frames of one face id are played by face_library animations: (face, frame index) -> atlas id.
+LEAK_FRAMES = {('leak_startle', 0): 'leak_startle', ('leak_flow', 0): 'leak_flow', ('leak_flow', 1): 'leak_flow_b',
+               ('leak_flow', 2): 'leak_flow_c', ('leak_after', 0): 'leak_after', ('leak_after', 1): 'leak_after_b'}
+WET_CORE, WET_EDGE, WET_SHINE = (248, 236, 160, 255), (158, 124, 58, 255), (255, 255, 244, 255)  # pale sugar water
 # One big wet eye (13x12, centred in the 15x12 eye box): A outline, C iris, E lower reflection, B catch-light.
 BIG_EYE = ('....AAAAA....', '..AACCCCCAA..', '.ABBBCCCCCCA.', '.ABBBBCCCCCA.', 'ACBBBBCCCCCCA', 'ACCBBCCCCCCCA',
            'ACCCCCCCCCCCA', 'ACCCCCCCBBCCA', '.ACCCCCCBBCA.', '.ACCEEEEECCA.', '..AAEEEEEAA..', '....AAAAA....')
@@ -52,13 +62,14 @@ MOUTHS = {
 FANGS = {'leak_startle': [(11, 6), (15, 6)], 'leak_flow': [(10, 4), (16, 4)], 'leak_after': []}
 
 
-def boxes(model, size):
-    V = model['vertices']; out = {}
+def boxes(model, size, exact=False):
+    """Texel boxes of the face decals; exact rounds the UV edges (float noise can push a ceil into the next cell)."""
+    V = model['vertices']; out = {}; low, high = (round, round) if exact else (math.floor, math.ceil)
     for p in model['parts']:
         if p['name'] not in CLEARED+EYES+(MOUTH,)+BROWS+BLUSH: continue
         front = [p['start']+i for i in range(p['count']) if V[(p['start']+i)*8+7] < -.2]  # the face-on decal only, not its edges
         us = [V[i*8+3] for i in front]; vs = [V[i*8+4] for i in front]
-        out[p['name']] = (math.floor(min(us)*size), math.floor(min(vs)*size), math.ceil(max(us)*size), math.ceil(max(vs)*size))
+        out[p['name']] = (low(min(us)*size), low(min(vs)*size), high(max(us)*size), high(max(vs)*size))
     return out
 
 
@@ -145,15 +156,48 @@ def grid_mouth(image, source, box, face):
     image.paste(part, box[:2])
 
 
-def leak_face(face, atlases, found):
+def streak(px, x, top, bottom, frame, width=2, broken=False):
+    """One outlined stream in the tear-flow language (light fill, darker edge) ending in a drop one texel wider; a bright
+    highlight runs two rows down per frame. broken keeps only every other row with no highlight (drying remnants)."""
+    span = bottom-top+1; shine = top+(2*frame) % max(1, span-1)
+    for y in range(top, bottom+1):
+        if broken and (y-top) % 2: continue
+        grow = 1 if y >= bottom-1 and not broken and span > 3 else 0
+        left, right = x-grow, x+width-1+grow
+        for cx in range(left, right+1): px[cx, y] = WET_CORE
+        if not broken and y in (shine, shine+1): px[x+width-1, y] = WET_SHINE
+        px[left-1, y] = WET_EDGE; px[right+1, y] = WET_EDGE
+
+def drop(px, x, y):
+    px[x, y] = WET_EDGE; px[x-1, y+1] = WET_EDGE; px[x, y+1] = WET_SHINE; px[x+1, y+1] = WET_EDGE; px[x, y+2] = WET_EDGE
+
+def leak_wet(image, found, face, frame):
+    """Sugar-water lines from the opening below the mouth (wiki F37) down the lower front and over the bottom curve."""
+    px = image.load(); ex, ey, ex1, ey1 = found['face_effect_mouth']
+    for y in range(ey, ey1):
+        for x in range(ex, ex1): px[x, y] = (0, 0, 0, 0)
+    c, top, bottom = ex+round((ex1-ex)*.43), ey+round((ey1-ey)*.5), ey1-1  # x = 0 on the body, about 1.5 units up
+    if face == 'leak_startle':
+        streak(px, c, top, top+2, 0)  # the first trickle
+        return
+    broken = face == 'leak_after'
+    streak(px, c, top, bottom-(2 if broken else 0), frame, 2, broken)
+    if broken and frame == 0: drop(px, c, bottom-2)  # a last drop hangs from the bottom, then falls (frame b)
+    # Beside the mouth, down the lower front: one line in each tear cell's lower half, about 2.3 units off the centre.
+    for name, col in (('face_tear_left', 9), ('face_tear_right', 5)):
+        x0, y0, x1, y1 = found[name]
+        streak(px, x0+col, y0+round((y1-y0)*.55), y1-1, frame+1, 1, broken)
+
+def leak_face(face, atlases, found, cells, frame=0):
     neutral, teary, surprise = atlases['neutral'], atlases['teary'], atlases['surprise']
     out = neutral.copy()
     for name in BROWS: out.paste((surprise if face == 'leak_startle' else teary).crop(found[name]), found[name][:2])
+    for name in CLEARED: out.paste((neutral if face == 'leak_startle' else teary).crop(found[name]), found[name][:2])
     blush = atlases.get('flushed_smile') or neutral
     for name in BLUSH: out.paste(blush.crop(found[name]), found[name][:2])
-    for name in CLEARED: out.paste((neutral if face == 'leak_startle' else teary).crop(found[name]), found[name][:2])
     for name in EYES: big_eye(out, neutral, found[name], 3 if face == 'leak_after' else 0, name.endswith('left'))
     grid_mouth(out, surprise, found[MOUTH], face)
+    leak_wet(out, cells, face, frame)
     return out
 
 
@@ -179,7 +223,8 @@ def outputs():
         faces['afraid'] = afraid
         atlases = {n: Image.open(folder/f'{n}.png').convert('RGBA') for n in ('neutral', 'teary', 'surprise', 'flushed_smile')
                    if (folder/f'{n}.png').is_file()}
-        for face in LEAK: faces[face] = leak_face(face, atlases, found)
+        cells = boxes(model, teary.width, True)
+        for (face, frame), ident in LEAK_FRAMES.items(): faces[ident] = leak_face(face, atlases, found, cells, frame)
         records[folder.name] = {}
         for face, out in faces.items():
             data = io.BytesIO(); out.save(data, format='PNG'); data = data.getvalue()
@@ -189,9 +234,9 @@ def outputs():
                                          if (folder/f'{n}.png').is_file()}
     manifest = {'status': 'pending_user_review', 'origin': 'project design', 'recipe': {'sad': 'teary atlas, tear and mouth-effect cells from neutral, top quarter of each eye under a flat lid line',
                            'afraid': 'teary atlas, tear and mouth-effect cells from neutral, eyes from surprise with a small dark pupil, a pressed zigzag mouth',
-                           'leak_startle': 'neutral atlas, surprise brows, flushed_smile blush, big round wet eyes in the neutral eye colours, a small round open mouth',
-                           'leak_flow': 'neutral atlas, teary brows and welling tears, flushed_smile blush, big round wet eyes, a wide open mouth with the tongue',
-                           'leak_after': 'neutral atlas, teary brows and welling tears, flushed_smile blush, big wet eyes under a lowered lid, a wavering mouth'},
+                           'leak_startle': 'neutral atlas, surprise brows, flushed_smile blush, big round wet eyes in the neutral eye colours, a small round open mouth, a first trickle',
+                           'leak_flow': 'neutral atlas, teary brows and welling tears, flushed_smile blush, big round wet eyes, a wide open mouth with the tongue, three running streams (frames b, c)',
+                           'leak_after': 'neutral atlas, teary brows and welling tears, flushed_smile blush, big wet eyes under a lowered lid, a wavering mouth, drying streams and a last drop (frame b)'},
                 'builder': Path(__file__).relative_to(ROOT).as_posix(), 'builder_sha256': hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
                 'models': records}
     files[HERE/'manifest.json'] = (json.dumps(manifest, indent=2)+'\n').encode()
@@ -204,4 +249,4 @@ if __name__ == '__main__':
     for path, data in files.items():
         if args.check: assert path.is_file() and path.read_bytes() == data, 'Outdated: '+str(path)
         else: path.write_bytes(data)
-    print(f'sad, afraid and leak faces for {(len(files)-1)//5} models '+('verified' if args.check else 'written'))
+    print(f'sad, afraid and leak faces for {(len(files)-1)//8} models '+('verified' if args.check else 'written'))

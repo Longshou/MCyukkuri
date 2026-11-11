@@ -132,8 +132,10 @@ def outputs():
                             expression_patches=patches,face_aliases=row['face_aliases'],
                             selectable=sorted(set(faces)|set(row['existing_textures'])|set(row['legacy_faces'])))
     animations = selection['animations']
-    # One duration (ticks) per frame; the client cycles them in order.
-    assert all(a == b['frames'][0] and set(b['frames']) <= set(faces) and len(b['frame_ticks']) == len(b['frames']) >= 2
+    # One duration (ticks) per frame; the client cycles them in order. Frames are approved faces or derived faces
+    # selectable on every model.
+    shared = set.intersection(*(set(m['selectable']) for m in models.values()))
+    assert all(a == b['frames'][0] and set(b['frames']) <= shared and len(b['frame_ticks']) == len(b['frames']) >= 2
                and all(t > 0 for t in b['frame_ticks']) for a,b in animations.items())
     files[ASSETS/'yukkuri_presentation/face_library.json'] = encoded(dict(format=1,faces=list(faces),aliases={**index['aliases'],**selection['aliases']},animations=animations,models=models,face_fallback=selection['face_fallback']))
     ledger = read(ROOT/'art/runtime-sources.json')
