@@ -14,6 +14,7 @@
 | 坑奴：接触站位循环、意外死亡与甜化 | `.worktrees/wp-fu-pit-slave` | settlement 坑奴、取食接触 |
 | 界面遗留：徽章手帖高度、放大镜与考试界面实机截图 | `.worktrees/wp-fv-ui-leftovers` | client/BadgeScreen、capture |
 | 素鸡立遗留：211 tick 提前中断、帽檐穿蝴蝶结、父方脸 | `.worktrees/wp-fw-sukkiri-leftovers` | 素鸡立演出、渲染间距 |
+| 接生遗留：帽子没接住新生儿 | `.worktrees/wp-fx-birth-catch` | family 接生、摘帽接住 |
 
 ## 玩法待办
 
