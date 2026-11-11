@@ -322,9 +322,9 @@ public final class ForageTrip extends Goal {
             float boldness = entity.life().personality().boldness() / 100f;
             boolean covered = household.covered();
             int interval = covered ? MOTHER_INTERVAL : MOTHER_INTERVAL / 3;
-            // With a provider, an empty store matters as her own appetite grows. Alone, budget a little more than
-            // the ordinary household reserve: a sole provider also has to stop for meals, rest and care.
-            float reserve = covered ? (85 + 10 * boldness - entity.life().nutrition()) / 25
+            // With a provider, helping starts near her ordinary appetite (75), shifted five points by boldness.
+            // A sole provider budgets for pauses to eat, rest and care for the young.
+            float reserve = covered ? (70 + 10 * boldness - entity.life().nutrition()) / 25
                     : HouseholdStores.target(home) * (1.1f + .3f * boldness);
             if (home.food() >= reserve || now - lastTrip < interval * entity.species().traits().forage()) return false;
             departure = covered ? "mother_short" : "mother_father_away";

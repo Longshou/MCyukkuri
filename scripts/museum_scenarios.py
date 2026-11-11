@@ -148,7 +148,8 @@ add('den_family', 'den', '一家三口住进土丘洞', '一家三口住进土�
     '入住约 1 分钟；杀死父油后数分钟（可五倍速）', [
         yk('reimu', 0, 3, 'mother', uuid=_dm, yaw=180, lead=True, kin=f'Partner:{uuid_nbt(_df)}', **pair_ready()),
         yk('marisa', 2, 3, 'father', uuid=_df, yaw=180, kin=f'Partner:{uuid_nbt(_dm)}', **pair_ready()),
-        yk('reimu', 1, 4, 'child', stage='child', uuid=_dc, yaw=180, nutrition=55, kin=f'Mother:{uuid_nbt(_dm)},Father:{uuid_nbt(_df)}'),
+        # Starts above appetite so the child's first demand develops during the handoff.
+        yk('reimu', 1, 4, 'child', stage='child', uuid=_dc, yaw=180, nutrition=80, kin=f'Mother:{uuid_nbt(_dm)},Father:{uuid_nbt(_df)}'),
         box(-7, 0, 1, 7, 1, 8, 'minecraft:air', 'replace minecraft:short_grass')],
     env=DAY, spot='family', vantage=(0, 12),
     note='杀死父油：/kill @e[tag=scn_father,limit=1]。观察台可读母油的 Load、Delivered 和孩子营养。',
