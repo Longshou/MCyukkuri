@@ -19,6 +19,7 @@ from capture_readout import postprocess, select_frames, geometry_report
 from PIL import Image, ImageDraw
 
 server = smoke.server
+SCREENS = ('care', 'care_busy', 'cutter', 'human', 'shop', 'exam', 'badge', 'keeper', 'magnifier')
 
 
 @contextmanager
@@ -96,13 +97,25 @@ def main():
     parser.add_argument('--sample-window', type=int, nargs=3, metavar=('FIRST', 'LAST', 'STEP'),
                         help='Capture only this tick interval; does not change scene preparation or behaviour')
     parser.add_argument('--tick-rate', type=float, default=20, help='Capture server ticks per second (1 <= rate <= 20)')
-    parser.add_argument('scenes', nargs='+', help='Museum scene IDs')
+    parser.add_argument('--screen', action='append', nargs=3, metavar=('SCENE', 'KIND', 'SELECTOR'),
+                        help='Capture a real menu or magnifier HUD; repeatable. Kinds: ' + ', '.join(SCREENS))
+    parser.add_argument('--gui-scale', type=int, default=2, choices=(2, 3), help='Minecraft GUI scale')
+    parser.add_argument('scenes', nargs='*', help='Museum scene IDs for ordinary scene capture')
     args = parser.parse_args()
+    if args.screen:
+        if args.scenes or args.view or args.vantage or args.sample_window:
+            parser.error('--screen selects its own scene, view and timing')
+        for _, kind, _ in args.screen:
+            if kind not in SCREENS:
+                parser.error('Unknown screen kind: ' + kind)
+    elif not args.scenes:
+        parser.error('Specify at least one scene or --screen')
     if not math.isfinite(args.tick_rate) or not 1 <= args.tick_rate <= 20:
         parser.error('--tick-rate must be finite and between 1 and 20')
     if args.sample_window and (args.sample_window[0] < 0 or args.sample_window[1] < args.sample_window[0] or args.sample_window[2] <= 0):
         parser.error('--sample-window requires 0 <= FIRST <= LAST and STEP > 0')
-    with slots.slot('capture', ' '.join(args.scenes), args.slots):
+    scene_ids = [scene for scene, _, _ in args.screen] if args.screen else args.scenes
+    with slots.slot('capture', ' '.join(scene_ids), args.slots):
         return capture(parser, args)
 
 
@@ -115,13 +128,17 @@ def capture(parser, args):
     sys.path[0] = str(source / 'scripts')
     builder = importlib.import_module('build_museum_full')
     scenes = {scene.id: scene for scene in builder.museum_scenarios.S}
-    unknown = set(args.scenes) - scenes.keys()
+    scene_ids = [scene for scene, _, _ in args.screen] if args.screen else args.scenes
+    unknown = set(scene_ids) - scenes.keys()
     if unknown:
         parser.error('Unknown scenes: ' + ', '.join(sorted(unknown)))
-    selected = [scenes[sid] for sid in dict.fromkeys(args.scenes)]
+    selected = [scenes[sid] for sid in dict.fromkeys(scene_ids)]
     views = [(scene, f'{scene.id}_{name}' if name else scene.id, view)
              for scene in selected
              for name, view in ({'': {}} if args.vantage else scene.capture.get('views', {'': dict(follow=scene.capture.get('follow'))})).items()]
+    if args.screen:
+        views = [(scenes[scene], f'{scene}_{kind}_{i}', dict(screen=kind, target=selector))
+                 for i, (scene, kind, selector) in enumerate(args.screen)]
     if args.view:
         unknown_views=set(args.view)-{view_id for _,view_id,_ in views}
         if unknown_views:
@@ -134,7 +151,7 @@ def capture(parser, args):
     seed = server.COMMON / '.local/experimental-map/museum-seed/level.dat'
     builder.level_metadata(seed).save(pack.parent.parent / 'level.dat')
     (instance / 'options.txt').write_text(
-        'lang:zh_cn\nguiScale:2\nrenderDistance:10\nsimulationDistance:8\nmaxFps:60\nenableVsync:false\n'
+        f'lang:zh_cn\nguiScale:{args.gui_scale}\nrenderDistance:10\nsimulationDistance:8\nmaxFps:60\nenableVsync:false\n'
         'onboardAccessibility:false\nautoJump:false\npauseOnLostFocus:false\ntutorialStep:none\n'
         'narrator:0\nsoundCategory_master:0.0\nchatVisibility:2\n', encoding='utf-8')
     (instance / 'config').mkdir()
@@ -173,10 +190,12 @@ def capture(parser, args):
                 output_file.write(f'\nschedule clear mcylab:capture/{view_id}_camera\n')
         (functions / f'capture/{view_id}.mcfunction').write_text(
             f'yukkuri status trace dense\nexecute as @a at @s run function mcylab:start/{scene.id}\n{camera}' + interactions
-            + ('execute as @a run yukkuri observe off\n' if args.vantage or scene.capture.get('observe') is False else '')
+            + ('execute as @a run yukkuri observe off\n' if args.screen or args.vantage or scene.capture.get('observe') is False else '')
             + geometry, encoding='utf-8')
         ticks = capture_ticks(scene.capture) if args.sample_window is None else list(range(
             args.sample_window[0], args.sample_window[1] + 1, args.sample_window[2]))
+        if args.screen:
+            ticks = [64, 86] if settings['screen'] == 'care' else [76]
         plan.append(dict(id=view_id, field=scene.field, ticks=ticks, settings=settings,
                          milestones=scene.smoke.get('milestones', []) if scene.smoke else [],
                          chunks=sorted(builder.BY_ID[scene.field].chunks()), view=view,
@@ -187,7 +206,8 @@ def capture(parser, args):
     revision = subprocess.check_output(['git', '-C', str(source), 'rev-parse', 'HEAD'], text=True).strip()
     (output / 'run.json').write_text(json.dumps(dict(source=str(source), commit=revision, runtime=str(runtime),
         dirty=bool(subprocess.check_output(['git', '-C', str(source), 'status', '--porcelain'])),
-        scenes=args.scenes, smoke_commands=args.smoke_commands, vantage=args.vantage, self_check=True), indent=2), encoding='utf-8')
+        scenes=scene_ids, screens=args.screen, gui_scale=args.gui_scale, smoke_commands=args.smoke_commands,
+        vantage=args.vantage, self_check=True), indent=2), encoding='utf-8')
     command = client_command(runtime, java, instance, mod, output)
     server.wait_closed(not args.no_wait)
     startup = subprocess.STARTUPINFO()

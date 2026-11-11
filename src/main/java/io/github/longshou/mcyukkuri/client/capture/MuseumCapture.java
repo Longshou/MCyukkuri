@@ -17,15 +17,18 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.IntStream;
+import io.github.longshou.mcyukkuri.interaction.CareMenu;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.Screenshot;
+import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.CommandSource;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.scores.ScoreHolder;
 import net.neoforged.neoforge.client.event.RegisterClientCommandsEvent;
 import net.neoforged.neoforge.client.event.RenderFrameEvent;
+import net.neoforged.neoforge.client.event.ScreenEvent;
 import org.lwjgl.glfw.GLFW;
 
 /** Opt-in render-target recorder. Scene actions still run through the museum's normal start functions. */
@@ -48,8 +51,17 @@ public final class MuseumCapture {
     private static long cameraFrame=-1;
     private static boolean rateSet;
     private static boolean sectionsRefreshed;
+    private static CaptureScreen screenCapture;
 
     public static double[] camera(Camera camera,float partial) {
+        if (!Boolean.getBoolean("mcyukkuri.capture")) return null;
+        if (screenCapture != null) {
+            var aim = screenCapture.aim(Minecraft.getInstance(), camera, partial);
+            if (aim == null) return null;
+            var eye = camera.getPosition();
+            return new double[]{eye.x, eye.y, eye.z, Math.toDegrees(Math.atan2(-aim.x, aim.z)),
+                    -Math.toDegrees(Math.atan2(aim.y, aim.horizontalDistance()))};
+        }
         if(current==null||current.settings==null)return null;
         var settings=current.settings;var eye=camera.getPosition();double x=eye.x,y=eye.y,z=eye.z,tx,ty,tz;
         if(settings.has("look_at")) {
@@ -106,7 +118,9 @@ public final class MuseumCapture {
     }
 
     private static void begin(Scene scene) {
-        Minecraft.getInstance().options.hideGui = true;
+        screenCapture = scene.settings.has("screen") ? new CaptureScreen(
+                scene.settings.get("screen").getAsString(), scene.settings.get("target").getAsString()) : null;
+        Minecraft.getInstance().options.hideGui = screenCapture == null;
         current = scene;
         nextFrame = 0;
         follow=null;followId=-1;cameraFrame=-1;sectionsRefreshed=false;
@@ -145,7 +159,7 @@ public final class MuseumCapture {
         Minecraft mc = Minecraft.getInstance();
         // Loading screens and remote worlds have no integrated museum to drive.
         if (mc.level == null || mc.player == null || mc.getSingleplayerServer() == null
-                || mc.screen != null || mc.getOverlay() != null) return;
+                || (mc.screen != null && screenCapture == null) || mc.getOverlay() != null) return;
         if (current == null) {
             if (System.nanoTime() < nextReadyCheck) return;
             if (start == null) {
@@ -216,8 +230,11 @@ public final class MuseumCapture {
         }
         if(follow!=null&&follow.isDone())followId=follow.join();
         boolean metricHit=PoseTap.evaluateFrame();
+        boolean screenReady = screenCapture == null || screenCapture.ready(mc, tick);
         boolean scheduled = nextFrame < current.ticks.length && tick >= current.ticks[nextFrame];
-        boolean shot = scheduled || tick >= 0 && nextFrame < current.ticks.length && (PoseTap.markerFrame()||metricHit);
+        boolean shot = screenCapture == null
+                ? scheduled || tick >= 0 && nextFrame < current.ticks.length && (PoseTap.markerFrame()||metricHit)
+                : scheduled && screenReady;
         boolean cameraReady=current.settings==null||!(current.settings.has("follow")||current.settings.has("look_at"))
                 ||cameraFrame==PoseTap.frameId();
         if (shot) {
@@ -231,6 +248,9 @@ public final class MuseumCapture {
                     GLFW.glfwGetWindowAttrib(window, GLFW.GLFW_FOCUSED) != 0, cameraReady));
             Path output = ROOT.resolve(current.id).resolve(file);
             NativeImage pixels = Screenshot.takeScreenshot(mc.getMainRenderTarget());
+            if (mc.screen instanceof AbstractContainerScreen<?> screen && screen.getMenu() instanceof CareMenu care) {
+                LogUtils.getLogger().info("[capture] scene={} tick={} actions={}", current.id, tick, Long.bitCount(care.actions()));
+            }
             if (nextFrame == current.ticks.length) readScene(current, mc);
             WRITES.add(CompletableFuture.runAsync(() -> {
                 try (pixels) {
@@ -247,6 +267,8 @@ public final class MuseumCapture {
             Files.writeString(ROOT.resolve(current.id).resolve("frames.json"), JSON.toJson(FRAMES));
             PoseTap.end();
             LogUtils.getLogger().info("[capture] scene={} frames={} seconds={}", current.id, FRAMES.size(), (System.nanoTime() - began) / 1e9);
+            if (screenCapture != null) screenCapture.close(mc);
+            screenCapture = null;
             current = null;
             start = null;
             if (PLAN.length > 0 && nextScene == PLAN.length) {
@@ -256,5 +278,9 @@ public final class MuseumCapture {
         } catch (IOException ex) {
             throw new UncheckedIOException(ex);
         }
+    }
+
+    public static void renderScreen(ScreenEvent.Render.Pre event) {
+        if (screenCapture != null) screenCapture.render(event);
     }
 }

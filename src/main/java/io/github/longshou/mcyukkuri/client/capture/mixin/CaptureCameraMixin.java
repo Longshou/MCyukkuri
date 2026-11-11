@@ -17,6 +17,7 @@ abstract class CaptureCameraMixin {
     @Shadow protected abstract void setRotation(float yaw,float pitch);
     @Inject(method="setup",at=@At("TAIL"))
     private void captureView(BlockGetter level,Entity entity,boolean detached,boolean mirrored,float partial,CallbackInfo ci) {
+        if (!Boolean.getBoolean("mcyukkuri.capture")) return;
         var view=MuseumCapture.camera((Camera)(Object)this,partial);
         if(view!=null){setPosition(view[0],view[1],view[2]);setRotation((float)view[3],(float)view[4]);}
     }
