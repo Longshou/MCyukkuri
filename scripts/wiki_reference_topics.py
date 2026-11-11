@@ -126,8 +126,14 @@ def render(data):
     outputs={}
     def write(path,text): outputs[path]=text
     assets=data['assets'];s=data['stats']
+    evidence=read(LIB/'evidence.json')
+    evidence_images=len(evidence['pages'])
+    evidence_units=sum(len(page['units']) for page in evidence['pages'])
+    evidence_passages=len(evidence['passages'])
+    evidence_speech=len(evidence['speech'])
     write(LIB/'catalog.json',json.dumps(data,ensure_ascii=False,indent=2)+'\n')
     lines=['# 游戏参考库','','[Wiki](../README.md) · **[按实体、情景、情绪筛图](gallery.html)** · [造型与动作参考](production-briefs.md) · [清晰画面精选](quality-picks.md)','',
+        f"[作品证据索引](evidence.json)收录 **{evidence_images} 张原图中的 {evidence_units} 条制作画面、{evidence_passages} 段原文、{evidence_speech} 条已核对对白**。按[画面](image-evidence.md)、[小说](../novel-reading/evidence.md)或[对白](../hakkei-reference/dialogue/evidence.md)的入口查找。",'',
         '从要做的游戏内容出发找图：选实体，再叠加情景、情绪或制作目标。每条记录指向具体画格，并说明能用于哪个模型部位、动作、表情、道具、场景或事件。作品编号只用来追溯出处。','',
         f"当前游戏参考为 **{s['game_images']} 张图片、{s['game_texts']} 张文字卡**，图片覆盖 **{s['game_image_sources']} 个来源入口**。现有扫图登记覆盖 {s['scanned_images']} 张已存图片，选用画面均注明制作用途；各批次实际阅读范围见来源登记，扫图不等于全文核读。",'',
         f"其中 {s['quality_selected']} 张保留原文件清晰度与画风精选标签。筛选器默认显示全部已写明用途的游戏图片，精选优先排列；可再开启“只看美术精选”。",'',
@@ -151,7 +157,10 @@ def render(data):
         f"原始存档仍有 {s['image_files']} 个文件，约 {s['image_bytes']/1024**2:.1f} MiB。它与有效游戏参考分开计数；未纳入筛选器的材料仍保留用于出处追溯。",'',
         '[博客出处](../art-references/blog-sources.md) · [图集出处](../art-references/ehentai/README.md) · [文字出处](../novel-reading/README.md)','',
         '## 来源范围','',
-        '每条记录以 `game-annotations.json` 标明实体、情景、情绪、具体画格和制作用途；清晰度与画风信息见 `quality-selection.json`，旧主题网址关系见 `classifications.json`。原图字节、署名和出处保留，参考图不直接成为游戏贴图。','']
+        '每条记录以 `game-annotations.json` 标明实体、情景、情绪、具体画格和制作用途；清晰度与画风信息见 `quality-selection.json`，旧主题网址关系见 `classifications.json`。原图字节、署名和出处保留，参考图不直接成为游戏贴图。','',
+        '## 扩充作品证据','',
+        '- 图片批次用本机 `.local/refactor/briefs/wp-gl-haiku-batch.md`，剩余选页在 `.local/refactor/wiki-refs/batch-039.json` 和 `batch-040.json`。按[标注约定](production-reference-format.md)核对画面，把裁框换算成原图像素，再写入 `pages`。',
+        f'- 小说与对白用本机 `.local/refactor/briefs/wp-gl-novel-evidence-batch.md`。对照作品或本机缓存，保留原语、定位、中文释义和分析。`speech_candidates` 有 {len(evidence["speech_candidates"])} 条待核气泡，逐字核对后再加入 `speech`。更新索引后运行 `python scripts/wiki_reference_topics.py build` 刷新本页统计。','']
     write(LIB/'README.md','\n'.join(lines))
     for facet,spec in data['facets'].items():
         out=[f"# 按{spec['title']}查找游戏参考",'','[游戏参考库](README.md) · [组合筛选](gallery.html) · [造型与动作参考](production-briefs.md)','',

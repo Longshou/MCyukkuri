@@ -2,6 +2,8 @@
 
 [Wiki](../README.md) · **[按实体、情景、情绪筛图](gallery.html)** · [造型与动作参考](production-briefs.md) · [清晰画面精选](quality-picks.md)
 
+[作品证据索引](evidence.json)收录 **377 张原图中的 493 条制作画面、48 段原文、76 条已核对对白**。按[画面](image-evidence.md)、[小说](../novel-reading/evidence.md)或[对白](../hakkei-reference/dialogue/evidence.md)的入口查找。
+
 从要做的游戏内容出发找图：选实体，再叠加情景、情绪或制作目标。每条记录指向具体画格，并说明能用于哪个模型部位、动作、表情、道具、场景或事件。作品编号只用来追溯出处。
 
 当前游戏参考为 **190 张图片、112 张文字卡**，图片覆盖 **45 个来源入口**。现有扫图登记覆盖 381 张已存图片，选用画面均注明制作用途；各批次实际阅读范围见来源登记，扫图不等于全文核读。
@@ -43,3 +45,8 @@
 ## 来源范围
 
 每条记录以 `game-annotations.json` 标明实体、情景、情绪、具体画格和制作用途；清晰度与画风信息见 `quality-selection.json`，旧主题网址关系见 `classifications.json`。原图字节、署名和出处保留，参考图不直接成为游戏贴图。
+
+## 扩充作品证据
+
+- 图片批次用本机 `.local/refactor/briefs/wp-gl-haiku-batch.md`，剩余选页在 `.local/refactor/wiki-refs/batch-039.json` 和 `batch-040.json`。按[标注约定](production-reference-format.md)核对画面，把裁框换算成原图像素，再写入 `pages`。
+- 小说与对白用本机 `.local/refactor/briefs/wp-gl-novel-evidence-batch.md`。对照作品或本机缓存，保留原语、定位、中文释义和分析。`speech_candidates` 有 113 条待核气泡，逐字核对后再加入 `speech`。更新索引后运行 `python scripts/wiki_reference_topics.py build` 刷新本页统计。

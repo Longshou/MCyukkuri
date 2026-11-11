@@ -60,9 +60,9 @@
     "M02-003": {"medium":"manga","edition":"图页刊载","record":"wiki/art-references/works/M02.md","path":"wiki/art-references/images/M02/003-9a21620b.png"},
     "M03-001": {"medium":"manga","edition":"图页刊载","record":"wiki/art-references/works/M03.md","path":"wiki/art-references/images/M03/001-5cd90af4.png"},
     "M03-005": {"medium":"manga","edition":"图页刊载","record":"wiki/art-references/works/M03.md","path":"wiki/art-references/images/M03/005-46794e59.png"},
-    "M04-006": {"medium":"manga","edition":"图页刊载","record":"wiki/art-references/works/M04.md","path":"wiki/art-references/images/M04/006-3ba5ffba.png"},
     "M03-008": {"medium":"manga","edition":"图页刊载","record":"wiki/art-references/works/M03.md","path":"wiki/art-references/images/M03/008-cf792131.png"},
     "M03-011": {"medium":"manga","edition":"图页刊载","record":"wiki/art-references/works/M03.md","path":"wiki/art-references/images/M03/011-023228d5.png"},
+    "M04-006": {"medium":"manga","edition":"图页刊载","record":"wiki/art-references/works/M04.md","path":"wiki/art-references/images/M04/006-3ba5ffba.png"},
     "M04-010": {"medium":"manga","edition":"图页刊载","record":"wiki/art-references/works/M04.md","path":"wiki/art-references/images/M04/010-e86eb4ce.png"},
     "M05-004": {"medium":"manga","edition":"图页刊载","record":"wiki/art-references/works/M05.md","path":"wiki/art-references/images/M05/004-20d45aa1.jpg"},
     "M05-005": {"medium":"manga","edition":"图页刊载","record":"wiki/art-references/works/M05.md","path":"wiki/art-references/images/M05/005-80f729af.jpg"},
@@ -94,6 +94,7 @@
     "M12-011": {"medium":"manga","edition":"图页刊载","record":"wiki/art-references/works/M12.md","path":"wiki/art-references/images/M12/011-bc9827db.jpg"},
     "M15-003": {"medium":"manga","edition":"图页刊载","record":"wiki/art-references/works/M15.md","path":"wiki/art-references/images/M15/003-c8ef3d87.jpg"},
     "M15-007": {"medium":"manga","edition":"图页刊载","record":"wiki/art-references/works/M15.md","path":"wiki/art-references/images/M15/007-468a46a0.jpg"},
+    "N105": {"medium":"novel","edition":"原文","record":"wiki/novel-reading/cards/N105.md"},
     "N13": {"medium":"novel","edition":"原文","record":"wiki/novel-reading/cards/N13.md"},
     "N14": {"medium":"novel","edition":"原文","record":"wiki/novel-reading/cards/N14.md"},
     "N27": {"medium":"novel","edition":"原文","record":"wiki/novel-reading/cards/N27.md"},
@@ -105,6 +106,12 @@
     "N41": {"medium":"novel","edition":"原文","record":"wiki/novel-reading/cards/N41.md"},
     "N42": {"medium":"novel","edition":"原文","record":"wiki/novel-reading/cards/N42.md"},
     "N43": {"medium":"novel","edition":"原文","record":"wiki/novel-reading/cards/N43.md"},
+    "N71": {"medium":"novel","edition":"原文","record":"wiki/novel-reading/cards/N71.md"},
+    "N72": {"medium":"novel","edition":"原文","record":"wiki/novel-reading/cards/N72.md"},
+    "N73": {"medium":"novel","edition":"原文","record":"wiki/novel-reading/cards/N73.md"},
+    "N74": {"medium":"novel","edition":"原文","record":"wiki/novel-reading/cards/N74.md"},
+    "N75": {"medium":"novel","edition":"原文","record":"wiki/novel-reading/cards/N75.md"},
+    "N76": {"medium":"novel","edition":"原文","record":"wiki/novel-reading/cards/N76.md"},
     "game/reimu-dos-variants/deibu-1.png": {"medium":"manga","edition":"图页刊载","record":"wiki/art-references/game/reimu-dos-variants/README.md","path":"wiki/art-references/game/reimu-dos-variants/deibu-1.png"},
     "local-29557053-001": {"medium":"manga","edition":"日文转载","url":"https://blog.livedoor.jp/yukkuriplace_anko/archives/29557053.html","path":"F:/yukkuri/.local/marisa-reference/comics/29557053/001-ec538dde.png"},
     "local-50929613-002": {"medium":"manga","edition":"日文转载","url":"https://blog.livedoor.jp/yukkuriplace_anko/archives/50929613.html","path":"F:/yukkuri/.local/marisa-reference/comics/50929613/002-37f8900d.png"},
@@ -138,7 +145,27 @@
     {"id":"N43-P03","source":"N43","locator":"第三个夏天，尾声说明后来的生活","language":"ja","text":"近隣のゆっくり達にも食糧支援や越冬時の支援","zh_gloss":"也给附近的油库里提供食物和越冬支援。","subjects":[{"species":"灵梦","stage":null}],"topics":["生态","社会"],"situation":"扩大耕作后向邻近同伴支援","analysis":"尾声概括支援结果，未交代运输和交接。保留本作特殊栽培前提。","comparison":{"relation":"与 N37 的交易供给不同；均受可接触资源影响","refs":["wiki/novel-reading/cards/N37.md","wiki/city-life.md"]}},
     {"id":"N41-P01","source":"N41","locator":"母灵梦从试住木屋里出来向人类反馈","language":"ja","text":"ちょっとむしあついけどゆっくりできるよ！","zh_gloss":"有点闷热，不过可以悠悠地住呀！","subjects":[{"species":"灵梦","stage":"成油"}],"topics":["身体","社会"],"situation":"试住、报告闷热","analysis":"角色同时表达不适和接受，随后人类提出挪到树荫；这里只给出这次试住反馈。","comparison":{"relation":"N36 同作者同一事件，补上试住者视角","refs":["wiki/novel-reading/cards/N36.md"]}},
     {"id":"EH18-002-P01","source":"EH18-002","locator":"邮筒旁救助结束后，带回家的叙述","language":"zh","text":"从包里抽出一条毛巾将它的身体包裹起来，为了不压扁它而确保了足够的空间后，将它放进了包里。","subjects":[{"species":"魔理沙","stage":"子油"}],"topics":["行为","身体"],"situation":"雨中救助、裹住并留足承托空间","analysis":"中文译页直接叙述用毛巾与空隙保护幼体。可参考搬运中避免挤压；伤害起因和特殊疗法不作一般护理依据。","comparison":{"relation":"N28 也有包裹抱回，救助条件不同","refs":["wiki/novel-reading/cards/N28.md"]}},
-    {"id":"EH18-003-P01","source":"EH18-003","locator":"次晨，小魔理沙招呼得到回应后","language":"zh","text":"魔理沙立刻睁大了双眼，用那只还不太灵便的脚脚，笨拙地跳了起来。","subjects":[{"species":"魔理沙","stage":"子油"}],"topics":["行为","身体"],"situation":"受照料后迎接、跳跃仍受身体状态影响","analysis":"中文译页直接写睁眼、跳起以及步足仍不灵便。能参考喜悦与恢复程度同时可见的反应。","comparison":{"relation":"与 N27 的归来招呼同类，角色及身体条件不同","refs":["wiki/novel-reading/cards/N27.md"]}}
+    {"id":"EH18-003-P01","source":"EH18-003","locator":"次晨，小魔理沙招呼得到回应后","language":"zh","text":"魔理沙立刻睁大了双眼，用那只还不太灵便的脚脚，笨拙地跳了起来。","subjects":[{"species":"魔理沙","stage":"子油"}],"topics":["行为","身体"],"situation":"受照料后迎接、跳跃仍受身体状态影响","analysis":"中文译页直接写睁眼、跳起以及步足仍不灵便。能参考喜悦与恢复程度同时可见的反应。","comparison":{"relation":"与 N27 的归来招呼同类，角色及身体条件不同","refs":["wiki/novel-reading/cards/N27.md"]}},
+    {"id":"N71-P01","source":"N71","locator":"清晨巢内整理存粮","language":"ja","text":"昔に作った虫団子を前に、最近作った干草を後ろに","zh_gloss":"把较早做的虫团放前面，近期做的干草放后面。","subjects":[{"species":"灵梦","stage":"成油"}],"topics":["行为","生态"],"situation":"按制作先后摆放储粮","analysis":"叙述写明先后顺序。保鲜是整理的目的，本文未演出检测或处理腐坏。","comparison":{"relation":"与 N40 同署名，均写到巢内物资管理。","refs":["wiki/novel-reading/cards/N40.md"]}},
+    {"id":"N71-P02","source":"N71","locator":"整理存粮后清扫巢内","language":"ja","text":"お次は藁を束ねたほうきで巣のお掃除入ってきたごみを掃きだす","zh_gloss":"接着用扎成束的稻草扫帚，把进来的杂物扫出去。","subjects":[{"species":"灵梦","stage":"成油"}],"topics":["行为","生态"],"situation":"用稻草束扫出巢内杂物","analysis":"叙述直接写了扫除。原文未交代扫帚如何制作或油库里用哪个部位持握。","comparison":{"relation":"项目的工具边界见设定差异。","refs":["wiki/hakkei-reference/lore/conflicts.md"]}},
+    {"id":"N71-P03","source":"N71","locator":"结尾揭示住所所在","language":"ja","text":"迷い竹林の中、えーりん実験室の地下にはすっきりルームというものがあった","zh_gloss":"迷途竹林中，永琳实验室地下有一个被称作悠闲房间的地方。","subjects":[],"topics":["生态"],"situation":"实验环境揭示","analysis":"叙述给出家庭生活的环境前提；这段限制对野外选址、长期自给的外推。","comparison":{"relation":"N40 同署名，也有实验背景；两篇各自保留范围。","refs":["wiki/novel-reading/cards/N40.md"]}},
+    {"id":"N72-P01","source":"N72","locator":"原住家庭越冬前的存粮","language":"ja","text":"越冬用の食料も「おうち」の中の片隅に置かれた大きいビニール袋にパンパンに詰まるほど貯めており","zh_gloss":"越冬用食物把家里一角的大塑料袋装得鼓鼓的。","subjects":[{"species":"通用油库里","stage":null}],"topics":["生态"],"situation":"越冬前积攒并集中存放食物","analysis":"叙述明示袋子放在巢内一角且装满，容器来自这一篇的环境。","comparison":{"relation":"N71 也有巢内储粮，作品各写不同容器。","refs":["wiki/novel-reading/cards/N71.md"]}},
+    {"id":"N72-P02","source":"N72","locator":"夺巢后的进食段","language":"ja","text":"実に三日分ほどの食料をペロリと平らげてしまう","zh_gloss":"一转眼吃掉了大约三天份的食物。","subjects":[{"species":"魔理沙","stage":null}],"topics":["行为","生态"],"situation":"未经同意占用住处后消耗库存","analysis":"叙述报告吃掉的量；原因在相邻文字中以猜测并列，份量不用于项目换算。","comparison":{"relation":"单篇的库存消耗结果。","refs":["wiki/novel-reading/cards/N72.md"]}},
+    {"id":"N72-P03","source":"N72","locator":"抢占者安排另一方留巢时的顾虑","language":"ja","text":"一番恐れるのは、自分と同じようなゆっくりが不在の内におうち宣言をされたり毛布やシート、食料などが取られる事だ。","zh_gloss":"最怕自己不在时，有别的油库里认屋，或拿走毛毯、垫布和食物。","subjects":[{"species":"魔理沙","stage":null}],"topics":["社会","生态"],"situation":"外出时担心住所和物资被占","analysis":"这段写的是角色的顾虑与留守动机，未在此处演出第二次夺巢。","comparison":{"relation":"认屋的不同写法见设定差异。","refs":["wiki/hakkei-reference/lore/conflicts.md"]}},
+    {"id":"N73-P01","source":"N73","locator":"魔理沙对灵梦说要送它食物后","language":"ja","text":"まりさは、帽子の中から、野菜屑を取り出して、れいむに差し出します。","zh_gloss":"魔理沙从帽里取出蔬菜碎屑，递给灵梦。","subjects":[{"species":"魔理沙","stage":null},{"species":"灵梦","stage":null}],"topics":["行为","社会"],"situation":"从帽里取物、赠食","analysis":"叙述者直接交代出物和递给谁。可参考持有者和交接方向。","comparison":{"relation":"N37 也有交付食物，但交易动机不同。","refs":["wiki/novel-reading/cards/N37.md"]}},
+    {"id":"N73-P02","source":"N73","locator":"交代赠食与回赠的实际情况","language":"ja","text":"だけど実際には、れいむが貰う一方で、お返ししたことなど一度もありません。","zh_gloss":"实际上一直是灵梦收下东西，从来没有回赠过。","subjects":[{"species":"魔理沙","stage":null},{"species":"灵梦","stage":null}],"topics":["社会"],"situation":"长期单向赠食","analysis":"叙述明示无实际回赠，即使角色的对话谈到互助。","comparison":{"relation":"与同篇赠食动作合看，区分馈赠与交易。","refs":["wiki/novel-reading/cards/N73.md"]}},
+    {"id":"N73-P03","source":"N73","locator":"说明同行幼体与魔理沙的关系","language":"ja","text":"子まりさの母親が車に轢かれ、側で泣いていたところを、まりさが拾ってあげたのです。","zh_gloss":"子魔理沙的母亲遭遇车祸，它在旁哭泣时被魔理沙捡回。","subjects":[{"species":"魔理沙","stage":"子油"},{"species":"魔理沙","stage":null}],"topics":["社会"],"situation":"接受非亲生幼体","analysis":"叙述交代照料关系的起点，上句明确双方没有亲缘。","comparison":{"relation":"N27 同为照料关系，但场景是人类饲养。","refs":["wiki/novel-reading/cards/N27.md"]}},
+    {"id":"N74-P01","source":"N74","locator":"青年做完动作并倒转帽子后","language":"ja","text":"青年が何事かを唱えてハンカチを取り帽子を逆さまにすると甘い匂いがする物がたくさんまりさの目の前に落ちてきた。","zh_gloss":"青年说了几句、取走手帕，倒过帽子后有许多香甜的东西落到魔理沙眼前。","subjects":[{"species":"魔理沙","stage":null}],"topics":["行为","社会"],"situation":"借帽表演、观众看到食物落下","analysis":"这是人物可见的演出结果，保留手帕、帽子和落物顺序，作品里的观看者推断另行理解。","comparison":{"relation":"本篇用戏法作为叙事前提。","refs":["wiki/novel-reading/cards/N74.md"]}},
+    {"id":"N74-P02","source":"N74","locator":"叙述解释为什么很难借到帽子","language":"ja","text":"ゆっくり出来なくなったり、仲間と認識されずいじめられたりするからだ。","zh_gloss":"有时无法安心，也可能不被当成伙伴而遭欺负。","subjects":[{"species":"魔理沙","stage":null}],"topics":["社会"],"situation":"失饰及辨认风险","analysis":"这是叙述者给出的本篇一般说法，后文有亲代认不出子代的具体个案。","comparison":{"relation":"与 N05 的认饰物情节并读，结果和恢复条件各按作品。","refs":["wiki/novel-reading/cards/N05.md","wiki/hakkei-reference/lore/conflicts.md"]}},
+    {"id":"N74-P03","source":"N74","locator":"子魔理沙失去帽子后，亲代回来","language":"ja","text":"この後子まりさ達は帽子が無いために子供と認識されず、帰ってきた親まりさに追い出された。","zh_gloss":"随后子魔理沙因为没有帽子，未被认作孩子，被回家的亲魔理沙赶了出去。","subjects":[{"species":"魔理沙","stage":"子油"},{"species":"魔理沙","stage":"成油"}],"topics":["社会","行为"],"situation":"失饰后的亲缘识别失败","analysis":"叙述直接把未被认出和被赶出相连。个案不能决定各版本的身份或亲缘规则。","comparison":{"relation":"项目识别边界另见设定差异。","refs":["wiki/hakkei-reference/lore/conflicts.md"]}},
+    {"id":"N75-P01","source":"N75","locator":"河岸上，魔理沙让爱丽丝等一等后","language":"ja","text":"まりさはお帽子から、ストローを取り出した。","zh_gloss":"魔理沙从帽子里拿出吸管。","subjects":[{"species":"魔理沙","stage":null}],"topics":["行为"],"situation":"从帽内取出取水工具","analysis":"叙述明确取物动作；来源是人类丢弃的饮料包装，原文没有自制过程。","comparison":{"relation":"与 N28 的帽内携物同类，物件和用途不同。","refs":["wiki/novel-reading/cards/N28.md"]}},
+    {"id":"N75-P02","source":"N75","locator":"魔理沙借出吸管并示范后","language":"ja","text":"ありすは物凄い勢いで水を吸い上げて飲み始めた。","zh_gloss":"爱丽丝猛力吸水，开始自己喝。","subjects":[{"species":"爱丽丝","stage":null}],"topics":["行为","身体"],"situation":"示范后的实际饮水结果","analysis":"叙述明确写到自行吸水，可区分示范、交接和实际使用。只按本作的身体能力理解。","comparison":{"relation":"同作直接结果，项目的水域规则另见设定差异。","refs":["wiki/hakkei-reference/lore/conflicts.md"]}},
+    {"id":"N75-P03","source":"N75","locator":"台风来前，叙述平日的巢内准备","language":"ja","text":"日頃から、せっせと石を運び込みそれを積み上げて、おうちが浸水してきたら避難できるようにしていたし、ごはんも石の上に上げてある。","zh_gloss":"平时搬石头叠高，预留进水时避难的位置，并把食物抬到石头上。","subjects":[{"species":"魔理沙","stage":null},{"species":"爱丽丝","stage":null}],"topics":["生态","行为"],"situation":"预先备石、抬高库存","analysis":"叙述直接写到两种准备。台风后高处巢内未进水，避难石堆未实际启用。","comparison":{"relation":"可与 N72 的越冬备物并读；各自保留用途和结果。","refs":["wiki/novel-reading/cards/N72.md"]}},
+    {"id":"N105-P01","source":"N105","locator":"受伤魔理沙醒来后的叙述","language":"ja","text":"まりさはほどなく回復した。大きなまりさの髪や帽子に住んでいる、十匹ほどのれいむやぱちゅりーたちが、親切に世話をしてくれた。","zh_gloss":"魔理沙很快恢复了。住在大魔理沙头发和帽子里的约十只灵梦和帕秋莉亲切地照顾了它。","subjects":[{"species":"魔理沙","stage":null},{"species":"灵梦","stage":null},{"species":"帕秋莉","stage":null},{"species":"DOS魔理沙","stage":null}],"topics":["生态","社会"],"situation":"DOS 身上住户照料来访者","analysis":"叙述写到住户、照料和随后恢复，未交代护理方法或可复用的恢复参数。","comparison":{"relation":"本作的 DOS 栖居设定与项目采用分列。","refs":["wiki/hakkei-reference/lore/conflicts.md"]}},
+    {"id":"N105-P02","source":"N105","locator":"围上来的住户把受伤者搬上去","language":"ja","text":"そのゆっくりたちに抱えあげられ、まりさは大きなまりさの金髪の中に連れ込まれた。そこは優しい匂いに満ちた空間で、まりさの痛む肌をそっと包み、温めてくれた。","zh_gloss":"油库里们把魔理沙抬起带进大魔理沙的金发里；那里有温和的气味，包住它疼痛的身体并让它暖起来。","subjects":[{"species":"魔理沙","stage":null},{"species":"DOS魔理沙","stage":null},{"species":"通用油库里","stage":null}],"topics":["行为","社会"],"situation":"集体搬运伤者进入庇护处","analysis":"叙述呈现抬起、转移和保暖感受，未说明具体握持部位或通道几何。","comparison":{"relation":"与 EH18 译页的包裹照料可并读，承托方式不同。","refs":["wiki/art-references/ehentai/works/EH18.md"]}},
+    {"id":"N105-P03","source":"N105","locator":"能起身后，从头顶到帽檐","language":"ja","text":"大きなまりさの帽子のつばに出て――頭の上から直接出られるよう、ちょっとした穴が帽子に開いていた――","zh_gloss":"出了大魔理沙的帽檐——帽子上开了个小洞，可以从头顶直接出去——","subjects":[{"species":"魔理沙","stage":null},{"species":"DOS魔理沙","stage":null}],"topics":["生态","行为"],"situation":"头顶住处与帽檐之间的出口","analysis":"叙述明确有孔和通向帽檐的功能；文字未给结构、坡度或安全尺度。","comparison":{"relation":"本篇特例；作品提及的插画未经核对。","refs":["wiki/novel-reading/cards/N105.md"]}},
+    {"id":"N76-P01","source":"N76","locator":"山屋里仍在下雨的清晨，三女子魔理沙拿出食物","language":"ja","text":"ぼうしから２０個のどんぐりを出した。","zh_gloss":"从帽里拿出二十个橡实。","subjects":[{"species":"魔理沙","stage":"子油"}],"topics":["行为","生态"],"situation":"同行姐妹临时避雨时分享帽内食物","analysis":"叙述直接写取食和随后均分。份额仍不足以吃饱，原文未把分配完成写成补足需求。","comparison":{"relation":"与 N28 同有帽内携物，装备与同行关系不同。","refs":["wiki/novel-reading/cards/N28.md"]}},
+    {"id":"N76-P02","source":"N76","locator":"雨停后，姐妹等到地面水洼消退","language":"ja","text":"ようやく地面から水溜りが消えた。","zh_gloss":"地面的水洼终于消失了。","subjects":[{"species":"魔理沙","stage":"子油"}],"topics":["生态","行为"],"situation":"雨停仍留在避雨处，等积水消退再出发","analysis":"叙述呈现可见的出发条件，具体时长依本篇天气和地面，和路线判断的理由分开。","comparison":{"relation":"与 N75 台风后等地面干燥的选择同向。","refs":["wiki/novel-reading/cards/N75.md"]}}
   ],
   "speech": [
     {"id":"N13-S01","source":"N13","locator":"首次示范固定帽子后，两只子魔理沙同声回答","language":"ja","text":"ゆっくりりかいしたよ！","zh_gloss":"悠悠地明白啦！","speaker":{"species":"魔理沙","stage":"子油","state":null},"situation":"确认听懂亲代的渡水指令","habit":["情境套话","语尾"],"axes":["species","stage","situation"],"note":"以「ゆっくり」开头、以「したよ」收尾；仅记本场应答。"},
@@ -176,24 +203,51 @@
     {"id":"M11-007-S01","source":"M11-007","locator":"上格左侧，魔理沙睁大眼睛说","language":"ja","text":"まりちゃはじめちぇみるのじぇ","zh_gloss":"玛丽恰头一次看见惹杰。","speaker":{"species":"魔理沙","stage":null,"state":"期待"},"situation":"初见陌生事物，仰脸开口","habit":["自称","幼语","语尾"],"axes":["species","stage","situation"],"note":"用「まりちゃ」自称，保留「ちぇ」「のじぇ」的幼语。"},
     {"id":"M12-008-S01","source":"M12-008","locator":"上格左下，魔理沙朝同伴说","language":"ja","text":"おひさまもまりさたちのみかたなのぜ","zh_gloss":"太阳先生也是魔理沙大家的同伴贼。","speaker":{"species":"魔理沙","stage":null,"state":"高兴"},"situation":"招呼同伴一起享受阳光","habit":["称呼","自称","语尾"],"axes":["species","situation"],"note":"「まりさたち」为包含同伴的自称；结尾用「なのぜ」。"},
     {"id":"M04-006-S01","source":"M04-006","locator":"上排右格，亲灵梦对围在身边的幼体说","language":"ja","text":"きょうもげんきなうんうんさんだよっ！","zh_gloss":"今天嗯嗯先生也很有精神哦！","speaker":{"species":"灵梦","stage":"成油","state":"高兴"},"situation":"亲代围看幼体如厕","habit":["称呼","情境套话"],"axes":["species","situation"],"note":"以「さん」称呼排泄物，本格以正向鼓励为语境。"},
-    {"id":"EH32-006-S01","source":"EH32-006","locator":"上格，魔理沙垂头时的长气泡","language":"zh","text":"漏粗来乐noje","speaker":{"species":"魔理沙","stage":null,"state":"消沉"},"situation":"如厕没赶上时自述","habit":["幼语","语尾"],"axes":["species","stage","situation"],"note":"保留中文图页近音字与拉丁字母语尾。"}
+    {"id":"EH32-006-S01","source":"EH32-006","locator":"上格，魔理沙垂头时的长气泡","language":"zh","text":"漏粗来乐noje","speaker":{"species":"魔理沙","stage":null,"state":"消沉"},"situation":"如厕没赶上时自述","habit":["幼语","语尾"],"axes":["species","stage","situation"],"note":"保留中文图页近音字与拉丁字母语尾。"},
+    {"id":"N71-S01","source":"N71","locator":"清晨灵梦叫醒同伴","language":"ja","text":"まりさ、まりさ、ゆっくりしていってね！！","zh_gloss":"魔理沙，魔理沙，悠悠地待一会儿吧！！","speaker":{"species":"灵梦","stage":"成油","state":null},"situation":"同伴刚醒时问候","habit":["称呼","口头禅"],"axes":["species","situation"],"note":"两次称呼后接固定问候。"},
+    {"id":"N71-S02","source":"N71","locator":"魔理沙外出采食前","language":"ja","text":"れいむ、ごはんとってくるからゆっくりまっててね","zh_gloss":"灵梦，我去找饭，你悠悠地等我吧。","speaker":{"species":"魔理沙","stage":"成油","state":null},"situation":"向留巢者交代去处","habit":["称呼","情境套话"],"axes":["species","situation"],"note":"行动交代和等待请求在同一句。"},
+    {"id":"N71-S03","source":"N71","locator":"灵梦帮伴侣戴帽后","language":"ja","text":"ふふ、まりさ、きょうもかっこいいよ","zh_gloss":"呵呵，魔理沙今天也好帅哦。","speaker":{"species":"灵梦","stage":"成油","state":"高兴"},"situation":"出门前称赞伴侣","habit":["称呼","情境套话"],"axes":["species","situation"],"note":"称赞跟在戴帽的动作之后。"},
+    {"id":"N72-S01","source":"N72","locator":"采集者回到家时","language":"ja","text":"れいむ！ゆっくりもどったよ！","zh_gloss":"灵梦！我悠悠地回来啦！","speaker":{"species":"魔理沙","stage":"成油","state":null},"situation":"归巢时向同伴打招呼","habit":["称呼","情境套话"],"axes":["species","situation"],"note":"先叫对象再报归来。"},
+    {"id":"N72-S02","source":"N72","locator":"幼体吃饱后犯困","language":"ja","text":"まりしゃなんぢゃかねむくなっちぇきちゃんだじぇ！","zh_gloss":"玛丽恰好像困起乃惹杰！","speaker":{"species":"魔理沙","stage":"子油","state":"困倦"},"situation":"吃饱后自述困意","habit":["自称","幼语","语尾"],"axes":["species","stage","situation"],"note":"保留「まりしゃ」「ぢゃ」「ちぇ」和「だじぇ」。"},
+    {"id":"N72-S03","source":"N72","locator":"越冬前给孩子交代次日安排","language":"ja","text":"おちびちゃんたち！あしたはそとさんにでるのもさいごだからゆっくりしようね！","zh_gloss":"小贝比酱！明天是最后一次去外面先生那里啦，好好悠悠吧！","speaker":{"species":"灵梦","stage":"成油","state":null},"situation":"提前告知越冬前最后一次出门","habit":["称呼","情境套话"],"axes":["species","situation"],"note":"用亲昵称呼和拟人词「そとさん」。"},
+    {"id":"N73-S01","source":"N73","locator":"魔理沙又一次请灵梦唱歌","language":"ja","text":"ねえ！まりさにおうたをきかせてよ！","zh_gloss":"喂！唱首歌给魔理沙听吧！","speaker":{"species":"魔理沙","stage":null,"state":null},"situation":"向同伴点歌","habit":["自称","情境套话"],"axes":["species","situation"],"note":"请求把自称放在受益者位置。"},
+    {"id":"N73-S02","source":"N73","locator":"幼体想加入大人一起听歌","language":"ja","text":"おとうしゃんだけじゅるいよ！まりちゃもなきゃまにいれちぇにぇ！","zh_gloss":"爸拔自己听太狡猾惹！也把玛丽恰加进来惹捏！","speaker":{"species":"魔理沙","stage":"子油","state":null},"situation":"幼体要求一起参加","habit":["称呼","自称","幼语"],"axes":["species","stage","situation"],"note":"保留自称和多处近音。"},
+    {"id":"N73-S03","source":"N73","locator":"子灵梦说自己也会唱歌","language":"ja","text":"れいみゅもおうちゃうちゃえるよ。","zh_gloss":"灵缪也会唱歌歌哦。","speaker":{"species":"灵梦","stage":"子油","state":null},"situation":"幼体提出也能表演","habit":["自称","幼语"],"axes":["species","stage","situation"],"note":"「れいみゅ」「おうちゃ」是原文拼写。"},
+    {"id":"N74-S01","source":"N74","locator":"魔理沙答应借帽时","language":"ja","text":"だいじにしてね！ぜったいだよ！","zh_gloss":"要好好爱惜哦！一定哦！","speaker":{"species":"魔理沙","stage":null,"state":null},"situation":"借出珍视的饰物前叮嘱","habit":["情境套话"],"axes":["species","situation"],"note":"用重复肯定强调借用边界。"},
+    {"id":"N74-S02","source":"N74","locator":"围观时向占着帽子的角色索还","language":"ja","text":"かえすんだぜ！おぼうしはまりさのものなんだぜ！","zh_gloss":"还回来贼！帽子是魔理沙的贼！","speaker":{"species":"魔理沙","stage":null,"state":null},"situation":"强调饰物归属并要求归还","habit":["自称","语尾","情境套话"],"axes":["species","situation"],"note":"两句均以「んだぜ」结束。"},
+    {"id":"N74-S03","source":"N74","locator":"后段传开的说法","language":"ja","text":"まりさのぼうしをにんげんさんにわたすとあまあまをくれるんだよ！","zh_gloss":"把魔理沙的帽子交给人类先生，就会给甜甜哦！","speaker":{"species":null,"stage":null,"state":null},"situation":"转述交换甜食的传闻","habit":["称呼","情境套话"],"axes":["situation"],"note":"本篇里的传闻台词，不能据此认定会发生交易。"},
+    {"id":"N75-S01","source":"N75","locator":"示范后自行喝到水，爱丽丝道谢","language":"ja","text":"ゆぅぅぅ、たすかったわ。まりさったらとってもとかいはね！","zh_gloss":"油呜呜，得救啦。魔理沙真是太都市派了！","speaker":{"species":"爱丽丝","stage":null,"state":"感激"},"situation":"获助后夸奖对方","habit":["称呼","口头禅"],"axes":["species","situation"],"note":"「とかいは」在这里用于道谢和夸奖。"},
+    {"id":"N75-S02","source":"N75","locator":"台风过后，爱丽丝答应等候","language":"ja","text":"わかったわ。私はあしでまといになるから、待ってるわ","zh_gloss":"知道啦。我会拖后腿，就在这儿等吧。","speaker":{"species":"爱丽丝","stage":null,"state":null},"situation":"判断不适合同行并答应等候","habit":["自称","语尾","情境套话"],"axes":["species","situation"],"note":"此处用「私」自称，以「わ」结束。"},
+    {"id":"N75-S03","source":"N75","locator":"魔理沙开口邀请长期同住","language":"ja","text":"ありすがよければ、ずっとまりさのおうちにいてね！","zh_gloss":"爱丽丝愿意的话，就一直住在魔理沙家里吧！","speaker":{"species":"魔理沙","stage":null,"state":null},"situation":"把暂住改为长期同住的邀请","habit":["自称","称呼","情境套话"],"axes":["species","situation"],"note":"保留角色名与以「おうち」指自己的家。"},
+    {"id":"N105-S01","source":"N105","locator":"巨大魔理沙靠近伤者，第一次开口","language":"ja","text":"ゆぅっくり、していってねぇ～？","zh_gloss":"悠悠——地待一会儿吧～？","speaker":{"species":"DOS魔理沙","stage":null,"state":null},"situation":"用拖长音招呼陌生伤者","habit":["口头禅","情境套话"],"axes":["species","situation"],"note":"台词有停顿和拖长音；体型来自紧随的叙述。"},
+    {"id":"N105-S02","source":"N105","locator":"受伤魔理沙开口请求","language":"ja","text":"……ゆっくり、させてぇぇぇ","zh_gloss":"……让我悠闲一会儿吧啊啊。","speaker":{"species":"魔理沙","stage":null,"state":"虚弱"},"situation":"向靠近者请求休息与帮助","habit":["情境套话"],"axes":["species","situation"],"note":"从叙述知道说话声音细弱。"},
+    {"id":"N105-S03","source":"N105","locator":"照料后，魔理沙向住户道谢","language":"ja","text":"ありがとぉぉ、ゆっくりしていくよ……！","zh_gloss":"谢——谢，我会悠悠地待着哦……！","speaker":{"species":"魔理沙","stage":null,"state":"感激"},"situation":"接受庇护后道谢","habit":["情境套话"],"axes":["species","situation"],"note":"道谢后紧接一句愿意留下休息。"},
+    {"id":"N76-S01","source":"N76","locator":"雨停见太阳时，同行姐妹中的一句招呼","language":"ja","text":"おひさまさん、ゆっくりしていってね！","zh_gloss":"太阳先生，悠悠地待一会儿吧！","speaker":{"species":"魔理沙","stage":"子油","state":"喜悦"},"situation":"久雨初晴，向太阳问候","habit":["称呼","口头禅"],"axes":["common","stage","situation"],"note":"固定问候用来招呼环境中的拟人对象。"},
+    {"id":"M01-003-S01","source":"M01-003","locator":"上排左格左侧，魔理沙的竖排气泡","language":"ja","text":"ちーちー！","zh_gloss":"嘘嘘！","speaker":{"species":"家油魔理沙","stage":null,"state":null},"situation":"排尿前的短呼声","habit":["幼语","情境套话"],"axes":["species","stage","situation"],"note":"保留拉长音。"},
+    {"id":"M01-003-S02","source":"M01-003","locator":"中排左格，贴地挪动的魔理沙","language":"ja","text":"ゆっち！ゆっち！","zh_gloss":"油恰！油恰！","speaker":{"species":"家油魔理沙","stage":null,"state":null},"situation":"在地面挪动时反复发声","habit":["幼语"],"axes":["species","stage","situation"],"note":"同一个短声重复两次。"},
+    {"id":"M01-003-S03","source":"M01-003","locator":"末排右格，魔理沙的右上方发声","language":"ja","text":"ちゅきりぃ！","zh_gloss":"舒胡惹！","speaker":{"species":"家油魔理沙","stage":null,"state":null},"situation":"事后的舒畅呼声","habit":["幼语","情境套话"],"axes":["species","stage","situation"],"note":"保留词首的幼语音，不推广到其他场景。"},
+    {"id":"M01-011-S01","source":"M01-011","locator":"下段左格上方，魔理沙的气泡","language":"ja","text":"にげるのじぇ","zh_gloss":"要逃惹杰。","speaker":{"species":"家油魔理沙","stage":null,"state":"惊慌"},"situation":"受惊后喊着要逃","habit":["语尾","幼语"],"axes":["species","stage","situation"],"note":"截取句中能辨认的动词和幼语语尾。"},
+    {"id":"M07-011-S01","source":"M07-011","locator":"右侧气泡开头","language":"ja","text":"むきゅ","zh_gloss":"姆啾。","speaker":{"species":"帕秋莉","stage":null,"state":"喜悦"},"situation":"举起蜡烛嬉闹","habit":["口头禅"],"axes":["species","situation"],"note":"只录气泡开头的招牌短声。"},
+    {"id":"M09-006-S01","source":"M09-006","locator":"下格左下方，引号中的姐姐内心话","language":"ja","text":"おかーしゃんのあかちゃんなのに","zh_gloss":"明明也是麻麻的小贝比。","speaker":{"species":"魔理沙","stage":null,"state":"委屈"},"situation":"幼体觉得亲代更照顾妹妹","habit":["幼语","称呼"],"axes":["species","stage","situation"],"note":"是角色心声，保留「しゃん」。"},
+    {"id":"M09-007-S01","source":"M09-007","locator":"上段左侧第一气泡的末行","language":"ja","text":"ゆっくちちよう！","zh_gloss":"一起悠悠吧！","speaker":{"species":null,"stage":null,"state":null},"situation":"幼体发出共同休息的邀请","habit":["幼语","情境套话"],"axes":["stage","situation"],"note":"保留「ゆっくち」「ちよう」，说话者种族不确定。"},
+    {"id":"M09-007-S02","source":"M09-007","locator":"下排右格，帕秋莉的上方气泡","language":"ja","text":"みんなでいっしょにゆっくりしましょ？","zh_gloss":"大家一起悠悠地休息吧？","speaker":{"species":"帕秋莉","stage":null,"state":null},"situation":"邀请在旁的幼体回到群体","habit":["情境套话","语尾"],"axes":["species","situation"],"note":"提议用问句语气。"},
+    {"id":"M09-007-S03","source":"M09-007","locator":"下排左格，魔理沙右侧气泡","language":"ja","text":"まりちゃはひちょりであしょんでりゅよ","zh_gloss":"玛丽恰自己玩就好惹。","speaker":{"species":"魔理沙","stage":null,"state":"失落"},"situation":"从群体离开时用幼语说明去向","habit":["自称","幼语"],"axes":["species","stage","situation"],"note":"保留「ひちょり」「あしょんでりゅ」。"},
+    {"id":"M15-003-S01","source":"M15-003","locator":"上段最左格，大灵梦的上方气泡","language":"ja","text":"ゆっくりしていってね！","zh_gloss":"悠悠地待一会儿吧！","speaker":{"species":"灵梦","stage":null,"state":"喜悦"},"situation":"亲子向刚遇见的人类打招呼","habit":["口头禅","情境套话"],"axes":["species","situation"],"note":"亲代面向人类的招呼，旁边幼体也发声。"},
+    {"id":"EH08-005-S01","source":"EH08-005","locator":"上段右下格，赤油左侧气泡","language":"zh","text":"拔拔？","speaker":{"species":"灵梦","stage":"赤油","state":"担忧"},"situation":"找不到父母时呼唤父亲","habit":["称呼","幼语"],"axes":["species","stage","situation"],"note":"中文图页保留「拔拔」。"},
+    {"id":"EH08-005-S02","source":"EH08-005","locator":"上段右下格，赤油右侧气泡","language":"zh","text":"麻麻？","speaker":{"species":"灵梦","stage":"赤油","state":"担忧"},"situation":"找不到父母时呼唤母亲","habit":["称呼","幼语"],"axes":["species","stage","situation"],"note":"中文图页保留「麻麻」。"},
+    {"id":"EH08-005-S03","source":"EH08-005","locator":"下段左上小格，赤油哭着说","language":"zh","text":"蓬蓬先森空空的哟？","speaker":{"species":"灵梦","stage":"赤油","state":"饥饿"},"situation":"找不到亲油后表达肚子饿","habit":["称呼","语尾","幼语"],"axes":["species","stage","situation"],"note":"「先森」用来称呼自己的肚子。"},
+    {"id":"EH28-002-S01","source":"EH28-002","locator":"上格左侧大气泡","language":"zh","text":"是很能油庫裏的小寶寶呢！","speaker":{"species":"灵梦","stage":null,"state":"喜悦"},"situation":"亲代欣喜地夸小宝宝","habit":["称呼","情境套话"],"axes":["species","situation"],"note":"保留图页的繁体词形。"},
+    {"id":"EH28-002-S02","source":"EH28-002","locator":"最下排右格，魔理沙气泡","language":"zh","text":"小寶寶很油庫裏哦","speaker":{"species":"魔理沙","stage":null,"state":"喜悦"},"situation":"朝灵梦夸幼体","habit":["情境套话","语尾"],"axes":["species","situation"],"note":"句尾使用「哦」，按图页截取。"},
+    {"id":"EH34-012-S01","source":"EH34-012","locator":"上格左侧，戴黑帽个体旁边的竖排字","language":"zh","text":"麻里掐也想快點穿！","speaker":{"species":"魔理沙","stage":null,"state":"期待"},"situation":"看到同伴穿节庆服，催着也想穿","habit":["自称","幼语"],"axes":["species","stage","situation"],"note":"保留中文译页的自称近音。"},
+    {"id":"EH34-012-S02","source":"EH34-012","locator":"中格下方，魔理沙面前气泡","language":"zh","text":"豪冷JE","speaker":{"species":"魔理沙","stage":null,"state":"寒冷"},"situation":"穿得不够暖时抱怨冷","habit":["语尾","幼语"],"axes":["species","stage","situation"],"note":"短截取保留「豪」和拉丁字母。"},
+    {"id":"EH34-019-S01","source":"EH34-019","locator":"上格右侧大气泡第一列","language":"zh","text":"來賽跑了JE！","speaker":{"species":"魔理沙","stage":null,"state":"兴奋"},"situation":"喊同伴开始赛跑","habit":["语尾","情境套话"],"axes":["species","situation"],"note":"中文译页赛跑口令使用 JE。"},
+    {"id":"EH34-019-S02","source":"EH34-019","locator":"上格右下方的小气泡","language":"zh","text":"魔理刷素不會輸滴JE！","speaker":{"species":"魔理沙","stage":null,"state":"得意"},"situation":"比赛前自称不会输","habit":["自称","语尾","幼语"],"axes":["species","stage","situation"],"note":"保留「魔理刷」「素」「滴」和 JE。"},
+    {"id":"EH34-019-S03","source":"EH34-019","locator":"上格左上方气泡","language":"zh","text":"靈謬才素第一名呦！","speaker":{"species":"灵梦","stage":null,"state":"得意"},"situation":"赛跑时抢着说自己第一","habit":["自称","语尾","幼语"],"axes":["species","stage","situation"],"note":"保留「靈謬」「素」和「呦」。"},
+    {"id":"EH34-019-S04","source":"EH34-019","locator":"中格靠右、贴近地面的个体气泡","language":"zh","text":"地板先孫","speaker":{"species":"灵梦","stage":null,"state":"寒冷"},"situation":"觉得地面冷时抱怨","habit":["称呼","幼语"],"axes":["species","stage","situation"],"note":"只录能逐字辨认的地板称呼。"}
   ],
   "speech_candidates": [
-    {"id":"EH34-012-C01","source":"EH34-012","locator":"上格右侧","text":"哎呀、是生肖的包包衣呢！","language":"zh","speaker":{"species":"灵梦","stage":null,"state":null},"situation":"看见穿虎年包衣的小油库里时惊喜","habit":["情境套话"]},
-    {"id":"EH34-012-C02","source":"EH34-012","locator":"上格中间","text":"年初一到年初三就都穿著這個過吧","language":"zh","speaker":{"species":null,"stage":null,"state":null},"situation":"新年劝大家穿生肖包衣","habit":["情境套话"]},
-    {"id":"EH34-012-C03","source":"EH34-012","locator":"中格中下，指向面纸包裹者","text":"毫、豪冷JE…","language":"zh","speaker":{"species":"魔理沙","stage":null,"state":null},"situation":"裹着面纸发抖时说冷","habit":["口头禅"]},
-    {"id":"EH34-019-C01","source":"EH34-019","locator":"上格左上气泡","text":"來賽跑了JE！","language":"zh","speaker":{"species":null,"stage":null,"state":null},"situation":"宣布比赛开始，奖品是饅头","habit":["语尾"]},
-    {"id":"EH34-019-C02","source":"EH34-019","locator":"下格左侧气泡","text":"饅！對噢JE！","language":"zh","speaker":{"species":null,"stage":null,"state":null},"situation":"哭着应答对方","habit":["语尾","幼语"]},
     {"id":"EH34-020-C01","source":"EH34-020","locator":"上格右侧","text":"饅饅乃就素要彼此共享JE！","language":"zh","speaker":{"species":null,"stage":null,"state":null},"situation":"提议大家分享东西","habit":["语尾"]},
     {"id":"M05-006-C01","source":"M05-006","locator":"左侧小圆身旁","text":"ちゅぱーく！","language":"ja","speaker":{"species":"魔理沙","stage":null,"state":null},"situation":"小圆身跳出时的拟声","habit":["幼语"]},
-    {"id":"M07-011-C01","source":"M07-011","locator":"右侧中部气泡","text":"むきゅ!!","language":"ja","speaker":{"species":"帕秋莉","stage":null,"state":null},"situation":"举着蜡烛兴奋地叫","habit":["口头禅"]},
-    {"id":"M07-011-C02","source":"M07-011","locator":"右侧中部气泡","text":"ろいやるふれあよ!!","language":"ja","speaker":{"species":"帕秋莉","stage":null,"state":null},"situation":"向同伴炫耀手里的蜡烛","habit":["口头禅"]},
-    {"id":"M07-011-C03","source":"M07-011","locator":"右侧中部气泡","text":"むきゅきゅ〜ん♪","language":"ja","speaker":{"species":"帕秋莉","stage":null,"state":null},"situation":"得意时的撒娇声","habit":["口头禅"]},
-    {"id":"M09-006-C01","source":"M09-006","locator":"下格左下角气泡","text":"まりちゃだって かわいいのに！","language":"ja","speaker":{"species":"魔理沙","stage":null,"state":null},"situation":"抱怨母亲偏爱姐姐","habit":["自称"]},
-    {"id":"M09-006-C02","source":"M09-006","locator":"下格左下角气泡","text":"おか一しゃんの あかちゃんなのに…！！","language":"ja","speaker":{"species":"魔理沙","stage":null,"state":null},"situation":"抱怨母亲偏爱姐姐","habit":["称呼"]},
-    {"id":"M09-007-C01","source":"M09-007","locator":"上格左侧气泡","text":"ゆっくち！いっちょにゆっくちちよう！","language":"ja","speaker":{"species":"通用油库里","stage":null,"state":null},"situation":"邀请同伴一起慢慢休息","habit":["幼语","情境套话"]},
-    {"id":"M09-007-C02","source":"M09-007","locator":"下格右侧气泡","text":"むきゅ！みんなでいっしょにゆっくりしましょ？","language":"ja","speaker":{"species":"帕秋莉","stage":null,"state":null},"situation":"邀请大家一起慢慢休息","habit":["口头禅","情境套话"]},
-    {"id":"M09-007-C03","source":"M09-007","locator":"左下格气泡","text":"まりちゃは ひちょりで あしょんでりゅよ…","language":"ja","speaker":{"species":"魔理沙","stage":null,"state":null},"situation":"独自玩耍时的自述","habit":["自称","幼语"]},
     {"id":"M11-001-C01","source":"M11-001","locator":"中排右格气泡","text":"おやさいさん","language":"ja","speaker":{"species":"魔理沙","stage":null,"state":null},"situation":"边拖根菜边招呼蔬菜","habit":["称呼"]},
     {"id":"M11-005-C01","source":"M11-005","locator":"左上方气泡","text":"おでかけなのじぇ？","language":"ja","speaker":{"species":"魔理沙","stage":null,"state":null},"situation":"问大家要不要出门","habit":["语尾"]},
     {"id":"M11-005-C02","source":"M11-005","locator":"中排左格气泡","text":"まーちゃもいっちょにおでかけしゅるのじぇ！","language":"ja","speaker":{"species":"魔理沙","stage":null,"state":null},"situation":"要求一起出门","habit":["自称","语尾"]},
@@ -208,10 +262,6 @@
     {"id":"EH35-004-C01","source":"EH35-004","locator":"上格右上角气泡","text":"粑粑啊！麻麻啊！","language":"zh","speaker":{"species":"灵梦","stage":null,"state":null},"situation":"哭着呼喊双亲","habit":["称呼"]},
     {"id":"EH35-005-C01","source":"EH35-005","locator":"上格左侧气泡","text":"但素还似搞凑哒哟","language":"zh","speaker":{"species":"灵梦","stage":null,"state":null},"situation":"吃后评价味道","habit":["口头禅"]},
     {"id":"EH35-005-C02","source":"EH35-005","locator":"上格右侧气泡","text":"油唔…骚微豪一点典惹诺杰…","language":"zh","speaker":{"species":"魔理沙","stage":null,"state":null},"situation":"吃后带哭腔的评价","habit":["口头禅","语尾"]},
-    {"id":"M01-003-C01","source":"M01-003","locator":"中格左上气泡","text":"ゆっち！","language":"ja","speaker":{"species":"魔理沙","stage":null,"state":null},"situation":"贴地挪行时的呼声","habit":["幼语"]},
-    {"id":"M01-003-C02","source":"M01-003","locator":"下格左侧气泡","text":"ゆぁぁ!?","language":"ja","speaker":{"species":"魔理沙","stage":null,"state":null},"situation":"被手提起时惊叫","habit":["幼语"]},
-    {"id":"M01-011-C01","source":"M01-011","locator":"下排左上格上部气泡","text":"いやだじぇ にげるのじぇ","language":"ja","speaker":{"species":"魔理沙","stage":null,"state":null},"situation":"想逃开时的抗拒与逃跑","habit":["语尾"]},
-    {"id":"M01-011-C02","source":"M01-011","locator":"下排左上格右侧气泡","text":"ゆんやぁ","language":"ja","speaker":{"species":"橙","stage":null,"state":null},"situation":"被追赶时哭着哀叫","habit":["幼语"]},
     {"id":"M01-012-C01","source":"M01-012","locator":"下排左格上部气泡","text":"ゆにゃ…おにーしゃ…","language":"ja","speaker":{"species":"通用油库里","stage":null,"state":null},"situation":"半睡中贴在人旁边呼唤","habit":["称呼","幼语"]},
     {"id":"M01-012-C02","source":"M01-012","locator":"下排左格下部气泡","text":"だいーちゅき…ゆぴぴ…","language":"ja","speaker":{"species":"通用油库里","stage":null,"state":null},"situation":"睡梦中的呢喃","habit":["幼语"]},
     {"id":"M03-001-C01","source":"M03-001","locator":"中排左格左侧竖排","text":"しあわちぇー！","language":"ja","speaker":{"species":"魔理沙","stage":null,"state":null},"situation":"边吃边感叹幸福","habit":["幼语"]},
@@ -226,8 +276,6 @@
     {"id":"EH03-002-C03","source":"EH03-002","locator":"下格右上","text":"油哇啊啊！好厉害哟！","language":"zh","speaker":{"species":"灵梦","stage":null,"state":null},"situation":"惊叹对方变成DOS后很厉害","habit":["口头禅","语尾"]},
     {"id":"EH03-003-C01","source":"EH03-003","locator":"上格左侧","text":"变成DOS之后就没有害怕的东西了诺赋！连人类也不怕了诺赋！","language":"zh","speaker":{"species":"DOS魔理沙","stage":null,"state":null},"situation":"炫耀变成DOS后无所畏惧","habit":["口头禅","语尾"]},
     {"id":"EH03-003-C02","source":"EH03-003","locator":"下格中上","text":"DOS们要从粪人类那取回油库里诺赋！","language":"zh","speaker":{"species":"DOS魔理沙","stage":null,"state":null},"situation":"宣布要从人类手中夺回同伴","habit":["口头禅","语尾"]},
-    {"id":"EH08-005-C01","source":"EH08-005","locator":"右上第二格左侧","text":"拔拔？","language":"zh","speaker":{"species":"灵梦","stage":null,"state":"哭泣"},"situation":"哭着找爸爸","habit":["称呼"]},
-    {"id":"EH08-005-C02","source":"EH08-005","locator":"右上第二格右侧","text":"麻麻？","language":"zh","speaker":{"species":"灵梦","stage":null,"state":"哭泣"},"situation":"哭着找妈妈","habit":["称呼"]},
     {"id":"EH11-007-C01","source":"EH11-007","locator":"左栏上段竖排气泡","text":"喂，灵梦！去那边诺杰！好挤诺杰！","language":"zh","speaker":{"species":null,"stage":null,"state":null},"situation":"箱内拥挤，要求同伴挪位","habit":["幼语","语尾"]},
     {"id":"EH11-007-C02","source":"EH11-007","locator":"左栏中段竖排气泡","text":"油呜～这个住家有点挤捏？","language":"zh","speaker":{"species":null,"stage":null,"state":null},"situation":"打量新住处，抱怨空间窄","habit":["幼语","语尾"]},
     {"id":"EH11-007-C03","source":"EH11-007","locator":"左栏下段竖排气泡","text":"大哥哥，给偶新的家先生捏？","language":"zh","speaker":{"species":null,"stage":null,"state":null},"situation":"向饲育者询问新家","habit":["称呼","自称"]},
@@ -237,8 +285,6 @@
     {"id":"EH19-008-C01","source":"EH19-008","locator":"左侧竖排大气泡，位于灵梦头部左上","text":"油呜呜呜是好甜好甜先生哦！","language":"zh","speaker":{"species":"灵梦","stage":null,"state":"兴奋"},"situation":"吃到巧克力碎片后向给食的人道谢","habit":["称呼","幼语"]},
     {"id":"EH25-005-C01","source":"EH25-005","locator":"中格左侧下方","text":"油鳴…","language":"zh","speaker":{"species":"魔理沙","stage":null,"state":"哭泣"},"situation":"哭着挨训时的抽泣","habit":["语尾"]},
     {"id":"EH26-006-C01","source":"EH26-006","locator":"中格右上","text":"油！人類先生","language":"zh","speaker":{"species":"魔理沙","stage":null,"state":null},"situation":"被人类踩住时称呼对方","habit":["称呼"]},
-    {"id":"EH28-002-C01","source":"EH28-002","locator":"上格左侧","text":"油油！！是很能油庫裏的小寶寶呢！","language":"zh","speaker":{"species":"灵梦","stage":null,"state":null},"situation":"称赞小个体的成长","habit":["称呼","语尾"]},
-    {"id":"EH28-002-C02","source":"EH28-002","locator":"下格右上","text":"靈夢！小寶寶很油庫裏哦","language":"zh","speaker":{"species":"魔理沙","stage":null,"state":null},"situation":"招呼灵梦并谈论小个体","habit":["称呼"]},
     {"id":"EH28-003-C01","source":"EH28-003","locator":"上格中部","text":"靈夢說得對…","language":"zh","speaker":{"species":"魔理沙","stage":null,"state":null},"situation":"同意灵梦的提议","habit":["称呼"]},
     {"id":"EH30-002-C01","source":"EH30-002","locator":"下格左侧","text":"靈夢也想去公園玩油！","language":"zh","speaker":{"species":"灵梦","stage":null,"state":null},"situation":"被劝留在家里后抗议想去玩","habit":["自称","语尾"]},
     {"id":"EH30-002-C02","source":"EH30-002","locator":"下格左下","text":"靈夢的腳腳先生也很冷油很冷油！","language":"zh","speaker":{"species":"灵梦","stage":null,"state":null},"situation":"抱怨脚冷","habit":["语尾"]},
@@ -253,9 +299,6 @@
     {"id":"M03-011-C01","source":"M03-011","locator":"中左格，个体右上方","text":"みょん!","language":"ja","speaker":{"species":"妖梦","stage":null,"state":null},"situation":"被问到事情时自信地应答","habit":["口头禅"]},
     {"id":"M05-004-C01","source":"M05-004","locator":"画面左上","text":"こたっ! こたぁ!!","language":"ja","speaker":{"species":"被炉魔理沙","stage":null,"state":null},"situation":"被桌板撞击后的惊叫","habit":["情境套话"]},
     {"id":"M05-005-C01","source":"M05-005","locator":"画面上方中央","text":"こたぁあ…!!","language":"ja","speaker":{"species":"被炉魔理沙","stage":null,"state":null},"situation":"被打翻后大哭","habit":["情境套话"]},
-    {"id":"M15-003-C01","source":"M15-003","locator":"上格左侧大吹出","text":"おにーさん、ゆっくりしていってね！","language":"ja","speaker":{"species":"通用油库里","stage":null,"state":null},"situation":"向路过的人类打招呼","habit":["称呼","口头禅"]},
-    {"id":"M15-003-C02","source":"M15-003","locator":"下格右上","text":"かわいそうなれいむたちを、ゆっくりかっていってね！","language":"ja","speaker":{"species":"灵梦","stage":null,"state":"乞求购买"},"situation":"求人类领养","habit":["自称","情境套话"]},
-    {"id":"M15-003-C03","source":"M15-003","locator":"下格左侧","text":"きゃわいくてごめんにぇ！","language":"ja","speaker":{"species":"通用油库里","stage":null,"state":"撒娇"},"situation":"撒娇时的道歉口吻","habit":["幼语","语尾"]},
     {"id":"game/reimu-dos-variants/deibu-1.png-C01","source":"game/reimu-dos-variants/deibu-1.png","locator":"上格左侧","text":"うざい~","language":"ja","speaker":{"species":"通用油库里","stage":null,"state":"被抓握"},"situation":"被手指拧住时抱怨","habit":["情境套话"]},
     {"id":"game/reimu-dos-variants/deibu-1.png-C02","source":"game/reimu-dos-variants/deibu-1.png","locator":"上格右侧","text":"やめりょお~","language":"ja","speaker":{"species":"通用油库里","stage":null,"state":"被抓握"},"situation":"被拧时求饶","habit":["幼语"]},
     {"id":"game/reimu-dos-variants/deibu-1.png-C03","source":"game/reimu-dos-variants/deibu-1.png","locator":"下格左侧","text":"ありえにぇッ","language":"ja","speaker":{"species":"通用油库里","stage":null,"state":null},"situation":"被惊到后的惊叹","habit":["幼语","语尾"]},
@@ -412,6 +455,34 @@
       "review": "逐图核对",
       "units": [
         {"id":"M12-006-U01","subjects":[{"species":"通用油库里","stage":null}],"action":["照料幼体"],"expression":["担忧"],"body_state":[],"prop_scene":["圆形承托面"],"view":["俯视"],"usefulness":"both","copy_note":"从上方让较大的个体把脸转向圆形承托面上的小个体，保留两者的视线方向与距离。","crop":[0,306,480,640]}
+      ]
+    },
+    {
+      "path": "wiki/art-references/images/M06/007-8ea3c086.jpg",
+      "review": "逐图核对",
+      "units": [
+        {"id":"M06-007-U01","crop":[0,1654,407,1944],"subjects":[{"species":"爱丽丝","stage":"赤油"}],"action":["蹭脸"],"expression":[],"body_state":["贴地"],"prop_scene":["玩偶"],"view":["前侧"],"usefulness":"art","copy_note":"横卧的小爱丽丝把脸贴向倾下来的玩偶，接触点留在脸颊，近侧长发垂在两张脸之间。"}
+      ]
+    },
+    {
+      "path": "wiki/art-references/images/M06/008-f8504437.jpg",
+      "review": "逐图核对",
+      "units": [
+        {"id":"M06-008-U01","crop":[0,791,407,1110],"subjects":[{"species":"爱丽丝","stage":"赤油"}],"action":["贴靠"],"expression":[],"body_state":["贴地"],"prop_scene":["玩偶"],"view":["前侧"],"usefulness":"art","copy_note":"小爱丽丝闭眼侧伏，玩偶俯在她脸旁，把两张脸画在相邻高度。"}
+      ]
+    },
+    {
+      "path": "wiki/art-references/images/M06/006-a9bd64d3.jpg",
+      "review": "逐图核对",
+      "units": [
+        {"id":"M06-006-U01","crop":[0,2395,407,2800],"subjects":[{"species":"爱丽丝","stage":"赤油"}],"action":["贴靠"],"expression":["担忧"],"body_state":["贴地"],"prop_scene":["玩偶"],"view":["俯视"],"usefulness":"art","copy_note":"取下段的斜俯视草图，小爱丽丝贴向横倒的人偶；两者头部挨近，长发顺着地面摊开。"}
+      ]
+    },
+    {
+      "path": "wiki/art-references/images/M06/003-51eb7775.jpg",
+      "review": "逐图核对",
+      "units": [
+        {"id":"M06-003-U01","crop":[0,1131,407,1562],"subjects":[{"species":"爱丽丝","stage":"赤油"}],"action":["贴靠"],"expression":["担忧"],"body_state":[],"prop_scene":["玩偶"],"view":["侧面"],"usefulness":"art","copy_note":"画小爱丽丝向贴近的玩偶抬眼，脸与玩偶的衣襟交叠，留出两个视线朝向。"}
       ]
     },
     {
@@ -678,9 +749,9 @@
     },
     {
       "path": "wiki/art-references/ehentai/images/EH34/019.webp",
-      "review": "批次抽查",
+      "review": "逐图核对",
       "units": [
-        {"id":"EH34-019-U01","subjects":[{"species":"魔理沙","stage":null},{"species":"灵梦","stage":null}],"action":["移动跳跃","匍匐前进"],"expression":[],"body_state":["贴地"],"prop_scene":["帽子","地面"],"view":["俯视"],"usefulness":"both","copy_note":"圆身压低贴地，帽子斜挂在身侧，三个个体朝同一方向拖着前进；动作线用〈もるもる〉拟声表示蠕动。","crop":[113,109,1089,575]},
+        {"id":"EH34-019-U01","subjects":[{"species":"魔理沙","stage":null},{"species":"灵梦","stage":null}],"action":["匍匐前进","玩耍"],"expression":[],"body_state":["贴地"],"prop_scene":["虎纹头罩","阴阳玉"],"view":["俯视"],"usefulness":"both","copy_note":"四只戴虎纹头罩的幼体背对视点、错开朝阴阳玉靠近，给各自圆身留足间距与同向运动线。","crop":[113,109,1089,575]},
         {"id":"EH34-019-U02","subjects":[{"species":"灵梦","stage":null}],"action":[],"expression":["悲伤"],"body_state":["贴地"],"prop_scene":["帽子","地面"],"view":["正面"],"usefulness":"art","copy_note":"泪眼张口哭的小脸，下半身贴在地面上；旁边平放一顶黑帽作为尺度参照。","crop":[113,598,1089,1066]}
       ]
     },
@@ -818,6 +889,13 @@
       "review": "批次抽查",
       "units": [
         {"id":"EH14-002-U01","subjects":[{"species":"帕秋莉","stage":null}],"action":["伏在书上"],"expression":["喜悦"],"body_state":["压扁"],"prop_scene":["翻开的书"],"view":["正面"],"usefulness":"both","copy_note":"身体趴在翻开的书上，双侧发饰与蝴蝶结保留，正面露出大眼和微笑；书平摊在身体下方作为支撑面。","crop":[165,190,470,521]}
+      ]
+    },
+    {
+      "path": "wiki/art-references/images/M06/002-d67730ef.jpg",
+      "review": "逐图核对",
+      "units": [
+        {"id":"M06-002-U01","crop":[0,1280,407,1592],"subjects":[{"species":"爱丽丝","stage":"赤油"}],"action":["休息睡眠","贴靠"],"expression":["安心"],"body_state":["贴地"],"prop_scene":["玩偶"],"view":["前侧"],"usefulness":"art","copy_note":"小爱丽丝闭眼、把脸靠到坐姿玩偶旁边；保留玩偶的裙褶与小油贴地的轮廓。"}
       ]
     },
     {
@@ -1056,10 +1134,17 @@
       ]
     },
     {
+      "path": "wiki/art-references/ehentai/images/EH07/008.webp",
+      "review": "逐图核对",
+      "units": [
+        {"id":"EH07-008-U01","crop":[278,1375,1005,1820],"subjects":[{"species":"通用油库里","stage":null}],"action":["呼唤"],"expression":["悲伤"],"body_state":[],"prop_scene":["瓶盖"],"view":["正面","特写"],"usefulness":"art","copy_note":"只看底格泪目：在卷发上留瓶盖的竖纹轮廓，双眼各用亮斑与下缘挂泪，嘴角向下。"}
+      ]
+    },
+    {
       "path": "wiki/art-references/ehentai/images/EH08/005.webp",
       "review": "逐图核对",
       "units": [
-        {"id":"EH08-005-U01","subjects":[{"species":"灵梦","stage":"赤油"}],"action":["呼唤"],"expression":["担忧"],"body_state":[],"prop_scene":[],"view":["正面","特写"],"usefulness":"art","copy_note":"幼体找不到亲油时用上抬的眼、圆张口与贴地身形表现等回应。","crop":[51,190,553,851]}
+        {"id":"EH08-005-U01","subjects":[{"species":"灵梦","stage":"赤油"}],"action":["呼唤"],"expression":["担忧"],"body_state":[],"prop_scene":[],"view":["正面","特写"],"usefulness":"art","copy_note":"幼体找不到亲油时，让内侧眉眼收紧、泪线挂在下眼睑，张口朝画外呼唤。","crop":[553,441,1224,765]}
       ]
     },
     {
@@ -2858,6 +2943,14 @@
       ]
     },
     {
+      "path": "wiki/art-references/images/M06/001-9b80cd1e.jpg",
+      "review": "逐图核对",
+      "units": [
+        {"id":"M06-001-U01","crop":[0,192,407,522],"subjects":[{"species":"爱丽丝","stage":"实子"}],"action":[],"expression":[],"body_state":["茎上"],"prop_scene":["茎","容器"],"view":["侧面"],"usefulness":"art","copy_note":"让细茎从小容器口向侧方弯下，末端只露出小爱丽丝的头和头发。"},
+        {"id":"M06-001-U02","crop":[0,946,407,1308],"subjects":[{"species":"爱丽丝","stage":"实子"}],"action":[],"expression":[],"body_state":["茎上"],"prop_scene":["玩偶","容器"],"view":["前侧"],"usefulness":"art","copy_note":"把带蝴蝶结的坐姿玩偶摆在茎旁，保留容器、弯茎和小脸的相对高度。"}
+      ]
+    },
+    {
       "path": "wiki/art-references/ehentai/images/EH16/003.jpg",
       "review": "批次抽查",
       "units": [
@@ -3007,17 +3100,23 @@
       "units": [
         {"id":"game/standard-species/rear/sprite-7121.png-U01","subjects":[{"species":"橙","stage":null}],"action":[],"expression":[],"body_state":[],"prop_scene":[],"view":["背面"],"usefulness":"art","copy_note":"棕红后脑发与两侧猫耳，耳内侧粉色，可复用为橙背面轮廓。","crop":null}
       ]
+    },
+    {
+      "path": "wiki/art-references/ehentai/images/EH37/007.webp",
+      "review": "逐图核对",
+      "units": [
+        {"id":"EH37-007-U01","crop":[32,331,773,617],"subjects":[{"species":"灵梦","stage":null},{"species":"魔理沙","stage":null}],"action":["索食"],"expression":["担忧","悲伤"],"body_state":["贴地"],"prop_scene":["巢面"],"view":["正面"],"usefulness":"art","copy_note":"把两只幼体放在近景巢面上，留守亲油的脸放大在后方；一只圆张口哭喊，另一只压低眼皮。"}
+      ]
+    },
+    {
+      "path": "wiki/art-references/images/M06/009-d5c1d65d.jpg",
+      "review": "逐图核对",
+      "units": [
+        {"id":"M06-009-U01","crop":[0,224,407,551],"subjects":[{"species":"爱丽丝","stage":null}],"action":["应答"],"expression":["喜悦"],"body_state":["贴地"],"prop_scene":[],"view":["前侧","特写"],"usefulness":"art","copy_note":"让地面上的小爱丽丝抬起脸，张圆口回应画面外的人，头发在贴地边缘分开。"},
+        {"id":"M06-009-U02","crop":[0,1080,407,1563],"subjects":[{"species":"爱丽丝","stage":null}],"action":["休息睡眠","贴靠"],"expression":["安心"],"body_state":["贴地"],"prop_scene":["玩偶"],"view":["前侧"],"usefulness":"art","copy_note":"用完整坐姿玩偶衬出小爱丽丝的尺度，让她闭眼贴在玩偶裙边。"}
+      ]
     }
   ],
   "image_review": [
-    {"path":"wiki/art-references/ehentai/images/EH37/007.webp","batch":7,"reason":"画格涉及幼体与亲代的冲突，重核站位、情绪与动作"},
-    {"path":"wiki/art-references/ehentai/images/EH07/008.webp","batch":10,"reason":"裁框切断表情且有误判内容，重取幼体的正面神情"},
-    {"path":"wiki/art-references/images/M06/003-51eb7775.jpg","batch":26,"reason":"长页画面与正文需对读，重核爱丽丝、玩偶和画幅"},
-    {"path":"wiki/art-references/images/M06/006-a9bd64d3.jpg","batch":26,"reason":"长页画面与正文需对读，重核爱丽丝、玩偶和画幅"},
-    {"path":"wiki/art-references/images/M06/008-f8504437.jpg","batch":26,"reason":"长页画面与正文需对读，重核爱丽丝、玩偶和画幅"},
-    {"path":"wiki/art-references/images/M06/002-d67730ef.jpg","batch":36,"reason":"长页画面与正文需对读，重核爱丽丝、玩偶和画幅"},
-    {"path":"wiki/art-references/images/M06/007-8ea3c086.jpg","batch":36,"reason":"长页画面与正文需对读，重核爱丽丝、玩偶和画幅"},
-    {"path":"wiki/art-references/images/M06/001-9b80cd1e.jpg","batch":38,"reason":"长页画面与正文需对读，重核爱丽丝、玩偶和画幅"},
-    {"path":"wiki/art-references/images/M06/009-d5c1d65d.jpg","batch":38,"reason":"长页画面与正文需对读，重核爱丽丝、玩偶和画幅"}
   ]
 }

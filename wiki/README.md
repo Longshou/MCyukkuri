@@ -5,6 +5,7 @@
 | 内容 | 阅读入口 |
 | --- | --- |
 | 名称、同名异义与游戏规则入口 | [术语表](glossary.md) · [游戏文档索引](../docs/FEATURES.md) |
+| 作品证据：按种族、动作、语境或说话习惯查找 | [制作画面](reference-library/image-evidence.md) · [小说原文片段](novel-reading/evidence.md) · [作品对白](hakkei-reference/dialogue/evidence.md) |
 | 游戏参考：按实体、情景、情绪组合查找；当前数量见参考库 | [游戏参考库](reference-library/README.md) · [组合筛选](reference-library/gallery.html) · [造型与动作参考](reference-library/production-briefs.md) |
 | 野外环境、经典事件、交互过程和叶材育幼 | [野外与交互](wild-life.md) · [树叶襁褓资源](leaf-swaddle.md) |
 | 城市边缘的食源、栖所、设施与同伴关系 | [城市边缘生活](city-life.md) |
