@@ -125,7 +125,9 @@ final class LifeHome {
             return false;
         }
         SearchBudget.path(o.entity());
-        boolean reachable = SurfaceApproach.canApproach(o.entity(), stand) || o.homeProvider().canFlyTo(o.entity(), BlockPos.containing(stand));
+        boolean reachable = SurfaceApproach.canApproach(o.entity(), stand)
+                || o.homeProvider().canFlyTo(o.entity(), BlockPos.containing(stand))
+                || SurfaceApproach.canApproachAfterLanding(o.entity(), stand);
         boolean occupied = !care.canClaim(o.entity());
         if (!reachable || occupied) {
             GameplayLog.limited(o.entity(),"home","nest_access_refused",200,

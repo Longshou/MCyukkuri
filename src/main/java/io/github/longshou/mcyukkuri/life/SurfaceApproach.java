@@ -238,6 +238,19 @@ public final class SurfaceApproach {
         return Double.isFinite(routeLength(actor,destination,null));
     }
 
+    /** A terrain access survey for a claim made during a jump. It does not start a walk or move the actor. */
+    static boolean canApproachAfterLanding(YukkuriEntity actor, Vec3 destination) {
+        if (!(actor.getNavigation() instanceof YukkuriGroundNavigation ground) || ground.canPlanApproach()
+                || actor.isPassenger() || actor.isInWaterOrBubble()) return false;
+        var from = actor.position();
+        var hit = actor.level().clip(new ClipContext(from, from.add(0, -actor.getMaxFallDistance(), 0),
+                ClipContext.Block.COLLIDER, ClipContext.Fluid.ANY, actor));
+        if (hit.getType() != HitResult.Type.BLOCK || hit.getDirection() != Direction.UP) return false;
+        var stand = outside(actor, destination, null);
+        var landing = hit.getLocation();
+        return stand != null && stands(actor, landing) && plan(actor, stand, null, true, landing) != null;
+    }
+
     /** Read-only planning, including the last step from a vanilla node to the exact physical stand. */
     public static double routeLength(YukkuriEntity actor,Vec3 destination,AABB obstacle){
         var goal=outside(actor,destination,obstacle);
@@ -456,8 +469,13 @@ public final class SurfaceApproach {
 
     /** {@code straight}: a direct last step (or the way round the first footprint on it) may serve instead of a route. */
     private static Route plan(YukkuriEntity actor,Vec3 destination,AABB body,boolean straight){
+        return plan(actor,destination,body,straight,null);
+    }
+
+    private static Route plan(YukkuriEntity actor,Vec3 destination,AABB body,boolean straight,Vec3 landing){
         if(!supported(actor,destination)||TravelRange.keepBabyHome(actor)&&!TravelRange.babyDestination(actor,BlockPos.containing(destination)))return null;
-        if(straight&&clearOf(actor,actor.position(),destination,body)&&(arrived(actor,destination)||clearLastStep(actor,destination)&&walkable(actor,destination)))
+        if(landing!=null&&straight&&clearLastStep(actor,landing,destination))return new Route(null,landing.distanceTo(destination));
+        if(landing==null&&straight&&clearOf(actor,actor.position(),destination,body)&&(arrived(actor,destination)||clearLastStep(actor,destination)&&walkable(actor,destination)))
             return new Route(null,actor.position().distanceTo(destination));
         // A containing block is not an exact stand. Offer only node centres with a clear, supported final segment.
         double offset=Mth.floor(actor.getBbWidth()+1)*.5;
@@ -471,11 +489,19 @@ public final class SurfaceApproach {
         }
         if(targets.isEmpty())return null;
         var navigation=actor.getNavigation();
-        var path=navigation instanceof YukkuriGroundNavigation ground?ground.createApproachPath(targets,body,destination):navigation.createPath(targets,0);
+        Path path;
+        if(landing!=null){
+            var from=new BlockPos(Mth.floor(landing.x-offset+.5),Mth.floor(landing.y+.5),Mth.floor(landing.z-offset+.5));
+            path=((YukkuriGroundNavigation)navigation).surveyTravelPath(from,targets);
+        }else{
+            path=navigation instanceof YukkuriGroundNavigation ground?ground.createApproachPath(targets,body,destination):navigation.createPath(targets,0);
+        }
         if(path==null||!path.canReach()||path.getNodeCount()==0)return null;
         var first=floor(actor,path.getEntityPosAtNode(actor,0));
-        if(first!=null&&actor.onGround()&&NestDoorway.at(actor,actor.position())==null&&Math.abs(first.y-actor.getY())<=.25&&!clearLastStep(actor,first))return null;
-        Vec3 before=actor.position();double length=0;
+        if(landing!=null){
+            if(first==null||!clearLastStep(actor,landing,first))return null;
+        }else if(first!=null&&actor.onGround()&&NestDoorway.at(actor,actor.position())==null&&Math.abs(first.y-actor.getY())<=.25&&!clearLastStep(actor,first))return null;
+        Vec3 before=landing!=null?landing:actor.position();double length=0;
         for(int i=0;i<path.getNodeCount();i++){
             var next=path.getEntityPosAtNode(actor,i);
             if(!clearOf(actor,before,next,body)||!dryStep(actor,before,next))return null;
