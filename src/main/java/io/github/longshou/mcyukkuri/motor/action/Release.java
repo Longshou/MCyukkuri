@@ -7,6 +7,7 @@ import io.github.longshou.mcyukkuri.family.ParentCarry.Hold;
 import io.github.longshou.mcyukkuri.headwear.HatGeometry;
 import io.github.longshou.mcyukkuri.headwear.HullBounds;
 import io.github.longshou.mcyukkuri.life.NestDoorway;
+import io.github.longshou.mcyukkuri.life.NestResting;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.motor.ContactGeometry;
 import io.github.longshou.mcyukkuri.motor.Action;
@@ -30,6 +31,7 @@ import io.github.longshou.mcyukkuri.motor.surface.SurfaceHost;
 import io.github.longshou.mcyukkuri.motor.surface.SeatTarget;
 import io.github.longshou.mcyukkuri.motor.surface.BedContainer;
 import io.github.longshou.mcyukkuri.motor.surface.Floor;
+import io.github.longshou.mcyukkuri.motor.surface.Occupancy;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -40,6 +42,7 @@ import java.util.Objects;
 import java.util.TreeMap;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
 /**
@@ -195,6 +198,7 @@ public final class Release implements Action {
     private Feasibility plan(YukkuriEntity carrier) {
         refused.clear();
         var bed = BedContainer.of(child, nest);
+        var exit = bed == null ? null : cushionExit(carrier);
         var here = carrier.position();
         // Her hold's own let-go distance; an endpoint up to the contact slack beyond it is still in reach.
         double natural = ParentCarry.groundPoint(carrier, child, 0).subtract(here).horizontalDistance(), reach = natural + .03;
@@ -202,7 +206,7 @@ public final class Release implements Action {
         int routes = 0;
         for (int pass = bed == null ? 1 : 0; pass < 2; pass++) {
             String where = pass == 0 ? "nest" : bed == null ? "ground" : "outside";
-            var pad = pass == 0 ? pad(carrier, bed) : null;
+            var pad = pass == 0 ? pad(carrier, bed, exit) : null;
             var turnable = new ArrayList<Vec3>();
             if (pass == 0) {
                 for (var at : pad) if (at.subtract(here).horizontalDistance() <= reach) turnable.add(at);
@@ -210,12 +214,12 @@ public final class Release implements Action {
             } else for (int i = 0; i < BEARINGS; i++) {
                 float yaw = carrier.bodyYaw() + (i + 1) / 2 * (i % 2 == 0 ? 1 : -1) * 360f / BEARINGS;
                 var at = floorUnder(ParentCarry.groundPoint(carrier, child, yaw));
-                if (at != null && !turnable.contains(at) && !onPad(bed, at) && open(carrier, at)) turnable.add(at);
+                if (at != null && !turnable.contains(at) && !onPad(bed, at) && open(carrier, at, exit)) turnable.add(at);
             }
             if (turnHere) for (var at : turnable) if (admits(carrier, here, at)) return choose(carrier, here, at, where);
             // Endpoints she walks for lie at least half her width apart: a closer one is reached from the same stands.
             var walked = new ArrayList<Vec3>();
-            for (var at : pass == 0 ? pad : ground(carrier, bed)) {
+            for (var at : pass == 0 ? pad : ground(carrier, bed, exit)) {
                 if (near(walked, at, carrier.getBbWidth() * .5)) continue;
                 walked.add(at);
                 for (var stand : SurfaceApproach.contactStands(carrier, at, natural, null, s -> !near(failedStands, s, carrier.getBbWidth() * .5))) {
@@ -238,26 +242,38 @@ public final class Release implements Action {
         return exhausted(carrier, "no_supported_release_spot");
     }
 
+    /** A resident bringing a child to a one-body cushion leaves room for its ordinary step across the low lip. */
+    private AABB cushionExit(YukkuriEntity carrier) {
+        var cushion = NestDoorway.bed(carrier, nest);
+        if (cushion == null || cushion.bed() != NestResting.CUSHION
+                || !cushion.owns(carrier.getUUID()) || cushion.owns(child.getUUID())) return null;
+        var door = NestDoorway.shape(cushion);
+        var centre = cushion.centre();
+        double foot = Occupancy.foot(child.getBbWidth()), half = door.opening() + foot;
+        double outer = door.outer() + carrier.getBbWidth() / 2 + foot;
+        return new AABB(centre.add(-half, -1, -door.side() * foot), centre.add(half, 1, door.side() * outer));
+    }
+
     /** Supported pad points of this nest for the child's own footprint, nearest her first. */
-    private List<Vec3> pad(YukkuriEntity carrier, BedContainer bed) {
+    private List<Vec3> pad(YukkuriEntity carrier, BedContainer bed, AABB exit) {
         double half = ((FloorShape.RoundedRect) bed.floor()).half(), step = child.getBbWidth() / 2;
         var centre = Vec3.ZERO.subtract(bed.toPlane(Vec3.ZERO));
         var out = new ArrayList<Vec3>();
         for (double x = -half; x <= half; x += step) for (double z = -half; z <= half; z += step) {
             var at = new Vec3(centre.x + x, bed.floorY(), centre.z + z);
-            if (bed.standsInside(x, z, child.getBbWidth()) && open(carrier, at)) out.add(at);
+            if (bed.standsInside(x, z, child.getBbWidth()) && open(carrier, at, exit)) out.add(at);
         }
         out.sort(Comparator.comparingDouble(carrier::distanceToSqr));
         return out;
     }
 
     /** Supported ground within two of her widths round her (off the requested nest's pad), nearest her first. */
-    private List<Vec3> ground(YukkuriEntity carrier, BedContainer bed) {
+    private List<Vec3> ground(YukkuriEntity carrier, BedContainer bed, AABB exit) {
         double half = carrier.getBbWidth() * 2, step = carrier.getBbWidth() / 2;
         var out = new ArrayList<Vec3>();
         for (double x = -half; x <= half; x += step) for (double z = -half; z <= half; z += step) {
             var at = floorUnder(carrier.position().add(x, 0, z));
-            if (at != null && !out.contains(at) && !onPad(bed, at) && open(carrier, at)) out.add(at);
+            if (at != null && !out.contains(at) && !onPad(bed, at) && open(carrier, at, exit)) out.add(at);
         }
         out.sort(Comparator.comparingDouble(carrier::distanceToSqr));
         return out;
@@ -277,7 +293,11 @@ public final class Release implements Action {
     }
 
     /** A footprint not failed at already, with support and no other body on it. */
-    private boolean open(YukkuriEntity carrier, Vec3 at) {
+    private boolean open(YukkuriEntity carrier, Vec3 at, AABB exit) {
+        if (exit != null && exit.contains(at)) {
+            refused.merge("cushion_exit", 1, Integer::sum);
+            return false;
+        }
         if (near(failedEndpoints, at, child.getBbWidth())) return false;
         var space = space(carrier, at);
         if (!space.ok()) refused.merge(space.detail().split(" ")[0], 1, Integer::sum);
