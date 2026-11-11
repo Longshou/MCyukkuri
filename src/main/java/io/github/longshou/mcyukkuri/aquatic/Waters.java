@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.aquatic;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.family.ParentCarry;
 import io.github.longshou.mcyukkuri.headwear.HatGeometry;
 import io.github.longshou.mcyukkuri.headwear.PlacedHatBehavior;
 import io.github.longshou.mcyukkuri.headwear.HatScale;
@@ -15,6 +16,7 @@ import io.github.longshou.mcyukkuri.motor.action.Hop;
 import io.github.longshou.mcyukkuri.motor.geom.GridPath;
 import io.github.longshou.mcyukkuri.motor.geom.HeightGrid;
 import io.github.longshou.mcyukkuri.motor.surface.Floor;
+import io.github.longshou.mcyukkuri.motor.surface.HostFrame;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.status.StatusEvents;
 import java.util.ArrayList;
@@ -24,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.WeakHashMap;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import net.minecraft.core.BlockPos;
@@ -34,20 +37,21 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
 /**
  * The water a hat lives on (AQUATIC rules "沿已加载的平静水面航行，不穿岸、不走急流"): calm loaded surface cells,
- * the route a paddled hat takes over them, the bank edges beside them (where a hat is set down from or landed at), a dry stand in hop reach, and a loose stick near a body. World reads only; nothing is kept.
+ * the route a paddled hat takes over them, the bank edges beside them (where a hat is set down from or landed at), a dry stand in hop reach, and a loose stick near a body. World reads only.
  */
 final class Waters {
     /** How far (blocks) a route or a landing is looked for around the hat; how many candidates get a route or path asked. */
     static final int RANGE = 24, ASKED = 8;
     /** Brim stands closer than this (blocks) are one stand for a landing search: the difference is invisible. */
     private static final double SAME_STAND = 0.15;
-    /** Ticks a landing search that found nothing stays unasked. */
-    private static final int NONE_HOLD = 4;
+    /** A changed clearance at the lip or between riders, in blocks; sub-contact bobbing does not open a new route. */
+    private static final double EXIT_CLEARANCE = .05;
     /** What a route step beside the bank costs extra (GridPath's rim weight, in cells): the hull keeps off the shore. */
     private static final double SHORE_COST = 2;
 
@@ -359,17 +363,101 @@ final class Waters {
 
     record Exit(Vec3 brim, Vec3 bank) {}
 
+    private record Held(UUID id, ParentCarry.Hold hold) {}
+
+    private record Occupant(UUID id, Vec3 at, float yaw, double width, List<Held> carried) {
+        boolean sameRoom(Occupant other) {
+            return id.equals(other.id) && at.distanceToSqr(other.at) < EXIT_CLEARANCE * EXIT_CLEARANCE
+                    && Math.abs(Mth.wrapDegrees(yaw - other.yaw)) * Mth.DEG_TO_RAD * width / 2 < EXIT_CLEARANCE
+                    && Math.abs(width - other.width) < EXIT_CLEARANCE && carried.equals(other.carried);
+        }
+    }
+
+    private record ExitPose(UUID hat, HostFrame frame, Vec3 velocity, boolean moored, boolean sails, BodyAbility ability,
+                            List<Occupant> riders, List<Occupant> blockers) {
+        boolean sameStand(ExitPose other) {
+            if (!hat.equals(other.hat) || moored != other.moored || sails != other.sails || ability.canJump() != other.ability.canJump()
+                    || Math.abs(ability.hopReach() - other.ability.hopReach()) >= EXIT_CLEARANCE
+                    || Math.abs(ability.hopHeight() - other.ability.hopHeight()) >= EXIT_CLEARANCE) return false;
+            var shift = frame.origin().subtract(other.frame.origin());
+            double radius = brimRadius();
+            double turn = Mth.wrapDegrees((frame.yawRad() - other.frame.yawRad()) * Mth.RAD_TO_DEG) * Mth.DEG_TO_RAD;
+            double tilt = Math.hypot(frame.rollDeg() - other.frame.rollDeg(), frame.pitchDeg() - other.frame.pitchDeg()) * Mth.DEG_TO_RAD;
+            return shift.horizontalDistanceSqr() < SAME_STAND * SAME_STAND && Math.abs(shift.y) < EXIT_CLEARANCE
+                    && velocity.subtract(other.velocity).horizontalDistanceSqr() < MOORED * MOORED
+                    && Math.abs(turn) * radius < SAME_STAND && tilt * radius < EXIT_CLEARANCE
+                    && Math.abs(radius - other.brimRadius()) < EXIT_CLEARANCE
+                    && sameRoom(riders, other.riders) && sameRoom(blockers, other.blockers);
+        }
+
+        double brimRadius() { return HullBounds.RADIUS * frame.unit() / HullBounds.UNIT; }
+
+        private static boolean sameRoom(List<Occupant> previous, List<Occupant> current) {
+            if (previous.size() != current.size()) return false;
+            for (int i = 0; i < previous.size(); i++) if (!previous.get(i).sameRoom(current.get(i))) return false;
+            return true;
+        }
+    }
+
+    private record ExitSearch(ExitPose pose, Exit exit, int bank, long tick) {}
+    /** One observation per live body. Values contain only snapshots and never keep a rider or its hull alive. */
+    private static final Map<YukkuriEntity, ExitSearch> EXITS = new WeakHashMap<>();
+
     /** The local brim spot of {@code hat} and dry stand one hop away for {@code body}, or null: the ring spot nearest
      *  the bank first, then the ones beside it, so a hull whose brim reaches over the bank still has a way off. */
     static Exit brimAshore(PlacedHatEntity hat, YukkuriEntity body) {
+        if (body.getVehicle() != hat || !hat.steady()) return null;
         var level = body.level();
-        // A search that found no way off is not repeated every tick while the hull drifts: a few ticks' wait is not visible.
-        var none = key(level, "brim_none", hat.getUUID(), body.getUUID());
-        if (kept(level, none, NONE_HOLD, () -> Boolean.FALSE) == Boolean.TRUE) return null;
-        var exit = kept(level, key(level, "brim", hat.getUUID(), body.getUUID(), hat.frame(), body.position()), 1,
-                () -> timed(body, "brim_ashore", () -> findBrimAshore(hat, body)));
-        if (exit == null) synchronized (CACHE) { CACHE.put(none, new Kept(level.getGameTime(), Boolean.TRUE)); }
+        long now = level.getGameTime();
+        var pose = exitPose(hat, body);
+        ExitSearch last;
+        synchronized (EXITS) { last = EXITS.get(body); }
+        if (last != null && last.pose().sameStand(pose)) {
+            if (last.exit() != null && last.tick() == now && last.pose().equals(pose)) return last.exit();
+            if (last.exit() == null) {
+                // Sample the bank for edits while the hull lies still. Time passing alone never retries the hop.
+                if (now - last.tick() < KEEP) return null;
+                int bank = bankBlocks(level, last.pose());
+                if (bank == last.bank()) {
+                    synchronized (EXITS) { EXITS.put(body, new ExitSearch(last.pose(), null, bank, now)); }
+                    return null;
+                }
+            }
+        }
+        var exit = timed(body, "brim_ashore", () -> findBrimAshore(hat, body));
+        int bank = exit == null ? bankBlocks(level, pose) : 0;
+        synchronized (EXITS) { EXITS.put(body, new ExitSearch(pose, exit, bank, now)); }
         return exit;
+    }
+
+    private static ExitPose exitPose(PlacedHatEntity hat, YukkuriEntity body) {
+        var riders = new ArrayList<Occupant>();
+        for (var rider : hat.getPassengers()) {
+            var carried = new ArrayList<Held>();
+            if (rider instanceof YukkuriEntity carrier) {
+                for (var passenger : carrier.getPassengers()) if (passenger instanceof YukkuriEntity child)
+                    carried.add(new Held(child.getUUID(), ParentCarry.hold(carrier, child)));
+            }
+            riders.add(new Occupant(rider.getUUID(), hat.riders().local(rider.getUUID()).scale(hat.unit()),
+                    hat.riders().yaw(rider.getUUID()), rider.getBbWidth(), carried));
+        }
+        var blockers = body.level().getEntities(body, hat.getBoundingBox().inflate(3),
+                entity -> entity.getRootVehicle() != hat && (entity.canBeCollidedWith() || entity instanceof PlacedHatEntity))
+                .stream().map(entity -> new Occupant(entity.getUUID(), entity.position(), entity.getYRot(), entity.getBbWidth(), List.of()))
+                .sorted(Comparator.comparing(Occupant::id)).toList();
+        return new ExitPose(hat.getUUID(), hat.frame(), hat.getDeltaMovement(), moored(hat), body.childhood().canSail(),
+                BodyAbility.of(body), riders, blockers);
+    }
+
+    /** The block states around the brim, the two-cell bank scan and the clearance above its stands. */
+    private static int bankBlocks(Level level, ExitPose pose) {
+        var at = BlockPos.containing(pose.frame().origin());
+        int radius = 3 + Mth.ceil(pose.brimRadius());
+        int above = 3 + Mth.ceil(pose.ability().hopHeight());
+        int result = 1;
+        for (var p : BlockPos.betweenClosed(at.offset(-radius, -3, -radius), at.offset(radius, above, radius)))
+            result = 31 * result + (level.hasChunkAt(p) ? 1 + Block.getId(level.getBlockState(p)) : 0);
+        return result;
     }
 
     private static Exit findBrimAshore(PlacedHatEntity hat, YukkuriEntity body) {
