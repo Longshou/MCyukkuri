@@ -31,7 +31,7 @@ public final class SettlementCommands {
         return Commands.literal("settlement").then(Commands.literal("spawn")
                 .then(Commands.argument("kind", StringArgumentType.word())
                         .suggests((context, builder) -> SharedSuggestionProvider.suggest(new String[]{"wanderer", "family", "forest", "forest_led", "bandits",
-                                "band", "village", "village_led", "village_unled", "demo", "demo_adults"}, builder))
+                                "band", "village", "village_led", "village_unled", "village_led_babies", "demo", "demo_adults"}, builder))
                         .executes(context -> spawn(context.getSource(), StringArgumentType.getString(context, "kind"), BlockPos.containing(context.getSource().getPosition())))
                         .then(Commands.argument("pos", BlockPosArgument.blockPos())
                                 .executes(context -> spawn(context.getSource(), StringArgumentType.getString(context, "kind"), BlockPosArgument.getLoadedBlockPos(context, "pos"))))))
@@ -218,6 +218,9 @@ public final class SettlementCommands {
         var tier = SiteTier.byName(kind);
         if (tier != null) return spawnSite(source, tier, pos);
         if ("demo_adults".equals(kind)) return spawnSite(source, SiteTier.DEMO, pos, null, true, leader -> SettlementComposition.demoAdults());
+        if ("village_led_babies".equals(kind))
+            return spawnSite(source, SiteTier.VILLAGE, pos, true, true,
+                    leader -> SettlementComposition.villageWithBabies(ModRandom.world(source.getLevel())));
         if ("village_led".equals(kind) || "village_unled".equals(kind))
             return spawnSite(source, SiteTier.VILLAGE, pos, "village_led".equals(kind));
         SettlementSpawner.Preset preset;

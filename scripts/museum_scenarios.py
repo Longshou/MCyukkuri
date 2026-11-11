@@ -2122,7 +2122,7 @@ def colony_loss_prompt(sid, members_read, rules_read):
     return 'tellraw @s ' + json.dumps(controls, ensure_ascii=False, separators=(',', ':'))
 
 
-def colony(sid, title, hint, watch, wait, late, env=DAY, lines=(), note='', reads=(), leader_loss=False):
+def colony(sid, title, hint, watch, wait, late, env=DAY, lines=(), note='', reads=(), leader_loss=False, village='village_led'):
     reads = list(reads)
     controls = []
     if leader_loss:
@@ -2135,7 +2135,7 @@ def colony(sid, title, hint, watch, wait, late, env=DAY, lines=(), note='', read
                 reads.append((caption, command))
             indexes.append(index)
         controls.append(colony_loss_prompt(sid, *indexes))
-    population = ['yukkuri settlement spawn village_led ~ ~ ~',
+    population = [f'yukkuri settlement spawn {village} ~ ~ ~',
                   'tag @e[type=mcyukkuri:patchouli,distance=..40,limit=1,sort=nearest] add scn_lead']
     add(sid, 'colony', title, hint, watch, wait,
         [*lines, *population, *controls],
@@ -2160,12 +2160,11 @@ colony('colony_ration', '黄昏族长给缺粮户分粮', '黄昏族长给缺粮
        '黄昏时族长清点公仓：只给自家粮堆不够一天的“短缺户”分粮，其余不分；读数里看 SHORT 户和分配记录',
        '约 1.5 分钟后（家家吃掉一些存粮，才有短缺户）', [Retry('yukkuri settlement rules ration', COLONY_LEAD, first=1800)], env={'time': 'dusk'}, leader_loss=True)
 # The empty village 64 blocks east stands on the colony_dest plot.
-_migration_young = '@e[type=#mcylab:yukkuri,distance=..40,sort=nearest,limit=2,nbt={YukkuriFamily:{Stage:"JUVENILE"}}]'
+_migration_young = '@e[type=#mcylab:yukkuri,distance=..40,sort=nearest,limit=4,nbt={YukkuriFamily:{Stage:"BABY"}}]'
 _migration_babies = '@e[type=#mcylab:yukkuri,tag=scn_migrant_baby,distance=..110]'
 colony('colony_migrate', '族群迁徙：全族搬去东边空村', '族群迁徙：全族搬去东边空村',
-       '族长决定迁徙：讨论 30 秒→准备 30 秒→先锋（有魔理沙时由魔理沙担任，体弱的帕琪不领队）先行，其余稍后跟上。看亲油如何把村里两只赤油带到东边 64 格外的空聚落，落地后如何认领新窝。',
+       '族长决定迁徙：讨论 30 秒→准备 30 秒→先锋（有魔理沙时由魔理沙担任，体弱的帕琪不领队）先行，其余稍后跟上。看几户亲油如何把四只赤油带到东边 64 格外的空聚落，落地后如何认领新窝。',
        '约 2–5 分钟', [f'tag {_migration_young} add scn_migrant_baby',
-                       f'yukkuri status set {_migration_babies} growth.age_ticks 18000',
                        Retry('yukkuri settlement migrate', COLONY_LEAD)],
        lines=['yukkuri settlement site vacant village ~64 ~ ~'],
        note='赤油与亲油同住村里的野生住所。观察先锋是否先到、掉队时是否集合换路，以及亲油在哪儿放下赤油。全体到达地面后才更改聚落中心。',
@@ -2174,7 +2173,7 @@ colony('colony_migrate', '族群迁徙：全族搬去东边空村', '族群迁�
               ('读赤油随迁', f'yukkuri status {_migration_babies} raw'),
               ('读全体成员安置', 'yukkuri status @e[type=#mcylab:yukkuri,distance=..110] raw'),
               ('读新聚落状态', 'execute positioned ~64 ~ ~ run yukkuri settlement site info')],
-       leader_loss=True)
+       leader_loss=True, village='village_led_babies')
 
 def _carry_outcome_verify(log):
     # A physical refusal may recover after replanning; count each finished Release once, by its child.

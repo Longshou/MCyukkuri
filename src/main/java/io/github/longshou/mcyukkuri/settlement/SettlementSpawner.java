@@ -181,6 +181,8 @@ public final class SettlementSpawner {
             }
             for (int j = plan.parents(); j < family.size(); j++) {
                 family.get(j).family().generatedChild(first, second);
+                // Start within the baby stage so a whole exhibit window fits before the juvenile transition.
+                if (j - plan.parents() < plan.babies()) family.get(j).family().initializeGrowthAge(18_000);
                 if (first.profile().aquatic())
                     SubspeciesLife.onBirth(family.get(j), first, second);
                 FamilyData.get(level).register(family.get(j));
