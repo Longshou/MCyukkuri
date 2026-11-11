@@ -1,7 +1,7 @@
 """Draft sukkiri faces and father key poses for the proposal page (project design, pending user review).
 
 Writes, next to this file:
-  parts/*.png          four new face parts drawn on the standard part grid (15x12 eye, 14x12 mouth)
+  parts/sukkiri_*.png  new face parts drawn on the standard part grid (15x12 eye, 14x12 mouth)
   <face>.json          draft presets composed from approved parts plus the new ones
   clips/<clip>.json    draft father clips in runtime units, bones by name (preview.py strip --draft-clip)
 
@@ -15,34 +15,105 @@ HERE = Path(__file__).resolve().parent
 LIB = HERE.parents[1]
 PARTS = 'expressions/parts/'
 INK, WHITE, IRIS, IRIS_RIM = (72, 53, 46, 255), (255, 248, 233, 255), (50, 41, 35, 255), (118, 82, 57, 255)
-LIP, MOUTH, TONGUE = (73, 54, 45, 255), (166, 84, 72, 255), (220, 137, 116, 255)
+MOUTH, TONGUE = (166, 84, 72, 255), (220, 137, 116, 255)
 
-# Eyes rolled up: the standard blank eye with only the lower edge of the iris left under the upper lid.
-ROLLED = ['...............',
-          '.....AAAAA.....',
-          '....ACCCCCA....',
-          '...ABCCCCCBA...',
-          '..ABBEEEEEBBA..',
-          '..ABBBBBBBBBA..',
-          '..ABBBBBBBBBA..',
-          '..ABBBBBBBBBA..',
-          '..ABBBBBBBBBA..',
-          '...ABBBBBBBA...',
-          '....ABBBBBA....',
-          '.....AAAAA.....']
-# A wide laughing mouth, tongue hanging over the lower lip.
-GRIN = ['..............',
-        '.AAAAAAAAAAAA.',
-        '.ABBBBBBBBBBA.',
-        '.ABBBBBBBBBBA.',
-        '..ABBBBBBBBA..',
-        '..ABBCCCCBBA..',
-        '...ABCCCCBA...',
-        '....ACCCCA....',
-        '.....CCCC.....',
-        '.....CCCC.....',
-        '.....ACCA.....',
-        '......AA......']
+# New components, named sukkiri_* so they cannot collide with other packages' parts. References (wiki/art-references):
+# EH27-007 lower panel (flat upper lid over the pupil, small soft mouth), EH17-002 top panel (":3" smug mouth, blush),
+# M02-003 (lidded smug Marisa). Long hanging tongues and mouth-side drool were rejected by the user.
+PALETTE = dict(A=INK, B=WHITE, C=IRIS, E=IRIS_RIM, F=(150, 112, 84, 255), G=(196, 158, 122, 255), M=MOUTH, T=TONGUE, L=(240, 170, 150, 255))
+ART = {
+    # Eyes rolled up: the blank eye with only the lower edge of the iris left under the upper lid.
+    'eye_rolled': ['...............',
+                   '.....AAAAA.....',
+                   '....ACCCCCA....',
+                   '...ABCCCCCBA...',
+                   '..ABBEEEEEBBA..',
+                   '..ABBBBBBBBBA..',
+                   '..ABBBBBBBBBA..',
+                   '..ABBBBBBBBBA..',
+                   '..ABBBBBBBBBA..',
+                   '...ABBBBBBBA...',
+                   '....ABBBBBA....',
+                   '.....AAAAA.....'],
+    # Smug: a flat, slightly flicked upper lid sitting on the pupil, the highlight kept (EH27-007, M02-003).
+    'eye_smug': ['...............',
+                 '...............',
+                 '...............',
+                 '...............',
+                 '..AAAAAAAAAA...',
+                 '...ACCCCCCCA...',
+                 '...ACBBCCCCA...',
+                 '...ACBCCCCCA...',
+                 '....ACCCCBA....',
+                 '.....EEEEA.....',
+                 '......AAA......',
+                 '...............'],
+    # Dazed: heavy lids, the pupil drifted up under the lid, a lighter lower iris and a small low shine (blissed out).
+    'eye_dazed': ['...............',
+                 '...............',
+                 '...............',
+                 '...............',
+                 '...............',
+                 '...AAAAAAAAA...',
+                 '...AFFCCCFFA...',
+                 '...AGGGGGGGA...',
+                 '...AGGGGGBGA...',
+                 '....AGGGGGA....',
+                 '.....AAAAA.....',
+                 '...............'],
+    # A small rounded open mouth with a short round tongue tip poking out past the lip (no outline under the tip).
+    'mouth_tongue': ['..............',
+                    '..............',
+                    '..............',
+                    '....AAAAAA....',
+                    '...AMMMMMMA...',
+                    '...AMMMMMMA...',
+                    '....AATTAA....',
+                    '....ATTLTA....',
+                    '.....TTTT.....',
+                    '..............',
+                    '..............',
+                    '..............'],
+    # Slack, softly open small mouth; no drool.
+    'mouth_slack': ['..............',
+                   '..............',
+                   '..............',
+                   '.....AAAA.....',
+                   '....AMMMMA....',
+                   '....AMMMMA....',
+                   '....AMTTMA....',
+                   '.....AAAA.....',
+                   '..............',
+                   '..............',
+                   '..............',
+                   '..............'],
+    # The yukkuri ":3" smug mouth (EH17-002), closed.
+    'mouth_cat': ['..............',
+                  '..............',
+                  '..............',
+                  '..............',
+                  '..A...AA...A..',
+                  '..A..A..A..A..',
+                  '...AA....AA...',
+                  '..............',
+                  '..............',
+                  '..............',
+                  '..............',
+                  '..............'],
+    # A wide, round-bottomed laughing mouth; the tongue stays inside.
+    'mouth_grin': ['..............',
+                  '.AAAAAAAAAAAA.',
+                  '.AMMMMMMMMMMA.',
+                  '.AMMMMMMMMMMA.',
+                  '.AMMMMMMMMMMA.',
+                  '..AMMTTTTMMA..',
+                  '..AMTTLTTTMA..',
+                  '...ATTTTTTA...',
+                  '....AAAAAA....',
+                  '..............',
+                  '..............',
+                  '..............'],
+}
 
 
 def draw(rows, palette):
@@ -51,23 +122,6 @@ def draw(rows, palette):
         for x, key in enumerate(row):
             if key != '.':
                 image.putpixel((x, y), palette[key])
-    return image
-
-
-def lidded(source, share):
-    """Heavy upper lid: drop the top share of the eye's rows and close it with a flat line in the eye's darkest ink."""
-    image = Image.open(source).convert('RGBA')
-    px = image.load()
-    rows = [y for y in range(image.height) if any(px[x, y][3] >= 128 for x in range(image.width))]
-    cut = max(1, round(len(rows)*share))
-    opaque = [px[x, y] for y in rows for x in range(image.width) if px[x, y][3] >= 128]
-    ink = min(opaque, key=lambda c: c[0]+c[1]+c[2])
-    for y in rows[:cut]:
-        for x in range(image.width):
-            px[x, y] = (0, 0, 0, 0)
-    for x in range(image.width):
-        if px[x, rows[cut]][3] >= 128:
-            px[x, rows[cut]] = ink
     return image
 
 
@@ -92,25 +146,32 @@ def both(slot, path):
 
 def faces():
     (HERE/'parts').mkdir(exist_ok=True)
-    draw(ROLLED, dict(A=INK, B=WHITE, C=IRIS, E=IRIS_RIM)).save(HERE/'parts/eye_rolled.png')
-    draw(GRIN, dict(A=LIP, B=MOUTH, C=TONGUE)).save(HERE/'parts/mouth_grin.png')
-    lidded(part('6b26a19b89'), .3).save(HERE/'parts/eye_dazed.png')
-    lidded(part('d126c585f0'), .4).save(HERE/'parts/eye_smug.png')
-    rel = lambda name: 'drafts/sukkiri/parts/'+name
+    for old in list(HERE.glob('*.json'))+list((HERE/'parts').glob('*.png')):
+        old.unlink()
+    for name, rows in ART.items():
+        image = draw(rows, PALETTE)
+        image.save(HERE/f'parts/sukkiri_{name}.png')
+        if name.startswith('eye_'):
+            image.transpose(Image.Transpose.FLIP_LEFT_RIGHT).save(HERE/f'parts/sukkiri_{name}_r.png')
+    rel = lambda name: 'drafts/sukkiri/parts/sukkiri_'+name+'.png'
+    eyes = lambda name: {'face_eye_left': rel(name), 'face_eye_right': rel(name+'_r')}
     std = lambda name: PARTS+part(name).name
-    flush, drool, bridge = std('cef8e0a1eb'), std('3ebf6c7bfe'), std('78921e8cff')
-    preset('impact', 'flushed_squeeze', '潮红挤眼喊', {**both('blush', flush), 'face_effect_mouth': bridge},
+    flush, bridge, blank = std('cef8e0a1eb'), std('78921e8cff'), std('fd1165af5d')
+    preset('impact', 'sukkiri_squeeze', '潮红挤眼喊', {**both('blush', flush), 'face_effect_mouth': bridge},
            'release peak: impact eyes, brows and shout on the flushed blush and blush bridge')
-    preset('dull', 'dazed_flushed', '失神流口水',
-           {**both('eye', rel('eye_dazed.png')), **both('blush', flush), 'face_mouth': std('312577fa8d'),
-            'face_effect_mouth': drool},
-           'after release: glazed highlight-less eyes under a heavy lid, slack small mouth, drool, flushed')
-    preset('smug', 'smug_flushed', '潮红得意', {**both('eye', rel('eye_smug.png')), **both('blush', flush)},
-           'afterglow: the approved smug face with half-lowered lids on the flushed blush')
-    preset('blank_happy', 'rolled_grin', '翻白眼咧嘴笑',
-           {**both('eye', rel('eye_rolled.png')), **both('blush', flush), 'face_mouth': rel('mouth_grin.png'),
-            'face_effect_mouth': std('fd1165af5d')},
-           'Alice release: eyes rolled up, wide laughing mouth with the tongue out, flushed', geometry={})
+    preset('flushed_tongue', 'sukkiri_tongue', '潮红闭眼吐舌尖', {'face_mouth': rel('mouth_tongue')},
+           'flushed_tongue with a short rounded tongue tip instead of the long hanging tongue')
+    preset('teary_tongue', 'sukkiri_teary_tongue', '含泪吐舌尖', {'face_mouth': rel('mouth_tongue')},
+           'teary_tongue with the same short tongue tip')
+    preset('open_smile', 'sukkiri_dazed', '失神', {**eyes('eye_dazed'), **both('blush', flush),
+           'face_mouth': rel('mouth_slack'), 'face_effect_mouth': blank},
+           'dazed: lowered lid, unfocused soft iris without highlight, slack small mouth, flushed; no drool', geometry={})
+    preset('smug', 'sukkiri_smug', '潮红得意', {**eyes('eye_smug'), **both('blush', flush),
+           'face_mouth': rel('mouth_cat'), 'face_effect_mouth': blank},
+           'afterglow smug: flat lid on the pupil, the yukkuri :3 mouth, flushed', geometry={})
+    preset('blank_happy', 'sukkiri_grin', '翻白眼咧嘴笑', {**eyes('eye_rolled'), **both('blush', flush),
+           'face_mouth': rel('mouth_grin'), 'face_effect_mouth': blank},
+           'Alice release: eyes rolled up, wide laughing mouth, short tongue tip inside, flushed', geometry={})
 
 
 # Father key poses. Forward is -z. The lower slices of the soft body carry the push, the top barely moves,

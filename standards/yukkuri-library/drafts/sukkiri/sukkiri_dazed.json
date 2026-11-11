@@ -1,0 +1,24 @@
+{
+  "id": "sukkiri_dazed",
+  "label": "失神",
+  "group": "特殊状态",
+  "status": "draft",
+  "origin": "project design",
+  "recipe": {
+    "source": "draft-composition",
+    "base": "open_smile",
+    "note": "dazed: lowered lid, unfocused soft iris without highlight, slack small mouth, flushed; no drool"
+  },
+  "parts": {
+    "face_eye_left": "drafts/sukkiri/parts/sukkiri_eye_dazed.png",
+    "face_brow_left": "expressions/parts/fbfe0d80b0bcf2df3c4b.png",
+    "face_blush_left": "expressions/parts/cef8e0a1ebaf2b15b078.png",
+    "face_tear_left": "expressions/parts/d114c9609a58da8454a5.png",
+    "face_eye_right": "drafts/sukkiri/parts/sukkiri_eye_dazed_r.png",
+    "face_brow_right": "expressions/parts/fbfe0d80b0bcf2df3c4b.png",
+    "face_blush_right": "expressions/parts/cef8e0a1ebaf2b15b078.png",
+    "face_tear_right": "expressions/parts/d114c9609a58da8454a5.png",
+    "face_mouth": "drafts/sukkiri/parts/sukkiri_mouth_slack.png",
+    "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
+  }
+}

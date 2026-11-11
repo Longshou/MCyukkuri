@@ -1,0 +1,24 @@
+{
+  "id": "sukkiri_tongue",
+  "label": "潮红闭眼吐舌尖",
+  "group": "特殊状态",
+  "status": "draft",
+  "origin": "project design",
+  "recipe": {
+    "source": "draft-composition",
+    "base": "flushed_tongue",
+    "note": "flushed_tongue with a short rounded tongue tip instead of the long hanging tongue"
+  },
+  "parts": {
+    "face_eye_left": "expressions/parts/2a7e89ac7d125a63ccf0.png",
+    "face_brow_left": "expressions/parts/af2d4cf86a7386999bbb.png",
+    "face_blush_left": "expressions/parts/cef8e0a1ebaf2b15b078.png",
+    "face_tear_left": "expressions/parts/d114c9609a58da8454a5.png",
+    "face_eye_right": "expressions/parts/2a7e89ac7d125a63ccf0.png",
+    "face_brow_right": "expressions/parts/af2d4cf86a7386999bbb.png",
+    "face_blush_right": "expressions/parts/cef8e0a1ebaf2b15b078.png",
+    "face_tear_right": "expressions/parts/d114c9609a58da8454a5.png",
+    "face_mouth": "drafts/sukkiri/parts/sukkiri_mouth_tongue.png",
+    "face_effect_mouth": "expressions/parts/78921e8cffe8de942fcf.png"
+  }
+}
