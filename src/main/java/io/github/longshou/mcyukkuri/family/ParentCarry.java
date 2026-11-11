@@ -1341,7 +1341,7 @@ public final class ParentCarry {
 
     /** Why this child should be carried now: during a family march, or home after straying out of the nest. */
     Purpose purposeFor(YukkuriEntity child) {
-        if (!dependentYoung(child) || child.isPassenger() || blocked(child)) return null;
+        if (!dependentYoung(child) || child.isPassenger() || child.settlement().canCatchUpOnFoot() || blocked(child)) return null;
         if (child.family().familyTravelling() && (carrier.settlement().familyMarching()
                 || carrier.settlement().migrating() && child.settlement().returningToSettledParent(carrier))
                 && (needsCarry(child) || fallsBehind(child, GATHER_RANGE))) return Purpose.MIGRATE;

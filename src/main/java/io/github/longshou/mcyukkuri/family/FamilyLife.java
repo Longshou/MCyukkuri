@@ -1163,7 +1163,8 @@ public final class FamilyLife {
                 &&escortsMigratingChild(other)&&!safeInSharedHome(other)
                 &&(!other.family().exploring()||other.life().hasUrgentNeed())
                 &&(carry.pickupWanted(other)||carry.needsReunion(other)
-                        ||!FamilySeparation.near(entity,other)&&!followingOnMarch(other)))
+                        ||!FamilySeparation.near(entity,other)
+                        &&!other.settlement().canCatchUpOnFoot()&&!followingOnMarch(other)))
                 .stream().min(Comparator.comparingDouble(entity::distanceToSqr)).orElse(null);
     }
     private boolean followingOnMarch(YukkuriEntity child) {

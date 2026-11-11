@@ -179,6 +179,22 @@ public final class SettlementLife {
                 && !onSiteGround(entity, group.migrateTo);
     }
 
+    /** A walking dependent can use the group's dry route while a recognised parent is part of the move. */
+    public boolean canCatchUpOnFoot() {
+        var group = group();
+        if (group == null || !Migration.onJourney(group, level().getGameTime()) || reached(group) || entity.isPassenger()
+                || !entity.childhood().shouldStayWithParents() || entity.family().stage() != FamilyLife.Stage.JUVENILE
+                || ParentCarry.needsCarry(entity) || !entity.status().identity().wild()
+                || group.role(entity.getUUID()) != SettlementData.Role.MEMBER) return false;
+        var destination = Migration.walkTarget(group);
+        if (destination == null || sameMarchGround(group, destination) && marchRefusal.detour()) return false;
+        for (var id : new UUID[]{entity.family().mother(), entity.family().father()})
+            if (id != null && level().getEntity(id) instanceof YukkuriEntity parent
+                    && group.id.equals(parent.settlement().groupId()) && Migration.joins(parent, group)
+                    && entity.life().canRecognize(parent)) return true;
+        return false;
+    }
+
     /** A parent can be on its way back from fetching a child after it first arrived. */
     public boolean atMigrationReleaseGround() {
         var group = group();
@@ -407,7 +423,7 @@ public final class SettlementLife {
      */
     private boolean migrate(SettlementData.Group group) {
         BlockPos site = group.migrateTo;
-        if (!Migration.joins(entity, group) || !level().hasChunkAt(site)) return false;
+        if ((!Migration.joins(entity, group) && !canCatchUpOnFoot()) || !level().hasChunkAt(site)) return false;
         long now = level().getGameTime();
         var phase = Migration.phase(group, now);
         if (phase == Migration.Phase.DISCUSS) {
@@ -485,8 +501,7 @@ public final class SettlementLife {
     private boolean march(SettlementData.Group group, BlockPos destination) {
         wait = 20;
         if (!Migration.readyToPlan(entity)) return false;
-        boolean sameGround = marchRefusal != null && destination.equals(marchRefusal.destination())
-                && group.migrateLegAt == marchRefusal.legAt() && entity.blockPosition().equals(marchRefusal.from());
+        boolean sameGround = sameMarchGround(group, destination);
         if (sameGround && marchRefusal.detour()) return false;
         marchDetour = sameGround || group.migrateLeg == Migration.Leg.DETOUR;
         if (searchDestination == null) navigationGeneration = generation();
@@ -506,6 +521,11 @@ public final class SettlementLife {
         elapsed = 0;
         marching = true;
         return true;
+    }
+
+    private boolean sameMarchGround(SettlementData.Group group, BlockPos destination) {
+        return marchRefusal != null && destination.equals(marchRefusal.destination())
+                && group.migrateLegAt == marchRefusal.legAt() && entity.blockPosition().equals(marchRefusal.from());
     }
 
     /** The previous goal may clear navigation in stop(); install the chosen path once this goal owns MOVE. */

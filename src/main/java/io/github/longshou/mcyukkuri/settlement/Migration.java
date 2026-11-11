@@ -610,8 +610,9 @@ final class Migration {
     /** Old-home chores wait until the member has reached the destination. */
     static boolean underway(YukkuriEntity e) {
         var group = e.settlement().group();
-        if (group == null || !joins(e, group)) return false;
-        return moving(group) ? e.settlement().needsMarch(group) : e.settlement().straggler(group);
+        if (group == null) return false;
+        return moving(group) ? (joins(e, group) || e.settlement().canCatchUpOnFoot()) && e.settlement().needsMarch(group)
+                : e.settlement().straggler(group);
     }
 
     /** A living participant remains due until it reaches the ground or actually leaves the party. */
