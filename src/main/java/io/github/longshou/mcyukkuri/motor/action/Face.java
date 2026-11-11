@@ -26,12 +26,18 @@ public final class Face implements Action {
     public static final double FACE_ARRIVED = 3;
 
     private final float yaw;
+    private final double tolerance;
     private double turnRate;
     private long startTick;
     /** The stroke clip she turns the hull with this tick (Paddle.strokeClip), or null while she turns on her seat. */
     private String hullStroke;
 
-    public Face(float yaw) { this.yaw = yaw; }
+    public Face(float yaw) { this(yaw, FACE_ARRIVED); }
+
+    public Face(float yaw, double tolerance) {
+        this.yaw = yaw;
+        this.tolerance = tolerance;
+    }
 
     /** The yaw of this action, so a caller can tell whether the motor already turns where it wants. */
     public float target() { return yaw; }
@@ -64,7 +70,7 @@ public final class Face implements Action {
     @Override public Progress tick(YukkuriEntity body) {
         hullStroke = null;
         double left = Mth.wrapDegrees(yaw - body.yBodyRot);
-        if (Math.abs(left) <= FACE_ARRIVED)
+        if (Math.abs(left) <= tolerance)
             return new Outcome.Done(String.format(Locale.ROOT, "yaw=%.1f", body.yBodyRot));
         double step = Math.min(Math.abs(left), turnRate);
         float turn = (float) Math.copySign(step, left);

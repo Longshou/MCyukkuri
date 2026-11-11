@@ -353,14 +353,13 @@ public final class FamilyLife {
                 &&!entity.operations().active()&&!entity.life().hasUrgentNeed()&&entity.life().mealTicks()==0&&!awaitingLanding;
     }
     /** The birth role this body plays in the current beat (BirthGoal.canUse); when the goal yields, the beat's deadline decides the cost.
-     *  A catcher watching the young yields only to danger, a hunger emergency (birthFree) or a young needing care it can give:
-     *  a hurt newborn to comfort, an urgently hungry young of its own. */
+     *  Danger or a hunger emergency can displace a catcher. Ordinary comfort waits while the catch is under way. */
     public Conductor.Role birthRole() {
         var role=birthFree()?Conductor.roleOf(entity):null;
         if(role==null||!role.engaged(entity))return null;
         if(role.choreography().host()==entity&&shoreLanding())return null;
         return LiveBirth.CATCHER.equals(role.role())&&role.choreography().host()!=entity&&role.choreography() instanceof LiveBirth b&&b.watching()
-                &&(comfortTicks>0||hasUrgentlyHungryChild())?null:role;
+                &&(hasUrgentlyHungryChild()||comfortTicks>0&&!b.catching())?null:role;
     }
     /** BirthGoal's tick for a role with nothing to run: hold still; the mother's postpartum beats, the catcher's eyes on the birth. */
     public void holdBirthRole(Conductor.Role role) {
@@ -766,9 +765,9 @@ public final class FamilyLife {
     /** The hat errand: unload the young this body may unload (a survivor only its own), then take its own hat back on. */
     private void tickHatChore(){
         var hat=choreHat;
-        if(hat==null||hat.isRemoved()||!hat.catches()){stop();return;}
         boolean own=hat.ownsPhysicalHat(entity);
         if(chore==null){
+            if(hat.isRemoved()||!hat.catches()){stop();return;}
             var unload=new Unload(hat,entity,!own);
             Intent next=!unload.satisfied()?unload:own?LiveBirth.takeHat(entity,hat,level().getGameTime()+600):null;
             if(next==null){stop();return;}
@@ -1253,7 +1252,7 @@ public final class FamilyLife {
         if(urgentNeed())return false;
         if(task==Task.COURT&&(taskTicks>=240||courtship.receiverInterrupted()||!courtship.stillWanted()))return false;
         if(task==Task.RECEIVE_COURT&&!canReproduceWith(target)&&!courtship.answeringDecline())return false;
-        if(task==Task.FETCH_HAT)return choreHat!=null&&!choreHat.isRemoved()&&choreHat.catches()&&taskTicks<2400&&Conductor.roleOf(entity)==null;
+        if(task==Task.FETCH_HAT)return (chore!=null||!choreHat.isRemoved()&&choreHat.catches())&&taskTicks<2400&&Conductor.roleOf(entity)==null;
         if(task==Task.COMFORT)return comfortTicks>0;
         // She stays settled with the unborn until a real need (above) takes her out or the birth's own beats begin.
         if(task==Task.BROOD){var pregnancy=brood();return pregnancy!=null&&!pregnancy.cancelled&&!pregnancy.complete()&&!birth.active();}

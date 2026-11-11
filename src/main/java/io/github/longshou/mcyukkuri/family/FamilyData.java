@@ -576,6 +576,10 @@ public final class FamilyData extends SavedData {
     /** One child into the world; a mother's LIVE or STEM child also draws its one launch, into {@code hat} when the outlet is aimed
      *  at it (first real contact decides). Cabin space is shaped; other births need dry world clearance. */
     public YukkuriEntity birth(Brood brood, int index, ServerLevel level, Vec3 position, PlacedHatEntity hat, BirthLaunch.Nominal nominal) {
+        return birth(brood,index,level,position,hat,nominal,false);
+    }
+
+    YukkuriEntity birth(Brood brood,int index,ServerLevel level,Vec3 position,PlacedHatEntity hat,BirthLaunch.Nominal nominal,boolean aimedCatch){
         if(brood.cancelled||index<0||index>=brood.children.size())return null;
         var mother=brood.detachedHolder==null&&brood.kind!=BirthKind.EGG&&level.getEntity(brood.mother) instanceof YukkuriEntity m?m:null;
         if(mother!=null&&!mother.subspecies().canReproduce()) {
@@ -621,9 +625,10 @@ public final class FamilyData extends SavedData {
         try { added=level.addFreshEntity(entity); }
         finally { spawning.remove(child.id); }
         if(!added)return refuse(brood,level,"entity_rejected");
-        // One drawn impulse, then physics; on land the push is random, so a strong or crooked one carries the kit past the hat.
+        // One drawn impulse, then physics. A steady, lined-up catch narrows the departure from the qualified arc.
+        double spread=aimedCatch?BirthLaunch.CATCH_SPREAD:1;
         if(mother!=null&&brood.kind==BirthKind.LIVE)entity.family().launch(hat!=null
-                ?BirthLaunch.intoHat(entity,hat,nominal,cabin?1:BirthLaunch.push(entity.getRandom()),cabin?0:BirthLaunch.yaw(entity.getRandom()))
+                ?BirthLaunch.intoHat(entity,hat,nominal,cabin?1:1+(BirthLaunch.push(entity.getRandom())-1)*spread,cabin?0:BirthLaunch.yaw(entity.getRandom())*spread)
                 :BirthLaunch.live(entity.getRandom(),mother,entity,entity.position()),brood,index,hat);
         else if(mother!=null&&brood.kind==BirthKind.STEM){
             var centre=FamilyNest.largeCentre(mother);double half=NestResting.LARGE.half();

@@ -29,10 +29,12 @@ public final class BirthLaunch {
     static final double PUSH_LOG_MEAN=.03, PUSH_LOG_SIGMA=.32, PUSH_MIN=.4, PUSH_MAX=2.2;
     /** Yaw error around the aimed direction, degrees: N(0, YAW_SIGMA) clamped to +-YAW_MAX. 项目设计 */
     static final double YAW_SIGMA=8, YAW_MAX=25;
+    /** A lined-up catch uses a quarter of the free push error, about a tenth of a block at a typical hat distance. */
+    static final double CATCH_SPREAD=.25;
     /** Upward speed of a live kit (blocks per tick) with its relative spread. 项目设计 */
     static final double LIFT=.22, LIFT_SPREAD=.1;
-    /** Planned reach into a large nest as a share of the room to the inner wall, and its floor (blocks). 项目设计 */
-    static final double NEST_REACH=.7, NEST_MIN_REACH=.2;
+    /** A cautious mother aims short; even the boldest aims inside half the room so the strongest push has floor left. */
+    private static final double NEST_REACH_LOW=.28, NEST_REACH_HIGH=.42;
     /** Planned reach of a kit pushed out with neither hat nor nest (blocks). 项目设计 */
     static final double GROUND_REACH=.35;
     /** Stem fruit toss: horizontal speed = clamp(STEM_MEDIAN * exp(N(0, STEM_SIGMA)), 0, STEM_MAX) in a random direction, then a gentle fall. 项目设计 */
@@ -121,27 +123,29 @@ public final class BirthLaunch {
     static Plan live(RandomSource random,YukkuriEntity mother,YukkuriEntity kit,Vec3 start){
         double push=push(random),yaw=yaw(random);
         var centre=FamilyNest.largeCentre(mother);
+        var facing=Vec3.directionFromRotation(0,mother.yBodyRot);
         double half=NestResting.LARGE.half();
         double radius=kit.getBbWidth()*.5;
         if(centre!=null&&Math.abs(start.x-centre.x)<half&&Math.abs(start.z-centre.z)<half){
-            var facing=Vec3.directionFromRotation(0,mother.yBodyRot);
-            Vec3 best=null;double room=-1;
-            for(int i=0;i<8;i++){
-                var direction=new Vec3(Math.cos(i*Math.PI/4),0,Math.sin(i*Math.PI/4));
-                // Not back through the mother's own body.
-                if(direction.dot(new Vec3(facing.x,0,facing.z).normalize())<-.1)continue;
-                double reach=roomAlong(start,centre,half,direction)-radius;
-                if(reach>room){room=reach;best=direction;}
+            double share=Mth.lerp(mother.life().personality().boldness()/100d,NEST_REACH_LOW,NEST_REACH_HIGH);
+            Vec3 best=facing;
+            double room=0,margin=Double.NEGATIVE_INFINITY;
+            for(int i:new int[]{0,1,-1,2,-2}){
+                var direction=facing.yRot((float)(i*Math.PI/4));
+                double reach=roomAlong(start,centre,half-radius,direction);
+                var aim=start.add(direction.scale(reach*share));
+                double inside=half-radius-Math.max(Math.abs(aim.x-centre.x),Math.abs(aim.z-centre.z));
+                if(inside>margin){margin=inside;room=reach;best=direction;}
             }
-            if(best!=null){
-                double distance=Math.max(NEST_MIN_REACH,NEST_REACH*room);
-                var velocity=impulse(random,best,distance,push,yaw);
-                double vh=Math.hypot(velocity.x,velocity.z);
-                return new Plan(Target.NEST,null,start,start.add(best.scale(distance)),room,vh/push,push,yaw,velocity);
-            }
+            double distance=room*share;
+            double vy=LIFT*(1-LIFT_SPREAD+random.nextDouble()*2*LIFT_SPREAD);
+            var aim=new Vec3(start.x+best.x*distance,centre.y,start.z+best.z*distance);
+            double nominal=Ballistic.speedFor(distance,Ballistic.airTicks(vy,aim.y-start.y));
+            var heading=best.yRot((float)Math.toRadians(yaw));
+            return new Plan(Target.NEST,null,start,aim,room,nominal,push,yaw,
+                    new Vec3(heading.x*nominal*push,vy,heading.z*nominal*push));
         }
-        var forward=Vec3.directionFromRotation(0,mother.yBodyRot);
-        var direction=new Vec3(forward.x,0,forward.z).normalize();
+        var direction=new Vec3(facing.x,0,facing.z).normalize();
         var velocity=impulse(random,direction,GROUND_REACH,push,yaw);
         return new Plan(Target.GROUND,null,start,start.add(direction.scale(GROUND_REACH)),Double.NaN,Math.hypot(velocity.x,velocity.z)/push,push,yaw,velocity);
     }

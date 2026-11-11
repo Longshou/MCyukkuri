@@ -64,6 +64,10 @@ final class LiveBirth extends Choreography {
     static final int APPROACH_LEAD=1200, CATCH_WAIT=600, NEST_GRACE=400, PAUSE=100;
     /** How near the outlet's child must be to the receiver's aim for the outlet to be aimed at it (blocks). */
     private static final double NEST_REACH=.8;
+    /** At the hat's maximum aim distance this leaves less than 3 mm of lateral error at contact. */
+    private static final double CATCH_YAW=.1;
+    /** How far from the hat's middle an attendant can stand and still watch the brim (blocks). */
+    private static final double WATCH_REACH=1.5;
     /** Her turns from facing the catcher a meeting site tries, in sixteenths, the least first (her stand and the catcher's
      *  outside the brim may need more room than one eighth leaves beside a wall or a tree). */
     private static final float[] TURNS={0,22.5f,-22.5f,45,-45,67.5f,-67.5f,90,-90,112.5f,-112.5f,135,-135,157.5f,-157.5f,180};
@@ -87,7 +91,7 @@ final class LiveBirth extends Choreography {
     private record Excluded(Vec3 mother,Vec3 helper,long until){}
     private final List<Excluded> excluded=new ArrayList<>();
     private long windowEnd,cleanupEnd;
-    /** Sticky once upgraded: missing the receiver is allowed; every outlet still needs dry ground and body clearance. */
+    /** Once widened for this child, a miss is allowed; the outlet still needs dry ground and body clearance. */
     private boolean unprotected,forced;
     private int pushing,welcomed,unloads,takes;
     private Welcome welcome;
@@ -181,7 +185,7 @@ final class LiveBirth extends Choreography {
                     if(brood().children.get(pushing).born)return "push";
                     FamilyData.get(o.level()).cancel(brood(),o.entity(),"no_clear_birth_exit");return null;
                 }
-                return !brood().children.get(pushing).born?"force":forced?"push":unprotected?"exit_any":"exit";
+                return brood().children.get(pushing).born?"exit":"force";
             }));
             t.put("linger",new Beat.Present(Beat.roles(MOTHER,null,CATCHER,this::attend),Behaviors.POSTPARTUM,LiveBirthGeometry.RECOVERY,"lingered"));
         }else{
@@ -212,8 +216,10 @@ final class LiveBirth extends Choreography {
             case "hat_wait" -> { if(!self())BirthStaging.caption(c,"接生者守在母油身旁看着她，快生了才摘帽"); }
             case "place" -> BirthStaging.caption(c,self()?"母油自己摘下帽子（hat_off_self）":"接生者走到出口前方，用辫子摘下自己的帽子（hat_off）");
             case "exit","exit_any","push" -> {
+                int next=firstUnborn();
+                if(next!=pushing){unprotected=false;forced=false;}
                 boolean widening=beat.equals("exit_any")&&!unprotected;
-                unprotected|=beat.equals("exit_any");int next=firstUnborn();
+                unprotected|=beat.equals("exit_any");
                 if(next!=pushing||exitUntil==0){choices=null;receiverPoints=null;exitUntil=now()+NEST_GRACE;qualificationTick=-1;qualificationMisses=0;}
                 if(exit!=null&&exit.child()!=next)exit=null;
                 if(widening){exit=null;choices=null;}
@@ -293,8 +299,15 @@ final class LiveBirth extends Choreography {
         if(!o.deliveryClear(b,pushing))return "outlet_blocked";
         if(!o.bellyRoom(b))return "no_room_for_belly";
         // Replanning is permitted before the child is visible. Once emerging, retain this aim and the real risk of lost room.
-        if(cabin==null&&hat!=null&&!unprotected&&!forced&&!visible&&(exit==null||!qualified(hat)&&qualificationMisses>=3)){
-            discardExit("nominal_exit_lost");jump("exit","nominal_exit_lost");return "nominal_exit_lost";
+        boolean aimedCatch=cabin==null&&hat!=null&&!unprotected&&!forced;
+        if(aimedCatch&&!visible){
+            if(!catcherReady(hat)){
+                if(now()>=exitUntil)jump("exit_any","catcher_unavailable");
+                return "waiting_for_catcher_stand";
+            }
+            if(exit==null||!qualified(hat)&&qualificationMisses>=3){
+                discardExit("nominal_exit_lost");jump(now()<exitUntil?"exit":"exit_any","nominal_exit_lost");return "nominal_exit_lost";
+            }
         }
         if(delivery<LiveBirthGeometry.birthTick(pushing)){
             b.elapsed++;if(b.elapsed%200==0)m.life().spendNutrition(1);FamilyData.get(o.level()).setDirty();
@@ -309,7 +322,7 @@ final class LiveBirth extends Choreography {
                 "birth lost aim reason={} delivery={} phase=emerging host={}",hat==null?"host_missing":exit==null?"exit_missing":"behind",delivery,hat==null?null:hat.getUUID());
         if(nominal==null)hat=null;
         // Failed entity insertion pauses at this child's release, never running into the next child's clock.
-        var child=data.birth(b,pushing,o.level(),at,hat,nominal);
+        var child=data.birth(b,pushing,o.level(),at,hat,nominal,aimedCatch&&hat!=null&&exit!=null&&qualified(hat));
         if(child==null)return data.birthBlock(b);
         if(cabin!=null)GameplayLog.event(m,"family","hat birth exit index={} labour={} animation={} exit_marker={} land_marker={} flight_ticks={} start={} aim={} velocity={}",
                 pushing,delivery,LiveBirthGeometry.animationTick(delivery),ClipMarkers.of(cabin.clip()).markers().get("exit"),
@@ -575,8 +588,6 @@ final class LiveBirth extends Choreography {
      * nobody is asked off. Never satisfied, the beat ends it.
      */
     private final class Attend implements HostIntent {
-        /** How far out (blocks from the hat's middle) a catcher already outside the brim may stay where it is. */
-        private static final double WATCH_REACH=1.5;
         private final PlacedHatEntity hat;
         private final YukkuriEntity c;
         private final boolean labour=attending();
@@ -657,7 +668,7 @@ final class LiveBirth extends Choreography {
         }
         @Override public String id(){return "take_hat";}
         @Override public SurfaceHost host(){return hat;}
-        @Override public boolean satisfied(){return !prop.deployed()&&!(c.motor().current() instanceof TakeProp);}
+        @Override public boolean satisfied(){return prop.worn()&&!(c.motor().current() instanceof TakeProp);}
         @Override public long deadline(){return deadline;}
         @Override public List<Method> methods(){return stands;}
         private final class From implements Method {
@@ -700,7 +711,7 @@ final class LiveBirth extends Choreography {
         exit=choices.isEmpty()?null:choices.getFirst();
     }
     private void discardExit(String why){
-        if(exit!=null&&choices!=null)choices.clear();
+        choices=null;
         exit=null;qualificationTick=-1;qualificationMisses=0;rejection=why;
         deliveryReadout("discarded",why);
     }
@@ -751,11 +762,12 @@ final class LiveBirth extends Choreography {
             return yaw=exit==null?Float.NaN:hat.getYRot()+exit.yaw();
         }
         @Override public String id(){return any?"turn_to_any_exit":"turn_to_exit";}
+        private double turnTolerance(){return !any&&exit!=null?CATCH_YAW:Face.FACE_ARRIVED;}
         @Override public boolean satisfied(){
             var m=o.entity();var hat=placedHat();
-            return !Float.isNaN(yaw)&&Math.abs(Mth.wrapDegrees((exit!=null&&hat!=null?hat.getYRot()+exit.yaw():yaw)-m.yBodyRot))<=Face.FACE_ARRIVED
+            return !Float.isNaN(yaw)&&Math.abs(Mth.wrapDegrees((exit!=null&&hat!=null?hat.getYRot()+exit.yaw():yaw)-m.yBodyRot))<=turnTolerance()
                     &&LiveBirthGeometry.clear(m,pushing,m.yBodyRot)
-                    &&(any||hat==null||exit!=null&&qualified(hat));
+                    &&(any||hat==null||exit!=null&&catcherReady(hat)&&qualified(hat));
         }
         @Override public long deadline(){return deadline;}
         @Override public List<Method> methods(){return List.of(this);}
@@ -764,7 +776,8 @@ final class LiveBirth extends Choreography {
         @Override public Step next(){
             int left=(int)Math.max(1,deadline-now());
             if(Float.isNaN(choose()))return new Step.Wait(()->false,left,"no_safe_exit");
-            return Math.abs(Mth.wrapDegrees(yaw-o.entity().yBodyRot))>Face.FACE_ARRIVED?new Step.Do(new Face(yaw)):new Step.Wait(this::satisfied,left,"outlet_clear");
+            double tolerance=turnTolerance();
+            return Math.abs(Mth.wrapDegrees(yaw-o.entity().yBodyRot))>tolerance?new Step.Do(new Face(yaw,tolerance)):new Step.Wait(this::satisfied,left,"outlet_clear");
         }
     }
     private boolean qualified(PlacedHatEntity hat){
@@ -795,6 +808,19 @@ final class LiveBirth extends Choreography {
     String hold(){return hold;}
     /** The labour (or the drops) is on: the catcher holds the hat's brim, or cheers beside the outlet. */
     boolean attending(){return LABOUR.contains(beat());}
+    /** While a real catch is still under way, ordinary comfort can wait for the last delivery. */
+    boolean catching(){return attending()&&placedHat()!=null&&brood()!=null&&!brood().complete();}
+    /** The attendant's actual supported stand, observed from the mother's tick. Self and unattended hats have no attendant. */
+    private boolean catcherReady(PlacedHatEntity hat){
+        if(!hat.steady())return false;
+        if(self()||role(CATCHER)==null)return true;
+        var c=catcher();
+        if(c==null||!c.onGround()||c.motor().current() instanceof Walk)return false;
+        var role=c.family().birthRole();
+        var local=hat.frame().toLocal(c.position());
+        return role!=null&&role.choreography()==this&&c.distanceToSqr(hat)<=WATCH_REACH*WATCH_REACH
+                &&hat.profile().clearance(local.x,local.z)*hat.unit()>=Occupancy.foot(c.getBbWidth());
+    }
     /** The catcher watches: her while it waits beside her for labour and through the labour, the young in the linger after it
      *  and in the waits of the cleanup. */
     boolean watching(){return attending()||"hat_wait".equals(beat())||"linger".equals(beat())||"rest".equals(beat());}
