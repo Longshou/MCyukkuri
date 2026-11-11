@@ -213,8 +213,6 @@ public final class MindLife {
         if (entity.tickCount % 24000 == 23999) namings = Math.max(0, namings - 1); // one naming forgiven per game day
         Stage now = stage();
         if (now != reported) {
-            // A value held at a threshold (a slave's capped unease at 35) flips the stage back and forth every sample; the
-            // transition still matters, so it is reported at a bounded rate instead of once per flip.
             GameplayLog.limited(entity, "mind", "stage", 600, "stage {} -> {} (unease {}, sweetness {})",
                     reported.name().toLowerCase(Locale.ROOT), stageId(), Math.round(unease), Math.round(sweetness));
             if (now == Stage.SWEETENED && reported.ordinal() < now.ordinal() && calm()) {
@@ -229,6 +227,7 @@ public final class MindLife {
         causes.clear();
         var life = entity.life();
         var identity = YukkuriStatus.identity(entity);
+        boolean pitPressure = entity.settlement().society().pitPressureProtected();
         if (life.nutrition() < 10) put("starving", 3); else if (life.nutrition() < 25) put("hungry", 1.5f);
         int hurt = entity.body().condition().painSeverity();
         if (hurt > 0) put("injury", Math.min(3, .5f * hurt));
@@ -236,7 +235,7 @@ public final class MindLife {
         if (entity.body().condition().hasSicknessPressure()) put("sickness", .5f);
         // Missing, broken, lost or merely torn accessory: the rate and its name come from headwear.Headwear (package 6).
         float hat = entity.headwear().uneasePerMinute();
-        if (hat > 0 && !entity.settlement().society().pitPressureProtected()) put(entity.headwear().uneaseCause(), hat);
+        if (hat > 0 && !pitPressure) put(entity.headwear().uneaseCause(), hat);
         if (entity.isPanicking()) put("panic", 2);
         var threat = entity.status().reactions().threat().stage();
         if (threat != Reactions.Threat.Stage.NONE) put("threat", 1.5f);
@@ -248,7 +247,7 @@ public final class MindLife {
             put(entity.level().isThundering() ? "thunder" : "rain", entity.level().isThundering() ? 5 : 2.5f);
         if (entity.habitat().vagrant()) put("homeless", .3f);
         if (entity.settlement().groupId() != null && entity.settlement().society().dejected()
-                && !entity.settlement().society().pitPressureProtected()) put("shunned", 1);
+                && !pitPressure) put("shunned", 1);
         surroundings(identity);
         // reliefs
         put("ease", -1);
@@ -258,7 +257,7 @@ public final class MindLife {
                 || entity.status().reactions().weather().huddled() || entity.contactPose().equals("RUB")) put("comfort", -6);
         float rate = 0;
         for (var e : causes.entrySet()) rate += e.getValue() < 0 && nonYukkuri() ? e.getValue() * .5f : e.getValue();
-        unease = Math.clamp(unease + rate * PER_SAMPLE, 0f, 100f);
+        unease = Math.clamp(unease + rate * PER_SAMPLE, pitPressure ? UNEASY : 0f, 100f);
         // Lecture: the filling turns sweet while it cannot take it easy. Accumulates above 50, fades below 35.
         if (unease >= BondLevels.UNEASE_CARE_LIMIT) sweetness = Math.min(100, sweetness + (unease - 40) / 20f * PER_SAMPLE);
         else if (unease < UNEASY) sweetness = Math.max(0, sweetness - PER_SAMPLE);

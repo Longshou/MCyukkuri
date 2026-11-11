@@ -9,7 +9,7 @@ import io.github.longshou.mcyukkuri.motor.surface.Floor;
 import io.github.longshou.mcyukkuri.motor.surface.SurfaceHost;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -25,8 +25,12 @@ public final class CareApproach {
     public enum Kind { FEED, REAR }
     public enum Result { APPROACHING, CONTACT, FAILED }
     private record Places(Vec3 child, Vec3 parent) {}
+    private record Refusal(long until, Places failedAt) {}
+    private static final int RETRY_MEMORY = 16;
+    /** A changed approach must start appreciably elsewhere, past arrival error and ordinary collision jitter. */
+    private static final double NEW_START_SQR = .25 * .25;
     private final YukkuriEntity owner;
-    private final Map<UUID, Long> blocked = new HashMap<>();
+    private final Map<UUID, Refusal> blocked = new LinkedHashMap<>();
     private final List<Vec3> rejected = new ArrayList<>();
     private CareApproach incoming;
     private YukkuriEntity child;
@@ -43,7 +47,16 @@ public final class CareApproach {
     /** The receiver shares the caregiver's already accumulated contact; no eligibility probe. */
     public int observedContactProgress() { return incoming == null ? 0 : incoming.owner.childhood().careProgress(); }
     public boolean mayTry(YukkuriEntity target) {
-        return blocked.getOrDefault(target.getUUID(), 0L)<=owner.level().getGameTime();
+        return mayTry(target, Kind.REAR);
+    }
+    public boolean mayTry(YukkuriEntity target, Kind requested) {
+        var refusal = blocked.get(target.getUUID());
+        if (refusal == null) return true;
+        if (owner.level().getGameTime() < refusal.until()) return false;
+        var at = refusal.failedAt();
+        return at == null || requested != Kind.FEED || owner.isPassenger() || target.isPassenger()
+                || at.parent().distanceToSqr(owner.position()) >= NEW_START_SQR
+                || at.child().distanceToSqr(target.position()) >= NEW_START_SQR;
     }
     /** Dry enough for a parent to come in contact with. */
     public static boolean dry(YukkuriEntity child){return child.life().wetness()<=40;}
@@ -146,12 +159,13 @@ public final class CareApproach {
     public Result tick(YukkuriEntity target, Kind requested) {
         if (child!=target || kind!=requested) {
             cancel("agreement_changed");
-            String reason=!mayTry(target)?"retry_cooldown":target.careApproach().waiting()?"receiver_already_waiting":null;
+            String reason=!mayTry(target,requested)?"retry_unavailable":target.careApproach().waiting()?"receiver_already_waiting":null;
             if(reason!=null){
                 GameplayLog.limited(owner,"care","refused."+reason,200,
                         "agreement refused child={} kind={} reason={}",target.getUUID(),requested,reason);
                 return Result.FAILED;
             }
+            blocked.remove(target.getUUID());
             child=target; kind=requested; child.careApproach().incoming=this;
             GameplayLog.limited(owner,"care","reserved",200,
                     "agreement reserved child={} kind={}",child.getUUID(),kind);
@@ -199,7 +213,12 @@ public final class CareApproach {
         if (child.position().distanceToSqr(places.child())>16) return fail("child_left_meeting");
         boolean ready = SurfaceApproach.arrived(child, places.child());
         if (!ready) { SurfaceApproach.halt(owner); return Result.APPROACHING; }
-        if (!SurfaceApproach.walkAround(owner, places.parent(), child, .9)) return Result.APPROACHING;
+        var walking = SurfaceApproach.walkResult(owner, places.parent(), child, .9);
+        if (kind == Kind.FEED && walking == SurfaceApproach.Result.BLOCKED) {
+            replan("route_blocked");
+            if (++retries >= 3) return fail("route_retry_limit");
+        }
+        if (walking != SurfaceApproach.Result.ARRIVED) return Result.APPROACHING;
         float towardChild = SurfaceApproach.yaw(owner.position(), child.position());
         SurfaceApproach.face(owner, towardChild);
         SurfaceApproach.face(child, kind==Kind.FEED ? towardChild+180 : towardChild);
@@ -241,7 +260,14 @@ public final class CareApproach {
         SurfaceApproach.halt(owner);
     }
     private Result fail(String reason) {
-        if (child!=null) blocked.put(child.getUUID(), owner.level().getGameTime()+160);
+        if (child != null) {
+            boolean groundMeetingFailed = kind == Kind.FEED && !owner.isPassenger() && !child.isPassenger()
+                    && (reason.equals("no_reachable_meeting") || reason.endsWith("_retry_limit"));
+            blocked.remove(child.getUUID());
+            blocked.put(child.getUUID(), new Refusal(owner.level().getGameTime()+160,
+                    groundMeetingFailed ? new Places(child.position(), owner.position()) : null));
+            if (blocked.size() > RETRY_MEMORY) blocked.remove(blocked.keySet().iterator().next());
+        }
         cancel(reason); return Result.FAILED;
     }
     public void cancel() { cancel("external_or_owner_finished"); }
@@ -250,7 +276,7 @@ public final class CareApproach {
         if (child!=null && child.careApproach().incoming==this) child.careApproach().incoming=null;
         if (child!=null) SurfaceApproach.halt(owner);
         child=null; places=null; floorRoute=null; rejected.clear(); retries=stalled=bodyContacts=0; lastParent=lastChild=null;
-        blocked.entrySet().removeIf(entry->entry.getValue()<=owner.level().getGameTime());
+        blocked.values().removeIf(refusal -> refusal.failedAt() == null && refusal.until() <= owner.level().getGameTime());
     }
     private void logBoundary(String boundary,String reason){
         GameplayLog.limited(owner,"care",boundary+"."+reason,200,
@@ -283,10 +309,11 @@ public final class CareApproach {
             for (double dy:new double[]{0,-.5,.5}) {
                 Vec3 at=SurfaceApproach.floor(owner,childFeet.add(direction.getStepX()*radius,dy,direction.getStepZ()*radius));
                 if(at==null)continue;
-                double mouthDelta=(at.y+owner.getBbHeight()*.5)-(childFeet.y+child.getBbHeight()*.5);
-                if (kind==Kind.FEED ? Math.abs(mouthDelta)>FamilyFeedingContact.MAX_MOUTH_HEIGHT_DELTA : Math.abs(at.y-childFeet.y)>.18) continue;
+                if (kind==Kind.FEED ? !FamilyFeedingContact.standFits(owner,at,child,childFeet) : Math.abs(at.y-childFeet.y)>.18) continue;
                 if (rejected.stream().anyMatch(old->old.distanceToSqr(at)<.04)) continue;
-                if (SurfaceApproach.supported(owner,at) && SurfaceApproach.canApproach(owner,at)) candidates.add(at);
+                var childBox = kind == Kind.FEED ? child.getBoundingBox().move(childFeet.subtract(child.position())) : null;
+                double length = SurfaceApproach.routeLength(owner, at, childBox);
+                if (Double.isFinite(length)) candidates.add(at);
             }
         }
         return candidates.stream().min(Comparator.comparingDouble(at->owner.position().distanceToSqr(at)))

@@ -342,7 +342,7 @@ public final class Cannibalism extends Goal {
     private void carrion() {
         entity.getLookControl().setLookAt(body, 30, 30);
         if (entity.distanceToSqr(body) > 1.6 + body.getBbWidth() * body.getBbWidth()) {
-            if (!EcologyMovement.approach(entity, body, 1)) lastReason = "approaching_contact";
+            if (EcologyMovement.approachResult(entity, body, 1) != SurfaceApproach.Result.ARRIVED) lastReason = "approaching_contact";
             return;
         }
         EcologyMovement.halt(entity);
@@ -382,7 +382,11 @@ public final class Cannibalism extends Goal {
         if (!intruding) { EcologyMovement.halt(entity); lastReason = "guard_driven_out"; return; }
         double reach = (entity.getBbWidth() + prey.getBbWidth()) * .5 + .18;
         if (entity.distanceToSqr(prey) > reach * reach || !entity.hasLineOfSight(prey)) {
-            EcologyMovement.approach(entity, prey, 1.2);
+            if (EcologyMovement.approachResult(entity, prey, 1.2) == SurfaceApproach.Result.BLOCKED) {
+                lastReason = "guard_contact_blocked";
+                stop();
+                return;
+            }
             lastReason = "guard_approach";
             return;
         }

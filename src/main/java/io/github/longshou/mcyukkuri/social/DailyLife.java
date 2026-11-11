@@ -366,8 +366,10 @@ public final class DailyLife {
                 // each other past their contact envelope, especially when their bodies meet diagonally.
                 if(current.leader==entity){
                     var stand=sidePress ? sideStand : standBeside(other,reach-.04);
-                    if(stand==null)SurfaceApproach.halt(entity);
-                    else SurfaceApproach.walkAround(entity,stand,other,.8);
+                    if (stand == null || SurfaceApproach.walkResult(entity, stand, other, .8) == SurfaceApproach.Result.BLOCKED) {
+                        stop();
+                        return;
+                    }
                     current.contact=0;current.elapsed++;
                 }else SurfaceApproach.halt(entity);
                 return;

@@ -295,10 +295,11 @@ public final class WoundComfort {
         s.elapsed++;
         entity.getLookControl().setLookAt(victim, 30, 30);
         if (s.contact == 0 && !touching(s)) {
-            if (s.elapsed > APPROACH_LIMIT) { failed(); return; }
+            if (s.elapsed > APPROACH_LIMIT) { failed("approach_timeout"); return; }
             var spot = FamilyFeedingContact.approachSpot(entity, victim);
-            if(spot==null){SurfaceApproach.halt(entity);return;}
-            if (SurfaceApproach.walkAround(entity, spot, victim, .9)
+            var walking = spot == null ? SurfaceApproach.Result.BLOCKED : SurfaceApproach.walkResult(entity, spot, victim, .9);
+            if (walking == SurfaceApproach.Result.BLOCKED) { failed("no_reachable_meeting"); return; }
+            if (walking == SurfaceApproach.Result.ARRIVED
                     || entity.position().subtract(victim.position()).multiply(1, 0, 1).length() < FamilyFeedingContact.mouthDistance(entity, victim) + .3) {
                 FamilyFeedingContact.faceEachOther(entity, victim);
             }
@@ -307,7 +308,7 @@ public final class WoundComfort {
         SurfaceApproach.halt(entity);
         FamilyFeedingContact.faceEachOther(entity, victim);
         if (!touching(s)) {
-            if (++s.apart > LOST_CONTACT) failed();
+            if (++s.apart > LOST_CONTACT) failed("contact_lost");
             return;
         }
         s.apart = 0;
@@ -356,9 +357,9 @@ public final class WoundComfort {
         end(KIN_COOLDOWN);
     }
 
-    private void failed() {
+    private void failed(String reason) {
         if(active())GameplayLog.event(session.licker,"comfort","failed; victim={} reason={} elapsed={} contact={} apart={}",
-                session.victim.getUUID(),session.contact==0?"approach_timeout":"contact_lost",session.elapsed,session.contact,session.apart);
+                session.victim.getUUID(),reason,session.elapsed,session.contact,session.apart);
         end(FAILED_COOLDOWN);
     }
 

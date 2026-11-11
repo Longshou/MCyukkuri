@@ -9,6 +9,7 @@ import io.github.longshou.mcyukkuri.life.YukkuriConfig;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.mind.EmotionEvent;
+import io.github.longshou.mcyukkuri.settlement.SettlementSociety;
 import io.github.longshou.mcyukkuri.social.YukkuriPersonality.Trait;
 import java.util.EnumSet;
 import java.util.List;
@@ -99,6 +100,7 @@ public final class GroupInteractionGoal extends Goal {
             var personality=entity.life().personality();
             // A provocative species (Marisa) picks fights sooner, and everybody picks on the easily bullied (Chen).
             if(personality.friendliness()<40&&available(peer)&&!peer.groupInteraction().active()
+                    &&!SettlementSociety.sparesHatlessBlame(entity,peer)&&!SettlementSociety.sparesHatlessBlame(peer,entity)
                     &&peer.groupInteraction().cooldown==0&&entity.family().adult()&&entity.getBbWidth()>peer.getBbWidth()*1.3
                     &&(YukkuriWorldData.get(level()).affinity(entity.getUUID(),peer.getUUID())<=BondLevels.AFFINITY_HOSTILE||
                             !entity.treasure().full()&&peer.treasure().count()>0&&YukkuriWorldData.get(level()).affinity(entity.getUUID(),
@@ -115,6 +117,8 @@ public final class GroupInteractionGoal extends Goal {
     private boolean live(YukkuriEntity e) { return e.level()==entity.level()&&level().getEntity(e.getUUID())==e&&available(e); }
     private boolean valid() {
         if(!active()||bout.first.isPassenger()||bout.second.isPassenger()||!live(bout.first)||!live(bout.second)||bout.first.distanceToSqr(bout.second)>36||bout.ticks>=240)return false;
+        if (bout.kind == Kind.BULLY && (SettlementSociety.sparesHatlessBlame(bout.first, bout.second)
+                || SettlementSociety.sparesHatlessBlame(bout.second, bout.first))) return false;
         if(bout.protectedPeer!=null&&(!bout.protectedPeer.isAlive()||bout.protectedPeer.isRemoved()||bout.protectedPeer.level()!=entity.level()
                 ||level().getEntity(bout.protectedPeer.getUUID())!=bout.protectedPeer||bout.first.distanceToSqr(bout.protectedPeer)>64))return false;
         return bout.first.hasLineOfSight(bout.second)&&bout.first.groupInteraction().bout==bout&&bout.second.groupInteraction().bout==bout;
@@ -129,8 +133,10 @@ public final class GroupInteractionGoal extends Goal {
         if(entity.distanceToSqr(peer)>contact*contact) {
             if(entity==current.first){
                 var stand=SurfaceApproach.beside(entity,peer,contact-.05,.25,contact);
-                if(stand==null)SurfaceApproach.halt(entity);
-                else SurfaceApproach.walkAround(entity,stand,peer,.8);
+                if (stand == null || SurfaceApproach.walkResult(entity, stand, peer, .8) == SurfaceApproach.Result.BLOCKED) {
+                    stop();
+                    return;
+                }
             }else SurfaceApproach.stopWalking(entity);
         } else SurfaceApproach.stopWalking(entity);
         if(entity!=current.first)return;

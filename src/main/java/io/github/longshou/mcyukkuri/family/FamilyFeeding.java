@@ -146,7 +146,7 @@ final class FamilyFeeding {
                 &&(carrying.isEmpty()||child.life().canReceiveCareFood(carrying))
                 &&(!child.isPassenger()||carriedCheck&&child.getVehicle()==o.entity())
                 &&(!child.childhood().firstMealDone()||child.life().nutrition()<o.entity().life().nutrition()-o.entity().species().traits().dote())
-                &&o.entity().careApproach().mayTry(child)&&!child.careApproach().heldByOther(o.entity());
+                &&o.entity().careApproach().mayTry(child,CareApproach.Kind.FEED)&&!child.careApproach().heldByOther(o.entity());
     }
 
     YukkuriEntity hungriestOwnChild() {
@@ -415,7 +415,10 @@ final class FamilyFeeding {
             return;
         }
         var approach=o.entity().careApproach().tick(o.target(),CareApproach.Kind.FEED);
-        if(approach==CareApproach.Result.FAILED){endCare("approach_failed");return;}
+        if(approach==CareApproach.Result.FAILED){
+            o.entity().showReaction("teary","",60);
+            endCare("approach_failed");return;
+        }
         if(approach==CareApproach.Result.CONTACT) {
             o.entity().getNavigation().stop();
             if(++careOfferTicks<FamilyFeedingContact.REQUIRED_CONTACT_TICKS)return;

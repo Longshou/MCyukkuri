@@ -325,13 +325,14 @@ def slave_survives(window):
         return 'the slave neither took a portion nor reported an empty pit'
     token = slave_token(window)
     if token is None: return 'no slave line to identify the slave'
-    end = max((int(tick) for tick in re.findall(r' t=(\d+) ', window)), default=0)
+    ticks = [int(tick) for tick in re.findall(r' t=(\d+) ', window)]
+    start, end = min(ticks), max(ticks)
     meals = [int(tick) for tick in re.findall(token.replace('#', r'\#') + r'uuid=\S+ t=(\d+)[^\n]*pit slave eats droppings', window)]
     for line in window.splitlines():
-        if token in line and re.search(r'non-yukkuri onset|died of non-yukkuri|stage uneasy -> sweetened|starvation damage|death settled', line):
+        if token in line and re.search(r'non-yukkuri onset|died of non-yukkuri|stage \w+ -> (?:sweetened|non_yukkuri_\w+)|starvation damage|death settled', line):
             return 'the slave fell: ' + line.strip()
     if not meals: return 'the slave never took a portion'
-    if meals[-1] < end * 2 // 3: return f'the slave stopped eating at t={meals[-1]} of {end}'
+    if meals[-1] < start + (end - start) * 2 // 3: return f'the slave stopped eating at t={meals[-1]} of {start}..{end}'
     return colony_death(window)
 
 

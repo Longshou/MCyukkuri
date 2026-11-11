@@ -6,6 +6,7 @@ import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.life.YukkuriConfig;
 import io.github.longshou.mcyukkuri.life.EcologyMovement;
+import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import java.util.Comparator;
 import java.util.EnumSet;
@@ -213,8 +214,11 @@ public final class SelfOffering extends Goal {
         }
         if (phase == Phase.APPROACH) {
             if (entity.distanceToSqr(child) > 6 || !entity.hasLineOfSight(child)) {
-                // Every tick: the shared approach's last step is a one-tick MoveControl input, so a throttled call crawls.
-                EcologyMovement.approach(entity, child, 1.1);
+                if (EcologyMovement.approachResult(entity, child, 1.1) == SurfaceApproach.Result.BLOCKED) {
+                    GameplayLog.event(entity, "offering", "approach ended recipient={} reason=no_reachable_meeting", recipient);
+                    entity.showReaction("teary", "", 60);
+                    stop();
+                }
                 return;
             }
             EcologyMovement.halt(entity);

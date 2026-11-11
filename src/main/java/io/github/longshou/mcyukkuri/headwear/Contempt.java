@@ -98,7 +98,7 @@ public final class Contempt {
         // The scorned one answers by its own nature (flee, puff back or ignore), and thinks less of the scorner in turn.
         int regard = relations.affinity(target.getUUID(), observer.getUUID());
         if (regard > SCORN_FLOOR) relations.relate(target.getUUID(), observer.getUUID(), Math.max(SCORN, SCORN_FLOOR - regard));
-        target.groupInteraction().defense().provoke(observer);
+        if (!SettlementSociety.sparesHatlessBlame(observer, target)) target.groupInteraction().defense().provoke(observer);
         boolean answered = target.groupInteraction().defense().active() || target.isPanicking();
         suffer(target, answered ? "angry" : "teary", target.getRandom().nextInt(3) == 0 ? "settlement_hurt" : "", 80, SCORNED, "scorned",
                 SettlementSociety.sameGroup(observer, target));

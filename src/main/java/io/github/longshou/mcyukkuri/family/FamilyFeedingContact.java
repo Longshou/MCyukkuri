@@ -44,7 +44,23 @@ public final class FamilyFeedingContact {
 
     /** Supported stand beside the child, or null when no candidate is reachable; contact is checked separately. */
     public static Vec3 approachSpot(YukkuriEntity caregiver, YukkuriEntity child) {
-        return SurfaceApproach.beside(caregiver,child,standingDistance(caregiver,child),MAX_MOUTH_HEIGHT_DELTA);
+        double heightSlack = Math.abs(caregiver.getBbHeight() - child.getBbHeight()) * .5;
+        return SurfaceApproach.beside(caregiver, child, standingDistance(caregiver, child),
+                MAX_MOUTH_HEIGHT_DELTA + heightSlack, Double.POSITIVE_INFINITY,
+                at -> standFits(caregiver, at, child, child.position()));
+    }
+
+    /** Before committing either body to a meeting, test the mouth height and sight from the resolved stands. */
+    static boolean standFits(YukkuriEntity caregiver, Vec3 parentFeet, YukkuriEntity child, Vec3 childFeet) {
+        double distance = parentFeet.subtract(childFeet).horizontalDistance();
+        if (distance < minimumMouthDistance(caregiver, child) || distance > mouthDistance(caregiver, child)) return false;
+        double parentMouth = parentFeet.y + caregiver.getBbHeight() * .5;
+        double childMouth = childFeet.y + child.getBbHeight() * .5;
+        if (Math.abs(parentMouth - childMouth) > MAX_MOUTH_HEIGHT_DELTA) return false;
+        Vec3 eyes = parentFeet.add(0, caregiver.getEyeHeight(), 0);
+        Vec3 childEyes = childFeet.add(0, child.getEyeHeight(), 0);
+        return caregiver.level().clip(new ClipContext(eyes, childEyes, ClipContext.Block.COLLIDER,
+                ClipContext.Fluid.NONE, caregiver)).getType() == HitResult.Type.MISS;
     }
 
     /** Point both heads at one another before testing the shared physical envelope. */

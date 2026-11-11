@@ -33,7 +33,10 @@ public final class EcologyMovement {
             return SurfaceApproach.Result.BLOCKED;
         Vec3 at = target instanceof YukkuriEntity other
                 ? FamilyFeedingContact.approachSpot(actor, other) : target.position();
-        if(at==null){SurfaceApproach.halt(actor);return SurfaceApproach.Result.BLOCKED;}
+        if (at == null) {
+            SurfaceApproach.halt(actor);
+            return SurfaceApproach.Result.BLOCKED;
+        }
         var result = SurfaceApproach.walkResult(actor, at, target instanceof YukkuriEntity ? target : null, speed);
         if (result == SurfaceApproach.Result.BLOCKED) {
             var why = SurfaceApproach.why(actor, at);

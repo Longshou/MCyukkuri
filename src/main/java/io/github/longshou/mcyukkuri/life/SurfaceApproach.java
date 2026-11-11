@@ -562,15 +562,16 @@ public final class SurfaceApproach {
         return walkResult(actor,destination,other,speed)==Result.ARRIVED;
     }
 
+    /** Drive one step and give the owner the actual outcome, including a terminal refusal it can act on. */
+    public static Result walkResult(YukkuriEntity actor, Vec3 destination, Entity other, double speed) {
+        return controller(actor).walkStep(actor,destination,other==actor?null:other,speed);
+    }
+
     /** Never substitute a straight line for a route around a step or obstruction. Call it every tick while the step is wanted: once
      *  the path ends, the last step is one MoveControl input that vanilla zeroes on the next tick, so throttling the call produces
      *  stop-go movement. */
     public static boolean walk(YukkuriEntity actor, Vec3 destination, double speed) {
         return walkResult(actor,destination,null,speed)==Result.ARRIVED;
-    }
-
-    static Result walkResult(YukkuriEntity actor, Vec3 destination, Entity other, double speed) {
-        return controller(actor).walkStep(actor,destination,other==actor?null:other,speed);
     }
 
     private Result walkStep(YukkuriEntity actor,Vec3 destination,Entity other,double speed){

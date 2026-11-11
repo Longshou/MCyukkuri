@@ -370,7 +370,10 @@ public final class YukkuriSocial implements MotorOwner {
             // approach reports arrival, not path acceptance. A walking partner must keep its goal until contact,
             // the existing duration limit or a real interruption, rather than abort on the first moving tick.
             // Every tick: the shared approach's last step is a one-tick MoveControl input, so a throttled call crawls.
-            if (EcologyMovement.approachResult(entity, target, 1.0) == SurfaceApproach.Result.BLOCKED) stop();
+            if (EcologyMovement.approachResult(entity, target, 1.0) == SurfaceApproach.Result.BLOCKED) {
+                entity.showReaction("surprise", "", 40);
+                stop();
+            }
             return;
         }
         EcologyMovement.halt(entity);
