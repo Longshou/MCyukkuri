@@ -972,6 +972,14 @@ class EndContext:
             return {None}
         if selector == 'actors':
             return {u for u, rows in self.samples.items() if 'stage' in rows[0]['state']} | {r['u'] for r in self.events if r['u']}
+        if selector.startswith('parent_of:'):
+            parents = set()
+            for child in self.select(selector.removeprefix('parent_of:'), bindings):
+                for row in self.samples.get(child, ()):
+                    kin = row['state'].get('parents', ())
+                    parents.update(kin.values() if isinstance(kin, dict) else kin)
+            parents.discard(None)
+            return parents
         if selector.startswith(('child_of:', 'newborn_of:', 'caught_child_of:')):
             kind, parent = selector.split(':', 1)
             parents = self.select(parent, bindings)

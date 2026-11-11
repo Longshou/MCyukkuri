@@ -64,6 +64,13 @@ class EndChecks(unittest.TestCase):
         wrong[-1]['msg'] = wrong[-1]['msg'].replace(CHILD, OTHER)
         self.assertEqual(verdict(self.rows + wrong, self.end), 'fail')
 
+    def test_parent_emitter_uses_the_bound_childs_kin(self):
+        path = self.end['paths'][0]
+        path['steps'] = [('parent_of:$subject', seen) for _, seen in path['steps']]
+        self.assertEqual(verdict(self.rows + self.events, self.end), 'pass')
+        wrong = [dict(r, u=OTHER) for r in self.events]
+        self.assertEqual(verdict(self.rows + wrong, self.end), 'fail')
+
     def test_emitter_is_not_the_carried_subject_and_nest_is_real_occupancy(self):
         wrong = copy.deepcopy(self.events)
         wrong[-1]['u'] = CHILD

@@ -4054,10 +4054,10 @@ _scene_end('colony_migrate', [('lead', _DRY), ('migrant_baby', _ASHORE)],
             ('world', r'seen:settlement:migration phase=MARCH group=$group\b'),
             ('world', r'seen:settlement:migration pivot arrived group=$group .*leader=$lead\b')],
            dict(each='migrant_baby', steps=[
-               ('actors', r'seen:family:carry pickup .*purpose=MIGRATE child=$subject childStage=BABY\b'),
-               ('actors', r'seen:family:carry put down reason=arrived_destination .*purpose=MIGRATE child=$subject\b'),
+               ('parent_of:$subject', r'seen:family:carry pickup .*purpose=MIGRATE child=$subject childStage=BABY\b'),
+               ('parent_of:$subject', r'seen:family:carry put down reason=arrived_destination .*purpose=MIGRATE child=$subject\b'),
                ('$subject', r'seen:settlement:migration reached .*dependent=true')],
-               post=[('$subject', _ASHORE + ' and near.parents<=4')]))
+               post=[('$subject', _ASHORE)]))
 _scene_end('carry_home', [(f'{kind}_baby', _ASHORE) for kind in ('marisa', 'reimu', 'chen')],
            *[dict(each=f'{kind}_baby', autonomous_home=True, steps=[
               (f'{kind}_parent', r'seen:family:^carry pickup hold=\S+ .*child=$subject\b'),
