@@ -30,7 +30,8 @@ final class RenderPose implements Overlays.Contact {
     Vector3f anchor;
     float puff,retention;
     /** Rest body frame of the swaddle retention swelling (Skin.retentionFrame); the request's "retention" is its amount, 0..1. */
-    final float[] body;
+    final Skin.RetentionFrame body;
+    private final BitSet overSkin=new BitSet();
     private final Skin.Deform retain;
     RenderPose(JsonObject request) {
         data=request.getAsJsonObject("model");
@@ -55,9 +56,13 @@ final class RenderPose implements Overlays.Contact {
         if(data.has("behavior_clips"))data.getAsJsonObject("behavior_clips").entrySet().forEach(e->clips.put(e.getKey(),Clips.read(e.getValue().getAsJsonObject(),bones.length)));
         clips.get("idle").sample(0,defaults);
         var ranges=new ArrayList<Integer>();
-        for(var raw:data.getAsJsonArray("parts")){var p=raw.getAsJsonObject();if(OfflineModel.group(p.get("name").getAsString()).equals("body")){ranges.add(start(p));ranges.add(count(p));}}
+        for(var raw:data.getAsJsonArray("parts")){
+            var p=raw.getAsJsonObject();String name=p.get("name").getAsString(),group=OfflineModel.group(name);
+            if(group.equals("body")){ranges.add(start(p));ranges.add(count(p));}
+            if(group.equals("hair")||group.equals("braid")||name.contains("back_lock"))overSkin.set(start(p),start(p)+count(p));
+        }
         body=Skin.retentionFrame(rest,ranges.stream().mapToInt(Integer::intValue).toArray());
-        retain=(index,point)->Skin.deformRetention(point,retention,body);
+        retain=(index,point)->Skin.deformRetention(point,retention,body,overSkin.get(index));
     }
     private static int start(JsonObject p){return p.get("start").getAsInt();}
     private static int count(JsonObject p){return p.get("count").getAsInt();}

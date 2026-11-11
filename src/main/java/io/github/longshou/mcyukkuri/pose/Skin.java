@@ -1,7 +1,9 @@
 package io.github.longshou.mcyukkuri.pose;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeSet;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
@@ -69,27 +71,44 @@ public final class Skin {
      */
     public static final float RETAIN_OUT=.5f, RETAIN_SIDE=.5f, RETAIN_FRONT=.3f, RETAIN_PEAK=.22f, RETAIN_FOOT=.6f, RETAIN_TOP_SIDE=.32f,
             RETAIN_TOP_BACK=.58f;
-    /**
-     * Rest space, model units, before the bones: every part takes the same field. A point outside the body's box (hanging hair, locks,
-     * braids, tails) moves only as far as the body surface under it, so hair rides on the bulge and is never fanned out past it.
-     * {@code body} is retentionFrame.
-     */
-    public static void deformRetention(Vector3f point,float swell,float[] body){
+    public record RetentionFrame(float front,float back,float height,float halfWidth,float[] rings) {}
+
+    /** Hair over the body follows the straight skin triangles between the authored body rings. */
+    public static void deformRetention(Vector3f point,float swell,RetentionFrame body,boolean overSkin){
         if(swell<=0)return;
-        float front=body[0],back=body[1],mid=(front+back)/2,rear=Clips.smooth(((point.z-front)/(back-front)-RETAIN_FRONT)/(1-RETAIN_FRONT));
-        float u=point.y/body[2],top=RETAIN_TOP_SIDE+(RETAIN_TOP_BACK-RETAIN_TOP_SIDE)*rear;
-        float shape=u<RETAIN_PEAK?RETAIN_FOOT+(1-RETAIN_FOOT)*Clips.smooth(u/RETAIN_PEAK):1-Clips.smooth((u-RETAIN_PEAK)/(top-RETAIN_PEAK));
-        float dx=point.x,dz=point.z-mid,within=Math.min(1,Math.min(body[3]/Math.max(1e-4f,Math.abs(dx)),(back-mid)/Math.max(1e-4f,Math.abs(dz))));
+        float front=body.front,back=body.back,mid=(front+back)/2,rear=Clips.smooth(((point.z-front)/(back-front)-RETAIN_FRONT)/(1-RETAIN_FRONT));
+        float u=point.y/body.height,top=RETAIN_TOP_SIDE+(RETAIN_TOP_BACK-RETAIN_TOP_SIDE)*rear;
+        float shape=retentionShape(u,top);
+        if(overSkin&&u>RETAIN_PEAK&&u<1){
+            int ring=Arrays.binarySearch(body.rings,point.y);
+            if(ring<-1){
+                int upper=-ring-1;
+                float low=body.rings[upper-1],high=body.rings[upper];
+                float between=(point.y-low)/(high-low);
+                float lowerShape=retentionShape(low/body.height,top),upperShape=retentionShape(high/body.height,top);
+                shape=Math.max(shape,lowerShape+(upperShape-lowerShape)*between);
+            }
+        }
+        float dx=point.x,dz=point.z-mid,within=Math.min(1,Math.min(body.halfWidth/Math.max(1e-4f,Math.abs(dx)),(back-mid)/Math.max(1e-4f,Math.abs(dz))));
         float s=RETAIN_OUT*swell*rear*shape*within;
         point.x+=dx*s*RETAIN_SIDE;point.z+=dz*s;
     }
-    /** The rest body frame of deformRetention, {front z, back z, height, half width}, from the body surface vertices [start, start + count) of each part. */
-    public static float[] retentionFrame(float[] vertices,int[] ranges){
-        float[] frame={Float.MAX_VALUE,-Float.MAX_VALUE,0,0};
+
+    private static float retentionShape(float height,float top){
+        return height<RETAIN_PEAK?RETAIN_FOOT+(1-RETAIN_FOOT)*Clips.smooth(height/RETAIN_PEAK)
+                :1-Clips.smooth((height-RETAIN_PEAK)/(top-RETAIN_PEAK));
+    }
+
+    /** Rest bounds and ring heights from the body surface vertices [start, start + count) of each part. */
+    public static RetentionFrame retentionFrame(float[] vertices,int[] ranges){
+        float front=Float.MAX_VALUE,back=-Float.MAX_VALUE,height=0,halfWidth=0;
+        var heights=new TreeSet<Float>();
         for(int r=0;r<ranges.length;r+=2)for(int i=ranges[r];i<ranges[r]+ranges[r+1];i++){
-            frame[0]=Math.min(frame[0],vertices[i*8+2]);frame[1]=Math.max(frame[1],vertices[i*8+2]);frame[2]=Math.max(frame[2],vertices[i*8+1]);
-            frame[3]=Math.max(frame[3],Math.abs(vertices[i*8]));
+            front=Math.min(front,vertices[i*8+2]);back=Math.max(back,vertices[i*8+2]);height=Math.max(height,vertices[i*8+1]);
+            halfWidth=Math.max(halfWidth,Math.abs(vertices[i*8]));heights.add(vertices[i*8+1]);
         }
-        return frame;
+        float[] rings=new float[heights.size()];int i=0;
+        for(float y:heights)rings[i++]=y;
+        return new RetentionFrame(front,back,height,halfWidth,rings);
     }
 }

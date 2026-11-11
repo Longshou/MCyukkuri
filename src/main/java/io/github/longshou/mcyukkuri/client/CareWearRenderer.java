@@ -7,6 +7,7 @@ import java.util.Arrays;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
+import org.joml.Intersectionf;
 import org.joml.Vector3f;
 
 /**
@@ -194,7 +195,8 @@ final class CareWearRenderer {
         if ((cloth || leaf && !open) && !skinTable(SKIN)) return;
         if (cloth) swaddle(buffers, last, STYLES[wear >> 6 & 7], initial(model.id()), cx, cz, minY, h, light, overlay);
         if (open) groundLeaf(buffers.getBuffer(RenderType.entityCutoutNoCull(LEAF)), last, cx, cz, h, light, overlay);
-        else if (leaf) leafWrap(buffers.getBuffer(RenderType.entityCutoutNoCull(LEAF)), last, cx, cz, minY, h, wear >> 4 & 3, wear >> 6 & 7, light, overlay);
+        else if (leaf) leafWrap(buffers.getBuffer(RenderType.entityCutoutNoCull(LEAF)), last, cx, cz, minY, h, wear >> 4 & 3, wear >> 6 & 7,
+                pts, (wear >> 9 & 15) > 0 ? body : 0, light, overlay);
         // The harness follows the body itself, so its back ring stays where the lead attaches (YukkuriInteractions.getLeashOffset).
         if ((wear & HARNESS) != 0) harness(buffers.getBuffer(RenderType.entityCutoutNoCull(TEXTURE)), last, cx, cz, minY, h,
                 cloth || leaf && !open ? out + .03f * h : .03f * h, light, overlay);
@@ -804,10 +806,10 @@ final class CareWearRenderer {
      * body. Across the leaf every grid column keeps its lateral distance from the middle line, wrapping round the skin (the hair lies
      * over the leaf, clearHair) up to MAX_WRAP radians; the margins rise and curl out so the leaf cups the bottom like a diaper and shows
      * on the flanks. Grid cells below the soiled height use the stool-stained copy of the leaf, higher with every load; the neglect stage
-     * picks the leaf's texture rows. A retention swelling is in the body skin itself (Skin.deformRetention), so the leaf stretches over it.
+     * picks the leaf's texture rows. On a swollen body the grid clears the posed triangles between the profile samples, including the sole.
      */
     private static void leafWrap(VertexConsumer b, PoseStack.Pose pose, float cx, float cz, float minY, float h, int soil, int stage,
-                                 int light, int overlay) {
+                                 float[] skin, int swollenBody, int light, int overlay) {
         float base = LEAF_LIFT * h, half = LEAF_HALF * h;
         float[] along = new float[LEAF_ROWS + 1];
         for (int row = 0; row <= LEAF_ROWS; row++) {
@@ -832,14 +834,20 @@ final class CareWearRenderer {
                     // under the body: the middle runs straight across between the back and front of the blade at the base; towards the
                     // margins it follows the flank round the side at the cupped height, where the back and front halves of the margin meet
                     float fs = CUP_BASE + cup, w = edge * edge;
-                    leafPoint(true, fs, lateral, base, cx, cz, minY, h, PT);
+                    leafPoint(true, fs, lateral, base, cx, cz, minY, h, skin, swollenBody, PT);
                     float aBack = leafAngle;
-                    leafPoint(false, fs, lateral, base, cx, cz, minY, h, PT2);
+                    leafPoint(false, fs, lateral, base, cx, cz, minY, h, skin, swollenBody, PT2);
                     float d = aBack - (float) (Math.PI / 2), arc = aBack + (float) ((edge >= 0 ? Math.PI : -Math.PI) - 2 * d) * s;
                     float rr = radiusAround(SKIN, fs, arc) + base;
                     float chordX = PT[0] + (PT2[0] - PT[0]) * s, chordZ = PT[2] + (PT2[2] - PT[2]) * s, chordY = minY + (.006f + (fs - .006f) * w) * h;
-                    GRID[at] = chordX + (cx + (float) Math.cos(arc) * rr - chordX) * w; GRID[at + 1] = chordY;
-                    GRID[at + 2] = chordZ + (cz + (float) Math.sin(arc) * rr - chordZ) * w; GRID[at + 3] = 0;
+                    float x = chordX + (cx + (float) Math.cos(arc) * rr - chordX) * w;
+                    float z = chordZ + (cz + (float) Math.sin(arc) * rr - chordZ) * w;
+                    if (swollenBody > 0) {
+                        float top = minY + h;
+                        float depth = skinRay(skin, swollenBody, x, top, z, 0, -1, 0);
+                        if (depth > 0) chordY = Math.min(chordY, top - depth - base);
+                    }
+                    GRID[at] = x; GRID[at + 1] = chordY; GRID[at + 2] = z; GRID[at + 3] = 0;
                     continue;
                 }
                 boolean back = part < 2;
@@ -848,7 +856,7 @@ final class CareWearRenderer {
                         ? LEAF_BACK + (CUP_BASE - LEAF_BACK) * (float) Math.pow(s, BACK_EASE)
                         : CUP_BASE + (LEAF_FRONT - CUP_BASE) * (float) Math.pow(s, FRONT_EASE)));
                 float lift = base + CURL * (part == 3 ? FRONT_CURL : 1) * h * edge * edge + (part == 0 ? STALK_OUT * h * (1 - s) * (1 - s) : 0);
-                leafPoint(back, f, lateral, lift, cx, cz, minY, h, PT);
+                leafPoint(back, f, lateral, lift, cx, cz, minY, h, skin, swollenBody, PT);
                 GRID[at] = PT[0]; GRID[at + 1] = PT[1]; GRID[at + 2] = PT[2]; GRID[at + 3] = f;
             }
         }
@@ -874,12 +882,27 @@ final class CareWearRenderer {
      * line measured round the profile (both faces turn the same lateral side to the same model side), pushed out by `lift`; the angle used
      * is left in leafAngle.
      */
-    private static void leafPoint(boolean back, float f, float lateral, float lift, float cx, float cz, float minY, float h, float[] out) {
+    private static void leafPoint(boolean back, float f, float lateral, float lift, float cx, float cz, float minY, float h,
+                                  float[] skin, int swollenBody, float[] out) {
         float meridian = (float) (back ? Math.PI / 2 : -Math.PI / 2);
         float d = Math.clamp(lateral / Math.max(1e-4f, radiusAround(SKIN, f, meridian)), -MAX_WRAP, MAX_WRAP), a = back ? meridian + d : meridian - d;
-        float r = radiusAround(SKIN, f, a) + lift;
-        out[0] = cx + (float) Math.cos(a) * r; out[1] = minY + f * h; out[2] = cz + (float) Math.sin(a) * r;
+        float dx = (float) Math.cos(a), dz = (float) Math.sin(a), y = minY + f * h;
+        float r = radiusAround(SKIN, f, a);
+        if (swollenBody > 0) r = Math.max(r, skinRay(skin, swollenBody, cx, y, cz, dx, 0, dz));
+        out[0] = cx + dx * (r + lift); out[1] = y; out[2] = cz + dz * (r + lift);
         leafAngle = a;
+    }
+
+    /** Farthest intersection with the posed skin, in blocks. The downward ray finds the sole. */
+    private static float skinRay(float[] skin, int end, float x, float y, float z, float dx, float dy, float dz) {
+        float far = 0;
+        for (int i = 0; i < end; i += 9) {
+            float distance = Intersectionf.intersectRayTriangle(x, y, z, dx, dy, dz,
+                    skin[i], skin[i + 1], skin[i + 2], skin[i + 3], skin[i + 4], skin[i + 5],
+                    skin[i + 6], skin[i + 7], skin[i + 8], 1e-6f);
+            far = Math.max(far, distance);
+        }
+        return far;
     }
 
     /** A full wrap (three loads) also darkens its very base towards brown, so soiling never reads as autumn leaves. */

@@ -468,16 +468,35 @@ public final class YukkuriModel {
     private boolean[] overWearVertices;
     /** Swaddle retention swelling of the body being drawn (wear bits 9-12, also after the leaf is gone), 0..1; its rest body frame, lazy. */
     private float retention;
-    private float[] retentionBody;
-    private final Skin.Deform retain=(index,point)->Skin.deformRetention(point,retention,retentionBody());
+    private Skin.RetentionFrame retentionBody;
+    private float retentionCrownZ=-1;
+    private final Skin.Deform retain=this::retain;
     private final Skin.Deform woundAndRetain=(index,point)->{woundDeform.deform(index,point);retain.deform(index,point);};
     private final Vector3f retainedRest=new Vector3f();
     public void setWear(int bits){wear=bits;retention=(bits>>9&15)/15f;}
-    private float[] retentionBody(){
+    private Skin.RetentionFrame retentionBody(){
         if(retentionBody==null){var ranges=new ArrayList<Integer>();
             for(var part:parts)if(bodySurface(part.name)){ranges.add(part.start);ranges.add(part.count);}
             retentionBody=Skin.retentionFrame(restVertices,ranges.stream().mapToInt(Integer::intValue).toArray());}
         return retentionBody;
+    }
+    private void retain(int index,Vector3f point){
+        if(rigidGroups()[index]==1)point.z+=retention*retentionCrownZ();
+        else Skin.deformRetention(point,retention,retentionBody(),overWearVertex(index));
+    }
+    /** The crown follows the greatest rear displacement at its lower edge as one rigid piece. */
+    private float retentionCrownZ(){
+        if(retentionCrownZ>=0)return retentionCrownZ;
+        retentionCrownZ=0;
+        var point=new Vector3f();
+        var groups=rigidGroups();
+        for(int i=0;i<groups.length;i++)if(groups[i]==1){
+            int at=i*8;
+            point.set(restVertices[at],restVertices[at+1],restVertices[at+2]);
+            Skin.deformRetention(point,1,retentionBody(),true);
+            retentionCrownZ=Math.max(retentionCrownZ,point.z-restVertices[at+2]);
+        }
+        return retentionCrownZ;
     }
     private boolean overWearVertex(int index){
         if(overWearVertices==null){
@@ -1274,7 +1293,9 @@ public final class YukkuriModel {
         if(hatProp==null)return;
         stack.pushPose();
         if(pregnancyBelly>0)stack.translate(crownLift.x/16,crownLift.y/16,crownLift.z/16);
-        stack.scale(1/16f,1/16f,1/16f);stack.mulPose(world[hatFollowBone()]);stack.scale(16,16,16);
+        stack.scale(1/16f,1/16f,1/16f);stack.mulPose(world[hatFollowBone()]);
+        if(retention>0)stack.translate(0,0,retention*retentionCrownZ());
+        stack.scale(16,16,16);
         var seat=HatGeometry.anchor().div(16);float fit=hatDamageDraw.fit();
         stack.translate(seat.x,seat.y,seat.z);stack.scale(fit,fit,fit);stack.translate(-seat.x,-seat.y,-seat.z);
         PropModels.renderHat(hatProp,hatDamageDraw.level(),-1,stack,evidenceBuffers("hat",buffers),light,overlay);
@@ -1388,18 +1409,16 @@ public final class YukkuriModel {
     void skin(int index, Vector3f target) {
         skinBase(index,target);
         Skin.pregnancy(target,pregnancyBelly,pregnancyContraction,rigidGroups==null?0:rigidGroups[index],crownLift,braidLift);
-        if(wearClear&&overWearVertex(index))CareWearRenderer.clearHair(target);
+        if(wearClear&&overWearVertex(index)&&(retention<=0||rigidGroups()[index]!=1))CareWearRenderer.clearHair(target);
     }
     private int hatFollowBone(){
         if(hatFollowBone==-2){hatFollowBone=-1;braidBone=-1;for(int i=0;i<bones.length;i++){if(bones[i].name().equals("hat_follow"))hatFollowBone=i;
                 if(bones[i].name().equals("hand_right"))braidBone=i;}}
         return hatFollowBone;
     }
-    /** The hat and the braid ride the swollen head rigidly, the crown's and the braid root's own lift, fading out as a hat
-     *  clip lifts the hat away or a braid clip swings the braid off its rest (so they reach where the clip puts them). */
-    private void rigidLifts(){
-        int hat=hatFollowBone(),braid=braidBone;
+    private byte[] rigidGroups(){
         if(rigidGroups==null){
+            hatFollowBone();int braid=braidBone;
             rigidGroups=new byte[bindings.length];var prefixes=LivingPresentation.variants.get(id).accessoryPrefixes();
             for(var part:parts){
                 byte group=prefixes.stream().anyMatch(part.name::startsWith)?(byte)1:part.name.startsWith("braid_lock")&&braid>=0
@@ -1407,6 +1426,12 @@ public final class YukkuriModel {
                 for(int i=part.start;i<part.start+part.count;i++)rigidGroups[i]=group;
             }
         }
+        return rigidGroups;
+    }
+    /** Pregnancy lifts fade out as a clip moves the hat or braid away from its rest mount. */
+    private void rigidLifts(){
+        rigidGroups();
+        int hat=hatFollowBone(),braid=braidBone;
         crownLift.set(PregnancyAttachments.crownLift(id,pregnancyBelly,hat>=0?pose[hat]:null));
         braidLift.zero();
         if(braid>=0){
@@ -1415,8 +1440,8 @@ public final class YukkuriModel {
         }
     }
     private void skinBase(int index, Vector3f target) {
-        // Only vertices a wound actually moved leave the shared cache; the rest still match their rest-point key.
-        boolean moved=woundDisplay!=null&&woundDisplay.moved(index);
+        // Wounds and retained attachments can separate corners that otherwise share a rest-point key.
+        boolean moved=woundDisplay!=null&&woundDisplay.moved(index)||retention>0&&overWearVertex(index);
         if(!moved&&skinningCache.read(index,target))return;
         Skin.base(index,target,second,vertices,bindings,world,woundDisplay==null?retention>0?retain:null:retention>0?woundAndRetain:woundDeform,
                 puffAmount,puffOffsets,featureBones,featureTransforms);
@@ -1431,11 +1456,11 @@ public final class YukkuriModel {
         woundSkin(triangle,a,b,c,rest,target,true);
     }
     void woundSkin(int triangle,float a,float b,float c,Vector3f rest,Vector3f target,boolean pregnancy){
-        if(retention>0){Skin.deformRetention(retainedRest.set(rest),retention,retentionBody());rest=retainedRest;}
+        if(retention>0){retain(triangle,retainedRest.set(rest));rest=retainedRest;}
         Skin.fragment(triangle,a,b,c,rest,target,second,bindings,world,featureBones,featureTransforms);
         if(pregnancy)Skin.pregnancy(target,pregnancyBelly,pregnancyContraction,rigidGroups==null?0:rigidGroups[triangle],crownLift,braidLift);
         if(hatDamageDraw.fit()<.999f&&woundAccessoryVertex(triangle))target.sub(hatDamageDraw.seat()).mul(hatDamageDraw.fit()).add(hatDamageDraw.seat());
-        if(wearClear&&overWearVertex(triangle))CareWearRenderer.clearHair(target);
+        if(wearClear&&overWearVertex(triangle)&&(retention<=0||rigidGroups()[triangle]!=1))CareWearRenderer.clearHair(target);
     }
     private boolean woundAccessoryVertex(int vertex){
         if(woundAccessoryVertices==null){woundAccessoryVertices=new boolean[bindings.length];
