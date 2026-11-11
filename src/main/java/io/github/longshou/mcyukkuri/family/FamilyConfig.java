@@ -12,7 +12,7 @@ public final class FamilyConfig {
     static {
         var b = new ModConfigSpec.Builder();
         b.push("family");
-        GESTATION = b.comment("Well-supported loaded ticks for stem gestation; food, safety and room are required.")
+        GESTATION = b.comment("Loaded ticks to grow an attached stem, or well-supported ticks to carry a live brood to term.")
                 .defineInRange("gestationTicks", 6000, 200, 2400000);
         RECOVERY = b.defineInRange("reproductionRecoveryTicks", 12000, 200, 2400000);
         POPULATION_CAP = b.comment("Known living and reserved unborn individuals within 32 blocks. Unloaded family records still count.")

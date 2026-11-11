@@ -247,9 +247,9 @@ public enum StatusKey {
         var b = y.family().brood();
         return b == null || b.incidentSource == null ? "" : b.incidentSource.toString();
     }, null),
-    BURDEN_TICKS("reproduction", "burden_ticks", 20, y -> {
+    BROOD_ELAPSED("reproduction", "brood_elapsed", 0, y -> {
         var b = y.family().brood();
-        return b == null ? 0 : b.burdenTicks;
+        return b == null ? 0 : b.elapsed;
     }, null),
     /** Synced stem drain look: 0 none, 1 carrying, 2 thinning, 3 weak; 2 and 3 linger after the brood until she recovers. */
     DRAIN_STAGE("reproduction", "drain_stage", 0, YukkuriEntity::aftermathDrain, null),

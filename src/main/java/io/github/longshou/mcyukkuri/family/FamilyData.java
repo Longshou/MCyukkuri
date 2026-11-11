@@ -102,8 +102,6 @@ public final class FamilyData extends SavedData {
     public static final class Brood {
         public UUID id, mother, father, detachedHolder;
         public UUID incidentSource;
-        /** Loaded-time physiological burden, independent of gestation progress. */
-        public int burdenTicks;
         public BirthKind kind;
         public GlobalPos anchor;
         public int elapsed, duration;
@@ -509,7 +507,6 @@ public final class FamilyData extends SavedData {
         GrowthSize.assignBirthSizes(brood);
         broods.put(brood.id,brood);
         victim.family().receiveAftermath(brood.id);
-        victim.life().spendNutrition(Math.min(2,victim.life().nutrition()));
         victim.life().applyEnvironment(0,0,8);victim.pet().addStress(25);
         if(fleeImmediately)victim.frightenFrom(source);
         victim.mind().felt(EmotionEvent.FRIGHTENED); victim.showReaction("teary","afraid",200);
@@ -792,7 +789,7 @@ public final class FamilyData extends SavedData {
         }
         for(Brood brood:broods.values()) {
             CompoundTag value=new CompoundTag();value.putUUID("Id",brood.id);value.putUUID("Mother",brood.mother);if(brood.father!=null)value.putUUID("Father",brood.father);
-            if(brood.incidentSource!=null){value.putUUID("IncidentSource",brood.incidentSource);value.putInt("BurdenTicks",brood.burdenTicks);}
+            if(brood.incidentSource!=null)value.putUUID("IncidentSource",brood.incidentSource);
             value.putString("Kind",brood.kind.name());putPosition(value,"Anchor",brood.anchor);value.putInt("Elapsed",brood.elapsed);value.putInt("Duration",brood.duration);
             if(brood.detachedHolder!=null)value.putUUID("DetachedHolder",brood.detachedHolder);
             value.putFloat("Variation",brood.variation);value.putBoolean("Cancelled",brood.cancelled);ListTag children=new ListTag();
@@ -840,7 +837,6 @@ public final class FamilyData extends SavedData {
                 brood.incidentSource=value.hasUUID("IncidentSource")?value.getUUID("IncidentSource"):null;
                 if(brood.incidentSource!=null&&(brood.kind!=BirthKind.STEM||brood.father!=null||brood.incidentSource.equals(brood.mother)))continue;
                 if(brood.father==null&&brood.kind!=BirthKind.LIVE&&brood.incidentSource==null)continue;
-                brood.burdenTicks=Math.clamp(value.getInt("BurdenTicks"),0,199);
                 brood.anchor=position(value,"Anchor");if(brood.anchor==null)continue;
                 brood.duration=Math.max(1,value.getInt("Duration"));brood.elapsed=Math.clamp(value.getInt("Elapsed"),0,brood.duration+600);
                 brood.detachedHolder=value.hasUUID("DetachedHolder")?value.getUUID("DetachedHolder"):null;

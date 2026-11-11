@@ -12,6 +12,7 @@ import io.github.longshou.mcyukkuri.MCYukkuri;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.entity.presentation.PresentationArbiter;
 import io.github.longshou.mcyukkuri.family.ParentCarry;
+import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.family.FamilyNest;
 import io.github.longshou.mcyukkuri.headwear.PlacedHatEntity;
 import io.github.longshou.mcyukkuri.intent.Conductor;
@@ -646,6 +647,20 @@ public final class TraceRecorder {
         needs.addProperty("en", entity.life().energy());
         needs.addProperty("wet", entity.life().wetness());
         out.add("need", needs);
+        if (mode == Mode.DENSE && entity.broodCount() > 0) {
+            var brood = entity.family().brood();
+            if (brood != null && brood.kind == FamilyData.BirthKind.STEM && !brood.cancelled && !brood.complete()) {
+                JsonObject stem = new JsonObject();
+                stem.addProperty("elapsed", brood.elapsed);
+                stem.addProperty("duration", brood.duration);
+                stem.addProperty("count", entity.broodCount());
+                stem.addProperty("progress", entity.broodProgress());
+                stem.addProperty("drain", entity.aftermathDrain());
+                stem.addProperty("face", entity.getExpressionId());
+                stem.addProperty("clip", entity.getAnimationId());
+                out.add("stem", stem);
+            }
+        }
         out.addProperty("scale", entity.getScale() * entity.growthScale());
         return out;
     }

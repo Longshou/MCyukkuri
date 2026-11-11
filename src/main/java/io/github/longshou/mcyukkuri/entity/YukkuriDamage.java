@@ -84,8 +84,9 @@ final class YukkuriDamage {
                         transaction.hit.healthBefore(),owner.getHealth(),result.loss());
             if(result.loss()>0&&!YukkuriLife.isWaterDamage(source)&&!source.is(DamageTypes.IN_WALL))
                 GameplayLog.limited(owner,"body","accepted_damage."+source.type().msgId(),200,
-                        "accepted damage cause={} health={} -> {} loss={}",
-                        source.type().msgId(),transaction.hit.healthBefore(),owner.getHealth(),result.loss());
+                        "accepted damage cause={} health={} -> {} loss={}{}",
+                        source.type().msgId(),transaction.hit.healthBefore(),owner.getHealth(),result.loss(),
+                        source.is(DamageTypes.STARVE)&&owner.body().stemDepleting()?" stem_depletion=true":"");
             // Witnesses see a lethal hit too; the victim's own recovery and panic require it to remain alive.
             if(physicalHit&&!owner.isAlive())owner.status().hurt(source);
             if(notify&&owner.isAlive()) {
@@ -137,11 +138,7 @@ final class YukkuriDamage {
             if(!deathRecorded)owner.settlement().attackedBy(source,true);
             owner.interrupt(interruption, InterruptPhase.DEATH_CLEANUP);
             if(!deathRecorded) {
-                // Capture the active burden before family.died cancels and clears maternal gestation.
-                var pregnancy=owner.family().brood();
-                boolean stemDepletion=source.is(DamageTypes.STARVE)&&owner.life().nutrition()==0
-                        &&pregnancy!=null&&!pregnancy.cancelled&&!pregnancy.complete()
-                        &&pregnancy.kind==FamilyData.BirthKind.STEM&&pregnancy.incidentSource!=null;
+                boolean stemDepletion=source.is(DamageTypes.STARVE)&&owner.body().stemDepleting();
                 boolean sukkiriExhaustion=this.sukkiriExhaustion;
                 deathRecorded = true;
                 owner.interrupt(InterruptContext.death(source, stemDepletion, sukkiriExhaustion), InterruptPhase.DEATH_ONCE);

@@ -81,7 +81,7 @@ public final class PresentationArbiter {
             MomentEffects.start(e, id, frame);
     }
 
-    /** Physical operation, reaction, injury/crying, emotion, then the selected behavior and authored face. */
+    /** Physical operation, reaction, injury, stem drain, then mood and the authored face. */
     private String expression(){
         var e=state.owner();
         if(e.operations().active())return switch(e.operations().pose()){
@@ -93,6 +93,12 @@ public final class PresentationArbiter {
         if(state.reactionTicks()>0)return state.reactionExpression();
         if(e.body().dying())return "blank_cry";
         if(e.body().condition().needsPainExpression()||e.life().spicyTicks()>0)return "cry";
+        // Danger and contact keep their reaction faces; ordinary clips use the existing dry presets.
+        if(e.aftermathDrain()>0)switch(e.getBehaviorId()) {
+            case Behaviors.FLEE, Behaviors.BOAT_FLEE, Behaviors.ESCAPE_WATER, Behaviors.HAT_SLIPPING, Behaviors.SHELL_RETRACT,
+                 Behaviors.PAIRING, Behaviors.HEAT_RELIEF, Behaviors.ALICE_ACT, Behaviors.RAPEM_HELD -> {}
+            default -> { return e.aftermathDrain()==1?"teary":"neutral"; }
+        }
         if(e.body().weak()||e.settlement().society().dejected())return "teary";
         String mood=e.mind().face("neutral");
         if(!mood.equals("neutral"))return mood;
@@ -105,9 +111,6 @@ public final class PresentationArbiter {
         switch(e.getBehaviorId()) {
             case Behaviors.HEAT_RELIEF, Behaviors.ALICE_ACT, Behaviors.RAPEM_HELD -> { return e.getExpressionId(); }
         }
-        // Stem drain: tears first, then the dry face's own tired (2) and closed (3) lids on a plain face.
-        if(e.aftermathDrain()>0&&(e.getBehaviorId().equals(Behaviors.IDLE)||e.getBehaviorId().equals(Behaviors.TEND_BROOD)))
-            return e.aftermathDrain()==1?"teary":"neutral";
         String clip=e.getAnimationId();long start=e.getAnimationStartTick();
         switch(e.getBehaviorId()){
             case Behaviors.TOILET,Behaviors.GROUND_TOILET,Behaviors.BOAT_TOILET,Behaviors.TOILET_ACCIDENT,

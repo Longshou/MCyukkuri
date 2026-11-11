@@ -242,7 +242,7 @@ final class LiveBirth extends Choreography {
                 hat==null?0:hat.getPassengers().size(),entries>4?beat+"_retries":"cleanup_deadline",unloads,takes);
         jump(null,"cleanup_exhausted"); // the owner's hat errand (FamilyLife.hatChore) takes the hat over
     }
-    /** The labour clock: gestation to term, then (LIVE) the current child's pushes and birth, or (STEM) the drops. */
+    /** The labour clock for live gestation and pushes, or the release of ripe stem fruit. */
     @Override protected void conductData(long now){
         var b=brood();
         while(b!=null&&welcomed<b.children.size()&&b.children.get(welcomed).born&&b.children.get(welcomed).landed){
@@ -275,8 +275,8 @@ final class LiveBirth extends Choreography {
         boolean sited=!"site".equals(beat());
         if(!live){
             if(b.elapsed>=b.duration-200&&BEFORE_HAT.contains(beat())&&sited)return "waiting_for_catcher";
-            String gestation=o.gestate(b,sited);
-            if(!gestation.isEmpty()||!"drop".equals(beat()))return gestation;
+            if(b.elapsed<b.duration||!"drop".equals(beat()))return "";
+            if(!o.readyForStemDrop())return "mother_not_ready";
             for(int i=0;i<b.children.size();i++){
                 var child=b.children.get(i);
                 if(child.born||b.elapsed<b.duration+i*8)continue;
@@ -284,6 +284,10 @@ final class LiveBirth extends Choreography {
                 // A blocked attachment delays the birth; it never spawns through the ceiling or into a wall.
                 if(FamilyData.get(o.level()).birth(b,i,o.level(),at,placedHat(),null)!=null)
                     m.showReaction(b.incidentSource==null?"happy":"teary",b.incidentSource==null?"birth":"",100);
+            }
+            // Start the existing eight-tick stagger when the mother can release ripe fruit.
+            if(!b.complete()&&b.elapsed<b.duration+40){
+                b.elapsed++;FamilyData.get(o.level()).setDirty();
             }
             return "";
         }

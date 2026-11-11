@@ -529,10 +529,14 @@ public final class BodyLife {
         GameplayLog.event(entity,"body","wound healing {}/{}:{} -> {}; wound={}",wound.kind().id(),wound.shape().id(),wound.severity(),Math.max(0,wound.severity()-1),wound.id());}
     /** Must exceed the ordinary 1-health/600-tick food regeneration even on a small child. */
     public void swaddleRetentionDamage(){damage(1+entity.getMaxHealth()*.08f,LeafSwaddle.RETENTION);}
-    /** Internal attrition through the generic carrier; the cause is kept only for a death this very hit causes. */
-    private void damage(float amount,String cause){
+    private static final String STEM_DEPLETION="stem_nutrition_depletion";
+    public void stemDepletionDamage(float amount){damage(entity.damageSources().starve(),amount,STEM_DEPLETION);}
+    public boolean stemDepleting(){return internalDamageCause.equals(STEM_DEPLETION);}
+    /** Internal attrition; the cause is kept only for a death this very hit causes. */
+    private void damage(float amount,String cause){damage(entity.damageSources().generic(),amount,cause);}
+    private void damage(DamageSource source,float amount,String cause){
         String previous=internalDamageCause;internalDamageCause=cause;
-        try{entity.hurtInternal(entity.damageSources().generic(),amount);}finally{internalDamageCause=previous;}
+        try{entity.hurtInternal(source,amount);}finally{internalDamageCause=previous;}
     }
     /** The internal cause behind the death being settled: an explicit terminal cause, internal attrition, then the dying cause. */
     private String internalDeathCause(){

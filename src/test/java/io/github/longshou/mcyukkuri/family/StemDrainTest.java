@@ -4,6 +4,21 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class StemDrainTest {
+    @Test void drawsForGrowthAndProratesOnlyAtTerm() {
+        assertEquals(0, StemDrain.drawTicks(199, 450));
+        assertEquals(200, StemDrain.drawTicks(200, 450));
+        assertEquals(0, StemDrain.drawTicks(449, 450));
+        assertEquals(50, StemDrain.drawTicks(450, 450));
+        assertEquals(0, StemDrain.drawTicks(451, 450));
+        assertEquals(0, StemDrain.drawTicks(600, 450));
+    }
+
+    @Test void fruitCountAndStalkSizeIncreaseTheDraw() {
+        assertEquals(1.116f, StemDrain.draw(200, 1, .93f), .00001f);
+        assertEquals(2.14f, StemDrain.draw(200, 5, 1.07f), .00001f);
+        assertEquals(.535f, StemDrain.draw(50, 5, 1.07f), .00001f);
+    }
+
     @Test void theCarryingItselfIsTheFirstStage() {
         assertEquals(1, StemDrain.stage(true, true, 75, 60));
         assertEquals(1, StemDrain.stage(true, true, 50, 50));

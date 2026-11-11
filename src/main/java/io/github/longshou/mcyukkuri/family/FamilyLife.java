@@ -452,7 +452,6 @@ public final class FamilyLife {
         FamilyData.get(level()).importPartner(entity);
         if(!entity.isAlive()){if(entity.isVehicle())entity.motor().interrupt("carrier_dead");return;}
         carry.tick();
-        if(!entity.isNoAi())tickAftermathBurden();
         // The drain look fades with her recovery, not with the brood.
         if(stemDrained&&drainStage()==0)stemDrained=false;
         var finished=brood();
@@ -514,30 +513,59 @@ public final class FamilyLife {
         // An expecting mother shows it at a glance: a stem on her head or a swelling belly, and a small heart now and then.
         if(expecting&&brood.incidentSource==null&&entity.tickCount%60==0)
             level().sendParticles(ParticleTypes.HEART,entity.getX(),entity.getY()+entity.getBbHeight()+.15,entity.getZ(),1,.12,.04,.12,0);
-        // The gestation clock runs wherever she is; its last APPROACH_LEAD ticks are the birth's, which the conductor advances.
+        // The last APPROACH_LEAD ticks call the birth conductor, which also advances live labour.
         // A birth still running for an older brood never holds a new one back: it ends, and its hat goes to the hat errand.
         if(expecting&&liveBirth() instanceof LiveBirth old&&!brood.id.equals(old.broodId()))birth.stop("brood_replaced");
         if(expecting&&!birth.active()){
             if(brood.elapsed>=brood.duration-LiveBirth.APPROACH_LEAD)birth.start(LiveBirth.cast(this,brood));
-            else gestate(brood,true);
+            else if(brood.kind==FamilyData.BirthKind.LIVE)gestate(brood,true);
         } else if(gestation!=null&&(brood==null||brood.cancelled||brood.complete()&&brood.kind!=FamilyData.BirthKind.STEM))gestation=null;
+        if(expecting&&brood.kind==FamilyData.BirthKind.STEM){
+            advanceStem(brood);
+            if(!entity.isAlive())return;
+        }
         birth.tick();
     }
-    /** One loaded tick of gestation (the brood's own clock: no body writes): "" when it ran, else why it waits. */
+    /** The attached stem grows from the bearer once per loaded tick. Delivery only handles ripe fruit. */
+    private void advanceStem(FamilyData.Brood brood){
+        if(brood.elapsed>=brood.duration)return;
+        int elapsed=++brood.elapsed;
+        FamilyData.get(level()).setDirty();
+        if(elapsed==1)GameplayLog.event(entity,"family","stem sprouted brood={} elapsed={} duration={} fruit={}",
+                brood.id,elapsed,brood.duration,brood.children.size());
+        int ticks=StemDrain.drawTicks(elapsed,brood.duration);
+        if(ticks==0)return;
+        int unborn=brood.unborn();
+        float cost=StemDrain.draw(ticks,unborn,brood.variation);
+        float spent=Math.min(cost,entity.life().nutrition());
+        entity.life().spendNutrition(spent);
+        if(entity.life().nutrition()<StemDrain.THIN_NUTRITION)stemDrained=true;
+        if(spent<cost){
+            float healthBefore=entity.getHealth();
+            entity.body().stemDepletionDamage((cost-spent)/StemDrain.NUTRITION_PER_HEALTH);
+            GameplayLog.event(entity,"family","stem drew body brood={} elapsed={} duration={} fruit={} nutrition_drawn={} deficit={} health={}->{}",
+                    brood.id,elapsed,brood.duration,unborn,spent,cost-spent,healthBefore,entity.getHealth());
+        }
+        // By the first draw the sprout is noticeable and the attack's release has had time to play.
+        if(entity.isAlive()&&elapsed==Math.min(StemDrain.DRAW_TICKS,brood.duration)&&brood.incidentSource!=null)
+            entity.showReaction("confused","aftermath_realize",160);
+    }
+    /** One loaded tick of live gestation: "" when it ran, else why it waits. */
     String gestate(FamilyData.Brood b,boolean sited){
-        boolean stem=b.kind==FamilyData.BirthKind.STEM;
-        if(!stem&&b.elapsed>=b.duration-LiveBirth.NEST_GRACE&&!deliverySupported())return "must_go_ashore";
-        if(stem?entity.operations().active()||entity.isPanicking()||entity.isOnFire()||entity.isInWaterOrBubble()||entity.isCommandPlaying()
-                ||entity.life().nutrition()<30||entity.body().condition().blocksBreedingApproach()||entity.life().mealTicks()>0||entity.life().isSleeping()
-                :!(b.elapsed<b.duration-LiveBirth.NEST_GRACE?gestationReady():readyForDelivery()))return "mother_not_ready";
+        if(b.elapsed>=b.duration-LiveBirth.NEST_GRACE&&!deliverySupported())return "must_go_ashore";
+        if(!(b.elapsed<b.duration-LiveBirth.NEST_GRACE?gestationReady():readyForDelivery()))return "mother_not_ready";
         if(!sited&&b.elapsed>=b.duration-LiveBirth.NEST_GRACE)return "no_place_for_term";
-        if(!stem&&!bellyRoom(b))return "no_room_for_belly";
-        if(b.elapsed>=b.duration+(stem?40:0))return "";
+        if(!bellyRoom(b))return "no_room_for_belly";
+        if(b.elapsed>=b.duration)return "";
         if(++b.elapsed%200==0)entity.life().spendNutrition(1);
-        // The first tick of actual growth is also the first visible sprout: the victim realizes it (native seisian wording).
-        if(b.elapsed==1&&b.incidentSource!=null)entity.showReaction("confused","aftermath_realize",160);
-        if(b.elapsed==b.duration&&!stem)GameplayLog.event(entity,"family","delivery labor started brood={} kind={} children={}",b.id,b.kind,b.children.size());
+        if(b.elapsed==b.duration)GameplayLog.event(entity,"family","delivery labor started brood={} kind={} children={}",b.id,b.kind,b.children.size());
         FamilyData.get(level()).setDirty();return "";
+    }
+    /** A ripe fruit still needs a physically available mother to drop from. */
+    boolean readyForStemDrop(){
+        return !entity.operations().active()&&!entity.isPanicking()&&!entity.isOnFire()&&!entity.isInWaterOrBubble()
+                &&!entity.isCommandPlaying()&&!entity.body().condition().blocksBreedingApproach()
+                &&entity.life().mealTicks()==0&&!entity.life().isSleeping();
     }
     /** The next belly still fits where she stands. */
     boolean bellyRoom(FamilyData.Brood b){
@@ -876,27 +904,17 @@ public final class FamilyLife {
         spentStemCount=0;stemDrained=true;
         stop();entity.setPersistenceRequired();entity.syncFamily();
     }
-    /** Visible drain of an attack-conceived brood: 0 none, 1 carrying, 2 thinning, 3 weak (rule and thresholds: {@link StemDrain}). */
-    public int drainStage() {
+    public boolean growingStem(){
         var b=brood();
-        boolean carrying=b!=null&&b.incidentSource!=null&&!b.cancelled&&!b.complete();
-        return StemDrain.stage(carrying,stemDrained,entity.life().nutrition(),entity.life().energy());
+        return attachedStem(b)&&b.elapsed<b.duration;
     }
-    private void tickAftermathBurden() {
-        var pregnancy=brood();
-        if(pregnancy==null||pregnancy.incidentSource==null||pregnancy.cancelled||pregnancy.complete()
-                ||pregnancy.kind!=FamilyData.BirthKind.STEM)return;
-        // Persistent loaded-time clock: even arrested growth below 30 nutrition still taxes the mother.
-        // Hunger at zero uses YukkuriLife's ordinary starvation damage; there is no instant-death branch.
-        if(++pregnancy.burdenTicks>=200) {
-            pregnancy.burdenTicks=0;
-            float cost=1f+.2f*pregnancy.unborn();
-            entity.life().spendNutrition(Math.min(cost,entity.life().nutrition()));
-            entity.life().applyEnvironment(0,0,entity.life().nutrition()<30?2:1);
-            // The drained look follows each charge; the sync layer logs the transition it writes.
-            entity.syncFamily();
-        }
-        FamilyData.get(level()).setDirty();
+    private static boolean attachedStem(FamilyData.Brood b){
+        return b!=null&&b.kind==FamilyData.BirthKind.STEM&&!b.cancelled&&!b.complete();
+    }
+    /** Visible drain: 0 none, 1 carrying after an attack, 2 thinning, 3 weak. */
+    public int drainStage() {
+        var b=brood();boolean aftermath=attachedStem(b)&&b.incidentSource!=null;
+        return StemDrain.stage(aftermath,stemDrained,entity.life().nutrition(),entity.life().energy());
     }
     /** Manufactured filling has no identified father and does not create or replace a partner. */
     public void assisted(UUID brood) {

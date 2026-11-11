@@ -486,7 +486,8 @@ public final class YukkuriLife {
             metabolismTicks = 0; nutrition = Math.max(0, nutrition - (isSleeping() ? 1 : 2) * nutritionDemand());
             nutritionBoundary(before, "metabolism");
         }
-        if (nutrition > 0) starvingTicks = 0;
+        // An actively growing stem draws from the body itself whenever nutrition runs out.
+        if (nutrition > 0 || entity.family().growingStem()) starvingTicks = 0;
         else if (++starvingTicks >= Math.max(1200, YukkuriConfig.HUNGER_INTERVAL.get()*5)) {
             starvingTicks=0;
             float before=entity.getHealth();
