@@ -118,7 +118,7 @@
   "predator.mcyukkuri.order.3": "帰巣",
   "predator.mcyukkuri.obedient.0": "教育不足",
   "predator.mcyukkuri.obedient.1": "飼い主の指示に従う",
-  "notebook.mcyukkuri.chapter.accessories": "お飾りとバッジ\n\nしゃがんでハサミを使うとお飾りを外し、元の持ち主に使うと返せます。見た目の複製では身元を複製できません。\n失っても家系は消えません。バッジの取得と再発行は、ペット手帳と店の試験官で確認します。",
+  "notebook.mcyukkuri.chapter.accessories": "お飾りとバッジ\n\n両手を空けてしゃがんで右クリックすると世話メニューが開き、「お世話」でお飾りを外せます。裁ちナイフで右クリックするとお飾りを切れます。お飾りを持って右クリックで返し、しゃがんで右クリックすると上の支えに掛けられます。見た目の複製では身元を複製できません。\n失っても家系は消えません。バッジの取得と再発行は、ペット手帳と店の試験官で確認します。",
   "notebook.mcyukkuri.chapter.community": "野外の家族\n\n森の集落には複数の家族が住みます。観察で所属・指導者・寝床を確認します。\n遭遇イベントは個別検証中です。観察は給餌や引き取りと異なり、輸送は放棄ではありません。",
   "activity.mcyukkuri.event_concert": "歌と観客の応答",
   "activity.mcyukkuri.event_sisters": "姉妹がごはんを待つ",
@@ -329,8 +329,8 @@
   "notebook.mcyukkuri.memory": "あなたとの関係\n\n親しみ：%s\n恐怖：%s\n\n待つことを習得：%s\n\n世話と傷害は親しみと恐怖を別々に変えます。",
   "notebook.mcyukkuri.guide.discovery": "見つけて連れ帰る\n\n昼間の平原、森林、草地でれいむやまりさを探しましょう。\n\nチェストと糸 2 本で運搬かごを作れます。個体に使って入れ、乾いた地面に使って出します。\n\nかごの中では生活の進行が止まります。",
   "notebook.mcyukkuri.guide.care": "住まいとお世話\n\nボウルと粘土玉 2 個で餌皿を作れます。リンゴやパンなどを入れると、取り出して噛み、飲み込みます。\n\n草の巣には屋根と入口が必要です。砂トイレが満杯になったら濡れた布で掃除します。布は水源に使うと濡らせます。",
-  "notebook.mcyukkuri.guide.social": "会話と学習\n\n素手で使う：優しく話しかける。\nしゃがんで使う：冷たく返事する。\n毛糸玉を落とす：遊び相手にする。\n\n仲良くなったらしつけ笛を使い、そばで 3 回練習させましょう。覚えれば待っていてもらえます。危険があると待つのをやめます。",
-  "notebook.mcyukkuri.guide.rules": "個体とお飾り\n\nしゃがみながらハサミを使うと、お飾りを外せます。持ち主にお飾りを使うと返せます。\n\nお飾りをなくすと仲間に見分けてもらえないことがありますが、以前の関係は残ります。\n\n短い洗浄と、長雨や水没は別です。水の中に放置しないでください。",
+  "notebook.mcyukkuri.guide.social": "会話と学習\n\n両手を空けて右クリック：優しく話しかける。\n両手を空けてしゃがんで右クリック：世話メニューが開き、「会話」に冷たい返事がある。\n毛糸玉を落とす：遊び相手にする。\n\n仲良くなったらしつけ笛を使い、そばで 3 回練習させましょう。覚えれば待っていてもらえます。危険があると待つのをやめます。",
+  "notebook.mcyukkuri.guide.rules": "個体とお飾り\n\n両手を空けてしゃがんで右クリックすると世話メニューが開き、「お世話」でお飾りを外せます。裁ちナイフで右クリックするとお飾りを切れます。お飾りを持って右クリックで返し、しゃがんで右クリックすると上の支えに掛けられます。\n\nお飾りをなくすと仲間に見分けてもらえないことがありますが、以前の関係は残ります。\n\n短い洗浄と、長雨や水没は別です。水の中に放置しないでください。",
   "activity.mcyukkuri.idle": "自由に過ごす",
   "activity.mcyukkuri.seek_food": "食べ物を探す",
   "activity.mcyukkuri.take_food": "食べ物を取る",
@@ -6273,5 +6273,12 @@
   "shop.mcyukkuri.consult.exam_tasks": "試験は習得した技能と実際の課題達成で判定します。",
   "exam.mcyukkuri.profile.traits": "知能 %s・友善 %s・自制 %s",
   "item.mcyukkuri.marisa_aquatic_hat": "水上まりさのぼうし",
-  "entity.mcyukkuri.placed_hat": "置いた帽子"
+  "entity.mcyukkuri.placed_hat": "置いた帽子",
+  "item.mcyukkuri.magnifying_glass": "虫めがね",
+  "magnifier.mcyukkuri.header": "%s · %s",
+  "magnifier.mcyukkuri.health": "体力 %s/%s",
+  "magnifier.mcyukkuri.badge": "バッジ：%s",
+  "magnifier.mcyukkuri.pregnant": "妊娠中",
+  "magnifier.mcyukkuri.moldy": "ゆカビ·%s段階",
+  "magnifier.mcyukkuri.no_mold": "ゆカビなし"
 }
