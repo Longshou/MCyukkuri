@@ -10,6 +10,7 @@
 | --- | --- | --- |
 | 互动菜单美化与界面风格统一 | `.worktrees/wp-fm-menu-style` | client/*Screen.java、client/GuiKit.java、art/props/ui、capture |
 | 水上场景上帽落座失败（自检 1、4） | `.worktrees/wp-fn-afloat-facing` | museum/ScenarioSetup、Motor.face 调用方、帽船落座 |
+| 回窝进出口往返与够不到窝时反复放下抱起（自检 2、3） | `.worktrees/wp-fo-home-entry-loops` | 家庭回窝、搬运 RETRIEVE、入窝判定 |
 
 ## 玩法待办
 
