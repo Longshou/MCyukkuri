@@ -70,7 +70,7 @@ public final class ForageGoal extends Goal {
     @Override public boolean canUse() {
         if (entity.isPassenger() || entity.profile().houseBody() || entity.family().awaitingLanding() || !entity.life().canEat() || entity.life().isSleeping() || entity.isInWaterOrBubble()
                 || !EventHooks.canEntityGrief(level(), entity) || !grazes()) return false;
-        if (SettlementSeasons.forageBlocked(entity) || feedsChildFirst() || yieldsToMarch()) return false;
+        if (SettlementSeasons.forageBlocked(entity) || feedsChildFirst() || yieldsToMarch() || entity.forageTrip().provisioningFirst()) return false;
         scanFood();
         if (target == null && (entity.life().nutrition() >= 30 || entity.family().keepsToParent())) return false;
         elapsed = 0; searchSpot = null;
@@ -155,7 +155,7 @@ public final class ForageGoal extends Goal {
         if (yieldsToMarch()) return false;
         return running && !entity.life().isSleeping() && !entity.family().awaitingLanding() && entity.life().canEat()
                 && (target != null || entity.life().nutrition() < 30)
-                && !SettlementSeasons.forageBlocked(entity) && !feedsChildFirst()
+                && !SettlementSeasons.forageBlocked(entity) && !feedsChildFirst() && !entity.forageTrip().provisioningFirst()
                 && !entity.isInWaterOrBubble() && EventHooks.canEntityGrief(level(), entity);
     }
     @Override public boolean requiresUpdateEveryTick() { return true; }

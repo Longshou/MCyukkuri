@@ -301,6 +301,7 @@ public final class HabitatLife {
             return seasonal.start(null);
         }
         homes.cancelVagrantProject();
+        if(entity.forageTrip().provisioningFirst())return false;
         if(entity.life().canEat()&&value.food()>0&&!entity.wintering().usesWinterStores()){task=Task.FOOD;targetBlock=value.bed(entity.getUUID());ticks=0;return true;}
         if(entity.life().canEat()&&value.food()==0&&entity.life().needsFood()&&!entity.independence().householdOuting()&&startGranaryTake())return true;
         if(carrying.isEmpty()&&!entity.independence().householdOuting()&&startRation(value))return true;
@@ -399,6 +400,7 @@ public final class HabitatLife {
     }
     public boolean canContinue() {
         if(!active()||!ready())return false;
+        if(task!=Task.RATION&&carrying.isEmpty()&&entity.forageTrip().provisioningFirst())return false;
         if(task==Task.DIG)return homes.canDigContinue();
         if(task==Task.ROAM)return homes.canRoamContinue();
         if(task==Task.SURFACE_NEST)return homes.canBuildSurfaceNest();

@@ -11,6 +11,8 @@ import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.pet.PetSkill;
 import java.util.ArrayList;
 import java.util.EnumMap;
+import java.util.HashMap;
+import java.util.Map;
 import io.github.longshou.mcyukkuri.human.Custody;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
@@ -80,6 +82,9 @@ public final class YukkuriLife {
     private Task task = Task.NONE;
     private ItemEntity targetFood;
     private BlockPos targetBlock;
+    /** Only rejected food destinations in reach of the present approach origin. */
+    private final Map<BlockPos, Vec3> refusedFood = new HashMap<>();
+    private Vec3 refusedFoodFrom;
     private BlockPos refusedBed;
     private int pursuitTicks, queueTicks, queueBudget, winterNeedCheckAt;
     private record RuleChoice(int until, boolean follows) {}
@@ -620,6 +625,7 @@ public final class YukkuriLife {
         if ((task == Task.SLEEP || task == Task.HOME) && drugSleep() == 0 && temperature.unsafeSleep() && temperature.plan()) {
             task = Task.TEMPERATURE; resetSleep(); return true;
         }
+        if (task == Task.FOOD && entity.forageTrip().provisioningFirst()) { stopGoal(); return false; }
         if (task != Task.NONE) return true;
         if(drugSleep()>0){task=Task.SLEEP;resetSleep();sleepTicks=20;return true;}
         if (planWait > 0) return false;
@@ -645,7 +651,7 @@ public final class YukkuriLife {
             if (!temperature.unsafeSleep() && !hasUrgentNeed() && entity.family().canUse()) return false;
             if (entity.wintering().planMeal()) { task = Task.WINTER_FOOD; pursuitTicks = 0; winterNeedCheckAt = 20; return true; }
         }
-        if (!penned && canEat() && EventHooks.canEntityGrief(level(), entity)) {
+        if (!penned && canEat() && !entity.forageTrip().provisioningFirst() && EventHooks.canEntityGrief(level(), entity)) {
             var offered = level().getEntitiesOfClass(ItemEntity.class, entity.getBoundingBox().inflate(TravelRange.search(entity,8)), item ->
                     item.isAlive() && acceptsFood(item.getItem()));
             // One pass in the species' own order (taste, then nearness): the first portion it can really walk to is the meal, and
@@ -655,6 +661,7 @@ public final class YukkuriLife {
                     .thenComparingDouble(entity::distanceToSqr)).toList()) {
                 if (item.hasPickUpDelay()) { delayed++; continue; }
                 if (!TravelRange.babyDestination(entity, item.blockPosition())) { outOfBabyRange++; continue; }
+                if (!foodRouteAvailable(item.position())) { unreachable++; continue; }
                 if (entity.distanceToSqr(item)<.5 && entity.hasLineOfSight(item) || reachable(item.blockPosition(),false)) { targetFood = item; break; }
                 unreachable++;
             }
@@ -939,6 +946,32 @@ public final class YukkuriLife {
     }
     /** A slave kept in its group's waste pit lives on what lies there (settlement/PitSlave): no food or bed errands outside it. */
     private boolean penned() { return entity.settlement().duties().pit().penned(); }
+
+    boolean foodRouteAvailable(Vec3 source) {
+        if (refusedFoodFrom == null || entity.distanceToSqr(refusedFoodFrom) >= 4) return true;
+        var refused = refusedFood.get(BlockPos.containing(source));
+        return refused == null || refused.distanceToSqr(source) >= .16;
+    }
+
+    private void approachFood(Vec3 source, Vec3 stand, Vec3 face) {
+        SurfaceApproach.walk(entity, stand, 1.15);
+        if (SurfaceApproach.lastResult(entity, stand) == SurfaceApproach.Result.BLOCKED) {
+            // Two blocks means a new approach origin, beyond the small motions at a blocked last step.
+            if (refusedFoodFrom == null || entity.distanceToSqr(refusedFoodFrom) >= 4) {
+                refusedFoodFrom = entity.position();
+                refusedFood.clear();
+            }
+            refusedFood.put(BlockPos.containing(source), source);
+            GameplayLog.limited(entity,"meal","food_route",200,"food approach refused source={} stand={} reason={}",
+                    GameplayLog.at(source),GameplayLog.at(stand),SurfaceApproach.why(entity, stand));
+            SurfaceApproach.stopWalking(entity);
+            stopGoal();
+            replanNow();
+            return;
+        }
+        SurfaceApproach.face(entity, SurfaceApproach.yaw(entity.position(), face));
+    }
+
     private void seekFood() {
         if (!canEat() || !EventHooks.canEntityGrief(level(), entity) || pursuitTicks > 240) { stopGoal(); return; }
         if (targetFood != null && (!targetFood.isAlive() || targetFood.hasPickUpDelay() || !acceptsFood(targetFood.getItem()))) targetFood = null;
@@ -970,9 +1003,8 @@ public final class YukkuriLife {
                     }
                 }
             } else {
-                Vec3 stand = ItemContact.approach(entity, targetFood.position());
-                SurfaceApproach.walk(entity, stand, 1.15);
-                SurfaceApproach.face(entity, SurfaceApproach.yaw(entity.position(), targetFood.position()));
+                Vec3 source = targetFood.position();
+                approachFood(source, ItemContact.approach(entity, source), source);
             }
         } else if (targetBlock != null && level().getBlockEntity(targetBlock) instanceof CareBlockEntity bowl && bowl.hasFood(this::acceptsFood)) {
             Vec3 center = Vec3.atBottomCenterOf(targetBlock).add(0, .16, 0);
@@ -994,8 +1026,7 @@ public final class YukkuriLife {
                 Vec3 stand = contact.add(toward.scale(Math.max(entity.getBbWidth()*.5+.04,
                         MouthPlacement.position(entity).subtract(entity.position()).horizontalDistance())));
                 stand = new Vec3(stand.x, entity.getY(), stand.z);
-                SurfaceApproach.walk(entity, stand, 1.15);
-                SurfaceApproach.face(entity, SurfaceApproach.yaw(entity.position(), center));
+                approachFood(Vec3.atBottomCenterOf(targetBlock), stand, center);
             }
         } else stopGoal();
     }
@@ -1155,6 +1186,6 @@ public final class YukkuriLife {
         meal.load(tag);
         home.load(tag); accessory.load(tag);
         personality=new YukkuriPersonality(entity); personality.load(tag.getCompound("Personality"));
-        task=Task.NONE; targetFood=null; targetBlock=null; resetSleep(); toiletTicks=0; homeWait=20; planWait=0;
+        task=Task.NONE; targetFood=null; targetBlock=null; refusedFood.clear(); refusedFoodFrom=null; resetSleep(); toiletTicks=0; homeWait=20; planWait=0;
     }
 }
