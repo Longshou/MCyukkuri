@@ -3928,6 +3928,13 @@ next(s for s in S if s.id == 'aftermath_depletion').smoke['readout'] = [f'yukkur
 _smoke('growth', 200, [r'\[growth\][^\n]* stage=BABY -> JUVENILE', r'\[growth\][^\n]* age boundary [^\n]*subadult=true',
                        r'\[growth\][^\n]* stage=JUVENILE -> ADULT', r'\[growth\][^\n]* age boundary [^\n]*elder=true',
                        r'\[growth\][^\n]* lifespan reached'])
+_smoke('hop', 2400, [r'\[childhood\] chen[^\n]* jump learned landings=\d+ demonstrationSeen=\w+'])
+_smoke('last_words', 240, [
+    rf'\[grief\] reimu[^\n]* uuid={_uuid_text("last_words", "dying")} [^\n]* last words kin=\[[^]]+\] cause=status\b',
+    rf'\[body\] reimu[^\n]* uuid={_uuid_text("last_words", "dying")} [^\n]* death settled[^\n]* internal=status\b',
+    rf'\[family\][^\n]* witnessed kin death dead={_uuid_text("last_words", "dying")}\b',
+    r'\[status\][^\n]* behavior\.animation: [^\n]* -> bereaved\b',
+])
 _smoke('family_search', 7200, [r'\[family\][^\n]* child search reunited', r'\[family\][^\n]* parent dismissed ',
                                r'\[family\][^\n]* child call started ', r'\[family\][^\n]* child heard parent call ',
                                r'\[family\][^\n]* glass vigil started ', r'\[family\][^\n]* glass farewell '])
@@ -3976,6 +3983,8 @@ _FATES = {
     'aftermath_depletion': [dict(kind='starve', who=r'aftermath reserved ', why='the stem drains the depleted mother'),
                             dict(kind='death', who=r'aftermath reserved ', match=r'stem_depletion=true\b', why='she dies of the stem')],
     'growth': [dict(kind='death', who=r'lifespan reached', match=r'internal=old_age\b', why='the fifth starts one tick before its lifespan')],
+    'last_words': [dict(kind='death', who=f'uuid={_uuid_text("last_words", "dying")} ', match=r'core hurt \(status\)|internal=status\b',
+                        why='the scene deliberately damages the dying Reimu’s core')],
     'leaf_swaddle_neglect_stages': [dict(kind='death', match=r'internal=swaddle_retention\b',
                                          why='the end of the row starts in the lethal stage with little health: it dies of retention')],
     'sacrifice': [dict(kind='death', who=f'uuid={_uuid_text("sacrifice", "parent")} ', match=r'cause=mob\b',
