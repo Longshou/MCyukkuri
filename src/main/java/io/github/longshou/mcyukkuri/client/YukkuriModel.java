@@ -550,36 +550,32 @@ public final class YukkuriModel {
     /** Rest skin depth in blocks, excluding hair, accessories and anatomy. */
     float bodyDepth(boolean rear) { return rear ? bodyRearDepth : bodyFrontDepth; }
 
-    /** Extent of the posed skin along the local horizontal bearing to the other body. */
-    double bodyReach(float[] cue, Vec3 bearing) {
-        var transform=Overlays.presentation(cue);
+    record ContactReach(double body,double accessory) {}
+    /** Project the same body and worn mesh used for the courtship separating plane, including the clip's motion. */
+    ContactReach contactReach(String action,float elapsed,float[] cue,Vec3 bearing,float scale,boolean body,boolean accessory) {
+        // Runs before renderLiving, which initializes this model's pose again before drawing.
+        for(int i=0;i<pose.length;i++)System.arraycopy(defaultPose[i],0,pose[i],0,9);
+        clips.getOrDefault(action,clips.get("idle")).sample(elapsed,pose);
+        int hat=hatFollowBone();
+        composer.world(pose,world,hat,scale,scale!=1&&hat>=0?HatGeometry.anchor():null,null);
+        var outer=Overlays.presentation(cue);
+        for(var bone:world)bone.mulLocal(outer);
         var point=new Vector3f();
-        double reach=0;
-        for(int index:bodyFloorVertices) {
-            int v=index*8;
-            transform.transformPosition(point.set(restVertices[v],restVertices[v+1],restVertices[v+2]));
-            reach=Math.max(reach,point.x*bearing.x+point.z*bearing.z);
-        }
-        return reach/16;
+        var second=new Vector3f();
+        double bodyReach=0,accessoryReach=0;
+        if(body)for(int index:bodyFloorVertices)
+            bodyReach=Math.max(bodyReach,contactProjection(index,point,second,bearing));
+        if(accessory)for(var part:parts)if(accessoryPart(part))
+            for(int index=part.start;index<part.start+part.count;index++)
+                accessoryReach=Math.max(accessoryReach,contactProjection(index,point,second,bearing));
+        return new ContactReach(bodyReach/16,accessoryReach/16);
     }
 
-    /** Project the worn source mesh on the same horizontal axis as the posed skin. */
-    double accessoryReach(float[] cue, Vec3 bearing, float scale) {
-        var transform = Overlays.presentation(cue);
-        var anchor = HatGeometry.anchor();
-        var point = new Vector3f();
-        double reach = 0;
-        for (var part : parts) {
-            if (!accessoryPart(part)) continue;
-            for (int index = part.start; index < part.start + part.count; index++) {
-                int v = index * 8;
-                point.set(restVertices[v], restVertices[v + 1], restVertices[v + 2]);
-                point.sub(anchor).mul(scale).add(anchor);
-                transform.transformPosition(point);
-                reach = Math.max(reach, point.x * bearing.x + point.z * bearing.z);
-            }
-        }
-        return reach / 16;
+    private double contactProjection(int index,Vector3f point,Vector3f second,Vec3 bearing) {
+        int v=index*8;
+        point.set(restVertices[v],restVertices[v+1],restVertices[v+2]);
+        Skin.blend(point,second,bindings[index],world);
+        return point.x*bearing.x+point.z*bearing.z;
     }
     public static YukkuriModel get(String id) {
         YukkuriModel model = models.get(id);
@@ -903,12 +899,10 @@ public final class YukkuriModel {
         if(carrying&&gripBones!=null&&(selected.equals("idle")||selected.equals("waddle")))selected="house_carry";
         gripping=carrying||selected.equals("house_pickup")||selected.equals("house_deposit")||selected.equals("house_carry");
         // The exported adult-state cue owns the complete body pose. Do not add a second
-        // nervous/look-around/droop root animation beneath it and invalidate grounding.
-        // The act's held anatomy clip is the exception: it drives only the peni bones and must
-        // keep sampling its own time, or the part stays retracted inside the body.
-        boolean anatomyAction = action.startsWith("anatomy_");
-        if (adultStatePose && !anatomyAction) selected="idle";
-        float adultTime = adultStatePose ? (anatomyAction ? elapsed : 0)
+        // Legacy idle cues suppress ordinary root clips. Authored sukkiri and anatomy clips keep their own clocks.
+        boolean authoredAdult = action.startsWith("anatomy_")||YukkuriAction.sukkiri(action);
+        if (adultStatePose && !authoredAdult) selected="idle";
+        float adultTime = adultStatePose ? (authoredAdult ? elapsed : 0)
                 : selected.equals(action) ? elapsed : behaviorTicks/20f;
         if (momentFrame != null && !adultStatePose && selected.equals(action)) {
             selected = momentFrame.clip();

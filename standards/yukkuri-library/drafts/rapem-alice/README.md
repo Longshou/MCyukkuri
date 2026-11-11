@@ -8,9 +8,9 @@
 
 ## 原作像素适配与覆盖层
 
-- build_faces_112.py：状态脸直接由 arisu/sei_new 原帧像素缩放合成（现仅保留 breeding_period=眼/眉第0格），帧号记录在 face-design.json 的 frames_112，改号重跑即可换脸。原 1.12 原帧合成的攻击魔攻方/受方演出脸经用户视觉反馈否决，已删除并改用标准确认表情（N048 睁眼流口水、N035 潮红闭眼伸舌、N030 挤眼喊叫含泪）。
+- build_faces_112.py：状态脸直接由 arisu/sei_new 原帧像素缩放合成（现仅保留 breeding_period=眼/眉第0格），帧号记录在 face-design.json 的 frames_112，改号重跑即可换脸。原 1.12 原帧合成的攻击魔攻方/受方演出脸经用户视觉反馈否决，已删除。
 - inventory_faces_112.py：输出眼/眉/口/頬/op2 全帧带号清单（reference-faces-112.png），供核对与换帧。
-- build_overlays_112.py：仅转换 hatujyou/rot.bmp（発情旋转标记）为游戏内 effects 贴图，发情/搜寻/追击期在头顶旋转；水滴特效已按要求移除。
+- build_overlays_112.py：仅转换 hatujyou/rot.bmp（発情旋转标记）为游戏内 effects 贴图，发情、搜寻和追击时在头顶旋转。
 
 ## 当前输出
 
@@ -18,31 +18,27 @@
 | --- | --- |
 | `variant/breeding_period.png` | 1.12普通成体蓝眼配色适配，中性闭口；期内观察提示 |
 | `variant/state_recover.png` | 序列结束后的恢复示意 |
-| 标准表情 `open_drool`（N048） | 攻击魔搜寻与追击的攻方演出脸（由 scripts/export_adult_states.py 从标准库导出） |
-| 标准表情 `flushed_tongue`（N035） | 接触后素鸡立动作的攻方演出脸 |
-| 标准表情 `squeezed_cry_tears`（N030） | 被扑倒受方的演出脸（reimu/marisa/alice/chen/patchouli，其他形态回退 cry） |
-| `pose-cues.json` | 由 `author_cues.py` 按节拍表写出（项目设计），导出时检查整体倾角（俯仰与横滚合成）不超过 12°、表情在全部形态存在。heat为8秒左右观察：yaw 0/-4/0/+4/0/0，pitch/roll为0、scale恒1；relief为120tick完成段，按台词 1／46／91 tick 依次「ゆっ！」挤一下再弹起、「すっ！」再弹高、「すっきり～！」先蹲再整体伸长后仰并停住，末尾归位；rapem为搜寻／追击前倾（≤10°）；act／pinned为攻击素鸡立20tick顶送循环：攻方前倾≤10°伸长顶送，受方被压扁、前倾≤8°不再趴倒；pair_peni/pair_mamu覆盖整段普通配对接触（发情期60tick、其他120tick按同一进度放慢）：父方脸颊左右擦蹭她后背三下，再三次稳定顶送、四次加快，最后伸长前压颤抖到顶点、接触结束前归位；母方擦蹭时后靠并轮流回头，每次顶送晚一tick被压扁前推、其间后靠，随他颤抖；`faces` 为 pair_peni／pair_mamu／relief 同一进度上的表情表（待接线） |
+| lore `sukkiri` | 普通配对、爱丽丝接触、受方被压制和各角色完成段的身体动作与表情 |
+| `pose-cues.json` | `author_cues.py` 生成外层姿态。普通接触父方前倾 6°、母方后仰 3°，爱丽丝接触前倾 6°，受方轻微前倾并压扁。`relief` 保留普通期内配对完成的外层弹动。 |
 
-普通配对的回应段用 `greet`（双方头顶爱心，开心转红脸），之后由服务端让父方真实绕到母方后方；绕后与接触段的身体片段为 `idle`（`nuzzle` 的前倾与侧摆叠上接触姿态会超出 12°），擦蹭、顶送与高潮全部来自 pair_peni/pair_mamu，按服务端同步的接触起点与所需时长取进度；CONTACT 阶段父方显示佩妮佩妮、母方显示马姆马姆。生殖层将马姆马姆转到后侧并向外推出 1.2 模型单位，不修改胎生前侧出口。器官显示独立于主动作，普通接触与爱丽丝追击不再被 `waddle` 等片段覆盖。收尾精餡色尘粒仅为项目表现适配，不形成物品或持久液体。
-
-素鸡立按用户指代的发情期展示；攻击序列按1.12骨架完整接入：动作阶段攻方前倾循环摩擦并保持 `anatomy_peni_extend`（对应1.12 op2器官显示），受方被压扁挣扎、显示马姆马姆与含泪哭脸；三段完成台词（ゆっ！→すっ！→すっきり～！）、点评（まむまむ评价）、自助餐再猎与体力耗竭死亡均已接通。旧 `brief_relief.png` 闭眼呼气脸及一次抬身、卸力、疲惫恢复的短片剧情已删除。
+普通配对回应使用 `greet`。接触时钟同步驱动父方与母方的 `sukkiri` 片段，接触结束后用完成时钟。爱丽丝追击用癫狂笑，接触时由攻方和受方的 `sukkiri` 片段各自选择表情。生殖层将接触中的马姆马姆转到后侧并向外推出 1.2 模型单位。尘粒在释放时出现，随后消散。
 
 ## 可观看产物
 
-- `.local/previews/sukkiri-show/index.html`：普通配对改前／改后对照（`sukkiri_page.py` 生成）：侧面、正侧与背后节拍渲染条，体型与种类矩阵，正侧动图，以及爱丽丝动作段的倾角对照。`render_sukkiri.js` 按游戏同序合成服务端站位与朝向、接触时钟、根部姿态、片段、生殖层（马姆马姆转到后侧）和表情，`sukkiri_scene.js` 编排各段时序，节拍与站位在 `sukkiri-beats.json`。离线渲染，不是游戏录屏。
+- `.local/previews/sukkiri-show/index.html`：普通配对改前／改后对照（`sukkiri_page.py` 生成）：侧面、正侧与背后节拍渲染条，体型与种类矩阵，正侧动图，以及爱丽丝动作段的倾角对照。`render_sukkiri.js` 合成离线示意的站位、朝向、时钟、姿态、生殖层和表情，`sukkiri_scene.js` 编排各段时序，节拍与站位在 `sukkiri-beats.json`。离线渲染，不是游戏录屏。
 
 - sequence.html：四段连播全序列演示页（发情期→搜寻追击→接触动作→完成结算），每段附原句台词与 AquesTalk 配音试听；交互页的“攻击素鸡立”状态现已同屏显示伸出的器官。
 
 全部位于 `.local/previews/rapem-alice/`：
 
 - `normal-flow.gif`、`normal-flow-storyboard.png`：多角色正常配对；双方回应1.4秒、擦脸、真实绕后、父方佩妮佩妮／母方马姆马姆接触、成功回应，随后选取普通茎生结果举例。动作取现有 `greet`、`nuzzle`、`shiawase` 与共享器官片段，转位路线为离线示意，不代表游戏自动成功。
-- 交互页 `index.html` 含“素鸡立完成”（6秒三拍弹动）与“攻击素鸡立”（2秒摩擦循环）两个状态，与运行端 `heat_relief` / `alice_act` 行为及关键帧通道同源；三拍分别对应 heat_relief_1/2/3 台词。
+- 交互页 `index.html` 含“素鸡立完成”（6秒三拍弹动）与“攻击素鸡立”（2秒摩擦循环）两个状态，用于对照原作时序。
 - `abnormal-flow.gif`、`abnormal-flow-storyboard.png`：事前无茎、事后进度0仍无茎、逐渐萌茎；随后选择茎生过度消耗分支，展示母体营养下降、停育仍继续负担、衰弱、营养耗竭、濒死耗馅，以及严重时死亡。九格分镜直接对照事前与事后的零进度。时间经过压缩，不代表固定死亡时长或所有个体必死。
 - `state-faces.png`：相同正面、相同待机姿态下的普通期、异常和恢复脸对照，避免仅靠前倾制造差别。
 - `stem-development.png`：营养仍足够时的另一条分支，按0、0.06、0.15、0.55、0.95以及出生完成后取样。茎果复用当前 `FamilyGeometry` / `FamilyRenderer` 的挂点、`GrowthSize.fruit` 比例、角色 `sleep` 贴图和 `idle(0)`；母体保持事后 `teary` 表情。`FamilyLife.finishStem` 在出生完成后清除头顶挂接，并由 `ShedStemDrops` 处理茎离身。
 - `reference-normal.png`：实际1.12普通成体分层参考及原眼眉放大。
 - `sukkiri-closeup.png`、`sukkiri.gif`、`sukkiri-storyboard.png`：期内观察三近景、8秒循环和六点采样；没有期结束演出。
-- `rapem-act.gif`、`rapem-act-storyboard.png`：接触后的素鸡立动作双人片段（游戏内真实背后间距、攻方2秒摩擦循环、受方前趴随顶胯起伏、三段完成节拍标注）；交互页同屏显示伸出的器官且可拖动旋转查看。
+- `rapem-act.gif`、`rapem-act-storyboard.png`：接触后的素鸡立动作双人片段（攻方2秒摩擦循环、受方前趴随顶胯起伏、三段完成节拍标注）；交互页同屏显示伸出的器官且可拖动旋转查看。
 - `alice-agitated-closeup.png`、`alice-agitated.gif`、`alice-agitated-storyboard.png`：搜寻与追击的前倾姿态示意（标准表情 N048）。
 - `contact.png` 汇总当前近景；`index.html` 可手动拖动查看。全部不是游戏录屏。
 

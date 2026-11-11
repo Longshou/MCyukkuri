@@ -34,13 +34,9 @@ final class ReproductionPresentation {
             return offset.subtract(toward.scale(Math.max(0,offset.dot(toward)-limit)));
         }
     }
-    private record Contact(boolean rear,int partner,String branch,long start,int duration,boolean loop) {
+    private record Contact(boolean rear,int partner,String branch,boolean attack) {
         boolean posed() { return branch!=null; }
-        float[] cue(double now) {
-            if(!posed())return REST_POSE;
-            float ticks=(float)Math.max(0,now-start);
-            return AgitationPresentation.sample(branch,(loop?ticks%duration:ticks)/duration);
-        }
+        float[] cue() { return posed()?AgitationPresentation.sample(branch,0):REST_POSE; }
     }
     private static final class Track {
         String part,target;
@@ -74,18 +70,18 @@ final class ReproductionPresentation {
                 if(phase.isEmpty())yield null;
                 boolean rear=court.getString("Role").equals("MAMU");
                 String branch=phase.equals("CONTACT")?(rear?"pair_mamu":"pair_peni"):null;
-                yield new Contact(rear,court.getInt("TargetId"),branch,court.getLong("Start"),court.getInt("Required"),false);
+                yield new Contact(rear,court.getInt("TargetId"),branch,false);
             }
             case Behaviors.ALICE_ACT -> agitation.getString("Phase").equals("ALICE_ACT")
-                    ?new Contact(false,agitation.getInt("TargetId"),"act",agitation.getLong("Start"),AgitationPresentation.PIN_CYCLE_TICKS,true):null;
+                    ?new Contact(false,agitation.getInt("TargetId"),"act",true):null;
             case Behaviors.RAPEM_HELD -> agitation.getString("Phase").equals("HELD")
-                    ?new Contact(true,agitation.getInt("TargetId"),"pinned",agitation.getLong("Start"),AgitationPresentation.PIN_CYCLE_TICKS,true):null;
+                    ?new Contact(true,agitation.getInt("TargetId"),"pinned",true):null;
             default -> null;
         };
     }
 
     private static boolean brimAndBow(YukkuriView entity,YukkuriView peer,Contact contact) {
-        if (contact.loop() || !entity.hasVisibleAccessory() || !peer.hasVisibleAccessory()
+        if (contact.attack() || !entity.hasVisibleAccessory() || !peer.hasVisibleAccessory()
                 || entity.subspeciesKind().hatProp()!=null || peer.subspeciesKind().hatProp()!=null) return false;
         var mother=contact.rear()?entity:peer;
         var father=contact.rear()?peer:entity;
@@ -120,21 +116,28 @@ final class ReproductionPresentation {
         var toward=delta.normalize();
         var bearing=localBearing(entity,partialTick,toward);
         var peerBearing=localBearing(peer,partialTick,toward.reverse());
-        var cue=contact==null?releasePose(entity,now):contact.cue(now);
-        var peerCue=other==null?releasePose(peer,now):other.cue(now);
+        var cue=contact==null?releasePose(entity,now):contact.cue();
+        var peerCue=other==null?releasePose(peer,now):other.cue();
+        var reach=contactReach(model,entity,now,cue,bearing,touching,ornaments);
+        var peerReach=contactReach(peerModel,peer,now,peerCue,peerBearing,touching,ornaments);
         double distance=delta.horizontalDistance();
         double limit=Double.POSITIVE_INFINITY;
         if(ornaments) {
-            double reach=model.accessoryReach(cue,bearing,HatScale.factor(entity.subspeciesFlags()))*scale
-                    +peerModel.accessoryReach(peerCue,peerBearing,HatScale.factor(peer.subspeciesFlags()))*peerScale;
-            limit=(distance-reach-ACCESSORY_CLEARANCE)/2;
+            double accessories=reach.accessory()*scale+peerReach.accessory()*peerScale;
+            limit=(distance-accessories-ACCESSORY_CLEARANCE)/2;
         }
         if(!touching)return new Spacing(toward,0,limit,false);
         double rest=model.bodyDepth(contact.rear())*scale+peerModel.bodyDepth(other.rear())*peerScale;
         // Keep a separating plane for the widest reaches of the authored poses, including cheek turns.
-        double posed=model.bodyReach(cue,bearing)*scale+peerModel.bodyReach(peerCue,peerBearing)*peerScale;
+        double posed=reach.body()*scale+peerReach.body()*peerScale;
         double close=Math.clamp((distance-Math.max(rest+CONTACT_CLEARANCE,posed))/2,0,MAX_OFFSET);
         return new Spacing(toward,close,limit,true);
+    }
+
+    private static YukkuriModel.ContactReach contactReach(YukkuriModel model,YukkuriView entity,double now,float[] cue,
+                                                         Vec3 bearing,boolean body,boolean accessory) {
+        float elapsed=(float)Math.max(0,now-entity.getAnimationStartTick())/20;
+        return model.contactReach(entity.getAnimationId(),elapsed,cue,bearing,HatScale.factor(entity.subspeciesFlags()),body,accessory);
     }
 
     private static boolean relief(YukkuriView entity) {
@@ -192,12 +195,12 @@ final class ReproductionPresentation {
         return Mth.lerp(q,track.from,1);
     }
 
-    /** Shared-clock rub, pushes and climax over the whole required contact; actual positions still come from server navigation. */
+    /** The authored contact plays over the shared constant lean. */
     static void pose(YukkuriView entity,float partialTick,PoseStack pose) {
         if(!entity.getBehaviorId().equals(Behaviors.PAIRING))return;
         var contact=contact(entity);
         if(contact==null||!contact.posed())return;
-        float[] value=contact.cue(entity.level().getGameTime()+(double)partialTick);
+        float[] value=contact.cue();
         var model=YukkuriModel.get(entity.assetId());
         pose.translate(0,model.presentationLift(value,entity.hasVisibleAccessory(),entity.visibleHairLoss())*entity.growthScale(),0);
         pose.mulPose(Axis.ZP.rotationDegrees(value[2]));

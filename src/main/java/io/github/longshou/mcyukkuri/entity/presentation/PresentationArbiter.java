@@ -90,6 +90,11 @@ public final class PresentationArbiter {
             case GRIP,PIN,FIXED,HOOK,RUMP,VIBRATE,ASSIST->"cry";
             default->"surprise";
         };
+        String clip=e.getAnimationId();
+        long start=e.getAnimationStartTick();
+        if(YukkuriAction.sukkiri(clip)&&!e.body().dying())
+            return ExpressionClips.sukkiri(e.subspecies().assetId(),clip,Math.max(0,e.level().getGameTime()-start)/20f);
+        if(e.getBehaviorId().equals(Behaviors.ALICE_WATCH)||e.getBehaviorId().equals(Behaviors.ALICE_APPROACH))return e.getExpressionId();
         if(state.reactionTicks()>0)return state.reactionExpression();
         if(e.body().dying())return "blank_cry";
         if(e.body().condition().needsPainExpression()||e.life().spicyTicks()>0)return "cry";
@@ -102,16 +107,6 @@ public final class PresentationArbiter {
         if(e.body().weak()||e.settlement().society().dejected())return "teary";
         String mood=e.mind().face("neutral");
         if(!mood.equals("neutral"))return mood;
-        var court=e.family().courtshipState();
-        if(court.getString("Phase").equals("CONTACT")&&e.getBehaviorId().equals(Behaviors.PAIRING)) {
-            float progress=(e.level().getGameTime()-court.getLong("Start"))/(float)court.getInt("Required");
-            return AdultFaces.face(court.getString("Role").equals("PENI")?"pair_peni":"pair_mamu",progress);
-        }
-        // Agitation already published these faces. The generic idle/tremble clip must not replace them.
-        switch(e.getBehaviorId()) {
-            case Behaviors.HEAT_RELIEF, Behaviors.ALICE_ACT, Behaviors.RAPEM_HELD -> { return e.getExpressionId(); }
-        }
-        String clip=e.getAnimationId();long start=e.getAnimationStartTick();
         switch(e.getBehaviorId()){
             case Behaviors.TOILET,Behaviors.GROUND_TOILET,Behaviors.BOAT_TOILET,Behaviors.TOILET_ACCIDENT,
                  Behaviors.FIRST_TOILET_ASSIST,Behaviors.FIRST_TOILET_WAIT,Behaviors.FIRST_TOILET_STIMULATED->{clip=e.getBehaviorId();start=e.getBehaviorStartTick();}
@@ -265,10 +260,15 @@ public final class PresentationArbiter {
         var e = state.owner();
         return new Presentation(() -> {
             state.behavior(e.agitation().activity());
-            var pose = actionPose(e);
-            state.animation(pose != null ? pose.action() : m.distanceSquared() > .000001 && !e.agitation().poseLocked()
-                    ? YukkuriAction.WADDLE : e.agitation().action());
-            if (pose != null) state.animationStart(pose.startTick());
+            var action=e.agitation().action();
+            if(YukkuriAction.sukkiri(action.id())){
+                state.animation(action);
+                state.animationStart(e.agitation().presentationStart());
+            }else{
+                var pose=actionPose(e);
+                state.animation(pose!=null?pose.action():m.distanceSquared()>.000001&&!e.agitation().poseLocked()?YukkuriAction.WADDLE:action);
+                if(pose!=null)state.animationStart(pose.startTick());
+            }
             state.expression(e.agitation().expression());
             return;
         });
@@ -277,8 +277,9 @@ public final class PresentationArbiter {
     /** One common action/start/expression tail for the selected ordinary behavior. */
     private static void ordinary(PresentationAccess state, Motion m, String behavior, Actions actions) {
         var e = state.owner();
-        // Priority: command clip, then the running motor action's pose, then the behavior-derived clips.
-        var pose = state.requestedAction() == null ? actionPose(e) : null;
+        var court=state.requestedAction()==null&&behavior.equals(Behaviors.PAIRING)?e.family().courtContactAction():null;
+        // Contact locks its clip to the real shared clock. Commands retain their own pose.
+        var pose = court!=null?new ActionPose(court,e.family().courtAnimationStart()):state.requestedAction()==null?actionPose(e):null;
         if (state.requestedAction() == null && e.isPassenger() && e.social().greeting()
                 && (e.motor().current() == null || e.motor().current().interruptible()))
             pose = new ActionPose(YukkuriAction.GREET, e.social().greetStart());

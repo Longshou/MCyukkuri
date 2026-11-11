@@ -1378,7 +1378,7 @@ def pairing_permission(partner):
 
 
 add('adult_pairing', 'meadow', '两只伴侣走近擦脸后素鸡立', '两只伴侣走近擦脸后素鸡立',
-    '两只健康成体互相接纳，近距互见后同步回应1.4秒（头顶爱心），再由父方真实绕到母方后方；到位后父方伸出佩妮佩妮、母方伸出马姆马姆，按同一时钟接触：父方先擦蹭她后背，再由稳到快顶送、颤抖到顶点。发情期有效接触3秒，其他6秒；双方均在发情期内时受孕改播三段素鸡立完成台词，最后一拍整体伸长后仰，未在期内才播普通期待反应。喷雾、带走、遮挡或绕后失败会重置配对', '约半分钟至数分钟', [
+    '两只健康成体互相接纳，近距互见后同步回应1.4秒（头顶爱心），再由父方绕到母方后方。接触时父方先擦蹭她后背，再由稳到快顶送。最后一秒看双方的颤抖、爱心和「すっきり～！」。松开后看魔理沙父方由失神转为得意、灵梦母方由失神转为温和闭眼。喷雾、带走、遮挡或绕后失败会重置配对', '约半分钟至数分钟', [
         *shed(5, 0), *shed(5, 6),
         block(4, 0, 0, 'mcyukkuri:yukkuri_nest'), block(6, 0, 0, 'mcyukkuri:yukkuri_nest'),
         block(4, 0, 6, 'mcyukkuri:yukkuri_nest'), block(6, 0, 6, 'mcyukkuri:yukkuri_nest'),
@@ -1455,7 +1455,7 @@ add('widow_repair', 'meadow', '原伴侣死后才肯和新候选配对', '原伴
            ('读候选的关系与求偶阶段', f'yukkuri status {sel("new_partner")} raw')])
 
 add('alice_hunt', 'meadow', '发情爱丽丝追袭素鸡立', '发情爱丽丝追袭素鸡立',
-    '爱丽丝从搜寻宣言开始伸出佩妮佩妮，锁定目标后追击；目标发现她会喊出警报台词并逃跑。接触后双方逐渐贴近，攻方前倾反复摩擦，受方轻微前倾、身体受压，正面仍能看见哭脸。末尾有三段完成台词与释放特效，可能结算茎生胎次；松开后双方逐渐退回各自位置，爱丽丝可能立刻寻找下一个目标。'
+    '爱丽丝带着癫狂笑搜寻并追击，目标发现她会喊出警报台词并逃跑。接触时看爱丽丝的翻白眼咧嘴笑，以及受方挤眼含泪、释放时短暂失神、随后再哭的变化。末尾有三段完成台词、尘粒和爱心，可能结算茎生胎次；松开后受方逃开，爱丽丝又露出癫狂笑，之后可能再追。'
     '动作中用喷雾或攻击打断：攻方喊出发情中断怒火台词并退入恢复，受方脱身后说出得救台词', '约半分钟，可重复观察', [
         yk('alice', 0, 0, 'hunter', lead=True, extra=agitation_start('ALICE_WATCH'), **pair_ready()),
         yk('reimu', 4, 0, 'prey', extra=agitation_start('IDLE'), **pair_ready()),
@@ -3863,6 +3863,7 @@ _smoke('meal_content', 900, [r'\[meal\][^\n]* full nutrition=[^\n]*content=true'
 next(s for s in S if s.id == 'meal_content').smoke['verify'] = _meal_content_verify
 _smoke('meet', 2400, [r'\[social\][^\n]* greet [^\n]*why=first_meet', r'\[daily\][^\n]* session result kind=NUZZLE'])
 _smoke('alice_hunt', 1200, [r'\[agitation\][^\n]* phase=ALICE_APPROACH -> ALICE_ACT',
+    r'\[agitation\][^\n]* act release effect target=\S+ ticks=200 droplets=8 hearts=2\b',
     r'\[agitation\][^\n]* outcome (?:target=|refused)', r'\[agitation\][^\n]* contact ended target=',
     *(rf'\[agitation\][^\n]* finale line=heat_relief_{beat} admitted=true' for beat in (1, 2, 3))],
     forbid=[r'\[agitation\][^\n]* contact interrupted target=[^\n]* settled=true'])
@@ -3880,7 +3881,9 @@ def _family_nests_release(log):
 _smoke('family_nests', 4200, [r'\[home\][^\n]* growth released shared nest ', r'\[home\][^\n]* released child claimed a free nest '])
 next(s for s in S if s.id == 'family_nests').smoke['verify'] = _family_nests_release
 next(s for s in S if s.id == 'family_nests').smoke['readout'] = ['yukkuri status @e[tag=scn,type=mcyukkuri:reimu,distance=..48] raw']
-_smoke('adult_pairing', 1800, [r'\[family\][^\n]* courtship acceptance started ',
+_pair_release = [r'\[family\][^\n]* courtship release partner=\S+ tick=(?:42 requiredTicks=60|102 requiredTicks=120) droplets=8 hearts=2 fatherSpoke=true motherSpoke=true\b',
+                 r'\[family\][^\n]* courtship release tail partner=\S+ tick=(?:50 requiredTicks=60|110 requiredTicks=120) droplets=4\b']
+_smoke('adult_pairing', 1800, [r'\[family\][^\n]* courtship acceptance started ', *_pair_release,
                                  r'\[family\][^\n]* courtship contact ended [^\n]*conceived=true'])
 next(s for s in S if s.id == 'adult_pairing').smoke['readout'] = [f'yukkuri status {sel("mother")} raw',
                                                                   f'yukkuri status {sel("father")} raw']
@@ -3888,7 +3891,7 @@ next(s for s in S if s.id == 'adult_pairing').smoke['readout'] = [f'yukkuri stat
 _smoke('widow_repair', 3600, [r'\[family\][^\n]* court refused reason=partner_alive\b',
                                 r'\[family\] reimu[^\n]* witnessed kin death [^\n]*mate=true',
                                 r'\[body\][^\n]* death settled[^\n]*cause=genericKill\b',
-                                r'\[family\][^\n]* partnership formed [^\n]*allowWidow=true',
+                                r'\[family\][^\n]* partnership formed [^\n]*allowWidow=true', *_pair_release,
                                 r'\[family\][^\n]* courtship contact ended [^\n]*conceived=true'])
 next(s for s in S if s.id == 'widow_repair').smoke['commands'] = [(600, f'kill {sel("old_partner")}')]
 next(s for s in S if s.id == 'widow_repair').smoke['readout'] = [f'yukkuri status {sel("widow")} raw',

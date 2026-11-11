@@ -158,7 +158,17 @@ public enum YukkuriAction {
     // A frightened puff with tears (lore recipe): a parent taunting a predator away from its child (moment behavior_protect_taunt).
     PUKU_TEARY("puku_teary", 3.2, true),
     // Landed base rig: launch .36, impact .52, settled 1.1 seconds.
-    LUNGE_RAM("lunge_ram", 1.1, false);
+    LUNGE_RAM("lunge_ram", 1.1, false),
+    SUKKIRI_PAIR_60("sukkiri_pair_60", 3, false),
+    SUKKIRI_PAIR_120("sukkiri_pair_120", 6, false),
+    SUKKIRI_MAMU_60("sukkiri_mamu_60", 3, false),
+    SUKKIRI_MAMU_120("sukkiri_mamu_120", 6, false),
+    SUKKIRI_ALICE_ACT("sukkiri_alice_act", 12, false),
+    SUKKIRI_HELD("sukkiri_held_240", 12, false),
+    SUKKIRI_AFTER_DAZED("sukkiri_after_dazed", 6, false),
+    SUKKIRI_AFTER_TENDER("sukkiri_after_tender", 6, false),
+    SUKKIRI_AFTER_PROUD("sukkiri_after_proud", 6, false),
+    SUKKIRI_AFTER_MANIC("sukkiri_after_manic", 6, false);
 
     private final String id;
     private final double duration;
@@ -175,6 +185,7 @@ public enum YukkuriAction {
     public int durationTicks() { return (int) Math.ceil(duration * 20.0); }
     public boolean loops() { return loop; }
     public boolean holdsEndPose() { return id.endsWith("_extend"); }
+    public static boolean sukkiri(String id) { return id.startsWith("sukkiri_"); }
     public static Optional<YukkuriAction> byId(String id) {
         return Arrays.stream(values()).filter(action -> action.id.equals(id)).findFirst();
     }

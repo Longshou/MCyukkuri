@@ -610,6 +610,13 @@ public final class TraceRecorder {
         entity.runningGoalIds().forEach(goals::add);
         out.add("goals", goals);
         out.addProperty("behavior", entity.getBehaviorId());
+        if(mode==Mode.DENSE&&(entity.getAnimationId().startsWith("sukkiri_")||entity.agitation().agitated())){
+            JsonObject performance=new JsonObject();
+            performance.addProperty("clip",entity.getAnimationId());
+            performance.addProperty("face",entity.getExpressionId());
+            performance.addProperty("start",entity.getAnimationStartTick());
+            out.add("sukkiri",performance);
+        }
         Conductor.Role role = Conductor.roleOf(entity);
         out.addProperty("phase", role == null ? entity.family().taskId() : role.choreography().beat());
         Number waitElapsed;

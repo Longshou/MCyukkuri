@@ -83,17 +83,6 @@ def main():
         if branch not in ('act', 'pinned', 'pair_peni', 'pair_mamu'):
             assert keys[-1][1:] == [0, 0, 0, 1, 1, 1]
         assert keys[0][1:] == keys[-1][1:], branch
-    # Face tables over the same clocks as their cues; every face must exist on every model's runtime face library.
-    library = json.loads((ASSETS/'yukkuri_presentation/face_library.json').read_text(encoding='utf-8'))
-    faces = data['faces']
-    assert set(faces) == {'relief', 'pair_peni', 'pair_mamu'}, 'Unexpected adult-state face tables'
-    for branch, table in faces.items():
-        assert table[0][0] == 0 and all(a[0] < b[0] < 1 for a, b in zip(table, table[1:])), branch
-        for _, face in table:
-            face = library['aliases'].get(face, face)
-            for model, row in library['models'].items():
-                local = row.get('face_aliases', {}).get(face, face)
-                assert local in row['selectable'], f'{branch}: face {face} missing on {model}'
     outputs = {
         SNAPSHOT / 'pose-cues.json': cues,
         ASSETS / 'yukkuri_presentation/adult_states.json': cues,

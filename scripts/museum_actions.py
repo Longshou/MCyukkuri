@@ -7,7 +7,7 @@ ROOT = Path(__file__).resolve().parents[1]
 ASSETS = ROOT / 'src/main/resources/assets/mcyukkuri'
 ACTION_SOURCE = ROOT / 'src/main/java/io/github/longshou/mcyukkuri/entity/YukkuriAction.java'
 ACTION_META = {a: (float(d), loop == 'true') for a, d, loop in re.findall(
-    r'^\s+[A-Z_]+\("([a-z_]+)", ([\d.]+), (true|false)\)', ACTION_SOURCE.read_text(), re.M)}
+    r'^\s+[A-Z_0-9]+\("([a-z_0-9]+)", ([\d.]+), (true|false)\)', ACTION_SOURCE.read_text(), re.M)}
 CATEGORIES = [
     ('身体与移动', [('idle','待机'),('stretch_shape','伸缩身体'),('side_bend','左右侧摆'),
         ('waddle','行走'),('brace','撑起身体'),('lunge_ram','蓄力撞击'),('turn','转身'),('hop','跳跃'),('stretch','伸展'),
@@ -46,6 +46,11 @@ CATEGORIES = [
         ('boat_thrown','翻船被甩出'),('water_hat_right','咬檐翻正帽子')]),
     ('特殊身体', [('shell_retract','缩壳'),('anatomy_mamu_extend','产道伸出'),('anatomy_mamu_retract','产道收回'),
         ('anatomy_peni_extend','生殖部伸出'),('anatomy_peni_retract','生殖部收回')]),
+    ('素鸡立', [('sukkiri_pair_60','父方期内接触'),('sukkiri_pair_120','父方期外接触'),
+        ('sukkiri_mamu_60','母方期内接触'),('sukkiri_mamu_120','母方期外接触'),
+        ('sukkiri_alice_act','爱丽丝接触'),('sukkiri_held_240','被压制'),
+        ('sukkiri_after_dazed','父方失神后满足'),('sukkiri_after_tender','母方温和闭眼'),
+        ('sukkiri_after_proud','魔理沙父方得意'),('sukkiri_after_manic','爱丽丝完成')]),
 ]
 NAMES = dict(pair for _, entries in CATEGORIES for pair in entries)
 assert set(NAMES) == set(ACTION_META), 'Update the catalogue when registered actions change'

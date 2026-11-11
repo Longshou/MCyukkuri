@@ -91,6 +91,7 @@ import java.util.UUID;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.util.RandomSource;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializer;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -845,8 +846,17 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
 
     public boolean speak(String event) { return speak(event, speechTier()); }
 
+    /** A timed presentation line cannot consume the random stream of the behavior it accompanies. */
+    public boolean speakCue(String event) {
+        return speak(event,speechTier(),RandomSource.create(getUUID().getLeastSignificantBits()^level().getGameTime()^event.hashCode()));
+    }
+
     /** Say a line of this event in the given voice tier (its fallback chain as {@link NativeDialogue#select}). */
     public boolean speak(String event, String tier) {
+        return speak(event,tier,getRandom());
+    }
+
+    private boolean speak(String event,String tier,RandomSource random) {
         // An empty event is "no line": a reaction that shows only its face says nothing at all, in every voice
         // (a deficient yukkuri's babble is a line for a real event, not for a missing one).
         if (level().isClientSide || !isAlive() || event.isEmpty()) return false;
@@ -860,7 +870,7 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
         }
         event = mind.voice(event); // a broken mind can only scream
         String species = variant.dialogueSpecies();
-        var line = NativeDialogue.select(species, tier, myon.quirk(), event, getRandom());
+        var line = NativeDialogue.select(species, tier, myon.quirk(), event, random);
         long now = level().getGameTime();
         if (line == null || !speechTiming.admit(this, now, line.ticks(), NativeDialogue.priority(event))) return false;
         sync().dialogue(line.key());

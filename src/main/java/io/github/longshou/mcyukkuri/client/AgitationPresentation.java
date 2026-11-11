@@ -22,7 +22,6 @@ import net.minecraft.world.level.Level;
 final class AgitationPresentation {
     private AgitationPresentation() {}
     static final ResourceManagerReloadListener RELOAD = AgitationPresentation::reload;
-    static final int PIN_CYCLE_TICKS = 20;
     private static final int TRANSITION_TICKS = 12, HISTORY_TICKS = 20;
     private static final String[] CHANNELS = {"pitch", "yaw", "roll", "sx", "sy", "sz"};
     private static Map<String, float[][]> cues = Map.of();
@@ -160,9 +159,6 @@ final class AgitationPresentation {
             case "HEAT_UNMET", "RECOVER" -> .68f + .32f * Mth.clamp(ticks / 100, 0, 1);
             case "ALICE_WATCH" -> .3f * Mth.clamp(ticks / 60, 0, 1);
             case "ALICE_APPROACH" -> .3f + .24f * Mth.clamp(ticks / 160, 0, 1);
-            // The act thrusts once per second (1.12 rubs every ~30 frames); the pinned victim
-            // bobs on the same clock, pressed forward under each thrust.
-            case "ALICE_ACT", "HELD" -> ticks % PIN_CYCLE_TICKS / PIN_CYCLE_TICKS;
             default -> 1;
         };
         float[][] keys = cues.get(phase.equals("HEAT") ? "heat" : phase.equals("HEAT_RELIEVED") ? "relief"

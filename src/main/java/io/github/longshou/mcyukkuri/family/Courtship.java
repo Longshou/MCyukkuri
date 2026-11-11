@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.family;
 
 import io.github.longshou.mcyukkuri.entity.Behaviors;
+import io.github.longshou.mcyukkuri.entity.YukkuriAction;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.entity.YukkuriVariant;
 import io.github.longshou.mcyukkuri.family.FamilyLife.Task;
@@ -113,6 +114,16 @@ final class Courtship {
         if(leader==null)return -1;
         var court=leader.courtship();
         return court.courtContactTicks>0?court.courtContactStart:court.courtStart+(court.courtNearTicks<=COURT_ACCEPT_TICKS?0:COURT_ACCEPT_TICKS);
+    }
+
+    YukkuriAction contactAction() {
+        var leader=presentingCourt();
+        if(leader==null)return null;
+        var court=leader.courtship();
+        if(court.courtContactTicks==0)return null;
+        boolean mother=o.entity()==court.mother(leader.entity(),leader.target());
+        if(mother)return court.courtRequiredTicks==60?YukkuriAction.SUKKIRI_MAMU_60:YukkuriAction.SUKKIRI_MAMU_120;
+        return court.courtRequiredTicks==60?YukkuriAction.SUKKIRI_PAIR_60:YukkuriAction.SUKKIRI_PAIR_120;
     }
 
     /** Display-only projection of the real court stage. No second client-side court state exists. */
@@ -316,18 +327,28 @@ final class Courtship {
             courtContactTicks=0;courtContactStart=-1;tickRearApproach(o,o);return;
         }
         faceRearContact(o,o);
-        if(++courtContactTicks>=courtRequiredTicks) {
-            YukkuriEntity peer=o.target(),mother=mother(o.entity(),peer),father=mother==o.entity()?peer:o.entity();
-            ReproductionEffects.release(o.level(),mother);
+        // Contact starts at tick zero. Its last 20 ticks are the authored release.
+        int contactTick=++courtContactTicks-1;
+        YukkuriEntity peer=o.target(),mother=mother(o.entity(),peer),father=mother==o.entity()?peer:o.entity();
+        if(contactTick==courtRequiredTicks-18){
+            ReproductionEffects.release(o.level(),father,mother);
+            boolean fatherSpoke=father.speakCue("heat_relief_3"),motherSpoke=mother.speakCue("heat_relief_3");
+            GameplayLog.event(o.entity(),"family","courtship release partner={} tick={} requiredTicks={} droplets=8 hearts=2 fatherSpoke={} motherSpoke={}",
+                    peer.getUUID(),contactTick,courtRequiredTicks,fatherSpoke,motherSpoke);
+        }else if(contactTick==courtRequiredTicks-10){
+            ReproductionEffects.droplets(o.level(),mother,4);
+            GameplayLog.event(o.entity(),"family","courtship release tail partner={} tick={} requiredTicks={} droplets=4",
+                    peer.getUUID(),contactTick,courtRequiredTicks);
+        }
+        if(courtContactTicks>=courtRequiredTicks) {
             boolean unauthorized=peer.getUUID().equals(unauthorizedWith);
             boolean motherHeat=mother.family().inBreedingPeriod(),fatherHeat=father.family().inBreedingPeriod();
             var brood=FamilyData.get(o.level()).conceive(mother,father,mother.family().naturalBirthKind(father),GlobalPos.of(o.level().dimension(),mother.family().birthAnchor()));
             GameplayLog.event(o.entity(),"family","courtship contact ended partner={} mother={} father={} ticks={} conceived={} unauthorized={}",
                     peer.getUUID(),mother.getUUID(),father.getUUID(),courtContactTicks,brood!=null,unauthorized);
             if(brood!=null) {
-                // A partner resolving a heat period speaks the staged sukkiri beats instead of this line.
-                if(!motherHeat)mother.showReaction("happy","expecting",100);
-                if(!fatherHeat)father.showReactionDelayed("happy","expecting",100,18);
+                mother.agitation().completePair(true,motherHeat);
+                father.agitation().completePair(false,fatherHeat);
                 if(unauthorized)PetLife.unauthorizedConception(mother,father);
             } else {
                 o.entity().showReaction("confused","",60);peer.showReaction("confused","",60);

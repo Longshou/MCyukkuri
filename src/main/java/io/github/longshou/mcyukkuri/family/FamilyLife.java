@@ -8,6 +8,7 @@ import io.github.longshou.mcyukkuri.mind.EmotionEvent;
 
 import io.github.longshou.mcyukkuri.dialogue.NativeDialogue;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
+import io.github.longshou.mcyukkuri.entity.YukkuriAction;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.intent.Conductor;
 import io.github.longshou.mcyukkuri.intent.Drive;
@@ -223,6 +224,7 @@ public final class FamilyLife {
     public int careContactProgress() { return task == Task.FEED_CHILD ? feeding.offerTicks() : 0; }
     private String courtActivity() { return courtship.courtActivity(); }
     public long courtAnimationStart() { return courtship.courtAnimationStart(); }
+    public YukkuriAction courtContactAction() { return courtship.contactAction(); }
     public CompoundTag courtshipState() { return courtship.state(); }
     public boolean youngVoice() { return stage!=Stage.ADULT||juvenileVoice||babyTalk; }
     public boolean babyTalk(){return babyTalk;}
@@ -889,7 +891,7 @@ public final class FamilyLife {
         boolean resolvedHeat=inBreedingPeriod();
         endBreedingPeriod();gestation=brood;conceptions++;recovery=FamilyConfig.RECOVERY.get();
         // A conception inside a still-running period resolves it: the relief beat replaces the plain expecting reaction.
-        if(resolvedHeat)entity.agitation().markRelieved();
+        if(resolvedHeat)entity.agitation().markRelieved(true);
         entity.setPersistenceRequired(); }
     /** Preconditions of a checked aftermath reservation. Existing pregnancies and partners are never replaced. */
     public boolean canReceiveAftermath() {
@@ -937,7 +939,7 @@ public final class FamilyLife {
     public void partnerConceived(UUID other) {
         boolean resolvedHeat=inBreedingPeriod();
         endBreedingPeriod();recovery=FamilyConfig.RECOVERY.get();
-        if(resolvedHeat)entity.agitation().markRelieved();
+        if(resolvedHeat)entity.agitation().markRelieved(false);
         entity.setPersistenceRequired(); }
     /** An already-born juvenile in a naturally discovered household, not a simulated conception. */
     public void generatedChild(YukkuriEntity first, YukkuriEntity second) {

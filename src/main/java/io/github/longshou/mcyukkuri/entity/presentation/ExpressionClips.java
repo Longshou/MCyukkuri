@@ -28,6 +28,11 @@ public final class ExpressionClips {
         for(var span:clip.spans)if(time>=span.start&&time<span.end)return span.face;
         return fallback;
     }
+    static String sukkiri(String asset,String action,float elapsed){
+        // The excluded body rigs keep their own idle geometry and can display the generic authored faces.
+        String source=MODELS.computeIfAbsent(asset,ExpressionClips::load).containsKey(action)?asset:"reimu";
+        return sample(source,action,elapsed,"neutral");
+    }
     /** Reads one model's face spans ahead of its first body (resource warm-up). */
     public static void warm(String asset){MODELS.computeIfAbsent(asset,ExpressionClips::load);}
     private static Map<String,Clip> load(String asset){
