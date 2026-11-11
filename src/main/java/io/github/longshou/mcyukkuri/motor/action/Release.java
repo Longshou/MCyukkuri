@@ -363,6 +363,8 @@ public final class Release implements Action {
 
     private Feasibility space(YukkuriEntity carrier, Vec3 at) {
         if (!SurfaceApproach.supportedGround(child, at)) return Feasibility.of(Reason.NO_SUPPORT, 0, "unsupported_or_wet at=" + at);
+        if (!onPad(BedContainer.of(child, nest), at) && !SurfaceApproach.hasDryBankBuffer(child, at, DROP))
+            return Feasibility.of(Reason.NO_SUPPORT, 0, "bank_edge at=" + at);
         var occupants = carrier.level().getEntitiesOfClass(YukkuriEntity.class, child.getDimensions(child.getPose()).makeBoundingBox(at).deflate(.005),
                 other -> other != child && other != carrier && !carrier.hasPassenger(other));
         return occupants.isEmpty() ? Feasibility.pass()

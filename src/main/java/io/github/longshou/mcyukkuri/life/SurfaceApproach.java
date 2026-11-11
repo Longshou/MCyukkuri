@@ -123,8 +123,31 @@ public final class SurfaceApproach {
         double radius = supportRadius(actor);
         for (int x : new int[]{-1, 1}) for (int z : new int[]{-1, 1}) {
             double px = feet.x + x * radius, pz = feet.z + z * radius;
-            var foot = new AABB(px-.015, feet.y-.08, pz-.015, px+.015, feet.y+.005, pz+.015);
-            if (!level.getBlockCollisions(actor, foot).iterator().hasNext()) return false;
+            if (!soleSupported(actor, px, feet.y, pz)) return false;
+        }
+        return true;
+    }
+
+    private static boolean soleSupported(YukkuriEntity actor, double x, double y, double z) {
+        var foot = new AABB(x-.015, y-.08, z-.015, x+.015, y+.005, z+.015);
+        return actor.level().getBlockCollisions(actor, foot).iterator().hasNext();
+    }
+
+    /** Near water, a set-down needs level support for one child width past the child's sole. */
+    public static boolean hasDryBankBuffer(YukkuriEntity child, Vec3 feet, double drop) {
+        double radius = child.getBbWidth() + supportRadius(child);
+        var level = child.level();
+        boolean nearWater = false;
+        var min = BlockPos.containing(feet.x-radius, feet.y-drop, feet.z-radius);
+        var max = BlockPos.containing(feet.x+radius, feet.y, feet.z+radius);
+        for (var cell : BlockPos.betweenClosed(min, max)) {
+            if (level.getFluidState(cell).isEmpty()) continue;
+            if (cell.getY() == max.getY()) return false;
+            nearWater = true;
+        }
+        if (!nearWater) return true;
+        for (int x = -1; x <= 1; x++) for (int z = -1; z <= 1; z++) {
+            if (!soleSupported(child, feet.x + x * radius, feet.y, feet.z + z * radius)) return false;
         }
         return true;
     }
