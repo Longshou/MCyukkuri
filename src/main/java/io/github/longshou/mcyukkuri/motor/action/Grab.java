@@ -23,6 +23,7 @@ import io.github.longshou.mcyukkuri.motor.TravelMode;
 import io.github.longshou.mcyukkuri.motor.surface.SurfaceHost;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.Locale;
+import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
 
 /**
@@ -301,6 +302,12 @@ public final class Grab implements Action {
         if (target.operations().active()) return Outcome.of(Reason.TARGET_GONE, 0, "target_operated");
         if (target.isPanicking() && !carrier.family().carry().protectiveGrip(target) || target.isOnFire() || target.isInWaterOrBubble())
             return new Outcome.Interrupted("brim_target_in_danger");
+        // A jump queued on the admission tick may start before the first grip tick.
+        if (clipStart < 0 && awaitingLanding()) {
+            GameplayLog.limited(carrier, "action", "grab.landing", 200,
+                    "brim grab waiting for landing child={} at={}", target.getUUID(), GameplayLog.at(target.position()));
+            return new Running(lift + way + Math.abs(Mth.wrapDegrees(facing - carrier.bodyYaw())), TravelMode.CONSUMED);
+        }
         gap = ParentCarry.brimGap(carrier, carrier.position(), target);
         if (gap > GRIP_SLACK) return Outcome.of(Reason.NO_CONTACT, gap, "brim_grip_out_of_reach stand=" + GameplayLog.at(carrier.position()));
         if (clipStart < 0) {
