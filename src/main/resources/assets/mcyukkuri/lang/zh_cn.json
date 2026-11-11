@@ -5918,7 +5918,7 @@
   "badge.mcyukkuri.help.30": "在附近你的其他油库里中轮换可配对的对象。",
   "badge.mcyukkuri.help.31": "给这两只一天的繁殖许可。",
   "badge.mcyukkuri.help.32": "撤回当前的繁殖许可。",
-  "badge.mcyukkuri.profile.breed_partner": "候选伴侣：%s（%s/%s）",
+  "badge.mcyukkuri.profile.breed_partner": "伴侣：%s（%s/%s）",
   "badge.mcyukkuri.profile.permit": "繁殖许可：与 %s，%s；未经许可生育 %s 次",
   "badge.mcyukkuri.profile.permit_left.day": "剩 1 天",
   "badge.mcyukkuri.profile.permit_left.hours": "约剩 %s 小时",

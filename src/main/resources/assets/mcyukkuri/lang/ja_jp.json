@@ -5862,7 +5862,7 @@
   "badge.mcyukkuri.help.30": "近くにいる自分の他のゆっくりから、つがえる相手を順に選びます。",
   "badge.mcyukkuri.help.31": "この二匹に一日だけ繁殖許可を出します。",
   "badge.mcyukkuri.help.32": "現在の繁殖許可を取り消します。",
-  "badge.mcyukkuri.profile.breed_partner": "相手候補：%s（%s/%s）",
+  "badge.mcyukkuri.profile.breed_partner": "相手：%s（%s/%s）",
   "badge.mcyukkuri.profile.permit": "繁殖許可：%s と、%s。無許可出産 %s 回",
   "badge.mcyukkuri.profile.permit_left.day": "残り1日",
   "badge.mcyukkuri.profile.permit_left.hours": "残り約%s時間",
