@@ -8,7 +8,6 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
-| 坑奴：接触站位循环、意外死亡与甜化 | `.worktrees/wp-fu-pit-slave` | settlement 坑奴、取食接触 |
 | den_family 丧偶后母油不外出觅食 | `.worktrees/wp-fy-den-forage` | family 觅食分工、认窝 |
 | FM-21 完整回窝链：去子油单独的窝被堵、帽檐载两只时路线停滞 | `.worktrees/wp-fz-walk-home-chain` | family/ParentCarry、回窝路线 |
 
