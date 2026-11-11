@@ -29,12 +29,14 @@ import net.minecraft.world.scores.ScoreHolder;
 import net.neoforged.neoforge.client.event.RegisterClientCommandsEvent;
 import net.neoforged.neoforge.client.event.RenderFrameEvent;
 import net.neoforged.neoforge.client.event.ScreenEvent;
+import net.neoforged.neoforge.client.event.ViewportEvent;
 import org.lwjgl.glfw.GLFW;
 
 /** Opt-in render-target recorder. Scene actions still run through the museum's normal start functions. */
 public final class MuseumCapture {
     private record Scene(String id, String field, int[] ticks, int[][] chunks, String view, String[] reads, JsonObject settings) {}
-    private record Frame(int requested, long tick, long gameTime, long poseFrame, double seconds, String file, boolean visible, boolean focused, boolean cameraReady) {}
+    private record Frame(int requested, long tick, long gameTime, long poseFrame, double seconds, String file,
+                         boolean visible, boolean focused, boolean cameraReady, CaptureScreen.MagnifierFrame magnifier) {}
     private static final Gson JSON = new Gson();
     private static final Path ROOT = Path.of(System.getProperty("mcyukkuri.capture.output"));
     private static final Scene[] PLAN = readPlan();
@@ -119,7 +121,8 @@ public final class MuseumCapture {
 
     private static void begin(Scene scene) {
         screenCapture = scene.settings.has("screen") ? new CaptureScreen(
-                scene.settings.get("screen").getAsString(), scene.settings.get("target").getAsString()) : null;
+                scene.settings.get("screen").getAsString(), scene.settings.get("target").getAsString(),
+                scene.settings.has("magnifier_distance") ? scene.settings.get("magnifier_distance").getAsDouble() : null) : null;
         Minecraft.getInstance().options.hideGui = screenCapture == null;
         current = scene;
         nextFrame = 0;
@@ -245,7 +248,8 @@ public final class MuseumCapture {
             long window = mc.getWindow().getWindow();
             FRAMES.add(new Frame(requested, tick, mc.level.getGameTime(), PoseTap.frameId(), (System.nanoTime() - began) / 1e9, file,
                     GLFW.glfwGetWindowAttrib(window, GLFW.GLFW_VISIBLE) != 0,
-                    GLFW.glfwGetWindowAttrib(window, GLFW.GLFW_FOCUSED) != 0, cameraReady));
+                    GLFW.glfwGetWindowAttrib(window, GLFW.GLFW_FOCUSED) != 0, cameraReady,
+                    screenCapture == null ? null : screenCapture.magnifierFrame()));
             Path output = ROOT.resolve(current.id).resolve(file);
             NativeImage pixels = Screenshot.takeScreenshot(mc.getMainRenderTarget());
             if (mc.screen instanceof AbstractContainerScreen<?> screen && screen.getMenu() instanceof CareMenu care) {
@@ -282,5 +286,9 @@ public final class MuseumCapture {
 
     public static void renderScreen(ScreenEvent.Render.Pre event) {
         if (screenCapture != null) screenCapture.render(event);
+    }
+
+    public static void fov(ViewportEvent.ComputeFov event) {
+        if (screenCapture != null) screenCapture.fov(event);
     }
 }

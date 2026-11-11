@@ -104,10 +104,17 @@ def main():
     parser.add_argument('--lang', default='zh_cn', choices=('zh_cn', 'en_us', 'ja_jp'), help='Minecraft language')
     parser.add_argument('--size', type=int, nargs=2, default=(1280, 720), metavar=('WIDTH', 'HEIGHT'),
                         help='Capture window size in physical pixels')
+    parser.add_argument('--magnifier-distances', type=float, nargs='+', metavar='BLOCKS',
+                        help='For each magnifier view, capture press, hold and release at these horizontal distances')
     parser.add_argument('scenes', nargs='*', help='Museum scene IDs for ordinary scene capture')
     args = parser.parse_args()
     if min(args.size) <= 0:
         parser.error('--size requires positive dimensions')
+    if args.magnifier_distances:
+        if not any(kind == 'magnifier' for _, kind, _ in args.screen or ()):
+            parser.error('--magnifier-distances requires a magnifier screen')
+        if any(not math.isfinite(distance) or distance <= 0 for distance in args.magnifier_distances):
+            parser.error('--magnifier-distances requires finite positive distances')
     if args.screen:
         if args.scenes or args.view or args.vantage or args.sample_window:
             parser.error('--screen selects its own scene, view and timing')
@@ -143,8 +150,11 @@ def capture(parser, args):
              for scene in selected
              for name, view in ({'': {}} if args.vantage else scene.capture.get('views', {'': dict(follow=scene.capture.get('follow'))})).items()]
     if args.screen:
-        views = [(scenes[scene], f'{scene}_{kind}_{i}', dict(screen=kind, target=selector))
-                 for i, (scene, kind, selector) in enumerate(args.screen)]
+        screens = [(scene, kind, selector, distance)
+                   for scene, kind, selector in args.screen
+                   for distance in ((args.magnifier_distances or (None,)) if kind == 'magnifier' else (None,))]
+        views = [(scenes[scene], f'{scene}_{kind}_{i}', dict(screen=kind, target=selector, magnifier_distance=distance))
+                 for i, (scene, kind, selector, distance) in enumerate(screens)]
     if args.view:
         unknown_views=set(args.view)-{view_id for _,view_id,_ in views}
         if unknown_views:
@@ -202,6 +212,9 @@ def capture(parser, args):
             args.sample_window[0], args.sample_window[1] + 1, args.sample_window[2]))
         if args.screen:
             ticks = [64, 86] if settings['screen'] == 'care' else [76]
+            if 'magnifier_distance' in settings:
+                # Press at tick 70, release at 92. Sample both ends of the zoom transition.
+                ticks = [64, 71, 74, 78, 85, 91, 95, 99, 105]
         plan.append(dict(id=view_id, field=scene.field, ticks=ticks, settings=settings,
                          milestones=scene.smoke.get('milestones', []) if scene.smoke else [],
                          chunks=sorted(builder.BY_ID[scene.field].chunks()), view=view,
@@ -213,7 +226,7 @@ def capture(parser, args):
     (output / 'run.json').write_text(json.dumps(dict(source=str(source), commit=revision, runtime=str(runtime),
         dirty=bool(subprocess.check_output(['git', '-C', str(source), 'status', '--porcelain'])),
         scenes=scene_ids, screens=args.screen, gui_scale=args.gui_scale, lang=args.lang, size=args.size, smoke_commands=args.smoke_commands,
-        vantage=args.vantage, self_check=True), indent=2), encoding='utf-8')
+        magnifier_distances=args.magnifier_distances, vantage=args.vantage, self_check=True), indent=2), encoding='utf-8')
     command = client_command(runtime, java, instance, mod, output, args.size)
     server.wait_closed(not args.no_wait)
     startup = subprocess.STARTUPINFO()

@@ -36,6 +36,7 @@ public final class ClientRegistration {
             NeoForge.EVENT_BUS.addListener(RegisterClientCommandsEvent.class, MuseumCapture::commands);
             NeoForge.EVENT_BUS.addListener(RenderFrameEvent.Post.class, MuseumCapture::frame);
             NeoForge.EVENT_BUS.addListener(ScreenEvent.Render.Pre.class, MuseumCapture::renderScreen);
+            NeoForge.EVENT_BUS.addListener(EventPriority.LOWEST, false, ViewportEvent.ComputeFov.class, MuseumCapture::fov);
         }
         container.registerConfig(ModConfig.Type.CLIENT, ClientConfig.SPEC, "mcyukkuri-client.toml");
         modBus.addListener(EventPriority.NORMAL, false, EntityRenderersEvent.RegisterRenderers.class, ClientEvents::registerRenderers);
