@@ -132,10 +132,19 @@ public final class CareScreen extends AbstractContainerScreen<CareMenu> {
         }
     }
 
+    @Override public void renderTransparentBackground(GuiGraphics g) {
+        if (page != Page.OBSERVE) super.renderTransparentBackground(g);
+    }
+
     @Override protected void renderBg(GuiGraphics g, float partial, int mouseX, int mouseY) {
-        GuiKit.panel(g, leftPos, topPos, imageWidth, imageHeight);
-        if (page != Page.ACTIONS) {
-            inspection.render(g, font, leftPos + MARGIN, topPos + contentTop, imageWidth - 2 * MARGIN, contentHeight, page == Page.LINEAGE);
+        if (page != Page.OBSERVE) GuiKit.panel(g, leftPos, topPos, imageWidth, imageHeight);
+        int x = leftPos + MARGIN, y = topPos + contentTop, w = imageWidth - 2 * MARGIN;
+        if (page == Page.OBSERVE) {
+            inspection.renderObserve(g, font, x, y, w, contentHeight);
+            return;
+        }
+        if (page == Page.LINEAGE) {
+            inspection.renderLineage(g, font, x, y, w, contentHeight);
             return;
         }
         for (int group = 0; group < rows.length; group++) {

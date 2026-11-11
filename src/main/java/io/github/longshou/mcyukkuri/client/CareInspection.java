@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.client;
 
 import com.mojang.blaze3d.platform.Lighting;
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.math.Axis;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.entity.YukkuriVariant.Accessory;
@@ -17,6 +18,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
+import org.lwjgl.opengl.GL11;
 
 final class CareInspection {
     private static final int PAD = 7, GAP = 5;
@@ -71,22 +73,47 @@ final class CareInspection {
         scroll = Mth.clamp(scroll - (int) Math.copySign(24, wheel), 0, maxScroll);
     }
 
-    void render(GuiGraphics g, Font font, int x, int y, int w, int h, boolean lineage) {
-        if (lineage) {
-            drawReadout(g, font, x, y, w, h, relationships());
-            return;
-        }
+    void renderObserve(GuiGraphics g, Font font, int x, int y, int w, int h) {
         int viewW = previewWidth(w);
-        GuiKit.card(g, x, y, viewW, h, false);
         var hint = font.split(text("orbit"), viewW - 2 * PAD);
         int hintY = y + h - PAD - hint.size() * font.lineHeight;
         var entity = menu.target();
-        if (entity != null) drawModel(g, entity, x + 3, y + 3, viewW - 6, hintY - y - 6, yaw, pitch, zoom);
+        if (entity != null) {
+            drawModel(g, entity, x + 3, y + 3, viewW - 6, hintY - y - 6, yaw, pitch, zoom);
+            // Keep the text and controls in front when the model extends beyond its preview area.
+            RenderSystem.clear(GL11.GL_DEPTH_BUFFER_BIT, Minecraft.ON_OSX);
+        }
         for (var line : hint) {
-            g.drawString(font, line, x + PAD, hintY, GuiKit.SOFT, false);
+            g.drawString(font, line, x + PAD, hintY, 0xFFFFFF, true);
             hintY += font.lineHeight;
         }
-        drawReadout(g, font, x + viewW + GAP, y, w - viewW - GAP, h, identity());
+        int readoutX = x + viewW + GAP;
+        int readoutW = w - viewW - GAP;
+        int used = drawLines(g, font, readoutX, y, readoutW, h, identity(), true);
+        drawScrollbar(g, readoutX + readoutW, y, h, used);
+    }
+
+    void renderLineage(GuiGraphics g, Font font, int x, int y, int w, int h) {
+        GuiKit.statusCard(g, x, y, w, h);
+        int subjectW = w / 3;
+        int leftW = (w - subjectW) / 2;
+        int subjectX = x + leftW;
+        int rightX = subjectX + subjectW;
+        var ancestors = new ArrayList<Line>();
+        var relations = new ArrayList<Line>();
+        relationships(ancestors, relations);
+        int used = Math.max(drawLines(g, font, x, y, leftW, h, ancestors, false),
+                drawLines(g, font, rightX, y, x + w - rightX, h, relations, false));
+        drawScrollbar(g, x + w, y, h, used);
+
+        var subject = menu.target();
+        Component name = subject == null ? text("unavailable") : Component.literal(subject.getDisplayName().getString());
+        int portraitHeight = h / 2;
+        int portraitY = y + (h - portraitHeight - font.lineHeight) / 2;
+        if (subject != null) drawModel(g, subject, subjectX, portraitY, subjectW, portraitHeight, INITIAL_YAW, INITIAL_PITCH, 1);
+        var label = GuiKit.ellipsize(font, name, subjectW - 2 * PAD);
+        g.drawString(font, label, subjectX + (subjectW - font.width(label)) / 2,
+                portraitY + portraitHeight, GuiKit.INK, false);
     }
 
     private static void drawModel(GuiGraphics g, YukkuriEntity entity, int x, int y, int w, int h,
@@ -101,7 +128,6 @@ final class CareInspection {
                 ? 1.25f * HatScale.factor(entity.subspeciesFlags()) : 1;
         float visualHeight = bodyHeight * Math.max(entity.broodCount() > 0 ? 2.8f : 1.8f, 1.8f * hatRoom);
         float scale = zoom * Math.min(h / visualHeight, w / (entity.getBbWidth() * 1.6f * hatRoom));
-        g.enableScissor(x, y, x + w, y + h);
         var pose = g.pose();
         pose.pushPose();
         pose.translate(x + w / 2f, y + h * .5f, 50);
@@ -117,7 +143,6 @@ final class CareInspection {
         } finally {
             Lighting.setupFor3DItems();
             pose.popPose();
-            g.disableScissor();
         }
     }
 
@@ -141,14 +166,17 @@ final class CareInspection {
         return lines;
     }
 
-    private List<Line> relationships() {
+    private void relationships(List<Line> left, List<Line> right) {
         var snapshot = menu.lineage();
-        var lines = new ArrayList<Line>();
-        if (!snapshot.groupKey().isEmpty()) {
-            lines.add(new Line(text("group"), true));
-            lines.add(new Line(Component.translatable(snapshot.groupKey()), false));
-        }
         for (var relation : CareLineage.Relation.values()) {
+            if (relation == CareLineage.Relation.LEADER && !snapshot.groupKey().isEmpty()) {
+                right.add(new Line(text("group"), true));
+                right.add(new Line(Component.translatable(snapshot.groupKey()), false));
+            }
+            var lines = switch (relation) {
+                case MOTHER, FATHER, SOURCE, SIBLINGS -> left;
+                case MATE, CHILDREN, LEADER -> right;
+            };
             boolean heading = false;
             for (var entry : snapshot.entries()) {
                 if (entry.relation() != relation) continue;
@@ -159,12 +187,10 @@ final class CareInspection {
                 lines.add(new Line(entry.label(), false));
             }
         }
-        if (lines.isEmpty()) lines.add(new Line(text("no_relations"), false));
-        return lines;
+        if (left.isEmpty() && right.isEmpty()) right.add(new Line(text("no_relations"), false));
     }
 
-    private void drawReadout(GuiGraphics g, Font font, int x, int y, int w, int h, List<Line> lines) {
-        GuiKit.statusCard(g, x, y, w, h);
+    private int drawLines(GuiGraphics g, Font font, int x, int y, int w, int h, List<Line> lines, boolean transparent) {
         int inner = h - 2 * PAD;
         int offset = 0;
         g.enableScissor(x + PAD, y + PAD, x + w - PAD, y + h - PAD);
@@ -173,18 +199,24 @@ final class CareInspection {
             for (var part : font.split(line.text(), w - 2 * PAD - 5)) {
                 int top = offset - scroll;
                 if (top >= -font.lineHeight && top < inner) {
-                    g.drawString(font, part, x + PAD, y + PAD + top, line.heading() ? GuiKit.GOOD : GuiKit.INK, false);
+                    int color = transparent ? 0xFFFFFF : line.heading() ? GuiKit.GOOD : GuiKit.INK;
+                    g.drawString(font, part, x + PAD, y + PAD + top, color, transparent);
                 }
                 offset += font.lineHeight + 2;
             }
         }
         g.disableScissor();
+        return offset;
+    }
+
+    private void drawScrollbar(GuiGraphics g, int right, int y, int h, int offset) {
+        int inner = h - 2 * PAD;
         maxScroll = Math.max(0, offset - inner);
         scroll = Math.min(scroll, maxScroll);
         if (maxScroll > 0) {
             int thumb = Math.max(9, inner * inner / offset);
             int top = y + PAD + (inner - thumb) * scroll / maxScroll;
-            g.fill(x + w - 7, top, x + w - 4, top + thumb, GuiKit.SOFT);
+            g.fill(right - 7, top, right - 4, top + thumb, GuiKit.SOFT);
         }
     }
 }
