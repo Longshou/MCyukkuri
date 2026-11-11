@@ -913,6 +913,10 @@ def terminal_endings(records, samples, end):
     return out
 
 
+class MissingEndActor(ValueError):
+    pass
+
+
 class EndContext:
     """END-only index. Selectors name observed identities; events never create state evidence."""
     def __init__(self, records, samples, raw='', bounds=None):
@@ -1006,7 +1010,9 @@ class EndContext:
             if key in bindings:
                 return re.escape(bindings[key])
             actors = self.select(key, bindings)
-            if len(actors) != 1:
+            if not actors:
+                raise MissingEndActor(f'END placeholder ${key} has no matching actor')
+            if len(actors) > 1:
                 raise ValueError(f'END placeholder ${key} requires one actor, got {len(actors)}')
             return re.escape(next(iter(actors)))
         return re.sub(r'\$([A-Za-z_]\w*)', replace, pattern)
@@ -1075,6 +1081,7 @@ class EndContext:
         steps = path['steps']
         furthest = [0, None]
         rejected = []
+        missing = set()
 
         def search(index, after, bound):
             if index == len(steps):
@@ -1090,7 +1097,11 @@ class EndContext:
                 return (after, post) if all(r['verdict'] == 'pass' for r in post) else None
             emitter, seen = steps[index]
             _, cat, pattern = seen.split(':', 2)
-            regex = re.compile(self.expand(pattern, bound))
+            try:
+                regex = re.compile(self.expand(pattern, bound))
+            except MissingEndActor as error:
+                missing.add(str(error))
+                return None
             emitters = self.select(emitter, bound)
             for r in self.events:
                 key = (r['t'], r.get('end_order', r['seq']))
@@ -1114,6 +1125,8 @@ class EndContext:
                            dict(u=bindings.get('subject'), t=tick)), *post]
         last = furthest[1] or dict(u=bindings.get('subject'), t=self.end)
         label = path.get('name', '') + (' subject=' + bindings['subject'] if 'subject' in bindings else '')
+        if missing:
+            return [result('END', 'no-evidence', f'ordered path {label}: ' + ', '.join(sorted(missing)), last)]
         return [result('END', 'no-evidence' if rejected and all(r['verdict'] == 'no-evidence' for r in rejected) else 'fail',
                        f'ordered path {label}: reached {furthest[0]}/{len(steps)}; '
                        'no complete witness with required postcondition', last,
@@ -1129,9 +1142,14 @@ def endings(records, samples, end, raw=''):
     out = context.clauses(end.get('final', ()), context.end, {}, True)
     for emitter, seen in end.get('forbid', ()):
         _, cat, pattern = seen.split(':', 2)
+        try:
+            regex = re.compile(context.expand(pattern, {}))
+        except MissingEndActor as error:
+            out.append(result('END', 'no-evidence', f'forbidden event {seen}: {error}'))
+            continue
         actors = context.select(emitter, {})
         hits = [r for r in context.events if r['u'] in actors and r.get('cat') == cat
-                and re.search(context.expand(pattern, {}), r['msg'])]
+                and regex.search(r['msg'])]
         out.append(result('END', 'fail' if hits else 'pass', 'forbidden event: ' + seen, hits[0] if hits else None))
     carried = set()
     for path in end.get('paths', ()):

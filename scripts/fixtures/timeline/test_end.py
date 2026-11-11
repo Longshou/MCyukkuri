@@ -172,6 +172,19 @@ class EndChecks(unittest.TestCase):
             self.assertEqual(verdict(self.rows + [record('life', 201, CHILD, out=reason)], end), 'fail')
         self.assertEqual(verdict(self.rows, dict(final=[('missing', 'alive=true')])), 'fail')
         self.assertEqual(verdict([], self.end), 'no-evidence')
+
+    def test_missing_event_placeholder_is_no_evidence(self):
+        steps = [('world', 'seen:settlement:phase=MARCH'),
+                 ('world', r'seen:settlement:arrived leader=$lead\b')]
+        rows = self.rows + [event(20, None, 'settlement', 'phase=MARCH'),
+                            event(30, None, 'settlement', f'arrived leader={ACTOR}')]
+        for end in (dict(paths=[dict(steps=steps)]), dict(forbid=[steps[-1]])):
+            with self.subTest(end=end):
+                finding, = evaluate(rows, end)
+                self.assertEqual(finding['verdict'], 'no-evidence')
+                self.assertIn('$lead has no matching actor', finding['detail'])
+                with self.assertRaisesRegex(ValueError, 'requires one actor, got 2'):
+                    evaluate(rows + [actor(0, ACTOR, 'lead'), actor(0, OTHER, 'lead')], end)
         rows = [r for r in self.rows if not (r['u'] == CHILD and r['t'] == 200)] + [record('life', 100, CHILD, out='killed')]
         self.assertEqual(verdict(rows, dict(final=[('child', 'alive=false')])), 'pass')
 

@@ -2122,7 +2122,7 @@ def colony_loss_prompt(sid, members_read, rules_read):
     return 'tellraw @s ' + json.dumps(controls, ensure_ascii=False, separators=(',', ':'))
 
 
-def colony(sid, title, hint, watch, wait, late, env=DAY, lines=(), note='', reads=(), leader_loss=False, smoke=None, capture=None, residents=()):
+def colony(sid, title, hint, watch, wait, late, env=DAY, lines=(), note='', reads=(), leader_loss=False):
     reads = list(reads)
     controls = []
     if leader_loss:
@@ -2135,11 +2135,11 @@ def colony(sid, title, hint, watch, wait, late, env=DAY, lines=(), note='', read
                 reads.append((caption, command))
             indexes.append(index)
         controls.append(colony_loss_prompt(sid, *indexes))
-    population = list(residents) if residents else ['yukkuri settlement spawn village_led ~ ~ ~',
+    population = ['yukkuri settlement spawn village_led ~ ~ ~',
                   'tag @e[type=mcyukkuri:patchouli,distance=..40,limit=1,sort=nearest] add scn_lead']
     add(sid, 'colony', title, hint, watch, wait,
         [*lines, *population, *controls],
-        env=env, spot='colony', vantage=(0, 26), late=late, note=NEW + note, reads=reads, retry='先“清空本场地”再按一次', smoke=smoke, capture=capture)
+        env=env, spot='colony', vantage=(0, 26), late=late, note=NEW + note, reads=reads, retry='先“清空本场地”再按一次')
 
 
 def _colony_meadow():
@@ -2160,15 +2160,18 @@ colony('colony_ration', '黄昏族长给缺粮户分粮', '黄昏族长给缺粮
        '黄昏时族长清点公仓：只给自家粮堆不够一天的“短缺户”分粮，其余不分；读数里看 SHORT 户和分配记录',
        '约 1.5 分钟后（家家吃掉一些存粮，才有短缺户）', [Retry('yukkuri settlement rules ration', COLONY_LEAD, first=1800)], env={'time': 'dusk'}, leader_loss=True)
 # The empty village 64 blocks east stands on the colony_dest plot.
-_mx, _mz = COLONY.spots['colony']
-_migration_site = ['yukkuri settlement site vacant village ~64 ~ ~']
+_migration_young = '@e[type=#mcylab:yukkuri,distance=..40,sort=nearest,limit=2,nbt={YukkuriFamily:{Stage:"JUVENILE"}}]'
+_migration_babies = '@e[type=#mcylab:yukkuri,tag=scn_migrant_baby,distance=..110]'
 colony('colony_migrate', '族群迁徙：全族搬去东边空村', '族群迁徙：全族搬去东边空村',
-       '族长决定迁徙：讨论 30 秒→准备 30 秒→先锋（有魔理沙时由魔理沙担任，体弱的帕琪不领队）先行，其余稍后跟上，前往东侧 64 格外的真实空聚落；抵达者认领新窝、存放携粮，窝不够就就近挖掘或用实际采到的植物做地面窝',
-       '约 2–5 分钟', [Retry('yukkuri settlement migrate', COLONY_LEAD)],
-       lines=_migration_site,
-       note='观察先锋是否先到、掉队时是否集合换路，以及抵达后每户是否认领真实住所。读数核对先锋、中心、目的地与成员住所（identity.settlement_detail 的 phase／reason）。全体到达地面后才更改聚落中心。',
+       '族长决定迁徙：讨论 30 秒→准备 30 秒→先锋（有魔理沙时由魔理沙担任，体弱的帕琪不领队）先行，其余稍后跟上。看亲油如何把村里两只赤油带到东边 64 格外的空聚落，落地后如何认领新窝。',
+       '约 2–5 分钟', [f'tag {_migration_young} add scn_migrant_baby',
+                       f'yukkuri status set {_migration_babies} growth.age_ticks 18000',
+                       Retry('yukkuri settlement migrate', COLONY_LEAD)],
+       lines=['yukkuri settlement site vacant village ~64 ~ ~'],
+       note='赤油与亲油同住村里的野生住所。观察先锋是否先到、掉队时是否集合换路，以及亲油在哪儿放下赤油。全体到达地面后才更改聚落中心。',
        reads=[('读迁徙与压力（含先锋）', 'yukkuri settlement rules'),
               ('读族长新住所', 'yukkuri status @e[tag=scn_lead,limit=1,sort=nearest] raw'),
+              ('读赤油随迁', f'yukkuri status {_migration_babies} raw'),
               ('读全体成员安置', 'yukkuri status @e[type=#mcylab:yukkuri,distance=..110] raw'),
               ('读新聚落状态', 'execute positioned ~64 ~ ~ run yukkuri settlement site info')],
        leader_loss=True)
@@ -2193,44 +2196,6 @@ def _carry_outcome_verify(log):
             return f'children held more than 600 ticks at end: {stuck}'
     return None
 
-
-# Three fixed real households and their leader fit the destination village without random extra households.
-_migrant_families = [*shed(0, -8), yk_on_nest('patchouli', 0, -8, 'migrant_leader', lead=True,
-                      uuid=uid('colony_migrate_babies', 'leader'), also=('migrant_family',)), home('migrant_leader', 0, -8)]
-for _kind, _x in [('marisa', -10), ('reimu', 0), ('chen', 10)]:
-    _parent = uid('colony_migrate_babies', _kind)
-    _migrant_families += [*shed(_x, 4), *large_nest(_x, 4, 'mcyukkuri:large_yukkuri_nest'),
-                         yk_on_nest(_kind, _x, 4, f'migrant_{_kind}', large=True, uuid=_parent, nutrition=80,
-                                    friendliness=90, also=('migrant_family',)), home(f'migrant_{_kind}', _x, 4),
-                         item('minecraft:apple', 12, _x + 1, 7)]
-    for _i in range(2):
-        _migrant_families += [yk(_kind, _x + 2, 4 + _i - .5, f'migrant_{_kind}_{_i}', stage='baby',
-                                uuid=uid('colony_migrate_babies', f'{_kind}_{_i}'), kin=f'Mother:{uuid_nbt(_parent)}',
-                                childhood=CHILDHOOD_CRAWLING_READY, nutrition=40, friendliness=90,
-                                also=('migrant_baby', 'migrant_family')), home(f'migrant_{_kind}_{_i}', _x, 4)]
-_migrant_babies = '@e[type=#mcylab:yukkuri,tag=scn_migrant_baby,distance=..110]'
-colony('colony_migrate_babies', '族群迁徙：亲油带着赤油走', '族群迁徙：亲油带着赤油走',
-       '村中孩子从赤油阶段开始：行军开始后亲油走到孩子身边停下、抬起（魔理沙用辫子托上帽檐，放得下几只托几只；橙两条尾巴各托一只；灵梦口含多只；其余叼在嘴里一只），带着走向新址；赤油不再自己爬着跟随。途中孩子饿了会被放下、喂过再抬起，亲油到新址的地面后就放下',
-       '约3–6分钟', [
-           'yukkuri scenario community @e[tag=scn_lead,limit=1] @e[tag=scn_migrant_family,distance=..45]',
-           'yukkuri status set @e[type=#mcylab:yukkuri,distance=..45] personality.friendliness 90',
-           'yukkuri status set @e[type=#mcylab:yukkuri,distance=..45] needs.nutrition 80',
-           f'yukkuri status set {_migrant_babies} needs.nutrition 40',
-           Retry('yukkuri settlement migrate', COLONY_LEAD)],
-       lines=_migration_site, residents=_migrant_families,
-       note='初始亲油营养80、赤油40；高友善不保证照护必定成功。看孩子是被抬起而不是自己移动（日志 [family] carry lift started／pickup hold=brim／tail_left／mouth purpose=MIGRATE，[action] start id=grab reach= hold=），行军中赤油乘在亲油帽檐／尾上／口中、朝向随亲油，魔理沙按帽檐真实面积托几只、放不下再口含一只，橙两尾各托一只，灵梦口含多只，其他种类一只，每只的承托方式随亲油存档，多出的孩子等另一位亲油（行军时优先分给余量大的亲油），没有亲油能抬时才退回原来的爬行跟随；母亲口含孩子时不备口粮（settlement 日志 packing skipped reason=mouth_reserved_for_child），父亲或戴帽魔理沙照常备粮；孩子营养低于30且有真实食物时会被放下喂养（carry put down reason=feeding）再抬起；亲油到新址地面便把孩子放到身旁（reason=arrived_destination），各户按平日习惯找窝、筑窝和接孩子回家。检查同一孩子、食物减少与营养回升、住所切换；不能以中心改变代替亲子抵达。演出：口含与尾托接起前俯身再直起，托上帽檐时魔理沙转身伸辫卷起孩子放上帽檐；灵梦张嘴含入幼体后闭嘴，腮部随口中孩子数鼓起，到达地面再张嘴放出，魔理沙帽檐沿帽冠一圈坐多只、面朝外（满后再叼一只），橙两尾抬起各卷托一只；走动转身时孩子轻晃、不穿进亲油，放下时亲油俯身、孩子缓落，帽檐上的由辫子、尾巴上的由尾巴放到地面。',
-       reads=[('读赤油随迁', f'yukkuri status {_migrant_babies} raw'),
-              ('读承托状态（home.family_state 的 carry=）', 'yukkuri status @e[type=#mcylab:yukkuri,distance=..110,nbt={Passengers:[{}]}] raw'),
-              ('读全体亲子', 'yukkuri status @e[type=#mcylab:yukkuri,distance=..110] raw'),
-              ('读迁徙完成条件', 'yukkuri settlement rules')],
-       capture=dict(shots=(1, 40, 600, 1200), sequences=((1200, 2400, 2), (2400, 7200, 20)), follow='@e[tag=scn_migrant_marisa,limit=1]'),
-       smoke=dict(ticks=7200,
-                  readout=['yukkuri status @e[type=#mcylab:yukkuri,distance=..110] raw',
-                           'execute as @e[tag=scn_migrant_baby] on vehicle run say MCYSMOKE_CHILD_STILL_HELD'],
-                  forbid=[r'\[family\][^\n]* carry put down reason=carrier_eating[^\n]*purpose=MIGRATE',
-                          r'MCYSMOKE_CHILD_STILL_HELD'],
-                  gating_checks=('LOOP',),
-                  expect=[r'\[settlement\][^\n]* event=migrate_done\b']))
 
 # Three real households with their nest, the babies ~8 blocks out: the RETRIEVE carry (ParentCarry.purposeFor), no march needed.
 _carry_families = [('marisa', -10, 4, 1.2), ('reimu', 0, 3, 1.0), ('chen', 10, 2, 1.0)]
@@ -3794,7 +3759,7 @@ TOPICS = {
     'hatless_monster': 'C2', 'puff_response': 'C2',
     'myon_stick': 'S1', 'myon_brave': 'S1', 'species_fatigue': 'S1', 'rare_forms': 'S2', 'kotatsu_winter': 'S2', 'kotatsu_summer': 'S2', 'sunbathe': 'S2',
     'alice_chores': 'S3', 'patchouli_vomit': 'S3', 'chen_speed': 'S3', 'marisa_sumo': 'S3',
-    'colony_hunt': 'B2', 'colony_ration': 'B2', 'colony_migrate': 'B2', 'colony_migrate_babies': 'B2',
+    'colony_hunt': 'B2', 'colony_ration': 'B2', 'colony_migrate': 'B2',
 }
 for _s in S:
     _s.asks = TOPICS.get(_s.id) or ('B1' if _s.id.startswith('settle_') else '')
@@ -4083,17 +4048,16 @@ _scene_end('aftermath_depletion', [('affected_depletion', 'alive=false'), ('sour
            [('affected_depletion', 'seen:family:aftermath reserved'),
             ('affected_depletion', 'seen:body:death settled.*stem_depletion=true')])
 # World phase events belong to the same captured group; arrival must name this scene's leader.
-_scene_end('colony_migrate', [('lead', _DRY)],
+_scene_end('colony_migrate', [('lead', _DRY), ('migrant_baby', _ASHORE)],
            [('world', r'seen:settlement:migration phase=DISCUSS group=(?P<group>\S+)'),
             ('world', r'seen:settlement:migration phase=PREPARE group=$group\b'),
             ('world', r'seen:settlement:migration phase=MARCH group=$group\b'),
-            ('world', r'seen:settlement:migration pivot arrived group=$group .*leader=$lead\b')])
-_scene_end('colony_migrate_babies', [('migrant_baby', _ASHORE)],
-           *[dict(each=f'child_of:migrant_{kind}', steps=[
-              (f'migrant_{kind}', r'seen:family:carry pickup .*purpose=MIGRATE child=$subject\b'),
-              (f'migrant_{kind}', r'seen:family:carry put down reason=arrived_destination .*purpose=MIGRATE child=$subject\b'),
-              ('$subject', r'seen:settlement:migration reached .*dependent=true')])
-             for kind in ('marisa', 'reimu', 'chen')])
+            ('world', r'seen:settlement:migration pivot arrived group=$group .*leader=$lead\b')],
+           dict(each='migrant_baby', steps=[
+               ('actors', r'seen:family:carry pickup .*purpose=MIGRATE child=$subject childStage=BABY\b'),
+               ('actors', r'seen:family:carry put down reason=arrived_destination .*purpose=MIGRATE child=$subject\b'),
+               ('$subject', r'seen:settlement:migration reached .*dependent=true')],
+               post=[('$subject', _ASHORE + ' and near.parents<=4')]))
 _scene_end('carry_home', [(f'{kind}_baby', _ASHORE) for kind in ('marisa', 'reimu', 'chen')],
            *[dict(each=f'{kind}_baby', autonomous_home=True, steps=[
               (f'{kind}_parent', r'seen:family:^carry pickup hold=\S+ .*child=$subject\b'),
