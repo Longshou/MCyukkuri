@@ -11,7 +11,6 @@
 | 台词审校与补充（用户与代理直接对话） | `.worktrees/wp-gb-speech-review` | art/dialogue/, src/main/resources/assets/mcyukkuri/dialogue/, lang/*.json |
 | 帽沿跳朝向与节奏 | `.worktrees/wp-gf-brim-hop` | motor/action/CarriedHop、client/ParentCarryPresentation |
 | MD-16 肿胀穿模 | `.worktrees/wp-gi-swell-clip` | pose/Skin 肿胀变形、client/CareWearRenderer |
-| 憔悴脸重画、激动漏尿表情与表现 | `.worktrees/wp-gj-faces` | standards/yukkuri-library/expressions |
 | 素鸡立：下身耸动、释放时刻、分角色表情（先出方案页） | `.worktrees/wp-gk-sukkiri` | adult_states.json pair_*、AdultFaces、表情库 |
 | Wiki 参考图整理：单页、标签、索引 | `.worktrees/wp-gl-wiki-refs` | wiki/ 参考图索引 |
 | 便便闭环：同格合并、小堆自消、标准份可堆叠、大小统一 | `.worktrees/wp-gn-waste-loop` | life/Poops、PoopBlock、CareBlockEntity 厕所、DetachedItems、WastePresentation |
