@@ -140,19 +140,31 @@ def set_status(name, key, value):
 
 
 # ====================================================================================================== wild shelters
-# A family of three with real kin in NBT finds the family mound by itself; killing the father by hand shows the widowed mother
-# taking over the foraging while the child stays at home.
+# Wait for all three real claims on one mound, then use the ordinary death path before the first stores come in.
 _dm, _df, _dc = (uid('den_family', name) for name in ('mother', 'father', 'child'))
+
+
+def _den_family_death():
+    field = BY_ID['den']
+    origin_x, origin_z = field.spots['family']
+    father = sel('father', 64)
+    for x, y, z in field.doorways.values():
+        doorway = f'~{x - origin_x} ~{y - FEET} ~{z - origin_z}'
+        claims = ' '.join(f'if data block {doorway} Residents[{{Id:{uuid_nbt(member)}}}]' for member in (_dm, _df, _dc))
+        yield Retry(f'execute {claims} run kill {father}', father, tries=80, every=20, first=400)
+
+
 add('den_family', 'den', '一家三口住进土丘洞', '一家三口住进土丘洞',
-    '父母和子油自己找到土丘洞住进去：识别为同一个家（status 的 home.kind 是 burrow）。洞口一带的草已经吃过，外面还有草。入住后亲手杀死父油，观察母油是否接替外出采草、存粮，以及孩子是否吃到粮',
-    '入住约 1 分钟；杀死父油后数分钟（可五倍速）', [
+    '父母和子油自己认领同一个土丘洞。三只刚入住、家里还缺粮时，场景让父油死亡。看母油目睹后的哀悼、出洞采草、存粮，以及孩子吃到食物。洞口的草已吃过，外面还有草。',
+    '入住约半分钟到一分钟，之后再看数分钟（可五倍速）', [
         yk('reimu', 0, 3, 'mother', uuid=_dm, yaw=180, lead=True, kin=f'Partner:{uuid_nbt(_df)}', **pair_ready()),
         yk('marisa', 2, 3, 'father', uuid=_df, yaw=180, kin=f'Partner:{uuid_nbt(_dm)}', **pair_ready()),
         # Starts above appetite so the child's first demand develops during the handoff.
         yk('reimu', 1, 4, 'child', stage='child', uuid=_dc, yaw=180, nutrition=80, kin=f'Mother:{uuid_nbt(_dm)},Father:{uuid_nbt(_df)}'),
         box(-7, 0, 1, 7, 1, 8, 'minecraft:air', 'replace minecraft:short_grass')],
     env=DAY, spot='family', vantage=(0, 12),
-    note='杀死父油：/kill @e[tag=scn_father,limit=1]。观察台可读母油的 Load、Delivered 和孩子营养。',
+    late=list(_den_family_death()),
+    note='观察台可读母油的 Load、Delivered 和孩子营养。若家中已有足够存粮，母油会留在窝里用现成的粮照料孩子。',
     reads=[('读家的识别与母油觅食', f'yukkuri status {sel("mother")} raw'),
            ('读孩子生活', f'yukkuri status {sel("child")} raw')])
 
@@ -3877,9 +3889,7 @@ def _den_family_verify(log):
     return None
 
 
-# The widowed mother takes over the trips: the father is killed once the family has settled.
-next(s for s in S if s.id == 'den_family').smoke.update(
-    commands=[(2400, f'kill {sel("father")}')], verify=_den_family_verify)
+next(s for s in S if s.id == 'den_family').smoke['verify'] = _den_family_verify
 _smoke('indep_near', 7200, [r'\[independence\][^\n]* farewell started'])
 next(s for s in S if s.id == 'indep_near').smoke['verify'] = _distinct(r'\[independence\] \w+ #\d+ uuid=(\S+)[^\n]* departed ', 2, 'teens that left home')
 _smoke('forage', 6000, [r'\[forage\][^\n]* begin role=', r'\[forage\][^\n]* deposit home=',

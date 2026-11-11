@@ -256,7 +256,9 @@ def build_pack(world):
                 base = f'scn/{s.id}_retry{ri}'
                 late_lines.append(f'schedule function {NS}:{base}_0 {retry.first}t replace')
                 # store-success instead of `return run`: a forking command (`execute as @e[...] run ...`) must run every branch
-                fn(f'{base}_try', [f'execute store success score #retry {OBJ} run {retry.command}',
+                # Reset first because an execute whose conditions match nothing can leave the score unwritten.
+                fn(f'{base}_try', [f'scoreboard players set #retry {OBJ} 0',
+                                   f'execute store success score #retry {OBJ} run {retry.command}',
                                    f'return run scoreboard players get #retry {OBJ}'])
                 for k in range(retry.tries):
                     nxt = f'schedule function {NS}:{base}_{k + 1} %dt replace' if k + 1 < retry.tries else ''
