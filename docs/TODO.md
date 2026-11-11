@@ -8,7 +8,6 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
-| 迁徙：窗口内全员到达与靠近反复被拒 | `.worktrees/wp-ft-migration-arrival` | settlement 迁徙、life/SurfaceApproach |
 | 坑奴：接触站位循环、意外死亡与甜化 | `.worktrees/wp-fu-pit-slave` | settlement 坑奴、取食接触 |
 | 素鸡立遗留：211 tick 提前中断、帽檐穿蝴蝶结、父方脸 | `.worktrees/wp-fw-sukkiri-leftovers` | 素鸡立演出、渲染间距 |
 | den_family 丧偶后母油不外出觅食 | `.worktrees/wp-fy-den-forage` | family 觅食分工、认窝 |
