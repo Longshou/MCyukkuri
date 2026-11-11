@@ -132,7 +132,8 @@ public final class ForageGoal extends Goal {
         ForageClaims.release(claim);
         claim = null; target = null; int tests = 0;
         for (BlockPos pos : found) {
-            if (!Reactions.Weather.allowsStep(entity,pos) || !entity.life().dryStand(pos) || !entity.family().allowsIdleWalk(Vec3.atBottomCenterOf(pos))) continue;
+            if (!Reactions.Weather.allowsStep(entity,pos) || !entity.life().dryStand(pos)
+                    || !entity.family().allowsForageWalk(Vec3.atBottomCenterOf(pos))) continue;
             if (pos.equals(stalledPlant)) continue;
             if (++tests > MAX_PATH_TESTS) break;
             if (entity.life().reachable(pos, false)) {
@@ -185,7 +186,7 @@ public final class ForageGoal extends Goal {
                     var point = LandRandomPos.getPos(entity,reach,reach);
                     if (point == null || !TravelRange.babyDestination(entity,BlockPos.containing(point))
                             || !Reactions.Weather.allowsStep(entity,BlockPos.containing(point))
-                            || !entity.family().allowsIdleWalk(point)) continue;
+                            || !entity.family().allowsForageWalk(point)) continue;
                     var candidate = BlockPos.containing(point);
                     if (entity.life().navigate(candidate,searchSpeed(),false)) { searchSpot = candidate; break; }
                 }

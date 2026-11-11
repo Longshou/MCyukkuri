@@ -1154,7 +1154,7 @@ public final class FamilyLife {
                 &&ordinaryLandFree(other)&&caresFor(other)&&separation.searchingAllowed(other)&&other.childhood().shouldStayWithParents()&&entity.life().canRecognize(other)
                 &&escortsMigratingChild(other)&&!safeInSharedHome(other)
                 &&(!other.family().exploring()||other.life().hasUrgentNeed())
-                &&(!FamilySeparation.near(entity,other)||carry.pickupWanted(other)))
+                &&(!FamilySeparation.near(entity,other)||carry.pickupWanted(other)||carry.needsReunion(other)))
                 .stream().min(Comparator.comparingDouble(entity::distanceToSqr)).orElse(null);
     }
     /** A full route, else vanilla's partial one: a parent or a lost child goes as near as the ground lets it (to the glass). */
@@ -1216,8 +1216,14 @@ public final class FamilyLife {
     }
     /** Idle roaming must not immediately undo the child's decision to wait in the family shelter. */
     public boolean allowsIdleWalk(Vec3 destination) {
+        return adult()?carry.allowsIdleWalk(destination):allowsYoungWalk(destination);
+    }
+    /** A parent's hunger can take her out of idle watching range. Young still forage within their ordinary limits. */
+    public boolean allowsForageWalk(Vec3 destination) {
+        return adult()||allowsYoungWalk(destination);
+    }
+    private boolean allowsYoungWalk(Vec3 destination) {
         if(ParentCarry.awaitsCarrier(entity))return false;
-        if(adult())return carry.allowsIdleWalk(destination);
         var bed=earlyHomeStand();
         // Vanilla idle routes start by leaving the rimmed bed. A settled dependent rests
         // there when it has arrived on its own or a nearby parent has set it down.

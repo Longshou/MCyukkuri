@@ -1364,16 +1364,25 @@ public final class ParentCarry {
     /** While the way home is closed, ordinary strolls stay within following distance of a child she put down. */
     boolean allowsIdleWalk(Vec3 destination) {
         var level = (ServerLevel) carrier.level();
-        for (var entry : pauses.entrySet()) {
-            var failed = entry.getValue().failedHome();
-            if (failed != null && level.getEntity(entry.getKey()) instanceof YukkuriEntity child
-                    && dependentYoung(child) && !child.isPassenger() && FamilySeparation.near(carrier, child)
-                    && failed.home.equals(destination(child)) && !FamilyNest.atAssignedNest(child)) {
+        for (var id : pauses.keySet()) {
+            if (level.getEntity(id) instanceof YukkuriEntity child && watchingAfterSetDown(child)
+                    && FamilySeparation.near(carrier, child)) {
                 double follow = child.family().followRadius();
                 if (child.distanceToSqr(destination) > Math.max(follow * follow, carrier.distanceToSqr(child))) return false;
             }
         }
         return true;
+    }
+
+    /** After attending to a need, come back within contact range through ordinary family search. */
+    boolean needsReunion(YukkuriEntity child) {
+        return watchingAfterSetDown(child) && !carrier.family().reached(child);
+    }
+
+    private boolean watchingAfterSetDown(YukkuriEntity child) {
+        var pause = pauses.get(child.getUUID());
+        return pause != null && pause.failedHome() != null && dependentYoung(child) && !child.isPassenger()
+                && pause.failedHome().home.equals(destination(child)) && !FamilyNest.atAssignedNest(child);
     }
 
     private BlockPos destination(YukkuriEntity child) {
