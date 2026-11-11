@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.client;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriView;
+import io.github.longshou.mcyukkuri.entity.YukkuriAction;
 import io.github.longshou.mcyukkuri.motor.action.Paddle;
 import io.github.longshou.mcyukkuri.motor.action.Swim;
 import io.github.longshou.mcyukkuri.motor.geom.AbilityMath;
@@ -16,7 +17,9 @@ final class WaterMotionClock {
     static float seconds(YukkuriView body, float partial, float ordinary) {
         String action = body.motorAction();
         String clip = body.getAnimationId();
-        if (!action.equals(Swim.ID) && !(action.equals(Paddle.ID) && (clip.equals(Paddle.CLIP) || clip.equals(Paddle.BRAID_CLIP)))) {
+        boolean swimming = action.equals(Swim.ID) && clip.equals(YukkuriAction.WATER_SWIM.id());
+        boolean paddling = action.equals(Paddle.ID) && (clip.equals(Paddle.CLIP) || clip.equals(Paddle.BRAID_CLIP));
+        if (!swimming && !paddling) {
             samples.remove(body);
             return ordinary;
         }

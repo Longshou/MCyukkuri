@@ -36,6 +36,7 @@ public final class Swim implements Action {
     /** The clip's own start: the tick the plunge's impact ended, shared by every leg of one immersion. */
     private long stroke;
     private boolean stroking;
+    private YukkuriAction strokeClip;
 
     private Swim(Supplier<Vec3> target, boolean grip, int maxTicks) { this.target = target; this.grip = grip; this.maxTicks = maxTicks; }
 
@@ -48,9 +49,8 @@ public final class Swim implements Action {
     /** Whether this tick's swimming effort was paid. */
     public boolean pushing() { return !unpaid; }
 
-    /** Her own stroke from the tick the plunge ended, while she really pays for it; the distress clips are for real distress (an
-     *  impact still falling, effort she cannot pay, an exhausted body). */
-    @Override public MotionPose pose() { return stroking ? new MotionPose(YukkuriAction.WATER_SWIM.id(), stroke, true) : MotionPose.NONE; }
+    /** Her own stroke or flailing from the end of the plunge, while she can pay for the effort. */
+    @Override public MotionPose pose() { return stroking ? new MotionPose(strokeClip.id(), stroke, true) : MotionPose.NONE; }
 
     @Override public String id() { return ID; }
 
@@ -60,7 +60,9 @@ public final class Swim implements Action {
         return body.isInWaterOrBubble() ? Feasibility.pass() : Feasibility.of(Reason.NO_SUPPORT, 0, "not_in_water");
     }
 
-    @Override public void start(YukkuriEntity body) {}
+    @Override public void start(YukkuriEntity body) {
+        strokeClip = body.childhood().canSail() ? YukkuriAction.WATER_SWIM : YukkuriAction.WATER_STRUGGLE;
+    }
 
     @Override public Progress tick(YukkuriEntity body) {
         Vec3 at = target.get();

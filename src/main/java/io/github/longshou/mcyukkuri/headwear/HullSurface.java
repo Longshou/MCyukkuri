@@ -49,11 +49,9 @@ public final class HullSurface implements HatSurface {
             return ParentCarry.holdProblem(carrier, body, ParentCarry.Hold.HEAD, true) == null;
         if (body.getVehicle() != hat || !Floor.standing(body)) return false;
         var at = hat.riders().local(body.getUUID());
-        if (body.getUUID().equals(hat.ownerYukkuri()))
-            return captainAtRest(hat,body) && hat.insideFloor(at);
         var support = hat.support(at, body);
-        return support.isPresent() && Math.abs(at.y - support.getAsDouble()) <= Occupancy.MARGIN / hat.unit()
-                && hat.room(body, at);
+        if (support.isEmpty() || Math.abs(at.y - support.getAsDouble()) > Occupancy.MARGIN / hat.unit()) return false;
+        return body.getUUID().equals(hat.ownerYukkuri()) ? captainAtRest(hat, body) : hat.room(body, at);
     }
     private static Disc hatDisc(PlacedHatEntity hat, YukkuriEntity body, Vec3 at) {
         double bottom = HatGeometry.anchor().y * body.growthScale() * body.getScale() / 16 / hat.unit();
