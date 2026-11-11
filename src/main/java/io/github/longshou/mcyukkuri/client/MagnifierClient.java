@@ -26,11 +26,12 @@ public final class MagnifierClient {
     private static final double MOUSE_SCALE = 0.3;
     private static final double REACH = 12.0;
     private static final double AIM_ASSIST = 0.12; // Allow a narrow margin around a small body.
+    private static final int ITEM_NAME_INSET = 59, ITEM_NAME_NO_HEALTH_SHIFT = 14, ITEM_NAME_GAP = 5;
     private static float previousZoom;
     private static float zoom;
 
     public static void registerHud(RegisterGuiLayersEvent event) {
-        event.registerAbove(VanillaGuiLayers.CROSSHAIR, MCYukkuri.id("magnifier_status"), MagnifierClient::renderStrip);
+        event.registerAbove(VanillaGuiLayers.SELECTED_ITEM_NAME, MCYukkuri.id("magnifier_status"), MagnifierClient::renderStrip);
     }
 
     private static LocalPlayer observer(Minecraft minecraft) {
@@ -83,7 +84,10 @@ public final class MagnifierClient {
         if (minecraft.options.hideGui || player == null || !scoping(minecraft, player)) return;
         var aim = pick(player, minecraft.gameRenderer.getMainCamera());
         if (aim == null) return;
-        StatusStrip.of(aim).renderHud(g, minecraft.font);
+        // Match Gui.renderSelectedItemName after the health, hunger and vehicle layers set their heights.
+        int inset = Math.max(ITEM_NAME_INSET, Math.max(minecraft.gui.leftHeight, minecraft.gui.rightHeight));
+        int itemNameTop = g.guiHeight() - inset + (minecraft.gameMode.canHurtPlayer() ? 0 : ITEM_NAME_NO_HEALTH_SHIFT);
+        StatusStrip.of(aim).renderHud(g, minecraft.font, itemNameTop - ITEM_NAME_GAP);
     }
 
     private static YukkuriView pick(LocalPlayer player, Camera camera) {

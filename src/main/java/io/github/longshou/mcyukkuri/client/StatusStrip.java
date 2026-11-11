@@ -8,7 +8,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 
-/** Short crosshair status strip built from already-synced values. */
+/** Shared status card built from already-synced values. */
 public final class StatusStrip {
     static final int CARD_HEIGHT = 40;
     private static final int TEXT_LEFT = 25, CHIP_GAP = 5, PAD = 6, STATUS_TOP = 20;
@@ -44,7 +44,7 @@ public final class StatusStrip {
 
         Component renderCard(GuiGraphics g, Font font, int x, int y, int w, int h) {
             GuiKit.statusCard(g, x, y, w, h);
-            GuiKit.icon(g, x + 5, y + 1, GuiKit.ICON_LIVE);
+            GuiKit.icon(g, x + 5, y + 1, GuiKit.ICON_STATUS);
             Component identity = Component.translatable(identityKey);
             int chip = chipWidth(font, identity);
             int titleRoom = w - TEXT_LEFT - PAD - (chip == 0 ? 0 : chip + CHIP_GAP);
@@ -58,12 +58,12 @@ public final class StatusStrip {
             return shortName == name ? null : title(name);
         }
 
-        void renderHud(GuiGraphics g, Font font) {
+        void renderHud(GuiGraphics g, Font font, int bottom) {
             int chip = chipWidth(font, Component.translatable(identityKey));
             int w = Math.min(g.guiWidth() - 16,
                     Math.max(font.width(status) + 2 * PAD, font.width(title(name)) + TEXT_LEFT + PAD + chip + CHIP_GAP));
             int h = STATUS_TOP + font.split(status, w - 2 * PAD).size() * font.lineHeight + 4;
-            renderCard(g, font, (g.guiWidth() - w) / 2, g.guiHeight() / 2 + 12, w, h);
+            renderCard(g, font, (g.guiWidth() - w) / 2, bottom - h, w, h);
         }
     }
 

@@ -23,6 +23,7 @@ public final class GuiKit {
      */
     private static final int[] GRADE_TEXT = {SOFT, 0xff8f5428, 0xff5a6676, 0xff9a6214};
     public static final int ICON_LIVE = 0, ICON_GOODS = 1, ICON_BUYBACK = 2, ICON_CONSULT = 3, ICON_EXAM = 4, ICON_PROFILE = 5, ICON_KEEPER = 6;
+    static final int ICON_STATUS = 7;
 
     private GuiKit() {}
 

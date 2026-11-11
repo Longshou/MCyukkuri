@@ -8,7 +8,7 @@ Atlas map (x, y, w, h):
   tab normal/hover/selected (56|72|88,0,16,16) corner 3                       star full/empty (104|113,0,9,9)
   bar track (0,24,8,6) caps 2                bar fills (8+8*i,24,8,4) i = manners, academics, wits, poise
   grade chips (0|9|18|27,48,9,9) bronze, silver, gold, expired
-  icons 16x16 at (16*i,32): live, goods, buyback, consult, exam, profile, keeper
+  icons 16x16 at (16*i,32): live, goods, buyback, consult, exam, profile, keeper, status sprig
   action buttons (0|16|32|48,64,16,16) corner 3: normal, hover, pressed, disabled
   identity chips (0|16|32|48|64,80,16,16) corner 3: pet, stray, settlement, family, neutral
   status backing (80,80,16,16) corner 3
@@ -195,9 +195,15 @@ ICONS['keeper'] = ([
  "................", "...ooo...ooo....", "..oRhRo.oRRRo...", "..oRRRRoRRRro...", "..oRRRRRRRRro...", "...oRRRRRRro....", "....oRRRRro.....",
  ".....oRRro......", "......oro.......", ".oooooooooooo...", "oYYyYYyYYyYYYo..", "oyYYyyYYyYYyYo..", ".oyYYyYyYYyyo...", "..ooyyyyyyoo....", "....oooooo......", "................"],
  {'o': '#3a2410', 'R': '#d04a3a', 'r': '#8e2a20', 'h': '#f07a64', 'Y': '#e8c870', 'y': '#b88a40'})
+ICONS['status'] = ([
+    "................", "................", ".........ooooo..", "........olllgo..",
+    ".......ollggo...", "..oooo.olggoo...", "..ollloolgoo....", "...olggogo......",
+    "....ooggo.......", "......oog.......", "........o.......", "........o.......",
+    ".......o........", "......o.........", "................", "................"],
+    {'o': '#405740', 'l': '#b4c994', 'g': '#789368'})
 HANDBOOK = Image.open(ROOT / 'art' / 'props' / 'badges' / 'badge_handbook.png').convert('RGBA')
 assert HANDBOOK.size == (16, 16)
-ORDER = ['live', 'goods', 'buyback', 'consult', 'exam', 'profile', 'keeper']
+ORDER = ['live', 'goods', 'buyback', 'consult', 'exam', 'profile', 'keeper', 'status']
 for n, name in enumerate(ORDER):
     if name == 'profile':  # same pixels as the item texture (checklist 14)
         atlas.paste(HANDBOOK, (16 * n, 32)); continue

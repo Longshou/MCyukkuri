@@ -15,8 +15,7 @@ public final class CareScreen extends AbstractContainerScreen<CareMenu> {
     private static final int SECTIONS_TOP = MARGIN + StatusStrip.CARD_HEIGHT + GAP;
     private final int[] rows = new int[CareAction.GROUP_COUNT];
     private final int[] sectionX = new int[CareAction.GROUP_COUNT];
-    private final int[] sectionY = new int[CareAction.GROUP_COUNT];
-    private int columnWidth, rowPitch, sectionsHeight;
+    private int columnWidth, rowPitch;
     private long actions;
 
     public CareScreen(CareMenu menu, Inventory inventory, Component title) {
@@ -65,7 +64,7 @@ public final class CareScreen extends AbstractContainerScreen<CareMenu> {
         int footer = FOOT_HEIGHT + GAP + MARGIN;
         int rowSpace = height - SECTIONS_TOP - footer - sectionHeight(0);
         rowPitch = Math.min(19, Math.max(10, rowSpace / Math.max(1, longest)));
-        sectionsHeight = longest == 0 ? 22 : sectionHeight(longest);
+        int sectionsHeight = longest == 0 ? 22 : sectionHeight(longest);
         imageHeight = SECTIONS_TOP + sectionsHeight + footer;
         leftPos = (width - imageWidth) / 2;
         topPos = (height - imageHeight) / 2;
@@ -74,7 +73,6 @@ public final class CareScreen extends AbstractContainerScreen<CareMenu> {
         for (int group = 0; group < rows.length; group++) {
             if (rows[group] == 0) continue;
             sectionX[group] = x;
-            sectionY[group] = SECTIONS_TOP + (sectionsHeight - sectionHeight(rows[group])) / 2;
             x += columnWidth + GAP;
         }
         int[] nextRow = new int[rows.length];
@@ -82,7 +80,7 @@ public final class CareScreen extends AbstractContainerScreen<CareMenu> {
             if ((actions & (1L << action.id())) == 0) continue;
             int group = action.group;
             addRenderableWidget(Button.builder(action.title(), button -> minecraft.gameMode.handleInventoryButtonClick(menu.containerId, action.id()))
-                    .bounds(leftPos + sectionX[group] + CARD_PAD, topPos + sectionY[group] + SECTION_HEAD + nextRow[group]++ * rowPitch,
+                    .bounds(leftPos + sectionX[group] + CARD_PAD, topPos + SECTIONS_TOP + SECTION_HEAD + nextRow[group]++ * rowPitch,
                             columnWidth - 2 * CARD_PAD, rowPitch - 1)
                     .tooltip(Tooltip.create(action.help())).build(GuiKit.ActionButton::new));
         }
@@ -95,7 +93,7 @@ public final class CareScreen extends AbstractContainerScreen<CareMenu> {
         GuiKit.panel(g, leftPos, topPos, imageWidth, imageHeight);
         for (int group = 0; group < rows.length; group++) {
             if (rows[group] > 0) {
-                GuiKit.card(g, leftPos + sectionX[group], topPos + sectionY[group], columnWidth, sectionHeight(rows[group]), false);
+                GuiKit.card(g, leftPos + sectionX[group], topPos + SECTIONS_TOP, columnWidth, sectionHeight(rows[group]), false);
             }
         }
     }
@@ -117,7 +115,7 @@ public final class CareScreen extends AbstractContainerScreen<CareMenu> {
             g.drawString(font, notice, (imageWidth - font.width(notice)) / 2, SECTIONS_TOP + 7, GuiKit.SOFT, false);
         } else {
             for (int group = 0; group < rows.length; group++) {
-                if (rows[group] > 0) g.drawString(font, heading(group), sectionX[group] + CARD_PAD + 2, sectionY[group] + 4, GuiKit.INK, false);
+                if (rows[group] > 0) g.drawString(font, heading(group), sectionX[group] + CARD_PAD + 2, SECTIONS_TOP + 4, GuiKit.INK, false);
             }
         }
     }
