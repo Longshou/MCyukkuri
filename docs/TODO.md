@@ -17,6 +17,7 @@
 | 互动菜单：模型视图、基本信息、关系谱系 | `.worktrees/wp-gh-care-inspect` | client/CareScreen、CareMenu、StatusStrip |
 | MD-16 肿胀穿模 | `.worktrees/wp-gi-swell-clip` | pose/Skin 肿胀变形、client/CareWearRenderer |
 | 憔悴脸重画、激动漏尿表情与表现 | `.worktrees/wp-gj-faces` | standards/yukkuri-library/expressions |
+| 素鸡立：下身耸动、释放时刻、分角色表情（先出方案页） | `.worktrees/wp-gk-sukkiri` | adult_states.json pair_*、AdultFaces、表情库 |
 
 ## 玩法待办
 
