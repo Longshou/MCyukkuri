@@ -125,6 +125,9 @@ def anatomy_geometry(e, group):
     # only at full extension. Peni retains the approved taper and tilt.
     cfg=CFG['anatomy']
     e=copy.deepcopy(next(p for p in read(LIB/'components/common/anatomy.json')['elements'] if p['name']==e['name']))
+    if 'palette' in e:  # a flat colour swatch beside the skin palette (recipe anatomy.palette)
+        x,y=cfg['swatch_atlas'][e['palette']]
+        for face in e['faces'].values():face['uv']=[x+.25,y+.25,x+.75,y+.75]
     def warp(p):
         x,y,z=p
         if group=='anatomy_mamu':
@@ -241,6 +244,7 @@ def export(ident):
     skin = body(PROFILE, [palette_origin,palette_origin]); skin['name'] = 'rounded_body_surface'
     original_anus=CFG['anatomy']['anus_atlas']
     CFG['anatomy']['anus_atlas']=[palette_origin+12,palette_origin+12]
+    CFG['anatomy']['swatch_atlas']={name:[palette_origin+6+3*i,palette_origin-2] for i,name in enumerate(CFG['anatomy']['palette'])}
     elements = [skin,rump_mark()]
     for e, group in zip(bb['elements'], original_groups):
         if e['name'] in body_names: continue
@@ -315,6 +319,8 @@ def export(ident):
         pigment=original.crop(tuple(CFG['anatomy']['anus_uv']));skin_color=original.getpixel((8,56))
         pigment.putdata([(0,0,0,0) if pixel==skin_color else pixel for pixel in pigment.getdata()])
         atlas.paste(pigment,tuple(CFG['anatomy']['anus_atlas']))
+        for name,(x,y) in CFG['anatomy']['swatch_atlas'].items():
+            ImageDraw.Draw(atlas).rectangle((x,y,x+1,y+1),fill=tuple(CFG['anatomy']['palette'][name]))
         if spec.get('face_style'):
             style_file=HERE/spec['face_style'];style=read(style_file)
             author=runpy.run_path(str(style_file.parent/'author.py'))['apply_style']

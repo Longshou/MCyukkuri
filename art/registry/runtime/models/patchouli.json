@@ -1,16 +1,25 @@
 {
-  "selected_model": "standards/yukkuri-library/assembled/patchouli/patchouli.bbmodel",
-  "selected_model_sha256": "37accb8a583d7e0f142b187c8dc335338a75c115ccb6570cafc0ecc9e964edac",
-  "selected_rig": "standards/yukkuri-library/assembled/patchouli/animation-rig.json",
-  "selected_rig_sha256": "1c5809cdb588ea4bad588e46812729f6c687c9893a46711749702866951537a3",
-  "standard_motion_source": "standards/yukkuri-library/assembled/patchouli/animation-rig.json",
-  "standard_motion_sha256": "1c5809cdb588ea4bad588e46812729f6c687c9893a46711749702866951537a3",
-  "snapshot": "art/source/standard-runtime/patchouli/patchouli.bbmodel",
-  "rig": "art/source/standard-runtime/patchouli/animation-rig.json",
-  "runtime": "src/main/resources/assets/mcyukkuri/yukkuri/patchouli.json",
-  "runtime_sha256": "4dc27caa8d6132b171a9847b409a02d9f27c995862fee74c9078b083ec075394",
   "geometry_identifier": "patchouli",
-  "bone_count": 201,
+  "base_species": "reimu",
+  "selected_model": "standards/yukkuri-library/assembled/patchouli/patchouli.bbmodel",
+  "selected_model_sha256": "51d20d8e06a2fac70cbf01b02d4274669ba4a9b113209cd6eba99132c98783a5",
+  "selected_rig": "standards/yukkuri-library/assembled/patchouli/animation-rig.json",
+  "selected_rig_sha256": "b9cc244ab99d7eeb70858c5912df184863d618cd59aca584e7cccf9ff8898af5",
+  "selected_runtime_sha256": "84366f6f82df029ba63a006e81caad93e6dc71071927da349d8f9e2965327491",
+  "snapshot": "art/source/rounded-runtime/patchouli/selected/patchouli.bbmodel",
+  "retargeting": {
+    "source_weights_preserved": true,
+    "runtime_scale_normalization": 1.0,
+    "missing_actions_filled_from": "reimu",
+    "grounded_hair": "selected library hair-contact weights preserved"
+  },
+  "shape_status": "selected_rounded_standard",
+  "runtime_acceptance": "pending_current_verification",
+  "appearance_note": "Confirmed rounded-body baseline; selected hair-contact revision and Deibu face/bow remain pending visual confirmation",
+  "runtime": "src/main/resources/assets/mcyukkuri/yukkuri/patchouli.json",
+  "runtime_sha256": "f040ee7ad9ab04d4e8ebc1ae235cffc9708a7bc06d0d22ff3efacec74671c4d2",
+  "rig": "art/source/rounded-runtime/patchouli/animation-rig.json",
+  "bone_count": 265,
   "clips": [
     "idle",
     "stretch_shape",
@@ -35,79 +44,147 @@
   "textures": {
     "neutral": {
       "source": "standards/yukkuri-library/assembled/patchouli/textures/neutral.png",
+      "source_sha256": "a83bfae1163301e3be9ffcecf2fd868e30331c5ecd70947bf846508e516e527e",
+      "snapshot": "art/source/rounded-runtime/patchouli/textures/neutral.png",
       "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/patchouli/neutral.png",
-      "sha256": "9faf498ff9c81610ff4d49fd37eab2af22d5b21cd0bf7b75b123edd6ab1de847"
+      "sha256": "a83bfae1163301e3be9ffcecf2fd868e30331c5ecd70947bf846508e516e527e",
+      "mature_face": false
     },
     "happy": {
       "source": "standards/yukkuri-library/assembled/patchouli/textures/happy.png",
+      "source_sha256": "b25048748b17c76fba44e0a845d49c92cb29c2341188693e50ad17d2b6e5a6b3",
+      "snapshot": "art/source/rounded-runtime/patchouli/textures/happy.png",
       "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/patchouli/happy.png",
-      "sha256": "18a49770b927159133badbe0440311e4314187d3823289fb6bf1d18a7fc38bdf"
+      "sha256": "b25048748b17c76fba44e0a845d49c92cb29c2341188693e50ad17d2b6e5a6b3",
+      "mature_face": false
     },
     "cry": {
       "source": "standards/yukkuri-library/assembled/patchouli/textures/cry.png",
+      "source_sha256": "a0fd4e67edf31c728e7c1d2ebb32b086e875fa72fbf33bd346e26f0cd7b847c2",
+      "snapshot": "art/source/rounded-runtime/patchouli/textures/cry.png",
       "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/patchouli/cry.png",
-      "sha256": "b5f5ac3736ef7c2ac3488c7278daacadf3d563cdc77916f155b8f18799e51157"
+      "sha256": "a0fd4e67edf31c728e7c1d2ebb32b086e875fa72fbf33bd346e26f0cd7b847c2",
+      "mature_face": false
     },
     "teary": {
       "source": "standards/yukkuri-library/assembled/patchouli/textures/teary.png",
+      "source_sha256": "18cd6eadf3d5c83671ec41b7c2e3a8047ec1b827fdf4d0b614c6ebf988eeee56",
+      "snapshot": "art/source/rounded-runtime/patchouli/textures/teary.png",
       "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/patchouli/teary.png",
-      "sha256": "f1cc89a59a926e8c964ba3fc71f8e02d4abea4e8c3c3bfe076643eb25a7108b5"
+      "sha256": "18cd6eadf3d5c83671ec41b7c2e3a8047ec1b827fdf4d0b614c6ebf988eeee56",
+      "mature_face": false
     },
     "drool": {
       "source": "standards/yukkuri-library/assembled/patchouli/textures/drool.png",
+      "source_sha256": "c9ade9cc9a1def619103e68f93a30dc67bf5b1c9103eef38f824698406dd7f88",
+      "snapshot": "art/source/rounded-runtime/patchouli/textures/drool.png",
       "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/patchouli/drool.png",
-      "sha256": "b8c2fad5b04998385a5ae89e8728823e93e07cd782911d745e33fd412b851114"
+      "sha256": "c9ade9cc9a1def619103e68f93a30dc67bf5b1c9103eef38f824698406dd7f88",
+      "mature_face": false
     },
     "confused": {
       "source": "standards/yukkuri-library/assembled/patchouli/textures/confused.png",
+      "source_sha256": "52d76f150f9471710629c509000289125e027d5be244115118173bf2b6deeeb0",
+      "snapshot": "art/source/rounded-runtime/patchouli/textures/confused.png",
       "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/patchouli/confused.png",
-      "sha256": "656cd0df5fda2139775547128c6e69de11644e1aafb452f422ac57316e59eb78"
+      "sha256": "52d76f150f9471710629c509000289125e027d5be244115118173bf2b6deeeb0",
+      "mature_face": false
     },
     "yawn": {
       "source": "standards/yukkuri-library/assembled/patchouli/textures/yawn.png",
+      "source_sha256": "b2a2c6630e98f6f336796068823abd4e7478291d826deece5933144deaba0722",
+      "snapshot": "art/source/rounded-runtime/patchouli/textures/yawn.png",
       "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/patchouli/yawn.png",
-      "sha256": "40ffb363e8056eef2611da45dab51c6db14dd2152163ef7a768b6162f63286b2"
+      "sha256": "b2a2c6630e98f6f336796068823abd4e7478291d826deece5933144deaba0722",
+      "mature_face": false
     },
     "sleep": {
       "source": "standards/yukkuri-library/assembled/patchouli/textures/sleep.png",
+      "source_sha256": "945786f8567817b9531fbe47309ecaa556dd13092400387c4a334dbaec568437",
+      "snapshot": "art/source/rounded-runtime/patchouli/textures/sleep.png",
       "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/patchouli/sleep.png",
-      "sha256": "8ca31ad6474562e1eb84a5a5f49f30589321f1baeab5a726827331d1beb44eac"
+      "sha256": "945786f8567817b9531fbe47309ecaa556dd13092400387c4a334dbaec568437",
+      "mature_face": false
     },
     "angry": {
       "source": "standards/yukkuri-library/assembled/patchouli/textures/angry.png",
+      "source_sha256": "681f926b2bc3827ac6339d68e9994ad82f522a7873e65a9f3cdde58b2becc9cb",
+      "snapshot": "art/source/rounded-runtime/patchouli/textures/angry.png",
       "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/patchouli/angry.png",
-      "sha256": "94c07495a35c317def52a8978bea23a01e5427252341db0a12bff50f133800f7"
+      "sha256": "681f926b2bc3827ac6339d68e9994ad82f522a7873e65a9f3cdde58b2becc9cb",
+      "mature_face": false
     },
     "surprise": {
       "source": "standards/yukkuri-library/assembled/patchouli/textures/surprise.png",
+      "source_sha256": "1cf4efa4205358cfb98b71ba5889db5367a7a49d2c2f98bcf6464890a3884125",
+      "snapshot": "art/source/rounded-runtime/patchouli/textures/surprise.png",
       "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/patchouli/surprise.png",
-      "sha256": "a60ad5dc18995937cc8990ba370a4c66b9e647988b0a612fca355b1714564e38"
+      "sha256": "1cf4efa4205358cfb98b71ba5889db5367a7a49d2c2f98bcf6464890a3884125",
+      "mature_face": false
     },
     "sleepy": {
       "source": "standards/yukkuri-library/assembled/patchouli/textures/sleepy.png",
+      "source_sha256": "7d1dc99deda0b76a1321546fe526ab75c26967471251b6b2d5a35997a8916905",
+      "snapshot": "art/source/rounded-runtime/patchouli/textures/sleepy.png",
       "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/patchouli/sleepy.png",
-      "sha256": "4a97de1fa119caf32ea95d9f84b85483ba6834dcacebbe72c898e03afd0dc099"
-    }
-  },
-  "shape_status": "selected_standard_export",
-  "game_acceptance": "not_executed",
-  "retargeting": {
-    "method": "weighted_lower_hair_ground_contact",
-    "sample_seconds": 0.02,
-    "fixed_attachment_height": 8.48,
-    "max_contact_lift_by_clip": {
-      "side_bend": 0.820599,
-      "puff": 0.140586,
-      "brace": 1.235174,
-      "exercise_sides": 0.820599,
-      "press": 1.235174,
-      "taiso": 1.235174
+      "sha256": "7d1dc99deda0b76a1321546fe526ab75c26967471251b6b2d5a35997a8916905",
+      "mature_face": false
     },
-    "walking": {
-      "method": "enhanced_standard_rump_sway",
-      "duration_seconds": 1.2,
-      "shape_changed": false,
-      "status": "pending_visual_confirmation"
+    "closed_smile": {
+      "source": "standards/yukkuri-library/assembled/patchouli/textures/closed_smile.png",
+      "source_sha256": "fe37397e353f222687911b3b418780a81fd0f4522ecf2e1addf18bac8e95c8da",
+      "snapshot": "art/source/rounded-runtime/patchouli/textures/closed_smile.png",
+      "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/patchouli/closed_smile.png",
+      "sha256": "fe37397e353f222687911b3b418780a81fd0f4522ecf2e1addf18bac8e95c8da",
+      "mature_face": false
+    },
+    "chewing": {
+      "source": "standards/yukkuri-library/assembled/patchouli/textures/chewing.png",
+      "source_sha256": "b0278021abe6ad7390903de4d02f3034afab1d99997701da8dd5fd6f5bf88ca4",
+      "snapshot": "art/source/rounded-runtime/patchouli/textures/chewing.png",
+      "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/patchouli/chewing.png",
+      "sha256": "b0278021abe6ad7390903de4d02f3034afab1d99997701da8dd5fd6f5bf88ca4",
+      "mature_face": false
+    },
+    "chewing_closed": {
+      "source": "standards/yukkuri-library/assembled/patchouli/textures/chewing_closed.png",
+      "source_sha256": "c6a50fbfe5448d288d26d2043d7ab7785cfe41f9670ea797f258290660781a45",
+      "snapshot": "art/source/rounded-runtime/patchouli/textures/chewing_closed.png",
+      "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/patchouli/chewing_closed.png",
+      "sha256": "c6a50fbfe5448d288d26d2043d7ab7785cfe41f9670ea797f258290660781a45",
+      "mature_face": false
+    },
+    "satisfied": {
+      "source": "standards/yukkuri-library/assembled/patchouli/textures/satisfied.png",
+      "source_sha256": "8d0c3dd948f6cd99fd61f6508f1e3aa24f85bac11d10015b339a85cd3ff8c423",
+      "snapshot": "art/source/rounded-runtime/patchouli/textures/satisfied.png",
+      "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/patchouli/satisfied.png",
+      "sha256": "8d0c3dd948f6cd99fd61f6508f1e3aa24f85bac11d10015b339a85cd3ff8c423",
+      "mature_face": false
+    },
+    "open_smile": {
+      "source": "standards/yukkuri-library/assembled/patchouli/textures/open_smile.png",
+      "source_sha256": "34e22374773f5e9ff5dd33d75135173a17938491c75882f2b6e501a27dd42498",
+      "snapshot": "art/source/rounded-runtime/patchouli/textures/open_smile.png",
+      "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/patchouli/open_smile.png",
+      "sha256": "34e22374773f5e9ff5dd33d75135173a17938491c75882f2b6e501a27dd42498",
+      "mature_face": false
+    },
+    "smug": {
+      "source": "standards/yukkuri-library/assembled/patchouli/textures/smug.png",
+      "source_sha256": "4b32f51bea1f3788486b6dd25aa946fb9de184231fbefb2a374f6e63a1cbc253",
+      "snapshot": "art/source/rounded-runtime/patchouli/textures/smug.png",
+      "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/patchouli/smug.png",
+      "sha256": "4b32f51bea1f3788486b6dd25aa946fb9de184231fbefb2a374f6e63a1cbc253",
+      "mature_face": false
+    },
+    "puff": {
+      "source": "standards/yukkuri-library/assembled/patchouli/textures/puff.png",
+      "source_sha256": "d3e4f6e1b081949db86de1acf81486d2047c10ec8d7c012ecbf27f4391c31178",
+      "snapshot": "art/source/rounded-runtime/patchouli/textures/puff.png",
+      "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/patchouli/puff.png",
+      "sha256": "d3e4f6e1b081949db86de1acf81486d2047c10ec8d7c012ecbf27f4391c31178",
+      "mature_face": false
     }
   }
 }

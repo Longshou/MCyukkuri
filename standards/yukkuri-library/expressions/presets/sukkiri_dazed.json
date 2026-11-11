@@ -1,0 +1,33 @@
+{
+  "id": "sukkiri_dazed",
+  "label": "失神",
+  "group": "特殊状态",
+  "recipe": {
+    "source": "tools/author_sukkiri_faces.py",
+    "base": "open_smile",
+    "note": "after release: heavy lids, the pupil drifted up, slack small mouth, flushed; no drool"
+  },
+  "parts": {
+    "face_eye_left": "expressions/parts/8778c50550332f6f4b76.png",
+    "face_brow_left": "expressions/parts/fbfe0d80b0bcf2df3c4b.png",
+    "face_blush_left": "expressions/parts/cef8e0a1ebaf2b15b078.png",
+    "face_tear_left": "expressions/parts/d114c9609a58da8454a5.png",
+    "face_eye_right": "expressions/parts/b0b68077e442b9aa9016.png",
+    "face_brow_right": "expressions/parts/fbfe0d80b0bcf2df3c4b.png",
+    "face_blush_right": "expressions/parts/cef8e0a1ebaf2b15b078.png",
+    "face_tear_right": "expressions/parts/d114c9609a58da8454a5.png",
+    "face_mouth": "expressions/parts/dc95ca80dc92ff1e9657.png",
+    "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
+  },
+  "sources": [],
+  "status": "accepted",
+  "art": "Project design; drawn on the standard part grid",
+  "aliases": [],
+  "origin": "project design",
+  "review_pair": null,
+  "review_decision": {
+    "status": "accepted",
+    "date": "2026-11-12",
+    "note": "用户认可素鸡立表情方案（sukkiri-plan 第二稿与修改意见）"
+  }
+}

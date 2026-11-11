@@ -44,6 +44,8 @@ def refresh(ids, thumbnails_only=False):
     # Rounded mesh characters have no cube elements to patch here; --thumbnails-only refreshes the shared thumbnails.
     for path in ([] if thumbnails_only else sorted((R / 'characters').glob('*.json'))):
         c = read(path)
+        if 'expression_binding' not in c:  # humans and the rounded-only forms carry no expression atlas here
+            continue
         out = R / 'assembled' / c['id']
         html_path = out / 'index.html'
         html = html_path.read_text(encoding='utf-8')

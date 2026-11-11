@@ -10,15 +10,16 @@ SNAPSHOT = ROOT / 'art/source/adult-states'
 ASSETS = ROOT / 'src/main/resources/assets/mcyukkuri'
 LIB = ROOT / 'standards/yukkuri-library'
 # Standard confirmed act faces (user feedback rejected the 1.12 composites): the hunter's
-# open-eyed drool through hunt/approach, its flushed tongue-out face in the act, and the
-# victim's squeezed tearful wail for every species carrying the standard atlas.
+# open-eyed drool through hunt/approach and the victim's squeezed tearful wail for every species
+# carrying the standard atlas. The flushed tongue-out face is composed from its preset by the face
+# library (short tongue, user 2026-11-12), like the other sukkiri faces.
 STANDARD_FACES = {
-    'alice': ('open_drool', 'flushed_tongue', 'squeezed_cry_tears'),
-    'reimu': ('flushed_tongue', 'squeezed_cry_tears'),
-    'marisa': ('flushed_tongue', 'squeezed_cry_tears'),
-    'chen': ('flushed_tongue', 'squeezed_cry_tears'),
-    'patchouli': ('flushed_tongue', 'squeezed_cry_tears'),
-    'marisa_tsumuri': ('flushed_tongue', 'squeezed_cry_tears'),
+    'alice': ('open_drool', 'squeezed_cry_tears'),
+    'reimu': ('squeezed_cry_tears',),
+    'marisa': ('squeezed_cry_tears',),
+    'chen': ('squeezed_cry_tears',),
+    'patchouli': ('squeezed_cry_tears',),
+    'marisa_tsumuri': ('squeezed_cry_tears',),
 }
 
 

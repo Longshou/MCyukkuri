@@ -1,0 +1,33 @@
+{
+  "id": "sukkiri_tender",
+  "label": "温柔满足",
+  "group": "特殊状态",
+  "recipe": {
+    "source": "tools/author_sukkiri_faces.py",
+    "base": "satisfied",
+    "note": "mother closing: softly closed eyes, a small soft smile, a light blush"
+  },
+  "parts": {
+    "face_eye_left": "expressions/parts/24c4547c2ba3943d7feb.png",
+    "face_brow_left": "expressions/parts/af2d4cf86a7386999bbb.png",
+    "face_blush_left": "expressions/parts/4f872d58d23bdb669e29.png",
+    "face_tear_left": "expressions/parts/d114c9609a58da8454a5.png",
+    "face_eye_right": "expressions/parts/24c4547c2ba3943d7feb.png",
+    "face_brow_right": "expressions/parts/af2d4cf86a7386999bbb.png",
+    "face_blush_right": "expressions/parts/4f872d58d23bdb669e29.png",
+    "face_tear_right": "expressions/parts/d114c9609a58da8454a5.png",
+    "face_mouth": "expressions/parts/7e221ebef1e7449e971e.png",
+    "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
+  },
+  "sources": [],
+  "status": "accepted",
+  "art": "Project design; drawn on the standard part grid",
+  "aliases": [],
+  "origin": "project design",
+  "review_pair": null,
+  "review_decision": {
+    "status": "accepted",
+    "date": "2026-11-12",
+    "note": "用户认可素鸡立表情方案（sukkiri-plan 第二稿与修改意见）"
+  }
+}

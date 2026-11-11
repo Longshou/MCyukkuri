@@ -60,6 +60,62 @@ def hop(t, start, takeoff, land, end, height, crouch=1.):
     return squash(bump((t-land)/(end-land)), .05, .08, .03), 0., 0.
 
 
+def stroke_beats(c):
+    """Sukkiri strokes laid end to end, per segment [from, to, period_from, period_to, push_from, push_to]:
+    (start, peak, end, push). A stroke pushes out over its first 40% and eases back; only whole strokes fit."""
+    out = []
+    for a, b, pa, pb, xa, xb in c.get('strokes', []):
+        t = a
+        while True:
+            q = (t-a)/(b-a); period = lerp(pa, pb, q)
+            if t+period > b+1e-9: break
+            out.append((t, t+.4*period, t+period, lerp(xa, xb, q)))
+            t += period
+    return out
+
+
+def push_at(t, c):
+    p = keyed(t, c['push_keys']) if 'push_keys' in c else 0.
+    for s, peak, e, x in stroke_beats(c):
+        if s <= t <= e:
+            p = max(p, x*(smooth((t-s)/(peak-s)) if t <= peak else 1-smooth((t-peak)/(e-peak))))
+    return p
+
+
+PUSH_SLICES = 13  # the lower ~40% of the soft body carries the stroke; the top, face and hat stay put
+
+
+def push_tracks(model, c, height):
+    """Project design (sukkiri, user-approved proposal): the father's lower-body stroke (`push_role: drive`) shears the
+    lower soft-body slices and the rump forward with a little front-to-back effort stretch, no whole-body pitch; the
+    partner (`take`) answers each stroke `push_delay` later with a small forward shove and a pressed squash. Push is in
+    model units for a standard 9.2-unit body; keyed at the stroke beats only, so long acts stay small."""
+    if 'strokes' not in c and 'push_keys' not in c:
+        return []
+    bones = {b['name']: i for i, b in enumerate(model['bones'])}
+    d, delay, k = c['duration'], c.get('push_delay', 0.), height/9.2
+    beats = {0., d} | {x for beat in stroke_beats(c) for x in beat[:3]}
+    if 'push_keys' in c:
+        a, b = c['push_keys'][0][0], c['push_keys'][-1][0]
+        beats |= {key[0] for key in c['push_keys']} | {a+i*.04 for i in range(int((b-a)/.04)+1)}
+    times = sorted({round(min(d, t+delay), 6) for t in beats} | {0.})
+    p = [push_at(max(0., t-delay), c) for t in times]
+    rows = {}
+    def put(name, channel, f):
+        if name in bones:
+            rows[(bones[name], channel)] = [[t, *[round(v, 5) for v in f(x)]] for t, x in zip(times, p)]
+    if c.get('push_role', 'drive') == 'drive':
+        for i in range(PUSH_SLICES):
+            w = (1-i/PUSH_SLICES)**1.5
+            put(f'soft_head_slice_{i}_bend', 'position', lambda x, w=w: [0, 0, -x*w*k])
+        put('rump_sway', 'position', lambda x: [0, 0, -.7*x*k])
+        put('body_stretch', 'scale', lambda x: [1, 1-.03*x/1.7, 1+.04*x/1.7])
+    else:
+        put('body_motion', 'position', lambda x: [0, 0, -.3*x*k])
+        put('body_stretch', 'scale', lambda x: [1+.015*x/1.7, 1-.03*x/1.7, 1+.015*x/1.7])
+    return [{'bone': bone, 'channel': channel, 'keys': keys} for (bone, channel), keys in rows.items()]
+
+
 def curled(c):
     """Base pose of a body sitting low in the hat boat."""
     return [c['width'], c['height'], c['width']]
@@ -891,6 +947,7 @@ def compile_clips(model, cfg, root, ground, height, cache=None):
                 keys[channel].append([round(t, 8), *[round(x, 7) for x in value]])
         tracks = [{'bone': root, 'channel': ch, 'keys': k} for ch, k in keys.items()]
         tracks += flourish_tracks(model, name, samples, cfg, c)+family_braid_tracks(model, name, samples, keys, root, hat, c)
+        tracks += push_tracks(model, c, height)
         fields = {}
         if BRAID_KEYS['authored'](c):
             tracks += BRAID_KEYS['tracks'](model, name, c, samples, tracks, TOOLS['palette'])

@@ -2,7 +2,7 @@
   "status": "approved",
   "date": "2026-09-12",
   "user_confirmation": "作为标准表情保存吧",
-  "count": 87,
+  "count": 93,
   "entries": [
     {
       "id": "neutral",
@@ -525,6 +525,42 @@
       "code": "O13",
       "label": "困倦",
       "preset": "expressions/presets/sleepy.json"
+    },
+    {
+      "id": "sukkiri_squeeze",
+      "code": "S01",
+      "label": "潮红挤眼喊",
+      "preset": "expressions/presets/sukkiri_squeeze.json"
+    },
+    {
+      "id": "sukkiri_dazed",
+      "code": "S02",
+      "label": "失神",
+      "preset": "expressions/presets/sukkiri_dazed.json"
+    },
+    {
+      "id": "sukkiri_smug",
+      "code": "S03",
+      "label": "潮红得意",
+      "preset": "expressions/presets/sukkiri_smug.json"
+    },
+    {
+      "id": "sukkiri_grin",
+      "code": "S04",
+      "label": "翻白眼咧嘴笑",
+      "preset": "expressions/presets/sukkiri_grin.json"
+    },
+    {
+      "id": "sukkiri_manic",
+      "code": "S05",
+      "label": "癫狂咧嘴笑",
+      "preset": "expressions/presets/sukkiri_manic.json"
+    },
+    {
+      "id": "sukkiri_tender",
+      "code": "S06",
+      "label": "温柔满足",
+      "preset": "expressions/presets/sukkiri_tender.json"
     }
   ],
   "deferred_ids": [
@@ -580,7 +616,6 @@
     "expressions/parts/336098b28b640e9a8f68.png": "2657aa4b3ec2aa1746b09c5c7d27b174662464225377516477fe65ab6f99ff31",
     "expressions/parts/33ae3d72d3c16f16a42a.png": "bd97af460e7ce506c8139154678f89072452f5a2bebf7fed4c412425cd6c96e3",
     "expressions/parts/351094a83deebb6be6dc.png": "5d5735061f764f17c586be11e3bd673cfdc699a2894d225dea9f7dcdf4e1f24c",
-    "expressions/parts/37ac1b379663c1f0195e.png": "17acd6be7dfeddf78f013add6dce110bbf298ca2a15406145c77020c31f27355",
     "expressions/parts/37e940968392d59867a9.png": "582776686258afb2bb0e51d909ca193c77b6289643bf974441d3fd1b416debb2",
     "expressions/parts/38cbe6444a87b1b263e8.png": "443f6ec3d90dd723819ee9c81bb41dc5df7d5271e261a545adf53c307f2b4e7d",
     "expressions/parts/394256bd3d1fd6dedc15.png": "ce85ab0b99ebf2ac7163ab4df35416b462310fb86715a70da165005e882bcfff",
@@ -709,7 +744,7 @@
     "expressions/presets/endure.json": "23cf99f99cf0b3199dc290919ec315161b5b49570f474e99476e827112c3e798",
     "expressions/presets/flick_dull.json": "77898a8c04d320ddf4769797dcd03338024e378e1576671cfdba66cbef95e9ec",
     "expressions/presets/flushed_smile.json": "2b64ed36f14c631c832d3658f156df1495a38ebb16c76e89073af4337523d4c8",
-    "expressions/presets/flushed_tongue.json": "89c36d8088ec4381fbe73085ac28422b37b69eadeec7565944df92319aa4f8a6",
+    "expressions/presets/flushed_tongue.json": "75cac44f9cdfb9708340f2437907595a77c6d2e120b18622ee7ce13de7c8bafd",
     "expressions/presets/happy.json": "6500e2aff5adf2e9b3f871a18f785537b79286a29a823365150038fff8a4c210",
     "expressions/presets/horrified.json": "befc81a3e04525740323c2e59c13a8e5b909b16a38d3becb9d1cdc4b9f8e01a6",
     "expressions/presets/horrified_b.json": "8577b805839107e5b2e13c95418ae345a633abdd34b5b117442cff08eb4d8a04",
@@ -756,8 +791,8 @@
     "expressions/presets/teary_pant_b.json": "74599a84913f823dccedf40b95f22631c3e7b5c3bfda6ee7d6968c7f97581927",
     "expressions/presets/teary_smile.json": "9fcad44df8ec6e27daa6750a7d756f62e37a05e2b6a78feee3013e9b90ecfc3e",
     "expressions/presets/teary_smile_b.json": "92c4250216e12c398d59746a74af18eb103e8933a1fb6b7d020c350e6482db8c",
-    "expressions/presets/teary_tongue.json": "996541998f20b5a306d4a9445ece7d056ddad42001776737e0f9a91258ccd926",
-    "expressions/presets/teary_tongue_b.json": "04d5c4d3725ff1cc00dc82c3ac90eab653c03919a41a8b37b13b8b8659558239",
+    "expressions/presets/teary_tongue.json": "29ae65e1481018fec0bab8fb06ad1c9b2ccc63e6f0cc6ba4c209b8e4e983366c",
+    "expressions/presets/teary_tongue_b.json": "a245d79d119a5afff6cbf40f80b06994ada8da11566c7094cd2258ab8f6dfae8",
     "expressions/presets/tongue_cry.json": "9ff689283c84d690b3b2ebdce584d4e4be222c9ae36c1c0b0bfbd00415f6138e",
     "expressions/presets/tongue_cry_b.json": "656ab3576fe49502099d3cf0005ee5f4d8b4f5793803d5c23d3c2e5224e846f9",
     "expressions/presets/waking.json": "0cf4a512e87f8fa99559c3fb3c5ec650f9d91dc402239859eaf8e3e044e2b270",
@@ -766,7 +801,26 @@
     "expressions/variants/dull/a.json": "f4cbb2488bb0091e8690eb6bbfd13259323d88e163dfc5a171175f59c7d3c1da",
     "expressions/variants/dull/b.json": "ae7673607b23a8c61b19ca2194f8ebd615ddbe695b971d90e9e1b3a156e4e9fa",
     "expressions/variants/dull/c.json": "ef9fff9283f61331eb618d4e23e68962152f4f2525c3a017778c43e1ab6ce35e",
-    "expressions/variants/dull/index.json": "1ece020814688fabf2e25f83b68f2f3234089db39270fdbb2ddf8e960311fc92"
+    "expressions/variants/dull/index.json": "1ece020814688fabf2e25f83b68f2f3234089db39270fdbb2ddf8e960311fc92",
+    "expressions/presets/sukkiri_squeeze.json": "db4cb9263c30089033a9c06c8ce50f4bfa9eb1ec550a553ed7091c4476f646b3",
+    "expressions/presets/sukkiri_dazed.json": "926e7970facbff6983d5058e0b88214e2467c6b0e76d4b5f307121f8406634ec",
+    "expressions/parts/8778c50550332f6f4b76.png": "82e4ced13ab2fabf0db6e2f4b43494712dd51abb591c80d502b8a65d7223d864",
+    "expressions/parts/b0b68077e442b9aa9016.png": "1bd2b627e806f0de878e0755ea2d5610b51726c5274426ca01659ea124c63927",
+    "expressions/parts/dc95ca80dc92ff1e9657.png": "b3bf87dccb7bde5f13a0e954267ab856f24be9e9f70e997adf77b2e800052b6d",
+    "expressions/presets/sukkiri_smug.json": "f94249b404fd8d4e3ef3c44e7a800cc8b0d293d63924f3795ce35ff4fe6d0075",
+    "expressions/parts/4e7eae754fe20e93e2a8.png": "7058c068d5e51ac51eac6490d2bab5e7b70752ddc52d8f00a33f80968f505b08",
+    "expressions/parts/8ea6755ac79ae95560df.png": "f8a04ec65951a32566a0e92d885b12252b37bca8e93fc93b7f0ec81a9bc92b6c",
+    "expressions/parts/c2506fd6bd033af056d3.png": "6c07bff3614f2d8f0b6b4725059ff53ca2400c5c55bff0b1d918280d3d0c8733",
+    "expressions/presets/sukkiri_grin.json": "534aaafd41e4ca8a3c6ed1a1832c94cad8c9d3db2b0779407c2032790f5c1f7d",
+    "expressions/parts/bd921faee471578861f9.png": "3e22f39a4d2c722dda201be3fbbaf8be869538b6cdf28f5c0c2129dd7dea5375",
+    "expressions/parts/bfc7074f0903a6740c56.png": "dbca5dfa954aeb67416089a6ef0092eb04e1012cf0415d881aeeac81c75776aa",
+    "expressions/presets/sukkiri_manic.json": "a5c0e3f1b5bba6da5e85da64c49045dfd936beb8b37040836239f247b8151838",
+    "expressions/parts/694f48153f82fe2e182e.png": "02ebd89d845fcdf33909b0fec1d637e9243c477856984bfd7c7c9e6a567181a9",
+    "expressions/parts/3d8720d5010ffa20faa7.png": "05be589ef04b8555d6a0733b164257c364cb0a6c178631fd2d728a490272fb39",
+    "expressions/presets/sukkiri_tender.json": "266df76e6828880a294ab3132ba730b7b8af9e151f89d35723e64f8e66f0c7a6",
+    "expressions/parts/24c4547c2ba3943d7feb.png": "b5fe2e126e4ccf859b6c4a4824b8d9b65d74bd75bacaf283a6f2367ed8687f51",
+    "expressions/parts/7e221ebef1e7449e971e.png": "057f7b774253c4e1174e53e9e4484b3d05d2b835e570ef03f34fad8365148fe2",
+    "expressions/parts/978f9587fc55c9b7eeae.png": "7f86aafa8a5a2f84c0f6309acdb6c05a87644d3ad80ca20376ff0e48a850e99c"
   },
   "exports": {
     "assembled/alice/index.html": "b961aa40dc7b51ea1276104cc88fdd30d6da16908d3a04c186f82269316c17a3",

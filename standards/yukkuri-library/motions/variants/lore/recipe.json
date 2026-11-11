@@ -12,6 +12,7 @@
     "distress": {"clips": ["hat_stumble", "hat_jostle", "water_plunge", "water_struggle", "water_swim", "water_gasp", "water_recover", "water_held_breath", "boat_reassure", "boat_alarm_call", "boat_alarm_wait", "boat_answer_call", "boat_flee", "boat_calm", "braid_rescue_reach", "braid_rescue_hold", "braid_rescue_settle", "water_hat_flip", "water_hat_grip", "water_hat_climb", "water_hat_pull", "water_hat_over", "hat_brim_offer", "hat_hop_up", "water_bob_lunge", "hat_slide_over", "water_mouth_grip", "water_hat_shake", "water_hat_push", "boat_nudge_young", "braid_reach_low"]},
     "base-motions": {"clips": ["lunge_ram", "nod", "cling_right", "cling_left"], "braid_follow": true},
     "pet": {"clips": ["think", "nervous", "proud", "joy_jump", "sulk", "hide_face", "beg", "bow", "shy", "doze_off", "struggle", "basket_in", "basket_out", "ignore", "restrain"], "braid_follow": true},
+    "sukkiri": {"clips": ["sukkiri_pair_60", "sukkiri_pair_120", "sukkiri_mamu_60", "sukkiri_mamu_120", "sukkiri_alice_act", "sukkiri_held_240", "sukkiri_after_dazed", "sukkiri_after_tender", "sukkiri_after_proud", "sukkiri_after_manic"], "braid_follow": true},
     "aquatic": {"clip_source": "aquatic_tools.py", "clip_field": "EXPORT_CLIPS"}
   },
   "status": "pending_user_review",
@@ -7133,6 +7134,103 @@
       "triggers": [
         "no caller yet (bash at a pane, glass ram, push re-expression)"
       ]
+    },
+    "sukkiri_pair_60": {
+      "label": "素鸡立父方（发情期 60t）",
+      "duration": 3.0, "loop": false, "applies": "breeding",
+      "height_keys": [[0, 1], [2.1, 1], [2.2, 1.06], [2.7, 1.06], [2.9, 1], [3.0, 1]],
+      "yaw_keys": [[0, 0], [0.12, 12], [0.3, -12], [0.42, 8], [0.5, 0], [3.0, 0]],
+      "roll_keys": [[0, 0], [2.1, 0], [2.2, 2], [2.3, -2], [2.4, 2], [2.5, -2], [2.6, 1.5], [2.7, -1.5], [2.8, 0], [3.0, 0]],
+      "strokes": [[0.5, 1.2, 0.4, 0.35, 1.0, 1.0], [1.2, 2.0, 0.3, 0.15, 1.2, 1.4]],
+      "push_keys": [[2.0, 0], [2.1, 1.7], [2.7, 1.6], [3.0, 0]],
+      "faces": [[0, 0.5, "flushed_smile"], [0.5, 1.2, "flushed_tongue"], [1.2, 2.0, "impact"], [2.0, 2.3, "sukkiri_squeeze"], [2.3, 63.0, "sukkiri_dazed"]],
+      "variants": {"alice": {"match": ["alice"], "faces": [[0, 0.5, "sukkiri_manic"], [0.5, 63.0, "sukkiri_grin"]]}},
+      "lore": "Project design (user-approved sukkiri proposal): ordinary contact of 60 ticks from its start. Cheek rubs (0-10t), slow lower-body strokes (10-24t, every 8-7 ticks), faster (24-40t, every 6 down to 3 ticks), then the fixed 20-tick release: one deepest push, a 12-tick hold drawn up 6% with a fine roll tremble, and the slack return. The lean stays in the contact cue; no whole-body pitch here.",
+      "triggers": ["courtship CONTACT, father, requiredTicks 60 (wiring package)"]
+    },
+    "sukkiri_pair_120": {
+      "label": "素鸡立父方（非发情期 120t）",
+      "duration": 6.0, "loop": false, "applies": "breeding",
+      "height_keys": [[0, 1], [5.1, 1], [5.2, 1.06], [5.7, 1.06], [5.9, 1], [6.0, 1]],
+      "yaw_keys": [[0, 0], [0.3, 13], [0.75, -13], [1.2, 10], [1.5, 0], [6.0, 0]],
+      "roll_keys": [[0, 0], [5.1, 0], [5.2, 2], [5.3, -2], [5.4, 2], [5.5, -2], [5.6, 1.5], [5.7, -1.5], [5.8, 0], [6.0, 0]],
+      "strokes": [[1.5, 3.25, 0.4, 0.35, 1.0, 1.0], [3.25, 5.0, 0.3, 0.15, 1.2, 1.4]],
+      "push_keys": [[5.0, 0], [5.1, 1.7], [5.7, 1.6], [6.0, 0]],
+      "faces": [[0, 1.5, "flushed_smile"], [1.5, 3.25, "flushed_tongue"], [3.25, 5.0, "impact"], [5.0, 5.3, "sukkiri_squeeze"], [5.3, 63.0, "sukkiri_dazed"]],
+      "variants": {"alice": {"match": ["alice"], "faces": [[0, 1.5, "sukkiri_manic"], [1.5, 63.0, "sukkiri_grin"]]}},
+      "lore": "Project design: the same beats over 120 ticks (rubs 0-30t, slow 30-65t, fast 65-100t, release 100-120t).",
+      "triggers": ["courtship CONTACT, father, requiredTicks 120 (wiring package)"]
+    },
+    "sukkiri_mamu_60": {
+      "base": "sukkiri_pair_60", "label": "素鸡立母方（60t）", "variants": {}, "push_role": "take", "push_delay": 0.05,
+      "height_keys": [[0, 1], [3.0, 1]], "yaw_keys": [[0, 0], [3.0, 0]],
+      "roll_keys": [[0, 0], [2.15, 0], [2.25, 1.5], [2.35, -1.5], [2.45, 1.5], [2.55, -1.5], [2.65, 1], [2.75, -1], [2.85, 0], [3.0, 0]],
+      "faces": [[0, 0.5, "flushed_smile"], [0.5, 1.2, "flushed_tongue"], [1.2, 2.0, "teary_tongue"], [2.0, 2.3, "sukkiri_squeeze"], [2.3, 63.0, "sukkiri_dazed"]],
+      "lore": "Project design: the mother answers each stroke a tick later with a small forward shove and a pressed squash (a physical push), and trembles with him at the release. Her lean and look-backs stay in the contact cue.",
+      "triggers": ["courtship CONTACT, mother, requiredTicks 60 (wiring package)"]
+    },
+    "sukkiri_mamu_120": {
+      "base": "sukkiri_pair_120", "label": "素鸡立母方（120t）", "variants": {}, "push_role": "take", "push_delay": 0.05,
+      "height_keys": [[0, 1], [6.0, 1]], "yaw_keys": [[0, 0], [6.0, 0]],
+      "roll_keys": [[0, 0], [5.15, 0], [5.25, 1.5], [5.35, -1.5], [5.45, 1.5], [5.55, -1.5], [5.65, 1], [5.75, -1], [5.85, 0], [6.0, 0]],
+      "faces": [[0, 1.5, "flushed_smile"], [1.5, 3.25, "flushed_tongue"], [3.25, 5.0, "teary_tongue"], [5.0, 5.3, "sukkiri_squeeze"], [5.3, 63.0, "sukkiri_dazed"]],
+      "lore": "Project design: the mother's answer over 120 ticks.",
+      "triggers": ["courtship CONTACT, mother, requiredTicks 120 (wiring package)"]
+    },
+    "sukkiri_alice_act": {
+      "label": "攻击素鸡立爱丽丝（240t）",
+      "duration": 12.0, "loop": false, "applies": "breeding",
+      "height_keys": [[0, 1], [9.85, 1], [10.0, 1.06], [11.25, 1.06], [11.8, 1], [12.0, 1]],
+      "roll_keys": [[0, 0], [10.0, 0], [10.1, 2], [10.2, -2], [10.3, 2], [10.4, -2], [10.5, 2], [10.6, -2], [10.7, 1.5], [10.8, -1.5], [10.9, 1.5], [11.0, -1.5], [11.1, 1], [11.2, -1], [11.3, 0], [12.0, 0]],
+      "strokes": [[0, 4.5, 0.5, 0.5, 1.0, 1.0], [4.5, 7.5, 0.3, 0.3, 1.2, 1.2], [7.5, 9.75, 0.2, 0.15, 1.4, 1.4]],
+      "push_keys": [[9.75, 0], [9.85, 1.7], [11.25, 1.6], [12.0, 0]],
+      "faces": [[0, 63.0, "sukkiri_grin"]],
+      "lore": "Project design: Alice's 240-tick act on the server clock (finale lines 150/195/240, release effect 200). Strokes every 10 ticks, then 6, then a 4-to-3-tick rush to the deepest push at 197, the 25-tick tremble hold from the release at 200, slack to 240. Rolled-eye grin throughout (user: manic and evil, no smug stage).",
+      "triggers": ["agitation ALICE_ACT (wiring package)"]
+    },
+    "sukkiri_held_240": {
+      "base": "sukkiri_alice_act", "label": "被压住的受方（240t）", "push_role": "take", "push_delay": 0.05,
+      "height_keys": [[0, 1], [12.0, 1]],
+      "roll_keys": [[0, 0], [10.05, 0], [10.15, 1.5], [10.25, -1.5], [10.35, 1.5], [10.45, -1.5], [10.55, 1], [10.65, -1], [10.75, 0], [12.0, 0]],
+      "faces": [[0, 10.0, "squeezed_cry_tears"], [10.0, 10.75, "blank_cry"], [10.75, 63.0, "squeezed_cry_tears"]],
+      "lore": "Project design: the pinned body is shoved by each stroke a tick later and shudders at the release; its pinned lean stays in the cue.",
+      "triggers": ["agitation HELD (wiring package)"]
+    },
+    "sukkiri_after_dazed": {
+      "label": "素鸡立后失神（父方）",
+      "duration": 6.0, "loop": false, "applies": "breeding",
+      "height_keys": [[0, 1], [6.0, 1]],
+      "yaw_keys": [[0, 0], [0.6, 6], [1.2, 0], [1.8, -6], [2.4, 0], [6.0, 0]],
+      "roll_keys": [[0, 0], [0.6, 2], [1.2, 0], [1.8, -2], [2.4, 0], [6.0, 0]],
+      "faces": [[0, 1.5, "sukkiri_dazed"], [1.5, 63.0, "satisfied"]],
+      "lore": "Project design: 120 ticks after the pair separate. A slow, unfocused sway while dazed, then content and still.",
+      "triggers": ["HEAT_RELIEF / contact end, father other than Marisa and Alice (wiring package)"]
+    },
+    "sukkiri_after_tender": {
+      "base": "sukkiri_after_dazed", "label": "素鸡立后温柔满足（母方）",
+      "faces": [[0, 1.5, "sukkiri_dazed"], [1.5, 63.0, "sukkiri_tender"]],
+      "lore": "Project design: the mother dazes, then settles into a tender, content face (user: gentler than satisfied).",
+      "triggers": ["HEAT_RELIEF / contact end, mother (wiring package)"]
+    },
+    "sukkiri_after_proud": {
+      "label": "素鸡立后神气（魔理沙父方）",
+      "duration": 6.0, "loop": false, "applies": "breeding",
+      "height_keys": [[0, 1], [2.0, 1], [2.6, 1.05], [4.4, 1.06], [4.55, 1.08], [4.75, 1.06], [5.5, 1.06], [6.0, 1]],
+      "pitch_keys": [[0, 0], [2.0, 0], [2.6, 4], [5.5, 4], [6.0, 0]],
+      "yaw_keys": [[0, 0], [0.6, 6], [1.2, 0], [1.8, -6], [2.0, 0], [6.0, 0]],
+      "roll_keys": [[0, 0], [0.6, 2], [1.2, 0], [1.8, -2], [2.0, 0], [6.0, 0]],
+      "faces": [[0, 2.0, "sukkiri_dazed"], [2.0, 63.0, "sukkiri_smug"]],
+      "lore": "Project design: Marisa dazes, then draws herself up tall, leans back 4 degrees and gives one small bounce at the third relief line (91t) before settling: smug afterglow, strongest on Marisa.",
+      "triggers": ["HEAT_RELIEF / contact end, Marisa father (wiring package)"]
+    },
+    "sukkiri_after_manic": {
+      "label": "攻击后癫狂余韵（爱丽丝）",
+      "duration": 6.0, "loop": false, "applies": "breeding",
+      "height_keys": [[0, 1], [0.5, 1], [0.7, 1.04], [1.6, 1.04], [1.8, 1], [3.0, 1], [3.2, 1.04], [4.1, 1.04], [4.3, 1], [6.0, 1]],
+      "yaw_keys": [[0, 0], [0.5, 0], [0.6, 5], [0.7, -5], [0.8, 5], [0.9, -5], [1.0, 5], [1.1, -5], [1.2, 4], [1.3, -4], [1.4, 0], [3.0, 0], [3.1, 5], [3.2, -5], [3.3, 5], [3.4, -5], [3.5, 4], [3.6, -4], [3.7, 0], [6.0, 0]],
+      "faces": [[0, 63.0, "sukkiri_manic"]],
+      "lore": "Project design: sated but still unhinged, Alice keeps the wide manic grin and shakes with two bursts of giggling (user: no smug stage for Alice).",
+      "triggers": ["HEAT_RELIEVED after ALICE_ACT, and Alice as a father (wiring package)"]
     }
   },
   "flourishes": {

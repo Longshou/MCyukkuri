@@ -103,7 +103,13 @@
     "smug__new": "expressions/presets/smug__new.json",
     "surprise__new": "expressions/presets/surprise__new.json",
     "teary__new": "expressions/presets/teary__new.json",
-    "yawn__new": "expressions/presets/yawn__new.json"
+    "yawn__new": "expressions/presets/yawn__new.json",
+    "sukkiri_squeeze": "expressions/presets/sukkiri_squeeze.json",
+    "sukkiri_dazed": "expressions/presets/sukkiri_dazed.json",
+    "sukkiri_smug": "expressions/presets/sukkiri_smug.json",
+    "sukkiri_grin": "expressions/presets/sukkiri_grin.json",
+    "sukkiri_manic": "expressions/presets/sukkiri_manic.json",
+    "sukkiri_tender": "expressions/presets/sukkiri_tender.json"
   },
   "effects": {
     "wet_highlight": "expressions/effects/wet_highlight.json",

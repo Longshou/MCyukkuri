@@ -2,9 +2,9 @@
   "geometry_identifier": "reimu_wasa_deibu",
   "base_species": "reimu",
   "selected_model": "standards/yukkuri-library/subspecies/reimu-dos/assembled/reimu_wasa/reimu_wasa.bbmodel",
-  "selected_model_sha256": "1372327e7055b72a6431e91380a83256f300b3cf5c7cbe4450396f355a1d1788",
+  "selected_model_sha256": "073de191216c65781877da8cb200c91bb345dc415243fea1865333647bd626df",
   "selected_rig": "standards/yukkuri-library/subspecies/reimu-dos/assembled/reimu_wasa/animation-rig.json",
-  "selected_rig_sha256": "d10b475577ae0159d9dc2b3047b5be897059795bd5145ce9f6dd2e1c49f7000c",
+  "selected_rig_sha256": "8c12c5da81e9d6a5f90a7a57b621a786b1fcea63005e68b95cb081921e0da84a",
   "retargeting": {
     "composition": [
       "reimu_wasa",
@@ -15,7 +15,7 @@
   "shape_status": "runtime_combination_pending_confirmation",
   "runtime_acceptance": "pending_current_verification",
   "runtime": "src/main/resources/assets/mcyukkuri/yukkuri/reimu_wasa_deibu.json",
-  "runtime_sha256": "acbb0ee21e76d501992206a18e69c5b1e23cb1375201356ad38ce7cb8f61e652",
+  "runtime_sha256": "5b3df3a8e7ff1be9d90da79fdcebdc2ff92e94bece469cd6a95a253d441887aa",
   "rig": "art/source/rounded-runtime/reimu_wasa_deibu/animation-rig.json",
   "bone_count": 261,
   "clips": [
@@ -43,146 +43,146 @@
   "textures": {
     "neutral": {
       "source": "standards/yukkuri-library/subspecies/reimu-dos/assembled/reimu_wasa/textures/neutral.png",
-      "source_sha256": "fbac91d3335b6e08db0b7cb2b193c85aae6b24a5f2b0eab752be8c42be88f263",
+      "source_sha256": "263a07e280946366488ee7553956eb38f5fd8803f9da637b4646f1ab1ad3fd4e",
       "snapshot": "art/source/rounded-runtime/reimu_wasa_deibu/textures/neutral.png",
       "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_wasa_deibu/neutral.png",
-      "sha256": "88c7fbcb380c193f26371b32a5a1751ac7694c3aa1956edbb442ef78fad4392f",
+      "sha256": "4e2e003fe263ad30ec01eb08c680eac0ad2f3d5bb046265de00cf05d683a8ec1",
       "mature_face": true
     },
     "happy": {
       "source": "standards/yukkuri-library/subspecies/reimu-dos/assembled/reimu_wasa/textures/happy.png",
-      "source_sha256": "b57223ea59e86f2f3501e683e5ee3bb7b64a0ca80d08e60568a4eb40bb55b02b",
+      "source_sha256": "d9808ae457ebe526f6fd07268480e0e6b1fabde50f6eb648cccecaace497e96b",
       "snapshot": "art/source/rounded-runtime/reimu_wasa_deibu/textures/happy.png",
       "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_wasa_deibu/happy.png",
-      "sha256": "ad9365ad1ff9fedc3a6aefa93f4e96b5cd332bfc5c5fd06b0e18109f9446f23c",
+      "sha256": "6467676d79444e3c143d904d9d8437d2fac504a77225fa19f552dff3c8b47f46",
       "mature_face": true
     },
     "cry": {
       "source": "standards/yukkuri-library/subspecies/reimu-dos/assembled/reimu_wasa/textures/cry.png",
-      "source_sha256": "0f65641f6fef2150d7d216f3c7fb79e297bc90241be733402be8af58815b39bb",
+      "source_sha256": "1e68ee35b8a038a7bd14c044d46b1579f0c604226085873949cdf5902c97c383",
       "snapshot": "art/source/rounded-runtime/reimu_wasa_deibu/textures/cry.png",
       "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_wasa_deibu/cry.png",
-      "sha256": "418bae3940eca707b947950051d7fbb34b36b43988e591a101826396094f108e",
+      "sha256": "c486fb39542559aa7147d0520052cb4fe2a1aebdfea92f12e97c69cf34acbbf9",
       "mature_face": true
     },
     "teary": {
       "source": "standards/yukkuri-library/subspecies/reimu-dos/assembled/reimu_wasa/textures/teary.png",
-      "source_sha256": "f5cc66d63fcf28c53d5dd48cc706f4af249cfe52044d00af8e6e30fb846b1be7",
+      "source_sha256": "7a8e2328f524e90e272a166651d0f7d0d30ae65e74db8c7aad392ae76b9df374",
       "snapshot": "art/source/rounded-runtime/reimu_wasa_deibu/textures/teary.png",
       "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_wasa_deibu/teary.png",
-      "sha256": "85c5529d95c6708dee4b3b066c5138952778eaf0f3c4ccb00d6b477e92acf5dd",
+      "sha256": "a08ee8ac5ffc2be22b74b7829d92d405a6ba7a86de62e44a3c97261a546df3d0",
       "mature_face": true
     },
     "drool": {
       "source": "standards/yukkuri-library/subspecies/reimu-dos/assembled/reimu_wasa/textures/drool.png",
-      "source_sha256": "53a32eb6980663d86c47d7ba8cbd2796fb8e1fa73dfc40bc0abeba3f13183537",
+      "source_sha256": "a81725072c34c8fa8cdae2a7d628fe6924b5c9b45bb748724d51550699793603",
       "snapshot": "art/source/rounded-runtime/reimu_wasa_deibu/textures/drool.png",
       "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_wasa_deibu/drool.png",
-      "sha256": "71b5d5603b18f1b20ff9bb3a8f0aea71d22ab53c0ffa80324b569f49a55864a3",
+      "sha256": "9e5d1e0a9a0832b794a1c6ec34e6c77669e668886cef6a993f9c9e83852b9bf5",
       "mature_face": true
     },
     "confused": {
       "source": "standards/yukkuri-library/subspecies/reimu-dos/assembled/reimu_wasa/textures/confused.png",
-      "source_sha256": "fbdcc3fba9e3715eeb2c5bf27d0eaa098e4793fb1b808086a98a9cf63928f7fb",
+      "source_sha256": "5c4c82801642fd9eca0065c9882e264160389a438d43d19b82b5856dffd31a79",
       "snapshot": "art/source/rounded-runtime/reimu_wasa_deibu/textures/confused.png",
       "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_wasa_deibu/confused.png",
-      "sha256": "88c7fbcb380c193f26371b32a5a1751ac7694c3aa1956edbb442ef78fad4392f",
+      "sha256": "4e2e003fe263ad30ec01eb08c680eac0ad2f3d5bb046265de00cf05d683a8ec1",
       "mature_face": true
     },
     "yawn": {
       "source": "standards/yukkuri-library/subspecies/reimu-dos/assembled/reimu_wasa/textures/yawn.png",
-      "source_sha256": "67ffb8dd101fa09b1a16534e3c0fca84d564018f03b9a15ed74cbcfcdd5e7486",
+      "source_sha256": "1e1bb6a4a10e10894fe8fab14b374e87f57d23df93dfc8e339bc82517c617fa0",
       "snapshot": "art/source/rounded-runtime/reimu_wasa_deibu/textures/yawn.png",
       "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_wasa_deibu/yawn.png",
-      "sha256": "dbb41c2315ef46d0c32238615a27cf81d458453906b8aa670b302259d82646be",
+      "sha256": "03d89c613f497021afe489398177b162fb32273667441cb11877520c8c941881",
       "mature_face": true
     },
     "sleep": {
       "source": "standards/yukkuri-library/subspecies/reimu-dos/assembled/reimu_wasa/textures/sleep.png",
-      "source_sha256": "e6f3c01c14334ad6e36a32f8b2ff0a56baa426bfad89f5b377289c1b9a956f4e",
+      "source_sha256": "8d0be875f8d0d8be603560ee4e7e0f943242aeaf0a0cff7d487818ac2fdf1c3c",
       "snapshot": "art/source/rounded-runtime/reimu_wasa_deibu/textures/sleep.png",
       "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_wasa_deibu/sleep.png",
-      "sha256": "13860ae45352aa3c3ce308b51fa2e38e0bc7e79ac38d50360d7aaf512001278f",
+      "sha256": "a4019dadcc0f5170bbaf546e3fbd71b8b7b2c593ca3506d71e04028b321bdeae",
       "mature_face": true
     },
     "angry": {
       "source": "standards/yukkuri-library/subspecies/reimu-dos/assembled/reimu_wasa/textures/angry.png",
-      "source_sha256": "ea511b75671dcb53fb7bac0ea7c9b9fee09a02e9b946127f8bdef6c725f8c6fd",
+      "source_sha256": "910c948d251a342df5dd06dd794f6636501f0594d4dd579a77c688c2f28ae2e4",
       "snapshot": "art/source/rounded-runtime/reimu_wasa_deibu/textures/angry.png",
       "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_wasa_deibu/angry.png",
-      "sha256": "f514d6200a06678fafd6e370122c3e78cd0c08cdb2ee9dbceb3c298ba94c3227",
+      "sha256": "735618949af5fb185c64add6d2b0743199e5a30db06cd6e19b6d7d8bad6bd20b",
       "mature_face": true
     },
     "surprise": {
       "source": "standards/yukkuri-library/subspecies/reimu-dos/assembled/reimu_wasa/textures/surprise.png",
-      "source_sha256": "07d90ebaea95d148a455caca4bc287bfe77913d4bca51dc6b971a210896bc5b1",
+      "source_sha256": "cb9f18bd325ad0fbdfadac18e591ee469e2628007e903d1e046cfe75cd9a57aa",
       "snapshot": "art/source/rounded-runtime/reimu_wasa_deibu/textures/surprise.png",
       "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_wasa_deibu/surprise.png",
-      "sha256": "7b4eaa585907fbd7b8510fc40afe0722dbd04d638e4514d333853612c788a7d3",
+      "sha256": "3673d4768324d94887c8239e9fc7b98bb7a2fd56ac12e97f0ed195bc58118f41",
       "mature_face": true
     },
     "sleepy": {
       "source": "standards/yukkuri-library/subspecies/reimu-dos/assembled/reimu_wasa/textures/sleepy.png",
-      "source_sha256": "912832205227f64e470fec0d4664b0117a55806bfa997991520d114c753847e3",
+      "source_sha256": "2bbb5d38f59275df14f0f31a64a8276bbebf1094f8eccc17592c5cf5a15722da",
       "snapshot": "art/source/rounded-runtime/reimu_wasa_deibu/textures/sleepy.png",
       "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_wasa_deibu/sleepy.png",
-      "sha256": "13860ae45352aa3c3ce308b51fa2e38e0bc7e79ac38d50360d7aaf512001278f",
+      "sha256": "a4019dadcc0f5170bbaf546e3fbd71b8b7b2c593ca3506d71e04028b321bdeae",
       "mature_face": true
     },
     "closed_smile": {
       "source": "standards/yukkuri-library/assembled/reimu/textures/closed_smile.png",
-      "source_sha256": "e873cb3ba8b4152b3ab27fc2b1599c69e94ddd6897b068c3c660f041382ead83",
+      "source_sha256": "a8586d37ef56476aac7e3776562e1415f8b60934ba6e773e9bee7d76b05699ec",
       "snapshot": "art/source/rounded-runtime/reimu_wasa_deibu/textures/closed_smile.png",
       "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_wasa_deibu/closed_smile.png",
-      "sha256": "87e6871eeb6f315879f20ff6c215d0a28821be94a372e9dc8ebe39dfe4a91334",
+      "sha256": "8b88698d9427118c4ec303445a763113247bdf05a1dfcf82f5d45c282303901d",
       "mature_face": true
     },
     "chewing": {
       "source": "standards/yukkuri-library/assembled/reimu/textures/chewing.png",
-      "source_sha256": "063ee7c16eb408acb7dbc5995165c42680f2ef62a2cef83ee7596dbf47430b14",
+      "source_sha256": "735b561f6fc5c3f472779a0625a4340c05e3456f462078f1748bcf19dbb05151",
       "snapshot": "art/source/rounded-runtime/reimu_wasa_deibu/textures/chewing.png",
       "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_wasa_deibu/chewing.png",
-      "sha256": "4553a32d682cd2e533dc2f2d5dbbbb1ece1f76a06d5bb6652db916d64bf3c8c9",
+      "sha256": "8fb73a04ae4ebb2352be9c94c94f1a643dc15e8a85db07d275df4dde4cbca625",
       "mature_face": true
     },
     "chewing_closed": {
       "source": "standards/yukkuri-library/assembled/reimu/textures/chewing_closed.png",
-      "source_sha256": "1eecdbaf7fcc0f7154f54e1422622f00dd55a0e4501612a706b6a7e26e6c3025",
+      "source_sha256": "ec2e9220b17d378b246e2214ad817f3bc6aacf768d731eea1a09b2e821d9e303",
       "snapshot": "art/source/rounded-runtime/reimu_wasa_deibu/textures/chewing_closed.png",
       "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_wasa_deibu/chewing_closed.png",
-      "sha256": "d295fa999379ddc1d69482b433fcbdad6084b47dae73a0344f7fd74535f08da3",
+      "sha256": "0f1112d33dfcf281d8af3aac50358e31a4532cd247b80e0e8cd19efb89a4350f",
       "mature_face": true
     },
     "satisfied": {
       "source": "standards/yukkuri-library/assembled/reimu/textures/satisfied.png",
-      "source_sha256": "5003ba56f58c95e52c8d194240ed42482607d2bac962306787f461dd5c6912d4",
+      "source_sha256": "ee4e08dafb46c652f3d8a56a4dab72f06ec762986b8f05ac17e63d5e8e833fe6",
       "snapshot": "art/source/rounded-runtime/reimu_wasa_deibu/textures/satisfied.png",
       "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_wasa_deibu/satisfied.png",
-      "sha256": "4553a32d682cd2e533dc2f2d5dbbbb1ece1f76a06d5bb6652db916d64bf3c8c9",
+      "sha256": "8fb73a04ae4ebb2352be9c94c94f1a643dc15e8a85db07d275df4dde4cbca625",
       "mature_face": true
     },
     "open_smile": {
       "source": "standards/yukkuri-library/assembled/reimu/textures/open_smile.png",
-      "source_sha256": "73ddcc3da82417b11b98d94d859e6885cb07474cf08e763b7b56e4ef6803ecfc",
+      "source_sha256": "7593aeb71b390f2bc3b84a629cef40a8d00833f7d92e8eb46c8112ff7bb3ffb2",
       "snapshot": "art/source/rounded-runtime/reimu_wasa_deibu/textures/open_smile.png",
       "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_wasa_deibu/open_smile.png",
-      "sha256": "ebac44572d5c415df9848e4b8cd958718c0470eea707cc5bea3be80ad7299f82",
+      "sha256": "3bfe20453e15f891aa7ed4cc63cbf4c812e6eaf206f80f65cef6833926e3bb90",
       "mature_face": true
     },
     "smug": {
       "source": "standards/yukkuri-library/subspecies/reimu-dos/assembled/reimu_wasa/textures/smug.png",
-      "source_sha256": "7e5bd8aa851673e412ea307763b5290d725f86975463a69fe035e7dc1ece51d8",
+      "source_sha256": "927fc9538391b7048284092e9345f60201d64b33420eadf6657078f9145bd76b",
       "snapshot": "art/source/rounded-runtime/reimu_wasa_deibu/textures/smug.png",
       "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_wasa_deibu/smug.png",
-      "sha256": "88c7fbcb380c193f26371b32a5a1751ac7694c3aa1956edbb442ef78fad4392f",
+      "sha256": "4e2e003fe263ad30ec01eb08c680eac0ad2f3d5bb046265de00cf05d683a8ec1",
       "mature_face": true
     },
     "puff": {
       "source": "standards/yukkuri-library/subspecies/reimu-dos/assembled/reimu_wasa/textures/puff.png",
-      "source_sha256": "27b340ccc148b5cba9b33f6afc17c2e52a0bf34c27a0ec649ea8579ae4068967",
+      "source_sha256": "7680f182750f3a4f29f53f1a0c23017ec6205f6ae0c599ec47903af75ec13961",
       "snapshot": "art/source/rounded-runtime/reimu_wasa_deibu/textures/puff.png",
       "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_wasa_deibu/puff.png",
-      "sha256": "f514d6200a06678fafd6e370122c3e78cd0c08cdb2ee9dbceb3c298ba94c3227",
+      "sha256": "735618949af5fb185c64add6d2b0743199e5a30db06cd6e19b6d7d8bad6bd20b",
       "mature_face": true
     }
   }
