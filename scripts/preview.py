@@ -166,8 +166,18 @@ def render_strip(args, stage, times, before=False):
     specs = [(args.model, args.prop, [0, 0, 0])]
     if args.partner:
         specs.append((args.partner, None, args.partner_offset))
-    for model, prop, offset in specs:
+    for index, (model, prop, offset) in enumerate(specs):
         a, images = actor(model, prop, args.clip, offset, source_root)
+        if getattr(args, 'draft_clip', None) and index == 0:
+            # A draft clip in runtime units, bones by name; only the main actor plays it.
+            draft = read(Path(args.draft_clip))
+            bones = {b['name']: i for i, b in enumerate(read(a['path'])['bones'])}
+            missing = sorted({t['bone'] for t in draft['tracks']} - bones.keys())
+            if missing:
+                raise ValueError(f'Draft clip bones missing on {model}: {", ".join(missing)}')
+            a['clip'] = 'draft:'+draft['id']
+            a['draftClip'] = dict(duration=draft['duration'], loop=draft.get('loop', False),
+                                  tracks=[dict(t, bone=bones[t['bone']]) for t in draft['tracks']])
         if getattr(args, 'face_preset', None) and not before and not prop:
             from runtime_face_library import compose_preset
             preset_path = Path(args.face_preset).resolve()
@@ -635,6 +645,7 @@ def parser():
             p.add_argument('--face', help='runtime expression id; with --before and --face-preset, the before-side face')
             p.add_argument('--face-preset', help='preset JSON composed as a draft with the runtime face library')
             p.add_argument('--texture', help='atlas PNG drawn instead of the face texture (geometry of --face, default neutral)')
+            p.add_argument('--draft-clip', help='draft clip JSON (runtime units, bones by name) played by --model instead of --clip')
             time = p.add_mutually_exclusive_group()
             time.add_argument('--times', default='0s,0.25s,0.5s,0.75s')
             time.add_argument('--beats', help='one time (seconds or ticks), then optional label per line')
@@ -694,6 +705,8 @@ def main():
                 raise ValueError('size must be positive')
             if args.command == 'strip' and args.face_preset and not args.model:
                 raise ValueError('--face-preset requires --model')
+            if args.command == 'strip' and args.draft_clip and (args.prop or args.before):
+                raise ValueError('--draft-clip needs --model and no --before')
             if args.command == 'strip' and args.face and args.face_preset and not args.before:
                 raise ValueError('--face only applies to the old side of --before when --face-preset is given')
             if args.command == 'capture' and (args.zoom <= 0 or args.count < 2):

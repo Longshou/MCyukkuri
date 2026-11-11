@@ -1,0 +1,40 @@
+{
+  "id": "dazed_flushed",
+  "label": "失神流口水",
+  "group": "特殊状态",
+  "status": "draft",
+  "origin": "project design",
+  "recipe": {
+    "source": "draft-composition",
+    "base": "dull",
+    "note": "after release: glazed highlight-less eyes under a heavy lid, slack small mouth, drool, flushed"
+  },
+  "parts": {
+    "face_eye_left": "drafts/sukkiri/parts/eye_dazed.png",
+    "face_brow_left": "expressions/parts/af2d4cf86a7386999bbb.png",
+    "face_blush_left": "expressions/parts/cef8e0a1ebaf2b15b078.png",
+    "face_tear_left": "expressions/parts/d114c9609a58da8454a5.png",
+    "face_eye_right": "drafts/sukkiri/parts/eye_dazed.png",
+    "face_brow_right": "expressions/parts/af2d4cf86a7386999bbb.png",
+    "face_blush_right": "expressions/parts/cef8e0a1ebaf2b15b078.png",
+    "face_tear_right": "expressions/parts/d114c9609a58da8454a5.png",
+    "face_mouth": "expressions/parts/312577fa8d373c00b276.png",
+    "face_effect_mouth": "expressions/parts/3ebf6c7bfe6b460cd049.png"
+  },
+  "geometry_offsets": {
+    "face_eye_left": {
+      "scale": [
+        0.82,
+        1.04,
+        1
+      ]
+    },
+    "face_eye_right": {
+      "scale": [
+        0.82,
+        1.04,
+        1
+      ]
+    }
+  }
+}

@@ -16,6 +16,7 @@ const actors=job.actors.map(a=>{
  const model=read(a.path);
  if(!a.prop&&faces)model.expression_patches={...model.expression_patches,...faces.models[a.id].expression_patches};
  if(!a.prop&&a.draftFace)model.expression_patches={...model.expression_patches,[a.face]:a.draftFace};
+ if(a.draftClip)model.clips={...model.clips,[a.clip]:a.draftClip};
  const pose=a.prop?null:new RuntimePose(model,a.scale,revisions[a.id],fits[a.id]);
  if(pose&&!pose.clips[a.clip])throw Error('Unknown clip '+a.id+'/'+a.clip);
  if(pose&&!a.moment&&job.times.some(t=>t>pose.clips[a.clip].duration))throw Error('Beat time exceeds clip duration: '+a.id+'/'+a.clip);

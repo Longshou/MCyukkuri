@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="zh-CN"><meta charset="utf-8"><title>素鸡立演出方案（待你确认）</title>
+<style>
+body{font:16px/1.65 sans-serif;margin:24px auto;max-width:1280px;padding:0 16px;background:#222;color:#eee}
+a{color:#8cf}img{max-width:100%;display:block;margin:6px 0;border-radius:4px}
+h2{margin-top:36px;border-bottom:1px solid #555;padding-bottom:4px}h3{margin:22px 0 4px}
+table{border-collapse:collapse;margin:8px 0 16px;font-size:15px}th,td{border:1px solid #555;padding:4px 8px;vertical-align:top}
+th{background:#333}.ask{background:#3a3320;border-left:4px solid #e0b040;padding:8px 16px}small,.note{color:#bbb}
+code{background:#333;padding:0 4px;border-radius:3px}
+</style>
+<body>
+<p><a href="../inbox/index.html">待你查看</a> · <a href="../index.html">预览总入口</a></p>
+<h1>素鸡立演出方案（第一步：只给方案，认可后再做）</h1>
+<p>针对你的反馈：素鸡立缺少<b>释放时刻</b>；要有<b>父油下身耸动</b>；表情要有变化——<b>失神</b>、父油结束后<b>带点神气</b>（主要是魔理沙）、爱丽丝<b>咧嘴大笑翻白眼</b>。
+下面的图都是离线粗样（真实运行模型＋草稿表情／草稿动作，<code>preview.py strip</code> 渲染），只用来定方向，不是成品。</p>
+
+<div class="ask"><b>需要你决定</b>
+<ol>
+<li>四张新表情的样子能不能用、要改哪里：潮红挤眼喊、失神流口水、潮红得意（半垂眼）、翻白眼咧嘴笑（见第 1 节）。</li>
+<li>魔理沙事后“神气”＝半垂眼得意脸＋挺身后仰、小弹一下，够不够神气；爱丽丝攻击后也用得意脸，还是只给魔理沙（其他种族事后是满足闭眼）。</li>
+<li>下身耸动的幅度和节奏（底部顶出约体宽的 1/10、释放时 1/8，慢 8 tick 一次→快 3 tick 一次）是否明显、是否过头（见第 3 节）。</li>
+<li>普通配对的「すっきり～！」现在是分开之后才喊：要不要挪到释放瞬间一起喊（爱丽丝那条已经是释放时喊）。</li>
+<li>释放效果：两体停住细颤＋现有精餡色水滴（提前到释放那一刻，从接合处喷出、分两次）＋头顶爱心＋一个音效挂点（先用原版小挤压声占位，配音阶段再换），够不够。</li>
+</ol></div>
+
+<h2>1. 新表情（粗样，按标准表情部件拼合）</h2>
+<p>每行一张表情，三列是魔理沙／灵梦／爱丽丝的真实运行模型正面。“现有”行是对照用的已认可得意脸。新画的部件只有 4 个：翻白眼（黑眼珠只剩上沿一条）、咧嘴大笑嘴（舌头搭出下唇）、失神眼（无高光灰眼＋压低眼皮）、半垂得意眼；其余眼眉嘴、潮红腮红、口水都复用已认可部件。</p>
+<img src="faces-new.png" alt="新表情">
+<p class="note">新表情：<b>潮红挤眼喊</b>（释放瞬间，所有角色）、<b>失神流口水</b>（释放后的“失神”）、<b>潮红得意</b>（事后神气）、<b>翻白眼咧嘴笑</b>（爱丽丝释放）。受方的“白眼哭喊”、母方的“含泪伸舌”、“满足闭眼”等都是现有表情。<br>
+粗样限制：草稿统一用标准深色眼珠，所以爱丽丝的得意眼和翻白眼上沿是深色；正式版改用各种族自己的眼色（爱丽丝蓝眼）。“潮红挤眼喊”和现有“受击挤眼”只差潮红，靠时机区分。</p>
+
+<h2>2. 各角色的表情变化</h2>
+<p>现在普通配对是一张表（潮红笑→伸舌→挤眼）不分角色和种族；改成按<b>角色＋种族</b>各一条，找不到专表就用默认。</p>
+<h3>父·魔理沙（最强：失神后转神气）</h3><img src="sequence-0.png" alt="父魔理沙">
+<h3>父·灵梦及其他种族（失神后满足）</h3><img src="sequence-1.png" alt="父灵梦">
+<h3>母方（各种族相同）</h3><img src="sequence-2.png" alt="母方">
+<h3>爱丽丝·攻击素鸡立（释放时翻白眼咧嘴大笑）</h3><img src="sequence-3.png" alt="爱丽丝">
+<h3>受方（被爱丽丝压住）</h3><img src="sequence-4.png" alt="受方">
+
+<h2>3. 父油下身耸动与释放（魔理沙草稿片段）</h2>
+<p><b>动哪里：</b>身体的 32 层软体切片（<code>soft_head_slice_0..31</code>）沿前方平移，底层动得最多、往上递减、头顶几乎不动（顶部还略向后 12%），<code>rump_sway</code> 跟着前移 70%；顶出时身体前后略长 4%、高度略低 3.5%（用力推的物理原因，不是表情压扁）。<b>不加整体俯仰</b>：前倾仍由现有接触姿态给，原姿态里整身一前一后的“点头式”顶送去掉，于是看起来是下身在动而不是整个球在鞠躬。俯仰＋横滚合计仍在 12° 内（前倾 6–9° ＋ 颤抖 2°）。</p>
+<h3>慢顶（8 tick 一次，顶出 1.0 模型单位）</h3><img src="pose-slow.png" alt="慢顶">
+<h3>快顶（4 tick 一次，顶出 1.4）</h3><img src="pose-fast.png" alt="快顶">
+<h3>释放（20 tick：最深一顶→停住颤抖→松劲）</h3><img src="pose-release.png" alt="释放">
+<h3>双人站位下的释放（灵梦在前，离线摆位示意）</h3><img src="pose-pair.png" alt="双人释放">
+<h3>事后：失神摇晃</h3><img src="pose-dazed.png" alt="失神">
+<h3>事后：魔理沙神气（挺身后仰 4°、伸高 6%、小弹一下后停住）</h3><img src="pose-proud.png" alt="神气">
+
+<h2>4. 节拍表</h2>
+<h3>普通配对（MD-08）：接触 R tick（发情期 60，非发情期 120），释放固定是最后 20 tick</h3>
+<table>
+<tr><th>段</th><th>R=60</th><th>R=120</th><th>父油</th><th>母油</th></tr>
+<tr><td>擦蹭（铺垫）</td><td>0–10</td><td>0–30</td><td>沿用：脸颊左右擦她后背；潮红闭眼笑</td><td>沿用：后靠、轮流回头；潮红闭眼笑</td></tr>
+<tr><td>慢顶</td><td>10–24</td><td>30–65</td><td>下身顶出 1.0，8→7 tick 一次（约 2 次／5 次）；潮红伸舌</td><td>每顶晚 1 tick 被推前一点；潮红伸舌</td></tr>
+<tr><td>快顶</td><td>24–40</td><td>65–100</td><td>顶出 1.4，6→4→3 tick 一次逐渐加快（约 4 次／9 次）；挤眼</td><td>同步加快；含泪伸舌</td></tr>
+<tr><td><b>释放</b></td><td>40–60</td><td>100–120</td><td>0–2 最深一顶（1.7）；2–14 停住，伸长 6%，横滚 ±2° 每 2 tick 一颤；14–20 松劲回位。0–6 潮红挤眼喊，6 起失神</td><td>随他颤（±1.5°）；同样 挤眼喊→失神</td></tr>
+<tr><td>事后（分开后 120 tick）</td><td colspan="2">台词仍在 1／46／91 tick（除非你选第 4 项挪动）</td><td>0–40 失神慢晃（偏航 ±6°、横滚 ±2°）。魔理沙 40 起潮红得意、挺身后仰，91 小弹一下后停住；其他种族 30 起满足闭眼</td><td>0–30 失神，之后满足闭眼；受孕时原有的“开心·期待”反应排在后面</td></tr>
+</table>
+<h3>爱丽丝攻击（MD-10）：动作 240 tick，现有时钟不动（150／195／240 三句台词，200 释放效果，210 结算）</h3>
+<table>
+<tr><th>tick</th><th>爱丽丝</th><th>受方</th></tr>
+<tr><td>0–90</td><td>顶出 1.0，10 tick 一次；潮红伸舌</td><td>挤眼大哭，每顶被推一下</td></tr>
+<tr><td>90–150</td><td>顶出 1.2，6 tick 一次</td><td>同上</td></tr>
+<tr><td>150–195</td><td>冲刺：顶出 1.4，4→3 tick 一次；挤眼</td><td>同上，加快</td></tr>
+<tr><td>195–200</td><td>最深一顶停住；潮红挤眼喊</td><td>同上</td></tr>
+<tr><td><b>200–240</b></td><td>200 释放效果；200–225 停住颤抖，225–240 松劲；<b>翻白眼咧嘴笑</b></td><td>200–215 白眼哭喊、抖一下；之后挤眼大哭</td></tr>
+<tr><td>240 后</td><td>得意脸约 60 tick，再满足（若第 2 项选“只给魔理沙”则直接满足）</td><td>松开后照旧逃跑，惊恐</td></tr>
+</table>
+<p class="note">现在爱丽丝的动作是 20 tick 一圈的整身前倾＋压扁循环，改成上面的下身耸动片段，整身只保留前倾（≤8°），不再靠压扁表现用力。</p>
+
+<h2>5. 释放时刻</h2>
+<ul>
+<li><b>停住</b>：最深一顶之后两体静止约 12 tick，只剩细颤——这是现在完全没有的一拍。</li>
+<li><b>颤抖</b>：攻方横滚 ±2° 每 2 tick，母方／受方 ±1.5° 同步。</li>
+<li><b>效果</b>：现有精餡色小水滴（只是短暂粒子，不产生物品）从“接触结束那一刻”提前到释放第 2 tick，从接合处喷出 8 粒，第 10 tick 再 4 粒；两人头顶各出一次现有爱心符号。</li>
+<li><b>声音挂点</b>：释放第 2 tick 留一个音效位，先用原版史莱姆小挤压声占位；配音和台词按约定最后统一补。</li>
+</ul>
+
+<h2>6. 接线需要改的代码（你认可后由后续代码包做）</h2>
+<ol>
+<li><code>adult_states.json</code> 的 <code>faces</code>：从“进度比例”改成“tick”，按 <code>角色.种族</code> 查表、找不到回落默认：<code>pair_peni</code>／<code>pair_peni.marisa</code>／<code>pair_peni.alice</code>／<code>pair_mamu</code>／<code>relief_peni</code>／<code>relief_peni.marisa</code>／<code>relief_mamu</code>／<code>act</code>／<code>held</code>；普通配对的释放段固定取接触最后 20 tick。<code>AdultFaces.face</code> 加种族与 tick 参数。</li>
+<li><code>PresentationArbiter.expression()</code>（100–102 行）传入种族和接触 tick。</li>
+<li><code>AgitationLife.expression()</code>：攻击动作改查 <code>act</code> 表（现在固定伸舌），受方改查 <code>held</code> 表（现在固定哭脸），事后按本方角色查 <code>relief_*</code>——受孕结算时要记住自己是父方还是母方（一个存档字段）。事后段不依赖发情：非发情期配对也在接触结束后播 120 tick 事后脸，原“开心·期待”反应顺延。</li>
+<li>下身耸动片段：在 lore 动作配方里新增整段一次性片段（普通配对 60／120 两条、爱丽丝 240 一条，速度曲线直接做进片段，从接触起点播放），以及事后的失神晃、魔理沙神气；父方接触期间的动作从现在的 <code>idle</code> 换成这些片段。<code>pose-cues.json</code> 的 <code>pair_peni</code>／<code>act</code> 去掉整身顶送只留前倾，<code>pair_mamu</code>／<code>pinned</code> 的被推节拍对齐新节奏，导出检查 12°。</li>
+<li><code>ReproductionEffects.release</code>：调用时机从受孕那一刻挪到释放第 2 tick（<code>Courtship</code> 接触计数到 R−18），粒子改两次喷出，加爱心符号与音效挂点；受孕本身的时机和概率不变。</li>
+<li>新表情登记：你“保存”后把 4 个预设并入标准表情库，导出到全部形态；用独立贴图的稀有形态（长尾橙、妖梦等）给别名回落（挤眼喊→受击挤眼、失神→失去高光、得意→得意、翻白眼笑→白眼张嘴）。</li>
+</ol>
+<p class="note">草稿源：<code>standards/yukkuri-library/drafts/sukkiri/</code>（<code>author.py</code> 画部件、写预设与草稿片段，<code>page.py</code> 重出本页）。离线渲染，不含游戏碰撞、站位修正与粒子；游戏内效果以最终试玩为准。</p>
+</body></html>

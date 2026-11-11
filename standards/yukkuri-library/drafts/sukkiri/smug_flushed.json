@@ -1,0 +1,33 @@
+{
+  "id": "smug_flushed",
+  "label": "潮红得意",
+  "group": "特殊状态",
+  "status": "draft",
+  "origin": "project design",
+  "recipe": {
+    "source": "draft-composition",
+    "base": "smug",
+    "note": "afterglow: the approved smug face with half-lowered lids on the flushed blush"
+  },
+  "parts": {
+    "face_eye_left": "drafts/sukkiri/parts/eye_smug.png",
+    "face_eye_right": "drafts/sukkiri/parts/eye_smug.png",
+    "face_brow_left": "expressions/parts/4a98859cf98b258429a1.png",
+    "face_brow_right": "expressions/parts/87649084e12b80cab2ee.png",
+    "face_mouth": "expressions/parts/9ead1ae179dc2350cc0a.png",
+    "face_blush_left": "expressions/parts/cef8e0a1ebaf2b15b078.png",
+    "face_blush_right": "expressions/parts/cef8e0a1ebaf2b15b078.png",
+    "face_tear_left": "expressions/parts/d114c9609a58da8454a5.png",
+    "face_tear_right": "expressions/parts/d114c9609a58da8454a5.png",
+    "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
+  },
+  "geometry_offsets": {
+    "face_mouth": {
+      "scale": [
+        2.25,
+        2.25,
+        1
+      ]
+    }
+  }
+}
