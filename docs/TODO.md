@@ -18,6 +18,7 @@
 | MD-16 肿胀穿模 | `.worktrees/wp-gi-swell-clip` | pose/Skin 肿胀变形、client/CareWearRenderer |
 | 憔悴脸重画、激动漏尿表情与表现 | `.worktrees/wp-gj-faces` | standards/yukkuri-library/expressions |
 | 素鸡立：下身耸动、释放时刻、分角色表情（先出方案页） | `.worktrees/wp-gk-sukkiri` | adult_states.json pair_*、AdultFaces、表情库 |
+| Wiki 参考图整理：单页、标签、索引 | `.worktrees/wp-gl-wiki-refs` | wiki/ 参考图索引 |
 
 ## 玩法待办
 
