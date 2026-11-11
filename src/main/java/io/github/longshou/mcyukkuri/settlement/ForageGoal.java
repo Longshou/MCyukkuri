@@ -64,10 +64,13 @@ public final class ForageGoal extends Goal {
     private boolean tooColdToGraze(BlockPos plant) {
         return entity.life().nutrition() >= 30 && entity.life().temperature().sample(plant).felt() < YukkuriConfig.COLD_THRESHOLD.get();
     }
+    private boolean yieldsToMarch() {
+        return entity.life().nutrition() >= 30 && entity.settlement().familyMarching();
+    }
     @Override public boolean canUse() {
         if (entity.isPassenger() || entity.profile().houseBody() || entity.family().awaitingLanding() || !entity.life().canEat() || entity.life().isSleeping() || entity.isInWaterOrBubble()
                 || !EventHooks.canEntityGrief(level(), entity) || !grazes()) return false;
-        if (SettlementSeasons.forageBlocked(entity) || feedsChildFirst()) return false;
+        if (SettlementSeasons.forageBlocked(entity) || feedsChildFirst() || yieldsToMarch()) return false;
         scanFood();
         if (target == null && (entity.life().nutrition() >= 30 || entity.family().keepsToParent())) return false;
         elapsed = 0; searchSpot = null;
@@ -149,6 +152,7 @@ public final class ForageGoal extends Goal {
         GameplayLog.limited(entity,"forage","start",1200,"food search started target={} nutrition={}",target,entity.life().nutrition());
     }
     @Override public boolean canContinueToUse() {
+        if (yieldsToMarch()) return false;
         return running && !entity.life().isSleeping() && !entity.family().awaitingLanding() && entity.life().canEat()
                 && (target != null || entity.life().nutrition() < 30)
                 && !SettlementSeasons.forageBlocked(entity) && !feedsChildFirst()

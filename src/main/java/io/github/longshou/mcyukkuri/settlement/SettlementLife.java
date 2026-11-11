@@ -49,8 +49,9 @@ public final class SettlementLife {
     private boolean marching;
     private Path marchRoute;
     private BlockPos marchStart;
-    private BlockPos blockedAt, blockedTarget;
-    private long blockedLegAt;
+    private boolean marchDetour;
+    private record MarchRefusal(BlockPos from, BlockPos destination, long legAt, boolean detour, String reason) {}
+    private MarchRefusal marchRefusal;
     /** The ordinary settlement Goal is attending a selected local succession meeting. */
     private boolean successionMeeting;
     /** The centre from which this member actually began the current march; retained until it has a settled outcome. */
@@ -158,7 +159,7 @@ public final class SettlementLife {
     public boolean familyMarching() {
         var group = group();
         if (group == null) return false;
-        if (Migration.moving(group)) return Migration.onJourney(group, entity.level().getGameTime()) && !reached(group);
+        if (Migration.moving(group)) return Migration.onJourney(group, entity.level().getGameTime()) && needsMarch(group);
         return entity.childhood().shouldStayWithParents() && !settledAt(group.center)
                 || (entity.family().adult() || entity.family().stage() == FamilyLife.Stage.JUVENILE) && straggler(group);
     }
@@ -171,6 +172,26 @@ public final class SettlementLife {
 
     boolean reached(SettlementData.Group group) {
         return arrivedFor == group.migrateSince && settledAt(group.migrateTo);
+    }
+    boolean needsMarch(SettlementData.Group group) {
+        var carry = entity.family().carry();
+        return !reached(group) || carry.purpose() == ParentCarry.Purpose.MIGRATE && carry.carrying()
+                && !onSiteGround(entity, group.migrateTo);
+    }
+
+    /** A parent can be on its way back from fetching a child after it first arrived. */
+    public boolean atMigrationReleaseGround() {
+        var group = group();
+        return group != null && (Migration.moving(group)
+                ? reached(group) && onSiteGround(entity, group.migrateTo) : migrationLanded());
+    }
+
+    void logMarchDelay(SettlementData.Group group) {
+        GameplayLog.limited(entity, "settlement", "march.due", 600,
+                "migration member still due group={} destination={} goals={} target={} refusal={} passenger={} nutrition={} energy={}",
+                groupId, group.migrateTo, entity.runningGoalIds(), target,
+                marchRefusal == null ? null : marchRefusal.reason(), entity.isPassenger(),
+                entity.life().nutrition(), entity.life().energy());
     }
     /** Plain tiredness does not stop a marching carrier from holding its child; every other urgent need does. */
     public boolean marchTiredOnly() { return Migration.underway(entity) && tiredOnlyUrgent(); }
@@ -442,7 +463,7 @@ public final class SettlementLife {
         Vec3 goal = Vec3.atBottomCenterOf(destination);
         double distance = entity.distanceToSqr(goal);
         // A resident already assigned to this destination may walk to its new home outside the plaza radius.
-        if (reached(group) && site.equals(destination)) return false;
+        if (!needsMarch(group) && site.equals(destination)) return false;
         if (distance <= 8 * 8) return false;
         // The vanguard leaves first; the rest follow after a short head start. Nobody waits for the leader: a frail leader
         // trails behind as an ordinary straggler instead of holding the whole column.
@@ -463,15 +484,18 @@ public final class SettlementLife {
 
     private boolean march(SettlementData.Group group, BlockPos destination) {
         wait = 20;
-        if (!Migration.readyToPlan(entity) || destination.equals(blockedTarget) && group.migrateLegAt == blockedLegAt
-                && entity.blockPosition().equals(blockedAt)) return false;
+        if (!Migration.readyToPlan(entity)) return false;
+        boolean sameGround = marchRefusal != null && destination.equals(marchRefusal.destination())
+                && group.migrateLegAt == marchRefusal.legAt() && entity.blockPosition().equals(marchRefusal.from());
+        if (sameGround && marchRefusal.detour()) return false;
+        marchDetour = sameGround || group.migrateLeg == Migration.Leg.DETOUR;
         if (searchDestination == null) navigationGeneration = generation();
         searchDestination = destination;
         var lease = SearchBudget.request(level(), entity, Purpose.NAVIGATE, navigationGeneration, SearchBudget.NAVIGATE);
         if (lease == null) return false;
         try (lease; var scope = lease.bind(entity)) {
             SearchBudget.path(entity);
-            marchRoute = entity.life().dryTravelPath(Migration.approaches(entity, destination, group.migrateLeg == Migration.Leg.DETOUR));
+            marchRoute = entity.life().dryTravelPath(Migration.approaches(entity, destination, marchDetour));
             if (marchRoute == null) {
                 marchBlocked(group, destination, "no_dry_route");
                 return false;
@@ -490,9 +514,7 @@ public final class SettlementLife {
     }
 
     private void marchBlocked(SettlementData.Group group, BlockPos destination, String reason) {
-        blockedAt = entity.blockPosition();
-        blockedTarget = destination;
-        blockedLegAt = group.migrateLegAt;
+        marchRefusal = new MarchRefusal(entity.blockPosition(), destination, group.migrateLegAt, marchDetour, reason);
         GameplayLog.limited(entity, "settlement", "march." + reason, 1200,
                 "march route blocked group={} destination={} leg={} reason={}", groupId, destination, group.migrateLeg, reason);
     }
@@ -529,8 +551,11 @@ public final class SettlementLife {
         if (!entity.childhood().shouldStayWithParents()) return false;
         for (var id : new UUID[]{entity.family().mother(), entity.family().father()})
             if (id != null && level().getEntity(id) instanceof YukkuriEntity parent && parent.isAlive()
-                    && group.id.equals(parent.settlement().groupId()) && parent.settlement().migrationLanded()
-                    && onSiteGround(parent, site) && entity.family().withinFollowDistance(parent)) return true;
+                    && group.id.equals(parent.settlement().groupId()) && parent.settlement().migrationLanded()) {
+            if (entity.family().sharesHome(parent) && entity.family().atHome()) return true;
+            if ((onSiteGround(parent, site) || parent.onGround() && parent.family().atHome())
+                    && entity.family().withinFollowDistance(parent)) return true;
+        }
         return false;
     }
 
@@ -602,7 +627,7 @@ public final class SettlementLife {
         if (staysInFamilyNest() && !Migration.underway(entity)) return false;
         var group = group();
         if (yieldsToMigrationCare()) return false;
-        if (marching && (group == null || !(Migration.moving(group) ? target.equals(Migration.walkTarget(group)) && !reached(group)
+        if (marching && (group == null || !(Migration.moving(group) ? target.equals(Migration.walkTarget(group)) && needsMarch(group)
                 : straggler(group) && target.equals(group.center)))) return false;
         return active() && !entity.independence().householdOuting() && !entity.wintering().active() && society.role() != SettlementData.Role.OUTCAST
                 && elapsed < (marching ? 1200 : 400) && !entity.isPanicking() && !SettlementSeasons.confined(entity) && !entity.isCommandPlaying()
@@ -619,7 +644,9 @@ public final class SettlementLife {
         elapsed++;
         if (marching) {
             if (entity.getNavigation().isDone() && Migration.readyToPlan(entity)) {
-                if (marchStart.equals(entity.blockPosition())) marchBlocked(group(), target, "no_progress");
+                var nav = entity.getNavigation();
+                if (nav.isStuck() || nav.getPath() != null && marchStart.equals(entity.blockPosition()))
+                    marchBlocked(group(), target, "no_progress");
                 stop();
             }
             return;

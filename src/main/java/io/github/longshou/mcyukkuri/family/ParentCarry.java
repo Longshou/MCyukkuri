@@ -1342,7 +1342,8 @@ public final class ParentCarry {
     /** Why this child should be carried now: during a family march, or home after straying out of the nest. */
     Purpose purposeFor(YukkuriEntity child) {
         if (!dependentYoung(child) || child.isPassenger() || blocked(child)) return null;
-        if (carrier.settlement().familyMarching() && child.family().familyTravelling()
+        if (child.family().familyTravelling() && (carrier.settlement().familyMarching()
+                || carrier.settlement().migrating() && child.settlement().returningToSettledParent(carrier))
                 && (needsCarry(child) || fallsBehind(child, GATHER_RANGE))) return Purpose.MIGRATE;
         if (needsCarry(child) && FamilyNest.rimNest(child) != null) return Purpose.NEST_RIM;
         var home = destination(child);
@@ -1692,7 +1693,7 @@ public final class ParentCarry {
     private String carrierReason(long now) {
         var life = carrier.life();
         if (purpose == Purpose.MIGRATE) {
-            if (carrier.settlement().migrationLanded()) return "arrived_destination";
+            if (carrier.settlement().atMigrationReleaseGround()) return "arrived_destination";
             if (now - since >= MAX_MARCH_CARRY_TICKS) return "timeout";
             if (!carrier.settlement().familyMarching()) return "migration_ended";
         }

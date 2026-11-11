@@ -999,6 +999,14 @@ public final class FamilyLife {
                 if(needsBedReturn(home)) { task=Task.STAY_HOME;target=null;taskTicks=0;return true; }
                 return false;
             }
+            // A travelling child that can locate its escort follows the live body before answering an old call.
+            if(familyTravelling()){
+                target=migrationEscort();
+                if(target!=null){
+                    if(withinFollowDistance(target)){target=null;return false;}
+                    task=Task.FOLLOW;taskTicks=0;return true;
+                }
+            }
             // Only a child not kept to its nest leaves to answer a call; one at home stays there for the parent to come.
             var heard=call.heard();
             if(heard!=null){task=Task.SEARCH;target=null;searchAt=call.answer(heard);taskTicks=0;return true;}
@@ -1106,8 +1114,8 @@ public final class FamilyLife {
                 ||entity.distanceToSqr(second)==entity.distanceToSqr(first)&&second.getUUID().compareTo(first.getUUID())<0))) {
             var swap=first;first=second;second=swap;
         }
-        if(ParentCarry.needsCarry(entity)||entity.life().reachable(first.blockPosition(),false))return first;
-        return second!=null&&entity.life().reachable(second.blockPosition(),false)?second:null;
+        // The usual local route probe cannot cover a march gap. FOLLOW tests its actual route.
+        return first;
     }
     private boolean escortsMigratingChild(YukkuriEntity child) {
         return !child.family().familyTravelling()||child.family().migrationEscort()==entity;
@@ -1154,8 +1162,13 @@ public final class FamilyLife {
                 &&ordinaryLandFree(other)&&caresFor(other)&&separation.searchingAllowed(other)&&other.childhood().shouldStayWithParents()&&entity.life().canRecognize(other)
                 &&escortsMigratingChild(other)&&!safeInSharedHome(other)
                 &&(!other.family().exploring()||other.life().hasUrgentNeed())
-                &&(!FamilySeparation.near(entity,other)||carry.pickupWanted(other)||carry.needsReunion(other)))
+                &&(carry.pickupWanted(other)||carry.needsReunion(other)
+                        ||!FamilySeparation.near(entity,other)&&!followingOnMarch(other)))
                 .stream().min(Comparator.comparingDouble(entity::distanceToSqr)).orElse(null);
+    }
+    private boolean followingOnMarch(YukkuriEntity child) {
+        return child.family().familyTravelling() && child.family().task == Task.FOLLOW
+                && child.family().target == entity && !child.getNavigation().isDone();
     }
     /** A full route, else vanilla's partial one: a parent or a lost child goes as near as the ground lets it (to the glass). */
     private boolean navigateToward(BlockPos at,double speed){
@@ -1276,8 +1289,9 @@ public final class FamilyLife {
                 &&target.childhood().shouldStayWithParents()&&entity.life().canRecognize(target)&&(glass.active()||taskTicks<1200)&&target.level()==entity.level()
                 &&entity.distanceToSqr(target)<FAMILY_SEARCH_RANGE*FAMILY_SEARCH_RANGE;
         if(task==Task.SEARCH&&call.waitingAtGlass())return true;
+        double followRange = task == Task.FOLLOW && familyTravelling() ? FAMILY_SEARCH_RANGE * FAMILY_SEARCH_RANGE : 256;
         return taskTicks<240
-                &&(task==Task.SEARCH||target!=null&&target.isAlive()&&target.level()==entity.level()&&entity.distanceToSqr(target)<256);
+                &&(task==Task.SEARCH||target!=null&&target.isAlive()&&target.level()==entity.level()&&entity.distanceToSqr(target)<followRange);
     }
     public void tickGoal() {
         if(!canContinue()){
@@ -1290,9 +1304,14 @@ public final class FamilyLife {
                 target==null?null:target.getUUID(),searchAt,mother,father,entity.life().nutrition(),entity.life().energy());
         // A child out looking for a parent (or following one) that hears her call answers it and goes where the call came from.
         if(!adult()&&(task==Task.FOLLOW||task==Task.SEARCH&&target==null)){
-            var heard=call.heard();
-            if(heard!=null){task=Task.SEARCH;target=null;searchAt=call.answer(heard);taskTicks=0;}
-            if(call.tickAnswer())return;
+            var escort=familyTravelling()?migrationEscort():null;
+            if(escort!=null){
+                if(task!=Task.FOLLOW||target!=escort){task=Task.FOLLOW;target=escort;taskTicks=1;call.stop();}
+            }else{
+                var heard=call.heard();
+                if(heard!=null){task=Task.SEARCH;target=null;searchAt=call.answer(heard);taskTicks=0;}
+                if(call.tickAnswer())return;
+            }
         }
         switch(task) {
             case BROOD -> {
@@ -1319,7 +1338,8 @@ public final class FamilyLife {
                 entity.getLookControl().setLookAt(target,20,20);
                 var at = gatherAt(target);
                 if(at!=null)SurfaceApproach.walk(entity,at,1.15);
-                else if(taskTicks%10==1&&!entity.life().navigate(target.blockPosition(),1.15,false))stop();
+                else if(taskTicks%10==1&&!(familyTravelling()?navigateToward(target.blockPosition(),1.15)
+                        :entity.life().navigate(target.blockPosition(),1.15,false)))stop();
             }
             case STAY_HOME -> {
                 var home=earlyHomeStand();

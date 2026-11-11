@@ -40,6 +40,7 @@ public final class SurfaceApproach {
     public static final double ARRIVAL = .02;
     /** Ticks between two {@code walk.sample} detail lines; the retry gate of a blocked request; how often a walk rechecks the hats round its goal. */
     private static final int SAMPLE_TICKS = 20, RETRY = 20, HATS_CHECK = 15;
+    private static final double SAME_STAND_SQR = .0025;
     SurfaceApproach() {}
     private record Route(Path path,double length) {}
     public enum Result { ARRIVED, MOVING, WAITING, BLOCKED }
@@ -64,6 +65,8 @@ public final class SurfaceApproach {
         }
     }
     private Approach current;
+    private record FailedStep(Vec3 from, Vec3 destination, Vec3 node, Vec3 blockedStep, AABB body) {}
+    private final List<FailedStep> failedSteps = new ArrayList<>();
     /** The last destination found to have no stand clear of a hat, and until when that answer holds. */
     private Vec3 noStand;
     private long noStandUntil;
@@ -490,6 +493,22 @@ public final class SurfaceApproach {
                 &&Math.abs(a.getXsize()-b.getXsize())<.02&&Math.abs(a.getYsize()-b.getYsize())<.02;
     }
 
+    private void rememberStep(YukkuriEntity actor, Vec3 destination, Vec3 node, Vec3 step, AABB body) {
+        failedSteps.removeIf(failure -> failure.from.distanceToSqr(actor.position()) >= SAME_STAND_SQR);
+        if (failedSteps.size() == 16) failedSteps.removeFirst();
+        failedSteps.add(new FailedStep(actor.position(), destination, node, step, body));
+    }
+
+    private boolean failedNode(YukkuriEntity actor, Vec3 destination, Vec3 node, AABB body) {
+        for (var failure : failedSteps) {
+            if (failure.from.distanceToSqr(actor.position()) < SAME_STAND_SQR
+                    && failure.destination.distanceToSqr(destination) < SAME_STAND_SQR
+                    && failure.node.distanceToSqr(node) < SAME_STAND_SQR && sameBody(failure.body, body)
+                    && !(direct(actor, failure.blockedStep, body) && walkable(actor, failure.blockedStep))) return true;
+        }
+        return false;
+    }
+
     /** {@code straight}: a direct last step (or the way round the first footprint on it) may serve instead of a route. */
     private static Route plan(YukkuriEntity actor,Vec3 destination,AABB body,boolean straight){
         return plan(actor,destination,body,straight,null);
@@ -507,7 +526,8 @@ public final class SurfaceApproach {
         for(int dx=-1;dx<=1;dx++)for(int dz=-1;dz<=1;dz++){
             var at=floor(actor,new Vec3(x+dx+offset,destination.y,z+dz+offset));
             // The body may stop up to ARRIVAL short of this node: its remaining step must still fit inside the clear-step reach.
-            if(at!=null&&at.distanceTo(destination)<=reach(actor)-ARRIVAL&&clearOf(actor,at,destination,body)&&clearLastStep(actor,at,destination))
+            if(at!=null&&at.distanceTo(destination)<=reach(actor)-ARRIVAL&&clearOf(actor,at,destination,body)
+                    &&clearLastStep(actor,at,destination)&&(landing!=null||!controller(actor).failedNode(actor,destination,at,body)))
                 targets.add(new BlockPos(x+dx,Mth.floor(at.y+.5),z+dz));
         }
         if(targets.isEmpty())return null;
@@ -539,14 +559,18 @@ public final class SurfaceApproach {
     /** Plan the complete route around blocks and the partner together; never alternate isolated greedy corners. Called every tick
      *  while the step is wanted, as {@link #walk}. */
     public static boolean walkAround(YukkuriEntity actor,Vec3 destination,Entity other,double speed){
-        return controller(actor).walkStep(actor,destination,other==actor?null:other,speed)==Result.ARRIVED;
+        return walkResult(actor,destination,other,speed)==Result.ARRIVED;
     }
 
     /** Never substitute a straight line for a route around a step or obstruction. Call it every tick while the step is wanted: once
      *  the path ends, the last step is one MoveControl input that vanilla zeroes on the next tick, so throttling the call produces
      *  stop-go movement. */
     public static boolean walk(YukkuriEntity actor, Vec3 destination, double speed) {
-        return controller(actor).walkStep(actor,destination,null,speed)==Result.ARRIVED;
+        return walkResult(actor,destination,null,speed)==Result.ARRIVED;
+    }
+
+    static Result walkResult(YukkuriEntity actor, Vec3 destination, Entity other, double speed) {
+        return controller(actor).walkStep(actor,destination,other==actor?null:other,speed);
     }
 
     private Result walkStep(YukkuriEntity actor,Vec3 destination,Entity other,double speed){
@@ -666,17 +690,22 @@ public final class SurfaceApproach {
         }
         if(current.lastStep!=null){
             // Natural path completion hands over one physical endpoint; an interrupted path never reaches here.
-            if(arrived(actor,current.lastStep)){
+            var node=current.lastStep;
+            if(direct(actor,destination,body)&&steer(actor,destination,speed)){
+                current.lastStep=null;current.routed=false;
+                return observed(actor,Result.MOVING);
+            }
+            if(arrived(actor,node)){
                 // The node is reached, but the requested stand can still lie beyond it.
-                current.lastStep=null;
-                if(direct(actor,destination,body)&&steer(actor,destination,speed))
-                    return observed(actor,Result.MOVING);
+                rememberStep(actor,destination,node,destination,body);
                 return blocked(actor,"last_segment_blocked");
             }
-            if(direct(actor,current.lastStep,body)&&steer(actor,current.lastStep,speed))
+            if(direct(actor,node,body)&&steer(actor,node,speed))
                 return observed(actor,Result.MOVING);
+            rememberStep(actor,destination,node,node,body);
             return blocked(actor,"last_step_blocked");
         }
+        if(current.result==Result.BLOCKED&&now<current.retryAt)return observed(actor,Result.BLOCKED);
         var route=plan(actor,destination,body,!current.routed);
         if(route!=null&&route.path()!=null&&navigation.moveTo(route.path(),speed)){
             current.target=navigation.getTargetPos();
@@ -693,9 +722,12 @@ public final class SurfaceApproach {
     }
 
     private Result blocked(YukkuriEntity actor,String reason){
-        stopInput(actor);current.target=null;current.lastStep=null;current.retryAt=actor.level().getGameTime()+RETRY;current.why=reason;
-        GameplayLog.limited(actor,"approach","path_failed",200,
-                "surface path unavailable peer={} target={} reason={} retryAfter={}",current.peer,current.destination,reason,current.retryAt);
+        stopInput(actor);current.target=null;current.lastStep=null;current.retryAt=actor.level().getGameTime()+RETRY;
+        if (current.result != Result.BLOCKED || !reason.equals(current.why)) {
+            GameplayLog.limited(actor,"approach","path_failed",200,
+                    "surface path unavailable peer={} target={} reason={} retryAfter={}",current.peer,current.destination,reason,current.retryAt);
+        }
+        current.why=reason;
         return observed(actor,Result.BLOCKED);
     }
 

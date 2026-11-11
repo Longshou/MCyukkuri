@@ -452,10 +452,13 @@ public final class DailyLife {
         if (current.companion != null) current.leader.life().personality().releaseRelation(current.companion.getUUID());
         if (current.companion instanceof YukkuriEntity peer) peer.life().personality().releaseRelation(current.leader.getUUID());
         boolean unanswered = current.kind == Kind.NUZZLE && current.contact == 0;
-        current.leader.dailyLife().session = null; current.leader.getNavigation().stop();
+        current.leader.dailyLife().session = null;
+        // Either partner can end the session after the other has handed MOVE to a higher-priority goal.
+        if (current.leader.competingMoveGoalId() == null) current.leader.getNavigation().stop();
         if (unanswered) current.leader.dailyLife().cooldown = INTERRUPTED_COOLDOWN;
         if (current.companion instanceof YukkuriEntity peer) {
-            peer.dailyLife().session = null; peer.getNavigation().stop();
+            peer.dailyLife().session = null;
+            if (peer.competingMoveGoalId() == null) peer.getNavigation().stop();
             if (unanswered) peer.dailyLife().cooldown = INTERRUPTED_COOLDOWN;
         }
     }

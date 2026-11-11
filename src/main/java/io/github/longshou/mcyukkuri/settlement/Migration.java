@@ -611,7 +611,7 @@ final class Migration {
     static boolean underway(YukkuriEntity e) {
         var group = e.settlement().group();
         if (group == null || !joins(e, group)) return false;
-        return moving(group) ? !e.settlement().reached(group) : e.settlement().straggler(group);
+        return moving(group) ? e.settlement().needsMarch(group) : e.settlement().straggler(group);
     }
 
     /** A living participant remains due until it reaches the ground or actually leaves the party. */
@@ -630,10 +630,17 @@ final class Migration {
             SettlementData.get(level).setDirty();
             GameplayLog.world(level, "settlement", "migration party dropped group={} member={} reason={}", group.id, id, dropped);
         }
-        if (members.stream().anyMatch(member -> !member.settlement().reached(group))) return false;
-        for (var id : group.migrateParty)
-            if (!(level.getEntity(id) instanceof YukkuriEntity member) || !member.settlement().reached(group)) return false;
-        return true;
+        boolean allArrived = true;
+        for (var member : members) {
+            if (member.settlement().reached(group)) continue;
+            allArrived = false;
+            member.settlement().logMarchDelay(group);
+        }
+        for (var id : group.migrateParty) {
+            if (level.getEntity(id) instanceof YukkuriEntity member && member.settlement().reached(group)) continue;
+            allArrived = false;
+        }
+        return allArrived;
     }
 
     /** A failed march leaves the current community and its pressure intact; time passing is not arrival. */

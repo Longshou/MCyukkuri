@@ -25,12 +25,23 @@ public final class EcologyMovement {
 
     /** Supported final approach; contact remains the caller's existing geometric test. */
     public static boolean approach(YukkuriEntity actor, Entity target, double speed) {
-        if (target == null || !target.isAlive() || actor.level() != target.level()) return false;
+        return approachResult(actor, target, speed) == SurfaceApproach.Result.ARRIVED;
+    }
+
+    public static SurfaceApproach.Result approachResult(YukkuriEntity actor, Entity target, double speed) {
+        if (target == null || !target.isAlive() || actor.level() != target.level() || actor.isPassenger())
+            return SurfaceApproach.Result.BLOCKED;
         Vec3 at = target instanceof YukkuriEntity other
                 ? FamilyFeedingContact.approachSpot(actor, other) : target.position();
-        if(at==null){SurfaceApproach.halt(actor);return false;}
-        return !actor.isPassenger() && (target instanceof YukkuriEntity
-                ?SurfaceApproach.walkAround(actor,at,target,speed):SurfaceApproach.walk(actor,at,speed));
+        if(at==null){SurfaceApproach.halt(actor);return SurfaceApproach.Result.BLOCKED;}
+        var result = SurfaceApproach.walkResult(actor, at, target instanceof YukkuriEntity ? target : null, speed);
+        if (result == SurfaceApproach.Result.BLOCKED) {
+            var why = SurfaceApproach.why(actor, at);
+            // The stand search can still pick a different approach when the last step's retry gate opens.
+            if ("last_step_blocked".equals(why) || "last_segment_blocked".equals(why))
+                return SurfaceApproach.Result.WAITING;
+        }
+        return result;
     }
 
     public static void halt(YukkuriEntity actor) {
