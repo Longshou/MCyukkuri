@@ -8,7 +8,6 @@ import io.github.longshou.mcyukkuri.registry.ModItems;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
@@ -151,39 +150,40 @@ public final class GroupPits {
         // A slave lives in the pit: it lets go where it stands, on the nearest cell, instead of climbing out to the bank.
         boolean resident = entity.settlement().duties().pit().slave();
         if (resident) ordered.sort(Comparator.comparingDouble(c -> c.distSqr(here)));
-        var tried = new HashSet<BlockPos>();
+        int tried = 0;
         boolean anyEdge = false;
-        search:
         for (var cell : ordered) {
             if (!level.hasChunkAt(cell)) continue;
-            var stands = resident ? entity.life().dryStand(cell) ? List.of(cell) : List.<BlockPos>of()
-                    : banks(level, entity, cells, cell);
-            for (var stand : stands) {
-                anyEdge = true;
-                if (!tried.add(stand)) continue;
-                if (stand.distSqr(here) > NEAR * NEAR || entity.life().reachable(stand, false)) return new Spot(cell, stand);
-                if (tried.size() >= 4) break search;
-            }
+            var stand = resident ? entity.life().dryStand(cell) ? cell : null : bank(level, entity, cells, cell);
+            if (stand == null) continue;
+            anyEdge = true;
+            if (stand.distSqr(here) > NEAR * NEAR || entity.life().reachable(stand, false)) return new Spot(cell, stand);
+            if (++tried >= 4) break;
         }
         refuse(entity, !anyEdge ? "no_edge" : "unreachable", nearest);
         return null;
     }
 
-    /** Dry rim cells above and beside {@code pit}, outside the dip footprint, nearest first. */
-    private static List<BlockPos> banks(ServerLevel level, YukkuriEntity entity, List<BlockPos> cells, BlockPos pit) {
-        var stands = new ArrayList<BlockPos>();
+    /** Closest dry rim cell above and beside {@code pit}, outside the dip footprint. */
+    private static BlockPos bank(ServerLevel level, YukkuriEntity entity, List<BlockPos> cells, BlockPos pit) {
+        var here = entity.blockPosition();
+        BlockPos best = null;
+        double bestDistance = Double.MAX_VALUE;
         for (var side : Direction.Plane.HORIZONTAL) {
             var column = pit.relative(side);
             if (cells.stream().anyMatch(c -> c.getX() == column.getX() && c.getZ() == column.getZ())) continue;
             if (!level.hasChunkAt(column)) continue;
-            int top = level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, column.getX(), column.getZ());
+            int top = level.getHeight(Heightmap.Types.MOTION_BLOCKING, column.getX(), column.getZ());
             for (int y = column.getY() + 1; y <= top; y++) {
                 var bank = column.atY(y);
-                if (entity.life().dryStand(bank)) stands.add(bank);
+                double distance = bank.distSqr(here);
+                if (distance < bestDistance && entity.life().dryStand(bank)) {
+                    best = bank;
+                    bestDistance = distance;
+                }
             }
         }
-        stands.sort(Comparator.comparingDouble(stand -> stand.distSqr(entity.blockPosition())));
-        return stands;
+        return best;
     }
 
     /** The point on the bank cell nearest the pit that the member walks to: its rear then lies over the pit. */
