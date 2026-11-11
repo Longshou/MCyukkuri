@@ -8,7 +8,6 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
-| 亲油带孩子遗留：放下后觅食被拴住、FM-21 不去抱、橙认窝被拒、帽檐够不到 | `.worktrees/wp-fs-carry-leftovers` | family/ParentCarry、认窝分配 |
 | 迁徙：窗口内全员到达与靠近反复被拒 | `.worktrees/wp-ft-migration-arrival` | settlement 迁徙、life/SurfaceApproach |
 | 坑奴：接触站位循环、意外死亡与甜化 | `.worktrees/wp-fu-pit-slave` | settlement 坑奴、取食接触 |
 | 素鸡立遗留：211 tick 提前中断、帽檐穿蝴蝶结、父方脸 | `.worktrees/wp-fw-sukkiri-leftovers` | 素鸡立演出、渲染间距 |
