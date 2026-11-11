@@ -12,6 +12,7 @@
 | 落水子油挣扎上岸（PD-19） | `.worktrees/wp-gc-water-struggle` | life/EscapeWater 及其动作 |
 | 茎生强制耗营养、耗尽致死（MD-11／MD-12） | `.worktrees/wp-gd-stem-forced` | family/FamilyLife 茎生、StemDrain、PresentationArbiter 耗馅脸、museum aftermath 场景 |
 | 嗯嗯坑绕行与坑沿排遗（BM） | `.worktrees/wp-ge-pit-rim` | settlement/GroupPits、YukkuriGroundNavigation |
+| 帽沿跳朝向与节奏 | `.worktrees/wp-gf-brim-hop` | motor/action/CarriedHop、client/ParentCarryPresentation |
 
 ## 玩法待办
 
