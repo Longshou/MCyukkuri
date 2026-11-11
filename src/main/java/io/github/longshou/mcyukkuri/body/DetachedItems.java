@@ -23,14 +23,11 @@ public final class DetachedItems {
     }
     public static ItemStack waste(double volume) {
         var stack=new ItemStack(ModItems.WASTE.get());
-        CustomData.update(DataComponents.CUSTOM_DATA,stack,tag->tag.putDouble("Volume",volume));
+        if (volume != 1) CustomData.update(DataComponents.CUSTOM_DATA,stack,tag->tag.putDouble("Volume",volume));
         return stack;
     }
     private DetachedItems(){}
     public static ItemStack waste(YukkuriEntity source){
-        var stack=waste(wasteAmount(source));
-        CustomData.update(DataComponents.CUSTOM_DATA,stack,tag->{tag.putUUID("Source",source.getUUID());
-            tag.putString("Variant",source.getVariant().assetId());});
-        return stack;
+        return waste(wasteAmount(source));
     }
 }

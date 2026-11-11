@@ -95,10 +95,11 @@ public final class SettlementDuties {
             if (waste.blockPosition().distSqr(center) <= 6 * 6) return true;
         for (var pos : BlockPos.betweenClosed(center.offset(-6, -2, -6), center.offset(6, 2, 6)))
             if (local(pos) && pos.distSqr(center) <= 6 * 6 && level().getBlockEntity(pos) instanceof CareBlockEntity care
-                    && care.kind() == CareBlock.Kind.TOILET && care.waste() > 0) return true;
+                    && care.kind() == CareBlock.Kind.TOILET && care.waste() >= 1) return true;
         var group = entity.settlement().group();
         for (var poop : Poops.near(level(), center, 6, 3))
-            if (local(poop.getBlockPos()) && poop.getBlockPos().distSqr(center) <= 6 * 6 && !GroupPits.inPit(level(), group, poop.getBlockPos())) return true;
+            if (poop.count() >= 1 && local(poop.getBlockPos()) && poop.getBlockPos().distSqr(center) <= 6 * 6
+                    && !GroupPits.inPit(level(), group, poop.getBlockPos())) return true;
         return false;
     }
 
@@ -153,7 +154,7 @@ public final class SettlementDuties {
             GameplayLog.event(entity, "settlement", "cleanup start source=ground waste={} at={} dump={} assigner={}", item.getId(), item.blockPosition(), destination, assigner.getUUID());
             return true;
         }
-        heap = Poops.near(level(), workCenter, 6, 3).stream().map(poop -> poop.getBlockPos())
+        heap = Poops.near(level(), workCenter, 6, 3).stream().filter(poop -> poop.count() >= 1).map(poop -> poop.getBlockPos())
                 .filter(pos -> workArea(pos) && entity.distanceToSqr(Vec3.atCenterOf(pos)) <= 12 * 12 && !GroupPits.inPit(level(), entity.settlement().group(), pos))
                 .sorted(Comparator.comparingDouble(pos -> pos.distSqr(entity.blockPosition()))).limit(3)
                 .filter(pos -> entity.life().dryStand(pos) && entity.life().reachable(pos, false)).findFirst().orElse(null);
@@ -165,7 +166,7 @@ public final class SettlementDuties {
         }
         for (var pos : BlockPos.betweenClosed(workCenter.offset(-6,-2,-6), workCenter.offset(6,2,6))) {
             if (!workArea(pos) || entity.distanceToSqr(Vec3.atCenterOf(pos)) > 12 * 12) continue;
-            if (level().getBlockEntity(pos) instanceof CareBlockEntity care && care.kind() == CareBlock.Kind.TOILET && care.waste() > 0) {
+            if (level().getBlockEntity(pos) instanceof CareBlockEntity care && care.kind() == CareBlock.Kind.TOILET && care.waste() >= 1) {
                 var stand = standBeside(pos);
                 if (stand != null) {
                     toilet = pos.immutable(); task = Task.TOILET; elapsed = 0;
@@ -231,17 +232,17 @@ public final class SettlementDuties {
                 item = null; task = Task.DUMP; elapsed = 0;
             }
         } else if (task == Task.SCOOP) {
-            if (heap == null || !workArea(heap) || !(level().getBlockEntity(heap) instanceof PoopBlockEntity source) || source.count() == 0) { stop(); return; }
+            if (heap == null || !workArea(heap) || !(level().getBlockEntity(heap) instanceof PoopBlockEntity source) || source.count() < 1) { stop(); return; }
             if (approach(heap) && entity.distanceToSqr(Vec3.atBottomCenterOf(heap)) < 2.25) {
-                carrying = source.takeOne(); task = carrying.isEmpty() ? Task.NONE : Task.DUMP; elapsed = 0; heap = null;
+                carrying = source.takeWhole(1); task = carrying.isEmpty() ? Task.NONE : Task.DUMP; elapsed = 0; heap = null;
             }
         } else if (task == Task.TOILET) {
             if (toilet == null || !workArea(toilet) || !(level().getBlockEntity(toilet) instanceof CareBlockEntity care)
-                    || care.kind() != CareBlock.Kind.TOILET || care.waste() == 0) { stop(); return; }
+                    || care.kind() != CareBlock.Kind.TOILET || care.waste() < 1) { stop(); return; }
             var stand = standBeside(toilet);
             if (stand == null) { stop(); return; }
             if (approach(stand) && entity.distanceToSqr(Vec3.atCenterOf(toilet)) < 2.25 && clearContact(toilet)) {
-                carrying = care.takeWaste(); task = carrying.isEmpty() ? Task.NONE : Task.DUMP; elapsed = 0;
+                carrying = care.takeWaste(1); task = carrying.isEmpty() ? Task.NONE : Task.DUMP; elapsed = 0;
             }
         } else if (task == Task.DUMP && approach(destination)) {
             if (dropCarrying()) {

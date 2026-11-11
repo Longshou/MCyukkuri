@@ -11,9 +11,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
@@ -142,18 +140,13 @@ public final class PitSlave {
         }
         SurfaceApproach.halt(entity);
         double before = heap.count();
-        var portion = heap.takeOne();
-        if (portion.isEmpty()) return false;
-        if (!entity.life().beginMeal(portion.copy(), null, false)) {
-            // Not taken into the mouth: the very portion goes back on the cell it came from.
-            Poops.place(level(), cell, portion, null);
+        if (!heap.eat(bite -> entity.life().beginMeal(bite, null, false))) {
             GameplayLog.limited(entity, "settlement", "pit_eat_refused", 600, "pit slave meal refused reason=mouth_unavailable heap={} nutrition={}",
                     cell, entity.life().nutrition());
             return false;
         }
-        var recorded = portion.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag();
-        GameplayLog.event(entity, "settlement", "pit slave eats droppings heap={} volume={} -> {} nutrition={} producer={}", cell, before, heap.count(),
-                entity.life().nutrition(), recorded.hasUUID("Source") ? recorded.getUUID("Source") : "unknown");
+        GameplayLog.event(entity, "settlement", "pit slave eats droppings heap={} volume={} -> {} nutrition={}",
+                cell, before, heap.count(), entity.life().nutrition());
         phase = Phase.NONE;
         return true;
     }

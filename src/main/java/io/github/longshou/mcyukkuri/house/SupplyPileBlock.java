@@ -1,5 +1,7 @@
 package io.github.longshou.mcyukkuri.house;
 
+import io.github.longshou.mcyukkuri.settlement.GroupPits;
+
 import io.github.longshou.mcyukkuri.item.SupplyItem;
 import io.github.longshou.mcyukkuri.registry.ModItems;
 import net.minecraft.core.BlockPos;
@@ -59,7 +61,8 @@ public final class SupplyPileBlock extends Block implements EntityBlock {
         return InteractionResult.sidedSuccess(level.isClientSide);
     }
     @Override protected void randomTick(BlockState state,ServerLevel level,BlockPos pos,RandomSource random){
-        if(level.getBlockEntity(pos) instanceof SupplyPileBlockEntity pile)pile.decay(level.getGameTime());
+        if (level.getBlockEntity(pos) instanceof SupplyPileBlockEntity pile
+                && !(pile.is(ModItems.WASTE.get()) && GroupPits.managedCell(level, pos))) pile.decay(level.getGameTime());
     }
     @Override protected void onRemove(BlockState state,Level level,BlockPos pos,BlockState replacement,boolean moving){
         if(!state.is(replacement.getBlock())&&!level.isClientSide&&level.getBlockEntity(pos) instanceof SupplyPileBlockEntity pile){

@@ -9,6 +9,7 @@ import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.DyeItem;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.Containers;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.ItemInteractionResult;
@@ -121,7 +122,8 @@ public class CareBlock extends Block implements EntityBlock {
     @Override protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos,
             Player player, InteractionHand hand, BlockHitResult hit) {
         // Let notebook selection and the cleaning tool reach Item.useOn.
-        if (stack.is(ModItems.FIELD_NOTEBOOK.get()) || stack.is(ModItems.WASH_CLOTH.get()))
+        if (stack.is(ModItems.FIELD_NOTEBOOK.get()) || stack.is(ModItems.WASH_CLOTH.get())
+                || kind == Kind.TOILET && stack.is(ModItems.WASTE.get()))
             return ItemInteractionResult.SKIP_DEFAULT_BLOCK_INTERACTION;
         if (stack.getItem() instanceof DyeItem dye && CareStyles.styled(id()))
             return restyle(dye.getDyeColor(), stack, level, owner(state, pos), player);
@@ -171,9 +173,9 @@ public class CareBlock extends Block implements EntityBlock {
         return InteractionResult.sidedSuccess(level.isClientSide);
     }
     @Override protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState replacement, boolean moving) {
-        if (!state.is(replacement.getBlock()) && level.getBlockEntity(pos) instanceof CareBlockEntity care) {
+        if (!state.is(replacement.getBlock()) && level instanceof ServerLevel server && level.getBlockEntity(pos) instanceof CareBlockEntity care) {
             Containers.dropContents(level, pos, care);
-            if (care.waste() > 0) for(var waste:care.cleanItems())popResource(level,pos,waste);
+            if (care.waste() > 0) Poops.spill(server, pos, care.drainWaste(server));
         }
         super.onRemove(state, level, pos, replacement, moving);
     }

@@ -5,52 +5,73 @@ import io.github.longshou.mcyukkuri.registry.ModItems;
 import io.github.longshou.mcyukkuri.body.DetachedItems;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import net.minecraft.server.level.ServerLevel;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.function.Predicate;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 
 /**
- * Ground stock: the original stacks alone own the volume, source and variant. Tier follows their summed volume.
+ * Ground stock: one volume per cell. Tier follows the volume.
  */
 public final class PoopBlockEntity extends BlockEntity {
-    private final List<ItemStack> portions = new ArrayList<>();
+    private double volume;
     public PoopBlockEntity(BlockPos pos, BlockState state) { super(ModBlocks.POOP_ENTITY.get(), pos, state); }
 
-    public double count() { return portions.stream().mapToDouble(DetachedItems::volume).sum(); }
-    public boolean full() { return count() >= Poops.CAPACITY; }
-    public List<ItemStack> portions() { return List.copyOf(portions); }
+    public double count() { return volume; }
+    public boolean full() { return volume >= Poops.CAPACITY; }
 
-    /** Adds one portion; the caller owns and debits the source stack. */
-    public boolean add(ItemStack portion) {
-        if (level == null || level.isClientSide || isRemoved() || count()+DetachedItems.volume(portion)>Poops.CAPACITY || !portion.is(ModItems.WASTE.get()) || portion.getCount() != 1) return false;
-        portions.add(portion.copy());
+    /** The caller owns and debits the accepted stack. */
+    public boolean add(ItemStack stack) {
+        if (!(level instanceof ServerLevel) || isRemoved() || !stack.is(ModItems.WASTE.get())) return false;
+        double added = DetachedItems.volume(stack);
+        if (!(added > 0 && added <= Poops.CAPACITY - volume)) return false;
+        volume += added;
         changed();
         return true;
     }
-    /** The newest portion, or empty. The block disappears with its last portion. */
-    public ItemStack takeOne() {
-        if (level == null || level.isClientSide || isRemoved() || portions.isEmpty()) return ItemStack.EMPTY;
-        double before=count();var taken = portions.removeLast();
-        GameplayLog.world((ServerLevel)level,"needs","poop taken at={} volume={} -> {}",worldPosition,before,count());
-        if (portions.isEmpty()) level.removeBlock(worldPosition, false); else changed();
-        return taken;
+    /** Collection leaves the fractional remainder on the ground. */
+    public ItemStack takeWhole(int limit) {
+        if (!(level instanceof ServerLevel server) || isRemoved()) return ItemStack.EMPTY;
+        int whole = Math.min(limit, (int)volume);
+        if (whole == 0) return ItemStack.EMPTY;
+        subtract(server, whole, "taken");
+        return new ItemStack(ModItems.WASTE.get(), whole);
     }
-    /** Every portion, leaving the block empty without removing it (used by block removal, which drops them). */
-    public List<ItemStack> drain() {
-        double before=count();
-        var all = new ArrayList<>(portions);
-        portions.clear();
-        if(level instanceof ServerLevel server && before>0)GameplayLog.world(server,"needs","poop gathered at={} volume={} -> 0",worldPosition,before);
+
+    /** Eating at the heap can use a fractional bite. The mouth must accept the bite before the heap is debited. */
+    public boolean eat(Predicate<ItemStack> accept) {
+        if (!(level instanceof ServerLevel server) || isRemoved() || volume == 0) return false;
+        double bite = Math.min(1, volume);
+        if (!accept.test(DetachedItems.waste(bite))) return false;
+        subtract(server, bite, "eaten");
+        return true;
+    }
+
+    void decay(ServerLevel server) {
+        if (volume == 0) return;
+        double loss = Math.min(.75 * volume, .22 * Math.sqrt(volume));
+        if (volume - loss < DetachedItems.MIN_WASTE_VOLUME / 4) loss = volume;
+        subtract(server, loss, "decayed");
+    }
+
+    private void subtract(ServerLevel server, double removed, String action) {
+        double before = volume;
+        volume -= removed;
+        GameplayLog.world(server, "needs", "poop {} at={} volume={} -> {}", action, worldPosition, before, volume);
+        if (volume == 0) server.removeBlock(worldPosition, false); else changed();
+    }
+
+    /** Block removal transfers all remaining stock to the spill. */
+    double drain(ServerLevel server) {
+        double before = volume;
+        volume = 0;
+        if (before > 0) GameplayLog.world(server, "needs", "poop spilled at={} volume={} -> 0", worldPosition, before);
         setChanged();
-        return all;
+        return before;
     }
     private void changed() {
         setChanged();
@@ -75,17 +96,11 @@ public final class PoopBlockEntity extends BlockEntity {
     @Override protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.saveAdditional(tag, registries);
         tag.putInt("Version", 1);
-        var list = new ListTag();
-        portions.forEach(stack -> list.add(stack.save(registries)));
-        tag.put("Portions", list);
+        tag.putDouble("Volume", volume);
     }
     @Override protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.loadAdditional(tag, registries);
-        portions.clear();
-        for (var raw : tag.getList("Portions", Tag.TAG_COMPOUND)) {
-            var stack = ItemStack.parseOptional(registries, (CompoundTag)raw);
-            if (stack.is(ModItems.WASTE.get())) portions.add(stack);
-        }
+        volume = Poops.loadVolume(tag, "Volume", "Portions", registries);
     }
     @Override public CompoundTag getUpdateTag(HolderLookup.Provider registries) { return saveWithoutMetadata(registries); }
     @Override public ClientboundBlockEntityDataPacket getUpdatePacket() { return ClientboundBlockEntityDataPacket.create(this); }

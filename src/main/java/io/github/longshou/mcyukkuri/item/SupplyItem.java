@@ -3,10 +3,16 @@ package io.github.longshou.mcyukkuri.item;
 import io.github.longshou.mcyukkuri.house.SupplyPileBlockEntity;
 import io.github.longshou.mcyukkuri.house.SupplyPiles;
 import io.github.longshou.mcyukkuri.body.DetachedItems;
+import io.github.longshou.mcyukkuri.life.CareBlock;
+import io.github.longshou.mcyukkuri.life.CareBlockEntity;
+import io.github.longshou.mcyukkuri.life.PoopBlockEntity;
+import io.github.longshou.mcyukkuri.life.Poops;
+import io.github.longshou.mcyukkuri.settlement.GroupPits;
 import java.util.List;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
@@ -26,7 +32,15 @@ public final class SupplyItem extends Item {
         if(!SupplyPiles.waste(stack))return;
         if(player!=null&&(!player.mayBuild()||!player.mayUseItemAt(pos,Direction.UP,stack)))return;
         int limit=player!=null&&player.isSecondaryUseActive()?8:1;
-        int accepted=SupplyPiles.offer(level,pos,stack,limit);
+        int accepted;
+        var contents = level.getBlockEntity(pos);
+        if (contents instanceof CareBlockEntity care && care.kind() == CareBlock.Kind.TOILET) {
+            accepted = Poops.fittingCount(stack, limit, care.capacity() - care.waste());
+            if (accepted > 0 && !care.relieve(stack.copyWithCount(accepted))) accepted = 0;
+        } else if (level instanceof ServerLevel server && (contents instanceof PoopBlockEntity
+                || contents == null && GroupPits.managedCell(server, pos))) {
+            accepted = Poops.deposit(server, pos, stack, limit);
+        } else accepted = SupplyPiles.offer(level,pos,stack,limit);
         if(accepted>0){
             double volume=DetachedItems.volume(stack.copyWithCount(accepted));
             if(player==null||!player.getAbilities().instabuild)stack.shrink(accepted);
@@ -36,7 +50,9 @@ public final class SupplyItem extends Item {
     @Override public InteractionResult useOn(UseOnContext context){
         if(!SupplyPiles.waste(context.getItemInHand()))return InteractionResult.PASS;
         var level=context.getLevel();var clicked=context.getClickedPos();var player=context.getPlayer();
-        boolean pile=level.getBlockEntity(clicked) instanceof SupplyPileBlockEntity;
+        var contents = level.getBlockEntity(clicked);
+        boolean pile = contents instanceof SupplyPileBlockEntity || contents instanceof PoopBlockEntity
+                || contents instanceof CareBlockEntity care && care.kind() == CareBlock.Kind.TOILET;
         if(!pile&&context.getClickedFace()!=Direction.UP)return InteractionResult.PASS;
         var target=pile?clicked:clicked.above();
         if(player!=null&&(!player.mayBuild()||!player.mayUseItemAt(target,context.getClickedFace(),context.getItemInHand())))return InteractionResult.FAIL;

@@ -1,9 +1,12 @@
 package io.github.longshou.mcyukkuri.life;
 
 import io.github.longshou.mcyukkuri.house.SupplyPiles;
+import io.github.longshou.mcyukkuri.settlement.GroupPits;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.BlockGetter;
@@ -48,14 +51,18 @@ public final class PoopBlock extends Block implements EntityBlock {
     @Override protected BlockState updateShape(BlockState state, Direction direction, BlockState neighbor, LevelAccessor level, BlockPos pos, BlockPos neighborPos) {
         return !canSurvive(state, level, pos) ? Blocks.AIR.defaultBlockState() : super.updateShape(state, direction, neighbor, level, pos, neighborPos);
     }
-    /** Empty hand: shows the load; sneaking gathers every portion back as the real waste item. */
+    @Override protected void randomTick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
+        if (level.getBlockEntity(pos) instanceof PoopBlockEntity heap && !GroupPits.managedCell(level, pos)) heap.decay(level);
+    }
+
+    /** Empty hand shows the load. Sneaking gathers the whole units. */
     @Override protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hit) {
         if (!player.getMainHandItem().isEmpty()) return InteractionResult.PASS;
         if (!level.isClientSide && level.getBlockEntity(pos) instanceof PoopBlockEntity poop) {
             if (player.isSecondaryUseActive()) {
-                double taken = poop.count();
-                for (var portion : poop.drain()) SupplyPiles.give(player, portion);
-                level.removeBlock(pos, false);
+                var portion = poop.takeWhole(Poops.CAPACITY);
+                int taken = portion.getCount();
+                SupplyPiles.give(player, portion);
                 player.displayClientMessage(Component.translatable("care.mcyukkuri.poop.gathered", taken), true);
             } else player.displayClientMessage(Component.translatable("care.mcyukkuri.poop.level", poop.count(), Poops.CAPACITY), true);
         }
@@ -63,8 +70,8 @@ public final class PoopBlock extends Block implements EntityBlock {
     }
     /** Whatever removes the heap, the portions come out as real waste items; none is lost or made. */
     @Override protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState replacement, boolean moving) {
-        if (!state.is(replacement.getBlock()) && !level.isClientSide && level.getBlockEntity(pos) instanceof PoopBlockEntity poop)
-            for (var portion : poop.drain()) Block.popResource(level, pos, portion);
+        if (!state.is(replacement.getBlock()) && level instanceof ServerLevel server && level.getBlockEntity(pos) instanceof PoopBlockEntity poop)
+            Poops.spill(server, pos, poop.drain(server));
         super.onRemove(state, level, pos, replacement, moving);
     }
 }

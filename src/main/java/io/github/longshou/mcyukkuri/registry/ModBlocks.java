@@ -80,7 +80,7 @@ public final class ModBlocks {
             ()->BlockEntityType.Builder.of(SupplyPileBlockEntity::new,HOUSE_SUPPLIES.get()).build(null));
     /** Droppings on the ground (life/Poops): non-solid, up to eight portions per cell, four looks by load. */
     public static final DeferredBlock<PoopBlock> POOP=BLOCKS.register("yukkuri_poop",
-            ()->new PoopBlock(BlockBehaviour.Properties.of().instabreak().sound(SoundType.MUD).noCollission().noOcclusion().pushReaction(PushReaction.DESTROY)));
+            ()->new PoopBlock(BlockBehaviour.Properties.of().instabreak().sound(SoundType.MUD).noCollission().noOcclusion().randomTicks().pushReaction(PushReaction.DESTROY)));
     public static final DeferredHolder<BlockEntityType<?>,BlockEntityType<PoopBlockEntity>> POOP_ENTITY=BLOCK_ENTITIES.register("poop",
             ()->BlockEntityType.Builder.of(PoopBlockEntity::new,POOP.get()).build(null));
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<CareBlockEntity>> CARE = BLOCK_ENTITIES.register("care",

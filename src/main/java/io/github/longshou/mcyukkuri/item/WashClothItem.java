@@ -73,12 +73,8 @@ public final class WashClothItem extends Item {
             return InteractionResult.sidedSuccess(context.getLevel().isClientSide);
         }
         if (context.getLevel().getBlockEntity(context.getClickedPos()) instanceof PoopBlockEntity heap) {
-            // A heap on the ground is swept up with a wet cloth: every portion becomes the real waste item again.
             if (water(context.getItemInHand())==0) return InteractionResult.FAIL;
-            if (!context.getLevel().isClientSide) {
-                var portions=heap.drain();context.getLevel().removeBlock(context.getClickedPos(),false);useWater(context.getItemInHand());
-                for(var waste:portions){if(context.getPlayer()!=null)SupplyPiles.give(context.getPlayer(),waste);else Block.popResource(context.getLevel(),context.getClickedPos(),waste);}
-            }
+            if (!context.getLevel().isClientSide) giveCleaned(context, heap.takeWhole(Integer.MAX_VALUE));
             return InteractionResult.sidedSuccess(context.getLevel().isClientSide);
         }
         if (!(context.getLevel().getBlockEntity(context.getClickedPos()) instanceof CareBlockEntity care) || care.kind()!=CareBlock.Kind.TOILET) {
@@ -105,19 +101,24 @@ public final class WashClothItem extends Item {
                 HouseholdEcology.cleaned((ServerLevel)level,center);
                 if(removed>0){
                     GameplayLog.world((ServerLevel)level,"needs","waste recovered source=sweep at={} volume={} -> 0 yieldVolume={}",center,removed,removed);
-                    SupplyPiles.give(player,DetachedItems.waste(removed));if(water(context.getItemInHand())>0)useWater(context.getItemInHand());
+                    int whole = (int)removed;
+                    if (whole > 0) SupplyPiles.give(player, new ItemStack(ModItems.WASTE.get(), whole));
+                    if (removed > whole) SupplyPiles.give(player, DetachedItems.waste(removed - whole));
+                    if(water(context.getItemInHand())>0)useWater(context.getItemInHand());
                 }
                 player.displayClientMessage(Component.translatable("house.mcyukkuri.supplies.cleaned",removed),true);
             }
             return InteractionResult.sidedSuccess(context.getLevel().isClientSide);
         }
         if (water(context.getItemInHand())==0) return InteractionResult.FAIL;
-        if (!context.getLevel().isClientSide && care.waste()>0) {
-            var portions=care.cleanItems();useWater(context.getItemInHand());
-            Player player=context.getPlayer();
-            for(var waste:portions)if(player!=null)SupplyPiles.give(player,waste);else Block.popResource(context.getLevel(),context.getClickedPos(),waste);
-        }
+        if (!context.getLevel().isClientSide) giveCleaned(context, care.takeWaste(Integer.MAX_VALUE));
         return InteractionResult.sidedSuccess(context.getLevel().isClientSide);
+    }
+    private static void giveCleaned(UseOnContext context, ItemStack waste) {
+        if (waste.isEmpty()) return;
+        useWater(context.getItemInHand());
+        if (context.getPlayer() != null) SupplyPiles.give(context.getPlayer(), waste);
+        else Block.popResource(context.getLevel(), context.getClickedPos(), waste);
     }
     @Override public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
         tooltip.add(Component.translatable("care.mcyukkuri.cloth.charges",water(stack)));

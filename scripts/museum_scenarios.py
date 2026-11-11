@@ -623,6 +623,7 @@ add('hurt', 'meadow', '受伤后伴侣和亲油来舔伤', '受伤后伴侣和�
 
 add('toilet', 'meadow', '便意急了走去厕所', '便意急了走去厕所', '橙有强烈便意：看它走向右边的厕所；拆掉厕所再看它在地面排便（从油菊排出）', '约 1 分钟', [
     block(6, 0, 0, 'mcyukkuri:yukkuri_toilet'), yk('chen', 0, 0, 'a', bladder=95, yaw=-90, lead=True)], vantage=None,
+    reads=[('读厕所内排泄物体积', 'data get block ~6 ~ ~ Waste')],
     smoke=dict(ticks=1200,expect=[r'relieved source=facility',r'toilet stored [^\n]*volume='],forbid=[]))
 
 # ====================================================================================================== family and growth
@@ -716,7 +717,7 @@ add('first_toilet', 'family', '新生儿吃第一口后才首次排便', '新生
                expect=[r'first toilet completed',r'poop placed [^\n]*volume='],forbid=[]))
 
 add('waste_volume', 'family', '赤油与成油的地面排便量', '赤油与成油的地面排便量',
-    '赤油已经吃过首餐，亲油辅助它首次排便；旁边便意强烈的成油自行寻找地面排便。对比两者落地粪便大小；湿抹布收集后体积保持不变',
+    '赤油已经吃过首餐，亲油辅助它首次排便；旁边便意强烈的成油自行寻找地面排便。空手右键读落地粪便体积，对比两者大小和逐渐缩小的速度。湿抹布只收集整单位，剩余小堆留在地上。',
     '约 1 分钟', [
         yk('chen', 0, 0, 'mom', yaw=-90, **pair_ready()),
         yk('reimu', 2, 0, 'baby', stage='baby', nutrition=90, bladder=30, yaw=90, lead=True,

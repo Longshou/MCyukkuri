@@ -35,6 +35,13 @@ public final class PropItemRenderer extends BlockEntityWithoutLevelRenderer {
             pose.scale(scale,scale*.65f,scale);RemainsRenderer.draw(stack,data,pose,buffers,light,overlay);pose.popPose();return;
         }
         if(stack.is(ModItems.ACCESSORY_SHARD.get())){renderShard(stack,context,pose,buffers,light,overlay);return;}
+        if (stack.is(ModItems.WASTE.get()) && context != ItemDisplayContext.GUI) {
+            pose.pushPose();
+            pose.translate(.5, .5, .5);
+            WastePresentation.render(DetachedItems.volume(stack), false, pose, buffers, light, overlay);
+            pose.popPose();
+            return;
+        }
         if(stack.getItem() instanceof AccessoryItem){
             String selected="accessory_"+stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag().getString("SourceModel");
             var kind=ModItems.aquaticHatKind(stack);
@@ -47,7 +54,6 @@ public final class PropItemRenderer extends BlockEntityWithoutLevelRenderer {
         float scale=gui?12/Math.max(1,PropModels.extent(name)):1;
         if(!gui&&stack.is(ModItems.HOUSE_EGG.get()))scale=HouseEggGeometry.MODEL_SCALE;
         if(!gui&&(stack.getItem() instanceof ShelterItem||stack.getItem() instanceof PlayItem))scale=12/Math.max(1,PropModels.extent(name));
-        if(!gui&&stack.is(ModItems.WASTE.get()))scale*=(float)Math.cbrt(DetachedItems.volume(stack));
         if(!gui&&stack.getItem() instanceof AccessoryItem){
             var tag=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();
             float size=tag.contains("SourceScale")?tag.getFloat("SourceScale"):1;

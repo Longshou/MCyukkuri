@@ -5,6 +5,7 @@ import io.github.longshou.mcyukkuri.body.DetachedItems;
 import io.github.longshou.mcyukkuri.registry.ModBlocks;
 import io.github.longshou.mcyukkuri.registry.ModItems;
 import io.github.longshou.mcyukkuri.settlement.GroupPits;
+import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
@@ -15,9 +16,13 @@ import java.util.Set;
 import java.util.WeakHashMap;
 import java.util.function.Predicate;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.phys.Vec3;
 
 /**
@@ -39,6 +44,31 @@ public final class Poops {
     }
 
     public static int tier(double volume) { return Math.clamp((int)Math.ceil(volume / 2), 1, TIERS); }
+
+    /** Legacy lists were authoritative even when a toilet also saved its summed readout. */
+    static double loadVolume(CompoundTag tag, String volumeKey, String oldList, HolderLookup.Provider registries) {
+        if (!tag.contains(oldList, Tag.TAG_LIST)) return tag.getDouble(volumeKey);
+        double volume = 0;
+        for (var raw : tag.getList(oldList, Tag.TAG_COMPOUND)) {
+            var stack = ItemStack.parseOptional(registries, (CompoundTag)raw);
+            if (stack.is(ModItems.WASTE.get())) volume += DetachedItems.volume(stack);
+        }
+        return volume;
+    }
+
+    /** The portion counts an item deposit can move without breaking a legacy fractional item. */
+    public static int fittingCount(ItemStack stack, int limit, double room) {
+        int count = Math.min(limit, stack.getCount());
+        while (count > 0 && DetachedItems.volume(stack.copyWithCount(count)) > room) count--;
+        return count;
+    }
+
+    /** A broken container spills the remainder as a real loose dropping as well as its whole units. */
+    static void spill(Level level, BlockPos pos, double volume) {
+        int whole = (int)volume;
+        if (whole > 0) Block.popResource(level, pos, new ItemStack(ModItems.WASTE.get(), whole));
+        if (volume > whole) Block.popResource(level, pos, DetachedItems.waste(volume - whole));
+    }
 
     // ---- index of loaded heaps (transient, server side, never saved) --------------------------------------------------
     private static final Map<Level, Set<BlockPos>> INDEX = new WeakHashMap<>();
@@ -123,16 +153,31 @@ public final class Poops {
             if (!candidates.isEmpty()) target = candidates.getFirst();
         }
         if (target == null) return null;
+        return addAt(level, target, portion, overflow);
+    }
+
+    /** A player puts waste into this exact heap or pit cell. The caller debits the accepted item count. */
+    public static int deposit(ServerLevel level, BlockPos pos, ItemStack stack, int limit) {
+        if (!canTake(level, pos)) return 0;
+        int accepted = fittingCount(stack, limit, CAPACITY - portions(level, pos));
+        if (accepted == 0) return 0;
+        var placed = addAt(level, pos, stack.copyWithCount(accepted), false);
+        if (placed == null) return 0;
+        GameplayLog.world(level, "needs", "poop stored at={} volume={} -> {}", pos, placed.before(), placed.after());
+        return accepted;
+    }
+
+    private static Placement addAt(ServerLevel level, BlockPos target, ItemStack portion, boolean overflow) {
         boolean fresh = !(level.getBlockEntity(target) instanceof PoopBlockEntity);
         if (fresh && !level.setBlock(target, ModBlocks.POOP.get().defaultBlockState(), 3)) return null;
         if (!(level.getBlockEntity(target) instanceof PoopBlockEntity heap)) { level.removeBlock(target, false); return null; }
         double before = heap.count();
-        if (!heap.add(portion.copy())) { if (fresh) level.removeBlock(target, false); return null; }
+        if (!heap.add(portion)) { if (fresh) level.removeBlock(target, false); return null; }
         return new Placement(target, before, heap.count(), overflow);
     }
 
     private static boolean fits(ServerLevel level, BlockPos cell, ItemStack portion) {
-        return portions(level, cell)+DetachedItems.volume(portion)<=CAPACITY;
+        return DetachedItems.volume(portion) <= CAPACITY - portions(level, cell);
     }
     private Poops() {}
 }

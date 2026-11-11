@@ -8,6 +8,7 @@ import io.github.longshou.mcyukkuri.registry.ModItems;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
@@ -15,6 +16,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
@@ -51,6 +53,21 @@ public final class GroupPits {
         var role = group.role(entity.getUUID());
         if (role == SettlementData.Role.UNUN_SLAVE || role == SettlementData.Role.FREE || role == SettlementData.Role.OUTCAST) return List.of();
         return cells(level, group, false);
+    }
+
+    /** Decay uses the same pit geometry, including old heaps at a site with no current residents. */
+    public static boolean managedCell(ServerLevel level, BlockPos pos) {
+        var data = SettlementData.get(level);
+        for (var site : data.sites()) {
+            if (Math.abs(pos.getX() - site.origin.getX()) <= site.tier.bound
+                    && Math.abs(pos.getZ() - site.origin.getZ()) <= site.tier.bound
+                    && inCells(SiteLife.pit(site), pos)) return true;
+        }
+        for (var group : data.groups()) {
+            if (group.pit != null && group.pit.distSqr(pos) <= 2
+                    && inCells(cells(level, group, false), pos)) return true;
+        }
+        return false;
     }
 
     private static List<BlockPos> cells(ServerLevel level, SettlementData.Group group, boolean discover) {
@@ -134,34 +151,39 @@ public final class GroupPits {
         // A slave lives in the pit: it lets go where it stands, on the nearest cell, instead of climbing out to the bank.
         boolean resident = entity.settlement().duties().pit().slave();
         if (resident) ordered.sort(Comparator.comparingDouble(c -> c.distSqr(here)));
-        int tried = 0;
+        var tried = new HashSet<BlockPos>();
         boolean anyEdge = false;
+        search:
         for (var cell : ordered) {
             if (!level.hasChunkAt(cell)) continue;
-            var stand = resident ? entity.life().dryStand(cell) ? cell : null : bank(entity, cells, cell);
-            if (stand == null) continue;
-            anyEdge = true;
-            if (stand.distSqr(here) > NEAR * NEAR) return new Spot(cell, stand);
-            if (entity.life().reachable(stand, false)) return new Spot(cell, stand);
-            if (++tried >= 4) break;
+            var stands = resident ? entity.life().dryStand(cell) ? List.of(cell) : List.<BlockPos>of()
+                    : banks(level, entity, cells, cell);
+            for (var stand : stands) {
+                anyEdge = true;
+                if (!tried.add(stand)) continue;
+                if (stand.distSqr(here) > NEAR * NEAR || entity.life().reachable(stand, false)) return new Spot(cell, stand);
+                if (tried.size() >= 4) break search;
+            }
         }
         refuse(entity, !anyEdge ? "no_edge" : "unreachable", nearest);
         return null;
     }
 
-    /** A dry rim cell one block above and beside {@code pit}, outside the dip footprint. */
-    private static BlockPos bank(YukkuriEntity entity, List<BlockPos> cells, BlockPos pit) {
-        BlockPos best = null;
-        double bestDistance = Double.MAX_VALUE;
+    /** Dry rim cells above and beside {@code pit}, outside the dip footprint, nearest first. */
+    private static List<BlockPos> banks(ServerLevel level, YukkuriEntity entity, List<BlockPos> cells, BlockPos pit) {
+        var stands = new ArrayList<BlockPos>();
         for (var side : Direction.Plane.HORIZONTAL) {
             var column = pit.relative(side);
             if (cells.stream().anyMatch(c -> c.getX() == column.getX() && c.getZ() == column.getZ())) continue;
-            var bank = column.above();
-            if (!entity.life().dryStand(bank)) continue;
-            double distance = bank.distSqr(entity.blockPosition());
-            if (distance < bestDistance) { best = bank; bestDistance = distance; }
+            if (!level.hasChunkAt(column)) continue;
+            int top = level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, column.getX(), column.getZ());
+            for (int y = column.getY() + 1; y <= top; y++) {
+                var bank = column.atY(y);
+                if (entity.life().dryStand(bank)) stands.add(bank);
+            }
         }
-        return best;
+        stands.sort(Comparator.comparingDouble(stand -> stand.distSqr(entity.blockPosition())));
+        return stands;
     }
 
     /** The point on the bank cell nearest the pit that the member walks to: its rear then lies over the pit. */
