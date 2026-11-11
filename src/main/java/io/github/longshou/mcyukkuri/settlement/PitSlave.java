@@ -2,15 +2,20 @@ package io.github.longshou.mcyukkuri.settlement;
 
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.life.PoopBlockEntity;
 import io.github.longshou.mcyukkuri.life.Poops;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.component.CustomData;
+import net.minecraft.world.level.ClipContext;
+import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 
 /**
@@ -26,12 +31,17 @@ public final class PitSlave {
     /** Nutrition at or below which it takes a portion. */
     public static final float HUNGRY_AT = 50;
     private static final float BEG_BELOW = 30;
+    /** The existing distance to a heap. A stand can lean across the pit's one-block lip. */
+    private static final double MEAL_REACH = .6;
     private static final int REFRESH_TICKS = 100, STAY_MOVE_TICKS = 160, RETRY_TICKS = 200, BEG_TICKS = 600;
     private final YukkuriEntity entity;
     private Phase phase = Phase.NONE;
     private List<BlockPos> cells = List.of();
     private long cellsAt = Long.MIN_VALUE, retryAt, begAt, begUntil;
     private BlockPos destination;
+    private Vec3 mealStand;
+    private BlockPos rejectedFrom;
+    private final Set<BlockPos> rejectedHeaps = new HashSet<>();
     private int ticks;
     /** Whether the last look found it inside the pit: the arrival is a real fact, not a phase of the walk. */
     private boolean inside;
@@ -85,11 +95,13 @@ public final class PitSlave {
             GameplayLog.event(entity, "settlement", "pit slave back in pit at={} cells={}", entity.blockPosition(), cells.size());
         }
         if (entity.life().nutrition() <= HUNGRY_AT && entity.life().canEat() && eat()) return;
+        if (phase == Phase.EAT) SurfaceApproach.halt(entity);
         stay();
     }
 
     private void returnToPit() {
         if (phase != Phase.RETURN) {
+            if (phase == Phase.EAT) SurfaceApproach.stopWalking(entity);
             phase = Phase.RETURN; destination = null; ticks = 0;
             var nearest = nearestCell();
             GameplayLog.limited(entity, "settlement", "pit_return", 600, "pit slave return start pit={} distance={} cause=outside_pit nutrition={}",
@@ -107,22 +119,26 @@ public final class PitSlave {
         return cells.stream().min(Comparator.comparingDouble(c -> c.distSqr(here))).orElseThrow();
     }
 
-    /** True while the meal is under way (walking to the heap or taking the portion); false when there is nothing to eat. */
+    /** True while a portion is being approached or taken. */
     private boolean eat() {
-        var heap = Poops.richest(level(), cells, entity.position());
-        if (heap == null) {
-            beg();
-            GameplayLog.limited(entity, "settlement", "pit_hungry", 600, "pit slave hungry reason=no_droppings cells={} nutrition={}",
-                    cells.size(), entity.life().nutrition());
-            return false;
+        if (!entity.onGround()) return true;
+        if (!entity.blockPosition().equals(rejectedFrom)) {
+            rejectedFrom = entity.blockPosition();
+            rejectedHeaps.clear();
         }
+        var heap = phase == Phase.EAT && cells.contains(destination)
+                && level().getBlockEntity(destination) instanceof PoopBlockEntity current
+                && current.count() > 0 ? current : chooseMeal();
+        if (heap == null) return false;
         var cell = heap.getBlockPos();
         var heapCentre = Vec3.atBottomCenterOf(cell);
-        if (entity.position().subtract(heapCentre).horizontalDistanceSqr() > .36) {
-            // Both stand in the same dip: a short surface step, no path search out of and back into the hollow.
-            phase = Phase.EAT;
-            SurfaceApproach.walk(entity, heapCentre, 1.0);
-            return true;
+        if (!canReachHeap(entity.position(), heapCentre)) {
+            var move = SurfaceApproach.walkResult(entity, mealStand, null, 1.0);
+            if (move == SurfaceApproach.Result.MOVING || move == SurfaceApproach.Result.WAITING) return true;
+            refuseHeap(cell);
+            SurfaceApproach.halt(entity);
+            phase = Phase.NONE;
+            return false;
         }
         SurfaceApproach.halt(entity);
         double before = heap.count();
@@ -140,6 +156,58 @@ public final class PitSlave {
                 entity.life().nutrition(), recorded.hasUUID("Source") ? recorded.getUUID("Source") : "unknown");
         phase = Phase.NONE;
         return true;
+    }
+
+    private PoopBlockEntity chooseMeal() {
+        var here = entity.position();
+        var richest = Poops.richest(level(), cells, here);
+        if (richest == null) {
+            beg();
+            GameplayLog.limited(entity, "settlement", "pit_hungry", 600, "pit slave hungry reason=no_droppings cells={} nutrition={}",
+                    cells.size(), entity.life().nutrition());
+            return null;
+        }
+        for (var heap = richest; heap != null; heap = Poops.richest(level(),
+                cells.stream().filter(cell -> !rejectedHeaps.contains(cell)).toList(), here)) {
+            var cell = heap.getBlockPos();
+            var centre = Vec3.atBottomCenterOf(cell);
+            var stand = canReachHeap(here, centre) ? here : null;
+            if (stand == null && rejectedHeaps.contains(cell)) continue;
+            if (stand == null) {
+                stand = SurfaceApproach.floor(entity, centre);
+                if (stand == null || !mealStandFits(stand, centre) || !SurfaceApproach.canApproach(entity, stand))
+                    stand = SurfaceApproach.contactStands(entity, centre.add(0, .5, 0), MEAL_REACH - SurfaceApproach.ARRIVAL, null,
+                                    at -> mealStandFits(at, centre)).stream()
+                            .filter(at -> SurfaceApproach.canApproach(entity, at)).findFirst().orElse(null);
+            }
+            if (stand != null) {
+                phase = Phase.EAT;
+                destination = cell;
+                mealStand = stand;
+                return heap;
+            }
+            refuseHeap(cell);
+        }
+        return null;
+    }
+
+    private boolean mealStandFits(Vec3 feet, Vec3 centre) {
+        return inPit(BlockPos.containing(feet)) && canReachHeap(feet, centre);
+    }
+
+    private boolean canReachHeap(Vec3 feet, Vec3 centre) {
+        return feet.subtract(centre).horizontalDistanceSqr() <= MEAL_REACH * MEAL_REACH
+                && Math.abs(feet.y - centre.y) <= 1
+                && level().clip(new ClipContext(feet.add(0, entity.getEyeHeight(), 0), centre.add(0, .01, 0),
+                        ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, entity)).getType() == HitResult.Type.MISS;
+    }
+
+    private void refuseHeap(BlockPos cell) {
+        if (rejectedHeaps.add(cell)) {
+            entity.showReaction("teary", "", 60);
+            GameplayLog.limited(entity, "settlement", "pit_heap_unreachable", 200,
+                    "pit slave contact blocked reason=no_reachable_stand heap={} nutrition={}", cell, entity.life().nutrition());
+        }
     }
 
     /** Starving with nothing to eat, it pleads with a member standing at the bank (the outcome is unchanged). */
@@ -167,6 +235,6 @@ public final class PitSlave {
 
     public void stop() {
         phase = Phase.NONE; destination = null; ticks = 0;
-        entity.getNavigation().stop();
+        SurfaceApproach.stopWalking(entity);
     }
 }
