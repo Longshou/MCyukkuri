@@ -9,6 +9,7 @@
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
 | 帽船靠岸反复被拒绝跳跃（kid_boat_play） | `.worktrees/wp-fr-shore-hop` | aquatic 靠岸、下船跳跃 |
+| 亲油带孩子遗留：放下后觅食被拴住、FM-21 不去抱、橙认窝被拒、帽檐够不到 | `.worktrees/wp-fs-carry-leftovers` | family/ParentCarry、认窝分配 |
 
 ## 玩法待办
 
