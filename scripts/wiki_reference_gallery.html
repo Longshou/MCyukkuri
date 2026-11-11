@@ -16,42 +16,103 @@
 <script id="data" type="application/json">__DATA__</script><script>
 'use strict';
 const data=JSON.parse(document.getElementById('data').textContent);
-const fields=['entities','scenarios','emotions','targets'];
-const controls=Object.fromEntries(['query',...fields,'media','quality','style'].map(k=>[k,document.getElementById(k)]));
+const production=data.production;
+const fields=production?Object.keys(data.facets):['entities','scenarios','emotions','targets'];
+const controls={query:document.getElementById('query')};
 const grid=document.getElementById('grid'),status=document.getElementById('status');
 function element(tag,text,cls){const e=document.createElement(tag);if(text)e.textContent=text;if(cls)e.className=cls;return e}
 function link(text,href){const a=element('a',text);a.href=href;return a}
-for(const field of fields){for(const value of data.facets[field].values){const scope=data.entity_scope.find(e=>e.id===value);const o=element('option',value+(field==='entities'&&scope?.status==='开发计划明确纳入'?'（计划）':''));o.value=value;controls[field].append(o)}}
-for(const style of [...new Set(data.assets.flatMap(a=>a.quality?[a.quality.style]:[]))].sort()){const o=element('option',style);o.value=style;controls.style.append(o)}
+if(production){
+ document.title=document.querySelector('h1').textContent='Wiki 美术与动作参考';
+ document.querySelector('header > p').textContent='选标签找画面。每张卡片写明可以参考的细节，并链接到原页。';
+ document.querySelector('header nav').remove();
+ document.querySelector('header .meta').remove();
+ document.querySelector('footer').remove();
+ const filters=document.querySelector('.filters');
+ for(const label of filters.querySelectorAll('label:not(.wide)'))label.remove();
+ controls.query.parentElement.firstChild.textContent='搜索参考';
+ controls.query.placeholder='例如：帽檐、侧辫、树叶襁褓';
+ for(const key of fields){
+  const label=element('label',data.facets[key].title);
+  const select=element('select');
+  select.id=key;
+  const all=element('option','不限');
+  all.value='';
+  select.append(all);
+  label.append(select);
+  filters.append(label);
+ }
+}else{
+ for(const key of ['media','quality','style'])controls[key]=document.getElementById(key);
+ for(const style of [...new Set(data.assets.flatMap(a=>a.quality?[a.quality.style]:[]))].sort()){const o=element('option',style);o.value=style;controls.style.append(o)}
+}
+for(const field of fields){
+ controls[field]=document.getElementById(field);
+ for(const value of data.facets[field].values){
+  const scope=data.entity_scope?.find(e=>e.id===value);
+  const o=element('option',value+(field==='entities'&&scope?.status==='开发计划明确纳入'?'（计划）':''));
+  o.value=value;
+  controls[field].append(o);
+ }
+}
+function matchesProduction(a,f){
+ const sameSubject=(!f.species&&!f.stage)||a.subjects.some(s=>(!f.species||s.species===f.species)&&(!f.stage||s.stage===f.stage));
+ return sameSubject&&fields.every(k=>{
+  if(!f[k]||k==='species'||k==='stage')return true;
+  return a[k].includes(f[k])||(k==='usefulness'&&f[k]!=='两用'&&a[k].includes('两用'));
+ });
+}
 function matches(a,f){
+ const search=[a.id,a.focus,a.description,a.source_title,a.observation,...fields.flatMap(k=>a[k])];
+ if(f.term&&!search.join(' ').toLocaleLowerCase().includes(f.term))return false;
+ if(production)return matchesProduction(a,f);
  return fields.every(k=>!f[k]||a[k].includes(f[k]))&&(!f.media||a.media===f.media)&&
-  (a.media!=='image'||((!f.quality||a.quality?.status===f.quality)&&(!f.style||a.quality?.style===f.style)))&&
-  (!f.term||[a.id,a.focus,a.description,a.source_title,a.observation,...fields.flatMap(k=>a[k])].join(' ').toLocaleLowerCase().includes(f.term));
+  (a.media!=='image'||((!f.quality||a.quality?.status===f.quality)&&(!f.style||a.quality?.style===f.style)));
 }
 function render(){
  const f=Object.fromEntries(Object.entries(controls).map(([k,e])=>[k,e.value]));f.term=f.query.trim().toLocaleLowerCase();
- controls.quality.disabled=controls.style.disabled=f.media==='text';
  const found=data.assets.filter(a=>matches(a,f));
- found.sort((a,b)=>Number(b.quality?.status==='selected')-Number(a.quality?.status==='selected')||a.scenarios[0].localeCompare(b.scenarios[0],'zh-CN')||a.entities[0].localeCompare(b.entities[0],'zh-CN')||a.id.localeCompare(b.id));
- status.textContent=`显示 ${found.length} 条：图片 ${found.filter(a=>a.media==='image').length} 张，文字卡 ${found.filter(a=>a.media==='text').length} 张。`+(found.length?'':' 当前组合还没有材料，可去掉一个条件。');
+ if(!production){
+  controls.quality.disabled=controls.style.disabled=f.media==='text';
+  found.sort((a,b)=>Number(b.quality?.status==='selected')-Number(a.quality?.status==='selected')||a.scenarios[0].localeCompare(b.scenarios[0],'zh-CN')||a.entities[0].localeCompare(b.entities[0],'zh-CN')||a.id.localeCompare(b.id));
+ }
+ status.textContent=(production?`显示 ${found.length} / ${data.assets.length} 条参考。`:
+  `显示 ${found.length} 条：图片 ${found.filter(a=>a.media==='image').length} 张，文字卡 ${found.filter(a=>a.media==='text').length} 张。`)+(found.length?'':' 当前组合还没有材料，可去掉一个条件。');
  const fragment=document.createDocumentFragment();
  for(const a of found){const card=element('article',null,'card');
   if(a.media==='image'){const p=link('',a.href);p.className='preview';const im=element('img');im.src=a.href;im.loading='lazy';im.alt=a.id+'：'+a.focus;p.append(im);card.append(p)}
   else card.append(element('div','文字材料 · '+a.id,'text-top'));
-  const body=element('div',null,'body');body.append(element('h2',a.entities.join('／')+' · '+a.scenarios[0]));
-  body.append(element('p',a.targets.join('／')+'：'+a.description,'purpose'),element('p',(a.media==='image'?'看这处：':'读这段：')+a.focus,'focus'));
+  const body=element('div',null,'body');
+  if(production){
+   const subjects=a.subjects.map(s=>s.species+(s.stage?'（'+s.stage+'）':''));
+   body.append(element('h2',[...new Set(subjects)].join('／')||a.prop_scene.join('／')||'场景'));
+   body.append(element('p',a.focus,'focus'));
+  }else{
+   body.append(element('h2',a.entities.join('／')+' · '+a.scenarios[0]));
+   body.append(element('p',a.targets.join('／')+'：'+a.description,'purpose'),element('p',(a.media==='image'?'看这处：':'读这段：')+a.focus,'focus'));
+  }
   for(const field of fields){if(!a[field].length)continue;const tags=element('div',null,'tags');tags.append(element('span',data.facets[field].title+'：','meta'));for(const value of a[field]){const b=element('button',value);b.type='button';b.onclick=()=>{controls[field].value=value;render()};tags.append(b)}body.append(tags)}
   if(a.media==='image')body.append(element('p',a.id+' · '+a.width+' × '+a.height+(a.quality?.status==='selected'?' · 美术精选':''),'meta'));
-  const detail=element('details');detail.append(element('summary','画面质量、出处与阅读范围'));
-  if(a.quality)detail.append(element('p',a.quality.style+'：'+a.quality.reason),element('p',a.quality.viewing_note));
-  if(a.observation)detail.append(element('p',a.observation));if(a.limits)detail.append(element('p',a.limits));
-  detail.append(element('p',a.review_status),element('p',a.source_title+' · '+a.source_note));body.append(detail);
-  const nav=element('nav');nav.append(link(a.media==='image'?'打开原图':'阅读卡',a.href),link('出处与前后页',a.source_href));body.append(nav);card.append(body);fragment.append(card)
+  const nav=element('nav');
+  if(production){
+   if(a.crop)nav.append(link('打开裁格',a.href));
+   nav.append(link('打开原页',a.source_href));
+  }else{
+   const detail=element('details');detail.append(element('summary','画面质量、出处与阅读范围'));
+   if(a.quality)detail.append(element('p',a.quality.style+'：'+a.quality.reason),element('p',a.quality.viewing_note));
+   if(a.observation)detail.append(element('p',a.observation));if(a.limits)detail.append(element('p',a.limits));
+   detail.append(element('p',a.review_status),element('p',a.source_title+' · '+a.source_note));body.append(detail);
+   nav.append(link(a.media==='image'?'打开原图':'阅读卡',a.href),link('出处与前后页',a.source_href));
+  }
+  body.append(nav);card.append(body);fragment.append(card)
  }grid.replaceChildren(fragment);
 }
 function reset(){for(const [k,e] of Object.entries(controls))e.value=k==='media'?'image':''}
 const presets={shell:{entities:'壳魔理沙',scenarios:'采集进食'},read:{entities:'帕秋莉',scenarios:'认知教学'},care:{scenarios:'照料幼体',emotions:'安心',targets:'动作'},boat:{entities:'帽船',scenarios:'水上移动'}};
-document.querySelectorAll('[data-preset]').forEach(b=>b.addEventListener('click',()=>{reset();for(const [k,v] of Object.entries(presets[b.dataset.preset]))controls[k].value=v;render()}));
+for(const b of document.querySelectorAll('[data-preset]')){
+ if(production)b.remove();
+ else b.addEventListener('click',()=>{reset();for(const [k,v] of Object.entries(presets[b.dataset.preset]))controls[k].value=v;render()});
+}
 document.getElementById('reset').addEventListener('click',()=>{reset();render()});
 for(const e of Object.values(controls))e.addEventListener('input',render);
 const params=new URLSearchParams(location.search);for(const [k,e] of Object.entries(controls)){if(params.has(k))e.value=params.get(k)}render();

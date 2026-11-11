@@ -10,6 +10,7 @@ import hashlib
 import json
 import os
 from pathlib import Path
+from shutil import copyfile
 
 from wiki_image_tags import TAG_FACETS, validate_result
 
@@ -198,9 +199,57 @@ def build_quality(data,write):
 def build_gallery(data,write):
     gallery_data={k:v for k,v in data.items() if k!='image_inventory'}
     payload={**gallery_data,'assets':[{**a,'href':relative(a['path']),'source_href':relative(a.get('source_index',a['path']))} for a in data['assets']]}
+    write(LIB/'gallery.html',gallery_html(payload))
+
+def gallery_html(payload):
     encoded=json.dumps(payload,ensure_ascii=False).replace('</','<\\/')
     template=(ROOT/'scripts/wiki_reference_gallery.html').read_text(encoding='utf-8')
-    write(LIB/'gallery.html',template.replace('__DATA__',encoded))
+    return template.replace('__DATA__',encoded)
+
+def build_production(index):
+    from PIL import Image
+
+    folder = index.parent
+    images = folder / 'images'
+    images.mkdir(parents=True, exist_ok=True)
+    known_ids = {item['path']: item['id'] for item in read(LIB / 'classifications.json')['items']}
+    titles = {'species': '种族', 'stage': '成长阶段', 'action': '动作', 'expression': '表情',
+              'body_state': '身体状态', 'prop_scene': '道具与场景', 'view': '视角', 'usefulness': '用途'}
+    labels = {'art': '美术', 'motion': '动作', 'both': '两用'}
+    assets = []
+    for page in read(index)['pages']:
+        if not page['units']:
+            continue
+        source = ROOT / page['path']
+        source_id = known_ids.get(page['path'], f'{source.parent.name}-{source.stem}')
+        filename = source_id.replace('/', '-')
+        source_image = images / f'{filename}{source.suffix}'
+        copyfile(source, source_image)
+        source_href = source_image.relative_to(folder).as_posix()
+        with Image.open(source) as original:
+            for number, unit in enumerate(page['units'], 1):
+                crop = unit['crop']
+                href = source_href
+                width, height = original.size
+                if crop:
+                    output = images / f'{filename}-panel-{number}.png'
+                    with original.crop(crop) as panel:
+                        panel.save(output)
+                        width, height = panel.size
+                    href = output.relative_to(folder).as_posix()
+                subjects = unit['subjects']
+                assets.append({
+                    **unit, 'id': source_id, 'media': 'image', 'href': href, 'source_href': source_href,
+                    'width': width, 'height': height, 'focus': unit['copy_note'],
+                    'species': sorted({subject['species'] for subject in subjects}),
+                    'stage': sorted({subject['stage'] for subject in subjects if subject['stage']}),
+                    'usefulness': [labels[unit['usefulness']]],
+                })
+    facets = {key: {'title': title, 'values': sorted({value for asset in assets for value in asset[key]})}
+              for key, title in titles.items()}
+    facets['usefulness']['values'] = list(labels.values())
+    write(folder / 'index.html', gallery_html({'production': True, 'facets': facets, 'assets': assets}))
+    print(f'{len(assets)} production references')
 
 def check():
     current=collect()
@@ -220,5 +269,13 @@ def check():
     print(json.dumps({'status':'PASS',**current['stats']},ensure_ascii=False))
 
 if __name__=='__main__':
-    parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('command',choices=['build','check'])
-    {'build':build,'check':check}[parser.parse_args().command]()
+    parser=argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('command',choices=['build','check','production'])
+    parser.add_argument('index',type=Path,nargs='?',help='Reviewed production index for the production command')
+    args=parser.parse_args()
+    if args.command == 'production':
+        if args.index is None:
+            parser.error('production requires the path to the reviewed index')
+        build_production(args.index)
+    else:
+        {'build':build,'check':check}[args.command]()
