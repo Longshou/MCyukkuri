@@ -10,6 +10,7 @@
 | --- | --- | --- |
 | 台词审校与补充（用户与代理直接对话） | `.worktrees/wp-gb-speech-review` | art/dialogue/, src/main/resources/assets/mcyukkuri/dialogue/, lang/*.json |
 | 落水子油挣扎上岸（PD-19） | `.worktrees/wp-gc-water-struggle` | life/EscapeWater 及其动作 |
+| 茎生强制耗营养、耗尽致死（MD-11／MD-12） | `.worktrees/wp-gd-stem-forced` | family/FamilyLife 茎生、StemDrain、PresentationArbiter 耗馅脸、museum aftermath 场景 |
 
 ## 玩法待办
 
