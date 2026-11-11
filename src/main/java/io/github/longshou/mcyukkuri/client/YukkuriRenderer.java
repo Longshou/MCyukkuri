@@ -79,6 +79,11 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
             var parent=entity.vehicleYukkuri();
             boolean carried=parent!=null&&parent.hasPassengerId(entity.getUUID());
             boolean hatCarrier=ParentCarry.brimCarrying(entity);
+            var reproduction=ReproductionPresentation.frame(entity,partialTick);
+            if(!hatCarrier&&!carried) {
+                var offset=reproduction.offset();
+                pose.translate(offset.x,0,offset.z);
+            }
             float renderedBodyYaw=Mth.rotLerp(partialTick,entity.previousBodyYaw(),entity.bodyYaw());
             // A carried child is drawn on the carrier's live lips, brim, tail or braid; a child just set down eases to the ground.
             if(carried)renderedBodyYaw=ParentCarryPresentation.place(entity,parent,pose,partialTick);
@@ -100,8 +105,6 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
                 pose.mulPose(Axis.YP.rotationDegrees(180-bodyYaw));
                 renderedBodyYaw=bodyYaw;
             }
-            var reproduction=ReproductionPresentation.frame(entity,partialTick);
-            if(!hatCarrier&&!carried)pose.translate(0,0,reproduction.offset());
             if (entity.deathTicks() > 0) pose.mulPose(Axis.ZP.rotationDegrees(Math.min(90, (entity.deathTicks() + partialTick) * 4.5f)));
             pose.scale(entity.getScale(),entity.getScale(),entity.getScale());
             // Keep the body, badges, carried items and stem family under the same daily-motion transform.

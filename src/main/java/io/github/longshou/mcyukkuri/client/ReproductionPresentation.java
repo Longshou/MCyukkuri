@@ -4,6 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriView;
+import io.github.longshou.mcyukkuri.headwear.HatScale;
 import java.lang.ref.WeakReference;
 import java.util.Locale;
 import java.util.Map;
@@ -19,12 +20,20 @@ final class ReproductionPresentation {
     private static final int EXTEND_TICKS=5, RETRACT_TICKS=13, HISTORY_TICKS=40;
     // Leave .8 model units of rest clearance for the authored pushes. Each side closes at most a quarter block.
     private static final double CONTACT_CLEARANCE=.8/16, MAX_OFFSET=.25;
+    // The idle clip and network pose interpolation can move the worn seam slightly.
+    private static final double ACCESSORY_CLEARANCE=.25/16;
+    private static final float[] REST_POSE={0,0,0,1,1,1};
     private static final Map<YukkuriView,Track> TRACKS=new WeakHashMap<>();
     private static WeakReference<Level> level=new WeakReference<>(null);
     private static long lastPrune=Long.MIN_VALUE;
 
     record Anatomy(String part,float amount) {}
-    record Frame(Anatomy anatomy,double offset) {}
+    record Frame(Anatomy anatomy,Vec3 offset) {}
+    private record Spacing(Vec3 toward, double desired, double limit, boolean touching) {
+        Vec3 keepClear(Vec3 offset) {
+            return offset.subtract(toward.scale(Math.max(0,offset.dot(toward)-limit)));
+        }
+    }
     private record Contact(boolean rear,int partner,String branch,long start,int duration,boolean loop) {
         float[] cue(double now) {
             float ticks=(float)Math.max(0,now-start);
@@ -36,7 +45,9 @@ final class ReproductionPresentation {
         float from;
         long changed,seen;
         boolean closing;
-        double offset,fromOffset,contactChanged;
+        Vec3 offset=Vec3.ZERO,fromOffset=Vec3.ZERO;
+        double contactChanged;
+        int accessoryPeer=-1;
         Track(String part,long tick) {
             this.part=part;target=part;changed=tick;
         }
@@ -69,24 +80,64 @@ final class ReproductionPresentation {
         };
     }
 
-    private static Double contactOffset(YukkuriView entity,float partialTick) {
-        var contact=contact(entity);
-        if(contact==null)return null;
-        var peer=entity.yukkuriView(contact.partner());
-        if(peer==null||peer.isDeadOrDying())return null;
+    private static boolean brimAndBow(YukkuriView entity,YukkuriView peer,Contact contact) {
+        if (contact.loop() || !entity.hasVisibleAccessory() || !peer.hasVisibleAccessory()
+                || entity.subspeciesKind().hatProp()!=null || peer.subspeciesKind().hatProp()!=null) return false;
+        var mother=contact.rear()?entity:peer;
+        var father=contact.rear()?peer:entity;
+        return mother.assetId().equals("reimu")&&father.assetId().equals("marisa");
+    }
+
+    private static Spacing spacing(YukkuriView entity,Track track,Contact contact,float partialTick) {
+        int peerId=contact==null?track.accessoryPeer:contact.partner();
+        if(peerId<0)return null;
+        var peer=entity.yukkuriView(peerId);
+        if(peer==null||peer.isDeadOrDying()||peer.isPassenger()||entity.isDeadOrDying()||entity.isPassenger())return null;
         var other=contact(peer);
-        if(other==null||other.partner()!=entity.getId()||other.rear()==contact.rear())return null;
+        boolean touching=contact!=null&&other!=null&&other.partner()==entity.getId()&&other.rear()!=contact.rear();
+        boolean ornaments;
+        if(touching) {
+            ornaments=brimAndBow(entity,peer,contact);
+            track.accessoryPeer=ornaments?peerId:-1;
+        } else {
+            // The same seam needs room as the partners rise into the relief poses.
+            var peerTrack=TRACKS.get(peer);
+            ornaments=peerTrack!=null&&peerTrack.accessoryPeer==entity.getId()
+                    &&entity.hasVisibleAccessory()&&peer.hasVisibleAccessory()
+                    &&(relief(entity)||relief(peer));
+            if(!ornaments)return null;
+        }
         var model=YukkuriModel.get(entity.assetId());var peerModel=YukkuriModel.get(peer.assetId());
         double scale=entity.growthScale()*entity.getScale(),peerScale=peer.growthScale()*peer.getScale();
-        double rest=model.bodyDepth(contact.rear())*scale+peerModel.bodyDepth(other.rear())*peerScale;
         var delta=peer.getPosition(partialTick).subtract(entity.getPosition(partialTick)).multiply(1,0,1);
         var toward=delta.normalize();
         double now=entity.level().getGameTime()+(double)partialTick;
+        var bearing=localBearing(entity,partialTick,toward);
+        var peerBearing=localBearing(peer,partialTick,toward.reverse());
+        var cue=touching?contact.cue(now):releasePose(entity,now);
+        var peerCue=touching?other.cue(now):releasePose(peer,now);
+        double distance=delta.horizontalDistance();
+        double limit=Double.POSITIVE_INFINITY;
+        if(ornaments) {
+            double reach=model.accessoryReach(cue,bearing,HatScale.factor(entity.subspeciesFlags()))*scale
+                    +peerModel.accessoryReach(peerCue,peerBearing,HatScale.factor(peer.subspeciesFlags()))*peerScale;
+            limit=(distance-reach-ACCESSORY_CLEARANCE)/2;
+        }
+        if(!touching)return new Spacing(toward,0,limit,false);
+        double rest=model.bodyDepth(contact.rear())*scale+peerModel.bodyDepth(other.rear())*peerScale;
         // Keep a separating plane for the widest reaches of the authored poses, including cheek turns.
-        double posed=model.bodyReach(contact.cue(now),localBearing(entity,partialTick,toward))*scale
-                +peerModel.bodyReach(other.cue(now),localBearing(peer,partialTick,toward.reverse()))*peerScale;
-        double close=Math.clamp((delta.horizontalDistance()-Math.max(rest+CONTACT_CLEARANCE,posed))/2,0,MAX_OFFSET);
-        return contact.rear()?close:-close;
+        double posed=model.bodyReach(cue,bearing)*scale+peerModel.bodyReach(peerCue,peerBearing)*peerScale;
+        double close=Math.clamp((distance-Math.max(rest+CONTACT_CLEARANCE,posed))/2,0,MAX_OFFSET);
+        return new Spacing(toward,close,limit,true);
+    }
+
+    private static boolean relief(YukkuriView entity) {
+        return entity.getBehaviorId().equals(Behaviors.HEAT_RELIEF)
+                && !entity.agitationState().getBoolean("ReliefBeatsDone");
+    }
+
+    private static float[] releasePose(YukkuriView entity,double now) {
+        return relief(entity)?AgitationPresentation.sample("relief",(float)(now-entity.agitationState().getLong("Start"))/120):REST_POSE;
     }
 
     private static Vec3 localBearing(YukkuriView entity,float partialTick,Vec3 toward) {
@@ -97,10 +148,9 @@ final class ReproductionPresentation {
     static Frame frame(YukkuriView entity,float partialTick) {
         long tick=entity.level().getGameTime();prune(entity,tick);
         String wanted=wanted(entity);
-        Double offset=wanted==null?null:contactOffset(entity,partialTick);
         var track=TRACKS.get(entity);
         if(track==null) {
-            if(wanted==null)return new Frame(null,0);
+            if(wanted==null)return new Frame(null,Vec3.ZERO);
             track=new Track(wanted,tick);
             TRACKS.put(entity,track);
         }
@@ -113,13 +163,17 @@ final class ReproductionPresentation {
         }
         track.seen=tick;
         double now=tick+(double)partialTick;
-        boolean closing=offset!=null;
+        var contact=wanted==null?null:contact(entity);
+        var spacing=spacing(entity,track,contact,partialTick);
+        boolean closing=spacing!=null&&spacing.touching();
         if(closing!=track.closing) {
             track.fromOffset=track.offset;track.closing=closing;track.contactChanged=now;
         }
         double mix=Math.clamp((now-track.contactChanged)/(closing?EXTEND_TICKS:RETRACT_TICKS),0,1);
-        track.offset=Mth.lerp(mix*mix*(3-2*mix),track.fromOffset,closing?offset:0);
-        if(track.part==null&&!closing&&mix==1)TRACKS.remove(entity);
+        Vec3 offset=closing?spacing.toward().scale(spacing.desired()):Vec3.ZERO;
+        track.offset=track.fromOffset.lerp(offset,mix*mix*(3-2*mix));
+        if(spacing!=null)track.offset=spacing.keepClear(track.offset);
+        if(track.part==null&&spacing==null&&mix==1)TRACKS.remove(entity);
         return new Frame(amount>0?new Anatomy(track.part,amount):null,track.offset);
     }
 

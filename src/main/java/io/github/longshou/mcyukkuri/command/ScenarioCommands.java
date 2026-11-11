@@ -170,7 +170,7 @@ public final class ScenarioCommands {
                             var data=FamilyData.get(c.getSource().getLevel());
                             String reason=data.aftermathRefusal(victim,source);
                             if(reason!=null)return refused(c.getSource(),victim,"事后茎生场景",reason);
-                            var brood=data.createAftermath(victim,source);
+                            var brood=data.createAftermath(victim,source,true);
                             if(brood==null)return refused(c.getSource(),victim,"事后茎生场景","状态已改变，未建立新的胎次");
                             tell(c.getSource().getLevel(),victim.position(),"[试玩场] 已建立事后茎生胎次：从无茎开始随进度萌生，持续消耗母体营养；停育后负担仍继续。",ChatFormatting.YELLOW);
                             return done(c.getSource(),"事后状态已建立；可读取营养、体力、胎次进度和负担计时。");

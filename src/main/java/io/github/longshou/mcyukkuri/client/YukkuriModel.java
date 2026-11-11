@@ -543,6 +543,25 @@ public final class YukkuriModel {
         }
         return reach/16;
     }
+
+    /** Project the worn source mesh on the same horizontal axis as the posed skin. */
+    double accessoryReach(float[] cue, Vec3 bearing, float scale) {
+        var transform = Overlays.presentation(cue);
+        var anchor = HatGeometry.anchor();
+        var point = new Vector3f();
+        double reach = 0;
+        for (var part : parts) {
+            if (!accessoryPart(part)) continue;
+            for (int index = part.start; index < part.start + part.count; index++) {
+                int v = index * 8;
+                point.set(restVertices[v], restVertices[v + 1], restVertices[v + 2]);
+                point.sub(anchor).mul(scale).add(anchor);
+                transform.transformPosition(point);
+                reach = Math.max(reach, point.x * bearing.x + point.z * bearing.z);
+            }
+        }
+        return reach / 16;
+    }
     public static YukkuriModel get(String id) {
         YukkuriModel model = models.get(id);
         if (model == null) throw new IllegalStateException("Yukkuri resources were not loaded: " + id);

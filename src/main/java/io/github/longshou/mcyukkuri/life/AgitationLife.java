@@ -43,7 +43,9 @@ public final class AgitationLife {
     // 1.12 rapem skeleton: up to 60 frames declaring, a chase, then a ~220 frame act with climax
     // beats near the end and release after ~340. Mapped here to 20 tick/second project ticks.
     private static final int WATCH_TICKS = 60, APPROACH_LIMIT = 360, ACT_TICKS = 240;
-    private static final int ACT_CLIMAX_FIRST = 160, ACT_CLIMAX_SECOND = 200, ACT_SETTLE = 210;
+    // Each finale line occupies the speech channel for 45 ticks. Place the third at release.
+    private static final int ACT_CLIMAX_FIRST = ACT_TICKS - 90, ACT_CLIMAX_SECOND = ACT_TICKS - 45;
+    private static final int ACT_RELEASE_EFFECT = 200, ACT_SETTLE = 210;
     private static final int SETTLE_CHANCE = 4, BUFFET_COOLDOWN = 600;
     private final YukkuriEntity entity;
     private Phase phase = Phase.IDLE;
@@ -194,14 +196,14 @@ public final class AgitationLife {
         var attacker = target;
         if (!entity.isAlive() || attacker == null || !attacker.isAlive() || attacker.level() != entity.level()
                 || attacker.agitation().phase() != Phase.ALICE_ACT
-                || !(entity.motor().current() instanceof Pin.Held)) { release(false); return; }
+                || !(entity.motor().current() instanceof Pin.Held)) { release(); return; }
         entity.getNavigation().stop();
     }
 
     /** Goal-side held presentation: pinned face-forward, bobbing with each thrust (1.12 label_2624). */
     private void tickHeldGoal() {
         var attacker = target;
-        if (attacker == null || !attacker.isAlive()) { release(false); return; }
+        if (attacker == null || !attacker.isAlive()) { release(); return; }
         entity.getNavigation().stop();
         // The pinned body keeps facing away from the hunter; no look-back.
         phaseTicks++;
@@ -335,7 +337,7 @@ public final class AgitationLife {
         String gate = alicePhase() ? unavailable() : null;
         if (gate != null) GameplayLog.limited(entity, "agitation", "pursuit.gate." + gate, 200,
                 "pursuit ended by gate={} phase={} ticks={} target={}", gate, phase, phaseTicks, previousTarget);
-        if (phase == Phase.ALICE_ACT) interruptAct("素鸡立被打断，未结算");
+        if (phase == Phase.ALICE_ACT) interruptAct("素鸡立被打断");
         else if (alicePhase()) giveUpHunt("追击被危险或干预中断");
         if (buffet) buffet = false; // the settled hunter re-hunts almost immediately (1.12 attack_6)
         else if (active()) cooldown = Math.max(cooldown, rapistEpisode ? ALICE_COOLDOWN : HEAT_COOLDOWN);
@@ -485,21 +487,20 @@ public final class AgitationLife {
     private void act() {
         if (target == null || !target.isAlive() || target.level() != entity.level() || !target.agitation().held()
                 || pin == null || !pin.contact() || phaseTicks > ACT_TICKS + 20) {
-            interruptAct("目标在动作中脱离，未结算");
+            interruptAct("目标在动作中脱离");
             return;
         }
         entity.getNavigation().stop();
         // 1.12 spends 体力200 across the act; exhaustion death is checked at completion.
         if (phaseTicks % 20 == 0) entity.life().spendEnergy(1.5f);
-        if (phaseTicks == 60 || phaseTicks == 120) entity.speak("rapem_moan");
+        // The opening line can last 80 ticks and the middle line up to 55.
+        if (phaseTicks == 90) entity.speak("rapem_moan");
         if (phaseTicks == ACT_CLIMAX_FIRST) {
-            entity.speak("heat_relief_1");
+            finaleLine("heat_relief_1");
             target.agitation().climaxLine();
         }
-        if (phaseTicks == ACT_CLIMAX_SECOND) {
-            entity.speak("heat_relief_2");
-            if (entity.level() instanceof ServerLevel level && target != null) ReproductionEffects.release(level,target);
-        }
+        if (phaseTicks == ACT_CLIMAX_SECOND) finaleLine("heat_relief_2");
+        if (phaseTicks == ACT_RELEASE_EFFECT && entity.level() instanceof ServerLevel level) ReproductionEffects.release(level,target);
         if (phaseTicks == ACT_SETTLE) settle();
         if (phaseTicks >= ACT_TICKS) finishAct();
     }
@@ -521,7 +522,8 @@ public final class AgitationLife {
                     target.getUUID(),roll,SETTLE_CHANCE);
             return;
         }
-        actSettled = data.createAftermath(target, entity) != null;
+        // Fear is visible immediately. Running away ends the real pin, so that waits for release.
+        actSettled = data.createAftermath(target, entity, false) != null;
         encounterDescription = actSettled ? "素鸡立已结算：受袭者获得茎生胎次" : "最终胎次或人口检查拒绝，未产生胎次";
         GameplayLog.event(entity,"agitation","outcome target={} roll={} denominator={} created={}",
                 target.getUUID(),roll,SETTLE_CHANCE,actSettled);
@@ -530,11 +532,11 @@ public final class AgitationLife {
     private void finishAct() {
         boolean settled = actSettled;
         YukkuriEntity victim = target;
-        entity.speak("heat_relief_3");
-        if (victim != null) victim.agitation().release(settled);
+        finaleLine("heat_relief_3");
+        victim.agitation().release();
         entity.motor().cancel(motorOwner, "act_complete");
         GameplayLog.event(entity,"agitation","contact ended target={} settled={} energy={}",
-                victim==null?null:victim.getUUID(),settled,entity.life().energy());
+                victim.getUUID(),settled,entity.life().energy());
         if (entity.getRandom().nextBoolean()) entity.speak(entity.getRandom().nextBoolean() ? "rapem_review_bad" : "rapem_review_good");
         // A settled hunter may immediately look for the next body (1.12 buffet wording).
         if (settled && entity.getRandom().nextInt(3) == 0) {
@@ -552,8 +554,13 @@ public final class AgitationLife {
         }
     }
 
+    private void finaleLine(String line) {
+        GameplayLog.event(entity, "agitation", "finale line={} admitted={} ticks={}",
+                line, entity.speak(line), phaseTicks);
+    }
+
     private void interruptAct(String reason) {
-        encounterDescription = reason;
+        encounterDescription = actSettled ? encounterDescription + "；" + reason : reason + "，未结算";
         YukkuriEntity victim = target;
         GameplayLog.limited(entity,"agitation","contact.interrupted",200,
                 "contact interrupted target={} reason={} ticks={} settled={}",
@@ -584,9 +591,10 @@ public final class AgitationLife {
     }
 
     /** Victim-side release; a body left without a settled burden says it survived (1.12 発情9). */
-    public void release(boolean settled) {
+    private void release() {
         if (phase != Phase.HELD) return;
-        var attacker=target==null?null:target.getUUID();
+        var attacker = target;
+        boolean settled = attacker != null && attacker.agitation().actSettled;
         float energyBefore=entity.life().energy();
         controlling = false;
         target = null;
@@ -598,7 +606,8 @@ public final class AgitationLife {
             entity.life().spendEnergy(6);
         }
         GameplayLog.event(entity,"agitation","released attacker={} settled={} phase={} energy={} -> {}",
-                attacker,settled,phase,energyBefore,entity.life().energy());
+                attacker == null ? null : attacker.getUUID(),settled,phase,energyBefore,entity.life().energy());
+        if (settled && attacker.isAlive() && attacker.level() == entity.level()) entity.frightenFrom(attacker);
     }
 
     /** The victim's line at the attacker's first climax beat (1.12 発情7). */

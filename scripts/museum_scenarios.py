@@ -1372,8 +1372,11 @@ add('adult_pairing', 'meadow', '两只伴侣走近擦脸后素鸡立', '两只�
         *own('mother'), *own('father'),
         f'yukkuri scenario bond {sel("mother")} {sel("father")}',
         f'yukkuri scenario mate {sel("mother")} {sel("father")}',
-        home('mother', 5, 0), home('father', 5, 6)], env=DAY,
+        home('mother', 5, 0), home('father', 5, 6)], env=DAY, vantage=(-5, -4, -42, 12),
     give=['mcyukkuri:sleep_spray 2', 'mcyukkuri:yukkuri_carrier 1'],
+    capture=dict(shots=(1, 40, 1920), sequences=((80, 1920, 8),), observe=False,
+                 views={'': dict(follow=sel('mother'), offset=(-2.6, 1.1, 1.7)),
+                        'side': dict(follow=sel('mother'), offset=(2.8, 1.1, .15))}),
     reads=[('读母方配对阶段', f'yukkuri status {sel("mother")} raw'), ('读父方配对阶段', f'yukkuri status {sel("father")} raw')])
 
 _widow, _new_partner = (uid('widow_repair', slot) for slot in ('widow', 'new_partner'))
@@ -1445,8 +1448,9 @@ add('alice_hunt', 'meadow', '发情爱丽丝追袭素鸡立', '发情爱丽丝�
         *own('hunter'), *own('prey'), *own('witness')], env=DAY,
     give=['mcyukkuri:sleep_spray 2', 'mcyukkuri:yukkuri_carrier 1'],
     capture=dict(shots=(1, 40, 700), sequences=((60, 660, 2),),
-                 views={'': dict(follow='@e[tag=scn_hunter,limit=1]', offset=(4, 2, 6))}),
-    note='中断路径与自然完成共用同一入口；被打断的一轮不会结算胎次，受方只受惊吓与体力损耗。',
+                 views={'': dict(follow=sel('prey'), offset=(2.4, 1.15, 2.1)),
+                        'side': dict(follow=sel('hunter'), offset=(-2.8, 1.05, .5))}),
+    note='可在抽签前用喷雾或攻击阻止结算。抽签成功后，受方在压制中表现出受惊，松开后才触发逃跑反应。已经建立的胎次会保留。',
     reads=[('读攻击魔状态（含中断结果）', f'yukkuri status {sel("hunter")} raw'), ('读受方状态', f'yukkuri status {sel("prey")} raw')])
 
 def _aftermath_pens(lanes):
@@ -3844,7 +3848,9 @@ _smoke('meal_content', 900, [r'\[meal\][^\n]* full nutrition=[^\n]*content=true'
 next(s for s in S if s.id == 'meal_content').smoke['verify'] = _meal_content_verify
 _smoke('meet', 2400, [r'\[social\][^\n]* greet [^\n]*why=first_meet', r'\[daily\][^\n]* session result kind=NUZZLE'])
 _smoke('alice_hunt', 1200, [r'\[agitation\][^\n]* phase=ALICE_APPROACH -> ALICE_ACT',
-    r'\[agitation\][^\n]* outcome (?:target=|refused)', r'\[agitation\][^\n]* contact (?:ended|interrupted) target='])
+    r'\[agitation\][^\n]* outcome (?:target=|refused)', r'\[agitation\][^\n]* contact ended target=',
+    *(rf'\[agitation\][^\n]* finale line=heat_relief_{beat} admitted=true' for beat in (1, 2, 3))],
+    forbid=[r'\[agitation\][^\n]* contact interrupted target=[^\n]* settled=true'])
 # The shared nest releases the young it may no longer hold as each one grows: three of the four cross BABY_END inside the window,
 # and each released child then claims one of the two free ordinary nests standing beside the shared one.
 def _family_nests_release(log):

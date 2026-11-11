@@ -489,7 +489,7 @@ public final class FamilyData extends SavedData {
         return victim.getUUID().getMostSignificantBits()^source.getUUID().getLeastSignificantBits()^victim.family().conceptions()^0x41465445524cL;
     }
     /** A real STEM reservation with biological ancestry but no invented partnership, care father or source reward. */
-    public Brood createAftermath(YukkuriEntity victim,YukkuriEntity source) {
+    public Brood createAftermath(YukkuriEntity victim,YukkuriEntity source,boolean fleeImmediately) {
         if(aftermathRefusal(victim,source)!=null)return null;
         var level=(ServerLevel)victim.level();
         long seed=aftermathSeed(victim,source);int count=offspringCount(victim.family().adultScale(),seed,victim.profile().aquatic());
@@ -511,7 +511,8 @@ public final class FamilyData extends SavedData {
         victim.family().receiveAftermath(brood.id);
         victim.life().spendNutrition(Math.min(2,victim.life().nutrition()));
         victim.life().applyEnvironment(0,0,8);victim.pet().addStress(25);
-        victim.frightenFrom(source);victim.mind().felt(EmotionEvent.FRIGHTENED); victim.showReaction("teary","afraid",200);
+        if(fleeImmediately)victim.frightenFrom(source);
+        victim.mind().felt(EmotionEvent.FRIGHTENED); victim.showReaction("teary","afraid",200);
         victim.syncFamily();
         setDirty();
         GameplayLog.event(victim,"family","aftermath reserved brood={} source={} children={}",brood.id,source.getUUID(),count);
