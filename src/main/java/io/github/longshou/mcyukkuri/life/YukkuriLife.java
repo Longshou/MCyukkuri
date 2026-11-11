@@ -740,20 +740,21 @@ public final class YukkuriLife {
                 || home() != null && !naturalHome();
         if (bladder < (pet ? 90 : 70)) return false;
         targetBlock = null; toiletPit = false; toiletPitCell = null; pitEdgeTicks = 0;
+        // A community member goes to the group's pit; lone wild yukkuri and families use ground away from home.
+        var spot = pet ? null : GroupPits.spot(entity);
+        if (spot != null) {
+            targetBlock = spot.stand(); toiletPit = true; toiletPitCell = spot.pit(); toiletAccident = false;
+            task = Task.GROUND_TOILET; toiletTicks = pursuitTicks = 0;
+            GameplayLog.event(entity,"needs","toilet pit trip start pit={} stand={} distance={} bladder={} portions={}",spot.pit(),spot.stand(),
+                    String.format("%.1f",Math.sqrt(spot.stand().distSqr(entity.blockPosition()))),bladder,GroupPits.waste((ServerLevel)level(),spot.pit()));
+            return true;
+        }
+        var avoidedPit = GroupPits.avoidedCells(entity);
         if (!pet) {
-            // A community member walks to the group's waste pit and lets go from its bank; lone wild yukkuri and families use ground away from home.
-            var spot = GroupPits.spot(entity);
-            if (spot != null) {
-                targetBlock = spot.stand(); toiletPit = true; toiletPitCell = spot.pit(); toiletAccident = false;
-                task = Task.GROUND_TOILET; toiletTicks = pursuitTicks = 0;
-                GameplayLog.event(entity,"needs","toilet pit trip start pit={} stand={} distance={} bladder={} portions={}",spot.pit(),spot.stand(),
-                        String.format("%.1f",Math.sqrt(spot.stand().distSqr(entity.blockPosition()))),bladder,GroupPits.waste((ServerLevel)level(),spot.pit()));
-                return true;
-            }
             var candidates = new ArrayList<BlockPos>();
             for (BlockPos candidate : BlockPos.betweenClosed(entity.blockPosition().offset(-4,0,-4),entity.blockPosition().offset(4,0,4))) {
                 if (home() != null && home().dimension().equals(level().dimension()) && candidate.distSqr(home().pos()) < 16) continue;
-                if (!dryStand(candidate)) continue;
+                if (GroupPits.inCells(avoidedPit, candidate) || !dryStand(candidate)) continue;
                 if (!level().getEntitiesOfClass(ItemEntity.class,new AABB(candidate).inflate(1),i->acceptsFood(i.getItem())).isEmpty()) continue;
                 candidates.add(candidate.immutable());
             }
@@ -761,7 +762,8 @@ public final class YukkuriLife {
             for (int i = 0; i < Math.min(6, candidates.size()) && targetBlock == null; i++) if (reachable(candidates.get(i), false)) targetBlock = candidates.get(i);
         }
         toiletAccident = pet || targetBlock == null;
-        if (targetBlock == null && bladder >= 90 && dryStand(entity.blockPosition())) targetBlock = entity.blockPosition();
+        if (targetBlock == null && bladder >= 90 && !GroupPits.inCells(avoidedPit, entity.blockPosition())
+                && dryStand(entity.blockPosition())) targetBlock = entity.blockPosition();
         if (targetBlock == null) return false;
         task = Task.GROUND_TOILET; toiletTicks = pursuitTicks = 0; return true;
     }
@@ -929,17 +931,20 @@ public final class YukkuriLife {
      * (the caller waits); after 60 ticks without reaching the brink the member lets go where it stands on the bank.
      */
     private boolean pitBankReady() {
+        boolean resident = entity.settlement().duties().pit().slave();
+        if (!resident && targetBlock.getY() <= toiletPitCell.getY()) { stopGoal(); return false; }
         var bank = Vec3.atBottomCenterOf(targetBlock);
         if (!entity.onGround() || entity.position().subtract(bank).horizontalDistanceSqr() > 1.0) {
             if (pursuitTicks % 10 == 1 && !travel(targetBlock, 1)) { GroupPits.refuse(entity, "no_path", targetBlock); stopGoal(); }
             return false;
         }
-        // Once straining has begun the brink was reached: the body stays put.
-        if (toiletTicks == 0) {
+        boolean onStand = targetBlock.equals(entity.blockPosition());
+        // A timeout can relax the brink alignment only after reaching the rim cell itself.
+        if (toiletTicks == 0 && (pitEdgeTicks <= 60 || !onStand && !resident)) {
             var edge = GroupPits.edgePoint(entity, targetBlock, toiletPitCell);
-            boolean brink = pitEdgeTicks > 60 || SurfaceApproach.walk(entity, edge, 1.0) || ++pitEdgeTicks > 60;
-            if (!brink) return false;
+            if (!SurfaceApproach.walk(entity, edge, 1.0) && ++pitEdgeTicks <= 60) return false;
         }
+        if (!resident && !onStand) return false;
         SurfaceApproach.halt(entity);
         float away = SurfaceApproach.yaw(entity.position(), entity.position().add(targetBlock.getX() - toiletPitCell.getX(), 0, targetBlock.getZ() - toiletPitCell.getZ()));
         SurfaceApproach.face(entity, away);

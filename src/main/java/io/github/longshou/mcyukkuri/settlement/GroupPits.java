@@ -40,11 +40,26 @@ public final class GroupPits {
 
     /** The standing cells of the group's pit, or empty when the group has none. */
     public static List<BlockPos> cells(ServerLevel level, SettlementData.Group group) {
+        return cells(level, group, true);
+    }
+
+    /** Known pit floor and dip columns for member paths. The pit slave also performs the cleaning duty. */
+    public static List<BlockPos> avoidedCells(YukkuriEntity entity) {
+        if (!(entity.level() instanceof ServerLevel level)) return List.of();
+        var group = entity.settlement().group();
+        if (group == null) return List.of();
+        var role = group.role(entity.getUUID());
+        if (role == SettlementData.Role.UNUN_SLAVE || role == SettlementData.Role.FREE || role == SettlementData.Role.OUTCAST) return List.of();
+        return cells(level, group, false);
+    }
+
+    private static List<BlockPos> cells(ServerLevel level, SettlementData.Group group, boolean discover) {
         if (group == null) return List.of();
         var site = SiteLife.of(level, group);
         if (site != null) return SiteLife.pit(site);
         if (group.kind != SettlementData.Kind.FOREST) return List.of();
         if (group.pit == null || group.pit.distSqr(group.center) > REACH * REACH) {
+            if (!discover) return List.of();
             var last = SEARCHED.get(group);
             if (last != null && level.getGameTime() < last + SEARCH_RETRY_TICKS) return List.of();
             SEARCHED.put(group, level.getGameTime());
@@ -123,7 +138,7 @@ public final class GroupPits {
         boolean anyEdge = false;
         for (var cell : ordered) {
             if (!level.hasChunkAt(cell)) continue;
-            var stand = resident ? entity.life().dryStand(cell) ? cell : null : bank(level, entity, cells, cell);
+            var stand = resident ? entity.life().dryStand(cell) ? cell : null : bank(entity, cells, cell);
             if (stand == null) continue;
             anyEdge = true;
             if (stand.distSqr(here) > NEAR * NEAR) return new Spot(cell, stand);
@@ -134,20 +149,17 @@ public final class GroupPits {
         return null;
     }
 
-    /** A dry cell on the bank beside {@code pit} (one block above the dip floor, or level with it), nearest to the member. */
-    private static BlockPos bank(ServerLevel level, YukkuriEntity entity, List<BlockPos> cells, BlockPos pit) {
+    /** A dry rim cell one block above and beside {@code pit}, outside the dip footprint. */
+    private static BlockPos bank(YukkuriEntity entity, List<BlockPos> cells, BlockPos pit) {
         BlockPos best = null;
         double bestDistance = Double.MAX_VALUE;
         for (var side : Direction.Plane.HORIZONTAL) {
             var column = pit.relative(side);
             if (cells.stream().anyMatch(c -> c.getX() == column.getX() && c.getZ() == column.getZ())) continue;
-            for (int rise : new int[]{1, 0, -1}) {
-                var bank = column.above(rise);
-                if (!level.hasChunkAt(bank) || !entity.life().dryStand(bank)) continue;
-                double distance = bank.distSqr(entity.blockPosition());
-                if (distance < bestDistance) { best = bank; bestDistance = distance; }
-                break;
-            }
+            var bank = column.above();
+            if (!entity.life().dryStand(bank)) continue;
+            double distance = bank.distSqr(entity.blockPosition());
+            if (distance < bestDistance) { best = bank; bestDistance = distance; }
         }
         return best;
     }

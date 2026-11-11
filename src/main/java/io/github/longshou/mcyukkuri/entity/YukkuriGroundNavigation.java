@@ -3,6 +3,7 @@ package io.github.longshou.mcyukkuri.entity;
 import io.github.longshou.mcyukkuri.headwear.PlacedHatEntity;
 import io.github.longshou.mcyukkuri.motor.geom.Detour;
 import io.github.longshou.mcyukkuri.motor.surface.Occupancy;
+import io.github.longshou.mcyukkuri.settlement.GroupPits;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.status.Reactions;
 import io.github.longshou.mcyukkuri.life.TravelRange;
@@ -286,10 +287,12 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
     @Override protected PathFinder createPathFinder(int nodes) {
         nodeEvaluator = new WalkNodeEvaluator() {
             private boolean keepDry, keepHome;
+            private List<BlockPos> avoidedPit;
             @Override public void prepare(PathNavigationRegion region, Mob mob) {
                 super.prepare(region, mob);
                 keepDry = mob instanceof YukkuriEntity animal && Reactions.Weather.keepDry(animal);
                 keepHome = mob instanceof YukkuriEntity animal && TravelRange.keepBabyHome(animal);
+                avoidedPit = mob instanceof YukkuriEntity animal ? GroupPits.avoidedCells(animal) : List.of();
             }
             @Override public Node getStart(){
                 if(surveyStart!=null)return getStartNode(surveyStart);
@@ -344,11 +347,14 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
             @Override public int getNeighbors(Node[] neighbors,Node node){
                 int count=super.getNeighbors(neighbors,node);
                 var from=new Vec3(node.x+entityWidth*.5,node.y,node.z+entityDepth*.5);
+                // An actor already in the dip can walk across its floor to an exit; a route outside cannot enter.
+                boolean outsidePit = !avoidedPit.isEmpty() && !GroupPits.inCells(avoidedPit, BlockPos.containing(from));
                 int kept=0;
                 for(int i=0;i<count;i++){
                     var next=neighbors[i];
                     var to=new Vec3(next.x+entityWidth*.5,next.y,next.z+entityDepth*.5);
-                    if(!crossesObstacle(from,to,planningObstacle)
+                    if((!outsidePit || !GroupPits.inCells(avoidedPit, BlockPos.containing(to)))
+                            &&!crossesObstacle(from,to,planningObstacle)
                             &&!(mob instanceof YukkuriEntity actor&&(NestDoorway.blocksLine(actor,from,to)
                                     ||!SurfaceApproach.dryStep(actor,from,to))))
                         neighbors[kept++]=next;
