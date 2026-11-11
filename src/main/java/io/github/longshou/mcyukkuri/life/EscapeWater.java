@@ -5,6 +5,8 @@ import io.github.longshou.mcyukkuri.headwear.HatGeometry;
 import io.github.longshou.mcyukkuri.headwear.HatProp;
 import io.github.longshou.mcyukkuri.headwear.HatScale;
 import io.github.longshou.mcyukkuri.headwear.PlacedHatEntity;
+import io.github.longshou.mcyukkuri.intent.AskLedger;
+import io.github.longshou.mcyukkuri.intent.Drive;
 import io.github.longshou.mcyukkuri.intent.Intent;
 import io.github.longshou.mcyukkuri.intent.IntentRunner;
 import io.github.longshou.mcyukkuri.intent.Method;
@@ -33,6 +35,7 @@ import java.util.Set;
 import java.util.function.IntFunction;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.world.phys.Vec3;
 
@@ -44,7 +47,7 @@ import net.minecraft.world.phys.Vec3;
  * to it, climb); else pressing toward the nearest bank, aimed again every few seconds and given up for a better way as soon as
  * one applies. An edge whose climb slipped or found no room is avoided for a while ({@link #AVOID_TICKS}), so the next try uses
  * another. The three own-hat ways are only for a body that sails ({@code ChildhoodLife.canSail}: an adult, or a young whose first
- * voyage came back); one that does not sail struggles toward the bank and may be lifted out by a rescuer on the way.
+ * voyage came back); one that does not sail struggles toward the bank or toward a rescuer coming to lift it out.
  * Satisfied once the body stands on a stand it
  * really rests on out of the water with its own footprint clear of it (a rim level with the water is no stand) and its own climb,
  * if one is running, has finished; failing costs what the water costs.
@@ -65,6 +68,7 @@ public final class EscapeWater implements Intent {
 
     private final YukkuriEntity body;
     private final long started;
+    private final String incident;
     /** Edges whose climb ended SLIPPED or NO_ROOM, until when (game tick); kept by the escape goal across runs. */
     private final Map<BlockPos, Long> avoid;
     /** Water routes already asked of the pathfinder in this run, and the stands scanned this tick. */
@@ -79,6 +83,7 @@ public final class EscapeWater implements Intent {
     public EscapeWater(YukkuriEntity body, Map<BlockPos, Long> avoid) {
         this.body = body;
         this.started = body.level().getGameTime();
+        this.incident = body.childhood().canSail() ? null : AskLedger.server().openOf(body.getUUID(), "water");
         this.avoid = avoid;
         GameplayLog.event(body, "water", "escape start at={} support={}", GameplayLog.at(body.position()), support());
         var hat = PlacedHatEntity.find(body);
@@ -126,8 +131,9 @@ public final class EscapeWater implements Intent {
         remember();
         var hat = PlacedHatEntity.find(body);
         Vec3 boat = boatSpot();
-        Edge bank = climbable();
-        boolean refuge = nearest() != null;
+        boolean assisted = rescueApproach() != null;
+        Edge bank = assisted ? null : climbable();
+        boolean refuge = assisted || nearest() != null;
         // Its own hat afloat within a braid's beckoning reach: one stroke draws it in before the last stretch is swum.
         int stroke = hat != null && new Beckon(hat).check(body).ok() ? 1 : 0;
         return List.of(
@@ -204,6 +210,7 @@ public final class EscapeWater implements Intent {
     private boolean better(PlacedHatEntity hat) {
         if (!tried.contains("own_hat") && hat(hat, false).ok() || !tried.contains("right_own_hat") && hat(hat, true).ok()
                 || !tried.contains("hat_boat") && boatSpot() != null) return true;
+        if (rescueApproach() != null) return false;
         Edge edge = climbable();
         return edge != null && !tried.contains(edge.stand());
     }
@@ -278,10 +285,25 @@ public final class EscapeWater implements Intent {
         return null;
     }
 
-    /** Press toward the nearest bank while no better way out is available. */
+    /** Re-aim during the swim as help becomes available or leaves. */
     private Step press() {
         BlockPos bank = nearest();
-        return bank == null ? null : new Step.Do(Swim.toward(Vec3.atBottomCenterOf(bank), PRESS));
+        if (bank == null && rescueApproach() == null) return null;
+        Vec3 shore = bank == null ? null : Vec3.atBottomCenterOf(bank);
+        return new Step.Do(Swim.toward(() -> {
+            Vec3 help = rescueApproach();
+            return help == null ? shore : help;
+        }, PRESS));
+    }
+
+    private Vec3 rescueApproach() {
+        if (incident == null || !(body.level() instanceof ServerLevel level)) return null;
+        for (var id : AskLedger.server().helpers(incident)) {
+            if (!(level.getEntity(id) instanceof YukkuriEntity helper)) continue;
+            Vec3 at = Drive.rescueApproach(helper, incident);
+            if (at != null) return at;
+        }
+        return null;
     }
 
     /** Prefer a routed stand, an avoided one last; only without a route does a weak struggle press toward an unrouted stand. */

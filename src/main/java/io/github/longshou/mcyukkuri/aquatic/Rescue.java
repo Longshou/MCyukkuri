@@ -11,15 +11,18 @@ import io.github.longshou.mcyukkuri.intent.IntentRunner;
 import io.github.longshou.mcyukkuri.intent.Method;
 import io.github.longshou.mcyukkuri.intent.Step;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
+import io.github.longshou.mcyukkuri.motor.BodyAbility;
 import io.github.longshou.mcyukkuri.motor.ContactGeometry;
 import io.github.longshou.mcyukkuri.motor.Feasibility;
 import io.github.longshou.mcyukkuri.motor.Reason;
 import io.github.longshou.mcyukkuri.motor.action.Face;
 import io.github.longshou.mcyukkuri.motor.action.Grab;
 import io.github.longshou.mcyukkuri.motor.action.Hop;
+import io.github.longshou.mcyukkuri.motor.action.Paddle;
 import io.github.longshou.mcyukkuri.motor.action.Release;
 import io.github.longshou.mcyukkuri.motor.action.Right;
 import io.github.longshou.mcyukkuri.motor.action.Walk;
+import io.github.longshou.mcyukkuri.motor.surface.SurfaceHost;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.List;
 import java.util.Set;
@@ -81,6 +84,25 @@ final class Rescue implements Intent {
     }
     /** Her own hull in the water belongs to this rescue: a body aboard its hat is not swimming, whatever the water state says. */
     @Override public boolean ownsBodyInWater() { return AquaticLife.aboard(helper, AquaticLife.hat(helper)); }
+
+    /** Meet the actual approach while there is breath for both bodies to close the gap and the braid to grip. */
+    @Override public Vec3 rescueApproach(String request) {
+        if (!incident.equals(request) || !helper.isAlive() || helper.isInWaterOrBubble()) return null;
+        var action = helper.motor().current();
+        if (action instanceof Grab grab && grab.target() == faller) return faller.position();
+        var ability = BodyAbility.of(helper);
+        double pace;
+        if (action instanceof Paddle && helper.getVehicle() instanceof SurfaceHost host)
+            pace = ability.swimSpeed() * Paddle.clipPace(Paddle.strokeClip(helper, host));
+        else if (action instanceof Walk) pace = ability.walkSpeed();
+        else return null;
+
+        double gap = ContactGeometry.braidGap(helper, faller, false);
+        double closing = pace + BodyAbility.of(faller).swimSpeed();
+        int gripTicks = BraidFetch.marker(BraidFetch.REACH, "contact") + BraidFetch.marker(BraidFetch.HOLD, "grip");
+        if (Math.max(0, gap) / closing + gripTicks >= faller.getAirSupply()) return null;
+        return gap <= 0 ? faller.position() : helper.position();
+    }
 
     private List<Supplier<Step>> derive() {
         var hat = AquaticLife.hat(helper);

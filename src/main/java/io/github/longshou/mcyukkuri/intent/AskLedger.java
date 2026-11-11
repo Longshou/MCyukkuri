@@ -89,6 +89,13 @@ public final class AskLedger {
         return d != null && d.accepted() && !i.ended.containsKey(helper);
     }
 
+    /** Accepted helpers with a decision still open for this incident. */
+    public List<UUID> helpers(String incident) {
+        var i = open.get(incident);
+        return i == null ? List.of() : i.decided.values().stream().filter(d -> d.accepted() && !i.ended.containsKey(d.helper()))
+                .map(Decision::helper).toList();
+    }
+
     /** The helper's run of the asked intent is over ({@code result}); it does not take this incident up again. */
     public void ended(String incident, UUID helper, String result) {
         var i = find(incident);

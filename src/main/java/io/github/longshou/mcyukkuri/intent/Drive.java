@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.WeakHashMap;
 import java.util.function.Supplier;
+import net.minecraft.world.phys.Vec3;
 
 /** The one desire competition of one domain: it scores the desires with the data weights, starts the best and switches only when a candidate clears the commitment margin ten times. */
 public final class Drive {
@@ -59,6 +60,16 @@ public final class Drive {
     /** The intent {@code body}'s drive of {@code domain} runs now (between two of its actions too), or null; another body reads it. */
     public static Intent running(YukkuriEntity body, String domain) {
         for (var d : drives(body)) if (d.domain.equals(domain) && d.runner != null) return d.runner.intent();
+        return null;
+    }
+
+    /** The approach offered by the runner currently moving this helper. */
+    public static Vec3 rescueApproach(YukkuriEntity helper, String incident) {
+        for (var d : drives(helper)) {
+            if (d.runner == null || !d.runner.active() || helper.motor().owner() != d.runner) continue;
+            Vec3 at = d.runner.intent().rescueApproach(incident);
+            if (at != null) return at;
+        }
         return null;
     }
 

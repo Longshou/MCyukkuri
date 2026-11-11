@@ -44,7 +44,7 @@ public final class Swim implements Action {
     public static Swim to(Supplier<Vec3> target, int maxTicks) { return new Swim(target, true, maxTicks); }
 
     /** Pressing toward a point for {@code ticks}, then done (the caller may aim again). */
-    public static Swim toward(Vec3 point, int ticks) { return new Swim(() -> point, false, ticks); }
+    public static Swim toward(Supplier<Vec3> target, int ticks) { return new Swim(target, false, ticks); }
 
     /** Whether this tick's swimming effort was paid. */
     public boolean pushing() { return !unpaid; }
@@ -88,9 +88,9 @@ public final class Swim implements Action {
         ability(body);
         if (distance > 1E-4) {
             Motor.face(body, body.getYRot() + (float) Effort.turn(body.getYRot(), Mth.atan2(to.z, to.x) * Mth.RAD_TO_DEG - 90, turnRate));
-            Vec3 v = to.scale(Math.min(speed, distance) / distance);
-            Motor.velocity(body, new Vec3(v.x, body.getDeltaMovement().y, v.z), "swim");
         }
+        Vec3 v = distance > 1E-4 ? to.scale(Math.min(speed, distance) / distance) : Vec3.ZERO;
+        Motor.velocity(body, new Vec3(v.x, body.getDeltaMovement().y, v.z), "swim");
         stroking = pushing() && distress.phase() == WaterDistress.Phase.STRUGGLE;
         return new Running(distance, TravelMode.PASS);
     }
