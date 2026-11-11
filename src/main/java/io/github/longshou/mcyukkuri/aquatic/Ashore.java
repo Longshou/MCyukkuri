@@ -119,19 +119,19 @@ final class Ashore implements Intent {
             // from a hull lying still. One bounded wait per docking; when it ends she goes on.
             if (docked() && !Waters.moored(hat) && settledAt.add(landing.stand()))
                 return List.of(() -> new Step.Wait(() -> Waters.moored(hat), WAIT, Behaviors.BOAT_CALL));
-            var hop = youngCanLand(hat) ? Ferry.hopAshore(owner).get() : null;
+            boolean canLand = youngCanLand(hat) && Waters.brimAshore(hat, owner) != null;
             // A young of hers that leaves by its own power goes first, she after it (one at the brim place her own hop leaves from
             // would keep her aboard): with her way off, or docked, she waits while one has its own way ashore or is taking it.
-            if ((hop != null || docked()) && youngLeaving(hat))
+            if ((canLand || docked()) && youngLeaving(hat))
                 return List.of(() -> new Step.Wait(() -> !youngLeaving(hat), WAIT, Behaviors.BOAT_CALL));
-            if (hop == null) return paddle(hat);
+            if (!canLand) return paddle(hat);
             // Docked: a young that cannot leave by itself is taken up while she still has a hold for it, whatever she holds already.
             if (dependent != null && carryProblem == null) return Ferry.grabAboard(owner, hat, dependent);
             if (held == null && dependent == null && youngAboard(hat))
                 return List.of(() -> new Step.Wait(() -> !youngAboard(hat), WAIT, Behaviors.BOAT_CALL));
             if (carryProblem != null) GameplayLog.limited(owner, "aquatic", "land.carry", WAIT,
                     "land without dependent child={} reason={}", dependent.getUUID(), carryProblem);
-            return List.of(() -> hop);
+            return List.of(Ferry.hopAshore(owner));
         }
         if (!AquaticLife.ashore(owner)) return null;
         if (held != null) return List.of(() -> new Step.Do(new Release(held)));
@@ -169,7 +169,7 @@ final class Ashore implements Intent {
         if (!tried.add(edge.stand())) { landing = null; return paddle(hat); }
         var dock = edge.out(HullAfloat.brimToward(hat, edge.edge()));
         return List.of(() -> new Step.Do(new Paddle(() -> dock, distance -> distance <= DOCKED
-                || distance <= ARRIVE && Ferry.hopAshore(owner).get() != null && youngCanLand(hat))));
+                || distance <= ARRIVE && Waters.brimAshore(hat, owner) != null && youngCanLand(hat))));
     }
 
     /** She has paddled in against the landing she chose. */
@@ -178,7 +178,7 @@ final class Ashore implements Intent {
     /** The family landing must also be reachable by the young who will leave under their own power. */
     private boolean youngCanLand(PlacedHatEntity hat) {
         for (var child : AquaticLife.young(owner))
-            if (child.getVehicle() == hat && AquaticLife.jumper(child) && Ferry.hopAshore(child).get() == null) return false;
+            if (child.getVehicle() == hat && AquaticLife.jumper(child) && Waters.brimAshore(hat, child) == null) return false;
         return true;
     }
 

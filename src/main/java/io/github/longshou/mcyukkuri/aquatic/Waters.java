@@ -413,21 +413,37 @@ final class Waters {
         ExitSearch last;
         synchronized (EXITS) { last = EXITS.get(body); }
         if (last != null && last.pose().sameStand(pose)) {
-            if (last.exit() != null && last.tick() == now && last.pose().equals(pose)) return last.exit();
-            if (last.exit() == null) {
-                // Sample the bank for edits while the hull lies still. Time passing alone never retries the hop.
-                if (now - last.tick() < KEEP) return null;
-                int bank = bankBlocks(level, last.pose());
-                if (bank == last.bank()) {
-                    synchronized (EXITS) { EXITS.put(body, new ExitSearch(last.pose(), null, bank, now)); }
-                    return null;
-                }
+            // Sample the bank for edits while the hull lies still. Time passing alone never retries the hop.
+            if (now - last.tick() < KEEP) return last.exit();
+            int bank = bankBlocks(level, last.pose());
+            if (bank == last.bank()) {
+                synchronized (EXITS) { EXITS.put(body, new ExitSearch(last.pose(), last.exit(), bank, now)); }
+                return last.exit();
             }
         }
         var exit = timed(body, "brim_ashore", () -> findBrimAshore(hat, body));
-        int bank = exit == null ? bankBlocks(level, pose) : 0;
+        int bank = bankBlocks(level, pose);
         synchronized (EXITS) { EXITS.put(body, new ExitSearch(pose, exit, bank, now)); }
         return exit;
+    }
+
+    /** The cached choice is a planning read. Launch admission and execution still use the live hull and arc. */
+    static Hop shoreHop(PlacedHatEntity hat, YukkuriEntity body) {
+        var exit = brimAshore(hat, body);
+        if (exit == null) return null;
+        if (new Hop.Search().admits(body, hat, exit.brim(), exit.bank()))
+            return Hop.off(hat, exit.brim(), exit.bank(), rider -> refuseExit(hat, rider, exit));
+        refuseExit(hat, body, exit);
+        return null;
+    }
+
+    /** Give up this approach when the chosen hop is refused. A different position or crew can still open a way. */
+    private static void refuseExit(PlacedHatEntity hat, YukkuriEntity body, Exit exit) {
+        if (body.getVehicle() != hat) return;
+        synchronized (EXITS) {
+            var last = EXITS.get(body);
+            if (last != null && last.exit() == exit) EXITS.put(body, new ExitSearch(last.pose(), null, last.bank(), last.tick()));
+        }
     }
 
     private static ExitPose exitPose(PlacedHatEntity hat, YukkuriEntity body) {

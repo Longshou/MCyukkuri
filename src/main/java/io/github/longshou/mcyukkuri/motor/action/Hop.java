@@ -35,6 +35,7 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Consumer;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.nbt.CompoundTag;
@@ -62,6 +63,7 @@ public final class Hop implements Action {
     private Vec3 runUp;
     private SurfaceHost seatHost;
     private Vec3 bank;
+    private Consumer<YukkuriEntity> exitBlocked;
     private boolean brimOnly;
     private Vec3 entryNear;
     private SurfaceHost departure;
@@ -115,6 +117,12 @@ public final class Hop implements Action {
     /** Leave through a supported host point, then hop to the admitted ground stand after settling there. */
     public static Hop off(SurfaceHost host, Vec3 local, Vec3 bank) {
         var hop = new Hop(host, local); hop.bank = bank; return hop;
+    }
+    /** The shore planner can remember the driver's real refusal at this approach. */
+    public static Hop off(SurfaceHost host, Vec3 local, Vec3 bank, Consumer<YukkuriEntity> exitBlocked) {
+        var hop = off(host, local, bank);
+        hop.exitBlocked = exitBlocked;
+        return hop;
     }
     /** One synchronous landing decision's memo: the hull's stops and its arcs are the same for every candidate. Nothing
      *  survives the decision and nothing here moves a body. */
@@ -642,6 +650,9 @@ public final class Hop implements Action {
 
     @Override public void abort(YukkuriEntity body, String why) {
         if (carried != null) carried.freeze(body, body.level().getGameTime());
+    }
+    @Override public void finished(YukkuriEntity body, Outcome outcome) {
+        if (exitBlocked != null && (outcome instanceof Outcome.Blocked || outcome instanceof Outcome.Incapable)) exitBlocked.accept(body);
     }
     @Override public boolean interruptible() { return !launched && recovery == 0; }
     @Override public boolean airborne() { return launched; }

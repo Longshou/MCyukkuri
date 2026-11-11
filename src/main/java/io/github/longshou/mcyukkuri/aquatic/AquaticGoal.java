@@ -508,8 +508,10 @@ final class AquaticGoal extends Goal {
         if (body.getVehicle() == hat && AquaticLife.jumper(body)
                 && (AquaticLife.ashore(parent) && !(running != null && running.intent() instanceof SetOut)
                 || running != null && running.intent() instanceof Ashore)
-                && Waters.moored(hat) && Waters.brimAshore(hat, body) != null)
-            out.add(Desire.of("follow_ashore", num("follow", 65), world, why, () -> Follow.ashore(body, hat)));
+                && Waters.moored(hat)) {
+            var exit = Waters.brimAshore(hat, body);
+            if (exit != null) out.add(Desire.of("follow_ashore", num("follow", 65), List.of(world, exit), why, () -> Follow.ashore(body, hat)));
+        }
     }
 
     private void play(List<Desire> out, PlacedHatEntity hat, Object world) {

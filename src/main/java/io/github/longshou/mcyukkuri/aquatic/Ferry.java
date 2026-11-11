@@ -210,8 +210,8 @@ final class Ferry {
     static Supplier<Step> hopAshore(YukkuriEntity body) {
         return () -> {
             if (body.getVehicle() instanceof PlacedHatEntity hat) {
-                var exit = Waters.brimAshore(hat, body);
-                return exit == null ? null : act(Hop.off(hat, exit.brim(), exit.bank()));
+                var hop = Waters.shoreHop(hat, body);
+                return hop == null ? null : act(hop);
             }
             var at = Waters.ashore(body);
             return at == null ? null : act(new Hop(at));
