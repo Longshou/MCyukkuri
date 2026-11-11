@@ -8,7 +8,6 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
-| den_family 丧偶后母油不外出觅食 | `.worktrees/wp-fy-den-forage` | family 觅食分工、认窝 |
 
 ## 玩法待办
 
