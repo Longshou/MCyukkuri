@@ -2,6 +2,8 @@
 
 [Wiki](../README.md) · **[游戏参考库](../reference-library/README.md)** · [实体／情景／情绪筛选](../reference-library/gallery.html)
 
+[按造型、动作、表情和场景查画面证据](../reference-library/image-evidence.md)
+
 当前有效图片、文字卡与来源数量见[游戏参考库](../reference-library/README.md)的生成汇总。先按要做的实体和情景查找，再叠加情绪、制作目标、画风或精选条件。每条图片注明具体画格和游戏用途，作品目录作为出处入口。
 
 有效参考只收录能定位画格并说明制作用途的材料；未纳入不等于画质差，也不改变其作为出处或作品证据的价值。宠物、野外与树叶襁褓的作品材料分别见[宠物生活](../pet-life.md)、[野外与交互](../wild-life.md)和[树叶襁褓](../leaf-swaddle.md)。

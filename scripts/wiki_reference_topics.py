@@ -206,10 +206,10 @@ def gallery_html(payload):
     template=(ROOT/'scripts/wiki_reference_gallery.html').read_text(encoding='utf-8')
     return template.replace('__DATA__',encoded)
 
-def build_production(index):
+def build_production(index, output_dir=None):
     from PIL import Image
 
-    folder = index.parent
+    folder = output_dir or index.parent
     images = folder / 'images'
     images.mkdir(parents=True, exist_ok=True)
     known_ids = {item['path']: item['id'] for item in read(LIB / 'classifications.json')['items']}
@@ -239,7 +239,7 @@ def build_production(index):
                     href = output.relative_to(folder).as_posix()
                 subjects = unit['subjects']
                 assets.append({
-                    **unit, 'id': source_id, 'media': 'image', 'href': href, 'source_href': source_href,
+                    **unit, 'id': unit.get('id', source_id), 'media': 'image', 'href': href, 'source_href': source_href,
                     'width': width, 'height': height, 'focus': unit['copy_note'],
                     'species': sorted({subject['species'] for subject in subjects}),
                     'stage': sorted({subject['stage'] for subject in subjects if subject['stage']}),
@@ -272,10 +272,11 @@ if __name__=='__main__':
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('command',choices=['build','check','production'])
     parser.add_argument('index',type=Path,nargs='?',help='Reviewed production index for the production command')
+    parser.add_argument('--output-dir',type=Path,help='Write the production gallery and crops here')
     args=parser.parse_args()
     if args.command == 'production':
         if args.index is None:
             parser.error('production requires the path to the reviewed index')
-        build_production(args.index)
+        build_production(args.index, args.output_dir)
     else:
         {'build':build,'check':check}[args.command]()

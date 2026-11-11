@@ -2,7 +2,7 @@
 
 [游戏参考库](README.md) · [造型与动作参考](production-briefs.md) · [术语表](../glossary.md)
 
-制作代理可按种族、动作、表情、身体状态或场景查画面；对白气泡另按[作品对白证据](../hakkei-reference/dialogue/evidence.md)登记。
+制作代理可按种族、动作、表情、身体状态或场景查[画面证据](image-evidence.md)。对白气泡另按[作品对白证据](../hakkei-reference/dialogue/evidence.md)登记。
 
 一条参考对应一幅独立画面。原页只有一幅画时直接引用原图。同页有上下两幅独立画面时按两格处理，留白也可作分界。一格内的多人互动或同一动作的连续示意保留在一起。每页最多选两格，每格单独裁出，保留主体和判断姿态、接触点或道具结构所需的部分。裁图与索引放在一起，索引保留原图路径和裁框，方便回查原页。
 
@@ -23,4 +23,4 @@
 
 每个原图路径 `path` 对应一组 `units`。完整图的 `crop` 为 `null`；裁格的 `crop` 用原图像素 `[left, top, right, bottom]`，左上角为原点，右下边界不包含在裁图内。裁框只能估算时，用 `crop_hint` 简述画格位置供复核。跳过时 `units` 为空数组，`skip_reason` 写一句原因。
 
-用 `python scripts/wiki_reference_topics.py production <index.json>` 生成筛选页。索引放在预览目录，生成的页面、裁图和供回查的原图副本都保存在同一目录下。
+用 `python scripts/wiki_reference_topics.py production wiki/reference-library/evidence.json --output-dir <预览目录>` 生成筛选页。页面、裁图和供回查的原图副本都保存在预览目录。
