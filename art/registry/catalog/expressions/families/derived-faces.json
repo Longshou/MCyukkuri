@@ -1,6 +1,6 @@
 {
   "id": "derived-faces",
-  "label": "派生表情（沮丧、害怕）",
+  "label": "派生表情（沮丧、害怕、激动漏尿）",
   "prefixes": [
     "standards/yukkuri-library/expressions/derived/"
   ],
@@ -9,7 +9,10 @@
   ],
   "ids": [
     "sad",
-    "afraid"
+    "afraid",
+    "leak_startle",
+    "leak_flow",
+    "leak_after"
   ],
   "_order": 1
 }

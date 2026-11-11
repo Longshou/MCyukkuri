@@ -1,0 +1,10 @@
+{
+  "exporter": "standards/yukkuri-library/drafts/body-marks/sugar-water/build.py",
+  "manifest": "standards/yukkuri-library/drafts/body-marks/sugar-water/manifest.json",
+  "runtime": [
+    "src/main/resources/assets/mcyukkuri/textures/effects/sugar_water_puddle.png",
+    "src/main/resources/assets/mcyukkuri/textures/effects/sugar_water_drop.png"
+  ],
+  "status": "pending_user_review",
+  "scope": "Excited-leak visual: a 32x32 translucent sugar-water puddle for the radial ground splat and an 8x8 falling drop (F37 sugar water; colour, shape and size are project design). Not wired: no Java reference yet."
+}

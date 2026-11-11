@@ -103,7 +103,7 @@ def main():
         for path in sorted((ROOT/f'src/main/resources/assets/mcyukkuri/textures/entity/{model}').glob('*.png')):
             texture_inputs.append(path)
             for grade in [1,2,3]:
-                name=f'dry-face-{model}-{path.stem}-{grade}.png';image=apply_style(Image.open(path),boxes,path.stem,grade)
+                name=f'dry-face-{model}-{path.stem}-{grade}.png';image=apply_style(Image.open(path),boxes,path.stem,grade,lambda name,folder=path.parent:Image.open(folder/f'{name}.png').convert('RGBA') if (folder/f'{name}.png').is_file() else None)
                 buf=io.BytesIO();image.save(buf,format='PNG');textures[name]=buf.getvalue()
                 face_samples[name]=dict(model=model,expression=path.stem,grade=grade,scope='whole_body',boxes=boxes)
     for kind in KINDS:

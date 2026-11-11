@@ -32,6 +32,9 @@
         "breeding_period",
         "cheek_puff",
         "dazed",
+        "leak_after",
+        "leak_flow",
+        "leak_startle",
         "remains_burned",
         "remains_crushed",
         "remains_dissolving",
@@ -112,6 +115,9 @@
         "afraid",
         "cheek_puff",
         "dazed",
+        "leak_after",
+        "leak_flow",
+        "leak_startle",
         "remains_burned",
         "remains_crushed",
         "remains_dissolving",
@@ -188,6 +194,9 @@
         "afraid",
         "cheek_puff",
         "dazed",
+        "leak_after",
+        "leak_flow",
+        "leak_startle",
         "sad"
       ],
       "retained_textures": {
@@ -246,6 +255,9 @@
         "afraid",
         "cheek_puff",
         "dazed",
+        "leak_after",
+        "leak_flow",
+        "leak_startle",
         "sad"
       ],
       "retained_textures": {
@@ -295,6 +307,9 @@
         "afraid",
         "biting",
         "cheek_puff",
+        "leak_after",
+        "leak_flow",
+        "leak_startle",
         "sad"
       ],
       "retained_textures": {
@@ -339,6 +354,9 @@
       "legacy_faces": [
         "afraid",
         "cheek_puff",
+        "leak_after",
+        "leak_flow",
+        "leak_startle",
         "sad"
       ],
       "retained_textures": {
@@ -388,6 +406,9 @@
       "legacy_faces": [
         "afraid",
         "cheek_puff",
+        "leak_after",
+        "leak_flow",
+        "leak_startle",
         "sad"
       ],
       "retained_textures": {
@@ -442,6 +463,9 @@
         "afraid",
         "cheek_puff",
         "dazed",
+        "leak_after",
+        "leak_flow",
+        "leak_startle",
         "remains_burned",
         "remains_crushed",
         "remains_dissolving",
@@ -513,6 +537,9 @@
       "legacy_faces": [
         "afraid",
         "cheek_puff",
+        "leak_after",
+        "leak_flow",
+        "leak_startle",
         "sad"
       ],
       "retained_textures": {
@@ -564,6 +591,9 @@
       "legacy_faces": [
         "afraid",
         "cheek_puff",
+        "leak_after",
+        "leak_flow",
+        "leak_startle",
         "sad"
       ],
       "retained_textures": {
@@ -620,6 +650,9 @@
         "afraid",
         "cheek_puff",
         "dazed",
+        "leak_after",
+        "leak_flow",
+        "leak_startle",
         "sad"
       ],
       "retained_textures": {
@@ -675,6 +708,9 @@
       "legacy_faces": [
         "afraid",
         "cheek_puff",
+        "leak_after",
+        "leak_flow",
+        "leak_startle",
         "sad"
       ],
       "retained_textures": {
@@ -731,6 +767,9 @@
         "afraid",
         "cheek_puff",
         "dazed",
+        "leak_after",
+        "leak_flow",
+        "leak_startle",
         "remains_burned",
         "remains_crushed",
         "remains_dissolving",
@@ -810,6 +849,9 @@
         "breeding_period",
         "cheek_puff",
         "dazed",
+        "leak_after",
+        "leak_flow",
+        "leak_startle",
         "sad",
         "state_recover"
       ],
@@ -876,6 +918,9 @@
         "breeding_period",
         "cheek_puff",
         "dazed",
+        "leak_after",
+        "leak_flow",
+        "leak_startle",
         "sad",
         "state_recover"
       ],
@@ -939,6 +984,9 @@
         "afraid",
         "cheek_puff",
         "dazed",
+        "leak_after",
+        "leak_flow",
+        "leak_startle",
         "remains_burned",
         "remains_crushed",
         "remains_dissolving",
@@ -1015,6 +1063,9 @@
         "afraid",
         "cheek_puff",
         "dazed",
+        "leak_after",
+        "leak_flow",
+        "leak_startle",
         "remains_burned",
         "remains_crushed",
         "remains_dissolving",
@@ -1086,6 +1137,9 @@
       "legacy_faces": [
         "afraid",
         "cheek_puff",
+        "leak_after",
+        "leak_flow",
+        "leak_startle",
         "sad"
       ],
       "retained_textures": {
@@ -1137,6 +1191,9 @@
       "legacy_faces": [
         "afraid",
         "cheek_puff",
+        "leak_after",
+        "leak_flow",
+        "leak_startle",
         "remains_burned",
         "remains_crushed",
         "remains_dissolving",
@@ -1208,6 +1265,9 @@
       "legacy_faces": [
         "afraid",
         "cheek_puff",
+        "leak_after",
+        "leak_flow",
+        "leak_startle",
         "sad"
       ],
       "retained_textures": {
@@ -1261,6 +1321,9 @@
       "legacy_faces": [
         "afraid",
         "cheek_puff",
+        "leak_after",
+        "leak_flow",
+        "leak_startle",
         "sad"
       ],
       "retained_textures": {
@@ -1315,6 +1378,9 @@
         "afraid",
         "cheek_puff",
         "dazed",
+        "leak_after",
+        "leak_flow",
+        "leak_startle",
         "remains_burned",
         "remains_crushed",
         "remains_dissolving",
@@ -1386,6 +1452,9 @@
       "legacy_faces": [
         "afraid",
         "cheek_puff",
+        "leak_after",
+        "leak_flow",
+        "leak_startle",
         "remains_burned",
         "remains_crushed",
         "remains_dissolving",
@@ -1451,6 +1520,9 @@
         "afraid",
         "biting",
         "cheek_puff",
+        "leak_after",
+        "leak_flow",
+        "leak_startle",
         "sad"
       ],
       "retained_textures": {

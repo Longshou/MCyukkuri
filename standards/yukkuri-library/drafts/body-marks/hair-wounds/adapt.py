@@ -60,6 +60,24 @@ def run(node,script,jobs,label,check=False):
     proc=subprocess.run([node,str(script),str(path)]+(['--check'] if check else []),capture_output=True,text=True,encoding='utf-8')
     if proc.returncode:raise RuntimeError(label+'\n'+proc.stdout[-1200:]+'\n'+proc.stderr[-2400:])
 
+def sibling(model):
+    def load(name):
+        path=ASSETS/f'textures/entity/{model}/{name}.png'
+        return Image.open(path).convert('RGBA') if path.is_file() else None
+    return load
+
+def faces_only(model,args):
+    """Redraws only the named expressions' dry atlases; meshes and manifests are left to a full run."""
+    folder=OUT/model;info=MODELS[model]
+    m=json.loads((ASSETS/f'yukkuri/{model}.json').read_text(encoding='utf-8'));m['texture_size']=info['texture_size'];boxes=face_boxes(m)
+    written=[]
+    for name in args.faces:
+        path=ASSETS/f'textures/entity/{model}/{name}.png'
+        for grade in info['thermal_grades']:
+            image=apply_style(Image.open(path),boxes,name,grade,sibling(model))
+            b=io.BytesIO();image.save(b,format='PNG');target=folder/f'dry-{name}-{grade}.png';put(target,b.getvalue(),args.check);written.append(target)
+    return written
+
 def produce(model,args):
     folder=OUT/model;folder.mkdir(parents=True,exist_ok=True);info=MODELS[model]
     if info['house']:
@@ -72,7 +90,7 @@ def produce(model,args):
     for path in sorted((ASSETS/f'textures/entity/{model}').glob('*.png')):
         expressions.append(path.stem)
         for grade in info['thermal_grades']:
-            image=apply_style(Image.open(path),boxes,path.stem,grade)
+            image=apply_style(Image.open(path),boxes,path.stem,grade,sibling(model))
             b=io.BytesIO();image.save(b,format='PNG');put(folder/f'dry-{path.stem}-{grade}.png',b.getvalue(),args.check)
     jobs=meshes(model);run(args.node,HERE/'export.cjs',jobs,'export-'+model,args.check)
     growth=CAT['growth']['house']['stages'] if info['house'] else CAT['growth']['stages']
@@ -168,7 +186,15 @@ def render(model,args,mesh_jobs):
 
 def main():
     ap=argparse.ArgumentParser(description=__doc__);ap.add_argument('--node',default='node');ap.add_argument('--check',action='store_true');ap.add_argument('--preview',action='store_true');ap.add_argument('--preview-root',type=Path,default=ROOT);ap.add_argument('--models',nargs='*');ap.add_argument('--workers',type=int,default=4)
+    ap.add_argument('--faces',type=lambda v:v.split(','),help='comma-separated expressions: redraw only their dry atlases and their manifest output hashes')
     args=ap.parse_args();WORK.mkdir(parents=True,exist_ok=True);OUT.mkdir(parents=True,exist_ok=True)
+    if args.faces:
+        written=[p for name in (args.models or list(MODELS)) for p in faces_only(name,args)]
+        manifest=json.loads((OUT/'manifest.json').read_text(encoding='utf-8'))
+        for path in written:manifest['outputs'][path.relative_to(OUT).as_posix()]=hashlib.sha256(path.read_bytes()).hexdigest()
+        for source in [HERE/'dry_face.py',HERE/'adapt.py']:
+            manifest['source_sha256'][source.relative_to(ROOT).as_posix()]=hashlib.sha256(source.read_text(encoding='utf-8').encode()).hexdigest()
+        put(OUT/'manifest.json',encoded(manifest),args.check);print(('Verified ' if args.check else 'Redrew ')+f'{len(written)} dry face atlases');return
     put(HERE/'species.json',encoded(CAT),args.check)
     for name in [f'{k}-{g}' for k in KINDS+['thermal'] for g in [1,2,3]]:
         (WORK/(name+'.rgba')).write_bytes(Image.open(build.OUT/(name+'.png')).convert('RGBA').tobytes())

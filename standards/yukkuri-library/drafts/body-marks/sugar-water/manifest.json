@@ -1,0 +1,11 @@
+{
+  "status": "pending_user_review",
+  "origin": "project design",
+  "source": "F37 sugar water (wiki/hakkei-reference/lore/entities-sources.md)",
+  "builder": "standards/yukkuri-library/drafts/body-marks/sugar-water/build.py",
+  "builder_sha256": "0cb30d41bf941e4b64c40c07abbf0569a0d032a4aaaf2a2282d0f31390eea097",
+  "runtime": {
+    "src/main/resources/assets/mcyukkuri/textures/effects/sugar_water_puddle.png": "a2170fbbc9768990e498756ba0a03bd40d7e75adeacca09d9a29b71a3323f283",
+    "src/main/resources/assets/mcyukkuri/textures/effects/sugar_water_drop.png": "f8154e45162d9fc099cc081307b7213af8198be9431c8dac028d3aefae18ccf6"
+  }
+}

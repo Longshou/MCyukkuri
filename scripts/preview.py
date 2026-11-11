@@ -192,6 +192,10 @@ def render_strip(args, stage, times, before=False):
             animation = library['animations'].get(face)
             if animation:
                 images.append((images[0][0].with_name(animation['frames'][1]+'.png'),None,[0,0],[1,1]))
+        if getattr(args, 'texture', None) and not before and not prop:
+            # An atlas outside the face library (e.g. a wound-pipeline dry face) on the face id's geometry.
+            a.setdefault('face', 'neutral')
+            images = [(Path(args.texture).resolve(),None,[0,0],[1,1])]
         if getattr(args, 'moment', None) and not prop:
             from face_usage import resolve
             a['moment'] = args.moment
@@ -630,6 +634,7 @@ def parser():
             p.add_argument('--clip', default='idle')
             p.add_argument('--face', help='runtime expression id; with --before and --face-preset, the before-side face')
             p.add_argument('--face-preset', help='preset JSON composed as a draft with the runtime face library')
+            p.add_argument('--texture', help='atlas PNG drawn instead of the face texture (geometry of --face, default neutral)')
             time = p.add_mutually_exclusive_group()
             time.add_argument('--times', default='0s,0.25s,0.5s,0.75s')
             time.add_argument('--beats', help='one time (seconds or ticks), then optional label per line')

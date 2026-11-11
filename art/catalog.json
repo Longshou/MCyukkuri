@@ -129,7 +129,7 @@
         },
         {
           "id": "derived-faces",
-          "label": "派生表情（沮丧、害怕）",
+          "label": "派生表情（沮丧、害怕、激动漏尿）",
           "prefixes": [
             "standards/yukkuri-library/expressions/derived/"
           ],
@@ -138,7 +138,10 @@
           ],
           "ids": [
             "sad",
-            "afraid"
+            "afraid",
+            "leak_startle",
+            "leak_flow",
+            "leak_after"
           ]
         },
         {
@@ -353,6 +356,20 @@
             "burial_mound",
             "grave_marker",
             "yukkuri_remains"
+          ]
+        },
+        {
+          "id": "sugar-water",
+          "label": "激动漏尿的糖水水洼与水滴",
+          "prefixes": [
+            "standards/yukkuri-library/drafts/body-marks/sugar-water/"
+          ],
+          "registry": [
+            "sugar_water"
+          ],
+          "ids": [
+            "sugar_water_puddle",
+            "sugar_water_drop"
           ]
         }
       ]

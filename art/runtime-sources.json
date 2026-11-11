@@ -318,9 +318,9 @@
   "derived_faces": {
     "exporter": "standards/yukkuri-library/expressions/derived/faces.py",
     "manifest": "standards/yukkuri-library/expressions/derived/manifest.json",
-    "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/{model}/sad.png, afraid.png",
+    "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/{model}/sad.png, afraid.png, leak_startle.png, leak_flow.png, leak_after.png",
     "status": "pending_user_review",
-    "scope": "sad and afraid derived from each model's own approved teary, neutral and surprise atlases (project design); not part of the standard expression set until saved."
+    "scope": "sad and afraid derived from each model's own approved teary, neutral and surprise atlases; leak_startle / leak_flow / leak_after (excited leak, manga look the user picked) from its neutral, teary, surprise and flushed_smile atlases with redrawn big wet eyes and grid mouths (project design); not part of the standard expression set until saved."
   },
   "ecology_expressions": {
     "selection": "art/source/ecology/expressions.json",
@@ -6811,6 +6811,16 @@
     "preview": "art/source/subspecies-runtime/preview.html",
     "validation": "docs/FEATURES.md",
     "scope": "Two named subspecies, six congenital forms, one actual hat boat and the matching detachable shell; confirmation status belongs to each selected record"
+  },
+  "sugar_water": {
+    "exporter": "standards/yukkuri-library/drafts/body-marks/sugar-water/build.py",
+    "manifest": "standards/yukkuri-library/drafts/body-marks/sugar-water/manifest.json",
+    "runtime": [
+      "src/main/resources/assets/mcyukkuri/textures/effects/sugar_water_puddle.png",
+      "src/main/resources/assets/mcyukkuri/textures/effects/sugar_water_drop.png"
+    ],
+    "status": "pending_user_review",
+    "scope": "Excited-leak visual: a 32x32 translucent sugar-water puddle for the radial ground splat and an 8x8 falling drop (F37 sugar water; colour, shape and size are project design). Not wired: no Java reference yet."
   },
   "supply_icons": {
     "source": "standards/yukkuri-library/drafts/care-props/supplies.py",
