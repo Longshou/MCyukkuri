@@ -1,8 +1,10 @@
 # 八景 U 原版对白与游戏接入
 
-[原版对白检索](native-u/index.html)按种族、成体／幼语、原始场景和行号查询。原版程序集与 CSV 指纹见 [来源清单](native-u/sources.json)。八景 U 的加载器为幼体读取独立的 `sei_serifu.csv`；幼语应保留原表文本，不由现代日文或中文自动改写。
+[原版对白检索](native-u/index.html)按种族、成体／幼语、原始场景和行号查询。原版程序集与 CSV 指纹见 [来源清单](native-u/sources.json)，成体取 `sei_serifu.csv`，幼语取 `serifu.csv`，两档各按原表选句。
 
-游戏选句源为 [runtime-lines.json](runtime-lines.json)，项目原创条目与角色补写见 [species-original.json](species-original.json) 和 [speech-tiers.json](speech-tiers.json)。按共同／种族／阶段／特殊形态／情境分轴、尚未接入运行时的机器可读语料见 [corpus/](corpus/README.md)。来源类型、字幕键和声音键与原版分开登记；完整检索索引不进入模组。英文、日文和中文文本均由选句源分别维护。
+游戏选句源为 [runtime-lines.json](runtime-lines.json)，项目原创条目与角色补写见 [species-original.json](species-original.json) 和 [speech-tiers.json](speech-tiers.json)。[分轴语料](corpus/README.md)按共同／种族／阶段／特殊形态／情境维护，其中标记 `shared_runtime` 的情境句直接导出。来源类型、字幕键和声音键分别登记，模组只打包已选中的台词。
+
+《油库里八景》ver1.12 原句从本机参考包的 `text/` 取日文，旧汉化从 `translate/` 按种族、年龄和日文原句配对。选句的 `source` 和 `translation` 分别记录出处和行号，核对过的同句汉化也可用于已有日文录音的字幕。缺少英语的选句由导出器沿用日文。
 
 ## 导出
 

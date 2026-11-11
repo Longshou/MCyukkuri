@@ -221,7 +221,7 @@
       "species": "marisa",
       "age": "adult",
       "japanese": "すーや……すーや……",
-      "chinese": "呼——呀……呼——呀……",
+      "chinese": "嘶——呀……嘶——呀……",
       "source": {
         "file": "yukkuri/marisa/sei_serifu.csv",
         "line": 486,
@@ -232,7 +232,11 @@
       "source_sha256": "e8da08b432dca9f8b1e9d367368325dc748b5835b0641252fbf52ba921acc943",
       "events": [
         "sleep"
-      ]
+      ],
+      "translation": {
+        "file": "油库里八景ver1.12/油库里八景ver1.12/translate/marisa/sei/seima_serifu.txt",
+        "line": 819
+      }
     },
     {
       "id": "marisa.adult.l0508",
@@ -1285,7 +1289,7 @@
       "species": "reimu",
       "age": "adult",
       "japanese": "すーや……すーや……",
-      "chinese": "呼——呀……呼——呀……",
+      "chinese": "嘶——呀……嘶——呀……",
       "source": {
         "file": "yukkuri/reimu/sei_serifu.csv",
         "line": 486,
@@ -1296,7 +1300,11 @@
       "source_sha256": "e8da08b432dca9f8b1e9d367368325dc748b5835b0641252fbf52ba921acc943",
       "events": [
         "sleep"
-      ]
+      ],
+      "translation": {
+        "file": "油库里八景ver1.12/油库里八景ver1.12/translate/reimu/sei/seima_serifu.txt",
+        "line": 819
+      }
     },
     {
       "id": "reimu.adult.l0508",
@@ -2159,7 +2167,7 @@
       "species": "reimu",
       "age": "adult",
       "japanese": "すーり すーり したいんだよ",
-      "chinese": "想要擦擦脸哟。",
+      "chinese": "想要擦擦脸，擦擦脸哟",
       "source": {
         "file": "yukkuri/reimu/sei_serifu.csv",
         "line": 3302,
@@ -2170,7 +2178,11 @@
       "source_sha256": "85e0a609c878bca3241b408740558865a0307487c603ec23cf89e8922ab69405",
       "events": [
         "want_nuzzle"
-      ]
+      ],
+      "translation": {
+        "file": "油库里八景ver1.12/油库里八景ver1.12/translate/reimu/sei/seima_serifu.txt",
+        "line": 2230
+      }
     },
     {
       "id": "reimu.young.l3291",
@@ -2235,7 +2247,7 @@
       "species": "marisa",
       "age": "adult",
       "japanese": "すーり すーり したいんだぜ",
-      "chinese": "想要擦擦脸贼。",
+      "chinese": "想要擦擦脸，擦擦脸贼",
       "source": {
         "file": "yukkuri/marisa/sei_serifu.csv",
         "line": 3302,
@@ -2246,7 +2258,11 @@
       "source_sha256": "084d686c33d07b2fdd68da067dad72816b34ef465dd8370992b1ce93f9e25998",
       "events": [
         "want_nuzzle"
-      ]
+      ],
+      "translation": {
+        "file": "油库里八景ver1.12/油库里八景ver1.12/translate/marisa/sei/seima_serifu.txt",
+        "line": 2230
+      }
     },
     {
       "id": "marisa.young.l3291",
@@ -2513,7 +2529,7 @@
       "species": "alice",
       "age": "adult",
       "japanese": "すーや……すーや……",
-      "chinese": "呼——呀……呼——呀……",
+      "chinese": "嘶——呀……嘶——呀……",
       "source": {
         "file": "yukkuri/arisu/sei_serifu.csv",
         "line": 486,
@@ -2524,7 +2540,11 @@
       "source_sha256": "e8da08b432dca9f8b1e9d367368325dc748b5835b0641252fbf52ba921acc943",
       "events": [
         "sleep"
-      ]
+      ],
+      "translation": {
+        "file": "油库里八景ver1.12/油库里八景ver1.12/translate/arisu/sei/seima_serifu.txt",
+        "line": 819
+      }
     },
     {
       "id": "alice.adult.l0508",
@@ -30205,6 +30225,1286 @@
       "source_sha256": "a7f4c5eb0f44feff41bdc7c7e45eb719c85fb32d4511c1cf5c1b16c36f112ab9",
       "events": [
         "hatless_monster"
+      ]
+    },
+    {
+      "id": "reimu.baby.h112_0017",
+      "origin": "hakkei112",
+      "species": "reimu",
+      "age": "baby",
+      "japanese": "ゆっくち しちぇいっちぇにぇ！",
+      "chinese": "油库气洗切一切捏！",
+      "source": {
+        "file": "油库里八景ver1.12/油库里八景ver1.12/text/reimu/aka/akama_serifu.txt",
+        "line": 17,
+        "key": "ma_aka_aisatu_pat1_1",
+        "raw": "\"ゆっくち しちぇいっちぇにぇ！\""
+      },
+      "translation": {
+        "file": "油库里八景ver1.12/油库里八景ver1.12/translate/reimu/aka/akama_serifu.txt",
+        "line": 17
+      },
+      "source_sha256": "fe7b3478f004e66237aa555fede4646435f346c18da0b539c48eb9e7036f0502",
+      "events": [
+        "hello",
+        "hatched"
+      ]
+    },
+    {
+      "id": "reimu.baby.h112_0831",
+      "origin": "hakkei112",
+      "species": "reimu",
+      "age": "baby",
+      "japanese": "しゅーや……しゅーや……",
+      "chinese": "嘶——呀……嘶——呀……",
+      "source": {
+        "file": "油库里八景ver1.12/油库里八景ver1.12/text/reimu/aka/akama_serifu.txt",
+        "line": 831,
+        "key": "ma_aka_hanyou_sleep_1",
+        "raw": "\"しゅーや……しゅーや……\""
+      },
+      "translation": {
+        "file": "油库里八景ver1.12/油库里八景ver1.12/translate/reimu/aka/akama_serifu.txt",
+        "line": 831
+      },
+      "source_sha256": "92f91bb90d59a3149d63c2bfbde65f4aee5414a8e6149ee389ec19dfad6372e8",
+      "events": [
+        "sleep"
+      ]
+    },
+    {
+      "id": "reimu.baby.h112_1338",
+      "origin": "hakkei112",
+      "species": "reimu",
+      "age": "baby",
+      "japanese": "おなかすいちゃよ！",
+      "chinese": "肚子饿惹！",
+      "source": {
+        "file": "油库里八景ver1.12/油库里八景ver1.12/text/reimu/aka/akama_serifu.txt",
+        "line": 1338,
+        "key": "ma_aka_hun_1",
+        "raw": "\"おなかすいちゃよ！\""
+      },
+      "translation": {
+        "file": "油库里八景ver1.12/油库里八景ver1.12/translate/reimu/aka/akama_serifu.txt",
+        "line": 1338
+      },
+      "source_sha256": "2b06983a4b4651d403b5fdc38dd632319055040a6870cb065ea4e7fd4afee841",
+      "events": [
+        "hungry"
+      ]
+    },
+    {
+      "id": "reimu.baby.h112_3003",
+      "origin": "hakkei112",
+      "species": "reimu",
+      "age": "baby",
+      "japanese": "しあわちぇー！",
+      "chinese": "搞幸福—！",
+      "source": {
+        "file": "油库里八景ver1.12/油库里八景ver1.12/text/reimu/aka/akama_serifu.txt",
+        "line": 3003,
+        "key": "ma_aka_ea_end_1",
+        "raw": "\"しあわちぇー！\""
+      },
+      "translation": {
+        "file": "油库里八景ver1.12/油库里八景ver1.12/translate/reimu/aka/akama_serifu.txt",
+        "line": 3000
+      },
+      "source_sha256": "04b2d33ba6a95cf92bba480e3f797ec32ba290b7b8de38687ca7f923f4549923",
+      "events": [
+        "fed"
+      ]
+    },
+    {
+      "id": "reimu.baby.h112_2961",
+      "origin": "hakkei112",
+      "species": "reimu",
+      "age": "baby",
+      "japanese": "にぎゃいよ…おいちくないよ……",
+      "chinese": "搞苦哦…噗搞粗哟！……",
+      "source": {
+        "file": "油库里八景ver1.12/油库里八景ver1.12/text/reimu/aka/akama_serifu.txt",
+        "line": 2961,
+        "key": "ma_aka_mogu2_geromazu_1",
+        "raw": "\"にぎゃいよ…おいちくないよ……\""
+      },
+      "translation": {
+        "file": "油库里八景ver1.12/油库里八景ver1.12/translate/reimu/aka/akama_serifu.txt",
+        "line": 2958
+      },
+      "source_sha256": "ff2e21882a99642989de2ea2d90f6b5828e1a5dfcb6a6ed00e0e47808a59bf0b",
+      "events": [
+        "bitter"
+      ]
+    },
+    {
+      "id": "reimu.baby.h112_1986",
+      "origin": "hakkei112",
+      "species": "reimu",
+      "age": "baby",
+      "japanese": "ぷきゅっ ぷきゅーっ",
+      "chinese": "噗咕，噗咕——",
+      "source": {
+        "file": "油库里八景ver1.12/油库里八景ver1.12/text/reimu/aka/akama_serifu.txt",
+        "line": 1986,
+        "key": "ma_aka_puku1_1",
+        "raw": "\"ぷきゅっ ぷきゅーっ\""
+      },
+      "translation": {
+        "file": "油库里八景ver1.12/油库里八景ver1.12/translate/reimu/aka/akama_serifu.txt",
+        "line": 1984
+      },
+      "source_sha256": "c030683b0742c1b9fa51a24096958c1b286d926f2ba318c22845c9e1057cceb5",
+      "events": [
+        "puff"
+      ]
+    },
+    {
+      "id": "reimu.baby.h112_2113",
+      "origin": "hakkei112",
+      "species": "reimu",
+      "age": "baby",
+      "japanese": "しゅーり しゅーり",
+      "chinese": "渣渣脸，渣渣脸",
+      "source": {
+        "file": "油库里八景ver1.12/油库里八景ver1.12/text/reimu/aka/akama_serifu.txt",
+        "line": 2113,
+        "key": "ma_aka_surisuri3_1_1",
+        "raw": "\"しゅーり しゅーり\""
+      },
+      "translation": {
+        "file": "油库里八景ver1.12/油库里八景ver1.12/translate/reimu/aka/akama_serifu.txt",
+        "line": 2111
+      },
+      "source_sha256": "f6344bfe24cc70d26213192871cadf19be54c5b426b4368483a7592e047950ca",
+      "events": [
+        "nuzzle"
+      ]
+    },
+    {
+      "id": "reimu.baby.h112_2125",
+      "origin": "hakkei112",
+      "species": "reimu",
+      "age": "baby",
+      "japanese": "しゅーり しゅーり しちゃいんぢゃよ",
+      "chinese": "想尿渣渣脸，渣渣脸哟",
+      "source": {
+        "file": "油库里八景ver1.12/油库里八景ver1.12/text/reimu/aka/akama_serifu.txt",
+        "line": 2125,
+        "key": "ma_aka_surisuri_miage1_1_1",
+        "raw": "\"しゅーり しゅーり しちゃいんぢゃよ\""
+      },
+      "translation": {
+        "file": "油库里八景ver1.12/油库里八景ver1.12/translate/reimu/aka/akama_serifu.txt",
+        "line": 2123
+      },
+      "source_sha256": "44640baf9dc51cbd835d4ee95bc84813be0bc2f7d173aa7894460098113ff315",
+      "events": [
+        "want_nuzzle"
+      ]
+    },
+    {
+      "id": "reimu.baby.h112_4876",
+      "origin": "hakkei112",
+      "species": "reimu",
+      "age": "baby",
+      "japanese": "しゅっきりぃぃ",
+      "chinese": "爽歪歪噫噫",
+      "source": {
+        "file": "油库里八景ver1.12/油库里八景ver1.12/text/reimu/aka/akama_serifu.txt",
+        "line": 4876,
+        "key": "ma_aka_unko_end1_1_3",
+        "raw": "\"しゅっきりぃぃ\""
+      },
+      "translation": {
+        "file": "油库里八景ver1.12/油库里八景ver1.12/translate/reimu/aka/akama_serifu.txt",
+        "line": 4873
+      },
+      "source_sha256": "3f4a86890759c75c574d6ba5711ce51c5de615781bd6359d2c3917bdbd18953e",
+      "events": [
+        "toilet_done"
+      ]
+    },
+    {
+      "id": "reimu.baby.h112_1128",
+      "origin": "hakkei112",
+      "species": "reimu",
+      "age": "baby",
+      "japanese": "ゆんやぁぁぁ！いちゃいよぉぉぉ！",
+      "chinese": "油嗯呀啊啊啊！搞痛搞痛哦哦哦！",
+      "source": {
+        "file": "油库里八景ver1.12/油库里八景ver1.12/text/reimu/aka/akama_serifu.txt",
+        "line": 1128,
+        "key": "ma_aka_itami_1_1",
+        "raw": "\"ゆんやぁぁぁ！いちゃいよぉぉぉ！\""
+      },
+      "translation": {
+        "file": "油库里八景ver1.12/油库里八景ver1.12/translate/reimu/aka/akama_serifu.txt",
+        "line": 1128
+      },
+      "source_sha256": "8a4d8669edd875ebff14e8a3f103babbb5f18e42b81c54c06f5f360a669291ec",
+      "events": [
+        "wounded"
+      ]
+    },
+    {
+      "id": "reimu.baby.h112_4181",
+      "origin": "hakkei112",
+      "species": "reimu",
+      "age": "baby",
+      "japanese": "ゆピィィィィ！こわいんぢゃよぉぉぉ！！",
+      "chinese": "油噼噫噫噫噫！搞口怕哟！！",
+      "source": {
+        "file": "油库里八景ver1.12/油库里八景ver1.12/text/reimu/aka/akama_serifu.txt",
+        "line": 4181,
+        "key": "ma_aka_kabe_don_3",
+        "raw": "\"ゆピィィィィ！こわいんぢゃよぉぉぉ！！\""
+      },
+      "translation": {
+        "file": "油库里八景ver1.12/油库里八景ver1.12/translate/reimu/aka/akama_serifu.txt",
+        "line": 4178
+      },
+      "source_sha256": "e28c334f24e9bd905a97e9a8eb45c29c9c407a84de962304bb21f49fb8f0d705",
+      "events": [
+        "afraid"
+      ]
+    },
+    {
+      "id": "reimu.baby.h112_6619",
+      "origin": "hakkei112",
+      "species": "reimu",
+      "age": "baby",
+      "japanese": "ゆぶぶぶぶぶぶ……！",
+      "chinese": "油卟卟卟卟卟卟……！",
+      "source": {
+        "file": "油库里八景ver1.12/油库里八景ver1.12/text/reimu/aka/akama_serifu.txt",
+        "line": 6619,
+        "key": "ma_aka_river_attack1_1",
+        "raw": "\"ゆぶぶぶぶぶぶ……！\""
+      },
+      "translation": {
+        "file": "油库里八景ver1.12/油库里八景ver1.12/translate/reimu/aka/akama_serifu.txt",
+        "line": 6615
+      },
+      "source_sha256": "52f87198877e906e505bca02fff9af0660155dc0ec032599921be071109230d9",
+      "events": [
+        "water_help"
+      ]
+    },
+    {
+      "id": "reimu.baby.h112_0892",
+      "origin": "hakkei112",
+      "species": "reimu",
+      "age": "baby",
+      "japanese": "おかーしゃ！おとーしゃ！どこなんぢゃよぉぉぉ！？",
+      "chinese": "麻麻——！粑粑——！去哪里惹哟哦哦哦！？",
+      "source": {
+        "file": "油库里八景ver1.12/油库里八景ver1.12/text/reimu/aka/akama_serifu.txt",
+        "line": 892,
+        "key": "ma_aka_no_parent_1_2",
+        "raw": "\"おかーしゃ！おとーしゃ！どこなんぢゃよぉぉぉ！？\""
+      },
+      "translation": {
+        "file": "油库里八景ver1.12/油库里八景ver1.12/translate/reimu/aka/akama_serifu.txt",
+        "line": 892
+      },
+      "source_sha256": "051c8a1db85145ad80d3935473e277214aa06cc96692fafac972b8bd4b5332eb",
+      "events": [
+        "lost_parent"
+      ]
+    },
+    {
+      "id": "reimu.baby.h112_0984",
+      "origin": "hakkei112",
+      "species": "reimu",
+      "age": "baby",
+      "japanese": "ゆ゛っ……ゆ゛っ……",
+      "chinese": "油……油……",
+      "source": {
+        "file": "油库里八景ver1.12/油库里八景ver1.12/text/reimu/aka/akama_serifu.txt",
+        "line": 984,
+        "key": "ma_aka_hanyou_hinsi_2",
+        "raw": "\"ゆ゛っ……ゆ゛っ……\""
+      },
+      "translation": {
+        "file": "油库里八景ver1.12/油库里八景ver1.12/translate/reimu/aka/akama_serifu.txt",
+        "line": 984
+      },
+      "source_sha256": "d33c45a128a8742ef6bab9fb7e17527532542ae40f7dbe90484119e60ef9b906",
+      "events": [
+        "dying"
+      ]
+    },
+    {
+      "id": "marisa.baby.h112_0017",
+      "origin": "hakkei112",
+      "species": "marisa",
+      "age": "baby",
+      "japanese": "ゆっくち しちぇいっちぇにぇ！",
+      "chinese": "油库气洗切一切捏！",
+      "source": {
+        "file": "油库里八景ver1.12/油库里八景ver1.12/text/marisa/aka/akama_serifu.txt",
+        "line": 17,
+        "key": "ma_aka_aisatu_pat1_1",
+        "raw": "\"ゆっくち しちぇいっちぇにぇ！\""
+      },
+      "translation": {
+        "file": "油库里八景ver1.12/油库里八景ver1.12/translate/marisa/aka/akama_serifu.txt",
+        "line": 17
+      },
+      "source_sha256": "fe7b3478f004e66237aa555fede4646435f346c18da0b539c48eb9e7036f0502",
+      "events": [
+        "hello",
+        "hatched"
+      ]
+    },
+    {
+      "id": "marisa.baby.h112_0835",
+      "origin": "hakkei112",
+      "species": "marisa",
+      "age": "baby",
+      "japanese": "しゅーや……しゅーや……",
+      "chinese": "嘶——呀……嘶——呀……",
+      "source": {
+        "file": "油库里八景ver1.12/油库里八景ver1.12/text/marisa/aka/akama_serifu.txt",
+        "line": 835,
+        "key": "ma_aka_hanyou_sleep_1",
+        "raw": "\"しゅーや……しゅーや……\""
+      },
+      "translation": {
+        "file": "油库里八景ver1.12/油库里八景ver1.12/translate/marisa/aka/akama_serifu.txt",
+        "line": 835
+      },
+      "source_sha256": "92f91bb90d59a3149d63c2bfbde65f4aee5414a8e6149ee389ec19dfad6372e8",
+      "events": [
+        "sleep"
+      ]
+    },
+    {
+      "id": "marisa.baby.h112_1343",
+      "origin": "hakkei112",
+      "species": "marisa",
+      "age": "baby",
+      "japanese": "おなかすいちゃよ！",
+      "chinese": "肚子饿惹哦！",
+      "source": {
+        "file": "油库里八景ver1.12/油库里八景ver1.12/text/marisa/aka/akama_serifu.txt",
+        "line": 1343,
+        "key": "ma_aka_hun_1",
+        "raw": "\"おなかすいちゃよ！\""
+      },
+      "translation": {
+        "file": "油库里八景ver1.12/油库里八景ver1.12/translate/marisa/aka/akama_serifu.txt",
+        "line": 1343
+      },
+      "source_sha256": "2b06983a4b4651d403b5fdc38dd632319055040a6870cb065ea4e7fd4afee841",
+      "events": [
+        "hungry"
+      ]
+    },
+    {
+      "id": "marisa.baby.h112_3007",
+      "origin": "hakkei112",
+      "species": "marisa",
+      "age": "baby",
+      "japanese": "しあわちぇー！",
+      "chinese": "搞幸福—！",
+      "source": {
+        "file": "油库里八景ver1.12/油库里八景ver1.12/text/marisa/aka/akama_serifu.txt",
+        "line": 3007,
+        "key": "ma_aka_ea_end_1",
+        "raw": "\"しあわちぇー！\""
+      },
+      "translation": {
+        "file": "油库里八景ver1.12/油库里八景ver1.12/translate/marisa/aka/akama_serifu.txt",
+        "line": 3006
+      },
+      "source_sha256": "04b2d33ba6a95cf92bba480e3f797ec32ba290b7b8de38687ca7f923f4549923",
+      "events": [
+        "fed"
+      ]
+    },
+    {
+      "id": "marisa.baby.h112_2965",
+      "origin": "hakkei112",
+      "species": "marisa",
+      "age": "baby",
+      "japanese": "にぎゃいよ…おいちくないじぇ……",
+      "chinese": "搞苦哦…噗搞粗杰！……",
+      "source": {
+        "file": "油库里八景ver1.12/油库里八景ver1.12/text/marisa/aka/akama_serifu.txt",
+        "line": 2965,
+        "key": "ma_aka_mogu2_geromazu_1",
+        "raw": "\"にぎゃいよ…おいちくないじぇ……\""
+      },
+      "translation": {
+        "file": "油库里八景ver1.12/油库里八景ver1.12/translate/marisa/aka/akama_serifu.txt",
+        "line": 2964
+      },
+      "source_sha256": "efde65d7058251e6a75a82817e4d58688ad8525d9312208e9afbe31adcd84a4d",
+      "events": [
+        "bitter"
+      ]
+    },
+    {
+      "id": "marisa.baby.h112_1991",
+      "origin": "hakkei112",
+      "species": "marisa",
+      "age": "baby",
+      "japanese": "ぷきゅっ ぷきゅーっ",
+      "chinese": "噗咕，噗咕——",
+      "source": {
+        "file": "油库里八景ver1.12/油库里八景ver1.12/text/marisa/aka/akama_serifu.txt",
+        "line": 1991,
+        "key": "ma_aka_puku1_1",
+        "raw": "\"ぷきゅっ ぷきゅーっ\""
+      },
+      "translation": {
+        "file": "油库里八景ver1.12/油库里八景ver1.12/translate/marisa/aka/akama_serifu.txt",
+        "line": 1990
+      },
+      "source_sha256": "c030683b0742c1b9fa51a24096958c1b286d926f2ba318c22845c9e1057cceb5",
+      "events": [
+        "puff"
+      ]
+    },
+    {
+      "id": "marisa.baby.h112_2118",
+      "origin": "hakkei112",
+      "species": "marisa",
+      "age": "baby",
+      "japanese": "しゅーり しゅーり",
+      "chinese": "渣渣脸，渣渣脸",
+      "source": {
+        "file": "油库里八景ver1.12/油库里八景ver1.12/text/marisa/aka/akama_serifu.txt",
+        "line": 2118,
+        "key": "ma_aka_surisuri3_1_1",
+        "raw": "\"しゅーり しゅーり\""
+      },
+      "translation": {
+        "file": "油库里八景ver1.12/油库里八景ver1.12/translate/marisa/aka/akama_serifu.txt",
+        "line": 2117
+      },
+      "source_sha256": "f6344bfe24cc70d26213192871cadf19be54c5b426b4368483a7592e047950ca",
+      "events": [
+        "nuzzle"
+      ]
+    },
+    {
+      "id": "marisa.baby.h112_2130",
+      "origin": "hakkei112",
+      "species": "marisa",
+      "age": "baby",
+      "japanese": "しゅーり しゅーり しちゃいんだじぇ",
+      "chinese": "想尿渣渣脸，渣渣脸杰",
+      "source": {
+        "file": "油库里八景ver1.12/油库里八景ver1.12/text/marisa/aka/akama_serifu.txt",
+        "line": 2130,
+        "key": "ma_aka_surisuri_miage1_1_1",
+        "raw": "\"しゅーり しゅーり しちゃいんだじぇ\""
+      },
+      "translation": {
+        "file": "油库里八景ver1.12/油库里八景ver1.12/translate/marisa/aka/akama_serifu.txt",
+        "line": 2129
+      },
+      "source_sha256": "04436efbe09bcdc469921b6ffdb9a1bdc49d36f7bc2e5f5500268c222485465b",
+      "events": [
+        "want_nuzzle"
+      ]
+    },
+    {
+      "id": "marisa.baby.h112_4878",
+      "origin": "hakkei112",
+      "species": "marisa",
+      "age": "baby",
+      "japanese": "しゅっきりぃぃ",
+      "chinese": "爽歪歪噫噫",
+      "source": {
+        "file": "油库里八景ver1.12/油库里八景ver1.12/text/marisa/aka/akama_serifu.txt",
+        "line": 4878,
+        "key": "ma_aka_unko_end1_1_3",
+        "raw": "\"しゅっきりぃぃ\""
+      },
+      "translation": {
+        "file": "油库里八景ver1.12/油库里八景ver1.12/translate/marisa/aka/akama_serifu.txt",
+        "line": 4877
+      },
+      "source_sha256": "3f4a86890759c75c574d6ba5711ce51c5de615781bd6359d2c3917bdbd18953e",
+      "events": [
+        "toilet_done"
+      ]
+    },
+    {
+      "id": "marisa.baby.h112_1133",
+      "origin": "hakkei112",
+      "species": "marisa",
+      "age": "baby",
+      "japanese": "ゆんやぁぁぁ！いちゃいよぉぉぉ！",
+      "chinese": "油嗯呀啊啊啊！搞痛搞痛哦哦哦哦！",
+      "source": {
+        "file": "油库里八景ver1.12/油库里八景ver1.12/text/marisa/aka/akama_serifu.txt",
+        "line": 1133,
+        "key": "ma_aka_itami_1_1",
+        "raw": "\"ゆんやぁぁぁ！いちゃいよぉぉぉ！\""
+      },
+      "translation": {
+        "file": "油库里八景ver1.12/油库里八景ver1.12/translate/marisa/aka/akama_serifu.txt",
+        "line": 1133
+      },
+      "source_sha256": "8a4d8669edd875ebff14e8a3f103babbb5f18e42b81c54c06f5f360a669291ec",
+      "events": [
+        "wounded"
+      ]
+    },
+    {
+      "id": "marisa.baby.h112_4183",
+      "origin": "hakkei112",
+      "species": "marisa",
+      "age": "baby",
+      "japanese": "ゆピィィィィ！こわいんだじぇぇぇぇ！！",
+      "chinese": "油噼噫噫噫噫！搞口怕杰！！",
+      "source": {
+        "file": "油库里八景ver1.12/油库里八景ver1.12/text/marisa/aka/akama_serifu.txt",
+        "line": 4183,
+        "key": "ma_aka_kabe_don_3",
+        "raw": "\"ゆピィィィィ！こわいんだじぇぇぇぇ！！\""
+      },
+      "translation": {
+        "file": "油库里八景ver1.12/油库里八景ver1.12/translate/marisa/aka/akama_serifu.txt",
+        "line": 4182
+      },
+      "source_sha256": "0b0fb2833f77f09ea02a7c399b72368877fa3f4c03f7f72deef281435f8cf98a",
+      "events": [
+        "afraid"
+      ]
+    },
+    {
+      "id": "marisa.baby.h112_6609",
+      "origin": "hakkei112",
+      "species": "marisa",
+      "age": "baby",
+      "japanese": "ゆぶぶぶぶぶぶ……！",
+      "chinese": "油卟卟卟卟卟卟……！",
+      "source": {
+        "file": "油库里八景ver1.12/油库里八景ver1.12/text/marisa/aka/akama_serifu.txt",
+        "line": 6609,
+        "key": "ma_aka_river_attack1_1",
+        "raw": "\"ゆぶぶぶぶぶぶ……！\""
+      },
+      "translation": {
+        "file": "油库里八景ver1.12/油库里八景ver1.12/translate/marisa/aka/akama_serifu.txt",
+        "line": 6609
+      },
+      "source_sha256": "52f87198877e906e505bca02fff9af0660155dc0ec032599921be071109230d9",
+      "events": [
+        "water_help"
+      ]
+    },
+    {
+      "id": "marisa.baby.h112_0896",
+      "origin": "hakkei112",
+      "species": "marisa",
+      "age": "baby",
+      "japanese": "おかーしゃ！おとーしゃ！どこなのじぇぇぇぇ！？",
+      "chinese": "麻麻——！粑粑——！去哪里惹杰诶诶诶！？",
+      "source": {
+        "file": "油库里八景ver1.12/油库里八景ver1.12/text/marisa/aka/akama_serifu.txt",
+        "line": 896,
+        "key": "ma_aka_no_parent_1_2",
+        "raw": "\"おかーしゃ！おとーしゃ！どこなのじぇぇぇぇ！？\""
+      },
+      "translation": {
+        "file": "油库里八景ver1.12/油库里八景ver1.12/translate/marisa/aka/akama_serifu.txt",
+        "line": 896
+      },
+      "source_sha256": "a6126526020a9330bdc82fe4cdae06577f24595f562f5f3667328eb870f772cd",
+      "events": [
+        "lost_parent"
+      ]
+    },
+    {
+      "id": "marisa.baby.h112_0988",
+      "origin": "hakkei112",
+      "species": "marisa",
+      "age": "baby",
+      "japanese": "ゆ゛っ……ゆ゛っ……",
+      "chinese": "油……油……",
+      "source": {
+        "file": "油库里八景ver1.12/油库里八景ver1.12/text/marisa/aka/akama_serifu.txt",
+        "line": 988,
+        "key": "ma_aka_hanyou_hinsi_2",
+        "raw": "\"ゆ゛っ……ゆ゛っ……\""
+      },
+      "translation": {
+        "file": "油库里八景ver1.12/油库里八景ver1.12/translate/marisa/aka/akama_serifu.txt",
+        "line": 988
+      },
+      "source_sha256": "d33c45a128a8742ef6bab9fb7e17527532542ae40f7dbe90484119e60ef9b906",
+      "events": [
+        "dying"
+      ]
+    },
+    {
+      "id": "alice.baby.h112_0017",
+      "origin": "hakkei112",
+      "species": "alice",
+      "age": "baby",
+      "japanese": "ゆっくち しちぇいっちぇにぇ！",
+      "chinese": "油库气洗切一切捏！",
+      "source": {
+        "file": "油库里八景ver1.12/油库里八景ver1.12/text/arisu/aka/akama_serifu.txt",
+        "line": 17,
+        "key": "ma_aka_aisatu_pat1_1",
+        "raw": "\"ゆっくち しちぇいっちぇにぇ！\""
+      },
+      "translation": {
+        "file": "油库里八景ver1.12/油库里八景ver1.12/translate/arisu/aka/akama_serifu.txt",
+        "line": 17
+      },
+      "source_sha256": "fe7b3478f004e66237aa555fede4646435f346c18da0b539c48eb9e7036f0502",
+      "events": [
+        "hello"
+      ]
+    },
+    {
+      "id": "alice.baby.h112_0091",
+      "origin": "hakkei112",
+      "species": "alice",
+      "age": "baby",
+      "japanese": "ゆっくち…… にげりゅわ……！",
+      "chinese": "油库气滴……逃肘惹哇！",
+      "source": {
+        "file": "油库里八景ver1.12/油库里八景ver1.12/text/arisu/aka/akama_serifu.txt",
+        "line": 91,
+        "key": "ma_aka_hanyou_escape_1_3",
+        "raw": "\"ゆっくち…… にげりゅわ……！\""
+      },
+      "translation": {
+        "file": "油库里八景ver1.12/油库里八景ver1.12/translate/arisu/aka/akama_serifu.txt",
+        "line": 91
+      },
+      "source_sha256": "9b4a91588addf7bb6e1fb92cf893e717c58de5ace1d913ff89b39e5335851766",
+      "events": [
+        "narrate_flee"
+      ]
+    },
+    {
+      "id": "alice.baby.h112_0175",
+      "origin": "hakkei112",
+      "species": "alice",
+      "age": "baby",
+      "japanese": "ゆっくち まっちぇるわ！",
+      "chinese": "油库气滴债等哇！",
+      "source": {
+        "file": "油库里八景ver1.12/油库里八景ver1.12/text/arisu/aka/akama_serifu.txt",
+        "line": 175,
+        "key": "ma_aka_hanyou_taiki_1_3",
+        "raw": "\"ゆっくち まっちぇるわ！\""
+      },
+      "translation": {
+        "file": "油库里八景ver1.12/油库里八景ver1.12/translate/arisu/aka/akama_serifu.txt",
+        "line": 175
+      },
+      "source_sha256": "d25554e36ed2aa57e126cd68f27b3e39d99a75751b0e3763ce73a65b02966d64",
+      "events": [
+        "wait_turn"
+      ]
+    },
+    {
+      "id": "reimu.adult.h112_3060",
+      "origin": "hakkei112",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "にがいよ…おいしくないんだよ……",
+      "chinese": "好苦哦…不好吃哟！……",
+      "source": {
+        "file": "油库里八景ver1.12/油库里八景ver1.12/text/reimu/sei/seima_serifu.txt",
+        "line": 3060,
+        "key": "ma_sei_mogu2_geromazu_1",
+        "raw": "\"にがいよ…おいしくないんだよ……\""
+      },
+      "translation": {
+        "file": "油库里八景ver1.12/油库里八景ver1.12/translate/reimu/sei/seima_serifu.txt",
+        "line": 3060
+      },
+      "source_sha256": "12e0f4521d68d56d85685ce8fbd3602043a6a9a3ee38f1794821f7e2c6d227d0",
+      "events": [
+        "bitter"
+      ]
+    },
+    {
+      "id": "reimu.adult.h112_2099",
+      "origin": "hakkei112",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "ぷくーっ！ なんだよ！",
+      "chinese": "噗咕——！哟！",
+      "source": {
+        "file": "油库里八景ver1.12/油库里八景ver1.12/text/reimu/sei/seima_serifu.txt",
+        "line": 2099,
+        "key": "ma_sei_puku1_9",
+        "raw": "\"ぷくーっ！ なんだよ！\""
+      },
+      "translation": {
+        "file": "油库里八景ver1.12/油库里八景ver1.12/translate/reimu/sei/seima_serifu.txt",
+        "line": 2099
+      },
+      "source_sha256": "85a7a3e3c3df8959220ff1e072d5589d5b1350e7f7d89fb7a91910409be04a85",
+      "events": [
+        "puff"
+      ]
+    },
+    {
+      "id": "reimu.adult.h112_4957",
+      "origin": "hakkei112",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "すっきりぃぃ",
+      "chinese": "爽歪歪噫噫",
+      "source": {
+        "file": "油库里八景ver1.12/油库里八景ver1.12/text/reimu/sei/seima_serifu.txt",
+        "line": 4957,
+        "key": "ma_sei_unko_end1_1_3",
+        "raw": "\"すっきりぃぃ\""
+      },
+      "translation": {
+        "file": "油库里八景ver1.12/油库里八景ver1.12/translate/reimu/sei/seima_serifu.txt",
+        "line": 4957
+      },
+      "source_sha256": "33b58aaeaa26b412fa7c9a4b9b54769b4cd2c048c0b9b3b4afd271aecd84f84c",
+      "events": [
+        "toilet_done"
+      ]
+    },
+    {
+      "id": "reimu.adult.h112_4264",
+      "origin": "hakkei112",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "ゆピィィィィ！こわいんだよぉぉぉぉ！！",
+      "chinese": "油噼噫噫噫噫！好可怕哟！！",
+      "source": {
+        "file": "油库里八景ver1.12/油库里八景ver1.12/text/reimu/sei/seima_serifu.txt",
+        "line": 4264,
+        "key": "ma_sei_kabe_don_3",
+        "raw": "\"ゆピィィィィ！こわいんだよぉぉぉぉ！！\""
+      },
+      "translation": {
+        "file": "油库里八景ver1.12/油库里八景ver1.12/translate/reimu/sei/seima_serifu.txt",
+        "line": 4264
+      },
+      "source_sha256": "ce7485686287b831ef206516f537325c4ec04fde834abe1a6907c1d40a0aa370",
+      "events": [
+        "afraid"
+      ]
+    },
+    {
+      "id": "reimu.adult.h112_6674",
+      "origin": "hakkei112",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "ゆぶぶぶぶぶぶ……！",
+      "chinese": "油卟卟卟卟卟卟……！",
+      "source": {
+        "file": "油库里八景ver1.12/油库里八景ver1.12/text/reimu/sei/seima_serifu.txt",
+        "line": 6674,
+        "key": "ma_sei_river_attack1_1",
+        "raw": "\"ゆぶぶぶぶぶぶ……！\""
+      },
+      "translation": {
+        "file": "油库里八景ver1.12/油库里八景ver1.12/translate/reimu/sei/seima_serifu.txt",
+        "line": 6674
+      },
+      "source_sha256": "52f87198877e906e505bca02fff9af0660155dc0ec032599921be071109230d9",
+      "events": [
+        "water_help"
+      ]
+    },
+    {
+      "id": "reimu.adult.h112_0892",
+      "origin": "hakkei112",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "ゆ゛っ……ゆ゛っ……",
+      "chinese": "油……油……",
+      "source": {
+        "file": "油库里八景ver1.12/油库里八景ver1.12/text/reimu/sei/seima_serifu.txt",
+        "line": 892,
+        "key": "ma_sei_hanyou_hinsi_2",
+        "raw": "\"ゆ゛っ……ゆ゛っ……\""
+      },
+      "translation": {
+        "file": "油库里八景ver1.12/油库里八景ver1.12/translate/reimu/sei/seima_serifu.txt",
+        "line": 892
+      },
+      "source_sha256": "d33c45a128a8742ef6bab9fb7e17527532542ae40f7dbe90484119e60ef9b906",
+      "events": [
+        "dying"
+      ]
+    },
+    {
+      "id": "reimu.adult.h112_2655",
+      "origin": "hakkei112",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "ゆゆっ！？おうちさんだよ！！",
+      "chinese": "油油！？是家先生哟！！",
+      "source": {
+        "file": "油库里八景ver1.12/油库里八景ver1.12/text/reimu/sei/seima_serifu.txt",
+        "line": 2655,
+        "key": "ma_sei_outi_serching_good_1",
+        "raw": "\"ゆゆっ！？おうちさんだよ！！\""
+      },
+      "translation": {
+        "file": "油库里八景ver1.12/油库里八景ver1.12/translate/reimu/sei/seima_serifu.txt",
+        "line": 2655
+      },
+      "source_sha256": "3efa55477ab23c4bf682bd6bee0f610a2ec7df90086dcc41e2284585d6ba81d2",
+      "events": [
+        "house_arrival"
+      ]
+    },
+    {
+      "id": "reimu.adult.h112_1869",
+      "origin": "hakkei112",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "おちびちゃん！ ゆっくり おおきくなるんだよ！",
+      "chinese": "小贝比酱！油库里地长大哟！",
+      "source": {
+        "file": "油库里八景ver1.12/油库里八景ver1.12/text/reimu/sei/seima_serifu.txt",
+        "line": 1869,
+        "key": "ma_sei_ninsin_1_3",
+        "raw": "\"おちびちゃん！ ゆっくり おおきくなるんだよ！\""
+      },
+      "translation": {
+        "file": "油库里八景ver1.12/油库里八景ver1.12/translate/reimu/sei/seima_serifu.txt",
+        "line": 1651
+      },
+      "source_sha256": "82b217853ba0947a78cfff1290c4e5d60cfd3d5226da359a46c206f709d0298f",
+      "events": [
+        "expecting",
+        "house_hatched"
+      ]
+    },
+    {
+      "id": "marisa.adult.h112_2773",
+      "origin": "hakkei112",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "ゆっ！ごはんさんだー",
+      "chinese": "油！是饭先生—",
+      "source": {
+        "file": "油库里八景ver1.12/油库里八景ver1.12/text/marisa/sei/seima_serifu.txt",
+        "line": 2773,
+        "key": "ma_sei_f_2",
+        "raw": "\"ゆっ！ごはんさんだー\""
+      },
+      "translation": {
+        "file": "油库里八景ver1.12/油库里八景ver1.12/translate/marisa/sei/seima_serifu.txt",
+        "line": 2772
+      },
+      "source_sha256": "a3e1cd9f87b013a0b077e6daa6d68f2b5017738a6f1214e54c725c43867dc1fd",
+      "events": [
+        "food_found"
+      ]
+    },
+    {
+      "id": "marisa.adult.h112_3061",
+      "origin": "hakkei112",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "にがいよ…おいしくないのぜ……",
+      "chinese": "好苦哦…不好吃贼！……",
+      "source": {
+        "file": "油库里八景ver1.12/油库里八景ver1.12/text/marisa/sei/seima_serifu.txt",
+        "line": 3061,
+        "key": "ma_sei_mogu2_geromazu_1",
+        "raw": "\"にがいよ…おいしくないのぜ……\""
+      },
+      "translation": {
+        "file": "油库里八景ver1.12/油库里八景ver1.12/translate/marisa/sei/seima_serifu.txt",
+        "line": 3060
+      },
+      "source_sha256": "c95b6249f8da309a31507641d60d4ca456521817feb92dd47b4c4144bcc90f77",
+      "events": [
+        "bitter"
+      ]
+    },
+    {
+      "id": "marisa.adult.h112_2100",
+      "origin": "hakkei112",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "ぷくーっ！ なんだぜ！",
+      "chinese": "噗咕——！贼！",
+      "source": {
+        "file": "油库里八景ver1.12/油库里八景ver1.12/text/marisa/sei/seima_serifu.txt",
+        "line": 2100,
+        "key": "ma_sei_puku1_9",
+        "raw": "\"ぷくーっ！ なんだぜ！\""
+      },
+      "translation": {
+        "file": "油库里八景ver1.12/油库里八景ver1.12/translate/marisa/sei/seima_serifu.txt",
+        "line": 2099
+      },
+      "source_sha256": "f28a92ecdea045b318415c54bc01c2116db01eac42f7e723c0dace42dfc92988",
+      "events": [
+        "puff"
+      ]
+    },
+    {
+      "id": "marisa.adult.h112_4959",
+      "origin": "hakkei112",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "すっきりぃぃ",
+      "chinese": "爽歪歪噫噫",
+      "source": {
+        "file": "油库里八景ver1.12/油库里八景ver1.12/text/marisa/sei/seima_serifu.txt",
+        "line": 4959,
+        "key": "ma_sei_unko_end1_1_3",
+        "raw": "\"すっきりぃぃ\""
+      },
+      "translation": {
+        "file": "油库里八景ver1.12/油库里八景ver1.12/translate/marisa/sei/seima_serifu.txt",
+        "line": 4958
+      },
+      "source_sha256": "33b58aaeaa26b412fa7c9a4b9b54769b4cd2c048c0b9b3b4afd271aecd84f84c",
+      "events": [
+        "toilet_done"
+      ]
+    },
+    {
+      "id": "marisa.adult.h112_4265",
+      "origin": "hakkei112",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "ゆピィィィィ！こわいんだぜぇぇぇぇ！！",
+      "chinese": "油噼噫噫噫噫！好可怕贼！！",
+      "source": {
+        "file": "油库里八景ver1.12/油库里八景ver1.12/text/marisa/sei/seima_serifu.txt",
+        "line": 4265,
+        "key": "ma_sei_kabe_don_3",
+        "raw": "\"ゆピィィィィ！こわいんだぜぇぇぇぇ！！\""
+      },
+      "translation": {
+        "file": "油库里八景ver1.12/油库里八景ver1.12/translate/marisa/sei/seima_serifu.txt",
+        "line": 4264
+      },
+      "source_sha256": "f9247684de399501f6201e8dea11b4894046b0cf89089ede1d0674a997c7694c",
+      "events": [
+        "afraid"
+      ]
+    },
+    {
+      "id": "marisa.adult.h112_6675",
+      "origin": "hakkei112",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "ゆぶぶぶぶぶぶ……！",
+      "chinese": "油卟卟卟卟卟卟……！",
+      "source": {
+        "file": "油库里八景ver1.12/油库里八景ver1.12/text/marisa/sei/seima_serifu.txt",
+        "line": 6675,
+        "key": "ma_sei_river_attack1_1",
+        "raw": "\"ゆぶぶぶぶぶぶ……！\""
+      },
+      "translation": {
+        "file": "油库里八景ver1.12/油库里八景ver1.12/translate/marisa/sei/seima_serifu.txt",
+        "line": 6674
+      },
+      "source_sha256": "52f87198877e906e505bca02fff9af0660155dc0ec032599921be071109230d9",
+      "events": [
+        "water_help"
+      ]
+    },
+    {
+      "id": "marisa.adult.h112_0893",
+      "origin": "hakkei112",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "ゆ゛っ……ゆ゛っ……",
+      "chinese": "油……油……",
+      "source": {
+        "file": "油库里八景ver1.12/油库里八景ver1.12/text/marisa/sei/seima_serifu.txt",
+        "line": 893,
+        "key": "ma_sei_hanyou_hinsi_2",
+        "raw": "\"ゆ゛っ……ゆ゛っ……\""
+      },
+      "translation": {
+        "file": "油库里八景ver1.12/油库里八景ver1.12/translate/marisa/sei/seima_serifu.txt",
+        "line": 892
+      },
+      "source_sha256": "d33c45a128a8742ef6bab9fb7e17527532542ae40f7dbe90484119e60ef9b906",
+      "events": [
+        "dying"
+      ]
+    },
+    {
+      "id": "marisa.adult.h112_2656",
+      "origin": "hakkei112",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "ゆゆっ！？おうちさんだぜ！！",
+      "chinese": "油油！？是家先生贼！！",
+      "source": {
+        "file": "油库里八景ver1.12/油库里八景ver1.12/text/marisa/sei/seima_serifu.txt",
+        "line": 2656,
+        "key": "ma_sei_outi_serching_good_1",
+        "raw": "\"ゆゆっ！？おうちさんだぜ！！\""
+      },
+      "translation": {
+        "file": "油库里八景ver1.12/油库里八景ver1.12/translate/marisa/sei/seima_serifu.txt",
+        "line": 2655
+      },
+      "source_sha256": "31528fac626ea464f285203726c30b8f9683cf49562c8f5b6520ddf83c6cfea8",
+      "events": [
+        "house_arrival"
+      ]
+    },
+    {
+      "id": "marisa.adult.h112_1870",
+      "origin": "hakkei112",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "おちびちゃん！ ゆっくり おおきくなるのぜ！",
+      "chinese": "小贝比酱！油库里地长大贼！",
+      "source": {
+        "file": "油库里八景ver1.12/油库里八景ver1.12/text/marisa/sei/seima_serifu.txt",
+        "line": 1870,
+        "key": "ma_sei_ninsin_1_3",
+        "raw": "\"おちびちゃん！ ゆっくり おおきくなるのぜ！\""
+      },
+      "translation": {
+        "file": "油库里八景ver1.12/油库里八景ver1.12/translate/marisa/sei/seima_serifu.txt",
+        "line": 1651
+      },
+      "source_sha256": "c6dc00e521b7ba50b3d15d7128845b5057c006ff20222eaf1f59b0e121bbc63f",
+      "events": [
+        "expecting",
+        "house_hatched"
+      ]
+    },
+    {
+      "id": "alice.adult.h112_1245",
+      "origin": "hakkei112",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "おなかすいたわ！",
+      "chinese": "肚子饿了哇！",
+      "source": {
+        "file": "油库里八景ver1.12/油库里八景ver1.12/text/arisu/sei/seima_serifu.txt",
+        "line": 1245,
+        "key": "ma_sei_hun_1",
+        "raw": "\"おなかすいたわ！\""
+      },
+      "translation": {
+        "file": "油库里八景ver1.12/油库里八景ver1.12/translate/arisu/sei/seima_serifu.txt",
+        "line": 1245
+      },
+      "source_sha256": "94bb93d30f703b38d0f9fbdca3c57b95dfb83cdee7fa339044e0481b042a0784",
+      "events": [
+        "hungry"
+      ]
+    },
+    {
+      "id": "alice.adult.h112_3060",
+      "origin": "hakkei112",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "にがいわ…おいしくないわ……",
+      "chinese": "好苦哦…不好吃哇！……",
+      "source": {
+        "file": "油库里八景ver1.12/油库里八景ver1.12/text/arisu/sei/seima_serifu.txt",
+        "line": 3060,
+        "key": "ma_sei_mogu2_geromazu_1",
+        "raw": "\"にがいわ…おいしくないわ……\""
+      },
+      "translation": {
+        "file": "油库里八景ver1.12/油库里八景ver1.12/translate/arisu/sei/seima_serifu.txt",
+        "line": 3060
+      },
+      "source_sha256": "bdca06c3af172b6c4d7a1726213d791aa535c1f53c703c895a2a9266432f8800",
+      "events": [
+        "bitter"
+      ]
+    },
+    {
+      "id": "alice.adult.h112_2099",
+      "origin": "hakkei112",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "ぷくーっ！ だわ！",
+      "chinese": "噗咕——！哇！",
+      "source": {
+        "file": "油库里八景ver1.12/油库里八景ver1.12/text/arisu/sei/seima_serifu.txt",
+        "line": 2099,
+        "key": "ma_sei_puku1_9",
+        "raw": "\"ぷくーっ！ だわ！\""
+      },
+      "translation": {
+        "file": "油库里八景ver1.12/油库里八景ver1.12/translate/arisu/sei/seima_serifu.txt",
+        "line": 2099
+      },
+      "source_sha256": "c788ac4639344c0481b682f7867a8c66bed5d54dd79c66be39f534e192cc18c4",
+      "events": [
+        "puff"
+      ]
+    },
+    {
+      "id": "alice.adult.h112_2230",
+      "origin": "hakkei112",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "すーり すーり したいわ",
+      "chinese": "想要擦擦脸，擦擦脸哇",
+      "source": {
+        "file": "油库里八景ver1.12/油库里八景ver1.12/text/arisu/sei/seima_serifu.txt",
+        "line": 2230,
+        "key": "ma_sei_surisuri_miage1_1_1",
+        "raw": "\"すーり すーり したいわ\""
+      },
+      "translation": {
+        "file": "油库里八景ver1.12/油库里八景ver1.12/translate/arisu/sei/seima_serifu.txt",
+        "line": 2230
+      },
+      "source_sha256": "f641f020ac1bc0ce0777049d301a9e33812d91f91c0557dfe64e14aa7a7d1d16",
+      "events": [
+        "want_nuzzle"
+      ]
+    },
+    {
+      "id": "alice.adult.h112_4957",
+      "origin": "hakkei112",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "すっきりぃぃ",
+      "chinese": "爽歪歪噫噫",
+      "source": {
+        "file": "油库里八景ver1.12/油库里八景ver1.12/text/arisu/sei/seima_serifu.txt",
+        "line": 4957,
+        "key": "ma_sei_unko_end1_1_3",
+        "raw": "\"すっきりぃぃ\""
+      },
+      "translation": {
+        "file": "油库里八景ver1.12/油库里八景ver1.12/translate/arisu/sei/seima_serifu.txt",
+        "line": 4957
+      },
+      "source_sha256": "33b58aaeaa26b412fa7c9a4b9b54769b4cd2c048c0b9b3b4afd271aecd84f84c",
+      "events": [
+        "toilet_done"
+      ]
+    },
+    {
+      "id": "alice.adult.h112_1037",
+      "origin": "hakkei112",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "ゆんやぁぁぁ！いたいわぁぁぁ！",
+      "chinese": "油嗯呀啊啊啊！好痛好痛哇啊啊啊！",
+      "source": {
+        "file": "油库里八景ver1.12/油库里八景ver1.12/text/arisu/sei/seima_serifu.txt",
+        "line": 1037,
+        "key": "ma_sei_itami_1_1",
+        "raw": "\"ゆんやぁぁぁ！いたいわぁぁぁ！\""
+      },
+      "translation": {
+        "file": "油库里八景ver1.12/油库里八景ver1.12/translate/arisu/sei/seima_serifu.txt",
+        "line": 1037
+      },
+      "source_sha256": "79fa999715021680e11f249021a50a2928992c406176cd50ead066ca7551e282",
+      "events": [
+        "wounded"
+      ]
+    },
+    {
+      "id": "alice.adult.h112_4264",
+      "origin": "hakkei112",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "ゆピィィィィ！こわいわぁぁぁぁ！！",
+      "chinese": "油噼噫噫噫噫！好可怕哇啊啊啊啊！！",
+      "source": {
+        "file": "油库里八景ver1.12/油库里八景ver1.12/text/arisu/sei/seima_serifu.txt",
+        "line": 4264,
+        "key": "ma_sei_kabe_don_3",
+        "raw": "\"ゆピィィィィ！こわいわぁぁぁぁ！！\""
+      },
+      "translation": {
+        "file": "油库里八景ver1.12/油库里八景ver1.12/translate/arisu/sei/seima_serifu.txt",
+        "line": 4264
+      },
+      "source_sha256": "69f043e91f52c9f1da5e9532345ad120f4fc5c1362aabc5b528a071c87c31df2",
+      "events": [
+        "afraid"
+      ]
+    },
+    {
+      "id": "alice.adult.h112_6674",
+      "origin": "hakkei112",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "ゆぶぶぶぶぶぶ……！",
+      "chinese": "油卟卟卟卟卟卟……！",
+      "source": {
+        "file": "油库里八景ver1.12/油库里八景ver1.12/text/arisu/sei/seima_serifu.txt",
+        "line": 6674,
+        "key": "ma_sei_river_attack1_1",
+        "raw": "\"ゆぶぶぶぶぶぶ……！\""
+      },
+      "translation": {
+        "file": "油库里八景ver1.12/油库里八景ver1.12/translate/arisu/sei/seima_serifu.txt",
+        "line": 6674
+      },
+      "source_sha256": "52f87198877e906e505bca02fff9af0660155dc0ec032599921be071109230d9",
+      "events": [
+        "water_help"
+      ]
+    },
+    {
+      "id": "alice.adult.h112_0892",
+      "origin": "hakkei112",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "ゆ゛っ……ゆ゛っ……",
+      "chinese": "油……油……",
+      "source": {
+        "file": "油库里八景ver1.12/油库里八景ver1.12/text/arisu/sei/seima_serifu.txt",
+        "line": 892,
+        "key": "ma_sei_hanyou_hinsi_2",
+        "raw": "\"ゆ゛っ……ゆ゛っ……\""
+      },
+      "translation": {
+        "file": "油库里八景ver1.12/油库里八景ver1.12/translate/arisu/sei/seima_serifu.txt",
+        "line": 892
+      },
+      "source_sha256": "d33c45a128a8742ef6bab9fb7e17527532542ae40f7dbe90484119e60ef9b906",
+      "events": [
+        "dying"
+      ]
+    },
+    {
+      "id": "alice.adult.h112_1869",
+      "origin": "hakkei112",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "おちびちゃん！ ゆっくり おおきくなるわ！",
+      "chinese": "小贝比酱！油库里地长大哇！",
+      "source": {
+        "file": "油库里八景ver1.12/油库里八景ver1.12/text/arisu/sei/seima_serifu.txt",
+        "line": 1869,
+        "key": "ma_sei_ninsin_1_3",
+        "raw": "\"おちびちゃん！ ゆっくり おおきくなるわ！\""
+      },
+      "translation": {
+        "file": "油库里八景ver1.12/油库里八景ver1.12/translate/arisu/sei/seima_serifu.txt",
+        "line": 1869
+      },
+      "source_sha256": "58474cb91b5aa0861fd63f38cf96a986e4cf0d7ed9d25c87b2e9db98dddbf883",
+      "events": [
+        "expecting"
       ]
     }
   ]
