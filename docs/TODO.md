@@ -9,7 +9,6 @@
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
 | 台词审校与补充（用户与代理直接对话） | `.worktrees/wp-gb-speech-review` | art/dialogue/, src/main/resources/assets/mcyukkuri/dialogue/, lang/*.json |
-| 嗯嗯坑绕行与坑沿排遗（BM） | `.worktrees/wp-ge-pit-rim` | settlement/GroupPits、YukkuriGroundNavigation |
 | 帽沿跳朝向与节奏 | `.worktrees/wp-gf-brim-hop` | motor/action/CarriedHop、client/ParentCarryPresentation |
 | MD-16 肿胀穿模 | `.worktrees/wp-gi-swell-clip` | pose/Skin 肿胀变形、client/CareWearRenderer |
 | 憔悴脸重画、激动漏尿表情与表现 | `.worktrees/wp-gj-faces` | standards/yukkuri-library/expressions |
