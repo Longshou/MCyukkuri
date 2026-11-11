@@ -8,6 +8,7 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
+| 互动菜单美化与界面风格统一 | `.worktrees/wp-fm-menu-style` | client/*Screen.java、client/GuiKit.java、art/props/ui、capture |
 
 ## 玩法待办
 
