@@ -64,6 +64,7 @@ final class HabitatHomes {
         final List<HomeCandidate> candidates=new ArrayList<>();
         int core,placement;
         BlockPos pendingCell;
+        ShelterBlockEntity triedShared;
         boolean siteChecked,scanned;
         HomeSearch(HabitatHomes owner) {
             dimension=owner.level().dimension();anchor=owner.o.entity().blockPosition().immutable();
@@ -72,10 +73,6 @@ final class HabitatHomes {
             cores.sort(Comparator.comparingDouble(value->fit(value.capacity(),value.capacity()-value.usedSlots(),need,
                     owner.o.entity().distanceToSqr(Vec3.atBottomCenterOf(value.getBlockPos())))));
             cells=BlockPos.betweenClosed(anchor.offset(-16,-2,-16),anchor.offset(16,2,16)).iterator();
-            // A mated adult looks at its mate's home first and shares it when there is room.
-            var mate=owner.mate();
-            var shared=mate==null?null:mate.habitat().shelter();
-            if(shared!=null&&cores.remove(shared))cores.addFirst(shared);
         }
         boolean current(HabitatHomes owner) { return dimension.equals(owner.level().dimension())&&anchor.distSqr(owner.o.entity().blockPosition())<=12*12
                 &&need==owner.o.householdNeed(); }
@@ -86,6 +83,12 @@ final class HabitatHomes {
     private YukkuriEntity mate() {
         var id=o.entity().family().partner();
         return o.entity().family().adult()&&id!=null&&level().getEntity(id) instanceof YukkuriEntity mate&&mate.isAlive()&&mate.family().adult()?mate:null;
+    }
+    private ShelterBlockEntity untriedSharedHome() {
+        var mate=mate();
+        if(mate==null)return null;
+        var shared=mate.habitat().shelter();
+        return shared!=null&&shared!=homeSearch.triedShared&&shared.owns(mate.getUUID())?shared:null;
     }
     /** Only the initiating resident's own move may retain this relocation continuation through homeChosen(). */
     private boolean relocatingSelf;
@@ -169,7 +172,13 @@ final class HabitatHomes {
         homeContext=false;homeSearch=null;homeDimension=null;homeAnchor=null;
         relocationHome=null;relocationSearch=null;relocatingSelf=false;
     }
-    void homeChosen() {
+    void homeChosen(ShelterBlockEntity value) {
+        // An independent excavation can be in progress when the life goal finds a real shared home.
+        if(dig!=null&&!dig.doorway().equals(value.getBlockPos())) {
+            resumeMouth=null;resumeDirection=null;
+            o.stop();
+            return;
+        }
         cancelVagrantProject();
         if(o.entity().level() instanceof ServerLevel level) {
             cancelHomeSearch();
@@ -222,7 +231,7 @@ final class HabitatHomes {
         }
         // A planned community gets its allocated homes first. This has its own bounded lease;
         // never nest it under the wider local-cavity search.
-        if(!homeSearch.siteChecked) {
+        if(!homeSearch.siteChecked&&untriedSharedHome()==null) {
             var site=SiteLife.of(o.entity());
             var settlement=o.entity().settlement();var group=settlement.group();
             boolean arrived=group==null||group.migrateTo==null||settlement.reached(group);
@@ -250,10 +259,17 @@ final class HabitatHomes {
     private Result searchHome(Lease lease) {
         if(o.roaming()||o.entity().profile().houseBody()||o.entity().profile().dangerToYukkuri()||o.unavailable())return Result.NOT_FOUND;
         var search=homeSearch;
+        // A mate may have claimed a home since this sliced search began.
+        var shared=untriedSharedHome();
+        if(shared!=null) {
+            search.triedShared=shared;
+            SearchBudget.probe(level());
+            return o.choose(shared)?Result.FOUND:Result.DEFERRED;
+        }
         if(search.core<search.cores.size()) {
             var core=search.cores.get(search.core++);
             SearchBudget.probe(level());
-            if(!level().hasChunkAt(core.getBlockPos())||level().getBlockEntity(core.getBlockPos())!=core||core.isRemoved())return Result.DEFERRED;
+            if(core==search.triedShared||!currentCore(core))return Result.DEFERRED;
             if(o.choose(core))return Result.FOUND;
             return Result.DEFERRED;
         }

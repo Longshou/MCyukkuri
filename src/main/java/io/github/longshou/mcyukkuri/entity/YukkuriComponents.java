@@ -282,7 +282,10 @@ public final class YukkuriComponents {
                 .load(130, (c, ctx) -> c.load(ctx.root().getCompound("YukkuriSurface"))).build(),
         ComponentSpec.ready(SANCTION, YukkuriEntity::sanction)
                 .interrupt(Interrupt.REMOVED, InterruptPhase.MAIN, 10, (c, ctx) -> c.stop()).build(),
-        ComponentSpec.ready(FORAGE_TRIP, YukkuriEntity::forageTrip).build(),
+        ComponentSpec.ready(FORAGE_TRIP, YukkuriEntity::forageTrip)
+                .save(330, ForageTrip::saveLoad)
+                .load(350, (c, ctx) -> c.loadCarried(ctx.root()))
+                .interrupt(Interrupt.DEATH, InterruptPhase.DEATH_ONCE, 45, (c, ctx) -> c.died()).build(),
         ComponentSpec.ready(CARE_APPROACH, YukkuriEntity::careApproach)
                 .goal(2, EnumSet.of(Goal.Flag.MOVE, Goal.Flag.LOOK), (care, entity) -> new Goal() {
                     { setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK)); }

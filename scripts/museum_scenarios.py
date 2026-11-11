@@ -144,11 +144,12 @@ def set_status(name, key, value):
 # taking over the foraging while the child stays at home.
 _dm, _df, _dc = (uid('den_family', name) for name in ('mother', 'father', 'child'))
 add('den_family', 'den', '一家三口住进土丘洞', '一家三口住进土丘洞',
-    '父母和子油自己找到土丘洞住进去：识别为同一个家（status 的 home.kind 是 burrow），夜里回洞、储粮、外出。入住后亲手杀死父油：母油接替外出采草、存粮、喂子，孩子留在家中，不能只反复进出洞',
+    '父母和子油自己找到土丘洞住进去：识别为同一个家（status 的 home.kind 是 burrow）。洞口一带的草已经吃过，外面还有草。入住后亲手杀死父油，观察母油是否接替外出采草、存粮，以及孩子是否吃到粮',
     '入住约 1 分钟；杀死父油后数分钟（可五倍速）', [
         yk('reimu', 0, 3, 'mother', uuid=_dm, yaw=180, lead=True, kin=f'Partner:{uuid_nbt(_df)}', **pair_ready()),
         yk('marisa', 2, 3, 'father', uuid=_df, yaw=180, kin=f'Partner:{uuid_nbt(_dm)}', **pair_ready()),
-        yk('reimu', 1, 4, 'child', stage='child', uuid=_dc, yaw=180, nutrition=55, kin=f'Mother:{uuid_nbt(_dm)},Father:{uuid_nbt(_df)}')],
+        yk('reimu', 1, 4, 'child', stage='child', uuid=_dc, yaw=180, nutrition=55, kin=f'Mother:{uuid_nbt(_dm)},Father:{uuid_nbt(_df)}'),
+        box(-7, 0, 1, 7, 1, 8, 'minecraft:air', 'replace minecraft:short_grass')],
     env=DAY, spot='family', vantage=(0, 12),
     note='杀死父油：/kill @e[tag=scn_father,limit=1]。观察台可读母油的 Load、Delivered 和孩子营养。',
     reads=[('读家的识别与母油觅食', f'yukkuri status {sel("mother")} raw'),
@@ -3838,8 +3839,46 @@ next(s for s in S if s.id == 'balance_relation').smoke['verify'] = _distinct(
 
 _smoke('den_family', 6000, [r'\[habitat\] reimu [^\n]* home chosen', r'\[habitat\] marisa [^\n]* home chosen',
                             r'\[forage\] reimu [^\n]* begin role='])
+
+
+def _den_family_verify(log):
+    mother, father, child = (_uuid_text('den_family', name) for name in ('mother', 'father', 'child'))
+
+    def events(actor, category, message):
+        pattern = rf'\[{category}\] \w+ #\d+ uuid={actor} t=(\d+) [^\n]*? {message}'
+        return [(int(match[1]), match.groups()[1:]) for match in re.finditer(pattern, log)]
+
+    death = events(father, 'body', r'death settled into remains; cause=genericKill\b')
+    if not death:
+        return 'den family: missing scripted father death'
+    death_tick = death[0][0]
+    homes = []
+    for actor in (mother, father, child):
+        claims = [values[0] for tick, values in events(actor, 'habitat', r'home chosen old=[^\n]*? home=(BlockPos\{[^}]+\})')
+                  if tick <= death_tick]
+        homes.append(claims[-1] if claims else None)
+    if not homes[0] or len(set(homes)) != 1:
+        return 'den family: parents and child did not claim one home before the death'
+
+    departures = [tick for tick, _ in events(mother, 'forage', r'begin role=MOTHER phase=OUT\b') if tick > death_tick]
+    if not departures:
+        return 'den family: mother did not start a trip after father death'
+    if events(mother, 'family', rf'witnessed kin death dead={father}\b'):
+        grief = events(mother, 'status', r'behavior\.animation: [^\n]*? -> bereaved\b')
+        if not any(death_tick <= tick < departures[0] for tick, _ in grief):
+            return 'den family: mother left before playing witnessed bereavement'
+
+    deposits = events(mother, 'forage', rf'deposit home={re.escape(homes[0])} moved=[1-9]\d*\b')
+    if not any(tick > departures[0] for tick, _ in deposits):
+        return 'den family: no positive deposit from the mother after her departure'
+    if not any(tick > death_tick for tick, _ in events(child, 'meal', r'swallowed item=\S+')):
+        return 'den family: child did not eat after father death'
+    return None
+
+
 # The widowed mother takes over the trips: the father is killed once the family has settled.
-next(s for s in S if s.id == 'den_family').smoke['commands'] = [(2400, f'kill {sel("father")}')]
+next(s for s in S if s.id == 'den_family').smoke.update(
+    commands=[(2400, f'kill {sel("father")}')], verify=_den_family_verify)
 _smoke('indep_near', 7200, [r'\[independence\][^\n]* farewell started'])
 next(s for s in S if s.id == 'indep_near').smoke['verify'] = _distinct(r'\[independence\] \w+ #\d+ uuid=(\S+)[^\n]* departed ', 2, 'teens that left home')
 _smoke('forage', 6000, [r'\[forage\][^\n]* begin role=', r'\[forage\][^\n]* deposit home=',

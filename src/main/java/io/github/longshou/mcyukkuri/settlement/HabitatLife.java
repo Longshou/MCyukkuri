@@ -165,7 +165,7 @@ public final class HabitatLife {
         home=GlobalPos.of(entity.level().dimension(),value.getBlockPos());entity.setPersistenceRequired();
         if(old!=value||!owned)GameplayLog.event(entity,"habitat","home chosen old={} home={} bed={}",
                 old==null?null:old.getBlockPos(),value.getBlockPos(),bed);
-        homes.homeChosen();
+        homes.homeChosen(value);
         if (entity.status().identity() == Identity.STRAY && grownEnough() && value.kind() == ShelterBlock.Kind.BURROW
                 && !level().isCloseToVillage(value.getBlockPos(), 1)
                 && (entity.life().hasAccessory() || entity.pet().visibleEffective().id() > 0)) {

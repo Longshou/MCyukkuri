@@ -170,7 +170,7 @@ final class YukkuriGoals {
     }
     private final class HoldActionGoal extends Goal {
         HoldActionGoal() { setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK)); }
-        @Override public boolean canUse() { return owner.requestedActionValue() != null; }
+        @Override public boolean canUse() { return owner.requestedActionValue() != null || owner.bereaving(); }
         @Override public boolean requiresUpdateEveryTick() { return true; }
         @Override public void start() { owner.directNavigation().stop(); }
         @Override public void tick() { owner.directNavigation().stop(); }
