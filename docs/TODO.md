@@ -12,7 +12,6 @@
 | 落水子油挣扎上岸（PD-19） | `.worktrees/wp-gc-water-struggle` | life/EscapeWater 及其动作 |
 | 嗯嗯坑绕行与坑沿排遗（BM） | `.worktrees/wp-ge-pit-rim` | settlement/GroupPits、YukkuriGroundNavigation |
 | 帽沿跳朝向与节奏 | `.worktrees/wp-gf-brim-hop` | motor/action/CarriedHop、client/ParentCarryPresentation |
-| 互动菜单：模型视图、基本信息、关系谱系 | `.worktrees/wp-gh-care-inspect` | client/CareScreen、CareMenu、StatusStrip |
 | MD-16 肿胀穿模 | `.worktrees/wp-gi-swell-clip` | pose/Skin 肿胀变形、client/CareWearRenderer |
 | 憔悴脸重画、激动漏尿表情与表现 | `.worktrees/wp-gj-faces` | standards/yukkuri-library/expressions |
 | 素鸡立：下身耸动、释放时刻、分角色表情（先出方案页） | `.worktrees/wp-gk-sukkiri` | adult_states.json pair_*、AdultFaces、表情库 |
