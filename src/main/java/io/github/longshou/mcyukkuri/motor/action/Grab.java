@@ -78,6 +78,15 @@ public final class Grab implements Action {
     /** The hold the last {@link #check} chose (its reach is {@code hold().reach()}). */
     public Hold hold() { return hold; }
 
+    /** A dry free target may be in an ordinary physics jump without an authored Hop. */
+    public boolean awaitingLanding() { return awaitingLanding(Attach.of(target)); }
+
+    private boolean awaitingLanding(AttachState attach) {
+        return attach instanceof AttachState.Airborne
+                || attach instanceof AttachState.Free free && !free.inWater() && !target.onGround()
+                && !SurfaceApproach.stands(target, target.position());
+    }
+
     /** Approach a stand that can actually see and reach this body with an available hold. */
     public Vec3 contactStand(YukkuriEntity carrier) {
         var holds = ParentCarry.holdsFor(carrier, target);
@@ -126,7 +135,7 @@ public final class Grab implements Action {
         }
         if (attach instanceof AttachState.Held held)
             return Feasibility.of(Reason.NO_ROOM, 0, held.carrier() == carrier ? "already_held" : "target_held");
-        if (attach instanceof AttachState.Airborne) return Feasibility.of(Reason.NO_CONTACT, 0, "target_airborne");
+        if (awaitingLanding(attach)) return Feasibility.of(Reason.NO_CONTACT, 0, "target_airborne");
         if (source != null && ContactGeometry.braided(carrier)) {
             String problem = ParentCarry.holdProblem(carrier, target, Hold.BRAID, false, source);
             if (problem != null) return refusal(problem);

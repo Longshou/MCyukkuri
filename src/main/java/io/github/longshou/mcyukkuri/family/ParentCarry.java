@@ -142,7 +142,7 @@ public final class ParentCarry {
     public static final double MOUTH_FLOOR = .2;
     private record Pause(long until, String reason, Vec3 failedPickup, FailedHome failedHome) {}
 
-    /** A failed trip shared by the young it set down. Recheck the route while considering a new retrieval. */
+    /** A failed route shared by the young headed to that home. Recheck it while considering a new retrieval. */
     private static final class FailedHome {
         final BlockPos home, from;
         final Vec3 stand;
@@ -1442,6 +1442,13 @@ public final class ParentCarry {
         // instead of re-running the same Grab every tick.
         if (carrier.motor().current() != null) return Step.WORKING;
         var grab = new Grab(child);
+        if (grab.awaitingLanding()) {
+            SurfaceApproach.halt(carrier);
+            carrier.getLookControl().setLookAt(child, 30, 30);
+            GameplayLog.limited(carrier, "family", "carry.landing", 200,
+                    "carry pickup waiting for landing child={} at={}", child.getUUID(), GameplayLog.at(child.position()));
+            return Step.WORKING;
+        }
         var feasibility = grab.check(carrier);
         if (feasibility.reason() == Reason.NO_CONTACT || feasibility.reason() == Reason.NO_SUPPORT) {
             // Nothing reaches yet: the stand beside the child (the braid turns its side to it on the lift).
@@ -1706,6 +1713,7 @@ public final class ParentCarry {
         if (now % 5 == 0 && hold != Hold.BRIM && seat(carrier, child) == null) return "seat_blocked";
         if (child.life().nutrition() < 30 && carrier.family().feeding().hasCarriedOpportunity(child)) return "feeding";
         if (purpose == Purpose.RETRIEVE && atHome(destination(child))) return "arrived_home";
+        if (purpose == Purpose.RETRIEVE && failedDestination(child)) return "home_unreachable";
         if (purpose == Purpose.PROTECT && shelteredFrom(carrier.isPanicking() ? carrier.getLastHurtByMob()
                 : carrier.status().reactions().threat().source())) return "arrived_home";
         if (purpose == Purpose.NEST_RIM) return "nest_rim_to_cushion";
@@ -1825,6 +1833,11 @@ public final class ParentCarry {
         var child = carried();
         if (child == null || giveUp != null) return false;
         if (purpose == Purpose.NEST_RIM) return true;
+        if (failedHome != null) {
+            // The set-down goal finishes the riders for the blocked destination before the next leg.
+            if (ours().stream().anyMatch(this::failedDestination)) return false;
+            failedHome = null;
+        }
         var more = purpose != Purpose.PROTECT && (lifting != null || walkTo == null && taskTicks < GATHER_TICKS) ? dependent() : null;
         // The dependent this retrieval goes for next stops its own walking and waits for the lift ({@link #awaitsCarrier}).
         if (more != null && !more.getUUID().equals(gathering)) SurfaceApproach.stopWalking(more);
@@ -1869,11 +1882,15 @@ public final class ParentCarry {
     }
 
     private void homeWalkFailed(Reason reason, String detail, boolean routeMissing) {
-        giveUp = "home_unreachable";
         if (purpose == Purpose.RETRIEVE)
             failedHome = new FailedHome(carrier, walkHome, walkTo, routeMissing);
+        else giveUp = "home_unreachable";
         GameplayLog.event(carrier, "family", "carry home walk blocked home={} stand={} reason={} detail={}",
                 walkHome, walkTo, reason, detail);
+    }
+
+    private boolean failedDestination(YukkuriEntity child) {
+        return failedHome != null && failedHome.home.equals(destination(child));
     }
 
     /** Where this child would be let go, with its carrier facing the given yaw. */
@@ -2099,8 +2116,7 @@ public final class ParentCarry {
         if (child.getUUID().equals(lifting)) lifting = null;
         child.fallDistance = 0;
         long now = carrier.level().getGameTime();
-        var failed = reason.equals("home_unreachable") && failedHome != null && failedHome.home.equals(destination(child))
-                ? failedHome : null;
+        var failed = reason.equals("home_unreachable") && failedDestination(child) ? failedHome : null;
         pauses.put(child.getUUID(), new Pause(now + (reason.equals("feeding") ? FEED_HOLD_TICKS : HOLD_TICKS), reason, null, failed));
         GameplayLog.event(carrier, "family", "carry put down reason={} hold={} cause={} purpose={} child={} at={} carriedTicks={} nutrition={} remaining={} nest={} {}",
                 reason, hold.key(), cause, purpose, child.getUUID(), GameplayLog.at(child.position()), now - since, child.life().nutrition(),
