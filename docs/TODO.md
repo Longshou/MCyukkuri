@@ -9,6 +9,7 @@
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
 | 台词审校与补充（用户与代理直接对话） | `.worktrees/wp-gb-speech-review` | art/dialogue/, src/main/resources/assets/mcyukkuri/dialogue/, lang/*.json |
+| 落水子油挣扎上岸（PD-19） | `.worktrees/wp-gc-water-struggle` | life/EscapeWater 及其动作 |
 
 ## 玩法待办
 
