@@ -20,8 +20,8 @@ final class ReproductionPresentation {
     private static final int EXTEND_TICKS=5, RETRACT_TICKS=13, HISTORY_TICKS=40;
     // Leave .8 model units of rest clearance for the authored pushes. Each side closes at most a quarter block.
     private static final double CONTACT_CLEARANCE=.8/16, MAX_OFFSET=.25;
-    // The idle clip and network pose interpolation can move the worn seam slightly.
-    private static final double ACCESSORY_CLEARANCE=.25/16;
+    // Allow for the idle and walking clips around the seam.
+    private static final double ACCESSORY_CLEARANCE=.4/16;
     private static final float[] REST_POSE={0,0,0,1,1,1};
     private static final Map<YukkuriView,Track> TRACKS=new WeakHashMap<>();
     private static WeakReference<Level> level=new WeakReference<>(null);
@@ -35,7 +35,9 @@ final class ReproductionPresentation {
         }
     }
     private record Contact(boolean rear,int partner,String branch,long start,int duration,boolean loop) {
+        boolean posed() { return branch!=null; }
         float[] cue(double now) {
+            if(!posed())return REST_POSE;
             float ticks=(float)Math.max(0,now-start);
             return AgitationPresentation.sample(branch,(loop?ticks%duration:ticks)/duration);
         }
@@ -46,7 +48,7 @@ final class ReproductionPresentation {
         long changed,seen;
         boolean closing;
         Vec3 offset=Vec3.ZERO,fromOffset=Vec3.ZERO;
-        double contactChanged;
+        double contactChanged,accessoryAt;
         int accessoryPeer=-1;
         Track(String part,long tick) {
             this.part=part;target=part;changed=tick;
@@ -67,10 +69,12 @@ final class ReproductionPresentation {
         var court=entity.courtshipState();
         var agitation=entity.agitationState();
         return switch(entity.getBehaviorId()) {
-            case Behaviors.PAIRING -> {
-                if(!court.getString("Phase").equals("CONTACT"))yield null;
+            case Behaviors.PAIRING, Behaviors.PAIRING_ACCEPT -> {
+                String phase=court.getString("Phase");
+                if(phase.isEmpty())yield null;
                 boolean rear=court.getString("Role").equals("MAMU");
-                yield new Contact(rear,court.getInt("TargetId"),rear?"pair_mamu":"pair_peni",court.getLong("Start"),court.getInt("Required"),false);
+                String branch=phase.equals("CONTACT")?(rear?"pair_mamu":"pair_peni"):null;
+                yield new Contact(rear,court.getInt("TargetId"),branch,court.getLong("Start"),court.getInt("Required"),false);
             }
             case Behaviors.ALICE_ACT -> agitation.getString("Phase").equals("ALICE_ACT")
                     ?new Contact(false,agitation.getInt("TargetId"),"act",agitation.getLong("Start"),AgitationPresentation.PIN_CYCLE_TICKS,true):null;
@@ -94,28 +98,30 @@ final class ReproductionPresentation {
         var peer=entity.yukkuriView(peerId);
         if(peer==null||peer.isDeadOrDying()||peer.isPassenger()||entity.isDeadOrDying()||entity.isPassenger())return null;
         var other=contact(peer);
-        boolean touching=contact!=null&&other!=null&&other.partner()==entity.getId()&&other.rear()!=contact.rear();
+        boolean paired=contact!=null&&other!=null&&other.partner()==entity.getId()&&other.rear()!=contact.rear();
+        boolean touching=paired&&contact.posed()&&other.posed();
+        double now=entity.level().getGameTime()+(double)partialTick;
         boolean ornaments;
-        if(touching) {
+        if(paired) {
             ornaments=brimAndBow(entity,peer,contact);
             track.accessoryPeer=ornaments?peerId:-1;
+            if(ornaments)track.accessoryAt=now;
         } else {
-            // The same seam needs room as the partners rise into the relief poses.
+            // Courtship sync can end before the bodies finish separating or their relief poses become visible.
             var peerTrack=TRACKS.get(peer);
             ornaments=peerTrack!=null&&peerTrack.accessoryPeer==entity.getId()
                     &&entity.hasVisibleAccessory()&&peer.hasVisibleAccessory()
-                    &&(relief(entity)||relief(peer));
-            if(!ornaments)return null;
+                    &&(now-track.accessoryAt<=RETRACT_TICKS||relief(entity)||relief(peer));
         }
+        if(!touching&&!ornaments)return null;
         var model=YukkuriModel.get(entity.assetId());var peerModel=YukkuriModel.get(peer.assetId());
         double scale=entity.growthScale()*entity.getScale(),peerScale=peer.growthScale()*peer.getScale();
         var delta=peer.getPosition(partialTick).subtract(entity.getPosition(partialTick)).multiply(1,0,1);
         var toward=delta.normalize();
-        double now=entity.level().getGameTime()+(double)partialTick;
         var bearing=localBearing(entity,partialTick,toward);
         var peerBearing=localBearing(peer,partialTick,toward.reverse());
-        var cue=touching?contact.cue(now):releasePose(entity,now);
-        var peerCue=touching?other.cue(now):releasePose(peer,now);
+        var cue=contact==null?releasePose(entity,now):contact.cue(now);
+        var peerCue=other==null?releasePose(peer,now):other.cue(now);
         double distance=delta.horizontalDistance();
         double limit=Double.POSITIVE_INFINITY;
         if(ornaments) {
@@ -148,9 +154,10 @@ final class ReproductionPresentation {
     static Frame frame(YukkuriView entity,float partialTick) {
         long tick=entity.level().getGameTime();prune(entity,tick);
         String wanted=wanted(entity);
+        var contact=contact(entity);
         var track=TRACKS.get(entity);
         if(track==null) {
-            if(wanted==null)return new Frame(null,Vec3.ZERO);
+            if(wanted==null&&contact==null)return new Frame(null,Vec3.ZERO);
             track=new Track(wanted,tick);
             TRACKS.put(entity,track);
         }
@@ -163,7 +170,6 @@ final class ReproductionPresentation {
         }
         track.seen=tick;
         double now=tick+(double)partialTick;
-        var contact=wanted==null?null:contact(entity);
         var spacing=spacing(entity,track,contact,partialTick);
         boolean closing=spacing!=null&&spacing.touching();
         if(closing!=track.closing) {
@@ -190,7 +196,7 @@ final class ReproductionPresentation {
     static void pose(YukkuriView entity,float partialTick,PoseStack pose) {
         if(!entity.getBehaviorId().equals(Behaviors.PAIRING))return;
         var contact=contact(entity);
-        if(contact==null)return;
+        if(contact==null||!contact.posed())return;
         float[] value=contact.cue(entity.level().getGameTime()+(double)partialTick);
         var model=YukkuriModel.get(entity.assetId());
         pose.translate(0,model.presentationLift(value,entity.hasVisibleAccessory(),entity.visibleHairLoss())*entity.growthScale(),0);

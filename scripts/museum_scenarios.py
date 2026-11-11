@@ -1372,10 +1372,10 @@ add('adult_pairing', 'meadow', '两只伴侣走近擦脸后素鸡立', '两只�
         *own('mother'), *own('father'),
         f'yukkuri scenario bond {sel("mother")} {sel("father")}',
         f'yukkuri scenario mate {sel("mother")} {sel("father")}',
-        home('mother', 5, 0), home('father', 5, 6)], env=DAY, vantage=(-5, -4, -42, 12),
+        home('mother', 5, 0), home('father', 5, 6)], env=DAY, vantage=(-5, -2, -52, 13),
     give=['mcyukkuri:sleep_spray 2', 'mcyukkuri:yukkuri_carrier 1'],
     capture=dict(shots=(1, 40, 1920), sequences=((80, 1920, 8),), observe=False,
-                 views={'': dict(follow=sel('mother'), offset=(-2.6, 1.1, 1.7)),
+                 views={'': dict(follow=sel('mother'), offset=(-3.6, .9, 1.3)),
                         'side': dict(follow=sel('mother'), offset=(2.8, 1.1, .15))}),
     reads=[('读母方配对阶段', f'yukkuri status {sel("mother")} raw'), ('读父方配对阶段', f'yukkuri status {sel("father")} raw')])
 
