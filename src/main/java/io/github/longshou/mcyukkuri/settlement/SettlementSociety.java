@@ -50,20 +50,28 @@ public final class SettlementSociety {
         var role = member.settlement().society().role();
         return role == SettlementData.Role.MEMBER || role == SettlementData.Role.LEADER;
     }
-    /** A friendly answer from an actual resident can welcome a familiar stray into the community. */
+    /** A friendly answer from an actual resident can welcome a familiar stray or a cured former resident. */
     public void welcome(YukkuriEntity guest) {
-        if (guest.status().identity() != Identity.STRAY || !guest.family().adult()
-                || entity.status().identity() != Identity.WILD_SETTLEMENT || !accepted(entity)) return;
-        var group = entity.settlement().group();
-        if (group == null || group.kind != SettlementData.Kind.FOREST || !entity.life().canRecognize(guest)
-                || guest.blockPosition().distSqr(group.center) > CommunityRules.TERRITORY * CommunityRules.TERRITORY) return;
-        var relations = YukkuriWorldData.get(level());
-        if (relations.affinity(entity.getUUID(), guest.getUUID()) < BondLevels.AFFINITY_ACQUAINTED
-                || relations.affinity(guest.getUUID(), entity.getUUID()) < BondLevels.AFFINITY_NEUTRAL) return;
-        guest.settlement().join(group);
+        if (!canWelcome(guest)) return;
+        var before = guest.status().identity();
+        guest.settlement().join(entity.settlement().group());
         guest.pet().leaveTownLife();
         guest.showReaction("happy", "known_peer", 80);
-        YukkuriStatus.identityChanged(guest, Identity.STRAY, "settlement_welcome");
+        guest.moldExile().welcomed(entity);
+        YukkuriStatus.identityChanged(guest, before, "settlement_welcome");
+    }
+
+    public boolean canWelcome(YukkuriEntity guest) {
+        if (guest.status().identity() != Identity.STRAY && !guest.moldExile().eligibleForWelcome(entity)
+                || guest.body().mold() > 0 || !guest.family().adult()
+                || entity.status().identity() != Identity.WILD_SETTLEMENT || !accepted(entity)) return false;
+        var group = entity.settlement().group();
+        if (group == null || group.kind != SettlementData.Kind.FOREST || !entity.life().canRecognize(guest)
+                || !guest.life().canRecognize(entity)
+                || guest.blockPosition().distSqr(group.center) > CommunityRules.TERRITORY * CommunityRules.TERRITORY) return false;
+        var relations = YukkuriWorldData.get(level());
+        return relations.affinity(entity.getUUID(), guest.getUUID()) >= BondLevels.AFFINITY_ACQUAINTED
+                && relations.affinity(guest.getUUID(), entity.getUUID()) >= BondLevels.AFFINITY_NEUTRAL;
     }
     private static boolean harsh(YukkuriEntity observer) {
         var p = observer.life().personality();
@@ -80,6 +88,7 @@ public final class SettlementSociety {
                 && !observer.life().canRecognize(target);
     }
     public static boolean avoids(YukkuriEntity observer, YukkuriEntity target) {
+        if (MoldExile.avoids(observer, target)) return true;
         if (!sameGroup(observer, target)) return false;
         if (rejects(observer, target)) return true;
         var record = target.settlement().society().record();

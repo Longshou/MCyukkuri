@@ -173,6 +173,7 @@ public final class HabitatLife {
             entity.pet().leaveTownLife();
             YukkuriStatus.identityChanged(entity, Identity.STRAY, "wilderness_home");
         }
+        entity.moldExile().homeAccepted(value);
         entity.independence().settled(value);return true;
     }
     private boolean homeReachable(BlockPos bed) { SearchBudget.path(entity);return entity.life().reachable(bed,false); }

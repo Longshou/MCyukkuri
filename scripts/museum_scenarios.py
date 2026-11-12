@@ -17,7 +17,7 @@ from pathlib import Path
 
 sys.dont_write_bytecode = True
 from museum_dsl import (yk, yk_on_nest, human, item, block, large_nest, box, shed, home, sel, sel_all, tag, say, uid, uuid_nbt, family, remains, aquatic_spawn, _text)  # noqa: E402
-from museum_fields import FIELDS, BY_ID, FEET  # noqa: E402
+from museum_fields import FIELDS, BY_ID, FEET, den  # noqa: E402
 
 # Scene numbers: the field's code and a two-digit index (``PD-03``), so a visitor can name a scene out loud. The file is the
 # registry of them: its ``numbers`` entries are appended in field order and are never reordered or renumbered, so a scene
@@ -167,6 +167,26 @@ add('den_family', 'den', '一家三口住进土丘洞', '一家三口住进土�
     note='观察台可读母油的 Load、Delivered 和孩子营养。若家中已有足够存粮，母油会留在窝里用现成的粮照料孩子。',
     reads=[('读家的识别与母油觅食', f'yukkuri status {sel("mother")} raw'),
            ('读孩子生活', f'yukkuri status {sel("child")} raw')])
+
+_em, _ef, _ec, _eg = (uid('den_mold_exile', name) for name in ('healthy', 'molded', 'baby', 'grandparent'))
+add('den_mold_exile', 'den', '油霉亲油离巢', '油霉亲油离巢',
+    '看亲油鼓脸驱赶、年长亲油含泪犹豫，以及患病亲油回头央求时赤油是否留在健康亲油身边。',
+    '约 1–2 分钟', [
+        yk('reimu', 0, 1, 'healthy', uuid=_em, yaw=0, label='健康亲油', friendliness=24, boldness=35,
+           attachment=28, kin=f'Partner:{uuid_nbt(_ef)}', **pair_ready()),
+        yk('marisa', 0, 3, 'molded', uuid=_ef, lead=True, label='患油霉的亲油',
+           kin=f'Mother:{uuid_nbt(_eg)},Partner:{uuid_nbt(_em)}', **pair_ready()),
+        yk('reimu', -1, 1, 'grandparent', uuid=_eg, yaw=0, label='年长亲油', friendliness=86, attachment=90, **pair_ready()),
+        yk('reimu', 0, 0, 'baby', stage='baby', uuid=_ec, yaw=0, label='赤油', nutrition=100,
+           kin=f'Mother:{uuid_nbt(_em)},Father:{uuid_nbt(_ef)}'),
+        box(-4, 0, 6, 23, 0, 13, 'minecraft:short_grass', 'keep')],
+    late=[*[f'yukkuri scenario home {sel(n)} ~ ~ ~-1' for n in ('healthy', 'molded', 'grandparent', 'baby')],
+          f'yukkuri scenario bond {sel("grandparent")} {sel("molded")}',
+          set_status('molded', 'health.mold', 5)],
+    give=['mcyukkuri:mold_remover'], env=DAY, spot='family', vantage=(4, 16),
+    note='等患病亲油回头被拒后，可用去霉药，看它能否重新认领原洞。',
+    reads=[('读患病亲油与住所', f'yukkuri status {sel("molded")} raw'),
+           ('读赤油与住所', f'yukkuri status {sel("baby")} raw')])
 
 
 # The teen's independence is armed in NBT (Force); each family has its den as a starting home, and the farewell or departure is
@@ -2156,6 +2176,25 @@ for _sid, _window, _title in (
 COLONY = BY_ID['colony']
 COLONY_LEAD = '@e[tag=scn_lead,distance=..70]'
 
+_mold_colony_x, _mold_colony_z = COLONY.spots['colony']
+_mold_outer_den, _ = den(_mold_colony_x, _mold_colony_z + 22)
+add('colony_mold_exile', 'colony', '聚落驱逐油霉成员', '聚落驱逐油霉成员',
+    '看附近成员发现油霉后鼓脸施压，患病成员退到聚落日常活动范围外，回头央求时再次受拒。',
+    '约 1–2 分钟', [
+        *_mold_outer_den,
+        box(-8, 0, 8, 8, 0, 25, 'minecraft:short_grass', 'keep'),
+        yk('patchouli', -2, 0, 'leader', label='族长', also=('mold_colony_member',), **pair_ready()),
+        yk('chen', 0, 1, 'witness', yaw=0, label='近处成员', also=('mold_colony_member',),
+           friendliness=24, boldness=32, **pair_ready()),
+        yk('marisa', 0, 2, 'molded', lead=True, label='患油霉的成员', also=('mold_colony_member',), **pair_ready()),
+        f'yukkuri scenario community {sel("leader")} {sel_all("mold_colony_member")}',
+        *[f'yukkuri scenario bond {sel(n)} {sel("molded")}' for n in ('leader', 'witness')],
+        set_status('molded', 'health.mold', 5)],
+    give=['mcyukkuri:mold_remover'], env=DAY, spot='colony', vantage=(0, 28),
+    note='等成员回头被拒后，可用去霉药，再看认识它的成员是否友好接纳。',
+    reads=[('读成员名册', 'yukkuri settlement info'),
+           ('读患病成员与住所', f'yukkuri status {sel("molded")} raw')])
+
 
 def colony_loss_prompt(sid, members_read, rules_read):
     """A player-chosen, real death after the colony has reached the phase being observed."""
@@ -3797,7 +3836,7 @@ TOPICS = {
     'balance_traits': 'N1', 'balance_relation': 'N1', 'balance_forms': 'N1', 'balance_deibu': 'N1',
     'waste_volume': 'F5', 'family_walk_home': 'F4', 'family_flight_home': 'F4',
     'agitation_relief': 'D2', 'adult_pairing': 'F6', 'widow_repair': 'F6', 'alice_hunt': 'R4', 'aftermath_growth': 'F7', 'aftermath_depletion': 'F7',
-    'den_family': 'W1', 'dig': 'W2', 'indep_near': 'W3', 'den_move': 'W4', 'forage': 'W5', 'graze': 'W6', 'den_barrier': 'W8',
+    'den_family': 'W1', 'den_mold_exile': 'W1', 'dig': 'W2', 'indep_near': 'W3', 'den_move': 'W4', 'forage': 'W5', 'graze': 'W6', 'den_barrier': 'W8',
     'sleep': 'D1', 'night_sleep': 'D1', 'night_hungry_child': 'D1', 'meal_content': 'D1', 'fatigue': 'R1', 'fatigue_predator': 'R2', 'nutrition_age': 'D1', 'meet': 'D1', 'toilet': 'F5', 'hurt': 'F3',
     'birth_land_caught': 'F1', 'birth_land_missed': 'F1', 'feed': 'F2', 'first_toilet': 'F2', 'hop': 'F2', 'growth': 'F4',
     'leaf_swaddle': 'F2', 'leaf_swaddle_neglect': 'F2', 'leaf_swaddle_neglect_stages': 'F2', 'family_distance': 'F8', 'family_search': 'F8', 'family_search_pane': 'F8', 'birth_nest_safe': 'F1', 'birth_nest_stem': 'F1', 'birth_stem_caught': 'F1', 'family_nests': 'F4', 'carry_home': 'F4', 'infant_starvation': 'F2',
@@ -3816,7 +3855,7 @@ TOPICS = {
     'hatless_monster': 'C2', 'puff_response': 'C2',
     'myon_stick': 'S1', 'myon_brave': 'S1', 'species_fatigue': 'S1', 'rare_forms': 'S2', 'kotatsu_winter': 'S2', 'kotatsu_summer': 'S2', 'sunbathe': 'S2',
     'alice_chores': 'S3', 'patchouli_vomit': 'S3', 'chen_speed': 'S3', 'marisa_sumo': 'S3',
-    'colony_hunt': 'B2', 'colony_ration': 'B2', 'colony_migrate': 'B2',
+    'colony_hunt': 'B2', 'colony_ration': 'B2', 'colony_migrate': 'B2', 'colony_mold_exile': 'B2',
 }
 for _s in S:
     _s.asks = TOPICS.get(_s.id) or ('B1' if _s.id.startswith('settle_') else '')
@@ -3847,6 +3886,14 @@ _smoke('alice_chores', 600, [r'\[habitat\] alice [^\n]* home chosen', r'\[habita
 next(s for s in S if s.id == 'alice_chores').smoke['verify'] = _alice_share_home
 _smoke('sacrifice', 1200, [r'\[grief\][^\n]* protection diverted [^\n]*response=protect_child_worry'])
 _smoke('colony_hunt', 2400, [r'\[settlement\][^\n]* event=hunt_call [^\n]*detail=party \d+ dest '])
+for _exile_scene, _scope in (('colony_mold_exile', 'colony'), ('den_mold_exile', 'family')):
+    _smoke(_exile_scene, 2400, [
+        r'\[settlement\][^\n]* mold witnessed [^\n]* response=drive',
+        rf'\[settlement\][^\n]* mold exile departed scope={_scope}\b',
+        r'\[settlement\][^\n]* mold exile refused return\b',
+        r'\[settlement\][^\n]* mold exile withdrew after refusal\b',
+        *([r'\[family\][^\n]* mold exile child stays child='] if _scope == 'family' else []),
+    ], readout=[f'yukkuri status {sel("molded")} raw'])
 _smoke('colony_ration', 3600, [r'\[settlement\][^\n]* event=ration [^\n]*detail=relief \d+/\d+ to [1-9]\d* short households',
                                r'\[settlement\][^\n]* event=ration_fetched '])
 
@@ -4080,6 +4127,15 @@ def _scene_end(sid, final, *paths, forbid=()):
 
 _DRY = 'alive=true and w=false and distress=false and iwr=false'
 _ASHORE = _DRY + ' and veh=false and att.kind=free and g=true'
+
+for _exile_scene, _witnesses in (('colony_mold_exile', ['leader', 'witness']),
+                                 ('den_mold_exile', ['healthy', 'grandparent', 'baby'])):
+    _scene_end(_exile_scene, [('molded', _ASHORE), *((name, _DRY) for name in _witnesses)],
+               [('molded', 'seen:settlement:mold exile protest'),
+                ('molded', 'seen:settlement:mold exile departed'),
+                ('molded', 'seen:settlement:mold exile appeals'),
+                ('molded', 'seen:settlement:mold exile refused return'),
+                ('molded', 'seen:settlement:mold exile withdrew after refusal')])
 
 _scene_end('home_pane', [('bold',_ASHORE),('timid',_ASHORE)],
            [('bold','seen:action:start id=bash'),('bold','seen:action:hit id=bash'),

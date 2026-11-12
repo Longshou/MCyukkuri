@@ -95,6 +95,8 @@ final class YukkuriGoals {
         goalSelector.addGoal(3, landBinding(PresentationGoals.LIFE, new LifeGoal()));
         // Below the life needs, above every errand: a slave kept in the waste pit stays in it (settlement/PitSlave).
         goalSelector.addGoal(4, presentationGoals.bind(PresentationGoals.PIT_SLAVE, new PitSlaveGoal()));
+        owner.createMoldExile();
+        goalSelector.addGoal(4, landBinding(PresentationGoals.MOLD_EXILE, owner.moldExile()));
         goalSelector.addGoal(3, landBinding(PresentationGoals.HOME_CLAIM, new HomeClaimGoal(owner)));
         goalSelector.addGoal(4, landBinding(PresentationGoals.FACTORY, new FactoryWorkGoal(owner)));
         goalSelector.addGoal(4, landBinding(PresentationGoals.TEMPT, new TemptGoal(owner, 1.15, Ingredient.of(YukkuriEntity.FOOD), false) {

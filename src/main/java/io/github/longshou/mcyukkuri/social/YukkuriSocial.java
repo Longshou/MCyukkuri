@@ -190,6 +190,12 @@ public final class YukkuriSocial implements MotorOwner {
         }
         if (!entity.childhood().canLearn()) return false;
         if (!freeForSocial()) return false;
+        var reunion = entity.moldExile().reunionPeer();
+        if (reunion != null && contactReady(reunion)) {
+            target = reunion;
+            approachPeer("reunion");
+            return true;
+        }
         if (entity.life().socialWait() > 0) return false;
         entity.life().deferSocial(240 - personality().attachment());
         var level = entity.level();

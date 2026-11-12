@@ -283,6 +283,7 @@ public final class ShelterBlockEntity extends BlockEntity {
     public boolean claim(YukkuriEntity entity) {
         if(owns(entity.getUUID()))return true;
         if(!(level instanceof ServerLevel server)||!sound()||entity.profile().houseBody())return false;
+        if(!entity.moldExile().allowsHome(this))return false;
         var families=FamilyData.get(server);
         var person=families.person(entity.getUUID());
         boolean reservedChild=person!=null&&person.status==FamilyData.Status.UNBORN

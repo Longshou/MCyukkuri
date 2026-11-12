@@ -243,7 +243,7 @@ public final class FamilyLife {
     public boolean takeStimulant(){return beginBreedingPeriod();}
     public boolean adult() { return stage==Stage.ADULT; }
     public boolean caresFor(YukkuriEntity child) {
-        return adult()&&!child.family().adult()&&(Bonds.parentOf(entity, child));
+        return adult()&&!child.family().adult()&&Bonds.parentOf(entity, child)&&!entity.moldExile().leavesCareToResident(child);
     }
     public boolean hasHungryChild() {
         return !entity.level().getEntitiesOfClass(YukkuriEntity.class,entity.getBoundingBox().inflate(1.5),child->caresFor(child)
@@ -1108,7 +1108,8 @@ public final class FamilyLife {
     private YukkuriEntity closestParent() {
         if(familyTravelling())return migrationEscort();
         return level().getEntitiesOfClass(YukkuriEntity.class,entity.getBoundingBox().inflate(12),other->other.isAlive()
-                &&(other.getUUID().equals(mother)||other.getUUID().equals(father))&&entity.life().canRecognize(other))
+                &&(other.getUUID().equals(mother)||other.getUUID().equals(father))&&entity.life().canRecognize(other)
+                &&!other.moldExile().leavesCareToResident(entity))
                 .stream().sorted(Comparator.comparingDouble(entity::distanceToSqr))
                 .filter(other->ParentCarry.needsCarry(entity)||gatherAt(other)!=null||entity.life().reachable(other.blockPosition(),false)).findFirst().orElse(null);
     }

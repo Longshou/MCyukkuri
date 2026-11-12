@@ -41,6 +41,7 @@ import io.github.longshou.mcyukkuri.family.LiveBirthGeometry;
 import io.github.longshou.mcyukkuri.family.ParentCarry;
 import io.github.longshou.mcyukkuri.headwear.Headwear;
 import io.github.longshou.mcyukkuri.headwear.Sanction;
+import io.github.longshou.mcyukkuri.settlement.MoldExile;
 import io.github.longshou.mcyukkuri.house.HouseCrawlControl;
 import io.github.longshou.mcyukkuri.house.YukkuriJumpControl;
 import io.github.longshou.mcyukkuri.family.GrowthSize;
@@ -161,8 +162,10 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     /** The accessory as a second life and the community sanction (docs/FEATURES.md); created in registerGoals like treasure. */
     private Headwear headwear;
     private Sanction sanction;
+    private MoldExile moldExile;
     public Headwear headwear() { return headwear; }
     public Sanction sanction() { return sanction; }
+    public MoldExile moldExile() { return moldExile; }
     /** Drawn accessory damage and fit (Headwear.visual). */
     public int visibleHeadwear() { return sync().visibleHeadwear(); }
     public void syncHeadwear(int packed) { sync().syncHeadwear(packed); }
@@ -1104,6 +1107,7 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     }
     void createMyon() { myon = new MyonLife(this); }
     void createSanction() { sanction = new Sanction(this); }
+    void createMoldExile() { moldExile = new MoldExile(this); }
     void createHeadwear() { headwear = new Headwear(this); }
     void createForageTrip() { forageTrip = new ForageTrip(this); }
     void createTreasure() { treasure = new TreasureLife(this); }

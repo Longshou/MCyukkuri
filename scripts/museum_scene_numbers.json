@@ -181,6 +181,9 @@
     "family_search_pane": "FM-20",
     "family_walk_home": "FM-21",
     "family_flight_home": "FM-22",
-    "excited_leak": "MD-17"
+    "excited_leak": "MD-17",
+    "den_mold_exile": "DN-05",
+    "colony_migrate_babies": "CL-05",
+    "colony_mold_exile": "CL-06"
   }
 }

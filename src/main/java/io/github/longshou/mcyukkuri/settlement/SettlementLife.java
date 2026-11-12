@@ -31,6 +31,7 @@ import net.minecraft.world.damagesource.DamageSource;
 
 /** Membership is independent of kinship, personality and accessory recognition. */
 public final class SettlementLife {
+    static final int FAMILY_HOME_RANGE = 7, COLONY_HOME_RANGE = 14;
     private final YukkuriEntity entity;
     private final SettlementSociety society;
     private final SettlementDuties duties;
@@ -347,7 +348,7 @@ public final class SettlementLife {
             return true;
         }
         UUID leaderId = SettlementData.get(level()).activeLeader(group);
-        int radius = group.kind == SettlementData.Kind.FAMILY ? 7 : 14;
+        int radius = group.kind == SettlementData.Kind.FAMILY ? FAMILY_HOME_RANGE : COLONY_HOME_RANGE;
         if (SettlementSeasons.is(entity, Season.WINTER)) radius /= 2;
         boolean gathering = SettlementSociety.accepted(entity) && level().getDayTime() % 24000 >= 11000 && level().getDayTime() % 24000 < 12500;
         if (distance <= radius * radius && !(gathering && leaderId != null)) return false;
@@ -708,6 +709,7 @@ public final class SettlementLife {
         if (arrivedFor >= 0) tag.putLong("ArrivedFor", arrivedFor);
         tag.putBoolean("PendingNatural", pendingNatural);
         tag.put("Duties", duties.save());
+        entity.moldExile().save(tag);
         return tag;
     }
 
@@ -725,6 +727,7 @@ public final class SettlementLife {
         successionMeeting = false;
         wait = elapsed = 0;
         duties.load(tag.getCompound("Duties"));
+        entity.moldExile().load(tag);
         LoadedGroupMembers.changed(entity);
     }
 
