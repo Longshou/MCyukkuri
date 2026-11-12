@@ -201,6 +201,12 @@ public final class YukkuriLife {
         interrupt();
         if(entity.house().sleeping())entity.house().stop();
     }
+
+    public void wakeForService() {
+        if (!isSleeping()) return;
+        interrupt();
+        if (entity.house().sleeping()) entity.house().stop();
+    }
     private void accountEnvironmentalWake() {
         if(energy>=50 || !isSleeping())return;
         if(entity.isPanicking() || entity.isOnFire() || entity.isInWaterOrBubble() || hotFloor.active()
