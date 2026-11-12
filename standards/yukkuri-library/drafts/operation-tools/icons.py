@@ -336,28 +336,29 @@ def hanging_hook():
 
 
 def hair_clippers():
-    """ばりかん: manual barber clippers on the tool diagonal: a steel head at the top right with one-pixel comb teeth set
-    against its outer edge, a brass pivot, and two short leather grips spreading into a V at the bottom left."""
+    """ばりかん: one continuous clipper body on the tool diagonal: a leather grip running through a brass collar into a
+    short steel head barely wider than the grip, with two comb teeth standing off its end face (top right). Nothing
+    crosses the axis, so it cannot read as a pick or hammer beside the mallet."""
     i = Icon('hair_clippers')
-    i.rows(legend(a=(LEATHER, 1), c=(LEATHER, 3), b=(LEATHER, 0)), [
-        "", "", "", "", "", "", "", "",
-        ".....acb........",
-        "....acbacb......",
-        "...acb.acb......",
-        "..acb..acb......",
-        ".acb....acb.....",
-        ".bb.....acb.....",
-        "........bb......",
+    i.rows(legend(o=(IRON, 0), d=(IRON, 1), m=(IRON, 2), C=(IRON, 3), c=(IRON, 3), w=(IRON, 4),
+                  a=(LEATHER, 1), l=(LEATHER, 3), b=(LEATHER, 0), y=(BRASS, 3), Y=(BRASS, 1)), [
+        "................",
+        "................",
+        "...........w....",
+        "..........oc....",
+        ".........oCo.w..",
+        "........oCCmoc..",
+        ".......oCCmddo..",
+        "......oCCmddo...",
+        "......yCmddo....",
+        ".....byYddo.....",
+        "....blaYbo......",
+        "...blaab........",
+        "..blaab.........",
+        ".blaab..........",
+        "..bab...........",
+        "...b............",
     ])
-    a, b = (4.8, 1.8), (11.6, 8.6)
-    i.bar(a, b, 2.0, IRON, glint=True)
-    i.finish()
-    head = {c for c, v in i.px.items() if v[0] is IRON}
-    edge = sorted((c for c in head if (c[0] + 1, c[1] - 1) not in head and (c[0] + 1, c[1]) not in head), key=lambda c: c[0] + c[1])
-    for k, (x, y) in enumerate(edge):         # every other pixel of the outer edge carries a tooth right against it
-        if k % 2 == 0:
-            i.px[(x + 1, y - 1)] = [IRON, 3, i.part + 1]
-    i.rows(legend(y=(BRASS, 3), Y=(BRASS, 1)), ["", "", "", "", "", "", "", "......yY........", "......Y........."])
     return i
 
 
@@ -492,26 +493,27 @@ def care_vibrator():
 
 
 def iron_enclosure():
-    """箱閉じ込め: a closed iron box in oblique view (square front, lid on top, side to the right): a lid lip with a brass
-    hasp, riveted front corners. The barred observation slot stays on the in-world mesh."""
+    """箱閉じ込め: an iron box in oblique view whose front is mostly a barred window over the dark inside, like the in-world
+    mesh: four light rods over black, a solid rim and riveted corners; no lid lip or hasp, so it reads as a cage box, not a
+    chest."""
     i = Icon('iron_enclosure')
-    i.rows(legend(o=(IRON, 0), w=(IRON, 4), T=(IRON, 3), F=(IRON, 2), S=(IRON, 1), d=(IRON, 1), r=(IRON, 4),
-                  y=(BRASS, 3), Y=(BRASS, 1)), [
+    i.rows(legend(o=(IRON, 0), w=(IRON, 4), T=(IRON, 3), F=(IRON, 2), S=(IRON, 1), r=(IRON, 4), k=(DRUM, 0),
+                  b=(IRON, 3), B=(IRON, 4)), [
         "................",
         "....oooooooooo..",
         "...owTTTTTTTToo.",
         "..owTTTTTTTToSo.",
         ".owTTTTTTTToSSo.",
         ".oooooooooooSSo.",
-        ".owFFFFyFFFoSSo.",
-        ".odddddYddddoSo.",
-        ".orFFFFFFFFroSo.",
-        ".oFFFFFFFFFFoSo.",
-        ".oFFFFFFFFFFoSo.",
-        ".oFFFFFFFFFFoSo.",
-        ".oFFFFFFFFFFoo..",
-        ".orFFFFFFFFro...",
-        ".oooooooooooo...",
+        ".owFFFFFFFFoSSo.",
+        ".oFkBkBkBkFoSSo.",
+        ".oFkbkbkbkFoSSo.",
+        ".oFkbkbkbkFoSSo.",
+        ".oFkbkbkbkFoSSo.",
+        ".oFkbkbkbkFoSo..",
+        ".orFFFFFFFroo...",
+        ".ooooooooooo....",
+        "................",
         "................",
     ])
     return i
