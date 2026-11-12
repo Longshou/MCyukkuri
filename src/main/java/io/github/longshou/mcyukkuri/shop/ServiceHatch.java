@@ -16,7 +16,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
@@ -27,11 +26,10 @@ import net.minecraft.world.phys.Vec3;
 
 /**
  * The service door of a small pen (docs/FEATURES.md, 宠物店): an iron door in the wall of a display booth or stock tank. Neither the stock nor a
- * passing player can open it by hand; staff open it to serve the animal behind it and close it again, and the animal comes to it (its
- * {@link Answer}). Served means: the staff member stands on
- * the floor cell just outside the door, the door is open, and the animal stands on the cell just inside it, across the open doorway. It is
+ * passing player can open it by hand; staff call the animal to the inside cell (its {@link Answer}) before opening the door.
+ * Served means the staff member is at the outside stand and the animal is at the inside stand across the open doorway. It is
  * the one route for every hands-on service through a pen wall: a purchase or a recall fetching the animal into a basket, the care staff feeding
- * or treating it, and a keeper setting an animal out of his basket into the pen. Found from the blocks each time; nothing is saved.
+ * or treating it, and a keeper setting an animal out of his basket into the pen. The staff member saves its open door for reload cleanup.
  *
  * @param door  lower half of the door
  * @param in    from the door into the pen
@@ -95,36 +93,41 @@ public record ServiceHatch(BlockPos door, Direction in) {
 
     public boolean open(Level level) {
         var state = level.getBlockState(door);
-        return state.is(Blocks.IRON_DOOR) && state.getValue(DoorBlock.OPEN);
+        return state.is(Blocks.IRON_DOOR) && state.getValue(DoorBlock.HALF) == DoubleBlockHalf.LOWER && state.getValue(DoorBlock.OPEN);
     }
 
-    /** Opens or closes it the way a hand does (both halves, the vanilla door sound); {@code staff} may be gone already when it closes. */
-    public void set(ServerLevel level, Entity staff, boolean open) {
+    /** Opens or closes both halves with the vanilla door sound. Only the staff member working this door calls this. */
+    public void set(ServerLevel level, HumanNpc staff, boolean open) {
         var state = level.getBlockState(door);
-        if (!state.is(Blocks.IRON_DOOR) || state.getValue(DoorBlock.OPEN) == open) return;
+        if (!state.is(Blocks.IRON_DOOR) || state.getValue(DoorBlock.HALF) != DoubleBlockHalf.LOWER || state.getValue(DoorBlock.OPEN) == open) return;
         ((DoorBlock) state.getBlock()).setOpen(staff, level, state, door, open);
-        String line = "hatch {} door={} staff_stand={} animal_stand={}";
-        Object[] values = {open ? "opened" : "closed", door.toShortString(), GameplayLog.at(staffStand(level)), GameplayLog.at(animalStand())};
-        if (staff == null) GameplayLog.world(level, "shop", line, values); else GameplayLog.event(staff, "shop", line, values);
+        GameplayLog.event(staff, "shop", "hatch {} door={} staff_stand={} animal_stand={}",
+                open ? "opened" : "closed", door.toShortString(), GameplayLog.at(staffStand(level)), GameplayLog.at(animalStand()));
     }
 
     /** The staff member stands at the door: on the stand cell, square in front of the doorway. */
     public boolean attended(Entity staff) { return on(staff, staffStand(staff.level())); }
 
-    /** Served through this door right now: open, staff on the cell outside it, the animal on the cell inside it. The three cells are in one
-     *  line, so the open doorway is the clear way between them (the structure check keeps the cell outside free). */
-    public boolean serves(LivingEntity staff, YukkuriEntity animal) { return open(staff.level()) && attended(staff) && on(animal, animalStand()); }
+    /** The animal is at the inside stand and able to stay there while being served. */
+    public boolean ready(HumanNpc staff, YukkuriEntity animal) {
+        return attended(staff) && on(animal, animalStand()) && !animal.isPanicking() && !animal.isPassenger();
+    }
+
+    /** Hands-on service across the open doorway, with both bodies on their stands. */
+    public boolean serves(HumanNpc staff, YukkuriEntity animal) {
+        return staff.servingAt(this) && open(staff.level()) && ready(staff, animal);
+    }
 
     /** Standing on that cell (its floor, not a block above or below). */
     private static boolean on(Entity body, Vec3 stand) {
         return Math.floor(body.getX()) == Math.floor(stand.x) && Math.floor(body.getZ()) == Math.floor(stand.z) && Math.abs(body.getY() - stand.y) <= .5;
     }
 
-    /** A staff member standing at this open door, or null. */
+    /** The staff member calling stock from the outside stand. The door can still be shut. */
     public HumanNpc attendant(Level level) {
-        if (!open(level)) return null;
         var stand = staffStand(level);
-        return level.getEntitiesOfClass(HumanNpc.class, new AABB(stand, stand).inflate(.5, 1, .5), n -> n.isAlive() && attended(n))
+        return level.getEntitiesOfClass(HumanNpc.class, new AABB(stand, stand).inflate(.5, 1, .5),
+                        n -> n.isAlive() && n.servingAt(this) && attended(n))
                 .stream().findFirst().orElse(null);
     }
 
@@ -172,13 +175,4 @@ public record ServiceHatch(BlockPos door, Direction in) {
         @Override public boolean active() { return on; }
     }
 
-    /** Closes any service door a staff member leaves standing open at this spot (its death or removal). */
-    public static void closeBehind(ServerLevel level, Entity staff) {
-        for (var pos : BlockPos.betweenClosed(staff.blockPosition().offset(-2, -1, -2), staff.blockPosition().offset(2, 2, 2))) {
-            var state = level.getBlockState(pos);
-            if (!state.is(Blocks.IRON_DOOR) || state.getValue(DoorBlock.HALF) != DoubleBlockHalf.LOWER || !state.getValue(DoorBlock.OPEN)) continue;
-            ((DoorBlock) state.getBlock()).setOpen(staff, level, state, pos, false);
-            GameplayLog.event(staff, "shop", "hatch closed door={} reason=staff_gone", pos.toShortString());
-        }
-    }
 }

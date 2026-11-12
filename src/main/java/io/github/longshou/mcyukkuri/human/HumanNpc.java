@@ -9,6 +9,7 @@ import io.github.longshou.mcyukkuri.life.CareBlockEntity;
 import io.github.longshou.mcyukkuri.registry.ModItems;
 import java.util.*;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.*;
@@ -61,6 +62,7 @@ public final class HumanNpc extends PathfinderMob {
     private static final String RESIDENT_WILD_FEED_AFTER = "ResidentWildFeedAfter";
     private int trades, delivered, careFood, medicine = 8, routineDelay;
     private YukkuriEntity attention;
+    private ServiceHatch serviceHatch;
     private final FactoryProduction production = new FactoryProduction(this);
     public FactoryProduction production() { return production; }
     /** Created on first use: registerGoals() runs inside the Mob constructor, before field initialisers. */
@@ -174,11 +176,38 @@ public final class HumanNpc extends PathfinderMob {
         }
         return InteractionResult.sidedSuccess(level().isClientSide);
     }
+    public boolean servingAt(ServiceHatch hatch) { return hatch.equals(serviceHatch); }
+
+    /** Calls from the outside stand. The door stays closed while the animal comes over. */
+    public boolean requestService(ServiceHatch hatch) {
+        if (servingAt(hatch)) return true;
+        closeServiceHatch();
+        if (serviceHatch != null || hatch.attendant(level()) != null) return false;
+        serviceHatch = hatch;
+        return true;
+    }
+
+    public void closeServiceHatch() {
+        if (serviceHatch == null || !(level() instanceof ServerLevel sl) || !sl.hasChunkAt(serviceHatch.door())) return;
+        serviceHatch.set(sl, this, false);
+        serviceHatch = null;
+    }
+
+    @Override public void onAddedToLevel() {
+        super.onAddedToLevel();
+        closeServiceHatch(); // a saved opening outlives its transient care or courier job
+    }
+
+    @Override public void onRemovedFromLevel() {
+        closeServiceHatch();
+        super.onRemovedFromLevel();
+    }
+
     @Override public void die(DamageSource source) {
         if (!level().isClientSide) {
             Custody.ownerDied(this);
             production.dropContents();
-            if (level() instanceof ServerLevel sl) ServiceHatch.closeBehind(sl, this); // a service door it was working does not stay open
+            closeServiceHatch();
             if (level() instanceof ServerLevel sl && (job() == Job.SHOPKEEPER || job() == Job.KEEPER)) {
                 ShopCourier.staffDied(this, sl);
                 if (job() == Job.SHOPKEEPER) ShopRegistry.get(sl).close(getUUID());
@@ -188,6 +217,7 @@ public final class HumanNpc extends PathfinderMob {
     }
     @Override public void aiStep() {
         super.aiStep();
+        if (serviceHatch != null && (tickCount == 1 || isNoAi() || !serviceHatch.attended(this))) closeServiceHatch();
         if (level().isClientSide || !isAlive() || isNoAi()) return;
         if (!initialized) { initialized = true; home = blockPosition(); careFood = HumanWorld.CARE_SUPPLIES.get(); nextRestock = level().getGameTime() + 24000; }
         restrictTo(home(), 18);
@@ -295,13 +325,7 @@ public final class HumanNpc extends PathfinderMob {
         private int elapsed, approach;
         private int careTicks;
         private TreatmentItem.Kind dose;
-        /** The service door this routine opened to reach an animal in a small pen (shop/ServiceHatch); closed when it leaves. */
-        private ServiceHatch hatch;
         RoutineGoal() { setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK)); }
-        private void shutHatch() {
-            if (hatch != null && level() instanceof ServerLevel sl) hatch.set(sl, HumanNpc.this, false);
-            hatch = null;
-        }
         @Override public boolean canUse() {
             if (isTrading() || resting()) return true;
             if (routineDelay > 0) return false;
@@ -320,7 +344,7 @@ public final class HumanNpc extends PathfinderMob {
         @Override public boolean requiresUpdateEveryTick() { return true; }
         @Override public void tick() {
             if (ExamSession.active(HumanNpc.this)) return; // the exam session steers the examiner
-            if (isTrading() || resting()) shutHatch(); // nobody serves through a door left standing open
+            if (isTrading() || resting()) closeServiceHatch();
             if (isTrading()) { getNavigation().stop(); return; }
             if (resting()) {
                 if (distanceToSqr(Vec3.atBottomCenterOf(home())) > 2) getNavigation().moveTo(home().getX() + .5, home().getY(), home().getZ() + .5, .8);
@@ -329,16 +353,19 @@ public final class HumanNpc extends PathfinderMob {
             }
             if (attention == null) return;
             getLookControl().setLookAt(attention, 30, 30);
-            // An animal in a small pen is served through its service door: go to the door, open it, and wait there for the animal to come to it.
             var door = ServiceHatch.of(attention);
+            if (door == null || !servingAt(door)) closeServiceHatch();
+            if (door != null && door.attended(HumanNpc.this)) {
+                boolean alreadyCalling = servingAt(door);
+                if (!requestService(door)) { approach++; return; }
+                if (!alreadyCalling) approach = 0;
+                door.set((ServerLevel) level(), HumanNpc.this, door.ready(HumanNpc.this, attention));
+            }
             if (door == null ? distanceToSqr(attention) > 4 || !hasLineOfSight(attention) : !door.serves(HumanNpc.this, attention)) {
                 careTicks = 0;
-                if (door != null && door.attended(HumanNpc.this)) {
-                    // on the stand cell (its path runs on to the middle); the wait at the open door has its own bound, counted from the opening
-                    if (door.equals(hatch)) approach++; else { shutHatch(); hatch = door; approach = 0; }
-                    door.set((ServerLevel) level(), HumanNpc.this, true);
-                } else if (approach++ % 20 == 0) {
-                    if (door == null) getNavigation().moveTo(attention, .85); else door.approach(HumanNpc.this, .85);
+                if (approach++ % 20 == 0) {
+                    if (door == null) getNavigation().moveTo(attention, .85);
+                    else if (!door.attended(HumanNpc.this)) door.approach(HumanNpc.this, .85);
                 }
             } else {
                 elapsed++;
@@ -393,7 +420,7 @@ public final class HumanNpc extends PathfinderMob {
                 medicine+=hand.getCount(); setItemSlot(EquipmentSlot.MAINHAND,ItemStack.EMPTY);
                 GameplayLog.event(HumanNpc.this,"npc-care","action=return_unused_dose medicine={}",medicine);
             }
-            shutHatch();
+            if (!ShopCourier.active(HumanNpc.this)) closeServiceHatch();
             dose=null; careTicks=0; attention = null; getNavigation().stop(); routineDelay = Math.max(routineDelay, job() == Job.FACTORY ? 80 : 200);
         }
     }
@@ -405,6 +432,10 @@ public final class HumanNpc extends PathfinderMob {
         t.put("FactoryProduction", production.save()); walk().save(t);
         if (lostAnimal != null) t.putUUID("LostAnimal", lostAnimal); if (lostAt != null) t.putLong("LostAt", lostAt.asLong());
         if (questPlayer != null) t.putUUID("QuestPlayer", questPlayer); t.putBoolean("QuestComplete", questComplete);
+        if (serviceHatch != null) {
+            t.putLong("ServiceDoor", serviceHatch.door().asLong());
+            t.putInt("ServiceDoorInside", serviceHatch.in().get3DDataValue());
+        }
     }
     @Override public void readAdditionalSaveData(CompoundTag t) {
         super.readAdditionalSaveData(t); setJob(Job.values()[Math.clamp(t.getInt("HumanJob"), 0, Job.values().length - 1)]);
@@ -413,6 +444,7 @@ public final class HumanNpc extends PathfinderMob {
         production.load(t.getCompound("FactoryProduction")); walk().load(t);
         careFood = Math.clamp(t.getInt("CareFood"), 0, 256); medicine = t.contains("Medicine") ? Math.clamp(t.getInt("Medicine"), 0, 64) : 8;
         trades = Math.clamp(t.getInt("Trades"), 0, 64); delivered = Math.clamp(t.getInt("Delivered"), 0, 4); nextRestock = t.getLong("NextRestock"); nextBreed = t.getLong("NextBreed");
+        if (t.contains("ServiceDoor")) serviceHatch = new ServiceHatch(BlockPos.of(t.getLong("ServiceDoor")), Direction.from3DDataValue(t.getInt("ServiceDoorInside")));
         lostAnimal = t.hasUUID("LostAnimal") ? t.getUUID("LostAnimal") : null; lostAt = t.contains("LostAt") ? BlockPos.of(t.getLong("LostAt")) : blockPosition();
         questPlayer = t.hasUUID("QuestPlayer") ? t.getUUID("QuestPlayer") : null; questComplete = t.getBoolean("QuestComplete");
     }

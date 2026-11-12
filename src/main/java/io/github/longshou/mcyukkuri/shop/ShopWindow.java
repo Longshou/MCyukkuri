@@ -54,7 +54,7 @@ public final class ShopWindow implements MotorOwner {
     private static final int WITNESS_TICKS = 500, REACTION_TICKS = 160, WITNESS_TAIL = 70;
     /** Sale sightings are within this many blocks. */
     private static final double SALE_RANGE = 10;
-    /** Staff at its pen's open service door is answered this long at most; then a short rest before it answers the door again. */
+    /** Staff at its pen's service door is answered this long at most; then a short rest before it answers the door again. */
     private static final int HATCH_TICKS = 600, HATCH_REST = 40;
     /** Rejections remembered at most, and the time after which one is forgotten (project design). */
     private static final int REJECTIONS = 4, FORGIVE_TICKS = 2400;
@@ -117,7 +117,7 @@ public final class ShopWindow implements MotorOwner {
         if (now < nextScan) return false;
         nextScan = now + SCAN_TICKS;
         if (!stock()) return false;
-        // Staff opening its pen's service door is answered first: that is where it is fed, treated and handed over.
+        // Staff calling from its service door is answered first: that is where it is fed, treated and handed over.
         calling = calledToHatch();
         if (calling != null) return true;
         // A neighbour being sold outweighs the rest it takes between customers.
@@ -459,7 +459,7 @@ public final class ShopWindow implements MotorOwner {
         return busy == null || busy.equals("urgent_need") || busy.equals("hurt");
     }
 
-    /** Its pen's service door, standing open with staff at it, when it is free to answer; else null. */
+    /** Its pen's service door with staff calling from it, when it is free to answer. */
     private ServiceHatch calledToHatch() {
         if (entity.level().getGameTime() < hatchRestUntil || !answersHatch()) return null;
         var door = ServiceHatch.of(entity);
@@ -474,7 +474,7 @@ public final class ShopWindow implements MotorOwner {
 
     private void hatching(long now) {
         if (answer.hatch().attendant(entity.level()) == null || now >= until) {
-            GameplayLog.event(entity, "shop", "hatch answer end reason={} ticks={} at={}", now >= until ? "timeout" : "door_shut", now - sessionStart,
+            GameplayLog.event(entity, "shop", "hatch answer end reason={} ticks={} at={}", now >= until ? "timeout" : "staff_left", now - sessionStart,
                     GameplayLog.at(entity.position()));
             answer.stop(entity);
             clear();
