@@ -4418,20 +4418,29 @@ next(s for s in S if s.id == 'widow_repair').smoke['readout'] = [f'yukkuri statu
 _smoke('aftermath_growth', 3600, [r'\[family\][^\n]* stem drain stage', r'\[family\][^\n]* stem sprouted ',
                                 r'\[family\][^\n]* stem ripe [^\n]*fruit=3\b'])
 
+# MD-11's reservation logs the live UUID and the two pens' distinct starting reserves before either stem draws.
+_MD11_STEM_START = (r'\[family\] reimu #\d+ uuid=(?P<actor>[0-9a-f-]{36}) [^\n]* '
+                    r'stem drain stage 0->1 brood=(?P<brood>[0-9a-f-]{36}) unborn=3 nutrition=')
+_MD11_UNFED_MOTHER = _MD11_STEM_START + r'55\.0 energy=60\.0\b'
+
 
 def _aftermath_growth_verify(window):
-    for lane in ('growth', 'burden'):
-        actor = _uuid_text('aftermath_growth', f'affected_{lane}')
-        prefix = rf'\[(?:family|meal)\] reimu #\d+ uuid={actor}[^\n]* '
-        sprout = re.search(prefix + r'stem sprouted brood=(\S+) elapsed=1 duration=(\d+) fruit=3\b', window)
+    for lane, mother in (('growth', _MD11_STEM_START + r'100\.0 energy=100\.0\b'), ('burden', _MD11_UNFED_MOTHER)):
+        start = re.search(mother, window)
+        if start is None:
+            return f'{lane}: stem mother not identified at reservation'
+        prefix = rf'\[(?:family|meal)\] reimu #\d+ uuid={start["actor"]} [^\n]* '
+        brood = start['brood']
+        growing_window = window[start.end():]
+        sprout = re.search(prefix + rf'stem sprouted brood={brood} elapsed=1 duration=(\d+) fruit=3\b', growing_window)
         if sprout is None:
             return f'{lane}: three-fruit stem did not sprout'
-        ripe = re.search(prefix + rf'stem ripe brood={sprout[1]} elapsed={sprout[2]} duration={sprout[2]} fruit=3\b',
-                         window[sprout.end():])
+        growing = growing_window[sprout.end():]
+        ripe = re.search(prefix + rf'stem ripe brood={brood} elapsed={sprout[1]} duration={sprout[1]} fruit=3\b', growing)
         if ripe is None:
             return f'{lane}: the sprouted stem did not ripen'
-        growing = window[sprout.end():sprout.end() + ripe.start()]
-        for before, after in re.findall(prefix + r'swallowed item=minecraft:apple count=1 nutrition=([\d.]+) -> ([\d.]+)', growing):
+        for before, after in re.findall(prefix + r'swallowed item=minecraft:apple count=1 nutrition=([\d.]+) -> ([\d.]+)',
+                                        growing[:ripe.start()]):
             if float(after) <= float(before):
                 return f'{lane}: a swallowed apple did not restore nutrition ({before} -> {after})'
     return None
@@ -4574,7 +4583,13 @@ _FATES = {
     'widow_repair': [dict(kind='death', match=r'cause=genericKill\b',
                           why='the scene button ends the original partner through the real death path')],
     'settle_pit_famine': [dict(kind='starve', who=r'pit slave ', why='an empty pit: the slave at nutrition 0 really starves')],
-    'aftermath_growth': [_STEM_DRAW],
+    'aftermath_growth': [_STEM_DRAW,
+                         dict(kind='starve', who=_MD11_UNFED_MOTHER,
+                              match=r'\bstarvation damage accepted=true\b|\baccepted damage cause=starve\b(?![^\n]*\bstem_depletion=true\b)',
+                              why='unfed stem mother'),
+                         dict(kind='death', who=_MD11_UNFED_MOTHER,
+                              match=r'\bdeath settled into remains; cause=starve\b[^\n]* stem_depletion=false\b',
+                              why='unfed stem mother')],
     'aftermath_depletion': [_STEM_DRAW, dict(kind='death', who=r'aftermath reserved ', match=r'stem_depletion=true\b', why='she dies of the stem')],
     'growth': [dict(kind='death', who=r'lifespan reached', match=r'internal=old_age\b', why='the fifth starts one tick before its lifespan')],
     'leaf_swaddle_neglect_stages': [dict(kind='death', match=r'internal=swaddle_retention\b',
@@ -4690,12 +4705,12 @@ _scene_end('rain_huddle', [('shy', _DRY), ('mate', _DRY), ('alone', _DRY)],
             ('shy', 'seen:weather:thunder clap heard .*stage=HUDDLE')],
            [('alone', 'seen:weather:sheltered alone pose=tremble')])
 _scene_end('aftermath_growth', [('affected_growth', _DRY),
-                               ('affected_burden', _DRY),
                                ('source_growth', _DRY), ('source_burden', _DRY)],
            [('affected_growth', 'seen:family:aftermath reserved'), ('affected_growth', 'seen:family:stem sprouted'),
             ('affected_growth', 'seen:family:stem ripe')],
-           [('affected_burden', 'seen:family:aftermath reserved'), ('affected_burden', 'seen:family:stem sprouted'),
-            ('affected_burden', 'seen:family:stem ripe')])
+           dict(steps=[('affected_burden', 'seen:family:aftermath reserved'), ('affected_burden', 'seen:family:stem sprouted'),
+                       ('affected_burden', 'seen:family:stem ripe')],
+                post=[('affected_burden', _DRY)]))
 _scene_end('aftermath_depletion', [('affected_depletion', 'alive=false'), ('source_depletion', _DRY)],
            [('affected_depletion', 'seen:family:aftermath reserved'),
             ('affected_depletion', 'seen:family:stem sprouted'),
