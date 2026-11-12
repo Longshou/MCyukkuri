@@ -9,7 +9,6 @@
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
 | 台词审校与补充（用户与代理直接对话） | `.worktrees/wp-gb-speech-review` | art/dialogue/, src/main/resources/assets/mcyukkuri/dialogue/, lang/*.json |
-| 油库里商店内容优化 | `.worktrees/wp-gr-shop` | human/HumanCommerce.java, client/ShopScreen.java, 商店建筑与演出, art/, scripts/museum_scenarios.py |
 
 ## 玩法待办
 
