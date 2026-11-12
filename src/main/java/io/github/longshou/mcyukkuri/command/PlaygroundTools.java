@@ -139,15 +139,25 @@ public final class PlaygroundTools {
         return changed.size();
     }
 
-    /** Vanilla consumes a click on a powered button without scheduling another command. */
+    /** Report the conditions under which vanilla accepts the click packet without scheduling this scene. */
     public static void sceneButton(PlayerInteractEvent.RightClickBlock event) {
         if (!(event.getLevel() instanceof ServerLevel level) || event.getHand() != InteractionHand.MAIN_HAND) return;
         var pos = event.getPos();
         var state = level.getBlockState(pos);
-        if (state.is(Blocks.STONE_BUTTON) && state.getValue(ButtonBlock.POWERED)
-                && level.getBlockEntity(pos.below(2)) instanceof CommandBlockEntity command
-                && command.getCommandBlock().getCommand().startsWith(SCENE_BUTTON))
-            event.getEntity().displayClientMessage(Component.literal("场景按钮尚未复位，请等它弹起再按。"), true);
+        if (!state.is(Blocks.STONE_BUTTON)
+                || !(level.getBlockEntity(pos.below(2)) instanceof CommandBlockEntity command)
+                || !command.getCommandBlock().getCommand().startsWith(SCENE_BUTTON)) return;
+        var player = event.getEntity();
+        String reason;
+        if (player.isSpectator()) reason = "旁观模式无法启动场景，请先切回创造模式。";
+        else if (!level.getServer().isCommandBlockEnabled()) reason = "命令方块未启用，无法启动场景。";
+        else if (state.getValue(ButtonBlock.POWERED)) reason = "场景按钮尚未复位，请等它弹起再按。";
+        else if (player.isSecondaryUseActive() && (!player.getMainHandItem().isEmpty() || !player.getOffhandItem().isEmpty())
+                && !(player.getMainHandItem().doesSneakBypassUse(level, pos, player)
+                && player.getOffhandItem().doesSneakBypassUse(level, pos, player)))
+            reason = "蹲下持物时无法启动场景，请站起来再按。";
+        else return;
+        player.displayClientMessage(Component.literal(reason), true);
     }
 
     /**

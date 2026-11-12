@@ -75,7 +75,7 @@ public final class GameplayLog {
         args[6] = source.blockPosition().toShortString();
         System.arraycopy(values, 0, args, 7, values.length);
         MCYukkuri.LOGGER.info("[{}] {} #{} uuid={} t={} dim={} pos={} " + message, args);
-        TraceRecorder.event(source, category, format(message, values), suppressed);
+        TraceRecorder.event(source, category, message, suppressed, values);
     }
 
     /** Repeated automatic refusals: stable per-entity keys, with suppressed count on the next emitted line. */
@@ -104,7 +104,7 @@ public final class GameplayLog {
         args[2] = level.dimension().location();
         System.arraycopy(values, 0, args, 3, values.length);
         MCYukkuri.LOGGER.info("[{}] t={} dim={} " + message, args);
-        TraceRecorder.world(level, category, format(message, values), suppressed);
+        TraceRecorder.world(level, category, message, suppressed, values);
     }
 
     public static void worldLimited(ServerLevel level, String category, String key, int minTicks, String message, Object... values) {
@@ -127,7 +127,7 @@ public final class GameplayLog {
         return suppressed;
     }
 
-    private static String format(String message, Object... values) {
+    static String format(String message, Object... values) {
         StringBuilder out = new StringBuilder();
         int from = 0;
         for (Object value : values) {

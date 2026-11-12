@@ -825,24 +825,25 @@ public final class TraceRecorder {
         return out;
     }
 
-    public static void event(Entity source, String category, String message, int suppressed) {
+    static void event(Entity source, String category, String message, int suppressed, Object[] values) {
         if (!recorded(source)) return;
         JsonObject body = new JsonObject();
         body.addProperty("cat", category);
-        body.addProperty("msg", message);
+        body.addProperty("msg", GameplayLog.format(message, values));
         body.add("pos", block(source.blockPosition()));
         if (suppressed > 0) body.addProperty("sup", suppressed);
         emit(source, windowFor(source), "ev", body);
     }
 
-    public static void world(ServerLevel level, String category, String message, int suppressed) {
+    static void world(ServerLevel level, String category, String message, int suppressed, Object[] values) {
         SceneWindow window = currentWindow(level);
-        // SceneGeometry emits its dedicated geo row; duplicating the human-readable MCYGEOMETRY payload as ev breaks its reader.
-        if (category.equals("layout") && message.startsWith("MCYGEOMETRY")) return;
         if (mode == Mode.OFF || window == null) return;
+        String formatted = GameplayLog.format(message, values);
+        // SceneGeometry emits its dedicated geo row; duplicating the human-readable MCYGEOMETRY payload as ev breaks its reader.
+        if (category.equals("layout") && formatted.startsWith("MCYGEOMETRY")) return;
         JsonObject body = new JsonObject();
         body.addProperty("cat", category);
-        body.addProperty("msg", message);
+        body.addProperty("msg", formatted);
         body.add("pos", JsonNull.INSTANCE);
         if (suppressed > 0) body.addProperty("sup", suppressed);
         emit(level, window, null, "ev", body, level.getGameTime());

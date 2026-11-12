@@ -6,7 +6,10 @@ import io.github.longshou.mcyukkuri.motor.surface.BedContainer;
 import io.github.longshou.mcyukkuri.motor.surface.Occupancy;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.status.ChunkStatus;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
@@ -25,8 +28,10 @@ public final class NestDoorway {
     public static CareBlockEntity bed(YukkuriEntity actor, BlockPos pos) {
         var level = actor.level();
         var chunk = level.getChunk(pos.getX() >> 4, pos.getZ() >> 4, ChunkStatus.FULL, false);
-        if (chunk == null) return null;
-        var state = chunk.getBlockState(pos);
+        return chunk == null ? null : bed(level, chunk.getBlockState(pos), pos);
+    }
+
+    private static CareBlockEntity bed(Level level, BlockState state, BlockPos pos) {
         if (!(state.getBlock() instanceof CareBlock)) return null;
         var origin = state.getBlock() instanceof LargeNestBlock ? LargeNestBlock.origin(state, pos) : pos;
         return level.getBlockEntity(origin) instanceof CareBlockEntity bed && bed.kind() == CareBlock.Kind.NEST
@@ -114,8 +119,19 @@ public final class NestDoorway {
     /** One exclusion for yukkuri route nodes, edges and ordinary last steps; other mobs keep vanilla pathing. */
     public static boolean blocksLine(YukkuriEntity actor, Vec3 from, Vec3 to) {
         var area=new AABB(from,to).inflate(actor.getBbWidth()*.5+1,0,actor.getBbWidth()*.5+1);
+        var level = actor.level();
+        ChunkAccess chunk = null;
+        int chunkX = Integer.MIN_VALUE, chunkZ = Integer.MIN_VALUE;
         for(var pos:BlockPos.betweenClosed(BlockPos.containing(area.minX,area.minY-1,area.minZ),BlockPos.containing(area.maxX,area.maxY,area.maxZ))){
-            var bed=bed(actor,pos);if(bed==null)continue;
+            int cx = pos.getX() >> 4, cz = pos.getZ() >> 4;
+            if (cx != chunkX || cz != chunkZ) {
+                chunk = level.getChunk(cx, cz, ChunkStatus.FULL, false);
+                chunkX = cx;
+                chunkZ = cz;
+            }
+            if (chunk == null) continue;
+            var bed = bed(level, chunk.getBlockState(pos), pos);
+            if (bed == null) continue;
             var c=bed.centre();double r=shape(bed).outer()+actor.getBbWidth()*.5;
             var box=new AABB(c.x-r,c.y-1,c.z-r,c.x+r,c.y+1,c.z+r);
             // A pushed/placed body on the rim can walk outward from the overlap, never further into the bed.
