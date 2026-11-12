@@ -11,6 +11,8 @@
     {"id":"give_up_search","event":"give_up_search","zh":"走散亲油的道别","ja":"はぐれた子へのお別れ","en":"Farewell to a lost child","basis":["P"],"status":"ready","axis_refs":["common.little_one","common.cry_yuu"]},
     {"id":"glass_child_answer","event":"glass_child_answer","zh":"隔玻璃回应亲油","ja":"ガラス越しに親に答える","en":"Answer through glass","basis":["P"],"status":"ready","axis_refs":["common.glass_san","stage.baby_caregiver_address"]},
     {"id":"glass_ram","event":"glass_ram","zh":"撞开玻璃板","ja":"板ガラスに体当たり","en":"Ram a glass pane","basis":["P"],"status":"ready","axis_refs":["common.glass_san","common.narrate_own_action"]},
+    {"id":"human_food_ask","event":"human_food_ask","zh":"向人乞食","ja":"人間に食べ物をねだる","en":"Beg a human for food","basis":["P"],"status":"ready","axis_refs":["common.human_kind_address","common.ask_food_calm"]},
+    {"id":"human_food_demand","event":"human_food_demand","zh":"辱骂人类并索要食物","ja":"人間を罵倒して食べ物を要求する","en":"Insult a human and demand food","basis":["P"],"status":"ready","axis_refs":["common.human_kind_address","common.ask_food_calm"]},
     {"id":"accessory_mended","event":"accessory_mended","zh":"头饰修复","ja":"飾物の修復","en":"Accessory mended","basis":["P"],"status":"rule","axis_refs":["common.accessory_san"]},
     {"id":"accessory_torn","event":"accessory_torn","zh":"头饰破损","ja":"飾物の破損","en":"Accessory torn","basis":["P"],"status":"rule","axis_refs":["common.accessory_san","special.hatless_self_pity"]},
     {"id":"addr_child","event":"addr_child","zh":"称呼孩子","ja":"子を呼ぶ","en":"Address child","basis":["P"],"status":"rule","axis_refs":["common.little_one"]},
