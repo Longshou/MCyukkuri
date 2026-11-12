@@ -21,9 +21,11 @@ socket. The canonical three sockets sat close to the root on a long stem; shorte
 ones outward (project adaptation).
 
 Spacing is one fruit apart at the drawn size: the standard's full fruit (0.20) is the largest a fruit
-can be, so its bodies may overlap by up to `fruit_gap` in the fit while the real birth sizes (0.10-0.19)
-just touch. The mother clearance measures her silhouette only where the fruit hangs (her own height
-band), so a fruit that hangs over her hat brim is not mistaken for one inside her face.
+can be, and its depth boxes may overlap by at most `fruit_gap` (0.2 units: the rounded meshes then stay
+apart). The mother clearance measures her silhouette only where the fruit hangs (her own height band), so a
+fruit that hangs over her hat brim is not mistaken for one inside her face; it may not reach into her. The
+stalk itself must stay out of every hanging fruit's real mesh (ribbons and hat crowns included). A 5-fruit
+row may be wider than a catch hat's opening; fruit that miss it land beside it (lead decision).
 
 Writes count_length_scale to recipe.json, and socket_layouts and capacity_scale (the old preview's
 copy of the lengths) to the stem component; then run scripts/export_family_assets.py.
@@ -42,7 +44,7 @@ GROWTH = ROOT/'standards/yukkuri-v1/profiles/growth.json'
 MODELS = ROOT/'src/main/resources/assets/mcyukkuri/yukkuri'
 MOTHERS = ['reimu', 'marisa', 'chen', 'alice', 'patchouli', 'remilia', 'flandre']
 SPACING = ['reimu', 'marisa']  # the young measured for spacing; tails and wings of other kinds are soft
-FIT = {'mother_clear': -0.5, 'fruit_gap': -1.0, 'ground_clear': 1.0, 'variation_min': 0.93, 'min_length': 0.6,
+FIT = {'mother_clear': 0.0, 'fruit_gap': -0.2, 'stalk_clear': 0.0, 'ground_clear': 1.0, 'variation_min': 0.93, 'min_length': 0.6,
        'far_socket': [-1.28, 1.89]}
 
 
@@ -86,7 +88,7 @@ def fruit_boxes(recipe, size):
     out = {}
     for kind in MOTHERS:
         V = bounds(kind); var = recipe['variants'][kind]
-        out[kind] = dict(front=float(V[:, 2].min())*size, back=float(V[:, 2].max())*size, height=float(V[:, 1].max())*size,
+        out[kind] = dict(size=size, front=float(V[:, 2].min())*size, back=float(V[:, 2].max())*size, height=float(V[:, 1].max())*size,
                          half=float(np.abs(V[:, 0]).max())*size, crown=var.get('hang_clearance_height', var['crown_height'])*size,
                          anchor=[v*size for v in var.get('hanging_anchor', [0, 0, 0])])
     return out
@@ -116,10 +118,21 @@ def hang_offset(recipe, count, index):
     return [side*recipe['pedicel_reach'], 0, -(1-recipe['pedicel_side']**2)**.5*recipe['pedicel_reach']]
 
 
+_SOLIDS = {}
+
+
+def solid(kind):
+    """The child's idle runtime mesh as an inside test (stem_growth.Solid), model units at size 1."""
+    if kind not in _SOLIDS:
+        import stem_growth  # its geometry imports this module, so load it only when fitting
+        _SOLIDS[kind] = stem_growth.Solid(stem_growth.triangles(kind))
+    return _SOLIDS[kind]
+
+
 def fits(stem, fruits, length, layout, mothers, spacing_kinds):
     """Whether fruit at these reference sockets (far to near) hang clear on every mother for every child kind, and
     apart for the spacing kinds; the worst margins."""
-    worst = dict(mother=9e9, gap=9e9, ground=9e9)
+    worst = dict(mother=9e9, gap=9e9, ground=9e9, stalk=-9e9)
     pend = stem.s['pendant_length_reference']*stem.s['reference_units_to_model']
     back = max(fruits[k]['back'] for k in spacing_kinds); front = max(-fruits[k]['front'] for k in spacing_kinds)
     for mother in mothers:
@@ -131,9 +144,18 @@ def fits(stem, fruits, length, layout, mothers, spacing_kinds):
                 front_z = mother_front(mother, base[0]-f['half'], base[0]+f['half'], base[1], base[1]+f['height'])
                 worst['mother'] = min(worst['mother'], front_z-(base[2]+f['back']))
                 worst['ground'] = min(worst['ground'], base[1])
+        # The stalk itself (densely sampled) stays out of every hanging fruit's real mesh, ribbons and hat crowns included.
+        arc = np.array([stem.point(stem.at(u), length, mother) for u in np.linspace(0, 1, 160)])
+        for kind in spacing_kinds:
+            f = fruits[kind]
+            for index, sk in enumerate(sockets):
+                reach = hang_offset(stem.r, len(sockets), index)
+                base = sk+[reach[0]-f['anchor'][0], -pend-f['crown'], reach[2]-f['anchor'][2]]
+                worst['stalk'] = max(worst['stalk'], float(solid(kind).depth((arc-base)/f['size']).max())*f['size'])
         for a, b in zip(sockets, sockets[1:]):  # far to near: the nearer fruit's front behind the farther one's back
             worst['gap'] = min(worst['gap'], (b[2]-a[2])-back-front)
-    ok = worst['mother'] >= FIT['mother_clear'] and worst['gap'] >= FIT['fruit_gap'] and worst['ground'] >= FIT['ground_clear']
+    ok = (worst['mother'] >= FIT['mother_clear'] and worst['gap'] >= FIT['fruit_gap'] and worst['ground'] >= FIT['ground_clear']
+          and worst['stalk'] <= FIT['stalk_clear'])
     return ok, worst
 
 
