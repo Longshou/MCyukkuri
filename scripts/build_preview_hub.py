@@ -204,8 +204,8 @@ def main():
             stamp = OUT/page/'source.sha256'
             if stamp.is_file() and stamp.read_text(encoding='utf-8') == hat_build.source_digest(): current_media.add(f'{page}/current.png')
     subprocess.run([sys.executable, str(ROOT/'art/props/family-life/preview_stem.py'),
-                    '--node', args.node, '--output', str(OUT/'stem-hanging')], check=True, cwd=ROOT)
-    current_media.add('stem-hanging/current.png')
+                    '--node', args.node, '--out', str(OUT/'stem-growth')], check=True, cwd=ROOT)
+    current_media |= {'stem-growth/growth.png', 'stem-growth/remains.png'}
     # Continuous previews share one authored timeline with GIF and seekable frames.
     scene_source = ROOT/'preview/hub/scenes.json'
     subprocess.run([sys.executable, str(ROOT/'scripts/build_preview_actions.py'),

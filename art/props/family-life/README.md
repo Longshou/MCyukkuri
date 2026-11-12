@@ -10,4 +10,6 @@
 
 从仓库根目录运行 `python art/props/family-life/export_shed_stem.py` 导出道具；追加 `--check` 只核对导出，`--preview --node <Node路径>` 在 `.local/previews/shed-stem/` 生成当前预览。预览与登记数据不进入运行资源。
 
-`python art/props/family-life/preview_stem.py --node <Node路径>` 用当前运行网格与导出的配方离线生成 `.local/previews/stem-hanging/current.png`；总入口由 `scripts/build_preview_hub.py` 重建并收录。图只显示静止悬挂几何，移动、碰撞和出生仍在试玩场确认。
+连续生长（制作数据，游戏尚未接线）：`recipe.json` 的 `growth` 按胎次进度 p（0–1，约 20 秒）给出折线曲线，导出为 `family.json` 的 `stemGrowth`。主茎、挂点与短梗共用一个伸展量 g：挂点和弧线取 `FamilyGeometry.point` 并把长度系数乘 g，早期前移净空仍随实际升高展开，所以嫩茎一冒头就向额前、帽檐外伸；短梗长乘 g²，粗细从 `thickness_min` 线性涨到 1。实子先在短梗下鼓出果芽（`fruit_emerge`，到 `bud_scale` 大小，比它小的孩子取自己的出生体型），再按 `fruit_ripen` 长到各自出生体型；始终是同品种网格加睡脸，静止竖直悬挂。母体饿死时遗体带着死前那根茎：根点随遗体姿态，茎不随尸身压扁、外段下垂，短梗略长、实子停在死前大小，参数在[遗体制作源](../../../standards/yukkuri-library/drafts/remains/recipe.json)的 `stem`。[stem_growth.py](stem_growth.py) 是这套几何的参考实现，`--check` 按 1% 进度逐一核对 1–5 果、灵梦与魔理沙母体、各品种实子与遗体的净空（约 3 分钟）：实子不入母体与地面、相邻实子与茎不比已认可的足熟布局更挤；其他品种的尾巴、翅膀与长发按软体只报告。
+
+`python art/props/family-life/preview_stem.py --node <Node路径>` 用 [render_growth.cjs](render_growth.cjs) 与运行网格离线生成 `.local/previews/stem-growth/`：四个采样姿态（萌芽、挂小果、半熟、足熟）、饿死遗体带茎（小果、半熟）与三组生长动画；总入口由 `scripts/build_preview_hub.py` 重建并收录。行走摆动、碰撞和出生仍在试玩场确认。

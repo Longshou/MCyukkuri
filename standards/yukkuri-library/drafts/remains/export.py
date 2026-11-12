@@ -57,6 +57,7 @@ def outputs():
     runtime = {'format': 1,
                'forms': {name: entry(spec) for name, spec in recipe['forms'].items()},
                'water': {name: entry(spec) for name, spec in recipe['water'].items()},
+               'stem': {key: recipe['stem'][key] for key in ('sag', 'pedicel_slack', 'colour')},
                'atlases': {ident: sorted(atlases) for ident, atlases in built['atlases'].items()}}
     runtime_path = ASSETS / 'yukkuri_presentation/remains_forms.json'
     files[runtime_path] = (json.dumps(runtime, ensure_ascii=False, indent=2) + '\n').encode('utf-8')
@@ -77,7 +78,7 @@ def ledger(check):
         'status': 'selected_for_runtime_pending_user_review',
         'scope': 'Eight death-cause forms and the dissolving residue for the nine rounded runtime bodies: accepted standard dead faces '
                  '(N068/N044/N027/N045/N026/N069/N060/N070) on each body atlas, skin/hair/accessory recolouring, cylindrical skin overlays and '
-                 'two ground decals. House and rare forms keep the sleep face with the same pose and overlays. Deibu bodies use the ordinary '
+                 'two ground decals, plus a faded sleep-face atlas for unripe fruit kept on a dead mother stem. House and rare forms keep the sleep face with the same pose and overlays. Deibu bodies use the ordinary '
                  'reimu dead faces without the mature-face treatment. No user visual acceptance yet.'}
     text = json.dumps(data, ensure_ascii=False, indent=2) + '\n'
     if check:

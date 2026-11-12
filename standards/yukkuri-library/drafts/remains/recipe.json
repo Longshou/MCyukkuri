@@ -73,6 +73,18 @@
       "decal": {"name": "residue", "radius": 1.25}
     }
   },
+  "stem": {
+    "label": "带茎遗体（茎上未熟实子）",
+    "note": "A mother that dies with an unfinished stem keeps it: the living pose at the death progress, rooted where the corpse pose carries the living root, the stalk unsquashed and sagging: a point at arc fraction u drops sag x the stalk's rise x u^2, pedicels plumb and pedicel_slack longer, fruit frozen at their size and resting on the ground if they reach it. Geometry: art/props/family-life/stem_growth.py.",
+    "sag": 0.8,
+    "pedicel_slack": 1.1,
+    "colour": [124, 128, 62],
+    "fruit": {
+      "label": "未熟实子", "face": "sleep", "face_code": "睡脸（未睁眼即死）",
+      "skin": {"toward": [214, 196, 160], "amount": 0.3, "desaturate": 0.3, "darken": 0.06}, "hair": {"desaturate": 0.3, "darken": 0.06},
+      "accessory": {"desaturate": 0.3, "darken": 0.04}, "blush_fade": 1.0
+    }
+  },
   "palette": {
     "anko": [74, 40, 46], "anko_light": [110, 66, 70], "dough": [236, 222, 192], "dough_shade": [214, 196, 160],
     "crease": [146, 112, 76], "crease_dark": [104, 76, 52], "char": [40, 34, 32], "ash": [104, 100, 96], "scorch": [72, 52, 40], "mould": [118, 138, 108],

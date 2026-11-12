@@ -446,6 +446,7 @@ def outputs():
     files, records = {}, {}
     entries = dict(RECIPE['forms'])
     entries['dissolving'] = RECIPE['water']['dissolving']
+    entries['stem_fruit'] = RECIPE['stem']['fruit']  # unripe fruit kept on a dead mother's stem
     for ident in RECIPE['models']:
         model = read(ASSETS / 'yukkuri' / f'{ident}.json')
         boxes = face_boxes(model)
@@ -480,7 +481,7 @@ def main():
     parser.add_argument('--check', action='store_true')
     args = parser.parse_args()
     accepted = {e['id']: e for e in read(LIB / 'provenance/standard-expressions.json')['entries']}
-    for spec in list(RECIPE['forms'].values()) + [RECIPE['water']['dissolving']]:
+    for spec in list(RECIPE['forms'].values()) + [RECIPE['water']['dissolving'], RECIPE['stem']['fruit']]:
         assert spec['face'] in accepted, 'Not an accepted standard expression: ' + spec['face']
     files = outputs()
     for path, data in files.items():

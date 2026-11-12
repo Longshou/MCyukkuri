@@ -11,7 +11,9 @@ def outputs():
     recipe=json.loads((SOURCE/'recipe.json').read_text(encoding='utf8'))
     read=lambda key:json.loads((ROOT/recipe[key]).read_text(encoding='utf8'))
     data={'format':1,'stem':read('stem_source'),'growth':read('growth_source'),'action':read('action_source'),
-          'lengthScale':recipe['count_length_scale'],'radiusScale':recipe['count_radius_scale'],'pedicelReach':recipe['pedicel_reach'],'pedicelSide':recipe['pedicel_side'],'pedicelDropDegrees':recipe['pedicel_drop_degrees'],'variants':recipe['variants']}
+          'lengthScale':recipe['count_length_scale'],'radiusScale':recipe['count_radius_scale'],'pedicelReach':recipe['pedicel_reach'],'pedicelSide':recipe['pedicel_side'],'pedicelDropDegrees':recipe['pedicel_drop_degrees'],'variants':recipe['variants'],
+          # Continuous growth (art/props/family-life/stem_growth.py is the reference geometry and clearance check).
+          'stemGrowth':{key:recipe['growth'][key] for key in ('stalk','thickness_min','fruit_emerge','bud_scale','fruit_ripen')}}
     encode=lambda data:(json.dumps(data,ensure_ascii=False,indent=2)+'\n').encode('utf8')
     files={ROOT/'src/main/resources/assets/mcyukkuri/yukkuri_presentation/family.json':encode(data)}
     sources=['art/props/family-life/recipe.json']+[recipe[key] for key in ['stem_source','growth_source','action_source']]

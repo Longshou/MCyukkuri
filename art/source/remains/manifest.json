@@ -2,9 +2,9 @@
   "status": "selected_for_runtime_pending_user_review",
   "source": "standards/yukkuri-library/drafts/remains",
   "exporter": "standards/yukkuri-library/drafts/remains/export.py",
-  "recipe_sha256": "33a919576a175cd2dfe462f81f39ade9715b2fedd624895640e5fde7a4c42bd2",
+  "recipe_sha256": "3d548a244fc59e63601323a770f8d46c2356291cc8405831eb73db549897976a",
   "runtime_profile": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/remains_forms.json",
-  "runtime_profile_sha256": "e7ba181c8753ab82a65e5572dd0d8f79a10a1cd78aa0fb3e1c3f3a465880f3e4",
+  "runtime_profile_sha256": "8d64653020d63532016be2536d8a39c6ec01793ab73eea812a0ce1a903483a7d",
   "files": {
     "src/main/resources/assets/mcyukkuri/textures/entity/reimu/remains_natural.png": {
       "source": "standards/yukkuri-library/drafts/remains/assembled/reimu/remains_natural.png",
@@ -66,6 +66,12 @@
       "face_source": "standards/yukkuri-library/assembled/reimu/textures/dying_blank.png",
       "sha256": "61eb53408959aa93d2eb82bcdab326d3ddcf33b06c3f03584f9cb2daeb6b2947"
     },
+    "src/main/resources/assets/mcyukkuri/textures/entity/reimu/remains_stem_fruit.png": {
+      "source": "standards/yukkuri-library/drafts/remains/assembled/reimu/remains_stem_fruit.png",
+      "face": "sleep",
+      "face_source": "standards/yukkuri-library/assembled/reimu/textures/sleep.png",
+      "sha256": "58a71abb116d808b254ce585a0b604350dc2ec44f5e63e3d4f54cc70688a80a7"
+    },
     "src/main/resources/assets/mcyukkuri/textures/entity/marisa/remains_natural.png": {
       "source": "standards/yukkuri-library/drafts/remains/assembled/marisa/remains_natural.png",
       "face": "old_dead",
@@ -125,6 +131,12 @@
       "face": "dying_blank",
       "face_source": "standards/yukkuri-library/assembled/marisa/textures/dying_blank.png",
       "sha256": "ae42a058d2133658e76a73e956826bd9cb73c103416147f689bd8a08fee4f5b0"
+    },
+    "src/main/resources/assets/mcyukkuri/textures/entity/marisa/remains_stem_fruit.png": {
+      "source": "standards/yukkuri-library/drafts/remains/assembled/marisa/remains_stem_fruit.png",
+      "face": "sleep",
+      "face_source": "standards/yukkuri-library/assembled/marisa/textures/sleep.png",
+      "sha256": "a732cdfc14531b46f7c309c2ecefd88621916d6023c80b6751a2937d2a131a1b"
     },
     "src/main/resources/assets/mcyukkuri/textures/entity/chen/remains_natural.png": {
       "source": "standards/yukkuri-library/drafts/remains/assembled/chen/remains_natural.png",
@@ -186,6 +198,12 @@
       "face_source": "standards/yukkuri-library/assembled/chen/textures/dying_blank.png",
       "sha256": "a738e766e6be112aef5f2f653fdcc7a4dcf7d14d3eab58b5db60cc88ce57edfe"
     },
+    "src/main/resources/assets/mcyukkuri/textures/entity/chen/remains_stem_fruit.png": {
+      "source": "standards/yukkuri-library/drafts/remains/assembled/chen/remains_stem_fruit.png",
+      "face": "sleep",
+      "face_source": "standards/yukkuri-library/assembled/chen/textures/sleep.png",
+      "sha256": "080d85c0f6a9ec300b8f736a828a539e7290f01452b86a17af728b159da5ea5a"
+    },
     "src/main/resources/assets/mcyukkuri/textures/entity/alice/remains_natural.png": {
       "source": "standards/yukkuri-library/drafts/remains/assembled/alice/remains_natural.png",
       "face": "old_dead",
@@ -245,6 +263,12 @@
       "face": "dying_blank",
       "face_source": "standards/yukkuri-library/assembled/alice/textures/dying_blank.png",
       "sha256": "80128da13db6957a274f2f2714eb432d3aac14c42f512e34800b58fde7e3beea"
+    },
+    "src/main/resources/assets/mcyukkuri/textures/entity/alice/remains_stem_fruit.png": {
+      "source": "standards/yukkuri-library/drafts/remains/assembled/alice/remains_stem_fruit.png",
+      "face": "sleep",
+      "face_source": "standards/yukkuri-library/assembled/alice/textures/sleep.png",
+      "sha256": "73dfb2fed5166a721115188a3cdcb5da7ce2d1b974d65d7e1f5e2fccae37f078"
     },
     "src/main/resources/assets/mcyukkuri/textures/entity/patchouli/remains_natural.png": {
       "source": "standards/yukkuri-library/drafts/remains/assembled/patchouli/remains_natural.png",
@@ -306,6 +330,12 @@
       "face_source": "standards/yukkuri-library/assembled/patchouli/textures/dying_blank.png",
       "sha256": "715f712c86514d1a0e748766ef54c2cc1111ad3ae8d0b4fb9da1d297eaf4123a"
     },
+    "src/main/resources/assets/mcyukkuri/textures/entity/patchouli/remains_stem_fruit.png": {
+      "source": "standards/yukkuri-library/drafts/remains/assembled/patchouli/remains_stem_fruit.png",
+      "face": "sleep",
+      "face_source": "standards/yukkuri-library/assembled/patchouli/textures/sleep.png",
+      "sha256": "cbdbebfb447a492421f1140162e73b2f3239f338183569064f48841b8127cec1"
+    },
     "src/main/resources/assets/mcyukkuri/textures/entity/marisa_tsumuri/remains_natural.png": {
       "source": "standards/yukkuri-library/drafts/remains/assembled/marisa_tsumuri/remains_natural.png",
       "face": "old_dead",
@@ -365,6 +395,12 @@
       "face": "dying_blank",
       "face_source": "standards/yukkuri-library/assembled/marisa_tsumuri/textures/dying_blank.png",
       "sha256": "233cd922a75488d99095eda2bcae2994bc8640f7c7e0cbbf0f5ce8bd75be0ffd"
+    },
+    "src/main/resources/assets/mcyukkuri/textures/entity/marisa_tsumuri/remains_stem_fruit.png": {
+      "source": "standards/yukkuri-library/drafts/remains/assembled/marisa_tsumuri/remains_stem_fruit.png",
+      "face": "sleep",
+      "face_source": "standards/yukkuri-library/assembled/marisa_tsumuri/textures/sleep.png",
+      "sha256": "2936398872fee3b2a20195abe250150677d82acaa30ece3e2f396b1277e40989"
     },
     "src/main/resources/assets/mcyukkuri/textures/entity/reimu_wasa/remains_natural.png": {
       "source": "standards/yukkuri-library/drafts/remains/assembled/reimu_wasa/remains_natural.png",
@@ -426,6 +462,12 @@
       "face_source": "standards/yukkuri-library/assembled/reimu/textures/dying_blank.png",
       "sha256": "114eda919225b09fe22a360d482baa20f86d34671f4ba0c3ea4b0cea77f695f7"
     },
+    "src/main/resources/assets/mcyukkuri/textures/entity/reimu_wasa/remains_stem_fruit.png": {
+      "source": "standards/yukkuri-library/drafts/remains/assembled/reimu_wasa/remains_stem_fruit.png",
+      "face": "sleep",
+      "face_source": "standards/yukkuri-library/assembled/reimu/textures/sleep.png",
+      "sha256": "6198916c9da955f020c18571e50443e45fdbb7d97bf0d18180e242067165927b"
+    },
     "src/main/resources/assets/mcyukkuri/textures/entity/reimu_deibu/remains_natural.png": {
       "source": "standards/yukkuri-library/drafts/remains/assembled/reimu_deibu/remains_natural.png",
       "face": "old_dead",
@@ -486,6 +528,12 @@
       "face_source": "standards/yukkuri-library/assembled/reimu/textures/dying_blank.png",
       "sha256": "99b9e203841a8185e646112602c60c7c07bf721b98fa395c42f167cb043655be"
     },
+    "src/main/resources/assets/mcyukkuri/textures/entity/reimu_deibu/remains_stem_fruit.png": {
+      "source": "standards/yukkuri-library/drafts/remains/assembled/reimu_deibu/remains_stem_fruit.png",
+      "face": "sleep",
+      "face_source": "standards/yukkuri-library/assembled/reimu/textures/sleep.png",
+      "sha256": "55cea1ed12fea8b667e12a3711686c40ba0a49b0ae2ee1086305686347860f40"
+    },
     "src/main/resources/assets/mcyukkuri/textures/entity/reimu_wasa_deibu/remains_natural.png": {
       "source": "standards/yukkuri-library/drafts/remains/assembled/reimu_wasa_deibu/remains_natural.png",
       "face": "old_dead",
@@ -545,6 +593,12 @@
       "face": "dying_blank",
       "face_source": "standards/yukkuri-library/assembled/reimu/textures/dying_blank.png",
       "sha256": "114eda919225b09fe22a360d482baa20f86d34671f4ba0c3ea4b0cea77f695f7"
+    },
+    "src/main/resources/assets/mcyukkuri/textures/entity/reimu_wasa_deibu/remains_stem_fruit.png": {
+      "source": "standards/yukkuri-library/drafts/remains/assembled/reimu_wasa_deibu/remains_stem_fruit.png",
+      "face": "sleep",
+      "face_source": "standards/yukkuri-library/assembled/reimu/textures/sleep.png",
+      "sha256": "6198916c9da955f020c18571e50443e45fdbb7d97bf0d18180e242067165927b"
     },
     "src/main/resources/assets/mcyukkuri/textures/entity/remains/overlay_char.png": {
       "source": "standards/yukkuri-library/drafts/remains/assembled/shared/overlay_char.png",

@@ -2,18 +2,22 @@
   "title": "油库里场景预览",
   "chapters": [
     {
-      "id": "stem-hanging",
-      "label": "茎生竖直悬挂",
-      "title": "茎生：小茎从挂点竖直悬下",
+      "id": "stem-growth",
+      "label": "茎生连续长出",
+      "title": "茎生：约 20 秒连续长出与带茎遗体",
       "tag": "待试玩",
-      "summary": "当前制作配方与运行网格的静止状态离线预览；小茎没有固定左右斜伸，移动摆动与真实出生仍待试玩。",
+      "summary": "制作数据的离线预览：主茎、短梗与实子沿同一进度从萌芽长到足熟，饿死遗体带着死前的茎与未熟实子；游戏接线、行走摆动与出生仍待试玩。",
       "model": "reimu",
       "points": [],
       "steps": [],
       "gallery": [
         {
-          "src": "stem-hanging/current.png",
-          "label": "竖直悬挂的侧面与斜前方"
+          "src": "stem-growth/growth.png",
+          "label": "萌芽、挂小果、半熟、足熟"
+        },
+        {
+          "src": "stem-growth/remains.png",
+          "label": "饿死遗体带茎（小果、半熟）"
         }
       ],
       "source": "art/props/family-life/README.md"

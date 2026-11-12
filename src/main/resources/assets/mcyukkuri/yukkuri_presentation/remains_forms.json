@@ -121,6 +121,15 @@
       }
     }
   },
+  "stem": {
+    "sag": 0.8,
+    "pedicel_slack": 1.1,
+    "colour": [
+      124,
+      128,
+      62
+    ]
+  },
   "atlases": {
     "reimu": [
       "burned",
@@ -132,6 +141,7 @@
       "retained",
       "sick",
       "starved",
+      "stem_fruit",
       "violent"
     ],
     "marisa": [
@@ -144,6 +154,7 @@
       "retained",
       "sick",
       "starved",
+      "stem_fruit",
       "violent"
     ],
     "chen": [
@@ -156,6 +167,7 @@
       "retained",
       "sick",
       "starved",
+      "stem_fruit",
       "violent"
     ],
     "alice": [
@@ -168,6 +180,7 @@
       "retained",
       "sick",
       "starved",
+      "stem_fruit",
       "violent"
     ],
     "patchouli": [
@@ -180,6 +193,7 @@
       "retained",
       "sick",
       "starved",
+      "stem_fruit",
       "violent"
     ],
     "marisa_tsumuri": [
@@ -192,6 +206,7 @@
       "retained",
       "sick",
       "starved",
+      "stem_fruit",
       "violent"
     ],
     "reimu_wasa": [
@@ -204,6 +219,7 @@
       "retained",
       "sick",
       "starved",
+      "stem_fruit",
       "violent"
     ],
     "reimu_deibu": [
@@ -216,6 +232,7 @@
       "retained",
       "sick",
       "starved",
+      "stem_fruit",
       "violent"
     ],
     "reimu_wasa_deibu": [
@@ -228,6 +245,7 @@
       "retained",
       "sick",
       "starved",
+      "stem_fruit",
       "violent"
     ]
   }

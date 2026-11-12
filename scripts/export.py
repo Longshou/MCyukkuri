@@ -121,6 +121,11 @@ TABLE += [exporter('source:'+p, p, [Path(p).parent.as_posix()+'/']) for p in [
       ('wear', 'supplies', 'large_nests')],
     'standards/yukkuri-library/drafts/body-marks/hair-wounds/select_runtime.py',
 ]]
+# The growing stem and the stem kept on remains: read-only clearance check of their shared geometry.
+STEM_GROWTH = 'art/props/family-life/stem_growth.py'
+TABLE.append(exporter('source:'+STEM_GROWTH, STEM_GROWTH, ['art/props/family-life/', 'standards/yukkuri-v1/components/common/stem.json',
+             'standards/yukkuri-library/drafts/remains/recipe.json', 'src/main/resources/assets/mcyukkuri/yukkuri/'],
+             note='Clearance check only; writes nothing.'))
 
 # Authoring prerequisites order only the selected builders; selecting a runtime
 # owner alone must not silently rebuild its previously accepted source geometry.

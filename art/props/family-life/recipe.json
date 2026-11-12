@@ -20,6 +20,15 @@
   "pedicel_reach": 0.0,
   "pedicel_side": 0.0,
   "pedicel_drop_degrees": 90,
+  "growth": {
+    "note": "One continuous stem and fruit pose per gestation progress p (0-1, about 20 s nominal). Curves are [p, value] knots read with linear interpolation and clamped at the ends. stalk: extent g of the whole authored arc, sockets and pedicels, scaled about the forehead root. thickness_min: stalk and pedicel radius factor at g=0, rising linearly to 1 at g=1. fruit_emerge: bud swelling factor 0-1. fruit_ripen: 0 at bud size, 1 at the child's own birth size. bud_scale: fruit size (adult = 1) once emerged; a child born smaller uses its own size. stem_growth.py --check verifies clearance at every percent of p.",
+    "stalk": [[0, 0], [0.01, 0.16], [0.025, 0.4], [0.04, 0.56], [0.06, 0.7], [0.1, 0.85], [0.15, 0.95], [0.2, 1]],
+    "thickness_min": 0.45,
+    "fruit_emerge": [[0.03, 0], [0.045, 0.55], [0.06, 1]],
+    "bud_scale": 0.05,
+    "fruit_ripen": [[0.05, 0], [0.12, 0.1], [0.25, 0.28], [0.4, 0.47], [0.55, 0.64], [0.7, 0.8], [0.82, 0.92], [0.92, 1]],
+    "samples": {"sprout": 0.02, "small_fruit": 0.08, "half_ripe": 0.45, "full_ripe": 1}
+  },
   "variants": {
     "reimu": {
       "root": [

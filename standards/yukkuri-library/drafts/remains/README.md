@@ -7,7 +7,7 @@
 | 文件 | 内容 |
 | --- | --- |
 | `recipe.json` | 每种形态的死亡脸、整体缩放与侧倾、皮肤／头发／饰物调色、表层与地面贴花；水中两阶段的叠加参数 |
-| `build.py` | 生成 `assembled/<模型>/remains_<形态>.png`、`assembled/shared/overlay_*.png`、`decal_*.png` 与 `assembled/manifest.json` |
+| `build.py` | 生成 `assembled/<模型>/remains_<形态>.png`（含茎上未熟实子 `remains_stem_fruit.png`）、`assembled/shared/overlay_*.png`、`decal_*.png` 与 `assembled/manifest.json` |
 | `export.py` | 复制到 `art/source/remains/` 快照和运行资源，写出 `yukkuri_presentation/remains_forms.json`，登记 `art/runtime-sources.json` 的 `remains_art` |
 | `render.cjs`、`preview.py` | 用运行网格、表情补丁与库内软件渲染器出预览 |
 | `grave_marker.py` | 土冢头端的小石碑：写出 `yukkuri_props/grave_marker.json`、`textures/props/grave_marker.png` 和共享 `yukkuri_props/index.json` 的 `grave_marker` 条目（owner `grave_marker`）；`--preview` 出主仓 `.local/previews/grave-marker/` |
@@ -20,6 +20,7 @@
 - **调色**按运行网格 UV 求出皮肤、头发、饰物实际采样的纹素，只改这些纹素；圆润身体的皮肤是单一色块，所以皮肤上的纹样不画进图集。死者腮红按配方淡去。烧死在头发色块上撒少量灰点，黑发也能看出。馅料用偏紫的豆沙褐，不用血红。
 - **表层**是 64×16 的环向贴图：u 绕身体一周、正面在 0.5，v 从头顶到足底，运行时贴在实际蒙皮外侧 0.03 单位，受伤补丁处让给伤口美术。纹样为干纹、裂口露馅、焦黑结痂与灰、刀口渗馅、湿斑与滴水下摆、头顶与两侧的霜、黄斑与霉点、泡水大白斑与褶、溶化流痕；眼口区域留空。
 - **姿态**只用整体缩放与不超过 12° 的侧倾，绕着地点；与饱腹塌陷、腐败塌陷相乘，高度下限 0.15。压死、外伤和溶化另画地面贴花（馅渍、侧边渗出的馅、面皮残渣），离地 0.02 格避免闪烁。
+- **带茎遗体**：母体带着未完成的茎死去时，遗体保留死前那根茎（配方 `stem`，导出到 `remains_forms.json` 的 `stem`）。根点随遗体姿态（缩放、侧倾，游戏内再乘饱腹与腐败塌陷），茎本身不随尸身压扁，外段按弧长平方下垂 `sag`×茎高，短梗竖垂、长 `pedicel_slack` 倍，实子停在死前大小、碰地就搁在地上，茎与短梗用枯黄绿 `colour`。未熟实子用 `remains_stem_fruit.png`：睡脸（未睁眼即死）、去腮红、肤色与头发褪向干枯色。几何与净空核对见 [stem_growth.py](../../../../art/props/family-life/stem_growth.py)。
 - 色板、形状、比例与纹样均为项目美术设计，不复制外部图片。
 
 - **小石碑**（项目设计）：安葬者做的小标记，方向先由概念图选出石碑与木墓标两款，渲染比较后选石碑（远看最像墓、在草地与土冢上对比清楚）。宽 4、高 6.5（另埋入 1）、厚 2 单位，阶梯圆顶；四个面直接采样原版 `smooth_stone` 贴图内部纹素（每 1/16 格一纹素，不复制原版像素），正面刻字是本项目 32×32 贴图上的四行横线（每 1/16 格两纹素，首行最短像名字），贴在正面前 0.04 单位。摆放与缩放见 `body/GraveBlock`。
