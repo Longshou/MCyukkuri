@@ -9,7 +9,6 @@
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
 | 台词审校与补充（总负责人调度的 Codex 标签页） | `.worktrees/wp-gb-speech-review` | art/dialogue/, src/main/resources/assets/mcyukkuri/dialogue/, lang/*.json |
-| 部位占用统一权威（嘴、辫子、帽、承载） | `.worktrees/wp-hj-occupancy-unify` | life/LifeMeal、family/FamilyFeeding、settlement/ForageTrip、HabitatLife、ParentCarry |
 | 宠物店重做（反馈 19–26 与 11-13 补充） | `.worktrees/wp-hg-pet-shop` | shop/、human/、art/structures/human-world/ |
 | 鬼威惨工具交互设计与重建模 | `.worktrees/wp-hh-oni-tools` | art/props/, src/main/resources/assets/mcyukkuri/ (tool models/textures), art/CATALOG.md |
 | 流浪油：遮蔽物、垃圾点、避风（FG 重做） | `.worktrees/wp-hf-stray` | src/main/java/.../shelter/, stray/forage code, museum FG scenes, docs/FEATURES.md |
