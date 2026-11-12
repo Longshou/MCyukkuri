@@ -166,11 +166,11 @@ def connect_panes(b):
 def register_pen(b,name,interior,bowl,nests,minimum=(3,3),y=3):
     """y is the cell the animals stand in (the floor block is below it)."""
     b.pens.append({'name':name,'interior':interior,'bowl':bowl,'nests':nests,'min':minimum,'y':y})
-def carpet(b,x0,z0,x1,z1,color,y=3):
+def carpet(b,x0,z0,x1,z1,color):
     """Rug on free floor cells only."""
     for x in range(x0,x1+1):
         for z in range(z0,z1+1):
-            if name_at(b,x,y,z)=='minecraft:air': b.block(x,y,z,color+'_carpet')
+            if name_at(b,x,3,z)=='minecraft:air': b.block(x,3,z,color+'_carpet')
 def roof(b,z0,z1):
     """Low pitched roof running along x: slab/stair pairs rise 1 per 2 blocks from both eaves to a flat ridge, gable ends filled.
     Dark-oak eave trim and ridge cap split each slope into 5-row mud-brick bands; three skylight patches per slope break it up."""
@@ -248,16 +248,16 @@ def shop():
     # Sales hall: four display booths (interior 3x3, glass to street window and aisle). The window wall is the street glass.
     # Each booth is a raised display shelf (block at y3, the animal at y4): eye level with a customer in the aisle and visible
     # above the street plinth; panes rise three blocks above the shelf and the top stays open for the keeper's basket.
-    # A cushion carpet, a real toy, and a price tag hung on the shelf front in the aisle.
+    # The shelf top is a full wool cushion (a carpet would make the cells unstandable for the animals' own checks), with a real
+    # toy on it, and a price tag hung on the shelf front in the aisle.
     def booth(x0,kind,grade,traits,label,toy,cushion,predator=False):
         for x in (x0-1,x0+3):
             if 2<=x<=22: glass(b,(x,4),(x,7),full=predator,top=6)
         glass(b,(max(x0-1,2),7),(min(x0+3,22),7),full=predator,top=6)
-        b.box((x0,3,4),(x0+2,3,6),'birch_planks')
+        b.box((x0,3,4),(x0+2,3,6),cushion+'_wool')
         b.bowl(x0,4,y=4); b.block(x0+2,4,4,'mcyukkuri:predator_nest' if predator else 'mcyukkuri:yukkuri_nest')
-        carpet(b,x0,4,x0+2,6,cushion,y=4)
-        b.pet(x0+1.5,5.5,kind,'shopkeeper','stock',grade,skills=ALL_SKILLS,traits=traits,y=4.0625)
-        b.toy(x0+.5,4.0625,6.5,toy)
+        b.pet(x0+1.5,5.5,kind,'shopkeeper','stock',grade,skills=ALL_SKILLS,traits=traits,y=4)
+        b.toy(x0+.5,4,6.5,toy)
         b.wall_sign(x0+1,3,8,label)
         register_pen(b,'booth_'+kind,(x0,4,x0+2,6),(x0,4),[(x0+2,4)],y=4)
     # Authored temperaments (intelligence, friendliness, boldness, attachment, self-control) give the four booths four different answers

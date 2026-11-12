@@ -1295,14 +1295,15 @@ add('shop_build', 'shop', '整座商店：店员照料上架太久的库存', '�
 # The booths' authored temperaments (art/structures/human-world/build.py): Chen shy, gold Alice proud, Reimu shows off, Remilia pleads;
 # 17 days on the shelf (of the 20 before a stale recall) wear Remilia's hope down into a sulk. Template x/z -> scene dx = 20 - x, dz = 17 - z,
 # the shop floor stands two blocks above the street; the view is the pavement in front of the booth window (template 10.5, 0.5).
-BOOTH = '@e[type=mcyukkuri:{},nbt={{YukkuriPet:{{Grade:{}}}}},distance=..80,limit=1]'
+BOOTH = '@e[type=mcyukkuri:{},nbt={{YukkuriPet:{{Grade:{}}},NeoForgeData:{{HumanCommerce:{{Use:"stock"}}}}}},distance=..80,limit=1]'
 add('shop_window', 'shop', '展舱里的油看见客人：招揽、摆架子、害羞、闹别扭', '展舱里的油看见客人：招揽、摆架子、害羞、闹别扭',
     '站在街面橱窗前或店内过道，沿四个展舱慢慢走：每只隔着玻璃按自己的脾气回应你——灵梦凑到玻璃前卖力表现，金章爱丽丝端着徽章摆架子，'
     '橙往后躲、捂脸，上架 17 天的蕾米莉亚背过身闹别扭；你走开时恳求过的会失落，记住这次落空。读档看各自的上架天数与回应',
-    '建筑几秒；走到展舱 8 格内，1–2 秒内回应', ['yukkuri human build shop ~8 ~ ~17 south'],
-    late=['scoreboard objectives add scn_t dummy', 'execute store result score #now scn_t run time query gametime',
-          'scoreboard players remove #now scn_t 408000',
-          f'execute as {BOOTH.format("remilia", 2)} store result entity @s NeoForgeData.HumanCommerce.ForSaleSince long 1 run scoreboard players get #now scn_t'],
+    '建筑几秒；走到展舱 8 格内，1–2 秒内回应',
+    # Written in the build's own tick, before any of the stock first answers a customer.
+    ['yukkuri human build shop ~8 ~ ~17 south', 'scoreboard objectives add scn_t dummy', 'execute store result score #now scn_t run time query gametime',
+     'scoreboard players remove #now scn_t 408000',
+     f'execute as {BOOTH.format("remilia", 2)} store result entity @s NeoForgeData.HumanCommerce.ForSaleSince long 1 run scoreboard players get #now scn_t'],
     env=DAY, vantage=(9, 16, 180, 10),
     reads=[('读在售个体（上架天数与回应）', f'yukkuri status {STOCK} raw')])
 add('shop_buy_keeper', 'shop', '买下金章爱丽丝：饲养员提篮来接，隔壁的橙眼红', '买下金章爱丽丝：饲养员提篮来接，隔壁的橙眼红',
@@ -3989,7 +3990,8 @@ def _aisle_customer(dx, name):
     return (f'summon mcyukkuri:caretaker_sister ~{dx} ~2 ~8.5 {{Tags:["scn","{tag(name)}"],PersistenceRequired:1b,NoAI:1b,Rotation:[0f,0f],'
             'HumanJob:0,HumanAttitude:1,HumanInitialized:1b}')
 _smoke('shop_window', 1200, [rf'\[shop\] {kind} [^\n]* window start mode={mode} ' for kind, mode in
-                             (('chen', 'SHY'), ('alice', 'PROUD'), ('reimu', 'SHOW_OFF'), ('remilia', 'SULK'))])
+                             (('chen', 'SHY'), ('alice', 'PROUD'), ('reimu', 'SHOW_OFF'), ('remilia', 'SULK'))],
+       readout=[f'yukkuri status {BOOTH.format(kind, grade)} raw' for kind, grade in (('chen', 2), ('alice', 3), ('reimu', 2), ('remilia', 2))])
 next(s for s in S if s.id == 'shop_window').smoke['commands'] = [(100, _aisle_customer(14.5, 'customer_west')), (100, _aisle_customer(.5, 'customer_east'))]
 _smoke('shop_buy_keeper', 1600, [r'\[courier\][^\n]* action=start kind=BUY ', r'\[shop\] chen [^\n]* window witness kind=ENVY ',
                                  r'\[shop\][^\n]* action=buy_live result=delivered [^\n]*mode=keeper'],

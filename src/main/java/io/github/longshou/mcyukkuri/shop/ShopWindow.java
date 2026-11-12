@@ -109,9 +109,16 @@ public final class ShopWindow implements MotorOwner {
         if (pendingWitness(now)) return stock() && ready();
         if (now < nextScan) return false;
         nextScan = now + SCAN_TICKS;
-        if (now < cooldownUntil || !stock() || !ready()) return false;
-        candidate = findCustomer();
-        return candidate != null;
+        if (now < cooldownUntil || !stock()) return false;
+        var seen = findCustomer();
+        if (seen == null) return false;
+        String busy = busy();
+        if (busy != null) {
+            GameplayLog.limited(entity, "shop", "window_busy." + busy, 600, "window customer unanswered customer={} reason={}", seen.getUUID(), busy);
+            return false;
+        }
+        candidate = seen;
+        return true;
     }
 
     public boolean canContinue() { return phase != null && stock() && ready(); }
@@ -158,10 +165,23 @@ public final class ShopWindow implements MotorOwner {
     private boolean stock() { return Custody.view(entity).role() == Custody.Role.STOCK; }
 
     /** Free to answer a customer: awake, fed enough to have no urgent need, on its feet, not handled or held. */
-    private boolean ready() {
-        return entity.isAlive() && !entity.isNoAi() && !entity.isPassenger() && !entity.isPanicking() && !entity.isCommandPlaying()
-                && !entity.pet().busy() && !entity.operations().active() && !entity.life().isSleeping() && !entity.life().hasUrgentNeed()
-                && entity.life().mealTicks() == 0 && entity.hurtTime == 0 && !entity.family().active() && !entity.isInWaterOrBubble();
+    private boolean ready() { return busy() == null; }
+
+    /** What keeps it from answering, or null. */
+    private String busy() {
+        if (!entity.isAlive() || entity.isNoAi()) return "inactive";
+        if (entity.isPassenger()) return "carried";
+        if (entity.isPanicking()) return "panic";
+        if (entity.isCommandPlaying()) return "command";
+        if (entity.pet().busy()) return "handled";
+        if (entity.operations().active()) return "operation";
+        if (entity.life().isSleeping()) return "asleep";
+        if (entity.life().mealTicks() > 0) return "eating";
+        if (entity.life().hasUrgentNeed()) return "urgent_need";
+        if (entity.hurtTime > 0) return "hurt";
+        if (entity.family().active()) return "family";
+        if (entity.isInWaterOrBubble()) return "water";
+        return null;
     }
 
     /** People who come to look at the stock: players, and residents (caretakers or a cruel Oniisan); never the staff. */
