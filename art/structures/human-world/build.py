@@ -98,8 +98,11 @@ class Building:
         self.entities.append({'pos':sequence(6,[x,y,z]),'blockPos':sequence(3,[int(x),int(y),int(z)]),
             'nbt':compound({'id':string(kind),'Pos':sequence(6,[x,y,z]),'Rotation':sequence(5,[180.,0.]),
                 'PersistenceRequired':byte(1),'Invulnerable':byte(0),**extra})})
-    def bowl(self,x,z,y=3):
-        self.block(x,y,z,'mcyukkuri:food_bowl',nbt={'id':string('mcyukkuri:care')})
+    def bowl(self,x,z,y=3,grain=0):
+        """A food bowl; grain > 0 starts it with that many portions of regular grain (a shop that opens with its bowls served)."""
+        nbt={'id':string('mcyukkuri:care')}
+        if grain: nbt['Items']=sequence(10,[{'Slot':byte(0),'id':string('mcyukkuri:oil_grain_regular'),'count':integer(grain)}])
+        self.block(x,y,z,'mcyukkuri:food_bowl',nbt=nbt)
     def pen(self,x,z,kind,role,use='stock',medal=0):
         self.box((x,3,z),(x+4,5,z+4),'glass')
         self.box((x+1,3,z+1),(x+3,5,z+3),'air')
@@ -281,7 +284,7 @@ def shop():
     wall_line(9,4,9,8); wall_line(2,8,8,8,door=(5,8))
     b.box((2,2,4),(8,2,7),'pink_wool',over=True)
     for x in (2,5,8): b.block(x,3,4,'mcyukkuri:yukkuri_nest')
-    b.bowl(2,7); b.block(8,3,7,'mcyukkuri:yukkuri_toilet'); b.toy(5.5,3,6.5,'yarn_ball')
+    b.bowl(2,7,grain=4); b.block(8,3,7,'mcyukkuri:yukkuri_toilet'); b.toy(5.5,3,6.5,'yarn_ball')
     register_pen(b,'window',(2,4,8,7),(2,7),[(2,4),(5,4),(8,4)],(5,3),hatch=(5,8))
     # Authored temperaments (intelligence, friendliness, boldness, attachment, self-control) give three different answers to a customer
     # (shop/ShopWindow): gold Alice is proud, the young Reimu shows off, the young Chen is shy.
@@ -292,7 +295,7 @@ def shop():
     wall_line(15,4,15,8); wall_line(16,8,22,8,door=(19,8))
     b.box((16,2,4),(22,2,7),'purple_wool',over=True)
     for x in (16,22): b.block(x,3,4,'mcyukkuri:predator_nest')
-    b.bowl(16,7); b.block(22,3,7,'mcyukkuri:yukkuri_toilet'); b.toy(19.5,3,6.5,'rubber_ball')
+    b.bowl(16,7,grain=4); b.block(22,3,7,'mcyukkuri:yukkuri_toilet'); b.toy(19.5,3,6.5,'rubber_ball')
     register_pen(b,'predator',(16,4,22,7),(16,7),[(16,4),(22,4)],(5,3),hatch=(19,8))
     b.pet(18.5,5.5,'remilia','shopkeeper','stock',2,skills=ALL_SKILLS,traits=(70,65,55,60,60))
     b.pet(20.5,6.5,'flandre','shopkeeper','stock',0,traits=(60,55,60,55,55),age=220000)
@@ -327,7 +330,7 @@ def shop():
         for z in (18,19,20): slab(b,x,6,z,'oak','top')
     for x in (3,8,13): b.block(x,5,19,'lantern',{'hanging':'true','waterlogged':'false'})
     for x in (2,5,8,11): b.block(x,3,18,'mcyukkuri:yukkuri_nest')
-    b.bowl(13,18); b.bowl(15,18)
+    b.bowl(13,18,grain=4); b.bowl(15,18,grain=4)
     for x in (2,15): b.block(x,3,29,'mcyukkuri:yukkuri_toilet')
     for x,z,flower in [(4,22,'dandelion'),(10,27,'poppy'),(13,23,'cornflower'),(6,28,'oxeye_daisy'),(14,26,'allium')]: b.block(x,3,z,flower)
     b.block(8,3,25,'flowering_azalea')

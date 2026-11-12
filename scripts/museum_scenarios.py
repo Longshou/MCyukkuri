@@ -1617,10 +1617,13 @@ SHOP_STAFF = '@e[nbt={HumanJob:1},distance=..80,sort=nearest,limit=1]'
 add('shop_build', 'shop', '整座商店：任一店员同一菜单，后院放养，店员添食清厕', '整座商店：任一店员同一菜单，后院放养，店员添食清厕',
     '商店整体放下：临街展舱（金章爱丽丝、子油灵梦与橙）、单独隔开的捕食种房（银章蕾米莉亚、子油芙兰），后院放养三只子油。'
     '三位店员没有区别，右键哪一位都打开同一个菜单：在售页列出店里此刻真实在场的全部个体，可购买或交定金预订；收购页可把自己的油卖给店里。'
-    '食盆一开始是空的、两个厕所放了便便：店员会开铁门走进栏里添粮、把便便清进后屋的桶，出门随手关门。店内方块、展示框和在售个体都不能动',
+    '展舱和捕食种房的食盆清空了、两个厕所放了便便：店员会开铁门走进栏里添粮、把便便清进后屋的桶，出门随手关门。店内方块、展示框和在售个体都不能动',
     '建筑几秒；白天约 10–60 秒看店员添食、清厕',
     ['yukkuri human build shop ~8 ~ ~17 south'],
-    late=['data merge block ~12 ~2 ~10 {Waste:3.0d}', 'data merge block ~5 ~2 ~-12 {Waste:3.0d}'],
+    # The shop opens with its bowls served; the street pen's and the predator room's are emptied so feeding starts in two pens at once
+    # (not three staff crossing the yard's one door together).
+    late=['data merge block ~18 ~2 ~10 {Items:[]}', 'data merge block ~4 ~2 ~10 {Items:[]}',
+          'data merge block ~12 ~2 ~10 {Waste:3.0d}', 'data merge block ~5 ~2 ~-12 {Waste:3.0d}'],
     give=['minecraft:emerald 128', 'mcyukkuri:badge_handbook', CORE_FILLING], env=DAY, vantage=(8, 21, 180, 0),
     reads=[('店铺登记（shop list）', 'yukkuri human shop list'),
            ('读店内个体档案', f'yukkuri status {STOCK} raw'),
@@ -4441,8 +4444,8 @@ _smoke('shop_window', 1200, [rf'\[shop\] {kind} [^\n]* window start mode={mode} 
                              (('chen', 'SHY'), ('alice', 'PROUD'), ('remilia', 'SULK'))],
        forbid=[r'\[shop\][^\n]* action=job result=failed '],
        readout=[f'yukkuri status {BOOTH.format(kind, grade)} raw' for kind, grade in (('chen', 0), ('alice', 3), ('remilia', 2))])
-# The west customer stands square in front of the street pen's glass west of its door frame (posts and doors block the view).
-next(s for s in S if s.id == 'shop_window').smoke['commands'] = [(100, _aisle_customer(16.5, 'customer_west')), (100, _aisle_customer(.5, 'customer_east'))]
+# Each customer stands in front of a pen's glass clear of its door frame (posts and doors block the view).
+next(s for s in S if s.id == 'shop_window').smoke['commands'] = [(100, _aisle_customer(16.5, 'customer_west')), (100, _aisle_customer(3.5, 'customer_east'))]
 _smoke('shop_buy', 1600, [r'\[shop\][^\n]* action=job result=start kind=BUY ', r'\[shop\][^\n]* action=job result=reach kind=BUY ',
                           r'\[shop\] chen [^\n]* window witness kind=',
                           r'\[shop\][^\n]* action=buy_live result=committed [^\n]* emeralds_used=0\b',
