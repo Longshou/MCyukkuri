@@ -42,6 +42,7 @@ import io.github.longshou.mcyukkuri.rare.MyonLife;
 import io.github.longshou.mcyukkuri.life.AgitationLife;
 import io.github.longshou.mcyukkuri.mind.MindLife;
 import io.github.longshou.mcyukkuri.motor.BodyDriver;
+import io.github.longshou.mcyukkuri.motor.MouthOccupancy;
 import io.github.longshou.mcyukkuri.family.IndependenceLife;
 import io.github.longshou.mcyukkuri.body.BodyLife;
 import io.github.longshou.mcyukkuri.life.SurfaceLife;
@@ -73,6 +74,7 @@ import io.github.longshou.mcyukkuri.human.Custody;
  */
 public final class YukkuriComponents {
     public static final int SAVE_VERSION = 1;
+    public static final ComponentKey<MouthOccupancy> MOUTH = new ComponentKey<>("mouth", MouthOccupancy.class);
     public static final ComponentKey<SubspeciesLife> SUBSPECIES = new ComponentKey<>("subspecies", SubspeciesLife.class);
     public static final ComponentKey<YukkuriLife> LIFE = new ComponentKey<>("life", YukkuriLife.class);
     public static final ComponentKey<WaterDistress> WATER_DISTRESS = new ComponentKey<>("waterDistress", WaterDistress.class);
@@ -117,6 +119,14 @@ public final class YukkuriComponents {
     // Wintering is saved/loaded by Life; the subspecies has one owner and is not persisted twice.
     // Cannibalism cooldown and Sanction respite already have their own persistence owners.
     private static final List<ComponentSpec<?>> SPECS = List.of(
+        ComponentSpec.ready(MOUTH, MouthOccupancy::new)
+                .save(5, (c, tag) -> tag.put("YukkuriMouth", c.save()))
+                .load(5, (c, ctx) -> c.load(ctx.root()))
+                .interrupt(Interrupt.FRIGHT, InterruptPhase.MAIN, 95, (c, ctx) -> c.interruptWork("fright"))
+                .interrupt(Interrupt.HURT, InterruptPhase.AFTER_ATTACK_NOTIFICATIONS, 95, (c, ctx) -> c.interruptWork("hurt"))
+                .interrupt(Interrupt.COMMAND, InterruptPhase.MAIN, 95, (c, ctx) -> c.interruptWork("command"))
+                .interrupt(Interrupt.DEATH, InterruptPhase.DEATH_ONCE, 65, (c, ctx) -> c.releaseAtDeath())
+                .interrupt(Interrupt.BURNING, InterruptPhase.MAIN, 95, (c, ctx) -> c.interruptWork("burning")).build(),
         ComponentSpec.ready(SUBSPECIES, YukkuriEntity::subspecies)
                 .tick(10, SubspeciesLife::tick)
                 .save(40, (c, tag) -> tag.put("YukkuriSubspecies", c.save()))

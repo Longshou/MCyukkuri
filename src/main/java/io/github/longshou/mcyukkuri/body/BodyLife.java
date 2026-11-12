@@ -4,6 +4,7 @@ import io.github.longshou.mcyukkuri.random.ModRandom;
 
 import io.github.longshou.mcyukkuri.MCYukkuri;
 import io.github.longshou.mcyukkuri.entity.RemainsEntity;
+import io.github.longshou.mcyukkuri.entity.YukkuriComponents;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.LeafSwaddle;
 import io.github.longshou.mcyukkuri.life.Consumables;
@@ -580,7 +581,10 @@ public final class BodyLife {
         // (lead decision, art decision wp-eu full pass) instead of the empty-corpse balance of a body worn down to 0 health.
         if(LeafSwaddle.RETENTION.equals(internal))deathFood=BodyFood.capacity(entity);
         var remains=RemainsEntity.snapshot(entity,source,stemDepletion,sukkiriExhaustion,internal);
+        var mouth=entity.component(YukkuriComponents.MOUTH);
+        RemainsEntity.retainCarriedItems(remains,mouth.itemsForRemains());
         if(!RemainsEntity.place(entity.level(),entity.position(),entity.yBodyRot,remains,false))return;
+        mouth.remainsAcceptedItems();
         settled=true;settledCause=internal;entity.syncBody();
         var stored=remains.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();
         GameplayLog.event(entity,"body","death settled into remains; cause={} internal={} category={} core_hurt={} food={} stem_depletion={} sukkiri_exhaustion={}",

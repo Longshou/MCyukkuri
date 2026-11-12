@@ -6,6 +6,7 @@ import io.github.longshou.mcyukkuri.body.GraveBlock;
 import io.github.longshou.mcyukkuri.family.LeafSwaddle;
 import io.github.longshou.mcyukkuri.body.GraveBlockEntity;
 import io.github.longshou.mcyukkuri.human.FactoryProduction;
+import io.github.longshou.mcyukkuri.interaction.ItemContact;
 import io.github.longshou.mcyukkuri.registry.ModBlocks;
 import io.github.longshou.mcyukkuri.registry.ModEntities;
 import io.github.longshou.mcyukkuri.registry.ModItems;
@@ -13,6 +14,8 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.network.syncher.*;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.ItemTags;
@@ -45,6 +48,7 @@ import net.minecraft.world.damagesource.DamageTypes;
 public final class RemainsEntity extends Entity {
     /** Translation key of the remains name ("X's remains"); its one argument is the name the body had alive. */
     public static final String NAMED="item.mcyukkuri.yukkuri_remains.named";
+    private static final String CARRIED_ITEMS = "CarriedItems";
     private static final EntityDataAccessor<ItemStack> REMAINS=SynchedEntityData.defineId(RemainsEntity.class,EntityDataSerializers.ITEM_STACK);
     public RemainsEntity(EntityType<? extends RemainsEntity> type,Level level){super(type,level);ModRandom.construct(this);}
     @Override protected void defineSynchedData(SynchedEntityData.Builder builder){builder.define(REMAINS,ItemStack.EMPTY);}
@@ -55,6 +59,8 @@ public final class RemainsEntity extends Entity {
     /** Ticks these remains have spent in water (body/RemainsWater); like the decay clock it only runs in the world. */
     private long soak;
     private int waterStage;
+    private boolean carriesItems;
+    private BlockPos refusedCarriedDrop;
     public long soak(){return soak;}
     public int waterStage(){return waterStage;}
     /** The remains as an item stack, carrying the current decay and soaking clocks. */
@@ -90,7 +96,8 @@ public final class RemainsEntity extends Entity {
     public CompoundTag data(){return entityData.get(REMAINS).getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();}
     public void setRemains(ItemStack stack){CorpseFood.migrate(stack);entityData.set(REMAINS,stack.copyWithCount(1));rot=stack.getOrDefault(DataComponents.CUSTOM_DATA,
             CustomData.EMPTY).copyTag().getLong("Rot");var tag=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();
-            soak=Math.max(0,tag.getLong(RemainsWater.SOAK));waterStage=RemainsWater.stage(tag);refreshDimensions();}
+            soak=Math.max(0,tag.getLong(RemainsWater.SOAK));waterStage=RemainsWater.stage(tag);
+            carriesItems=tag.contains(CARRIED_ITEMS,Tag.TAG_LIST);refreshDimensions();}
     @Override public void onSyncedDataUpdated(EntityDataAccessor<?> key){super.onSyncedDataUpdated(key);if(REMAINS.equals(key))refreshDimensions();}
     public static float dimension(CompoundTag data,String key,float fallback){float v=data.contains(key)?data.getFloat(key):fallback;return Float.isFinite(v)?Math.clamp(v,.04f,8):fallback;}
     @Override public EntityDimensions getDimensions(Pose pose){var d=data();return EntityDimensions.scalable(dimension(d,"Width",.75f),dimension(d,"Height",.35f));}
@@ -148,6 +155,31 @@ public final class RemainsEntity extends Entity {
         corpse.setRemains(stack);corpse.moveTo(position.x,position.y,position.z,yaw,0);
         if(checkCollision&&(!level.noCollision(corpse)||!level.getFluidState(corpse.blockPosition()).isEmpty()))return false;
         return level.addFreshEntity(corpse);
+    }
+    /** The existing physical remains can accept real mouth items when there was no supported release at death. */
+    public static void retainCarriedItems(ItemStack remains, ListTag items) {
+        if (!items.isEmpty()) CustomData.update(DataComponents.CUSTOM_DATA, remains, tag -> tag.put(CARRIED_ITEMS, items));
+    }
+    private void putDownCarriedItems() {
+        if (!carriesItems || !onGround() || isInWaterOrBubble() || !level().getFluidState(blockPosition()).isEmpty()
+                || blockPosition().equals(refusedCarriedDrop)) return;
+        var items = data().getList(CARRIED_ITEMS, Tag.TAG_COMPOUND);
+        if (items.isEmpty()) return;
+        var at = position().add(0, .05, 0);
+        if (!ItemContact.hasReleaseSupport(this, at)) return;
+        while (!items.isEmpty()) {
+            var stack = ItemStack.parseOptional(registryAccess(), items.getCompound(0));
+            if (!stack.isEmpty() && ItemContact.release(this, stack, at, Vec3.ZERO) == null) {
+                refusedCarriedDrop = blockPosition();
+                break;
+            }
+            items.removeFirst();
+        }
+        var remains = remains();
+        CustomData.update(DataComponents.CUSTOM_DATA, remains, tag -> {
+            if (items.isEmpty()) tag.remove(CARRIED_ITEMS); else tag.put(CARRIED_ITEMS, items);
+        });
+        setRemains(remains);
     }
     @Override public InteractionResult interact(Player player,InteractionHand hand){
         if(isRemoved()||player.isSpectator()||!player.mayBuild()||player.distanceToSqr(this)>36)return InteractionResult.PASS;
@@ -208,6 +240,8 @@ public final class RemainsEntity extends Entity {
     public boolean bury(String burier,Direction looking){
         BlockPos top=graveTop();
         if(level().isClientSide||isRemoved()||!buryable(top))return false;
+        putDownCarriedItems();
+        if(carriesItems)return false;
         // The marker faces the one who buried the body; the mound's head end is away from them.
         var facing=looking.getOpposite();
         if(!level().setBlockAndUpdate(top,ModBlocks.GRAVE.get().defaultBlockState().setValue(GraveBlock.FACING,facing)))return false;
@@ -241,6 +275,7 @@ public final class RemainsEntity extends Entity {
         setDeltaMovement(motion);
         move(MoverType.SELF,getDeltaMovement());
         setDeltaMovement(getDeltaMovement().multiply(.8,afloat?.72:onGround()?.0:.98,.8));
+        putDownCarriedItems();
     }
     /** A thin haze of spores over stale remains, a heavier one over rotten ones (client only). */
     private void rotParticles(){

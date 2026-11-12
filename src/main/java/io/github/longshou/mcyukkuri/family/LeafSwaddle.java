@@ -3,6 +3,9 @@ import io.github.longshou.mcyukkuri.body.DetachedItems;
 
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.entity.YukkuriComponents;
+import io.github.longshou.mcyukkuri.motor.MouthOccupancy;
+import io.github.longshou.mcyukkuri.motor.MouthOccupancy.Purpose;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.life.ToiletContact;
 import io.github.longshou.mcyukkuri.settlement.PlantBedding;
@@ -14,6 +17,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
@@ -28,8 +32,8 @@ import net.minecraft.world.phys.Vec3;
  * The leaf swaddle and the swaddled child's bowel care (docs/FEATURES.md, 树叶襁褓与幼体排便照护; project design).
  *
  * <p>One component plays both roles. On the child it owns the wrap: whether it is worn and closed, the real leaves inside and
- * the stool loads it holds. On a parent it owns the leaves actually harvested from leaf blocks, the folded wrap and the
- * current care task. Effects go through the existing accounts only (YukkuriLife hygiene and bladder, MindLife unease,
+ * the stool loads it holds. On a parent it owns the folded state and current care task, with harvested leaves held in the
+ * mouth. Effects go through the existing accounts only (YukkuriLife hygiene and bladder, MindLife unease,
  * five-axis friendliness experience); nothing here keeps a second ledger. A closed wrap stops the child's own toileting, so
  * only a parent who really comes, opens it, helps, cleans and wraps again empties the urge; without that care the stool
  * goes into the wrap and the wrap turns from a comfort into a burden. Care happens on the ground only: a wrapped child
@@ -76,11 +80,11 @@ public final class LeafSwaddle {
     private final List<ItemStack> material = new ArrayList<>();
     private UUID wrapper;
     // parent side: real harvested leaves, the folded wrap and the current task
-    private final List<ItemStack> leaves = new ArrayList<>();
     private boolean folded;
     private Task task = Task.NONE;
     private UUID target;
     private int contactTicks, taskTicks, pollWait, carryIdle;
+    private BlockPos refusedCarryDrop;
     private final Map<UUID, Long> refusedUntil = new HashMap<>();
 
     public LeafSwaddle(YukkuriEntity entity) { this.entity = entity; this.plants = new PlantBedding(entity); }
@@ -282,9 +286,14 @@ public final class LeafSwaddle {
         return Math.min(1f, contactTicks / (float) length);
     }
     /** The first carried leaf, shown in the mouth like other carried material. */
-    public ItemStack carried() { return leaves.isEmpty() ? ItemStack.EMPTY : leaves.getFirst(); }
+    private MouthOccupancy mouth() { return entity.component(YukkuriComponents.MOUTH); }
+    private List<ItemStack> leaves() { return mouth().items(Purpose.SWADDLE); }
+    private boolean canHoldLeaves() {
+        return mouth().canHold(Purpose.SWADDLE) && entity.habitat().carrying().isEmpty() && entity.forageTrip().load().isEmpty();
+    }
+    public ItemStack carried() { return mouth().stack(Purpose.SWADDLE); }
     /** Read-only observation of all carried leaves, before display priority selects one. */
-    public List<ItemStack> carriedItems() { return leaves.stream().map(ItemStack::copy).toList(); }
+    public List<ItemStack> carriedItems() { return leaves().stream().map(ItemStack::copy).toList(); }
     public boolean active() { return task != Task.NONE; }
 
     /**
@@ -292,13 +301,25 @@ public final class LeafSwaddle {
      * range: a child that is merely asleep, eating or on a refusal cooldown keeps the leaves in the mouth for later.
      */
     private void tickCarry() {
-        if (leaves.isEmpty() || task != Task.NONE) { carryIdle = 0; return; }
+        if (leaves().isEmpty() || task != Task.NONE) { carryIdle = 0; refusedCarryDrop = null; return; }
         if (carryIdle % 200 == 0 && dependentInRange()) { carryIdle = 1; return; }
-        if (++carryIdle < CARRY_LIMIT) return;
+        if (++carryIdle < CARRY_LIMIT || entity.blockPosition().equals(refusedCarryDrop)) return;
         int count = leafCount();
-        leaves.forEach(stack -> entity.spawnAtLocation(stack.copy()));
-        GameplayLog.event(entity, "family", "leaf swaddle carried leaves put down reason=no_dependent_child count={} folded={} idle={}", count, folded, carryIdle);
-        leaves.clear(); folded = false; carryIdle = 0;
+        boolean wasFolded = folded;
+        if (!putDownLeaves()) { refusedCarryDrop = entity.blockPosition(); return; }
+        GameplayLog.event(entity, "family", "leaf swaddle carried leaves put down reason=no_dependent_child count={} folded={} idle={}", count, wasFolded, carryIdle);
+        carryIdle = 0;
+    }
+
+    public boolean putDownLeaves() {
+        int count = leaves().size();
+        if (!mouth().releaseItems(Purpose.SWADDLE, 10)) {
+            if (leaves().size() != count) folded = false;
+            return false;
+        }
+        folded = false;
+        if (task == Task.GATHER || task == Task.FOLD || task == Task.WRAP) stop("put_down");
+        return true;
     }
 
     public String activity() {
@@ -342,7 +363,7 @@ public final class LeafSwaddle {
                     target, wrap.open, wrap.soil, swaddled.life().bladder(), swaddled.life().hygiene());
             return true;
         }
-        if (!maker()) return false;
+        if (!maker() || !canHoldLeaves()) return false;
         var bare = level.getEntitiesOfClass(YukkuriEntity.class, entity.getBoundingBox().inflate(SEARCH_RADIUS),
                 child -> entity.family().caresFor(child) && wrapCandidate(child) && ready(child)).stream()
                 .min(Comparator.comparingDouble(entity::distanceToSqr)).orElse(null);
@@ -424,7 +445,7 @@ public final class LeafSwaddle {
         var wrap = child.leafSwaddle();
         if (taskTicks >= (task == Task.GATHER ? GATHER_LIMIT : PHASE_LIMIT)) return "timeout";
         return switch (task) {
-            case GATHER, FOLD, WRAP -> wrap.worn ? "already_wrapped" : task == Task.FOLD && leafCount() < LEAVES_PER_WRAP ? "leaves_missing"
+            case GATHER, FOLD, WRAP -> !canHoldLeaves() ? "mouth_occupied" : wrap.worn ? "already_wrapped" : task == Task.FOLD && leafCount() < LEAVES_PER_WRAP ? "leaves_missing"
                     : task == Task.WRAP && !folded ? "not_folded" : null;
             case UNWRAP -> wrap.wrapped() ? null : "wrap_not_closed";
             case ASSIST -> canAssist(child) ? null : child.life().constipated() ? "constipated" : "no_load";
@@ -447,7 +468,7 @@ public final class LeafSwaddle {
                 SurfaceApproach.face(entity, SurfaceApproach.yaw(entity.position(), child.position()));
                 if (!entity.onGround() || taskTicks < FOLD_TICKS) return;
                 folded = true;
-                GameplayLog.event(entity, "family", "leaf swaddle folded child={} leaves={}", target, describe(leaves));
+                GameplayLog.event(entity, "family", "leaf swaddle folded child={} leaves={}", target, describe(leaves()));
                 next(Task.WRAP);
             }
             default -> tickContact(child);
@@ -463,7 +484,7 @@ public final class LeafSwaddle {
         var source = plants.source();
         var portion = plants.tick();
         if (portion.isEmpty()) return;
-        leaves.add(portion.copyWithCount(1));
+        mouth().add(Purpose.SWADDLE, portion.copyWithCount(1));
         GameplayLog.event(entity, "family", "leaf swaddle leaf harvested item={} at={} carried={} child={}", portion.getItem(), source, leafCount(), target);
         if (leafCount() >= LEAVES_PER_WRAP) next(Task.FOLD);
     }
@@ -481,7 +502,7 @@ public final class LeafSwaddle {
         switch (task) {
             case WRAP -> {
                 if (contactTicks < WRAP_TICKS) return;
-                String used = describe(leaves);
+                String used = describe(leaves());
                 wrap.putOn(entity, takeLeaves());
                 folded = false;
                 GameplayLog.event(entity, "family", "leaf swaddle wrapped child={} leaves={} unease={} friendliness={}",
@@ -552,20 +573,18 @@ public final class LeafSwaddle {
         if (wrapped() && RETENTION.equals(entity.body().settledCause())) keptOnRemains();
         else if (worn) remove("death");
         int dropped = leafCount();
-        if (dropped > 0) {
-            leaves.forEach(stack -> entity.spawnAtLocation(stack.copy()));
+        if (dropped > 0 && putDownLeaves()) {
             GameplayLog.event(entity, "family", "leaf swaddle carried leaves dropped reason=death count={} folded={}", dropped, folded);
         }
-        leaves.clear(); folded = false;
     }
 
     private List<ItemStack> takeLeaves() {
         var wrap = new ArrayList<ItemStack>();
         int need = LEAVES_PER_WRAP;
-        while (need > 0 && !leaves.isEmpty()) { var stack = leaves.removeFirst(); need -= stack.getCount(); wrap.add(stack); }
+        while (need > 0 && !leaves().isEmpty()) { var stack = mouth().takeFirst(Purpose.SWADDLE); need -= stack.getCount(); wrap.add(stack); }
         return wrap;
     }
-    private int leafCount() { return leaves.stream().mapToInt(ItemStack::getCount).sum(); }
+    private int leafCount() { return leaves().stream().mapToInt(ItemStack::getCount).sum(); }
     private static String describe(List<ItemStack> stacks) {
         var out = new StringBuilder();
         for (var stack : stacks) out.append(out.isEmpty() ? "" : ",").append(stack.getCount()).append('x').append(stack.getItem());
@@ -579,7 +598,7 @@ public final class LeafSwaddle {
     public String statusDetail() {
         String child = (worn ? (open ? "open" : "closed") + " soil=" + soil + " leaves=" + describe(material) : "none")
                 + " neglect=" + neglect + " stage=" + neglectStage() + " swelling=" + swelling();
-        return "wrap=" + child + " task=" + task.name().toLowerCase() + " carried=" + describe(leaves) + " folded=" + folded;
+        return "wrap=" + child + " task=" + task.name().toLowerCase() + " carried=" + describe(leaves()) + " folded=" + folded;
     }
 
     public CompoundTag save() {
@@ -589,7 +608,7 @@ public final class LeafSwaddle {
         if (openAt != null) { tag.putDouble("OpenX", openAt.x); tag.putDouble("OpenY", openAt.y); tag.putDouble("OpenZ", openAt.z); }
         tag.put("Material", stacks(material));
         if (wrapper != null) tag.putUUID("Wrapper", wrapper);
-        tag.put("Leaves", stacks(leaves)); tag.putBoolean("Folded", folded);
+        tag.putBoolean("Folded", folded);
         return tag;
     }
 
@@ -601,7 +620,9 @@ public final class LeafSwaddle {
         openAt = open && tag.contains("OpenX") ? new Vec3(tag.getDouble("OpenX"), tag.getDouble("OpenY"), tag.getDouble("OpenZ")) : null;
         read(tag.getList("Material", Tag.TAG_COMPOUND), material);
         wrapper = tag.hasUUID("Wrapper") ? tag.getUUID("Wrapper") : null;
-        read(tag.getList("Leaves", Tag.TAG_COMPOUND), leaves);
+        var legacyLeaves = new ArrayList<ItemStack>();
+        read(tag.getList("Leaves", Tag.TAG_COMPOUND), legacyLeaves);
+        mouth().importItems(Purpose.SWADDLE, legacyLeaves);
         folded = tag.getBoolean("Folded") && leafCount() >= LEAVES_PER_WRAP;
         soilRetryAt = 0;
     }

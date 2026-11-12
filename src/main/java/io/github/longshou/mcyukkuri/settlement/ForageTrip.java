@@ -9,6 +9,7 @@ import io.github.longshou.mcyukkuri.world.SearchBudget.Purpose;
 import javax.annotation.Nullable;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.entity.YukkuriComponents;
 import io.github.longshou.mcyukkuri.family.FamilyProvision;
 import java.util.EnumSet;
 import net.minecraft.core.BlockPos;
@@ -103,6 +104,11 @@ public final class ForageTrip extends Goal {
     public long away() { return outing() ? level().getGameTime() - startedAt : 0; }
     public int radius() { return radius; }
     public ItemStack load() { return load; }
+    public ItemStack takeLegacyLoad() {
+        var stack = load;
+        load = ItemStack.EMPTY;
+        return stack;
+    }
     public void saveLoad(CompoundTag tag) {
         if (!load.isEmpty()) tag.put("YukkuriForageLoad", load.save(entity.registryAccess()));
     }
@@ -217,7 +223,7 @@ public final class ForageTrip extends Goal {
     }
 
     private boolean canCarryForage() {
-        return entity.life().mealTicks() == 0 && entity.family().carrying().isEmpty();
+        return entity.life().mealTicks() == 0 && entity.component(YukkuriComponents.MOUTH).freeForExternalWork();
     }
 
     /** The available provider puts the short store ahead of empty-handed work and moderate personal hunger. */

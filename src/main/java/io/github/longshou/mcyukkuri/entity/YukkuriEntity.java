@@ -759,6 +759,7 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
 
     @Override
     public void tick() {
+        if (!level().isClientSide) component(YukkuriComponents.MOUTH).settleLegacy();
         super.tick();
         if (!level().isClientSide) sync().syncBodyYaw(yBodyRot);
         HumanCommerce.tickAnimal(this);

@@ -9,6 +9,7 @@ import io.github.longshou.mcyukkuri.headwear.HullBounds;
 import io.github.longshou.mcyukkuri.life.NestDoorway;
 import io.github.longshou.mcyukkuri.life.NestResting;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
+import io.github.longshou.mcyukkuri.interaction.ItemContact;
 import io.github.longshou.mcyukkuri.motor.ContactGeometry;
 import io.github.longshou.mcyukkuri.motor.Action;
 import io.github.longshou.mcyukkuri.motor.ClipMarkers;
@@ -573,16 +574,16 @@ public final class Release implements Action {
         if (child.getVehicle() == carrier) ParentCarry.stopLowering(carrier, child);
     }
 
-    /** The same release at once, for an interruption, a death or an ended intent ({@code forced}: the room check is skipped and the body comes down where it is). Returns that check. */
-    public static Feasibility now(YukkuriEntity carrier, YukkuriEntity child, boolean forced, String cause) {
-        var room = forced ? Feasibility.pass() : new Release(child).room(carrier, carrier.position(), carrier.bodyYaw(), ParentCarry.letGoPoint(carrier, child));
-        if (room.ok() && child.getVehicle() == carrier) let(carrier, child, cause);
-        return room;
+    /** An interruption can end a real hold where the child hangs if there is dry support under it. */
+    public static boolean releaseAtSupport(YukkuriEntity carrier, YukkuriEntity child, String cause) {
+        if (child.getVehicle() != carrier || !ItemContact.hasReleaseSupport(carrier, child.position())) return false;
+        let(carrier, child, cause);
+        return true;
     }
 
     /**
-     * The carry side of the interrupt bridge: an interrupted carrier lets every child go where it is, and an interrupted held child
-     * (bar a fright) lets go of its carrier. Fright keeps the family holds for flight. A hit child stays held, and a hit carrier
+     * The carry side of the interrupt bridge: if the current spot has no support, an ordinary set-down takes over.
+     * Fright keeps the family holds for flight. A hit child stays held, and a hit carrier
      * draws once for one young ({@link ParentCarry#struck}); a young still being lifted can lose its grip on a real hit.
      */
     public static void interrupted(YukkuriEntity body, String why) {
@@ -590,9 +591,14 @@ public final class Release implements Action {
         boolean fright = why.equals("fright");
         for (var rider : body.getPassengers())
             if (rider instanceof YukkuriEntity child && !((hit || fright) && ParentCarry.keeps(body, child))
-                    && !(fright && body.family().carry().ownsLift(child))) let(body, child, "carry_" + why);
+                    && !(fright && body.family().carry().ownsLift(child))) endHold(body, child, "carry_" + why);
         if (!fright && body.getVehicle() instanceof YukkuriEntity carrier && !(hit && ParentCarry.keeps(carrier, body)))
-            let(carrier, body, "carry_child_" + why);
+            endHold(carrier, body, "carry_child_" + why);
+    }
+
+    private static void endHold(YukkuriEntity carrier, YukkuriEntity child, String cause) {
+        if (!releaseAtSupport(carrier, child, cause) && carrier.isAlive() && child.isAlive())
+            carrier.family().carry().finish(child, cause);
     }
 
     private static void let(YukkuriEntity carrier, YukkuriEntity child, String cause) {

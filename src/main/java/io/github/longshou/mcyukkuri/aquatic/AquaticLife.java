@@ -2,6 +2,7 @@ package io.github.longshou.mcyukkuri.aquatic;
 
 import io.github.longshou.mcyukkuri.entity.DomainHooks;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.motor.Braid;
 import io.github.longshou.mcyukkuri.family.ParentCarry;
 import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.social.Bonds;
@@ -68,6 +69,7 @@ public final class AquaticLife {
 
     /** Keeps one picked-up stick where her hat is: the set-down hat, else the worn one. */
     static boolean stow(YukkuriEntity y, ItemStack one) {
+        if (!Braid.mouthFree(y)) return false;
         var hat = hat(y);
         return hat != null ? hat.stow(one) : y.life().custody().stow(one);
     }

@@ -8,11 +8,13 @@ import io.github.longshou.mcyukkuri.body.FillingResource;
 import io.github.longshou.mcyukkuri.body.MouthPlacement;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.entity.YukkuriComponents;
 import io.github.longshou.mcyukkuri.event.WildEvents;
 import io.github.longshou.mcyukkuri.family.FamilyFeedingContact;
 import io.github.longshou.mcyukkuri.family.FamilyLife;
 import io.github.longshou.mcyukkuri.interaction.ItemContact;
-import io.github.longshou.mcyukkuri.motor.CarrierSlot;
+import io.github.longshou.mcyukkuri.motor.MouthOccupancy;
+import io.github.longshou.mcyukkuri.motor.MouthOccupancy.Purpose;
 import io.github.longshou.mcyukkuri.social.EcologyPresentation;
 import io.github.longshou.mcyukkuri.pet.social.BadgeSocial;
 import io.github.longshou.mcyukkuri.registry.ModItems;
@@ -35,10 +37,6 @@ final class LifeMeal {
 
     /** Project design: one portion of droppings feeds this much, and soils the eater this much hygiene. */
     static final float PIT_MEAL_NUTRITION = 20, PIT_MEAL_DIRT = 8;
-    private sealed interface Serving permits ItemServing, BodyServing {}
-    private record ItemServing(ItemStack stack) implements Serving {}
-    private record BodyServing(BodyFood.Bite bite) implements Serving {}
-    private final CarrierSlot<Serving> serving = new CarrierSlot<>();
     private int mealTicks, mealHold;
     private UUID feeder;
     private boolean sharedMeal, preparedMeal, bowlMeal;
@@ -54,10 +52,11 @@ final class LifeMeal {
     private static final int MELT_TAIL_TICKS = 20;
     /** No contented melt before this tick: a moment after a filling meal, not a habit. */
     private long contentAfter;
-    ItemStack mouth() { return serving.contents().orElse(null) instanceof ItemServing item ? item.stack() : ItemStack.EMPTY; }
-    BodyFood.Bite mouthBodyFood() { return serving.contents().orElse(null) instanceof BodyServing body ? body.bite() : BodyFood.Bite.EMPTY; }
+    private MouthOccupancy occupancy() { return o.entity().component(YukkuriComponents.MOUTH); }
+    ItemStack mouth() { return occupancy().stack(Purpose.MEAL); }
+    BodyFood.Bite mouthBodyFood() { return occupancy().bite(); }
 
-    boolean hasMouthFood() { return !serving.isEmpty(); }
+    boolean hasMouthFood() { return occupancy().purpose() == Purpose.MEAL; }
 
     int mealTicks() { return mealTicks; }
 
@@ -70,8 +69,7 @@ final class LifeMeal {
     boolean acceptsFood(ItemStack food){return edible(food)&&(!FillingResource.isFilling(food)||FillingResource.acceptable(o.entity(),food));}
 
     private boolean mouthForMeal() {
-        var carry = o.entity().family().carry();
-        return !carry.migrationMouthBusy() && (!o.entity().settlement().familyMarching() || !carry.mouthBusy());
+        return !occupancy().kitInMouth() && !o.entity().family().carry().mouthBusy();
     }
 
     boolean readyForFood() { return needsFood() && mouthForMeal() && !o.entity().body().dying() && !o.entity().family().awaitingLanding() && !o.entity().isPanicking() && !o.entity().isCommandPlaying() && o.entity().isAlive(); }
@@ -93,7 +91,7 @@ final class LifeMeal {
     }
 
     /** A caller checks this before consuming a body's one-shot resource. */
-    boolean canAcceptBodyFood() { return canEat() && o.entity().family().carrying().isEmpty(); }
+    boolean canAcceptBodyFood() { return canEat() && occupancy().canHold(Purpose.MEAL); }
 
     boolean canAcceptBodyFood(BodyFood.Bite bite) { return bite != null && !bite.isEmpty() && canAcceptBodyFood(); }
 
@@ -102,7 +100,7 @@ final class LifeMeal {
         if (!canAcceptBodyFood(bite)) return false;
         o.temperature().stop();
         o.entity().dailyLife().stop();
-        if (!serving.acquire(new BodyServing(bite))) return false;
+        if (!occupancy().acquireMeal(bite)) return false;
         bowlMeal = false;
         syncBodyFood();
         mealHold = 0;
@@ -134,10 +132,29 @@ final class LifeMeal {
     }
 
     private boolean startMeal(ItemStack transferred, UUID fromPlayer, boolean alreadyShared, String reaction) {
-        if (!o.entity().family().releaseCareFood("meal")) return false;
+        if (!makeRoom("meal") || !occupancy().acquireMeal(transferred.copy())) return false;
+        startItemMeal(transferred, fromPlayer, alreadyShared, reaction);
+        return true;
+    }
+
+    boolean beginCarriedMeal(Purpose source) {
+        var stack = occupancy().stack(source);
+        if (!canEat() || stack.isEmpty() || !acceptsFood(stack) || !occupancy().chewCarried(source)) return false;
+        startItemMeal(stack, null, false, "take_food");
+        return true;
+    }
+
+    private boolean makeRoom(String cause) {
+        var purpose = occupancy().purpose();
+        if (purpose == Purpose.CARE) return o.entity().family().releaseCareFood(cause);
+        if (purpose == Purpose.DUTY) return o.entity().settlement().duties().putDownLoad();
+        if (purpose == Purpose.SWADDLE) return o.entity().leafSwaddle().putDownLeaves();
+        return occupancy().canHold(Purpose.MEAL);
+    }
+
+    private void startItemMeal(ItemStack transferred, UUID fromPlayer, boolean alreadyShared, String reaction) {
         o.temperature().stop();
         o.entity().dailyLife().stop();
-        if (!serving.acquire(new ItemServing(transferred.copy()))) return false;
         bowlMeal = false;
         syncBodyFood();
         mealHold = 0; feeder = fromPlayer; sharedMeal = alreadyShared; preparedMeal = InfantFood.isMash(transferred); content = false;
@@ -146,7 +163,6 @@ final class LifeMeal {
         o.entity().showReaction("happy", reaction, 60);
         GameplayLog.event(o.entity(), "meal", "received item={} count={} holder=mouth feeder={} prepared={} shared={}",
                 transferred.getItem(), transferred.getCount(), feeder, preparedMeal, sharedMeal);
-        return true;
     }
 
     boolean holdMeal(int ticks) {
@@ -180,7 +196,7 @@ final class LifeMeal {
     }
 
     private boolean transferTo(YukkuriEntity peer, UUID from) {
-        if (!serving.release(payload -> payload instanceof ItemServing item && peer.life().beginMeal(item.stack(), from, true))) return false;
+        if (!occupancy().releaseMeal(item -> peer.life().beginMeal(item, from, true), bite -> false)) return false;
         clearTransfer();
         return true;
     }
@@ -222,7 +238,7 @@ final class LifeMeal {
                     var returned=applied?o.doses().returnBottle()?new ItemStack(Items.GLASS_BOTTLE):ItemStack.EMPTY:mouth.copy();
                     GameplayLog.event(o.entity(),"meal","oral dose resolved item={} applied={} feeder={} return_item={} count={}",
                             mouth.getItem(),applied,feeder,returned.getItem(),returned.getCount());
-                    serving.consume();
+                    occupancy().clear(Purpose.MEAL);
                     if(!returned.isEmpty()){
                         var player=feeder==null?null:o.level().getPlayerByUUID(feeder);
                         if(player==null||!player.isAlive()||player.distanceToSqr(o.entity())>16||!player.getInventory().add(returned))o.entity().spawnAtLocation(returned);
@@ -250,7 +266,7 @@ final class LifeMeal {
                 else if(mouth.is(ModItems.GRAIN_BUDGET.get())||mouth.is(ModItems.GRAIN_REGULAR.get()))o.increaseDryness(15); // premium grain never leaves the pet thirsty
                 if(filling)FillingResource.swallowed(o.entity(),mouth);
                 // The held item is retired at the same server step that grants nutrition.
-                serving.consume();
+                occupancy().clear(Purpose.MEAL);
                 o.entity().species().ate(o.nutrition(), waste);
                 o.addNutrition(gain); o.addBladder(gain * .5f);
                 GameplayLog.event(o.entity(),"meal","swallowed item={} count={} nutrition={} -> {} feeder={} prepared={} shared={}",
@@ -322,7 +338,7 @@ final class LifeMeal {
     private void swallowBodyFood() {
         BodyFood.Bite swallowed = mouthBodyFood();
         float nutritionBefore=o.nutrition();
-        serving.consume();
+        occupancy().clear(Purpose.MEAL);
         syncBodyFood();
         float gain = swallowed.nutrition();
         o.entity().species().ate(o.nutrition(), false);
@@ -344,27 +360,24 @@ final class LifeMeal {
     boolean preparedMeal() { return preparedMeal; }
     void bowlMeal() { bowlMeal = true; }
     boolean beginDose(ItemStack one, UUID player, boolean returnBottle) {
-        if (!o.entity().family().releaseCareFood("dose")) return false;
+        if (!mouthForMeal() || !makeRoom("dose") || !occupancy().acquireMeal(one.copy())) return false;
         o.temperature().stop();
-        if (!serving.acquire(new ItemServing(one.copy()))) return false;
         syncBodyFood();
         mealHold=0;feeder=player;sharedMeal=true;content=false; meltFace = meltTail = finishFace = null; o.doses().returnBottle(returnBottle);mealTicks=1;
         return true;
     }
     boolean releaseForInterrupt() {
-        return serving.isEmpty() || serving.release(payload -> {
-            if (payload instanceof BodyServing body) {
-                BodyEffects.emit(o.entity(), "spit", body.bite().portions(), MouthPlacement.position(o.entity()));
-                GameplayLog.event(o.entity(),"meal","interrupted bodyFood portions={} phaseTick={}",body.bite().portions(),mealTicks);
-                return true;
-            }
-            ItemStack mouth = ((ItemServing) payload).stack();
-            ItemEntity dropped = ItemContact.release(o.entity(), mouth, 60);
+        return !hasMouthFood() || occupancy().releaseMeal(mouth -> {
+            ItemEntity dropped = ItemContact.releaseSupported(o.entity(), mouth, 60);
             if (dropped == null) {
                 GameplayLog.limited(o.entity(),"meal","release_refused",200,"interrupt release refused item={} count={} phaseTick={}",mouth.getItem(),mouth.getCount(),mealTicks);
                 return false; // Retain the owned serving if spawning was rejected.
             }
             GameplayLog.event(o.entity(),"meal","interrupted item={} count={} phaseTick={} drop={}",mouth.getItem(),mouth.getCount(),mealTicks,dropped.getUUID());
+            return true;
+        }, bite -> {
+            BodyEffects.emit(o.entity(), "spit", bite.portions(), MouthPlacement.position(o.entity()));
+            GameplayLog.event(o.entity(),"meal","interrupted bodyFood portions={} phaseTick={}",bite.portions(),mealTicks);
             return true;
         });
     }
@@ -374,10 +387,6 @@ final class LifeMeal {
         content = false; meltFace = meltTail = finishFace = null;
     }
     void save(CompoundTag tag) {
-        ItemStack mouth = mouth();
-        BodyFood.Bite bodyFood = mouthBodyFood();
-        if (!mouth.isEmpty()) tag.put("Mouth", mouth.save(o.entity().registryAccess()));
-        if (!bodyFood.isEmpty()) tag.put("BodyFood", bodyFood.save());
         tag.putInt("MealTicks", mealTicks); tag.putBoolean("SharedMeal", sharedMeal); tag.putBoolean("PreparedMeal",preparedMeal); tag.putBoolean("BowlMeal",
                 bowlMeal); if (feeder != null) tag.putUUID("Feeder", feeder);
     }
@@ -385,15 +394,12 @@ final class LifeMeal {
         mealHold = 0;
         ItemStack mouth = tag.contains("Mouth",Tag.TAG_COMPOUND) ? ItemStack.parseOptional(o.entity().registryAccess(),tag.getCompound("Mouth")) : ItemStack.EMPTY;
         BodyFood.Bite bodyFood = tag.contains("BodyFood", Tag.TAG_COMPOUND) ? BodyFood.Bite.load(tag.getCompound("BodyFood")) : BodyFood.Bite.EMPTY;
-        // A save from no released version cannot own both kinds of mouthful. Prefer the non-item bite so it cannot be duplicated.
-        if (!bodyFood.isEmpty()) mouth = ItemStack.EMPTY;
-        if (!mouth.isEmpty() && ((!edible(mouth)&&!Consumables.oral(mouth)&&!mouth.is(ModItems.WASTE.get())) || mouth.getCount()!=1)) mouth=ItemStack.EMPTY;
-        serving.restore(!bodyFood.isEmpty() ? new BodyServing(bodyFood) : mouth.isEmpty() ? null : new ItemServing(mouth));
+        occupancy().importMeal(mouth, bodyFood, edible(mouth) || Consumables.oral(mouth) || mouth.is(ModItems.WASTE.get()));
         mealTicks = Math.clamp(tag.getInt("MealTicks"),0,63);
         if (hasMouthFood()) mealTicks = Math.clamp(mealTicks,1,44);
         else if (mealTicks < 45) mealTicks=0;
         sharedMeal=tag.getBoolean("SharedMeal"); preparedMeal=tag.getBoolean("PreparedMeal")
-                || InfantFood.isMash(mouth); bowlMeal=tag.getBoolean("BowlMeal"); feeder=tag.hasUUID("Feeder")?tag.getUUID("Feeder"):null;
+                || InfantFood.isMash(mouth()); bowlMeal=tag.getBoolean("BowlMeal"); feeder=tag.hasUUID("Feeder")?tag.getUUID("Feeder"):null;
         syncBodyFood();
     }
 
@@ -401,7 +407,7 @@ final class LifeMeal {
         BodyFood.Bite bodyFood = mouthBodyFood();
         if (bodyFood.isEmpty()) return;
         BodyEffects.emit(o.entity(), "spit", bodyFood.portions(), MouthPlacement.position(o.entity()));
-        serving.consume();
+        occupancy().clear(Purpose.MEAL);
         syncBodyFood();
     }
 

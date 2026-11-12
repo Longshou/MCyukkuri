@@ -3,11 +3,14 @@ package io.github.longshou.mcyukkuri.settlement;
 import io.github.longshou.mcyukkuri.body.DetachedItems;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.entity.YukkuriComponents;
+import io.github.longshou.mcyukkuri.motor.MouthOccupancy;
+import io.github.longshou.mcyukkuri.motor.MouthOccupancy.Purpose;
 import io.github.longshou.mcyukkuri.life.CareBlock;
 import io.github.longshou.mcyukkuri.life.CareBlockEntity;
 import io.github.longshou.mcyukkuri.life.PoopBlockEntity;
 import io.github.longshou.mcyukkuri.life.Poops;
-import io.github.longshou.mcyukkuri.random.ModRandom;
+import io.github.longshou.mcyukkuri.interaction.ItemContact;
 import io.github.longshou.mcyukkuri.registry.ModItems;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.Comparator;
@@ -29,7 +32,6 @@ import net.minecraft.world.phys.HitResult;
 public final class SettlementDuties {
     private enum Task { NONE, RETREAT, PICKUP, SCOOP, TOILET, DUMP }
     private final YukkuriEntity entity;
-    private ItemStack carrying = ItemStack.EMPTY;
     private Task task = Task.NONE;
     private ItemEntity item;
     private BlockPos destination, toilet, workCenter, heap;
@@ -41,12 +43,14 @@ public final class SettlementDuties {
     public SettlementDuties(YukkuriEntity entity) { this.entity = entity; pit = new PitSlave(entity); }
     public PitSlave pit() { return pit; }
     private ServerLevel level() { return (ServerLevel)entity.level(); }
-    public ItemStack carrying() { return carrying; }
+    public ItemStack carrying() { return mouth().stack(Purpose.DUTY); }
+    private MouthOccupancy mouth() { return entity.component(YukkuriComponents.MOUTH); }
+    private void store(ItemStack stack) { mouth().set(Purpose.DUTY, stack); }
     public boolean active() { return task != Task.NONE; }
     public String activity() { return task == Task.RETREAT ? Behaviors.SETTLEMENT_WITHDRAW : Behaviors.SETTLEMENT_CLEAN; }
     public void clock() {
         if (wait > 0) wait--;
-        if (entity.tickCount % 100 == 0 && !carrying.isEmpty() && assigner() == null) dropCarrying();
+        if (entity.tickCount % 100 == 0 && !carrying().isEmpty() && assigner() == null) dropCarrying();
     }
 
     private boolean ready() {
@@ -88,7 +92,7 @@ public final class SettlementDuties {
     /** There must be a real cleanup source near the working centre before a duty is taken up. */
     private boolean workAvailable(BlockPos center) {
         if (center == null || !local(center)) return false;
-        if (!carrying.isEmpty()) return true;
+        if (!carrying().isEmpty()) return true;
         for (var waste : level().getEntitiesOfClass(ItemEntity.class, new AABB(center).inflate(6, 2, 6), candidate -> candidate.isAlive()
                 && candidate.getItem().is(ModItems.WASTE.get()) && !candidate.hasPickUpDelay()
                 && candidate.getPersistentData().getLong("YukkuriClearedUntil") <= level().getGameTime()))
@@ -114,8 +118,8 @@ public final class SettlementDuties {
         pendingCheckAt = now + 40;
         var assigner = assigner();
         var center = workCenter(assigner);
-        pending = (!carrying.isEmpty() || assigner != null && center != null && local(center) && workAvailable(center))
-                && assigner != null && entity.life().nutrition() >= 40 && entity.life().energy() >= 35 && !entity.life().hasUrgentNeed()
+        pending = (!carrying().isEmpty() || assigner != null && center != null && local(center) && workAvailable(center))
+                && assigner != null && canUseMouth() && entity.life().nutrition() >= 40 && entity.life().energy() >= 35 && !entity.life().hasUrgentNeed()
                 && EventHooks.canEntityGrief(level(), entity);
         return pending;
     }
@@ -136,12 +140,12 @@ public final class SettlementDuties {
             destination = BlockPos.containing(away); task = Task.RETREAT; elapsed = 0; return true;
         }
         var assigner = assigner();
-        if (assigner == null || !EventHooks.canEntityGrief(level(), entity) || !entity.habitat().carrying().isEmpty()) return false;
+        if (assigner == null || !canUseMouth() || !EventHooks.canEntityGrief(level(), entity)) return false;
         workCenter = workCenter(assigner);
         if (workCenter == null || !local(workCenter)) return false;
         destination = dumpSite();
         if (destination == null) return false;
-        if (!carrying.isEmpty()) { task = Task.DUMP; elapsed = 0; return true; }
+        if (!carrying().isEmpty()) { task = Task.DUMP; elapsed = 0; return true; }
         item = level().getEntitiesOfClass(ItemEntity.class, entity.getBoundingBox().inflate(8), waste -> waste.isAlive()
                 && waste.getItem().is(ModItems.WASTE.get()) && !waste.hasPickUpDelay() && workArea(waste.blockPosition())
                 && !GroupPits.inPit(level(), entity.settlement().group(), waste.blockPosition())
@@ -207,6 +211,10 @@ public final class SettlementDuties {
         }
         return null;
     }
+    private boolean canUseMouth() {
+        return mouth().canHold(Purpose.DUTY) && entity.habitat().carrying().isEmpty() && entity.forageTrip().load().isEmpty();
+    }
+
     public boolean canContinue() {
         if (!active() || !ready() || elapsed >= 400 || destination == null || !local(destination)) return false;
         if (task == Task.RETREAT) {
@@ -216,7 +224,7 @@ public final class SettlementDuties {
                     && source instanceof YukkuriEntity observer && observer.isAlive() && SettlementSociety.rejects(observer, entity)
                     && observer.hasLineOfSight(entity) && entity.distanceToSqr(observer) < 12 * 12;
         }
-        return assigner() != null && EventHooks.canEntityGrief(level(), entity);
+        return assigner() != null && canUseMouth() && EventHooks.canEntityGrief(level(), entity);
     }
     public void tickGoal() {
         if (!canContinue()) { stop(); return; }
@@ -226,7 +234,7 @@ public final class SettlementDuties {
             if (item == null || !item.isAlive() || item.hasPickUpDelay() || !item.getItem().is(ModItems.WASTE.get())
                     || !workArea(item.blockPosition()) || !entity.hasLineOfSight(item)) { stop(); return; }
             if (approach(item.blockPosition()) && entity.distanceToSqr(item) < 2.25) {
-                carrying = item.getItem().copyWithCount(1);
+                store(item.getItem().copyWithCount(1));
                 var remaining = item.getItem().copy(); remaining.shrink(1);
                 if (remaining.isEmpty()) item.discard(); else item.setItem(remaining);
                 item = null; task = Task.DUMP; elapsed = 0;
@@ -234,9 +242,9 @@ public final class SettlementDuties {
         } else if (task == Task.SCOOP) {
             if (heap == null || !workArea(heap) || !(level().getBlockEntity(heap) instanceof PoopBlockEntity source) || source.count() == 0) { stop(); return; }
             if (approach(heap) && entity.distanceToSqr(Vec3.atBottomCenterOf(heap)) < 2.25) {
-                carrying = source.takeForCleanup();
-                if (!carrying.isEmpty()) GameplayLog.event(entity, "settlement", "cleanup lifted source=heap at={} volume={}", heap, DetachedItems.volume(carrying));
-                task = carrying.isEmpty() ? Task.NONE : Task.DUMP; elapsed = 0; heap = null;
+                store(source.takeForCleanup());
+                if (!carrying().isEmpty()) GameplayLog.event(entity, "settlement", "cleanup lifted source=heap at={} volume={}", heap, DetachedItems.volume(carrying()));
+                task = carrying().isEmpty() ? Task.NONE : Task.DUMP; elapsed = 0; heap = null;
             }
         } else if (task == Task.TOILET) {
             if (toilet == null || !workArea(toilet) || !(level().getBlockEntity(toilet) instanceof CareBlockEntity care)
@@ -244,9 +252,9 @@ public final class SettlementDuties {
             var stand = standBeside(toilet);
             if (stand == null) { stop(); return; }
             if (approach(stand) && entity.distanceToSqr(Vec3.atCenterOf(toilet)) < 2.25 && clearContact(toilet)) {
-                carrying = care.takeWasteForCleanup();
-                if (!carrying.isEmpty()) GameplayLog.event(entity, "settlement", "cleanup lifted source=toilet at={} volume={}", toilet, DetachedItems.volume(carrying));
-                task = carrying.isEmpty() ? Task.NONE : Task.DUMP; elapsed = 0;
+                store(care.takeWasteForCleanup());
+                if (!carrying().isEmpty()) GameplayLog.event(entity, "settlement", "cleanup lifted source=toilet at={} volume={}", toilet, DetachedItems.volume(carrying()));
+                task = carrying().isEmpty() ? Task.NONE : Task.DUMP; elapsed = 0;
             }
         } else if (task == Task.DUMP && approach(destination)) {
             if (dropCarrying()) {
@@ -269,33 +277,38 @@ public final class SettlementDuties {
         return false;
     }
     public boolean dropCarrying() {
-        if (carrying.isEmpty()) return true;
-        if (carrying.is(ModItems.WASTE.get()) && carrying.getCount() == 1) {
+        if (carrying().isEmpty()) return true;
+        if (carrying().is(ModItems.WASTE.get()) && carrying().getCount() == 1) {
             // Set down where it stands, in the pit when it has reached it (life/Poops); a spot nothing can take keeps the item as before.
             var group = entity.settlement().group();
             var cells = GroupPits.cells(level(), group);
-            var placed = Poops.place(level(), entity.blockPosition(), carrying.copy(), cells.isEmpty() ? null : cell -> GroupPits.inCells(cells, cell));
+            var placed = Poops.place(level(), entity.blockPosition(), carrying().copy(), cells.isEmpty() ? null : cell -> GroupPits.inCells(cells, cell));
             if (placed != null) {
                 GameplayLog.event(entity, "settlement", "cleanup placed at={} volume={} -> {} overflow={}", placed.at(),
                         placed.before(), placed.after(), placed.overflow());
-                carrying = ItemStack.EMPTY; return true;
+                store(ItemStack.EMPTY); return true;
             }
-            double volume = DetachedItems.volume(carrying);
+            double volume = DetachedItems.volume(carrying());
             if (volume > 1) {
                 int whole = (int)volume;
                 if (!dropLoose(new ItemStack(ModItems.WASTE.get(), whole))) return false;
-                carrying = volume > whole ? DetachedItems.waste(volume - whole) : ItemStack.EMPTY;
-                if (carrying.isEmpty()) return true;
+                store(volume > whole ? DetachedItems.waste(volume - whole) : ItemStack.EMPTY);
+                if (carrying().isEmpty()) return true;
             }
         }
-        if (!dropLoose(carrying)) return false;
-        carrying = ItemStack.EMPTY;
+        if (!dropLoose(carrying())) return false;
+        store(ItemStack.EMPTY);
+        return true;
+    }
+    public boolean putDownLoad() {
+        if (!dropCarrying()) return false;
+        if (active()) stop();
         return true;
     }
     private boolean dropLoose(ItemStack waste) {
-        var drop = ModRandom.created(new ItemEntity(level(), entity.getX(), entity.getY(), entity.getZ(), waste.copy()), entity.getRandom());
-        if (!level().addFreshEntity(drop)) return false;
-        drop.setPickUpDelay(100); drop.getPersistentData().putLong("YukkuriClearedUntil", level().getGameTime() + 1200);
+        var drop = ItemContact.releaseSupported(entity, waste, 100);
+        if (drop == null) return false;
+        drop.getPersistentData().putLong("YukkuriClearedUntil", level().getGameTime() + 1200);
         GameplayLog.event(entity, "settlement", "cleanup dropped loose at={} volume={} waste={}",
                 drop.blockPosition(), DetachedItems.volume(waste), drop.getUUID());
         return true;
@@ -307,11 +320,10 @@ public final class SettlementDuties {
     }
     public CompoundTag save() {
         var tag = new CompoundTag();
-        if (!carrying.isEmpty()) tag.put("Carrying", carrying.save(entity.registryAccess()));
         return tag;
     }
     public void load(CompoundTag tag) {
-        carrying = tag.contains("Carrying") ? ItemStack.parseOptional(entity.registryAccess(), tag.getCompound("Carrying")) : ItemStack.EMPTY;
+        mouth().importItem(Purpose.DUTY, tag.contains("Carrying") ? ItemStack.parseOptional(entity.registryAccess(), tag.getCompound("Carrying")) : ItemStack.EMPTY);
         task = Task.NONE; item = null; toilet = destination = workCenter = null; elapsed = 0; wait = 80;
     }
 }

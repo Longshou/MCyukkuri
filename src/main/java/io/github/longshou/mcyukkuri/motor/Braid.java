@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.motor;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.entity.YukkuriComponents;
 import io.github.longshou.mcyukkuri.entity.YukkuriView;
 import io.github.longshou.mcyukkuri.family.ParentCarry;
 import io.github.longshou.mcyukkuri.motor.action.PlaceProp;
@@ -30,7 +31,7 @@ public final class Braid {
     public static boolean gripping(YukkuriView body) { return ContactGeometry.braided(body) && ParentCarry.braidGripping(body); }
 
     /** Her mouth holds nothing: no item, no bite of food, no carried young. */
-    public static boolean mouthFree(YukkuriView body) {
-        return body.getMouthItem().isEmpty() && body.getMouthBodyFood().isEmpty() && !ParentCarry.mouthCarrying(body);
+    public static boolean mouthFree(YukkuriEntity body) {
+        return body.component(YukkuriComponents.MOUTH).freeForKit();
     }
 }

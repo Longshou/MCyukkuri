@@ -6,6 +6,9 @@ import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.body.MouthPlacement;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.entity.YukkuriComponents;
+import io.github.longshou.mcyukkuri.motor.MouthOccupancy;
+import io.github.longshou.mcyukkuri.motor.MouthOccupancy.Purpose;
 import io.github.longshou.mcyukkuri.life.TravelRange;
 import io.github.longshou.mcyukkuri.motor.Motor;
 import io.github.longshou.mcyukkuri.family.FamilyData;
@@ -53,7 +56,6 @@ public final class HouseLife implements EcologyRoutine {
     private GlobalPos nest;
     private UUID nestIdentity;
     private HouseholdEcology.Den den;
-    private ItemStack carrying = ItemStack.EMPTY;
     private SupplyPileBlockEntity supplyTarget;
     private int wait, ticks, careWait, sleepTicks, startledTicks, lostTicks;
     private boolean active, tending, rested, careContact, feeding, lifting, hurry, denRest;
@@ -73,7 +75,9 @@ public final class HouseLife implements EcologyRoutine {
     }
 
     // ------------------------------------------------------------------------------------------------ home
-    public ItemStack carrying() { return carrying; }
+    public ItemStack carrying() { return mouth().stack(Purpose.HOUSE); }
+    private MouthOccupancy mouth() { return entity.component(YukkuriComponents.MOUTH); }
+    private void store(ItemStack stack) { mouth().set(Purpose.HOUSE, stack); }
     public BlockPos nestPosition() { return nest != null && nest.dimension().equals(entity.level().dimension()) ? nest.pos() : null; }
     public HouseNestBlockEntity nest() {
         BlockPos pos = nestPosition();
@@ -123,7 +127,7 @@ public final class HouseLife implements EcologyRoutine {
         return active && interaction == 0 && (phase == Phase.ENTER || phase == Phase.LEAVE || phase == Phase.LIFT || phase == Phase.RETURN || phase == Phase.RETURN_EXIT
                 || phase == Phase.APPROACH && nest() != null
                 && entity.distanceToSqr(Vec3.atBottomCenterOf(nest().entrance())) < 2.25
-                || carrying.isEmpty() && sourceAvailable() && entity.distanceToSqr(sourcePosition()) < .36);
+                || carrying().isEmpty() && sourceAvailable() && entity.distanceToSqr(sourcePosition()) < .36);
     }
     private boolean physicallyInside() {
         var value = nest();
@@ -168,7 +172,7 @@ public final class HouseLife implements EcologyRoutine {
             case SNIFF -> Behaviors.HOUSE_SNIFF;
             case HIDE -> Behaviors.HOUSE_HIDE;
             case SHAPE -> Behaviors.HOUSE_SHAPE;
-            default -> carrying.isEmpty() ? Behaviors.HOUSE_SCAVENGE : Behaviors.HOUSE_CARRY;
+            default -> carrying().isEmpty() ? Behaviors.HOUSE_SCAVENGE : Behaviors.HOUSE_CARRY;
         };
     }
     /** Short machine-readable stage, for the operator tools and the saved entity data. */
@@ -179,11 +183,11 @@ public final class HouseLife implements EcologyRoutine {
         if (relocation != null) {
             if (relocation.handoff()) return "clutch_handoff";
             if (relocation.rollbackHandoff()) return "clutch_return_handoff";
-            if (relocation.rollback()) return carrying.isEmpty() ? "recover_clutch" : "return_egg";
-            return carrying.isEmpty() ? "to_clutch" : "carry_egg";
+            if (relocation.rollback()) return carrying().isEmpty() ? "recover_clutch" : "return_egg";
+            return carrying().isEmpty() ? "to_clutch" : "carry_egg";
         }
         return switch (phase) {
-            case NONE -> feeding ? "feed" : !carrying.isEmpty() ? "carry" : sourceAvailable() ? "to_source" : "outing";
+            case NONE -> feeding ? "feed" : !carrying().isEmpty() ? "carry" : sourceAvailable() ? "to_source" : "outing";
             case APPROACH -> hurry ? "hide_home" : "to_nest";
             case HIDE -> denRest ? "den_rest" : "hide";
             default -> phase.name().toLowerCase(Locale.ROOT);
@@ -191,7 +195,7 @@ public final class HouseLife implements EcologyRoutine {
     }
     public String describe() {
         return "stage=" + stage() + " nest=" + (nest == null ? "-" : nest.pos().toShortString()) + " den=" + (den == null ? "-" : den.site().toShortString())
-                + " carry=" + (carrying.isEmpty() ? "-" : carrying.getHoverName().getString()) + " human=" + Math.round(humanDistance * 10) / 10.0
+                + " carry=" + (carrying().isEmpty() ? "-" : carrying().getHoverName().getString()) + " human=" + Math.round(humanDistance * 10) / 10.0
                 + " relocation=" + (relocation() == null ? "-" : relocation().status()) + " stats=" + statsText();
     }
     private String statsText() {
@@ -212,7 +216,7 @@ public final class HouseLife implements EcologyRoutine {
         if (careWait > 0) careWait--;
         if (startledTicks > 0) startledTicks--;
         if (lostTicks > 0) lostTicks--;
-        carryAge = carrying.isEmpty() ? 0 : carryAge + 1;
+        carryAge = carrying().isEmpty() ? 0 : carryAge + 1;
         // An abandoned carry (interrupted trips, nest lost or full) ends on the floor, never in limbo inside the mouth.
         if (carryAge > CARRY_LIMIT && !active && entity.isAlive()) { carryAge = 0; dropCarrying(); }
         if (entity.isPanicking() || entity.isOnFire() || entity.isInWaterOrBubble()) { stop(); return; }
@@ -297,7 +301,7 @@ public final class HouseLife implements EcologyRoutine {
     }
     private boolean mayTransfer() { return EventHooks.canEntityGrief((ServerLevel) entity.level(), entity); }
     /** A parent without an in-flight egg yields the migration route to urgent eating; its persisted itinerary remains intact. */
-    private boolean urgentMeal() { return carrying.isEmpty() && entity.life().nutrition() < 30 && entity.life().canEat(); }
+    private boolean urgentMeal() { return carrying().isEmpty() && entity.life().nutrition() < 30 && entity.life().canEat(); }
     private boolean daytime() { return !entity.level().isNight(); }
     /**
      * Working hours: all night, and by day only for a rested adult when nobody is around. A person close by always keeps
@@ -352,11 +356,11 @@ public final class HouseLife implements EcologyRoutine {
             // A real egg already in this parent's mouth reaches its booked destination before eating; all other
             // migration work waits for the urgent meal without discarding its source-owned itinerary.
             if (relocation != null && relocation.carrying() && relocation.ownedBy(entity.getUUID())
-                    && HouseEggs.ticket((ServerLevel)entity.level(),carrying,relocation.carryingRef())) return start(Phase.NONE);
-            if (!carrying.isEmpty() && !SupplyPiles.crumb(carrying)) dropCarrying();
-            if (carrying.isEmpty() && value != null && value.usable(entity) && value.food() > 0) return start(Phase.NONE);
+                    && HouseEggs.ticket((ServerLevel)entity.level(),carrying(),relocation.carryingRef())) return start(Phase.NONE);
+            if (!carrying().isEmpty() && !SupplyPiles.crumb(carrying())) dropCarrying();
+            if (carrying().isEmpty() && value != null && value.usable(entity) && value.food() > 0) return start(Phase.NONE);
             feeding = true;
-            if (SupplyPiles.crumb(carrying)) return start(Phase.NONE);
+            if (SupplyPiles.crumb(carrying())) return start(Phase.NONE);
             findSource(value);
             if (sourceAvailable()) return start(Phase.NONE);
             feeding = false;
@@ -368,9 +372,9 @@ public final class HouseLife implements EcologyRoutine {
         if (value.disturbedTicks() > 0) return start(physicallyInside() ? Phase.LEAVE : Phase.SEARCH);
         // A source nest owns its full-clutch itinerary.  Resume it only after urgent hunger and immediate refuge work.
         if (grief && relocationPlan(value)) return start(Phase.NONE);
-        if (carrying.is(ModItems.HOUSE_EGG.get())) returnEgg();
-        if (!carrying.isEmpty() && grief) {
-            if (wantedResource(value, carrying)) return start(Phase.NONE);
+        if (carrying().is(ModItems.HOUSE_EGG.get())) returnEgg();
+        if (!carrying().isEmpty() && grief) {
+            if (wantedResource(value, carrying())) return start(Phase.NONE);
             dropCarrying(); // Retry only when planning again; a full store must not prevent rest.
         }
         if (entity.life().canEat() && entity.life().nutrition() < 65 && value.food() > 0 && grief) return start(Phase.NONE);
@@ -380,7 +384,7 @@ public final class HouseLife implements EcologyRoutine {
         // Somebody is right there: go in and keep still.
         if (!physicallyInside() && humanTooClose()) { count(Stat.HIDDEN); hideUntil = entity.tickCount + 120; hurry = true; return enterHome(); }
         if (outingAllowed()) {
-            if (carrying.isEmpty() && grief) {
+            if (carrying().isEmpty() && grief) {
                 findSource(value);
                 if (sourceAvailable() || wantsMaterials(value) && scoutAllowed()) {
                     // Everything starts at the door: leave the nest first, then look about.
@@ -397,8 +401,8 @@ public final class HouseLife implements EcologyRoutine {
     private boolean planWithoutNest(boolean grief) {
         if (den != null && denValid()) {
             if (outingAllowed() && grief) {
-                if (!carrying.isEmpty()) {
-                    if (SupplyPiles.lint(carrying)) return start(Phase.NONE);
+                if (!carrying().isEmpty()) {
+                    if (SupplyPiles.lint(carrying())) return start(Phase.NONE);
                     dropCarrying();
                 }
                 findSource(null);
@@ -409,7 +413,7 @@ public final class HouseLife implements EcologyRoutine {
         }
         if (lostTicks > 0 && entity.life().nutrition() >= 30 && entity.life().energy() >= 25) return start(Phase.SEARCH);
         // A carried item must remain real even when no reachable replacement home exists.
-        if (nest == null && !carrying.isEmpty()) dropCarrying();
+        if (nest == null && !carrying().isEmpty()) dropCarrying();
         return false;
     }
     /** A newcomer that has nothing to do rests in its corner, where it will found its nest. */
@@ -477,7 +481,7 @@ public final class HouseLife implements EcologyRoutine {
         if (phase == Phase.SCOUT) return ticks < 600 && entranceCell() != null;
         if (phase == Phase.SNIFF || phase == Phase.SHAPE) return ticks < 80;
         if (phase == Phase.HIDE) return ticks < (denRest ? 900 : 600);
-        if (feeding) return ticks < travelLimit() && (sourceAvailable() || SupplyPiles.crumb(carrying));
+        if (feeding) return ticks < travelLimit() && (sourceAvailable() || SupplyPiles.crumb(carrying()));
         if (relocation() != null && !urgentMeal()) return ticks < travelLimit();
         if (homeStand() == null) return false;
         if (phase == Phase.REST) return true;
@@ -516,8 +520,8 @@ public final class HouseLife implements EcologyRoutine {
     }
     private void tickOuting(HouseNestBlockEntity value) {
         if (value != null && value.relocation() != null && !urgentMeal()) { tickRelocate(value); return; }
-        if (feeding && SupplyPiles.crumb(carrying)) {
-            if (entity.life().beginMeal(carrying, null, false)) { carrying = ItemStack.EMPTY; count(Stat.ATE); }
+        if (feeding && SupplyPiles.crumb(carrying())) {
+            if (entity.life().beginCarriedMeal(Purpose.HOUSE)) count(Stat.ATE);
             stop(); return;
         }
         // Every outing crosses the remembered entrance before choosing an external path.
@@ -525,7 +529,7 @@ public final class HouseLife implements EcologyRoutine {
             phase(Phase.LEAVE); tickPhase(value); return;
         }
         var entrance = entranceCell();
-        if (!feeding && !carrying.isEmpty() && entrance != null && wantedResource(value, carrying)) {
+        if (!feeding && !carrying().isEmpty() && entrance != null && wantedResource(value, carrying())) {
             Vec3 spot = Vec3.atBottomCenterOf(entrance);
             if (inReach(spot) && canSeeContact(spot)) beginInteraction(2, spot);
             else approach(spot);
@@ -625,9 +629,10 @@ public final class HouseLife implements EcologyRoutine {
                 // Lifts one egg out of a spoiled nest in the mouth; then carries it out.
                 entity.getNavigation().stop(); contactTarget = value.eggPosition(0); faceContact();
                 if (ticks == 26) {
+                    if (!carrying().isEmpty() || !mouth().canHold(Purpose.HOUSE)) { stop(); return; }
                     var egg = value.liftRelocationForward(entity);
                     if (egg.isEmpty()) { lifting = false; careWait = 200; phase(Phase.LEAVE); return; }
-                    carrying = egg; entity.showReaction("neutral", "house_pickup", 40);
+                    store(egg); entity.showReaction("neutral", "house_pickup", 40);
                     GameplayLog.event(entity,"house","egg lifted source={} destination={} count={}",value.getBlockPos(),
                             value.relocation()==null?null:value.relocation().target(),egg.getCount());
                 }
@@ -643,7 +648,7 @@ public final class HouseLife implements EcologyRoutine {
                     else { route(threshold, .65); return; }
                 }
                 if (entity.distanceToSqr(outside) < .04) {
-                    if (!carrying.isEmpty() || value.relocation() != null) phase(Phase.NONE);
+                    if (!carrying().isEmpty() || value.relocation() != null) phase(Phase.NONE);
                     else { phase(Phase.PEEK); entity.showReaction("neutral", "house_peek", 60); }
                 } else route(outside, .65);
             }
@@ -673,7 +678,7 @@ public final class HouseLife implements EcologyRoutine {
         return value != null ? Vec3.atBottomCenterOf(value.getBlockPos()) : den != null ? Vec3.atBottomCenterOf(den.site()) : entity.position().add(0, 0, 1);
     }
     private boolean outingWork(HouseNestBlockEntity value) {
-        if (!carrying.isEmpty()) return true;
+        if (!carrying().isEmpty()) return true;
         if (value.usable(entity) && entity.life().canEat() && entity.life().nutrition() < 65 && value.food() > 0) return true;
         if (!wantsMaterials(value)) return false;
         findSource(value); boolean found = sourceAvailable(); clearSource();
@@ -755,11 +760,11 @@ public final class HouseLife implements EcologyRoutine {
     private boolean relocationPlan(HouseNestBlockEntity source) {
         var underway = source.relocation();
         if (underway != null) {
-            if (underway.carrying()) return !carrying.isEmpty() && underway.ownedBy(entity.getUUID())
-                    && HouseEggs.ticket((ServerLevel)entity.level(), carrying, underway.carryingRef());
-            return carrying.isEmpty() && underway.readyFor(entity.getUUID());
+            if (underway.carrying()) return !carrying().isEmpty() && underway.ownedBy(entity.getUUID())
+                    && HouseEggs.ticket((ServerLevel)entity.level(), carrying(), underway.carryingRef());
+            return carrying().isEmpty() && underway.readyFor(entity.getUUID());
         }
-        if (!carrying.isEmpty() || !entity.family().adult() || source.eggs() == 0 || !source.unfit()
+        if (!carrying().isEmpty() || !entity.family().adult() || source.eggs() == 0 || !source.unfit()
                 || entity.life().nutrition() < 40 || entity.life().energy() < 25 || !(entity.level() instanceof ServerLevel level)) return false;
         HouseNestBlockEntity best = null; double score = Double.MAX_VALUE;
         for (var other : new SupplyPileView(level).nearbyNests(source.getBlockPos(), 16)) {
@@ -774,13 +779,13 @@ public final class HouseLife implements EcologyRoutine {
     }
     private void tickRelocate(HouseNestBlockEntity source) {
         var relocation = source.relocation();
-        if (relocation == null) { if (carrying.is(ModItems.HOUSE_EGG.get())) returnEgg(); stop(); return; }
+        if (relocation == null) { if (carrying().is(ModItems.HOUSE_EGG.get())) returnEgg(); stop(); return; }
         var target = eggNest(source);
         if (target == null || target.destroyed()) {
             if (relocationTargetGone(source)) {
                 GameplayLog.event(entity,"house","egg relocation abandoned source={} destination={} carried={} reason=destination_gone",
-                        source.getBlockPos(),relocation.target(),carrying.getCount());
-                if (carrying.isEmpty()) {
+                        source.getBlockPos(),relocation.target(),carrying().getCount());
+                if (carrying().isEmpty()) {
                     // The source tick waits for terminal child entries and returns already-handoff parents before releasing the itinerary.
                     if (relocation.handoff() || relocation.rollback() || relocation.rollbackHandoff()) source.beginEggRelocationRollback();
                     else source.abandonEggRelocation(target);
@@ -815,13 +820,13 @@ public final class HouseLife implements EcologyRoutine {
         }
         if (relocation.rollbackHandoff()) { stop(); return; }
         if (relocation.rollback()) {
-            if (carrying.isEmpty()) { phase(Phase.RETURN); return; }
+            if (carrying().isEmpty()) { phase(Phase.RETURN); return; }
             Vec3 spot = Vec3.atBottomCenterOf(source.entrance());
             if (inReach(spot) && canSeeContact(spot)) beginInteraction(6, spot);
             else approach(spot);
             return;
         }
-        if (carrying.isEmpty()) {
+        if (carrying().isEmpty()) {
             lifting = true; restPosition = null;
             phase(physicallyInside() ? Phase.LIFT : Phase.APPROACH); return;
         }
@@ -830,19 +835,21 @@ public final class HouseLife implements EcologyRoutine {
         else approach(spot);
     }
     private void returnEgg() {
-        if (carrying.isEmpty()) return;
+        if (carrying().isEmpty()) return;
         var home = nest();
         var target = eggNest(home);
-        if (home != null && home.abandonRelocationCarry(entity,target,carrying)) {
+        if (home != null && home.ownsRelocationCarry(entity, carrying())) {
+            if (!mouth().releaseItems(Purpose.HOUSE, 10)) return;
+            home.abandonRelocationCarry(target);
             GameplayLog.event(entity,"house","egg left on floor source={} destination={} reason=carrier_interrupted",home.getBlockPos(),target==null?null:target.getBlockPos());
-            entity.spawnAtLocation(carrying.copy()); carrying = ItemStack.EMPTY; return;
+            return;
         }
-        if (home != null && home.insertEgg(carrying)) {
-            GameplayLog.event(entity,"house","egg returned home={} count={}",home.getBlockPos(),carrying.getCount());
-            carrying = ItemStack.EMPTY; return;
+        if (home != null && home.insertEgg(carrying())) {
+            GameplayLog.event(entity,"house","egg returned home={} count={}",home.getBlockPos(),carrying().getCount());
+            store(ItemStack.EMPTY); return;
         }
         // The ledger still holds the egg: leave the real item where it can be found.
-        entity.spawnAtLocation(carrying.copy()); carrying = ItemStack.EMPTY;
+        mouth().releaseItems(Purpose.HOUSE, 10);
     }
     private HandoffResult handoffFamily(HouseNestBlockEntity source,HouseNestBlockEntity target) {
         var relocation = source.relocation();
@@ -860,7 +867,7 @@ public final class HouseLife implements EcologyRoutine {
     private void tickRollbackEntry(HouseNestBlockEntity source) {
         var target = eggNest(source);
         if (target == null || target.destroyed()) {
-            if (relocationTargetGone(source)) { if (!carrying.isEmpty()) returnEgg(); source.abandonEggRelocation(target); }
+            if (relocationTargetGone(source)) { if (!carrying().isEmpty()) returnEgg(); source.abandonEggRelocation(target); }
             stop(); return;
         }
         Vec3 outside = Vec3.atBottomCenterOf(target.entrance());
@@ -870,9 +877,10 @@ public final class HouseLife implements EcologyRoutine {
         }
         Vec3 eggs = target.eggPosition(0);
         if (entity.distanceToSqr(eggs) >= .04 || !entity.onGround()) { route(eggs,.65); return; }
+        if (!carrying().isEmpty() || !mouth().canHold(Purpose.HOUSE)) { stop(); return; }
         var egg = source.liftRelocationRollback(entity,target);
         if (egg.isEmpty()) { wait = Math.max(wait,100); stop(); return; }
-        carrying = egg; entity.showReaction("neutral","house_pickup",40); phase(Phase.RETURN_EXIT);
+        store(egg); entity.showReaction("neutral","house_pickup",40); phase(Phase.RETURN_EXIT);
     }
     /** A recovered egg walks back out of the target before returning to its original source nest. */
     private void tickRollbackExit(HouseNestBlockEntity source) {
@@ -919,7 +927,7 @@ public final class HouseLife implements EcologyRoutine {
     /** Cleaning surprises the real residents. Demolition forgets only the home, never the family. */
     public void disturb(boolean destroyed) {
         if (entity.level().isClientSide || !EcologyRoutines.house(entity)) return;
-        GameplayLog.event(entity,"house","disturbed home={} destroyed={} phase={} carried={}",nest,destroyed,phase,carrying.getCount());
+        GameplayLog.event(entity,"house","disturbed home={} destroyed={} phase={} carried={}",nest,destroyed,phase,carrying().getCount());
         stopExit();
         stop(); entity.life().interrupt(); entity.family().stop(); entity.dailyLife().stop(); entity.social().stop();
         if (destroyed) { dropCarrying(); nest = null; nestIdentity = null; lostTicks = 1200; }
@@ -928,7 +936,7 @@ public final class HouseLife implements EcologyRoutine {
     }
     private void route(Vec3 point, double speed) {
         if (!movement.moveTo(point, speed)) {
-            GameplayLog.limited(entity,"house","route_failed",200,"route failed target={} phase={} carrying={}",point,phase,carrying.getCount());
+            GameplayLog.limited(entity,"house","route_failed",200,"route failed target={} phase={} carrying={}",point,phase,carrying().getCount());
             stop(); wait = 100;
         }
     }
@@ -971,7 +979,7 @@ public final class HouseLife implements EcologyRoutine {
         if (interactionTicks == 13) {
             if (!mayTransfer()) { stop(); return; }
             if (interaction == 1) {
-                if (!sourceAvailable() || !mouthTouchesSource() || !canSeeSource()
+                if (!carrying().isEmpty() || !mouth().canHold(Purpose.HOUSE) || !sourceAvailable() || !mouthTouchesSource() || !canSeeSource()
                         || !wantedSource(value)) { stop(); return; }
                 if (feeding && (!entity.life().canEat() || !entity.life().acceptsFood(sourceContents()))) { stop(); return; }
                 var at = sourcePosition(); boolean lint = supplyTarget.lint();
@@ -984,22 +992,22 @@ public final class HouseLife implements EcologyRoutine {
                 if (feeding) {
                     // All beginMeal preconditions were checked before this synchronous one-item debit.
                     if (entity.life().beginMeal(taken, null, false)) count(Stat.ATE);
-                    else carrying = taken;
+                    else store(taken);
                     stop(); return;
                 }
-                carrying = taken;
-            } else if (interaction == 2 && !carrying.isEmpty()) {
+                store(taken);
+            } else if (interaction == 2 && !carrying().isEmpty()) {
                 var entrance = entranceCell();
                 if (entrance == null || !inReach(Vec3.atBottomCenterOf(entrance)) || !canSeeContact(Vec3.atBottomCenterOf(entrance))) { stop(); return; }
                 var target = value != null ? value : foundNest();
                 if (target == null || !deliver(target)) { dropCarrying(); stop(); return; }
-            } else if (interaction == 4 && !carrying.isEmpty()) {
+            } else if (interaction == 4 && !carrying().isEmpty()) {
                 var source = value;
                 var target = eggNest(source);
                 var result = source == null || target == null ? HouseNestBlockEntity.RelocationTransfer.REJECTED
-                        : source.depositRelocation(entity,target,carrying);
+                        : source.depositRelocation(entity,target,carrying());
                 if (result == HouseNestBlockEntity.RelocationTransfer.MOVED || result == HouseNestBlockEntity.RelocationTransfer.HANDOFF) {
-                    carrying = ItemStack.EMPTY; count(Stat.MOVED); lifting = false;
+                    store(ItemStack.EMPTY); count(Stat.MOVED); lifting = false;
                     entity.showReaction("happy", "house_deposit", 80);
                     GameplayLog.event(entity,"house","egg deposited source={} home={} relocation={}",source.getBlockPos(),target.getBlockPos(),source.eggRelocationStatus());
                     interaction = interactionTicks = 0; contactTarget = null;
@@ -1007,15 +1015,15 @@ public final class HouseLife implements EcologyRoutine {
                 }
                 if (source != null && target != null) source.beginEggRelocationRollback(target);
                 lifting = false; interaction = interactionTicks = 0; contactTarget = null; phase(Phase.NONE); return;
-            } else if (interaction == 6 && !carrying.isEmpty()) {
+            } else if (interaction == 6 && !carrying().isEmpty()) {
                 var source = value;
                 var target = eggNest(source);
                 // A destroyed target is deliberately null here: depositRelocation then writes this real in-flight
                 // ticket back at the source contact before clearing the stale itinerary.
                 var result = source == null ? HouseNestBlockEntity.RelocationTransfer.REJECTED
-                        : source.depositRelocation(entity,target,carrying);
+                        : source.depositRelocation(entity,target,carrying());
                 if (result == HouseNestBlockEntity.RelocationTransfer.MOVED || result == HouseNestBlockEntity.RelocationTransfer.ROLLED_BACK) {
-                    carrying = ItemStack.EMPTY;
+                    store(ItemStack.EMPTY);
                     GameplayLog.event(entity,"house","egg rollback deposited source={} destination={} relocation={}",source.getBlockPos(),target==null?null:target.getBlockPos(),source.eggRelocationStatus());
                     if (result == HouseNestBlockEntity.RelocationTransfer.ROLLED_BACK) stop();
                     else { interaction = interactionTicks = 0; contactTarget = null; phase(Phase.NONE); }
@@ -1037,11 +1045,11 @@ public final class HouseLife implements EcologyRoutine {
     }
     /** Hands the carried unit over: founding the nest first when this is a newcomer's first lint. */
     private boolean deliver(HouseNestBlockEntity target) {
-        boolean lint = SupplyPiles.lint(carrying), builtBefore = target.built();
-        if (!target.deposit(carrying)) return false;
+        boolean lint = SupplyPiles.lint(carrying()), builtBefore = target.built();
+        if (!target.deposit(carrying())) return false;
         GameplayLog.event(entity,"house","deposit home={} item={} count={} food={} lint={}",
-                target.getBlockPos(),carrying.getItem(),carrying.getCount(),target.food(),target.materials());
-        carrying = ItemStack.EMPTY; count(Stat.DELIVERED);
+                target.getBlockPos(),carrying().getItem(),carrying().getCount(),target.food(),target.materials());
+        store(ItemStack.EMPTY); count(Stat.DELIVERED);
         if (!lint) count(Stat.STASHED);
         lastDeliveredLint = lint;
         if (entity.level() instanceof ServerLevel level) HouseholdEcology.puff(level, target.getBlockPos(), lint);
@@ -1077,11 +1085,12 @@ public final class HouseLife implements EcologyRoutine {
      * simply scattered; an egg is a real item and is returned to the nest or left on the floor with its ledger entry intact.
      */
     public void dropCarrying() {
-        if (carrying.isEmpty()) return;
-        if (carrying.is(ModItems.HOUSE_EGG.get())) { returnEgg(); return; }
+        if (carrying().isEmpty()) return;
+        if (carrying().is(ModItems.HOUSE_EGG.get())) { returnEgg(); return; }
         if (entity.level() instanceof ServerLevel level && entity.isAlive())
-            carrying.shrink(HouseholdEcology.residual(level, entity.blockPosition(), carrying));
-        carrying = ItemStack.EMPTY;
+            carrying().shrink(HouseholdEcology.residual(level, entity.blockPosition(), carrying()));
+        if (!carrying().isEmpty()) mouth().releaseItems(Purpose.HOUSE, 10);
+        else store(ItemStack.EMPTY);
     }
 
     // ------------------------------------------------------------------------------------------------ persistence
@@ -1090,7 +1099,6 @@ public final class HouseLife implements EcologyRoutine {
         if (nestIdentity != null) tag.putUUID("NestIdentity", nestIdentity);
         if (den != null) { tag.putLong("Den", den.site().asLong()); tag.putString("DenEntrance", den.entrance().getName()); }
         tag.putInt("CareWait", careWait); tag.putInt("LostTicks", lostTicks); tag.putInt("StartledTicks", startledTicks);
-        if (!carrying.isEmpty()) tag.put("Carrying", carrying.save(entity.registryAccess()));
         // Read-only observation for operators and automated checks; never loaded back.
         tag.putString("Stage", stage()); tag.putString("Stats", statsText());
         tag.putInt("HumanDistanceTenths", (int)Math.round(Math.min(99, humanDistance) * 10));
@@ -1107,7 +1115,7 @@ public final class HouseLife implements EcologyRoutine {
             var direction = Direction.byName(tag.getString("DenEntrance"));
             if (direction != null && direction.getAxis().isHorizontal()) den = new HouseholdEcology.Den(BlockPos.of(tag.getLong("Den")), direction);
         }
-        carrying = tag.contains("Carrying") ? ItemStack.parseOptional(entity.registryAccess(), tag.getCompound("Carrying")) : ItemStack.EMPTY;
+        mouth().importItem(Purpose.HOUSE, tag.contains("Carrying") ? ItemStack.parseOptional(entity.registryAccess(), tag.getCompound("Carrying")) : ItemStack.EMPTY);
         careWait = Math.clamp(tag.getInt("CareWait"), 0, 120); lostTicks = Math.clamp(tag.getInt("LostTicks"), 0, 1200);
         startledTicks = Math.clamp(tag.getInt("StartledTicks"), 0, 24); refuge = null;
         var counts = tag.getCompound("Counts");

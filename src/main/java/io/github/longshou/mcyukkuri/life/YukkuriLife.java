@@ -5,6 +5,7 @@ import io.github.longshou.mcyukkuri.family.ParentCarry;
 import io.github.longshou.mcyukkuri.settlement.GroupPits;
 import io.github.longshou.mcyukkuri.family.FamilyNest;
 import io.github.longshou.mcyukkuri.motor.ClipMarkers;
+import io.github.longshou.mcyukkuri.motor.MouthOccupancy;
 import io.github.longshou.mcyukkuri.motor.surface.Occupancy;
 
 import io.github.longshou.mcyukkuri.status.GameplayLog;
@@ -542,6 +543,7 @@ public final class YukkuriLife {
 
     /** Caller transfers exactly one real item before invoking this method. */
     public boolean beginMeal(ItemStack transferred, UUID fromPlayer, boolean alreadyShared){ return meal.beginMeal(transferred, fromPlayer, alreadyShared); }
+    public boolean beginCarriedMeal(MouthOccupancy.Purpose source) { return meal.beginCarriedMeal(source); }
     /** A player can offer an already prepared serving, but a dependent child still cannot pick it up alone. */
     public boolean beginPreparedMeal(ItemStack prepared, UUID fromPlayer){ return meal.beginPreparedMeal(prepared, fromPlayer); }
     /** A biological parent must physically reach the child before transferring its prepared serving. */
@@ -555,6 +557,12 @@ public final class YukkuriLife {
     /** Real transfer of the held serving to a hungry peer (same rules and rewards as tryShare, but asked for by a begging scene). */
     public boolean handOverMouth(YukkuriEntity peer, String event){ return meal.handOverMouth(peer, event); }
     private void tryShare(){ meal.tryShare(); }
+    public void releaseMouthForDeath() { meal.releaseForInterrupt(); }
+    public void clearDisplacedMeal() {
+        meal.clearInterrupted();
+        doses.clearReturnBottle();
+    }
+
     public void interrupt() {
         accountEnvironmentalWake();
         stopFatigueRest();

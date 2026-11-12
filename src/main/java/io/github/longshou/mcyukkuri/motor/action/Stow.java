@@ -3,6 +3,7 @@ package io.github.longshou.mcyukkuri.motor.action;
 import io.github.longshou.mcyukkuri.body.MouthPlacement;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.headwear.PlacedHatEntity;
+import io.github.longshou.mcyukkuri.interaction.ItemContact;
 import io.github.longshou.mcyukkuri.motor.Action;
 import io.github.longshou.mcyukkuri.motor.Attach;
 import io.github.longshou.mcyukkuri.motor.AttachState;
@@ -137,6 +138,7 @@ public final class Stow implements Action, HeldMove {
         if (body.hatKit().isEmpty()) return Feasibility.of(Reason.TARGET_GONE, 0, "nothing_held");
         if (place(body) != from) return Feasibility.of(Reason.NO_CONTACT, 0, "held_elsewhere place=" + place(body));
         if ((from == Place.HAT || to == Place.HAT) && PlacedHatEntity.find(body) == null) return Feasibility.of(Reason.TARGET_GONE, 0, "hat_gone");
+        if (to == Place.MOUTH && !Braid.mouthFree(body)) return Feasibility.of(Reason.NO_ROOM, 0, "mouth_occupied");
         return Feasibility.pass();
     }
 
@@ -164,6 +166,7 @@ public final class Stow implements Action, HeldMove {
         var item = body.hatKit().getItem();
         var custody = body.life().custody();
         if (to == Place.GROUND) {
+            if (!ItemContact.hasReleaseSupport(body, ground)) return false;
             boolean released = custody.worn() ? custody.releaseKit(ground)
                     : PlacedHatEntity.find(body).releaseKit(ground, Vec3.ZERO, "laid_down");
             if (!released) return false;

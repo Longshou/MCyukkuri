@@ -393,12 +393,13 @@ public final class HouseNestBlockEntity extends BlockEntity {
     }
     private boolean returnForwardCarry(){eggRelocation.returnedToOrigin();return eggRelocation.rollbackComplete();}
     /** The ticket remains as one floor item when neither recorded nest can accept it; clear only the stale itinerary. */
-    boolean abandonRelocationCarry(YukkuriEntity entity,HouseNestBlockEntity target,ItemStack stack){
+    boolean ownsRelocationCarry(YukkuriEntity entity, ItemStack stack) {
         if(!(level instanceof ServerLevel server)||eggRelocation==null)return false;
-        var ref=eggRelocation.carryingRef();
-        if(!eggRelocation.ownedBy(entity.getUUID())||!HouseEggs.ticket(server,stack,ref))return false;
+        return eggRelocation.ownedBy(entity.getUUID()) && HouseEggs.ticket(server, stack, eggRelocation.carryingRef());
+    }
+    void abandonRelocationCarry(HouseNestBlockEntity target) {
         eggRelocation.returnedToOrigin();
-        abandonEggRelocation(target);return true;
+        abandonEggRelocation(target);
     }
     boolean beginEggRelocationRollback(HouseNestBlockEntity target){
         if(eggRelocation==null||target==null||!relocationTargets(target))return false;

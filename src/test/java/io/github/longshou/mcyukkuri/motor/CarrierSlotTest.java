@@ -82,4 +82,18 @@ class CarrierSlotTest {
             throw new AssertionError("A consumed payload cannot be delivered");
         }));
     }
+
+    @Test
+    void changingPurposeRequiresTheExactHeldLoad() {
+        record Load(String purpose, List<String> materials) {}
+        var slot = new CarrierSlot<Load>();
+        var original = new Load("work", List.of("oak leaf", "azalea leaf"));
+        var replacement = new Load("meal", original.materials());
+        assertTrue(slot.acquire(original));
+        assertFalse(slot.replace(new Load("work", original.materials()), replacement));
+        assertSame(original, slot.contents().orElseThrow());
+        assertTrue(slot.replace(original, replacement));
+        assertSame(original.materials(), slot.contents().orElseThrow().materials());
+        assertFalse(slot.acquire(original));
+    }
 }

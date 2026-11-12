@@ -2,7 +2,6 @@ package io.github.longshou.mcyukkuri.life;
 
 import io.github.longshou.mcyukkuri.entity.SpeciesProfile;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
-import net.minecraft.world.item.ItemStack;
 
 /** Stateless dispatch only: no component instances, cached profiles or additional clock. */
 public final class EcologyRoutines {
@@ -25,8 +24,4 @@ public final class EcologyRoutines {
         else entity.settlement().naturalSpawn();
     }
 
-    /** Used only after family, independence and settlement-duty carrying have failed. */
-    public static ItemStack carryingFallback(YukkuriEntity entity) {
-        return house(entity) ? entity.house().carrying() : entity.habitat().carrying();
-    }
 }

@@ -1,6 +1,5 @@
 package io.github.longshou.mcyukkuri.entity;
 
-import io.github.longshou.mcyukkuri.life.EcologyRoutines;
 import io.github.longshou.mcyukkuri.body.BodyFood;
 import io.github.longshou.mcyukkuri.body.DetachedItems;
 import io.github.longshou.mcyukkuri.body.BodyWound;
@@ -306,11 +305,10 @@ final class YukkuriSync {
     void syncHairLoss() { owner.getEntityData().set(HAIR_LOSS, owner.body().hairLoss()); }
     void syncCarryingAndCare() {
         setChanged(TOILET_VOLUME,(float)DetachedItems.wasteAmount(owner));
-        owner.getEntityData().set(CARRYING,
-                (!owner.family().carrying().isEmpty()?owner.family().carrying():!owner.independence().carrying().isEmpty()
-                        ?owner.independence().carrying():!owner.settlement().duties().carrying().isEmpty()?owner.settlement().duties().carrying()
-                        :!owner.leafSwaddle().carried().isEmpty()?owner.leafSwaddle().carried()
-                        :!owner.forageTrip().load().isEmpty()?owner.forageTrip().load():EcologyRoutines.carryingFallback(owner)).copy());
+        var work = owner.component(YukkuriComponents.MOUTH).workDisplay();
+        if (work.isEmpty()) work = owner.forageTrip().load();
+        if (work.isEmpty()) work = owner.habitat().carrying();
+        owner.getEntityData().set(CARRYING, work.copy());
         owner.getEntityData().set(NUZZLE_PARTNER,owner.dailyLife().nuzzlePartnerId());
         int careTarget = owner.family().careTargetId();
         float careProgress = owner.family().careContactProgress() / 20f;

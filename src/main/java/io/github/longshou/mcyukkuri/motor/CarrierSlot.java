@@ -30,6 +30,13 @@ public final class CarrierSlot<T> {
         return release(destination::acquire);
     }
 
+    /** The exact held payload is changing purpose in place. */
+    public boolean replace(T expected, T incoming) {
+        if (isEmpty() || payload != expected) return false;
+        payload = Objects.requireNonNull(incoming);
+        return true;
+    }
+
     /** The action has used the payload at its consumption marker. */
     public void consume() { payload = null; }
 

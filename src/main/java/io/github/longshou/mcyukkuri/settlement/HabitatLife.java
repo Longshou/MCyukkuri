@@ -11,6 +11,9 @@ import io.github.longshou.mcyukkuri.status.Identity;
 import io.github.longshou.mcyukkuri.status.YukkuriStatus;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.entity.YukkuriComponents;
+import java.util.ArrayList;
+import java.util.List;
 import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.registry.ModItems;
 import java.util.Comparator;
@@ -65,6 +68,14 @@ public final class HabitatLife {
     public boolean unavailable() { return home!=null&&(!home.dimension().equals(entity.level().dimension())||!entity.level().hasChunkAt(home.pos())); }
     public ShelterBlockEntity shelter() { return home==null||unavailable()?null:ShelterBlock.shelter(entity.level(),home.pos()); }
     public ItemStack carrying() { return carrying; }
+    public List<ItemStack> takeLegacyLoads() {
+        var stacks = new ArrayList<ItemStack>();
+        if (!carrying.isEmpty()) stacks.add(carrying);
+        if (!nestMaterial.isEmpty()) stacks.add(nestMaterial);
+        carry(ItemStack.EMPTY);
+        nestMaterial = ItemStack.EMPTY;
+        return stacks;
+    }
     /** Real migration rations may be shared with a dependent through the ordinary feeding handoff. */
     public boolean hasMoveFoodFor(YukkuriEntity child) {
         return moveLoad&&!carrying.isEmpty()&&child!=null&&child.life().canReceiveCareFood(carrying);
@@ -83,7 +94,7 @@ public final class HabitatLife {
      * the own store and is carried to the new site, where the ordinary deposit puts it on the new pile. Returns the count.
      */
     public int packForMove(ForagePileBlockEntity pile,int max) {
-        if(!carrying.isEmpty()||pile==null)return 0;
+        if(!carrying.isEmpty()||pile==null||!freeForWork())return 0;
         var first=pile.take(stack->entity.life().acceptsFood(stack));
         if(first.isEmpty())return 0;
         while(first.getCount()<max){var more=pile.take(stack->ItemStack.isSameItemSameComponents(stack,first));if(more.isEmpty())break;first.grow(more.getCount());}
@@ -278,6 +289,8 @@ public final class HabitatLife {
         return entity.life().canEat()&&value!=null&&value.usable(entity)&&value.hasFoodFor(entity)
                 &&!entity.wintering().usesWinterStores();
     }
+    private boolean freeForWork() { return entity.component(YukkuriComponents.MOUTH).freeForExternalWork(); }
+
     public boolean canUse() {
         if(carrying.isEmpty())moveLoad=false;
         if(!ready()){homes.cancelVagrantProject();return false;}
@@ -296,6 +309,7 @@ public final class HabitatLife {
             if(hasNestProject())cancelNestProject();
             if(residence()==Residence.HOUSED&&home==null)
                 GameplayLog.limited(entity,"habitat","care.housed",6000,"housed by care nest address={} no vagrant project",entity.life().homeStand());
+            if(!freeForWork())return seasonal.start(null);
             var project=homes.vagrantProject();
             if(project==Result.DEFERRED)return false;
             if(project==Result.FOUND)return true;
@@ -305,6 +319,7 @@ public final class HabitatLife {
         if(entity.forageTrip().provisioningFirst())return false;
         if(entity.life().canEat()&&value.food()>0&&!entity.wintering().usesWinterStores()){task=Task.FOOD;targetBlock=value.bed(entity.getUUID());ticks=0;return true;}
         if(entity.life().canEat()&&value.food()==0&&entity.life().needsFood()&&!entity.independence().householdOuting()&&startGranaryTake())return true;
+        if(!freeForWork())return false;
         if(carrying.isEmpty()&&!entity.independence().householdOuting()&&startRation(value))return true;
         if(carrying.isEmpty()&&!entity.independence().householdOuting()&&seasonal.start(value))return true;
         if(nestEligible(value)&&startNest(value))return true;
@@ -401,6 +416,10 @@ public final class HabitatLife {
     }
     public boolean canContinue() {
         if(!active()||!ready())return false;
+        if(!freeForWork() && switch(task) {
+            case RATION, NEST_PICKUP, NEST_HARVEST, NEST_BUILD, PICKUP, HARVEST, SURFACE_NEST -> true;
+            default -> false;
+        })return false;
         if(task!=Task.RATION&&carrying.isEmpty()&&entity.forageTrip().provisioningFirst())return false;
         if(task==Task.DIG)return homes.canDigContinue();
         if(task==Task.ROAM)return homes.canRoamContinue();

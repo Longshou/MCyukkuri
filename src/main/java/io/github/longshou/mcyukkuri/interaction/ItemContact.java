@@ -78,10 +78,24 @@ public final class ItemContact {
         return chosen;
     }
 
-    /** Caller retires its owned stack only after this returns a spawned entity. */
-    public static ItemEntity release(YukkuriEntity actor,ItemStack owned,int pickupDelay) {
+    /** A bowl spill uses the same spawn boundary and retains the bowl's serving if the world refuses it. */
+    public static ItemEntity release(YukkuriEntity actor, ItemStack owned, int pickupDelay) {
         return release(actor, owned, MouthPlacement.position(actor),
-                MouthPlacement.outward(actor).scale(.025).add(0,-.015,0), drop -> drop.setPickUpDelay(pickupDelay));
+                MouthPlacement.outward(actor).scale(.025).add(0, -.015, 0), drop -> drop.setPickUpDelay(pickupDelay));
+    }
+
+    /** A deliberate put-down needs a dry collision top under the actual release point. */
+    public static boolean hasReleaseSupport(Entity actor, Vec3 at) {
+        var below = new Vec3(at.x, Math.min(at.y - .05, actor.getY() - .10), at.z);
+        var hit = actor.level().clip(new ClipContext(at, below, ClipContext.Block.COLLIDER, ClipContext.Fluid.ANY, actor));
+        return hit.getType() == HitResult.Type.BLOCK && hit.getDirection() == Direction.UP
+                && actor.level().getFluidState(hit.getBlockPos()).isEmpty();
+    }
+
+    public static ItemEntity releaseSupported(YukkuriEntity actor, ItemStack owned, int pickupDelay) {
+        Vec3 mouth = MouthPlacement.position(actor);
+        return hasReleaseSupport(actor, mouth)
+                ? release(actor, owned, mouth, Vec3.ZERO, drop -> drop.setPickUpDelay(pickupDelay)) : null;
     }
 
     /** The caller supplies the physical contact and retains the payload on a refused spawn. */

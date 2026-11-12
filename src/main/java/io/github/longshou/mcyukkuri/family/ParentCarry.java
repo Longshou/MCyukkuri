@@ -5,6 +5,7 @@ import com.google.gson.JsonObject;
 import io.github.longshou.mcyukkuri.body.MouthPlacement;
 import io.github.longshou.mcyukkuri.body.WoundSurface;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.entity.YukkuriComponents;
 import io.github.longshou.mcyukkuri.entity.YukkuriVariant;
 import io.github.longshou.mcyukkuri.entity.YukkuriView;
 import io.github.longshou.mcyukkuri.entity.component.SyncSlot;
@@ -1085,7 +1086,7 @@ public final class ParentCarry {
         return carriedVolume / (fraction * strength(carrier) * volume(carrier));
     }
     private static boolean mouthFree(YukkuriEntity carrier) {
-        return carrier.getMouthItem().isEmpty() && carrier.getMouthBodyFood().isEmpty() && carrier.habitat().carrying().isEmpty();
+        return carrier.component(YukkuriComponents.MOUTH).canCarryYoung();
     }
     /** Why this carrier could not hold this child at all, whatever the hold (stage, kind, an occupied body); null when it might. */
     private static String common(YukkuriEntity carrier, YukkuriEntity child) {
@@ -1324,7 +1325,6 @@ public final class ParentCarry {
     }
     /** The mouth is taken by a child, so mash feeding and food packing cannot use it. */
     public boolean mouthBusy() { return mouthCarrying(carrier); }
-    public boolean migrationMouthBusy() { return purpose == Purpose.MIGRATE && mouthBusy(); }
 
     private boolean blocked(YukkuriEntity child) {
         var pause = pauses.get(child.getUUID());
@@ -1962,6 +1962,7 @@ public final class ParentCarry {
             String clip = destination != null ? destination.kind() == SeatTarget.Kind.HEAD ? "braid_head_set" : BraidFetch.HOLD
                     : holdOf(e) == Hold.HEAD ? "braid_head_take" : Grab.BRAID_LIFT;
             next.putString("LC", clip);
+            next.putByte("FromHold", (byte) holdOf(e).ordinal());
             next.putByte("H", (byte) Hold.BRAID.ordinal());
             ticks = BraidFetch.marker(clip, "place") - BraidFetch.marker(clip, "lift_start") + BraidFetch.marker(BraidFetch.SETTLE, "release");
         } else if (holdOf(e) != Hold.MOUTH) {
@@ -2067,7 +2068,7 @@ public final class ParentCarry {
             var rest = braidRest(carrier, child);
             next.putFloat("X", rest.x); next.putFloat("Z", rest.z);
         }
-        next.remove("D"); next.remove("T"); next.remove("LV");
+        next.remove("D"); next.remove("T"); next.remove("LV"); next.remove("FromHold");
         next.remove("RY");
         next.remove("DX"); next.remove("DY"); next.remove("DZ");
         next.remove("LC"); next.remove("HeadTo"); next.remove("NX"); next.remove("NY"); next.remove("NZ");
@@ -2154,18 +2155,27 @@ public final class ParentCarry {
         int control = carrier.life().personality().selfControl();
         float chance = Math.clamp(loss / carrier.getMaxHealth(), 0, 1) * (1 - control / 100f), roll = carrier.getRandom().nextFloat();
         var child = all.get(all.size() - 1);
-        boolean dropped = roll < chance;
+        boolean dropped = roll < chance && Release.releaseAtSupport(carrier, child, "hit");
         GameplayLog.event(carrier, "family", "carry hit drop chance={} roll={} loss={} selfControl={} dropped={} child={} hold={} aboard={}",
                 chance, roll, loss, control, dropped, child.getUUID(), hold(carrier, child).key(), all.size());
-        if (dropped) Release.now(carrier, child, true, "hit");
     }
 
     /** The hold record with the family save, so a reload keeps every child in its hold. */
     CompoundTag save() { return carrier.carryHolds().copy(); }
-    /** Entity ids do not survive a reload: the carry's host is left out of what comes back. */
+    /** Restore the attached seats without resuming an old lift or an uncommitted lowering. */
     void load(CompoundTag tag) {
         var all = tag.copy();
-        for (var key : all.getAllKeys()) { all.getCompound(key).remove("S"); all.getCompound(key).remove("SO"); }
+        for (var key : all.getAllKeys()) {
+            var hold = all.getCompound(key);
+            for (String transientKey : List.of("I", "S", "SO", "T", "U", "W", "BH", "PX", "PY", "PZ", "EX", "EY", "EZ"))
+                hold.remove(transientKey);
+            if (hold.contains("D")) {
+                if (hold.contains("FromHold")) hold.putByte("H", hold.getByte("FromHold"));
+                else if (hold.getString("LC").equals("braid_head_take")) hold.putByte("H", (byte) Hold.HEAD.ordinal());
+                for (String transientKey : List.of("D", "N", "FromHold", "LC", "LX", "LY", "LZ", "DX", "DY", "DZ", "NX", "NY", "NZ", "HeadTo", "LV"))
+                    hold.remove(transientKey);
+            }
+        }
         carrier.syncComponentData(HOLDS, all);
     }
 
