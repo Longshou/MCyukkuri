@@ -9,7 +9,6 @@
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
 | 台词审校与补充（总负责人调度的 Codex 标签页） | `.worktrees/wp-gb-speech-review` | art/dialogue/, src/main/resources/assets/mcyukkuri/dialogue/, lang/*.json |
-| 运输篮信息、多只非成体、换色分级（反馈 14） | `.worktrees/wp-gz-basket` | 运输篮物品与令牌 |
 | 素鸡立时间线、雷普魔动作、器官位置（反馈 4、5） | `.worktrees/wp-hc-sukkiri` | 素鸡立动作片段、表情、身体导出 |
 | 粪便：删旧档位残留、管理演示场 | `.worktrees/wp-hd-waste` | life/Poop*、粪便资源、museum 粪便场景 |
 | 部位占用统一权威（嘴、辫子、帽、承载） | `.worktrees/wp-hj-occupancy-unify` | life/LifeMeal、family/FamilyFeeding、settlement/ForageTrip、HabitatLife、ParentCarry |
