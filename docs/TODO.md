@@ -11,7 +11,6 @@
 | 台词审校与补充（用户与代理直接对话） | `.worktrees/wp-gb-speech-review` | art/dialogue/, src/main/resources/assets/mcyukkuri/dialogue/, lang/*.json |
 | 激动漏尿：单股流痕加小水滩（重画）并接入 | `.worktrees/wp-gp-leak` | standards/yukkuri-library/expressions 漏尿表情、接入代码 |
 | 油库里商店内容优化 | `.worktrees/wp-gr-shop` | human/HumanCommerce.java, client/ShopScreen.java, 商店建筑与演出, art/, scripts/museum_scenarios.py |
-| 原版村庄纳入 mod：商店与街道建筑随村庄生成 | `.worktrees/wp-gt-village-gen` | worldgen/**, art/structures/human-world/**, 村庄池注入代码 |
 
 ## 玩法待办
 
