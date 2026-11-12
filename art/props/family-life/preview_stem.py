@@ -269,7 +269,7 @@ def main():
     page = ['<!doctype html><html lang="zh-CN"><meta charset="utf-8"><title>茎生连续生长</title>',
             '<style>body{font-family:sans-serif;background:#f1f4eb;color:#293e2c;margin:24px}img{max-width:100%}figure{display:inline-block;margin:8px}</style>',
             '<h1>茎生：连续长出与带茎遗体</h1>',
-            '<p>约 20 秒内（按进度插值）主茎伸出、短梗下出现闭眼果芽，再鼓圆到各自出生体型；动画按 1 秒≈2.4 帧循环，最后停在足熟。</p>']
+            '<p>约 20 秒内（按进度插值）主茎伸出、短梗下出现闭眼果芽，再鼓圆到各自出生体型；动画约 4 倍速循环（左上角是游戏内秒数），最后停在足熟。</p>']
     for name in anim:
         page.append(f'<figure><img src="{name}.gif" width="300"><figcaption>{html.escape(case_titles[name])}</figcaption></figure>')
     page += ['<h2>四个采样姿态</h2><img src="growth.png">', '<h2>饿死遗体带茎</h2><img src="remains.png">',
