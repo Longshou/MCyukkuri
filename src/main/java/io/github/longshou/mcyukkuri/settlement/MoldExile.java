@@ -374,8 +374,8 @@ public final class MoldExile extends Goal implements MotorOwner {
             entity.habitat().release();
             entity.life().releaseHome();
             entity.settlement().exile();
-            GameplayLog.event(entity, "settlement", "mold exile departed scope={} group={} den={} edge={} witness={} stage={}",
-                    home.colony() ? "colony" : "family", home.group(), home.den(), home.range().pos(), peer.getUUID(), entity.body().mold());
+            GameplayLog.event(entity, "settlement", "mold exile departed scope={} group={} den={} at={} witness={} stage={}",
+                    home.colony() ? "colony" : "family", home.group(), home.den(), entity.blockPosition(), peer.getUUID(), entity.body().mold());
         } else {
             exile = new Exile(home, true);
             GameplayLog.event(entity, "settlement", "mold exile withdrew {} witness={} stage={}",
