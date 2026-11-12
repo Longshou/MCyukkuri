@@ -252,6 +252,15 @@
       "kind": "body_word"
     },
     {
+      "id": "belly_ponpon",
+      "zh": "彭彭，幼油也说彭彭先森。",
+      "ja": "ぽんぽん。幼体はぽんぽんしゃんとも言う。",
+      "en": "Tummy. Little ones may call it Mr. Tummy.",
+      "basis": ["P"],
+      "status": "ready",
+      "kind": "body_word"
+    },
+    {
       "id": "home_declaration_term",
       "zh": "家园宣言",
       "ja": "おうち宣言",
@@ -525,19 +534,19 @@
     },
     {
       "id": "third_person_self",
-      "zh": "用角色名自称，不默认用“我”。",
-      "ja": "一人称の代わりに自分の呼名を使う。",
-      "en": "Prefer the character's name over a generic first-person pronoun.",
-      "basis": ["F21"],
+      "zh": "用名字自称时，取说话个体在游戏里的名字。",
+      "ja": "名前で自称するときは、話し手自身のゲーム内の名前を使う。",
+      "en": "When a speaker refers to themselves by name, use that individual's in-game name.",
+      "basis": ["F21", "P"],
       "status": "rule",
       "kind": "grammar_rule"
     },
     {
       "id": "cute_self_boast",
-      "zh": "幼体可在自称里夸自己可爱。",
-      "ja": "幼体は自称にかわいさの自慢を添えられる。",
-      "en": "Young speakers may call themselves cute in self-reference.",
-      "basis": ["F21"],
+      "zh": "幼油可以自夸可爱。角色得意时会把自己的身体部位叫作先生，再用夸张的比喻赞美它。",
+      "ja": "幼体は自分のかわいさを自慢することがある。得意なときは自分の体の一部をさん付けで呼び、大げさなたとえでほめる。",
+      "en": "Little ones may boast about being cute. A boastful speaker may give a body part a title and praise it with an exaggerated comparison.",
+      "basis": ["F21", "P"],
       "status": "rule",
       "kind": "grammar_rule"
     },

@@ -5,11 +5,11 @@
     {
       "id": "voice_slots",
       "zh": "魔理沙槽位：幼称魔理沙，短鸣油，成体语尾贼、幼体语尾惹杰。",
-      "ja": "魔理沙の槽：幼称まりちゃ、鳴き声ゆっ、語尾は成体だぜ・幼体なのじぇ。",
-      "en": "Marisa slots: maricha self-name, yu cry, da-ze adult and nanoje juvenile endings.",
+      "ja": "幼称まりちゃ、鳴き声ゆっ。用言につなぐ語尾は成体のぜ、幼体のじぇ。",
+      "en": "Marisa uses maricha as a juvenile name and yu as a cry. Predicates take noze for adults and noje for young.",
       "basis": ["D01", "P"],
       "status": "rule",
-      "data": {"self_name": {"baby": "まりちゃ", "juvenile": "まりちゃ", "adult": "まりさ"}, "cry": {"ja": "ゆっ、ゆっ", "zh": "油、油", "en": "Yu, yu"}, "prefix": {"ja": "", "zh": "", "en": ""}, "ending": {"baby": {"ja": "のじぇ", "zh": "惹杰"}, "juvenile": {"ja": "なのじぇ", "zh": "惹杰"}, "adult": {"ja": "だぜ", "zh": "贼"}}}
+      "data": {"self_name": {"baby": "まりちゃ", "juvenile": "まりちゃ", "adult": "まりさ"}, "cry": {"ja": "ゆっ、ゆっ", "zh": "油、油", "en": "Yu, yu"}, "prefix": {"ja": "", "zh": "", "en": ""}, "ending": {"baby": {"ja": "のじぇ", "zh": "惹杰"}, "juvenile": {"ja": "のじぇ", "zh": "惹杰"}, "adult": {"ja": "のぜ", "zh": "贼"}}}
     },
     {
       "id": "adult_fixed_ending",

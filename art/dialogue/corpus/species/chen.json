@@ -5,11 +5,11 @@
     {
       "id": "voice_slots",
       "zh": "橙槽位：自称橙，短鸣油／喵，当前子油与成油语尾哟——。",
-      "ja": "橙の槽：自称ちぇん、鳴き声ゆ・にゃっ、現在の語尾はだよぅ・だよー。",
-      "en": "Chen slots: Chen self-name, yu/nya cry, current dayou/dayoo endings.",
+      "ja": "自称ちぇん、鳴き声ゆ・にゃっ。用言につなぐ語尾は子体よぅ、成体よー。",
+      "en": "Chen uses yu or nya as a cry. Predicates take you for juveniles and yoo for adults.",
       "basis": ["P"],
       "status": "rule",
-      "data": {"self_name": {"baby": "ちぇん", "juvenile": "ちぇん", "adult": "ちぇん"}, "cry": {"ja": "ゆ、にゃっ", "zh": "油、喵", "en": "Yu, nya"}, "prefix": {"ja": "", "zh": "", "en": ""}, "ending": {"juvenile": {"ja": "だよぅ", "zh": "哟——"}, "adult": {"ja": "だよー", "zh": "哟——"}}}
+      "data": {"self_name": {"baby": "ちぇん", "juvenile": "ちぇん", "adult": "ちぇん"}, "cry": {"ja": "ゆ、にゃっ", "zh": "油、喵", "en": "Yu, nya"}, "prefix": {"ja": "", "zh": "", "en": ""}, "ending": {"juvenile": {"ja": "よぅ", "zh": "哟——"}, "adult": {"ja": "よー", "zh": "哟——"}}}
     },
     {
       "id": "understand_adult",

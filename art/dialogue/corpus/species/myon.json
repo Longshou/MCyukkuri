@@ -4,12 +4,12 @@
   "entries": [
     {
       "id": "voice_slots",
-      "zh": "妖梦槽位：自称妖梦，具有互斥的咪呦或金宝口癖。",
-      "ja": "妖夢の槽：自称みょん、個体ごとに排他的なみょん・ちーんぽの口癖を持つ。",
-      "en": "Myon slots: Myon self-name and one mutually exclusive myon or chinpo tic.",
+      "zh": "妖梦自称妖梦，只有一种固定口癖。日文的金寶口癖个体自称ようむ。",
+      "ja": "口癖はみょん・ちーんぽのどちらか一つ。ちーんぽの個体はようむと名乗る。",
+      "en": "Each individual has one tic. Individuals with the chinpo tic use the name Youmu.",
       "basis": ["L36", "P"],
       "status": "rule",
-      "data": {"self_name": {"baby": "みょん", "juvenile": "みょん", "adult": "みょん"}, "ending": {"juvenile": {"ja": "みょ", "zh": "哦"}, "adult": {"ja": "よ", "zh": "哦"}}, "quirk_required": true}
+      "data": {"self_name": {"baby": "みょん", "juvenile": "みょん", "adult": "みょん"}, "ending": {"juvenile": {"ja": "みょ", "zh": "哦"}, "adult": {"ja": "よ", "zh": "哦"}}, "kinbao_override": {"self_name": {"ja": "ようむ", "zh": "妖梦", "en": "Youmu"}, "juvenile_ending": {"ja": "よぅ", "zh": "哦"}}, "quirk_required": true}
     },
     {
       "id": "myon_candidate",

@@ -20,10 +20,11 @@ TICS = {  # quirk -> (jp, zh, en); the young tier uses the same forms
 LINES = {
     'afraid': {
         'adult': ('{t}！ こ、こわくない……こわくないっ！', '{t}！不、不怕……妖梦不怕！', '{t}! N-not scared... not scared!'),
-        'young': ('{t}！ こ、こわくにゃい……こわくにゃいっ！', '{t}！不、不怕怕……窝不怕！', '{t}! N-not scawed... not scawed!')},
+        'young': ('{t}！ こ、こわくにゃい……ほんとだもん！', '{t}！不、不怕……真的不怕！', '{t}! N-not scawed... really!')},
     'ask_food': {
-        'adult': ('{t}！ おなかすいた！ ごはん、ちょうだい！', '{t}！肚子饿了！给妖梦饭饭！', '{t}! Hungry! Food, please!'),
-        'young': ('{t}！ おなかしゅいた！ ごはん、ちょうらい！', '{t}！肚肚饿惹！给窝饭饭！', '{t}! Hungwy! Food, pwease!')},
+        'adult': ('{t}！ おなかすいた！ ごはん、ちょうだい！', '{t}！彭彭饿了！给一点饭！', '{t}! Hungry! Some food, please!'),
+        'young': ('{t}！ ぽんぽんしゃん、ぺこぺこ！ ごはん、ちょうらい！',
+                  '{t}！彭彭先森饿惹！给一点饭嘛！', '{t}! Mr. Tummy is hungwy! Food, pwease!')},
     'ask_play': {
         'adult': ('ひまだ……{t}！ いっしょに、ちゃんばらしよう！', '好无聊……{t}！一起来比剑吧！', "So bored... {t}! Let's play swords!"),
         'young': ('ひまぁ……{t}！ いっちょに ちゃんばら ちよ！', '好无聊……{t}！一起玩比剑吧！', 'So bowed... {t}! Pway swords!')},
@@ -31,7 +32,7 @@ LINES = {
         'adult': ('{t}！ あまあま、ほしい！ ちょうだい！', '{t}！想要甜甜！给我嘛！', '{t}! Want sweets! Please!'),
         'young': ('{t}！ あみゃあみゃ、ほちい！ ちょうらい！', '{t}！想要甜甜！给窝嘛！', '{t}! Want sweeties! Pwease!')},
     'ask_walk': {
-        'adult': ('{t}！ おさんぽ、いく！ みまわりもする！', '{t}！去散步！顺便巡逻！', "{t}! Walk time! I'll patrol too!"),
+        'adult': ("{t}！ おそと！ おさんぽ、おさんぽ！", "{t}！出去！散步、散步！", "{t}! Outside! Walk, walk!"),
         'young': ('{t}！ おしゃんぽ、いく！', '{t}！窝要去散步！', '{t}! Walkies!')},
     'awake': {
         'adult': ('{t}！ ゆっくりおはよう！ きょうもがんばる！', '{t}！油库里早上好！今天也要加油！', '{t}! Good morning! Working hard today too!'),
@@ -40,8 +41,8 @@ LINES = {
         'adult': ('{t}！ すごい！ おしえて、おしえて！', '{t}！好厉害！教教妖梦，教教妖梦！', '{t}! Amazing! Teach me, teach me!'),
         'young': ('{t}！ しゅごい！ おしえちぇ！', '{t}！好厉害！教教窝！', '{t}! Amazin! Teach me!')},
     'badge_ask': {
-        'adult': ('それ、たべられる？ ……{t}？ さわってもいい？', '那个能吃吗？……{t}？可以摸摸吗？', 'Can you eat that? ...{t}? Can I touch it?'),
-        'young': ('それ、たべれりゅ？ {t}？ しゃわってみたい！', '那个能吃吗？{t}？窝想摸摸！', 'Can you eat dat? {t}? Wanna touch!')},
+        'adult': ('バッジ、ぴかぴか！ さわっても いい？ {t}？', '徽章好亮！能摸摸吗？{t}？', 'Your badge is shiny! Can I touch it? {t}?'),
+        'young': ('ばっじ、ぴかぴか！ しゃわっても いい？ {t}？', '徽章好亮！窝能摸摸吗？{t}？', 'Your badge is shiny! Can I touch it? {t}?')},
     'badge_beg': {
         'adult': ('{t}……ひとくちだけ、わけてほしい……', '{t}……就一口，分我一点……', '{t}... just one bite, please...'),
         'young': ('{t}……ひとくちだけ、ちょうらい……', '{t}……就一口，给窝嘛……', '{t}... just one bite, pwease...')},
@@ -55,23 +56,23 @@ LINES = {
         'adult': ('ぴかぴか……あれ、なに？ {t}？', '亮晶晶……那是什么？{t}？', 'Shiny... what is that? {t}?'),
         'young': ('ぴかぴか……あれ、にゃあに？ {t}？', '亮晶晶……那是啥？{t}？', 'Shiny... whazzat? {t}?')},
     'badge_humble': {
-        'adult': ('{t}。まだ、しゅぎょうちゅう。', '{t}。妖梦还在修行中。', "{t}. I'm still training."),
+        'adult': ("{t}。まだ れんしゅう する。", "{t}。妖梦还要练练。", "{t}. I still need practice."),
         'young': ('{t}。まだ、しゅぎょうちゅう！', '{t}。窝还在修行！', '{t}. Still twaining!')},
     'badge_mock': {
         'adult': ('かいゆのくせに、えらそう！ {t}！', '一个宠物还摆架子！{t}！', 'Just a pet, acting so big! {t}!'),
         'young': ('かいゆのくちぇに、えらしょう！ {t}！', '宠物还摆架子！{t}！', 'Jus a pet, acting big! {t}!')},
     'badge_pinned': {
-        'adult': ('{t}！ バッジ、もらった！ がんばったしるし！', '{t}！拿到徽章了！是努力的证明！', '{t}! Got a badge! Proof I worked hard!'),
+        'adult': ("{t}！ バッジ、もらった！ ぴかぴか！", "{t}！徽章拿到啦！亮晶晶！", "{t}! Got a badge! Shiny!"),
         'young': ('{t}！ ばっじ、もらっちゃ！ ぴかぴか！', '{t}！拿到徽章惹！亮晶晶！', '{t}! Got a badge! Shiny!')},
     'badge_pity': {
         'adult': ('バッジ、なくなった……？ {t}、だいじょうぶ？', '徽章没了……？{t}，没事吧？', 'Your badge is gone...? {t}, you okay?'),
         'young': ('ばっじ、にゃくなった……？ {t}、だいじょぶ？', '徽章没惹……？{t}，没事吧？', 'Badge gone...? {t}, okay?')},
     'badge_proud': {
-        'adult': ('{t}！ みて、バッジ！ つよいしるし！', '{t}！看，徽章！是强大的证明！', "{t}! Look, a badge! Proof I'm strong!"),
+        'adult': ("{t}！ みて、バッジ！ つよそうだろ！", "{t}！看，徽章！威风吧！", "{t}! Look at my badge! Looks strong, right?"),
         'young': ('{t}！ みちぇ、ばっじ！ しゅごい？', '{t}！看，徽章！厉害吧？', '{t}! Look, badge! Cool?')},
     'badge_pull_back': {
-        'adult': ('あれに、ちかよっちゃだめ！ こっちにくる。{t}！', '不能靠近那个！到这边来。{t}！', "Don't go near that! Come here. {t}!"),
-        'young': ('ちかよっちゃ、らめ！ こっち！ {t}！', '不能靠近！来这边！{t}！', 'No going near! Over hewe! {t}!')},
+        'adult': ('バッジを つけた ゆっくりに ちかづくな！ {t}！', '离戴徽章的油远一点！{t}！', 'Keep away from the yukkuri with the badge! {t}!'),
+        'young': ('ばっじを つけた ゆっくりに ちかづいちゃ らめ！ {t}！', '噗要靠近戴徽章的油！{t}！', "Don't go near the yukkuri with the badge! {t}!")},
     'badge_retort': {
         'adult': ('{t}！ のらは、あっちいけ！', '{t}！野良，到那边去！', '{t}! Strays, go away!'),
         'young': ('{t}！ のらは、あっちいっちぇ！', '{t}！野良去那边！', '{t}! Stway, go away!')},
@@ -82,11 +83,11 @@ LINES = {
         'adult': ('これは、わたしのごはん。だめ。{t}。', '这是妖梦的饭。不行。{t}。', 'This is my food. No. {t}.'),
         'young': ('これ、わたちの ごはん！ らめ！ {t}！', '这是窝的饭！不给！{t}！', 'Dis my food! No! {t}!')},
     'badge_show_kind': {
-        'adult': ('{t}。みてもいい。にんげんさんが、つけてくれた。', '{t}。可以看。是人类先生给戴上的。', '{t}. You can look. A human pinned it on me.'),
-        'young': ('{t}。みちぇいいよ。にんげんしゃんが つけちぇくれた！', '{t}。可以看。人类先生给窝戴的！', '{t}. You can look. A human put it on me!')},
+        'adult': ('{t}。バッジ、みていいよ。にんげんさんが つけてくれた。', '{t}。徽章给你看。人类先生给我戴的。', '{t}. You can see my badge. Mr. Human pinned it on me.'),
+        'young': ('{t}。ばっじ、みちぇいいよ。にんげんしゃんが つけちぇくれた！', '{t}。给你看徽章！人类鲜笋给窝戴的！', '{t}. You can see my badge! Mr. Human put it on me!')},
     'badge_taken': {
-        'adult': ('バッジが……ない。{t}……しょんぼり……', '徽章……没有了。{t}……好失落……', 'My badge... is gone. {t}... so sad...'),
-        'young': ('ばっじ、にゃい……{t}……しょんぼり……', '徽章没惹……{t}……好失落……', 'Badge... gone... {t}... sad...')},
+        'adult': ("バッジが……ない。{t}……かえして……", "徽章……没了。{t}……还给妖梦……", "My badge... gone. {t}... give it back..."),
+        'young': ("ばっじ……にゃい。{t}……かえちて……", "徽章……没惹。{t}……还给窝……", "My badge... gone. {t}... give it back...")},
     'badge_thanks': {
         'adult': ('ありがとう……{t}。やっと、ゆっくりできる。', '谢谢……{t}。总算能油库里了。', 'Thank you... {t}. I can finally relax.'),
         'young': ('ありがちょう……{t}。ゆっくち できりゅ。', '谢谢……{t}。能油库气了。', 'Fank you... {t}. Can wewax now.')},
@@ -94,11 +95,11 @@ LINES = {
         'adult': ('{t}！ わかった、はいる！', '{t}！知道了，进去！', '{t}! Okay, going in!'),
         'young': ('{t}！ はいりゅ！ ゆっくち はいりゅ！', '{t}！进去！慢慢进去！', '{t}! Goin in! Swowly!')},
     'basket_exit': {
-        'adult': ('ここが、あたらしいおうち？ {t}！ みまわりする！', '这里是新家？{t}！先巡逻一圈！', "Is this the new home? {t}! I'll patrol!"),
-        'young': ('ここ、どこ？ {t}？ あたらちい おうち？', '这是哪？{t}？是新家吗？', 'Where is dis? {t}? New home?')},
+        'adult': ("ゆっ、ここ、どこ？ {t}……", "油，这里是哪儿？{t}……", "Yu, where am I? {t}..."),
+        'young': ("きょきょ、どこ……？ {t}？", "介里是哪儿……？{t}？", "Where am I...? {t}?")},
     'basket_refuse': {
-        'adult': ('{t}！ かごはいや！ はなせ！', '{t}！不要篮子！放开！', '{t}! No basket! Let go!'),
-        'young': ('{t}！ かご、いやぁ！ はなちてぇ！', '{t}！不要篮子！放开窝！', '{t}! No basket! Lemme go!')},
+        'adult': ('{t}！ かごさん！ いや、いや！', '{t}！篮子先生！不要、不要！', '{t}! Mr. Basket! No, no!'),
+        'young': ('{t}！ かごしゃん！ やー、やー！', '{t}！篮子鲜笋！噗要、噗要！', '{t}! Mr. Basket! No, no!')},
     'birth': {
         'adult': ('{t}！ うまれる！', '{t}！要生了！', "{t}! It's coming!"),
         'young': ('{t}！ うみゃれりゅ！', '{t}！要生惹！', "{t}! It's comin!")},
@@ -109,35 +110,35 @@ LINES = {
         'adult': ('くわえた！ はなさない！ {t}！', '咬住了！不会松口！{t}！', "Got you! I won't let go! {t}!"),
         'young': ('くわえちゃ！ はなしゃない！ {t}！', '咬住惹！不松口！{t}！', "Got chu! Won't let go! {t}!")},
     'braid_rescue_offer': {
-        'adult': ('{t}！ いまいく！ 観楼剣に、つかまって！', '{t}！这就来！抓住觀樓劍！', '{t}! Coming! Grab the Kanroken!'),
-        'young': ('{t}！ いまいく！ 観楼剣に ちゅかまっちぇ！', '{t}！这就来！抓住觀樓劍！', '{t}! Comin! Gwab the Kanroken!')},
+        'adult': ("{t}！ いま いく！ まってて！", "{t}！这就来！等着妖梦！", "{t}! Coming! Hang on!"),
+        'young': ("{t}！ いま いく！ まっちぇて！", "{t}！这就来！等等窝！", "{t}! Coming! Hang on!")},
     'braid_rescue_safe': {
-        'adult': ('もう、ふねのうえ。{t}。ゆっくりいきして。', '已经到船上了。{t}。慢慢喘口气。', "You're on the boat now. {t}. Breathe slowly."),
-        'young': ('もう ふにぇのうえ！ {t}！ ゆっくち いきちて！', '到船上惹！{t}！慢慢喘气！', 'On da boat now! {t}! Bweathe!')},
+        'adult': ("ふぅ……もう だいじょうぶ。{t}……", "呼……没事啦。{t}……", "Phew... you're safe. {t}..."),
+        'young': ("ふぅ……だいじょぶ。{t}……", "呼……没事惹。{t}……", "Phew... you're safe. {t}...")},
     'busy': {
         'adult': ('{t}？ いま、いそがしい。', '{t}？现在很忙。', '{t}? Busy right now.'),
         'young': ('{t}？ いま、いしょがちい！', '{t}？窝在忙！', '{t}? Busy!')},
     'caregiver': {
-        'adult': ('{t}♪ えへへ。', '{t}♪ 嘿嘿。', '{t}! Hehe.'),
-        'young': ('{t}♪ えへへぇ。', '{t}♪ 嘿嘿嘿。', '{t}! Hehehe.')},
+        'adult': ('{t}♪ そばに いてくれると、ほっとする。', '{t}♪ 有你陪着，我就安心了。', '{t}! I feel safe with you here.'),
+        'young': ('{t}♪ もうちょっと そばに いちぇ……', '{t}♪ 陪窝一会儿……窝想挨着你。', '{t}! Stay a little longer... I wanna be close.')},
     'chew': {
-        'adult': ('むーしゃ、むーしゃ……{t}。', '姆咻，姆咻……{t}。', 'Munch, munch... {t}.'),
-        'young': ('むーちゃ、むーちゃ……{t}。', '姆咻，姆咻……{t}。', 'Munch, munch... {t}.')},
+        'adult': ("むーしゃ、むーしゃ……{t}。", "嚼嚼，嚼嚼……{t}。", "Munch, munch... {t}."),
+        'young': ("むーちゃ、むーちゃ……{t}。", "嚼嚼……嚼嚼……{t}。", "Munch... munch... {t}.")},
     'cold': {
-        'adult': ('{t}……さむい……でも、まけない……', '{t}……好冷……但是不认输……', "{t}... cold... but I won't lose..."),
+        'adult': ("{t}……さむい、さむい……", "{t}……冷、好冷……", "{t}... cold, so cold..."),
         'young': ('{t}……しゃむい……しゃむいよぉ……', '{t}……冷冷……好冷……', '{t}... cold... so cold...')},
     'courtship': {
         'adult': ('{t}♪ ……すき。', '{t}♪……喜欢。', '{t}! ...I like you.'),
         'young': ('{t}♪ ……しゅき。', '{t}♪……喜欢。', '{t}! ...Wike you.')},
     'courtship_held': {
-        'adult': ('すーりすーり、したい……でも、がまん。{t}。', '好想蹭蹭……但还要忍着。{t}。', 'I want to nuzzle... but I wait. {t}.'),
-        'young': ('しゅーりしゅーり ちたい……がまん。{t}。', '想蹭蹭……要忍着。{t}。', 'Wanna nuzzle... must wait. {t}.')},
+        'adult': ("すーりすーり……がまん、がまん。{t}……", "想擦擦脸……忍住、忍住。{t}……", "Want to nuzzle... must wait. {t}..."),
+        'young': ("しゅーりしゅーり……がまん。{t}……", "想渣渣脸……忍住。{t}……", "Want to nuzzle... must wait. {t}...")},
     'date_fond': {
         'adult': ('あのこ、つよそう……また、あいたい。{t}。', '那孩子看起来很强……还想再见。{t}。', 'That one looks strong... I want to meet again. {t}.'),
         'young': ('あのこ、いいこ！ また あいちゃい！ {t}！', '那孩子是好孩子！还想再见！{t}！', 'Dat one is nice! Wanna meet again! {t}!')},
     'date_meet': {
-        'adult': ('{t}！ は、はじめまして……よろしく……', '{t}！初、初次见面……请多关照……', '{t}! N-nice to meet you... hello...'),
-        'young': ('{t}！ は、はじめまちて……はじゅかちい……', '{t}！初、初次见面……好害羞……', '{t}! H-hewwo... so shy...')},
+        'adult': ("{t}……ゆ、ゆっくりしていってね……", "{t}……油、油库里洗跌一跌捏……", "{t}... t-take it easy..."),
+        'young': ("{t}……ゆ、ゆっくち しちぇいっちぇにぇ……", "{t}……油、油库气洗切一切捏……", "{t}... ch-chake id eaji...")},
     'elder_kind': {
         'adult': ('ごはんをくれる、にんげんさんもいる。{t}。', '也有会给饭的人类先生。{t}。', 'Some humans give food, too. {t}.'),
         'young': ('ごはん くれりゅ にんげんしゃんも いりゅ。{t}。', '也有给饭饭的人类先生。{t}。', 'Some humans give food. {t}.')},
@@ -155,27 +156,27 @@ LINES = {
         'young': ('{t}！ だぁれも いにゃい！', '{t}！谁也没有！', '{t}! Nobody hewe!')},
     'exam_nervous': {
         'adult': ('{t}……バッジ、とれるかな……どきどきする。', '{t}……徽章能拿到吗……心扑通扑通的。', '{t}... will I get the badge... heart pounding.'),
-        'young': ('{t}……こわいけど、がんばりゅ！', '{t}……虽然怕怕，窝会加油！', "{t}... scawy, but I'll twy!")},
+        'young': ('{t}……こあい……ばっじの しけん、がんばりゅ！', '{t}……好口怕……窝要考到徽章！', '{t}... scawy... but I wanna earn a badge!')},
     'exam_pass': {
-        'adult': ('{t}！ やった！ バッジ！ しゅぎょうのせいか！', '{t}！太好了！徽章！修行的成果！', '{t}! Yes! A badge! My training paid off!'),
+        'adult': ("{t}！ バッジ、バッジ！ やった！", "{t}！徽章、徽章！好耶！", "{t}! A badge, a badge! I did it!"),
         'young': ('{t}！ やっちゃ！ ばっじ！ しあわちぇー！', '{t}！太好惹！徽章！好幸福——！', '{t}! Yay! Badge! So happy!')},
     'exam_promise_fail': {
-        'adult': ('ずるい！ わたしのぶんがない！ {t}！', '狡猾！没有妖梦的份！{t}！', "Not fair! There's none for me! {t}!"),
-        'young': ('じゅるい！ わたちのばん！ {t}！ ぷんぷん！', '狡猾！是窝的份！{t}！气鼓鼓！', 'No fair! My tuwn! {t}! Hmph!')},
+        'adult': ('ずるい！ わたしの おやつは？ {t}！', '耍赖！我的点心呢？{t}！', 'Not fair! Where is my snack? {t}!'),
+        'young': ('じゅるい！ わたちの おやつは？ {t}！ ぷきゅーっ！', '耍赖！窝的点心呢？{t}！噗咕——！', 'No fair! Where is my snack? {t}! Hmph!')},
     'exam_promise_wait': {
-        'adult': ('がまん……がまんも、しゅぎょう。{t}。', '忍耐……忍耐也是修行。{t}。', 'Patience... patience is training too. {t}.'),
+        'adult': ("おやつさん……がまん、がまん。{t}……", "点心先生……忍住，忍住。{t}……", "Mr. Snack... must wait. {t}..."),
         'young': ('がまん、がまん……{t}……まだかにゃ……', '忍耐，忍耐……{t}……还没好吗……', 'Wait, wait... {t}... not yet...?')},
     'exam_report': {
-        'adult': ('{t}！ にんげんさん、あそこに、のらがいる！', '{t}！人类先生，那边有野良！', "{t}! Human, there's a stray over there!"),
-        'young': ('{t}！ にんげんしゃん、のらがいりゅ！', '{t}！人类先生，有野良！', '{t}! Human, a stway!')},
+        'adult': ('{t}！ にんげんさん！ このもんだい、できた！', '{t}！人类先生！这道题我做完了！', '{t}! Mr. Human! I finished the test task!'),
+        'young': ('{t}！ にんげんしゃん！ このもんだい、できちゃ！', '{t}！人类鲜笋！这道题窝做完惹！', '{t}! Mr. Human! I finished the test task!')},
     'exam_sorry': {
         'adult': ('ごめんなさい……まちがえた。{t}……', '对不起……弄错了。{t}……', 'Sorry... I got it wrong. {t}...'),
         'young': ('ごめんにゃしゃい……まちがえちゃった……{t}……', '对不起……窝弄错惹……{t}……', 'Sowwy... got it wong... {t}...')},
     'exam_unsure': {
-        'adult': ('えーと……あれ……？ {t}……わすれた……', '嗯……咦……？{t}……忘了……', 'Um... huh...? {t}... I forgot...'),
-        'young': ('えーと……あれぇ……？ {t}……わかんにゃい……', '嗯……咦……？{t}……不知道……', 'Um... huh...? {t}... dunno...')},
+        'adult': ('このもんだい、どうやるの……？ {t}……', '这道题要怎么做……？{t}……', 'How do I do this task...? {t}...'),
+        'young': ('このもんだい、どうやりゅの……？ {t}……', '这道题要肿么做……？{t}……', 'How do I do this task...? {t}...')},
     'exercise': {
-        'adult': ('{t}！ すぶり、いっかい、にかい、さんかい……いっぱい！', '{t}！挥剑，一下、两下、三下……好多好多！', '{t}! Swings: one, two, three... lots!'),
+        'adult': ('{t}！ すぶり！ えいっ、えいっ！', '{t}！挥剑！嘿咻、嘿咻！', '{t}! Sword practice! Hup, hup!'),
         'young': ('{t}！ ゆっくち がんばりゅ！', '{t}！要油库气地努腻！', "{t}! Gonna twy hawd!")},
     'expecting': {
         'adult': ('{t}♪ あかちゃん、まもる！', '{t}♪ 妖梦会保护宝宝！', "{t}! I'll protect the baby!"),
@@ -187,13 +188,13 @@ LINES = {
         'adult': ('{t}！ ちびたち、こっち！ うしろにかくれて！', '{t}！孩子们，到这边！躲到妖梦后面！', '{t}! Little ones, here! Hide behind me!'),
         'young': ('{t}！ こっち、こっち！ はやく！', '{t}！这边，这边！快点！', '{t}! Hewe, hewe! Huwwy!')},
     'family_alarm_calm': {
-        'adult': ('ふう……もう、だいじょうぶ。{t}。', '呼……已经安全了。{t}。', "Phew... it's safe now. {t}."),
+        'adult': ("ふぅ……だいじょうぶ、だいじょうぶ。{t}……", "呼……没事啦，没事啦。{t}……", "Phew... you're safe, you're safe. {t}..."),
         'young': ('ふう……もう だいじょぶ。{t}。', '呼……没事惹。{t}。', 'Phew... safe now. {t}.')},
     'family_alarm_flee': {
         'adult': ('ここは、あぶない！ はなれる！ {t}！', '这里危险！快离开！{t}！', "It's dangerous here! Move away! {t}!"),
         'young': ('ここ、あぶにゃい！ にげりゅ！ {t}！', '这里危险！快跑！{t}！', 'Dangewous! Wun! {t}!')},
     'family_died': {
-        'adult': ('{t}……まもれなかった……ゆっくりぃ……', '{t}……没能保护好……油库里——……', "{t}... couldn't protect you... yukkuriii..."),
+        'adult': ("{t}……おきて……もういちど、すーりすーり……", "{t}……醒醒……还想跟你擦擦脸……", "{t}... wake up... one more nuzzle..."),
         'young': ('{t}……おきちぇ……ゆっくちぃ……', '{t}……醒醒……油库气——……', '{t}... wake up... yukkuchiii...')},
     'fed': {
         'adult': ('{t}！ しあわせー！', '{t}！好幸福——！', '{t}! So happy!'),
@@ -205,7 +206,7 @@ LINES = {
         'adult': ('{t}♪ やさしい……しあわせー。', '{t}♪ 好温柔……好幸福——。', '{t}! So gentle... so happy.'),
         'young': ('{t}♪ しあわちぇー！', '{t}♪ 好幸胡——！', '{t}! Happeee!')},
     'grown': {
-        'adult': ('{t}！ おおきくなった！ もっと、つよくなる！', '{t}！长大了！还要变得更强！', "{t}! I'm bigger! I'll get even stronger!"),
+        'adult': ("{t}！ おおきく なった！ みて、みて！", "{t}！妖梦长大啦！看、快看！", "{t}! I'm bigger! Look, look!"),
         'young': ('{t}！ おっきくにゃった！', '{t}！长大惹！', '{t}! I gwew!')},
     'harness_on': {
         'adult': ('{t}！ ぴったり！ おさんぽ、いける！', '{t}！刚刚好！能去散步了！', '{t}! Perfect fit! Walk time!'),
@@ -238,11 +239,11 @@ LINES = {
         'adult': ('{t}！ ごはん、おいた！ ゆっくりする！', '{t}！饭饭放好了！要油库里！', '{t}! Food stored! Time to relax!'),
         'young': ('{t}！ ごはん、おいちゃ！', '{t}！饭饭放好惹！', '{t}! Food put away!')},
     'house_hatched': {
-        'adult': ('{t}！ でてきた！ ここが、おうち。', '{t}！出来了！这里就是小窝。', "{t}! You're out! This is home."),
-        'young': ('{t}！ でてきちゃ！ ここ、おうち！', '{t}！出来惹！这里是窝窝！', '{t}! Out! Dis is home!')},
+        'adult': ("{t}！ おちびちゃん！ ゆっくりしていってね！", "{t}！小贝比酱！油库里洗跌一跌捏！", "{t}! Little one! Take it easy!"),
+        'young': ("{t}！ おちびちゃん！ ゆっくち しちぇいっちぇにぇ！", "{t}！小贝比酱！油库气洗切一切捏！", "{t}! Little one! Take it easy!")},
     'house_listen': {
-        'adult': ('ちいさいこが、うごいてる。{t}。', '小不点在里面动了。{t}。', 'The little one is moving. {t}.'),
-        'young': ('ちっちゃいこ、うごいてりゅ！ {t}！', '小不点在动惹！{t}！', 'Wittle one is moving! {t}!')},
+        'adult': ("ゆっ？ たまごさん、うごいた？ {t}？", "油？卵先生，动了吗？{t}？", "Yu? Mr. Egg, did you move? {t}?"),
+        'young': ("ゆっ？ たまごしゃん、うごいちゃ？ {t}？", "油？卵鲜笋，动惹？{t}？", "Yu? Mr. Egg, did you move? {t}?")},
     'house_peek': {
         'adult': ('{t}？ なかに、なにかいる？', '{t}？里面有什么吗？', '{t}? Something inside?'),
         'young': ('{t}？ にゃかに、にゃにかいりゅ？', '{t}？里面有啥？', '{t}? Somefin inside?')},
@@ -254,10 +255,10 @@ LINES = {
         'young': ('{t}。おうちしゃん、みちゅける！', '{t}。要找到窝窝！', '{t}. Gonna find a home!')},
     'house_startled': {
         'adult': ('{t}！ びっくりした！ ……でも、にげない！', '{t}！吓了一跳！……但是不逃！', "{t}! That startled me! ...But I won't run!"),
-        'young': ('{t}！ こわい！ かくれりゅ！', '{t}！怕怕！要躲起来！', '{t}! Scawy! Hiding!')},
+        'young': ('{t}！ こあい！ かくれりゅ！', '{t}！好口怕！要躲起来！', '{t}! Scawy! Hiding!')},
     'hungry': {
-        'adult': ('{t}……おなかすいた……', '{t}……肚子饿了……', "{t}... I'm hungry..."),
-        'young': ('{t}……おなかしゅいた……', '{t}……肚肚饿惹……', '{t}... hungwy...')},
+        'adult': ('{t}……おなかすいた……', '{t}……彭彭饿了……', "{t}... I'm hungry..."),
+        'young': ('{t}……ぽんぽんしゃん、ぺこぺこ……', '{t}……彭彭先森饿惹……', '{t}... Mr. Tummy is hungwy...')},
     'idle': {
         'adult': ('{t}～。ゆっくりする。', '{t}～。油库里一下。', '{t}~ Taking it easy.'),
         'young': ('{t}～♪ ゆっきゅり！', '{t}～♪ 油库气！', '{t}~ Easy!')},
@@ -296,7 +297,7 @@ LINES = {
         'young': ('{t}！ おかじゃり、かえちて！', '{t}！把饰饰还肥来！', '{t}! Give wibbon back!')},
     'lost_parent': {
         'adult': ('{t}……どこ……？ ゆっくりぃ……', '{t}……在哪里……？油库里——……', '{t}... where are you...? Yukkuriii...'),
-        'young': ('{t}……おかーしゃん……ゆっくちぃ……', '{t}……妈妈……油库气——……', '{t}... mama... yukkuchiii...')},
+        'young': ("{t}……おやしゃん……どこぉ……", "{t}……亲亲油……在哪儿呀……", "{t}... where are you...?")},
     'mine': {
         'adult': ('ぷくーっ！ これは、わたしの！ {t}！', '噗咕——！这是妖梦的！{t}！', 'Puff! This is mine! {t}!'),
         'young': ('ぷきゅーっ！ わたちの！ {t}！', '噗啾——！窝的！{t}！', 'Puff! Mine! {t}!')},
@@ -304,11 +305,11 @@ LINES = {
         'adult': ('{t}……あんまり、ゆっくりできてない……', '{t}……不太能慢慢来……', "{t}... can't really relax..."),
         'young': ('{t}……あんまり ゆっくち できてにゃい……', '{t}……不太能慢慢来……', '{t}... not weawy wewaxed...')},
     'mood_good': {
-        'adult': ('{t}！ きょうは、とってもゆっくりできてる！', '{t}！今天过得超悠闲！', '{t}! Really relaxed today!'),
-        'young': ('{t}！ きょうは ゆっくち できてりゅ！', '{t}！今天好悠闲！', '{t}! Wewaxed today!')},
+        'adult': ("{t}！ きょうは ゆっくり できる！", "{t}！今天好能油库里！", "{t}! I can really take it easy today!"),
+        'young': ("{t}！ ゆっくち できりゅ！", "{t}！好能油库气！", "{t}! I can take it easy!")},
     'mood_ok': {
-        'adult': ('{t}。ふつう。ぼちぼち。', '{t}。还行。慢慢悠悠。', '{t}. Okay. So-so.'),
-        'young': ('{t}。ふちゅう。ぼちぼち。', '{t}。还行。慢慢悠悠。', '{t}. Okay.')},
+        'adult': ("{t}。ゆっくり してる……", "{t}。在油库里……", "{t}. Taking it easy..."),
+        'young': ("{t}。ゆっくち ちてる……", "{t}。在油库气……", "{t}. Taking it easy...")},
     'need_toilet': {
         'adult': ('{t}。うんうん、する。', '{t}。要嗯嗯了。', '{t}. Need to poo.'),
         'young': ('{t}！ うんうん、しゅりゅ！', '{t}！要嗯嗯惹！', '{t}! Poo time!')},
@@ -334,17 +335,17 @@ LINES = {
         'adult': ('{t}！ にんげんさん、のらは、むしした！ えらい？', '{t}！人类先生，野良我没理会！厉害吧？', '{t}! Human, I ignored the stray! Good, right?'),
         'young': ('{t}！ にんげんしゃん、のらは むちちた！', '{t}！人类先生，窝没理野良！', '{t}! Human, I ignowed the stway!')},
     'plea_sad': {
-        'adult': ('……そう。{t}。また、くる。', '……这样啊。{t}。下次再来。', "...I see. {t}. I'll come again."),
-        'young': ('……しょう。{t}。また くりゅ。', '……这样啊。{t}。下次再来。', '...Okay. {t}. Come again.')},
+        'adult': ("ゆぅ……かって もらえない……{t}……", "油呜……还是没人养妖梦……{t}……", "Yuu... nobody wants to keep me... {t}..."),
+        'young': ("ゆぅ……かって くれにゃい……{t}……", "油呜……还是没人养窝……{t}……", "Yuu... nobody wants to keep me... {t}...")},
     'puff': {
         'adult': ('ぷくーっ！ {t}！ かかってこい！', '噗咕——！{t}！放马过来！', 'Puff! {t}! Bring it on!'),
         'young': ('ぷきゅーっ！ {t}！', '噗啾——！{t}！', 'Puff! {t}!')},
     'request_sulk': {
-        'adult': ('もう、しらない！ ぷんぷん！ {t}！', '不理你了！气鼓鼓！{t}！', 'Not talking to you! Hmph! {t}!'),
-        'young': ('もう ちらにゃい！ ぷんぷん！ {t}！', '不理你惹！气鼓鼓！{t}！', 'Not talkin! Hmph! {t}!')},
+        'adult': ("ふんっ！ ぷくーっ！ {t}！", "哼！噗咕——！{t}！", "Hmph! Puff! {t}!"),
+        'young': ("ふんっ！ ぷきゅーっ！ {t}！", "哼！噗咕——！{t}！", "Hmph! Puff! {t}!")},
     'request_thanks': {
-        'adult': ('{t}！ ありがとう！ これで、ゆっくりできる！', '{t}！谢谢！这下能慢慢来了！', '{t}! Thanks! Now I can relax!'),
-        'young': ('{t}！ ありがちょう！ ゆっくち できりゅ！', '{t}！谢谢！能慢慢来惹！', '{t}! Fank you! Can wewax!')},
+        'adult': ("{t}！ ありがと！ ゆっくり できる！", "{t}！谢谢！能油库里啦！", "{t}! Thanks! I can take it easy!"),
+        'young': ("{t}！ ありがちょ！ ゆっくち できりゅ！", "{t}！蟹蟹！能油库气惹！", "{t}! Fank you! I can take it easy!")},
     'returned_accessory': {
         'adult': ('{t}！ おかざり、おかえり！', '{t}！头饰，欢迎回来！', '{t}! Welcome back, ribbon!'),
         'young': ('{t}！ おかじゃり、おかえりっ！', '{t}！饰饰，欢迎肥来！', '{t}! Wibbon, welcome back!')},
@@ -370,14 +371,14 @@ LINES = {
         'adult': ('{t}！ ここは、おまえのおうちじゃない！ でていけ！', '{t}！这里不是你的家！出去！', "{t}! This isn't your home! Get out!"),
         'young': ('{t}！ ここ、らめ！ あっちいっちぇ！', '{t}！介里不行！去那边！', '{t}! Not hewe! Go away!')},
     'settlement_hurt': {
-        'adult': ('おかざりがないと……だめなの……？ {t}……', '没有头饰……就不行了吗……？{t}……', 'Without my ribbon... am I no good...? {t}...'),
-        'young': ('おかじゃり、にゃい……ひとりは、いや……{t}……', '饰饰没惹……不要丢下窝……{t}……', "Wibbon gone... don't weave me... {t}...")},
+        'adult': ('わたしも みんなと いっしょに いたい……{t}……', '我也想跟大家待在一起……{t}……', 'I want to stay with everyone too... {t}...'),
+        'young': ('わたちも みんなと いっちょに いちゃい……{t}……', '窝也想跟大家待在一起……{t}……', 'I wanna stay with everyone too... {t}...')},
     'settlement_shun': {
         'adult': ('{t}！ しらないゆっくり、ちかづくな！', '{t}！不认识的油库里，别靠近！', '{t}! Strange yukkuri, stay back!'),
         'young': ('{t}？ だれ？ こにゃいで！', '{t}？系谁？不要过来！', "{t}? Who? Don't come!")},
     'settlement_submit': {
-        'adult': ('そうじする……だから、ここにいさせて。{t}……', '我会打扫……所以让我留在这里。{t}……', "I'll clean... so let me stay. {t}..."),
-        'young': ('おそうじ しゅる！ ここに いちゃい……{t}……', '窝会扫扫！窝想待介里……{t}……', "I'll cwean! Wanna stay... {t}...")},
+        'adult': ("おトイレさん、そうじする……ここに いさせて……{t}……", "我会打扫厕所先生……让我留下吧……{t}……", "I'll clean Mr. Toilet... let me stay... {t}..."),
+        'young': ('おといれしゃん、そうじしゅる……ここに いちゃい……{t}……', '窝会打扫厕所鲜笋……窝想留下……{t}……', "I'll cwean Mr. Toilet... I wanna stay... {t}...")},
     'share': {
         'adult': ('{t}♪ はい、どうぞ。', '{t}♪ 给，请用。', '{t}! Here you go.'),
         'young': ('{t}♪ どーじょ！', '{t}♪ 给你！', '{t}! Hewe!')},
@@ -385,8 +386,8 @@ LINES = {
         'adult': ('{t}！ かって！ つよいから、まもってあげる！', '{t}！买下妖梦吧！妖梦很强，会保护你！', "{t}! Buy me! I'm strong, I'll protect you!"),
         'young': ('{t}！ かっちぇ！ いいこだよ！', '{t}！买下窝！窝是乖孩子！', "{t}! Buy me! I'm good!")},
     'shop_bought': {
-        'adult': ('{t}！ あたらしいおうち！ よろしく！', '{t}！新的家！请多关照！', '{t}! New home! Nice to meet you!'),
-        'young': ('{t}！ あたらちい おうち！ よろちく！', '{t}！新的家！请多关照！', '{t}! New home! Hewwo!')},
+        'adult': ("{t}！ にんげんさんと おうちに かえる！", "{t}！要跟人类先生回家啦！", "{t}! I'm going home with Mr. Human!"),
+        'young': ("{t}！ にんげんしゃんと おうちに かえりゅ！", "{t}！窝要跟人类鲜笋回家惹！", "{t}! I'm going home with Mr. Human!")},
     'shop_sold_proud': {
         'adult': ('{t}！ もっといいおうちに、いく！ さらば！', '{t}！要去更好的家！再会！', '{t}! Off to a better home! Farewell!'),
         'young': ('{t}！ もっといい おうちに いく！ ばいばい！', '{t}！要去更好的家！拜拜！', '{t}! Better home! Bye-bye!')},
@@ -400,16 +401,16 @@ LINES = {
         'adult': ('すーや……すーや……{t}……', '呼——呀……呼——呀……{t}……', 'Zzz... zzz... {t}...'),
         'young': ('しゅーや……しゅーや……{t}……', '呼——呀……呼——呀……{t}……', 'Zzz... {t}...')},
     'snack_eat': {
-        'adult': ('{t}！ あまあま、うまい！ しあわせー！', '{t}！甜甜好吃！好幸福——！', '{t}! Sweets, yum! So happy!'),
-        'young': ('{t}！ あみゃあみゃ、おいちい！ しあわちぇー！', '{t}！甜甜好七！好幸胡——！', '{t}! Sweeties, yummy! Happeee!')},
+        'adult': ("{t}！ あまあま！ むーしゃむーしゃ……しあわせ！", "{t}！好甜好甜！嚼嚼……好幸福！", "{t}! Sweet, sweet! Munch, munch... so happy!"),
+        'young': ("{t}！ あみゃあみゃ！ むーちゃむーちゃ……しゃーわちぇ！", "{t}！搞甜搞甜！嚼嚼……好幸乎！", "{t}! Sweet, sweet! Munch, munch... so happy!")},
     'snack_greedy': {
         'adult': ('{t}！ もっと！ あまあま、もっとちょうだい！', '{t}！还要！再给妖梦甜甜！', '{t}! More! More sweets!'),
         'young': ('{t}！ もっちょ！ あみゃあみゃ、もっちょ！', '{t}！还要！甜甜还要！', '{t}! Mowe! Mowe sweeties!')},
     'snack_refuse': {
-        'adult': ('もう、おなかいっぱい……あとで。{t}。', '已经吃饱了……待会儿再吃。{t}。', "I'm full... later. {t}."),
-        'young': ('ぽんぽん、いっぱい……あとで。{t}。', '肚肚满满……待会儿。{t}。', 'Tummy full... later. {t}.')},
+        'adult': ("おなか いっぱい……もう いらない。{t}……", "饱了……吃不下了。{t}……", "I'm full... no more. {t}..."),
+        'young': ('ぽんぽんしゃん、いっぱい……あとで。{t}。', '彭彭先森已经饱惹……待会儿。{t}。', 'Mr. Tummy is full... later. {t}.')},
     'spray_drowsy': {
-        'adult': ('{t}……あまいにおい……ねむい……ちからが、ぬける……', '{t}……甜甜的香味……好困……没力气了……', '{t}... sweet smell... sleepy... so weak...'),
+        'adult': ("{t}……あまい におい……ねむねむ……", "{t}……甜甜的味道……困了……", "{t}... smells sweet... sleepy..."),
         'young': ('{t}……らむねのにおい……ねむねむ……', '{t}……汽水的味道……困困……', '{t}... soda smell... sweepy...')},
     'swaddle_on': {
         'adult': ('ぬくぬく……あったかい……{t}……', '暖乎乎的……好温暖……{t}……', 'Snug... so warm... {t}...'),
@@ -430,8 +431,8 @@ LINES = {
         'adult': ('{t}？ ……なんだった？', '{t}？……刚才怎么了？', '{t}? ...What was that?'),
         'young': ('{t}？ にゃんだった？', '{t}？刚才怎么惹？', '{t}? Whazzat?')},
     'wait_family': {
-        'adult': ('{t}……まだかな……ずっと、まってる……', '{t}……还没来吗……一直在等……', "{t}... not yet... I'll keep waiting..."),
-        'young': ('{t}……まだぁ……？ ゆっくちぃ……', '{t}……还没好吗……？油库气——……', '{t}... not yet...? Yukkuchiii...')},
+        'adult': ("{t}……みんな、まだかな……ここで まってる……", "{t}……大家，还没来呀……妖梦在这儿等……", "{t}... where is everyone...? I'll wait here..."),
+        'young': ('{t}……おうちの みんな、まだ かえらない……もうちょっと まっちぇる……', '{t}……家里的油还没肥来……窝再等一会儿……', '{t}... my family still isn’t back... I’ll wait a little more...')},
     'wait_learned': {
         'adult': ('{t}！ ゆっくり、りかいした！', '{t}！油库里地明白了！', '{t}! I understand now!'),
         'young': ('{t}！ ゆっくち りきゃいちた！', '{t}！油库气地明白惹！', '{t}! I undewstand!')},
@@ -485,8 +486,8 @@ NEW = {
         'young': ('{t}！ 観楼剣！ こっち、くりゅな！', '{t}！觀樓劍！不许过来！', '{t}! Kanroken! Stay back!'),
         'baby': ('{c}！ ぼーぼー、ぶんぶん！', '{c}！棒棒，呼呼！', '{c}! Stick, swish swish!')},
     'kanroken_found': {
-        'adult': ('{t}！ いいぼう、みつけた！ きょうから観楼剣！', '{t}！找到好棍子了！从今天起就是觀樓劍！', "{t}! A good stick! From today, it's Kanroken!"),
-        'juvenile': ('{t}！ このぼう、つよそう！ 観楼剣にする！', '{t}！这根棍子看起来好强！就叫觀樓劍！', "{t}! This stick looks strong! It's my Kanroken!"),
+        'adult': ('{t}！ いいぼう！ おまえは 観楼剣！', '{t}！好棍子！叫你觀樓劍！', '{t}! Good stick! You are Kanroken!'),
+        'juvenile': ('{t}！ つよそうな ぼう！ 観楼剣に する！', '{t}！好强的棍子！叫觀樓劍！', '{t}! A strong stick! My Kanroken!'),
         'young': ('{t}！ いいぼう！ 観楼剣に しゅる！', '{t}！好棍棍！要叫它觀樓劍！', "{t}! Good stick! It's Kanroken now!"),
         'baby': ('{c}♪ ぼー！ ぼー！', '{c}♪ 棒棒！棒棒！', '{c}! Stick! Stick!')},
     'kanroken_lost': {
@@ -495,10 +496,10 @@ NEW = {
         'young': ('観楼剣……にゃい……{t}……にゃかにゃい……', '觀樓劍……没惹……{t}……窝不哭……', 'Kanroken... gone... {t}... not cwying...'),
         'baby': ('ぼー……にゃい……{c}ーっ！', '棒棒……没有了……{c}——！', 'Stick... gone... {c}!')},
     'forage_proud': {
-        'adult': ('{t}！ ごはん、とってきた！ ひとつ、ふたつ……いっぱい！', '{t}！饭饭采回来了！一个、两个……好多好多！', '{t}! Brought food! One, two... lots!'),
-        'juvenile': ('{t}！ いちばんはやく、いっぱいあつめた！', '{t}！妖梦最快，采了好多好多！', '{t}! Fastest! I gathered lots and lots!'),
-        'young': ('{t}！ ごはん、いっぱい とってきちゃ！', '{t}！采了好多好多饭饭惹！', '{t}! Got lots of food!'),
-        'baby': ('{c}♪ まんま、いっぱい！', '{c}♪ 饭饭，好多好多！', '{c}! Num-num, lots!')},
+        'adult': ('{t}！ ごはんさん、もってきた！ みて、みて！', '{t}！饭先生带回来啦！快看、快看！', '{t}! Brought Mr. Food back! Look, look!'),
+        'juvenile': ('{t}！ ごはんしゃん、もってきた！', '{t}！窝把饭鲜笋带回来了！', '{t}! I brought Mr. Food back!'),
+        'young': ('{t}！ ごはんしゃん、もっちぇきちゃ！', '{t}！窝带饭鲜笋肥来惹！', '{t}! I brought Mr. Food back!'),
+        'baby': ('{c}♪ まんま！ まんま！', '{c}♪ 饭饭！饭饭！', '{c}! Food! Food!')},
 }
 
 # Kotatsu Marisa (plain marisa, no quirk).
