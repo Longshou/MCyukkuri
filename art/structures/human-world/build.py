@@ -521,18 +521,6 @@ def export():
             {'weight': 1, 'element': {'element_type': 'mcyukkuri:levelled', 'location': 'mcyukkuri:village/yukkuri_shop',
                                      'processors': 'minecraft:empty', 'projection': 'rigid'}}]}
         path.write_text(json.dumps(data, indent=2) + '\n', encoding='utf-8')
-    for name,spacing,separation,salt in [
-            ('yukkuri_labor_factory',32,12,17923043),('yukkuri_manju_factory',32,12,17923044),('yukkuri_bag_factory',32,12,17923045)]:
-        # Cover the village's 80-block jigsaw range, its center offset and the factory's rotated footprint.
-        placement = {'type': 'minecraft:random_spread', 'spacing': spacing, 'separation': separation, 'salt': salt,
-                     'exclusion_zone': {'other_set': 'minecraft:villages', 'chunk_count': 9}}
-        files={
-            f'worldgen/template_pool/{name}.json':{'name':'mcyukkuri:'+name,'fallback':'minecraft:empty','elements':[{'weight':1,'element':{'element_type':'mcyukkuri:levelled','location':'mcyukkuri:'+name,'processors':'minecraft:empty','projection':'rigid'}}]},
-            f'worldgen/structure/{name}.json':{'type':'mcyukkuri:human_building','biomes':'#mcyukkuri:human_buildings','step':'surface_structures','spawn_overrides':{},'terrain_adaptation':'beard_thin','start_pool':'mcyukkuri:'+name},
-            f'worldgen/structure_set/{name}.json':{'structures':[{'structure':'mcyukkuri:'+name,'weight':1}],'placement':placement}
-        }
-        for name_,data in files.items():
-            p=OUT/name_; p.parent.mkdir(parents=True,exist_ok=True); p.write_text(json.dumps(data,indent=2)+'\n',encoding='utf-8')
     p=OUT/'tags/worldgen/biome/human_buildings.json';p.parent.mkdir(parents=True,exist_ok=True)
     p.write_text(json.dumps({'replace':False,'values':['minecraft:plains','minecraft:sunflower_plains','minecraft:meadow','minecraft:savanna']},indent=2)+'\n',encoding='utf-8')
     p=OUT/'neoforge/biome_modifier/human_spawns.json'

@@ -74,6 +74,6 @@ def main(check=False):
         files[relative]=recorded if recorded and matches_fingerprint(p,content,recorded) else hashlib.sha256(content).hexdigest()
     data={'files':files}
     manifest.write_text(json.dumps(data,indent=2)+'\n',encoding='utf-8')
-    print('Human world: shop, three independent factory types, legacy template, NPC outfits and original products exported.')
+    print('Human world: village shop, factory templates, NPC outfits and original products exported.')
 if __name__=='__main__':
     parser=argparse.ArgumentParser();parser.add_argument('--check',action='store_true');main(parser.parse_args().check)

@@ -35,6 +35,7 @@ public final class FactoryStationBlock extends Block {
     @Override protected boolean isPathfindable(BlockState s,PathComputationType type){return false;}
     @Override protected VoxelShape getShape(BlockState s,BlockGetter l,BlockPos p,CollisionContext c){return shape;}
     @Override protected InteractionResult useWithoutItem(BlockState s,Level l,BlockPos pos,Player p,BlockHitResult hit) {
+        if (!FactoryProduction.ENABLED) return InteractionResult.PASS;
         if (!l.isClientSide) {
             var worker=l.getEntitiesOfClass(HumanNpc.class,new AABB(pos).inflate(6),n->n.isAlive()&&n.job()==HumanNpc.Job.FACTORY)
                     .stream().min(Comparator.comparingDouble(p::distanceToSqr)).orElse(null);

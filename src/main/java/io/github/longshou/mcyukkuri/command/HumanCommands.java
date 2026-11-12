@@ -36,7 +36,7 @@ import net.minecraft.world.entity.item.ItemEntity;
  * {@code ShopTrade}, i.e. the real buildings, entities and sale, never a stand-in.
  *
  * <pre>
- * human build shop|labor|manju|bag &lt;entrance pos&gt; [north|east|south|west] [clear]   a whole building; the position is the street in front of the main door
+ * human build shop &lt;entrance pos&gt; [north|east|south|west] [clear]   the whole shop; the position is the street in front of the main door
  * human walker &lt;pos&gt; [brother|sister] [variant]                                    a caretaker with a pet already out on the lead
  * human oniisan &lt;pos&gt; [prey]                                                      a cruel resident (with prey: a wild Reimu 5 blocks east)
  * human shop list                                                                  the shop register: keepers, posts, shelves
@@ -101,7 +101,7 @@ public final class HumanCommands {
     private static int build(CommandContext<CommandSourceStack> c, String front, boolean clear) throws CommandSyntaxException {
         var kind = HumanScenes.Kind.byName(StringArgumentType.getString(c, "kind"));
         var dir = Direction.byName(front);
-        if (kind == null || dir == null || dir.getAxis().isVertical()) { say(c, "kind: shop|labor|manju|bag; front: north|east|south|west"); return 0; }
+        if (kind == null || dir == null || dir.getAxis().isVertical()) { say(c, "kind: shop; front: north|east|south|west"); return 0; }
         var pos = BlockPosArgument.getLoadedBlockPos(c, "entrance");
         var placed = HumanScenes.place(c.getSource().getLevel(), kind, pos, dir, clear);
         if (placed == null) { say(c, "template missing: " + kind.template); return 0; }

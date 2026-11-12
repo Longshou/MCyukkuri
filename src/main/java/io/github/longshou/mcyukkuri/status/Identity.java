@@ -21,7 +21,7 @@ public enum Identity {
             if (custody.role() != Custody.Role.COMPANION) return OWNED;
             return custody.ownerKind() == Custody.OwnerKind.NPC ? NPC_COMPANION : PET;
         }
-        if (custody.hasPendingStaffRole() || custody.hasFactoryStage()) return OWNED;
+        if (custody.hasPendingStaffRole()) return OWNED;
         if (houseBody) return HOUSE;
         if (townRoots) return STRAY;
         return settlement ? WILD_SETTLEMENT : WILD_FAMILY;

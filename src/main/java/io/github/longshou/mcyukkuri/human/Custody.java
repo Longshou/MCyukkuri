@@ -26,6 +26,9 @@ public final class Custody {
     private static final List<String> ACTIVE_KEYS = List.of(
             "Owner", "OwnerKind", "Use", "PendingRole", "FactoryStage", "StageWork", "LastFactoryWork",
             "FactoryYoung", "HoldReason", "ShopCandidate", "RetiredParent", "ForSaleSince", "StaleCuts");
+    private static final Set<String> FACTORY_STAFF_ROLES = Set.of("labor_worker", "manju_worker", "bag_worker");
+    private static final Set<Role> FACTORY_ROLES = Set.of(Role.BREEDER, Role.RESERVE_PARENT, Role.NURSERY,
+            Role.INPUT, Role.LABOR, Role.RESERVE);
     /** Reentrancy guard only; all durable state lives in NBT/SavedData, never in this set. */
     private static final Set<YukkuriEntity> CLEANING = Collections.newSetFromMap(new IdentityHashMap<>());
 
@@ -50,8 +53,7 @@ public final class Custody {
 
     /** Immutable values read at the call site, not a mutable tag or a live entity handle. */
     public record View(@Nullable UUID owner, OwnerKind ownerKind, Role role, String rawUse,
-                       String pendingStaffRole, boolean hasPendingStaffRole,
-                       String factoryStage, boolean hasFactoryStage) {
+                       String pendingStaffRole, boolean hasPendingStaffRole, String factoryStage) {
         public boolean ownedBy(UUID id) { return owner != null && owner.equals(id); }
     }
 
@@ -87,9 +89,21 @@ public final class Custody {
 
     /** Only metadata changes here: safe during admission and on authoritative captive NBT. */
     private static boolean normalize(ServerLevel level, CompoundTag tag) {
-        if (!tag.hasUUID("Owner")) return false;
-        var ledger = CustodyData.get(level); UUID owner = tag.getUUID("Owner");
-        var kind = read(tag).ownerKind();
+        if (!tag.contains("Owner") && !tag.contains("Use") && !tag.contains("PendingRole")) return false;
+        var custody = read(tag);
+        UUID owner = custody.owner();
+        var ledger = owner == null ? null : CustodyData.get(level);
+        if (owner != null && ledger.deadNpc(owner)) {
+            queueRelease(tag, "owner_died", owner);
+            return true;
+        }
+        if (!FactoryProduction.ENABLED && custody.ownerKind() != OwnerKind.PLAYER
+                && (FACTORY_ROLES.contains(custody.role()) || FACTORY_STAFF_ROLES.contains(custody.pendingStaffRole()))) {
+            queueRelease(tag, "factory_closed", owner);
+            return true;
+        }
+        if (owner == null) return false;
+        var kind = custody.ownerKind();
         ledger.remember(owner, kind);
         if (kind == OwnerKind.UNKNOWN) {
             kind = ledger.kind(owner);
@@ -99,14 +113,6 @@ public final class Custody {
                     if (dimension.getEntity(owner) instanceof HumanNpc) { kind = OwnerKind.NPC; break; }
                 ledger.remember(owner, kind);
             }
-        }
-        if (ledger.deadNpc(owner)) {
-            for (var key : ACTIVE_KEYS) tag.remove(key);
-            if (!pendingDeath(tag)) {
-                var pending = new CompoundTag(); pending.putString("Reason", "owner_died"); pending.putUUID("FormerOwner", owner);
-                tag.put(PENDING_RELEASE, pending);
-            }
-            return true;
         }
         String id = kind == OwnerKind.PLAYER ? "player" : kind == OwnerKind.NPC ? "npc" : "";
         if (!id.isEmpty() && !id.equals(tag.getString("OwnerKind"))) { tag.putString("OwnerKind", id); return true; }
@@ -120,25 +126,35 @@ public final class Custody {
         forge.put("HumanCommerce", tag); snapshot.put("NeoForgeData", forge); return true;
     }
 
-    private static boolean pendingDeath(CompoundTag tag) {
-        var pending = tag.getCompound(PENDING_RELEASE);
-        return pending.getString("Reason").equals("owner_died") && pending.hasUUID("FormerOwner");
+    private static void queueRelease(CompoundTag tag, String reason, @Nullable UUID owner) {
+        for (var key : ACTIVE_KEYS) tag.remove(key);
+        var pending = new CompoundTag();
+        pending.putString("Reason", reason);
+        if (owner != null) pending.putUUID("FormerOwner", owner);
+        tag.put(PENDING_RELEASE, pending);
+    }
+
+    private static boolean releaseQueued(CompoundTag pending) {
+        String reason = pending.getString("Reason");
+        return reason.equals("factory_closed") || reason.equals("owner_died") && pending.hasUUID("FormerOwner");
     }
 
     /** Idempotent world effects, strictly after successful admission; queries never call this. */
     public static boolean cleanup(YukkuriEntity animal) {
         var tag = data(animal);
-        if (!pendingDeath(tag)) return true;
+        var pending = tag.getCompound(PENDING_RELEASE);
+        if (!releaseQueued(pending)) return true;
         if (!(animal.level() instanceof ServerLevel level) || !animal.isAlive() || animal.isRemoved()
                 || level.getEntity(animal.getUUID()) != animal || !CLEANING.add(animal)) return false;
         try {
-            UUID former = tag.getCompound(PENDING_RELEASE).getUUID("FormerOwner");
+            UUID former = pending.hasUUID("FormerOwner") ? pending.getUUID("FormerOwner") : null;
             if (animal.getVehicle() instanceof FactoryTray tray) tray.unload();
             animal.life().releaseHome();
-            animal.pet().ownerDied(former);
+            if (former != null) animal.pet().ownerReleased(former);
             animal.social().stop(); animal.dailyLife().stop(); animal.getNavigation().stop(); animal.setPersistenceRequired();
             var done = data(animal).copy(); done.remove(PENDING_RELEASE); store(animal, done);
-            GameplayLog.event(animal, "custody", "owner death cleanup completed formerOwner={} identity={}", former, animal.status().identity().id());
+            String transition = pending.getString("Reason").equals("owner_died") ? "owner death" : "factory closure";
+            GameplayLog.event(animal, "custody", "{} cleanup completed formerOwner={} identity={}", transition, former, animal.status().identity().id());
             return true;
         } finally { CLEANING.remove(animal); }
     }
@@ -285,15 +301,16 @@ public final class Custody {
         };
         String use = tag.getString("Use");
         return new View(owner, kind, Role.parse(use), use, tag.getString("PendingRole"), tag.contains("PendingRole"),
-                tag.getString("FactoryStage"), tag.contains("FactoryStage"));
+                tag.getString("FactoryStage"));
     }
 
     public static boolean ownedBy(YukkuriEntity animal, UUID id) { return view(animal).ownedBy(id); }
 
     public static boolean protectedAnimal(YukkuriEntity animal) {
-        var custody = view(animal);
+        var tag = data(animal);
+        var custody = read(tag);
         if (custody.owner() != null || custody.hasPendingStaffRole()
-                || animal.life().home() != null && !animal.life().naturalHome() && !pendingDeath(data(animal))) return true;
+                || animal.life().home() != null && !animal.life().naturalHome() && !releaseQueued(tag.getCompound(PENDING_RELEASE))) return true;
         if (animal.pet().abandoned() || animal.pet().voidBadge()) return false; // abandoned or registry-void: no keeper stands behind it
         for (var v : animal.life().personality().save().getList("Players", 10)) {
             var memory = (CompoundTag)v;

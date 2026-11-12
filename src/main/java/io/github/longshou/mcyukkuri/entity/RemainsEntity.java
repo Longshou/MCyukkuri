@@ -5,7 +5,6 @@ import io.github.longshou.mcyukkuri.random.ModRandom;
 import io.github.longshou.mcyukkuri.body.GraveBlock;
 import io.github.longshou.mcyukkuri.family.LeafSwaddle;
 import io.github.longshou.mcyukkuri.body.GraveBlockEntity;
-import io.github.longshou.mcyukkuri.human.FactoryProduction;
 import io.github.longshou.mcyukkuri.interaction.ItemContact;
 import io.github.longshou.mcyukkuri.registry.ModBlocks;
 import io.github.longshou.mcyukkuri.registry.ModEntities;
@@ -183,9 +182,6 @@ public final class RemainsEntity extends Entity {
     }
     @Override public InteractionResult interact(Player player,InteractionHand hand){
         if(isRemoved()||player.isSpectator()||!player.mayBuild()||player.distanceToSqr(this)>36)return InteractionResult.PASS;
-        // A manju line has explicitly accepted this exact corpse. It is released
-        // when the shared balance is exhausted or no longer factory-eligible.
-        if(data().hasUUID("FactoryOwner"))return InteractionResult.FAIL;
         var held=player.getItemInHand(hand);
         if(held.is(ItemTags.SHOVELS))return bury(player,hand);
         if(held.is(ItemTags.SWORDS)||held.getItem() instanceof OperationToolItem tool&&tool.tool()==OperationToolItem.Tool.CUTTER)return takeCore(player,hand);
@@ -262,7 +258,7 @@ public final class RemainsEntity extends Entity {
     @Override public void tick(){
         super.tick();
         if(level().isClientSide){if(tickCount%10==0)rotParticles();return;}
-        if(++rot%20==0){refreshStage();FactoryProduction.releaseDeadOwner(this);}
+        if(++rot%20==0)refreshStage();
         if(isInWater()&&++soak%20==0)refreshWater();
         boolean afloat=isInWaterOrBubble();
         var motion=getDeltaMovement();
@@ -284,5 +280,16 @@ public final class RemainsEntity extends Entity {
                 getX()+(random.nextDouble()-.5)*getBbWidth(),getY()+getBbHeight()*.7,getZ()+(random.nextDouble()-.5)*getBbWidth(),0,.02,0);
     }
     @Override protected void addAdditionalSaveData(CompoundTag tag){if(!remains().isEmpty())tag.put("Remains",remains().save(registryAccess()));}
-    @Override protected void readAdditionalSaveData(CompoundTag tag){setRemains(ItemStack.parseOptional(registryAccess(),tag.getCompound("Remains")));}
+    @Override protected void readAdditionalSaveData(CompoundTag tag) {
+        var stack = ItemStack.parseOptional(registryAccess(), tag.getCompound("Remains"));
+        var data = stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY);
+        if (data.contains("FactoryOwner") || data.contains("FactorySource")) {
+            CustomData.update(DataComponents.CUSTOM_DATA, stack, saved -> {
+                saved.remove("FactoryOwner");
+                saved.remove("FactorySource");
+            });
+            GameplayLog.event(this, "remains", "legacy factory claim cleared");
+        }
+        setRemains(stack);
+    }
 }

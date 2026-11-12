@@ -553,7 +553,6 @@ FIELDS = [
     House('house', '家油人类屋', 'house', 8, 296, 22, 18, 'minecraft:plains', blurb='有人类活动的屋子：隐蔽墙角、搬入、筑巢、迁卵'),
     Town('town', '街道', 'human', -900, 700, 36, 28, 'minecraft:plains', blurb='牵宠散步、喂野生油、鬼威惨、徽章、考试、相亲、运输'),
     Lot('shop', '商店', 'human', -750, 700, 26, 22, 'minecraft:plains', blurb='整座商店：店主、货架、银章爱丽丝'),
-    Lot('factory', '工厂', 'human', -540, 700, 68, 22, 'minecraft:plains', pads=(-44, 0, 44), blurb='劳动、馒头、袋子三座工厂'),
     Species('species', '物种与稀有形态', 'misc', 150, 500, 36, 28, 'minecraft:plains', blurb='妖梦与楼观剑、稀有形态、暖桌魔理沙、帕琪呕吐、橙速度、魔理沙相扑'),
     Clips('clips', '动作片段', 'misc', -300, 500, 18, 10, 'minecraft:plains', ground='minecraft:smooth_quartz', blurb='纯动作片段：身体、表情、体操、合唱'),
 ]

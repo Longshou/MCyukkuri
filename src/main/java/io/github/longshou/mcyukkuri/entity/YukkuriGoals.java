@@ -13,7 +13,6 @@ import io.github.longshou.mcyukkuri.intent.AskLedger;
 import io.github.longshou.mcyukkuri.intent.Conductor;
 import io.github.longshou.mcyukkuri.intent.Drive;
 import io.github.longshou.mcyukkuri.intent.IntentRunner;
-import io.github.longshou.mcyukkuri.human.FactoryWorkGoal;
 import io.github.longshou.mcyukkuri.life.AgitationLife;
 import io.github.longshou.mcyukkuri.life.EscapeWater;
 import io.github.longshou.mcyukkuri.mind.MindLife;
@@ -98,7 +97,6 @@ final class YukkuriGoals {
         // Below the life needs, above every errand: a slave kept in the waste pit stays in it (settlement/PitSlave).
         goalSelector.addGoal(4, presentationGoals.bind(PresentationGoals.PIT_SLAVE, new PitSlaveGoal()));
         goalSelector.addGoal(3, landBinding(PresentationGoals.HOME_CLAIM, new HomeClaimGoal(owner)));
-        goalSelector.addGoal(4, landBinding(PresentationGoals.FACTORY, new FactoryWorkGoal(owner)));
         goalSelector.addGoal(4, landBinding(PresentationGoals.TEMPT, new TemptGoal(owner, 1.15, Ingredient.of(YukkuriEntity.FOOD), false) {
             @Override public boolean canUse() { return !owner.isPassenger() && owner.life().canEat() && super.canUse() && owner.life().personality().fear(player.getUUID()) < BondLevels.SOCIAL_FEAR_LIMIT; }
             @Override public boolean canContinueToUse() { return !owner.isPassenger() && owner.life().canEat() && super.canContinueToUse(); }

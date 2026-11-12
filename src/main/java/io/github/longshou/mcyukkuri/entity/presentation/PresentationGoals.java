@@ -8,7 +8,6 @@ import io.github.longshou.mcyukkuri.event.HomeClaimGoal;
 import io.github.longshou.mcyukkuri.family.CareApproach;
 import io.github.longshou.mcyukkuri.family.LeafSwaddle;
 import io.github.longshou.mcyukkuri.event.WildEvents;
-import io.github.longshou.mcyukkuri.human.FactoryWorkGoal;
 import io.github.longshou.mcyukkuri.settlement.ForageGoal;
 import io.github.longshou.mcyukkuri.settlement.ForageTrip;
 import io.github.longshou.mcyukkuri.settlement.MoldExile;
@@ -74,7 +73,6 @@ public final class PresentationGoals {
     public static final Source<Goal> TEMPT = state("food_in_hand", e -> Behaviors.SEEK_FOOD);
     public static final Source<Goal> LIFE = state("life", e -> nonIdle(e.life().activity()));
     public static final Source<HomeClaimGoal> HOME_CLAIM = observed("home_claim", HomeClaimGoal::activity);
-    public static final Source<FactoryWorkGoal> FACTORY = observed("factory", FactoryWorkGoal::activity);
     public static final Source<Goal> HOUSE = state("house", e -> e.house().active() ? e.house().activity() : null);
     public static final Source<ForageTrip> FORAGE_TRIP = observed("forage_trip", ForageTrip::activity);
     public static final Source<ForageGoal> FORAGE = observed("forage", ForageGoal::activity);

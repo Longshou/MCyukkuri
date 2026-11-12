@@ -101,9 +101,10 @@ public final class HumanNpc extends PathfinderMob {
     public boolean resting() { return entityData.get(RESTING); }
     public int careFood() { return careFood; }
     public int remainingTrades() { return Math.max(0, HumanWorld.TRADE_DAY_LIMIT.get() - trades); }
-    public boolean canReceiveInput() { return job() == Job.FACTORY && delivered < 4 && animals(Custody.Role.INPUT).size() < 2
+    boolean closedFactory() { return !FactoryProduction.ENABLED && job() == Job.FACTORY; }
+    public boolean canReceiveInput() { return FactoryProduction.ENABLED && job() == Job.FACTORY && delivered < 4 && animals(Custody.Role.INPUT).size() < 2
             && (production.kind().equals("labor")||production.kind().isEmpty()||production.breeding().population()<8); }
-    public boolean canReceiveParent(){return job()==Job.FACTORY&&(production.kind().equals("bag")||production.kind().equals("manju"))&&delivered<4&&
+    public boolean canReceiveParent(){return FactoryProduction.ENABLED&&job()==Job.FACTORY&&(production.kind().equals("bag")||production.kind().equals("manju"))&&delivered<4&&
             animals(Custody.Role.RESERVE_PARENT).size()<4&&production.breeding().population()<8;}
     public UUID lostAnimal() { return lostAnimal; }
     public UUID questPlayer() { return questPlayer; }
@@ -165,7 +166,7 @@ public final class HumanNpc extends PathfinderMob {
         goalSelector.addGoal(7, new RandomLookAroundGoal(this));
     }
     @Override protected InteractionResult mobInteract(Player player, InteractionHand hand) {
-        if (hand != InteractionHand.MAIN_HAND) return InteractionResult.PASS;
+        if (hand != InteractionHand.MAIN_HAND || closedFactory()) return InteractionResult.PASS;
         if (!level().isClientSide) {
             if (player.isShiftKeyDown() && CommodityLife.sellCore(player, this)) return InteractionResult.sidedSuccess(false);
             if (job() == Job.SHOPKEEPER) ShopMenu.open(player, this);
@@ -218,7 +219,7 @@ public final class HumanNpc extends PathfinderMob {
     @Override public void aiStep() {
         super.aiStep();
         if (serviceHatch != null && (tickCount == 1 || isNoAi() || !serviceHatch.attended(this))) closeServiceHatch();
-        if (level().isClientSide || !isAlive() || isNoAi()) return;
+        if (level().isClientSide || !isAlive() || isNoAi() || closedFactory()) return;
         if (!initialized) { initialized = true; home = blockPosition(); careFood = HumanWorld.CARE_SUPPLIES.get(); nextRestock = level().getGameTime() + 24000; }
         restrictTo(home(), 18);
         if (level().getGameTime() >= nextRestock) {
@@ -287,7 +288,7 @@ public final class HumanNpc extends PathfinderMob {
     }
     /** Contact is checked at execution, not only when the goal selects an animal. */
     public boolean attend(YukkuriEntity y) {
-        if (!y.isAlive() || y.level() != level() || distanceToSqr(y) > 9 || !hasLineOfSight(y) || !level().isDay()) return false;
+        if (closedFactory() || !y.isAlive() || y.level() != level() || distanceToSqr(y) > 9 || !hasLineOfSight(y) || !level().isDay()) return false;
         if(job()==Job.FACTORY && production.pipeline().needsService(y))return production.process(y);
         boolean input = job() == Job.FACTORY && HumanCommerce.ownedBy(y, getUUID()) && (Custody.view(y).role() == Custody.Role.INPUT);
         if (input) {
@@ -300,7 +301,8 @@ public final class HumanNpc extends PathfinderMob {
             if (intervened) { y.showReaction("angry", "", 60); routineDelay = 600; return false; }
             boolean hit=y.hurt(damageSources().mobAttack(this), 1); swing(InteractionHand.MAIN_HAND); return hit;
         }
-        if (attitude() == Attitude.CRUEL || (Custody.view(y).role() == Custody.Role.INPUT) && !FactoryPipeline.stage(y).equals("observe")) return false;
+        if (attitude() == Attitude.CRUEL || job() == Job.FACTORY && Custody.view(y).role() == Custody.Role.INPUT
+                && !FactoryPipeline.stage(y).equals("observe")) return false;
         if (y.life().canEat() && careFood > 0 && residentWildFeedAllowed(y) && y.life().beginMeal(new ItemStack(ModItems.GRAIN_REGULAR.get()), getUUID(), true)) {
             if (job() == Job.RESIDENT && y.status().identity().free()) recordResidentWildFeed(y);
             careFood--; swing(InteractionHand.MAIN_HAND);
@@ -327,16 +329,18 @@ public final class HumanNpc extends PathfinderMob {
         private TreatmentItem.Kind dose;
         RoutineGoal() { setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK)); }
         @Override public boolean canUse() {
+            if (closedFactory()) return false;
             if (isTrading() || resting()) return true;
             if (routineDelay > 0) return false;
             attention = level().getEntitiesOfClass(YukkuriEntity.class, getBoundingBox().inflate(job()==Job.FACTORY?32:12), y -> y.isAlive()
                     && (job() == Job.FACTORY && (production.kind().isEmpty()&&HumanCommerce.ownedBy(y, getUUID())&&
                             (Custody.view(y).role() == Custody.Role.INPUT)||production.pipeline().needsService(y))
-                    || canTorment(y) || attitude() == Attitude.CARING && mayTend(y) && (Custody.view(y).role() != Custody.Role.INPUT || FactoryPipeline.stage(y).equals("observe"))
+                    || canTorment(y) || attitude() == Attitude.CARING && mayTend(y)
+                            && (job() != Job.FACTORY || Custody.view(y).role() != Custody.Role.INPUT || FactoryPipeline.stage(y).equals("observe"))
                             // asleep behind a service door it cannot come to the door: not a patient to open the door for now
                             && !(y.life().isSleeping() && ServiceHatch.of(y) != null)))
                     .stream().min(Comparator.comparingDouble(y -> distanceToSqr(y)
-                            - (attitude()==Attitude.CARING && FactoryPipeline.stage(y).equals("observe") ? 1024 : 0))).orElse(null);
+                            - (job()==Job.FACTORY && attitude()==Attitude.CARING && FactoryPipeline.stage(y).equals("observe") ? 1024 : 0))).orElse(null);
             return attention != null;
         }
         @Override public boolean canContinueToUse() { return isTrading() || resting() || attention != null && attention.isAlive() && elapsed < 140 && approach < 600; }

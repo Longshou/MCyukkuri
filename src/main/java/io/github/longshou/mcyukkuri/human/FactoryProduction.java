@@ -23,6 +23,9 @@ import net.minecraft.world.InteractionHand;
 
 /** Finite materials, real animals and persistent output. Production pauses when space or material is exhausted. */
 public final class FactoryProduction {
+    // Keep saved workers and equipment readable while the factory is on hold.
+    public static final boolean ENABLED = false;
+
     private final HumanNpc worker;
     private final List<ItemStack> output=new ArrayList<>();
     private final Map<Block,BlockPos> stations=new HashMap<>();

@@ -77,7 +77,7 @@ public final class HumanMenu extends AbstractContainerMenu {
     public HumanNpc target() { return target; }
     public int value(int index) { return display.get(index); }
     public static boolean valid(Player p, HumanNpc n) {
-        return n != null && n.isAlive() && p.isAlive() && !p.isSpectator() && p.level() == n.level()
+        return n != null && !n.closedFactory() && n.isAlive() && p.isAlive() && !p.isSpectator() && p.level() == n.level()
                 && p.distanceToSqr(n) <= 36 && p.hasLineOfSight(n);
     }
     public static void open(Player p, HumanNpc npc) {

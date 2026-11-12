@@ -37,7 +37,12 @@ public final class FactoryTray extends PathfinderMob {
     @Override public boolean removeWhenFarAway(double distance) { return false; }
     @Override public void aiStep() {
         super.aiStep();
-        if (!(level() instanceof ServerLevel level) || isNoAi()) return;
+        if (!(level() instanceof ServerLevel level)) return;
+        if (!FactoryProduction.ENABLED) {
+            if (isVehicle() || ticket != null) unload();
+            return;
+        }
+        if (isNoAi()) return;
         if (owner == null || !(level.getEntity(owner) instanceof HumanNpc worker)) { getNavigation().stop(); return; }
         var flow = worker.production().pipeline();
         if (!worker.isAlive()) { ejectPassengers(); getNavigation().stop(); return; }

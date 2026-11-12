@@ -306,8 +306,8 @@ public final class PetLife {
         formerOwner = null; abandonStage = 0; waits = false;
         if (same) { voidBadge = false; animal.playAction("tremble"); joyDelay = 30; }
     }
-    /** Confirmed NPC owner death: end control without abandonment, badge invalidation or erasing history. */
-    public void ownerDied(UUID former) {
+    /** End NPC control while preserving the animal's badge and history. */
+    public void ownerReleased(UUID former) {
         lessons.separated();
         townRoots = true;
         care.ownerChanged(null);

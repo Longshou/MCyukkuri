@@ -30,16 +30,12 @@ import net.minecraft.world.entity.Entity;
  * Server-side API that puts the human world on the map where world generation has not (the playground, a fresh flat world): whole buildings with their
  * staff and stock, caretakers walking a pet, a cruel resident. Everything here uses the real templates and the real entities; there are no stand-ins.
  * {@code /yukkuri human ...} (command/HumanCommands) is a thin wrapper over these methods.
- *
- * Why the playground showed no shop, factory or Oniisan: the buildings are only placed by structure generation (random spread, 24 / 48 chunks, plains,
- * sunflower plains, meadow and savanna only, never into chunks that already exist), and the playground's flat map has no such chunks; scenario scripts only
- * summoned loose NPCs. Placing the template here is the same thing the generator does, at a chosen spot.
  */
 public final class HumanScenes {
     private HumanScenes() {}
 
     public enum Kind {
-        SHOP("yukkuri_shop", 12), LABOR("yukkuri_labor_factory", 20), MANJU("yukkuri_manju_factory", 20), BAG("yukkuri_bag_factory", 20);
+        SHOP("yukkuri_shop", 12);
         public final ResourceLocation template;
         final int entranceX;
         Kind(String id, int entranceX) { this.template = MCYukkuri.id(id); this.entranceX = entranceX; }
@@ -59,8 +55,7 @@ public final class HumanScenes {
      * Places a complete building. {@code entrance} is where a visitor stands on the street in front of the main door (feet position; the block below is
      * the ground the building is levelled to), {@code front} the direction the facade faces. With {@code clear} the footprint is cleared of trees and
      * terrain above the ground, and holes under it are filled with dirt. Returns null when the template is missing.
-     * The template's own people and animals are created with it and bound to their posts at once (shop stock to the shopkeeper through the shop register,
-     * factory animals to the foreman of their line), instead of waiting for the proximity binding of the slow tick.
+     * The template's own people and animals are created with it and bound to their posts at once.
      */
     public static Placed place(ServerLevel level, Kind kind, BlockPos entrance, Direction front, boolean clear) {
         var template = level.getStructureManager().get(kind.template).orElse(null);

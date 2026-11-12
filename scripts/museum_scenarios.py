@@ -1537,18 +1537,6 @@ add('shop_buy_keeper', 'shop', '买下金章爱丽丝：饲养员提篮来接，
     '建筑几秒；买下后约 10–20 秒交到手上', ['yukkuri human build shop ~8 ~ ~17 south'],
     give=['minecraft:emerald 128'], env=DAY, vantage=(5, 16, 180, 10),
     reads=[('店铺登记（shop list）', 'yukkuri human shop list')])
-# The manju factory's breeders have already produced five rounds: one more litter retires them into the line.
-for _kind, _seen, _pad, _late in (
-        ('labor', '劳力工场：油搬甘蔗做纸', -44, []),
-        ('manju', '馒头工厂：种油生产、蒸制、退役', 0,
-         ['execute as @e[type=#mcylab:yukkuri,distance=..60,nbt={NeoForgeData:{HumanCommerce:{Use:"breeder"}}}] '
-          'run data modify entity @s NeoForgeData.HumanCommerce.FactoryCycles set value 5']),
-        ('bag', '袋装厂：活体油装进袋子', 44, [])):
-    add(f'factory_{_kind}', 'factory', _seen, _seen, f'{_seen}。整座工厂放下：监工、流水线工位和流水线上的个体'
-        + ('；种油已生产 5 轮：每 5 秒压力把不安推向 32、卫生拉向 60，再生一窝（不安 +5、哭）满 6 轮就退役进流水线（人要待在附近）' if _late else ''),
-        '建筑几秒' + ('；种油约 1–3 分钟' if _late else ''), [f'yukkuri human build {_kind} ~{_pad} ~ ~17 south'], late=_late,
-        env=DAY if _late else {}, vantage=(_pad, 21, 180, 0),
-        reads=[('读种油', 'yukkuri status @e[type=#mcylab:yukkuri,distance=..60,nbt={NeoForgeData:{HumanCommerce:{Use:"breeder"}}},limit=1,sort=nearest]')] if _late else ())
 
 # ====================================================================================================== clips (buttons are built in build_museum_full.py)
 
@@ -2022,6 +2010,9 @@ _form_lines += [
     remains(5, 10, 'melting', dy=-1, soak=23400, cause='minecraft:mob_attack', category='violent'),
     remains(12, -10, 'dry_control', soak=23400, cause='minecraft:mob_attack', category='violent'),
     yk('reimu', -3, -7, 'buried_baby', stage='baby', **pair_ready()), f'damage {sel("buried_baby")} 100 minecraft:starve']
+_buried_remains = '@e[type=mcyukkuri:yukkuri_remains,distance=..2,limit=1,sort=nearest]'
+_buried_at = 'execute positioned ~-3 ~ ~-7'
+_legacy_remains_path = 'Remains.components."minecraft:custom_data".FactoryOwner'
 add('remains_forms', 'body', '八种死因遗体，溶化与立碑', '八种死因遗体，溶化与立碑',
     '七只灵梦各死于真实死因：寿命（约10秒）、饥饿、着火、落砧、近战击打、冻伤、终末油霉（约25秒内）；南边水池里一只溺死。'
     '遗体按存下的死因类别换死亡脸、姿态和表层：寿终凹缝眼灰白、饿死干瘪、烧死焦黑带灰、压死压扁带馅渍、打死歪倒垂舌且身下渗馅、冻死挺圆结霜、病死发黄起霉点、溺死白眼泡胀冷白滴水。'
@@ -2032,9 +2023,12 @@ add('remains_forms', 'body', '八种死因遗体，溶化与立碑', '八种死�
     '给了一把铁锹：在草地上右键其他遗体即可安葬，石碑正面朝向你，生前有名字（这里是头顶的标签）的写作“某某之墓”。退出重进后读到的仍是同一死者',
     '约 30–60 秒；泡软与溶化也可等真实浸水 5／20 分钟', _form_lines,
     give=['minecraft:iron_shovel'], note=NEW, vantage=(0, 12),
-    late=['execute positioned ~-3 ~ ~-7 rotated 0 0 run yukkuri body bury @e[type=mcyukkuri:yukkuri_remains,distance=..2,limit=1,sort=nearest]'],
+    late=[f'{_buried_at} run data modify entity {_buried_remains} {_legacy_remains_path} set value '
+          + uuid_nbt(uid('remains_forms', 'legacy_factory')),
+          f'{_buried_at} rotated 0 0 run yukkuri body bury {_buried_remains}'],
     reads=[('读遗体', 'yukkuri body info @e[type=mcyukkuri:yukkuri_remains,distance=..40,sort=nearest]')],
-    smoke=dict(ticks=200, expect=[r'\[remains\][^\n]* buried by \S+ grave=[^\n]* facing=north [^\n]* stage=baby category=starved'],
+    smoke=dict(ticks=200, expect=[r'\[remains\][^\n]*legacy factory claim cleared',
+                                 r'\[remains\][^\n]* buried by \S+ grave=[^\n]* facing=north [^\n]* stage=baby category=starved'],
                forbid=[r'\[body\][^\n]* invariant\b']),
     capture=dict(shots=(1, 30, 60, 100, 200, 400), sequences=()))
 
@@ -2656,17 +2650,19 @@ _custody_lines = [human('caretaker_brother', 0, -3, 'custody_owner', 1, label='N
 for _kind, _dx, _role, _name, _label in (
         ('reimu', -6, 'companion', 'custody_pet', '带章宠物'),
         ('marisa', -3, 'stock', 'custody_stock', '库存个体'),
-        ('alice', 0, 'input', 'custody_input', '工厂输入'),
+        ('alice', 0, 'input', 'custody_input', '旧档工厂输入'),
         ('chen', 3, 'lost', 'custody_lost', '可先装篮'),
         ('reimu', 6, 'companion', 'custody_buyer', '已归玩家')):
-    _commerce = f'Use:"{_role}",OwnerKind:"npc"'
-    if _role == 'input':
-        _commerce += ',FactoryStage:"observe",StageWork:25,FactoryYoung:1b,HoldReason:"nutrition",FactoryCycles:3'
+    _commerce = 'OwnerKind:"npc"' if _role == 'input' else f'Use:"{_role}",OwnerKind:"npc"'
     if _role == 'stock':
         _commerce += ',ForSaleSince:1L,StaleCuts:1,ShopCandidate:1b'
     _custody_lines += [yk(_kind, _dx, 2, _name, label=_label, grade=1 if _role in ('companion', 'lost') else None,
                           lead=_name == 'custody_pet', extra='NeoForgeData:{HumanCommerce:{' + _commerce + '}}'),
                        f'data modify entity {sel(_name)} {OWNED}.Owner set from entity {sel("custody_owner")} UUID']
+    if _role == 'input':
+        _custody_lines += [f'data merge entity {sel(_name)} '
+                           '{NeoForgeData:{HumanCommerce:{Use:"input",FactoryStage:"observe",StageWork:25,'
+                           'FactoryYoung:1b,HoldReason:"nutrition",FactoryCycles:3}}}']
 _custody_lines += [*own('custody_buyer'),
                   f'yukkuri status relate {sel("custody_pet")} {sel("custody_owner")} 30',
                   f'data modify entity {sel("custody_lost")} YukkuriPet.Care.Harness set value 1b',
@@ -2674,13 +2670,18 @@ _custody_lines += [*own('custody_buyer'),
                   yk('marisa', 9, 2, 'custody_unknown', label='UNKNOWN旧档',
                      extra='NeoForgeData:{HumanCommerce:{Owner:' + uuid_nbt(uid('custody_death', 'unseen_owner')) + ',Use:"future_use"}}')]
 add('custody_death', 'town', 'NPC主人死了，宠物库存无主', 'NPC主人死了，宠物库存无主',
-    '先用篮子装“可先装篮”，再手动杀死NPC主人：现场宠物、库存、工厂输入转无主，玩家个体与UNKNOWN旧档不变；放出篮中个体，胸背带只归还一次，徽章仍保留',
-    '死亡后立即；篮中个体放出后', _custody_lines, env=DAY, vantage=(0, 14), note=NEW,
+    '旧档工厂输入开场解除归属。先用篮子装“可先装篮”，再手动杀死NPC主人：现场宠物和库存转无主，玩家个体与UNKNOWN旧档保留归属。放出篮中个体，胸背带只归还一次，徽章仍保留',
+    '工厂输入开场解除；其余在死亡后或从篮中放出时', _custody_lines, env=DAY, vantage=(0, 14), note=NEW,
     give=['mcyukkuri:yukkuri_carrier 2', 'mcyukkuri:sleep_spray 2', 'minecraft:emerald 16'],
     reads=[('读宠物归属', f'data get entity {sel("custody_pet")} NeoForgeData.HumanCommerce'),
-           ('读工厂归属', f'data get entity {sel("custody_input")} NeoForgeData.HumanCommerce'),
+           ('读旧厂输入归属', f'data get entity {sel("custody_input")} NeoForgeData.HumanCommerce'),
            ('读玩家归属', f'data get entity {sel("custody_buyer")} NeoForgeData.HumanCommerce'),
-           ('读旧档归属', f'data get entity {sel("custody_unknown")} NeoForgeData.HumanCommerce')])
+           ('读旧档归属', f'data get entity {sel("custody_unknown")} NeoForgeData.HumanCommerce')],
+    smoke=dict(ticks=180, commands=[(60, f'kill {sel("custody_owner")}')],
+               expect=[r'\[custody\] alice[^\n]*factory closure cleanup completed formerOwner=[a-f0-9-]+ identity=stray',
+                       r'\[custody\] reimu[^\n]*owner death cleanup completed formerOwner=[a-f0-9-]+',
+                       r'\[custody\] marisa[^\n]*owner death cleanup completed formerOwner=[a-f0-9-]+'],
+               forbid=[r'\[custody\] alice[^\n]*owner death cleanup completed']))
 
 # Fixed numerical fixtures; ordinary AI owns every action after these initial conditions.
 add('balance_traits', 'meadow', '五属性20／50／80／90对照', '五属性20／50／80／90对照',
@@ -4014,7 +4015,8 @@ BY_ID['pond'].scenarios.sort(key=lambda scenario: POND_TOUR.index(scenario.id))
 def _number_scenes():
     """Give every scene the number the registry holds, and refuse a registry that breaks the append-only rule."""
     codes, numbers = NUMBERS['fields'], NUMBERS['numbers']
-    assert set(codes) == {field.id for field in FIELDS}, 'every field needs a scene-number code'
+    # Retired field codes stay reserved with their existing scene numbers.
+    assert {field.id for field in FIELDS} <= set(codes), 'every active field needs a scene-number code'
     field_of = {code: fid for fid, code in codes.items()}
     assert len(field_of) == len(codes), 'two fields share a scene-number code'
     last = dict.fromkeys(codes, 0)
@@ -4051,7 +4053,7 @@ TOPICS = {
     'excited_leak': 'D1',
     'forage_empty': 'R1', 'rain_life': 'R1', 'rain_huddle': 'R1', 'storm_cower': 'R1', 'marisa_explore': 'R1', 'rain_shelter': 'R1', 'rain_open': 'R1', 'pred_watch': 'R2', 'pred_range': 'R2', 'pred_pets': 'R2', 'shared_body': 'R3',
     'house_empty': 'H1', 'house_pair': 'H2', 'house_eggs': 'H3',
-    'shop_build': 'M1', 'shop_window': 'M1', 'shop_buy_keeper': 'M1', 'factory_labor': 'M2', 'factory_manju': 'M2', 'factory_bag': 'M2', 'harness_walk': 'M3', 'swaddle_worn': 'M3', 'feed_wild': 'M3', 'oniisan_prey': 'M4', 'attack_witness': 'M4',
+    'shop_build': 'M1', 'shop_window': 'M1', 'shop_buy_keeper': 'M1', 'harness_walk': 'M3', 'swaddle_worn': 'M3', 'feed_wild': 'M3', 'oniisan_prey': 'M4', 'attack_witness': 'M4',
     'wild': 'M5', 'badge': 'M5', 'training_home': 'M5', 'training_study': 'M5', 'exam': 'M5', 'date': 'M5', 'transport': 'M5', 'custody_death': 'M5', 'social_identity': 'M5',
     'airborne': 'R8', 'house_health': 'R9',
     'body_mold': 'R5', 'wound_materials': 'R5', 'thermal_body': 'R5', 'wound_sources': 'R5', 'wound_leak': 'R5', 'treatment_severe': 'R5', 'treatment_scars': 'R5', 'treatment_care': 'R5', 'magma_sole': 'R5', 'core_exposed': 'R5', 'core_filling': 'R5', 'remains_rot': 'R6', 'remains_forms': 'R6', 'carrion': 'R6', 'cannibal_hunt': 'R6',

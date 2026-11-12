@@ -1,7 +1,6 @@
 package io.github.longshou.mcyukkuri.human;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
-import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.pet.BadgeGrade;
 import java.util.UUID;
 import net.minecraft.nbt.CompoundTag;
@@ -28,13 +27,6 @@ public final class HumanCommerce {
         for(var pos:BlockPos.betweenClosed(animal.blockPosition().offset(-3,0,-3),animal.blockPosition().offset(3,0,3)))
             if(animal.life().assignHome(GlobalPos.of(level.dimension(),pos.immutable())))return;
     }
-    /** Called at authoritative birth, before a completed parent can retire or unload. */
-    public static void inheritFactoryChild(YukkuriEntity child, YukkuriEntity mother) {
-        if(child==null || mother==null || Custody.view(child).owner()!=null)return;
-        var parent=Custody.view(mother);
-        if(parent.owner()!=null && (parent.role()==Custody.Role.BREEDER || data(mother).getBoolean("RetiredParent")))
-            Custody.assign(child,parent.owner(),parent.ownerKind(),Custody.Role.NURSERY);
-    }
     /** Authoritative birth assigns custody only. Skills and badges are earned by the child itself. */
     public static void inheritPet(YukkuriEntity child, YukkuriEntity mother, YukkuriEntity father) {
         if(child==null)return;
@@ -51,9 +43,6 @@ public final class HumanCommerce {
         var custody = Custody.view(animal); String role = custody.pendingStaffRole();
         if (role.isEmpty()) {
             prepareBreederHome(animal);
-            if (custody.owner() == null && animal.family().mother()!=null && level.getEntity(animal.family().mother()) instanceof YukkuriEntity mother) {
-                inheritFactoryChild(animal,mother);
-            }
             return;
         }
         var owners = CustodyData.get(level);
@@ -66,7 +55,7 @@ public final class HumanCommerce {
      */
     public static void bindPending(YukkuriEntity animal, HumanNpc npc) {
         if (!(animal.level() instanceof ServerLevel level)) return;
-        if (CustodyData.get(level).deadNpc(npc.getUUID())) return;
+        if (npc.closedFactory() || CustodyData.get(level).deadNpc(npc.getUUID())) return;
         var tag = data(animal).copy();
         var custody = Custody.fromData(tag);
         if (custody.pendingStaffRole().isEmpty()) return;
@@ -81,13 +70,6 @@ public final class HumanCommerce {
             pet.issue(pet.grade(), pet.source(), npc.getUUID());
         if (custody.role() == Custody.Role.STOCK && npc.job() == HumanNpc.Job.SHOPKEEPER) ShopRegistry.get(level).stocked(npc, animal);
         if (custody.role() == Custody.Role.LOST) npc.setLostAnimal(animal.getUUID(), animal.blockPosition());
-        if (custody.role() == Custody.Role.BREEDER) {
-            prepareBreederHome(animal);
-            for(var other:npc.animals(Custody.Role.BREEDER))if(other!=animal && data(other).getInt("FactoryGroup")==tag.getInt("FactoryGroup")){
-                YukkuriWorldData.get(level).relate(animal.getUUID(),other.getUUID(),20);
-                YukkuriWorldData.get(level).relate(other.getUUID(),animal.getUUID(),20);
-            }
-        }
     }
     private HumanCommerce() {}
 }

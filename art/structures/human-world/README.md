@@ -2,13 +2,9 @@
 
 `build.py` 是原创方块布局和模板内实体的制作源；`language.json` 保存本模块当前中英文界面文案。`manifest.json` 记录尺寸与数量，`exports.json` 记录本模块源与运行导出的 SHA-256。统一入口为 `<py> scripts/export.py --family human-world`，检查加 `--check`。
 
-宠物店随普通村庄生成。劳力工场、馒头工厂和活体袋装厂独立生成，后两类各有亲代与子油育成间。
+宠物店随普通村庄生成。劳力工场、馒头工厂和活体袋装厂的建筑模板仍随制作源导出，玩法状态见[人类世界](../../../docs/FEATURES.md#人类世界)。
 
 `author_products.py` 是四类专用机台、馒头、活体包装袋与金银章的制作源；`products/` 保存原创像素贴图及登记。机台使用原生方块元素，分别构成滚轴台、蒸箱、封装支架与育成护理台，物品陈列使用固定 `item_display`。运行几何、贴图、物品模型、战利品表与结构模板由统一导出同步，外部漫画不进入游戏资源。
-
-`HumanBuildingStructure.java` 复用原版单栋 jigsaw 拼装，并检查旋转后的完整地基采样，跳过积水与大高差候选。结构 JSON 使用注册类型 `mcyukkuri:human_building`。
-
-三类工厂的结构集用原版 `exclusion_zone` 避开村庄候选起点周围 9 区块，覆盖原版村庄拼装范围与厂房地基。候选点的群系即使不允许村庄落地也会留出这段间隔。
 
 运行 NBT 位于 `src/main/resources/data/mcyukkuri/structure/`，同目录树的 `worldgen/` 保存结构、池和放置规则，群系标签及人类生成规则也由脚本同步。模板使用 NeoForge 实体持久数据，按岗位绑定现场库存；不包含外部漫画图片或八景 U 提取物。
 

@@ -43,7 +43,6 @@ import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
 import net.neoforged.neoforge.event.entity.EntityLeaveLevelEvent;
 import io.github.longshou.mcyukkuri.house.HouseNestBlockEntity;
-import io.github.longshou.mcyukkuri.human.FactoryProduction;
 import io.github.longshou.mcyukkuri.human.HumanNpc;
 import io.github.longshou.mcyukkuri.notebook.SurvivalProgress;
 import io.github.longshou.mcyukkuri.settlement.Homes;
@@ -406,7 +405,6 @@ public final class FamilyData extends SavedData {
         if(kind==BirthKind.LIVE&&mother.profile().dangerToYukkuri())return refused("kind");
         long seed=mother.getUUID().getMostSignificantBits()^father.getUUID().getLeastSignificantBits()^mother.family().conceptions();
         int count=!sizes.isEmpty()?sizes.size():kind!=BirthKind.EGG?offspringCount(mother.family().adultScale(),seed,mother.profile().aquatic()):2+new Random(seed).nextInt(3);
-        if(!FactoryProduction.reproductionAllowed(mother,father,count))return refused("factory");
         var shelter=mother.habitat().shelter();
         boolean joinMother=ordinaryWildBurrow(mother,father,shelter);
         if(joinMother) {
@@ -421,7 +419,7 @@ public final class FamilyData extends SavedData {
         if(father.life().nutrition()<50)return refused("hungry_father");
         return new Plan(null,seed,count,shelter,joinMother,cost);
     }
-    /** Why conceive() would return null right now (pair, busy, kind, factory, shelter, crowded, hungry_mother, hungry_father), or null when it would succeed. Changes nothing. */
+    /** Why conceive() would return null right now, or null when it would succeed. Changes nothing. */
     public String conceiveRefusal(YukkuriEntity mother, YukkuriEntity father, BirthKind kind, GlobalPos anchor) {
         return plan((ServerLevel)mother.level(),mother,father,kind,anchor).refusal();
     }
@@ -460,9 +458,6 @@ public final class FamilyData extends SavedData {
         for(int i=0;i<sizes.size();i++)brood.children.get(i).birthScale=sizes.get(i)/GrowthSize.physicalBirth(1,brood.children.get(i).subspeciesFlags);
         broods.put(brood.id,brood);mother.life().spendNutrition(cost);father.life().spendNutrition(5);
         mother.family().conceived(brood.id,father.getUUID());father.family().partnerConceived(mother.getUUID());
-        var custody=Custody.view(mother);
-        if(custody.role()==Custody.Role.BREEDER && custody.owner()!=null && level.getEntity(custody.owner()) instanceof HumanNpc worker)
-            worker.production().breeding().conceived(mother,father);
         // This is a normal reachability-checked claim.  A failed path leaves both homes intact;
         // the father retries while the brood is pending from FamilyLife.tick().
         if(joinMother&&!shelter.owns(father.getUUID()))father.habitat().choose(shelter);
@@ -485,7 +480,6 @@ public final class FamilyData extends SavedData {
         if(!victim.family().compatibleWith(source))return "双方种类或生理状态不兼容，或存在亲缘关系";
         if(busyParent(victim.getUUID())||busyParent(source.getUUID()))return "已有未完成胎次，不能叠加或覆盖";
         int count=offspringCount(victim.family().adultScale(),aftermathSeed(victim,source),victim.profile().aquatic());
-        if(!FactoryProduction.reproductionAllowed(victim,source,count))return "当前收容或工厂身份不允许建立这个事件";
         var shelter=victim.habitat().shelter();
         if(shelter!=null&&!shelter.suitableForYoung(count))return "当前住所的子代容量不足";
         if(shelter==null&&!Homes.petBedFits(victim,count))return "当前宠物床的子代空间不足";
@@ -530,9 +524,8 @@ public final class FamilyData extends SavedData {
         if(!(mother.level() instanceof ServerLevel level)||!mother.family().readyForAssistance()||busyParent(mother.getUUID()))return false;
         var custody=Custody.view(mother);
         // Known NPC identity survives unloading; legacy UNKNOWN keeps the old positive-entity check.
-        if(custody.hasPendingStaffRole()||HumanCommerce.data(mother).getBoolean("RetiredParent")||custody.hasFactoryStage()
-                ||custody.owner()!=null&&(Set.of(Custody.Role.BREEDER,Custody.Role.RESERVE_PARENT,Custody.Role.NURSERY,Custody.Role.INPUT,
-                Custody.Role.LABOR,Custody.Role.RESERVE,Custody.Role.STOCK,Custody.Role.LOST).contains(custody.role())
+        if(custody.hasPendingStaffRole()
+                ||custody.owner()!=null&&(custody.role()==Custody.Role.STOCK||custody.role()==Custody.Role.LOST
                 ||custody.ownerKind()==Custody.OwnerKind.NPC
                 ||custody.ownerKind()==Custody.OwnerKind.UNKNOWN&&level.getEntity(custody.owner()) instanceof HumanNpc))return false;
         int count=offspringCount(mother.family().adultScale(),mother.getUUID().getMostSignificantBits()^mother.family().conceptions(),mother.profile().aquatic());
@@ -645,7 +638,6 @@ public final class FamilyData extends SavedData {
         }
         YukkuriEntity actualMother=level.getEntity(brood.mother) instanceof YukkuriEntity parent?parent:null;
         YukkuriEntity actualFather=brood.father!=null&&level.getEntity(brood.father) instanceof YukkuriEntity parent?parent:null;
-        if(actualMother!=null)HumanCommerce.inheritFactoryChild(entity,actualMother);
         HumanCommerce.inheritPet(entity,actualMother,actualFather);
         if ((actualMother != null && actualMother.status().identity() == Identity.STRAY)
                 || (actualFather != null && actualFather.status().identity() == Identity.STRAY)) entity.pet().markTownRoots();
