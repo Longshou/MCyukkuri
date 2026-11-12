@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.status;
 
 import io.github.longshou.mcyukkuri.mind.EmotionEvent;
+import io.github.longshou.mcyukkuri.mind.ExcitedLeak;
 import io.github.longshou.mcyukkuri.life.BehaviorContinuity;
 import io.github.longshou.mcyukkuri.life.TravelRange;
 
@@ -211,7 +212,7 @@ public final class Reactions {
                 boolean fresh = fresh(best, now);
                 if (fresh) {
                     know(best, now);
-                    y.mind().felt(EmotionEvent.FRIGHTENED); y.showReaction("surprise", "afraid", 80);
+                    fright(best, 80);
                     StatusEvents.note(y, "alarm threat #" + best.getId());
                     fleeFromPredator(best);
                     warnKin(best);
@@ -228,6 +229,13 @@ public final class Reactions {
         }
         private void know(LivingEntity danger, long now) { knownDanger = danger.getUUID(); knownAt = now; }
 
+        private void fright(LivingEntity danger, int ticks) {
+            var stimulus = danger instanceof YukkuriEntity predator && predator.profile().dangerToYukkuri()
+                    ? ExcitedLeak.Stimulus.PREDATOR : ExcitedLeak.Stimulus.SCARE;
+            y.mind().felt(EmotionEvent.FRIGHTENED, stimulus);
+            y.showReaction("surprise", "afraid", ticks);
+        }
+
         /** Kin and friends within earshot learn of the danger even without seeing it; those who already know are not told again. */
         void warnKin(LivingEntity danger) {
             long now = y.level().getGameTime();
@@ -243,7 +251,7 @@ public final class Reactions {
             heard = danger; heardUntil = now + window;
             if (!fresh(danger, now)) return;
             know(danger, now);
-            if (now >= noticeUntil && stage == Stage.NONE) { noticeUntil = now + 400; y.mind().felt(EmotionEvent.FRIGHTENED); y.showReaction("surprise", "afraid", 60); }
+            if (now >= noticeUntil && stage == Stage.NONE) { noticeUntil = now + 400; fright(danger, 60); }
         }
 
         boolean wants() {
@@ -267,7 +275,7 @@ public final class Reactions {
             var s = source();
             // Already cried out about (scan) or heard of (kin): no second start for the same danger.
             if (now >= noticeUntil && (s == null || fresh(s, now))) {
-                noticeUntil = now + 400; y.mind().felt(EmotionEvent.FRIGHTENED); y.showReaction("surprise", "afraid", 60);
+                noticeUntil = now + 400; fright(s, 60);
             }
             if (s != null) know(s, now);
         }
@@ -866,7 +874,7 @@ public final class Reactions {
         void clap(long now, double distance) {
             if (!prey(y) || y.life().isSleeping() || y.isInWaterOrBubble()) return;
             startled = now;
-            y.mind().felt(EmotionEvent.FRIGHTENED);
+            y.mind().felt(EmotionEvent.FRIGHTENED, ExcitedLeak.Stimulus.LOUD_NOISE);
             if (pressedAt >= 0) pressedAt = now + STARTLE_TICKS;
             if (stage == Stage.NONE) y.showReaction("surprise", "thunder", STARTLE_TICKS);
             GameplayLog.limited(y, "weather", "thunder", 600, "thunder clap heard distance={} stage={} partner={}",

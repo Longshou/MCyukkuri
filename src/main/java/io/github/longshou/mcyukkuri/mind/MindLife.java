@@ -70,8 +70,9 @@ public final class MindLife {
     /** Last contribution per cause, rounded per minute, for status and traces. Transient. */
     private final Map<String, Float> causes = new LinkedHashMap<>();
     private final Map<String, Long> eventCooldown = new HashMap<>();
+    private final ExcitedLeak leak;
 
-    public MindLife(YukkuriEntity entity) { this.entity = entity; }
+    public MindLife(YukkuriEntity entity) { this.entity = entity; leak = new ExcitedLeak(entity); }
 
     // ---- reads ----------------------------------------------------------------------------------------------------
     public float unease() { return unease; }
@@ -138,17 +139,35 @@ public final class MindLife {
     }
 
     /** A gameplay cause; dialogue playback never supplies or decodes this input. */
-    public void felt(EmotionEvent event) { felt(event, false); }
+    public void felt(EmotionEvent event) {
+        ExcitedLeak.Stimulus spike = switch (event) {
+            case FRIGHTENED -> ExcitedLeak.Stimulus.SCARE;
+            case PRAISED -> ExcitedLeak.Stimulus.JOY;
+            default -> null;
+        };
+        felt(event, false, spike);
+    }
+    public void felt(EmotionEvent event, ExcitedLeak.Stimulus spike) { felt(event, false, spike); }
     /** The same real event and cooldown, but as pressure intrinsic to the slave's pit conditions. */
-    public void feltSlavePressure(EmotionEvent event) { felt(event, true); }
-    private void felt(EmotionEvent event, boolean slavePressure) {
-        if (event == null || entity.level().isClientSide) return;
+    public void feltSlavePressure(EmotionEvent event) { felt(event, true, null); }
+    private void felt(EmotionEvent event, boolean slavePressure, ExcitedLeak.Stimulus spike) {
+        if (entity.level().isClientSide) return;
         long now = entity.level().getGameTime();
         Long until = eventCooldown.get(event.bucket);
+        // A fresh strong stimulus is independent of unease's shared fright bucket.
+        if (spike != null && (until == null || until <= now || spike == ExcitedLeak.Stimulus.PREDATOR))
+            leak.spike(spike, now);
         if (until != null && until > now) return;
         if (event.cooldown > 0) eventCooldown.put(event.bucket, now + event.cooldown);
         if (slavePressure) addSlavePressure(event.delta, event.bucket); else add(event.delta, event.bucket);
     }
+
+    /** Stimuli that do not write unease (for example the start of a fall). */
+    public void spike(ExcitedLeak.Stimulus stimulus) {
+        if (!entity.level().isClientSide) leak.spike(stimulus, entity.level().getGameTime());
+    }
+
+    public String leakFace() { return leak.face(entity.level().getGameTime()); }
 
     /** Called by YukkuriLife at the step a meal is swallowed. {@code petSweet}: Sweets.eaten already eased a pet. */
     public void ate(ItemStack swallowed, boolean petSweet) {
@@ -204,7 +223,9 @@ public final class MindLife {
 
     // ---- clock ----------------------------------------------------------------------------------------------------
     public void tick() {
-        if (entity.level().isClientSide || !entity.isAlive() || entity.isNoAi()) return;
+        if (entity.level().isClientSide || !entity.isAlive()) return;
+        leak.tick(entity.level().getGameTime());
+        if (entity.isNoAi()) return;
         releaseAction();
         if (nonYukkuri()) courseTick();
         else if (unease >= BREAKING) { if ((breakingTicks += 1) >= ONSET_TICKS) begin(); }

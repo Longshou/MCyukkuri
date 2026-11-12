@@ -11,10 +11,13 @@ public final class BodyEffects {
     private BodyEffects() {}
 
     public static void emit(YukkuriEntity source, String reason, float amount, Vec3 outlet) {
+        emit(source, reason, amount, outlet, source == null ? Vec3.ZERO : source.getLookAngle());
+    }
+
+    public static void emit(YukkuriEntity source, String reason, float amount, Vec3 outlet, Vec3 direction) {
         if (source == null || source.level().isClientSide || !(source.level() instanceof ServerLevel level)
                 || reason == null || reason.isBlank() || !Float.isFinite(amount) || amount <= 0
                 || outlet == null || !Double.isFinite(outlet.x) || !Double.isFinite(outlet.y) || !Double.isFinite(outlet.z)) return;
-        Vec3 direction = source.getLookAngle();
         if (!Double.isFinite(direction.x) || !Double.isFinite(direction.y) || !Double.isFinite(direction.z)
                 || direction.lengthSqr() < 1e-6) direction = new Vec3(0, 0, 1);
         direction = direction.normalize();

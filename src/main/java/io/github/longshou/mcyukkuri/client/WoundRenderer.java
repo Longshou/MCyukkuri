@@ -7,6 +7,7 @@ import io.github.longshou.mcyukkuri.MCYukkuri;
 import io.github.longshou.mcyukkuri.body.*;
 import io.github.longshou.mcyukkuri.entity.YukkuriView;
 import io.github.longshou.mcyukkuri.family.LiveBirthGeometry;
+import io.github.longshou.mcyukkuri.mind.ExcitedLeak;
 import java.util.*;
 import java.util.UUID;
 import net.minecraft.client.renderer.*;
@@ -16,8 +17,9 @@ import org.joml.Vector3f;
 /** Existing injury deformation with the selected authored materials clipped to posed skin triangles. */
 final class WoundRenderer {
     private static final int MAX_TOPOLOGIES=64;
+    private static final int CHAR_MATERIAL=44, LEAK_WET_MATERIAL=45;
     private static final String[] MATERIALS={"scratch","dent","tear","scorch","scar","dirt_1","dirt_2","dirt_3",
-            "mold_1","mold_2","mold_3","mold_4","char"};
+            "mold_1","mold_2","mold_3","mold_4","char","leak_wet"};
     private static final Map<Object,Geometry> CACHE=new WeakHashMap<>();
     private static final Map<TopologyKey,Topology> TOPOLOGIES=new LinkedHashMap<TopologyKey,Topology>(MAX_TOPOLOGIES,.75f,true){
         @Override protected boolean removeEldestEntry(Map.Entry<TopologyKey,Topology> eldest){return size()>MAX_TOPOLOGIES;}
@@ -95,9 +97,10 @@ final class WoundRenderer {
         final Vector3f[] smoothNormals;
         final List<Mark> marks=new ArrayList<>();
         List<Face> patchFaces=List.of();
-        Geometry(WoundSurface mesh,List<BodyWound> wounds,List<SkinDecal> signs,String expression,boolean corePresent){
+        private final boolean wet;
+        Geometry(WoundSurface mesh,List<BodyWound> wounds,List<SkinDecal> signs,String expression,boolean corePresent,boolean wet){
             this.mesh=mesh;this.wounds=List.copyOf(wounds);this.signs=List.copyOf(signs);this.expression=expression;
-            this.corePresent=corePresent;
+            this.corePresent=corePresent;this.wet=wet;
             drawBody=false;topology=topology(mesh,expression);int count=mesh.weights.length;
             var coreSign=signs.stream().filter(s->s.kind()==WoundKind.CORE).findFirst().orElse(null);
             var coreWound=coreSign==null?null:wounds.stream().filter(w->BodySigns.deep(w)&&w.triangle()==coreSign.triangle()
@@ -107,6 +110,7 @@ final class WoundRenderer {
             rest=new Vector3f[count];posed=new Vector3f[count];
             for(var w:wounds)if(mesh.valid(w)&&(w.kind()==WoundKind.DIRT||w.kind()==WoundKind.MOLD))author(SkinDecal.of(w,mesh.displaySite(w)));
             for(var sign:signs)if(mesh.valid(sign))author(sign);
+            if(wet)soleTexture(LEAK_WET_MATERIAL);
             if(cavity!=null)clipMarks();
             boolean ink=false,tone=false,textured=false;for(var mark:marks)if(mark.material<16)ink=true;else if(mark.material<32)tone=true;else textured=true;
             woundMarks=ink;toneMarks=tone;texturedMarks=textured;
@@ -163,11 +167,11 @@ final class WoundRenderer {
                 case SCAR->texture(w,s,36);
                 // Lasting body signs (body.BodySigns), swatches 5-14 of body_marks.png.
                 case MOLD->texture(w,s,39+Math.clamp(w.severity(),1,4));
-                case CHAR->soleTexture();
+                case CHAR->soleTexture(CHAR_MATERIAL);
                 case PASTE,CORE->{ /* Filling and core belong to the actual recessed cavity, never surface dots. */ }
             }
         }
-        void soleTexture(){
+        void soleTexture(int material){
             var bounds=mesh.bounds();float cx=(bounds[0]+bounds[3])*.5f,cz=(bounds[2]+bounds[5])*.5f;
             float halfWidth=Math.max(.001f,(bounds[3]-bounds[0])*.5f),halfDepth=Math.max(.001f,(bounds[5]-bounds[2])*.5f),height=Math.max(.001f,bounds[4]-bounds[1]);
             for(int i=0;i<mesh.skinCount;i+=3){
@@ -177,7 +181,7 @@ final class WoundRenderer {
                     uv[j*2]=u;uv[j*2+1]=Math.clamp((2-y)/2.5f,0,1);minU=Math.min(minU,u);maxU=Math.max(maxU,u);}
                 if(minY>2)continue;
                 if(maxU-minU>.5f)for(int j=0;j<3;j++)if(uv[j*2]<.5f)uv[j*2]+=1;
-                marks.add(new Mark(new WoundSurface.Hit(i,0,0,0),new WoundSurface.Hit(i,1,0,0),new WoundSurface.Hit(i,0,1,0),44,.027f,uv));
+                marks.add(new Mark(new WoundSurface.Hit(i,0,0,0),new WoundSurface.Hit(i,1,0,0),new WoundSurface.Hit(i,0,1,0),material,.027f,uv));
             }
         }
         void clipMarks(){
@@ -269,9 +273,10 @@ final class WoundRenderer {
         return result;
     }
     static boolean active(YukkuriView e){
-        return (!e.profile().houseBody()&&!e.visibleWounds().isEmpty())||!visibleMarks(e).isEmpty()
+        return wet(e)||(!e.profile().houseBody()&&!e.visibleWounds().isEmpty())||!visibleMarks(e).isEmpty()
                 ||(e.visibleSigns()&(BodySigns.MOLD_MASK|BodySigns.FOOT_BURNED))!=0;
     }
+    private static boolean wet(YukkuriView e){return ExcitedLeak.FLOW_FACE.equals(e.getExpressionId());}
     static boolean deforms(List<BodyWound> wounds){
         for(var wound:wounds)if(wound.kind()==WoundKind.TEAR||wound.kind()==WoundKind.DENT||BodySigns.deep(wound))return true;
         return false;
@@ -303,7 +308,7 @@ final class WoundRenderer {
         var marks=visibleMarks(e);
         List<BodyWound> all=wounds;
         if(!marks.isEmpty()){all=new ArrayList<>(wounds.size()+marks.size());all.addAll(wounds);all.addAll(marks);}
-        render(e,e.assetId(),expression,all,signs,e.livePregnancyProgress(),health,e.profile().houseBody(),true,world,stack,body,buffers,light,overlay,evidence);
+        render(e,e.assetId(),expression,all,signs,e.livePregnancyProgress(),health,e.profile().houseBody(),true,wet(e),world,stack,body,buffers,light,overlay,evidence);
     }
     static void render(Object key,String asset,String expression,List<BodyWound> wounds,List<SkinDecal> signs,float pregnancy,float healthFraction,boolean house,
                        Matrix4f[] world,PoseStack stack,VertexConsumer body,MultiBufferSource buffers,int light,int overlay){
@@ -311,20 +316,20 @@ final class WoundRenderer {
     }
     static void render(Object key,String asset,String expression,List<BodyWound> wounds,List<SkinDecal> signs,float pregnancy,float healthFraction,boolean house,
                        boolean corePresent,Matrix4f[] world,PoseStack stack,VertexConsumer body,MultiBufferSource buffers,int light,int overlay){
-        render(key,asset,expression,wounds,signs,pregnancy,healthFraction,house,corePresent,world,stack,body,buffers,light,overlay,null);
+        render(key,asset,expression,wounds,signs,pregnancy,healthFraction,house,corePresent,false,world,stack,body,buffers,light,overlay,null);
     }
     private static void render(Object key,String asset,String expression,List<BodyWound> wounds,List<SkinDecal> signs,float pregnancy,float healthFraction,boolean house,
-                       boolean corePresent,Matrix4f[] world,PoseStack stack,VertexConsumer body,MultiBufferSource buffers,int light,int overlay,DrawEvidence evidence){
+                       boolean corePresent,boolean wet,Matrix4f[] world,PoseStack stack,VertexConsumer body,MultiBufferSource buffers,int light,int overlay,DrawEvidence evidence){
         var propBuffers=evidence==null?buffers:evidence.buffers("prop",buffers);
         if(evidence!=null){body=evidence.buffer("body",body);buffers=evidence.buffers("body",buffers);}
         // Mechanical wounds, scars and heat now share the authored hair/skin renderer.
         // The old stable dirt/mould projection remains responsible for its own status marks.
         wounds=without(wounds,WoundKind.SCAR);
         signs=drawnSigns(signs);
-        if(wounds.isEmpty()&&signs.isEmpty())return;var mesh=WoundSurface.get(asset);var geometry=CACHE.get(key);
+        if(!wet&&wounds.isEmpty()&&signs.isEmpty())return;var mesh=WoundSurface.get(asset);var geometry=CACHE.get(key);
         String faceExpression=deforms(wounds)?YukkuriModel.get(asset).geometryExpression(expression):"";
-        if(geometry==null||geometry.mesh!=mesh||geometry.corePresent!=corePresent||!geometry.accepts(faceExpression)||!geometry.same(wounds,signs)){geometry=new Geometry(mesh,
-                wounds,signs,faceExpression,corePresent);CACHE.put(key,geometry);}
+        if(geometry==null||geometry.mesh!=mesh||geometry.corePresent!=corePresent||geometry.wet!=wet||!geometry.accepts(faceExpression)||!geometry.same(wounds,signs)){geometry=new Geometry(mesh,
+                wounds,signs,faceExpression,corePresent,wet);CACHE.put(key,geometry);}
         // The puff morph is off while wound geometry is drawn, so the wounded skin keeps its rest shape.
         var temp=geometry.temp;for(int i:geometry.uniqueVertices){var dest=geometry.posed[i].zero();var w=mesh.weights[i];for(int k=0;
                 k<w.length;k+=2){world[(int)w[k]].transformPosition(geometry.rest[i],temp);dest.fma(w[k+1],temp);}}

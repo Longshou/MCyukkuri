@@ -1313,6 +1313,36 @@ def agitation_start(phase):
     return f'YukkuriAgitation:{{Phase:"{phase}",PhaseTicks:0,Cooldown:0,NextCheck:2400}}'
 
 
+def _verify_leak_scene(window):
+    rolls = re.findall(r'\[leak\][^\n]*uuid=(\S+)[^\n]* roll=(\S+) chance=(\S+)', window)
+    if len({actor for actor, _, _ in rolls}) != len(rolls):
+        return 'an actor leaked again inside the 1200-tick cooldown'
+    if any(not 0 <= float(roll) < float(chance) for _, roll, chance in rolls):
+        return 'a leak was logged without a successful roll'
+    return None
+
+
+# Low self-control and more adults make a rare outcome observable without forcing any roll.
+_LEAK_ROWS = (('baby', '赤油', -7, 5, 2), ('child', '子油', -3, 10, 3), ('adult', '成油', 2, 30, 6))
+_LEAK_ACTORS = 'yukkuri status @e[tag=scn_leak_actor] raw'
+add('excited_leak', 'meadow', '短落差受惊：赤油、子油、成油漏尿', '短落差受惊：赤油、子油、成油漏尿',
+    '从左到右是自制较低的赤油、子油和成油。开场从两格多的安全高度落下，各自真实抽签。看第一股、漏 A 与脚底湿边，'
+    '随后小水滩留在原地，个体继续活动。成油仍较少发生，没看到可清场重开；约半分钟后水滩淡去。',
+    '开场约 1–4 秒，水滩可继续观察', [
+        yk('reimu', x + i % columns * 1.25, 1 - i // columns * 1.25, f'leak_{stage}_{i}',
+           dy=2.5, stage=stage, yaw=0, label=label if i == 0 else None,
+           lead=stage == 'child' and i == 0, self_control=0, also=('leak_actor',))
+        for stage, label, x, count, columns in _LEAK_ROWS for i in range(count)
+    ], env=DAY, vantage=(0, 9, 180, 15),
+    smoke=dict(ticks=390,
+               commands=[(10, _LEAK_ACTORS), (25, _LEAK_ACTORS), (100, _LEAK_ACTORS),
+                         (180, 'execute as @e[tag=scn_leak_actor] at @s run tp @s ~ ~2.5 ~')],
+               expect=[*[rf'\[leak\][^\n]*stage={stage} self_control=0 stimulus=drop\b'
+                         for stage in ('baby', 'juvenile', 'adult')],
+                       r'expression:"leak_startle"', r'expression:"leak_flow"', r'expression:"side_teary"'],
+               forbid=[r'\[body\][^\n]* death settled\b'], verify=_verify_leak_scene))
+
+
 add('leaf_swaddle_neglect', 'meadow', '没人照看，襁褓里积满便便', '没人照看，襁褓里积满便便',
     '两只裹着树叶襁褓的子油没有亲油：便意 95 的一只马上把便便排进襁褓（soil 按体积增加，卫生、不安恶化，襁褓下沿染色）；'
     '已积 3 体积单位的一只早期再满就溢到地上。失护约 1.25／2.5／3.75 天（随体质平移）后依次黄褐干枯、停止溢出并肿胀、损失生命直至便秘死亡；'
@@ -3746,6 +3776,7 @@ TOPICS = {
     'sleep': 'D1', 'night_sleep': 'D1', 'night_hungry_child': 'D1', 'meal_content': 'D1', 'fatigue': 'R1', 'fatigue_predator': 'R2', 'nutrition_age': 'D1', 'meet': 'D1', 'toilet': 'F5', 'hurt': 'F3',
     'birth_land_caught': 'F1', 'birth_land_missed': 'F1', 'feed': 'F2', 'first_toilet': 'F2', 'hop': 'F2', 'growth': 'F4',
     'leaf_swaddle': 'F2', 'leaf_swaddle_neglect': 'F2', 'leaf_swaddle_neglect_stages': 'F2', 'family_distance': 'F8', 'family_search': 'F8', 'family_search_pane': 'F8', 'birth_nest_safe': 'F1', 'birth_nest_stem': 'F1', 'birth_stem_caught': 'F1', 'family_nests': 'F4', 'carry_home': 'F4', 'infant_starvation': 'F2',
+    'excited_leak': 'D1',
     'forage_empty': 'R1', 'rain_life': 'R1', 'rain_huddle': 'R1', 'storm_cower': 'R1', 'marisa_explore': 'R1', 'rain_shelter': 'R1', 'rain_open': 'R1', 'pred_watch': 'R2', 'pred_range': 'R2', 'pred_pets': 'R2', 'shared_body': 'R3',
     'house_empty': 'H1', 'house_pair': 'H2', 'house_eggs': 'H3',
     'shop_build': 'M1', 'factory_labor': 'M2', 'factory_manju': 'M2', 'factory_bag': 'M2', 'harness_walk': 'M3', 'swaddle_worn': 'M3', 'feed_wild': 'M3', 'oniisan_prey': 'M4', 'attack_witness': 'M4',

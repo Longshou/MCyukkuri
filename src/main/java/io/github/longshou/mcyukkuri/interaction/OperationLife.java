@@ -12,6 +12,7 @@ import io.github.longshou.mcyukkuri.item.AccessoryItem;
 import io.github.longshou.mcyukkuri.item.OperationToolItem.Tool;
 import io.github.longshou.mcyukkuri.life.Facilities;
 import io.github.longshou.mcyukkuri.mind.EmotionEvent;
+import io.github.longshou.mcyukkuri.mind.ExcitedLeak;
 import io.github.longshou.mcyukkuri.motor.Motor;
 import io.github.longshou.mcyukkuri.registry.ModItems;
 import io.github.longshou.mcyukkuri.social.DailyLife;
@@ -131,6 +132,7 @@ public final class OperationLife {
             if(action==CareAction.COLD||action==CareAction.FLICK){
                 entity.pet().lessons().reprimand(player,action);
                 entity.pet().care().reprimand(player,action);
+                entity.mind().spike(ExcitedLeak.Stimulus.SCOLD);
             }
             if(action==CareAction.RUB)entity.pet().care().affection(player);
             cooldown=20;player.swing(InteractionHand.MAIN_HAND);
@@ -209,6 +211,7 @@ public final class OperationLife {
         }else if(pose==Pose.LIFT||pose==Pose.GRIP){
             var forward=player.getLookAngle().multiply(1,0,1).normalize();
             moveTo(player.getEyePosition().add(forward.scale(1.1)).add(0,-.65-entity.getBbHeight()/2,0));
+            if(elapsed==1)entity.mind().spike(ExcitedLeak.Stimulus.SUDDEN_LIFT);
             if(pose==Pose.GRIP&&elapsed%40==0)strike(player,1,WoundShape.BLUNT);
         }else if(pose==Pose.PIN||pose==Pose.FIXED||pose==Pose.SUPINE||pose==Pose.BOX||pose==Pose.VIBRATE||pose==Pose.HAT_REMOVE||pose==Pose.HAT_RETURN){
             moveTo(anchor);

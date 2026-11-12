@@ -8,6 +8,7 @@ import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.LeafSwaddle;
 import io.github.longshou.mcyukkuri.life.Consumables;
 import io.github.longshou.mcyukkuri.mind.EmotionEvent;
+import io.github.longshou.mcyukkuri.mind.ExcitedLeak;
 import io.github.longshou.mcyukkuri.registry.ModItems;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.status.Marks;
@@ -279,6 +280,7 @@ public final class BodyLife {
         coreHurt=true;dying=DYING_TICKS;dyingCause=cause;dyingSource=source;
         entity.life().interrupt();entity.getNavigation().stop();
         entity.showReaction("blank_cry","dying",DYING_TICKS);
+        entity.mind().spike(ExcitedLeak.Stimulus.DYING);
         updateMobility();entity.syncBody();
         GameplayLog.event(entity,"body","core hurt ({}), dying for {} ticks; health {}/{}",cause,DYING_TICKS,entity.getHealth(),entity.getMaxHealth());
         for(var listener:DYING_LISTENERS){try{listener.dying(entity,cause,DYING_TICKS);}catch(RuntimeException ex){MCYukkuri.LOGGER.warn("Dying listener failed",ex);}}

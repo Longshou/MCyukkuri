@@ -41,8 +41,9 @@ public final class PresentationArbiter {
     private void publish(String id, Presentation result) {
         result.publish();
         publishMoment(id);
-        state.expression(expression());
         var e = state.owner();
+        String leakFace = e.mind().leakFace();
+        state.expression(leakFace.isEmpty() ? expression() : leakFace);
         if (e.level().isClientSide) return;
         String behavior = e.family().laboring() || e.getBehaviorId().equals(Behaviors.POSTPARTUM) ? e.getBehaviorId() : null;
         String clip = e.getAnimationId();

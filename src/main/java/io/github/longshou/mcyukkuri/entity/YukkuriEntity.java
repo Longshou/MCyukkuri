@@ -129,6 +129,8 @@ import net.minecraft.world.level.pathfinder.PathType;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import io.github.longshou.mcyukkuri.mind.EmotionEvent;
+import io.github.longshou.mcyukkuri.mind.ExcitedLeak;
+import net.minecraft.world.level.block.state.BlockState;
 
 /** Server-owned behaviour and actions. Clients only sample synchronized poses. */
 public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
@@ -660,6 +662,13 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
         sync().onSyncedDataUpdated(key);
     }
     @Override public boolean isBaby() { return lifeStage()!=FamilyLife.Stage.ADULT.ordinal(); }
+    @Override
+    protected void checkFallDamage(double dy, boolean landed, BlockState surface, BlockPos at) {
+        float startle = ExcitedLeak.STARTLED_FALL_DISTANCE;
+        if (!landed && !isInWaterOrBubble() && fallDistance < startle && fallDistance - dy >= startle)
+            mind.spike(ExcitedLeak.Stimulus.DROP);
+        super.checkFallDamage(dy, landed, surface, at);
+    }
     @Override public boolean causeFallDamage(float distance,float multiplier,DamageSource damage) {
         return family!=null&&family.awaitingLanding()?false:super.causeFallDamage(distance,multiplier*Facilities.landing(Facilities.floor(this)),damage);
     }

@@ -2,12 +2,13 @@ package io.github.longshou.mcyukkuri.client;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.math.Axis;
 import io.github.longshou.mcyukkuri.MCYukkuri;
+import io.github.longshou.mcyukkuri.entity.YukkuriView;
+import io.github.longshou.mcyukkuri.mind.ExcitedLeak;
 import io.github.longshou.mcyukkuri.network.BodyEffectPayload;
 import java.util.ArrayDeque;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.Map;
 import java.util.Random;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -31,7 +32,7 @@ public final class BodyEffectsRenderer {
     private static final int TRACE_LIFETIME = 600, FADE_TICKS = 100, MAX_TRACES = 128, MAX_PER_CHUNK = 32;
     private static final ArrayDeque<Fragment> FRAGMENTS = new ArrayDeque<>();
     /** In insertion order so pressure evicts the least recently refreshed trace first. */
-    private static final LinkedHashMap<Long, Trace> TRACES = new LinkedHashMap<>();
+    private static final ArrayDeque<Trace> TRACES = new ArrayDeque<>();
     private static ClientLevel clientLevel;
 
     private static final class Fragment {
@@ -41,13 +42,21 @@ public final class BodyEffectsRenderer {
         Fragment(Vec3 position, Vec3 velocity, float size) { this.position = position; this.velocity = velocity; this.size = size; }
     }
     private static final class Trace {
-        final long key;
+        final Kind kind;
         Vec3 position;
-        float size;
+        float size, yaw;
         long born;
-        Trace(long key, Vec3 position, float size, long born) {
-            this.key = key; this.position = position; this.size = size; this.born = born;
+        Trace(Kind kind, Vec3 position, float size, float yaw, long born) {
+            this.kind = kind; this.position = position; this.size = size; this.yaw = yaw; this.born = born;
         }
+    }
+
+    private enum Kind {
+        FILLING("textures/props/leaked_filling.png"),
+        PUDDLE("textures/effects/leak_puddle.png");
+
+        private final RenderType layer;
+        Kind(String path) { layer = RenderType.entityTranslucent(MCYukkuri.id(path)); }
     }
 
     /** Called on the client work queue after packet validation. No world mutation occurs here. */
@@ -55,6 +64,17 @@ public final class BodyEffectsRenderer {
         var mc = Minecraft.getInstance();
         if (mc.level == null) return;
         resetFor(mc.level);
+        if (ExcitedLeak.PUDDLE.equals(payload.reason())) {
+            if (mc.level.getEntity(payload.sourceId()) instanceof YukkuriView entity)
+                MomentEmote.leakSweat(entity, payload.startTick());
+            var outlet = new Vec3(payload.x(), payload.y(), payload.z());
+            var support = grounded(mc, outlet, Kind.PUDDLE);
+            if (support != null) {
+                float yaw = (float) Math.atan2(payload.directionX(), payload.directionZ());
+                addTrace(Kind.PUDDLE, support, payload.amount(), yaw, payload.startTick());
+            }
+            return;
+        }
         boolean healthLoss = payload.reason().equals("hit") || payload.reason().equals("leak");
         float small = healthLoss ? .05f : .5f, medium = healthLoss ? .2f : 2f;
         int tier = payload.amount() <= small ? 0 : payload.amount() <= medium ? 1 : 2;
@@ -83,55 +103,55 @@ public final class BodyEffectsRenderer {
                     ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, mc.player));
             if (hit != null && hit.getType() != HitResult.Type.MISS) {
                 if (hit instanceof BlockHitResult block && block.getDirection() == Direction.UP)
-                    addTrace(hit.getLocation().add(0, .004, 0), fragment.size, now);
+                    addTrace(Kind.FILLING, hit.getLocation().add(0, .004, 0), fragment.size, 0, now);
                 it.remove();
                 continue;
             }
             fragment.position = next;
             fragment.velocity = fragment.velocity.add(0, -.012, 0).scale(.92);
             if (++fragment.age >= 12) {
-                var support = grounded(mc, fragment.position);
-                if (support != null) addTrace(support, fragment.size, now);
+                var support = grounded(mc, fragment.position, Kind.FILLING);
+                if (support != null) addTrace(Kind.FILLING, support, fragment.size, 0, now);
                 it.remove();
             }
         }
-        TRACES.values().removeIf(trace -> now - trace.born >= TRACE_LIFETIME);
+        TRACES.removeIf(trace -> now - trace.born >= TRACE_LIFETIME);
     }
 
-    private static void addTrace(Vec3 position, float size, long now) {
-        for (Iterator<Map.Entry<Long, Trace>> it = TRACES.entrySet().iterator(); it.hasNext();) {
-            var entry = it.next();
-            var trace = entry.getValue();
-            if (trace.position.distanceToSqr(position) >= .16) continue;
+    private static void addTrace(Kind kind, Vec3 position, float size, float yaw, long now) {
+        for (var it = TRACES.iterator(); it.hasNext();) {
+            var trace = it.next();
+            if (trace.kind != kind || trace.position.distanceToSqr(position) >= .16) continue;
             trace.position = trace.position.scale(.5).add(position.scale(.5));
             trace.size = Math.min(.6f, trace.size + size);
             trace.born = now;
             // Refresh insertion order too, so the recently extended puddle is not pressure-evicted.
-            it.remove(); TRACES.put(trace.key, trace);
+            it.remove(); TRACES.addLast(trace);
             return;
         }
-        long chunk = ChunkPos.asLong(((int) Math.floor(position.x)) >> 4, ((int) Math.floor(position.z)) >> 4);
+        long chunk = chunk(position);
         while (tracesIn(chunk) >= MAX_PER_CHUNK) removeOldestIn(chunk);
-        while (TRACES.size() >= MAX_TRACES) TRACES.remove(TRACES.keySet().iterator().next());
-        long key = BlockPos.containing(position).asLong() ^ (now << 1) ^ TRACES.size();
-        TRACES.put(key, new Trace(key, position, Math.clamp(size, .12f, .6f), now));
+        while (TRACES.size() >= MAX_TRACES) TRACES.removeFirst();
+        TRACES.addLast(new Trace(kind, position, Math.clamp(size, .12f, .6f), yaw, now));
     }
 
     /** A short shard that did not hit a wall still settles on the first visible support below it. */
-    private static Vec3 grounded(Minecraft mc, Vec3 position) {
+    private static Vec3 grounded(Minecraft mc, Vec3 position, Kind kind) {
         if (mc.level == null || mc.player == null) return null;
-        var hit = mc.level.clip(new ClipContext(position.add(0, .01, 0), position.add(0, -1.5, 0),
-                ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, mc.player));
+        boolean puddle = kind == Kind.PUDDLE;
+        var hit = mc.level.clip(new ClipContext(position.add(0, .01, 0), position.add(0, puddle ? -4 : -1.5, 0),
+                ClipContext.Block.COLLIDER, puddle ? ClipContext.Fluid.ANY : ClipContext.Fluid.NONE, mc.player));
+        if (puddle && !mc.level.getFluidState(hit.getBlockPos()).isEmpty()) return null;
         return hit.getType() == HitResult.Type.MISS || hit.getDirection() != Direction.UP ? null : hit.getLocation().add(0, .004, 0);
     }
 
     private static int tracesIn(long chunk) {
         int count = 0;
-        for (var trace : TRACES.values()) if (chunk(trace.position) == chunk) count++;
+        for (var trace : TRACES) if (chunk(trace.position) == chunk) count++;
         return count;
     }
     private static void removeOldestIn(long chunk) {
-        for (Iterator<Map.Entry<Long, Trace>> it = TRACES.entrySet().iterator(); it.hasNext();) if (chunk(it.next().getValue().position) == chunk) { it.remove(); return; }
+        for (var it = TRACES.iterator(); it.hasNext();) if (chunk(it.next().position) == chunk) { it.remove(); return; }
     }
     private static long chunk(Vec3 at) { return ChunkPos.asLong(((int) Math.floor(at.x)) >> 4, ((int) Math.floor(at.z)) >> 4); }
 
@@ -142,17 +162,7 @@ public final class BodyEffectsRenderer {
         PoseStack pose = event.getPoseStack();
         Vec3 camera = event.getCamera().getPosition();
         MultiBufferSource.BufferSource buffers = mc.renderBuffers().bufferSource();
-        VertexConsumer splats = buffers.getBuffer(RenderType.entityTranslucent(MCYukkuri.id("textures/props/leaked_filling.png")));
-        long now = mc.level.getGameTime();
-        for (var trace : TRACES.values()) {
-            float fade = Math.clamp((TRACE_LIFETIME - (now - trace.born)) / (float) FADE_TICKS, 0f, 1f);
-            if (fade <= 0) continue;
-            int light = LevelRenderer.getLightColor(mc.level, BlockPos.containing(trace.position));
-            pose.pushPose();
-            pose.translate(trace.position.x - camera.x, trace.position.y - camera.y, trace.position.z - camera.z);
-            splat(pose.last().pose(), splats, trace.size, fade, light);
-            pose.popPose();
-        }
+        for (Kind kind : Kind.values()) renderTraces(kind, mc.level, pose, camera, buffers);
         for (var fragment : FRAGMENTS) {
             int light = LevelRenderer.getLightColor(mc.level, BlockPos.containing(fragment.position));
             pose.pushPose();
@@ -162,6 +172,27 @@ public final class BodyEffectsRenderer {
             pose.popPose();
         }
         buffers.endBatch();
+    }
+
+    private static void renderTraces(Kind kind, ClientLevel level, PoseStack pose, Vec3 camera, MultiBufferSource buffers) {
+        VertexConsumer splats = null;
+        long now = level.getGameTime();
+        for (var trace : TRACES) {
+            if (trace.kind != kind) continue;
+            long age = now - trace.born;
+            float fade = Math.clamp((TRACE_LIFETIME - age) / (float) FADE_TICKS, 0f, 1f);
+            if (fade <= 0) continue;
+            float size = trace.size;
+            if (kind == Kind.PUDDLE) size *= Math.clamp(age / 10f, 0f, 1f) * (.8f + .2f * fade);
+            if (size <= 0) continue;
+            if (splats == null) splats = buffers.getBuffer(kind.layer);
+            int light = LevelRenderer.getLightColor(level, BlockPos.containing(trace.position));
+            pose.pushPose();
+            pose.translate(trace.position.x - camera.x, trace.position.y - camera.y, trace.position.z - camera.z);
+            if (kind == Kind.PUDDLE) pose.mulPose(Axis.YP.rotation(trace.yaw));
+            splat(pose.last().pose(), splats, size, fade, light);
+            pose.popPose();
+        }
     }
 
     private static void splat(Matrix4f matrix, VertexConsumer out, float size, float alpha, int light) {
