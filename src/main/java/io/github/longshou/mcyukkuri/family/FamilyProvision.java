@@ -47,7 +47,8 @@ public final class FamilyProvision {
         if (!(caregiver.level() instanceof ServerLevel level)) return false;
         for (UUID id : new UUID[]{b.mother(), b.father()})
             if (id != null && level.getEntity(id) instanceof YukkuriEntity parent && parent.isAlive()
-                    && !parent.body().dying() && sharesHome(parent, child) && !caregiver.family().kinOverdue(id)) return false;
+                    && !parent.body().dying() && sharesHome(parent, child)
+                    && !outForFood(parent) && !caregiver.family().kinOverdue(id)) return false;
         return true;
     }
 

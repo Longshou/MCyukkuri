@@ -1025,6 +1025,7 @@ public final class FamilyLife {
             if(emergencyForaging())return false;
             if(subadult() && feeding.startCare())return true;
             if(startAbsence())return true;
+            if(subadult() && ordinaryLandFree(entity) && startHomeWatch())return true;
             if(seekingFamilyHelp() && !familyTravelling() && closestParent()==null && startFamilyHelp())return true;
             if(exploring()&&!familyTravelling()&&!entity.life().hasUrgentNeed())return false;
             if(!entity.childhood().shouldStayWithParents())return false;
