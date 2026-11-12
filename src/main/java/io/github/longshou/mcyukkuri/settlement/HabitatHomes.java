@@ -284,7 +284,7 @@ final class HabitatHomes {
                 while(search.cells.hasNext()&&light<1445) {
                     pos=search.cells.next().immutable();
                     SearchBudget.probe(level());
-                    if(NaturalShelter.enclosed(level(),pos)) {
+                    if(o.entity().moldExile().allowsAddress(pos)&&NaturalShelter.enclosed(level(),pos)) {
                         if(light>0) { search.pendingCell=pos; return Result.DEFERRED; }
                         break;
                     }
@@ -346,7 +346,7 @@ final class HabitatHomes {
         var around = entity.blockPosition();
         var sites = new ArrayList<BlockPos>();
         for (var pos : BlockPos.betweenClosed(around.offset(-6, -1, -6), around.offset(6, 1, 6)))
-            if (ShelterPlacement.surfaceFootprint(level(), pos)) sites.add(pos.immutable());
+            if (entity.moldExile().allowsAddress(pos) && ShelterPlacement.surfaceFootprint(level(), pos)) sites.add(pos.immutable());
         sites.sort(Comparator.comparingDouble(around::distSqr));
         for (var pos : sites.stream().limit(8).toList()) {
             if (!entity.life().reachable(pos.south(2), false)) continue;
@@ -403,7 +403,7 @@ final class HabitatHomes {
         var faces=new ArrayList<>(Burrowing.faces(level(),o.entity().blockPosition(),9));
         faces.sort(Comparator.comparingDouble(face->face.distSqr(o.entity().blockPosition())));
         for(var face:faces.subList(0,Math.min(faces.size(),40))) {
-            if(!o.entity().life().reachable(face,false))continue;
+            if(!o.entity().moldExile().allowsAddress(face)||!o.entity().life().reachable(face,false))continue;
             for(var direction:Direction.Plane.HORIZONTAL) {
                 if(!Burrowing.soft(level(),face.relative(direction)))continue;
                 var plan=Burrowing.plan(level(),face,direction,want);

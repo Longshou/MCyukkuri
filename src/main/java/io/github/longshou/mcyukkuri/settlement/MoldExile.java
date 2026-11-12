@@ -77,7 +77,7 @@ public final class MoldExile extends Goal implements MotorOwner {
         return null;
     }
 
-    private boolean local(Home address) { return address.range().dimension().equals(level().dimension()); }
+    private boolean local(Home address) { return address.range().dimension().equals(entity.level().dimension()); }
 
     private static boolean resident(YukkuriEntity observer, Home address) {
         if (address.colony()) return address.group().equals(observer.settlement().groupId()) && SettlementSociety.accepted(observer);
@@ -104,7 +104,8 @@ public final class MoldExile extends Goal implements MotorOwner {
             case 1 -> 2;
             case 2 -> 5;
             case 3 -> 7;
-            default -> 8;
+            case 4 -> 8;
+            default -> 0;
         };
         double ties = Bonds.careOrMate(observer, subject) ? 12 + .55 * personality.attachment() : 0;
         return 9 * visibleSeverity + 12 * closeness + .18 * (100 - personality.friendliness())
@@ -117,9 +118,9 @@ public final class MoldExile extends Goal implements MotorOwner {
         return address != null && resident(observer, address) && aversion(observer, subject) > 0;
     }
 
-    public boolean allowsHome(ShelterBlockEntity den) {
+    public boolean allowsAddress(BlockPos pos) {
         return exile == null || entity.body().mold() == 0 || !local(exile.home())
-                || !den.getBlockPos().equals(exile.home().den()) && !exile.home().includes(Vec3.atBottomCenterOf(den.getBlockPos()));
+                || !pos.equals(exile.home().den()) && !exile.home().includes(Vec3.atBottomCenterOf(pos));
     }
 
     public boolean eligibleForWelcome(YukkuriEntity resident) {
@@ -226,7 +227,12 @@ public final class MoldExile extends Goal implements MotorOwner {
 
     private boolean beginLeave(Home address) {
         var witness = driver();
-        if (witness == null || !canLeave(address) || failed(witness.getUUID())) return false;
+        if (witness == null || failed(witness.getUUID())) return false;
+        if (!canLeave(address)) {
+            GameplayLog.limited(entity, "settlement", "mold_exile.care", 200,
+                    "mold exile deferred reason=dependent_or_carry witness={} den={}", witness.getUUID(), address.den());
+            return false;
+        }
         task = Task.LEAVE;
         peer = witness;
         home = address;
@@ -294,7 +300,7 @@ public final class MoldExile extends Goal implements MotorOwner {
 
     @Override public void tick() {
         // A terminal tick can end this task before the selector clears its running wrapper.
-        if (task == null) return;
+        if (!canContinueToUse()) return;
         ticks++;
         switch (task) {
             case WITNESS -> watch();

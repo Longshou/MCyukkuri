@@ -51,13 +51,14 @@ public final class CareBlockEntity extends BlockEntity implements Container {
     /** The level floor and visible hollow that resting bodies must fit (sizes in NestResting). */
     public NestResting.Bed bed(){return largeNest()?NestResting.LARGE:getBlockState().is(ModBlocks.PREDATOR_NEST.get())?NestResting.LEDGE:NestResting.CUSHION;}
     public boolean canClaim(YukkuriEntity entity){
+        if(kind()!=CareBlock.Kind.NEST||!entity.moldExile().allowsAddress(worldPosition))return false;
         var current=new LinkedHashMap<UUID,Integer>();
         residents.forEach((id,stage)->{
             var person=level instanceof ServerLevel server?FamilyData.get(server).person(id):null;
             if(person==null||person.status==FamilyData.Status.ALIVE)
                 current.put(id,level instanceof ServerLevel server&&server.getEntity(id) instanceof YukkuriEntity y?NestOccupancy.stage(y):stage);
         });
-        return kind()==CareBlock.Kind.NEST&&NestOccupancy.accepts(largeNest(),current,entity);
+        return NestOccupancy.accepts(largeNest(),current,entity);
     }
     public String occupancy(){return "residents="+residents+" large="+largeNest();}
     public double waste() { return wasteVolume; }
