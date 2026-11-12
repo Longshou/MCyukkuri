@@ -12,7 +12,6 @@
 | 移速不超过人类（反馈 13） | `.worktrees/wp-gw-speed` | 移动速度、步态、场景时长 |
 | 油霉个体被逐出聚落／家庭（反馈 11） | `.worktrees/wp-gy-mold-exile` | 聚落、家庭、油霉 |
 | 运输篮信息、多只非成体、换色分级（反馈 14） | `.worktrees/wp-gz-basket` | 运输篮物品与令牌 |
-| 捕食种模型错位（反馈 1） | `.worktrees/wp-hb-predator-model` | standards/yukkuri-library/subspecies/predator/ |
 | 素鸡立时间线、雷普魔动作、器官位置（反馈 4、5） | `.worktrees/wp-hc-sukkiri` | 素鸡立动作片段、表情、身体导出 |
 | 粪便：删旧档位残留、管理演示场 | `.worktrees/wp-hd-waste` | life/Poop*、粪便资源、museum 粪便场景 |
 | 部位占用统一权威（嘴、辫子、帽、承载） | `.worktrees/wp-hj-occupancy-unify` | life/LifeMeal、family/FamilyFeeding、settlement/ForageTrip、HabitatLife、ParentCarry |
