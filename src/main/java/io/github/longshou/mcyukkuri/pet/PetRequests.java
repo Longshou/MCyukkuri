@@ -8,6 +8,7 @@ import io.github.longshou.mcyukkuri.life.CareBlockEntity;
 import io.github.longshou.mcyukkuri.life.Sweets;
 import io.github.longshou.mcyukkuri.pet.stage.Staging;
 import io.github.longshou.mcyukkuri.registry.ModItems;
+import io.github.longshou.mcyukkuri.social.SocialDisposition;
 import java.util.UUID;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -32,7 +33,7 @@ public final class PetRequests {
     public static final int SULK_AT = 3, WALK_METERS = 40, RANGE = 16;
     private final YukkuriEntity animal;
     private Kind pending;
-    private int left, today, answered, ignoredNear, hinted, baseAffection, baseBoredom;
+    private int left, today, answered, ignoredNear, hinted, expiredNeeds, baseAffection, baseBoredom;
     private long lastAt = Long.MIN_VALUE / 2;
     private boolean sulked;
     private double walked;
@@ -83,15 +84,33 @@ public final class PetRequests {
     }
     private Kind pick(Player owner) {
         var life = animal.life(); var daily = animal.dailyLife(); var pet = animal.pet();
-        if (life.nutrition() < 45 && animal.family().canEatIndependently() && animal.childhood().canEatSolid() && !bowlHasFood()) return Kind.FOOD;
-        if (life.temperature().cold() && !pet.care().swaddled()) return Kind.WARM;
-        if (daily.affectionNeed() >= 65) return Kind.NUZZLE;
-        if (daily.boredom() >= 65) return Kind.PLAY;
-        if (life.personality().friendliness() < 45 && life.personality().selfControl() < 45 && life.nutrition() <= Sweets.FULL
+        if (ready(Kind.FOOD) && life.nutrition() < 45
+                && animal.family().canEatIndependently() && animal.childhood().canEatSolid() && !bowlHasFood()) return Kind.FOOD;
+        if (ready(Kind.WARM) && life.temperature().cold() && !pet.care().swaddled()) return Kind.WARM;
+        if (ready(Kind.NUZZLE) && daily.affectionNeed() >= 65) return Kind.NUZZLE;
+        if (ready(Kind.PLAY) && daily.boredom() >= 65) return Kind.PLAY;
+        if (ready(Kind.SNACK) && life.personality().friendliness() < 45
+                && life.personality().selfControl() < 45 && life.nutrition() <= Sweets.FULL
                 && pet.care().snacksToday() < Sweets.DAILY_FREE) return Kind.SNACK;
-        if (daily.boredom() >= 50 && level().isDay() && !level().isRaining() && animal.family().adult() && !animal.isLeashed()
+        if (ready(Kind.WALK) && daily.boredom() >= 50 && level().isDay() && !level().isRaining()
+                && animal.family().adult() && !animal.isLeashed()
                 && (pet.care().harnessed() || ownerHas(owner, new ItemStack(Items.LEAD)))) return Kind.WALK;
         return null;
+    }
+    private boolean ready(Kind kind) { return (expiredNeeds & 1 << kind.ordinal()) == 0; }
+    private void relieved(Kind kind) { expiredNeeds &= ~(1 << kind.ordinal()); }
+
+    /** Sample the existing need values at the request cadence, even during cooldown or while the owner is away. */
+    private void observeRelief() {
+        if (expiredNeeds == 0) return;
+        var life = animal.life();
+        var daily = animal.dailyLife();
+        if (life.nutrition() >= 55) relieved(Kind.FOOD);
+        if (!life.temperature().cold() || animal.pet().care().swaddled()) relieved(Kind.WARM);
+        if (daily.affectionNeed() <= 50) relieved(Kind.NUZZLE);
+        if (daily.boredom() <= 50) relieved(Kind.PLAY);
+        if (life.nutrition() > Sweets.FULL) relieved(Kind.SNACK);
+        if (daily.boredom() <= 40 || animal.isLeashed()) relieved(Kind.WALK);
     }
     private int ownerTotal(Player owner) {
         int sum = 0;
@@ -105,7 +124,9 @@ public final class PetRequests {
     }
     private void consider() {
         var pet = animal.pet();
-        if (!pet.isPet() || pet.busy() || !pet.calm() || pet.lessons().awaitingFeedback() || pet.care().habitWindow()) return;
+        if (!pet.isPet()) { expiredNeeds = 0; return; }
+        observeRelief();
+        if (pet.busy() || !pet.calm() || pet.lessons().awaitingFeedback() || pet.care().habitWindow()) return;
         long now = animal.level().getGameTime();
         int cooldown = COOLDOWN * (sulked ? 3 : 1);
         if (now - lastAt < cooldown || today >= PER_DAY) return;
@@ -131,7 +152,13 @@ public final class PetRequests {
     /** Action, face, speech and the icon card of the pending request (also repeated by "ask"). */
     private void voice(Kind kind) {
         String event = switch (kind) { case FOOD -> "ask_food"; case WARM -> "cold"; case NUZZLE -> "want_nuzzle"; case PLAY -> "ask_play"; case SNACK -> "ask_snack"; case WALK -> "ask_walk"; };
-        String face = switch (kind) { case FOOD, WARM -> "teary"; case WALK -> "happy"; default -> "open_smile"; };
+        var personality = animal.life().personality();
+        var bond = personality.relation(animal.pet().owner());
+        double esteem = SocialDisposition.selfEsteem(animal);
+        double wary = SocialDisposition.wariness(animal, bond);
+        String face = wary >= .5 ? "teary"
+                : SocialDisposition.insistence(personality, esteem, wary, bond) >= .52 ? "cheek_puff"
+                : switch (kind) { case FOOD, WARM -> "teary"; case WALK -> "happy"; default -> "open_smile"; };
         animal.playAction("beg"); animal.showReaction(face, event, 80);
         dropCard();
         var at = markPos();
@@ -160,7 +187,19 @@ public final class PetRequests {
         };
     }
     /** Another source answered the pending request of this kind (a sweet, a gentle word, ...). */
-    public void answer(Kind kind) { if (pending == kind) resolve(); }
+    public void answer(Kind kind) {
+        relieved(kind);
+        if (pending == kind) resolve();
+    }
+    /** Mouth occupancy and nutrition have already committed; only that meal writes its feeder's relationship. */
+    public boolean swallowed(UUID feeder, boolean ordinaryFood) {
+        if (!ordinaryFood || !animal.pet().isPet()) return false;
+        if (animal.life().nutrition() >= 55) relieved(Kind.FOOD);
+        boolean ownerFed = animal.pet().ownedBy(feeder);
+        if (pending != Kind.FOOD || !ownerFed && animal.life().nutrition() < 60) return false;
+        resolve();
+        return ownerFed;
+    }
     /** The owner walked the pet on its harness for this many blocks. */
     public void walked(double metres) { if (pending == Kind.WALK) walked += metres; }
 
@@ -169,9 +208,10 @@ public final class PetRequests {
         var kind=pending; int remaining=left,stressBefore=animal.pet().stress();
         clear(); answered++;
         var pet = animal.pet();
-        if (owner != null) { animal.life().personality().answeredRequest(owner); pet.contact(owner, true); }
+        boolean meal = kind == Kind.FOOD || kind == Kind.SNACK;
+        if (owner != null && !meal) { animal.life().personality().answeredRequest(owner); pet.contact(owner, true); }
         pet.addStress(-2);
-        animal.showReaction("happy", "request_thanks", 70);
+        if (!meal) animal.showReaction("happy", "request_thanks", 70);
         Staging.sparkle(level(), markPos());
         GameplayLog.event(animal,"request","satisfied kind={} owner={} remainingTicks={} walked={} answeredToday={} stress={} -> {}",
                 kind,owner,remaining,walked,answered,stressBefore,pet.stress());
@@ -179,6 +219,7 @@ public final class PetRequests {
     private void expire() {
         var kind=pending; int stressBefore=animal.pet().stress();
         clear();
+        expiredNeeds |= 1 << kind.ordinal();
         var pet = animal.pet();
         pet.addStress(1);
         var nearbyOwner=ownerNear();
@@ -198,20 +239,21 @@ public final class PetRequests {
     /** "Ask how it is" with a request open: the pet says it again. Returns whether there was one. */
     public boolean repeat() {
         if (pending == null) return false;
-        voice(pending); left = Math.max(left, LIFETIME / 2);
+        voice(pending);
         return true;
     }
 
     public CompoundTag save() {
         var tag = new CompoundTag();
         tag.putInt("Today", today); tag.putInt("Answered", answered); tag.putInt("Ignored", ignoredNear); tag.putInt("Hinted", hinted);
-        tag.putLong("LastAt", lastAt); tag.putBoolean("Sulked", sulked);
+        tag.putLong("LastAt", lastAt); tag.putBoolean("Sulked", sulked); tag.putInt("ExpiredNeeds", expiredNeeds);
         return tag;
     }
     public void load(CompoundTag tag) {
         clearQuiet();
         today = Math.clamp(tag.getInt("Today"), 0, 99); answered = Math.clamp(tag.getInt("Answered"), 0, 99);
         ignoredNear = Math.clamp(tag.getInt("Ignored"), 0, 99); hinted = tag.getInt("Hinted") & 63;
+        expiredNeeds = tag.getInt("ExpiredNeeds") & 63;
         lastAt = tag.contains("LastAt") ? tag.getLong("LastAt") : Long.MIN_VALUE / 2; sulked = tag.getBoolean("Sulked");
     }
     private void clearQuiet() { pending = null; left = 0; card = null; }

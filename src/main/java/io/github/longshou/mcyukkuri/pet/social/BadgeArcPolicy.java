@@ -17,13 +17,14 @@ public final class BadgeArcPolicy {
         public static Arc byId(String id) { for (var a : values()) if (a.id.equals(id)) return a; return null; }
     }
 
-    /** Behavior axes and needs are 0..100; grade is 0 none .. 3 gold. A wild observer never compares ranks ({@code ownGrade} is then 0). */
+    /** Behavior axes and needs are 0..100; grade runs from 0 (none) to 4 (platinum). */
     public record Observer(boolean pet, boolean child, boolean elder, boolean childNear, int intelligence, int friendliness, int boldness,
-                           int attachment, int selfControl, int nutrition, int stress, int ownGrade, int sizePercent) {}
+                           int attachment, int selfControl, int nutrition, int ownGrade, int sizePercent) {}
     public record Subject(int grade, boolean pet, boolean eating, boolean ownerNear, boolean trustedPlayerNear, boolean homeNear, boolean aloneFromOwner,
                           boolean hasAccessory, int sizePercent) {}
     /** What the observer remembers (ledger) plus the directed affinity. {@code cooling}: an arc with this subject played within the last game day. */
-    public record Relation(int affinity, boolean related, boolean first, boolean changed, boolean lapsed, boolean cooling, int impression, int flags, int seenCount) {}
+    public record Relation(int affinity, double wariness, double confidence, double insistence,
+                           boolean related, boolean first, boolean changed, boolean lapsed, boolean cooling, int flags, int seenCount) {}
     public record Context(boolean playerNear, boolean waryRumour, boolean kindRumour, boolean snatchEnabled, boolean homeClaimEnabled) {}
     public record Candidate(Arc arc, String variant, double probability) {}
     public record Choice(Arc arc, String variant) {
@@ -39,10 +40,9 @@ public final class BadgeArcPolicy {
 
     public static double begBiteChance(Observer o, Subject s, Relation r) {
         if (r.cooling() || o.pet() || !s.eating() || s.grade() <= 0
-                || o.nutrition() < 30 || o.nutrition() >= 50 || o.boldness() >= 70) return 0;
-        return clamp01(.45 + (50 - o.nutrition()) / 40.0 + (70 - o.boldness()) / 150.0
-                + ((r.flags() & BadgeLedger.FED_BY) != 0 ? .15 : 0)
-                - ((r.flags() & BadgeLedger.SNUBBED) != 0 ? .2 : 0));
+                || o.nutrition() < 30 || o.nutrition() >= 50) return 0;
+        return clamp01(.65 + (50 - o.nutrition()) / 40.0
+                + r.affinity() / 100.0 - .6 * r.wariness() - .15 * r.confidence());
     }
 
     /** Every arc the situation allows with its own probability (unscaled). Empty means a silent record. */
@@ -57,7 +57,7 @@ public final class BadgeArcPolicy {
         if (r.cooling()) return out;
         double nov = r.first() ? 1 : r.changed() ? .8 : .4;
         boolean novel = r.first() || r.changed() || r.seenCount() == 1;
-        boolean hungry = o.nutrition() < 50, grudge = (r.flags() & (BadgeLedger.ENVIED | BadgeLedger.SNUBBED)) != 0 || r.impression() <= -1 || r.affinity() < BondLevels.AFFINITY_NEUTRAL;
+        boolean hungry = o.nutrition() < 50;
         if (s.grade() > 0 && s.pet() && s.ownerNear() && o.elder() && o.childNear() && !o.pet() && novel)
             out.add(new Candidate(Arc.ELDER_WARN, c.kindRumour() && !c.waryRumour() ? "kind" : "warn", clamp01(.35 * (c.waryRumour() ? 1.5 : 1))));
         if (c.snatchEnabled() && !o.pet() && s.hasAccessory() && s.aloneFromOwner() && s.grade() > 0 && o.friendliness() <= 35
@@ -72,23 +72,21 @@ public final class BadgeArcPolicy {
             else if (c.playerNear() && (r.flags() & (BadgeLedger.ADMIRED | BadgeLedger.FED_BY)) != 0 && o.attachment() >= 55)
                 out.add(new Candidate(Arc.PLEA, "", .12 * (c.waryRumour() ? .3 : 1)));
         }
-        if (!o.pet() && grudge && o.friendliness() <= 50 && o.selfControl() < 60 && s.grade() > 0 && !r.related()
+        if (!o.pet() && r.affinity() < BondLevels.AFFINITY_NEUTRAL && s.grade() > 0 && !r.related()
                 && o.nutrition() >= 30 && o.sizePercent() * 10 >= s.sizePercent() * 9)
-            out.add(new Candidate(Arc.PROVOKE, "", clamp01(.3 + ((r.flags() & BadgeLedger.SNUBBED) != 0 ? .15 : 0)
-                    - .07 * Math.max(0, s.grade() - o.ownGrade() - 1))));
+            out.add(new Candidate(Arc.PROVOKE, "", .45 * r.insistence()));
         if (!o.pet() && s.grade() > 0 && novel && o.friendliness() >= 35)
             out.add(new Candidate(Arc.GLANCE, "", clamp01(nov * (.1 + .002 * o.intelligence() + .001 * (100 - o.boldness())
                     + (o.child() ? .12 : 0) + .05 * Math.max(0, s.grade() - o.ownGrade() - 1)))));
         boolean above = o.pet() ? s.grade() > o.ownGrade() : s.grade() > 0;
         if (above && novel) {
             double p = .03 + .008 * (60 - o.friendliness()) + .12 * Math.max(0, s.grade() - o.ownGrade() - 1)
-                    + (hungry ? .1 : 0) + (o.stress() >= BondLevels.UNEASE_CARE_LIMIT ? .06 : 0) + ((r.flags() & BadgeLedger.ENVIED) != 0 ? .08 : 0);
+                    + (hungry ? .1 : 0) + .12 * r.confidence() - .18 * r.wariness() - r.affinity() / 300.0;
             if (p > .01) out.add(new Candidate(Arc.ENVY, "", clamp01(nov * p * (1 - o.attachment() / 200.0))));
         }
         if (o.pet() && o.ownGrade() > s.grade() && novel) {
-            boolean kind = o.friendliness() > 55;
-            boolean proud = o.boldness() >= 55 && o.friendliness() <= 55;
-            out.add(new Candidate(Arc.BOAST, kind ? "humble" : "boast", nov * (proud ? .28 : kind ? .2 : .08)));
+            double show = r.confidence() * (1 - r.wariness());
+            out.add(new Candidate(Arc.BOAST, "", nov * (.08 + .20 * show)));
         }
         return out;
     }

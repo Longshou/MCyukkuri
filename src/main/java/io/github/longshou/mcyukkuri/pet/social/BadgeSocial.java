@@ -1,6 +1,8 @@
 package io.github.longshou.mcyukkuri.pet.social;
 
 import io.github.longshou.mcyukkuri.social.Bonds;
+import io.github.longshou.mcyukkuri.social.SocialDisposition;
+import io.github.longshou.mcyukkuri.pet.PetScenes;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.pet.BadgeGrade;
 import io.github.longshou.mcyukkuri.event.WildEventData;
@@ -129,7 +131,8 @@ public final class BadgeSocial {
     /** A badge-holder has just taken a bite: hungry wild onlookers decide there and then whether to beg for it. The periodic sighting rolls (every few seconds)
      *  can almost never coincide with the ~1.8 s window in which a bite is held in the mouth, so this is the natural way for B4 to happen. */
     public static void mealSeen(YukkuriEntity subject) {
-        if (!enabled() || !(subject.level() instanceof ServerLevel level) || subject.profile().dangerToYukkuri() || subject.profile().houseBody()
+        if (!enabled() || !(subject.level() instanceof ServerLevel level) || !subject.pet().isPet()
+                || subject.profile().dangerToYukkuri() || subject.profile().houseBody()
                 || visibleRank(subject).id() <= 0 || subject.life().mouth().isEmpty()) return;
         long now = level.getGameTime(); clock = now;
         var viewer = level.getNearestPlayer(subject, AUDIENCE_RADIUS);
@@ -156,8 +159,13 @@ public final class BadgeSocial {
         var entry = sight.entry();
         var observer = observer(o, seen);
         var subject = subject(level, o, s, viewer);
-        var relation = new BadgeArcPolicy.Relation(YukkuriWorldData.get(level).affinity(o.getUUID(), s.getUUID()), Bonds.careKin(o, s),
-                sight.first(), sight.changed(), sight.lapsed(), entry.sinceArc(now) < 24000L, entry.impression(), entry.flags(), entry.seenCount());
+        var personality = o.life().personality();
+        var bond = personality.relation(s.getUUID());
+        double esteem = SocialDisposition.selfEsteem(o);
+        double wariness = SocialDisposition.wariness(o, bond);
+        var relation = new BadgeArcPolicy.Relation(bond.closeness(), wariness, SocialDisposition.confidence(esteem),
+                SocialDisposition.insistence(personality, esteem, wariness, bond), Bonds.careKin(o, s),
+                sight.first(), sight.changed(), sight.lapsed(), entry.sinceArc(now) < 24000L, entry.flags(), entry.seenCount());
         var group = o.settlement().group();
         var context = new BadgeArcPolicy.Context(viewer != null, Rumours.strength(group, Rumours.WARY_HUMAN, now) > 0, Rumours.strength(group, Rumours.BADGE_FED, now) > 0,
                 snatchEnabled(), homeClaimEnabled());
@@ -166,18 +174,22 @@ public final class BadgeSocial {
             double roll = o.getRandom().nextDouble();
             choice = BadgeArcPolicy.choose(observer, subject, relation, context, roll);
             GameplayLog.limited(o, "badge", "sight." + s.getUUID(), 100,
-                    "badge sight subject={} grade={} first={} roll={} choice={}", s.getUUID(), grade, sight.first(), roll,
+                    "badge sight subject={} grade={} first={} esteem={} wariness={} closeness={} roll={} choice={}",
+                    s.getUUID(), grade, sight.first(), esteem, wariness, bond.closeness(), roll,
                     choice.silent() ? "silent" : choice.arc().id);
         }
         else {
             double chance = BadgeArcPolicy.begBiteChance(observer, subject, relation);
-            if (chance == 0 || o.getRandom().nextDouble() >= chance) return;
+            if (chance == 0) return;
+            double roll = o.getRandom().nextDouble();
+            GameplayLog.limited(o, "badge", "bite." + s.getUUID(), 100,
+                    "badge bite subject={} grade={} nutrition={} esteem={} wariness={} closeness={} chance={} roll={}",
+                    s.getUUID(), grade, observer.nutrition(), esteem, wariness, bond.closeness(), chance, roll);
+            if (roll >= chance) return;
             choice = new BadgeArcPolicy.Choice(Arc.BEG_BITE, "");
         }
         if (choice.silent()) { glance(o, s, edge && (sight.first() || sight.changed())); return; }
         var arc = choice.arc();
-        String variant = arc == Arc.BOAST && o.pet().recentBadgeSuccess() && o.life().personality().boldness() >= 55
-                && o.life().personality().friendliness() <= 65 ? "boast" : choice.variant();
         UUID viewerId = viewer == null ? null : viewer.getUUID();
         // Begging acts on a real bite. Its existing pair memory and the held meal govern repeats.
         if (arc != Arc.BEG_BITE) {
@@ -189,7 +201,7 @@ public final class BadgeSocial {
             }
         }
         YukkuriEntity extra = extraFor(arc, o, s, seen);
-        var scene = BadgeArcs.start(level, arc, variant, o, s, viewer, extra);
+        var scene = BadgeArcs.start(level, arc, choice.variant(), o, s, viewer, extra);
         if (scene == null) { glance(o, s, edge); return; }
         if (arc != Arc.BEG_BITE) budget().commit(viewerId, arc.cost, o.getUUID(), s.getUUID());
         ledger.arc(s.getUUID(), arc.id, now);
@@ -211,7 +223,7 @@ public final class BadgeSocial {
         boolean childNear = around.stream().anyMatch(y -> WildEvents.childOf(o, y));
         boolean elder = o.family().adult() && (group != null && o.getUUID().equals(group.leader) || childNear);
         return new BadgeArcPolicy.Observer(o.pet().isPet(), !o.family().adult(), elder, childNear, p.intelligence(), p.friendliness(), p.boldness(),
-                p.attachment(), p.selfControl(), Math.round(o.life().nutrition()), o.pet().stress(), o.pet().isPet() ? visibleRank(o).id() : 0,
+                p.attachment(), p.selfControl(), Math.round(o.life().nutrition()), visibleRank(o).id(),
                 Math.round(o.getBbWidth() * 100));
     }
 
@@ -231,17 +243,37 @@ public final class BadgeSocial {
     /** A deliberate greeting between two individuals (YukkuriSocial): always a silent record; only a budgeted one-liner is performed.
      *  True when a badge reaction replaced the ordinary greeting. */
     public static boolean greeting(YukkuriEntity o, YukkuriEntity peer) {
-        if (!(o.level() instanceof ServerLevel level)) return false;
+        if (!enabled() || !(o.level() instanceof ServerLevel level) || !o.pet().calm()
+                || !peer.isAlive() || peer.pet().busy() || peer.life().isSleeping()) return false;
+        int mine = visibleRank(o).id(), theirs = visibleRank(peer).id();
+        if (mine == 0 && theirs == 0) return false;
         long now = level.getGameTime(); clock = now;
         var ledger = o.pet().badgeLedger();
-        ledger.note(peer.getUUID(), visibleRank(peer).id(), now);
+        ledger.note(peer.getUUID(), theirs, now);
         var viewer = level.getNearestPlayer(o, AUDIENCE_RADIUS);
         UUID viewerId = viewer == null ? null : viewer.getUUID();
         if (budget().check(viewerId, 1, o.getUUID(), peer.getUUID()) != BadgeBudget.Verdict.OK) return false;
-        int flag = o.pet().reactNow(peer);
+        var personality = o.life().personality();
+        var relation = personality.relation(peer.getUUID());
+        double esteem = SocialDisposition.selfEsteem(o);
+        double wariness = SocialDisposition.wariness(o, relation);
+        if (wariness >= .5) return false; // the ordinary greeting owns the wary response
+        double insistence = SocialDisposition.insistence(personality, esteem, wariness, relation);
+        boolean antagonistic = insistence >= .2 && !Bonds.careKin(o, peer);
+        int flag = 0;
+        if (theirs > mine) {
+            flag = antagonistic ? BadgeLedger.ENVIED : BadgeLedger.ADMIRED;
+            PetScenes.act(o, antagonistic ? "sulk" : "beg", antagonistic ? "teary" : "open_smile",
+                    antagonistic ? "badge_envy" : "badge_admire", 80, peer);
+        } else if (mine > theirs && antagonistic) PetScenes.act(o, "proud", "smug", "badge_proud", 80, peer);
+        else PetScenes.act(o, mine > theirs ? "bow" : "greet", "closed_smile", "peer", 80, peer);
+        nudge(YukkuriWorldData.get(level), o.getUUID(), peer.getUUID(), antagonistic && mine != theirs ? -1 : 1);
+        if (antagonistic && mine != theirs) o.life().deferSocial(200);
         budget().commit(viewerId, 1, o.getUUID(), peer.getUUID());
         ledger.arc(peer.getUUID(), "greeting", now);
-        if (flag != 0) { ledger.flag(peer.getUUID(), flag, now); ledger.impress(peer.getUUID(), flag == BadgeLedger.ENVIED ? -1 : 1, now); }
+        if (flag != 0) ledger.flag(peer.getUUID(), flag, now);
+        GameplayLog.event(o, "badge", "badge greeting subject={} grades={}->{} esteem={} wariness={} closeness={} flag={}",
+                peer.getUUID(), mine, theirs, esteem, wariness, relation.closeness(), flag);
         return true;
     }
 
@@ -250,7 +282,7 @@ public final class BadgeSocial {
         clock = level.getGameTime();
         String why = BadgeArcs.check(level, arc, o, s, viewer, null);
         if (why != null) return why;
-        var scene = BadgeArcs.start(level, arc, arc == Arc.BOAST ? "boast" : arc == Arc.PITY ? "pity" : arc == Arc.ELDER_WARN ? "warn" : "", o, s, viewer, null);
+        var scene = BadgeArcs.start(level, arc, arc == Arc.PITY ? "pity" : arc == Arc.ELDER_WARN ? "warn" : "", o, s, viewer, null);
         if (scene == null) return "start_refused";
         o.pet().badgeLedger().ensure(s.getUUID(), visibleRank(s).id(), clock);
         o.pet().badgeLedger().arc(s.getUUID(), arc.id, clock);

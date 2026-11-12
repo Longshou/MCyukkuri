@@ -13,11 +13,13 @@ import io.github.longshou.mcyukkuri.event.WildEvents;
 import io.github.longshou.mcyukkuri.family.FamilyFeedingContact;
 import io.github.longshou.mcyukkuri.family.FamilyLife;
 import io.github.longshou.mcyukkuri.interaction.ItemContact;
+import io.github.longshou.mcyukkuri.human.HumanNpc;
 import io.github.longshou.mcyukkuri.motor.MouthOccupancy;
 import io.github.longshou.mcyukkuri.motor.MouthOccupancy.Purpose;
 import io.github.longshou.mcyukkuri.pet.PetConversation;
 import io.github.longshou.mcyukkuri.pet.exam.ExamSession;
 import io.github.longshou.mcyukkuri.social.EcologyPresentation;
+import io.github.longshou.mcyukkuri.social.SocialDisposition;
 import io.github.longshou.mcyukkuri.pet.social.BadgeSocial;
 import io.github.longshou.mcyukkuri.registry.ModItems;
 import io.github.longshou.mcyukkuri.social.YukkuriPersonality.Trait;
@@ -247,7 +249,7 @@ final class LifeMeal {
             o.entity().getNavigation().stop();
             if (mealHold > 0 && mealTicks >= 8 && mealTicks < 40) mealHold--; else mealTicks++; // a begging peer made the bite wait (pet/social/BadgeArcs)
             // A hungry wild onlooker may beg for this very bite while it is still in the mouth (badge-holders only; pet/social).
-            if ((mealTicks == 3 || mealTicks == 12) && mealHold == 0 && !sharedMeal && !preparedMeal
+            if (mealTicks == 3 && mealHold == 0 && !sharedMeal && !preparedMeal
                     && !mouth.isEmpty() && !Consumables.oral(mouth)) BadgeSocial.mealSeen(o.entity());
             if (mealTicks == 6 && mealHold == 0 && !sharedMeal && o.nutrition() >= 35) tryShare();
             if (mealTicks == 45 && !mouthBodyFood().isEmpty()) {
@@ -292,7 +294,17 @@ final class LifeMeal {
                 GameplayLog.event(o.entity(),"meal","swallowed item={} count={} nutrition={} -> {} feeder={} prepared={} shared={}",
                         swallowed.getItem(),swallowed.getCount(),nutritionBefore,o.nutrition(),feeder,preparedMeal,sharedMeal);
                 o.entity().childhood().firstMealSwallowed();
-                sated(nutritionBefore,!spicy&&toxic==0&&!grass&&!waste);
+                boolean pleasant = !spicy && toxic == 0 && !grass && !waste;
+                var eater = o.entity();
+                UUID bondTarget = feeder;
+                var bond = o.personality().relation(bondTarget);
+                double esteem = SocialDisposition.selfEsteem(eater);
+                double wariness = SocialDisposition.wariness(eater, bond);
+                boolean ordinaryAdult = eater.family().adult() && !preparedMeal && !filling && !scrap && !sweet;
+                boolean guarded = ordinaryAdult && pleasant && wariness >= .4;
+                boolean defiant = ordinaryAdult && pleasant && feeder != null && !guarded
+                        && SocialDisposition.insistence(o.personality(), esteem, wariness, bond) >= .52;
+                sated(nutritionBefore, pleasant, guarded, defiant);
                 if(spicy)o.entity().body().poisoned(Toxins.SPICY_DOSE);
                 else if(toxic>0)o.entity().body().poisoned(toxic);
                 if(waste)o.changeHygiene(-PIT_MEAL_DIRT);
@@ -300,11 +312,19 @@ final class LifeMeal {
                         true); WildEvents.fed(o.entity(),feeder); String treat = Sweets.eaten(o.entity(), swallowed, feeder);
                 o.entity().pet().lessons().swallowed(feeder, swallowed);
                 if (feeder != null) ExamSession.fed(o.entity(), feeder);
+                boolean answered = eater.pet().care().requests().swallowed(feeder, pleasant && !sweet);
+                boolean grateful = ordinaryAdult && feeder != null && bond.closeness() >= 10 && !guarded && !defiant;
+                String fedLine = answered ? "request_thanks" : grateful
+                        ? (o.level().getEntity(bondTarget) instanceof HumanNpc ? "badge_thanks" : "request_thanks") : "fed";
                 o.entity().mind().ate(swallowed, treat != null); feeder = null;
                 if (bowlMeal) { o.entity().pet().routineCompleted(0); bowlMeal = false; }
                 // A melting meal keeps the swallow face only to the end of the swallow (tick 53 starts the melt), so it cannot cover the after-meal clip.
-                o.entity().gameEvent(GameEvent.EAT); if(!o.entity().body().sick()||!(spicy||toxic>0))o.entity().showReaction(spicy||toxic>0?"surprise":grass||waste?"teary":"happy",
-                        spicy||toxic>0?"hurt":grass||waste?"bitter":treat!=null?treat:"fed", content ? 8 : 100);
+                eater.gameEvent(GameEvent.EAT);
+                if (!eater.body().sick() || !(spicy || toxic > 0)) eater.showReaction(
+                        spicy || toxic > 0 ? "surprise" : grass || waste || guarded ? "teary"
+                                : defiant ? "smug" : grateful ? "closed_smile" : "happy",
+                        spicy || toxic > 0 ? "hurt" : grass || waste ? "bitter" : treat != null ? treat
+                                : guarded || defiant ? "" : fedLine, content ? 8 : 100);
                 if(!spicy&&toxic==0&&!grass&&!waste)o.level().sendParticles(ParticleTypes.HEART, o.entity().getX(), o.entity().getY()+o.entity().getBbHeight(), o.entity().getZ(), 3, .1, .05, .1, 0);
                 }
             }
@@ -331,13 +351,14 @@ final class LifeMeal {
      * The bite that takes it past {@link #FULL}: it melts in place a moment (しあわせー, project design), unless the food was unpleasant,
      * it rides a host, it is a composed adult (self-control 90 and above), or it melted not long ago (a young one sooner again).
      */
-    private void sated(float before, boolean pleasant) {
+    private void sated(float before, boolean pleasant, boolean guarded, boolean defiant) {
         if (before > FULL || o.nutrition() <= FULL) return;
         var e = o.entity();
         long now = o.level().getGameTime();
         boolean young = !e.family().adult();
         int composure = o.personality().selfControl();
-        String reason = !pleasant ? "unpleasant" : e.isPassenger() ? "aboard" : !young && composure >= 90 ? "composed" : now < contentAfter ? "recent" : null;
+        String reason = !pleasant ? "unpleasant" : guarded ? "guarded" : e.isPassenger() ? "aboard"
+                : !young && composure >= 90 ? "composed" : now < contentAfter ? "recent" : null;
         content = reason == null;
         meltFace = null; meltTail = null; finishFace = null;
         if (content) {
@@ -349,9 +370,10 @@ final class LifeMeal {
             else if (before < 25) { meltFace = "teary_smile"; meltTail = "satisfied"; }
             else if (young) { meltFace = "drool"; meltTail = "open_smile"; }
             else if (composure < 40) { meltFace = "open_drool"; meltTail = "open_smile"; }
-            else if (o.personality().boldness() >= 70 && o.personality().friendliness() < 40) { meltFace = "smug"; meltTail = "closed_smile"; }
+            else if (defiant) { meltFace = "smug"; meltTail = "closed_smile"; }
             else { meltFace = "satisfied"; meltTail = "closed_smile"; }
-        } else if (reason.equals("composed")) finishFace = "closed_smile";
+        } else if (guarded) finishFace = "teary";
+        else if (reason.equals("composed")) finishFace = "closed_smile";
         GameplayLog.event(e, "meal", "full nutrition={} -> {} content={} reason={} selfControl={} face={}", before, o.nutrition(), content,
                 reason == null ? "melt" : reason, composure, meltFace != null ? meltFace : finishFace != null ? finishFace : "-");
     }
@@ -367,7 +389,7 @@ final class LifeMeal {
         o.addBladder(gain * .5f);
         GameplayLog.event(o.entity(),"meal","swallowed bodyFood portions={} odor={} nutrition={} -> {}",swallowed.portions(),swallowed.odor(),nutritionBefore,o.nutrition());
         o.entity().childhood().firstMealSwallowed();
-        sated(nutritionBefore, swallowed.odor() < 40);
+        sated(nutritionBefore, swallowed.odor() < 40, false, false);
         if (swallowed.odor() >= 40) o.entity().body().contaminated();
         o.personality().fed(null);
         o.entity().pet().contact(null, true);

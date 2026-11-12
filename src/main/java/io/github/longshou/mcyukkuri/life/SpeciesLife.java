@@ -22,7 +22,6 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.item.ItemEntity;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.resources.ResourceLocation;
 
 /**
@@ -209,18 +208,10 @@ public final class SpeciesLife {
             if (entity.distanceToSqr(npc) < bestD) { best = npc; bestD = entity.distanceToSqr(npc); }
         }
         if (best == null || !fresh(best.getUUID())) return;
-        var personality = entity.life().personality();
-        SpeechAddress.HumanRelation relation;
-        if (best instanceof Player player) {
-            relation = HumanCommerce.ownedBy(entity, player.getUUID()) ? SpeechAddress.HumanRelation.OWNER
-                    : personality.fear(player.getUUID()) >= BondLevels.AFFECTION_FEAR_LIMIT || personality.trust(player.getUUID()) < BondLevels.TRUST_AT_MINUS_5 ? SpeechAddress.HumanRelation.HOSTILE
-                    : personality.trust(player.getUUID()) >= BondLevels.TRUST_FAMILIAR ? SpeechAddress.HumanRelation.FRIEND : SpeechAddress.HumanRelation.STRANGER;
-        } else {
-            var npc = (HumanNpc) best;
-            relation = HumanCommerce.ownedBy(entity, npc.getUUID()) ? SpeechAddress.HumanRelation.OWNER
-                    : npc.attitude() == HumanNpc.Attitude.CRUEL ? SpeechAddress.HumanRelation.HOSTILE
-                    : npc.attitude() == HumanNpc.Attitude.CARING ? SpeechAddress.HumanRelation.FRIEND : SpeechAddress.HumanRelation.STRANGER;
-        }
+        var bond = entity.life().personality().relation(best.getUUID());
+        SpeechAddress.HumanRelation relation = HumanCommerce.ownedBy(entity, best.getUUID()) ? SpeechAddress.HumanRelation.OWNER
+                : bond.fear() >= BondLevels.AFFECTION_FEAR_LIMIT || bond.closeness() < BondLevels.TRUST_AT_MINUS_5 ? SpeechAddress.HumanRelation.HOSTILE
+                : bond.closeness() >= BondLevels.TRUST_FAMILIAR ? SpeechAddress.HumanRelation.FRIEND : SpeechAddress.HumanRelation.STRANGER;
         // The game keeps no sex or age for humans: derive both from the identity so a person is always called the same thing.
         int h = best.getUUID().hashCode();
         if (entity.speak(SpeechAddress.human(relation, (h & 1) == 0, ((h >> 1) & 3) == 0))) addressed(best.getUUID());

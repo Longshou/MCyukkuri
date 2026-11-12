@@ -15,6 +15,7 @@ import io.github.longshou.mcyukkuri.item.AccessoryItem;
 import io.github.longshou.mcyukkuri.life.Facilities;
 import io.github.longshou.mcyukkuri.life.EcologyMovement;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
+import io.github.longshou.mcyukkuri.pet.social.BadgeSocial;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.mind.EmotionEvent;
 import io.github.longshou.mcyukkuri.motor.ClipMarkers;
@@ -482,8 +483,14 @@ public final class YukkuriSocial implements MotorOwner {
             if (task == Task.PEER && target instanceof YukkuriEntity peer) {
                 if (entity.life().canRecognize(peer)) {
                     YukkuriWorldData relations = YukkuriWorldData.get((ServerLevel)entity.level());
-                    if (relations.affinity(entity.getUUID(),peer.getUUID()) < BondLevels.AFFINITY_NEUTRAL) {
-                        entity.mind().felt(EmotionEvent.REJECTED); entity.showReaction("angry","unrecognized",60);stop();return;
+                    var bond = relations.relation(entity.getUUID(), peer.getUUID());
+                    double wariness = SocialDisposition.wariness(entity, bond);
+                    if (wariness >= .5 || bond.closeness() < BondLevels.AFFINITY_NEUTRAL) {
+                        var p = personality();
+                        boolean defiant = SocialDisposition.insistence(p, SocialDisposition.selfEsteem(entity), wariness, bond) >= .2;
+                        entity.mind().felt(EmotionEvent.REJECTED);
+                        entity.showReaction(wariness >= .5 ? "teary" : defiant ? "angry" : "neutral", "", 60);
+                        stop(); return;
                     }
                     String why = greetReason(peer, relations);
                     if (why != null && Recognition.unrecognizedHatless(peer, entity)) peer.social().receiveGreeting(entity, true, why);
@@ -494,8 +501,8 @@ public final class YukkuriSocial implements MotorOwner {
                         if (peer.life().canRecognize(entity) && relations.affinity(peer.getUUID(), entity.getUUID()) >= BondLevels.AFFINITY_NEUTRAL)
                             relations.relate(peer.getUUID(), entity.getUUID(), 1);
                     }
-                    else if (!entity.pet().reactTo(peer)) {
-                        entity.showReaction("happy", relations.affinity(entity.getUUID(), peer.getUUID()) >= BondLevels.AFFINITY_CLOSE ? "known_peer" : "peer", 80);
+                    else if (!BadgeSocial.greeting(entity, peer)) {
+                        entity.showReaction(peerGreetingFace(peer), bond.closeness() >= BondLevels.AFFINITY_CLOSE ? "known_peer" : "peer", 80);
                         relations.relate(entity.getUUID(), peer.getUUID(), 2);
                         // A greeting is met by the other party: otherwise bonds only grow one way and mutual affinity for nuzzling stalls.
                         if (peer.life().canRecognize(entity) && relations.affinity(peer.getUUID(), entity.getUUID()) >= BondLevels.AFFINITY_NEUTRAL)
@@ -697,13 +704,23 @@ public final class YukkuriSocial implements MotorOwner {
     }
     public void startGreeting(YukkuriEntity peer, String why) {
         greetingBody("greet");
-        entity.showReaction("happy", "hello", 80);
+        entity.showReaction(peerGreetingFace(peer), "hello", 80);
         logGreet(peer, why);
+    }
+    private String peerGreetingFace(YukkuriEntity peer) {
+        var p = personality();
+        var bond = p.relation(peer.getUUID());
+        double wary = SocialDisposition.wariness(entity, bond);
+        if (wary >= .4) return "teary";
+        double esteem = SocialDisposition.selfEsteem(entity);
+        if (SocialDisposition.insistence(p, esteem, wary, bond) >= .52) return "smug";
+        return SocialDisposition.confidence(esteem) >= .55 || bond.closeness() >= BondLevels.AFFINITY_CLOSE
+                || Bonds.careKin(entity, peer) ? "happy" : "closed_smile";
     }
     public void answerGreeting(YukkuriEntity peer, String clip, String why) {
         greetingBody(clip);
         entity.getLookControl().setLookAt(peer, 30, 30);
-        entity.showReaction("happy", "hello", 80);
+        entity.showReaction(peerGreetingFace(peer), "hello", 80);
         noteContact(peer);
         GameplayLog.limited(entity, "social", "answer." + peer.getUUID(), 200,
                 "greet answer from={} to={} why={} answer={}", entity.getUUID(), peer.getUUID(), why, clip);
@@ -789,10 +806,10 @@ public final class YukkuriSocial implements MotorOwner {
     }
     private void choosePeerApproach(Entity other) {
         protectContact(other);
-        var fear = personality().fearBand(other.getUUID());
-        int trust = personality().trust(other.getUUID());
-        cautious = trust > 0 && fear != YukkuriPersonality.FearBand.NORMAL;
-        retreat = trust <= 0 && fear == YukkuriPersonality.FearBand.AFRAID;
+        var bond = personality().relation(other.getUUID());
+        double wariness = SocialDisposition.wariness(entity, bond);
+        cautious = bond.closeness() > 0 && wariness >= .4;
+        retreat = bond.closeness() <= 0 && wariness >= .62;
         observedDistance = entity.distanceTo(other);
     }
     private boolean visitor(Entity other) {

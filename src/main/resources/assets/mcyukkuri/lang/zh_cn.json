@@ -958,7 +958,7 @@
   "commands.mcyukkuri.badgearc.reset": "已清空徽章社交的预算与目击记录。",
   "commands.mcyukkuri.badgearc.not_yukkuri": "目标必须是油库里。",
   "commands.mcyukkuri.badgearc.ledger": "%s 记得 %s 个戴徽章的个体：",
-  "commands.mcyukkuri.badgearc.entry": "%s：见过 %s 次，等级 %s，印象 %s，标记 %s，最近：%s",
+  "commands.mcyukkuri.badgearc.entry": "%s：见过 %s 次，等级 %s，标记 %s，最近：%s",
   "commands.mcyukkuri.badgearc.unknown": "未知的情景 %s。可用：%s",
   "commands.mcyukkuri.badgearc.failed": "无法开始 %s：%s",
   "commands.mcyukkuri.badgearc.started": "已开始情景 %s：%s → %s",

@@ -112,7 +112,7 @@ public final class YukkuriConfig {
         COLLAPSE_ONE_IN = builder.comment("A crowded natural burrow soaked by long rain collapses with chance 1/N per 100-tick check.").defineInRange("burrowCollapseOneIn", 200, 1, 100000);
         BIOME_EXPEDITION_ONE_IN = builder.comment("A Marisa captain's expedition seeks a different biome with chance 1/N.").defineInRange("biomeExpeditionOneIn", 3, 1, 100);
         builder.pop().push("badge_social");
-        BADGE_SOCIAL = builder.comment("Badge social reactions: edge-triggered sightings, a per-individual memory and a visible-reaction budget. false falls back to the throttled legacy reactions.")
+        BADGE_SOCIAL = builder.comment("Enable badge sightings and social reactions with their shared visible-reaction budget.")
                 .define("enabled",
                 true);
         BADGE_REFILL_TICKS = builder.comment("Loaded ticks for one budget token to refill around a player (a one-liner costs 1, a multi-beat arc 2).").defineInRange("budgetRefillTicks",

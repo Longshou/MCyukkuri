@@ -5,7 +5,7 @@ import io.github.longshou.mcyukkuri.coordination.DeadlineMap;
 import io.github.longshou.mcyukkuri.entity.YukkuriAction;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.shop.ShopPerformance;
-import io.github.longshou.mcyukkuri.social.YukkuriPersonality.Trait;
+import io.github.longshou.mcyukkuri.social.SocialDisposition;
 import java.util.*;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
@@ -58,7 +58,9 @@ public final class PetScenes {
     /** The owner pins the badge on: bold ones swagger, the rest hop or bow. */
     public static void pinned(YukkuriEntity y, Player owner) {
         if (!y.pet().calm() || !ready(y, "pin", 100)) return;
-        if (y.life().personality().trait(Trait.BOLDNESS) >= Temperament.BOLDNESS_AT_55) act(y, "proud", "smug", "badge_pinned", 70, owner);
+        var bond = y.life().personality().relation(owner.getUUID());
+        double confidence = SocialDisposition.confidence(SocialDisposition.selfEsteem(y));
+        if (confidence * (1 - SocialDisposition.wariness(y, bond)) >= .55) act(y, "proud", "smug", "badge_pinned", 70, owner);
         else act(y, y.getRandom().nextBoolean() ? "joy_jump" : "bow", "happy", "badge_pinned", 70, owner);
     }
     /** The owner takes the badge off. */

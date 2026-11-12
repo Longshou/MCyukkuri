@@ -1388,12 +1388,12 @@ add('wild', 'town', '饿野油来讨宠物的苹果', '饿野油来讨宠物的�
     f'yukkuri scenario badge {sel("pet")} silver false', item('minecraft:apple', 1, 1, 0),
     yk('marisa', 4, 0, 'wild', nutrition=32, yaw=90, boldness=25)], env=DAY, vantage=(1, 9))
 
-add('badge', 'town', '银章灵梦遇到嫉妒的野油', '银章灵梦遇到嫉妒的野油', '野生魔理沙看见灵梦佩戴的银章，鼓脸或闹别扭。看灵梦是友善回礼，还是得意地展示徽章。', '约 1 分钟', [
+add('badge', 'town', '铂金章灵梦遇到嫉妒的野油', '铂金章灵梦遇到嫉妒的野油', '野生魔理沙看见灵梦佩戴的铂金章，鼓脸或闹别扭。看灵梦按自尊与关系友善回礼、得意展示或退缩。', '约 1 分钟', [
     *(block(x, 0, z, 'minecraft:oak_fence') for x in range(-1, 4) for z in range(-2, 3)
       if x in (-1, 3) or abs(z) == 2),
     yk('reimu', 0, 0, 'pet', yaw=-90, lead=True, friendliness=53, boldness=35), *own('pet'),
     yk('marisa', 1.5, 0, 'wild', yaw=90, nutrition=84, boldness=68, friendliness=0, attachment=0, self_control=38),
-    f'yukkuri scenario badge {sel("pet")} silver false'], env=DAY, vantage=(1, 8))
+    f'yukkuri scenario badge {sel("pet")} platinum false'], env=DAY, vantage=(1, 8))
 
 _practice_home = []
 for _x, _kind, _name, _skill in ((-7, 'reimu', 'practised', 76), (7, 'marisa', 'novice', 0)):
@@ -2317,7 +2317,7 @@ for _i, (_x, _z, _label, _stage, _friend, _bold) in enumerate((
         yk('marisa', _x+3, _z, f'puff_source{_i}', label='凶悍失饰制裁者', yaw=90,
            intelligence=30, friendliness=0, boldness=95, self_control=0, **pair_ready())]
 add('puff_response', 'headwear', '被噗咕：逃、无视、回嘴或反击', '被噗咕：逃、无视、回嘴或反击',
-    '四组真实失饰初态，由凶悍者自行识别并发起制裁宣告。对照小体型胆小、友善、普通与凶悍大胆目标的逃跑／无视／噗咕回应／激怒攻击；自然升级有概率，不直接指定行为。受伤、恐惧及当时任务会改变决定；日志 social puff 记录当前体型比、友善、胆量、任务重要程度和选择',
+    '四组真实失饰初态，由凶悍者自行识别并发起制裁宣告。对照小体型胆小、友善、普通与凶悍大胆目标的逃跑／无视／噗咕回应／激怒攻击；自然升级有概率，不直接指定行为。日志记录当前自尊、防备、强硬程度、战力和选择',
     '约1–3分钟；读实际制裁与反应，不将未发生宣告算作无视', _puff_pairs,
     env=DAY, vantage=(0, 22), reads=[(f'读回应{i+1}',f'yukkuri status {sel(f"puff_target{i}")} raw') for i in range(4)])
 
@@ -4262,8 +4262,11 @@ _smoke('wild', 600, [r'\[status\] reimu [^\n]* identity observed kind=pet\b',
                     r'\[status\] marisa [^\n]* identity observed kind=wild_family\b',
                     r'\[wild-event\][^\n]*event=ended [^\n]*card=beg_bite [^\n]*detail=(?:shared|refused)\b'],
     readout=[f'yukkuri status {sel(kind)} raw' for kind in ('pet', 'wild')])
-_smoke('badge', 1200, [r'\[wild-event\][^\n]*event=ended [^\n]*card=envy [^\n]*detail=envy_\w+'],
+_smoke('badge', 1200, [r'\[badge\] marisa [^\n]*badge sight [^\n]*grade=4\b',
+                     r'\[wild-event\][^\n]*event=ended [^\n]*card=envy [^\n]*detail=envy_\w+'],
     readout=[f'yukkuri status {sel(kind)} raw' for kind in ('pet', 'wild')])
+_smoke('puff_response', 650, [r'\[social\][^\n]*puff response=(?:flee|ignore|puff_back|attack) [^\n]*esteem=[^\n]*wariness=[^\n]*insistence=[^\n]*combat='],
+    readout=[f'yukkuri status {sel(f"puff_target{i}")} raw' for i in range(4)])
 _smoke('training_home', 2100, [
     r'\[lesson\][^\n]*skill practice skill=FOOD_BOWL source=daily xp=76 -> 78',
     r'\[needs\][^\n]*relieved source=facility',

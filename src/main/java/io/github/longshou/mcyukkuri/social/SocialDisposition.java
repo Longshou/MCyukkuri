@@ -38,16 +38,24 @@ public final class SocialDisposition {
         // ServerPlayer supplies its accepted packet movement here. Our own approach does not count as a rush.
         double closing = 20 * person.getKnownMovement().dot(toward);
         double rush = .85 * ramp(closing, .75, 3.5) * (1 - ramp(entity.distanceTo(person), 1.5, 6));
-        return Math.max(Math.max(stranger, rush), Math.max(ramp(relation.fear(), 15, 60),
-                Math.max(.70 * ramp(entity.mind().unease(), 35, 80), .45 * (1 - ramp(entity.body().healthRatio(), .30, .65)))));
+        return Math.max(Math.max(stranger, rush), wariness(entity, relation));
+    }
+
+    public static double wariness(YukkuriEntity entity, Relation relation) {
+        return Math.max(ramp(relation.fear(), 15, 60), Math.max(.70 * ramp(entity.mind().unease(), 35, 80),
+                .45 * (1 - ramp(entity.body().healthRatio(), .30, .65))));
+    }
+
+    public static double confidence(double esteem) { return ramp(esteem, 44, 56); }
+
+    public static double insistence(YukkuriPersonality personality, double esteem, double wariness, Relation relation) {
+        double restraint = Math.min(1 - ramp(personality.friendliness(), 35, 62), 1 - ramp(personality.selfControl(), 35, 62));
+        return Math.min(confidence(esteem), Math.min(restraint, ramp(personality.boldness(), 35, 72)))
+                * (1 - .50 * wariness) * (1 - ramp(relation.closeness(), 0, 20));
     }
 
     static double demandProbability(YukkuriPersonality personality, double esteem, double wariness, Relation relation) {
-        double confidence = ramp(esteem, 44, 56);
-        double restraint = Math.min(1 - ramp(personality.friendliness(), 35, 62), 1 - ramp(personality.selfControl(), 35, 62));
-        double insistence = Math.min(confidence, Math.min(restraint, ramp(personality.boldness(), 35, 72)))
-                * (1 - .50 * wariness) * (1 - ramp(relation.closeness(), 0, 20));
-        return ramp(insistence, .20, .52);
+        return ramp(insistence(personality, esteem, wariness, relation), .20, .52);
     }
 
     public static double ramp(double value, double low, double high) {

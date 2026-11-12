@@ -931,7 +931,7 @@
   "commands.mcyukkuri.badgearc.reset": "バッジ交流の予算と目撃記録を消した。",
   "commands.mcyukkuri.badgearc.not_yukkuri": "対象はゆっくりでなければならない。",
   "commands.mcyukkuri.badgearc.ledger": "%s は %s 匹のバッジ持ちを覚えている：",
-  "commands.mcyukkuri.badgearc.entry": "%s：目撃%s回、等級%s、印象%s、フラグ%s、直近：%s",
+  "commands.mcyukkuri.badgearc.entry": "%s：目撃%s回、等級%s、フラグ%s、直近：%s",
   "commands.mcyukkuri.badgearc.unknown": "不明な場面 %s。使えるもの：%s",
   "commands.mcyukkuri.badgearc.failed": "%s を始められない：%s",
   "commands.mcyukkuri.badgearc.started": "場面 %s を開始：%s → %s",

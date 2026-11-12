@@ -54,7 +54,7 @@ public final class BadgeSocialCommands {
         source.sendSuccess(() -> Component.translatable("commands.mcyukkuri.badgearc.ledger", who.getDisplayName(), entries.size()), false);
         for (var e : entries) {
             String subject = source.getLevel().getEntity(e.subject) instanceof YukkuriEntity y ? y.getDisplayName().getString() : e.subject.toString();
-            source.sendSuccess(() -> Component.translatable("commands.mcyukkuri.badgearc.entry", subject, e.seenCount(), e.lastGrade(), e.impression(), e.flags(),
+            source.sendSuccess(() -> Component.translatable("commands.mcyukkuri.badgearc.entry", subject, e.seenCount(), e.lastGrade(), e.flags(),
                     e.lastArc().isEmpty() ? "-" : e.lastArc()), false);
         }
         return entries.size();

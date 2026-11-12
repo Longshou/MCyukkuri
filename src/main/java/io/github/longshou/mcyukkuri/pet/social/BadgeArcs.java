@@ -8,7 +8,8 @@ import io.github.longshou.mcyukkuri.item.AccessoryItem;
 
 import io.github.longshou.mcyukkuri.mind.EmotionEvent;
 
-import io.github.longshou.mcyukkuri.social.Temperament;
+import io.github.longshou.mcyukkuri.social.SocialDisposition;
+import io.github.longshou.mcyukkuri.social.Bonds;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.function.BooleanSupplier;
@@ -95,6 +96,7 @@ public final class BadgeArcs {
         switch (arc) {
             case BEG_BITE -> {
                 if (!o.status().identity().free()) return "observer_owned";
+                if (!s.pet().isPet() || grade(s) == 0) return "subject_has_no_badge";
                 if (!eating(s)) return "subject_not_eating";
                 if (!o.life().canEat() || o.life().nutrition() >= 75) return "observer_not_hungry";
             }
@@ -104,6 +106,7 @@ public final class BadgeArcs {
                 if (player == null || !WildEvents.playerNear(o, player)) return "no_player_near";
             }
             case BOAST -> { if (!o.pet().isPet() || grade(o) <= grade(s)) return "no_higher_badge"; }
+            case PROVOKE -> { if (!o.status().identity().free() || grade(s) == 0) return "no_visible_badge_or_wild_observer"; }
             case HOME_CLAIM -> {
                 if (s.life().home() == null || s.life().naturalHome()) return "subject_has_no_home";
                 if (!o.status().identity().free()) return "observer_owned";
@@ -165,28 +168,40 @@ public final class BadgeArcs {
     private static void look(YukkuriEntity e, Entity at) { if (at != null) e.getLookControl().setLookAt(at, 30, 30); }
     private static int grade(YukkuriEntity e) { return BadgeSocial.visibleRank(e).id(); }
     private static void like(ServerLevel level, YukkuriEntity a, YukkuriEntity b, int delta) { BadgeSocial.nudge(YukkuriWorldData.get(level), a.getUUID(), b.getUUID(), delta); }
-    /** Holder remembers the subject: flags and impression, creating the entry when the holder never sighted it. */
-    private static void note(YukkuriEntity holder, YukkuriEntity subject, int flags, int impression, long now) {
+    /** Holder remembers the subject and the actual event. */
+    private static void note(YukkuriEntity holder, YukkuriEntity subject, int flags, long now) {
         var ledger = holder.pet().badgeLedger();
         ledger.ensure(subject.getUUID(), grade(subject), now);
         if (flags != 0) ledger.flag(subject.getUUID(), flags, now);
-        if (impression != 0) ledger.impress(subject.getUUID(), impression, now);
     }
 
-    /** How the badge-holder answers a stranger's interest, by its own nature. */
-    private static String attitude(YukkuriEntity sub) {
-        var p = sub.life().personality();
-        if (sub.pet().recentBadgeSuccess() && p.boldness() >= 55 && p.friendliness() <= 65) return "proud";
-        if (p.friendliness() >= 55) return "kind";
-        if (p.boldness() >= Temperament.BOLDNESS_AT_55 && p.friendliness() <= 50) return "proud";
-        return "cold";
-    }
-    private static void answer(String attitude, YukkuriEntity sub, YukkuriEntity to) {
-        switch (attitude) {
-            case "kind" -> PetScenes.act(sub, "greet", "happy", "badge_show_kind", 60, to);
-            case "proud" -> PetScenes.act(sub, "proud", "smug", "badge_proud", 70, to);
-            default -> PetScenes.act(sub, "ignore", "closed_smile", null, 50, to);
+    private static String answerInterest(YukkuriEntity holder, YukkuriEntity peer, boolean envy) {
+        var p = holder.life().personality();
+        var bond = p.relation(peer.getUUID());
+        double esteem = SocialDisposition.selfEsteem(holder);
+        double wariness = SocialDisposition.wariness(holder, bond);
+        double confidence = SocialDisposition.confidence(esteem);
+        boolean kind = Bonds.careKin(holder, peer) || SocialDisposition.ramp(p.friendliness(), 40, 65)
+                + SocialDisposition.ramp(bond.closeness(), 0, 20) >= .6;
+        String reply;
+        if (wariness >= .5 || envy && confidence < .4 && !kind) {
+            holder.mind().felt(EmotionEvent.FRIGHTENED);
+            PetScenes.act(holder, "tremble", "cry", "afraid", 60, peer);
+            Staging.sweat(holder);
+            reply = "scared";
+        } else if (kind) {
+            PetScenes.act(holder, envy ? "bow" : "greet", "happy", "badge_show_kind", 60, peer);
+            reply = envy ? "comforted" : "kind";
+        } else if (confidence * (1 - wariness) >= .55) {
+            PetScenes.act(holder, "proud", "smug", "badge_proud", 70, peer);
+            reply = "proud";
+        } else {
+            PetScenes.act(holder, "ignore", "closed_smile", null, 50, peer);
+            reply = "cold";
         }
+        GameplayLog.event(holder, "badge", "badge answer subject={} reply={} esteem={} wariness={} closeness={}",
+                peer.getUUID(), reply, esteem, wariness, bond.closeness());
+        return reply;
     }
 
     /** At most one actionbar line per owner per five minutes, and only for arcs that really involve their pet. */
@@ -240,7 +255,7 @@ public final class BadgeArcs {
                 if (t >= 55) next(s);
             }
             case 3 -> {
-                if (t == 1) { s.result = attitude(sub); answer(s.result, sub, o); }
+                if (t == 1) s.result = answerInterest(sub, o, false);
                 if (t >= 70) { quiet(sub); quiet(o); next(s); }
             }
             case 4 -> {
@@ -259,7 +274,9 @@ public final class BadgeArcs {
             case 0 -> {
                 if (t == 1) {
                     var p = o.life().personality();
-                    boolean snark = p.friendliness() <= 35 || p.selfControl() <= Temperament.SELF_CONTROL_AT_35;
+                    var bond = p.relation(sub.getUUID());
+                    boolean snark = SocialDisposition.insistence(p, SocialDisposition.selfEsteem(o),
+                            SocialDisposition.wariness(o, bond), bond) >= .2;
                     s.result = snark ? "snark" : "sulk";
                     sub.showReaction("surprise", "", 50);
                     if (snark) { PetScenes.act(o, "puff", "angry", "badge_envy_snark", 70, sub); Staging.anger(level, o.position().add(0, o.getBbHeight(), 0)); }
@@ -269,15 +286,7 @@ public final class BadgeArcs {
             }
             case 1 -> {
                 if (t == 1) {
-                    String a = attitude(sub);
-                    boolean timid = sub.life().personality().boldness() < Temperament.BOLDNESS_AT_40;
-                    String stance;
-                    if (a.equals("kind")) { PetScenes.act(sub, "bow", "happy", "badge_show_kind", 60, o); stance = "comforted"; }
-                    else if (a.equals("proud") && !timid) { PetScenes.act(sub, "proud", "smug", "badge_proud", 70, o); stance = "proud"; }
-                    else if (timid) { if (sub.level() instanceof ServerLevel && sub.isAlive()) sub.mind().felt(EmotionEvent.FRIGHTENED); PetScenes.act(sub,
-                            "tremble", "cry", "afraid", 60, o); Staging.sweat(sub); stance = "scared"; }
-                    else { PetScenes.act(sub, "ignore", "closed_smile", null, 50, o); stance = "cold"; }
-                    s.result = s.result + "|" + stance; // variant|stance
+                    s.result += "|" + answerInterest(sub, o, true);
                 }
                 if (t >= 70) { quiet(sub); next(s); }
             }
@@ -288,19 +297,31 @@ public final class BadgeArcs {
     /** B3: a badged pet shows off (or, if kind, humbly shares) its badge with someone of lower standing. */
     private static void boast(ServerLevel level, Scene s, YukkuriEntity o, YukkuriEntity sub) {
         int t = since(s);
-        boolean boastful = s.result.startsWith("boast");
         switch (s.responses) {
             case 0 -> { if (o.distanceToSqr(sub) <= 16) next(s); else if (t >= 120) end(level, s, Phase.INTERRUPTED, "boast_unreached"); }
             case 1 -> {
-                if (t == 1) { quiet(o); if (boastful) PetScenes.act(o, "proud", "smug", "badge_proud", 70, sub); else PetScenes.act(o, "greet", "closed_smile", "badge_humble", 70, sub); }
+                if (t == 1) {
+                    quiet(o);
+                    var p = o.life().personality();
+                    var bond = p.relation(sub.getUUID());
+                    double esteem = SocialDisposition.selfEsteem(o);
+                    double wariness = SocialDisposition.wariness(o, bond);
+                    boolean boastful = SocialDisposition.insistence(p, esteem, wariness, bond) >= .2;
+                    s.result = boastful ? "boast" : "humble";
+                    PetScenes.act(o, boastful ? "proud" : "greet", boastful ? "smug" : "closed_smile",
+                            boastful ? "badge_proud" : "badge_humble", 70, sub);
+                }
                 if (t >= 60) { quiet(o); next(s); }
             }
             default -> {
+                boolean boastful = s.result.startsWith("boast");
                 if (t == 1) {
                     var p = sub.life().personality();
+                    var bond = p.relation(o.getUUID());
+                    double wariness = SocialDisposition.wariness(sub, bond);
                     String reply;
-                    if (sub.pet().isPet() || p.friendliness() >= 45) reply = "admired";
-                    else if (boastful && p.friendliness() <= 45 && p.boldness() >= Temperament.BOLDNESS_AT_55) reply = "retorted";
+                    if (wariness < .5 && (p.friendliness() + Math.max(0, bond.closeness()) >= 45 || Bonds.careKin(sub, o))) reply = "admired";
+                    else if (boastful && SocialDisposition.insistence(p, SocialDisposition.selfEsteem(sub), wariness, bond) >= .2) reply = "retorted";
                     else reply = "ignored";
                     s.result = s.result + "|" + reply;
                     switch (reply) {
@@ -334,8 +355,9 @@ public final class BadgeArcs {
                 if (t == 1) {
                     PetScenes.act(o, "beg", "drool", null, 40, sub);
                     var world = YukkuriWorldData.get(level);
-                    int score = sub.life().personality().shareScore(sub.life().nutrition(), o.life().nutrition(), sub.family().caresFor(o), world.affinity(sub.getUUID(), o.getUUID()));
-                    s.result = score >= 50 && o.life().canEat() ? "offer" : "refuse";
+                    var bond = world.relation(sub.getUUID(), o.getUUID());
+                    int score = sub.life().personality().shareScore(sub.life().nutrition(), o.life().nutrition(), sub.family().caresFor(o), bond.closeness());
+                    s.result = score >= 50 && SocialDisposition.wariness(sub, bond) < .5 && o.life().canEat() ? "offer" : "refuse";
                     look(sub, o);
                 }
                 if (t >= 36) next(s);
@@ -375,11 +397,17 @@ public final class BadgeArcs {
             case 2 -> {
                 if (t == 1) {
                     var p = sub.life().personality();
-                    if (p.boldness() >= Temperament.BOLDNESS_AT_55
-                            && p.friendliness() <= 55) { s.result = "retort"; PetScenes.act(sub, "stand_ground", "angry", "badge_retort", 60, o); }
-                    else if (p.selfControl() >= Temperament.SELF_CONTROL_AT_50) { s.result = "ignore"; PetScenes.act(sub, "ignore", "closed_smile", null, 50, o); }
-                    else { s.result = "flee"; if (sub.level() instanceof ServerLevel
-                            && sub.isAlive()) sub.mind().felt(EmotionEvent.FRIGHTENED); PetScenes.act(sub, "tremble", "cry", "afraid", 60, o); Staging.sweat(sub); }
+                    var bond = p.relation(o.getUUID());
+                    double esteem = SocialDisposition.selfEsteem(sub);
+                    double wariness = SocialDisposition.wariness(sub, bond);
+                    if (wariness >= .5 || SocialDisposition.confidence(esteem) < .35 && p.selfControl() < 50) {
+                        s.result = "flee"; sub.mind().felt(EmotionEvent.FRIGHTENED);
+                        PetScenes.act(sub, "tremble", "cry", "afraid", 60, o); Staging.sweat(sub);
+                    } else if (SocialDisposition.insistence(p, esteem, wariness, bond) >= .2) {
+                        s.result = "retort"; PetScenes.act(sub, "stand_ground", "angry", "badge_retort", 60, o);
+                    } else {
+                        s.result = "ignore"; PetScenes.act(sub, "ignore", "closed_smile", null, 50, o);
+                    }
                 }
                 if (t >= 70) { quiet(sub); next(s); }
             }
@@ -388,7 +416,9 @@ public final class BadgeArcs {
                     quiet(sub);
                     switch (s.result) {
                         case "retort" -> {
-                            boolean backs = o.life().personality().boldness() < Temperament.BOLDNESS_AT_65 || sub.getBbWidth() > o.getBbWidth();
+                            var bond = o.life().personality().relation(sub.getUUID());
+                            boolean backs = SocialDisposition.confidence(SocialDisposition.selfEsteem(o))
+                                    * (1 - SocialDisposition.wariness(o, bond)) < .55 || sub.getBbWidth() > o.getBbWidth();
                             s.result = backs ? "retort_backed" : "retort_standoff";
                             if (backs) PetScenes.act(o, "droop", "teary", null, 50, sub); else PetScenes.act(o, "stand_ground", "angry", null, 40, sub);
                         }
@@ -681,49 +711,49 @@ public final class BadgeArcs {
         if (phase == Phase.INTERRUPTED || o == null || sub == null) return;
         if (result.equals("player_declined") && arc != Arc.PLEA) return;
         long now = level.getGameTime();
-        note(o, sub, 0, 0, now); note(sub, o, 0, 0, now);
+        note(o, sub, 0, now); note(sub, o, 0, now);
         o.pet().badgeLedger().arc(sub.getUUID(), arc.id, now); sub.pet().badgeLedger().arc(o.getUUID(), arc.id, now);
         var owner = BadgeSocial.ownerWithin(level, sub, 24);
         UUID human = sub.pet().owner() != null ? sub.pet().owner() : sub.getUUID();
         switch (arc) {
             case GLANCE -> {
-                if (result.contains("kind")) { note(o, sub, BadgeLedger.ADMIRED, 1, now); note(sub, o, 0, 1, now); like(level, o, sub, 1); }
-                else if (result.contains("proud")) { note(o, sub, BadgeLedger.ADMIRED, 0, now); like(level, o, sub, 1); }
-                else note(o, sub, BadgeLedger.SNUBBED, 0, now);
-                if (result.contains("pulled") && extra != null) { note(extra, sub, BadgeLedger.WARY, -1, now); BadgeSocial.spread(level, extra, Rumours.WARY_HUMAN, human, 1); }
+                if (result.contains("kind")) { note(o, sub, BadgeLedger.ADMIRED, now); like(level, o, sub, 1); }
+                else if (result.contains("proud")) { note(o, sub, BadgeLedger.ADMIRED, now); like(level, o, sub, 1); }
+                else note(o, sub, BadgeLedger.SNUBBED, now);
+                if (result.contains("pulled") && extra != null) { note(extra, sub, BadgeLedger.WARY, now); BadgeSocial.spread(level, extra, Rumours.WARY_HUMAN, human, 1); }
             }
             case ENVY -> {
-                if (result.endsWith("comforted")) { note(o, sub, BadgeLedger.ADMIRED, 1, now); note(sub, o, BadgeLedger.HELPED, 1, now); like(level, o, sub, 1); like(level, sub, o, 1); }
+                if (result.endsWith("comforted")) { note(o, sub, BadgeLedger.ADMIRED, now); note(sub, o, BadgeLedger.HELPED, now); like(level, o, sub, 1); like(level, sub, o, 1); }
                 else {
-                    note(o, sub, BadgeLedger.ENVIED, -1, now); like(level, o, sub, -1);
+                    note(o, sub, BadgeLedger.ENVIED, now); like(level, o, sub, -1);
                     if (s.result.startsWith("snark") || result.endsWith("scared")) sub.pet().addStress(1);
                 }
             }
             case BOAST -> {
                 boolean boastful = result.startsWith("boast");
-                if (result.endsWith("admired") || result.endsWith("accepted")) { note(sub, o, BadgeLedger.ADMIRED, 1, now); like(level, sub, o, 1); if (!boastful) like(level, o, sub, 1); }
+                if (result.endsWith("admired") || result.endsWith("accepted")) { note(sub, o, BadgeLedger.ADMIRED, now); like(level, sub, o, 1); if (!boastful) like(level, o, sub, 1); }
                 else {
                     if (boastful) o.pet().addStress(1);
-                    if (result.endsWith("retorted")) { like(level, sub, o, -1); note(sub, o, BadgeLedger.MOCKED, -1, now); }
+                    if (result.endsWith("retorted")) { like(level, sub, o, -1); note(sub, o, BadgeLedger.MOCKED, now); }
                 }
             }
             case BEG_BITE -> {
                 if (result.equals("shared")) {
-                    note(o, sub, BadgeLedger.FED_BY, 2, now); note(sub, o, BadgeLedger.HELPED, 1, now);
+                    note(o, sub, BadgeLedger.FED_BY, now); note(sub, o, BadgeLedger.HELPED, now);
                     BadgeSocial.spread(level, o, Rumours.BADGE_FED, human, 1);
                     tell(level, owner, "pet.mcyukkuri.badge.shared", sub, false);
                 } else {
-                    note(o, sub, BadgeLedger.SNUBBED, -1, now); like(level, o, sub, -1);
+                    note(o, sub, BadgeLedger.SNUBBED, now); like(level, o, sub, -1);
                 }
             }
             case PROVOKE -> {
-                note(sub, o, BadgeLedger.MOCKED, -1, now);
+                note(sub, o, BadgeLedger.MOCKED, now);
                 if (result.contains("ignore")) {
-                    note(o, sub, BadgeLedger.SNUBBED, -1, now); like(level, sub, o, -1);
+                    note(o, sub, BadgeLedger.SNUBBED, now); like(level, sub, o, -1);
                 } else if (result.contains("retort")) {
-                    note(o, sub, BadgeLedger.SNUBBED, -1, now); like(level, o, sub, -1); like(level, sub, o, -1);
+                    note(o, sub, BadgeLedger.SNUBBED, now); like(level, o, sub, -1); like(level, sub, o, -1);
                 } else {
-                    note(o, sub, BadgeLedger.ENVIED, 0, now); sub.pet().addStress(2);
+                    note(o, sub, BadgeLedger.ENVIED, now); sub.pet().addStress(2);
                     like(level, sub, o, -3);
                     BadgeSocial.spread(level, o, Rumours.BULLY, o.getUUID(), 1);
                 }
@@ -733,7 +763,7 @@ public final class BadgeArcs {
                 var human0 = s.player == null ? null : level.getPlayerByUUID(s.player);
                 UUID asked = s.player == null ? human : s.player;
                 if (result.equals("plea_adopted") || result.equals("plea_fed")) {
-                    note(o, sub, BadgeLedger.PLEADED_OWNER, 1, now);
+                    note(o, sub, BadgeLedger.PLEADED_OWNER, now);
                     BadgeSocial.spread(level, o, Rumours.HUMAN_KIND, asked, 1);
                     if (result.equals("plea_adopted")) {
                         if (sub.life().personality().friendliness() <= 40) sub.pet().addStress(2);
@@ -748,21 +778,21 @@ public final class BadgeArcs {
                 }
             }
             case PITY -> {
-                if (result.equals("pity_comforted")) { like(level, o, sub, 1); sub.pet().addStress(-1); note(o, sub, BadgeLedger.HELPED, 1, now); }
-                else { like(level, o, sub, -1); sub.pet().addStress(2); note(sub, o, BadgeLedger.MOCKED, -1, now); }
+                if (result.equals("pity_comforted")) { like(level, o, sub, 1); sub.pet().addStress(-1); note(o, sub, BadgeLedger.HELPED, now); }
+                else { like(level, o, sub, -1); sub.pet().addStress(2); note(sub, o, BadgeLedger.MOCKED, now); }
             }
             case ELDER_WARN -> {
-                if (result.equals("elder_warned")) { BadgeSocial.spread(level, o, Rumours.WARY_HUMAN, human, 1); note(o, sub, BadgeLedger.WARY, -1, now); }
-                else { BadgeSocial.spread(level, o, Rumours.HUMAN_KIND, human, 1); note(o, sub, BadgeLedger.ADMIRED, 1, now); }
+                if (result.equals("elder_warned")) { BadgeSocial.spread(level, o, Rumours.WARY_HUMAN, human, 1); note(o, sub, BadgeLedger.WARY, now); }
+                else { BadgeSocial.spread(level, o, Rumours.HUMAN_KIND, human, 1); note(o, sub, BadgeLedger.ADMIRED, now); }
             }
             case HOME_CLAIM -> {
                 if (result.equals("home_defended")) {
-                    note(o, sub, BadgeLedger.SNUBBED, -1, now); like(level, o, sub, -1);
+                    note(o, sub, BadgeLedger.SNUBBED, now); like(level, o, sub, -1);
                     BadgeSocial.spread(level, o, Rumours.BULLY, o.getUUID(), 1);
-                } else { sub.pet().addStress(3); like(level, sub, o, -1); note(sub, o, BadgeLedger.MOCKED, -1, now); }
+                } else { sub.pet().addStress(3); like(level, sub, o, -1); note(sub, o, BadgeLedger.MOCKED, now); }
             }
             case SNATCH -> {
-                note(o, sub, BadgeLedger.ROBBED, 0, now); note(sub, o, BadgeLedger.ROBBED_BY, -2, now);
+                note(o, sub, BadgeLedger.ROBBED, now); note(sub, o, BadgeLedger.ROBBED_BY, now);
                 sub.pet().addStress(3); like(level, sub, o, -2);
                 BadgeSocial.spread(level, o, Rumours.THIEF, o.getUUID(), 2);
                 if (owner != null) tell(level, owner, "pet.mcyukkuri.badge.snatched", sub, true);

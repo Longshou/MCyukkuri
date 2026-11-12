@@ -25,14 +25,14 @@ import net.neoforged.neoforge.event.server.ServerStoppedEvent;
 public final class SceneReset {
     private SceneReset() {}
     private static void reset() {
-        ShopDate.reset(); PetScenes.reset(); WildEncounter.reset(); BadgeSocial.reset(); PredatorLife.resetAlerts();
+        ShopDate.reset(); PetScenes.reset(); BadgeSocial.reset(); PredatorLife.resetAlerts();
         ExamSession.reset(); Staging.reset(); ExamHall.reset(); CarrierItem.resetScenes();
     }
     /** Field command only; session performances end before the cleared UUIDs may be summoned again. */
     public static void field(ServerLevel level, AABB box, Set<UUID> ids, Set<UUID> tokens) {
         ShopPerformance.forget(level, box, ids);
         ShopStaff.forget(ids, tokens);
-        ShopDate.forget(ids); PetScenes.forget(ids); WildEncounter.forget(ids); BadgeSocial.forget(ids); PredatorLife.forget(ids);
+        ShopDate.forget(ids); PetScenes.forget(ids); BadgeSocial.forget(ids); PredatorLife.forget(ids);
         ExamSession.forget(ids); Staging.forget(ids); ExamHall.forget(ids); CarrierItem.forget(ids);
         ForageClaims.forget(level, box, ids);
         for (var dimension : level.getServer().getAllLevels()) Sanction.forget(dimension, ids);

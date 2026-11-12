@@ -256,7 +256,7 @@ public final class YukkuriPersonality {
     public int fear(UUID object) { return relation(object).fear(); }
     public FearBand fearBand(UUID object) { return FearBand.values()[relation(object).fearBand()]; }
     public long lastInteraction(UUID object) { return relation(object).lastInteraction(); }
-    YukkuriWorldData.Relation relation(UUID object) {
+    public YukkuriWorldData.Relation relation(UUID object) {
         YukkuriWorldData data = relations();
         // Birth assigns the reserved UUID after construction. Relations always follow that live identity.
         return data == null || object == null ? YukkuriWorldData.Relation.NONE : data.relation(owner.getUUID(), object);

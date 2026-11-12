@@ -42,23 +42,28 @@ public final class PeerDefense extends Goal {
                 || entity.distanceToSqr(source) > 36 || !entity.hasLineOfSight(source)) return;
         nextPuffResponse = now + 100;
         var p = entity.life().personality();
+        var bond = p.relation(source.getUUID());
+        double esteem = SocialDisposition.selfEsteem(entity);
+        double wariness = SocialDisposition.wariness(entity, bond);
+        double insistence = SocialDisposition.insistence(p, esteem, wariness, bond);
         double size = Math.clamp(entity.getBbWidth() / Math.max(.01, source.getBbWidth()) - 1, -1, 1);
         int importance = importance();
-        double confidence = p.boldness() - 50 + 35 * size - .4 * p.fear(source.getUUID());
-        double anger = confidence + .6 * (50 - p.friendliness()) + .15 * importance;
+        double confidence = SocialDisposition.confidence(esteem) * (1 - wariness);
+        double combat = combatScore(source, bond.fear());
         String result;
         if (entity.isPanicking() || entity.isOnFire() || entity.isInWaterOrBubble() || importance >= 100) result = "ignore_danger_first";
-        else if (entity.body().healthRatio() <= FLEE_HEALTH || confidence + .25 * importance < -12) result = "flee";
-        else if (anger >= 45 && refusal() == null) result = "attack";
-        else if (importance >= 70 || p.friendliness() >= 70 && confidence >= 0) result = "ignore";
+        else if (entity.body().healthRatio() <= FLEE_HEALTH || wariness >= .62 || confidence + .55 * size < -.20) result = "flee";
+        else if (importance >= 70 || p.friendliness() + Math.max(0, bond.closeness()) >= 70) result = "ignore";
+        else if (insistence >= .52 && combat >= 50 && refusal() == null) result = "attack";
         else result = "puff_back";
-        GameplayLog.event(entity, "social", "puff response={} source={} sizeRatio={} friendliness={} boldness={} importance={} confidence={} anger={}",
-                result, source.getUUID(), entity.getBbWidth()/Math.max(.01,source.getBbWidth()), p.friendliness(), p.boldness(), importance, confidence, anger);
+        GameplayLog.event(entity, "social", "puff response={} source={} sizeRatio={} friendliness={} boldness={} importance={} esteem={} wariness={} closeness={} insistence={} combat={}",
+                result, source.getUUID(), entity.getBbWidth()/Math.max(.01,source.getBbWidth()), p.friendliness(), p.boldness(), importance,
+                esteem, wariness, bond.closeness(), insistence, combat);
         if (result.startsWith("ignore")) return;
         if (result.equals("flee")) { stop(); entity.cannibalism().stop(); entity.life().interrupt(); entity.fleeFrom(source); return; }
         // Preserve the same combat and interruption machinery used after a real peer attack.
         decision = result;
-        score = anger;
+        score = combat;
         attacker = source;
         puffBack = result.equals("puff_back");
         until = now + (puffBack ? 40 : 240);
@@ -80,8 +85,7 @@ public final class PeerDefense extends Goal {
         if (aggressor == null || aggressor == entity || !aggressor.isAlive() || aggressor.level() != entity.level()) return false;
         var personality = entity.life().personality();
         double ownPower = power(entity), otherPower = power(aggressor);
-        score = personality.boldness() - personality.fear(aggressor.getUUID()) * .5
-                + 35 * Math.clamp(ownPower / Math.max(.01, otherPower) - 1, -1, 1);
+        score = combatScore(personality.boldness(), personality.fear(aggressor.getUUID()), ownPower, otherPower);
         String refusal = refusal();
         boolean defend = refusal == null && score >= 50;
         decision = defend ? "counterattack" : refusal == null ? "outmatched_or_afraid" : refusal;
@@ -109,6 +113,12 @@ public final class PeerDefense extends Goal {
     private static double power(YukkuriEntity peer) {
         return peer.getBbWidth() * peer.species().traits().might() * peer.body().healthRatio()
                 * Math.max(.15, peer.life().energy() / 100.0);
+    }
+    private double combatScore(YukkuriEntity aggressor, int fear) {
+        return combatScore(entity.life().personality().boldness(), fear, power(entity), power(aggressor));
+    }
+    private static double combatScore(int boldness, int fear, double ownPower, double otherPower) {
+        return boldness - fear * .5 + 35 * Math.clamp(ownPower / Math.max(.01, otherPower) - 1, -1, 1);
     }
 
     private String refusal() {

@@ -958,7 +958,7 @@
   "commands.mcyukkuri.badgearc.reset": "Badge social budget and sighting state cleared.",
   "commands.mcyukkuri.badgearc.not_yukkuri": "Both targets must be yukkuri.",
   "commands.mcyukkuri.badgearc.ledger": "%s remembers %s badge-holders:",
-  "commands.mcyukkuri.badgearc.entry": "%s: seen %s times, grade %s, impression %s, flags %s, last arc %s",
+  "commands.mcyukkuri.badgearc.entry": "%s: seen %s times, grade %s, flags %s, last arc %s",
   "commands.mcyukkuri.badgearc.unknown": "Unknown arc %s. Arcs: %s",
   "commands.mcyukkuri.badgearc.failed": "Could not start %s: %s",
   "commands.mcyukkuri.badgearc.started": "Started arc %s: %s -> %s",
