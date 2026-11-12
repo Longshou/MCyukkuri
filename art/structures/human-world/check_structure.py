@@ -63,6 +63,7 @@ def check(b):
     for ent in b.entities:
         nbt = ent['nbt'][1]; kind = nbt['id'][1]; x, y, z = ent['pos'][1][1]
         cx, cy, cz = int(x // 1), int(y // 1), int(z // 1)
+        if kind == 'minecraft:marker': continue
         if kind == 'minecraft:item_display':
             if name_at(b, cx, cy, cz) != AIR: errors.append(f'item display inside a block at {(cx, cy, cz)}')
             continue
@@ -80,12 +81,15 @@ def check(b):
         for x in range(x0, x1 + 1):
             for z in range(z0, z1 + 1):
                 if name_at(b, x, y - 1, z) == AIR or name_at(b, x, y + 1, z) not in FREE: errors.append(f"pen {pen['name']}: cell {(x, z)} lacks floor or headroom")
-        # A raised display shelf keeps its walls at least three blocks above the floor the animals stand on (no hop clears them).
-        if y > 3:
-            ring = [(x, z) for x in range(x0 - 1, x1 + 2) for z in (z0 - 1, z1 + 1)] + [(x, z) for x in (x0 - 1, x1 + 1) for z in range(z0, z1 + 1)]
-            for x, z in ring:
-                if any(name_at(b, x, yy, z) == AIR for yy in range(y, y + 3)):
-                    errors.append(f"pen {pen['name']}: wall at {(x, z)} lower than three blocks above the shelf")
+        # Shop pens (those with a staff door) have walls from the floor to the ceiling height (y .. y+4): no hop clears them and nothing
+        # is handed over them. The exam wing's low trainee and mock-room walls are not sale pens.
+        ring = [(x, z) for x in range(x0 - 1, x1 + 2) for z in (z0 - 1, z1 + 1)] + [(x, z) for x in (x0 - 1, x1 + 1) for z in range(z0, z1 + 1)]
+        for x, z in ring if pen['hatch'] else ():
+            if any(name_at(b, x, yy, z) == AIR for yy in range(y, y + 5)):
+                errors.append(f"pen {pen['name']}: wall at {(x, z)} is open below y{y + 5}")
+        # The predator room is sealed overhead too: a flying predator cannot leave it.
+        if pen['name'] == 'predator' and any(name_at(b, x, y + 5, z) == AIR for x in range(x0, x1 + 1) for z in range(z0, z1 + 1)):
+            errors.append('pen predator: open ceiling')
         if pen['hatch']: errors += hatch_errors(b, pen, seen)
     level = light_levels(b)
     dark = [(x, z, level.get((x, 3, z), 0)) for x, z in walk_cells(b) if level.get((x, 3, z), 0) < 8]
@@ -105,12 +109,12 @@ def check(b):
     return errors
 
 def reachable(b):
-    """Floor cells staff reach on foot (2-high clearance, wooden doors opened on the way) from the pavement in front of the shop door.
-    Iron service doors are not walked through: only staff serving a pen open them."""
+    """Floor cells staff reach on foot (2-high clearance, doors opened on the way) from the pavement in front of the shop door.
+    Staff on a job open the iron pen doors too (shop/ShopStaff)."""
     def ok(x, z):
         if not (0 <= x < b.size[0] and 0 <= z < b.size[2]): return False
         if name_at(b, x, 2, z) == AIR: return False
-        def passable(y): n = name_at(b, x, y, z); return free(n) or n.endswith('_door') and n != 'minecraft:iron_door' or n == 'mcyukkuri:exam_podium'
+        def passable(y): n = name_at(b, x, y, z); return free(n) or n.endswith('_door') or n == 'mcyukkuri:exam_podium'
         return passable(3) and passable(4)
     start = (12, 2); seen = {start}; queue = deque([start])
     while queue:
@@ -120,8 +124,7 @@ def reachable(b):
     return seen
 
 def hatch_errors(b, pen, seen):
-    """A pen's service door: a 2-high iron door in its wall ring, one interior cell inside it, and outside it a floor cell staff walk to
-    (a booth's door sits on the shelf, a block above the aisle)."""
+    """A pen's staff door: a 2-high iron door in its wall ring, one clear interior cell inside it, and outside it a floor cell staff walk to."""
     x0, z0, x1, z1 = pen['interior']; y = pen['y']; hx, hz = pen['hatch']; name = pen['name']
     if name_at(b, hx, y, hz) != 'minecraft:iron_door' or name_at(b, hx, y + 1, hz) != 'minecraft:iron_door':
         return [f'pen {name}: no 2-high iron service door at {(hx, y, hz)}']

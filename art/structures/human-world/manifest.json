@@ -6,8 +6,8 @@
       16,
       33
     ],
-    "blocks": 12193,
-    "entities": 45,
+    "blocks": 11938,
+    "entities": 57,
     "source": "art/structures/human-world/build.py"
   },
   {
@@ -17,8 +17,8 @@
       16,
       41
     ],
-    "blocks": 12532,
-    "entities": 45,
+    "blocks": 12277,
+    "entities": 57,
     "source": "art/structures/human-world/build.py"
   },
   {

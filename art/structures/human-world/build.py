@@ -9,6 +9,7 @@ OUT = ROOT / 'src/main/resources/data/mcyukkuri'
 # Small typed NBT writer: no external package or Minecraft installation needed.
 def byte(v): return (1, v)
 def integer(v): return (3, v)
+def long_(v): return (4, v)
 def integers(v): return (11, v)
 def real(v): return (5, v)
 def string(v): return (8, v)
@@ -17,7 +18,7 @@ def compound(v): return (10, v)
 def text(v):
     b = v.encode('utf-8'); return struct.pack('>H', len(b)) + b
 def payload(t, v):
-    if t in (1, 3, 5, 6): return struct.pack({1:'>b',3:'>i',5:'>f',6:'>d'}[t], v)
+    if t in (1, 3, 4, 5, 6): return struct.pack({1:'>b',3:'>i',4:'>q',5:'>f',6:'>d'}[t], v)
     if t == 8: return text(v)
     if t == 9:
         kind, values = v
@@ -46,7 +47,7 @@ class Building:
             for y in range(a[1],b[1]+1):
                 for z in range(a[2],b[2]+1): self.block(x,y,z,name,props,over=over)
     def door(self,x,y,z,facing='north',kind='oak'):
-        """A 2-high door; kind 'iron' is a pen's service hatch (shop/ServiceHatch): no hand, mob or yukkuri opens it, only staff serving the pen."""
+        """A 2-high door; kind 'iron' is a pen's staff door: no hand, mob or yukkuri opens it, only shop staff on a job (shop/ShopStaff)."""
         self.doors.append((x,y,z))
         for dy,half in [(0,'lower'),(1,'upper')]: self.block(x,y+dy,z,kind+'_door',{'facing':facing,'half':half,'hinge':'left','open':'false','powered':'false'},over=True)
     def entrance(self,x):
@@ -76,7 +77,7 @@ class Building:
         self.entity(x,3,z,'mcyukkuri:'+kind,{'HumanJob':integer(job),'HumanAttitude':integer(attitude),'SiteRole':string(role)})
     def animal(self,x,z,kind,role,use='stock',medal=0,group=0):
         self.entity(x,3,z,'mcyukkuri:'+kind,{'NeoForgeData':compound({'HumanCommerce':compound({'PendingRole':string(role),'Use':string(use),'Medal':integer(medal),'FactoryGroup':integer(group)})})})
-    def pet(self,x,z,kind,role,use,grade,*,skills=(),traits=None,y=3):
+    def pet(self,x,z,kind,role,use,grade,*,skills=(),traits=None,y=3,age=None):
         """Initial shop individual; custody, qualification, skills and five traits have separate owners."""
         data={'PendingRole':string(role),'Use':string(use),'FactoryGroup':integer(0)}
         pet={'Grade':integer(grade),'Worn':byte(1),'Source':integer(0),
@@ -85,10 +86,10 @@ class Building:
         if traits is not None:
             assert len(traits)==5 and all(0<=value<=100 for value in traits)
             extra['YukkuriLife']=compound({'Personality':compound({'Version':integer(1),'Innate':integers(traits)})})
+        if age is not None:   # a well-fed young individual of this real age (ticks); the growth clock recomputes its size
+            extra['YukkuriFamily']=compound({'Version':integer(3),'Age':long_(age),'Nourishment':long_(336000),'Initialized':byte(1),
+                                             'AdultScale':real(1.0),'Scale':real(0.8),'Stage':string('JUVENILE')})
         self.entity(x,y,z,'mcyukkuri:'+kind,extra)
-    def pet_lost(self,x,z,kind,role):
-        """Missing-companion quest animal, same data as the former template (Use lost)."""
-        self.animal(x,z,kind,role,'lost')
     def display(self,x,y,z,item,over=False):
         self.block(x,y,z+1,'dark_oak_planks',over=over)
         self.entity(x+.5,y+.5,z+.94,'minecraft:item_display',{'item_display':string('fixed'),'item':compound({'id':string(item if ':' in item else 'mcyukkuri:'+item),'count':integer(1)}),
@@ -169,6 +170,14 @@ def connect_panes(b):
         for d,(dx,dz) in {'north':(0,-1),'south':(0,1),'east':(1,0),'west':(-1,0)}.items():
             m=name_at(b,x+dx,y,z+dz); props[d]='true' if m in ('minecraft:glass_pane','minecraft:glass') or (m!='minecraft:air' and not transparent(m)) else 'false'
         b.blocks[x,y,z]=(n,props,None)
+def marker(b,x,y,z,tag,data=None):
+    """A vanilla marker entity read once by the shop register (shop/ShopRegistry): footprint corners, counter, barrels, item-frame spots."""
+    extra={'Tags':sequence(8,[tag])}
+    if data: extra['data']=compound(data)
+    b.entity(x,y,z,'minecraft:marker',extra)
+def frame(b,x,y,z,item):
+    """An item frame showing one good, hung on the wall behind this air cell (the register turns the marker into a fixed vanilla frame)."""
+    marker(b,x+.5,y+.5,z+.5,'mcy_shop_frame',{'Item':compound({'id':string(item if ':' in item else 'mcyukkuri:'+item),'count':integer(1)})})
 def register_pen(b,name,interior,bowl,nests,minimum=(3,3),y=3,hatch=None):
     """y is the cell the animals stand in (the floor block is below it); hatch is the (x, z) of its service door in the wall ring."""
     b.pens.append({'name':name,'interior':interior,'bowl':bowl,'nests':nests,'min':minimum,'y':y,'hatch':hatch})
@@ -177,18 +186,18 @@ def carpet(b,x0,z0,x1,z1,color):
     for x in range(x0,x1+1):
         for z in range(z0,z1+1):
             if name_at(b,x,3,z)=='minecraft:air': b.block(x,3,z,color+'_carpet')
-def roof(b,z0,z1):
-    """Low pitched roof running along x: slab/stair pairs rise 1 per 2 blocks from both eaves to a flat ridge, gable ends filled.
-    Dark-oak eave trim and ridge cap split each slope into 5-row mud-brick bands; three skylight patches per slope break it up."""
+def roof(b,z0,z1,x0=0):
+    """Low pitched roof running along x (from x0 to the east end): slab/stair pairs rise 1 per 2 blocks from both eaves to a flat ridge,
+    gable ends filled. Dark-oak eave trim and ridge cap split each slope into 5-row mud-brick bands; skylight patches break it up."""
     dmax=max(min(z-z0,z1-z) for z in range(z0,z1+1))
     for z in range(z0,z1+1):
         front=z-z0<=z1-z; d=min(z-z0,z1-z); y=9+d//2
-        for x in range(0,41):
-            mat='dark_oak' if d in (0,dmax) or x in (0,40) else 'mud_brick'
+        for x in range(x0,41):
+            mat='dark_oak' if d in (0,dmax) or x in (x0,40) else 'mud_brick'
             if 2<=d<=4 and (x//1 in (6,7,8,20,21,22,34,35,36)): b.block(x,y,z,'glass'); continue
             if d%2==0: slab(b,x,y,z,mat)
             else: stairs(b,x,y,z,mat,'south' if front else 'north')
-        for x in (1,39):
+        for x in (max(1,x0),39):
             for yy in range(9,y): b.block(x,yy,z,'smooth_quartz')
 def shop():
     from check_structure import light_levels, walk_cells
@@ -197,10 +206,12 @@ def shop():
     # ---- Shell: foundation, paving, 39x28 walls (outer x 1..39, z 3..30), 5-high rooms (y 3..7) under a y=8 ceiling.
     b.box((0,0,0),(40,1,32),'stone_bricks'); b.box((0,2,0),(40,2,32),'polished_andesite')
     b.box((1,3,3),(39,8,30),Q); b.box((2,3,4),(38,7,29),'air')
-    b.box((2,2,4),(38,2,29),'birch_planks'); b.box((2,2,18),(22,2,29),'oak_planks')
+    b.box((2,2,4),(38,2,29),'birch_planks'); b.box((17,2,18),(22,2,29),'oak_planks')
     for x0,x1,z0,z1 in [(29,35,14,18),(24,27,14,18),(29,31,23,25),(33,35,23,25)]: b.box((x0,2,z0),(x1,2,z1),'oak_planks')
-    b.box((2,2,8),(22,2,9),'smooth_quartz'); b.box((11,2,4),(13,2,7),'smooth_quartz')
-    b.box((23,3,4),(23,8,29),Q); b.box((2,3,17),(22,8,17),Q); b.box((12,3,18),(12,8,29),Q)
+    # Sales half: quartz aisle across the hall and up to the street door; the backyard (x 2..15, z 18..29) is open to the sky on grass.
+    b.box((2,2,9),(22,2,11),'smooth_quartz'); b.box((10,2,4),(14,2,8),'smooth_quartz')
+    b.box((2,2,18),(15,2,29),'grass_block',{'snowy':'false'}); b.box((2,8,18),(15,8,29),'air')
+    b.box((23,3,4),(23,8,29),Q); b.box((2,3,17),(22,8,17),Q); b.box((16,3,18),(16,8,29),Q)
     # plinth and sign band wrap the building; pillars every 6 blocks keep every wall patch within 6x6.
     for x in range(1,40):
         for z in (3,30): b.block(x,3,z,'mud_bricks'); b.block(x,8,z,'dark_oak_planks')
@@ -222,7 +233,10 @@ def shop():
             for t in range(s,s+3): b.box((1,5,t),(1,6,t),'glass'); b.box((39,5,t),(39,6,t),'glass')
     # Street facade: big display windows y 4..7 with birch mullions at the booth glass lines, doors for shop and exam hall.
     for a,c in [(2,8),(10,14),(16,22),(24,30),(32,38)]: b.box((a,4,3),(c,7,3),'glass')
-    for x in (5,19,35): b.box((x,4,3),(x,7,3),'stripped_birch_log',LOG)
+    # The two street pens are floor-level: their window reaches down to the floor so passers-by see the animals at eye level.
+    for a,c in [(2,8),(16,22)]: b.box((a,3,3),(c,3,3),'glass')
+    for x in (5,19): b.box((x,3,3),(x,7,3),'stripped_birch_log',LOG)
+    b.box((35,4,3),(35,7,3),'stripped_birch_log',LOG)
     for x in (26,28): b.box((x,4,3),(x,7,3),'stripped_birch_log',LOG); b.block(x,5,2,'cyan_wall_banner',{'facing':'north'})
     b.door(12,3,3); b.door(27,3,3)
     # Red/white awning (2-block stripes) stepping out over the pavement, shop banners on the pillars, paw-print sign board.
@@ -239,8 +253,8 @@ def shop():
     for x0,x1 in [(1,7),(33,39)]: b.box((x0,3,0),(x1,3,0),'flowering_azalea_leaves',{'persistent':'true','distance':'7'})
     for x in (9,15,23,31): b.block(x,3,1,'potted_azalea_bush')
     for x in (3,5,35,37): stairs(b,x,3,1,'birch','north')
-    # Gabled roofs over the front and rear blocks; roof is 4 rows on a 6-row facade (y 3..8).
-    roof(b,3,16); roof(b,17,30)
+    # Gabled roofs over the front block and the rear block east of the backyard (back room and exam wing); roof is 4 rows on a 6-row facade (y 3..8).
+    roof(b,3,16); roof(b,17,30,16)
     b.box((6,9,3),(18,15,3),Q)   # false front carries the sign board
     b.sign(26,3,2,['考核处','EXAM HALL','口试 / 实技'],'8')
     for x in (11,12,13,26,27,28):   # street-edge ramp: two half-height steps up to the pavement
@@ -250,75 +264,80 @@ def shop():
     # ---- Furnishing phase: every overwrite of a different block is now an error unless explicitly allowed.
     b.strict=True
     for x,z in [(23,9)]: b.door(x,3,z,'east')
-    b.door(10,3,17); b.door(14,3,17); b.door(12,3,24,'east')
-    # Sales hall: four display booths (interior 3x3, glass to street window and aisle). The window wall is the street glass.
-    # Each booth is a raised display shelf (block at y3, the animal at y4): eye level with a customer in the aisle and visible
-    # above the street plinth; panes rise three blocks above the shelf (no hop clears them, no arm reaches over them).
-    # The shelf top is a full wool cushion (a carpet would make the cells unstandable for the animals' own checks), with a real
-    # toy on it, and a price tag hung on the shelf front in the aisle.
-    def booth(x0,kind,grade,traits,label,toy,cushion,predator=False):
-        for x in (x0-1,x0+3):
-            if 2<=x<=22: glass(b,(x,4),(x,7),full=predator,top=6)
-        glass(b,(max(x0-1,2),7),(min(x0+3,22),7),full=predator,top=6)
-        b.box((x0,3,4),(x0+2,3,6),cushion+'_wool')
-        # Service door (iron, staff only) in the aisle wall's side column, on the shelf: staff open it from the aisle to hand the animal a
-        # basket, feed or treat it, or set an animal in; the middle stays clear glass for the customers.
-        b.door(x0,4,7,'south','iron')
-        b.bowl(x0,4,y=4); b.block(x0+2,4,4,'mcyukkuri:predator_nest' if predator else 'mcyukkuri:yukkuri_nest')
-        b.pet(x0+1.5,5.5,kind,'shopkeeper','stock',grade,skills=ALL_SKILLS,traits=traits,y=4)
-        b.toy(x0+2.5,4,6.5,toy)
-        b.wall_sign(x0+1,3,8,label)
-        register_pen(b,'booth_'+kind,(x0,4,x0+2,6),(x0,4),[(x0+2,4)],y=4,hatch=(x0,7))
-    # Authored temperaments (intelligence, friendliness, boldness, attachment, self-control) give the four booths four different answers
-    # to a customer at the window (shop/ShopWindow): Remilia pleads, Chen is shy, gold Alice is proud, Reimu shows off.
-    booth(20,'remilia',2,(70,65,55,60,60),['银章 · 蕾米莉亚','捕食种 · 单独展舱','展示个体','价格请问店主'],'rubber_ball','purple',predator=True)   # full-height glass; written first so the shared wall at x=19 stays full
-    booth(2,'chen',2,(60,60,10,60,70),['银章 · 橙','已掌握六项技能','展示个体','价格请问店主'],'yarn_ball','yellow')
-    booth(6,'alice',3,(85,30,70,50,85),['金章 · 爱丽丝','已掌握六项技能','展示个体','价格请问店主'],'marisa_doll','red')
-    booth(16,'reimu',2,(65,85,80,75,50),['银章 · 灵梦','已掌握六项技能','展示个体','价格请问店主'],'yarn_ball','pink')
-    # Counter (customer side north, clerk behind), register lectern, goods wall on the clerk's back.
-    b.box((8,3,12),(16,3,12),'dark_oak_planks'); b.box((16,3,13),(16,3,16),'dark_oak_planks')
+    # ---- Sales half (x 2..22). Every pen wall is full glass blocks from floor to ceiling (no hop clears it and nothing is passed over it);
+    # each pen has one 2-high iron staff door, framed by log posts and a log lintel so the door panel never sits against a glass pane.
+    # Only shop staff on a job open these doors (shop/ShopStaff); players, mobs and the animals cannot.
+    def wall_line(x0,z0,x1,z1,door=None):
+        along_x=z0==z1
+        posts=set() if door is None else ({(door[0]-1,door[1]),(door[0]+1,door[1])} if along_x else {(door[0],door[1]-1),(door[0],door[1]+1)})
+        for x in range(x0,x1+1):
+            for z in range(z0,z1+1):
+                if (x,z)==door:
+                    b.door(x,3,z,'south' if along_x else 'east','iron'); b.box((x,5,z),(x,7,z),'stripped_birch_log',{'axis':'x' if along_x else 'z'})
+                elif (x,z) in posts: b.box((x,3,z),(x,7,z),'stripped_birch_log',LOG)
+                else: b.box((x,3,z),(x,7,z),'glass')
+    # Street window pen (non-predators, interior x 2..8, z 4..7): floor-level behind the floor-to-ceiling street glass, a cushion floor,
+    # three nests along the window, bowl and toilet at the aisle side where customers see them used.
+    wall_line(9,4,9,8); wall_line(2,8,8,8,door=(5,8))
+    b.box((2,2,4),(8,2,7),'pink_wool',over=True)
+    for x in (2,5,8): b.block(x,3,4,'mcyukkuri:yukkuri_nest')
+    b.bowl(2,7); b.block(8,3,7,'mcyukkuri:yukkuri_toilet'); b.toy(5.5,3,6.5,'yarn_ball')
+    register_pen(b,'window',(2,4,8,7),(2,7),[(2,4),(5,4),(8,4)],(5,3),hatch=(5,8))
+    # Authored temperaments (intelligence, friendliness, boldness, attachment, self-control) give three different answers to a customer
+    # (shop/ShopWindow): gold Alice is proud, the young Reimu shows off, the young Chen is shy.
+    b.pet(3.5,5.5,'alice','shopkeeper','stock',3,skills=ALL_SKILLS,traits=(85,30,70,50,85))
+    b.pet(6.5,5.5,'reimu','shopkeeper','stock',0,traits=(65,85,80,75,50),age=240000)
+    b.pet(4.5,6.5,'chen','shopkeeper','stock',0,traits=(60,60,10,60,70),age=200000)
+    # Predator room (interior x 16..22, z 4..7): sealed by full-height glass and the ceiling, predator nests only.
+    wall_line(15,4,15,8); wall_line(16,8,22,8,door=(19,8))
+    b.box((16,2,4),(22,2,7),'purple_wool',over=True)
+    for x in (16,22): b.block(x,3,4,'mcyukkuri:predator_nest')
+    b.bowl(16,7); b.block(22,3,7,'mcyukkuri:yukkuri_toilet'); b.toy(19.5,3,6.5,'rubber_ball')
+    register_pen(b,'predator',(16,4,22,7),(16,7),[(16,4),(22,4)],(5,3),hatch=(19,8))
+    b.pet(18.5,5.5,'remilia','shopkeeper','stock',2,skills=ALL_SKILLS,traits=(70,65,55,60,60))
+    b.pet(20.5,6.5,'flandre','shopkeeper','stock',0,traits=(60,55,60,55,55),age=220000)
+    # Counter across the hall (customers on the aisle side z 11, staff behind it on z 13..16); its west end is open for staff.
+    b.box((7,3,12),(17,3,12),'dark_oak_planks')
     b.block(12,3,12,'lectern',{'facing':'north','has_book':'false','powered':'false'},over=True)
-    # The toys on sale set out on the counter top in front of the customer (fixed displays, not the stock itself).
-    for x,item,yaw in [(9,'rubber_ball',0.),(10,'glass_marble',30.),(14,'reimu_doll',200.),(15,'marisa_doll',160.)]: b.counter_item(x,4,12,item,yaw)
-    goods=['oil_grain_regular','oil_grain_premium','orange_juice','wash_cloth','teaching_whistle','yukkuri_carrier']   # columns 10 and 14 stay free: staff doors to the back rooms
-    for x,item in zip((8,9,11,12,13,15),goods): barrel(b,x,3,16); b.display(x,4,16,item,over=True)
-    b.human(11.5,14.5,'caretaker_brother',1,2,'shopkeeper')
-    # Free-standing gondola shelves (backing planks on the south side) and care-goods tables.
-    for xs,items in [((3,4,5),['yarn_ball','companion_cord','oil_grain_budget']),((19,20,21),['reimu_ribbon','marisa_hat','mold_remover'])]:
-        for x,item in zip(xs,items): barrel(b,x,3,11); b.display(x,4,11,item); b.block(x,3,12,'dark_oak_planks')
-    for x,prop in [(3,'food_bowl'),(4,'yukkuri_nest'),(5,'yukkuri_toilet')]:
-        slab(b,x,3,15,'oak','top'); b.block(x,4,15,'mcyukkuri:'+prop)
-    # Consultation corner: small table and two seats.
-    b.block(20,3,15,'spruce_fence',{'north':'false','south':'false','east':'false','west':'false','waterlogged':'false'}); b.block(20,4,15,'spruce_pressure_plate',{'powered':'false'})
-    stairs(b,19,3,15,'spruce','east'); stairs(b,21,3,15,'spruce','west')
-    b.block(22,3,14,'potted_fern'); b.block(10,3,4,'potted_azalea_bush'); b.block(14,3,4,'potted_azalea_bush')
-    # ---- Back room (x 2..11, z 18..29): four low glass tanks (3x3), aisle z 22..25, corridor x 10..11, feed barrels, keeper spot.
-    for x0,z0,kind,aisle in [(2,18,'reimu',21),(6,18,'marisa',21),(2,27,'patchouli',26),(6,27,'chen',26)]:
-        for x in (x0-1,x0+3):
-            if x>=2: glass(b,(x,z0),(x,z0+2))
-        glass(b,(max(x0-1,2),aisle),(x0+3,aisle))
-        bz=z0+2 if aisle==26 else z0   # bowl and nest on the side away from the aisle
-        b.bowl(x0,bz); b.block(x0+2,3,bz,'mcyukkuri:yukkuri_nest'); b.pet(x0+1.5,z0+1.5,kind,'shopkeeper','stock',0)
-        # The toy starts in the middle of the open lane, with room for the first push in either direction.
-        b.toy(x0+1.5,3,z0+1.5,{'reimu':'yarn_ball','marisa':'glass_marble','patchouli':'reimu_doll','chen':'pretty_stone'}[kind])
-        b.door(x0+2,3,aisle,'south' if aisle==21 else 'north','iron')   # service door on the keeper's aisle (its east column keeps clear of the barrels)
-        register_pen(b,'tank_'+kind,(x0,z0,x0+2,z0+2),(x0,bz),[(x0+2,bz)],hatch=(x0+2,aisle))
-    for z in range(22,26): barrel(b,2,3,z)
-    for z in (22,25): barrel(b,3,3,z)
-    b.block(5,3,22,'crafting_table'); b.block(7,3,22,'lectern',{'facing':'south','has_book':'false','powered':'false'})
-    b.human(6.5,24.5,'caretaker_brother',4,1,'shop_keeper')
-    # ---- Breeding room (x 13..22): corridor x 13..15, stud pen (5x5) and nursery pen (5x5), keeper doors in the west glass.
-    pen_rect(b,17,18,21,22,skip='n')
-    b.door(16,3,21,'east'); b.box((17,2,18),(21,2,22),'oak_planks',over=True); b.box((17,2,24),(21,2,28),'oak_planks',over=True)
-    pen_rect(b,17,24,21,28); b.door(16,3,26,'east')
-    b.bowl(19,22); b.block(17,3,22,'mcyukkuri:yukkuri_nest'); b.block(21,3,22,'mcyukkuri:yukkuri_nest'); b.block(21,3,18,'mcyukkuri:yukkuri_toilet')
-    b.pet(18.5,19.5,'reimu','shop_keeper','stud',2,skills=ALL_SKILLS,traits=(75,75,55,70,80))
-    b.pet(20.5,19.5,'marisa','shop_keeper','stud',2,skills=ALL_SKILLS,traits=(75,70,65,60,80))
-    register_pen(b,'stud',(17,18,21,22),(19,22),[(17,22),(21,22)],(4,4))
-    b.bowl(19,28); b.block(17,3,28,'mcyukkuri:yukkuri_nest'); b.block(21,3,28,'mcyukkuri:yukkuri_nest')
-    b.toy(18.5,3,25.5,'yarn_ball'); b.toy(20.5,3,24.5,'rubber_ball')   # the young in the nursery pen have something to chase
-    register_pen(b,'nursery',(17,24,21,28),(19,28),[(17,28),(21,28)],(3,3))
-    b.sign(14,3,19,['繁育室','种油栏 / 幼体栏','饲养员专用','请勿喧哗'],'0')
+    for x in (8,16): b.block(x,4,12,'potted_azalea_bush')
+    b.human(12.5,14.5,'caretaker_brother',1,1,'shopkeeper')
+    b.human(4.5,14.5,'caretaker_sister',1,1,'shop_staff')
+    # Goods hang in item frames (spawned from these markers when the shop registers, so a rotated village copy faces the right way):
+    # two rows on the wall behind the counter, toys on the west wall, accessories and dolls on the east wall.
+    rows=[(5,['oil_grain_regular','oil_grain_budget','oil_grain_premium','orange_juice','sweet_candy','minecraft:cookie','custard_pudding','food_bowl','yukkuri_nest']),
+          (4,['yukkuri_toilet','yukkuri_carrier','wash_cloth','mold_remover','teaching_whistle','pet_harness','companion_cord','swaddle_cloth'])]
+    for y,items in rows:
+        for x,item in zip(range(8,17),items): frame(b,x,y,16,item)
+    for z,item in zip(range(12,17),['yarn_ball','glass_marble','rubber_ball','pretty_stone','clear_dice']): frame(b,2,4,z,item)
+    for z,item in zip(range(12,17),['reimu_ribbon','marisa_hat','chen_hat','alice_headband','patchouli_bonnet']): frame(b,22,5,z,item)
+    for z,item in zip(range(12,16),['remilia_bonnet','flandre_bonnet','reimu_doll','marisa_doll']): frame(b,22,4,z,item)
+    # Windows from the west goods corner into the backyard arcade.
+    b.box((3,4,17),(5,6,17),'glass',over=True)
+    # ---- Back room (staff, x 17..22, z 18..29): the arrivals and shipping barrel, the waste barrel, feed; doors to the hall and the yard.
+    b.door(17,3,17,'south','iron'); b.door(16,3,21,'east','iron')
+    barrel(b,22,3,19,'west'); barrel(b,22,3,28,'west')
+    for z in (21,22): barrel(b,22,3,z)
+    b.block(22,3,25,'crafting_table'); b.block(22,3,26,'composter',{'level':'0'})
+    marker(b,22.5,3.5,19.5,'mcy_shop_dock'); marker(b,22.5,3.5,28.5,'mcy_shop_trash'); marker(b,12.5,3,13.5,'mcy_shop_counter')
+    b.human(19.5,23.5,'caretaker_brother',1,1,'shop_staff')
+    # ---- Backyard (x 2..15, z 18..29), walled and open to the sky: an arcade along the hall wall shelters four nests and the bowls,
+    # toilets in the far corners, flowers and toys on the grass; lanterns and hidden lights keep it lit at night (no monster spawns).
+    for x in range(2,16):
+        for z in (18,19,20): slab(b,x,6,z,'oak','top')
+    for x in (3,8,13): b.block(x,5,19,'lantern',{'hanging':'true','waterlogged':'false'})
+    for x in (2,5,8,11): b.block(x,3,18,'mcyukkuri:yukkuri_nest')
+    b.bowl(13,18); b.bowl(15,18)
+    for x in (2,15): b.block(x,3,29,'mcyukkuri:yukkuri_toilet')
+    for x,z,flower in [(4,22,'dandelion'),(10,27,'poppy'),(13,23,'cornflower'),(6,28,'oxeye_daisy'),(14,26,'allium')]: b.block(x,3,z,flower)
+    b.block(8,3,25,'flowering_azalea')
+    for x,z in [(5,24),(11,24),(5,28),(11,28)]: b.block(x,7,z,'light',{'level':'12','waterlogged':'false'})
+    for x,z,item in [(7.5,26.5,'yarn_ball'),(11.5,22.5,'glass_marble'),(4.5,26.5,'rubber_ball')]: b.toy(x,3,z,item)
+    register_pen(b,'yard',(2,18,15,29),(13,18),[(2,18),(5,18),(8,18),(11,18)],(10,10),hatch=(16,21))
+    b.pet(4.5,24.5,'marisa','shopkeeper','stock',0,traits=(70,75,60,65,70),age=230000)
+    b.pet(9.5,23.5,'patchouli','shopkeeper','stock',0,traits=(80,70,40,60,75),age=180000)
+    b.pet(12.5,26.5,'reimu','shopkeeper','stock',0,traits=(60,80,65,70,65),age=260000)
+    # Shop footprint for the register (protection, the physical roster, staff membership): the sales half and its yard.
+    marker(b,1.5,0.5,3.5,'mcy_shop_corner'); marker(b,23.5,15.5,30.5,'mcy_shop_corner')
     # ---- Exam hall (x 24..38, z 4..29).
     # Oral area: podium faces the examiner desk; hide corner; two promise seats.
     b.block(34,3,5,'mcyukkuri:exam_podium',{'facing':'south'})
@@ -350,14 +369,9 @@ def shop():
     b.sign(31,3,21,['金章考核间','左：考生席','右：野良役'],'8')
     # Records corner at the south end.
     b.block(30,3,28,'lectern',{'facing':'north','has_book':'false','powered':'false'}); barrel(b,36,3,28); barrel(b,37,3,28); stairs(b,26,3,28,'birch','east'); stairs(b,27,3,28,'birch','west')
-    # Regular customer in the consultation corner and the lost-companion nook (hedge behind the shop, open to the east).
-    b.human(18.5,12.5,'caretaker_sister',0,1,'shop_sister')
-    b.box((4,3,32),(10,4,32),'oak_leaves',{'persistent':'true','distance':'1'}); b.box((4,3,31),(4,4,31),'oak_leaves',{'persistent':'true','distance':'1'})
-    b.box((4,5,31),(10,5,32),'oak_leaves',{'persistent':'true','distance':'1'}); b.block(10,4,31,'lantern',{'hanging':'true','waterlogged':'false'})
-    b.pet_lost(7.5,31.5,'marisa','shop_sister')
-    # Rugs, plants and shelves keep the rooms warm and lived-in.
-    for x,z in [(24,10),(25,4),(37,4),(37,12),(24,22),(27,27),(22,8),(2,10),(22,16)]: b.block(x,3,z,'potted_azalea_bush' if (x+z)%2 else 'potted_fern')
-    carpet(b,11,4,13,5,'red'); carpet(b,18,13,22,16,'light_blue'); carpet(b,2,13,7,14,'orange'); carpet(b,25,5,29,10,'green'); carpet(b,33,8,35,9,'red')
+    # Rugs and plants keep the rooms warm and lived-in.
+    for x,z in [(24,10),(25,4),(37,4),(37,12),(24,22),(27,27),(10,4),(14,4),(2,12),(22,16)]: b.block(x,3,z,'potted_azalea_bush' if (x+z)%2 else 'potted_fern')
+    carpet(b,11,4,13,5,'red'); carpet(b,18,13,21,15,'light_blue'); carpet(b,3,13,6,15,'orange'); carpet(b,25,5,29,10,'green'); carpet(b,33,8,35,9,'red')
     for z in (28,29): b.box((38,3,z),(38,4,z),'bookshelf')
     # ---- Lighting: hanging lanterns on a 5x5 grid per room; greedy completion until every covered walkable cell has light >= 8.
     pen_cells=set()
