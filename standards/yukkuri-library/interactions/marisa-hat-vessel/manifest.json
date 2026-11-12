@@ -5,7 +5,7 @@
   "growth_sha256": "09eb94d82a17dad69dbf00da0048bb0a49dde637b9020b9e51587b5633166ca1",
   "outputs": {
     "src/main/resources/assets/mcyukkuri/yukkuri_props/marisa_hat_turned.json": "83145279a480a7986e9f45d417fc00ea33b8dbae7aa7814e08fdf5484e3d8918",
-    "standards/yukkuri-library/interactions/marisa-hat-vessel/geometry.json": "1845bbe549db84f23127bf832fcdb7952a7b78f4b3607a9177c8c4fa3ca84e96",
+    "standards/yukkuri-library/interactions/marisa-hat-vessel/geometry.json": "d96fc430abbcff81f2f7b4bd74893e1d57b977c3d10e8f2c25afeaed98bfb3aa",
     "src/main/resources/assets/mcyukkuri/yukkuri_presentation/hat_vessel.json": "37709d9af1ff33f19915c6ebf0b7f07cfd9946523ca5c1710433d57d14666ba3",
     "src/main/resources/assets/mcyukkuri/yukkuri_props/subspecies-index.json": "ff9c80a527071b9f5e7d57ca1629d4948e5b0e6ef63384947dc23648d0f4101b"
   }

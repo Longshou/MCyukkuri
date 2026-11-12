@@ -2,10 +2,10 @@
   "geometry_identifier": "reimu_deibu",
   "base_species": "reimu",
   "selected_model": "standards/yukkuri-library/subspecies/reimu-dos/assembled/reimu_deibu/reimu_deibu.bbmodel",
-  "selected_model_sha256": "79808ec83fad580b6b27a7a0dd9fec9221715ff9d1809958c70e477ccc6e8a5a",
+  "selected_model_sha256": "4ca7f58f7829b8caead9b8362879ebf36264225389525b1333ee3c3823eeff18",
   "selected_rig": "standards/yukkuri-library/subspecies/reimu-dos/assembled/reimu_deibu/animation-rig.json",
-  "selected_rig_sha256": "8ba17a873f19b789eadb1c59ed13d7051d026ae83065ae19e32b77c2a391c1d6",
-  "selected_runtime_sha256": "c0340f21e69b7c2e2975c72d5eb629af99eeacff14dbc06ffc0294d1d78a117b",
+  "selected_rig_sha256": "25cdbf7d337687dd95975bb0bb51fa11904be52a18e1beb08fcdd14a7a472c2c",
+  "selected_runtime_sha256": "d9b055ccbb7127ae65d153c9332b0817178e2231a80e6bf4d249fb09fa0c6ffd",
   "snapshot": "art/source/rounded-runtime/reimu_deibu/selected/reimu_deibu.bbmodel",
   "retargeting": {
     "source_weights_preserved": true,
@@ -16,7 +16,7 @@
   "runtime_acceptance": "pending_current_verification",
   "appearance_note": "Confirmed rounded-body baseline; selected hair-contact revision and Deibu face/bow remain pending visual confirmation",
   "runtime": "src/main/resources/assets/mcyukkuri/yukkuri/reimu_deibu.json",
-  "runtime_sha256": "385a86b497c18754ceaf824638c0180c44ebb4f5d3f7698ee89ded5e33d122a6",
+  "runtime_sha256": "5d1bdfbe54c8e53e601228190b818f44eab07679c31fddbaeea3f2dd3ec9694d",
   "rig": "art/source/rounded-runtime/reimu_deibu/animation-rig.json",
   "bone_count": 261,
   "clips": [

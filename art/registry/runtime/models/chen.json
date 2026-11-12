@@ -2,10 +2,10 @@
   "geometry_identifier": "chen",
   "base_species": "reimu",
   "selected_model": "standards/yukkuri-library/assembled/chen/chen.bbmodel",
-  "selected_model_sha256": "46cbc506d509de602b1e731ef50059507e75530de77b501bd526b54e8b057a06",
+  "selected_model_sha256": "ea8ee4bcfc1055967379a1216fbfc2fc02999ecbc4d74d2c1ad0218780169d4d",
   "selected_rig": "standards/yukkuri-library/assembled/chen/animation-rig.json",
-  "selected_rig_sha256": "6686d763a3104df21cb5581ca290452bbd389fec81f82aae076c355d455f70a7",
-  "selected_runtime_sha256": "87c15bfce1a84743d50c7debc89fe896f443f25a2e426ec925ab789e3eba6dc4",
+  "selected_rig_sha256": "5548c14c0c512efc127a8256f91ee3abe80dbb2684c34447ccbe786d320bc743",
+  "selected_runtime_sha256": "9d747c9c12ef5d0cb0e8f35dca587ec4e868e5d9beac71bc3f154a49e6296133",
   "snapshot": "art/source/rounded-runtime/chen/selected/chen.bbmodel",
   "retargeting": {
     "source_weights_preserved": true,
@@ -16,7 +16,7 @@
   "runtime_acceptance": "pending_current_verification",
   "appearance_note": "Confirmed rounded-body baseline; selected hair-contact revision and Deibu face/bow remain pending visual confirmation",
   "runtime": "src/main/resources/assets/mcyukkuri/yukkuri/chen.json",
-  "runtime_sha256": "00cb967fb5fbd5ae4a32a9d0efacc193aac149b6eab558802a7ca20b10e50881",
+  "runtime_sha256": "1bdf5f46ff8adb1985b14c42637896a03d67a13bad72ba2b12ef6ff280cc51ea",
   "rig": "art/source/rounded-runtime/chen/animation-rig.json",
   "bone_count": 266,
   "clips": [

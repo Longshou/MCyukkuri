@@ -119,12 +119,43 @@ def rump_mark():
     return out
 
 
+def peni_stub(component, e):
+    # The peni as one smooth stub (component peni_stub): an even elliptic tube from the root to the cap,
+    # a half-ellipsoid rounded front and a flat root disk, in skin. The assembled models keep five peni
+    # elements, so element i of the five carries the i-th fifth of the triangles; their cuboids are the
+    # stub's envelope for builders that draw cuboids. Same 8-float vertex layout as vertices().
+    shape=component['peni_stub'];(cx,cy),(rx,ry)=shape['center'],shape['radius'];n,k=shape['sides'],shape['cap_rings']
+    root,neck=shape['root_z'],shape['tip_z']+shape['cap']
+    u,v,U,V=e['faces']['north']['uv'];tu,tv=(u+U)/256,(v+V)/256
+    rings=[(root,1.)]+[(neck-shape['cap']*math.sin(math.pi/2*i/k),math.cos(math.pi/2*i/k) if i<k else 0) for i in range(k+1)]
+    def point(z,s,a):return [cx+rx*s*math.cos(a),cy+ry*s*math.sin(a),z]
+    def normal(z,s,a):return [math.cos(a)*s,math.sin(a)*s,min(0,z-neck)/shape['cap']] if s<1 or z<neck else [math.cos(a),math.sin(a),0]
+    tris=[]
+    for j in range(len(rings)-1):
+        (z0,s0),(z1,s1)=rings[j],rings[j+1]
+        for i in range(n):
+            a,b=2*math.pi*i/n,2*math.pi*(i+1)/n
+            quad=[(z0,s0,a),(z1,s1,a),(z1,s1,b),(z0,s0,b)]
+            for t in ((0,1,2),(0,2,3)):
+                c=[quad[q] for q in t]
+                if s1==0 and t==(0,1,2):c=[quad[0],quad[1],quad[3]]
+                if s1==0 and t==(0,2,3):continue
+                tris.append(c)
+    for i in range(n):tris.append([(root,0,0),(root,1,2*math.pi*(i+1)/n),(root,1,2*math.pi*i/n)])
+    names=sorted(p['name'] for p in component['elements'] if p['name'].startswith('peni_'));part=names.index(e['name'])
+    size=-(-len(tris)//len(names));out=[]
+    for tri in tris[part*size:(part+1)*size]:
+        for z,s,a in tri:out.extend([*point(z,s,a),tu,tv,*(normal(z,s,a) if s or z!=root else [0,0,1])])
+    return out
+
+
 def anatomy_geometry(e, group):
     # Bake the standard component into the local surface frame. The mamu base
     # is curved to the lower front; its outer pigment lies 0.05 units above the skin
     # only at full extension. Peni keeps its tilt.
     cfg=CFG['anatomy']
-    e=copy.deepcopy(next(p for p in read(LIB/'components/common/anatomy.json')['elements'] if p['name']==e['name']))
+    component=read(LIB/'components/common/anatomy.json')
+    e=copy.deepcopy(next(p for p in component['elements'] if p['name']==e['name']))
     def warp(p):
         x,y,z=p
         if group=='anatomy_mamu':
@@ -146,7 +177,7 @@ def anatomy_geometry(e, group):
                 if vv[i+6]>.9 and j<len(rows)-2:continue
                 if vv[i+6]<-.9 and j>0:continue
                 flat.extend(vv[i:i+24])
-    else:flat=vertices(e,128)
+    else:flat=peni_stub(component,e) if 'peni_stub' in component else vertices(e,128)
     points=[];tri=[];uv=[]
     for i in range(0,len(flat),24):
         verts=[flat[i+j*8:i+j*8+8] for j in range(3)]

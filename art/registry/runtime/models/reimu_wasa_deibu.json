@@ -2,9 +2,9 @@
   "geometry_identifier": "reimu_wasa_deibu",
   "base_species": "reimu",
   "selected_model": "standards/yukkuri-library/subspecies/reimu-dos/assembled/reimu_wasa/reimu_wasa.bbmodel",
-  "selected_model_sha256": "2d85f41cc310c6ccc35815baddef9764c4105619ff2d4bae088929150bbcc2da",
+  "selected_model_sha256": "43ca101956d4ed207132ab07982a2b21aa78cd13e212b816e33b3686cf72761a",
   "selected_rig": "standards/yukkuri-library/subspecies/reimu-dos/assembled/reimu_wasa/animation-rig.json",
-  "selected_rig_sha256": "29c4414e53f0d4c73f47dcad043e029ce3956f34d2b3d4ad42d9dcf08ade9463",
+  "selected_rig_sha256": "d0104f5be4110e35db0471b7c5f0bbd5144e3b27062ece7218893ea2752f9251",
   "retargeting": {
     "composition": [
       "reimu_wasa",
@@ -15,7 +15,7 @@
   "shape_status": "runtime_combination_pending_confirmation",
   "runtime_acceptance": "pending_current_verification",
   "runtime": "src/main/resources/assets/mcyukkuri/yukkuri/reimu_wasa_deibu.json",
-  "runtime_sha256": "a9aa440b2727f0021a26e217b3964a3cc72a961c9b1c0584dd7ab3e766cb3b84",
+  "runtime_sha256": "f5f7e6e41721a80b30130a2d54ce4081b26f5854b1106c6503c1760cd3a5bcb7",
   "rig": "art/source/rounded-runtime/reimu_wasa_deibu/animation-rig.json",
   "bone_count": 261,
   "clips": [

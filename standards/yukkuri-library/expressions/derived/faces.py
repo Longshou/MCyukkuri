@@ -18,15 +18,14 @@ mouth redrawn on the 2-texel mouth grid at the box's own scale (predator fangs k
 surprise / teary atlas and the blush from its flushed_smile atlas:
 leak_startle: the startled instant - raised brows, small round open mouth, no tears, the first trickle below the mouth.
 leak_flow (+ _b, _c): while it runs - worried brows, welling tears, a wide open mouth with the tongue; one outlined
-  sugar-water stream down the centre of the lower front (wiki F37: the opening lies below the chin) whose highlight runs
-  down per frame.
+  sugar-water stream from the mamu-mamu site (wiki F37: the opening lies below the chin) straight down the body's centre
+  line, whose highlight runs down per frame.
 leak_after (+ _b): dazed and ashamed afterwards - half-lidded big eyes, welling tears, a wavering mouth; the stream dries to
   a broken streak and a last drop hangs at the bottom (gone in frame b).
 The stream lives in the mouth-effect decal, which runs from below the mouth over the bottom curve of rounded bodies; the
 body surface itself has no texture layout.
-leak_puddle_* (textures/effects, 32x32, top-down, row 0 against the body): the ground pool under the front of the body
-  that carries the leak where little body is left below the face - flow (+ _b, _c: the ripple where the stream lands
-  spreads, splash ticks at the front edge move), still (after), dry (broken outline, thinner fill, while it fades).
+leak_wet_1..3, leak_wet_dry (textures/props/body_wounds, the baked sole's continuous projection): the wet base under the
+  stream that carries the leak where little body is left below the face - it grows with the flow and dries afterwards.
 
     python standards/yukkuri-library/expressions/derived/faces.py [--check]
 """
@@ -50,8 +49,8 @@ LEAK = ('leak_startle', 'leak_flow', 'leak_after')
 LEAK_FRAMES = {('leak_startle', 0): 'leak_startle', ('leak_flow', 0): 'leak_flow', ('leak_flow', 1): 'leak_flow_b',
                ('leak_flow', 2): 'leak_flow_c', ('leak_after', 0): 'leak_after', ('leak_after', 1): 'leak_after_b'}
 WET_CORE, WET_EDGE, WET_SHINE = (248, 236, 160, 255), (158, 124, 58, 255), (255, 255, 244, 255)  # pale sugar water
-EFFECTS = ASSETS/'textures/effects'
-PUDDLES = ('leak_puddle_flow', 'leak_puddle_flow_b', 'leak_puddle_flow_c', 'leak_puddle_still', 'leak_puddle_dry')
+BOTTOM = ASSETS/'textures/props/body_wounds'
+WET = ('leak_wet_1', 'leak_wet_2', 'leak_wet_3', 'leak_wet_dry')
 # One big wet eye (13x12, centred in the 15x12 eye box): A outline, C iris, E lower reflection, B catch-light.
 BIG_EYE = ('....AAAAA....', '..AACCCCCAA..', '.ABBBCCCCCCA.', '.ABBBBCCCCCA.', 'ACBBBBCCCCCCA', 'ACCBBCCCCCCCA',
            'ACCCCCCCCCCCA', 'ACCCCCCCBBCCA', '.ACCCCCCBBCA.', '.ACCEEEEECCA.', '..AAEEEEEAA..', '....AAAAA....')
@@ -177,12 +176,15 @@ def streak(px, x, top, bottom, frame, width=2, broken=False):
 def drop(px, x, y):
     px[x, y] = WET_EDGE; px[x-1, y+1] = WET_EDGE; px[x, y+1] = WET_SHINE; px[x+1, y+1] = WET_EDGE; px[x, y+2] = WET_EDGE
 
-def leak_wet(image, found, face, frame):
-    """One sugar-water stream from the opening below the mouth (wiki F37) down the lower front and over the bottom curve."""
+def leak_wet(image, found, anchor, face, frame):
+    """One sugar-water stream from the opening (wiki F37; the mamu-mamu site) straight down the centre of the lower front and
+    over the bottom curve. anchor = (u of body x = 0, v of the mamu line's centre) in this atlas: the mouth-effect decal is
+    not centred on the body (it spans x -2.04..1.53 on rounded bodies), so the cell centre is one texel off."""
     px = image.load(); ex, ey, ex1, ey1 = found['face_effect_mouth']
     for y in range(ey, ey1):
         for x in range(ex, ex1): px[x, y] = (0, 0, 0, 0)
-    c, top, bottom = ex+round((ex1-ex)*.43), ey+round((ey1-ey)*.5), ey1-1  # x = 0 on the body, about 1.5 units up
+    c = round(anchor[0])-1  # the two core texels straddle x = 0
+    top, bottom = min(max(ey, round(anchor[1])), ey1-4), ey1-1  # forms whose decal sits high clamp to the cell
     if face == 'leak_startle':
         streak(px, c, top, top+2, 0)  # the first trickle
         return
@@ -190,42 +192,43 @@ def leak_wet(image, found, face, frame):
     streak(px, c, top, bottom-(2 if broken else 0), frame, 2, broken)
     if broken and frame == 0: drop(px, c, bottom-2)  # a last drop hangs from the bottom, then falls (frame b)
 
-def puddle(frame):
-    """The ground pool under the front of the body (top-down, 32x32; row 0 lies against the body, rows grow forward):
-    an outlined pale lobed pool with a curved highlight. Frames 0-2 (flow): the stream lands at the back where a ripple
-    ring spreads, and splash ticks stand at the front edge in rotating places; 3 (still): no ripple, no ticks; 4 (dry):
-    a broken outline, a thinner fill and no highlight."""
-    image = Image.new('RGBA', (32, 32)); px = image.load(); cx, cy = 15.5, 16.5
-    dry = frame == 4; core = WET_CORE[:3]+((150,) if dry else (225,))
-    rx, ry = 11, 8.5
-    def edge(angle): return 1+.05*math.sin(3*angle+.5)+.03*math.sin(5*angle+2)
-    def inside(x, y, grow=0.): return math.hypot((x-cx)/(rx+grow), (y-cy)/(ry+grow)) <= edge(math.atan2(y-cy, x-cx))
-    for y in range(32):
-        for x in range(32):
-            if not inside(x, y, .9): continue
-            rim = not inside(x, y, -.6)
-            if rim and dry and int(math.degrees(math.atan2(y-cy, x-cx))+180)//24 % 2: continue
-            px[x, y] = WET_EDGE if rim else core
+
+def anchor(model, size):
+    """(u at body x = 0, v at the mamu line's centre) on the mouth-effect decal, from the model's own vertices."""
+    V = model['vertices']; parts = {p['name']: p for p in model['parts']}
+    def front(name): return [V[(parts[name]['start']+i)*8:(parts[name]['start']+i)*8+8] for i in range(parts[name]['count'])]
+    face = [v for v in front('face_effect_mouth') if v[7] < -.2]
+    a, b = min(face, key=lambda v: v[0]), max(face, key=lambda v: v[0]); lo, hi = min(face, key=lambda v: v[1]), max(face, key=lambda v: v[1])
+    u = (a[3]+(0-a[0])*(b[3]-a[3])/(b[0]-a[0]))*size
+    ys = [v[1] for v in front('mamu_mark')] if 'mamu_mark' in parts else [(lo[1]+hi[1])/2]
+    y = (min(ys)+max(ys))/2
+    return u, (lo[4]+(y-lo[1])*(hi[4]-lo[4])/(hi[1]-lo[1]))*size
+
+
+def wet_bottom(stage):
+    """The wet base under the stream, in the continuous sole projection the baked sole uses (WoundRenderer.soleTexture:
+    1024x256, u around the body with the face front at the centre column, v = (2 - y)/2.5 for y = height x 9.6, rows below
+    v 0.8 unused), drawn on a 64x16 grid of 16 px cells (about one face texel each) in the stream's line language: an
+    outlined pale wet patch rising to a rounded top at the front centre, its edge running up in short tongues, a highlight. stage 1-3 grow
+    with the flow; 4 (dry): the full patch with a broken outline, a thin fill and no highlight."""
+    grid = Image.new('RGBA', (64, 16)); px = grid.load(); dry = stage == 4
+    w, t = {1: (2.5, 8), 2: (4.5, 6), 3: (6.5, 4), 4: (6.5, 4)}[stage]
+    def inside(c, r):  # a rounded mound whose top edge runs up in short wet tongues every third column
+        d = abs(c+.5-32)
+        return d <= w and r <= 12 and r >= t+(d/w)**2*(12-t)*.75-(1 if round(d-.5) % 3 == 1 and d < w-1 else 0)
+    core = WET_CORE[:3]+((110,) if dry else (205,))
+    for r in range(16):
+        for c in range(64):
+            if not inside(c, r): continue
+            rim = not all(inside(c+dc, r+dr) for dc, dr in ((1, 0), (-1, 0), (0, -1)))
+            if rim and dry and (c+r) % 2: continue
+            px[c, r] = WET_EDGE if rim else core
     if not dry:
-        for x, y in ((9, 14), (10, 13), (11, 12), (12, 12), (20, 22), (21, 21)): px[x, y] = WET_SHINE
-    if frame < 3:  # the ripple ring where the stream lands (behind the centre), spreading over the three frames
-        r = (1.5, 2.5, 3.5)[frame]
-        for a in range(0, 360, 5):
-            x, y = round(cx+r*1.5*math.cos(math.radians(a))), round(cy-3.5+r*.8*math.sin(math.radians(a)))
-            if px[x, y][3]: px[x, y] = WET_EDGE
-        ticks = ((160, 215, 270, 325, 20), (185, 240, 295, 350), (170, 200, 255, 310, 5))[frame]
-        for a in ticks:  # short radial splash strokes clear of the edge, a loose drop beyond every other one
-            t = math.radians(a); dx, dy = math.cos(t), -math.sin(t)
-            reach = 1/math.hypot(dx/rx, dy/ry)*edge(-t)
-            for k in (2, 3, 4) if a % 2 == 0 else (2, 3):
-                x, y = round(cx+(reach+k)*dx), round(cy+(reach+k)*dy)
-                if 0 <= x < 32 and 0 <= y < 32: px[x, y] = WET_EDGE
-            x, y = round(cx+(reach+6)*dx), round(cy+(reach+6)*dy)
-            if a % 10 == 5 and 0 <= x < 32 and 0 <= y < 32: px[x, y] = WET_EDGE
-    return image
+        for c, r in ((29, t+3), (30, t+2)): px[c, r] = WET_SHINE
+    return grid.resize((1024, 256), Image.NEAREST)
 
 
-def leak_face(face, atlases, found, cells, frame=0):
+def leak_face(face, atlases, found, cells, spot, frame=0):
     neutral, teary, surprise = atlases['neutral'], atlases['teary'], atlases['surprise']
     out = neutral.copy()
     for name in BROWS: out.paste((surprise if face == 'leak_startle' else teary).crop(found[name]), found[name][:2])
@@ -234,7 +237,7 @@ def leak_face(face, atlases, found, cells, frame=0):
     for name in BLUSH: out.paste(blush.crop(found[name]), found[name][:2])
     for name in EYES: big_eye(out, neutral, found[name], 3 if face == 'leak_after' else 0, name.endswith('left'))
     grid_mouth(out, surprise, found[MOUTH], face)
-    leak_wet(out, cells, face, frame)
+    leak_wet(out, cells, spot, face, frame)
     return out
 
 
@@ -261,7 +264,8 @@ def outputs():
         atlases = {n: Image.open(folder/f'{n}.png').convert('RGBA') for n in ('neutral', 'teary', 'surprise', 'flushed_smile')
                    if (folder/f'{n}.png').is_file()}
         cells = boxes(model, teary.width, True)
-        for (face, frame), ident in LEAK_FRAMES.items(): faces[ident] = leak_face(face, atlases, found, cells, frame)
+        spot = anchor(model, teary.width)
+        for (face, frame), ident in LEAK_FRAMES.items(): faces[ident] = leak_face(face, atlases, found, cells, spot, frame)
         records[folder.name] = {}
         for face, out in faces.items():
             data = io.BytesIO(); out.save(data, format='PNG'); data = data.getvalue()
@@ -269,18 +273,18 @@ def outputs():
             records[folder.name][face] = {'runtime': target.relative_to(ROOT).as_posix(), 'sha256': hashlib.sha256(data).hexdigest()}
         records[folder.name]['from'] = {n: hashlib.sha256((folder/f'{n}.png').read_bytes()).hexdigest() for n in ('teary', 'neutral', 'surprise', 'flushed_smile')
                                          if (folder/f'{n}.png').is_file()}
-    puddles = {}
-    for frame, name in enumerate(PUDDLES):
-        data = io.BytesIO(); puddle(frame).save(data, format='PNG'); files[EFFECTS/f'{name}.png'] = data.getvalue()
-        puddles[name] = {'runtime': (EFFECTS/f'{name}.png').relative_to(ROOT).as_posix(), 'sha256': hashlib.sha256(data.getvalue()).hexdigest()}
+    wet = {}
+    for stage, name in enumerate(WET, 1):
+        data = io.BytesIO(); wet_bottom(stage).save(data, format='PNG'); files[BOTTOM/f'{name}.png'] = data.getvalue()
+        wet[name] = {'runtime': (BOTTOM/f'{name}.png').relative_to(ROOT).as_posix(), 'sha256': hashlib.sha256(data.getvalue()).hexdigest()}
     manifest = {'status': 'pending_user_review', 'origin': 'project design', 'recipe': {'sad': 'teary atlas, tear and mouth-effect cells from neutral, top quarter of each eye under a flat lid line',
                            'afraid': 'teary atlas, tear and mouth-effect cells from neutral, eyes from surprise with a small dark pupil, a pressed zigzag mouth',
                            'leak_startle': 'neutral atlas, surprise brows, flushed_smile blush, big round wet eyes in the neutral eye colours, a small round open mouth, a first trickle',
-                           'leak_flow': 'neutral atlas, teary brows and welling tears, flushed_smile blush, big round wet eyes, a wide open mouth with the tongue, one running stream at the centre (frames b, c)',
+                           'leak_flow': 'neutral atlas, teary brows and welling tears, flushed_smile blush, big round wet eyes, a wide open mouth with the tongue, one running stream from the mamu site on the centre line (frames b, c)',
                            'leak_after': 'neutral atlas, teary brows and welling tears, flushed_smile blush, big wet eyes under a lowered lid, a wavering mouth, a drying streak and a last drop (frame b)',
-                           'leak_puddle': 'textures/effects: the ground pool under the front of the body; flow (b, c: ripple and splash ticks move), still, dry (broken outline, fading)'},
+                           'leak_wet': 'textures/props/body_wounds, sole projection: an outlined pale wet patch at the front base under the stream, stages 1-3 growing, dry (broken outline, thin fill)'},
                 'builder': Path(__file__).relative_to(ROOT).as_posix(), 'builder_sha256': hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
-                'models': records, 'puddle': puddles}
+                'models': records, 'wet_bottom': wet}
     files[HERE/'manifest.json'] = (json.dumps(manifest, indent=2)+'\n').encode()
     return files
 
@@ -291,4 +295,4 @@ if __name__ == '__main__':
     for path, data in files.items():
         if args.check: assert path.is_file() and path.read_bytes() == data, 'Outdated: '+str(path)
         else: path.write_bytes(data)
-    print(f'sad, afraid and leak faces for {(len(files)-1-len(PUDDLES))//8} models and the leak puddle '+('verified' if args.check else 'written'))
+    print(f'sad, afraid and leak faces for {(len(files)-1-len(WET))//8} models and the wet bottom '+('verified' if args.check else 'written'))

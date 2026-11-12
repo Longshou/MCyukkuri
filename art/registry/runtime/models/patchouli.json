@@ -2,10 +2,10 @@
   "geometry_identifier": "patchouli",
   "base_species": "reimu",
   "selected_model": "standards/yukkuri-library/assembled/patchouli/patchouli.bbmodel",
-  "selected_model_sha256": "2b89b586697b2aaeb49c115af41ca6c3a4088136d0f8f629c4b8ed736cfe7807",
+  "selected_model_sha256": "a0e676bfce6d1fe9353c2f88c313ceece1cd0f79b4f36eff21a0fddcb22ede00",
   "selected_rig": "standards/yukkuri-library/assembled/patchouli/animation-rig.json",
-  "selected_rig_sha256": "f6183496cd05aca0a46c4b319a76740f21d3b2c27e0a24baf8a63f83a72f9b68",
-  "selected_runtime_sha256": "5620117af3f798672251454b15025c07b36e7be0169ebb6480773d76872207bc",
+  "selected_rig_sha256": "a60c087c39c598cb3d1fe13014c3ff0e8a59e3d7edc08baa5e776c2b83b33232",
+  "selected_runtime_sha256": "fc38037df81748a2f7cfeabd93e1aa04ae11915ce59c9308725e8889a5fdb608",
   "snapshot": "art/source/rounded-runtime/patchouli/selected/patchouli.bbmodel",
   "retargeting": {
     "source_weights_preserved": true,
@@ -17,7 +17,7 @@
   "runtime_acceptance": "pending_current_verification",
   "appearance_note": "Confirmed rounded-body baseline; selected hair-contact revision and Deibu face/bow remain pending visual confirmation",
   "runtime": "src/main/resources/assets/mcyukkuri/yukkuri/patchouli.json",
-  "runtime_sha256": "a3c6aa776162f635f40165a66226a6aa7698b20560e93e7c69995142d3154562",
+  "runtime_sha256": "0d0f1bc850d9be387e6e68ac90226f3dd176be4d0579a6980da6109d91b128ab",
   "rig": "art/source/rounded-runtime/patchouli/animation-rig.json",
   "bone_count": 265,
   "clips": [

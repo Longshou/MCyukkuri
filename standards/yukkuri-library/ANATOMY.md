@@ -1,6 +1,6 @@
 # 标准伸缩部件
 
-圆润标准角色使用 [body-standard/anatomy.json](body-standard/anatomy.json) 与其生成的合并组件和骨架。两部位均为肤色。佩尼佩尼是一个浑然一体的圆润短柱加圆头（三块交叉方柱磨圆长棱，再接一层圆头），整体上翘 25°；麻姆麻姆是贴平身体的肤色底片上一道深色竖线（共用组件 `components/common/anatomy.json`）。麻姆麻姆和佩尼佩尼位于同一前下方表面挂点，油菊在后方；胎生使用该前方出口。原作部件与位置依据见[位置与轮廓记录](../yukkuri-v1/references/contact-position.md)。
+圆润标准角色使用 [body-standard/anatomy.json](body-standard/anatomy.json) 与其生成的合并组件和骨架。两部位均为肤色。佩尼佩尼是一截粗细均匀的小触角：光滑椭圆短柱加圆头（组件 `peni_stub`，由 `body-standard/build.py` 生成网格，五个 `peni_taper_` 方块只作外包框），整体上翘 25°；麻姆麻姆是贴平身体的肤色底片上一道深色竖线（共用组件 `components/common/anatomy.json`）。麻姆麻姆和佩尼佩尼位于同一前下方表面挂点，油菊在后方；胎生使用该前方出口。原作部件与位置依据见[位置与轮廓记录](../yukkuri-v1/references/contact-position.md)。
 
 螺壳魔理沙 `marisa_tsumuri` 也使用同一控制接口；两部位随身体缩入壳内。见[螺壳标准模型](TSUMURI.md)。前方根部使用独立皮肤挂点，随身体动作移动。
 

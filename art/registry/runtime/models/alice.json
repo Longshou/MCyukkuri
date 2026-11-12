@@ -2,10 +2,10 @@
   "geometry_identifier": "alice",
   "base_species": "reimu",
   "selected_model": "standards/yukkuri-library/assembled/alice/alice.bbmodel",
-  "selected_model_sha256": "8a925e136f3c62101b4c4a4efc8550422678bda4b94b05f4a8351e087f04a049",
+  "selected_model_sha256": "c504b701310833c9267533cf4913d87b71d98124d66c1cd214f647ea21373e9b",
   "selected_rig": "standards/yukkuri-library/assembled/alice/animation-rig.json",
-  "selected_rig_sha256": "bef99fb464e5f5b3104f994f1589ff0516a9e6454483c441107dea2ba07e528c",
-  "selected_runtime_sha256": "7ebc1e9f9d64c5daaf044eaa9be469edabc6811a17df4c31e31d8cc3c6f2a26a",
+  "selected_rig_sha256": "43dd37a65caa374c7e8ec75fc7bfd729299f577c6df59176125ee2203e52c28c",
+  "selected_runtime_sha256": "7c008a7839a16505f99c4a80b3401f8f41dcaa62b3af1aa414a757bff5a755d7",
   "snapshot": "art/source/rounded-runtime/alice/selected/alice.bbmodel",
   "retargeting": {
     "source_weights_preserved": true,
@@ -16,7 +16,7 @@
   "runtime_acceptance": "pending_current_verification",
   "appearance_note": "Confirmed rounded-body baseline; selected hair-contact revision and Deibu face/bow remain pending visual confirmation",
   "runtime": "src/main/resources/assets/mcyukkuri/yukkuri/alice.json",
-  "runtime_sha256": "a05b8f58cd38deaf1d6d50f15efe4da8518df0b6b7549f4503b90088da8be1f3",
+  "runtime_sha256": "a8061f378141b236e95db2be7ba05d5d986a19f6279c4c98551ab51fb85c3a92",
   "rig": "art/source/rounded-runtime/alice/animation-rig.json",
   "bone_count": 262,
   "clips": [
