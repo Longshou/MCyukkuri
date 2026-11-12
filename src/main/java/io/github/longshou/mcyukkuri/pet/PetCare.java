@@ -193,14 +193,21 @@ public final class PetCare {
             animal.dailyLife().comfort(15); requests.answer(PetRequests.Kind.NUZZLE);
         }
     }
-    public void praise(Player player) {
-        affection(player);
-        if (animal.pet().owned(player) && habitLeft > 0) {
-            habits++;
-            animal.pet().addStress(-1);
-            animal.playAction("joy_jump"); animal.mind().felt(EmotionEvent.PRAISED); animal.showReaction("happy", "lesson_praised", 70); Staging.sparkle(level(), markPos());
-            closeHabit();
+    public boolean praise(Player player) {
+        boolean sleeping = animal.life().isSleeping();
+        if (!sleeping) affection(player);
+        if (!animal.pet().owned(player) || habitLeft <= 0) return false;
+        habits++;
+        animal.pet().addStress(-1);
+        if (sleeping) animal.mind().felt(EmotionEvent.PRAISED, null);
+        else {
+            animal.playAction("joy_jump");
+            animal.mind().felt(EmotionEvent.PRAISED);
+            animal.showReaction("happy", "lesson_praised", 70);
         }
+        Staging.sparkle(level(), markPos());
+        closeHabit();
+        return true;
     }
     public void reprimand(Player player, CareAction action) {
         if (animal.pet().owned(player) && habitLeft > 0) {

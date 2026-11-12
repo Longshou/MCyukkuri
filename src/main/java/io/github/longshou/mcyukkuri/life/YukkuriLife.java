@@ -911,10 +911,11 @@ public final class YukkuriLife {
                     if (!drugged && entity.pet().isPet()) {
                         boolean settled = targetBlock != null && targetBlock.equals(homeStand())
                                 && (nestOccupancy == null || nestOccupancy == Occupancy.INSIDE_SUPPORTED);
-                        if (settled)
-                            Staging.card(level(), entity.position().add(0, entity.getBbHeight() + .65, 0),
+                        if (settled) {
+                            entity.pet().routineCompleted(2);
+                            Staging.card(level(), entity.position().add(0, entity.getBbHeight() + 1, 0),
                                     Component.translatable("pet.mcyukkuri.practice.good_night"), 60, 1.2f);
-                        entity.pet().lessons().performed(PetSkill.BEDTIME, settled);
+                        } else entity.pet().lessons().performed(PetSkill.BEDTIME, false);
                     }
                 }
                 if (sleepTicks >= 20 && wakeAt == 0) energy = Math.min(100, energy + .5f);
