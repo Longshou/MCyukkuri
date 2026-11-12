@@ -14,6 +14,7 @@ public enum YukkuriAction {
     STARTLE("startle", 0.6, false),
     TURN("turn", 0.4, false),
     HOP("hop", 0.8, true),
+    HOP_LEG("hop_leg", 0.9, false),
     STRETCH("stretch", 2.8, true),
     EXERCISE_VERTICAL("exercise_vertical", 2.62, true),
     EXERCISE_SIDES("exercise_sides", 2.36, true),

@@ -218,8 +218,9 @@ def validate():
     used_behaviours = {clip: set() for clip in clips}
     for path, text in java.items():
         if path != action_path:
+            action_references = set(re.findall(r"\bYukkuriAction\.([A-Z][A-Z0-9_]*)\b", text))
             for clip, constant in action_constants.items():
-                if f"YukkuriAction.{constant}" in text:
+                if constant in action_references:
                     used_actions[clip].add(constant)
         if path != behavior_path:
             # A no-op switch arm can guard an expression override without selecting a clip.
@@ -344,7 +345,9 @@ def validate():
                 for path, text in candidates:
                     if member and member not in text:
                         errors.append(f"{where}: {class_name}.{member} not found")
-                    action_reference = clip in action_constants and f"YukkuriAction.{action_constants[clip]}" in text
+                    action_reference = clip in action_constants and re.search(
+                        rf"\bYukkuriAction\.{action_constants[clip]}\b", text
+                    )
                     behaviour_reference = any(f"Behaviors.{constant}" in text for constant in behaviour_constants.get(clip, set()))
                     if f'"{clip}"' not in text and not action_reference and not behaviour_reference:
                         errors.append(f"{where}: {class_name} has no reference to this clip")

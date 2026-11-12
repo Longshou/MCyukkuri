@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.motor.action;
 
+import io.github.longshou.mcyukkuri.entity.YukkuriAction;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.ParentCarry;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
@@ -56,7 +57,7 @@ public final class Hop implements Action {
     public static float carriedClock(CompoundTag motion, double now) { return CarriedHop.clock(motion, now); }
     public static float carriedFacing(CompoundTag motion, double now, float outward) { return CarriedHop.facing(motion, now, outward); }
     public static final String ID = "hop";
-    private static final String CLIP = "hop_leg";
+    private static final String CLIP = YukkuriAction.HOP_LEG.id();
     static final int SETTLE = 10;
     private static final double TOUCH = .05;
     /** How far (blocks) a carried young may graze a block once its carrier's hop is under way: the arc was admitted with it

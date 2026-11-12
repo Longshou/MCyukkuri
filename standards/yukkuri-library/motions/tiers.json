@@ -130,7 +130,7 @@
     "water_hat_over": {"source": "lore", "family": "water", "tier": "special", "classification": {"kind": "special", "reason": "Hat turnover requires custom hat and water geometry."}, "callers": ["no caller"]},
     "hat_brim_offer": {"source": "lore", "family": "water", "tier": "special", "classification": {"kind": "special", "reason": "The offered brim is a real boarding contact."}, "callers": ["no caller"]},
     "hat_hop_up": {"source": "lore", "family": "water", "tier": "special", "classification": {"kind": "near_duplicate_of", "target": "hop_leg"}, "callers": ["no caller"]},
-    "hop_leg": {"source": "lore", "family": "locomotion", "tier": "base", "classification": {"kind": "really_base"}, "callers": ["java:Hop.CLIP"]},
+    "hop_leg": {"source": "lore", "family": "locomotion", "tier": "base", "classification": {"kind": "really_base"}, "callers": ["java:Hop.CLIP", "java:YukkuriAction.HOP_LEG"]},
     "water_bob_lunge": {"source": "lore", "family": "water", "tier": "special", "classification": {"kind": "near_duplicate_of", "target": "water_hat_push"}, "callers": ["no caller"]},
     "hat_slide_over": {"source": "lore", "family": "water", "tier": "special", "classification": {"kind": "special", "reason": "Sliding over a hat uses real support and contact geometry."}, "callers": ["no caller"]},
     "water_mouth_grip": {"source": "lore", "family": "water", "tier": "special", "classification": {"kind": "special", "reason": "Mouth grip and water rescue contact are intrinsic."}, "callers": ["no caller"]},

@@ -10,7 +10,7 @@ ACTION_META = {a: (float(d), loop == 'true') for a, d, loop in re.findall(
     r'^\s+[A-Z_0-9]+\("([a-z_0-9]+)", ([\d.]+), (true|false)\)', ACTION_SOURCE.read_text(), re.M)}
 CATEGORIES = [
     ('身体与移动', [('idle','待机'),('stretch_shape','伸缩身体'),('side_bend','左右侧摆'),
-        ('waddle','行走'),('brace','撑起身体'),('lunge_ram','蓄力撞击'),('turn','转身'),('hop','跳跃'),('stretch','伸展'),
+        ('waddle','行走'),('brace','撑起身体'),('lunge_ram','蓄力撞击'),('turn','转身'),('hop','跳跃'),('hop_leg','屈身蹬跳'),('stretch','伸展'),
         ('exercise_vertical','纵向体操'),('exercise_sides','横向体操'),('press','挤压'),('taiso','广播体操')]),
     ('日常生活', [('eat','进食'),('shiawase','饭后幸福'),('meal_content','吃饱满足瘫软'),('drink','饮水'),('sleep','睡觉'),('wake','醒来'),('shake','甩水'),('sunbathe','晒太阳')]),
     ('交流与情绪', [('nuzzle','蹭蹭'),('comfort_lick','担心舔舐'),('sing','唱歌'),('sway','摇摆'),('greet','打招呼'),('look_around','张望'),
