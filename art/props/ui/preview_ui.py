@@ -117,23 +117,42 @@ def footer(c, left=True):
     if left: button(c, 8, 224, 40, 20, '<'); button(c, 52, 224, 40, 20, '>')
     button(c, 272, 224, 60, 20, tr('gui.done'))
 
-def shop_live(s, focus=2):
-    c = new_canvas(340, 250, s); tabs(c, 0)
-    for i, r in enumerate(ROWS):
+# Live rows mirror client/ShopScreen: a 48 px portrait box (the real model in game; a render of the moment preview here when
+# `portraits/<species>.png` sits in the output folder), then four lines 12 px apart beside it.
+LIVE = [dict(g=3, sp='alice', st=2, price=36, skills=6, tags=(1, 4), hp=10, food=80, zone='display', days=0, mood=2),
+        dict(g=2, sp='reimu', st=2, price=18, skills=6, tags=(6,), hp=10, food=25, zone='display', days=3, mood=1),
+        dict(g=2, sp='remilia', st=2, price=20, skills=6, tags=(2,), hp=4, food=60, zone='display', days=17, mood=4)]
+PORTRAITS = {}
+SKILLS = ('wait', 'food_bowl', 'toilet', 'bedtime', 'reading', 'arithmetic')
+def ellipsize(c, t, w):
+    if c.width(t) <= w: return t
+    while t and c.width(t + '…') > w: t = t[:-1]
+    return t + '…'
+def shop_live(s, focus=1):
+    c = new_canvas(340, 240, s)
+    for i in range(5): c.tab(8 + i * 65, 6, 64, 22, tr(f'shop.mcyukkuri.tab.{i}'), (0, 1, 2, 3, 5)[i], i == 0)
+    text_x, text_w = 8 + 48 + 10, 256 - 48 - 16
+    for i, r in enumerate(LIVE):
         y = 32 + i * 57; c.card(8, y, 256, 56, focus == i + 1); sold = r['zone'] == 'sold'
-        grade_chip(c, 14, y + 4, r['g'], r.get('exp')); gn = tr(f'badge.mcyukkuri.profile.grade.{r["g"]}')
-        x = 25
-        txt = tr('shop.mcyukkuri.row.head2', gn, species(r['sp']), tr(f'human.mcyukkuri.stage.{r["st"]}'))
-        fit(c, x, y + 5, txt, SOFT if r.get('exp') else INK, 256 - 6 - 49 - x - 3 + 8, 'row.head2')
-        c.stars(264 - 6 - 49, y + 4, r['ped']); bars(c, 14, y + 17, r['ab'])
-        tx = 14; t = tagtext(r['tags']); c.text(tx, y + 35, t, SOFT); tx += c.width(t) + 10
-        if r['hp'] < 6: w = tr('shop.mcyukkuri.warn.hurt'); c.text(tx, y + 35, w, WARN); tx += c.width(w) + 8
-        if r['food'] < 30: c.text(tx, y + 35, tr('shop.mcyukkuri.warn.hungry'), WARN)
-        zone = [tr('shop.mcyukkuri.zone.' + r['zone'])] if r['zone'] in ('sold', 'display') else []
-        if r.get('factory'): zone.append(tr('shop.mcyukkuri.origin.factory'))
-        if zone: fit(c, 14, y + 44, '  '.join(zone), WARN if sold else SOFT, 244, 'zone')
+        c.nine(12, y + 4, 48, 48, 80, 80, 16, 3)
+        if r['sp'] in PORTRAITS: c.im.alpha_composite(PORTRAITS[r['sp']].resize((48 * s, 48 * s)), (12 * s, (y + 4) * s))
+        grade_chip(c, text_x, y + 4, r['g'], r.get('exp')); gn = tr(f'badge.mcyukkuri.profile.grade.{r["g"]}')
+        head = tr('shop.mcyukkuri.row.head2', gn, species(r['sp']), tr(f'human.mcyukkuri.stage.{r["st"]}'))
+        c.text(text_x + 11, y + 5, ellipsize(c, head, text_w - 11), INK)
+        skills = tr('pet.mcyukkuri.profile.skills', ', '.join(tr(f'pet.mcyukkuri.skill.{k}') for k in SKILLS[:r['skills']]))
+        c.text(text_x, y + 17, ellipsize(c, skills, text_w), SOFT)
+        tx = text_x; t = tagtext(r['tags']); c.text(tx, y + 29, t, SOFT); tx += c.width(t) + 10
+        if r['hp'] < 6: w = tr('shop.mcyukkuri.warn.hurt'); c.text(tx, y + 29, w, WARN); tx += c.width(w) + 8
+        if r['food'] < 30: c.text(tx, y + 29, tr('shop.mcyukkuri.warn.hungry'), WARN)
+        zone = tr('shop.mcyukkuri.days', r['days'])
+        if r['zone'] in ('sold', 'display'): zone += ' · ' + tr('shop.mcyukkuri.zone.' + r['zone'])
+        zone = ellipsize(c, zone, text_w); c.text(text_x, y + 41, zone, WARN if sold else SOFT)
+        if not sold and r['mood']:
+            zx = text_x + c.width(zone) + 8
+            fit(c, zx, y + 41, ellipsize(c, tr(f'shop.mcyukkuri.mood.{r["mood"]}'), text_x + text_w - zx), WARN if r['mood'] in (4, 5) else '#2f6b3f', text_w, 'mood')
         button(c, 270, y + 3, 62, 16, tr('shop.mcyukkuri.buy_price', r['price']), not sold); button(c, 270, y + 20, 62, 16, tr('shop.mcyukkuri.locate')); button(c, 270, y + 37, 62, 16, tr('shop.mcyukkuri.about'))
-    footer(c); c.text(100, 230, tr('shop.mcyukkuri.page', 1, 3), SOFT); return c
+    button(c, 8, 214, 40, 20, '<'); button(c, 52, 214, 40, 20, '>'); button(c, 272, 214, 60, 20, tr('gui.done'))
+    c.text(100, 220, tr('shop.mcyukkuri.page', 1, 3), SOFT); return c
 
 def subject_block(c, grade, sp, ab, ped, tags, hp, food, hyg):
     fit(c, 16, 38, tr('shop.mcyukkuri.subject', 1, 3, species(sp), tr(f'badge.mcyukkuri.profile.grade.{grade}'), tr('human.mcyukkuri.stage.2')), INK, 308, 'subject')
@@ -236,10 +255,11 @@ if __name__ == '__main__':
     out = Path(sys.argv[1]) if len(sys.argv) > 1 else HERE.parents[2] / '.local' / 'previews' / 'shop-ui'
     out.mkdir(parents=True, exist_ok=True)
     langs = [sys.argv[2]] if len(sys.argv) > 2 else ['zh_cn', 'en_us', 'ja_jp']
+    for p in (out / 'portraits').glob('*.png'): PORTRAITS[p.stem] = Image.open(p).convert('RGBA')
     for lang in langs:
         L.clear(); L.update(json.loads((HERE.parents[2] / f'src/main/resources/assets/mcyukkuri/lang/{lang}.json').read_text(encoding='utf-8'))); L.setdefault('gui.done', {'zh_cn': '完成', 'ja_jp': '完了'}.get(lang, 'Done'))
         print('==', lang)
-        for name, make, w, h in [('shop_live', shop_live, 340, 250), ('shop_goods', shop_goods, 340, 250), ('shop_buyback', shop_buyback, 340, 250), ('shop_consult', shop_consult, 340, 250), ('exam', exam, 340, 250), ('keeper', keeper, 300, 220), ('badge', badge, 360, 250)]:
+        for name, make, w, h in [('shop_live', shop_live, 340, 240), ('shop_goods', shop_goods, 340, 250), ('shop_buyback', shop_buyback, 340, 250), ('shop_consult', shop_consult, 340, 250), ('exam', exam, 340, 250), ('keeper', keeper, 300, 220), ('badge', badge, 360, 250)]:
             print('-', name)
             c = make(2); c.im.convert('RGB').save(out / f'{name}_{lang}_x2.png')
             viewport(make(2), w, h, 2).convert('RGB').save(out / f'{name}_{lang}_1080p-auto.png')
