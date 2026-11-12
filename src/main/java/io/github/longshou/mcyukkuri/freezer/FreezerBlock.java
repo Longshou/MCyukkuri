@@ -2,7 +2,6 @@ package io.github.longshou.mcyukkuri.freezer;
 
 import io.github.longshou.mcyukkuri.item.CarrierContents;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
-import io.github.longshou.mcyukkuri.shop.ShopDeliveries;
 import io.github.longshou.mcyukkuri.notebook.SurvivalProgress;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import net.minecraft.core.BlockPos;
@@ -50,7 +49,6 @@ public final class FreezerBlock extends HorizontalDirectionalBlock {
                 player.displayClientMessage(Component.translatable("freezer.mcyukkuri.store_failed"), true); return false;
             }
             CarrierContents.remove(stack, token);
-            ShopDeliveries.clearDestination(stack);
             SurvivalProgress.award(player, "cold_storage");
             GameplayLog.event(player, "freezer", "action=store result=committed retired_token={} occupied={}->{}", token, before, world.freezer.count(player.getUUID()));
         } else {

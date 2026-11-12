@@ -7,7 +7,7 @@ import io.github.longshou.mcyukkuri.entity.YukkuriVariant;
 import io.github.longshou.mcyukkuri.human.Custody;
 import io.github.longshou.mcyukkuri.human.HumanCommerce;
 import io.github.longshou.mcyukkuri.human.HumanNpc;
-import io.github.longshou.mcyukkuri.item.CarrierItem;
+import io.github.longshou.mcyukkuri.item.CarrierContents;
 import io.github.longshou.mcyukkuri.life.CareBlock;
 import io.github.longshou.mcyukkuri.life.CareBlockEntity;
 import io.github.longshou.mcyukkuri.life.PoopBlockEntity;
@@ -192,7 +192,7 @@ public final class ShopStaff {
             start(staff, job, shop.trash().getCenter()); return true;
         }
         if (!hand.is(ModItems.CARRIER.get())) return false;
-        UUID token = CarrierItem.token(hand);
+        UUID token = CarrierContents.singleToken(hand);
         var custody = YukkuriWorldData.get(level);
         if (token == null || !custody.hasToken(token)) {
             staff.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY); // an empty basket is put away
@@ -311,7 +311,7 @@ public final class ShopStaff {
                 y.life().releaseHome();
                 job.token = YukkuriWorldData.get(level).capture(y);
                 if (job.token == null) { end(staff, job, "capture_refused"); return; }
-                staff.setItemInHand(InteractionHand.MAIN_HAND, HumanCommerce.carrier(y, job.token));
+                staff.setItemInHand(InteractionHand.MAIN_HAND, CarrierContents.plain(YukkuriWorldData.get(level), job.token));
                 GameplayLog.event(staff, "shop", "action=ship_out result=packed shop={} target={} token={}", shop.keeper, y.getUUID(), job.token);
                 carryTo(job, shop.dock());
             }
@@ -340,7 +340,7 @@ public final class ShopStaff {
                 if (job.loose != null) { basket = job.loose.getItem().copy(); job.loose.discard(); }
                 else { var dock = (Container) level.getBlockEntity(shop.dock()); int slot = dockBasket(level, shop); basket = dock.removeItemNoUpdate(slot); dock.setChanged(); }
                 staff.setItemInHand(InteractionHand.MAIN_HAND, basket);
-                job.token = CarrierItem.token(basket);
+                job.token = CarrierContents.singleToken(basket);
                 GameplayLog.event(staff, "shop", "action=settle result=lifted shop={} token={} from={}", shop.keeper, job.token, job.loose != null ? "floor" : "dock");
                 job.loose = null; job.animal = null;
                 carryTo(job, destinationOr(level, shop, staff));
@@ -359,7 +359,7 @@ public final class ShopStaff {
 
     private static void carry(ServerLevel level, HumanNpc staff, ShopRegistry.Entry shop, Job job) {
         var hand = staff.getMainHandItem();
-        boolean holding = job.kind == Kind.CLEAN ? hand.is(ModItems.WASTE.get()) : job.token != null && job.token.equals(CarrierItem.token(hand));
+        boolean holding = job.kind == Kind.CLEAN ? hand.is(ModItems.WASTE.get()) : job.token != null && job.token.equals(CarrierContents.singleToken(hand));
         if (!holding) { end(staff, job, "hand_changed"); return; }
         if (job.target == null) { fail(level, staff, shop, job, "no_destination"); return; }
         // A nest taken meanwhile is exchanged for another free one (or the barrel).
@@ -461,7 +461,7 @@ public final class ShopStaff {
         JOBS.remove(staff.getUUID(), job);
         staff.getNavigation().stop();
         var hand = staff.getMainHandItem();
-        if (hand.is(ModItems.CARRIER.get()) && CarrierItem.token(hand) == null) staff.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
+        if (hand.is(ModItems.CARRIER.get()) && CarrierContents.singleToken(hand) == null) staff.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
         GameplayLog.event(staff, "shop", "action=job result=end kind={} phase={} reason={} token={} leg_ticks={}", job.kind, job.phase, reason, job.token, job.leg);
     }
 
@@ -469,7 +469,7 @@ public final class ShopStaff {
     public static void staffDied(HumanNpc staff, ServerLevel level) {
         var job = JOBS.remove(staff.getUUID());
         var hand = staff.getMainHandItem();
-        UUID token = CarrierItem.token(hand);
+        UUID token = CarrierContents.singleToken(hand);
         if (hand.isEmpty() || hand.is(ModItems.CARRIER.get()) && token == null) return;
         UUID target = null;
         if (token != null) {
@@ -515,20 +515,21 @@ public final class ShopStaff {
 
     /** Where a held or waiting stock basket goes: a free nest for its animal; an animal marked to ship out goes to the barrel. */
     static BlockPos destination(ServerLevel level, ShopRegistry.Entry shop, ItemStack basket, Vec3 near) {
-        UUID token = CarrierItem.token(basket);
+        UUID token = CarrierContents.singleToken(basket);
         if (token == null) return null;
         var snapshot = YukkuriWorldData.get(level).captiveSnapshot(token);
         if (shipOut(snapshot)) return shop.dock();
-        return freeNest(level, shop, predator(basket), near);
+        return freeNest(level, shop, predator(snapshot), near);
     }
-    static boolean predator(ItemStack basket) {
-        String id = basket.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag().getString("Variant");
-        for (var v : YukkuriVariant.values()) if (v.assetId().equals(id)) return SpeciesProfile.of(v).dangerToYukkuri();
+    /** Whether the basketed individual (its saved snapshot) is a predator species, which lives on predator nests. */
+    static boolean predator(net.minecraft.nbt.CompoundTag snapshot) {
+        String id = snapshot.getString("id");
+        for (var v : YukkuriVariant.values()) if (id.endsWith(":" + v.assetId())) return SpeciesProfile.of(v).dangerToYukkuri();
         return false;
     }
     /** A basket holding one of this shop's stock animals. */
     static boolean shopBasket(ServerLevel level, ShopRegistry.Entry shop, ItemStack stack) {
-        UUID token = CarrierItem.token(stack);
+        UUID token = CarrierContents.singleToken(stack);
         if (!stack.is(ModItems.CARRIER.get()) || token == null || !YukkuriWorldData.get(level).hasToken(token)) return false;
         var view = Custody.fromSnapshot(YukkuriWorldData.get(level).captiveSnapshot(token));
         return view.role() == Custody.Role.STOCK && view.ownedBy(shop.keeper);
@@ -538,7 +539,7 @@ public final class ShopStaff {
         if (shop.dock() == null || !(level.getBlockEntity(shop.dock()) instanceof Container dock)) return -1;
         for (int slot = 0; slot < dock.getContainerSize(); slot++) {
             var stack = dock.getItem(slot);
-            if (shopBasket(level, shop, stack) && !shipOut(YukkuriWorldData.get(level).captiveSnapshot(CarrierItem.token(stack)))) return slot;
+            if (shopBasket(level, shop, stack) && !shipOut(YukkuriWorldData.get(level).captiveSnapshot(CarrierContents.singleToken(stack)))) return slot;
         }
         return -1;
     }

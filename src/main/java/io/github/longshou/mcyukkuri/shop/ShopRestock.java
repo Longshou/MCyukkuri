@@ -6,7 +6,7 @@ import io.github.longshou.mcyukkuri.entity.YukkuriVariant;
 import io.github.longshou.mcyukkuri.family.GrowthTiming;
 import io.github.longshou.mcyukkuri.human.Custody;
 import io.github.longshou.mcyukkuri.human.HumanCommerce;
-import io.github.longshou.mcyukkuri.item.CarrierItem;
+import io.github.longshou.mcyukkuri.item.CarrierContents;
 import io.github.longshou.mcyukkuri.life.CareBlock;
 import io.github.longshou.mcyukkuri.life.CareBlockEntity;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
@@ -75,15 +75,15 @@ public final class ShopRestock {
         if (dock != null) for (int slot = 0; slot < dock.getContainerSize(); slot++) {
             var stack = dock.getItem(slot);
             if (!ShopStaff.shopBasket(level, shop, stack)) continue;
-            var token = CarrierItem.token(stack);
+            var token = CarrierContents.singleToken(stack);
             if (ShopStaff.shipOut(custody.captiveSnapshot(token))) {
                 // The wholesaler takes the outgoing baskets; the individual leaves the world with them.
                 custody.forgetCaptive(token);
                 dock.setItem(slot, ItemStack.EMPTY);
                 shipped++;
                 GameplayLog.world(level, "shop", "action=restock result=shipped shop={} token={} species={}", shop.keeper, token,
-                        stack.getOrDefault(net.minecraft.core.component.DataComponents.CUSTOM_DATA, net.minecraft.world.item.component.CustomData.EMPTY).copyTag().getString("Variant"));
-            } else if (ShopStaff.predator(stack)) waitingPredator++;
+                        custody.captiveSnapshot(token).getString("id"));
+            } else if (ShopStaff.predator(custody.captiveSnapshot(token))) waitingPredator++;
             else waitingLand++;
         }
         // Adults beyond the two kept go out next: the longest on the shelf first; reserved ones and those being bought stay.
@@ -118,7 +118,7 @@ public final class ShopRestock {
             if (basket == null) break;
             if (!ShopStaff.insert(dock, basket).isEmpty()) {
                 GameplayLog.world(level, "shop", "action=restock result=barrel_full shop={} dropped=none", shop.keeper);
-                custody.forgetCaptive(CarrierItem.token(basket));
+                custody.forgetCaptive(CarrierContents.singleToken(basket));
                 break;
             }
             if (adult) keptAdults++;
@@ -160,7 +160,7 @@ public final class ShopRestock {
         var token = YukkuriWorldData.get(level).capture(y);
         if (token == null) return null; // it stays in the back room as stock, where staff and the roster see it
         GameplayLog.event(y, "shop", "action=restock result=arrival shop={} stage={} adult={} token={}", shop.keeper, y.family().stageId(), adult, token);
-        return HumanCommerce.carrier(y, token);
+        return CarrierContents.plain(YukkuriWorldData.get(level), token);
     }
     private static int between(RandomSource random, int low, int high) { return low + random.nextInt(high - low + 1); }
 

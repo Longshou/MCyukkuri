@@ -4,8 +4,8 @@ import io.github.longshou.mcyukkuri.entity.SpeciesProfile;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.human.Custody;
 import io.github.longshou.mcyukkuri.human.HumanCommerce;
-import io.github.longshou.mcyukkuri.item.CarrierContents;
 import io.github.longshou.mcyukkuri.human.HumanNpc;
+import io.github.longshou.mcyukkuri.item.CarrierContents;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.notebook.SurvivalProgress;
 import io.github.longshou.mcyukkuri.random.ModRandom;
@@ -15,6 +15,7 @@ import java.util.UUID;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -148,7 +149,7 @@ public final class ShopTrade {
             if (player != null) say(player, "buy.cancelled.capture", y.getDisplayName());
             return null;
         }
-        staff.setItemInHand(InteractionHand.MAIN_HAND, HumanCommerce.carrier(y, token));
+        staff.setItemInHand(InteractionHand.MAIN_HAND, CarrierContents.plain(YukkuriWorldData.get(level), token));
         ShopRegistry.get(level).sold(shop, y.getUUID());
         if (player != null) {
             debit(player, due);
@@ -262,7 +263,7 @@ public final class ShopTrade {
             return null;
         }
         y.pet().rotateSerial(); // a badge token the seller still holds must not outlive the sale
-        staff.setItemInHand(InteractionHand.MAIN_HAND, HumanCommerce.carrier(y, token));
+        staff.setItemInHand(InteractionHand.MAIN_HAND, CarrierContents.plain(YukkuriWorldData.get(level), token));
         pay(player, price);
         SurvivalProgress.award(player, "pet_sold");
         say(player, "sell.paid", price, y.getDisplayName());

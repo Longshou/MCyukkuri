@@ -7,7 +7,6 @@ import io.github.longshou.mcyukkuri.interaction.InteractionDispatch;
 import io.github.longshou.mcyukkuri.human.Custody;
 import io.github.longshou.mcyukkuri.human.HumanCommerce;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
-import io.github.longshou.mcyukkuri.shop.ShopDeliveries;
 import io.github.longshou.mcyukkuri.shop.ShopPerformance;
 import io.github.longshou.mcyukkuri.social.Bonds;
 import java.util.HashMap;
@@ -54,7 +53,6 @@ public final class CarrierItem extends Item {
         for (UUID token : CarrierContents.tokens(stack)) {
             if (world.hasToken(token) && !world.freezer.contains(token)) continue;
             CarrierContents.remove(stack, token);
-            ShopDeliveries.clearDestination(stack);
         }
     }
 
@@ -182,7 +180,6 @@ public final class CarrierItem extends Item {
             return "condition";
         }
         CarrierContents.add(stack, token, world.captiveSnapshot(token));
-        ShopDeliveries.clearDestination(stack);
         player.displayClientMessage(Component.translatable("care.mcyukkuri.carrier.captured", entity.getName()), true);
         GameplayLog.event(player,"carrier","action=capture result=committed target={} token={} load={}->{} capacity={}",
                 entity.getUUID(),token,before,before + added,grade.capacity);
@@ -206,7 +203,6 @@ public final class CarrierItem extends Item {
             if (entity == null) return blocked(context);
             if (!entity.life().sedated()) { entity.playAction("basket_out"); entity.speak("basket_exit"); } // a sedated animal simply keeps sleeping
             CarrierContents.remove(stack, token);
-            ShopDeliveries.clearDestination(stack);
             GameplayLog.event(context.getPlayer(),"carrier","action=release result=committed target={} token={} remaining={}",entity.getUUID(),token,tokens.size() - 1);
         }
         return InteractionResult.sidedSuccess(context.getLevel().isClientSide);

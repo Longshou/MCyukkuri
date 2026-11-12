@@ -5,7 +5,6 @@ import io.github.longshou.mcyukkuri.entity.*;
 import io.github.longshou.mcyukkuri.item.CarrierContents;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.registry.ModItems;
-import io.github.longshou.mcyukkuri.shop.ShopDeliveries;
 import java.util.*;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
@@ -155,18 +154,7 @@ public final class HumanMenu extends AbstractContainerMenu {
         if (CustodyData.get(level).deadNpc(target.getUUID())) return refused(p,target,"deliver","npc_dead");
         ItemStack hand = p.getMainHandItem();
         var world = YukkuriWorldData.get(level);
-        UUID token;
-        if (rescue) {
-            if (target.questComplete() || !p.getUUID().equals(target.questPlayer()))
-                return refused(p,target,"return_lost",target.questComplete()?"quest_complete":"wrong_quest_player");
-            var lost = target.lostAnimal();
-            if (lost == null) return refused(p,target,"return_lost","wrong_animal");
-            token = CarrierContents.tokens(hand).stream()
-                    .filter(candidate -> lost.equals(world.captiveIdentity(candidate))).findFirst().orElse(null);
-            if (token == null) return refused(p,target,"return_lost","wrong_animal");
-        } else {
-            token = CarrierContents.singleToken(hand);
-        }
+        UUID token = CarrierContents.singleToken(hand);
         var snapshot = world.captiveSnapshot(token);
         if (!snapshot.hasUUID("UUID")) return refused(p,target,"deliver","no_valid_captive");
         UUID identity = snapshot.getUUID("UUID");
@@ -180,13 +168,12 @@ public final class HumanMenu extends AbstractContainerMenu {
         YukkuriEntity released = null;
         for (BlockPos pos : BlockPos.betweenClosed(target.blockPosition().offset(-2, 0, -2), target.blockPosition().offset(2, 0, 2))) {
             if (!level.hasChunkAt(pos) || !level.getBlockState(pos.below()).isSolidRender(level, pos.below())) continue;
-            released = rescue ? world.releaseOnGround(token, level, Vec3.atBottomCenterOf(pos), 0)
-                    : world.release(token, level, Vec3.atBottomCenterOf(pos), 0);
+            released = world.release(token, level, Vec3.atBottomCenterOf(pos), 0);
             if (released != null) break;
         }
         if (released == null) return refused(p,target,"deliver","no_release_position_or_token_unavailable");
         Custody.assign(released, target, parent ? Custody.Role.RESERVE_PARENT : Custody.Role.INPUT);
-        hand.remove(DataComponents.CUSTOM_DATA);
+        CarrierContents.remove(hand, token);
         target.receivedInput();
         give(p, new ItemStack(Items.EMERALD, 3));
         GameplayLog.event(p,"human-trade","action=deliver result=committed npc={} target={} role={} emeralds_received={}",target.getUUID(),identity,Custody.view(released).role(),3);
