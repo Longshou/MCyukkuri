@@ -224,7 +224,9 @@ public final class ShopWindow implements MotorOwner {
         double fear = p.fear(c.getUUID()) + (c instanceof HumanNpc n && n.attitude() == HumanNpc.Attitude.CRUEL ? CRUEL_FEAR : 0);
         int grade = entity.pet().effectiveGrade().id();
         double want = .4 * p.friendliness() + .4 * p.boldness() + 40 * hope - .6 * fear + jitter();
-        double pride = grade >= BadgeGrade.SILVER.id() ? 25 + 10 * grade + .3 * (100 - p.friendliness()) + .2 * p.boldness() + jitter() : Double.NEGATIVE_INFINITY;
+        // Posing is showing off to be chosen too: a badge holder long passed over loses the heart for it (60 % of it at no hope left).
+        double pride = grade >= BadgeGrade.SILVER.id()
+                ? (25 + 10 * grade + .3 * (100 - p.friendliness()) + .2 * p.boldness()) * (.6 + .4 * hope) + jitter() : Double.NEGATIVE_INFINITY;
         double shy = 1.1 * (100 - p.boldness()) - 15 + .8 * fear + jitter();
         double sulk = 90 * (1 - hope) + .5 * (100 - p.selfControl()) - 30 + jitter();
         Mode chosen = want >= pride && want >= shy && want >= sulk
