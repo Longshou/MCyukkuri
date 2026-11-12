@@ -22,13 +22,14 @@ SIZE = 16
 
 # ---- ramps (dark -> light); index 0 is the outline step ---------------------------------------------------------------
 IRON = ['#3a3f4b', '#5f6878', '#8b95a5', '#b8c1cd', '#e6ecf2']        # blades, spikes, rings, box
-DRUM = ['#18191f', '#25272e', '#33363e', '#464a54', '#6a707b']        # black hammer drum (Hakkei mallet)
+DRUM = ['#1f222b', '#30343f', '#444a58', '#5d6475', '#848ca0']        # blue-black hammer drum (Hakkei mallet)
 WOOD = ['#3f2913', '#664423', '#8c6232', '#b3854a', '#d3a96c']        # handles, restraint board
 PINK = ['#7c2846', '#b5466b', '#e2718f', '#f7a6bb', '#ffe0e9']        # pin head, rotor
 RED = ['#55121a', '#8a2329', '#b93a3a', '#dc625a', '#f39a8c']         # tailor-shear bows
-LEATHER = ['#2e170c', '#4f2b18', '#714126', '#93603a']                # restraint straps, clipper grips
+LEATHER = ['#2e170c', '#4f2b18', '#714126', '#93603a']                # clipper grips
+STRAP = ['#4a1a10', '#7c3020', '#a54a2e', '#c86c45']                  # reddish restraint straps
 BRASS = ['#6a4710', '#a3781f', '#d4ac3a', '#f5dd7a']                  # buckles, pivot rivets, lamp collar
-CLOTH = ['#776c5d', '#ada38e', '#d6cdb9', '#efe8d8', '#fffdf6']       # sling wrap
+CLOTH = ['#5f6672', '#99a1ae', '#c8cfd9', '#e6ebf1', '#ffffff']       # cool white sling wrap (apart from flour paste)
 STRING = ['#6f6556', '#a99f8a', '#d9d1bf']
 HOT = ['#6e1708', '#b9320c', '#ec6417', '#ffaa33', '#fff0a0']         # heated spike, glowing to the tip
 GLASS = ['#557fae', '#8bb0d4', '#b4cfe9', '#dbeaf7']                  # same glass as the orange-juice bottle
@@ -100,7 +101,7 @@ class Icon:
             for x in range(SIZE):
                 u, v = (x - cx) / rx, (y - cy) / ry
                 if u * u + v * v <= 1 + 1e-6:
-                    cells[(x, y)] = -(u * LIGHT[0] + v * LIGHT[1]) * .9 - .05
+                    cells[(x, y)] = (u * LIGHT[0] + v * LIGHT[1]) * .9 - .05
         return self._paint(cells, ramp, glint)
 
     def poly(self, points, ramp, shade):
@@ -186,26 +187,25 @@ def legend(**ramps):
 
 # ---- the tools --------------------------------------------------------------------------------------------------------
 def pin_tool():
-    """まち針: a long steel pin with a pink ball head (sold four to a craft); the head is the grip, the point the work end."""
+    """まち針: a short steel pin with a small pink ball head (sold four to a craft); shorter and thinner than the awl."""
     i = Icon('pin_tool')
-    i.rows(legend(w=(IRON, 4), c=(IRON, 3), s=(IRON, 1)), [
-        "................",
-        "..............w.",
-        ".............cs.",
-        "............cs..",
+    i.rows(legend(w=(IRON, 4), c=(IRON, 3), s=(IRON, 0)), [
+        "", "", "",
+        "............w...",
         "...........cs...",
         "..........cs....",
         ".........cs.....",
         "........cs......",
         ".......cs.......",
         "......cs........",
+        ".....cs.........",
     ])
-    i.disc((3.6, 11.4), 2.75, PINK)
+    i.disc((3.8, 11.2), 2.45, PINK)
     return i.finish()
 
 
 def care_mallet():
-    """ハンマー: Hakkei's black drum mallet with steel face plates on both ends and a plain wooden handle."""
+    """ハンマー: Hakkei's dark drum mallet with steel face plates on both ends and a plain wooden handle."""
     i = Icon('care_mallet')
     i.rows(legend(a=(WOOD, 1), c=(WOOD, 3), b=(WOOD, 0)), [
         "", "", "", "", "", "", "", "",
@@ -217,70 +217,69 @@ def care_mallet():
         "..acb...........",
         "..bb............",
     ])
-    a, b = (6.4, 2.4), (12.6, 8.6)
-    i.bar(a, b, 2.5, DRUM, glint=True)
+    a, b = (6.0, 2.0), (13.0, 9.0)
+    i.bar(a, b, 2.4, DRUM, glint=True)
     i.finish()
-    for (x, y), v in i.px.items():          # the two end faces of the drum are steel plates
+    for (x, y), v in i.px.items():          # the two end faces of the drum are steel plates, two pixels deep
         t = ((x - a[0]) + (y - a[1])) / ((b[0] - a[0]) + (b[1] - a[1]))
-        if v[0] is DRUM and (t < .13 or t > .87):
-            v[0], v[1] = IRON, 0 if v[1] == 0 else (4 if t < .13 and v[1] >= 2 else 3 if t < .13 else 1)
+        if v[0] is DRUM and (t < .2 or t > .8):
+            v[0], v[1] = IRON, 0 if v[1] == 0 else (4 if t < .2 and v[1] >= 2 else 3 if t < .2 else 2 if v[1] >= 2 else 1)
     return i
 
 
 def _awl(name, spike):
     i = Icon(name)
-    i.bar((2.2, 13.8), (6.6, 9.4), 1.45, WOOD, glint=True, round_ends=True)
-    i.bar((6.7, 9.3), (7.9, 8.1), 1.25, IRON, glint=True)
+    i.bar((2.4, 13.6), (6.2, 9.8), 1.4, WOOD, glint=True, round_ends=True)
+    i.bar((6.4, 9.6), (8.0, 8.0), 1.3, IRON, glint=True)
     i.finish()
     i.rows(spike, [
         "................",
         "..............w.",
-        ".............cs.",
-        "............cs..",
-        "...........cs...",
-        "..........cs....",
-        ".........Cs.....",
-        "........Cs......",
+        ".............ocs",
+        "............ocs.",
+        "...........ocs..",
+        "..........ocs...",
+        ".........oCs....",
+        "........oCs.....",
     ])
     return i
 
 
 def care_awl():
-    """キリ: Japanese gimlet. A long round wooden grip, an iron ferrule and a thin steel spike."""
-    return _awl('care_awl', legend(w=(IRON, 4), c=(IRON, 3), C=(IRON, 3), s=(IRON, 1)))
+    """キリ: Japanese gimlet. A long round wooden grip, a two-pixel iron ferrule and a thin steel spike."""
+    return _awl('care_awl', legend(w=(IRON, 4), c=(IRON, 3), C=(IRON, 3), s=(IRON, 1), o=(IRON, 0)))
 
 
 def heated_awl():
     """キリライター: the awl after holding it to a fire; the spike glows from dull red at the ferrule to yellow at the tip."""
-    i = _awl('heated_awl', legend(w=(HOT, 4), c=(HOT, 3), C=(HOT, 2), s=(HOT, 1)))
-    lift = {(12, 3): 3, (11, 4): 2, (10, 5): 2}
-    for xy, step in lift.items():
+    i = _awl('heated_awl', legend(w=(HOT, 4), c=(HOT, 3), C=(HOT, 2), s=(HOT, 1), o=(HOT, 0)))
+    for xy, step in {(12, 3): 3, (11, 4): 2, (10, 5): 2}.items():
         i.px[xy][1] = step
     i.rows(legend(e=(HOT, 3)), ["", "............e...", "", "...............e"])   # two sparks off the tip
     return i
 
 
 def restraint_frame():
-    """お仕置き用固定具: a pale oak board with two leather straps arched over it, each with a brass buckle; the same board and
-    bands the restrained body lies in."""
+    """お仕置き用固定具: a pale oak board seen slightly from above, two reddish leather straps arched over it, each with a
+    2px brass buckle; the same board and bands the restrained body lies in."""
     i = Icon('restraint_frame')
-    i.rows(legend(c=(LEATHER, 3), a=(LEATHER, 1), b=(LEATHER, 0), y=(BRASS, 3), B=(BRASS, 1),
+    i.rows(legend(l=(STRAP, 3), m=(STRAP, 1), y=(BRASS, 3), Y=(BRASS, 1),
                   o=(PLANK, 0), e=(PLANK, 1), p=(PLANK, 3), H=(PLANK, 4), g=(PLANK, 2)), [
         "................",
         "................",
         "................",
-        "...cccc...cccc..",
-        "..caaaab.caaaab.",
-        "..ca..ab.ca..ab.",
-        "..yB..ab.yB..ab.",
-        "..ca..ab.ca..ab.",
-        "..ca..ab.ca..ab.",
-        ".ooaooaoooaooaoo",
-        ".oHHHHHHHHHHHHHo",
-        ".oppppgppppppgpo",
-        ".oeeeeeeeeeeeeeo",
-        ".oeegeeeeeegeeeo",
-        ".ooooooooooooooo",
+        "....lll....lll..",
+        "...l...m..l...m.",
+        "...l...m..l...m.",
+        "...yy..m..yy..m.",
+        "...YY..m..YY..m.",
+        "...l...m..l...m.",
+        "..ol...moolooomo",
+        "..oHHHHHHHHHHHHo",
+        ".oppppgpppppgppo",
+        ".oeeeeeeeeeeeeo.",
+        ".oeegeeeeeegeeo.",
+        ".oooooooooooooo.",
         "................",
     ])
     return i
@@ -312,50 +311,52 @@ def wrap_sling():
 
 
 def hanging_hook():
-    """吊るす: a steel hook with an eye on a short cord; the point turns up inside the bowl."""
+    """吊るす: a steel hook on a short cord: an eye, a straight shank on the right, one bowl curving left and up to a barbed
+    point; nothing passes right of the shank, so it cannot read as an anchor."""
     i = Icon('hanging_hook')
-    i.rows(legend(s=(STRING, 1), S=(STRING, 2), o=(IRON, 0), d=(IRON, 1), m=(IRON, 2), c=(IRON, 3), w=(IRON, 4)), [
-        "........sS......",
-        ".......oSSo.....",
-        "......oc..do....",
-        "......om..do....",
-        ".......omdo.....",
-        "........cd......",
-        "........cd......",
-        "........cd......",
-        "...w....cd......",
-        "...cw...cd......",
-        "...cd...cd......",
-        "...cmo..cd......",
-        "...ocmdmcdo.....",
+    i.rows(legend(s=(STRING, 1), o=(IRON, 0), d=(IRON, 1), m=(IRON, 2), c=(IRON, 3), w=(IRON, 4)), [
+        ".........s......",
+        ".........s......",
+        "........ooo.....",
+        ".......oc.do....",
+        "........odo.....",
+        ".........cd.....",
+        ".........cd.....",
+        ".........cd.....",
+        "...w.....cd.....",
+        "...cw....cd.....",
+        "...cd....cd.....",
+        "...cdo...cd.....",
+        "...ocmo.ocd.....",
         "....ocmmmdo.....",
-        ".....odddo......",
+        ".....oooo.......",
         "................",
     ])
     return i
 
 
 def hair_clippers():
-    """ばりかん: manual barber clippers. A steel head with comb teeth at the top right, two leather-wrapped grips."""
+    """ばりかん: manual barber clippers drawn upright: a steel head with a row of comb teeth on top, a brass pivot under it
+    and two leather grips spreading downwards."""
     i = Icon('hair_clippers')
     i.rows(legend(a=(LEATHER, 1), c=(LEATHER, 3), b=(LEATHER, 0), o=(IRON, 0), d=(IRON, 1), m=(IRON, 2), C=(IRON, 3),
-                  w=(IRON, 4), t=(IRON, 3), y=(BRASS, 3)), [
-        "..........t.....",
-        "........ot......",
-        ".......oCw..t...",
-        "......oCmmwt....",
-        ".....oCmmmmw..t.",
-        "......ommmmmwt..",
-        ".......ommmmmw..",
-        "........odddo...",
-        ".....acbyodo....",
-        "....acbacbo.....",
-        "...acb.acb......",
-        "..acb.acb.......",
-        ".acb..acb.......",
-        ".bb..acb........",
-        ".....acb........",
-        ".....bb.........",
+                  w=(IRON, 4), y=(BRASS, 3), Y=(BRASS, 1)), [
+        "...w.w.w.w.w....",
+        "..oCwCwCwCwCo...",
+        "..oCmmmmmmmmo...",
+        "..odddddddddo...",
+        "...oooyYoooo....",
+        ".....caac.......",
+        ".....ca.ca......",
+        "....ca..ca......",
+        "....ca...ca.....",
+        "...ca....ca.....",
+        "...ca.....ca....",
+        "..ca......ca....",
+        "..ca.......ca...",
+        "..bb.......bb...",
+        "................",
+        "................",
     ])
     return i
 
@@ -363,29 +364,29 @@ def hair_clippers():
 def _scissors(name, bow, rows):
     i = Icon(name)
     i.rows(legend(w=(IRON, 4), c=(IRON, 3), m=(IRON, 2), s=(IRON, 1), o=(IRON, 0), B=(BRASS, 0), b=(BRASS, 3),
-                  r=(bow, 3), R=(bow, 1), q=(bow, 0), k=(bow, 2)), rows)
+                  y=(BRASS, 3), r=(bow, 3), R=(bow, 1), q=(bow, 0), k=(bow, 2)), rows)
     return i
 
 
 def cutting_knife():
-    """裁ちばさみ: tailor shears with red bows and long straight blades (Hakkei's red-handled scissors)."""
+    """裁ちばさみ: tailor shears, closed: two long blades with a dark seam between them, a large and a small hollow red bow."""
     return _scissors('cutting_knife', RED, [
         "................",
         "..............w.",
-        ".............wo.",
+        ".............wc.",
         "............wco.",
-        "...........wcs..",
-        "..........wcso..",
-        ".........wcso...",
-        "........wcso....",
-        "..qqq..bBso.....",
-        ".qrrkqkRq.......",
-        ".qr.Rq.kq.......",
-        ".qkRRqkkq.......",
-        "..qqqkr.Rq......",
-        ".....qk.Rq......",
-        ".....qRRRq......",
-        "......qqq.......",
+        "...........wcos.",
+        "..........wcos..",
+        ".........wcos...",
+        "........yBos....",
+        "..qqqq.Rqs......",
+        ".qrrrRqR.R......",
+        ".qr..Rq.rr......",
+        ".qr..Rqr..R.....",
+        ".qRRRRqr..R.....",
+        "..qqqq..RR......",
+        "................",
+        "................",
     ])
 
 
@@ -467,90 +468,90 @@ def bottle_stem_shears():
 
 
 def care_vibrator():
-    """ローター: a pink egg on a thin cord to a small pink switch box with one slide."""
+    """ローター: a pink egg lying on the tool diagonal with a seam round its middle, a thin cord to a small pink switch box."""
     i = Icon('care_vibrator')
-    i.rows(legend(P=(PINK, 0), m=(PINK, 1), p=(PINK, 2), l=(PINK, 3), w=(PINK, 4), d=(PINK, 0), s=(STRING, 1), S=(STRING, 2)), [
-        "..........PPP...",
-        ".........PwlpP..",
-        "........PwlpppP.",
-        "........PlppppP.",
-        "........PlpppmP.",
-        "........PppppmP.",
-        "........PpppmmP.",
-        ".........PmmmP..",
-        "..........PPP...",
-        "..........sS....",
-        ".........s......",
-        "..PPPPPPs.......",
-        "..PllllP........",
-        "..PlwdpP........",
-        "..PppmmP........",
-        "..PPPPPP........",
+    i.rows(legend(P=(PINK, 0), m=(PINK, 1), p=(PINK, 2), l=(PINK, 3), w=(PINK, 4), d=(PINK, 0), s=(STRING, 1)), [
+        "................",
+        "................",
+        "..........PPPP..",
+        "........PPllppP.",
+        ".......PwllpppP.",
+        ".......PllPppmP.",
+        "......PllppPmP..",
+        "......PlpppmPP..",
+        "......PpppmPP...",
+        ".....s.PPPP.....",
+        ".....s..........",
+        "....s...........",
+        "PPPPP...........",
+        "PlwlP...........",
+        "PpdpP...........",
+        "PPPPP...........",
     ])
     return i
 
 
 def iron_enclosure():
-    """箱閉じ込め: a closed iron box at the block-item angle: a lid seam just under the top on both faces, riveted corners.
-    The barred observation slot stays on the in-world mesh, where the shut-in body can be seen through it."""
+    """箱閉じ込め: a closed iron box in oblique view (square front, lid on top, side to the right): a lid lip with a brass
+    hasp, riveted front corners. The barred observation slot stays on the in-world mesh."""
     i = Icon('iron_enclosure')
-    i.rows(legend(o=(IRON, 0), w=(IRON, 4), T=(IRON, 3), l=(IRON, 3), L=(IRON, 2), R=(IRON, 1), s=(IRON, 0), r=(IRON, 4)), [
-        "......oooo......",
-        "....oowTTToo....",
-        "..oowTTTTTTToo..",
-        ".owTTTTTTTTTTTo.",
-        ".olTTTTTTTTTTRo.",
-        ".osLLTTTTTTRRso.",
-        ".olsLLLTTRRRsRo.",
-        ".olLssLLRRssRRo.",
-        ".olrLLssssRRrRo.",
-        ".olLLLLLRRRRRRo.",
-        ".olLLLLLRRRRRRo.",
-        ".olLLLLLRRRRRRo.",
-        ".oorLLLLRRRRroo.",
-        "...ooLLLRRRoo...",
-        ".....ooLRoo.....",
-        ".......oo.......",
+    i.rows(legend(o=(IRON, 0), w=(IRON, 4), T=(IRON, 3), F=(IRON, 2), S=(IRON, 1), d=(IRON, 1), r=(IRON, 4),
+                  y=(BRASS, 3), Y=(BRASS, 1)), [
+        "................",
+        "....oooooooooo..",
+        "...owTTTTTTTToo.",
+        "..owTTTTTTTToSo.",
+        ".owTTTTTTTToSSo.",
+        ".oooooooooooSSo.",
+        ".owFFFFyFFFoSSo.",
+        ".odddddYddddoSo.",
+        ".orFFFFFFFFroSo.",
+        ".oFFFFFFFFFFoSo.",
+        ".oFFFFFFFFFFoSo.",
+        ".oFFFFFFFFFFoSo.",
+        ".oFFFFFFFFFFoo..",
+        ".orFFFFFFFFro...",
+        ".oooooooooooo...",
+        "................",
     ])
     return i
 
 
 def trimmed_hair():
-    """A loose lock of cut hair: strands gathered at the blunt cut end (bottom left) that curve and fan apart towards the
-    tips (top right); no tie."""
+    """A loose lock of cut hair: three wavy strands pressed together at the blunt cut end (bottom left) that bend and part
+    towards their tips (top right); no tie."""
     i = Icon('trimmed_hair')
-    for points, light in [([(2, 13), (2, 10), (3, 7), (5, 4), (7, 2)], 3),
-                          ([(3, 13), (4, 10), (6, 7), (8, 5), (10, 2), (11, 1)], 4),
-                          ([(4, 13), (6, 11), (8, 9), (10, 7), (12, 5), (13, 3)], 3),
-                          ([(5, 13), (8, 12), (10, 11), (12, 9), (14, 7)], 2)]:
+    for points, light in [([(3, 12), (3, 10), (4, 8), (4, 6), (5, 4), (7, 2), (8, 1)], 3),
+                          ([(4, 12), (5, 10), (6, 8), (7, 6), (9, 5), (10, 3), (12, 1)], 4),
+                          ([(5, 13), (7, 12), (9, 10), (10, 8), (12, 7), (13, 5), (14, 3)], 3)]:
         i.stroke(points, HAIR, light, 1)
-    i.rows(legend(o=(HAIR, 0)), ["", "", "", "", "", "", "", "", "", "", "", "", "", "",
-                                  "..oooo.........."])
+    i.rows(legend(o=(HAIR, 0), d=(HAIR, 1)), ["", "", "", "", "", "", "", "", "", "", "", "",
+                                               "..o.............", "..odd...........", "...ooo.........."])
     return i
 
 
 def alcohol_lamp():
-    """DRAFT (not shipped until the item exists): アルコールランプ. A squat glass lamp of faintly blue spirit, a brass collar,
-    a cotton wick and a small blue flame."""
+    """DRAFT (not shipped until the item exists): アルコールランプ. A squat clear glass lamp with a visible spirit line, a
+    brass collar, a cotton wick and a small flame: blue outside, white-yellow core."""
     i = Icon('alcohol_lamp')
-    i.rows(legend(o=(GLASS, 0), g=(GLASS, 2), h=(GLASS, 3), a=(SPIRIT, 1), A=(SPIRIT, 0), L=(SPIRIT, 2),
+    i.rows(legend(o=(GLASS, 0), g=(GLASS, 3), h=(CLOTH, 4), a=(SPIRIT, 2), A=(SPIRIT, 1), L=(GLASS, 1),
                   B=(BRASS, 0), b=(BRASS, 2), y=(BRASS, 3), W=(CLOTH, 4),
-                  f=(FLAME, 1), F=(FLAME, 2), c=(FLAME, 3), q=(FLAME, 0)), [
+                  f=(FLAME, 1), q=(FLAME, 0), c=(HOT, 4), C=(HOT, 3)), [
         "................",
         ".......q........",
         "......qfq.......",
-        "......fFq.......",
-        ".....qFcfq......",
-        "......fFq.......",
+        "......fcq.......",
+        ".....qfcCq......",
+        "......fCq.......",
         ".......W........",
         "......ByBB......",
         "......BbbB......",
         "....oogggoo.....",
-        "...ohgggggo.....",
-        "..ohLLaaaaAo....",
-        "..ohLaaaaaAo....",
-        "..oLaaaaaAAo....",
-        "...oAaaaAAo.....",
+        "...ohgggggLo....",
+        "..ohgggggggLo...",
+        "..oLLLLLLLLLo...",
+        "..oaaaaaaaaAo...",
+        "...oaaaaaaAo....",
         "....ooooooo.....",
     ])
     return i
