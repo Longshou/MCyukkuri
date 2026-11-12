@@ -212,6 +212,8 @@ public final class SettlementCommands {
         var members = SettlementSpawner.spawnAtSite(level, site, composition.apply(leader), true);
         String name = tier.name().toLowerCase(Locale.ROOT);
         if (members.isEmpty()) { source.sendFailure(Component.translatable("commands.mcyukkuri.settlement.site.empty", name, result.blocks(), SettlementSpawner.lastFailure())); return 0; }
+        // The demo scenes can name the second parent of the first household before any member moves.
+        if (tier == SiteTier.DEMO) members.get(1).addTag("mcyukkuri.demo_subject");
         source.sendSuccess(() -> Component.translatable("commands.mcyukkuri.settlement.site.built", name, result.blocks(), members.size()), true);
         return members.size();
     }
