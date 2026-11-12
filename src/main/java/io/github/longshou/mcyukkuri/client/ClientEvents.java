@@ -71,8 +71,6 @@ public final class ClientEvents {
                 "myon_hairband","marisa_kotatsu","patchouli_bonnet","remilia_bonnet","flandre_bonnet","predator_nest",
                 "mold_remover","forage_pile"})
             event.registerItem(extension,BuiltInRegistries.ITEM.get(MCYukkuri.id(name)));
-        ModItems.OPERATION_TOOLS.values().forEach(item->event.registerItem(extension,item.get()));
-        event.registerItem(extension,ModItems.TRIMMED_HAIR.get());
         event.registerItem(extension,ModItems.ACCESSORY_SHARD.get());
         event.registerItem(extension,ModItems.REMAINS.get());
         event.registerItem(extension,ModItems.YUKKURI_STEM.get());
