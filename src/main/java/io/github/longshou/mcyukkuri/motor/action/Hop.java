@@ -29,6 +29,7 @@ import io.github.longshou.mcyukkuri.motor.surface.SeatTarget;
 import io.github.longshou.mcyukkuri.motor.surface.Floor;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.status.StatusEvents;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -84,6 +85,7 @@ public final class Hop implements Action {
     private boolean bodyBlocked;
     private String obstruction = "";
     private long startTick;
+    private long dismountTick = Long.MIN_VALUE;
     private Face seatingTurn;
     private Face legTurn;
     private int recovery;
@@ -124,6 +126,13 @@ public final class Hop implements Action {
         hop.wornBrim = carrier;
         hop.releaseSpace = releaseSpace;
         return hop;
+    }
+
+    /** Admission at the pose a supported carrier turn would offer. Launch still solves in the real pose. */
+    boolean admitsAfterBrimTurn(YukkuriEntity body, float yaw) {
+        var from = ParentCarry.seatAfterTurn(wornBrim, body, yaw);
+        return releaseSpace.test(target) && ground(body, target)
+                && arc(body, vec(from), null, hosts(body, from, target), vec(target), 0, false, true, yaw) instanceof ArcSolver.Plan;
     }
     /** Leave through a supported host point, then hop to the admitted ground stand after settling there. */
     public static Hop off(SurfaceHost host, Vec3 local, Vec3 bank) {
@@ -296,6 +305,11 @@ public final class Hop implements Action {
      *  the body's height budget the further a hop that ends on the ground goes, so that it reads as a jump. */
     private ArcSolver.Result arc(YukkuriEntity body, Vec from, SurfaceHost anchor, List<SurfaceHost> hosts, Vec to, int delay,
                                  boolean diagnose, boolean visibleRise) {
+        return arc(body, from, anchor, hosts, to, delay, diagnose, visibleRise, wornBrim == null ? 0 : wornBrim.bodyYaw());
+    }
+
+    private ArcSolver.Result arc(YukkuriEntity body, Vec from, SurfaceHost anchor, List<SurfaceHost> hosts, Vec to, int delay,
+                                 boolean diagnose, boolean visibleRise, float brimYaw) {
         long started = System.nanoTime();
         obstruction = "";
         var ability = BodyAbility.of(body);
@@ -304,9 +318,10 @@ public final class Hop implements Action {
         var frame = anchor == null ? null : anchor.frameAfter(delay);
         float yaw = heading(body, anchor, frame == null ? start : start.scale(1 / frame.unit()),
                 frame == null ? end : end.scale(1 / frame.unit()), body.yBodyRot);
+        var brim = wornBrim == null ? null : brimClearance(body, brimYaw);
         var result = runUp == null
                 ? ArcSolver.lowest(from, to, ability.hopHeight(), ability.hopReach(), ability.scale(), ability.hopSpeed(),
-                        points -> clear(body, start, anchor, hosts, points, delay, yaw), visibleRise, diagnose)
+                        points -> clear(body, start, anchor, hosts, points, delay, yaw, brim), visibleRise, diagnose)
                 : ArcSolver.running(from, to, ability.hopHeight(), ability.hopReach(), vec(runUp), ability.hopSpeed(),
                         points -> clear(body, start, anchor, hosts, points, delay, yaw));
         timing(body, "arc", started);
@@ -509,6 +524,9 @@ public final class Hop implements Action {
 
     @Override public Progress tick(YukkuriEntity body) {
         if (carried != null) return carried.tick(body);
+        // The level can tick a just-dismounted passenger again as a free entity in the same world tick.
+        if (dismountTick == body.level().getGameTime())
+            return new Running(recovery > 0 ? recovery : flight.size() - air, TravelMode.CONSUMED);
         if (rest != null) return finishSeating(body);
         if (recovery > 0) {
             if (--recovery > 0) return new Running(recovery, TravelMode.CONSUMED);
@@ -559,10 +577,11 @@ public final class Hop implements Action {
             var impulse = new Vec(plan.vh() * plan.dir().x(), plan.vy(), plan.vh() * plan.dir().z());
             flight = Ballistic.samples(impulse, plan.ticks());
             if (!aboard) {
-                if (wornBrim != null) {
+                if (wornBrim != null || Attach.of(body) instanceof AttachState.OnHost) {
                     Motor.dismount(body, from, Vec3.ZERO, "hop_takeoff");
-                    ParentCarry.released(wornBrim, body, "brim_hop");
-                } else if (Attach.of(body) instanceof AttachState.OnHost) Motor.dismount(body, from, Vec3.ZERO, "hop_takeoff");
+                    dismountTick = body.level().getGameTime();
+                    if (wornBrim != null) ParentCarry.released(wornBrim, body, "brim_hop");
+                }
                 Motor.takeoff(body, new Vec3(impulse.x(), impulse.y(), impulse.z()), "hop_takeoff");
             }
             launched = true;
@@ -697,10 +716,29 @@ public final class Hop implements Action {
     @Override public String endDetail(Outcome outcome) { return String.format(Locale.ROOT, "legs=%d peak=%.2f airTicks=%d", completedLegs, peak, air); }
 
     private boolean clear(YukkuriEntity body, Vec3 from, SurfaceHost anchor, List<SurfaceHost> hosts, List<Vec> points, int delay, float yaw) {
+        return clear(body, from, anchor, hosts, points, delay, yaw, null);
+    }
+
+    private record BrimClearance(Predicate<Vec3> hat, List<AABB> occupants) {
+        boolean clear(Vec3 corner, Vec3 at, AABB first, AABB second) {
+            return hat.test(corner) && hat.test(at) && occupants.stream().noneMatch(box -> box.intersects(first) || box.intersects(second));
+        }
+    }
+
+    private BrimClearance brimClearance(YukkuriEntity body, float yaw) {
+        var occupants = new ArrayList<AABB>();
+        occupants.add(wornBrim.getBoundingBox());
+        for (var rider : wornBrim.getPassengers()) if (rider instanceof YukkuriEntity other && other != body) {
+            var box = other.getBoundingBox();
+            if (yaw != wornBrim.bodyYaw()) box = box.move(ParentCarry.seatAfterTurn(wornBrim, other, yaw).subtract(other.position()));
+            occupants.add(box);
+        }
+        return new BrimClearance(ParentCarry.brimExitClearance(wornBrim, body, yaw), occupants);
+    }
+
+    private boolean clear(YukkuriEntity body, Vec3 from, SurfaceHost anchor, List<SurfaceHost> hosts, List<Vec> points, int delay,
+                          float yaw, BrimClearance brim) {
         AABB base = body.getBoundingBox();
-        var brim = wornBrim == null ? null : ParentCarry.brimExitClearance(wornBrim, body);
-        var crew = wornBrim == null ? List.<AABB>of() : wornBrim.getPassengers().stream().filter(rider -> rider != body)
-                .map(rider -> rider.getBoundingBox()).toList();
         Vec3 previous = anchor == null ? from : anchor.frameAfter(delay).toWorld(from.scale(1 / anchor.frame().unit()));
         for (int tick = 0; tick < points.size(); tick++) {
             var point = points.get(tick);
@@ -719,9 +757,7 @@ public final class Hop implements Action {
             AABB atBox = base.move(at.subtract(body.position()));
             var first = startBox.minmax(cornerBox);
             var second = cornerBox.minmax(atBox);
-            if (brim != null && (!brim.test(corner) || !brim.test(at)
-                    || first.intersects(wornBrim.getBoundingBox()) || second.intersects(wornBrim.getBoundingBox())
-                    || crew.stream().anyMatch(box -> box.intersects(first) || box.intersects(second)))) {
+            if (brim != null && !brim.clear(corner, at, first, second)) {
                 obstruction = "worn_brim at=" + GameplayLog.at(at); return false;
             }
             if (!body.level().noCollision(body, first) || !body.level().noCollision(body, second)) {

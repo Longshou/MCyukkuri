@@ -145,6 +145,7 @@ public final class Release implements Action, MotorOwner {
             seat = nearest(carrier, places, facings(carrier));
             return seat != null ? Feasibility.pass() : Feasibility.of(Reason.NO_SUPPORT, 0, "transfer_blocked");
         }
+        turn = null;
         brimHop = brimHop(carrier);
         return brimHop != null ? Feasibility.pass() : plan(carrier);
     }
@@ -162,10 +163,29 @@ public final class Release implements Action, MotorOwner {
         var search = Hop.Search.admission();
         for (var at : landings) {
             if (at.subtract(child.position()).horizontalDistance() > ability.hopReach() + ArcSolver.REACH_SLACK) continue;
-            var hop = Hop.offWornBrim(carrier, at, point -> child.getY() - point.y <= DROP && space(carrier, point).ok());
+            var hop = brimHopTo(carrier, at);
             if (hop.check(child, search).ok()) return hop;
         }
+        if (BodyAbility.of(carrier).turnRate() <= 0) return null;
+        // The chosen pad can be on the opposite side from the seat. Offer it with the same supported turn used for a put-down.
+        var here = carrier.position();
+        double radius = child.position().subtract(here).horizontalDistance();
+        float offset = SurfaceApproach.yaw(here, child.position()) - carrier.bodyYaw();
+        for (var at : landings) {
+            if (Math.abs(at.subtract(here).horizontalDistance() - radius) > ability.hopReach() + ArcSolver.REACH_SLACK) continue;
+            float yaw = SurfaceApproach.yaw(here, at) - offset;
+            if (Math.abs(Mth.wrapDegrees(yaw - carrier.bodyYaw())) <= Face.FACE_ARRIVED) continue;
+            var hop = brimHopTo(carrier, at);
+            if (hop.admitsAfterBrimTurn(child, yaw) && ParentCarry.clearSeatTurn(carrier, yaw)) {
+                turn = new Face(yaw);
+                return hop;
+            }
+        }
         return null;
+    }
+
+    private Hop brimHopTo(YukkuriEntity carrier, Vec3 at) {
+        return Hop.offWornBrim(carrier, at, point -> child.getY() - point.y <= DROP && space(carrier, point).ok());
     }
 
     private List<Float> facings(YukkuriEntity carrier) {
@@ -433,13 +453,17 @@ public final class Release implements Action, MotorOwner {
     @Override public void start(YukkuriEntity carrier) {
         this.carrier = carrier;
         if (brimHop != null) {
-            if (!child.motor().run(this, brimHop)) {
-                brimResult = child.motor().refusal();
-                if (brimResult == null) brimResult = new Outcome.Interrupted(child.motor().startRefusal().reason());
-            }
+            if (turn == null) startBrimHop();
+            else turn.start(carrier);
             return;
         }
         startLowering(carrier);
+    }
+
+    private void startBrimHop() {
+        if (child.motor().run(this, brimHop)) return;
+        brimResult = child.motor().refusal();
+        if (brimResult == null) brimResult = new Outcome.Interrupted(child.motor().startRefusal().reason());
     }
 
     private void startLowering(YukkuriEntity carrier) {
@@ -475,6 +499,15 @@ public final class Release implements Action, MotorOwner {
 
     @Override public Progress tick(YukkuriEntity carrier) {
         if (brimHop != null) {
+            if (turn != null) {
+                if (child.getVehicle() != carrier) return new Outcome.Interrupted("brim_lost");
+                var turning = ParentCarry.clearSeatTurn(carrier, Motor.turnYaw(carrier, turn.target()))
+                        ? turn.tick(carrier) : Outcome.of(Reason.NO_ROOM, 0, "brim_turn_blocked");
+                if (turning instanceof Running) return turning;
+                turn = null;
+                if (turning instanceof Outcome.Done) startBrimHop();
+                else brimResult = (Outcome) turning;
+            }
             if (brimResult == null) return new Running(0, TravelMode.CONSUMED);
             if (brimResult instanceof Outcome.Done) {
                 released = true;
@@ -621,7 +654,7 @@ public final class Release implements Action, MotorOwner {
     }
 
     @Override public void abort(YukkuriEntity carrier, String why) {
-        if (brimHop != null) child.motor().cancel(this, why);
+        if (brimHop != null && child.motor().current() == brimHop) child.motor().cancel(this, why);
         if (approach != null) approach.abort(carrier, why);
         if (child.getVehicle() == carrier) ParentCarry.stopLowering(carrier, child);
     }

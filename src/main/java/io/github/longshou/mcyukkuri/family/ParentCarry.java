@@ -939,15 +939,34 @@ public final class ParentCarry {
         return SurfaceApproach.yaw(Vec3.ZERO, new Vec3(forward.x, 0, forward.z));
     }
 
+    public static Vec3 seatAfterTurn(YukkuriEntity carrier, YukkuriEntity child, float yaw) {
+        return rawSeat(carrier, child, 0, yaw);
+    }
+
+    /** Sweep the carried riders as their parent turns to present a brim seat to the landing. */
+    public static boolean clearSeatTurn(YukkuriEntity carrier, float yaw) {
+        float span = Mth.wrapDegrees(yaw - carrier.bodyYaw());
+        int steps = Math.max(1, Mth.ceil(Math.abs(span) / BodyAbility.of(carrier).turnRate()));
+        for (var passenger : carrier.getPassengers()) if (passenger instanceof YukkuriEntity child) {
+            var previous = child.position();
+            for (int i = 1; i <= steps; i++) {
+                var at = seatAfterTurn(carrier, child, carrier.bodyYaw() + span * i / steps);
+                var box = child.getBoundingBox().move(previous.subtract(child.position())).expandTowards(at.subtract(previous));
+                if (!carrier.level().noCollision(child, box)) return false;
+                previous = at;
+            }
+        }
+        return true;
+    }
+
     /** A hop clears the worn hat's crown and gets its footprint past the brim before descending through brim height. */
-    public static Predicate<Vec3> brimExitClearance(YukkuriEntity carrier, YukkuriEntity child) {
+    public static Predicate<Vec3> brimExitClearance(YukkuriEntity carrier, YukkuriEntity child, float yaw) {
         var hat = brim(carrier);
         var faces = tops(hat, carrier.assetId());
         var obstacles = new ArrayList<float[]>();
         for (var box : hat.getAsJsonArray("obstacles")) obstacles.add(floats(box.getAsJsonArray()));
         var inverse = hatPose(carrier, 0).invert();
         var stand = carrier.position();
-        float yaw = carrier.bodyYaw();
         float r = radius(carrier, child);
         float h = (float) (child.getBbHeight() * 16 / (size(carrier) * HatScale.factor(carrier.subspeciesFlags())));
         return at -> {
