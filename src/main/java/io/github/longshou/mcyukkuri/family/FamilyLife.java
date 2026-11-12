@@ -1184,7 +1184,7 @@ public final class FamilyLife {
     private YukkuriEntity closestSeparatedDependentChild() {
         return level().getEntitiesOfClass(YukkuriEntity.class,entity.getBoundingBox().inflate(FAMILY_SEARCH_RANGE),other->other.isAlive()
                 &&ordinaryLandFree(other)&&caresFor(other)&&separation.searchingAllowed(other)&&other.childhood().shouldStayWithParents()&&entity.life().canRecognize(other)
-                &&escortsMigratingChild(other)&&!safeInSharedHome(other)
+                &&carry.canSearchWhileCarrying(other)&&escortsMigratingChild(other)&&!safeInSharedHome(other)
                 &&(!other.family().exploring()||other.life().hasUrgentNeed())
                 &&(carry.pickupWanted(other)||carry.needsReunion(other)
                         ||!FamilySeparation.near(entity,other)
@@ -1310,7 +1310,7 @@ public final class FamilyLife {
         if(task==Task.FOLLOW&&earlyHomeStand()!=null)return false;
         if(task==Task.CARRY)return carry.carrying()&&taskTicks<2400;
         if(task==Task.SEARCH&&target!=null)return ordinaryLandFree(entity)&&(ordinaryLandFree(target)||target.getVehicle()==entity&&carry.lifting())&&caresFor(target)
-                &&(carry.lifting()||escortsMigratingChild(target)&&!safeInSharedHome(target))
+                &&(carry.lifting()||carry.canSearchWhileCarrying(target)&&escortsMigratingChild(target)&&!safeInSharedHome(target))
                 &&target.childhood().shouldStayWithParents()&&entity.life().canRecognize(target)&&(glass.active()||taskTicks<1200)&&target.level()==entity.level()
                 &&entity.distanceToSqr(target)<FAMILY_SEARCH_RANGE*FAMILY_SEARCH_RANGE;
         if(task==Task.SEARCH&&call.waitingAtGlass())return true;

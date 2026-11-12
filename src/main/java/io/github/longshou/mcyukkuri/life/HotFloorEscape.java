@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.life;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.motor.BodyAbility;
 import io.github.longshou.mcyukkuri.motor.Motor;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import net.minecraft.core.BlockPos;
@@ -23,7 +24,7 @@ public final class HotFloorEscape {
         floorY = entity.getY();
         destination = findExit();
         var velocity = entity.getDeltaMovement();
-        var heading = destination == null ? Vec3.ZERO : destination.subtract(entity.position()).multiply(1, 0, 1).normalize().scale(.30);
+        var heading = destination == null ? Vec3.ZERO : propulsion(destination.subtract(entity.position()));
         // Vanilla gravity/drag: .475 rises about half as high as the previous .70 impulse.
         Motor.velocity(entity, new Vec3(heading.x, Math.max(.475, velocity.y), heading.z), "hot_floor_jump");
         GameplayLog.event(entity, "body", "hot floor jump escape={} verticalSpeed={} health={}", destination, entity.getDeltaMovement().y, entity.getHealth());
@@ -76,8 +77,14 @@ public final class HotFloorEscape {
         entity.getMoveControl().setWantedPosition(destination.x, destination.y, destination.z, 1.8);
         var heading = destination.subtract(entity.position()).multiply(1, 0, 1);
         if (heading.lengthSqr() > .01) {
-            heading = heading.normalize().scale(.30);
+            heading = propulsion(heading);
             Motor.velocity(entity, new Vec3(heading.x, entity.getDeltaMovement().y, heading.z), "hot_floor_steer");
         }
+    }
+
+    private Vec3 propulsion(Vec3 toward) {
+        var horizontal = toward.multiply(1, 0, 1);
+        double distance = horizontal.length();
+        return horizontal.scale(Math.min(1, BodyAbility.of(entity).hopSpeed() / distance));
     }
 }

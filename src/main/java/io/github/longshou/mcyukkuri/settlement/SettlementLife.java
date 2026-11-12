@@ -32,8 +32,8 @@ import net.minecraft.world.damagesource.DamageSource;
 /** Membership is independent of kinship, personality and accessory recognition. */
 public final class SettlementLife {
     static final int FAMILY_HOME_RANGE = 7, COLONY_HOME_RANGE = 14;
-    /** A loaded adult at about one block/s needs up to 90 seconds for a long march leg. */
-    public static final int MARCH_TRAVEL_TICKS = 1800;
+    /** A loaded adult at about one block/s needs 96 seconds for a long march leg, plus room for detours. */
+    public static final int MARCH_TRAVEL_TICKS = 2400;
     private final YukkuriEntity entity;
     private final SettlementSociety society;
     private final SettlementDuties duties;

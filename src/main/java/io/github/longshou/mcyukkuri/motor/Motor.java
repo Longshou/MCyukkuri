@@ -4,6 +4,7 @@ import io.github.longshou.mcyukkuri.MCYukkuri;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.motor.action.Grab;
+import io.github.longshou.mcyukkuri.motor.action.Launch;
 import io.github.longshou.mcyukkuri.motor.geom.Ballistic;
 import io.github.longshou.mcyukkuri.motor.geom.Effort;
 import io.github.longshou.mcyukkuri.motor.geom.Gait;
@@ -37,6 +38,14 @@ public final class Motor {
         if (distance <= Gait.HUMAN_WALK) return motion;
         double scale = Gait.HUMAN_WALK / distance;
         return motion.multiply(scale, 1, scale);
+    }
+
+    /** Cap combined drive and inertia. A body in a drawn launch follows the admitted ballistic path. */
+    public static Vec3 limitDrivenTravel(YukkuriEntity body, Vec3 motion) {
+        if (body.family().freeFalling() || body.motor().current() instanceof Launch) return motion;
+        Vec3 limited = limitHorizontal(motion);
+        if (limited != motion) body.setDeltaMovement(limited);
+        return limited;
     }
 
     /** Path-node steering uses the same three-dimensional pace as a direct flight command. */

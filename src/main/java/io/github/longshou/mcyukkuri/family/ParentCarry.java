@@ -1312,6 +1312,10 @@ public final class ParentCarry {
     public YukkuriEntity carried() { return carrier.getFirstPassenger() instanceof YukkuriEntity y ? y : null; }
     public boolean carrying() { return carried() != null; }
     public Purpose purpose() { return purpose; }
+    /** Finish the current delivery unless another child can join the same carry. */
+    boolean canSearchWhileCarrying(YukkuriEntity child) {
+        return purpose != Purpose.MIGRATE || !carrying() || capable(child) && purposeFor(child) == Purpose.MIGRATE;
+    }
     /** Every yukkuri riding this carrier. */
     public List<YukkuriEntity> riders() {
         var out = new ArrayList<YukkuriEntity>();

@@ -1053,11 +1053,11 @@ add('pred_watch', 'weather', '不饿的捕食种在旁，普通油后退', '不�
     env=DAY, spot='pred', vantage=(6, 14), reads=[('读反应', f'yukkuri status {sel("a")} raw')])
 
 add('pred_range', 'weather', '饥饿芙兰远远飞来追猎灵梦', '饥饿芙兰远远飞来追猎灵梦',
-    '饥饿芙兰与灵梦相距 48 格：观察远处发现、起飞追击、猎物逃跑和接触咬击；一口咽完仍饿时继续觅食',
+    '芙兰与灵梦相距 48 格：芙兰站稳后开始饥饿，观察远处发现、起飞追击、猎物逃跑和接触咬击；一口咽完仍饿时继续觅食',
     '约 1–2 分钟', [
         yk('reimu', -24, 0, 'range_prey', yaw=-90, **pair_ready()),
-        yk('flandre', 24, 0, 'range_pred', yaw=90, lead=True, nutrition=100, energy=100),
-        set_status('range_pred', 'needs.nutrition', 10)],
+        yk('flandre', 24, 0, 'range_pred', yaw=90, lead=True, nutrition=100, energy=100)],
+    late=[set_status('range_pred', 'needs.nutrition', 10)],
     env=DAY, spot='pred', vantage=(0, 18),
     reads=[('读远猎', f'yukkuri status {sel("range_pred")} raw'), ('读远猎猎物', f'yukkuri status {sel("range_prey")} raw')])
 
@@ -3885,7 +3885,7 @@ def _alice_share_home(window):
 _smoke('alice_chores', 600, [r'\[habitat\] alice [^\n]* home chosen', r'\[habitat\] reimu [^\n]* home chosen'])
 next(s for s in S if s.id == 'alice_chores').smoke['verify'] = _alice_share_home
 _smoke('sacrifice', 1200, [r'\[grief\][^\n]* protection diverted [^\n]*response=protect_child_worry'])
-_smoke('pred_range', 1800, [r'\[predator\] flandre [^\n]* prey selected [^\n]* distance=4[0-9]',
+_smoke('pred_range', 1800, [r'\[predator\] flandre [^\n]* prey selected [^\n]* distance=(?:4[2-9]|5[0-4])\.',
                             r'\[predator\] flandre [^\n]* feeding bite [^\n]* mouthful_accepted=true'])
 _smoke('colony_hunt', 2400, [r'\[settlement\][^\n]* event=hunt_call [^\n]*detail=party \d+ dest '])
 for _exile_scene, _scope in (('colony_mold_exile', 'colony'), ('den_mold_exile', 'family')):
