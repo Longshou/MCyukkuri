@@ -11,6 +11,7 @@
 | 台词审校与补充（总负责人调度的 Codex 标签页） | `.worktrees/wp-gb-speech-review` | art/dialogue/, src/main/resources/assets/mcyukkuri/dialogue/, lang/*.json |
 | 茎生：肉眼可见的快速生长、耗馅与带茎遗体 | `.worktrees/wp-hq-stem` | art/props/family-life, standards/yukkuri-library/drafts/remains, family/StemDrain, family/FamilyRenderer, RemainsEntity |
 | 态度第三片：徽章、宠物、同伴与语声改读同一套数值 | `.worktrees/wp-hv-attitude-c` | pet/WildEncounter, pet/social/BadgeArc*, pet/PetLife, pet/PetRequests, social/PeerDefense, life/LifeMeal (swallow reaction) |
+| 鬼威惨工具交互接线（按交互表） | `.worktrees/wp-hw-oni-tools-code` | interaction/OperationLife, item/OperationToolItem, interaction/InteractionDispatch, life/Consumables, life/SurfaceLife, shared protection gate |
 
 ## 玩法待办
 
