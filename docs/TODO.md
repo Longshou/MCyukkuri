@@ -13,7 +13,6 @@
 | 个体数值与交互选择（自尊、对人讨食/辱骂/后退）第一片 | `.worktrees/wp-hk-attitude` | social/YukkuriSocial, settlement/SettlementLife (release fact), social/YukkuriPersonality (derived self-esteem helper), museum TN-13 |
 | 考试：可见问答与铂金章（反馈 15–17） | `.worktrees/wp-ho-exams` | pet/exam (ExamSession...), badge/, BadgeGrade switches, dialogue exam events, museum TN exam scenes |
 | 茎生：肉眼可见的快速生长、耗馅与带茎遗体 | `.worktrees/wp-hq-stem` | art/props/family-life, standards/yukkuri-library/drafts/remains, family/StemDrain, family/FamilyRenderer, RemainsEntity |
-| 无触发点的台词事件接线 | `.worktrees/wp-hs-speech-wiring` | dialogue emit sites in aquatic/rescue, headwear drift, exam sorry; art/dialogue |
 
 ## 玩法待办
 
