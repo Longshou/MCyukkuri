@@ -3998,7 +3998,7 @@ _smoke('shop_buy_keeper', 1600, [r'\[courier\][^\n]* action=start kind=BUY ', r'
                                  # Chen watches until Alice is in the basket (a meal of its own may cut the tail after that)
                                  r'\[shop\] chen [^\n]* window witness end kind=ENVY reason=(?:departed|interrupted departed=true) ',
                                  r'\[shop\][^\n]* action=buy_live result=committed [^\n]* emeralds_used=0\b',
-                                 r'\[shop\][^\n]* action=buy_live result=delivered [^\n]*mode=keeper',
+                                 r'\[shop\][^\n]* action=buy_live result=delivered [^\n]*mode=keeper [^\n]*counter=(-?\d+, -?\d+, -?\d+) handoff_at=\1\b',
                                  # the booth is served only through its service door: opened, Alice (held by the sale) answers it, the basket
                                  # goes through, it shuts
                                  r'\[shop\][^\n]* hatch opened door=', r'\[shop\] alice [^\n]* hatch answer door=[^\n]* held=sale\b',

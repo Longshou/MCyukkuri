@@ -39,7 +39,7 @@ public final class ShopTrade {
         GameplayLog.event(clerk, "shop", "action=buy_live result=accepted buyer={} target={} price={}", buyer, id, price);
         animal.playAction("joy_jump");
         animal.showReaction("happy", "shop_bought", 40);
-        BlockPos counter = clerk.blockPosition();
+        BlockPos counter = ShopRegistry.get(level).register(clerk).pos;
         ShopPerformance.schedule(level, Set.of(shop, id), age -> {
             String reason = unavailable(level, shop, animal, buyer, price, counter);
             if (reason != null) {
@@ -115,19 +115,22 @@ public final class ShopTrade {
         return token;
     }
 
-    static void delivered(ServerLevel level, HumanNpc staff, UUID buyer, UUID id, UUID token, int price, ItemStack basket, boolean atCounter) {
-        var player = atCounter ? nearbyBuyer(level, buyer, staff.position()) : null;
+    static boolean delivered(ServerLevel level, HumanNpc staff, UUID buyer, UUID id, UUID token, int price, ItemStack basket, BlockPos counter) {
+        boolean atCounter = staff.blockPosition().equals(counter) && staff.onGround();
+        var player = atCounter ? nearbyBuyer(level, buyer, Vec3.atBottomCenterOf(counter)) : null;
         boolean received = player != null && player.getInventory().add(basket);
-        if (!received) drop(level, buyer, staff.position(), basket);
-        GameplayLog.event(staff, "shop", "action=buy_live result=delivered buyer={} target={} token={} price={} mode={} placement={}",
-                buyer, id, token, price, atCounter ? "keeper" : "fallback", received ? "inventory" : "ground");
+        if (!received && drop(level, buyer, staff.position(), basket) == null) return false;
+        GameplayLog.event(staff, "shop", "action=buy_live result=delivered buyer={} target={} token={} price={} mode={} placement={} counter={} handoff_at={}",
+                buyer, id, token, price, atCounter ? "keeper" : "fallback", received ? "inventory" : "ground",
+                counter.toShortString(), staff.blockPosition().toShortString());
+        return true;
     }
 
-    static void drop(ServerLevel level, UUID buyer, Vec3 at, ItemStack basket) {
+    static ItemEntity drop(ServerLevel level, UUID buyer, Vec3 at, ItemStack basket) {
         var item = ModRandom.created(new ItemEntity(level, at.x, at.y + .15, at.z, basket), ModRandom.world(level));
         item.setTarget(buyer);
         item.setDefaultPickUpDelay();
         item.setUnlimitedLifetime();
-        level.addFreshEntity(item);
+        return level.addFreshEntity(item) ? item : null;
     }
 }

@@ -355,8 +355,16 @@ public final class ShopCourier {
     }
     private static boolean walk(ServerLevel level, HumanNpc keeper, Job job) {
         if (job.token == null) return endJob(level, job, "no_token");
+        if (job.kind == Kind.BUY) {
+            if (keeper.blockPosition().equals(job.pen) && keeper.onGround()) return release(level, keeper, job, false);
+            if (job.leg % 10 == 1) {
+                var nav = keeper.getNavigation();
+                nav.moveTo(nav.createPath(job.pen, 0), .95);
+            }
+            return stuck(job, keeper.distanceToSqr(Vec3.atBottomCenterOf(job.pen))) ? fallback(level, keeper, job) : false;
+        }
         // A pen behind a service door is stocked through it: to the door, open it, set the animal down just inside.
-        var hatch = job.kind == Kind.BUY ? null : ServiceHatch.around(level, job.pen);
+        var hatch = ServiceHatch.around(level, job.pen);
         var target = hatch != null ? hatch.staffStand(level) : Vec3.atBottomCenterOf(job.pen);
         double dx = keeper.getX() - target.x, dz = keeper.getZ() - target.z, d = dx * dx + dz * dz;
         if (hatch != null ? hatch.attended(keeper) : d <= 9 && Math.abs(keeper.getY() - target.y) <= 2.5) {
@@ -424,8 +432,9 @@ public final class ShopCourier {
             var basket = keeper.getMainHandItem().copy();
             if (!job.token.equals(CarrierItem.token(basket))) return endJob(level, job, "basket_left_staff");
             keeper.getNavigation().stop();
+            if (!ShopTrade.delivered(level, keeper, job.buyer, job.animal, job.token, job.price, basket, job.pen))
+                return endJob(level, job, "buyer_basket_retained");
             keeper.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY); keeper.swing(InteractionHand.MAIN_HAND);
-            ShopTrade.delivered(level, keeper, job.buyer, job.animal, job.token, job.price, basket, !direct);
             return endJob(level, job, "delivered");
         }
         var custody = YukkuriWorldData.get(level);
