@@ -4,15 +4,16 @@
 This is the data contract the game follows (FamilyGeometry / FamilyRenderer / RemainsRenderer), at mother scale 1 in
 model units (16 per block, ground y=0, forward -Z). Inputs: recipe.json "growth" (curves), the stem component
 (standards/yukkuri-v1/components/common/stem.json: arc, sockets, radius, pendant), and the remains recipe "stem" block
-(standards/yukkuri-library/drafts/remains/recipe.json: root sink, sag, pedicel slack, colour).
+(standards/yukkuri-library/drafts/remains/recipe.json: sag, pedicel slack, colour).
 
 Living, at gestation progress p:
 - g = stalk(p). Arc points and sockets are FamilyGeometry.point with length(count, variance) * g (rise and reach
   shrink; the depth clearance still ramps with the actual rise over clearance_rise, so the young stalk already leans out
-  over the brow and brim); the pendant (pedicel) length is * g. Replaces the current root->point lerp in arc().
+  over the brow and brim); the pendant (pedicel) length is * g^2 so buds stay close under the young stalk.
+  Replaces the current root->point lerp in arc(); socket() takes the same g.
 - stalk and pedicel radius *= thickness_min + (1-thickness_min)*g.
 - fruit size s = emerge(p) * lerp(min(bud_scale, b), b, ripen(p)) for a child of birth size b; not drawn while s = 0.
-- the fruit hangs plumb: its hanging anchor (registered, else crown top) at socket - (0, pendant*g, 0), as childBase.
+- the fruit hangs plumb: its hanging anchor (registered, else crown top) at socket - (0, pendant*g^2, 0), as childBase.
 
 Remains (frozen at the death progress): the living pose at that p, then
 - root' = remains pose (form scale x fullness/rot factors, roll about the ground contact) applied to the living root,
