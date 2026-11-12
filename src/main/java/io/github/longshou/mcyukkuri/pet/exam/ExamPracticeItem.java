@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.pet.exam;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.human.HumanNpc;
 import io.github.longshou.mcyukkuri.intent.AskLedger;
 import io.github.longshou.mcyukkuri.interaction.ItemContact;
 import io.github.longshou.mcyukkuri.pet.BadgeGrade;
@@ -9,7 +10,9 @@ import io.github.longshou.mcyukkuri.pet.PetStudy;
 import io.github.longshou.mcyukkuri.pet.stage.Staging;
 import java.util.UUID;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
 
 /** Prompts a real routine and observes its existing completion. */
 final class ExamPracticeItem implements ExamItem {
@@ -52,6 +55,7 @@ final class ExamPracticeItem implements ExamItem {
         if (phase == Phase.COMMENT) return now >= until;
         if (participant != null && (!participant.isAlive() || participant.level() != ctx.level()
                 || participant.distanceToSqr(ctx.candidate()) > 64
+                || participant instanceof HumanNpc human && ExamSession.active(human)
                 || participant instanceof YukkuriEntity peer && ExamSession.running(peer))) {
             ctx.interrupt("no_participant");
             return false;
@@ -81,7 +85,7 @@ final class ExamPracticeItem implements ExamItem {
                     return;
                 }
                 y.getLookControl().setLookAt(participant);
-                if (participant instanceof net.minecraft.world.entity.Mob visitor) visitor.getLookControl().setLookAt(y);
+                if (participant instanceof Mob visitor) visitor.getLookControl().setLookAt(y);
             }
             boolean detailed = question.grade == BadgeGrade.PLATINUM && y.getRandom().nextDouble() < PetConversation.explanation(y);
             var answer = PetStudy.answer(y, actual, detailed);
@@ -122,7 +126,7 @@ final class ExamPracticeItem implements ExamItem {
             until = ctx.level().getGameTime();
         }
     }
-    boolean guest(net.minecraft.world.entity.Entity entity) { return participant == entity; }
+    boolean guest(Entity entity) { return participant == entity; }
     YukkuriEntity sharingTarget() {
         return question == ExamPlan.Question.SHARE && phase == Phase.OBSERVE && completed == null
                 && foodIncident != null && !asksOwner && participant instanceof YukkuriEntity peer ? peer : null;

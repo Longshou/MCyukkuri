@@ -88,6 +88,8 @@ public final class ExamSession implements ExamContext {
             index = resume.next();
             successes = resume.passed();
             firstFailure = resume.evidence().isEmpty() ? null : resume.evidence();
+            String savedNotes = candidate.getPersistentData().getString("ExamNotes");
+            if (!savedNotes.isEmpty()) notes.addAll(List.of(savedNotes.split("\\|")));
         }
     }
 
@@ -317,7 +319,7 @@ public final class ExamSession implements ExamContext {
         if (phase == Phase.ITEM) {
             if (++itemTicks >= 1200) { interrupt("timeout"); return; }
             if (!inContact() && phaseTicks % 20 == 1) examinerWalkTo(candidate.blockPosition());
-            else if (inContact()) examiner.getNavigation().stop();
+            else if (inContact()) { examiner.getNavigation().stop(); examinerGoal = null; }
             if (item.tick(this) && !done) finishQuestion();
             return;
         }
@@ -328,6 +330,7 @@ public final class ExamSession implements ExamContext {
             return;
         }
         examiner.getNavigation().stop();
+        examinerGoal = null;
         if (phase == Phase.PAYMENT || index >= questions.size()) {
             presentResult();
             return;
@@ -461,7 +464,7 @@ public final class ExamSession implements ExamContext {
     private void checkpoint(int outcome, BadgeGrade result, int next, String evidence) {
         candidate.pet().record(new ExamRecord(service, level.getGameTime(), result, outcome, examiner.getUUID(),
                 target, ExamPlan.encode(questions), next, successes, evidence == null ? "" : evidence, attempt));
-        if (!notes.isEmpty() || outcome != 4) candidate.getPersistentData().putString("ExamNotes", String.join("|", notes));
+        candidate.getPersistentData().putString("ExamNotes", String.join("|", notes));
     }
 
     @Override public void interrupt(String reason) {
@@ -514,7 +517,7 @@ public final class ExamSession implements ExamContext {
         return id;
     }
     @Override public void examinerWalkTo(BlockPos pos) {
-        if (!pos.equals(examinerGoal) || examiner.getNavigation().isDone()) {
+        if (!pos.equals(examinerGoal)) {
             examinerGoal = pos;
             examiner.getNavigation().moveTo(pos.getX() + .5, pos.getY(), pos.getZ() + .5, .9);
         }
