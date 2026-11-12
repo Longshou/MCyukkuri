@@ -82,7 +82,7 @@ BUILDERS = [
     *['standards/yukkuri-library/subspecies/'+p+'/build.py' for p in ('reimu-dos', 'rare-forms', 'predator')],
     *['standards/yukkuri-library/ecology/'+p+'/build.py' for p in ('wild-shelters', 'house-yukkuri', 'house-nest', 'house-repellent')],
     *['standards/yukkuri-library/drafts/'+p+'/build.py' for p in
-      ('remains', 'playgrounds', 'cold-storage', 'care-props', 'body-marks/hair-wounds', 'consumables', 'operation-tools', 'care-expansion')],
+      ('remains', 'playgrounds', 'cold-storage', 'care-props', 'body-marks/hair-wounds', 'consumables', 'care-expansion')],
     'standards/yukkuri-library/drafts/remains/export.py',
     'standards/yukkuri-library/drafts/body-marks/export_wounds.py',
     'art/props/family-life/export_shed_stem.py', 'art/props/cold-storage/export_guide.py',
@@ -97,10 +97,16 @@ CHECKED_BUILDERS = {
     'standards/yukkuri-library/ecology/house-repellent/build.py',
     *['standards/yukkuri-library/drafts/'+p for p in ('playgrounds/build.py', 'cold-storage/build.py',
        'care-props/build.py', 'body-marks/hair-wounds/build.py', 'consumables/build.py',
-       'operation-tools/build.py', 'body-marks/export_wounds.py', 'remains/build.py', 'remains/export.py', 'care-expansion/build.py')],
+       'body-marks/export_wounds.py', 'remains/build.py', 'remains/export.py', 'care-expansion/build.py')],
 }
 TABLE += [exporter('source:'+p, p, [] if p == 'standards/yukkuri-library/build.py' else [Path(p).parent.as_posix()+'/'], check=('--check',) if p in CHECKED_BUILDERS else None,
                    note='Source authoring command.') for p in BUILDERS]
+OPERATION_TOOLS = 'standards/yukkuri-library/drafts/operation-tools/build.py'
+TABLE.append(exporter('source:'+OPERATION_TOOLS, OPERATION_TOOLS, [
+    'standards/yukkuri-library/drafts/operation-tools/', 'src/main/resources/assets/mcyukkuri/yukkuri/',
+    'src/main/resources/assets/mcyukkuri/yukkuri_presentation/living.json',
+    'src/main/resources/assets/mcyukkuri/yukkuri_presentation/subspecies.json',
+], note='Fits operation props to the runtime bodies and their headwear.'))
 # Predators copy the shared marisa face, anatomy and rig; a change there must re-author them.
 PREDATOR_AUTHOR = 'standards/yukkuri-library/subspecies/predator/author_species.py'
 TABLE.append(exporter('source:'+PREDATOR_AUTHOR, PREDATOR_AUTHOR, [
