@@ -269,7 +269,7 @@ LINES = {
         'adult': ('{t}！ また、あえた！ ゆっくりしていってね！', '{t}！又见面了！油库里洗跌一跌捏！', '{t}! Met again! Take it easy!'),
         'young': ('{t}！ まちゃ あえちゃ！', '{t}！又见面惹！', '{t}! Again! Hi!')},
     'laid_eggs': {
-        'adult': ('{t}♪ ちびちゃんたち……ぜったい、まもる。', '{t}♪ 小宝宝们……一定会保护好。', "{t}! My little ones... I'll protect you, always."),
+        'adult': ('{t}♪ ちびちゃんたち……ぜったい、まもる。', '{t}♪ 小贝比酱……我会护着你们的。', "{t}! My little ones... I'll protect you, always."),
         'young': ('{t}♪ ゆわぁぁぁ♪', '{t}♪ 油哇啊啊♪', '{t}! Yuwaaa!')},
     'leisure_done': {
         'adult': ('{t}！ たのしかった！ しあわせー！', '{t}！好开心！好幸福——！', '{t}! That was fun! So happy!'),
@@ -302,8 +302,8 @@ LINES = {
         'adult': ('ぷくーっ！ これは、わたしの！ {t}！', '噗咕——！这是妖梦的！{t}！', 'Puff! This is mine! {t}!'),
         'young': ('ぷきゅーっ！ わたちの！ {t}！', '噗啾——！窝的！{t}！', 'Puff! Mine! {t}!')},
     'mood_bad': {
-        'adult': ('{t}……あんまり、ゆっくりできてない……', '{t}……不太能慢慢来……', "{t}... can't really relax..."),
-        'young': ('{t}……あんまり ゆっくち できてにゃい……', '{t}……不太能慢慢来……', '{t}... not weawy wewaxed...')},
+        'adult': ('{t}……あんまり、ゆっくりできてない……', '{t}……不太能油库里……', "{t}... can't really relax..."),
+        'young': ('{t}……あんまり ゆっくち できてにゃい……', '{t}……不太能油库里……', '{t}... not weawy wewaxed...')},
     'mood_good': {
         'adult': ("{t}！ きょうは ゆっくり できる！", "{t}！今天好能油库里！", "{t}! I can really take it easy today!"),
         'young': ("{t}！ ゆっくち できりゅ！", "{t}！好能油库气！", "{t}! I can take it easy!")},
@@ -434,8 +434,8 @@ LINES = {
         'adult': ("{t}……みんな、まだかな……ここで まってる……", "{t}……大家，还没来呀……妖梦在这儿等……", "{t}... where is everyone...? I'll wait here..."),
         'young': ('{t}……おうちの みんな、まだ かえらない……もうちょっと まっちぇる……', '{t}……家里的油还没肥来……窝再等一会儿……', '{t}... my family still isn’t back... I’ll wait a little more...')},
     'wait_learned': {
-        'adult': ('{t}！ ゆっくり、りかいした！', '{t}！油库里地明白了！', '{t}! I understand now!'),
-        'young': ('{t}！ ゆっくち りきゃいちた！', '{t}！油库气地明白惹！', '{t}! I undewstand!')},
+        'adult': ('{t}！ ゆっくり、りかいした！', '{t}！懂啦！我会等！', '{t}! I understand now!'),
+        'young': ('{t}！ ゆっくち りきゃいちた！', '{t}！懂惹！窝会等！', '{t}! I undewstand!')},
     'wait_turn': {
         'adult': ('ゆっくり……わかった……{t}。', '油库里……知道了……{t}。', 'Okay... I understand... {t}.'),
         'young': ('ゆっくち……わかっちゃ……{t}。', '油库气……知道惹……{t}。', 'Okay... got it... {t}.')},

@@ -10,6 +10,8 @@
 
 可以省略现场已经明确的成分。遇到多人互动、求助、交接或汇报，按实际发生的动作写清容易混淆的角色和对象。优先用说话者认得的称呼。「坏蛋去追亲亲油惹！窝先跑！」两句分别说清谁被追、谁要跑。
 
+中文对白用「油库里」表达问候和安逸，也用作动词，如「一起油库里吧」和「没法油库里」。固定的幼语词形仍按成长阶段使用。
+
 ## 导出
 
 从仓库根目录运行：
@@ -22,6 +24,8 @@ python scripts/export_dialogue.py --check
 原版检索数据由 `scripts/catalogue_hakkei_dialogue.py` 从只读来源目录生成；配音由 `scripts/build_aquestalk_dialogue.py` 按 `art/audio/aquestalk/recipe.json` 制作。已配音的日文文本必须与录音台词保持一致，导出器会拒绝清单不一致的录音。未配音条目只导出字幕。
 
 运行资源包括 `dialogue/catalog.json`、`lang/*.json`、`sounds.json` 与对白 OGG。导出器只更新本任务拥有的对白键；共享运行资源的其他条目由对应资源包维护。
+
+[旧版中文键](legacy-zh-cn.json)保留早期直写语言包的兼容台词，由对白导出器写入中文语言包。
 
 ## 播放规则
 

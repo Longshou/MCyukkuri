@@ -6229,7 +6229,7 @@
       "species": "remilia",
       "age": "adult",
       "japanese": "うー、れみりあも一緒にゆっくりするのだ。",
-      "chinese": "呜——蕾米莉亚也要一起慢慢来呀。",
+      "chinese": "呜——蕾米莉亚也要一起油库里呀！",
       "events": [
         "hello",
         "introduced",
@@ -6426,7 +6426,7 @@
       "species": "remilia",
       "age": "adult",
       "japanese": "うー、よく寝たのだ。今日もゆっくりしよう。",
-      "chinese": "呜——睡得好饱呀。今天也慢慢来吧。",
+      "chinese": "呜——睡饱啦！今天也油库里呀。",
       "events": [
         "awake"
       ],
@@ -9036,7 +9036,7 @@
       "species": "reimu",
       "age": "adult",
       "japanese": "ずるいよ！ どうしてれいむじゃないの！",
-      "chinese": "太狡猾啦！为什么不是灵梦！",
+      "chinese": "耍赖哟！我的点心先生呢？",
       "events": [
         "exam_promise_fail"
       ],
@@ -9512,7 +9512,7 @@
       "species": "reimu",
       "age": "young",
       "japanese": "ずるいよぉ！ れいみゅのばんだよぉ！",
-      "chinese": "狡猾惹哟！明明是窝的份惹哟！",
+      "chinese": "耍赖哟！窝的点心鲜笋呢？",
       "events": [
         "exam_promise_fail"
       ],
@@ -9988,7 +9988,7 @@
       "species": "marisa",
       "age": "adult",
       "japanese": "ずるいのぜ！ まりさのぶんが ないのぜ！",
-      "chinese": "狡猾贼！没有魔理沙的份贼！",
+      "chinese": "耍赖贼！我的点心先生呢？",
       "events": [
         "exam_promise_fail"
       ],
@@ -10464,7 +10464,7 @@
       "species": "marisa",
       "age": "young",
       "japanese": "ずるいのじぇぇ！ まりちゃのばんなのじぇぇ！",
-      "chinese": "狡猾惹杰！明明是窝的份惹杰！",
+      "chinese": "耍赖诺贼！窝的点心鲜笋呢？",
       "events": [
         "exam_promise_fail"
       ],
@@ -10940,7 +10940,7 @@
       "species": "alice",
       "age": "adult",
       "japanese": "ずるいわ！ ありすのぶんはどこなの！",
-      "chinese": "太狡猾了哇！爱丽丝的那份在哪里！",
+      "chinese": "耍赖哇！我的点心先生呢？",
       "events": [
         "exam_promise_fail"
       ],
@@ -11416,7 +11416,7 @@
       "species": "alice",
       "age": "young",
       "japanese": "ずるいわぁ！ ありちゅのばんよぉ！",
-      "chinese": "狡猾哇！明明是窝的份哇！",
+      "chinese": "耍赖哇！窝的点心鲜笋呢？",
       "events": [
         "exam_promise_fail"
       ],
@@ -11892,7 +11892,7 @@
       "species": "chen",
       "age": "adult",
       "japanese": "ずるいよー！ ちぇんのぶんがないよー！",
-      "chinese": "狡猾哟——！没有橙的份哟——！",
+      "chinese": "耍赖哟——！我的点心先生呢？",
       "events": [
         "exam_promise_fail"
       ],
@@ -12368,7 +12368,7 @@
       "species": "chen",
       "age": "young",
       "japanese": "ずるいよぉー！ ちぇんのばんだよぉー！",
-      "chinese": "狡猾哟——！明明是橙的份哟——！",
+      "chinese": "耍赖哟——！窝的点心鲜笋呢？",
       "events": [
         "exam_promise_fail"
       ],
@@ -12844,7 +12844,7 @@
       "species": "patchouli",
       "age": "adult",
       "japanese": "むきゅ！ ずるいわ！ ぱちゅりーのぶんが ないじゃない！",
-      "chinese": "姆啾！太狡猾了！没有帕秋莉的份啊！",
+      "chinese": "姆啾！耍赖哇！我的点心先生呢？",
       "events": [
         "exam_promise_fail"
       ],
@@ -13320,7 +13320,7 @@
       "species": "patchouli",
       "age": "young",
       "japanese": "むきゅー！ ずるいわぁ！ ぱちゅのばんよぉ！",
-      "chinese": "姆啾——！狡猾！明明是帕秋的份！",
+      "chinese": "姆啾！耍赖哇！窝的点心鲜笋呢？",
       "events": [
         "exam_promise_fail"
       ],
@@ -13796,7 +13796,7 @@
       "species": "remilia",
       "age": "adult",
       "japanese": "うー！ ずるいのだ！ れみりあのぶんがないのだ！",
-      "chinese": "呜——！狡猾呀！没有蕾米莉亚的份呀！",
+      "chinese": "呜——耍赖呀！我的点心先生呢？",
       "events": [
         "exam_promise_fail"
       ],
@@ -14272,7 +14272,7 @@
       "species": "remilia",
       "age": "young",
       "japanese": "うー！ ずるいのだぁ！ れみぃのばんなのだぁ！",
-      "chinese": "呜——！狡猾呀！明明是蕾米的份呀！",
+      "chinese": "呜——耍赖呀！窝的点心鲜笋呢？",
       "events": [
         "exam_promise_fail"
       ],
@@ -14748,7 +14748,7 @@
       "species": "flandre",
       "age": "adult",
       "japanese": "うー！ ずるいよ！ ふらんのぶんがないよ！",
-      "chinese": "呜——！狡猾！没有芙兰的份哦！",
+      "chinese": "呜——耍赖哦！我的点心先生呢？",
       "events": [
         "exam_promise_fail"
       ],
@@ -15224,7 +15224,7 @@
       "species": "flandre",
       "age": "young",
       "japanese": "うー！ ずるいよぉ！ ふりゃんのばんだよぉ！",
-      "chinese": "呜——！狡猾！明明是芙呀的份！",
+      "chinese": "呜——耍赖哟！窝的点心鲜笋呢？",
       "events": [
         "exam_promise_fail"
       ],
@@ -24336,7 +24336,7 @@
       "species": "reimu",
       "age": "adult",
       "japanese": "あんまり ゆっくり できてないよ……",
-      "chinese": "不太能慢慢来呢……",
+      "chinese": "不太能油库里呢……",
       "english": "I can't relax very well...",
       "events": [
         "mood_bad"
@@ -24608,7 +24608,7 @@
       "species": "reimu",
       "age": "young",
       "japanese": "あんまり ゆっくち できちぇないよ……",
-      "chinese": "窝不太能慢慢来惹……",
+      "chinese": "窝不太能油库里惹……",
       "english": "I can't relax very well...",
       "events": [
         "mood_bad"
@@ -24880,7 +24880,7 @@
       "species": "marisa",
       "age": "adult",
       "japanese": "あんまり ゆっくり できてないのぜ……",
-      "chinese": "不太能慢慢来贼……",
+      "chinese": "不太能油库里贼……",
       "english": "I can't relax very well...",
       "events": [
         "mood_bad"
@@ -25152,7 +25152,7 @@
       "species": "marisa",
       "age": "young",
       "japanese": "あんまり ゆっくち できてないのじぇ……",
-      "chinese": "不太能慢慢来惹杰……",
+      "chinese": "不太能油库里惹杰……",
       "english": "I can't relax very well...",
       "events": [
         "mood_bad"
@@ -25424,7 +25424,7 @@
       "species": "alice",
       "age": "adult",
       "japanese": "あんまり ゆっくり できてないのよ……",
-      "chinese": "不太能慢慢来呢……",
+      "chinese": "不太能油库里呢……",
       "english": "I can't relax very well...",
       "events": [
         "mood_bad"
@@ -25696,7 +25696,7 @@
       "species": "alice",
       "age": "young",
       "japanese": "あんまり ゆっくち できてないのよ……",
-      "chinese": "不太能慢慢来哇……",
+      "chinese": "不太能油库里哇……",
       "english": "I can't relax very well...",
       "events": [
         "mood_bad"
@@ -25968,7 +25968,7 @@
       "species": "chen",
       "age": "adult",
       "japanese": "あんまり ゆっくり できてないよー……",
-      "chinese": "不太能慢慢来哟——……",
+      "chinese": "不太能油库里哟——……",
       "english": "I can't relax very well...",
       "events": [
         "mood_bad"
@@ -26240,7 +26240,7 @@
       "species": "chen",
       "age": "young",
       "japanese": "あんまり ゆっくち できてないよー……",
-      "chinese": "橙不太能慢慢来惹……",
+      "chinese": "橙不太能油库里惹……",
       "english": "I can't relax very well...",
       "events": [
         "mood_bad"
@@ -26512,7 +26512,7 @@
       "species": "patchouli",
       "age": "adult",
       "japanese": "むきゅ……あまり ゆっくり できていないわ。",
-      "chinese": "姆啾……不太能慢慢来哇。",
+      "chinese": "姆啾……不太能油库里哇。",
       "english": "Mukyu... I can't relax very well...",
       "events": [
         "mood_bad"
@@ -26784,7 +26784,7 @@
       "species": "patchouli",
       "age": "young",
       "japanese": "むきゅ……あまり ゆっくち できてないわ。",
-      "chinese": "姆啾……不太能慢慢来哇。",
+      "chinese": "姆啾……不太能油库里哇。",
       "english": "Mukyu... I can't relax very well...",
       "events": [
         "mood_bad"
@@ -27056,7 +27056,7 @@
       "species": "remilia",
       "age": "adult",
       "japanese": "うー……あまり ゆっくり できていないのだ。",
-      "chinese": "呜——……不太能慢慢来呀。",
+      "chinese": "呜——……不太能油库里呀。",
       "english": "Uu... I can't relax very well...",
       "events": [
         "mood_bad"
@@ -27328,7 +27328,7 @@
       "species": "remilia",
       "age": "young",
       "japanese": "うー……あまり ゆっくち できてないのだ。",
-      "chinese": "呜——……不太能慢慢来呀。",
+      "chinese": "呜——……不太能油库里呀。",
       "english": "Uu... I can't relax very well...",
       "events": [
         "mood_bad"
@@ -27600,7 +27600,7 @@
       "species": "flandre",
       "age": "adult",
       "japanese": "うー……あんまり ゆっくり できてないよ。",
-      "chinese": "呜——……不太能慢慢来呢。",
+      "chinese": "呜——……不太能油库里呢。",
       "english": "Uu... I can't relax very well...",
       "events": [
         "mood_bad"
@@ -27872,7 +27872,7 @@
       "species": "flandre",
       "age": "young",
       "japanese": "うー……あんまり ゆっくち できてないよ。",
-      "chinese": "呜——……不太能慢慢来。",
+      "chinese": "呜——……不太能油库里。",
       "english": "Uu... I can't relax very well...",
       "events": [
         "mood_bad"
@@ -29261,7 +29261,7 @@
       "species": "reimu",
       "age": "adult",
       "japanese": "れいぱーは ゆっくりしてないんだよぉぉぉぉ！？",
-      "chinese": "雷普魔不能慢慢来哦哦哦哦！？",
+      "chinese": "雷普魔一点都不油库里哦哦哦哦！？",
       "source": {
         "file": "油库里八景ver1.12/油库里八景ver1.12/text/reimu/sei/seima_serifu.txt",
         "line": 6942,
@@ -29329,7 +29329,7 @@
       "species": "marisa",
       "age": "adult",
       "japanese": "れいぱーは ゆっくりしてないのぜぇぇぇ！？",
-      "chinese": "雷普魔不能慢慢来的哉噫噫！？",
+      "chinese": "雷普魔一点都不油库里贼——！？",
       "source": {
         "file": "油库里八景ver1.12/油库里八景ver1.12/text/marisa/sei/seima_serifu.txt",
         "line": 6939,
@@ -29397,7 +29397,7 @@
       "species": "alice",
       "age": "adult",
       "japanese": "れいぱーは ゆっくりしてないわぁぁぁぁ！？",
-      "chinese": "雷普魔不能慢慢来哇啊啊啊啊！？",
+      "chinese": "雷普魔一点都不油库里哇啊啊啊啊！？",
       "source": {
         "file": "油库里八景ver1.12/油库里八景ver1.12/text/arisu/sei/seima_serifu.txt",
         "line": 6941,

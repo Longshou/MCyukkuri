@@ -190,7 +190,7 @@ DEATH_ADULT = {
     # "please eat me" (social/SelfOffering): the parent's side, a chain of its own beside the ordinary last words
     'offer_ask': ("{p}わたしを……たべて くれる{e}……？", "{p}来……把我吃了吧{e}……", "{p}Here... please eat me..."),
     'offer_insist': ("{p}わたしを たべて……いきてね……", "{p}吃了我……你要活下去{e}……", "{p}Eat me... you have to live..."),
-    'offer_give': ("{p}ゆっくり……わたしを たべてね……", "{p}慢慢来……吃我{e}……", "{p}Take your time... eat me..."),
+    'offer_give': ("{p}ゆっくり……わたしを たべてね……", "{p}油库里地吃我{e}……", "{p}Take your time... eat me..."),
     'offer_spared': ("{p}よかった……まだ いっしょに いられる{e}……", "{p}太好了……我们还能待在一起{e}……", "{p}Thank goodness... we can stay together..."),
     'sacrifice': ("{p}わたしが おとりに なる！ おちびちゃん、にげて！", "{p}我来引开坏蛋{e}！小贝比酱，快逃{e}！", "{p}I'll draw the bully away! Little one, run!"),
 }
@@ -257,17 +257,17 @@ COUNT_FRAMES = {
 EMOTION_BASIS = 'komicolle 40720 11518890 (sweetening, non-yukkuri) / 11518829 (naming denies identity); project-original wording, unvoiced'
 EMOTION = {
     'baby': {
-        'uneasy': ('{c}……ゆっくち、できにゃい……', '{c}……不能慢慢来……', "{c}... can't take it easy..."),
+        'uneasy': ('{c}……ゆっくち、できにゃい……', '{c}……不能油库里……', "{c}... can't take it easy..."),
         'non_yukkuri': ('ゆっくち！ ゆっくち！ ゆっくちぃぃ！', '油库己！油库己！油库己——！', 'Yukkuchi! Yukkuchi! Yukkuchiii!'),
         'renamed_upset': ('{nb}は{nb}ぢゃよぉぉ！ {c}ーっ！', '{nb}就是{nb}啦——！{c}——！', '{nb} is {nb}! {c}!'),
     },
     'juvenile': {
-        'uneasy': ('{p}{n}、ゆっくりできない{e}……', '{p}{n}没办法慢慢来{e}……', "{p}{N} can't take it easy..."),
+        'uneasy': ('{p}{n}、ゆっくりできない{e}……', '{p}{n}没法油库里{e}……', "{p}{N} can't take it easy..."),
         'non_yukkuri': ('ゆっくち……ゆっくち……ゆっくちぃぃぃ！', '油库己……油库己……油库己——！', 'Yukkuchi... yukkuchi... yukkuchiii!'),
         'renamed_upset': ('{p}{n}は{n}{e}！ そんななまえじゃない{e}！', '{p}{n}就是{n}{e}！才不是那种名字{e}！', "{p}{N} is {N}! That's not my name!"),
     },
     'adult': {
-        'uneasy': ('{p}{n}、ぜんぜんゆっくりできない{e}……', '{p}{n}一点都没法慢慢来{e}……', "{p}{N} can't take it easy at all..."),
+        'uneasy': ('{p}{n}、ぜんぜんゆっくりできない{e}……', '{p}{n}一点都没法油库里{e}……', "{p}{N} can't take it easy at all..."),
         'non_yukkuri': ('ゆっくち！ ゆっくち！ ゆっ、ゆっ、ゆっくちぃぃ！', '油库己！油库己！油、油、油库己——！', 'Yukkuchi! Yukkuchi! Yu-yu-yukkuchiii!'),
         'renamed_upset': ('{p}{n}は{n}{e}！ ゆぅぅ……{n}{e}！', '{p}{n}就是{n}{e}！油呜……{n}{e}！',
                           "{p}{N} is {N}! Yuu... {N}!"),
@@ -296,9 +296,9 @@ SETTLE = {
         'adult': ('{p}わかった{e}。{n}もてつだう{e}。', '{p}知道了{e}。{n}也来帮忙{e}。', '{p}Got it. {N} will help too.')},
     'hunt_refuse': {
         'juvenile': ('{p}いやだ{e}！ {n}はいかない！', '{p}不要{e}！{n}不去！', '{p}No! {N} is not going!'),
-        'adult': ('{p}{n}はいかない{e}。きょうはゆっくりしたい{e}。', '{p}{n}不去{e}。今天想慢慢来{e}。', '{p}{N} is not going. I want to take it easy today.')},
+        'adult': ('{p}{n}はいかない{e}。きょうはゆっくりしたい{e}。', '{p}{n}不去{e}。今天想油库里{e}。', '{p}{N} is not going. I want to take it easy today.')},
     'hunt_back': {
-        'adult': ("{p}ただいま{e}！ ごはんさん、もってきた{e}！", "{p}回来了{e}！饭先生也回来{e}！", "{p}I'm back! I brought Mr. Food!")},
+        'adult': ("{p}ただいま{e}！ ごはんさん、もってきた{e}！", "{p}到家了{e}！饭先生带回来了！", "{p}I'm back! I brought Mr. Food!")},
     'ration_give': {
         'adult': ("{p}ごはんさん！ みんな、わけて たべてね！", "{p}饭先生！大家分着嚼嚼{e}！", "{p}Mr. Food! Share it, everyone!")},
     'ration_get': {

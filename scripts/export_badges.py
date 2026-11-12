@@ -113,16 +113,16 @@ def language(zh):
         'help.10':('手里拿着这只油库里的徽章时可用；也可以关掉界面直接右键它。',"Works while you hold this yukkuri's badge. You can also close the screen and right-click it."),
     }
     for key,pair in {
-        'exam':('ゆ！要认真参加考试！','Yuh! Time for my exam!'),'practice':('ゆ！慢慢学会！','Yuh! Let’s learn!'),
+        'exam':('油！要考试啦！','Yuh! Time for my exam!'),'practice':('油！来练习吧！','Yuh! Let’s learn!'),
         'learned':('这次记住了哟！','I remembered this time!'),'recall':('听懂了，要去那边！','I understand, go over there!'),
         'thinking':('先想清楚，再回答哟……','Think first, then answer…'),'passed':('合格了！要好好珍惜徽章！','I passed! I’ll treasure my badge!'),
         'interrupted':('现在没法好好考试……','I can’t keep going now…'),'failed':('还要继续练习呢……','I need more practice…'),
-        'envy':('为什么它的徽章比自己的高级……','Why is its badge better than mine…'),
+        'envy':('那只油的徽章……怎么比我的还好？','Why is its badge better than mine…'),
         'admire':('好厉害的徽章！也想学会呢！','What a badge! I want to learn too!'),
         'help':('不会的事情，可以慢慢教你哟！','I can help you learn, slowly!'),
-        'boast':('看好啦！自己可是有徽章的！','Look! I have a badge!'),
+        'boast':('看！我的徽章亮不亮？','Look! I have a badge!'),
         'polite':('有徽章也要好好打招呼哟。','A badge still means greeting politely.'),
-        'peer':('你也有徽章呢，一起慢慢来吧！','You have a badge too! Take it easy together!')}.items():pairs['speech.'+key]=pair
+        'peer':('你也有徽章呀！一起油库里吧！','You have a badge too! Take it easy together!')}.items():pairs['speech.'+key]=pair
     result={'badge.mcyukkuri.'+k:v[0 if zh else 1] for k,v in pairs.items()}
     result['item.mcyukkuri.badge_handbook']='宠物手册' if zh else 'Pet Handbook'
     result['human.mcyukkuri.help.16']='带上你的宠物去考官那里参加考试、查看记录或补发徽章。' if zh else 'Bring your pet to the Examiner for exams, records or a badge reissue.'

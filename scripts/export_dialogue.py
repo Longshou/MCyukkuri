@@ -47,6 +47,8 @@ def outputs():
         old = json.loads(path.read_text(encoding='utf-8')) if path.exists() else {}
         locales[locale] = {k: v for k, v in old.items() if not k.startswith(PREFIXES)}
         anchors[locale] = list(old)
+    legacy_zh = ROOT / 'art/dialogue/legacy-zh-cn.json'
+    locales['zh_cn'].update(json.loads(legacy_zh.read_text(encoding='utf-8')))
     seen = set()
     for line in source['lines']:
         ident, ref = line['id'], line['source']

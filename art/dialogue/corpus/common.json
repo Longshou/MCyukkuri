@@ -27,7 +27,7 @@
     },
     {
       "id": "invitation_take_it_slow",
-      "zh": "一起慢慢来！",
+      "zh": "一起油库里！",
       "ja": "いっしょにゆっくりしよう！",
       "en": "Let's take it slow together!",
       "basis": ["L36", "P"],
@@ -688,7 +688,7 @@
     },
     {
       "id": "forever_easy",
-      "zh": "永远慢慢来",
+      "zh": "永远油库里",
       "ja": "永遠にゆっくりする",
       "en": "take it easy forever",
       "basis": ["F17", "P"],

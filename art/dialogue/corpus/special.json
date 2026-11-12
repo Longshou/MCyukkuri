@@ -233,7 +233,7 @@
     },
     {
       "id": "uneasy_voice",
-      "zh": "没办法慢慢来……",
+      "zh": "没法油库里……",
       "ja": "ゆっくりできない……",
       "en": "I can't take it easy...",
       "basis": ["F01", "P"],
@@ -378,7 +378,7 @@
     },
     {
       "id": "dying_last_wish",
-      "zh": "还想……再多……慢慢来一下……",
+      "zh": "还想……再油库里一会儿……",
       "ja": "もっと……ゆっくり……したかった……",
       "en": "I wanted... to take it easy... a little longer...",
       "basis": ["L36", "P"],
@@ -408,7 +408,7 @@
     },
     {
       "id": "stench_disgust",
-      "zh": "好臭……这里没法慢慢来……",
+      "zh": "好臭……这里没法油库里……",
       "ja": "くさい……ここはゆっくりできない……",
       "en": "It reeks... I can't take it easy here...",
       "basis": ["L36", "P"],
