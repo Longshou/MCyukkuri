@@ -336,8 +336,8 @@ def hanging_hook():
 
 
 def hair_clippers():
-    """ばりかん: manual barber clippers on the tool diagonal: a steel head at the top right whose outer edge is cut into comb
-    teeth, a brass pivot, and two short leather grips close together at the bottom left."""
+    """ばりかん: manual barber clippers on the tool diagonal: a steel head at the top right with one-pixel comb teeth set
+    against its outer edge, a brass pivot, and two short leather grips spreading into a V at the bottom left."""
     i = Icon('hair_clippers')
     i.rows(legend(a=(LEATHER, 1), c=(LEATHER, 3), b=(LEATHER, 0)), [
         "", "", "", "", "", "", "", "",
@@ -345,19 +345,18 @@ def hair_clippers():
         "....acbacb......",
         "...acb.acb......",
         "..acb..acb......",
-        ".acb..acb.......",
-        ".bb...acb.......",
-        "......bb........",
+        ".acb....acb.....",
+        ".bb.....acb.....",
+        "........bb......",
     ])
-    a, b = (5.6, 2.6), (11.4, 8.4)
-    i.bar(a, b, 2.2, IRON, glint=True)
+    a, b = (4.8, 1.8), (11.6, 8.6)
+    i.bar(a, b, 2.0, IRON, glint=True)
     i.finish()
     head = {c for c, v in i.px.items() if v[0] is IRON}
     edge = sorted((c for c in head if (c[0] + 1, c[1] - 1) not in head and (c[0] + 1, c[1]) not in head), key=lambda c: c[0] + c[1])
-    for k, (x, y) in enumerate(edge):         # every other pixel of the outer edge grows a two-pixel tooth
+    for k, (x, y) in enumerate(edge):         # every other pixel of the outer edge carries a tooth right against it
         if k % 2 == 0:
             i.px[(x + 1, y - 1)] = [IRON, 3, i.part + 1]
-            i.px[(x + 2, y - 2)] = [IRON, 4, i.part + 1]
     i.rows(legend(y=(BRASS, 3), Y=(BRASS, 1)), ["", "", "", "", "", "", "", "......yY........", "......Y........."])
     return i
 
@@ -519,27 +518,24 @@ def iron_enclosure():
 
 
 def trimmed_hair():
-    """A loose lock of cut hair: five fine wavy strands pressed together at the blunt cut end (bottom left) that bend by
-    different amounts and part towards lighter tips (top right); no tie."""
+    """A loose lock of cut hair: four soft strands drawn as connected, kinked lines, gathered at staggered cut ends (bottom
+    left) and parting towards lighter tips (top right); no tie and no binding."""
     i = Icon('trimmed_hair')
-    i.rows(legend(o=(HAIR, 0), d=(HAIR, 1), m=(HAIR, 2), l=(HAIR, 3), w=(HAIR, 4)), [
-        "................",
-        "........w....w..",
-        ".......l....l...",
-        "......l..w.l..w.",
-        "......m.l..m.l..",
-        ".....m..m.m..m..",
-        ".....m.m.m..m...",
-        "....d..m.m.m...w",
-        "....d.m.m.m...l.",
-        "...d.d.m.m..mm..",
-        "...d.d.m.mmm....",
-        "..dd.d.dd.......",
-        "..ddddd.........",
-        "..ooooo.........",
-        "................",
-        "................",
-    ])
+    strands = [
+        [(3, 13), (3, 12), (3, 11), (4, 11), (4, 10), (4, 9), (4, 8), (5, 8), (5, 7), (5, 6), (6, 6), (6, 5), (6, 4), (7, 4),
+         (7, 3), (8, 3), (8, 2)],
+        [(5, 12), (5, 11), (6, 11), (6, 10), (7, 10), (7, 9), (7, 8), (8, 8), (8, 7), (9, 7), (9, 6), (10, 6), (10, 5),
+         (10, 4), (11, 4), (11, 3), (12, 3), (12, 2)],
+        [(6, 13), (7, 13), (7, 12), (8, 12), (8, 11), (9, 11), (9, 10), (10, 10), (10, 9), (11, 9), (11, 8), (12, 8), (12, 7),
+         (13, 7), (13, 6), (14, 6), (14, 5)],
+        [(8, 14), (9, 14), (9, 13), (10, 13), (11, 13), (11, 12), (12, 12), (13, 12), (13, 11), (14, 11), (14, 10)],
+    ]
+    i.part += 1
+    for strand in strands:
+        n = len(strand)
+        for k, (x, y) in enumerate(strand):
+            step = 1 if k < 2 else 4 if k >= n - 2 else 3 if k >= n - 5 else 2
+            i.px[(x, y)] = [HAIR, step, i.part]
     return i
 
 
