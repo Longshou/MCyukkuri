@@ -20,11 +20,13 @@ leak_startle: the startled instant - raised brows, small round open mouth, no te
 leak_flow: while it runs - worried brows, welling tears, a wide open mouth with the tongue; one outlined sugar-water
   stream from the mamu-mamu site (wiki F37: the opening lies below the chin) straight down the body's centre line.
 The stream lives in the mouth-effect decal, which runs from below the mouth over the bottom curve of rounded bodies; the
-body surface itself has no texture layout. Afterwards the face returns through existing library faces (no leak frame).
+body surface itself has no texture layout. The start is the mamu site, which the body build places measured up from the
+body's base (so it is low on every form); where that site lies below the decal (bean, house and deibu bodies, whose decal
+sits on the face) the face draws no stream at all and the wet edge alone carries the leak - the stream never lands on the
+face. Afterwards the face returns through existing library faces (no leak frame); the leak_flow body marks (this atlas's
+mouth-effect cell and leak_wet) stay on the body until they dry.
 leak_wet (textures/props/body_wounds, the baked sole's continuous projection): the small wet edge at the front base where
-  the stream meets the ground, worn only with leak_flow.
-leak_trace (same projection): the wet edge plus the still stream from the mamu site down into it - the trace the leak
-  leaves on the skin after the flow, worn while the face has moved on and the puddle lies on the ground, until it dries.
+  the stream meets the ground.
 leak_puddle (textures/effects, 32x32 top-down): the small ground puddle the stream leaves; a world mark, not on the body.
 
     python standards/yukkuri-library/expressions/derived/faces.py [--check]
@@ -47,7 +49,6 @@ LID = .25
 LEAK = ('leak_startle', 'leak_flow')
 WET_CORE, WET_EDGE, WET_SHINE = (248, 236, 160, 255), (158, 124, 58, 255), (255, 255, 244, 255)  # pale sugar water
 WET = ASSETS/'textures/props/body_wounds/leak_wet.png'
-TRACE = ASSETS/'textures/props/body_wounds/leak_trace.png'
 PUDDLE = ASSETS/'textures/effects/leak_puddle.png'
 # One big wet eye (13x12, centred in the 15x12 eye box): A outline, C iris, E lower reflection, B catch-light.
 BIG_EYE = ('....AAAAA....', '..AACCCCCAA..', '.ABBBCCCCCCA.', '.ABBBBCCCCCA.', 'ACBBBBCCCCCCA', 'ACCBBCCCCCCCA',
@@ -174,12 +175,14 @@ def leak_stream(image, found, anchor, face):
     for y in range(ey, ey1):
         for x in range(ex, ex1): px[x, y] = (0, 0, 0, 0)
     c = round(anchor[0])-1  # the two core texels straddle x = 0
-    top, bottom = min(max(ey, round(anchor[1])), ey1-4), ey1-1  # forms whose decal sits high clamp to the cell
+    if anchor[1] is None: return  # the mamu site lies below the decal (it sits on the face): no stream on the face
+    top, bottom = max(ey, round(anchor[1])), ey1-1
     streak(px, c, top, top+2 if face == 'leak_startle' else bottom)  # the first spurt, then the full stream
 
 
 def anchor(model, size):
-    """(u at body x = 0, v at the mamu line's centre) on the mouth-effect decal, from the model's own vertices."""
+    """(u at body x = 0, v at the mamu line's centre) on the mouth-effect decal, from the model's own vertices; v is None
+    when the mamu centre lies below the decal (or too close to its bottom edge for a stream), so the face draws none."""
     V = model['vertices']; parts = {p['name']: p for p in model['parts']}
     def front(name): return [V[(parts[name]['start']+i)*8:(parts[name]['start']+i)*8+8] for i in range(parts[name]['count'])]
     face = [v for v in front('face_effect_mouth') if v[7] < -.2]
@@ -187,16 +190,15 @@ def anchor(model, size):
     u = (a[3]+(0-a[0])*(b[3]-a[3])/(b[0]-a[0]))*size
     ys = [v[1] for v in front('mamu_mark')] if 'mamu_mark' in parts else [(lo[1]+hi[1])/2]
     y = (min(ys)+max(ys))/2
-    return u, (lo[4]+(y-lo[1])*(hi[4]-lo[4])/(hi[1]-lo[1]))*size
+    v = (lo[4]+(y-lo[1])*(hi[4]-lo[4])/(hi[1]-lo[1]))*size
+    return u, v if y >= lo[1] and abs(v-lo[4]*size) >= 4 else None
 
 
-def wet_edge(stream=False):
+def wet_edge():
     """The small wet edge at the front base under the stream, in the continuous sole projection the baked sole uses
     (WoundRenderer.soleTexture: 1024x256, u around the body with the face front at the centre column, v = (2 - y)/2.5 for
     y = height x 9.6, rows below v 0.8 unused), drawn on a 64x16 grid of 16 px cells (about one face texel each) in the
-    stream's line language: an outlined pale wet mound about +-14 degrees wide at the front centre, with a highlight.
-    stream adds the trace the leak leaves on the skin once the face has moved on: the 2-cell outlined stream from the mamu
-    site (y about 1.28, row 5) down into the mound, still wet (highlight at its top), not running."""
+    stream's line language: an outlined pale wet mound about +-14 degrees wide at the front centre, with a highlight."""
     grid = Image.new('RGBA', (64, 16)); px = grid.load(); w, t = 2.5, 8
     def inside(c, r):  # a rounded mound whose top edge runs up in a short wet tongue
         d = abs(c+.5-32)
@@ -208,12 +210,6 @@ def wet_edge(stream=False):
                 rim = not all(inside(c+dc, r+dr) for dc, dr in ((1, 0), (-1, 0), (0, -1)))
                 px[c, r] = WET_EDGE if rim else core
     for c, r in ((29, t+3), (30, t+2)): px[c, r] = WET_SHINE
-    if stream:
-        for r in range(5, t+2):
-            px[31, r] = px[32, r] = core
-            for c in (30, 33):
-                if not inside(c, r) or r < t: px[c, r] = WET_EDGE
-        for r in (5, 6): px[32, r] = WET_SHINE
     return grid.resize((1024, 256), Image.NEAREST)
 
 
@@ -279,15 +275,14 @@ def outputs():
         records[folder.name]['from'] = {n: hashlib.sha256((folder/f'{n}.png').read_bytes()).hexdigest() for n in ('teary', 'neutral', 'surprise', 'flushed_smile')
                                          if (folder/f'{n}.png').is_file()}
     marks = {}
-    for path, image in ((WET, wet_edge()), (TRACE, wet_edge(True)), (PUDDLE, puddle())):
+    for path, image in ((WET, wet_edge()), (PUDDLE, puddle())):
         data = io.BytesIO(); image.save(data, format='PNG'); files[path] = data.getvalue()
         marks[path.stem] = {'runtime': path.relative_to(ROOT).as_posix(), 'sha256': hashlib.sha256(data.getvalue()).hexdigest()}
     manifest = {'status': 'pending_user_review', 'origin': 'project design', 'recipe': {'sad': 'teary atlas, tear and mouth-effect cells from neutral, top quarter of each eye under a flat lid line',
                            'afraid': 'teary atlas, tear and mouth-effect cells from neutral, eyes from surprise with a small dark pupil, a pressed zigzag mouth',
                            'leak_startle': 'neutral atlas, surprise brows, flushed_smile blush, big round wet eyes in the neutral eye colours, a small round open mouth, the first spurt',
-                           'leak_flow': 'neutral atlas, teary brows and welling tears, flushed_smile blush, big round wet eyes, a wide open mouth with the tongue, one stream from the mamu site on the centre line',
-                           'leak_wet': 'textures/props/body_wounds, sole projection: a small outlined pale wet edge at the front base under the stream, worn with leak_flow',
-                           'leak_trace': 'textures/props/body_wounds, sole projection: the wet edge plus the still stream from the mamu site down into it, left on the skin after the flow until it dries',
+                           'leak_flow': 'neutral atlas, teary brows and welling tears, flushed_smile blush, big round wet eyes, a wide open mouth with the tongue, one stream from the mamu site on the centre line (none where the mamu site lies below the decal: bean, house, deibu)',
+                           'leak_wet': 'textures/props/body_wounds, sole projection: a small outlined pale wet edge at the front base under the stream, worn with leak_flow and kept with its stream until it dries',
                            'leak_puddle': 'textures/effects, 32x32 top-down: a small outlined pale ground puddle left where the stream ends'},
                 'builder': Path(__file__).relative_to(ROOT).as_posix(), 'builder_sha256': hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
                 'models': records, 'marks': marks}
@@ -301,4 +296,4 @@ if __name__ == '__main__':
     for path, data in files.items():
         if args.check: assert path.is_file() and path.read_bytes() == data, 'Outdated: '+str(path)
         else: path.write_bytes(data)
-    print(f'sad, afraid and leak faces for {(len(files)-4)//(2+len(LEAK))} models, the wet edge, the skin trace and the puddle '+('verified' if args.check else 'written'))
+    print(f'sad, afraid and leak faces for {(len(files)-3)//(2+len(LEAK))} models, the wet edge and the puddle '+('verified' if args.check else 'written'))

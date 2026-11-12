@@ -5,13 +5,12 @@
     "sad": "teary atlas, tear and mouth-effect cells from neutral, top quarter of each eye under a flat lid line",
     "afraid": "teary atlas, tear and mouth-effect cells from neutral, eyes from surprise with a small dark pupil, a pressed zigzag mouth",
     "leak_startle": "neutral atlas, surprise brows, flushed_smile blush, big round wet eyes in the neutral eye colours, a small round open mouth, the first spurt",
-    "leak_flow": "neutral atlas, teary brows and welling tears, flushed_smile blush, big round wet eyes, a wide open mouth with the tongue, one stream from the mamu site on the centre line",
-    "leak_wet": "textures/props/body_wounds, sole projection: a small outlined pale wet edge at the front base under the stream, worn with leak_flow",
-    "leak_trace": "textures/props/body_wounds, sole projection: the wet edge plus the still stream from the mamu site down into it, left on the skin after the flow until it dries",
+    "leak_flow": "neutral atlas, teary brows and welling tears, flushed_smile blush, big round wet eyes, a wide open mouth with the tongue, one stream from the mamu site on the centre line (none where the mamu site lies below the decal: bean, house, deibu)",
+    "leak_wet": "textures/props/body_wounds, sole projection: a small outlined pale wet edge at the front base under the stream, worn with leak_flow and kept with its stream until it dries",
     "leak_puddle": "textures/effects, 32x32 top-down: a small outlined pale ground puddle left where the stream ends"
   },
   "builder": "standards/yukkuri-library/expressions/derived/faces.py",
-  "builder_sha256": "bcd4c442bc236290606afb45ccf0306d5b1d620efbda04714352cc038d9f6dca",
+  "builder_sha256": "91eff8d528e32fd2bb2aa30e74720f163312e6281f832211872a47ea0389305b",
   "models": {
     "alice": {
       "sad": {
@@ -144,11 +143,11 @@
       },
       "leak_startle": {
         "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/house_marisa/leak_startle.png",
-        "sha256": "b9f6e4d0ee12dceedc59d00533dc28ec3e9d85392cd8736688cabf9477cf99bf"
+        "sha256": "6c3852f39553cca0f6e3291e75c4871a75c9c6b7b13ea79396c6952367243179"
       },
       "leak_flow": {
         "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/house_marisa/leak_flow.png",
-        "sha256": "2b01858344fc9c9300ff2f4f8c9a497cd565e4a011c00002c1b2cdde240037a2"
+        "sha256": "1178a69eef9c375d77275e6705e903daa0796b756a9199e2560f98da6a4f7299"
       },
       "from": {
         "teary": "c2665c0ee4c234fa92005019b1308b1f57e899670a619a3172510bb080aae025",
@@ -168,11 +167,11 @@
       },
       "leak_startle": {
         "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/house_reimu/leak_startle.png",
-        "sha256": "3c2727d9896847b7f26c010eeb8f4d65635dbee9d881a0b425f974d05c7f3bcf"
+        "sha256": "68b47c86561d00e847acf8790a2c9f12c8bf83441c6cb07d0bb6fb239768a52b"
       },
       "leak_flow": {
         "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/house_reimu/leak_flow.png",
-        "sha256": "09805ceaad8a16ed4402fe1ccfd2ae611e4199a7f9356fae0be1eba7a5043a34"
+        "sha256": "26bd771d388c59469ced0f971707b5ff66cf70109d7f2e19ef3a678383270a10"
       },
       "from": {
         "teary": "bebe2ce7865657862ba50b96e840c67becee016e37ac35bc6f52ceac4f4e02f8",
@@ -216,11 +215,11 @@
       },
       "leak_startle": {
         "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_bean/leak_startle.png",
-        "sha256": "b9f6e4d0ee12dceedc59d00533dc28ec3e9d85392cd8736688cabf9477cf99bf"
+        "sha256": "6c3852f39553cca0f6e3291e75c4871a75c9c6b7b13ea79396c6952367243179"
       },
       "leak_flow": {
         "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_bean/leak_flow.png",
-        "sha256": "2b01858344fc9c9300ff2f4f8c9a497cd565e4a011c00002c1b2cdde240037a2"
+        "sha256": "1178a69eef9c375d77275e6705e903daa0796b756a9199e2560f98da6a4f7299"
       },
       "from": {
         "teary": "c2665c0ee4c234fa92005019b1308b1f57e899670a619a3172510bb080aae025",
@@ -432,11 +431,11 @@
       },
       "leak_startle": {
         "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_bean/leak_startle.png",
-        "sha256": "3c2727d9896847b7f26c010eeb8f4d65635dbee9d881a0b425f974d05c7f3bcf"
+        "sha256": "68b47c86561d00e847acf8790a2c9f12c8bf83441c6cb07d0bb6fb239768a52b"
       },
       "leak_flow": {
         "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_bean/leak_flow.png",
-        "sha256": "09805ceaad8a16ed4402fe1ccfd2ae611e4199a7f9356fae0be1eba7a5043a34"
+        "sha256": "26bd771d388c59469ced0f971707b5ff66cf70109d7f2e19ef3a678383270a10"
       },
       "from": {
         "teary": "bebe2ce7865657862ba50b96e840c67becee016e37ac35bc6f52ceac4f4e02f8",
@@ -456,11 +455,11 @@
       },
       "leak_startle": {
         "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_deibu/leak_startle.png",
-        "sha256": "7a9b6f09ad39d01748f2752c993ab62a3c4730ada9d9feb7f8fc12a10266aac5"
+        "sha256": "e590587c85d3b03013bbe341607982f5fc8b47298e759f8151c79f04f6181402"
       },
       "leak_flow": {
         "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_deibu/leak_flow.png",
-        "sha256": "6f7b9818ce7993c0a23d9ce5756edf1846be59854679c25dfdbd4748d69dc895"
+        "sha256": "30593ac6afbacda6bf1d37b42b151d7f3840312c0fc01ecbf036200cce496fbc"
       },
       "from": {
         "teary": "85c5529d95c6708dee4b3b066c5138952778eaf0f3c4ccb00d6b477e92acf5dd",
@@ -594,10 +593,6 @@
     "leak_wet": {
       "runtime": "src/main/resources/assets/mcyukkuri/textures/props/body_wounds/leak_wet.png",
       "sha256": "66ac9306c147fc483af6303ebf819291a5e01b6a41246a2826313c96ac353ab0"
-    },
-    "leak_trace": {
-      "runtime": "src/main/resources/assets/mcyukkuri/textures/props/body_wounds/leak_trace.png",
-      "sha256": "5ea40a1a218840b103342c04003ca2dc95f3a638c37285192e031644e6f203a9"
     },
     "leak_puddle": {
       "runtime": "src/main/resources/assets/mcyukkuri/textures/effects/leak_puddle.png",
