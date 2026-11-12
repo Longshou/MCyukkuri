@@ -25,7 +25,7 @@ def export():
         for y in (4,27):md.rectangle((x,y,x+1,y+1),fill='#34454a')
     mp=ART/'workshop_casing.png';metal_data=write_png(mp,metal)
     target=ASSET/'textures/block/workshop_casing.png';write_bytes(target,metal_data)
-    names=['yukkuri_manju','live_yukkuri_bag','bronze_yukkuri_badge','silver_yukkuri_badge','gold_yukkuri_badge','labor_bench','manju_steamer','live_packing_table','nursery_station']
+    names=['yukkuri_manju','live_yukkuri_bag','bronze_yukkuri_badge','silver_yukkuri_badge','gold_yukkuri_badge','platinum_yukkuri_badge','labor_bench','manju_steamer','live_packing_table','nursery_station']
     for name in names:
         im=Image.new('RGBA',(32,32));d=ImageDraw.Draw(im);dark='#43392f'
         if name.endswith('badge'):
@@ -63,7 +63,7 @@ def export():
                 d.arc((14,16,18,20),0,180,fill=dark);d.rectangle((14,7,17,12),fill='#fff0e1');d.rectangle((12,9,19,10),fill='#fff0e1')
             for x in (3,27):d.rectangle((x,26,x+1,28),fill='#232f30')
         source=ART/(name+'.png');source_data=write_png(source,im)
-        block=name in names[5:];target=ASSET/'textures'/('block' if block else 'item')/source.name
+        block=name in names[6:];target=ASSET/'textures'/('block' if block else 'item')/source.name
         write_bytes(target,source_data)
         if block:
             def box(a,b,texture='casing',front=None):

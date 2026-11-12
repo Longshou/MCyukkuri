@@ -59,6 +59,7 @@ public final class HumanWorld {
     public static final DeferredItem<Item> BRONZE_BADGE = ITEMS.register("bronze_yukkuri_badge", () -> new BadgeItem(false));
     public static final DeferredItem<Item> SILVER_BADGE = ITEMS.register("silver_yukkuri_badge", () -> new BadgeItem(false));
     public static final DeferredItem<Item> GOLD_BADGE = ITEMS.register("gold_yukkuri_badge", () -> new BadgeItem(false));
+    public static final DeferredItem<Item> PLATINUM_BADGE = ITEMS.register("platinum_yukkuri_badge", () -> new BadgeItem(false));
     public static final DeferredItem<BadgeItem> BADGE_HANDBOOK = ITEMS.register("badge_handbook", () -> new BadgeItem(true));
     public static final DeferredRegister<MenuType<?>> MENUS = DeferredRegister.create(Registries.MENU, MCYukkuri.MOD_ID);
     public static final DeferredRegister<StructureType<?>> STRUCTURES = DeferredRegister.create(Registries.STRUCTURE_TYPE, MCYukkuri.MOD_ID);

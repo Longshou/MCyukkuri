@@ -12,7 +12,7 @@ public final class ShopPricing {
         var v = y.getVariant();
         int base = SpeciesProfile.of(v).dangerToYukkuri() ? 30 : SpeciesProfile.of(v).houseBody() ? 3 : switch (v) { case ALICE, CHEN, MYON -> 8; case PATCHOULI -> 10; default -> 6; };
         var pet = y.pet();
-        double total = base + switch (pet.effectiveGrade()) { case BRONZE -> 4; case SILVER -> 12; case GOLD -> 28; default -> 0; };
+        double total = base + switch (pet.effectiveGrade()) { case NONE -> 0; case BRONZE -> 4; case SILVER -> 12; case GOLD -> 28; case PLATINUM -> 30; };
         if (pet.effectiveGrade() == BadgeGrade.NONE) { total *= 0.5; if (ShopDeliveries.factoryOrigin(y)) total *= 0.8; } // unbadged factory shipments are sold 20% cheaper
         return Math.max(1, (int)Math.round(total));
     }

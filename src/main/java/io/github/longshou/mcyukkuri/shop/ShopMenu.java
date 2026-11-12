@@ -133,7 +133,7 @@ public final class ShopMenu extends AbstractContainerMenu {
     }
     public static final int PAGE_ROWS = 3, LIVE = 0, GOODS = 1, BUYBACK = 2, CONSULT = 3, ORDERS = 4, CAPACITY = 16, STOCK_CAPACITY = 12, DATA_SIZE = Data.COUNT;
     public static final class Flags {
-        public static final int GRADE_MASK = 3, EXPIRED = 4, DISPLAY = 8, LOCKED = 16, FACTORY = 32;
+        public static final int GRADE_MASK = 7, EXPIRED = 8, DISPLAY = 16, LOCKED = 32, FACTORY = 64;
         private Flags() {}
     }
     /** Live row slot MOOD: 0 nothing to show, 1 pleading at the window, 2 posing proudly, 3 hiding shyly, 4 sulking, 5 let down, 6 asleep, 7 eating. */

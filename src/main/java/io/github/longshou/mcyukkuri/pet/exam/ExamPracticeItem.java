@@ -1,7 +1,9 @@
 package io.github.longshou.mcyukkuri.pet.exam;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.intent.AskLedger;
 import io.github.longshou.mcyukkuri.pet.BadgeGrade;
+import io.github.longshou.mcyukkuri.pet.PetConversation;
 import io.github.longshou.mcyukkuri.pet.PetStudy;
 import io.github.longshou.mcyukkuri.pet.stage.Staging;
 import java.util.UUID;
@@ -19,6 +21,7 @@ final class ExamPracticeItem implements ExamItem {
     private Boolean completed;
     private String observed = "routine";
     private UUID caption;
+    private String foodIncident;
 
     ExamPracticeItem(ExamPlan.Question question) { this.question = question; }
     @Override public ExamTaskArea area() { return ExamTaskArea.CARE_ROOM; }
@@ -32,9 +35,12 @@ final class ExamPracticeItem implements ExamItem {
         var why = ExamPlan.refusal(question, ctx.examiner(), ctx.owner(), y);
         if (why != null) { ctx.interrupt(why); return; }
         switch (question) {
-            case READ, COUNT -> example = PetStudy.find(y, ctx.owner(), question.skill);
+            case READ, COUNT, EXPLAIN, CLARIFY -> {
+                example = PetStudy.find(y, ctx.owner(), question.skill);
+                if (question.grade == BadgeGrade.PLATINUM) participant = ExamPlan.visitor(y, ctx.owner(), ctx.examiner());
+            }
             case GREET -> participant = ExamPlan.visitor(y, ctx.owner(), ctx.examiner());
-            case HELP -> participant = ExamPlan.needy(y);
+            case HELP, SHARE -> participant = ExamPlan.needy(y);
             default -> { }
         }
         ctx.examinerSay("exam.mcyukkuri.question." + id());
@@ -56,8 +62,7 @@ final class ExamPracticeItem implements ExamItem {
             return false;
         }
         if (completed == null && now >= until) {
-            if (question == ExamPlan.Question.WALK || question == ExamPlan.Question.GREET
-                    || question == ExamPlan.Question.HELP) ctx.interrupt("site");
+            if (question == ExamPlan.Question.WALK || question == ExamPlan.Question.GREET) ctx.interrupt("site");
             else comment(ctx, false, "no_answer");
         } else if (completed != null && now >= until && ctx.inContact()) comment(ctx, completed, observed);
         return false;
@@ -69,24 +74,28 @@ final class ExamPracticeItem implements ExamItem {
         if (example != null) {
             var actual = PetStudy.find(y, ctx.owner(), question.skill);
             if (actual == null || !example.sameExample(actual)) { ctx.interrupt("site"); return; }
-            var answer = PetStudy.answer(y, actual);
+            boolean detailed = question.grade == BadgeGrade.PLATINUM && y.getRandom().nextDouble() < PetConversation.explanation(y);
+            var answer = PetStudy.answer(y, actual, detailed);
             caption = answer.caption();
             if (caption == null) { ctx.interrupt("site"); return; }
-            completed = answer.success();
+            completed = answer.success() && (question.grade != BadgeGrade.PLATINUM || detailed);
             observed = example.source();
             until = Math.max(now + answer.ticks(), y.speechEnd());
             return;
         }
-        if (question == ExamPlan.Question.HELP) {
+        if (question == ExamPlan.Question.HELP || question == ExamPlan.Question.SHARE) {
             var peer = (YukkuriEntity)participant;
             if (peer.life().nutrition() >= 40 || !y.hasLineOfSight(peer)) { ctx.interrupt("no_participant"); return; }
             var personality = y.life().personality();
-            boolean helps = y.getRandom().nextDouble() < personality.helpProbability(false, peer.life().hasUrgentNeed());
-            var line = helps ? "offer_help" : "unsure_help";
+            double willingness = personality.helpProbability(false, peer.life().hasUrgentNeed());
+            if (question == ExamPlan.Question.SHARE) willingness *= PetConversation.considerate(y);
+            boolean helps = y.getRandom().nextDouble() < willingness;
+            var line = helps ? question == ExamPlan.Question.SHARE ? "offer_share" : "offer_help" : "unsure_help";
             ctx.card(y.position().add(0, y.getBbHeight() + .6, 0),
                     Component.translatable("exam.mcyukkuri.reply." + line, peer.getDisplayName()), 100, 1.2f);
             y.showReaction(helps ? "happy" : "confused", helps ? "exam_report" : "exam_unsure", 80);
             if (!helps) { completed = false; until = now + 100; return; }
+            foodIncident = AskLedger.server().open(y, "food_help", "peer=" + peer.getUUID());
         }
         ctx.allowRoutine();
         until = now + 420;
@@ -105,8 +114,13 @@ final class ExamPracticeItem implements ExamItem {
     boolean guest(net.minecraft.world.entity.Entity entity) { return participant == entity; }
 
     void fed(ExamContext ctx, YukkuriEntity receiver, UUID feeder) {
-        if (question == ExamPlan.Question.HELP && phase == Phase.OBSERVE && completed == null && receiver == participant
+        if (foodIncident != null && phase == Phase.OBSERVE && completed == null && receiver == participant
+                && ctx.candidate().hasLineOfSight(receiver)
+                && (question != ExamPlan.Question.SHARE || ctx.candidate().life().nutrition() >= 60)
                 && (ctx.candidate().getUUID().equals(feeder) || ctx.owner() != null && ctx.owner().getUUID().equals(feeder))) {
+            AskLedger.server().ended(foodIncident, receiver.getUUID(), "fed");
+            AskLedger.server().settle(foodIncident, "fed");
+            foodIncident = null;
             observed = "received_food";
             completed = true;
             until = ctx.level().getGameTime();
@@ -126,5 +140,6 @@ final class ExamPracticeItem implements ExamItem {
     @Override public void abort(ExamContext ctx) {
         Staging.removeCard(ctx.level(), caption);
         if (question == ExamPlan.Question.WAIT) ctx.candidate().pet().lessons().stopExamWait();
+        if (foodIncident != null) AskLedger.server().settle(foodIncident, "ended");
     }
 }

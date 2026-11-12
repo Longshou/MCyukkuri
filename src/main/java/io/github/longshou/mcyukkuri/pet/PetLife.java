@@ -133,7 +133,13 @@ public final class PetLife {
         return stack;
     }
     private static Item item(BadgeGrade g) {
-        return g == BadgeGrade.GOLD ? HumanWorld.GOLD_BADGE.get() : g == BadgeGrade.SILVER ? HumanWorld.SILVER_BADGE.get() : HumanWorld.BRONZE_BADGE.get();
+        return switch (g) {
+            case NONE -> throw new IllegalArgumentException("No token for an unbadged individual");
+            case BRONZE -> HumanWorld.BRONZE_BADGE.get();
+            case SILVER -> HumanWorld.SILVER_BADGE.get();
+            case GOLD -> HumanWorld.GOLD_BADGE.get();
+            case PLATINUM -> HumanWorld.PLATINUM_BADGE.get();
+        };
     }
     public boolean detach(Player p) {
         if (!near(p) || !owned(p) || busy() || ExamSession.running(animal) || !worn || !animal.life().hasAccessory() || grade == BadgeGrade.NONE) return false;
@@ -515,7 +521,7 @@ public final class PetLife {
         while (history.size() > 16) history.remove(0);
         permits.clear(); for (var e : tag.getList("Permits", 10)) { var c = (CompoundTag)e; if (c.hasUUID("Partner")) permits.put(c.getUUID("Partner"), c.getLong("Until")); }
         neglect = Math.clamp(tag.getInt("Neglect"), 0, 100); lastContact = tag.getLong("LastContact"); reunionDue = tag.getBoolean("ReunionDue"); noticeSent = tag.getBoolean("NoticeSent");
-        voidBadge = tag.getBoolean("VoidBadge"); abandonedAt = tag.getLong("AbandonedAt"); abandonedGrade = Math.clamp(tag.getInt("AbandonedGrade"), 0, 3); dropPos = tag.getLong("DropPos");
+        voidBadge = tag.getBoolean("VoidBadge"); abandonedAt = tag.getLong("AbandonedAt"); abandonedGrade = BadgeGrade.of(tag.getInt("AbandonedGrade")).id(); dropPos = tag.getLong("DropPos");
         waits = tag.getBoolean("Waits"); abandonStage = tag.getInt("AbandonStage"); formerOwner = tag.hasUUID("FormerOwner") ? tag.getUUID("FormerOwner") : null;
         townRoots = tag.contains("TownRoots") ? tag.getBoolean("TownRoots") : formerOwner != null;
         ledger.load(tag.getCompound("BadgeLedger"));

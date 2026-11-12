@@ -11,6 +11,7 @@ import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
+import io.github.longshou.mcyukkuri.pet.BadgeGrade;
 
 /** Shared menu and HUD kit drawn from art/props/ui/author_shop_ui.py. */
 public final class GuiKit {
@@ -21,7 +22,7 @@ public final class GuiKit {
      * Text colours for grades 0-3 (none, bronze, silver, gold): bronze shade[0], silver engrave, gold shade[0] darkened for contrast
      * (#ba781e -> #9a6214) from PALETTES in art/props/badges/author_badges.py.
      */
-    private static final int[] GRADE_TEXT = {SOFT, 0xff8f5428, 0xff5a6676, 0xff9a6214};
+    private static final int[] GRADE_TEXT = {SOFT, 0xff8f5428, 0xff5a6676, 0xff9a6214, 0xff386289};
     public static final int ICON_LIVE = 0, ICON_GOODS = 1, ICON_BUYBACK = 2, ICON_CONSULT = 3, ICON_EXAM = 4, ICON_PROFILE = 5, ICON_KEEPER = 6;
     static final int ICON_STATUS = 7;
 
@@ -67,8 +68,12 @@ public final class GuiKit {
     }
 
     public static void icon(GuiGraphics g, int x, int y, int icon) { blit(g, x, y, icon * 16, 32, 16, 16); }
-    /** Little round badge for grade 1-3 (bronze, silver, gold), 9x9; grade 0 draws nothing. */
-    public static void chip(GuiGraphics g, int x, int y, int grade) { if (grade >= 1 && grade <= 3) blit(g, x, y, (grade - 1) * 9, 48, 9, 9); }
+    /** Little badge, 9x9; grade 0 draws nothing. */
+    public static void chip(GuiGraphics g, int x, int y, int grade) {
+        if (grade >= 1 && grade <= BadgeGrade.GOLD.id()) blit(g, x, y, (grade - 1) * 9, 48, 9, 9);
+        else if (grade == BadgeGrade.PLATINUM.id())
+            g.blit(MCYukkuri.id("textures/item/platinum_yukkuri_badge.png"), x, y, 9, 9, 0, 0, 16, 16, 16, 16);
+    }
     /** Grey chip with a red cross for a badge that has expired. */
     public static void expiredChip(GuiGraphics g, int x, int y) { blit(g, x, y, 27, 48, 9, 9); }
     public static final int CHIP_WIDTH = 11;
@@ -91,13 +96,13 @@ public final class GuiKit {
 
     /** Grade name in its badge colour. */
     public static MutableComponent gradeName(int grade) {
-        int id = Math.max(0, Math.min(3, grade));
+        int id = BadgeGrade.of(grade).id();
         return Component.translatable("badge.mcyukkuri.profile.grade." + id).withStyle(s -> s.withColor(GRADE_TEXT[id] & 0xffffff));
     }
 
     /** Grade name greyed and struck through (expired badge). */
     public static MutableComponent expiredGradeName(int grade) {
-        return Component.translatable("badge.mcyukkuri.profile.grade." + Math.max(0, Math.min(3, grade))).withStyle(s -> s.withColor(SOFT & 0xffffff).withStrikethrough(true));
+        return Component.translatable("badge.mcyukkuri.profile.grade." + BadgeGrade.of(grade).id()).withStyle(s -> s.withColor(SOFT & 0xffffff).withStrikethrough(true));
     }
 
     /** Keeps vanilla click handling and narration while drawing the shared action sprites. */

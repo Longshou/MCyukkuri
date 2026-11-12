@@ -10,6 +10,7 @@ import io.github.longshou.mcyukkuri.notebook.SurvivalProgress;
 import io.github.longshou.mcyukkuri.pet.stage.Staging;
 import io.github.longshou.mcyukkuri.pet.exam.ExamSession;
 import io.github.longshou.mcyukkuri.social.BondLevels;
+import io.github.longshou.mcyukkuri.social.YukkuriPersonality.Trait;
 import io.github.longshou.mcyukkuri.motor.ClipMarkers;
 import java.util.UUID;
 import net.minecraft.core.BlockPos;
@@ -96,6 +97,7 @@ public final class PetLessons {
         if (!animal.pet().isPet() || animal.level().isClientSide) return;
         boolean lesson = practicing(skill);
         if (success) addPractice(skill, lesson && coached ? 6 : 2, lesson && coached ? "lesson" : "daily");
+        if (success && skill == PetSkill.WAIT) animal.life().personality().experienced(Trait.SELF_CONTROL, 1);
         if (lesson) finishLesson(success);
         if (skill == PetSkill.WAIT || skill == PetSkill.FOOD_BOWL || skill == PetSkill.TOILET || skill == PetSkill.BEDTIME)
             ExamSession.performed(animal, skill, success);

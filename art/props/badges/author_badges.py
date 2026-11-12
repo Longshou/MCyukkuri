@@ -33,6 +33,19 @@ def _radius(tier, a):
     return 7.05 if tier in ('bronze', 'gold') else 7.95  # bronze/gold: 14px disc; silver: 16px circle
 
 def badge(tier):
+    if tier == 'platinum':
+        # Temporary recolour of the gold pin, marked with a pale P until the new badge art is authored.
+        image = badge('gold')
+        for y in range(SIZE):
+            for x in range(SIZE):
+                red, green, blue, alpha = image.getpixel((x, y))
+                if alpha:
+                    shade = (red + 2 * green + blue) // 4
+                    image.putpixel((x, y), (max(0, shade - 18), min(255, shade + 12), min(255, shade + 45), alpha))
+        for y, row in enumerate(('###', '#.#', '###', '#..', '#..'), 5):
+            for x, pixel in enumerate(row, 6):
+                if pixel == '#': image.putpixel((x, y), _rgba('#e5fcff'))
+        return image
     p = PALETTES[tier]
     im = Image.new('RGBA', (SIZE, SIZE), (0, 0, 0, 0))
     info = {}

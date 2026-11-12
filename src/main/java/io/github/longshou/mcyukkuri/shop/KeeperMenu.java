@@ -77,7 +77,7 @@ public final class KeeperMenu extends AbstractContainerMenu {
         private StudRow() {}
     }
     public static final class Flags {
-        public static final int GRADE_MASK = 3, EXPIRED = 4, BUSY = 8;
+        public static final int GRADE_MASK = 7, EXPIRED = 8, BUSY = 16;
         private Flags() {}
     }
     public static final int FEE = 6;

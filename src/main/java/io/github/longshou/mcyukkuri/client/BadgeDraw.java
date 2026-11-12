@@ -4,6 +4,7 @@ import static io.github.longshou.mcyukkuri.client.YukkuriModel.floats;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import io.github.longshou.mcyukkuri.MCYukkuri;
+import io.github.longshou.mcyukkuri.pet.BadgeGrade;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import org.joml.Vector3f;
@@ -39,7 +40,7 @@ final class BadgeDraw {
     }
 
     static void renderDetachedBadge(String name,int tier,boolean cut,PoseStack stack,MultiBufferSource buffers,int light,int overlay) {
-        var mount=YukkuriModel.detachedBadge(name);if(mount==null||tier<1||tier>3)return;
+        var mount=YukkuriModel.detachedBadge(name);if(mount==null||tier<1||tier>BadgeGrade.PLATINUM.id())return;
         var center=new Vector3f(floats(mount.getAsJsonArray("rest_point"))).div(16);
         var outward=new Vector3f(floats(mount.getAsJsonArray("rest_normal"))).normalize();
         var right=new Vector3f(0,1,0).cross(outward).normalize();var up=new Vector3f(outward).cross(right).normalize();
@@ -52,7 +53,14 @@ final class BadgeDraw {
     private static void emitBadge(int tier,Vector3f center,Vector3f right,Vector3f up,Vector3f outward,float half,
             PoseStack stack,MultiBufferSource buffers,int light,int overlay) {
         center.fma(Math.max(.0007f,half*.025f),outward);
-        var buffer=buffers.getBuffer(RenderType.entityCutoutNoCull(MCYukkuri.id("textures/item/"+(tier>=3?"gold":tier==2?"silver":"bronze")+"_yukkuri_badge.png")));
+        String metal = switch (BadgeGrade.of(tier)) {
+            case NONE -> throw new IllegalArgumentException("No visible badge");
+            case BRONZE -> "bronze";
+            case SILVER -> "silver";
+            case GOLD -> "gold";
+            case PLATINUM -> "platinum";
+        };
+        var buffer=buffers.getBuffer(RenderType.entityCutoutNoCull(MCYukkuri.id("textures/item/"+metal+"_yukkuri_badge.png")));
         float[][] corners={{-1,-1,0,1},{1,-1,1,1},{1,1,1,0},{-1,1,0,0}};
         for(var corner:corners){
             var point=new Vector3f(center).fma(corner[0]*half,right).fma(corner[1]*half,up);

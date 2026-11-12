@@ -125,6 +125,7 @@ public final class YukkuriPersonality {
     public int selfControl() { return value(Trait.SELF_CONTROL); }
     public int innate(Trait trait) { return innate[trait.ordinal()]; }
     public int experience(Trait trait) { return experience[trait.ordinal()]; }
+    public int potential(Trait trait) { return bounds().clamp(trait, innate(trait) + 20); }
 
     /** Keeps saved innate values and experience legal when a real form or scenario form changes. */
     public void constrainToForm() {

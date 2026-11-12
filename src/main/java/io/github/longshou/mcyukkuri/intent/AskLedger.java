@@ -101,6 +101,10 @@ public final class AskLedger {
         var i = find(incident);
         if (i != null) i.ended.putIfAbsent(helper, result);
     }
+    public boolean completedSince(UUID owner, String cause, UUID other, String result, long since) {
+        return settled.values().stream().anyMatch(i -> i.owner.equals(owner) && i.cause.equals(cause) && i.opened >= since
+                && result.equals(i.ended.get(other)));
+    }
 
     /** The owner closes its incident ({@code reason}); logs {@code [incident] close} with every decision. Idempotent. */
     public void settle(String incident, String reason) {

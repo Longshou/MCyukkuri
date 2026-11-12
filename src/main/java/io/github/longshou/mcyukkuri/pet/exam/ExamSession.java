@@ -11,6 +11,7 @@ import io.github.longshou.mcyukkuri.notebook.SurvivalProgress;
 import io.github.longshou.mcyukkuri.pet.AbandonLog;
 import io.github.longshou.mcyukkuri.pet.BadgeGrade;
 import io.github.longshou.mcyukkuri.pet.ExamRecord;
+import io.github.longshou.mcyukkuri.pet.PetConversation;
 import io.github.longshou.mcyukkuri.pet.PetPrivileges;
 import io.github.longshou.mcyukkuri.pet.PetSkill;
 import io.github.longshou.mcyukkuri.pet.PetStudy;
@@ -44,7 +45,8 @@ public final class ExamSession implements ExamContext {
     public static final List<String> REASONS = List.of("", "busy", "night", "no_hall", "far", "not_owned", "wild_simple_only", "not_ready",
             "cooldown", "no_accessory", "already_badged", "need_badge", "max_grade", "need_silver", "not_needed", "no_section", "no_fee",
             "no_management", "too_late", "stage", "deficient", "sick", "uneasy", "labor", "occupied", "need_sweet", "need_reading",
-            "need_count", "need_care", "need_walk", "no_participant", "same_conditions");
+            "need_count", "need_care", "need_walk", "no_participant", "same_conditions", "need_gold", "platinum_potential",
+            "platinum_skills", "platinum_traits");
     private static final Set<String> PLAYER_CAUSES = Set.of("owner_far", "owner_gone", "hurt", "panic", "fire", "water", "held", "accessory", "lost");
     private static final Map<UUID, ExamSession> ACTIVE = new HashMap<>();
     private enum Phase { APPROACH, ITEM, PAYMENT, RESULT }
@@ -147,12 +149,18 @@ public final class ExamSession implements ExamContext {
         var skill = question.skill;
         var personality = y.life().personality();
         String example = switch (question) {
-            case READ, COUNT -> {
+            case READ, COUNT, EXPLAIN, CLARIFY -> {
                 var sample = PetStudy.find(y, p, skill);
                 yield sample == null ? "" : sample.source() + "/" + sample.example().getString();
             }
-            case GREET -> String.valueOf(ExamPlan.visitor(y, p, examiner));
-            case HELP -> String.valueOf(ExamPlan.needy(y));
+            case GREET -> {
+                var guest = ExamPlan.visitor(y, p, examiner);
+                yield guest == null ? "" : guest.getUUID().toString();
+            }
+            case HELP, SHARE -> {
+                var peer = ExamPlan.needy(y);
+                yield peer == null ? "" : peer.getUUID().toString();
+            }
             case BED -> String.valueOf(y.life().homeStand());
             default -> examiner.home().toShortString();
         };
@@ -194,6 +202,13 @@ public final class ExamSession implements ExamContext {
         var target = target(type, y);
         if (y.family().stage() == FamilyLife.Stage.BABY || target.id() >= BadgeGrade.GOLD.id() && !y.family().adult()) return "stage";
         if (target.id() >= BadgeGrade.SILVER.id() && y.subspecies().congenital() != Congenital.NORMAL) return "deficient";
+        if (target == BadgeGrade.PLATINUM) {
+            if (type == PROMOTION && pet.effectiveGrade() != BadgeGrade.GOLD) return "need_gold";
+            if (!PetConversation.hasPotential(y)) return "platinum_potential";
+            for (var skill : List.of(PetSkill.READING, PetSkill.ARITHMETIC, PetSkill.WAIT, PetSkill.GREETING))
+                if (pet.lessons().level(skill) < 4) return "platinum_skills";
+            if (PetConversation.explanation(y) == 0 || PetConversation.considerate(y) == 0) return "platinum_traits";
+        }
         if (y.isVehicle() || y.family().carry().carrying() || y.family().awaitingLanding()) return "occupied";
         if (y.life().hasUrgentNeed()) return "not_ready";
         long day = Math.floorMod(examiner.level().getDayTime(), 24000);
@@ -386,7 +401,7 @@ public final class ExamSession implements ExamContext {
             families.recordBadge(candidate.getUUID(), result.id(), level.getGameTime());
             if (before == BadgeGrade.NONE) SurvivalProgress.award(owner, "pet_registered");
             if (result.id() >= BadgeGrade.SILVER.id()) SurvivalProgress.award(owner, "badge_silver");
-            if (result == BadgeGrade.GOLD) SurvivalProgress.award(owner, "badge_gold");
+            if (result.id() >= BadgeGrade.GOLD.id()) SurvivalProgress.award(owner, "badge_gold");
         }
         if (outcome <= 1) PetPrivileges.note(candidate);
         if ((service == PROMOTION || service == RENEWAL) && outcome != 2)

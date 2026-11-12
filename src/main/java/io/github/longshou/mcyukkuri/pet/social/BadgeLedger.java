@@ -1,5 +1,7 @@
 package io.github.longshou.mcyukkuri.pet.social;
 
+import io.github.longshou.mcyukkuri.pet.BadgeGrade;
+
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
@@ -127,7 +129,7 @@ public final class BadgeLedger {
             var e = new Entry(n.getUUID("Subject"));
             e.firstSeen = n.getLong("FirstSeen"); e.lastSeen = n.getLong("LastSeen"); e.stamp = n.getLong("Stamp");
             e.lastArcTick = n.contains("LastArcTick") ? n.getLong("LastArcTick") : -1;
-            e.seenCount = Math.clamp(n.getInt("Seen"), 0, MAX_SEEN); e.lastGrade = Math.clamp(n.getInt("Grade"), 0, 3);
+            e.seenCount = Math.clamp(n.getInt("Seen"), 0, MAX_SEEN); e.lastGrade = BadgeGrade.of(n.getInt("Grade")).id();
             e.impression = Math.clamp(n.getInt("Impression"), -MAX_IMPRESSION, MAX_IMPRESSION); e.flags = n.getInt("Flags");
             var arc = n.getString("LastArc"); e.lastArc = arc.length() > 24 ? "" : arc;
             entries.put(e.subject, e);

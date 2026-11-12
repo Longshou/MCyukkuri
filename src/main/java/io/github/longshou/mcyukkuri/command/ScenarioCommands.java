@@ -98,6 +98,7 @@ public final class ScenarioCommands {
             case "bronze" -> BadgeGrade.BRONZE;
             case "silver" -> BadgeGrade.SILVER;
             case "gold" -> BadgeGrade.GOLD;
+            case "platinum" -> BadgeGrade.PLATINUM;
             default -> BadgeGrade.NONE;
         };
     }
@@ -162,7 +163,7 @@ public final class ScenarioCommands {
                                     var target = yukkuri(c, "target");
                                     if (target == null) return 0;
                                     var grade = badgeGrade(StringArgumentType.getString(c, "grade"));
-                                    if (grade == BadgeGrade.NONE) return refused(c.getSource(), target, "签发徽章", "等级只能是 bronze、silver 或 gold。");
+                                    if (grade == BadgeGrade.NONE) return refused(c.getSource(), target, "签发徽章", "等级只能是 bronze、silver、gold 或 platinum。");
                                     boolean detached = BoolArgumentType.getBool(c, "detached");
                                     var holder = detached ? c.getSource().getPlayerOrException() : c.getSource().getEntityOrException();
                                     if (!target.pet().ownedBy(holder.getUUID()))

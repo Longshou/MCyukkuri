@@ -41,7 +41,7 @@ public final class PetPrivileges extends SavedData {
         long until = pet.pet().expiresAt();
         var data = get(level); var owner = pet.pet().owner();
         long[] r = data.records.computeIfAbsent(owner, id -> new long[] {NONE, NONE, NONE});
-        for (int g = 1; g <= grade.id(); g++) {
+        for (int g = 1; g <= Math.min(grade.id(), BadgeGrade.GOLD.id()); g++) {
             long next = g == 1 || until < 0 ? PERMANENT : until;
             if (r[g - 1] != PERMANENT && (r[g - 1] == NONE || next == PERMANENT || next > r[g - 1])) r[g - 1] = next;
         }
@@ -55,7 +55,7 @@ public final class PetPrivileges extends SavedData {
         long[] r = get(level).records.get(player.getUUID());
         if (r != null) for (int g = 1; g <= 3; g++) if (r[g - 1] != NONE && (r[g - 1] == PERMANENT || r[g - 1] >= now)) best = g;
         for (var y : level.getEntitiesOfClass(YukkuriEntity.class, player.getBoundingBox().inflate(32), e -> e.isAlive() && e.pet().isPet() && e.pet().ownedBy(player.getUUID())))
-            best = Math.max(best, y.pet().effectiveGrade().id());
+            best = Math.max(best, Math.min(y.pet().effectiveGrade().id(), BadgeGrade.GOLD.id()));
         return BadgeGrade.of(best);
     }
     /** Whether the player may use something that needs this grade (0 is always allowed). */
@@ -70,7 +70,7 @@ public final class PetPrivileges extends SavedData {
 
     /** Share of the quote the shop pays when buying a pet back, in percent. */
     public static int resalePercent(BadgeGrade effective) {
-        return switch (effective) { case SILVER -> 70; case GOLD -> 80; default -> 60; };
+        return switch (effective) { case NONE, BRONZE -> 60; case SILVER -> 70; case GOLD, PLATINUM -> 80; };
     }
 
     @Override public CompoundTag save(CompoundTag tag, HolderLookup.Provider registries) {

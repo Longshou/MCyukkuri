@@ -52,6 +52,7 @@ def main(check=False):
     paths=[ROOT/'art/structures/human-world/build.py',ROOT/'standards/yukkuri-library/tools/author_human_npcs.py',ROOT/'standards/yukkuri-library/tools/author_staff_skins.py',ROOT/'src/main/java/io/github/longshou/mcyukkuri/human/HumanBuildingStructure.java',
            ROOT/'src/main/java/io/github/longshou/mcyukkuri/client/HumanRenderer.java',ROOT/'scripts/export_human_world.py']
     paths.append(ROOT/'art/structures/human-world/author_products.py')
+    paths.append(ROOT/'art/props/badges/author_badges.py')
     paths.append(ROOT/'art/structures/human-world/author_pipeline.py')
     paths.append(ROOT/'art/structures/human-world/language.json')
     paths.append(ROOT/'art/structures/human-world/pipeline_language.py')
@@ -60,7 +61,7 @@ def main(check=False):
     paths.append(ROOT/'src/main/java/io/github/longshou/mcyukkuri/client/FactoryTrayRenderer.java')
     paths.append(ROOT/'src/main/resources/assets/mcyukkuri/textures/block/workshop_casing.png')
     paths.append(ROOT/'src/main/java/io/github/longshou/mcyukkuri/human/FactoryStationBlock.java')
-    for name in ['factory_receiving_table','factory_inspection_table','factory_washing_table','factory_observation_station','factory_transfer_tray','yukkuri_manju','live_yukkuri_bag','silver_yukkuri_badge','gold_yukkuri_badge','labor_bench','manju_steamer','live_packing_table','nursery_station']:
+    for name in ['factory_receiving_table','factory_inspection_table','factory_washing_table','factory_observation_station','factory_transfer_tray','yukkuri_manju','live_yukkuri_bag','silver_yukkuri_badge','gold_yukkuri_badge','platinum_yukkuri_badge','labor_bench','manju_steamer','live_packing_table','nursery_station']:
         for folder,extension in [('models/item','json'),('models/block','json'),('blockstates','json'),('textures/item','png'),('textures/block','png')]:
             p=ROOT/'src/main/resources/assets/mcyukkuri'/folder/(name+'.'+extension)
             if p.exists():paths.append(p)

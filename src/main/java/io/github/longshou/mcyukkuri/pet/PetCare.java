@@ -198,6 +198,7 @@ public final class PetCare {
         if (!sleeping) affection(player);
         if (!animal.pet().owned(player) || habitLeft <= 0) return false;
         habits++;
+        animal.life().personality().experienced(io.github.longshou.mcyukkuri.social.YukkuriPersonality.Trait.ATTACHMENT, 1);
         animal.pet().addStress(-1);
         if (sleeping) animal.mind().felt(EmotionEvent.PRAISED, null);
         else {

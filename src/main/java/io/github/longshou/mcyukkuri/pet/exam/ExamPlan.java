@@ -1,7 +1,9 @@
 package io.github.longshou.mcyukkuri.pet.exam;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.family.FamilyLife;
 import io.github.longshou.mcyukkuri.human.HumanNpc;
+import io.github.longshou.mcyukkuri.intent.AskLedger;
 import io.github.longshou.mcyukkuri.pet.BadgeGrade;
 import io.github.longshou.mcyukkuri.pet.PetSkill;
 import io.github.longshou.mcyukkuri.pet.PetStudy;
@@ -28,7 +30,10 @@ public final class ExamPlan {
         BED(BadgeGrade.SILVER, PetSkill.BEDTIME),
         WALK(BadgeGrade.GOLD, PetSkill.HARNESS),
         GREET(BadgeGrade.GOLD, PetSkill.GREETING),
-        HELP(BadgeGrade.GOLD, null);
+        HELP(BadgeGrade.GOLD, null),
+        EXPLAIN(BadgeGrade.PLATINUM, PetSkill.READING),
+        CLARIFY(BadgeGrade.PLATINUM, PetSkill.ARITHMETIC),
+        SHARE(BadgeGrade.PLATINUM, null);
 
         final BadgeGrade grade;
         final PetSkill skill;
@@ -40,11 +45,12 @@ public final class ExamPlan {
     static List<Question> questions(int service, BadgeGrade target, Player owner, YukkuriEntity y) {
         var plan = new ArrayList<Question>();
         if (service == ExamSession.JUDGMENT || target == BadgeGrade.BRONZE) plan.add(Question.NAME);
-        if (target == BadgeGrade.SILVER || service == ExamSession.JUDGMENT) {
+        if (target == BadgeGrade.SILVER || service == ExamSession.JUDGMENT && target.id() >= BadgeGrade.SILVER.id()) {
             plan.addAll(List.of(Question.READ, Question.COUNT, Question.WAIT));
             plan.add(care(y, target == BadgeGrade.SILVER));
         }
         if (target == BadgeGrade.GOLD) plan.addAll(List.of(Question.WALK, Question.GREET, Question.HELP));
+        if (target == BadgeGrade.PLATINUM) plan.addAll(List.of(Question.EXPLAIN, Question.CLARIFY, Question.SHARE));
         return plan;
     }
 
@@ -64,9 +70,12 @@ public final class ExamPlan {
     }
 
     static YukkuriEntity needy(YukkuriEntity y) {
+        long today = y.level().getGameTime() / 24000L * 24000L;
         return y.level().getEntitiesOfClass(YukkuriEntity.class, y.getBoundingBox().inflate(5), peer ->
-                peer != y && peer.isAlive() && peer.life().nutrition() < 40 && !peer.isPassenger() && !peer.isPanicking()
-                        && !peer.pet().busy() && !ExamSession.running(peer) && y.hasLineOfSight(peer))
+                peer != y && peer.isAlive() && peer.family().stage() != FamilyLife.Stage.BABY
+                        && peer.life().nutrition() < 40 && !peer.isPassenger() && !peer.isPanicking()
+                        && !peer.pet().busy() && !ExamSession.running(peer) && y.hasLineOfSight(peer)
+                        && !AskLedger.server().completedSince(y.getUUID(), "food_help", peer.getUUID(), "fed", today))
                 .stream().min(Comparator.comparingDouble(y::distanceToSqr)).orElse(null);
     }
 
@@ -85,6 +94,10 @@ public final class ExamPlan {
             case WALK -> y.getLeashHolder() != owner || !y.pet().care().harnessed() ? "need_walk" : null;
             case GREET -> visitor(y, owner, examiner) == null ? "no_participant" : null;
             case HELP -> needy(y) == null ? "no_participant" : null;
+            case EXPLAIN -> visitor(y, owner, examiner) == null ? "no_participant" : refusal(Question.READ, examiner, owner, y);
+            case CLARIFY -> visitor(y, owner, examiner) == null ? "no_participant" : refusal(Question.COUNT, examiner, owner, y);
+            case SHARE -> needy(y) == null ? "no_participant"
+                    : y.life().nutrition() < 60 ? "not_ready" : PetStudy.visibleFood(y) < 2 ? "need_count" : null;
         };
     }
 
