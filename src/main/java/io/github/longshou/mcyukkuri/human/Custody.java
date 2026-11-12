@@ -25,7 +25,7 @@ public final class Custody {
     private static final String PENDING_RELEASE = "PendingCustodyRelease";
     private static final List<String> ACTIVE_KEYS = List.of(
             "Owner", "OwnerKind", "Use", "PendingRole", "FactoryStage", "StageWork", "LastFactoryWork",
-            "FactoryYoung", "HoldReason", "ShopCandidate", "RetiredParent", "ForSaleSince", "StaleCuts");
+            "FactoryYoung", "HoldReason", "ShopCandidate", "RetiredParent", "ForSaleSince", "StaleCuts", "ShipOut");
     private static final Set<String> FACTORY_STAFF_ROLES = Set.of("labor_worker", "manju_worker", "bag_worker");
     private static final Set<Role> FACTORY_ROLES = Set.of(Role.BREEDER, Role.RESERVE_PARENT, Role.NURSERY,
             Role.INPUT, Role.LABOR, Role.RESERVE);

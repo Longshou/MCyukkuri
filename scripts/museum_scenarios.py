@@ -4441,7 +4441,8 @@ _smoke('shop_window', 1200, [rf'\[shop\] {kind} [^\n]* window start mode={mode} 
                              (('chen', 'SHY'), ('alice', 'PROUD'), ('remilia', 'SULK'))],
        forbid=[r'\[shop\][^\n]* action=job result=failed '],
        readout=[f'yukkuri status {BOOTH.format(kind, grade)} raw' for kind, grade in (('chen', 0), ('alice', 3), ('remilia', 2))])
-next(s for s in S if s.id == 'shop_window').smoke['commands'] = [(100, _aisle_customer(14.5, 'customer_west')), (100, _aisle_customer(.5, 'customer_east'))]
+# The west customer stands in front of the street pen's glass west of its door frame, where the posts do not block the view.
+next(s for s in S if s.id == 'shop_window').smoke['commands'] = [(100, _aisle_customer(17.5, 'customer_west')), (100, _aisle_customer(.5, 'customer_east'))]
 _smoke('shop_buy', 1600, [r'\[shop\][^\n]* action=job result=start kind=BUY ', r'\[shop\][^\n]* action=job result=reach kind=BUY ',
                           r'\[shop\] chen [^\n]* window witness kind=',
                           r'\[shop\][^\n]* action=buy_live result=committed [^\n]* emeralds_used=0\b',

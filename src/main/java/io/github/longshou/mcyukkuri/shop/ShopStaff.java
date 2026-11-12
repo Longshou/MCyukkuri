@@ -16,7 +16,6 @@ import io.github.longshou.mcyukkuri.registry.ModBlocks;
 import io.github.longshou.mcyukkuri.registry.ModItems;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -24,13 +23,11 @@ import java.util.Set;
 import java.util.UUID;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.GlobalPos;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.Container;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.HitResult;
@@ -62,6 +59,8 @@ public final class ShopStaff {
         Job(UUID staff, UUID shop, Kind kind) { this.staff = staff; this.shop = shop; this.kind = kind; }
     }
     private static final Map<UUID, Job> JOBS = new HashMap<>();
+    /** Operator handovers (the shop buy command) not yet picked up: animal to the UUID it is handed to. Transient like the jobs. */
+    private static final Map<UUID, UUID> OPERATOR = new HashMap<>();
     /** Animals and blocks a staff member could not reach: nobody tries them again before the deadline (transient, at most 64 keys). */
     private static final DeadlineMap<Object> UNREACHABLE = new DeadlineMap<>();
     /** Ticks a leg may take, ticks without getting closer, ticks of handling at reach, and how long an unreachable target is left alone. */
@@ -71,8 +70,8 @@ public final class ShopStaff {
     /** Hand's reach from the staff member's feet to the target's centre, with a clear line from its eyes. */
     private static final double REACH = 2.5, SPEED = .9;
 
-    public static void started(ServerStartingEvent event) { JOBS.clear(); UNREACHABLE.clear(); }
-    public static void stopped(ServerStoppedEvent event) { JOBS.clear(); UNREACHABLE.clear(); }
+    public static void started(ServerStartingEvent event) { JOBS.clear(); OPERATOR.clear(); UNREACHABLE.clear(); }
+    public static void stopped(ServerStoppedEvent event) { JOBS.clear(); OPERATOR.clear(); UNREACHABLE.clear(); }
     /** True while the staff member runs a job: its routine and strolling goals stand aside. */
     public static boolean active(HumanNpc staff) { return JOBS.containsKey(staff.getUUID()); }
     public static boolean busy(HumanNpc npc) { return active(npc) || !npc.getMainHandItem().isEmpty(); }
@@ -101,7 +100,7 @@ public final class ShopStaff {
         for (var y : level.getEntitiesOfClass(YukkuriEntity.class, shop.bounds().inflate(2), a -> a.isAlive() && a.pet().busy())) {
             if (claimed(y.getUUID())) continue;
             String kind = y.pet().busyWith();
-            if (kind.equals(ShopTrade.HANDOVER)) ShopTrade.cancel(level, shop, y, "gone"); // an operator handover runs only with its job
+            if (kind.equals(ShopTrade.HANDOVER) && !OPERATOR.containsKey(y.getUUID())) ShopTrade.cancel(level, shop, y, "gone"); // its operator record was lost (restart)
             else if (kind.equals(ShopTrade.SALE) && ShopTrade.stockOf(y, shop.keeper)) {
                 String problem = ShopTrade.orderProblem(level, shop, y);
                 if (problem != null) ShopTrade.cancel(level, shop, y, problem);
@@ -112,14 +111,10 @@ public final class ShopStaff {
         }
     }
 
-    /** Operator handover (command): the nearest free staff member fetches the animal at once for {@code buyer}, free of charge. */
+    /** Operator handover (command): the animal waits like a bought one and the first free staff member brings it, free of charge, for {@code buyer}. */
     public static boolean handover(ServerLevel level, ShopRegistry.Entry shop, YukkuriEntity y, UUID buyer) {
-        var staff = level.getEntitiesOfClass(HumanNpc.class, shop.bounds(), n -> n.isAlive() && !n.isNoAi() && !busy(n) && ShopRegistry.get(level).of(n) == shop)
-                .stream().min(Comparator.comparingDouble(y::distanceToSqr)).orElse(null);
-        if (staff == null || !ShopTrade.handover(level, shop, y)) return false;
-        var job = new Job(staff.getUUID(), shop.keeper, Kind.BUY);
-        job.animal = y.getUUID(); job.customer = buyer;
-        start(staff, job, y.position());
+        if (!ShopTrade.handover(level, shop, y)) return false;
+        OPERATOR.put(y.getUUID(), buyer);
         return true;
     }
 
@@ -129,8 +124,9 @@ public final class ShopStaff {
         long now = level.getGameTime();
         if (UNREACHABLE.size() > 64) UNREACHABLE.prune(now);
         var stock = ShopRegistry.liveStock(level, shop);
-        for (var y : stock) if (y.pet().busyWith().equals(ShopTrade.SALE) && free(y.getUUID(), now)) {
-            var job = new Job(staff.getUUID(), shop.keeper, Kind.BUY); job.animal = y.getUUID(); job.customer = y.pet().lockedBy();
+        for (var y : stock) if (ShopTrade.order(y) && free(y.getUUID(), now)) {
+            var job = new Job(staff.getUUID(), shop.keeper, Kind.BUY); job.animal = y.getUUID();
+            job.customer = y.pet().busyWith().equals(ShopTrade.HANDOVER) ? OPERATOR.remove(y.getUUID()) : y.pet().lockedBy();
             start(staff, job, y.position()); return;
         }
         for (var y : level.getEntitiesOfClass(YukkuriEntity.class, shop.bounds(), a -> a.isAlive() && a.pet().busyWith().equals(ShopTrade.SELL)
@@ -484,6 +480,7 @@ public final class ShopStaff {
     public static void forget(Set<UUID> ids, Set<UUID> tokens) {
         JOBS.values().removeIf(j -> ids.contains(j.staff) || ids.contains(j.shop) || j.animal != null && ids.contains(j.animal)
                 || j.token != null && tokens.contains(j.token));
+        OPERATOR.keySet().removeAll(ids);
         UNREACHABLE.clear();
     }
 

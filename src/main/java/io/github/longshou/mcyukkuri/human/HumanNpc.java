@@ -323,6 +323,7 @@ public final class HumanNpc extends PathfinderMob {
         private BlockPos door;
         private float dirX, dirZ;
         private int closeIn, held;
+        private boolean passed;
         @Override public boolean canUse() {
             if (!ShopStaff.active(HumanNpc.this)) return false;
             var path = getNavigation().getPath();
@@ -335,19 +336,29 @@ public final class HumanNpc extends PathfinderMob {
             }
             return false;
         }
-        @Override public boolean canContinueToUse() { return closeIn != 0 && held < 80; }
+        /** Done once through and a moment past, or after it gave up on this door; never while it still stands in the doorway. */
+        @Override public boolean canContinueToUse() { return (passed ? closeIn > 0 : held < 200) || inDoorway(HumanNpc.this); }
         @Override public boolean requiresUpdateEveryTick() { return true; }
         @Override public void start() {
-            dirX = (float) (door.getX() + .5 - getX()); dirZ = (float) (door.getZ() + .5 - getZ()); closeIn = -1; held = 0;
+            dirX = (float) (door.getX() + .5 - getX()); dirZ = (float) (door.getZ() + .5 - getZ()); closeIn = 10; held = 0; passed = false;
             set(true);
         }
         @Override public void tick() {
             held++;
+            if (!passed) set(true); // a colleague going the other way may have shut it meanwhile
             float along = (float) (door.getX() + .5 - getX()) * dirX + (float) (door.getZ() + .5 - getZ()) * dirZ;
-            if (closeIn < 0 && along < 0) closeIn = 10; // through the doorway: shut it a moment later
-            else if (closeIn > 0) closeIn--;
+            if (!passed && along < 0) passed = true; // through the doorway: shut it a moment later
+            else if (passed && closeIn > 0) closeIn--;
         }
-        @Override public void stop() { set(false); }
+        /** Shut behind it, unless another staff member is passing through right now (that one shuts it). */
+        @Override public void stop() {
+            if (level().getEntitiesOfClass(HumanNpc.class, new net.minecraft.world.phys.AABB(door).inflate(.6, 0, .6), n -> n != HumanNpc.this && n.isAlive()).isEmpty())
+                set(false);
+        }
+        private boolean inDoorway(HumanNpc npc) {
+            double dx = npc.getX() - (door.getX() + .5), dz = npc.getZ() - (door.getZ() + .5);
+            return dx * dx + dz * dz < 1.0;
+        }
         private void set(boolean open) {
             var state = level().getBlockState(door);
             if (state.getBlock() instanceof DoorBlock d) d.setOpen(HumanNpc.this, level(), state, door, open);

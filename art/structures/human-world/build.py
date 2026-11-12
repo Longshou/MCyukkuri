@@ -372,7 +372,7 @@ def shop():
     b.block(30,3,28,'lectern',{'facing':'north','has_book':'false','powered':'false'}); barrel(b,36,3,28); barrel(b,37,3,28); stairs(b,26,3,28,'birch','east'); stairs(b,27,3,28,'birch','west')
     # Rugs and plants keep the rooms warm and lived-in.
     for x,z in [(24,10),(25,4),(37,4),(37,12),(24,22),(27,27),(10,4),(14,4),(2,12),(22,16)]: b.block(x,3,z,'potted_azalea_bush' if (x+z)%2 else 'potted_fern')
-    carpet(b,11,4,13,5,'red'); carpet(b,18,13,21,15,'light_blue'); carpet(b,3,13,6,15,'orange'); carpet(b,25,5,29,10,'green'); carpet(b,33,8,35,9,'red')
+    carpet(b,11,4,13,5,'red'); carpet(b,18,13,21,15,'light_blue'); carpet(b,25,5,29,10,'green'); carpet(b,33,8,35,9,'red')
     for z in (28,29): b.box((38,3,z),(38,4,z),'bookshelf')
     # ---- Lighting: hanging lanterns on a 5x5 grid per room; greedy completion until every covered walkable cell has light >= 8.
     pen_cells=set()
