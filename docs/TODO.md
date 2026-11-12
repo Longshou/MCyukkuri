@@ -17,6 +17,7 @@
 | 鬼威惨工具交互设计与重建模 | `.worktrees/wp-hh-oni-tools` | art/props/, src/main/resources/assets/mcyukkuri/ (tool models/textures), art/CATALOG.md |
 | 流浪油：遮蔽物、垃圾点、避风（FG 重做） | `.worktrees/wp-hf-stray` | src/main/java/.../shelter/, stray/forage code, museum FG scenes, docs/FEATURES.md |
 | 帽上赤油下帽是平移 | `.worktrees/wp-hm-hat-dismount` | aquatic/BrimPerformance, family/ParentCarry (release leg), hat rider release |
+| 打招呼前倾把对方撞退（反馈 18） | `.worktrees/wp-hn-greet-push` | social greeting presentation / contact, motion greet clips |
 
 ## 玩法待办
 
