@@ -6538,7 +6538,7 @@
   "shop.mcyukkuri.reserve.refused.ordered": "店員が手続き中です。少し待ってね。",
   "shop.mcyukkuri.reserve.refused.emeralds": "手付が足りない：%s 個必要、手持ち %s 個。",
   "shop.mcyukkuri.reserve.refused.own": "もう予約しています。",
-  "shop.mcyukkuri.reserve.done": "手付 %s エメラルド：%sを次の入れ替えまで（3日）取り置き、他の人は買えず入れ替えでも出されません。購入時に残り %s。",
+  "shop.mcyukkuri.reserve.done": "手付 %s エメラルドで、%sを今からゲーム内で3日間取り置きます。その間は他の人が買うことも、入れ替えで出されることもありません。購入時に残り %s。",
   "shop.mcyukkuri.reserve.refunded": "予約していた個体がいなくなり、手付 %s エメラルドを返金。",
   "shop.mcyukkuri.sell.refused.closed": "買い取りは昼だけ。",
   "shop.mcyukkuri.sell.refused.gone": "あなたの子ではないか、もういません。",

@@ -6594,7 +6594,7 @@
   "shop.mcyukkuri.reserve.refused.ordered": "店员正在为它办手续，稍等一下。",
   "shop.mcyukkuri.reserve.refused.emeralds": "定金不够：需要 %s 个绿宝石，你有 %s 个。",
   "shop.mcyukkuri.reserve.refused.own": "你已经预订了它。",
-  "shop.mcyukkuri.reserve.done": "交了 %s 绿宝石定金：%s 为你保留到下次补货（三天），别人买不走、补货不送走；买下时再付 %s。",
+  "shop.mcyukkuri.reserve.done": "交了 %s 绿宝石定金，%s 从现在起为你保留三个游戏日。期间别人买不走，补货也不会送走它。买下时再付 %s。",
   "shop.mcyukkuri.reserve.refunded": "你预订的个体已经不在了，退还定金 %s 绿宝石。",
   "shop.mcyukkuri.sell.refused.closed": "收购只在白天。",
   "shop.mcyukkuri.sell.refused.gone": "它不是你的，或者已经不在了。",

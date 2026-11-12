@@ -11,6 +11,7 @@ import io.github.longshou.mcyukkuri.item.CarrierContents;
 import io.github.longshou.mcyukkuri.life.CareBlock;
 import io.github.longshou.mcyukkuri.life.CareBlockEntity;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
+import io.github.longshou.mcyukkuri.motor.Motor;
 import io.github.longshou.mcyukkuri.random.ModRandom;
 import io.github.longshou.mcyukkuri.registry.ModBlocks;
 import io.github.longshou.mcyukkuri.registry.ModEntities;
@@ -172,7 +173,7 @@ public final class ShopRestock {
         for (var d : net.minecraft.core.Direction.Plane.HORIZONTAL)
             if (level.getBlockState(shop.dock().relative(d)).isAir()) { beside = shop.dock().relative(d); break; }
         var at = Vec3.atBottomCenterOf(beside);
-        y.moveTo(at.x, at.y, at.z, 0, 0);
+        Motor.relocate(y, at, 0, "shop_arrival");
         y.finalizeSpawn(level, level.getCurrentDifficultyAt(shop.dock()), MobSpawnType.COMMAND, null);
         y.setPersistenceRequired();
         y.family().initializeGrowthAge(adult ? GrowthTiming.ADULT_START + random.nextInt(48_000) : YOUNG_MIN + (long) (random.nextDouble() * (YOUNG_MAX - YOUNG_MIN)));
