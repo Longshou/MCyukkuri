@@ -12,7 +12,6 @@ import io.github.longshou.mcyukkuri.pet.PetScenes;
 import io.github.longshou.mcyukkuri.social.BondLevels;
 import io.github.longshou.mcyukkuri.social.Bonds;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
-import io.github.longshou.mcyukkuri.status.Identity;
 import java.util.UUID;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.core.BlockPos;

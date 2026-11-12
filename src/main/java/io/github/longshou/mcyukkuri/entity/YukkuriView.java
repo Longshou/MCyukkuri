@@ -139,6 +139,7 @@ public interface YukkuriView {
     BlockPos contactAnchor();
     /** Synced {@code FamilyLife.drainStage()}: 0 none, 1 carrying, 2 thinning, 3 weak. */
     int aftermathDrain();
+    boolean stemDepletionWarning();
     CompoundTag agitationState();
     CompoundTag courtshipState();
     String waterDistressPhase();

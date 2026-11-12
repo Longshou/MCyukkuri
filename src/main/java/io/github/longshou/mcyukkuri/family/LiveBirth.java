@@ -71,7 +71,8 @@ final class LiveBirth extends Choreography {
     /** Her turns from facing the catcher a meeting site tries, in sixteenths, the least first (her stand and the catcher's
      *  outside the brim may need more room than one eighth leaves beside a wall or a tree). */
     private static final float[] TURNS={0,22.5f,-22.5f,45,-45,67.5f,-67.5f,90,-90,112.5f,-112.5f,135,-135,157.5f,-157.5f,180};
-    private static final Set<String> BEFORE_HAT=Set.of("site","meet","regroup","hat_wait","place"),LABOUR=Set.of("term","exit","exit_any","push","drop");
+    private static final Set<String> BEFORE_HAT=Set.of("site","meet","regroup","hat_wait","place"),LABOUR=Set.of("term","exit","exit_any","push","drop"),
+            STEM_LABOUR=Set.of("stem_term","stem_site","drop");
     /** Where the newborns are meant to come down ({@code Receiver}); a placed hat's host is set once it is down. */
     sealed interface Receiver permits PlacedHat, Cabin, Nest, Ground { default String kind(){return getClass().getSimpleName();} }
     record PlacedHat(UUID host) implements Receiver {}
@@ -142,7 +143,7 @@ final class LiveBirth extends Choreography {
         return HatProp.usable(mother)?mother:null;
     }
     @Override protected Map<String,Beat> table(){
-        var t=new HashMap<String,Beat>();String labour=live?"term":"drop";
+        var t=new HashMap<String,Beat>();String labour=live?"term":"stem_term";
         t.put("site",new Beat.Perform(Beat.roles(MOTHER,this::site),()->Math.max(PAUSE,toTerm()),"sited","sited"));
         t.put("sited",new Beat.Branch(r->{
             recastIfBare();
@@ -189,6 +190,10 @@ final class LiveBirth extends Choreography {
             }));
             t.put("linger",new Beat.Present(Beat.roles(MOTHER,null,CATCHER,this::attend),Behaviors.POSTPARTUM,LiveBirthGeometry.RECOVERY,"lingered"));
         }else{
+            t.put("stem_term",new Beat.Await(Beat.roles(MOTHER,null,CATCHER,this::attend),()->brood()==null||toTerm()<=0,
+                    ()->toTerm()+40,"stem_site","stem_site"));
+            t.put("stem_site",new Beat.Perform(Beat.roles(MOTHER,this::stemSite,CATCHER,this::attend),
+                    ()->NEST_GRACE,"drop","drop"));
             t.put("drop",new Beat.Await(Beat.roles(MOTHER,null,CATCHER,this::attend),()->brood()==null||brood().complete(),()->toTerm()+1240,"linger","drop"));
             t.put("linger",new Beat.Present(Beat.roles(MOTHER,null,CATCHER,this::attend),"",120,"lingered"));
         }
@@ -372,7 +377,7 @@ final class LiveBirth extends Choreography {
         receiver=hat!=null?new PlacedHat(hat.getUUID()):FamilyNest.largeCentre(o.entity())!=null?new Nest():new Ground();
         GameplayLog.event(o.entity(),"family","catch window closed brood={} reason={} receiver={}",b==null?null:b.id,why,receiver.kind());
         if(hat==null&&!why.startsWith("place_"))BirthStaging.caption(o.entity(),"这一胎没有接生帽，改为无垫分娩（"+why+"）");
-        return live?"term":"drop";
+        return live?"term":"stem_term";
     }
     private String placed(Report r){
         var c=catcher();var hat=catcherHat();var b=brood();
@@ -382,7 +387,7 @@ final class LiveBirth extends Choreography {
         GameplayLog.event(c,"family","catch hat placed brood={} hat={} mother={} kind={} at={} yaw={} motherAt={}",b.id,hat.getUUID(),o.entity().getUUID(),b.kind,
                 hat.position(),String.format(Locale.ROOT,"%.1f",hat.getYRot()),o.entity().position());
         BirthStaging.caption(c,"帽子已翻面放在出口前（帽子离开了头顶，成为真实的帽实体），接生者扶住帽沿等待");
-        return live?"term":"drop";
+        return live?"term":"stem_term";
     }
     private String unloaded(Report r){
         var hat=placedHat();var c=catcher();
@@ -443,9 +448,27 @@ final class LiveBirth extends Choreography {
             if(target==null&&receiver instanceof Nest)target=FamilyNest.bedMiddle(m,o.nestStand());
         }
         if(target==null)return null;
-        var go=new GoTo("birth_site",m,target,now()+Math.max(PAUSE,toTerm()));
+        var go=new GoTo("birth_site",m,target,now()+(live?Math.max(PAUSE,toTerm()):Math.max(NEST_GRACE,toTerm())));
         var b=brood();var centre=FamilyNest.largeCentre(m);
         return !live&&receiver instanceof Nest&&b!=null&&centre!=null?go.facing(stemFacing(m,b,target,centre)):go;
+    }
+    boolean awaitingStemRipeness(){return !live&&"stem_term".equals(beat())&&toTerm()>0;}
+
+    /** Find the same ground stand again after the mother leaves it to eat or avoid danger. */
+    private Intent stemSite(){
+        var m=o.entity();
+        var hat=placedHat();var c=catcher();
+        if(hat==null||c==null)return receiver instanceof Nest?site():null;
+        if(self())return null;
+        Vec3 best=null;
+        float facing=0;
+        for(float yaw:new float[]{hat.getYRot(),hat.getYRot()+180}){
+            var offset=HatGeometry.catchPose(m,brood(),c,HatGeometry.Role.HELPER,Vec3.ZERO,yaw).at();
+            var at=SurfaceApproach.floor(m,hat.position().subtract(offset));
+            if(at==null||!m.level().noCollision(m,m.getBoundingBox().move(at.subtract(m.position()))))continue;
+            if(best==null||m.distanceToSqr(at)<m.distanceToSqr(best)){best=at;facing=yaw;}
+        }
+        return best==null?null:new GoTo("stem_drop_site",m,best,now()+NEST_GRACE).around(c).facing(facing);
     }
     /** A stem mother's yaw in her large nest: the least turn from the way she arrives (TURNS) that keeps every fruit, tossed its
      *  farthest, a fruit's radius inside the nest floor; when none does, the turn with the best margin. Her stand stays her bed slot. */
@@ -823,7 +846,7 @@ final class LiveBirth extends Choreography {
     int recoveryLeft(){return live&&"linger".equals(beat())?(int)Math.max(0,LiveBirthGeometry.RECOVERY-(now()-beatTick())):0;}
     String hold(){return hold;}
     /** The labour (or the drops) is on: the catcher holds the hat's brim, or cheers beside the outlet. */
-    boolean attending(){return LABOUR.contains(beat());}
+    boolean attending(){return live?LABOUR.contains(beat()):STEM_LABOUR.contains(beat());}
     /** While a real catch is still under way, ordinary comfort can wait for the last delivery. */
     boolean catching(){return attending()&&placedHat()!=null&&brood()!=null&&!brood().complete();}
     /** The attendant's actual supported stand, observed from the mother's tick. Self and unattended hats have no attendant. */

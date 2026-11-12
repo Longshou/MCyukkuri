@@ -105,7 +105,9 @@ final class YukkuriSync {
     }
     CompoundTag agitationState() { return owner.getEntityData().get(AGITATION); }
     CompoundTag courtshipState() { return owner.getEntityData().get(COURTSHIP); }
-    int aftermathDrain() { return owner.getEntityData().get(AFTERMATH_STATE); }
+    private static final int STEM_WARNING=4;
+    int aftermathDrain() { return owner.getEntityData().get(AFTERMATH_STATE)&3; }
+    boolean stemDepletionWarning() { return (owner.getEntityData().get(AFTERMATH_STATE)&STEM_WARNING)!=0; }
     String waterDistressPhase() { return waterDistressSync().phase().orElse("IDLE"); }
     long waterDistressStartTick() { return waterDistressSync().start().value(); }
     boolean waterDistressEffort() { return waterDistressSync().effort().value(); }
@@ -287,10 +289,10 @@ final class YukkuriSync {
     }
     /** The stem drain stage: its one transition log sits where the synced value changes, so eating and sleeping back are seen too. */
     private void syncDrain() {
-        int was=owner.getEntityData().get(AFTERMATH_STATE);
+        int was=aftermathDrain();
         int now=owner.isAlive()?owner.family().drainStage():0;
+        setChanged(AFTERMATH_STATE,now|(owner.isAlive()&&owner.family().stemDepletionWarning()?STEM_WARNING:0));
         if(was==now)return;
-        owner.getEntityData().set(AFTERMATH_STATE,now);
         var brood=owner.family().brood();
         GameplayLog.event(owner,"family","stem drain stage {}->{} brood={} unborn={} nutrition={} energy={}",
                 was,now,brood==null?null:brood.id,brood==null?0:brood.unborn(),owner.life().nutrition(),owner.life().energy());

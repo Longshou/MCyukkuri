@@ -1864,16 +1864,18 @@ def _aftermath_pens(lanes):
     (a predator in plain view would keep the mother in a threat reaction)."""
     out = []
     for lane, dx, nutrition, energy, label, _ in lanes:
+        nest = ([block(dx + 1, 0, 2, 'mcyukkuri:yukkuri_nest'), block(dx + 5, 0, 2, 'mcyukkuri:yukkuri_nest')]
+                if lane == 'depletion' else large_nest(dx + 2, 2, 'mcyukkuri:large_wild_nest'))
         out += [
             box(dx - 6, -1, -5, dx + 6, -1, 7, 'minecraft:oak_planks'),
             box(dx - 6, 0, -5, dx + 6, 0, -5, 'minecraft:oak_fence'), box(dx - 6, 0, 7, dx + 6, 0, 7, 'minecraft:oak_fence'),
             box(dx - 6, 0, -4, dx - 6, 0, 6, 'minecraft:oak_fence'), box(dx + 6, 0, -4, dx + 6, 0, 6, 'minecraft:oak_fence'),
-            *shed(dx + 3, 2), block(dx + 1, 0, 2, 'mcyukkuri:yukkuri_nest'), block(dx + 5, 0, 2, 'mcyukkuri:yukkuri_nest'),
+            *shed(dx + 3, 2), *nest,
             yk('reimu', dx, 0, f'affected_{lane}', label=label, lead=lane == lanes[0][0], nutrition=nutrition, energy=energy,
                extra=agitation_start('IDLE') + (',Health:2.5f' if lane == 'depletion' else '')),
             yk('alice', dx, -7, f'source_{lane}', extra=agitation_start('IDLE'), **pair_ready()),
-            *own(f'affected_{lane}'), *own(f'source_{lane}'), home(f'affected_{lane}', dx + 3, 2),
-            *([item('minecraft:apple', 4, dx, 1)] if lane == 'growth' else [])]
+            *own(f'affected_{lane}'), *own(f'source_{lane}'), home(f'affected_{lane}', dx + (3 if lane == 'depletion' else 2), 2),
+            *([block(dx, 0, 1, 'mcyukkuri:food_bowl{Items:[{Slot:0b,id:"minecraft:apple",count:4}]}')] if lane == 'growth' else [])]
     return out
 
 
@@ -4670,7 +4672,7 @@ _scene_end('aftermath_growth', [('affected_growth', _DRY),
                                ('affected_burden', _DRY),
                                ('source_growth', _DRY), ('source_burden', _DRY)],
            [('affected_growth', 'seen:family:aftermath reserved'), ('affected_growth', 'seen:family:stem sprouted'),
-            ('affected_growth', 'seen:family:stem ripe')],
+            ('affected_growth', 'seen:meal:swallowed item=minecraft:apple'), ('affected_growth', 'seen:family:stem ripe')],
            [('affected_burden', 'seen:family:aftermath reserved'), ('affected_burden', 'seen:family:stem sprouted'),
             ('affected_burden', 'seen:family:stem drain stage 2->3'), ('affected_burden', 'seen:family:stem ripe')])
 _scene_end('aftermath_depletion', [('affected_depletion', 'alive=false'), ('source_depletion', _DRY)],

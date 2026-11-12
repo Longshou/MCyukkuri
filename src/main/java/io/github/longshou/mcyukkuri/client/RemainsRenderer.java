@@ -62,7 +62,7 @@ public final class RemainsRenderer extends EntityRenderer<RemainsEntity>{
         pose.popPose();
         if(stem!=null){
             var root=FamilyGeometry.root(stem.mother());
-            Vec3 anchor=new Vec3(root.x*sx,root.y*sy,root.z*sz).zRot((float)Math.toRadians(look.roll()));
+            Vec3 anchor=new Vec3(root.x*sx,root.y*sy,root.z*sz).zRot((float)-Math.toRadians(look.roll()));
             // The root follows the squashed body. The hanging geometry keeps the death snapshot's proportions.
             float heldScale=world?1:scale/renderScale(data);
             pose.pushPose();pose.scale(heldScale,heldScale,heldScale);

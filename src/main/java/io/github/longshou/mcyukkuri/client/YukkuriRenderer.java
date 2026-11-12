@@ -124,6 +124,8 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
                 renderedBodyYaw=bodyYaw;
             }
             if (entity.deathTicks() > 0) pose.mulPose(Axis.ZP.rotationDegrees(Math.min(90, (entity.deathTicks() + partialTick) * 4.5f)));
+            if(entity.stemDepletionWarning()&&!entity.getAnimationId().equals("tremble"))
+                pose.mulPose(Axis.ZP.rotationDegrees(2*Mth.sin((entity.ageTicks()+partialTick)*1.7f)));
             pose.scale(entity.getScale(),entity.getScale(),entity.getScale());
             // Keep the body, badges, carried items and stem family under the same daily-motion transform.
             if(!hatCarrier&&!carried)dailyMotion(entity,partialTick,pose);

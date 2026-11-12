@@ -369,8 +369,11 @@ public final class FamilyLife {
     LiveBirth liveBirth() { return birth.choreography() instanceof LiveBirth running?running:null; }
     /** Danger, commands, operations, urgent needs and meals still come before any birth duty. */
     private boolean birthFree() {
+        var b=brood();
+        boolean releasing=attachedStem(b)&&b.elapsed>=b.duration;
         return !entity.level().isClientSide&&entity.isAlive()&&!entity.isNoAi()&&!entity.isPanicking()&&!entity.isCommandPlaying()&&(!entity.isPassenger()||cabinBirth())
-                &&!entity.operations().active()&&!entity.life().hasUrgentNeed()&&entity.life().mealTicks()==0&&!awaitingLanding;
+                &&!entity.operations().active()&&!(releasing?entity.life().hasUrgentNonFoodNeed():entity.life().hasUrgentNeed())
+                &&entity.life().mealTicks()==0&&!awaitingLanding;
     }
     /** The birth role this body plays in the current beat (BirthGoal.canUse); when the goal yields, the beat's deadline decides the cost.
      *  Danger or a hunger emergency can displace a catcher. Ordinary comfort waits while the catch is under way. */
@@ -378,6 +381,7 @@ public final class FamilyLife {
         var role=birthFree()?Conductor.roleOf(entity):null;
         if(role==null||!role.engaged(entity))return null;
         if(role.choreography().host()==entity&&shoreLanding())return null;
+        if(role.choreography().host()==entity&&role.choreography() instanceof LiveBirth b&&b.awaitingStemRipeness())return null;
         return LiveBirth.CATCHER.equals(role.role())&&role.choreography().host()!=entity&&role.choreography() instanceof LiveBirth b&&b.watching()
                 &&(hasUrgentlyHungryChild()||comfortTicks>0&&!b.catching())?null:role;
     }

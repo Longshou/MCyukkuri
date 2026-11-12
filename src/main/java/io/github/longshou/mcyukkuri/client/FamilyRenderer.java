@@ -94,7 +94,7 @@ final class FamilyRenderer {
         var local=FamilyGeometry.arc(stem.count(),g,scale,stem.variation(),stem.mother());
         var origin=FamilyGeometry.root(stem.mother()).scale(scale);
         float unit=stem.entityScale();
-        float turn=(float)Math.toRadians(roll);
+        float turn=(float)-Math.toRadians(roll);
         var relative=local.stream().map(q->q.subtract(origin).scale(unit).zRot(turn)).toList();
         int last=relative.size()-1;
         double[] length=new double[relative.size()];

@@ -331,6 +331,7 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     public CompoundTag agitationState() { return sync().agitationState(); }
     @Override public CompoundTag courtshipState() { return sync().courtshipState(); }
     public int aftermathDrain() { return sync().aftermathDrain(); }
+    public boolean stemDepletionWarning() { return sync().stemDepletionWarning(); }
     public String waterDistressPhase() { return sync().waterDistressPhase(); }
     public long waterDistressStartTick() { return sync().waterDistressStartTick(); }
     public boolean waterDistressEffort() { return sync().waterDistressEffort(); }
