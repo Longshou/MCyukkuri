@@ -9,9 +9,8 @@ import io.github.longshou.mcyukkuri.world.SearchBudget.Purpose;
 import javax.annotation.Nullable;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
-import io.github.longshou.mcyukkuri.family.FamilyData;
+import io.github.longshou.mcyukkuri.family.FamilyProvision;
 import java.util.EnumSet;
-import java.util.UUID;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
@@ -27,11 +26,9 @@ import java.util.Set;
  * Foraging trips of a household with young (project design; the wiki names no hunting prey for ordinary yukkuri, only
  * catching insects as a lesson, so the trip is plain gathering of grass the family eats).
  * <ul>
- * <li>The father goes out on a schedule whenever the burrow store is below its target, far from home
- *     ({@link #FATHER_BASE} to {@link #MAX_RADIUS} blocks), gathers a load of up to {@link #FATHER_LOAD} real portions
- *     (each one a real plant stepped back a growth stage, see {@link Grazing}) and carries it to the forage pile.</li>
- * <li>The mother goes out when the father has been away too long ({@link #LONG_AWAY} ticks) or is gone for good, or when the
- *     store runs short; her range is smaller ({@link #MOTHER_BASE}) but widens with hunger and shortage, up to {@link #MOTHER_MAX}.</li>
+ * <li>The available caregiver selected by {@link FamilyProvision} gathers real portions (each one a plant stepped back
+ *     a growth stage, see {@link Grazing}) and carries them to the forage pile. The household's shortage and the forager's
+ *     hunger and boldness determine its range.</li>
  * <li>Children (anyone not adult) and babies never go. Night, rain, need for food or sleep, and any other duty end or
  *     postpone a trip; the animal then walks home, and a load still in its mouth is delivered at the next chance.</li>
  * <li>In a led community the forager first carries the levy ({@link Levy}, a fifth of a family load, a third of a
@@ -45,14 +42,12 @@ import java.util.Set;
 public final class ForageTrip extends Goal {
     public static final int GOAL_PRIORITY = 4;
     /** CHIEF and HUNTER: the leader and members of a communal hunt ({@link CommonHunt}), delivering to the common store. */
-    public enum Role { NONE, FATHER, MOTHER, CHIEF, HUNTER }
+    public enum Role { NONE, FAMILY, CHIEF, HUNTER }
     /** MUSTER: a hunter waiting at the gathering point for the party to leave. */
     public enum Phase { NONE, MUSTER, OUT, GATHER, BACK }
-    public static final int FATHER_BASE = 48, MOTHER_BASE = 20, MAX_RADIUS = 192, MOTHER_MAX = 128;
-    public static final int FATHER_LOAD = 6, MOTHER_LOAD = 4;
-    /** Game ticks the father may stay away before the mother counts him as not coming back (about 2.5 minutes). */
-    public static final int LONG_AWAY = 3000;
-    private static final int FATHER_MAX_TICKS = 7200, MOTHER_MAX_TICKS = 4800, FATHER_INTERVAL = 4000, MOTHER_INTERVAL = 2400;
+    private static final int BASE_RADIUS = 20, MAX_RADIUS = 192, MAX_TRIP_TICKS = 7200;
+    /** In an empty house the round trip can repeat sooner than a routine stock-up. */
+    private static final int EMPTY_INTERVAL = 800, STOCK_INTERVAL = 4000;
     private static final int OWN_MEAL_NUTRITION = 55;
 
     private final YukkuriEntity entity;
@@ -118,8 +113,9 @@ public final class ForageTrip extends Goal {
     public int delivered() { return delivered; }
     public double farthest() { return far; }
     public boolean hunting() { return hunting && phase != Phase.NONE; }
+    public boolean familyOuting() { return outing() && !hunting; }
     /** Body and circumstances allow a trip now (the same gate as for family trips); read by {@link CommonHunt}. */
-    boolean able() { return entity.level() instanceof ServerLevel && body(); }
+    boolean able() { return entity.level() instanceof ServerLevel && wild() && body(); }
     public CompoundTag debug() {
         var tag = new CompoundTag();
         tag.putString("Phase", phase.name()); tag.putString("Role", role.name()); tag.putString("Reason", reason);
@@ -144,7 +140,7 @@ public final class ForageTrip extends Goal {
     }
     private boolean body() {
         return entity.isAlive() && !entity.isNoAi() && !entity.isPassenger() && entity.family().adult()
-                && !entity.profile().houseBody() && !entity.profile().dangerToYukkuri() && wild()
+                && !entity.profile().houseBody() && !entity.profile().dangerToYukkuri()
                 && !entity.isPanicking() && !entity.isCommandPlaying() && !entity.operations().active()
                 && !entity.family().active() && !entity.family().awaitingLanding() && entity.family().recovery() == 0
                 && !entity.life().isSleeping() && !entity.isInWaterOrBubble() && !entity.isOnFire()
@@ -161,34 +157,19 @@ public final class ForageTrip extends Goal {
                     entity.settlement().groupId(), entity.life().nutrition(), phase, load.getCount());
         return !underway;
     }
-    private record Household(Role role, boolean covered) {}
+    private record Household(YukkuriEntity provider, boolean covered) {}
 
-    /** Derive both the role and the available provider from the same living dependants of this shelter. */
     private Household household(ShelterBlockEntity home) {
-        var data = FamilyData.get(level());
-        Role role = Role.NONE;
-        boolean covered = false;
-        for (UUID id : data.children(entity.getUUID())) {
-            if (!home.owns(id) || !(level().getEntity(id) instanceof YukkuriEntity child)
-                    || !child.isAlive() || child.family().adult()) continue;
-            var person = data.person(id);
-            if (person.status != FamilyData.Status.ALIVE) continue;
-            if (entity.getUUID().equals(person.father)) {
-                role = Role.FATHER;
-                covered |= provider(home, person.mother);
-            } else if (entity.getUUID().equals(person.mother)) {
-                if (role == Role.NONE) role = Role.MOTHER;
-                covered |= provider(home, person.father);
-            }
-        }
-        return new Household(role, covered);
+        var members = FamilyProvision.caregivers(entity);
+        boolean covered = members.stream().anyMatch(peer -> peer != entity && !entity.family().kinOverdue(peer.getUUID()));
+        var provider = FamilyProvision.choose(members, peer -> !entity.family().kinOverdue(peer.getUUID())
+                && (FamilyProvision.outForFood(peer) || peer.forageTrip().readyForHousehold(home, covered)));
+        return new Household(provider, covered);
     }
 
-    private boolean provider(ShelterBlockEntity home, @Nullable UUID id) {
-        if (id == null || !home.owns(id) || !(level().getEntity(id) instanceof YukkuriEntity partner)) return false;
-        var trip = partner.forageTrip();
-        return trip.fitToProvision() && partner.status().identity().free() && !partner.isNoAi() && !partner.isPassenger()
-                && !partner.isInWaterOrBubble() && !partner.isOnFire() && trip.away() < LONG_AWAY;
+    private boolean readyForHousehold(ShelterBlockEntity home, boolean covered) {
+        return shelter() == home && body() && familyConditions() && !entity.bereaving()
+                && !entity.family().carry().mouthBusy() && entity.habitat().carrying().isEmpty() && due(home, covered);
     }
 
     private boolean fitToProvision() {
@@ -216,18 +197,18 @@ public final class ForageTrip extends Goal {
                 || entity.isInWaterOrBubble() || entity.life().wetness() > 40;
     }
 
-    private boolean shortStore(ShelterBlockEntity home, Household household) {
+    private boolean shortStore(ShelterBlockEntity home, boolean covered) {
         int target = HouseholdStores.target(home);
-        if (household.covered()) return home.food() < (household.role() == Role.MOTHER ? 1 : target);
+        if (covered) return home.food() < target;
         // A sole provider needs a little more on the shelf while eating, resting or caring for the young.
         float boldness = entity.life().personality().boldness() / 100f;
         return home.food() < Math.min(home.foodCapacity(), target * (1.1f + .3f * boldness));
     }
 
-    private boolean due(ShelterBlockEntity home, Household household, int shortage) {
-        if (household.role() == Role.NONE || !shortStore(home, household)) return false;
-        int interval = !household.covered() ? MOTHER_INTERVAL / 3
-                : household.role() == Role.FATHER ? (shortage >= 2 ? FATHER_INTERVAL / 3 : FATHER_INTERVAL) : MOTHER_INTERVAL;
+    private boolean due(ShelterBlockEntity home, boolean covered) {
+        if (!shortStore(home, covered)) return false;
+        double need = shortage(home) / 3.0;
+        double interval = STOCK_INTERVAL + (EMPTY_INTERVAL - STOCK_INTERVAL) * need;
         return level().getGameTime() - lastTrip >= interval * entity.species().traits().forage();
     }
 
@@ -247,15 +228,14 @@ public final class ForageTrip extends Goal {
         var home = shelter();
         if (home == null) return false;
         var household = household(home);
-        return household.role() != Role.NONE && !household.covered()
-                && (outing() ? shortStore(home, household) : due(home, household, shortage(home)));
+        return household.provider() == entity && (outing() ? shortStore(home, household.covered()) : due(home, household.covered()));
     }
 
-    private int radiusFor(Role role, int shortage) {
-        int base = role == Role.FATHER ? FATHER_BASE : MOTHER_BASE, max = role == Role.FATHER ? MAX_RADIUS : MOTHER_MAX;
+    private int radiusFor(int shortage) {
         float hunger = Math.clamp((70 - entity.life().nutrition()) / 70f, 0f, 1f);
         float want = Math.clamp(shortage / 3f * .75f + hunger * .5f, 0f, 1f);
-        return Math.round((base + (max - base) * want) * entity.life().personality().exploreMultiplier());
+        return Math.min(MAX_RADIUS, Math.round((BASE_RADIUS + (MAX_RADIUS - BASE_RADIUS) * want)
+                * entity.life().personality().exploreMultiplier()));
     }
 
     /** A bounded sample of actual plants near home, taken only when a budgeted trip is about to begin. */
@@ -336,47 +316,46 @@ public final class ForageTrip extends Goal {
             return true;
         }
         if (!entity.habitat().carrying().isEmpty() || entity.family().carry().mouthBusy()) return false;
-        var hunt = CommonHunt.drafted(entity);
+        var hunt = wild() ? CommonHunt.drafted(entity) : null;
         if (hunt != null) { beginHunt(hunt); return true; }
         if (entity.tickCount < scanAfter) return false;
         if (!load.isEmpty()) { // a load left over from an interrupted trip (or a way home that failed): bring it home first, after the pause
             if (shelter() == null) { dropLoad(); return false; }
-            begin(role == Role.NONE ? Role.MOTHER : role, entity.blockPosition(), 0, "leftover_load"); phase = Phase.BACK; return true;
+            begin(Role.FAMILY, entity.blockPosition(), 0, "leftover_load"); phase = Phase.BACK; return true;
         }
         scanAfter = entity.tickCount + 80 + entity.getRandom().nextInt(60);
         var home = shelter();
         if (home == null || !familyConditions()) return false;
         var household = household(home);
-        Role who = household.role();
+        if (household.provider() != entity) return false;
         int shortage = shortage(home);
-        if (!due(home, household, shortage)) return false;
-        String departure = who == Role.FATHER ? (shortage >= 2 ? "father_short" : "father_routine")
-                : household.covered() ? "mother_empty" : "mother_father_away";
+        String departure = household.covered() ? "shared_home" : "sole_caregiver";
         if (!SearchBudget.take(level(),entity,Purpose.FORAGE_TRIP)) {
             scanAfter = entity.tickCount + 5 + entity.getRandom().nextInt(10);
             return false;
         }
         BlockPos nearby = nearbyMeadow(home);
-        int r = nearby == null ? radiusFor(who, shortage) : 12;
+        int r = nearby == null ? radiusFor(shortage) : 12;
         BlockPos target = nearby == null ? chooseDestination(home, r) : nearby;
         if (target == null) {
             scanAfter = entity.tickCount + 600;
-            GameplayLog.limited(entity,"forage","no_meadow",1200,"start refused reason=no_meadow role={} radius={} home={}",who,r,home.getBlockPos());
+            GameplayLog.limited(entity,"forage","no_meadow",1200,"start refused reason=no_meadow radius={} home={}",r,home.getBlockPos());
             // Nothing left to graze within reach: a failed outing for the leader's check, at most once per quarter day.
             var group = entity.settlement().group();
             long now = level().getGameTime();
             if (group != null && now - noMeadowAt >= 6000) { noMeadowAt = now; group.commons.outing(false); }
             return false;
         }
-        GameplayLog.event(entity,"forage","household role={} provider={} food={} target={}",who,household.covered(),home.food(),HouseholdStores.target(home));
-        begin(who, target, r, departure);
+        GameplayLog.event(entity,"forage","household provider={} covered={} food={} target={}",
+                entity.getUUID(),household.covered(),home.food(),HouseholdStores.target(home));
+        begin(Role.FAMILY, target, r, departure);
         return true;
     }
     private void begin(Role who, BlockPos target, int r, String why) {
         var home = shelter();
         this.role = who; this.dest = target; this.radius = r; this.home = home == null ? entity.blockPosition() : home.getBlockPos();
         this.phase = Phase.OUT; this.reason = why; this.startedAt = level().getGameTime();
-        this.deadline = startedAt + (who == Role.FATHER ? FATHER_MAX_TICKS : MOTHER_MAX_TICKS);
+        this.deadline = startedAt + MAX_TRIP_TICKS;
         this.ticks = failures = barren = watchdog = far = 0; this.watchBest = Double.MAX_VALUE; trips++;
         this.levy = -1; this.gathered = 0; this.storeAim = null;
         GameplayLog.event(entity,"forage","begin role={} phase={} reason={} home={} destination={} radius={} deadline={}",role,phase,reason,this.home,dest,radius,deadline);
@@ -419,14 +398,14 @@ public final class ForageTrip extends Goal {
                 ok,phase,reason,role,gathered,load.getCount(),away(),far);
         if (hunting) { CommonHunt.done(entity, reason); hunting = false; }
         // A family trip reports to the community: food brought back, or an empty return from a barren or unreachable meadow.
-        else if (role == Role.FATHER || role == Role.MOTHER) {
+        else if (role == Role.FAMILY) {
             var group = entity.settlement().group();
             if (group != null && (gathered > 0 || FAILED.contains(reason))) group.commons.outing(gathered > 0);
         }
         gathered = 0; levy = -1;
         storeAim = null;
         if (ok) lastTrip = level().getGameTime();
-        else lastTrip = level().getGameTime() - FATHER_INTERVAL / 2;
+        else lastTrip = level().getGameTime() - STOCK_INTERVAL / 2;
         phase = Phase.NONE; ticks = 0; dest = null; plants.stop(); contact.reset();
     }
     private static final Set<String> FAILED = Set.of("barren", "late", "no_route", "stuck", "stuck_home", "no_route_home", "lapsed");
@@ -528,7 +507,8 @@ public final class ForageTrip extends Goal {
     }
     private void gather(ShelterBlockEntity home) {
         // Cheek pouches (Reimu only) carry two extra portions per extra cheek slot.
-        int cap = (role == Role.MOTHER ? MOTHER_LOAD : FATHER_LOAD) + (entity.species().cheekCapacity() - 1) * 2;
+        int portions = role == Role.FAMILY ? 4 + Math.round(entity.life().personality().boldness() / 50f) : 6;
+        int cap = portions + (entity.species().cheekCapacity() - 1) * 2;
         if (load.getCount() >= cap) { recall("full"); return; }
         if (!plants.active()) {
             if (ticks % 5 != 0) return;

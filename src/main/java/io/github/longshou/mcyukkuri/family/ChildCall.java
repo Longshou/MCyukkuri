@@ -96,6 +96,42 @@ final class ChildCall {
         if (Math.abs(Mth.wrapDegrees(yaw - e.yBodyRot)) > Face.FACE_ARRIVED) e.motor().run(body, new Face(yaw));
     }
 
+    private void beginCall(UUID relative, Vec3 toward, String line) {
+        called = relative;
+        phase = Phase.CALL;
+        ticks = 0;
+        callStart = o.level().getGameTime();
+        SurfaceApproach.halt(o.entity());
+        turnToward(toward);
+        o.entity().speak(line);
+    }
+
+    void beginAbsence(UUID relative, Vec3 toward) {
+        beginCall(relative, toward, "lost_parent");
+        GameplayLog.event(o.entity(), "family", "missing kin call kin={} at={} toward={}",
+                relative, o.entity().blockPosition(), GameplayLog.at(toward));
+    }
+
+    boolean tickAbsence() {
+        return tickSilence();
+    }
+
+    private boolean tickSilence() {
+        SurfaceApproach.halt(o.entity());
+        ticks++;
+        if (phase == Phase.CALL && ticks >= length(Behaviors.CALL_CHILD)) {
+            phase = Phase.LISTEN;
+            ticks = 0;
+        } else if (phase == Phase.LISTEN && ticks >= length(Behaviors.CALL_LISTEN)) {
+            phase = Phase.DROOP;
+            ticks = 0;
+        } else if (phase == Phase.DROOP && ticks >= length(Behaviors.CALL_UNANSWERED)) {
+            phase = Phase.NONE;
+            nextCall = o.level().getGameTime() + interval(o.entity());
+        }
+        return phase != Phase.NONE;
+    }
+
     // ------------------------------------------------------------------------------------------------ the parent
 
     /** The child it searches for was seen again or reunited: the next loss starts with a fresh set of rounds. */
@@ -115,37 +151,25 @@ final class ChildCall {
             if (now < nextCall || rounds >= rounds(e) || !e.onGround() || e.hasReaction() || FamilySeparation.near(e, child)
                     || e.hasLineOfSight(child)) return false;
             Vec3 toward = lastKnown(child);
-            phase = Phase.CALL; ticks = 0; rounds++; callStart = now;
-            SurfaceApproach.halt(e);
-            turnToward(toward);
-            e.speak("wait_family");
+            rounds++;
+            beginCall(child.getUUID(), toward, "wait_family");
             GameplayLog.event(e, "family", "child call started child={} round={}/{} lastKnown={} distance={} friendliness={}",
                     child.getUUID(), rounds, rounds(e), GameplayLog.at(toward), Math.round(e.distanceTo(child) * 10) / 10.0,
                     e.life().personality().friendliness());
             return true;
         }
         if (phase == Phase.ANSWER) return false;
-        SurfaceApproach.halt(e);
-        ticks++;
         boolean answered = child.family().call().answered(e.getUUID(), callStart);
         if (FamilySeparation.near(e, child) || e.hasLineOfSight(child)) { walkOn(now, "in_sight", child); return false; }
-        switch (phase) {
-            case CALL -> { if (ticks >= length(Behaviors.CALL_CHILD)) { phase = Phase.LISTEN; ticks = 0; } }
-            case LISTEN -> {
-                if (answered) { e.showReaction("surprise", "", 30); walkOn(now, "answered", child); return false; }
-                if (ticks >= length(Behaviors.CALL_LISTEN)) {
-                    phase = Phase.DROOP; ticks = 0;
-                    GameplayLog.event(e, "family", "child call unanswered child={} round={}/{} distance={}",
-                            child.getUUID(), rounds, rounds(e), Math.round(e.distanceTo(child) * 10) / 10.0);
-                }
-            }
-            case DROOP -> {
-                if (answered) { e.showReaction("surprise", "", 30); walkOn(now, "answered", child); return false; }
-                if (ticks >= length(Behaviors.CALL_UNANSWERED)) { phase = Phase.NONE; nextCall = now + interval(e); return false; }
-            }
-            default -> { }
+        if (phase != Phase.CALL && answered) {
+            e.showReaction("surprise", "", 30); walkOn(now, "answered", child); return false;
         }
-        return true;
+        var before = phase;
+        boolean calling = tickSilence();
+        if (before == Phase.LISTEN && phase == Phase.DROOP)
+            GameplayLog.event(e, "family", "child call unanswered child={} round={}/{} distance={}",
+                    child.getUUID(), rounds, rounds(e), Math.round(e.distanceTo(child) * 10) / 10.0);
+        return calling;
     }
 
     /** Once at the barrier, the same call channel keeps the pair in earshot between rounds. */
@@ -188,7 +212,7 @@ final class ChildCall {
         for (UUID id : new UUID[]{o.mother(), o.father()}) {
             if (id == null || !(o.level().getEntity(id) instanceof YukkuriEntity parent) || !parent.isAlive()) continue;
             var call = parent.family().call();
-            if (call.audible() && !answered(id, call.callStart) && e.distanceToSqr(parent) <= EARSHOT * EARSHOT
+            if (call.audible() && e.getUUID().equals(call.called) && !answered(id, call.callStart) && e.distanceToSqr(parent) <= EARSHOT * EARSHOT
                     && (!parent.family().glass().callingTo(e) || e.speechEnd()<=o.level().getGameTime())
                     && !FamilySeparation.near(e, parent) && !e.hasLineOfSight(parent)) return parent;
         }

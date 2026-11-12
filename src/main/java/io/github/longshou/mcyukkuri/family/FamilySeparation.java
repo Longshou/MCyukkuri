@@ -16,6 +16,7 @@ import net.minecraft.nbt.Tag;
 /** Loaded server time, independent of goal interruptions. Genealogy remains in FamilyData. */
 final class FamilySeparation {
     private final FamilyLife o;
+    private final KinAbsence absence;
     private final Map<UUID,Integer> searching=new HashMap<>();
     private final Set<UUID> glassDismissals=new HashSet<>();
     private boolean lost, desperate;
@@ -27,9 +28,10 @@ final class FamilySeparation {
     /** An absence shorter than this (30 s, project design) is a step out of the door, not a homecoming. */
     private static final int ABSENCE=600;
     long cameHome(){return cameHome;}
-    FamilySeparation(FamilyLife owner){o=owner;}
+    FamilySeparation(FamilyLife owner){o=owner;absence=new KinAbsence(owner);}
+    KinAbsence absence(){return absence;}
     boolean emergencyForaging(){return desperate&&o.stage()==FamilyLife.Stage.BABY&&o.entity().life().nutrition()<10&&!o.awaitingLanding();}
-    String describe(){return "lost="+lost+" searches="+searching+" limit="+searchLimit()+" glassDismissals="+glassDismissals+" dismissed="+FamilyData.get(o.level()).dismissedChildren(o.entity().getUUID())+" emergencyFood="+emergencyForaging();}
+    String describe(){return "lost="+lost+" searches="+searching+" limit="+searchLimit()+" absence="+absence.describe()+" glassDismissals="+glassDismissals+" dismissed="+FamilyData.get(o.level()).dismissedChildren(o.entity().getUUID())+" emergencyFood="+emergencyForaging();}
     private int searchLimit(){
         var p=o.entity().life().personality();
         long children=FamilyData.get(o.level()).children(o.entity().getUUID()).stream()
@@ -67,6 +69,7 @@ final class FamilySeparation {
     void tick(){
         if(o.entity().tickCount%20!=0)return;
         var e=o.entity();var data=FamilyData.get(o.level());var p=e.life().personality();
+        absence.observe();
         glassDismissals.removeIf(id->{
             var record=data.person(id);
             if(record!=null&&record.status==FamilyData.Status.DEAD)return true;
@@ -93,17 +96,17 @@ final class FamilySeparation {
         }else if(FamilyNest.care(e)!=null||e.habitat().shelter()!=null)away=Math.min(away+20,1_000_000);
         boolean wasLost=lost;lost=false;
         if(!o.adult()&&!o.subadult()&&!o.awaitingLanding()&&(o.mother()!=null||o.father()!=null)){
-            boolean nearby=false,sameNest=false,knownAlive=false;
+            boolean nearby=false,sameNest=false,expectsParent=false;
             for(UUID id:new UUID[]{o.mother(),o.father()})if(id!=null){
-                var record=data.person(id);knownAlive|=record!=null&&record.status==FamilyData.Status.ALIVE;
+                expectsParent|=!absence.confirmed(id);
                 if(o.level().getEntity(id) instanceof YukkuriEntity parent&&parent.isAlive()){
                     nearby|=near(e,parent);sameNest|=FamilyNest.sameNest(e,parent);
                 }
             }
-            lost=knownAlive&&!nearby&&!atHome(e);
+            lost=expectsParent&&!nearby&&!atHome(e);
             if(lost)pressure(.2f,Math.max(60,100-.4f*p.boldness()),"lost_parent");
             else if(o.stage()==FamilyLife.Stage.BABY&&!sameNest)pressure(.07f,70-.5f*p.selfControl(),"separate_nest");
-            if(lost!=wasLost){
+            if(lost!=wasLost&&!e.grieving()){
                 e.showReaction(lost?"cry":"happy",lost?"lost_parent":"caregiver",100);
                 if(lost)BirthStaging.tears(e);else BirthStaging.affection(e);
                 GameplayLog.event(e,"family","child separation lost={} unease={} boldness={} sameNest={}",lost,e.mind().unease(),p.boldness(),sameNest);
@@ -136,10 +139,12 @@ final class FamilySeparation {
         tag.put("ChildSearchClocks",list);tag.putBoolean("EmergencyForaging",desperate);tag.putInt("HungerDecision",hungerDecision);
         var glass=new ListTag();for(var id:glassDismissals){var entry=new CompoundTag();entry.putUUID("Child",id);glass.add(entry);}
         tag.put("GlassSearchDismissals",glass);
+        absence.save(tag);
     }
     void load(CompoundTag tag){
         searching.clear();for(var raw:tag.getList("ChildSearchClocks",Tag.TAG_COMPOUND)){var entry=(CompoundTag)raw;if(entry.hasUUID("Child"))searching.put(entry.getUUID("Child"),Math.clamp(entry.getInt("Ticks"),0,14400));}
         glassDismissals.clear();for(var raw:tag.getList("GlassSearchDismissals",Tag.TAG_COMPOUND)){var entry=(CompoundTag)raw;if(entry.hasUUID("Child"))glassDismissals.add(entry.getUUID("Child"));}
         desperate=tag.getBoolean("EmergencyForaging");hungerDecision=Math.clamp(tag.getInt("HungerDecision"),0,1200);lost=false;
+        absence.load(tag);
     }
 }

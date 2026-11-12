@@ -67,7 +67,7 @@ public final class FamilyLife {
     private static final double FAMILY_FOLLOW_DISTANCE_SQR = 2.25, FAMILY_FOLLOW_DISTANCE = 1.5;
     public static final double FAMILY_SEARCH_RANGE = 48;
     public enum Stage { BABY, JUVENILE, ADULT }
-    enum Task { NONE, COURT, RECEIVE_COURT, BROOD, FOLLOW, WAIT_CHILD, SEARCH, FEED_CHILD, STAY_HOME, FETCH_HAT, CARRY, COMFORT }
+    enum Task { NONE, COURT, RECEIVE_COURT, BROOD, FOLLOW, WAIT_CHILD, SEARCH, FEED_CHILD, STAY_HOME, FETCH_HAT, CARRY, COMFORT, ABSENCE, WATCH_HOME }
     private final YukkuriEntity entity;
     private Stage stage=Stage.ADULT;
     private long maturity=GrowthTiming.ADULT_START, age=maturity+1, nourishment=maturity,
@@ -100,6 +100,8 @@ public final class FamilyLife {
     private Task task=Task.NONE;
     private YukkuriEntity target;
     private Vec3 searchAt;
+    private record WatchedForager(UUID id, long started) {}
+    private WatchedForager watchedForager;
     private final CareDecisionLedger careDecisions;
     private final FamilyFeeding feeding;
     private final FamilySeparation separation;
@@ -138,6 +140,8 @@ public final class FamilyLife {
     /** One persistent parent-side decision per child-care need, shared by land and hat routes. */
     public CareDecisionLedger careDecisions(){return careDecisions;}
     FamilyFeeding feeding(){return feeding;}
+    KinAbsence absence(){return separation.absence();}
+    public boolean kinOverdue(UUID id){return absence().overdue(id);}
     GlassVigil glass(){return glass;}
     void dismissAtGlass(YukkuriEntity child,String reason){separation.dismissAtGlass(child,reason);}
     /** Where a retrieved baby is set down: its care nest, else its own shelter bed. */
@@ -243,7 +247,8 @@ public final class FamilyLife {
     public boolean takeStimulant(){return beginBreedingPeriod();}
     public boolean adult() { return stage==Stage.ADULT; }
     public boolean caresFor(YukkuriEntity child) {
-        return adult()&&!child.family().adult()&&Bonds.parentOf(entity, child)&&!entity.moldExile().leavesCareToResident(child);
+        return !child.family().adult() && !entity.moldExile().leavesCareToResident(child)
+                && (adult() && Bonds.parentOf(entity, child) || FamilyProvision.siblingCare(entity, child));
     }
     public boolean hasHungryChild() {
         return !entity.level().getEntitiesOfClass(YukkuriEntity.class,entity.getBoundingBox().inflate(1.5),child->caresFor(child)
@@ -314,7 +319,8 @@ public final class FamilyLife {
      */
     public boolean yieldsToComfort() {
         return !laboring()&&!inBirthBeat()&&!launchInFlight()&&!carry.lifting()&&!glass.finishing()&&comfortTicks==0
-                &&(task==Task.NONE||task==Task.WAIT_CHILD||task==Task.FOLLOW||task==Task.STAY_HOME||task==Task.SEARCH);
+                &&(task==Task.NONE||task==Task.WAIT_CHILD||task==Task.FOLLOW||task==Task.STAY_HOME||task==Task.SEARCH
+                    ||task==Task.ABSENCE||task==Task.WATCH_HOME);
     }
     public String activity() {
         var action=entity.motor().current();
@@ -333,7 +339,9 @@ public final class FamilyLife {
         }
         return switch(task) {
             case COURT, RECEIVE_COURT -> courtActivity(); case BROOD -> Behaviors.TEND_BROOD; case FOLLOW -> Behaviors.FOLLOW_PARENT;
-            case WAIT_CHILD -> Behaviors.WAIT_CHILD; case SEARCH -> carry.lifting()?Behaviors.CARRY_LIFT:call.activity()!=null?call.activity():glass.active()?glass.activity():Behaviors.SEARCH_FAMILY;
+            case WAIT_CHILD, WATCH_HOME -> Behaviors.WAIT_CHILD;
+            case SEARCH -> carry.lifting()?Behaviors.CARRY_LIFT:call.activity()!=null?call.activity():glass.active()?glass.activity():Behaviors.SEARCH_FAMILY;
+            case ABSENCE -> absence().activity();
             case FEED_CHILD -> feeding.activity();
             case STAY_HOME -> Behaviors.STAY_HOME; default -> awaitingLanding?Behaviors.NEWBORN_FALL:Behaviors.IDLE;
         };
@@ -1015,6 +1023,9 @@ public final class FamilyLife {
         if(pregnancy!=null&&!pregnancy.cancelled&&!pregnancy.complete()&&pregnancy.kind!=FamilyData.BirthKind.EGG&&!birth.active()) { task=Task.BROOD;taskTicks=0;return true; }
         if(!adult()) {
             if(emergencyForaging())return false;
+            if(subadult() && feeding.startCare())return true;
+            if(startAbsence())return true;
+            if(seekingFamilyHelp() && !familyTravelling() && closestParent()==null && startFamilyHelp())return true;
             if(exploring()&&!familyTravelling()&&!entity.life().hasUrgentNeed())return false;
             if(!entity.childhood().shouldStayWithParents())return false;
             if(entity.getVehicle() instanceof YukkuriEntity)return false;
@@ -1041,18 +1052,6 @@ public final class FamilyLife {
             if(heard!=null){task=Task.SEARCH;target=null;searchAt=call.answer(heard);taskTicks=0;return true;}
             target=closestParent();
             if(target!=null&&!withinFollowDistance(target)) { task=Task.FOLLOW;taskTicks=0;return true; }
-            if(target==null) {
-                var data=FamilyData.get(level());var known=data.person(mother);
-                if(known==null||known.status==FamilyData.Status.DEAD)known=data.person(father);
-                if(known!=null&&known.status==FamilyData.Status.ALIVE&&known.position!=null&&known.position.dimension().equals(level().dimension())
-                        &&level().hasChunkAt(known.position.pos())&&entity.distanceToSqr(Vec3.atBottomCenterOf(known.position.pos()))<48*48) {
-                    var last=known.position.pos();
-                    // Already at the last place it knew and still alone: it keeps looking round about.
-                    if(entity.distanceToSqr(Vec3.atBottomCenterOf(last))<=4)last=last.offset(entity.getRandom().nextInt(13)-6,0,entity.getRandom().nextInt(13)-6);
-                    else entity.showReaction("surprise","lost_parent",100);
-                    searchAt=Vec3.atBottomCenterOf(last);task=Task.SEARCH;taskTicks=0;return true;
-                }
-            }
             return false;
         }
         if((choreHat=hatChore())!=null){task=Task.FETCH_HAT;taskTicks=0;return true;}
@@ -1061,6 +1060,7 @@ public final class FamilyLife {
         if(feeding.startCare())return true;
         if(ordinaryLandFree(entity)) {
             if(startLandChildSearch())return true;
+            if(startAbsence()||startHomeWatch())return true;
         } else if(!entity.profile().landSettler()) {
             var child=level().getEntitiesOfClass(YukkuriEntity.class,entity.getBoundingBox().inflate(10),other->!other.family().adult()
                     &&other.childhood().shouldStayWithParents()&&Bonds.parentOf(entity,other)&&entity.life().canRecognize(other))
@@ -1111,6 +1111,50 @@ public final class FamilyLife {
     }
     private boolean startLandChildSearch(YukkuriEntity child) {
         task=Task.SEARCH;target=child;searchAt=null;taskTicks=0;entity.showReaction("teary","wait_family",80);return true;
+    }
+
+    private boolean startAbsence() {
+        if(!absence().start())return false;
+        task=Task.ABSENCE;taskTicks=0;return true;
+    }
+
+    private boolean startHomeWatch() {
+        if(!FamilyProvision.nearHome(entity,entity.blockPosition()))return false;
+        var provider=FamilyProvision.choose(FamilyProvision.caregivers(entity),other -> other!=entity
+                && !kinOverdue(other.getUUID()) && FamilyProvision.outForFood(other));
+        if(provider==null)return false;
+        long started=level().getGameTime()-(provider.forageTrip().familyOuting()?provider.forageTrip().away():provider.family().taskTicks);
+        var outing=new WatchedForager(provider.getUUID(),started);
+        if(outing.equals(watchedForager))return false;
+        var door=FamilyProvision.entranceStand(entity);
+        if(door==null)return false;
+        watchedForager=outing;
+        target=provider;searchAt=door;task=Task.WATCH_HOME;taskTicks=0;
+        GameplayLog.event(entity,"family","household watch provider={} entrance={}",provider.getUUID(),GameplayLog.at(door));
+        return true;
+    }
+
+    /** An older dependant who has made its search can approach someone familiar before a greeting. */
+    public boolean seekingFamilyHelp() {
+        return !adult() && canEatIndependently() && absence().movedOn() && entity.life().nutrition()<60;
+    }
+
+    private boolean startFamilyHelp() {
+        var helper=closestFamilyHelp();
+        if(helper==null||withinFollowDistance(helper))return false;
+        target=helper;task=Task.FOLLOW;taskTicks=0;
+        GameplayLog.limited(entity,"family","kin.help",600,"missing kin seeking company adult={} nutrition={}",
+                helper.getUUID(),entity.life().nutrition());
+        return true;
+    }
+
+    private YukkuriEntity closestFamilyHelp() {
+        var relations=YukkuriWorldData.get(level());
+        return level().getEntitiesOfClass(YukkuriEntity.class,entity.getBoundingBox().inflate(12,4,12),other ->
+                other!=entity&&other.isAlive()&&other.family().adult()&&ordinaryLandFree(other)
+                &&entity.life().canRecognize(other)&&entity.hasLineOfSight(other)
+                &&(Bonds.careKin(entity,other)||relations.affinity(entity.getUUID(),other.getUUID())>=10))
+                .stream().min(Comparator.comparingDouble(entity::distanceToSqr)).orElse(null);
     }
     private YukkuriEntity closestParent() {
         if(familyTravelling())return migrationEscort();
@@ -1300,6 +1344,9 @@ public final class FamilyLife {
         if(task==Task.NONE||entity.isPanicking()||entity.life().mealTicks()>0||entity.isCommandPlaying())return false;
         if(task==Task.FEED_CHILD)return feeding.canContinue();
         if(urgentNeed())return false;
+        if(task==Task.ABSENCE)return absence().active();
+        if(task==Task.WATCH_HOME)return taskTicks<160 && !entity.life().isSleeping() && target.isAlive()
+                && !kinOverdue(target.getUUID()) && FamilyProvision.outForFood(target);
         if(task==Task.COURT&&(courtship.receiverInterrupted()||!courtship.stillWanted()))return false;
         if(task==Task.RECEIVE_COURT&&!canReproduceWith(target)&&!courtship.answeringDecline())return false;
         if(task==Task.FETCH_HAT)return (chore!=null||!choreHat.isRemoved()&&choreHat.catches())&&taskTicks<2400&&Conductor.roleOf(entity)==null;
@@ -1313,7 +1360,7 @@ public final class FamilyLife {
         if(task==Task.STAY_HOME) {
             var home=earlyHomeStand();return home!=null&&needsBedReturn(home);
         }
-        if(task==Task.FOLLOW&&earlyHomeStand()!=null)return false;
+        if(task==Task.FOLLOW&&earlyHomeStand()!=null&&(!seekingFamilyHelp()||Bonds.parentOf(target,entity)))return false;
         if(task==Task.CARRY)return carry.carrying()&&taskTicks<2400;
         if(task==Task.SEARCH&&target!=null)return ordinaryLandFree(entity)&&(ordinaryLandFree(target)||target.getVehicle()==entity&&carry.lifting())&&caresFor(target)
                 &&(carry.lifting()||carry.canSearchWhileCarrying(target)&&escortsMigratingChild(target)&&!safeInSharedHome(target))
@@ -1386,6 +1433,19 @@ public final class FamilyLife {
                 if(SurfaceApproach.lastResult(entity,at)==SurfaceApproach.Result.BLOCKED){stop();wait=200;}
             }
             case FEED_CHILD -> feeding.tickCare();
+            case ABSENCE -> absence().tick();
+            case WATCH_HOME -> {
+                if(searchAt!=null){
+                    var result=SurfaceApproach.walkResult(entity,searchAt,null,.85);
+                    if(result==SurfaceApproach.Result.BLOCKED){stop();return;}
+                    if(result==SurfaceApproach.Result.ARRIVED){
+                        GameplayLog.event(entity,"family","household watched entrance provider={} at={}",
+                                target.getUUID(),GameplayLog.at(searchAt));
+                        searchAt=null;
+                    }
+                }
+                entity.getLookControl().setLookAt(target,20,20);
+            }
             case WAIT_CHILD -> {
                 entity.getNavigation().stop();entity.getLookControl().setLookAt(target,20,20);
                 if(entity.distanceToSqr(target)<4||!entity.life().canRecognize(target))stop();
@@ -1419,7 +1479,8 @@ public final class FamilyLife {
     public void stop() {
         glass.stop();
         call.stop();
-        if(task==Task.STAY_HOME)SurfaceApproach.halt(entity);
+        if(task==Task.ABSENCE)absence().stop();
+        if(task==Task.STAY_HOME||task==Task.ABSENCE||task==Task.WATCH_HOME)SurfaceApproach.halt(entity);
         if(chore!=null){chore.stop("family_goal_stopped");chore=null;if(task==Task.FETCH_HAT)choreRetry=level().getGameTime()+600;}
         choreHat=null;
         if(task==Task.COMFORT)comfortNear=0;
@@ -1442,6 +1503,7 @@ public final class FamilyLife {
                 other.life().personality().experienced(Trait.BOLDNESS,-3);other.bereave(EmotionEvent.BIRTH_LOSS);
             } else if((Bonds.careKin(entity, other)||Bonds.eitherMate(entity, other))&&!other.life().isSleeping()&&entity.distanceToSqr(other)<100&&other.life().canRecognize(entity)&&other.hasLineOfSight(entity)) {
                 // Kin and the mate who see it die grieve where they stand (no walk to the body).
+                other.family().absence().witness(entity.getUUID(),entity.blockPosition());
                 other.life().personality().experienced(Trait.BOLDNESS,-3);other.bereave(EmotionEvent.FAMILY_DEATH);
                 GameplayLog.event(other,"family","witnessed kin death dead={} distance={} mate={}",entity.getUUID(),Math.round(other.distanceTo(entity)*10)/10.0,Bonds.eitherMate(entity, other));
             }

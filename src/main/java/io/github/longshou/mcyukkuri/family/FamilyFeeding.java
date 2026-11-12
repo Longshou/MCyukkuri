@@ -119,7 +119,7 @@ final class FamilyFeeding {
     }
 
     private boolean careContextReady() {
-        return o.adult()&&!o.awaitingLanding()&&!o.entity().isNoAi()&&!o.entity().isPassenger()&&!o.entity().profile().houseBody()&&!o.entity().profile().dangerToYukkuri()
+        return (o.adult()||o.subadult())&&!o.awaitingLanding()&&!o.entity().isNoAi()&&!o.entity().isPassenger()&&!o.entity().profile().houseBody()&&!o.entity().profile().dangerToYukkuri()
                 &&!o.entity().isInWaterOrBubble()&&!o.entity().isOnFire()&&!o.entity().operations().active()&&!o.entity().predator().active()
                 &&!o.entity().life().isSleeping()&&canHoldCarePortion()&&!o.entity().independence().active()
                 &&(o.entity().habitat().carrying().isEmpty()||o.entity().habitat().carryingMoveFood())&&o.entity().independence().carrying().isEmpty()
@@ -192,11 +192,15 @@ final class FamilyFeeding {
         if(!careReady())return false;
         o.target(hungriestOwnChild());
         if(o.target()==null)return false;
-        if(!acceptsCare(o.target())){o.target(null);return false;}
         foodSource=null;foodStore=null;careOfferTicks=0;
         clearPlant();searchTicks=0;
         boolean ration=o.entity().habitat().hasMoveFoodFor(o.target());
         if(carrying.isEmpty()&&!ration)selectFoodSource();
+        if(carrying.isEmpty()&&!ration&&!sourceChosen()&&FamilyProvision.home(o.entity())!=null
+                &&(o.entity().habitat().shelter()!=null||!FamilyProvision.canFetchOutside(o.entity()))){
+            o.target(null);return false;
+        }
+        if(!acceptsCare(o.target())){clearPlant();o.target(null);return false;}
         if(carrying.isEmpty()&&ration){
             carrying=o.entity().habitat().takeMoveFoodFor(o.target());careChewTicks=careOfferTicks=0;
         }
@@ -227,10 +231,19 @@ final class FamilyFeeding {
 
     private boolean sourceChosen() { return foodSource!=null||foodStore!=null||plantSource!=null||hatLarder!=null; }
 
+    boolean fetchingOutside() {
+        if(o.task()!=Task.FEED_CHILD)return false;
+        return (foodSource!=null&&!FamilyProvision.nearHome(o.entity(),foodSource.blockPosition()))
+                ||(plantStand!=null&&!FamilyProvision.nearHome(o.entity(),plantStand))
+                ||(!carrying.isEmpty()&&!FamilyProvision.nearHome(o.entity(),o.entity().blockPosition()));
+    }
+
     /** A real nearby drop or the caregiver's own stocked shelter, without reserving either. */
     private void selectStock() {
+        boolean outside=FamilyProvision.canFetchOutside(o.entity());
         ItemEntity nearby=EventHooks.canEntityGrief(o.level(),o.entity())
                 ?o.level().getEntitiesOfClass(ItemEntity.class,o.entity().getBoundingBox().inflate(24),item->item.isAlive()&&!item.hasPickUpDelay()
+                        &&(outside||FamilyProvision.nearHome(o.entity(),item.blockPosition()))
                         &&o.entity().life().acceptsFood(item.getItem())&&o.target()!=null&&o.target().life().canReceiveCareFood(item.getItem()))
                         .stream().sorted(Comparator.<ItemEntity>comparingInt(item -> o.entity().getUUID().equals(o.target().family().mother()) && item.getItem().is(ModItems.YUKKURI_STEM.get()) ? 0 : 1).thenComparingDouble(o.entity()::distanceToSqr)).limit(6)
                         .filter(item->o.entity().life().reachable(item.blockPosition(),false)).findFirst().orElse(null):null;
@@ -256,9 +269,10 @@ final class FamilyFeeding {
     private void selectPlant(){
         if(!EventHooks.canEntityGrief(o.level(),o.entity())||!SearchBudget.take(o.level(),o.entity(),SearchBudget.Purpose.FAMILY_FEED))return;
         var diet=o.entity().profile().diet();
+        boolean outside=FamilyProvision.canFetchOutside(o.entity());
         var candidates=new ArrayList<BlockPos>();
         for(var pos:BlockPos.betweenClosed(o.entity().blockPosition().offset(-8,-2,-8),o.entity().blockPosition().offset(8,2,8))) {
-            if(!o.level().hasChunkAt(pos)||ForageClaims.taken(o.level(),pos,o.entity().getUUID()))continue;
+            if(!o.level().hasChunkAt(pos)||!outside&&!FamilyProvision.nearHome(o.entity(),pos)||ForageClaims.taken(o.level(),pos,o.entity().getUUID()))continue;
             var food=diet.yield(o.level().getBlockState(pos));
             if(!food.isEmpty()&&o.entity().life().acceptsFood(food)&&o.target().life().canReceiveCareFood(food))candidates.add(pos.immutable());
         }
