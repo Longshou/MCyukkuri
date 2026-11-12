@@ -127,7 +127,14 @@ def hatch_errors(b, pen, seen):
         return [f'pen {name}: no 2-high iron service door at {(hx, y, hz)}']
     inside = [(hx + dx, hz + dz) for dx, dz in ((1, 0), (-1, 0), (0, 1), (0, -1)) if x0 <= hx + dx <= x1 and z0 <= hz + dz <= z1]
     if len(inside) != 1: return [f'pen {name}: service door {(hx, hz)} is not in its wall ring']
-    ox, oz = 2 * hx - inside[0][0], 2 * hz - inside[0][1]
+    ix, iz = inside[0]
+    if name_at(b, ix, y, iz) != AIR or name_at(b, ix, y + 1, iz) != AIR:
+        return [f"pen {name}: inside service stand {(ix, y, iz)} is obstructed"]
+    inward = [(ix + dx, iz + dz) for dx, dz in ((1, 0), (-1, 0), (0, 1), (0, -1))
+              if x0 <= ix + dx <= x1 and z0 <= iz + dz <= z1]
+    if not any(name_at(b, x, y, z) == AIR and name_at(b, x, y + 1, z) == AIR for x, z in inward):
+        return [f"pen {name}: inside service stand {(ix, y, iz)} has no clear exit into the pen"]
+    ox, oz = 2 * hx - ix, 2 * hz - iz
     if name_at(b, ox, y, oz) != AIR: return [f'pen {name}: service door {(hx, hz)} opens onto {name_at(b, ox, y, oz)}']
     if (ox, oz) not in seen: return [f'pen {name}: staff cannot walk to its service door stand {(ox, oz)}']
     return []
