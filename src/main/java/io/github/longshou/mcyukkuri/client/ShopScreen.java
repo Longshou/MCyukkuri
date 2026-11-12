@@ -98,7 +98,7 @@ public final class ShopScreen extends AbstractContainerScreen<ShopMenu> {
                 if (menu.value(k) == 0) continue;
                 GuiKit.statusCard(g, leftPos + ROW_X + 4, rowY + 4, PORTRAIT, PORTRAIT);
                 // The animal itself, live: its current clip and face (pleading at the glass, sulking, asleep) show in the row.
-                if (portrait(k) instanceof YukkuriEntity animal) {
+                if (portrait(k) instanceof YukkuriEntity animal && animal.isAlive() && !animal.isRemoved()) {
                     CareInspection.drawModel(g, animal, leftPos + ROW_X + 4, rowY + 4, PORTRAIT, PORTRAIT, PORTRAIT_YAW, PORTRAIT_PITCH, 1);
                     drewModel = true;
                 }

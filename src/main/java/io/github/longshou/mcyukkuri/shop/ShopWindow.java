@@ -16,7 +16,6 @@ import io.github.longshou.mcyukkuri.registry.ModItems;
 import io.github.longshou.mcyukkuri.social.BondLevels;
 import io.github.longshou.mcyukkuri.social.Bonds;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
-import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.Locale;
 import java.util.UUID;
@@ -51,9 +50,7 @@ public final class ShopWindow implements MotorOwner {
     private static final int MIN_PLEA = 60;
     /** Moment lengths of the after-beats (droop 4 s, ignore 1.6 s) so a loop never restarts on screen. */
     private static final int LETDOWN_TICKS = 80, HMPH_TICKS = 32;
-    /** A neighbour being sold is watched at most this long (the keeper's walk to it included; the sale hold itself lapses after 10 s
-     *  without its buyer nearby, so only the departure or this limit ends the watch), its first strong answer (envy, "me too") lasts
-     *  REACTION_TICKS, and the eyes follow the basket this long after it climbed in. */
+    /** A neighbour is watched during the fetch and for a short tail after it climbs into the basket. */
     private static final int WITNESS_TICKS = 500, REACTION_TICKS = 160, WITNESS_TAIL = 70;
     /** Sale sightings are within this many blocks. */
     private static final double SALE_RANGE = 10;
@@ -140,8 +137,9 @@ public final class ShopWindow implements MotorOwner {
 
     public void tick() {
         long now = entity.level().getGameTime();
-        if (phase != Phase.WITNESS && phase != Phase.AFTER && now >= nextScan) {
-            nextScan = now + SCAN_TICKS;
+        boolean scan = now >= nextScan;
+        if (scan) nextScan = now + SCAN_TICKS;
+        if (scan && phase != Phase.WITNESS && phase != Phase.AFTER) {
             var sale = findSale();
             if (sale != null) { // a customer session gives way to a neighbour being sold
                 log("end", "witness", now);
@@ -156,7 +154,7 @@ public final class ShopWindow implements MotorOwner {
                 if (now >= until) afterNotice(now);
             }
             case APPROACH -> approaching(now);
-            case PERFORM -> perform(now);
+            case PERFORM -> perform(now, scan);
             case AFTER -> { if (now >= until) finish(now); }
             case WITNESS -> witnessing(now);
         }
@@ -266,10 +264,10 @@ public final class ShopWindow implements MotorOwner {
 
     private void afterNotice(long now) {
         switch (mode) {
-            case APPEAL, SHOW_OFF -> { entity.speak("shop_appeal"); if (!toGlass(now)) perform(now); }
-            case PROUD -> { if (entity.pet().effectiveGrade().id() >= BadgeGrade.SILVER.id()) entity.speak("badge_proud"); perform(now); }
-            case SHY -> { entity.speak("shy"); if (!retreat(now)) perform(now); }
-            case SULK -> { entity.speak("request_sulk"); perform(now); }
+            case APPEAL, SHOW_OFF -> { entity.speak("shop_appeal"); if (!toGlass(now)) beginPerformance(now); }
+            case PROUD -> { if (entity.pet().effectiveGrade().id() >= BadgeGrade.SILVER.id()) entity.speak("badge_proud"); beginPerformance(now); }
+            case SHY -> { entity.speak("shy"); if (!retreat(now)) beginPerformance(now); }
+            case SULK -> { entity.speak("request_sulk"); beginPerformance(now); }
         }
     }
 
@@ -308,14 +306,16 @@ public final class ShopWindow implements MotorOwner {
         if (!(outcome instanceof Outcome.Done))
             GameplayLog.limited(entity, "shop", "window_walk_ended", 200, "window walk ended mode={} outcome={}", mode, outcome);
         action = null;
-        perform(now);
+        beginPerformance(now);
     }
 
-    private void perform(long now) {
-        if (phase != Phase.PERFORM) {
-            if (performStart < sessionStart) performStart = now; // the plea is timed from its first beat, not from a re-stand
-            phase(Phase.PERFORM, 0); return;
-        }
+    private void beginPerformance(long now) {
+        if (performStart < sessionStart) performStart = now;
+        phase(Phase.PERFORM, 0);
+    }
+
+    private void perform(long now, boolean scan) {
+        if (!scan) { look(customer); return; }
         boolean here = present(customer);
         if (here) lastSeen = now;
         else if (now - lastSeen > GONE_TICKS) { leave(now, "customer_left"); return; }
@@ -395,10 +395,17 @@ public final class ShopWindow implements MotorOwner {
     }
 
     private void witnessing(long now) {
-        if (departedAt < 0 && (!departing.isAlive() || departing.isRemoved())) {
-            departedAt = now;
-            // It climbed into the basket: the eyes follow the basket in the staff's hand (or stay on the buyer).
-            if (witness != Witness.ME_TOO) watched = basketHolder();
+        if (departedAt < 0 && (!departing.isAlive() || departing.isRemoved() || !departing.pet().busyWith().equals("sale"))) {
+            var custody = YukkuriWorldData.get((ServerLevel) entity.level());
+            if (custody.isCaptured(departing.getUUID())) {
+                departedAt = now;
+                if (witness != Witness.ME_TOO) watched = basketHolder(custody);
+            } else {
+                GameplayLog.event(entity, "shop", "window witness end kind={} reason=sale_off ticks={}", witness, now - sessionStart);
+                witnessed = null;
+                finish(now);
+                return;
+            }
         }
         if (watched != null && watched.isAlive() && !watched.isRemoved() && watched.level() == entity.level()) look(watched);
         if (now >= until || departedAt >= 0 && now - departedAt >= WITNESS_TAIL) {
@@ -408,11 +415,16 @@ public final class ShopWindow implements MotorOwner {
         }
     }
 
-    /** The staff member nearest to where the departing one was, holding a loaded transport basket, or null. */
-    private Entity basketHolder() {
+    /** The staff member holding this particular animal's basket, or null. */
+    private Entity basketHolder(YukkuriWorldData custody) {
         return entity.level().getEntitiesOfClass(HumanNpc.class, departing.getBoundingBox().inflate(4),
-                        n -> n.isAlive() && n.getMainHandItem().is(ModItems.CARRIER.get()) && CarrierItem.token(n.getMainHandItem()) != null)
-                .stream().min(Comparator.comparingDouble(departing::distanceToSqr)).orElse(null);
+                        n -> n.isAlive() && n.getMainHandItem().is(ModItems.CARRIER.get()))
+                .stream().filter(n -> {
+                    var token = CarrierItem.token(n.getMainHandItem());
+                    if (token == null) return false;
+                    var snapshot = custody.captiveSnapshot(token);
+                    return snapshot.hasUUID("UUID") && snapshot.getUUID("UUID").equals(departing.getUUID());
+                }).findFirst().orElse(null);
     }
 
     // ---- shared -------------------------------------------------------------------------------------------------------
