@@ -6427,6 +6427,34 @@
     "birth_pose_source": "standards/yukkuri-library/motions/variants/lore/author.py --family birth",
     "birth_current_preview": ".local/previews/birth-catching/index.html"
   },
+  "operation_tool_icons": {
+    "source": "standards/yukkuri-library/drafts/operation-tools/icons.py",
+    "snapshot": "art/props/operation-tools/icons",
+    "exporter": "standards/yukkuri-library/drafts/operation-tools/build.py",
+    "items": {
+      "pin_tool": "src/main/resources/assets/mcyukkuri/textures/item/pin_tool.png",
+      "care_mallet": "src/main/resources/assets/mcyukkuri/textures/item/care_mallet.png",
+      "care_awl": "src/main/resources/assets/mcyukkuri/textures/item/care_awl.png",
+      "heated_awl": "src/main/resources/assets/mcyukkuri/textures/item/heated_awl.png",
+      "restraint_frame": "src/main/resources/assets/mcyukkuri/textures/item/restraint_frame.png",
+      "wrap_sling": "src/main/resources/assets/mcyukkuri/textures/item/wrap_sling.png",
+      "hanging_hook": "src/main/resources/assets/mcyukkuri/textures/item/hanging_hook.png",
+      "hair_clippers": "src/main/resources/assets/mcyukkuri/textures/item/hair_clippers.png",
+      "cutting_knife": "src/main/resources/assets/mcyukkuri/textures/item/cutting_knife.png",
+      "care_vibrator": "src/main/resources/assets/mcyukkuri/textures/item/care_vibrator.png",
+      "sterilizing_shears": "src/main/resources/assets/mcyukkuri/textures/item/sterilizing_shears.png",
+      "iron_enclosure": "src/main/resources/assets/mcyukkuri/textures/item/iron_enclosure.png",
+      "stem_shears": "src/main/resources/assets/mcyukkuri/textures/item/stem_shears.png",
+      "bottle_stem_shears": "src/main/resources/assets/mcyukkuri/textures/item/bottle_stem_shears.png",
+      "trimmed_hair": "src/main/resources/assets/mcyukkuri/textures/item/trimmed_hair.png"
+    },
+    "drafts": {
+      "alcohol_lamp": "art/props/operation-tools/icons/alcohol_lamp.png"
+    },
+    "models": "src/main/resources/assets/mcyukkuri/models/item/<id>.json (item/generated, written by build.py)",
+    "role": "vanilla-style 16x16 item sprites for the operation and abuse tools and the cut hair lock, in the same style as the supply icons; the one sprite serves GUI, hand (extruded), ground, item frames, shop shelves and NPC hands. On-body attachments (pin, hook, rotor, fitted restraint board, sling and iron box, brood bottle) stay meshes from build.py; drafts are not shipped until their item is registered",
+    "status": "pending_user_confirmation"
+  },
   "path_base": "repository_root",
   "pet_goods": {
     "source": "standards/yukkuri-library/drafts/care-props/goods.py",

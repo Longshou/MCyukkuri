@@ -563,6 +563,9 @@
             "restraint_frame*",
             "wrap_sling*",
             "kanroken"
+          ],
+          "registry": [
+            "operation_tool_icons"
           ]
         },
         {

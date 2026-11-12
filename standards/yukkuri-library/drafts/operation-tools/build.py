@@ -12,11 +12,14 @@ import math
 from pathlib import Path
 import uuid
 from PIL import Image
+import icons
 
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[3]
 ASSETS = ROOT / 'src/main/resources/assets/mcyukkuri'
 SNAPSHOT = ROOT / 'art/props/operation-tools'
+# Meshes drawn on or around a live body (OperationAttachments, YukkuriRenderer, DetachedStemRenderer); fitted variants are added by fitted().
+IN_WORLD = ('pin_tool','hanging_hook','care_vibrator','brood_bottle')
 PALETTE = ['#a46d39','#d9a85d','#353941','#818994','#d5dce0','#ee809b','#b74651','#f0e4c7','#614c37','#f38b35','#473126','#cbe9f3','#689cb5']
 
 
@@ -277,12 +280,19 @@ def outputs():
         if name=='brood_bottle':mesh['socket']=[0,4.6,0];mesh['root_socket']=[0,.64,0]
         if name in lifts:mesh['body_lift']=lifts[name]
         bb={'meta':{'format_version':'4.10','model_format':'free'},'name':name,'resolution':{'width':16,'height':16},'elements':elements,'outliner':[x['uuid'] for x in elements], 'textures':[{'name':'texture','source':'data:image/png;base64,'+base64.b64encode(texture).decode(),'width':16,'height':16,'uv_width':16,'uv_height':16,'id':'0'}]}
-        for folder in (HERE/'assembled'/name,SNAPSHOT/'selected'/name):
-            emit(folder/f'{name}.bbmodel',bb);emit(folder/f'{name}.mesh.json',mesh);result[folder/'texture.png']=texture
+        emit(HERE/'assembled'/name/f'{name}.bbmodel',bb);emit(HERE/'assembled'/name/f'{name}.mesh.json',mesh);result[HERE/'assembled'/name/'texture.png']=texture
+        if name not in IN_WORLD and name not in fitting:continue   # item-only tools are drawn by their item sprite; the mesh stays a source
+        folder=SNAPSHOT/'selected'/name
+        emit(folder/f'{name}.bbmodel',bb);emit(folder/f'{name}.mesh.json',mesh);result[folder/'texture.png']=texture
         emit(ASSETS/f'yukkuri_props/{name}.json',mesh);result[ASSETS/f'textures/props/{name}.png']=texture
-        emit(ASSETS/f'models/item/{name}.json',{'parent':'minecraft:builtin/entity','gui_light':'front','textures':{'particle':f'mcyukkuri:props/{name}'},'display':{'gui':{'rotation':[20,225,0],'scale':[.85,.85,.85]},'ground':{'translation':[0,3,0],'scale':[.5,.5,.5]},'firstperson_righthand':{'translation':[0,2,0],'scale':[.6,.6,.6]},'thirdperson_righthand':{'translation':[0,3,0],'scale':[.5,.5,.5]}}})
         index[name]={'bounds':bounds,'triangles':len(vertices)//24}
     emit(ASSETS/'yukkuri_props/operations-index.json',index)
+    # Every tool item (and the cut hair lock) is a vanilla-style item/generated sprite drawn by icons.py.
+    for path,data in icons.outputs().items():
+        result[path]=data
+        if path.stem in icons.SHIPPED:
+            result[ASSETS/f'textures/item/{path.stem}.png']=data
+            emit(ASSETS/f'models/item/{path.stem}.json',{'parent':'minecraft:item/generated','textures':{'layer0':f'mcyukkuri:item/{path.stem}'}})
     ingredients={'pin_tool':['iron_nugget','pink_dye'],'care_mallet':['iron_ingot','iron_ingot','stick'],
       'care_awl':['iron_nugget','iron_ingot','stick'],'restraint_frame':['oak_planks','oak_planks','string','leather'],
       'wrap_sling':['white_wool','string','string'],'hanging_hook':['iron_ingot','string'],

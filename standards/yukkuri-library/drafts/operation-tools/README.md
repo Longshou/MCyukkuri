@@ -8,7 +8,9 @@
 
 振动器的粉色椭圆轮廓、透明广口瓶与铁箱也已核读原始图像。铁箱正面观察栏为 MC 适配；培养瓶承托剪下的茎根，实子仍挂在原有分枝上。瓶身透明材质与金属边缘分别渲染。
 
-执行 `python standards/yukkuri-library/drafts/operation-tools/build.py` 同步源参数、可编辑模型、接入快照和运行资源；`--check` 只核对。手工编辑模型后须先同步制作参数，避免下次构建丢失修改。
+物品图标由同目录 [icons.py](icons.py) 绘制。它是 16×16 原版风格像素图，画法见[接入包](../../../../art/props/operation-tools/README.md)，快照在 `art/props/operation-tools/icons/`。`DRAFTS` 中的图标只画到快照，不导出。只当物品显示的器具网格只保留在 `assembled/`，不进入接入快照和运行资源。
+
+执行 `python standards/yukkuri-library/drafts/operation-tools/build.py` 同步源参数、可编辑模型、物品图标、接入快照和运行资源；`--check` 只核对。手工编辑模型后须先同步制作参数，避免下次构建丢失修改。
 
 检查会重新按当前运行角色网格推导器具，核对几何、挂点、索引及来源指纹；PNG（包括 `.bbmodel` 内嵌贴图）比较尺寸和 RGBA 像素，JSON 比较结构与数值，避免压缩版本或换行造成误报。只有 `.bbmodel` 的未取整顶点允许 Windows／Linux 三角函数末位差异，限于以一个模型单位为最小尺度的一 ULP；运行顶点、UV、面拓扑和边界仍精确核对。构建保留经核对等价的现有字节，来源指纹只兼容同一内容的 LF／CRLF 表示。
 

@@ -11,5 +11,8 @@
     "wrap_sling*",
     "kanroken"
   ],
+  "registry": [
+    "operation_tool_icons"
+  ],
   "_order": 0
 }
