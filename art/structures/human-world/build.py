@@ -46,10 +46,15 @@ class Building:
         for x in range(a[0],b[0]+1):
             for y in range(a[1],b[1]+1):
                 for z in range(a[2],b[2]+1): self.block(x,y,z,name,props,over=over)
-    def door(self,x,y,z,facing='north',kind='oak'):
-        """A 2-high door; kind 'iron' is a pen's staff door: no hand, mob or yukkuri opens it, only shop staff on a job (shop/ShopStaff)."""
+    def door(self,x,y,z,facing='north',kind='oak',hinge='left'):
+        """A 2-high door; kind 'iron' is a staff door: no hand, mob or yukkuri opens it, only shop staff on a job (shop/ShopStaff)."""
         self.doors.append((x,y,z))
-        for dy,half in [(0,'lower'),(1,'upper')]: self.block(x,y+dy,z,kind+'_door',{'facing':facing,'half':half,'hinge':'left','open':'false','powered':'false'},over=True)
+        for dy,half in [(0,'lower'),(1,'upper')]: self.block(x,y+dy,z,kind+'_door',{'facing':facing,'half':half,'hinge':hinge,'open':'false','powered':'false'},over=True)
+    def double_door(self,x,y,z,facing):
+        """A 2-wide double iron staff door: the leaf at (x,z) and its neighbour along the wall, hinged on the outer sides so they open apart
+        (two staff can pass each other in it). facing south: leaves at x and x+1; facing east: leaves at z and z+1."""
+        if facing=='south': self.door(x,y,z,facing,'iron','right'); self.door(x+1,y,z,facing,'iron','left')
+        else: self.door(x,y,z,facing,'iron','left'); self.door(x,y,z+1,facing,'iron','right')
     def entrance(self,x):
         self.box((x-1,2,0),(x+1,2,1),'air')
         for z,y in [(0,1),(1,2)]:
@@ -268,15 +273,16 @@ def shop():
     b.strict=True
     for x,z in [(23,9)]: b.door(x,3,z,'east')
     # ---- Sales half (x 2..22). Every pen wall is full glass blocks from floor to ceiling (no hop clears it and nothing is passed over it);
-    # each pen has one 2-high iron staff door, framed by log posts and a log lintel so the door panel never sits against a glass pane.
-    # Only shop staff on a job open these doors (shop/ShopStaff); players, mobs and the animals cannot.
+    # each pen has one 2-wide double iron staff door (two staff pass each other in it), framed by log posts and a log lintel so no door
+    # panel ever sits against a glass pane. Only shop staff on a job open these doors (shop/ShopStaff); players, mobs and animals cannot.
     def wall_line(x0,z0,x1,z1,door=None):
-        along_x=z0==z1
-        posts=set() if door is None else ({(door[0]-1,door[1]),(door[0]+1,door[1])} if along_x else {(door[0],door[1]-1),(door[0],door[1]+1)})
+        """door: the first leaf of the double door (the second is the next cell along the wall line, here always +x)."""
+        leaves=set() if door is None else {door,(door[0]+1,door[1])}
+        posts=set() if door is None else {(door[0]-1,door[1]),(door[0]+2,door[1])}
         for x in range(x0,x1+1):
             for z in range(z0,z1+1):
-                if (x,z)==door:
-                    b.door(x,3,z,'south' if along_x else 'east','iron'); b.box((x,5,z),(x,7,z),'stripped_birch_log',{'axis':'x' if along_x else 'z'})
+                if (x,z)==door: b.double_door(x,3,z,'south')
+                if (x,z) in leaves: b.box((x,5,z),(x,7,z),'stripped_birch_log',{'axis':'x'})
                 elif (x,z) in posts: b.box((x,3,z),(x,7,z),'stripped_birch_log',LOG)
                 else: b.box((x,3,z),(x,7,z),'glass')
     # Street window pen (non-predators, interior x 2..8, z 4..7): floor-level behind the floor-to-ceiling street glass, a cushion floor,
@@ -318,7 +324,7 @@ def shop():
     # Windows from the west goods corner into the backyard arcade.
     b.box((3,4,17),(5,6,17),'glass',over=True)
     # ---- Back room (staff, x 17..22, z 18..29): the arrivals and shipping barrel, the waste barrel, feed; doors to the hall and the yard.
-    b.door(17,3,17,'south','iron'); b.door(16,3,21,'east','iron')
+    b.double_door(17,3,17,'south'); b.double_door(16,3,21,'east')
     barrel(b,22,3,19,'west'); barrel(b,22,3,28,'west')
     for z in (21,22): barrel(b,22,3,z)
     b.block(22,3,25,'crafting_table'); b.block(22,3,26,'composter',{'level':'0'})

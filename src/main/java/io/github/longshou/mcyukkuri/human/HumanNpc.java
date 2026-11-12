@@ -359,9 +359,17 @@ public final class HumanNpc extends PathfinderMob {
             double dx = npc.getX() - (door.getX() + .5), dz = npc.getZ() - (door.getZ() + .5);
             return dx * dx + dz * dz < 1.0;
         }
+        /** Both leaves of a double staff door open and shut together (the other leaf is the iron door beside it, facing the same way). */
         private void set(boolean open) {
             var state = level().getBlockState(door);
-            if (state.getBlock() instanceof DoorBlock d) d.setOpen(HumanNpc.this, level(), state, door, open);
+            if (!(state.getBlock() instanceof DoorBlock d)) return;
+            d.setOpen(HumanNpc.this, level(), state, door, open);
+            var facing = state.getValue(DoorBlock.FACING);
+            for (var side : new BlockPos[] {door.relative(facing.getClockWise()), door.relative(facing.getCounterClockWise())}) {
+                var leaf = level().getBlockState(side);
+                if (leaf.getBlock() instanceof DoorBlock other && !other.type().canOpenByHand() && leaf.getValue(DoorBlock.FACING) == facing)
+                    other.setOpen(HumanNpc.this, level(), leaf, side, open);
+            }
         }
     }
     private final class RoutineGoal extends Goal {
