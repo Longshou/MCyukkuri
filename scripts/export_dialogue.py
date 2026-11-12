@@ -49,9 +49,10 @@ def outputs():
         anchors[locale] = list(old)
     legacy_zh = ROOT / 'art/dialogue/legacy-zh-cn.json'
     locales['zh_cn'].update(json.loads(legacy_zh.read_text(encoding='utf-8')))
-    interface = json.loads((ROOT / 'art/dialogue/training-interface.json').read_text(encoding='utf-8'))
-    for locale, entries in interface.items():
-        locales[locale].update(entries)
+    for name in ('training-interface.json', 'exam-interface.json'):
+        interface = json.loads((ROOT / 'art/dialogue' / name).read_text(encoding='utf-8'))
+        for locale, entries in interface.items():
+            locales[locale].update(entries)
     seen = set()
     for line in source['lines']:
         ident, ref = line['id'], line['source']

@@ -246,6 +246,9 @@ public final class ExamSession implements ExamContext {
         y.pet().direct(d); if (!directed.contains(y)) directed.add(y);
     }
     @Override public void note(String langKey) { if (notes.size() < 12 && !notes.contains(langKey)) notes.add(langKey); }
+    @Override public void answer(String task, boolean success, String observed) {
+        GameplayLog.event(candidate, "exam", "action=answer task={} success={} observed={}", task, success, observed);
+    }
 
     // ---- flow
     private void clearCards() { for (var id : cards) Staging.removeCard(level, id); cards.clear(); }
@@ -339,7 +342,7 @@ public final class ExamSession implements ExamContext {
         if (type != SIMPLE && next != area) { phase = Phase.MOVE; setArea(next); } else startItem();
     }
     /** Items are cleaned up, locks released and the animal left a "droop"; the exam is recorded as interrupted (outcome 4) with no refund. */
-    private void interrupt(String reason) {
+    @Override public void interrupt(String reason) {
         if (done) return;
         GameplayLog.event(candidate,"exam","action=interrupt examiner={} owner={} type={} phase={} task={} reason={} emeralds_refunded=0",examiner.getUUID(),ownerId,type,phase,item==null?"":item.id(),reason);
         if (phase == Phase.ITEM && item != null) { try { item.abort(this); } catch (RuntimeException e) { MCYukkuri.LOGGER.warn("Exam item abort failed", e); } }

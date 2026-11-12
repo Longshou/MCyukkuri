@@ -6453,5 +6453,11 @@
   "pet.mcyukkuri.ui.tip.need_harness": "胴輪をつけ、リードを持ってください。",
   "pet.mcyukkuri.ui.tip.ok.greeting": "お客さんに挨拶させましょう。",
   "pet.mcyukkuri.ui.tip.ok.harness": "一緒に歩き、リードを緩めて曲がりましょう。",
-  "pet.mcyukkuri.practice.good_night": "おやすみ……"
+  "pet.mcyukkuri.practice.good_night": "おやすみ……",
+  "exam.mcyukkuri.reply.name": "%sだよ！",
+  "exam.mcyukkuri.reply.sound": "ゆぅ……！",
+  "exam.mcyukkuri.comment.name": "%s、聞こえたよ。ありがとう。",
+  "exam.mcyukkuri.comment.sound": "声が聞こえたよ。ありがとう。",
+  "exam.mcyukkuri.comment.unheard": "答えが聞こえませんでした。",
+  "exam.mcyukkuri.interrupt.site": "試験官と受験者が見える位置まで近づけるようにしてください。"
 }

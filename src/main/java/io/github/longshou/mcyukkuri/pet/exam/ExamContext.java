@@ -48,4 +48,6 @@ public interface ExamContext {
     void direct(YukkuriEntity y, PetLife.Director d);
     /** Short lang key appended to the exam log shown with the result. */
     void note(String langKey);
+    void interrupt(String reason);
+    void answer(String task, boolean success, String observed);
 }

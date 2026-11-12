@@ -6509,5 +6509,11 @@
   "pet.mcyukkuri.ui.tip.need_harness": "给它系好胴带，再牵住绳子。",
   "pet.mcyukkuri.ui.tip.ok.greeting": "让它自己向来客打招呼。",
   "pet.mcyukkuri.ui.tip.ok.harness": "一起走，牵引绳松着时转弯。",
-  "pet.mcyukkuri.practice.good_night": "晚安……"
+  "pet.mcyukkuri.practice.good_night": "晚安……",
+  "exam.mcyukkuri.reply.name": "我叫%s！",
+  "exam.mcyukkuri.reply.sound": "油……！",
+  "exam.mcyukkuri.comment.name": "我听到了，%s。谢谢你。",
+  "exam.mcyukkuri.comment.sound": "我听到你的声音了。谢谢你。",
+  "exam.mcyukkuri.comment.unheard": "我没听到你的回答。",
+  "exam.mcyukkuri.interrupt.site": "请让考官和考生能走到彼此面前并互相看见。"
 }

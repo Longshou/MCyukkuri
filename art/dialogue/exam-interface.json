@@ -1,0 +1,26 @@
+{
+  "en_us": {
+    "exam.mcyukkuri.reply.name": "I'm %s!",
+    "exam.mcyukkuri.reply.sound": "Yuu…!",
+    "exam.mcyukkuri.comment.name": "I heard you, %s. Thank you.",
+    "exam.mcyukkuri.comment.sound": "I heard you. Thank you.",
+    "exam.mcyukkuri.comment.unheard": "I couldn't hear your answer.",
+    "exam.mcyukkuri.interrupt.site": "The examiner and candidate need a clear path and view."
+  },
+  "zh_cn": {
+    "exam.mcyukkuri.reply.name": "我叫%s！",
+    "exam.mcyukkuri.reply.sound": "油……！",
+    "exam.mcyukkuri.comment.name": "我听到了，%s。谢谢你。",
+    "exam.mcyukkuri.comment.sound": "我听到你的声音了。谢谢你。",
+    "exam.mcyukkuri.comment.unheard": "我没听到你的回答。",
+    "exam.mcyukkuri.interrupt.site": "请让考官和考生能走到彼此面前并互相看见。"
+  },
+  "ja_jp": {
+    "exam.mcyukkuri.reply.name": "%sだよ！",
+    "exam.mcyukkuri.reply.sound": "ゆぅ……！",
+    "exam.mcyukkuri.comment.name": "%s、聞こえたよ。ありがとう。",
+    "exam.mcyukkuri.comment.sound": "声が聞こえたよ。ありがとう。",
+    "exam.mcyukkuri.comment.unheard": "答えが聞こえませんでした。",
+    "exam.mcyukkuri.interrupt.site": "試験官と受験者が見える位置まで近づけるようにしてください。"
+  }
+}

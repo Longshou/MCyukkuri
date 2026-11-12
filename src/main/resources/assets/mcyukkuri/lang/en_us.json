@@ -6511,5 +6511,11 @@
   "pet.mcyukkuri.ui.tip.need_harness": "Fit its harness and hold the lead.",
   "pet.mcyukkuri.ui.tip.ok.greeting": "Let it greet the visitor.",
   "pet.mcyukkuri.ui.tip.ok.harness": "Walk together and turn while the lead is slack.",
-  "pet.mcyukkuri.practice.good_night": "Good night…"
+  "pet.mcyukkuri.practice.good_night": "Good night…",
+  "exam.mcyukkuri.reply.name": "I'm %s!",
+  "exam.mcyukkuri.reply.sound": "Yuu…!",
+  "exam.mcyukkuri.comment.name": "I heard you, %s. Thank you.",
+  "exam.mcyukkuri.comment.sound": "I heard you. Thank you.",
+  "exam.mcyukkuri.comment.unheard": "I couldn't hear your answer.",
+  "exam.mcyukkuri.interrupt.site": "The examiner and candidate need a clear path and view."
 }

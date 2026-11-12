@@ -1,40 +1,79 @@
 package io.github.longshou.mcyukkuri.pet.exam;
 
+import io.github.longshou.mcyukkuri.dialogue.NativeDialogue;
+import io.github.longshou.mcyukkuri.mind.Naming;
 import io.github.longshou.mcyukkuri.pet.BadgeGrade;
-import io.github.longshou.mcyukkuri.pet.stage.Staging;
-import net.minecraft.world.phys.Vec3;
+import io.github.longshou.mcyukkuri.subspecies.SubspeciesLife.Congenital;
+import net.minecraft.network.chat.Component;
 
-/** Simple exam (about 10 s): the examiner walks over, looks the animal over, and asks its name. Passes unless it is badly hurt, starving or burning. */
+/** The examiner waits for the candidate's own introduction before responding. */
 public final class SimpleCheckItem implements ExamItem {
-    private int phase, t;
-    private boolean passed = true;
+    private enum Phase { APPROACH, QUESTION, ANSWER, COMMENT }
+    private Phase phase = Phase.APPROACH;
+    private long until;
+    private Component name;
+    private boolean passed;
+
     @Override public ExamTaskArea area() { return ExamTaskArea.CARE_ROOM; }
     @Override public BadgeGrade minimumGrade() { return BadgeGrade.BRONZE; }
     @Override public String id() { return "simple_check"; }
-    @Override public void start(ExamContext ctx) { phase = t = 0; ctx.examinerWalkTo(ctx.candidate().blockPosition()); }
+    @Override public void start(ExamContext ctx) { ctx.examinerWalkTo(ctx.candidate().blockPosition()); }
+
     @Override public boolean tick(ExamContext ctx) {
-        var c = ctx.candidate(); var ex = ctx.examiner(); ctx.examinerLookAt(c); t++;
+        var y = ctx.candidate();
+        var examiner = ctx.examiner();
+        long now = ctx.level().getGameTime();
+        ctx.examinerLookAt(y);
+        if (examiner.distanceToSqr(y) > 6.25 || !examiner.hasLineOfSight(y) || !y.hasLineOfSight(examiner)) {
+            if (phase != Phase.APPROACH || ctx.itemTicks() >= 160) ctx.interrupt("site");
+            return false;
+        }
         switch (phase) {
-            case 0 -> { if (ex.distanceToSqr(c) <= 6.25 || ctx.itemTicks() > 160) { phase = 1; t = 0; ctx.examinerSay("exam.mcyukkuri.say.simple_look"); ctx.examinerSwing(); } }
-            case 1 -> {
-                if (t % 12 == 0) Staging.sparkle(ctx.level(), new Vec3(c.getX(), c.getY() + c.getBbHeight() * .6, c.getZ()));
-                if (t == 36) ctx.examinerSwing();
-                if (t >= 60) {
-                    phase = 2; t = 0; ctx.examinerSay("exam.mcyukkuri.say.simple_name");
-                    if (ctx.random().nextBoolean()) c.playAction("greet"); else c.playAction("bow");
-                    c.speak("hello");
+            case APPROACH -> {
+                examiner.getNavigation().stop();
+                ctx.examinerSay("exam.mcyukkuri.say.simple_name");
+                phase = Phase.QUESTION;
+                until = now + 60;
+            }
+            case QUESTION -> {
+                if (now < until || now < y.speechEnd() && now < until + 180) return false;
+                boolean deficient = y.subspecies().congenital() != Congenital.NORMAL;
+                String custom = y.getCustomName() == null ? "" : y.getCustomName().getString();
+                String given = Naming.ownName(y, custom) ? custom : y.mind().givenName();
+                name = given == null || given.isBlank() ? y.getType().getDescription() : Component.literal(given);
+                y.playAction(y.life().personality().fear(examiner.getUUID()) > 20 ? "shy" : "bow");
+                int sequence = y.speechSequence();
+                boolean spoken = y.speakCue("introduced") && y.speechSequence() != sequence;
+                var line = NativeDialogue.byKey(y.getDialogueKey());
+                boolean voice = spoken && (deficient ? y.getDialogueKey().equals("dialogue.mcyukkuri.deficient.babble")
+                        : line != null && line.events().contains("introduced"));
+                int hold = voice ? (int)Math.max(60, y.speechEnd() - now) : 60;
+                var reply = deficient ? Component.translatable("exam.mcyukkuri.reply.sound")
+                        : Component.translatable("exam.mcyukkuri.reply.name", name);
+                var shown = ctx.card(y.position().add(0, y.getBbHeight() + .6, 0), reply, hold, 1.3f);
+                passed = deficient ? voice || shown != null : shown != null;
+                ctx.answer(id(), passed, deficient ? "own_sound" : name.getString());
+                phase = Phase.ANSWER;
+                until = now + hold;
+            }
+            case ANSWER -> {
+                if (now < until) return false;
+                if (passed) {
+                    if (y.subspecies().congenital() == Congenital.NORMAL) ctx.examinerSay("exam.mcyukkuri.comment.name", name);
+                    else ctx.examinerSay("exam.mcyukkuri.comment.sound");
+                    ctx.examinerSwing();
+                    ctx.note("exam.mcyukkuri.log.simple_ok");
+                } else {
+                    ctx.examinerSay("exam.mcyukkuri.comment.unheard");
+                    ctx.note("exam.mcyukkuri.comment.unheard");
                 }
+                phase = Phase.COMMENT;
+                until = now + 60;
             }
-            default -> {
-                if (t < 40) return false;
-                if (c.getHealth() < c.getMaxHealth() * .3f) { passed = false; ctx.note("exam.mcyukkuri.log.simple_hurt"); }
-                else if (c.life().nutrition() < 10) { passed = false; ctx.note("exam.mcyukkuri.log.simple_hungry"); }
-                else if (c.isOnFire()) { passed = false; ctx.note("exam.mcyukkuri.log.simple_fire"); }
-                else ctx.note("exam.mcyukkuri.log.simple_ok");
-                return true;
-            }
+            case COMMENT -> { return now >= until; }
         }
         return false;
     }
+
     @Override public boolean passed() { return passed; }
 }
