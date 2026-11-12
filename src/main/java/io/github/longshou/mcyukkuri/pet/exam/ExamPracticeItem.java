@@ -97,7 +97,7 @@ final class ExamPracticeItem implements ExamItem {
             if (peer.life().nutrition() >= 40 || !y.hasLineOfSight(peer)) { ctx.interrupt("no_participant"); return; }
             var personality = y.life().personality();
             double willingness = question == ExamPlan.Question.SHARE ? PetConversation.considerate(y)
-                    : personality.helpProbability(false, peer.life().hasUrgentNeed());
+                    : personality.helpProbability(personality.trust(peer.getUUID()), peer.life().hasUrgentNeed());
             boolean helps = y.getRandom().nextDouble() < willingness;
             asksOwner = helps && (question == ExamPlan.Question.HELP || !y.life().canEat() || !ItemContact.mouthsMeet(y, peer));
             var line = !helps ? "unsure_help" : asksOwner ? "offer_help" : "offer_share";

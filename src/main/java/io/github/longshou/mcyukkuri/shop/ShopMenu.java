@@ -41,7 +41,7 @@ import net.minecraft.world.item.Items;
  *  Button ids: 0-3 tab (live, goods, buyback, consult); 4-6 buy live row (PAGE_ROWS = 3 rows per page); 8-10 locate row; 12/13 prev/next page;
  *  14-17 buy goods row; 18 sell subject; 19 exam forecast; 20/21 prev/next subject; 22-24 about (species notes and transport advice in chat) for live row.
  *  Data slots (shorts): 0 tab, 1 trades left, 2 daytime, 3 page, 4 page count, 5 shop stock count (Use stock only, capped at STOCK_CAPACITY), 6 subject count, 7 subject index+1;
- *  from 8, live rows of 12: species+1, stage, flags (grade | expired<<2 | display<<3 | locked<<4 | factory<<5), learned-skill mask, entity id low/high
+ *  from 8, live rows of 12: species+1, stage, flags (see Flags), learned-skill mask, entity id low/high
  *  short, days on the shelf, mood ({@link Mood}), tags (a|b<<4, 15 none), health, nutrition, price;
  *  subject block (buyback/consult) from 8: species+1, stage, flags, learned-skill mask, reserved, health, nutrition, hygiene, stress, reserved,
  *  reserved fields (21-25), advice x3 (26-28), price/offer (29), reserved forecast fields (30-33),

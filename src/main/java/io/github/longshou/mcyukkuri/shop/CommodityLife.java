@@ -81,20 +81,6 @@ public final class CommodityLife {
         GameplayLog.event(shop,"delivery","action=recall result=queued target={} token={} factory={} mode=direct",y.getUUID(),token,factory.getKey());
     }
 
-    // ---- failed exams ----------------------------------------------------------------------------------------------
-
-    /** The examiner's punishment after a failed or demoted exam; returns the lang key of the log line, or null when nothing was done. */
-    public static String disciplineExam(YukkuriEntity candidate, HumanNpc examiner) {
-        int h = harshness();
-        if (h == 0 || !candidate.isAlive()) return null;
-        pressure(candidate, 10f * h, "exam_discipline");
-        float meal = Math.min(candidate.life().nutrition(), 10f * h); // a meal is held back
-        if (meal > 0) candidate.life().spendNutrition(meal);
-        if (h >= 2) candidate.life().applyEnvironment(0, 0, 6 * h);
-        if (examiner != null) examiner.swing(InteractionHand.MAIN_HAND);
-        return "exam.mcyukkuri.log.discipline";
-    }
-
     // ---- core filling as raw material ------------------------------------------------------------------------------
 
     /** Emeralds a buyer pays for one core filling: the factory pays more than the shop. */

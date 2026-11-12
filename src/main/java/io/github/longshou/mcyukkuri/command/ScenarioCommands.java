@@ -74,21 +74,33 @@ public final class ScenarioCommands {
         return 0;
     }
 
-    private static int examFixture(CommandContext<CommandSourceStack> context, int service) throws CommandSyntaxException {
+    private static int examFixture(CommandContext<CommandSourceStack> context, BadgeGrade startingGrade) throws CommandSyntaxException {
         if (context.getSource().getEntity() != null || !context.getSource().getLevel().players().isEmpty()) return 0;
         var candidate = yukkuri(context, "candidate");
         if (candidate == null || !(EntityArgument.getEntity(context, "examiner") instanceof HumanNpc examiner)) return 0;
         var owner = FakePlayerFactory.getMinecraft(context.getSource().getLevel());
         owner.setPos(candidate.getX(), candidate.getY(), candidate.getZ() + 1);
         Custody.assign(candidate, owner.getUUID(), Custody.OwnerKind.PLAYER, Custody.Role.COMPANION);
-        if (service == ExamSession.PROMOTION) {
-            candidate.pet().issue(BadgeGrade.BRONZE, ExamSession.SIMPLE, examiner.getUUID());
+        int service = startingGrade == BadgeGrade.NONE ? ExamSession.SIMPLE : ExamSession.PROMOTION;
+        if (startingGrade != BadgeGrade.NONE) {
+            candidate.pet().issue(startingGrade, ExamSession.SIMPLE, examiner.getUUID());
             owner.getInventory().clearContent();
-            owner.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(ModItems.SWEET_CANDY.get()));
+            owner.setItemInHand(InteractionHand.MAIN_HAND, startingGrade == BadgeGrade.BRONZE
+                    ? new ItemStack(ModItems.SWEET_CANDY.get()) : new ItemStack(Items.APPLE));
             owner.getInventory().add(new ItemStack(Items.EMERALD, ExamSession.fee(service)));
         }
         var reason = ExamSession.start(examiner, owner, candidate, service, true);
         return reason == null ? 1 : refused(context.getSource(), candidate, "exam_fixture", reason);
+    }
+
+    private static int feedExamPeer(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
+        var level = context.getSource().getLevel();
+        if (context.getSource().getEntity() != null || !level.players().isEmpty()) return 0;
+        var peer = yukkuri(context, "target");
+        if (peer == null) return 0;
+        var owner = FakePlayerFactory.getMinecraft(level);
+        if (owner.distanceToSqr(peer) > 16 || !owner.hasLineOfSight(peer)) return 0;
+        return owner.interactOn(peer, InteractionHand.MAIN_HAND).consumesAction() ? 1 : 0;
     }
 
     private static int spawn(CommandContext<CommandSourceStack> c) throws CommandSyntaxException {
@@ -124,9 +136,12 @@ public final class ScenarioCommands {
     public static LiteralArgumentBuilder<CommandSourceStack> command() {
         return Commands.literal("scenario").requires(s -> s.hasPermission(2))
                 .then(Commands.literal("exam_bronze").then(Commands.argument("examiner", EntityArgument.entity())
-                        .then(Commands.argument("candidate", EntityArgument.entity()).executes(c -> examFixture(c, ExamSession.SIMPLE)))))
+                        .then(Commands.argument("candidate", EntityArgument.entity()).executes(c -> examFixture(c, BadgeGrade.NONE)))))
                 .then(Commands.literal("exam_silver").then(Commands.argument("examiner", EntityArgument.entity())
-                        .then(Commands.argument("candidate", EntityArgument.entity()).executes(c -> examFixture(c, ExamSession.PROMOTION)))))
+                        .then(Commands.argument("candidate", EntityArgument.entity()).executes(c -> examFixture(c, BadgeGrade.BRONZE)))))
+                .then(Commands.literal("exam_platinum").then(Commands.argument("examiner", EntityArgument.entity())
+                        .then(Commands.argument("candidate", EntityArgument.entity()).executes(c -> examFixture(c, BadgeGrade.GOLD)))))
+                .then(Commands.literal("exam_feed_peer").then(Commands.argument("target", EntityArgument.entity()).executes(ScenarioCommands::feedExamPeer)))
                 .then(Commands.literal("basket")
                         .then(Commands.literal("plain").executes(c -> basketHand(c, new ItemStack(ModItems.CARRIER.get()))))
                         .then(Commands.literal("fine").executes(c -> basketHand(c, new ItemStack(ModItems.FINE_CARRIER.get()))))

@@ -58,8 +58,8 @@ public final class ExamPlan {
 
     private static Question care(YukkuriEntity y, boolean bedtimeAllowed) {
         var lessons = y.pet().lessons();
-        if (lessons.careReady(PetSkill.FOOD_BOWL)) return Question.BOWL;
         if (lessons.careReady(PetSkill.TOILET)) return Question.TOILET;
+        if (lessons.careReady(PetSkill.FOOD_BOWL)) return Question.BOWL;
         if (bedtimeAllowed && lessons.careReady(PetSkill.BEDTIME)) return Question.BED;
         return Question.BOWL;
     }

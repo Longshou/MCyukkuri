@@ -630,6 +630,9 @@ public final class YukkuriLife {
 
     /** Food was just seen by another goal: let the next plan run now instead of after its wait. */
     public void replanNow() { planWait = 0; }
+    public boolean canUseCareFacility(CareBlock.Kind kind) {
+        return nearestCare(kind, kind == CareBlock.Kind.BOWL) != null;
+    }
 
     public boolean plan() {
         if (entity.family().awaitingLanding()) return false;

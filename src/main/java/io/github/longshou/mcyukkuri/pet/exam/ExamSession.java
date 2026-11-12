@@ -210,7 +210,7 @@ public final class ExamSession implements ExamContext {
         if (type == REISSUE) return grade == BadgeGrade.NONE ? "need_badge" : emeralds(p) < fee(type) ? "no_fee" : null;
         if (y.profile().aquatic() || y.profile().dangerToYukkuri() || y.profile().houseBody()) return "not_ready";
         if (y.family().laboring() || y.family().birthDuty()) return "labor";
-        if (y.body().mold() > 0 || y.body().toxin() > 0 || y.mind().nonYukkuri()
+        if (y.body().mold() > 0 || y.body().toxin() > 0 || y.body().condition().infection() > 0 || y.mind().nonYukkuri()
                 || y.getHealth() <= y.getMaxHealth() * .3f) return "sick";
         if (y.mind().sweetness() >= 60 || y.mind().unease() >= 60) return "uneasy";
         if (y.isPanicking() || y.hurtTime > 0 || y.operations().active() || y.life().isSleeping()

@@ -156,12 +156,8 @@ public final class PetLessons {
     }
     public boolean careReady(PetSkill skill) {
         return switch (skill) {
-            case FOOD_BOWL -> {
-                var stand = animal.life().canEat() && !animal.family().carry().mouthBusy() ? facility(skill) : null;
-                yield stand != null && level().getBlockEntity(stand.block()) instanceof CareBlockEntity bowl
-                        && bowl.hasFood(animal.life()::acceptsFood);
-            }
-            case TOILET -> animal.life().bladder() >= 70 && facility(skill) != null;
+            case FOOD_BOWL -> animal.life().canEat() && animal.life().canUseCareFacility(CareBlock.Kind.BOWL);
+            case TOILET -> animal.life().bladder() >= 70 && animal.life().canUseCareFacility(CareBlock.Kind.TOILET);
             case BEDTIME -> animal.life().drowsy() && animal.life().homeStand() != null;
             default -> throw new IllegalArgumentException("Not a care routine: " + skill);
         };
