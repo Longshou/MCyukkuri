@@ -2313,7 +2313,7 @@ for _i, (_x, _z, _label, _stage, _friend, _bold) in enumerate((
         (-14, 10, '普通成体', 'adult', 50, 50), (14, 10, '凶悍大胆成体', 'adult', 0, 95))):
     _puff_pairs += [
         yk('reimu', _x, _z, f'puff_target{_i}', label=_label, stage=_stage, accessory=False,
-           nutrition=90, energy=95, friendliness=_friend, boldness=_bold, self_control=60, lead=_i==0),
+           nutrition=90, energy=95, friendliness=_friend, boldness=_bold, self_control=0 if _i==3 else 60, lead=_i==0),
         yk('marisa', _x+3, _z, f'puff_source{_i}', label='凶悍失饰制裁者', yaw=90,
            intelligence=30, friendliness=0, boldness=95, self_control=0, **pair_ready())]
 add('puff_response', 'headwear', '被噗咕：逃、无视、回嘴或反击', '被噗咕：逃、无视、回嘴或反击',
