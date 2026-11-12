@@ -38,7 +38,7 @@ class EasedClockTest {
     }
 
     @Test void inStepItIsTheRemoteTime() {
-        var clock = new EasedClock();
+        var clock = new EasedClock(99);
         for (long t = 100; t < 140; t++) {
             clock.step(t, true);
             assertEquals(t, clock.at(0), 1e-9);
@@ -48,9 +48,9 @@ class EasedClockTest {
 
     @Test void aReSyncBackNeverRunsBackwardAndIsClosedWithinTenTicks() {
         // A server running slower than the client: the client's copy is set back by 4 ticks.
-        var raw = copy(1000, 40, 10, 1000 + 10 - 4);
+        var raw = copy(1000, 19, 10, 1011 - 4);
         assertTrue(raw[10] < raw[9]);
-        var clock = new EasedClock();
+        var clock = new EasedClock(1000);
         var last = new double[]{Double.NaN};
         var steps = run(clock, raw, last);
         assertEquals(0, steps[0], 1e-9);
@@ -60,28 +60,34 @@ class EasedClockTest {
 
     @Test void aReSyncAheadIsClosedWithoutSkipping() {
         // A server catching up: the client's copy is set forward by 5 ticks.
-        var raw = copy(1000, 40, 10, 1000 + 10 + 5);
-        var clock = new EasedClock();
+        var raw = copy(1000, 21, 10, 1011 + 5);
+        var clock = new EasedClock(1000);
         var steps = run(clock, raw, new double[]{Double.NaN});
         assertEquals(0, steps[0], 1e-9);
         assertTrue(steps[1] <= (1 + EasedClock.EASE) / FRAMES + 1e-6, "fastest frame " + steps[1]);
         assertEquals(raw[raw.length - 1], clock.at(0), 1e-9);
     }
 
-    @Test void pausedItHolds() {
-        var clock = new EasedClock();
-        clock.step(500, true);
-        clock.step(501, true);
-        double held = clock.at(1);
-        for (int i = 0; i < 10; i++) clock.step(501, false);
-        assertEquals(held, clock.at(0), 1e-9);
-        assertEquals(held, clock.at(1), 1e-9);
+    @Test void pausedItHoldsTheCurrentFractionalFrame() {
+        var clock = new EasedClock(500);
+        clock.step(503, true);
+        double held = clock.at(.25f), next = clock.at(1);
+        for (int i = 0; i < 10; i++) {
+            clock.step(503, false);
+            assertEquals(held, clock.at(.25f), 1e-9);
+        }
+        clock.step(504, true);
+        assertEquals(next, clock.at(0), 1e-9);
     }
 
-    @Test void aNewTimeIsTakenAtOnce() {
-        var clock = new EasedClock();
-        clock.step(500, true);
-        clock.step(500 + (long) EasedClock.RESET + 30, true);
-        assertEquals(500 + EasedClock.RESET + 30, clock.at(1) - 1, 1e-9);
+    @Test void largeCorrectionsStillPreserveContinuityAndConverge() {
+        for (int correction : new int[]{-30, 30}) {
+            var raw = copy(1000, 80, 10, 1011 + correction);
+            var clock = new EasedClock(1000);
+            var steps = run(clock, raw, new double[]{Double.NaN});
+            assertEquals(0, steps[0], 1e-9);
+            assertTrue(steps[1] <= (1 + EasedClock.EASE) / FRAMES + 1e-6, "fastest frame " + steps[1]);
+            assertEquals(raw[raw.length - 1], clock.at(0), 1e-9);
+        }
     }
 }

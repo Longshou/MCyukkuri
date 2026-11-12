@@ -7,27 +7,24 @@ package io.github.longshou.mcyukkuri.motor.geom;
 public final class EasedClock {
     /**
      * How much faster or slower than one tick per local tick the clock may run while it closes a re-sync's difference (project
-     * design). A re-sync of an overloaded or catching-up server differs by a few ticks (2 to 5 measured in a playtest session); at
-     * half a tick per tick that closes within ten ticks, inside the nine-tick recovery after which a brim hop's next leg is committed.
+     * design). This closes the 2 to 5 ticks of drift estimated in a playtest session within ten ticks, around the length of
+     * a brim hop's landing recovery.
      */
     public static final double EASE = .5;
-    /** A difference beyond one re-sync period (ticks) is not two loops running at about the same rate but a new time (a stall, a
-     *  set time, a joined world): taken at once. */
-    public static final double RESET = 20;
     private double previous, current;
-    private boolean started;
+
+    public EasedClock(long target) {
+        previous = target - 1;
+        current = target;
+    }
 
     /** One local tick: {@code target} is the remote time as now known, {@code ticked} whether the local copy advanced this tick. */
     public void step(long target, boolean ticked) {
-        if (!started) {
-            started = true;
-            previous = target - 1;
-            current = target;
-            return;
-        }
-        double advance = ticked ? 1 : 0, drift = target - (current + advance);
+        // A paused frame keeps its fractional tick, so keep both endpoints of that tick as well.
+        if (!ticked) return;
+        double drift = target - (current + 1);
         previous = current;
-        current = Math.abs(drift) > RESET ? target : current + Math.max(0, advance + Math.clamp(drift, -EASE, EASE));
+        current += 1 + Math.clamp(drift, -EASE, EASE);
     }
 
     /** The time {@code partial} of the way through the current local tick, continuous across ticks ({@code target + partial} when in step). */

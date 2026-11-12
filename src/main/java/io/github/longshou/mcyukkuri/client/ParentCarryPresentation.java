@@ -270,7 +270,8 @@ final class ParentCarryPresentation {
         float lowering = ParentCarry.lowering(carrier, child, partial);
         boolean down = lowering >= 0;
         boolean live = state != null && now - state.capturedAt <= STALE && (!down || hold == Hold.MOUTH || hold.tail());
-        float yaw = live ? state.yaw : yaw(carrier, partial);
+        boolean hopping = hold == Hold.BRIM && ParentCarry.brimHopping(carrier, child);
+        float yaw = live && !hopping ? state.yaw : yaw(carrier, partial);
         var origin = carrier.getPosition(partial);
 
         // Sway: a damped swing behind the carrier's turning, plus a lagging copy of its step while it walks.
@@ -311,7 +312,7 @@ final class ParentCarryPresentation {
                 float out = seat == null ? 0 : seat[3];
                 if (ParentCarry.placing(carrier, child, partial)) {
                     feet = seated;
-                    if (ParentCarry.brimHopping(carrier, child))
+                    if (hopping)
                         turnTo.rotateY(ParentCarry.brimHopFacing(carrier, child, partial, out) * Mth.DEG_TO_RAD);
                 }
                 else if (live && state.hat != null && seat != null) {

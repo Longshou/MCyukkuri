@@ -11,6 +11,7 @@ import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.entity.YukkuriView;
 import io.github.longshou.mcyukkuri.family.ParentCarry;
 import io.github.longshou.mcyukkuri.family.ParentCarry.Hold;
+import io.github.longshou.mcyukkuri.motor.TimelineClock;
 import io.github.longshou.mcyukkuri.motor.action.Hop;
 import io.github.longshou.mcyukkuri.life.Consumables;
 import io.github.longshou.mcyukkuri.life.InfantFood;
@@ -141,7 +142,10 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
             pose.scale(BodySigns.sagWidth(health,open),BodySigns.sagHeight(health,open),BodySigns.sagWidth(health,open));
             pose.scale(HairWoundAssets.drainWidth(entity.aftermathDrain()),1,1);
             if(contact.equals("VIBRATE"))pose.translate(Math.sin((entity.ageTicks()+partialTick)*2)*.008,0,0);
-            float elapsed = Math.max(0, (entity.level().getGameTime() - entity.getAnimationStartTick() + partialTick) / 20f);
+            float animationTicks = entity.getAnimationId().equals(ParentCarry.BRIM_LIFT)
+                    ? (float) TimelineClock.elapsed(entity.level(), entity.getAnimationStartTick(), partialTick)
+                    : entity.level().getGameTime() - entity.getAnimationStartTick() + partialTick;
+            float elapsed = Math.max(0, animationTicks / 20f);
             elapsed = WaterMotionClock.seconds(entity, partialTick, elapsed);
             int overlay = OverlayTexture.pack(0, entity.hurtTicks() > 0 || entity.deathTicks() > 0);
             var buffer = buffers.getBuffer(RenderType.entityCutoutNoCull(textureAt(entity, partialTick)));
@@ -182,13 +186,14 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
             boolean carriedHop=carried&&parent.motorAction().equals(Hop.ID)&&ParentCarry.hold(parent,entity)!=Hold.HEAD;
             String braidClip=carried?null:ParentCarryPresentation.liftClip(entity);
             // A brim young steps along the brim between the braid at its edge and its spot on its own feet.
-            boolean stepping=carried&&ParentCarry.brimWalking(parent,entity,partialTick);
+            float brimWalkClock=carried?ParentCarry.brimWalkClock(parent,entity,partialTick):-1;
+            boolean stepping=brimWalkClock>=0;
             boolean brimHopping=carried&&ParentCarry.brimHopping(parent,entity);
             String action=braidClip!=null?braidClip:brimHopping?"hop_leg":carriedHop?"boat_be_carried":cradled?"be_cradled":stepping?"waddle":carried?"idle":hatCarrier?ParentCarry.carryAction(entity):entity.getAnimationId();
             float clock=braidClip!=null?Math.max(0,(entity.level().getGameTime()-entity.motorStart()+partialTick)/20f)
                     :brimHopping?ParentCarry.brimHopClock(parent,entity,partialTick)
                     :carriedHop?(entity.level().getGameTime()-parent.motorStart()+partialTick)/20f
-                    :cradled||stepping?(entity.level().getGameTime()+partialTick)/20f:carried?0:elapsed;
+                    :stepping?brimWalkClock:cradled?(entity.level().getGameTime()+partialTick)/20f:carried?0:elapsed;
             var anatomy=reproduction.anatomy();
             model.setReproductiveAnatomy(anatomy==null?null:anatomy.part(),anatomy==null?0:anatomy.amount());
             if(!carried)ParentCarryPresentation.configure(entity,model,heldNow,partialTick);

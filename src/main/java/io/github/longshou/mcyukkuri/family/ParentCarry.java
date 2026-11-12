@@ -690,8 +690,7 @@ public final class ParentCarry {
     /** A brim young on its way up: riding the tuft until the lift's place, then walking from the edge to its spot; null once it sits.
      *  The whole way is sampled on {@link TimelineClock}, so the client draws each hop as the one arc the server committed. */
     private static Vector3f brimRide(YukkuriView carrier, YukkuriView child, CompoundTag e, float partial) {
-        double now = TimelineClock.now(carrier.level(), partial);
-        float t = (float) (now - e.getLong("T"));
+        float t = (float) TimelineClock.elapsed(carrier.level(), e.getLong("T"), partial);
         int place = mark(BRIM_LIFT, "place");
         if (t < place) return liftFeet(new Vector3f(e.getFloat("EX"), e.getFloat("EY"), e.getFloat("EZ")), t);
         var motion = e.getCompound("BH");
@@ -701,6 +700,7 @@ public final class ParentCarry {
             return t < place + walk ? edge().lerp(brimPoint(carrier, child, partial), (t - place) / walk) : null;
         }
         if (motion.getBoolean("Done")) return null;
+        double now = TimelineClock.now(carrier.level(), partial);
         if (motion.getBoolean("Walk") && now >= motion.getLong("Start") + motion.getInt("Ticks")) return null;
         var at = Hop.carriedPosition(motion, now);
         return new Vector3f((float) at.x, (float) at.y, (float) at.z);
@@ -755,22 +755,25 @@ public final class ParentCarry {
         int end = Math.max(ClipMarkers.of(BRIM_LIFT).length(), mark(BRIM_LIFT, "place") + e.getInt("W"));
         return (int) Math.max(0, end - (carrier.level().getGameTime() - e.getLong("T")));
     }
-    /** This brim young is walking on the brim now (from the braid at the edge to its spot, or back to the edge to be lowered). */
-    public static boolean brimWalking(YukkuriView carrier, YukkuriView child, float partial) {
+    /** The waddle clip's time in seconds while this brim young walks to its spot or back to the braid, or -1 between walks. */
+    public static float brimWalkClock(YukkuriView carrier, YukkuriView child, float partial) {
         var e = entry(carrier, child.getUUID());
-        if (holdOf(e) != Hold.BRIM) return false;
-        long now = carrier.level().getGameTime();
+        if (holdOf(e) != Hold.BRIM) return -1;
         int walk = e.getInt("W");
-        var motion = e.getCompound("BH");
-        if (!e.contains("D") && motion.getBoolean("Walk"))
-            return now + partial < motion.getLong("Start") + motion.getInt("Ticks");
         if (e.contains("D")) {
-            if (!BRIM_LOWER.equals(e.getString("LC"))) return false;
+            if (!BRIM_LOWER.equals(e.getString("LC"))) return -1;
+            long now = carrier.level().getGameTime();
             float on = now - e.getLong("D") + partial - lowerStart(e) - mark(BRIM_LOWER, "lift_start");
-            return on >= -walk && on < 0;
+            return on >= -walk && on < 0 ? (now + partial) / 20f : -1;
         }
-        float t = e.contains("T") ? now - e.getLong("T") + partial - mark(BRIM_LIFT, "place") : -1;
-        return t >= 0 && t < walk;
+        if (!e.contains("T")) return -1;
+        double now = TimelineClock.now(carrier.level(), partial);
+        float t = (float) TimelineClock.elapsed(carrier.level(), e.getLong("T"), partial) - mark(BRIM_LIFT, "place");
+        if (t < 0) return -1;
+        var motion = e.getCompound("BH");
+        boolean walking = motion.getBoolean("Walk")
+                ? now >= motion.getLong("Start") && now < motion.getLong("Start") + motion.getInt("Ticks") : t < walk;
+        return walking ? (float) (now / 20) : -1;
     }
     /** Ticks into a brim young's set-down at which the lowering clip starts: its walk to the edge ends as the tuft is there (lift_start). */
     private static int lowerStart(CompoundTag e) { return Math.max(0, e.getInt("W") - (mark(BRIM_LOWER, "lift_start") - mark(BRIM_LOWER, "contact"))); }

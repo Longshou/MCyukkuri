@@ -14,16 +14,25 @@ public final class TimelineClock {
     private static EasedClock clock;
 
     public static double now(Level level, float partial) {
-        return level.isClientSide && level == TimelineClock.level ? clock.at(partial) : level.getGameTime() + partial;
+        return elapsed(level, 0, partial);
+    }
+
+    public static double elapsed(Level level, long start, float partial) {
+        if (level.isClientSide && level == TimelineClock.level) {
+            // A new client level starts at tick zero. Its time packet precedes the tracked entities' data.
+            if (clock == null) clock = new EasedClock(level.getGameTime());
+            return clock.at(partial) - start;
+        }
+        return level.getGameTime() - start + partial;
     }
 
     /** At the end of each client tick: the client's level ({@code null} without one) and whether its time advanced this tick. */
     public static void tick(Level level, boolean ticked) {
         if (level != TimelineClock.level) {
             TimelineClock.level = level;
-            clock = new EasedClock();
+            clock = null;
         }
-        if (level != null) clock.step(level.getGameTime(), ticked);
+        if (clock != null) clock.step(level.getGameTime(), ticked);
     }
 
     private TimelineClock() {}
