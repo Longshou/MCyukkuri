@@ -363,7 +363,15 @@ public final class ShopCourier {
             keeper.getNavigation().stop();
             if (hatch != null && job.relFail < 30) {
                 if (!keeper.requestService(hatch)) return false;
-                hatch.set(level, keeper, true);
+                if (!hatch.open(level)) {
+                    hatch.set(level, keeper, true);
+                    var inside = hatch.animalStand();
+                    keeper.getLookControl().setLookAt(inside.x, inside.y, inside.z, 30, 30);
+                    keeper.swing(InteractionHand.MAIN_HAND);
+                    job.timer = 0;
+                    return false;
+                }
+                if (++job.timer < BASKET_TICKS) return false;
             }
             return release(level, keeper, job, false);
         }
@@ -435,11 +443,15 @@ public final class ShopCourier {
         // Behind a service door the animal climbs out of the basket onto the cell just inside the open door; a keeper who could not reach the
         // door sets it down beside himself instead of passing it through a wall.
         var hatch = ServiceHatch.around(level, job.pen);
-        boolean doorway = hatch != null && keeper.servingAt(hatch) && hatch.open(level) && hatch.attended(keeper);
+        boolean doorway = hatch != null && job.timer >= BASKET_TICKS && keeper.servingAt(hatch) && hatch.open(level) && hatch.attended(keeper);
         var into = hatch != null ? hatch.animalStand() : new Vec3(job.pen.getX() + .5, job.pen.getY() + 1, job.pen.getZ() + .5);
         var y = job.relFail < 30 && (hatch == null || doorway) && ShopPerformance.owns(level, job.pen, job.reservation)
                 ? custody.release(job.token, level, into, keeper.getYRot()) : null;
         boolean atPen = y != null && hatch == null; // the old drop settles onto the nest; through a door it walks in by itself
+        if (y != null && doorway) {
+            GameplayLog.event(keeper, "courier", "action=restock target={} token={} via=hatch door={}",
+                    y.getUUID(), job.token, hatch.door().toShortString());
+        }
         if (y == null && (job.relFail >= 30 || hatch != null && !doorway)) {
             keeper.closeServiceHatch();
             y = place(level, job.token, keeper.position(), keeper.getYRot(), job.reservation);
