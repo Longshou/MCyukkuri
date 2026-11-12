@@ -51,6 +51,7 @@ import io.github.longshou.mcyukkuri.family.CareApproach;
 import io.github.longshou.mcyukkuri.family.LeafSwaddle;
 import io.github.longshou.mcyukkuri.settlement.WinteringLife;
 import io.github.longshou.mcyukkuri.subspecies.ShellRetraction;
+import io.github.longshou.mcyukkuri.shop.ShopWindow;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.EnumSet;
@@ -109,6 +110,7 @@ public final class YukkuriComponents {
     public static final ComponentKey<BodyDriver> MOTOR = new ComponentKey<>("motor", BodyDriver.class);
     public static final ComponentKey<ShellRetraction> SHELL_RETRACTION = new ComponentKey<>("shellRetraction", ShellRetraction.class);
     public static final ComponentKey<LeafSwaddle> LEAF_SWADDLE = new ComponentKey<>("leafSwaddle", LeafSwaddle.class);
+    public static final ComponentKey<ShopWindow> SHOP_WINDOW = new ComponentKey<>("shopWindow", ShopWindow.class);
     private static final ComponentKey<YukkuriEntity> HOOKS = new ComponentKey<>("entityHooks", YukkuriEntity.class);
 
     // Numeric orders follow the lifecycle baseline, with gaps for explicit insertions.
@@ -329,6 +331,23 @@ public final class YukkuriComponents {
                 .interrupt(Interrupt.PET_LOCK, InterruptPhase.MAIN, 45, (c, ctx) -> c.stop("pet_lock"))
                 .interrupt(Interrupt.DEATH, InterruptPhase.DEATH_ONCE, 80, (c, ctx) -> c.died())
                 .interrupt(Interrupt.REMOVED, InterruptPhase.MAIN, 45, (c, ctx) -> c.stop("removed")).build(),
+        // Shop stock at its window (docs/FEATURES.md, 宠物店): with the daily-life goals, below needs and care, above the social goals.
+        ComponentSpec.ready(SHOP_WINDOW, ShopWindow::new)
+                .goal(5, EnumSet.of(Goal.Flag.MOVE, Goal.Flag.LOOK), (window, entity) -> new Goal() {
+                    { setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK)); }
+                    @Override public boolean canUse() { return window.canUse(); }
+                    @Override public boolean canContinueToUse() { return window.canContinue(); }
+                    @Override public boolean requiresUpdateEveryTick() { return true; }
+                    @Override public void start() { window.start(); }
+                    @Override public void tick() { window.tick(); }
+                    @Override public void stop() { window.stop(); }
+                }, PresentationGoals.SHOP_WINDOW)
+                .interrupt(Interrupt.FRIGHT, InterruptPhase.MAIN, 87, (c, ctx) -> c.stop())
+                .interrupt(Interrupt.COMMAND, InterruptPhase.MAIN, 87, (c, ctx) -> c.stop())
+                .interrupt(Interrupt.HURT, InterruptPhase.AFTER_STATUS_HURT, 47, (c, ctx) -> c.stop())
+                .interrupt(Interrupt.PET_LOCK, InterruptPhase.MAIN, 47, (c, ctx) -> c.stop())
+                .interrupt(Interrupt.DEATH, InterruptPhase.DEATH_CLEANUP, 85, (c, ctx) -> c.stop())
+                .interrupt(Interrupt.REMOVED, InterruptPhase.MAIN, 47, (c, ctx) -> c.stop()).build(),
         ComponentSpec.ready(SHELL_RETRACTION, YukkuriEntity::shellRetraction)
                 .interrupt(Interrupt.COMMAND, InterruptPhase.MAIN, 10, (c, ctx) -> c.reset()).build(),
         ComponentSpec.ready(HOOKS, e -> e)

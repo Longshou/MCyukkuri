@@ -37,12 +37,6 @@ public final class ShopTrade {
         }
         GameplayLog.event(clerk,"shop","action=buy_live result=accepted buyer={} target={} refundable_price={}",buyer,animal.getUUID(),price);
         animal.playAction("joy_jump"); animal.showReaction("happy", "shop_bought", 40);
-        var neighbours = level.getEntitiesOfClass(YukkuriEntity.class, animal.getBoundingBox().inflate(6), o -> o != animal && o.isAlive() && !o.pet().busy() && ShopMenu.stockOf(o, clerk.getUUID()));
-        if (!neighbours.isEmpty()) {
-            var o = neighbours.get(animal.getRandom().nextInt(neighbours.size()));
-            if (o.pet().grade().id() < animal.pet().grade().id()) o.showReaction("teary", "badge_envy", 60);
-            else { o.playAction("beg"); o.speak("shop_appeal"); }
-        }
         UUID id = animal.getUUID(); Vec3 at = animal.position();
         ShopPerformance.schedule(level, Set.of(clerk.getUUID(), id), age -> {
             if (age < 30) return false;
@@ -51,9 +45,10 @@ public final class ShopTrade {
                 GameplayLog.event(clerk,"shop","action=buy_live result=refunded buyer={} target={} reason=target_unavailable emeralds={}",buyer,id,price);
                 return true;
             }
-            if (age == 30) { // handover: the clerk holds out an empty basket and the animal climbs in
+            if (age == 30) { // handover: the clerk holds out an empty basket and the animal climbs in; the other stock watch it go
                 a.playAction("basket_in"); a.speak("basket_enter"); clerk.swing(InteractionHand.MAIN_HAND);
                 if (clerk.getMainHandItem().isEmpty()) clerk.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(ModItems.CARRIER.get()));
+                ShopWindow.departure(level, a, clerk, clerk, buyer);
                 return false;
             }
             if (age < 46) return false;

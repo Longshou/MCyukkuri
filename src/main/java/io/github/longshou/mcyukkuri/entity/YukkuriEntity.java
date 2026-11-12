@@ -32,6 +32,7 @@ import io.github.longshou.mcyukkuri.family.CareApproach;
 import io.github.longshou.mcyukkuri.family.ChildhoodLife;
 import io.github.longshou.mcyukkuri.family.FamilyNest;
 import io.github.longshou.mcyukkuri.family.LeafSwaddle;
+import io.github.longshou.mcyukkuri.shop.ShopWindow;
 import io.github.longshou.mcyukkuri.family.FamilyLife;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.status.TraceRecorder;
@@ -566,6 +567,8 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     public SettlementLife settlement() { return settlement; }
     /** The leaf swaddle on a child and its parents' care for it (docs/FEATURES.md). */
     public LeafSwaddle leafSwaddle() { return component(YukkuriComponents.LEAF_SWADDLE); }
+    /** Shop stock at its window: customers met by its own drives, a neighbour's departure seen off (docs/FEATURES.md). */
+    public ShopWindow shopWindow() { return component(YukkuriComponents.SHOP_WINDOW); }
     public HabitatLife habitat() { return habitat; }
     private ForageTrip forageTrip;
     /** Foraging trips of a household with young (father far, mother when short); read by status and the museum. */

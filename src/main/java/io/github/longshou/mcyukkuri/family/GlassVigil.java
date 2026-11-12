@@ -2,6 +2,7 @@ package io.github.longshou.mcyukkuri.family;
 
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.life.GlassSight;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.motor.Action;
 import io.github.longshou.mcyukkuri.motor.BodyAbility;
@@ -44,12 +45,12 @@ final class GlassVigil implements MotorOwner {
     }
 
     boolean start(YukkuriEntity target) {
-        var hit=FamilySeparation.glassBetween(parent,parent.getEyePosition(),target);
+        var hit=GlassSight.glassBetween(parent,parent.getEyePosition(),target);
         if (hit==null || parent.life().reachable(target.blockPosition(),false)) return false;
         child=target; glass=hit.getBlockPos().immutable();
         family.call().stop();
         SurfaceApproach.halt(parent);
-        Vec3 stand=nearestStand(parent,target,glass);
+        Vec3 stand=GlassSight.stand(parent,target,glass);
         if (stand==null) { farewell("no_glass_stand"); return true; }
         var normal=Direction.getNearest(stand.x-glass.getX()-.5,0,stand.z-glass.getZ()-.5);
         opening=parent.level().getBlockState(glass).is(Tags.Blocks.GLASS_PANES) ? PaneOpening.at(parent,glass,normal) : null;
@@ -59,26 +60,7 @@ final class GlassVigil implements MotorOwner {
         return true;
     }
 
-    Vec3 childStand(YukkuriEntity target) { return nearestStand(target,parent,glass); }
-
-    private static Vec3 nearestStand(YukkuriEntity body,YukkuriEntity kin,BlockPos glass) {
-        var centre=Vec3.atBottomCenterOf(glass);
-        var bounds=body.level().getBlockState(glass).getCollisionShape(body.level(),glass).bounds();
-        Vec3 closest=null;
-        double best=Double.POSITIVE_INFINITY;
-        for (var normal:Direction.Plane.HORIZONTAL) {
-            var out=Vec3.atLowerCornerOf(normal.getNormal());
-            if (kin.position().subtract(centre).dot(out)>=0) continue;
-            double width=normal.getAxis()==Direction.Axis.X?bounds.getXsize():bounds.getZsize();
-            var stand=SurfaceApproach.restingFloor(body,centre.add(out.scale((width+body.getBbWidth())/2+Walk.STAND_ARRIVED)));
-            if (stand==null || body.distanceToSqr(stand)>=best) continue;
-            var hit=FamilySeparation.glassBetween(body,stand.add(0,body.getEyeY()-body.getY(),0),kin);
-            if (hit!=null && glass.equals(hit.getBlockPos()) && SurfaceApproach.canApproach(body,stand)) {
-                closest=stand; best=body.distanceToSqr(stand);
-            }
-        }
-        return closest;
-    }
+    Vec3 childStand(YukkuriEntity target) { return GlassSight.stand(target,parent,glass); }
 
     /** True while this stop owns the search. On an open route the original search takes over. */
     boolean tick() {

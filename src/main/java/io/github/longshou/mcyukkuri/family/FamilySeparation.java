@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.family;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.life.GlassSight;
 import io.github.longshou.mcyukkuri.mind.MindLife;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.HashMap;
@@ -8,19 +9,9 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
-import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
-import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.ClipContext;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.HitResult;
-import net.minecraft.world.phys.Vec3;
-import net.minecraft.world.phys.shapes.Shapes;
-import net.minecraft.world.phys.shapes.VoxelShape;
-import net.neoforged.neoforge.common.Tags;
 
 /** Loaded server time, independent of goal interruptions. Genealogy remains in FamilyData. */
 final class FamilySeparation {
@@ -51,20 +42,6 @@ final class FamilySeparation {
         var home=a.habitat().shelter();
         return a.level()==b.level()&&a.distanceToSqr(b)<=64&&(a.hasLineOfSight(b)||home!=null&&home==b.habitat().shelter()
                 &&home.contains(a.blockPosition())&&home.contains(b.blockPosition()));
-    }
-    /** A search can recognize one glass collider. Every other collider still occludes, including a second glass cell. */
-    static BlockHitResult glassBetween(YukkuriEntity observer,Vec3 eye,YukkuriEntity kin){
-        var level=observer.level();var end=kin.getEyePosition();
-        var hit=level.clip(new ClipContext(eye,end,ClipContext.Block.COLLIDER,ClipContext.Fluid.NONE,observer));
-        if(hit.getType()!=HitResult.Type.BLOCK)return null;
-        var state=level.getBlockState(hit.getBlockPos());
-        if(!state.is(Tags.Blocks.GLASS_BLOCKS)&&!state.is(Tags.Blocks.GLASS_PANES))return null;
-        var beyond=level.clip(new ClipContext(eye,end,ClipContext.Block.COLLIDER,ClipContext.Fluid.NONE,observer){
-            @Override public VoxelShape getBlockShape(BlockState block,BlockGetter world,BlockPos pos){
-                return pos.equals(hit.getBlockPos())?Shapes.empty():super.getBlockShape(block,world,pos);
-            }
-        });
-        return beyond.getType()==HitResult.Type.MISS?hit:null;
     }
     boolean searchingAllowed(YukkuriEntity child){return !glassDismissals.contains(child.getUUID());}
     void dismissAtGlass(YukkuriEntity child,String reason){
@@ -145,7 +122,7 @@ final class FamilySeparation {
             // A slave is kept in the pit and cannot go to the child: that worry stays at 不安 with its other pit pressures.
             pressure(.12f,o.entity().settlement().society().slave()?MindLife.UNEASY:MindLife.BREAKING-10,"missing_child");
             if(elapsed==20){e.showReaction("teary","wait_family",100);GameplayLog.event(e,"family","child search clock started child={} limit={}",id,searchLimit());}
-            if(elapsed>=searchLimit()&&!o.glass().tracks(child)&&glassBetween(e,e.getEyePosition(),child)==null){
+            if(elapsed>=searchLimit()&&!o.glass().tracks(child)&&GlassSight.glassBetween(e,e.getEyePosition(),child)==null){
                 data.dismissChild(e,id);searching.remove(id);
                 e.showReaction("teary","mood_bad",120);BirthStaging.caption(e,"搜寻太久，母油放弃寻找；孩子仍然认得母油");
                 if(o.target()==child&&o.task()==FamilyLife.Task.SEARCH)o.stop();

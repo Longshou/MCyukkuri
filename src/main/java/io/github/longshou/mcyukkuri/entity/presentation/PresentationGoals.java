@@ -11,6 +11,7 @@ import io.github.longshou.mcyukkuri.event.WildEvents;
 import io.github.longshou.mcyukkuri.human.FactoryWorkGoal;
 import io.github.longshou.mcyukkuri.settlement.ForageGoal;
 import io.github.longshou.mcyukkuri.settlement.ForageTrip;
+import io.github.longshou.mcyukkuri.shop.ShopWindow;
 import io.github.longshou.mcyukkuri.social.Cannibalism;
 import io.github.longshou.mcyukkuri.social.GroupInteractionGoal;
 import io.github.longshou.mcyukkuri.social.SelfOffering;
@@ -60,6 +61,7 @@ public final class PresentationGoals {
     public static final ComponentSource<CareApproach> CARE_RECEIVER = component("care_receiver",
             (e, care) -> care.waiting() ? care.activity() : null);
     public static final ComponentSource<LeafSwaddle> LEAF_SWADDLE = component("leaf_swaddle", (e, swaddle) -> swaddle.active() ? swaddle.activity() : null);
+    public static final ComponentSource<ShopWindow> SHOP_WINDOW = component("shop_window", (e, window) -> window.active() ? window.activity() : null);
     public static final Source<Goal> COMFORT_RECEIVER = state("comfort_receiver", e -> e.woundComfort().receiving() ? e.woundComfort().activity() : null);
     public static final Source<Cannibalism> CANNIBALISM = observed("cannibalism", Cannibalism::activity);
     public static final Source<SelfOffering> SELF_OFFERING = observed("self_offering", SelfOffering::activity);

@@ -12,7 +12,6 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomData;
-import io.github.longshou.mcyukkuri.shop.ShopPerformance;
 import io.github.longshou.mcyukkuri.shop.ShopRegistry;
 import java.util.Comparator;
 import java.util.Set;
@@ -66,7 +65,6 @@ public final class HumanCommerce {
     }
     public static void tickAnimal(YukkuriEntity animal) {
         if (!(animal.level() instanceof ServerLevel level) || animal.tickCount % 20 != 0) return;
-        ShopPerformance.appeal(animal, level);
         var custody = Custody.view(animal); String role = custody.pendingStaffRole();
         if (role.isEmpty()) {
             prepareBreederHome(animal);

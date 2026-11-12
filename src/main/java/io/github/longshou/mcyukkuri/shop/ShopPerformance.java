@@ -1,27 +1,21 @@
 package io.github.longshou.mcyukkuri.shop;
 
-import io.github.longshou.mcyukkuri.human.Custody;
 import io.github.longshou.mcyukkuri.coordination.LeaseTable;
-import io.github.longshou.mcyukkuri.coordination.DeadlineMap;
-import io.github.longshou.mcyukkuri.social.Temperament;
-import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
-import io.github.longshou.mcyukkuri.social.YukkuriPersonality.Trait;
 import java.util.*;
 import java.util.function.IntPredicate;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.event.server.ServerStartingEvent;
 import net.neoforged.neoforge.event.server.ServerStoppedEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
 
-/** Delayed shop scenes (farewell, sale, locate beam) and the display "beg" appeal. Tasks are transient: a restart mid-scene drops them. */
+/** Delayed shop scenes (farewell, sale, locate beam). Tasks are transient: a restart mid-scene drops them. The stock's own answers to
+ *  customers live on its goal ({@link ShopWindow}). */
 public final class ShopPerformance {
     private record Task(ServerLevel level, Set<UUID> participants, int[] age, IntPredicate run, Runnable cancel) {}
     private static final List<Task> TASKS = new ArrayList<>();
-    private static final DeadlineMap<UUID> APPEAL = new DeadlineMap<>();
     private record Pen(ServerLevel level, long pos) {}
     /** A phase's handle to one reservation token; handoff changes the holder, not the token. */
     public static final class Reservation {
@@ -66,13 +60,12 @@ public final class ShopPerformance {
         for (var task : List.copyOf(TASKS)) if (task.participants.stream().anyMatch(ids::contains)) {
             task.cancel.run(); TASKS.remove(task);
         }
-        ids.forEach(APPEAL::remove);
         RESERVED.removeKeys(pen -> pen.level == level && box.contains(Vec3.atCenterOf(BlockPos.of(pen.pos))));
     }
 
     /** Transient scenes and pen reservations never outlive their server (singleplayer world switches). */
-    public static void started(ServerStartingEvent event) { TASKS.clear(); RESERVED.clear(); APPEAL.clear(); }
-    public static void stopped(ServerStoppedEvent event) { TASKS.clear(); RESERVED.clear(); APPEAL.clear(); }
+    public static void started(ServerStartingEvent event) { TASKS.clear(); RESERVED.clear(); }
+    public static void stopped(ServerStoppedEvent event) { TASKS.clear(); RESERVED.clear(); }
 
     public static void tick(ServerTickEvent.Post event) {
         if (TASKS.isEmpty()) return;
@@ -82,16 +75,5 @@ public final class ShopPerformance {
         }
     }
 
-    /** Called once per second from HumanCommerce.tickAnimal for every yukkuri. */
-    public static void appeal(YukkuriEntity y, ServerLevel level) {
-        if (Custody.view(y).role() != Custody.Role.STOCK || y.pet().busy() || y.isPassenger() || y.isPanicking()
-                || y.life().isSleeping() || y.life().personality().trait(Trait.BOLDNESS) < Temperament.BOLDNESS_AT_40 || y.getRandom().nextInt(40) != 0) return;
-        long now = level.getGameTime();
-        if (APPEAL.active(y.getUUID(), now)) return;
-        if (APPEAL.size() > 256) APPEAL.pruneBefore(now);
-        if (level.getEntitiesOfClass(Player.class, y.getBoundingBox().inflate(5), p -> p.isAlive() && !p.isSpectator()).isEmpty()) return;
-        APPEAL.put(y.getUUID(), now + 600);
-        y.playAction("beg"); y.speak("shop_appeal");
-    }
     private ShopPerformance() {}
 }

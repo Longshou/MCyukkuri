@@ -3845,9 +3845,421 @@
           ]
         }
       ]
+    },
+    "behavior_window_notice": {
+      "loop": true,
+      "steps": [
+        {
+          "clip": "idle",
+          "intensity": 1,
+          "tempo": 1,
+          "faces": [
+            [
+              0,
+              "surprise"
+            ]
+          ],
+          "emote": "question"
+        }
+      ]
+    },
+    "behavior_window_approach": {
+      "loop": true,
+      "steps": [
+        {
+          "clip": "waddle",
+          "intensity": 1,
+          "tempo": 1,
+          "faces": [
+            [
+              0,
+              "open_smile"
+            ]
+          ]
+        }
+      ]
+    },
+    "behavior_window_appeal": {
+      "loop": true,
+      "steps": [
+        {
+          "clip": "beg",
+          "intensity": 1.3,
+          "tempo": 1,
+          "faces": [
+            [
+              0,
+              "teary_smile"
+            ],
+            [
+              0.35,
+              "open_smile"
+            ],
+            [
+              0.7,
+              "teary_smile"
+            ],
+            [
+              1.05,
+              "open_smile"
+            ]
+          ],
+          "emote": "heart"
+        },
+        {
+          "clip": "beg",
+          "intensity": 1.3,
+          "tempo": 1.15,
+          "faces": [
+            [
+              0,
+              "open_smile"
+            ],
+            [
+              0.6,
+              "teary_smile"
+            ]
+          ]
+        },
+        {
+          "clip": "nervous",
+          "intensity": 1.1,
+          "tempo": 1,
+          "faces": [
+            [
+              0,
+              "teary"
+            ],
+            [
+              0.75,
+              "open_smile"
+            ]
+          ]
+        }
+      ]
+    },
+    "behavior_window_show_off": {
+      "loop": true,
+      "steps": [
+        {
+          "clip": "joy_jump",
+          "intensity": 1.15,
+          "tempo": 1,
+          "faces": [
+            [
+              0,
+              "open_smile"
+            ],
+            [
+              0.55,
+              "happy"
+            ]
+          ],
+          "emote": "note"
+        },
+        {
+          "clip": "greet",
+          "intensity": 1.1,
+          "tempo": 1,
+          "faces": [
+            [
+              0,
+              "happy"
+            ],
+            [
+              0.85,
+              "closed_smile"
+            ]
+          ]
+        },
+        {
+          "clip": "proud",
+          "intensity": 1,
+          "tempo": 1.25,
+          "faces": [
+            [
+              0,
+              "smug"
+            ],
+            [
+              1.0,
+              "open_smile"
+            ]
+          ]
+        }
+      ]
+    },
+    "behavior_window_proud": {
+      "loop": true,
+      "steps": [
+        {
+          "clip": "proud",
+          "intensity": 1.2,
+          "tempo": 0.9,
+          "faces": [
+            [
+              0,
+              "smug"
+            ],
+            [
+              1.0,
+              "closed_smile"
+            ],
+            [
+              1.4,
+              "smug"
+            ]
+          ],
+          "emote": "note"
+        },
+        {
+          "clip": "ignore",
+          "intensity": 0.8,
+          "tempo": 0.8,
+          "faces": [
+            [
+              0,
+              "closed_smile"
+            ]
+          ]
+        },
+        {
+          "clip": "idle",
+          "intensity": 1,
+          "tempo": 0.5,
+          "faces": [
+            [
+              0,
+              "smug"
+            ]
+          ]
+        }
+      ]
+    },
+    "behavior_window_shy": {
+      "loop": true,
+      "steps": [
+        {
+          "clip": "shy",
+          "intensity": 1.2,
+          "tempo": 1,
+          "faces": [
+            [
+              0,
+              "flushed_smile"
+            ],
+            [
+              0.9,
+              "surprise"
+            ],
+            [
+              1.4,
+              "flushed_smile"
+            ]
+          ],
+          "emote": "sweat"
+        },
+        {
+          "clip": "hide_face",
+          "intensity": 1,
+          "tempo": 1,
+          "faces": [
+            [
+              0,
+              "closed_smile"
+            ]
+          ]
+        },
+        {
+          "clip": "shy",
+          "intensity": 1,
+          "tempo": 0.9,
+          "faces": [
+            [
+              0,
+              "closed_smile"
+            ],
+            [
+              1.0,
+              "open_smile"
+            ],
+            [
+              1.6,
+              "closed_smile"
+            ]
+          ]
+        }
+      ]
+    },
+    "behavior_window_sulk": {
+      "loop": true,
+      "steps": [
+        {
+          "clip": "sulk",
+          "intensity": 1.15,
+          "tempo": 1,
+          "faces": [
+            [
+              0,
+              "teary_frown"
+            ],
+            [
+              1.4,
+              "teary"
+            ],
+            [
+              1.9,
+              "teary_frown"
+            ]
+          ]
+        },
+        {
+          "clip": "sulk",
+          "intensity": 1,
+          "tempo": 0.8,
+          "faces": [
+            [
+              0,
+              "pursed"
+            ]
+          ]
+        }
+      ]
+    },
+    "behavior_window_letdown": {
+      "loop": true,
+      "steps": [
+        {
+          "clip": "droop",
+          "intensity": 1.1,
+          "tempo": 1,
+          "faces": [
+            [
+              0,
+              "teary"
+            ],
+            [
+              2.6,
+              "side_teary"
+            ]
+          ],
+          "emote": "sweat"
+        }
+      ]
+    },
+    "behavior_window_hmph": {
+      "loop": true,
+      "steps": [
+        {
+          "clip": "ignore",
+          "intensity": 1.2,
+          "tempo": 1,
+          "faces": [
+            [
+              0,
+              "closed_smile"
+            ]
+          ]
+        }
+      ]
+    },
+    "behavior_window_farewell": {
+      "loop": true,
+      "steps": [
+        {
+          "clip": "greet",
+          "intensity": 1,
+          "tempo": 0.9,
+          "faces": [
+            [
+              0,
+              "teary_smile"
+            ],
+            [
+              1.0,
+              "teary"
+            ]
+          ]
+        },
+        {
+          "clip": "droop",
+          "intensity": 0.8,
+          "tempo": 1.25,
+          "faces": [
+            [
+              0,
+              "teary"
+            ]
+          ]
+        }
+      ]
+    },
+    "behavior_window_envy": {
+      "loop": true,
+      "steps": [
+        {
+          "clip": "puff",
+          "intensity": 1,
+          "tempo": 1,
+          "faces": [
+            [
+              0,
+              "teary_frown"
+            ],
+            [
+              0.28,
+              "puff_teary"
+            ]
+          ],
+          "emote": "anger"
+        },
+        {
+          "clip": "sulk",
+          "intensity": 0.9,
+          "tempo": 1,
+          "faces": [
+            [
+              0,
+              "teary_frown"
+            ]
+          ]
+        }
+      ]
+    },
+    "behavior_window_watch": {
+      "loop": true,
+      "steps": [
+        {
+          "clip": "idle",
+          "intensity": 1,
+          "tempo": 0.5,
+          "faces": [
+            [
+              0,
+              "surprise"
+            ],
+            [
+              0.8,
+              "neutral"
+            ]
+          ]
+        }
+      ]
     }
   },
   "behaviors": {
+    "window_notice": "behavior_window_notice",
+    "window_approach": "behavior_window_approach",
+    "window_appeal": "behavior_window_appeal",
+    "window_show_off": "behavior_window_show_off",
+    "window_proud": "behavior_window_proud",
+    "window_shy": "behavior_window_shy",
+    "window_sulk": "behavior_window_sulk",
+    "window_letdown": "behavior_window_letdown",
+    "window_hmph": "behavior_window_hmph",
+    "window_farewell": "behavior_window_farewell",
+    "window_envy": "behavior_window_envy",
+    "window_watch": "behavior_window_watch",
     "unun_exercise": "behavior_unun_exercise",
     "toilet": "behavior_toilet",
     "ground_toilet": "behavior_ground_toilet",

@@ -255,6 +255,13 @@ public final class Behaviors {
     public static final String HOME_CLAIM_RETURN = "home_claim_return";
     public static final String FACTORY_APPROACH = "factory_approach";
     public static final String FACTORY_WAIT = "factory_wait";
+    /** Shop stock at its window (shop/ShopWindow): the motor owner, noticing a customer, going to the glass, the chosen answer, the
+     *  letdown or turned-up nose afterwards, and seeing off a neighbour carried away in a basket. */
+    public static final String SHOP_WINDOW = "shop_window";
+    public static final String WINDOW_NOTICE = "window_notice", WINDOW_APPROACH = "window_approach", WINDOW_APPEAL = "window_appeal",
+            WINDOW_SHOW_OFF = "window_show_off", WINDOW_PROUD = "window_proud", WINDOW_SHY = "window_shy", WINDOW_SULK = "window_sulk",
+            WINDOW_LETDOWN = "window_letdown", WINDOW_HMPH = "window_hmph", WINDOW_FAREWELL = "window_farewell", WINDOW_ENVY = "window_envy",
+            WINDOW_WATCH = "window_watch";
 
     private Behaviors() {}
 }

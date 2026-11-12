@@ -28,7 +28,7 @@ public final class CommodityLife {
     public static final float UNEASE_CAP = 80;
 
     public static int harshness() { try { return HumanWorld.COMMODITY_HARSHNESS.get(); } catch (RuntimeException e) { return 1; } }
-    private static int recallDays() { try { return HumanWorld.STALE_RECALL_DAYS.get(); } catch (RuntimeException e) { return 20; } }
+    static int recallDays() { try { return HumanWorld.STALE_RECALL_DAYS.get(); } catch (RuntimeException e) { return 20; } }
 
     /** Unease added without ever pushing the mind past the cap (a cap already exceeded is left alone). */
     public static void pressure(YukkuriEntity y, float amount, String cause) {
