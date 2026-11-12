@@ -44,8 +44,11 @@ CUSTOM_JAVA_CALLERS = {
     "bank_beckon": {"Beckon.clip"},
     "water_beckon": {"Beckon.clip"},
     "water_swim": {"Swim.pose"},
+    "cling_right": {"DailyLife.contactClip"},
+    "cling_left": {"DailyLife.contactClip"},
 }
 RENDERER_CALLERS = {"idle", "waddle", "boat_be_carried", "be_cradled", "anatomy_mamu_extend"}
+EMPTY_BEHAVIOUR_CASE = re.compile(r"(?m)^\s*case\s+Behaviors\.\w+(?:\s*,\s*Behaviors\.\w+)*\s*->\s*\{\s*\}")
 
 
 def load_json(path, unique=False):
@@ -177,7 +180,7 @@ def literal_strings(argument):
 
 
 def direct_java_callers(java, clip_ids):
-    """Return clips selected by literal playAction/wrapper, marker, or MotionPose calls."""
+    """Return clips selected by literal playAction/wrapper or MotionPose calls."""
     result = {clip: set() for clip in clip_ids}
     methods = {"playAction(": 0, "PetScenes.act(": 1, "perform(": 0, "MotionPose(": 0}
     for text in java.values():
@@ -219,11 +222,13 @@ def validate():
                 if f"YukkuriAction.{constant}" in text:
                     used_actions[clip].add(constant)
         if path != behavior_path:
+            # A no-op switch arm can guard an expression override without selecting a clip.
+            behaviour_text = EMPTY_BEHAVIOUR_CASE.sub("", text)
             for clip, constants in behaviour_constants.items():
                 if clip not in used_behaviours:
                     continue
                 for constant in constants:
-                    if f"Behaviors.{constant}" in text:
+                    if f"Behaviors.{constant}" in behaviour_text:
                         used_behaviours[clip].add(constant)
 
     if set(clips) != set(expected):
