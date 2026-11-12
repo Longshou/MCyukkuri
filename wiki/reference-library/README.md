@@ -2,7 +2,7 @@
 
 [Wiki](../README.md) · **[按实体、情景、情绪筛图](gallery.html)** · [造型与动作参考](production-briefs.md) · [清晰画面精选](quality-picks.md)
 
-[作品证据索引](evidence.json)收录 **377 张原图中的 493 条制作画面、62 段原文、90 条已核对对白**。按[画面](image-evidence.md)、[小说](../novel-reading/evidence.md)或[对白](../hakkei-reference/dialogue/evidence.md)的入口查找。
+[作品证据索引](evidence.json)收录 **395 张原图中的 512 条制作画面、62 段原文、93 条已核对对白**。按[画面](image-evidence.md)、[小说](../novel-reading/evidence.md)或[对白](../hakkei-reference/dialogue/evidence.md)的入口查找。
 
 从要做的游戏内容出发找图：选实体，再叠加情景、情绪或制作目标。每条记录指向具体画格，并说明能用于哪个模型部位、动作、表情、道具、场景或事件。作品编号只用来追溯出处。
 
@@ -48,5 +48,5 @@
 
 ## 扩充作品证据
 
-- 图片批次用本机 `.local/refactor/briefs/wp-gl-haiku-batch.md`，剩余选页在 `.local/refactor/wiki-refs/batch-039.json` 和 `batch-040.json`。按[标注约定](production-reference-format.md)核对画面，把裁框换算成原图像素，再写入 `pages`。
-- 小说与对白用本机 `.local/refactor/briefs/wp-gl-novel-evidence-batch.md`。对照作品或本机缓存，保留原语、定位、中文释义和分析。`speech_candidates` 有 113 条待核气泡，逐字核对后再加入 `speech`。更新索引后运行 `python scripts/wiki_reference_topics.py build` 刷新本页统计。
+- 图片批次用本机 `.local/refactor/briefs/wp-gl-haiku-batch.md`。按[标注约定](production-reference-format.md)核对画面，把裁框换算成原图像素，再写入 `pages`。
+- 小说用本机 `.local/refactor/briefs/wp-gl-novel-evidence-batch.md`。对照作品或本机缓存，保留原语、定位、中文释义和分析。`speech_candidates` 有 113 条待核气泡，使用本机 `.local/refactor/briefs/wp-gq-haiku-speech-recheck.md` 分批核对。更新索引后运行 `python scripts/wiki_reference_topics.py build` 刷新本页统计。

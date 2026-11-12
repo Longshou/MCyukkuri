@@ -159,8 +159,8 @@ def render(data):
         '## 来源范围','',
         '每条记录以 `game-annotations.json` 标明实体、情景、情绪、具体画格和制作用途；清晰度与画风信息见 `quality-selection.json`，旧主题网址关系见 `classifications.json`。原图字节、署名和出处保留，参考图不直接成为游戏贴图。','',
         '## 扩充作品证据','',
-        '- 图片批次用本机 `.local/refactor/briefs/wp-gl-haiku-batch.md`，剩余选页在 `.local/refactor/wiki-refs/batch-039.json` 和 `batch-040.json`。按[标注约定](production-reference-format.md)核对画面，把裁框换算成原图像素，再写入 `pages`。',
-        f'- 小说与对白用本机 `.local/refactor/briefs/wp-gl-novel-evidence-batch.md`。对照作品或本机缓存，保留原语、定位、中文释义和分析。`speech_candidates` 有 {len(evidence["speech_candidates"])} 条待核气泡，逐字核对后再加入 `speech`。更新索引后运行 `python scripts/wiki_reference_topics.py build` 刷新本页统计。','']
+        '- 图片批次用本机 `.local/refactor/briefs/wp-gl-haiku-batch.md`。按[标注约定](production-reference-format.md)核对画面，把裁框换算成原图像素，再写入 `pages`。',
+        f'- 小说用本机 `.local/refactor/briefs/wp-gl-novel-evidence-batch.md`。对照作品或本机缓存，保留原语、定位、中文释义和分析。`speech_candidates` 有 {len(evidence["speech_candidates"])} 条待核气泡，使用本机 `.local/refactor/briefs/wp-gq-haiku-speech-recheck.md` 分批核对。更新索引后运行 `python scripts/wiki_reference_topics.py build` 刷新本页统计。','']
     write(LIB/'README.md','\n'.join(lines))
     for facet,spec in data['facets'].items():
         out=[f"# 按{spec['title']}查找游戏参考",'','[游戏参考库](README.md) · [组合筛选](gallery.html) · [造型与动作参考](production-briefs.md)','',

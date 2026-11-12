@@ -5,6 +5,8 @@
     "EH01-004": {"medium":"manga","edition":"图页刊载","record":"wiki/art-references/ehentai/works/EH01.md","path":"wiki/art-references/ehentai/images/EH01/004.jpg"},
     "EH02-005": {"medium":"manga","edition":"图页刊载","record":"wiki/art-references/ehentai/works/EH02.md","path":"wiki/art-references/ehentai/images/EH02/005.webp"},
     "EH02-006": {"medium":"manga","edition":"图页刊载","record":"wiki/art-references/ehentai/works/EH02.md","path":"wiki/art-references/ehentai/images/EH02/006.webp"},
+    "EH02-007": {"medium":"manga","edition":"中文译页","record":"wiki/art-references/ehentai/works/EH02.md","path":"wiki/art-references/ehentai/images/EH02/007.webp"},
+    "EH02-008": {"medium":"manga","edition":"中文译页","record":"wiki/art-references/ehentai/works/EH02.md","path":"wiki/art-references/ehentai/images/EH02/008.webp"},
     "EH03-002": {"medium":"manga","edition":"图页刊载","record":"wiki/art-references/ehentai/works/EH03.md","path":"wiki/art-references/ehentai/images/EH03/002.webp"},
     "EH03-003": {"medium":"manga","edition":"图页刊载","record":"wiki/art-references/ehentai/works/EH03.md","path":"wiki/art-references/ehentai/images/EH03/003.webp"},
     "EH03-007": {"medium":"manga","edition":"图页刊载","record":"wiki/art-references/ehentai/works/EH03.md","path":"wiki/art-references/ehentai/images/EH03/007.webp"},
@@ -202,6 +204,9 @@
     {"id":"N102-S03","source":"N102","locator":"听见有人送点心后，亲代身后的孩子们","language":"ja","text":"ゆっくちちょうだいね！！","zh_gloss":"悠悠地给我一点捏！！","speaker":{"species":"魔理沙","stage":"子油","state":"喜悦"},"situation":"跟在亲代后向人类索要点心","habit":["幼语","情境套话"],"axes":["stage","situation"],"note":"上一句亲代用「ゆっくりちょうだいね」，这里保留孩子的发音。"},
     {"id":"N84-S01","source":"N84","locator":"广场发令前，帕秋莉向伙伴说明自己想参加","language":"ja","text":"むきゅ、ぱちゅりーもいっしょにかけっこがしたいわ","zh_gloss":"姆啾，帕秋莉也想一起跑步呀。","speaker":{"species":"帕秋莉","stage":"子油","state":null},"situation":"请求从发令者改为参赛者","habit":["口头禅","自称","语尾"],"axes":["species","situation"],"note":"句前有迟疑，语尾仍是「わ」。"},
     {"id":"N84-S02","source":"N84","locator":"橙接替发令后，在举树枝时喊","language":"ja","text":"あいずだよーはしってねー","zh_gloss":"发令啦——跑起来哦——","speaker":{"species":"橙","stage":"子油","state":null},"situation":"同伴赛跑发令","habit":["情境套话","语尾"],"axes":["species","situation"],"note":"本场景有同步举枝的可见提示。"},
+    {"id":"EH02-007-S01","source":"EH02-007","locator":"下格右上椭圆气泡，右列起、接左列","language":"zh","text":"这个孩子和芙兰爸爸很像do","speaker":{"species":"蕾米莉亚","stage":null,"state":null},"situation":"笑着说孩子像芙兰爸爸","habit":["称呼","语尾"],"axes":["species","situation"],"note":"中文译页保留拉丁字母语尾；摘自气泡中间，略去前后拖音。"},
+    {"id":"EH02-008-S01","source":"EH02-008","locator":"左上椭圆气泡，右起两列","language":"zh","text":"大家都是芙兰和蕾咪的小孩do","speaker":{"species":"蕾米莉亚","stage":null,"state":"困惑"},"situation":"对孩子们的亲缘提出疑问","habit":["称呼","语尾"],"axes":["species","situation"],"note":"同一中文译页将 do 用在疑问语气中。"},
+    {"id":"EH02-008-S02","source":"EH02-008","locator":"同一左上椭圆气泡，最左列","language":"zh","text":"认得出自己的小孩do","speaker":{"species":"蕾米莉亚","stage":null,"state":"困惑"},"situation":"接着说做爸爸至少要认得出自己的孩子","habit":["语尾"],"axes":["species","situation"],"note":"这是同一气泡中的第二个短句。"},
     {"id":"N13-S01","source":"N13","locator":"首次示范固定帽子后，两只子魔理沙同声回答","language":"ja","text":"ゆっくりりかいしたよ！","zh_gloss":"悠悠地明白啦！","speaker":{"species":"魔理沙","stage":"子油","state":null},"situation":"确认听懂亲代的渡水指令","habit":["情境套话","语尾"],"axes":["species","stage","situation"],"note":"以「ゆっくり」开头、以「したよ」收尾；仅记本场应答。"},
     {"id":"N14-S01","source":"N14","locator":"起床后，群体同声问候","language":"ja","text":"ゆっくりしていってね！","zh_gloss":"油库里，慢慢来吧！","speaker":{"species":"水上魔理沙","stage":null,"state":null},"situation":"群体晨间问候","habit":["口头禅","情境套话"],"axes":["common","special","situation"],"note":"群体在既有同伴之间齐声使用问候式。"},
     {"id":"N14-S02","source":"N14","locator":"学桨时，赤油集体答话","language":"ja","text":"ゆっきゅりりきゃいしちゃたよ！","zh_gloss":"油、油库里地懂惹呀！","speaker":{"species":"水上魔理沙","stage":"赤油","state":null},"situation":"赤油回应勿松开船桨的提醒","habit":["幼语","情境套话"],"axes":["stage","special","situation"],"note":"原文明确称赤油。保留「きゅ」「きゃ」「ちゃた」；可与 N13-S01 的同意图应答对照。"},
@@ -395,6 +400,13 @@
     {"id":"M12-003-C01","source":"M12-003","locator":"下格右上","text":"おとーしゃ","language":"ja","speaker":{"species":"通用油库里","stage":null,"state":null},"situation":"在水里向父亲呼救","habit":["幼语","称呼"]}
   ],
   "pages": [
+    {
+      "path": "wiki/art-references/ehentai/images/EH16/007.jpg",
+      "review": "逐图核对",
+      "units": [
+        {"id":"EH16-007-U01","crop":[104,0,625,497],"subjects":[{"species":"灵梦","stage":"实子"}],"action":[],"expression":["痛苦"],"body_state":["茎上"],"prop_scene":["茎","叶片"],"view":["正面","特写"],"usefulness":"art","copy_note":"从头顶画直入的绿茎和向两侧覆下的叶片，保留脸侧红饰、闭眼泪线和大张的嘴；这一格仍悬在茎上。"}
+      ]
+    },
     {
       "path": "wiki/art-references/ehentai/images/EH08/008.webp",
       "review": "逐图核对",
@@ -3096,6 +3108,126 @@
       "units": [
         {"id":"EH10-002-U01","subjects":[{"species":"多毛灵梦","stage":null},{"species":"灵梦","stage":null},{"species":"魔理沙","stage":null}],"action":[],"expression":[],"body_state":[],"prop_scene":[],"view":["正面"],"usefulness":"art","copy_note":"多毛灵梦头发蓬起、两侧有辫，灵梦系红蝴蝶结，魔理沙戴黑尖帽、帽带为白色，可对照三种造型的轮廓。","crop":[60,135,505,546]},
         {"id":"EH10-002-U02","subjects":[],"action":[],"expression":[],"body_state":[],"prop_scene":["纸箱巢箱","缘侧","中庭杂草","饮水处","砖墙"],"view":["俯视"],"usefulness":"art","copy_note":"俯视平面图：编号①～⑩的纸箱巢箱沿缘侧和中庭边缘排布，中央放饮水盆，可直接参考场地布局。","crop":[115,560,850,1215]}
+      ]
+    },
+    {
+      "path": "wiki/art-references/ehentai/images/EH33/007.webp",
+      "review": "逐图核对",
+      "units": [
+        {"id":"EH33-007-U01","crop":[565,173,1280,452],"subjects":[{"species":"灵梦","stage":null},{"species":"魔理沙","stage":null}],"action":[],"expression":["恐惧","担忧"],"body_state":[],"prop_scene":[],"view":["正面"],"usefulness":"art","copy_note":"群体盯住同一方向，帽和蝴蝶结互有遮挡；用高低略错开的眼睛、短方张口和脸侧汗滴画同步受惊。"}
+      ]
+    },
+    {
+      "path": "wiki/art-references/ehentai/images/EH02/007.webp",
+      "review": "逐图核对",
+      "units": [
+        {"id":"EH02-007-U01","crop":[328,746,800,1131],"subjects":[{"species":"蕾米莉亚","stage":null}],"action":[],"expression":["喜悦"],"body_state":[],"prop_scene":[],"view":["正面"],"usefulness":"art","copy_note":"把弧形闭眼、张开的笑口和短发压在有褶边的帽沿下，保留伸到脸侧的尖翼。"}
+      ]
+    },
+    {
+      "path": "wiki/art-references/ehentai/images/EH02/008.webp",
+      "review": "逐图核对",
+      "units": [
+        {"id":"EH02-008-U01","crop":[165,95,884,732],"subjects":[{"species":"蕾米莉亚","stage":null}],"action":[],"expression":["惊讶","困惑"],"body_state":[],"prop_scene":[],"view":["正面","特写"],"usefulness":"art","copy_note":"圆睁的双眼里保留细长瞳孔，嘴只微张并露出尖牙；完整保留帽沿和一侧黑翼。"}
+      ]
+    },
+    {
+      "path": "wiki/art-references/ehentai/images/EH07/002.webp",
+      "review": "逐图核对",
+      "units": [
+        {"id":"EH07-002-U01","crop":null,"subjects":[{"species":"魔理沙","stage":null},{"species":"通用油库里","stage":null}],"action":[],"expression":["喜悦","悲伤"],"body_state":[],"prop_scene":[],"view":["正面"],"usefulness":"art","copy_note":"比较左侧低眉含泪、嘴只张一条缝与右侧闭眼大笑的面部开合。两侧表情都能从封面图中读出。"}
+      ]
+    },
+    {
+      "path": "wiki/art-references/ehentai/images/EH07/007.webp",
+      "review": "逐图核对",
+      "units": [
+        {"id":"EH07-007-U01","crop":[555,753,966,1125],"subjects":[{"species":"通用油库里","stage":null}],"action":[],"expression":["惊讶"],"body_state":[],"prop_scene":[],"view":["正面","特写"],"usefulness":"art","copy_note":"保留中格抬眼的脸，眉毛上挑、瞳孔朝上，嘴刚张开；可作察觉头顶异动的反应。"}
+      ]
+    },
+    {
+      "path": "wiki/art-references/ehentai/images/EH05/008.webp",
+      "review": "逐图核对",
+      "units": [
+        {"id":"EH05-008-U01","crop":[90,0,461,509],"subjects":[{"species":"魔理沙","stage":null}],"action":["甩动"],"expression":["痛苦"],"body_state":["悬空","拉伸"],"prop_scene":[],"view":["前侧"],"usefulness":"motion","copy_note":"悬挂时身体向侧前方摆出，头仍在上方，下半身向摆动方向鼓出；可参考侧摆的轮廓和变形。"},
+        {"id":"EH05-008-U02","crop":[193,527,480,1095],"subjects":[{"species":"魔理沙","stage":null}],"action":[],"expression":["痛苦"],"body_state":["悬空","拉伸"],"prop_scene":[],"view":["前侧"],"usefulness":"art","copy_note":"同一个体的身体在悬空中竖直拉长，眼角泪线向下，张嘴时嘴角下压。"}
+      ]
+    },
+    {
+      "path": "wiki/art-references/ehentai/images/EH05/005.jpg",
+      "review": "逐图核对",
+      "units": [
+        {"id":"EH05-005-U01","crop":[204,239,591,764],"subjects":[{"species":"魔理沙","stage":null}],"action":[],"expression":[],"body_state":["破损","失饰"],"prop_scene":["黑帽"],"view":["俯视"],"usefulness":"art","copy_note":"俯视的身体轮廓像拉长的梨形，左右不对称；帽子完整留在左上，与身体之间有间隔。"}
+      ]
+    },
+    {
+      "path": "wiki/art-references/ehentai/images/EH05/004.jpg",
+      "review": "逐图核对",
+      "units": [
+        {"id":"EH05-004-U01","crop":[155,555,322,709],"subjects":[{"species":"魔理沙","stage":null}],"action":[],"expression":[],"body_state":[],"prop_scene":["黑帽"],"view":["后侧"],"usefulness":"art","copy_note":"在监视画面的冷色光下，帽沿盖过后脑上缘，锯齿形后发仍可读；中格帽子仍戴在身上。"}
+      ]
+    },
+    {
+      "path": "wiki/art-references/game/standard-species/hakkei/sprite-5802.png",
+      "review": "逐图核对",
+      "units": [
+        {"id":"game/standard-species/hakkei/sprite-5802.png-U01","crop":null,"subjects":[{"species":"魔理沙","stage":null}],"action":[],"expression":[],"body_state":[],"prop_scene":["头发"],"view":["正面"],"usefulness":"art","copy_note":"魔理沙的独立前发层：顶部向一侧分岔，中间刘海分成宽尖，左右发束贴脸边收窄。"}
+      ]
+    },
+    {
+      "path": "wiki/art-references/game/standard-species/hakkei/sprite-6203.png",
+      "review": "逐图核对",
+      "units": [
+        {"id":"game/standard-species/hakkei/sprite-6203.png-U01","crop":null,"subjects":[{"species":"魔理沙","stage":null}],"action":[],"expression":[],"body_state":[],"prop_scene":["辫子"],"view":["正面","特写"],"usefulness":"art","copy_note":"魔理沙的独立侧辫层：辫节向下收窄，白结横跨末端，下留一小截分叉发梢。"}
+      ]
+    },
+    {
+      "path": "wiki/art-references/game/standard-species/hakkei/sprite-7038.png",
+      "review": "逐图核对",
+      "units": [
+        {"id":"game/standard-species/hakkei/sprite-7038.png-U01","crop":null,"subjects":[{"species":"爱丽丝","stage":null}],"action":[],"expression":[],"body_state":[],"prop_scene":["发箍"],"view":["正面","特写"],"usefulness":"art","copy_note":"爱丽丝的独立发箍层：红带的弧度顺着头顶，两边白褶用短线分段。"}
+      ]
+    },
+    {
+      "path": "wiki/art-references/game/standard-species/hakkei/sprite-7243.png",
+      "review": "逐图核对",
+      "units": [
+        {"id":"game/standard-species/hakkei/sprite-7243.png-U01","crop":null,"subjects":[{"species":"通用油库里","stage":null}],"action":[],"expression":[],"body_state":[],"prop_scene":[],"view":["正面"],"usefulness":"art","copy_note":"无五官的圆身图层略宽于高，下缘压平，底边的粉色阴影沿两侧向上变淡。"}
+      ]
+    },
+    {
+      "path": "wiki/art-references/game/standard-species/hakkei/sprite-7607.png",
+      "review": "逐图核对",
+      "units": [
+        {"id":"game/standard-species/hakkei/sprite-7607.png-U01","crop":null,"subjects":[{"species":"爱丽丝","stage":null}],"action":[],"expression":[],"body_state":[],"prop_scene":["头发"],"view":["正面"],"usefulness":"art","copy_note":"爱丽丝的独立前发层：浅金刘海中央是宽尖，两侧沿脸收弧，发尾各剩一处尖角。"}
+      ]
+    },
+    {
+      "path": "wiki/art-references/game/standard-species/hakkei/sprite-7629.png",
+      "review": "逐图核对",
+      "units": [
+        {"id":"game/standard-species/hakkei/sprite-7629.png-U01","crop":null,"subjects":[{"species":"灵梦","stage":null}],"action":[],"expression":[],"body_state":[],"prop_scene":["头发"],"view":["正面"],"usefulness":"art","copy_note":"灵梦的独立前发层：中间黑发分成两束宽尖，两边下垂至脸侧再分出细尖。"}
+      ]
+    },
+    {
+      "path": "wiki/art-references/game/standard-species/hakkei/sprite-8369.png",
+      "review": "逐图核对",
+      "units": [
+        {"id":"game/standard-species/hakkei/sprite-8369.png-U01","crop":null,"subjects":[{"species":"橙","stage":null}],"action":[],"expression":[],"body_state":[],"prop_scene":["头发","猫耳"],"view":["正面"],"usefulness":"art","copy_note":"橙的正面发层保留两侧粉色耳内和棕色尖刘海，猫耳露在额发轮廓之外。"}
+      ]
+    },
+    {
+      "path": "wiki/art-references/game/standard-species/rear/sprite-6630.png",
+      "review": "逐图核对",
+      "units": [
+        {"id":"game/standard-species/rear/sprite-6630.png-U01","crop":null,"subjects":[{"species":"橙","stage":null}],"action":[],"expression":[],"body_state":[],"prop_scene":["头发","猫耳"],"view":["背面"],"usefulness":"art","copy_note":"对照同种正面发层，背面只露深色耳背，后发下缘分为多股朝下的宽尖。"}
+      ]
+    },
+    {
+      "path": "wiki/art-references/game/standard-species/hakkei/sprite-8511.png",
+      "review": "逐图核对",
+      "units": [
+        {"id":"game/standard-species/hakkei/sprite-8511.png-U01","crop":null,"subjects":[{"species":"帕秋莉","stage":null}],"action":[],"expression":[],"body_state":[],"prop_scene":["头发"],"view":["正面"],"usefulness":"art","copy_note":"帕秋莉的独立前发层：紫色齐刘海有少量尖齿，两侧长束贴近身体，直到最底端才向外翻。"}
       ]
     },
     {
