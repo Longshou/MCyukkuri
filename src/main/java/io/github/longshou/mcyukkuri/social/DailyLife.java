@@ -132,7 +132,7 @@ public final class DailyLife {
         return !WildEvents.reserved(e) && e.isAlive() && !e.isRemoved() && !e.isNoAi()
                 // A session under way survives the step down a bank it is walking to (a friend in a hollow); a new one starts on the ground.
                 && (continuing || e.onGround()) && !e.isPassenger()
-                && !e.isPanicking() && !e.isCommandPlaying() && !e.operations().active() && !e.predator().active() && !e.social().holdingStill()
+                && !e.isPanicking() && !e.isCommandPlaying() && !e.operations().active() && !e.predator().active() && !e.pet().lessons().directed()
                 && !(continuing ? e.life().nutrition() < 15 || e.life().energy() < 15
                     || e.isOnFire() || e.isInWaterOrBubble() : e.life().hasUrgentNeed())
                 && e.life().activity().equals(Behaviors.IDLE)

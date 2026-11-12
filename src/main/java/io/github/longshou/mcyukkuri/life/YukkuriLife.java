@@ -9,6 +9,7 @@ import io.github.longshou.mcyukkuri.motor.surface.Occupancy;
 
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.pet.PetSkill;
+import io.github.longshou.mcyukkuri.pet.social.BadgeArcs;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.HashMap;
@@ -382,6 +383,7 @@ public final class YukkuriLife {
     private boolean readyForFood(){ return meal.readyForFood(); }
     /** Food gathered or offered as a normal meal is for a child that can chew independently. */
     public boolean canEat(){ return meal.canEat(); }
+    public boolean pursuingFoodOnLead() { return task == Task.FOOD && targetFood != null && entity.pet().isPet() && entity.getLeashHolder() != null; }
     /** Checks mouth capacity and current eating state before a source resource is consumed. */
     public boolean canAcceptBodyFood() { return meal.canAcceptBodyFood(); }
     public boolean canAcceptBodyFood(BodyFood.Bite bite) { return meal.canAcceptBodyFood(bite); }
@@ -604,6 +606,7 @@ public final class YukkuriLife {
         if (entity.predator().active()) return false;
         if (entity.isPanicking() || entity.isCommandPlaying() || entity.isInWaterOrBubble()) return false;
         if (mealTicks() > 0) return true;
+        if (!hasUrgentNeed() && BadgeArcs.running(entity)) return false;
         if (task == Task.WINTER_FOOD) {
             if (entity.wintering().continueMeal()) {
                 if (pursuitTicks >= winterNeedCheckAt) {
@@ -669,10 +672,8 @@ public final class YukkuriLife {
                     "loose food in reach but not planned items={} pickupDelay={} outOfBabyRange={} unreachable={} task={} nutrition={}",
                     offered.size(), delayed, outOfBabyRange, unreachable, task, nutrition);
             targetBlock = nearestCare(CareBlock.Kind.BOWL, true);
-            if (targetBlock != null && entity.pet().lessons().knows(PetSkill.FOOD_BOWL)) {
-                if (followsRule(PetSkill.FOOD_BOWL)) targetFood = null;
-                else targetBlock = null;
-            }
+            if (targetFood != null && entity.pet().care().walk().ignoresScraps()) targetFood = null;
+            if (targetBlock != null && targetFood != null && entity.pet().isPet() && followsRule(PetSkill.FOOD_BOWL)) targetFood = null;
             if (targetFood != null || targetBlock != null) {
                 bowlStand = null;
                 task = Task.FOOD; pursuitTicks = queueTicks = 0; queueBudget = personality.waitingTicks(); return true;
@@ -680,8 +681,8 @@ public final class YukkuriLife {
         }
         if (bladder < 70 && planToilet()) return true;
         if (temperature.plan()) { task = Task.TEMPERATURE; return true; }
-        if (restWait == 0 && (energy <= restThreshold() || restTime())
-                && homeProvider().ordinaryRestAllowed(this) && followsRule(PetSkill.BEDTIME)) {
+        if ((restWait == 0 || entity.pet().lessons().practicing(PetSkill.BEDTIME)) && (energy <= restThreshold() || restTime())
+                && homeProvider().ordinaryRestAllowed(this)) {
             // On a migration there is no burrow to walk back to: rest on dry ground where it stands, then walk on.
             if (entity.settlement().underway()) {
                 if (dryStand(entity.blockPosition()) && restable(entity.blockPosition())) { task = Task.SLEEP; resetSleep(); return true; }
@@ -689,6 +690,11 @@ public final class YukkuriLife {
             }
             // A slave kept in the waste pit has no bed to go to: it sleeps where it is once it cannot go on (energy 10 or less).
             targetBlock = penned || ParentCarry.awaitsCarrier(entity) ? null : homeStand();
+            if (targetBlock != null && entity.pet().isPet() && !followsRule(PetSkill.BEDTIME)
+                    && !level().isRainingAt(entity.blockPosition()) && SurfaceApproach.supportedGround(entity, entity.position())) {
+                targetBlock = null;
+                task = Task.SLEEP; resetSleep(); return true;
+            }
             if (targetBlock == null && !penned && entity.habitat().vagrant() && homeProvider().temporaryCoverAllowed()) targetBlock = nearestDryCover();
             var nestOccupancy = targetBlock == null ? null : FamilyNest.bedOccupancy(entity, targetBlock);
             if (targetBlock != null && entity.family().prepareHomeCarry()) return false;
@@ -721,10 +727,10 @@ public final class YukkuriLife {
         return false;
     }
     private boolean followsRule(PetSkill skill) {
-        if (!entity.pet().lessons().knows(skill) || nutrition < 15 || energy < 15 || bladder >= 90) return true;
+        if (!entity.pet().isPet() || nutrition < 15 || energy < 15) return true;
         var choice = ruleChoices.get(skill);
         if (choice == null || entity.tickCount >= choice.until()) {
-            choice = new RuleChoice(entity.tickCount + 1200, entity.getRandom().nextFloat() < personality.ruleProbability());
+            choice = new RuleChoice(entity.tickCount + 1200, entity.pet().lessons().attempt(skill));
             ruleChoices.put(skill, choice);
         }
         return choice.follows();
@@ -823,7 +829,7 @@ public final class YukkuriLife {
                 }
                 if (restingHere || inside && entity.distanceToSqr(bedCentre) < .16 && restable(entity.blockPosition())) {
                     SurfaceApproach.halt(entity);
-                    if (restWait == 0 && (energy <= restThreshold() || restTime())) { task = Task.SLEEP; resetSleep(); }
+                    if ((restWait == 0 || entity.pet().lessons().practicing(PetSkill.BEDTIME)) && (energy <= restThreshold() || restTime())) { task = Task.SLEEP; resetSleep(); }
                     // Awake arrival ends the trip, even while rain continues above the roof.
                     else { task = Task.NONE; targetBlock = null; planWait = 0; }
                 } else if (pursuitTicks > 60 && entity.getNavigation().isDone() && entity.distanceToSqr(bedCentre) > 4 && !reachable(targetBlock, false)) stopGoal();
@@ -866,7 +872,10 @@ public final class YukkuriLife {
                         if (bladder >= 40 && ToiletContact.drop(entity, ToiletContact.anus(entity, ToiletContact.DROP_TICKS), toiletPit ? toiletPitCell : null)) {
                             releaseWaste(); personality.relieveFear();
                             GameplayLog.event(entity,"needs","relieved source={} at={} bladder={} -> {} accident={}",toiletPit?"pit":"ground",targetBlock,before,bladder,toiletAccident);
-                            if (toiletAccident) hygiene = Math.max(0,hygiene-20);
+                            if (toiletAccident) {
+                                hygiene = Math.max(0,hygiene-20);
+                                entity.pet().lessons().performed(PetSkill.TOILET, false);
+                            }
                             entity.showReaction(toiletAccident?"teary":"happy", "toilet_done",60);
                             if (toiletPit) entity.settlement().society().pitExcreted();
                         } else { stopGoal(); return; }
@@ -897,6 +906,11 @@ public final class YukkuriLife {
                     GameplayLog.event(entity,"sleep","begin source=life occupancy={} bed={} energy={} nutrition={} drugTicks={} reason={}",
                             nestOccupancy == null ? "none" : nestOccupancy.name(), nestOccupancy == null ? "none" : site,
                             energy,nutrition,drugSleep(),restTime()?"rest_time":"energy");
+                    if (!drugged && entity.pet().isPet()) {
+                        boolean settled = targetBlock != null && targetBlock.equals(homeStand())
+                                && (nestOccupancy == null || nestOccupancy == Occupancy.INSIDE_SUPPORTED);
+                        entity.pet().lessons().performed(PetSkill.BEDTIME, settled);
+                    }
                 }
                 if (sleepTicks >= 20 && wakeAt == 0) energy = Math.min(100, energy + .5f);
                 // Waking rested it lies there one long stretch and yawn (the wake clip); hunger gets it straight up to eat.
@@ -917,7 +931,6 @@ public final class YukkuriLife {
                     String cause = wakeCause != null ? wakeCause : sleepTicks > SLEEP_TICKS + stretch ? "rested_dawn" : "rested";
                     GameplayLog.event(entity,"sleep","end source=life cause={} night={} ticks={} energy={} nutrition={} stretched={}",
                             cause,level().isNight(),sleepTicks,energy,nutrition,sleepTicks > SLEEP_TICKS);
-                    entity.pet().routineCompleted(2);
                     temperature.stop();
                     task = Task.NONE; restWait = restInterval(); resetSleep();
                     if(!entity.family().woke())entity.showReaction("neutral", "awake", 60);
@@ -1004,6 +1017,7 @@ public final class YukkuriLife {
                     GameplayLog.event(entity, "meal", "pickup item={} count=1 source={} remaining={} holder=mouth",
                             one.getItem(), targetFood.getUUID(), remaining.getCount());
                     WildCards.foodTaken(entity,targetFood);
+                    if (targetBlock != null && entity.pet().isPet()) entity.pet().lessons().performed(PetSkill.FOOD_BOWL, false);
                     if (!rivals.isEmpty() && wait < 35 && nutrition>15) {
                         for (var rival : rivals) WildCards.competing(entity, rival);
                         entity.showReaction("angry", "mine", 80);
@@ -1024,15 +1038,27 @@ public final class YukkuriLife {
                 return;
             }
             if (ItemContact.reaches(entity, bowlStand.contact(), .06)) {
-                ItemStack one = bowl.takeFood(this::acceptsFood);
-                if (!one.isEmpty() && !beginMeal(one, null, false)) {
-                    // Only reachable if another rule invalidates eating inside this call.
-                    ItemEntity restored = entity.spawnAtLocation(one); if (restored != null) restored.setPickUpDelay(40);
-                } else if (!one.isEmpty()) {
-                    meal.bowlMeal();
-                    GameplayLog.event(entity, "meal", "pickup item={} count={} source={} holder=mouth",
-                            one.getItem(), one.getCount(), targetBlock);
-                }
+                boolean manners = followsRule(PetSkill.FOOD_BOWL);
+                if (manners) {
+                    boolean taken = bowl.handFood(this::acceptsFood, one -> {
+                        if (!beginMeal(one, null, false)) return false;
+                        meal.bowlMeal();
+                        GameplayLog.event(entity, "meal", "pickup item={} count={} source={} holder=mouth", one.getItem(), one.getCount(), bowl.getBlockPos());
+                        return true;
+                    });
+                    if (!taken) stopGoal();
+                } else if (bowl.handFood(this::acceptsFood, one -> {
+                    var dropped = ItemContact.release(entity, one, 0);
+                    if (dropped == null) return false;
+                    targetFood = dropped;
+                    GameplayLog.event(entity, "meal", "bowl spilled item={} source={} drop={} count={}",
+                            one.getItem(), bowl.getBlockPos(), dropped.getUUID(), one.getCount());
+                    return true;
+                })) {
+                    entity.showReaction("surprise", "mine", 45);
+                    entity.pet().lessons().performed(PetSkill.FOOD_BOWL, false);
+                    targetBlock = null;
+                } else stopGoal();
             } else {
                 approachFood(source, bowlStand.feet(), bowlStand.contact());
             }

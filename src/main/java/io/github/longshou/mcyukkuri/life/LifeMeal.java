@@ -205,7 +205,7 @@ final class LifeMeal {
             if (mealHold > 0 && mealTicks >= 8 && mealTicks < 40) mealHold--; else mealTicks++; // a begging peer made the bite wait (pet/social/BadgeArcs)
             // A hungry wild onlooker may beg for this very bite while it is still in the mouth (badge-holders only; pet/social).
             if (mealTicks == 3 && !sharedMeal && !preparedMeal && !mouth.isEmpty()) BadgeSocial.mealSeen(o.entity());
-            if (mealTicks == 6 && !sharedMeal && o.nutrition() >= 35) tryShare();
+            if (mealTicks == 6 && mealHold == 0 && !sharedMeal && o.nutrition() >= 35) tryShare();
             if (mealTicks == 45 && !bodyFood.isEmpty()) {
                 swallowBodyFood();
             } else if (mealTicks == 45 && !mouth.isEmpty()) {
@@ -253,7 +253,9 @@ final class LifeMeal {
                 else if(toxic>0)o.entity().body().poisoned(toxic);
                 if(waste)o.changeHygiene(-PIT_MEAL_DIRT);
                 if(!filling&&!spicy&&toxic==0&&!waste)o.entity().heal(2); o.personality().fed(feeder); o.entity().pet().contact(feeder,
-                        true); WildEvents.fed(o.entity(),feeder); String treat = Sweets.eaten(o.entity(), swallowed, feeder); o.entity().mind().ate(swallowed, treat != null); feeder = null;
+                        true); WildEvents.fed(o.entity(),feeder); String treat = Sweets.eaten(o.entity(), swallowed, feeder);
+                o.entity().pet().lessons().swallowed(feeder, swallowed);
+                o.entity().mind().ate(swallowed, treat != null); feeder = null;
                 if (bowlMeal) { o.entity().pet().routineCompleted(0); bowlMeal = false; }
                 // A melting meal keeps the swallow face only to the end of the swallow (tick 53 starts the melt), so it cannot cover the after-meal clip.
                 o.entity().gameEvent(GameEvent.EAT); if(!o.entity().body().sick()||!(spicy||toxic>0))o.entity().showReaction(spicy||toxic>0?"surprise":grass||waste?"teary":"happy",

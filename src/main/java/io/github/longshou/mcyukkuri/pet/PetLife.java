@@ -163,11 +163,11 @@ public final class PetLife {
     }
 
     // real skills and shared unease
-    /** Existing life completions route here; a completion can establish one concrete skill once. */
+    /** Existing life completions route here after the facility actually worked. */
     public void routineCompleted(int kind) {
         if (animal.level().isClientSide) return;
         PetSkill skill = switch (kind) { case 0 -> PetSkill.FOOD_BOWL; case 1 -> PetSkill.TOILET; case 2 -> PetSkill.BEDTIME; default -> null; };
-        if (skill != null) lessons.complete(skill);
+        if (skill != null) lessons.performed(skill, true);
         care.habit(kind);
     }
     /** A view of the individual's unease (mind/MindLife, docs/FEATURES.md): the pet line reads and writes the one shared value. */
@@ -176,6 +176,11 @@ public final class PetLife {
 
     // records
     public List<ExamRecord> history() { return Collections.unmodifiableList(history); }
+    public boolean recentBadgeSuccess() {
+        if (history.isEmpty() || visibleEffective() == BadgeGrade.NONE) return false;
+        var recent = history.getLast();
+        return now() - recent.gameTime() < 3 * PetLessons.DAY && recent.outcome() <= 1 && recent.result() == visibleEffective();
+    }
     public void record(ExamRecord r) { history.add(r); while (history.size() > 16) history.remove(0); }
     /** Flavour title derived from the history (nothing saved): 0 none, 1 eternal silver, 2 hidden gold. M02 basis: docs/FEATURES.md. */
     public static final int TITLE_ETERNAL_SILVER = 1, TITLE_HIDDEN_GOLD = 2;
@@ -281,6 +286,7 @@ public final class PetLife {
     }
     /** Called by WildEvents.abandon before the owner is cleared. A worn badge stays on but its registry entry is void. */
     public void abandonedBy(UUID former) {
+        lessons.separated();
         if (animal.level() instanceof ServerLevel sl) AbandonLog.get(sl).record(former, now());
         townRoots = true;
         care.ownerChanged(null);
@@ -292,6 +298,7 @@ public final class PetLife {
     }
     /** HumanCommerce.assign: any new owner ends the abandoned state. The former owner returning gets one tremble then joy, and the registry entry is honoured again; trust is left as it is. */
     public void newOwner(UUID owner) {
+        lessons.reunited();
         care.ownerChanged(owner);
         lastContact = now(); neglect = 0; neglectClock = 0; reunionDue = false; noticeSent = false;
         if (formerOwner == null) return;
@@ -301,6 +308,7 @@ public final class PetLife {
     }
     /** Confirmed NPC owner death: end control without abandonment, badge invalidation or erasing history. */
     public void ownerDied(UUID former) {
+        lessons.separated();
         townRoots = true;
         care.ownerChanged(null);
         care.walk().tick(); // no owner/lead: clear only the transient walking position
@@ -312,6 +320,7 @@ public final class PetLife {
         if (former.equals(examTemporaryOwner)) { examWildTag = null; examTemporaryOwner = null; }
     }
     public void lostContact() {
+        lessons.separated();
         townRoots = true;
         care.ownerChanged(null);
         neglect = 0; neglectClock = 0; searchClock = 0; reunionDue = false; noticeSent = false;

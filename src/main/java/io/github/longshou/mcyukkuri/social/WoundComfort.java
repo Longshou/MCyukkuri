@@ -106,7 +106,7 @@ public final class WoundComfort {
         if (e.isInWaterOrBubble()) return "water";
         if (e.operations().active()) return "operation";
         if (e.predator().active()) return "predator";
-        if (e.social().holdingStill()) return "social_hold";
+        if (e.pet().lessons().directed()) return "social_hold";
         if (e.woundComfort().active() ? e.life().nutrition() < 15 || e.life().energy() < 15
                 : e.life().hasUrgentNeed()) return "urgent_need";
         if (e.life().isSleeping()) return "sleeping";

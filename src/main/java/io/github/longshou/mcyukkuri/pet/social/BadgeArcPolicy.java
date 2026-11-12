@@ -48,7 +48,7 @@ public final class BadgeArcPolicy {
         }
         if (r.cooling()) return out;
         double nov = r.first() ? 1 : r.changed() ? .8 : .4;
-        boolean novel = r.first() || r.changed();
+        boolean novel = r.first() || r.changed() || r.seenCount() == 1;
         boolean hungry = o.nutrition() < 50, grudge = (r.flags() & (BadgeLedger.ENVIED | BadgeLedger.SNUBBED)) != 0 || r.impression() <= -1 || r.affinity() < BondLevels.AFFINITY_NEUTRAL;
         if (s.grade() > 0 && s.pet() && s.ownerNear() && o.elder() && o.childNear() && !o.pet() && novel)
             out.add(new Candidate(Arc.ELDER_WARN, c.kindRumour() && !c.waryRumour() ? "kind" : "warn", clamp01(.35 * (c.waryRumour() ? 1.5 : 1))));
@@ -69,11 +69,12 @@ public final class BadgeArcPolicy {
         if (!o.pet() && grudge && o.friendliness() <= 50 && o.selfControl() < 60 && s.grade() > 0 && !r.related()
                 && o.nutrition() >= 30 && o.sizePercent() * 10 >= s.sizePercent() * 9)
             out.add(new Candidate(Arc.PROVOKE, "", clamp01(.3 + ((r.flags() & BadgeLedger.SNUBBED) != 0 ? .15 : 0))));
-        if (!o.pet() && s.grade() > 0 && novel)
+        if (!o.pet() && s.grade() > 0 && novel && o.friendliness() >= 35)
             out.add(new Candidate(Arc.GLANCE, "", clamp01(nov * (.1 + .002 * o.intelligence() + .001 * (100 - o.boldness()) + (o.child() ? .12 : 0)))));
         boolean above = o.pet() ? s.grade() > o.ownGrade() : s.grade() > 0;
         if (above && novel) {
-            double p = .03 + .002 * (60 - o.friendliness()) + (hungry ? .1 : 0) + (o.stress() >= BondLevels.UNEASE_CARE_LIMIT ? .06 : 0) + ((r.flags() & BadgeLedger.ENVIED) != 0 ? .08 : 0);
+            double p = .03 + .004 * (60 - o.friendliness()) + .08 * Math.max(0, s.grade() - o.ownGrade() - 1)
+                    + (hungry ? .1 : 0) + (o.stress() >= BondLevels.UNEASE_CARE_LIMIT ? .06 : 0) + ((r.flags() & BadgeLedger.ENVIED) != 0 ? .08 : 0);
             if (p > .01) out.add(new Candidate(Arc.ENVY, "", clamp01(nov * p * (1 - o.attachment() / 200.0))));
         }
         if (o.pet() && o.ownGrade() > s.grade() && novel) {

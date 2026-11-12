@@ -23,6 +23,7 @@ import io.github.longshou.mcyukkuri.motor.action.Face;
 import io.github.longshou.mcyukkuri.motor.action.StepIn;
 import io.github.longshou.mcyukkuri.settlement.SettlementSociety;
 import io.github.longshou.mcyukkuri.pet.PetSkill;
+import io.github.longshou.mcyukkuri.pet.PetStudy;
 import io.github.longshou.mcyukkuri.human.HumanNpc;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -42,17 +43,16 @@ import net.minecraft.world.phys.Vec3;
 
 /** Optional social goals yield to physiology, commands and danger. */
 public final class YukkuriSocial implements MotorOwner {
-    private enum Task { NONE, PLAYER, PEER, TOY, TEACH, WAIT, ACCESSORY, ANSWER }
+    private enum Task { NONE, PLAYER, PEER, TOY, ACCESSORY, ANSWER, STUDY }
     private final YukkuriEntity entity;
     private Task task = Task.NONE;
     private Entity target;
     private UUID protectedContact;
-    private int elapsed, duration, teachingWait;
+    private int elapsed, duration;
     private boolean greeted;
     private boolean retreat;
     private boolean cautious;
     private double observedDistance;
-    private int lessonSegments, lessonLimit;
     /** A loose-accessory retrieval: one budget for the whole trip (the walk to a bank stand, the step in and the swim), since a
      *  route round a bank corner is longer than the social tasks' short beat. */
     private static final int ACCESSORY = 1200;
@@ -61,6 +61,7 @@ public final class YukkuriSocial implements MotorOwner {
     private record ContactWait(int until, long lastInteraction) {}
     private final Map<UUID, ContactWait> contactWaits = new HashMap<>();
     private int toyContact, toyTouches;
+    private PetStudy.Exercise exercise;
     private int greetClicks;
     private long greetUntil;
     private String greetClip = "greet";
@@ -99,8 +100,7 @@ public final class YukkuriSocial implements MotorOwner {
     public YukkuriSocial(YukkuriEntity entity) { this.entity = entity; }
     private YukkuriPersonality personality() { return entity.life().personality(); }
     public String activity() { return switch(task) { case NONE -> Behaviors.NONE; case PLAYER -> Behaviors.PLAYER; case PEER -> Behaviors.PEER;
-            case TOY -> Behaviors.TOY; case TEACH -> Behaviors.TEACH; case WAIT -> Behaviors.WAIT; case ACCESSORY -> Behaviors.ACCESSORY; case ANSWER -> Behaviors.PEER; }; }
-    public boolean holdingStill() { return task == Task.TEACH || task == Task.WAIT; }
+            case TOY -> Behaviors.TOY; case ACCESSORY -> Behaviors.ACCESSORY; case ANSWER -> Behaviors.PEER; case STUDY -> Behaviors.TEACH; }; }
     public boolean active() { return task != Task.NONE; }
     /** The actual completed contact in the current social goal, without probing eligibility. */
     public UUID observedGreeting() {
@@ -122,7 +122,6 @@ public final class YukkuriSocial implements MotorOwner {
         return true;
     }
     public void tick() {
-        if (teachingWait > 0) teachingWait--;
         if (active() && (entity.isPanicking() || urgent() || entity.isCommandPlaying())) stop();
     }
     public boolean busyForTalk() {
@@ -149,36 +148,6 @@ public final class YukkuriSocial implements MotorOwner {
         entity.pet().contact(player.getUUID(), gentle);
         return true;
     }
-    public boolean teach(Player player) {
-        String reason=!entity.childhood().canLearn()?"cannot_learn":player.level()!=entity.level()?"different_level":!player.isAlive()?"teacher_unavailable"
-                :entity.distanceToSqr(player)>16?"teacher_too_far":!entity.hasLineOfSight(player)?"no_sight"
-                :teachingWait>0?"cooldown":entity.isPanicking()?"panic":entity.dailyLife().active()?"leisure_active":entity.life().isSleeping()?"sleeping"
-                :entity.life().hasUrgentNeed()?"urgent_need":entity.life().mealTicks()>0?"eating"
-                :entity.isCommandPlaying()?"command_active":!Bonds.trustedForLesson(entity,player.getUUID())?"teacher_not_trusted":null;
-        if (reason!=null) {
-            lessonRefused(player,reason);
-            entity.showReaction("surprise", "lesson_refused", 80); return false;
-        }
-        if (!entity.subspecies().acceptsLesson(player.getUUID())) {
-            lessonRefused(player,"subspecies_declined");
-            entity.showReaction("angry", "lesson_refused", 80); return false;
-        }
-        stop(); target = player; protectContact(player); elapsed = 0; retreat = false; teachingWait = 600;
-        if (personality().knowsWait()) {
-            float roll=entity.getRandom().nextFloat();var probability=personality().ruleProbability();
-            GameplayLog.event(entity,"lesson","wait command decision player={} probability={} roll={} accepted={}",
-                    player.getUUID(),probability,roll,roll<probability);
-            if (roll >= probability) { stop(); entity.showReaction("neutral", "lesson_refused", 80); return false; }
-            task = Task.WAIT; duration = personality().waitingTicks(); entity.showReaction("happy", "wait_learned", 80); }
-        else { task = Task.TEACH; duration = 100; lessonSegments = 0; lessonLimit = personality().workSegments(); personality().decided("attend_lesson");entity.showReaction("neutral", "lesson_start", 80); }
-        GameplayLog.event(entity,"lesson","social lesson started player={} task={} duration={} knownWait={}",
-                player.getUUID(),task,duration,personality().knowsWait());
-        return true;
-    }
-    private void lessonRefused(Player player,String reason){
-        GameplayLog.limited(entity,"lesson","social.refused."+reason,200,
-                "social lesson refused player={} reason={} cooldown={}",player.getUUID(),reason,teachingWait);
-    }
     public boolean canUse() {
         if (task == Task.ANSWER && entity.level().getGameTime() > answerUntil) { stop(); return false; }
         if (task != Task.NONE) return canContinue();
@@ -196,8 +165,23 @@ public final class YukkuriSocial implements MotorOwner {
             approachPeer("reunion");
             return true;
         }
+        if (entity.pet().lessons().practicing(PetSkill.GREETING)) {
+            var guest = PetStudy.visitor(entity);
+            if (guest != null && contactReady(guest)) {
+                target = guest; task = Task.PLAYER; duration = 200; elapsed = 0; greeted = false;
+                chooseApproach(guest);
+                return true;
+            }
+        }
         if (entity.life().socialWait() > 0) return false;
         entity.life().deferSocial(240 - personality().attachment());
+        exercise = entity.pet().lessons().studyExample(null);
+        if (exercise != null) {
+            task = Task.STUDY;
+            duration = ClipMarkers.of("think").length();
+            elapsed = 0;
+            return true;
+        }
         var level = entity.level();
         if (morningPending) {
             morningPending = false;
@@ -266,6 +250,7 @@ public final class YukkuriSocial implements MotorOwner {
         return true;
     }
     public boolean canContinue() {
+        if (task == Task.STUDY) return elapsed < duration && freeForSocial() && !entity.pet().busy();
         return task != Task.NONE && target != null && target.isAlive() && target.level() == entity.level()
                 && !attachedTo(target)
                 && (task == Task.ACCESSORY || entity.hasLineOfSight(target)) && !entity.dailyLife().active() && !entity.life().isSleeping()
@@ -276,6 +261,15 @@ public final class YukkuriSocial implements MotorOwner {
     public void tickGoal() {
         if (!canContinue()) { stop(); return; }
         elapsed++;
+        if (task == Task.STUDY) {
+            EcologyMovement.halt(entity);
+            if (elapsed == 1) entity.showReaction("confused", "", duration);
+            if (elapsed >= duration) {
+                var actual = PetStudy.find(entity, null, exercise.skill());
+                if (actual != null && exercise.sameExample(actual)) PetStudy.answer(entity, actual);
+            }
+            return;
+        }
         entity.getLookControl().setLookAt(target, 25, 25);
         if (task == Task.ANSWER) {
             EcologyMovement.halt(entity);
@@ -335,19 +329,6 @@ public final class YukkuriSocial implements MotorOwner {
             }
             return;
         }
-        if (task == Task.TEACH || task == Task.WAIT) {
-            EcologyMovement.halt(entity);
-            if (entity.distanceToSqr(target) > 16 || personality().fear(target.getUUID()) >= BondLevels.SOCIAL_FEAR_LIMIT) { stop(); return; }
-            if (elapsed == duration && task == Task.TEACH) {
-                if (entity.pet().lessons().complete(PetSkill.WAIT)) {
-                    personality().relationshipChanged(target.getUUID(), 3, -1);
-                    entity.showReaction("happy", personality().knowsWait() ? "lesson_learned" : "lesson_progress", 100);
-                } else entity.showReaction("surprise", "lesson_progress", 60);
-                lessonSegments++;
-                if (!personality().knowsWait() && lessonSegments < lessonLimit && !entity.life().hasUrgentNeed()) elapsed = 0;
-            }
-            return;
-        }
         if ((task == Task.PLAYER || task == Task.PEER) && retreat) {
             if (!greeted) {
                 greeted = true;
@@ -355,6 +336,7 @@ public final class YukkuriSocial implements MotorOwner {
                 boolean afraid = personality().fear(target.getUUID()) > BondLevels.FEAR_AT_15 || target instanceof Player && identity.wild();
                 if (afraid) entity.mind().felt(EmotionEvent.FRIGHTENED);
                 entity.showReaction("surprise", afraid ? "afraid" : "shy", 80);
+                if (visitor(target)) entity.pet().lessons().performed(PetSkill.GREETING, false);
                 if (task == Task.PLAYER) GameplayLog.limited(entity, "social", "human_retreat." + target.getUUID(), 200,
                         "human retreat identity={} player={} afraid={}", identity.id(), target.getUUID(), afraid);
             }
@@ -391,8 +373,13 @@ public final class YukkuriSocial implements MotorOwner {
                 var identity = entity.status().identity();
                 boolean begging = identity == Identity.STRAY && entity.life().nutrition() < 50;
                 boolean keeper = identity.companion() && entity.pet().ownedBy(target.getUUID());
+                if (keeper && target instanceof Player owner && entity.pet().lessons().studyWith(owner)) return;
                 String line = begging ? "hungry" : keeper || personality().trust(target.getUUID()) >= BondLevels.TRUST_AT_20 ? "caregiver" : "hello";
                 entity.showReaction(begging ? "teary" : "happy", line, 80);
+                if (visitor(target)) {
+                    greetingBody("bow");
+                    entity.pet().lessons().performed(PetSkill.GREETING, true);
+                }
                 GameplayLog.limited(entity, "social", "human_greeting." + target.getUUID(), 200,
                         "human greeting identity={} player={} line={}", identity.id(), target.getUUID(), line);
             }
@@ -544,17 +531,18 @@ public final class YukkuriSocial implements MotorOwner {
         boolean unknownPlayer = other instanceof Player && trust <= 0;
         cautious = trust > 0 && fear != YukkuriPersonality.FearBand.NORMAL || unknownPlayer && identity == Identity.STRAY;
         retreat = trust <= 0 && fear == YukkuriPersonality.FearBand.AFRAID || unknownPlayer && identity.wild();
+        if (!retreat && visitor(other) && !entity.pet().lessons().attempt(PetSkill.GREETING)) retreat = true;
         if (retreat) cautious = false;
         observedDistance = entity.distanceTo(other);
+    }
+    private boolean visitor(Entity other) {
+        return (other instanceof Player || other instanceof HumanNpc) && entity.pet().isPet() && !entity.pet().ownedBy(other.getUUID());
     }
     public void stop() {
         entity.motor().cancel(this,"social_stop");
         if(task==Task.PLAYER||task==Task.PEER)GameplayLog.limited(entity,"social","contact.ended",200,
                 "social contact ended target={} greeted={} retreat={} elapsed={}/{}",
                 target==null?null:target.getUUID(),greeted,retreat,elapsed,duration);
-        if(task==Task.TEACH||task==Task.WAIT)GameplayLog.event(entity,"lesson",
-                "social lesson stopped task={} teacher={} elapsed={} duration={} segments={} knownWait={}",
-                task,target==null?null:target.getUUID(),elapsed,duration,task==Task.TEACH?lessonSegments:0,personality().knowsWait());
         if(task==Task.TOY)GameplayLog.limited(entity,"social","toy.stopped",1200,
                 "toy session stopped toy={} elapsed={} contactTicks={} touches={}",
                 target==null?null:target.getUUID(),elapsed,toyContact,toyTouches);
@@ -568,7 +556,7 @@ public final class YukkuriSocial implements MotorOwner {
             contactWaits.put(target.getUUID(), new ContactWait(entity.tickCount + 600, personality().lastInteraction(target.getUUID())));
         }
         if (protectedContact != null) { personality().releaseRelation(protectedContact); protectedContact = null; }
-        task = Task.NONE; target = null; elapsed = 0; greeted = false; retreat = false; cautious = false; greetWhy = null;
+        task = Task.NONE; target = null; exercise = null; elapsed = 0; greeted = false; retreat = false; cautious = false; greetWhy = null;
         entity.getNavigation().stop();
     }
 }

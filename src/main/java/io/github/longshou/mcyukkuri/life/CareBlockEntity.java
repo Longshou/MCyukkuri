@@ -164,6 +164,18 @@ public final class CareBlockEntity extends BlockEntity implements Container {
         for (int i=0; i<items.size(); i++) if (items.get(i).is(YukkuriEntity.FOOD) && accepts.test(items.get(i))) return removeItem(i, 1);
         return ItemStack.EMPTY;
     }
+    /** The bowl keeps its portion until the actual receiver takes it. A refused spawn or mouth leaves the bowl intact. */
+    boolean handFood(Predicate<ItemStack> accepts, Predicate<ItemStack> receiver) {
+        if (kind() != CareBlock.Kind.BOWL) return false;
+        for (int slot = 0; slot < items.size(); slot++) {
+            var source = items.get(slot);
+            if (!source.is(YukkuriEntity.FOOD) || !accepts.test(source)) continue;
+            if (!receiver.test(source.copyWithCount(1))) return false;
+            removeItem(slot, 1);
+            return true;
+        }
+        return false;
+    }
     public int foodCount() { return items.stream().filter(s -> s.is(YukkuriEntity.FOOD)).mapToInt(ItemStack::getCount).sum(); }
     private void changed() {
         setChanged();

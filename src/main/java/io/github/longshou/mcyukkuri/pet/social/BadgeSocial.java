@@ -24,7 +24,13 @@ public final class BadgeSocial {
     /** Affinity moved by badge reactions stays inside these guard rails: far from the bully (-20) and nuzzle (+10) thresholds. */
     public static final int FLOOR = -10, CEILING = 8;
     private static final int SCAN_RADIUS = 8, DWELL_TICKS = 40, FORGET_VIEW_TICKS = 100, ROLL_EVERY = 200, AUDIENCE_RADIUS = 32;
-    private static final class View { final long since; long last, nextRoll; boolean reported; View(long t) { since = t; last = t; } }
+    private static final class View {
+        final long since;
+        final int grade;
+        long last, nextRoll;
+        boolean reported;
+        View(long t, int grade) { since = t; last = t; this.grade = grade; }
+    }
     private static final Map<UUID, Map<UUID, View>> VIEWS = new HashMap<>();
     private static long clock;
     private static BadgeBudget budget;
@@ -100,7 +106,8 @@ public final class BadgeSocial {
         var viewer = level.getNearestPlayer(o, AUDIENCE_RADIUS);
         for (var y : seen) {
             var v = views.get(y.getUUID());
-            if (v == null) { views.put(y.getUUID(), new View(now)); continue; }
+            int grade = y.pet().visibleEffective().id();
+            if (v == null || v.grade != grade) { views.put(y.getUUID(), new View(now, grade)); continue; }
             v.last = now;
             if (!v.reported && now - v.since >= DWELL_TICKS) { v.reported = true; v.nextRoll = now + ROLL_EVERY; sighted(level, o, y, viewer, seen, now, true); }
             else if (v.reported && now >= v.nextRoll) { v.nextRoll = now + ROLL_EVERY + o.getRandom().nextInt(100); sighted(level, o, y, viewer, seen, now, false); }
@@ -152,10 +159,12 @@ public final class BadgeSocial {
         }
         if (choice.silent()) { glance(o, s, edge && (sight.first() || sight.changed())); return; }
         var arc = choice.arc();
+        String variant = arc == Arc.BOAST && o.pet().recentBadgeSuccess() && o.life().personality().boldness() >= 55
+                && o.life().personality().friendliness() <= 65 ? "boast" : choice.variant();
         UUID viewerId = viewer == null ? null : viewer.getUUID();
         if (budget().check(viewerId, arc.cost, o.getUUID(), s.getUUID()) != BadgeBudget.Verdict.OK) { glance(o, s, edge); return; }
         YukkuriEntity extra = extraFor(arc, o, s, seen);
-        var scene = BadgeArcs.start(level, arc, choice.variant(), o, s, viewer, extra);
+        var scene = BadgeArcs.start(level, arc, variant, o, s, viewer, extra);
         if (scene == null) { glance(o, s, edge); return; }
         budget().commit(viewerId, arc.cost, o.getUUID(), s.getUUID());
         ledger.arc(s.getUUID(), arc.id, now);

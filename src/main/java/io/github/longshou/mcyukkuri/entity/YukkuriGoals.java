@@ -124,7 +124,8 @@ final class YukkuriGoals {
         goalSelector.addGoal(6, landBinding(PresentationGoals.SETTLEMENT, new SettlementGoal()));
         // A migration (discussion, packing, march) outranks daily, social and family routines; the life needs (3) still come first.
         goalSelector.addGoal(4, landBinding(PresentationGoals.MIGRATION, new MigrationGoal()));
-        goalSelector.addGoal(5, landBinding(PresentationGoals.WILD_EVENT, new WildEventGoal(owner)));
+        goalSelector.addGoal(3, landBinding(PresentationGoals.WILD_EVENT, new WildEventGoal(owner, true)));
+        goalSelector.addGoal(5, landBinding(PresentationGoals.WILD_EVENT, new WildEventGoal(owner, false)));
         goalSelector.addGoal(4, presentationGoals.bind(PresentationGoals.COMFORT_GIVER, new ComfortGoal()));
         goalSelector.addGoal(5, landBinding(PresentationGoals.DAILY, new DailyGoal()));
         goalSelector.addGoal(6, landBinding(PresentationGoals.SOCIAL, new SocialGoal()));

@@ -185,6 +185,8 @@
     "excited_leak": "MD-17",
     "den_mold_exile": "DN-05",
     "colony_migrate_babies": "CL-05",
-    "colony_mold_exile": "CL-06"
+    "colony_mold_exile": "CL-06",
+    "training_home": "TN-14",
+    "training_study": "TN-15"
   }
 }

@@ -10,6 +10,8 @@ import io.github.longshou.mcyukkuri.mind.EmotionEvent;
 
 import io.github.longshou.mcyukkuri.social.Temperament;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.interaction.ItemContact;
+import io.github.longshou.mcyukkuri.life.EcologyMovement;
 import io.github.longshou.mcyukkuri.event.WildEventData;
 import io.github.longshou.mcyukkuri.event.WildEventData.Kind;
 import io.github.longshou.mcyukkuri.event.WildEventData.Phase;
@@ -67,6 +69,12 @@ public final class BadgeArcs {
         return e.isAlive() && !e.isRemoved() && !e.isNoAi() && !e.isPanicking() && !e.pet().busy() && !e.operations().active() && !e.isInWaterOrBubble()
                 && !e.isOnFire() && !e.isPassenger() && !e.life().isSleeping() && e.hurtTime == 0 && e.family().brood() == null;
     }
+    public static boolean running(YukkuriEntity e) {
+        if (!(e.level() instanceof ServerLevel level)) return false;
+        var scene = WildEventData.get(level).controlling(e.getUUID());
+        return scene != null && scene.active() && scene.kind == Kind.BADGE_ARC;
+    }
+    public static boolean canMove(YukkuriEntity e) { return usable(e); }
     private static boolean subjectReady(YukkuriEntity e, boolean allowMeal) {
         return usable(e) && WildEvents.safe(e) && e.onGround() && !e.dailyLife().active() && !e.groupInteraction().active() && !e.playLife().active()
                 && !e.family().active() && (allowMeal || e.life().mealTicks() == 0);
@@ -87,12 +95,14 @@ public final class BadgeArcs {
                 if (!o.status().identity().free()) return "observer_owned";
                 if (!eating(s)) return "subject_not_eating";
                 if (!o.life().canEat() || o.life().nutrition() >= 75) return "observer_not_hungry";
+                if (o.distanceToSqr(s) > 4 && !o.life().reachable(s.blockPosition(), false)) return "food_out_of_reach";
             }
+            case ENVY -> { if (grade(s) <= grade(o)) return "badge_not_higher"; }
             case PLEA -> {
                 if (!o.status().identity().free()) return "observer_owned";
                 if (player == null || !WildEvents.playerNear(o, player)) return "no_player_near";
             }
-            case BOAST -> { if (!o.pet().isPet()) return "observer_not_pet"; }
+            case BOAST -> { if (!o.pet().isPet() || grade(o) <= grade(s)) return "no_higher_badge"; }
             case HOME_CLAIM -> {
                 if (s.life().home() == null || s.life().naturalHome()) return "subject_has_no_home";
                 if (!o.status().identity().free()) return "observer_owned";
@@ -161,6 +171,7 @@ public final class BadgeArcs {
     /** How the badge-holder answers a stranger's interest, by its own nature. */
     private static String attitude(YukkuriEntity sub) {
         var p = sub.life().personality();
+        if (sub.pet().recentBadgeSuccess() && p.boldness() >= 55 && p.friendliness() <= 65) return "proud";
         if (p.friendliness() >= 55) return "kind";
         if (p.boldness() >= Temperament.BOLDNESS_AT_55 && p.friendliness() <= 50) return "proud";
         return "cold";
@@ -195,6 +206,10 @@ public final class BadgeArcs {
         s.ticks++; s.phaseTicks++; WildEventData.get(level).setDirty();
         if (s.ticks > TIMEOUT) { end(level, s, Phase.INTERRUPTED, "arc_timed_out"); return; }
         var o = loaded.get(0); var sub = loaded.get(1); var extra = loaded.size() > 2 ? loaded.get(2) : null;
+        if (arc == Arc.ENVY && grade(sub) <= grade(o) || arc == Arc.BOAST && grade(o) <= grade(sub)) {
+            end(level, s, Phase.INTERRUPTED, "badge_changed");
+            return;
+        }
         switch (arc) {
             case GLANCE -> glance(level, s, o, sub, extra);
             case ENVY -> envy(level, s, o, sub);
@@ -241,6 +256,7 @@ public final class BadgeArcs {
                     var p = o.life().personality();
                     boolean snark = p.friendliness() <= 35 || p.selfControl() <= Temperament.SELF_CONTROL_AT_35;
                     s.result = snark ? "snark" : "sulk";
+                    sub.showReaction("surprise", "", 50);
                     if (snark) { PetScenes.act(o, "puff", "angry", "badge_envy_snark", 70, sub); Staging.anger(level, o.position().add(0, o.getBbHeight(), 0)); }
                     else PetScenes.act(o, "sulk", "teary", "badge_envy", 80, sub);
                 }
@@ -251,7 +267,7 @@ public final class BadgeArcs {
                     String a = attitude(sub);
                     boolean timid = sub.life().personality().boldness() < Temperament.BOLDNESS_AT_40;
                     String stance;
-                    if (a.equals("kind")) { PetScenes.act(sub, "nuzzle", "happy", "badge_show_kind", 60, o); stance = "comforted"; }
+                    if (a.equals("kind")) { PetScenes.act(sub, "bow", "happy", "badge_show_kind", 60, o); stance = "comforted"; }
                     else if (a.equals("proud") && !timid) { PetScenes.act(sub, "proud", "smug", "badge_proud", 70, o); stance = "proud"; }
                     else if (timid) { if (sub.level() instanceof ServerLevel && sub.isAlive()) sub.mind().felt(EmotionEvent.FRIGHTENED); PetScenes.act(sub,
                             "tremble", "cry", "afraid", 60, o); Staging.sweat(sub); stance = "scared"; }
@@ -303,7 +319,9 @@ public final class BadgeArcs {
             case 0 -> {
                 if (!sub.life().mealHeld()) { end(level, s, Phase.INTERRUPTED, "meal_over"); return; }
                 if (t == 1) o.showReaction("teary", "badge_beg", 70);
-                if (o.distanceToSqr(sub) <= 4) { quiet(o); next(s); }
+                look(sub, o);
+                double contact = (o.getBbWidth() + sub.getBbWidth()) / 2 + .2;
+                if (o.distanceToSqr(sub) <= contact * contact && o.hasLineOfSight(sub)) { quiet(o); next(s); }
                 else if (t >= 140) { releaseHeldMeal(s); end(level, s, Phase.INTERRUPTED, "begger_unreached"); }
             }
             case 1 -> {
@@ -319,7 +337,7 @@ public final class BadgeArcs {
             }
             case 2 -> {
                 if (t == 1) {
-                    if (s.result.equals("offer") && sub.life().handOverMouth(o, "badge_share_offer")) { s.result = "shared"; PetScenes.act(sub, "offer_bite", null, null, 28, o); }
+                    if (s.result.equals("offer") && ItemContact.mouthsMeet(sub, o) && sub.life().handOverMouth(o, "badge_share_offer")) { s.result = "shared"; PetScenes.act(sub, "offer_bite", null, null, 28, o); }
                     else { s.result = "refuse"; releaseHeldMeal(s); sub.showReaction("cheek_puff", "badge_share_refuse", 70); look(sub, o); }
                 }
                 if (s.result.equals("shared")) {
@@ -583,11 +601,14 @@ public final class BadgeArcs {
                 else if (b >= 5 && (isExtra || isO)) { if (isExtra) retreat(e, sub, 10, s); else walk(e, extra == null ? sub : extra, 4, s); }
                 else hold(e, isExtra ? o : isSub ? o : sub);
             }
-            case ENVY -> {
-                if (isO && b >= 2 && !s.result.endsWith("|comforted")) retreat(e, sub, 8, s); else hold(e, other);
-            }
+            case ENVY -> hold(e, other);
             case BOAST -> { if (isO && b == 0) walk(e, sub, 16, s); else hold(e, other); }
-            case BEG_BITE -> { if (isO && b == 0) walk(e, sub, 4, s); else hold(e, other); }
+            case BEG_BITE -> {
+                if (isO && b == 0) {
+                    look(e, sub);
+                    EcologyMovement.approachResult(e, sub, .85);
+                } else hold(e, other);
+            }
             case PROVOKE -> {
                 var owner = BadgeSocial.ownerWithin(level, sub, 24);
                 if (isO && b == 0) walk(e, sub, 6.25, s);

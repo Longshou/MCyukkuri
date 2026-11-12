@@ -1228,13 +1228,42 @@ add('social_identity', 'town', '宠物、流浪与野生四类对照', '宠物�
     note='靠近后双手空着潜行右键，在「照料」一栏收养魔理沙，再对自己的灵梦选择「弃养」。观察菜单抬头的身份与操作后的反馈；收养未出现时，先喂食提高信任。',
     reads=[('读四只的身份', 'yukkuri status @e[tag=scn,type=#mcylab:yukkuri,distance=..24]')])
 
-add('wild', 'town', '饿野油来讨宠物的苹果', '饿野油来讨宠物的苹果', '宠物（银章）在进食；饥饿的野生魔理沙走来讨吃，看宠物是不理会、报告主人，还是没忍住', '约 1–3 分钟', [
-    yk('reimu', 0, 0, 'pet', grade=2, nutrition=38, yaw=-90, lead=True, boldness=60), *own('pet'), item('minecraft:apple', 1, 3, 0),
-    yk('marisa', 6, 0, 'wild', nutrition=34, yaw=90, boldness=45)], vantage=(0, 12))
+add('wild', 'town', '饿野油来讨宠物的苹果', '饿野油来讨宠物的苹果', '银章宠物就地吃苹果，旁边的野生魔理沙看见嘴里的食物才上前讨吃。看对方面向它、分一口或鼓脸拒绝。', '约半分钟', [
+    yk('reimu', 0, 0, 'pet', nutrition=38, yaw=-90, lead=True, boldness=60), *own('pet'),
+    f'yukkuri scenario badge {sel("pet")} silver false', item('minecraft:apple', 3, 1, 0),
+    yk('marisa', 4, 0, 'wild', nutrition=31, yaw=90, boldness=40)], env=DAY, vantage=(1, 9))
 
-add('badge', 'town', '别上银章，野油羡慕嫉妒', '别上银章，野油羡慕嫉妒', '场景给这只宠物灵梦签发的银章，只能由它佩戴；把它别上后，旁边的野生魔理沙会羡慕或嫉妒', '别上后约 1 分钟', [
-    yk('reimu', 0, 0, 'pet', yaw=-90, lead=True), *own('pet'), yk('marisa', 6, 0, 'wild', yaw=90),
-    f'yukkuri scenario badge {sel("pet")} silver true'], vantage=(0, 12))
+add('badge', 'town', '银章灵梦遇到嫉妒的野油', '银章灵梦遇到嫉妒的野油', '野生魔理沙看见灵梦佩戴的银章，鼓脸或闹别扭。看灵梦是友善回礼，还是得意地展示徽章。', '约 1 分钟', [
+    yk('reimu', 0, 0, 'pet', yaw=-90, lead=True), *own('pet'),
+    yk('marisa', 2, 0, 'wild', yaw=90, nutrition=84, boldness=68, friendliness=12, attachment=14, self_control=38),
+    f'yukkuri scenario badge {sel("pet")} silver false'], env=DAY, vantage=(1, 8))
+
+_practice_home = []
+for _x, _kind, _name, _skill in ((-7, 'reimu', 'practised', 76), (7, 'marisa', 'novice', 0)):
+    _practice_home += [
+        *shed(_x, -4), block(_x, 0, 2, 'mcyukkuri:food_bowl{Items:[{Slot:0b,id:"minecraft:apple",count:8}]}'),
+        block(_x + 2, 0, -1, 'mcyukkuri:yukkuri_toilet'), item('minecraft:apple', 2, _x - 2, 2, _name + '_apples'),
+        yk(_kind, _x, 0, _name, nutrition=48, energy=52, bladder=73, rest_wait=0, lead=_x < 0, yaw=0,
+           label='练过的宠物' if _x < 0 else '刚开始练习',
+           self_control=95 if _x < 0 else 24,
+           extra=f'YukkuriPet:{{SkillExperience:{{food_bowl:{_skill},toilet:{_skill},bedtime:{_skill}}}}}'),
+        *own(_name), home(_name, _x, -4)]
+add('training_home', 'town', '宠物日常练习：吃饭、如厕、睡觉', '宠物日常练习：吃饭、如厕、睡觉',
+    '两只同样饿、困并有便意的宠物，分别有食盆、沙厕和窝。看取食或打翻、走去沙厕或当场解决、回窝或就地睡下。用手册查看经验变化。',
+    '黄昏开始，约 1–2 分钟', _practice_home, env={'time': 'dusk'}, vantage=(0, 13),
+    give=['mcyukkuri:badge_handbook', 'mcyukkuri:teaching_whistle', 'mcyukkuri:sweet_candy 6'],
+    reads=[('读训练经验', f'data get entity {sel("practised")} YukkuriPet.SkillExperience'),
+           ('读新手经验', f'data get entity {sel("novice")} YukkuriPet.SkillExperience')])
+
+add('training_study', 'town', '宠物读告示牌、数苹果', '宠物读告示牌、数苹果',
+    '灵梦能看见写有「苹果」的告示牌和六个苹果。看它念出字、数到四以上说好多，或困惑答错。拿有字的书也可以从手册开课。',
+    '约 1 分钟', [
+        block(0, 0, -2, 'minecraft:oak_sign[rotation=0]{front_text:{messages:[\'{"text":"苹果"}\',\'""\',\'""\',\'""\']}}'),
+        item('minecraft:apple', 6, 2, 0, 'count_apples'),
+        yk('reimu', 0, 0, 'reader', nutrition=96, social_wait=0, lead=True, intelligence=90, self_control=86,
+           extra='YukkuriPet:{SkillExperience:{reading:76,arithmetic:76}}'), *own('reader')],
+    env=DAY, vantage=(1, 8), give=['mcyukkuri:badge_handbook', 'minecraft:writable_book'],
+    reads=[('读读字和算术经验', f'data get entity {sel("reader")} YukkuriPet.SkillExperience')])
 
 add('exam', 'town', '宠物灵梦考试：及格得铜章，饿着必挂', '宠物灵梦考试：及格得铜章，饿着必挂',
     '带宠物灵梦去考官面前考试：紧张、作答、躲猫猫，合格得铜章。不及格对照：生成后立刻点“考生营养降到4”，考试必然不及格，之后被管教（不安 +10、营养清零），比原来的压力更重',
@@ -1259,7 +1288,7 @@ add('pred_pets', 'town', '饿了的宠物捕食种：受训的忍住', '饿了�
     f'yukkuri scenario badge {sel("prey")} bronze false',
     yk('flandre', 10, 0, 'fla', grade=1, yaw=90, nutrition=100), *own('fla'),
     f'yukkuri scenario badge {sel("fla")} bronze false',
-    f'data modify entity {sel("fla")} YukkuriPet.KnownSkills set value 0',
+    f'data remove entity {sel("fla")} YukkuriPet.SkillExperience.wait',
     set_status('rem', 'needs.nutrition', 25), set_status('fla', 'needs.nutrition', 25),
     box(8, 0, -2, 12, 2, -2, 'minecraft:glass_pane'), box(8, 0, 2, 12, 2, 2, 'minecraft:glass_pane'),
     box(8, 0, -1, 8, 2, 1, 'minecraft:glass_pane'), box(12, 0, -1, 12, 2, 1, 'minecraft:glass_pane')],
@@ -3883,7 +3912,7 @@ TOPICS = {
     'forage_empty': 'R1', 'rain_life': 'R1', 'rain_huddle': 'R1', 'storm_cower': 'R1', 'marisa_explore': 'R1', 'rain_shelter': 'R1', 'rain_open': 'R1', 'pred_watch': 'R2', 'pred_range': 'R2', 'pred_pets': 'R2', 'shared_body': 'R3',
     'house_empty': 'H1', 'house_pair': 'H2', 'house_eggs': 'H3',
     'shop_build': 'M1', 'shop_window': 'M1', 'shop_buy_keeper': 'M1', 'factory_labor': 'M2', 'factory_manju': 'M2', 'factory_bag': 'M2', 'harness_walk': 'M3', 'swaddle_worn': 'M3', 'feed_wild': 'M3', 'oniisan_prey': 'M4', 'attack_witness': 'M4',
-    'wild': 'M5', 'badge': 'M5', 'exam': 'M5', 'date': 'M5', 'transport': 'M5', 'custody_death': 'M5', 'social_identity': 'M5',
+    'wild': 'M5', 'badge': 'M5', 'training_home': 'M5', 'training_study': 'M5', 'exam': 'M5', 'date': 'M5', 'transport': 'M5', 'custody_death': 'M5', 'social_identity': 'M5',
     'airborne': 'R8', 'house_health': 'R9',
     'body_mold': 'R5', 'wound_materials': 'R5', 'thermal_body': 'R5', 'wound_sources': 'R5', 'wound_leak': 'R5', 'treatment_severe': 'R5', 'treatment_scars': 'R5', 'treatment_care': 'R5', 'magma_sole': 'R5', 'core_exposed': 'R5', 'core_filling': 'R5', 'remains_rot': 'R6', 'remains_forms': 'R6', 'carrion': 'R6', 'cannibal_hunt': 'R6',
     'last_words': 'R7', 'offering': 'R7', 'sacrifice': 'R7',
@@ -3952,8 +3981,20 @@ _smoke('social_identity', 240, [
     for species, kind in (('reimu', 'pet'), ('marisa', 'stray'), ('patchouli', 'wild_settlement'), ('chen', 'wild_family'))],
     readout=[f'yukkuri status {sel("identity_" + kind)} raw' for kind in ('pet', 'stray', 'settlement', 'family')])
 _smoke('wild', 600, [r'\[status\] reimu [^\n]* identity observed kind=pet\b',
-                    r'\[status\] marisa [^\n]* identity observed kind=wild_family\b'],
+                    r'\[status\] marisa [^\n]* identity observed kind=wild_family\b',
+                    r'\[wild-event\][^\n]*event=ended [^\n]*card=beg_bite [^\n]*detail=(?:shared|refused)\b'],
     readout=[f'yukkuri status {sel(kind)} raw' for kind in ('pet', 'wild')])
+_smoke('badge', 1200, [r'\[wild-event\][^\n]*event=ended [^\n]*card=envy [^\n]*detail=envy_\w+'],
+    readout=[f'yukkuri status {sel(kind)} raw' for kind in ('pet', 'wild')])
+_smoke('training_home', 2100, [
+    r'\[lesson\][^\n]*skill practice skill=FOOD_BOWL source=daily xp=76 -> 78',
+    r'\[needs\][^\n]*relieved source=facility',
+    r'\[sleep\][^\n]*begin source=life',
+], readout=[f'data get entity {sel(n)} YukkuriPet.SkillExperience' for n in ('practised', 'novice')])
+_smoke('training_study', 1750, [
+    r'\[lesson\][^\n]*study answered skill=READING',
+    r'\[lesson\][^\n]*study answered skill=ARITHMETIC source=food count=6',
+], readout=[f'data get entity {sel("reader")} YukkuriPet.SkillExperience'])
 _smoke('balance_relation', 600, [r'\[status\] reimu [^\n]* identity observed kind=wild_family\b'],
     readout=[f'yukkuri status {sel(f"fear{fear}")} raw' for fear, _ in _BALANCE_FEAR])
 next(s for s in S if s.id == 'balance_relation').smoke['verify'] = _distinct(

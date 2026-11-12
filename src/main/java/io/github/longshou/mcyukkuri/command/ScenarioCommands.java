@@ -42,6 +42,7 @@ import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.AABB;
 import net.neoforged.neoforge.common.util.FakePlayerFactory;
 import io.github.longshou.mcyukkuri.family.FamilyData;
@@ -162,16 +163,17 @@ public final class ScenarioCommands {
                                     if (target == null) return 0;
                                     var grade = badgeGrade(StringArgumentType.getString(c, "grade"));
                                     if (grade == BadgeGrade.NONE) return refused(c.getSource(), target, "签发徽章", "等级只能是 bronze、silver 或 gold。");
-                                    var player = c.getSource().getPlayerOrException();
-                                    if (!target.pet().ownedBy(player.getUUID()))
+                                    boolean detached = BoolArgumentType.getBool(c, "detached");
+                                    var holder = detached ? c.getSource().getPlayerOrException() : c.getSource().getEntityOrException();
+                                    if (!target.pet().ownedBy(holder.getUUID()))
                                         return refused(c.getSource(), target, "签发徽章", "只能给自己的宠物签发令牌。");
-                                    target.pet().issue(grade, 3, player.getUUID());
-                                    if (BoolArgumentType.getBool(c, "detached")) {
+                                    target.pet().issue(grade, 3, holder.getUUID());
+                                    if (holder instanceof Player player && detached) {
                                         // The domain API creates the token from this individual's current UUID and serial; never handcraft its data.
                                         var token = target.pet().reissueToken();
                                         if (!player.getInventory().add(token)) player.drop(token, false);
                                     }
-                                    return done(c.getSource(), BoolArgumentType.getBool(c, "detached") ? "已签发该个体的真实徽章令牌。" : "已签发并佩戴真实徽章。");
+                                    return done(c.getSource(), detached ? "已签发该个体的真实徽章令牌。" : "已签发并佩戴真实徽章。");
                                 })))))
                 .then(Commands.literal("stud").then(Commands.argument("keeper", EntityArgument.entity())
                         .then(Commands.argument("animal", EntityArgument.entity()).executes(c -> {

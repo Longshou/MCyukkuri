@@ -57,7 +57,7 @@ public final class WildEvents {
     public static boolean safe(YukkuriEntity e) {
         return e.isAlive() && !e.isRemoved() && !e.isNoAi() && !e.isPanicking() && !e.isCommandPlaying()
                 && e.family().brood()==null && !e.family().awaitingLanding() && !ParentCarry.awaitsCarrier(e)
-                && !e.operations().active() && !e.pet().busy() && !e.social().holdingStill() && !e.isInWaterOrBubble() && !e.isOnFire() && !e.isPassenger()
+                && !e.operations().active() && !e.pet().busy() && !e.isInWaterOrBubble() && !e.isOnFire() && !e.isPassenger()
                 && !e.life().isSleeping() && e.life().energy()>=15 && e.life().nutrition()>=10
                 && e.body().condition().readyForWildEvent() && e.life().wetness()<50;
     }

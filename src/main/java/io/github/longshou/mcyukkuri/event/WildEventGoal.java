@@ -12,9 +12,13 @@ import io.github.longshou.mcyukkuri.pet.social.BadgeArcs;
 /** Optional event movement yields to physiology, restraint and danger through the goal selector. */
 public final class WildEventGoal extends Goal {
     private final YukkuriEntity entity;
-    public WildEventGoal(YukkuriEntity entity){this.entity=entity;setFlags(EnumSet.of(Flag.MOVE,Flag.LOOK));}
-    @Override public boolean canUse(){return WildEvents.reserved(entity)&&WildEvents.safe(entity)
-            &&!entity.life().hasUrgentNeed()&&entity.life().mealTicks()==0&&!entity.dailyLife().active()&&!entity.social().active();}
+    private final boolean badge;
+    public WildEventGoal(YukkuriEntity entity, boolean badge){this.entity=entity;this.badge=badge;setFlags(EnumSet.of(Flag.MOVE,Flag.LOOK));}
+    @Override public boolean canUse(){
+        if (!WildEvents.reserved(entity) || entity.life().hasUrgentNeed() || entity.life().mealTicks()!=0) return false;
+        if (badge) return BadgeArcs.running(entity) && BadgeArcs.canMove(entity);
+        return !BadgeArcs.running(entity) && WildEvents.safe(entity) && !entity.dailyLife().active() && !entity.social().active();
+    }
     @Override public boolean canContinueToUse(){return canUse();}
     @Override public boolean requiresUpdateEveryTick(){return true;}
     @Override public void tick() {
