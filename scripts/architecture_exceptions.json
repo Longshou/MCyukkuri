@@ -915,66 +915,6 @@
     },
     {
       "rule": "PERSISTENT_DATA",
-      "path": "src/main/java/io/github/longshou/mcyukkuri/shop/ShopDeliveries.java",
-      "signature": "ShopDeliveries#factoryOrigin ( YukkuriEntity y )",
-      "token_hash": "a7de65834ad9d9013b10f3502922b3d4d8b2f20b08866ef4bcbca2176e5156ff",
-      "subjects": {
-        "getPersistentData": 1
-      },
-      "reason": "Persistent production origin drives shop flags and unbadged factory price factor; distinct from current custody Owner.",
-      "receiver": "See individually reviewed accesses in source order.",
-      "keys": [
-        {
-          "path": "FactoryOrigin",
-          "operation": "contains UUID"
-        }
-      ],
-      "accesses": [
-        {
-          "receiver": "y: YukkuriEntity",
-          "keys": [
-            {
-              "path": "FactoryOrigin",
-              "operation": "contains UUID"
-            }
-          ],
-          "reason": "Persistent production origin drives shop flags and unbadged factory price factor; distinct from current custody Owner.",
-          "ordinal": 1
-        }
-      ]
-    },
-    {
-      "rule": "PERSISTENT_DATA",
-      "path": "src/main/java/io/github/longshou/mcyukkuri/shop/ShopDeliveries.java",
-      "signature": "ShopDeliveries#finishArrival ( ServerLevel level , YukkuriEntity y , HumanNpc shop , UUID factory )",
-      "token_hash": "7ba836b60aec91a654a580b3229172d153aa9297a78e5194a02c7179d46279fa",
-      "subjects": {
-        "getPersistentData": 1
-      },
-      "reason": "Set provenance only after successful arrival and custody confirmation; transfers/death of current owner do not erase origin.",
-      "receiver": "See individually reviewed accesses in source order.",
-      "keys": [
-        {
-          "path": "FactoryOrigin",
-          "operation": "write UUID"
-        }
-      ],
-      "accesses": [
-        {
-          "receiver": "y: YukkuriEntity accepted by destination stock owner",
-          "keys": [
-            {
-              "path": "FactoryOrigin",
-              "operation": "write UUID"
-            }
-          ],
-          "reason": "Set provenance only after successful arrival and custody confirmation; transfers/death of current owner do not erase origin.",
-          "ordinal": 1
-        }
-      ]
-    },
-    {
-      "rule": "PERSISTENT_DATA",
       "path": "src/main/java/io/github/longshou/mcyukkuri/social/Cannibalism.java",
       "signature": "Cannibalism#huntCooldown ( )",
       "token_hash": "22871c8e777b8da62579d4671022f8c114a276bd7d213c949bc04a42bda4b2a0",

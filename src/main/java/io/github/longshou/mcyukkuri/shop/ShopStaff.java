@@ -3,6 +3,7 @@ package io.github.longshou.mcyukkuri.shop;
 import io.github.longshou.mcyukkuri.coordination.DeadlineMap;
 import io.github.longshou.mcyukkuri.entity.SpeciesProfile;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.entity.YukkuriGroundNavigation;
 import io.github.longshou.mcyukkuri.entity.YukkuriVariant;
 import io.github.longshou.mcyukkuri.human.Custody;
 import io.github.longshou.mcyukkuri.human.HumanCommerce;
@@ -64,7 +65,7 @@ public final class ShopStaff {
     /** Animals and blocks a staff member could not reach: nobody tries them again before the deadline (transient, at most 64 keys). */
     private static final DeadlineMap<Object> UNREACHABLE = new DeadlineMap<>();
     /** Ticks a leg may take, ticks without getting closer, ticks of handling at reach, and how long an unreachable target is left alone. */
-    private static final int LEG = 600, STALL = 140, WORK = 16, RETRY = 1200;
+    private static final int LEG = 600, STALL = 140, WORK = 16, RETRY = 1200, BLOCKED = 20;
     /** A bowl holding fewer portions than this is refilled with one serving of regular grain. */
     private static final int BOWL_LOW = 2, SERVING = 4;
     /** Hand's reach from the staff member's feet to the target's centre, with a clear line from its eyes. */
@@ -402,6 +403,11 @@ public final class ShopStaff {
     private static void walk(ServerLevel level, HumanNpc staff, ShopRegistry.Entry shop, Job job, Vec3 point) {
         double d = staff.position().distanceToSqr(point);
         if (d < job.best - .25) { job.best = d; job.stall = 0; } else if (++job.stall > STALL) { fail(level, staff, shop, job, "stalled"); return; }
+        // Held up for a second: an idle animal right against it (in a doorway, say) is asked to make way, as animals do for each other.
+        if (job.stall > BLOCKED && job.stall % 10 == 0)
+            for (var y : level.getEntitiesOfClass(YukkuriEntity.class, staff.getBoundingBox().inflate(.6, 0, .6), YukkuriEntity::isAlive))
+                if (YukkuriGroundNavigation.giveWay(y, staff))
+                    GameplayLog.limited(staff, "shop", "give_way", 100, "action=job result=asked_way kind={} animal={}", job.kind, y.getUUID());
         if (job.leg % 10 != 1) return;
         var to = point;
         if (job.loose == null && animal(level, job) == null && job.target != null && !(job.phase == Phase.CARRY && job.kind == Kind.BUY)) {

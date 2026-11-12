@@ -292,6 +292,7 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
                 super.prepare(region, mob);
                 keepDry = mob instanceof YukkuriEntity animal && Reactions.Weather.keepDry(animal);
                 keepHome = mob instanceof YukkuriEntity animal && TravelRange.keepBabyHome(animal);
+                setCanPassDoors(!(mob instanceof YukkuriEntity animal && TravelRange.staysBehindDoors(animal)));
                 avoidedPit = mob instanceof YukkuriEntity animal ? GroupPits.avoidedCells(animal) : List.of();
             }
             @Override public Node getStart(){
@@ -649,6 +650,18 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
         double away = Math.signum((body.getX() - other.getX()) * side.x + (body.getZ() - other.getZ()) * side.z);
         if (away == 0) away = 1;
         return Motor.move(body, new Vec3(side.x * away * .16, 0, side.z * away * .16), "give_way").lengthSqr() > 1e-6;
+    }
+
+    /**
+     * A person held up by this body (shop staff squeezing past it in a doorway or aisle) asks it to make way: an idle, awake body takes the
+     * same short pace off the person's line as for another yukkuri. True when it really moved.
+     */
+    public static boolean giveWay(YukkuriEntity blocker, Entity walker) {
+        if (!blocker.getNavigation().isDone() || blocker.isCommandPlaying() || blocker.operations().active()
+                || blocker.life().isSleeping() || !blocker.nudgeable()) return false;
+        var heading = new Vec3(blocker.getX() - walker.getX(), 0, blocker.getZ() - walker.getZ());
+        if (heading.lengthSqr() < 1e-6) return false;
+        return stepAside(blocker, walker, heading.normalize());
     }
 
     /** An idle, awake blocker moves out of the way; sleeping, busy or boarded ones keep their place. */

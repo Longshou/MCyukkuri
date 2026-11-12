@@ -2,6 +2,7 @@ package io.github.longshou.mcyukkuri.life;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.FamilyLife.Stage;
+import io.github.longshou.mcyukkuri.status.Identity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.phys.Vec3;
 
@@ -31,6 +32,9 @@ public final class TravelRange {
         return animal.family().stage() == Stage.BABY ? BABY_RADIUS
                 : (int)Math.round(20 * animal.life().personality().exploreMultiplier());
     }
+
+    /** Shop stock (identity STOCK) plans no route through a doorway: it stays in its pen while a staff member holds the door open. */
+    public static boolean staysBehindDoors(YukkuriEntity animal) { return animal.status().identity() == Identity.STOCK; }
 
     public static boolean keepBabyHome(YukkuriEntity animal) {
         return animal.family().stage() == Stage.BABY && !animal.family().emergencyForaging() && animal.life().homeStand() != null
