@@ -5,7 +5,8 @@ seat) call fitted(); the base model files themselves are never rewritten. A fit 
 base fingerprint differs from the model file is ignored, matching the game.
 """
 from pathlib import Path
-import hashlib, json, math
+import json, math
+from runtime_model_fingerprint import matches_model_fingerprint
 
 ROOT = Path(__file__).resolve().parents[1]
 RESOURCE = ROOT/'src/main/resources/assets/mcyukkuri/yukkuri_presentation/placement_fit.json'
@@ -56,6 +57,6 @@ def fitted(path, fits=None):
     raw = Path(path).read_bytes(); model = json.loads(raw)
     fits = load() if fits is None else fits
     fit = fits.get(model['id'])
-    if fit and fit['base_sha256'] == hashlib.sha256(raw).hexdigest():
+    if fit and matches_model_fingerprint(raw, fit['base_sha256']):
         return splice(model, fit)
     return model
