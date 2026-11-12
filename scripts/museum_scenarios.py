@@ -1101,16 +1101,16 @@ add('birth_nest_safe', 'family', '母油走进大窝生产，赤油落垫上', '
     reads=[('读自然产程', f'yukkuri status {sel("mother")} raw'), ('读所有赤油', f'yukkuri status {NEWBORNS} raw')])
 
 add('birth_nest_stem', 'family', '大窝里茎生，实子落在垫上', '大窝里茎生，实子落在垫上',
-    '灵梦父母，母油从窝外走进野生大草窝，先转身让茎上实子都悬在窝内（日志 stem site facing），再茎生：实子脱落时带随机横向力，多数落在垫面（CUSHION，无伤），少数落到窝外受摔伤。读产程、birth launch / birth landed 日志',
-    '约 2 分钟', [*shed(0, 0, half=4), *large_nest(0, 0, 'mcyukkuri:large_wild_nest'),
+    '灵梦母油从窝外走进野生大草窝，沿窝垫的长轴摆正五果，实子成熟后从真实挂点脱落。看落在垫面和偏到窝外的区别。',
+    '约 20 秒成熟', [*shed(0, 0, half=4), *large_nest(0, 0, 'mcyukkuri:large_wild_nest'),
     yk('reimu', .5, 2, 'mother', yaw=180, lead=True, **pair_ready()),
     yk('reimu', 3, 2, 'father', **pair_ready()),
     f'yukkuri scenario bond {sel("mother")} {sel("father")}', home('mother', 0, 0),
     f'yukkuri scenario birth {sel("mother")} {sel("father")} stem "0.13,0.15,0.17,0.18,0.19"'], spot='pet_birth',
-    # Her walk into the nest and turn (from about 40 ticks), then the drops 400 ticks after she is in place (about 520).
+    # Conception follows scene setup. Growth and the route to the nest start together.
     capture=dict(shots=(1, 40, 200, 480), sequences=((40, 240, 5), (480, 640, 4)), observe=False,
                  views={'nest': dict(follow=f'@e[tag={tag("mother")},limit=1]', offset=(1.6, 1.7, 1.4),
-                                     criteria='母油走进大窝后先转身，茎上实子都悬在窝内，脱落后落在窝垫上')}),
+                                     criteria='母油走进大窝，沿窝垫长轴摆正实子，观察各自脱落与落点')}),
     reads=[('读母油产程', f'yukkuri status {sel("mother")} raw'), ('读所有赤油', f'yukkuri status {NEWBORNS} raw')])
 
 _nest_ids={name:uid('family_nests',name) for name in ['mother','father','b0','b1','b2','b3']}
@@ -1876,7 +1876,7 @@ def _aftermath_pens(lanes):
             yk('alice', dx, -7, f'source_{lane}', extra=agitation_start('IDLE'), **pair_ready()),
             *own(f'affected_{lane}'), *own(f'source_{lane}'), home(f'affected_{lane}', dx + (3 if lane == 'depletion' else 2), 2),
             *([item('minecraft:apple', 1, dx + 2.5 + x, 2.5 + z, dy=.08)
-               for x, z in [(.24, .24), (-.24, .24), (.24, -.24), (-.24, -.24)]] if lane == 'growth' else [])]
+               for x, z in [(-.24, -.13), (.13, -.24), (.24, .13), (-.13, .24)]] if lane == 'growth' else [])]
     return out
 
 
@@ -4417,7 +4417,27 @@ next(s for s in S if s.id == 'widow_repair').smoke['readout'] = [f'yukkuri statu
                                                                  f'yukkuri status {sel("new_partner")} raw']
 _smoke('aftermath_growth', 3600, [r'\[family\][^\n]* stem drain stage', r'\[family\][^\n]* stem sprouted ',
                                 r'\[family\][^\n]* stem ripe [^\n]*fruit=3\b'])
-next(s for s in S if s.id == 'aftermath_growth').smoke['verify'] = _distinct(r'\[family\] reimu #\d+ uuid=(\S+)[^\n]* aftermath reserved ', 2, 'aftermath broods')
+
+
+def _aftermath_growth_verify(window):
+    for lane in ('growth', 'burden'):
+        actor = _uuid_text('aftermath_growth', f'affected_{lane}')
+        prefix = rf'\[(?:family|meal)\] reimu #\d+ uuid={actor}[^\n]* '
+        sprout = re.search(prefix + r'stem sprouted brood=(\S+) elapsed=1 duration=(\d+) fruit=3\b', window)
+        if sprout is None:
+            return f'{lane}: three-fruit stem did not sprout'
+        ripe = re.search(prefix + rf'stem ripe brood={sprout[1]} elapsed={sprout[2]} duration={sprout[2]} fruit=3\b',
+                         window[sprout.end():])
+        if ripe is None:
+            return f'{lane}: the sprouted stem did not ripen'
+        growing = window[sprout.end():sprout.end() + ripe.start()]
+        for before, after in re.findall(prefix + r'swallowed item=minecraft:apple count=1 nutrition=([\d.]+) -> ([\d.]+)', growing):
+            if float(after) <= float(before):
+                return f'{lane}: a swallowed apple did not restore nutrition ({before} -> {after})'
+    return None
+
+
+next(s for s in S if s.id == 'aftermath_growth').smoke['verify'] = _aftermath_growth_verify
 next(s for s in S if s.id == 'aftermath_growth').smoke['readout'] = [f'yukkuri status {sel("affected_growth")} raw',
                                                                    f'yukkuri status {sel("affected_burden")} raw']
 next(s for s in S if s.id == 'aftermath_growth').smoke['gating_checks'] = ('END', 'FATE')
@@ -4673,9 +4693,9 @@ _scene_end('aftermath_growth', [('affected_growth', _DRY),
                                ('affected_burden', _DRY),
                                ('source_growth', _DRY), ('source_burden', _DRY)],
            [('affected_growth', 'seen:family:aftermath reserved'), ('affected_growth', 'seen:family:stem sprouted'),
-            ('affected_growth', 'seen:meal:swallowed item=minecraft:apple'), ('affected_growth', 'seen:family:stem ripe')],
+            ('affected_growth', 'seen:family:stem ripe')],
            [('affected_burden', 'seen:family:aftermath reserved'), ('affected_burden', 'seen:family:stem sprouted'),
-            ('affected_burden', 'seen:family:stem drain stage 2->3'), ('affected_burden', 'seen:family:stem ripe')])
+            ('affected_burden', 'seen:family:stem ripe')])
 _scene_end('aftermath_depletion', [('affected_depletion', 'alive=false'), ('source_depletion', _DRY)],
            [('affected_depletion', 'seen:family:aftermath reserved'),
             ('affected_depletion', 'seen:family:stem sprouted'),

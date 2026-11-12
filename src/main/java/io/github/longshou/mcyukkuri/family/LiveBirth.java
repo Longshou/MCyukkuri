@@ -285,7 +285,7 @@ final class LiveBirth extends Choreography {
             for(int i=0;i<b.children.size();i++){
                 var child=b.children.get(i);
                 if(child.born||b.elapsed<b.duration+i*8)continue;
-                var at=FamilyGeometry.toWorld(m,FamilyGeometry.childBase(b.children.size(),i,1,m.growthScale(),b.variation,m.getVariant(),child.variant,GrowthSize.physicalBirth(b.kind,child)));
+                var at=FamilyGeometry.toWorld(m,ripeFruit(m,b,i));
                 // A blocked attachment delays the birth; it never spawns through the ceiling or into a wall.
                 if(FamilyData.get(o.level()).birth(b,i,o.level(),at,placedHat(),null)!=null)
                     m.showReaction(b.incidentSource==null?"happy":"teary",b.incidentSource==null?"birth":"",100);
@@ -439,6 +439,13 @@ final class LiveBirth extends Choreography {
     private Intent site(){
         if(receiver instanceof Cabin)return null;
         var m=o.entity();var care=FamilyNest.care(m);var shelter=m.habitat().shelter();
+        if(!live&&receiver instanceof Nest){
+            var centre=FamilyNest.largeCentre(m);var brood=brood();
+            if(centre!=null&&brood!=null){
+                var stand=stemNestStand(m,brood,centre);
+                if(stand!=null)return new GoTo("birth_site",m,stand.at(),now()+Math.max(NEST_GRACE,toTerm())).facing(stand.yaw());
+            }
+        }
         BlockPos bed=care!=null?care.getBlockPos():shelter!=null?shelter.bed(m.getUUID()):null;
         boolean helped=receiver instanceof PlacedHat&&catcher()!=null&&!self(),cushion=live&&care!=null&&!care.largeNest();
         Vec3 target=null;
@@ -448,9 +455,7 @@ final class LiveBirth extends Choreography {
             if(target==null&&receiver instanceof Nest)target=FamilyNest.bedMiddle(m,o.nestStand());
         }
         if(target==null)return null;
-        var go=new GoTo("birth_site",m,target,now()+(live?Math.max(PAUSE,toTerm()):Math.max(NEST_GRACE,toTerm())));
-        var b=brood();var centre=FamilyNest.largeCentre(m);
-        return !live&&receiver instanceof Nest&&b!=null&&centre!=null?go.facing(stemFacing(m,b,target,centre)):go;
+        return new GoTo("birth_site",m,target,now()+(live?Math.max(PAUSE,toTerm()):Math.max(NEST_GRACE,toTerm())));
     }
     boolean anchorsMother(){
         var b=brood();
@@ -479,33 +484,63 @@ final class LiveBirth extends Choreography {
         }
         return best==null?null:new GoTo("stem_drop_site",m,best,now()+NEST_GRACE).around(c).facing(facing);
     }
-    /** A stem mother's yaw in her large nest: the least turn from the way she arrives (TURNS) that keeps every fruit, tossed its
-     *  farthest, a fruit's radius inside the nest floor; when none does, the turn with the best margin. Her stand stays her bed slot. */
-    private static float stemFacing(YukkuriEntity m,FamilyData.Brood b,Vec3 stand,Vec3 centre){
-        float arrive=SurfaceApproach.arrived(m,stand)?m.yBodyRot:SurfaceApproach.yaw(m.position(),stand),best=arrive;
-        double margin=Double.NEGATIVE_INFINITY;
-        for(float turn:TURNS){
-            double fit=stemMargin(m,b,stand,arrive+turn,centre);
-            if(fit>margin){margin=fit;best=arrive+turn;}
-            if(fit>=0)break;
-        }
-        GameplayLog.event(m,"family","stem site facing yaw={} margin={} turn={} fruits={} stand={} centre={}",String.format(Locale.ROOT,"%.1f",Mth.wrapDegrees(best)),
-                String.format(Locale.ROOT,"%.3f",margin),String.format(Locale.ROOT,"%.1f",Mth.wrapDegrees(best-arrive)),b.unborn(),GameplayLog.at(stand),GameplayLog.at(centre));
-        return best;
+    private static Vec3 ripeFruit(YukkuriEntity mother,FamilyData.Brood brood,int index){
+        var child=brood.children.get(index);
+        return FamilyGeometry.childBase(brood.children.size(),index,1,mother.growthScale(),brood.variation,
+                mother.getVariant(),child.variant,GrowthSize.physicalBirth(brood.kind,child));
     }
-    /** The least room (blocks) a fruit keeps inside the large nest floor (NestResting.LARGE, square) when she stands at
-     *  {@code stand} turned to {@code yaw}: each drops from its hang point (the drop beat's own childBase) and its body, tossed
-     *  its farthest sideways, must stay on the floor. Negative: some fruit would come down on the rim or outside. */
-    private static double stemMargin(YukkuriEntity m,FamilyData.Brood b,Vec3 stand,float yaw,Vec3 centre){
-        double half=NestResting.LARGE.half(),least=Double.POSITIVE_INFINITY;int n=b.children.size();
-        for(int i=0;i<n;i++){
-            var child=b.children.get(i);
-            if(child.born)continue;
-            var at=FamilyGeometry.toWorld(stand,yaw,m.getScale(),FamilyGeometry.childBase(n,i,1,m.growthScale(),b.variation,m.getVariant(),child.variant,GrowthSize.physicalBirth(b.kind,child)));
-            double radius=LiveBirthGeometry.unbornDimensions(b.kind,child).scale(m.getScale()).width()/2;
-            least=Math.min(least,half-radius-tossReach(at.y-stand.y)-Math.max(Math.abs(at.x-centre.x),Math.abs(at.z-centre.z)));
+
+    private record StemStand(Vec3 at,float yaw,double error,double span,double tossSpan,double axisLength){}
+
+    /** Centre the full-size fruit row on a long diagonal of the rounded square. Only the mother's stand is moved. */
+    private static StemStand stemNestStand(YukkuriEntity mother,FamilyData.Brood brood,Vec3 centre){
+        var bed=NestResting.LARGE;
+        double halfAxis=(bed.half()-bed.corner())*Math.sqrt(2)+bed.corner();
+        var local=new ArrayList<Vec3>();
+        var widths=new ArrayList<Double>();
+        for(int i=0;i<brood.children.size();i++){
+            local.add(ripeFruit(mother,brood,i));
+            widths.add(LiveBirthGeometry.unbornDimensions(brood.kind,brood.children.get(i)).scale(mother.getScale()).width()*.5);
         }
-        return least;
+        Vec3 first=local.getFirst(),last=local.getLast();
+        Vec3 row=FamilyGeometry.toWorld(Vec3.ZERO,0,1,first.subtract(last));
+        float rowYaw=row.horizontalDistanceSqr()>0?SurfaceApproach.yaw(Vec3.ZERO,row):0;
+        StemStand best=null;
+        double bestRoute=Double.POSITIVE_INFINITY;
+        for(float axisYaw:new float[]{45,135,225,315}){
+            Vec3 axis=Vec3.directionFromRotation(0,axisYaw),across=new Vec3(axis.z,0,-axis.x);
+            float yaw=Mth.wrapDegrees(axisYaw-rowYaw);
+            double low=Double.POSITIVE_INFINITY,high=Double.NEGATIVE_INFINITY;
+            double left=Double.POSITIVE_INFINITY,right=Double.NEGATIVE_INFINITY;
+            double tossedLow=Double.POSITIVE_INFINITY,tossedHigh=Double.NEGATIVE_INFINITY;
+            for(int i=0;i<local.size();i++){
+                var point=FamilyGeometry.toWorld(Vec3.ZERO,yaw,mother.getScale(),local.get(i));
+                double along=point.dot(axis),side=point.dot(across),radius=widths.get(i),toss=tossReach(point.y);
+                low=Math.min(low,along-radius);high=Math.max(high,along+radius);
+                left=Math.min(left,side-radius);right=Math.max(right,side+radius);
+                tossedLow=Math.min(tossedLow,along-radius-toss);tossedHigh=Math.max(tossedHigh,along+radius+toss);
+            }
+            Vec3 ideal=centre.subtract(axis.scale((high+low)*.5)).subtract(across.scale((right+left)*.5));
+            // If the centred row puts her feet on an unsupported lip, retain the axis and use the nearest reachable stand inward.
+            int steps=Math.max(1,(int)Math.ceil(ideal.distanceTo(centre)/Walk.STAND_ARRIVED));
+            for(int i=0;i<=steps;i++){
+                Vec3 at=SurfaceApproach.restingFloor(mother,ideal.lerp(centre,i/(double)steps));
+                if(at==null)continue;
+                double error=at.subtract(ideal).horizontalDistance();
+                if(best!=null&&error>best.error()+1e-6)break;
+                double route=SurfaceApproach.at(mother,at)?0:SurfaceApproach.routeLength(mother,at,null);
+                if(!Double.isFinite(route))continue;
+                if(best==null||error<best.error()-1e-6||route<bestRoute){
+                    best=new StemStand(at,yaw,error,high-low,tossedHigh-tossedLow,2*halfAxis);
+                    bestRoute=route;
+                }
+                break;
+            }
+        }
+        if(best!=null)GameplayLog.event(mother,"family","stem site facing yaw={} fruits={} stand={} centre={} rowSpan={} tossSpan={} supportAxis={} centringError={}",
+                best.yaw(),brood.unborn(),GameplayLog.at(best.at()),GameplayLog.at(centre),
+                best.span(),best.tossSpan(),best.axisLength(),best.error());
+        return best;
     }
     /** How far sideways the strongest stem toss (BirthLaunch.STEM_MAX) carries a fruit while it falls {@code drop} blocks
      *  (vanilla air steps, Ballistic). */
