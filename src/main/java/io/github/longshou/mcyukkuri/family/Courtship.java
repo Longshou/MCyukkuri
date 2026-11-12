@@ -217,8 +217,7 @@ final class Courtship {
     boolean ready() { return ready(true); }
 
     boolean ready(boolean needHome) {
-        // Shop stock does not court (docs/FEATURES.md 宠物店): the shop keeps it from breeding until it is sold.
-        return o.adult()&&!o.sterile()&&!o.elder()&&o.recovery()==0&&o.entity().status().identity()!=Identity.STOCK&&o.entity().isAlive()&&!o.entity().body().dying()&&o.entity().body().coreIntact()&&!o.entity().isPanicking()
+        return o.entity().status().identity().canConceive()&&o.adult()&&!o.sterile()&&!o.elder()&&o.recovery()==0&&o.entity().isAlive()&&!o.entity().body().dying()&&o.entity().body().coreIntact()&&!o.entity().isPanicking()
                 &&!o.entity().isCommandPlaying()&&!o.entity().operations().active()&&!o.entity().predator().active()&&!o.entity().agitation().blocksCourtship()
                 &&!o.entity().isNoAi()&&!o.entity().pet().busy()&&!o.entity().life().isSleeping()&&!o.entity().life().sedated()&&!o.entity().grieving()
                 &&!o.entity().life().hasUrgentNeed()&&o.entity().life().nutrition()>=65&&o.entity().life().energy()>=50&&o.entity().life().hygiene()>=40

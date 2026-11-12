@@ -15,11 +15,9 @@ public final class GrowthSize {
     private record Span(float min,float max,float from,float to){}
     private static final Span[] ORDINARY=spans(DATA.getAsJsonArray("stages"),DATA.getAsJsonArray("stages")),
             HOUSE=spans(DATA.getAsJsonObject("house").getAsJsonArray("stages"),DATA.getAsJsonArray("stages"));
-    private static final JsonObject BIRTH=DATA.getAsJsonObject("birth"),FRUIT=DATA.getAsJsonObject("fruit");
+    private static final JsonObject BIRTH=DATA.getAsJsonObject("birth");
     /** Default preview sizes; concrete children use their persisted individual birth size. */
     public static final float LIVE=birth("live"),STEM=birth("stem"),EGG=birth("egg");
-    private static final float FRUIT_FROM=FRUIT.get("from").getAsFloat(),
-            FRUIT_VISIBLE=FRUIT.get("visible_from").getAsFloat(),FRUIT_FULL=FRUIT.get("full_at").getAsFloat();
     private static float birth(String kind){return BIRTH.getAsJsonObject(kind).get("scale").getAsFloat();}
     /** Each stage's size range with the nourishment span (in maturity times) of the ordinary stages. */
     private static Span[] spans(JsonArray sizes,JsonArray ordinary){
@@ -61,13 +59,6 @@ public final class GrowthSize {
     public static FamilyLife.Stage birthStage(FamilyData.BirthKind kind){
         String key=kind==FamilyData.BirthKind.STEM?"stem":kind==FamilyData.BirthKind.LIVE?"live":"egg";
         return "juvenile".equals(BIRTH.getAsJsonObject(key).get("stage").getAsString())?FamilyLife.Stage.JUVENILE:FamilyLife.Stage.BABY;
-    }
-    /** A fruit on the stem at this gestation progress (0-1): visible from FRUIT_VISIBLE, full grown at FRUIT_FULL. */
-    public static float fruit(float progress){
-        return fruit(progress,STEM);
-    }
-    public static float fruit(float progress,float birthScale){
-        return Mth.lerp(Math.clamp((progress-FRUIT_VISIBLE)/(FRUIT_FULL-FRUIT_VISIBLE),0,1),Math.min(FRUIT_FROM,birthScale),birthScale);
     }
     /** The size for this nourishment (ticks) and maturity: along the curve, capped by the stage reached; an adult is at
      *  least the adult minimum and grows on to its own target. */

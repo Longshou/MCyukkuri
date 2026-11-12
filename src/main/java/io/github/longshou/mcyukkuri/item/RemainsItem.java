@@ -18,7 +18,9 @@ public final class RemainsItem extends Item {
         if(original.level().isClientSide||!original.isAlive())return false;
         var corpse=ModEntities.REMAINS.get().create(original.level());
         if(corpse==null)return false;
-        corpse.setRemains(stack);corpse.moveTo(original.getX(),original.getY(),original.getZ(),original.getYRot(),0);corpse.setDeltaMovement(original.getDeltaMovement());
+        corpse.moveTo(original.getX(),original.getY(),original.getZ(),original.getYRot(),0);
+        corpse.setRemains(RemainsEntity.placedStem(original.level(),original.position(),original.getYRot(),stack));
+        corpse.setDeltaMovement(original.getDeltaMovement());
         if(!original.level().addFreshEntity(corpse))return false;
         original.discard();return true;
     }

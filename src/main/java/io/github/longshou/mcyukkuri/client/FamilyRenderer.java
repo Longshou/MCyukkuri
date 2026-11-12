@@ -6,7 +6,7 @@ import io.github.longshou.mcyukkuri.MCYukkuri;
 import io.github.longshou.mcyukkuri.entity.YukkuriVariant;
 import io.github.longshou.mcyukkuri.entity.YukkuriView;
 import io.github.longshou.mcyukkuri.family.FamilyGeometry;
-import io.github.longshou.mcyukkuri.family.GrowthSize;
+import io.github.longshou.mcyukkuri.family.RemainsStem;
 import java.util.function.IntFunction;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
@@ -29,39 +29,50 @@ final class FamilyRenderer {
     private static final float SWAY_PERIOD_TICKS=46,SWAY_FORE=.13f,SWAY_SIDE=.05f,TRAVEL_LAG=1.6f,MAX_SWING=.32f;
     static void render(YukkuriView mother,float partialTick,PoseStack pose,MultiBufferSource buffers,int light) {
         int count=mother.broodCount();if(!mother.isAlive()||count<1||mother.profile().houseBody())return;
-        float progress=mother.broodProgress(),scale=mother.growthScale(),variation=mother.broodVariation();
+        float progress=mother.broodProgress(partialTick),scale=mother.growthScale(),variation=mother.broodVariation();
         int types=0;for(int i=0;i<count;i++)types|=mother.broodVariant(i).ordinal()<<(i*4);
         Vec3 travel=mother.position().subtract(mother.getPosition(0));
+        // The solid rim is the minimum height of a hanging fruit while the hull tilts.
+        var hat=mother.vehicleHat();
+        float floor=hat==null?Float.NEGATIVE_INFINITY:(float)((hat.getPosition(partialTick).y
+                +hat.profile().rimY()*hat.hullScale()/16-mother.getPosition(partialTick).y)/mother.getScale());
         renderStem(count,progress,scale,variation,mother.getVariant(),mother.broodBornMask(),types,mother.hasSpentStem(),
-                mother.ageTicks()+partialTick,travel,1,mother::birthChildScale,pose,buffers,light);
+                mother.ageTicks()+partialTick,travel,1,floor,mother::birthChildScale,pose,buffers,light);
     }
     /** {@code sway} scales the motion pendulum (0 keeps a planted stem plumb); {@code travel} is the mother's last tick of movement. */
     static void renderStem(int count,float progress,float scale,float variation,YukkuriVariant parent,int born,int types,boolean spent,
-                           float ticks,Vec3 travel,float sway,IntFunction<Float> birthSizes,PoseStack pose,MultiBufferSource buffers,int light){
+                           float ticks,Vec3 travel,float sway,float floor,IntFunction<Float> birthSizes,PoseStack pose,MultiBufferSource buffers,int light){
         if(count<1||!Float.isFinite(progress)||!spent&&progress<=0)return;
         // The visible stem grows only from actual gestation progress, never from a fresh reservation.
-        float growth=spent?1:Math.clamp(progress/.15f,0,1);growth=growth*growth*(3-2*growth);
+        float growth=spent?1:FamilyGeometry.stalk(progress), thickness=FamilyGeometry.thickness(growth)*scale;
         var arc=FamilyGeometry.arc(count,growth,scale,variation,parent);
         int[] color=spent&&born==(1<<count)-1?new int[]{157,135,79}:new int[]{66,186,57};
         var stem=buffers.getBuffer(RenderType.entityCutoutNoCull(WHITE));
         // A spline through the authored centerline, swept with continuous rings: the stalk never shows polyline creases.
-        sweep(pose,stem,smooth(arc,STALK_SUBDIVISIONS),FamilyGeometry.radius(count,0,variation)*scale,FamilyGeometry.radius(count,1,variation)*scale,light,color);
-        if(progress<.15f)return;
+        sweep(pose,stem,smooth(arc,STALK_SUBDIVISIONS),FamilyGeometry.radius(count,0,variation)*thickness,FamilyGeometry.radius(count,1,variation)*thickness,light,color);
         var linear=pose.last().pose().get3x3(new Matrix3f());
         for(int i=0;i<count;i++) {
             if((born&(1<<i))!=0)continue;
             var variants=YukkuriVariant.values();
-            var child=variants[Math.min(variants.length-1,(types>>(i*4))&15)];float birthScale=birthSizes.apply(i),childScale=GrowthSize.fruit(progress,birthScale);
-            Vec3 socket=FamilyGeometry.socket(count,i,scale,variation,parent),anchor=FamilyGeometry.hangingAnchor(progress,child,birthScale);
-            Vec3 hangPoint=socket.add(FamilyGeometry.hangOffset(count,i,scale));
+            var child=variants[Math.min(variants.length-1,(types>>(i*4))&15)];
+            float birthScale=birthSizes.apply(i),childScale=FamilyGeometry.fruitScale(progress,birthScale);
+            if(childScale<=0)continue;
+            Vec3 socket=FamilyGeometry.socket(count,i,growth,scale,variation,parent),anchor=FamilyGeometry.hangingAnchor(progress,child,birthScale);
+            Vec3 hangPoint=socket.add(FamilyGeometry.hangOffset(count,i,growth,scale));
             // The lower part hangs along world gravity (swung by sway and lag), whatever tilt the mother's root carries.
-            Vector3f down=hang(linear,ticks,travel,i,sway);double length=FamilyGeometry.pedicel(progress,scale,child,birthScale);
+            Vector3f down=hang(linear,ticks,travel,i,sway);
+            double length=FamilyGeometry.pedicel(progress,scale,child,birthScale);
+            if(Float.isFinite(floor)){
+                float worldSocketY=linear.transform(new Vector3f((float)hangPoint.x,(float)hangPoint.y,(float)hangPoint.z)).y;
+                float worldDown=linear.transform(new Vector3f(down)).y;
+                length=Math.min(length,Math.max(0,(-floor+worldSocketY-anchor.y*linear.m11())/-worldDown));
+            }
             Vec3 hanging=new Vec3(down.x,down.y,down.z),head=hangPoint.add(hanging.scale(length));
-            double radius=Math.min(.0075*scale,FamilyGeometry.radius(count,(i+.5)/count,variation)*scale*.6);
+            double radius=Math.min(.0075*thickness,FamilyGeometry.radius(count,(i+.5)/count,variation)*thickness*.6);
             // Keep the twig visibly load-bearing: never thinner than a third of the stalk where it leaves.
             int nearest=0;double best=Double.MAX_VALUE;
             for(int k=0;k<arc.size();k++){double d=arc.get(k).distanceToSqr(socket);if(d<best){best=d;nearest=k;}}
-            double stalk=FamilyGeometry.radius(count,nearest/(double)(arc.size()-1),variation)*scale;
+            double stalk=FamilyGeometry.radius(count,nearest/(double)(arc.size()-1),variation)*thickness;
             // One continuous twig: it leaves the stalk outward and a little downward, then bends smoothly into the drop.
             double drop=FamilyGeometry.branchDrop();Vec3 heading=FamilyGeometry.branchHeading(count,i);
             Vec3 leave=heading.scale(Math.cos(drop)).add(0,-Math.sin(drop),0);
@@ -75,6 +86,64 @@ final class FamilyRenderer {
             YukkuriModel.get(child.assetId()).render("idle",0,pose,skin,light,OverlayTexture.NO_OVERLAY);
             pose.popPose();
         }
+    }
+    static void renderRemains(RemainsStem stem,Vec3 root,float roll,boolean folded,int rot,PoseStack pose,MultiBufferSource buffers,int light) {
+        var look=RemainsAssets.stem();
+        if(look==null)return;
+        float p=stem.progress(),g=FamilyGeometry.stalk(p),scale=stem.growthScale();
+        var local=FamilyGeometry.arc(stem.count(),g,scale,stem.variation(),stem.mother());
+        var origin=FamilyGeometry.root(stem.mother()).scale(scale);
+        float unit=stem.entityScale();
+        float turn=(float)Math.toRadians(roll);
+        var relative=local.stream().map(q->q.subtract(origin).scale(unit).zRot(turn)).toList();
+        int last=relative.size()-1;
+        double[] length=new double[relative.size()];
+        double rise=0;
+        for(int i=0;i<=last;i++){
+            rise=Math.max(rise,relative.get(i).y);
+            if(i>0)length[i]=length[i-1]+relative.get(i).distanceTo(relative.get(i-1));
+        }
+        double sag=look.sag()*rise;
+        var curve=new ArrayList<Vec3>(relative.size());
+        for(int i=0;i<=last;i++)curve.add(wilt(root,relative.get(i),length[i]/length[last],sag,folded));
+        int[] colour=look.colour();
+        if(rot>0)colour=new int[]{(colour[0]+105)/2,(colour[1]+105)/2,(colour[2]+105)/2};
+        var material=buffers.getBuffer(RenderType.entityCutoutNoCull(WHITE));
+        double thickness=FamilyGeometry.thickness(g)*scale*unit;
+        sweep(pose,material,smooth(curve,STALK_SUBDIVISIONS),FamilyGeometry.radius(stem.count(),0,stem.variation())*thickness,
+                FamilyGeometry.radius(stem.count(),1,stem.variation())*thickness,light,colour);
+        for(int i=0;i<stem.count();i++){
+            if(!stem.attached(i))continue;
+            var child=stem.child(i);
+            float birth=stem.birthScale(i),size=FamilyGeometry.fruitScale(p,birth)*unit;
+            if(size<=0)continue;
+            Vec3 socket=FamilyGeometry.socket(stem.count(),i,g,scale,stem.variation(),stem.mother())
+                    .subtract(origin).scale(unit).zRot(turn);
+            double best=Double.POSITIVE_INFINITY,fraction=0;
+            for(int k=0;k<last;k++){
+                Vec3 start=relative.get(k),edge=relative.get(k+1).subtract(start);
+                double t=Math.clamp(socket.subtract(start).dot(edge)/edge.lengthSqr(),0,1);
+                double gap=socket.distanceToSqr(start.add(edge.scale(t)));
+                if(gap<best){best=gap;fraction=Mth.lerp(t,length[k],length[k+1])/length[last];}
+            }
+            socket=wilt(root,socket,fraction,sag,folded);
+            Vec3 anchor=FamilyGeometry.hangingAnchor(p,child,birth).scale(unit);
+            double drop=FamilyGeometry.pedicel(p,scale,child,birth)*unit*look.slack();
+            Vec3 tip=socket.add(0,Math.max(anchor.y,socket.y-drop)-socket.y,0);
+            double radius=FamilyGeometry.radius(stem.count(),fraction,stem.variation())*thickness;
+            if(socket.distanceToSqr(tip)>1e-10)sweep(pose,material,List.of(socket,tip),radius*.55,radius/3,light,colour);
+            pose.pushPose();
+            pose.translate(tip.x-anchor.x,tip.y-anchor.y,tip.z-anchor.z);
+            pose.scale(size,size,size);
+            var skin=buffers.getBuffer(RenderType.entityCutoutNoCull(RemainsAssets.stemFruit(child.assetId())));
+            YukkuriModel.get(child.assetId()).render("idle",0,pose,skin,light,OverlayTexture.NO_OVERLAY);
+            pose.popPose();
+        }
+    }
+
+    private static Vec3 wilt(Vec3 root,Vec3 relative,double along,double sag,boolean folded) {
+        if(folded)return root.add(relative.x*.35,-root.y*along*.8,-relative.z*.45);
+        return root.add(relative.x,relative.y-sag*along*along,relative.z);
     }
     /** Local direction of a hanging pedicel: world down, swung by the motion sway and the travel lag. */
     private static Vector3f hang(Matrix3f linear,float ticks,Vec3 travel,int index,float sway) {

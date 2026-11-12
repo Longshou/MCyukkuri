@@ -402,7 +402,10 @@ public final class PresentationArbiter {
     private static YukkuriAction stationaryAction(PresentationAccess state, String behavior, Actions actions) {
         var e = state.owner();
         if (state.reactionTicks() > 0 && state.reactionEvent().equals("birth_lost")) return YukkuriAction.BEREAVED;
-        if(e.aftermathDrain()==3&&(behavior.equals(Behaviors.IDLE)||behavior.equals(Behaviors.TEND_BROOD)))return YukkuriAction.DROOP;
+        if(behavior.equals(Behaviors.IDLE)||behavior.equals(Behaviors.TEND_BROOD)){
+            if(e.family().stemDepletionWarning())return YukkuriAction.TREMBLE;
+            if(e.aftermathDrain()==3)return YukkuriAction.DROOP;
+        }
         // A real successful conception gets a brief response before ordinary brooding resumes.
         // Food, sleep, danger, movement and other active duties retain their own presentation.
         if(state.reactionTicks()>60&&state.reactionEvent().equals("expecting")

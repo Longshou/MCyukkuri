@@ -214,6 +214,14 @@ final class YukkuriSync {
     int broodCount() { return owner.getEntityData().get(BROOD_COUNT); }
     int broodBornMask() { return owner.getEntityData().get(BROOD_BORN); }
     float broodProgress() { return owner.getEntityData().get(BROOD_PROGRESS); }
+    private float previousBroodProgress, receivedBroodProgress;
+    private long receivedBroodTick=Long.MIN_VALUE;
+    private int broodSampleTicks=1;
+    float broodProgress(float partialTick) {
+        if(receivedBroodTick==Long.MIN_VALUE)return broodProgress();
+        float fraction=Math.clamp((owner.level().getGameTime()-receivedBroodTick+partialTick)/broodSampleTicks,0,1);
+        return previousBroodProgress+(receivedBroodProgress-previousBroodProgress)*fraction;
+    }
     float broodVariation() { return owner.getEntityData().get(BROOD_VARIATION); }
     boolean hasSpentStem() { return owner.getEntityData().get(SPENT_STEM); }
     float livePregnancyProgress() { return owner.getEntityData().get(LIVE_PROGRESS); }
@@ -381,6 +389,15 @@ final class YukkuriSync {
         builder.define(LEAK_TRACE_AT,-1L);
     }
     void onSyncedDataUpdated(EntityDataAccessor<?> key) {
+        if(BROOD_PROGRESS.equals(key)&&owner.level().isClientSide){
+            long now=owner.level().getGameTime();
+            float next=broodProgress();
+            boolean continuous=receivedBroodTick!=Long.MIN_VALUE&&next>=receivedBroodProgress&&next-receivedBroodProgress<.1f;
+            previousBroodProgress=continuous?broodProgress(0):next;
+            broodSampleTicks=continuous?(int)Math.clamp(now-receivedBroodTick,1,5):1;
+            receivedBroodProgress=next;
+            receivedBroodTick=now;
+        }
         // set() calls this on the server too. Replace only this accessor's decoded value.
         if (AGITATION.equals(key)) agitationSnapshot = YukkuriSyncState.Agitation.read(owner.getEntityData().get(AGITATION));
         else if (WATER_DISTRESS.equals(key)) waterDistressSnapshot = YukkuriSyncState.WaterDistress.read(owner.getEntityData().get(WATER_DISTRESS));

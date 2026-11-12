@@ -281,13 +281,6 @@
         "note": "家油卵生，相对家油成体"
       }
     },
-    "fruit": {
-      "from": 0.1,
-      "to": 0.2,
-      "visible_from": 0.15,
-      "full_at": 0.95,
-      "note": "茎上实子随孕程长大，成熟大小采用该孩子已保存的 BirthScale"
-    },
     "house": {
       "stages": [
         {

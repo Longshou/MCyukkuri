@@ -3,6 +3,7 @@ package io.github.longshou.mcyukkuri.body;
 import com.mojang.brigadier.arguments.LongArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import io.github.longshou.mcyukkuri.entity.RemainsEntity;
+import io.github.longshou.mcyukkuri.family.RemainsStem;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
@@ -83,7 +84,10 @@ public final class BodyCommands {
                                 + " water=" + RemainsWater.id(remains.waterStage()) + "(" + remains.soak() + ")"
                                 + " in_water=" + remains.isInWater()
                                 + " food=" + CorpseFood.remaining(data) + "/" + CorpseFood.capacity(data) + " core=" + RemainsEntity.hasCore(data);
-                        context.getSource().sendSuccess(() -> Component.literal(text), false);
+                        var stem=RemainsStem.visible(data);
+                        context.getSource().sendSuccess(() -> Component.literal(stem==null?text:text+" stem="+stem.brood()
+                                +" progress="+stem.progress()+" fruit="+stem.count()+" absent="+stem.absentMask()
+                                +" folded="+data.getBoolean(RemainsStem.FOLDED)), false);
                         count++;
                     }
                     return count;

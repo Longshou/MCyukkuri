@@ -32,7 +32,7 @@ public final class PropItemRenderer extends BlockEntityWithoutLevelRenderer {
             pose.pushPose();pose.translate(.5,.2,.5);
             // Inventory icons fit the slot; the carried body retains the dead individual's size.
             float scale=context==ItemDisplayContext.GUI?(RemainsRenderer.asset(data).startsWith("house_")?2.5f:.8f):RemainsRenderer.renderScale(data);
-            pose.scale(scale,scale*.65f,scale);RemainsRenderer.draw(stack,data,pose,buffers,light,overlay);pose.popPose();return;
+            RemainsRenderer.drawItem(stack,data,scale,pose,buffers,light,overlay);pose.popPose();return;
         }
         if(stack.is(ModItems.ACCESSORY_SHARD.get())){renderShard(stack,context,pose,buffers,light,overlay);return;}
         if (stack.is(ModItems.WASTE.get()) && context != ItemDisplayContext.GUI) {

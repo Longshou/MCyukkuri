@@ -37,6 +37,8 @@ public final class DetachedStemBlockEntity extends BlockEntity {
     }
     private int sugar,fuel,exposure,count,born,types;
     private float progress,variation=1;
+    private float previousProgress;
+    private long progressReceivedAt=Long.MIN_VALUE;
     private YukkuriVariant source=YukkuriVariant.REIMU;
     public DetachedStemBlockEntity(BlockPos pos,BlockState state){super(ModBlocks.DETACHED_STEM_ENTITY.get(),pos,state);}
     public boolean bottled(){return getBlockState().getBlock() instanceof DetachedStemBlock block&&block.bottled;}
@@ -44,6 +46,11 @@ public final class DetachedStemBlockEntity extends BlockEntity {
     public int born(){return born;}
     public int types(){return types;}
     public float progress(){return progress;}
+    public float progress(float partialTick){
+        if(progressReceivedAt==Long.MIN_VALUE)return progress;
+        float t=Math.clamp(level.getGameTime()-progressReceivedAt+partialTick,0,1);
+        return previousProgress+(progress-previousProgress)*t;
+    }
     public float variation(){return variation;}
     public int sugar(){return sugar;}
     public YukkuriVariant source(){return source;}
@@ -55,8 +62,10 @@ public final class DetachedStemBlockEntity extends BlockEntity {
     }
     public static String cutRefusal(YukkuriEntity mother, Player player, boolean bottle) {
         var brood = mother.family().brood();
-        if (brood == null || brood.kind != FamilyData.BirthKind.STEM || brood.cancelled || brood.complete() || brood.progress() < .15f)
+        if (brood == null || brood.kind != FamilyData.BirthKind.STEM || brood.cancelled || brood.complete())
             return "condition";
+        if (brood.progress() < .15f) return "cut_too_early";
+        if (brood.children.stream().anyMatch(child -> child.born)) return "cut_birth_started";
         return bottle && !Consumables.water(player.getOffhandItem()) ? "bottle" : null;
     }
 
@@ -95,7 +104,7 @@ public final class DetachedStemBlockEntity extends BlockEntity {
             var child=brood.children.get(i);if(child.born)continue;
             float physical=GrowthSize.physicalBirth(brood.kind,child);
             var point=Vec3.atBottomCenterOf(center).add(DetachedStemGeometry.childBase(brood.children.size(),i,progress,brood.variation,parent,child.variant,bottled,physical));
-            var box=LiveBirthGeometry.childDimensions(child,1).scale(GrowthSize.fruit(progress,physical)/physical).makeBoundingBox(point).inflate(.04);
+            var box=LiveBirthGeometry.childDimensions(child,1).scale(FamilyGeometry.fruitScale(progress,physical)/physical).makeBoundingBox(point).inflate(.04);
             if(!clearBox(level,box))return false;
         }
         return true;
@@ -113,20 +122,23 @@ public final class DetachedStemBlockEntity extends BlockEntity {
         if(!server.getBlockState(worldPosition.below()).isFaceSturdy(server,worldPosition.below(),Direction.UP)){
             destroyBrood();server.removeBlock(worldPosition,false);return;
         }
+        int previousElapsed=brood.elapsed,previousUnborn=brood.unborn();
         if(!bottled()){
             // Freshly detached fruit keeps its existing maturity. Immature fruit withers without a bottle.
             if(++exposure>=2400){cancelBrood(server,brood,"exposure_timeout");sync();return;}
-            if(brood.elapsed>=brood.duration){brood.elapsed=Math.min(brood.duration+40,brood.elapsed+1);FamilyData.get(server).setDirty();}
-        }else{
-            if(fuel==0&&sugar>0){sugar--;fuel=200;}
-            if(fuel>0){fuel--;brood.elapsed=Math.min(brood.duration+40,brood.elapsed+1);FamilyData.get(server).setDirty();}
+        }else if(brood.elapsed<brood.duration){
+            // One sugar supplies a tenth of a new brood's full growth, rounded up to a whole tick.
+            if(fuel==0&&sugar>0){sugar--;fuel=brood.fastStem?Math.ceilDiv(brood.duration,10):200;}
+            if(fuel>0){fuel--;brood.elapsed++;}
         }
+        if(previousElapsed>=brood.duration)brood.elapsed=Math.min(brood.duration+40,brood.elapsed+1);
+        if(brood.elapsed!=previousElapsed)FamilyData.get(server).setDirty();
         for(int i=0;i<brood.children.size();i++){
             Vec3 position=Vec3.atBottomCenterOf(worldPosition).add(DetachedStemGeometry.childBase(brood.children.size(),i,brood.progress(),brood.variation,source,
                     brood.children.get(i).variant,bottled(),GrowthSize.physicalBirth(brood.kind,brood.children.get(i))));
             FamilyData.get(server).birth(brood,i,server,position);
         }
-        if(brood.complete()||exposure%20==0||bottled()&&server.getGameTime()%20==0)sync();
+        if(previousUnborn!=brood.unborn()||brood.elapsed!=previousElapsed&&brood.elapsed<=brood.duration)sync();
         setChanged();
     }
     public void destroyBrood(){if(level instanceof ServerLevel server)cancelBrood(server,brood(),"detached_stem_destroyed");}
@@ -162,7 +174,11 @@ public final class DetachedStemBlockEntity extends BlockEntity {
         super.loadAdditional(tag,registries);if(tag.hasUUID("Identity"))identity=tag.getUUID("Identity");broodId=tag.hasUUID("Brood")?tag.getUUID("Brood"):null;
         sugar=Math.clamp(tag.getInt("Sugar"),0,16);fuel=Math.clamp(tag.getInt("Fuel"),0,200);exposure=Math.clamp(tag.getInt("Exposure"),0,2400);
         birthScales=tag.getIntArray("BirthScales");birthMorphs=tag.getIntArray("BirthMorphs");
-        count=Math.clamp(tag.getInt("Count"),0,5);born=tag.getInt("Born");types=tag.getInt("Types");progress=Math.clamp(tag.getFloat("Progress"),0,1);
+        count=Math.clamp(tag.getInt("Count"),0,5);born=tag.getInt("Born");types=tag.getInt("Types");
+        float next=Math.clamp(tag.getFloat("Progress"),0,1);
+        previousProgress=next>=progress&&next-progress<.1f?progress:next;
+        progress=next;
+        if(level!=null&&level.isClientSide)progressReceivedAt=level.getGameTime();
                 variation=Math.clamp(tag.getFloat("Variation"),.85f,1.15f);
         try{source=YukkuriVariant.valueOf(tag.getString("Source"));}catch(IllegalArgumentException ignored){source=YukkuriVariant.REIMU;}
     }

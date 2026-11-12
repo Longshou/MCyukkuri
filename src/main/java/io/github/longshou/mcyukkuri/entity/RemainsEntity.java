@@ -4,6 +4,7 @@ import io.github.longshou.mcyukkuri.random.ModRandom;
 
 import io.github.longshou.mcyukkuri.body.GraveBlock;
 import io.github.longshou.mcyukkuri.family.LeafSwaddle;
+import io.github.longshou.mcyukkuri.family.RemainsStem;
 import io.github.longshou.mcyukkuri.body.GraveBlockEntity;
 import io.github.longshou.mcyukkuri.interaction.ItemContact;
 import io.github.longshou.mcyukkuri.headwear.JunkHeadwear;
@@ -28,6 +29,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.AABB;
 import io.github.longshou.mcyukkuri.MCYukkuri;
 import io.github.longshou.mcyukkuri.body.BodyFood;
 import io.github.longshou.mcyukkuri.body.CorpseFood;
@@ -115,9 +117,13 @@ public final class RemainsEntity extends Entity {
     }
     /** {@code internalCause} is the body's own cause when the killing damage is only a generic carrier (body/RemainsCause). */
     public static ItemStack snapshot(YukkuriEntity source,DamageSource cause,boolean stemDepletion,boolean sukkiriExhaustion,String internalCause){
+        return snapshot(source,cause,stemDepletion,sukkiriExhaustion,internalCause,null);
+    }
+    public static ItemStack snapshot(YukkuriEntity source,DamageSource cause,boolean stemDepletion,boolean sukkiriExhaustion,String internalCause,RemainsStem stem){
         var result=new ItemStack(ModItems.REMAINS.get());
         CustomData.update(DataComponents.CUSTOM_DATA,result,tag->{
             tag.putUUID("Identity",source.getUUID());tag.putString("Variant",source.getVariant().assetId());
+            if(stem!=null)tag.put(RemainsStem.KEY,stem.save());
             tag.putInt("SubspeciesFlags",source.subspeciesFlags());
             tag.putString("Model",source.subspecies().assetId());tag.put("Body",source.body().save());
             tag.put("Marks",Marks.write(source.status().marks().visible()));
@@ -156,9 +162,25 @@ public final class RemainsEntity extends Entity {
     public static boolean place(Level level,Vec3 position,float yaw,ItemStack stack,boolean checkCollision){
         if(level.isClientSide||!stack.is(ModItems.REMAINS.get()))return false;
         var corpse=ModEntities.REMAINS.get().create(level);if(corpse==null)return false;
-        corpse.setRemains(stack);corpse.moveTo(position.x,position.y,position.z,yaw,0);
+        corpse.moveTo(position.x,position.y,position.z,yaw,0);
+        corpse.setRemains(placedStem(level,position,yaw,stack));
         if(checkCollision&&(!level.noCollision(corpse)||!level.getFluidState(corpse.blockPosition()).isEmpty()))return false;
         return level.addFreshEntity(corpse);
+    }
+    public static ItemStack placedStem(Level level,Vec3 position,float yaw,ItemStack stack) {
+        var data=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();
+        var stem=RemainsStem.visible(data);
+        if(stem==null)return stack;
+        var placed=stack.copy();
+        boolean folded=!level.noCollision(stem.extent(position,yaw));
+        CustomData.update(DataComponents.CUSTOM_DATA,placed,tag->tag.putBoolean(RemainsStem.FOLDED,folded));
+        return placed;
+    }
+    @Override public AABB getBoundingBoxForCulling(){
+        var data=data();
+        var stem=RemainsStem.visible(data);
+        var body=super.getBoundingBoxForCulling();
+        return stem==null||data.getBoolean(RemainsStem.FOLDED)?body:body.minmax(stem.extent(position(),getYRot()));
     }
     /** The existing physical remains can accept real mouth items when there was no supported release at death. */
     public static void retainCarriedItems(ItemStack remains, ListTag items) {
@@ -188,6 +210,11 @@ public final class RemainsEntity extends Entity {
     @Override public InteractionResult interact(Player player,InteractionHand hand){
         if(isRemoved()||player.isSpectator()||!player.mayBuild()||player.distanceToSqr(this)>36)return InteractionResult.PASS;
         var held=player.getItemInHand(hand);
+        if(held.getItem() instanceof OperationToolItem shears&&(shears.tool()==OperationToolItem.Tool.STEM_SHEARS
+                ||shears.tool()==OperationToolItem.Tool.BOTTLE_SHEARS)){
+            if(!level().isClientSide)player.displayClientMessage(Component.translatable("stem.mcyukkuri.cut_remains"),true);
+            return InteractionResult.sidedSuccess(level().isClientSide);
+        }
         if(held.is(ItemTags.SHOVELS))return bury(player,hand);
         if(held.is(ItemTags.SWORDS)||held.getItem() instanceof OperationToolItem tool&&tool.tool()==OperationToolItem.Tool.CUTTER)return takeCore(player,hand);
         if(!held.isEmpty())return InteractionResult.PASS;

@@ -878,14 +878,14 @@ _LAND_BIRTH_SMOKE = dict(ticks=6000, verify=_caught_birth_release_verify,
              f'yukkuri status {NEWBORNS} raw'])
 
 
-def land_birth(sid, title, hint, outcome, father_kind, watch, spot, smoke=None, wait='约 1–2 分钟临产，之后看照护', capture=None):
+def land_birth(sid, title, hint, outcome, father_kind, watch, spot, smoke=None, wait='约 1–2 分钟临产，之后看照护', capture=None, sizes=''):
     add(sid, 'family', title, hint, watch, wait, [
         *shed(8, 0),
         yk_on_nest('reimu', 8, 0, 'mother', yaw=-90, lead=True, **pair_ready()),
         yk(father_kind, 4, 1, 'father', yaw=-90, **pair_ready()),
         f'yukkuri scenario bond {sel("mother")} {sel("father")}',
         home('mother', 8, 0),
-        f'yukkuri scenario birth {sel("mother")} {sel("father")} {outcome}'], spot=spot, vantage=(4, 12),
+        f'yukkuri scenario birth {sel("mother")} {sel("father")} {outcome}{sizes}'], spot=spot, vantage=(4, 12),
         reads=[('读母油产程', f'yukkuri status {sel("mother")} raw'), ('读父油托帽', f'yukkuri status {sel("father")} raw'),
                ('读所有赤油', f'yukkuri status {NEWBORNS} raw')], smoke=smoke, capture=capture)
 
@@ -904,7 +904,8 @@ land_birth('birth_stem_caught', '茎生实子落进父油的帽子', '茎生实�
            '魔理沙父油把帽子放到茎下（帽口对准实子，近侧帽檐可伸到母油身前）：实子带一点随机横向力脱落，落在帽上的都坐上帽子、不会穿过帽子掉到帽下地面：落在帽檐上的先坐上帽檐再滚进帽腔（日志 [body] contact … occupancy=ON_RIM、newborn on hat rim rolls inward、[action] start id=gesture … brim=into_hollow），帽腔挤满时从帽檐外侧滚落、落地摔伤；只有落到帽外（或只擦到帽檐外缘）的才受摔伤（日志 birth landed outcome=HAT/GROUND，birth impact injury；没接住看 falling newborn not caught reason=）；母油静止时花梗竖直不摆；多重复几次看比例',
            'land_caught', smoke=dict(ticks=6000,
                expect=[r'birth landed [^\n]*outcome=HAT\b'],
-               forbid=[r'birth landed [^\n]*outcome=WATER\b', r'\[body\][^\n]* invariant\b']), wait='约 30 秒临产，之后看照护')
+               forbid=[r'birth landed [^\n]*outcome=WATER\b', r'\[body\][^\n]* invariant\b']),
+           wait='约 20 秒成熟。五果比帽口宽，接住的进帽，外侧的落地。', sizes=' "0.13,0.15,0.17,0.18,0.19"')
 
 add('feed', 'family', '饿赤油求食，亲油找粮嚼糜喂', '饿赤油求食，亲油找粮嚼糜喂',
     '三家饥饿赤油：前排孩子在窝、后排亲油在窝、最右低友善对照。左侧16格外只有两份苹果，另有一株草；看接受后找粮、真实采食、嚼糜和窝内外交接。低友善仍可能接受；无粮须显示搜索结束原因，可手动补苹果再观察',
@@ -1105,7 +1106,7 @@ add('birth_nest_stem', 'family', '大窝里茎生，实子落在垫上', '大窝
     yk('reimu', .5, 2, 'mother', yaw=180, lead=True, **pair_ready()),
     yk('reimu', 3, 2, 'father', **pair_ready()),
     f'yukkuri scenario bond {sel("mother")} {sel("father")}', home('mother', 0, 0),
-    f'yukkuri scenario birth {sel("mother")} {sel("father")} stem'], spot='pet_birth',
+    f'yukkuri scenario birth {sel("mother")} {sel("father")} stem "0.13,0.15,0.17,0.18,0.19"'], spot='pet_birth',
     # Her walk into the nest and turn (from about 40 ticks), then the drops 400 ticks after she is in place (about 520).
     capture=dict(shots=(1, 40, 200, 480), sequences=((40, 240, 5), (480, 640, 4)), observe=False,
                  views={'nest': dict(follow=f'@e[tag={tag("mother")},limit=1]', offset=(1.6, 1.7, 1.4),
@@ -1862,7 +1863,7 @@ def _aftermath_pens(lanes):
     The source Alice stands right behind the pen's north fence, so the panic has a visible cause while the fence still blocks sight
     (a predator in plain view would keep the mother in a threat reaction)."""
     out = []
-    for lane, dx, nutrition, energy, label in lanes:
+    for lane, dx, nutrition, energy, label, _ in lanes:
         out += [
             box(dx - 6, -1, -5, dx + 6, -1, 7, 'minecraft:oak_planks'),
             box(dx - 6, 0, -5, dx + 6, 0, -5, 'minecraft:oak_fence'), box(dx - 6, 0, 7, dx + 6, 0, 7, 'minecraft:oak_fence'),
@@ -1872,26 +1873,28 @@ def _aftermath_pens(lanes):
                extra=agitation_start('IDLE') + (',Health:2.5f' if lane == 'depletion' else '')),
             yk('alice', dx, -7, f'source_{lane}', extra=agitation_start('IDLE'), **pair_ready()),
             *own(f'affected_{lane}'), *own(f'source_{lane}'), home(f'affected_{lane}', dx + 3, 2),
-            *([item('minecraft:apple', 16, dx, 3)] if lane == 'growth' else [])]
+            *([item('minecraft:apple', 4, dx, 1)] if lane == 'growth' else [])]
     return out
 
 
 def aftermath(sid, seen, watch, lanes, vantage):
     add(sid, 'meadow', seen, seen, watch,
-        '场景已切 3 倍速。读母体状态可看到茎生进度、营养、生命与耗馅级别。“1倍速”、清空或重开场景可恢复原速。',
-        ['function mcylab:util/speed_3x', *_aftermath_pens(lanes)],
-        env=DAY, give=['minecraft:apple 16'], vantage=vantage,
+        '约 20 秒长成。读母体状态可查看进度、营养、生命和耗馅级别。',
+        _aftermath_pens(lanes),
+        env=DAY, give=['minecraft:apple 16', 'mcyukkuri:stem_shears 1', 'mcyukkuri:bottle_stem_shears 1'], vantage=vantage,
         note='通过场景入口建立事后胎次；每个围栏北侧栅栏外坐着的爱丽丝只作血缘登记的来源（让开场惊慌有个看得见的对象）。',
-        late=[f'yukkuri scenario aftermath {sel(f"affected_{lane}")} {sel(f"source_{lane}")}' for lane, *_ in lanes],
-        reads=[(f'读{label}的母体与茎生进度', f'yukkuri status {sel(f"affected_{lane}")} raw') for lane, _, _, _, label in lanes])
+        late=[f'yukkuri scenario aftermath {sel(f"affected_{lane}")} {sel(f"source_{lane}")} {count}' for lane, _, _, _, _, count in lanes],
+        reads=[(f'读{label}的母体与茎生进度', f'yukkuri status {sel(f"affected_{lane}")} raw') for lane, _, _, _, label, _ in lanes]
+              + ([('读遗体', 'yukkuri body info @e[type=mcyukkuri:yukkuri_remains,distance=..40,limit=1,sort=nearest]')]
+                 if lanes[0][0] == 'depletion' else []))
 
 
-aftermath('aftermath_growth', '事后茎生：吃饱和挨饿的茎都在长', '两个围栏里各有一只刚被素鸡立过的灵梦。两边都从无茎开始萌芽、结实，吃饭、睡觉和缺乏营养时也会生长。'
-          '左边营养和体力都是 100，栏内有苹果；右边营养 55、体力 60，先出现垂眼和身形收窄，走动时也能看见。可投喂苹果补充营养，避免右栏母油继续耗馅。',
-          (('growth', -8, 100, 100, '吃饱·营养100'), ('burden', 8, 55, 60, '营养55')), (0, 16))
-aftermath('aftermath_depletion', '事后茎生耗竭：萌茎后耗尽母体', '灵梦的营养已经耗尽，只剩 2.5 点生命。观察她从头顶长出茎、结果，再被茎逐次抽走生命。'
-          '不投喂时约二十到四十秒耗馅死去，快慢随实子数与茎的大小变化。未出生的实子随母体死亡丢失。',
-          (('depletion', 0, 0, 10, '耗竭·营养0'),), (0, 12))
+aftermath('aftermath_growth', '茎生长出三果：有食与无食', '左右各有一只灵梦从短芽长出三果。左栏营养 100，地上有苹果；右栏营养 55，地上没有食物。'
+          '看进食时茎果持续长大，也可把苹果投给右栏。',
+          (('growth', -8, 100, 100, '有食·营养100', 3), ('burden', 8, 55, 60, '无食·营养55', 3)), (0, 16))
+aftermath('aftermath_depletion', '五果耗馅死亡：遗体留着未熟实子', '灵梦已经空腹，只剩 2.5 点生命。看短芽、五果、颤抖求助和见底后的三秒保命。'
+          '遗体上的实子停在死时的大小。可拾起再放下遗体，用茎剪检查是否还能救活实子。',
+          (('depletion', 0, 0, 10, '耗竭·营养0', 5),), (0, 12))
 
 # ====================================================================================================== new since the last round (not yet played)
 NEW = '待验证：新场景，尚未在游戏里实测。'
@@ -4409,15 +4412,19 @@ _smoke('widow_repair', 3600, [r'\[family\][^\n]* court refused reason=partner_al
 next(s for s in S if s.id == 'widow_repair').smoke['commands'] = [(600, f'kill {sel("old_partner")}')]
 next(s for s in S if s.id == 'widow_repair').smoke['readout'] = [f'yukkuri status {sel("widow")} raw',
                                                                  f'yukkuri status {sel("new_partner")} raw']
-_smoke('aftermath_growth', 3600, [r'\[family\][^\n]* stem drain stage', r'\[family\][^\n]* stem sprouted '])
+_smoke('aftermath_growth', 3600, [r'\[family\][^\n]* stem drain stage', r'\[family\][^\n]* stem sprouted ',
+                                r'\[family\][^\n]* stem ripe [^\n]*fruit=3\b'])
 next(s for s in S if s.id == 'aftermath_growth').smoke['verify'] = _distinct(r'\[family\] reimu #\d+ uuid=(\S+)[^\n]* aftermath reserved ', 2, 'aftermath broods')
 next(s for s in S if s.id == 'aftermath_growth').smoke['readout'] = [f'yukkuri status {sel("affected_growth")} raw',
                                                                    f'yukkuri status {sel("affected_burden")} raw']
 next(s for s in S if s.id == 'aftermath_growth').smoke['gating_checks'] = ('END', 'FATE')
 _smoke('aftermath_depletion', 3600, [r'\[family\][^\n]* aftermath reserved ', r'\[family\][^\n]* stem sprouted ',
+                                    r'\[family\][^\n]* stem depletion warning ',
                                     r'\[family\][^\n]* stem drew body [^\n]*health=[\d.]+->0\.0\b',
-                                    r'\[body\][^\n]* death settled[^\n]* stem_depletion=true'])
-next(s for s in S if s.id == 'aftermath_depletion').smoke['readout'] = [f'yukkuri status {sel("affected_depletion")} raw']
+                                    r'\[body\][^\n]* death settled[^\n]* stem_depletion=true',
+                                    r'\[body\][^\n]* stem remains [^\n]*progress=0\.\d+ count=5 absent=0 placement=body'])
+next(s for s in S if s.id == 'aftermath_depletion').smoke['readout'] = [
+    f'yukkuri status {sel("affected_depletion")} raw', 'yukkuri body info @e[type=mcyukkuri:yukkuri_remains,distance=..40,limit=1,sort=nearest]']
 next(s for s in S if s.id == 'aftermath_depletion').smoke['gating_checks'] = ('END', 'FATE')
 _smoke('growth', 200, [r'\[growth\][^\n]* stage=BABY -> JUVENILE', r'\[growth\][^\n]* age boundary [^\n]*subadult=true',
                        r'\[growth\][^\n]* stage=JUVENILE -> ADULT', r'\[growth\][^\n]* age boundary [^\n]*elder=true',
@@ -4659,17 +4666,19 @@ _scene_end('rain_huddle', [('shy', _DRY), ('mate', _DRY), ('alone', _DRY)],
            [('shy', 'seen:weather:huddle sought partner='), ('shy', 'seen:weather:huddle pressed partner='),
             ('shy', 'seen:weather:thunder clap heard .*stage=HUDDLE')],
            [('alone', 'seen:weather:sheltered alone pose=tremble')])
-_scene_end('aftermath_growth', [('affected_growth', _DRY + ' and stem.progress>0.5'),
-                               ('affected_burden', _DRY + ' and stem.progress>0.5 and stem.drain=3'),
+_scene_end('aftermath_growth', [('affected_growth', _DRY),
+                               ('affected_burden', _DRY),
                                ('source_growth', _DRY), ('source_burden', _DRY)],
-           [('affected_growth', 'seen:family:aftermath reserved'), ('affected_growth', 'seen:family:stem sprouted')],
+           [('affected_growth', 'seen:family:aftermath reserved'), ('affected_growth', 'seen:family:stem sprouted'),
+            ('affected_growth', 'seen:family:stem ripe')],
            [('affected_burden', 'seen:family:aftermath reserved'), ('affected_burden', 'seen:family:stem sprouted'),
-            ('affected_burden', 'seen:family:stem drain stage 2->3')])
+            ('affected_burden', 'seen:family:stem drain stage 2->3'), ('affected_burden', 'seen:family:stem ripe')])
 _scene_end('aftermath_depletion', [('affected_depletion', 'alive=false'), ('source_depletion', _DRY)],
            [('affected_depletion', 'seen:family:aftermath reserved'),
             ('affected_depletion', 'seen:family:stem sprouted'),
             ('affected_depletion', 'seen:family:stem drew body'),
-            ('affected_depletion', 'seen:body:death settled.*stem_depletion=true')])
+            ('affected_depletion', 'seen:body:death settled.*stem_depletion=true'),
+            ('affected_depletion', 'seen:body:stem remains.*count=5 absent=0 placement=body')])
 # World phase events belong to the same captured group; arrival must name this scene's leader.
 _scene_end('colony_migrate', [('lead', _DRY), ('migrant_baby', _ASHORE)],
            [('world', r'seen:settlement:migration phase=DISCUSS group=(?P<group>\S+)'),

@@ -292,7 +292,7 @@ public final class YukkuriComponents {
                 .tick(360, BodyLife::tick)
                 .save(220, (c, tag) -> tag.put("YukkuriBody", c.save()))
                 .load(210, (c, ctx) -> { if (ctx.root().contains("YukkuriBody")) c.load(ctx.root().getCompound("YukkuriBody")); })
-                .interrupt(Interrupt.DEATH, InterruptPhase.DEATH_ONCE, 70, (c, ctx) -> c.died(ctx.source(), ctx.stemDepletion(), ctx.sukkiriExhaustion())).build(),
+                .interrupt(Interrupt.DEATH, InterruptPhase.DEATH_ONCE, 70, (c, ctx) -> c.died(ctx.source(), ctx.stemDepletion(), ctx.sukkiriExhaustion(), ctx.stem())).build(),
         ComponentSpec.ready(SURFACE_LIFE, YukkuriEntity::surfaceLife)
                 .tick(380, SurfaceLife::tick)
                 .save(130, (c, tag) -> tag.put("YukkuriSurface", c.save()))

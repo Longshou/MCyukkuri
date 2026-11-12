@@ -150,7 +150,8 @@ public final class YukkuriLife {
     }
     /** A nap is leisure: a body that really needs food stays awake to eat it; only a full sleep at energy 0 still starts. */
     public boolean wantsFatigueRest() {
-        return !isSleeping() && (energy <= 0 || napReady && energy <= 25 && nutrition >= 30) && canFatigueRest();
+        return !isSleeping() && !entity.family().stemFoodUrgent()
+                && (energy <= 0 || napReady && energy <= 25 && nutrition >= 30) && canFatigueRest();
     }
     public void startFatigueRest() {
         interrupt();
@@ -411,7 +412,7 @@ public final class YukkuriLife {
     /** A parent may select this child for a real serving even while ordinary self-feeding is unavailable. */
     public boolean canReceiveCareFood(){ return meal.canReceiveCareFood(); }
     public boolean canReceiveCareFood(ItemStack food){ return meal.canReceiveCareFood(food); }
-    public boolean hasUrgentNeed() { return nutrition < 30 || energy < 25 || bladder >= 90 && !constipated() || entity.isInWaterOrBubble() || entity.isOnFire() || wetness > 40; }
+    public boolean hasUrgentNeed() { return nutrition < 30 || entity.family().stemFoodUrgent() || energy < 25 || bladder >= 90 && !constipated() || entity.isInWaterOrBubble() || entity.isOnFire() || wetness > 40; }
     /** Thirst at the threshold the daytime plan drinks by (dryness 40 or something spicy in the mouth), and only with a drink really in reach. */
     private boolean thirstUrgent() { return (dryness >= 40 || spicyTicks() > 0) && nearestDrink() != null; }
     /** Bladder at {@link #hasUrgentNeed()}'s threshold, and only when the daytime toilet plan has somewhere to go, so waking always ends in relief. */
@@ -427,6 +428,12 @@ public final class YukkuriLife {
         return entity.family().hasChildAwaitingFeed() ? "child_hungry" : null;
     }
     public boolean isSleeping() { return fatigueActive() || task == Task.SLEEP && sleepTicks >= 20 && wakeAt == 0 || entity.house().sleeping(); }
+    public void wakeForStemFood() {
+        if (drugSleep()>0) return;
+        if (fatigueActive()) stopFatigueRest("stem_food");
+        if (task==Task.SLEEP) stopGoal();
+        planWait=0;
+    }
     /** The house goal owns the physical entry and waking sequence; only real grounded rest restores energy. */
     public void restInHouse() {
         if (!entity.level().isClientSide && entity.house().sleeping() && !entity.isPanicking()
@@ -729,7 +736,7 @@ public final class YukkuriLife {
         if (!penned && EventHooks.canEntityGrief(level(), entity) && garbage.plan()) { task = Task.GARBAGE; return true; }
         if (!penned && !ParentCarry.awaitsCarrier(entity) && foundCover.plan()) { task = Task.FOUND_COVER; return true; }
         if (temperature.plan()) { task = Task.TEMPERATURE; return true; }
-        if ((restWait == 0 || entity.pet().lessons().practicing(PetSkill.BEDTIME)) && (energy <= restThreshold() || restTime())
+        if (!entity.family().stemFoodUrgent() && (restWait == 0 || entity.pet().lessons().practicing(PetSkill.BEDTIME)) && (energy <= restThreshold() || restTime())
                 && homeProvider().ordinaryRestAllowed(this)) {
             // On a migration there is no burrow to walk back to: rest on dry ground where it stands, then walk on.
             if (entity.settlement().underway()) {
@@ -833,14 +840,14 @@ public final class YukkuriLife {
             case FOUND_COVER -> {
                 var step = foundCover.tick();
                 if (step == FoundShelter.Step.ENDED) stopGoal();
-                else if (step == FoundShelter.Step.RESTING && drowsy() && foundCover.readyToSleep()) {
+                else if (step == FoundShelter.Step.RESTING && drowsy() && !entity.family().stemFoodUrgent() && foundCover.readyToSleep()) {
                     task = Task.SLEEP; targetBlock = null; resetSleep();
                 }
             }
             case GARBAGE -> { if (!garbage.tick()) stopGoal(); }
             case TEMPERATURE -> {
                 if (!temperature.tickGoal()) stopGoal();
-                else if (restWait == 0 && (energy <= restThreshold() || restTime()) && temperature.beginSleepAtRefuge()) {
+                else if (!entity.family().stemFoodUrgent() && restWait == 0 && (energy <= restThreshold() || restTime()) && temperature.beginSleepAtRefuge()) {
                     task = Task.SLEEP; resetSleep(); targetBlock = null;
                 }
             }
@@ -889,7 +896,7 @@ public final class YukkuriLife {
                 }
                 if (restingHere || inside && entity.distanceToSqr(bedCentre) < .16 && restable(entity.blockPosition())) {
                     SurfaceApproach.halt(entity);
-                    if ((restWait == 0 || entity.pet().lessons().practicing(PetSkill.BEDTIME)) && (energy <= restThreshold() || restTime())) { task = Task.SLEEP; resetSleep(); }
+                    if (!entity.family().stemFoodUrgent() && (restWait == 0 || entity.pet().lessons().practicing(PetSkill.BEDTIME)) && (energy <= restThreshold() || restTime())) { task = Task.SLEEP; resetSleep(); }
                     // Awake arrival ends the trip, even while rain continues above the roof.
                     else { task = Task.NONE; targetBlock = null; planWait = 0; }
                 } else if (pursuitTicks > 60 && entity.getNavigation().isDone() && entity.distanceToSqr(bedCentre) > 4 && !reachable(targetBlock, false)) stopGoal();

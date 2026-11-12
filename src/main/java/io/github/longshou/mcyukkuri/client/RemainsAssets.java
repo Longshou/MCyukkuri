@@ -28,12 +28,18 @@ final class RemainsAssets {
                 ResourceLocation decal,float decalRadius){}
     private static final Map<String,Entry> FORMS=new HashMap<>(),WATER=new HashMap<>();
     private static final Map<String,Set<String>> ATLASES=new HashMap<>();
+    record StemLook(float sag,float slack,int[] colour) {}
+    private static StemLook stem;
 
     static void reload(ResourceManager manager){
-        FORMS.clear();WATER.clear();ATLASES.clear();
+        FORMS.clear();WATER.clear();ATLASES.clear();stem=null;
         try(var reader=manager.getResourceOrThrow(MCYukkuri.id("yukkuri_presentation/remains_forms.json")).openAsReader()){
             var data=JsonParser.parseReader(reader).getAsJsonObject();
             if(data.get("format").getAsInt()!=1)throw new IllegalArgumentException("Unsupported remains forms");
+            var geometry=data.getAsJsonObject("stem");
+            var rgb=geometry.getAsJsonArray("colour");
+            stem=new StemLook(geometry.get("sag").getAsFloat(),geometry.get("pedicel_slack").getAsFloat(),
+                    new int[]{rgb.get(0).getAsInt(),rgb.get(1).getAsInt(),rgb.get(2).getAsInt()});
             for(var entry:data.getAsJsonObject("forms").entrySet())FORMS.put(entry.getKey(),entry(entry.getValue().getAsJsonObject()));
             for(var entry:data.getAsJsonObject("water").entrySet())WATER.put(entry.getKey(),entry(entry.getValue().getAsJsonObject()));
             for(var entry:data.getAsJsonObject("atlases").entrySet()){
@@ -42,7 +48,7 @@ final class RemainsAssets {
             }
         }catch(IOException|RuntimeException error){
             // Without the selected looks the remains keep the former transitional pose; nothing else depends on them.
-            FORMS.clear();WATER.clear();ATLASES.clear();
+            FORMS.clear();WATER.clear();ATLASES.clear();stem=null;
             LoggerFactory.getLogger(RemainsAssets.class).warn("Remains forms unavailable",error);
         }
     }
@@ -53,6 +59,10 @@ final class RemainsAssets {
                 decal==null?null:decal.get("name").getAsString(),decal==null?0:decal.get("radius").getAsFloat());
     }
     private static boolean atlas(String model,String name){return ATLASES.getOrDefault(model,Set.of()).contains(name);}
+    static StemLook stem(){return stem;}
+    static ResourceLocation stemFruit(String model){
+        return MCYukkuri.id("textures/entity/"+model+(atlas(model,"stem_fruit")?"/remains_stem_fruit.png":"/sleep.png"));
+    }
     private static ResourceLocation overlay(String name){return name==null?null:MCYukkuri.id("textures/entity/remains/overlay_"+name+".png");}
     private static ResourceLocation decal(String name){return name==null?null:MCYukkuri.id("textures/entity/remains/decal_"+name+".png");}
 

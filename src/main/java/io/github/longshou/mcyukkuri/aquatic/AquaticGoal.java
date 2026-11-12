@@ -206,7 +206,7 @@ final class AquaticGoal extends Goal {
         if (birth && !brood.id.equals(shoreBrood)) {
             shoreBrood = brood.id;
             GameplayLog.event(body, "aquatic", "birth shore return brood={} remaining={} aboard={} reason=birth_lead lead={}",
-                    brood.id, brood.duration - brood.elapsed, aboard, FamilyLife.shoreBirthLead());
+                    brood.id, brood.duration - brood.elapsed, aboard, body.family().currentShoreBirthLead());
         }
         var young = AquaticLife.young(body);
         // Finish the first meal/toilet care ashore; a crawling child can gather for a braid lift without learning to jump.

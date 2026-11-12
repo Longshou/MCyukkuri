@@ -5,18 +5,26 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class StemDrainTest {
     @Test void drawsForGrowthAndProratesOnlyAtTerm() {
-        assertEquals(0, StemDrain.drawTicks(199, 450));
-        assertEquals(200, StemDrain.drawTicks(200, 450));
-        assertEquals(0, StemDrain.drawTicks(449, 450));
-        assertEquals(50, StemDrain.drawTicks(450, 450));
-        assertEquals(0, StemDrain.drawTicks(451, 450));
-        assertEquals(0, StemDrain.drawTicks(600, 450));
+        assertEquals(0, StemDrain.drawTicks(19, 407, 20));
+        assertEquals(20, StemDrain.drawTicks(20, 407, 20));
+        assertEquals(0, StemDrain.drawTicks(406, 407, 20));
+        assertEquals(7, StemDrain.drawTicks(407, 407, 20));
+        assertEquals(0, StemDrain.drawTicks(408, 407, 20));
+        assertEquals(50, StemDrain.drawTicks(450, 450, 200));
     }
 
     @Test void fruitCountAndStalkSizeIncreaseTheDraw() {
-        assertEquals(1.116f, StemDrain.draw(200, 1, .93f), .00001f);
-        assertEquals(2.14f, StemDrain.draw(200, 5, 1.07f), .00001f);
-        assertEquals(.535f, StemDrain.draw(50, 5, 1.07f), .00001f);
+        assertEquals(372, StemDrain.duration(.93f));
+        assertEquals(428, StemDrain.duration(1.07f));
+        assertEquals(33.48f, StemDrain.draw(372, 1, .93f, 372, true), .00001f);
+        assertEquals(64.2f, StemDrain.draw(428, 5, 1.07f, 428, true), .00001f);
+        assertEquals(.535f, StemDrain.draw(50, 5, 1.07f, 450, false), .00001f);
+    }
+
+    @Test void depletionGraceDoesNotHealOrPreventOtherDamage() {
+        assertEquals(.25f, StemDrain.damage(3,1.25f,59,0), .00001f);
+        assertEquals(0, StemDrain.damage(3,.5f,59,0));
+        assertEquals(.6f, StemDrain.damage(3,.5f,60,0), .00001f);
     }
 
     @Test void theCarryingItselfIsTheFirstStage() {

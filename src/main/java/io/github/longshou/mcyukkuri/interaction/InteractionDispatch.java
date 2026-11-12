@@ -234,6 +234,8 @@ public final class InteractionDispatch {
             if(target.operations().perform(player,action))return true;
             reason="condition";
         }
+        if(reason.equals("cut_too_early")||reason.equals("cut_birth_started"))
+            target.showReaction("surprise","",20);
         refuse(player,target,action.key(),reason);
         return false;
     }

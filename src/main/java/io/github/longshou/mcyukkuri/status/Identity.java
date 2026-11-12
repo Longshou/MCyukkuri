@@ -28,6 +28,7 @@ public enum Identity {
     }
 
     public boolean companion() { return this == PET || this == NPC_COMPANION; }
+    public boolean canConceive() { return this != STOCK; }
     public boolean wild() { return this == WILD_FAMILY || this == WILD_SETTLEMENT; }
     public boolean free() { return this == STRAY || wild(); }
     public String id() { return name().toLowerCase(Locale.ROOT); }

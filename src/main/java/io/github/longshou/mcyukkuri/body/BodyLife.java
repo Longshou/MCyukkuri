@@ -1,5 +1,8 @@
 package io.github.longshou.mcyukkuri.body;
 
+import io.github.longshou.mcyukkuri.family.RemainsStem;
+import io.github.longshou.mcyukkuri.interaction.ItemContact;
+import net.minecraft.world.damagesource.DamageTypes;
 import io.github.longshou.mcyukkuri.random.ModRandom;
 
 import io.github.longshou.mcyukkuri.MCYukkuri;
@@ -578,28 +581,38 @@ public final class BodyLife {
     public void died(DamageSource source){died(source,false);}
     public void died(DamageSource source,boolean stemDepletion){died(source,stemDepletion,false);}
     public void died(DamageSource source,boolean stemDepletion,boolean sukkiriExhaustion){
+        died(source,stemDepletion,sukkiriExhaustion,null);
+    }
+    public void died(DamageSource source,boolean stemDepletion,boolean sukkiriExhaustion,RemainsStem stem){
         if(settled||!(entity.level() instanceof ServerLevel level))return;
+        if(source!=null&&source.is(DamageTypes.FELL_OUT_OF_WORLD))return;
         String internal=internalDeathCause();
         // Retention kills by holding everything in: nothing came out, so the body keeps its whole filling and its swollen shape
         // (lead decision, art decision wp-eu full pass) instead of the empty-corpse balance of a body worn down to 0 health.
         if(LeafSwaddle.RETENTION.equals(internal))deathFood=BodyFood.capacity(entity);
-        var remains=RemainsEntity.snapshot(entity,source,stemDepletion,sukkiriExhaustion,internal);
+        var remains=RemainsEntity.snapshot(entity,source,stemDepletion,sukkiriExhaustion,internal,stem);
         var mouth=entity.component(YukkuriComponents.MOUTH);
         RemainsEntity.retainCarriedItems(remains,mouth.itemsForRemains());
         var found = entity.life().foundShelter();
         var opening = found == null ? null : Vec3.atBottomCenterOf(found.entrance());
         boolean setDown = opening != null && SurfaceApproach.stands(entity, opening) && SurfaceApproach.clearLastStep(entity, opening)
                 && RemainsEntity.place(entity.level(), opening, entity.yBodyRot, remains, true);
-        boolean placed = setDown || RemainsEntity.place(level,entity.position(),entity.yBodyRot,remains,false);
+        boolean placedBody = setDown || RemainsEntity.place(level,entity.position(),entity.yBodyRot,remains,false);
+        boolean placed = placedBody || stem!=null&&ItemContact.release(entity,remains,entity.position(),Vec3.ZERO)!=null;
         var head = entity.life().custody();
         head.releaseJunk(variant -> placed || YukkuriWorldData.get(level).dropDeathHeadwear(entity));
-        if(!placed)return;
+        if(!placed){
+            if(stem!=null)GameplayLog.event(entity,"body","stem remains refused brood={} progress={} reason=entity_and_item_rejected",stem.brood(),stem.progress());
+            return;
+        }
         mouth.remainsAcceptedItems();
         if (found != null) found.release(entity.getUUID());
         settled=true;settledCause=internal;entity.syncBody();
         var stored=remains.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();
         GameplayLog.event(entity,"body","death settled into remains; cause={} internal={} category={} core_hurt={} food={} stem_depletion={} sukkiri_exhaustion={}",
                 source==null?"none":source.getMsgId(),internal.isEmpty()?"none":internal,RemainsCause.of(stored),coreHurt,remainsFood(),stemDepletion,sukkiriExhaustion);
+        if(stem!=null)GameplayLog.event(entity,"body","stem remains brood={} progress={} count={} absent={} placement={}",
+                stem.brood(),stem.progress(),stem.count(),stem.absentMask(),placedBody?"body":"item");
     }
     public CompoundTag save(){var tag=BodyWound.write(wounds);tag.putInt("Version",3);if(!wounds.isEmpty())WoundMigration.record(tag,
             WoundSurface.get(entity.subspecies().assetId()));tag.putInt("ReleaseCursor",releaseCursor);tag.putInt("HealthVersion",1);tag.putInt("Infection",infection);

@@ -72,7 +72,8 @@ public final class ForageGoal extends Goal {
                 || !EventHooks.canEntityGrief(level(), entity) || !grazes()) return false;
         if (SettlementSeasons.forageBlocked(entity) || feedsChildFirst() || yieldsToMarch() || entity.forageTrip().provisioningFirst()) return false;
         scanFood();
-        if (target == null && (entity.life().nutrition() >= 30 || entity.family().keepsToParent())) return false;
+        if (target == null && (entity.life().nutrition() >= 30 && !entity.family().stemFoodUrgent()
+                || entity.family().keepsToParent())) return false;
         elapsed = 0; searchSpot = null;
         return true;
     }

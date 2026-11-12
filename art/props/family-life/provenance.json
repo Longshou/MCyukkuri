@@ -3,10 +3,10 @@
   "inputs": {
     "art/props/family-life/recipe.json": "83aed4090bfdf8f986489998ef1cf3687d2d2c4f88f4984a437aab5c3e3498e9",
     "standards/yukkuri-v1/components/common/stem.json": "96f9a4f12c692fcf3138b145c2602378348b148dbdbab2d716077d2dacc54836",
-    "standards/yukkuri-v1/profiles/growth.json": "eaa39e812e8dba302a6e7441e105626f965b63c926a3eb99ccc0ac2a5a80ec3e",
+    "standards/yukkuri-v1/profiles/growth.json": "29ccf95cffa6a4317a9bf945132165fa18a74ac9102178a17daad7e30d9763ae",
     "standards/yukkuri-v1/behaviors/stem-birth.json": "33e61ed5dce715940eab8de7eaa041ddb641b8f5b9be1af32ca7643399511069"
   },
   "outputs": {
-    "src/main/resources/assets/mcyukkuri/yukkuri_presentation/family.json": "bf34b0cb09ee67033b382683e95682bc251fe9c625a93c3346aa5b7c1488756a"
+    "src/main/resources/assets/mcyukkuri/yukkuri_presentation/family.json": "56181b741aed948b22e06c5d8547ff79a6986c08b863d7d878346a22475c7d6a"
   }
 }

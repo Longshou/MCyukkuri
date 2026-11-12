@@ -39,6 +39,8 @@ import io.github.longshou.mcyukkuri.headwear.HatGeometry;
 import java.util.Comparator;
 import java.util.Locale;
 import java.util.UUID;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
 import java.util.function.Predicate;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -236,8 +238,8 @@ public final class FamilyLife {
     public boolean babyTalk(){return babyTalk;}
     public boolean applyBabyTalk(){if(!adult()||babyTalk)return false;babyTalk=true;entity.setPersistenceRequired();return true;}
     public int sexDrive(){return sexDrive;}
-    public boolean inBreedingPeriod(){return adult()&&!sterile()&&!elder()&&sexDrive>0;}
-    public boolean canTakeStimulant(){return adult()&&!sterile()&&!elder()&&sexDrive==0;}
+    public boolean inBreedingPeriod(){return adult()&&!sterile()&&!elder()&&sexDrive>0&&entity.status().identity().canConceive();}
+    public boolean canTakeStimulant(){return adult()&&!sterile()&&!elder()&&sexDrive==0&&entity.status().identity().canConceive();}
     /** One saved server clock feeds both natural periods and the existing stimulant item. */
     public boolean beginBreedingPeriod(){
         if(entity.level().isClientSide||!canTakeStimulant())return false;
@@ -462,7 +464,7 @@ public final class FamilyLife {
     }
     public boolean sterile(){return sterile||!entity.subspecies().canReproduce();}
     public int stimulation(){return stimulation;}
-    public boolean stimulate(){if(!adult()||sterile())return false;stimulation=Math.min(1200,stimulation+240);return true;}
+    public boolean stimulate(){if(!adult()||sterile()||!entity.status().identity().canConceive())return false;stimulation=Math.min(1200,stimulation+240);return true;}
     public boolean sterilize(){if(!adult()||sterile()||stimulation==0)return false;sterile=true;stimulation=0;return true;}
     public void detached(){gestation=null;spentStemCount=0;recovery=Math.max(recovery,FamilyConfig.RECOVERY.get());stop();entity.syncFamily();}
     public void tick() {
@@ -501,7 +503,7 @@ public final class FamilyLife {
         if(!awaitingLanding&&entity.tickCount%GROW_INTERVAL==0&&entity.life().nutrition()>=35)grow(false);
         if(entity.tickCount==1||entity.tickCount%20==0)updateMovement();
         if(recovery>0)recovery--;if(wait>0)wait--;if(stimulation>0)stimulation--;
-        if(!adult()||sterile()||elder())sexDrive=0;
+        if(!adult()||sterile()||elder()||!entity.status().identity().canConceive())sexDrive=0;
         if(sexDrive>0){sexDrive--;if(sexDrive%200==0)entity.life().spendNutrition(1);}
         // Natural lifetime is authoritative even while the body is boarded or in a flight arc.
         if(FamilyConfig.AGING.get()&&age>=lifespan) {
@@ -539,11 +541,14 @@ public final class FamilyLife {
             else if(brood.kind==FamilyData.BirthKind.LIVE)gestate(brood,true);
         } else if(gestation!=null&&(brood==null||brood.cancelled||brood.complete()&&brood.kind!=FamilyData.BirthKind.STEM))gestation=null;
         if(expecting&&brood.kind==FamilyData.BirthKind.STEM){
+            if(stemFoodUrgent()&&entity.life().isSleeping())entity.life().wakeForStemFood();
             advanceStem(brood);
             if(!entity.isAlive())return;
         }
         birth.tick();
     }
+    private UUID stemWarningBrood;
+
     /** The attached stem grows from the bearer once per loaded tick. Delivery only handles ripe fruit. */
     private void advanceStem(FamilyData.Brood brood){
         if(brood.elapsed>=brood.duration)return;
@@ -551,21 +556,39 @@ public final class FamilyLife {
         FamilyData.get(level()).setDirty();
         if(elapsed==1)GameplayLog.event(entity,"family","stem sprouted brood={} elapsed={} duration={} fruit={}",
                 brood.id,elapsed,brood.duration,brood.children.size());
-        int ticks=StemDrain.drawTicks(elapsed,brood.duration);
+        int ticks=StemDrain.drawTicks(elapsed,brood.duration,brood.drawInterval());
+        if(brood.fastStem){
+            if(entity.life().nutrition()>0)brood.emptyAt=-1;
+            else if(brood.emptyAt<0)brood.emptyAt=elapsed;
+            if(!brood.id.equals(stemWarningBrood)&&stemDepletionWarning()){
+                stemWarningBrood=brood.id;
+                entity.speakCue("wounded");
+                for(var player:level().getEntitiesOfClass(ServerPlayer.class,entity.getBoundingBox().inflate(12)))
+                    player.displayClientMessage(Component.translatable("stem.mcyukkuri.help",entity.getName()),true);
+                GameplayLog.event(entity,"family","stem depletion warning brood={} elapsed={} duration={} nutrition={} health={}",
+                        brood.id,elapsed,brood.duration,entity.life().nutrition(),entity.getHealth());
+            }
+        }
         if(ticks==0)return;
         int unborn=brood.unborn();
-        float cost=StemDrain.draw(ticks,unborn,brood.variation);
-        float spent=Math.min(cost,entity.life().nutrition());
+        float cost=brood.draw(ticks);
+        float before=entity.life().nutrition(),spent=Math.min(cost,before);
         entity.life().spendNutrition(spent);
+        if(brood.fastStem&&entity.life().nutrition()<=0&&brood.emptyAt<0)brood.emptyAt=elapsed;
         if(entity.life().nutrition()<StemDrain.THIN_NUTRITION)stemDrained=true;
         if(spent<cost){
             float healthBefore=entity.getHealth();
-            entity.body().stemDepletionDamage((cost-spent)/StemDrain.NUTRITION_PER_HEALTH);
+            float damage=brood.fastStem?StemDrain.damage(cost-spent,healthBefore,elapsed,brood.emptyAt)
+                    :(cost-spent)/StemDrain.NUTRITION_PER_HEALTH;
+            if(damage>0)entity.body().stemDepletionDamage(damage);
             GameplayLog.event(entity,"family","stem drew body brood={} elapsed={} duration={} fruit={} nutrition_drawn={} deficit={} health={}->{}",
                     brood.id,elapsed,brood.duration,unborn,spent,cost-spent,healthBefore,entity.getHealth());
         }
-        // By the first draw the sprout is noticeable and the attack's release has had time to play.
-        if(entity.isAlive()&&elapsed==Math.min(StemDrain.DRAW_TICKS,brood.duration)&&brood.incidentSource!=null)
+        if(entity.isAlive()&&(elapsed==brood.drawInterval()||elapsed==brood.duration))
+            GameplayLog.event(entity,"family","stem {} brood={} elapsed={} duration={} fruit={} nutrition={}->{} health={}",
+                    elapsed==brood.duration?"ripe":"first draw",brood.id,elapsed,brood.duration,unborn,before,entity.life().nutrition(),entity.getHealth());
+        // The attack's release and fright response keep their own timing.
+        if(entity.isAlive()&&elapsed==Math.min(StemDrain.LEGACY_DRAW_TICKS,brood.duration)&&brood.incidentSource!=null)
             entity.showReaction("confused","aftermath_realize",160);
     }
     /** One loaded tick of live gestation: "" when it ran, else why it waits. */
@@ -582,6 +605,7 @@ public final class FamilyLife {
     /** A ripe fruit still needs a physically available mother to drop from. */
     boolean readyForStemDrop(){
         return !entity.operations().active()&&!entity.isPanicking()&&!entity.isOnFire()&&!entity.isInWaterOrBubble()
+                &&!entity.isPassenger()&&supported()
                 &&!entity.isCommandPlaying()&&!entity.body().condition().blocksBreedingApproach()
                 &&entity.life().mealTicks()==0&&!entity.life().isSleeping();
     }
@@ -615,6 +639,10 @@ public final class FamilyLife {
     boolean deliveryGrounded(){return !entity.isPassenger()&&supported()&&!entity.isInWaterOrBubble();}
     /** The birth conductor's own preparation lead also starts the shore return. */
     public static int shoreBirthLead(){return LiveBirth.APPROACH_LEAD;}
+    public int currentShoreBirthLead(){
+        var b=brood();
+        return attachedStem(b)?b.duration:shoreBirthLead();
+    }
     /** The shore return is still under way: her riders are aboard, or she is down but her hat still floats as a boat while her own
      *  landing runs (it ends with the hat worn again, or at its own deadline). The birth role waits for the hat so the newborns land in it. */
     private boolean shoreLanding(){
@@ -625,7 +653,8 @@ public final class FamilyLife {
     }
     public boolean shoreBirthDue(){
         var b=brood();
-        return b!=null&&!b.cancelled&&!b.complete()&&b.kind==FamilyData.BirthKind.LIVE&&b.duration-b.elapsed<=shoreBirthLead()&&liveBirth()!=null&&!cabinBirth();
+        return attachedStem(b)||b!=null&&!b.cancelled&&!b.complete()&&b.kind==FamilyData.BirthKind.LIVE
+                &&b.duration-b.elapsed<=shoreBirthLead()&&liveBirth()!=null&&!cabinBirth();
     }
     /** Pregnancy can advance aboard; labour and birth roles require her own ground support. */
     private boolean gestationReady(){
@@ -912,7 +941,7 @@ public final class FamilyLife {
         entity.setPersistenceRequired(); }
     /** Preconditions of a checked aftermath reservation. Existing pregnancies and partners are never replaced. */
     public boolean canReceiveAftermath() {
-        return !entity.level().isClientSide && entity.isAlive() && !entity.isNoAi() && adult() && !sterile() && !elder()
+        return !entity.level().isClientSide && entity.status().identity().canConceive() && entity.isAlive() && !entity.isNoAi() && adult() && !sterile() && !elder()
                 && !entity.body().dying() && entity.body().coreIntact()
                 && !entity.profile().houseBody() && !entity.profile().dangerToYukkuri()
                 && gestation==null && recovery==0 && !awaitingLanding && !birthDuty();
@@ -926,6 +955,23 @@ public final class FamilyLife {
     public boolean growingStem(){
         var b=brood();
         return attachedStem(b)&&b.elapsed<b.duration;
+    }
+    /** Ticks of growth the current body can fund, if the remaining draw would deplete it. */
+    public int stemDepletionTicks() { return stemDepletionTicks(brood()); }
+    private int stemDepletionTicks(FamilyData.Brood b) {
+        if(!attachedStem(b)||b.elapsed>=b.duration)return Integer.MAX_VALUE;
+        float budget=entity.life().nutrition()+entity.getHealth()*StemDrain.NUTRITION_PER_HEALTH;
+        if(b.draw(b.unpaidTicks())<=budget)return Integer.MAX_VALUE;
+        int ticks=(int)(budget/b.draw(1))-b.elapsed%b.drawInterval();
+        return Math.max(0,ticks);
+    }
+    public boolean stemFoodUrgent() {
+        return growingStem()&&(entity.life().nutrition()<StemDrain.WEAK_NUTRITION||stemDepletionTicks()<Integer.MAX_VALUE);
+    }
+    public boolean stemDepletionWarning() {
+        var b=brood();
+        return attachedStem(b)&&b.fastStem&&FamilyGeometry.fruitScale(b.progress(),GrowthSize.STEM)>0
+                &&stemDepletionTicks(b)<Integer.MAX_VALUE;
     }
     private static boolean attachedStem(FamilyData.Brood b){
         return b!=null&&b.kind==FamilyData.BirthKind.STEM&&!b.cancelled&&!b.complete();
@@ -942,7 +988,7 @@ public final class FamilyLife {
         stop();entity.setPersistenceRequired();entity.syncFamily();
     }
     public boolean readyForAssistance() {
-        return !entity.level().isClientSide&&!entity.profile().houseBody()&&!entity.profile().dangerToYukkuri()
+        return !entity.level().isClientSide&&entity.status().identity().canConceive()&&!entity.profile().houseBody()&&!entity.profile().dangerToYukkuri()
                 &&!entity.isNoAi()&&gestation==null&&adult()&&!sterile()&&!elder()&&recovery==0
                 &&entity.isAlive()&&!entity.isPanicking()&&!entity.isCommandPlaying()&&!entity.predator().active()
                 &&(!entity.operations().active()||entity.operations().pose()==OperationLife.Pose.ASSIST)
@@ -1552,6 +1598,14 @@ public final class FamilyLife {
         separation.load(tag);
         mother=tag.hasUUID("Mother")?tag.getUUID("Mother"):null;father=tag.hasUUID("Father")?tag.getUUID("Father"):null;
         birthId=tag.hasUUID("BirthId")?tag.getUUID("BirthId"):null;gestation=tag.hasUUID("Gestation")?tag.getUUID("Gestation"):null;partner=tag.hasUUID("Partner")?tag.getUUID("Partner"):null;
+        if(!entity.level().isClientSide&&!entity.status().identity().canConceive()){
+            var stocked=brood();
+            if(attachedStem(stocked)){
+                FamilyData.get(level()).cancel(stocked,entity,"stock_cannot_conceive");
+                gestation=null;
+            }
+            endBreedingPeriod();
+        }
         // The birth after the gestation it belongs to; past the last child it keeps only its post-labour beats.
         birth.load(tag,saved->{if(entity.level().isClientSide)return null;var b=brood();
             return new LiveBirth(this,b==null?null:b.id,b==null?!saved.getString("Beat").equals("drop"):b.kind==FamilyData.BirthKind.LIVE);});

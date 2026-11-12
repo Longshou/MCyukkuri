@@ -649,6 +649,7 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     public int broodCount() { return sync().broodCount(); }
     public int broodBornMask() { return sync().broodBornMask(); }
     public float broodProgress() { return sync().broodProgress(); }
+    public float broodProgress(float partialTick) { return sync().broodProgress(partialTick); }
     public float broodVariation() { return sync().broodVariation(); }
     public boolean hasSpentStem() { return sync().hasSpentStem(); }
     public float livePregnancyProgress() { return sync().livePregnancyProgress(); }

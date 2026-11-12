@@ -113,12 +113,18 @@ public final class FamilyData extends SavedData {
         public BirthKind kind;
         public GlobalPos anchor;
         public int elapsed, duration;
+        boolean fastStem;
+        int emptyAt=-1;
         public float variation;
         public boolean cancelled;
         public final List<Child> children = new ArrayList<>();
         public boolean complete() { return children.stream().allMatch(child -> child.born || child.eggLost); }
         public int unborn() { return (int)children.stream().filter(child -> !child.born && !child.eggLost).count(); }
         public float progress() { return Math.min(1, elapsed/(float)Math.max(1,duration)); }
+        private void startStemClock() { fastStem=true;duration=StemDrain.duration(variation); }
+        int drawInterval() { return fastStem?StemDrain.DRAW_TICKS:StemDrain.LEGACY_DRAW_TICKS; }
+        float draw(int ticks) { return StemDrain.draw(ticks,children.size(),variation,duration,fastStem); }
+        int unpaidTicks() { return duration-elapsed/drawInterval()*drawInterval(); }
     }
     private final Map<UUID, Person> people = new HashMap<>();
     /** Conservative, session-long retention: identities themselves are never compacted or removed here. */
@@ -442,8 +448,9 @@ public final class FamilyData extends SavedData {
         }
         long seed=plan.seed();int count=plan.count();var shelter=plan.shelter();boolean joinMother=plan.joinMother();float cost=plan.cost();
         Brood brood=new Brood();brood.id=ModRandom.identity(mother.getRandom());brood.mother=mother.getUUID();brood.father=father.getUUID();brood.kind=kind;brood.anchor=anchor;
-        brood.duration=kind!=BirthKind.EGG?FamilyConfig.GESTATION.get():FamilyConfig.EGG_INCUBATION.get();
         Random random=new Random(seed);brood.variation=.93f+random.nextFloat()*.14f;
+        if(kind==BirthKind.STEM)brood.startStemClock();
+        else brood.duration=kind==BirthKind.LIVE?FamilyConfig.GESTATION.get():FamilyConfig.EGG_INCUBATION.get();
         for(int i=0;i<count;i++) {
             Child child=new Child();child.id=ModRandom.identity(mother.getRandom());child.variant=random.nextBoolean()?mother.getVariant():father.getVariant();
             child.subspeciesFlags=SubspeciesLife.birthFlags(child.id,child.variant,mother.subspecies().kind(),father.subspecies().kind());
@@ -472,14 +479,17 @@ public final class FamilyData extends SavedData {
      * An adult victim may already be hungry: low nutrition is a consequence to care for, not an immunity.
      */
     public String aftermathRefusal(YukkuriEntity victim,YukkuriEntity source) {
+        return aftermathRefusal(victim,source,0);
+    }
+    public String aftermathRefusal(YukkuriEntity victim,YukkuriEntity source,int startingCount) {
         if(!(victim.level() instanceof ServerLevel level)||victim.level()!=source.level())return "双方必须在同一服务端维度";
-        if(source.getVariant()!=YukkuriVariant.ALICE||!source.isAlive()||!source.family().adult()
+        if(source.getVariant()!=YukkuriVariant.ALICE||!source.status().identity().canConceive()||!source.isAlive()||!source.family().adult()
                 ||source.body().dying()||!source.body().coreIntact())return "来源必须是未濒死、核心完好的存活成年爱丽丝";
         register(victim);register(source);
         if(!victim.family().canReceiveAftermath())return "受影响者必须是存活成体，不能处于濒死、核心损伤、已有胎次、恢复期、未落定或不育状态";
         if(!victim.family().compatibleWith(source))return "双方种类或生理状态不兼容，或存在亲缘关系";
         if(busyParent(victim.getUUID())||busyParent(source.getUUID()))return "已有未完成胎次，不能叠加或覆盖";
-        int count=offspringCount(victim.family().adultScale(),aftermathSeed(victim,source),victim.profile().aquatic());
+        int count=startingCount==0?offspringCount(victim.family().adultScale(),aftermathSeed(victim,source),victim.profile().aquatic()):startingCount;
         var shelter=victim.habitat().shelter();
         if(shelter!=null&&!shelter.suitableForYoung(count))return "当前住所的子代容量不足";
         if(shelter==null&&!Homes.petBedFits(victim,count))return "当前宠物床的子代空间不足";
@@ -492,13 +502,17 @@ public final class FamilyData extends SavedData {
     }
     /** A real STEM reservation with biological ancestry but no invented partnership, care father or source reward. */
     public Brood createAftermath(YukkuriEntity victim,YukkuriEntity source,boolean fleeImmediately) {
-        if(aftermathRefusal(victim,source)!=null)return null;
+        return createAftermath(victim,source,fleeImmediately,0);
+    }
+    public Brood createAftermath(YukkuriEntity victim,YukkuriEntity source,boolean fleeImmediately,int startingCount) {
+        if(aftermathRefusal(victim,source,startingCount)!=null)return null;
         var level=(ServerLevel)victim.level();
-        long seed=aftermathSeed(victim,source);int count=offspringCount(victim.family().adultScale(),seed,victim.profile().aquatic());
+        long seed=aftermathSeed(victim,source);
+        int count=startingCount==0?offspringCount(victim.family().adultScale(),seed,victim.profile().aquatic()):startingCount;
         var brood=new Brood();brood.id=ModRandom.identity(victim.getRandom());brood.mother=victim.getUUID();brood.incidentSource=source.getUUID();
         brood.kind=BirthKind.STEM;brood.anchor=GlobalPos.of(level.dimension(),victim.blockPosition());
-        brood.duration=FamilyConfig.GESTATION.get();
         var random=new Random(seed);brood.variation=.93f+random.nextFloat()*.14f;
+        brood.startStemClock();
         for(int i=0;i<count;i++) {
             var child=new Child();child.id=ModRandom.identity(victim.getRandom());child.variant=random.nextBoolean()?victim.getVariant():source.getVariant();
             child.subspeciesFlags=SubspeciesLife.birthFlags(child.id,child.variant,victim.subspecies().kind(),source.subspecies().kind());
@@ -525,7 +539,7 @@ public final class FamilyData extends SavedData {
         var custody=Custody.view(mother);
         // Known NPC identity survives unloading; legacy UNKNOWN keeps the old positive-entity check.
         if(custody.hasPendingStaffRole()
-                ||custody.owner()!=null&&(custody.role()==Custody.Role.STOCK||custody.role()==Custody.Role.LOST
+                ||custody.owner()!=null&&(custody.role()==Custody.Role.LOST
                 ||custody.ownerKind()==Custody.OwnerKind.NPC
                 ||custody.ownerKind()==Custody.OwnerKind.UNKNOWN&&level.getEntity(custody.owner()) instanceof HumanNpc))return false;
         int count=offspringCount(mother.family().adultScale(),mother.getUUID().getMostSignificantBits()^mother.family().conceptions(),mother.profile().aquatic());
@@ -799,6 +813,8 @@ public final class FamilyData extends SavedData {
             CompoundTag value=new CompoundTag();value.putUUID("Id",brood.id);value.putUUID("Mother",brood.mother);if(brood.father!=null)value.putUUID("Father",brood.father);
             if(brood.incidentSource!=null)value.putUUID("IncidentSource",brood.incidentSource);
             value.putString("Kind",brood.kind.name());putPosition(value,"Anchor",brood.anchor);value.putInt("Elapsed",brood.elapsed);value.putInt("Duration",brood.duration);
+            if(brood.fastStem)value.putBoolean("FastStem",true);
+            if(brood.emptyAt>=0)value.putInt("StemEmptyAt",brood.emptyAt);
             if(brood.detachedHolder!=null)value.putUUID("DetachedHolder",brood.detachedHolder);
             value.putFloat("Variation",brood.variation);value.putBoolean("Cancelled",brood.cancelled);ListTag children=new ListTag();
             for(Child child:brood.children) {
@@ -849,6 +865,8 @@ public final class FamilyData extends SavedData {
                 if(brood.father==null&&brood.kind!=BirthKind.LIVE&&brood.incidentSource==null)continue;
                 brood.anchor=position(value,"Anchor");if(brood.anchor==null)continue;
                 brood.duration=Math.max(1,value.getInt("Duration"));brood.elapsed=Math.clamp(value.getInt("Elapsed"),0,brood.duration+600);
+                brood.fastStem=value.getBoolean("FastStem");
+                if(value.contains("StemEmptyAt",Tag.TAG_INT))brood.emptyAt=Math.clamp(value.getInt("StemEmptyAt"),0,brood.elapsed);
                 brood.detachedHolder=value.hasUUID("DetachedHolder")?value.getUUID("DetachedHolder"):null;
                 brood.variation=Math.clamp(value.getFloat("Variation"),.85f,1.15f);brood.cancelled=value.getBoolean("Cancelled");
                 for(Tag childEntry:value.getList("Children",Tag.TAG_COMPOUND)) {

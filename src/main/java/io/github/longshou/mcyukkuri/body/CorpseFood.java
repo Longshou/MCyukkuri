@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.body;
 
 import io.github.longshou.mcyukkuri.entity.RemainsEntity;
+import io.github.longshou.mcyukkuri.family.RemainsStem;
 import io.github.longshou.mcyukkuri.registry.ModItems;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
@@ -52,6 +53,7 @@ public final class CorpseFood {
             float current = remaining(tag);
             tag.putFloat(CAPACITY, Math.max(capacity(tag), current));
             tag.putFloat(REMAINING, Math.max(0, current - portions));
+            if(current<=portions)tag.remove(RemainsStem.KEY);
             tag.remove(LEGACY_FILLING);
         });
         return bite;

@@ -249,17 +249,9 @@ public final class ScenarioCommands {
                             return first.family().introduce(second) ? 1 : refused(c.getSource(), first, "结为伴侣", "双方要是成年、同一维度、未亲缘相连，且没有别的伴侣。");
                         }))))
                 .then(Commands.literal("aftermath").then(Commands.argument("victim", EntityArgument.entity())
-                        .then(Commands.argument("source", EntityArgument.entity()).executes(c -> {
-                            var victim=yukkuri(c,"victim");var source=yukkuri(c,"source");
-                            if(victim==null||source==null)return 0;
-                            var data=FamilyData.get(c.getSource().getLevel());
-                            String reason=data.aftermathRefusal(victim,source);
-                            if(reason!=null)return refused(c.getSource(),victim,"事后茎生场景",reason);
-                            var brood=data.createAftermath(victim,source,true);
-                            if(brood==null)return refused(c.getSource(),victim,"事后茎生场景","状态已改变，未建立新的胎次");
-                            tell(c.getSource().getLevel(),victim.position(),"[试玩场] 已建立事后茎生胎次。茎从萌芽长到成熟，每次生长都会汲取营养，营养不足就消耗母油的生命。",ChatFormatting.YELLOW);
-                            return done(c.getSource(),"事后状态已建立；可读取营养、体力、胎次进度和负担计时。");
-                        }))))
+                        .then(Commands.argument("source", EntityArgument.entity()).executes(c -> aftermath(c,0))
+                                .then(Commands.argument("litter", IntegerArgumentType.integer(1,5))
+                                        .executes(c -> aftermath(c,IntegerArgumentType.getInteger(c,"litter")))))))
                 .then(Commands.literal("kin").then(Commands.argument("parent", EntityArgument.entity())
                         .then(Commands.argument("child", EntityArgument.entity())
                                 .then(Commands.argument("newborn", BoolArgumentType.bool()).executes(c -> {
@@ -381,6 +373,18 @@ public final class ScenarioCommands {
     }
 
     /** Headless smoke drives the same item interactions a player uses. */
+    private static int aftermath(CommandContext<CommandSourceStack> c,int litter) throws CommandSyntaxException {
+        var victim=yukkuri(c,"victim");var source=yukkuri(c,"source");
+        if(victim==null||source==null)return 0;
+        var data=FamilyData.get(c.getSource().getLevel());
+        String reason=data.aftermathRefusal(victim,source,litter);
+        if(reason!=null)return refused(c.getSource(),victim,"事后茎生场景",reason);
+        var brood=data.createAftermath(victim,source,true,litter);
+        if(brood==null)return refused(c.getSource(),victim,"事后茎生场景","状态已改变，未建立新的胎次");
+        tell(c.getSource().getLevel(),victim.position(),"[试玩场] 茎开始生长。每秒汲取营养，缺馅时消耗母油生命。",ChatFormatting.YELLOW);
+        return done(c.getSource(),"事后状态已建立；可读取营养、生命和胎次进度。");
+    }
+
     private static int basketHand(CommandContext<CommandSourceStack> c, ItemStack stack) {
         var player = FakePlayerFactory.getMinecraft(c.getSource().getLevel());
         if (!CarrierContents.tokens(player.getMainHandItem()).isEmpty()) return 0;

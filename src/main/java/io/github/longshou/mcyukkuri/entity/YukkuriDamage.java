@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.entity;
 
+import io.github.longshou.mcyukkuri.family.RemainsStem;
 import io.github.longshou.mcyukkuri.body.BodyFood;
 import io.github.longshou.mcyukkuri.body.BodyHit;
 import io.github.longshou.mcyukkuri.body.HurtResult;
@@ -141,7 +142,7 @@ final class YukkuriDamage {
                 boolean stemDepletion=source.is(DamageTypes.STARVE)&&owner.body().stemDepleting();
                 boolean sukkiriExhaustion=this.sukkiriExhaustion;
                 deathRecorded = true;
-                owner.interrupt(InterruptContext.death(source, stemDepletion, sukkiriExhaustion), InterruptPhase.DEATH_ONCE);
+                owner.interrupt(InterruptContext.death(source, stemDepletion, sukkiriExhaustion, RemainsStem.capture(owner)), InterruptPhase.DEATH_ONCE);
             }
             owner.interrupt(interruption, InterruptPhase.DEATH_FINISH);
         }

@@ -147,6 +147,7 @@ public interface YukkuriView {
     int broodCount();
     int broodBornMask();
     float broodProgress();
+    float broodProgress(float partialTick);
     float broodVariation();
     YukkuriVariant broodVariant(int index);
     boolean hasSpentStem();
