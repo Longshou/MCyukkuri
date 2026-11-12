@@ -32,7 +32,7 @@
   "placement_fit": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/placement_fit.json",
   "placement_fit_sha256": "3b3dd7ee82ac22998f4f18bd0c02afa6ed789c89e44501661f5e3105d5346b1b",
   "runtime": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/motion_corrections.json",
-  "runtime_sha256": "e6d43496e410ed439a51cc4877c738537e34ad983186b60026cf32c98397f416",
+  "runtime_sha256": "127e5c7847a6f822a43821091a358929975633de6c26f748856a021eb1a5e0d2",
   "models": {
     "alice": {
       "model": "src/main/resources/assets/mcyukkuri/yukkuri/alice.json",
@@ -100,7 +100,7 @@
     },
     "flandre": {
       "model": "src/main/resources/assets/mcyukkuri/yukkuri/flandre.json",
-      "sha256": "de6dd48e2785399b5e72365d1d666a9a4089e6f0c275d880155a278038196ec4",
+      "sha256": "2ce2e3e01e1a2e4688fa1755f192d9839f208c9a31cedde5fee33ed715179f46",
       "placement_fit": false,
       "expression_sources": {
         "eyes_brows_blush": "src/main/resources/assets/mcyukkuri/textures/entity/flandre/angry.png",
@@ -404,7 +404,7 @@
     },
     "remilia": {
       "model": "src/main/resources/assets/mcyukkuri/yukkuri/remilia.json",
-      "sha256": "35351c4a99d887d1848a99bc3f35b0f531d4944dfbb9ea5551915d392f524bc0",
+      "sha256": "79c56eee62107980175783847497f7ec8153574125ef70180baade7418a663b0",
       "placement_fit": false,
       "expression_sources": {
         "eyes_brows_blush": "src/main/resources/assets/mcyukkuri/textures/entity/remilia/angry.png",

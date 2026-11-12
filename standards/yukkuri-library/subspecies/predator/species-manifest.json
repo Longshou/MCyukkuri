@@ -11,11 +11,11 @@
       "shared_rig": "standards/yukkuri-library/assembled/marisa/animation-rig.json",
       "shared_rig_sha256": "345db2a3c73cd074715c77fa6dc3a8f6ca1cbedcf51b09afd6421b5a8748f131",
       "geometry_identifier": "geometry.remilia",
-      "model_sha256": "ce7b285e3242c81eac9044ffadc95c203dd321fc8451329a9f66485e6967bd7b",
-      "rig_sha256": "350d0f76470327de9cf1f116482b1beec6b282cb9c419f22abade952dd503d79",
+      "model_sha256": "313cf1aee1978c3ba0157c34a7f3032e3fd9e7a2b7c77c2ebe181e902f704a10",
+      "rig_sha256": "e72c31f062a755ee7a890190d67d7de161ba67061b3f7dbae28ea2c903313159",
       "elements": 69,
       "triangles": 3368,
-      "bones": 270,
+      "bones": 265,
       "textures": {
         "angry": "b8abbf8599be4dc1f14664b64dcf850ebf965dc4be0d7d6f90d47a7b5acf917c",
         "angry__new": "c77a3d5bef41b933b926a4cf840be7574a86fcf1aff5eb84132cfa82f8c97607",
@@ -137,11 +137,11 @@
       "shared_rig": "standards/yukkuri-library/assembled/marisa/animation-rig.json",
       "shared_rig_sha256": "345db2a3c73cd074715c77fa6dc3a8f6ca1cbedcf51b09afd6421b5a8748f131",
       "geometry_identifier": "geometry.flandre",
-      "model_sha256": "b60fd968737f0ce2beb27826b11119e26f85ad69d131699ab90c95c78a311350",
-      "rig_sha256": "9ff98295b1e25c0d82fc279ea680ae006b824a1481fb5f2423ecb321d26cbd99",
+      "model_sha256": "555681a6db9fe14f39d3aee801a915d6171562b54933ba8dd1881739f23bd10c",
+      "rig_sha256": "748620469e80d232fd3b34d500e29ef43e16a9edb6a46c61aec47dca7c2b5cf6",
       "elements": 73,
       "triangles": 3356,
-      "bones": 278,
+      "bones": 273,
       "textures": {
         "angry": "64c7a3e55a8476a5cf34f5956fef2b1e3678af36642643b95cf0594ca4036c3e",
         "angry__new": "89e13f7ac15c9ac855e54576599faa0533740c7ae84476862b48687faebb4126",
@@ -257,6 +257,6 @@
   "inputs": {
     "species.json": "4518949b65793cf1b48bf124798aa9b39e2c27e470ae1b2a198557978c0a988f",
     "species_geometry.py": "eb34b8db80b0bb59df9f70e273cf15ff384ca35f46f1e4d63359ce30886e3849",
-    "author_species.py": "da182a9702cea81662047c1118f821e2f45f5483261a28500e45008c1046dd70"
+    "author_species.py": "7d7082bba5c2d7741ffc33391f7cf5dff934addd27ae84e52f67f4a05c51a2d3"
   }
 }

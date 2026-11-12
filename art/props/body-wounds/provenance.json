@@ -70,8 +70,8 @@
     "remilia": {
       "geometry_identifier": "remilia",
       "runtime_source": "src/main/resources/assets/mcyukkuri/yukkuri/remilia.json",
-      "source_sha256": "35351c4a99d887d1848a99bc3f35b0f531d4944dfbb9ea5551915d392f524bc0",
-      "bones": 266,
+      "source_sha256": "79c56eee62107980175783847497f7ec8153574125ef70180baade7418a663b0",
+      "bones": 265,
       "animations": [
         "idle",
         "stretch_shape",
@@ -95,15 +95,15 @@
       ],
       "texture": "textures/entity/remilia/<expression>.png",
       "output": "src/main/resources/assets/mcyukkuri/yukkuri_wounds/remilia.json.gz",
-      "output_sha256": "2ddd6e6f64a66156d6abd13eed58ebf07d39d03154751570d953fa91ce434823",
+      "output_sha256": "f1c389c2373fa3dac32eb683be2f51439700977ee60055ccd6acadd7532e1c01",
       "skin_vertices": 72669,
       "total_vertices": 122325
     },
     "flandre": {
       "geometry_identifier": "flandre",
       "runtime_source": "src/main/resources/assets/mcyukkuri/yukkuri/flandre.json",
-      "source_sha256": "de6dd48e2785399b5e72365d1d666a9a4089e6f0c275d880155a278038196ec4",
-      "bones": 274,
+      "source_sha256": "2ce2e3e01e1a2e4688fa1755f192d9839f208c9a31cedde5fee33ed715179f46",
+      "bones": 273,
       "animations": [
         "idle",
         "stretch_shape",
@@ -127,7 +127,7 @@
       ],
       "texture": "textures/entity/flandre/<expression>.png",
       "output": "src/main/resources/assets/mcyukkuri/yukkuri_wounds/flandre.json.gz",
-      "output_sha256": "4ece172fceec96203f89b2981baa78f616cbd4278903ae29def75be65ad17bbd",
+      "output_sha256": "1754e557d0a7d0105f3b59ec1a68e6d350327659470e1866cca8a00ea7ea4c7a",
       "skin_vertices": 72669,
       "total_vertices": 122325
     }

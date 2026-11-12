@@ -139,7 +139,7 @@ SPAWN 保留 0.0625 格支撑容差、碰撞与初始卡墙检查；初始化内
 
 | 脚本 | 输入与用途 | 执行边界 |
 | --- | --- | --- |
-| `export_predator_assets.py` | 从捕食种配方导出的模型同步两种实体快照、256 图集、19+4 动作与来源登记 | 只导蕾米莉亚、弗兰，不替换现有七种；`--check` 只读核对同一批输出，不写文件 |
+| `export_predator_assets.py` | 从捕食种配方导出的模型同步两种实体快照、256 图集、19+4 动作与来源登记 | 只导蕾米莉亚、弗兰，不替换现有七种；按元素自带骨骼绑定，骨架分组或顶点数与制作源元素不符即失败；`--check` 只读核对同一批输出，不写文件 |
 | `preview_predators.py` | 生成两种运行数据交互预览和八视图拼图 | 使用实际导出网格离线渲染，不启动游戏 |
 | `settlement_site_preview.py` | 用本机 JDK 编译模组源码与 `settlement_site_preview/SiteDump.java`，由真实的 `SitePlanner`／`SiteBuilder` 在内存里的合成坡地／平地上建出各适居群系的小群与村，镜像 `NaturalShelter.survey` 逐洞勘测并检查空地到洞口、嗯嗯坑的可达（`--seeds N`），出等轴预览 | 不用 Gradle、不启动游戏；需要主检出的 `.local/tools/java`、`build/moddev/artifacts` 合并 jar 与 `.local/gradle-home`；预览写 `.local/previews/wild-settlements/`，`build_preview_hub.py` 只收录输入指纹一致的现有输出，不调用此编译脚本 |
 | `export_predator_language.py` | 增量合并捕食种专属语言、生成蛋模型和低权重森林生成规则 | 保留其他任务语言键 |

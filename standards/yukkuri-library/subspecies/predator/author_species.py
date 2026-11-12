@@ -178,6 +178,13 @@ def wings(config, spec, uv):
 
 def rig_for(original, config, added_bones):
     rig=copy.deepcopy(original)
+    # Marisa's single-braid chain is hers alone; inherited, the braid pose and compilers would bend predator side locks.
+    removed={b['name']:b['parent'] for b in rig['bones'] if b['name'].startswith('hand_right_braid_')}
+    rig['bones']=[b for b in rig['bones'] if b['name'] not in removed]
+    for b in rig['bones']:
+        while b['parent'] in removed:b['parent']=removed[b['parent']]
+    for clip in rig['clips'].values():
+        for name in removed:clip['tracks'].pop(name,None)
     # The predator and current rounded standard use the same body profile.
     # Reuse its complete locomotion/anatomy rig without the old cuboid rescaling.
     for clip in rig['clips'].values():
