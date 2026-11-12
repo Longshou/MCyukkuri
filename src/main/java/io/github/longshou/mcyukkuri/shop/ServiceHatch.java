@@ -4,6 +4,7 @@ import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.human.HumanNpc;
 import io.github.longshou.mcyukkuri.life.CareBlock;
+import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.motor.Action;
 import io.github.longshou.mcyukkuri.motor.MotorOwner;
 import io.github.longshou.mcyukkuri.motor.Outcome;
@@ -121,6 +122,20 @@ public record ServiceHatch(BlockPos door, Direction in) {
     /** Standing on that cell (its floor, not a block above or below). */
     private static boolean on(Entity body, Vec3 stand) {
         return Math.floor(body.getX()) == Math.floor(stand.x) && Math.floor(body.getZ()) == Math.floor(stand.z) && Math.abs(body.getY() - stand.y) <= .5;
+    }
+
+    /** A quiet animal on a shut threshold can leave it by the same supported steps as any other walk. */
+    public Vec3 stepIntoPen(YukkuriEntity animal) {
+        var level = animal.level();
+        if (open(level) || !on(animal, animalStand()) || attendant(level) != null) return null;
+        var inside = door.relative(in);
+        for (Direction direction : new Direction[] {in, in.getClockWise(), in.getCounterClockWise()}) {
+            var cell = inside.relative(direction);
+            if (!equals(around(level, cell))) continue;
+            var feet = SurfaceApproach.floor(animal, Vec3.atBottomCenterOf(cell));
+            if (feet != null && SurfaceApproach.canApproach(animal, feet)) return feet;
+        }
+        return null;
     }
 
     /** The staff member calling stock from the outside stand. The door can still be shut. */

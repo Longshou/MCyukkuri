@@ -42,7 +42,6 @@ import net.neoforged.neoforge.event.EventHooks;
 import io.github.longshou.mcyukkuri.MCYukkuri;
 import io.github.longshou.mcyukkuri.body.DetachedItems;
 import io.github.longshou.mcyukkuri.body.BodyFood;
-import io.github.longshou.mcyukkuri.body.MouthPlacement;
 import io.github.longshou.mcyukkuri.event.WildCards;
 import io.github.longshou.mcyukkuri.headwear.HatCustody;
 import io.github.longshou.mcyukkuri.headwear.Recognition;
@@ -82,6 +81,7 @@ public final class YukkuriLife {
     private Task task = Task.NONE;
     private ItemEntity targetFood;
     private BlockPos targetBlock;
+    private ItemContact.BowlStand bowlStand;
     /** Only rejected food destinations in reach of the present approach origin. */
     private final Map<BlockPos, Vec3> refusedFood = new HashMap<>();
     private Vec3 refusedFoodFrom;
@@ -675,6 +675,7 @@ public final class YukkuriLife {
                 else targetBlock = null;
             }
             if (targetFood != null || targetBlock != null) {
+                bowlStand = null;
                 task = Task.FOOD; pursuitTicks = queueTicks = 0; queueBudget = personality.waitingTicks(); return true;
             }
         }
@@ -962,20 +963,24 @@ public final class YukkuriLife {
     private void approachFood(Vec3 source, Vec3 stand, Vec3 face) {
         SurfaceApproach.walk(entity, stand, 1.15);
         if (SurfaceApproach.lastResult(entity, stand) == SurfaceApproach.Result.BLOCKED) {
-            // Two blocks means a new approach origin, beyond the small motions at a blocked last step.
-            if (refusedFoodFrom == null || entity.distanceToSqr(refusedFoodFrom) >= 4) {
-                refusedFoodFrom = entity.position();
-                refusedFood.clear();
-            }
-            refusedFood.put(BlockPos.containing(source), source);
-            GameplayLog.limited(entity,"meal","food_route",200,"food approach refused source={} stand={} reason={}",
-                    GameplayLog.at(source),GameplayLog.at(stand),SurfaceApproach.why(entity, stand));
-            SurfaceApproach.stopWalking(entity);
-            stopGoal();
-            replanNow();
+            refuseFoodRoute(source, stand, SurfaceApproach.why(entity, stand));
             return;
         }
         SurfaceApproach.face(entity, SurfaceApproach.yaw(entity.position(), face));
+    }
+
+    private void refuseFoodRoute(Vec3 source, Vec3 stand, String reason) {
+        // Two blocks means a new approach origin, beyond the small motions at a blocked last step.
+        if (refusedFoodFrom == null || entity.distanceToSqr(refusedFoodFrom) >= 4) {
+            refusedFoodFrom = entity.position();
+            refusedFood.clear();
+        }
+        refusedFood.put(BlockPos.containing(source), source);
+        GameplayLog.limited(entity,"meal","food_route",200,"food approach refused source={} stand={} reason={}",
+                GameplayLog.at(source), stand == null ? "-" : GameplayLog.at(stand), reason);
+        SurfaceApproach.stopWalking(entity);
+        stopGoal();
+        replanNow();
     }
 
     private void seekFood() {
@@ -1013,12 +1018,13 @@ public final class YukkuriLife {
                 approachFood(source, ItemContact.approach(entity, source), source);
             }
         } else if (targetBlock != null && level().getBlockEntity(targetBlock) instanceof CareBlockEntity bowl && bowl.hasFood(this::acceptsFood)) {
-            Vec3 center = Vec3.atBottomCenterOf(targetBlock).add(0, .16, 0);
-            Vec3 toward = entity.position().subtract(center).multiply(1,0,1);
-            if (toward.lengthSqr() < .001) toward = new Vec3(0,0,1);
-            toward = toward.normalize();
-            Vec3 contact = center.add(toward.scale(.40));
-            if (ItemContact.reaches(entity, contact, .06)) {
+            Vec3 source = Vec3.atBottomCenterOf(targetBlock);
+            if (bowlStand == null) bowlStand = ItemContact.bowlStand(entity, targetBlock);
+            if (bowlStand == null) {
+                refuseFoodRoute(source, null, "no_reachable_bowl_face");
+                return;
+            }
+            if (ItemContact.reaches(entity, bowlStand.contact(), .06)) {
                 ItemStack one = bowl.takeFood(this::acceptsFood);
                 if (!one.isEmpty() && !beginMeal(one, null, false)) {
                     // Only reachable if another rule invalidates eating inside this call.
@@ -1029,10 +1035,7 @@ public final class YukkuriLife {
                             one.getItem(), one.getCount(), targetBlock);
                 }
             } else {
-                Vec3 stand = contact.add(toward.scale(Math.max(entity.getBbWidth()*.5+.04,
-                        MouthPlacement.position(entity).subtract(entity.position()).horizontalDistance())));
-                stand = new Vec3(stand.x, entity.getY(), stand.z);
-                approachFood(Vec3.atBottomCenterOf(targetBlock), stand, center);
+                approachFood(source, bowlStand.feet(), bowlStand.contact());
             }
         } else stopGoal();
     }

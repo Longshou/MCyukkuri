@@ -38,7 +38,7 @@ import net.minecraft.world.phys.Vec3;
 public final class ShopWindow implements MotorOwner {
     public enum Mode { APPEAL, SHOW_OFF, PROUD, SHY, SULK }
     public enum Witness { FAREWELL, ENVY, ME_TOO, WATCH }
-    private enum Phase { NOTICE, APPROACH, PERFORM, AFTER, WITNESS, HATCH }
+    private enum Phase { NOTICE, APPROACH, PERFORM, AFTER, WITNESS, HATCH, INSIDE }
     private enum After { LETDOWN, HMPH }
 
     /** A customer is noticed within RANGE blocks horizontally (and 4 vertically); it is gone beyond KEEP or out of sight for GONE_TICKS. */
@@ -72,6 +72,7 @@ public final class ShopWindow implements MotorOwner {
     /** Its pen's service door called it (open with staff at it), and its answer to it (the HATCH phase). */
     private ServiceHatch calling;
     private ServiceHatch.Answer answer;
+    private Vec3 inside;
     /** The last neighbour whose sale it watched: one sale is answered once. */
     private UUID witnessed;
     private BlockPos glass;
@@ -98,6 +99,7 @@ public final class ShopWindow implements MotorOwner {
             };
             case AFTER -> after == After.LETDOWN ? Behaviors.WINDOW_LETDOWN : Behaviors.WINDOW_HMPH;
             case HATCH -> answer.walking(entity) ? Behaviors.WINDOW_APPROACH : Behaviors.WINDOW_HATCH;
+            case INSIDE -> Behaviors.WINDOW_APPROACH;
             // Envy and "me too" burst out while the neighbour is being fetched, a farewell when it climbs into the basket; otherwise it watches.
             case WITNESS -> witness == Witness.FAREWELL && departedAt >= 0 ? Behaviors.WINDOW_FAREWELL
                     : entity.level().getGameTime() - sessionStart >= REACTION_TICKS ? Behaviors.WINDOW_WATCH
@@ -123,6 +125,9 @@ public final class ShopWindow implements MotorOwner {
         // A neighbour being sold outweighs the rest it takes between customers.
         leaving = findSale();
         if (leaving != null) return ready();
+        var hatch = ready() ? ServiceHatch.of(entity) : null;
+        inside = hatch == null ? null : hatch.stepIntoPen(entity);
+        if (inside != null) return true;
         if (now < cooldownUntil) return false;
         var seen = findCustomer();
         if (seen == null) return false;
@@ -141,8 +146,15 @@ public final class ShopWindow implements MotorOwner {
         long now = entity.level().getGameTime();
         if (calling != null) beginHatch(calling, now);
         else if (leaving != null) beginWitness(leaving, now);
-        else if (candidate != null) beginSession(candidate, now);
-        candidate = null; leaving = null; calling = null;
+        else if (inside != null) {
+            var step = Walk.stand(inside, 1);
+            phase(Phase.INSIDE, now + APPROACH_TICKS);
+            if (entity.motor().run(this, step)) {
+                action = step;
+                GameplayLog.event(entity, "shop", "hatch return inside destination={}", GameplayLog.at(inside));
+            } else clear();
+        } else if (candidate != null) beginSession(candidate, now);
+        candidate = null; leaving = null; calling = null; inside = null;
     }
 
     public void tick() {
@@ -176,6 +188,12 @@ public final class ShopWindow implements MotorOwner {
             case AFTER -> { if (now >= until) finish(now); }
             case WITNESS -> witnessing(now);
             case HATCH -> hatching(now);
+            case INSIDE -> {
+                if (entity.motor().current() != action || now >= until) {
+                    cancelAction("hatch_return_ended");
+                    clear();
+                }
+            }
         }
     }
 

@@ -4,6 +4,9 @@ import io.github.longshou.mcyukkuri.random.ModRandom;
 
 import io.github.longshou.mcyukkuri.body.MouthPlacement;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.life.SurfaceApproach;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ClipContext;
@@ -45,6 +48,31 @@ public final class ItemContact {
         double offset=MouthPlacement.position(actor).subtract(actor.position()).horizontalDistance();
         Vec3 stand=target.subtract(direction.normalize().scale(Math.max(.04,offset)));
         return new Vec3(stand.x,actor.getY(),stand.z);
+    }
+
+    public record BowlStand(Vec3 feet, Vec3 contact) {}
+
+    /** A flat-sided bowl needs a body-sized stand off an exposed face. A radial step toward a corner can overlap its rim. */
+    public static BowlStand bowlStand(YukkuriEntity actor, BlockPos bowl) {
+        var level = actor.level();
+        var rim = level.getBlockState(bowl).getCollisionShape(level, bowl).bounds().move(bowl);
+        var center = rim.getCenter();
+        double mouth = MouthPlacement.position(actor).subtract(actor.position()).horizontalDistance();
+        double clearance = Math.max(actor.getBbWidth() * .5 + .02, mouth);
+        double shortest = Double.POSITIVE_INFINITY;
+        BowlStand chosen = null;
+        for (Direction side : Direction.Plane.HORIZONTAL) {
+            var outward = Vec3.atLowerCornerOf(side.getNormal());
+            double depth = side.getAxis() == Direction.Axis.X ? rim.getXsize() : rim.getZsize();
+            var face = center.add(outward.scale(depth * .5));
+            var foot = SurfaceApproach.floor(actor, new Vec3(face.x + outward.x * clearance, bowl.getY(), face.z + outward.z * clearance));
+            if (foot == null) continue;
+            double distance = SurfaceApproach.routeLength(actor, foot, null);
+            if (distance >= shortest) continue;
+            shortest = distance;
+            chosen = new BowlStand(foot, new Vec3(face.x, rim.maxY + .02, face.z));
+        }
+        return chosen;
     }
 
     /** Caller retires its owned stack only after this returns a spawned entity. */
