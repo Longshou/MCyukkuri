@@ -36,6 +36,7 @@ import io.github.longshou.mcyukkuri.shop.KeeperMenu;
 import io.github.longshou.mcyukkuri.shop.ShopMenu;
 import io.github.longshou.mcyukkuri.shop.ShopRegistry;
 import io.github.longshou.mcyukkuri.shop.ShopStaff;
+import io.github.longshou.mcyukkuri.shop.ShopDoors;
 import net.minecraft.world.entity.ai.navigation.PathNavigation;
 import net.minecraft.world.level.block.DoorBlock;
 import net.minecraft.world.level.pathfinder.PathFinder;
@@ -162,6 +163,7 @@ public final class HumanNpc extends PathfinderMob {
     @Override protected InteractionResult mobInteract(Player player, InteractionHand hand) {
         if (hand != InteractionHand.MAIN_HAND || closedFactory()) return InteractionResult.PASS;
         if (!level().isClientSide) {
+            ShopRegistry.get((ServerLevel) level()).adoptLegacy((ServerLevel) level(), this);
             if (player.isShiftKeyDown() && CommodityLife.sellCore(player, this)) return InteractionResult.sidedSuccess(false);
             if (job() == Job.SHOPKEEPER) ShopMenu.open(player, this);
             else if (job() == Job.KEEPER) KeeperMenu.open(player, this); // the matchmaker with its studs, not shop staff
@@ -191,12 +193,11 @@ public final class HumanNpc extends PathfinderMob {
 
     @Override public void die(DamageSource source) {
         if (!level().isClientSide) {
-            Custody.ownerDied(this);
             production.dropContents();
             if (level() instanceof ServerLevel sl && job() == Job.SHOPKEEPER) {
                 ShopStaff.staffDied(this, sl);
                 ShopRegistry.get(sl).staffDied(sl, this); // the shop closes only with its last staff member
-            }
+            } else Custody.ownerDied(this);
         }
         super.die(source);
     }
@@ -204,6 +205,12 @@ public final class HumanNpc extends PathfinderMob {
         super.aiStep();
         if (level().isClientSide || !isAlive() || isNoAi() || closedFactory()) return;
         if (!initialized) { initialized = true; home = blockPosition(); careFood = HumanWorld.CARE_SUPPLIES.get(); nextRestock = level().getGameTime() + 24000; }
+        if ((tickCount == 1 || tickCount % 100 == 1 && (siteRole.equals("shop_keeper") || siteRole.equals("shop_sister")))
+                && level() instanceof ServerLevel server) {
+            var shops = ShopRegistry.get(server);
+            shops.adoptLegacy(server, this);
+            if (job() == Job.SHOPKEEPER) shops.of(this);
+        }
         restrictTo(home(), 18);
         if (level().getGameTime() >= nextRestock) {
             trades = delivered = 0; nextRestock = level().getGameTime() + 24000;
@@ -337,41 +344,24 @@ public final class HumanNpc extends PathfinderMob {
             return false;
         }
         /** Done once through and a moment past, or after it gave up on this door; never while it still stands in the doorway. */
-        @Override public boolean canContinueToUse() { return (passed ? closeIn > 0 : held < 200) || inDoorway(HumanNpc.this); }
+        @Override public boolean canContinueToUse() { return ShopStaff.active(HumanNpc.this) && ((passed ? closeIn > 0 : held < 200) || inDoorway(HumanNpc.this)); }
         @Override public boolean requiresUpdateEveryTick() { return true; }
         @Override public void start() {
             dirX = (float) (door.getX() + .5 - getX()); dirZ = (float) (door.getZ() + .5 - getZ()); closeIn = 10; held = 0; passed = false;
-            set(true);
+            ShopDoors.enter(HumanNpc.this, door);
         }
         @Override public void tick() {
             held++;
-            if (!passed) set(true); // a colleague going the other way may have shut it meanwhile
             float along = (float) (door.getX() + .5 - getX()) * dirX + (float) (door.getZ() + .5 - getZ()) * dirZ;
             if (!passed && along < 0) passed = true; // through the doorway: shut it a moment later
             else if (passed && closeIn > 0) closeIn--;
         }
-        /** Shut behind it, unless another staff member is passing through right now (that one shuts it). */
-        @Override public void stop() {
-            if (level().getEntitiesOfClass(HumanNpc.class, new net.minecraft.world.phys.AABB(door).inflate(.6, 0, .6), n -> n != HumanNpc.this && n.isAlive()).isEmpty())
-                set(false);
-        }
+        @Override public void stop() { closeShopDoor(); }
         private boolean inDoorway(HumanNpc npc) {
-            double dx = npc.getX() - (door.getX() + .5), dz = npc.getZ() - (door.getZ() + .5);
-            return dx * dx + dz * dz < 1.0;
-        }
-        /** Both leaves of a double staff door open and shut together (the other leaf is the iron door beside it, facing the same way). */
-        private void set(boolean open) {
-            var state = level().getBlockState(door);
-            if (!(state.getBlock() instanceof DoorBlock d)) return;
-            d.setOpen(HumanNpc.this, level(), state, door, open);
-            var facing = state.getValue(DoorBlock.FACING);
-            for (var side : new BlockPos[] {door.relative(facing.getClockWise()), door.relative(facing.getCounterClockWise())}) {
-                var leaf = level().getBlockState(side);
-                if (leaf.getBlock() instanceof DoorBlock other && !other.type().canOpenByHand() && leaf.getValue(DoorBlock.FACING) == facing)
-                    other.setOpen(HumanNpc.this, level(), leaf, side, open);
-            }
+            return ShopDoors.inDoorway(npc, door);
         }
     }
+    public void closeShopDoor() { ShopDoors.leave(this); }
     private final class RoutineGoal extends Goal {
         /** Ticks in reach of the patient (the care cap) and ticks spent walking up to it (its own, longer cap). */
         private int elapsed, approach;

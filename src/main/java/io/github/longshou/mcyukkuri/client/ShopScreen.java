@@ -5,6 +5,7 @@ import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.entity.YukkuriVariant;
 import io.github.longshou.mcyukkuri.shop.ShopMenu;
 import io.github.longshou.mcyukkuri.shop.ShopOrders;
+import io.github.longshou.mcyukkuri.network.ShopRowPayload;
 import io.github.longshou.mcyukkuri.pet.PetSkill;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -47,7 +48,13 @@ public final class ShopScreen extends AbstractContainerScreen<ShopMenu> {
         add(ShopMenu.ButtonId.SELL, 100, FOOT, 160, Component.translatable("shop.mcyukkuri.sell"));
         addRenderableWidget(Button.builder(Component.translatable("gui.done"), b -> onClose()).bounds(leftPos + 272, topPos + FOOT, 60, 20).build(ActionButton::new));
     }
-    private void press(int id) { if (minecraft.gameMode != null) minecraft.gameMode.handleInventoryButtonClick(menu.containerId, id); }
+    private void press(int id) {
+        int row = ShopMenu.liveRow(id);
+        if (row >= 0) {
+            int entity = menu.liveEntityId(row);
+            if (entity != 0) net.neoforged.neoforge.network.PacketDistributor.sendToServer(new ShopRowPayload(menu.containerId, id, entity));
+        } else if (minecraft.gameMode != null) minecraft.gameMode.handleInventoryButtonClick(menu.containerId, id);
+    }
     private void add(int id, int x, int y, int w, Component title) { add(id, x, y, w, 20, title); }
     private void add(int id, int x, int y, int w, int h, Component title) {
         actions[id] = addRenderableWidget(Button.builder(title, b -> press(id)).bounds(leftPos + x, topPos + y, w, h).build(ActionButton::new));
@@ -150,7 +157,7 @@ public final class ShopScreen extends AbstractContainerScreen<ShopMenu> {
     }
     /** The row's animal on this client (its network id travels as two shorts), or null when it is not loaded here. */
     private Entity portrait(int k) {
-        int id = menu.value(k + ShopMenu.LiveRow.ENTITY_HIGH) << 16 | menu.value(k + ShopMenu.LiveRow.ENTITY_LOW) & 0xffff;
+        int id = menu.liveEntityId((k - ShopMenu.LiveRow.BASE) / ShopMenu.LiveRow.STRIDE);
         return minecraft.level == null ? null : minecraft.level.getEntity(id);
     }
     private void drawRow(GuiGraphics g, int k, int y) {

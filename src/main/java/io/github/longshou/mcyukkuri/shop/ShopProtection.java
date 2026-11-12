@@ -18,6 +18,7 @@ import net.neoforged.neoforge.event.entity.player.AttackEntityEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import net.neoforged.neoforge.event.level.BlockEvent;
 import net.neoforged.neoforge.event.level.ExplosionEvent;
+import net.neoforged.neoforge.event.level.PistonEvent;
 
 /**
  * Inside a pet shop (its authored footprint, docs/FEATURES.md 宠物店) nothing is destroyed and the stock is not handled before it is bought:
@@ -48,9 +49,27 @@ public final class ShopProtection {
         refuse(event.getPlayer(), "block");
     }
     public static void placed(BlockEvent.EntityPlaceEvent event) {
-        if (!(event.getEntity() instanceof Player player) || !guarded(player.level(), event.getPos())) return;
+        if (!(event.getEntity() instanceof Player player)) return;
+        boolean inside = guarded(player.level(), event.getPos());
+        if (event instanceof BlockEvent.EntityMultiPlaceEvent multiple)
+            inside |= multiple.getReplacedBlockSnapshots().stream().anyMatch(s -> guarded(player.level(), s.getPos()));
+        if (!inside) return;
         event.setCanceled(true);
         refuse(player, "block");
+    }
+    public static void fluid(BlockEvent.FluidPlaceBlockEvent event) {
+        if (event.getLevel() instanceof ServerLevel level && guarded(level, event.getPos())) event.setCanceled(true);
+    }
+    public static void piston(PistonEvent.Pre event) {
+        if (!(event.getLevel() instanceof ServerLevel level)) return;
+        if (guarded(level, event.getPos()) || guarded(level, event.getFaceOffsetPos())) {
+            event.setCanceled(true);
+            return;
+        }
+        var resolver = event.getStructureHelper();
+        if (resolver != null && resolver.resolve() && (resolver.getToDestroy().stream().anyMatch(pos -> guarded(level, pos))
+                || resolver.getToPush().stream().anyMatch(pos -> guarded(level, pos) || guarded(level, pos.relative(resolver.getPushDirection())))))
+            event.setCanceled(true);
     }
     public static void used(PlayerInteractEvent.RightClickBlock event) {
         if (event.getLevel().isClientSide() || !guarded(event.getLevel(), event.getPos())) return;

@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -348,6 +349,10 @@ public final class YukkuriWorldData extends SavedData {
         var held = captives.get(token);
         return held == null ? null : held.entity;
     }
+    public List<UUID> captiveTokens(java.util.function.Predicate<Custody.View> custody) {
+        return captives.entrySet().stream().filter(e -> custody.test(Custody.fromSnapshot(e.getValue().data)))
+                .map(Map.Entry::getKey).toList();
+    }
     /** Transfer the sole capability; an old carrier copy can no longer release this individual. */
     public UUID rotateToken(UUID token) {
         if (token == null || freezer.contains(token)) return null;
@@ -367,6 +372,11 @@ public final class YukkuriWorldData extends SavedData {
         for (var held : captives.values()) if (Custody.normalizeSnapshot(level, held.data)) setDirty();
     }
     public UUID capture(YukkuriEntity entity) {
+        return capture(entity, null);
+    }
+
+    /** The transfer callback runs only after admission and updates the entity before its final snapshot. */
+    public UUID capture(YukkuriEntity entity, Runnable transfer) {
         if (!entity.isAlive() || entity.isRemoved()) return captureRefused(entity,"not_alive_or_removed");
         if (!Custody.cleanup(entity)) return captureRefused(entity,"custody_cleanup");
         if (entity.isPassenger()) return captureRefused(entity,"passenger");
@@ -376,6 +386,10 @@ public final class YukkuriWorldData extends SavedData {
         entity.groupInteraction().stop();entity.playLife().stop();entity.social().stop();entity.pet().care().released();
         CompoundTag snapshot = new CompoundTag();
         if (!entity.save(snapshot)) return captureRefused(entity,"snapshot_failed");
+        if (transfer != null) {
+            transfer.run();
+            snapshot = entity.saveWithoutId(snapshot);
+        }
         snapshot.putBoolean("TransportAsleep", entity.life().isSleeping() || entity.life().drugSleep() > 0);
         snapshot.putBoolean("TransportHurt", entity.getHealth() < entity.getMaxHealth());
         UUID token = ModRandom.identity(entity.getRandom());

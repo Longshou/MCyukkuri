@@ -30,7 +30,7 @@ import net.minecraft.world.inventory.SimpleContainerData;
 import net.minecraft.world.item.ItemStack;
 
 /** The one shop menu: any staff member of a shop opens it (docs/FEATURES.md, 宠物店). Rows and subjects are fixed server-side; button packets
- *  never carry an animal id. The live roster is every stock animal physically inside the shop, whichever staff member is asked.
+ *  carry the displayed entity ID for live actions. The live roster is the stock physically inside the shop.
  *  Button ids: 0-3 tab (live, goods, buyback, consult); 4-6 buy live row (PAGE_ROWS = 3 rows per page); 8-10 reserve live row; 12/13 prev/next
  *  page; 14-17 buy goods row; 18 sell subject; 20/21 prev/next subject; 22-24 about (species notes and transport advice in chat) for live row;
  *  25 orders tab, 26-28 deliver order 1-3.
@@ -163,31 +163,29 @@ public final class ShopMenu extends AbstractContainerMenu {
     private final List<UUID> roster = new ArrayList<>();
     private final List<UUID> mine = new ArrayList<>();
     private final ContainerData data = new SimpleContainerData(DATA_SIZE);
-    private int tab, page, selected, focus = -1, standing, standingClock;
+    private final UUID focusAnimal;
+    private int tab, page, selected, standing, standingClock;
 
     public ShopMenu(int id, Inventory inventory, int entityId) { this(id, inventory, entityId, null); }
     /** Server side only passes a focus animal (opened by clicking it): the menu starts on the LIVE page that lists it with its row highlighted (slot 56). */
     private ShopMenu(int id, Inventory inventory, int entityId, UUID focusAnimal) {
         super(HumanWorld.SHOP_MENU.get(), id); viewer = inventory.player;
+        this.focusAnimal = focusAnimal;
         target = viewer.level().getEntity(entityId) instanceof HumanNpc n ? n : null;
         shop = target != null && viewer.level() instanceof ServerLevel level ? ShopRegistry.get(level).of(target) : null;
         rebuildRoster();
-        if (focusAnimal != null) for (int i = 0; i < roster.size(); i++) if (roster.get(i).equals(focusAnimal)) { focus = i; page = i / PAGE_ROWS; }
+        if (focusAnimal != null && roster.contains(focusAnimal)) page = roster.indexOf(focusAnimal) / PAGE_ROWS;
         addDataSlots(data); refresh();
     }
     public static void open(Player p, HumanNpc npc) { open(p, npc, null); }
     public static void open(Player p, HumanNpc npc, YukkuriEntity focusAnimal) {
         if (!(p instanceof ServerPlayer server) || !HumanMenu.valid(p, npc)) return;
         if (!npc.beginTrade(p)) { p.displayClientMessage(Component.translatable("human.mcyukkuri.busy"), true); return; }
-        var shop = ShopRegistry.get(server.serverLevel()).of(npc);
-        if (shop != null) {
-            int owed = ShopRegistry.get(server.serverLevel()).collectRefund(shop, p.getUUID());
-            if (owed > 0) {
-                ShopTrade.pay(p, owed);
-                p.sendSystemMessage(Component.translatable("shop.mcyukkuri.reserve.refunded", owed));
-                GameplayLog.event(p, "shop", "action=reserve result=refunded shop={} emeralds_received={}", shop.id, owed);
-            }
-        }
+        var registry = ShopRegistry.get(server.serverLevel());
+        var shop = registry.of(npc);
+        if (shop == null) { npc.endTrade(p); return; }
+        ShopRestock.reconcileReservations(server.serverLevel(), shop);
+        registry.payRefunds(server);
         UUID focus = focusAnimal == null ? null : focusAnimal.getUUID();
         server.openMenu(new SimpleMenuProvider((id, inv, owner) -> new ShopMenu(id, inv, npc.getId(), focus), npc.getDisplayName()), buf -> buf.writeVarInt(npc.getId()));
     }
@@ -205,7 +203,7 @@ public final class ShopMenu extends AbstractContainerMenu {
     }
     public HumanNpc target() { return target; }
     public int value(int index) { return data.get(index); }
-    @Override public boolean stillValid(Player p) { return HumanMenu.valid(p, target); }
+    @Override public boolean stillValid(Player p) { return HumanMenu.valid(p, target) && (shop == null || !shop.closed()); }
     @Override public ItemStack quickMoveStack(Player p, int slot) { return ItemStack.EMPTY; }
     @Override public void removed(Player player) { super.removed(player); if (target != null) target.endTrade(player); }
 
@@ -235,7 +233,7 @@ public final class ShopMenu extends AbstractContainerMenu {
     private void put(int index, int value) { data.set(index, Math.clamp(value, -32768, 32767)); }
     private int pageCount() { return tab == LIVE ? Math.max(1, (roster.size() + PAGE_ROWS - 1) / PAGE_ROWS) : tab == GOODS ? goodsPages() : 1; }
 
-    /** The physical roster, best badges first; rebuilt when the menu opens and on paging (sold animals leave it, arrivals join it). */
+    /** The current physical roster, best badges first. */
     private void rebuildRoster() {
         roster.clear();
         if (shop == null || !(viewer.level() instanceof ServerLevel level)) return;
@@ -262,6 +260,8 @@ public final class ShopMenu extends AbstractContainerMenu {
     // data
     private void refresh() {
         if (viewer.level().isClientSide || target == null || shop == null || !(target.level() instanceof ServerLevel level)) return;
+        rebuildRoster();
+        page = Math.min(page, pageCount() - 1);
         for (int i = 0; i < DATA_SIZE; i++) data.set(i, 0);
         put(Data.TAB, tab); put(Data.TRADES_LEFT, ShopStock.get(level).tradesLeft(level, shop.id, viewer.getUUID()));
         put(Data.DAYTIME, level.isDay() ? 1 : 0); put(Data.PAGE, page); put(Data.PAGE_COUNT, pageCount());
@@ -280,6 +280,7 @@ public final class ShopMenu extends AbstractContainerMenu {
             put(Data.ORDERS_DONE, ShopStock.get(level).ordersDone(level, shop.id, viewer.getUUID()));
         }
         put(Data.STOCK_COUNT, roster.size()); put(Data.SUBJECT_COUNT, mine.size()); put(Data.SUBJECT_INDEX, mine.isEmpty() ? 0 : selected + 1);
+        int focus = roster.indexOf(focusAnimal);
         if (tab == LIVE && focus >= 0 && focus / PAGE_ROWS == page) put(Data.FOCUS_ROW, focus % PAGE_ROWS + 1);
         if (tab == LIVE) {
             for (int i = 0; i < PAGE_ROWS; i++) {
@@ -338,14 +339,40 @@ public final class ShopMenu extends AbstractContainerMenu {
         return true;
     }
     /** R2: the clerk explains the species and gives transport advice, as three chat lines. */
-    private boolean about(Player p, int row) {
-        var animal = listed(page * PAGE_ROWS + row); if (animal == null) return false;
+    private boolean about(Player p, YukkuriEntity animal) {
         var v = animal.getVariant(); String id = v.assetId(); String note = SpeciesProfile.of(v).dangerToYukkuri() ? "predator" : id;
         var name = target.getDisplayName();
         p.sendSystemMessage(Component.translatable("shop.mcyukkuri.about.say", name, Component.translatable("shop.mcyukkuri.about.head", Component.translatable("entity.mcyukkuri." + id))));
         p.sendSystemMessage(Component.translatable("shop.mcyukkuri.about.say", name, Component.translatable("shop.mcyukkuri.about.note." + note)));
         p.sendSystemMessage(Component.translatable("shop.mcyukkuri.about.say", name, Component.translatable("shop.mcyukkuri.about.transport")));
         return true;
+    }
+    public static int liveRow(int button) {
+        if (button >= ButtonId.BUY_LIVE_BASE && button <= ButtonId.BUY_LIVE_LAST) return button - ButtonId.BUY_LIVE_BASE;
+        if (button >= ButtonId.RESERVE_BASE && button <= ButtonId.RESERVE_LAST) return button - ButtonId.RESERVE_BASE;
+        if (button >= ButtonId.ABOUT_BASE && button <= ButtonId.ABOUT_LAST) return button - ButtonId.ABOUT_BASE;
+        return -1;
+    }
+
+    public int liveEntityId(int row) {
+        int k = LiveRow.BASE + row * LiveRow.STRIDE;
+        return value(k + LiveRow.ENTITY_HIGH) << 16 | value(k + LiveRow.ENTITY_LOW) & 0xffff;
+    }
+
+    public void clickLive(ServerPlayer p, int button, int entityId) {
+        if (p != viewer || !stillValid(p) || shop == null || tab != LIVE || liveRow(button) < 0) return;
+        var level = p.serverLevel();
+        if (!(level.getEntity(entityId) instanceof YukkuriEntity y) || !y.isAlive() || !roster.contains(y.getUUID())
+                || !shop.contains(y.position()) || !ShopTrade.stockOf(y, shop.id)) {
+            ShopTrade.say(p, "buy.refused.gone");
+        } else if (button <= ButtonId.BUY_LIVE_LAST) {
+            ShopRestock.reconcileReservations(level, shop);
+            ShopTrade.buy(level, shop, y, p);
+        } else if (button <= ButtonId.RESERVE_LAST) {
+            ShopRestock.reconcileReservations(level, shop);
+            ShopTrade.reserve(level, shop, y, p);
+        } else about(p, y);
+        broadcastChanges();
     }
     @Override public boolean clickMenuButton(Player p, int id) {
         if (p != viewer || p.level().isClientSide || !stillValid(p) || id < ButtonId.LIVE_TAB || id > ButtonId.DELIVER_ORDER_LAST || target == null
@@ -365,11 +392,8 @@ public final class ShopMenu extends AbstractContainerMenu {
             broadcastChanges(); return true;
         }
         boolean ok;
-        int row = id - (id <= ButtonId.BUY_LIVE_LAST ? ButtonId.BUY_LIVE_BASE : id <= ButtonId.RESERVE_LAST ? ButtonId.RESERVE_BASE : ButtonId.ABOUT_BASE);
-        if (id >= ButtonId.ABOUT_BASE && id <= ButtonId.ABOUT_LAST) ok = tab == LIVE && row < PAGE_ROWS && about(p, row);
-        else if (id <= ButtonId.BUY_LIVE_LAST) ok = tab == LIVE && row < PAGE_ROWS && ShopTrade.buy(level, shop, listed(page * PAGE_ROWS + row), player);
-        else if (id <= ButtonId.RESERVE_LAST) ok = tab == LIVE && row < PAGE_ROWS && ShopTrade.reserve(level, shop, listed(page * PAGE_ROWS + row), player);
-        else if (id <= ButtonId.BUY_GOODS_LAST) ok = tab == GOODS && buyGood(level, p, id - ButtonId.BUY_GOODS_BASE);
+        if (liveRow(id) >= 0) return false;
+        if (id <= ButtonId.BUY_GOODS_LAST) ok = tab == GOODS && buyGood(level, p, id - ButtonId.BUY_GOODS_BASE);
         else if (id == ButtonId.SELL) { ok = tab == BUYBACK && ShopTrade.sell(level, shop, subject(), player); if (ok) rescan(); }
         else if (id >= ButtonId.DELIVER_ORDER_BASE) {
             ok = tab == ORDERS && level.isDay() && ShopOrders.deliver(level, shop.id, p, id - ButtonId.DELIVER_ORDER_BASE);
