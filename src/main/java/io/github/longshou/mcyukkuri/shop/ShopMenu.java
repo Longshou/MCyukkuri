@@ -45,7 +45,8 @@ import net.minecraft.world.phys.Vec3;
  *  Button ids: 0-3 tab (live, goods, buyback, consult); 4-6 buy live row (PAGE_ROWS = 3 rows per page); 8-10 locate row; 12/13 prev/next page;
  *  14-17 buy goods row; 18 sell subject; 19 exam forecast; 20/21 prev/next subject; 22-24 about (species notes and transport advice in chat) for live row.
  *  Data slots (shorts): 0 tab, 1 trades left, 2 daytime, 3 page, 4 page count, 5 shop stock count (Use stock only, capped at STOCK_CAPACITY), 6 subject count, 7 subject index+1;
- *  from 8, live rows of 12: species+1, stage, flags (grade | expired<<2 | display<<3 | locked<<4 | factory<<5), learned-skill mask, reserved, tags (a|b<<4, 15 none), health, nutrition, price;
+ *  from 8, live rows of 12: species+1, stage, flags (grade | expired<<2 | display<<3 | locked<<4 | factory<<5), learned-skill mask, entity id low/high
+ *  short, days on the shelf, mood ({@link Mood}), tags (a|b<<4, 15 none), health, nutrition, price;
  *  subject block (buyback/consult) from 8: species+1, stage, flags, learned-skill mask, reserved, health, nutrition, hygiene, stress, reserved,
  *  reserved fields (21-25), advice x3 (26-28), price/offer (29), reserved forecast fields (30-33),
  *  forecast bought (33), buyback refusal (34; 0 ok, 1 shop full, 2 no free pen), tags (35), title (36; 0 none, 1 eternal silver, 2 hidden gold).
@@ -120,6 +121,10 @@ public final class ShopMenu extends AbstractContainerMenu {
         public static final int STAGE = 1;
         public static final int FLAGS = 2;
         public static final int SKILLS = 3;
+        /** The animal's network entity id as two shorts (low, high), for the row's portrait of the real individual. */
+        public static final int ENTITY_LOW = 4, ENTITY_HIGH = 5;
+        /** Whole days on the shelf (0 before the clock starts) and what it is doing right now ({@link Mood}). */
+        public static final int DAYS = 6, MOOD = 7;
         public static final int TAGS = 8;
         public static final int HEALTH = 9;
         public static final int NUTRITION = 10;
@@ -134,6 +139,25 @@ public final class ShopMenu extends AbstractContainerMenu {
     public static final class Flags {
         public static final int GRADE_MASK = 3, EXPIRED = 4, DISPLAY = 8, LOCKED = 16, FACTORY = 32;
         private Flags() {}
+    }
+    /** Live row slot MOOD: 0 nothing to show, 1 pleading at the window, 2 posing proudly, 3 hiding shyly, 4 sulking, 5 let down, 6 asleep, 7 eating. */
+    public static final class Mood {
+        public static final int NONE = 0, APPEAL = 1, PROUD = 2, SHY = 3, SULK = 4, LETDOWN = 5, ASLEEP = 6, EATING = 7;
+        private Mood() {}
+    }
+    /** What the row shows of the animal's real state; never starts or probes a behaviour. */
+    private static int mood(YukkuriEntity y) {
+        if (y.life().isSleeping()) return Mood.ASLEEP;
+        if (y.life().mealTicks() > 0) return Mood.EATING;
+        var window = y.shopWindow();
+        var mode = window.mode();
+        if (mode != null) return switch (mode) {
+            case APPEAL, SHOW_OFF -> Mood.APPEAL;
+            case PROUD -> Mood.PROUD;
+            case SHY -> Mood.SHY;
+            case SULK -> Mood.SULK;
+        };
+        return window.letDown() ? Mood.LETDOWN : Mood.NONE;
     }
     public static final int GOODS_ROWS = 4;
     private record Quote(UUID id, int price) {}
@@ -281,6 +305,8 @@ public final class ShopMenu extends AbstractContainerMenu {
                 put(k, y.getVariant().ordinal() + 1); put(k + LiveRow.STAGE, stage(y)); put(k + LiveRow.FLAGS, flags(y, b.busy())); put(k + LiveRow.SKILLS, skills(y));
                 put(k + LiveRow.TAGS, t[0] | t[1] << 4); put(k + LiveRow.HEALTH, Math.round(y.getHealth())); put(k + LiveRow.NUTRITION,
                         Math.round(y.life().nutrition())); put(k + LiveRow.PRICE, quotes.get(idx).price);
+                put(k + LiveRow.ENTITY_LOW, (short) y.getId()); put(k + LiveRow.ENTITY_HIGH, (short) (y.getId() >>> 16));
+                put(k + LiveRow.DAYS, Math.max(0, CommodityLife.forSaleDays(y))); put(k + LiveRow.MOOD, mood(y));
             }
         } else if (tab == BUYBACK || tab == CONSULT) {
             var y = subject(); if (y == null) return; var b = y.pet(); var t = tags(y);

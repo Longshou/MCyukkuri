@@ -116,7 +116,8 @@ final class CareInspection {
                 portraitY + portraitHeight, GuiKit.INK, false);
     }
 
-    private static void drawModel(GuiGraphics g, YukkuriEntity entity, int x, int y, int w, int h,
+    /** The real individual's live model fitted into a box (also the shop's live-row portraits). */
+    static void drawModel(GuiGraphics g, YukkuriEntity entity, int x, int y, int w, int h,
                                   float yaw, float pitch, float zoom) {
         var mc = Minecraft.getInstance();
         var renderer = (YukkuriRenderer) mc.getEntityRenderDispatcher().getRenderer(entity);

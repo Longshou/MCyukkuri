@@ -1,22 +1,30 @@
 package io.github.longshou.mcyukkuri.client;
 
+import com.mojang.blaze3d.systems.RenderSystem;
+import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.entity.YukkuriVariant;
 import io.github.longshou.mcyukkuri.shop.ShopMenu;
 import io.github.longshou.mcyukkuri.shop.ShopOrders;
 import io.github.longshou.mcyukkuri.pet.PetSkill;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Inventory;
+import org.lwjgl.opengl.GL11;
 
 import static io.github.longshou.mcyukkuri.client.GuiKit.*;
 
 /** Tabbed shopkeeper screen: live stock, goods, buyback, consultation. Button and data slot ids are documented on ShopMenu (slot 56: highlighted live row, 1-4, 0 none). */
 public final class ShopScreen extends AbstractContainerScreen<ShopMenu> {
     private static final int ROW = 57, ROW_X = 8, ROW_W = 256, ROW_H = 56, TOP = 32, FOOT = 214, LOW_HEALTH = 6, LOW_NUTRITION = 30;
+    /** Live rows: the real individual's portrait on the left, four text lines beside it. */
+    private static final int PORTRAIT = 48, TEXT_X = ROW_X + PORTRAIT + 10, TEXT_W = ROW_W - PORTRAIT - 16, LINE = 12;
+    private static final float PORTRAIT_YAW = 18, PORTRAIT_PITCH = 12;
     private final Button[] actions = new Button[ShopMenu.ButtonId.COUNT];
     public ShopScreen(ShopMenu menu, Inventory inv, Component title) { super(menu, inv, title); imageWidth = 340; imageHeight = 240; }
     @Override protected void init() {
@@ -83,8 +91,20 @@ public final class ShopScreen extends AbstractContainerScreen<ShopMenu> {
         panel(g, leftPos, topPos, imageWidth, imageHeight);
         int tab = menu.value(ShopMenu.Data.TAB);
         if (tab == ShopMenu.LIVE) {
-            for (int i = 0; i < ShopMenu.PAGE_ROWS; i++) card(g, leftPos + ROW_X, topPos + TOP + i * ROW, ROW_W, ROW_H,
-                    menu.value(ShopMenu.Data.FOCUS_ROW) == i + 1 && menu.value(ShopMenu.LiveRow.BASE + i * ShopMenu.LiveRow.STRIDE) > 0);
+            boolean drewModel = false;
+            for (int i = 0; i < ShopMenu.PAGE_ROWS; i++) {
+                int k = ShopMenu.LiveRow.BASE + i * ShopMenu.LiveRow.STRIDE, rowY = topPos + TOP + i * ROW;
+                card(g, leftPos + ROW_X, rowY, ROW_W, ROW_H, menu.value(ShopMenu.Data.FOCUS_ROW) == i + 1 && menu.value(k) > 0);
+                if (menu.value(k) == 0) continue;
+                GuiKit.statusCard(g, leftPos + ROW_X + 4, rowY + 4, PORTRAIT, PORTRAIT);
+                // The animal itself, live: its current clip and face (pleading at the glass, sulking, asleep) show in the row.
+                if (portrait(k) instanceof YukkuriEntity animal) {
+                    CareInspection.drawModel(g, animal, leftPos + ROW_X + 4, rowY + 4, PORTRAIT, PORTRAIT, PORTRAIT_YAW, PORTRAIT_PITCH, 1);
+                    drewModel = true;
+                }
+            }
+            // Keep the row text and buttons in front of a model that reaches beyond its box.
+            if (drewModel) RenderSystem.clear(GL11.GL_DEPTH_BUFFER_BIT, Minecraft.ON_OSX);
         } else if (tab == ShopMenu.GOODS) {
             for (int i = 0; i < ShopMenu.GOODS_ROWS; i++) {
                 var stack = ShopMenu.goodsStack(menu.value(ShopMenu.Data.PAGE), i); if (stack.isEmpty()) continue;
@@ -124,25 +144,35 @@ public final class ShopScreen extends AbstractContainerScreen<ShopMenu> {
     private static Component parentBadge(int grade) {
         return grade < 0 ? Component.translatable("pet.mcyukkuri.profile.unknown") : GuiKit.gradeName(grade);
     }
+    /** The row's animal on this client (its network id travels as two shorts), or null when it is not loaded here. */
+    private Entity portrait(int k) {
+        int id = menu.value(k + ShopMenu.LiveRow.ENTITY_HIGH) << 16 | menu.value(k + ShopMenu.LiveRow.ENTITY_LOW) & 0xffff;
+        return minecraft.level == null ? null : minecraft.level.getEntity(id);
+    }
     private void drawRow(GuiGraphics g, int k, int y) {
         int f = menu.value(k + ShopMenu.LiveRow.FLAGS); boolean expired = (f & ShopMenu.Flags.EXPIRED) != 0;
-        if (expired) expiredChip(g, ROW_X + 6, y + 4); else chip(g, ROW_X + 6, y + 4, f & ShopMenu.Flags.GRADE_MASK);
-        g.drawString(font, Component.translatable("shop.mcyukkuri.row.head2", expired ? GuiKit.expiredGradeName(f & ShopMenu.Flags.GRADE_MASK) :
+        if (expired) expiredChip(g, TEXT_X, y + 4); else chip(g, TEXT_X, y + 4, f & ShopMenu.Flags.GRADE_MASK);
+        g.drawString(font, ellipsize(font, Component.translatable("shop.mcyukkuri.row.head2", expired ? GuiKit.expiredGradeName(f & ShopMenu.Flags.GRADE_MASK) :
                 GuiKit.gradeName(f & ShopMenu.Flags.GRADE_MASK), species(menu.value(k)), Component.translatable("human.mcyukkuri.stage." +
-                menu.value(k + ShopMenu.LiveRow.STAGE))), ROW_X + 6 + CHIP_WIDTH, y + 5, INK, false);
+                menu.value(k + ShopMenu.LiveRow.STAGE))), TEXT_W - CHIP_WIDTH), TEXT_X + CHIP_WIDTH, y + 5, INK, false);
         Component knownSkills = Component.translatable("pet.mcyukkuri.profile.skills", skills(menu.value(k + ShopMenu.LiveRow.SKILLS)));
-        g.drawString(font, ellipsize(font, knownSkills, ROW_W - 12), ROW_X + 6, y + 19, SOFT, false);
-        var tag = tags(menu.value(k + ShopMenu.LiveRow.TAGS)); int tx = ROW_X + 6;
-        g.drawString(font, tag, tx, y + 35, SOFT, false); tx += font.width(tag) + 10;
+        g.drawString(font, ellipsize(font, knownSkills, TEXT_W), TEXT_X, y + 5 + LINE, SOFT, false);
+        var tag = tags(menu.value(k + ShopMenu.LiveRow.TAGS)); int tx = TEXT_X;
+        g.drawString(font, tag, tx, y + 5 + 2 * LINE, SOFT, false); tx += font.width(tag) + 10;
         if (menu.value(k + ShopMenu.LiveRow.HEALTH) < LOW_HEALTH) { var w = Component.translatable("shop.mcyukkuri.warn.hurt"); g.drawString(font, w,
-                tx, y + 35, WARN, false); tx += font.width(w) + 8; }
-        if (menu.value(k + ShopMenu.LiveRow.NUTRITION) < LOW_NUTRITION) g.drawString(font, Component.translatable("shop.mcyukkuri.warn.hungry"), tx, y + 35, WARN, false);
+                tx, y + 5 + 2 * LINE, WARN, false); tx += font.width(w) + 8; }
+        if (menu.value(k + ShopMenu.LiveRow.NUTRITION) < LOW_NUTRITION) g.drawString(font, Component.translatable("shop.mcyukkuri.warn.hungry"), tx, y + 5 + 2 * LINE, WARN, false);
+        // Fourth line: days on the shelf, where it is kept or that it is reserved, and what it is doing right now.
         boolean sold = (f & ShopMenu.Flags.LOCKED) != 0, factory = (f & ShopMenu.Flags.FACTORY) != 0;
-        if (sold || (f & ShopMenu.Flags.DISPLAY) != 0 || factory) {
-            MutableComponent zone = Component.empty();
-            if (sold || (f & ShopMenu.Flags.DISPLAY) != 0) zone.append(Component.translatable(sold ? "shop.mcyukkuri.zone.sold" : "shop.mcyukkuri.zone.display"));
-            if (factory) { if (sold || (f & ShopMenu.Flags.DISPLAY) != 0) zone.append("  "); zone.append(Component.translatable("shop.mcyukkuri.origin.factory")); }
-            g.drawString(font, zone, ROW_X + 6, y + 44, sold ? WARN : SOFT, false);
+        MutableComponent zone = Component.translatable("shop.mcyukkuri.days", menu.value(k + ShopMenu.LiveRow.DAYS));
+        if (sold || (f & ShopMenu.Flags.DISPLAY) != 0) zone.append(" · ").append(Component.translatable(sold ? "shop.mcyukkuri.zone.sold" : "shop.mcyukkuri.zone.display"));
+        if (factory) zone.append(" · ").append(Component.translatable("shop.mcyukkuri.origin.factory"));
+        int mood = menu.value(k + ShopMenu.LiveRow.MOOD);
+        int zx = TEXT_X; var shown = ellipsize(font, zone, TEXT_W);
+        g.drawString(font, shown, zx, y + 5 + 3 * LINE, sold ? WARN : SOFT, false); zx += font.width(shown) + 8;
+        if (!sold && mood != ShopMenu.Mood.NONE) {
+            var doing = ellipsize(font, Component.translatable("shop.mcyukkuri.mood." + mood), TEXT_X + TEXT_W - zx);
+            g.drawString(font, doing, zx, y + 5 + 3 * LINE, mood == ShopMenu.Mood.SULK || mood == ShopMenu.Mood.LETDOWN ? WARN : GOOD, false);
         }
     }
     @Override protected void renderLabels(GuiGraphics g, int mx, int my) {
@@ -209,7 +239,7 @@ public final class ShopScreen extends AbstractContainerScreen<ShopMenu> {
         if (tab == ShopMenu.LIVE) for (int i = 0; i < ShopMenu.PAGE_ROWS; i++) {
             int k = ShopMenu.LiveRow.BASE + i * ShopMenu.LiveRow.STRIDE, rowY = TOP + i * ROW;
             Component knownSkills = Component.translatable("pet.mcyukkuri.profile.skills", skills(menu.value(k + ShopMenu.LiveRow.SKILLS)));
-            if (menu.value(k) != 0 && font.width(knownSkills) > ROW_W - 12 && over(x, y, leftPos + ROW_X + 6, topPos + rowY + 19, ROW_W - 12, font.lineHeight))
+            if (menu.value(k) != 0 && font.width(knownSkills) > TEXT_W && over(x, y, leftPos + TEXT_X, topPos + rowY + 5 + LINE, TEXT_W, font.lineHeight))
                 g.renderTooltip(font, knownSkills, x, y);
         } else if (tab == ShopMenu.BUYBACK || tab == ShopMenu.CONSULT) {
             Component knownSkills = Component.translatable("pet.mcyukkuri.profile.skills", skills(menu.value(ShopMenu.Data.SUBJECT_SKILLS)));
