@@ -1,8 +1,10 @@
 """Author the outer adult-state poses in pose-cues.json.
 
 Each cue key is [progress, pitch, yaw, roll, sx, sy, sz]. The sukkiri lore clips
-own the contact motion and faces. These cues add only the shared contact lean,
-the pinned pose and the existing completion stretch.
+own the contact motion, the four-beat climax, the held peak and the after faces.
+These cues add only the shared contact lean and the pinned pose; the completion
+cue stays neutral because the after clips carry the body. `organ_sites` is the
+measured mamu placement per body (drafts/sukkiri/organs.py --sites).
 """
 import json
 from pathlib import Path
@@ -25,13 +27,6 @@ def keys(beats, length):
             [1]+NEUTRAL]
 
 
-# Existing 120-tick completion stretch.
-RELIEF = [
-    (3, pose(0, 0, 0, .95)), (10, pose(3, 0, 0, 1.06, .97, .97)), (24, pose(0, 0, 0, 1)),
-    (48, pose(0, 0, 0, .94)), (56, pose(4, 0, 0, 1.08, .96, .96)), (72, pose(0, 0, 0, 1)),
-    (88, pose(0, 0, 0, .94)), (95, pose(7, 0, 0, 1.13, .94, .94)), (106, pose(6, 0, 0, 1.12, .945, .945)),
-    (116, pose(0, 0, 0, .99)),
-]
 
 
 def main():
@@ -44,17 +39,23 @@ def main():
         'pinned': [-6, 0, 0, 1.06, .9, 1.04],
     }.items():
         data[name] = [[0]+value, [1]+value]
-    data['relief'] = keys(RELIEF, 120)
+    # The climax clips hold the peak for three seconds and the after clips carry the body; the completion cue is neutral.
+    data['relief'] = keys([], 120)
+    data['organ_sites'] = json.loads((HERE.parent/'sukkiri/organ-sites.json').read_text(encoding='utf-8'))
     data.pop('faces', None)
     for key in data['rapem']:
         key[1] = max(key[1], -10)
-    order = ['format', 'mamu_rear_offset', 'channels', 'heat', 'relief', 'act', 'rapem', 'pair_peni', 'pair_mamu', 'pinned']
+    order = ['format', 'mamu_rear_offset', 'channels', 'heat', 'relief', 'act', 'rapem', 'pair_peni', 'pair_mamu', 'pinned',
+             'organ_sites']
     lines = ['{']
     for i, name in enumerate(order):
         value = data[name]
         tail = ',' if i < len(order)-1 else ''
         if name in ('format', 'mamu_rear_offset', 'channels'):
             lines.append(f'  "{name}": {json.dumps(value)}{tail}')
+        elif name == 'organ_sites':
+            rows = [f'    {json.dumps(k)}: {json.dumps(v, separators=(",", ":"))}' for k, v in sorted(value.items())]
+            lines.append(f'  "{name}": {{\n'+',\n'.join(rows)+f'\n  }}{tail}')
         else:
             rows = ['    '+json.dumps([round(x, 4) if isinstance(x, float) else x for x in key]) for key in value]
             lines.append(f'  "{name}": [\n'+',\n'.join(rows)+f'\n  ]{tail}')

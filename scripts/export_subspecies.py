@@ -57,6 +57,19 @@ def affine(element, scale, shift=(0,0,0)):
     for point in all_points(element):
         point[:] = [round(point[i]*scale[i]+shift[i],7) for i in range(3)]
 
+def turn(element):
+    """Half a turn about the vertical axis (x -> -x, z -> -z): a cube keeps its faces on the turned sides."""
+    if element.get('type')=='mesh':
+        for point in element['vertices'].values(): point[0],point[2]=-point[0],-point[2]
+    for key in ('from','to','origin'):
+        if key in element: element[key]=[-element[key][0],element[key][1],-element[key][2]]
+    if 'from' in element and element.get('type')!='mesh':
+        lo,hi=element['from'],element['to']
+        element['from'],element['to']=[min(lo[i],hi[i]) for i in range(3)],[max(lo[i],hi[i]) for i in range(3)]
+        faces=element.get('faces',{});swap={'north':'south','south':'north','east':'west','west':'east'}
+        element['faces']={swap.get(k,k):v for k,v in faces.items()}
+    if 'rotation' in element: element['rotation']=[-element['rotation'][0],element['rotation'][1],-element['rotation'][2]]
+
 def body_part(name):
     return name.startswith(('soft_head_slice','upper_rear_slice','left_cheek_slice','right_cheek_slice','rump_'))
 
@@ -91,7 +104,12 @@ def author(base, shape):
                     q=max(0,min(1,middle/8.48)); width=recipe['lower_width']*(1-q)+recipe['upper_width']*q
                     # Slice-local taper preserves original construction and root attachments.
                     affine(e,[width,recipe['body_height'],recipe['depth']])
-                else: affine(e,[recipe['lower_width'],recipe['body_height'],recipe['depth']])
+                else:
+                    # Organs keep their height above the ground (bottom-up), not the long body's proportion, and both
+                    # sit on the one front lower site like the standard body: the mamu is turned from the old rear site.
+                    site=recipe['organ_site']
+                    if group=='anatomy_mamu': turn(e)
+                    affine(e,[recipe['lower_width'],1,recipe['depth']],site['mamu_shift' if group=='anatomy_mamu' else 'peni_shift'])
             elif n.startswith('puff_'):
                 affine(e,[.52,.52,recipe['depth']],[0,recipe['head_raise'],0])
             else:
@@ -141,7 +159,15 @@ def author(base, shape):
         for bone in rig['bones']:
             n=bone['name']; p=bone['pivot']; q=max(0,min(1,p[1]/8.48))
             width=r['lower_width']*(1-q)+r['upper_width']*q
-            if n in ('world_motion','root','body_motion','body_stretch') or 'slice_' in n or n.startswith(('rump','anatomy')):
+            if n.startswith('anatomy'):
+                site=r['organ_site']; mamu=n.startswith('anatomy_mamu')
+                if mamu: p=[-p[0],p[1],-p[2]]
+                shift=site['mamu_shift' if mamu else 'peni_shift']
+                bone['pivot']=[p[0]*r['lower_width']+shift[0],p[1]+shift[1],p[2]*r['depth']+shift[2]]
+                # The organs ride the skin slice at the site, so the stroke shear and the body bends carry them.
+                if n in ('anatomy_mamu','anatomy_peni'):
+                    bone['parent']=f"soft_head_slice_{int(min(31,max(0,site['height']/(8.48*r['body_height'])*32-.5)))}_bend"
+            elif n in ('world_motion','root','body_motion','body_stretch') or 'slice_' in n or n.startswith('rump'):
                 bone['pivot']=[p[0]*width,p[1]*r['body_height'],p[2]*r['depth']]
             else: bone['pivot']=[p[0]*r['head_scale'],p[1]*r['head_scale']+r['head_raise'],p[2]*r['depth']]
     if shape=='bean' and recipe.get('hair_fit'):
