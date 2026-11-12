@@ -16,6 +16,7 @@
 | 油霉个体被逐出聚落／家庭（反馈 11） | `.worktrees/wp-gy-mold-exile` | 聚落、家庭、油霉 |
 | 运输篮信息、多只非成体、换色分级（反馈 14） | `.worktrees/wp-gz-basket` | 运输篮物品与令牌 |
 | 谱系名字、坑奴脏污、漏尿场景与水滩淡出（反馈 7、10、6） | `.worktrees/wp-ha-small` | 谱系页、脏污、BodyEffects、excited_leak 场景 |
+| 捕食种模型错位（反馈 1） | `.worktrees/wp-hb-predator-model` | standards/yukkuri-library/subspecies/predator/ |
 
 ## 玩法待办
 
