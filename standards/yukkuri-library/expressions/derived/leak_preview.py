@@ -1,34 +1,47 @@
-"""Review page .local/previews/leak/: (1) the excited leak - one on-body stream from the mamu site in the leak faces and the
-wet bottom (leak_wet_* in the baked sole's projection) - next to the user's reference panel (ref.png, kept in the page
-folder), as frame strips and animated GIFs at close range and at game distance per growth stage; (2) the organ shapes -
-peni before / after and the mamu line.
-Renders go through scripts/preview.py strip (real runtime models and atlases). The wet bottom is a 2D mock-up laid on the
-render's lower skin: each skin pixel's angle around the body and height above the base pick the texel the sole projection
-would give it (WoundRenderer.soleTexture), with the stage and timing of the report's wiring table.
+"""Review page .local/previews/leak/: the excited leak - the two leak faces (the startle with the first spurt, then the
+stream with the small wet edge at the body bottom), the small ground puddle left where the stream ends, and the return
+through existing library faces - next to the user's reference panel (ref.png, kept in the page folder), as a close-up GIF,
+a game-distance GIF per growth stage and frame sheets.
+Renders go through scripts/preview.py strip (real runtime models and atlases). Two 2D mock-ups stand in for client code
+that is not written yet: the wet edge laid on the render's lower skin (each skin pixel's angle around the body and height
+above the base pick the texel the sole projection would give it, WoundRenderer.soleTexture), and the puddle texture laid on
+the ground plane of the same camera (orthographic approximation) with the size and timing of the report's wiring table.
 
-    python standards/yukkuri-library/expressions/derived/leak_preview.py [--node node] [--before REV]
+    python standards/yukkuri-library/expressions/derived/leak_preview.py [--node node]
 """
 from pathlib import Path
 import argparse, html, math, os, subprocess, sys, tempfile
-from PIL import Image, ImageChops, ImageDraw, ImageFont
+from PIL import Image, ImageDraw, ImageFont
 
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[3]
 ASSETS = ROOT/'src/main/resources/assets/mcyukkuri'
 SHARED = Path(os.environ.get('MCYUKKURI_PREVIEWS', ROOT.parent.parent/'.local/previews' if ROOT.parent.name == '.worktrees' else ROOT/'.local/previews'))
 OUT = SHARED/'leak'
-FRAMES = ['leak_startle', 'leak_flow', 'leak_flow_b', 'leak_flow_c', 'leak_after', 'leak_after_b']
-LABEL = {'leak_startle': '惊：第一股', 'leak_flow': '漏 A', 'leak_flow_b': '漏 B', 'leak_flow_c': '漏 C', 'leak_after': '之后 A',
-         'leak_after_b': '之后 B', 'neutral': '恢复'}
+FRAMES = ['leak_startle', 'leak_flow']
+LABEL = {'leak_startle': '惊：第一股', 'leak_flow': '漏 A', 'side_teary': '难为情（现有表情）', 'side_teary_b': '难为情 b',
+         'satisfied': '松口气（现有表情）', 'neutral': '平常'}
+LEAK = {'leak_startle', 'leak_flow'}  # derived atlases on the neutral geometry; the rest are library faces
+BODY_WIDTH = .75  # blocks at growth scale 1 (YukkuriVariant, ordinary forms)
 STAGES = [('赤油', .15), ('子油', .5), ('成油', 1.0)]  # growth scale (ordinary forms: baby 0.1-0.2, child 0.2-0.8, adult 0.8-1.2)
-FLOW = 15  # flow frames of 4 ticks in the played sequence
-# One played sequence: (face, ticks, wet texture or None, alpha). Stage = third of the flow; the dry fade is shortened here.
-SEQUENCE = ([('leak_startle', 10, None, 1)]
-            + [(('leak_flow', 'leak_flow_b', 'leak_flow_c')[i % 3], 4, f'leak_wet_{1+3*i//FLOW}', 1) for i in range(FLOW)]
-            + [('leak_after', 30, 'leak_wet_3', 1), ('leak_after_b', 10, 'leak_wet_3', 1)]*2
-            + [('neutral', 20, 'leak_wet_dry', a) for a in (1, .7, .4, .15)])
-SHOWN = {'leak_startle': None, 'leak_flow': 'leak_wet_1', 'leak_flow_b': 'leak_wet_2', 'leak_flow_c': 'leak_wet_3',
-         'leak_after': 'leak_wet_3', 'leak_after_b': 'leak_wet_3'}
+RATIO, FLOOR, DEPTH = .6, .12, .68  # puddle width = max(FLOOR, RATIO x body width) blocks (RATIO 0.5-0.7 by flow length); depth / width
+OUT_FRONT = .2  # puddle centre ahead of the body's front edge, in puddle widths
+
+
+def puddle_ratio(scale):
+    """Puddle width over body width for this growth scale (the report's wiring table, mid flow length)."""
+    width = BODY_WIDTH*scale; return max(FLOOR, RATIO*width)/width
+
+
+# One played sequence: (face, ticks, wet edge on the body, puddle growth 0-1 or None, puddle alpha, body shift in body widths).
+FLOW = 40  # D, mid adult / child range
+SEQUENCE = ([('neutral', 10, False, None, 1, 0), ('leak_startle', 8, False, None, 1, 0)]
+            + [('leak_flow', FLOW//4, True, None, 1, 0)]*4
+            + [('side_teary', 4, False, g, 1, 0) for g in (.4, .7, 1)]
+            + [('side_teary', 24, False, 1, 1, 0), ('side_teary_b', 12, False, 1, 1, 0), ('side_teary', 28, False, 1, 1, 0)]
+            + [('neutral', 4, False, 1, 1, s) for s in (.15, .35, .6, .85, 1.1, 1.35)]
+            + [('neutral', 20, False, 1, 1, 1.35)]
+            + [('neutral', 10, False, 1-.2*(1-a), a, 1.35) for a in (.8, .6, .4, .2)] + [('neutral', 20, False, None, 1, 1.35)])
 VIEW = (25, 30)  # a player standing a few blocks away looks down on a small body
 BG = (205, 214, 190, 255)
 
@@ -42,34 +55,31 @@ def font(size):
 
 class Renderer:
     def __init__(self, node, work):
-        self.node, self.work, self.count = node, work, 0
-
-    def run(self, extra, size):
-        self.count += 1; topic = f'r{self.count}'
-        env = {**os.environ, 'PYTHONUTF8': '1', 'MCYUKKURI_PREVIEWS': str(self.work)}
-        subprocess.run([sys.executable, str(ROOT/'scripts/preview.py'), 'strip', topic, *extra, '--size', str(size), str(size),
-                        '--columns', '1', '--node', self.node], check=True, env=env, cwd=ROOT, capture_output=True)
-        return self.work/topic
+        self.node, self.work, self.count, self.cache = node, work, 0, {}
 
     def __call__(self, model, face, size=300, view=VIEW):
-        """Transparent render of the model wearing this face atlas."""
-        stage = self.run(['--model', model, '--texture', str(ASSETS/f'textures/entity/{model}/{face}.png'), '--times', '0s',
-                          '--view', str(view[0]), str(view[1])], size)
-        return Image.open(stage/'atlas.png').convert('RGBA')
+        """Transparent render of the model wearing this face (leak atlases on the neutral geometry)."""
+        key = (model, face, size, view)
+        if key not in self.cache:
+            self.count += 1; topic = f'r{self.count}'
+            env = {**os.environ, 'PYTHONUTF8': '1', 'MCYUKKURI_PREVIEWS': str(self.work)}
+            subprocess.run([sys.executable, str(ROOT/'scripts/preview.py'), 'strip', topic, '--model', model,
+                            '--face', 'neutral' if face in LEAK else face, '--texture', str(ASSETS/f'textures/entity/{model}/{face}.png'),
+                            '--times', '0s', '--view', str(view[0]), str(view[1]), '--size', str(size), str(size),
+                            '--columns', '1', '--node', self.node], check=True, env=env, cwd=ROOT, capture_output=True)
+            self.cache[key] = Image.open(self.work/topic/'atlas.png').convert('RGBA')
+        return self.cache[key]
 
-    def clip(self, model, clip, time, view, size=360, before=None):
-        return self.run(['--model', model, '--clip', clip, '--times', f'{time:g}s', '--view', str(view[0]), str(view[1])]
-                        + (['--before', before] if before else []), size)
+
+WET = Image.open(ASSETS/'textures/props/body_wounds/leak_wet.png').convert('RGBA')
+PUDDLE = Image.open(ASSETS/'textures/effects/leak_puddle.png').convert('RGBA')
 
 
-WET = {}
-def wet(body, name, alpha=1., view=VIEW):
-    """The body render with the wet-bottom texture mocked onto its lower skin (see the module note), over the page ground."""
-    out = Image.new('RGBA', body.size, BG); out.alpha_composite(body)
-    box = body.getbbox()
-    if not name or not box: return out
-    if name not in WET: WET[name] = Image.open(ASSETS/f'textures/props/body_wounds/{name}.png').convert('RGBA')
-    texture = WET[name]; src = body.load(); px = out.load()
+def wet(body, view=VIEW):
+    """The body render with the wet edge mocked onto its lower skin (see the module note)."""
+    out = body.copy(); box = body.getbbox()
+    if not box: return out
+    src = body.load(); px = out.load()
     width = (box[2]-box[0])*.86; cx = (box[0]+box[2])/2; height = width*.8*math.cos(math.radians(view[1]))
     low = [(c, r) for r in range(max(box[1], round(box[3]-height*.18)), box[3]) for c in range(box[0], box[2]) if src[c, r][3] > 200]
     if not low: return out
@@ -83,9 +93,38 @@ def wet(body, name, alpha=1., view=VIEW):
         for r in column:
             y = (base-r+.5)/height*9.6; v = (2-y)/2.5
             if not 0 <= v <= .8 or sum(abs(a-b) for a, b in zip(src[c, r][:3], skin)) > 60: continue
-            t = texture.getpixel((min(1023, int(u*1024)), min(255, int(v*256))))
-            if t[3]: px[c, r] = tuple(round(p*(1-t[3]*alpha/255)+q*t[3]*alpha/255) for p, q in zip(px[c, r][:3], t[:3]))+(255,)
+            t = WET.getpixel((min(1023, int(u*1024)), min(255, int(v*256))))
+            if t[3]: px[c, r] = tuple(round(p*(1-t[3]/255)+q*t[3]/255) for p, q in zip(px[c, r][:3], t[:3]))+(255,)
     return out
+
+
+def scene(body, ratio, growth=None, alpha=1., shift=0., view=VIEW, pad=(0, 0, 0, 0)):
+    """The body over the page ground with its puddle: the 32x32 top-down texture on the ground plane, centred on the
+    body's front where the body stood (the shift moves only the body, in body widths to the right on screen), width
+    = ratio x body width x growth, depth DEPTH of that; its centre lies OUT_FRONT puddle widths ahead of the body's front edge."""
+    l, t, r, b = pad
+    canvas = Image.new('RGBA', (body.width+l+r, body.height+t+b), BG)
+    box = body.getbbox()
+    if not box: return canvas
+    width = (box[2]-box[0])*.86
+    if growth:
+        az, el = math.radians(view[0]), math.radians(view[1]); s = math.sin(el); d = ratio*width*growth
+        fx, fy = -math.sin(az), math.cos(az)*s  # body forward on screen
+        rx, ry = math.cos(az), math.sin(az)*s   # body right on screen
+        # The front edge of the base: the lowest body pixel in the column the body front faces (side hair hangs lower
+        # than the base, so the box bottom is not the ground).
+        column = round((box[0]+box[2])/2+.4*width*fx); alpha_px = body.getchannel('A').load()
+        base = max((y for y in range(box[1], box[3]) if alpha_px[column, y] > 200), default=box[3]-1)
+        centre = (column+l+OUT_FRONT*d*fx, base+1+t+OUT_FRONT*d*fy)  # just in front: its back edge stays under the body
+        texture = PUDDLE if alpha >= 1 else PUDDLE.copy()
+        if alpha < 1: texture.putalpha(PUDDLE.getchannel('A').point(lambda v: round(v*alpha)))
+        # screen = centre + (u-16)/32*d*right + (v-16)/32*d*DEPTH*forward; PIL wants the inverse map screen -> texture.
+        a, bb, c, e = rx*d/32, fx*d*DEPTH/32, ry*d/32, fy*d*DEPTH/32; det = a*e-bb*c
+        ia, ib, ic, ie = e/det, -bb/det, -c/det, a/det
+        ox, oy = centre[0]-16*a-16*bb, centre[1]-16*c-16*e
+        canvas.alpha_composite(texture.transform(canvas.size, Image.AFFINE, (ia, ib, -ia*ox-ib*oy, ic, ie, -ic*ox-ie*oy), Image.NEAREST))
+    canvas.alpha_composite(body, (l+round(shift*width), t))
+    return canvas
 
 
 def crop(image, box=(.12, .3, .88, .98)):
@@ -93,7 +132,7 @@ def crop(image, box=(.12, .3, .88, .98)):
 
 
 def sheet(cells, columns, title=None):
-    w, h = cells[0][0].size; top = 36 if title else 0; rows = (len(cells)+columns-1)//columns
+    w, h = max(c[0].width for c in cells), max(c[0].height for c in cells); top = 36 if title else 0; rows = (len(cells)+columns-1)//columns
     out = Image.new('RGBA', (w*columns, top+rows*(h+26)), BG); d = ImageDraw.Draw(out)
     if title: d.text((6, 6), title, fill=(30, 30, 30, 255), font=font(20))
     for i, (image, caption) in enumerate(cells):
@@ -109,85 +148,73 @@ def gif(path, frames, scale=1):
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__); ap.add_argument('--node', default='node')
-    ap.add_argument('--before', default='HEAD', help='Git ref of the organ shapes to compare against')
     args = ap.parse_args()
     OUT.mkdir(parents=True, exist_ok=True)
-    for old in ('stages.png', 'organ-peni-front.png', 'puddle.png', 'mamu.png'):
+    for old in ('organ-peni.png', 'organ-mamu.png', 'stages.png', 'puddle.png', 'mamu.png'):
         (OUT/old).unlink(missing_ok=True)
     with tempfile.TemporaryDirectory(prefix='leak-', dir=ROOT/'.local/tmp' if (ROOT/'.local/tmp').is_dir() else None) as directory:
         render = Renderer(args.node, Path(directory)); files = {}
-        faces = FRAMES+['neutral']
-        above = {f: render('reimu', f, 360) for f in faces}
-        front = {f: render('reimu', f, 360, (0, -2)) for f in FRAMES}
-        files['frames.png'] = sheet([(crop(wet(front[f], SHOWN[f], view=(0, -2)), (.15, .35, .85, .9)), LABEL[f]) for f in FRAMES]
-                                    + [(crop(wet(above[f], SHOWN[f])), LABEL[f]+'（斜上方）') for f in FRAMES], 6,
-                                    '灵梦：六帧（上排正面略低，下排玩家常见的斜上方；底部湿痕按阶段 1→3，示意）')
-        close = [(crop(wet(above[face], name, alpha)), ticks) for face, ticks, name, alpha in SEQUENCE]
+        def body(model, face, size, view=VIEW, wet_edge=False):
+            image = render(model, face, size, view); return wet(image, view) if wet_edge else image
+        # Close-up of one adult over the whole timeline.
+        adult = puddle_ratio(1.)
+        close = [(crop(scene(body('reimu', f, 300, wet_edge=w), adult, g, a, s, pad=(0, 0, 300, 60)), (0, .16, 1, 1)), ticks)
+                 for f, ticks, w, g, a, s in SEQUENCE]
         gif(OUT/'play-close.gif', close, 2)
-        small = {label: {f: render('reimu', f, max(16, round(110*scale))) for f in faces} for label, scale in STAGES}
+        # Game distance: baby, child, adult side by side at the size a player sees them about five blocks away.
         distance = []
-        for face, ticks, name, alpha in SEQUENCE:
-            frame = Image.new('RGBA', (330, 130), BG); x = 14
-            for label, _ in STAGES:
-                im = wet(small[label][face], name, alpha); frame.alpha_composite(im, (x, 122-im.height)); x += im.width+40
+        for f, ticks, w, g, a, s in SEQUENCE:
+            frame = Image.new('RGBA', (560, 150), BG); x = 14
+            for label, scale in STAGES:
+                im = body('reimu', f, max(16, round(110*scale)), wet_edge=w); pad = round(im.width*.6)
+                cell = scene(im, puddle_ratio(scale), g, a, s, pad=(pad, 0, pad+round(im.width*1.5), pad))
+                frame.alpha_composite(cell, (x-pad, 128-im.height)); x += round(im.width*2.4)+30
             distance.append((frame, ticks))
         gif(OUT/'play-distance.gif', distance)
-        files['distance.png'] = sheet([(distance[0][0], '惊'), (distance[8][0], '漏到一半'), (distance[FLOW][0], '漏完'),
-                                       (distance[-3][0], '干涸淡出')], 4, '游戏距离（约 5 格外的实际像素大小；左起赤、子、成）')
+        index = {'惊': 1, '漏': 3, '水滩刚成形': 8, '走开后水滩留在原地': 18}
+        files['distance.png'] = sheet([(distance[i][0], label) for label, i in index.items()], 2,
+                                      '游戏距离（约 5 格外的实际像素大小；左起赤、子、成）')
+        # The two frames, front and from above, then the return faces.
+        front = [(crop(body('reimu', f, 360, (0, -2), f == 'leak_flow'), (.15, .35, .85, .9)), LABEL[f]+'（正面略低）') for f in FRAMES]
+        above = [(crop(scene(body('reimu', f, 360, wet_edge=f == 'leak_flow'), adult)), LABEL[f]+'（斜上方）') for f in FRAMES]
+        after = [(crop(scene(body('reimu', f, 360), adult, 1)), LABEL[f]+'＋水滩') for f in ('side_teary', 'satisfied')]
+        files['frames.png'] = sheet(front+above+after, 3, '灵梦：两帧（漏 A 带底部小湿边，示意）与之后（现有表情＋地上小水滩，成油大小）')
         cells = []
         for model in ['marisa', 'alice', 'chen', 'myon', 'remilia', 'patchouli', 'reimu_deibu', 'house_reimu', 'reimu_bean']:
-            cells += [(crop(wet(render(model, f, 300, (15, 20)), SHOWN[f], view=(15, 20))), f'{model} · {LABEL[f]}')
-                      for f in ('leak_startle', 'leak_flow_c', 'leak_after')]
-        files['models.png'] = sheet(cells, 6, '各品种（家油、豆形的脸不在身体下部，尿线只到下巴；底部湿痕为示意）')
-        # Organs: old / current crops around the extended organ (the only part that differs between the two versions).
-        size = 480
-        def organ(clip, view, side):
-            stage = render.clip('reimu', clip, .24, view, size, args.before)  # the extend clip's full length
-            pair = Image.open(stage/'compare.png').convert('RGBA'); old, new = pair.crop((0, 0, size, size)), pair.crop((size, 0, 2*size, size))
-            box = ImageChops.difference(new.convert('RGB'), old.convert('RGB')).convert('L').point(lambda v: 255 if v > 30 else 0).getbbox()
-            if not box: box = (size//2-side//2, size//2-side//2, size//2+side//2, size//2+side//2)
-            cx, cy = (box[0]+box[2])//2, (box[1]+box[3])//2
-            area = (cx-side//2, cy-side//2, cx+side//2, cy+side//2)
-            return [im.crop(area).resize((300, 300), Image.NEAREST) for im in (old, new)]
-        cells = []
-        for view, label in (((90, 0), '侧面'), ((30, -10), '斜前方略低'), ((0, -8), '正面略低')):
-            old, new = organ('anatomy_peni_extend', view, 120)
-            cells += [(old, f'上一版 · {label}'), (new, f'当前 · {label}')]
-        files['organ-peni.png'] = sheet(cells, 6, '佩妮佩妮伸出（放大 2.5 倍；每组左为上一版，右为当前）')
-        stage = render.clip('reimu', 'anatomy_mamu_extend', .24, (0, -20), size)
-        files['organ-mamu.png'] = sheet([(crop(Image.alpha_composite(Image.new('RGBA', (size, size), BG), Image.open(stage/'atlas.png').convert('RGBA')),
-                                               (.3, .45, .7, .85)).resize((384, 384), Image.NEAREST), 'A 竖线（定稿）')], 1, '麻姆麻姆伸出')
+            cells += [(crop(scene(body(model, f, 300, (15, 20), f == 'leak_flow'), adult, None, view=(15, 20))), f'{model} · {LABEL[f]}')
+                      for f in FRAMES]
+        files['models.png'] = sheet(cells, 6, '各品种（家油、豆形的脸不在身体下部，尿线只到下巴；底部湿边为示意）')
+        texture = Image.alpha_composite(Image.new('RGBA', PUDDLE.size, (120, 150, 90, 255)), PUDDLE).resize((192, 192), Image.NEAREST)
+        files['puddle-texture.png'] = sheet([(texture, 'leak_puddle（32×32 俯视，放大 6 倍）')], 1)
         for name, image in files.items(): image.save(OUT/name)
     E = html.escape
-    timing = [('0', '触发（强烈情绪尖峰）', 'leak_startle（单帧）', '无', '「!」'),
-              ('6–10', '开始漏', 'leak_flow（三帧各 4 tick 循环）', 'leak_wet_1', '—'),
-              ('+ D/3、+ 2D/3', '持续漏', 'leak_flow', 'leak_wet_2 → leak_wet_3', '—'),
-              ('D 结束后 60–100', '之后', 'leak_after（30／10 tick 循环）', 'leak_wet_3', '汗滴'),
-              ('之后 200', '恢复', '平常表情', 'leak_wet_dry，透明度 1→0 淡出', '—')]
+    timing = [('0', '触发（强烈／中等情绪尖峰）', 'leak_startle（单帧，第一股）', '—', '—', '「!」'),
+              ('s = 6–10', '漏', 'leak_flow（单帧，漏 A）', 'leak_wet 小湿边', '—', '—'),
+              ('s + D', '漏完', '难为情 side_teary（现有动画）；兴奋型尖峰用松口气 satisfied', '去掉', '在身前地上出现，约 10 tick 摊开', '汗滴'),
+              ('s + D + 60–100', '恢复', '回到原来的情绪表情', '—', '留在原地，油库里走开也不动', '—'),
+              ('水滩出现后 500–600', '干', '—', '—', '最后 100 tick 缩小到 80% 并淡出', '—')]
     style = ('body{background:#f2efe6;font:16px system-ui,"Microsoft YaHei";margin:20px;max-width:1500px}img{max-width:100%;image-rendering:pixelated;'
              'display:block;margin:8px 0}h2{margin-top:30px}table{border-collapse:collapse}td,th{border:1px solid #bbb;padding:4px 8px}'
              '.ask{background:#fff7d6;border:1px solid #d9c27a;padding:10px 14px}.row{display:flex;gap:16px;align-items:flex-start;flex-wrap:wrap}')
     body = [
-        '<div class="ask"><b>请你确认：</b>漏尿（起点、居中、底部湿痕）与佩妮佩妮新形状是否接受，要改哪里；麻姆麻姆已按 A 定稿。</div>',
-        '<h2>1. 漏尿：参考原图与新动态</h2><p>照你的意见：尿线从麻姆麻姆的位置开始，严格居中（原先偏了一格：嘴下那块贴图本身不对称，'
-        '旧算法按贴图格子居中，所以偏到一侧）；去掉了地上水滩，改成像底部烧焦、叶子襁褓那样画在身体底部：身前底部一块描边的淡黄湿痕，'
-        '边缘有几道往上渗的湿舌，漏的时候分三档长大，之后变成断续描边的干痕再淡出。湿痕按身体底部的投影贴，随体型自动缩放。'
-        '页面里的湿痕是离线示意，游戏里由代码按同一投影画在身体上。</p>'
-        '<div class="row"><img src="ref.png" style="max-width:600px"><img src="play-close.gif" style="width:560px"></div>',
-        '<h2>2. 游戏距离（按成长阶段）</h2><img src="play-distance.gif" style="width:660px"><img src="distance.png">',
-        '<h2>3. 六帧与各品种</h2><img src="frames.png"><img src="models.png">'
-        '<p><a href="../leak-viewer/index.html">真实运行模型查看器（表情选 leak_flow 看身上尿线循环；查看器不画底部湿痕）</a></p>',
-        '<h3>时间表（tick）</h3><table><tr><th>时刻</th><th>阶段</th><th>表情（含身上尿线）</th><th>身体底部</th><th>头顶符号</th></tr>'
+        '<div class="ask"><b>请你确认：</b>漏尿只留「惊：第一股」和「漏 A」两帧，漏完在身前地上形成小水滩（大小见下），'
+        '之后的表情用现有的难为情／松口气；是否接受，水滩大小要不要再调。</div>',
+        '<h2>1. 参考原图与新的完整过程</h2><p>照你的意见：只留第一股和漏 A；漏 B、漏 C、之后 A／B 和身体底部逐档长大的湿痕都去掉了，'
+        '漏 A 保留它画里那一小块底部湿边。漏完时在身前地上摊开一小滩，按体型缩放（比上一版的水滩小得多，成油约 0.6 倍体宽），'
+        '它是地上的痕迹，油库里走开后留在原地，过一会儿缩小淡出。表情回到现有的难为情（垂眼哭丧），不新做“之后”帧。'
+        '页面里的底部湿边和水滩是离线示意，游戏里由代码画。</p>'
+        '<div class="row"><img src="ref.png" style="max-width:600px"><img src="play-close.gif" style="width:760px"></div>',
+        '<h2>2. 游戏距离（按成长阶段）</h2><p>赤油身体太小，水滩取下限 0.12 格（约等于它的体宽），否则远处看不见；'
+        '子油、成油按体宽 0.5–0.7 倍（漏得越久越大）。</p><img src="play-distance.gif" style="width:1120px"><img src="distance.png">',
+        '<h2>3. 两帧、之后与各品种</h2><img src="frames.png"><img src="models.png"><img src="puddle-texture.png">',
+        '<h3>时间表（tick）</h3><table><tr><th>时刻</th><th>阶段</th><th>表情（含身上尿线）</th><th>身体底部</th><th>地上水滩</th><th>头顶符号</th></tr>'
         + ''.join(f'<tr>{"".join(f"<td>{E(c)}</td>" for c in row)}</tr>' for row in timing) + '</table>'
         '<p>流出时长 D：赤油 40–60，子油 30–50，成油 20–40（按自制在区间内平移，自制高取短端）。</p>'
         '<h3>几率（每次情绪尖峰；区间按自制平移，自制 0 取上端、100 取下端）</h3><table><tr><th></th><th>强烈刺激（被突然拎起／摔落／天敌惊吓／濒死）</th><th>中等刺激（被吓到、被训斥、巨响）</th></tr>'
         '<tr><td>赤油</td><td>50–80%</td><td>20–40%</td></tr><tr><td>子油</td><td>25–45%</td><td>5–15%</td></tr><tr><td>成油</td><td>5–15%</td><td>0</td></tr></table>'
-        '<p>同一只漏过后 1200 tick 内不再漏。数值为项目设计，待你定。</p>',
-        '<h2>4. 佩妮佩妮：上一版与当前</h2><p>改成一截小触角：粗细均匀的短圆柱，前端是圆头（不尖、不收细），整体是一块光滑网格，'
-        '不再由方块拼接，所以前端没有台阶线；肤色，长度与上翘角度不变。</p><img src="organ-peni.png">',
-        '<h2>5. 麻姆麻姆：A 竖线（定稿）</h2><img src="organ-mamu.png">']
-    (OUT/'index.html').write_text('<!doctype html><html lang="zh-CN"><meta charset="utf-8"><title>激动漏尿与器官形状</title>'
-                                  f'<style>{style}</style><body><a href="../index.html">预览总入口</a><h1>激动漏尿与器官形状</h1>{"".join(body)}</body></html>', encoding='utf-8')
+        '<p>同一只漏过后 1200 tick 内不再漏。数值为项目设计，待你定。</p>']
+    (OUT/'index.html').write_text('<!doctype html><html lang="zh-CN"><meta charset="utf-8"><title>激动漏尿</title>'
+                                  f'<style>{style}</style><body><a href="../index.html">预览总入口</a><h1>激动漏尿</h1>{"".join(body)}</body></html>', encoding='utf-8')
     print('Wrote', OUT/'index.html')
 
 

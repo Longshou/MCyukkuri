@@ -129,7 +129,7 @@
         },
         {
           "id": "derived-faces",
-          "label": "派生表情（沮丧、害怕、激动漏尿及其底部湿痕）",
+          "label": "派生表情（沮丧、害怕、激动漏尿及其底部湿边与地上水滩）",
           "prefixes": [
             "standards/yukkuri-library/expressions/derived/"
           ],
@@ -141,14 +141,8 @@
             "afraid",
             "leak_startle",
             "leak_flow",
-            "leak_flow_b",
-            "leak_flow_c",
-            "leak_after",
-            "leak_after_b",
-            "leak_wet_1",
-            "leak_wet_2",
-            "leak_wet_3",
-            "leak_wet_dry"
+            "leak_wet",
+            "leak_puddle"
           ]
         },
         {

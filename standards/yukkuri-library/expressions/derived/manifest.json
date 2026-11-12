@@ -4,13 +4,13 @@
   "recipe": {
     "sad": "teary atlas, tear and mouth-effect cells from neutral, top quarter of each eye under a flat lid line",
     "afraid": "teary atlas, tear and mouth-effect cells from neutral, eyes from surprise with a small dark pupil, a pressed zigzag mouth",
-    "leak_startle": "neutral atlas, surprise brows, flushed_smile blush, big round wet eyes in the neutral eye colours, a small round open mouth, a first trickle",
-    "leak_flow": "neutral atlas, teary brows and welling tears, flushed_smile blush, big round wet eyes, a wide open mouth with the tongue, one running stream from the mamu site on the centre line (frames b, c)",
-    "leak_after": "neutral atlas, teary brows and welling tears, flushed_smile blush, big wet eyes under a lowered lid, a wavering mouth, a drying streak and a last drop (frame b)",
-    "leak_wet": "textures/props/body_wounds, sole projection: an outlined pale wet patch at the front base under the stream, stages 1-3 growing, dry (broken outline, thin fill)"
+    "leak_startle": "neutral atlas, surprise brows, flushed_smile blush, big round wet eyes in the neutral eye colours, a small round open mouth, the first spurt",
+    "leak_flow": "neutral atlas, teary brows and welling tears, flushed_smile blush, big round wet eyes, a wide open mouth with the tongue, one stream from the mamu site on the centre line",
+    "leak_wet": "textures/props/body_wounds, sole projection: a small outlined pale wet edge at the front base under the stream, worn with leak_flow",
+    "leak_puddle": "textures/effects, 32x32 top-down: a small outlined pale ground puddle left where the stream ends"
   },
   "builder": "standards/yukkuri-library/expressions/derived/faces.py",
-  "builder_sha256": "f42e34abf4ea517482bd0fd1fa7906c82e51b6513df33375a14ac03e7f4f6415",
+  "builder_sha256": "3c759842f543a6d425f908bfafe7e36e74ecb3d7b990228fe1cd521ac1645408",
   "models": {
     "alice": {
       "sad": {
@@ -28,22 +28,6 @@
       "leak_flow": {
         "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/alice/leak_flow.png",
         "sha256": "e4d19f3ee853903a5f08e165ce39bc503c02f25f4b4f768eef131c27d64b5c6c"
-      },
-      "leak_flow_b": {
-        "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/alice/leak_flow_b.png",
-        "sha256": "2cbf6e9102d3abedc89449974ffc31034bfda8491d374c9c0849b8b8bb709383"
-      },
-      "leak_flow_c": {
-        "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/alice/leak_flow_c.png",
-        "sha256": "2ac104d6063f39c7ce0ad6d801e0a262736014f2c08c2525979d1969ddf36d8a"
-      },
-      "leak_after": {
-        "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/alice/leak_after.png",
-        "sha256": "9423ae76572cce3bc178c6b4d9a6880fbbf225a0eabb021a12357a2c73502069"
-      },
-      "leak_after_b": {
-        "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/alice/leak_after_b.png",
-        "sha256": "dd4e5561ab42902a76e3888641fed6f27944d0a35ad07670a3a81c1c66a0ae81"
       },
       "from": {
         "teary": "3eb3c4f8fb44b3b7646411e2d0a7d0836e9868904263f8763db5b84c0d56cf03",
@@ -69,22 +53,6 @@
         "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/chen/leak_flow.png",
         "sha256": "a8d4f0ecb63435497d84e8f943e4d30c14b1117183fe1740ad3dbe0423bccc62"
       },
-      "leak_flow_b": {
-        "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/chen/leak_flow_b.png",
-        "sha256": "6a306f0d3ac8e5b1b475c92c0a26380ff51e595e54b4a648f796fc0e611fd290"
-      },
-      "leak_flow_c": {
-        "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/chen/leak_flow_c.png",
-        "sha256": "f33f782ee51eb134a1cc32b2c8d7c83c9ab211d7896b011515beabb79de50a10"
-      },
-      "leak_after": {
-        "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/chen/leak_after.png",
-        "sha256": "23da50d03688069afc0f58c54127d130582738b2da0c99904161a7c8d8bbc4c5"
-      },
-      "leak_after_b": {
-        "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/chen/leak_after_b.png",
-        "sha256": "86b8f5fef1b6508b06c1ed06fe5d4cf39a2c2b375772d51ff7e9b0a1c50fead7"
-      },
       "from": {
         "teary": "6320fb617a0fb84ede259eaf519cbfb3944f9060ece771791b1509919306b194",
         "neutral": "320329870934bf2c612e918d4ca98c20fab2513968d81d2100fdd32fa033dbaf",
@@ -108,22 +76,6 @@
       "leak_flow": {
         "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/chen_longtail/leak_flow.png",
         "sha256": "a8d4f0ecb63435497d84e8f943e4d30c14b1117183fe1740ad3dbe0423bccc62"
-      },
-      "leak_flow_b": {
-        "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/chen_longtail/leak_flow_b.png",
-        "sha256": "6a306f0d3ac8e5b1b475c92c0a26380ff51e595e54b4a648f796fc0e611fd290"
-      },
-      "leak_flow_c": {
-        "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/chen_longtail/leak_flow_c.png",
-        "sha256": "f33f782ee51eb134a1cc32b2c8d7c83c9ab211d7896b011515beabb79de50a10"
-      },
-      "leak_after": {
-        "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/chen_longtail/leak_after.png",
-        "sha256": "23da50d03688069afc0f58c54127d130582738b2da0c99904161a7c8d8bbc4c5"
-      },
-      "leak_after_b": {
-        "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/chen_longtail/leak_after_b.png",
-        "sha256": "86b8f5fef1b6508b06c1ed06fe5d4cf39a2c2b375772d51ff7e9b0a1c50fead7"
       },
       "from": {
         "teary": "81d5781783fb4e84d47ae72a6520baa67614674a05cc5c7c1e704f9029bd615f",
@@ -149,22 +101,6 @@
         "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/chen_roundtail/leak_flow.png",
         "sha256": "a8d4f0ecb63435497d84e8f943e4d30c14b1117183fe1740ad3dbe0423bccc62"
       },
-      "leak_flow_b": {
-        "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/chen_roundtail/leak_flow_b.png",
-        "sha256": "6a306f0d3ac8e5b1b475c92c0a26380ff51e595e54b4a648f796fc0e611fd290"
-      },
-      "leak_flow_c": {
-        "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/chen_roundtail/leak_flow_c.png",
-        "sha256": "f33f782ee51eb134a1cc32b2c8d7c83c9ab211d7896b011515beabb79de50a10"
-      },
-      "leak_after": {
-        "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/chen_roundtail/leak_after.png",
-        "sha256": "23da50d03688069afc0f58c54127d130582738b2da0c99904161a7c8d8bbc4c5"
-      },
-      "leak_after_b": {
-        "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/chen_roundtail/leak_after_b.png",
-        "sha256": "86b8f5fef1b6508b06c1ed06fe5d4cf39a2c2b375772d51ff7e9b0a1c50fead7"
-      },
       "from": {
         "teary": "81d5781783fb4e84d47ae72a6520baa67614674a05cc5c7c1e704f9029bd615f",
         "neutral": "49e71d6e15038923f64352a8646b6e9948a67659788d1d90a8035ab8f9199859",
@@ -188,22 +124,6 @@
       "leak_flow": {
         "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/flandre/leak_flow.png",
         "sha256": "5986c61fef860021ad2c6e91612c7336d0c2fa3121c7b8946665beb266808ad0"
-      },
-      "leak_flow_b": {
-        "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/flandre/leak_flow_b.png",
-        "sha256": "4a164bfe312b19d046b818c0fac3cfa63d7a63ad19a186f7b434413cf1687a37"
-      },
-      "leak_flow_c": {
-        "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/flandre/leak_flow_c.png",
-        "sha256": "9d9475bc26e888905b78b145325d732bb33da0ef4076697461b150087b852b98"
-      },
-      "leak_after": {
-        "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/flandre/leak_after.png",
-        "sha256": "43c1fe981a3df9afadaa271dd4fb3e529babf4bf8f9ef0179b07362a8b00eb81"
-      },
-      "leak_after_b": {
-        "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/flandre/leak_after_b.png",
-        "sha256": "674b13f4df545890d06fca0eb485f93ed96657c9bd30451f186bb983a8c4bafd"
       },
       "from": {
         "teary": "db3461c3f738c13395f6e4d40f5cc4bd13f9da97e9804062e8ba3b3e24098b1a",
@@ -229,22 +149,6 @@
         "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/house_marisa/leak_flow.png",
         "sha256": "2b01858344fc9c9300ff2f4f8c9a497cd565e4a011c00002c1b2cdde240037a2"
       },
-      "leak_flow_b": {
-        "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/house_marisa/leak_flow_b.png",
-        "sha256": "12b4ac9e0d6d4a04fdc6a535a2d81e57dfb12b28f01caf870ebce4d1f0ff74e6"
-      },
-      "leak_flow_c": {
-        "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/house_marisa/leak_flow_c.png",
-        "sha256": "0f10b2fa9b80c7c984d59d9378ce1d9d24e9836f5a863c72db77b88b641f46d8"
-      },
-      "leak_after": {
-        "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/house_marisa/leak_after.png",
-        "sha256": "69c50ab3a3a88df2deb333e39121ca270521a1fbd2b5a009dc00563eb395114c"
-      },
-      "leak_after_b": {
-        "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/house_marisa/leak_after_b.png",
-        "sha256": "bbbd2dcd8dfe01e8d0c4236511c0ecdc1061b6b70f2adaed3261115d426b46d5"
-      },
       "from": {
         "teary": "c2665c0ee4c234fa92005019b1308b1f57e899670a619a3172510bb080aae025",
         "neutral": "af6c00936afe90d4a8d61cb2ef87a94828410415567410ff87973b295631c0c0",
@@ -268,22 +172,6 @@
       "leak_flow": {
         "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/house_reimu/leak_flow.png",
         "sha256": "09805ceaad8a16ed4402fe1ccfd2ae611e4199a7f9356fae0be1eba7a5043a34"
-      },
-      "leak_flow_b": {
-        "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/house_reimu/leak_flow_b.png",
-        "sha256": "bf68011057397d0400551036a88f4fa9c4c53f210025a27c79c0cff7cc46e5a1"
-      },
-      "leak_flow_c": {
-        "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/house_reimu/leak_flow_c.png",
-        "sha256": "2c2ffd06a274ef63871be9c622194876f6fbbbdf219c184e088521dce188e41f"
-      },
-      "leak_after": {
-        "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/house_reimu/leak_after.png",
-        "sha256": "14e4c282f2154cacad65d1274eb5fc4119663483d5ae08a187c66ab9cc115e25"
-      },
-      "leak_after_b": {
-        "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/house_reimu/leak_after_b.png",
-        "sha256": "8083527c2a53de39c8c8ed9478ceaadd588d794fb0150a0f14e58a356d716912"
       },
       "from": {
         "teary": "bebe2ce7865657862ba50b96e840c67becee016e37ac35bc6f52ceac4f4e02f8",
@@ -309,22 +197,6 @@
         "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa/leak_flow.png",
         "sha256": "7f65c37cd7c442c44e2581935542236a3e0ffd6c14462d29d7ecd42aba9aa0e5"
       },
-      "leak_flow_b": {
-        "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa/leak_flow_b.png",
-        "sha256": "49085043866482cdd8181d37ed411db45fa39747af3b3af2958f9d2c2f1f71d7"
-      },
-      "leak_flow_c": {
-        "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa/leak_flow_c.png",
-        "sha256": "455599ff27a24835e7325d9e2ad2d917443f5b6b55b9929429cc7d8dcff3c2ce"
-      },
-      "leak_after": {
-        "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa/leak_after.png",
-        "sha256": "05a1edf3eb8028f414f118fcd0930cdecf944aa780b171873292c4289c001c0f"
-      },
-      "leak_after_b": {
-        "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa/leak_after_b.png",
-        "sha256": "fae5deae141a81d41c7197c58472fd5bdfb568e52c6ec8052256725c4ec5f32d"
-      },
       "from": {
         "teary": "785a32bc6a7694cb2a8e3ce0bd729adbf9596344a18d49fcffce30a5fe1a8e98",
         "neutral": "a1720e803bd78ddb3ac91add7c6714574afc4f1db48387c80f95315609e5c3e7",
@@ -348,22 +220,6 @@
       "leak_flow": {
         "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_bean/leak_flow.png",
         "sha256": "2b01858344fc9c9300ff2f4f8c9a497cd565e4a011c00002c1b2cdde240037a2"
-      },
-      "leak_flow_b": {
-        "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_bean/leak_flow_b.png",
-        "sha256": "12b4ac9e0d6d4a04fdc6a535a2d81e57dfb12b28f01caf870ebce4d1f0ff74e6"
-      },
-      "leak_flow_c": {
-        "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_bean/leak_flow_c.png",
-        "sha256": "0f10b2fa9b80c7c984d59d9378ce1d9d24e9836f5a863c72db77b88b641f46d8"
-      },
-      "leak_after": {
-        "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_bean/leak_after.png",
-        "sha256": "69c50ab3a3a88df2deb333e39121ca270521a1fbd2b5a009dc00563eb395114c"
-      },
-      "leak_after_b": {
-        "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_bean/leak_after_b.png",
-        "sha256": "bbbd2dcd8dfe01e8d0c4236511c0ecdc1061b6b70f2adaed3261115d426b46d5"
       },
       "from": {
         "teary": "c2665c0ee4c234fa92005019b1308b1f57e899670a619a3172510bb080aae025",
@@ -389,22 +245,6 @@
         "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_face/leak_flow.png",
         "sha256": "2f5ae43243da0c833373b09fe7d78229949ed32175d1f0d2c83fc18410a6c51a"
       },
-      "leak_flow_b": {
-        "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_face/leak_flow_b.png",
-        "sha256": "96051daeb1adfcfe1bbe0cb2e30b6294b75dcf30423be71a405fc036c489ca76"
-      },
-      "leak_flow_c": {
-        "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_face/leak_flow_c.png",
-        "sha256": "2f5ae43243da0c833373b09fe7d78229949ed32175d1f0d2c83fc18410a6c51a"
-      },
-      "leak_after": {
-        "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_face/leak_after.png",
-        "sha256": "28fda88f02d6276c033635dbc1e407757796be036f9694d395b453c531a6478d"
-      },
-      "leak_after_b": {
-        "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_face/leak_after_b.png",
-        "sha256": "87cf1c5fcf84f6b4df656b2f0ac64c9bd9d07995602adc273113b57824f58e91"
-      },
       "from": {
         "teary": "785a32bc6a7694cb2a8e3ce0bd729adbf9596344a18d49fcffce30a5fe1a8e98",
         "neutral": "a1720e803bd78ddb3ac91add7c6714574afc4f1db48387c80f95315609e5c3e7",
@@ -428,22 +268,6 @@
       "leak_flow": {
         "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_kotatsu/leak_flow.png",
         "sha256": "75db0384a2194139d3e458e97975a5e8fa153ef7e94d72e516bec121c5c72213"
-      },
-      "leak_flow_b": {
-        "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_kotatsu/leak_flow_b.png",
-        "sha256": "4e52b749c8e2b916bc9a4d1162696b7a4c01aca6339d1dbb7602a7769c862d6c"
-      },
-      "leak_flow_c": {
-        "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_kotatsu/leak_flow_c.png",
-        "sha256": "aee6e0de320862d14f2eab5b819faef4691301db63d79597a4b5e3bb13c34b70"
-      },
-      "leak_after": {
-        "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_kotatsu/leak_after.png",
-        "sha256": "e7fca365fd75793dfb942f8f4ce4cda0359a7e92c10b239ce71ee8efa0932b2e"
-      },
-      "leak_after_b": {
-        "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_kotatsu/leak_after_b.png",
-        "sha256": "811a770cbae961d1ecfea693a3684deddfeda3ec71cb8cbec1943d69daf6d272"
       },
       "from": {
         "teary": "49ea5d6b5e6892580cbf3ba8e1b4dd76ab4bd4852b763824dd573a945a9f9642",
@@ -469,22 +293,6 @@
         "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_sparse/leak_flow.png",
         "sha256": "7f65c37cd7c442c44e2581935542236a3e0ffd6c14462d29d7ecd42aba9aa0e5"
       },
-      "leak_flow_b": {
-        "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_sparse/leak_flow_b.png",
-        "sha256": "49085043866482cdd8181d37ed411db45fa39747af3b3af2958f9d2c2f1f71d7"
-      },
-      "leak_flow_c": {
-        "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_sparse/leak_flow_c.png",
-        "sha256": "455599ff27a24835e7325d9e2ad2d917443f5b6b55b9929429cc7d8dcff3c2ce"
-      },
-      "leak_after": {
-        "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_sparse/leak_after.png",
-        "sha256": "05a1edf3eb8028f414f118fcd0930cdecf944aa780b171873292c4289c001c0f"
-      },
-      "leak_after_b": {
-        "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_sparse/leak_after_b.png",
-        "sha256": "fae5deae141a81d41c7197c58472fd5bdfb568e52c6ec8052256725c4ec5f32d"
-      },
       "from": {
         "teary": "785a32bc6a7694cb2a8e3ce0bd729adbf9596344a18d49fcffce30a5fe1a8e98",
         "neutral": "a1720e803bd78ddb3ac91add7c6714574afc4f1db48387c80f95315609e5c3e7",
@@ -508,22 +316,6 @@
       "leak_flow": {
         "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_tsumuri/leak_flow.png",
         "sha256": "23bce186c459e39acbcb8e95a04f4c78b7dd2da4b20248e567961b2d66fb2b8a"
-      },
-      "leak_flow_b": {
-        "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_tsumuri/leak_flow_b.png",
-        "sha256": "b4d17a81f56fdd0b2b92e9fc8c8d4633ee806f91ec0e4133d955ff1cc93098f7"
-      },
-      "leak_flow_c": {
-        "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_tsumuri/leak_flow_c.png",
-        "sha256": "fe6f7e9ae0d82a2d0c0e2d6402c95934d709cf4e173425c26434d2557b5956fd"
-      },
-      "leak_after": {
-        "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_tsumuri/leak_after.png",
-        "sha256": "b0270e9bcf4467051bc741965e59e016f726de634be1bf8517b31b6f2af6c6c2"
-      },
-      "leak_after_b": {
-        "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_tsumuri/leak_after_b.png",
-        "sha256": "9fb9b0a76723d6939c59407002770ae97109f81357ac9ec0317e9ad575a51b06"
       },
       "from": {
         "teary": "bb1875f1b48f2827e4a7870f78668f50ff7ebb33adb238209161a014ca6fab64",
@@ -549,22 +341,6 @@
         "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/myon/leak_flow.png",
         "sha256": "84012e230a70e62ffc95051344647a5ee80ef3f97e5d9cc21b191013c039b11b"
       },
-      "leak_flow_b": {
-        "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/myon/leak_flow_b.png",
-        "sha256": "b59eb13c6f063d527245f0c96b87341c28a4819220e87d33b577266fb32971ef"
-      },
-      "leak_flow_c": {
-        "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/myon/leak_flow_c.png",
-        "sha256": "0f3b9538feab2276a6dcb76fe68bcb8ba91a42c39ca31c03a1d2fdc5c557c5b9"
-      },
-      "leak_after": {
-        "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/myon/leak_after.png",
-        "sha256": "d5c2c587b0107cb0f67a5784d7375c9469807c3a1e0113ec27a50604da73eae5"
-      },
-      "leak_after_b": {
-        "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/myon/leak_after_b.png",
-        "sha256": "00a79425396e23eca7c1bd34644a26f02ba94e130c28e3dcf2e7ea47925e26cd"
-      },
       "from": {
         "teary": "bbabad6de8f1ce4831cbf4a0c092a62a944171d3edc52c9838e44ee8db70cf74",
         "neutral": "db13d431109dc66d1bc11925fc4a692164eb3647371d115d93c27f972935b387",
@@ -588,22 +364,6 @@
       "leak_flow": {
         "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/myon_redeye/leak_flow.png",
         "sha256": "84012e230a70e62ffc95051344647a5ee80ef3f97e5d9cc21b191013c039b11b"
-      },
-      "leak_flow_b": {
-        "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/myon_redeye/leak_flow_b.png",
-        "sha256": "b59eb13c6f063d527245f0c96b87341c28a4819220e87d33b577266fb32971ef"
-      },
-      "leak_flow_c": {
-        "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/myon_redeye/leak_flow_c.png",
-        "sha256": "0f3b9538feab2276a6dcb76fe68bcb8ba91a42c39ca31c03a1d2fdc5c557c5b9"
-      },
-      "leak_after": {
-        "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/myon_redeye/leak_after.png",
-        "sha256": "d5c2c587b0107cb0f67a5784d7375c9469807c3a1e0113ec27a50604da73eae5"
-      },
-      "leak_after_b": {
-        "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/myon_redeye/leak_after_b.png",
-        "sha256": "00a79425396e23eca7c1bd34644a26f02ba94e130c28e3dcf2e7ea47925e26cd"
       },
       "from": {
         "teary": "bbabad6de8f1ce4831cbf4a0c092a62a944171d3edc52c9838e44ee8db70cf74",
@@ -629,22 +389,6 @@
         "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/patchouli/leak_flow.png",
         "sha256": "68e80cc73b11e782f083ccaeaf7f27258a875bf578451e4de4aab9bd14898738"
       },
-      "leak_flow_b": {
-        "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/patchouli/leak_flow_b.png",
-        "sha256": "0e3cd20fb50239894763edebd43fb3ea7092de1383b3154dd6b2f1e95dffa7f3"
-      },
-      "leak_flow_c": {
-        "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/patchouli/leak_flow_c.png",
-        "sha256": "de729741062ad5dd7344afaab68929a7bb1658e4b9e1ec0f096a847990f48471"
-      },
-      "leak_after": {
-        "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/patchouli/leak_after.png",
-        "sha256": "cc71ce32a2b2c93c8c325d7332ada5775c71046a915beb4f14d258371a1549ee"
-      },
-      "leak_after_b": {
-        "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/patchouli/leak_after_b.png",
-        "sha256": "b4a870d5d9b1ca7e53866d694d004fb0fdc0c0bcecbaf17fba66c972d103fb61"
-      },
       "from": {
         "teary": "a93c2b92efef64c0ab29da6a3efc736967b74bcd5c89039bb86ccb036610ea87",
         "neutral": "58ca8d998efca87c3d786c74efed1cf0935eb08da656128997b4b76a4104da2e",
@@ -668,22 +412,6 @@
       "leak_flow": {
         "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu/leak_flow.png",
         "sha256": "13c12d85c7d4fe86488a800be9159f1f3aa851efd41828b95d33bd35439e36e6"
-      },
-      "leak_flow_b": {
-        "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu/leak_flow_b.png",
-        "sha256": "30e071747b8fcf158c73c0c4faa13367d4a29dc6cf4713474ec342a202099136"
-      },
-      "leak_flow_c": {
-        "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu/leak_flow_c.png",
-        "sha256": "2929363d9bb9659098664783d63e5344fb8410c410dc261732f477f891890c70"
-      },
-      "leak_after": {
-        "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu/leak_after.png",
-        "sha256": "943f77229ea300f8dd2a4635e026012c9de520d50c30f0fa4953b5557f8e566d"
-      },
-      "leak_after_b": {
-        "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu/leak_after_b.png",
-        "sha256": "6438910b9b2c1b5c58411a162ca6d8a19a6bb97205544ced016b536bcbb89e21"
       },
       "from": {
         "teary": "f5cc66d63fcf28c53d5dd48cc706f4af249cfe52044d00af8e6e30fb846b1be7",
@@ -709,22 +437,6 @@
         "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_bean/leak_flow.png",
         "sha256": "09805ceaad8a16ed4402fe1ccfd2ae611e4199a7f9356fae0be1eba7a5043a34"
       },
-      "leak_flow_b": {
-        "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_bean/leak_flow_b.png",
-        "sha256": "bf68011057397d0400551036a88f4fa9c4c53f210025a27c79c0cff7cc46e5a1"
-      },
-      "leak_flow_c": {
-        "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_bean/leak_flow_c.png",
-        "sha256": "2c2ffd06a274ef63871be9c622194876f6fbbbdf219c184e088521dce188e41f"
-      },
-      "leak_after": {
-        "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_bean/leak_after.png",
-        "sha256": "14e4c282f2154cacad65d1274eb5fc4119663483d5ae08a187c66ab9cc115e25"
-      },
-      "leak_after_b": {
-        "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_bean/leak_after_b.png",
-        "sha256": "8083527c2a53de39c8c8ed9478ceaadd588d794fb0150a0f14e58a356d716912"
-      },
       "from": {
         "teary": "bebe2ce7865657862ba50b96e840c67becee016e37ac35bc6f52ceac4f4e02f8",
         "neutral": "3ab104970773f942d3fb85a6cf98450ddccecfe4e7162827fb57b6f985362ba4",
@@ -748,22 +460,6 @@
       "leak_flow": {
         "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_deibu/leak_flow.png",
         "sha256": "6f7b9818ce7993c0a23d9ce5756edf1846be59854679c25dfdbd4748d69dc895"
-      },
-      "leak_flow_b": {
-        "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_deibu/leak_flow_b.png",
-        "sha256": "6c6de761cc91ccbb070ef6fb006490e9426e84ef84fc55ca899a0ae2e01f8aa2"
-      },
-      "leak_flow_c": {
-        "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_deibu/leak_flow_c.png",
-        "sha256": "22844e0d94ecf47004d48cd1993567bc1587a47be7f41782f9a45d0d7fb107a4"
-      },
-      "leak_after": {
-        "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_deibu/leak_after.png",
-        "sha256": "2c69134a9fddad8dd40e5b0dfeae270f51f11576e4461cf82f0dfebdeba4e37b"
-      },
-      "leak_after_b": {
-        "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_deibu/leak_after_b.png",
-        "sha256": "9d921eed40570b40a6967a8c87fba124495e2a9e193f461b798a6e0c0effcc3c"
       },
       "from": {
         "teary": "85c5529d95c6708dee4b3b066c5138952778eaf0f3c4ccb00d6b477e92acf5dd",
@@ -789,22 +485,6 @@
         "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_face/leak_flow.png",
         "sha256": "4237543639326c0eadd8dbdf3f53c233515582a49011affdeee2008ee4c79b2b"
       },
-      "leak_flow_b": {
-        "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_face/leak_flow_b.png",
-        "sha256": "53e62b06b307a739a49d15d0501fcc8feb2e5db8ed2bc7a5c91c9bb0e42dce0d"
-      },
-      "leak_flow_c": {
-        "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_face/leak_flow_c.png",
-        "sha256": "4237543639326c0eadd8dbdf3f53c233515582a49011affdeee2008ee4c79b2b"
-      },
-      "leak_after": {
-        "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_face/leak_after.png",
-        "sha256": "8a10f07d750647da09b280ff50d271015f9bdb6ee3ef6fcf1ff75c7db608d25f"
-      },
-      "leak_after_b": {
-        "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_face/leak_after_b.png",
-        "sha256": "521032bdf11c460f107787fc92f2a2289fd652246f438977e1df8107d45601ae"
-      },
       "from": {
         "teary": "f5cc66d63fcf28c53d5dd48cc706f4af249cfe52044d00af8e6e30fb846b1be7",
         "neutral": "fbac91d3335b6e08db0b7cb2b193c85aae6b24a5f2b0eab752be8c42be88f263",
@@ -828,22 +508,6 @@
       "leak_flow": {
         "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_sparse/leak_flow.png",
         "sha256": "13c12d85c7d4fe86488a800be9159f1f3aa851efd41828b95d33bd35439e36e6"
-      },
-      "leak_flow_b": {
-        "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_sparse/leak_flow_b.png",
-        "sha256": "30e071747b8fcf158c73c0c4faa13367d4a29dc6cf4713474ec342a202099136"
-      },
-      "leak_flow_c": {
-        "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_sparse/leak_flow_c.png",
-        "sha256": "2929363d9bb9659098664783d63e5344fb8410c410dc261732f477f891890c70"
-      },
-      "leak_after": {
-        "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_sparse/leak_after.png",
-        "sha256": "943f77229ea300f8dd2a4635e026012c9de520d50c30f0fa4953b5557f8e566d"
-      },
-      "leak_after_b": {
-        "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_sparse/leak_after_b.png",
-        "sha256": "6438910b9b2c1b5c58411a162ca6d8a19a6bb97205544ced016b536bcbb89e21"
       },
       "from": {
         "teary": "f5cc66d63fcf28c53d5dd48cc706f4af249cfe52044d00af8e6e30fb846b1be7",
@@ -869,22 +533,6 @@
         "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_wasa/leak_flow.png",
         "sha256": "13c12d85c7d4fe86488a800be9159f1f3aa851efd41828b95d33bd35439e36e6"
       },
-      "leak_flow_b": {
-        "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_wasa/leak_flow_b.png",
-        "sha256": "30e071747b8fcf158c73c0c4faa13367d4a29dc6cf4713474ec342a202099136"
-      },
-      "leak_flow_c": {
-        "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_wasa/leak_flow_c.png",
-        "sha256": "2929363d9bb9659098664783d63e5344fb8410c410dc261732f477f891890c70"
-      },
-      "leak_after": {
-        "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_wasa/leak_after.png",
-        "sha256": "943f77229ea300f8dd2a4635e026012c9de520d50c30f0fa4953b5557f8e566d"
-      },
-      "leak_after_b": {
-        "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_wasa/leak_after_b.png",
-        "sha256": "6438910b9b2c1b5c58411a162ca6d8a19a6bb97205544ced016b536bcbb89e21"
-      },
       "from": {
         "teary": "f5cc66d63fcf28c53d5dd48cc706f4af249cfe52044d00af8e6e30fb846b1be7",
         "neutral": "fbac91d3335b6e08db0b7cb2b193c85aae6b24a5f2b0eab752be8c42be88f263",
@@ -908,22 +556,6 @@
       "leak_flow": {
         "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_wasa_deibu/leak_flow.png",
         "sha256": "6f7b9818ce7993c0a23d9ce5756edf1846be59854679c25dfdbd4748d69dc895"
-      },
-      "leak_flow_b": {
-        "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_wasa_deibu/leak_flow_b.png",
-        "sha256": "6c6de761cc91ccbb070ef6fb006490e9426e84ef84fc55ca899a0ae2e01f8aa2"
-      },
-      "leak_flow_c": {
-        "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_wasa_deibu/leak_flow_c.png",
-        "sha256": "22844e0d94ecf47004d48cd1993567bc1587a47be7f41782f9a45d0d7fb107a4"
-      },
-      "leak_after": {
-        "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_wasa_deibu/leak_after.png",
-        "sha256": "2c69134a9fddad8dd40e5b0dfeae270f51f11576e4461cf82f0dfebdeba4e37b"
-      },
-      "leak_after_b": {
-        "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_wasa_deibu/leak_after_b.png",
-        "sha256": "9d921eed40570b40a6967a8c87fba124495e2a9e193f461b798a6e0c0effcc3c"
       },
       "from": {
         "teary": "85c5529d95c6708dee4b3b066c5138952778eaf0f3c4ccb00d6b477e92acf5dd",
@@ -949,22 +581,6 @@
         "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/remilia/leak_flow.png",
         "sha256": "b81752a8a9155980414f285fd07660cb76717f510cd8cc1ac6a8b00cef5642f0"
       },
-      "leak_flow_b": {
-        "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/remilia/leak_flow_b.png",
-        "sha256": "2a8900a9f661bd99baf41ed2d4eadfd15e05b272630e768160d8f5d699ec819c"
-      },
-      "leak_flow_c": {
-        "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/remilia/leak_flow_c.png",
-        "sha256": "b28eabd74f721a521c672f350a372b9495d0c5e50c84508edf76b4d8a0117d8b"
-      },
-      "leak_after": {
-        "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/remilia/leak_after.png",
-        "sha256": "c01a01401d7b13ea9aa9b1a467e5e8907e43cc637b7207829d843244894b2f1c"
-      },
-      "leak_after_b": {
-        "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/remilia/leak_after_b.png",
-        "sha256": "1124c6f8888a1cf4de486289d63f692c8601e8a106bef2946939ccb03d50534a"
-      },
       "from": {
         "teary": "248a65f930a1c148ecf602d23ab87e7211376ec01856e8ea3135fa4ee79422cd",
         "neutral": "5b72014140c0791876c7d4712aba4d8fea52c0b3afdffc64154dcba23b72f83b",
@@ -973,22 +589,14 @@
       }
     }
   },
-  "wet_bottom": {
-    "leak_wet_1": {
-      "runtime": "src/main/resources/assets/mcyukkuri/textures/props/body_wounds/leak_wet_1.png",
+  "marks": {
+    "leak_wet": {
+      "runtime": "src/main/resources/assets/mcyukkuri/textures/props/body_wounds/leak_wet.png",
       "sha256": "66ac9306c147fc483af6303ebf819291a5e01b6a41246a2826313c96ac353ab0"
     },
-    "leak_wet_2": {
-      "runtime": "src/main/resources/assets/mcyukkuri/textures/props/body_wounds/leak_wet_2.png",
-      "sha256": "757e15814801534258a4ee9b45f0efc7cf590a93617f5a787eacdde8ec0bc96d"
-    },
-    "leak_wet_3": {
-      "runtime": "src/main/resources/assets/mcyukkuri/textures/props/body_wounds/leak_wet_3.png",
-      "sha256": "0e9873d9093291c594115bf958852fbde01a5a0863db29361a3fb8f0c11aebbb"
-    },
-    "leak_wet_dry": {
-      "runtime": "src/main/resources/assets/mcyukkuri/textures/props/body_wounds/leak_wet_dry.png",
-      "sha256": "5c18e5392c304cdb5383da0c8795d941f5dc3ebca90dec26f46d2547e04df7fa"
+    "leak_puddle": {
+      "runtime": "src/main/resources/assets/mcyukkuri/textures/effects/leak_puddle.png",
+      "sha256": "a475f54b14d2874aca763e4490d37ac8613a62c6506cf34685c09f2dec4871b4"
     }
   }
 }
