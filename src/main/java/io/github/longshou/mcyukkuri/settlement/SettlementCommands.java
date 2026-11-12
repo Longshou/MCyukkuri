@@ -136,7 +136,7 @@ public final class SettlementCommands {
             for (var cell : pit) {
                 double portions = Poops.portions(level, cell);
                 total += portions;
-                cells.append(portions == 0 ? " 0" : " " + portions + "(tier " + Poops.tier(portions) + ")");
+                cells.append(" " + portions);
             }
             var group = site.group == null ? null : SettlementData.get(level).group(site.group);
             int slaves = 0, inPit = 0;

@@ -27,23 +27,18 @@ import net.minecraft.world.phys.Vec3;
 
 /**
  * Droppings lie on a ground cell's {@link PoopBlock}, holding {@link #CAPACITY} volume units.
- * Its {@link #TIERS} readout bands follow volume; its mesh scales continuously, including below one unit.
+ * Its mesh scales continuously with that volume, including below one unit.
  * A cell without enough room passes the dropping on, in this order: a cell of the preferred set
  * (the waste pit) first, a cell nearby that already holds droppings before a clean one, then the nearer cell; two blocks
  * out at most. Nothing is made or lost: a portion no cell can take stays a real item for the caller to drop.
  */
 public final class Poops {
-    public static final int CAPACITY = 8, TIERS = 4;
+    public static final int CAPACITY = 8;
     /** How far (blocks, horizontally) a full cell may pass a portion on. */
     public static final int SPREAD = 2;
 
-    /** {@code overflow}: the portion could not stay on the cell it was meant for. {@code before}/{@code after}: portions on {@code at}. */
-    public record Placement(BlockPos at, double before, double after, boolean overflow) {
-        public int tierBefore() { return before == 0 ? 0 : tier(before); }
-        public int tierAfter() { return tier(after); }
-    }
-
-    public static int tier(double volume) { return Math.clamp((int)Math.ceil(volume / 2), 1, TIERS); }
+    /** {@code overflow}: the portion could not stay on the cell it was meant for. {@code before}/{@code after}: volume on {@code at}. */
+    public record Placement(BlockPos at, double before, double after, boolean overflow) {}
 
     /** Legacy lists were authoritative even when a toilet also saved its summed readout. */
     static double loadVolume(CompoundTag tag, String volumeKey, String oldList, HolderLookup.Provider registries) {

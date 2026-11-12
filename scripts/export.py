@@ -112,7 +112,7 @@ TABLE += [exporter('source:'+p, p, [Path(p).parent.as_posix()+'/']) for p in [
     'art/props/family-life/fit_stem.py',
     'standards/yukkuri-library/expressions/derived/faces.py',
     *['standards/yukkuri-library/drafts/care-props/'+p+'.py' for p in
-      ('wear', 'supplies', 'poop_block', 'large_nests')],
+      ('wear', 'supplies', 'large_nests')],
     'standards/yukkuri-library/drafts/body-marks/hair-wounds/select_runtime.py',
 ]]
 

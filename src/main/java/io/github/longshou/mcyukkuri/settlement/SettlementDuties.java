@@ -276,8 +276,8 @@ public final class SettlementDuties {
             var cells = GroupPits.cells(level(), group);
             var placed = Poops.place(level(), entity.blockPosition(), carrying.copy(), cells.isEmpty() ? null : cell -> GroupPits.inCells(cells, cell));
             if (placed != null) {
-                GameplayLog.event(entity, "settlement", "cleanup placed at={} tier={} -> {} volume={} -> {} overflow={}", placed.at(),
-                        placed.tierBefore(), placed.tierAfter(), placed.before(), placed.after(), placed.overflow());
+                GameplayLog.event(entity, "settlement", "cleanup placed at={} volume={} -> {} overflow={}", placed.at(),
+                        placed.before(), placed.after(), placed.overflow());
                 carrying = ItemStack.EMPTY; return true;
             }
             double volume = DetachedItems.volume(carrying);

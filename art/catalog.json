@@ -472,6 +472,9 @@
           ],
           "registry": [
             "care_props"
+          ],
+          "ids": [
+            "yukkuri_poop"
           ]
         },
         {
@@ -532,16 +535,6 @@
           ],
           "ids": [
             "playgrounds-index"
-          ]
-        },
-        {
-          "id": "poop-block",
-          "label": "嗯嗯方块与分档堆形",
-          "prefixes": [
-            "art/source/poop-block/"
-          ],
-          "registry": [
-            "poop_block"
           ]
         },
         {

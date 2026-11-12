@@ -178,7 +178,7 @@ public final class ToiletContact {
     public static boolean drop(YukkuriEntity actor, Vec3 outlet) { return drop(actor, outlet, null); }
 
     /**
-     * The portion is set down on the ground cell under the outlet (life/Poops: capacity, tiers, overflow to a neighbour cell).
+     * The portion is set down on the ground cell under the outlet (life/Poops: capacity, overflow to a neighbour cell).
      * {@code pit}: the pit cell the member stands beside, which then takes the portion whatever lies under its rear. Only when no
      * cell can take it (water, a ledge, a shelter's inside, everything around full) does it stay a loose item as before.
      */
@@ -193,8 +193,8 @@ public final class ToiletContact {
             var cells = pit == null || group == null ? List.<BlockPos>of() : GroupPits.cells(server, group);
             var placed = Poops.place(server, origin, stack.copy(), cells.isEmpty() ? null : cell -> GroupPits.inCells(cells, cell));
             if (placed != null) {
-                GameplayLog.event(actor, "needs", "poop placed at={} meant={} tier={} -> {} volume={} -> {} overflow={} pit={}",
-                        placed.at(), origin, placed.tierBefore(), placed.tierAfter(), placed.before(), placed.after(), placed.overflow(), pit != null);
+                GameplayLog.event(actor, "needs", "poop placed at={} meant={} volume={} -> {} overflow={} pit={}",
+                        placed.at(), origin, placed.before(), placed.after(), placed.overflow(), pit != null);
                 return true;
             }
         }

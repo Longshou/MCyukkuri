@@ -15,7 +15,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 
 /**
- * Ground stock: one volume per cell. Tier follows the volume.
+ * Ground stock: one volume per cell; the client draws that volume.
  */
 public final class PoopBlockEntity extends BlockEntity {
     private double volume;
@@ -84,10 +84,7 @@ public final class PoopBlockEntity extends BlockEntity {
     private void changed() {
         setChanged();
         var state = getBlockState();
-        int tier = Poops.tier(count());
-        if (state.getBlock() instanceof PoopBlock && state.getValue(PoopBlock.TIER) != tier) {
-            level.setBlock(worldPosition, state.setValue(PoopBlock.TIER, tier), 3);
-        } else level.sendBlockUpdated(worldPosition, state, state, 3);
+        level.sendBlockUpdated(worldPosition, state, state, 3);
     }
     @Override public void setRemoved() {
         super.setRemoved();
