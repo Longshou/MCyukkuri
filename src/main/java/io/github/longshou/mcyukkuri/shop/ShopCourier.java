@@ -10,6 +10,7 @@ import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.registry.ModItems;
 import java.util.*;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.GlobalPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
@@ -479,6 +480,7 @@ public final class ShopCourier {
         y.pet().unlock("courier");
         var shopEntity = job.shop == null ? null : level.getEntity(job.shop);
         boolean factory = ShopDeliveries.completed(level, job.token, basket, y, shopEntity instanceof HumanNpc shop ? shop : null);
+        if (hatch != null) y.life().assignHome(GlobalPos.of(level.dimension(), job.pen));
         keeper.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
         keeper.swing(InteractionHand.MAIN_HAND);
         if (y.life().sedated()) y.life().shortenDrugSleep(WAKE_TICKS); // wakes in the pen, where the normal waking action plays

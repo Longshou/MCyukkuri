@@ -299,7 +299,8 @@ def shop():
         glass(b,(max(x0-1,2),aisle),(x0+3,aisle))
         bz=z0+2 if aisle==26 else z0   # bowl and nest on the side away from the aisle
         b.bowl(x0,bz); b.block(x0+2,3,bz,'mcyukkuri:yukkuri_nest'); b.pet(x0+1.5,z0+1.5,kind,'shopkeeper','stock',0)
-        if kind in ('marisa','chen'): b.toy(x0+.5,3,z0+(.5 if bz!=z0 else 2.5),'glass_marble' if kind=='marisa' else 'pretty_stone')
+        # The toy starts in the middle of the open lane, with room for the first push in either direction.
+        b.toy(x0+1.5,3,z0+1.5,{'reimu':'yarn_ball','marisa':'glass_marble','patchouli':'reimu_doll','chen':'pretty_stone'}[kind])
         b.door(x0+2,3,aisle,'south' if aisle==21 else 'north','iron')   # service door on the keeper's aisle (its east column keeps clear of the barrels)
         register_pen(b,'tank_'+kind,(x0,z0,x0+2,z0+2),(x0,bz),[(x0+2,bz)],hatch=(x0+2,aisle))
     for z in range(22,26): barrel(b,2,3,z)
