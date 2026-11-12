@@ -334,12 +334,11 @@ public final class HumanNpc extends PathfinderMob {
             if (door == null ? distanceToSqr(attention) > 4 || !hasLineOfSight(attention) : !door.serves(HumanNpc.this, attention)) {
                 careTicks = 0;
                 if (door != null && door.attended(HumanNpc.this)) {
-                    getNavigation().stop(); approach++;
-                    if (hatch != null && !hatch.equals(door)) shutHatch();
-                    hatch = door; door.set((ServerLevel) level(), HumanNpc.this, true);
-                } else {
-                    var target = door == null ? attention.position() : door.staffStand(level());
-                    if (approach++ % 20 == 0) getNavigation().moveTo(target.x, target.y, target.z, .85);
+                    // on the stand cell (its path runs on to the middle); the wait at the open door has its own bound, counted from the opening
+                    if (door.equals(hatch)) approach++; else { shutHatch(); hatch = door; approach = 0; }
+                    door.set((ServerLevel) level(), HumanNpc.this, true);
+                } else if (approach++ % 20 == 0) {
+                    if (door == null) getNavigation().moveTo(attention, .85); else door.approach(HumanNpc.this, .85);
                 }
             } else {
                 elapsed++;

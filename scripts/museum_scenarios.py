@@ -3995,11 +3995,13 @@ _smoke('shop_window', 1200, [rf'\[shop\] {kind} [^\n]* window start mode={mode} 
        readout=[f'yukkuri status {BOOTH.format(kind, grade)} raw' for kind, grade in (('chen', 2), ('alice', 3), ('reimu', 2), ('remilia', 2))])
 next(s for s in S if s.id == 'shop_window').smoke['commands'] = [(100, _aisle_customer(14.5, 'customer_west')), (100, _aisle_customer(.5, 'customer_east'))]
 _smoke('shop_buy_keeper', 1600, [r'\[courier\][^\n]* action=start kind=BUY ', r'\[shop\] chen [^\n]* window witness kind=ENVY ',
-                                 r'\[shop\] chen [^\n]* window witness end kind=ENVY reason=departed ',
+                                 # Chen watches until Alice is in the basket (a meal of its own may cut the tail after that)
+                                 r'\[shop\] chen [^\n]* window witness end kind=ENVY reason=(?:departed|interrupted departed=true) ',
                                  r'\[shop\][^\n]* action=buy_live result=committed [^\n]* emeralds_used=0\b',
                                  r'\[shop\][^\n]* action=buy_live result=delivered [^\n]*mode=keeper',
-                                 # the booth is served only through its service door: opened, Alice answers it, the basket goes through, it shuts
-                                 r'\[shop\][^\n]* hatch opened door=', r'\[shop\] alice [^\n]* window hatch answer ',
+                                 # the booth is served only through its service door: opened, Alice (held by the sale) answers it, the basket
+                                 # goes through, it shuts
+                                 r'\[shop\][^\n]* hatch opened door=', r'\[shop\] alice [^\n]* hatch answer door=[^\n]* held=sale\b',
                                  r'\[courier\][^\n]* action=reach kind=BUY [^\n]*via=hatch ', r'\[shop\][^\n]* hatch closed door='],
        forbid=[r'\[shop\][^\n]* action=buy_live result=refunded', r'\[shop\][^\n]* action=buy_live result=cancelled',
                r'\[courier\][^\n]* action=fallback ', r'\[courier\][^\n]* action=reach [^\n]*via=floor '])

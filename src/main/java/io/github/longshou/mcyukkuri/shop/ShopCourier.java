@@ -260,16 +260,23 @@ public final class ShopCourier {
             return endJob(level, job, "target_unavailable");
         }
         keeper.getLookControl().setLookAt(a, 30, 30);
-        // Behind a service door the keeper goes to the door, opens it and waits there until the animal stands inside it (LEG bounds the wait).
+        // Behind a service door the keeper goes to the door, opens it and waits there until the animal stands inside it (the wait is a leg of
+        // its own, bounded by LEG like the walk).
         var hatch = ServiceHatch.of(a);
         if (hatch == null ? keeper.distanceToSqr(a) > 6.25 || !keeper.hasLineOfSight(a) : !hatch.attended(keeper)) {
             var target = hatch == null ? a.position() : hatch.staffStand(level);
-            if (job.leg % 10 == 1) keeper.getNavigation().moveTo(target.x, target.y, target.z, .95);
+            if (job.leg % 10 == 1) {
+                if (hatch == null) keeper.getNavigation().moveTo(target.x, target.y, target.z, .95); else hatch.approach(keeper, .95);
+            }
             return stuck(job, keeper.distanceToSqr(target)) ? fallback(level, keeper, job) : false;
         }
-        keeper.getNavigation().stop();
-        if (hatch != null) {
+        if (hatch == null) keeper.getNavigation().stop(); // at a door his path runs on to the middle of the stand cell
+        else {
+            if (!hatch.equals(job.hatch)) job.leg = 0;
             openHatch(level, keeper, job, hatch);
+            // The purchase or errand holds the animal still, away from its own goals: the hold directs its answer to the open door instead.
+            if (a.pet().busy() && !(a.pet().director() instanceof ServiceHatch.Answer answer && answer.hatch().equals(hatch)))
+                a.pet().direct(new ServiceHatch.Answer(hatch));
             if (!hatch.serves(keeper, a)) return false;
         }
         GameplayLog.event(keeper, "courier", "action=reach kind={} target={} via={} staff_at={} animal_at={}", job.kind, job.animal,
@@ -361,7 +368,9 @@ public final class ShopCourier {
             if (hatch != null) openHatch(level, keeper, job, hatch);
             return release(level, keeper, job, false);
         }
-        if (job.leg % 10 == 1) keeper.getNavigation().moveTo(target.x, target.y, target.z, .95);
+        if (job.leg % 10 == 1) {
+            if (hatch == null) keeper.getNavigation().moveTo(target.x, target.y, target.z, .95); else hatch.approach(keeper, .95);
+        }
         return stuck(job, d) ? fallback(level, keeper, job) : false;
     }
 

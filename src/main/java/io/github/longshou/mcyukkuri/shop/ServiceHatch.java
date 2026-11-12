@@ -1,8 +1,14 @@
 package io.github.longshou.mcyukkuri.shop;
 
+import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.human.HumanNpc;
 import io.github.longshou.mcyukkuri.life.CareBlock;
+import io.github.longshou.mcyukkuri.motor.Action;
+import io.github.longshou.mcyukkuri.motor.MotorOwner;
+import io.github.longshou.mcyukkuri.motor.Outcome;
+import io.github.longshou.mcyukkuri.motor.action.Walk;
+import io.github.longshou.mcyukkuri.pet.PetLife;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.ArrayDeque;
 import java.util.HashSet;
@@ -11,6 +17,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.DoorBlock;
@@ -20,8 +27,9 @@ import net.minecraft.world.phys.Vec3;
 
 /**
  * The service door of a small pen (docs/FEATURES.md, 宠物店): an iron door in the wall of a display booth or stock tank. Neither the stock nor a
- * passing player can open it by hand; staff open it to serve the animal behind it and close it again. Served means: the staff member stands on
- * the floor just outside the door, the door is open, and the animal stands on the cell just inside it, in plain sight through the doorway. It is
+ * passing player can open it by hand; staff open it to serve the animal behind it and close it again, and the animal comes to it (its
+ * {@link Answer}). Served means: the staff member stands on
+ * the floor cell just outside the door, the door is open, and the animal stands on the cell just inside it, across the open doorway. It is
  * the one route for every hands-on service through a pen wall: a purchase or a recall fetching the animal into a basket, the care staff feeding
  * or treating it, and a keeper setting an animal out of his basket into the pen. Found from the blocks each time; nothing is saved.
  *
@@ -31,8 +39,6 @@ import net.minecraft.world.phys.Vec3;
 public record ServiceHatch(BlockPos door, Direction in) {
     /** Walkable cells a pen may have: larger enclosures are rooms people walk into, not pens served through a door. */
     private static final int PEN_CELLS = 16;
-    /** How near the staff stand and the animal stand count as standing there (blocks, horizontal). */
-    private static final double STAFF_AT = 1.0, ANIMAL_AT = .75;
 
     /** The service door of the small pen this body stands in, or null when it stands in the open or in a walk-in room. */
     public static ServiceHatch of(Entity body) { return around(body.level(), body.blockPosition()); }
@@ -78,6 +84,12 @@ public record ServiceHatch(BlockPos door, Direction in) {
         return Vec3.atBottomCenterOf(out);
     }
 
+    /** Walks staff onto the stand cell itself (a plain moveTo ends a block short of it). */
+    public void approach(PathfinderMob staff, double speed) {
+        var nav = staff.getNavigation();
+        nav.moveTo(nav.createPath(BlockPos.containing(staffStand(staff.level())), 0), speed);
+    }
+
     /** Where an animal is served: the cell just inside the door. */
     public Vec3 animalStand() { return Vec3.atBottomCenterOf(door.relative(in)); }
 
@@ -96,27 +108,68 @@ public record ServiceHatch(BlockPos door, Direction in) {
         if (staff == null) GameplayLog.world(level, "shop", line, values); else GameplayLog.event(staff, "shop", line, values);
     }
 
-    /** The staff member stands at the door. */
-    public boolean attended(Entity staff) {
-        var stand = staffStand(staff.level());
-        double dx = staff.getX() - stand.x, dz = staff.getZ() - stand.z;
-        return dx * dx + dz * dz <= STAFF_AT * STAFF_AT && Math.abs(staff.getY() - stand.y) <= 1.5;
-    }
+    /** The staff member stands at the door: on the stand cell, square in front of the doorway. */
+    public boolean attended(Entity staff) { return on(staff, staffStand(staff.level())); }
 
-    /** Served through this door right now: open, staff at it, the animal on the cell inside it and seen through the doorway. */
-    public boolean serves(LivingEntity staff, YukkuriEntity animal) {
-        var stand = animalStand();
-        double dx = animal.getX() - stand.x, dz = animal.getZ() - stand.z;
-        return open(staff.level()) && attended(staff) && dx * dx + dz * dz <= ANIMAL_AT * ANIMAL_AT
-                && Math.abs(animal.getY() - stand.y) <= .5 && staff.hasLineOfSight(animal);
+    /** Served through this door right now: open, staff on the cell outside it, the animal on the cell inside it. The three cells are in one
+     *  line, so the open doorway is the clear way between them (the structure check keeps the cell outside free). */
+    public boolean serves(LivingEntity staff, YukkuriEntity animal) { return open(staff.level()) && attended(staff) && on(animal, animalStand()); }
+
+    /** Standing on that cell (its floor, not a block above or below). */
+    private static boolean on(Entity body, Vec3 stand) {
+        return Math.floor(body.getX()) == Math.floor(stand.x) && Math.floor(body.getZ()) == Math.floor(stand.z) && Math.abs(body.getY() - stand.y) <= .5;
     }
 
     /** A staff member standing at this open door, or null. */
     public HumanNpc attendant(Level level) {
         if (!open(level)) return null;
         var stand = staffStand(level);
-        return level.getEntitiesOfClass(HumanNpc.class, new AABB(stand, stand).inflate(STAFF_AT, 1.5, STAFF_AT), n -> n.isAlive() && attended(n))
+        return level.getEntitiesOfClass(HumanNpc.class, new AABB(stand, stand).inflate(.5, 1, .5), n -> n.isAlive() && attended(n))
                 .stream().findFirst().orElse(null);
+    }
+
+    /**
+     * The animal's side of the door, one per answer: it walks onto the cell inside the open door once, then waits there looking at the staff
+     * member. Ticked by its own window answer (shop/ShopWindow) when it is free, or as its pet session director while a purchase or a keeper's
+     * errand holds it (that hold keeps it from its own goals). A walk that does not arrive is not retried: the staff member's wait runs out.
+     */
+    public static final class Answer implements PetLife.Director, MotorOwner {
+        private final ServiceHatch hatch;
+        private Action walk;
+        private boolean started, on = true;
+
+        public Answer(ServiceHatch hatch) { this.hatch = hatch; }
+        public ServiceHatch hatch() { return hatch; }
+        /** On its way to the door. */
+        public boolean walking(YukkuriEntity a) { return walk != null && a.motor().current() == walk; }
+
+        @Override public void tick(YukkuriEntity a) {
+            if (!started) {
+                started = true;
+                var stand = hatch.animalStand();
+                double dx = a.getX() - stand.x, dz = a.getZ() - stand.z;
+                var w = Walk.stand(stand, 1.1);
+                if (dx * dx + dz * dz > .09 && a.motor().run(this, w)) walk = w;
+                GameplayLog.event(a, "shop", "hatch answer door={} stand={} walking={} held={}", hatch.door.toShortString(), GameplayLog.at(stand),
+                        walk != null, a.pet().busyWith().isEmpty() ? "-" : a.pet().busyWith());
+            }
+            if (walking(a)) return;
+            if (walk != null) {
+                if (!(a.motor().last() instanceof Outcome.Done))
+                    GameplayLog.limited(a, "shop", "hatch_answer_walk", 200, "hatch answer walk ended outcome={}", a.motor().last());
+                walk = null;
+            }
+            var staff = hatch.attendant(a.level());
+            if (staff != null) a.getLookControl().setLookAt(staff, 30, 30);
+        }
+
+        @Override public void stop(YukkuriEntity a) {
+            if (walk != null) a.motor().cancel(this, "hatch_done");
+            walk = null; on = false;
+        }
+
+        @Override public String ownerId() { return Behaviors.WINDOW_HATCH; }
+        @Override public boolean active() { return on; }
     }
 
     /** Closes any service door a staff member leaves standing open at this spot (its death or removal). */
