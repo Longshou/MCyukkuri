@@ -152,9 +152,9 @@ def render(jobs, T, work, node):
 
 
 # Framing: the scene moves back so the face and the stem's far end share the frame (model units).
-LIVING_FRAME = dict(span=12.5, centerY=11.5, shift=[0, 0, 2.5])
-REMAINS_FRAME = dict(span=10.5, centerY=7.5, shift=[0, 0, 2.5])
-CLOSE = ('close', 0.62, 0.3)
+LIVING_FRAME = dict(span=13.5, centerY=11.5, shift=[0, 0, 3.5])
+REMAINS_FRAME = dict(span=12.5, centerY=7, shift=[0, 0, 4.5])
+CLOSE = ('close', 0.95, 0.25)
 
 
 def close_frame(pose, span):
@@ -193,7 +193,7 @@ def main():
             actors, meshes, pose = scene(G, T, case, p)
             for view in VIEWS+[CLOSE]:
                 path = work/f'{case[0]}-{key}-{view[0]}.rgba'
-                jobs.append((actors, meshes, path, view, close_frame(pose, 4.5) if view is CLOSE else LIVING_FRAME))
+                jobs.append((actors, meshes, path, view, close_frame(pose, 6.5) if view is CLOSE else LIVING_FRAME))
                 cells[(case[0], key, view[0])] = path
     remains_cases = [(CASES[0], 0.25), (CASES[0], 0.45), (CASES[1], 0.25), (CASES[1], 0.45), (CASES[2], 0.25)]
     for case, p in remains_cases:
