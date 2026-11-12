@@ -502,6 +502,8 @@ public final class YukkuriSocial implements MotorOwner {
                             relations.relate(peer.getUUID(), entity.getUUID(), 1);
                     }
 
+                } else if (Recognition.junkCovered(peer)) {
+                    entity.showReaction("neutral", "peer", 60);
                 } else if (Recognition.unrecognizedHatless(entity, peer)) {
                     // Walked up to greet and found no accessory: not taken for a yukkuri, and despised for it (headwear.Contempt).
                     Contempt.react((ServerLevel) entity.level(), entity, peer);
@@ -661,9 +663,9 @@ public final class YukkuriSocial implements MotorOwner {
         }
         humanEscapeStand = null;
         EcologyMovement.halt(entity);
-        // Hold the existing afraid tremble and teary face briefly when there is nowhere to go.
         duration = elapsed + 40;
-        entity.showReaction("teary", "afraid", 40);
+        if (wariness >= .62) entity.showReaction("teary", "afraid", 40);
+        else entity.showReaction("angry", "", 40);
         GameplayLog.event(entity, "social", "human retreat identity={} player={} wariness={} moving=false response=cower",
                 entity.status().identity().id(), target.getUUID(), wariness);
         return false;

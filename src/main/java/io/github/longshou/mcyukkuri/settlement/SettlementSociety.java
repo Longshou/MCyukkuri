@@ -1,5 +1,7 @@
 package io.github.longshou.mcyukkuri.settlement;
 
+import io.github.longshou.mcyukkuri.headwear.Recognition;
+
 import io.github.longshou.mcyukkuri.mind.EmotionEvent;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
@@ -88,7 +90,7 @@ public final class SettlementSociety {
     /** Recognition past a missing hat is the observer's intellect (headwear.Recognition). */
     public static boolean rejects(YukkuriEntity observer, YukkuriEntity target) {
         return sameGroup(observer, target) && accepted(observer) && harsh(observer)
-                && !observer.life().canRecognize(target);
+                && Recognition.unrecognizedHatless(observer, target);
     }
     public static boolean avoids(YukkuriEntity observer, YukkuriEntity target) {
         if (MoldExile.avoids(observer, target)) return true;

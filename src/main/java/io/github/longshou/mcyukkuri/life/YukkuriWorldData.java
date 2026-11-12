@@ -5,8 +5,10 @@ import io.github.longshou.mcyukkuri.random.ModRandom;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.FamilyData;
+import io.github.longshou.mcyukkuri.headwear.JunkHeadwear;
 import io.github.longshou.mcyukkuri.human.Custody;
 import io.github.longshou.mcyukkuri.motor.Motor;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -21,16 +23,24 @@ import java.util.NavigableSet;
 import java.util.TreeSet;
 import java.util.function.Consumer;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.saveddata.SavedData;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
+import net.neoforged.neoforge.event.tick.ServerTickEvent;
 import io.github.longshou.mcyukkuri.freezer.FreezerStorage;
 import io.github.longshou.mcyukkuri.status.StatusEvents;
 
@@ -60,6 +70,8 @@ public final class YukkuriWorldData extends SavedData {
     private final Map<UUID, Captive> captives = new HashMap<>();
     private final Map<UUID, AccessoryLoss> accessoryConfiscations = new HashMap<>();
     private final Map<UUID, AccessoryTransfer> accessoryTransfers = new HashMap<>();
+    private record PendingHeadwear(ResourceKey<Level> dimension, Vec3 at) {}
+    private final Map<UUID, PendingHeadwear> pendingDeathHeadwear = new HashMap<>();
     private final Map<Edge, Relation> relations = new HashMap<>();
     /** Active sessions cannot be selected for ordinary forgetting; nested uses are reference counted. */
     private final Map<UUID, Map<UUID, Integer>> activeRelationProtections = new HashMap<>();
@@ -124,6 +136,44 @@ public final class YukkuriWorldData extends SavedData {
                 new Factory<>(YukkuriWorldData::new, YukkuriWorldData::load), "mcyukkuri_living");
         result.custodyLevel = level.getServer().overworld();
         return result;
+    }
+    /** Take custody of one generic headwear item after the world refused its remains. */
+    public boolean dropDeathHeadwear(YukkuriEntity source) {
+        if (!(source.level() instanceof ServerLevel level)) return false;
+        UUID death = source.getUUID();
+        if (pendingDeathHeadwear.containsKey(death)) return true;
+        if (!deliverDeathHeadwear(level, death, source.position())) {
+            pendingDeathHeadwear.put(death, new PendingHeadwear(level.dimension(), source.position()));
+            setDirty();
+            GameplayLog.event(source, "headwear", "death junk held pending source={}", death);
+        }
+        return true;
+    }
+    private static boolean deliverDeathHeadwear(ServerLevel level, UUID death, Vec3 at) {
+        UUID id = UUID.nameUUIDFromBytes(("mcyukkuri:death_headwear/" + death).getBytes(StandardCharsets.UTF_8));
+        var existing = level.getEntity(id);
+        var one = JunkHeadwear.item();
+        if (existing != null) return existing instanceof ItemEntity item && item.getItem().is(one.getItem());
+        var drop = new ItemEntity(level, at.x, at.y, at.z, one);
+        drop.setUUID(id);
+        drop.setDefaultPickUpDelay();
+        Motor.velocity(drop, Vec3.ZERO, "death_headwear");
+        if (!level.addFreshEntity(drop)) return false;
+        GameplayLog.world(level, "headwear", "death junk dropped source={} item={} at={}", death, id, GameplayLog.at(at));
+        return true;
+    }
+    public static void tickDeathHeadwear(ServerTickEvent.Post event) {
+        var server = event.getServer();
+        if (server.getTickCount() % 20 != 0) return;
+        var data = get(server.overworld());
+        if (data.pendingDeathHeadwear.entrySet().removeIf(entry -> {
+            var pending = entry.getValue();
+            var level = server.getLevel(pending.dimension());
+            if (level == null) return false;
+            var pos = BlockPos.containing(pending.at());
+            return level.hasChunkAt(pos) && level.areEntitiesLoaded(new ChunkPos(pos).toLong())
+                    && deliverDeathHeadwear(level, entry.getKey(), pending.at());
+        })) data.setDirty();
     }
     /** Compatibility name for closeness. It never subtracts fear. */
     public int affinity(UUID from, UUID to) { return relation(from, to).closeness(); }
@@ -406,6 +456,17 @@ public final class YukkuriWorldData extends SavedData {
             CompoundTag value=new CompoundTag();value.putUUID("Owner",owner);value.putUUID("Token",transfer.token);value.putUUID("Recipient",transfer.recipient);transfers.add(value);
         });
         tag.put("AccessoryTransfers",transfers);
+        var headwear = new ListTag();
+        pendingDeathHeadwear.forEach((id, pending) -> {
+            var value = new CompoundTag();
+            value.putUUID("Death", id);
+            value.putString("Dimension", pending.dimension().location().toString());
+            value.putDouble("X", pending.at().x);
+            value.putDouble("Y", pending.at().y);
+            value.putDouble("Z", pending.at().z);
+            headwear.add(value);
+        });
+        if (!headwear.isEmpty()) tag.put("PendingDeathHeadwear", headwear);
         tag.put("FreezerVaults", freezer.save());
         ListTag edges = new ListTag();
         relations.forEach((edge, relation) -> {
@@ -434,6 +495,14 @@ public final class YukkuriWorldData extends SavedData {
                 result.accessoryTransfers.put(value.getUUID("Owner"),new AccessoryTransfer(value.getUUID("Token"),value.getUUID("Recipient")));
         }
         result.freezer.load(tag.getList("FreezerVaults", Tag.TAG_COMPOUND));
+        for (Tag item : tag.getList("PendingDeathHeadwear", Tag.TAG_COMPOUND)) {
+            var value = (CompoundTag)item;
+            var dimension = ResourceLocation.tryParse(value.getString("Dimension"));
+            var at = new Vec3(value.getDouble("X"), value.getDouble("Y"), value.getDouble("Z"));
+            if (value.hasUUID("Death") && dimension != null && Double.isFinite(at.lengthSqr()))
+                result.pendingDeathHeadwear.put(value.getUUID("Death"),
+                        new PendingHeadwear(ResourceKey.create(Registries.DIMENSION, dimension), at));
+        }
         for (Tag item : tag.getList("Relations", Tag.TAG_COMPOUND)) {
             CompoundTag value = (CompoundTag)item;
             if (value.hasUUID("From") && value.hasUUID("To")) {

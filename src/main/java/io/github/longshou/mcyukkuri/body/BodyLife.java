@@ -9,6 +9,7 @@ import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.LeafSwaddle;
 import io.github.longshou.mcyukkuri.life.Consumables;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
+import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.mind.EmotionEvent;
 import io.github.longshou.mcyukkuri.mind.ExcitedLeak;
 import io.github.longshou.mcyukkuri.registry.ModItems;
@@ -577,7 +578,7 @@ public final class BodyLife {
     public void died(DamageSource source){died(source,false);}
     public void died(DamageSource source,boolean stemDepletion){died(source,stemDepletion,false);}
     public void died(DamageSource source,boolean stemDepletion,boolean sukkiriExhaustion){
-        if(settled||entity.level().isClientSide)return;
+        if(settled||!(entity.level() instanceof ServerLevel level))return;
         String internal=internalDeathCause();
         // Retention kills by holding everything in: nothing came out, so the body keeps its whole filling and its swollen shape
         // (lead decision, art decision wp-eu full pass) instead of the empty-corpse balance of a body worn down to 0 health.
@@ -589,7 +590,10 @@ public final class BodyLife {
         var opening = found == null ? null : Vec3.atBottomCenterOf(found.entrance());
         boolean setDown = opening != null && SurfaceApproach.stands(entity, opening) && SurfaceApproach.clearLastStep(entity, opening)
                 && RemainsEntity.place(entity.level(), opening, entity.yBodyRot, remains, true);
-        if(!setDown&&!RemainsEntity.place(entity.level(),entity.position(),entity.yBodyRot,remains,false))return;
+        boolean placed = setDown || RemainsEntity.place(level,entity.position(),entity.yBodyRot,remains,false);
+        var head = entity.life().custody();
+        head.releaseJunk(variant -> placed || YukkuriWorldData.get(level).dropDeathHeadwear(entity));
+        if(!placed)return;
         mouth.remainsAcceptedItems();
         if (found != null) found.release(entity.getUUID());
         settled=true;settledCause=internal;entity.syncBody();

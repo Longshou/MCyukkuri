@@ -1,0 +1,5 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [{"item": "minecraft:paper"}],
+  "result": {"id": "mcyukkuri:junk_headwear", "count": 1}
+}

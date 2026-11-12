@@ -17,6 +17,7 @@ public final class EcologyPresentation {
         return YukkuriAction.byId(Moments.clip(Moments.select("groups", activity, "fallback_group"))).orElseThrow();
     }
     public static YukkuriAction reaction(String event) {
+        if (event.equals("puff")) return YukkuriAction.PUFF;
         return YukkuriAction.byId(Moments.clip(Moments.select("reactions", event, "fallback_idle"))).orElseThrow();
     }
     private static String condition(String key) {

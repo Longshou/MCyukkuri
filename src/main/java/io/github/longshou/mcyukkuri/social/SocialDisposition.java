@@ -50,7 +50,7 @@ public final class SocialDisposition {
         return ramp(insistence, .20, .52);
     }
 
-    static double ramp(double value, double low, double high) {
+    public static double ramp(double value, double low, double high) {
         return Math.clamp((value - low) / (high - low), 0, 1);
     }
 }

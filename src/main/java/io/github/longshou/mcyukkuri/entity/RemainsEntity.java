@@ -6,6 +6,8 @@ import io.github.longshou.mcyukkuri.body.GraveBlock;
 import io.github.longshou.mcyukkuri.family.LeafSwaddle;
 import io.github.longshou.mcyukkuri.body.GraveBlockEntity;
 import io.github.longshou.mcyukkuri.interaction.ItemContact;
+import io.github.longshou.mcyukkuri.headwear.JunkHeadwear;
+import io.github.longshou.mcyukkuri.headwear.Headwear;
 import io.github.longshou.mcyukkuri.registry.ModBlocks;
 import io.github.longshou.mcyukkuri.registry.ModEntities;
 import io.github.longshou.mcyukkuri.registry.ModItems;
@@ -42,6 +44,7 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageTypes;
+import java.util.function.BooleanSupplier;
 
 /** Persistent physical remains. Only deliberate collection transfers them to an inventory. */
 public final class RemainsEntity extends Entity {
@@ -126,7 +129,9 @@ public final class RemainsEntity extends Entity {
             tag.putFloat("SourceScale",source.growthScale()*source.getScale()*(source.profile().modelScale()));
             tag.putFloat("Width",source.getBbWidth());tag.putFloat("Height",source.getBbHeight()*.65f);
             tag.putBoolean("Accessory",source.life().hasAccessory());tag.putInt("Medal",source.pet().visibleGrade().id());
-            tag.putInt("Headwear",source.visibleHeadwear());
+            tag.putInt("Headwear",Headwear.nativeVisual(source.visibleHeadwear()));
+            var junk=source.life().custody().junk();
+            if(junk!=null)tag.putString(JunkHeadwear.KEY,junk.id());
             tag.putLong("DiedAt",source.level().getGameTime());
             tag.putString("Stage",source.family().stageId());
             // Who the body belonged to for the living: kept individuals are never eaten, and a partner remembers it was theirs.
@@ -186,6 +191,13 @@ public final class RemainsEntity extends Entity {
         if(held.is(ItemTags.SHOVELS))return bury(player,hand);
         if(held.is(ItemTags.SWORDS)||held.getItem() instanceof OperationToolItem tool&&tool.tool()==OperationToolItem.Tool.CUTTER)return takeCore(player,hand);
         if(!held.isEmpty())return InteractionResult.PASS;
+        if(player.isSecondaryUseActive() && JunkHeadwear.read(data())!=null){
+            if(!level().isClientSide)releaseJunk(() -> {
+                player.setItemInHand(hand,JunkHeadwear.item());
+                return true;
+            });
+            return InteractionResult.sidedSuccess(level().isClientSide);
+        }
         if(!level().isClientSide){player.setItemInHand(hand,remains());discard();}
         return InteractionResult.sidedSuccess(level().isClientSide);
     }
@@ -238,6 +250,7 @@ public final class RemainsEntity extends Entity {
         if(level().isClientSide||isRemoved()||!buryable(top))return false;
         putDownCarriedItems();
         if(carriesItems)return false;
+        if(!putDownJunk())return false;
         // The marker faces the one who buried the body; the mound's head end is away from them.
         var facing=looking.getOpposite();
         if(!level().setBlockAndUpdate(top,ModBlocks.GRAVE.get().defaultBlockState().setValue(GraveBlock.FACING,facing)))return false;
@@ -253,6 +266,22 @@ public final class RemainsEntity extends Entity {
                 buried.getString("Variant"),buried.contains("Stage")?buried.getString("Stage"):"none",RemainsCause.of(buried),
                 buried.getLong(GraveBlockEntity.BURIED_DAY),RemainsRot.id(stage()),RemainsWater.id(waterStage));
         discard();
+        return true;
+    }
+    /** A last processing or burial action leaves one physical item in reach, or waits for a successful release. */
+    public boolean putDownJunk(){
+        var at=position().add(0,.05,0);
+        return releaseJunk(() -> ItemContact.hasReleaseSupport(this,at)
+                && ItemContact.release(this,JunkHeadwear.item(),at,Vec3.ZERO)!=null);
+    }
+    private boolean releaseJunk(BooleanSupplier destination){
+        var junk=JunkHeadwear.read(data());
+        if(junk==null)return true;
+        if(!destination.getAsBoolean())return false;
+        var remains=remains();
+        CustomData.update(DataComponents.CUSTOM_DATA,remains,tag->tag.remove(JunkHeadwear.KEY));
+        setRemains(remains);
+        GameplayLog.event(this,"headwear","remains junk released variant={}",junk.id());
         return true;
     }
     @Override public void tick(){

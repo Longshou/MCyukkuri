@@ -58,6 +58,7 @@ final class LifeAccessory {
                     "return refused reason=owner_or_token_mismatch owner={} token={} player={}", owner, token, player);
             return false;
         }
+        if (!custody.putDownJunk()) return false;
         custody.reclaim(token, "returned"); clearConfiscation();
         o.entity().settlement().society().restored("accessory");
         GameplayLog.event(o.entity(), "headwear", "returned player={} token={}", player, token);
@@ -68,6 +69,7 @@ final class LifeAccessory {
     /** Transfer a compatible loose physical accessory. */
     boolean receiveAccessory(ItemStack stack,UUID player) {
         if (accessoryReceiptRefusalReason() != null || !(o.entity().level() instanceof ServerLevel)) return false;
+        if (!custody.putDownJunk()) return false;
         if (!o.entity().headwear().releaseHeldShardsForWholeAccessory()) return false;
         custody.wear("received");
         clearConfiscation();o.personality().accessoryReturned(player);
@@ -95,11 +97,13 @@ final class LifeAccessory {
         return true;
     }
 
-    void wearAccessory() {
-        if (custody.worn()) return;
+    boolean wearAccessory() {
+        if (custody.worn()) return true;
+        if (!custody.putDownJunk()) return false;
         custody.wear("worn");
         clearConfiscation();
         o.entity().settlement().society().restored("accessory");
+        return true;
     }
 
     boolean matchesAccessory(UUID owner,UUID token){return custody.matches(owner,token);}

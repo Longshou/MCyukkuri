@@ -16,6 +16,7 @@ import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.item.AccessoryShardItem;
+import io.github.longshou.mcyukkuri.item.JunkHeadwearItem;
 import io.github.longshou.mcyukkuri.item.CompanionCordItem;
 import io.github.longshou.mcyukkuri.item.FillingItem;
 import io.github.longshou.mcyukkuri.item.HouseEggItem;
@@ -66,6 +67,7 @@ public final class ModItems {
     public static final DeferredItem<AccessoryItem> AQUATIC_MARISA_HAT = AQUATIC_HATS.get(SubspeciesLife.Kind.AQUATIC_MARISA);
     /** Stackable repair material accepted by a shattered individual of the same accessory kind. */
     public static final DeferredItem<AccessoryShardItem> ACCESSORY_SHARD = ITEMS.register("accessory_shard", () -> new AccessoryShardItem(new Item.Properties()));
+    public static final DeferredItem<JunkHeadwearItem> JUNK_HEADWEAR = ITEMS.register("junk_headwear", () -> new JunkHeadwearItem(new Item.Properties()));
     public static final DeferredItem<AccessoryItem> MARISA_SHELL = ITEMS.register("marisa_shell", () -> new AccessoryItem(new Item.Properties()));
     public static final DeferredItem<Item> TOY = ITEMS.registerSimpleItem("yarn_ball", new Item.Properties().stacksTo(16));
     public static final DeferredItem<SupplyItem> WASTE = ITEMS.register("yukkuri_waste",()->new SupplyItem(new Item.Properties()));

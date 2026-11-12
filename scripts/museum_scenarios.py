@@ -369,6 +369,28 @@ add('stray_rubbish', 'forage', '流浪：翻一口垃圾，盖住就放弃', '�
                                   r'\[habitat\][^\n]* drop item=minecraft:paper count=1 holder=mouth',
                                   r'\[forage\][^\n]* garbage gave_up .*reason=closed rams=3']))
 
+_junk_scene = 'stray_junk_headwear'
+add(_junk_scene, 'forage', '流浪：用垃圾顶替失去的头饰', '流浪：垃圾头饰',
+    '捡起地上的垃圾头饰，分别右键低自尊与骄横的失饰者。观察戴假帽的同类被鼓腹嘲笑。照料菜单可取下假帽，真饰也可换回；遗体可潜行空手取下假帽。',
+    '手动试戴与取回', [
+        item('mcyukkuri:junk_headwear', 3, 0, 5, name='junk_supply'),
+        street_stray(_junk_scene, 'reimu', -10, 7, 'quiet_stray', accessory=False, boldness=0,
+                     friendliness=100, label='低自尊失饰者', lead=True),
+        street_stray(_junk_scene, 'reimu', 10, 7, 'proud_stray', accessory=False, boldness=100,
+                     friendliness=65, label='骄横失饰者'),
+        street_stray(_junk_scene, 'marisa', 0, -2, 'covered_stray', accessory=False, boldness=30,
+                     label='戴瓶盖的流浪油').replace('Accessory:0b,',
+                     'Accessory:0b,HatCustody:{State:"LOST",JunkHeadwear:"bottle_cap"},'),
+        street_stray(_junk_scene, 'reimu', 1, -2, 'mocking_stray', friendliness=20, boldness=65,
+                     yaw=90, label='会嘲笑的邻居'),
+    ], give=['mcyukkuri:reimu_ribbon'], env=DAY, spot='street', vantage=(0, 11),
+    smoke=dict(ticks=310, forbid=[],
+               commands=[(130, 'damage ' + sel('covered_stray') + ' 100 minecraft:generic_kill'),
+                         (180, 'execute if entity @e[type=mcyukkuri:yukkuri_remains,distance=..12,nbt={Remains:{components:{"minecraft:custom_data":{JunkHeadwear:"bottle_cap"}}}}] run say MCYJUNK_REMAINS'),
+                         (210, 'execute unless entity @e[type=minecraft:item,distance=..25,tag=!scn_junk_supply,nbt={Item:{id:"mcyukkuri:junk_headwear"}}] run say MCYJUNK_NO_DUPLICATE')],
+               expect=[r'\[contempt\][^\n]* junk mocked .*variant=bottle_cap affinity=0 -> -1',
+                       r'MCYJUNK_REMAINS', r'MCYJUNK_NO_DUPLICATE']))
+
 add('stray_wind', 'forage', '流浪：钻进木板缝挡风', '流浪：钻进木板缝挡风',
     '冷夜里，流浪油可以缩进低木板下。纸片是地上的真物品。饿了再出来。',
     '约半分钟', [
@@ -4135,7 +4157,7 @@ TOPICS = {
     'agitation_relief': 'D2', 'adult_pairing': 'F6', 'widow_repair': 'F6', 'alice_hunt': 'R4', 'aftermath_growth': 'F7', 'aftermath_depletion': 'F7',
     'den_family': 'W1', 'den_mold_exile': 'W1', 'dig': 'W2', 'indep_near': 'W3', 'den_move': 'W4', 'forage': 'W5', 'graze': 'W6', 'den_barrier': 'W8',
     'family_absence': 'W9',
-    'stray_boxes': 'M5', 'stray_rain': 'R1', 'stray_rubbish': 'M5', 'stray_wind': 'R1',
+    'stray_boxes': 'M5', 'stray_rain': 'R1', 'stray_rubbish': 'M5', 'stray_junk_headwear': 'M5', 'stray_wind': 'R1',
     'sleep': 'D1', 'night_sleep': 'D1', 'night_hungry_child': 'D1', 'meal_content': 'D1', 'fatigue': 'R1', 'fatigue_predator': 'R2', 'nutrition_age': 'D1', 'meet': 'D1', 'greet_close': 'D1', 'toilet': 'F5', 'hurt': 'F3',
     'birth_land_caught': 'F1', 'birth_land_missed': 'F1', 'feed': 'F2', 'first_toilet': 'F2', 'hop': 'F2', 'growth': 'F4',
     'leaf_swaddle': 'F2', 'leaf_swaddle_neglect': 'F2', 'leaf_swaddle_neglect_stages': 'F2', 'family_distance': 'F8', 'family_search': 'F8', 'family_search_pane': 'F8', 'birth_nest_safe': 'F1', 'birth_nest_stem': 'F1', 'birth_stem_caught': 'F1', 'family_nests': 'F4', 'carry_home': 'F4', 'infant_starvation': 'F2',
@@ -4481,6 +4503,8 @@ _STEPS_IN = r'\[action\][^\n]* start id=step_in\b'                              
 _STEM_DRAW = dict(kind='starve', who=r'aftermath reserved ', match=r'accepted damage cause=starve\b.* stem_depletion=true\b',
                   why='the marked hit is an actual draw by the growing stem')
 _FATES = {
+    'stray_junk_headwear': [dict(kind='death', who=f'uuid={_uuid_text("stray_junk_headwear", "covered_stray")} ',
+                                why='the smoke kills only the covered control to inspect its real remains')],
     'remains_forms': [dict(kind='death', match=r'cause=(?:starve|inFire|anvil|mob|freeze|drown)\b|internal=(?:old_age|mold)\b|core hurt \(mold\)',
                            why='all live actors are the eight death-form victims and the starved baby buried for its marker'),
                       dict(kind='drown', why='the pool victim is deliberately killed by drowning')],

@@ -28,6 +28,7 @@ public final class ModCreativeTabs {
                         output.accept(ModItems.REIMU_SPAWN_EGG.get());
                         output.accept(ModItems.MARISA_SPAWN_EGG.get());
                         output.accept(ModItems.AQUATIC_MARISA_HAT.get());
+                        output.accept(ModItems.JUNK_HEADWEAR.get());
                         output.accept(ModItems.CHEN_SPAWN_EGG.get());
                         output.accept(ModItems.ALICE_SPAWN_EGG.get());
                         output.accept(ModItems.PATCHOULI_SPAWN_EGG.get());

@@ -616,7 +616,7 @@ public final class YukkuriLife {
     /** Retire a loaded former owner's token immediately after an accepted whole-accessory transfer. */
     public boolean retireTransferredAccessory(UUID token,UUID recipient){ return accessory.retireTransferredAccessory(token,recipient); }
     /** Its own accessory is whole on its head again (pieces knit together, headwear.Headwear): no token was involved. */
-    public void wearAccessory(){ accessory.wearAccessory(); }
+    public boolean wearAccessory(){ return accessory.wearAccessory(); }
     public boolean matchesAccessory(UUID owner,UUID token){ return accessory.matchesAccessory(owner, token); }
     /** Where the hat is: the one record every read of its whereabouts goes through. */
     public HatCustody custody(){ return accessory.custody(); }

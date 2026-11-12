@@ -1,5 +1,7 @@
 package io.github.longshou.mcyukkuri.settlement;
 
+import io.github.longshou.mcyukkuri.headwear.Recognition;
+
 import io.github.longshou.mcyukkuri.mind.EmotionEvent;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
@@ -121,8 +123,8 @@ public final class CommunityRules {
             if (other.blockPosition().distSqr(group.center) > TERRITORY * TERRITORY) continue;
             var s = commons.standing(other.getUUID());
             if (now - s.lastIntrusion < INTRUSION_GAP) continue;
-            boolean recognised = member.life().canRecognize(other);
-            if (!recognised && group.commons.has(Commons.NO_HATLESS)) {
+            if (Recognition.unrecognizedHatless(member, other)
+                    && group.commons.has(Commons.NO_HATLESS)) {
                 var p = member.life().personality();
                 if (p.friendliness() > 50
                         && p.friendliness() > 40) { member.mind().felt(EmotionEvent.REJECTED); member.showReaction("surprise", "unrecognized",

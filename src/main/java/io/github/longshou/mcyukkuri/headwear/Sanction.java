@@ -106,6 +106,7 @@ public final class Sanction extends Goal {
      */
     public static boolean request(YukkuriEntity target, String reason, YukkuriEntity accuser) {
         if (!enabled() || !(target.level() instanceof ServerLevel level) || !eligibleTarget(target)) return false;
+        if (nakedGround(reason) && Recognition.junkCovered(target)) return false;
         if (spontaneous(reason) && Respite.get(level).until.getOrDefault(target.getUUID(), 0L) > level.getGameTime()) return false;
         int taken = executorsOf(target);
         if (accuser != null && taken < MAX_EXECUTORS && executor(accuser, target, reason) && accuser.sanction().take(target, reason)) taken++;
@@ -129,6 +130,16 @@ public final class Sanction extends Goal {
         // A case nobody carries out any more lapses (executors gave up or the accused escaped).
         if (c != null && level.getGameTime() - c.since() > GIVE_UP_TICKS + 200 && executorsOf(target) == 0) { cases(level).remove(target.getUUID()); return null; }
         return c;
+    }
+    private static boolean nakedGround(String reason) { return reason.equals("hatless") || reason.equals("monster"); }
+
+    /** Close the live case and stop only executors whose grounds the cover answers. */
+    public static void covered(YukkuriEntity target) {
+        if (!(target.level() instanceof ServerLevel level)) return;
+        var open = cases(level).get(target.getUUID());
+        if (open != null && nakedGround(open.reason())) cases(level).remove(target.getUUID());
+        for (var observer : level.getEntitiesOfClass(YukkuriEntity.class, target.getBoundingBox().inflate(CHASE_RANGE),
+                e -> e.sanction().target == target && e.sanction().hatlessReason())) observer.sanction().stop();
     }
     private static boolean hasDamaged(YukkuriEntity target) {
         var c = judged(target);
@@ -161,7 +172,7 @@ public final class Sanction extends Goal {
         // A slave kept by the group is no stranger to it: the group's own harshness toward it is the pit mockery, not a beating.
         if (reason.equals("hatless") && SettlementSociety.sparesHatlessBlame(e, target)) return false;
         boolean knows = Recognition.recognizes(e, target);
-        if (reason.equals("hatless") || reason.equals("monster")) return !knows;
+        if (nakedGround(reason)) return Recognition.unrecognizedHatless(e, target);
         if (reason.equals("non_yukkuri")) return target.settlement().groupId() == null || SettlementSociety.sameGroup(e, target);
         // A judged offence: the community carries it out; whoever knows the accused as its own close kin stays out.
         if (target.settlement().groupId() != null && !(SettlementSociety.sameGroup(e, target) && SettlementSociety.accepted(e))) return false;
@@ -189,6 +200,7 @@ public final class Sanction extends Goal {
         return target != null && target.isAlive() && !target.isRemoved() && target.level() == entity.level() && entity.isAlive()
                 && !entity.isPanicking() && !entity.body().dying() && entity.body().healthRatio() >= .3f
                 && entity.distanceToSqr(target) < CHASE_RANGE * CHASE_RANGE && ticks < GIVE_UP_TICKS && eligibleTarget(target)
+                && !(hatlessReason() && Recognition.junkCovered(target))
                 && !(reason.equals("hatless") && SettlementSociety.sparesHatlessBlame(entity, target)) && enabled();
     }
     @Override public boolean canUse() {
@@ -207,7 +219,7 @@ public final class Sanction extends Goal {
     }
     @Override public boolean canContinueToUse() { return valid(); }
     @Override public boolean requiresUpdateEveryTick() { return true; }
-    private boolean hatlessReason() { return reason.equals("hatless") || reason.equals("monster"); }
+    private boolean hatlessReason() { return nakedGround(reason); }
     @Override public void tick() {
         if (!valid()) return;
         ticks++;
@@ -296,7 +308,7 @@ public final class Sanction extends Goal {
         var victim = target; String why = reason; target = null; declared = false; acts = 0;
         if (victim == null) return false;
         if (entity.level() instanceof ServerLevel level) {
-            if (executorsOf(victim) == 0) {
+            if (!(nakedGround(why) && Recognition.junkCovered(victim)) && executorsOf(victim) == 0) {
                 cases(level).remove(victim.getUUID());
                 Respite.get(level).grant(victim.getUUID(), level.getGameTime() + RESPITE_TICKS);
             }

@@ -147,6 +147,7 @@ public final class Headwear extends Goal {
     }
     /** Lasting pressure on the mind, per minute (MindLife.sample). */
     public float uneasePerMinute() {
+        if (entity.life().custody().junk() != null) return 1f;
         return switch (state()) {
             case WORN -> damage >= TORN ? 1f : damage == 1 ? .5f : 0f;
             case OFF -> entity.life().accessoryCustodied() ? 0f : 3f;
@@ -156,6 +157,7 @@ public final class Headwear extends Goal {
         };
     }
     public String uneaseCause() {
+        if (entity.life().custody().junk() != null) return "junk_headwear";
         return switch (state()) {
             case WORN -> "accessory_torn";
             case OFF -> "no_accessory";
@@ -164,12 +166,15 @@ public final class Headwear extends Goal {
             case LOST -> "accessory_gone";
         };
     }
-    /** Client view: bits 0-1 drawn level (0-2 worn damage, 3 pieces put back together), bits 4-10 relative fit in percent. */
+    /** Client view: bits 0-1 native damage, bits 4-10 relative fit, bits 11-12 junk appearance. */
     public int visual() {
         var s = state();
         int level = s == State.WORN ? damage : s == State.REASSEMBLING ? 3 : 0;
-        return level | Math.round(relativeFit() * 100) << 4;
+        var junk = entity.life().custody().junk();
+        return level | Math.round(relativeFit() * 100) << 4 | (junk == null ? 0 : junk.visualId()) << 11;
     }
+    public static JunkHeadwear visualJunk(int packed) { return JunkHeadwear.fromVisual(packed >> 11 & 3); }
+    public static int nativeVisual(int packed) { return packed & 0x7ff; }
     public static int visualLevel(int packed) { return packed & 3; }
     public static float visualFit(int packed) { int p = packed >> 4 & 127; return p == 0 ? 1 : Math.clamp(p / 100f, MIN_FIT, 1f); }
 
@@ -206,7 +211,17 @@ public final class Headwear extends Goal {
     // ---- damage ----------------------------------------------------------------------------------------------------
     /** A blow the owner survived (YukkuriEntity.hurt). {@code part} is the body region hit, or null. */
     public void struck(DamageSource source, float amount, BodyPart part) {
-        if (entity.level().isClientSide || !entity.life().hasAccessory() || amount <= 0) return;
+        if (entity.level().isClientSide || amount <= 0) return;
+        var custody = entity.life().custody();
+        if (custody.junk() != null) {
+            boolean impact = source.is(DamageTypeTags.IS_EXPLOSION) || source.is(DamageTypes.FALLING_ANVIL)
+                    || source.is(DamageTypes.FALLING_BLOCK) || source.is(DamageTypes.FALLING_STALACTITE)
+                    || source.getEntity() != null && !InjuryModel.attrition(source)
+                    && (part == BodyPart.TOP || amount >= 3);
+            if (impact && custody.putDownJunk()) GameplayLog.event(entity, "headwear", "junk knocked off");
+            return;
+        }
+        if (!custody.worn()) return;
         // The water exception: swimming or riding its floating hull the body is wounded as usual but the hat takes no wear.
         if (waterborne()) return;
         var random = entity.getRandom();
@@ -272,6 +287,8 @@ public final class Headwear extends Goal {
     /** One compatible physical piece, whether found on the ground or handed over. */
     public boolean takeShard(ItemStack stack, Player giver) {
         if (!(entity.level() instanceof ServerLevel) || transferredShardRefusalReason(stack) != null) return false;
+        int required = shardsTotal >= 2 && shardsTotal <= 3 ? shardsTotal : REPLACEMENT_SHARDS;
+        if (shardsHeld + 1 >= required && !entity.life().custody().putDownJunk()) return false;
         if (state() != State.SHATTERED) {
             State previous = state();
             // Retire a genuinely lost hat's old return capability only after accepting replacement material.
@@ -361,12 +378,13 @@ public final class Headwear extends Goal {
         loseForGood(why);
         return true;
     }
-    private void restore() {
+    private boolean restore() {
+        if (!entity.life().wearAccessory()) return false;
         shattered = false; lost = false; shardsTotal = shardsHeld = 0; reassembly = 0; shardToken = null; mend = 0;
         damage = TORN; // the seams still show; it mends from here as a worn hat
-        entity.life().wearAccessory();
         entity.mind().felt(EmotionEvent.ACCESSORY_RETURNED); entity.showReaction("happy", "returned_accessory", 120);
         GameplayLog.event(entity, "headwear", "accessory reassembled damage={}", damage);
+        return true;
     }
 
     // ---- writes for status and tests -------------------------------------------------------------------------------
@@ -375,9 +393,9 @@ public final class Headwear extends Goal {
             case "shatter" -> { if (!entity.life().hasAccessory()) return "not worn"; shatter("status", false); }
             case "burn" -> { if (!entity.life().hasAccessory()) return "not worn"; shatter("status", true); }
             case "lose" -> { if (entity.life().hasAccessory()) return "worn"; if (!shattered && !lost) { shattered = true; } loseForGood("status"); }
-            case "gather" -> { if (state() != State.SHATTERED) return "not shattered"; shardsHeld = shardsTotal; lastProgress = entity.level().getGameTime(); }
-            case "knit" -> { if (state() != State.REASSEMBLING) return "not reassembling"; restore(); }
-            case "restore" -> { if (!entity.life().hasAccessory()) entity.life().wearAccessory(); clear(); damage = 0; }
+            case "gather" -> { if (state() != State.SHATTERED) return "not shattered"; if (!entity.life().custody().putDownJunk()) return "no junk drop"; shardsHeld = shardsTotal; lastProgress = entity.level().getGameTime(); }
+            case "knit" -> { if (state() != State.REASSEMBLING) return "not reassembling"; if (!restore()) return "no junk drop"; }
+            case "restore" -> { if (!entity.life().wearAccessory()) return "no junk drop"; clear(); damage = 0; }
             default -> { return "shatter, burn, lose, gather, knit or restore"; }
         }
         return null;

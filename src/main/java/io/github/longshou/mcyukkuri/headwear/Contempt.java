@@ -59,12 +59,26 @@ public final class Contempt {
     /** One look around by {@code observer} (from Headwear.clock); returns the ticks until the next look. */
     static int observe(YukkuriEntity observer) {
         if (!(observer.level() instanceof ServerLevel level) || !perceives(observer)) return IDLE_WAIT;
+        boolean mocks = harsh(observer);
         var target = level.getEntitiesOfClass(YukkuriEntity.class, observer.getBoundingBox().inflate(RANGE, 3, RANGE),
-                        y -> y != observer && !y.isRemoved() && !y.profile().dangerToYukkuri() && Recognition.unrecognizedHatless(observer, y)
+                        y -> y != observer && y.isAlive() && !y.profile().dangerToYukkuri()
+                                && (Recognition.unrecognizedHatless(observer, y) || mocks && Recognition.junkCovered(y))
                                 && observer.headwear().readyForHatlessContact(y) && observer.hasLineOfSight(y))
                 .stream().min(Comparator.comparingDouble(observer::distanceToSqr)).orElse(null);
         if (target == null) return IDLE_WAIT;
-        return react(level, observer, target);
+        return Recognition.junkCovered(target) ? mock(level, observer, target) : react(level, observer, target);
+    }
+
+    private static int mock(ServerLevel level, YukkuriEntity observer, YukkuriEntity target) {
+        if (!observer.showReaction("cheek_puff", "puff", 60)) return IDLE_WAIT;
+        observer.getLookControl().setLookAt(target, 30, 30);
+        var relations = YukkuriWorldData.get(level);
+        int before = relations.affinity(observer.getUUID(), target.getUUID());
+        if (before > -10) relations.relate(observer.getUUID(), target.getUUID(), -1);
+        observer.headwear().coolHatlessContact(target, AFTER_SCORN);
+        GameplayLog.event(observer, "contempt", "junk mocked target={} variant={} affinity={} -> {}",
+                target.getUUID(), target.life().custody().junk().id(), before, relations.affinity(observer.getUUID(), target.getUUID()));
+        return AFTER_SCORN;
     }
     /**
      * {@code observer} faces a hatless individual it cannot recognise: a monster when horribly hurt, otherwise despised.

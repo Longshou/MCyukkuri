@@ -168,7 +168,8 @@ public final class InteractionDispatch {
             case SHAKE_HOME -> operation.residents(player).isEmpty()?"home":null;
             case BURN -> OperationToolItem.isHot(player.getMainHandItem(),target.level())?null:"heat";
             case WRAP_HANG, HOOK_HANG -> operation.ceiling()==null?"ceiling":null;
-            case TAKE_ACCESSORY, CONFISCATE, CUT_ACCESSORY -> life.hasAccessory()||target.headwear().reassembling()?null:"accessory";
+            case TAKE_ACCESSORY -> life.hasAccessory() || target.headwear().reassembling() || life.custody().junk() != null ? null : "accessory";
+            case CONFISCATE, CUT_ACCESSORY -> life.hasAccessory()||target.headwear().reassembling()?null:"accessory";
             case COLLECT_NEAREST -> operation.canCollect(player)?null:"collect";
             case ASK -> target.pet().care().canAsk()?null:"busy";
             case ADOPT -> !target.status().identity().free()?"identity":!WildEvents.canAdoptHere(target,player)?"adopt":null;

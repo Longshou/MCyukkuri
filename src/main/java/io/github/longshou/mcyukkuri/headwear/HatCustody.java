@@ -10,6 +10,7 @@ import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.function.Predicate;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
@@ -34,6 +35,7 @@ public final class HatCustody {
 
     private final YukkuriEntity owner;
     private State state = State.WORN;
+    private JunkHeadwear junk;
     private UUID token, boat;
     private long since;
     private String cause = "";
@@ -54,6 +56,27 @@ public final class HatCustody {
     /** The real placed hat is the hat. */
     public boolean custodied() { return state == State.DEPLOYED; }
     public boolean lost() { return state == State.LOST; }
+    public JunkHeadwear junk() { return junk; }
+    public boolean equipJunk() {
+        if (!lost() || junk != null || owner.headwear().reassembling()) return false;
+        var variants = JunkHeadwear.values();
+        junk = variants[owner.getRandom().nextInt(variants.length)];
+        owner.syncHeadwear(owner.headwear().visual());
+        return true;
+    }
+    /** A rejected destination leaves the original head occupied. */
+    public boolean releaseJunk(Predicate<JunkHeadwear> destination) {
+        if (junk == null) return true;
+        if (!destination.test(junk)) return false;
+        junk = null;
+        owner.syncHeadwear(owner.headwear().visual());
+        return true;
+    }
+    public boolean putDownJunk() {
+        var at = owner.position().add(0, owner.getBbHeight(), 0);
+        return releaseJunk(variant -> ItemContact.hasReleaseSupport(owner, at)
+                && ItemContact.release(owner, JunkHeadwear.item(), at, Vec3.ZERO) != null);
+    }
     public UUID token() { return token; }
     /** The placed hat while it is the hat, else null. */
     public UUID boat() { return custodied() ? boat : null; }
@@ -92,6 +115,7 @@ public final class HatCustody {
     /** This owner and token name the hat that is off the head. */
     public boolean matches(UUID ownerId, UUID tokenId) { return !worn() && owner.getUUID().equals(ownerId) && token != null && token.equals(tokenId); }
     public String detail() { return "custody=" + state.name().toLowerCase(Locale.ROOT) + (cause.isEmpty() ? "" : "(" + cause + ")")
+            + (junk == null ? "" : " junk=" + junk.id())
             + " reclaim=" + reclaimHat + " claimant=" + reclaimAssignee; }
 
     private void finishReclaim(String result, String why) {
@@ -119,6 +143,7 @@ public final class HatCustody {
 
     /** The hat is back on the head (taken in, landed, or handed back): it keeps the token of its voyage. */
     public void reclaim(UUID tokenId, String why) {
+        if (junk != null) throw new IllegalStateException("Head occupied by junk");
         finishReclaim("done", why);
         token = tokenId;
         boat = null;
@@ -128,6 +153,7 @@ public final class HatCustody {
 
     /** The hat is worn as a new, plain hat (restored, replaced, handed over by a player). */
     public void wear(String why) {
+        if (junk != null) throw new IllegalStateException("Head occupied by junk");
         finishReclaim("expired", why);
         token = null;
         boat = null;
@@ -150,6 +176,7 @@ public final class HatCustody {
         if (token != null) t.putUUID("Token", token);
         if (boat != null) t.putUUID("Boat", boat);
         t.putLong("Since", since);
+        if (junk != null) t.putString(JunkHeadwear.KEY, junk.id());
         if (!cause.isEmpty()) t.putString("Cause", cause);
         if (!kit.isEmpty()) t.put("Kit", kit().save(owner.registryAccess()));
         if (kitPlace != Held.Place.GRIP) t.putString("KitPlace", kitPlace.name());
@@ -175,6 +202,7 @@ public final class HatCustody {
         kitSpot = spotted ? new Vec3(t.getDouble("KitX"), t.getDouble("KitY"), t.getDouble("KitZ")) : null;
         kitDir = spotted ? new Vec3(t.getDouble("KitDX"), 0, t.getDouble("KitDZ")) : null;
         if (wornFlag != worn()) state = wornFlag ? State.WORN : (custodiedFallback() ? State.DEPLOYED : State.LOST);
+        junk = lost() ? JunkHeadwear.read(t) : null;
         reclaimHat = reclaimAssignee = null; reclaimLease = reclaimRetry = 0;
     }
 

@@ -46,8 +46,9 @@ public final class Recognition {
     }
     /** The observer cannot tell that this living hatless individual is a yukkuri; kin are no exception. */
     public static boolean unrecognizedHatless(YukkuriEntity observer, YukkuriEntity target) {
-        return observer != target && target.isAlive() && !recognizes(observer, target);
+        return observer != target && target.isAlive() && !junkCovered(target) && !recognizes(observer, target);
     }
+    public static boolean junkCovered(YukkuriEntity target) { return target.life().custody().junk() != null; }
     /** Unrecognised and nobody's property, not a predator: may be bullied, driven off or hunted (pets and owned are safe, C11). */
     public static boolean fairGame(YukkuriEntity observer, YukkuriEntity target) {
         return unrecognizedHatless(observer, target) && YukkuriStatus.identity(target).free() && !target.profile().dangerToYukkuri();
@@ -85,7 +86,7 @@ public final class Recognition {
     }
     /** A living hatless body with three facial wounds or at least one severe injury. */
     public static boolean grotesque(YukkuriEntity target) {
-        if (!target.isAlive() || target.life().hasAccessory()) return false;
+        if (!target.isAlive() || target.life().hasAccessory() || junkCovered(target)) return false;
         return faceWounds(target) >= MONSTER_FACE_WOUNDS || severeWounds(target) > 0;
     }
 }

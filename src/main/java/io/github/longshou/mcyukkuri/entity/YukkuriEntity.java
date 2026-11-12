@@ -840,9 +840,10 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     public boolean firstWaking() { return reactionTicks > 0 && "newborn".equals(reactionEvent); }
     /** A reaction and its line; while a held one runs it is dropped, unless it is pain or danger ({@link #forceReaction}).
      *  An empty or {@code null} dialogue is a face-only reaction: it shows the face and says nothing. */
-    public void showReaction(String expression, String dialogue, int ticks) {
-        if (level().isClientSide || held() && !urgent(dialogue)) return;
+    public boolean showReaction(String expression, String dialogue, int ticks) {
+        if (level().isClientSide || held() && !urgent(dialogue)) return false;
         forceReaction(expression, dialogue, ticks);
+        return true;
     }
     /** A reaction that ends any held one (pain, danger, panic); its line is spoken, or nothing when it has none
      *  ({@code ""} or {@code null}, the entry callers use for a face-only reaction). */

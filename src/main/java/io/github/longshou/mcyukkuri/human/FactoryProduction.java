@@ -188,6 +188,7 @@ public final class FactoryProduction {
             releaseManjuRemains(remains);clearManjuRemains();return false;
         }
         if(delay>0||material<=0||output.size()>=16||worker.resting()||worker.isTrading()||!manjuStationReady(remains))return true;
+        if(CorpseFood.remaining(remains.data())<2 && !remains.putDownJunk())return true;
         var bite=CorpseFood.take(remains,1);
         if(bite.isEmpty()){
             releaseManjuRemains(remains);clearManjuRemains();return false;
