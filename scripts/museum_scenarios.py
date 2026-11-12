@@ -1875,7 +1875,8 @@ def _aftermath_pens(lanes):
                extra=agitation_start('IDLE') + (',Health:2.5f' if lane == 'depletion' else '')),
             yk('alice', dx, -7, f'source_{lane}', extra=agitation_start('IDLE'), **pair_ready()),
             *own(f'affected_{lane}'), *own(f'source_{lane}'), home(f'affected_{lane}', dx + (3 if lane == 'depletion' else 2), 2),
-            *([block(dx, 0, 1, 'mcyukkuri:food_bowl{Items:[{Slot:0b,id:"minecraft:apple",count:4}]}')] if lane == 'growth' else [])]
+            *([item('minecraft:apple', 1, dx + 2.5 + x, 2.5 + z, dy=.08)
+               for x, z in [(.24, .24), (-.24, .24), (.24, -.24), (-.24, -.24)]] if lane == 'growth' else [])]
     return out
 
 
@@ -1891,8 +1892,8 @@ def aftermath(sid, seen, watch, lanes, vantage):
                  if lanes[0][0] == 'depletion' else []))
 
 
-aftermath('aftermath_growth', '茎生长出三果：有食与无食', '左右各有一只灵梦从短芽长出三果。左栏营养 100，地上有苹果；右栏营养 55，地上没有食物。'
-          '看进食时茎果持续长大，也可把苹果投给右栏。',
+aftermath('aftermath_growth', '茎生长出三果：有食与无食', '左右各有一只灵梦从短芽长出三果。左栏营养 100，窝垫上有苹果；右栏营养 55，地上没有食物。'
+          '看母油在分娩站位就地进食、茎果继续长大，也可把苹果投到右栏母油嘴边。',
           (('growth', -8, 100, 100, '有食·营养100', 3), ('burden', 8, 55, 60, '无食·营养55', 3)), (0, 16))
 aftermath('aftermath_depletion', '五果耗馅死亡：遗体留着未熟实子', '灵梦已经空腹，只剩 2.5 点生命。看短芽、五果、颤抖求助和见底后的三秒保命。'
           '遗体上的实子停在死时的大小。可拾起再放下遗体，用茎剪检查是否还能救活实子。',

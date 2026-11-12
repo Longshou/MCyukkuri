@@ -477,6 +477,7 @@ final class YukkuriGoals {
             var intent=role.choreography().intentFor(owner.getUUID());
             if(runner!=null&&runner.intent()!=intent) release("beat_changed");
             if(intent==null){ owner.family().holdBirthRole(role); return; }
+            if(owner.life().mealTicks()>0)return;
             if(runner==null){ runner=new IntentRunner(owner,intent,"birth_"+role.role()); runnerRole=role; runner.start(); owner.family().birthIntentStarted(role,intent); }
             runner.tick();
             owner.family().watchBirth(role);

@@ -413,7 +413,7 @@ public final class YukkuriLife {
     public boolean canReceiveCareFood(){ return meal.canReceiveCareFood(); }
     public boolean canReceiveCareFood(ItemStack food){ return meal.canReceiveCareFood(food); }
     public boolean hasUrgentNeed() { return nutrition < 30 || entity.family().stemFoodUrgent() || hasUrgentNonFoodNeed(); }
-    public boolean hasUrgentNonFoodNeed() { return energy < 25 || bladder >= 90 && !constipated() || entity.isInWaterOrBubble() || entity.isOnFire() || wetness > 40; }
+    private boolean hasUrgentNonFoodNeed() { return energy < 25 || bladder >= 90 && !constipated() || entity.isInWaterOrBubble() || entity.isOnFire() || wetness > 40; }
     /** Thirst at the threshold the daytime plan drinks by (dryness 40 or something spicy in the mouth), and only with a drink really in reach. */
     private boolean thirstUrgent() { return (dryness >= 40 || spicyTicks() > 0) && nearestDrink() != null; }
     /** Bladder at {@link #hasUrgentNeed()}'s threshold, and only when the daytime toilet plan has somewhere to go, so waking always ends in relief. */
@@ -576,6 +576,15 @@ public final class YukkuriLife {
 
     /** Caller transfers exactly one real item before invoking this method. */
     public boolean beginMeal(ItemStack transferred, UUID fromPlayer, boolean alreadyShared){ return meal.beginMeal(transferred, fromPlayer, alreadyShared); }
+    /** A body with a fixed duty can take a reachable portion through the ordinary meal owner without walking. */
+    public void eatAtStand() {
+        if (entity.tickCount % 10 != 0 || !canEat() || !EventHooks.canEntityGrief(level(), entity)) return;
+        var items = level().getEntitiesOfClass(ItemEntity.class, entity.getBoundingBox().inflate(.5), item ->
+                acceptsFood(item.getItem()) && ItemContact.reaches(entity,item) && WildCards.mayTakeFood(entity,item));
+        var food = items.stream().min(Comparator.comparingInt((ItemEntity it) -> FoodTaste.rank(it.getItem()))
+                .thenComparingDouble(entity::distanceToSqr)).orElse(null);
+        if (food != null) takeGroundFood(food);
+    }
     public boolean beginCarriedMeal(MouthOccupancy.Purpose source) { return meal.beginCarriedMeal(source); }
     /** A player can offer an already prepared serving, but a dependent child still cannot pick it up alone. */
     public boolean beginPreparedMeal(ItemStack prepared, UUID fromPlayer){ return meal.beginPreparedMeal(prepared, fromPlayer); }
@@ -1083,13 +1092,7 @@ public final class YukkuriLife {
                 if (behindRival && queueTicks++ < wait) {
                     entity.getNavigation().stop(); if (queueTicks == 1) {personality.decided("wait_food");entity.showReaction("neutral", "wait_turn", wait);} return;
                 }
-                ItemStack one = targetFood.getItem().copyWithCount(1);
-                if (beginMeal(one, null, false)) {
-                    ItemStack remaining = targetFood.getItem().copy(); remaining.shrink(1);
-                    if (remaining.isEmpty()) targetFood.discard(); else targetFood.setItem(remaining);
-                    GameplayLog.event(entity, "meal", "pickup item={} count=1 source={} remaining={} holder=mouth",
-                            one.getItem(), targetFood.getUUID(), remaining.getCount());
-                    WildCards.foodTaken(entity,targetFood);
+                if (takeGroundFood(targetFood)) {
                     if (targetBlock != null && entity.pet().isPet()) entity.pet().lessons().performed(PetSkill.FOOD_BOWL, false);
                     if (!rivals.isEmpty() && wait < 35 && nutrition>15) {
                         for (var rival : rivals) WildCards.competing(entity, rival);
@@ -1136,6 +1139,17 @@ public final class YukkuriLife {
                 approachFood(source, bowlStand.feet(), bowlStand.contact());
             }
         } else stopGoal();
+    }
+    private boolean takeGroundFood(ItemEntity food) {
+        var one = food.getItem().copyWithCount(1);
+        if (!beginMeal(one, null, false)) return false;
+        var remaining = food.getItem().copy();
+        remaining.shrink(1);
+        if (remaining.isEmpty()) food.discard(); else food.setItem(remaining);
+        GameplayLog.event(entity, "meal", "pickup item={} count=1 source={} remaining={} holder=mouth",
+                one.getItem(), food.getUUID(), remaining.getCount());
+        WildCards.foodTaken(entity, food);
+        return true;
     }
     private boolean clearContact(BlockPos pos) {
         return level().clip(new ClipContext(entity.getEyePosition(), Vec3.atCenterOf(pos),

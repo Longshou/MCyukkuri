@@ -367,13 +367,18 @@ public final class FamilyLife {
     void face(float yaw){Motor.face(entity,Mth.approachDegrees(entity.getYRot(),yaw,(float)BodyAbility.of(entity).turnRate()));}
     /** The birth this mother conducts, while it runs. */
     LiveBirth liveBirth() { return birth.choreography() instanceof LiveBirth running?running:null; }
-    /** Danger, commands, operations, urgent needs and meals still come before any birth duty. */
+    private boolean stagingStem() {
+        var ceremony=liveBirth();
+        return ceremony!=null&&ceremony.anchorsMother();
+    }
+    /** Danger and physical interruptions take precedence over staging. Ordinary live labour also yields to urgent needs. */
     private boolean birthFree() {
-        var b=brood();
-        boolean releasing=attachedStem(b)&&b.elapsed>=b.duration;
+        boolean staging=stagingStem();
+        var life=entity.life();
         return !entity.level().isClientSide&&entity.isAlive()&&!entity.isNoAi()&&!entity.isPanicking()&&!entity.isCommandPlaying()&&(!entity.isPassenger()||cabinBirth())
-                &&!entity.operations().active()&&!(releasing?entity.life().hasUrgentNonFoodNeed():entity.life().hasUrgentNeed())
-                &&entity.life().mealTicks()==0&&!awaitingLanding;
+                &&!entity.operations().active()&&!awaitingLanding
+                &&(staging ? !entity.isOnFire()&&!entity.isInWaterOrBubble()&&!life.hotFloor().active()&&!entity.body().dying()
+                        : !life.hasUrgentNeed()&&life.mealTicks()==0);
     }
     /** The birth role this body plays in the current beat (BirthGoal.canUse); when the goal yields, the beat's deadline decides the cost.
      *  Danger or a hunger emergency can displace a catcher. Ordinary comfort waits while the catch is under way. */
@@ -381,13 +386,15 @@ public final class FamilyLife {
         var role=birthFree()?Conductor.roleOf(entity):null;
         if(role==null||!role.engaged(entity))return null;
         if(role.choreography().host()==entity&&shoreLanding())return null;
-        if(role.choreography().host()==entity&&role.choreography() instanceof LiveBirth b&&b.awaitingStemRipeness())return null;
         return LiveBirth.CATCHER.equals(role.role())&&role.choreography().host()!=entity&&role.choreography() instanceof LiveBirth b&&b.watching()
                 &&(hasUrgentlyHungryChild()||comfortTicks>0&&!b.catching())?null:role;
     }
     /** BirthGoal's tick for a role with nothing to run: hold still; the mother's postpartum beats, the catcher's eyes on the birth. */
     public void holdBirthRole(Conductor.Role role) {
-        entity.getNavigation().stop();
+        if(role.choreography() instanceof LiveBirth ceremony && ceremony.host()==entity && ceremony.anchorsMother()){
+            SurfaceApproach.halt(entity);
+            entity.life().eatAtStand();
+        }else entity.getNavigation().stop();
         var cabin=birthCabin();
         if(cabin!=null&&cabin.ready()&&(laboring()||"linger".equals(role.choreography().beat())))
             Motor.supportHeight(cabin.hat(),entity,cabin.underside(),"birth_support");
@@ -537,15 +544,16 @@ public final class FamilyLife {
         // An expecting mother shows it at a glance: a stem on her head or a swelling belly, and a small heart now and then.
         if(expecting&&brood.incidentSource==null&&entity.tickCount%60==0)
             level().sendParticles(ParticleTypes.HEART,entity.getX(),entity.getY()+entity.getBbHeight()+.15,entity.getZ(),1,.12,.04,.12,0);
-        // The last APPROACH_LEAD ticks call the birth conductor, which also advances live labour.
+        // The conductor owns the whole stem growth and the late preparation and labour of live birth.
         // A birth still running for an older brood never holds a new one back: it ends, and its hat goes to the hat errand.
         if(expecting&&liveBirth() instanceof LiveBirth old&&!brood.id.equals(old.broodId()))birth.stop("brood_replaced");
         if(expecting&&!birth.active()){
-            if(brood.elapsed>=brood.duration-LiveBirth.APPROACH_LEAD)birth.start(LiveBirth.cast(this,brood));
+            if(brood.kind==FamilyData.BirthKind.STEM||brood.elapsed>=brood.duration-LiveBirth.APPROACH_LEAD)
+                birth.start(LiveBirth.cast(this,brood));
             else if(brood.kind==FamilyData.BirthKind.LIVE)gestate(brood,true);
         } else if(gestation!=null&&(brood==null||brood.cancelled||brood.complete()&&brood.kind!=FamilyData.BirthKind.STEM))gestation=null;
         if(expecting&&brood.kind==FamilyData.BirthKind.STEM){
-            if(stemFoodUrgent()&&entity.life().isSleeping())entity.life().wakeForStemFood();
+            if(entity.life().isSleeping())entity.life().wakeForStemFood();
             advanceStem(brood);
             if(!entity.isAlive())return;
         }
@@ -960,22 +968,19 @@ public final class FamilyLife {
         var b=brood();
         return attachedStem(b)&&b.elapsed<b.duration;
     }
-    /** Ticks of growth the current body can fund, if the remaining draw would deplete it. */
-    public int stemDepletionTicks() { return stemDepletionTicks(brood()); }
-    private int stemDepletionTicks(FamilyData.Brood b) {
-        if(!attachedStem(b)||b.elapsed>=b.duration)return Integer.MAX_VALUE;
+    private boolean wouldDeplete(FamilyData.Brood b) {
+        if(!attachedStem(b)||b.elapsed>=b.duration)return false;
         float budget=entity.life().nutrition()+entity.getHealth()*StemDrain.NUTRITION_PER_HEALTH;
-        if(b.draw(b.unpaidTicks())<=budget)return Integer.MAX_VALUE;
-        int ticks=(int)(budget/b.draw(1))-b.elapsed%b.drawInterval();
-        return Math.max(0,ticks);
+        return b.draw(b.unpaidTicks())>budget;
     }
     public boolean stemFoodUrgent() {
-        return growingStem()&&(entity.life().nutrition()<StemDrain.WEAK_NUTRITION||stemDepletionTicks()<Integer.MAX_VALUE);
+        var b=brood();
+        return attachedStem(b)&&b.elapsed<b.duration&&(entity.life().nutrition()<StemDrain.WEAK_NUTRITION||wouldDeplete(b));
     }
     public boolean stemDepletionWarning() {
         var b=brood();
         return attachedStem(b)&&b.fastStem&&FamilyGeometry.fruitScale(b.progress(),GrowthSize.STEM)>0
-                &&stemDepletionTicks(b)<Integer.MAX_VALUE;
+                &&wouldDeplete(b);
     }
     private static boolean attachedStem(FamilyData.Brood b){
         return b!=null&&b.kind==FamilyData.BirthKind.STEM&&!b.cancelled&&!b.complete();

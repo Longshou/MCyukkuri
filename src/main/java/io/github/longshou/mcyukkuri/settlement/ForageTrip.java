@@ -1,7 +1,5 @@
 package io.github.longshou.mcyukkuri.settlement;
 
-import io.github.longshou.mcyukkuri.motor.BodyAbility;
-
 import io.github.longshou.mcyukkuri.random.ModRandom;
 
 import io.github.longshou.mcyukkuri.mind.EmotionEvent;
@@ -231,7 +229,6 @@ public final class ForageTrip extends Goal {
     /** The available provider puts the short store ahead of empty-handed work and moderate personal hunger. */
     public boolean provisioningFirst() {
         if (!(entity.level() instanceof ServerLevel) || hunting || entity.life().nutrition() < OWN_MEAL_NUTRITION
-                || entity.family().stemFoodUrgent()
                 || !outing() && entity.tickCount < scanAfter || entity.bereaving() || !body() || !familyConditions()
                 || entity.family().carry().mouthBusy() || !entity.habitat().carrying().isEmpty()) return false;
         var home = shelter();
@@ -355,8 +352,6 @@ public final class ForageTrip extends Goal {
             if (group != null && now - noMeadowAt >= 6000) { noMeadowAt = now; group.commons.outing(false); }
             return false;
         }
-        // A hungry carrier must reach the plants before the stem has consumed the rest of her reserve.
-        if (stemCannotReach(target)) return false;
         GameplayLog.event(entity,"forage","household provider={} covered={} food={} target={}",
                 entity.getUUID(),household.covered(),home.food(),HouseholdStores.target(home));
         begin(Role.FAMILY, target, r, departure);
@@ -386,15 +381,10 @@ public final class ForageTrip extends Goal {
     @Override public boolean canContinueToUse() {
         if (phase == Phase.NONE || !body() || entity.bereaving()) return false;
         if (urgent()) { recoveringNeeds = true; return false; }
-        if (phase==Phase.OUT&&load.isEmpty()&&stemCannotReach(dest)) { giveUp("stem_food"); return false; }
         if (!canCarryForage()) return false; // the state survives; the goal resumes when the mouth is available
         return true;
     }
     @Override public boolean requiresUpdateEveryTick() { return true; }
-    private boolean stemCannotReach(BlockPos target) {
-        int ticks=entity.family().stemDepletionTicks();
-        return ticks!=Integer.MAX_VALUE&&ticks*BodyAbility.of(entity).walkSpeed()<Math.sqrt(entity.blockPosition().distSqr(target));
-    }
     @Override public void start() {
         ticks = 0;
         GameplayLog.limited(entity,"forage","active",200,"goal active phase={} reason={} carried={} elapsed={}",phase,reason,load.getCount(),away());

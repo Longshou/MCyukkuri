@@ -52,8 +52,8 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
 /**
- * The birth as one choreography, conducted by the mother's {@link FamilyLife} over the last
- * {@value #APPROACH_LEAD} ticks of a LIVE or STEM gestation. Roles: the mother, and the catcher (a Marisa father nearby,
+ * The birth as one choreography, conducted by the mother's {@link FamilyLife} from sprouting for STEM, or over the last
+ * {@value #APPROACH_LEAD} ticks of a LIVE gestation. Roles: the mother, and the catcher (a Marisa father nearby,
  * hatted or not, else a hatted Marisa mother herself). The receiver is a hat the catcher sets down, a large nest or the ground. Both tables share the
  * site, meeting, hat and cleanup beats; LIVE adds the labour beats, STEM one drop beat. The labour clock ({@link #conductData})
  * only advances the brood ledger; the bodies move through their own BirthGoal.
@@ -452,14 +452,23 @@ final class LiveBirth extends Choreography {
         var b=brood();var centre=FamilyNest.largeCentre(m);
         return !live&&receiver instanceof Nest&&b!=null&&centre!=null?go.facing(stemFacing(m,b,target,centre)):go;
     }
-    boolean awaitingStemRipeness(){return !live&&"stem_term".equals(beat())&&toTerm()>0;}
+    boolean anchorsMother(){
+        var b=brood();
+        return !live&&b!=null&&!b.cancelled&&!b.complete();
+    }
 
-    /** Find the same ground stand again after the mother leaves it to eat or avoid danger. */
+    /** Recheck the delivery stand after a genuine interruption or a receiver change. */
     private Intent stemSite(){
         var m=o.entity();
         var hat=placedHat();var c=catcher();
         if(hat==null||c==null)return receiver instanceof Nest?site():null;
         if(self())return null;
+        if(meeting!=null){
+            var stand=meeting.site();
+            var aligned=HatGeometry.catchPose(m,brood(),c,HatGeometry.Role.HELPER,stand.a(),stand.yawA());
+            if(SurfaceApproach.supported(m,stand.a())&&aligned.at().distanceToSqr(hat.position())<.01)
+                return new GoTo("stem_drop_site",m,stand.a(),now()+NEST_GRACE).around(c).facing(stand.yawA());
+        }
         Vec3 best=null;
         float facing=0;
         for(float yaw:new float[]{hat.getYRot(),hat.getYRot()+180}){
