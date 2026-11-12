@@ -52,9 +52,13 @@ public final class ModBlocks {
     public static final DeferredBlock<ShelterBlock> FOREST_BURROW=BLOCKS.register("forest_burrow",
             ()->new ShelterBlock(ShelterBlock.Kind.BURROW,BlockBehaviour.Properties.of().strength(.8f).sound(SoundType.ROOTS).noOcclusion()));
     public static final DeferredBlock<ShelterBlock> CARDBOARD_SHELTER=BLOCKS.register("cardboard_shelter",
-            ()->new ShelterBlock(ShelterBlock.Kind.CARDBOARD,BlockBehaviour.Properties.of().strength(.3f).sound(SoundType.WOOL).noOcclusion()));
+            ()->new ShelterBlock(ShelterBlock.Kind.CARDBOARD,BlockBehaviour.Properties.of().strength(.3f).sound(SoundType.WOOL).noOcclusion()
+                    .pushReaction(PushReaction.DESTROY)));
+    public static final DeferredBlock<ShelterBlock> CRATE_SHELTER=BLOCKS.register("crate_shelter",
+            ()->new ShelterBlock(ShelterBlock.Kind.CRATE,BlockBehaviour.Properties.of().strength(.6f).sound(SoundType.WOOD).noOcclusion()
+                    .pushReaction(PushReaction.DESTROY)));
     public static final DeferredHolder<BlockEntityType<?>,BlockEntityType<ShelterBlockEntity>> SHELTER_ENTITY=BLOCK_ENTITIES.register("wild_shelter",
-            ()->BlockEntityType.Builder.of(ShelterBlockEntity::new,FOREST_BURROW.get(),CARDBOARD_SHELTER.get()).build(null));
+            ()->BlockEntityType.Builder.of(ShelterBlockEntity::new,FOREST_BURROW.get(),CARDBOARD_SHELTER.get(),CRATE_SHELTER.get()).build(null));
     public static final DeferredBlock<ForagePileBlock> FORAGE_PILE=BLOCKS.register("forage_pile",
             ()->new ForagePileBlock(BlockBehaviour.Properties.of().strength(.3f).sound(SoundType.GRASS).noCollission().noOcclusion()
                     .pushReaction(PushReaction.DESTROY)));

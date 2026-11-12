@@ -1,5 +1,7 @@
 package io.github.longshou.mcyukkuri.life;
 
+import io.github.longshou.mcyukkuri.settlement.FoundShelter;
+
 import io.github.longshou.mcyukkuri.random.ModRandom;
 
 import io.github.longshou.mcyukkuri.body.DetachedItems;
@@ -193,6 +195,8 @@ public final class ToiletContact {
             var cells = pit == null || group == null ? List.<BlockPos>of() : GroupPits.cells(server, group);
             var placed = Poops.place(server, origin, stack.copy(), cells.isEmpty() ? null : cell -> GroupPits.inCells(cells, cell));
             if (placed != null) {
+                var shelter = FoundShelter.atOpening(actor);
+                if (shelter != null) shelter.fouled();
                 GameplayLog.event(actor, "needs", "poop placed at={} meant={} volume={} -> {} overflow={} pit={}",
                         placed.at(), origin, placed.before(), placed.after(), placed.overflow(), pit != null);
                 return true;

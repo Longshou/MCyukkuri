@@ -43,12 +43,16 @@ import net.minecraft.world.phys.AABB;
 import io.github.longshou.mcyukkuri.headwear.Recognition;
 import io.github.longshou.mcyukkuri.life.NestOccupancy;
 import io.github.longshou.mcyukkuri.life.NestResting;
+import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.life.CareBlockEntity;
 import io.github.longshou.mcyukkuri.house.SupplyPiles;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Objects;
 import net.minecraft.tags.ItemTags;
+import net.minecraft.tags.BlockTags;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.phys.Vec3;
 
@@ -105,6 +109,8 @@ public final class ShelterBlockEntity extends BlockEntity {
         return project.work>=120&&completePrivateNest(entity);
     }
     private int condition=100, moisture, lining, dirt, ticks;
+    private int emptyTicks, rainStage;
+    private final List<ItemStack> foundBedding = new ArrayList<>();
     private boolean dismantling;
     /** Residential cells of a natural home, deepest first. The doorway cell (this core) and the store cell are not among them. */
     private List<BlockPos> naturalBeds=List.of();
@@ -132,6 +138,8 @@ public final class ShelterBlockEntity extends BlockEntity {
     public int moisture() { return moisture; }
     public int lining() { return lining; }
     public int dirt() { return dirt; }
+    public int rainStage() { return rainStage; }
+    public int emptyTicks() { return emptyTicks; }
     public int occupants() { return residents.size(); }
     public List<UUID> residentIds() { return List.copyOf(residents.keySet()); }
     public int capacity() { return kind()==ShelterBlock.Kind.BURROW?naturalBeds.size():kind().capacity; }
@@ -143,11 +151,15 @@ public final class ShelterBlockEntity extends BlockEntity {
         if(naturalPile!=null)bounds=bounds.minmax(new AABB(naturalPile));return bounds.expandTowards(0,.5,0);
     }
     /** Inside the home: a residential cell, the doorway cell just inside the mouth, or the store cell. */
-    public boolean contains(BlockPos pos) { return beds().contains(pos)||kind()==ShelterBlock.Kind.BURROW&&(pos.equals(worldPosition)||pos.equals(naturalPile)); }
+    public boolean contains(BlockPos pos) {
+        if (kind().found()) return pos.getY() == worldPosition.getY() && Math.abs(pos.getX()-worldPosition.getX()) <= kind().radius
+                && Math.abs(pos.getZ()-worldPosition.getZ()) <= kind().radius;
+        return beds().contains(pos)||pos.equals(worldPosition)||pos.equals(naturalPile);
+    }
     /** The planned store cell inside the cavity, or null. */
     public BlockPos pileCell() { return naturalPile; }
     public boolean owns(UUID id) { return residents.containsKey(id); }
-    public List<BlockPos> beds() { return kind()==ShelterBlock.Kind.BURROW?naturalBeds:List.of(worldPosition); }
+    public List<BlockPos> beds() { return kind().found()?List.of(worldPosition, worldPosition.relative(facing())):naturalBeds; }
     public boolean privateNest(UUID id) { return owns(id)&&privateNests.contains(id); }
     /** Occupied common nest cells, ordered by their surveyed sleeping slot for client-side grouping. */
     public List<BlockPos> sharedBeds() {
@@ -281,6 +293,7 @@ public final class ShelterBlockEntity extends BlockEntity {
     }
     /** The spawner calls this only after completing the real family relationship records. */
     public boolean claim(YukkuriEntity entity) {
+        if (kind().found()) return claimFound(entity);
         if(owns(entity.getUUID()))return true;
         if(!(level instanceof ServerLevel server)||!sound()||entity.profile().houseBody())return false;
         if(!entity.moldExile().allowsAddress(worldPosition))return false;
@@ -320,6 +333,51 @@ public final class ShelterBlockEntity extends BlockEntity {
                         &&(Bonds.parentOf(entity, kid))&&acceptsAt(chosen,kid))residents.put(id,chosen);
             }
             changed();return true;
+        }
+        return false;
+    }
+
+    boolean related(UUID a, UUID b) {
+        var family = FamilyData.get((ServerLevel)level);
+        var person = family.person(a);
+        return a.equals(b) || family.socialKin(a, b) || person != null && b.equals(person.partner());
+    }
+
+    private boolean claimFound(YukkuriEntity entity) {
+        var id = entity.getUUID();
+        if (!FoundShelter.canTakeFoundShelter(entity) || !foundUsable(entity)
+                || residents.keySet().stream().anyMatch(other -> !related(id, other)) || !contains(entity.blockPosition())) return false;
+        if (!owns(id)) {
+            residents.put(id, entity.blockPosition().equals(beds().get(1)) ? 1 : 0);
+            emptyTicks = 0;
+            changed();
+        }
+        return true;
+    }
+
+    BlockPos foundBed(YukkuriEntity entity) {
+        var family = FamilyData.get((ServerLevel)level);
+        var id = entity.getUUID();
+        int reservedYoung = family.reservedForResidents(candidate -> candidate.equals(id) || residents.containsKey(candidate));
+        boolean youngInside = residentIds().stream().anyMatch(other -> level instanceof ServerLevel server
+                && server.getEntity(other) instanceof YukkuriEntity child && !child.family().adult() && related(id, other));
+        return entity.family().adult() && (reservedYoung > 0 || youngInside || family.children(id).stream().anyMatch(child ->
+                level instanceof ServerLevel server && server.getEntity(child) instanceof YukkuriEntity y
+                        && !y.family().adult() && y.distanceToSqr(entity) < 36)) ? beds().get(1) : worldPosition;
+    }
+
+    boolean foundUsable(YukkuriEntity entity) {
+        return rainStage == 0 && sound() && (dirt < 65 || entity.status().marks().dirt() >= 3 || entity.body().mold() > 0)
+                && FoundShelter.fits(entity, kind());
+    }
+
+    public boolean feedResident(Player player, InteractionHand hand, ItemStack food) {
+        if (!(level instanceof ServerLevel server)) return false;
+        for (var id : residents.keySet()) {
+            if (!(server.getEntity(id) instanceof YukkuriEntity y) || !y.isAlive() || !contains(y.blockPosition())
+                    || player.distanceToSqr(y) > 16 || !player.hasLineOfSight(y)) continue;
+            if (!y.life().acceptsFood(food) && !y.life().canReceiveCareFood(food)) continue;
+            return y.interact(player, hand) != InteractionResult.PASS;
         }
         return false;
     }
@@ -377,11 +435,13 @@ public final class ShelterBlockEntity extends BlockEntity {
     }
     public boolean sound() {
         return (kind()==ShelterBlock.Kind.BURROW||condition>0) && complete() && !beds().isEmpty() && !flooded()
-                && beds().stream().allMatch(pos->kind()==ShelterBlock.Kind.BURROW?NaturalShelter.enclosed(level,pos):NaturalShelter.stand(level,pos))
+                && beds().stream().allMatch(pos->kind()==ShelterBlock.Kind.BURROW?NaturalShelter.enclosed(level,pos)
+                        :level.getBlockState(pos.below()).isFaceSturdy(level,pos.below(),Direction.UP))
                 && (kind()!=ShelterBlock.Kind.BURROW||NaturalShelter.enclosed(level,worldPosition));
     }
     public boolean usable(YukkuriEntity entity) {
         var bed=bed(entity.getUUID());
+        if (kind().found()) return bed != null && foundUsable(entity) && FoundShelter.canTakeFoundShelter(entity);
         return bed!=null&&!SettlementEvents.shelterBarred(entity)&&sound()&&moisture<85&&dirt<90&&entity.life().dryStand(bed)&&(entity.life().dryStand(entrance())||DenBarrier.sealed(this));
     }
     public boolean insulated() { return lining>=3&&moisture<55&&(kind()==ShelterBlock.Kind.BURROW||condition>=40); }
@@ -402,7 +462,11 @@ public final class ShelterBlockEntity extends BlockEntity {
         if(stack.getCount()!=1)return false;
         if((branches<3||condition<95)&&repairMaterial(stack)){branches=Math.min(3,branches+1);condition=Math.min(100,condition+15);changed();return true;}
         if((lining<4||dirt>=30||moisture>=60)&&bedding(stack)){
-            if(lining<4)lining++;dirt=Math.max(0,dirt-30);moisture=Math.max(0,moisture-10);changed();return true;
+            if (lining < 4) {
+                lining++;
+                if (kind().found()) foundBedding.add(stack.copy());
+            } else if (kind().found()) return false;
+            dirt=Math.max(0,dirt-30);moisture=Math.max(0,moisture-10);changed();return true;
         }
         return depositFood(stack);
     }
@@ -514,6 +578,7 @@ public final class ShelterBlockEntity extends BlockEntity {
         return level.getEntitiesOfClass(ItemEntity.class,interior(),item->item.isAlive()&&contains(item.blockPosition())&&item.getItem().is(ModItems.WASTE.get()));
     }
     public void cleaned() { dirt=Math.max(0,dirt-30);changed(); }
+    public void fouled() { dirt = Math.min(100, dirt + 6); changed(); }
     public void clean(Player player) {
         for(var waste:wasteInside()) {
             var stack=waste.getItem().copy();player.getInventory().add(stack);
@@ -527,7 +592,10 @@ public final class ShelterBlockEntity extends BlockEntity {
         ticks++;if(ticks%100!=0)return;
         if(kind()==ShelterBlock.Kind.BURROW&&naturalBeds.isEmpty()){dismantle();return;}
         var families=FamilyData.get((ServerLevel)level);
-        if(residents.keySet().removeIf(id->{var p=families.person(id);return p!=null&&(p.status==FamilyData.Status.DEAD||p.status==FamilyData.Status.REMOVED);})) {
+        var server = (ServerLevel)level;
+        if(residents.keySet().removeIf(id->{var p=families.person(id);return p!=null&&(p.status==FamilyData.Status.DEAD||p.status==FamilyData.Status.REMOVED)
+                || kind().found() && (!(server.getEntity(id) instanceof YukkuriEntity y) || !y.isAlive()
+                        || !contains(y.blockPosition()) && !entrance().equals(y.blockPosition()));})) {
             privateNests.retainAll(residents.keySet());
             for(var id:List.copyOf(nestProjects.keySet()))if(!owns(id))dropNestProject(id);
             changed();
@@ -536,17 +604,21 @@ public final class ShelterBlockEntity extends BlockEntity {
             if(ShelterPlacement.positions(worldPosition,kind()).stream().allMatch(level::hasChunkAt))dismantle();
             return;
         }
-        boolean rain=kind()==ShelterBlock.Kind.BURROW?beds().stream().anyMatch(pos->level.isRainingAt(pos.above())):level.isRainingAt(worldPosition.above(kind().height));
+        if (kind().found()) {
+            tickFound(server);
+            return;
+        }
+        boolean rain=beds().stream().anyMatch(pos->level.isRainingAt(pos.above()));
         if(flooded())moisture=Math.min(100,moisture+20);
-        else if(rain)moisture=Math.min(100,moisture+(kind()==ShelterBlock.Kind.CARDBOARD?7:8));
+        else if(rain)moisture=Math.min(100,moisture+8);
         else moisture=Math.max(0,moisture-4);
-        soaked=kind()==ShelterBlock.Kind.BURROW&&moisture>=90?soaked+100:0;
-        if(soaked>2400&&residents.size()>=3&&level instanceof ServerLevel server&&ModRandom.world(server).nextInt(YukkuriConfig.COLLAPSE_ONE_IN.get())==0
+        soaked=moisture>=90?soaked+100:0;
+        if(soaked>2400&&residents.size()>=3&&ModRandom.world(server).nextInt(YukkuriConfig.COLLAPSE_ONE_IN.get())==0
                 &&SettlementEvents.tryCollapse(server,this))return;
         int waste=wasteInside().stream().mapToInt(item->item.getItem().getCount()).sum();
         if(waste>0)dirt=Math.min(100,dirt+Math.min(10,waste*2));
         else if(ticks%400==0&&residents.size()>0)dirt=Math.min(100,dirt+1);
-        if(moisture>=60&&ticks%400==0)condition=Math.max(0,condition-(kind()==ShelterBlock.Kind.CARDBOARD?3:1));
+        if(moisture>=60&&ticks%400==0)condition=Math.max(0,condition-1);
         if(moisture>=75&&lining>0&&ticks%1200==0)lining--;
         // Stores keep longer in autumn and winter air and spoil faster in summer heat. [original]
         int rot=moisture>=60?1200:6000;
@@ -559,25 +631,61 @@ public final class ShelterBlockEntity extends BlockEntity {
         if(stored==null&&!residents.isEmpty())ensurePile(); // an empty, unclaimed shelter does not grow a store on its own
         changed();
     }
+
+    private void tickFound(ServerLevel server) {
+        boolean blocked = !level.getBlockState(entrance()).getCollisionShape(level, entrance()).isEmpty()
+                || !NaturalShelter.stand(level, entrance());
+        boolean fire = ShelterPlacement.positions(worldPosition, kind()).stream().anyMatch(this::touchesFire);
+        if (flooded() || blocked || fire) { dismantle(flooded() ? "flooded" : fire ? "fire" : "closed"); return; }
+        emptyTicks = residents.isEmpty() ? Math.min(24000, emptyTicks + 100) : 0;
+        if (kind() == ShelterBlock.Kind.CARDBOARD) {
+            moisture = Math.clamp(moisture + (level.isRainingAt(worldPosition.above(kind().height)) ? 10 : -5), 0, 100);
+            int stage = moisture >= 80 ? 2 : moisture >= 55 ? 1 : 0;
+            if (stage != rainStage) GameplayLog.world(server, "habitat", "found rain stage={} -> {} shelter={} moisture={}",
+                    rainStage, stage, worldPosition, moisture);
+            rainStage = stage;
+            if (moisture == 100) { condition = 0; dismantle("rain_collapse"); return; }
+        }
+        for (var id : residents.keySet()) if (server.getEntity(id) instanceof YukkuriEntity y)
+            dirt = Math.min(100, dirt + (y.body().mold() > 0 ? 2 : y.status().marks().dirt() >= 3 ? 1 : 0));
+        changed();
+    }
+
+    private boolean touchesFire(BlockPos part) {
+        for (var side : Direction.values()) {
+            var neighbor = part.relative(side);
+            if (level.hasChunkAt(neighbor) && level.getBlockState(neighbor).is(BlockTags.FIRE)) return true;
+        }
+        return false;
+    }
     public Component description() {
         if(kind()==ShelterBlock.Kind.BURROW)return Component.translatable("shelter.mcyukkuri.inspect_natural",occupants(),capacity(),branches,condition,moisture,lining,food(),dirt,
                 Component.translatable("shelter.mcyukkuri."+(flooded()?"flooded":rainSheltered(worldPosition)?"cave":"pit")));
         return Component.translatable("shelter.mcyukkuri.inspect",Component.translatable("block.mcyukkuri."+kind().id),occupants(),capacity(),condition,moisture,lining,food(),dirt,
                 Component.translatable("shelter.mcyukkuri."+(flooded()?"flooded":condition==0?"ruined":insulated()?"insulated":"exposed")));
     }
-    public void dismantle() { clearStructure(true); }
-    public void rollback() { clearStructure(false); }
-    private void clearStructure(boolean drops) {
+    public void dismantle() { dismantle("broken"); }
+    void dismantle(String reason) { clearStructure(true, reason); }
+    public void rollback() { clearStructure(false, "rollback"); }
+    private void clearStructure(boolean drops, String reason) {
         if(dismantling||level==null)return;dismantling=true;
         if(drops){
             for(var id:List.copyOf(nestProjects.keySet()))dropNestProject(id);
+            for (var stack : foundBedding) Containers.dropItemStack(level, worldPosition.getX()+.5, worldPosition.getY(), worldPosition.getZ()+.5, stack);
             Containers.dropItemStack(level,worldPosition.getX()+.5,worldPosition.getY(),worldPosition.getZ()+.5,
-                    new ItemStack(kind()==ShelterBlock.Kind.CARDBOARD?Items.PAPER:Items.STICK,kind()==ShelterBlock.Kind.CARDBOARD?(condition>0?3:1):branches));
+                    new ItemStack(kind()==ShelterBlock.Kind.CARDBOARD?Items.PAPER:Items.STICK,kind()==ShelterBlock.Kind.CARDBOARD?(condition>0?3:1):kind().found()?3:branches));
         }
         // A collapse leaves the heap where it lies (its portions stay real); a rollback removes the unused pile with the shelter.
         var heap=pile();
-        if(!drops&&heap!=null){heap.drain();level.removeBlock(heap.getBlockPos(),false);}
+        if((!drops||kind().found())&&heap!=null){if(!drops)heap.drain();level.removeBlock(heap.getBlockPos(),false);}
         pilePos=null;
+        if (drops && kind().found() && level instanceof ServerLevel server) {
+            for (var y : server.getEntitiesOfClass(YukkuriEntity.class, interior().inflate(1), entity -> contains(entity.blockPosition()))) {
+                y.life().foundShelterRemoved(worldPosition, reason.equals("rain_collapse"));
+                GameplayLog.event(y, "habitat", "found ejected shelter={} reason={}", worldPosition, reason);
+            }
+            GameplayLog.world(server, "habitat", "found removed shelter={} reason={}", worldPosition, reason);
+        }
         residents.clear();privateNests.clear();nestProjects.clear();
         var positions=new ArrayList<>(ShelterPlacement.positions(worldPosition,kind()));positions.remove(worldPosition);positions.add(worldPosition);
         for(var pos:positions)if(level.hasChunkAt(pos)){
@@ -597,6 +705,10 @@ public final class ShelterBlockEntity extends BlockEntity {
         super.saveAdditional(tag,registries);tag.putInt("Version",3);saveSite(tag);
         if(pilePos!=null)tag.putLong("Pile",pilePos.asLong());
         tag.putInt("Condition",condition);tag.putInt("Moisture",moisture);tag.putInt("Lining",lining);tag.putInt("Dirt",dirt);tag.putInt("Ticks",ticks);
+        if (kind().found()) {
+            tag.putInt("EmptyTicks",emptyTicks);tag.putInt("RainStage",rainStage);
+            var bedding=new ListTag();for(var stack:foundBedding)bedding.add(stack.save(registries));tag.put("FoundBedding",bedding);
+        }
         saveResidents(tag,registries);
     }
     @Override protected void loadAdditional(CompoundTag tag,HolderLookup.Provider registries) {
@@ -605,6 +717,9 @@ public final class ShelterBlockEntity extends BlockEntity {
         condition=Math.clamp(tag.getInt("Condition"),0,100);moisture=Math.clamp(tag.getInt("Moisture"),0,100);lining=Math.clamp(tag.getInt("Lining"),0,4);
                 dirt=Math.clamp(tag.getInt("Dirt"),0,100);ticks=Math.max(0,tag.getInt("Ticks"));
         loadResidents(tag,registries);
+        emptyTicks=tag.getInt("EmptyTicks");rainStage=tag.getInt("RainStage");
+        foundBedding.clear();
+        for(var raw:tag.getList("FoundBedding",Tag.TAG_COMPOUND))foundBedding.add(ItemStack.parseOptional(registries,(CompoundTag)raw));
     }
     private void saveResidents(CompoundTag tag,HolderLookup.Provider registries) {
         tag.put("RestingPlaces",NestResting.save(resting));
@@ -656,10 +771,10 @@ public final class ShelterBlockEntity extends BlockEntity {
     }
     @Override public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
         var tag=super.getUpdateTag(registries);if(pilePos!=null)tag.putLong("Pile",pilePos.asLong());saveSite(tag);saveResidents(tag,registries);tag.putInt("Condition",condition);
-                tag.putInt("Moisture",moisture);tag.putInt("Lining",lining);tag.putInt("Dirt",dirt);return tag;
+                tag.putInt("Moisture",moisture);tag.putInt("Lining",lining);tag.putInt("Dirt",dirt);tag.putInt("RainStage",rainStage);return tag;
     }
     @Override public void handleUpdateTag(CompoundTag tag,HolderLookup.Provider registries) { pilePos=tag.contains("Pile")?BlockPos.of(tag.getLong("Pile")):null;loadSite(tag);
-            loadResidents(tag,registries);condition=tag.getInt("Condition");moisture=tag.getInt("Moisture");lining=tag.getInt("Lining");dirt=tag.getInt("Dirt"); }
+            loadResidents(tag,registries);condition=tag.getInt("Condition");moisture=tag.getInt("Moisture");lining=tag.getInt("Lining");dirt=tag.getInt("Dirt");rainStage=tag.getInt("RainStage"); }
     @Override public ClientboundBlockEntityDataPacket getUpdatePacket() { return ClientboundBlockEntityDataPacket.create(this); }
     @Override public void onDataPacket(Connection connection,ClientboundBlockEntityDataPacket packet,HolderLookup.Provider registries) {
         handleUpdateTag(packet.getTag(),registries);

@@ -8,6 +8,7 @@ import io.github.longshou.mcyukkuri.entity.YukkuriComponents;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.LeafSwaddle;
 import io.github.longshou.mcyukkuri.life.Consumables;
+import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.mind.EmotionEvent;
 import io.github.longshou.mcyukkuri.mind.ExcitedLeak;
 import io.github.longshou.mcyukkuri.registry.ModItems;
@@ -33,6 +34,7 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomData;
+import net.minecraft.world.phys.Vec3;
 
 /** Vanilla health is the sole live-body resource; wounds and the one-time death snapshot belong here. */
 public final class BodyLife {
@@ -583,8 +585,13 @@ public final class BodyLife {
         var remains=RemainsEntity.snapshot(entity,source,stemDepletion,sukkiriExhaustion,internal);
         var mouth=entity.component(YukkuriComponents.MOUTH);
         RemainsEntity.retainCarriedItems(remains,mouth.itemsForRemains());
-        if(!RemainsEntity.place(entity.level(),entity.position(),entity.yBodyRot,remains,false))return;
+        var found = entity.life().foundShelter();
+        var opening = found == null ? null : Vec3.atBottomCenterOf(found.entrance());
+        boolean setDown = opening != null && SurfaceApproach.stands(entity, opening) && SurfaceApproach.clearLastStep(entity, opening)
+                && RemainsEntity.place(entity.level(), opening, entity.yBodyRot, remains, true);
+        if(!setDown&&!RemainsEntity.place(entity.level(),entity.position(),entity.yBodyRot,remains,false))return;
         mouth.remainsAcceptedItems();
+        if (found != null) found.release(entity.getUUID());
         settled=true;settledCause=internal;entity.syncBody();
         var stored=remains.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();
         GameplayLog.event(entity,"body","death settled into remains; cause={} internal={} category={} core_hurt={} food={} stem_depletion={} sukkiri_exhaustion={}",

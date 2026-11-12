@@ -1,5 +1,7 @@
 package io.github.longshou.mcyukkuri.settlement;
 
+import io.github.longshou.mcyukkuri.interaction.ItemContact;
+
 import io.github.longshou.mcyukkuri.random.ModRandom;
 
 import io.github.longshou.mcyukkuri.mind.EmotionEvent;
@@ -75,6 +77,22 @@ public final class HabitatLife {
         carry(ItemStack.EMPTY);
         nestMaterial = ItemStack.EMPTY;
         return stacks;
+    }
+    boolean mouthFreeForLoad() {
+        return freeForWork() && carrying.isEmpty() && nestMaterial.isEmpty() && entity.forageTrip().load().isEmpty();
+    }
+    public boolean receiveMouthLoad(ItemStack stack) {
+        if (!mouthFreeForLoad()) return false;
+        carry(stack);
+        return true;
+    }
+    public boolean putDownMouthLoad() {
+        if (carrying.isEmpty()) return true;
+        var drop = ItemContact.release(entity, carrying, 60);
+        if (drop == null) return false;
+        GameplayLog.event(entity, "habitat", "drop item={} count={} holder=mouth drop={}", carrying.getItem(), carrying.getCount(), drop.getUUID());
+        carry(ItemStack.EMPTY);
+        return true;
     }
     /** Real migration rations may be shared with a dependent through the ordinary feeding handoff. */
     public boolean hasMoveFoodFor(YukkuriEntity child) {
@@ -159,7 +177,7 @@ public final class HabitatLife {
         return value!=null&&value.moisture()>=60&&value.contains(entity.blockPosition());
     }
     public boolean choose(ShelterBlockEntity value) {
-        if(roaming()||entity.profile().houseBody()||entity.profile().dangerToYukkuri()||!value.sound()||value.moisture()>=85||value.dirt()>=90
+        if(value.kind().found()||roaming()||entity.profile().houseBody()||entity.profile().dangerToYukkuri()||!value.sound()||value.moisture()>=85||value.dirt()>=90
                 ||entity.distanceToSqr(Vec3.atBottomCenterOf(value.getBlockPos()))>32*32)return false;
         // The leaver never moves back into the home it said goodbye to.
         if(entity.independence().avoids(value.getBlockPos()))return false;

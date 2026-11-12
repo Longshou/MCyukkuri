@@ -3,6 +3,9 @@ package io.github.longshou.mcyukkuri.life;
 import io.github.longshou.mcyukkuri.family.ParentCarry;
 
 import io.github.longshou.mcyukkuri.settlement.GroupPits;
+import io.github.longshou.mcyukkuri.settlement.FoundShelter;
+import io.github.longshou.mcyukkuri.settlement.GarbageSearch;
+import io.github.longshou.mcyukkuri.settlement.ShelterBlockEntity;
 import io.github.longshou.mcyukkuri.family.FamilyNest;
 import io.github.longshou.mcyukkuri.motor.ClipMarkers;
 import io.github.longshou.mcyukkuri.motor.MouthOccupancy;
@@ -63,10 +66,12 @@ import net.minecraft.world.effect.MobEffects;
 
 /** Loaded-time physiology and interruptible, server-authoritative life activities. */
 public final class YukkuriLife {
-    private enum Task { NONE, FOOD, WINTER_FOOD, HOME, TOILET, GROUND_TOILET, SLEEP, DRINK, TEMPERATURE }
+    private enum Task { NONE, FOOD, WINTER_FOOD, HOME, TOILET, GROUND_TOILET, SLEEP, DRINK, TEMPERATURE, FOUND_COVER, GARBAGE }
     private final YukkuriEntity entity;
     private final SurfaceApproach approach = new SurfaceApproach();
     private final TemperatureLife temperature;
+    private final FoundShelter foundCover;
+    private final GarbageSearch garbage;
     private YukkuriPersonality personality;
     private float nutrition = 60, energy = 80, hygiene = 100, bladder, wetness;
     private long ageTicks;
@@ -124,6 +129,8 @@ public final class YukkuriLife {
         // Hat custody captures the owner during construction, so bind the entity first.
         accessory = new LifeAccessory(this);
         temperature = new TemperatureLife(entity);
+        foundCover = new FoundShelter(entity);
+        garbage = new GarbageSearch(entity);
         personality = new YukkuriPersonality(entity);
         hotFloor = new HotFloorEscape(entity);
     }
@@ -440,7 +447,17 @@ public final class YukkuriLife {
         return switch (task) { case FOOD -> Behaviors.SEEK_FOOD; case WINTER_FOOD -> Behaviors.SHELTER_STOCK; case HOME -> Behaviors.RETURN_HOME; case TOILET -> toiletTicks > 0
                 ? Behaviors.TOILET : Behaviors.SEEK_TOILET;
             case GROUND_TOILET -> toiletTicks > 0 ? toiletAccident ? Behaviors.TOILET_ACCIDENT : Behaviors.GROUND_TOILET : Behaviors.SEEK_TOILET;
-            case DRINK -> drinkTicks>0?Behaviors.DRINK:Behaviors.SEEK_WATER; case TEMPERATURE -> temperature.activity(); default -> Behaviors.IDLE; };
+            case DRINK -> drinkTicks>0?Behaviors.DRINK:Behaviors.SEEK_WATER; case TEMPERATURE -> temperature.activity();
+            case FOUND_COVER -> foundCover.activity(); case GARBAGE -> garbage.activity(); default -> Behaviors.IDLE; };
+    }
+    public ShelterBlockEntity foundShelter() { return foundCover.inside(); }
+    boolean usingPaperBedding(BlockPos pos) { return foundCover.usingPaperAt(pos); }
+    public boolean targetingFoundShelter(BlockPos pos) { return foundCover.targeting(pos); }
+    public boolean usingGarbage(BlockPos pos) { return garbage.targeting(pos); }
+    public void yieldFoundShelter(BlockPos pos) { foundCover.yield(pos); }
+    public void foundShelterRemoved(BlockPos pos, boolean wet) {
+        if (foundCover.targeting(pos)) stopGoal();
+        foundCover.removed(pos, wet);
     }
     ServerLevel level() { return (ServerLevel)entity.level(); }
     /** Rain or leaks softening the skin: attrition, not an attack and not drowning (a bite of the death record said "drown" for it). */
@@ -631,6 +648,12 @@ public final class YukkuriLife {
         if (task == Task.SLEEP && temperature.hasTemporarySleepSite() && !temperature.canSleepAtRefuge()) {
             stopGoal(); return false;
         }
+        if (task == Task.SLEEP && foundCover.active()) {
+            if (foundCover.checkRest()) return true;
+            resetSleep();
+            if (foundCover.exiting()) { task = Task.FOUND_COVER; return true; }
+            stopGoal(); return false;
+        }
         if (task == Task.TEMPERATURE) {
             if (temperature.canContinue()) return true;
             stopGoal(); planWait = 0;
@@ -690,6 +713,8 @@ public final class YukkuriLife {
             }
         }
         if (bladder < 70 && planToilet()) return true;
+        if (!penned && EventHooks.canEntityGrief(level(), entity) && garbage.plan()) { task = Task.GARBAGE; return true; }
+        if (!penned && !ParentCarry.awaitsCarrier(entity) && foundCover.plan()) { task = Task.FOUND_COVER; return true; }
         if (temperature.plan()) { task = Task.TEMPERATURE; return true; }
         if ((restWait == 0 || entity.pet().lessons().practicing(PetSkill.BEDTIME)) && (energy <= restThreshold() || restTime())
                 && homeProvider().ordinaryRestAllowed(this)) {
@@ -705,7 +730,6 @@ public final class YukkuriLife {
                 targetBlock = null;
                 task = Task.SLEEP; resetSleep(); return true;
             }
-            if (targetBlock == null && !penned && entity.habitat().vagrant() && homeProvider().temporaryCoverAllowed()) targetBlock = nearestDryCover();
             var nestOccupancy = targetBlock == null ? null : FamilyNest.bedOccupancy(entity, targetBlock);
             if (targetBlock != null && entity.family().prepareHomeCarry()) return false;
             boolean dependentAtHome = entity.childhood().shouldStayWithParents() && nestOccupancy == Occupancy.INSIDE_SUPPORTED;
@@ -765,6 +789,11 @@ public final class YukkuriLife {
                     String.format("%.1f",Math.sqrt(spot.stand().distSqr(entity.blockPosition()))),bladder,GroupPits.waste((ServerLevel)level(),spot.pit()));
             return true;
         }
+        var found = foundShelter();
+        if (found != null && dryStand(found.entrance()) && reachable(found.entrance(), false)) {
+            targetBlock = found.entrance(); task = Task.GROUND_TOILET; toiletTicks = pursuitTicks = 0; toiletAccident = false;
+            return true;
+        }
         var avoidedPit = GroupPits.avoidedCells(entity);
         if (!pet) {
             var candidates = new ArrayList<BlockPos>();
@@ -788,6 +817,12 @@ public final class YukkuriLife {
         if (entity.isPanicking() || entity.isCommandPlaying() || entity.isInWaterOrBubble()) { stopGoal(); return; }
         pursuitTicks++;
         switch (task) {
+            case FOUND_COVER -> {
+                var step = foundCover.tick();
+                if (step == FoundShelter.Step.ENDED) stopGoal();
+                else if (step == FoundShelter.Step.RESTING && drowsy()) { task = Task.SLEEP; targetBlock = null; resetSleep(); }
+            }
+            case GARBAGE -> { if (!garbage.tick()) stopGoal(); }
             case TEMPERATURE -> {
                 if (!temperature.tickGoal()) stopGoal();
                 else if (restWait == 0 && (energy <= restThreshold() || restTime()) && temperature.beginSleepAtRefuge()) {
@@ -946,6 +981,7 @@ public final class YukkuriLife {
                     GameplayLog.event(entity,"sleep","end source=life cause={} night={} ticks={} energy={} nutrition={} stretched={}",
                             cause,level().isNight(),sleepTicks,energy,nutrition,sleepTicks > SLEEP_TICKS);
                     temperature.stop();
+                    foundCover.stop();
                     task = Task.NONE; restWait = restInterval(); resetSleep();
                     if(!entity.family().woke())entity.showReaction("neutral", "awake", 60);
                 }
@@ -1089,6 +1125,8 @@ public final class YukkuriLife {
                 "stopped source=life ticks={} energy={} nutrition={} panic={} water={} rain={}",
                 sleepTicks,energy,nutrition,entity.isPanicking(),entity.isInWaterOrBubble(),level().isRainingAt(entity.blockPosition()));
         temperature.stop();
+        foundCover.stop();
+        garbage.stop();
         entity.wintering().stopMeal();
         task = Task.NONE; targetFood = null; targetBlock = null; toiletPitCell = null; pitEdgeTicks = 0; resetSleep(); toiletTicks = 0; planWait = 30;
         entity.getNavigation().stop();
@@ -1096,7 +1134,6 @@ public final class YukkuriLife {
 
     public boolean dryStand(BlockPos pos){ return home.dryStand(pos); }
     private boolean restable(BlockPos pos){ return home.restable(pos); }
-    private BlockPos nearestDryCover(){ return home.nearestDryCover(); }
     public boolean covered(BlockPos pos){ return home.covered(pos); }
     private boolean rainOutside(){ return home.rainOutside(); }
     public BlockPos entrance(BlockPos nest){ var at=home.entrance(nest); return at==null?null:BlockPos.containing(at); }

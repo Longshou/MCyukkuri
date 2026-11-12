@@ -59,17 +59,6 @@ final class LifeHome {
         return home!=null&&home.owns(o.entity().getUUID())&&home.contains(pos)&&home.sound()&&!o.level().isRainingAt(pos);
     }
 
-    BlockPos nearestDryCover() {
-        var found=new ArrayList<BlockPos>();
-        for(var pos:BlockPos.betweenClosed(o.entity().blockPosition().offset(-TravelRange.search(o.entity(),8),-2,-TravelRange.search(o.entity(),8)),o.entity().blockPosition().offset(TravelRange.search(o.entity(),8),2,TravelRange.search(o.entity(),8)))) {
-            if(!TravelRange.babyDestination(o.entity(),pos)||!dryStand(pos)||!covered(pos))continue;
-            var owner=ShelterBlock.shelter(o.level(),pos);
-            if(owner!=null&&!owner.owns(o.entity().getUUID()))continue;
-            found.add(pos.immutable());
-        }
-        return nearestReachable(found);
-    }
-
     /** Distinct unreachable spots (a roof is one spot, not each of its cells) one search tests before giving up until its next turn. */
     private static final int REFUSED_AREAS=4;
     /** The nearest candidate with a walkable route, testing from the nearest outward (not every cell in scan order). */

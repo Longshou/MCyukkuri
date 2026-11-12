@@ -209,13 +209,14 @@ class Dens(Field):
 
 
 class Forage(Field):
-    """Stray digging and foraging: an uncut mound, a family mound in a wide grassland, and open grass for grazing."""
+    """Village verge on the north edge, with the wild-family mounds and meadow to the south."""
     def __init__(self, *args, **kw):
         super().__init__(*args, **kw)
         cx, cz = self.cx, self.cz
         self.dig_mound = solid_mound(cx - 28, cz)                       # x -32..-24, z -4..+4, 4 high
         self.forage_den, self.forage_door = den(cx + 4, cz + 6)         # a 5x5 hollow; its doorway is the first cavity cell
-        self.spots = {'dig': (cx - 28, cz + 10), 'forage': (cx + 4, cz + 6), 'graze': (cx + 26, cz + 8)}
+        self.spots = {'dig': (cx - 28, cz + 10), 'forage': (cx + 4, cz + 6), 'graze': (cx + 26, cz + 8),
+                      'street': (cx, cz - 23)}
         self.anchor = self.spots['dig']
 
     def features(self):
@@ -225,7 +226,12 @@ class Forage(Field):
         out += [fill(cx - 36, FEET, cz - 36, cx + 36, FEET, cz + 36, 'minecraft:air')]
         out += grass_cover(cx + 21, cz + 3, cx + 34, cz + 13)
         out += self.dig_mound + self.forage_den
-        return out + scatter_trees(self, 8, 71, margin=3, avoid=[(cx - 36, cz - 8, cx + 10, cz + 14)])
+        out += [fill(cx - 30, GROUND, cz - 25, cx + 30, GROUND, cz - 18, 'minecraft:cobblestone'),
+                fill(cx - 10, FEET, cz - 30, cx + 10, FEET + 2, cz - 30, 'minecraft:oak_planks'),
+                fill(cx - 11, FEET + 3, cz - 31, cx + 11, FEET + 3, cz - 29, 'minecraft:spruce_slab'),
+                fill(cx - 15, FEET, cz - 17, cx - 15, FEET + 2, cz - 17, 'minecraft:oak_fence'),
+                f'setblock {cx - 15} {FEET + 3} {cz - 17} minecraft:lantern']
+        return out + scatter_trees(self, 8, 71, margin=3, avoid=[(cx - 36, cz - 32, cx + 32, cz + 14)])
 
 
 # ----------------------------------------------------------------------------------------------- biome settlements
@@ -532,7 +538,7 @@ class Clips(Field):
 FIELDS = [
     Dens('den', '野外住所', 'wild', -900, 300, 44, 36, 'minecraft:plains', blurb='山坡洞穴一家三口、独立、搬往大洞'),
     # 72 deep, not more: its far edge must stay loaded while a visitor presses "clear" on the deck (render distance 10).
-    Forage('forage', '流浪与觅食', 'wild', -750, 300, 96, 72, 'minecraft:plains', blurb='流浪油挖穴、家旁稀疏与远处草场、吃草'),
+    Forage('forage', '流浪与觅食', 'wild', -750, 300, 96, 72, 'minecraft:plains', blurb='村边纸箱、木箱、垃圾桶与挡风处；另有野生家庭演示'),
     Biomes('biomes', '群系聚落', 'biome', -884, 468, 128, 64, 'minecraft:plains', plots=BIOME_PLOTS, cols=4,
            blurb='八个群系的聚落（春夏秋冬各有），各群系的住所、存粮与山脚聚落的嗯嗯坑、嗯嗯奴隶'),
     # 64 blocks of meadow north and south of the plots: the leader's hunting ground lies 32-64 blocks out (CommonHunt.RADIUS).

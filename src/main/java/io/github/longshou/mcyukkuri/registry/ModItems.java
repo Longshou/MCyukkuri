@@ -108,6 +108,7 @@ public final class ModItems {
     public static final DeferredItem<BlockItem> FORAGE_PILE=ITEMS.registerSimpleBlockItem("forage_pile",ModBlocks.FORAGE_PILE);
     public static final DeferredItem<ShelterItem> FOREST_BURROW=ITEMS.register("forest_burrow",()->new ShelterItem(ShelterBlock.Kind.BURROW,new Item.Properties().stacksTo(16)));
     public static final DeferredItem<ShelterItem> CARDBOARD_SHELTER=ITEMS.register("cardboard_shelter",()->new ShelterItem(ShelterBlock.Kind.CARDBOARD,new Item.Properties().stacksTo(16)));
+    public static final DeferredItem<ShelterItem> CRATE_SHELTER=ITEMS.register("crate_shelter",()->new ShelterItem(ShelterBlock.Kind.CRATE,new Item.Properties().stacksTo(16)));
 
     public static final DeferredItem<DeferredSpawnEggItem> REIMU_SPAWN_EGG = registerSpawnEgg(YukkuriVariant.REIMU);
     public static final DeferredItem<DeferredSpawnEggItem> MARISA_SPAWN_EGG = registerSpawnEgg(YukkuriVariant.MARISA);

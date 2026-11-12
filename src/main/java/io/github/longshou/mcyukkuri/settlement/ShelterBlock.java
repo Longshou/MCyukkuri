@@ -34,10 +34,16 @@ import net.minecraft.util.RandomSource;
 /** Hollow, physical multi-block shelters. Only the central floor block owns inventory and residents. */
 public final class ShelterBlock extends Block implements EntityBlock {
     public enum Kind {
-        BURROW("forest_burrow", 0, 1, 16), CARDBOARD("cardboard_shelter", 1, 2, 1);
+        BURROW("forest_burrow", 0, 1, 16, 0),
+        CARDBOARD("cardboard_shelter", 1, 2, 2, 1.5),
+        CRATE("crate_shelter", 1, 2, 2, 1);
         public final String id;
         public final int radius, height, capacity;
-        Kind(String id, int radius, int height, int capacity) { this.id=id; this.radius=radius; this.height=height; this.capacity=capacity; }
+        public final double openingHeight;
+        Kind(String id, int radius, int height, int capacity, double openingHeight) {
+            this.id=id; this.radius=radius; this.height=height; this.capacity=capacity; this.openingHeight=openingHeight;
+        }
+        public boolean found() { return this != BURROW; }
     }
     public static final IntegerProperty PART = IntegerProperty.create("part", 0, 74);
     public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
@@ -104,6 +110,8 @@ public final class ShelterBlock extends Block implements EntityBlock {
             if(!level.isClientSide) home.clean(player);
             return ItemInteractionResult.sidedSuccess(level.isClientSide);
         }
+        if (kind.found() && !level.isClientSide && home.feedResident(player, hand, stack))
+            return ItemInteractionResult.CONSUME;
         if(home.accepts(stack)) {
             if(!level.isClientSide && home.deposit(stack.copyWithCount(1)) && !player.getAbilities().instabuild) stack.shrink(1);
             return ItemInteractionResult.sidedSuccess(level.isClientSide);
@@ -121,7 +129,8 @@ public final class ShelterBlock extends Block implements EntityBlock {
         return InteractionResult.sidedSuccess(level.isClientSide);
     }
     @Override protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState replacement, boolean moving) {
-        if(!state.is(replacement.getBlock()) && !level.isClientSide) {
+        if((!state.is(replacement.getBlock()) || state.getValue(PART) != replacement.getValue(PART)
+                || state.getValue(FACING) != replacement.getValue(FACING)) && !level.isClientSide) {
             var home=level.getBlockEntity(root(pos,state)) instanceof ShelterBlockEntity value?value:null;
             if(home!=null&&home.getBlockState().is(state.getBlock())&&home.facing()==state.getValue(FACING)) home.dismantle();
         }

@@ -170,7 +170,9 @@ public final class TemperatureLife {
     }
     private boolean insulated(BlockPos pos, boolean shade) {
         if (!shade) return false;
+        if (entity.life().usingPaperBedding(pos)) return true;
         var shelter = entity.habitat().shelter();
+        if (shelter == null) shelter = entity.life().foundShelter();
         if (shelter != null && shelter.owns(entity.getUUID()) && shelter.contains(pos)
                 && shelter.usable(entity) && shelter.insulated()) return true;
         var nest = entity.house().nest();

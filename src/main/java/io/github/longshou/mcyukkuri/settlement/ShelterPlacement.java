@@ -25,7 +25,7 @@ public final class ShelterPlacement {
             return center.relative(facing,kind.radius+1);
         }
         public List<BlockPos> beds(ServerLevel level) {
-            if(kind==ShelterBlock.Kind.CARDBOARD)return List.of(center);
+            if(kind.found())return List.of(center);
             var site=NaturalShelter.survey(level,center,facing);return site==null?List.of():site.sleeping();
         }
     }
@@ -72,7 +72,11 @@ public final class ShelterPlacement {
         SearchBudget.probe(level);
         if(!canPlace(level,plan))return null;
         var before=new LinkedHashMap<BlockPos,BlockState>();
-        var block=plan.kind==ShelterBlock.Kind.BURROW?ModBlocks.FOREST_BURROW.get():ModBlocks.CARDBOARD_SHELTER.get();
+        var block=switch(plan.kind) {
+            case BURROW -> ModBlocks.FOREST_BURROW.get();
+            case CARDBOARD -> ModBlocks.CARDBOARD_SHELTER.get();
+            case CRATE -> ModBlocks.CRATE_SHELTER.get();
+        };
         for(var pos:positions(plan.center,plan.kind))before.put(pos,level.getBlockState(pos));
         for(var pos:before.keySet()) {
             var delta=pos.subtract(plan.center);

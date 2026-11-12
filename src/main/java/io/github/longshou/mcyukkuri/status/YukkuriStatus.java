@@ -61,7 +61,7 @@ public final class YukkuriStatus {
 
     static String homeKind(YukkuriEntity y) {
         var shelter = y.habitat().shelter();
-        if (shelter != null) return shelter.kind() == ShelterBlock.Kind.CARDBOARD ? "cardboard" : "burrow";
+        if (shelter != null) return shelter.kind().found() ? "cardboard" : "burrow";
         if (y.habitat().hasMemory()) return "shelter";
         if (y.profile().houseBody() && y.house().homeStand() != null) return "house_nest";
         if (y.life().home() != null) return y.life().naturalHome() ? "cover" : "nest";

@@ -81,6 +81,7 @@ public final class ClientEvents {
         Consumables.ITEMS.values().forEach(item->event.registerItem(extension,item.get()));
         event.registerItem(extension,ModItems.FOREST_BURROW.get());
         event.registerItem(extension,ModItems.CARDBOARD_SHELTER.get());
+        event.registerItem(extension,ModItems.CRATE_SHELTER.get());
     }
 
     public static void registerScreens(RegisterMenuScreensEvent event){

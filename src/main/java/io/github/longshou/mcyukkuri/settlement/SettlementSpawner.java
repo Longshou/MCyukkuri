@@ -155,9 +155,12 @@ public final class SettlementSpawner {
             added.add(member);
         }
         if(preset==Preset.WANDERER) {
+            if (kind.found()) {
+                members.getFirst().pet().markTownRoots();
+                return List.copyOf(members);
+            }
             homes.getFirst().shelter().initializeEncounter(1);
             if(!members.getFirst().habitat().choose(homes.getFirst().shelter())){rollback(level,added,homes,seed,seedSnapshot,seedPartner);return List.of();}
-            if (kind == ShelterBlock.Kind.CARDBOARD) members.getFirst().pet().markTownRoots();
             return List.copyOf(members);
         }
         var leader = composition.leader() ? members.get(seedLeader ? 0 : members.size() - 1).getUUID() : null;

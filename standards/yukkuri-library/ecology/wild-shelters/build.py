@@ -15,7 +15,7 @@ care_kit.NOISE_DEFAULT=False   # the cardboard shelter keeps flat swatches; self
 FLAT_MATERIALS={'paper':('cardboard',2),'paper_light':('cardboard',3),'paper_dark':('cardboard',0),'tape':('straw',2),'ink':('wood',0),
                 'grass':('straw',1),'leaf_dry':('straw',0),'soil':('wood',1),'wood':('wood',2),'waste':('anko',1),
                 'waste0':('anko',0),'waste1':('anko',1),'waste2':('anko',2),'waste3':('anko',3)}
-FLAT_MODELS={'cardboard_shelter'}
+FLAT_MODELS={'cardboard_shelter','crate_shelter'}
 OUT=HERE/'assembled'; PRE=ROOT/'.local/previews/wild-shelters/source-views'
 RUN=ROOT/'src/main/resources'; SNAP=ROOT/'art/props/wild-shelters'
 for p in (OUT,PRE,SNAP,RUN/'assets/mcyukkuri/yukkuri_props',RUN/'textures',RUN/'data/mcyukkuri/shelters'):
@@ -100,7 +100,11 @@ class Model:
         model={'format':1,'units_per_block':16,'vertices':vertices,'parts':parts,'bounds':bounds}
         write(OUT/(self.name+'.json'),model)
         write(OUT/(self.name+'.bbmodel'),{'meta':{'format_version':'4.10','model_format':'free'},'name':self.name,'resolution':{'width':tw,'height':th},'elements':elements,'outliner':[e['uuid'] for e in elements],'textures':[{'name':'palette.png','id':'0','width':tw,'height':th,'source':'data:image/png;base64,'+base64.b64encode(tex_bytes).decode()}]})
-        save_image(tex_image,OUT/(self.name+'.png'))
+        assembled_texture = OUT/(self.name+'.png')
+        selected_texture = SNAP/assembled_texture.name
+        if not assembled_texture.exists() and selected_texture.exists():
+            shutil.copy2(selected_texture, assembled_texture)
+        save_image(tex_image, assembled_texture)
         for suffix in ('.json','.bbmodel','.png'):shutil.copy2(OUT/(self.name+suffix),SNAP/(self.name+suffix))
         shutil.copy2(OUT/(self.name+'.json'),RUN/'assets/mcyukkuri/yukkuri_props'/(self.name+'.json'))
         tex=RUN/'assets/mcyukkuri/textures/props';tex.mkdir(parents=True,exist_ok=True);save_image(tex_image,tex/(self.name+'.png'))
@@ -141,6 +145,29 @@ for i in range(12):m.box('corrugated_edge_'+str(i),[-13+i*2,24,23.03],[-12.3+i*2
 for i in range(9):m.box('bedding_'+str(i),[-8+i*1.7,.2,-7],[-7+i*1.7,.35,8],'grass',unit=1)
 for i in range(4):m.box('food_'+str(i),[-18,.2+i*.25,-16],[-12,.5+i*.25,-8],'leaf_dry',unit=2)
 models.append(m)
+
+m=Model('crate_shelter')
+m.box('left_boards',[-23,0,-23],[-20,17,23],'ink',True)
+m.box('right_boards',[20,0,-23],[23,17,23],'ink',True)
+m.box('back_boards',[-20,0,-23],[20,17,-20],'ink',True)
+m.box('top_boards',[-23,16,-23],[23,19,23],'wood',True)
+m.box('floor_boards',[-20,0,-20],[20,.15,23],'ink')
+for x in (-21,-13,-5,3,11,19):
+    m.box('board_seam_'+str(x),[x,19,-23],[x+.2,19.09,23],'ink')
+for x in (-23,20):
+    m.box('front_batten_'+str(x),[x,0,23],[x+3,16,24],'ink')
+models.append(m)
+
+# The same invisible shell dispatches the shared renderer at the crate's root.
+assets = RUN/'assets/mcyukkuri'
+write(assets/'blockstates/crate_shelter.json', {'variants': {'': {'model': 'mcyukkuri:block/crate_shelter'}}})
+write(assets/'models/block/crate_shelter.json', {'textures': {'particle': 'minecraft:block/oak_planks'}})
+cardboard_item = json.loads((assets/'models/item/cardboard_shelter.json').read_text(encoding='utf-8'))
+cardboard_item['textures'] = {'particle': 'mcyukkuri:props/crate_shelter'}
+write(assets/'models/item/crate_shelter.json', cardboard_item)
+write(RUN/'data/mcyukkuri/recipe/crate_shelter.json', {'type': 'minecraft:crafting_shapeless', 'category': 'misc',
+      'ingredients': [{'item': 'minecraft:barrel'}, {'item': 'minecraft:oak_planks'}],
+      'result': {'id': 'mcyukkuri:crate_shelter', 'count': 1}})
 # Self-built nests (wild yukkuri) are authored in the care-props kit with vanilla texture references (wild.py).
 
 import wild as care_wild

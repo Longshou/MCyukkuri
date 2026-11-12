@@ -22,7 +22,6 @@ enum HomeProvider {
             return homeStand(life.entity()) == null || life.energy() <= 10;
         }
 
-        @Override boolean temporaryCoverAllowed() { return false; }
     },
     PREDATOR {
         @Override boolean acceptsPredatorNest() { return true; }
@@ -69,5 +68,4 @@ enum HomeProvider {
 
     FoodPlan beforeFood(YukkuriLife life) { return FoodPlan.CONTINUE; }
     boolean ordinaryRestAllowed(YukkuriLife life) { return true; }
-    boolean temporaryCoverAllowed() { return true; }
 }

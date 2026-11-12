@@ -251,14 +251,14 @@ add('den_barrier', 'den', '灵梦用树枝封洞口挡捕食种', '灵梦用树�
            ('读左捕食者', f'yukkuri status {sel("hunter_wise")} raw'), ('读右捕食者', f'yukkuri status {sel("hunter_plain")} raw')])
 
 # ====================================================================================================== vagrants and foraging
-add('dig', 'forage', '流浪魔理沙在土丘挖洞安家', '流浪魔理沙在土丘挖洞安家', '没有家的成年流浪油走到土丘边：先挖通地面，再向上挖内部第二层；入口保留一格高、内部两格高，每块约 6 秒，挖完自成一个家',
+add('dig', 'forage', '野生：魔理沙在土丘挖洞安家', '野生：魔理沙在土丘挖洞安家', '没有家的野生成体走到土丘边，先挖通地面，再向上挖内部第二层。入口一格高、内部两格高，每块约 6 秒。',
     '约 3–6 分钟（可倍速）', [
         yk('marisa', 0, 0, 'vagrant', yaw=180, lead=True, **pair_ready()),
         'gamerule mobGriefing true'], env=DAY, spot='dig', vantage=(0, 6, 180),
     reads=[('读挖穴阶段', f'yukkuri status {sel("vagrant")} raw')])
 
 _fm, _ff, _fc = uid('forage', 'mother'), uid('forage', 'father'), uid('forage', 'child')
-add('forage', 'forage', '一方外出觅食，一方照看孩子', '一方外出觅食，一方照看孩子',
+add('forage', 'forage', '野生：一方外出觅食，一方照看孩子', '野生：一方外出觅食，一方照看孩子',
     '土丘洞储粮空了。较饿、胆大的灵梦去远处草场采草，魔理沙守洞口、照看赤油。看灵梦把草实际衔回放进粮堆，家里迎接归来，再用存粮喂赤油。',
     '数分钟（可倍速）', [
         yk('marisa', 0, -2, 'father', uuid=_ff, yaw=0, kin=f'Partner:{uuid_nbt(_fm)}', nutrition=98, energy=100,
@@ -301,10 +301,85 @@ add('family_absence', 'forage', '出门采草的亲油迟迟不归', '出门采�
     reads=[(label, f'yukkuri status {sel(n)} raw') for n, label in
            [('stayer', '读留守亲油'), ('older', '读子油寻亲'), ('baby', '读赤油等候')]])
 
-add('graze', 'forage', '饿了先吃苹果，只有草就啃草', '饿了先吃苹果，只有草就啃草', '左边的饿灵梦身边既有苹果又有草，会先取普通食物；右边的饿魔理沙在八格外、只见草，啃下后会露出苦味反应。草仍会退回上一阶、日后重新长出',
+add('graze', 'forage', '野生：饿了先吃苹果，只有草就啃草', '野生：饿了先吃苹果，只有草就啃草', '左边的饿灵梦身边既有苹果又有草，会先取普通食物；右边的饿魔理沙在八格外、只见草，啃下后会露出苦味反应。草仍会退回上一阶、日后重新长出',
     '约 10–60 秒', [
         yk('reimu', -6, 0, 'a', nutrition=28, yaw=180, lead=True), item('minecraft:apple', 1, -4, 0, name='apple'),
         yk('marisa', 6, 0, 'b', nutrition=34, yaw=180)], env=DAY, spot='graze', vantage=(0, 12))
+
+
+def found_shell(kind, x, z):
+    return [block(x + dx, dy, z + dz, f'mcyukkuri:{kind}[facing=south,part={dx + 2 + 5*(dz + 2) + 25*dy}]')
+            for dy in range(2) for dz in range(-1, 2) for dx in range(-1, 2)]
+
+
+def street_stray(scene, kind, x, z, name, **kwargs):
+    former = uuid_nbt(uid(scene, 'former_owner'))
+    return yk(kind, x, z, name, uuid=uid(scene, name), extra=f'YukkuriPet:{{FormerOwner:{former}}}', **kwargs)
+
+
+def garbage_barrel(x, z, food, opened):
+    return [
+        block(x, 0, z, 'minecraft:barrel[facing=south,open=false]'),
+        f'data merge block ~{x} ~ ~{z} {{NeoForgeData:{{YukkuriGarbage:1b}},Items:[{{Slot:0b,id:"{food}",count:1}}]}}',
+        block(x, 1, z+1, f'minecraft:oak_trapdoor[facing=north,half=top,open={str(opened).lower()}]'),
+    ]
+
+
+_stray_mother = uid('stray_boxes', 'mother')
+add('stray_boxes', 'forage', '流浪：母子找纸箱，木箱也能歇脚', '流浪：母子找纸箱，木箱也能歇脚',
+    '夜里母子试着在纸箱落脚，赤油往里、亲油在开口。另一只流浪油可选旁边的旧木箱。',
+    '约半分钟', [
+        *found_shell('cardboard_shelter', -5, -1), *found_shell('crate_shelter', 6, -1),
+        street_stray('stray_boxes', 'reimu', -5, 3, 'mother', energy=28, rest_wait=0, lead=True),
+        street_stray('stray_boxes', 'reimu', -5, 1, 'child', stage='baby', energy=48, rest_wait=0,
+                     kin=f'Mother:{uuid_nbt(_stray_mother)}', childhood=CHILDHOOD_HOPPING),
+        street_stray('stray_boxes', 'marisa', 6, 2, 'crate_stray', stage='child', energy=28, rest_wait=0),
+    ], env={'time': 'night'}, spot='street', vantage=(0, 9),
+    smoke=dict(ticks=650, forbid=[r'\[habitat\][^\n]* home chosen '],
+               expect=[r'\[habitat\][^\n]* found settled .*kind=CARDBOARD occupants=2',
+                                  r'\[habitat\][^\n]* found settled .*kind=CRATE']))
+
+add('stray_rain', 'forage', '流浪：纸箱湿透，先离开再塌', '流浪：纸箱湿透，先离开再塌',
+    '看已经躲在箱里的流浪油歇脚。纸箱变湿、下陷，流浪油退到外面，最后留下真纸片。也可以手动拆箱看住户原地脱身。',
+    '约一分钟', [
+        *found_shell('cardboard_shelter', -4, -1),
+        street_stray('stray_rain', 'marisa', -4, -1, 'rain_stray', energy=25, rest_wait=0, lead=True),
+    ], env={'time': 'noon', 'weather': 'rain'}, spot='street', vantage=(-2, 6, 164, 12),
+    smoke=dict(ticks=1300, forbid=[r'\[habitat\][^\n]* found ejected .*reason=rain_collapse'],
+               expect=[r'\[habitat\][^\n]* found settled .*kind=CARDBOARD',
+                                  r'\[habitat\][^\n]* found rain stage=1 -> 2',
+                                  r'\[habitat\][^\n]* found leaving .*reason=soaked_or_unsafe',
+                                  r'\[habitat\][^\n]* found exited ',
+                                  r'\[habitat\][^\n]* found removed .*reason=rain_collapse']))
+
+add('stray_rubbish', 'forage', '流浪：翻一口垃圾，盖住就放弃', '流浪：翻一口垃圾，盖住就放弃',
+    '开盖桶里有苹果或废纸。看进食和衔纸放下。盖住的桶撞几下就放弃，可以手动开关盖板。',
+    '约半分钟', [
+        *garbage_barrel(-12, -1, 'minecraft:apple', True),
+        *garbage_barrel(-26, -1, 'minecraft:paper', True),
+        *garbage_barrel(12, -1, 'minecraft:apple', False),
+        street_stray('stray_rubbish', 'reimu', -12, 3, 'open_stray', nutrition=24, boldness=80, lead=True),
+        street_stray('stray_rubbish', 'reimu', -26, 3, 'paper_stray', nutrition=24, boldness=80),
+        street_stray('stray_rubbish', 'marisa', 12, 3, 'closed_stray', nutrition=24, boldness=80),
+    ], env=DAY, spot='street', vantage=(0, 10),
+    smoke=dict(ticks=600, forbid=[r'\[forage\][^\n]* garbage ram .*count=4'],
+               expect=[r'\[forage\][^\n]* garbage pickup item=[^\n]* food=true',
+                                  r'\[meal\][^\n]* swallowed item=',
+                                  r'\[forage\][^\n]* garbage pickup item=minecraft:paper [^\n]*food=false',
+                                  r'\[habitat\][^\n]* drop item=minecraft:paper count=1 holder=mouth',
+                                  r'\[forage\][^\n]* garbage gave_up .*reason=closed rams=3']))
+
+add('stray_wind', 'forage', '流浪：钻进木板缝挡风', '流浪：钻进木板缝挡风',
+    '冷夜里，流浪油可以缩进低木板下。纸片是地上的真物品。饿了再出来。',
+    '约半分钟', [
+        'fillbiome ~-10 56 ~-6 ~10 80 ~9 minecraft:snowy_plains',
+        box(-4, 1, -1, -1, 1, 0, 'minecraft:spruce_planks'),
+        box(-4, 0, -2, -1, 0, -2, 'minecraft:spruce_planks'),
+        item('minecraft:paper', 1, -3, -1, name='wind_paper'),
+        street_stray('stray_wind', 'reimu', -3, 3, 'wind_stray', energy=34, rest_wait=0, lead=True),
+    ], env={'time': 'night'}, spot='street', vantage=(0, 9),
+    smoke=dict(ticks=550, forbid=[r'\[habitat\][^\n]* home chosen '],
+               expect=[r'\[habitat\][^\n]* wind cover settled .*paper=true']))
 
 # ====================================================================================================== biome settlements
 def settlement(plot, kind, seen):
@@ -3965,6 +4040,7 @@ TOPICS = {
     'agitation_relief': 'D2', 'adult_pairing': 'F6', 'widow_repair': 'F6', 'alice_hunt': 'R4', 'aftermath_growth': 'F7', 'aftermath_depletion': 'F7',
     'den_family': 'W1', 'den_mold_exile': 'W1', 'dig': 'W2', 'indep_near': 'W3', 'den_move': 'W4', 'forage': 'W5', 'graze': 'W6', 'den_barrier': 'W8',
     'family_absence': 'W9',
+    'stray_boxes': 'M5', 'stray_rain': 'R1', 'stray_rubbish': 'M5', 'stray_wind': 'R1',
     'sleep': 'D1', 'night_sleep': 'D1', 'night_hungry_child': 'D1', 'meal_content': 'D1', 'fatigue': 'R1', 'fatigue_predator': 'R2', 'nutrition_age': 'D1', 'meet': 'D1', 'greet_close': 'D1', 'toilet': 'F5', 'hurt': 'F3',
     'birth_land_caught': 'F1', 'birth_land_missed': 'F1', 'feed': 'F2', 'first_toilet': 'F2', 'hop': 'F2', 'growth': 'F4',
     'leaf_swaddle': 'F2', 'leaf_swaddle_neglect': 'F2', 'leaf_swaddle_neglect_stages': 'F2', 'family_distance': 'F8', 'family_search': 'F8', 'family_search_pane': 'F8', 'birth_nest_safe': 'F1', 'birth_nest_stem': 'F1', 'birth_stem_caught': 'F1', 'family_nests': 'F4', 'carry_home': 'F4', 'infant_starvation': 'F2',

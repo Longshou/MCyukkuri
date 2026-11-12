@@ -79,7 +79,12 @@ public final class ShelterRenderer implements BlockEntityRenderer<ShelterBlockEn
         if(home.getLevel()!=null)light=LevelRenderer.getLightColor(home.getLevel(),home.getBlockPos().above(home.kind().height));
         pose.pushPose();pose.translate(.5,0,.5);
         pose.mulPose(Axis.YP.rotationDegrees(-90*ShelterGeometry.turns(home.facing())));
-        PropModels.renderLayers(home.kind().id,(home.lining()>0?1:0),pose,buffers,light,overlay);
+        if (home.rainStage() == 0) {
+            PropModels.renderLayers(home.kind().id,(home.lining()>0?1:0),pose,buffers,light,overlay);
+        } else {
+            if (home.rainStage() == 2) pose.scale(1, .79f, 1);
+            PropModels.renderTinted(home.kind().id,pose,buffers,light,overlay,150,133,113);
+        }
         pose.popPose();
     }
     /** Unit 1 is the bedding; 2..5 are the north/east/south/west rim middles, 6..9 the NE/SE/SW/NW corner arcs (both sides

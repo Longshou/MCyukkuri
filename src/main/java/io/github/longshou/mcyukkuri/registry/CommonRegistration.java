@@ -36,6 +36,7 @@ import io.github.longshou.mcyukkuri.settlement.Grazing;
 import io.github.longshou.mcyukkuri.settlement.GroupMemberEvents;
 import io.github.longshou.mcyukkuri.settlement.SettlementTicker;
 import io.github.longshou.mcyukkuri.settlement.ShelterIndexEvents;
+import io.github.longshou.mcyukkuri.settlement.FoundShelterCleanup;
 import io.github.longshou.mcyukkuri.settlement.SiteClaimer;
 import io.github.longshou.mcyukkuri.shop.ShopCourier;
 import io.github.longshou.mcyukkuri.shop.ShopDeliveries;
@@ -159,6 +160,7 @@ public final class CommonRegistration {
 
         // Commerce already ran at the end of YukkuriEntity.tick; carrying precedes discovery.
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, EntityTickEvent.Post.class, WildEvents::discover);
+        NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, EntityTickEvent.Post.class, FoundShelterCleanup::tick);
         NeoForge.EVENT_BUS.addListener(EventPriority.HIGHEST, false, EntityJoinLevelEvent.class, PlaygroundFields::joining);
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, EntityTickEvent.Post.class, PlaygroundFields::tick);
 
