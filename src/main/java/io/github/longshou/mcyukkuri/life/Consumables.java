@@ -79,6 +79,8 @@ public final class Consumables {
             if(kind==Kind.REPRODUCTIVE){
                 return InteractionDispatch.assist(player,entity,hand)?InteractionResult.CONSUME:InteractionResult.FAIL;
             }
+            // Spicy grain is hand-fed through the entity's own interaction path (YukkuriInteractions), not as an oral dose.
+            if(kind==Kind.SPICY)return InteractionResult.PASS;
             if(kind!=Kind.RAMUNE)return feed(entity,player,hand);
             if(!InteractionDispatch.requireHarmContact(player,entity,3,"spray"))return InteractionResult.FAIL;
             if(!entity.life().spray()){
