@@ -9,6 +9,7 @@ import io.github.longshou.mcyukkuri.body.WoundShape;
 import io.github.longshou.mcyukkuri.body.WoundSurface;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.FamilyLife;
+import io.github.longshou.mcyukkuri.settlement.SettlementData;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -42,8 +43,10 @@ public final class Marks {
     public int grime() { return grime; }
     public int scarCount() { return scars.size(); }
     public List<BodyWound> scars() { return List.copyOf(scars); }
-    /** What is drawn: the larger of ground-in grime and the dirt a low hygiene value causes. */
+    /** Visible dirt has a floor while the recorded pit-slave role holds. */
     public int dirt() {
+        var group = entity.settlement().recordedGroup();
+        if (group != null && group.role(entity.getUUID()) == SettlementData.Role.UNUN_SLAVE) return 3;
         float hygiene = entity.life().hygiene();
         int fromHygiene = hygiene < 15 ? 3 : hygiene < 30 ? 2 : hygiene < 45 ? 1 : 0;
         return Math.max(grime, fromHygiene);

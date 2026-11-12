@@ -63,6 +63,11 @@ public final class Naming {
         return GivenNames.matchesAny(y.getVariant().dialogueSpecies(), n);
     }
 
+    public static String displayName(YukkuriEntity entity) {
+        var custom = entity.getCustomName();
+        return custom == null ? entity.mind().givenName() : custom.getString();
+    }
+
     /** The reaction to being given {@code name} by {@code namer} (null: a command). Returns a short description. */
     public static String named(YukkuriEntity y, UUID namer, String name) {
         if (y.level().isClientSide || !y.isAlive()) return "not a living server-side individual";

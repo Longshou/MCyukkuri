@@ -6,6 +6,7 @@ import io.github.longshou.mcyukkuri.mind.EmotionEvent;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.mind.Naming;
 import io.github.longshou.mcyukkuri.entity.YukkuriVariant;
 import io.github.longshou.mcyukkuri.human.Custody;
 import io.github.longshou.mcyukkuri.status.Identity;
@@ -69,6 +70,7 @@ public final class FamilyData extends SavedData {
         public GlobalPos position;
         public Status status = Status.ALIVE;
         public String variant;
+        private String lastName = "", lastStage = "";
         private PartnerState partnerState = PartnerState.UNIMPORTED;
         private String unknownPartnerState;
         private UUID partner;
@@ -78,8 +80,15 @@ public final class FamilyData extends SavedData {
         private final List<BadgeAcquisition> badgeAcquisitions = new ArrayList<>(3);
         public PartnerState partnerState() { return partnerState; }
         public UUID partner() { return partner; }
+        public String lastName() { return lastName; }
+        public String lastStage() { return lastStage; }
         public List<UUID> partnerHistory() { return List.copyOf(partnerHistory); }
         Person(UUID id, String variant, GlobalPos position) { this.id=id; this.variant=variant; this.position=position; }
+
+        private void observeIdentity(YukkuriEntity entity) {
+            lastName = Naming.displayName(entity);
+            lastStage = entity.family().stageId();
+        }
     }
     public static final class Child {
         public UUID id;
@@ -221,6 +230,7 @@ public final class FamilyData extends SavedData {
         Person record = people.computeIfAbsent(entity.getUUID(), id -> new Person(id,entity.getVariant().assetId(),position));
         if (record.status == Status.REMOVED) record.status = Status.ALIVE;
         record.position=position;
+        record.observeIdentity(entity);
         if (record.mother == null && entity.family().mother() != null) {
             record.mother=entity.family().mother(); record.father=entity.family().father(); record.brood=entity.family().birthId();
         }
@@ -726,10 +736,14 @@ public final class FamilyData extends SavedData {
         data.retainForCleanup(entity.getUUID());
     }
     public static void leaving(EntityLeaveLevelEvent event) {
-        if(event.getEntity() instanceof YukkuriEntity entity&&event.getLevel() instanceof ServerLevel level
-                && entity.getRemovalReason()==Entity.RemovalReason.DISCARDED&&!YukkuriWorldData.get(level).isCaptured(entity.getUUID())) {
-            Person person=get(level).person(entity.getUUID());if(person!=null&&person.status==Status.ALIVE){person.status=Status.REMOVED;get(level).setDirty();}
-        }
+        if (!(event.getEntity() instanceof YukkuriEntity entity) || !(event.getLevel() instanceof ServerLevel level)) return;
+        var data = get(level);
+        var person = data.person(entity.getUUID());
+        if (person == null || person.status != Status.ALIVE) return;
+        person.observeIdentity(entity);
+        if (entity.getRemovalReason() == Entity.RemovalReason.DISCARDED && !YukkuriWorldData.get(level).isCaptured(person.id))
+            person.status = Status.REMOVED;
+        data.setDirty();
     }
     /** People and broods dropped by {@link #forgetPlayground}. */
     public record Forgotten(Set<UUID> people, Set<UUID> broods) {}
@@ -774,6 +788,8 @@ public final class FamilyData extends SavedData {
         tag.putInt("Version",6);ListTag persons=new ListTag(),pregnancies=new ListTag();
         for(Person person:people.values()) {
             CompoundTag value=new CompoundTag();value.putUUID("Id",person.id);value.putString("Variant",person.variant);value.putString("Status",person.status.name());
+            if (!person.lastName.isEmpty()) value.putString("LastName", person.lastName);
+            if (!person.lastStage.isEmpty()) value.putString("LastStage", person.lastStage);
             if(person.mother!=null)value.putUUID("Mother",person.mother);if(person.father!=null)value.putUUID("Father",person.father);if(person.brood!=null)value.putUUID("Brood",person.brood);
             if(person.incidentSource!=null)value.putUUID("IncidentSource",person.incidentSource);
             savePartner(person,value);
@@ -814,6 +830,8 @@ public final class FamilyData extends SavedData {
         for(Tag entry:tag.getList("People",Tag.TAG_COMPOUND)) {
             CompoundTag value=(CompoundTag)entry;if(!value.hasUUID("Id"))continue;
             Person person=new Person(value.getUUID("Id"),value.getString("Variant"),position(value,"Position"));
+            person.lastName = value.getString("LastName");
+            person.lastStage = value.getString("LastStage");
             try { person.status=Status.valueOf(value.getString("Status")); }catch(IllegalArgumentException ignored){person.status=Status.REMOVED;}
             if(value.hasUUID("Mother"))person.mother=value.getUUID("Mother");if(value.hasUUID("Father"))person.father=value.getUUID("Father");
                     if(value.hasUUID("Brood"))person.brood=value.getUUID("Brood");

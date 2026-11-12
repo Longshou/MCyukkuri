@@ -29,7 +29,7 @@ import org.joml.Matrix4f;
 
 /** Short-lived client shards and merged sticky traces for an already-completed body event. */
 public final class BodyEffectsRenderer {
-    private static final int TRACE_LIFETIME = 600, FADE_TICKS = 100, MAX_TRACES = 128, MAX_PER_CHUNK = 32;
+    private static final int MAX_TRACES = 128, MAX_PER_CHUNK = 32;
     private static final ArrayDeque<Fragment> FRAGMENTS = new ArrayDeque<>();
     /** In insertion order so pressure evicts the least recently refreshed trace first. */
     private static final ArrayDeque<Trace> TRACES = new ArrayDeque<>();
@@ -52,11 +52,16 @@ public final class BodyEffectsRenderer {
     }
 
     private enum Kind {
-        FILLING("textures/props/leaked_filling.png"),
-        PUDDLE("textures/effects/leak_puddle.png");
+        FILLING("textures/props/leaked_filling.png", 600, 100),
+        PUDDLE("textures/effects/leak_puddle.png", 1800, 600);
 
         private final RenderType layer;
-        Kind(String path) { layer = RenderType.entityTranslucent(MCYukkuri.id(path)); }
+        private final int lifetime, fadeTicks;
+        Kind(String path, int lifetime, int fadeTicks) {
+            layer = RenderType.entityTranslucent(MCYukkuri.id(path));
+            this.lifetime = lifetime;
+            this.fadeTicks = fadeTicks;
+        }
     }
 
     /** Called on the client work queue after packet validation. No world mutation occurs here. */
@@ -115,7 +120,7 @@ public final class BodyEffectsRenderer {
                 it.remove();
             }
         }
-        TRACES.removeIf(trace -> now - trace.born >= TRACE_LIFETIME);
+        TRACES.removeIf(trace -> now - trace.born >= trace.kind.lifetime);
     }
 
     private static void addTrace(Kind kind, Vec3 position, float size, float yaw, long now) {
@@ -180,17 +185,14 @@ public final class BodyEffectsRenderer {
         for (var trace : TRACES) {
             if (trace.kind != kind) continue;
             long age = now - trace.born;
-            float fade = Math.clamp((TRACE_LIFETIME - age) / (float) FADE_TICKS, 0f, 1f);
+            float fade = Math.clamp((kind.lifetime - age) / (float) kind.fadeTicks, 0f, 1f);
             if (fade <= 0) continue;
-            float size = trace.size;
-            if (kind == Kind.PUDDLE) size *= Math.clamp(age / 10f, 0f, 1f) * (.8f + .2f * fade);
-            if (size <= 0) continue;
             if (splats == null) splats = buffers.getBuffer(kind.layer);
             int light = LevelRenderer.getLightColor(level, BlockPos.containing(trace.position));
             pose.pushPose();
             pose.translate(trace.position.x - camera.x, trace.position.y - camera.y, trace.position.z - camera.z);
             if (kind == Kind.PUDDLE) pose.mulPose(Axis.YP.rotation(trace.yaw));
-            splat(pose.last().pose(), splats, size, fade, light);
+            splat(pose.last().pose(), splats, trace.size, fade, light);
             pose.popPose();
         }
     }

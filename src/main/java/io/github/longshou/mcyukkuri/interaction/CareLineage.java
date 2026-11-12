@@ -4,6 +4,7 @@ import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.entity.YukkuriVariant;
 import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.human.Custody;
+import io.github.longshou.mcyukkuri.mind.Naming;
 import io.github.longshou.mcyukkuri.registry.ModEntities;
 import io.github.longshou.mcyukkuri.settlement.SettlementData;
 import java.util.ArrayList;
@@ -24,11 +25,14 @@ public record CareLineage(String stage, String roleKey, String groupKey, List<En
 
     public enum Relation { MOTHER, FATHER, SOURCE, MATE, CHILDREN, SIBLINGS, LEADER }
 
-    public record Entry(Relation relation, String name, YukkuriVariant variant, FamilyData.Status status, int omitted) {
+    public record Entry(Relation relation, String name, YukkuriVariant variant, String stage, FamilyData.Status status, int omitted) {
         public Component label() {
             if (omitted > 0) return Component.translatable(KEY + "more", omitted);
             Component species = variant == null ? Component.translatable(KEY + "unknown") : ModEntities.forVariant(variant).getDescription();
-            Component label = name.isEmpty() ? species : Component.literal(name);
+            var label = Component.empty();
+            if (!name.isEmpty()) label.append(name).append(" · ");
+            label.append(species);
+            if (!stage.isEmpty()) label.append(" · ").append(Component.translatable("stage.mcyukkuri." + stage));
             return status == null ? label : Component.translatable(KEY + "relative_status", label,
                     Component.translatable(KEY + "status." + id(status)));
         }
@@ -37,6 +41,7 @@ public record CareLineage(String stage, String roleKey, String groupKey, List<En
             buf.writeEnum(relation);
             buf.writeUtf(name, MAX_NAME);
             buf.writeVarInt(variant == null ? 0 : variant.ordinal() + 1);
+            buf.writeUtf(stage);
             buf.writeVarInt(status == null ? 0 : status.ordinal() + 1);
             buf.writeVarInt(omitted);
         }
@@ -45,8 +50,9 @@ public record CareLineage(String stage, String roleKey, String groupKey, List<En
             var relation = buf.readEnum(Relation.class);
             String name = buf.readUtf(MAX_NAME);
             int variant = buf.readVarInt();
+            String stage = buf.readUtf();
             int status = buf.readVarInt();
-            return new Entry(relation, name, variant == 0 ? null : YukkuriVariant.values()[variant - 1],
+            return new Entry(relation, name, variant == 0 ? null : YukkuriVariant.values()[variant - 1], stage,
                     status == 0 ? null : FamilyData.Status.values()[status - 1], buf.readVarInt());
         }
     }
@@ -91,7 +97,7 @@ public record CareLineage(String stage, String roleKey, String groupKey, List<En
         int count = 0;
         for (UUID id : relatives) {
             if (count++ == MAX_PER_LIST) {
-                entries.add(new Entry(relation, "", null, null, relatives.size() - MAX_PER_LIST));
+                entries.add(new Entry(relation, "", null, "", null, relatives.size() - MAX_PER_LIST));
                 break;
             }
             add(level, family, entries, relation, id);
@@ -105,7 +111,8 @@ public record CareLineage(String stage, String roleKey, String groupKey, List<En
         var loaded = level.getEntity(id);
         if (loaded == null && knownLevel != null && knownLevel != level) loaded = knownLevel.getEntity(id);
         var relative = loaded instanceof YukkuriEntity yukkuri ? yukkuri : null;
-        String name = relative != null && relative.hasCustomName() ? relative.getCustomName().getString() : "";
+        String name = relative != null ? Naming.displayName(relative) : person == null ? "" : person.lastName();
+        String stage = relative != null ? relative.family().stageId() : person == null ? "" : person.lastStage();
         if (name.length() > MAX_NAME) {
             int end = MAX_NAME - 1;
             if (Character.isHighSurrogate(name.charAt(end - 1))) end--;
@@ -122,7 +129,7 @@ public record CareLineage(String stage, String roleKey, String groupKey, List<En
         }
         var status = person == null ? null : person.status;
         if (relative != null) status = relative.isAlive() ? FamilyData.Status.ALIVE : FamilyData.Status.DEAD;
-        entries.add(new Entry(relation, name, variant, status, 0));
+        entries.add(new Entry(relation, name, variant, stage, status, 0));
     }
 
     public void write(FriendlyByteBuf buf) {

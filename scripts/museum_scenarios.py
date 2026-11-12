@@ -440,7 +440,7 @@ add('settle_pit_drive', 'biomes', '失饰成员被拒五次成奴隶', '失饰�
     '同一处山脚小群（首领与三名成年成员，无幼体）：约 6 秒后第一户的第二位成体失去头饰（永久），其余成年成员都是严厉、认不出无头饰者的性格。'
     '看它被同群成员一次次拒斥（读数里 role 从 MEMBER 到 SHUNNED），第五次后成为嗯嗯奴隶并自己走进南边嗯嗯坑；'
     '每群至多一只：已有奴隶的聚落里再失饰的成员只会被驱离。'
-    '读数看目标与群体的角色；日志 [settlement] hatless outcome role=UNUN_SLAVE …、pit slave …',
+    '读数看目标与群体的角色，以及成为坑奴时升到 3 级的脏污；日志 [settlement] hatless outcome role=UNUN_SLAVE …、pit slave …',
     '约 2–4 分钟（可倍速）', ['fillbiome ~-22 56 ~-22 ~22 100 ~22 minecraft:forest', 'yukkuri settlement spawn demo_adults ~ ~ ~',
                        f'tag {_DEMO_SUBJECT} add scn_target', *_PIT_MEADOW, LEAD_ANY],
     env=DAY, spot='forest', vantage=(0, 18), retry='先“清空本场地”再按一次', note='待验证：新场景，尚未在游戏里实测。',
@@ -455,9 +455,10 @@ add('settle_pit_drive', 'biomes', '失饰成员被拒五次成奴隶', '失饰�
           Retry(_COLONY_RELIEVES, _PIT_ADULTS, tries=1, first=1400),
           Retry(_COLONY_RELIEVES, _PIT_ADULTS, tries=1, first=2400),
           Retry(_COLONY_RELIEVES, _PIT_ADULTS, tries=1, first=3400)],
-    reads=[*_PIT_READS, ('读目标的角色与身份', f'yukkuri status {_TARGET} raw')],
+    reads=[*_PIT_READS, ('读目标的角色、脏污与身份', f'yukkuri status {_TARGET} raw')],
     smoke=dict(ticks=20000,
                commands=[(tick, _COLONY_RELIEVES) for tick in range(400, 20000, 600)],
+               readout=[f'yukkuri status {_TARGET} raw'],
                expect=[r'\[settlement\][^\n]* hatless outcome role=UNUN_SLAVE\b', r'\[settlement\][^\n]* pit slave (?:return start|back in pit)\b'],
                forbid=[r'hatless outcome role=OUTCAST', r'\[body\][^\n]* invariant\b'],
                # The drive's own subject is the role and the walk into the pit; a colony death is reported last.
@@ -1346,22 +1347,22 @@ def _verify_leak_scene(window):
     return None
 
 
-# Low self-control and more adults make a rare outcome observable without forcing any roll.
-_LEAK_ROWS = (('baby', '赤油', -7, 5, 2), ('child', '子油', -3, 10, 3), ('adult', '成油', 2, 30, 6))
 add('excited_leak', 'meadow', '短落差受惊：赤油、子油、成油漏尿', '短落差受惊：赤油、子油、成油漏尿',
-    '从左到右是自制较低的赤油、子油和成油。开场从两格多的安全高度落下，各自真实抽签。看第一股、漏 A 与脚底湿边，'
-    '随后小水滩留在原地，皮肤上的尿痕随个体移动，比水滩晚干。前排有矮身豆油可对照嘴和漏尿位置。成油仍较少发生，没看到可清场重开。',
+    '从左到右是自制较低的赤油、子油和成油各一只，前排另有一只矮身豆油。开场从两格多的安全高度落下，各自真实抽签。'
+    '看第一股、漏 A 与脚底湿边，矮身豆油可对照脸部是否干净。皮肤上的尿痕随个体移动，小水滩留在原地逐渐淡去。'
+    '成油较少漏尿，没看到可清场重开。',
     '开场约 1–4 秒，水滩可继续观察', [
-        yk('reimu', x + i % columns * 1.25, 1 - i // columns * 1.25, f'leak_{stage}_{i}',
-           dy=2.5, stage=stage, yaw=0, label=label if i == 0 else '豆油' if i == 1 else None,
-           congenital='BEAN_BODY' if stage != 'adult' and i % 3 == 1 else 'NORMAL',
-           lead=stage == 'child' and i == 0, self_control=0, also=('leak_actor',))
-        for stage, label, x, count, columns in _LEAK_ROWS for i in range(count)
-    ], env=DAY, vantage=(0, 9, 180, 15),
+        yk('reimu', -2, 0, 'leak_baby', dy=2.5, stage='baby', yaw=0, label='赤油', self_control=0, also=('leak_actor',)),
+        yk('reimu', 0, 0, 'leak_child', dy=2.5, stage='child', yaw=0, label='子油', lead=True, self_control=0, also=('leak_actor',)),
+        yk('reimu', 2, 0, 'leak_adult', dy=2.5, yaw=0, label='成油', self_control=0, also=('leak_actor',)),
+        yk('reimu', -1, 2, 'leak_bean', dy=2.5, stage='baby', yaw=0, label='豆油', congenital='BEAN_BODY',
+           self_control=0, also=('leak_actor',)),
+    ], env=DAY, vantage=(0, 6, 180, 15),
+    # A single adult is unlikely to leak even on two genuine falls. Check a real winning drop and its
+    # presentation, then validate the timing and skin trace of every logged winner.
     smoke=dict(ticks=390,
                commands=[(180, 'execute as @e[tag=scn_leak_actor] at @s run tp @s ~ ~2.5 ~')],
-               expect=[*[rf'\[leak\][^\n]*stage={stage} self_control=0 stimulus=drop\b'
-                         for stage in ('baby', 'juvenile', 'adult')],
+               expect=[r'\[leak\][^\n]*stage=(?:baby|juvenile|adult) self_control=0 stimulus=drop\b',
                        r'\[status\][^\n]*behavior\.expression: \w+ -> leak_flow',
                        r'\[status\][^\n]*behavior\.expression: leak_flow -> side_teary'],
                forbid=[r'\[body\][^\n]* death settled\b'], verify=_verify_leak_scene))
