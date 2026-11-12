@@ -16,6 +16,7 @@
 | 素鸡立时间线、雷普魔动作、器官位置（反馈 4、5） | `.worktrees/wp-hc-sukkiri` | 素鸡立动作片段、表情、身体导出 |
 | 粪便：删旧档位残留、管理演示场 | `.worktrees/wp-hd-waste` | life/Poop*、粪便资源、museum 粪便场景 |
 | 部位占用统一权威（嘴、辫子、帽、承载） | `.worktrees/wp-hj-occupancy-unify` | life/LifeMeal、family/FamilyFeeding、settlement/ForageTrip、HabitatLife、ParentCarry |
+| 宠物店重做（反馈 19–26 与 11-13 补充） | `.worktrees/wp-hg-pet-shop` | shop/、human/、art/structures/human-world/ |
 
 ## 玩法待办
 
