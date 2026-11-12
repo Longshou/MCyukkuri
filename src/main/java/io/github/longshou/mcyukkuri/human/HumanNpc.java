@@ -37,8 +37,10 @@ import io.github.longshou.mcyukkuri.shop.ShopMenu;
 import io.github.longshou.mcyukkuri.shop.ShopRegistry;
 import io.github.longshou.mcyukkuri.shop.ShopStaff;
 import io.github.longshou.mcyukkuri.shop.ShopDoors;
+import io.github.longshou.mcyukkuri.life.TravelRange;
 import net.minecraft.world.entity.ai.navigation.PathNavigation;
 import net.minecraft.world.level.block.DoorBlock;
+import net.minecraft.world.level.pathfinder.Path;
 import net.minecraft.world.level.pathfinder.PathFinder;
 import net.minecraft.world.level.pathfinder.PathType;
 import net.minecraft.world.level.pathfinder.PathfindingContext;
@@ -175,20 +177,38 @@ public final class HumanNpc extends PathfinderMob {
     }
     /** Shop staff on a job may route through their own shop's iron staff doors (ShopStaff.opensDoor); every other door is vanilla. */
     @Override protected PathNavigation createNavigation(Level level) {
-        return new GroundPathNavigation(this, level) {
-            @Override protected PathFinder createPathFinder(int maxVisitedNodes) {
-                nodeEvaluator = new WalkNodeEvaluator() {
-                    @Override public PathType getPathType(PathfindingContext context, int x, int y, int z) {
-                        var pos = new BlockPos(x, y, z); var state = context.getBlockState(pos);
-                        if (state.getBlock() instanceof DoorBlock door && !door.type().canOpenByHand() && !state.getValue(DoorBlock.OPEN)
-                                && ShopStaff.opensDoor(HumanNpc.this, pos)) return PathType.DOOR_WOOD_CLOSED;
-                        return super.getPathType(context, x, y, z);
-                    }
-                };
-                nodeEvaluator.setCanPassDoors(true);
-                return new PathFinder(nodeEvaluator, maxVisitedNodes);
-            }
-        };
+        return new HumanNavigation(level);
+    }
+
+    public Path shopPath(BlockPos stand) { return ((HumanNavigation) getNavigation()).shopPath(stand); }
+
+    private final class HumanNavigation extends GroundPathNavigation {
+        private HumanNavigation(Level level) { super(HumanNpc.this, level); }
+
+        @Override public Path createPath(BlockPos target, int accuracy) {
+            return ShopStaff.active(HumanNpc.this) && accuracy == 0 ? shopPath(target) : super.createPath(target, accuracy);
+        }
+
+        private Path shopPath(BlockPos stand) {
+            // A route between opposite rooms can be longer than the ordinary NPC follow range.
+            float range = TravelRange.PATH_RANGE;
+            setMaxVisitedNodesMultiplier(range / (float) HumanNpc.this.getAttributeValue(Attributes.FOLLOW_RANGE));
+            try { return createPath(java.util.Set.of(stand), 8, false, 0, range); }
+            finally { resetMaxVisitedNodesMultiplier(); }
+        }
+
+        @Override protected PathFinder createPathFinder(int maxVisitedNodes) {
+            nodeEvaluator = new WalkNodeEvaluator() {
+                @Override public PathType getPathType(PathfindingContext context, int x, int y, int z) {
+                    var pos = new BlockPos(x, y, z); var state = context.getBlockState(pos);
+                    if (state.getBlock() instanceof DoorBlock door && !door.type().canOpenByHand() && !state.getValue(DoorBlock.OPEN)
+                            && ShopStaff.opensDoor(HumanNpc.this, pos)) return PathType.DOOR_WOOD_CLOSED;
+                    return super.getPathType(context, x, y, z);
+                }
+            };
+            nodeEvaluator.setCanPassDoors(true);
+            return new PathFinder(nodeEvaluator, maxVisitedNodes);
+        }
     }
 
     @Override public void die(DamageSource source) {

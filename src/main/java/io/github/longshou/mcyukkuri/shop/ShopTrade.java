@@ -51,8 +51,14 @@ public final class ShopTrade {
     static void debit(Player p, int amount) {
         for (ItemStack stack : p.getInventory().items) if (stack.is(Items.EMERALD)) { int used = Math.min(amount, stack.getCount()); stack.shrink(used); amount -= used; if (amount == 0) return; }
     }
-    static void pay(Player p, int amount) {
-        for (; amount > 0; amount -= 64) { var stack = new ItemStack(Items.EMERALD, Math.min(64, amount)); if (!p.getInventory().add(stack)) p.drop(stack, false); }
+    static int pay(Player p, int amount) {
+        int unpaid = 0;
+        for (; amount > 0; amount -= 64) {
+            var stack = new ItemStack(Items.EMERALD, Math.min(64, amount));
+            p.getInventory().add(stack);
+            if (!stack.isEmpty() && p.drop(stack, false) == null) unpaid += stack.getCount();
+        }
+        return unpaid;
     }
     static void say(Player p, String key, Object... args) { p.displayClientMessage(Component.translatable("shop.mcyukkuri." + key, args), true); }
     private static ServerPlayer present(ServerLevel level, ShopRegistry.Entry shop, UUID id) {
@@ -91,9 +97,10 @@ public final class ShopTrade {
         return true;
     }
 
-    /** Operator handover (command): the same fetch with no charge, the session held by a staff member of the shop (a lock holder must be present). */
+    /** Operator handover uses the same saved fetch and charges no emeralds. */
     static boolean handover(ServerLevel level, ShopRegistry.Entry shop, YukkuriEntity y, UUID buyer) {
         if (y == null || !y.isAlive() || !shop.contains(y.position()) || !stockOf(y, shop.id) || shop.orders.containsKey(y.getUUID())
+                || shop.deposit(y.getUUID()) != null
                 || !y.pet().lock(HANDOVER, null)) return false;
         ShopRegistry.get(level).order(shop, y.getUUID(), new ShopRegistry.Order(HANDOVER, buyer, 0, null));
         GameplayLog.event(y, "shop", "action=buy_live result=accepted shop={} buyer=operator due=0", shop.id);
@@ -168,7 +175,7 @@ public final class ShopTrade {
     static boolean handOver(ServerLevel level, HumanNpc staff, ShopRegistry.Entry shop, UUID buyer, ItemStack basket, UUID token) {
         var player = buyer == null ? null : level.getServer().getPlayerList().getPlayer(buyer);
         boolean hands = player != null && player.level() == level && player.isAlive() && player.distanceTo(staff) <= HAND_REACH && player.getInventory().add(basket.copy());
-        if (!hands && drop(level, buyer, counterTop(level, staff), basket.copy()) == null) return false;
+        if (!hands && drop(level, buyer, counterTop(level, shop), basket.copy()) == null) return false;
         staff.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
         if (hands || buyer == null) ShopRegistry.get(level).endOrder(shop, YukkuriWorldData.get(level).captiveIdentity(token));
         staff.swing(InteractionHand.MAIN_HAND);
@@ -179,13 +186,13 @@ public final class ShopTrade {
     }
 
     /** The top of the counter block beside the staff member (the counter faces the customer side), else its own feet. */
-    private static Vec3 counterTop(ServerLevel level, HumanNpc staff) {
-        var at = staff.blockPosition();
+    private static Vec3 counterTop(ServerLevel level, ShopRegistry.Entry shop) {
+        var at = shop.counter();
         for (var d : net.minecraft.core.Direction.Plane.HORIZONTAL) {
             var c = at.relative(d);
             if (level.getBlockState(c).isSolid() && level.getBlockState(c.above()).isAir()) return Vec3.atBottomCenterOf(c.above());
         }
-        return staff.position();
+        return Vec3.atBottomCenterOf(at);
     }
 
     // ---- reservations ---------------------------------------------------------------------------------------------------
@@ -271,11 +278,12 @@ public final class ShopTrade {
         }
         staff.setItemInHand(InteractionHand.MAIN_HAND, CarrierContents.plain(YukkuriWorldData.get(level), token));
         ShopRegistry.get(level).endOrder(shop, y.getUUID());
-        pay(player, price);
+        int unpaid = pay(player, price);
+        if (unpaid > 0) ShopRegistry.get(level).owe(shop, seller, unpaid, false);
         SurvivalProgress.award(player, "pet_sold");
-        say(player, "sell.paid", price, y.getDisplayName());
+        say(player, unpaid == 0 ? "sell.paid" : "sell.owed", price - unpaid, y.getDisplayName(), unpaid);
         GameplayLog.event(staff, "shop", "action=sell_live result=committed shop={} seller={} target={} token={} emeralds_received={}",
-                shop.id, seller, y.getUUID(), token, price);
+                shop.id, seller, y.getUUID(), token, price - unpaid);
         return token;
     }
 
@@ -311,8 +319,8 @@ public final class ShopTrade {
                 continue;
             }
             if (!ShopRestock.shopLoaded(level, shop) || ShopStaff.holdsBasket(level, token)) continue;
-            if (order.customer() != null && present(level, shop, order.customer()) == null) continue;
-            var at = Vec3.atBottomCenterOf(shop.counter());
+            if (order.kind().equals(SALE) && present(level, shop, order.customer()) == null) continue;
+            var at = counterTop(level, shop);
             var basket = drop(level, order.customer(), at, CarrierContents.plain(data, token));
             if (basket == null) continue;
             var replacement = data.rotateToken(token);

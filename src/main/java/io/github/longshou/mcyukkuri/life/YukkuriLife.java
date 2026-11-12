@@ -1161,6 +1161,7 @@ public final class YukkuriLife {
         return SurfaceApproach.restingFloor(entity, near.add(0, .1, 0));
     }
     public boolean assignHome(GlobalPos selected){ return home.assignHome(selected); }
+    public Vec3 homeEntrance(BlockPos nest) { return home.entrance(nest); }
     public boolean assignNaturalHome(BlockPos selected){ return home.assignNaturalHome(selected); }
     public void releaseHome(){ home.releaseHome(); }
     /** An individual without an address takes the nearest free nest its stage and body fit (also the shared nest's release of a grown child). */

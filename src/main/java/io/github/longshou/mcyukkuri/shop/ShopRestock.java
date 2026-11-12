@@ -29,10 +29,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 
 /**
- * The shop's three-day restock (docs/FEATURES.md, 宠物店). There is no supply limit and no factory: each restock the wholesaler collects the
- * baskets waiting in the arrivals barrel to ship out, the staff mark the adults beyond the two the shop keeps (never a reserved one) to be
- * carried to that barrel, and new young arrive there in baskets, one for every nest that is or will be free (predator nests for predators).
- * Staff carry each arrival to a nest ({@link ShopStaff}). The animals on sale are always the ones physically in the shop.
+ * At each restock, outgoing captives are released beyond the shop footprint. Staff basket the next outgoing adults
+ * and settle arriving young. Floor stock and captive stock share one capacity count.
  */
 public final class ShopRestock {
     static final long PERIOD = 3 * ShopStock.DAY;
@@ -60,8 +58,7 @@ public final class ShopRestock {
 
     /**
      * The shop's own bookkeeping each staff tick: stock bound to one of its staff members (the template binds it to the counter clerk)
-     * becomes the shop site's stock, so it outlives any one staff member; stock starts its days on the shelf when the shop first sees
-     * it; and a reservation not taken up within one restock period lapses (the animal is on sale again, the shop keeps the deposit).
+     * becomes the shop site's stock. Stock starts its days on the shelf when the shop first sees it.
      */
     private static void tend(ServerLevel level, ShopRegistry.Entry shop, long now) {
         var registry = ShopRegistry.get(level);
@@ -92,9 +89,9 @@ public final class ShopRestock {
                 if (entity != null || shopLoaded(level, shop)) registry.refund(shop, id);
                 continue;
             }
-            if (shop.orders.containsKey(id)) continue;
             if (now < deposit.since() + PERIOD) continue;
             registry.lapse(shop, id);
+            if (shop.orders.containsKey(id)) ShopTrade.cancel(level, shop, id, "reservation");
             var name = entity instanceof YukkuriEntity y ? y.getDisplayName() : net.minecraft.network.chat.Component.translatable("shop.mcyukkuri.reserve.animal");
             registry.tell(level, deposit.buyer(), "reserve.expired", name, deposit.paid());
             GameplayLog.world(level, "shop", "action=reserve result=lapsed shop={} target={} buyer={} deposit_kept={}",
@@ -104,16 +101,16 @@ public final class ShopRestock {
 
     /** One restock now (also the operator command). Returns how many arrived. */
     public static int restock(ServerLevel level, ShopRegistry.Entry shop) {
-        if (shop.closed() || shop.dock() == null) return 0;
+        if (shop.closed() || shop.dock() == null || !shopLoaded(level, shop)) return 0;
         var registry = ShopRegistry.get(level);
         reconcileReservations(level, shop);
         registry.restocked(shop, level.getGameTime() + PERIOD);
         var custody = YukkuriWorldData.get(level);
         var stock = ShopRegistry.liveStock(level, shop);
-        var dock = shop.dock() == null || !(level.getBlockEntity(shop.dock()) instanceof Container c) ? null : c;
+        var dock = level.getBlockEntity(shop.dock()) instanceof Container c ? c : null;
         int shipped = 0, waitingLand = 0, waitingPredator = 0;
-        var departure = shop.dock();
-        if (dock != null) for (int slot = 0; slot < dock.getContainerSize(); slot++) {
+        var departure = ShopRegistry.departure(level, shop);
+        if (dock != null && departure != null) for (int slot = 0; slot < dock.getContainerSize(); slot++) {
             var stack = dock.getItem(slot);
             if (!ShopStaff.shopBasket(level, shop, stack)) continue;
             var token = CarrierContents.singleToken(stack);
@@ -127,7 +124,7 @@ public final class ShopRestock {
             }
         }
         for (var item : level.getEntitiesOfClass(ItemEntity.class, shop.bounds(),
-                i -> i.isAlive() && ShopStaff.shopBasket(level, shop, i.getItem()))) {
+                i -> departure != null && i.isAlive() && ShopStaff.shopBasket(level, shop, i.getItem()))) {
             var token = CarrierContents.singleToken(item.getItem());
             var snapshot = custody.captiveSnapshot(token);
             if (!ShopStaff.shipOut(snapshot)) continue;
@@ -175,7 +172,7 @@ public final class ShopRestock {
             if (slot < 0) break;
             var returned = dock.getItem(slot);
             if (!returned.isEmpty()) {
-                if (ShopTrade.drop(level, null, Vec3.atBottomCenterOf(departure.above()), returned.copy()) == null) break;
+                if (ShopTrade.drop(level, null, Vec3.atBottomCenterOf(shop.dock().above()), returned.copy()) == null) break;
                 dock.setItem(slot, ItemStack.EMPTY);
             }
             boolean predator = i >= land;

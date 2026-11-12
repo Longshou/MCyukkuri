@@ -28,6 +28,7 @@ import net.minecraft.world.entity.Marker;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.DoorBlock;
 import net.minecraft.world.level.block.Rotation;
+import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import net.minecraft.world.level.saveddata.SavedData;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
@@ -57,12 +58,14 @@ public final class ShopRegistry extends SavedData {
         public final BlockPos pos;
         private BlockPos first, second, counter, dock, trash;
         private AABB protection;
-        private boolean legacy, closed;
+        private Direction legacyFront;
+        private boolean legacy, closed, closing;
         private final Set<UUID> staff = new LinkedHashSet<>();
         private final Set<UUID> releases = new LinkedHashSet<>();
         long nextRestock;
         final Map<UUID, Deposit> deposits = new LinkedHashMap<>();
         final Map<UUID, Integer> refunds = new LinkedHashMap<>();
+        final Map<UUID, Integer> proceeds = new LinkedHashMap<>();
         final Map<UUID, Order> orders = new LinkedHashMap<>();
         Entry(UUID id, String dimension, BlockPos pos) { this.id = id; this.dimension = dimension; this.pos = pos; }
         public AABB bounds() {
@@ -91,13 +94,15 @@ public final class ShopRegistry extends SavedData {
     /** A new shop founded at this staff member's post (the template's counter clerk, or a lone staff member), its markers read once. */
     private Entry found(ServerLevel level, HumanNpc founder) {
         var dim = level.dimension().location().toString();
-        var shop = new Entry(founder.getUUID(), dim, founder.home().immutable());
-        if (!founder.siteRole().equals(OWNER_ROLE) || !readLegacyBounds(level, shop))
-            shop = new Entry(ModRandom.identity(ModRandom.world(level)), dim, founder.home().immutable());
+        var shop = new Entry(ModRandom.identity(ModRandom.world(level)), dim, founder.home().immutable());
+        readMarkers(level, shop);
+        if (!shop.authored() && founder.siteRole().equals(OWNER_ROLE)) {
+            var previous = new Entry(founder.getUUID(), dim, founder.home().immutable());
+            if (readLegacyBounds(level, previous)) shop = previous;
+        }
         shops.put(shop.id, shop);
         shop.staff.add(founder.getUUID());
         setDirty();
-        if (!shop.legacy) readMarkers(level, shop);
         GameplayLog.event(founder, "shop", "action=found shop={} authored={}", shop.id, shop.authored());
         return shop;
     }
@@ -107,7 +112,7 @@ public final class ShopRegistry extends SavedData {
         if (!(staff.level() instanceof ServerLevel level) || staff.job() != HumanNpc.Job.SHOPKEEPER) return null;
         for (var entry : shops.values()) if (entry.staff(staff.getUUID())) {
             if (entry.closed) return null;
-            if (entry.legacy && entry.first == null) readLegacyBounds(level, entry);
+            if (entry.legacy && entry.legacyFront == null) readLegacyBounds(level, entry);
             return entry;
         }
         var shop = shopAt(level, staff.home().getCenter());
@@ -129,7 +134,7 @@ public final class ShopRegistry extends SavedData {
         if (!npc.siteRole().equals("shop_keeper") && !npc.siteRole().equals("shop_sister")) return;
         if (npc.job() == HumanNpc.Job.SHOPKEEPER) return;
         for (var entry : shops.values())
-            if (entry.legacy && !entry.closed && entry.first == null && entry.pos.distSqr(npc.home()) < 32 * 32
+            if (entry.legacy && !entry.closed && entry.legacyFront == null && entry.pos.distSqr(npc.home()) < 32 * 32
                     && entry.dimension.equals(level.dimension().location().toString())) readLegacyBounds(level, entry);
         var shop = shopAt(level, npc.home().getCenter());
         if (shop == null || !shop.legacy) return;
@@ -156,7 +161,17 @@ public final class ShopRegistry extends SavedData {
         boolean staffed = !shop.staff.isEmpty();
         GameplayLog.event(dead, "shop", "action=staff_died shop={} shop_closes={}", shop.id, !staffed);
         if (staffed) return;
+        if (shop.legacy && !ShopRestock.shopLoaded(level, shop)) {
+            shop.closing = true;
+            return;
+        }
+        close(level, shop);
+    }
+
+    private void close(ServerLevel level, Entry shop) {
         shop.closed = true;
+        shop.closing = false;
+        setDirty();
         for (var animal : List.copyOf(shop.deposits.keySet())) refund(shop, animal);
         for (var animal : List.copyOf(shop.orders.keySet()))
             if (shop.orders.get(animal).token() == null) ShopTrade.cancel(level, shop, animal, "closed");
@@ -195,28 +210,21 @@ public final class ShopRegistry extends SavedData {
     }
 
     static YukkuriEntity releaseBasketNear(ServerLevel level, UUID token, BlockPos near, boolean releaseCustody) {
-        var data = YukkuriWorldData.get(level);
-        for (var cell : BlockPos.withinManhattan(near, 4, 2, 4)) {
-            if (!level.hasChunkAt(cell) || !level.getBlockState(cell).getCollisionShape(level, cell).isEmpty()
-                    || !level.getBlockState(cell.below()).isFaceSturdy(level, cell.below(), Direction.UP)) continue;
-            var animal = data.releaseOnGround(token, level, Vec3.atBottomCenterOf(cell), 0);
-            if (animal == null) continue;
-            if (releaseCustody && Custody.view(animal).role() == Custody.Role.STOCK)
-                Custody.release(animal, Custody.ReleaseReason.DELIVERY_FAILED, Custody.view(animal).owner(), null);
-            return animal;
-        }
-        return null;
+        var animal = YukkuriWorldData.get(level).releaseOnGround(token, level, Vec3.atBottomCenterOf(near), 0, 4);
+        if (animal != null && releaseCustody && Custody.view(animal).role() == Custody.Role.STOCK)
+            Custody.release(animal, Custody.ReleaseReason.DELIVERY_FAILED, Custody.view(animal).owner(), null);
+        return animal;
     }
 
     private void recoverClosed(ServerLevel level, Entry shop) {
         if (shop.releases.isEmpty() || !level.hasChunkAt(shop.counter())) return;
         var data = YukkuriWorldData.get(level);
+        boolean loaded = ShopRestock.shopLoaded(level, shop);
         for (var token : List.copyOf(shop.releases)) {
             if (data.hasToken(token)) releaseStockBasket(level, token, shop.counter());
             if (!data.hasToken(token)) {
                 ShopStaff.emptyStockBasket(level, shop, token);
-                shop.releases.remove(token);
-                setDirty();
+                if (loaded) { shop.releases.remove(token); setDirty(); }
             }
         }
     }
@@ -227,8 +235,19 @@ public final class ShopRegistry extends SavedData {
         var doors = registry.openedDoors.get(level.dimension().location().toString());
         if (doors != null) ShopDoors.closeUnattended(level, doors);
         for (var shop : registry.shops.values()) if (shop.dimension.equals(level.dimension().location().toString())) {
-            if (shop.closed || !shop.releases.isEmpty()) registry.recoverClosed(level, shop);
-            else if (!shop.orders.isEmpty()) ShopStaff.reviewOrders(level, shop);
+            if (shop.closing && ShopRestock.shopLoaded(level, shop)) {
+                for (var npc : level.getEntitiesOfClass(HumanNpc.class, shop.bounds(), HumanNpc::isAlive)) {
+                    registry.adoptLegacy(level, npc);
+                    if (npc.job() == HumanNpc.Job.SHOPKEEPER && shop.contains(npc.home().getCenter())) registry.enroll(shop, npc);
+                }
+                if (shop.staff.isEmpty()) registry.close(level, shop);
+                else { shop.closing = false; registry.setDirty(); }
+            }
+            if (!shop.releases.isEmpty()) registry.recoverClosed(level, shop);
+            if (!shop.closed) {
+                if (!shop.deposits.isEmpty()) ShopRestock.reconcileReservations(level, shop);
+                if (!shop.orders.isEmpty()) ShopStaff.reviewOrders(level, shop);
+            }
             ShopTrade.recoverPaid(level, shop);
         }
     }
@@ -253,12 +272,24 @@ public final class ShopRegistry extends SavedData {
             setDirty();
         }
         for (var shop : shops.values()) {
-            int owed = collectRefund(shop, player.getUUID());
-            if (owed <= 0) continue;
-            ShopTrade.pay(player, owed);
-            player.sendSystemMessage(net.minecraft.network.chat.Component.translatable("shop.mcyukkuri.reserve.refunded", owed));
-            GameplayLog.event(player, "shop", "action=reserve result=refunded shop={} emeralds_received={}", shop.id, owed);
+            int paid = payOwed(shop.refunds, player);
+            if (paid > 0) {
+                player.sendSystemMessage(Component.translatable("shop.mcyukkuri.reserve.refunded", paid));
+                GameplayLog.event(player, "shop", "action=reserve result=refunded shop={} emeralds_received={}", shop.id, paid);
+            }
+            int proceeds = payOwed(shop.proceeds, player);
+            if (proceeds > 0) ShopTrade.say(player, "sell.proceeds", proceeds);
         }
+    }
+
+    private int payOwed(Map<UUID, Integer> ledger, ServerPlayer player) {
+        var id = player.getUUID();
+        int owed = ledger.getOrDefault(id, 0);
+        if (owed == 0) return 0;
+        int unpaid = ShopTrade.pay(player, owed);
+        if (unpaid == 0) ledger.remove(id); else ledger.put(id, unpaid);
+        if (unpaid != owed) setDirty();
+        return owed - unpaid;
     }
 
     void tell(ServerLevel level, UUID customer, String key, Object... args) {
@@ -308,9 +339,10 @@ public final class ShopRegistry extends SavedData {
             if (!level.hasChunkAt(door)) continue;
             var state = level.getBlockState(door);
             var examDoor = shop.pos.offset(new BlockPos(16, 0, -11).rotate(rotation));
-            if (!state.is(Blocks.OAK_DOOR) || state.getValue(DoorBlock.FACING) != rotation.rotate(Direction.NORTH)
-                    || !level.hasChunkAt(examDoor) || !level.getBlockState(examDoor).is(Blocks.OAK_DOOR)) continue;
+            if (!state.is(Blocks.OAK_DOOR) || state.getValue(DoorBlock.FACING) != rotation.rotate(Direction.NORTH)) continue;
+            if (!shop.legacy && (!level.hasChunkAt(examDoor) || !level.getBlockState(examDoor).is(Blocks.OAK_DOOR))) continue;
             shop.legacy = true;
+            shop.legacyFront = rotation.rotate(Direction.NORTH);
             shop.first = shop.pos.offset(new BlockPos(-10, -3, -11).rotate(rotation));
             shop.second = shop.pos.offset(new BlockPos(12, 12, 18).rotate(rotation));
             shop.protection = shell(shop.pos, rotation, 11);
@@ -321,16 +353,56 @@ public final class ShopRegistry extends SavedData {
     }
 
     private static AABB authoredProtection(Entry shop) {
+        var rotation = authoredRotation(shop);
+        return rotation == null ? shop.bounds() : shell(shop.pos, rotation, 12);
+    }
+
+    private static Rotation authoredRotation(Entry shop) {
+        if (shop.first == null || shop.second == null) return null;
         for (var rotation : Rotation.values()) {
             var first = shop.pos.offset(new BlockPos(-11, -3, -11).rotate(rotation));
-            if (first.equals(shop.first) || first.equals(shop.second)) return shell(shop.pos, rotation, 12);
+            if (sameColumn(first, shop.first) || sameColumn(first, shop.second)) return rotation;
         }
-        return shop.bounds();
+        return null;
+    }
+
+    private static boolean sameColumn(BlockPos first, BlockPos second) {
+        return first.getX() == second.getX() && first.getZ() == second.getZ();
     }
 
     private static AABB shell(BlockPos clerk, Rotation rotation, int clerkX) {
         return AABB.encapsulatingFullBlocks(clerk.offset(new BlockPos(-clerkX, -3, -14).rotate(rotation)),
-                clerk.offset(new BlockPos(40 - clerkX, 12, 18).rotate(rotation)));
+                clerk.offset(new BlockPos(40 - clerkX, 13, 18).rotate(rotation)));
+    }
+
+    record LegacyHatch(BlockPos door, BlockPos outside, Vec3 inside) {}
+
+    static LegacyHatch legacyHatch(ServerLevel level, Entry shop, YukkuriEntity animal) {
+        if (shop.legacyFront == null) return null;
+        for (var rotation : Rotation.values()) {
+            if (rotation.rotate(Direction.NORTH) != shop.legacyFront) continue;
+            for (int x : new int[] {2, 6, 16, 20}) {
+                var first = shop.pos.offset(new BlockPos(x - 11, 1, -10).rotate(rotation));
+                var last = shop.pos.offset(new BlockPos(x - 9, 2, -8).rotate(rotation));
+                if (!AABB.encapsulatingFullBlocks(first, last).intersects(animal.getBoundingBox())) continue;
+                var door = shop.pos.offset(new BlockPos(x - 11, 1, -7).rotate(rotation));
+                var state = level.getBlockState(door);
+                if (!state.is(Blocks.IRON_DOOR) || state.getValue(DoorBlock.HALF) != DoubleBlockHalf.LOWER) return null;
+                var outside = door.relative(shop.legacyFront.getOpposite()).below();
+                return new LegacyHatch(door, outside, Vec3.atBottomCenterOf(door.relative(shop.legacyFront)));
+            }
+        }
+        return null;
+    }
+
+    static BlockPos departure(ServerLevel level, Entry shop) {
+        var rotation = authoredRotation(shop);
+        if (rotation != null) {
+            var outside = shop.pos.offset(new BlockPos(0, 0, -20).rotate(rotation));
+            if (!level.hasChunkAt(outside)) return null;
+            return level.getHeightmapPos(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, outside);
+        }
+        return shop.dock();
     }
 
     /** A fixed vanilla item frame on the wall behind the marker's cell, showing the marker's good; the marker is used up. */
@@ -368,14 +440,12 @@ public final class ShopRegistry extends SavedData {
     void refund(Entry shop, UUID animal) {
         var deposit = shop.deposits.remove(animal);
         if (deposit == null) return;
-        shop.refunds.merge(deposit.buyer(), deposit.paid(), Integer::sum);
-        setDirty();
+        owe(shop, deposit.buyer(), deposit.paid(), true);
     }
-    /** Deposits owed to this player, paid out now (the menu opening). */
-    int collectRefund(Entry shop, UUID player) {
-        Integer owed = shop.refunds.remove(player);
-        if (owed != null) setDirty();
-        return owed == null ? 0 : owed;
+
+    void owe(Entry shop, UUID player, int amount, boolean refund) {
+        (refund ? shop.refunds : shop.proceeds).merge(player, amount, Integer::sum);
+        setDirty();
     }
     void restocked(Entry shop, long next) { shop.nextRestock = next; setDirty(); }
     void order(Entry shop, UUID animal, Order order) { shop.orders.put(animal, order); setDirty(); }
@@ -406,7 +476,9 @@ public final class ShopRegistry extends SavedData {
             var c = new CompoundTag(); c.putUUID("Id", shop.id); c.putString("Dim", shop.dimension); c.put("Pos", NbtUtils.writeBlockPos(shop.pos));
             c.putLong("NextRestock", shop.nextRestock);
             c.putBoolean("Legacy", shop.legacy);
+            if (shop.legacyFront != null) c.putString("LegacyFront", shop.legacyFront.getName());
             c.putBoolean("Closed", shop.closed);
+            c.putBoolean("Closing", shop.closing);
             c.put("Staff", ids(shop.staff));
             c.put("Releases", ids(shop.releases));
             var orders = new ListTag();
@@ -433,9 +505,8 @@ public final class ShopRegistry extends SavedData {
                 deposits.add(e);
             });
             c.put("Deposits", deposits);
-            var refunds = new ListTag();
-            shop.refunds.forEach((player, owed) -> { var e = new CompoundTag(); e.putUUID("Player", player); e.putInt("Owed", owed); refunds.add(e); });
-            c.put("Refunds", refunds);
+            c.put("Refunds", balances(shop.refunds));
+            c.put("Proceeds", balances(shop.proceeds));
             list.add(c);
         }
         tag.put("Shops", list);
@@ -475,7 +546,9 @@ public final class ShopRegistry extends SavedData {
             if (!converted && !c.hasUUID("Id")) continue;
             var shop = new Entry(c.getUUID(converted ? "Keeper" : "Id"), c.getString("Dim"), NbtUtils.readBlockPos(c, "Pos").orElse(BlockPos.ZERO));
             shop.legacy = converted || c.getBoolean("Legacy");
+            shop.legacyFront = Direction.byName(c.getString("LegacyFront"));
             shop.closed = c.getBoolean("Closed");
+            shop.closing = c.getBoolean("Closing");
             if (converted) { shop.staff.add(shop.id); result.setDirty(); }
             readIds(c, "Staff", shop.staff);
             readIds(c, "Releases", shop.releases);
@@ -500,10 +573,8 @@ public final class ShopRegistry extends SavedData {
                 if (e.hasUUID("Animal") && e.hasUUID("Buyer") && e.getInt("Paid") > 0 && e.getInt("Price") >= e.getInt("Paid"))
                     shop.deposits.put(e.getUUID("Animal"), new Deposit(e.getUUID("Buyer"), e.getInt("Price"), e.getInt("Paid"), e.getLong("Since")));
             }
-            for (var raw : c.getList("Refunds", 10)) {
-                var e = (CompoundTag) raw;
-                if (e.hasUUID("Player") && e.getInt("Owed") > 0) shop.refunds.put(e.getUUID("Player"), e.getInt("Owed"));
-            }
+            readBalances(c, "Refunds", shop.refunds);
+            readBalances(c, "Proceeds", shop.proceeds);
             result.shops.put(shop.id, shop);
         }
         return result;
@@ -517,5 +588,20 @@ public final class ShopRegistry extends SavedData {
 
     private static void readIds(CompoundTag tag, String key, Set<UUID> ids) {
         for (var id : tag.getList(key, 11)) ids.add(NbtUtils.loadUUID(id));
+    }
+
+    private static ListTag balances(Map<UUID, Integer> balances) {
+        var list = new ListTag();
+        balances.forEach((player, owed) -> {
+            var e = new CompoundTag(); e.putUUID("Player", player); e.putInt("Owed", owed); list.add(e);
+        });
+        return list;
+    }
+
+    private static void readBalances(CompoundTag tag, String key, Map<UUID, Integer> balances) {
+        for (var raw : tag.getList(key, 10)) {
+            var e = (CompoundTag) raw;
+            if (e.hasUUID("Player") && e.getInt("Owed") > 0) balances.put(e.getUUID("Player"), e.getInt("Owed"));
+        }
     }
 }

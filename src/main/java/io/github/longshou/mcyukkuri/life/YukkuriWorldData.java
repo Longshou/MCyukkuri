@@ -23,6 +23,7 @@ import java.util.UUID;
 import java.util.NavigableSet;
 import java.util.TreeSet;
 import java.util.function.Consumer;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
@@ -411,10 +412,21 @@ public final class YukkuriWorldData extends SavedData {
     public YukkuriEntity release(UUID token, ServerLevel level, Vec3 position, float yaw) {
         return release(token, level, position, yaw, false);
     }
+    public YukkuriEntity releaseAtNest(UUID token, ServerLevel level, BlockPos nest, float yaw) {
+        return release(token, level, Vec3.atBottomCenterOf(nest), yaw, false, 0, nest);
+    }
     public YukkuriEntity releaseOnGround(UUID token, ServerLevel level, Vec3 position, float yaw) {
         return release(token, level, position, yaw, true);
     }
+    public YukkuriEntity releaseOnGround(UUID token, ServerLevel level, Vec3 near, float yaw, int radius) {
+        return release(token, level, near, yaw, true, radius, null);
+    }
+
     private YukkuriEntity release(UUID token, ServerLevel level, Vec3 position, float yaw, boolean ground) {
+        return release(token, level, position, yaw, ground, 0, null);
+    }
+
+    private YukkuriEntity release(UUID token, ServerLevel level, Vec3 position, float yaw, boolean ground, int radius, BlockPos nest) {
         if (freezer.contains(token)) return releaseRefused(token,level,position,"freezer_lease");
         Captive held = captives.get(token);
         if (held == null) return releaseRefused(token,level,position,"token_missing");
@@ -422,6 +434,30 @@ public final class YukkuriWorldData extends SavedData {
         if (Custody.normalizeSnapshot(level, held.data)) setDirty();
         Entity loaded = EntityType.loadEntityRecursive(held.data.copy(), level, entity -> entity);
         if (!(loaded instanceof YukkuriEntity entity) || !entity.isAlive()) return releaseRefused(token,level,position,"snapshot_not_live_yukkuri");
+        if (nest != null) {
+            if (!(level.getBlockEntity(nest) instanceof CareBlockEntity bed) || !bed.canClaim(entity))
+                return releaseRefused(token,level,position,"nest_occupied");
+            var entrance = entity.life().homeEntrance(nest);
+            if (entrance == null) return releaseRefused(token,level,position,"nest_unreachable");
+            position = entrance;
+            ground = true;
+        }
+        if (radius > 0) {
+            var first = BlockPos.containing(position);
+            Vec3 supported = null;
+            for (var cell : BlockPos.withinManhattan(first, radius, 2, radius)) {
+                if (!level.hasChunkAt(cell)) continue;
+                var candidate = Vec3.atBottomCenterOf(cell);
+                var box = entity.getBoundingBox().move(candidate.subtract(entity.position()));
+                if (level.noCollision(entity, box) && !level.containsAnyLiquid(box) && SurfaceApproach.stands(entity, candidate)
+                        && level.getEntities(entity, box, other -> other instanceof LivingEntity living && living.isAlive() && !living.isSpectator()).isEmpty()) {
+                    supported = candidate;
+                    break;
+                }
+            }
+            if (supported == null) return releaseRefused(token,level,position,"no_free_ground");
+            position = supported;
+        }
         Motor.relocate(entity, position, yaw, "release"); entity.fallDistance = 0; entity.setPersistenceRequired();
         if (!level.noCollision(entity)) return releaseRefused(token,level,position,"collision");
         if (level.containsAnyLiquid(entity.getBoundingBox())) return releaseRefused(token,level,position,"liquid");
