@@ -78,15 +78,8 @@ public final class HumanScenes {
             if (role.isEmpty()) continue;
             staff.stream().filter(n -> n.siteRole().equals(role)).findFirst().ifPresent(n -> HumanCommerce.bindPending(y, n));
         }
-        staff.stream().filter(n -> n.job() == HumanNpc.Job.SHOPKEEPER)
-                .forEach(n -> ShopRegistry.get(level).register(n));
-        if (kind == Kind.SHOP) { // a silver-badge Alice beside the shopkeeper, behind the counter, on the shelves like the booth pets
-            staff.stream().filter(n -> n.job() == HumanNpc.Job.SHOPKEEPER).findFirst().ifPresent(keeper -> {
-                Vec3 local = StructureTemplate.transformedVec3d(settings, new Vec3(13.5, 3.0, 14.5));
-                var alice = addStock(level, keeper, YukkuriVariant.ALICE, local.add(origin.getX(), origin.getY(), origin.getZ()));
-                if (alice != null) animals.add(alice);
-            });
-        }
+        // The shop registers now (footprint, counter, barrels, item frames), instead of on its staff's first tick.
+        staff.stream().filter(n -> n.job() == HumanNpc.Job.SHOPKEEPER).forEach(n -> ShopRegistry.get(level).of(n));
         return new Placed(kind, box, staff, animals);
     }
 
@@ -110,23 +103,19 @@ public final class HumanScenes {
     }
 
     /**
-     * One more shelf individual for this shopkeeper, bound as stock and entered in the shop register.
+     * One more stock individual for the shop this staff member works in, owned like the rest of its stock (operator command).
      * Stock ownership never fabricates a badge, learned skill, or hereditary value.
      */
     public static YukkuriEntity addStock(ServerLevel level, HumanNpc keeper, YukkuriVariant variant, Vec3 at) {
-        if (keeper.job() != HumanNpc.Job.SHOPKEEPER) return null;
+        var shop = ShopRegistry.get(level).of(keeper);
+        if (shop == null) return null;
         var y = ModEntities.forVariant(variant).create(level);
         if (y == null) return null;
         y.moveTo(at.x, at.y, at.z, 0, 0);
-        var tag = new CompoundTag();
-        Custody.pendingStaffRole(tag, keeper.siteRole().isEmpty() ? "shopkeeper" : keeper.siteRole());
-        Custody.role(tag, Custody.Role.STOCK);
-        tag.putInt("FactoryGroup", 0);
-        HumanCommerce.set(y, tag);
         y.setPersistenceRequired();
         y.finalizeSpawn(level, level.getCurrentDifficultyAt(y.blockPosition()), MobSpawnType.COMMAND, null);
+        Custody.assignRaw(y, shop.keeper, Custody.OwnerKind.NPC, Custody.Role.STOCK.id());
         level.addFreshEntity(y);
-        HumanCommerce.bindPending(y, keeper);
         return y;
     }
 

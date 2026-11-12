@@ -39,13 +39,12 @@ public final class ShopScreen extends AbstractContainerScreen<ShopMenu> {
         for (int i = 0; i < ShopOrders.PER_DAY; i++) add(ShopMenu.ButtonId.DELIVER_ORDER_BASE + i, 270, 49 + i * 34, 62, 22, Component.translatable("shop.mcyukkuri.order.deliver"));
         for (int i = 0; i < ShopMenu.PAGE_ROWS; i++) {
             add(ShopMenu.ButtonId.BUY_LIVE_BASE + i, 270, TOP + i * ROW + 3, 62, 16, Component.translatable("shop.mcyukkuri.buy"));
-            add(ShopMenu.ButtonId.LOCATE_BASE + i, 270, TOP + i * ROW + 20, 62, 16, Component.translatable("shop.mcyukkuri.locate"));
+            add(ShopMenu.ButtonId.RESERVE_BASE + i, 270, TOP + i * ROW + 20, 62, 16, Component.translatable("shop.mcyukkuri.reserve"));
             add(ShopMenu.ButtonId.ABOUT_BASE + i, 270, TOP + i * ROW + 37, 62, 16, Component.translatable("shop.mcyukkuri.about"));
         }
         add(ShopMenu.ButtonId.PREVIOUS_PAGE, 8, FOOT, 40, Component.literal("<")); add(ShopMenu.ButtonId.NEXT_PAGE, 52, FOOT, 40, Component.literal(">"));
         add(ShopMenu.ButtonId.PREVIOUS_SUBJECT, 8, FOOT, 40, Component.literal("<")); add(ShopMenu.ButtonId.NEXT_SUBJECT, 52, FOOT, 40, Component.literal(">"));
         add(ShopMenu.ButtonId.SELL, 100, FOOT, 160, Component.translatable("shop.mcyukkuri.sell"));
-        add(ShopMenu.ButtonId.FORECAST, 100, FOOT, 160, Component.translatable("shop.mcyukkuri.forecast"));
         addRenderableWidget(Button.builder(Component.translatable("gui.done"), b -> onClose()).bounds(leftPos + 272, topPos + FOOT, 60, 20).build(ActionButton::new));
     }
     private void press(int id) { if (minecraft.gameMode != null) minecraft.gameMode.handleInventoryButtonClick(menu.containerId, id); }
@@ -64,12 +63,18 @@ public final class ShopScreen extends AbstractContainerScreen<ShopMenu> {
         for (int i = 0; i < ShopMenu.GOODS_ROWS; i++) {
             actions[i].active = tab != i;
             if (i < ShopMenu.PAGE_ROWS) {
-                boolean has = menu.value(ShopMenu.LiveRow.BASE + i * ShopMenu.LiveRow.STRIDE) > 0, locked = (menu.value(ShopMenu.LiveRow.FLAGS_BASE +
-                        i * ShopMenu.LiveRow.STRIDE) & ShopMenu.Flags.LOCKED) != 0;
-                actions[ShopMenu.ButtonId.BUY_LIVE_BASE + i].visible = actions[ShopMenu.ButtonId.LOCATE_BASE + i].visible = actions[ShopMenu.ButtonId.ABOUT_BASE + i].visible = tab == ShopMenu.LIVE;
-                actions[ShopMenu.ButtonId.BUY_LIVE_BASE + i].active = has && day && !locked; actions[ShopMenu.ButtonId.LOCATE_BASE + i].active = actions[ShopMenu.ButtonId.ABOUT_BASE + i].active = has;
-                if (has) actions[ShopMenu.ButtonId.BUY_LIVE_BASE + i].setMessage(Component.translatable("shop.mcyukkuri.buy_price",
-                        menu.value(ShopMenu.LiveRow.PRICE_BASE + i * ShopMenu.LiveRow.STRIDE)));
+                int f = menu.value(ShopMenu.LiveRow.FLAGS_BASE + i * ShopMenu.LiveRow.STRIDE), price = menu.value(ShopMenu.LiveRow.PRICE_BASE + i * ShopMenu.LiveRow.STRIDE);
+                boolean has = menu.value(ShopMenu.LiveRow.BASE + i * ShopMenu.LiveRow.STRIDE) > 0, ordered = (f & ShopMenu.Flags.ORDERED) != 0,
+                        mineReserved = (f & ShopMenu.Flags.RESERVED_YOU) != 0, otherReserved = (f & ShopMenu.Flags.RESERVED_OTHER) != 0;
+                actions[ShopMenu.ButtonId.BUY_LIVE_BASE + i].visible = actions[ShopMenu.ButtonId.RESERVE_BASE + i].visible = actions[ShopMenu.ButtonId.ABOUT_BASE + i].visible = tab == ShopMenu.LIVE;
+                // Clicks stay possible whenever the row exists: the server answers with the exact reason (closed, reserved, emeralds).
+                actions[ShopMenu.ButtonId.BUY_LIVE_BASE + i].active = has && !ordered; actions[ShopMenu.ButtonId.ABOUT_BASE + i].active = has;
+                actions[ShopMenu.ButtonId.RESERVE_BASE + i].active = has && !ordered && !mineReserved && !otherReserved;
+                if (has) {
+                    actions[ShopMenu.ButtonId.BUY_LIVE_BASE + i].setMessage(Component.translatable(mineReserved ? "shop.mcyukkuri.buy_rest" : "shop.mcyukkuri.buy_price", price));
+                    actions[ShopMenu.ButtonId.RESERVE_BASE + i].setMessage(Component.translatable(mineReserved || otherReserved ? "shop.mcyukkuri.reserved"
+                            : "shop.mcyukkuri.reserve_price", ShopMenu.deposit(price)));
+                }
             }
             var stack = ShopMenu.goodsStack(menu.value(ShopMenu.Data.PAGE), i); int price = ShopMenu.goodsPrice(menu.value(ShopMenu.Data.PAGE), i);
             actions[ShopMenu.ButtonId.BUY_GOODS_BASE + i].visible = tab == ShopMenu.GOODS && !stack.isEmpty();
@@ -84,8 +89,7 @@ public final class ShopScreen extends AbstractContainerScreen<ShopMenu> {
                 actions[ShopMenu.ButtonId.PREVIOUS_PAGE].active = actions[ShopMenu.ButtonId.NEXT_PAGE].active = menu.value(ShopMenu.Data.PAGE_COUNT) > 1;
         actions[ShopMenu.ButtonId.PREVIOUS_SUBJECT].visible = actions[ShopMenu.ButtonId.NEXT_SUBJECT].visible = tab == ShopMenu.BUYBACK ||
                 tab == ShopMenu.CONSULT; actions[ShopMenu.ButtonId.PREVIOUS_SUBJECT].active = actions[ShopMenu.ButtonId.NEXT_SUBJECT].active = menu.value(ShopMenu.Data.SUBJECT_COUNT) > 1;
-        actions[ShopMenu.ButtonId.SELL].visible = tab == ShopMenu.BUYBACK; actions[ShopMenu.ButtonId.SELL].active = own && day && menu.value(ShopMenu.Data.BUYBACK_REFUSAL) == 0;
-        actions[ShopMenu.ButtonId.FORECAST].visible = false;
+        actions[ShopMenu.ButtonId.SELL].visible = tab == ShopMenu.BUYBACK; actions[ShopMenu.ButtonId.SELL].active = own;
     }
     @Override protected void renderBg(GuiGraphics g, float partial, int x, int y) {
         panel(g, leftPos, topPos, imageWidth, imageHeight);
@@ -162,11 +166,12 @@ public final class ShopScreen extends AbstractContainerScreen<ShopMenu> {
         if (menu.value(k + ShopMenu.LiveRow.HEALTH) < LOW_HEALTH) { var w = Component.translatable("shop.mcyukkuri.warn.hurt"); g.drawString(font, w,
                 tx, y + 5 + 2 * LINE, WARN, false); tx += font.width(w) + 8; }
         if (menu.value(k + ShopMenu.LiveRow.NUTRITION) < LOW_NUTRITION) g.drawString(font, Component.translatable("shop.mcyukkuri.warn.hungry"), tx, y + 5 + 2 * LINE, WARN, false);
-        // Fourth line: days on the shelf, where it is kept or that it is reserved, and what it is doing right now.
-        boolean sold = (f & ShopMenu.Flags.LOCKED) != 0, factory = (f & ShopMenu.Flags.FACTORY) != 0;
+        // Fourth line: days on the shelf, whether it is being handed over or reserved, and what it is doing right now.
+        boolean sold = (f & ShopMenu.Flags.ORDERED) != 0, mine = (f & ShopMenu.Flags.RESERVED_YOU) != 0, other = (f & ShopMenu.Flags.RESERVED_OTHER) != 0;
         MutableComponent zone = Component.translatable("shop.mcyukkuri.days", menu.value(k + ShopMenu.LiveRow.DAYS));
-        if (sold || (f & ShopMenu.Flags.DISPLAY) != 0) zone.append(" · ").append(Component.translatable(sold ? "shop.mcyukkuri.zone.sold" : "shop.mcyukkuri.zone.display"));
-        if (factory) zone.append(" · ").append(Component.translatable("shop.mcyukkuri.origin.factory"));
+        String state = sold ? "zone.sold" : mine ? "zone.reserved_you" : other ? "zone.reserved_other" : (f & ShopMenu.Flags.DISPLAY) != 0 ? "zone.display" : null;
+        if (state != null) zone.append(" · ").append(Component.translatable("shop.mcyukkuri." + state));
+        sold |= other;
         int mood = menu.value(k + ShopMenu.LiveRow.MOOD);
         int zx = TEXT_X; var shown = ellipsize(font, zone, TEXT_W);
         g.drawString(font, shown, zx, y + 5 + 3 * LINE, sold ? WARN : SOFT, false); zx += font.width(shown) + 8;
@@ -215,8 +220,8 @@ public final class ShopScreen extends AbstractContainerScreen<ShopMenu> {
                 line(g, 104, INK, Component.translatable("shop.mcyukkuri.offer", menu.value(ShopMenu.Data.PRICE)));
                 line(g, 116, menu.value(ShopMenu.Data.BUYBACK_PENALTY) > 0 ? WARN : SOFT, Component.translatable("shop.mcyukkuri.offer_detail",
                         menu.value(ShopMenu.Data.BUYBACK_RATE), menu.value(ShopMenu.Data.BUYBACK_PENALTY)));
-                line(g, 128, menu.value(ShopMenu.Data.BUYBACK_REFUSAL) == 0 ? SOFT : WARN, Component.translatable("shop.mcyukkuri.sell_state." +
-                        menu.value(ShopMenu.Data.BUYBACK_REFUSAL), menu.value(ShopMenu.Data.STOCK_COUNT), ShopMenu.STOCK_CAPACITY));
+                int sellState = menu.value(ShopMenu.Data.SELL_STATE);
+                line(g, 128, sellState == 0 ? SOFT : WARN, Component.translatable("shop.mcyukkuri.sell_state." + ShopMenu.SELL_STATES.get(Math.clamp(sellState, 0, ShopMenu.SELL_STATES.size() - 1))));
                 line(g, 140, SOFT, Component.translatable("shop.mcyukkuri.sell_hint"));
                 return;
             }

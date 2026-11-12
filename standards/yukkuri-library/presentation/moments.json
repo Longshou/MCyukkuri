@@ -3922,16 +3922,16 @@
           ]
         },
         {
-          "clip": "nervous",
+          "clip": "bow",
           "intensity": 1.1,
           "tempo": 1,
           "faces": [
             [
               0,
-              "teary"
+              "teary_smile"
             ],
             [
-              0.75,
+              0.8,
               "open_smile"
             ]
           ]
@@ -4060,21 +4060,6 @@
           "emote": "sweat"
         },
         {
-          "clip": "nervous",
-          "intensity": 1,
-          "tempo": 1,
-          "faces": [
-            [
-              0,
-              "teary"
-            ],
-            [
-              0.75,
-              "closed_smile"
-            ]
-          ]
-        },
-        {
           "clip": "shy",
           "intensity": 1,
           "tempo": 0.9,
@@ -4092,6 +4077,22 @@
               "closed_smile"
             ]
           ]
+        },
+        {
+          "clip": "idle",
+          "intensity": 1,
+          "tempo": 0.6,
+          "faces": [
+            [
+              0,
+              "teary"
+            ],
+            [
+              0.9,
+              "closed_smile"
+            ]
+          ],
+          "emote": "sweat"
         }
       ]
     },
@@ -4099,27 +4100,23 @@
       "loop": true,
       "steps": [
         {
-          "clip": "sulk",
+          "clip": "ignore",
           "intensity": 1.15,
-          "tempo": 1,
+          "tempo": 0.9,
           "faces": [
             [
               0,
               "teary_frown"
             ],
             [
-              1.4,
+              0.9,
               "teary"
-            ],
-            [
-              1.9,
-              "teary_frown"
             ]
           ]
         },
         {
-          "clip": "sulk",
-          "intensity": 1,
+          "clip": "droop",
+          "intensity": 0.9,
           "tempo": 0.8,
           "faces": [
             [
@@ -4218,7 +4215,7 @@
           "emote": "anger"
         },
         {
-          "clip": "sulk",
+          "clip": "ignore",
           "intensity": 0.9,
           "tempo": 1,
           "faces": [
@@ -4250,33 +4247,37 @@
         }
       ]
     },
-    "behavior_window_hatch": {
+    "behavior_window_polite": {
       "loop": true,
       "steps": [
         {
-          "clip": "beg",
-          "intensity": 1.1,
+          "clip": "bow",
+          "intensity": 1.15,
           "tempo": 1,
           "faces": [
             [
               0,
-              "open_smile"
+              "flushed_smile"
             ],
             [
-              0.6,
-              "happy"
+              0.9,
+              "open_smile"
             ]
           ],
-          "emote": "note"
+          "emote": "sweat"
         },
         {
           "clip": "idle",
           "intensity": 1,
-          "tempo": 1,
+          "tempo": 0.7,
           "faces": [
             [
               0,
-              "happy"
+              "closed_smile"
+            ],
+            [
+              1.0,
+              "flushed_smile"
             ]
           ]
         }
@@ -4296,7 +4297,6 @@
     "window_farewell": "behavior_window_farewell",
     "window_envy": "behavior_window_envy",
     "window_watch": "behavior_window_watch",
-    "window_hatch": "behavior_window_hatch",
     "unun_exercise": "behavior_unun_exercise",
     "toilet": "behavior_toilet",
     "ground_toilet": "behavior_ground_toilet",
@@ -4419,7 +4419,8 @@
     "seek_food": "behavior_seek_food",
     "bully_peer": "behavior_bully_peer",
     "protect_peer": "behavior_protect_peer",
-    "sumo_push": "behavior_sumo_push"
+    "sumo_push": "behavior_sumo_push",
+    "window_polite": "behavior_window_polite"
   },
   "reactions": {
     "hello": "reaction_hello",

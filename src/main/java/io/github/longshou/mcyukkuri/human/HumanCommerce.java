@@ -6,7 +6,8 @@ import java.util.UUID;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Player;
-import io.github.longshou.mcyukkuri.shop.ShopRegistry;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.CustomData;
 import java.util.Comparator;
 import java.util.Set;
 import net.minecraft.core.BlockPos;
@@ -51,7 +52,7 @@ public final class HumanCommerce {
     }
     /**
      * Binds an animal that carries a PendingRole (template entities, scenario stock) to the staff member of that role.
-     * Custody metadata does not grant a badge, skill, or hereditary value. Shop stock is entered in the {@code ShopRegistry}.
+     * Custody metadata does not grant a badge, skill, or hereditary value.
      */
     public static void bindPending(YukkuriEntity animal, HumanNpc npc) {
         if (!(animal.level() instanceof ServerLevel level)) return;
@@ -68,8 +69,6 @@ public final class HumanCommerce {
         if ((custody.role() == Custody.Role.STOCK || custody.role() == Custody.Role.STUD)
                 && pet.grade() != BadgeGrade.NONE && pet.serial() == null)
             pet.issue(pet.grade(), pet.source(), npc.getUUID());
-        if (custody.role() == Custody.Role.STOCK && npc.job() == HumanNpc.Job.SHOPKEEPER) ShopRegistry.get(level).stocked(npc, animal);
-        if (custody.role() == Custody.Role.LOST) npc.setLostAnimal(animal.getUUID(), animal.blockPosition());
     }
     private HumanCommerce() {}
 }

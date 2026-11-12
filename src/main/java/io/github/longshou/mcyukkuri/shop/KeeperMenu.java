@@ -26,9 +26,9 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.phys.Vec3;
 
-/** Keeper UI: the shop's studs, nursery and restock status, plus the matchmaking (omiai) service. Button packets never carry an animal id.
+/** Matchmaker UI (the keeper NPC with its own studs, not shop staff): the matchmaking (omiai) service. Button packets never carry an animal id.
  *  Button ids: 0/1 previous/next own animal, 2 book the date, 3/4 next/previous stud.
- *  Data slots (shorts): 0 daytime, 1 stud count, 2 nursery count, 3 shop population, 4 capacity, 5 days to next restock, 6 subject count, 7 subject index+1,
+ *  Data slots (shorts): 0 daytime, 1 stud count, 2-5 unused, 6 subject count, 7 subject index+1,
  * 8 stud index+1, 9 booking state (0 ok, 1 night, 2 not enough emeralds, 3 no animal, 4 no stud, 5 cannot mate now, 6 pet has no nest of its own, 7
  * too crowded where it lives, 8 too hungry, 9 the pet needs a silver badge), 10 fee, 11 emeralds held,
  *  12-27 four stud rows of (species+1, grade | expired<<2 | pregnant-or-busy<<3, reserved, selected) for the page holding the selected stud,
@@ -49,10 +49,6 @@ public final class KeeperMenu extends AbstractContainerMenu {
         public static final int COUNT = 32;
         public static final int DAYTIME = 0;
         public static final int STUD_COUNT = 1;
-        public static final int NURSERY_COUNT = 2;
-        public static final int POPULATION = 3;
-        public static final int CAPACITY = 4;
-        public static final int RESTOCK_DAYS = 5;
         public static final int SUBJECT_COUNT = 6;
         public static final int SUBJECT_INDEX = 7;
         public static final int STUD_INDEX = 8;
@@ -143,7 +139,7 @@ public final class KeeperMenu extends AbstractContainerMenu {
         if (!(pet.level() instanceof ServerLevel level)) return 5;
         long now = level.getGameTime();
         if (!pet.getUUID().equals(refusalPet) || !s.getUUID().equals(refusalStud) || now - refusalAt >= 20) { // FamilyData.plan is costly: re-ask once a second
-            String why = ShopKeeping.refusal(level, pet, s);
+            String why = ShopDate.refusal(level, pet, s);
             refusalCode = why == null ? 0 : why.equals("crowded") ? 7 : why.startsWith("hungry") ? 8 : 5; refusalPet = pet.getUUID(); refusalStud = s.getUUID(); refusalAt = now;
         }
         return refusalCode;
@@ -154,10 +150,8 @@ public final class KeeperMenu extends AbstractContainerMenu {
         if (viewer.level().isClientSide || target == null || !(viewer.level() instanceof ServerLevel level)) return;
         for (int i = 0; i < Data.COUNT; i++) data.set(i, 0);
         var studs = studs(); var pet = subject(); var s = stud();
-        long left = Math.max(0, target.nextBreed() - level.getGameTime());
-        put(Data.DAYTIME, level.isDay() ? 1 : 0); put(Data.STUD_COUNT, studs.size()); put(Data.NURSERY_COUNT,
-                target.animals(Custody.Role.SHOP_NURSERY).size()); put(Data.POPULATION, ShopPens.population(level, target)); put(Data.CAPACITY, ShopMenu.CAPACITY);
-        put(Data.RESTOCK_DAYS, target.nextBreed() == 0 ? 3 : (int)((left + 23999) / 24000)); put(Data.SUBJECT_COUNT, mine.size()); put(Data.SUBJECT_INDEX, mine.isEmpty() ? 0 : selected + 1);
+        put(Data.DAYTIME, level.isDay() ? 1 : 0); put(Data.STUD_COUNT, studs.size());
+        put(Data.SUBJECT_COUNT, mine.size()); put(Data.SUBJECT_INDEX, mine.isEmpty() ? 0 : selected + 1);
         put(Data.STUD_INDEX, s == null ? 0 : Math.min(stud, studs.size() - 1) + 1); put(Data.BOOKING_STATE, state(pet, s)); put(Data.FEE, FEE); put(Data.EMERALDS, count(viewer));
         int first = studs.isEmpty() ? 0 : Math.min(stud, studs.size() - 1) / StudRow.COUNT * StudRow.COUNT;
         for (int i = 0; i < StudRow.COUNT && first + i < studs.size(); i++) {

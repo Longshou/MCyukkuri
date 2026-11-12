@@ -84,8 +84,7 @@ public final class HumanWorld {
             () -> IMenuTypeExtension.create((id, inv, buf) -> new ExamMenu(id, inv, buf.readVarInt())));
     public static final ModConfigSpec SPEC;
     public static final ModConfigSpec.BooleanValue ROAMING, CRUELTY;
-    public static final ModConfigSpec.IntValue TRADE_DAY_LIMIT, CARE_SUPPLIES, BADGE_VALIDITY_DAYS, COMMODITY_HARSHNESS, STALE_RATION_DAYS, STALE_RECALL_DAYS;
-    public static final ModConfigSpec.BooleanValue FACTORY_SHOP_SHIPPING;
+    public static final ModConfigSpec.IntValue TRADE_DAY_LIMIT, CARE_SUPPLIES, BADGE_VALIDITY_DAYS, COMMODITY_HARSHNESS;
     static {
         var b = new ModConfigSpec.Builder();
         ROAMING = b.comment("Allow rare daylight human encounters; structure residents are independent.").define("roamingResidents", true);
@@ -93,12 +92,9 @@ public final class HumanWorld {
         TRADE_DAY_LIMIT = b.comment("Goods a single player can buy from one shopkeeper per game day (shelf stock is limited separately).").defineInRange("supplyTradesPerDay", 24, 1, 64);
         CARE_SUPPLIES = b.defineInRange("initialCareFood", 32, 0, 256);
         BADGE_VALIDITY_DAYS = b.comment("Game days a silver or gold badge stays valid; 0 means never expires.").defineInRange("badgeValidityDays", 20, 0, 1000);
-        FACTORY_SHOP_SHIPPING = b.comment("Factories ship suitable nursery young to a shop within 256 blocks every two game days.").define("factoryShopShipping", true);
         COMMODITY_HARSHNESS = b
-                .comment("How harsh the pet trade is to its goods: 0 off (including unsold-stock recall), 1 mild, 2 harsh, 3 brutal. Scales factory-parent wear and punishment after a failed exam.")
+                .comment("How harsh the pet trade is to its goods: 0 off, 1 mild, 2 harsh, 3 brutal. Scales factory-parent wear and punishment after a failed exam.")
                 .defineInRange("commodityHarshness", 1, 0, 3);
-        STALE_RATION_DAYS = b.comment("Legacy no-op retained so existing server configs remain readable after unsold-stock rationing was disabled.").defineInRange("staleRationDays", 10, 1, 200);
-        STALE_RECALL_DAYS = b.comment("Game days unsold before the keeper sends it to a factory for reclamation.").defineInRange("staleRecallDays", 20, 2, 400);
         SPEC = b.build();
     }
     private static DeferredHolder<EntityType<?>, EntityType<HumanNpc>> type(String id, HumanNpc.Look look) {

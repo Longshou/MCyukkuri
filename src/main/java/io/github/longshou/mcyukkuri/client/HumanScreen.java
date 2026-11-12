@@ -17,7 +17,7 @@ public final class HumanScreen extends AbstractContainerScreen<HumanMenu> {
         for (int i = 0; i < 4; i++) {
             addAction(i, LEFT, 54 + i * ROW, COLUMN, Component.translatable("human.mcyukkuri.buy_supply", menu.supply(i).getHoverName(), menu.supply(i).getCount(), HumanMenu.supplyPrice(i)));
         }
-        for (int i = HumanMenu.ButtonId.DELIVER_INPUT; i < HumanMenu.ButtonId.GUIDE; i++) {
+        for (int i : new int[] {HumanMenu.ButtonId.DELIVER_INPUT, HumanMenu.ButtonId.DONATE}) {
             addAction(i, i % 2 == 0 ? LEFT : RIGHT, 140 + ((i - HumanMenu.ButtonId.DELIVER_INPUT) / 2) * ROW,
                     COLUMN, Component.translatable("human.mcyukkuri.action." + i));
         }
@@ -64,7 +64,6 @@ public final class HumanScreen extends AbstractContainerScreen<HumanMenu> {
         actions[HumanMenu.ButtonId.REPLENISH].active=menu.value(HumanMenu.Data.PRODUCTION_KIND)>0&&menu.value(HumanMenu.Data.DAYTIME)!=0;
         actions[HumanMenu.ButtonId.REPLENISH].setTooltip(Tooltip.create(Component.translatable("human.mcyukkuri.ingredient."+menu.value(HumanMenu.Data.PRODUCTION_KIND))));
         actions[HumanMenu.ButtonId.DELIVER_INPUT].active = menu.value(HumanMenu.Data.INPUT_READY) != 0 && menu.value(HumanMenu.Data.DAYTIME) != 0;
-        actions[HumanMenu.ButtonId.ACCEPT_QUEST].active = actions[HumanMenu.ButtonId.RETURN_LOST].active = menu.value(HumanMenu.Data.QUEST_STATE) == 1 && menu.value(HumanMenu.Data.DAYTIME) != 0;
         actions[HumanMenu.ButtonId.DONATE].active = menu.value(HumanMenu.Data.CARE_FOOD) <= 248 && menu.value(HumanMenu.Data.DAYTIME) != 0;
     }
     @Override protected void renderBg(GuiGraphics g, float partial, int x, int y) {

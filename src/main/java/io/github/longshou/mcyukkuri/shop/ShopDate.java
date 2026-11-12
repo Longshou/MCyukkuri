@@ -3,6 +3,7 @@ package io.github.longshou.mcyukkuri.shop;
 import io.github.longshou.mcyukkuri.MCYukkuri;
 import io.github.longshou.mcyukkuri.coordination.LeaseTable;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.human.HumanNpc;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.motor.Motor;
@@ -14,6 +15,7 @@ import io.github.longshou.mcyukkuri.social.BondLevels;
 import io.github.longshou.mcyukkuri.social.YukkuriPersonality.Trait;
 import java.util.*;
 import java.util.function.IntPredicate;
+import net.minecraft.core.GlobalPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
@@ -75,7 +77,7 @@ public final class ShopDate implements IntPredicate {
     private static void face(YukkuriEntity a, YukkuriEntity b) { a.getLookControl().setLookAt(b, 30, 30); b.getLookControl().setLookAt(a, 30, 30); }
     private void hold(HumanNpc k, boolean on) {
         if (on && !held && k != null) {
-            if (ShopCourier.busy(k)) return; // a courier job (or a stray basket) owns the hand: only swing
+            if (ShopStaff.busy(k)) return; // a staff job (or a stray basket) owns the hand: only swing
             var lease = new Object();
             if (!HOLDING.acquireAll(List.of(keeperId), lease, LeaseTable.INDEFINITE, 0)) return;
             handLease = lease;
@@ -166,8 +168,8 @@ public final class ShopDate implements IntPredicate {
         var relations = YukkuriWorldData.get(level); relations.relate(petId, studId, 20); relations.relate(studId, petId, 20);
         // The date's emotes leave a command action running, which makes FamilyLife.ready() fail: end both before the checks.
         a.playAction("idle"); b.playAction("idle");
-        String why = ShopKeeping.refusal(level, a, b);
-        ok = why == null && ShopKeeping.arrangedConceive(level, a, b);
+        String why = refusal(level, a, b);
+        ok = why == null && arrangedConceive(level, a, b);
         if (!ok && why == null) why = "conceive_null";
         if (!ok) MCYukkuri.LOGGER.warn("[keeper] matchmaking refused for {} x {}: {}", petId, studId, why);
         fond = ok || fondBefore;
@@ -193,5 +195,23 @@ public final class ShopDate implements IntPredicate {
             b.showReaction("neutral", "", 50);
         }
         a.getLookControl().setLookAt(b, 30, 30); b.getLookControl().setLookAt(a, 30, 30);
+    }
+
+    /** Where an arranged birth happens: the mother's home, else her position. */
+    private static GlobalPos anchorOf(ServerLevel level, YukkuriEntity mother) {
+        var home = mother.life().homeStand();
+        return GlobalPos.of(level.dimension(), home != null ? home : mother.blockPosition());
+    }
+    /** FamilyData.conceiveRefusal for an arranged pair (arranged only for the duration of the call), born at the mother's home. Null means it would succeed. */
+    static String refusal(ServerLevel level, YukkuriEntity mother, YukkuriEntity father) {
+        mother.family().arrange(father.getUUID()); father.family().arrange(mother.getUUID());
+        try { return FamilyData.get(level).conceiveRefusal(mother, father, mother.family().naturalBirthKind(father), anchorOf(level, mother)); }
+        finally { mother.family().arrange(null); father.family().arrange(null); }
+    }
+    /** Conception between two animals that are not courting in the wild: the pair is arranged only for the duration of the call. */
+    static boolean arrangedConceive(ServerLevel level, YukkuriEntity mother, YukkuriEntity father) {
+        mother.family().arrange(father.getUUID()); father.family().arrange(mother.getUUID());
+        try { return FamilyData.get(level).conceive(mother, father, mother.family().naturalBirthKind(father), anchorOf(level, mother)) != null; }
+        finally { mother.family().arrange(null); father.family().arrange(null); }
     }
 }

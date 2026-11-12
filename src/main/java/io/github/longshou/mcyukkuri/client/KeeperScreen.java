@@ -10,7 +10,7 @@ import net.minecraft.world.entity.player.Inventory;
 
 import static io.github.longshou.mcyukkuri.client.GuiKit.*;
 
-/** Keeper screen: studs, nursery and restock status, and the matchmaking service. Button and data slot ids are documented on KeeperMenu. */
+/** Matchmaker screen: its studs and the matchmaking service. Button and data slot ids are documented on KeeperMenu. */
 public final class KeeperScreen extends AbstractContainerScreen<KeeperMenu> {
     private final Button[] actions = new Button[KeeperMenu.ButtonId.COUNT];
     public KeeperScreen(KeeperMenu menu, Inventory inv, Component title) { super(menu, inv, title); imageWidth = 300; imageHeight = 220; }
@@ -43,8 +43,7 @@ public final class KeeperScreen extends AbstractContainerScreen<KeeperMenu> {
     private static Component species(int v) { return v > 0 && v <= YukkuriVariant.values().length ? Component.translatable("entity.mcyukkuri." +
             YukkuriVariant.values()[v - 1].assetId()) : Component.empty(); }
     @Override protected void renderLabels(GuiGraphics g, int mx, int my) {
-        g.drawString(font, Component.translatable("shop.mcyukkuri.keeper.status", menu.value(KeeperMenu.Data.POPULATION),
-                menu.value(KeeperMenu.Data.CAPACITY), menu.value(KeeperMenu.Data.NURSERY_COUNT), menu.value(KeeperMenu.Data.RESTOCK_DAYS)), 12, 10, INK, false);
+        g.drawString(font, title, 12, 10, INK, false);
         g.drawString(font, Component.translatable("shop.mcyukkuri.keeper.studs", menu.value(KeeperMenu.Data.STUD_COUNT)), 12, 30, INK, false);
         if (menu.value(KeeperMenu.Data.STUD_COUNT) == 0) g.drawString(font, Component.translatable("shop.mcyukkuri.keeper.no_stud"), 14, 46, SOFT, false);
         for (int i = 0; i < KeeperMenu.StudRow.COUNT; i++) {

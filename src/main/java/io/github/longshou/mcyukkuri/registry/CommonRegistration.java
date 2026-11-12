@@ -38,9 +38,9 @@ import io.github.longshou.mcyukkuri.settlement.SettlementTicker;
 import io.github.longshou.mcyukkuri.settlement.ShelterIndexEvents;
 import io.github.longshou.mcyukkuri.settlement.FoundShelterCleanup;
 import io.github.longshou.mcyukkuri.settlement.SiteClaimer;
-import io.github.longshou.mcyukkuri.shop.ShopCourier;
-import io.github.longshou.mcyukkuri.shop.ShopDeliveries;
 import io.github.longshou.mcyukkuri.shop.ShopPerformance;
+import io.github.longshou.mcyukkuri.shop.ShopProtection;
+import io.github.longshou.mcyukkuri.shop.ShopStaff;
 import io.github.longshou.mcyukkuri.status.Reactions;
 import io.github.longshou.mcyukkuri.status.TraceRecorder;
 import io.github.longshou.mcyukkuri.world.SearchBudgetEvents;
@@ -58,6 +58,9 @@ import net.neoforged.neoforge.event.entity.EntityLeaveLevelEvent;
 import net.neoforged.neoforge.event.entity.EntityMountEvent;
 import net.neoforged.neoforge.event.entity.RegisterSpawnPlacementsEvent;
 import net.neoforged.neoforge.event.entity.living.LivingEntityUseItemEvent;
+import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
+import net.neoforged.neoforge.event.entity.player.AttackEntityEvent;
+import net.neoforged.neoforge.event.level.ExplosionEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerWakeUpEvent;
@@ -112,7 +115,6 @@ public final class CommonRegistration {
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, ServerTickEvent.Post.class, Staging::tick);
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, ServerTickEvent.Post.class, Grazing::tick);
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, ServerTickEvent.Post.class, GroupMemberEvents::tick);
-        NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, ServerTickEvent.Post.class, ShopDeliveries::tick);
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, ServerTickEvent.Post.class, ShopPerformance::tick);
         NeoForge.EVENT_BUS.addListener(EventPriority.LOWEST, false, ServerTickEvent.Post.class, TraceRecorder::tickPost);
 
@@ -144,6 +146,15 @@ public final class CommonRegistration {
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, PlayerWakeUpEvent.class, HouseholdEcology::woke);
 
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, BlockEvent.BreakEvent.class, HouseholdEcology::broke);
+        // Pet shops: nothing is destroyed inside and stock is not handled before it is bought; first, so later handlers see the cancellation.
+        NeoForge.EVENT_BUS.addListener(EventPriority.HIGH, false, BlockEvent.BreakEvent.class, ShopProtection::broke);
+        NeoForge.EVENT_BUS.addListener(EventPriority.HIGH, false, BlockEvent.EntityPlaceEvent.class, ShopProtection::placed);
+        NeoForge.EVENT_BUS.addListener(EventPriority.HIGH, false, PlayerInteractEvent.RightClickBlock.class, ShopProtection::used);
+        NeoForge.EVENT_BUS.addListener(EventPriority.HIGH, false, PlayerInteractEvent.EntityInteract.class, ShopProtection::touched);
+        NeoForge.EVENT_BUS.addListener(EventPriority.HIGH, false, PlayerInteractEvent.EntityInteractSpecific.class, ShopProtection::touchedAt);
+        NeoForge.EVENT_BUS.addListener(EventPriority.HIGH, false, AttackEntityEvent.class, ShopProtection::struck);
+        NeoForge.EVENT_BUS.addListener(EventPriority.HIGH, false, LivingIncomingDamageEvent.class, ShopProtection::harmed);
+        NeoForge.EVENT_BUS.addListener(EventPriority.HIGH, false, ExplosionEvent.Detonate.class, ShopProtection::exploded);
 
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, PlayerInteractEvent.EntityInteract.class, HouseholdEcology::sheared);
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, PlayerInteractEvent.EntityInteract.class, MagnifyingGlassItem::blockCare);
@@ -168,7 +179,7 @@ public final class CommonRegistration {
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, ServerStartingEvent.class, SceneReset::started);
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, ServerStartingEvent.class, ResourceWarmup::started);
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, ServerStartingEvent.class, ForageClaims::started);
-        NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, ServerStartingEvent.class, ShopCourier::started);
+        NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, ServerStartingEvent.class, ShopStaff::started);
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, ServerStartingEvent.class, ShopPerformance::started);
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, ServerStartingEvent.class, TraceRecorder::started);
 
@@ -183,7 +194,7 @@ public final class CommonRegistration {
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, ServerStoppedEvent.class, ForageClaims::stopped);
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, ServerStoppedEvent.class, GroupMemberEvents::stopped);
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, ServerStoppedEvent.class, ShelterIndexEvents::stopped);
-        NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, ServerStoppedEvent.class, ShopCourier::stopped);
+        NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, ServerStoppedEvent.class, ShopStaff::stopped);
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, ServerStoppedEvent.class, ShopPerformance::stopped);
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, ServerStoppedEvent.class, SearchBudgetEvents::stopped);
 

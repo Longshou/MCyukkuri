@@ -6,14 +6,10 @@ import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.entity.SpeciesProfile;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.FamilyData;
-import io.github.longshou.mcyukkuri.human.Custody;
-import io.github.longshou.mcyukkuri.human.CustodyData;
-import io.github.longshou.mcyukkuri.human.HumanCommerce;
 import io.github.longshou.mcyukkuri.human.HumanMenu;
 import io.github.longshou.mcyukkuri.human.HumanNpc;
 import io.github.longshou.mcyukkuri.human.HumanWorld;
 import io.github.longshou.mcyukkuri.item.SwaddleStyle;
-import io.github.longshou.mcyukkuri.notebook.SurvivalProgress;
 import io.github.longshou.mcyukkuri.pet.BadgeGrade;
 import io.github.longshou.mcyukkuri.pet.PetLife;
 import io.github.longshou.mcyukkuri.pet.PetSkill;
@@ -22,8 +18,6 @@ import io.github.longshou.mcyukkuri.registry.ModItems;
 import io.github.longshou.mcyukkuri.social.BondLevels;
 import io.github.longshou.mcyukkuri.social.Temperament;
 import java.util.*;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -33,37 +27,34 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.inventory.SimpleContainerData;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 
-/** Shopkeeper UI with four tabs. Rows and subjects are fixed server-side; button packets never carry an animal id.
- *  Button ids: 0-3 tab (live, goods, buyback, consult); 4-6 buy live row (PAGE_ROWS = 3 rows per page); 8-10 locate row; 12/13 prev/next page;
- *  14-17 buy goods row; 18 sell subject; 19 exam forecast; 20/21 prev/next subject; 22-24 about (species notes and transport advice in chat) for live row.
- *  Data slots (shorts): 0 tab, 1 trades left, 2 daytime, 3 page, 4 page count, 5 shop stock count (Use stock only, capped at STOCK_CAPACITY), 6 subject count, 7 subject index+1;
- *  from 8, live rows of 12: species+1, stage, flags (see Flags), learned-skill mask, entity id low/high
- *  short, days on the shelf, mood ({@link Mood}), tags (a|b<<4, 15 none), health, nutrition, price;
- *  subject block (buyback/consult) from 8: species+1, stage, flags, learned-skill mask, reserved, health, nutrition, hygiene, stress, reserved,
- *  reserved fields (21-25), advice x3 (26-28), price/offer (29), reserved forecast fields (30-33),
- *  forecast bought (33), buyback refusal (34; 0 ok, 1 shop full, 2 no free pen), tags (35), title (36; 0 none, 1 eternal silver, 2 hidden gold).
- * Version 2 (goods stock, delivery orders, privileges; existing ids and slots unchanged): button 25 orders tab, 26-28 deliver order 1-3. Slot 1 is
- * now the buyer's own trades left today at this shopkeeper.
- *  Slots 57-60 shelf stock of the four goods rows of the page (0 = sold out), 61-64 badge needed for each (0 none, 1 bronze, 2 silver), 65 orders delivered today (bit per order),
- *  66-68 today's three orders (pool index+1), 69 buyback rate percent, 70 buyback penalty percent, 71 the buyer's own badge standing (0-3). */
+/** The one shop menu: any staff member of a shop opens it (docs/FEATURES.md, 宠物店). Rows and subjects are fixed server-side; button packets
+ *  never carry an animal id. The live roster is every stock animal physically inside the shop, whichever staff member is asked.
+ *  Button ids: 0-3 tab (live, goods, buyback, consult); 4-6 buy live row (PAGE_ROWS = 3 rows per page); 8-10 reserve live row; 12/13 prev/next
+ *  page; 14-17 buy goods row; 18 sell subject; 20/21 prev/next subject; 22-24 about (species notes and transport advice in chat) for live row;
+ *  25 orders tab, 26-28 deliver order 1-3.
+ *  Data slots (shorts): 0 tab, 1 the buyer's trades left today, 2 daytime, 3 page, 4 page count, 5 stock animals in the shop, 6 subject count,
+ *  7 subject index+1; from 8, live rows of 12: species+1, stage, flags (grade | expired<<3 | display<<4 | ordered<<5 | reserved by you<<6 |
+ *  reserved by another<<7), learned-skill mask, entity id low/high short, days on the shelf, mood ({@link Mood}), tags (a|b<<4, 15 none), health,
+ *  nutrition, price due from this viewer;
+ *  subject block (buyback/consult) from 8: species+1, stage, flags, learned-skill mask, health 16, nutrition 17, hygiene 18, stress 19,
+ *  advice x3 (26-28), price/offer (29), sell state (34; 0 ok, else {@link #SELL_STATES} index), tags (35), title (36), 56 highlighted live row,
+ *  57-60 goods shelf stock, 61-64 badge needed, 65 orders done (bit per order), 66-68 today's orders (pool index+1), 69 buyback rate percent,
+ *  70 buyback stress penalty percent, 71 the buyer's own badge standing (0-3), 72/73 parents' badges. */
 public final class ShopMenu extends AbstractContainerMenu {
     /** Fixed wire values; reserved slots and ranges remain unchanged. */
     public static final class ButtonId {
         public static final int LIVE_TAB = 0;
         public static final int BUY_LIVE_BASE = 4;
         public static final int BUY_LIVE_LAST = 7;
-        public static final int LOCATE_BASE = 8;
-        public static final int LOCATE_LAST = 11;
+        public static final int RESERVE_BASE = 8;
+        public static final int RESERVE_LAST = 11;
         public static final int PREVIOUS_PAGE = 12;
         public static final int NEXT_PAGE = 13;
         public static final int BUY_GOODS_BASE = 14;
         public static final int BUY_GOODS_LAST = 17;
         public static final int SELL = 18;
-        public static final int FORECAST = 19;
         public static final int PREVIOUS_SUBJECT = 20;
         public static final int NEXT_SUBJECT = 21;
         public static final int ABOUT_BASE = 22;
@@ -93,10 +84,9 @@ public final class ShopMenu extends AbstractContainerMenu {
         public static final int SUBJECT_NUTRITION = 17;
         public static final int SUBJECT_HYGIENE = 18;
         public static final int SUBJECT_STRESS = 19;
-        public static final int SUBJECT_RESERVED = 20;
         public static final int ADVICE_BASE = 26;
         public static final int PRICE = 29;
-        public static final int BUYBACK_REFUSAL = 34;
+        public static final int SELL_STATE = 34;
         public static final int SUBJECT_TAGS = 35;
         public static final int TITLE = 36;
         public static final int FOCUS_ROW = 56;
@@ -131,14 +121,16 @@ public final class ShopMenu extends AbstractContainerMenu {
         public static final int PRICE_BASE = 19;
         private LiveRow() {}
     }
-    public static final int PAGE_ROWS = 3, LIVE = 0, GOODS = 1, BUYBACK = 2, CONSULT = 3, ORDERS = 4, CAPACITY = 16, STOCK_CAPACITY = 12, DATA_SIZE = Data.COUNT;
+    public static final int PAGE_ROWS = 3, LIVE = 0, GOODS = 1, BUYBACK = 2, CONSULT = 3, ORDERS = 4, DATA_SIZE = Data.COUNT;
     public static final class Flags {
-        public static final int GRADE_MASK = 7, EXPIRED = 8, DISPLAY = 16, LOCKED = 32, FACTORY = 64;
+        public static final int GRADE_MASK = 7, EXPIRED = 8, DISPLAY = 16, ORDERED = 32, RESERVED_YOU = 64, RESERVED_OTHER = 128;
         private Flags() {}
     }
-    /** Live row slot MOOD: 0 nothing to show, 1 pleading at the window, 2 posing proudly, 3 hiding shyly, 4 sulking, 5 let down, 6 asleep, 7 eating. */
+    /** Sell state codes (slot 34): the refusal the sell button would meet. */
+    public static final List<String> SELL_STATES = List.of("ok", "closed", "unsuited", "outside", "busy", "no_nest", "gone");
+    /** Live row slot MOOD: 0 nothing to show, 1 pleading at the window, 2 posing proudly, 3 hiding shyly, 4 sulking, 5 let down, 6 asleep, 7 eating, 8 greeting politely. */
     public static final class Mood {
-        public static final int NONE = 0, APPEAL = 1, PROUD = 2, SHY = 3, SULK = 4, LETDOWN = 5, ASLEEP = 6, EATING = 7;
+        public static final int NONE = 0, APPEAL = 1, PROUD = 2, SHY = 3, SULK = 4, LETDOWN = 5, ASLEEP = 6, EATING = 7, POLITE = 8;
         private Mood() {}
     }
     /** What the row shows of the animal's real state; never starts or probes a behaviour. */
@@ -149,6 +141,7 @@ public final class ShopMenu extends AbstractContainerMenu {
         var mode = window.mode();
         if (mode != null) return switch (mode) {
             case APPEAL, SHOW_OFF -> Mood.APPEAL;
+            case POLITE -> Mood.POLITE;
             case PROUD -> Mood.PROUD;
             case SHY -> Mood.SHY;
             case SULK -> Mood.SULK;
@@ -156,49 +149,59 @@ public final class ShopMenu extends AbstractContainerMenu {
         return window.letDown() ? Mood.LETDOWN : Mood.NONE;
     }
     public static final int GOODS_ROWS = 4;
-    private record Quote(UUID id, int price) {}
     public static int goodsPages() { return ShopCatalog.pages(); }
     public static int goodsCategory(int page) { return ShopCatalog.category(page); }
     public static ItemStack goodsStack(int page, int row) { var good = ShopCatalog.at(ShopCatalog.index(page, row)); return good == null ? ItemStack.EMPTY : good.stack(); }
     public static int goodsPrice(int page, int row) { var good = ShopCatalog.at(ShopCatalog.index(page, row)); return good == null ? 0 : good.price(); }
+    /** The deposit that reserves an animal at this price (shown on the reserve button). */
+    public static int deposit(int price) { return ShopTrade.deposit(price); }
 
     private final HumanNpc target;
     private final Player viewer;
-    private final List<Quote> quotes = new ArrayList<>();
+    /** The shop of the staff member asked (server side only). */
+    private final ShopRegistry.Entry shop;
+    private final List<UUID> roster = new ArrayList<>();
     private final List<UUID> mine = new ArrayList<>();
     private final ContainerData data = new SimpleContainerData(DATA_SIZE);
-    private int tab, page, selected, shopCount, focus = -1, standing, standingClock;
-    private boolean penOk, custom;
-    private final Set<UUID> locating = new HashSet<>();
+    private int tab, page, selected, focus = -1, standing, standingClock;
 
     public ShopMenu(int id, Inventory inventory, int entityId) { this(id, inventory, entityId, null); }
     /** Server side only passes a focus animal (opened by clicking it): the menu starts on the LIVE page that lists it with its row highlighted (slot 56). */
     private ShopMenu(int id, Inventory inventory, int entityId, UUID focusAnimal) {
         super(HumanWorld.SHOP_MENU.get(), id); viewer = inventory.player;
         target = viewer.level().getEntity(entityId) instanceof HumanNpc n ? n : null;
-        if (!viewer.level().isClientSide && target != null && target.job() == HumanNpc.Job.SHOPKEEPER)
-            target.animals(Custody.Role.STOCK).stream().sorted(Comparator.comparingInt((YukkuriEntity y) -> -y.pet().grade().id())
-                    .thenComparingInt(y -> y.getVariant().ordinal()).thenComparing(YukkuriEntity::getUUID))
-                    .limit(64).forEach(y -> quotes.add(new Quote(y.getUUID(), ShopPricing.price(y))));
-        if (focusAnimal != null) for (int i = 0; i < quotes.size(); i++) if (quotes.get(i).id.equals(focusAnimal)) { focus = i; page = i / PAGE_ROWS; }
+        shop = target != null && viewer.level() instanceof ServerLevel level ? ShopRegistry.get(level).of(target) : null;
+        rebuildRoster();
+        if (focusAnimal != null) for (int i = 0; i < roster.size(); i++) if (roster.get(i).equals(focusAnimal)) { focus = i; page = i / PAGE_ROWS; }
         addDataSlots(data); refresh();
     }
     public static void open(Player p, HumanNpc npc) { open(p, npc, null); }
     public static void open(Player p, HumanNpc npc, YukkuriEntity focusAnimal) {
         if (!(p instanceof ServerPlayer server) || !HumanMenu.valid(p, npc)) return;
         if (!npc.beginTrade(p)) { p.displayClientMessage(Component.translatable("human.mcyukkuri.busy"), true); return; }
+        var shop = ShopRegistry.get(server.serverLevel()).of(npc);
+        if (shop != null) {
+            int owed = ShopRegistry.get(server.serverLevel()).collectRefund(shop, p.getUUID());
+            if (owed > 0) {
+                ShopTrade.pay(p, owed);
+                p.sendSystemMessage(Component.translatable("shop.mcyukkuri.reserve.refunded", owed));
+                GameplayLog.event(p, "shop", "action=reserve result=refunded shop={} emeralds_received={}", shop.keeper, owed);
+            }
+        }
         UUID focus = focusAnimal == null ? null : focusAnimal.getUUID();
         server.openMenu(new SimpleMenuProvider((id, inv, owner) -> new ShopMenu(id, inv, npc.getId(), focus), npc.getDisplayName()), buf -> buf.writeVarInt(npc.getId()));
     }
-    /** Right-click on a stock animal (empty hand, not sneaking) with its shopkeeper owner within 12 blocks: the animal appeals (bold) or bows, and that shopkeeper's menu opens on its row. */
+    /** An empty-hand click on stock opens the menu of the nearest staff member of its shop on that animal's row (the animal itself is not handled). */
     public static boolean clickStock(Player p, YukkuriEntity y) {
-        if (!(p instanceof ServerPlayer) || !(y.level() instanceof ServerLevel level)) return false;
-        var commerce = Custody.view(y);
-        if (commerce.role() != Custody.Role.STOCK || commerce.owner() == null) return false;
-        if (!(level.getEntity(commerce.owner()) instanceof HumanNpc npc) || npc.job() != HumanNpc.Job.SHOPKEEPER || !npc.isAlive() || npc.distanceToSqr(p) > 144) return false;
-        if (y.life().personality().boldness() >= Temperament.BOLDNESS_AT_40) { y.playAction("beg"); y.speak("shop_appeal"); } else y.playAction("bow");
-        if (!HumanMenu.valid(p, npc)) { p.displayClientMessage(Component.translatable("shop.mcyukkuri.too_far"), true); return true; }
-        open(p, npc, y); return true;
+        if (!(p instanceof ServerPlayer) || !(y.level() instanceof ServerLevel level) || !p.getMainHandItem().isEmpty()) return false;
+        var registry = ShopRegistry.get(level);
+        var shop = registry.shopAt(level, y.position());
+        if (shop == null || !ShopTrade.stockOf(y, shop.keeper)) return false;
+        var staff = level.getEntitiesOfClass(HumanNpc.class, shop.bounds().inflate(4), n -> n.isAlive() && registry.of(n) == shop)
+                .stream().min(Comparator.comparingDouble(p::distanceToSqr)).orElse(null);
+        if (staff == null) return false;
+        if (!HumanMenu.valid(p, staff)) { p.displayClientMessage(Component.translatable("shop.mcyukkuri.too_far"), true); return true; }
+        open(p, staff, y); return true;
     }
     public HumanNpc target() { return target; }
     public int value(int index) { return data.get(index); }
@@ -207,15 +210,7 @@ public final class ShopMenu extends AbstractContainerMenu {
     @Override public void removed(Player player) { super.removed(player); if (target != null) target.endTrade(player); }
 
     // helpers
-    static int count(Player p, Item item) { return p.getInventory().items.stream().filter(s -> s.is(item)).mapToInt(ItemStack::getCount).sum(); }
-    static void debit(Player p, Item item, int amount) {
-        for (ItemStack stack : p.getInventory().items) if (stack.is(item)) { int used = Math.min(amount, stack.getCount()); stack.shrink(used); amount -= used; if (amount == 0) return; }
-    }
-    /** Emeralds in stacks of at most 64. */
-    private static void giveEmeralds(Player p, int amount) { for (; amount > 0; amount -= 64) give(p, new ItemStack(Items.EMERALD, Math.min(64, amount))); }
     private static boolean room(Player p) { return p.getInventory().getFreeSlot() >= 0; }
-    static void give(Player p, ItemStack stack) { if (!p.getInventory().add(stack)) p.drop(stack, false); }
-    static boolean stockOf(YukkuriEntity y, UUID shop) { return HumanCommerce.ownedBy(y, shop) && (Custody.view(y).role() == Custody.Role.STOCK); }
     private static int stage(YukkuriEntity y) { return !y.family().adult() && y.childhood().canLiveIndependently() ? 3 : y.family().stage().ordinal(); }
     private static int[] tags(YukkuriEntity y) {
         var p = y.life().personality(); int[] out = {15, 15}; int n = 0;
@@ -226,9 +221,11 @@ public final class ShopMenu extends AbstractContainerMenu {
         if (n == 0) out[0] = 0;
         return out;
     }
-    private static int flags(YukkuriEntity y, boolean locked) {
-        var b = y.pet(); return b.grade().id() | (b.expired() ? Flags.EXPIRED : 0) | (b.grade().id() >= BadgeGrade.SILVER.id() ? Flags.DISPLAY :
-                0) | (locked ? Flags.LOCKED : 0) | (ShopDeliveries.factoryOrigin(y) ? Flags.FACTORY : 0);
+    private int flags(YukkuriEntity y) {
+        var b = y.pet(); var d = shop == null ? null : shop.deposit(y.getUUID());
+        return b.grade().id() | (b.expired() ? Flags.EXPIRED : 0) | (b.grade().id() >= BadgeGrade.SILVER.id() ? Flags.DISPLAY : 0)
+                | (ShopTrade.order(y) ? Flags.ORDERED : 0)
+                | (d == null ? 0 : d.buyer().equals(viewer.getUUID()) ? Flags.RESERVED_YOU : Flags.RESERVED_OTHER);
     }
     private static int skills(YukkuriEntity y) {
         int mask = 0;
@@ -236,15 +233,21 @@ public final class ShopMenu extends AbstractContainerMenu {
         return mask;
     }
     private void put(int index, int value) { data.set(index, Math.clamp(value, -32768, 32767)); }
-    private int pageCount() { return tab == LIVE ? Math.max(1, (quotes.size() + PAGE_ROWS - 1) / PAGE_ROWS) : tab == GOODS ? goodsPages() : 1; }
-    private UUID shopId() { return target.getUUID(); }
+    private int pageCount() { return tab == LIVE ? Math.max(1, (roster.size() + PAGE_ROWS - 1) / PAGE_ROWS) : tab == GOODS ? goodsPages() : 1; }
 
-    private YukkuriEntity quoted(int index) {
-        if (target == null || index < 0 || index >= quotes.size() || !(target.level() instanceof ServerLevel level)) return null;
-        return level.getEntity(quotes.get(index).id) instanceof YukkuriEntity y && y.isAlive() && target.distanceToSqr(y) <= 48 * 48 && stockOf(y, target.getUUID()) ? y : null;
+    /** The physical roster, best badges first; rebuilt when the menu opens and on paging (sold animals leave it, arrivals join it). */
+    private void rebuildRoster() {
+        roster.clear();
+        if (shop == null || !(viewer.level() instanceof ServerLevel level)) return;
+        ShopRegistry.liveStock(level, shop).stream().sorted(Comparator.comparingInt((YukkuriEntity y) -> -y.pet().grade().id())
+                .thenComparingInt(y -> y.getVariant().ordinal()).thenComparing(YukkuriEntity::getUUID)).limit(64).forEach(y -> roster.add(y.getUUID()));
+    }
+    private YukkuriEntity listed(int index) {
+        if (shop == null || index < 0 || index >= roster.size() || !(viewer.level() instanceof ServerLevel level)) return null;
+        return level.getEntity(roster.get(index)) instanceof YukkuriEntity y && y.isAlive() && shop.contains(y.position()) && ShopTrade.stockOf(y, shop.keeper) ? y : null;
     }
     private boolean mayHandle(YukkuriEntity y, Player p) {
-        return y != null && y.isAlive() && y.pet().ownedBy(p.getUUID()) && !y.pet().busy() && !y.isPassenger() && y.distanceToSqr(p) <= 64;
+        return y != null && y.isAlive() && y.pet().ownedBy(p.getUUID()) && !y.isPassenger() && y.distanceToSqr(p) <= 64;
     }
     private YukkuriEntity subject() {
         if (mine.isEmpty() || !(viewer.level() instanceof ServerLevel level)) return null;
@@ -254,52 +257,44 @@ public final class ShopMenu extends AbstractContainerMenu {
         mine.clear(); if (!(viewer.level() instanceof ServerLevel level)) return;
         level.getEntitiesOfClass(YukkuriEntity.class, viewer.getBoundingBox().inflate(8), y -> mayHandle(y, viewer)).stream()
                 .sorted(Comparator.comparing(YukkuriEntity::getUUID)).limit(32).forEach(y -> mine.add(y.getUUID()));
-        selected = mine.isEmpty() ? 0 : Math.min(selected, mine.size() - 1); evaluate();
-    }
-    private int population(ServerLevel level) {
-        return ShopPens.stock(level, target);
-    }
-    private void evaluate() {
-        shopCount = 0; penOk = false;
-        if (tab != BUYBACK || target == null || !(viewer.level() instanceof ServerLevel level)) return;
-        shopCount = population(level); var y = subject(); penOk = y != null && ShopPens.freePen(level, target, y) != null;
+        selected = mine.isEmpty() ? 0 : Math.min(selected, mine.size() - 1);
     }
     // data
     private void refresh() {
-        if (viewer.level().isClientSide || target == null) return;
+        if (viewer.level().isClientSide || target == null || shop == null || !(target.level() instanceof ServerLevel level)) return;
         for (int i = 0; i < DATA_SIZE; i++) data.set(i, 0);
-        var shopLevel = target.level() instanceof ServerLevel sl ? sl : null;
-        put(Data.TAB, tab); put(Data.TRADES_LEFT, shopLevel == null ? 0 : ShopStock.get(shopLevel).tradesLeft(shopLevel, shopId(), viewer.getUUID()));
-                put(Data.DAYTIME, target.level().isDay() ? 1 : 0); put(Data.PAGE, page); put(Data.PAGE_COUNT, pageCount());
+        put(Data.TAB, tab); put(Data.TRADES_LEFT, ShopStock.get(level).tradesLeft(level, shop.keeper, viewer.getUUID()));
+        put(Data.DAYTIME, level.isDay() ? 1 : 0); put(Data.PAGE, page); put(Data.PAGE_COUNT, pageCount());
         if (standingClock-- <= 0) { standingClock = 20; standing = PetPrivileges.grade(viewer).id(); }
         put(Data.STANDING, standing);
-        if (shopLevel != null && tab == GOODS) {
-            var stocks = ShopStock.get(shopLevel);
+        if (tab == GOODS) {
+            var stocks = ShopStock.get(level);
             for (int row = 0; row < GOODS_ROWS; row++) {
                 var good = ShopCatalog.at(ShopCatalog.index(page, row)); if (good == null) continue;
-                put(Data.GOODS_STOCK_BASE + row, stocks.stock(shopLevel, shopId(), good)); put(Data.GOODS_UNLOCK_BASE + row, good.unlock());
+                put(Data.GOODS_STOCK_BASE + row, stocks.stock(level, shop.keeper, good)); put(Data.GOODS_UNLOCK_BASE + row, good.unlock());
             }
         }
-        if (shopLevel != null && tab == ORDERS) {
-            var orders = ShopOrders.today(shopLevel, shopId());
+        if (tab == ORDERS) {
+            var orders = ShopOrders.today(level, shop.keeper);
             for (int i = 0; i < ShopOrders.PER_DAY; i++) put(Data.ORDER_BASE + i, orders[i] + 1);
-            put(Data.ORDERS_DONE, ShopStock.get(shopLevel).ordersDone(shopLevel, shopId(), viewer.getUUID()));
+            put(Data.ORDERS_DONE, ShopStock.get(level).ordersDone(level, shop.keeper, viewer.getUUID()));
         }
-        put(Data.STOCK_COUNT, shopCount); put(Data.SUBJECT_COUNT, mine.size()); put(Data.SUBJECT_INDEX, mine.isEmpty() ? 0 : selected + 1);
+        put(Data.STOCK_COUNT, roster.size()); put(Data.SUBJECT_COUNT, mine.size()); put(Data.SUBJECT_INDEX, mine.isEmpty() ? 0 : selected + 1);
         if (tab == LIVE && focus >= 0 && focus / PAGE_ROWS == page) put(Data.FOCUS_ROW, focus % PAGE_ROWS + 1);
         if (tab == LIVE) {
             for (int i = 0; i < PAGE_ROWS; i++) {
-                int idx = page * PAGE_ROWS + i; var y = quoted(idx); if (y == null) continue; int k = LiveRow.BASE + i * LiveRow.STRIDE; var t = tags(y); var b = y.pet();
-                put(k, y.getVariant().ordinal() + 1); put(k + LiveRow.STAGE, stage(y)); put(k + LiveRow.FLAGS, flags(y, b.busy())); put(k + LiveRow.SKILLS, skills(y));
-                put(k + LiveRow.TAGS, t[0] | t[1] << 4); put(k + LiveRow.HEALTH, Math.round(y.getHealth())); put(k + LiveRow.NUTRITION,
-                        Math.round(y.life().nutrition())); put(k + LiveRow.PRICE, quotes.get(idx).price);
+                var y = listed(page * PAGE_ROWS + i); if (y == null) continue; int k = LiveRow.BASE + i * LiveRow.STRIDE; var t = tags(y);
+                put(k, y.getVariant().ordinal() + 1); put(k + LiveRow.STAGE, stage(y)); put(k + LiveRow.FLAGS, flags(y)); put(k + LiveRow.SKILLS, skills(y));
+                put(k + LiveRow.TAGS, t[0] | t[1] << 4); put(k + LiveRow.HEALTH, Math.round(y.getHealth())); put(k + LiveRow.NUTRITION, Math.round(y.life().nutrition()));
+                var d = shop.deposit(y.getUUID());
+                put(k + LiveRow.PRICE, d != null && d.buyer().equals(viewer.getUUID()) ? d.price() - d.paid() : ShopPricing.price(y));
                 put(k + LiveRow.ENTITY_LOW, (short) y.getId()); put(k + LiveRow.ENTITY_HIGH, (short) (y.getId() >>> 16));
                 put(k + LiveRow.DAYS, Math.max(0, CommodityLife.forSaleDays(y))); put(k + LiveRow.MOOD, mood(y));
             }
         } else if (tab == BUYBACK || tab == CONSULT) {
             var y = subject(); if (y == null) return; var b = y.pet(); var t = tags(y);
-            put(Data.SUBJECT_SPECIES, y.getVariant().ordinal() + 1); put(Data.SUBJECT_STAGE, stage(y)); put(Data.SUBJECT_FLAGS, flags(y, b.busy())); put(Data.SUBJECT_SKILLS, skills(y));
-            var families = FamilyData.get((ServerLevel)y.level());
+            put(Data.SUBJECT_SPECIES, y.getVariant().ordinal() + 1); put(Data.SUBJECT_STAGE, stage(y)); put(Data.SUBJECT_FLAGS, flags(y)); put(Data.SUBJECT_SKILLS, skills(y));
+            var families = FamilyData.get(level);
             put(Data.SUBJECT_MOTHER_BADGE, families.badgeAcquired(y.family().mother())); put(Data.SUBJECT_FATHER_BADGE, families.badgeAcquired(y.family().father()));
             put(Data.SUBJECT_HEALTH, Math.round(y.getHealth())); put(Data.SUBJECT_NUTRITION, Math.round(y.life().nutrition())); put(Data.SUBJECT_HYGIENE, Math.round(y.life().hygiene()));
             put(Data.SUBJECT_STRESS, b.stress());
@@ -311,152 +306,76 @@ public final class ShopMenu extends AbstractContainerMenu {
             if (b.unauthorizedBirths() > 0) advice.add(10);
             for (int i = 0; i < Math.min(3, advice.size()); i++) put(Data.ADVICE_BASE + i, advice.get(i));
             put(Data.PRICE, tab == BUYBACK ? ShopPricing.buyback(y) : ShopPricing.price(y)); put(Data.BUYBACK_RATE, ShopPricing.rate(y)); put(Data.BUYBACK_PENALTY, ShopPricing.penalty(y));
-            put(Data.BUYBACK_REFUSAL, tab != BUYBACK ? 0 : shopCount >= STOCK_CAPACITY ? 1 : penOk ? 0 : 2); put(Data.SUBJECT_TAGS, t[0] | t[1] << 4); put(Data.TITLE, b.title());
+            if (tab == BUYBACK) { String why = ShopTrade.sellRefusal(level, shop, y, viewer); put(Data.SELL_STATE, why == null ? 0 : SELL_STATES.indexOf(why)); }
+            put(Data.SUBJECT_TAGS, t[0] | t[1] << 4); put(Data.TITLE, b.title());
         }
     }
     @Override public void broadcastChanges() { refresh(); super.broadcastChanges(); }
 
     // actions
-    private boolean buyLive(Player p, int row) {
-        if (row < 0 || row >= PAGE_ROWS) return false;
-        int idx = page * PAGE_ROWS + row; var animal = quoted(idx);
-        if (!(p.level() instanceof ServerLevel level)) return false;
-        String reason=animal==null?"quote_unavailable":animal.pet().busy()?"busy":!room(p)?"inventory_full":null;
-        if(reason!=null)return refused(p,"buy_live",reason);
-        int price = quotes.get(idx).price;
-        if (count(p, Items.EMERALD) < price)return refused(p,"buy_live","insufficient_emeralds");
-        // A carried animal is not standing where the clerk can hand it over; the refusal is logged like the other gates.
-        if (animal.isPassenger()) return refused(p,"buy_live","passenger");
-        return ShopTrade.begin(level, target, animal, p.getUUID(), price);
-    }
-    private boolean refused(Player p,String action,String reason){
-        GameplayLog.event(p,"shop","action={} result=refused shop={} reason={}",action,target.getUUID(),reason);
-        return false;
-    }
-    private boolean locate(Player p, int row) {
-        if (row < 0 || row >= PAGE_ROWS) return false;
-        var animal = quoted(page * PAGE_ROWS + row); if (animal == null || !(p.level() instanceof ServerLevel level)) return false;
-        UUID id = animal.getUUID();
-        if (!locating.add(id)) { custom = true; return false; } // its beam is still running
-        p.displayClientMessage(Component.translatable("shop.mcyukkuri.locate_hint", animal.getDisplayName()), true); custom = true;
-        ShopPerformance.schedule(level, Set.of(id), age -> {
-            var e = level.getEntity(id); if (e == null) { locating.remove(id); return true; }
-            if (age % 3 == 0) for (int k = 0; k < 6; k++) level.sendParticles(ParticleTypes.END_ROD, e.getX(), e.getY() + e.getBbHeight() + .3 + k * .35, e.getZ(), 1, .05, .05, .05, 0);
-            if (age >= 100) { locating.remove(id); return true; }
+    private boolean buyGood(ServerLevel level, Player p, int row) {
+        var good = ShopCatalog.at(ShopCatalog.index(page, row));
+        if (good == null) return false;
+        int price = good.price(); var stack = good.stack(); var stocks = ShopStock.get(level);
+        String why = !level.isDay() ? "closed" : !PetPrivileges.allows(p, good.unlock()) ? "locked." + good.unlock()
+                : stocks.stock(level, shop.keeper, good) <= 0 ? "sold_out" : stocks.tradesLeft(level, shop.keeper, p.getUUID()) <= 0 ? "trade_limit"
+                : ShopTrade.emeralds(p) < price ? "emeralds" : !room(p) ? "inventory_full" : null;
+        if (why != null) {
+            ShopTrade.say(p, "goods.refused." + why, stack.getHoverName(), price, ShopTrade.emeralds(p));
+            GameplayLog.event(p, "shop", "action=buy_good result=refused shop={} item={} reason={}", shop.keeper, stack.getItem(), why);
             return false;
-        }, () -> locating.remove(id));
+        }
+        int stockBefore = stocks.stock(level, shop.keeper, good), delivered = stack.getCount();
+        var item = stack.getItem();
+        // The shelf shows the plain knit; each swaddle cloth handed over is one of the styles at random (docs/FEATURES.md).
+        var style = stack.is(ModItems.SWADDLE_CLOTH.get()) ? SwaddleStyle.random(ModRandom.world(level)) : null;
+        if (style != null) style.apply(stack);
+        stocks.take(level, shop.keeper, good);
+        ShopTrade.debit(p, price); if (!p.getInventory().add(stack)) p.drop(stack, false); stocks.useTrade(level, shop.keeper, p.getUUID());
+        ShopTrade.say(p, "goods.bought", stack.getHoverName(), price);
+        GameplayLog.event(p, "shop", "action=buy_good result=delivered shop={} item={} count={} style={} emeralds_used={} stock={}->{}",
+                shop.keeper, item, delivered, style == null ? null : style.id, price, stockBefore, stocks.stock(level, shop.keeper, good));
         return true;
     }
     /** R2: the clerk explains the species and gives transport advice, as three chat lines. */
     private boolean about(Player p, int row) {
-        if (row < 0 || row >= PAGE_ROWS) return false;
-        var animal = quoted(page * PAGE_ROWS + row); if (animal == null) return false;
+        var animal = listed(page * PAGE_ROWS + row); if (animal == null) return false;
         var v = animal.getVariant(); String id = v.assetId(); String note = SpeciesProfile.of(v).dangerToYukkuri() ? "predator" : id;
         var name = target.getDisplayName();
         p.sendSystemMessage(Component.translatable("shop.mcyukkuri.about.say", name, Component.translatable("shop.mcyukkuri.about.head", Component.translatable("entity.mcyukkuri." + id))));
         p.sendSystemMessage(Component.translatable("shop.mcyukkuri.about.say", name, Component.translatable("shop.mcyukkuri.about.note." + note)));
         p.sendSystemMessage(Component.translatable("shop.mcyukkuri.about.say", name, Component.translatable("shop.mcyukkuri.about.transport")));
-        custom = true; return true;
-    }
-    private boolean buyGood(Player p, int row) {
-        var good = ShopCatalog.at(ShopCatalog.index(page, row));
-        if (!(p.level() instanceof ServerLevel level)) return false;
-        if (good == null) return refused(p,"buy_good","unknown_good");
-        int price = good.price(); var stack = good.stack(); var stocks = ShopStock.get(level);
-        if (price <= 0 || stack.isEmpty()) return refused(p,"buy_good","invalid_good");
-        if (!PetPrivileges.allows(p, good.unlock())) { p.displayClientMessage(Component.translatable("shop.mcyukkuri.locked." + good.unlock()), true); custom = true; return refused(p,"buy_good","privilege_locked"); }
-        if (stocks.stock(level, shopId(), good) <= 0) { p.displayClientMessage(Component.translatable("shop.mcyukkuri.sold_out", stack.getHoverName()), true); custom = true; return refused(p,"buy_good","sold_out"); }
-        if (stocks.tradesLeft(level, shopId(), p.getUUID()) <= 0)return refused(p,"buy_good","trade_limit");
-        if(count(p, Items.EMERALD) < price)return refused(p,"buy_good","insufficient_emeralds");
-        if(!room(p))return refused(p,"buy_good","inventory_full");
-        int stockBefore=stocks.stock(level,shopId(),good), delivered=stack.getCount();
-        var item=stack.getItem();
-        // The shelf shows the plain knit; each swaddle cloth handed over is one of the styles at random (docs/FEATURES.md).
-        var style=stack.is(ModItems.SWADDLE_CLOTH.get())?SwaddleStyle.random(ModRandom.world(level)):null;
-        if(style!=null)style.apply(stack);
-        if(!stocks.take(level, shopId(), good))return refused(p,"buy_good","stock_changed");
-        debit(p, Items.EMERALD, price); give(p, stack); stocks.useTrade(level, shopId(), p.getUUID());
-        GameplayLog.event(p,"shop","action=buy_good result=delivered shop={} item={} count={} style={} emeralds_used={} stock={}->{}",
-                target.getUUID(),item,delivered,style==null?null:style.id,price,stockBefore,stocks.stock(level,shopId(),good));
         return true;
     }
-    /** Delivery order 0-2 of today. */
-    private boolean deliverOrder(Player p, int slot) {
-        if (!(p.level() instanceof ServerLevel level)) return false;
-        boolean ok = ShopOrders.deliver(level, shopId(), p, slot);
-        if (!ok) { p.displayClientMessage(Component.translatable("shop.mcyukkuri.order.unavailable"), true); custom = true; }
-        return ok;
-    }
-    private boolean sell(Player p) { return sell(p, subject()); }
-    private boolean sell(Player p, YukkuriEntity a) {
-        if (!(p.level() instanceof ServerLevel level)) return false;
-        if (a == null || !mayHandle(a, p)) return refused(p,"sell_live",a==null?"no_subject":"cannot_handle");
-        if (CustodyData.get(level).deadNpc(target.getUUID())) return refused(p,"sell_live","shopkeeper_dead");
-        shopCount = population(level);
-        if (shopCount >= STOCK_CAPACITY) { p.displayClientMessage(Component.translatable("shop.mcyukkuri.full"), true); custom = true; return refused(p,"sell_live","stock_full"); }
-        BlockPos pen = ShopPens.freePen(level, target, a);
-        if (pen == null) { p.displayClientMessage(Component.translatable("shop.mcyukkuri.no_pen"), true); custom = true; return refused(p,"sell_live","no_pen"); }
-        if (!a.onGround()) return refused(p,"sell_live","landing_incomplete");
-        if (!a.pet().lock("sale", p.getUUID())) return refused(p,"sell_live","busy");
-        var reservation = ShopPerformance.reserve(level, pen);
-        if (reservation == null) { a.pet().unlock("sale"); return refused(p,"sell_live","pen_reserved"); }
-        int price=ShopPricing.buyback(a);
-        giveEmeralds(p, price);
-        a.pet().rotateSerial(); // a badge token the seller still holds must not outlive the sale
-        SurvivalProgress.award(p, "pet_sold");
-        Custody.assign(a, target, Custody.Role.STOCK);
-        ShopRegistry.get(level).stocked(target, a);
-        GameplayLog.event(p,"shop","action=sell_live result=committed shop={} target={} emeralds_received={} pen={} placement=pending",target.getUUID(),a.getUUID(),price,pen.toShortString());
-        var pers = a.life().personality();
-        if (pers.attachment() >= 60 || pers.trust(p.getUUID()) >= BondLevels.TRUST_AT_20) { a.playAction("tremble");
-                a.showReaction("cry", "shop_sold_sad", 80); a.getLookControl().setLookAt(p, 30, 30); }
-        else if (pers.friendliness() <= 60) { a.playAction("proud"); a.showReaction("smug", "shop_sold_proud", 80); }
-        else a.playAction("bow");
-        UUID id = a.getUUID(); HumanNpc clerk = target;
-        ShopPerformance.schedule(level, Set.of(clerk.getUUID(), id), age -> {
-            if (!ShopPerformance.renew(level, reservation)) {
-                // The sale is committed, but this old scene may not place stock in a later holder's pen.
-                ShopPerformance.release(reservation);
-                if (level.getEntity(id) instanceof YukkuriEntity y && y.isAlive()) y.pet().unlock("sale");
-                GameplayLog.event(clerk,"shop","action=sell_live_placement result=cancelled target={} reason=reservation_lost sale_committed=true",id);
-                return true;
-            }
-            if (age < 60) return false;
-            if (level.getEntity(id) instanceof YukkuriEntity y && y.isAlive()) {
-                if (ShopCourier.dispatchSale(level, clerk, y, pen, reservation)) return true;
-                if (clerk.isAlive() && age < 460) return false;
-                y.pet().unlock("sale");
-                boolean staged = ShopDeliveries.stageSale(level, clerk, y);
-                GameplayLog.event(y, "shop", "action=sell_live_placement result={} shop={} destination={}",
-                        staged ? "basket_staged" : "left_at_handoff", clerk.getUUID(), pen.toShortString());
-            }
-            ShopPerformance.release(reservation);
-            return true;
-        }, () -> { a.pet().unlock("sale"); ShopPerformance.release(reservation); });
-        rescan(); return true;
-    }
-    /** A shop must not turn skills into a synthetic badge result. Exams record only actual tasks. */
-    private boolean forecast(Player p) { return false; }
     @Override public boolean clickMenuButton(Player p, int id) {
-        if (p != viewer || p.level().isClientSide || !stillValid(p) || id < ButtonId.LIVE_TAB || id > ButtonId.DELIVER_ORDER_LAST || target == null) return false;
-        if (id < ButtonId.BUY_LIVE_BASE || id == ButtonId.ORDERS_TAB) { tab = id == ButtonId.ORDERS_TAB ? ORDERS : id; page = 0; if (tab == BUYBACK ||
-                tab == CONSULT) rescan(); else evaluate(); broadcastChanges(); return true; }
-        if (id == ButtonId.PREVIOUS_PAGE || id == ButtonId.NEXT_PAGE) { int n = pageCount(); page = (page + (id == ButtonId.NEXT_PAGE ? 1 : n - 1)) % n; broadcastChanges(); return true; }
+        if (p != viewer || p.level().isClientSide || !stillValid(p) || id < ButtonId.LIVE_TAB || id > ButtonId.DELIVER_ORDER_LAST || target == null
+                || shop == null || !(p.level() instanceof ServerLevel level) || !(p instanceof ServerPlayer player)) return false;
+        if (id < ButtonId.BUY_LIVE_BASE || id == ButtonId.ORDERS_TAB) {
+            tab = id == ButtonId.ORDERS_TAB ? ORDERS : id; page = 0;
+            if (tab == BUYBACK || tab == CONSULT) rescan(); else if (tab == LIVE) rebuildRoster();
+            broadcastChanges(); return true;
+        }
+        if (id == ButtonId.PREVIOUS_PAGE || id == ButtonId.NEXT_PAGE) {
+            if (tab == LIVE) rebuildRoster();
+            int n = pageCount(); page = (page + (id == ButtonId.NEXT_PAGE ? 1 : n - 1)) % n; broadcastChanges(); return true;
+        }
         if (id == ButtonId.PREVIOUS_SUBJECT || id == ButtonId.NEXT_SUBJECT) {
             if (tab != BUYBACK && tab != CONSULT) return false;
             rescan(); if (!mine.isEmpty()) selected = (selected + (id == ButtonId.NEXT_SUBJECT ? 1 : mine.size() - 1)) % mine.size();
-            evaluate(); broadcastChanges(); return true;
+            broadcastChanges(); return true;
         }
-        boolean ok; custom = false;
-        if (id >= ButtonId.ABOUT_BASE && id <= ButtonId.ABOUT_LAST) ok = tab == LIVE && about(p, id - ButtonId.ABOUT_BASE);
-        else if (id >= ButtonId.LOCATE_BASE && id <= ButtonId.LOCATE_LAST) ok = tab == LIVE && locate(p, id - ButtonId.LOCATE_BASE);
-        else if (!p.level().isDay()) ok = refused(p,"menu_transaction","night");
-        else if (id <= ButtonId.BUY_LIVE_LAST) ok = tab == LIVE && buyLive(p, id - ButtonId.BUY_LIVE_BASE);
-        else if (id <= ButtonId.BUY_GOODS_LAST) ok = tab == GOODS && buyGood(p, id - ButtonId.BUY_GOODS_BASE);
-        else if (id == ButtonId.SELL) ok = tab == BUYBACK && sell(p);
-        else if (id >= ButtonId.DELIVER_ORDER_BASE) ok = tab == ORDERS && deliverOrder(p, id - ButtonId.DELIVER_ORDER_BASE);
-        else ok = tab == CONSULT && forecast(p);
-        if (!custom) p.displayClientMessage(Component.translatable(ok ? "human.mcyukkuri.success" : "human.mcyukkuri.unavailable"), true);
+        boolean ok;
+        int row = id - (id <= ButtonId.BUY_LIVE_LAST ? ButtonId.BUY_LIVE_BASE : id <= ButtonId.RESERVE_LAST ? ButtonId.RESERVE_BASE : ButtonId.ABOUT_BASE);
+        if (id >= ButtonId.ABOUT_BASE && id <= ButtonId.ABOUT_LAST) ok = tab == LIVE && row < PAGE_ROWS && about(p, row);
+        else if (id <= ButtonId.BUY_LIVE_LAST) ok = tab == LIVE && row < PAGE_ROWS && ShopTrade.buy(level, shop, listed(page * PAGE_ROWS + row), player);
+        else if (id <= ButtonId.RESERVE_LAST) ok = tab == LIVE && row < PAGE_ROWS && ShopTrade.reserve(level, shop, listed(page * PAGE_ROWS + row), player);
+        else if (id <= ButtonId.BUY_GOODS_LAST) ok = tab == GOODS && buyGood(level, p, id - ButtonId.BUY_GOODS_BASE);
+        else if (id == ButtonId.SELL) { ok = tab == BUYBACK && ShopTrade.sell(level, shop, subject(), player); if (ok) rescan(); }
+        else if (id >= ButtonId.DELIVER_ORDER_BASE) {
+            ok = tab == ORDERS && level.isDay() && ShopOrders.deliver(level, shop.keeper, p, id - ButtonId.DELIVER_ORDER_BASE);
+            ShopTrade.say(p, ok ? "order.delivered" : level.isDay() ? "order.unavailable" : "goods.refused.closed");
+        }
+        else ok = false;
         broadcastChanges(); return ok;
     }
 }

@@ -12,7 +12,6 @@ import io.github.longshou.mcyukkuri.house.HouseholdProtection;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.settlement.Grazing;
 import io.github.longshou.mcyukkuri.settlement.SettlementData;
-import io.github.longshou.mcyukkuri.shop.ShopDeliveries;
 import io.github.longshou.mcyukkuri.shop.ShopRegistry;
 import io.github.longshou.mcyukkuri.pet.SceneReset;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
@@ -181,7 +180,6 @@ public final class PlaygroundTools {
         HouseholdEcologyData.get(level).forget(box);
         HouseholdProtection.get(level).removeWithin(box);
         ShopRegistry.get(level).forget(level, box, removed);
-        for (var token : ShopDeliveries.get(level).forget(level, box, removed)) custody.forgetCaptive(token);
         SceneReset.field(level, box, individuals, records.captiveTokens());
         GameplayLog.world(level, "scene", "clear ids={} entities={} people={} broods={} captives={} freezer_leases={} relations={} groups={} sites={} box={}",
                 individuals.size(), entities, forgotten.people().size(), forgotten.broods().size(), records.captiveTokens().size(), records.freezerLeases(),

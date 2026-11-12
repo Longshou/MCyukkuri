@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.life;
 
 import io.github.longshou.mcyukkuri.status.GameplayLog;
+import io.github.longshou.mcyukkuri.status.Identity;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriAction;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
@@ -239,8 +240,9 @@ public final class AgitationLife {
         }
     }
 
+    /** Adult, not a predator, and not shop stock waiting for a buyer (stock never comes into heat; once sold the clock simply resumes). */
     private boolean eligible() {
-        return entity.family().adult() && !entity.profile().dangerToYukkuri()
+        return entity.family().adult() && !entity.profile().dangerToYukkuri() && entity.status().identity() != Identity.STOCK
                 && (!alicePhase() && phase != Phase.ALICE_ACT || entity.getVariant() == YukkuriVariant.ALICE);
     }
     private boolean grounded() {

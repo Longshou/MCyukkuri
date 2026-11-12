@@ -13,7 +13,8 @@ import io.github.longshou.mcyukkuri.human.HumanNpc;
 import io.github.longshou.mcyukkuri.human.HumanScenes;
 import io.github.longshou.mcyukkuri.shop.ShopPricing;
 import io.github.longshou.mcyukkuri.shop.ShopRegistry;
-import io.github.longshou.mcyukkuri.shop.ShopTrade;
+import io.github.longshou.mcyukkuri.shop.ShopRestock;
+import io.github.longshou.mcyukkuri.shop.ShopStaff;
 import java.util.Arrays;
 import java.util.Locale;
 import java.util.UUID;
@@ -95,7 +96,8 @@ public final class HumanCommands {
                         .then(Commands.literal("carrier").then(Commands.argument("item", EntityArgument.entity()).executes(HumanCommands::carrier)))
                         .then(Commands.literal("buy").then(Commands.argument("keeper", EntityArgument.entity())
                                 .then(Commands.argument("animal", EntityArgument.entity())
-                                        .then(Commands.argument("buyer", UuidArgument.uuid()).executes(HumanCommands::buy))))));
+                                        .then(Commands.argument("buyer", UuidArgument.uuid()).executes(HumanCommands::buy)))))
+                        .then(Commands.literal("restock").then(Commands.argument("keeper", EntityArgument.entity()).executes(HumanCommands::restock))));
     }
 
     private static int build(CommandContext<CommandSourceStack> c, String front, boolean clear) throws CommandSyntaxException {
@@ -135,9 +137,9 @@ public final class HumanCommands {
             n++;
             var keeper = level.getEntity(shop.keeper) instanceof HumanNpc k ? k : null;
             say(c, "shop keeper=" + shop.keeper + " post=" + shop.pos.toShortString() + " dim=" + shop.dimension + " keeperLoaded=" + (keeper != null && keeper.isAlive())
-                    + " recordedStock=" + shop.stock.size());
+                    + " authored=" + shop.authored() + " counter=" + shop.counter().toShortString());
             if (keeper == null) continue;
-            for (var y : registry.liveStock(level, keeper))
+            for (var y : ShopRegistry.liveStock(level, shop))
                 say(c, "  stock " + y.getType().getDescriptionId().replace("entity.mcyukkuri.", "") + " uuid=" + y.getUUID() + " grade=" + y.pet().grade() + " owner=" + HumanCommercePeek.owner(y)
                         + " price=" + ShopPricing.price(y));
         }
@@ -178,10 +180,23 @@ public final class HumanCommands {
         var keeper = EntityArgument.getEntity(c, "keeper") instanceof HumanNpc k ? k : null;
         var animal = EntityArgument.getEntity(c, "animal") instanceof YukkuriEntity y ? y : null;
         UUID buyer = UuidArgument.getUuid(c, "buyer");
-        if (keeper == null || animal == null) { say(c, "keeper must be an NPC and animal a yukkuri"); return 0; }
-        boolean ok = ShopTrade.begin(c.getSource().getLevel(), keeper, animal, buyer, 0);
-        say(c, ok ? "handover started for " + animal.getUUID() : "refused: stock or staff unavailable");
+        var level = c.getSource().getLevel();
+        var shop = keeper == null ? null : ShopRegistry.get(level).of(keeper);
+        if (shop == null || animal == null) { say(c, "keeper must be shop staff and animal a yukkuri"); return 0; }
+        boolean ok = ShopStaff.handover(level, shop, animal, buyer);
+        say(c, ok ? "handover started for " + animal.getUUID() : "refused: not stock of this shop, already ordered, or no free staff");
         return ok ? 1 : 0;
+    }
+
+    /** The shop's three-day restock, now (the real restock path). */
+    private static int restock(CommandContext<CommandSourceStack> c) throws CommandSyntaxException {
+        var keeper = EntityArgument.getEntity(c, "keeper") instanceof HumanNpc k ? k : null;
+        var level = c.getSource().getLevel();
+        var shop = keeper == null ? null : ShopRegistry.get(level).of(keeper);
+        if (shop == null) { say(c, "keeper must be shop staff"); return 0; }
+        int arrived = ShopRestock.restock(level, shop);
+        say(c, "restocked: " + arrived + " arrival(s) in the barrel");
+        return 1;
     }
 
     /** Reads the custody owner without widening HumanCommerce. */

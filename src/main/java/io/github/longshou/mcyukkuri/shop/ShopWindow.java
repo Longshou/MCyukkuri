@@ -36,9 +36,9 @@ import net.minecraft.world.phys.Vec3;
  * the customer is a motor Walk, facing is the look control, and the clips and faces are the moment rows of the reported activity.
  */
 public final class ShopWindow implements MotorOwner {
-    public enum Mode { APPEAL, SHOW_OFF, PROUD, SHY, SULK }
+    public enum Mode { APPEAL, SHOW_OFF, POLITE, PROUD, SHY, SULK }
     public enum Witness { FAREWELL, ENVY, ME_TOO, WATCH }
-    private enum Phase { NOTICE, APPROACH, PERFORM, AFTER, WITNESS, HATCH, INSIDE }
+    private enum Phase { NOTICE, APPROACH, PERFORM, AFTER, WITNESS }
     private enum After { LETDOWN, HMPH }
 
     /** A customer is noticed within RANGE blocks horizontally (and 4 vertically); it is gone beyond KEEP or out of sight for GONE_TICKS. */
@@ -54,12 +54,12 @@ public final class ShopWindow implements MotorOwner {
     private static final int WITNESS_TICKS = 500, REACTION_TICKS = 160, WITNESS_TAIL = 70;
     /** Sale sightings are within this many blocks. */
     private static final double SALE_RANGE = 10;
-    /** Staff at its pen's service door is answered this long at most; then a short rest before it answers the door again. */
-    private static final int HATCH_TICKS = 600, HATCH_REST = 40;
     /** Rejections remembered at most, and the time after which one is forgotten (project design). */
     private static final int REJECTIONS = 4, FORGIVE_TICKS = 2400;
     /** Drive weights (project design, docs/FEATURES.md): each mode a continuous score, the largest wins after a jitter of up to 6. */
     private static final double JITTER = 6, CRUEL_FEAR = 40;
+    /** Days on the shelf over which the hope of being chosen fades out: three restocks (project design). */
+    private static final int HOPE_DAYS = 9;
 
     private final YukkuriEntity entity;
     private Phase phase;
@@ -69,15 +69,11 @@ public final class ShopWindow implements MotorOwner {
     private LivingEntity customer, candidate;
     private Entity watched;
     private YukkuriEntity departing, leaving;
-    /** Its pen's service door called it (open with staff at it), and its answer to it (the HATCH phase). */
-    private ServiceHatch calling;
-    private ServiceHatch.Answer answer;
-    private Vec3 inside;
     /** The last neighbour whose sale it watched: one sale is answered once. */
     private UUID witnessed;
     private BlockPos glass;
     private Action action;
-    private long until, sessionStart, performStart, lastSeen, lastRestand, nextScan, cooldownUntil, forgiveAt, departedAt, hatchRestUntil;
+    private long until, sessionStart, performStart, lastSeen, lastRestand, nextScan, cooldownUntil, forgiveAt, departedAt;
     private int restands, rejections;
 
     public ShopWindow(YukkuriEntity entity) { this.entity = entity; }
@@ -93,13 +89,12 @@ public final class ShopWindow implements MotorOwner {
             case PERFORM -> switch (mode) {
                 case APPEAL -> Behaviors.WINDOW_APPEAL;
                 case SHOW_OFF -> Behaviors.WINDOW_SHOW_OFF;
+                case POLITE -> Behaviors.WINDOW_POLITE;
                 case PROUD -> Behaviors.WINDOW_PROUD;
                 case SHY -> Behaviors.WINDOW_SHY;
                 case SULK -> Behaviors.WINDOW_SULK;
             };
             case AFTER -> after == After.LETDOWN ? Behaviors.WINDOW_LETDOWN : Behaviors.WINDOW_HMPH;
-            case HATCH -> answer.walking(entity) ? Behaviors.WINDOW_APPROACH : Behaviors.WINDOW_HATCH;
-            case INSIDE -> Behaviors.WINDOW_APPROACH;
             // Envy and "me too" burst out while the neighbour is being fetched, a farewell when it climbs into the basket; otherwise it watches.
             case WITNESS -> witness == Witness.FAREWELL && departedAt >= 0 ? Behaviors.WINDOW_FAREWELL
                     : entity.level().getGameTime() - sessionStart >= REACTION_TICKS ? Behaviors.WINDOW_WATCH
@@ -119,15 +114,9 @@ public final class ShopWindow implements MotorOwner {
         if (now < nextScan) return false;
         nextScan = now + SCAN_TICKS;
         if (!stock()) return false;
-        // Staff calling from its service door is answered first: that is where it is fed, treated and handed over.
-        calling = calledToHatch();
-        if (calling != null) return true;
         // A neighbour being sold outweighs the rest it takes between customers.
         leaving = findSale();
         if (leaving != null) return ready();
-        var hatch = ready() ? ServiceHatch.of(entity) : null;
-        inside = hatch == null ? null : hatch.stepIntoPen(entity);
-        if (inside != null) return true;
         if (now < cooldownUntil) return false;
         var seen = findCustomer();
         if (seen == null) return false;
@@ -140,36 +129,20 @@ public final class ShopWindow implements MotorOwner {
         return true;
     }
 
-    public boolean canContinue() { return phase != null && stock() && (phase == Phase.HATCH ? answersHatch() : ready()); }
+    public boolean canContinue() { return phase != null && stock() && ready(); }
 
     public void start() {
         long now = entity.level().getGameTime();
-        if (calling != null) beginHatch(calling, now);
-        else if (leaving != null) beginWitness(leaving, now);
-        else if (inside != null) {
-            var step = Walk.stand(inside, 1);
-            phase(Phase.INSIDE, now + APPROACH_TICKS);
-            if (entity.motor().run(this, step)) {
-                action = step;
-                GameplayLog.event(entity, "shop", "hatch return inside destination={}", GameplayLog.at(inside));
-            } else clear();
-        } else if (candidate != null) beginSession(candidate, now);
-        candidate = null; leaving = null; calling = null; inside = null;
+        if (leaving != null) beginWitness(leaving, now);
+        else if (candidate != null) beginSession(candidate, now);
+        candidate = null; leaving = null;
     }
 
     public void tick() {
         long now = entity.level().getGameTime();
         boolean scan = now >= nextScan;
         if (scan) nextScan = now + SCAN_TICKS;
-        if (scan && (phase == Phase.NOTICE || phase == Phase.APPROACH || phase == Phase.PERFORM)) {
-            var door = calledToHatch();
-            if (door != null) { // staff at its door outweighs a customer; a neighbour's sale and an after-beat play out first
-                log("end", "hatch", now);
-                cancelAction("hatch");
-                beginHatch(door, now);
-            }
-        }
-        if (scan && phase != Phase.WITNESS && phase != Phase.AFTER && phase != Phase.HATCH) {
+        if (scan && phase != Phase.WITNESS && phase != Phase.AFTER) {
             var sale = findSale();
             if (sale != null) { // a customer session gives way to a neighbour being sold
                 log("end", "witness", now);
@@ -187,13 +160,6 @@ public final class ShopWindow implements MotorOwner {
             case PERFORM -> perform(now, scan);
             case AFTER -> { if (now >= until) finish(now); }
             case WITNESS -> witnessing(now);
-            case HATCH -> hatching(now);
-            case INSIDE -> {
-                if (entity.motor().current() != action || now >= until) {
-                    cancelAction("hatch_return_ended");
-                    clear();
-                }
-            }
         }
     }
 
@@ -206,7 +172,6 @@ public final class ShopWindow implements MotorOwner {
         if (phase == Phase.WITNESS) GameplayLog.event(entity, "shop", "window witness end kind={} reason=interrupted departed={} ticks={}", witness,
                 departedAt >= 0, now - sessionStart);
         cancelAction("shop_window_stopped");
-        if (answer != null) answer.stop(entity);
         clear();
         cooldownUntil = Math.max(cooldownUntil, now + 100);
     }
@@ -261,10 +226,10 @@ public final class ShopWindow implements MotorOwner {
 
     // ---- drives -------------------------------------------------------------------------------------------------------
 
-    /** Hope of being chosen: fades with whole days on the shelf toward the stale-stock recall day, and with each unanswered plea. */
+    /** Hope of being chosen: fades with whole days on the shelf over {@link #HOPE_DAYS}, and with each unanswered plea. */
     private double hope() {
         int days = Math.max(0, CommodityLife.forSaleDays(entity));
-        return Math.clamp(1 - days / (double) CommodityLife.recallDays(), 0, 1) * (1 - .2 * rejections);
+        return Math.clamp(1 - days / (double) HOPE_DAYS, 0, 1) * (1 - .2 * rejections);
     }
 
     private double jitter() { return (entity.getRandom().nextDouble() * 2 - 1) * JITTER; }
@@ -280,12 +245,16 @@ public final class ShopWindow implements MotorOwner {
                 ? (25 + 10 * grade + .3 * (100 - p.friendliness()) + .2 * p.boldness()) * (.6 + .4 * hope) + jitter() : Double.NEGATIVE_INFINITY;
         double shy = 1.1 * (100 - p.boldness()) - 15 + .8 * fear + jitter();
         double sulk = 90 * (1 - hope) + .5 * (100 - p.selfControl()) - 30 + jitter();
-        Mode chosen = want >= pride && want >= shy && want >= sulk
+        // A well-mannered one (self-control, friendliness, enough nerve) greets the customer politely and a little nervously instead of
+        // begging; most shop stock is well raised, so this is a common answer, never a fixed one. It too fades as hope runs out.
+        double polite = (.6 * p.selfControl() + .3 * p.friendliness() + .25 * p.boldness() + 10) * (.7 + .3 * hope) - .3 * fear + jitter();
+        Mode chosen = want >= pride && want >= shy && want >= sulk && want >= polite
                 ? p.boldness() >= 65 && p.friendliness() >= 60 ? Mode.SHOW_OFF : Mode.APPEAL
+                : polite >= pride && polite >= shy && polite >= sulk ? Mode.POLITE
                 : pride >= shy && pride >= sulk ? Mode.PROUD : shy >= sulk ? Mode.SHY : Mode.SULK;
-        GameplayLog.event(entity, "shop", "window start mode={} customer={} kind={} days={} rejections={} hope={} want={} pride={} shy={} sulk={}",
+        GameplayLog.event(entity, "shop", "window start mode={} customer={} kind={} days={} rejections={} hope={} want={} polite={} pride={} shy={} sulk={}",
                 chosen, c.getUUID(), c instanceof Player ? "player" : "resident", Math.max(0, CommodityLife.forSaleDays(entity)), rejections,
-                round(hope), round(want), round(pride), round(shy), round(sulk));
+                round(hope), round(want), round(polite), round(pride), round(shy), round(sulk));
         return chosen;
     }
 
@@ -306,6 +275,7 @@ public final class ShopWindow implements MotorOwner {
     private void afterNotice(long now) {
         switch (mode) {
             case APPEAL, SHOW_OFF -> { entity.speak("shop_appeal"); if (!toGlass(now)) beginPerformance(now); }
+            case POLITE -> { entity.speak("hello"); beginPerformance(now); }
             case PROUD -> { if (BadgeSocial.visibleRank(entity).id() >= BadgeGrade.SILVER.id()) entity.speak("badge_proud"); beginPerformance(now); }
             case SHY -> { entity.speak("shy"); if (!retreat(now)) beginPerformance(now); }
             case SULK -> { entity.speak("request_sulk"); beginPerformance(now); }
@@ -406,7 +376,7 @@ public final class ShopWindow implements MotorOwner {
         var shop = Custody.view(entity).owner();
         if (shop == null) return null;
         for (var o : entity.level().getEntitiesOfClass(YukkuriEntity.class, entity.getBoundingBox().inflate(SALE_RANGE, HEIGHT, SALE_RANGE),
-                o -> o != entity && o.isAlive() && o.pet().busyWith().equals("sale") && !o.getUUID().equals(witnessed) && ShopMenu.stockOf(o, shop)))
+                o -> o != entity && o.isAlive() && ShopTrade.order(o) && !o.getUUID().equals(witnessed) && ShopTrade.stockOf(o, shop)))
             if (GlassSight.sees(entity, o)) return o;
         return null;
     }
@@ -436,7 +406,7 @@ public final class ShopWindow implements MotorOwner {
     }
 
     private void witnessing(long now) {
-        if (departedAt < 0 && (!departing.isAlive() || departing.isRemoved() || !departing.pet().busyWith().equals("sale"))) {
+        if (departedAt < 0 && (!departing.isAlive() || departing.isRemoved() || !ShopTrade.order(departing))) {
             var custody = YukkuriWorldData.get((ServerLevel) entity.level());
             if (custody.isCaptured(departing.getUUID())) {
                 departedAt = now;
@@ -464,40 +434,6 @@ public final class ShopWindow implements MotorOwner {
                 .stream().findFirst().orElse(null);
     }
 
-    // ---- its pen's service door -------------------------------------------------------------------------------------
-
-    /** Free to go to the door: as for a customer, also hungry, tired or hurt (the door is where it is fed and treated). An animal held for a
-     *  purchase or a keeper's errand is not here: the job holding it directs the same answer (ShopCourier). */
-    private boolean answersHatch() {
-        String busy = busy();
-        return busy == null || busy.equals("urgent_need") || busy.equals("hurt");
-    }
-
-    /** Its pen's service door with staff calling from it, when it is free to answer. */
-    private ServiceHatch calledToHatch() {
-        if (entity.level().getGameTime() < hatchRestUntil || !answersHatch()) return null;
-        var door = ServiceHatch.of(entity);
-        return door != null && door.attendant(entity.level()) != null ? door : null;
-    }
-
-    private void beginHatch(ServiceHatch door, long now) {
-        answer = new ServiceHatch.Answer(door); sessionStart = now;
-        phase(Phase.HATCH, now + HATCH_TICKS);
-        answer.tick(entity);
-    }
-
-    private void hatching(long now) {
-        if (answer.hatch().attendant(entity.level()) == null || now >= until) {
-            GameplayLog.event(entity, "shop", "hatch answer end reason={} ticks={} at={}", now >= until ? "timeout" : "staff_left", now - sessionStart,
-                    GameplayLog.at(entity.position()));
-            answer.stop(entity);
-            clear();
-            hatchRestUntil = now + HATCH_REST;
-            return;
-        }
-        answer.tick(entity);
-    }
-
     // ---- shared -------------------------------------------------------------------------------------------------------
 
     private void look(Entity target) { if (target != null) entity.getLookControl().setLookAt(target, 30, 30); }
@@ -510,7 +446,7 @@ public final class ShopWindow implements MotorOwner {
     }
 
     private void clear() {
-        phase = null; mode = null; after = null; witness = null; customer = null; watched = null; departing = null; glass = null; action = null; answer = null;
+        phase = null; mode = null; after = null; witness = null; customer = null; watched = null; departing = null; glass = null; action = null;
     }
 
     private void log(String what, String reason, long now) {

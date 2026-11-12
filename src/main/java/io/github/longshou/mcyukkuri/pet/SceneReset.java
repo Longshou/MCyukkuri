@@ -1,8 +1,7 @@
 package io.github.longshou.mcyukkuri.pet;
 
 import io.github.longshou.mcyukkuri.shop.ShopDate;
-import io.github.longshou.mcyukkuri.shop.ShopPens;
-import io.github.longshou.mcyukkuri.shop.ShopCourier;
+import io.github.longshou.mcyukkuri.shop.ShopStaff;
 import io.github.longshou.mcyukkuri.shop.ShopPerformance;
 import io.github.longshou.mcyukkuri.settlement.ForageClaims;
 import io.github.longshou.mcyukkuri.headwear.Sanction;
@@ -27,14 +26,14 @@ public final class SceneReset {
     private SceneReset() {}
     private static void reset() {
         ShopDate.reset(); PetScenes.reset(); WildEncounter.reset(); BadgeSocial.reset(); PredatorLife.resetAlerts();
-        ExamSession.reset(); Staging.reset(); ShopPens.reset(); ExamHall.reset(); CarrierItem.resetScenes();
+        ExamSession.reset(); Staging.reset(); ExamHall.reset(); CarrierItem.resetScenes();
     }
     /** Field command only; session performances end before the cleared UUIDs may be summoned again. */
     public static void field(ServerLevel level, AABB box, Set<UUID> ids, Set<UUID> tokens) {
         ShopPerformance.forget(level, box, ids);
-        ShopCourier.forget(level, ids, tokens);
+        ShopStaff.forget(ids, tokens);
         ShopDate.forget(ids); PetScenes.forget(ids); WildEncounter.forget(ids); BadgeSocial.forget(ids); PredatorLife.forget(ids);
-        ExamSession.forget(ids); Staging.forget(ids); ShopPens.forget(ids); ExamHall.forget(ids); CarrierItem.forget(ids);
+        ExamSession.forget(ids); Staging.forget(ids); ExamHall.forget(ids); CarrierItem.forget(ids);
         ForageClaims.forget(level, box, ids);
         for (var dimension : level.getServer().getAllLevels()) Sanction.forget(dimension, ids);
         AskLedger.server().forget(ids);

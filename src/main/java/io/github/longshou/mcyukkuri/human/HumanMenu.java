@@ -23,8 +23,6 @@ public final class HumanMenu extends AbstractContainerMenu {
         public static final int SUPPLY_FIRST = 0;
         public static final int SUPPLY_END = 4;
         public static final int DELIVER_INPUT = 8;
-        public static final int ACCEPT_QUEST = 9;
-        public static final int RETURN_LOST = 10;
         public static final int DONATE = 11;
         public static final int GUIDE = 12;
         public static final int NEXT_PAGE = 13;
@@ -44,7 +42,6 @@ public final class HumanMenu extends AbstractContainerMenu {
         public static final int TRADES_LEFT = 0;
         public static final int CARE_FOOD = 1;
         public static final int INPUT_READY = 2;
-        public static final int QUEST_STATE = 3;
         public static final int DAYTIME = 4;
         public static final int PAGE = 30;
         public static final int OUTPUT = 31;
@@ -119,7 +116,6 @@ public final class HumanMenu extends AbstractContainerMenu {
     private void refresh() {
         if (target == null || target.level().isClientSide) return;
         display.set(Data.TRADES_LEFT, target.remainingTrades()); display.set(Data.CARE_FOOD, target.careFood()); display.set(Data.INPUT_READY, target.canReceiveInput() ? 1 : 0);
-        display.set(Data.QUEST_STATE, target.lostAnimal() == null ? 0 : target.questComplete() ? 2 : 1);
         display.set(Data.DAYTIME, target.level().isDay() ? 1 : 0);
         display.set(Data.PAGE,page);display.set(Data.OUTPUT,target.production().outputCount());display.set(Data.MATERIAL,target.production().material());
         display.set(Data.PRODUCTION_KIND,switch(target.production().kind()){case "labor"->1;case "manju"->2;case "bag"->3;default->0;});
@@ -154,11 +150,7 @@ public final class HumanMenu extends AbstractContainerMenu {
         return true;
     }
     /** Inspect the authoritative token record, never the item's editable display UUID. */
-    private boolean deliver(Player p, boolean rescue) {return deliver(p,rescue,false);}
-    private boolean deliver(Player p, boolean rescue,boolean parent) {return deliver(target,p,rescue,parent);}
-    /** A missing companion brought back to the resident who asked for it (also used by residents without a menu). */
-    public static boolean returnLost(Player p, HumanNpc npc) {return deliver(npc,p,true,false);}
-    private static boolean deliver(HumanNpc target,Player p, boolean rescue,boolean parent) {
+    private boolean deliver(Player p, boolean parent) {
         if (!(p.level() instanceof ServerLevel level)) return false;
         if (CustodyData.get(level).deadNpc(target.getUUID())) return refused(p,target,"deliver","npc_dead");
         ItemStack hand = p.getMainHandItem();
@@ -179,11 +171,9 @@ public final class HumanMenu extends AbstractContainerMenu {
         if (!snapshot.hasUUID("UUID")) return refused(p,target,"deliver","no_valid_captive");
         UUID identity = snapshot.getUUID("UUID");
         var custody = Custody.fromSnapshot(snapshot);
-        if (!rescue) {
-            boolean receiving=parent?target.canReceiveParent():target.canReceiveInput();
-            if (!receiving || custody.owner() == null || !custody.owner().equals(p.getUUID()) || custody.role() == Custody.Role.LOST)
-                return refused(p,target,"deliver",!receiving?"not_receiving":custody.owner()==null||!custody.owner().equals(p.getUUID())?"not_owned":"lost_animal");
-        }
+        boolean receiving=parent?target.canReceiveParent():target.canReceiveInput();
+        if (!receiving || custody.owner() == null || !custody.owner().equals(p.getUUID()) || custody.role() == Custody.Role.LOST)
+            return refused(p,target,"deliver",!receiving?"not_receiving":custody.owner()==null||!custody.owner().equals(p.getUUID())?"not_owned":"lost_animal");
         if(parent){var family=snapshot.getCompound("YukkuriFamily");
             if(!family.getString("Stage").equals("ADULT")||family.getBoolean("Sterile")||snapshot.getString("id").contains("house_"))return refused(p,target,"deliver_parent","ineligible_parent");}
         // A bounded search in loaded blocks allows obstructions to refuse delivery without retiring the token.
@@ -195,12 +185,11 @@ public final class HumanMenu extends AbstractContainerMenu {
             if (released != null) break;
         }
         if (released == null) return refused(p,target,"deliver","no_release_position_or_token_unavailable");
-        Custody.assign(released, target, rescue ? Custody.Role.COMPANION : parent ? Custody.Role.RESERVE_PARENT : Custody.Role.INPUT);
-        CarrierContents.remove(hand, token);
-        ShopDeliveries.clearDestination(hand);
-        if (rescue) target.completeQuest(); else target.receivedInput();
-        give(p, new ItemStack(Items.EMERALD, rescue ? 5 : 3));
-        GameplayLog.event(p,"human-trade","action=deliver result=committed npc={} target={} role={} emeralds_received={}",target.getUUID(),identity,Custody.view(released).role(),rescue?5:3);
+        Custody.assign(released, target, parent ? Custody.Role.RESERVE_PARENT : Custody.Role.INPUT);
+        hand.remove(DataComponents.CUSTOM_DATA);
+        target.receivedInput();
+        give(p, new ItemStack(Items.EMERALD, 3));
+        GameplayLog.event(p,"human-trade","action=deliver result=committed npc={} target={} role={} emeralds_received={}",target.getUUID(),identity,Custody.view(released).role(),3);
         return true;
     }
     @Override public boolean clickMenuButton(Player p, int id) {
@@ -210,7 +199,7 @@ public final class HumanMenu extends AbstractContainerMenu {
             if(!p.level().isDay()||target.job()!=HumanNpc.Job.FACTORY)return refused(p,target,"factory_control",!p.level().isDay()?"night":"not_factory");
             var flow=target.production().pipeline();
             if(id==ButtonId.CYCLE_PURPOSE)flow.cyclePurpose();else if(id==ButtonId.CYCLE_SALES)flow.cycleSales();
-            else if(id==ButtonId.DELIVER_PARENT)return deliver(p,false,true);else if(id==ButtonId.REPAIR)return flow.repair(p.getMainHandItem());
+            else if(id==ButtonId.DELIVER_PARENT)return deliver(p,true);else if(id==ButtonId.REPAIR)return flow.repair(p.getMainHandItem());
             broadcastChanges();return true;
         }
         if(id==ButtonId.NEXT_PAGE){page=(page+1)%5;broadcastChanges();return true;}
@@ -233,10 +222,8 @@ public final class HumanMenu extends AbstractContainerMenu {
             p.sendSystemMessage(Component.translatable("human.mcyukkuri.guide." + target.job().name().toLowerCase(Locale.ROOT))); result = true;
         } else if (!p.level().isDay()) result = refused(p,target,"menu_transaction","night");
         else if (id < ButtonId.SUPPLY_END) result = buySupply(p, id);
-        else if (id < ButtonId.DELIVER_INPUT || id == ButtonId.UNUSED) return false;
         else if (id == ButtonId.DELIVER_INPUT) result = deliver(p, false);
-        else if (id == ButtonId.ACCEPT_QUEST) result = target.acceptQuest(p);
-        else if (id == ButtonId.RETURN_LOST) result = deliver(p, true);
+        else if (id != ButtonId.DONATE) return false;
         else {
             int foodBefore=target.careFood();
             result = count(p, ModItems.GRAIN_REGULAR.get()) >= 8 && target.donateFood();
