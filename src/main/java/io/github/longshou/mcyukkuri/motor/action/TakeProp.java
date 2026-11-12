@@ -74,7 +74,7 @@ public final class TakeProp implements Action {
             // The world may have changed while the braid reached: the same refusal the start check gives, before the one transfer.
             Feasibility still = check(body);
             if (!still.ok()) return Outcome.of(still.reason(), still.shortfall(), still.detail());
-            Stow.tipOut(body, "hat_lifted");
+            if (!Stow.tipOut(body, "hat_lifted")) return Outcome.of(Reason.NO_ROOM, 0, "kit_drop_refused");
             if (!prop.takeBack()) return Outcome.of(Reason.NO_CONTACT, 0, "take_back_refused");
             holding = true;
         }

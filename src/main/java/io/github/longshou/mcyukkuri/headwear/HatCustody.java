@@ -3,6 +3,8 @@ package io.github.longshou.mcyukkuri.headwear;
 import io.github.longshou.mcyukkuri.random.ModRandom;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.interaction.ItemContact;
+import io.github.longshou.mcyukkuri.motor.CarrierSlot;
 import io.github.longshou.mcyukkuri.motor.Held;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.Locale;
@@ -38,7 +40,7 @@ public final class HatCustody {
     /** Finite claims of the existing physical hat; rebuilt from custody after loading, never a second hat ledger. */
     private UUID reclaimHat, reclaimAssignee;
     private long reclaimLease, reclaimRetry;
-    private ItemStack kit = ItemStack.EMPTY;
+    private final CarrierSlot<ItemStack> kit = new CarrierSlot<>();
     private Held.Place kitPlace = Held.Place.GRIP;
     /** Where the kit lies in her set-down hat (hat-local units) and the way its short end points, while {@link #kitPlace} is HAT. */
     private Vec3 kitSpot, kitDir;
@@ -58,16 +60,20 @@ public final class HatCustody {
     public long since() { return since; }
     public String cause() { return cause; }
     /** The stick the worn hat keeps, or empty. */
-    public ItemStack kit() { return kit; }
+    public ItemStack kit() { return kit.contents().orElse(ItemStack.EMPTY); }
     /** Tucks one stick into the worn hat: true when it is kept (worn, nothing kept yet). */
     public boolean stow(ItemStack one) {
-        if (!worn() || !kit.isEmpty() || one.isEmpty()) return false;
-        kit = one.copyWithCount(1);
-        GameplayLog.event(owner, "headwear", "kit stowed item={} custody={}", kit.getItem(), state);
+        if (!worn() || one.isEmpty() || !kit.acquire(one.copyWithCount(1))) return false;
+        GameplayLog.event(owner, "headwear", "kit stowed item={} custody={}", one.getItem(), state);
         return true;
     }
-    /** The kit leaves the worn hat (it goes with the hat being set down). */
-    public ItemStack takeKit() { var out = kit; kit = ItemStack.EMPTY; return out; }
+    void deployKit(CarrierSlot<ItemStack> placed) { kit.transferTo(placed); }
+    void reclaimKit(CarrierSlot<ItemStack> placed) {
+        if (placed.transferTo(kit)) GameplayLog.event(owner, "headwear", "kit stowed item={} custody={}", kit().getItem(), state);
+    }
+    public boolean releaseKit(Vec3 at) {
+        return kit.release(stack -> ItemContact.release(owner, stack, at, Vec3.ZERO) != null);
+    }
     /** Where her kit is for her: in her grip, her mouth, or lying in her set-down hat. */
     public Held.Place kitPlace() { return kitPlace; }
     public Vec3 kitSpot() { return kitSpot; }
@@ -145,7 +151,7 @@ public final class HatCustody {
         if (boat != null) t.putUUID("Boat", boat);
         t.putLong("Since", since);
         if (!cause.isEmpty()) t.putString("Cause", cause);
-        if (!kit.isEmpty()) t.put("Kit", kit.save(owner.registryAccess()));
+        if (!kit.isEmpty()) t.put("Kit", kit().save(owner.registryAccess()));
         if (kitPlace != Held.Place.GRIP) t.putString("KitPlace", kitPlace.name());
         if (kitSpot != null && kitDir != null) {
             t.putDouble("KitX", kitSpot.x); t.putDouble("KitY", kitSpot.y); t.putDouble("KitZ", kitSpot.z);
@@ -161,7 +167,8 @@ public final class HatCustody {
         boat = t.hasUUID("Boat") ? t.getUUID("Boat") : null;
         since = t.getLong("Since");
         cause = t.getString("Cause");
-        kit = ItemStack.parseOptional(owner.registryAccess(), t.getCompound("Kit"));
+        var savedKit = ItemStack.parseOptional(owner.registryAccess(), t.getCompound("Kit"));
+        kit.restore(savedKit.isEmpty() ? null : savedKit);
         try { kitPlace = t.contains("KitPlace") ? Held.Place.valueOf(t.getString("KitPlace")) : Held.Place.GRIP; }
         catch (IllegalArgumentException ex) { kitPlace = Held.Place.GRIP; }
         boolean spotted = t.contains("KitX");

@@ -1,7 +1,5 @@
 package io.github.longshou.mcyukkuri.motor.action;
 
-import io.github.longshou.mcyukkuri.random.ModRandom;
-
 import io.github.longshou.mcyukkuri.body.MouthPlacement;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.headwear.PlacedHatEntity;
@@ -15,7 +13,6 @@ import io.github.longshou.mcyukkuri.motor.Feasibility;
 import io.github.longshou.mcyukkuri.motor.Held;
 import io.github.longshou.mcyukkuri.motor.Held.Place;
 import io.github.longshou.mcyukkuri.motor.HeldMove;
-import io.github.longshou.mcyukkuri.motor.Motor;
 import io.github.longshou.mcyukkuri.motor.Outcome;
 import io.github.longshou.mcyukkuri.motor.Progress;
 import io.github.longshou.mcyukkuri.motor.Reason;
@@ -25,7 +22,6 @@ import io.github.longshou.mcyukkuri.motor.geom.CarryGeometry;
 import io.github.longshou.mcyukkuri.motor.surface.Occupancy;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.Locale;
-import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.phys.Vec3;
 
 /**
@@ -87,11 +83,11 @@ public final class Stow implements Action, HeldMove {
     }
 
     /** Her hat is lifted with her stick still lying in it: it tips out where it lay, a real floating item (never carried on unseen). */
-    public static void tipOut(YukkuriEntity body, String cause) {
+    static boolean tipOut(YukkuriEntity body, String cause) {
         var custody = body.life().custody();
         var hat = PlacedHatEntity.find(body);
-        if (hat == null || custody.kitPlace() != Place.HAT || hat.kit().isEmpty()) return;
-        hat.dropKit(hat.frame().toWorld(custody.kitSpot()), Vec3.ZERO, cause);
+        if (hat == null || custody.kitPlace() != Place.HAT || hat.kit().isEmpty()) return true;
+        return hat.releaseKit(hat.frame().toWorld(custody.kitSpot()), Vec3.ZERO, cause);
     }
 
     private static Place place(YukkuriEntity body) { return body.life().custody().kitPlace(); }
@@ -156,7 +152,7 @@ public final class Stow implements Action, HeldMove {
         if (!moved && elapsed >= handover) {
             var still = check(body);
             if (!still.ok()) return Outcome.of(still.reason(), still.shortfall(), still.detail());
-            move(body);
+            if (!move(body)) return Outcome.of(Reason.NO_ROOM, 0, "kit_drop_refused");
             moved = true;
         }
         int left = length() - (int) elapsed;
@@ -164,20 +160,17 @@ public final class Stow implements Action, HeldMove {
     }
 
     /** The one transfer: the custody's place (or, onto the ground, the real dropped stack). */
-    private void move(YukkuriEntity body) {
+    private boolean move(YukkuriEntity body) {
         var item = body.hatKit().getItem();
         var custody = body.life().custody();
         if (to == Place.GROUND) {
-            var hat = PlacedHatEntity.find(body);
-            if (custody.worn() && !custody.kit().isEmpty()) {
-                var drop = ModRandom.created(new ItemEntity(body.level(), ground.x, ground.y, ground.z, custody.takeKit()), body.getRandom());
-                Motor.velocity(drop, Vec3.ZERO, "laid_down");
-                drop.setDefaultPickUpDelay();
-                body.level().addFreshEntity(drop);
-            } else if (hat != null) hat.dropKit(ground, Vec3.ZERO, "laid_down");
+            boolean released = custody.worn() ? custody.releaseKit(ground)
+                    : PlacedHatEntity.find(body).releaseKit(ground, Vec3.ZERO, "laid_down");
+            if (!released) return false;
         } else custody.placeKit(to, spot, dir, cause);
         GameplayLog.event(body, "body", "held moved from={} to={} item={} at={} cause={}", from, to, item,
                 to == Place.GROUND ? GameplayLog.at(ground) : to == Place.HAT ? GameplayLog.at(spot) : "-", cause);
+        return true;
     }
 
     /** The beat's whole length in ticks: there, and back to rest. */

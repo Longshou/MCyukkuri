@@ -9,6 +9,7 @@ import io.github.longshou.mcyukkuri.motor.Attach;
 import io.github.longshou.mcyukkuri.motor.ContactResolver;
 import io.github.longshou.mcyukkuri.motor.AttachState;
 import io.github.longshou.mcyukkuri.motor.BodyAbility;
+import io.github.longshou.mcyukkuri.motor.CarrierSlot;
 import io.github.longshou.mcyukkuri.motor.Motor;
 import io.github.longshou.mcyukkuri.motor.action.Grab;
 import io.github.longshou.mcyukkuri.motor.geom.Disc;
@@ -38,6 +39,7 @@ import io.github.longshou.mcyukkuri.family.LiveBirthGeometry;
 import io.github.longshou.mcyukkuri.registry.ModEntities;
 import io.github.longshou.mcyukkuri.registry.ModItems;
 import io.github.longshou.mcyukkuri.item.AccessoryItem;
+import io.github.longshou.mcyukkuri.interaction.ItemContact;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
@@ -137,7 +139,7 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
     private int clampedShoves;
     private final Map<UUID, Long> reseat = new HashMap<>();
     /** The stick this hat keeps for its owner (HatCustody's kit while worn); one place at a time. */
-    private ItemStack kit = ItemStack.EMPTY;
+    private final CarrierSlot<ItemStack> kit = new CarrierSlot<>();
     /** The physical accessory while deployed; its type and wear survive independently of the owner's loaded entity. */
     private ItemStack accessory = ItemStack.EMPTY;
 
@@ -458,25 +460,36 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
     @Override public void stopRight(YukkuriEntity by) { behavior().stopRight(this, by); }
     @Override public boolean thrust(YukkuriEntity by, Vec3 drive, float turn) { return behavior().thrust(this, by, drive, turn); }
     @Override public boolean drivable() { return behavior().drivable(this); }
-    @Override public boolean holds(Item item) { return kit.is(item) || behavior().holds(this, item); }
+    @Override public boolean holds(Item item) { return kit().is(item) || behavior().holds(this, item); }
     /** The stick it keeps, or empty. */
-    public ItemStack kit() { return kit; }
-    private void kit(ItemStack next) { kit = next; }
+    public ItemStack kit() { return kit.contents().orElse(ItemStack.EMPTY); }
     /** Keeps one stick (picked up by its owner): true when it had none. */
     public boolean stow(ItemStack one) {
-        if (!kit.isEmpty() || one.isEmpty() || level().isClientSide) return false;
-        kit(one.copyWithCount(1));
-        GameplayLog.event(this, "hat", "kit stowed item={} owner={}", kit.getItem(), ownerYukkuri());
+        if (one.isEmpty() || level().isClientSide || !kit.acquire(one.copyWithCount(1))) return false;
+        GameplayLog.event(this, "hat", "kit stowed item={} owner={}", one.getItem(), ownerYukkuri());
         return true;
     }
-    /** Turned over or destroyed: the stick falls out where it lies, a real floating item. */
+    /** Forced spill, including when the hull itself is destroyed. */
     public void dropKit(Vec3 at, Vec3 v, String cause) {
         if (kit.isEmpty() || level().isClientSide) return;
-        var drop = ModRandom.created(new ItemEntity(level(), at.x, at.y, at.z, kit), getRandom());
-        Motor.velocity(drop, v, cause);
-        drop.setDefaultPickUpDelay();
-        kit(ItemStack.EMPTY);
-        GameplayLog.event(this, "hat", "kit dropped cause={} at={} spawned={}", cause, GameplayLog.at(at), level().addFreshEntity(drop));
+        var stack = kit();
+        kit.consume();
+        spawnKit(stack, at, v, cause);
+    }
+
+    /** A reversible handoff only completes once the dropped kit exists. */
+    public boolean releaseKit(Vec3 at, Vec3 v, String cause) {
+        return kit.isEmpty() || kit.release(stack -> spawnKit(stack, at, v, cause));
+    }
+
+    private boolean spawnKit(ItemStack stack, Vec3 at, Vec3 v, String cause) {
+        if (ItemContact.release(this, stack, at, v) == null) {
+            GameplayLog.limited(this, "hat", "kit_drop_refused", 200, "kit drop refused cause={} at={} item={}",
+                    cause, GameplayLog.at(at), stack.getItem());
+            return false;
+        }
+        GameplayLog.event(this, "hat", "kit dropped cause={} at={} spawned=true", cause, GameplayLog.at(at));
+        return true;
     }
     @Override public boolean isPushable() { return !isRemoved() && behavior().pushable(this); }
     /** No vanilla soft push: afloat the behaviour's own contact pass is the one place bodies and the hull are separated. */
@@ -651,11 +664,13 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
         if (level().isClientSide || !owner.getUUID().equals(ownerYukkuri()) || !behavior().retrievable(this, owner) || owner.distanceToSqr(this) > 16)
             return false;
         if (!getPassengers().isEmpty()) return false;
+        var custody = owner.life().custody();
+        if (!kit.isEmpty() && !custody.kit().isEmpty()
+                && (!owner.life().matchesAccessory(ownerYukkuri(), accessoryToken)
+                    || !releaseKit(owner.position(), Vec3.ZERO, "retrieve_full"))) return false;
         if (!owner.life().returnAccessory(ownerYukkuri(), accessoryToken, null)) return false;
         owner.headwear().receiveAccessoryState(accessory.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag());
-        // the stick goes back into the worn hat; a hat already keeping one drops this one at her feet
-        if (!kit.isEmpty() && !owner.life().custody().stow(kit)) dropKit(owner.position(), Vec3.ZERO, "retrieve_full");
-        kit = ItemStack.EMPTY;
+        custody.reclaimKit(kit);
         release("retrieved");
         state(State.RESCUED); return true;
     }
@@ -725,17 +740,15 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
         hat.syncAccessoryIdentity(owner);
         hat.state(State.CRADLE);
         if (!level.addFreshEntity(hat)) return refusePlacement(owner, at, "entity_add_failed", "");
-        var kit = owner.life().custody().takeKit();
         hat.launchToken(owner.life().stowAccessory(hat.getUUID()));
         if (hat.launchToken() == null) {
             owner.life().returnAccessory(owner.getUUID(), null, null);
-            owner.life().custody().stow(kit);
             hat.discard();
             return refusePlacement(owner, at, "accessory_transfer_failed", "");
         }
-        hat.kit(kit);
+        owner.life().custody().deployKit(hat.kit);
         GameplayLog.event(owner, "hat", "placed owner={} hat={} at={} yaw={} scale={} hullBox={} form={} role={} water={} kit={}",
-                owner.getUUID(), hat.getUUID(), hat.position(), yaw, hat.hullScale(), hat.getBoundingBox(), hat.formId(), role, water, hat.kit.getItem());
+                owner.getUUID(), hat.getUUID(), hat.position(), yaw, hat.hullScale(), hat.getBoundingBox(), hat.formId(), role, water, hat.kit().getItem());
         return hat;
     }
     /** Why this Marisa cannot take her hat off and set it down from where she is, or null: held in another body's arms, riding
@@ -1071,7 +1084,7 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
         tag.put("Riders",riders.save());
         tag.putFloat("Roll",roll());tag.putFloat("Pitch",pitch());
         tag.putBoolean("Inverted",upsideDown());
-        if(!kit.isEmpty())tag.put("Kit",kit.save(registryAccess()));
+        if(!kit.isEmpty())tag.put("Kit",kit().save(registryAccess()));
         if(!accessory.isEmpty())tag.put("Accessory",accessory.save(registryAccess()));
         // The behaviour it last floated with keeps its state (stores included) while it lies on the ground.
         if(lastProvider!=null){var motion=instances.get(lastProvider).save();motion.putString("Kind",lastProvider.id());tag.put("Motion",motion);}
@@ -1090,7 +1103,8 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
         pose(Mth.wrapDegrees(tag.getFloat("Roll")),Mth.wrapDegrees(tag.getFloat("Pitch")));
         inverted(tag.getBoolean("Inverted"));
         rollO=roll();pitchO=pitch();
-        kit(ItemStack.parseOptional(registryAccess(),tag.getCompound("Kit")));
+        var savedKit = ItemStack.parseOptional(registryAccess(), tag.getCompound("Kit"));
+        kit.restore(savedKit.isEmpty() ? null : savedKit);
         accessory=ItemStack.parseOptional(registryAccess(),tag.getCompound("Accessory"));
         syncAccessoryDamage();
         savedMotion=tag.contains("Motion",Tag.TAG_COMPOUND)?tag.getCompound("Motion"):null;

@@ -5,8 +5,11 @@ import io.github.longshou.mcyukkuri.random.ModRandom;
 import io.github.longshou.mcyukkuri.body.MouthPlacement;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
+import io.github.longshou.mcyukkuri.motor.Motor;
+import java.util.function.Consumer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ClipContext;
@@ -77,12 +80,21 @@ public final class ItemContact {
 
     /** Caller retires its owned stack only after this returns a spawned entity. */
     public static ItemEntity release(YukkuriEntity actor,ItemStack owned,int pickupDelay) {
-        if(actor.level().isClientSide||owned.isEmpty())return null;
-        Vec3 mouth=MouthPlacement.position(actor);
-        var dropped=ModRandom.created(new ItemEntity(actor.level(),mouth.x,mouth.y,mouth.z,owned.copy()), actor.getRandom());
-        dropped.setDeltaMovement(MouthPlacement.outward(actor).scale(.025).add(0,-.015,0));
-        dropped.setPickUpDelay(pickupDelay);
-        return actor.level().addFreshEntity(dropped)?dropped:null;
+        return release(actor, owned, MouthPlacement.position(actor),
+                MouthPlacement.outward(actor).scale(.025).add(0,-.015,0), drop -> drop.setPickUpDelay(pickupDelay));
+    }
+
+    /** The caller supplies the physical contact and retains the payload on a refused spawn. */
+    public static ItemEntity release(Entity holder, ItemStack owned, Vec3 at, Vec3 velocity) {
+        return release(holder, owned, at, velocity, ItemEntity::setDefaultPickUpDelay);
+    }
+
+    private static ItemEntity release(Entity holder, ItemStack owned, Vec3 at, Vec3 velocity, Consumer<ItemEntity> pickupDelay) {
+        if (holder.level().isClientSide || owned.isEmpty()) return null;
+        var dropped = ModRandom.created(new ItemEntity(holder.level(), at.x, at.y, at.z, owned.copy()), holder.getRandom());
+        Motor.velocity(dropped, velocity, "item_release");
+        pickupDelay.accept(dropped);
+        return holder.level().addFreshEntity(dropped) ? dropped : null;
     }
 
     private ItemContact() {}
