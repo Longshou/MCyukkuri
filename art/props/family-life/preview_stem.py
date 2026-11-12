@@ -8,6 +8,7 @@ Never starts a browser or game; sway, birth and the in-world look still need the
 from pathlib import Path
 import argparse
 import html
+import shutil
 import json
 import subprocess
 import sys
@@ -275,6 +276,7 @@ def main():
     page += ['<h2>四个采样姿态</h2><img src="growth.png">', '<h2>饿死遗体带茎</h2><img src="remains.png">',
              '<p>离线渲染，仅示意几何；游戏内行走摆动、出生与遗体拾放需试玩确认。</p></html>']
     (out/'index.html').write_text('\n'.join(page)+'\n', encoding='utf-8')
+    shutil.rmtree(work)  # raw frames and textures are only render inputs
     print(out/'index.html')
 
 
