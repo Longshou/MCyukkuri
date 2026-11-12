@@ -10,7 +10,6 @@
 | --- | --- | --- |
 | 台词审校与补充（总负责人调度的 Codex 标签页） | `.worktrees/wp-gb-speech-review` | art/dialogue/, src/main/resources/assets/mcyukkuri/dialogue/, lang/*.json |
 | 宠物店重做（反馈 19–26 与 11-13 补充） | `.worktrees/wp-hg-pet-shop` | shop/、human/、art/structures/human-world/ |
-| 鬼威惨工具交互设计与重建模 | `.worktrees/wp-hh-oni-tools` | art/props/, src/main/resources/assets/mcyukkuri/ (tool models/textures), art/CATALOG.md |
 | 流浪油：遮蔽物、垃圾点、避风（FG 重做） | `.worktrees/wp-hf-stray` | src/main/java/.../shelter/, stray/forage code, museum FG scenes, docs/FEATURES.md |
 | 帽上赤油下帽是平移 | `.worktrees/wp-hm-hat-dismount` | aquatic/BrimPerformance, family/ParentCarry (release leg), hat rider release |
 | 个体数值与交互选择（自尊、对人讨食/辱骂/后退）第一片 | `.worktrees/wp-hk-attitude` | social/YukkuriSocial, settlement/SettlementLife (release fact), social/YukkuriPersonality (derived self-esteem helper), museum TN-13 |
