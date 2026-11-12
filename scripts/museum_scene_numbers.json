@@ -162,6 +162,8 @@
     "custody_death": "TN-12",
     "social_identity": "TN-13",
     "shop_build": "SP-01",
+    "shop_window": "SP-02",
+    "shop_buy_keeper": "SP-03",
     "factory_labor": "FC-01",
     "factory_manju": "FC-02",
     "factory_bag": "FC-03",

@@ -1292,6 +1292,25 @@ add('shop_build', 'shop', '整座商店：店员照料上架太久的库存', '�
            ('读店内个体档案', 'yukkuri status @e[type=#mcylab:yukkuri,distance=..80] raw'),
            ('读徽章与技能存档', 'execute as @e[type=#mcylab:yukkuri,distance=..80] run data get entity @s YukkuriPet'),
            ('读滞销个体', f'yukkuri status {STOCK[:-1]},limit=1,sort=nearest]')])
+# The booths' authored temperaments (art/structures/human-world/build.py): Chen shy, gold Alice proud, Reimu shows off, Remilia pleads;
+# 17 days on the shelf (of the 20 before a stale recall) wear Remilia's hope down into a sulk. Template x/z -> scene dx = 20 - x, dz = 17 - z,
+# the shop floor stands two blocks above the street; the view is the pavement in front of the booth window (template 10.5, 0.5).
+BOOTH = '@e[type=mcyukkuri:{},nbt={{YukkuriPet:{{Grade:{}}}}},distance=..80,limit=1]'
+add('shop_window', 'shop', '展舱里的油看见客人：招揽、摆架子、害羞、闹别扭', '展舱里的油看见客人：招揽、摆架子、害羞、闹别扭',
+    '站在街面橱窗前或店内过道，沿四个展舱慢慢走：每只隔着玻璃按自己的脾气回应你——灵梦凑到玻璃前卖力表现，金章爱丽丝端着徽章摆架子，'
+    '橙往后躲、捂脸，上架 17 天的蕾米莉亚背过身闹别扭；你走开时恳求过的会失落，记住这次落空。读档看各自的上架天数与回应',
+    '建筑几秒；走到展舱 8 格内，1–2 秒内回应', ['yukkuri human build shop ~8 ~ ~17 south'],
+    late=['scoreboard objectives add scn_t dummy', 'execute store result score #now scn_t run time query gametime',
+          'scoreboard players remove #now scn_t 408000',
+          f'execute as {BOOTH.format("remilia", 2)} store result entity @s NeoForgeData.HumanCommerce.ForSaleSince long 1 run scoreboard players get #now scn_t'],
+    env=DAY, vantage=(9, 16, 180, 10),
+    reads=[('读在售个体（上架天数与回应）', f'yukkuri status {STOCK} raw')])
+add('shop_buy_keeper', 'shop', '买下金章爱丽丝：饲养员提篮来接，隔壁的橙眼红', '买下金章爱丽丝：饲养员提篮来接，隔壁的橙眼红',
+    '进店右键店主，在“在售”里买下金章爱丽丝：她先高兴地跳，饲养员拿空运输篮从后场走到展舱前，隔着矮墙伸手让她钻进篮子，'
+    '再提到柜台交到你手上；隔壁的银章橙看着她被带走，眼红地鼓起脸。饲养员走不过去时最多 20 秒后改由店主在柜台递篮',
+    '建筑几秒；买下后约 10–20 秒交到手上', ['yukkuri human build shop ~8 ~ ~17 south'],
+    give=['minecraft:emerald 128'], env=DAY, vantage=(5, 16, 180, 10),
+    reads=[('店铺登记（shop list）', 'yukkuri human shop list')])
 # The manju factory's breeders have already produced five rounds: one more litter retires them into the line.
 for _kind, _seen, _pad, _late in (
         ('labor', '劳力工场：油搬甘蔗做纸', -44, []),
@@ -3782,7 +3801,7 @@ TOPICS = {
     'excited_leak': 'D1',
     'forage_empty': 'R1', 'rain_life': 'R1', 'rain_huddle': 'R1', 'storm_cower': 'R1', 'marisa_explore': 'R1', 'rain_shelter': 'R1', 'rain_open': 'R1', 'pred_watch': 'R2', 'pred_range': 'R2', 'pred_pets': 'R2', 'shared_body': 'R3',
     'house_empty': 'H1', 'house_pair': 'H2', 'house_eggs': 'H3',
-    'shop_build': 'M1', 'factory_labor': 'M2', 'factory_manju': 'M2', 'factory_bag': 'M2', 'harness_walk': 'M3', 'swaddle_worn': 'M3', 'feed_wild': 'M3', 'oniisan_prey': 'M4', 'attack_witness': 'M4',
+    'shop_build': 'M1', 'shop_window': 'M1', 'shop_buy_keeper': 'M1', 'factory_labor': 'M2', 'factory_manju': 'M2', 'factory_bag': 'M2', 'harness_walk': 'M3', 'swaddle_worn': 'M3', 'feed_wild': 'M3', 'oniisan_prey': 'M4', 'attack_witness': 'M4',
     'wild': 'M5', 'badge': 'M5', 'exam': 'M5', 'date': 'M5', 'transport': 'M5', 'custody_death': 'M5', 'social_identity': 'M5',
     'airborne': 'R8', 'house_health': 'R9',
     'body_mold': 'R5', 'wound_materials': 'R5', 'thermal_body': 'R5', 'wound_sources': 'R5', 'wound_leak': 'R5', 'treatment_severe': 'R5', 'treatment_scars': 'R5', 'treatment_care': 'R5', 'magma_sole': 'R5', 'core_exposed': 'R5', 'core_filling': 'R5', 'remains_rot': 'R6', 'remains_forms': 'R6', 'carrion': 'R6', 'cannibal_hunt': 'R6',
@@ -3965,6 +3984,18 @@ _sale_smoke = next(s for s in S if s.id == 'shop_build').smoke
 _sale_smoke['commands'] = [(200, f'yukkuri human shop buy @e[nbt={{HumanJob:1}},distance=..80,sort=nearest,limit=1] {sel("sale_stock")} {_uuid_text("shop_build", "buyer")}')]
 _sale_smoke['expect'] += [rf'\[transport\][^\n]*uuid={_uuid_text("shop_build", "sale_stock")} [^\n]*action=capture result=committed',
                           rf'\[shop\][^\n]*action=buy_live result=delivered [^\n]*target={_uuid_text("shop_build", "sale_stock")}']
+# Headless runs have no player at the window: two residents stop in the aisle in front of the booth pairs (smoke only; NoAI keeps them there).
+def _aisle_customer(dx, name):
+    return (f'summon mcyukkuri:caretaker_sister ~{dx} ~2 ~8.5 {{Tags:["scn","{tag(name)}"],PersistenceRequired:1b,NoAI:1b,Rotation:[0f,0f],'
+            'HumanJob:0,HumanAttitude:1,HumanInitialized:1b}')
+_smoke('shop_window', 1200, [rf'\[shop\] {kind} [^\n]* window start mode={mode} ' for kind, mode in
+                             (('chen', 'SHY'), ('alice', 'PROUD'), ('reimu', 'SHOW_OFF'), ('remilia', 'SULK'))])
+next(s for s in S if s.id == 'shop_window').smoke['commands'] = [(100, _aisle_customer(14.5, 'customer_west')), (100, _aisle_customer(.5, 'customer_east'))]
+_smoke('shop_buy_keeper', 1600, [r'\[courier\][^\n]* action=start kind=BUY ', r'\[shop\] chen [^\n]* window witness kind=ENVY ',
+                                 r'\[shop\][^\n]* action=buy_live result=delivered [^\n]*mode=keeper'],
+       forbid=[r'\[shop\][^\n]* action=buy_live result=refunded', r'\[courier\][^\n]* action=fallback '])
+next(s for s in S if s.id == 'shop_buy_keeper').smoke['commands'] = [
+    (200, f'yukkuri human shop buy @e[nbt={{HumanJob:1}},distance=..80,sort=nearest,limit=1] {BOOTH.format("alice", 3)} {_uuid_text("shop_buy_keeper", "buyer")}')]
 def _migration_housing(log):
     done = re.search(r'\[settlement\][^\n]* event=migrate_done\b[^\n]* households=(\d+)', log)
     if done:
