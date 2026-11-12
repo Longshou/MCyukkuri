@@ -220,8 +220,8 @@ public final class YukkuriLife {
     private void wakeNow(String cause) { wakeAt = sleepTicks; wakeCause = cause; }
     void beginConsumption() { resetSleep();task=Task.NONE; }
     void beginDrugSleep() { task=Task.SLEEP;resetSleep(); }
-    void beginDoseMeal(ItemStack one, UUID player, boolean returnBottle) {
-        meal.beginDose(one, player, returnBottle);
+    boolean beginDoseMeal(ItemStack one, UUID player, boolean returnBottle) {
+        return meal.beginDose(one, player, returnBottle);
     }
     void deferHomeMaintenance() { homeWait = 200; }
     public void seekHomeNow() { homeWait = 0; }
@@ -542,7 +542,6 @@ public final class YukkuriLife {
     public boolean beginPreparedMeal(ItemStack prepared, UUID fromPlayer){ return meal.beginPreparedMeal(prepared, fromPlayer); }
     /** A biological parent must physically reach the child before transferring its prepared serving. */
     public boolean beginParentMeal(YukkuriEntity caregiver, ItemStack prepared){ return meal.beginParentMeal(caregiver, prepared); }
-    private boolean startMeal(ItemStack transferred, UUID fromPlayer, boolean alreadyShared, String reaction){ return meal.startMeal(transferred, fromPlayer, alreadyShared, reaction); }
     /** Badge social (B4): a hungry peer is begging at this serving, so the bite waits mid-chew for up to {@code ticks}. False unless a bite is really in the mouth. */
     public boolean holdMeal(int ticks){ return meal.holdMeal(ticks); }
     public void releaseMeal(){ meal.releaseMeal(); }

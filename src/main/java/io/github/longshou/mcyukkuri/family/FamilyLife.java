@@ -208,7 +208,7 @@ public final class FamilyLife {
     /** Late-child gate for a personal nest; stem-born juveniles still start at age and nourishment zero. */
     public boolean readyForOwnNest() { return !awaitingLanding&&stage==Stage.JUVENILE&&age>=maturity/2&&nourishment>=maturity*3/8&&entity.childhood().canLearn(); }
     public ItemStack carrying() { return feeding.carrying(); }
-    /** Care food from elsewhere (a stored portion of her hat): held, saved and shown like the feeding's own (false: one is held). */
+    /** Care food from elsewhere (a stored portion of her hat): held, saved and shown like the feeding's own. */
     public boolean holdCareFood(ItemStack one) { return feeding.hold(one); }
     /** The held care food chewed for {@code child} (mash when it needs mash); the chewing time is the caller's ({@link #CHEW_TICKS}). */
     public void chewCareFood(YukkuriEntity child) { feeding.chew(child); }
@@ -216,6 +216,8 @@ public final class FamilyLife {
     public boolean handCareFood(YukkuriEntity child) { return feeding.hand(child); }
     /** The held care food back where {@code into} keeps it (a hat's hold); false when it is refused and stays held. */
     public boolean putBackCareFood(Predicate<ItemStack> into) { return feeding.putBack(into); }
+    /** Clears the way for a different mouthful after a real drop. False leaves the care portion held. */
+    public boolean releaseCareFood(String reason) { return feeding.releaseCareFood(reason); }
     public static final int CHEW_TICKS = FamilyFeeding.CHEW_TICKS;
     public int careChewTicks() { return feeding.chewTicks(); }
     /** Client-sync source: the child a land caregiver is currently approaching, or {@code -1}. */

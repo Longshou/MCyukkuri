@@ -232,7 +232,11 @@ public final class ForageTrip extends Goal {
     }
 
     private boolean familyConditions() {
-        return fitToProvision() && fair() && !SettlementSeasons.confined(entity) && !urgent() && entity.life().mealTicks() == 0;
+        return fitToProvision() && fair() && !SettlementSeasons.confined(entity) && !urgent() && canCarryForage();
+    }
+
+    private boolean canCarryForage() {
+        return entity.life().mealTicks() == 0 && entity.family().carrying().isEmpty();
     }
 
     /** A sole provider with dependants puts the short store ahead of empty-handed work and moderate personal hunger. */
@@ -322,7 +326,7 @@ public final class ForageTrip extends Goal {
             recoveringNeeds = false;
         }
         // A suspended trip must yield to the same needs that stopped it, including emergency grazing.
-        if (urgent() || entity.life().mealTicks() != 0) return false;
+        if (urgent() || !canCarryForage()) return false;
         if (phase != Phase.NONE) {
             if (hunting) return true; // a hunt trip ends through its own phases (tick)
             var inside = shelter();
@@ -392,7 +396,7 @@ public final class ForageTrip extends Goal {
     @Override public boolean canContinueToUse() {
         if (phase == Phase.NONE || !body() || entity.bereaving()) return false;
         if (urgent()) { recoveringNeeds = true; return false; }
-        if (entity.life().mealTicks() != 0) return false; // the state survives; the goal resumes afterwards
+        if (!canCarryForage()) return false; // the state survives; the goal resumes when the mouth is available
         return true;
     }
     @Override public boolean requiresUpdateEveryTick() { return true; }

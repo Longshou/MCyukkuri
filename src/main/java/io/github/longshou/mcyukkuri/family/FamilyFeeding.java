@@ -7,6 +7,7 @@ import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.FamilyLife.Task;
 import io.github.longshou.mcyukkuri.headwear.PlacedHatEntity;
+import io.github.longshou.mcyukkuri.interaction.ItemContact;
 import io.github.longshou.mcyukkuri.life.InfantFood;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.registry.ModItems;
@@ -120,10 +121,14 @@ final class FamilyFeeding {
     private boolean careContextReady() {
         return o.adult()&&!o.awaitingLanding()&&!o.entity().isNoAi()&&!o.entity().isPassenger()&&!o.entity().profile().houseBody()&&!o.entity().profile().dangerToYukkuri()
                 &&!o.entity().isInWaterOrBubble()&&!o.entity().isOnFire()&&!o.entity().operations().active()&&!o.entity().predator().active()
-                &&!o.entity().life().isSleeping()&&o.entity().life().mealTicks()==0&&!o.entity().independence().active()
+                &&!o.entity().life().isSleeping()&&canHoldCarePortion()&&!o.entity().independence().active()
                 &&(o.entity().habitat().carrying().isEmpty()||o.entity().habitat().carryingMoveFood())&&o.entity().independence().carrying().isEmpty()
                 &&o.entity().settlement().duties().carrying().isEmpty()&&o.entity().house().carrying().isEmpty()
                 &&(carriedCheck||!o.carry().mouthBusy());
+    }
+
+    private boolean canHoldCarePortion() {
+        return o.entity().life().mealTicks()==0 && o.entity().forageTrip().load().isEmpty();
     }
     /** Set only while asking whether a child on the carrier's own seat could be fed once it is put down. */
     private boolean carriedCheck;
@@ -306,13 +311,22 @@ final class FamilyFeeding {
                         home.getBlockPos(),returnedItem,returnedCount);return;
             }
         }
-        if(o.entity().life().dryStand(o.entity().blockPosition())) {
-            var food=o.entity().spawnAtLocation(carrying.copy());
-            if(food!=null){
-                food.setPickUpDelay(40);carrying=ItemStack.EMPTY;careCarryTicks=careChewTicks=careOfferTicks=0;
-                GameplayLog.event(o.entity(),"family","feed reserved portion dropped item={} drop={}",food.getItem(),food.getUUID());
-            }
+        if(o.entity().life().dryStand(o.entity().blockPosition())) releaseCareFood("idle");
+    }
+
+    /** A mouth can take the next serving only once the held care portion really exists in the world. */
+    boolean releaseCareFood(String reason) {
+        if(carrying.isEmpty())return true;
+        var food=ItemContact.release(o.entity(),carrying,40);
+        if(food==null){
+            GameplayLog.limited(o.entity(),"family","care_food.release_refused",200,
+                    "feed reserved portion release refused item={} reason={}",carrying,reason);
+            return false;
         }
+        GameplayLog.event(o.entity(),"family","feed reserved portion dropped item={} drop={} reason={}",
+                food.getItem(),food.getUUID(),reason);
+        carrying=ItemStack.EMPTY;careCarryTicks=careChewTicks=careOfferTicks=0;
+        return true;
     }
 
     void tickCare() {
@@ -429,7 +443,7 @@ final class FamilyFeeding {
     }
     /** A portion taken from somewhere else (a hat's hold) becomes the held care food; false while one is held already. */
     boolean hold(ItemStack one) {
-        if(!carrying.isEmpty()||one.isEmpty())return false;
+        if(!carrying.isEmpty()||one.isEmpty()||!canHoldCarePortion())return false;
         carrying=one.copyWithCount(1);careChewTicks=careOfferTicks=careCarryTicks=0;return true;
     }
     /** The held care food leaves her mouth for {@code into} (a hat's hold); kept when it refuses it. */

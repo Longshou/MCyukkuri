@@ -26,9 +26,7 @@ final class LifeDoses {
             &&!o.entity().isPanicking()&&!o.entity().isCommandPlaying()&&!o.entity().operations().active()&&!o.isSleeping()&&!o.entity().isInWaterOrBubble()&&Consumables.applicable(o.entity(),dose);}
 
     boolean beginDose(ItemStack one,UUID player,boolean returnBottle){
-        if(one.getCount()!=1||!canTakeDose(one))return false;
-        o.temperature().stop();
-        o.beginDoseMeal(one, player, returnBottle);
+        if(one.getCount()!=1||!canTakeDose(one)||!o.beginDoseMeal(one, player, returnBottle))return false;
         o.beginConsumption();o.entity().family().stop();o.entity().social().stop();o.entity().groupInteraction().stop();o.entity().playLife().stop();
         o.entity().getNavigation().stop();o.entity().setPersistenceRequired();return true;
     }

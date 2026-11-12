@@ -91,7 +91,7 @@ final class LifeMeal {
     }
 
     /** A caller checks this before consuming a body's one-shot resource. */
-    boolean canAcceptBodyFood() { return canEat(); }
+    boolean canAcceptBodyFood() { return canEat() && o.entity().family().carrying().isEmpty(); }
 
     boolean canAcceptBodyFood(BodyFood.Bite bite) { return bite != null && !bite.isEmpty() && canAcceptBodyFood(); }
 
@@ -132,7 +132,8 @@ final class LifeMeal {
                 && startMeal(prepared, caregiver.getUUID(), true, "receive_mash");
     }
 
-    boolean startMeal(ItemStack transferred, UUID fromPlayer, boolean alreadyShared, String reaction) {
+    private boolean startMeal(ItemStack transferred, UUID fromPlayer, boolean alreadyShared, String reaction) {
+        if (!o.entity().family().releaseCareFood("meal")) return false;
         o.temperature().stop();
         o.entity().dailyLife().stop();
         bowlMeal = false;
@@ -332,10 +333,13 @@ final class LifeMeal {
     }
     boolean preparedMeal() { return preparedMeal; }
     void bowlMeal() { bowlMeal = true; }
-    void beginDose(ItemStack one, UUID player, boolean returnBottle) {
+    boolean beginDose(ItemStack one, UUID player, boolean returnBottle) {
+        if (!o.entity().family().releaseCareFood("dose")) return false;
+        o.temperature().stop();
         bodyFood = BodyFood.Bite.EMPTY;
         syncBodyFood();
         mouth=one.copy();mealHold=0;feeder=player;sharedMeal=true;content=false; meltFace = meltTail = finishFace = null; o.doses().returnBottle(returnBottle);mealTicks=1;
+        return true;
     }
     boolean releaseForInterrupt() {
         if (!bodyFood.isEmpty()) {
