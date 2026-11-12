@@ -4060,12 +4060,16 @@
           "emote": "sweat"
         },
         {
-          "clip": "hide_face",
+          "clip": "nervous",
           "intensity": 1,
           "tempo": 1,
           "faces": [
             [
               0,
+              "teary"
+            ],
+            [
+              0.75,
               "closed_smile"
             ]
           ]
