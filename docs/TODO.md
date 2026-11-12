@@ -10,6 +10,7 @@
 | --- | --- | --- |
 | 台词审校与补充（总负责人调度的 Codex 标签页） | `.worktrees/wp-gb-speech-review` | art/dialogue/, src/main/resources/assets/mcyukkuri/dialogue/, lang/*.json |
 | 帽沿跳：一次跳跃途中换位、被分成两次 | `.worktrees/wp-gu-brim-hop-split` | aquatic/BrimPerformance.java |
+| 性能：按钮延迟与同屏卡顿（反馈 2、3） | `.worktrees/wp-gv-perf` | 全局热点（渲染、感知、同步、场景启动） |
 
 ## 玩法待办
 
