@@ -10,6 +10,7 @@
 | --- | --- | --- |
 | 台词审校与补充（用户与代理直接对话） | `.worktrees/wp-gb-speech-review` | art/dialogue/, src/main/resources/assets/mcyukkuri/dialogue/, lang/*.json |
 | 便便闭环：同格合并、小堆自消、标准份可堆叠、大小统一 | `.worktrees/wp-gn-waste-loop` | life/Poops、PoopBlock、CareBlockEntity 厕所、DetachedItems、WastePresentation |
+| 激动漏尿：单股流痕加小水滩（重画）并接入 | `.worktrees/wp-gp-leak` | standards/yukkuri-library/expressions 漏尿表情、接入代码 |
 
 ## 玩法待办
 
