@@ -6566,7 +6566,7 @@
   "exam.mcyukkuri.refuse.platinum_skills": "先把读字、算数、等待和问候练到 4 级。",
   "exam.mcyukkuri.refuse.platinum_traits": "先练习从容地解释和体贴地帮助别人。",
   "exam.mcyukkuri.question.explain": "请读给访客听，再解释一下。",
-  "exam.mcyukkuri.question.clarify": "请向访客说明你数到了什么。",
+  "exam.mcyukkuri.question.clarify": "你看见多少？请告诉访客。",
   "exam.mcyukkuri.question.share": "现在开始第二部分。你能帮帮那只饿着的同伴吗？",
   "exam.mcyukkuri.reply.offer_share": "%s 饿了。我会分一点自己的食物。",
   "exam.mcyukkuri.comment.explain_ok": "○ 访客听到了完整的读字回答。",
@@ -6583,5 +6583,7 @@
   "human.mcyukkuri.greet_badge": "你好，%s。见到你很高兴。",
   "exam.mcyukkuri.refuse.share_nutrition": "请等考生营养恢复到 60 再来。",
   "pet.mcyukkuri.reply.help_danger": "%s在求助，%s有危险！",
-  "exam.mcyukkuri.interrupt.danger": "请先帮同伴脱离危险。"
+  "exam.mcyukkuri.interrupt.danger": "请先帮同伴脱离危险。",
+  "exam.mcyukkuri.reply.groups": "我看见 %s 堆食物。",
+  "exam.mcyukkuri.visitor.count_portions": "我想知道一共有几份。能一份一份数给我听吗？"
 }

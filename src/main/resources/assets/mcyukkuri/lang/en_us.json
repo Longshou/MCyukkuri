@@ -6568,7 +6568,7 @@
   "exam.mcyukkuri.refuse.platinum_skills": "Practise reading, counting, waiting, and greetings to level 4.",
   "exam.mcyukkuri.refuse.platinum_traits": "Practise calm explanations and considerate help first.",
   "exam.mcyukkuri.question.explain": "Please read the example aloud to our visitor and explain it.",
-  "exam.mcyukkuri.question.clarify": "Please explain your count to our visitor.",
+  "exam.mcyukkuri.question.clarify": "How many do you see? Tell our visitor.",
   "exam.mcyukkuri.question.share": "Now the second part. Can you help the hungry peer?",
   "exam.mcyukkuri.reply.offer_share": "%s is hungry. I'll share some of my food.",
   "exam.mcyukkuri.comment.explain_ok": "○ The visitor heard a complete reading.",
@@ -6585,5 +6585,7 @@
   "human.mcyukkuri.greet_badge": "Hello, %s. A pleasure to see you.",
   "exam.mcyukkuri.refuse.share_nutrition": "Let the candidate recover to at least 60 nutrition.",
   "pet.mcyukkuri.reply.help_danger": "%s calls for help. %s is in danger!",
-  "exam.mcyukkuri.interrupt.danger": "Help the peer get to safety first."
+  "exam.mcyukkuri.interrupt.danger": "Help the peer get to safety first.",
+  "exam.mcyukkuri.reply.groups": "I see %s groups of food.",
+  "exam.mcyukkuri.visitor.count_portions": "I meant each piece of food. Could you count those?"
 }

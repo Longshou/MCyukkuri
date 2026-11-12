@@ -8,6 +8,7 @@ import io.github.longshou.mcyukkuri.social.Bonds;
 import io.github.longshou.mcyukkuri.social.YukkuriPersonality.Trait;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.Comparator;
+import java.util.List;
 import java.util.UUID;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
@@ -88,9 +89,12 @@ public final class PetStudy {
     }
 
     public static int visibleFood(YukkuriEntity pet) {
+        return visibleFoodStacks(pet).stream().mapToInt(item -> item.getItem().getCount()).sum();
+    }
+
+    public static List<ItemEntity> visibleFoodStacks(YukkuriEntity pet) {
         return pet.level().getEntitiesOfClass(ItemEntity.class, pet.getBoundingBox().inflate(5),
-                item -> item.isAlive() && pet.life().acceptsFood(item.getItem()) && pet.hasLineOfSight(item))
-                .stream().mapToInt(item -> item.getItem().getCount()).sum();
+                item -> item.isAlive() && pet.life().acceptsFood(item.getItem()) && pet.hasLineOfSight(item));
     }
 
     public static LivingEntity visitor(YukkuriEntity pet) {

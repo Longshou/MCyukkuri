@@ -6510,7 +6510,7 @@
   "exam.mcyukkuri.refuse.platinum_skills": "読字、数え方、待て、挨拶をレベル4まで練習してください。",
   "exam.mcyukkuri.refuse.platinum_traits": "落ち着いて説明し、思いやりのある手助けができるまで練習してください。",
   "exam.mcyukkuri.question.explain": "例文をお客さんに読み、説明してください。",
-  "exam.mcyukkuri.question.clarify": "どう数えたかお客さんに説明してください。",
+  "exam.mcyukkuri.question.clarify": "いくつ見えますか？ お客さんに伝えてください。",
   "exam.mcyukkuri.question.share": "次は第二部です。お腹を空かせた仲間を助けられますか？",
   "exam.mcyukkuri.reply.offer_share": "%sがお腹を空かせています。ぼくのごはんを分けます。",
   "exam.mcyukkuri.comment.explain_ok": "○ お客さんに最後まで読んで伝えました。",
@@ -6527,5 +6527,7 @@
   "human.mcyukkuri.greet_badge": "こんにちは、%s。お会いできてうれしいです。",
   "exam.mcyukkuri.refuse.share_nutrition": "受験者の栄養が60に戻ってから来てください。",
   "pet.mcyukkuri.reply.help_danger": "%sが助けを呼んでいます。%sが危ない！",
-  "exam.mcyukkuri.interrupt.danger": "まず仲間を安全な所に連れていってください。"
+  "exam.mcyukkuri.interrupt.danger": "まず仲間を安全な所に連れていってください。",
+  "exam.mcyukkuri.reply.groups": "ごはんの山が%sつ見えます。",
+  "exam.mcyukkuri.visitor.count_portions": "ごはんを一つずつ数えて、全部でいくつか教えてくれる？"
 }

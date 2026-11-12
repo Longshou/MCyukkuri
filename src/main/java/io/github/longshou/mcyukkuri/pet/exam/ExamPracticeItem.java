@@ -16,7 +16,7 @@ import net.minecraft.world.entity.Mob;
 
 /** Prompts a real routine and observes its existing completion. */
 final class ExamPracticeItem implements ExamItem {
-    private enum Phase { QUESTION, OBSERVE, COMMENT }
+    private enum Phase { QUESTION, COUNT_GROUPS, CLARIFY, OBSERVE, COMMENT }
     private final ExamPlan.Question question;
     private Phase phase = Phase.QUESTION;
     private long until;
@@ -67,8 +67,34 @@ final class ExamPracticeItem implements ExamItem {
         }
         if (phase == Phase.QUESTION) {
             if (now < until || !ctx.inContact()) return false;
-            phase = Phase.OBSERVE;
-            beginAnswer(ctx, now);
+            if (question == ExamPlan.Question.CLARIFY && faceVisitor(ctx)) {
+                var y = ctx.candidate();
+                int groups = PetStudy.visibleFoodStacks(y).size();
+                if (groups == 0) { ctx.interrupt("site"); return false; }
+                ctx.card(y.position().add(0, y.getBbHeight() + .6, 0),
+                        Component.translatable("exam.mcyukkuri.reply.groups", groups), 60, 1.2f);
+                y.showReaction("neutral", "exam_answer", 60);
+                ctx.answer("clarify_groups", true, Integer.toString(groups));
+                phase = Phase.COUNT_GROUPS;
+                until = Math.max(now + 60, y.speechEnd());
+            } else if (question != ExamPlan.Question.CLARIFY) {
+                phase = Phase.OBSERVE;
+                beginAnswer(ctx, now);
+            }
+            return false;
+        }
+        if (phase == Phase.COUNT_GROUPS || phase == Phase.CLARIFY) {
+            if (now < until || !ctx.inContact() || !faceVisitor(ctx)) return false;
+            if (phase == Phase.COUNT_GROUPS) {
+                ctx.card(participant.position().add(0, participant.getBbHeight() + .45, 0),
+                        Component.translatable("exam.mcyukkuri.visitor.count_portions"), 60, 1.0f);
+                ctx.answer("clarify_visitor", true, "individual_portions");
+                phase = Phase.CLARIFY;
+                until = now + 60;
+            } else {
+                phase = Phase.OBSERVE;
+                beginAnswer(ctx, now);
+            }
             return false;
         }
         if (completed == null && now >= until) {
@@ -78,20 +104,24 @@ final class ExamPracticeItem implements ExamItem {
         return false;
     }
 
+    private boolean faceVisitor(ExamContext ctx) {
+        var y = ctx.candidate();
+        if (participant == null || !y.hasLineOfSight(participant) || !participant.hasLineOfSight(y)) {
+            ctx.interrupt("no_participant");
+            return false;
+        }
+        y.getLookControl().setLookAt(participant);
+        if (participant instanceof Mob visitor) visitor.getLookControl().setLookAt(y);
+        return true;
+    }
+
     private void beginAnswer(ExamContext ctx, long now) {
         var y = ctx.candidate();
         if (ctx.owner() == null) { ctx.interrupt("owner_gone"); return; }
         if (example != null) {
             var actual = ExamPlan.example(question, ctx.owner(), y);
             if (actual == null || !example.sameExample(actual)) { ctx.interrupt("site"); return; }
-            if (participant != null) {
-                if (!y.hasLineOfSight(participant) || !participant.hasLineOfSight(y)) {
-                    ctx.interrupt("no_participant");
-                    return;
-                }
-                y.getLookControl().setLookAt(participant);
-                if (participant instanceof Mob visitor) visitor.getLookControl().setLookAt(y);
-            }
+            if (participant != null && !faceVisitor(ctx)) return;
             boolean detailed = question.grade == BadgeGrade.PLATINUM && y.getRandom().nextDouble() < PetConversation.explanation(y);
             var answer = PetStudy.answer(y, actual, detailed);
             caption = answer.caption();

@@ -88,6 +88,10 @@ public final class ScenarioCommands {
             owner.setItemInHand(InteractionHand.MAIN_HAND, startingGrade == BadgeGrade.BRONZE
                     ? new ItemStack(ModItems.SWEET_CANDY.get()) : new ItemStack(Items.APPLE));
             owner.getInventory().add(new ItemStack(Items.EMERALD, ExamSession.fee(service)));
+            if (startingGrade == BadgeGrade.SILVER) {
+                candidate.pet().care().fitHarnessFor(owner.getUUID());
+                candidate.setLeashedTo(owner, true);
+            }
         }
         var reason = ExamSession.start(examiner, owner, candidate, service, true);
         return reason == null ? 1 : refused(context.getSource(), candidate, "exam_fixture", reason);
@@ -101,6 +105,16 @@ public final class ScenarioCommands {
         var owner = FakePlayerFactory.getMinecraft(level);
         if (owner.distanceToSqr(peer) > 16 || !owner.hasLineOfSight(peer)) return 0;
         return owner.interactOn(peer, InteractionHand.MAIN_HAND).consumesAction() ? 1 : 0;
+    }
+
+    private static int stepExamOwner(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
+        var level = context.getSource().getLevel();
+        if (context.getSource().getEntity() != null || !level.players().isEmpty()) return 0;
+        var owner = FakePlayerFactory.getMinecraft(level);
+        var step = Vec3Argument.getVec3(context, "step");
+        if (owner.position().distanceToSqr(step) > 1) return 0;
+        owner.setPos(step.x, step.y, step.z);
+        return 1;
     }
 
     private static int spawn(CommandContext<CommandSourceStack> c) throws CommandSyntaxException {
@@ -139,9 +153,12 @@ public final class ScenarioCommands {
                         .then(Commands.argument("candidate", EntityArgument.entity()).executes(c -> examFixture(c, BadgeGrade.NONE)))))
                 .then(Commands.literal("exam_silver").then(Commands.argument("examiner", EntityArgument.entity())
                         .then(Commands.argument("candidate", EntityArgument.entity()).executes(c -> examFixture(c, BadgeGrade.BRONZE)))))
+                .then(Commands.literal("exam_gold").then(Commands.argument("examiner", EntityArgument.entity())
+                        .then(Commands.argument("candidate", EntityArgument.entity()).executes(c -> examFixture(c, BadgeGrade.SILVER)))))
                 .then(Commands.literal("exam_platinum").then(Commands.argument("examiner", EntityArgument.entity())
                         .then(Commands.argument("candidate", EntityArgument.entity()).executes(c -> examFixture(c, BadgeGrade.GOLD)))))
                 .then(Commands.literal("exam_feed_peer").then(Commands.argument("target", EntityArgument.entity()).executes(ScenarioCommands::feedExamPeer)))
+                .then(Commands.literal("exam_step_owner").then(Commands.argument("step", Vec3Argument.vec3()).executes(ScenarioCommands::stepExamOwner)))
                 .then(Commands.literal("basket")
                         .then(Commands.literal("plain").executes(c -> basketHand(c, new ItemStack(ModItems.CARRIER.get()))))
                         .then(Commands.literal("fine").executes(c -> basketHand(c, new ItemStack(ModItems.FINE_CARRIER.get()))))
