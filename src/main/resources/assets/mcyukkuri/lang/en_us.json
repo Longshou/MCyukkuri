@@ -6058,7 +6058,6 @@
   "shop.mcyukkuri.keeper.fail.pair": "The two cannot be paired right now.",
   "shop.mcyukkuri.keeper.fail.busy": "One of them is busy looking after young.",
   "shop.mcyukkuri.keeper.fail.kind": "Their ways of having young do not match.",
-  "shop.mcyukkuri.keeper.fail.factory": "The factory's production plan does not allow new young.",
   "shop.mcyukkuri.keeper.fail.shelter": "Its nest has no room for the young.",
   "shop.mcyukkuri.keeper.fail.crowded": "Its home is too crowded for new young.",
   "shop.mcyukkuri.keeper.fail.hungry_mother": "It is too hungry to carry young.",

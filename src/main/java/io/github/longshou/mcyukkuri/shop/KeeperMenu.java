@@ -184,7 +184,7 @@ public final class KeeperMenu extends AbstractContainerMenu {
         }
         return null;
     }
-    private static final Set<String> REFUSALS = Set.of("pair", "busy", "kind", "factory", "shelter", "crowded", "hungry_mother", "hungry_father", "conceive_null");
+    private static final Set<String> REFUSALS = Set.of("pair", "busy", "kind", "shelter", "crowded", "hungry_mother", "hungry_father", "conceive_null");
     /** Player-facing text for a conception refusal code; codes themselves are never shown. */
     static Component failReason(String why) {
         return Component.translatable("shop.mcyukkuri.keeper.fail." + (why != null && REFUSALS.contains(why) ? why : "other"));
