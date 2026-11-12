@@ -1,7 +1,7 @@
 {
   "exporter": "standards/yukkuri-library/expressions/derived/faces.py",
   "manifest": "standards/yukkuri-library/expressions/derived/manifest.json",
-  "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/{model}/sad.png, afraid.png, leak_startle.png, leak_flow.png, leak_flow_b.png, leak_flow_c.png, leak_after.png, leak_after_b.png",
+  "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/{model}/sad.png, afraid.png, leak_startle.png, leak_flow.png, leak_flow_b.png, leak_flow_c.png, leak_after.png, leak_after_b.png; src/main/resources/assets/mcyukkuri/textures/effects/leak_puddle_flow.png, leak_puddle_flow_b.png, leak_puddle_flow_c.png, leak_puddle_still.png, leak_puddle_dry.png",
   "status": "pending_user_review",
-  "scope": "sad and afraid derived from each model's own approved teary, neutral and surprise atlases; the excited-leak faces (leak_startle, leak_flow with b/c frames, leak_after with a b frame; manga look the user picked) from its neutral, teary, surprise and flushed_smile atlases with redrawn big wet eyes, grid mouths and sugar-water streaks on the lower front in the mouth-effect and tear cells (project design); not part of the standard expression set until saved."
+  "scope": "sad and afraid derived from each model's own approved teary, neutral and surprise atlases; the excited-leak faces (leak_startle, leak_flow with b/c frames, leak_after with a b frame; manga look the user picked) from its neutral, teary, surprise and flushed_smile atlases with redrawn big wet eyes, grid mouths and one sugar-water stream down the centre of the lower front in the mouth-effect cell, plus the leak ground puddle (32x32 top-down frames: flow b/c, still, dry; project design); not part of the standard expression set until saved."
 }

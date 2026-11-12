@@ -2,7 +2,7 @@
   "format": 1,
   "variants": {
     "reimu": {
-      "model_sha256": "24f4fa358f87711d9838ced996e6172f6bd40115bf671e2f46f3827e656154d7",
+      "model_sha256": "112447505e8458d25312124a20efaa459f4b632f3fb41541821cdd5563e783ab",
       "part": "bow_outer_1",
       "triangle": 17658,
       "weights": [
@@ -23,7 +23,7 @@
       "diameter": 0.11875
     },
     "marisa": {
-      "model_sha256": "b79821df596b8f0fb8ca8c02526eebc350d2c5c77b41218d5f082c5e084e202e",
+      "model_sha256": "49c6bd6e92edec6e4afbeda1374221c91785e6516cfab04d3e1fa45e35b74831",
       "part": "hat_band",
       "triangle": 14085,
       "weights": [
@@ -44,7 +44,7 @@
       "diameter": 0.11875
     },
     "chen": {
-      "model_sha256": "0b2672f828dcea47dd892eedd8ce169785cf4ae066e42a26b057cae8b0fe82f6",
+      "model_sha256": "00cb967fb5fbd5ae4a32a9d0efacc193aac149b6eab558802a7ca20b10e50881",
       "part": "chen_hat_lower",
       "triangle": 26712,
       "weights": [
@@ -65,7 +65,7 @@
       "diameter": 0.09375
     },
     "alice": {
-      "model_sha256": "01fb9c9af329d504fff3237889713c08b92a86bb8a1385b12ecb80e6ccf931aa",
+      "model_sha256": "a05b8f58cd38deaf1d6d50f15efe4da8518df0b6b7549f4503b90088da8be1f3",
       "part": "alice_band_red_2",
       "triangle": 35013,
       "weights": [
@@ -86,7 +86,7 @@
       "diameter": 0.1
     },
     "patchouli": {
-      "model_sha256": "f040ee7ad9ab04d4e8ebc1ae235cffc9708a7bc06d0d22ff3efacec74671c4d2",
+      "model_sha256": "a3c6aa776162f635f40165a66226a6aa7698b20560e93e7c69995142d3154562",
       "part": "patchouli_bonnet_body",
       "triangle": 88950,
       "weights": [
@@ -191,7 +191,7 @@
       "diameter": 0.1
     },
     "marisa_tsumuri": {
-      "model_sha256": "b7fe7937351b43b7b0704803679951be373e7bb21fcc61e9d90afc325c589a86",
+      "model_sha256": "2f3926c586f8647455ff1bf51715b1dbbccae0e36e036a911a1dfdd1d403a515",
       "part": "shell_coil_0_3_0_1",
       "triangle": 21438,
       "weights": [
@@ -254,7 +254,7 @@
       "diameter": 0.06875
     },
     "reimu_deibu": {
-      "model_sha256": "80553eeedb7c1d693ab7c8a401a94d4a5d3ec96c3f10f8ea6161a9721bbd41b2",
+      "model_sha256": "385a86b497c18754ceaf824638c0180c44ebb4f5d3f7698ee89ded5e33d122a6",
       "part": "bow_outer_1",
       "triangle": 20790,
       "weights": [
@@ -275,7 +275,7 @@
       "diameter": 0.09999999999999999
     },
     "reimu_wasa_deibu": {
-      "model_sha256": "5b3df3a8e7ff1be9d90da79fdcebdc2ff92e94bece469cd6a95a253d441887aa",
+      "model_sha256": "a9aa440b2727f0021a26e217b3964a3cc72a961c9b1c0584dd7ab3e766cb3b84",
       "part": "bow_outer_1",
       "triangle": 16698,
       "weights": [
@@ -296,7 +296,7 @@
       "diameter": 0.09999999999999999
     },
     "reimu_wasa": {
-      "model_sha256": "fda4dd5e6ff5418c96659256fd596377a9a56829cc41faabdb3341afbecbd8ba",
+      "model_sha256": "8b228aaf8ec92098ff462b029050310f7b9ef0ada8d140d41d0fafcb03b46e3b",
       "part": "bow_outer_1",
       "triangle": 16698,
       "weights": [
@@ -401,7 +401,7 @@
       "diameter": 0.11875
     },
     "myon": {
-      "model_sha256": "c60de6f2c7339302a9c77b736823fd5134bd4d3bdd3749737a4538309c5709ab",
+      "model_sha256": "6d739065f21770bdbaf3ac7a9218434c7142c5f4127be643c57abd255df82d8e",
       "part": "alice_band_red_2",
       "triangle": 35013,
       "weights": [
@@ -422,7 +422,7 @@
       "diameter": 0.1
     },
     "myon_redeye": {
-      "model_sha256": "3802c333a3c2273ffef95c67bb12dad9097f7e1ca4097f2651449a44fc1965be",
+      "model_sha256": "c542ff2189c6ad5546316040d490e0fa17d808830fc5f401efa2669b4e3e4e29",
       "part": "alice_band_red_2",
       "triangle": 35013,
       "weights": [
@@ -443,7 +443,7 @@
       "diameter": 0.1
     },
     "chen_longtail": {
-      "model_sha256": "ade2b79b4d30d660796207cf08f0158e1cc49fabda1ef4602f78a14186c97c03",
+      "model_sha256": "437e4795eb1b17db3a8474aa7c93e9ec58f275e4387a36a0210c22b45ffdf249",
       "part": "chen_hat_lower",
       "triangle": 26712,
       "weights": [
@@ -464,7 +464,7 @@
       "diameter": 0.09375
     },
     "chen_roundtail": {
-      "model_sha256": "d87b55edf381621406bcf929b54cb2394b031b0bd5de1a3480ba7829951c0e7f",
+      "model_sha256": "d0eda00249405a614f3a7a7837d3dea1b997c2c70dd2ff7378e79528f5eeb8f8",
       "part": "chen_hat_lower",
       "triangle": 26712,
       "weights": [
@@ -485,7 +485,7 @@
       "diameter": 0.09375
     },
     "marisa_kotatsu": {
-      "model_sha256": "515f61016052a206633ed9f3d2abb45dc28d7787afddc2d5d78ee9d7d245ed25",
+      "model_sha256": "25a0ca919a192a012e6232039e3736a6e641e19fdcb28675b0d138ed03d26dd8",
       "part": "brim_front",
       "triangle": 13977,
       "weights": [

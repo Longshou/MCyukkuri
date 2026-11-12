@@ -2,10 +2,10 @@
   "geometry_identifier": "alice",
   "base_species": "reimu",
   "selected_model": "standards/yukkuri-library/assembled/alice/alice.bbmodel",
-  "selected_model_sha256": "aa2120a61f502381dd9aa343733cdcd9b264821151a14340cdbecc3a77e65f65",
+  "selected_model_sha256": "8a925e136f3c62101b4c4a4efc8550422678bda4b94b05f4a8351e087f04a049",
   "selected_rig": "standards/yukkuri-library/assembled/alice/animation-rig.json",
-  "selected_rig_sha256": "4c1ac8e57fc26eb4b88ecaf882ae201c602816a08d16f0111d6694296bdeb22f",
-  "selected_runtime_sha256": "1eba76e4414dbf1b40616284f6a5437260dd7acdcacd3d4c984dd135776030dd",
+  "selected_rig_sha256": "bef99fb464e5f5b3104f994f1589ff0516a9e6454483c441107dea2ba07e528c",
+  "selected_runtime_sha256": "7ebc1e9f9d64c5daaf044eaa9be469edabc6811a17df4c31e31d8cc3c6f2a26a",
   "snapshot": "art/source/rounded-runtime/alice/selected/alice.bbmodel",
   "retargeting": {
     "source_weights_preserved": true,
@@ -16,7 +16,7 @@
   "runtime_acceptance": "pending_current_verification",
   "appearance_note": "Confirmed rounded-body baseline; selected hair-contact revision and Deibu face/bow remain pending visual confirmation",
   "runtime": "src/main/resources/assets/mcyukkuri/yukkuri/alice.json",
-  "runtime_sha256": "01fb9c9af329d504fff3237889713c08b92a86bb8a1385b12ecb80e6ccf931aa",
+  "runtime_sha256": "a05b8f58cd38deaf1d6d50f15efe4da8518df0b6b7549f4503b90088da8be1f3",
   "rig": "art/source/rounded-runtime/alice/animation-rig.json",
   "bone_count": 262,
   "clips": [
@@ -43,146 +43,146 @@
   "textures": {
     "neutral": {
       "source": "standards/yukkuri-library/assembled/alice/textures/neutral.png",
-      "source_sha256": "b65ea8dcb31cb3f54a01c760eb4e5166126091b7a08a923caac0d689d0f0f194",
+      "source_sha256": "04fba1df3dbb9e6e88aeeab5015a49b2732e73b03a5eb9c214837802db9330f3",
       "snapshot": "art/source/rounded-runtime/alice/textures/neutral.png",
       "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/alice/neutral.png",
-      "sha256": "b65ea8dcb31cb3f54a01c760eb4e5166126091b7a08a923caac0d689d0f0f194",
+      "sha256": "04fba1df3dbb9e6e88aeeab5015a49b2732e73b03a5eb9c214837802db9330f3",
       "mature_face": false
     },
     "happy": {
       "source": "standards/yukkuri-library/assembled/alice/textures/happy.png",
-      "source_sha256": "9bde39e0932392f90455427f5436e5943270b944eca6880d6ff52e94e4574fec",
+      "source_sha256": "9a3354d05d1c4467dcc9837c363a562b0d7da9acaa5df1cf10eb93bda2e054a0",
       "snapshot": "art/source/rounded-runtime/alice/textures/happy.png",
       "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/alice/happy.png",
-      "sha256": "9bde39e0932392f90455427f5436e5943270b944eca6880d6ff52e94e4574fec",
+      "sha256": "9a3354d05d1c4467dcc9837c363a562b0d7da9acaa5df1cf10eb93bda2e054a0",
       "mature_face": false
     },
     "cry": {
       "source": "standards/yukkuri-library/assembled/alice/textures/cry.png",
-      "source_sha256": "67da9bcb4cbcca37ff7a5c1515eb5e0ba92db65b1b69f23184dea61a310b0ba0",
+      "source_sha256": "6d6f254f7846f5a3c86560b03b284b6058db79a85912347086d2d037d2eb7d23",
       "snapshot": "art/source/rounded-runtime/alice/textures/cry.png",
       "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/alice/cry.png",
-      "sha256": "67da9bcb4cbcca37ff7a5c1515eb5e0ba92db65b1b69f23184dea61a310b0ba0",
+      "sha256": "6d6f254f7846f5a3c86560b03b284b6058db79a85912347086d2d037d2eb7d23",
       "mature_face": false
     },
     "teary": {
       "source": "standards/yukkuri-library/assembled/alice/textures/teary.png",
-      "source_sha256": "08acedbef602eba386f27123fd029413a9eead8ba861c5597b7b5d6530c3a202",
+      "source_sha256": "3eb3c4f8fb44b3b7646411e2d0a7d0836e9868904263f8763db5b84c0d56cf03",
       "snapshot": "art/source/rounded-runtime/alice/textures/teary.png",
       "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/alice/teary.png",
-      "sha256": "08acedbef602eba386f27123fd029413a9eead8ba861c5597b7b5d6530c3a202",
+      "sha256": "3eb3c4f8fb44b3b7646411e2d0a7d0836e9868904263f8763db5b84c0d56cf03",
       "mature_face": false
     },
     "drool": {
       "source": "standards/yukkuri-library/assembled/alice/textures/drool.png",
-      "source_sha256": "a6a8004e63a00b6ec010d53c0dd52b8e81521a0166d2c0c8b7e5be20dd43fab2",
+      "source_sha256": "408fea438e10772db26bc2107fd298e6a768f91568aa443b6522bb50e2df6afa",
       "snapshot": "art/source/rounded-runtime/alice/textures/drool.png",
       "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/alice/drool.png",
-      "sha256": "a6a8004e63a00b6ec010d53c0dd52b8e81521a0166d2c0c8b7e5be20dd43fab2",
+      "sha256": "408fea438e10772db26bc2107fd298e6a768f91568aa443b6522bb50e2df6afa",
       "mature_face": false
     },
     "confused": {
       "source": "standards/yukkuri-library/assembled/alice/textures/confused.png",
-      "source_sha256": "ff3eeb0a93a9b2965fc1900da0f37d8af006d96e90d004b82c77fb6725050b3f",
+      "source_sha256": "3e2f37917708c23291108328ab952e843c810da9f2d9464b8edfecc292fe8367",
       "snapshot": "art/source/rounded-runtime/alice/textures/confused.png",
       "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/alice/confused.png",
-      "sha256": "ff3eeb0a93a9b2965fc1900da0f37d8af006d96e90d004b82c77fb6725050b3f",
+      "sha256": "3e2f37917708c23291108328ab952e843c810da9f2d9464b8edfecc292fe8367",
       "mature_face": false
     },
     "yawn": {
       "source": "standards/yukkuri-library/assembled/alice/textures/yawn.png",
-      "source_sha256": "8ee96a0ebb9c25fa2fb967219cf62e5d54759517deae3a88b85d34898b54fb41",
+      "source_sha256": "d5099b679806b04fa80742deb97b72f9a5e256e4b479d10446dbc4169270c18a",
       "snapshot": "art/source/rounded-runtime/alice/textures/yawn.png",
       "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/alice/yawn.png",
-      "sha256": "8ee96a0ebb9c25fa2fb967219cf62e5d54759517deae3a88b85d34898b54fb41",
+      "sha256": "d5099b679806b04fa80742deb97b72f9a5e256e4b479d10446dbc4169270c18a",
       "mature_face": false
     },
     "sleep": {
       "source": "standards/yukkuri-library/assembled/alice/textures/sleep.png",
-      "source_sha256": "a8344cb40330ddb57ee47e8bfe988098f081b507898445788ca864b758f23fe5",
+      "source_sha256": "192fe067d766b7c255519725ce5ccfdb0d301e894eaa67479bed55ce5c2d2efe",
       "snapshot": "art/source/rounded-runtime/alice/textures/sleep.png",
       "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/alice/sleep.png",
-      "sha256": "a8344cb40330ddb57ee47e8bfe988098f081b507898445788ca864b758f23fe5",
+      "sha256": "192fe067d766b7c255519725ce5ccfdb0d301e894eaa67479bed55ce5c2d2efe",
       "mature_face": false
     },
     "angry": {
       "source": "standards/yukkuri-library/assembled/alice/textures/angry.png",
-      "source_sha256": "e3ffe81e30c2ea40c1df6fc1181a25364a767924da64e9335d5a24a9f2091b3a",
+      "source_sha256": "c4f1a2aeb1231ec4f3e2b2cfcd70af266fe3d4866cbc3cc0121f41c84b01cd46",
       "snapshot": "art/source/rounded-runtime/alice/textures/angry.png",
       "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/alice/angry.png",
-      "sha256": "e3ffe81e30c2ea40c1df6fc1181a25364a767924da64e9335d5a24a9f2091b3a",
+      "sha256": "c4f1a2aeb1231ec4f3e2b2cfcd70af266fe3d4866cbc3cc0121f41c84b01cd46",
       "mature_face": false
     },
     "surprise": {
       "source": "standards/yukkuri-library/assembled/alice/textures/surprise.png",
-      "source_sha256": "08cf54769b16337c439a8ff4672f8f5f2a0da1b69187e132aa28f547d0ea1c8b",
+      "source_sha256": "6457975a218172ea93a82b267df022aeaa8c01215dd8a3c29d788238d2dc7779",
       "snapshot": "art/source/rounded-runtime/alice/textures/surprise.png",
       "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/alice/surprise.png",
-      "sha256": "08cf54769b16337c439a8ff4672f8f5f2a0da1b69187e132aa28f547d0ea1c8b",
+      "sha256": "6457975a218172ea93a82b267df022aeaa8c01215dd8a3c29d788238d2dc7779",
       "mature_face": false
     },
     "sleepy": {
       "source": "standards/yukkuri-library/assembled/alice/textures/sleepy.png",
-      "source_sha256": "2a11de85b6f0aaf6e91f1b4d15c1c6499a695411be8c64a85cfcad5707df425a",
+      "source_sha256": "7d0edc71f2beb0c2c8f73bdee5eb1598b7d103621d7a285b902f183ff416a5ab",
       "snapshot": "art/source/rounded-runtime/alice/textures/sleepy.png",
       "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/alice/sleepy.png",
-      "sha256": "2a11de85b6f0aaf6e91f1b4d15c1c6499a695411be8c64a85cfcad5707df425a",
+      "sha256": "7d0edc71f2beb0c2c8f73bdee5eb1598b7d103621d7a285b902f183ff416a5ab",
       "mature_face": false
     },
     "closed_smile": {
       "source": "standards/yukkuri-library/assembled/alice/textures/closed_smile.png",
-      "source_sha256": "c0966ae55f23565352a2a63255131a996ceb95adb26282d3b1bc0b2fd6af469a",
+      "source_sha256": "35ae28d91852e664f735c1744a9a847ac19d2a52fbe01dcb495059f7d59c6fc9",
       "snapshot": "art/source/rounded-runtime/alice/textures/closed_smile.png",
       "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/alice/closed_smile.png",
-      "sha256": "c0966ae55f23565352a2a63255131a996ceb95adb26282d3b1bc0b2fd6af469a",
+      "sha256": "35ae28d91852e664f735c1744a9a847ac19d2a52fbe01dcb495059f7d59c6fc9",
       "mature_face": false
     },
     "chewing": {
       "source": "standards/yukkuri-library/assembled/alice/textures/chewing.png",
-      "source_sha256": "4f9c1446390c24ead79daa6b2f40fd4a4a709c88c5ff40b5a344e4a9ce21be83",
+      "source_sha256": "e042ae47177fa16d053b1e906f3c5229d8a7d1e2f4f430f3fbcf6581183f47e1",
       "snapshot": "art/source/rounded-runtime/alice/textures/chewing.png",
       "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/alice/chewing.png",
-      "sha256": "4f9c1446390c24ead79daa6b2f40fd4a4a709c88c5ff40b5a344e4a9ce21be83",
+      "sha256": "e042ae47177fa16d053b1e906f3c5229d8a7d1e2f4f430f3fbcf6581183f47e1",
       "mature_face": false
     },
     "chewing_closed": {
       "source": "standards/yukkuri-library/assembled/alice/textures/chewing_closed.png",
-      "source_sha256": "09b35b2e21400bf35d0d8cb50a68f82ce4a2bf1c10d4df23669bd65a27695dc4",
+      "source_sha256": "d44193ec7197ddccd91cbabc6f6933d1c28249268abf2c13f2d3e1ac2af4eb1e",
       "snapshot": "art/source/rounded-runtime/alice/textures/chewing_closed.png",
       "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/alice/chewing_closed.png",
-      "sha256": "09b35b2e21400bf35d0d8cb50a68f82ce4a2bf1c10d4df23669bd65a27695dc4",
+      "sha256": "d44193ec7197ddccd91cbabc6f6933d1c28249268abf2c13f2d3e1ac2af4eb1e",
       "mature_face": false
     },
     "satisfied": {
       "source": "standards/yukkuri-library/assembled/alice/textures/satisfied.png",
-      "source_sha256": "482e22c7931778dead7e8644acdbc07e07195afe16e03a19642b8116b0ca7768",
+      "source_sha256": "aa3147d8f6b59ac1dcf724fd307d45479295daf4b7090b813f41a8989b041f4f",
       "snapshot": "art/source/rounded-runtime/alice/textures/satisfied.png",
       "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/alice/satisfied.png",
-      "sha256": "482e22c7931778dead7e8644acdbc07e07195afe16e03a19642b8116b0ca7768",
+      "sha256": "aa3147d8f6b59ac1dcf724fd307d45479295daf4b7090b813f41a8989b041f4f",
       "mature_face": false
     },
     "open_smile": {
       "source": "standards/yukkuri-library/assembled/alice/textures/open_smile.png",
-      "source_sha256": "eb410cfcc4d8a7b45ca516e60464ef2687e2bb4bff8e77cce52c1c2089945f12",
+      "source_sha256": "f966359aa15b1e8a37bd0f18706a61d9b7217ae8635a56b479fbab57a4e24b44",
       "snapshot": "art/source/rounded-runtime/alice/textures/open_smile.png",
       "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/alice/open_smile.png",
-      "sha256": "eb410cfcc4d8a7b45ca516e60464ef2687e2bb4bff8e77cce52c1c2089945f12",
+      "sha256": "f966359aa15b1e8a37bd0f18706a61d9b7217ae8635a56b479fbab57a4e24b44",
       "mature_face": false
     },
     "smug": {
       "source": "standards/yukkuri-library/assembled/alice/textures/smug.png",
-      "source_sha256": "abef311d69b310eeaa3d0b182a9eb334d51918ff0318c392944d9870ef7ee5fb",
+      "source_sha256": "001ad76eae6ebb0cf8ff050ebe94743f46897c40d88aa5f9decf24a38ad15ad0",
       "snapshot": "art/source/rounded-runtime/alice/textures/smug.png",
       "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/alice/smug.png",
-      "sha256": "abef311d69b310eeaa3d0b182a9eb334d51918ff0318c392944d9870ef7ee5fb",
+      "sha256": "001ad76eae6ebb0cf8ff050ebe94743f46897c40d88aa5f9decf24a38ad15ad0",
       "mature_face": false
     },
     "puff": {
       "source": "standards/yukkuri-library/assembled/alice/textures/puff.png",
-      "source_sha256": "1fecee46f0498d83e7a5ee1397162cffff16b3e2f885524b9f3f23bf1287638a",
+      "source_sha256": "fc1a833d79fcd1b8c77e408ddc145debc1ea6cc1067443c836c060c4d81259eb",
       "snapshot": "art/source/rounded-runtime/alice/textures/puff.png",
       "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/alice/puff.png",
-      "sha256": "1fecee46f0498d83e7a5ee1397162cffff16b3e2f885524b9f3f23bf1287638a",
+      "sha256": "fc1a833d79fcd1b8c77e408ddc145debc1ea6cc1067443c836c060c4d81259eb",
       "mature_face": false
     }
   }

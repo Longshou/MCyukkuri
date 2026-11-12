@@ -11,7 +11,7 @@
       "source": "standards/yukkuri-library/subspecies/rare-forms/assembled/myon/runtime.model.json",
       "recipe": "standards/yukkuri-library/subspecies/rare-forms/recipe.json",
       "runtime": "src/main/resources/assets/mcyukkuri/yukkuri/myon.json",
-      "runtime_sha256": "c60de6f2c7339302a9c77b736823fd5134bd4d3bdd3749737a4538309c5709ab",
+      "runtime_sha256": "6d739065f21770bdbaf3ac7a9218434c7142c5f4127be643c57abd255df82d8e",
       "snapshot": "art/source/rare-forms-runtime/myon",
       "textures": [
         "afraid",
@@ -188,7 +188,7 @@
       "source": "standards/yukkuri-library/subspecies/rare-forms/assembled/myon_redeye/runtime.model.json",
       "recipe": "standards/yukkuri-library/subspecies/rare-forms/recipe.json",
       "runtime": "src/main/resources/assets/mcyukkuri/yukkuri/myon_redeye.json",
-      "runtime_sha256": "3802c333a3c2273ffef95c67bb12dad9097f7e1ca4097f2651449a44fc1965be",
+      "runtime_sha256": "c542ff2189c6ad5546316040d490e0fa17d808830fc5f401efa2669b4e3e4e29",
       "snapshot": "art/source/rare-forms-runtime/myon_redeye",
       "textures": [
         "afraid",
@@ -365,7 +365,7 @@
       "source": "standards/yukkuri-library/subspecies/rare-forms/assembled/chen_longtail/runtime.model.json",
       "recipe": "standards/yukkuri-library/subspecies/rare-forms/recipe.json",
       "runtime": "src/main/resources/assets/mcyukkuri/yukkuri/chen_longtail.json",
-      "runtime_sha256": "ade2b79b4d30d660796207cf08f0158e1cc49fabda1ef4602f78a14186c97c03",
+      "runtime_sha256": "437e4795eb1b17db3a8474aa7c93e9ec58f275e4387a36a0210c22b45ffdf249",
       "snapshot": "art/source/rare-forms-runtime/chen_longtail",
       "textures": [
         "afraid",
@@ -503,7 +503,7 @@
       "source": "standards/yukkuri-library/subspecies/rare-forms/assembled/chen_roundtail/runtime.model.json",
       "recipe": "standards/yukkuri-library/subspecies/rare-forms/recipe.json",
       "runtime": "src/main/resources/assets/mcyukkuri/yukkuri/chen_roundtail.json",
-      "runtime_sha256": "d87b55edf381621406bcf929b54cb2394b031b0bd5de1a3480ba7829951c0e7f",
+      "runtime_sha256": "d0eda00249405a614f3a7a7837d3dea1b997c2c70dd2ff7378e79528f5eeb8f8",
       "snapshot": "art/source/rare-forms-runtime/chen_roundtail",
       "textures": [
         "afraid",
@@ -641,7 +641,7 @@
       "source": "standards/yukkuri-library/subspecies/rare-forms/assembled/marisa_kotatsu/runtime.model.json",
       "recipe": "standards/yukkuri-library/subspecies/rare-forms/recipe.json",
       "runtime": "src/main/resources/assets/mcyukkuri/yukkuri/marisa_kotatsu.json",
-      "runtime_sha256": "515f61016052a206633ed9f3d2abb45dc28d7787afddc2d5d78ee9d7d245ed25",
+      "runtime_sha256": "25a0ca919a192a012e6232039e3736a6e641e19fdcb28675b0d138ed03d26dd8",
       "snapshot": "art/source/rare-forms-runtime/marisa_kotatsu",
       "textures": [
         "afraid",

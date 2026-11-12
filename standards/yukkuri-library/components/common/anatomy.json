@@ -1,6 +1,6 @@
 {
   "id": "anatomy.standard",
-  "description": "Shared standard components: mamu below rear anus, a soft pink pad with a short slit; peni below front mouth, short and plump with a rounded pink tip, five segments, 25 degrees upward. Retracted by default; only one may extend at a time. `palette` names a body-standard swatch (recipe anatomy.palette); `uv` stays the skin texel for builders without swatches.",
+  "description": "Shared standard components, skin-coloured: mamu below rear anus, a skin pad flush with the body and one thin vertical line; peni below front mouth, one short plump rounded nub (three crossed boxes rounding its long edges, a cap and a small dome; names keep the peni_taper_ prefix), 25 degrees upward. Retracted by default; only one may extend at a time.",
   "elements": [
     {
       "name": "mamu_base",
@@ -82,20 +82,19 @@
           "texture": 0
         }
       },
-      "bone": "anatomy_mamu",
-      "palette": "mamu_pad"
+      "bone": "anatomy_mamu"
     },
     {
       "name": "mamu_mark",
       "type": "cube",
       "from": [
         0.24,
-        0.5,
+        0.44,
         7.509
       ],
       "to": [
         0.36,
-        0.93,
+        0.98,
         7.54
       ],
       "origin": [
@@ -165,20 +164,19 @@
           "texture": 0
         }
       },
-      "bone": "anatomy_mamu",
-      "palette": "mamu_slit"
+      "bone": "anatomy_mamu"
     },
     {
       "name": "peni_taper_00",
       "type": "cube",
       "from": [
-        -0.62,
-        0.7,
-        -1.9
+        -0.6,
+        0.86,
+        -2.8
       ],
       "to": [
-        0.62,
-        1.6,
+        0.6,
+        1.44,
         -0.68
       ],
       "origin": [
@@ -254,14 +252,14 @@
       "name": "peni_taper_01",
       "type": "cube",
       "from": [
-        -0.53,
-        0.77,
-        -2.6
+        -0.4,
+        0.7,
+        -2.8
       ],
       "to": [
-        0.53,
-        1.53,
-        -1.8
+        0.4,
+        1.6,
+        -0.68
       ],
       "origin": [
         0,
@@ -336,14 +334,14 @@
       "name": "peni_taper_02",
       "type": "cube",
       "from": [
-        -0.43,
-        0.85,
-        -3.05
+        -0.52,
+        0.76,
+        -2.8
       ],
       "to": [
-        0.43,
-        1.45,
-        -2.5
+        0.52,
+        1.54,
+        -0.68
       ],
       "origin": [
         0,
@@ -412,21 +410,20 @@
           "texture": 0
         }
       },
-      "bone": "anatomy_peni",
-      "palette": "peni_tip"
+      "bone": "anatomy_peni"
     },
     {
       "name": "peni_taper_03",
       "type": "cube",
       "from": [
-        -0.31,
-        0.93,
-        -3.3
+        -0.4,
+        0.86,
+        -3.08
       ],
       "to": [
-        0.31,
-        1.37,
-        -2.95
+        0.4,
+        1.44,
+        -2.79
       ],
       "origin": [
         0,
@@ -495,21 +492,20 @@
           "texture": 0
         }
       },
-      "bone": "anatomy_peni",
-      "palette": "peni_tip"
+      "bone": "anatomy_peni"
     },
     {
       "name": "peni_taper_04",
       "type": "cube",
       "from": [
-        -0.17,
-        1.01,
-        -3.42
+        -0.25,
+        0.96,
+        -3.24
       ],
       "to": [
-        0.17,
-        1.29,
-        -3.25
+        0.25,
+        1.34,
+        -3.07
       ],
       "origin": [
         0,
@@ -578,8 +574,7 @@
           "texture": 0
         }
       },
-      "bone": "anatomy_peni",
-      "palette": "peni_tip"
+      "bone": "anatomy_peni"
     }
   ],
   "size_revision": {

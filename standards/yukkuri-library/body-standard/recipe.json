@@ -55,27 +55,7 @@
       25,
       0,
       0
-    ],
-    "palette": {
-      "peni_tip": [
-        236,
-        152,
-        150,
-        255
-      ],
-      "mamu_pad": [
-        242,
-        182,
-        172,
-        255
-      ],
-      "mamu_slit": [
-        196,
-        104,
-        112,
-        255
-      ]
-    }
+    ]
   },
   "birth": {
     "source": "../../yukkuri-v1/behaviors/viviparous-birth.json",

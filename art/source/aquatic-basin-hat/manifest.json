@@ -8,10 +8,10 @@
     "standards/yukkuri-library/interactions/aquatic-marisa-hat/scene.py": "36aed3e7fac9781deee2de3e7cdeea65a873d88ea114fcd8929c2ca717888061",
     "standards/yukkuri-library/interactions/aquatic-marisa-hat/layout.py": "6278f2b87e5706c656836434f93cbb334e08a8b63c1f152a239a2f06ab7668f7",
     "standards/yukkuri-library/interactions/aquatic-marisa-hat/export.py": "e994c2cfca8f53c147e8f3d8169e8666d82dd3faf1b01eda2979a20cab4616be",
-    "src/main/resources/assets/mcyukkuri/yukkuri/marisa.json": "5031923ebbe12b881e9371d24060c36bec5c4a527ec7904ea7333b807787f202",
-    "src/main/resources/assets/mcyukkuri/yukkuri_presentation/motion_corrections.json": "c2ab1ba7f75b8b2e0cb8285252a8ff6530d4c44a481fd4bf9ba3d641fdaaee6c",
-    "src/main/resources/assets/mcyukkuri/yukkuri_presentation/placement_fit.json": "55828ae8a042b7ad525fdf052ee727b7d132fc40f0eba520ff1a4b833bca61c8",
-    "src/main/resources/assets/mcyukkuri/yukkuri_presentation/braid_rescue.json": "2a1413f1375aa27e4db5cd254b6c3b8fc29681ed60dc155ce4a2c8d31e160938"
+    "src/main/resources/assets/mcyukkuri/yukkuri/marisa.json": "49c6bd6e92edec6e4afbeda1374221c91785e6516cfab04d3e1fa45e35b74831",
+    "src/main/resources/assets/mcyukkuri/yukkuri_presentation/motion_corrections.json": "e6d43496e410ed439a51cc4877c738537e34ad983186b60026cf32c98397f416",
+    "src/main/resources/assets/mcyukkuri/yukkuri_presentation/placement_fit.json": "ff9720d38d9ca95cdbb01453902957f0aa8f7b0859aadc6aa97ab008e89f4244",
+    "src/main/resources/assets/mcyukkuri/yukkuri_presentation/braid_rescue.json": "1425338a13339abc5dd9b3b756f3167447a61d4ce5bd32fb18f17e2b7cb6dd93"
   },
   "outputs": {
     "src/main/resources/assets/mcyukkuri/yukkuri_props/aquatic_basin_hat.json": "62ead988639dffe81ef4fa20cc529bc4b23bff4c015f3bf0f0387efa065b03fa",

@@ -64,8 +64,6 @@ def rounded_character(name,c,r):
   pigment=original.crop(tuple(recipe['anatomy']['anus_uv']))
   pigment.putdata([(0,0,0,0) if pixel==skin else pixel for pixel in pigment.getdata()])
   expected.paste(pigment,(palette+12,palette+12))
-  for i,colour in enumerate(recipe['anatomy']['palette'].values()):  # anatomy swatches beside the skin palette
-   ImageDraw.Draw(expected).rectangle((palette+6+3*i,palette-2,palette+7+3*i,palette-1),fill=tuple(colour))
   if spec.get('face_style'):
    style_file=R/'body-standard'/spec['face_style'];style=json.loads(style_file.read_text(encoding='utf-8'))
    author=runpy.run_path(str(style_file.parent/'author.py'))['apply_style']

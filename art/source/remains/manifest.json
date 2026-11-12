@@ -10,541 +10,541 @@
       "source": "standards/yukkuri-library/drafts/remains/assembled/reimu/remains_natural.png",
       "face": "old_dead",
       "face_source": "standards/yukkuri-library/assembled/reimu/textures/old_dead.png",
-      "sha256": "d49a62c3e1aacdd5391d05257fd135a6b5ee2cb74c48a84abc514f6190e9ecf1"
+      "sha256": "9f04cae87fd2f89851645133bcf3bb6664d332658067bd795cdb7c10edf31321"
     },
     "src/main/resources/assets/mcyukkuri/textures/entity/reimu/remains_starved.png": {
       "source": "standards/yukkuri-library/drafts/remains/assembled/reimu/remains_starved.png",
       "face": "dry_dead",
       "face_source": "standards/yukkuri-library/assembled/reimu/textures/dry_dead.png",
-      "sha256": "c09f89fc162e4f88be11c56001902925fc719d982741f8e7df29c58d0cd54494"
+      "sha256": "daec1a6864bc05ae02dc03f425705b9ecdf300a436aee7706018202b11623274"
     },
     "src/main/resources/assets/mcyukkuri/textures/entity/reimu/remains_burned.png": {
       "source": "standards/yukkuri-library/drafts/remains/assembled/reimu/remains_burned.png",
       "face": "blank_cry",
       "face_source": "standards/yukkuri-library/assembled/reimu/textures/blank_cry.png",
-      "sha256": "00306d67332ce784bd8c947953f3982641ab3d5b214bfcf80f5ae130c15698db"
+      "sha256": "68ac33ecec032455c9d84eb91fe46e72f22eef8fb3767b8842e92ff0518a917e"
     },
     "src/main/resources/assets/mcyukkuri/textures/entity/reimu/remains_crushed.png": {
       "source": "standards/yukkuri-library/drafts/remains/assembled/reimu/remains_crushed.png",
       "face": "squashed",
       "face_source": "standards/yukkuri-library/assembled/reimu/textures/squashed.png",
-      "sha256": "e6e51f7337ac57c1fb555b2c51b41de3d963f2e4446ec8f733b08024a68d1711"
+      "sha256": "745a19c65f1ab7a4e56aaa7c17af2bee198ee9d078cfeae85853f0b0b5d0352e"
     },
     "src/main/resources/assets/mcyukkuri/textures/entity/reimu/remains_violent.png": {
       "source": "standards/yukkuri-library/drafts/remains/assembled/reimu/remains_violent.png",
       "face": "dead_tongue",
       "face_source": "standards/yukkuri-library/assembled/reimu/textures/dead_tongue.png",
-      "sha256": "974ddc806dd9e871fee45142d1d20a942bc66096a7457261a9e8b4815fe1f710"
+      "sha256": "391df4b7871c97d9620b2b2097e92ea6b15a022a40383172d4483dc9d244ce9c"
     },
     "src/main/resources/assets/mcyukkuri/textures/entity/reimu/remains_drowned.png": {
       "source": "standards/yukkuri-library/drafts/remains/assembled/reimu/remains_drowned.png",
       "face": "dying_blank",
       "face_source": "standards/yukkuri-library/assembled/reimu/textures/dying_blank.png",
-      "sha256": "41b6d7dcee370716665ded6ee344f9fd80049cdd97d945db39ccb5b39480b59a"
+      "sha256": "e771cd1439dbf5324810cce1d63ff2fddc04bc1cad563820cd967ec3c3aff020"
     },
     "src/main/resources/assets/mcyukkuri/textures/entity/reimu/remains_frozen.png": {
       "source": "standards/yukkuri-library/drafts/remains/assembled/reimu/remains_frozen.png",
       "face": "cold",
       "face_source": "standards/yukkuri-library/assembled/reimu/textures/cold.png",
-      "sha256": "07c413f4f4251f02c0f22d09aedf73a52a140831de2ffcecd9820fd4d3b3a00f"
+      "sha256": "11817ff11a30f54768b3afe3d96386310dd64bdf8c7aa92cbd0e8c942351e84c"
     },
     "src/main/resources/assets/mcyukkuri/textures/entity/reimu/remains_sick.png": {
       "source": "standards/yukkuri-library/drafts/remains/assembled/reimu/remains_sick.png",
       "face": "dying_closed",
       "face_source": "standards/yukkuri-library/assembled/reimu/textures/dying_closed.png",
-      "sha256": "68dfc294c8df3e7ce671613b59912d40bc7418f705b4f12a8493287b4af43426"
+      "sha256": "0e9b1ed4b533d1c51282a7f9fb86946391bcd46877bb8b9f4dbee03346306681"
     },
     "src/main/resources/assets/mcyukkuri/textures/entity/reimu/remains_retained.png": {
       "source": "standards/yukkuri-library/drafts/remains/assembled/reimu/remains_retained.png",
       "face": "old_dead",
       "face_source": "standards/yukkuri-library/assembled/reimu/textures/old_dead.png",
-      "sha256": "94fc8545a5fe843dd51588d44be8eb7eaa88b450a41d74794b4e74a1e1a64104"
+      "sha256": "36c95bf8c033cab533dfaa21bf570274019ffa6c6577f7c9c7b9699591fbc398"
     },
     "src/main/resources/assets/mcyukkuri/textures/entity/reimu/remains_dissolving.png": {
       "source": "standards/yukkuri-library/drafts/remains/assembled/reimu/remains_dissolving.png",
       "face": "dying_blank",
       "face_source": "standards/yukkuri-library/assembled/reimu/textures/dying_blank.png",
-      "sha256": "8088f0f6cea05debe454ff4cd71b0a48c6e0d532dca5c6f13d122ade59cbf7ae"
+      "sha256": "61eb53408959aa93d2eb82bcdab326d3ddcf33b06c3f03584f9cb2daeb6b2947"
     },
     "src/main/resources/assets/mcyukkuri/textures/entity/marisa/remains_natural.png": {
       "source": "standards/yukkuri-library/drafts/remains/assembled/marisa/remains_natural.png",
       "face": "old_dead",
       "face_source": "standards/yukkuri-library/assembled/marisa/textures/old_dead.png",
-      "sha256": "5952f60e72ca8dae293c9745bda5aa00733f52801640c267a8ca19e86c1ecf03"
+      "sha256": "e67060f1f884dd52b20fbc69b4aaef2ce87c088af0cb934339797c98bd33696d"
     },
     "src/main/resources/assets/mcyukkuri/textures/entity/marisa/remains_starved.png": {
       "source": "standards/yukkuri-library/drafts/remains/assembled/marisa/remains_starved.png",
       "face": "dry_dead",
       "face_source": "standards/yukkuri-library/assembled/marisa/textures/dry_dead.png",
-      "sha256": "3efaa0c147b6c0fddd9356a83393af8478ab6d39f46812c7ecf879071cddad69"
+      "sha256": "d27a96ef74757e9022e4e540e3014c62b2a23a92113e4a1d7be0014d38542457"
     },
     "src/main/resources/assets/mcyukkuri/textures/entity/marisa/remains_burned.png": {
       "source": "standards/yukkuri-library/drafts/remains/assembled/marisa/remains_burned.png",
       "face": "blank_cry",
       "face_source": "standards/yukkuri-library/assembled/marisa/textures/blank_cry.png",
-      "sha256": "92a5057ec115fa9926e7b1702a8f565b313774576320f2bdeeaa6ddb0d8b9541"
+      "sha256": "1052694bfa043dc1c1ac30e22bfda6af25b35964a57708c647a848ddb587722f"
     },
     "src/main/resources/assets/mcyukkuri/textures/entity/marisa/remains_crushed.png": {
       "source": "standards/yukkuri-library/drafts/remains/assembled/marisa/remains_crushed.png",
       "face": "squashed",
       "face_source": "standards/yukkuri-library/assembled/marisa/textures/squashed.png",
-      "sha256": "c3e70631720a9f87bb1a54d8831d0119ed8ac06fa5335766f8a254c0aa0ae421"
+      "sha256": "02bfe8add1da59c37c5f50cd59f92912c560eac61357c263d50a81d08ea0759b"
     },
     "src/main/resources/assets/mcyukkuri/textures/entity/marisa/remains_violent.png": {
       "source": "standards/yukkuri-library/drafts/remains/assembled/marisa/remains_violent.png",
       "face": "dead_tongue",
       "face_source": "standards/yukkuri-library/assembled/marisa/textures/dead_tongue.png",
-      "sha256": "a97fc729f179f319240eea562e604024b68961a206518f61b0f0df42f26f6aaf"
+      "sha256": "75f14ed271de7934cc4b841801728024c582e61e36724efd9119b961df78046f"
     },
     "src/main/resources/assets/mcyukkuri/textures/entity/marisa/remains_drowned.png": {
       "source": "standards/yukkuri-library/drafts/remains/assembled/marisa/remains_drowned.png",
       "face": "dying_blank",
       "face_source": "standards/yukkuri-library/assembled/marisa/textures/dying_blank.png",
-      "sha256": "180cac0be4b6470a138bacbf19c38abbab26b223283b1f38c327dc812034717f"
+      "sha256": "909caf4ffe75f6b85f196127a9f77255054a15c91981589721365d8e6e770a10"
     },
     "src/main/resources/assets/mcyukkuri/textures/entity/marisa/remains_frozen.png": {
       "source": "standards/yukkuri-library/drafts/remains/assembled/marisa/remains_frozen.png",
       "face": "cold",
       "face_source": "standards/yukkuri-library/assembled/marisa/textures/cold.png",
-      "sha256": "35d59a7c2aacbafe2d9a94d5f8873687d5c261f62ec6cb71c3f9118fcfd70b06"
+      "sha256": "2168569f98a73dbb94b589af57bf78a4cacb3b586e080456af8b916d8976d85c"
     },
     "src/main/resources/assets/mcyukkuri/textures/entity/marisa/remains_sick.png": {
       "source": "standards/yukkuri-library/drafts/remains/assembled/marisa/remains_sick.png",
       "face": "dying_closed",
       "face_source": "standards/yukkuri-library/assembled/marisa/textures/dying_closed.png",
-      "sha256": "b59d64c28c465e8f93b9e43b05c6f2f65e74198fd4af0a49eece39d8810006e8"
+      "sha256": "fd9d4dc9dde12a2c6e9db73f0420f48c3a7a07392f03b2f2383ad2ecfe387524"
     },
     "src/main/resources/assets/mcyukkuri/textures/entity/marisa/remains_retained.png": {
       "source": "standards/yukkuri-library/drafts/remains/assembled/marisa/remains_retained.png",
       "face": "old_dead",
       "face_source": "standards/yukkuri-library/assembled/marisa/textures/old_dead.png",
-      "sha256": "756f511ccb5d32aedf21540363dcf5a66978e69459a454ab6e77fc1c3df51342"
+      "sha256": "287eff1a8bc5156f7435f8e8127531eaae15d972986797c096c743f0c0675887"
     },
     "src/main/resources/assets/mcyukkuri/textures/entity/marisa/remains_dissolving.png": {
       "source": "standards/yukkuri-library/drafts/remains/assembled/marisa/remains_dissolving.png",
       "face": "dying_blank",
       "face_source": "standards/yukkuri-library/assembled/marisa/textures/dying_blank.png",
-      "sha256": "8a5adffdaf37e33eb24dba520afc506613d7eedbeb9b6013632289e1fc7f50b0"
+      "sha256": "ae42a058d2133658e76a73e956826bd9cb73c103416147f689bd8a08fee4f5b0"
     },
     "src/main/resources/assets/mcyukkuri/textures/entity/chen/remains_natural.png": {
       "source": "standards/yukkuri-library/drafts/remains/assembled/chen/remains_natural.png",
       "face": "old_dead",
       "face_source": "standards/yukkuri-library/assembled/chen/textures/old_dead.png",
-      "sha256": "9edeeadd0c77edd3ed8046f18ac18b244635e15f10ed28bc9fc25ebfc208ab7f"
+      "sha256": "942e69f14920397a0f4c217ba09cb137c0bef54da05800da54e0d9f90dd9a875"
     },
     "src/main/resources/assets/mcyukkuri/textures/entity/chen/remains_starved.png": {
       "source": "standards/yukkuri-library/drafts/remains/assembled/chen/remains_starved.png",
       "face": "dry_dead",
       "face_source": "standards/yukkuri-library/assembled/chen/textures/dry_dead.png",
-      "sha256": "e15bf38ed7f2cf1802da5406128aa2bd0000dcee466efbeb327593d7a49f0175"
+      "sha256": "a15335ffd51ebbcad4b342d3fc8041f289376bf6697ae11e521730cb327f79d7"
     },
     "src/main/resources/assets/mcyukkuri/textures/entity/chen/remains_burned.png": {
       "source": "standards/yukkuri-library/drafts/remains/assembled/chen/remains_burned.png",
       "face": "blank_cry",
       "face_source": "standards/yukkuri-library/assembled/chen/textures/blank_cry.png",
-      "sha256": "622b495d347f2b31b3b6a6f0a819382b216115726820f31cbe7b7aed5956c5c4"
+      "sha256": "25417d90fc276ec05d579c2a10d738a6adeac8bfdc3890e247de6b5958168e9e"
     },
     "src/main/resources/assets/mcyukkuri/textures/entity/chen/remains_crushed.png": {
       "source": "standards/yukkuri-library/drafts/remains/assembled/chen/remains_crushed.png",
       "face": "squashed",
       "face_source": "standards/yukkuri-library/assembled/chen/textures/squashed.png",
-      "sha256": "c4033119b8e9c3747e514fb6079ec64d7babbc745495f6d36de118ba7707d2bc"
+      "sha256": "cbe22144390f16e55c3786c9f17de3151297bdc8eb2dbd979a698583614819f6"
     },
     "src/main/resources/assets/mcyukkuri/textures/entity/chen/remains_violent.png": {
       "source": "standards/yukkuri-library/drafts/remains/assembled/chen/remains_violent.png",
       "face": "dead_tongue",
       "face_source": "standards/yukkuri-library/assembled/chen/textures/dead_tongue.png",
-      "sha256": "7cc88ffe6a215f0eb6a2ee5b771ee99b02162a5d3ccc1714cc49383567949c38"
+      "sha256": "7f26d131db060f29d37ff3082fbd59601815e7b1667e8fa1a2f13d94d851bf2d"
     },
     "src/main/resources/assets/mcyukkuri/textures/entity/chen/remains_drowned.png": {
       "source": "standards/yukkuri-library/drafts/remains/assembled/chen/remains_drowned.png",
       "face": "dying_blank",
       "face_source": "standards/yukkuri-library/assembled/chen/textures/dying_blank.png",
-      "sha256": "ef052415c81acba5d4cf331bc8c6024a34476391bfa63a1aa8f7d523bb991ae5"
+      "sha256": "2721b5f070af7796b8e1fb143c15462209c6d37508f5bd7471c48f93305f8c48"
     },
     "src/main/resources/assets/mcyukkuri/textures/entity/chen/remains_frozen.png": {
       "source": "standards/yukkuri-library/drafts/remains/assembled/chen/remains_frozen.png",
       "face": "cold",
       "face_source": "standards/yukkuri-library/assembled/chen/textures/cold.png",
-      "sha256": "2bef41aa02bf0985b02d4deffb405623d738fbbd973e889d3b056aa4eccf8338"
+      "sha256": "658a0f9f3b2ba7aabcd56537f4ac2fce5e30253f968370575be169ca934350af"
     },
     "src/main/resources/assets/mcyukkuri/textures/entity/chen/remains_sick.png": {
       "source": "standards/yukkuri-library/drafts/remains/assembled/chen/remains_sick.png",
       "face": "dying_closed",
       "face_source": "standards/yukkuri-library/assembled/chen/textures/dying_closed.png",
-      "sha256": "8e85cbfee5bf987eef050720837dab47e60b52670e1ea7a54e7a49f5b4dd79d4"
+      "sha256": "9d50c27f67481f9bd670891d44b61c84cc0330593295581e19ab25a4df4b8413"
     },
     "src/main/resources/assets/mcyukkuri/textures/entity/chen/remains_retained.png": {
       "source": "standards/yukkuri-library/drafts/remains/assembled/chen/remains_retained.png",
       "face": "old_dead",
       "face_source": "standards/yukkuri-library/assembled/chen/textures/old_dead.png",
-      "sha256": "311d423890584e47be5e17face9530067c16d3e6c71e896dc9b6a370c4115cf6"
+      "sha256": "4e679a54baf2972b67c64e6a44cae74db10684fa3382be7f710975b38cd887ea"
     },
     "src/main/resources/assets/mcyukkuri/textures/entity/chen/remains_dissolving.png": {
       "source": "standards/yukkuri-library/drafts/remains/assembled/chen/remains_dissolving.png",
       "face": "dying_blank",
       "face_source": "standards/yukkuri-library/assembled/chen/textures/dying_blank.png",
-      "sha256": "1f94dc51972141c0fcbb45e9e43e4b48e83e74e39be82de3fe4d1cde32e988f1"
+      "sha256": "a738e766e6be112aef5f2f653fdcc7a4dcf7d14d3eab58b5db60cc88ce57edfe"
     },
     "src/main/resources/assets/mcyukkuri/textures/entity/alice/remains_natural.png": {
       "source": "standards/yukkuri-library/drafts/remains/assembled/alice/remains_natural.png",
       "face": "old_dead",
       "face_source": "standards/yukkuri-library/assembled/alice/textures/old_dead.png",
-      "sha256": "7da2720cb850a1c1c56c14deea5f1bb07f1036549008566cad68c9c996502f66"
+      "sha256": "40ff4bc8cf2bf6200901dca62e5aa44c7c7ea46a5061fc2cdcd5f49c2276b6c8"
     },
     "src/main/resources/assets/mcyukkuri/textures/entity/alice/remains_starved.png": {
       "source": "standards/yukkuri-library/drafts/remains/assembled/alice/remains_starved.png",
       "face": "dry_dead",
       "face_source": "standards/yukkuri-library/assembled/alice/textures/dry_dead.png",
-      "sha256": "deed88ce49c3f8f843a743bf1a832540dc7108e3bc8eb1f476a9401ebcb66086"
+      "sha256": "ab59682414b79dcc89e66fd092da3d86c120279547c49f67d5b78e28daaee230"
     },
     "src/main/resources/assets/mcyukkuri/textures/entity/alice/remains_burned.png": {
       "source": "standards/yukkuri-library/drafts/remains/assembled/alice/remains_burned.png",
       "face": "blank_cry",
       "face_source": "standards/yukkuri-library/assembled/alice/textures/blank_cry.png",
-      "sha256": "e9bb3fafc11e089f68c9cf9679cff4b96b4c2f46e2de07021659525fe2b11b4b"
+      "sha256": "3211d4809474365f222781157083e9b2f33bd07e870fa98a32162ea630b5ab6b"
     },
     "src/main/resources/assets/mcyukkuri/textures/entity/alice/remains_crushed.png": {
       "source": "standards/yukkuri-library/drafts/remains/assembled/alice/remains_crushed.png",
       "face": "squashed",
       "face_source": "standards/yukkuri-library/assembled/alice/textures/squashed.png",
-      "sha256": "9da6dacf3f5f2d580ab4501df0317fc8560a1c747076ef29fb518e5f01b0ded8"
+      "sha256": "ff3fdf6a7c4e8b2b6e2ffd896c8fa408584edda4081f6281ec9575319e1b2c43"
     },
     "src/main/resources/assets/mcyukkuri/textures/entity/alice/remains_violent.png": {
       "source": "standards/yukkuri-library/drafts/remains/assembled/alice/remains_violent.png",
       "face": "dead_tongue",
       "face_source": "standards/yukkuri-library/assembled/alice/textures/dead_tongue.png",
-      "sha256": "cc09009507e494e56ed2aff87997924c0e9b6f7a009d01b8fedc4d9346f1664f"
+      "sha256": "61dd65b5d6fd29ba6d9e12ba6ab384f7d712c4801462707cb8d7c93a392baf5e"
     },
     "src/main/resources/assets/mcyukkuri/textures/entity/alice/remains_drowned.png": {
       "source": "standards/yukkuri-library/drafts/remains/assembled/alice/remains_drowned.png",
       "face": "dying_blank",
       "face_source": "standards/yukkuri-library/assembled/alice/textures/dying_blank.png",
-      "sha256": "0d6b275fee4464d3701d73a307ac2ecc438faf1c274c48ba77fdcba6340b0430"
+      "sha256": "5dc609139b564d72af6847014e55e5f3d3721a76392bdbeec157a65aac1ced1b"
     },
     "src/main/resources/assets/mcyukkuri/textures/entity/alice/remains_frozen.png": {
       "source": "standards/yukkuri-library/drafts/remains/assembled/alice/remains_frozen.png",
       "face": "cold",
       "face_source": "standards/yukkuri-library/assembled/alice/textures/cold.png",
-      "sha256": "4d4a1b1ce08b03a7dc743416302a2a5fca84070471c0752eeba4f95d20cc9800"
+      "sha256": "73b4332d271a8067b98c99b85ae81cc5d17ddfe0cd58ccc47ed5ece6ac519743"
     },
     "src/main/resources/assets/mcyukkuri/textures/entity/alice/remains_sick.png": {
       "source": "standards/yukkuri-library/drafts/remains/assembled/alice/remains_sick.png",
       "face": "dying_closed",
       "face_source": "standards/yukkuri-library/assembled/alice/textures/dying_closed.png",
-      "sha256": "adf09741c45ec30bb41a62a59b22574d90a06727e9f9ca34d530a1a471aa92e8"
+      "sha256": "0d5dc72aaf88731a2971ed44c901ecc4f28db8a08cd28c1e4aa05498c22d241f"
     },
     "src/main/resources/assets/mcyukkuri/textures/entity/alice/remains_retained.png": {
       "source": "standards/yukkuri-library/drafts/remains/assembled/alice/remains_retained.png",
       "face": "old_dead",
       "face_source": "standards/yukkuri-library/assembled/alice/textures/old_dead.png",
-      "sha256": "e38b8113313c66b2854d587b1c5feb16d465d72d6d6fe1650d0caff162e3f12e"
+      "sha256": "5de48a1eae05d8aba5fb55c887f7a32ba755f46f23e53f1691f22ef7df1872b0"
     },
     "src/main/resources/assets/mcyukkuri/textures/entity/alice/remains_dissolving.png": {
       "source": "standards/yukkuri-library/drafts/remains/assembled/alice/remains_dissolving.png",
       "face": "dying_blank",
       "face_source": "standards/yukkuri-library/assembled/alice/textures/dying_blank.png",
-      "sha256": "15e0b29bd38deb60268ae169495d5c7077fd37b6d84423608d2c08ea63891a91"
+      "sha256": "80128da13db6957a274f2f2714eb432d3aac14c42f512e34800b58fde7e3beea"
     },
     "src/main/resources/assets/mcyukkuri/textures/entity/patchouli/remains_natural.png": {
       "source": "standards/yukkuri-library/drafts/remains/assembled/patchouli/remains_natural.png",
       "face": "old_dead",
       "face_source": "standards/yukkuri-library/assembled/patchouli/textures/old_dead.png",
-      "sha256": "494339d225e68a2a1f370967c77675e4fd6773fd868fdf017a82113bdabcddfe"
+      "sha256": "d7794f0d262862d2540109cdff732e9d029f6746643c976a023851b85fa391ac"
     },
     "src/main/resources/assets/mcyukkuri/textures/entity/patchouli/remains_starved.png": {
       "source": "standards/yukkuri-library/drafts/remains/assembled/patchouli/remains_starved.png",
       "face": "dry_dead",
       "face_source": "standards/yukkuri-library/assembled/patchouli/textures/dry_dead.png",
-      "sha256": "a1184b712c3a225ded3665d4f5904465588aed48bf21534b822d61ee6f4c226f"
+      "sha256": "3fdec338075f35caa053470e1a2206ed87d42a61d45ac8cf4fb1dd2ad59ec7f1"
     },
     "src/main/resources/assets/mcyukkuri/textures/entity/patchouli/remains_burned.png": {
       "source": "standards/yukkuri-library/drafts/remains/assembled/patchouli/remains_burned.png",
       "face": "blank_cry",
       "face_source": "standards/yukkuri-library/assembled/patchouli/textures/blank_cry.png",
-      "sha256": "81451fa00c54740f597d10c9711c3be5886a99d24f74df10158198f989899637"
+      "sha256": "e137c93256841e9aa2be7e9529cc2351e62098dd6edc2f21f6de6df8217a9213"
     },
     "src/main/resources/assets/mcyukkuri/textures/entity/patchouli/remains_crushed.png": {
       "source": "standards/yukkuri-library/drafts/remains/assembled/patchouli/remains_crushed.png",
       "face": "squashed",
       "face_source": "standards/yukkuri-library/assembled/patchouli/textures/squashed.png",
-      "sha256": "031e492e679b9fdaaa7489f5984f42fd4794eee3e4dafdb82e690920814d794f"
+      "sha256": "c261031efa834ffe244d100dd815920e127058adfc6d76de420950b2a7426d91"
     },
     "src/main/resources/assets/mcyukkuri/textures/entity/patchouli/remains_violent.png": {
       "source": "standards/yukkuri-library/drafts/remains/assembled/patchouli/remains_violent.png",
       "face": "dead_tongue",
       "face_source": "standards/yukkuri-library/assembled/patchouli/textures/dead_tongue.png",
-      "sha256": "734490db368b752d34e85f79f57c57962f9e876e99e6614563688d256424ee7a"
+      "sha256": "23e99a279c00e191c02c8d00f4ff649929aac62ca0660b39a50e9be9c267eaa3"
     },
     "src/main/resources/assets/mcyukkuri/textures/entity/patchouli/remains_drowned.png": {
       "source": "standards/yukkuri-library/drafts/remains/assembled/patchouli/remains_drowned.png",
       "face": "dying_blank",
       "face_source": "standards/yukkuri-library/assembled/patchouli/textures/dying_blank.png",
-      "sha256": "ba76336bb3b36bd486435a2e4c614ba3e1136901036dfbe3e0e4a6ad1f43d2a0"
+      "sha256": "2cc962f140f5eb15bb26b9604567cc8e2a921cada87fc6eb777fd84bc2d5056d"
     },
     "src/main/resources/assets/mcyukkuri/textures/entity/patchouli/remains_frozen.png": {
       "source": "standards/yukkuri-library/drafts/remains/assembled/patchouli/remains_frozen.png",
       "face": "cold",
       "face_source": "standards/yukkuri-library/assembled/patchouli/textures/cold.png",
-      "sha256": "e702865c5f35aae5858c071f24e2967e3175fb8e304ea91a8b623f030b96cce1"
+      "sha256": "79da41744f74f1538d05690caa88ed66d08b0cbf048c295effdf3373630602ec"
     },
     "src/main/resources/assets/mcyukkuri/textures/entity/patchouli/remains_sick.png": {
       "source": "standards/yukkuri-library/drafts/remains/assembled/patchouli/remains_sick.png",
       "face": "dying_closed",
       "face_source": "standards/yukkuri-library/assembled/patchouli/textures/dying_closed.png",
-      "sha256": "6aaf3c95298c294751b323d4d809b14103e5d806de267d5f91ac3b7d9f59f0c8"
+      "sha256": "52864b7b1104cfe72097ad69cdc066ff7f5829b1e2f556f2ed7ced2c45a4d41a"
     },
     "src/main/resources/assets/mcyukkuri/textures/entity/patchouli/remains_retained.png": {
       "source": "standards/yukkuri-library/drafts/remains/assembled/patchouli/remains_retained.png",
       "face": "old_dead",
       "face_source": "standards/yukkuri-library/assembled/patchouli/textures/old_dead.png",
-      "sha256": "9080441c8bda9d5050dba4a55188b96945ba87cc93c20bcb9151a644de32df0c"
+      "sha256": "cb257d729f44d5b7316e525da58037ae8773c722130768066a15eb3549fa2b8d"
     },
     "src/main/resources/assets/mcyukkuri/textures/entity/patchouli/remains_dissolving.png": {
       "source": "standards/yukkuri-library/drafts/remains/assembled/patchouli/remains_dissolving.png",
       "face": "dying_blank",
       "face_source": "standards/yukkuri-library/assembled/patchouli/textures/dying_blank.png",
-      "sha256": "58c71502f83b1894bb46060198859b0469d541df645b18dd69eff156ef3af1e4"
+      "sha256": "715f712c86514d1a0e748766ef54c2cc1111ad3ae8d0b4fb9da1d297eaf4123a"
     },
     "src/main/resources/assets/mcyukkuri/textures/entity/marisa_tsumuri/remains_natural.png": {
       "source": "standards/yukkuri-library/drafts/remains/assembled/marisa_tsumuri/remains_natural.png",
       "face": "old_dead",
       "face_source": "standards/yukkuri-library/assembled/marisa_tsumuri/textures/old_dead.png",
-      "sha256": "0394bce352bd7257ce8b3e7f2125eabfe36a1b1b5cf7d7ace6755eca062883bb"
+      "sha256": "21c2e088d4233852ffaf4864acf2740cd2db1f33d51c03f05168bda33ec2b7b5"
     },
     "src/main/resources/assets/mcyukkuri/textures/entity/marisa_tsumuri/remains_starved.png": {
       "source": "standards/yukkuri-library/drafts/remains/assembled/marisa_tsumuri/remains_starved.png",
       "face": "dry_dead",
       "face_source": "standards/yukkuri-library/assembled/marisa_tsumuri/textures/dry_dead.png",
-      "sha256": "38ee6fdb87bf7b62f84f89c4b2b483ebc3ce4f030edda7bd41cc2bb83419951b"
+      "sha256": "f5d02674732ec4d321bf5af5e939be3f737792c2602540915e27eb8708b7a73f"
     },
     "src/main/resources/assets/mcyukkuri/textures/entity/marisa_tsumuri/remains_burned.png": {
       "source": "standards/yukkuri-library/drafts/remains/assembled/marisa_tsumuri/remains_burned.png",
       "face": "blank_cry",
       "face_source": "standards/yukkuri-library/assembled/marisa_tsumuri/textures/blank_cry.png",
-      "sha256": "c5e2c11236b9ae608a63015811b59d65d0d91e1ff26c8b35d8bd577a96aa4053"
+      "sha256": "a822c95b6bea26508b3b3cd1bd90523bb454063a0d2d370cc44ba0521a35e857"
     },
     "src/main/resources/assets/mcyukkuri/textures/entity/marisa_tsumuri/remains_crushed.png": {
       "source": "standards/yukkuri-library/drafts/remains/assembled/marisa_tsumuri/remains_crushed.png",
       "face": "squashed",
       "face_source": "standards/yukkuri-library/assembled/marisa_tsumuri/textures/squashed.png",
-      "sha256": "ac68f995bf9aa99480470759e66acd89c992136701cc539be9195af7cafc67be"
+      "sha256": "06cac11bfdc8bcd139e527364ab31b2714f7c30ae76b48c320f3f855c7ade57b"
     },
     "src/main/resources/assets/mcyukkuri/textures/entity/marisa_tsumuri/remains_violent.png": {
       "source": "standards/yukkuri-library/drafts/remains/assembled/marisa_tsumuri/remains_violent.png",
       "face": "dead_tongue",
       "face_source": "standards/yukkuri-library/assembled/marisa_tsumuri/textures/dead_tongue.png",
-      "sha256": "acf6cef7e11a3c0acb901311324fb087ab75c23dbc6f39211825ffded04879f2"
+      "sha256": "332e8851b41f42985e31ce67536483706beeeb903cd60cf5a1bb7e5adbca22b5"
     },
     "src/main/resources/assets/mcyukkuri/textures/entity/marisa_tsumuri/remains_drowned.png": {
       "source": "standards/yukkuri-library/drafts/remains/assembled/marisa_tsumuri/remains_drowned.png",
       "face": "dying_blank",
       "face_source": "standards/yukkuri-library/assembled/marisa_tsumuri/textures/dying_blank.png",
-      "sha256": "7ed8694c5e55222608a0fb13b983c15ee9e98eb94fc05b2041c5c680218e6121"
+      "sha256": "5113ecb8d5c7eb8ceb30c119dd3a5fecebeeef1c4be31ff5a2254d95d1ffdb67"
     },
     "src/main/resources/assets/mcyukkuri/textures/entity/marisa_tsumuri/remains_frozen.png": {
       "source": "standards/yukkuri-library/drafts/remains/assembled/marisa_tsumuri/remains_frozen.png",
       "face": "cold",
       "face_source": "standards/yukkuri-library/assembled/marisa_tsumuri/textures/cold.png",
-      "sha256": "479872beb93a321288998dd3e6d48456724f212ab406410a25cf94b5e1351b1b"
+      "sha256": "de9c86cd0fa1a96b8c1531d4ac24aa25a3e4dc4935d736edb2d27fe72b03a323"
     },
     "src/main/resources/assets/mcyukkuri/textures/entity/marisa_tsumuri/remains_sick.png": {
       "source": "standards/yukkuri-library/drafts/remains/assembled/marisa_tsumuri/remains_sick.png",
       "face": "dying_closed",
       "face_source": "standards/yukkuri-library/assembled/marisa_tsumuri/textures/dying_closed.png",
-      "sha256": "fc4a5dbd1d5fb090dd0118c2fee7f3ed37f323cbd442b569deda556409d13d11"
+      "sha256": "eb6833a36596707547b09336154ac635a94b84bb030e2f2c9ba8396bd817b58e"
     },
     "src/main/resources/assets/mcyukkuri/textures/entity/marisa_tsumuri/remains_retained.png": {
       "source": "standards/yukkuri-library/drafts/remains/assembled/marisa_tsumuri/remains_retained.png",
       "face": "old_dead",
       "face_source": "standards/yukkuri-library/assembled/marisa_tsumuri/textures/old_dead.png",
-      "sha256": "4ea6935605234c989ef5aaa2fe8b5f688663ae859c8d856ba9ea191ec75dcaee"
+      "sha256": "08101d24a67f6c196ddd099865ada2d862f3154eb1c65c52eed92100802836fb"
     },
     "src/main/resources/assets/mcyukkuri/textures/entity/marisa_tsumuri/remains_dissolving.png": {
       "source": "standards/yukkuri-library/drafts/remains/assembled/marisa_tsumuri/remains_dissolving.png",
       "face": "dying_blank",
       "face_source": "standards/yukkuri-library/assembled/marisa_tsumuri/textures/dying_blank.png",
-      "sha256": "f17f1c421f87a3673a9cd785c37f64770727d59d9e40724033c2b062f610215e"
+      "sha256": "233cd922a75488d99095eda2bcae2994bc8640f7c7e0cbbf0f5ce8bd75be0ffd"
     },
     "src/main/resources/assets/mcyukkuri/textures/entity/reimu_wasa/remains_natural.png": {
       "source": "standards/yukkuri-library/drafts/remains/assembled/reimu_wasa/remains_natural.png",
       "face": "old_dead",
       "face_source": "standards/yukkuri-library/assembled/reimu/textures/old_dead.png",
-      "sha256": "7c4c1e7671d4636359d501a36a884c6736e43173b41a27888d60403ecb47f926"
+      "sha256": "d7acb6d3e479613178dbcb855ed00580df3d7ddfdac0ea3542fbf77691210f7f"
     },
     "src/main/resources/assets/mcyukkuri/textures/entity/reimu_wasa/remains_starved.png": {
       "source": "standards/yukkuri-library/drafts/remains/assembled/reimu_wasa/remains_starved.png",
       "face": "dry_dead",
       "face_source": "standards/yukkuri-library/assembled/reimu/textures/dry_dead.png",
-      "sha256": "89e23332bb6a047cb6a2eaa9adf8c7aa67c8c8d84c8dc3b6d27115fc74e5a78a"
+      "sha256": "2f05386aae66b3a6f854609130017a8bd32d6b0d0be9a9af47011d6ce6e4f937"
     },
     "src/main/resources/assets/mcyukkuri/textures/entity/reimu_wasa/remains_burned.png": {
       "source": "standards/yukkuri-library/drafts/remains/assembled/reimu_wasa/remains_burned.png",
       "face": "blank_cry",
       "face_source": "standards/yukkuri-library/assembled/reimu/textures/blank_cry.png",
-      "sha256": "b8f62ea346e15058926981dc0f0dba220af1304c9efe2fe92abee70e6bb218b3"
+      "sha256": "ad7e44778bb549041b06a0006fef90112319be87ed19aba741d20b80df2f0691"
     },
     "src/main/resources/assets/mcyukkuri/textures/entity/reimu_wasa/remains_crushed.png": {
       "source": "standards/yukkuri-library/drafts/remains/assembled/reimu_wasa/remains_crushed.png",
       "face": "squashed",
       "face_source": "standards/yukkuri-library/assembled/reimu/textures/squashed.png",
-      "sha256": "e6e51f7337ac57c1fb555b2c51b41de3d963f2e4446ec8f733b08024a68d1711"
+      "sha256": "745a19c65f1ab7a4e56aaa7c17af2bee198ee9d078cfeae85853f0b0b5d0352e"
     },
     "src/main/resources/assets/mcyukkuri/textures/entity/reimu_wasa/remains_violent.png": {
       "source": "standards/yukkuri-library/drafts/remains/assembled/reimu_wasa/remains_violent.png",
       "face": "dead_tongue",
       "face_source": "standards/yukkuri-library/assembled/reimu/textures/dead_tongue.png",
-      "sha256": "974ddc806dd9e871fee45142d1d20a942bc66096a7457261a9e8b4815fe1f710"
+      "sha256": "391df4b7871c97d9620b2b2097e92ea6b15a022a40383172d4483dc9d244ce9c"
     },
     "src/main/resources/assets/mcyukkuri/textures/entity/reimu_wasa/remains_drowned.png": {
       "source": "standards/yukkuri-library/drafts/remains/assembled/reimu_wasa/remains_drowned.png",
       "face": "dying_blank",
       "face_source": "standards/yukkuri-library/assembled/reimu/textures/dying_blank.png",
-      "sha256": "c468a9e8df69a7e45731a4e1c8c446f8247f09fe530cba6c98f72f99d5d4c25e"
+      "sha256": "93c54817f257038fbf123b7134b3a176d8a7a81247268b2458c6aa48ffbd2be5"
     },
     "src/main/resources/assets/mcyukkuri/textures/entity/reimu_wasa/remains_frozen.png": {
       "source": "standards/yukkuri-library/drafts/remains/assembled/reimu_wasa/remains_frozen.png",
       "face": "cold",
       "face_source": "standards/yukkuri-library/assembled/reimu/textures/cold.png",
-      "sha256": "34ca63cbcc6644b271cb7d8a1cf106bc96770b54f010eca19907f51e8e411873"
+      "sha256": "35322cbad64f27ece772c4e4d2cdde021f5fd21b24de72d79dc8d7a9da3b3bd2"
     },
     "src/main/resources/assets/mcyukkuri/textures/entity/reimu_wasa/remains_sick.png": {
       "source": "standards/yukkuri-library/drafts/remains/assembled/reimu_wasa/remains_sick.png",
       "face": "dying_closed",
       "face_source": "standards/yukkuri-library/assembled/reimu/textures/dying_closed.png",
-      "sha256": "f3cfb146fd71d11b93ffebcd718c32cb26297d96305604ef880bca8a7f7b0a90"
+      "sha256": "415d688e6311c86df614d50dc19cadbeb30e8542d61d948ed6241bbe977d47ab"
     },
     "src/main/resources/assets/mcyukkuri/textures/entity/reimu_wasa/remains_retained.png": {
       "source": "standards/yukkuri-library/drafts/remains/assembled/reimu_wasa/remains_retained.png",
       "face": "old_dead",
       "face_source": "standards/yukkuri-library/assembled/reimu/textures/old_dead.png",
-      "sha256": "69bf5180b6b8b49e4821663b2ad84fb41baad1c282c1fba4978f33e225a553f1"
+      "sha256": "715d84689fd9aad6a457ba3ddf1a700d2c60f2bd58cb0ae3dba91053dd6a81a6"
     },
     "src/main/resources/assets/mcyukkuri/textures/entity/reimu_wasa/remains_dissolving.png": {
       "source": "standards/yukkuri-library/drafts/remains/assembled/reimu_wasa/remains_dissolving.png",
       "face": "dying_blank",
       "face_source": "standards/yukkuri-library/assembled/reimu/textures/dying_blank.png",
-      "sha256": "6fd980c2af1aca8ac0be8935968d46009ca7d418c698d7e8e96ebe713970777a"
+      "sha256": "114eda919225b09fe22a360d482baa20f86d34671f4ba0c3ea4b0cea77f695f7"
     },
     "src/main/resources/assets/mcyukkuri/textures/entity/reimu_deibu/remains_natural.png": {
       "source": "standards/yukkuri-library/drafts/remains/assembled/reimu_deibu/remains_natural.png",
       "face": "old_dead",
       "face_source": "standards/yukkuri-library/assembled/reimu/textures/old_dead.png",
-      "sha256": "5a4a2055774754f9ff60a6f95c582f85da99067d3da3f3ea25175afad6c87499"
+      "sha256": "4500d5596d32bdefe243002b2013f894b7f4043d427d2e2b33b606115d3fe593"
     },
     "src/main/resources/assets/mcyukkuri/textures/entity/reimu_deibu/remains_starved.png": {
       "source": "standards/yukkuri-library/drafts/remains/assembled/reimu_deibu/remains_starved.png",
       "face": "dry_dead",
       "face_source": "standards/yukkuri-library/assembled/reimu/textures/dry_dead.png",
-      "sha256": "c5ce66856f9cdf89208cdbacc8c734e4ba14c514db392d74083e7b0856b61a54"
+      "sha256": "9a4c1f31c76088e2cf54fdf99d240d6197527cfea0c460384e63c22a4d15d5f7"
     },
     "src/main/resources/assets/mcyukkuri/textures/entity/reimu_deibu/remains_burned.png": {
       "source": "standards/yukkuri-library/drafts/remains/assembled/reimu_deibu/remains_burned.png",
       "face": "blank_cry",
       "face_source": "standards/yukkuri-library/assembled/reimu/textures/blank_cry.png",
-      "sha256": "a6202efb9cd0afe0fd66400a59cdc3c13a3dbefa5d9b4b2c87f5c979b4f1919b"
+      "sha256": "05fb8e88e4d3da43d8767f0bdbabda7133e21a1517d355c8d0be305dea816a3a"
     },
     "src/main/resources/assets/mcyukkuri/textures/entity/reimu_deibu/remains_crushed.png": {
       "source": "standards/yukkuri-library/drafts/remains/assembled/reimu_deibu/remains_crushed.png",
       "face": "squashed",
       "face_source": "standards/yukkuri-library/assembled/reimu/textures/squashed.png",
-      "sha256": "e6e51f7337ac57c1fb555b2c51b41de3d963f2e4446ec8f733b08024a68d1711"
+      "sha256": "745a19c65f1ab7a4e56aaa7c17af2bee198ee9d078cfeae85853f0b0b5d0352e"
     },
     "src/main/resources/assets/mcyukkuri/textures/entity/reimu_deibu/remains_violent.png": {
       "source": "standards/yukkuri-library/drafts/remains/assembled/reimu_deibu/remains_violent.png",
       "face": "dead_tongue",
       "face_source": "standards/yukkuri-library/assembled/reimu/textures/dead_tongue.png",
-      "sha256": "974ddc806dd9e871fee45142d1d20a942bc66096a7457261a9e8b4815fe1f710"
+      "sha256": "391df4b7871c97d9620b2b2097e92ea6b15a022a40383172d4483dc9d244ce9c"
     },
     "src/main/resources/assets/mcyukkuri/textures/entity/reimu_deibu/remains_drowned.png": {
       "source": "standards/yukkuri-library/drafts/remains/assembled/reimu_deibu/remains_drowned.png",
       "face": "dying_blank",
       "face_source": "standards/yukkuri-library/assembled/reimu/textures/dying_blank.png",
-      "sha256": "b965e8cd9620c6a9fa1e581f7f479117114455b9feee2ff2e8cb3f7069138f03"
+      "sha256": "475556da821807680a98c6df029d16b5d319cd62e68c3010f7747677d8705c0e"
     },
     "src/main/resources/assets/mcyukkuri/textures/entity/reimu_deibu/remains_frozen.png": {
       "source": "standards/yukkuri-library/drafts/remains/assembled/reimu_deibu/remains_frozen.png",
       "face": "cold",
       "face_source": "standards/yukkuri-library/assembled/reimu/textures/cold.png",
-      "sha256": "32fb82638ccc99855650faf47271c0b848a5bc17e56681c834583264ae91fac4"
+      "sha256": "9082faa46d04aa76dad33b6cfec1a96ab9ea49cd9edea6a49f7e48aa7c89bcd2"
     },
     "src/main/resources/assets/mcyukkuri/textures/entity/reimu_deibu/remains_sick.png": {
       "source": "standards/yukkuri-library/drafts/remains/assembled/reimu_deibu/remains_sick.png",
       "face": "dying_closed",
       "face_source": "standards/yukkuri-library/assembled/reimu/textures/dying_closed.png",
-      "sha256": "b0514b8f2523dbf9534329a6fe96ebe97cdf33318c062344abf0a5977a165a9d"
+      "sha256": "15efa16c8033a7f7c408b3bbe97353693885339ff4a652d98348ff886c855f07"
     },
     "src/main/resources/assets/mcyukkuri/textures/entity/reimu_deibu/remains_retained.png": {
       "source": "standards/yukkuri-library/drafts/remains/assembled/reimu_deibu/remains_retained.png",
       "face": "old_dead",
       "face_source": "standards/yukkuri-library/assembled/reimu/textures/old_dead.png",
-      "sha256": "08be63e4d121b3b7645afd24a548a10b3801bafe8bb6241885b996faac13d1a0"
+      "sha256": "f812a3a2f643bfc4cb3d851474da89739670451575d742a35c0b8d2b6cecf092"
     },
     "src/main/resources/assets/mcyukkuri/textures/entity/reimu_deibu/remains_dissolving.png": {
       "source": "standards/yukkuri-library/drafts/remains/assembled/reimu_deibu/remains_dissolving.png",
       "face": "dying_blank",
       "face_source": "standards/yukkuri-library/assembled/reimu/textures/dying_blank.png",
-      "sha256": "4c0e26d31f549b0c443abba3deceaf6ed4a03fab48e5658c8835e7705d2e98ea"
+      "sha256": "99b9e203841a8185e646112602c60c7c07bf721b98fa395c42f167cb043655be"
     },
     "src/main/resources/assets/mcyukkuri/textures/entity/reimu_wasa_deibu/remains_natural.png": {
       "source": "standards/yukkuri-library/drafts/remains/assembled/reimu_wasa_deibu/remains_natural.png",
       "face": "old_dead",
       "face_source": "standards/yukkuri-library/assembled/reimu/textures/old_dead.png",
-      "sha256": "7c4c1e7671d4636359d501a36a884c6736e43173b41a27888d60403ecb47f926"
+      "sha256": "d7acb6d3e479613178dbcb855ed00580df3d7ddfdac0ea3542fbf77691210f7f"
     },
     "src/main/resources/assets/mcyukkuri/textures/entity/reimu_wasa_deibu/remains_starved.png": {
       "source": "standards/yukkuri-library/drafts/remains/assembled/reimu_wasa_deibu/remains_starved.png",
       "face": "dry_dead",
       "face_source": "standards/yukkuri-library/assembled/reimu/textures/dry_dead.png",
-      "sha256": "89e23332bb6a047cb6a2eaa9adf8c7aa67c8c8d84c8dc3b6d27115fc74e5a78a"
+      "sha256": "2f05386aae66b3a6f854609130017a8bd32d6b0d0be9a9af47011d6ce6e4f937"
     },
     "src/main/resources/assets/mcyukkuri/textures/entity/reimu_wasa_deibu/remains_burned.png": {
       "source": "standards/yukkuri-library/drafts/remains/assembled/reimu_wasa_deibu/remains_burned.png",
       "face": "blank_cry",
       "face_source": "standards/yukkuri-library/assembled/reimu/textures/blank_cry.png",
-      "sha256": "9a00ac97d1c1b1fced2cef243d6e9ff5d0c2eddb757f511bcd2d9753faa94928"
+      "sha256": "7081aa5876fd53b7988044f9f06e5bda657c759540817d8c8cfab8ad5c139a2c"
     },
     "src/main/resources/assets/mcyukkuri/textures/entity/reimu_wasa_deibu/remains_crushed.png": {
       "source": "standards/yukkuri-library/drafts/remains/assembled/reimu_wasa_deibu/remains_crushed.png",
       "face": "squashed",
       "face_source": "standards/yukkuri-library/assembled/reimu/textures/squashed.png",
-      "sha256": "e6e51f7337ac57c1fb555b2c51b41de3d963f2e4446ec8f733b08024a68d1711"
+      "sha256": "745a19c65f1ab7a4e56aaa7c17af2bee198ee9d078cfeae85853f0b0b5d0352e"
     },
     "src/main/resources/assets/mcyukkuri/textures/entity/reimu_wasa_deibu/remains_violent.png": {
       "source": "standards/yukkuri-library/drafts/remains/assembled/reimu_wasa_deibu/remains_violent.png",
       "face": "dead_tongue",
       "face_source": "standards/yukkuri-library/assembled/reimu/textures/dead_tongue.png",
-      "sha256": "974ddc806dd9e871fee45142d1d20a942bc66096a7457261a9e8b4815fe1f710"
+      "sha256": "391df4b7871c97d9620b2b2097e92ea6b15a022a40383172d4483dc9d244ce9c"
     },
     "src/main/resources/assets/mcyukkuri/textures/entity/reimu_wasa_deibu/remains_drowned.png": {
       "source": "standards/yukkuri-library/drafts/remains/assembled/reimu_wasa_deibu/remains_drowned.png",
       "face": "dying_blank",
       "face_source": "standards/yukkuri-library/assembled/reimu/textures/dying_blank.png",
-      "sha256": "c468a9e8df69a7e45731a4e1c8c446f8247f09fe530cba6c98f72f99d5d4c25e"
+      "sha256": "93c54817f257038fbf123b7134b3a176d8a7a81247268b2458c6aa48ffbd2be5"
     },
     "src/main/resources/assets/mcyukkuri/textures/entity/reimu_wasa_deibu/remains_frozen.png": {
       "source": "standards/yukkuri-library/drafts/remains/assembled/reimu_wasa_deibu/remains_frozen.png",
       "face": "cold",
       "face_source": "standards/yukkuri-library/assembled/reimu/textures/cold.png",
-      "sha256": "34ca63cbcc6644b271cb7d8a1cf106bc96770b54f010eca19907f51e8e411873"
+      "sha256": "35322cbad64f27ece772c4e4d2cdde021f5fd21b24de72d79dc8d7a9da3b3bd2"
     },
     "src/main/resources/assets/mcyukkuri/textures/entity/reimu_wasa_deibu/remains_sick.png": {
       "source": "standards/yukkuri-library/drafts/remains/assembled/reimu_wasa_deibu/remains_sick.png",
       "face": "dying_closed",
       "face_source": "standards/yukkuri-library/assembled/reimu/textures/dying_closed.png",
-      "sha256": "f3cfb146fd71d11b93ffebcd718c32cb26297d96305604ef880bca8a7f7b0a90"
+      "sha256": "415d688e6311c86df614d50dc19cadbeb30e8542d61d948ed6241bbe977d47ab"
     },
     "src/main/resources/assets/mcyukkuri/textures/entity/reimu_wasa_deibu/remains_retained.png": {
       "source": "standards/yukkuri-library/drafts/remains/assembled/reimu_wasa_deibu/remains_retained.png",
       "face": "old_dead",
       "face_source": "standards/yukkuri-library/assembled/reimu/textures/old_dead.png",
-      "sha256": "69bf5180b6b8b49e4821663b2ad84fb41baad1c282c1fba4978f33e225a553f1"
+      "sha256": "715d84689fd9aad6a457ba3ddf1a700d2c60f2bd58cb0ae3dba91053dd6a81a6"
     },
     "src/main/resources/assets/mcyukkuri/textures/entity/reimu_wasa_deibu/remains_dissolving.png": {
       "source": "standards/yukkuri-library/drafts/remains/assembled/reimu_wasa_deibu/remains_dissolving.png",
       "face": "dying_blank",
       "face_source": "standards/yukkuri-library/assembled/reimu/textures/dying_blank.png",
-      "sha256": "6fd980c2af1aca8ac0be8935968d46009ca7d418c698d7e8e96ebe713970777a"
+      "sha256": "114eda919225b09fe22a360d482baa20f86d34671f4ba0c3ea4b0cea77f695f7"
     },
     "src/main/resources/assets/mcyukkuri/textures/entity/remains/overlay_char.png": {
       "source": "standards/yukkuri-library/drafts/remains/assembled/shared/overlay_char.png",
