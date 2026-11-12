@@ -1345,8 +1345,6 @@ add('social_identity', 'town', '宠物、流浪与野生四类对照', '宠物�
     *shed(-4, -7), *shed(-4, 7, half=1),
     # Headless observers are markers. Give the shy pair a stationary stranger in view.
     'execute if entity @s[type=minecraft:marker] run ' + human('caretaker_sister', 0, 0, 'identity_listener', 0)[:-1] + ',NoAI:1b}',
-    # Marisa starts facing an empty-handed listener at speaking distance, before ambient address lines can take her voice.
-    'execute if entity @s[type=minecraft:marker] run ' + human('caretaker_sister', -4, 3, 'identity_stray_listener', 0, yaw=0)[:-1] + ',NoAI:1b}',
     yk('reimu', -4, -4, 'identity_pet', label='灵梦', nutrition=90, social_wait=0, lead=True),
     *own('identity_pet'),
     f'yukkuri status relate {sel("identity_pet")} @s 30',
