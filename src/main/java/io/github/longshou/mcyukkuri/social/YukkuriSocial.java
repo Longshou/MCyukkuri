@@ -278,7 +278,8 @@ public final class YukkuriSocial implements MotorOwner {
             if (target instanceof YukkuriEntity peer) turnToFace(peer);
             if (elapsed == answerDelay && target instanceof YukkuriEntity other) {
                 if (answerScorn) Contempt.react((ServerLevel) entity.level(), entity, other);
-                else if (GreetingStance.clear(entity, entity.position(), other)) answerGreeting(other, "greet", answerWhy);
+                else if (entity.isPassenger() || GreetingStance.clear(entity, entity.position(), other))
+                    answerGreeting(other, "greet", answerWhy);
                 else stop();
             }
             return;
@@ -361,7 +362,7 @@ public final class YukkuriSocial implements MotorOwner {
             EcologyMovement.halt(entity);
             return;
         }
-        if (!greeted && task == Task.PEER && target instanceof YukkuriEntity peer) {
+        if (!greeted && task == Task.PEER && target instanceof YukkuriEntity peer && !entity.isPassenger()) {
             var arrival = GreetingStance.approach(entity, peer, 1.0, 1.5);
             if (arrival == SurfaceApproach.Result.BLOCKED) {
                 entity.showReaction("surprise", "", 40);

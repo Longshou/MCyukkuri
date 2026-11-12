@@ -403,9 +403,8 @@ public final class DailyLife {
             SurfaceApproach.halt(entity);
             // A peer whose greeting is due is greeted first, then nuzzled.
             if (!current.greeted && other instanceof YukkuriEntity peer) {
-                boolean facing = turnToFace(other);
-                if (current.leader != entity) return;
-                if (greeting != null && !facing) { current.elapsed++; return; }
+                if (current.leader != entity) { turnToFace(other); return; }
+                if (greeting != null && !turnToFace(other)) { current.elapsed++; return; }
                 current.greeted = true;
                 entity.social().noteContact(peer);
                 if (greeting != null) {

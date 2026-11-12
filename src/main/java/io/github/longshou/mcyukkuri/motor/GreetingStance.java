@@ -23,20 +23,31 @@ public final class GreetingStance {
 
     /** Keep a clear nearby stand, or walk to one around the peer using the ordinary surface approach. */
     public static SurfaceApproach.Result approach(YukkuriEntity actor, YukkuriEntity peer, double speed, double height) {
+        if (!actor.onGround()) return SurfaceApproach.Result.WAITING;
         Vec3 offset = actor.position().subtract(peer.position());
         double flat = offset.horizontalDistance();
         double radius = (actor.getBbWidth() + peer.getBbWidth()) * .5 + SurfaceApproach.ARRIVAL;
         double square = flat == 0 ? radius : radius * flat / Math.max(Math.abs(offset.x), Math.abs(offset.z));
         double stand = Math.max(square, visualDistance(actor, peer)) + SurfaceApproach.ARRIVAL;
-        if (actor.onGround() && Math.abs(offset.y) <= height
+        boolean clear = clear(actor, actor.position(), peer);
+        if (Math.abs(offset.y) <= height
                 && offset.length() <= Math.max(ENCOUNTER, Math.hypot(stand + SurfaceApproach.ARRIVAL, offset.y))
-                && clear(actor, actor.position(), peer)) {
+                && clear) {
             SurfaceApproach.halt(actor);
             return SurfaceApproach.Result.ARRIVED;
         }
         Vec3 at = SurfaceApproach.beside(actor, peer, stand, height, Double.POSITIVE_INFINITY,
                 point -> clear(actor, point, peer));
         if (at == null) return SurfaceApproach.Result.BLOCKED;
+        // A short retreat starts on the same side of the peer. Use the checked straight step
+        // instead of asking a block path and its forward steer to reverse within the same cell.
+        if (!clear && at.subtract(peer.position()).multiply(1, 0, 1).dot(offset) > flat * flat
+                && SurfaceApproach.clearLastStep(actor, at)
+                && !SurfaceApproach.crossesBody(actor, actor.position(), at, peer.getBoundingBox())) {
+            SurfaceApproach.stopWalking(actor);
+            Motor.step(actor, at, speed, false);
+            return SurfaceApproach.Result.MOVING;
+        }
         var result = SurfaceApproach.walkResult(actor, at, peer, speed);
         if (result == SurfaceApproach.Result.ARRIVED && !clear(actor, actor.position(), peer))
             return SurfaceApproach.Result.BLOCKED;

@@ -351,7 +351,8 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
             // already have their own spacing, including while the behavior and clip updates arrive separately.
             if(behavior.equals(Behaviors.NUZZLE)&&entity.getAnimationId().equals("nuzzle")
                     &&(peer=entity.yukkuriView(entity.nuzzlePartnerId()))!=null
-                    &&peer.nuzzlePartnerId()==entity.getId()&&peer.getAnimationId().equals("nuzzle")
+                    &&peer.nuzzlePartnerId()==entity.getId()&&peer.getBehaviorId().equals(Behaviors.NUZZLE)
+                    &&peer.getAnimationId().equals("nuzzle")
                     &&Math.abs(Mth.wrapDegrees(entity.bodyYaw()-peer.bodyYaw()))>90) {
                 float scale=entity.getScale()*entity.growthScale(),peerScale=peer.getScale()*peer.growthScale();
                 double distance=entity.getPosition(partialTick).subtract(peer.getPosition(partialTick)).horizontalDistance();

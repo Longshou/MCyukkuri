@@ -87,11 +87,16 @@ public final class Motor {
 
     /** A short straight ground step; vanilla still resolves collision, step-up and gravity, as for StepIn. */
     public static boolean step(YukkuriEntity body, Vec3 to, double speed) {
+        return step(body, to, speed, true);
+    }
+
+    /** The same step can keep facing a contact partner when making room. */
+    static boolean step(YukkuriEntity body, Vec3 to, double speed, boolean faceStep) {
         var delta=to.subtract(body.position()).multiply(1,0,1);double distance=delta.length();
         body.getMoveControl().setWantedPosition(to.x,to.y,to.z,0);body.setSpeed(0);
         double pace=BodyAbility.of(body).walkSpeed()*BodyAbility.carrying(body)*speed;
         var v=distance>.001?limitHorizontal(delta.scale(Math.min(pace,distance)/distance)):Vec3.ZERO;
-        if(distance>.001)face(body,SurfaceApproach.yaw(body.position(),to));
+        if(faceStep&&distance>.001)face(body,SurfaceApproach.yaw(body.position(),to));
         velocity(body,new Vec3(v.x,body.getDeltaMovement().y,v.z),"straight_step");
         return SurfaceApproach.at(body,to);
     }
