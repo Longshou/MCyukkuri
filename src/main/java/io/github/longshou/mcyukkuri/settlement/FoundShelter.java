@@ -35,7 +35,7 @@ public final class FoundShelter {
     private Phase phase;
     private long nextScan, deadline, began;
     private int failures;
-    private boolean offeredContest;
+    private UUID yieldingRival;
     private long warnUntil;
 
     public FoundShelter(YukkuriEntity body) { this.body = body; }
@@ -161,7 +161,15 @@ public final class FoundShelter {
                 || (shelter != null ? shelter.isRemoved() || !shelter.foundUsable(body) : !gapAt(gap))) {
             stop(); return Step.ENDED;
         }
-        if (phase == Phase.SNIFF || phase == Phase.WAIT) {
+        if (phase == Phase.WAIT) {
+            boolean rivalInside = level().getEntity(yieldingRival) instanceof YukkuriEntity resident
+                    && resident.isAlive() && shelter.contains(resident.blockPosition());
+            if (!shelter.owns(yieldingRival) && !rivalInside) return inspect();
+            if (now() <= deadline) return Step.ACTIVE;
+            remember(target(), CONTEST_REST, "yield_exit_blocked");
+            stop(); return Step.ENDED;
+        }
+        if (phase == Phase.SNIFF) {
             if (now() < deadline) return Step.ACTIVE;
             return inspect();
         }
@@ -204,19 +212,20 @@ public final class FoundShelter {
     private Step inspect() {
         UUID rival = shelter.residentIds().stream().filter(id -> !shelter.related(body.getUUID(), id)).findFirst().orElse(null);
         if (rival != null) {
-            if (!offeredContest && canContest(body) && level().getEntity(rival) instanceof YukkuriEntity resident
-                    && canContest(resident) && !resident.life().isSleeping() && shelter.occupants() == 1
-                    && resolve(body) > resolve(resident)) {
-                offeredContest = true;
-                body.showReaction("cheek_puff", "", 40);
-                resident.life().yieldFoundShelter(target());
-                phase = Phase.WAIT; deadline = now() + 60;
-                GameplayLog.event(body, "habitat", "found contest shelter={} outcome=wait rival={}", target(), rival);
-                return Step.ACTIVE;
-            }
-            if (!offeredContest && canContest(body) && level().getEntity(rival) instanceof YukkuriEntity resident
-                    && canContest(resident) && !resident.life().isSleeping())
+            if (yieldingRival == null && canContest(body) && level().getEntity(rival) instanceof YukkuriEntity resident
+                    && canContest(resident) && !resident.life().isSleeping()) {
+                if (shelter.occupants() == 1 && resolve(body) > resolve(resident)) {
+                    long exitDeadline = resident.life().yieldFoundShelter(target());
+                    if (exitDeadline > now()) {
+                        yieldingRival = rival;
+                        body.showReaction("cheek_puff", "", 40);
+                        phase = Phase.WAIT; deadline = exitDeadline;
+                        GameplayLog.event(body, "habitat", "found contest shelter={} outcome=wait rival={}", target(), rival);
+                        return Step.ACTIVE;
+                    }
+                }
                 resident.showReaction("cheek_puff", "", 40);
+            }
             remember(target(), CONTEST_REST, "yield");
             stop(); return Step.ENDED;
         }
@@ -289,10 +298,11 @@ public final class FoundShelter {
         }
     }
 
-    public void yield(BlockPos pos) {
-        if (targeting(pos) && phase == Phase.REST && !body.life().isSleeping()) {
-            remember(pos, CONTEST_REST, "yield"); leave("yield");
-        }
+    /** Deadline for the physical exit, or zero if this resident cannot yield now. */
+    public long yield(BlockPos pos) {
+        if (!targeting(pos) || phase != Phase.REST || body.life().isSleeping()) return 0;
+        remember(pos, CONTEST_REST, "yield"); leave("yield");
+        return deadline;
     }
 
     public void removed(BlockPos pos, boolean wet) {
@@ -305,7 +315,7 @@ public final class FoundShelter {
         if (!active()) return;
         if (shelter != null && !shelter.isRemoved() && (exiting() || !shelter.contains(body.blockPosition())))
             shelter.release(body.getUUID());
-        shelter = null; gap = null; aim = null; phase = null; offeredContest = false; failures = 0; warnUntil = 0;
+        shelter = null; gap = null; aim = null; phase = null; yieldingRival = null; failures = 0; warnUntil = 0;
         SurfaceApproach.stopWalking(body);
     }
 

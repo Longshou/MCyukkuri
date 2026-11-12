@@ -455,7 +455,7 @@ public final class YukkuriLife {
     public boolean targetingFoundShelter(BlockPos pos) { return foundCover.targeting(pos); }
     public boolean leavingFoundShelter() { return foundCover.exiting(); }
     public boolean usingGarbage(BlockPos pos) { return garbage.targeting(pos); }
-    public void yieldFoundShelter(BlockPos pos) { foundCover.yield(pos); }
+    public long yieldFoundShelter(BlockPos pos) { return foundCover.yield(pos); }
     public void foundShelterRemoved(BlockPos pos, boolean wet) {
         if (foundCover.targeting(pos)) stopGoal();
         foundCover.removed(pos, wet);

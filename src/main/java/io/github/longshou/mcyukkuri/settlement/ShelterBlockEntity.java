@@ -221,6 +221,9 @@ public final class ShelterBlockEntity extends BlockEntity {
     }
     /** The family nest is bigger than one cell: one extra cell for every three young that sleep in it. */
     public static int extraCells(int young) { return (young+2)/3; }
+    private boolean fitsResident(boolean sharesSlot, int reservedYoung) {
+        return usedSlots() + (sharesSlot ? 0 : 1) + extraCells(sharers() + reservedYoung + (sharesSlot ? 1 : 0)) <= capacity();
+    }
     /** Free cells next to the occupied family nest that the nest keeps for its young; nobody else takes them. */
     private List<BlockPos> nestExtras(int young) {
         int want=extraCells(young);
@@ -306,7 +309,7 @@ public final class ShelterBlockEntity extends BlockEntity {
         if(shared!=null){residents.put(entity.getUUID(),shared);changed();return true;}
         boolean young=shared!=null||reservedChild;
         int reservedYoung=families.reservedForResidents(residents::containsKey)+incoming;
-        if(usedSlots()+(young?0:1)+extraCells(sharers()+reservedYoung+(young?1:0))>capacity())return false;
+        if(!fitsResident(young,reservedYoung))return false;
         if(!residents.isEmpty() && residents.keySet().stream().noneMatch(id->id.equals(entity.family().partner())
                 ||FamilyData.get((ServerLevel)level).socialKin(id,entity.getUUID())&&!(((ServerLevel)level).getEntity(id) instanceof YukkuriEntity res&&!Recognition.recognizes(res,
                         entity))))return false;
@@ -345,10 +348,14 @@ public final class ShelterBlockEntity extends BlockEntity {
 
     private boolean claimFound(YukkuriEntity entity) {
         var id = entity.getUUID();
-        if (!FoundShelter.canTakeFoundShelter(entity) || !foundUsable(entity)
+        if (!(level instanceof ServerLevel server) || !FoundShelter.canTakeFoundShelter(entity) || !foundUsable(entity)
                 || residents.keySet().stream().anyMatch(other -> !related(id, other)) || !contains(entity.blockPosition())) return false;
         if (!owns(id)) {
-            residents.put(id, entity.blockPosition().equals(beds().get(1)) ? 1 : 0);
+            int slot = entity.blockPosition().equals(beds().get(1)) ? 1 : 0;
+            boolean sharesSlot = residents.containsValue(slot);
+            int reservedYoung = FamilyData.get(server).reservedForResidents(candidate -> candidate.equals(id) || owns(candidate));
+            if ((sharesSlot && entity.family().adult()) || !fitsResident(sharesSlot, reservedYoung)) return false;
+            residents.put(id, slot);
             emptyTicks = 0;
             changed();
         }
