@@ -9,7 +9,6 @@
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
 | 台词审校与补充（总负责人调度的 Codex 标签页） | `.worktrees/wp-gb-speech-review` | art/dialogue/, src/main/resources/assets/mcyukkuri/dialogue/, lang/*.json |
-| 宠物店重做（反馈 19–26 与 11-13 补充） | `.worktrees/wp-hg-pet-shop` | shop/、human/、art/structures/human-world/ |
 | 茎生：肉眼可见的快速生长、耗馅与带茎遗体 | `.worktrees/wp-hq-stem` | art/props/family-life, standards/yukkuri-library/drafts/remains, family/StemDrain, family/FamilyRenderer, RemainsEntity |
 | 态度第三片：徽章、宠物、同伴与语声改读同一套数值 | `.worktrees/wp-hv-attitude-c` | pet/WildEncounter, pet/social/BadgeArc*, pet/PetLife, pet/PetRequests, social/PeerDefense, life/LifeMeal (swallow reaction) |
 
