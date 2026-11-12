@@ -580,10 +580,11 @@ public final class YukkuriSocial implements MotorOwner {
         double esteem = SocialDisposition.selfEsteem(entity);
         double chance = SocialDisposition.demandProbability(personality(), esteem, wariness, relation);
         boolean demand = entity.getRandom().nextDouble() < chance;
-        int sequence = entity.speechSequence();
         String line = demand ? "human_food_demand" : "human_food_ask";
-        entity.showReaction(demand ? "cheek_puff" : "teary", line, 80);
-        if (sequence == entity.speechSequence() || entity.subspecies().congenital() != SubspeciesLife.Congenital.NORMAL) {
+        entity.showReaction(demand ? "cheek_puff" : "teary", "", 80);
+        // A presentation cue: the demand may take over the ambient address that brought the animal near, instead of being swallowed by it.
+        boolean spoken = entity.speakCue(line);
+        if (!spoken || entity.subspecies().congenital() != SubspeciesLife.Congenital.NORMAL) {
             GameplayLog.limited(entity, "social", "food_request_unsaid", 200, "human food request unvoiced target={}", target.getUUID());
             stop();
             return;
