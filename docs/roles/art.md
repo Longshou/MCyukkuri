@@ -7,7 +7,7 @@
 - 新做或替换美术前先在[素材目录](../../art/CATALOG.md)按类查现有素材，并查 `.local/previews/`（含 Codex 试画页 `codex-image-trial/`）与 `.local/refactor/reports/` 里已做过的探索；能复用就复用（在代码里变化尺寸、覆盖或配色），新增素材在 `art/catalog.json` 归类后重建目录。
 - 打包资源只在 `src/main/resources/`，模组声明模板在 `src/main/templates/`；参考图、预览和标准素材库不复制进运行资源。
 - `standards/yukkuri-library/` 是制作源，`art/source/` 是游戏选用快照，`art/runtime-sources.json` 登记对应关系。改模型先改制作源再导出，换用素材同步登记。
-- 专用道具使用符合含义的美术，需替换的占位登记在[待办](../TODO.md#美术opus)。
+- 专用道具使用符合含义的美术，需替换的占位登记在[待办](../TODO.md#玩法待办)。
 
 ## 方向先行
 

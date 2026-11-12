@@ -1,8 +1,8 @@
 # 树叶襁褓参考资源
 
-[襁褓分类](pet-life.md#襁褓的形状与用途) · [野外生活](wild-life.md) · [图文筛选](reference-library/gallery.html) · [道具制作说明](../art/props/README.md) · [美术待办](../docs/TODO.md#美术opus)
+[襁褓分类](pet-life.md#襁褓的形状与用途) · [野外生活](wild-life.md) · [图文筛选](reference-library/gallery.html) · [道具制作说明](../art/props/README.md) · [美术待办](../docs/TODO.md#玩法待办)
 
-本专题记录植物材料的贴身包覆样式，并与布制 `swaddle_cloth`、地面叶床及承托大叶分别登记。美术状态只在[美术待办](../docs/TODO.md#美术opus)维护。
+本专题记录植物材料的贴身包覆样式，并与布制 `swaddle_cloth`、地面叶床及承托大叶分别登记。美术状态只在[美术待办](../docs/TODO.md#玩法待办)维护。
 
 ## 两种叶片生活用途
 
