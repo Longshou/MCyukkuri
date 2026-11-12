@@ -3994,6 +3994,7 @@ _smoke('shop_window', 1200, [rf'\[shop\] {kind} [^\n]* window start mode={mode} 
        readout=[f'yukkuri status {BOOTH.format(kind, grade)} raw' for kind, grade in (('chen', 2), ('alice', 3), ('reimu', 2), ('remilia', 2))])
 next(s for s in S if s.id == 'shop_window').smoke['commands'] = [(100, _aisle_customer(14.5, 'customer_west')), (100, _aisle_customer(.5, 'customer_east'))]
 _smoke('shop_buy_keeper', 1600, [r'\[courier\][^\n]* action=start kind=BUY ', r'\[shop\] chen [^\n]* window witness kind=ENVY ',
+                                 r'\[shop\] chen [^\n]* window witness end kind=ENVY reason=departed ',
                                  r'\[shop\][^\n]* action=buy_live result=delivered [^\n]*mode=keeper'],
        forbid=[r'\[shop\][^\n]* action=buy_live result=refunded', r'\[courier\][^\n]* action=fallback '])
 next(s for s in S if s.id == 'shop_buy_keeper').smoke['commands'] = [

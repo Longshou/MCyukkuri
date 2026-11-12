@@ -51,9 +51,10 @@ public final class ShopWindow implements MotorOwner {
     private static final int MIN_PLEA = 60;
     /** Moment lengths of the after-beats (droop 4 s, ignore 1.6 s) so a loop never restarts on screen. */
     private static final int LETDOWN_TICKS = 80, HMPH_TICKS = 32;
-    /** A neighbour being sold is watched at most this long (the keeper's walk to it included), its first strong answer (envy, "me too")
-     *  lasts REACTION_TICKS, and the eyes follow the basket this long after it climbed in. */
-    private static final int WITNESS_TICKS = 600, REACTION_TICKS = 160, WITNESS_TAIL = 70;
+    /** A neighbour being sold is watched at most this long (the keeper's walk to it included; the sale hold itself lapses after 10 s
+     *  without its buyer nearby, so only the departure or this limit ends the watch), its first strong answer (envy, "me too") lasts
+     *  REACTION_TICKS, and the eyes follow the basket this long after it climbed in. */
+    private static final int WITNESS_TICKS = 500, REACTION_TICKS = 160, WITNESS_TAIL = 70;
     /** Sale sightings are within this many blocks. */
     private static final double SALE_RANGE = 10;
     /** Rejections remembered at most, and the time after which one is forgotten (project design). */
@@ -398,9 +399,6 @@ public final class ShopWindow implements MotorOwner {
             departedAt = now;
             // It climbed into the basket: the eyes follow the basket in the staff's hand (or stay on the buyer).
             if (witness != Witness.ME_TOO) watched = basketHolder();
-        } else if (departedAt < 0 && !departing.pet().busyWith().equals("sale")) {
-            GameplayLog.event(entity, "shop", "window witness end kind={} reason=sale_off ticks={}", witness, now - sessionStart);
-            finish(now); return;
         }
         if (watched != null && watched.isAlive() && !watched.isRemoved() && watched.level() == entity.level()) look(watched);
         if (now >= until || departedAt >= 0 && now - departedAt >= WITNESS_TAIL) {
