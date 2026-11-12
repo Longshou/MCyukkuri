@@ -1239,12 +1239,28 @@ def observations(records, issues=(), raw='', allow=(), end=(), seed=None, rerun=
     geo = [r for r in records if r['k'] == 'geo']
     starts = [r['t'] for r in records if r['k'] == 'win']
     start = min(starts) if starts else None
+    startup = actor_samples([r for r in samples if start is not None and 0 <= r['t'] - start <= 40])
     # An actor still falling at the first sample can be legitimately supported by the later
     # one (the scene's loose food settles onto its pond): ordinary settling during
     # initialization, the same rule the layout gate already allows. Only an actor that is
     # unsupported at the later sample is a bad spawn; obstruction stays strict at both.
     settling = {r.get('u') for r in geo if start is not None and r['t'] - start == 20
                 and r.get('supported') is True}
+    # Loose food may already be gone at +20. Require the matching actual pickup
+    # and stationary samples on the collision surface from the first geometry probe.
+    early_pickups = {m[1]: r['t'] for r in records
+                     if start is not None and 0 < r['t'] - start <= 20 and r.get('cat') == 'meal'
+                     and (m := re.fullmatch(r'pickup item=\S+ count=\d+ source=([0-9a-f-]{36}) remaining=0 holder=mouth', r.get('msg', '')))}
+    for r in geo:
+        actor = r.get('u')
+        if (r.get('type') != 'minecraft:item' or actor not in early_pickups or not r.get('clear')
+                or r['t'] != start + 1 or not known(r, 'box', 'drop')):
+            continue
+        poses = [s['state']['p'] for s in startup.get(actor, ()) if r['t'] <= s['t'] < early_pickups[actor]
+                 and known(s['state'], 'p')]
+        if (len(poses) >= 2 and poses[-1] == poses[-2]
+                and abs(poses[-1][1] - (r['box'][1] - r['drop'])) <= .0625):
+            settling.add(actor)
     for r in geo:
         if r.get('player'):
             # SceneGeometry encodes a centre outside the frustum as scr=0.
@@ -1275,7 +1291,6 @@ def observations(records, issues=(), raw='', allow=(), end=(), seed=None, rerun=
     for r in first:
         if r['state'].get('iwr'):
             findings.append(result('SPAWN', 'fail', 'first actor sample inside wall', r))
-    startup = actor_samples([r for r in samples if start is not None and 0 <= r['t'] - start <= 40])
     for r in records:
         if start is not None and r['k'] == 'ev' and 0 <= r['t'] - start <= 40 and is_refusal(r.get('cat'), r.get('msg', '')):
             following = [s for s in startup.get(r['u'], ()) if s['t'] >= r['t']]

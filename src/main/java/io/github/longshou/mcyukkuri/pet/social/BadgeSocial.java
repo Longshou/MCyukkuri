@@ -160,7 +160,13 @@ public final class BadgeSocial {
         var context = new BadgeArcPolicy.Context(viewer != null, Rumours.strength(group, Rumours.WARY_HUMAN, now) > 0, Rumours.strength(group, Rumours.BADGE_FED, now) > 0,
                 snatchEnabled(), homeClaimEnabled());
         BadgeArcPolicy.Choice choice;
-        if (!meal) choice = BadgeArcPolicy.choose(observer, subject, relation, context, o.getRandom().nextDouble());
+        if (!meal) {
+            double roll = o.getRandom().nextDouble();
+            choice = BadgeArcPolicy.choose(observer, subject, relation, context, roll);
+            GameplayLog.limited(o, "badge", "sight." + s.getUUID(), 100,
+                    "badge sight subject={} grade={} first={} roll={} choice={}", s.getUUID(), grade, sight.first(), roll,
+                    choice.silent() ? "silent" : choice.arc().id);
+        }
         else {
             double chance = BadgeArcPolicy.begBiteChance(observer, subject, relation);
             if (chance == 0 || o.getRandom().nextDouble() >= chance) return;
