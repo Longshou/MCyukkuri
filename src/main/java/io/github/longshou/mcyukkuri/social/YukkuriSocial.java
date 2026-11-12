@@ -16,6 +16,7 @@ import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.mind.EmotionEvent;
 import io.github.longshou.mcyukkuri.motor.ClipMarkers;
+import io.github.longshou.mcyukkuri.motor.GreetingStance;
 import io.github.longshou.mcyukkuri.motor.ContactGeometry;
 import io.github.longshou.mcyukkuri.motor.MotorOwner;
 import io.github.longshou.mcyukkuri.motor.Outcome;
@@ -256,7 +257,7 @@ public final class YukkuriSocial implements MotorOwner {
                 && !attachedTo(target)
                 && (task == Task.ACCESSORY || entity.hasLineOfSight(target)) && !entity.dailyLife().active() && !entity.life().isSleeping()
                 && entity.distanceToSqr(target) < 64 && !entity.isPanicking() && !urgent()
-                && entity.life().mealTicks() == 0 && !entity.isCommandPlaying() && elapsed < duration
+                && entity.life().mealTicks() == 0 && !entity.isCommandPlaying() && (elapsed < duration || holdingPeerGreeting())
                 && (task != Task.ANSWER || answerDelay > 0 || approachedBy(target));
     }
     public void tickGoal() {
@@ -277,7 +278,8 @@ public final class YukkuriSocial implements MotorOwner {
             if (target instanceof YukkuriEntity peer) turnToFace(peer);
             if (elapsed == answerDelay && target instanceof YukkuriEntity other) {
                 if (answerScorn) Contempt.react((ServerLevel) entity.level(), entity, other);
-                else { answerGreeting(other, "greet", answerWhy); }
+                else if (GreetingStance.clear(entity, entity.position(), other)) answerGreeting(other, "greet", answerWhy);
+                else stop();
             }
             return;
         }
@@ -355,7 +357,19 @@ public final class YukkuriSocial implements MotorOwner {
             }
             if (elapsed < watchTicks) { EcologyMovement.halt(entity); return; }
         }
-        if (entity.distanceToSqr(target) > 2.25) {
+        if (holdingPeerGreeting()) {
+            EcologyMovement.halt(entity);
+            return;
+        }
+        if (!greeted && task == Task.PEER && target instanceof YukkuriEntity peer) {
+            var arrival = GreetingStance.approach(entity, peer, 1.0, 1.5);
+            if (arrival == SurfaceApproach.Result.BLOCKED) {
+                entity.showReaction("surprise", "", 40);
+                stop();
+            }
+            if (arrival != SurfaceApproach.Result.ARRIVED) return;
+            if (!turnToFace(peer)) return;
+        } else if (entity.distanceToSqr(target) > 2.25) {
             // approach reports arrival, not path acceptance. A walking partner must keep its goal until contact,
             // the existing duration limit or a real interruption, rather than abort on the first moving tick.
             // Every tick: the shared approach's last step is a one-tick MoveControl input, so a throttled call crawls.
@@ -415,13 +429,23 @@ public final class YukkuriSocial implements MotorOwner {
             } else if (task == Task.TOY) { entity.mind().felt(EmotionEvent.PLAYED); entity.showReaction("happy", "toy", 100); }
         }
     }
+    private boolean holdingPeerGreeting() {
+        if (task != Task.PEER || !greeted || !(target instanceof YukkuriEntity peer)) return false;
+        var answer = peer.social();
+        return greeting() || answer.task == Task.ANSWER && answer.target == entity && answer.answerDelay > 0;
+    }
+
     /** Why this arrival is a greeting, or null: a first meeting, a return after a real separation, or the first morning contact of a kin. */
     private String greetReason(YukkuriEntity peer, YukkuriWorldData relations) {
+        String reason = greetingDue(peer, relations);
+        noteContact(peer);
+        greetWhy = null;
+        return reason;
+    }
+    private String greetingDue(YukkuriEntity peer, YukkuriWorldData relations) {
         long now = entity.level().getGameTime();
-        if (lastContact.size() >= 64) lastContact.remove(lastContact.keySet().iterator().next());
-        Long last = lastContact.put(peer.getUUID(), now);
-        String why = greetWhy; greetWhy = null;
-        if ("morning".equals(why)) return last == null || last / 24000L != now / 24000L ? why : null;
+        Long last = lastContact.get(peer.getUUID());
+        if ("morning".equals(greetWhy)) return last == null || last / 24000L != now / 24000L ? greetWhy : null;
         // Family is never a stranger: kin met with no contact remembered greet as a reunion.
         if (last == null) return Bonds.careKin(entity, peer) || relations.affinity(entity.getUUID(), peer.getUUID()) >= BondLevels.AFFINITY_ACQUAINTED
                 ? "reunion" : "first_meet";
@@ -432,10 +456,9 @@ public final class YukkuriSocial implements MotorOwner {
         if (lastContact.size() >= 64 && !lastContact.containsKey(peer.getUUID())) lastContact.remove(lastContact.keySet().iterator().next());
         lastContact.put(peer.getUUID(), entity.level().getGameTime());
     }
-    /** Meeting this peer for a nuzzle: why it is greeted first, or null; the greeting counts as this contact (logged by startGreeting). */
+    /** Read why a nuzzle should open with a greeting. The session records contact after reaching its stand. */
     public String greetingDue(YukkuriEntity peer) {
-        String why = greetReason(peer, YukkuriWorldData.get((ServerLevel) entity.level()));
-        return why;
+        return greetingDue(peer, YukkuriWorldData.get((ServerLevel) entity.level()));
     }
     public void startGreeting(YukkuriEntity peer, String why) {
         greetingBody("greet");
@@ -452,7 +475,10 @@ public final class YukkuriSocial implements MotorOwner {
         entity.settlement().society().welcome(peer);
     }
     private void logGreet(YukkuriEntity other, String why) {
-        GameplayLog.limited(entity, "social", "greet." + other.getUUID(), 200, "greet from={} to={} why={}", entity.getUUID(), other.getUUID(), why);
+        double gap = entity.position().subtract(other.position()).horizontalDistance();
+        GameplayLog.limited(entity, "social", "greet." + other.getUUID(), 200,
+                "greet from={} to={} why={} spacing={} minimum={}", entity.getUUID(), other.getUUID(), why,
+                Math.round(gap * 1000) / 1000.0, Math.round(GreetingStance.visualDistance(entity, other) * 1000) / 1000.0);
     }
     private void approachPeer(String why) {
         task = Task.PEER; duration = 200; elapsed = 0; greeted = false; greetWhy = why;
@@ -463,13 +489,15 @@ public final class YukkuriSocial implements MotorOwner {
      * One motor turn of the whole body toward the peer it answers: the look control only tilts the head, so a reply from a body
      * still facing away is delivered with its back to the greeter. Requested once per missing facing, at the ability's turn rate.
      */
-    private void turnToFace(YukkuriEntity peer) {
+    private boolean turnToFace(YukkuriEntity peer) {
         float yaw = SurfaceApproach.yaw(entity.position(), peer.position());
-        if (Math.abs(Mth.wrapDegrees(yaw - entity.yBodyRot)) <= Face.FACE_ARRIVED || entity.motor().current() instanceof Face) return;
+        if (Math.abs(Mth.wrapDegrees(yaw - entity.yBodyRot)) <= Face.FACE_ARRIVED) return true;
+        if (entity.motor().current() instanceof Face) return false;
         GameplayLog.limited(entity, "social", "answer_face." + peer.getUUID(), ANSWER_EXPIRY,
                 "answer face turn to={} yaw={} bodyYaw={}", peer.getUUID(), Math.round(yaw * 10) / 10.0,
                 Math.round(entity.yBodyRot * 10) / 10.0);
         entity.motor().run(this, new Face(yaw));
+        return false;
     }
     /** The greeter is still walking up to this one, not yet arrived. */
     private boolean approachedBy(Entity other) {

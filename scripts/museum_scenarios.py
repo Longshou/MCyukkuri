@@ -667,6 +667,19 @@ add('meet', 'meadow', '熟的走近蹭蹭，生的先问候', '熟的走近蹭�
     reads=[('读熟识一对', f'execute as {sel("a")} run yukkuri status @s raw'),
            ('读陌生橙的首次接触', f'yukkuri status {sel("stranger_a")} raw'), ('读陌生爱丽丝的首次接触', f'yukkuri status {sel("stranger_b")} raw')])
 
+_CLOSE_GREETERS = {name: uid('greet_close', name) for name in ('wide', 'bean')}
+
+add('greet_close', 'meadow', '贴近的豆形子油与成油打招呼', '异体型近距问候',
+    '帕秋莉成油和豆形灵梦子油站得太近。看成油先腾出一点位置，再前倾问候。'
+    '子油原地回礼，两只的脚底在问候和回礼时都应停在原处。',
+    '约半分钟', [
+        yk('patchouli', 0, 0, 'greet_wide', yaw=-90, affection=0, attachment=95, social_wait=0,
+           lead=True, uuid=_CLOSE_GREETERS['wide']),
+        yk('reimu', .64, 0, 'greet_bean', yaw=90, stage='teen', congenital='BEAN_BODY', affection=0,
+           uuid=_CLOSE_GREETERS['bean'])],
+    env=DAY, vantage=(0, 4, 180, 15),
+    reads=[('读两只的站位和动作', 'yukkuri status @e[tag=scn,distance=..12] raw')])
+
 # Three hungry-ish bodies, each with an apple at its feet: the bite takes each past full (nutrition 60 + 20 > 75). The adult and the
 # child melt in contentment; the composed adult (self-control 95) keeps to the ordinary after-meal face.
 _content_ids = {name: uid('meal_content', name) for name in ('adult', 'child', 'composed')}
@@ -3952,7 +3965,7 @@ TOPICS = {
     'agitation_relief': 'D2', 'adult_pairing': 'F6', 'widow_repair': 'F6', 'alice_hunt': 'R4', 'aftermath_growth': 'F7', 'aftermath_depletion': 'F7',
     'den_family': 'W1', 'den_mold_exile': 'W1', 'dig': 'W2', 'indep_near': 'W3', 'den_move': 'W4', 'forage': 'W5', 'graze': 'W6', 'den_barrier': 'W8',
     'family_absence': 'W9',
-    'sleep': 'D1', 'night_sleep': 'D1', 'night_hungry_child': 'D1', 'meal_content': 'D1', 'fatigue': 'R1', 'fatigue_predator': 'R2', 'nutrition_age': 'D1', 'meet': 'D1', 'toilet': 'F5', 'hurt': 'F3',
+    'sleep': 'D1', 'night_sleep': 'D1', 'night_hungry_child': 'D1', 'meal_content': 'D1', 'fatigue': 'R1', 'fatigue_predator': 'R2', 'nutrition_age': 'D1', 'meet': 'D1', 'greet_close': 'D1', 'toilet': 'F5', 'hurt': 'F3',
     'birth_land_caught': 'F1', 'birth_land_missed': 'F1', 'feed': 'F2', 'first_toilet': 'F2', 'hop': 'F2', 'growth': 'F4',
     'leaf_swaddle': 'F2', 'leaf_swaddle_neglect': 'F2', 'leaf_swaddle_neglect_stages': 'F2', 'family_distance': 'F8', 'family_search': 'F8', 'family_search_pane': 'F8', 'birth_nest_safe': 'F1', 'birth_nest_stem': 'F1', 'birth_stem_caught': 'F1', 'family_nests': 'F4', 'carry_home': 'F4', 'infant_starvation': 'F2',
     'excited_leak': 'D1',
@@ -4103,6 +4116,11 @@ _smoke('graze', 1200, [r'\[meal\][^\n]* swallowed item=minecraft:apple\b', r'\[m
 _smoke('meal_content', 900, [r'\[meal\][^\n]* full nutrition=[^\n]*content=true'])
 next(s for s in S if s.id == 'meal_content').smoke['verify'] = _meal_content_verify
 _smoke('meet', 2400, [r'\[social\][^\n]* greet [^\n]*why=first_meet', r'\[daily\][^\n]* session result kind=NUZZLE'])
+_wide_greeter = _uuid_of(_CLOSE_GREETERS['wide'])
+_bean_greeter = _uuid_of(_CLOSE_GREETERS['bean'])
+_smoke('greet_close', 620, [
+    rf'\[social\][^\n]* greet from={_wide_greeter} to={_bean_greeter} why=first_meet',
+    rf'\[social\][^\n]* greet answer from={_bean_greeter} to={_wide_greeter} why=first_meet answer=greet'])
 _sukkiri_beats = (('build', 1, 0), ('su', 2, 30), ('su_again', 2, 52), ('release', 3, 70))
 
 

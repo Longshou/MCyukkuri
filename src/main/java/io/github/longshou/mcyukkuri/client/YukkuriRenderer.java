@@ -347,8 +347,12 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
         if(!operated&&behavior.equals(Behaviors.NUZZLE)||contact.equals("RUB")) {
             float lean=0;
             YukkuriView peer;
-            if(behavior.equals(Behaviors.NUZZLE)&&(peer=entity.yukkuriView(entity.nuzzlePartnerId()))!=null
-                    &&peer.nuzzlePartnerId()==entity.getId()&&peer.getBehaviorId().equals(Behaviors.NUZZLE)) {
+            // Only face-to-face rubbing closes a gap along the face. The greeting and the shared side press
+            // already have their own spacing, including while the behavior and clip updates arrive separately.
+            if(behavior.equals(Behaviors.NUZZLE)&&entity.getAnimationId().equals("nuzzle")
+                    &&(peer=entity.yukkuriView(entity.nuzzlePartnerId()))!=null
+                    &&peer.nuzzlePartnerId()==entity.getId()&&peer.getAnimationId().equals("nuzzle")
+                    &&Math.abs(Mth.wrapDegrees(entity.bodyYaw()-peer.bodyYaw()))>90) {
                 float scale=entity.getScale()*entity.growthScale(),peerScale=peer.getScale()*peer.growthScale();
                 double distance=entity.getPosition(partialTick).subtract(peer.getPosition(partialTick)).horizontalDistance();
                 double gap=distance-YukkuriModel.get(entity.assetId()).faceDepth()*scale

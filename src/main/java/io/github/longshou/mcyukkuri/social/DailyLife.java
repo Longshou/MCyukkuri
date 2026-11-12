@@ -10,6 +10,7 @@ import io.github.longshou.mcyukkuri.life.EcologyMovement;
 import io.github.longshou.mcyukkuri.mind.EmotionEvent;
 import io.github.longshou.mcyukkuri.mind.MindLife;
 import io.github.longshou.mcyukkuri.motor.ClipMarkers;
+import io.github.longshou.mcyukkuri.motor.GreetingStance;
 import io.github.longshou.mcyukkuri.motor.Motor;
 import io.github.longshou.mcyukkuri.motor.MotorOwner;
 import io.github.longshou.mcyukkuri.motor.SideContact;
@@ -75,7 +76,7 @@ public final class DailyLife {
     public boolean inContact() { return active() && session.contact > 0; }
     /** Actual shared contact clock; observation does not evaluate session validity. */
     public int observedContactTicks() { return active() ? session.contact : 0; }
-    /** The greeting only counts down while the existing contact is touching. */
+    /** Remaining time of the greeting and reply from the shared greeting stance. */
     public int observedGreetingWait() { return active() ? session.greetHold : 0; }
     /** The actual shared side-press beat, before the existing rub. Players retain the face-to-face nuzzle. */
     public String contactClip() {
@@ -332,13 +333,15 @@ public final class DailyLife {
      * One motor turn of the whole body toward {@code other}: the look control only tilts the head, so a body left facing away
      * answers with its back to the one it answers. Requested once per missing facing, at the ability's turn rate.
      */
-    private void turnToFace(Entity other) {
+    private boolean turnToFace(Entity other) {
         float yaw = SurfaceApproach.yaw(entity.position(), other.position());
-        if (Math.abs(Mth.wrapDegrees(yaw - entity.yBodyRot)) <= Face.FACE_ARRIVED || entity.motor().current() instanceof Face) return;
+        if (Math.abs(Mth.wrapDegrees(yaw - entity.yBodyRot)) <= Face.FACE_ARRIVED) return true;
+        if (entity.motor().current() instanceof Face) return false;
         GameplayLog.limited(entity, "daily", "greet_face." + other.getUUID(), 200,
                 "greet face turn to={} yaw={} bodyYaw={}", other.getUUID(), Math.round(yaw * 10) / 10.0,
                 Math.round(entity.yBodyRot * 10) / 10.0);
         entity.motor().run(body, new Face(yaw));
+        return false;
     }
     /** A stand beside the other at its own height, or (a bank over a hollow) a block above or below it. */
     private Vec3 standBeside(Entity other, double distance) {
@@ -353,6 +356,17 @@ public final class DailyLife {
         var other = current.leader == entity ? current.companion : current.leader;
         if (other != null) entity.getLookControl().setLookAt(other, 30, 30);
         if (current.kind == Kind.NUZZLE && other != null) {
+            if (current.greetHold > 0) {
+                SurfaceApproach.halt(entity);
+                turnToFace(other);
+                if (current.leader == entity) {
+                    if (current.greetHold == ClipMarkers.of("greet").length() && other instanceof YukkuriEntity peer
+                            && GreetingStance.clear(peer, peer.position(), entity))
+                        peer.social().answerGreeting(entity, "greet", "nuzzle");
+                    current.greetHold--;
+                }
+                return;
+            }
             double reach = (entity.getBbWidth() + other.getBbWidth()) * .5 + .10;
             // A nuzzle leans over one block of height (a friend on the bank, a hollow below it), and the lean itself reaches that much further.
             double lift = Math.abs(entity.getY() - other.getY());
@@ -361,6 +375,18 @@ public final class DailyLife {
                     SideContact.beside(current.leader, (YukkuriEntity)current.companion, current.facing, false)) : null;
             boolean touching = sidePress ? sideStand != null && current.leader.position().subtract(sideStand).horizontalDistance() <= SurfaceApproach.ARRIVAL
                     : lift <= LEAN && entity.position().subtract(other.position()).horizontalDistance() <= reach + (lift > .35 ? LEAN : 0);
+            var partner = current.companion instanceof YukkuriEntity peer ? peer : null;
+            String greeting = current.greeted || partner == null ? null
+                    : current.welcome ? "welcome" : current.leader.social().greetingDue(partner);
+            if (greeting != null && (sideStand == null || !GreetingStance.clear(current.leader, sideStand, partner)
+                    || touching && !GreetingStance.clear(current.leader, current.leader.position(), partner))) {
+                // The side-press stand is for the side pose. Reach a clear frontal stance before either peer bows.
+                if (current.leader != entity) { SurfaceApproach.halt(entity); turnToFace(other); return; }
+                var arrival = GreetingStance.approach(entity, partner, .8, LEAN);
+                if (arrival == SurfaceApproach.Result.BLOCKED) { stop(); return; }
+                if (arrival != SurfaceApproach.Result.ARRIVED) { current.elapsed++; return; }
+                touching = true;
+            }
             if (!touching) {
                 // One member approaches the consenting partner. Two centre-seeking controllers otherwise push
                 // each other past their contact envelope, especially when their bodies meet diagonally.
@@ -376,27 +402,20 @@ public final class DailyLife {
             }
             SurfaceApproach.halt(entity);
             // A peer whose greeting is due is greeted first, then nuzzled.
-            if (current.leader == entity && !current.greeted && other instanceof YukkuriEntity peer) {
+            if (!current.greeted && other instanceof YukkuriEntity peer) {
+                boolean facing = turnToFace(other);
+                if (current.leader != entity) return;
+                if (greeting != null && !facing) { current.elapsed++; return; }
                 current.greeted = true;
-                String why = entity.social().greetingDue(peer);
-                if (current.welcome || why != null) {
+                entity.social().noteContact(peer);
+                if (greeting != null) {
                     peer.social().noteContact(entity);
-                    entity.social().startGreeting(peer, current.welcome ? "welcome" : why);
+                    entity.social().startGreeting(peer, greeting);
                     current.greetHold = 2 * ClipMarkers.of("greet").length();
-                }
-            }
-            if (current.greetHold > 0) {
-                if (current.leader == entity) {
-                    if (current.greetHold == ClipMarkers.of("greet").length() && other instanceof YukkuriEntity peer)
-                        peer.social().answerGreeting(entity, "greet", "nuzzle");
                     current.greetHold--;
+                    return;
                 }
-                // Both keep facing each other through the greet and the reply; the side press turns them only when its clip starts.
-                turnToFace(other);
-                return;
             }
-            // One that touches first still waits for the other peer, which decides the greeting on its own tick.
-            if (!current.greeted && other instanceof YukkuriEntity) { turnToFace(other); return; }
         }
         if (current.kind == Kind.SING) EcologyMovement.halt(entity);
         else entity.getNavigation().stop();
