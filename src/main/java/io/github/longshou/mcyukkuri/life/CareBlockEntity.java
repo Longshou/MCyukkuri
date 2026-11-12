@@ -126,11 +126,21 @@ public final class CareBlockEntity extends BlockEntity implements Container {
         if (!(level instanceof ServerLevel server) || kind() != CareBlock.Kind.TOILET) return ItemStack.EMPTY;
         int whole = Math.min(limit, (int)wasteVolume);
         if (whole == 0) return ItemStack.EMPTY;
+        subtractWaste(server, whole);
+        return new ItemStack(ModItems.WASTE.get(), whole);
+    }
+    /** A cleaner scoops up to one unit from a toilet, including a smaller remainder. */
+    public ItemStack takeWasteForCleanup() {
+        if (!(level instanceof ServerLevel server) || kind() != CareBlock.Kind.TOILET || wasteVolume == 0) return ItemStack.EMPTY;
+        double taken = Math.min(1, wasteVolume);
+        subtractWaste(server, taken);
+        return DetachedItems.waste(taken);
+    }
+    private void subtractWaste(ServerLevel server, double taken) {
         double before = wasteVolume;
-        wasteVolume -= whole;
+        wasteVolume -= taken;
         changed();
         GameplayLog.world(server, "needs", "toilet taken at={} volume={} -> {}", worldPosition, before, wasteVolume);
-        return new ItemStack(ModItems.WASTE.get(), whole);
     }
     double drainWaste(ServerLevel server) {
         double before = wasteVolume;

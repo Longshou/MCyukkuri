@@ -42,6 +42,14 @@ public final class PoopBlockEntity extends BlockEntity {
         return new ItemStack(ModItems.WASTE.get(), whole);
     }
 
+    /** A cleaner carries the heap as one load, including its fractional volume. */
+    public ItemStack takeForCleanup() {
+        if (!(level instanceof ServerLevel server) || isRemoved() || volume == 0) return ItemStack.EMPTY;
+        var load = DetachedItems.waste(volume);
+        subtract(server, volume, "taken");
+        return load;
+    }
+
     /** Eating at the heap can use a fractional bite. The mouth must accept the bite before the heap is debited. */
     public boolean eat(Predicate<ItemStack> accept) {
         if (!(level instanceof ServerLevel server) || isRemoved() || volume == 0) return false;

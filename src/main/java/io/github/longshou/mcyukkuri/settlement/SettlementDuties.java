@@ -1,13 +1,13 @@
 package io.github.longshou.mcyukkuri.settlement;
 
-import io.github.longshou.mcyukkuri.random.ModRandom;
-
+import io.github.longshou.mcyukkuri.body.DetachedItems;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.life.CareBlock;
 import io.github.longshou.mcyukkuri.life.CareBlockEntity;
 import io.github.longshou.mcyukkuri.life.PoopBlockEntity;
 import io.github.longshou.mcyukkuri.life.Poops;
+import io.github.longshou.mcyukkuri.random.ModRandom;
 import io.github.longshou.mcyukkuri.registry.ModItems;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.Comparator;
@@ -25,7 +25,7 @@ import java.util.ArrayList;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.phys.HitResult;
 
-/** Low-priority, interruptible duties. Every waste portion keeps its real ItemStack and provenance. */
+/** Low-priority, interruptible duties. The mouth holds the actual waste load until it is set down. */
 public final class SettlementDuties {
     private enum Task { NONE, RETREAT, PICKUP, SCOOP, TOILET, DUMP }
     private final YukkuriEntity entity;
@@ -95,10 +95,10 @@ public final class SettlementDuties {
             if (waste.blockPosition().distSqr(center) <= 6 * 6) return true;
         for (var pos : BlockPos.betweenClosed(center.offset(-6, -2, -6), center.offset(6, 2, 6)))
             if (local(pos) && pos.distSqr(center) <= 6 * 6 && level().getBlockEntity(pos) instanceof CareBlockEntity care
-                    && care.kind() == CareBlock.Kind.TOILET && care.waste() >= 1) return true;
+                    && care.kind() == CareBlock.Kind.TOILET && care.waste() > 0) return true;
         var group = entity.settlement().group();
         for (var poop : Poops.near(level(), center, 6, 3))
-            if (poop.count() >= 1 && local(poop.getBlockPos()) && poop.getBlockPos().distSqr(center) <= 6 * 6
+            if (poop.count() > 0 && local(poop.getBlockPos()) && poop.getBlockPos().distSqr(center) <= 6 * 6
                     && !GroupPits.inPit(level(), group, poop.getBlockPos())) return true;
         return false;
     }
@@ -154,7 +154,7 @@ public final class SettlementDuties {
             GameplayLog.event(entity, "settlement", "cleanup start source=ground waste={} at={} dump={} assigner={}", item.getId(), item.blockPosition(), destination, assigner.getUUID());
             return true;
         }
-        heap = Poops.near(level(), workCenter, 6, 3).stream().filter(poop -> poop.count() >= 1).map(poop -> poop.getBlockPos())
+        heap = Poops.near(level(), workCenter, 6, 3).stream().filter(poop -> poop.count() > 0).map(poop -> poop.getBlockPos())
                 .filter(pos -> workArea(pos) && entity.distanceToSqr(Vec3.atCenterOf(pos)) <= 12 * 12 && !GroupPits.inPit(level(), entity.settlement().group(), pos))
                 .sorted(Comparator.comparingDouble(pos -> pos.distSqr(entity.blockPosition()))).limit(3)
                 .filter(pos -> entity.life().dryStand(pos) && entity.life().reachable(pos, false)).findFirst().orElse(null);
@@ -166,7 +166,7 @@ public final class SettlementDuties {
         }
         for (var pos : BlockPos.betweenClosed(workCenter.offset(-6,-2,-6), workCenter.offset(6,2,6))) {
             if (!workArea(pos) || entity.distanceToSqr(Vec3.atCenterOf(pos)) > 12 * 12) continue;
-            if (level().getBlockEntity(pos) instanceof CareBlockEntity care && care.kind() == CareBlock.Kind.TOILET && care.waste() >= 1) {
+            if (level().getBlockEntity(pos) instanceof CareBlockEntity care && care.kind() == CareBlock.Kind.TOILET && care.waste() > 0) {
                 var stand = standBeside(pos);
                 if (stand != null) {
                     toilet = pos.immutable(); task = Task.TOILET; elapsed = 0;
@@ -232,17 +232,21 @@ public final class SettlementDuties {
                 item = null; task = Task.DUMP; elapsed = 0;
             }
         } else if (task == Task.SCOOP) {
-            if (heap == null || !workArea(heap) || !(level().getBlockEntity(heap) instanceof PoopBlockEntity source) || source.count() < 1) { stop(); return; }
+            if (heap == null || !workArea(heap) || !(level().getBlockEntity(heap) instanceof PoopBlockEntity source) || source.count() == 0) { stop(); return; }
             if (approach(heap) && entity.distanceToSqr(Vec3.atBottomCenterOf(heap)) < 2.25) {
-                carrying = source.takeWhole(1); task = carrying.isEmpty() ? Task.NONE : Task.DUMP; elapsed = 0; heap = null;
+                carrying = source.takeForCleanup();
+                if (!carrying.isEmpty()) GameplayLog.event(entity, "settlement", "cleanup lifted source=heap at={} volume={}", heap, DetachedItems.volume(carrying));
+                task = carrying.isEmpty() ? Task.NONE : Task.DUMP; elapsed = 0; heap = null;
             }
         } else if (task == Task.TOILET) {
             if (toilet == null || !workArea(toilet) || !(level().getBlockEntity(toilet) instanceof CareBlockEntity care)
-                    || care.kind() != CareBlock.Kind.TOILET || care.waste() < 1) { stop(); return; }
+                    || care.kind() != CareBlock.Kind.TOILET || care.waste() == 0) { stop(); return; }
             var stand = standBeside(toilet);
             if (stand == null) { stop(); return; }
             if (approach(stand) && entity.distanceToSqr(Vec3.atCenterOf(toilet)) < 2.25 && clearContact(toilet)) {
-                carrying = care.takeWaste(1); task = carrying.isEmpty() ? Task.NONE : Task.DUMP; elapsed = 0;
+                carrying = care.takeWasteForCleanup();
+                if (!carrying.isEmpty()) GameplayLog.event(entity, "settlement", "cleanup lifted source=toilet at={} volume={}", toilet, DetachedItems.volume(carrying));
+                task = carrying.isEmpty() ? Task.NONE : Task.DUMP; elapsed = 0;
             }
         } else if (task == Task.DUMP && approach(destination)) {
             if (dropCarrying()) {
@@ -276,11 +280,25 @@ public final class SettlementDuties {
                         placed.tierBefore(), placed.tierAfter(), placed.before(), placed.after(), placed.overflow());
                 carrying = ItemStack.EMPTY; return true;
             }
+            double volume = DetachedItems.volume(carrying);
+            if (volume > 1) {
+                int whole = (int)volume;
+                if (!dropLoose(new ItemStack(ModItems.WASTE.get(), whole))) return false;
+                carrying = volume > whole ? DetachedItems.waste(volume - whole) : ItemStack.EMPTY;
+                if (carrying.isEmpty()) return true;
+            }
         }
-        var drop = ModRandom.created(new ItemEntity(level(), entity.getX(), entity.getY(), entity.getZ(), carrying.copy()), entity.getRandom());
+        if (!dropLoose(carrying)) return false;
+        carrying = ItemStack.EMPTY;
+        return true;
+    }
+    private boolean dropLoose(ItemStack waste) {
+        var drop = ModRandom.created(new ItemEntity(level(), entity.getX(), entity.getY(), entity.getZ(), waste.copy()), entity.getRandom());
         if (!level().addFreshEntity(drop)) return false;
         drop.setPickUpDelay(100); drop.getPersistentData().putLong("YukkuriClearedUntil", level().getGameTime() + 1200);
-        carrying = ItemStack.EMPTY; return true;
+        GameplayLog.event(entity, "settlement", "cleanup dropped loose at={} volume={} waste={}",
+                drop.blockPosition(), DetachedItems.volume(waste), drop.getUUID());
+        return true;
     }
     public void cancelAssignment() { if (active()) stop(); dropCarrying(); }
     public void stop() {
