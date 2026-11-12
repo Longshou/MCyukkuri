@@ -166,7 +166,7 @@ public final class InteractionDispatch {
             case ASK -> target.pet().care().canAsk()?null:"busy";
             case ADOPT -> !target.status().identity().free()?"identity":!WildEvents.canAdoptHere(target,player)?"adopt":null;
             case ABANDON -> WildEvents.canAbandon(target,player)?null:"busy";
-            case DECLINE_EVENT -> WildEvents.canDecline(target,player)?null:"request";
+            case DECLINE_EVENT -> target.social().canDismissFoodRequest(player) || WildEvents.canDecline(target,player) ? null : "request";
             case SING, EXERCISE -> target.dailyLife().canInvite(player,action==CareAction.SING?DailyLife.Kind.SING:DailyLife.Kind.EXERCISE)?null:"leisure";
             case REMOVE_HARNESS -> target.pet().care().harnessed()?null:"harness";
             case UNWRAP -> target.pet().care().swaddled()?null:"swaddle";

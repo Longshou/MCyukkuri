@@ -40,6 +40,7 @@ public final class SettlementLife {
     private UUID groupId;
     private GlobalPos origin;
     private long arrivedFor = -1;
+    private long lastFreedAt = -1;
     private BlockPos arrivalHomeSearch;
     private boolean arrivalHomeStarted;
     private boolean pendingNatural;
@@ -70,6 +71,8 @@ public final class SettlementLife {
     }
 
     public SettlementSociety society() { return society; }
+    public long lastFreedAt() { return lastFreedAt; }
+    void freedFromPit(long now) { lastFreedAt = now; }
     public SettlementDuties duties() { return duties; }
     public SettlementData.Role role() {
         var group = group();
@@ -709,6 +712,7 @@ public final class SettlementLife {
         FamilyData.putPosition(tag, "Origin", origin);
         FamilyData.putPosition(tag, "MigrationDeparture", migrationDeparture);
         if (arrivedFor >= 0) tag.putLong("ArrivedFor", arrivedFor);
+        if (lastFreedAt >= 0) tag.putLong("LastFreedAt", lastFreedAt);
         tag.putBoolean("PendingNatural", pendingNatural);
         tag.put("Duties", duties.save());
         entity.moldExile().save(tag);
@@ -719,6 +723,7 @@ public final class SettlementLife {
         groupId = tag.hasUUID("Group") ? tag.getUUID("Group") : null;
         origin = FamilyData.position(tag, "Origin");
         arrivedFor = tag.contains("ArrivedFor") ? tag.getLong("ArrivedFor") : -1;
+        lastFreedAt = tag.contains("LastFreedAt") ? tag.getLong("LastFreedAt") : -1;
         arrivalHomeSearch = null;
         if (origin == null) groupId = null;
         migrationDeparture = FamilyData.position(tag, "MigrationDeparture");

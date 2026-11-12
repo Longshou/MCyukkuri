@@ -1340,23 +1340,28 @@ add('house_eggs', 'house', '窝脏了，家油把卵叼去新窝', '窝脏了，
 
 # ====================================================================================================== town
 add('social_identity', 'town', '宠物、流浪与野生四类对照', '宠物、流浪与野生四类对照',
-    '四只从左到右是玩家的宠物、认得玩家的饥饿流浪油、聚落成员、独居的野生油。空手站在附近，观察迎人、讨食与退避；手册可核对身份。',
-    '先站着观察，再靠近操作', [
-    *shed(-5, -4), *shed(-2, -4, half=1),
-    yk('reimu', -5, 0, 'identity_pet', label='灵梦', nutrition=90, social_wait=0, lead=True),
+    '四角分别是玩家的宠物、胆大的饥饿流浪油、胆小的聚落成员、胆大的独居野生油。空手站定，转身观察迎人、辱骂索食、退避与停看。',
+    '站在四只之间，等它们自己选', [
+    *shed(-4, -7), *shed(-4, 7, half=1),
+    # Headless observers are markers. Give the shy pair a stationary stranger in view.
+    'execute if entity @s[type=minecraft:marker] run ' + human('caretaker_sister', 0, 0, 'identity_listener', 0)[:-1] + ',NoAI:1b}',
+    # Marisa starts facing an empty-handed listener at speaking distance, before ambient address lines can take her voice.
+    'execute if entity @s[type=minecraft:marker] run ' + human('caretaker_sister', -4, 3, 'identity_stray_listener', 0, yaw=0)[:-1] + ',NoAI:1b}',
+    yk('reimu', -4, -4, 'identity_pet', label='灵梦', nutrition=90, social_wait=0, lead=True),
     *own('identity_pet'),
     f'yukkuri status relate {sel("identity_pet")} @s 30',
-    yk('marisa', -2, 0, 'identity_stray', label='魔理沙', nutrition=48, social_wait=0,
-       extra='YukkuriPet:{FormerOwner:' + uuid_nbt(uid('social_identity', 'former_owner')) + '}'),
-    f'yukkuri status relate {sel("identity_stray")} @s 12',
-    yk('patchouli', 2, 0, 'identity_settlement', label='帕秋莉', social_wait=0),
+    yk('marisa', -4, 4, 'identity_stray', label='魔理沙', nutrition=38, social_wait=0,
+       boldness=60, friendliness=40, self_control=40,
+       extra='YukkuriPet:{TownRoots:1b}'),
+    yk('patchouli', 4, -4, 'identity_settlement', label='帕秋莉', social_wait=0, boldness=40),
     f'yukkuri scenario community {sel("identity_settlement")} {sel("identity_settlement")}',
-    yk('chen', 5, 0, 'identity_family', label='橙', social_wait=0)],
-    env=DAY, vantage=(0, 5),
-    late=[home('identity_pet', -5, -4), home('identity_stray', -2, -4)],
+    yk('chen', 4, 4, 'identity_family', label='橙', social_wait=0, boldness=95)],
+    env=DAY, vantage=(0, 0),
+    late=[home('identity_pet', -4, -7), home('identity_stray', -4, 7)],
     give=['mcyukkuri:field_notebook', 'minecraft:apple 4'],
-    note='靠近后双手空着潜行右键，在「照料」一栏收养魔理沙，再对自己的灵梦选择「弃养」。观察菜单抬头的身份与操作后的反馈；收养未出现时，先喂食提高信任。',
-    reads=[('读四只的身份', 'yukkuri status @e[tag=scn,type=#mcylab:yukkuri,distance=..24]')])
+    note='魔理沙开口后可直接喂，或双手空着潜行右键，在「照料」中选「拒绝／赶走」。也可走开，等它停止请求。清场重开后可手持苹果走近，对照诱食接手。提高信任后还可收养魔理沙，或在照料栏对灵梦选择「弃养」。',
+    reads=[('读四只的身份', 'yukkuri status @e[tag=scn,type=#mcylab:yukkuri,distance=..24]'),
+           ('读魔理沙的自尊与关系', f'yukkuri status {sel("identity_stray")} raw')])
 
 add('wild', 'town', '饿野油来讨宠物的苹果', '饿野油来讨宠物的苹果', '银章宠物就地吃苹果，旁边的野生魔理沙看见嘴里的食物才上前讨吃。看对方面向它、分一口或鼓脸拒绝。', '约半分钟', [
     yk('reimu', 0, 0, 'pet', nutrition=38, yaw=-90, lead=True, boldness=60), *own('pet'),
@@ -4118,10 +4123,23 @@ def _distinct(pattern, count, what):
     return verify
 
 
-_smoke('social_identity', 240, [
+_smoke('social_identity', 440, [
     rf'\[status\] {species} #[^\n]* identity observed kind={kind}\b'
-    for species, kind in (('reimu', 'pet'), ('marisa', 'stray'), ('patchouli', 'wild_settlement'), ('chen', 'wild_family'))],
-    readout=[f'yukkuri status {sel("identity_" + kind)} raw' for kind in ('pet', 'stray', 'settlement', 'family')])
+    for species, kind in (('reimu', 'pet'), ('marisa', 'stray'), ('patchouli', 'wild_settlement'), ('chen', 'wild_family'))] + [
+        r'\[social\] marisa #[^\n]* human food request [^\n]* line=human_food_demand\b',
+        r'\[social\] patchouli #[^\n]* human retreat [^\n]* moving=true\b',
+        r'\[social\] chen #[^\n]* human watch '],
+    readout=[f'yukkuri status {sel("identity_" + kind)} raw' for kind in ('pet', 'stray', 'settlement', 'family')] +
+            [f'data get entity @e[tag={tag("identity_stray")},distance=..24,limit=1] LastFoodRequestNutrition'])
+_human_contact_smoke = next(s for s in S if s.id == 'social_identity').smoke
+
+
+def _one_human_food_request(log):
+    requests = re.findall(r'\[social\] marisa #[^\n]* human food request target=', log)
+    return None if len(requests) == 1 else f'expected one voiced request from Marisa, found {len(requests)}'
+
+
+_human_contact_smoke['verify'] = _one_human_food_request
 _smoke('wild', 600, [r'\[status\] reimu [^\n]* identity observed kind=pet\b',
                     r'\[status\] marisa [^\n]* identity observed kind=wild_family\b',
                     r'\[wild-event\][^\n]*event=ended [^\n]*card=beg_bite [^\n]*detail=(?:shared|refused)\b'],

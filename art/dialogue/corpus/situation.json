@@ -348,7 +348,9 @@
     {"id":"self_rescue_grip.edge","event":"self_rescue_grip","zh":"咬住边缘了！","ja":"ふちを くわえたよ！","en":"I got hold of the edge!","basis":["P"],"status":"ready","shared_runtime":true},
     {"id":"self_rescue_climb.pull","event":"self_rescue_climb","zh":"嗯……嘿咻！","ja":"んっ……よいしょ！","en":"Ngh... heave!","basis":["P"],"status":"ready","shared_runtime":true},
     {"id":"self_rescue_slip.edge","event":"self_rescue_slip","zh":"呜！要滑下去了！","ja":"ゆっ！ すべっちゃう！","en":"Yu! I'm slipping!","basis":["P"],"status":"ready","shared_runtime":true},
-    {"id":"self_rescue_safe.rest","event":"self_rescue_safe","zh":"呼……爬上来了……","ja":"ふぅ……のぼれたよ……","en":"Phew... I climbed up...","basis":["P"],"status":"ready","shared_runtime":true}
+    {"id":"self_rescue_safe.rest","event":"self_rescue_safe","zh":"呼……爬上来了……","ja":"ふぅ……のぼれたよ……","en":"Phew... I climbed up...","basis":["P"],"status":"ready","shared_runtime":true},
+    {"id":"human_food_ask.request","event":"human_food_ask","zh":"人类先生……能给一点吃的吗？","ja":"にんげんさん……たべもの、すこしちょうだい？","en":"Mr. Human... could I have a little food?","basis":["P"],"status":"ready","shared_runtime":true},
+    {"id":"human_food_demand.insult","event":"human_food_demand","zh":"笨蛋人类！快把吃的交出来！","ja":"ばかにんげん！ はやくたべものをよこせ！","en":"Stupid human! Hand over the food!","basis":["P"],"status":"ready","shared_runtime":true}
   ],
   "planned": [
     {

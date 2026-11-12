@@ -93,6 +93,7 @@ public final class NativeDialogue {
                  "badge_pity", "elder_warn", "elder_kind",
                  // Treats, requests to the owner, mood, harness walks and the swaddle answer something the owner just did or ask for something now.
                  "snack_eat", "snack_greedy", "snack_refuse", "ask_food", "ask_snack", "ask_play", "ask_walk", "request_thanks", "request_sulk", "mood_good",
+                 "human_food_ask", "human_food_demand",
                          "mood_ok", "mood_bad", "harness_on", "harness_tug", "walk_enjoy", "swaddle_on" -> 2;
             // Addresses, counts and self-narration answer a person or a situation right now.
             case "thing_san", "treasure_stolen", "narrate_steal", "narrate_flee", "narrate_hide" -> 2;

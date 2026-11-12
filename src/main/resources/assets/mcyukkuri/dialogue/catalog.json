@@ -57366,5 +57366,29 @@
     ],
     "ticks": 59,
     "sound": ""
+  },
+  {
+    "id": "human_food_ask.request",
+    "key": "dialogue.mcyukkuri.original.human_food_ask.request",
+    "origin": "project-original",
+    "species": "*",
+    "age": "*",
+    "events": [
+      "human_food_ask"
+    ],
+    "ticks": 103,
+    "sound": ""
+  },
+  {
+    "id": "human_food_demand.insult",
+    "key": "dialogue.mcyukkuri.original.human_food_demand.insult",
+    "origin": "project-original",
+    "species": "*",
+    "age": "*",
+    "events": [
+      "human_food_demand"
+    ],
+    "ticks": 95,
+    "sound": ""
   }
 ]

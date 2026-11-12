@@ -215,6 +215,7 @@ public final class YukkuriLife {
     LifeDoses doses() { return doses; }
     void addNutrition(float amount) {
         float before = nutrition; nutrition = Math.min(100, nutrition + amount);
+        if (nutrition > before) entity.social().ate(nutrition);
         nutritionBoundary(before, "intake");
     }
     void addBladder(float amount) { bladder = Math.min(100, bladder + amount); }

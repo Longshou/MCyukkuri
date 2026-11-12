@@ -78,7 +78,7 @@ public final class OperationLife {
             case COLD -> entity.social().talk(player,false);
             case ADOPT -> WildEvents.adopt(entity,player);
             case ABANDON -> WildEvents.abandon(entity,player);
-            case DECLINE_EVENT -> WildEvents.decline(entity,player);
+            case DECLINE_EVENT -> entity.social().dismissFoodRequest(player) || WildEvents.decline(entity,player);
             case SING -> entity.dailyLife().invite(player,DailyLife.Kind.SING);
             case EXERCISE -> entity.dailyLife().invite(player,DailyLife.Kind.EXERCISE);
             case FAVOR,DISLIKE -> {

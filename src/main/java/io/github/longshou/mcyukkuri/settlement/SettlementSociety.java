@@ -200,7 +200,10 @@ public final class SettlementSociety {
         var record = record();
         if (record.rejections == 0) return;
         var beforeIdentity = entity.status().identity();
-        SettlementData.get(level()).restore(group, entity.getUUID(), level().getGameTime());
+        boolean wasSlave = record.role == SettlementData.Role.UNUN_SLAVE;
+        long now = level().getGameTime();
+        SettlementData.get(level()).restore(group, entity.getUUID(), now);
+        if (wasSlave && record.role != SettlementData.Role.UNUN_SLAVE) entity.settlement().freedFromPit(now);
         YukkuriStatus.identityChanged(entity, beforeIdentity, "settlement_restored");
         entity.settlement().duties().cancelAssignment();
         entity.life().personality().decided("settlement_restored");

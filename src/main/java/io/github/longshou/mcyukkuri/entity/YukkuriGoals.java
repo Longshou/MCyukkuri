@@ -98,8 +98,15 @@ final class YukkuriGoals {
         goalSelector.addGoal(4, presentationGoals.bind(PresentationGoals.PIT_SLAVE, new PitSlaveGoal()));
         goalSelector.addGoal(3, landBinding(PresentationGoals.HOME_CLAIM, new HomeClaimGoal(owner)));
         goalSelector.addGoal(4, landBinding(PresentationGoals.TEMPT, new TemptGoal(owner, 1.15, Ingredient.of(YukkuriEntity.FOOD), false) {
-            @Override public boolean canUse() { return !owner.isPassenger() && owner.life().canEat() && super.canUse() && owner.life().personality().fear(player.getUUID()) < BondLevels.SOCIAL_FEAR_LIMIT; }
-            @Override public boolean canContinueToUse() { return !owner.isPassenger() && owner.life().canEat() && super.canContinueToUse(); }
+            @Override public boolean canUse() {
+                return !owner.isPassenger() && owner.life().canEat() && super.canUse()
+                        && owner.life().personality().fear(player.getUUID()) < BondLevels.SOCIAL_FEAR_LIMIT
+                        && !owner.social().takeFoodApproach(player);
+            }
+            @Override public boolean canContinueToUse() {
+                // Vanilla's continuation calls canUse() again, including the same contact handoff.
+                return !owner.isPassenger() && owner.life().canEat() && super.canContinueToUse();
+            }
         }));
         goalSelector.addGoal(FAMILY_PRIORITY, landBinding(PresentationGoals.FAMILY, new FamilyGoal()));
         goalSelector.addGoal(5, new AgitationLife.BehaviorGoal(owner));
@@ -359,7 +366,9 @@ final class YukkuriGoals {
         @Override public void stop() { owner.social().stop(); }
     }
     private final class SocialGoal extends Goal {
-        @Override public boolean isInterruptable() { return BehaviorContinuity.emergency(owner) || !(owner.social().active()); }
+        @Override public boolean isInterruptable() {
+            return BehaviorContinuity.emergency(owner) || owner.social().humanContact() || !owner.social().active();
+        }
         SocialGoal() { setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK)); }
         @Override public boolean canUse() { return owner.social().canUse(); }
         @Override public boolean canContinueToUse() { return owner.social().canContinue(); }

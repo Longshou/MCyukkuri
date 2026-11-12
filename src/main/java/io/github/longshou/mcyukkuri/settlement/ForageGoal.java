@@ -97,6 +97,10 @@ public final class ForageGoal extends Goal {
             if (holder == null || entity.distanceToSqr(player) < entity.distanceToSqr(holder)) holder = player;
         }
         if (holder != null) {
+            if (entity.social().takeFoodApproach(holder)) {
+                stop();
+                return true;
+            }
             entity.getLookControl().setLookAt(holder, 20, 20);
             if (entity.distanceToSqr(holder) > 2.25) entity.getNavigation().moveTo(holder, 1.15);
             else entity.getNavigation().stop();

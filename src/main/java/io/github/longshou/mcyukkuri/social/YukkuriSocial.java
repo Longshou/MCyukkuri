@@ -1,9 +1,11 @@
 package io.github.longshou.mcyukkuri.social;
 
 import io.github.longshou.mcyukkuri.status.GameplayLog;
-import io.github.longshou.mcyukkuri.status.Identity;
+import io.github.longshou.mcyukkuri.status.Reactions;
+import io.github.longshou.mcyukkuri.subspecies.SubspeciesLife;
 import io.github.longshou.mcyukkuri.shop.ShopMenu;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
+import io.github.longshou.mcyukkuri.entity.YukkuriComponents;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.event.WildCards;
 import io.github.longshou.mcyukkuri.event.WildEvents;
@@ -33,6 +35,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
@@ -44,6 +47,8 @@ import net.minecraft.world.phys.Vec3;
 
 /** Optional social goals yield to physiology, commands and danger. */
 public final class YukkuriSocial implements MotorOwner {
+    private static final double HUMAN_CONTACT = 1.5, FOOD_HANDOFF = 2.5;
+    private static final float ASK_NUTRITION_MIN = 30, ASK_NUTRITION_MAX = 50, FED_NUTRITION = 55;
     private enum Task { NONE, PLAYER, PEER, TOY, ACCESSORY, ANSWER, STUDY }
     private final YukkuriEntity entity;
     private Task task = Task.NONE;
@@ -54,6 +59,11 @@ public final class YukkuriSocial implements MotorOwner {
     private boolean retreat;
     private boolean cautious;
     private double observedDistance;
+    private float lastFoodRequest = -1;
+    private boolean humanMayAsk;
+    private double humanRetreatRoll;
+    private int humanWatchUntil;
+    private long replyUntil;
     /** A loose-accessory retrieval: one budget for the whole trip (the walk to a bank stand, the step in and the swim), since a
      *  route round a bank corner is longer than the social tasks' short beat. */
     private static final int ACCESSORY = 1200;
@@ -104,6 +114,7 @@ public final class YukkuriSocial implements MotorOwner {
     public String activity() { return switch(task) { case NONE -> Behaviors.NONE; case PLAYER -> Behaviors.PLAYER; case PEER -> Behaviors.PEER;
             case TOY -> Behaviors.TOY; case ACCESSORY -> Behaviors.ACCESSORY; case ANSWER -> Behaviors.PEER; case STUDY -> Behaviors.TEACH; }; }
     public boolean active() { return task != Task.NONE; }
+    public boolean humanContact() { return task == Task.PLAYER; }
     /** The actual completed contact in the current social goal, without probing eligibility. */
     public UUID observedGreeting() {
         return (task == Task.PLAYER || task == Task.PEER) && greeted && !retreat ? target.getUUID() : null;
@@ -126,6 +137,18 @@ public final class YukkuriSocial implements MotorOwner {
     public void tick() {
         if (active() && (entity.isPanicking() || urgent() || entity.isCommandPlaying())) stop();
     }
+    public void save(CompoundTag tag) {
+        if (lastFoodRequest >= 0) tag.putFloat("LastFoodRequestNutrition", lastFoodRequest);
+    }
+    public void load(CompoundTag tag) {
+        lastFoodRequest = tag.contains("LastFoodRequestNutrition") ? tag.getFloat("LastFoodRequestNutrition") : -1;
+    }
+    public void ate(float nutrition) {
+        if (nutrition >= FED_NUTRITION) lastFoodRequest = -1;
+    }
+    public void mealStarted() {
+        if (humanContact()) stop();
+    }
     public boolean busyForTalk() {
         return entity.isPanicking() || entity.dailyLife().active() || entity.life().isSleeping()
                 || entity.life().hasUrgentNeed() || entity.life().mealTicks() > 0;
@@ -140,10 +163,10 @@ public final class YukkuriSocial implements MotorOwner {
         if(gentle)entity.dailyLife().comfort(5);
         stop();
         if (!entity.isPassenger()) {
-            task = Task.PLAYER; target = player; elapsed = 0; duration = 60;
-            chooseApproach(player);
+            startHuman(player, false);
+            duration = 60;
+            retreat = !gentle;
         }
-        if (!gentle) retreat = true;
         entity.getLookControl().setLookAt(player, 30, 30);
         entity.mind().felt(gentle ? EmotionEvent.COMFORTED : EmotionEvent.COLD_TREATMENT); entity.showReaction(gentle ? "happy" : "surprise", gentle ? "gentle" : "cold", 100);
         WildCards.talked(entity,player.getUUID(),gentle);
@@ -159,10 +182,12 @@ public final class YukkuriSocial implements MotorOwner {
             long day = entity.level().getDayTime() / 24000L;
             if (entity.level().isDay() && day != morningDay) { morningPending = true; morningDay = day; }
         }
-        if (!entity.childhood().canLearn()) return false;
-        if (!freeForSocial()) return false;
+        if (!entity.childhood().canLearn() || !availableForSocial()) return false;
+        boolean regular = entity.life().nutrition() >= 40;
+        boolean canAsk = canRequestFood();
+        if (!regular && !canAsk) return false;
         var reunion = entity.moldExile().reunionPeer();
-        if (reunion != null && contactReady(reunion)) {
+        if (regular && reunion != null && contactReady(reunion)) {
             target = reunion;
             approachPeer("reunion");
             return true;
@@ -170,8 +195,7 @@ public final class YukkuriSocial implements MotorOwner {
         if (entity.pet().lessons().practicing(PetSkill.GREETING)) {
             var guest = PetStudy.visitor(entity);
             if (guest != null && contactReady(guest)) {
-                target = guest; task = Task.PLAYER; duration = 200; elapsed = 0; greeted = false;
-                chooseApproach(guest);
+                startHuman(guest, false);
                 return true;
             }
         }
@@ -185,6 +209,8 @@ public final class YukkuriSocial implements MotorOwner {
             return true;
         }
         var level = entity.level();
+        if (canAsk && findHuman(true)) return true;
+        if (!regular) return false;
         if (morningPending) {
             morningPending = false;
             target = level.getEntitiesOfClass(YukkuriEntity.class, entity.getBoundingBox().inflate(6), peer -> peer != entity && peer.isAlive()
@@ -209,25 +235,83 @@ public final class YukkuriSocial implements MotorOwner {
                             .thenComparingDouble(entity::distanceToSqr)).findFirst().orElse(null);
             if (target != null) { approachPeer(null); return true; }
         }
-        target = level.getEntitiesOfClass(LivingEntity.class, entity.getBoundingBox().inflate(6),
-                person -> (person instanceof Player player && !player.isSpectator() || person instanceof HumanNpc)
-                        && person.isAlive() && contactReady(person) && personality().trust(person.getUUID()) >= 0
-                        && entity.hasLineOfSight(person)).stream()
-                .sorted(Comparator.comparingInt((LivingEntity person) -> personality().trust(person.getUUID())).reversed()
-                        .thenComparingDouble(entity::distanceToSqr)).findFirst().orElse(null);
-        if (target != null) {
-            task = Task.PLAYER; duration = 200; elapsed = 0; greeted = false;
-            chooseApproach(target);
-            return true;
+        return !canAsk && findHuman(false);
+    }
+
+    private record HumanCandidate(LivingEntity person, YukkuriWorldData.Relation relation) {}
+
+    private boolean findHuman(boolean ask) {
+        var candidates = entity.level().getEntitiesOfClass(LivingEntity.class, entity.getBoundingBox().inflate(6),
+                        person -> (person instanceof Player player && !player.isSpectator() || person instanceof HumanNpc)
+                                && person.isAlive() && contactReady(person) && entity.hasLineOfSight(person)
+                                && entity.distanceToSqr(person) <= 36).stream()
+                .map(person -> new HumanCandidate(person, personality().relation(person.getUUID())))
+                .filter(candidate -> candidate.relation().closeness() >= 0)
+                .sorted(Comparator.comparingInt((HumanCandidate candidate) -> candidate.relation().closeness()).reversed()
+                        .thenComparingDouble(candidate -> entity.distanceToSqr(candidate.person())))
+                .toList();
+        for (var candidate : candidates) {
+            if (tryHuman(candidate.person(), candidate.relation(), ask)) return true;
         }
         return false;
     }
+
+    private boolean tryHuman(LivingEntity person, YukkuriWorldData.Relation relation, boolean ask) {
+        double wariness = SocialDisposition.humanWariness(entity, person, relation);
+        // Watching or backing away needs no route toward the person.
+        if (wariness < .50 && !atHumanContact(person) && humanStand(person) == null) {
+            GameplayLog.limited(entity, "social", "human_unreachable", 200,
+                    "human contact blocked target={} reason=no_dry_stand", person.getUUID());
+            return false;
+        }
+        startHuman(person, ask);
+        return true;
+    }
+
+    private void startHuman(LivingEntity person, boolean ask) {
+        task = Task.PLAYER;
+        target = person;
+        elapsed = 0;
+        duration = 200;
+        humanMayAsk = ask;
+        humanRetreatRoll = entity.getRandom().nextDouble();
+        protectContact(person);
+    }
+
+    /** The food approach already has this player in view. Release its movement only at a real social contact. */
+    public boolean takeFoodApproach(Player player) {
+        if (humanContact() && target == player) return true;
+        if (active() || entity.distanceToSqr(player) > FOOD_HANDOFF * FOOD_HANDOFF || entity.life().socialWait() > 0
+                || !availableForSocial() || !canRequestFood() || !contactReady(player) || !entity.hasLineOfSight(player)) return false;
+        var relation = personality().relation(player.getUUID());
+        return relation.closeness() >= 0 && tryHuman(player, relation, true);
+    }
+
+    private boolean canRequestFood() {
+        float nutrition = entity.life().nutrition();
+        return lastFoodRequest < 0 && nutrition >= ASK_NUTRITION_MIN && nutrition < ASK_NUTRITION_MAX
+                && entity.status().identity().free() && !entity.profile().dangerToYukkuri() && !entity.settlement().society().slave()
+                && entity.childhood().canLiveIndependently() && entity.life().canEat()
+                && entity.component(YukkuriComponents.MOUTH).purpose() == null;
+    }
+
+    private boolean atHumanContact(Entity person) {
+        return entity.distanceToSqr(person) <= HUMAN_CONTACT * HUMAN_CONTACT && EcologyMovement.supported(entity)
+                && SurfaceApproach.supportedGround(entity, entity.position());
+    }
+
+    private Vec3 humanStand(Entity person) {
+        return SurfaceApproach.beside(entity, person, 1.25, HUMAN_CONTACT, HUMAN_CONTACT);
+    }
     /** Nothing of its own under way (needs, leisure, errands, events): it may take up a social goal now. */
     private boolean freeForSocial() {
+        return entity.life().nutrition() >= 40 && availableForSocial();
+    }
+    private boolean availableForSocial() {
         return !WildEvents.reserved(entity) && !entity.isPanicking() && !entity.dailyLife().active() && !entity.life().isSleeping()
                 && !entity.life().hasUrgentNeed() && !entity.waterDistress().active() && entity.life().mealTicks() == 0
                 && !entity.isCommandPlaying() && !entity.operations().active() && !entity.groupInteraction().active() && !entity.playLife().active()
-                && entity.life().nutrition() >= 40 && entity.life().energy() >= 35 && !entity.family().active()
+                && entity.life().energy() >= 35 && !entity.family().active()
                 && !entity.habitat().active() && !entity.settlement().active() && !entity.settlement().duties().active()
                 && !entity.forageTrip().outing() && !entity.independence().active();
     }
@@ -257,7 +341,10 @@ public final class YukkuriSocial implements MotorOwner {
                 && !attachedTo(target)
                 && (task == Task.ACCESSORY || entity.hasLineOfSight(target)) && !entity.dailyLife().active() && !entity.life().isSleeping()
                 && entity.distanceToSqr(target) < 64 && !entity.isPanicking() && !urgent()
-                && entity.life().mealTicks() == 0 && !entity.isCommandPlaying() && (elapsed < duration || holdingPeerGreeting())
+                && entity.life().mealTicks() == 0 && !entity.isCommandPlaying()
+                && (replyUntil > 0 ? entity.level().getGameTime() < replyUntil : elapsed < duration || holdingPeerGreeting())
+                && (!humanContact() || !entity.isPassenger() && !entity.life().hasUrgentNeed() && !entity.operations().active()
+                        && !entity.waterDistress().active() && !(target instanceof Player player && player.isSpectator()))
                 && (task != Task.ANSWER || answerDelay > 0 || approachedBy(target));
     }
     public void tickGoal() {
@@ -333,16 +420,16 @@ public final class YukkuriSocial implements MotorOwner {
             }
             return;
         }
-        if ((task == Task.PLAYER || task == Task.PEER) && retreat) {
+        if (humanContact()) {
+            tickHumanContact();
+            return;
+        }
+        if (task == Task.PEER && retreat) {
             if (!greeted) {
                 greeted = true;
-                var identity = entity.status().identity();
-                boolean afraid = personality().fear(target.getUUID()) > BondLevels.FEAR_AT_15 || target instanceof Player && identity.wild();
+                boolean afraid = personality().fear(target.getUUID()) > BondLevels.FEAR_AT_15;
                 if (afraid) entity.mind().felt(EmotionEvent.FRIGHTENED);
                 entity.showReaction("surprise", afraid ? "afraid" : "shy", 80);
-                if (visitor(target)) entity.pet().lessons().performed(PetSkill.GREETING, false);
-                if (task == Task.PLAYER) GameplayLog.limited(entity, "social", "human_retreat." + target.getUUID(), 200,
-                        "human retreat identity={} player={} afraid={}", identity.id(), target.getUUID(), afraid);
             }
             if (elapsed % 10 == 1) {
                 Vec3 away = DefaultRandomPos.getPosAway(entity, 5, 2, target.position());
@@ -385,21 +472,7 @@ public final class YukkuriSocial implements MotorOwner {
                 && entity.dailyLife().nuzzleOnArrival(peer)) return;
         if (!greeted) {
             greeted = true;
-            if (task == Task.PLAYER) {
-                var identity = entity.status().identity();
-                boolean begging = identity == Identity.STRAY && entity.life().nutrition() < 50;
-                boolean keeper = identity.companion() && entity.pet().ownedBy(target.getUUID());
-                if (keeper && target instanceof Player owner && entity.pet().lessons().studyWith(owner)) return;
-                String line = begging ? "hungry" : keeper || personality().trust(target.getUUID()) >= BondLevels.TRUST_AT_20 ? "caregiver" : "hello";
-                entity.showReaction(begging ? "teary" : "happy", line, 80);
-                if (visitor(target)) {
-                    greetingBody("bow");
-                    entity.pet().lessons().performed(PetSkill.GREETING, true);
-                }
-                GameplayLog.limited(entity, "social", "human_greeting." + target.getUUID(), 200,
-                        "human greeting identity={} player={} line={}", identity.id(), target.getUUID(), line);
-            }
-            else if (task == Task.PEER && target instanceof YukkuriEntity peer) {
+            if (task == Task.PEER && target instanceof YukkuriEntity peer) {
                 if (entity.life().canRecognize(peer)) {
                     YukkuriWorldData relations = YukkuriWorldData.get((ServerLevel)entity.level());
                     if (relations.affinity(entity.getUUID(),peer.getUUID()) < BondLevels.AFFINITY_NEUTRAL) {
@@ -436,6 +509,128 @@ public final class YukkuriSocial implements MotorOwner {
         return greeting() || answer.task == Task.ANSWER && answer.target == entity && answer.answerDelay > 0;
     }
 
+    private void tickHumanContact() {
+        var relation = personality().relation(target.getUUID());
+        double wariness = SocialDisposition.humanWariness(entity, target, relation);
+        if (!retreat && (humanRetreatRoll < SocialDisposition.ramp(wariness, .62, .80)
+                || elapsed == 1 && visitor(target) && !entity.pet().lessons().attempt(PetSkill.GREETING))) {
+            retreat = true;
+            greeted = false;
+            replyUntil = 0;
+            duration = elapsed + 80;
+        }
+        if (retreat) {
+            retreatFromHuman(wariness);
+            return;
+        }
+        if (greeted) {
+            if (!atHumanContact(target)) stop();
+            return;
+        }
+        if (wariness >= .18 && humanWatchUntil == 0) {
+            int watch = 10 + (int) (30 * SocialDisposition.ramp(wariness, .18, .50));
+            humanWatchUntil = elapsed + watch;
+            entity.showReaction("surprise", "", watch);
+            GameplayLog.limited(entity, "social", "human_watch", 200, "human watch target={} wariness={} ticks={}",
+                    target.getUUID(), wariness, watch);
+        }
+        if (elapsed < humanWatchUntil) {
+            EcologyMovement.halt(entity);
+            return;
+        }
+        if (wariness >= .50) {
+            stop();
+            return;
+        }
+        if (!atHumanContact(target)) {
+            Vec3 stand = humanStand(target);
+            if (stand == null || SurfaceApproach.walkResult(entity, stand, target, 1) == SurfaceApproach.Result.BLOCKED) {
+                GameplayLog.limited(entity, "social", "human_route_ended", 200,
+                        "human contact blocked target={} reason={}", target.getUUID(), stand == null ? "no_dry_stand" : "route_blocked");
+                stop();
+            }
+            return;
+        }
+        EcologyMovement.halt(entity);
+        if (!faceContact(target)) return;
+        greeted = true;
+        if (humanMayAsk && canRequestFood()) {
+            askForFood(wariness, relation);
+            return;
+        }
+        boolean keeper = entity.status().identity().companion() && entity.pet().ownedBy(target.getUUID());
+        if (keeper && target instanceof Player owner && entity.pet().lessons().studyWith(owner)) return;
+        String line = keeper || relation.closeness() >= BondLevels.TRUST_AT_20 ? "caregiver" : "hello";
+        boolean visitor = visitor(target);
+        greetingBody(visitor ? "bow" : "greet");
+        entity.showReaction(wariness >= .18 ? "surprise" : "happy", line, 80);
+        if (visitor) entity.pet().lessons().performed(PetSkill.GREETING, true);
+        GameplayLog.limited(entity, "social", "human_greeting", 200, "human greeting identity={} player={} line={} wariness={}",
+                entity.status().identity().id(), target.getUUID(), line, wariness);
+    }
+
+    private boolean faceContact(Entity person) {
+        float yaw = SurfaceApproach.yaw(entity.position(), person.position());
+        if (Math.abs(Mth.wrapDegrees(yaw - entity.yBodyRot)) <= Face.FACE_ARRIVED) return true;
+        if (!(entity.motor().current() instanceof Face)) entity.motor().run(this, new Face(yaw));
+        return false;
+    }
+
+    private void askForFood(double wariness, YukkuriWorldData.Relation relation) {
+        double esteem = SocialDisposition.selfEsteem(entity);
+        double chance = SocialDisposition.demandProbability(personality(), esteem, wariness, relation);
+        boolean demand = entity.getRandom().nextDouble() < chance;
+        int sequence = entity.speechSequence();
+        String line = demand ? "human_food_demand" : "human_food_ask";
+        entity.showReaction(demand ? "cheek_puff" : "teary", line, 80);
+        if (sequence == entity.speechSequence() || entity.subspecies().congenital() != SubspeciesLife.Congenital.NORMAL) {
+            GameplayLog.limited(entity, "social", "food_request_unsaid", 200, "human food request unvoiced target={}", target.getUUID());
+            stop();
+            return;
+        }
+        lastFoodRequest = entity.life().nutrition();
+        // Allow three to six seconds to respond after the actual line, with more patience at higher self-control.
+        replyUntil = entity.speechEnd() + 60 + Math.round(.60 * personality().selfControl());
+        GameplayLog.event(entity, "social", "human food request target={} nutrition={} esteem={} wariness={} chance={} line={} replyUntil={}",
+                target.getUUID(), lastFoodRequest, esteem, wariness, chance, line, replyUntil);
+    }
+
+    public boolean canDismissFoodRequest(Player player) {
+        return humanContact() && target == player && replyUntil > entity.level().getGameTime()
+                && canContinue() && atHumanContact(player);
+    }
+
+    public boolean dismissFoodRequest(Player player) {
+        if (!canDismissFoodRequest(player)) return false;
+        var relations = YukkuriWorldData.get((ServerLevel) entity.level());
+        var before = personality().relation(player.getUUID());
+        var after = relations.interact(entity.getUUID(), player.getUUID(), -4, 8);
+        replyUntil = 0;
+        retreat = true;
+        greeted = false;
+        duration = elapsed + 80;
+        GameplayLog.event(entity, "social", "human food dismissed target={} closeness={}->{} fear={}->{}",
+                player.getUUID(), before.closeness(), after.closeness(), before.fear(), after.fear());
+        return true;
+    }
+
+    private void retreatFromHuman(double wariness) {
+        if (greeted) {
+            if (entity.getNavigation().isDone()) stop();
+            return;
+        }
+        if (!EcologyMovement.supported(entity)) return;
+        greeted = true;
+        boolean afraid = wariness >= .62;
+        if (afraid) entity.mind().felt(EmotionEvent.FRIGHTENED);
+        entity.showReaction(afraid ? "surprise" : "angry", afraid ? "afraid" : "", 80);
+        if (visitor(target)) entity.pet().lessons().performed(PetSkill.GREETING, false);
+        Vec3 away = Reactions.awayFrom(entity, 5, target.position());
+        boolean moving = away != null && EcologyMovement.navigate(entity, away, 1.1);
+        GameplayLog.event(entity, "social", "human retreat identity={} player={} wariness={} moving={}",
+                entity.status().identity().id(), target.getUUID(), wariness, moving);
+        if (!moving) stop();
+    }
     /** Why this arrival is a greeting, or null: a first meeting, a return after a real separation, or the first morning contact of a kin. */
     private String greetReason(YukkuriEntity peer, YukkuriWorldData relations) {
         String reason = greetingDue(peer, relations);
@@ -483,7 +678,7 @@ public final class YukkuriSocial implements MotorOwner {
     }
     private void approachPeer(String why) {
         task = Task.PEER; duration = 200; elapsed = 0; greeted = false; greetWhy = why;
-        chooseApproach(target);
+        choosePeerApproach(target);
         if (!retreat && target instanceof YukkuriEntity peer) peer.social().noticeApproach(entity);
     }
     /**
@@ -553,16 +748,12 @@ public final class YukkuriSocial implements MotorOwner {
         if (protectedContact != null) personality().releaseRelation(protectedContact);
         protectedContact = other.getUUID(); personality().protectRelation(protectedContact);
     }
-    private void chooseApproach(Entity other) {
+    private void choosePeerApproach(Entity other) {
         protectContact(other);
         var fear = personality().fearBand(other.getUUID());
         int trust = personality().trust(other.getUUID());
-        var identity = entity.status().identity();
-        boolean unknownPlayer = other instanceof Player && trust <= 0;
-        cautious = trust > 0 && fear != YukkuriPersonality.FearBand.NORMAL || unknownPlayer && identity == Identity.STRAY;
-        retreat = trust <= 0 && fear == YukkuriPersonality.FearBand.AFRAID || unknownPlayer && identity.wild();
-        if (!retreat && visitor(other) && !entity.pet().lessons().attempt(PetSkill.GREETING)) retreat = true;
-        if (retreat) cautious = false;
+        cautious = trust > 0 && fear != YukkuriPersonality.FearBand.NORMAL;
+        retreat = trust <= 0 && fear == YukkuriPersonality.FearBand.AFRAID;
         observedDistance = entity.distanceTo(other);
     }
     private boolean visitor(Entity other) {
@@ -587,6 +778,7 @@ public final class YukkuriSocial implements MotorOwner {
         }
         if (protectedContact != null) { personality().releaseRelation(protectedContact); protectedContact = null; }
         task = Task.NONE; target = null; exercise = null; elapsed = 0; greeted = false; retreat = false; cautious = false; greetWhy = null;
+        humanWatchUntil = 0; replyUntil = 0;
         entity.getNavigation().stop();
     }
 }

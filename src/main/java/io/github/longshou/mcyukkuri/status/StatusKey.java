@@ -12,6 +12,7 @@ import io.github.longshou.mcyukkuri.body.BodyPart;
 import io.github.longshou.mcyukkuri.body.RemainsRot;
 import io.github.longshou.mcyukkuri.body.WoundSurface;
 import io.github.longshou.mcyukkuri.body.WoundShape;
+import io.github.longshou.mcyukkuri.social.SocialDisposition;
 import io.github.longshou.mcyukkuri.social.YukkuriPersonality.Trait;
 import io.github.longshou.mcyukkuri.headwear.Recognition;
 import io.github.longshou.mcyukkuri.intent.AskLedger;
@@ -423,6 +424,7 @@ public enum StatusKey {
     BOLDNESS("personality", "boldness", 5, y -> y.life().personality().boldness(), trait(Trait.BOLDNESS)),
     ATTACHMENT("personality", "attachment", 5, y -> y.life().personality().attachment(), trait(Trait.ATTACHMENT)),
     SELF_CONTROL("personality", "self_control", 5, y -> y.life().personality().selfControl(), trait(Trait.SELF_CONTROL)),
+    SELF_ESTEEM("personality", "self_esteem", 0, y -> Math.round(SocialDisposition.selfEsteem(y) * 10) / 10f, null),
     LEARNING_CHANCE("personality", "learning_chance", 0, y -> y.life().personality().learningProbability(y.mind().stressView()), null),
     RULE_CHANCE("personality", "rule_chance", 0, y -> y.life().personality().ruleProbability(), null),
     WAITING_TICKS("personality", "waiting_ticks", 0, y -> y.life().personality().waitingTicks(), null),

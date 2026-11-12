@@ -153,6 +153,8 @@ public final class YukkuriComponents {
                 .interrupt(Interrupt.DEATH, InterruptPhase.DEATH_PREPARE, 10, (c, ctx) -> c.care().died()).build(),
         ComponentSpec.ready(SOCIAL, YukkuriEntity::social)
                 .tick(70, YukkuriSocial::tick)
+                .save(340, YukkuriSocial::save)
+                .load(360, (c, ctx) -> c.load(ctx.root()))
                 .interrupt(Interrupt.FRIGHT, InterruptPhase.MAIN, 70, (c, ctx) -> c.stop())
                 .interrupt(Interrupt.COMMAND, InterruptPhase.MAIN, 90, (c, ctx) -> c.stop())
                 .interrupt(Interrupt.HURT, InterruptPhase.AFTER_ATTACK_NOTIFICATIONS, 30, (c, ctx) -> c.stop())

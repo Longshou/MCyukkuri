@@ -103,8 +103,8 @@ public final class HatCustody {
     // ---------------------------------------------------------------- transitions
     private void go(State next, String why) {
         if (next != state) GameplayLog.event(owner, "headwear", "custody {} -> {} why={} boat={} token={}", state, next, why, boat, token);
+        if (next != State.LOST || state != State.LOST) since = owner.level().getGameTime();
         state = next;
-        since = owner.level().getGameTime();
     }
 
     /** The hat leaves the head to be this hull; returns the token it carries (the retained one, the last one, or a new one). */
