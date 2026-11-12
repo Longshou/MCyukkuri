@@ -66,6 +66,7 @@ public final class ClientRegistration {
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, ClientTickEvent.Post.class, DialogueAudio::tick);
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, ClientTickEvent.Post.class, EcologyAudio::tick);
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, ClientTickEvent.Post.class, BodyEffectsRenderer::tick);
+        NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, ClientTickEvent.Post.class, ParentCarryPresentation::tick);
         NeoForge.EVENT_BUS.addListener(EventPriority.LOWEST, true, InputEvent.InteractionKeyMappingTriggered.class, HatInteractionTrace::trace);
 
         NeoForge.EVENT_BUS.addListener(EventPriority.HIGHEST, false, RenderLevelStageEvent.class, WoundLod::stage);

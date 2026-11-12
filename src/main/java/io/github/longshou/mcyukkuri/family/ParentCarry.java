@@ -23,6 +23,7 @@ import io.github.longshou.mcyukkuri.motor.Motor;
 import io.github.longshou.mcyukkuri.motor.MotorOwner;
 import io.github.longshou.mcyukkuri.motor.Outcome;
 import io.github.longshou.mcyukkuri.motor.Reason;
+import io.github.longshou.mcyukkuri.motor.TimelineClock;
 import io.github.longshou.mcyukkuri.motor.action.Grab;
 import io.github.longshou.mcyukkuri.motor.action.Hop;
 import io.github.longshou.mcyukkuri.motor.action.Release;
@@ -686,9 +687,11 @@ public final class ParentCarry {
                 String.format(Locale.ROOT, "%.3f", off.length() * size(carrier) / 16));
         return true;
     }
-    /** A brim young on its way up: riding the tuft until the lift's place, then walking from the edge to its spot; null once it sits. */
+    /** A brim young on its way up: riding the tuft until the lift's place, then walking from the edge to its spot; null once it sits.
+     *  The whole way is sampled on {@link TimelineClock}, so the client draws each hop as the one arc the server committed. */
     private static Vector3f brimRide(YukkuriView carrier, YukkuriView child, CompoundTag e, float partial) {
-        float t = carrier.level().getGameTime() - e.getLong("T") + partial;
+        double now = TimelineClock.now(carrier.level(), partial);
+        float t = (float) (now - e.getLong("T"));
         int place = mark(BRIM_LIFT, "place");
         if (t < place) return liftFeet(new Vector3f(e.getFloat("EX"), e.getFloat("EY"), e.getFloat("EZ")), t);
         var motion = e.getCompound("BH");
@@ -698,9 +701,8 @@ public final class ParentCarry {
             return t < place + walk ? edge().lerp(brimPoint(carrier, child, partial), (t - place) / walk) : null;
         }
         if (motion.getBoolean("Done")) return null;
-        if (motion.getBoolean("Walk") && carrier.level().getGameTime() + partial >= motion.getLong("Start") + motion.getInt("Ticks"))
-            return null;
-        var at = Hop.carriedPosition(motion, carrier.level().getGameTime() + partial);
+        if (motion.getBoolean("Walk") && now >= motion.getLong("Start") + motion.getInt("Ticks")) return null;
+        var at = Hop.carriedPosition(motion, now);
         return new Vector3f((float) at.x, (float) at.y, (float) at.z);
     }
     /** The retained-passenger seat motion, committed only by Hop's motor execution. */
@@ -736,10 +738,10 @@ public final class ParentCarry {
         return motion.contains("Start") && !motion.getBoolean("Walk") && !motion.getBoolean("Done") && !entry(carrier, child.getUUID()).contains("D");
     }
     public static float brimHopClock(YukkuriView carrier, YukkuriView child, float partial) {
-        return Hop.carriedClock(brimMotion(carrier, child), carrier.level().getGameTime() + partial);
+        return Hop.carriedClock(brimMotion(carrier, child), TimelineClock.now(carrier.level(), partial));
     }
     public static float brimHopFacing(YukkuriView carrier, YukkuriView child, float partial, float outward) {
-        return Hop.carriedFacing(brimMotion(carrier, child), carrier.level().getGameTime() + partial, outward);
+        return Hop.carriedFacing(brimMotion(carrier, child), TimelineClock.now(carrier.level(), partial), outward);
     }
     /** Ticks still to go of a brim young's way onto the brim (the lift clip to its end and its own walk to its spot); 0 for any other hold. */
     public static int placingLeft(YukkuriView carrier, YukkuriView child) {

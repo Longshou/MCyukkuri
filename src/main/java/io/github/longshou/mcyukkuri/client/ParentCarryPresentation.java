@@ -8,6 +8,7 @@ import io.github.longshou.mcyukkuri.family.ParentCarry;
 import io.github.longshou.mcyukkuri.family.ParentCarry.Hold;
 import io.github.longshou.mcyukkuri.headwear.HatGeometry;
 import io.github.longshou.mcyukkuri.motor.ClipMarkers;
+import io.github.longshou.mcyukkuri.motor.TimelineClock;
 import io.github.longshou.mcyukkuri.motor.action.Grab;
 import io.github.longshou.mcyukkuri.motor.action.PlaceProp;
 import io.github.longshou.mcyukkuri.motor.action.TakeProp;
@@ -19,8 +20,10 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import net.minecraft.client.Minecraft;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.client.event.ClientTickEvent;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
@@ -68,6 +71,13 @@ final class ParentCarryPresentation {
     }
     private static final Map<Integer, Carrier> CARRIERS = new HashMap<>();
     private static final Map<Integer, Child> CHILDREN = new HashMap<>();
+
+    /** Each client tick: the eased game time a brim young's way onto the brim is drawn at ({@link TimelineClock}); the level's
+     *  time advanced this tick unless the game is paused or its ticks are frozen (ClientLevel.tickTime). */
+    static void tick(ClientTickEvent.Post event) {
+        var mc = Minecraft.getInstance();
+        TimelineClock.tick(mc.level, mc.level != null && !mc.isPaused() && mc.level.tickRateManager().runsNormally());
+    }
 
     private static float now(YukkuriView view, float partial) { return view.level().getGameTime() + partial; }
     private static float ease(float q) { q = Math.clamp(q, 0, 1); return q * q * (3 - 2 * q); }
