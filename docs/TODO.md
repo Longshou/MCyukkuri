@@ -14,6 +14,7 @@
 | 移速不超过人类（反馈 13） | `.worktrees/wp-gw-speed` | 移动速度、步态、场景时长 |
 | 口部、辫子、帽上承载守恒 | `.worktrees/wp-gx-occupancy` | interaction/、family/ParentCarry、进食与觅食 |
 | 油霉个体被逐出聚落／家庭（反馈 11） | `.worktrees/wp-gy-mold-exile` | 聚落、家庭、油霉 |
+| 运输篮信息、多只非成体、换色分级（反馈 14） | `.worktrees/wp-gz-basket` | 运输篮物品与令牌 |
 
 ## 玩法待办
 
