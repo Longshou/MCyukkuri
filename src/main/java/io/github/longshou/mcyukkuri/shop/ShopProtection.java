@@ -35,7 +35,7 @@ public final class ShopProtection {
     private static boolean stock(Entity target) {
         if (!(target instanceof YukkuriEntity y) || !(y.level() instanceof ServerLevel level)) return false;
         var shop = ShopRegistry.get(level).shopAt(level, y.position());
-        return shop != null && ShopTrade.stockOf(y, shop.keeper);
+        return shop != null && ShopTrade.stockOf(y, shop.id);
     }
     private static void refuse(Player player, String what) {
         player.displayClientMessage(Component.translatable("shop.mcyukkuri.protect." + what), true);

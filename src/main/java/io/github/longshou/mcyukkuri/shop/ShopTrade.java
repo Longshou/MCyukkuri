@@ -73,7 +73,7 @@ public final class ShopTrade {
     /** Why this player cannot order or reserve this animal right now, or null. These are the only refusals at the click. */
     static String buyRefusal(ServerLevel level, ShopRegistry.Entry shop, YukkuriEntity y, Player p, int need) {
         if (!level.isDay()) return "closed";
-        if (y == null || !y.isAlive() || !shop.contains(y.position()) || !stockOf(y, shop.keeper)) return "gone";
+        if (y == null || !y.isAlive() || !shop.contains(y.position()) || !stockOf(y, shop.id)) return "gone";
         var d = shop.deposit(y.getUUID());
         if (d != null && !d.buyer().equals(p.getUUID())) return "reserved";
         if (y.pet().busy()) return "ordered";
@@ -87,26 +87,26 @@ public final class ShopTrade {
         if (why != null) {
             say(p, "buy.refused." + why, need, emeralds(p));
             GameplayLog.event(p, "shop", "action=buy_live result=refused shop={} target={} reason={} due={} emeralds={}",
-                    shop.keeper, y == null ? null : y.getUUID(), why, need, emeralds(p));
+                    shop.id, y == null ? null : y.getUUID(), why, need, emeralds(p));
             return false;
         }
         y.pet().lock(SALE, p.getUUID());
         y.playAction("joy_jump"); y.showReaction("happy", "shop_bought", 40); y.getLookControl().setLookAt(p, 30, 30);
         say(p, "buy.accepted", y.getDisplayName(), need);
-        GameplayLog.event(y, "shop", "action=buy_live result=accepted shop={} buyer={} due={}", shop.keeper, p.getUUID(), need);
+        GameplayLog.event(y, "shop", "action=buy_live result=accepted shop={} buyer={} due={}", shop.id, p.getUUID(), need);
         return true;
     }
 
-    /** Operator handover (command): the same fetch with no buyer and no charge; the basket is set on the counter. */
-    public static boolean handover(ServerLevel level, ShopRegistry.Entry shop, YukkuriEntity y) {
-        if (y == null || !y.isAlive() || !shop.contains(y.position()) || !stockOf(y, shop.keeper) || !y.pet().lock(HANDOVER, shop.keeper)) return false;
-        GameplayLog.event(y, "shop", "action=buy_live result=accepted shop={} buyer=operator due=0", shop.keeper);
+    /** Operator handover (command): the same fetch with no charge, the session held by a staff member of the shop (a lock holder must be present). */
+    static boolean handover(ServerLevel level, ShopRegistry.Entry shop, YukkuriEntity y, HumanNpc holder) {
+        if (y == null || !y.isAlive() || !shop.contains(y.position()) || !stockOf(y, shop.id) || !y.pet().lock(HANDOVER, holder.getUUID())) return false;
+        GameplayLog.event(y, "shop", "action=buy_live result=accepted shop={} buyer=operator due=0", shop.id);
         return true;
     }
 
     /** What stops a waiting purchase from going on, or null. Checked every staff tick and every step before the basket. */
     static String orderProblem(ServerLevel level, ShopRegistry.Entry shop, YukkuriEntity y) {
-        if (!y.isAlive() || !shop.contains(y.position()) || !stockOf(y, shop.keeper)) return "gone";
+        if (!y.isAlive() || !shop.contains(y.position()) || !stockOf(y, shop.id)) return "gone";
         if (y.pet().busyWith().equals(HANDOVER)) return null;
         if (!level.isDay()) return "closed";
         return present(level, shop, y.pet().lockedBy()) == null ? "buyer_left" : null;
@@ -120,7 +120,7 @@ public final class ShopTrade {
         boolean sale = !kind.equals(SELL);
         if (!kind.equals(HANDOVER)) tell(level, customer, (sale ? "buy" : "sell") + ".cancelled." + reason, y.getDisplayName());
         GameplayLog.event(y, "shop", "action={} result=cancelled shop={} customer={} reason={} emeralds_used=0",
-                sale ? "buy_live" : "sell_live", shop.keeper, customer, reason);
+                sale ? "buy_live" : "sell_live", shop.id, customer, reason);
     }
 
     /**
@@ -145,7 +145,7 @@ public final class ShopTrade {
         UUID token = YukkuriWorldData.get(level).capture(y);
         if (token == null) {
             Custody.restore(y, previous);
-            GameplayLog.event(y, "shop", "action=buy_live result=cancelled shop={} customer={} reason=capture_refused emeralds_used=0", shop.keeper, buyer);
+            GameplayLog.event(y, "shop", "action=buy_live result=cancelled shop={} customer={} reason=capture_refused emeralds_used=0", shop.id, buyer);
             if (player != null) say(player, "buy.cancelled.capture", y.getDisplayName());
             return null;
         }
@@ -157,7 +157,7 @@ public final class ShopTrade {
             say(player, "buy.paid", due, y.getDisplayName());
         }
         GameplayLog.event(staff, "shop", "action=buy_live result=committed shop={} buyer={} target={} token={} emeralds_used={}",
-                shop.keeper, buyer == null ? "operator" : buyer, y.getUUID(), token, due);
+                shop.id, buyer == null ? "operator" : buyer, y.getUUID(), token, due);
         return token;
     }
 
@@ -170,7 +170,7 @@ public final class ShopTrade {
         staff.swing(InteractionHand.MAIN_HAND);
         if (player != null) say(player, hands ? "buy.delivered" : "buy.on_counter");
         GameplayLog.event(staff, "shop", "action=buy_live result=delivered shop={} buyer={} token={} placement={} handoff_at={}",
-                shop.keeper, buyer == null ? "operator" : buyer, token, hands ? "inventory" : "counter", staff.blockPosition().toShortString());
+                shop.id, buyer == null ? "operator" : buyer, token, hands ? "inventory" : "counter", staff.blockPosition().toShortString());
     }
 
     /** The top of the counter block beside the staff member (the counter faces the customer side), else its own feet. */
@@ -192,15 +192,15 @@ public final class ShopTrade {
                 : buyRefusal(level, shop, y, p, paid);
         if (why != null) {
             say(p, "reserve.refused." + why, paid, emeralds(p));
-            GameplayLog.event(p, "shop", "action=reserve result=refused shop={} target={} reason={}", shop.keeper, y == null ? null : y.getUUID(), why);
+            GameplayLog.event(p, "shop", "action=reserve result=refused shop={} target={} reason={}", shop.id, y == null ? null : y.getUUID(), why);
             return false;
         }
         debit(p, paid);
-        ShopRegistry.get(level).reserve(shop, y.getUUID(), p.getUUID(), price, paid);
+        ShopRegistry.get(level).reserve(shop, y.getUUID(), p.getUUID(), price, paid, level.getGameTime());
         var tag = HumanCommerce.data(y).copy(); tag.remove(SHIP_OUT); HumanCommerce.set(y, tag);
         y.showReaction("happy", "shop_reserved", 40);
         say(p, "reserve.done", paid, y.getDisplayName(), price - paid);
-        GameplayLog.event(y, "shop", "action=reserve result=committed shop={} buyer={} price={} deposit={}", shop.keeper, p.getUUID(), price, paid);
+        GameplayLog.event(y, "shop", "action=reserve result=committed shop={} buyer={} price={} deposit={}", shop.id, p.getUUID(), price, paid);
         return true;
     }
 
@@ -222,7 +222,7 @@ public final class ShopTrade {
         String why = sellRefusal(level, shop, y, p);
         if (why != null) {
             say(p, "sell.refused." + why);
-            GameplayLog.event(p, "shop", "action=sell_live result=refused shop={} target={} reason={}", shop.keeper, y == null ? null : y.getUUID(), why);
+            GameplayLog.event(p, "shop", "action=sell_live result=refused shop={} target={} reason={}", shop.id, y == null ? null : y.getUUID(), why);
             return false;
         }
         y.pet().lock(SELL, p.getUUID());
@@ -233,7 +233,7 @@ public final class ShopTrade {
         else if (pers.friendliness() <= 40) { y.playAction("ignore"); y.showReaction("smug", "shop_sold_proud", 80); }
         else y.playAction("bow");
         say(p, "sell.accepted", y.getDisplayName(), ShopPricing.buyback(y));
-        GameplayLog.event(y, "shop", "action=sell_live result=accepted shop={} seller={} offer={}", shop.keeper, p.getUUID(), ShopPricing.buyback(y));
+        GameplayLog.event(y, "shop", "action=sell_live result=accepted shop={} seller={} offer={}", shop.id, p.getUUID(), ShopPricing.buyback(y));
         return true;
     }
 
@@ -254,11 +254,11 @@ public final class ShopTrade {
         var previous = HumanCommerce.data(y).copy();
         y.pet().unlock(SELL);
         y.life().releaseHome();
-        Custody.assignRaw(y, shop.keeper, Custody.OwnerKind.NPC, Custody.Role.STOCK.id());
+        Custody.assignRaw(y, shop.id, Custody.OwnerKind.NPC, Custody.Role.STOCK.id());
         UUID token = YukkuriWorldData.get(level).capture(y);
         if (token == null) {
             Custody.restore(y, previous);
-            GameplayLog.event(y, "shop", "action=sell_live result=cancelled shop={} customer={} reason=capture_refused emeralds_used=0", shop.keeper, seller);
+            GameplayLog.event(y, "shop", "action=sell_live result=cancelled shop={} customer={} reason=capture_refused emeralds_used=0", shop.id, seller);
             say(player, "sell.cancelled.capture", y.getDisplayName());
             return null;
         }
@@ -268,7 +268,7 @@ public final class ShopTrade {
         SurvivalProgress.award(player, "pet_sold");
         say(player, "sell.paid", price, y.getDisplayName());
         GameplayLog.event(staff, "shop", "action=sell_live result=committed shop={} seller={} target={} token={} emeralds_received={}",
-                shop.keeper, seller, y.getUUID(), token, price);
+                shop.id, seller, y.getUUID(), token, price);
         return token;
     }
 

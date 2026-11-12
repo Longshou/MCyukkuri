@@ -114,7 +114,7 @@ public final class HumanScenes {
         y.moveTo(at.x, at.y, at.z, 0, 0);
         y.setPersistenceRequired();
         y.finalizeSpawn(level, level.getCurrentDifficultyAt(y.blockPosition()), MobSpawnType.COMMAND, null);
-        Custody.assignRaw(y, shop.keeper, Custody.OwnerKind.NPC, Custody.Role.STOCK.id());
+        Custody.assignRaw(y, shop.id, Custody.OwnerKind.NPC, Custody.Role.STOCK.id());
         level.addFreshEntity(y);
         return y;
     }

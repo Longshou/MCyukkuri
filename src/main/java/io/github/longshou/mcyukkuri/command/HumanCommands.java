@@ -135,10 +135,9 @@ public final class HumanCommands {
         int n = 0;
         for (var shop : registry.shops()) {
             n++;
-            var keeper = level.getEntity(shop.keeper) instanceof HumanNpc k ? k : null;
-            say(c, "shop keeper=" + shop.keeper + " post=" + shop.pos.toShortString() + " dim=" + shop.dimension + " keeperLoaded=" + (keeper != null && keeper.isAlive())
+            long staff = level.getEntitiesOfClass(HumanNpc.class, shop.bounds(), s -> s.isAlive() && registry.of(s) == shop).size();
+            say(c, "shop id=" + shop.id + " post=" + shop.pos.toShortString() + " dim=" + shop.dimension + " staffLoaded=" + staff
                     + " authored=" + shop.authored() + " counter=" + shop.counter().toShortString());
-            if (keeper == null) continue;
             for (var y : ShopRegistry.liveStock(level, shop))
                 say(c, "  stock " + y.getType().getDescriptionId().replace("entity.mcyukkuri.", "") + " uuid=" + y.getUUID() + " grade=" + y.pet().grade() + " owner=" + HumanCommercePeek.owner(y)
                         + " price=" + ShopPricing.price(y));

@@ -6,6 +6,7 @@ import io.github.longshou.mcyukkuri.entity.YukkuriVariant;
 import io.github.longshou.mcyukkuri.family.GrowthTiming;
 import io.github.longshou.mcyukkuri.human.Custody;
 import io.github.longshou.mcyukkuri.human.HumanCommerce;
+import io.github.longshou.mcyukkuri.human.HumanNpc;
 import io.github.longshou.mcyukkuri.item.CarrierContents;
 import io.github.longshou.mcyukkuri.life.CareBlock;
 import io.github.longshou.mcyukkuri.life.CareBlockEntity;
@@ -46,18 +47,40 @@ public final class ShopRestock {
     /** From any staff member's tick: the first restock is one period after the shop opens, then every period. */
     static void tick(ServerLevel level, ShopRegistry.Entry shop) {
         long now = level.getGameTime();
-        stampShelfDays(level, shop, now);
+        tend(level, shop, now);
         if (shop.nextRestock() == 0) { ShopRegistry.get(level).restocked(shop, now + PERIOD); return; }
         if (now < shop.nextRestock() || !level.isDay()) return;
         restock(level, shop);
     }
 
-    /** Stock that came with the building starts its days on the shelf when the shop first sees it. */
-    private static void stampShelfDays(ServerLevel level, ShopRegistry.Entry shop, long now) {
+    /**
+     * The shop's own bookkeeping each staff tick: stock bound to one of its staff members (the template binds it to the counter clerk)
+     * becomes the shop site's stock, so it outlives any one staff member; stock starts its days on the shelf when the shop first sees
+     * it; and a reservation not taken up within one restock period lapses (the animal is on sale again, the shop keeps the deposit).
+     */
+    private static void tend(ServerLevel level, ShopRegistry.Entry shop, long now) {
+        var registry = ShopRegistry.get(level);
+        for (var y : level.getEntitiesOfClass(YukkuriEntity.class, shop.bounds(), a -> a.isAlive() && Custody.view(a).role() == Custody.Role.STOCK
+                && !Custody.view(a).ownedBy(shop.id))) {
+            var owner = Custody.view(y).owner();
+            if (owner == null || !(level.getEntity(owner) instanceof HumanNpc staff) || registry.of(staff) != shop) continue;
+            Custody.assignRaw(y, shop.id, Custody.OwnerKind.NPC, Custody.Role.STOCK.id());
+            GameplayLog.event(y, "shop", "action=adopt shop={} from_staff={}", shop.id, owner);
+        }
         for (var y : ShopRegistry.liveStock(level, shop)) {
             var tag = HumanCommerce.data(y);
             if (tag.contains(ShopTrade.FOR_SALE_SINCE)) continue;
             tag = tag.copy(); tag.putLong(ShopTrade.FOR_SALE_SINCE, now); HumanCommerce.set(y, tag);
+        }
+        for (var id : List.copyOf(shop.deposits.keySet())) {
+            var deposit = shop.deposit(id);
+            if (now < deposit.since() + PERIOD) continue;
+            registry.lapse(shop, id);
+            var buyer = level.getServer().getPlayerList().getPlayer(deposit.buyer());
+            var name = level.getEntity(id) instanceof YukkuriEntity y ? y.getDisplayName() : net.minecraft.network.chat.Component.translatable("shop.mcyukkuri.reserve.animal");
+            if (buyer != null) buyer.sendSystemMessage(net.minecraft.network.chat.Component.translatable("shop.mcyukkuri.reserve.expired", name, deposit.paid()));
+            GameplayLog.world(level, "shop", "action=reserve result=lapsed shop={} target={} buyer={} deposit_kept={} notified={}",
+                    shop.id, id, deposit.buyer(), deposit.paid(), buyer != null);
         }
     }
 
@@ -81,7 +104,7 @@ public final class ShopRestock {
                 custody.forgetCaptive(token);
                 dock.setItem(slot, ItemStack.EMPTY);
                 shipped++;
-                GameplayLog.world(level, "shop", "action=restock result=shipped shop={} token={} species={}", shop.keeper, token,
+                GameplayLog.world(level, "shop", "action=restock result=shipped shop={} token={} species={}", shop.id, token,
                         custody.captiveSnapshot(token).getString("id"));
             } else if (ShopStaff.predator(custody.captiveSnapshot(token))) waitingPredator++;
             else waitingLand++;
@@ -94,7 +117,7 @@ public final class ShopRestock {
             if (adults - marked <= KEEP_ADULTS) break;
             var tag = HumanCommerce.data(y).copy(); tag.putBoolean(ShopTrade.SHIP_OUT, true); HumanCommerce.set(y, tag);
             marked++;
-            GameplayLog.event(y, "shop", "action=restock result=ship_marked shop={} days={}", shop.keeper, CommodityLife.forSaleDays(y));
+            GameplayLog.event(y, "shop", "action=restock result=ship_marked shop={} days={}", shop.id, CommodityLife.forSaleDays(y));
         }
         int leavingLand = 0, leavingPredator = 0, landStock = 0, predatorStock = 0;
         for (var y : stock) {
@@ -117,7 +140,7 @@ public final class ShopRestock {
             var basket = arrive(level, shop, variant, adult, random);
             if (basket == null) break;
             if (!ShopStaff.insert(dock, basket).isEmpty()) {
-                GameplayLog.world(level, "shop", "action=restock result=barrel_full shop={} dropped=none", shop.keeper);
+                GameplayLog.world(level, "shop", "action=restock result=barrel_full shop={} dropped=none", shop.id);
                 custody.forgetCaptive(CarrierContents.singleToken(basket));
                 break;
             }
@@ -125,7 +148,7 @@ public final class ShopRestock {
             arrived++;
         }
         GameplayLog.world(level, "shop", "action=restock result=done shop={} stock={} adults={} ship_marked={} shipped={} free_land={} free_predator={} arrived={} next={}",
-                shop.keeper, stock.size(), adults, marked, shipped, land, predators, arrived, shop.nextRestock());
+                shop.id, stock.size(), adults, marked, shipped, land, predators, arrived, shop.nextRestock());
         return arrived;
     }
 
@@ -155,11 +178,11 @@ public final class ShopRestock {
         y.family().initializeGrowthAge(adult ? GrowthTiming.ADULT_START + random.nextInt(48_000) : YOUNG_MIN + (long) (random.nextDouble() * (YOUNG_MAX - YOUNG_MIN)));
         y.life().personality().applyBirthProfile(new YukkuriPersonality.BirthProfile(between(random, 45, 85), between(random, 55, 90),
                 between(random, 25, 80), between(random, 45, 85), between(random, 55, 90)));
-        Custody.assignRaw(y, shop.keeper, Custody.OwnerKind.NPC, Custody.Role.STOCK.id());
+        Custody.assignRaw(y, shop.id, Custody.OwnerKind.NPC, Custody.Role.STOCK.id());
         if (!level.addFreshEntity(y)) return null;
         var token = YukkuriWorldData.get(level).capture(y);
         if (token == null) return null; // it stays in the back room as stock, where staff and the roster see it
-        GameplayLog.event(y, "shop", "action=restock result=arrival shop={} stage={} adult={} token={}", shop.keeper, y.family().stageId(), adult, token);
+        GameplayLog.event(y, "shop", "action=restock result=arrival shop={} stage={} adult={} token={}", shop.id, y.family().stageId(), adult, token);
         return CarrierContents.plain(YukkuriWorldData.get(level), token);
     }
     private static int between(RandomSource random, int low, int high) { return low + random.nextInt(high - low + 1); }

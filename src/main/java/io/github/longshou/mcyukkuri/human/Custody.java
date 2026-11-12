@@ -171,20 +171,27 @@ public final class Custody {
     /** A real NPC death, never unload/remove or a player's death. */
     public static void ownerDied(HumanNpc owner) {
         if (!(owner.level() instanceof ServerLevel level)) return;
-        CustodyData.get(level).died(owner.getUUID(), level.getGameTime());
+        for (var animal : ownerGone(level, owner.getUUID())) mourn(animal, owner);
+        GameplayLog.event(owner, "custody", "owner death recorded");
+    }
+
+    /**
+     * An NPC-kind owner is gone for good (a dead NPC, or a closed shop site whose last staff member died): the durable death record, the
+     * release of its loaded dependants, and the normalised baskets that hold its animals. Returns the released loaded dependants.
+     */
+    public static List<YukkuriEntity> ownerGone(ServerLevel level, UUID owner) {
+        CustodyData.get(level).died(owner, level.getGameTime());
         var affected = new ArrayList<YukkuriEntity>();
         for (var dimension : level.getServer().getAllLevels()) for (var entity : dimension.getAllEntities())
             if (entity instanceof YukkuriEntity animal) {
                 var tag = animal.getPersistentData().getCompound("HumanCommerce");
-                if (tag.hasUUID("Owner") && tag.getUUID("Owner").equals(owner.getUUID()))
+                if (tag.hasUUID("Owner") && tag.getUUID("Owner").equals(owner))
                     affected.add(animal);
             }
-        for (var animal : affected) {
-            release(animal, ReleaseReason.OWNER_DIED, owner.getUUID(), null);
-            mourn(animal, owner);
-        }
+        for (var animal : affected) release(animal, ReleaseReason.OWNER_DIED, owner, null);
         YukkuriWorldData.get(level).normalizeCustody(level);
-        GameplayLog.event(owner, "custody", "owner death recorded loadedDependants={}", affected.size());
+        GameplayLog.world(level, "custody", "owner gone owner={} loadedDependants={}", owner, affected.size());
+        return affected;
     }
 
     /**

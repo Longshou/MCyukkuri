@@ -6597,7 +6597,7 @@
   "shop.mcyukkuri.reserve.refused.ordered": "The staff are already handling it; wait a moment.",
   "shop.mcyukkuri.reserve.refused.emeralds": "Not enough for the deposit: %s emeralds needed, you have %s.",
   "shop.mcyukkuri.reserve.refused.own": "You have already reserved it.",
-  "shop.mcyukkuri.reserve.done": "Deposit of %s emeralds paid: %s is kept for you and no restock sends it away; you pay the remaining %s when you buy it.",
+  "shop.mcyukkuri.reserve.done": "Deposit of %s emeralds paid: %s is kept for you for one restock period (three days), nobody else can buy it and no restock sends it away; you pay the remaining %s when you buy it.",
   "shop.mcyukkuri.reserve.refunded": "An animal you reserved is gone; your deposit of %s emeralds is refunded.",
   "shop.mcyukkuri.sell.refused.closed": "The shop buys in the daytime only.",
   "shop.mcyukkuri.sell.refused.gone": "It is not yours, or it is gone.",
@@ -6630,5 +6630,7 @@
   "shop.mcyukkuri.order.delivered": "Delivered; you have been paid.",
   "shop.mcyukkuri.protect.block": "Nothing in the shop may be touched.",
   "shop.mcyukkuri.protect.frame": "The frames hold samples; ask the staff to buy.",
-  "shop.mcyukkuri.protect.stock": "This is the shop’s stock; you cannot handle it before buying it."
+  "shop.mcyukkuri.protect.stock": "This is the shop’s stock; you cannot handle it before buying it.",
+  "shop.mcyukkuri.reserve.expired": "Your reservation of %s lapsed after three days; it is on sale again and the deposit of %s emeralds is kept.",
+  "shop.mcyukkuri.reserve.animal": "the animal you reserved"
 }

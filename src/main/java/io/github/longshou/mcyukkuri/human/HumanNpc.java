@@ -195,7 +195,7 @@ public final class HumanNpc extends PathfinderMob {
             production.dropContents();
             if (level() instanceof ServerLevel sl && job() == Job.SHOPKEEPER) {
                 ShopStaff.staffDied(this, sl);
-                ShopRegistry.get(sl).close(getUUID()); // only the owner's death closes the shop (its stock was owned by it)
+                ShopRegistry.get(sl).staffDied(sl, this); // the shop closes only with its last staff member
             }
         }
         super.die(source);

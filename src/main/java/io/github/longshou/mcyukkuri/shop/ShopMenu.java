@@ -185,7 +185,7 @@ public final class ShopMenu extends AbstractContainerMenu {
             if (owed > 0) {
                 ShopTrade.pay(p, owed);
                 p.sendSystemMessage(Component.translatable("shop.mcyukkuri.reserve.refunded", owed));
-                GameplayLog.event(p, "shop", "action=reserve result=refunded shop={} emeralds_received={}", shop.keeper, owed);
+                GameplayLog.event(p, "shop", "action=reserve result=refunded shop={} emeralds_received={}", shop.id, owed);
             }
         }
         UUID focus = focusAnimal == null ? null : focusAnimal.getUUID();
@@ -196,7 +196,7 @@ public final class ShopMenu extends AbstractContainerMenu {
         if (!(p instanceof ServerPlayer) || !(y.level() instanceof ServerLevel level) || !p.getMainHandItem().isEmpty()) return false;
         var registry = ShopRegistry.get(level);
         var shop = registry.shopAt(level, y.position());
-        if (shop == null || !ShopTrade.stockOf(y, shop.keeper)) return false;
+        if (shop == null || !ShopTrade.stockOf(y, shop.id)) return false;
         var staff = level.getEntitiesOfClass(HumanNpc.class, shop.bounds().inflate(4), n -> n.isAlive() && registry.of(n) == shop)
                 .stream().min(Comparator.comparingDouble(p::distanceToSqr)).orElse(null);
         if (staff == null) { ShopTrade.say(p, "protect.stock"); return true; } // no one to ask: still not handled before it is bought
@@ -244,7 +244,7 @@ public final class ShopMenu extends AbstractContainerMenu {
     }
     private YukkuriEntity listed(int index) {
         if (shop == null || index < 0 || index >= roster.size() || !(viewer.level() instanceof ServerLevel level)) return null;
-        return level.getEntity(roster.get(index)) instanceof YukkuriEntity y && y.isAlive() && shop.contains(y.position()) && ShopTrade.stockOf(y, shop.keeper) ? y : null;
+        return level.getEntity(roster.get(index)) instanceof YukkuriEntity y && y.isAlive() && shop.contains(y.position()) && ShopTrade.stockOf(y, shop.id) ? y : null;
     }
     private boolean mayHandle(YukkuriEntity y, Player p) {
         return y != null && y.isAlive() && y.pet().ownedBy(p.getUUID()) && !y.isPassenger() && y.distanceToSqr(p) <= 64;
@@ -263,7 +263,7 @@ public final class ShopMenu extends AbstractContainerMenu {
     private void refresh() {
         if (viewer.level().isClientSide || target == null || shop == null || !(target.level() instanceof ServerLevel level)) return;
         for (int i = 0; i < DATA_SIZE; i++) data.set(i, 0);
-        put(Data.TAB, tab); put(Data.TRADES_LEFT, ShopStock.get(level).tradesLeft(level, shop.keeper, viewer.getUUID()));
+        put(Data.TAB, tab); put(Data.TRADES_LEFT, ShopStock.get(level).tradesLeft(level, shop.id, viewer.getUUID()));
         put(Data.DAYTIME, level.isDay() ? 1 : 0); put(Data.PAGE, page); put(Data.PAGE_COUNT, pageCount());
         if (standingClock-- <= 0) { standingClock = 20; standing = PetPrivileges.grade(viewer).id(); }
         put(Data.STANDING, standing);
@@ -271,13 +271,13 @@ public final class ShopMenu extends AbstractContainerMenu {
             var stocks = ShopStock.get(level);
             for (int row = 0; row < GOODS_ROWS; row++) {
                 var good = ShopCatalog.at(ShopCatalog.index(page, row)); if (good == null) continue;
-                put(Data.GOODS_STOCK_BASE + row, stocks.stock(level, shop.keeper, good)); put(Data.GOODS_UNLOCK_BASE + row, good.unlock());
+                put(Data.GOODS_STOCK_BASE + row, stocks.stock(level, shop.id, good)); put(Data.GOODS_UNLOCK_BASE + row, good.unlock());
             }
         }
         if (tab == ORDERS) {
-            var orders = ShopOrders.today(level, shop.keeper);
+            var orders = ShopOrders.today(level, shop.id);
             for (int i = 0; i < ShopOrders.PER_DAY; i++) put(Data.ORDER_BASE + i, orders[i] + 1);
-            put(Data.ORDERS_DONE, ShopStock.get(level).ordersDone(level, shop.keeper, viewer.getUUID()));
+            put(Data.ORDERS_DONE, ShopStock.get(level).ordersDone(level, shop.id, viewer.getUUID()));
         }
         put(Data.STOCK_COUNT, roster.size()); put(Data.SUBJECT_COUNT, mine.size()); put(Data.SUBJECT_INDEX, mine.isEmpty() ? 0 : selected + 1);
         if (tab == LIVE && focus >= 0 && focus / PAGE_ROWS == page) put(Data.FOCUS_ROW, focus % PAGE_ROWS + 1);
@@ -318,23 +318,23 @@ public final class ShopMenu extends AbstractContainerMenu {
         if (good == null) return false;
         int price = good.price(); var stack = good.stack(); var stocks = ShopStock.get(level);
         String why = !level.isDay() ? "closed" : !PetPrivileges.allows(p, good.unlock()) ? "locked." + good.unlock()
-                : stocks.stock(level, shop.keeper, good) <= 0 ? "sold_out" : stocks.tradesLeft(level, shop.keeper, p.getUUID()) <= 0 ? "trade_limit"
+                : stocks.stock(level, shop.id, good) <= 0 ? "sold_out" : stocks.tradesLeft(level, shop.id, p.getUUID()) <= 0 ? "trade_limit"
                 : ShopTrade.emeralds(p) < price ? "emeralds" : !room(p) ? "inventory_full" : null;
         if (why != null) {
             ShopTrade.say(p, "goods.refused." + why, stack.getHoverName(), price, ShopTrade.emeralds(p));
-            GameplayLog.event(p, "shop", "action=buy_good result=refused shop={} item={} reason={}", shop.keeper, stack.getItem(), why);
+            GameplayLog.event(p, "shop", "action=buy_good result=refused shop={} item={} reason={}", shop.id, stack.getItem(), why);
             return false;
         }
-        int stockBefore = stocks.stock(level, shop.keeper, good), delivered = stack.getCount();
+        int stockBefore = stocks.stock(level, shop.id, good), delivered = stack.getCount();
         var item = stack.getItem();
         // The shelf shows the plain knit; each swaddle cloth handed over is one of the styles at random (docs/FEATURES.md).
         var style = stack.is(ModItems.SWADDLE_CLOTH.get()) ? SwaddleStyle.random(ModRandom.world(level)) : null;
         if (style != null) style.apply(stack);
-        stocks.take(level, shop.keeper, good);
-        ShopTrade.debit(p, price); if (!p.getInventory().add(stack)) p.drop(stack, false); stocks.useTrade(level, shop.keeper, p.getUUID());
+        stocks.take(level, shop.id, good);
+        ShopTrade.debit(p, price); if (!p.getInventory().add(stack)) p.drop(stack, false); stocks.useTrade(level, shop.id, p.getUUID());
         ShopTrade.say(p, "goods.bought", stack.getHoverName(), price);
         GameplayLog.event(p, "shop", "action=buy_good result=delivered shop={} item={} count={} style={} emeralds_used={} stock={}->{}",
-                shop.keeper, item, delivered, style == null ? null : style.id, price, stockBefore, stocks.stock(level, shop.keeper, good));
+                shop.id, item, delivered, style == null ? null : style.id, price, stockBefore, stocks.stock(level, shop.id, good));
         return true;
     }
     /** R2: the clerk explains the species and gives transport advice, as three chat lines. */
@@ -372,7 +372,7 @@ public final class ShopMenu extends AbstractContainerMenu {
         else if (id <= ButtonId.BUY_GOODS_LAST) ok = tab == GOODS && buyGood(level, p, id - ButtonId.BUY_GOODS_BASE);
         else if (id == ButtonId.SELL) { ok = tab == BUYBACK && ShopTrade.sell(level, shop, subject(), player); if (ok) rescan(); }
         else if (id >= ButtonId.DELIVER_ORDER_BASE) {
-            ok = tab == ORDERS && level.isDay() && ShopOrders.deliver(level, shop.keeper, p, id - ButtonId.DELIVER_ORDER_BASE);
+            ok = tab == ORDERS && level.isDay() && ShopOrders.deliver(level, shop.id, p, id - ButtonId.DELIVER_ORDER_BASE);
             ShopTrade.say(p, ok ? "order.delivered" : level.isDay() ? "order.unavailable" : "goods.refused.closed");
         }
         else ok = false;

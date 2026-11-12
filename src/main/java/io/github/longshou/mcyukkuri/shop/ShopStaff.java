@@ -102,7 +102,7 @@ public final class ShopStaff {
             if (claimed(y.getUUID())) continue;
             String kind = y.pet().busyWith();
             if (kind.equals(ShopTrade.HANDOVER) && !OPERATOR.containsKey(y.getUUID())) ShopTrade.cancel(level, shop, y, "gone"); // its operator record was lost (restart)
-            else if (kind.equals(ShopTrade.SALE) && ShopTrade.stockOf(y, shop.keeper)) {
+            else if (kind.equals(ShopTrade.SALE) && ShopTrade.stockOf(y, shop.id)) {
                 String problem = ShopTrade.orderProblem(level, shop, y);
                 if (problem != null) ShopTrade.cancel(level, shop, y, problem);
             } else if (kind.equals(ShopTrade.SELL) && y.pet().ownedBy(y.pet().lockedBy())) {
@@ -114,7 +114,8 @@ public final class ShopStaff {
 
     /** Operator handover (command): the animal waits like a bought one and the first free staff member brings it, free of charge, for {@code buyer}. */
     public static boolean handover(ServerLevel level, ShopRegistry.Entry shop, YukkuriEntity y, UUID buyer) {
-        if (!ShopTrade.handover(level, shop, y)) return false;
+        var holder = level.getEntitiesOfClass(HumanNpc.class, shop.bounds(), n -> n.isAlive() && ShopRegistry.get(level).of(n) == shop).stream().findFirst().orElse(null);
+        if (holder == null || !ShopTrade.handover(level, shop, y, holder)) return false;
         OPERATOR.put(y.getUUID(), buyer);
         return true;
     }
@@ -126,41 +127,41 @@ public final class ShopStaff {
         if (UNREACHABLE.size() > 64) UNREACHABLE.prune(now);
         var stock = ShopRegistry.liveStock(level, shop);
         for (var y : stock) if (ShopTrade.order(y) && free(y.getUUID(), now)) {
-            var job = new Job(staff.getUUID(), shop.keeper, Kind.BUY); job.animal = y.getUUID();
+            var job = new Job(staff.getUUID(), shop.id, Kind.BUY); job.animal = y.getUUID();
             job.customer = y.pet().busyWith().equals(ShopTrade.HANDOVER) ? OPERATOR.remove(y.getUUID()) : y.pet().lockedBy();
             start(staff, job, y.position()); return;
         }
         for (var y : level.getEntitiesOfClass(YukkuriEntity.class, shop.bounds(), a -> a.isAlive() && a.pet().busyWith().equals(ShopTrade.SELL)
                 && a.pet().ownedBy(a.pet().lockedBy()) && shop.contains(a.position())))
             if (free(y.getUUID(), now)) {
-                var job = new Job(staff.getUUID(), shop.keeper, Kind.SELL); job.animal = y.getUUID(); job.customer = y.pet().lockedBy();
+                var job = new Job(staff.getUUID(), shop.id, Kind.SELL); job.animal = y.getUUID(); job.customer = y.pet().lockedBy();
                 start(staff, job, y.position()); return;
             }
         var blocks = blockEntities(level, shop);
         if (staff.careFood() > 0) for (var be : blocks)
             if (be instanceof CareBlockEntity bowl && bowl.kind() == CareBlock.Kind.BOWL && bowl.foodCount() < BOWL_LOW && free(bowl.getBlockPos(), now)) {
-                var job = new Job(staff.getUUID(), shop.keeper, Kind.FEED); job.target = bowl.getBlockPos();
+                var job = new Job(staff.getUUID(), shop.id, Kind.FEED); job.target = bowl.getBlockPos();
                 start(staff, job, bowl.getBlockPos().getCenter()); return;
             }
         var dock = dockBasket(level, shop);
         if (dock >= 0 && free(shop.dock(), now) && destination(level, shop, ((Container) level.getBlockEntity(shop.dock())).getItem(dock), staff.position()) != null) {
-            var job = new Job(staff.getUUID(), shop.keeper, Kind.SETTLE); job.target = shop.dock();
+            var job = new Job(staff.getUUID(), shop.id, Kind.SETTLE); job.target = shop.dock();
             start(staff, job, shop.dock().getCenter()); return;
         }
         for (var item : level.getEntitiesOfClass(ItemEntity.class, shop.bounds(), i -> i.isAlive() && shopBasket(level, shop, i.getItem())))
             if (free(item.getUUID(), now) && destination(level, shop, item.getItem(), staff.position()) != null) {
-                var job = new Job(staff.getUUID(), shop.keeper, Kind.SETTLE); job.loose = item; job.animal = item.getUUID();
+                var job = new Job(staff.getUUID(), shop.id, Kind.SETTLE); job.loose = item; job.animal = item.getUUID();
                 start(staff, job, item.position()); return;
             }
         if (shop.dock() != null) for (var y : stock) if (shipOut(y) && !y.pet().busy() && shop.deposit(y.getUUID()) == null && free(y.getUUID(), now)) {
-            var job = new Job(staff.getUUID(), shop.keeper, Kind.SHIP); job.animal = y.getUUID();
+            var job = new Job(staff.getUUID(), shop.id, Kind.SHIP); job.animal = y.getUUID();
             start(staff, job, y.position()); return;
         }
         if (shop.trash() != null) for (var be : blocks) {
             boolean dirty = be instanceof CareBlockEntity toilet && toilet.kind() == CareBlock.Kind.TOILET && toilet.waste() >= 1
                     || be instanceof PoopBlockEntity poop && poop.count() >= 1;
             if (dirty && free(be.getBlockPos(), now)) {
-                var job = new Job(staff.getUUID(), shop.keeper, Kind.CLEAN); job.target = be.getBlockPos();
+                var job = new Job(staff.getUUID(), shop.id, Kind.CLEAN); job.target = be.getBlockPos();
                 start(staff, job, be.getBlockPos().getCenter()); return;
             }
         }
@@ -185,7 +186,7 @@ public final class ShopStaff {
         var hand = staff.getMainHandItem();
         if (hand.is(ModItems.WASTE.get())) {
             if (shop.trash() == null) return false;
-            var job = new Job(staff.getUUID(), shop.keeper, Kind.CLEAN); job.phase = Phase.CARRY; job.target = shop.trash();
+            var job = new Job(staff.getUUID(), shop.id, Kind.CLEAN); job.phase = Phase.CARRY; job.target = shop.trash();
             start(staff, job, shop.trash().getCenter()); return true;
         }
         if (!hand.is(ModItems.CARRIER.get())) return false;
@@ -198,9 +199,9 @@ public final class ShopStaff {
         var view = Custody.fromSnapshot(custody.captiveSnapshot(token));
         Job job;
         if (view.ownerKind() == Custody.OwnerKind.PLAYER) {
-            job = new Job(staff.getUUID(), shop.keeper, Kind.BUY); job.customer = view.owner(); job.target = shop.counter();
+            job = new Job(staff.getUUID(), shop.id, Kind.BUY); job.customer = view.owner(); job.target = shop.counter();
         } else {
-            job = new Job(staff.getUUID(), shop.keeper, Kind.SETTLE); job.target = destination(level, shop, hand, staff.position());
+            job = new Job(staff.getUUID(), shop.id, Kind.SETTLE); job.target = destination(level, shop, hand, staff.position());
             if (job.target == null) job.target = shop.dock();
             if (job.target == null) return false;
         }
@@ -248,7 +249,7 @@ public final class ShopStaff {
             }
             case SHIP -> {
                 var y = animal(level, job);
-                if (y == null || !ShopTrade.stockOf(y, shop.keeper) || !shipOut(y) || y.pet().busy() || shop.deposit(y.getUUID()) != null) return "kept";
+                if (y == null || !ShopTrade.stockOf(y, shop.id) || !shipOut(y) || y.pet().busy() || shop.deposit(y.getUUID()) != null) return "kept";
             }
             case FEED -> {
                 if (!(level.getBlockEntity(job.target) instanceof CareBlockEntity bowl) || bowl.foodCount() >= BOWL_LOW || staff.careFood() <= 0) return "fed";
@@ -309,7 +310,7 @@ public final class ShopStaff {
                 job.token = YukkuriWorldData.get(level).capture(y);
                 if (job.token == null) { end(staff, job, "capture_refused"); return; }
                 staff.setItemInHand(InteractionHand.MAIN_HAND, CarrierContents.plain(YukkuriWorldData.get(level), job.token));
-                GameplayLog.event(staff, "shop", "action=ship_out result=packed shop={} target={} token={}", shop.keeper, y.getUUID(), job.token);
+                GameplayLog.event(staff, "shop", "action=ship_out result=packed shop={} target={} token={}", shop.id, y.getUUID(), job.token);
                 carryTo(job, shop.dock());
             }
             case FEED -> {
@@ -338,7 +339,7 @@ public final class ShopStaff {
                 else { var dock = (Container) level.getBlockEntity(shop.dock()); int slot = dockBasket(level, shop); basket = dock.removeItemNoUpdate(slot); dock.setChanged(); }
                 staff.setItemInHand(InteractionHand.MAIN_HAND, basket);
                 job.token = CarrierContents.singleToken(basket);
-                GameplayLog.event(staff, "shop", "action=settle result=lifted shop={} token={} from={}", shop.keeper, job.token, job.loose != null ? "floor" : "dock");
+                GameplayLog.event(staff, "shop", "action=settle result=lifted shop={} token={} from={}", shop.id, job.token, job.loose != null ? "floor" : "dock");
                 job.loose = null; job.animal = null;
                 carryTo(job, destinationOr(level, shop, staff));
             }
@@ -374,7 +375,7 @@ public final class ShopStaff {
             staff.setItemInHand(InteractionHand.MAIN_HAND, left);
             staff.swing(InteractionHand.MAIN_HAND);
             GameplayLog.event(staff, "shop", "action={} result=stored shop={} token={} barrel={} full={}", job.kind == Kind.CLEAN ? "dispose_waste" : "stow_basket",
-                    shop.keeper, job.token, job.target.toShortString(), !left.isEmpty());
+                    shop.id, job.token, job.target.toShortString(), !left.isEmpty());
             if (!left.isEmpty()) { fail(level, staff, shop, job, "barrel_full"); return; }
             end(staff, job, "stored");
             return;
@@ -395,7 +396,7 @@ public final class ShopStaff {
         if (!tag.contains(ShopTrade.FOR_SALE_SINCE)) { tag.putLong(ShopTrade.FOR_SALE_SINCE, level.getGameTime()); HumanCommerce.set(y, tag); }
         boolean home = y.life().assignHome(GlobalPos.of(level.dimension(), nest));
         y.playAction("basket_out"); y.speak("basket_exit");
-        GameplayLog.event(y, "shop", "action=settle result=released shop={} token={} nest={} home={} staff={}", shop.keeper, job.token, nest.toShortString(), home, staff.getUUID());
+        GameplayLog.event(y, "shop", "action=settle result=released shop={} token={} nest={} home={} staff={}", shop.id, job.token, nest.toShortString(), home, staff.getUUID());
         end(staff, job, "released");
     }
 
@@ -453,7 +454,7 @@ public final class ShopStaff {
             return;
         }
         var hand = staff.getMainHandItem().copy();
-        UUID target = job.kind == Kind.BUY ? job.customer : job.kind == Kind.CLEAN ? null : shop.keeper;
+        UUID target = job.kind == Kind.BUY ? job.customer : job.kind == Kind.CLEAN ? null : shop.id;
         if (ShopTrade.drop(level, target, staff.position(), hand) != null) staff.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
         GameplayLog.event(staff, "shop", "action=job result=put_down kind={} token={} at={} pickup={}", job.kind, job.token, GameplayLog.at(staff.position()), target);
         end(staff, job, reason);
@@ -535,7 +536,7 @@ public final class ShopStaff {
         UUID token = CarrierContents.singleToken(stack);
         if (!stack.is(ModItems.CARRIER.get()) || token == null || !YukkuriWorldData.get(level).hasToken(token)) return false;
         var view = Custody.fromSnapshot(YukkuriWorldData.get(level).captiveSnapshot(token));
-        return view.role() == Custody.Role.STOCK && view.ownedBy(shop.keeper);
+        return view.role() == Custody.Role.STOCK && view.ownedBy(shop.id);
     }
     /** The slot of a stock basket in the arrivals barrel that is not shipping out, or -1. */
     static int dockBasket(ServerLevel level, ShopRegistry.Entry shop) {
