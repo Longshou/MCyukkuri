@@ -179,7 +179,7 @@ def literal_strings(argument):
 def direct_java_callers(java, clip_ids):
     """Return clips selected by literal playAction/wrapper, marker, or MotionPose calls."""
     result = {clip: set() for clip in clip_ids}
-    methods = {"playAction(": 0, "PetScenes.act(": 1, "perform(": 0, "ClipMarkers.of(": 0, "MotionPose(": 0}
+    methods = {"playAction(": 0, "PetScenes.act(": 1, "perform(": 0, "MotionPose(": 0}
     for text in java.values():
         for marker, argument_index in methods.items():
             for args in invocation_arguments(text, marker):
