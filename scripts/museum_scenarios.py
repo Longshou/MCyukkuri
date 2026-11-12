@@ -1629,20 +1629,26 @@ add('shop_build', 'shop', '整座商店：任一店员同一菜单，后院放�
     reads=[('店铺登记（shop list）', 'yukkuri human shop list'),
            ('读店内个体档案', f'yukkuri status {STOCK} raw'),
            ('读徽章与技能存档', f'execute as {STOCK} run data get entity @s YukkuriPet')])
-# The window pen's authored temperaments (art/structures/human-world/build.py): Chen shy, gold Alice proud, the young Reimu shows off;
-# 17 days on the shelf (past the 9 over which hope fades) turn the predator room's Remilia's answer into a sulk.
-BOOTH = '@e[type=mcyukkuri:{},nbt={{YukkuriPet:{{Grade:{}}},NeoForgeData:{{HumanCommerce:{{Use:"stock"}}}}}},distance=..80,limit=1]'
+# SP-02 changes only stock and relationship starting values inside the same authored shop.
+BOOTH = '@e[type=mcyukkuri:{},nbt={{YukkuriPet:{{Grade:{}}},NeoForgeData:{{HumanCommerce:{{Use:"stock"}}}}}},distance=..80,limit=1,sort=nearest]'
+_window_alice = BOOTH.format('alice', 3)
+_window_flandre = BOOTH.format('flandre', 0)
+_window_west = sel('customer_west', 80)
+_window_wary = sel('customer_wary', 80)
 add('shop_window', 'shop', '展舱里的油看见客人：招揽、问好、摆架子、害羞、闹别扭', '展舱里的油看见客人：招揽、问好、摆架子、害羞、闹别扭',
-    '站在街面橱窗前或店内过道，沿临街展舱和捕食种房慢慢走：每只隔着玻璃按自己的脾气回应你——子油灵梦凑到玻璃前卖力表现，金章爱丽丝端着徽章摆架子，'
-    '子油橙往后躲，上架 17 天的蕾米莉亚背过身闹别扭；规矩好的个体会有点紧张地鞠躬问好。没有高频抖动，只有动作和表情。你走开时恳求过的会失落',
+    '沿临街展舱和捕食种房慢慢走。子油灵梦会卖力展示，爱丽丝可亮出铂金章，没徽章的芙兰也能昂首。'
+    '注意橙面对熟悉顾客时的鞠躬、面对害怕的人时的退藏，以及上架 17 天的蕾米莉亚转身失落。向仍在恳求的个体挥别时，看它的反应',
     '建筑几秒；走到展舱 8 格内，1–2 秒内回应',
     ['yukkuri human build shop ~8 ~ ~17 south', 'scoreboard objectives add scn_t dummy', 'execute store result score #now scn_t run time query gametime',
      'scoreboard players remove #now scn_t 408000',
-     f'execute as {BOOTH.format("remilia", 2)} store result entity @s NeoForgeData.HumanCommerce.ForSaleSince long 1 run scoreboard players get #now scn_t'],
-    env=DAY, vantage=(9, 14, 180, 10),
+     f'execute as {BOOTH.format("remilia", 2)} store result entity @s NeoForgeData.HumanCommerce.ForSaleSince long 1 run scoreboard players get #now scn_t',
+     f'data modify entity {_window_alice} YukkuriPet.Grade set value 4',
+     f'data modify entity {_window_flandre} YukkuriLife.Personality.Innate set value [I;60,25,85,55,55]',
+     f'yukkuri status relate {BOOTH.format("chen", 0)} @s 20'],
+    env=DAY, vantage=(16, 18, 180, 0),
     reads=[('读在售个体（上架天数与回应）', f'yukkuri status {STOCK} raw')])
 add('shop_buy', 'shop', '买下金章爱丽丝：店员开铁门进展舱抱她装篮，送到柜台', '买下金章爱丽丝：店员开铁门进展舱抱她装篮，送到柜台',
-    '进店右键任一店员，在“在售”里买下金章爱丽丝：她高兴地跳一下，站着等。最先空下来的店员拿空运输篮走到展舱铁门前，开门进去，'
+    '进店右键任一店员，在“在售”里买下金章爱丽丝：她按对你的防备和熟悉程度跳一下或鞠躬，站着等。最先空下来的店员拿空运输篮走到展舱铁门前，开门进去，'
     '她钻进篮子的那一刻才扣款，店员出门关门，提篮回到柜台交到你手上（不在柜台边就放在柜台上，只有你能拿）。隔壁的子油橙看着她被带走。'
     '没钱、天黑、被别人预订时点购买会直接说原因；装篮前你离开商店或天黑，订单取消并告诉你原因，不扣钱',
     '建筑几秒；买下后约 10–30 秒交到手上', ['yukkuri human build shop ~8 ~ ~17 south'],
@@ -4496,16 +4502,32 @@ _smoke('shop_build', 1600, [r'\[npc-care\][^\n]* action=refill_bowl ', r'\[npc-c
 next(s for s in S if s.id == 'shop_build').smoke['commands'] = [
     (100, f'execute at @e[type=mcyukkuri:alice,distance=..60,nbt={{NeoForgeData:{{HumanCommerce:{{Use:"stock"}}}}}},limit=1] positioned ~ ~ ~.6 run yukkuri scenario tool_click {BOOTH.format("alice", 3)} pin'),
 ]
-# Headless runs have no player at the window: two residents stop in the aisle in front of the street pen and the predator room (smoke only; NoAI keeps them there).
-def _aisle_customer(dx, name):
-    return (f'summon mcyukkuri:caretaker_sister ~{dx} ~2 ~6.5 {{Tags:["scn","{tag(name)}"],PersistenceRequired:1b,NoAI:1b,Rotation:[0f,0f],'
+# Headless customers stand on the pavement outside the pens (NoAI keeps them there).
+def _window_customer(dx, name):
+    return (f'summon mcyukkuri:caretaker_sister ~{dx} ~2 ~15.5 {{Tags:["scn","{tag(name)}"],PersistenceRequired:1b,NoAI:1b,Rotation:[180f,0f],'
             'HumanJob:0,HumanAttitude:1,HumanInitialized:1b}')
-_smoke('shop_window', 1200, [rf'\[shop\] {kind} [^\n]* window start mode={mode} ' for kind, mode in
-                             (('chen', 'SHY'), ('alice', 'PROUD'), ('remilia', 'SULK'))],
+_smoke('shop_window', 1200, [
+    r'\[shop\] chen [^\n]* window start mode=POLITE [^\n]*closeness=20 fear=0 grade=0\b',
+    r'\[shop\] chen [^\n]* window start mode=SHY [^\n]*closeness=0 fear=60 grade=0\b',
+    r'\[shop\] alice [^\n]* window start mode=PROUD [^\n]*grade=4\b',
+    r'\[shop\] flandre [^\n]* window start mode=PROUD [^\n]*grade=0\b',
+    r'\[shop\] remilia [^\n]* window start mode=SULK [^\n]*hope=0\.00\b',
+    r'\[shop\] reimu [^\n]* window end mode=(?:APPEAL|SHOW_OFF) reason=customer_left [^\n]*rejections=1\b'],
        forbid=[r'\[shop\][^\n]* action=job result=failed '],
-       readout=[f'yukkuri status {BOOTH.format(kind, grade)} raw' for kind, grade in (('chen', 0), ('alice', 3), ('remilia', 2))])
-# Each customer stands in front of a pen's glass clear of its door frame (posts and doors block the view).
-next(s for s in S if s.id == 'shop_window').smoke['commands'] = [(100, _aisle_customer(16.5, 'customer_west')), (100, _aisle_customer(3.5, 'customer_east'))]
+       readout=[f'yukkuri status {BOOTH.format(kind, grade)} raw' for kind, grade in (('chen', 0), ('alice', 4), ('remilia', 2), ('flandre', 0))])
+# Start with direct sight lines through one glass cell, clear of the façade mullions.
+next(s for s in S if s.id == 'shop_window').smoke['commands'] = [
+    (70, f'execute positioned ~16.5 ~2 ~12.5 run tp {BOOTH.format("reimu", 0)} ~ ~ ~'),
+    (70, f'execute positioned ~17.5 ~2 ~12.5 run tp {BOOTH.format("alice", 4)} ~ ~ ~'),
+    (70, f'execute positioned ~16.5 ~2 ~13.5 run tp {BOOTH.format("chen", 0)} ~ ~ ~'),
+    (70, _window_customer(16.5, 'customer_west')),
+    (70, f'yukkuri status relate {BOOTH.format("chen", 0)} {_window_west} 20'),
+    (70, _window_customer(0.5, 'customer_flandre')),
+    (70, _window_customer(2.5, 'customer_remilia')),
+    (270, f'tp {_window_west} ~16.5 ~ ~24.5'),
+    (330, f'execute positioned ~16.5 ~2 ~13.5 run tp {BOOTH.format("chen", 0)} ~ ~ ~'),
+    (330, _window_customer(16.5, 'customer_wary')),
+    (330, f'yukkuri status fear {BOOTH.format("chen", 0)} {_window_wary} 60')]
 _smoke('shop_buy', 1600, [r'\[shop\][^\n]* action=job result=start kind=BUY ', r'\[shop\][^\n]* action=job result=reach kind=BUY ',
                           r'\[shop\] chen [^\n]* window witness kind=',
                           r'\[shop\][^\n]* action=buy_live result=committed [^\n]* emeralds_used=0\b',

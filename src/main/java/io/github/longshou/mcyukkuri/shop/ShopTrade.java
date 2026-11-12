@@ -10,6 +10,7 @@ import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.notebook.SurvivalProgress;
 import io.github.longshou.mcyukkuri.random.ModRandom;
 import io.github.longshou.mcyukkuri.social.BondLevels;
+import io.github.longshou.mcyukkuri.social.SocialDisposition;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.UUID;
 import net.minecraft.network.chat.Component;
@@ -79,7 +80,7 @@ public final class ShopTrade {
         return emeralds(p) < need ? "emeralds" : null;
     }
 
-    /** The player orders this stock animal: it waits, glad, for the first free staff member to bring it to the counter. */
+    /** The player orders this stock animal: it waits for the first free staff member to bring it to the counter. */
     static boolean buy(ServerLevel level, ShopRegistry.Entry shop, YukkuriEntity y, ServerPlayer p) {
         int need = y == null ? 0 : due(shop, y);
         String why = buyRefusal(level, shop, y, p, need);
@@ -91,9 +92,19 @@ public final class ShopTrade {
         }
         y.pet().lock(SALE, p.getUUID());
         ShopRegistry.get(level).order(shop, y.getUUID(), new ShopRegistry.Order(SALE, p.getUUID(), need, null));
-        y.playAction("joy_jump"); y.showReaction("happy", "shop_bought", 40); y.getLookControl().setLookAt(p, 30, 30);
+        var personality = y.life().personality();
+        var bond = personality.relation(p.getUUID());
+        double esteem = SocialDisposition.selfEsteem(y);
+        double wary = SocialDisposition.humanWariness(y, p, bond);
+        boolean guarded = wary >= .4;
+        boolean joyful = !guarded && (SocialDisposition.confidence(esteem) >= .55 || personality.friendliness() >= 65
+                || bond.closeness() >= BondLevels.TRUST_FAMILIAR);
+        y.playAction(joyful ? "joy_jump" : "bow");
+        y.showReaction(guarded ? "flushed_smile" : "happy", guarded ? "hello" : "shop_bought", 40);
+        y.getLookControl().setLookAt(p, 30, 30);
         say(p, "buy.accepted", y.getDisplayName(), need);
-        GameplayLog.event(y, "shop", "action=buy_live result=accepted shop={} buyer={} due={}", shop.id, p.getUUID(), need);
+        GameplayLog.event(y, "shop", "action=buy_live result=accepted shop={} buyer={} due={} reaction={} esteem={} wariness={} closeness={} fear={}",
+                shop.id, p.getUUID(), need, guarded ? "guarded_bow" : joyful ? "joyful" : "bow", esteem, wary, bond.closeness(), bond.fear());
         return true;
     }
 
@@ -240,14 +251,22 @@ public final class ShopTrade {
         y.pet().lock(SELL, p.getUUID());
         int price = ShopPricing.buyback(y);
         ShopRegistry.get(level).order(shop, y.getUUID(), new ShopRegistry.Order(SELL, p.getUUID(), price, null));
-        var pers = y.life().personality();
+        var personality = y.life().personality();
+        var bond = personality.relation(p.getUUID());
+        double esteem = SocialDisposition.selfEsteem(y);
+        double wary = SocialDisposition.humanWariness(y, p, bond);
+        double fondness = SocialDisposition.ramp(personality.attachment(), 45, 80)
+                * SocialDisposition.ramp(bond.closeness(), 0, 20);
+        double composure = SocialDisposition.confidence(esteem) * (1 - wary)
+                * (1 - SocialDisposition.ramp(personality.friendliness(), 35, 75));
         y.getLookControl().setLookAt(p, 30, 30);
-        // Its own numbers answer being sold: a fond one droops in tears, a proud one turns its face away, the rest bow.
-        if (pers.attachment() >= 60 || pers.trust(p.getUUID()) >= BondLevels.TRUST_AT_20) { y.playAction("droop"); y.showReaction("cry", "shop_sold_sad", 80); }
-        else if (pers.friendliness() <= 40) { y.playAction("ignore"); y.showReaction("smug", "shop_sold_proud", 80); }
-        else y.playAction("bow");
+        boolean sad = fondness >= .4, aloof = !sad && composure >= .55;
+        if (sad) { y.playAction("droop"); y.showReaction("cry", "shop_sold_sad", 80); }
+        else if (aloof) { y.playAction("ignore"); y.showReaction("smug", "shop_sold_proud", 80); }
+        else { y.playAction("bow"); y.showReaction(wary >= .4 ? "flushed_smile" : "closed_smile", "", 40); }
         say(p, "sell.accepted", y.getDisplayName(), price);
-        GameplayLog.event(y, "shop", "action=sell_live result=accepted shop={} seller={} offer={}", shop.id, p.getUUID(), price);
+        GameplayLog.event(y, "shop", "action=sell_live result=accepted shop={} seller={} offer={} reaction={} esteem={} wariness={} closeness={} fear={}",
+                shop.id, p.getUUID(), price, sad ? "sad" : aloof ? "aloof" : "bow", esteem, wary, bond.closeness(), bond.fear());
         return true;
     }
 

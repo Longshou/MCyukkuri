@@ -12,9 +12,9 @@ import io.github.longshou.mcyukkuri.motor.Action;
 import io.github.longshou.mcyukkuri.motor.MotorOwner;
 import io.github.longshou.mcyukkuri.motor.Outcome;
 import io.github.longshou.mcyukkuri.motor.action.Walk;
-import io.github.longshou.mcyukkuri.pet.BadgeGrade;
 import io.github.longshou.mcyukkuri.social.BondLevels;
 import io.github.longshou.mcyukkuri.social.Bonds;
+import io.github.longshou.mcyukkuri.social.SocialDisposition;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.EnumSet;
 import java.util.Locale;
@@ -30,7 +30,7 @@ import net.minecraft.world.phys.Vec3;
 /**
  * Shop stock at its window (docs/FEATURES.md, 宠物店): a customer it can see - a player or a resident, in the open or behind one glass
  * cell - is met the way this individual's own drives choose. It hurries to the glass and pleads (a bold and friendly one shows off),
- * strikes a proud pose (a silver or gold badge), shies away, or sulks once days on the shelf and pleas nobody answered have worn its
+ * strikes a proud pose, shies away, or sulks once days on the shelf and pleas nobody answered have worn its
  * hope down. A plea that ends with the customer walking off ends in a letdown and is remembered for a while; a neighbour carried off
  * in its sight is seen off by relation. Nothing is saved: a restart only drops the moment under way. Moving to the glass or away from
  * the customer is a motor Walk, facing is the look control, and the clips and faces are the moment rows of the reported activity.
@@ -56,8 +56,8 @@ public final class ShopWindow implements MotorOwner {
     private static final double SALE_RANGE = 10;
     /** Rejections remembered at most, and the time after which one is forgotten (project design). */
     private static final int REJECTIONS = 4, FORGIVE_TICKS = 2400;
-    /** Drive weights (project design, docs/FEATURES.md): each mode a continuous score, the largest wins after a jitter of up to 6. */
-    private static final double JITTER = 6, CRUEL_FEAR = 40;
+    /** Small variation between responses whose drives are close. */
+    private static final double VARIATION = 3;
     /** Days on the shelf over which the hope of being chosen fades out: three restocks (project design). */
     private static final int HOPE_DAYS = 9;
 
@@ -200,7 +200,7 @@ public final class ShopWindow implements MotorOwner {
         return null;
     }
 
-    /** People who come to look at the stock: players, and residents (caretakers or a cruel Oniisan); never the staff. */
+    /** People who come to look at the stock: players and residents. */
     private static boolean customer(LivingEntity e) {
         return e.isAlive() && (e instanceof Player p && !p.isSpectator() || e instanceof HumanNpc n && n.job() == HumanNpc.Job.RESIDENT);
     }
@@ -220,7 +220,7 @@ public final class ShopWindow implements MotorOwner {
     }
 
     private boolean present(LivingEntity c) {
-        return c.isAlive() && !c.isRemoved() && c.level() == entity.level() && horizontal(c) <= KEEP && Math.abs(c.getY() - entity.getY()) <= HEIGHT
+        return customer(c) && !c.isRemoved() && c.level() == entity.level() && horizontal(c) <= KEEP && Math.abs(c.getY() - entity.getY()) <= HEIGHT
                 && GlassSight.sees(entity, c);
     }
 
@@ -232,33 +232,37 @@ public final class ShopWindow implements MotorOwner {
         return Math.clamp(1 - days / (double) HOPE_DAYS, 0, 1) * (1 - .2 * rejections);
     }
 
-    private double jitter() { return (entity.getRandom().nextDouble() * 2 - 1) * JITTER; }
+    private double variation() { return (entity.getRandom().nextDouble() * 2 - 1) * VARIATION; }
 
     private Mode choose(LivingEntity c) {
         var p = entity.life().personality();
+        var bond = p.relation(c.getUUID());
+        double esteem = SocialDisposition.selfEsteem(entity);
+        double confidence = SocialDisposition.confidence(esteem);
+        double wary = SocialDisposition.humanWariness(entity, c, bond);
+        double warmth = SocialDisposition.ramp(p.friendliness(), 30, 80);
+        double familiar = SocialDisposition.ramp(bond.closeness(), 0, 20);
         double hope = hope();
-        double fear = p.fear(c.getUUID()) + (c instanceof HumanNpc n && n.attitude() == HumanNpc.Attitude.CRUEL ? CRUEL_FEAR : 0);
-        int grade = BadgeSocial.visibleRank(entity).id();
-        double want = .4 * p.friendliness() + .4 * p.boldness() + 40 * hope - .6 * fear + jitter();
-        // Posing is showing off to be chosen too: a badge holder long passed over loses the heart for it (60 % of it at no hope left).
-        double pride = grade >= BadgeGrade.SILVER.id()
-                ? (25 + 10 * grade + .3 * (100 - p.friendliness()) + .2 * p.boldness()) * (.6 + .4 * hope) + jitter() : Double.NEGATIVE_INFINITY;
-        double shy = 1.1 * (100 - p.boldness()) - 15 + .8 * fear + jitter();
-        double sulk = 90 * (1 - hope) + .5 * (100 - p.selfControl()) - 30 + jitter();
-        // A well-mannered one (self-control, friendliness, enough nerve) greets the customer politely and a little nervously instead of
-        // begging; most shop stock is well raised, so this is a common answer, never a fixed one. It too fades as hope runs out.
-        double polite = (.6 * p.selfControl() + .3 * p.friendliness() + .25 * p.boldness() + 10) * (.7 + .3 * hope) - .3 * fear + jitter();
-        Mode chosen = want >= pride && want >= shy && want >= sulk && want >= polite
-                ? p.boldness() >= 65 && p.friendliness() >= 60 ? Mode.SHOW_OFF : Mode.APPEAL
-                : polite >= pride && polite >= shy && polite >= sulk ? Mode.POLITE
-                : pride >= shy && pride >= sulk ? Mode.PROUD : shy >= sulk ? Mode.SHY : Mode.SULK;
-        GameplayLog.event(entity, "shop", "window start mode={} customer={} kind={} days={} rejections={} hope={} want={} polite={} pride={} shy={} sulk={}",
+        // The existing performances compete on comparable weights. Attention-seeking needs hope,
+        // good manners and familiarity favour a bow, and wariness can outweigh both.
+        double appeal = 32 * hope + 30 * warmth + 24 * confidence - 35 * wary - 18 * familiar + variation();
+        double polite = (20 + .4 * p.selfControl() + 20 * warmth + 30 * familiar + 18 * wary)
+                * (.7 + .3 * hope) + variation();
+        double standTall = confidence * (70 + 24 * (1 - warmth)) * (1 - wary) * (.6 + .4 * hope) + variation();
+        double shy = 100 * wary + 20 * (1 - confidence) + variation();
+        double sulk = 82 * (1 - hope) + .2 * (100 - p.selfControl()) - 10 + variation();
+        Mode chosen = appeal >= standTall && appeal >= shy && appeal >= sulk && appeal >= polite
+                ? confidence >= .45 && warmth >= .65 ? Mode.SHOW_OFF : Mode.APPEAL
+                : polite >= standTall && polite >= shy && polite >= sulk ? Mode.POLITE
+                : standTall >= shy && standTall >= sulk ? Mode.PROUD : shy >= sulk ? Mode.SHY : Mode.SULK;
+        GameplayLog.event(entity, "shop", "window start mode={} customer={} kind={} days={} rejections={} hope={} esteem={} wariness={} closeness={} fear={} grade={} appeal={} polite={} stand_tall={} shy={} sulk={}",
                 chosen, c.getUUID(), c instanceof Player ? "player" : "resident", Math.max(0, CommodityLife.forSaleDays(entity)), rejections,
-                round(hope), round(want), round(polite), round(pride), round(shy), round(sulk));
+                round(hope), round(esteem), round(wary), bond.closeness(), bond.fear(), BadgeSocial.visibleRank(entity).id(),
+                round(appeal), round(polite), round(standTall), round(shy), round(sulk));
         return chosen;
     }
 
-    private static String round(double v) { return Double.isInfinite(v) ? "none" : String.format(Locale.ROOT, "%.1f", v); }
+    private static String round(double v) { return String.format(Locale.ROOT, "%.2f", v); }
 
     private void forgive(long now) {
         if (rejections > 0 && now >= forgiveAt) { rejections--; forgiveAt = now + FORGIVE_TICKS; }
@@ -273,10 +277,11 @@ public final class ShopWindow implements MotorOwner {
     }
 
     private void afterNotice(long now) {
+        if (!present(customer)) { leave(now, "customer_left"); return; }
         switch (mode) {
             case APPEAL, SHOW_OFF -> { entity.speak("shop_appeal"); if (!toGlass(now)) beginPerformance(now); }
             case POLITE -> { entity.speak("hello"); beginPerformance(now); }
-            case PROUD -> { if (BadgeSocial.visibleRank(entity).id() >= BadgeGrade.SILVER.id()) entity.speak("badge_proud"); beginPerformance(now); }
+            case PROUD -> { if (BadgeSocial.visibleRank(entity).id() > 0) entity.speak("badge_proud"); beginPerformance(now); }
             case SHY -> { entity.speak("shy"); if (!retreat(now)) beginPerformance(now); }
             case SULK -> { entity.speak("request_sulk"); beginPerformance(now); }
         }
@@ -332,7 +337,9 @@ public final class ShopWindow implements MotorOwner {
         else if (now - lastSeen > GONE_TICKS) { leave(now, "customer_left"); return; }
         var p = entity.life().personality();
         // Attention span (project design): 20-50 s, longer for the bold and the friendly.
-        if (now - sessionStart > 400 + 4L * p.boldness() + 2L * p.friendliness()) { leave(now, "attention_spent"); return; }
+        if (now - sessionStart > 400 + 4L * p.boldness() + 2L * p.friendliness() && here) {
+            leave(now, "attention_spent"); return;
+        }
         look(customer);
         if (!here || mode != Mode.APPEAL && mode != Mode.SHOW_OFF || restands >= RESTANDS || now - lastRestand < RESTAND_TICKS) return;
         lastRestand = now;
@@ -346,19 +353,27 @@ public final class ShopWindow implements MotorOwner {
     }
 
     private void leave(long now, String reason) {
-        boolean pleaded = (mode == Mode.APPEAL || mode == Mode.SHOW_OFF) && now - performStart >= MIN_PLEA;
-        if (pleaded) {
+        boolean pleaded = reason.equals("customer_left") && performStart >= sessionStart
+                && (mode == Mode.APPEAL || mode == Mode.SHOW_OFF) && now - performStart >= MIN_PLEA;
+        if (pleaded && !reservedByCustomer()) {
             rejections = Math.min(REJECTIONS, rejections + 1); forgiveAt = now + FORGIVE_TICKS;
             log("end", reason, now);
             entity.speak("plea_sad");
             after = After.LETDOWN; phase(Phase.AFTER, now + LETDOWN_TICKS);
-        } else if (mode == Mode.PROUD && reason.equals("customer_left")) {
+        } else if (mode == Mode.PROUD && performStart >= sessionStart && reason.equals("customer_left")) {
             log("end", reason, now);
             after = After.HMPH; phase(Phase.AFTER, now + HMPH_TICKS);
         } else {
             log("end", reason, now);
             finish(now);
         }
+    }
+
+    private boolean reservedByCustomer() {
+        var level = (ServerLevel) entity.level();
+        var shop = ShopRegistry.get(level).shopAt(level, entity.position());
+        var deposit = shop == null ? null : shop.deposit(entity.getUUID());
+        return deposit != null && deposit.buyer().equals(customer.getUUID());
     }
 
     private void finish(long now) {
@@ -387,22 +402,34 @@ public final class ShopWindow implements MotorOwner {
         // The buyer is whoever holds the sale; it may be away (an operator's purchase) or out of sight.
         var buyer = sold.pet().lockedBy() == null ? null : level.getPlayerByUUID(sold.pet().lockedBy());
         var p = entity.life().personality();
+        var peerBond = p.relation(sold.getUUID());
+        var buyerBond = p.relation(buyer == null ? null : buyer.getUUID());
+        double peerWariness = SocialDisposition.wariness(entity, peerBond);
+        double buyerWariness = buyer == null ? 0 : SocialDisposition.humanWariness(entity, buyer, buyerBond);
+        double esteem = SocialDisposition.selfEsteem(entity);
+        double confidence = SocialDisposition.confidence(esteem);
+        double hope = hope();
         boolean kin = Bonds.kin(entity, sold, EnumSet.of(Bonds.Kin.BIO, Bonds.Kin.CARE, Bonds.Kin.MATE));
-        boolean friend = YukkuriWorldData.get(level).affinity(entity.getUUID(), sold.getUUID()) >= BondLevels.AFFINITY_CLOSE;
-        boolean outranked = BadgeSocial.visibleRank(sold).id() > BadgeSocial.visibleRank(entity).id();
-        witness = kin || friend ? Witness.FAREWELL
-                : outranked || p.selfControl() < 40 && p.friendliness() < 50 ? Witness.ENVY
-                : buyer != null && hope() > .4 && p.boldness() >= 50 && GlassSight.sees(entity, buyer) ? Witness.ME_TOO : Witness.WATCH;
+        boolean friend = peerBond.closeness() >= BondLevels.AFFINITY_CLOSE;
+        int rank = BadgeSocial.visibleRank(entity).id(), soldRank = BadgeSocial.visibleRank(sold).id();
+        double envy = (.65 * SocialDisposition.ramp(soldRank - rank, 0, 3)
+                + .45 * confidence * (1 - SocialDisposition.ramp(p.friendliness(), 35, 75))
+                + .2 * SocialDisposition.ramp(-peerBond.closeness(), 0, 20)) * (1 - peerWariness);
+        double join = buyer != null && present(buyer)
+                ? hope * (1 - buyerWariness) * (.65 * confidence + .35 * SocialDisposition.ramp(buyerBond.closeness(), 0, 20)) : 0;
+        witness = (kin || friend) && peerWariness < .5 ? Witness.FAREWELL
+                : envy >= .4 && envy >= join ? Witness.ENVY : join >= .35 ? Witness.ME_TOO : Witness.WATCH;
         departing = sold; watched = witness == Witness.ME_TOO ? buyer : sold;
         sessionStart = now; departedAt = -1;
         phase(Phase.WITNESS, now + WITNESS_TICKS);
         switch (witness) {
-            case ENVY -> entity.speak(outranked ? "badge_envy" : "badge_envy_snark");
+            case ENVY -> { if (soldRank > rank) entity.speak("badge_envy"); }
             case ME_TOO -> entity.speak("shop_appeal");
             default -> {}
         }
-        GameplayLog.event(entity, "shop", "window witness kind={} sold={} kin={} friend={} outranked={} buyer={}",
-                witness, sold.getUUID(), kin, friend, outranked, buyer == null ? null : buyer.getUUID());
+        GameplayLog.event(entity, "shop", "window witness kind={} sold={} kin={} friend={} buyer={} grade={} sold_grade={} esteem={} wariness={} closeness={} fear={} buyer_wariness={} buyer_closeness={} hope={}",
+                witness, sold.getUUID(), kin, friend, buyer == null ? null : buyer.getUUID(), rank, soldRank, round(esteem),
+                round(peerWariness), peerBond.closeness(), peerBond.fear(), round(buyerWariness), buyerBond.closeness(), round(hope));
     }
 
     private void witnessing(long now) {

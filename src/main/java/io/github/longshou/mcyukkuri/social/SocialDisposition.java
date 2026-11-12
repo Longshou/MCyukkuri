@@ -28,7 +28,7 @@ public final class SocialDisposition {
                 - (slave ? 14 : 0) - 12 * loss - 6 * illness - 10 * recovery, 0, 100);
     }
 
-    static double humanWariness(YukkuriEntity entity, Entity person, Relation relation) {
+    public static double humanWariness(YukkuriEntity entity, Entity person, Relation relation) {
         int boldness = entity.life().personality().boldness();
         double stranger = entity.status().identity().wild()
                 ? .50 + .35 * (1 - ramp(boldness, 40, 90))
