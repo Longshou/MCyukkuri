@@ -369,7 +369,11 @@ public final class ShopStaff {
         if (!arrived) { walk(level, staff, shop, job, point); return; }
         staff.getNavigation().stop();
         staff.getLookControl().setLookAt(point.x, point.y, point.z, 30, 30);
-        if (counter) { ShopTrade.handOver(level, staff, shop, job.customer, hand, job.token); end(staff, job, "delivered"); return; }
+        if (counter) {
+            if (ShopTrade.handOver(level, staff, shop, job.customer, hand, job.token)) end(staff, job, "delivered");
+            else fail(level, staff, shop, job, "handoff_blocked");
+            return;
+        }
         if (level.getBlockEntity(job.target) instanceof Container barrel && !(barrel instanceof CareBlockEntity)) {
             var left = insert(barrel, hand.copy());
             staff.setItemInHand(InteractionHand.MAIN_HAND, left);
@@ -455,8 +459,10 @@ public final class ShopStaff {
         }
         var hand = staff.getMainHandItem().copy();
         UUID target = job.kind == Kind.BUY ? job.customer : job.kind == Kind.CLEAN ? null : shop.id;
-        if (ShopTrade.drop(level, target, staff.position(), hand) != null) staff.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
-        GameplayLog.event(staff, "shop", "action=job result=put_down kind={} token={} at={} pickup={}", job.kind, job.token, GameplayLog.at(staff.position()), target);
+        if (ShopTrade.drop(level, target, staff.position(), hand) != null) {
+            staff.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
+            GameplayLog.event(staff, "shop", "action=job result=put_down kind={} token={} at={} pickup={}", job.kind, job.token, GameplayLog.at(staff.position()), target);
+        }
         end(staff, job, reason);
     }
 

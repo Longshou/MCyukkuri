@@ -162,15 +162,16 @@ public final class ShopTrade {
     }
 
     /** The basket reaches the counter: into the buyer's hands when it stands there, else set on the counter where only the buyer can take it. */
-    static void handOver(ServerLevel level, HumanNpc staff, ShopRegistry.Entry shop, UUID buyer, ItemStack basket, UUID token) {
+    static boolean handOver(ServerLevel level, HumanNpc staff, ShopRegistry.Entry shop, UUID buyer, ItemStack basket, UUID token) {
         var player = buyer == null ? null : level.getServer().getPlayerList().getPlayer(buyer);
         boolean hands = player != null && player.level() == level && player.isAlive() && player.distanceTo(staff) <= HAND_REACH && player.getInventory().add(basket.copy());
-        if (!hands) drop(level, buyer, counterTop(level, staff), basket.copy());
+        if (!hands && drop(level, buyer, counterTop(level, staff), basket.copy()) == null) return false;
         staff.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
         staff.swing(InteractionHand.MAIN_HAND);
         if (player != null) say(player, hands ? "buy.delivered" : "buy.on_counter");
         GameplayLog.event(staff, "shop", "action=buy_live result=delivered shop={} buyer={} token={} placement={} handoff_at={}",
                 shop.id, buyer == null ? "operator" : buyer, token, hands ? "inventory" : "counter", staff.blockPosition().toShortString());
+        return true;
     }
 
     /** The top of the counter block beside the staff member (the counter faces the customer side), else its own feet. */
