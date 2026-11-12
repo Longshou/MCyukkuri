@@ -13,6 +13,7 @@
 | 性能：按钮延迟与同屏卡顿（反馈 2、3） | `.worktrees/wp-gv-perf` | 全局热点（渲染、感知、同步、场景启动） |
 | 移速不超过人类（反馈 13） | `.worktrees/wp-gw-speed` | 移动速度、步态、场景时长 |
 | 口部、辫子、帽上承载守恒 | `.worktrees/wp-gx-occupancy` | interaction/、family/ParentCarry、进食与觅食 |
+| 油霉个体被逐出聚落／家庭（反馈 11） | `.worktrees/wp-gy-mold-exile` | 聚落、家庭、油霉 |
 
 ## 玩法待办
 
