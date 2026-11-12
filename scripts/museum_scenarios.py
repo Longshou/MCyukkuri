@@ -1307,8 +1307,8 @@ add('shop_window', 'shop', '展舱里的油看见客人：招揽、摆架子、�
     env=DAY, vantage=(9, 16, 180, 10),
     reads=[('读在售个体（上架天数与回应）', f'yukkuri status {STOCK} raw')])
 add('shop_buy_keeper', 'shop', '买下金章爱丽丝：饲养员提篮来接，隔壁的橙眼红', '买下金章爱丽丝：饲养员提篮来接，隔壁的橙眼红',
-    '进店右键店主，在“在售”里买下金章爱丽丝：她先高兴地跳，饲养员拿空运输篮从后场走到展舱前，隔着矮墙伸手让她钻进篮子，'
-    '再提到柜台交到你手上；隔壁的银章橙看着她被带走，眼红地鼓起脸。饲养员走不过去时最多 20 秒后改由店主在柜台递篮',
+    '进店右键店主，在“在售”里订下金章爱丽丝：她先高兴地跳，饲养员拿空运输篮从后场走到展舱前，等她钻进篮子时扣款，'
+    '再提到柜台交到你手上。隔壁的银章橙看着她被带走，眼红地鼓起脸。装篮前买家离开柜台或饲养员走不到展舱时取消交易',
     '建筑几秒；买下后约 10–20 秒交到手上', ['yukkuri human build shop ~8 ~ ~17 south'],
     give=['minecraft:emerald 128'], env=DAY, vantage=(5, 16, 180, 10),
     reads=[('店铺登记（shop list）', 'yukkuri human shop list')])
@@ -3995,8 +3995,10 @@ _smoke('shop_window', 1200, [rf'\[shop\] {kind} [^\n]* window start mode={mode} 
 next(s for s in S if s.id == 'shop_window').smoke['commands'] = [(100, _aisle_customer(14.5, 'customer_west')), (100, _aisle_customer(.5, 'customer_east'))]
 _smoke('shop_buy_keeper', 1600, [r'\[courier\][^\n]* action=start kind=BUY ', r'\[shop\] chen [^\n]* window witness kind=ENVY ',
                                  r'\[shop\] chen [^\n]* window witness end kind=ENVY reason=departed ',
+                                 r'\[shop\][^\n]* action=buy_live result=committed [^\n]* emeralds_used=0\b',
                                  r'\[shop\][^\n]* action=buy_live result=delivered [^\n]*mode=keeper'],
-       forbid=[r'\[shop\][^\n]* action=buy_live result=refunded', r'\[courier\][^\n]* action=fallback '])
+       forbid=[r'\[shop\][^\n]* action=buy_live result=refunded', r'\[shop\][^\n]* action=buy_live result=cancelled',
+               r'\[courier\][^\n]* action=fallback '])
 next(s for s in S if s.id == 'shop_buy_keeper').smoke['commands'] = [
     (200, f'yukkuri human shop buy @e[nbt={{HumanJob:1}},distance=..80,sort=nearest,limit=1] {BOOTH.format("alice", 3)} {_uuid_text("shop_buy_keeper", "buyer")}')]
 def _migration_housing(log):

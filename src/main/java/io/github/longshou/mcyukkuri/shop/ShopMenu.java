@@ -12,7 +12,6 @@ import io.github.longshou.mcyukkuri.human.HumanCommerce;
 import io.github.longshou.mcyukkuri.human.HumanMenu;
 import io.github.longshou.mcyukkuri.human.HumanNpc;
 import io.github.longshou.mcyukkuri.human.HumanWorld;
-import io.github.longshou.mcyukkuri.item.CarrierItem;
 import io.github.longshou.mcyukkuri.item.SwaddleStyle;
 import io.github.longshou.mcyukkuri.notebook.SurvivalProgress;
 import io.github.longshou.mcyukkuri.pet.BadgeGrade;
@@ -28,9 +27,7 @@ import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.SimpleMenuProvider;
-import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -39,7 +36,6 @@ import net.minecraft.world.inventory.SimpleContainerData;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.phys.Vec3;
 
 /** Shopkeeper UI with four tabs. Rows and subjects are fixed server-side; button packets never carry an animal id.
  *  Button ids: 0-3 tab (live, goods, buyback, consult); 4-6 buy live row (PAGE_ROWS = 3 rows per page); 8-10 locate row; 12/13 prev/next page;
@@ -211,22 +207,14 @@ public final class ShopMenu extends AbstractContainerMenu {
     @Override public void removed(Player player) { super.removed(player); if (target != null) target.endTrade(player); }
 
     // helpers
-    private static int count(Player p, Item item) { return p.getInventory().items.stream().filter(s -> s.is(item)).mapToInt(ItemStack::getCount).sum(); }
-    private static void debit(Player p, Item item, int amount) {
+    static int count(Player p, Item item) { return p.getInventory().items.stream().filter(s -> s.is(item)).mapToInt(ItemStack::getCount).sum(); }
+    static void debit(Player p, Item item, int amount) {
         for (ItemStack stack : p.getInventory().items) if (stack.is(item)) { int used = Math.min(amount, stack.getCount()); stack.shrink(used); amount -= used; if (amount == 0) return; }
     }
     /** Emeralds in stacks of at most 64. */
     private static void giveEmeralds(Player p, int amount) { for (; amount > 0; amount -= 64) give(p, new ItemStack(Items.EMERALD, Math.min(64, amount))); }
-    static void deliverEmeralds(ServerLevel level, UUID player, Vec3 at, int amount) { for (; amount > 0; amount -= 64) deliver(level, player, at,
-            new ItemStack(Items.EMERALD, Math.min(64, amount))); }
     private static boolean room(Player p) { return p.getInventory().getFreeSlot() >= 0; }
     static void give(Player p, ItemStack stack) { if (!p.getInventory().add(stack)) p.drop(stack, false); }
-    /** Hands over to the player if still online, otherwise leaves it on the ground where the scene happened. */
-    static void deliver(ServerLevel level, UUID player, Vec3 at, ItemStack stack) {
-        ServerPlayer sp = level.getServer().getPlayerList().getPlayer(player);
-        if (sp != null) give(sp, stack);
-        else { var item = ModRandom.created(new ItemEntity(level, at.x, at.y + .15, at.z, stack), ModRandom.world(level)); item.setDefaultPickUpDelay(); level.addFreshEntity(item); }
-    }
     static boolean stockOf(YukkuriEntity y, UUID shop) { return HumanCommerce.ownedBy(y, shop) && (Custody.view(y).role() == Custody.Role.STOCK); }
     private static int stage(YukkuriEntity y) { return !y.family().adult() && y.childhood().canLiveIndependently() ? 3 : y.family().stage().ordinal(); }
     private static int[] tags(YukkuriEntity y) {
@@ -339,19 +327,11 @@ public final class ShopMenu extends AbstractContainerMenu {
         if (count(p, Items.EMERALD) < price)return refused(p,"buy_live","insufficient_emeralds");
         // A carried animal is not standing where the clerk can hand it over; the refusal is logged like the other gates.
         if (animal.isPassenger()) return refused(p,"buy_live","passenger");
-        if (!ShopTrade.begin(level, target, animal, p.getUUID(), price)) return false;
-        debit(p, Items.EMERALD, price);
-        GameplayLog.event(p,"shop","action=buy_live result=debited shop={} target={} emeralds_used={} delivery=pending",target.getUUID(),animal.getUUID(),price);
-        return true;
+        return ShopTrade.begin(level, target, animal, p.getUUID(), price);
     }
     private boolean refused(Player p,String action,String reason){
         GameplayLog.event(p,"shop","action={} result=refused shop={} reason={}",action,target.getUUID(),reason);
         return false;
-    }
-    /** The clerk puts an empty basket away. */
-    static void handBack(HumanNpc clerk) {
-        var held = clerk.getMainHandItem();
-        if (held.is(ModItems.CARRIER.get()) && CarrierItem.token(held) == null) clerk.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
     }
     private boolean locate(Player p, int row) {
         if (row < 0 || row >= PAGE_ROWS) return false;

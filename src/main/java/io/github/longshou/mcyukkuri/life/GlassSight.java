@@ -5,6 +5,7 @@ import io.github.longshou.mcyukkuri.motor.action.Walk;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.block.state.BlockState;
@@ -34,7 +35,7 @@ public final class GlassSight {
     }
 
     /** In plain sight, or behind exactly one glass cell. */
-    public static boolean sees(YukkuriEntity observer, Entity target) {
+    public static boolean sees(LivingEntity observer, Entity target) {
         return observer.hasLineOfSight(target) || glassBetween(observer, observer.getEyePosition(), target) != null;
     }
 

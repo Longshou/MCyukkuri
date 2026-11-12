@@ -177,7 +177,10 @@ public final class HumanNpc extends PathfinderMob {
         if (!level().isClientSide) {
             Custody.ownerDied(this);
             production.dropContents();
-            if (level() instanceof ServerLevel sl && job() == Job.SHOPKEEPER) ShopRegistry.get(sl).close(getUUID());
+            if (level() instanceof ServerLevel sl && (job() == Job.SHOPKEEPER || job() == Job.KEEPER)) {
+                ShopCourier.staffDied(this, sl);
+                if (job() == Job.SHOPKEEPER) ShopRegistry.get(sl).close(getUUID());
+            }
         }
         super.die(source);
     }
@@ -204,6 +207,7 @@ public final class HumanNpc extends PathfinderMob {
         if (job() == Job.SHOPKEEPER && tickCount % 100 == 7) ShopDeliveries.register(this);
         if (job() == Job.SHOPKEEPER && tickCount % 20 == 3 && !resting()) ShopDeliveries.arrive(this, (ServerLevel) level(), level().getGameTime());
         if (job() == Job.KEEPER && tickCount % 20 == 0) ShopKeeping.tick(this);
+        if (job() == Job.SHOPKEEPER && tickCount % 20 == 0) ShopCourier.recover(this, (ServerLevel) level());
     }
     /** M02: a badge on a yukkuri whose registry entry went void (abandoned while worn) is taken off by staff who see it. */
     private void revokeVoidBadges() {
@@ -281,7 +285,7 @@ public final class HumanNpc extends PathfinderMob {
     /** While a keeper runs a courier job (ShopCourier steers the walk), this holds the move and look flags so the routine, strolling and restriction goals stand aside. */
     private final class CourierGoal extends Goal {
         CourierGoal() { setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK)); }
-        @Override public boolean canUse() { return job() == Job.KEEPER && ShopCourier.active(HumanNpc.this); }
+        @Override public boolean canUse() { return ShopCourier.active(HumanNpc.this); }
         @Override public boolean canContinueToUse() { return canUse(); }
     }
     private final class RoutineGoal extends Goal {
