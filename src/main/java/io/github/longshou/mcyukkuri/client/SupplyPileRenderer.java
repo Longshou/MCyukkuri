@@ -34,10 +34,9 @@ public final class SupplyPileRenderer implements BlockEntityRenderer<SupplyPileB
             WastePresentation.render(DetachedItems.volume(pile.contents()),pose,buffers,light,overlay);pose.popPose();return;
         }
         int clusters=Math.min(count,distance<=16?4:distance<=64?2:1);
-        String prop=pile.is(ModItems.FOOD_SCRAP.get())?"food_scrap":pile.is(ModItems.NEST_LINT.get())?"nest_lint"
-                :pile.is(ModItems.WASTE.get())?"yukkuri_waste":null;
+        String prop=pile.is(ModItems.FOOD_SCRAP.get())?"food_scrap":pile.is(ModItems.NEST_LINT.get())?"nest_lint":null;
         if(prop==null)return;
-        float scale=switch(prop){case "food_scrap"->HouseScrapRenderer.HELD_SCALE*.75f;case "nest_lint"->.65f;default->.12f;};
+        float scale=prop.equals("food_scrap")?HouseScrapRenderer.HELD_SCALE*.75f:.65f;
         for(int i=0;i<clusters;i++) {
             pose.pushPose();pose.translate(.5+CLUSTERS[i][0],.025,.5+CLUSTERS[i][1]);
             pose.mulPose(ROTATIONS[i]);pose.scale(scale,scale,scale);

@@ -10,7 +10,6 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.world.item.ItemDisplayContext;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.phys.AABB;
 
@@ -52,11 +51,9 @@ public final class CareRenderer implements BlockEntityRenderer<CareBlockEntity> 
             WastePresentation.render(care.waste(),pose,buffers,light,overlay);pose.popPose();
         }
         if(care.kind()!=CareBlock.Kind.BOWL||grain||grass||wheat)return;
-        ItemStack shown = care.kind() == CareBlock.Kind.BOWL ? care.displayFood()
-                : care.kind() == CareBlock.Kind.TOILET && care.waste() > 0 ? new ItemStack(ModItems.WASTE.get()) : ItemStack.EMPTY;
-        if (shown.isEmpty()) return;
+        if (food.isEmpty()) return;
         pose.pushPose(); pose.translate(.5,.12,.5); pose.scale(.45f,.45f,.45f);
-        Minecraft.getInstance().getItemRenderer().renderStatic(shown, ItemDisplayContext.GROUND, light, overlay, pose, buffers, care.getLevel(), 0);
+        Minecraft.getInstance().getItemRenderer().renderStatic(food, ItemDisplayContext.GROUND, light, overlay, pose, buffers, care.getLevel(), 0);
         pose.popPose();
     }
 }
