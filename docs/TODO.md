@@ -18,6 +18,7 @@
 | 流浪油：遮蔽物、垃圾点、避风（FG 重做） | `.worktrees/wp-hf-stray` | src/main/java/.../shelter/, stray/forage code, museum FG scenes, docs/FEATURES.md |
 | 帽上赤油下帽是平移 | `.worktrees/wp-hm-hat-dismount` | aquatic/BrimPerformance, family/ParentCarry (release leg), hat rider release |
 | 打招呼前倾把对方撞退（反馈 18） | `.worktrees/wp-hn-greet-push` | social greeting presentation / contact, motion greet clips |
+| 个体数值与交互选择（自尊、对人讨食/辱骂/后退）第一片 | `.worktrees/wp-hk-attitude` | social/YukkuriSocial, settlement/SettlementLife (release fact), social/YukkuriPersonality (derived self-esteem helper), museum TN-13 |
 
 ## 玩法待办
 
