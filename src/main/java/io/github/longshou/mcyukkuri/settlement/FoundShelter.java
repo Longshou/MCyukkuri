@@ -23,6 +23,7 @@ import net.minecraft.world.phys.Vec3;
 public final class FoundShelter {
     private static final int RADIUS = 8, CONTEST_REST = 1200, BLOCKED_REST = 2400;
     private static final float LEAVE_HUNGRY = 25, SEEK_HUNGRY = 30;
+    private static final double SNIFF_REACH = .4;
     private enum Phase { APPROACH, SNIFF, WAIT, ENTER, REST, EXIT }
     public enum Step { ACTIVE, RESTING, ENDED }
 
@@ -164,6 +165,8 @@ public final class FoundShelter {
             if (now() < deadline) return Step.ACTIVE;
             return inspect();
         }
+        if (phase == Phase.APPROACH && body.distanceToSqr(aim) <= SNIFF_REACH * SNIFF_REACH
+                && SurfaceApproach.stands(body, body.position())) return sniff();
         var result = walk();
         if (result == SurfaceApproach.Result.BLOCKED || now() - began > 320
                 || result == SurfaceApproach.Result.ARRIVED && phase == Phase.ENTER && shelter != null
@@ -181,19 +184,21 @@ public final class FoundShelter {
             return Step.ACTIVE;
         }
         if (result != SurfaceApproach.Result.ARRIVED) return Step.ACTIVE;
-        if (phase == Phase.APPROACH) {
-            phase = Phase.SNIFF;
-            began = now();
-            deadline = now() + Math.max(1, ClipMarkers.of(Behaviors.HOUSE_SNIFF).length());
-            SurfaceApproach.face(body, SurfaceApproach.yaw(body.position(), Vec3.atBottomCenterOf(shelter.getBlockPos())));
-            GameplayLog.event(body, "habitat", "found sniff shelter={}", target());
-            return Step.ACTIVE;
-        }
+        if (phase == Phase.APPROACH) return sniff();
         if (shelter != null && !shelter.claim(body)) {
             remember(target(), CONTEST_REST, "occupied"); stop(); return Step.ENDED;
         }
         settle();
         return Step.RESTING;
+    }
+
+    private Step sniff() {
+        SurfaceApproach.halt(body);
+        SurfaceApproach.face(body, SurfaceApproach.yaw(body.position(), Vec3.atBottomCenterOf(shelter.getBlockPos())));
+        phase = Phase.SNIFF;
+        deadline = now() + Math.max(1, ClipMarkers.of(Behaviors.HOUSE_SNIFF).length());
+        GameplayLog.event(body, "habitat", "found sniff shelter={}", target());
+        return Step.ACTIVE;
     }
 
     private Step inspect() {
@@ -258,8 +263,11 @@ public final class FoundShelter {
 
     public boolean checkRest() {
         if (phase != Phase.REST) return false;
+        var here = body.blockPosition();
+        boolean displaced = shelter == null ? !gap.equals(here) : !shelter.contains(here);
         String reason = body.life().nutrition() < LEAVE_HUNGRY ? "hungry"
                 : !canTakeFoundShelter(body) ? "ineligible"
+                : displaced ? "displaced"
                 : shelter != null && (shelter.rainStage() > 0 || !shelter.sound()) ? "soaked_or_unsafe"
                 : gap != null && !gapAt(gap) ? "cover_gone"
                 : body.tickCount % 20 == 0 && !level().getEntitiesOfClass(YukkuriEntity.class, body.getBoundingBox().inflate(5),

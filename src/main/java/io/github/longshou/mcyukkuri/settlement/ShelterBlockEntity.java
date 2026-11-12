@@ -667,13 +667,24 @@ public final class ShelterBlockEntity extends BlockEntity {
     public void dismantle() { dismantle("broken"); }
     void dismantle(String reason) { clearStructure(true, reason); }
     public void rollback() { clearStructure(false, "rollback"); }
+    private void dropFoundMaterial(ItemStack stack, String reason) {
+        Containers.dropItemStack(level, worldPosition.getX()+.5, worldPosition.getY(), worldPosition.getZ()+.5, stack.copy());
+        if (level instanceof ServerLevel server)
+            GameplayLog.world(server, "habitat", "drop item={} count={} source=shelter at={} reason={}",
+                    stack.getItem(), stack.getCount(), worldPosition, reason);
+    }
+
     private void clearStructure(boolean drops, String reason) {
         if(dismantling||level==null)return;dismantling=true;
         if(drops){
             for(var id:List.copyOf(nestProjects.keySet()))dropNestProject(id);
-            for (var stack : foundBedding) Containers.dropItemStack(level, worldPosition.getX()+.5, worldPosition.getY(), worldPosition.getZ()+.5, stack);
-            Containers.dropItemStack(level,worldPosition.getX()+.5,worldPosition.getY(),worldPosition.getZ()+.5,
-                    new ItemStack(kind()==ShelterBlock.Kind.CARDBOARD?Items.PAPER:Items.STICK,kind()==ShelterBlock.Kind.CARDBOARD?(condition>0?3:1):kind().found()?3:branches));
+            if (kind().found()) {
+                for (var stack : foundBedding) dropFoundMaterial(stack, reason);
+                var scrap = kind() == ShelterBlock.Kind.CARDBOARD
+                        ? new ItemStack(Items.PAPER, condition > 0 ? 3 : 1) : new ItemStack(Items.STICK, 3);
+                dropFoundMaterial(scrap, reason);
+            } else Containers.dropItemStack(level, worldPosition.getX()+.5, worldPosition.getY(), worldPosition.getZ()+.5,
+                    new ItemStack(Items.STICK, branches));
         }
         // A collapse leaves the heap where it lies (its portions stay real); a rollback removes the unused pile with the shelter.
         var heap=pile();

@@ -328,14 +328,14 @@ def garbage_barrel(x, z, food, opened):
 _stray_mother = uid('stray_boxes', 'mother')
 add('stray_boxes', 'forage', '流浪：母子找纸箱，木箱也能歇脚', '流浪：母子找纸箱，木箱也能歇脚',
     '夜里母子试着在纸箱落脚，赤油往里、亲油在开口。另一只流浪油可选旁边的旧木箱。',
-    '约半分钟', [
+    '约半分钟至一分钟', [
         *found_shell('cardboard_shelter', -5, -1), *found_shell('crate_shelter', 6, -1),
         street_stray('stray_boxes', 'reimu', -5, 3, 'mother', energy=28, rest_wait=0, lead=True),
         street_stray('stray_boxes', 'reimu', -5, 1, 'child', stage='baby', energy=48, rest_wait=0,
                      kin=f'Mother:{uuid_nbt(_stray_mother)}', childhood=CHILDHOOD_HOPPING),
         street_stray('stray_boxes', 'marisa', 6, 2, 'crate_stray', stage='child', energy=28, rest_wait=0),
     ], env={'time': 'night'}, spot='street', vantage=(0, 9),
-    smoke=dict(ticks=650, forbid=[r'\[habitat\][^\n]* home chosen '],
+    smoke=dict(ticks=1000, forbid=[r'\[habitat\][^\n]* home chosen '],
                expect=[r'\[habitat\][^\n]* found settled .*kind=CARDBOARD occupants=2',
                                   r'\[habitat\][^\n]* found settled .*kind=CRATE']))
 
