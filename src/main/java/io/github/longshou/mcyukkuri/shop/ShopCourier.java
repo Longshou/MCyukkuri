@@ -5,19 +5,17 @@ import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.human.Custody;
 import io.github.longshou.mcyukkuri.human.HumanCommerce;
 import io.github.longshou.mcyukkuri.human.HumanNpc;
-import io.github.longshou.mcyukkuri.item.CarrierItem;
+import io.github.longshou.mcyukkuri.item.CarrierContents;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.registry.ModItems;
 import java.util.*;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.GlobalPos;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
@@ -68,7 +66,7 @@ public final class ShopCourier {
 
     /** True while the keeper runs a job: its routine and wandering goals stand aside. */
     public static boolean active(HumanNpc keeper) { return JOBS.containsKey(keeper.getUUID()); }
-    public static boolean busy(HumanNpc keeper) { return JOBS.containsKey(keeper.getUUID()) || ShopDate.holding(keeper.getUUID()) || keeper.getMainHandItem().is(ModItems.CARRIER.get()); }
+    public static boolean busy(HumanNpc keeper) { return JOBS.containsKey(keeper.getUUID()) || ShopDate.holding(keeper.getUUID()) || CarrierContents.isBasket(keeper.getMainHandItem()); }
     public static boolean inFlight(UUID token) { return IN_FLIGHT.contains(token); }
     public static boolean hasKeeper(ServerLevel level, HumanNpc shop) {
         return !level.getEntitiesOfClass(HumanNpc.class, shop.getBoundingBox().inflate(48), n -> n.isAlive() && n.job() == HumanNpc.Job.KEEPER).isEmpty();
@@ -133,8 +131,15 @@ public final class ShopCourier {
     public static void recover(HumanNpc keeper, ServerLevel level) {
         if (JOBS.containsKey(keeper.getUUID()) || ShopDate.holding(keeper.getUUID())) return; // a date scene's empty display basket is not ours to clear
         ItemStack hand = keeper.getMainHandItem();
-        if (!hand.is(ModItems.CARRIER.get())) return;
-        UUID token = CarrierItem.token(hand);
+        if (!CarrierContents.isBasket(hand)) return;
+        var tokens = CarrierContents.tokens(hand);
+        if (tokens.size() > 1) {
+            if (ShopTrade.drop(level, null, keeper.position(), hand.copy()) == null) return;
+            keeper.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
+            GameplayLog.event(keeper, "courier", "action=recover result=basket_on_ground occupants={}", tokens.size());
+            return;
+        }
+        UUID token = tokens.isEmpty() ? null : tokens.getFirst();
         var custody = YukkuriWorldData.get(level);
         if (token == null || !custody.hasToken(token)) {
             keeper.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
@@ -167,9 +172,8 @@ public final class ShopCourier {
     /** The staff member's held basket survives death as the same item, with the same token. */
     public static void staffDied(HumanNpc staff, ServerLevel level) {
         var hand = staff.getMainHandItem();
-        if (!hand.is(ModItems.CARRIER.get())) return;
-        var token = CarrierItem.token(hand);
-        if (token == null) return;
+        if (CarrierContents.tokens(hand).isEmpty()) return;
+        var token = CarrierContents.singleToken(hand);
         var owner = Custody.fromSnapshot(YukkuriWorldData.get(level).captiveSnapshot(token));
         UUID buyer = owner.ownerKind() == Custody.OwnerKind.PLAYER ? owner.owner() : null;
         if (ShopTrade.drop(level, buyer, staff.position(), hand.copy()) == null) return;
@@ -200,12 +204,6 @@ public final class ShopCourier {
         return true;
     }
     private static void phase(Job job, Phase next) { job.phase = next; job.leg = 0; job.timer = 0; job.stall = 0; job.best = 1e9; }
-    static ItemStack carrierStack(ServerLevel level, UUID token) {
-        ItemStack stack = new ItemStack(ModItems.CARRIER.get());
-        var snapshot = YukkuriWorldData.get(level).captiveSnapshot(token);
-        CustomData.update(DataComponents.CUSTOM_DATA, stack, tag -> { tag.putUUID("CaptiveToken", token); if (snapshot.hasUUID("UUID")) tag.putUUID("EntityUUID", snapshot.getUUID("UUID")); });
-        return stack;
-    }
     private static YukkuriEntity animal(ServerLevel level, Job job) {
         return job.animal != null && level.getEntity(job.animal) instanceof YukkuriEntity y && y.isAlive() ? y : null;
     }
@@ -244,7 +242,7 @@ public final class ShopCourier {
             return endJob(level, job, "basket_taken");
         if (!keeper.getMainHandItem().isEmpty()) return endJob(level, job, "hand_occupied");
         var stack = item.getItem();
-        UUID token = CarrierItem.token(stack);
+        UUID token = CarrierContents.singleToken(stack);
         if (token == null || !YukkuriWorldData.get(level).hasToken(token)) return endJob(level, job, "token_missing");
         if (keeper.distanceToSqr(item) <= 1.44 && keeper.hasLineOfSight(item)) {
             keeper.getNavigation().stop();
@@ -319,7 +317,7 @@ public final class ShopCourier {
         return endJob(level, job, reason);
     }
     private static void emptyHand(HumanNpc keeper) {
-        if (keeper.getMainHandItem().is(ModItems.CARRIER.get()) && CarrierItem.token(keeper.getMainHandItem()) == null) keeper.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
+        if (CarrierContents.isBasket(keeper.getMainHandItem()) && CarrierContents.tokens(keeper.getMainHandItem()).isEmpty()) keeper.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
     }
     private static boolean spray(ServerLevel level, HumanNpc keeper, Job job) {
         var a = animal(level, job); if (a == null) return endJob(level, job, "target_unavailable");
@@ -359,10 +357,11 @@ public final class ShopCourier {
             keeper.closeServiceHatch(); // the basket is out through the doorway
             phase(job, Phase.CARRY); return false;
         }
-        UUID token = YukkuriWorldData.get(level).capture(a);
+        var world = YukkuriWorldData.get(level);
+        UUID token = world.capture(a);
         if (token == null) return fallback(level, keeper, job);
         job.token = token; IN_FLIGHT.add(token);
-        keeper.setItemInHand(InteractionHand.MAIN_HAND, HumanCommerce.carrier(a, token));
+        keeper.setItemInHand(InteractionHand.MAIN_HAND, CarrierContents.plain(world, token));
         keeper.closeServiceHatch();
         phase(job, Phase.CARRY); return false;
     }
@@ -431,7 +430,7 @@ public final class ShopCourier {
     private static boolean leaveBasket(ServerLevel level, HumanNpc keeper, Job job, String reason) {
         keeper.closeServiceHatch();
         var held = keeper.getMainHandItem();
-        if (!job.token.equals(CarrierItem.token(held))) return endJob(level, job, "basket_left_staff");
+        if (!job.token.equals(CarrierContents.singleToken(held))) return endJob(level, job, "basket_left_staff");
         // An unreachable pen has already been tried. Leave a normal pickable basket at the staff member's feet.
         if (ShopTrade.drop(level, null, keeper.position(), ShopDeliveries.plainBasket(held)) == null)
             return endJob(level, job, "basket_retained");
@@ -444,7 +443,7 @@ public final class ShopCourier {
     private static boolean release(ServerLevel level, HumanNpc keeper, Job job) {
         if (job.kind == Kind.BUY) {
             var basket = keeper.getMainHandItem().copy();
-            if (!job.token.equals(CarrierItem.token(basket))) return endJob(level, job, "basket_left_staff");
+            if (!job.token.equals(CarrierContents.singleToken(basket))) return endJob(level, job, "basket_left_staff");
             keeper.getNavigation().stop();
             if (!ShopTrade.delivered(level, keeper, job.buyer, job.animal, job.token, job.price, basket, job.pen))
                 return endJob(level, job, "buyer_basket_retained");
@@ -454,13 +453,13 @@ public final class ShopCourier {
         var custody = YukkuriWorldData.get(level);
         if (job.kind == Kind.RECALL && custody.hasToken(job.token) && job.factory != null) { // the basket changes hands at the counter; the token waits for the factory
             ShopDeliveries.get(level).addRecall(new ShopDeliveries.Recall(job.token, job.shop, job.factory, level.getGameTime()));
-            if (keeper.getMainHandItem().is(ModItems.CARRIER.get())) keeper.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
+            if (CarrierContents.isBasket(keeper.getMainHandItem())) keeper.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
             keeper.swing(InteractionHand.MAIN_HAND);
             GameplayLog.event(keeper,"delivery","action=recall result=queued token={} shop={} factory={}",job.token,job.shop,job.factory);
             return endJob(level, job, "recall_queued");
         }
         if (!custody.hasToken(job.token)) { // already released elsewhere: never invent a second animal
-            if (keeper.getMainHandItem().is(ModItems.CARRIER.get())) keeper.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
+            if (CarrierContents.isBasket(keeper.getMainHandItem())) keeper.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
             return endJob(level, job, "token_missing");
         }
 
@@ -469,7 +468,7 @@ public final class ShopCourier {
             return leaveBasket(level, keeper, job, "hatch_unavailable");
         var at = hatch != null ? hatch.animalStand() : Vec3.atBottomCenterOf(job.pen.above());
         var basket = keeper.getMainHandItem();
-        if (!job.token.equals(CarrierItem.token(basket))) return endJob(level, job, "basket_left_staff");
+        if (!job.token.equals(CarrierContents.singleToken(basket))) return endJob(level, job, "basket_left_staff");
         var y = custody.release(job.token, level, at, keeper.getYRot());
         if (y == null) return leaveBasket(level, keeper, job, "set_down_blocked");
         if (hatch != null) {

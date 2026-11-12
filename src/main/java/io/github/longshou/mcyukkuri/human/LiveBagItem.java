@@ -1,7 +1,6 @@
 package io.github.longshou.mcyukkuri.human;
 
 import io.github.longshou.mcyukkuri.status.GameplayLog;
-import io.github.longshou.mcyukkuri.item.CarrierItem;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import java.util.List;
 import net.minecraft.network.chat.Component;
@@ -17,11 +16,12 @@ import net.minecraft.world.item.component.CustomData;
 public final class LiveBagItem extends Item {
     public LiveBagItem(Properties p) { super(p); }
     @Override public InteractionResult useOn(UseOnContext c) {
-        var token = CarrierItem.token(c.getItemInHand());
-        if (token == null || c.getPlayer() == null) {
+        var data = c.getItemInHand().getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag();
+        if (!data.hasUUID("CaptiveToken") || c.getPlayer() == null) {
             GameplayLog.event(c.getPlayer(),"live-bag","action=release result=refused reason=no_token");
             return InteractionResult.FAIL;
         }
+        var token = data.getUUID("CaptiveToken");
         if (c.getLevel() instanceof ServerLevel level) {
             var pos = c.getClickedPos().relative(c.getClickedFace());
             if (!level.hasChunkAt(pos) || !level.getBlockState(pos.below()).isSolidRender(level,pos.below())) {

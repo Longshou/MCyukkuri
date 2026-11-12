@@ -173,6 +173,10 @@ public final class BodyLife {
         case SCRATCH,TEAR,DENT,SCORCH -> true;
         default -> false;
     };}
+    public static boolean savedInjury(CompoundTag tag) {
+        return tag.getBoolean("CoreHurt") || tag.getBoolean("FootBurned") || tag.getInt("FootScorch") > 0
+                || tag.getInt("Wound") > 0 || tag.getInt("Burns") > 0 || BodyWound.read(tag).stream().anyMatch(BodyLife::injury);
+    }
     private static boolean severe(BodyWound w){return injury(w)&&w.severity()>=3;}
     /** Orange juice heals every injury grade and sole damage; existing scars are repaired with flour paste. */
     public boolean restorePhysical() {

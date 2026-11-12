@@ -38,6 +38,7 @@ public final class ModCreativeTabs {
                         output.accept(ModItems.HOUSE_REIMU_SPAWN_EGG.get());
                         output.accept(ModItems.HOUSE_MARISA_SPAWN_EGG.get());
                         output.accept(ModItems.CARRIER.get());
+                        output.accept(ModItems.FINE_CARRIER.get());
                         output.accept(ModItems.FOOD_BOWL.get());
                         output.accept(ModItems.NEST.get());
                         output.accept(ModItems.LARGE_NEST.get());output.accept(ModItems.LARGE_WILD_NEST.get());

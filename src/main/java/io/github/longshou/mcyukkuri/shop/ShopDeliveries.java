@@ -8,7 +8,7 @@ import io.github.longshou.mcyukkuri.human.HumanCommerce;
 import io.github.longshou.mcyukkuri.human.HumanNpc;
 import io.github.longshou.mcyukkuri.human.HumanWorld;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
-import io.github.longshou.mcyukkuri.item.CarrierItem;
+import io.github.longshou.mcyukkuri.item.CarrierContents;
 import io.github.longshou.mcyukkuri.registry.ModItems;
 import java.util.*;
 import java.util.function.Predicate;
@@ -195,9 +195,9 @@ public final class ShopDeliveries extends SavedData {
         if (!YukkuriWorldData.get(level).hasToken(token)) return true;
         // Older deliveries can already be in a saved courier's hand when the job is reloaded.
         var nearby = new AABB(at).inflate(48);
-        if (!level.getEntitiesOfClass(HumanNpc.class, nearby, n -> token.equals(CarrierItem.token(n.getMainHandItem()))).isEmpty()) return false;
-        if (!level.getEntitiesOfClass(ItemEntity.class, nearby, i -> token.equals(CarrierItem.token(i.getItem()))).isEmpty()) return true;
-        var basket = mark(ShopCourier.carrierStack(level, token), shop, factory, recalled);
+        if (!level.getEntitiesOfClass(HumanNpc.class, nearby, n -> CarrierContents.tokens(n.getMainHandItem()).contains(token)).isEmpty()) return false;
+        if (!level.getEntitiesOfClass(ItemEntity.class, nearby, i -> CarrierContents.tokens(i.getItem()).contains(token)).isEmpty()) return true;
+        var basket = mark(CarrierContents.plain(YukkuriWorldData.get(level), token), shop, factory, recalled);
         if (ShopTrade.drop(level, null, Vec3.atBottomCenterOf(at), basket) == null) return false;
         GameplayLog.world(level, "delivery", "action=arrival result=basket_on_ground token={} shop={} counter={} recall={}",
                 token, shop, at.toShortString(), recalled);
@@ -210,12 +210,15 @@ public final class ShopDeliveries extends SavedData {
         var at = animal.position();
         var item = ShopTrade.drop(level, null, at, new ItemStack(ModItems.CARRIER.get()));
         if (item == null) return false;
-        var token = YukkuriWorldData.get(level).capture(animal);
+        var world = YukkuriWorldData.get(level);
+        var token = world.capture(animal);
         if (token == null) {
             item.discard();
             return false;
         }
-        item.setItem(mark(HumanCommerce.carrier(animal, token), shop.getUUID(), null, false));
+        var basket = item.getItem().copy();
+        CarrierContents.add(basket, token, world.captiveSnapshot(token));
+        item.setItem(mark(basket, shop.getUUID(), null, false));
         GameplayLog.world(level, "delivery", "action=buyback result=basket_on_ground token={} shop={} arrival={}",
                 token, shop.getUUID(), GameplayLog.at(at));
         return true;
@@ -233,17 +236,22 @@ public final class ShopDeliveries extends SavedData {
     static UUID destination(ItemStack basket) {
         var tag = basket.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY);
         var data = tag.copyTag();
-        return basket.is(ModItems.CARRIER.get()) && data.hasUUID("RestockShop") ? data.getUUID("RestockShop") : null;
+        return CarrierContents.singleToken(basket) != null && data.hasUUID("RestockShop") ? data.getUUID("RestockShop") : null;
     }
 
     static ItemStack plainBasket(ItemStack basket) {
         var copy = basket.copy();
-        CustomData.update(DataComponents.CUSTOM_DATA, copy, tag -> {
+        clearDestination(copy);
+        return copy;
+    }
+
+    public static void clearDestination(ItemStack basket) {
+        if (!basket.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).contains("RestockShop")) return;
+        CustomData.update(DataComponents.CUSTOM_DATA, basket, tag -> {
             tag.remove("RestockShop");
             tag.remove("RestockFactory");
             tag.remove("RestockRecall");
         });
-        return copy;
     }
 
     /** A clerk or keeper collects a parcel from the floor and then uses the ordinary stocking route. */

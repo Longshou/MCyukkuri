@@ -6,6 +6,8 @@
 
 运行输出位于 `src/main/resources/assets/mcyukkuri/yukkuri_props/`、`textures/props/`、`models/item/` 和 `models/block/`；[导出清单](provenance.json)逐项记录输入输出指纹。`scripts/export_peripheral_assets.py --check` 核对源与导出，生活及家油旧导出器跳过本配方接管的资源。
 
+高级运输篮沿用选用运输篮网格和 UV，由[导出配方](recipe.json)为原贴图换色。
+
 食盆内的油粮颗粒堆、割草堆和麦秆堆（自绘材质，`food_bowl_regular`／`_forage`／`_wheat` 只含堆体，叠画在任一款式的盆里）显示最多八份，库存仍使用原有九格容器，八份以上外观饱和。漏馅掉落实体按实际堆叠数量分组绘制，避免原版物品掉落渲染重复绘制整个堆叠。地面便便、脱落头饰和土堆保存原个体尺寸；普通物品栏采用便于辨认的展示尺寸。食盆、软垫窝、沙厕及便堆是圆润低多边形加手绘材质；它们与编织大窝、陶厕、带盖厕的非默认染料款式（`<方块 ID>_<款式>`）也作为附属网格在此导出（见[照料道具制作源](../../../standards/yukkuri-library/drafts/care-props/README.md)）。
 
 三档油粮与橙汁的物品外观是 [16×16 图标](../supply-icons/README.md)，本包只把它们的网格作为附属物保留给离线预览；食盆里的油粮仍由 `food_bowl_regular` 显示。

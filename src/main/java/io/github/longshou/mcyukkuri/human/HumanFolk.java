@@ -1,6 +1,6 @@
 package io.github.longshou.mcyukkuri.human;
 
-import io.github.longshou.mcyukkuri.item.CarrierItem;
+import io.github.longshou.mcyukkuri.item.CarrierContents;
 import io.github.longshou.mcyukkuri.registry.ModItems;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
@@ -15,7 +15,7 @@ final class HumanFolk {
 
     static void interact(Player player, HumanNpc npc) {
         var hand = player.getMainHandItem();
-        if (npc.lostAnimal() != null && !npc.questComplete() && hand.is(ModItems.CARRIER.get()) && CarrierItem.token(hand) != null) {
+        if (npc.lostAnimal() != null && !npc.questComplete() && !CarrierContents.tokens(hand).isEmpty()) {
             boolean ok = HumanMenu.returnLost(player, npc);
             player.displayClientMessage(Component.translatable(ok ? "human.mcyukkuri.talk.returned" : "human.mcyukkuri.unavailable"), true);
             return;

@@ -3,6 +3,7 @@ package io.github.longshou.mcyukkuri.shop;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.human.Custody;
 import io.github.longshou.mcyukkuri.human.HumanCommerce;
+import io.github.longshou.mcyukkuri.item.CarrierContents;
 import io.github.longshou.mcyukkuri.human.HumanNpc;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.notebook.SurvivalProgress;
@@ -14,7 +15,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -98,13 +98,14 @@ public final class ShopTrade {
         unlock(animal, shop, buyer, price);
         var previous = HumanCommerce.data(animal).copy();
         Custody.assign(animal, buyer, Custody.OwnerKind.PLAYER, Custody.Role.COMPANION);
-        UUID token = YukkuriWorldData.get(level).capture(animal);
+        var world = YukkuriWorldData.get(level);
+        UUID token = world.capture(animal);
         if (token == null) {
             Custody.restore(animal, previous);
             cancel(level, shop, animal, buyer, price, "capture_failed");
             return null;
         }
-        staff.setItemInHand(InteractionHand.MAIN_HAND, HumanCommerce.carrier(animal, token));
+        CarrierContents.add(staff.getMainHandItem(), token, world.captiveSnapshot(token));
         if (player != null) {
             ShopMenu.debit(player, Items.EMERALD, price);
             SurvivalProgress.award(player, "pet_bought");

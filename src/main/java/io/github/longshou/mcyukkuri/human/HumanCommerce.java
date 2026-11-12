@@ -1,17 +1,12 @@
 package io.github.longshou.mcyukkuri.human;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
-import io.github.longshou.mcyukkuri.item.CarrierItem;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.pet.BadgeGrade;
-import io.github.longshou.mcyukkuri.registry.ModItems;
 import java.util.UUID;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.component.CustomData;
 import io.github.longshou.mcyukkuri.shop.ShopRegistry;
 import java.util.Comparator;
 import java.util.Set;
@@ -28,18 +23,6 @@ public final class HumanCommerce {
     }
     public static boolean protectedAnimal(YukkuriEntity animal) { return Custody.protectedAnimal(animal); }
     public static boolean mayCapture(Player player, YukkuriEntity animal) { return Custody.mayCapture(player, animal); }
-    public static ItemStack carrier(YukkuriEntity animal, UUID token) {
-        ItemStack result = new ItemStack(ModItems.CARRIER.get());
-        CustomData.update(DataComponents.CUSTOM_DATA, result, tag -> {
-            tag.putUUID("CaptiveToken", token); tag.putUUID("EntityUUID", animal.getUUID()); tag.putString("Variant", animal.getVariant().assetId());
-        });
-        return result;
-    }
-    public static CompoundTag heldData(ServerLevel level, ItemStack stack) {
-        UUID token = CarrierItem.token(stack);
-        if (!stack.is(ModItems.CARRIER.get()) || token == null) return new CompoundTag();
-        return YukkuriWorldData.get(level).captiveSnapshot(token);
-    }
     public static void prepareBreederHome(YukkuriEntity animal) {
         if(!(animal.level() instanceof ServerLevel level)||!Set.of(Custody.Role.BREEDER,Custody.Role.STUD).contains(Custody.view(animal).role())||animal.life().homeStand()!=null)return;
         for(var pos:BlockPos.betweenClosed(animal.blockPosition().offset(-3,0,-3),animal.blockPosition().offset(3,0,3)))

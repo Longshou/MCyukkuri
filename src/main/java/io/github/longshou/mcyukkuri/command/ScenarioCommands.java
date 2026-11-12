@@ -13,7 +13,10 @@ import io.github.longshou.mcyukkuri.headwear.HullProfile;
 import io.github.longshou.mcyukkuri.headwear.PlacedHatEntity;
 import io.github.longshou.mcyukkuri.human.Custody;
 import io.github.longshou.mcyukkuri.human.HumanNpc;
+import io.github.longshou.mcyukkuri.item.CarrierContents;
+import io.github.longshou.mcyukkuri.life.Consumables;
 import io.github.longshou.mcyukkuri.pet.BadgeGrade;
+import io.github.longshou.mcyukkuri.registry.ModItems;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
@@ -23,11 +26,16 @@ import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.commands.arguments.coordinates.BlockPosArgument;
 import net.minecraft.commands.arguments.coordinates.Vec3Argument;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
+import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.AABB;
 import net.neoforged.neoforge.common.util.FakePlayerFactory;
@@ -90,6 +98,15 @@ public final class ScenarioCommands {
 
     public static LiteralArgumentBuilder<CommandSourceStack> command() {
         return Commands.literal("scenario").requires(s -> s.hasPermission(2))
+                .then(Commands.literal("basket")
+                        .then(Commands.literal("plain").executes(c -> basketHand(c, new ItemStack(ModItems.CARRIER.get()))))
+                        .then(Commands.literal("fine").executes(c -> basketHand(c, new ItemStack(ModItems.FINE_CARRIER.get()))))
+                        .then(Commands.literal("spray").then(Commands.argument("target", EntityArgument.entity())
+                                .executes(c -> basketClick(c, true))))
+                        .then(Commands.literal("capture").then(Commands.argument("target", EntityArgument.entity())
+                                .executes(c -> basketClick(c, false))))
+                        .then(Commands.literal("release").then(Commands.argument("floor", BlockPosArgument.blockPos())
+                                .executes(ScenarioCommands::basketRelease))))
                 .then(Commands.literal("unwrap").then(Commands.argument("targets", EntityArgument.entities()).executes(c -> {
                     int count = 0;
                     for (var target : EntityArgument.getEntities(c, "targets"))
@@ -277,6 +294,35 @@ public final class ScenarioCommands {
                                             ChatFormatting.GOLD);
                                     return 1;
                                 })))));
+    }
+
+    /** Headless smoke drives the same item interactions a player uses. */
+    private static int basketHand(CommandContext<CommandSourceStack> c, ItemStack stack) {
+        var player = FakePlayerFactory.getMinecraft(c.getSource().getLevel());
+        if (!CarrierContents.tokens(player.getMainHandItem()).isEmpty()) return 0;
+        player.setItemInHand(InteractionHand.MAIN_HAND, stack);
+        return 1;
+    }
+
+    private static int basketClick(CommandContext<CommandSourceStack> c, boolean spray) throws CommandSyntaxException {
+        var target = yukkuri(c, "target");
+        if (target == null) return 0;
+        var player = FakePlayerFactory.getMinecraft(c.getSource().getLevel());
+        player.setPos(target.getX() + 1, target.getY(), target.getZ());
+        var hand = spray ? InteractionHand.OFF_HAND : InteractionHand.MAIN_HAND;
+        if (spray) player.setItemInHand(hand, new ItemStack(Consumables.ITEMS.get(Consumables.Kind.RAMUNE).get()));
+        var result = player.getItemInHand(hand).interactLivingEntity(player, target, hand);
+        if (spray) player.setItemInHand(hand, ItemStack.EMPTY);
+        return result.consumesAction() ? 1 : 0;
+    }
+
+    private static int basketRelease(CommandContext<CommandSourceStack> c) throws CommandSyntaxException {
+        var floor = BlockPosArgument.getLoadedBlockPos(c, "floor");
+        var player = FakePlayerFactory.getMinecraft(c.getSource().getLevel());
+        player.setPos(Vec3.atBottomCenterOf(floor.above().east()));
+        var hit = new BlockHitResult(Vec3.atBottomCenterOf(floor.above()), Direction.UP, floor, false);
+        var result = player.getMainHandItem().useOn(new UseOnContext(player, InteractionHand.MAIN_HAND, hit));
+        return result.consumesAction() ? 1 : 0;
     }
 
     /** {@code scenario afloat}: the owner's real hat set down on water with {@code food} apples stored in it, the listed young and

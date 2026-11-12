@@ -1236,12 +1236,20 @@ add('pred_pets', 'town', '饿了的宠物捕食种：受训的忍住', '饿了�
     give=['mcyukkuri:field_notebook 1'], vantage=(0, 12),
     reads=[('读受训捕食者', f'yukkuri status {sel("rem")} raw'), ('读未训捕食者', f'yukkuri status {sel("fla")} raw')])
 
-add('transport', 'town', '喷雾睡着、装篮带走再放出', '喷雾睡着、装篮带走再放出', '喷弹珠汽水喷雾让它睡着，再装篮、放出：仍是同一只；围栏里是野生个体', '随意', [
+add('transport', 'town', '装篮运输：普通篮和高级篮', '装篮运输：普通篮和高级篮',
+    '喷雾后用普通篮装子油与两只赤油，试装第三只。蓝篮试装成体与两只赤油。看物品提示，再到西侧石地逐只放出。',
+    '喷雾后约 5 秒；每次点击干地放出一只', [
     yk('reimu', 0, 0, 'pet', grade=1, yaw=-90, lead=True), *own('pet'),
     box(6, 0, -3, 10, 1, -3, 'minecraft:oak_fence'), box(6, 0, 1, 10, 1, 1, 'minecraft:oak_fence'),
     box(6, 0, -2, 6, 1, 0, 'minecraft:oak_fence'), box(10, 0, -2, 10, 1, 0, 'minecraft:oak_fence'),
-    yk('reimu', 8, -1, 'wild', yaw=90, label='野生灵梦')],
-    give=['mcyukkuri:sleep_spray 4', 'mcyukkuri:yukkuri_carrier 2'], vantage=(0, 12))
+    yk('reimu', 8, -1, 'wild', yaw=90, label='野生灵梦', uuid=uid('transport', 'wild')),
+    yk('marisa', -5, -4, 'basket_young', stage='child', label='小魔理沙', nutrition=27, grade=1,
+       uuid=uid('transport', 'basket_young')),
+    *[yk(kind, -9 + i * 2, -7, f'basket_baby_{i}', stage='baby', label=f'赤油 {i+1}',
+         uuid=uid('transport', f'basket_baby_{i}'))
+      for i, kind in enumerate(('reimu', 'marisa', 'alice', 'chen', 'patchouli'))],
+    box(-10, -1, 4, -3, -1, 7, 'minecraft:stone')],
+    give=['mcyukkuri:sleep_spray 8', 'mcyukkuri:yukkuri_carrier 1', 'mcyukkuri:yukkuri_carrier_fine 1'], vantage=(0, 12))
 
 # Eight pet young already wrapped, one style each (the cream knit is the plain cloth), side by side; the ninth, unwrapped, takes a cloth from the chest by hand.
 _SWADDLE_LOOKS = (('knit', '奶油针织'), ('frill', '荷叶边蝴蝶结'), ('letter', '首字母'), ('tiger', '虎纹'),
@@ -4057,6 +4065,37 @@ _smoke('shop_buy_keeper', 1600, [r'\[courier\][^\n]* action=start kind=BUY ', r'
                r'\[courier\][^\n]* action=fallback ', r'\[courier\][^\n]* action=reach [^\n]*via=floor '])
 next(s for s in S if s.id == 'shop_buy_keeper').smoke['commands'] = [
     (200, f'yukkuri human shop buy @e[nbt={{HumanJob:1}},distance=..80,sort=nearest,limit=1] {BOOTH.format("alice", 3)} {_uuid_text("shop_buy_keeper", "buyer")}')]
+
+_basket_moves = (
+    ('basket_young', 0, 2, 4, 2), ('basket_baby_0', 2, 3, 4, 1), ('basket_baby_1', 3, 4, 4, 0),
+    ('wild', 0, 4, 6, 2), ('basket_baby_2', 4, 5, 6, 1), ('basket_baby_3', 5, 6, 6, 0),
+)
+_smoke('transport', 320, [
+    *[rf'\[carrier\][^\n]* action=capture result=committed target={_uuid_text("transport", name)} token=\S+ load={before}->{after} capacity={cap}\b'
+      for name, before, after, cap, _ in _basket_moves],
+    *[rf'\[carrier\][^\n]* action=release result=committed target={_uuid_text("transport", name)} token=\S+ remaining={remaining}\b'
+      for name, _, _, _, remaining in _basket_moves],
+    *[rf'\[interaction\][^\n]* uuid={_uuid_text("transport", name)} [^\n]* action=capture reason=carrier_full\b'
+      for name in ('basket_baby_2', 'basket_baby_4')],
+    r'\[transport\][^\n]* action=release result=refused token=\S+ [^\n]* reason=(?:collision|occupied_ground)\b',
+], forbid=[rf'\[carrier\][^\n]* action=capture result=committed target={_uuid_text("transport", "basket_baby_4")}\b'])
+next(s for s in S if s.id == 'transport').smoke['commands'] = [
+    (60, 'yukkuri scenario basket plain'),
+    *[(61+i, f'yukkuri scenario basket spray {sel(name)}')
+      for i, name in enumerate([row[0] for row in _basket_moves] + ['basket_baby_4'])],
+    *[(180+i, f'yukkuri scenario basket capture {sel(name)}')
+      for i, name in enumerate(('basket_young', 'basket_baby_0', 'basket_baby_1', 'basket_baby_2'))],
+    (190, 'yukkuri scenario basket release ~-10 ~-1 ~4'),
+    (191, 'yukkuri scenario basket release ~-10 ~-1 ~4'),
+    (192, 'yukkuri scenario basket release ~-8 ~-1 ~4'),
+    (193, 'yukkuri scenario basket release ~-6 ~-1 ~4'),
+    (200, 'yukkuri scenario basket fine'),
+    *[(201+i, f'yukkuri scenario basket capture {sel(name)}')
+      for i, name in enumerate(('wild', 'basket_baby_2', 'basket_baby_3', 'basket_baby_4'))],
+    *[(210+i, f'yukkuri scenario basket release ~{x} ~-1 ~7')
+      for i, x in enumerate((-10, -8, -6))],
+]
+
 def _migration_housing(log):
     done = re.search(r'\[settlement\][^\n]* event=migrate_done\b[^\n]* households=(\d+)', log)
     if done:

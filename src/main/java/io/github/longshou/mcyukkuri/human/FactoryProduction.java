@@ -140,8 +140,11 @@ public final class FactoryProduction {
             // Cleaning was completed at its own staffed station.
             var token=YukkuriWorldData.get((ServerLevel)worker.level()).capture(y);
             if(token==null){Custody.restore(y,before);GameplayLog.limited(worker,"factory","bag_capture",200,"action=pack result=blocked target={} reason=capture_failed material={} output={}",y.getUUID(),material,output.size());return false;}
-            var bag=HumanCommerce.carrier(y,token);var result=new ItemStack(HumanWorld.LIVE_BAG.get());
-            result.set(DataComponents.CUSTOM_DATA,bag.get(DataComponents.CUSTOM_DATA));pipeline.decorate(result,y);output.add(result);
+            var result=new ItemStack(HumanWorld.LIVE_BAG.get());
+            CustomData.update(DataComponents.CUSTOM_DATA,result,data->{
+                data.putUUID("CaptiveToken",token);data.putUUID("EntityUUID",y.getUUID());data.putString("Variant",y.getVariant().assetId());
+            });
+            pipeline.decorate(result,y);output.add(result);
             material--;batches++;delay=200;
             GameplayLog.event(worker,"factory","action=produce product=live_bag target={} token={} material={}->{} output={}->{} batches={}",y.getUUID(),token,material+1,material,output.size()-1,output.size(),batches);
             return true;

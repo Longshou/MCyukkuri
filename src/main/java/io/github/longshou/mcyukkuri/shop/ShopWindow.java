@@ -4,7 +4,7 @@ import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.human.Custody;
 import io.github.longshou.mcyukkuri.human.HumanNpc;
-import io.github.longshou.mcyukkuri.item.CarrierItem;
+import io.github.longshou.mcyukkuri.item.CarrierContents;
 import io.github.longshou.mcyukkuri.life.GlassSight;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.motor.Action;
@@ -12,7 +12,6 @@ import io.github.longshou.mcyukkuri.motor.MotorOwner;
 import io.github.longshou.mcyukkuri.motor.Outcome;
 import io.github.longshou.mcyukkuri.motor.action.Walk;
 import io.github.longshou.mcyukkuri.pet.BadgeGrade;
-import io.github.longshou.mcyukkuri.registry.ModItems;
 import io.github.longshou.mcyukkuri.social.BondLevels;
 import io.github.longshou.mcyukkuri.social.Bonds;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
@@ -459,13 +458,9 @@ public final class ShopWindow implements MotorOwner {
     /** The staff member holding this particular animal's basket, or null. */
     private Entity basketHolder(YukkuriWorldData custody) {
         return entity.level().getEntitiesOfClass(HumanNpc.class, departing.getBoundingBox().inflate(4),
-                        n -> n.isAlive() && n.getMainHandItem().is(ModItems.CARRIER.get()))
-                .stream().filter(n -> {
-                    var token = CarrierItem.token(n.getMainHandItem());
-                    if (token == null) return false;
-                    var snapshot = custody.captiveSnapshot(token);
-                    return snapshot.hasUUID("UUID") && snapshot.getUUID("UUID").equals(departing.getUUID());
-                }).findFirst().orElse(null);
+                        n -> n.isAlive() && CarrierContents.tokens(n.getMainHandItem()).stream()
+                                .anyMatch(token -> departing.getUUID().equals(custody.captiveIdentity(token))))
+                .stream().findFirst().orElse(null);
     }
 
     // ---- its pen's service door -------------------------------------------------------------------------------------

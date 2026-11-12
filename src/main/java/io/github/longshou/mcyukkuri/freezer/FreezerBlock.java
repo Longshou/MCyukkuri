@@ -1,12 +1,11 @@
 package io.github.longshou.mcyukkuri.freezer;
 
-import io.github.longshou.mcyukkuri.item.CarrierItem;
+import io.github.longshou.mcyukkuri.item.CarrierContents;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
-import io.github.longshou.mcyukkuri.registry.ModItems;
+import io.github.longshou.mcyukkuri.shop.ShopDeliveries;
 import io.github.longshou.mcyukkuri.notebook.SurvivalProgress;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
@@ -14,7 +13,6 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -32,16 +30,18 @@ public final class FreezerBlock extends HorizontalDirectionalBlock {
     @Override public BlockState getStateForPlacement(BlockPlaceContext context) { return defaultBlockState().setValue(FACING, context.getHorizontalDirection().getOpposite()); }
     @Override protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos,
             Player player, InteractionHand hand, BlockHitResult hit) {
-        if (!stack.is(ModItems.CARRIER.get())) return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+        if (!CarrierContents.isBasket(stack)) return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
         if (level instanceof ServerLevel server) transfer(server, player, stack);
         return ItemInteractionResult.sidedSuccess(level.isClientSide);
     }
     public static boolean transfer(ServerLevel level, Player player, ItemStack stack) {
-        if (!stack.is(ModItems.CARRIER.get()) || stack.getCount() != 1) {
+        if (!CarrierContents.isBasket(stack) || stack.getCount() != 1) {
             GameplayLog.event(player, "freezer", "result=refused reason=single_carrier_required count={}", stack.getCount());
             return false;
         }
-        var world = YukkuriWorldData.get(level); var token = CarrierItem.token(stack);
+        var world = YukkuriWorldData.get(level);
+        var tokens = CarrierContents.tokens(stack);
+        var token = tokens.isEmpty() ? null : tokens.getFirst();
         int before = world.freezer.count(player.getUUID());
         if (token != null) {
             if (!world.freezer.store(player.getUUID(), token)) {
@@ -49,9 +49,8 @@ public final class FreezerBlock extends HorizontalDirectionalBlock {
                 GameplayLog.event(player, "freezer", "action=store result=refused reason={} token={} occupied={}", reason, token, before);
                 player.displayClientMessage(Component.translatable("freezer.mcyukkuri.store_failed"), true); return false;
             }
-            CustomData.update(DataComponents.CUSTOM_DATA, stack, data -> {
-                data.remove("CaptiveToken"); data.remove("EntityUUID"); data.remove("Variant");
-            });
+            CarrierContents.remove(stack, token);
+            ShopDeliveries.clearDestination(stack);
             SurvivalProgress.award(player, "cold_storage");
             GameplayLog.event(player, "freezer", "action=store result=committed retired_token={} occupied={}->{}", token, before, world.freezer.count(player.getUUID()));
         } else {
@@ -60,12 +59,8 @@ public final class FreezerBlock extends HorizontalDirectionalBlock {
                 GameplayLog.event(player, "freezer", "action=retrieve result=refused reason={} occupied={}", before == 0 ? "empty" : "token_rotation_failed", before);
                 player.displayClientMessage(Component.translatable("freezer.mcyukkuri.empty"), true); return false;
             }
-            var newToken = token; var snapshot = world.captiveSnapshot(token);
-            CustomData.update(DataComponents.CUSTOM_DATA, stack, data -> {
-                data.putUUID("CaptiveToken", newToken);
-                if (snapshot.hasUUID("UUID")) data.putUUID("EntityUUID", snapshot.getUUID("UUID"));
-                data.putString("Variant", snapshot.getString("id").replace("mcyukkuri:", ""));
-            });
+            var snapshot = world.captiveSnapshot(token);
+            CarrierContents.add(stack, token, snapshot);
             SurvivalProgress.award(player, "retrieve");
             GameplayLog.event(player, "freezer", "action=retrieve result=committed token={} target={} occupied={}->{}", token,
                     snapshot.hasUUID("UUID") ? snapshot.getUUID("UUID") : null, before, world.freezer.count(player.getUUID()));

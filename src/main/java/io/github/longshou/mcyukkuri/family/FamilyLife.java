@@ -293,9 +293,15 @@ public final class FamilyLife {
     public boolean migrationCareActive() { return task==Task.FEED_CHILD||task==Task.SEARCH&&target!=null&&caresFor(target); }
     public boolean elder() { return age>=GrowthTiming.ELDER_START; }
     /** The final child interval is internally still {@link Stage#JUVENILE}; it is a separate age qualification. */
-    public boolean subadult() { return age>=GrowthTiming.SUBADULT_START&&age<GrowthTiming.ADULT_START; }
+    public boolean subadult() { return subadult(age); }
+    private static boolean subadult(long age) { return age>=GrowthTiming.SUBADULT_START&&age<GrowthTiming.ADULT_START; }
     /** The age stage as players read it (lang {@code stage.mcyukkuri.<id>}): baby, juvenile, subadult or adult. */
-    public String stageId() { return subadult()?"subadult":stage.name().toLowerCase(Locale.ROOT); }
+    public String stageId() { return stageId(stage, age); }
+    public static String savedStageId(CompoundTag family) {
+        long age = family.getLong("Age");
+        return stageId(stageForAge(age), age);
+    }
+    private static String stageId(Stage stage, long age) { return subadult(age)?"subadult":stage.name().toLowerCase(Locale.ROOT); }
     public boolean active() { return task!=Task.NONE||laboring()||inBirthBeat()||launchInFlight()||comfortTicks>0; }
     /** The current beat of a running birth casts this body (its other beats leave it free). */
     private boolean inBirthBeat() { var role=Conductor.roleOf(entity);return role!=null&&role.engaged(entity); }

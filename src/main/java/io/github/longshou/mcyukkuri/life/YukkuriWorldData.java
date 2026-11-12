@@ -27,6 +27,7 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.saveddata.SavedData;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
@@ -293,6 +294,10 @@ public final class YukkuriWorldData extends SavedData {
         if (held != null) { forgetCustody(held.entity); setDirty(); }
     }
     public boolean hasToken(UUID token) { return captives.containsKey(token); }
+    public UUID captiveIdentity(UUID token) {
+        var held = captives.get(token);
+        return held == null ? null : held.entity;
+    }
     /** Transfer the sole capability; an old carrier copy can no longer release this individual. */
     public UUID rotateToken(UUID token) {
         if (token == null || freezer.contains(token)) return null;
@@ -321,6 +326,8 @@ public final class YukkuriWorldData extends SavedData {
         entity.groupInteraction().stop();entity.playLife().stop();entity.social().stop();entity.pet().care().released();
         CompoundTag snapshot = new CompoundTag();
         if (!entity.save(snapshot)) return captureRefused(entity,"snapshot_failed");
+        snapshot.putBoolean("TransportAsleep", entity.life().isSleeping() || entity.life().drugSleep() > 0);
+        snapshot.putBoolean("TransportHurt", entity.getHealth() < entity.getMaxHealth());
         UUID token = ModRandom.identity(entity.getRandom());
         putCaptive(token, new Captive(entity.getUUID(), snapshot)); setDirty();
         entity.discard();
@@ -338,6 +345,12 @@ public final class YukkuriWorldData extends SavedData {
         return null;
     }
     public YukkuriEntity release(UUID token, ServerLevel level, Vec3 position, float yaw) {
+        return release(token, level, position, yaw, false);
+    }
+    public YukkuriEntity releaseOnGround(UUID token, ServerLevel level, Vec3 position, float yaw) {
+        return release(token, level, position, yaw, true);
+    }
+    private YukkuriEntity release(UUID token, ServerLevel level, Vec3 position, float yaw, boolean ground) {
         if (freezer.contains(token)) return releaseRefused(token,level,position,"freezer_lease");
         Captive held = captives.get(token);
         if (held == null) return releaseRefused(token,level,position,"token_missing");
@@ -348,6 +361,12 @@ public final class YukkuriWorldData extends SavedData {
         Motor.relocate(entity, position, yaw, "release"); entity.fallDistance = 0; entity.setPersistenceRequired();
         if (!level.noCollision(entity)) return releaseRefused(token,level,position,"collision");
         if (level.containsAnyLiquid(entity.getBoundingBox())) return releaseRefused(token,level,position,"liquid");
+        if (ground) {
+            if (!SurfaceApproach.stands(entity, position)) return releaseRefused(token,level,position,"unsupported_ground");
+            if (!level.getEntities(entity, entity.getBoundingBox(),
+                    other -> other instanceof LivingEntity living && living.isAlive() && !living.isSpectator()).isEmpty())
+                return releaseRefused(token,level,position,"occupied_ground");
+        }
         releasing.add(entity.getUUID());
         boolean added;
         try { added = level.addFreshEntity(entity); }

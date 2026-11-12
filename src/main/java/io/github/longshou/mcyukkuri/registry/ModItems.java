@@ -50,7 +50,10 @@ public final class ModItems {
     public static final DeferredItem<Item> TRIMMED_HAIR=ITEMS.registerSimpleItem("trimmed_hair",new Item.Properties());
 
     public static final DeferredItem<NotebookItem> FIELD_NOTEBOOK = ITEMS.register("field_notebook", () -> new NotebookItem(new Item.Properties().stacksTo(1)));
-    public static final DeferredItem<CarrierItem> CARRIER = ITEMS.register("yukkuri_carrier", () -> new CarrierItem(new Item.Properties().stacksTo(1)));
+    public static final DeferredItem<CarrierItem> CARRIER = ITEMS.register("yukkuri_carrier",
+            () -> new CarrierItem(new Item.Properties().stacksTo(1), CarrierItem.Grade.PLAIN));
+    public static final DeferredItem<CarrierItem> FINE_CARRIER = ITEMS.register("yukkuri_carrier_fine",
+            () -> new CarrierItem(new Item.Properties().stacksTo(1), CarrierItem.Grade.FINE));
     public static final DeferredItem<WashClothItem> WASH_CLOTH = ITEMS.register("wash_cloth", () -> new WashClothItem(new Item.Properties().stacksTo(1)));
     public static final DeferredItem<HouseholdSprayItem> HOUSEHOLD_GUARD=ITEMS.register("household_guard",()->new HouseholdSprayItem(new Item.Properties().stacksTo(1)));
     public static final DeferredItem<TeachingWhistleItem> WHISTLE = ITEMS.register("teaching_whistle", () -> new TeachingWhistleItem(new Item.Properties().stacksTo(1)));

@@ -26,7 +26,8 @@ import net.minecraft.commands.arguments.coordinates.BlockPosArgument;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.phys.Vec3;
-import io.github.longshou.mcyukkuri.human.HumanCommerce;
+import io.github.longshou.mcyukkuri.item.CarrierContents;
+import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.item.ItemEntity;
 
@@ -155,16 +156,22 @@ public final class HumanCommands {
         return 1;
     }
 
-    /** Reads the individual stored in a dropped carrier (the token's saved snapshot): who owns it now, what it is for, which badge it wears. */
+    /** Reads the occupants of a dropped basket from the custody ledger. */
     private static int carrier(CommandContext<CommandSourceStack> c) throws CommandSyntaxException {
         var level = c.getSource().getLevel();
         if (!(EntityArgument.getEntity(c, "item") instanceof ItemEntity item)) { say(c, "not an item entity"); return 0; }
-        var snapshot = HumanCommerce.heldData(level, item.getItem());
-        if (!snapshot.hasUUID("UUID")) { say(c, "no captured individual in this item"); return 0; }
-        var custody = Custody.fromSnapshot(snapshot);
-        say(c, "carrier holds " + snapshot.getString("id") + " uuid=" + snapshot.getUUID("UUID") + " owner=" + ((custody.owner() != null) ? custody.owner() : "none")
-                + " use=" + custody.rawUse() + " badgeGrade=" + snapshot.getCompound("YukkuriPet").getInt("Grade"));
-        return 1;
+        var world = YukkuriWorldData.get(level);
+        int count = 0;
+        for (var token : CarrierContents.tokens(item.getItem())) {
+            var snapshot = world.captiveSnapshot(token);
+            if (snapshot.isEmpty()) continue;
+            var custody = Custody.fromSnapshot(snapshot);
+            say(c, "carrier holds " + snapshot.getString("id") + " uuid=" + snapshot.getUUID("UUID") + " owner=" + ((custody.owner() != null) ? custody.owner() : "none")
+                    + " use=" + custody.rawUse() + " badgeGrade=" + snapshot.getCompound("YukkuriPet").getInt("Grade"));
+            count++;
+        }
+        if (count == 0) say(c, "no captured individual in this item");
+        return count;
     }
 
     private static int buy(CommandContext<CommandSourceStack> c) throws CommandSyntaxException {

@@ -69,7 +69,24 @@
     "food_scrap",
     "herbal_medicine"
   ],
+  "recolours": {
+    "yukkuri_carrier_fine": {
+      "base": "yukkuri_carrier",
+      "shadow": "#122942",
+      "highlight": "#d3e7f7"
+    }
+  },
   "recipes": {
+    "yukkuri_carrier_fine": {
+      "ingredients": [
+        "minecraft:chest",
+        "minecraft:string",
+        "minecraft:string",
+        "minecraft:iron_ingot",
+        "minecraft:blue_dye"
+      ],
+      "count": 1
+    },
     "oil_grain_budget": {
       "ingredients": [
         "minecraft:wheat",
