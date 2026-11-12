@@ -6,7 +6,6 @@ import io.github.longshou.mcyukkuri.human.Custody;
 import io.github.longshou.mcyukkuri.human.HumanCommerce;
 import io.github.longshou.mcyukkuri.human.HumanNpc;
 import io.github.longshou.mcyukkuri.item.CarrierItem;
-import io.github.longshou.mcyukkuri.life.GlassSight;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.motor.Motor;
 import io.github.longshou.mcyukkuri.registry.ModItems;
@@ -23,8 +22,10 @@ import net.neoforged.neoforge.event.server.ServerStartingEvent;
 import net.neoforged.neoforge.event.server.ServerStoppedEvent;
 
 /** A keeper carries animals to their pens in a transport basket instead of teleporting them: sold animals, factory arrivals and nursery graduates (sprayed to sleep first).
- *  A bought animal goes the other way: the keeper walks to it with an empty basket (reaching over a display booth's wall), it climbs in, and the
- *  keeper carries it to the shopkeeper at the counter, where the buyer receives the basket.
+ *  A bought animal goes the other way: the keeper walks to it with an empty basket, it climbs in, and the keeper carries it to the shopkeeper at
+ *  the counter, where the buyer receives the basket. An animal in a display booth or stock tank is reached only through its pen's
+ *  {@link ServiceHatch}: the keeper opens the door, the animal comes to it and goes into the basket through the doorway (or climbs out of the
+ *  basket into the pen there), and the door is closed again; nothing is passed through glass.
  *  One transient job per keeper; the basket in the keeper's main hand is the saved half of the custody, so a restart resumes through {@link #recover}.
  *  Every leg has a timeout that falls back to a direct (POOF) placement, and a token is only ever consumed by a successful release. */
 public final class ShopCourier {
@@ -33,6 +34,8 @@ public final class ShopCourier {
     private static final class Job {
         final UUID keeper, shop, animal; final Kind kind; final BlockPos pen; UUID token, factory, buyer; Phase phase; int price;
         final ShopPerformance.Reservation reservation;
+        /** The service door this job opened (closed again when the job leaves it or ends), or null. */
+        ServiceHatch hatch;
         int leg, timer, fail, stall, relFail, gone; double best = 1e9; Vec3 last = Vec3.ZERO;
         Job(UUID keeper, UUID shop, Kind kind, UUID animal, UUID token, BlockPos pen, ShopPerformance.Reservation reservation) { this.keeper = keeper;
                 this.shop = shop; this.kind = kind; this.animal = animal; this.token = token; this.pen = pen; this.reservation = reservation; }
@@ -43,8 +46,6 @@ public final class ShopCourier {
     private static final Set<UUID> IN_FLIGHT = new HashSet<>();
     /** Ticks a single leg may take, stall ticks without getting closer, and attempts to spray before giving up. */
     private static final int LEG = 400, STALL = 120, SPRAY_TRIES = 8, BASKET_TICKS = 16, WAKE_TICKS = 100;
-    /** A keeper who has walked as near as the floor lets him reaches over a pen wall this far (blocks, horizontally; a player's reach is 4.5). */
-    private static final double REACH_OVER = 4;
 
     public static void started(ServerStartingEvent event) { JOBS.clear(); IN_FLIGHT.clear(); }
     public static void forget(ServerLevel level, Set<UUID> ids, Set<UUID> tokens) {
@@ -193,6 +194,7 @@ public final class ShopCourier {
         ShopPerformance.schedule(level, participants, age -> step(level, job));
     }
     private static boolean endJob(ServerLevel level, Job job, String reason) {
+        closeHatch(level, job); // every exit leaves the pen shut
         JOBS.remove(job.keeper, job); ShopPerformance.release(job.reservation);
         if (job.token != null) IN_FLIGHT.remove(job.token);
         GameplayLog.world(level,"courier","action=end keeper={} target={} token={} shop={} kind={} phase={} reason={} leg_ticks={} release_failures={}",
@@ -258,24 +260,39 @@ public final class ShopCourier {
             return endJob(level, job, "target_unavailable");
         }
         keeper.getLookControl().setLookAt(a, 30, 30);
-        double d = keeper.distanceToSqr(a);
-        if (job.kind == Kind.BUY ? !purchaseReach(keeper, a) : d > 6.25) {
-            if (job.leg % 10 == 1) keeper.getNavigation().moveTo(a, .95);
-            return stuck(job, d) ? fallback(level, keeper, job) : false;
+        // Behind a service door the keeper goes to the door, opens it and waits there until the animal stands inside it (LEG bounds the wait).
+        var hatch = ServiceHatch.of(a);
+        if (hatch == null ? keeper.distanceToSqr(a) > 6.25 || !keeper.hasLineOfSight(a) : !hatch.attended(keeper)) {
+            var target = hatch == null ? a.position() : hatch.staffStand(level);
+            if (job.leg % 10 == 1) keeper.getNavigation().moveTo(target.x, target.y, target.z, .95);
+            return stuck(job, keeper.distanceToSqr(target)) ? fallback(level, keeper, job) : false;
         }
         keeper.getNavigation().stop();
+        if (hatch != null) {
+            openHatch(level, keeper, job, hatch);
+            if (!hatch.serves(keeper, a)) return false;
+        }
+        GameplayLog.event(keeper, "courier", "action=reach kind={} target={} via={} staff_at={} animal_at={}", job.kind, job.animal,
+                hatch == null ? "floor" : "hatch", GameplayLog.at(keeper.position()), GameplayLog.at(a.position()));
         if (job.kind == Kind.SOLD || job.kind == Kind.BUY) {
             keeper.swing(InteractionHand.MAIN_HAND); a.playAction("basket_in"); a.speak("basket_enter"); phase(job, Phase.BASKET);
         } else phase(job, Phase.SPRAY);
         return false;
     }
-    /** The keeper has walked as near as the floor lets him (his path is done) and the animal is within an arm over a pen wall. */
-    private static boolean reachesOver(HumanNpc keeper, YukkuriEntity a) {
-        double dx = keeper.getX() - a.getX(), dz = keeper.getZ() - a.getZ();
-        return keeper.getNavigation().isDone() && dx * dx + dz * dz <= REACH_OVER * REACH_OVER && Math.abs(keeper.getY() - a.getY()) <= 2.5;
+    /** In hand's reach: through its open service door when the animal is behind one, else within 2.5 blocks in plain sight. */
+    private static boolean inReach(HumanNpc keeper, YukkuriEntity a) {
+        var hatch = ServiceHatch.of(a);
+        return hatch == null ? keeper.distanceToSqr(a) <= 6.25 && keeper.hasLineOfSight(a) : hatch.serves(keeper, a);
     }
-    private static boolean purchaseReach(HumanNpc keeper, YukkuriEntity animal) {
-        return (keeper.distanceToSqr(animal) <= 6.25 || reachesOver(keeper, animal)) && GlassSight.sees(keeper, animal);
+    private static void openHatch(ServerLevel level, HumanNpc keeper, Job job, ServiceHatch hatch) {
+        if (job.hatch != null && !job.hatch.equals(hatch)) job.hatch.set(level, keeper, false);
+        job.hatch = hatch;
+        hatch.set(level, keeper, true);
+    }
+    private static void closeHatch(ServerLevel level, Job job) {
+        if (job.hatch == null) return;
+        job.hatch.set(level, level.getEntity(job.keeper), false);
+        job.hatch = null;
     }
     private static boolean cancelPurchase(ServerLevel level, HumanNpc keeper, Job job, YukkuriEntity animal, String reason) {
         ShopTrade.cancel(level, job.shop, animal, job.buyer, job.price, reason);
@@ -304,12 +321,16 @@ public final class ShopCourier {
     private static boolean waitSleep(ServerLevel level, HumanNpc keeper, Job job) {
         var a = animal(level, job); if (a == null) return endJob(level, job, "target_unavailable");
         keeper.getLookControl().setLookAt(a, 30, 30); keeper.getNavigation().stop();
+        if (!inReach(keeper, a)) { phase(job, Phase.FETCH); return false; } // it fell asleep away from the door
         if (a.life().sedated() ? a.life().sprayDelay() == 0 : a.life().isSleeping()) return pickUp(level, keeper, job, a);
         return false;
     }
     private static boolean basket(ServerLevel level, HumanNpc keeper, Job job) {
         var a = animal(level, job); if (a == null) return endJob(level, job, "target_unavailable");
-        if (job.kind == Kind.BUY && !purchaseReach(keeper, a)) return cancelPurchase(level, keeper, job, a, "out_of_reach");
+        if (!inReach(keeper, a)) {
+            if (job.kind == Kind.BUY) return cancelPurchase(level, keeper, job, a, "out_of_reach");
+            phase(job, Phase.FETCH); return false;
+        }
         keeper.getLookControl().setLookAt(a, 30, 30); keeper.getNavigation().stop();
         return ++job.timer < BASKET_TICKS ? false : pickUp(level, keeper, job, a);
     }
@@ -319,19 +340,27 @@ public final class ShopCourier {
             UUID token = ShopTrade.capture(level, keeper, job.shop, a, job.buyer, job.price, job.pen);
             if (token == null) { emptyHand(keeper); return endJob(level, job, "capture_refused"); }
             job.token = token; IN_FLIGHT.add(token);
+            closeHatch(level, job); // the basket is out through the doorway: the door shuts behind it
             phase(job, Phase.CARRY); return false;
         }
         UUID token = YukkuriWorldData.get(level).capture(a);
         if (token == null) return fallback(level, keeper, job);
         job.token = token; IN_FLIGHT.add(token);
         keeper.setItemInHand(InteractionHand.MAIN_HAND, HumanCommerce.carrier(a, token));
+        closeHatch(level, job);
         phase(job, Phase.CARRY); return false;
     }
     private static boolean walk(ServerLevel level, HumanNpc keeper, Job job) {
         if (job.token == null) return endJob(level, job, "no_token");
-        var target = Vec3.atBottomCenterOf(job.pen);
+        // A pen behind a service door is stocked through it: to the door, open it, set the animal down just inside.
+        var hatch = job.kind == Kind.BUY ? null : ServiceHatch.around(level, job.pen);
+        var target = hatch != null ? hatch.staffStand(level) : Vec3.atBottomCenterOf(job.pen);
         double dx = keeper.getX() - target.x, dz = keeper.getZ() - target.z, d = dx * dx + dz * dz;
-        if (d <= 9 && Math.abs(keeper.getY() - target.y) <= 2.5) return release(level, keeper, job, false);
+        if (hatch != null ? hatch.attended(keeper) : d <= 9 && Math.abs(keeper.getY() - target.y) <= 2.5) {
+            keeper.getNavigation().stop();
+            if (hatch != null) openHatch(level, keeper, job, hatch);
+            return release(level, keeper, job, false);
+        }
         if (job.leg % 10 == 1) keeper.getNavigation().moveTo(target.x, target.y, target.z, .95);
         return stuck(job, d) ? fallback(level, keeper, job) : false;
     }
@@ -344,6 +373,8 @@ public final class ShopCourier {
         if (job.kind == Kind.BUY) return cancelPurchase(level, keeper, job, animal(level, job), "staff_cannot_reach_stock");
         var a = animal(level, job);
         if (a != null && job.kind == Kind.RECALL) { a.pet().unlock("courier"); a = null; } // the recall simply fails; the animal stays on the shelf and is picked again later
+        // Never into a pen behind a service door from afar: the animal stays where it is, free of the job.
+        if (a != null && ServiceHatch.around(level, job.pen) != null) { a.pet().unlock("sale"); a.pet().unlock("courier"); a = null; }
         if (a != null && ShopPerformance.owns(level, job.pen, job.reservation)) {
             a.pet().unlock("sale"); a.pet().unlock("courier");
             level.sendParticles(ParticleTypes.POOF, a.getX(), a.getY() + .3, a.getZ(), 8, .25, .15, .25, .02);
@@ -393,12 +424,17 @@ public final class ShopCourier {
             if (keeper.getMainHandItem().is(ModItems.CARRIER.get())) keeper.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
             return endJob(level, job, "token_missing");
         }
-        var y = job.relFail < 30 && ShopPerformance.owns(level, job.pen, job.reservation)
-                ? custody.release(job.token, level, new Vec3(job.pen.getX() + .5, job.pen.getY() + 1, job.pen.getZ() + .5), keeper.getYRot()) : null;
-        boolean atPen = y != null;
-        if (y == null && job.relFail >= 30) y = place(level, job.token, keeper.position(), keeper.getYRot(), job.reservation);
+        // Behind a service door the animal climbs out of the basket onto the cell just inside the open door; a keeper who could not reach the
+        // door sets it down beside himself instead of passing it through a wall.
+        var hatch = ServiceHatch.around(level, job.pen);
+        boolean doorway = hatch != null && hatch.open(level) && hatch.attended(keeper);
+        var into = hatch != null ? hatch.animalStand() : new Vec3(job.pen.getX() + .5, job.pen.getY() + 1, job.pen.getZ() + .5);
+        var y = job.relFail < 30 && (hatch == null || doorway) && ShopPerformance.owns(level, job.pen, job.reservation)
+                ? custody.release(job.token, level, into, keeper.getYRot()) : null;
+        boolean atPen = y != null && hatch == null; // the old drop settles onto the nest; through a door it walks in by itself
+        if (y == null && (job.relFail >= 30 || hatch != null && !doorway)) y = place(level, job.token, keeper.position(), keeper.getYRot(), job.reservation);
         if (y == null) return ++job.relFail > 200 && endJob(level, job, "release_exhausted_carrier_retained"); // the basket stays in the keeper's hand; recovery tries again later
-        return settle(level, keeper, job, y, atPen, direct);
+        return settle(level, keeper, job, y, atPen, direct && hatch == null);
     }
     private static boolean settle(ServerLevel level, HumanNpc keeper, Job job, YukkuriEntity y, boolean atPen, boolean direct) {
         y.pet().unlock("sale"); y.pet().unlock("courier");

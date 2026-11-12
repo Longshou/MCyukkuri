@@ -34,6 +34,7 @@ import io.github.longshou.mcyukkuri.shop.ShopDeliveries;
 import io.github.longshou.mcyukkuri.shop.ShopKeeping;
 import io.github.longshou.mcyukkuri.shop.ShopMenu;
 import io.github.longshou.mcyukkuri.shop.ShopRegistry;
+import io.github.longshou.mcyukkuri.shop.ServiceHatch;
 import java.util.Objects;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.damagesource.DamageSource;
@@ -177,6 +178,7 @@ public final class HumanNpc extends PathfinderMob {
         if (!level().isClientSide) {
             Custody.ownerDied(this);
             production.dropContents();
+            if (level() instanceof ServerLevel sl) ServiceHatch.closeBehind(sl, this); // a service door it was working does not stay open
             if (level() instanceof ServerLevel sl && (job() == Job.SHOPKEEPER || job() == Job.KEEPER)) {
                 ShopCourier.staffDied(this, sl);
                 if (job() == Job.SHOPKEEPER) ShopRegistry.get(sl).close(getUUID());
@@ -293,14 +295,22 @@ public final class HumanNpc extends PathfinderMob {
         private int elapsed, approach;
         private int careTicks;
         private TreatmentItem.Kind dose;
+        /** The service door this routine opened to reach an animal in a small pen (shop/ServiceHatch); closed when it leaves. */
+        private ServiceHatch hatch;
         RoutineGoal() { setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK)); }
+        private void shutHatch() {
+            if (hatch != null && level() instanceof ServerLevel sl) hatch.set(sl, HumanNpc.this, false);
+            hatch = null;
+        }
         @Override public boolean canUse() {
             if (isTrading() || resting()) return true;
             if (routineDelay > 0) return false;
             attention = level().getEntitiesOfClass(YukkuriEntity.class, getBoundingBox().inflate(job()==Job.FACTORY?32:12), y -> y.isAlive()
                     && (job() == Job.FACTORY && (production.kind().isEmpty()&&HumanCommerce.ownedBy(y, getUUID())&&
                             (Custody.view(y).role() == Custody.Role.INPUT)||production.pipeline().needsService(y))
-                    || canTorment(y) || attitude() == Attitude.CARING && mayTend(y) && (Custody.view(y).role() != Custody.Role.INPUT || FactoryPipeline.stage(y).equals("observe"))))
+                    || canTorment(y) || attitude() == Attitude.CARING && mayTend(y) && (Custody.view(y).role() != Custody.Role.INPUT || FactoryPipeline.stage(y).equals("observe"))
+                            // asleep behind a service door it cannot come to the door: not a patient to open the door for now
+                            && !(y.life().isSleeping() && ServiceHatch.of(y) != null)))
                     .stream().min(Comparator.comparingDouble(y -> distanceToSqr(y)
                             - (attitude()==Attitude.CARING && FactoryPipeline.stage(y).equals("observe") ? 1024 : 0))).orElse(null);
             return attention != null;
@@ -310,6 +320,7 @@ public final class HumanNpc extends PathfinderMob {
         @Override public boolean requiresUpdateEveryTick() { return true; }
         @Override public void tick() {
             if (ExamSession.active(HumanNpc.this)) return; // the exam session steers the examiner
+            if (isTrading() || resting()) shutHatch(); // nobody serves through a door left standing open
             if (isTrading()) { getNavigation().stop(); return; }
             if (resting()) {
                 if (distanceToSqr(Vec3.atBottomCenterOf(home())) > 2) getNavigation().moveTo(home().getX() + .5, home().getY(), home().getZ() + .5, .8);
@@ -318,9 +329,18 @@ public final class HumanNpc extends PathfinderMob {
             }
             if (attention == null) return;
             getLookControl().setLookAt(attention, 30, 30);
-            if (distanceToSqr(attention) > 4 || !hasLineOfSight(attention)) {
+            // An animal in a small pen is served through its service door: go to the door, open it, and wait there for the animal to come to it.
+            var door = ServiceHatch.of(attention);
+            if (door == null ? distanceToSqr(attention) > 4 || !hasLineOfSight(attention) : !door.serves(HumanNpc.this, attention)) {
                 careTicks = 0;
-                if (approach++ % 20 == 0) getNavigation().moveTo(attention, .85);
+                if (door != null && door.attended(HumanNpc.this)) {
+                    getNavigation().stop(); approach++;
+                    if (hatch != null && !hatch.equals(door)) shutHatch();
+                    hatch = door; door.set((ServerLevel) level(), HumanNpc.this, true);
+                } else {
+                    var target = door == null ? attention.position() : door.staffStand(level());
+                    if (approach++ % 20 == 0) getNavigation().moveTo(target.x, target.y, target.z, .85);
+                }
             } else {
                 elapsed++;
                 getNavigation().stop();
@@ -374,6 +394,7 @@ public final class HumanNpc extends PathfinderMob {
                 medicine+=hand.getCount(); setItemSlot(EquipmentSlot.MAINHAND,ItemStack.EMPTY);
                 GameplayLog.event(HumanNpc.this,"npc-care","action=return_unused_dose medicine={}",medicine);
             }
+            shutHatch();
             dose=null; careTicks=0; attention = null; getNavigation().stop(); routineDelay = Math.max(routineDelay, job() == Job.FACTORY ? 80 : 200);
         }
     }

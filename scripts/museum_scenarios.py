@@ -1308,8 +1308,8 @@ add('shop_window', 'shop', '展舱里的油看见客人：招揽、摆架子、�
     env=DAY, vantage=(9, 16, 180, 10),
     reads=[('读在售个体（上架天数与回应）', f'yukkuri status {STOCK} raw')])
 add('shop_buy_keeper', 'shop', '买下金章爱丽丝：饲养员提篮来接，隔壁的橙眼红', '买下金章爱丽丝：饲养员提篮来接，隔壁的橙眼红',
-    '进店右键店主，在“在售”里订下金章爱丽丝：她先高兴地跳，饲养员拿空运输篮从后场走到展舱前，等她钻进篮子时扣款，'
-    '再提到柜台交到你手上。隔壁的银章橙看着她被带走，眼红地鼓起脸。装篮前买家离开柜台或饲养员走不到展舱时取消交易',
+    '进店右键店主，在“在售”里订下金章爱丽丝：她先高兴地跳，饲养员拿空运输篮从后场走到展舱的服务门外，打开铁门，'
+    '她走到门口钻进篮子时扣款，门随即关上，再提到柜台交到你手上。隔壁的银章橙看着她被带走，眼红地鼓起脸。装篮前买家离开柜台或饲养员走不到展舱时取消交易',
     '建筑几秒；买下后约 10–20 秒交到手上', ['yukkuri human build shop ~8 ~ ~17 south'],
     give=['minecraft:emerald 128'], env=DAY, vantage=(5, 16, 180, 10),
     reads=[('店铺登记（shop list）', 'yukkuri human shop list')])
@@ -3997,9 +3997,12 @@ next(s for s in S if s.id == 'shop_window').smoke['commands'] = [(100, _aisle_cu
 _smoke('shop_buy_keeper', 1600, [r'\[courier\][^\n]* action=start kind=BUY ', r'\[shop\] chen [^\n]* window witness kind=ENVY ',
                                  r'\[shop\] chen [^\n]* window witness end kind=ENVY reason=departed ',
                                  r'\[shop\][^\n]* action=buy_live result=committed [^\n]* emeralds_used=0\b',
-                                 r'\[shop\][^\n]* action=buy_live result=delivered [^\n]*mode=keeper'],
+                                 r'\[shop\][^\n]* action=buy_live result=delivered [^\n]*mode=keeper',
+                                 # the booth is served only through its service door: opened, Alice answers it, the basket goes through, it shuts
+                                 r'\[shop\][^\n]* hatch opened door=', r'\[shop\] alice [^\n]* window hatch answer ',
+                                 r'\[courier\][^\n]* action=reach kind=BUY [^\n]*via=hatch ', r'\[shop\][^\n]* hatch closed door='],
        forbid=[r'\[shop\][^\n]* action=buy_live result=refunded', r'\[shop\][^\n]* action=buy_live result=cancelled',
-               r'\[courier\][^\n]* action=fallback '])
+               r'\[courier\][^\n]* action=fallback ', r'\[courier\][^\n]* action=reach [^\n]*via=floor '])
 next(s for s in S if s.id == 'shop_buy_keeper').smoke['commands'] = [
     (200, f'yukkuri human shop buy @e[nbt={{HumanJob:1}},distance=..80,sort=nearest,limit=1] {BOOTH.format("alice", 3)} {_uuid_text("shop_buy_keeper", "buyer")}')]
 def _migration_housing(log):

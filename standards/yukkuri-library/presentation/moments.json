@@ -4249,6 +4249,38 @@
           ]
         }
       ]
+    },
+    "behavior_window_hatch": {
+      "loop": true,
+      "steps": [
+        {
+          "clip": "beg",
+          "intensity": 1.1,
+          "tempo": 1,
+          "faces": [
+            [
+              0,
+              "open_smile"
+            ],
+            [
+              0.6,
+              "happy"
+            ]
+          ],
+          "emote": "note"
+        },
+        {
+          "clip": "idle",
+          "intensity": 1,
+          "tempo": 1,
+          "faces": [
+            [
+              0,
+              "happy"
+            ]
+          ]
+        }
+      ]
     }
   },
   "behaviors": {
@@ -4264,6 +4296,7 @@
     "window_farewell": "behavior_window_farewell",
     "window_envy": "behavior_window_envy",
     "window_watch": "behavior_window_watch",
+    "window_hatch": "behavior_window_hatch",
     "unun_exercise": "behavior_unun_exercise",
     "toilet": "behavior_toilet",
     "ground_toilet": "behavior_ground_toilet",

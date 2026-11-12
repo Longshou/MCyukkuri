@@ -261,7 +261,7 @@ public final class Behaviors {
     public static final String WINDOW_NOTICE = "window_notice", WINDOW_APPROACH = "window_approach", WINDOW_APPEAL = "window_appeal",
             WINDOW_SHOW_OFF = "window_show_off", WINDOW_PROUD = "window_proud", WINDOW_SHY = "window_shy", WINDOW_SULK = "window_sulk",
             WINDOW_LETDOWN = "window_letdown", WINDOW_HMPH = "window_hmph", WINDOW_FAREWELL = "window_farewell", WINDOW_ENVY = "window_envy",
-            WINDOW_WATCH = "window_watch";
+            WINDOW_WATCH = "window_watch", WINDOW_HATCH = "window_hatch";
 
     private Behaviors() {}
 }

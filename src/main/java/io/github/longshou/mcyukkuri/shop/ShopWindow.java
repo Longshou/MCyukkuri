@@ -38,7 +38,7 @@ import net.minecraft.world.phys.Vec3;
 public final class ShopWindow implements MotorOwner {
     public enum Mode { APPEAL, SHOW_OFF, PROUD, SHY, SULK }
     public enum Witness { FAREWELL, ENVY, ME_TOO, WATCH }
-    private enum Phase { NOTICE, APPROACH, PERFORM, AFTER, WITNESS }
+    private enum Phase { NOTICE, APPROACH, PERFORM, AFTER, WITNESS, HATCH }
     private enum After { LETDOWN, HMPH }
 
     /** A customer is noticed within RANGE blocks horizontally (and 4 vertically); it is gone beyond KEEP or out of sight for GONE_TICKS. */
@@ -54,6 +54,8 @@ public final class ShopWindow implements MotorOwner {
     private static final int WITNESS_TICKS = 500, REACTION_TICKS = 160, WITNESS_TAIL = 70;
     /** Sale sightings are within this many blocks. */
     private static final double SALE_RANGE = 10;
+    /** Staff at its pen's open service door is answered this long at most; then a short rest before it answers the door again. */
+    private static final int HATCH_TICKS = 600, HATCH_REST = 40;
     /** Rejections remembered at most, and the time after which one is forgotten (project design). */
     private static final int REJECTIONS = 4, FORGIVE_TICKS = 2400;
     /** Drive weights (project design, docs/FEATURES.md): each mode a continuous score, the largest wins after a jitter of up to 6. */
@@ -67,11 +69,13 @@ public final class ShopWindow implements MotorOwner {
     private LivingEntity customer, candidate;
     private Entity watched;
     private YukkuriEntity departing, leaving;
+    /** Its pen's service door, open with staff at it (the HATCH answer). */
+    private ServiceHatch hatch, calling;
     /** The last neighbour whose sale it watched: one sale is answered once. */
     private UUID witnessed;
     private BlockPos glass;
     private Action action;
-    private long until, sessionStart, performStart, lastSeen, lastRestand, nextScan, cooldownUntil, forgiveAt, departedAt;
+    private long until, sessionStart, performStart, lastSeen, lastRestand, nextScan, cooldownUntil, forgiveAt, departedAt, hatchRestUntil;
     private int restands, rejections;
 
     public ShopWindow(YukkuriEntity entity) { this.entity = entity; }
@@ -92,6 +96,7 @@ public final class ShopWindow implements MotorOwner {
                 case SULK -> Behaviors.WINDOW_SULK;
             };
             case AFTER -> after == After.LETDOWN ? Behaviors.WINDOW_LETDOWN : Behaviors.WINDOW_HMPH;
+            case HATCH -> action != null ? Behaviors.WINDOW_APPROACH : Behaviors.WINDOW_HATCH;
             // Envy and "me too" burst out while the neighbour is being fetched, a farewell when it climbs into the basket; otherwise it watches.
             case WITNESS -> witness == Witness.FAREWELL && departedAt >= 0 ? Behaviors.WINDOW_FAREWELL
                     : entity.level().getGameTime() - sessionStart >= REACTION_TICKS ? Behaviors.WINDOW_WATCH
@@ -111,6 +116,9 @@ public final class ShopWindow implements MotorOwner {
         if (now < nextScan) return false;
         nextScan = now + SCAN_TICKS;
         if (!stock()) return false;
+        // Staff opening its pen's service door is answered first: that is where it is fed, treated and handed over.
+        calling = calledToHatch();
+        if (calling != null) return true;
         // A neighbour being sold outweighs the rest it takes between customers.
         leaving = findSale();
         if (leaving != null) return ready();
@@ -126,20 +134,29 @@ public final class ShopWindow implements MotorOwner {
         return true;
     }
 
-    public boolean canContinue() { return phase != null && stock() && ready(); }
+    public boolean canContinue() { return phase != null && stock() && (phase == Phase.HATCH ? answersHatch() : ready()); }
 
     public void start() {
         long now = entity.level().getGameTime();
-        if (leaving != null) beginWitness(leaving, now);
+        if (calling != null) beginHatch(calling, now);
+        else if (leaving != null) beginWitness(leaving, now);
         else if (candidate != null) beginSession(candidate, now);
-        candidate = null; leaving = null;
+        candidate = null; leaving = null; calling = null;
     }
 
     public void tick() {
         long now = entity.level().getGameTime();
         boolean scan = now >= nextScan;
         if (scan) nextScan = now + SCAN_TICKS;
-        if (scan && phase != Phase.WITNESS && phase != Phase.AFTER) {
+        if (scan && phase != Phase.HATCH) {
+            var door = calledToHatch();
+            if (door != null) { // staff at its door outweighs a customer, a neighbour's sale and an after-beat
+                if (phase == Phase.NOTICE || phase == Phase.APPROACH || phase == Phase.PERFORM) log("end", "hatch", now);
+                cancelAction("hatch");
+                beginHatch(door, now);
+            }
+        }
+        if (scan && phase != Phase.WITNESS && phase != Phase.AFTER && phase != Phase.HATCH) {
             var sale = findSale();
             if (sale != null) { // a customer session gives way to a neighbour being sold
                 log("end", "witness", now);
@@ -157,6 +174,7 @@ public final class ShopWindow implements MotorOwner {
             case PERFORM -> perform(now, scan);
             case AFTER -> { if (now >= until) finish(now); }
             case WITNESS -> witnessing(now);
+            case HATCH -> hatching(now);
         }
     }
 
@@ -427,6 +445,53 @@ public final class ShopWindow implements MotorOwner {
                 }).findFirst().orElse(null);
     }
 
+    // ---- its pen's service door -------------------------------------------------------------------------------------
+
+    /** Free to go to the door: as for a customer, also hungry, tired or hurt (the door is where it is fed and treated), or held by its own
+     *  shop for a sale or a keeper's errand (the door is where those end). */
+    private boolean answersHatch() {
+        String busy = busy();
+        return busy == null || busy.equals("urgent_need") || busy.equals("hurt")
+                || busy.equals("handled") && (entity.pet().busyWith().equals("sale") || entity.pet().busyWith().equals("courier"));
+    }
+
+    /** Its pen's service door, standing open with staff at it, when it is free to answer; else null. */
+    private ServiceHatch calledToHatch() {
+        if (entity.level().getGameTime() < hatchRestUntil || !answersHatch()) return null;
+        var door = ServiceHatch.of(entity);
+        return door != null && door.attendant(entity.level()) != null ? door : null;
+    }
+
+    private void beginHatch(ServiceHatch door, long now) {
+        hatch = door; sessionStart = now;
+        phase(Phase.HATCH, now + HATCH_TICKS);
+        var stand = door.animalStand();
+        double dx = entity.getX() - stand.x, dz = entity.getZ() - stand.z;
+        var walk = Walk.stand(stand, 1.1);
+        boolean walking = dx * dx + dz * dz > .09 && entity.motor().run(this, walk);
+        if (walking) action = walk;
+        GameplayLog.event(entity, "shop", "window hatch answer door={} stand={} walking={}", door.door().toShortString(), GameplayLog.at(stand), walking);
+    }
+
+    private void hatching(long now) {
+        var staff = hatch.attendant(entity.level());
+        if (staff == null || now >= until) {
+            GameplayLog.event(entity, "shop", "window hatch end reason={} ticks={} at={}", staff == null ? "door_shut" : "timeout", now - sessionStart,
+                    GameplayLog.at(entity.position()));
+            cancelAction("hatch_done");
+            clear();
+            hatchRestUntil = now + HATCH_REST;
+            return;
+        }
+        if (action != null && entity.motor().current() == action) return; // on its way to the door
+        if (action != null) {
+            if (!(entity.motor().last() instanceof Outcome.Done))
+                GameplayLog.limited(entity, "shop", "window_hatch_walk", 200, "window hatch walk ended outcome={}", entity.motor().last());
+            action = null;
+        }
+        look(staff);
+    }
+
     // ---- shared -------------------------------------------------------------------------------------------------------
 
     private void look(Entity target) { if (target != null) entity.getLookControl().setLookAt(target, 30, 30); }
@@ -439,7 +504,7 @@ public final class ShopWindow implements MotorOwner {
     }
 
     private void clear() {
-        phase = null; mode = null; after = null; witness = null; customer = null; watched = null; departing = null; glass = null; action = null;
+        phase = null; mode = null; after = null; witness = null; customer = null; watched = null; departing = null; glass = null; action = null; hatch = null;
     }
 
     private void log(String what, String reason, long now) {
