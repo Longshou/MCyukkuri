@@ -36,7 +36,7 @@ final class ExamPracticeItem implements ExamItem {
         if (why != null) { ctx.interrupt(why); return; }
         switch (question) {
             case READ, COUNT, EXPLAIN, CLARIFY -> {
-                example = PetStudy.find(y, ctx.owner(), question.skill);
+                example = ExamPlan.example(question, ctx.owner(), y);
                 if (question.grade == BadgeGrade.PLATINUM) participant = ExamPlan.visitor(y, ctx.owner(), ctx.examiner());
             }
             case GREET -> participant = ExamPlan.visitor(y, ctx.owner(), ctx.examiner());
@@ -73,7 +73,7 @@ final class ExamPracticeItem implements ExamItem {
         var y = ctx.candidate();
         if (ctx.owner() == null) { ctx.interrupt("owner_gone"); return; }
         if (example != null) {
-            var actual = PetStudy.find(y, ctx.owner(), question.skill);
+            var actual = ExamPlan.example(question, ctx.owner(), y);
             if (actual == null || !example.sameExample(actual)) { ctx.interrupt("site"); return; }
             if (participant != null) {
                 if (!y.hasLineOfSight(participant) || !participant.hasLineOfSight(y)) {

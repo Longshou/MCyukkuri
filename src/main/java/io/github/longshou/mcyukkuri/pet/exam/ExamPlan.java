@@ -71,6 +71,14 @@ public final class ExamPlan {
                 .stream().min(Comparator.comparingDouble(y::distanceToSqr)).orElse(null);
     }
 
+    static PetStudy.Exercise example(Question question, Player owner, YukkuriEntity y) {
+        return switch (question) {
+            case READ, EXPLAIN -> PetStudy.find(y, owner, PetSkill.READING);
+            case COUNT, CLARIFY -> PetStudy.foodCount(y);
+            default -> null;
+        };
+    }
+
     static YukkuriEntity needy(YukkuriEntity y, boolean sharing) {
         return y.level().getEntitiesOfClass(YukkuriEntity.class, y.getBoundingBox().inflate(5), peer ->
                 peer != y && peer.isAlive() && peer.family().stage() != FamilyLife.Stage.BABY
@@ -85,11 +93,10 @@ public final class ExamPlan {
             case NAME -> null;
             case WAIT -> mouthOccupied(y) ? "occupied"
                     : !y.pet().lessons().preconditionOk(owner, PetSkill.WAIT) ? "need_sweet" : null;
-            case READ -> PetStudy.find(y, owner, PetSkill.READING) == null ? "need_reading" : null;
+            case READ -> example(question, owner, y) == null ? "need_reading" : null;
             case COUNT -> {
-                var example = PetStudy.find(y, owner, PetSkill.ARITHMETIC);
-                yield example == null || example.count() < 1 || example.count() > 4 || !example.source().equals("food")
-                        ? "need_count" : null;
+                var example = example(question, owner, y);
+                yield example == null || example.count() > 4 ? "need_count" : null;
             }
             case BOWL, TOILET, BED -> !y.pet().lessons().careReady(question.skill) ? "need_care" : null;
             case WALK -> y.getLeashHolder() != owner || !y.pet().care().harnessed() ? "need_walk" : null;

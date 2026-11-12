@@ -14,7 +14,6 @@ import io.github.longshou.mcyukkuri.pet.ExamRecord;
 import io.github.longshou.mcyukkuri.pet.PetConversation;
 import io.github.longshou.mcyukkuri.pet.PetPrivileges;
 import io.github.longshou.mcyukkuri.pet.PetSkill;
-import io.github.longshou.mcyukkuri.pet.PetStudy;
 import io.github.longshou.mcyukkuri.pet.stage.Staging;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.status.Identity;
@@ -109,6 +108,10 @@ public final class ExamSession implements ExamContext {
         return null;
     }
     public static boolean running(YukkuriEntity candidate) { return candidateSession(candidate) != null; }
+    public static boolean ownerPresent(YukkuriEntity candidate, UUID id) {
+        var session = candidateSession(candidate);
+        return session != null && session.ownerId.equals(id) && session.owner() != null;
+    }
     public static boolean active(HumanNpc examiner) { return ACTIVE.containsKey(examiner.getUUID()); }
     public static ExamSession of(HumanNpc examiner) { return ACTIVE.get(examiner.getUUID()); }
     public static int fee(int type) {
@@ -153,7 +156,7 @@ public final class ExamSession implements ExamContext {
         var personality = y.life().personality();
         String example = switch (question) {
             case READ, COUNT, EXPLAIN, CLARIFY -> {
-                var sample = PetStudy.find(y, p, skill);
+                var sample = ExamPlan.example(question, p, y);
                 yield sample == null ? "" : sample.source() + "/" + sample.example().getString();
             }
             case GREET -> {
@@ -165,7 +168,7 @@ public final class ExamSession implements ExamContext {
                 yield peer == null ? "" : peer.getUUID().toString();
             }
             case BED -> String.valueOf(y.life().homeStand());
-            default -> examiner.home().toShortString();
+            default -> "";
         };
         int aptitude = switch (question) {
             case NAME, GREET -> personality.attachment();

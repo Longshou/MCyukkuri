@@ -477,7 +477,8 @@ public final class PetLife {
             permits.values().removeIf(until -> until < now());
         }
         if (lockKind != null) {
-            boolean present = lockedBy == null || animal.level().getPlayerByUUID(lockedBy) != null || ((ServerLevel)animal.level()).getEntity(lockedBy) != null;
+            boolean present = lockedBy == null || animal.level().getPlayerByUUID(lockedBy) != null
+                    || ((ServerLevel)animal.level()).getEntity(lockedBy) != null || ExamSession.ownerPresent(animal, lockedBy);
             if (present) lockGone = 0; else if (++lockGone > 200) unlock(null);
         }
     }

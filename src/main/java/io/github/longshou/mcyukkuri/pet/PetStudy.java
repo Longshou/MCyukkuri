@@ -79,6 +79,10 @@ public final class PetStudy {
         int young = pet.level().getEntitiesOfClass(YukkuriEntity.class, area,
                 y -> y != pet && y.isAlive() && !y.family().adult() && pet.hasLineOfSight(y) && Bonds.parentOf(pet, y)).size();
         if (young > 0 || pet.pet().lessons().hasCountedYoung()) return new Exercise(PetSkill.ARITHMETIC, number(young), young, "young");
+        return foodCount(pet);
+    }
+
+    public static Exercise foodCount(YukkuriEntity pet) {
         int food = visibleFood(pet);
         return food == 0 ? null : new Exercise(PetSkill.ARITHMETIC, number(food), food, "food");
     }

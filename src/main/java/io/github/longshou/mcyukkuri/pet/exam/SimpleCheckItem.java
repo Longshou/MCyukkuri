@@ -45,7 +45,7 @@ public final class SimpleCheckItem implements ExamItem {
                 boolean deficient = y.subspecies().congenital() != Congenital.NORMAL;
                 String custom = y.getCustomName() == null ? "" : y.getCustomName().getString();
                 String given = Naming.ownName(y, custom) ? custom : y.mind().givenName();
-                name = given == null || given.isBlank() ? y.getType().getDescription() : Component.literal(given);
+                name = given.isBlank() ? y.getType().getDescription() : Component.literal(given);
                 y.playAction(fear > 20 ? "shy" : "bow");
                 int sequence = y.speechSequence();
                 boolean spoken = y.speakCue("introduced") && y.speechSequence() != sequence;

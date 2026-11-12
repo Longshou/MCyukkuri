@@ -1422,7 +1422,7 @@ def exam_candidate(grade, nutrition=72):
 
 add('exam', 'town', '铜章考试：自我介绍', '铜章考试：自我介绍',
     '右键考官选简易考试，观察考官问姓名、灵梦作答、考官复述，再看铜章结果。',
-    '约 10 秒', [*exam_hall(), yk('reimu', 0, 2, 'pet', label='小柚', lead=True), *own('pet')],
+    '约 10 秒', [*exam_hall(), yk('reimu', 0, 2, 'pet', label='灵梦', lead=True), *own('pet')],
     env={'time': 'dawn'}, vantage=(0, 8), reads=[('读考生', f'yukkuri status {sel("pet")} raw')],
     smoke=dict(ticks=340, commands=[(5, f'yukkuri scenario exam_bronze {sel("judge")} {sel("pet")}')],
                expect=[r'(?s)action=line [^\n]*key=exam\.mcyukkuri\.say\.simple_name.*action=answer task=simple_check success=true.*key=exam\.mcyukkuri\.comment\.name.*action=result [^\n]*grade=NONE->BRONZE'],
