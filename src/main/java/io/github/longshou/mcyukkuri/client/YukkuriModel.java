@@ -36,6 +36,7 @@ import io.github.longshou.mcyukkuri.family.LiveBirthGeometry;
 import io.github.longshou.mcyukkuri.family.PregnancyAttachments;
 import io.github.longshou.mcyukkuri.headwear.HatGeometry;
 import io.github.longshou.mcyukkuri.headwear.HatScale;
+import io.github.longshou.mcyukkuri.mind.ExcitedLeak;
 import io.github.longshou.mcyukkuri.subspecies.SubspeciesLife;
 import io.github.longshou.mcyukkuri.status.Marks;
 import java.util.ArrayList;
@@ -1220,17 +1221,54 @@ public final class YukkuriModel {
                     ||entity.visibleKanroken()||mouthHolding)captureMouthAttachment();
             long surfaceStart=woundDisplay==null?0:WoundLod.start();
             // The puff uses a different skin mesh; keep its clip instead of pinning the body to the sole decal.
-            if(puffAmount>0)leakOpacity=0;
-            if(drawingSurfaceMarks||leakOpacity>0)
-                WoundRenderer.render(entity,expression,leakOpacity,world,stack,buffer,buffers,light,overlay,drawEvidence);
+            int soleOpacity=puffAmount>0?0:leakOpacity;
+            if(drawingSurfaceMarks||soleOpacity>0)
+                WoundRenderer.render(entity,expression,soleOpacity,world,stack,buffer,buffers,light,overlay,drawEvidence);
             if(woundDisplay!=null){WoundLod.time(WoundLod.SURFACE,surfaceStart);long displayStart=WoundLod.start();
                 woundDisplay.render(world,pregnancyBelly,stack,buffers,light,overlay);WoundLod.time(WoundLod.DISPLAY,displayStart);WoundLod.drawn(!woundDisplay.simple);}
+            if(leakOpacity>0&&!ExcitedLeak.FLOW_FACE.equals(expression))
+                renderLeakStream(stack,buffers,light,overlay,leakOpacity);
             hatDamageDraw.drawCaps(evidenceBuffers("hat",buffers));
             if(accessory||pieces||hatMotion.equals("HAT_REMOVE"))renderReplacementHat(stack,buffers,light,overlay);
             PoseTap.model(entity, this, accessory, hairLoss);
         }finally{drawEvidence=null;wear=0;retention=0;wearClear=false;woundDisplay=null;drain=0;adultStatePose=false;drawingWoundedBody=false;drawingSurfaceMarks=false;mouthHolding=false;carryLoad=carryLean=carryCurlLeft=carryCurlRight=carryMouth=carryCheeks=hatInBraid=0;hatMotion="";hatScale=1;hatProp=null;hatDamageDraw.reset();setCareContact(0,
                 Float.NaN,0,0);setBraidReach(null,0);
                 setBoardingPose(Float.NaN,0,1,0);setSelfHatPose(null);setExpression("");setReproductiveAnatomy(null,0);}
+    }
+
+    /** Keep only leak A's mouth-effect card after the expression returns to ordinary life. */
+    private void renderLeakStream(PoseStack stack, MultiBufferSource buffers, int light, int overlay, int alpha) {
+        for(int index=0;index<parts.size();index++){
+            Part part=parts.get(index);
+            if(!part.name.equals("face_effect_mouth"))continue;
+            if(puffAmount>0)part=puffAttachments.getOrDefault(index,part);
+            var texture=HairWoundAssets.texture(id,ExcitedLeak.FLOW_FACE,0);
+            var out=buffers.getBuffer(RenderType.entityTranslucent(texture));
+            for(int first=part.start;first<part.start+part.count;first+=3){
+                if(vertices[first*8+7]>=-.15f)continue;
+                boolean projected=pregnancyBelly>.001f;
+                for(int corner=0;corner<3;corner++){
+                    int vertex=first+corner;
+                    if(projected)skinBase(vertex,triangle[corner]);else skin(vertex,triangle[corner]);
+                    triangleUv[corner*2]=vertices[vertex*8+3];
+                    triangleUv[corner*2+1]=vertices[vertex*8+4];
+                }
+                if(projected){
+                    float opacity=alpha/255f;
+                    woundPatch(part.name,triangle,triangleUv,stack,out,light,overlay,255,255,255,opacity,opacity,opacity);
+                    continue;
+                }
+                normal.set(triangle[1]).sub(triangle[0]).cross(edge.set(triangle[2]).sub(triangle[0]));
+                if(normal.lengthSquared()<1e-16f)continue;
+                normal.normalize();
+                var card=cardNormals.get(part.name);
+                var lift=card==null?normal:card;
+                for(var point:triangle)point.fma(card==null?.01f:CARD_LIFT+.01f,lift);
+                WoundRenderer.emit(stack,out,light,overlay,triangle[0],triangle[1],triangle[2],
+                        triangleUv[0],triangleUv[1],triangleUv[2],triangleUv[3],triangleUv[4],triangleUv[5],lift,lift,lift,alpha);
+            }
+            return;
+        }
     }
     /** The remains data a frame reads, derived once per synced snapshot (RemainsRenderer caches it per entity). */
     record RemainsInputs(List<BodyWound> wounds,UUID seed,int rotStage,int packedSigns,float fullness,int subspeciesFlags,boolean accessory,

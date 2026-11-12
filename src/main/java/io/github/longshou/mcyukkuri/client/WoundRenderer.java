@@ -17,9 +17,9 @@ import org.joml.Vector3f;
 /** Existing injury deformation with the selected authored materials clipped to posed skin triangles. */
 final class WoundRenderer {
     private static final int MAX_TOPOLOGIES=64;
-    private static final int CHAR_MATERIAL=44, LEAK_WET_MATERIAL=45, LEAK_TRACE_MATERIAL=46;
+    private static final int CHAR_MATERIAL=44, LEAK_WET_MATERIAL=45;
     private static final String[] MATERIALS={"scratch","dent","tear","scorch","scar","dirt_1","dirt_2","dirt_3",
-            "mold_1","mold_2","mold_3","mold_4","char","leak_wet","leak_trace"};
+            "mold_1","mold_2","mold_3","mold_4","char","leak_wet"};
     private static final Map<Object,Geometry> CACHE=new WeakHashMap<>();
     private static final Map<TopologyKey,Topology> TOPOLOGIES=new LinkedHashMap<TopologyKey,Topology>(MAX_TOPOLOGIES,.75f,true){
         @Override protected boolean removeEldestEntry(Map.Entry<TopologyKey,Topology> eldest){return size()>MAX_TOPOLOGIES;}
@@ -97,10 +97,10 @@ final class WoundRenderer {
         final Vector3f[] smoothNormals;
         final List<Mark> marks=new ArrayList<>();
         List<Face> patchFaces=List.of();
-        private final int leakMaterial;
-        Geometry(WoundSurface mesh,List<BodyWound> wounds,List<SkinDecal> signs,String expression,boolean corePresent,int leakMaterial){
+        private final boolean wet;
+        Geometry(WoundSurface mesh,List<BodyWound> wounds,List<SkinDecal> signs,String expression,boolean corePresent,boolean wet){
             this.mesh=mesh;this.wounds=List.copyOf(wounds);this.signs=List.copyOf(signs);this.expression=expression;
-            this.corePresent=corePresent;this.leakMaterial=leakMaterial;
+            this.corePresent=corePresent;this.wet=wet;
             drawBody=false;topology=topology(mesh,expression);int count=mesh.weights.length;
             var coreSign=signs.stream().filter(s->s.kind()==WoundKind.CORE).findFirst().orElse(null);
             var coreWound=coreSign==null?null:wounds.stream().filter(w->BodySigns.deep(w)&&w.triangle()==coreSign.triangle()
@@ -110,7 +110,7 @@ final class WoundRenderer {
             rest=new Vector3f[count];posed=new Vector3f[count];
             for(var w:wounds)if(mesh.valid(w)&&(w.kind()==WoundKind.DIRT||w.kind()==WoundKind.MOLD))author(SkinDecal.of(w,mesh.displaySite(w)));
             for(var sign:signs)if(mesh.valid(sign))author(sign);
-            if(leakMaterial>=0)soleTexture(leakMaterial);
+            if(wet)soleTexture(LEAK_WET_MATERIAL);
             if(cavity!=null)clipMarks();
             boolean ink=false,tone=false,textured=false;for(var mark:marks)if(mark.material<16)ink=true;else if(mark.material<32)tone=true;else textured=true;
             woundMarks=ink;toneMarks=tone;texturedMarks=textured;
@@ -314,8 +314,7 @@ final class WoundRenderer {
         var marks=visibleMarks(e);
         List<BodyWound> all=wounds;
         if(!marks.isEmpty()){all=new ArrayList<>(wounds.size()+marks.size());all.addAll(wounds);all.addAll(marks);}
-        int leakMaterial = leakOpacity == 0 ? -1 : ExcitedLeak.FLOW_FACE.equals(e.getExpressionId()) ? LEAK_WET_MATERIAL : LEAK_TRACE_MATERIAL;
-        render(e,e.assetId(),expression,all,signs,e.livePregnancyProgress(),health,e.profile().houseBody(),true,leakMaterial,leakOpacity,world,stack,body,buffers,light,overlay,evidence);
+        render(e,e.assetId(),expression,all,signs,e.livePregnancyProgress(),health,e.profile().houseBody(),true,leakOpacity,world,stack,body,buffers,light,overlay,evidence);
     }
     static void render(Object key,String asset,String expression,List<BodyWound> wounds,List<SkinDecal> signs,float pregnancy,float healthFraction,boolean house,
                        Matrix4f[] world,PoseStack stack,VertexConsumer body,MultiBufferSource buffers,int light,int overlay){
@@ -323,20 +322,21 @@ final class WoundRenderer {
     }
     static void render(Object key,String asset,String expression,List<BodyWound> wounds,List<SkinDecal> signs,float pregnancy,float healthFraction,boolean house,
                        boolean corePresent,Matrix4f[] world,PoseStack stack,VertexConsumer body,MultiBufferSource buffers,int light,int overlay){
-        render(key,asset,expression,wounds,signs,pregnancy,healthFraction,house,corePresent,-1,0,world,stack,body,buffers,light,overlay,null);
+        render(key,asset,expression,wounds,signs,pregnancy,healthFraction,house,corePresent,0,world,stack,body,buffers,light,overlay,null);
     }
     private static void render(Object key,String asset,String expression,List<BodyWound> wounds,List<SkinDecal> signs,float pregnancy,float healthFraction,boolean house,
-                       boolean corePresent,int leakMaterial,int leakOpacity,Matrix4f[] world,PoseStack stack,VertexConsumer body,MultiBufferSource buffers,int light,int overlay,DrawEvidence evidence){
+                       boolean corePresent,int leakOpacity,Matrix4f[] world,PoseStack stack,VertexConsumer body,MultiBufferSource buffers,int light,int overlay,DrawEvidence evidence){
         var propBuffers=evidence==null?buffers:evidence.buffers("prop",buffers);
         if(evidence!=null){body=evidence.buffer("body",body);buffers=evidence.buffers("body",buffers);}
         // Mechanical wounds, scars and heat now share the authored hair/skin renderer.
         // The old stable dirt/mould projection remains responsible for its own status marks.
         wounds=without(wounds,WoundKind.SCAR);
         signs=drawnSigns(signs);
-        if(leakMaterial<0&&wounds.isEmpty()&&signs.isEmpty())return;var mesh=WoundSurface.get(asset);var geometry=CACHE.get(key);
+        boolean wet=leakOpacity>0;
+        if(!wet&&wounds.isEmpty()&&signs.isEmpty())return;var mesh=WoundSurface.get(asset);var geometry=CACHE.get(key);
         String faceExpression=deforms(wounds)?YukkuriModel.get(asset).geometryExpression(expression):"";
-        if(geometry==null||geometry.mesh!=mesh||geometry.corePresent!=corePresent||geometry.leakMaterial!=leakMaterial||!geometry.accepts(faceExpression)||!geometry.same(wounds,signs)){geometry=new Geometry(mesh,
-                wounds,signs,faceExpression,corePresent,leakMaterial);CACHE.put(key,geometry);}
+        if(geometry==null||geometry.mesh!=mesh||geometry.corePresent!=corePresent||geometry.wet!=wet||!geometry.accepts(faceExpression)||!geometry.same(wounds,signs)){geometry=new Geometry(mesh,
+                wounds,signs,faceExpression,corePresent,wet);CACHE.put(key,geometry);}
         // The puff morph is off while wound geometry is drawn, so the wounded skin keeps its rest shape.
         var temp=geometry.temp;for(int i:geometry.uniqueVertices){var dest=geometry.posed[i].zero();var w=mesh.weights[i];for(int k=0;
                 k<w.length;k+=2){world[(int)w[k]].transformPosition(geometry.rest[i],temp);dest.fma(w[k+1],temp);}}
@@ -371,7 +371,7 @@ final class WoundRenderer {
             VertexConsumer texture=null;
             for(var mark:geometry.marks)if(mark.material==32+material){
                 if(texture==null)texture=buffers.getBuffer(RenderType.entityTranslucent(MCYukkuri.id("textures/props/body_wounds/"+MATERIALS[material]+".png")));
-                drawMark(geometry,mark,stack,texture,light,overlay,0,mark.material==LEAK_TRACE_MATERIAL?leakOpacity:255);
+                drawMark(geometry,mark,stack,texture,light,overlay,0,mark.material==LEAK_WET_MATERIAL?leakOpacity:255);
             }
         }
         // Wet filling remains at an open outlet; it represents no extra inventory.
@@ -400,7 +400,7 @@ final class WoundRenderer {
             float ua,float va,float ub,float vb,float uc,float vc,Vector3f na,Vector3f nb,Vector3f nc){
         emit(stack,buffer,light,overlay,a,b,c,ua,va,ub,vb,uc,vc,na,nb,nc,255);
     }
-    private static void emit(PoseStack stack,VertexConsumer buffer,int light,int overlay,Vector3f a,Vector3f b,Vector3f c,
+    static void emit(PoseStack stack,VertexConsumer buffer,int light,int overlay,Vector3f a,Vector3f b,Vector3f c,
             float ua,float va,float ub,float vb,float uc,float vc,Vector3f na,Vector3f nb,Vector3f nc,int alpha){
         float abx=b.x-a.x,aby=b.y-a.y,abz=b.z-a.z,acx=c.x-a.x,acy=c.y-a.y,acz=c.z-a.z;
         float nx=aby*acz-abz*acy,ny=abz*acx-abx*acz,nz=abx*acy-aby*acx;

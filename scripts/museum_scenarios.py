@@ -1314,33 +1314,35 @@ def agitation_start(phase):
 
 
 def _verify_leak_scene(window):
-    rolls = re.findall(r'\[leak\][^\n]*uuid=(\S+)[^\n]* roll=(\S+) chance=(\S+)', window)
-    if len({actor for actor, _, _ in rolls}) != len(rolls):
+    rolls = re.findall(r'\[leak\][^\n]*uuid=(\S+) t=(\d+)[^\n]* roll=(\S+) chance=(\S+) flow_at=(\d+) puddle_at=(\d+)', window)
+    if len({row[0] for row in rolls}) != len(rolls):
         return 'an actor leaked again inside the 1200-tick cooldown'
-    if any(not 0 <= float(roll) < float(chance) for _, roll, chance in rolls):
-        return 'a leak was logged without a successful roll'
+    for actor, start, roll, chance, flow, puddle in rolls:
+        if not 0 <= float(roll) < float(chance) or not 6 <= int(flow) - int(start) <= 10:
+            return f'{actor}: invalid roll or first-spurt duration'
+        if not re.search(rf'\[status\][^\n]*uuid={actor}\b[^\n]*behavior\.leak_trace_at: -1 -> {puddle}\b', window):
+            return f'{actor}: no skin trace at the puddle tick'
     return None
 
 
 # Low self-control and more adults make a rare outcome observable without forcing any roll.
 _LEAK_ROWS = (('baby', '赤油', -7, 5, 2), ('child', '子油', -3, 10, 3), ('adult', '成油', 2, 30, 6))
-_LEAK_ACTORS = 'yukkuri status @e[tag=scn_leak_actor] raw'
 add('excited_leak', 'meadow', '短落差受惊：赤油、子油、成油漏尿', '短落差受惊：赤油、子油、成油漏尿',
     '从左到右是自制较低的赤油、子油和成油。开场从两格多的安全高度落下，各自真实抽签。看第一股、漏 A 与脚底湿边，'
-    '随后小水滩留在原地，皮肤上的尿痕随个体移动，比水滩晚干。成油仍较少发生，没看到可清场重开。',
+    '随后小水滩留在原地，皮肤上的尿痕随个体移动，比水滩晚干。前排有矮身豆油可对照嘴和漏尿位置。成油仍较少发生，没看到可清场重开。',
     '开场约 1–4 秒，水滩可继续观察', [
         yk('reimu', x + i % columns * 1.25, 1 - i // columns * 1.25, f'leak_{stage}_{i}',
-           dy=2.5, stage=stage, yaw=0, label=label if i == 0 else None,
+           dy=2.5, stage=stage, yaw=0, label=label if i == 0 else '豆油' if i == 1 else None,
+           congenital='BEAN_BODY' if stage != 'adult' and i % 3 == 1 else 'NORMAL',
            lead=stage == 'child' and i == 0, self_control=0, also=('leak_actor',))
         for stage, label, x, count, columns in _LEAK_ROWS for i in range(count)
     ], env=DAY, vantage=(0, 9, 180, 15),
     smoke=dict(ticks=390,
-               commands=[(10, _LEAK_ACTORS), (25, _LEAK_ACTORS), (100, _LEAK_ACTORS),
-                         (180, 'execute as @e[tag=scn_leak_actor] at @s run tp @s ~ ~2.5 ~')],
+               commands=[(180, 'execute as @e[tag=scn_leak_actor] at @s run tp @s ~ ~2.5 ~')],
                expect=[*[rf'\[leak\][^\n]*stage={stage} self_control=0 stimulus=drop\b'
                          for stage in ('baby', 'juvenile', 'adult')],
-                       r'expression:"leak_startle"', r'expression:"leak_flow"',
-                       r'expression:"side_teary"[^}\n]*leak_trace_at:[0-9]+L'],
+                       r'\[status\][^\n]*behavior\.expression: \w+ -> leak_flow',
+                       r'\[status\][^\n]*behavior\.expression: leak_flow -> side_teary'],
                forbid=[r'\[body\][^\n]* death settled\b'], verify=_verify_leak_scene))
 
 
