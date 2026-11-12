@@ -4,18 +4,18 @@
     "remilia": {
       "status": "pending_confirmation",
       "source": "species.json + species_geometry.py + author_species.py",
-      "base_model_sha256": "59c7f77fd10b6b0aabf5a1aad397f4fdf52d65ad0223c604a795bb2e568ace30",
-      "base_rig_sha256": "55f9573cca28eb38a5969cfce7785718f272f9c3b9811724232013723142c555",
+      "base_model_sha256": "b03f094a7d2ee458e773785bb28da647ea1d8b54aab620aef890eeb983983f45",
+      "base_rig_sha256": "416303011b0cff957f5e1e6cb708ae01b800cfe81abb556005f4dba7fc9ee610",
       "shared_model": "standards/yukkuri-library/assembled/marisa/marisa.bbmodel",
-      "shared_model_sha256": "a40e93ecf7f5c52b2be62b22516b28fe6413626f9151b26c7c89355f34fb9474",
+      "shared_model_sha256": "2f3748fbf0e1f81427721dbf274ef373f41fb2541036e6999393a5d801de1378",
       "shared_rig": "standards/yukkuri-library/assembled/marisa/animation-rig.json",
-      "shared_rig_sha256": "2b35e875a918b50e3605b4318d25c641a2e59a29c2fceb21bea1b39e797bd4cd",
+      "shared_rig_sha256": "345db2a3c73cd074715c77fa6dc3a8f6ca1cbedcf51b09afd6421b5a8748f131",
       "geometry_identifier": "geometry.remilia",
-      "model_sha256": "0a27e0f9ccb0458c33f0ceeafe4b16e0203ad3cb4a3218a572a03f58abc4250c",
-      "rig_sha256": "3649e0e5e7cbe8c9063627afe56d607141336ea4333dce5c8d7ec4d6e43f36b9",
+      "model_sha256": "ce7b285e3242c81eac9044ffadc95c203dd321fc8451329a9f66485e6967bd7b",
+      "rig_sha256": "350d0f76470327de9cf1f116482b1beec6b282cb9c419f22abade952dd503d79",
       "elements": 69,
-      "triangles": 3332,
-      "bones": 266,
+      "triangles": 3368,
+      "bones": 270,
       "textures": {
         "angry": "b8abbf8599be4dc1f14664b64dcf850ebf965dc4be0d7d6f90d47a7b5acf917c",
         "angry__new": "c77a3d5bef41b933b926a4cf840be7574a86fcf1aff5eb84132cfa82f8c97607",
@@ -130,18 +130,18 @@
     "flandre": {
       "status": "pending_confirmation",
       "source": "species.json + species_geometry.py + author_species.py",
-      "base_model_sha256": "59c7f77fd10b6b0aabf5a1aad397f4fdf52d65ad0223c604a795bb2e568ace30",
-      "base_rig_sha256": "55f9573cca28eb38a5969cfce7785718f272f9c3b9811724232013723142c555",
+      "base_model_sha256": "b03f094a7d2ee458e773785bb28da647ea1d8b54aab620aef890eeb983983f45",
+      "base_rig_sha256": "416303011b0cff957f5e1e6cb708ae01b800cfe81abb556005f4dba7fc9ee610",
       "shared_model": "standards/yukkuri-library/assembled/marisa/marisa.bbmodel",
-      "shared_model_sha256": "a40e93ecf7f5c52b2be62b22516b28fe6413626f9151b26c7c89355f34fb9474",
+      "shared_model_sha256": "2f3748fbf0e1f81427721dbf274ef373f41fb2541036e6999393a5d801de1378",
       "shared_rig": "standards/yukkuri-library/assembled/marisa/animation-rig.json",
-      "shared_rig_sha256": "2b35e875a918b50e3605b4318d25c641a2e59a29c2fceb21bea1b39e797bd4cd",
+      "shared_rig_sha256": "345db2a3c73cd074715c77fa6dc3a8f6ca1cbedcf51b09afd6421b5a8748f131",
       "geometry_identifier": "geometry.flandre",
-      "model_sha256": "c7ed9a3f1fa962f71f1717c26a9073b02f050ec46cc0a297548d0ee9fef5eb0f",
-      "rig_sha256": "fa73f4d0938009eb40704d0f86e8a05cde6820181c0eb8d7885d44ae36a5a70e",
+      "model_sha256": "b60fd968737f0ce2beb27826b11119e26f85ad69d131699ab90c95c78a311350",
+      "rig_sha256": "9ff98295b1e25c0d82fc279ea680ae006b824a1481fb5f2423ecb321d26cbd99",
       "elements": 73,
-      "triangles": 3320,
-      "bones": 274,
+      "triangles": 3356,
+      "bones": 278,
       "textures": {
         "angry": "64c7a3e55a8476a5cf34f5956fef2b1e3678af36642643b95cf0594ca4036c3e",
         "angry__new": "89e13f7ac15c9ac855e54576599faa0533740c7ae84476862b48687faebb4126",
@@ -256,7 +256,7 @@
   },
   "inputs": {
     "species.json": "4518949b65793cf1b48bf124798aa9b39e2c27e470ae1b2a198557978c0a988f",
-    "species_geometry.py": "3724fabdc77399788d3f8d2b4901a6cc229eea75629be1fa9edc4af6e3796e41",
-    "author_species.py": "28aae1d330abb1d6ea94aaea64ab538d4f16ba121fafb4571ff06795d1177686"
+    "species_geometry.py": "eb34b8db80b0bb59df9f70e273cf15ff384ca35f46f1e4d63359ce30886e3849",
+    "author_species.py": "da182a9702cea81662047c1118f821e2f45f5483261a28500e45008c1046dd70"
   }
 }

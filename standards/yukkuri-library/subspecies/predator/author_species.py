@@ -18,7 +18,7 @@ HERE = Path(__file__).resolve().parent
 LIB = HERE.parents[1]
 ROOT = LIB.parents[1]
 sys.path[:0] = [str(LIB / 'ecology/house-yukkuri'), str(LIB)]
-from mesh_geometry import vertices, poly_mesh
+from mesh_geometry import vertices
 from species_geometry import body, ring_surface, ellipse, tube, prism, crystal
 
 
@@ -273,7 +273,7 @@ def export(ident, config):
     cute_fangs(atlas,mouth,config['fangs'],'biting')
     atlas.save(out/'textures/biting.png');texture_records['biting']=sha(out/'textures/biting.png')
     mouth['faces']['north']['uv']=config['fangs']['uv']
-    png=(out/'textures/neutral.png').read_bytes();(out/(ident+'.png')).write_bytes(png)
+    png=(out/'textures/neutral.png').read_bytes()
     uid=lambda key:str(uuid.uuid5(uuid.NAMESPACE_URL,'mcyukkuri/predators/'+ident+'/'+key))
     nodes={b['name']:dict(name=b['name'],uuid=uid('bone/'+b['name']),origin=b['pivot'],children=[]) for b in rig['bones']}
     for e in elements:e['uuid']=uid(e['name']);nodes[e['bone']]['children'].append(e['uuid'])
@@ -284,35 +284,18 @@ def export(ident, config):
     model['meta']['model_format']='free'
     model['textures']=[{**bb['textures'][0],'name':ident+'.png','path':ident+'.png','source':'data:image/png;base64,'+base64.b64encode(png).decode(),
                         'width':256,'height':256,'uv_width':256,'uv_height':256}]
-    exports={}
     for name,clip in rig['clips'].items():
-        animators={};channels={}
+        animators={}
         for bone,tracks in clip['tracks'].items():
-            frames=[];channels[bone]={}
+            frames=[]
             for channel,keys in tracks.items():
-                channels[bone][channel]={}
                 for t,value in keys.items():
                     translated=[-value[0],-value[1],value[2]] if channel=='rotation' else [-value[0],value[1],value[2]] if channel=='position' else value
                     frames.append(dict(channel=channel,data_points=[dict(zip(['x','y','z'],map(str,translated)))],uuid=uid(name+bone+channel+t),time=float(t),interpolation='linear'))
-                    channels[bone][channel][t]=translated
             animators[uid('bone/'+bone)]=dict(name=bone,type='bone',keyframes=frames)
         model['animations'].append(dict(uuid=uid('clip/'+name),name='animation.'+ident+'.'+name,loop='loop' if clip['loop'] else 'once',length=clip['duration'],animators=animators))
-        exports['animation.'+ident+'.'+name]=dict(loop=clip['loop'],animation_length=clip['duration'],bones=channels)
     save(out/(ident+'.bbmodel'),model)
     save(out/'animation-rig.json',rig)
-    save(out/(ident+'.animation.json'),dict(format_version='1.8.0',animations=exports))
-    # One named geometry entry per element avoids overwriting polygon meshes on a shared bone.
-    geo=[]
-    for b in rig['bones']:
-        item=dict(name=b['name'],pivot=b['pivot'],cubes=[])
-        if b['parent']:item['parent']=b['parent']
-        geo.append(item)
-    for e in elements:
-        item=dict(name=e['name']+'_geometry',parent=e['bone'],pivot=[0,0,0])
-        if e.get('type')=='mesh':item['poly_mesh']=poly_mesh(e)
-        else:item['cubes']=[dict(origin=e['from'],size=[e['to'][i]-e['from'][i] for i in range(3)],uv={k:dict(uv=f['uv'][:2],uv_size=[f['uv'][2]-f['uv'][0],f['uv'][3]-f['uv'][1]]) for k,f in e['faces'].items()})]
-        geo.append(item)
-    save(out/(ident+'.geo.json'),{'format_version':'1.12.0','minecraft:geometry':[{'description':dict(identifier='geometry.'+ident,texture_width=256,texture_height=256),'bones':geo}]})
     return dict(status='pending_confirmation',source='species.json + species_geometry.py + author_species.py',
         base_model_sha256=sha(base/'marisa.bbmodel'),base_rig_sha256=sha(base/'animation-rig.json'),
         shared_model='standards/yukkuri-library/assembled/marisa/marisa.bbmodel',shared_model_sha256=sha(shared/'marisa.bbmodel'),

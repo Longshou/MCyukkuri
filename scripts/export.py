@@ -101,6 +101,12 @@ CHECKED_BUILDERS = {
 }
 TABLE += [exporter('source:'+p, p, [] if p == 'standards/yukkuri-library/build.py' else [Path(p).parent.as_posix()+'/'], check=('--check',) if p in CHECKED_BUILDERS else None,
                    note='Source authoring command.') for p in BUILDERS]
+# Predators copy the shared marisa face, anatomy and rig; a change there must re-author them.
+PREDATOR_AUTHOR = 'standards/yukkuri-library/subspecies/predator/author_species.py'
+TABLE.append(exporter('source:'+PREDATOR_AUTHOR, PREDATOR_AUTHOR, [
+    'standards/yukkuri-library/subspecies/predator/', 'standards/yukkuri-library/assembled/marisa/',
+    'standards/yukkuri-library/body-standard/inputs/marisa/', 'standards/yukkuri-library/body-standard/profile.json',
+    'standards/yukkuri-library/ecology/house-yukkuri/mesh_geometry.py'], check=None, note='Source authoring command.'))
 TABLE += [exporter('source:'+p, p, [Path(p).parent.as_posix()+'/']) for p in [
     'art/props/body-marks/core_filling.py', 'standards/yukkuri-library/emotes/emotes.py',
     'art/props/family-life/fit_stem.py',
@@ -115,7 +121,8 @@ TABLE += [exporter('source:'+p, p, [Path(p).parent.as_posix()+'/']) for p in [
 SOURCE_ORDER = {
     'rounded': ['standards/yukkuri-library/body-standard/build.py'],
     'rare-forms': ['standards/yukkuri-library/subspecies/rare-forms/build.py'],
-    'predator-assets': ['standards/yukkuri-library/subspecies/predator/build.py'],
+    'predator-assets': [PREDATOR_AUTHOR],
+    'source:'+PREDATOR_AUTHOR: ['standards/yukkuri-library/body-standard/build.py'],
     'human-world': ['art/structures/human-world/build.py'],
     'peripheral-assets': ['standards/yukkuri-library/drafts/care-props/build.py'],
     'placement-fit': ['standards/yukkuri-library/body-standard/build.py'],

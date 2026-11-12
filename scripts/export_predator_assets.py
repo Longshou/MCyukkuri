@@ -44,8 +44,12 @@ def export(ident):
     bbpath=source/(ident+'.bbmodel');rigpath=source/'animation-rig.json'
     bb=read(bbpath);rig=copy.deepcopy(read(rigpath))
     names={b['name']:i for i,b in enumerate(rig['bones'])}
+    # Each element carries its own bone; a rig authored for another element list must fail, not shift every later part.
+    groups=[e['bone'] for e in bb['elements']]
+    if rig['groups']!=groups or rig['element_vertex_counts']!=[len(vertices(e,256))//8 for e in bb['elements']]:
+        raise SystemExit(f'{relative(bbpath)} and {relative(rigpath)} disagree on elements; rerun author_species.py')
     flat=[];weights=[];parts=[]
-    for e,group in zip(bb['elements'],rig['groups']):
+    for e,group in zip(bb['elements'],groups):
         vv=vertices(e,256);start=len(weights)
         for i in range(0,len(vv),24):
             a=[vv[i+8+k]-vv[i+k] for k in range(3)];b=[vv[i+16+k]-vv[i+k] for k in range(3)]
