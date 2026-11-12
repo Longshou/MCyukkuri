@@ -147,6 +147,7 @@ public final class CommonRegistration {
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, PlayerInteractEvent.EntityInteract.class, MagnifyingGlassItem::blockCare);
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, PlayerInteractEvent.EntityInteract.class, InteractionDispatch::interact);
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, PlayerInteractEvent.EntityInteract.class, Naming::nameTag);
+        NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, PlayerInteractEvent.RightClickBlock.class, PlaygroundTools::sceneButton);
 
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, PlayerEvent.ItemCraftedEvent.class, HouseholdEcology::crafted);
 

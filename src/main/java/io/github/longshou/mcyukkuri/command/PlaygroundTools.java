@@ -24,16 +24,26 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.WeakHashMap;
+import java.util.function.Predicate;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.Clearable;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.ExperienceOrb;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.ButtonBlock;
+import net.minecraft.world.level.block.entity.CommandBlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.phys.AABB;
+import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
 import io.github.longshou.mcyukkuri.status.YukkuriStatus;
 import net.minecraft.server.MinecraftServer;
@@ -42,6 +52,9 @@ import net.minecraft.server.MinecraftServer;
 public final class PlaygroundTools {
     private record Label(Component name, boolean visible) {}
     private static final Map<Entity, Label> LABELLED = new WeakHashMap<>();
+    private static final BlockState AIR = Blocks.AIR.defaultBlockState();
+    private static final Predicate<BlockState> HAS_BLOCK = state -> state != AIR;
+    private static final String SCENE_BUTTON = "execute as @p[distance=..8] at @s run function mcylab:start/";
     private static boolean observing;
 
     /** What {@link #clear} removes: everything this mod owns (living, remains, boats, drops, humans) and every dropped item. */
@@ -101,6 +114,40 @@ public final class PlaygroundTools {
         }
         if (tag != null) forgetLedgers(level, box, ids, removed, groups, sites);
         return removed;
+    }
+
+    /** The terrain's empty volume. Skip uniform-air sections and keep vanilla fill's inventory and block updates. */
+    static int clearAir(ServerLevel level, BoundingBox box) {
+        var changed = new ArrayList<BlockPos>();
+        for (int x = box.minX() >> 4; x <= box.maxX() >> 4; x++) {
+            for (int z = box.minZ() >> 4; z <= box.maxZ() >> 4; z++) {
+                var chunk = level.getChunk(x, z);
+                for (int y = box.minY() >> 4; y <= box.maxY() >> 4; y++) {
+                    var section = chunk.getSection(level.getSectionIndexFromSectionY(y));
+                    if (!section.maybeHas(HAS_BLOCK)) continue;
+                    for (var pos : BlockPos.betweenClosed(
+                            Math.max(box.minX(), x << 4), Math.max(box.minY(), y << 4), Math.max(box.minZ(), z << 4),
+                            Math.min(box.maxX(), (x << 4) + 15), Math.min(box.maxY(), (y << 4) + 15), Math.min(box.maxZ(), (z << 4) + 15))) {
+                        if (section.getBlockState(pos.getX() & 15, pos.getY() & 15, pos.getZ() & 15) == AIR) continue;
+                        Clearable.tryClear(level.getBlockEntity(pos));
+                        if (level.setBlock(pos, AIR, Block.UPDATE_CLIENTS)) changed.add(pos.immutable());
+                    }
+                }
+            }
+        }
+        for (var pos : changed) level.blockUpdated(pos, level.getBlockState(pos).getBlock());
+        return changed.size();
+    }
+
+    /** Vanilla consumes a click on a powered button without scheduling another command. */
+    public static void sceneButton(PlayerInteractEvent.RightClickBlock event) {
+        if (!(event.getLevel() instanceof ServerLevel level) || event.getHand() != InteractionHand.MAIN_HAND) return;
+        var pos = event.getPos();
+        var state = level.getBlockState(pos);
+        if (state.is(Blocks.STONE_BUTTON) && state.getValue(ButtonBlock.POWERED)
+                && level.getBlockEntity(pos.below(2)) instanceof CommandBlockEntity command
+                && command.getCommandBlock().getCommand().startsWith(SCENE_BUTTON))
+            event.getEntity().displayClientMessage(Component.literal("场景按钮尚未复位，请等它弹起再按。"), true);
     }
 
     /**

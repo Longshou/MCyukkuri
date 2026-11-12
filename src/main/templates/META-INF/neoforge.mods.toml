@@ -17,6 +17,9 @@ Standard and house Reimu/Marisa with food, rest, wandering and synchronized anim
 [[mixins]]
 config="mcyukkuri.village.mixins.json"
 
+[[mixins]]
+config="mcyukkuri.collision.mixins.json"
+
 [[dependencies.${mod_id}]]
 modId="neoforge"
 type="required"

@@ -1173,7 +1173,7 @@ public final class YukkuriModel {
 
     public boolean woundGeometryCompatible(){return sourceHash.matches(WoundSurface.get(id).runtimeSourceHash);}
     public void renderLiving(String action,float elapsed,PoseStack stack,VertexConsumer buffer,int light,int overlay,
-            boolean accessory,String behavior,float behaviorTicks,int hairLoss,YukkuriView entity,
+            boolean accessory,String behavior,float behaviorTicks,int hairLoss,YukkuriView entity,String expression,
             MultiBufferSource buffers){
         try{
             drawEvidence=PoseTap.active()?new DrawEvidence(stack.last().pose()):null;
@@ -1186,7 +1186,6 @@ public final class YukkuriModel {
                         LoggerFactory.getLogger(YukkuriModel.class).warn("Wound attachment disabled for incompatible resource-pack geometry: {}",id);warnedWoundMismatch=true;}
             }
             drawingWoundedBody=false;
-            String expression=FaceLibrary.expression(entity,ParentCarryPresentation.expression(entity,entity.getExpressionId()));
             setExpression(expression);
             drain=entity.aftermathDrain();
             float health=entity.getMaxHealth()<=0?1:Math.clamp(entity.getHealth()/entity.getMaxHealth(),0,1);

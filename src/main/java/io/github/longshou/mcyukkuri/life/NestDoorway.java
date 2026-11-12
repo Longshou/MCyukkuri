@@ -7,6 +7,7 @@ import io.github.longshou.mcyukkuri.motor.surface.Occupancy;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.chunk.status.ChunkStatus;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import java.util.ArrayList;
@@ -23,8 +24,9 @@ public final class NestDoorway {
 
     public static CareBlockEntity bed(YukkuriEntity actor, BlockPos pos) {
         var level = actor.level();
-        if (!level.hasChunkAt(pos)) return null;
-        var state = level.getBlockState(pos);
+        var chunk = level.getChunk(pos.getX() >> 4, pos.getZ() >> 4, ChunkStatus.FULL, false);
+        if (chunk == null) return null;
+        var state = chunk.getBlockState(pos);
         if (!(state.getBlock() instanceof CareBlock)) return null;
         var origin = state.getBlock() instanceof LargeNestBlock ? LargeNestBlock.origin(state, pos) : pos;
         return level.getBlockEntity(origin) instanceof CareBlockEntity bed && bed.kind() == CareBlock.Kind.NEST

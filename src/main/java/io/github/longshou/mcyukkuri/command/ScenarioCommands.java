@@ -26,6 +26,8 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.GameRules;
+import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.AABB;
 import net.neoforged.neoforge.common.util.FakePlayerFactory;
@@ -301,6 +303,8 @@ public final class ScenarioCommands {
      */
     public static LiteralArgumentBuilder<CommandSourceStack> clear() {
         return Commands.literal("clear").requires(s -> s.hasPermission(2))
+                .then(Commands.literal("air").then(Commands.argument("from", BlockPosArgument.blockPos())
+                        .then(Commands.argument("to", BlockPosArgument.blockPos()).executes(ScenarioCommands::clearAir))))
                 .then(Commands.argument("from", BlockPosArgument.blockPos())
                         .then(Commands.argument("to", BlockPosArgument.blockPos())
                                 .executes(c -> clearField(c, null))
@@ -325,6 +329,21 @@ public final class ScenarioCommands {
         int removed = PlaygroundTools.clear(c.getSource().getLevel(),
                 BlockPosArgument.getBlockPos(c, "from"), BlockPosArgument.getBlockPos(c, "to"), tag);
         return done(c.getSource(), "已清除 " + removed + " 个实体。") * Math.max(1, removed);
+    }
+
+    private static int clearAir(CommandContext<CommandSourceStack> c) throws CommandSyntaxException {
+        var first = BlockPosArgument.getLoadedBlockPos(c, "from");
+        var second = BlockPosArgument.getLoadedBlockPos(c, "to");
+        var level = c.getSource().getLevel();
+        var box = BoundingBox.fromCorners(first, second);
+        long volume = (long) box.getXSpan() * box.getYSpan() * box.getZSpan();
+        int limit = level.getGameRules().getInt(GameRules.RULE_COMMAND_MODIFICATION_BLOCK_LIMIT);
+        if (volume > limit) {
+            c.getSource().sendFailure(Component.translatable("commands.fill.toobig", limit, volume));
+            return 0;
+        }
+        if (!level.hasChunksAt(box.minX(), box.minZ(), box.maxX(), box.maxZ())) throw BlockPosArgument.ERROR_NOT_LOADED.create();
+        return PlaygroundTools.clearAir(level, box);
     }
 
     /** {@code /yukkuri observe on|off}: status labels over every nearby yukkuri (current behaviour, hunger, sleep, age, pregnancy, injury). */

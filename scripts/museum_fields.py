@@ -29,16 +29,19 @@ def fill(x1, y1, z1, x2, y2, z2, block, mode=''):
     return f'fill {x1} {y1} {z1} {x2} {y2} {z2} {block}' + (' ' + mode if mode else '')
 
 
-def big_fill(x1, y1, z1, x2, y2, z2, block, mode='', limit=30000):
-    """Split along z so that every fill stays below the vanilla 32768 block limit."""
+def fill_boxes(x1, y1, z1, x2, y2, z2, limit=30000):
+    """Split along z so every box stays below the vanilla 32768 block limit."""
     per_slice = (x2 - x1 + 1) * (y2 - y1 + 1)
     step = max(1, limit // per_slice)
-    out, z = [], z1
+    z = z1
     while z <= z2:
         zz = min(z2, z + step - 1)
-        out.append(fill(x1, y1, z, x2, y2, zz, block, mode))
+        yield x1, y1, z, x2, y2, zz
         z = zz + 1
-    return out
+
+
+def big_fill(x1, y1, z1, x2, y2, z2, block, mode='', limit=30000):
+    return [fill(*box, block, mode) for box in fill_boxes(x1, y1, z1, x2, y2, z2, limit)]
 
 
 def fillbiome_boxes(x1, z1, x2, z2, biome, y1=56, y2=100, limit=30000):
@@ -95,7 +98,8 @@ class Field:
         x1, y1, z1, x2, y2, z2 = self.clear_box()
         out = big_fill(x1, y1, z1, x2, GROUND - 1, z2, 'minecraft:dirt')
         out += big_fill(x1, GROUND, z1, x2, GROUND, z2, self.ground)
-        out += big_fill(x1, GROUND + 1, z1, x2, y2, z2, 'minecraft:air')
+        out += ['yukkuri clear air ' + ' '.join(map(str, box))
+                for box in fill_boxes(x1, GROUND + 1, z1, x2, y2, z2)]
         out += fillbiome_boxes(x1, z1, x2, z2, self.biome, y1, y2)
         return out
 

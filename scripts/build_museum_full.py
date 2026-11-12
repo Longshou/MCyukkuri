@@ -269,7 +269,12 @@ def build_pack(world):
             body = body + [f'schedule function {NS}:scn/{s.id}_late 40t replace']
         fn(f'scn/{s.id}', body)
         clear_fn = f'field/{f.id}/clear_{s.sub}' if s.sub else f'field/{f.id}/clear'
-        start = [f'function {NS}:{clear_fn}'] + env_commands(s.env)
+        start = [
+            f'execute if score #clearing {OBJ} matches 1 run return run tellraw @s ' + _text('全部清场正在进行，结束后可启动场景。', 'yellow'),
+            f'execute unless score #ready {OBJ} matches 1 run return run tellraw @s ' + _text('试玩场尚未就绪，布置完成后可启动场景。', 'yellow'),
+            'tellraw @s ' + _text(f'正在准备场景：{s.label}', 'aqua'),
+            f'function {NS}:{clear_fn}',
+        ] + env_commands(s.env)
         start.append(f'execute positioned {ax}.0 {FEET} {az}.0 run function {NS}:scn/{s.id}')
         if s.vantage is not None:
             vdx, vdz = s.vantage[0], s.vantage[1]
@@ -347,9 +352,13 @@ def build_pack(world):
                      'tp @s @e[tag=scn_lead,distance=..250,limit=1,sort=nearest]'])
     fn('util/clear_all_do', [f'function {NS}:field/{f.id}/clear' for f in FIELDS] +
        [f'forceload remove {x} {z}' for f in FIELDS for x, z in sorted(f.chunks())] +
-       ['tellraw @a ' + _text('全部清场完成。', 'green')])
+       [f'scoreboard players reset #clearing {OBJ}', 'tellraw @a ' + _text('全部清场完成。', 'green')])
     loads = [f'forceload add {x} {z}' for f in FIELDS for x, z in sorted(f.chunks())]
-    fn('util/clear_all', ['tellraw @a ' + _text('全部清场：正在加载各场地（约 3 秒）……', 'yellow')] + loads + [f'schedule function {NS}:util/clear_all_do 3s replace'])
+    fn('util/clear_all', [
+        f'execute if score #clearing {OBJ} matches 1 run return run tellraw @a ' + _text('全部清场正在进行。', 'yellow'),
+        f'scoreboard players set #clearing {OBJ} 1',
+        'tellraw @a ' + _text('全部清场：正在加载各场地（约 3 秒）……', 'yellow'),
+    ] + loads + [f'schedule function {NS}:util/clear_all_do 3s replace'])
     fn('home', [f'function {NS}:go/lobby'])
     fn('guide', [book_command(shown)])
 
@@ -367,7 +376,7 @@ def build_pack(world):
     fn('welcome', ['tag @s add museum_visitor', 'gamemode creative @s', f'tp @s {SPAWN[0] + .5} {SPAWN[1]} {SPAWN[2] + .5} {SPAWN[3]} 0', f'function {NS}:guide',
                    'tellraw @s ' + _text('欢迎来到试玩场！大厅按主题列出各区，每个按钮传送到一个区的观察台；在台上生成场景、清场、调时间天气、倍速和推进。', 'aqua')])
     shapes, blocks, items, entities = probe_lines([line for lines in texts.values() for line in lines])
-    probes = {'commands': [PROBE_COMMANDS[s] for s in sorted(shapes) if s in PROBE_COMMANDS],
+    probes = {'commands': ['yukkuri clear air 0 64 0 0 64 0'] + [PROBE_COMMANDS[s] for s in sorted(shapes) if s in PROBE_COMMANDS],
               'blocks': [f'setblock 0 -64 0 {b}' for b in blocks], 'items': [f'give @s {i}' for i in items],
               'entities': [f'summon {e} 0 -64 0' for e in entities]}
     missing = shapes - set(PROBE_COMMANDS)

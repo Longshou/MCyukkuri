@@ -55,11 +55,14 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
     @Override
     public ResourceLocation getTextureLocation(YukkuriEntity source) {
         YukkuriView entity=source;
-        return textureAt(entity, 0);
+        return textureAt(entity, expression(entity));
     }
 
-    private ResourceLocation textureAt(YukkuriView entity, float partialTick) {
-        String expression=FaceLibrary.expression(entity,ParentCarryPresentation.expression(entity,entity.getExpressionId()));
+    private static String expression(YukkuriView entity) {
+        return FaceLibrary.expression(entity,ParentCarryPresentation.expression(entity,entity.getExpressionId()));
+    }
+
+    private ResourceLocation textureAt(YukkuriView entity, String expression) {
         int dry=Math.max(entity.aftermathDrain(),HairWoundAssets.wholeBurn(entity.visibleWounds(),entity.profile().houseBody()));
         return HairWoundAssets.texture(entity.assetId(),expression,dry);
     }
@@ -148,7 +151,8 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
             float elapsed = Math.max(0, animationTicks / 20f);
             elapsed = WaterMotionClock.seconds(entity, partialTick, elapsed);
             int overlay = OverlayTexture.pack(0, entity.hurtTicks() > 0 || entity.deathTicks() > 0);
-            var buffer = buffers.getBuffer(RenderType.entityCutoutNoCull(textureAt(entity, partialTick)));
+            String expression = expression(entity);
+            var buffer = buffers.getBuffer(RenderType.entityCutoutNoCull(textureAt(entity, expression)));
             String behavior = hatCarrier||carried?Behaviors.IDLE:entity.getBehaviorId();
             if(!preview&&behavior.equals(Behaviors.SLIDE_DOWN)){
                 var facility=PlayBlock.facility(entity.level(),entity.blockPosition());
@@ -201,7 +205,7 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
             int wear=preview||!hatCarrier&&!carried?entity.visibleWear():0;
             model.setWear(wear);
             model.renderLiving(operated||behavior.equals(Behaviors.SLIDE_DOWN)?"idle":action, operated?0:clock, pose, buffer, packedLight, overlay,
-                    entity.hasVisibleAccessory(), operated?Behaviors.IDLE:behavior,phaseTicks,entity.visibleHairLoss(),entity,buffers);
+                    entity.hasVisibleAccessory(), operated?Behaviors.IDLE:behavior,phaseTicks,entity.visibleHairLoss(),entity,expression,buffers);
             // Captured before anything else poses this shared model (stem fruits reuse it).
             PoseTap.body(entity,start,pose.last().pose(),partialTick);
             if(!preview&&!carried)ParentCarryPresentation.capture(entity,model,start,pose.last().pose(),renderedBodyYaw,partialTick);

@@ -54,13 +54,16 @@ public final class PlaygroundFields extends SavedData {
 
     private void remember(Entity entity) {
         if (entity instanceof Player) return;
+        String dimension = entity.level().dimension().location().toString();
         for (var entry : fields.entrySet()) {
             Field field = entry.getValue();
-            if (!field.dimension.equals(entity.level().dimension().location().toString()) || !field.box.intersects(entity.getBoundingBox())) continue;
+            if (!field.dimension.equals(dimension) || !field.box.intersects(entity.getBoundingBox())) continue;
             CompoundTag data = entity.getPersistentData();
             CompoundTag marks = data.getCompound(MARK);
-            marks.putLong(entry.getKey(), field.epoch);
-            data.put(MARK, marks);
+            if (!marks.contains(entry.getKey(), CompoundTag.TAG_LONG) || marks.getLong(entry.getKey()) != field.epoch) {
+                marks.putLong(entry.getKey(), field.epoch);
+                data.put(MARK, marks);
+            }
             if (field.ids.add(entity.getUUID())) setDirty();
         }
     }
