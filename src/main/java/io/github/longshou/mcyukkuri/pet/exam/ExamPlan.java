@@ -86,7 +86,7 @@ public final class ExamPlan {
                         && peer.life().nutrition() < 40 && peer.life().canEat() && !peer.isPassenger() && !peer.isPanicking()
                         && !peer.profile().dangerToYukkuri() && !peer.profile().houseBody()
                         && !peer.pet().busy() && !ExamSession.running(peer) && !ExamSession.assisting(peer) && y.hasLineOfSight(peer)
-                        && (!sharing || !y.dailyLife().sharedFoodToday(peer.getUUID())))
+                        && (!sharing || !peer.isLeashed() && !peer.isVehicle() && !y.dailyLife().sharedFoodToday(peer.getUUID())))
                 .stream().min(Comparator.comparingDouble(y::distanceToSqr)).orElse(null);
     }
 
@@ -95,8 +95,8 @@ public final class ExamPlan {
             case NAME -> null;
             case WAIT -> mouthOccupied(y) ? "occupied"
                     : !y.pet().lessons().preconditionOk(owner, PetSkill.WAIT) ? "need_sweet" : null;
-            case READ -> example(question, owner, y) == null ? "need_reading" : null;
-            case COUNT -> {
+            case READ, EXPLAIN -> example(question, owner, y) == null ? "need_reading" : null;
+            case COUNT, CLARIFY -> {
                 var example = example(question, owner, y);
                 yield example == null || example.count() > 4 ? "need_count" : null;
             }
@@ -104,11 +104,15 @@ public final class ExamPlan {
             case WALK -> y.getLeashHolder() != owner || !y.pet().care().harnessed() ? "need_walk" : null;
             case GREET -> visitor(y, owner, examiner) == null ? "no_participant" : null;
             case HELP -> needy(y, false) == null ? "no_participant" : null;
-            case EXPLAIN -> visitor(y, owner, examiner) == null ? "no_participant" : refusal(Question.READ, examiner, owner, y);
-            case CLARIFY -> visitor(y, owner, examiner) == null ? "no_participant" : refusal(Question.COUNT, examiner, owner, y);
-            case SHARE -> mouthOccupied(y) ? "occupied" : needy(y, true) == null ? "no_participant"
-                    : y.life().nutrition() < 60 ? "share_nutrition" : PetStudy.visibleFood(y) < 2 ? "need_count" : null;
+            case SHARE -> sharingRefusal(y, needy(y, true));
         };
+    }
+
+    static String sharingRefusal(YukkuriEntity y, YukkuriEntity peer) {
+        if (peer == null || peer.life().nutrition() >= 40 || !peer.life().canEat() || !y.hasLineOfSight(peer)) return "no_participant";
+        if (mouthOccupied(y)) return "occupied";
+        if (y.life().nutrition() < 60) return "share_nutrition";
+        return PetStudy.visibleFood(y) < 2 ? "need_count" : null;
     }
 
     private static boolean mouthOccupied(YukkuriEntity y) {

@@ -6509,13 +6509,13 @@
   "exam.mcyukkuri.refuse.platinum_potential": "この個体の性格ではプラチナに必要な水準に届きません。",
   "exam.mcyukkuri.refuse.platinum_skills": "読字、数え方、待て、挨拶をレベル4まで練習してください。",
   "exam.mcyukkuri.refuse.platinum_traits": "落ち着いて説明し、思いやりのある手助けができるまで練習してください。",
-  "exam.mcyukkuri.question.explain": "例文をお客さんに読み、説明してください。",
-  "exam.mcyukkuri.question.clarify": "いくつ見えますか？ お客さんに伝えてください。",
+  "exam.mcyukkuri.question.explain": "例文を読んで、私に説明してください。",
+  "exam.mcyukkuri.question.clarify": "いくつ見えますか？",
   "exam.mcyukkuri.question.share": "次は第二部です。お腹を空かせた仲間を助けられますか？",
   "exam.mcyukkuri.reply.offer_share": "%sがお腹を空かせています。ぼくのごはんを分けます。",
-  "exam.mcyukkuri.comment.explain_ok": "○ お客さんに最後まで読んで伝えました。",
+  "exam.mcyukkuri.comment.explain_ok": "○ 最後まで読み上げましたね。",
   "exam.mcyukkuri.comment.explain_fail": "× 最後まで読んだ答えが聞けませんでした。",
-  "exam.mcyukkuri.comment.clarify_ok": "○ お客さんに数を説明できました。",
+  "exam.mcyukkuri.comment.clarify_ok": "○ 全部でいくつか説明できましたね。",
   "exam.mcyukkuri.comment.clarify_fail": "× 数について最後まで答えられませんでした。",
   "exam.mcyukkuri.comment.share_ok": "○ お腹を空かせた仲間が、ごはんを受け取って食べました。",
   "exam.mcyukkuri.comment.share_fail": "× お腹を空かせた仲間は、ごはんを受け取って食べることができませんでした。",
@@ -6529,5 +6529,7 @@
   "pet.mcyukkuri.reply.help_danger": "%sが助けを呼んでいます。%sが危ない！",
   "exam.mcyukkuri.interrupt.danger": "まず仲間を安全な所に連れていってください。",
   "exam.mcyukkuri.reply.groups": "ごはんの山が%sつ見えます。",
-  "exam.mcyukkuri.visitor.count_portions": "ごはんを一つずつ数えて、全部でいくつか教えてくれる？"
+  "exam.mcyukkuri.visitor.count_portions": "ごはんを一つずつ数えて、全部でいくつか教えてくれる？",
+  "exam.mcyukkuri.say.count_portions": "ごはんを一つずつ数えて、全部でいくつか教えてくれる？",
+  "exam.mcyukkuri.interrupt.peer_left": "お腹を空かせた仲間がいなくなりました。料金はかかりません。"
 }

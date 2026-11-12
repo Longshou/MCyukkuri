@@ -6567,13 +6567,13 @@
   "exam.mcyukkuri.refuse.platinum_potential": "This candidate cannot develop the traits required for platinum.",
   "exam.mcyukkuri.refuse.platinum_skills": "Practise reading, counting, waiting, and greetings to level 4.",
   "exam.mcyukkuri.refuse.platinum_traits": "Practise calm explanations and considerate help first.",
-  "exam.mcyukkuri.question.explain": "Please read the example aloud to our visitor and explain it.",
-  "exam.mcyukkuri.question.clarify": "How many do you see? Tell our visitor.",
+  "exam.mcyukkuri.question.explain": "Please read the example aloud and explain it to me.",
+  "exam.mcyukkuri.question.clarify": "How many do you see?",
   "exam.mcyukkuri.question.share": "Now the second part. Can you help the hungry peer?",
   "exam.mcyukkuri.reply.offer_share": "%s is hungry. I'll share some of my food.",
-  "exam.mcyukkuri.comment.explain_ok": "○ The visitor heard a complete reading.",
+  "exam.mcyukkuri.comment.explain_ok": "○ I heard a complete reading.",
   "exam.mcyukkuri.comment.explain_fail": "× I didn't hear a complete reading.",
-  "exam.mcyukkuri.comment.clarify_ok": "○ You explained the count to the visitor.",
+  "exam.mcyukkuri.comment.clarify_ok": "○ You explained how many pieces there are.",
   "exam.mcyukkuri.comment.clarify_fail": "× I didn't hear a complete answer about the count.",
   "exam.mcyukkuri.comment.share_ok": "○ The hungry peer received and swallowed the food.",
   "exam.mcyukkuri.comment.share_fail": "× The hungry peer didn't receive and swallow the food.",
@@ -6587,5 +6587,7 @@
   "pet.mcyukkuri.reply.help_danger": "%s calls for help. %s is in danger!",
   "exam.mcyukkuri.interrupt.danger": "Help the peer get to safety first.",
   "exam.mcyukkuri.reply.groups": "I see %s groups of food.",
-  "exam.mcyukkuri.visitor.count_portions": "I meant each piece of food. Could you count those?"
+  "exam.mcyukkuri.visitor.count_portions": "I meant each piece of food. Could you count those?",
+  "exam.mcyukkuri.say.count_portions": "I meant each piece of food. Could you count those?",
+  "exam.mcyukkuri.interrupt.peer_left": "The hungry peer left the exam. No fee was charged."
 }

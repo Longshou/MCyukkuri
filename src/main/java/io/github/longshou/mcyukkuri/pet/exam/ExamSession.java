@@ -42,6 +42,7 @@ import net.neoforged.neoforge.common.util.FakePlayer;
 public final class ExamSession implements ExamContext {
     public static final int SIMPLE = 3, JUDGMENT = 4, PROMOTION = 5, RENEWAL = 6, COOLDOWN = 1200, REISSUE = 7;
     public static final String LOCK = "exam";
+    private static final String PEER_LOCK = "exam_peer";
     public static final List<String> REASONS = List.of("", "busy", "night", "no_hall", "far", "not_owned", "wild_simple_only", "not_ready",
             "cooldown", "no_accessory", "already_badged", "need_badge", "max_grade", "need_silver", "not_needed", "no_section", "no_fee",
             "no_management", "too_late", "stage", "deficient", "sick", "uneasy", "labor", "occupied", "need_sweet", "need_reading",
@@ -54,6 +55,7 @@ public final class ExamSession implements ExamContext {
     private final ServerLevel level;
     private final HumanNpc examiner;
     private final YukkuriEntity candidate;
+    private final YukkuriEntity sharingPeer;
     private final UUID ownerId;
     private final FakePlayer fixtureOwner;
     private final BadgeGrade before, target;
@@ -71,10 +73,11 @@ public final class ExamSession implements ExamContext {
     private boolean done;
 
     private ExamSession(ServerLevel level, HumanNpc examiner, Player owner, YukkuriEntity candidate, int service,
-                        BadgeGrade target, List<ExamPlan.Question> questions, ExamRecord resume, int fee) {
+                        BadgeGrade target, List<ExamPlan.Question> questions, ExamRecord resume, int fee, YukkuriEntity sharingPeer) {
         this.level = level;
         this.examiner = examiner;
         this.candidate = candidate;
+        this.sharingPeer = sharingPeer;
         this.ownerId = owner.getUUID();
         this.fixtureOwner = owner instanceof FakePlayer fake ? fake : null;
         this.before = candidate.pet().grade();
@@ -101,6 +104,7 @@ public final class ExamSession implements ExamContext {
     public static void forget(Set<UUID> ids) {
         for (var session : List.copyOf(ACTIVE.values()))
             if (ids.contains(session.examiner.getUUID()) || ids.contains(session.candidate.getUUID())
+                    || session.sharingPeer != null && ids.contains(session.sharingPeer.getUUID())
                     || ids.contains(session.ownerId) || ids.contains(session.sayCard) || session.cards.stream().anyMatch(ids::contains))
                 session.interrupt("unload");
     }
@@ -117,7 +121,8 @@ public final class ExamSession implements ExamContext {
     public static boolean active(HumanNpc examiner) { return ACTIVE.containsKey(examiner.getUUID()); }
     public static boolean assisting(Entity entity) {
         for (var session : ACTIVE.values())
-            if (session.phase == Phase.ITEM && session.item instanceof ExamPracticeItem practice && practice.guest(entity)) return true;
+            if ((session.phase != Phase.RESULT && session.sharingPeer == entity)
+                    || (session.phase == Phase.ITEM && session.item instanceof ExamPracticeItem practice && practice.guest(entity))) return true;
         return false;
     }
     public static ExamSession of(HumanNpc examiner) { return ACTIVE.get(examiner.getUUID()); }
@@ -171,7 +176,8 @@ public final class ExamSession implements ExamContext {
                 yield guest == null ? "" : guest.getUUID().toString();
             }
             case HELP, SHARE -> {
-                var peer = ExamPlan.needy(y, question == ExamPlan.Question.SHARE);
+                var session = candidateSession(y);
+                var peer = question == ExamPlan.Question.SHARE && session != null ? session.sharingPeer : ExamPlan.needy(y, question == ExamPlan.Question.SHARE);
                 yield peer == null ? "" : peer.getUUID().toString();
             }
             case BED -> String.valueOf(y.life().homeStand());
@@ -271,12 +277,21 @@ public final class ExamSession implements ExamContext {
         var target = target(type, candidate);
         var resume = pending(previous(candidate, target));
         var plan = resume == null ? ExamPlan.questions(type, target, owner, candidate) : ExamPlan.decode(resume.questions());
-        if (!candidate.pet().lock(LOCK, owner.getUUID(), plan.contains(ExamPlan.Question.WALK))) return "busy";
-        var session = new ExamSession(level, examiner, owner, candidate, type, target, plan, resume, charge ? fee(type) : 0);
+        var remaining = plan.subList(resume == null ? 0 : resume.next(), plan.size());
+        YukkuriEntity peer = null;
+        if (remaining.contains(ExamPlan.Question.SHARE)) {
+            peer = ExamPlan.needy(candidate, true);
+            if (peer == null || !peer.pet().lock(PEER_LOCK, examiner.getUUID())) return "no_participant";
+        }
+        if (!candidate.pet().lock(LOCK, owner.getUUID(), remaining.contains(ExamPlan.Question.WALK))) {
+            if (peer != null) peer.pet().unlock(PEER_LOCK);
+            return "busy";
+        }
+        var session = new ExamSession(level, examiner, owner, candidate, type, target, plan, resume, charge ? fee(type) : 0, peer);
         ACTIVE.put(examiner.getUUID(), session);
         candidate.setPersistenceRequired();
-        GameplayLog.event(candidate, "exam", "action=start examiner={} owner={} type={} target={} questions={} next={}",
-                examiner.getUUID(), owner.getUUID(), type, target, ExamPlan.encode(plan), session.index);
+        GameplayLog.event(candidate, "exam", "action=start examiner={} owner={} type={} target={} questions={} next={} peer={}",
+                examiner.getUUID(), owner.getUUID(), type, target, ExamPlan.encode(plan), session.index, peer == null ? null : peer.getUUID());
         owner.displayClientMessage(Component.translatable("exam.mcyukkuri.started", candidate.getDisplayName()), true);
         return null;
     }
@@ -310,6 +325,13 @@ public final class ExamSession implements ExamContext {
         var session = candidateSession(donor);
         return session != null && session.phase == Phase.ITEM && session.item instanceof ExamPracticeItem practice
                 ? practice.sharingTarget() : null;
+    }
+    public static boolean allowsPeerFeeding(YukkuriEntity peer, UUID feeder) {
+        if (!PEER_LOCK.equals(peer.pet().busyWith())) return true;
+        for (var session : ACTIVE.values())
+            if (session.sharingPeer == peer && session.phase == Phase.ITEM && session.item instanceof ExamPracticeItem practice)
+                return practice.allowsShareFeeder(session, feeder);
+        return false;
     }
 
     private void tick() {
@@ -363,6 +385,9 @@ public final class ExamSession implements ExamContext {
             return candidate.getRemovalReason() == Entity.RemovalReason.DISCARDED ? "lost" : "unload";
         if (!examiner.isAlive() || examiner.isRemoved() || examiner.level() != level
                 || examiner.distanceToSqr(Vec3.atCenterOf(examiner.home())) > 576) return "examiner";
+        if (sharingPeer != null && (!sharingPeer.isAlive() || sharingPeer.isRemoved() || sharingPeer.level() != level
+                || sharingPeer.isPassenger() || sharingPeer.operations().active() || level.getEntity(sharingPeer.getUUID()) != sharingPeer
+                || !PEER_LOCK.equals(sharingPeer.pet().busyWith()))) return "peer_left";
         if (!level.isDay()) return "night";
         if (!candidate.life().hasAccessory()) return "accessory";
         if (candidate.isInWaterOrBubble()) return "water";
@@ -450,6 +475,7 @@ public final class ExamSession implements ExamContext {
         pet.setCooldown(COOLDOWN);
         checkpoint(outcome, result, index, firstFailure);
         phase = Phase.RESULT;
+        if (sharingPeer != null) sharingPeer.pet().unlock(PEER_LOCK);
         phaseTicks = 0;
         var gradeName = Component.translatable("badge.mcyukkuri.profile.grade." + result.id());
         examinerSay(outcome <= 1 ? outcome == 0 ? "exam.mcyukkuri.say.pass" : "exam.mcyukkuri.say.keep" : "exam.mcyukkuri.say.fail");
@@ -499,6 +525,7 @@ public final class ExamSession implements ExamContext {
         clearCards();
         allowRoutine();
         candidate.pet().finishWildExam();
+        if (sharingPeer != null) sharingPeer.pet().unlock(PEER_LOCK);
         examiner.getNavigation().stop();
         ACTIVE.remove(examiner.getUUID());
     }
@@ -506,6 +533,7 @@ public final class ExamSession implements ExamContext {
     @Override public ServerLevel level() { return level; }
     @Override public HumanNpc examiner() { return examiner; }
     @Override public YukkuriEntity candidate() { return candidate; }
+    @Override public YukkuriEntity sharingPeer() { return sharingPeer; }
     @Override public Player owner() { return fixtureOwner != null ? fixtureOwner : level.getServer().getPlayerList().getPlayer(ownerId); }
     @Override public int itemTicks() { return itemTicks; }
     @Override public void examinerSay(String key, Object... args) {

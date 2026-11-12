@@ -1465,16 +1465,16 @@ add('exam_gold', 'town', '金章考试：牵引、迎客与求助', '金章考�
                forbid=[r'action=interrupt']))
 
 add('exam_platinum', 'town', '铂金章考试：说明与分享', '铂金章考试：说明与分享',
-    '右键考官选晋级。听访客请考生从数堆改为一份一份数。宣布第二部分后，若考生向你求助，就把自己的一份食物喂给它指的同伴。',
+    '右键考官选晋级。听考官请考生从数堆改为一份一份数。宣布第二部分后，若考生向你求助，就把自己的一份食物喂给报名时选中的同伴。',
     '约 1 分钟', [*exam_hall(), *exam_study(pickup_delay=900),
-                  *exam_candidate('gold', 90), human('caretaker_sister', 2, 0, 'visitor', 0),
-                  f'data merge entity {sel("visitor")} {{CareFood:0,NextRestock:24000L}}',
+                  *exam_candidate('gold', 90),
                   yk('marisa', -2, 3, 'peer', yaw=-90, nutrition=32)], env={'time': 'dawn'}, vantage=(0, 7),
     give=['minecraft:emerald 4', 'minecraft:apple'], reads=[('读考生', f'yukkuri status {sel("pet")} raw'), ('读同伴', f'yukkuri status {sel("peer")} raw')],
     smoke=dict(ticks=1050, commands=[(5, f'yukkuri scenario exam_platinum {sel("judge")} {sel("pet")}'),
                                     (700, f'yukkuri scenario exam_feed_peer {sel("peer")}')],
                expect=[r'action=answer task=explain success=true', r'action=answer task=clarify success=true',
-                       r'(?s)action=answer task=clarify_groups success=true observed=1.*action=answer task=clarify_visitor success=true.*action=answer task=clarify success=true',
+                       r'action=start [^\n]*target=PLATINUM [^\n]*peer=[a-f0-9-]{36}',
+                       r'(?s)action=answer task=clarify_groups success=true observed=1.*key=exam\.mcyukkuri\.say\.count_portions.*action=answer task=clarify success=true',
                        r'key=exam\.mcyukkuri\.question\.share', r'action=answer task=share success=true observed=received_owner_food',
                        r'action=result [^\n]*grade=GOLD->PLATINUM emeralds_used=4'],
                forbid=[r'action=interrupt']))

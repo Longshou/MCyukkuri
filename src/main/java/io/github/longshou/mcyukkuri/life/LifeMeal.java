@@ -134,6 +134,7 @@ final class LifeMeal {
     }
 
     private boolean startMeal(ItemStack transferred, UUID fromPlayer, boolean alreadyShared, String reaction) {
+        if (!ExamSession.allowsPeerFeeding(o.entity(), fromPlayer)) return false;
         if (!makeRoom("meal") || !occupancy().acquireMeal(transferred.copy())) return false;
         startItemMeal(transferred, fromPlayer, alreadyShared, reaction);
         return true;

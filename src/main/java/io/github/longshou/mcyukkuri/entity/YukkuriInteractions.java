@@ -6,6 +6,7 @@ import io.github.longshou.mcyukkuri.life.Consumables;
 import io.github.longshou.mcyukkuri.life.InfantFood;
 import io.github.longshou.mcyukkuri.life.Sweets;
 import io.github.longshou.mcyukkuri.life.Toxins;
+import io.github.longshou.mcyukkuri.pet.exam.ExamSession;
 import io.github.longshou.mcyukkuri.registry.ModItems;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import net.minecraft.server.level.ServerPlayer;
@@ -38,6 +39,10 @@ final class YukkuriInteractions {
                 || stack.is(ModItems.WASTE.get()) && (owner.level().isClientSide || owner.life().acceptsFood(stack));
         if(!food)return owner.mobInteractBase(player,hand);
         if(owner.level().isClientSide)return InteractionResult.SUCCESS;
+        if (!ExamSession.allowsPeerFeeding(owner, player.getUUID())) {
+            InteractionDispatch.refuse(player, owner, "exam", "busy");
+            return InteractionResult.FAIL;
+        }
 
         boolean prepared = owner.family().needsMash() && InfantFood.isMash(stack);
         if (!prepared && Toxins.dose(stack) > 0 && !owner.life().acceptsFood(stack)) { // bitter or poisonous: refused unless starving
