@@ -285,7 +285,7 @@ def shop():
     register_pen(b,'window',(2,4,8,7),(2,7),[(2,4),(5,4),(8,4)],(5,3),hatch=(5,8))
     # Authored temperaments (intelligence, friendliness, boldness, attachment, self-control) give three different answers to a customer
     # (shop/ShopWindow): gold Alice is proud, the young Reimu shows off, the young Chen is shy.
-    b.pet(3.5,5.5,'alice','shopkeeper','stock',3,skills=ALL_SKILLS,traits=(85,30,70,50,85))
+    b.pet(3.5,5.5,'alice','shopkeeper','stock',3,skills=ALL_SKILLS,traits=(85,30,70,50,60))
     b.pet(6.5,5.5,'reimu','shopkeeper','stock',0,traits=(65,85,80,75,50),age=240000)
     b.pet(4.5,6.5,'chen','shopkeeper','stock',0,traits=(60,60,10,60,70),age=200000)
     # Predator room (interior x 16..22, z 4..7): sealed by full-height glass and the ceiling, predator nests only.
@@ -308,9 +308,10 @@ def shop():
           (4,['yukkuri_toilet','yukkuri_carrier','wash_cloth','mold_remover','teaching_whistle','pet_harness','companion_cord','swaddle_cloth'])]
     for y,items in rows:
         for x,item in zip(range(8,17),items): frame(b,x,y,16,item)
-    for z,item in zip(range(12,17),['yarn_ball','glass_marble','rubber_ball','pretty_stone','clear_dice']): frame(b,2,4,z,item)
-    for z,item in zip(range(12,17),['reimu_ribbon','marisa_hat','chen_hat','alice_headband','patchouli_bonnet']): frame(b,22,5,z,item)
-    for z,item in zip(range(12,16),['remilia_bonnet','flandre_bonnet','reimu_doll','marisa_doll']): frame(b,22,4,z,item)
+    # Side-wall frames stop a cell short of the back wall, so each hangs on exactly one wall.
+    for z,item in zip(range(11,16),['yarn_ball','glass_marble','rubber_ball','pretty_stone','clear_dice']): frame(b,2,4,z,item)
+    for z,item in zip(range(11,16),['reimu_ribbon','marisa_hat','chen_hat','alice_headband','patchouli_bonnet']): frame(b,22,5,z,item)
+    for z,item in zip(range(11,15),['remilia_bonnet','flandre_bonnet','reimu_doll','marisa_doll']): frame(b,22,4,z,item)
     # Windows from the west goods corner into the backyard arcade.
     b.box((3,4,17),(5,6,17),'glass',over=True)
     # ---- Back room (staff, x 17..22, z 18..29): the arrivals and shipping barrel, the waste barrel, feed; doors to the hall and the yard.

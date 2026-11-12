@@ -124,11 +124,12 @@ public final class ShopTrade {
 
     /**
      * The animal climbs into the staff member's basket: the buyer pays what is still due and owns it, in the same tick. A buyer who no
-     * longer has the emeralds cancels instead. Returns the basket token, or null when the purchase did not happen.
+     * longer has the emeralds cancels instead. An operator handover is free and goes to {@code handoverTo}. Returns the basket token,
+     * or null when the purchase did not happen.
      */
-    static UUID captureSale(ServerLevel level, HumanNpc staff, ShopRegistry.Entry shop, YukkuriEntity y) {
+    static UUID captureSale(ServerLevel level, HumanNpc staff, ShopRegistry.Entry shop, YukkuriEntity y, UUID handoverTo) {
         boolean operator = y.pet().busyWith().equals(HANDOVER);
-        UUID buyer = operator ? null : y.pet().lockedBy();
+        UUID buyer = operator ? handoverTo : y.pet().lockedBy();
         var player = operator ? null : present(level, shop, buyer);
         int due = operator ? 0 : due(shop, y);
         if (!operator && (player == null || emeralds(player) < due)) {
@@ -139,7 +140,7 @@ public final class ShopTrade {
         y.pet().unlock(y.pet().busyWith());
         y.life().releaseHome();
         var tag = previous.copy(); tag.remove(SHIP_OUT); HumanCommerce.set(y, tag);
-        if (!operator) Custody.assign(y, buyer, Custody.OwnerKind.PLAYER, Custody.Role.COMPANION);
+        Custody.assign(y, buyer, Custody.OwnerKind.PLAYER, Custody.Role.COMPANION);
         UUID token = YukkuriWorldData.get(level).capture(y);
         if (token == null) {
             Custody.restore(y, previous);

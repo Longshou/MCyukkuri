@@ -199,7 +199,7 @@ public final class ShopMenu extends AbstractContainerMenu {
         if (shop == null || !ShopTrade.stockOf(y, shop.keeper)) return false;
         var staff = level.getEntitiesOfClass(HumanNpc.class, shop.bounds().inflate(4), n -> n.isAlive() && registry.of(n) == shop)
                 .stream().min(Comparator.comparingDouble(p::distanceToSqr)).orElse(null);
-        if (staff == null) return false;
+        if (staff == null) { ShopTrade.say(p, "protect.stock"); return true; } // no one to ask: still not handled before it is bought
         if (!HumanMenu.valid(p, staff)) { p.displayClientMessage(Component.translatable("shop.mcyukkuri.too_far"), true); return true; }
         open(p, staff, y); return true;
     }

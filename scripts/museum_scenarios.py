@@ -1611,43 +1611,51 @@ add('attack_witness', 'town', '你打灵梦：看见的逃，墙后的不知', '
 # ---- shop and factories: the whole building is placed by `human build`, which levels the lot and fills the shop itself
 STOCK = '@e[type=#mcylab:yukkuri,distance=..60,nbt={NeoForgeData:{HumanCommerce:{Use:"stock"}}}]'
 CORE_FILLING = 'mcyukkuri:core_filling[minecraft:custom_data={FillingVersion:1,Composition:"core",Method:"core",Nutrition:10,Sweetness:90,Odor:0,Variant:"reimu"}] 2'
-add('shop_build', 'shop', '整座商店：店员照料上架太久的库存', '整座商店：店员照料上架太久的库存',
-    '商店整体放下：展舱有银章与金章个体，后场有无章库存；右键店主开店。货架上的个体已上架 11 天且营养偏低，店员按自己的口粮预算照常照料、喂食。'
-    '读档案确认受训库存六项技能、徽章编号和有效期，购买放出后保持；手里的中枢馅潜行右键店主可卖',
-    '建筑几秒；白天约 10–30 秒看店员照料', ['yukkuri human build shop ~8 ~ ~17 south',
-        # The unpenned sale fixture starts on the keeper's back-room aisle, on the shop floor.
-        yk('reimu', 14, -6, 'sale_stock', dy=2, uuid=uid('shop_build', 'sale_stock'), label='待售灵梦',
-           extra='NeoForgeData:{HumanCommerce:{Use:"stock",OwnerKind:"npc"}}')],
-    late=['scoreboard objectives add scn_t dummy', 'execute store result score #now scn_t run time query gametime',
-          'scoreboard players remove #now scn_t 264000',
-          f'execute as {STOCK} store result entity @s NeoForgeData.HumanCommerce.ForSaleSince long 1 run scoreboard players get #now scn_t',
-          f'yukkuri status set {STOCK} needs.nutrition 24',
-          f'data modify entity {sel("sale_stock")} NeoForgeData.HumanCommerce.Owner set from entity @e[nbt={{HumanJob:1}},distance=..80,sort=nearest,limit=1] UUID'],
+# Any shop staff member (all three have the same job and the same menu).
+SHOP_STAFF = '@e[nbt={HumanJob:1},distance=..80,sort=nearest,limit=1]'
+# Template x/z -> scene dx = 20 - x, dz = 17 - z; the shop floor (template y3) stands two blocks above the street (scene dy 2).
+add('shop_build', 'shop', '整座商店：任一店员同一菜单，后院放养，店员添食清厕', '整座商店：任一店员同一菜单，后院放养，店员添食清厕',
+    '商店整体放下：临街展舱（金章爱丽丝、子油灵梦与橙）、单独隔开的捕食种房（银章蕾米莉亚、子油芙兰），后院放养三只子油。'
+    '三位店员没有区别，右键哪一位都打开同一个菜单：在售页列出店里此刻真实在场的全部个体，可购买或交定金预订；收购页可把自己的油卖给店里。'
+    '食盆一开始是空的、两个厕所放了便便：店员会开铁门走进栏里添粮、把便便清进后屋的桶，出门随手关门。店内方块、展示框和在售个体都不能动',
+    '建筑几秒；白天约 10–60 秒看店员添食、清厕',
+    ['yukkuri human build shop ~8 ~ ~17 south'],
+    late=['data merge block ~12 ~2 ~10 {Waste:3.0d}', 'data merge block ~5 ~2 ~-12 {Waste:3.0d}'],
     give=['minecraft:emerald 128', 'mcyukkuri:badge_handbook', CORE_FILLING], env=DAY, vantage=(8, 21, 180, 0),
     reads=[('店铺登记（shop list）', 'yukkuri human shop list'),
-           ('读店内个体档案', 'yukkuri status @e[type=#mcylab:yukkuri,distance=..80] raw'),
-           ('读徽章与技能存档', 'execute as @e[type=#mcylab:yukkuri,distance=..80] run data get entity @s YukkuriPet'),
-           ('读滞销个体', f'yukkuri status {STOCK[:-1]},limit=1,sort=nearest]')])
-# The booths' authored temperaments (art/structures/human-world/build.py): Chen shy, gold Alice proud, Reimu shows off, Remilia pleads;
-# 17 days on the shelf (of the 20 before a stale recall) wear Remilia's hope down into a sulk. Template x/z -> scene dx = 20 - x, dz = 17 - z,
-# the shop floor stands two blocks above the street; the view is the pavement in front of the booth window (template 10.5, 0.5).
+           ('读店内个体档案', f'yukkuri status {STOCK} raw'),
+           ('读徽章与技能存档', f'execute as {STOCK} run data get entity @s YukkuriPet')])
+# The window pen's authored temperaments (art/structures/human-world/build.py): Chen shy, gold Alice proud, the young Reimu shows off;
+# 17 days on the shelf (past the 9 over which hope fades) turn the predator room's Remilia's answer into a sulk.
 BOOTH = '@e[type=mcyukkuri:{},nbt={{YukkuriPet:{{Grade:{}}},NeoForgeData:{{HumanCommerce:{{Use:"stock"}}}}}},distance=..80,limit=1]'
-add('shop_window', 'shop', '展舱里的油看见客人：招揽、摆架子、害羞、闹别扭', '展舱里的油看见客人：招揽、摆架子、害羞、闹别扭',
-    '站在街面橱窗前或店内过道，沿四个展舱慢慢走：每只隔着玻璃按自己的脾气回应你——灵梦凑到玻璃前卖力表现，金章爱丽丝端着徽章摆架子，'
-    '橙往后躲、捂脸，上架 17 天的蕾米莉亚背过身闹别扭；你走开时恳求过的会失落，记住这次落空。读档看各自的上架天数与回应',
+add('shop_window', 'shop', '展舱里的油看见客人：招揽、问好、摆架子、害羞、闹别扭', '展舱里的油看见客人：招揽、问好、摆架子、害羞、闹别扭',
+    '站在街面橱窗前或店内过道，沿临街展舱和捕食种房慢慢走：每只隔着玻璃按自己的脾气回应你——子油灵梦凑到玻璃前卖力表现，金章爱丽丝端着徽章摆架子，'
+    '子油橙往后躲，上架 17 天的蕾米莉亚背过身闹别扭；规矩好的个体会有点紧张地鞠躬问好。没有高频抖动，只有动作和表情。你走开时恳求过的会失落',
     '建筑几秒；走到展舱 8 格内，1–2 秒内回应',
-    # Written in the build's own tick, before any of the stock first answers a customer.
     ['yukkuri human build shop ~8 ~ ~17 south', 'scoreboard objectives add scn_t dummy', 'execute store result score #now scn_t run time query gametime',
      'scoreboard players remove #now scn_t 408000',
      f'execute as {BOOTH.format("remilia", 2)} store result entity @s NeoForgeData.HumanCommerce.ForSaleSince long 1 run scoreboard players get #now scn_t'],
-    env=DAY, vantage=(9, 16, 180, 10),
+    env=DAY, vantage=(9, 14, 180, 10),
     reads=[('读在售个体（上架天数与回应）', f'yukkuri status {STOCK} raw')])
-add('shop_buy_keeper', 'shop', '买下金章爱丽丝：饲养员提篮来接，隔壁的橙眼红', '买下金章爱丽丝：饲养员提篮来接，隔壁的橙眼红',
-    '进店右键店主，在“在售”里订下金章爱丽丝：她先高兴地跳，饲养员拿空运输篮从后场走到展舱的服务门外呼唤她。'
-    '等她走到门口才开铁门，钻进篮子时扣款，门随即关上，再提到柜台交到你手上。隔壁的银章橙看着她被带走，眼红地鼓起脸。装篮前买家离开柜台或饲养员走不到展舱时取消交易',
-    '建筑几秒；买下后约 10–20 秒交到手上', ['yukkuri human build shop ~8 ~ ~17 south'],
-    give=['minecraft:emerald 128'], env=DAY, vantage=(5, 16, 180, 10),
+add('shop_buy', 'shop', '买下金章爱丽丝：店员开铁门进展舱抱她装篮，送到柜台', '买下金章爱丽丝：店员开铁门进展舱抱她装篮，送到柜台',
+    '进店右键任一店员，在“在售”里买下金章爱丽丝：她高兴地跳一下，站着等。最先空下来的店员拿空运输篮走到展舱铁门前，开门进去，'
+    '她钻进篮子的那一刻才扣款，店员出门关门，提篮回到柜台交到你手上（不在柜台边就放在柜台上，只有你能拿）。隔壁的子油橙看着她被带走。'
+    '没钱、天黑、被别人预订时点购买会直接说原因；装篮前你离开商店或天黑，订单取消并告诉你原因，不扣钱',
+    '建筑几秒；买下后约 10–30 秒交到手上', ['yukkuri human build shop ~8 ~ ~17 south'],
+    give=['minecraft:emerald 128'], env=DAY, vantage=(5, 14, 180, 10),
     reads=[('店铺登记（shop list）', 'yukkuri human shop list')])
+add('shop_restock', 'shop', '三天补货：多余的成体装篮送走，新到的子油进窝', '三天补货：多余的成体装篮送走，新到的子油进窝',
+    '后院多放了两只上架已久的成体魔理沙，场景立刻触发一次三天补货：店里只留两只成体，最久没卖出去的两只被店员装篮送进后屋的进出货桶；'
+    '新到的子油装在篮子里放进桶，等有空窝时店员提篮进后院放进窝里。交了定金预订的个体不会被送走。下一次补货在三天后',
+    '建筑几秒；补货后约 1–2 分钟看店员出货、上架',
+    ['yukkuri human build shop ~8 ~ ~17 south', 'scoreboard objectives add scn_t dummy', 'execute store result score #now scn_t run time query gametime',
+     'scoreboard players remove #now scn_t 120000'],
+    late=[f'yukkuri human shop stock {SHOP_STAFF} marisa ~13 ~2 ~-8', f'yukkuri human shop stock {SHOP_STAFF} marisa ~9 ~2 ~-9',
+          'execute as @e[type=mcyukkuri:marisa,distance=..80,nbt={YukkuriFamily:{Stage:"ADULT"},NeoForgeData:{HumanCommerce:{Use:"stock"}}}] '
+          'store result entity @s NeoForgeData.HumanCommerce.ForSaleSince long 1 run scoreboard players get #now scn_t',
+          f'yukkuri human shop restock {SHOP_STAFF}'],
+    env=DAY, vantage=(12, 0, 180, 30),
+    reads=[('店铺登记（shop list）', 'yukkuri human shop list'), ('读在售个体', f'yukkuri status {STOCK} raw')])
 
 # ====================================================================================================== clips (buttons are built in build_museum_full.py)
 
@@ -4164,7 +4172,7 @@ TOPICS = {
     'excited_leak': 'D1',
     'forage_empty': 'R1', 'rain_life': 'R1', 'rain_huddle': 'R1', 'storm_cower': 'R1', 'marisa_explore': 'R1', 'rain_shelter': 'R1', 'rain_open': 'R1', 'pred_watch': 'R2', 'pred_range': 'R2', 'pred_pets': 'R2', 'shared_body': 'R3',
     'house_empty': 'H1', 'house_pair': 'H2', 'house_eggs': 'H3',
-    'shop_build': 'M1', 'shop_window': 'M1', 'shop_buy_keeper': 'M1', 'harness_walk': 'M3', 'swaddle_worn': 'M3', 'feed_wild': 'M3', 'oniisan_prey': 'M4', 'attack_witness': 'M4',
+    'shop_build': 'M1', 'shop_window': 'M1', 'shop_buy': 'M1', 'shop_restock': 'M1', 'harness_walk': 'M3', 'swaddle_worn': 'M3', 'feed_wild': 'M3', 'oniisan_prey': 'M4', 'attack_witness': 'M4',
     'wild': 'M5', 'badge': 'M5', 'training_home': 'M5', 'training_study': 'M5', 'exam': 'M5', 'date': 'M5', 'transport': 'M5', 'custody_death': 'M5', 'social_identity': 'M5',
     'exam_obstructed': 'M5', 'exam_silver': 'M5', 'exam_gold': 'M5', 'exam_platinum': 'M5',
     'airborne': 'R8', 'house_health': 'R9',
@@ -4422,33 +4430,29 @@ _smoke('hatless_scorn', 3600, [r'\[contempt\][^\n]* scorn target=',
                                  rf'\[contempt\] marisa #\d+ uuid={_uuid_text("hatless_scorn", "b1")} [^\n]* scorn target='])
 _smoke('hatless_monster', 1200, [r'\[contempt\][^\n]* monster target=', r'\[contempt\][^\n]* scorn target='])
 _smoke('feed_wild', 2400, [r'\[npc-care\][^\n]* action=begin_meal '])
-_smoke('shop_build', 1200, [r'\[npc-care\][^\n]* action=begin_meal '])
-_sale_smoke = next(s for s in S if s.id == 'shop_build').smoke
-_sale_smoke['commands'] = [(200, f'yukkuri human shop buy @e[nbt={{HumanJob:1}},distance=..80,sort=nearest,limit=1] {sel("sale_stock")} {_uuid_text("shop_build", "buyer")}')]
-_sale_smoke['expect'] += [rf'\[transport\][^\n]*uuid={_uuid_text("shop_build", "sale_stock")} [^\n]*action=capture result=committed',
-                          rf'\[shop\][^\n]*action=buy_live result=delivered [^\n]*target={_uuid_text("shop_build", "sale_stock")}']
-# Headless runs have no player at the window: two residents stop in the aisle in front of the booth pairs (smoke only; NoAI keeps them there).
+_smoke('shop_build', 1600, [r'\[npc-care\][^\n]* action=refill_bowl ', r'\[npc-care\][^\n]* action=clean_toilet ',
+                            r'\[shop\][^\n]* action=dispose_waste result=stored ', r'\[shop\][^\n]* action=register shop='],
+       forbid=[r'\[shop\][^\n]* action=job result=failed ', r'\[shop\][^\n]* action=job result=put_down '])
+# Headless runs have no player at the window: two residents stop in the aisle in front of the street pen and the predator room (smoke only; NoAI keeps them there).
 def _aisle_customer(dx, name):
-    return (f'summon mcyukkuri:caretaker_sister ~{dx} ~2 ~8.5 {{Tags:["scn","{tag(name)}"],PersistenceRequired:1b,NoAI:1b,Rotation:[0f,0f],'
+    return (f'summon mcyukkuri:caretaker_sister ~{dx} ~2 ~6.5 {{Tags:["scn","{tag(name)}"],PersistenceRequired:1b,NoAI:1b,Rotation:[0f,0f],'
             'HumanJob:0,HumanAttitude:1,HumanInitialized:1b}')
 _smoke('shop_window', 1200, [rf'\[shop\] {kind} [^\n]* window start mode={mode} ' for kind, mode in
-                             (('chen', 'SHY'), ('alice', 'PROUD'), ('reimu', 'SHOW_OFF'), ('remilia', 'SULK'))],
-       readout=[f'yukkuri status {BOOTH.format(kind, grade)} raw' for kind, grade in (('chen', 2), ('alice', 3), ('reimu', 2), ('remilia', 2))])
+                             (('chen', 'SHY'), ('alice', 'PROUD'), ('remilia', 'SULK'))],
+       forbid=[r'\[shop\][^\n]* action=job result=failed '],
+       readout=[f'yukkuri status {BOOTH.format(kind, grade)} raw' for kind, grade in (('chen', 0), ('alice', 3), ('remilia', 2))])
 next(s for s in S if s.id == 'shop_window').smoke['commands'] = [(100, _aisle_customer(14.5, 'customer_west')), (100, _aisle_customer(.5, 'customer_east'))]
-_smoke('shop_buy_keeper', 1600, [r'\[courier\][^\n]* action=start kind=BUY ', r'\[shop\] chen [^\n]* window witness kind=ENVY ',
-                                 # Chen watches until Alice is in the basket (a meal of its own may cut the tail after that)
-                                 r'\[shop\] chen [^\n]* window witness end kind=ENVY reason=(?:departed|interrupted departed=true) ',
-                                 r'\[shop\][^\n]* action=buy_live result=committed [^\n]* emeralds_used=0\b',
-                                 r'\[shop\][^\n]* action=buy_live result=delivered [^\n]*mode=keeper [^\n]*counter=(-?\d+, -?\d+, -?\d+) handoff_at=\1\b',
-                                 # the booth is served only through its service door: opened, Alice (held by the sale) answers it, the basket
-                                 # goes through, it shuts
-                                 r'\[shop\][^\n]* hatch opened door=', r'\[shop\] alice [^\n]* hatch answer door=[^\n]* held=sale\b',
-                                 r'\[courier\][^\n]* action=reach kind=BUY [^\n]*via=hatch ', r'\[shop\][^\n]* hatch closed door='],
-       forbid=[r'\[shop\][^\n]* action=buy_live result=refunded', r'\[shop\][^\n]* action=buy_live result=cancelled',
-               r'\[courier\][^\n]* action=fallback ', r'\[courier\][^\n]* action=reach [^\n]*via=floor '])
-next(s for s in S if s.id == 'shop_buy_keeper').smoke['commands'] = [
-    (200, f'yukkuri human shop buy @e[nbt={{HumanJob:1}},distance=..80,sort=nearest,limit=1] {BOOTH.format("alice", 3)} {_uuid_text("shop_buy_keeper", "buyer")}')]
-
+_smoke('shop_buy', 1600, [r'\[shop\][^\n]* action=job result=start kind=BUY ', r'\[shop\][^\n]* action=job result=reach kind=BUY ',
+                          r'\[shop\] chen [^\n]* window witness kind=',
+                          r'\[shop\][^\n]* action=buy_live result=committed [^\n]* emeralds_used=0\b',
+                          r'\[shop\][^\n]* action=buy_live result=delivered [^\n]*placement=counter '],
+       forbid=[r'\[shop\][^\n]* action=buy_live result=cancelled', r'\[shop\][^\n]* action=job result=failed '])
+next(s for s in S if s.id == 'shop_buy').smoke['commands'] = [
+    (200, f'yukkuri human shop buy {SHOP_STAFF} {BOOTH.format("alice", 3)} {_uuid_text("shop_buy", "buyer")}')]
+_smoke('shop_restock', 3600, [r'\[shop\][^\n]* action=restock result=done ', r'\[shop\][^\n]* action=restock result=ship_marked ',
+                              r'\[shop\][^\n]* action=ship_out result=packed ', r'\[shop\][^\n]* action=stow_basket result=stored ',
+                              r'\[shop\][^\n]* action=restock result=arrival ', r'\[shop\][^\n]* action=settle result=released '],
+       forbid=[r'\[shop\][^\n]* action=job result=put_down '])
 _basket_moves = (
     ('basket_young', 0, 2, 4, 2), ('basket_baby_0', 2, 3, 4, 1), ('basket_baby_1', 3, 4, 4, 0),
     ('wild', 0, 4, 6, 2), ('basket_baby_2', 4, 5, 6, 1), ('basket_baby_3', 5, 6, 6, 0),

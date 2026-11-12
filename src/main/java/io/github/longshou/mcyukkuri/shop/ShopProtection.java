@@ -71,7 +71,7 @@ public final class ShopProtection {
         if (!stock(target)) return;
         var held = event.getItemStack();
         // The empty hand asks the staff (the menu on its row); the magnifying glass only looks.
-        if (held.isEmpty() && event.getHand() == InteractionHand.MAIN_HAND || held.is(ModItems.MAGNIFYING_GLASS.get())) return;
+        if (held.isEmpty() && event.getHand() == InteractionHand.MAIN_HAND && !player.isSecondaryUseActive() || held.is(ModItems.MAGNIFYING_GLASS.get())) return;
         event.setCanceled(true); event.setCancellationResult(InteractionResult.FAIL);
         if (event.getHand() == InteractionHand.MAIN_HAND) refuse(player, "stock");
     }

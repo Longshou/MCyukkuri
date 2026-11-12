@@ -298,7 +298,7 @@ public final class ShopStaff {
         if (++job.timer < WORK) return;
         switch (job.kind) {
             case BUY -> {
-                job.token = ShopTrade.captureSale(level, staff, shop, y);
+                job.token = ShopTrade.captureSale(level, staff, shop, y, job.customer);
                 if (job.token == null) { end(staff, job, "not_bought"); return; }
                 carryTo(job, shop.counter());
             }
@@ -402,10 +402,24 @@ public final class ShopStaff {
         end(staff, job, "released");
     }
 
+    /** Walks toward the point; a block target is approached on a free floor cell beside it (never by climbing onto a barrel or into a bowl). */
     private static void walk(ServerLevel level, HumanNpc staff, ShopRegistry.Entry shop, Job job, Vec3 point) {
         double d = staff.position().distanceToSqr(point);
         if (d < job.best - .25) { job.best = d; job.stall = 0; } else if (++job.stall > STALL) { fail(level, staff, shop, job, "stalled"); return; }
-        if (job.leg % 10 == 1 || staff.getNavigation().isDone()) staff.getNavigation().moveTo(point.x, point.y, point.z, SPEED);
+        if (job.leg % 10 != 1) return;
+        var to = point;
+        if (job.loose == null && animal(level, job) == null && job.target != null && !(job.phase == Phase.CARRY && job.kind == Kind.BUY)) {
+            BlockPos stand = null; double best = Double.MAX_VALUE;
+            for (var dir : net.minecraft.core.Direction.Plane.HORIZONTAL) {
+                var c = job.target.relative(dir);
+                if (!level.getBlockState(c).getCollisionShape(level, c).isEmpty() || !level.getBlockState(c.above()).getCollisionShape(level, c.above()).isEmpty()
+                        || !level.getBlockState(c.below()).isFaceSturdy(level, c.below(), net.minecraft.core.Direction.UP)) continue;
+                double e = staff.position().distanceToSqr(Vec3.atBottomCenterOf(c));
+                if (e < best) { best = e; stand = c; }
+            }
+            if (stand != null) to = Vec3.atBottomCenterOf(stand);
+        }
+        staff.getNavigation().moveTo(to.x, to.y, to.z, SPEED);
     }
 
     /** Hand's reach: near enough and a clear line from the eyes (a hit on the target block itself counts as reaching it). */
