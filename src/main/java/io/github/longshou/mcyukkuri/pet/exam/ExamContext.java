@@ -15,7 +15,7 @@ public interface ExamContext {
     ServerLevel level();
     HumanNpc examiner();
     YukkuriEntity candidate();
-    YukkuriEntity sharingPeer();
+    YukkuriEntity hungryPeer();
     Player owner();
     int itemTicks();
     void examinerSay(String key, Object... args);

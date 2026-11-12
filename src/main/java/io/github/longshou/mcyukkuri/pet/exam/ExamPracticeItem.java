@@ -34,14 +34,13 @@ final class ExamPracticeItem implements ExamItem {
     @Override public void start(ExamContext ctx) {
         var y = ctx.candidate();
         if (ctx.owner() == null) { ctx.interrupt("owner_gone"); return; }
-        var why = question == ExamPlan.Question.SHARE ? ExamPlan.sharingRefusal(y, ctx.sharingPeer())
+        var why = question.needsHungryPeer() ? ExamPlan.peerRefusal(question, y, ctx.hungryPeer())
                 : ExamPlan.refusal(question, ctx.examiner(), ctx.owner(), y);
         if (why != null) { ctx.interrupt(why); return; }
         switch (question) {
             case READ, COUNT, EXPLAIN, CLARIFY -> example = ExamPlan.example(question, ctx.owner(), y);
             case GREET -> participant = ExamPlan.visitor(y, ctx.owner(), ctx.examiner());
-            case HELP -> participant = ExamPlan.needy(y, false);
-            case SHARE -> participant = ctx.sharingPeer();
+            case HELP, SHARE -> participant = ctx.hungryPeer();
             default -> { }
         }
         ctx.examinerSay("exam.mcyukkuri.question." + id());
@@ -56,7 +55,7 @@ final class ExamPracticeItem implements ExamItem {
             ctx.interrupt("danger");
             return false;
         }
-        if (question != ExamPlan.Question.SHARE && participant != null && (!participant.isAlive() || participant.level() != ctx.level()
+        if (!question.needsHungryPeer() && participant != null && (!participant.isAlive() || participant.level() != ctx.level()
                 || participant.distanceToSqr(ctx.candidate()) > 64
                 || participant instanceof HumanNpc human && ExamSession.active(human)
                 || participant instanceof YukkuriEntity peer && ExamSession.running(peer))) {
@@ -117,7 +116,7 @@ final class ExamPracticeItem implements ExamItem {
             until = Math.max(now + answer.ticks(), y.speechEnd());
             return;
         }
-        if (question == ExamPlan.Question.HELP || question == ExamPlan.Question.SHARE) {
+        if (question.needsHungryPeer()) {
             var peer = (YukkuriEntity)participant;
             if (peer.life().nutrition() >= 40 || !y.hasLineOfSight(peer)) { ctx.interrupt("no_participant"); return; }
             var personality = y.life().personality();
@@ -152,8 +151,8 @@ final class ExamPracticeItem implements ExamItem {
         return question == ExamPlan.Question.SHARE && phase == Phase.OBSERVE && completed == null
                 && foodIncident != null && !asksOwner && participant instanceof YukkuriEntity peer ? peer : null;
     }
-    boolean allowsShareFeeder(ExamContext ctx, UUID feeder) {
-        if (question != ExamPlan.Question.SHARE || phase != Phase.OBSERVE || foodIncident == null) return false;
+    boolean allowsHelpFeeder(ExamContext ctx, UUID feeder) {
+        if (!question.needsHungryPeer() || phase != Phase.OBSERVE || foodIncident == null) return false;
         return asksOwner ? ctx.owner() != null && ctx.owner().getUUID().equals(feeder) : ctx.candidate().getUUID().equals(feeder);
     }
 

@@ -39,6 +39,7 @@ public final class ExamPlan {
         final PetSkill skill;
         Question(BadgeGrade grade, PetSkill skill) { this.grade = grade; this.skill = skill; }
         String key() { return name().toLowerCase(Locale.ROOT); }
+        boolean needsHungryPeer() { return this == HELP || this == SHARE; }
         ExamItem item() { return this == NAME ? new SimpleCheckItem() : new ExamPracticeItem(this); }
     }
 
@@ -80,13 +81,14 @@ public final class ExamPlan {
         };
     }
 
-    static YukkuriEntity needy(YukkuriEntity y, boolean sharing) {
+    static YukkuriEntity needy(YukkuriEntity y, Question question) {
         return y.level().getEntitiesOfClass(YukkuriEntity.class, y.getBoundingBox().inflate(5), peer ->
                 peer != y && peer.isAlive() && peer.family().stage() != FamilyLife.Stage.BABY
                         && peer.life().nutrition() < 40 && peer.life().canEat() && !peer.isPassenger() && !peer.isPanicking()
                         && !peer.profile().dangerToYukkuri() && !peer.profile().houseBody()
+                        && !peer.isLeashed() && !peer.isVehicle() && !peer.operations().active()
                         && !peer.pet().busy() && !ExamSession.running(peer) && !ExamSession.assisting(peer) && y.hasLineOfSight(peer)
-                        && (!sharing || !peer.isLeashed() && !peer.isVehicle() && !y.dailyLife().sharedFoodToday(peer.getUUID())))
+                        && (question != Question.SHARE || !y.dailyLife().sharedFoodToday(peer.getUUID())))
                 .stream().min(Comparator.comparingDouble(y::distanceToSqr)).orElse(null);
     }
 
@@ -103,13 +105,13 @@ public final class ExamPlan {
             case BOWL, TOILET, BED -> !y.pet().lessons().careReady(question.skill) ? "need_care" : null;
             case WALK -> y.getLeashHolder() != owner || !y.pet().care().harnessed() ? "need_walk" : null;
             case GREET -> visitor(y, owner, examiner) == null ? "no_participant" : null;
-            case HELP -> needy(y, false) == null ? "no_participant" : null;
-            case SHARE -> sharingRefusal(y, needy(y, true));
+            case HELP, SHARE -> peerRefusal(question, y, needy(y, question));
         };
     }
 
-    static String sharingRefusal(YukkuriEntity y, YukkuriEntity peer) {
+    static String peerRefusal(Question question, YukkuriEntity y, YukkuriEntity peer) {
         if (peer == null || peer.life().nutrition() >= 40 || !peer.life().canEat() || !y.hasLineOfSight(peer)) return "no_participant";
+        if (question == Question.HELP) return null;
         if (mouthOccupied(y)) return "occupied";
         if (y.life().nutrition() < 60) return "share_nutrition";
         return PetStudy.visibleFood(y) < 2 ? "need_count" : null;

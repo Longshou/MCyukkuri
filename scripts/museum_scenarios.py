@@ -1460,7 +1460,8 @@ add('exam_gold', 'town', '金章考试：牵引、迎客与求助', '金章考�
                                     (83, 'yukkuri scenario exam_step_owner ~0.9 ~-0.0625 ~3.0'),
                                     (440, f'yukkuri scenario exam_feed_peer {sel("peer")}')],
                expect=[r'harness turn owner=[^ ]+ waits=true', r'action=answer task=walk success=true',
-                       r'action=answer task=greet success=true', r'action=answer task=help success=true',
+                       r'action=answer task=greet success=true',
+                       r'(?s)action=start [^\n]*target=GOLD [^\n]*peer=(?P<help_peer>[a-f0-9-]{36}).*\[meal\][^\n]*uuid=(?P=help_peer)[^\n]*swallowed item=minecraft:apple.*action=answer task=help success=true observed=received_owner_food',
                        r'action=result [^\n]*grade=SILVER->GOLD emeralds_used=4'],
                forbid=[r'action=interrupt']))
 
