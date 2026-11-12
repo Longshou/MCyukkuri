@@ -17,6 +17,7 @@ import sys
 import tarfile
 import time
 from pathlib import Path
+from zipfile import ZipFile
 
 sys.dont_write_bytecode = True
 import headless_server as server
@@ -61,6 +62,14 @@ def assemble_mod(worktree, runtime, java, instance):
     # Match javac_check.sh's merged Minecraft/NeoForge classes, using the installed runtime's dependencies.
     classpath = [merged] + [Path(entry) for entry in server.read_args_file(runtime / 'clientRunClasspath.txt')[1].split(';')
                             if Path(entry) != runtime / 'mod']
+    # The launcher discovers bundled libraries such as MixinExtras at runtime. javac needs them as separate jars.
+    with ZipFile(merged) as archive:
+        for member in archive.namelist():
+            if member.startswith('META-INF/jarjar/') and member.endswith('.jar'):
+                library = instance / 'compile-libs' / Path(member).name
+                library.parent.mkdir(parents=True, exist_ok=True)
+                library.write_bytes(archive.read(member))
+                classpath.append(library)
     mod = instance / 'mod'
     ignore = shutil.ignore_patterns('.cache', '*.bbmodel')
     shutil.copytree(worktree / 'src/main/resources', mod, ignore=ignore)

@@ -14,6 +14,9 @@ A Minecraft foundation for a living Yukkuri world: species, behavior, habitats a
 Standard and house Reimu/Marisa with food, rest, wandering and synchronized animation actions.
 '''
 
+[[mixins]]
+config="mcyukkuri.village.mixins.json"
+
 [[dependencies.${mod_id}]]
 modId="neoforge"
 type="required"

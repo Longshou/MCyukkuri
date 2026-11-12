@@ -11,6 +11,17 @@
     "source": "art/structures/human-world/build.py"
   },
   {
+    "name": "village/yukkuri_shop",
+    "size": [
+      41,
+      16,
+      41
+    ],
+    "blocks": 12532,
+    "entities": 31,
+    "source": "art/structures/human-world/build.py"
+  },
+  {
     "name": "yukkuri_labor_factory",
     "size": [
       41,

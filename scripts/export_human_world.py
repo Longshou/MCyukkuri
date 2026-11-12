@@ -44,6 +44,7 @@ def main(check=False):
     for id in ['oniisan','caretaker_brother','caretaker_sister']:
         p=ROOT/f'src/main/resources/assets/mcyukkuri/models/item/{id}_spawn_egg.json';p.write_text('{"parent":"minecraft:item/template_spawn_egg"}\n',encoding='utf-8')
     patterns=['src/main/resources/data/mcyukkuri/structure/yukkuri_*.nbt','src/main/resources/data/mcyukkuri/worldgen/*/yukkuri_*.json',
+              'src/main/resources/data/mcyukkuri/structure/village/*.nbt','src/main/resources/data/mcyukkuri/worldgen/template_pool/village/**/*.json',
               'src/main/resources/assets/mcyukkuri/textures/entity/human/*.png','standards/yukkuri-library/textures/human/*.png',
               'standards/yukkuri-library/assembled/humans/textures/*.png','art/source/human-runtime/textures/*.png','art/structures/human-world/products/*',
               'src/main/resources/assets/mcyukkuri/textures/block/exam_*.png','src/main/resources/assets/mcyukkuri/models/block/exam_*.json','src/main/resources/assets/mcyukkuri/models/item/exam_*.json',

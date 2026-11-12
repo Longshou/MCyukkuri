@@ -1,12 +1,12 @@
 {
-  "name": "mcyukkuri:yukkuri_shop",
-  "fallback": "minecraft:empty",
+  "name": "mcyukkuri:village/savanna/frontage",
+  "fallback": "minecraft:village/savanna/streets",
   "elements": [
     {
       "weight": 1,
       "element": {
         "element_type": "mcyukkuri:levelled",
-        "location": "mcyukkuri:yukkuri_shop",
+        "location": "mcyukkuri:village/yukkuri_shop",
         "processors": "minecraft:empty",
         "projection": "rigid"
       }

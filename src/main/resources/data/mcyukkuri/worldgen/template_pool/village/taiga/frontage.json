@@ -1,0 +1,15 @@
+{
+  "name": "mcyukkuri:village/taiga/frontage",
+  "fallback": "minecraft:village/taiga/streets",
+  "elements": [
+    {
+      "weight": 1,
+      "element": {
+        "element_type": "mcyukkuri:levelled",
+        "location": "mcyukkuri:village/yukkuri_shop",
+        "processors": "minecraft:empty",
+        "projection": "rigid"
+      }
+    }
+  ]
+}

@@ -442,14 +442,60 @@ def specialized_factory(kind):
             b.sign(21,3,30,['04 活体封装 / 出货','油虐用 / 饲料用规格','批次 / 体型 / 状态','同一个体 · 单次拆袋'])
     return b
 
+def village_shop(original):
+    # Keep the museum template byte-for-byte identical. The village lot adds a street-level apron before its two ramps.
+    frontage_depth = 8
+    width, height, depth = original.size
+    lot = Building('village/yukkuri_shop', [width, height, depth + frontage_depth])
+    lot.blocks = {(x, y, z + frontage_depth): block for (x, y, z), block in original.blocks.items()}
+    for entity in original.entities:
+        x, y, z = entity['pos'][1][1]
+        nbt = dict(entity['nbt'][1])
+        nbt['Pos'] = sequence(6, [x, y, z + frontage_depth])
+        lot.entities.append({'pos': nbt['Pos'], 'blockPos': sequence(3, [int(x), int(y), int(z) + frontage_depth]),
+                             'nbt': compound(nbt)})
+
+    lot.box((0, 0, 0), (width - 1, 0, frontage_depth - 1), 'polished_andesite')
+    lot.box((11, 0, 0), (13, 0, 2), 'gravel')
+    lot.box((0, 0, 3), (width - 1, 0, 5), 'gravel')
+    for x in (4, 34):
+        lot.box((x, 0, 6), (x + 3, 0, 7), 'grass_block', {'snowy': 'false'})
+        for seat in range(x, x + 3):
+            stairs(lot, seat, 1, 7, 'oak', 'south')
+        barrel(lot, x + 3, 1, 7)
+
+    def jigsaw(x, z, facing, name, target='minecraft:empty', pool='minecraft:empty'):
+        lot.block(x, 1, z, 'jigsaw', {'orientation': facing + '_up'}, {
+            'id': string('minecraft:jigsaw'), 'name': string(name), 'target': string(target),
+            'pool': string(pool), 'joint': string('aligned'), 'final_state': string('minecraft:air'),
+        })
+
+    jigsaw(12, 0, 'north', 'minecraft:street')
+    for x, facing in ((0, 'west'), (width - 1, 'east')):
+        jigsaw(x, 4, facing, 'minecraft:empty', 'mcyukkuri:street_site', 'mcyukkuri:village/street_sites')
+    return lot
+
+
 def export():
-    summary=[shop().save()]+[specialized_factory(k).save() for k in ('labor','manju','bag')]
-    for name,spacing,separation,salt in [('yukkuri_shop',16,6,17923041),
+    museum_shop = shop()
+    summary=[museum_shop.save(), village_shop(museum_shop).save()]+[specialized_factory(k).save() for k in ('labor','manju','bag')]
+    for style in ('plains', 'desert', 'savanna', 'snowy', 'taiga'):
+        pool = f'village/{style}/frontage'
+        path = OUT / 'worldgen/template_pool' / f'{pool}.json'
+        path.parent.mkdir(parents=True, exist_ok=True)
+        data = {'name': f'mcyukkuri:{pool}', 'fallback': f'minecraft:village/{style}/streets', 'elements': [
+            {'weight': 1, 'element': {'element_type': 'mcyukkuri:levelled', 'location': 'mcyukkuri:village/yukkuri_shop',
+                                     'processors': 'minecraft:empty', 'projection': 'rigid'}}]}
+        path.write_text(json.dumps(data, indent=2) + '\n', encoding='utf-8')
+    for name,spacing,separation,salt in [
             ('yukkuri_labor_factory',32,12,17923043),('yukkuri_manju_factory',32,12,17923044),('yukkuri_bag_factory',32,12,17923045)]:
+        # Cover the village's 80-block jigsaw range, its center offset and the factory's rotated footprint.
+        placement = {'type': 'minecraft:random_spread', 'spacing': spacing, 'separation': separation, 'salt': salt,
+                     'exclusion_zone': {'other_set': 'minecraft:villages', 'chunk_count': 9}}
         files={
             f'worldgen/template_pool/{name}.json':{'name':'mcyukkuri:'+name,'fallback':'minecraft:empty','elements':[{'weight':1,'element':{'element_type':'mcyukkuri:levelled','location':'mcyukkuri:'+name,'processors':'minecraft:empty','projection':'rigid'}}]},
             f'worldgen/structure/{name}.json':{'type':'mcyukkuri:human_building','biomes':'#mcyukkuri:human_buildings','step':'surface_structures','spawn_overrides':{},'terrain_adaptation':'beard_thin','start_pool':'mcyukkuri:'+name},
-            f'worldgen/structure_set/{name}.json':{'structures':[{'structure':'mcyukkuri:'+name,'weight':1}],'placement':{'type':'minecraft:random_spread','spacing':spacing,'separation':separation,'salt':salt}}
+            f'worldgen/structure_set/{name}.json':{'structures':[{'structure':'mcyukkuri:'+name,'weight':1}],'placement':placement}
         }
         for name_,data in files.items():
             p=OUT/name_; p.parent.mkdir(parents=True,exist_ok=True); p.write_text(json.dumps(data,indent=2)+'\n',encoding='utf-8')
