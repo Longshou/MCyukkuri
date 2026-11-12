@@ -1449,6 +1449,25 @@ add('exam_silver', 'town', '银章考试：读数、等待与照料', '银章考
                        r'action=result [^\n]*grade=BRONZE->SILVER emeralds_used=4'],
                forbid=[r'action=interrupt']))
 
+def exam_promotion_expectation(before, target, *questions):
+    """Check each rolled answer and its comment, then the grade earned by those answers."""
+    exchange = [rf'(?s)action=start [^\n]*target={target} [^\n]*peer=(?P<exam_peer>[a-f0-9-]{{36}})']
+    result = f'outcome=0 grade={before}->{target}'
+    retained = f'outcome=2 grade={before}->{before}'
+    for question in questions:
+        failed = f'{question}_failed'
+        answer = f'action=answer task={question} success='
+        exchange.append(rf'.*?key=exam\.mcyukkuri\.question\.{question}\b')
+        if question in ('help', 'share'):
+            swallow = r'\[meal\][^\n]*uuid=(?P=exam_peer)[^\n]*swallowed item=minecraft:apple\b'
+            exchange.append(rf'.*?(?:{swallow}.*?{answer}true observed=received_(?:owner_)?food\b|{answer}(?P<{failed}>false)\b)')
+        else:
+            exchange.append(rf'.*?{answer}(?:true|(?P<{failed}>false))\b')
+        exchange.append(rf'.*?key=exam\.mcyukkuri\.comment\.{question}_(?({failed})fail|ok)\b')
+        result = f'(?({failed}){retained}|{result})'
+    return ''.join(exchange) + rf'.*?action=result [^\n]*{result} emeralds_used=4\b'
+
+
 add('exam_gold', 'town', '金章考试：牵引、迎客与求助', '金章考试：牵引、迎客与求助',
     '给银章考生系胴带和拴绳，右键考官选晋级。牵引题实际走一个转弯，随后观察迎客；考生求助时可亲手喂饿着的同伴。',
     '约 1 分钟', [*exam_hall(), *exam_candidate('silver', 92), human('caretaker_sister', 2, 1, 'visitor', 0),
@@ -1461,8 +1480,7 @@ add('exam_gold', 'town', '金章考试：牵引、迎客与求助', '金章考�
                                     (440, f'yukkuri scenario exam_feed_peer {sel("peer")}')],
                expect=[r'harness turn owner=[^ ]+ waits=true', r'action=answer task=walk success=true',
                        r'action=answer task=greet success=true',
-                       r'(?s)action=start [^\n]*target=GOLD [^\n]*peer=(?P<help_peer>[a-f0-9-]{36}).*\[meal\][^\n]*uuid=(?P=help_peer)[^\n]*swallowed item=minecraft:apple.*action=answer task=help success=true observed=received_owner_food',
-                       r'action=result [^\n]*grade=SILVER->GOLD emeralds_used=4'],
+                       exam_promotion_expectation('SILVER', 'GOLD', 'help')],
                forbid=[r'action=interrupt']))
 
 add('exam_platinum', 'town', '铂金章考试：说明与分享', '铂金章考试：说明与分享',
@@ -1473,11 +1491,9 @@ add('exam_platinum', 'town', '铂金章考试：说明与分享', '铂金章考�
     give=['minecraft:emerald 4', 'minecraft:apple'], reads=[('读考生', f'yukkuri status {sel("pet")} raw'), ('读同伴', f'yukkuri status {sel("peer")} raw')],
     smoke=dict(ticks=1050, commands=[(5, f'yukkuri scenario exam_platinum {sel("judge")} {sel("pet")}'),
                                     (700, f'yukkuri scenario exam_feed_peer {sel("peer")}')],
-               expect=[r'action=answer task=explain success=true', r'action=answer task=clarify success=true',
-                       r'action=start [^\n]*target=PLATINUM [^\n]*peer=[a-f0-9-]{36}',
-                       r'(?s)action=answer task=clarify_groups success=true observed=1.*key=exam\.mcyukkuri\.say\.count_portions.*action=answer task=clarify success=true',
-                       r'key=exam\.mcyukkuri\.question\.share', r'action=answer task=share success=true observed=received_owner_food',
-                       r'action=result [^\n]*grade=GOLD->PLATINUM emeralds_used=4'],
+               expect=[r'(?s)action=answer task=clarify_groups success=true observed=1.*?key=exam\.mcyukkuri\.say\.count_portions'
+                       r'.*?action=answer task=clarify success=(?:true|false)\b',
+                       exam_promotion_expectation('GOLD', 'PLATINUM', 'explain', 'clarify', 'share')],
                forbid=[r'action=interrupt']))
 
 add('date', 'town', '店方牵线，银章灵梦相亲', '店方牵线，银章灵梦相亲', '北侧店方饲养员牵线：有顶窝、真实银章的玩家灵梦，与店方真实登记的银章种油魔理沙害羞、靠近、蹭蹭', '等 2 秒登记窝位后，右键北侧饲养员；约 1 分钟', [
