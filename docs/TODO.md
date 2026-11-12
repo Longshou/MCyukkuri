@@ -10,7 +10,6 @@
 | --- | --- | --- |
 | 台词审校与补充（总负责人调度的 Codex 标签页） | `.worktrees/wp-gb-speech-review` | art/dialogue/, src/main/resources/assets/mcyukkuri/dialogue/, lang/*.json |
 | 茎生：肉眼可见的快速生长、耗馅与带茎遗体 | `.worktrees/wp-hq-stem` | art/props/family-life, standards/yukkuri-library/drafts/remains, family/StemDrain, family/FamilyRenderer, RemainsEntity |
-| 鬼威惨工具交互接线（按交互表） | `.worktrees/wp-hw-oni-tools-code` | interaction/OperationLife, item/OperationToolItem, interaction/InteractionDispatch, life/Consumables, life/SurfaceLife, shared protection gate |
 | 态度第四片：橱窗反应改读同一套数值 | `.worktrees/wp-hx-attitude-d` | shop/ShopWindow, shop/ShopMenu (sale reactions) |
 
 ## 玩法待办
