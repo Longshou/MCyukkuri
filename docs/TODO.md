@@ -14,7 +14,6 @@
 | 鬼威惨工具交互设计与重建模 | `.worktrees/wp-hh-oni-tools` | art/props/, src/main/resources/assets/mcyukkuri/ (tool models/textures), art/CATALOG.md |
 | 流浪油：遮蔽物、垃圾点、避风（FG 重做） | `.worktrees/wp-hf-stray` | src/main/java/.../shelter/, stray/forage code, museum FG scenes, docs/FEATURES.md |
 | 帽上赤油下帽是平移 | `.worktrees/wp-hm-hat-dismount` | aquatic/BrimPerformance, family/ParentCarry (release leg), hat rider release |
-| 打招呼前倾把对方撞退（反馈 18） | `.worktrees/wp-hn-greet-push` | social greeting presentation / contact, motion greet clips |
 | 个体数值与交互选择（自尊、对人讨食/辱骂/后退）第一片 | `.worktrees/wp-hk-attitude` | social/YukkuriSocial, settlement/SettlementLife (release fact), social/YukkuriPersonality (derived self-esteem helper), museum TN-13 |
 | 考试：可见问答与铂金章（反馈 15–17） | `.worktrees/wp-ho-exams` | pet/exam (ExamSession...), badge/, BadgeGrade switches, dialogue exam events, museum TN exam scenes |
 | 语料库待补事件与动作分级 | `.worktrees/wp-hp-corpus-tiers` | art/dialogue/corpus/, standards/yukkuri-library/motions/tiers.json |
