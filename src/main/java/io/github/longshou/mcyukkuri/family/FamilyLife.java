@@ -862,7 +862,8 @@ public final class FamilyLife {
     private static final int GROW_INTERVAL=100;
     private void updateMovement() {
         var speed=entity.getAttribute(Attributes.MOVEMENT_SPEED);if(speed==null)return;
-        double factor=GrowthSize.movement(stage,scale,entity.profile().houseBody());
+        // Vanilla applies the control value twice. The growth curve describes the stride on the ground.
+        double factor=Math.sqrt(BodyAbility.growthPace(entity));
         if(factor>=1)speed.removeModifier(GROWTH_SPEED);
         else speed.addOrUpdateTransientModifier(new AttributeModifier(GROWTH_SPEED,factor-1,AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
     }
@@ -1293,7 +1294,7 @@ public final class FamilyLife {
         if(task==Task.NONE||entity.isPanicking()||entity.life().mealTicks()>0||entity.isCommandPlaying())return false;
         if(task==Task.FEED_CHILD)return feeding.canContinue();
         if(urgentNeed())return false;
-        if(task==Task.COURT&&(taskTicks>=240||courtship.receiverInterrupted()||!courtship.stillWanted()))return false;
+        if(task==Task.COURT&&(courtship.receiverInterrupted()||!courtship.stillWanted()))return false;
         if(task==Task.RECEIVE_COURT&&!canReproduceWith(target)&&!courtship.answeringDecline())return false;
         if(task==Task.FETCH_HAT)return (chore!=null||!choreHat.isRemoved()&&choreHat.catches())&&taskTicks<2400&&Conductor.roleOf(entity)==null;
         if(task==Task.COMFORT)return comfortTicks>0;
@@ -1314,12 +1315,17 @@ public final class FamilyLife {
                 &&entity.distanceToSqr(target)<FAMILY_SEARCH_RANGE*FAMILY_SEARCH_RANGE;
         if(task==Task.SEARCH&&call.waitingAtGlass())return true;
         double followRange = task == Task.FOLLOW && familyTravelling() ? FAMILY_SEARCH_RANGE * FAMILY_SEARCH_RANGE : 256;
-        return taskTicks<240
+        int timeCap = switch (task) {
+            case COURT, RECEIVE_COURT -> Courtship.ROUND_TICKS;
+            case FOLLOW -> familyTravelling() ? 1200 : 240;
+            default -> 240;
+        };
+        return taskTicks<timeCap
                 &&(task==Task.SEARCH||target!=null&&target.isAlive()&&target.level()==entity.level()&&entity.distanceToSqr(target)<followRange);
     }
     public void tickGoal() {
         if(!canContinue()){
-            if(task==Task.COURT&&taskTicks>=240)courtship.courtStopped("time_cap");
+            if(task==Task.COURT&&taskTicks>=Courtship.ROUND_TICKS)courtship.courtStopped("time_cap");
             stop();return;
         }
         taskTicks++;

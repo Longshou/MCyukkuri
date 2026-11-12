@@ -49,6 +49,8 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.AABB;
 import io.github.longshou.mcyukkuri.pet.BadgeGrade;
+import io.github.longshou.mcyukkuri.motor.BodyAbility;
+import io.github.longshou.mcyukkuri.motor.geom.Gait;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.level.levelgen.Heightmap;
@@ -68,8 +70,10 @@ public final class PredatorLife implements EcologyRoutine {
     private static final float BITE_DAMAGE = 1.5f, COMBAT_DAMAGE = 1.5f;
     /** Ticks a predator stays and eats after one feeding bite, and stays settled after a combat kill (project design). */
     private static final int EAT_PAUSE = 160, KILL_PAUSE = 100;
-    /** Least ticks between two hits, stoop timeout, contact hold after a hit, and pull-away flight time (project design). */
-    private static final int SWOOP_GAP = 40, STOOP_LIMIT = 30, CONTACT_HOLD = 5, WITHDRAW_TICKS = 14;
+    private static final int SWOOP_GAP = 40, CONTACT_HOLD = 5;
+    /** A 7-block stoop and a 6-block pull-away with up to 4.5 blocks of lift need time to accelerate and brake. */
+    private static final int STOOP_LIMIT = 60, WITHDRAW_LIMIT = 64;
+    private static final int PURSUIT_LIMIT = 1200, OTHER_TASK_LIMIT = 800;
     private static final double SWOOP_HEIGHT = 4.5;
     private final YukkuriEntity animal;
     private Task task = Task.NONE;
@@ -433,7 +437,7 @@ public final class PredatorLife implements EcologyRoutine {
     }
     private boolean slowChild(YukkuriEntity target) {
         return !target.family().adult() && !target.family().subadult()
-                && target.getAttributeValue(Attributes.MOVEMENT_SPEED) < .18;
+                && target.getAttributeValue(Attributes.MOVEMENT_SPEED) < Gait.GROUND_ATTRIBUTE;
     }
     /** A prey that will fight back is harder than one that only runs: the score of one with a stick is worth ~eight blocks. */
     private boolean fightsBack(YukkuriEntity target) {
@@ -503,7 +507,7 @@ public final class PredatorLife implements EcologyRoutine {
         if (flightGoal == null || flightGoalTick != animal.tickCount || !canSustainFlight()) return null;
         Vec3 delta = flightGoal.subtract(animal.position());
         double distance = delta.length();
-        double maximum = animal.getAttributeValue(Attributes.FLYING_SPEED) * flightSpeed;
+        double maximum = BodyAbility.flightPace(animal, flightSpeed);
         double acceleration = .12 * Math.sqrt(Math.max(.1, animal.life().energy() / 100.0));
         // Include the next tick's displacement in the braking envelope. Weak flight starts braking earlier;
         // the ordinary .91 drag after travel only shortens this conservative no-drag stopping distance.
@@ -662,14 +666,16 @@ public final class PredatorLife implements EcologyRoutine {
     }
     private void tickGoal() {
         ticks++;
-        if (!runnable() || ticks > 800 && task != Task.LAND) {
-            GameplayLog.event(animal,"predator","activity cancelled; reason={} elapsed={}",ticks>800?"timeout":"not_ready",ticks);
+        boolean pursuing = task == Task.TAKEOFF || task == Task.CHASE || task == Task.DIVE;
+        boolean timedOut = task != Task.LAND && ticks > (pursuing ? PURSUIT_LIMIT : OTHER_TASK_LIMIT);
+        if (!runnable() || timedOut) {
+            GameplayLog.event(animal,"predator","activity cancelled; reason={} elapsed={}",timedOut?"timeout":"not_ready",ticks);
             stop(); return;
         }
         if (animal.life().energy() < 15 && task != Task.LAND && task != Task.EAT) landAvoidingFoe();
         if (task == Task.NONE) return;
         if (task == Task.EAT) { eat(); return; }
-        if (task == Task.TAKEOFF || task == Task.CHASE || task == Task.DIVE) {
+        if (pursuing) {
             if (!(retaliation ? retaliationReady() : wantsHunt()) || prey == null || !huntable(prey, true)) {
                 GameplayLog.event(animal,"predator","pursuit ended; prey={} prey_alive={} retaliation={} energy={} nutrition={} health={}",
                         prey==null?"none":prey.getUUID(),prey!=null&&prey.isAlive(),retaliation,animal.life().energy(),animal.life().nutrition(),animal.getHealth());
@@ -890,8 +896,11 @@ public final class PredatorLife implements EcologyRoutine {
                     away = away.lengthSqr() < 1e-4 ? new Vec3(1, 0, 0) : away.normalize();
                     withdrawGoal = animal.position().add(away.scale(6)).add(0, clearHeight(animal.position()), 0);
                 }
-                fly(withdrawGoal, 1.5);
-                if (task == Task.CHASE && prey == target && passTicks > CONTACT_HOLD + WITHDRAW_TICKS) { contactHold = false; withdrawGoal = null; setPass(Pass.APPROACH); }
+                fly(withdrawGoal, 1.5, 64);
+                if (task == Task.CHASE && prey == target
+                        && (animal.distanceToSqr(withdrawGoal) < 1 || passTicks > CONTACT_HOLD + WITHDRAW_LIMIT)) {
+                    contactHold = false; withdrawGoal = null; setPass(Pass.APPROACH);
+                }
             }
         }
     }

@@ -9,6 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ArcSolverTest {
     private static final double HOP_HEIGHT=.80,HOP_REACH=1,TOL=1e-6;
+    private static final double HOP_SPEED=Gait.hop(1,1);
     private static final ArcSolver.Clearance OPEN=points->true;
 
     /** Sweep that rejects every sample below {@code top} while it is over the X range {@code lo..hi}. */
@@ -26,41 +27,44 @@ class ArcSolverTest {
     @Test void runningHopCarriesTheRunBeyondStandingReachAndLandsWithoutAHeightIncrease(){
         double speed=.17;
         double flight=Ballistic.airTicks(ArcSolver.vyFor(HOP_HEIGHT),0);
-        double reach=ArcSolver.runningReach(HOP_HEIGHT,HOP_REACH,speed,0);
-        assertEquals(HOP_REACH+speed*flight,reach,TOL);
-        assertTrue(reach>2,"the running body must not be capped at its standing reach");
+        double reach=ArcSolver.runningReach(HOP_HEIGHT,HOP_REACH,speed,0,HOP_SPEED);
+        assertEquals(Ballistic.reachAt(HOP_SPEED,flight),reach,TOL);
+        assertTrue(reach>HOP_REACH,"the running body must reach beyond its standing hop");
         var plan=assertInstanceOf(ArcSolver.Plan.class,
-                ArcSolver.running(Vec.ZERO,new Vec(reach,0,0),HOP_HEIGHT,HOP_REACH,new Vec(speed,0,0),OPEN));
+                ArcSolver.running(Vec.ZERO,new Vec(reach,0,0),HOP_HEIGHT,HOP_REACH,new Vec(speed,0,0),HOP_SPEED,OPEN));
         assertEquals(flight,plan.ticks(),TOL);
         assertEquals(HOP_HEIGHT,plan.apex(),TOL);
-        assertTrue(plan.vh()>speed,"the spring adds to the retained running speed");
+        assertEquals(HOP_SPEED,plan.vh(),TOL);
         assertEquals(reach,sweep(plan).getLast().x(),.02);
         assertEquals(0,sweep(plan).getLast().y(),TOL);
     }
 
     @Test void runningReachDoesNotInventRunSpeedOrAllowOutOfRangeTargets(){
-        assertEquals(HOP_REACH,ArcSolver.runningReach(HOP_HEIGHT,HOP_REACH,0,0),TOL);
+        assertEquals(HOP_REACH,ArcSolver.runningReach(HOP_HEIGHT,HOP_REACH,0,0,HOP_SPEED),TOL);
         var stopped=assertInstanceOf(ArcSolver.Blocked.class,
-                ArcSolver.running(Vec.ZERO,new Vec(2,0,0),HOP_HEIGHT,HOP_REACH,Vec.ZERO,OPEN));
+                ArcSolver.running(Vec.ZERO,new Vec(2,0,0),HOP_HEIGHT,HOP_REACH,Vec.ZERO,HOP_SPEED,OPEN));
         assertEquals(ArcSolver.Kind.TOO_FAR,stopped.kind());
-        double reach=ArcSolver.runningReach(HOP_HEIGHT,HOP_REACH,.17,0);
+        double reach=ArcSolver.runningReach(HOP_HEIGHT,HOP_REACH,.17,0,HOP_SPEED);
         var far=assertInstanceOf(ArcSolver.Blocked.class,
-                ArcSolver.running(Vec.ZERO,new Vec(reach+.1,0,0),HOP_HEIGHT,HOP_REACH,new Vec(.17,0,0),OPEN));
+                ArcSolver.running(Vec.ZERO,new Vec(reach+.1,0,0),HOP_HEIGHT,HOP_REACH,new Vec(.17,0,0),HOP_SPEED,OPEN));
         assertEquals(ArcSolver.Kind.TOO_FAR,far.kind());
     }
 
     @Test void runningReachStillRejectsAWallAndAnUnreachableLandingHeight(){
         var wall=assertInstanceOf(ArcSolver.Blocked.class,
-                ArcSolver.running(Vec.ZERO,new Vec(2,0,0),HOP_HEIGHT,HOP_REACH,new Vec(.17,0,0),gate(.5,1.5,1)));
+                ArcSolver.running(Vec.ZERO,new Vec(1,0,0),HOP_HEIGHT,HOP_REACH,new Vec(.17,0,0),HOP_SPEED,gate(.3,.7,1)));
         assertEquals(ArcSolver.Kind.TOO_HIGH,wall.kind());
         var high=assertInstanceOf(ArcSolver.Blocked.class,
-                ArcSolver.running(Vec.ZERO,new Vec(1,1,0),HOP_HEIGHT,HOP_REACH,new Vec(.17,0,0),OPEN));
+                ArcSolver.running(Vec.ZERO,new Vec(1,1,0),HOP_HEIGHT,HOP_REACH,new Vec(.17,0,0),HOP_SPEED,OPEN));
         assertEquals(ArcSolver.Kind.TOO_HIGH,high.kind());
     }
 
     @Test void hullLegKeepsTheLowestClearanceAndAGroundHopJumps(){
         var lowest=assertInstanceOf(ArcSolver.Plan.class,ArcSolver.lowest(Vec.ZERO,new Vec(.5,0,0),HOP_HEIGHT,HOP_REACH,1,OPEN));
-        assertEquals(Ballistic.GRAVITY,lowest.apex(),TOL);
+        double originalTicks=Ballistic.airTicks(ArcSolver.vyFor(Ballistic.GRAVITY),0);
+        assertTrue(Ballistic.speedFor(.5,originalTicks)>HOP_SPEED);
+        assertEquals(.13,lowest.apex(),TOL);
+        assertTrue(lowest.vh()<=HOP_SPEED);
         var jump=assertInstanceOf(ArcSolver.Plan.class,
                 ArcSolver.lowest(Vec.ZERO,new Vec(.5,0,0),HOP_HEIGHT,HOP_REACH,1,OPEN,true,true));
         assertTrue(jump.apex()>.3&&jump.apex()<HOP_HEIGHT);

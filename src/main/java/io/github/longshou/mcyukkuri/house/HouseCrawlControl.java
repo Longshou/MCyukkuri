@@ -2,6 +2,7 @@ package io.github.longshou.mcyukkuri.house;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
+import io.github.longshou.mcyukkuri.motor.BodyAbility;
 import io.github.longshou.mcyukkuri.motor.Motor;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -37,7 +38,10 @@ public final class HouseCrawlControl extends MoveControl {
             blockedByHigherTarget = wantedY - entity.getY() > entity.maxUpStep()
                     && dx * dx + dz * dz < Math.max(1.0F, entity.getBbWidth());
         }
+        double requested = speedModifier;
+        speedModifier = BodyAbility.groundModifier(entity, requested);
         super.tick();
+        speedModifier = requested;
         // Low rims (nests) are crossed by ordinary step-up collision; vanilla would jump on every tick inside them.
         if (moving && operation == Operation.JUMPING && !Double.isNaN(footTop) && !blockedByHigherTarget) {
             double rise = footTop - entity.getY();

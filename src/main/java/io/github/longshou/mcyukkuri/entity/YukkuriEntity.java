@@ -44,7 +44,6 @@ import io.github.longshou.mcyukkuri.headwear.Sanction;
 import io.github.longshou.mcyukkuri.settlement.MoldExile;
 import io.github.longshou.mcyukkuri.house.HouseCrawlControl;
 import io.github.longshou.mcyukkuri.house.YukkuriJumpControl;
-import io.github.longshou.mcyukkuri.family.GrowthSize;
 import io.github.longshou.mcyukkuri.house.HouseCrawlMotion;
 import io.github.longshou.mcyukkuri.house.HouseLife;
 import io.github.longshou.mcyukkuri.interaction.OperationLife;
@@ -60,6 +59,8 @@ import io.github.longshou.mcyukkuri.motor.BodyDriver;
 import io.github.longshou.mcyukkuri.motor.Held;
 import io.github.longshou.mcyukkuri.motor.Attach;
 import io.github.longshou.mcyukkuri.motor.Motor;
+import io.github.longshou.mcyukkuri.motor.BodyAbility;
+import io.github.longshou.mcyukkuri.motor.geom.Gait;
 import io.github.longshou.mcyukkuri.motor.TravelMode;
 import io.github.longshou.mcyukkuri.motor.action.Hop;
 import io.github.longshou.mcyukkuri.motor.surface.SurfaceHost;
@@ -115,6 +116,7 @@ import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.SpawnGroupData;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.ai.control.FlyingMoveControl;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.ai.goal.GoalSelector;
@@ -370,10 +372,13 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     public double crawlSpeed() { return HouseCrawlMotion.TRAVEL_UNITS / 16 / HouseCrawlMotion.PERIOD_TICKS * crawlScale(); }
     /** Blocks the crawl gait covers this tick, on its own stroke clock from the crawl's start. */
     public double crawlStep() { return HouseCrawlMotion.advance(level().getGameTime()-getCrawlStartTick()) * crawlScale(); }
-    /** The crawl does not shrink with growth (a newborn covers about .2 blocks per second); only the body scale and the non-growth speed factors (wounds, weakness, soles) change it. */
+    /** Keep the crawl's short contact stroke throughout growth, with a smaller stride for young bodies. */
     private double crawlScale() {
-        double growth = GrowthSize.movement(family.stage(), family.scale(), SpeciesProfile.of(variant).houseBody());
-        return getScale() * Math.max(1, growthScale()) * getAttributeValue(Attributes.MOVEMENT_SPEED) / Math.max(.0001, getAttributeBaseValue(Attributes.MOVEMENT_SPEED) * growth);
+        double growth = BodyAbility.growthPace(this);
+        double mobility = getAttributeValue(Attributes.MOVEMENT_SPEED)
+                / Math.max(.0001, getAttributeBaseValue(Attributes.MOVEMENT_SPEED) * Math.sqrt(growth));
+        return getScale() * Math.max(1, growthScale()) * (.7 + .3 * growth)
+                * mobility * BodyAbility.temperament(this) * BodyAbility.carrying(this);
     }
     public boolean canCrawlNow() { return !isPassenger() && crawler(); }
     /** The crawl is this body's gait now: on the ground, or riding a host's surface (a hat floor), where the host walk drives it. */
@@ -390,6 +395,15 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
         if (childhood == null || childhood.canJump() || isInWaterOrBubble() || isOnFire() || isPanicking()) super.jumpFromGround();
     }
 
+    @Override public void move(MoverType type, Vec3 delta) {
+        super.move(type, type == MoverType.SELF ? Motor.limitHorizontal(delta) : delta);
+    }
+
+    /** Action sweeps and contact motion have already been solved by the motor. */
+    public void moveByMotor(Vec3 delta) {
+        super.move(MoverType.SELF, delta);
+    }
+
     @Override public void travel(Vec3 input) {
         if (!level().isClientSide && motor.tickTravel(input) == TravelMode.CONSUMED) return;
         if (!level().isClientSide && family.birthTravel()) return;
@@ -400,10 +414,8 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
         } else if (predatorFlying()) {
             if (isControlledByLocalInstance()) {
                 Vec3 controlled = level().isClientSide ? null : predator.flightStep(getDeltaMovement());
-                if (controlled == null) moveRelative(.1f, input);
-                else Motor.velocity(this, controlled, "predator_flight");
-                Motor.move(this, getDeltaMovement(), "predator_flight");
-                Motor.velocity(this, getDeltaMovement().scale(.91), "predator_drag"); fallDistance = 0;
+                Motor.fly(this, input, controlled);
+                fallDistance = 0;
             }
         } else if (!level().isClientSide && isCrawling() && canCrawlNow() && onGround()) {
             double distance = crawlStep();
@@ -692,8 +704,8 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     public static AttributeSupplier.Builder createAttributes() {
         return PathfinderMob.createMobAttributes()
                 .add(Attributes.MAX_HEALTH, 10.0)
-                .add(Attributes.MOVEMENT_SPEED, 0.18)
-                .add(Attributes.FLYING_SPEED, 0.30)
+                .add(Attributes.MOVEMENT_SPEED, Gait.GROUND_ATTRIBUTE)
+                .add(Attributes.FLYING_SPEED, Gait.FLIGHT_ATTRIBUTE)
                 .add(Attributes.FOLLOW_RANGE, 16.0)
                 .add(Attributes.STEP_HEIGHT, 1.0);
     }

@@ -4,7 +4,9 @@ import io.github.longshou.mcyukkuri.MCYukkuri;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.motor.action.Grab;
+import io.github.longshou.mcyukkuri.motor.geom.Ballistic;
 import io.github.longshou.mcyukkuri.motor.geom.Effort;
+import io.github.longshou.mcyukkuri.motor.geom.Gait;
 import io.github.longshou.mcyukkuri.motor.surface.SurfaceHost;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.Locale;
@@ -29,6 +31,33 @@ public final class Motor {
 
     private Motor() {}
 
+    /** Preserve gravity and step-up. Only the horizontal travel of the gait is bounded. */
+    public static Vec3 limitHorizontal(Vec3 motion) {
+        double distance = motion.horizontalDistance();
+        if (distance <= Gait.HUMAN_WALK) return motion;
+        double scale = Gait.HUMAN_WALK / distance;
+        return motion.multiply(scale, 1, scale);
+    }
+
+    /** Path-node steering uses the same three-dimensional pace as a direct flight command. */
+    public static void fly(YukkuriEntity body, Vec3 input, Vec3 controlled) {
+        double drag = Ballistic.AIR_DRAG;
+        if (controlled == null) {
+            controlled = body.getDeltaMovement();
+            if (input.lengthSqr() > 1e-8) {
+                var control = body.getMoveControl();
+                var toward = new Vec3(control.getWantedX(), control.getWantedY(), control.getWantedZ()).subtract(body.position());
+                double pace = BodyAbility.flightPace(body, control.getSpeedModifier());
+                controlled = controlled.add(toward.normalize().scale(pace * (1 - drag)));
+            }
+        }
+        double distance = controlled.length();
+        if (distance > Gait.HUMAN_WALK) controlled = controlled.scale(Gait.HUMAN_WALK / distance);
+        velocity(body, controlled, "predator_flight");
+        move(body, controlled, "predator_flight");
+        velocity(body, body.getDeltaMovement().scale(drag), "predator_drag");
+    }
+
     /** A supported body's own action follows its changing underside without moving across the host. */
     public static void supportHeight(SurfaceHost host, YukkuriEntity body, double height, String cause) {
         var place = host.riders().spot(body.getUUID());
@@ -52,7 +81,7 @@ public final class Motor {
         var delta=to.subtract(body.position()).multiply(1,0,1);double distance=delta.length();
         body.getMoveControl().setWantedPosition(to.x,to.y,to.z,0);body.setSpeed(0);
         double pace=BodyAbility.of(body).walkSpeed()*BodyAbility.carrying(body)*speed;
-        var v=distance>.001?delta.scale(Math.min(pace,distance)/distance):Vec3.ZERO;
+        var v=distance>.001?limitHorizontal(delta.scale(Math.min(pace,distance)/distance)):Vec3.ZERO;
         if(distance>.001)face(body,SurfaceApproach.yaw(body.position(),to));
         velocity(body,new Vec3(v.x,body.getDeltaMovement().y,v.z),"straight_step");
         return SurfaceApproach.at(body,to);
@@ -83,7 +112,8 @@ public final class Motor {
     public static Vec3 move(Entity body, Vec3 delta, String cause) {
         if (body == null || delta == null) return Vec3.ZERO;
         Vec3 from = body.position();
-        body.move(MoverType.SELF, delta);
+        if (body instanceof YukkuriEntity animal) animal.moveByMotor(delta);
+        else body.move(MoverType.SELF, delta);
         return body.position().subtract(from);
     }
 

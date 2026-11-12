@@ -25,6 +25,8 @@ final class Courtship {
     private int courtNearTicks, courtContactTicks, courtPathFailures, courtRequiredTicks;
     private long courtStart=-1, courtContactStart=-1;
     private static final int COURT_ACCEPT_TICKS=28;
+    /** A comeback can start 12 blocks away, then still needs time to turn and complete a 120-tick contact. */
+    static final int ROUND_TICKS=440;
     /** How long a candidate leaves a paired adult alone after her back turned him down: half a heat period, like a held permit. */
     private static final int REFUSAL_PAUSE=600;
     /** How far he walks back to a partner whose own work cut the last round short (the family search range). */

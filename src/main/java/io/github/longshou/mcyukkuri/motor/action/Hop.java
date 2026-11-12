@@ -295,9 +295,9 @@ public final class Hop implements Action {
         float yaw = heading(body, anchor, frame == null ? start : start.scale(1 / frame.unit()),
                 frame == null ? end : end.scale(1 / frame.unit()), body.yBodyRot);
         var result = runUp == null
-                ? ArcSolver.lowest(from, to, ability.hopHeight(), ability.hopReach(), ability.scale(),
+                ? ArcSolver.lowest(from, to, ability.hopHeight(), ability.hopReach(), ability.scale(), ability.hopSpeed(),
                         points -> clear(body, start, anchor, hosts, points, delay, yaw), visibleRise, diagnose)
-                : ArcSolver.running(from, to, ability.hopHeight(), ability.hopReach(), vec(runUp),
+                : ArcSolver.running(from, to, ability.hopHeight(), ability.hopReach(), vec(runUp), ability.hopSpeed(),
                         points -> clear(body, start, anchor, hosts, points, delay, yaw));
         timing(body, "arc", started);
         return result;

@@ -31,6 +31,11 @@ public final class Ballistic {
         return dx*(1-AIR_DRAG)/(1-Math.pow(AIR_DRAG,n));
     }
 
+    /** Reach at a given horizontal takeoff speed, on the same drag curve as speedFor. */
+    public static double reachAt(double speed, double ticks) {
+        return speed * (1 - Math.pow(AIR_DRAG, ticks)) / (1 - AIR_DRAG);
+    }
+
     /** A nominal push along a unit horizontal heading, reaching the aim's height/distance in ticks; no backward target. */
     public static Vec forward(Vec delta,Vec heading,int ticks){
         if(delta.x()*heading.x()+delta.z()*heading.z()<=0)return null;

@@ -1,14 +1,17 @@
 package io.github.longshou.mcyukkuri.motor;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.family.GrowthSize;
 import io.github.longshou.mcyukkuri.motor.geom.AbilityMath;
 import io.github.longshou.mcyukkuri.motor.geom.ArcSolver;
 import io.github.longshou.mcyukkuri.motor.geom.Ballistic;
+import io.github.longshou.mcyukkuri.motor.geom.Gait;
 import java.util.Locale;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.phys.Vec3;
 
 /** What one body can do right now: the S/E/H/I/F formulas over {@link AbilityTable} coefficients and {@link AbilityModifier} factors; the host load L is 1 when a caller knows none. */
-public record BodyAbility(boolean canJump, double hopHeight, double hopReach, double stepUp, double walkSpeed,
+public record BodyAbility(boolean canJump, double hopHeight, double hopReach, double hopSpeed, double stepUp, double walkSpeed,
                           double turnRate, double swimSpeed, double climbRise, double grip, double scale) {
     /** A body that carries nothing: the host load factor L stays 1. */
     public static BodyAbility of(YukkuriEntity body) { return of(body, 0); }
@@ -17,9 +20,31 @@ public record BodyAbility(boolean canJump, double hopHeight, double hopReach, do
     public static BodyAbility of(YukkuriEntity body, double load) {
         AbilityMath.Values ability = AbilityMath.compute(inputs(body, load), AbilityTable.current(),
                 AbilityModifier.of(body));
-        return new BodyAbility(ability.canJump(), ability.hopHeight(), ability.hopReach(), ability.stepUp(),
-                ability.walkSpeed(), ability.turnRate(), ability.swimSpeed(), ability.climbRise(), ability.grip(),
+        double temperament = temperament(body);
+        return new BodyAbility(ability.canJump(), ability.hopHeight(), ability.hopReach(), Gait.hop(ability.size(), temperament),
+                ability.stepUp(), Gait.walk(ability.walkSpeed(), temperament), ability.turnRate(),
+                Gait.swim(ability.swimSpeed(), temperament), ability.climbRise(), ability.grip(),
                 ability.size());
+    }
+
+    public static double temperament(YukkuriEntity body) {
+        return Gait.temperament(body.life().personality().boldness());
+    }
+
+    public static double growthPace(YukkuriEntity body) {
+        var family = body.family();
+        return GrowthSize.movement(family.stage(), family.scale(), body.profile().houseBody());
+    }
+
+    /** Keep the goal's request intact for repaths. Convert it when vanilla consumes it. */
+    public static double groundModifier(YukkuriEntity body, double request) {
+        double attribute = body.getAttributeValue(Attributes.MOVEMENT_SPEED);
+        if (attribute == 0) return request; // A dying body has no drive.
+        return Gait.groundControl(attribute * request, temperament(body) * carrying(body)) / attribute;
+    }
+
+    public static double flightPace(YukkuriEntity body, double request) {
+        return Gait.flight(body.getAttributeValue(Attributes.FLYING_SPEED), request, growthPace(body), temperament(body));
     }
 
     /** The pace it presses or swims with (blocks a tick): its swim speed in water, its walk speed out of it. */
@@ -34,7 +59,7 @@ public record BodyAbility(boolean canJump, double hopHeight, double hopReach, do
     }
 
     public double runningReach(double groundSpeed, double rise) {
-        return ArcSolver.runningReach(hopHeight, hopReach, groundSpeed, rise);
+        return ArcSolver.runningReach(hopHeight, hopReach, groundSpeed, rise, hopSpeed);
     }
 
     /** An adult's ram effort per stroke, from its current pace, fitness, size and species strength. */

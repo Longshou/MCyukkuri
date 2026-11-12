@@ -167,10 +167,9 @@ public final class Walk implements Action {
             return new Running(near - groundRouteOffset, TravelMode.PASS, false);
         }
         double beforeRoute = measuredGroundRoute ? 0 : remaining(body);
-        double paceNow = speed * BodyAbility.carrying(body);
         boolean arrived = avoid == null
-                ? SurfaceApproach.walk(body, target, paceNow)
-                : SurfaceApproach.walkAround(body, target, avoid, paceNow);
+                ? SurfaceApproach.walk(body, target, speed)
+                : SurfaceApproach.walkAround(body, target, avoid, speed);
         var moved = SurfaceApproach.goal(body, target);
         if (moved != null) goal = moved;
         double flat = body.position().subtract(goal).horizontalDistance();

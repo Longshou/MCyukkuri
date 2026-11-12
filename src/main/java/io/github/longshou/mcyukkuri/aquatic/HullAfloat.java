@@ -138,7 +138,7 @@ public final class HullAfloat implements PlacedHatBehavior {
     }
 
     private static Vec3 drift(Vec3 velocity, Vec3 drive) {
-        return velocity.scale(DRAG).add(drive.scale(1 - DRAG)).multiply(1, 0, 1);
+        return Motor.limitHorizontal(velocity.scale(DRAG).add(drive.scale(1 - DRAG)).multiply(1, 0, 1));
     }
 
     private record Forecast(long tick, HostFrame origin, Vec3 velocity, double load, Map<Integer, HostFrame> frames) {}

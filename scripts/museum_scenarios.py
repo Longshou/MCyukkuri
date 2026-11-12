@@ -3885,6 +3885,8 @@ def _alice_share_home(window):
 _smoke('alice_chores', 600, [r'\[habitat\] alice [^\n]* home chosen', r'\[habitat\] reimu [^\n]* home chosen'])
 next(s for s in S if s.id == 'alice_chores').smoke['verify'] = _alice_share_home
 _smoke('sacrifice', 1200, [r'\[grief\][^\n]* protection diverted [^\n]*response=protect_child_worry'])
+_smoke('pred_range', 1800, [r'\[predator\] flandre [^\n]* prey selected [^\n]* distance=4[0-9]',
+                            r'\[predator\] flandre [^\n]* feeding bite [^\n]* mouthful_accepted=true'])
 _smoke('colony_hunt', 2400, [r'\[settlement\][^\n]* event=hunt_call [^\n]*detail=party \d+ dest '])
 for _exile_scene, _scope in (('colony_mold_exile', 'colony'), ('den_mold_exile', 'family')):
     _smoke(_exile_scene, 2400, [

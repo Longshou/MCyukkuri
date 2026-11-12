@@ -15,6 +15,7 @@ import io.github.longshou.mcyukkuri.motor.Action;
 import io.github.longshou.mcyukkuri.motor.Attach;
 import io.github.longshou.mcyukkuri.motor.AttachState;
 import io.github.longshou.mcyukkuri.motor.BodyAbility;
+import io.github.longshou.mcyukkuri.settlement.SettlementLife;
 import io.github.longshou.mcyukkuri.motor.BodyDriver;
 import io.github.longshou.mcyukkuri.motor.ClipMarkers;
 import io.github.longshou.mcyukkuri.motor.ContactGeometry;
@@ -101,7 +102,6 @@ public final class ParentCarry {
      *  (project design: a nest and the doorway stand in front of it). */
     private static final double HOME_REACH = 2.5;
     private static final int MAX_CARRY_TICKS = 12000;
-    private static final int MAX_MARCH_CARRY_TICKS = 1200;
     /** A mouth or braid-tip hold takes a child up to this share of the carrier's volume, scaled by strength (project design). */
     static final double HOLD_FRACTION = .20;
     /** Reimu's mouth cavity (measured on her model, project design): the summed volume of the babies in it stays within this
@@ -1702,7 +1702,7 @@ public final class ParentCarry {
         var life = carrier.life();
         if (purpose == Purpose.MIGRATE) {
             if (carrier.settlement().atMigrationReleaseGround()) return "arrived_destination";
-            if (now - since >= MAX_MARCH_CARRY_TICKS) return "timeout";
+            if (now - since >= SettlementLife.MARCH_TRAVEL_TICKS) return "timeout";
             if (!carrier.settlement().familyMarching()) return "migration_ended";
         }
         if (life.isSleeping()) return "carrier_sleeping";

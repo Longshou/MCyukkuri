@@ -48,7 +48,7 @@ final class CarriedHop {
         int legs = Math.max(1, (int) Math.ceil(distance / ability.hopReach()));
         to = legs == 1 ? destination : from.lerp(destination, 1.0 / legs);
         var result = ArcSolver.lowest(vec(from.scale(unit())), vec(to.scale(unit())), ability.hopHeight(),
-                ability.hopReach(), ability.scale(), points -> {
+                ability.hopReach(), ability.scale(), ability.hopSpeed(), points -> {
                     Vec3 previous = world(from);
                     for (var p : points) {
                         var at = world(from.add(p.x() / unit(), p.y() / unit(), p.z() / unit()));

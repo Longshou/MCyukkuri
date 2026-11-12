@@ -32,20 +32,21 @@ public final class ArcSolver {
         return Ballistic.airTicks(vyFor(hopHeight),rise);
     }
 
-    public static double runningReach(double hopHeight,double hopReach,double groundSpeed,double rise){
-        return hopReach+groundSpeed*flightTicks(hopHeight,rise);
+    public static double runningReach(double hopHeight,double hopReach,double groundSpeed,double rise,double hopSpeed){
+        double ticks=flightTicks(hopHeight,rise);
+        return Math.min(hopReach+groundSpeed*ticks, Ballistic.reachAt(hopSpeed,ticks));
     }
 
     /** The takeoff adds the spring to the running body's momentum. The launch speed compensates air drag,
      * so its reachable distance is ground speed times flight time plus the standing hop reach. */
-    public static Result running(Vec from,Vec to,double hopHeight,double hopReach,Vec groundMotion,Clearance clearance){
+    public static Result running(Vec from,Vec to,double hopHeight,double hopReach,Vec groundMotion,double hopSpeed,Clearance clearance){
         Vec delta=to.sub(from);
         double distance=delta.hlen(),rise=delta.y();
         if(rise>hopHeight)return new Blocked(Kind.TOO_HIGH,rise-hopHeight);
-        double reach=runningReach(hopHeight,hopReach,groundMotion.hlen(),rise);
-        if(distance>reach+REACH_SLACK)return new Blocked(Kind.TOO_FAR,distance-reach-REACH_SLACK);
+        double reach=runningReach(hopHeight,hopReach+REACH_SLACK,groundMotion.hlen(),rise,hopSpeed);
+        if(distance>reach)return new Blocked(Kind.TOO_FAR,distance-reach);
         Vec direction=distance<1e-9?new Vec(1,0,0):new Vec(delta.x()/distance,0,delta.z()/distance);
-        Plan plan=attempt(hopHeight,rise,distance,direction,clearance);
+        Plan plan=attempt(hopHeight,rise,distance,direction,hopSpeed,clearance);
         return plan==null?new Blocked(Kind.TOO_HIGH,REPORT_RISE):plan;
     }
 
@@ -61,6 +62,11 @@ public final class ArcSolver {
      */
     public static Result lowest(Vec from,Vec to,double hopHeight,double hopReach,double scale,Clearance clearance,
                                 boolean visibleRise,boolean diagnose){
+        return lowest(from,to,hopHeight,hopReach,scale,Gait.hop(scale,1),clearance,visibleRise,diagnose);
+    }
+
+    public static Result lowest(Vec from,Vec to,double hopHeight,double hopReach,double scale,double hopSpeed,
+                                Clearance clearance,boolean visibleRise,boolean diagnose){
         Vec d=to.sub(from);
         double dx=d.hlen(),dy=d.y();
         if(dx>hopReach+REACH_SLACK)return new Blocked(Kind.TOO_FAR,dx-hopReach-REACH_SLACK);
@@ -73,18 +79,21 @@ public final class ArcSolver {
         if(visibleRise)rise=Math.max(rise,hopHeight*dx/(hopReach+REACH_SLACK));
         for(double c=rise;;c+=STEP){
             double apex=Math.min(c,hopHeight);
-            Plan plan=attempt(apex,dy,dx,dir,clearance);
+            Plan plan=attempt(apex,dy,dx,dir,hopSpeed,clearance);
             if(plan!=null)return plan;
             if(apex>=hopHeight)break;
         }
-        if(diagnose)for(double extra=STEP;extra<=REPORT_RISE;extra+=STEP)if(attempt(hopHeight+extra,dy,dx,dir,clearance)!=null)return new Blocked(Kind.TOO_HIGH,extra);
+        double speedReach=Ballistic.reachAt(hopSpeed,flightTicks(hopHeight,dy));
+        if(dx>speedReach)return new Blocked(Kind.TOO_FAR,dx-speedReach);
+        if(diagnose)for(double extra=STEP;extra<=REPORT_RISE;extra+=STEP)if(attempt(hopHeight+extra,dy,dx,dir,hopSpeed,clearance)!=null)return new Blocked(Kind.TOO_HIGH,extra);
         return new Blocked(Kind.TOO_HIGH,REPORT_RISE);
     }
 
-    private static Plan attempt(double apex,double dy,double dx,Vec dir,Clearance clearance){
+    private static Plan attempt(double apex,double dy,double dx,Vec dir,double hopSpeed,Clearance clearance){
         double vy=vyFor(apex),n=Ballistic.airTicks(vy,dy);
         if(n<=0||n>=Ballistic.MAX_TICKS)return null;
         double vh=Ballistic.speedFor(dx,n);
+        if(vh>hopSpeed+Ballistic.TOUCH)return null;
         return clearance.clear(Ballistic.samples(new Vec(vh*dir.x(),vy,vh*dir.z()),n))?new Plan(vy,vh,dir,n,apex):null;
     }
 
