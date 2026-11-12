@@ -64,6 +64,7 @@ public final class YukkuriSocial implements MotorOwner {
     private double humanRetreatRoll;
     private int humanWatchUntil;
     private long replyUntil;
+    private Vec3 humanEscapeStand;
     /** A loose-accessory retrieval: one budget for the whole trip (the walk to a bank stand, the step in and the swim), since a
      *  route round a bank corner is longer than the social tasks' short beat. */
     private static final int ACCESSORY = 1200;
@@ -616,21 +617,44 @@ public final class YukkuriSocial implements MotorOwner {
     }
 
     private void retreatFromHuman(double wariness) {
-        if (greeted) {
-            if (entity.getNavigation().isDone()) stop();
+        if (!greeted) {
+            if (!EcologyMovement.supported(entity)) return;
+            greeted = true;
+            boolean afraid = wariness >= .62;
+            if (afraid) entity.mind().felt(EmotionEvent.FRIGHTENED);
+            if (visitor(target)) entity.pet().lessons().performed(PetSkill.GREETING, false);
+            if (chooseHumanEscape(wariness)) entity.showReaction(afraid ? "surprise" : "angry", afraid ? "afraid" : "", 80);
             return;
         }
-        if (!EcologyMovement.supported(entity)) return;
-        greeted = true;
-        boolean afraid = wariness >= .62;
-        if (afraid) entity.mind().felt(EmotionEvent.FRIGHTENED);
-        entity.showReaction(afraid ? "surprise" : "angry", afraid ? "afraid" : "", 80);
-        if (visitor(target)) entity.pet().lessons().performed(PetSkill.GREETING, false);
-        Vec3 away = Reactions.awayFrom(entity, 5, target.position());
-        boolean moving = away != null && EcologyMovement.navigate(entity, away, 1.1);
-        GameplayLog.event(entity, "social", "human retreat identity={} player={} wariness={} moving={}",
-                entity.status().identity().id(), target.getUUID(), wariness, moving);
-        if (!moving) stop();
+        // An empty stand after selection is the bounded cower. Keep it until the reaction or contact ends.
+        if (humanEscapeStand == null) return;
+        var result = SurfaceApproach.walkResult(entity, humanEscapeStand, target, 1.1);
+        if (result == SurfaceApproach.Result.ARRIVED) stop();
+        else if (result == SurfaceApproach.Result.BLOCKED && EcologyMovement.supported(entity)) chooseHumanEscape(wariness);
+    }
+
+    private boolean chooseHumanEscape(double wariness) {
+        // The shared stand search tries a regular dry escape, cover and side exits. If the physical walk
+        // immediately refuses a stand, spend the next attempt on a different cell.
+        for (int attempt = 0; attempt < 3; attempt++) {
+            var stand = Reactions.escapeStand(entity, target, 5, triedStands);
+            if (stand == null) break;
+            triedStands.add(BlockPos.containing(stand));
+            var result = SurfaceApproach.walkResult(entity, stand, target, 1.1);
+            if (result == SurfaceApproach.Result.BLOCKED || result == SurfaceApproach.Result.ARRIVED) continue;
+            humanEscapeStand = stand;
+            GameplayLog.event(entity, "social", "human retreat identity={} player={} wariness={} moving=true stand={}",
+                    entity.status().identity().id(), target.getUUID(), wariness, GameplayLog.at(stand));
+            return true;
+        }
+        humanEscapeStand = null;
+        EcologyMovement.halt(entity);
+        // Hold the existing afraid tremble and teary face briefly when there is nowhere to go.
+        duration = elapsed + 40;
+        entity.showReaction("teary", "afraid", 40);
+        GameplayLog.event(entity, "social", "human retreat identity={} player={} wariness={} moving=false response=cower",
+                entity.status().identity().id(), target.getUUID(), wariness);
+        return false;
     }
     /** Why this arrival is a greeting, or null: a first meeting, a return after a real separation, or the first morning contact of a kin. */
     private String greetReason(YukkuriEntity peer, YukkuriWorldData relations) {
@@ -780,6 +804,8 @@ public final class YukkuriSocial implements MotorOwner {
         if (protectedContact != null) { personality().releaseRelation(protectedContact); protectedContact = null; }
         task = Task.NONE; target = null; exercise = null; elapsed = 0; greeted = false; retreat = false; cautious = false; greetWhy = null;
         humanWatchUntil = 0; replyUntil = 0;
+        humanEscapeStand = null;
+        triedStands.clear();
         entity.getNavigation().stop();
     }
 }

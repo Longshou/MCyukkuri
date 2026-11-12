@@ -23,6 +23,7 @@ import io.github.longshou.mcyukkuri.settlement.ShelterBlock;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.EnumSet;
+import java.util.List;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.damagesource.DamageSource;
@@ -36,8 +37,12 @@ import io.github.longshou.mcyukkuri.headwear.Recognition;
 import io.github.longshou.mcyukkuri.human.HumanNpc;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import java.util.Locale;
+import java.util.Set;
 import java.util.UUID;
 import net.minecraft.core.Direction;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.ClipContext;
+import net.minecraft.world.phys.HitResult;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
@@ -424,6 +429,48 @@ public final class Reactions {
             if (away == null) return null;
             var pos = BlockPos.containing(away);
             if (y.life().dryStand(pos) && TravelRange.babyDestination(y, pos)) return away;
+        }
+        return null;
+    }
+
+    /** A short retreat to a supported stand, with a local search for cover and side exits when the usual flee point fails. */
+    public static Vec3 escapeStand(YukkuriEntity body, Entity danger, int distance, Set<BlockPos> tried) {
+        var obstacle = danger.getBoundingBox();
+        var dangerAt = danger.position();
+        double currentDistance = body.distanceTo(danger);
+        var away = awayFrom(body, distance, dangerAt);
+        if (away != null) {
+            var stand = SurfaceApproach.floor(body, away);
+            if (stand != null && body.distanceToSqr(stand) >= 1 && !tried.contains(BlockPos.containing(stand))
+                    && stand.distanceTo(dangerAt) > currentDistance
+                    && Double.isFinite(SurfaceApproach.routeLength(body, stand, obstacle))) return stand;
+        }
+
+        var origin = body.blockPosition();
+        var level = body.level();
+        var cover = new ArrayList<Vec3>();
+        var open = new ArrayList<Vec3>();
+        for (var cell : BlockPos.betweenClosed(origin.offset(-distance, 0, -distance), origin.offset(distance, 0, distance))) {
+            int dx = cell.getX() - origin.getX(), dz = cell.getZ() - origin.getZ();
+            if (dx * dx + dz * dz > distance * distance || cell.equals(origin)) continue;
+            // Resolve the actual support from the current sole height, including slabs and paths.
+            var stand = SurfaceApproach.floor(body, new Vec3(cell.getX() + .5, body.getY(), cell.getZ() + .5));
+            if (stand == null || tried.contains(BlockPos.containing(stand)) || body.distanceToSqr(stand) < 1
+                    || !TravelRange.babyDestination(body, BlockPos.containing(stand))) continue;
+            var eye = stand.add(0, body.getEyeHeight(), 0);
+            boolean screened = level.clip(new ClipContext(danger.getEyePosition(), eye,
+                    ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, danger)).getType() != HitResult.Type.MISS;
+            double separation = stand.distanceTo(dangerAt);
+            if (screened && separation >= currentDistance) cover.add(stand);
+            else if (separation >= currentDistance + .5) open.add(stand);
+        }
+        for (var candidates : List.of(cover, open)) {
+            candidates.sort(Comparator.comparingDouble(body::distanceToSqr));
+            // Keep one blocked corner from consuming the whole route budget.
+            for (int i = 0; i < Math.min(8, candidates.size()); i++) {
+                var stand = candidates.get(i);
+                if (Double.isFinite(SurfaceApproach.routeLength(body, stand, obstacle))) return stand;
+            }
         }
         return null;
     }
