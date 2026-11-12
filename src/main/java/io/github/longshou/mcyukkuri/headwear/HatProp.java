@@ -69,7 +69,9 @@ public final class HatProp implements Prop {
     }
 
     @Override public Entity setDown(Vec3 at, float yaw) {
-        return PlacedHatEntity.setDown(owner, at, yaw, self ? HatGeometry.Role.SELF : HatGeometry.Role.HELPER);
+        var hat = PlacedHatEntity.setDown(owner, at, yaw, self ? HatGeometry.Role.SELF : HatGeometry.Role.HELPER);
+        if (hat != null && self && water && owner.isInWaterOrBubble()) owner.speakCue("self_rescue_hat");
+        return hat;
     }
 
     @Override public boolean takeBack() { return entity() instanceof PlacedHatEntity hat && hat.retrieve(owner); }

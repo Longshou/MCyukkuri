@@ -106,7 +106,7 @@ LINES = {
     'boat_rock_startle': {
         'adult': ('{t}！ ふねが、ゆれる！', '{t}！船在摇！', '{t}! The boat is rocking!'),
         'young': ('{t}！ ふにぇが、ゆれりゅ！', '{t}！船在摇摇！', '{t}! Boat is wockin!')},
-    'braid_rescue_grip': {
+    'braid_rescue_mouth_grip': {
         'adult': ('くわえた！ はなさない！ {t}！', '咬住了！不会松口！{t}！', "Got you! I won't let go! {t}!"),
         'young': ('くわえちゃ！ はなしゃない！ {t}！', '咬住惹！不松口！{t}！', "Got chu! Won't let go! {t}!")},
     'braid_rescue_offer': {

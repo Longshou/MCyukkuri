@@ -64,6 +64,7 @@ public final class HullAfloat implements PlacedHatBehavior {
     private boolean falling;
     private float flipFrom;
     private double impact;
+    private boolean driftNoticed;
     private Vec3 drive = Vec3.ZERO;
     private float turnBy;
     private double rightProgress = -1;
@@ -257,6 +258,7 @@ public final class HullAfloat implements PlacedHatBehavior {
         travel = ridersStop(travel);
         Motor.velocity(hat, travel.velocity, "hull_drift");
         var actual = Motor.move(hat, travel.move, "hull_drift");
+        noticeDrift(actual);
         var blocked = pushed.move.subtract(actual).multiply(1, 0, 1);
         if (blocked.lengthSqr() > 0) impact = Math.max(impact, pushed.velocity.dot(blocked.normalize()));
         if (StatusEvents.trace()) GameplayLog.event(hat, "hat",
@@ -264,6 +266,17 @@ public final class HullAfloat implements PlacedHatBehavior {
                 hat.getDeltaMovement(), drive, impact, hat.getPassengers().size());
         drive = Vec3.ZERO; turnBy = 0;
         if (triggers.impact(impact)) trigger("impact", impact, false);
+    }
+
+    /** The owner notices a real outward drift of the unattended hull once while it is afloat. */
+    private void noticeDrift(Vec3 actual) {
+        if (driftNoticed || hat.isVehicle() || drive.horizontalDistanceSqr() != 0 || actual.horizontalDistanceSqr() == 0) return;
+        var owner = hat.owner();
+        if (owner == null || !owner.isAlive() || owner.distanceToSqr(hat) > 16 * 16 || !owner.hasLineOfSight(hat)) return;
+        var fromOwner = hat.position().subtract(owner.position());
+        if (fromOwner.horizontalDistanceSqr() <= fromOwner.subtract(actual).horizontalDistanceSqr()) return;
+        driftNoticed = true;
+        owner.speakCue("hat_drifting");
     }
 
     private static boolean falling(FluidState fluid) {

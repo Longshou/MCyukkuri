@@ -35,6 +35,7 @@ import io.github.longshou.mcyukkuri.family.LeafSwaddle;
 import io.github.longshou.mcyukkuri.shop.ShopWindow;
 import io.github.longshou.mcyukkuri.family.FamilyLife;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
+import io.github.longshou.mcyukkuri.status.StatusEvents;
 import io.github.longshou.mcyukkuri.status.TraceRecorder;
 import io.github.longshou.mcyukkuri.family.IndependenceLife;
 import io.github.longshou.mcyukkuri.family.LiveBirthGeometry;
@@ -880,7 +881,9 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     /** A timed presentation line cannot consume the random stream of the behavior it accompanies. */
     public boolean speakCue(String event) {
         var random=RandomSource.create(getUUID().getLeastSignificantBits()^level().getGameTime()^event.hashCode());
-        return speak(event,speechTier(),random,true);
+        boolean spoken = speak(event, speechTier(), random, true);
+        if (StatusEvents.trace()) GameplayLog.event(this, "speech", "cue event={} spoken={}", event, spoken);
+        return spoken;
     }
 
     /** Say a line of this event in the given voice tier (its fallback chain as {@link NativeDialogue#select}). */

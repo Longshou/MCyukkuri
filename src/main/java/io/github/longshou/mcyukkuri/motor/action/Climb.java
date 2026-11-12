@@ -89,6 +89,7 @@ public final class Climb implements Action {
         pullEnd = Math.max(pullStart + 1, clip.ticks("pull_end", 31));
         from = host == null ? body.position() : host.frame().toLocal(body.position());
         top = Math.max(edge.y, stand.y) + CLEAR / (host == null ? 1 : host.frame().unit());
+        body.speakCue("self_rescue_grip");
     }
 
     @Override public Progress tick(YukkuriEntity body) {
@@ -101,6 +102,7 @@ public final class Climb implements Action {
         Motor.move(body, aim.subtract(body.position()), "climb");
         double behind = body.position().distanceTo(aim);
         if (behind > HOLD) return Outcome.of(Reason.SLIPPED, behind, "lost_edge at=" + GameplayLog.at(body.position()));
+        if (t == pullStart + 1) body.speakCue("self_rescue_climb");
         if (t < pullEnd) return new Running(pullEnd - t, TravelMode.CONSUMED);
         Motor.velocity(body, Vec3.ZERO, "climb");
         if (host == null) {
@@ -114,6 +116,12 @@ public final class Climb implements Action {
         seating = new Hop(host);
         seating.start(body);
         return seating.seatFromEntry(body);
+    }
+
+    @Override public void finished(YukkuriEntity body, Outcome outcome) {
+        if (outcome.reason() == Reason.SLIPPED) body.speakCue("self_rescue_slip");
+        else if (outcome instanceof Outcome.Done && (host == null || host.settled(body)))
+            body.speakCue("self_rescue_safe");
     }
 
     @Override public String startDetail() {

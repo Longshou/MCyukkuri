@@ -19236,8 +19236,8 @@
       "species": "marisa",
       "age": "adult",
       "japanese": "ふちを くわえたのぜ！",
-      "chinese": "咬住帽檐了！",
-      "english": "I am biting the brim!",
+      "chinese": "咬住边缘了！",
+      "english": "I got hold of the edge!",
       "events": [
         "self_rescue_grip"
       ],
@@ -19288,7 +19288,7 @@
       "age": "adult",
       "japanese": "はあ……のぼれたのぜ……。",
       "chinese": "哈啊……爬上来了……。",
-      "english": "Phew... I made it aboard...",
+      "english": "Phew... I climbed up...",
       "events": [
         "self_rescue_safe"
       ],
@@ -19324,7 +19324,7 @@
       "chinese": "咬住啦！不要松口！",
       "english": "I am biting on! Do not let go!",
       "events": [
-        "braid_rescue_grip"
+        "braid_rescue_mouth_grip"
       ],
       "origin": "project-original",
       "source": {
@@ -19525,8 +19525,8 @@
       "species": "marisa",
       "age": "young",
       "japanese": "ふちを くわえたのじぇ！",
-      "chinese": "咬住帽檐了！",
-      "english": "I am biting the brim!",
+      "chinese": "咬住边缘了！",
+      "english": "I got hold of the edge!",
       "events": [
         "self_rescue_grip"
       ],
@@ -19577,7 +19577,7 @@
       "age": "young",
       "japanese": "はあ……のぼれたのじぇ……。",
       "chinese": "哈啊……爬上来了……。",
-      "english": "Phew... I made it aboard...",
+      "english": "Phew... I climbed up...",
       "events": [
         "self_rescue_safe"
       ],
@@ -19613,7 +19613,7 @@
       "chinese": "咬住啦！不要松口！",
       "english": "I am biting on! Do not let go!",
       "events": [
-        "braid_rescue_grip"
+        "braid_rescue_mouth_grip"
       ],
       "origin": "project-original",
       "source": {
@@ -19715,7 +19715,7 @@
       "chinese": "咬住啦！不要松口！",
       "english": "I am biting on! Do not let go!",
       "events": [
-        "braid_rescue_grip"
+        "braid_rescue_mouth_grip"
       ],
       "origin": "project-original",
       "source": {
@@ -19749,7 +19749,7 @@
       "chinese": "咬住啦！不要松口！",
       "english": "I am biting on! Do not let go!",
       "events": [
-        "braid_rescue_grip"
+        "braid_rescue_mouth_grip"
       ],
       "origin": "project-original",
       "source": {
@@ -19783,7 +19783,7 @@
       "chinese": "咬住啦！不要松口！",
       "english": "I am biting on! Do not let go!",
       "events": [
-        "braid_rescue_grip"
+        "braid_rescue_mouth_grip"
       ],
       "origin": "project-original",
       "source": {
@@ -19817,7 +19817,7 @@
       "chinese": "咬住啦！不要松口！",
       "english": "I am biting on! Do not let go!",
       "events": [
-        "braid_rescue_grip"
+        "braid_rescue_mouth_grip"
       ],
       "origin": "project-original",
       "source": {
@@ -19851,7 +19851,7 @@
       "chinese": "咬住啦！不要松口！",
       "english": "I am biting on! Do not let go!",
       "events": [
-        "braid_rescue_grip"
+        "braid_rescue_mouth_grip"
       ],
       "origin": "project-original",
       "source": {
@@ -19885,7 +19885,7 @@
       "chinese": "咬住啦！不要松口！",
       "english": "I am biting on! Do not let go!",
       "events": [
-        "braid_rescue_grip"
+        "braid_rescue_mouth_grip"
       ],
       "origin": "project-original",
       "source": {
@@ -19919,7 +19919,7 @@
       "chinese": "咬住啦！不要松口！",
       "english": "I am biting on! Do not let go!",
       "events": [
-        "braid_rescue_grip"
+        "braid_rescue_mouth_grip"
       ],
       "origin": "project-original",
       "source": {
@@ -19953,7 +19953,7 @@
       "chinese": "咬住啦！不要松口！",
       "english": "I am biting on! Do not let go!",
       "events": [
-        "braid_rescue_grip"
+        "braid_rescue_mouth_grip"
       ],
       "origin": "project-original",
       "source": {
@@ -19987,7 +19987,7 @@
       "chinese": "咬住啦！不要松口！",
       "english": "I am biting on! Do not let go!",
       "events": [
-        "braid_rescue_grip"
+        "braid_rescue_mouth_grip"
       ],
       "origin": "project-original",
       "source": {
@@ -20021,7 +20021,7 @@
       "chinese": "咬住啦！不要松口！",
       "english": "I am biting on! Do not let go!",
       "events": [
-        "braid_rescue_grip"
+        "braid_rescue_mouth_grip"
       ],
       "origin": "project-original",
       "source": {
@@ -20055,7 +20055,7 @@
       "chinese": "咬住啦！不要松口！",
       "english": "I am biting on! Do not let go!",
       "events": [
-        "braid_rescue_grip"
+        "braid_rescue_mouth_grip"
       ],
       "origin": "project-original",
       "source": {
@@ -20089,7 +20089,7 @@
       "chinese": "咬住啦！不要松口！",
       "english": "I am biting on! Do not let go!",
       "events": [
-        "braid_rescue_grip"
+        "braid_rescue_mouth_grip"
       ],
       "origin": "project-original",
       "source": {

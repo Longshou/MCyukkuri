@@ -13700,7 +13700,7 @@
     "species": "marisa",
     "age": "adult",
     "events": [
-      "braid_rescue_grip"
+      "braid_rescue_mouth_grip"
     ],
     "ticks": 62,
     "sound": "voice.original.marisa.adult.o_braid_rescue_grip"
@@ -13904,7 +13904,7 @@
     "species": "marisa",
     "age": "young",
     "events": [
-      "braid_rescue_grip"
+      "braid_rescue_mouth_grip"
     ],
     "ticks": 53,
     "sound": "voice.original.marisa.young.o_braid_rescue_grip"
@@ -13976,7 +13976,7 @@
     "species": "reimu",
     "age": "adult",
     "events": [
-      "braid_rescue_grip"
+      "braid_rescue_mouth_grip"
     ],
     "ticks": 59,
     "sound": "voice.original.reimu.adult.o_braid_rescue_grip"
@@ -14000,7 +14000,7 @@
     "species": "reimu",
     "age": "young",
     "events": [
-      "braid_rescue_grip"
+      "braid_rescue_mouth_grip"
     ],
     "ticks": 50,
     "sound": "voice.original.reimu.young.o_braid_rescue_grip"
@@ -14024,7 +14024,7 @@
     "species": "alice",
     "age": "adult",
     "events": [
-      "braid_rescue_grip"
+      "braid_rescue_mouth_grip"
     ],
     "ticks": 59,
     "sound": "voice.original.alice.adult.o_braid_rescue_grip"
@@ -14048,7 +14048,7 @@
     "species": "alice",
     "age": "young",
     "events": [
-      "braid_rescue_grip"
+      "braid_rescue_mouth_grip"
     ],
     "ticks": 50,
     "sound": "voice.original.alice.young.o_braid_rescue_grip"
@@ -14072,7 +14072,7 @@
     "species": "chen",
     "age": "adult",
     "events": [
-      "braid_rescue_grip"
+      "braid_rescue_mouth_grip"
     ],
     "ticks": 49,
     "sound": "voice.original.chen.adult.o_braid_rescue_grip"
@@ -14096,7 +14096,7 @@
     "species": "chen",
     "age": "young",
     "events": [
-      "braid_rescue_grip"
+      "braid_rescue_mouth_grip"
     ],
     "ticks": 45,
     "sound": "voice.original.chen.young.o_braid_rescue_grip"
@@ -14120,7 +14120,7 @@
     "species": "patchouli",
     "age": "adult",
     "events": [
-      "braid_rescue_grip"
+      "braid_rescue_mouth_grip"
     ],
     "ticks": 90,
     "sound": "voice.original.patchouli.adult.o_braid_rescue_grip"
@@ -14144,7 +14144,7 @@
     "species": "patchouli",
     "age": "young",
     "events": [
-      "braid_rescue_grip"
+      "braid_rescue_mouth_grip"
     ],
     "ticks": 75,
     "sound": "voice.original.patchouli.young.o_braid_rescue_grip"
@@ -14168,7 +14168,7 @@
     "species": "remilia",
     "age": "adult",
     "events": [
-      "braid_rescue_grip"
+      "braid_rescue_mouth_grip"
     ],
     "ticks": 87,
     "sound": ""
@@ -14192,7 +14192,7 @@
     "species": "remilia",
     "age": "young",
     "events": [
-      "braid_rescue_grip"
+      "braid_rescue_mouth_grip"
     ],
     "ticks": 87,
     "sound": ""
@@ -14216,7 +14216,7 @@
     "species": "flandre",
     "age": "adult",
     "events": [
-      "braid_rescue_grip"
+      "braid_rescue_mouth_grip"
     ],
     "ticks": 87,
     "sound": ""
@@ -14240,7 +14240,7 @@
     "species": "flandre",
     "age": "young",
     "events": [
-      "braid_rescue_grip"
+      "braid_rescue_mouth_grip"
     ],
     "ticks": 87,
     "sound": ""
@@ -47838,26 +47838,26 @@
     "quirk": "miyo"
   },
   {
-    "id": "myon.miyo.adult.s_braid_rescue_grip",
-    "key": "dialogue.mcyukkuri.original.myon.miyo.adult.s_braid_rescue_grip",
+    "id": "myon.miyo.adult.s_braid_rescue_mouth_grip",
+    "key": "dialogue.mcyukkuri.original.myon.miyo.adult.s_braid_rescue_mouth_grip",
     "origin": "project-original",
     "species": "myon",
     "age": "adult",
     "events": [
-      "braid_rescue_grip"
+      "braid_rescue_mouth_grip"
     ],
     "ticks": 83,
     "sound": "",
     "quirk": "miyo"
   },
   {
-    "id": "myon.miyo.young.s_braid_rescue_grip",
-    "key": "dialogue.mcyukkuri.original.myon.miyo.young.s_braid_rescue_grip",
+    "id": "myon.miyo.young.s_braid_rescue_mouth_grip",
+    "key": "dialogue.mcyukkuri.original.myon.miyo.young.s_braid_rescue_mouth_grip",
     "origin": "project-original",
     "species": "myon",
     "age": "young",
     "events": [
-      "braid_rescue_grip"
+      "braid_rescue_mouth_grip"
     ],
     "ticks": 91,
     "sound": "",
@@ -52518,26 +52518,26 @@
     "quirk": "kinbao"
   },
   {
-    "id": "myon.kinbao.adult.s_braid_rescue_grip",
-    "key": "dialogue.mcyukkuri.original.myon.kinbao.adult.s_braid_rescue_grip",
+    "id": "myon.kinbao.adult.s_braid_rescue_mouth_grip",
+    "key": "dialogue.mcyukkuri.original.myon.kinbao.adult.s_braid_rescue_mouth_grip",
     "origin": "project-original",
     "species": "myon",
     "age": "adult",
     "events": [
-      "braid_rescue_grip"
+      "braid_rescue_mouth_grip"
     ],
     "ticks": 87,
     "sound": "",
     "quirk": "kinbao"
   },
   {
-    "id": "myon.kinbao.young.s_braid_rescue_grip",
-    "key": "dialogue.mcyukkuri.original.myon.kinbao.young.s_braid_rescue_grip",
+    "id": "myon.kinbao.young.s_braid_rescue_mouth_grip",
+    "key": "dialogue.mcyukkuri.original.myon.kinbao.young.s_braid_rescue_mouth_grip",
     "origin": "project-original",
     "species": "myon",
     "age": "young",
     "events": [
-      "braid_rescue_grip"
+      "braid_rescue_mouth_grip"
     ],
     "ticks": 95,
     "sound": "",
@@ -57281,6 +57281,90 @@
       "glass_ram"
     ],
     "ticks": 83,
+    "sound": ""
+  },
+  {
+    "id": "braid_rescue_grip.hold",
+    "key": "dialogue.mcyukkuri.original.braid_rescue_grip.hold",
+    "origin": "project-original",
+    "species": "*",
+    "age": "*",
+    "events": [
+      "braid_rescue_grip"
+    ],
+    "ticks": 79,
+    "sound": ""
+  },
+  {
+    "id": "braid_rescue_safe_ashore.rest",
+    "key": "dialogue.mcyukkuri.original.braid_rescue_safe_ashore.rest",
+    "origin": "project-original",
+    "species": "*",
+    "age": "*",
+    "events": [
+      "braid_rescue_safe_ashore"
+    ],
+    "ticks": 91,
+    "sound": ""
+  },
+  {
+    "id": "self_rescue_hat_seek.approach",
+    "key": "dialogue.mcyukkuri.original.self_rescue_hat_seek.approach",
+    "origin": "project-original",
+    "species": "*",
+    "age": "*",
+    "events": [
+      "self_rescue_hat_seek"
+    ],
+    "ticks": 103,
+    "sound": ""
+  },
+  {
+    "id": "self_rescue_grip.edge",
+    "key": "dialogue.mcyukkuri.original.self_rescue_grip.edge",
+    "origin": "project-original",
+    "species": "*",
+    "age": "*",
+    "events": [
+      "self_rescue_grip"
+    ],
+    "ticks": 55,
+    "sound": ""
+  },
+  {
+    "id": "self_rescue_climb.pull",
+    "key": "dialogue.mcyukkuri.original.self_rescue_climb.pull",
+    "origin": "project-original",
+    "species": "*",
+    "age": "*",
+    "events": [
+      "self_rescue_climb"
+    ],
+    "ticks": 51,
+    "sound": ""
+  },
+  {
+    "id": "self_rescue_slip.edge",
+    "key": "dialogue.mcyukkuri.original.self_rescue_slip.edge",
+    "origin": "project-original",
+    "species": "*",
+    "age": "*",
+    "events": [
+      "self_rescue_slip"
+    ],
+    "ticks": 59,
+    "sound": ""
+  },
+  {
+    "id": "self_rescue_safe.rest",
+    "key": "dialogue.mcyukkuri.original.self_rescue_safe.rest",
+    "origin": "project-original",
+    "species": "*",
+    "age": "*",
+    "events": [
+      "self_rescue_safe"
+    ],
+    "ticks": 59,
     "sound": ""
   }
 ]

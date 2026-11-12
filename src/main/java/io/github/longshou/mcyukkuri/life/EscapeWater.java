@@ -60,8 +60,8 @@ public final class EscapeWater implements Intent {
     private static final double WEAK_ENERGY = 30, HAT_RANGE = 16, CLEAR = .05;
     private static final Set<Reason> AT_HAT = Set.of(Reason.SLIPPED, Reason.NO_CONTACT, Reason.NO_PROGRESS), AT_BANK = Set.of(
             Reason.TOO_FAR, Reason.SLIPPED, Reason.NO_CONTACT, Reason.NO_PROGRESS, Reason.NO_ROOM, Reason.NO_SUPPORT), PRESSING = Set.of(Reason.TOO_HIGH);
-    /** The ways that go for the body's own hat: it stops panicking and starts for it (自救援). */
-    private static final Set<String> OWN_HAT = Set.of("own_hat", "right_own_hat", "hat_boat");
+    /** The ways that approach a hat already on the water. */
+    private static final Set<String> AFLOAT_HAT = Set.of("own_hat", "right_own_hat");
 
     /** A bank edge: its stand, the middle of the stand's face toward open water, the water point in front of it, the landing. */
     private record Edge(BlockPos stand, Vec3 edge, Vec3 front, Vec3 land) {}
@@ -198,8 +198,11 @@ public final class EscapeWater implements Intent {
             if (step instanceof Step.Do action && action.action() instanceof Swim && !body.isInWaterOrBubble())
                 return new Step.Do(new Await(() -> body.isInWaterOrBubble() || satisfied(), 20, "", "water_contact"));
             if (next == 0) {
+                boolean afloatHat = AFLOAT_HAT.contains(id);
+                if (afloatHat || id.equals("hat_boat")) body.showReaction("teary", null, 36);
+                if (afloatHat && AFLOAT_HAT.stream().noneMatch(tried::contains))
+                    body.speakCue("self_rescue_hat_seek");
                 if (!id.equals("bank")) tried.add(id);
-                if (OWN_HAT.contains(id)) body.showReaction("teary", "self_rescue_hat", 36);
             }
             next++;
             return step;

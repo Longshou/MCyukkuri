@@ -59,9 +59,11 @@
     {"id":"birth","event":"birth","zh":"生产","ja":"出産","en":"Birth","basis":["P"],"status":"rule","axis_refs":["common.newborn_welcome_reply"]},
     {"id":"bitter","event":"bitter","zh":"苦味反应","ja":"苦味への反応","en":"Bitter reaction","basis":["P"],"status":"ready"},
     {"id":"boat_rock_startle","event":"boat_rock_startle","zh":"船晃受惊","ja":"船の揺れに驚く","en":"Startled by the rocking boat","basis":["P"],"status":"candidate","axis_refs":["common.cry_yu"]},
-    {"id":"braid_rescue_grip","event":"braid_rescue_grip","zh":"救援中咬紧支撑物","ja":"救助のときにしっかり噛んでつかまる","en":"Bite down and hold on during rescue","basis":["P"],"status":"candidate"},
+    {"id":"braid_rescue_grip","event":"braid_rescue_grip","zh":"用辫子托住落水者","ja":"三つ編みで落水した子を支える","en":"Hold the faller with the braid","basis":["P"],"status":"ready"},
+    {"id":"braid_rescue_mouth_grip","event":"braid_rescue_mouth_grip","zh":"用嘴衔住落水者","ja":"口で落水した子をくわえる","en":"Take hold of the faller in the mouth","basis":["P"],"status":"candidate"},
     {"id":"braid_rescue_offer","event":"braid_rescue_offer","zh":"赶来救援","ja":"救助に向かう","en":"Rush to rescue","basis":["P"],"status":"candidate"},
     {"id":"braid_rescue_safe","event":"braid_rescue_safe","zh":"救援脱险","ja":"救助されて安心する","en":"Rescued and safe","basis":["P"],"status":"candidate","axis_refs":["common.thanks_comfort"]},
+    {"id":"braid_rescue_safe_ashore","event":"braid_rescue_safe_ashore","zh":"把落水者放稳在岸上","ja":"助けた子を岸に下ろす","en":"Set the faller safely down ashore","basis":["P"],"status":"ready","axis_refs":["common.thanks_comfort"]},
     {"id":"busy","event":"busy","zh":"正忙","ja":"忙しい","en":"Busy","basis":["P"],"status":"candidate"},
     {"id":"caregiver","event":"caregiver","zh":"照看者在旁","ja":"世話役がそばにいる","en":"Caregiver nearby","basis":["P"],"status":"ready","axis_refs":["common.nuzzle"]},
     {"id":"chew","event":"chew","zh":"咀嚼","ja":"咀嚼","en":"Chew","basis":["P"],"status":"ready","axis_refs":["common.chew"]},
@@ -227,7 +229,8 @@
     {"id":"sacrifice","event":"sacrifice","zh":"舍身护幼","ja":"身代わりになる","en":"Sacrifice","basis":["P"],"status":"ready","axis_refs":["special.self_offering_parent"]},
     {"id":"self_rescue_climb","event":"self_rescue_climb","zh":"自救攀爬","ja":"自力で這い上がる","en":"Climb to self-rescue","basis":["P"],"status":"candidate"},
     {"id":"self_rescue_grip","event":"self_rescue_grip","zh":"自救咬住边缘","ja":"自力で縁に噛みつく","en":"Grip to self-rescue","basis":["P"],"status":"candidate"},
-    {"id":"self_rescue_hat","event":"self_rescue_hat","zh":"尝试借自己的头饰自救","ja":"自分の飾りを使って助かろうとする","en":"Try to use one's own accessory to escape the water","basis":["P"],"status":"candidate","axis_refs":["common.accessory_san"]},
+    {"id":"self_rescue_hat","event":"self_rescue_hat","zh":"把戴着的头饰抖落到水面","ja":"かぶっている飾りを水面に振り落とす","en":"Shake the worn accessory onto the water","basis":["P"],"status":"candidate","axis_refs":["common.accessory_san"]},
+    {"id":"self_rescue_hat_seek","event":"self_rescue_hat_seek","zh":"落水后朝已经漂着的头饰过去","ja":"落水してすでに浮いている飾りに向かう","en":"Head for the already floating accessory after a fall","basis":["P"],"status":"ready","axis_refs":["common.accessory_san"]},
     {"id":"self_rescue_safe","event":"self_rescue_safe","zh":"自救脱险","ja":"自力で助かる","en":"Self-rescued and safe","basis":["P"],"status":"candidate"},
     {"id":"self_rescue_slip","event":"self_rescue_slip","zh":"自救时滑落","ja":"自力で助かろうとして滑り落ちる","en":"Slip during self-rescue","basis":["P"],"status":"candidate"},
     {"id":"settlement_assign","event":"settlement_assign","zh":"指派聚落杂役","ja":"集落の雑役を割り当てる","en":"Assign a settlement chore","basis":["P"],"status":"candidate"},
@@ -338,7 +341,14 @@
     {"id":"glass_wait.parent","event":"glass_wait","zh":"玻璃先生！别挡着呀！让小贝比酱过来！","ja":"ガラスさん！ じゃましないで！ おちびちゃんを とおして！","en":"Mr. Glass! Don't block the way! Let the little one through!","basis":["P"],"status":"ready","shared_runtime":true},
     {"id":"give_up_search.parent_farewell","event":"give_up_search","zh":"小贝比酱……油呜……还想擦擦脸……小贝比酱，再见……","ja":"おちびちゃん……ゆぅ……すーりすーり したいよぉ……おちびちゃん、さよなら……","en":"Little one... yuu... I still want to nuzzle... goodbye, little one...","basis":["P"],"status":"ready","shared_runtime":true},
     {"id":"glass_child_answer.child","event":"glass_child_answer","zh":"亲亲油！窝在介里！在介里！","ja":"おやしゃ！ きょきょだよ！ きょきょ！","en":"I'm here! Right here!","basis":["P"],"status":"ready","shared_runtime":true},
-    {"id":"glass_ram.before_hit","event":"glass_ram","zh":"玻璃先生！乖乖让开！","ja":"ガラスさん！ おとなしく どいて！","en":"Mr. Glass! Be good and move aside!","basis":["P"],"status":"ready","shared_runtime":true}
+    {"id":"glass_ram.before_hit","event":"glass_ram","zh":"玻璃先生！乖乖让开！","ja":"ガラスさん！ おとなしく どいて！","en":"Mr. Glass! Be good and move aside!","basis":["P"],"status":"ready","shared_runtime":true},
+    {"id":"braid_rescue_grip.hold","event":"braid_rescue_grip","zh":"托住你啦！别乱动！","ja":"つかまえたよ！ じっとしててね！","en":"I've got you! Hold still!","basis":["P"],"status":"ready","shared_runtime":true},
+    {"id":"braid_rescue_safe_ashore.rest","event":"braid_rescue_safe_ashore","zh":"到岸上啦，慢慢喘口气。","ja":"きしについたよ。ゆっくり いきしてね。","en":"You're on the bank. Catch your breath.","basis":["P"],"status":"ready","shared_runtime":true},
+    {"id":"self_rescue_hat_seek.approach","event":"self_rescue_hat_seek","zh":"帽帽！游过去就能爬上去！","ja":"おぼうし！ あそこまで およげば のぼれる！","en":"My hat! If I swim over there I can climb up!","basis":["P"],"status":"ready","shared_runtime":true},
+    {"id":"self_rescue_grip.edge","event":"self_rescue_grip","zh":"咬住边缘了！","ja":"ふちを くわえたよ！","en":"I got hold of the edge!","basis":["P"],"status":"ready","shared_runtime":true},
+    {"id":"self_rescue_climb.pull","event":"self_rescue_climb","zh":"嗯……嘿咻！","ja":"んっ……よいしょ！","en":"Ngh... heave!","basis":["P"],"status":"ready","shared_runtime":true},
+    {"id":"self_rescue_slip.edge","event":"self_rescue_slip","zh":"呜！要滑下去了！","ja":"ゆっ！ すべっちゃう！","en":"Yu! I'm slipping!","basis":["P"],"status":"ready","shared_runtime":true},
+    {"id":"self_rescue_safe.rest","event":"self_rescue_safe","zh":"呼……爬上来了……","ja":"ふぅ……のぼれたよ……","en":"Phew... I climbed up...","basis":["P"],"status":"ready","shared_runtime":true}
   ],
   "planned": [
     {

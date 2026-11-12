@@ -260,12 +260,15 @@ public final class Grab implements Action {
             if (left > 0) return new Running(left + way, TravelMode.CONSUMED);
             return Outcome.of(Reason.NO_CONTACT, gap, "braid_grip_out_of_reach");
         }
+        boolean inWater = target.isInWaterOrBubble();
         if (way > 0 && !ParentCarry.braided(carrier, target, lean)) return Outcome.of(Reason.NO_SUPPORT, 0, "braid_lift_blocked");
         if (hold == Hold.MOUTH && (way = ParentCarry.mouthLift(carrier, target)) < 0) return Outcome.of(Reason.NO_ROOM, 0, "mouth_lift_blocked");
         if (target.getVehicle() != carrier && !Motor.mount(target, carrier, "grab")) return Outcome.of(Reason.NO_CONTACT, 0, "mount_refused");
         target.fallDistance = 0;
         mounted = true;
         ParentCarry.gripped(carrier, target, rejected, way);
+        if (inWater && hold.reach() == Reach.BRAID) carrier.speakCue("braid_rescue_grip");
+        else if (inWater && hold.reach() == Reach.MOUTH) carrier.speakCue("braid_rescue_mouth_grip");
         return way > 0 ? new Running(way, TravelMode.CONSUMED) : completed(carrier);
     }
 

@@ -27863,12 +27863,12 @@
    "basis": "komicolle 40720 11518905 Myon tics/brave, dim, stick sword; project-original wording, unvoiced"
   },
   {
-   "id": "myon.miyo.adult.s_braid_rescue_grip",
+   "id": "myon.miyo.adult.s_braid_rescue_mouth_grip",
    "species": "myon",
    "age": "adult",
    "quirk": "miyo",
    "events": [
-    "braid_rescue_grip"
+    "braid_rescue_mouth_grip"
    ],
    "japanese": "くわえた！ はなさない！ みょん！",
    "chinese": "咬住了！不会松口！咪呦！",
@@ -27877,12 +27877,12 @@
    "basis": "komicolle 40720 11518905 Myon tics/brave, dim, stick sword; project-original wording, unvoiced"
   },
   {
-   "id": "myon.miyo.young.s_braid_rescue_grip",
+   "id": "myon.miyo.young.s_braid_rescue_mouth_grip",
    "species": "myon",
    "age": "young",
    "quirk": "miyo",
    "events": [
-    "braid_rescue_grip"
+    "braid_rescue_mouth_grip"
    ],
    "japanese": "くわえちゃ！ はなしゃない！ みょん！",
    "chinese": "咬住惹！不松口！咪呦！",
@@ -32903,12 +32903,12 @@
    "basis": "komicolle 40720 11518905 Myon tics/brave, dim, stick sword; project-original wording, unvoiced"
   },
   {
-   "id": "myon.kinbao.adult.s_braid_rescue_grip",
+   "id": "myon.kinbao.adult.s_braid_rescue_mouth_grip",
    "species": "myon",
    "age": "adult",
    "quirk": "kinbao",
    "events": [
-    "braid_rescue_grip"
+    "braid_rescue_mouth_grip"
    ],
    "japanese": "くわえた！ はなさない！ ちーんぽ！",
    "chinese": "咬住了！不会松口！金寶！",
@@ -32917,12 +32917,12 @@
    "basis": "komicolle 40720 11518905 Myon tics/brave, dim, stick sword; project-original wording, unvoiced"
   },
   {
-   "id": "myon.kinbao.young.s_braid_rescue_grip",
+   "id": "myon.kinbao.young.s_braid_rescue_mouth_grip",
    "species": "myon",
    "age": "young",
    "quirk": "kinbao",
    "events": [
-    "braid_rescue_grip"
+    "braid_rescue_mouth_grip"
    ],
    "japanese": "くわえちゃ！ はなしゃない！ ちーんぽ！",
    "chinese": "咬住惹！不松口！金寶！",

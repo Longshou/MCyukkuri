@@ -160,6 +160,8 @@ final class Rescue implements Intent {
         String outcome = result == IntentRunner.Result.DONE ? aboard ? "rescued" : landing != null || held ? "set_down" : "self_climbed"
                 : result.name();
         if (faller.getVehicle() == helper && !aboard) helper.family().carry().finish(faller, "rescue_ended");
+        if (result == IntentRunner.Result.DONE && held)
+            helper.speakCue(aboard ? "braid_rescue_safe" : "braid_rescue_safe_ashore");
         AskLedger.server().ended(incident, helper.getUUID(), outcome);
         GameplayLog.event(helper, "aquatic", "rescue end result={} outcome={} faller={} incident={} aboard={} last={}",
                 result, outcome, faller.getUUID(), incident, aboard, helper.motor().lastDetail());

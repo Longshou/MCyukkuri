@@ -64,6 +64,7 @@ final class Ashore implements Intent {
     private final Ferry.Beckoning beckoning = new Ferry.Beckoning();
     /** The one water way has been derived; ending anywhere but aboard gives this reclaim up. */
     private boolean waterTried;
+    private boolean outOfReachNoticed;
 
     private Ashore(YukkuriEntity owner, Purpose purpose) {
         this.owner = owner;
@@ -235,6 +236,7 @@ final class Ashore implements Intent {
 
     /** Waiting for a hat out of the braid's reach to drift in, said once with its real reason and the calling clip. */
     private Step waiting(PlacedHatEntity hat, Waters.Edge edge) {
+        noticeOutOfReach();
         GameplayLog.limited(owner, "headwear", "reclaim.wait", WAIT, "reclaim waiting reason={} hat={} form={} distance={}",
                 edge == null ? "no_bank_edge" : "out_of_reach", hat.getUUID(), AquaticGoal.form(hat),
                 Math.round(hat.distanceTo(owner) * 10) / 10.0);
@@ -272,11 +274,18 @@ final class Ashore implements Intent {
         var edge = Waters.beside(hat, owner);
         if (edge == null) edge = Waters.shore(owner);
         if (edge == null) return null;
+        if (!ContactGeometry.reachesHull(owner, hat, true, false)) noticeOutOfReach();
         waterTried = true;
         var e = edge;
         return List.of(() -> SurfaceApproach.arrived(owner, e.stand(owner.getBbWidth())) ? null : new Step.Do(Walk.stand(e.stand(owner.getBbWidth()), 1)),
                 () -> new Step.Do(new StepIn(Waters.surface(owner.level(), e.water()))),
                 () -> new Step.Sub(new EscapeWater(owner, new HashMap<>())));
+    }
+
+    private void noticeOutOfReach() {
+        if (outOfReachNoticed) return;
+        outOfReachNoticed = true;
+        owner.speakCue("hat_out_of_reach");
     }
 
     /** Her nearest young aboard that cannot get off the hull by itself: one in the hollow that cannot hop has to be taken up
@@ -295,6 +304,8 @@ final class Ashore implements Intent {
         if (result != IntentRunner.Result.DONE && held != null) {
             owner.family().carry().finish(held, id() + "_ended");
         }
+        if (result == IntentRunner.Result.DONE && (reclaim() || outOfReachNoticed))
+            owner.speakCue("hat_recovered");
         if (!reclaim()) return;
         var hat = AquaticLife.hat(owner);
         if (result == IntentRunner.Result.DONE) {
