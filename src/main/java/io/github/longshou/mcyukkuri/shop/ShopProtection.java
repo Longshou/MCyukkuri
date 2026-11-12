@@ -1,6 +1,8 @@
 package io.github.longshou.mcyukkuri.shop;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.human.Custody;
+import io.github.longshou.mcyukkuri.interaction.InteractionDispatch;
 import io.github.longshou.mcyukkuri.registry.ModItems;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import net.minecraft.core.BlockPos;
@@ -104,15 +106,22 @@ public final class ShopProtection {
     }
     public static void struck(AttackEntityEvent event) {
         var target = event.getTarget();
-        if (event.getEntity().level().isClientSide()) return;
-        boolean frame = target instanceof ItemFrame f && guarded(f.level(), f.getPos());
-        if (!frame && !stock(target)) return;
-        event.setCanceled(true);
-        refuse(event.getEntity(), frame ? "frame" : "stock");
+        var player = event.getEntity();
+        if (player.level().isClientSide()) return;
+        if (target instanceof ItemFrame frame && guarded(frame.level(), frame.getPos())) {
+            event.setCanceled(true);
+            refuse(player, "frame");
+        } else if (target instanceof YukkuriEntity animal) {
+            var reason = Custody.harmRefusal(player, animal, animal.blockPosition());
+            if (reason == null) return;
+            event.setCanceled(true);
+            InteractionDispatch.refuse(player, animal, "attack", reason);
+        }
     }
     /** Arrows, thrown things and any other harm a player causes to stock. */
     public static void harmed(LivingIncomingDamageEvent event) {
-        if (event.getSource().getEntity() instanceof Player && stock(event.getEntity())) event.setCanceled(true);
+        if (event.getSource().getEntity() instanceof Player player && event.getEntity() instanceof YukkuriEntity animal
+                && Custody.harmRefusal(player, animal, animal.blockPosition()) != null) event.setCanceled(true);
     }
     public static void exploded(ExplosionEvent.Detonate event) {
         if (!(event.getLevel() instanceof ServerLevel level)) return;

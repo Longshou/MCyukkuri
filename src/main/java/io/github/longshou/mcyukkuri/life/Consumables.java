@@ -60,9 +60,10 @@ public final class Consumables {
     public static InteractionResult feed(YukkuriEntity entity,Player player,InteractionHand hand){
         var stack=player.getItemInHand(hand);
         if(!entity.level().isClientSide){
-            if(!InteractionDispatch.requireReach(player,entity,3))return InteractionResult.FAIL;
+            if(!InteractionDispatch.requireHarmContact(player,entity,3,"dose"))return InteractionResult.FAIL;
             if(!entity.life().beginDose(stack.copyWithCount(1),player.getUUID(),!player.getAbilities().instabuild&&bottled(stack))){
                 entity.showReaction("cheek_puff","refuse",60);
+                InteractionDispatch.refuse(player,entity,"dose","condition");
                 return InteractionResult.FAIL;
             }
             if(!player.getAbilities().instabuild)stack.shrink(1);
@@ -79,7 +80,7 @@ public final class Consumables {
                 return InteractionDispatch.assist(player,entity,hand)?InteractionResult.CONSUME:InteractionResult.FAIL;
             }
             if(kind!=Kind.RAMUNE)return feed(entity,player,hand);
-            if(!InteractionDispatch.requireReach(player,entity,3))return InteractionResult.FAIL;
+            if(!InteractionDispatch.requireHarmContact(player,entity,3,"spray"))return InteractionResult.FAIL;
             if(!entity.life().spray()){
                 InteractionDispatch.refuse(player,entity,"spray","condition");
                 return InteractionResult.FAIL;

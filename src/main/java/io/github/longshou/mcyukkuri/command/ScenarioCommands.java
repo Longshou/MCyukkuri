@@ -15,6 +15,7 @@ import io.github.longshou.mcyukkuri.headwear.PlacedHatEntity;
 import io.github.longshou.mcyukkuri.human.Custody;
 import io.github.longshou.mcyukkuri.human.HumanNpc;
 import io.github.longshou.mcyukkuri.item.CarrierContents;
+import io.github.longshou.mcyukkuri.interaction.CareAction;
 import io.github.longshou.mcyukkuri.life.Consumables;
 import io.github.longshou.mcyukkuri.pet.BadgeGrade;
 import io.github.longshou.mcyukkuri.pet.exam.ExamSession;
@@ -159,6 +160,8 @@ public final class ScenarioCommands {
                         .then(Commands.argument("candidate", EntityArgument.entity()).executes(c -> examFixture(c, BadgeGrade.GOLD)))))
                 .then(Commands.literal("exam_feed_peer").then(Commands.argument("target", EntityArgument.entity()).executes(ScenarioCommands::feedExamPeer)))
                 .then(Commands.literal("exam_step_owner").then(Commands.argument("step", Vec3Argument.vec3()).executes(ScenarioCommands::stepExamOwner)))
+                .then(Commands.literal("tool_click").then(Commands.argument("target", EntityArgument.entity())
+                        .then(Commands.argument("action", StringArgumentType.word()).executes(ScenarioCommands::toolClick))))
                 .then(Commands.literal("basket")
                         .then(Commands.literal("plain").executes(c -> basketHand(c, new ItemStack(ModItems.CARRIER.get()))))
                         .then(Commands.literal("fine").executes(c -> basketHand(c, new ItemStack(ModItems.FINE_CARRIER.get()))))
@@ -357,6 +360,24 @@ public final class ScenarioCommands {
                                             ChatFormatting.GOLD);
                                     return 1;
                                 })))));
+    }
+
+    /** The smoke operator uses normal held-item dispatch with a real stack. */
+    private static int toolClick(CommandContext<CommandSourceStack> c) throws CommandSyntaxException {
+        var target = yukkuri(c, "target");
+        String key = StringArgumentType.getString(c, "action");
+        var action = Arrays.stream(CareAction.values()).filter(value -> value.key().equals(key)).findFirst().orElse(null);
+        if (target == null || action == null || action.tool == null) return 0;
+        var player = FakePlayerFactory.getMinecraft(c.getSource().getLevel());
+        player.setPos(c.getSource().getPosition());
+        var previous = player.getMainHandItem();
+        try {
+            var tool = new ItemStack(action.tool.item());
+            player.setItemInHand(InteractionHand.MAIN_HAND, tool);
+            return tool.interactLivingEntity(player, target, InteractionHand.MAIN_HAND).consumesAction() ? 1 : 0;
+        } finally {
+            player.setItemInHand(InteractionHand.MAIN_HAND, previous);
+        }
     }
 
     /** Headless smoke drives the same item interactions a player uses. */

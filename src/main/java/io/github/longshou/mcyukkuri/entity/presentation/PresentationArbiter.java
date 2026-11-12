@@ -88,7 +88,8 @@ public final class PresentationArbiter {
         if(e.operations().active())return switch(e.operations().pose()){
             case HAT_REMOVE->"teary";
             case HAT_RETURN,RUB->"closed_smile";
-            case GRIP,PIN,FIXED,HOOK,RUMP,VIBRATE,ASSIST->"cry";
+            case PIN,FIXED,WRAPPED,HOOK,VIBRATE,BOX->state.reactionTicks()>0?state.reactionExpression():"surprise";
+            case GRIP,RUMP,ASSIST->"cry";
             default->"surprise";
         };
         String clip=e.getAnimationId();

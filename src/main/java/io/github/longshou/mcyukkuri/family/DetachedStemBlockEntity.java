@@ -8,7 +8,9 @@ import io.github.longshou.mcyukkuri.mind.EmotionEvent;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.entity.YukkuriVariant;
+import io.github.longshou.mcyukkuri.life.Consumables;
 import io.github.longshou.mcyukkuri.registry.ModBlocks;
+import io.github.longshou.mcyukkuri.human.Custody;
 import java.util.UUID;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
@@ -24,9 +26,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.core.Direction;
 import net.minecraft.core.GlobalPos;
-import net.minecraft.core.component.DataComponents;
-import net.minecraft.world.item.alchemy.PotionContents;
-import net.minecraft.world.item.alchemy.Potions;
 import net.minecraft.world.phys.AABB;
 
 /** The block owns one existing brood by a durable token, never by a copied list of child entities. */
@@ -54,16 +53,21 @@ public final class DetachedStemBlockEntity extends BlockEntity {
         return value!=null&&identity.equals(value.detachedHolder)&&value.anchor.dimension().equals(server.dimension())
                 &&value.anchor.pos().equals(worldPosition)?value:null;
     }
+    public static String cutRefusal(YukkuriEntity mother, Player player, boolean bottle) {
+        var brood = mother.family().brood();
+        if (brood == null || brood.kind != FamilyData.BirthKind.STEM || brood.cancelled || brood.complete() || brood.progress() < .15f)
+            return "condition";
+        return bottle && !Consumables.water(player.getOffhandItem()) ? "bottle" : null;
+    }
+
     public static boolean cut(YukkuriEntity mother,Player player,boolean bottle){
-        if(!(mother.level() instanceof ServerLevel server))return false;
-        var brood=mother.family().brood();if(brood==null||brood.cancelled||brood.complete()||brood.progress()<.15f)return false;
+        if(!(mother.level() instanceof ServerLevel server)||cutRefusal(mother,player,bottle)!=null)return false;
+        var brood=mother.family().brood();
         var water=player.getOffhandItem();
-        if(bottle&&!(water.is(Items.POTION)&&water.getOrDefault(DataComponents.POTION_CONTENTS,
-                PotionContents.EMPTY).is(Potions.WATER)))return false;
         BlockPos destination=null;
         for(var direction:Direction.Plane.HORIZONTAL){
             var pos=mother.blockPosition().relative(direction,2);
-            if(clearance(server,pos,brood,mother.getVariant(),bottle)&&server.getBlockState(pos.below()).isFaceSturdy(server,pos.below(),Direction.UP)
+            if(Custody.harmRefusal(player,mother,pos)==null&&clearance(server,pos,brood,mother.getVariant(),bottle)&&server.getBlockState(pos.below()).isFaceSturdy(server,pos.below(),Direction.UP)
                     &&player.distanceToSqr(Vec3.atCenterOf(pos))<=25){destination=pos;break;}
         }
         if(destination==null)return false;

@@ -1,5 +1,8 @@
 package io.github.longshou.mcyukkuri.life;
 
+import io.github.longshou.mcyukkuri.human.Custody;
+import io.github.longshou.mcyukkuri.interaction.InteractionDispatch;
+
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
@@ -20,6 +23,11 @@ public final class SurfaceLife {
         var floor=Facilities.floor(entity);
         if(floor.is(Facilities.SOIL.get())){soilDistance+=moved;if(soilDistance>=2){soilDistance-=2;entity.life().applyEnvironment(0,1,0);}}
         if(!floor.is(Facilities.SANDPAPER.get()))return;
+        if (Custody.harmRefusal(null, entity, Facilities.floorPosition(entity)) != null
+                || InteractionDispatch.contactRefusal(entity) != null) {
+            abrasion = 0;
+            return;
+        }
         abrasion+=moved*Facilities.roughness(floor);
         if(abrasion>=1.5f){
             abrasion-=1.5f;

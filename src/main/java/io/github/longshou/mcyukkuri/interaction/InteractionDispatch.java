@@ -2,6 +2,8 @@ package io.github.longshou.mcyukkuri.interaction;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.event.WildEvents;
+import io.github.longshou.mcyukkuri.family.DetachedStemBlockEntity;
+import io.github.longshou.mcyukkuri.human.Custody;
 import io.github.longshou.mcyukkuri.human.HumanCommerce;
 import io.github.longshou.mcyukkuri.item.AccessoryItem;
 import io.github.longshou.mcyukkuri.item.OperationToolItem;
@@ -11,6 +13,7 @@ import io.github.longshou.mcyukkuri.social.DailyLife;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.pet.exam.ExamSession;
 import io.github.longshou.mcyukkuri.status.Identity;
+import java.util.Objects;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionResult;
@@ -88,7 +91,7 @@ public final class InteractionDispatch {
         return false;
     }
     public static boolean assist(Player player,YukkuriEntity target,InteractionHand hand){
-        if(!requireReach(player,target,1.5))return false;
+        if(!requireHarmContact(player,target,1.5,"assist"))return false;
         var reason=operationRefusal(target);
         if(reason==null&&target.operations().beginAssistance(player,hand))return true;
         refuse(player,target,"assist",reason==null?"condition":reason);
@@ -118,8 +121,15 @@ public final class InteractionDispatch {
     public static void openCare(ServerPlayer player,YukkuriEntity target){
         if(requireReach(player,target,5))open(player,target,false);
     }
-    public static void openCutter(ServerPlayer player,YukkuriEntity target){
-        if(requireReach(player,target,5))open(player,target,true);
+    public static boolean openCutter(ServerPlayer player,YukkuriEntity target){
+        if(!requireHarmContact(player,target,5,"cutter"))return false;
+        var reason=operationRefusal(target);
+        if(reason!=null) {
+            refuse(player,target,"cutter",reason);
+            return false;
+        }
+        open(player,target,true);
+        return true;
     }
     private static void open(ServerPlayer player,YukkuriEntity target,boolean cutter){
         var lineage=cutter?null:CareLineage.of(player.serverLevel(),target);
@@ -134,6 +144,27 @@ public final class InteractionDispatch {
     public static String operationRefusal(YukkuriEntity target){
         return target.operations().ready() ? null : "busy";
     }
+
+    public static String contactRefusal(YukkuriEntity target) {
+        if (target.isInWaterOrBubble()) return "water";
+        if (target.vehicleHat() != null) return "hat";
+        return target.isPassenger() || target.operations().pose() == OperationLife.Pose.LIFT
+                || target.operations().pose() == OperationLife.Pose.GRIP ? "carried" : null;
+    }
+
+    static String harmContactRefusal(Player player, YukkuriEntity target) {
+        var reason = Custody.harmRefusal(player, target, target.blockPosition());
+        return reason == null ? contactRefusal(target) : reason;
+    }
+
+    public static boolean requireHarmContact(Player player, YukkuriEntity target, double range, String action) {
+        var reason = reachRefusal(player, target, range);
+        if (reason == null) reason = harmContactRefusal(player, target);
+        if (reason == null) return true;
+        refuse(player, target, action, reason);
+        return false;
+    }
+
     static String refusal(Player player,YukkuriEntity target,CareAction action){
         double range=switch(action){
             case RUB -> 1.5;
@@ -145,6 +176,13 @@ public final class InteractionDispatch {
         if(ExamSession.running(target))return "busy";
         var operation=target.operations();
         if(action==CareAction.RELEASE)return operation.canRelease()?null:"no_operation";
+        if (action.harmful()) {
+            reason = harmContactRefusal(player, target);
+            if (reason != null) return reason;
+        } else if (action == CareAction.LIFT || action == CareAction.LAY_DOWN || action == CareAction.SHOW_RUMP || action == CareAction.LIE_COMMAND) {
+            reason = contactRefusal(target);
+            if (reason != null) return reason;
+        }
         reason=operationRefusal(target);
         if(reason!=null)return reason;
         if(action.tool!=null&&!player.getMainHandItem().is(action.tool.item()))return "tool";
@@ -165,7 +203,7 @@ public final class InteractionDispatch {
             case PIN -> target.onGround()?null:"space";
             case SHOW_RUMP, LIE_COMMAND -> !personality.knowsWait()||personality.trust(player.getUUID())<BondLevels.TRUST_FAMILIAR?"command"
                     : target.isPanicking()?"fear":!operation.hasRoom()&&action==CareAction.LIE_COMMAND?"space":null;
-            case SHAKE_HOME -> operation.residents(player).isEmpty()?"home":null;
+            case SHAKE_HOME -> shakeRefusal(player, operation);
             case BURN -> OperationToolItem.isHot(player.getMainHandItem(),target.level())?null:"heat";
             case WRAP_HANG, HOOK_HANG -> operation.ceiling()==null?"ceiling":null;
             case TAKE_ACCESSORY -> life.hasAccessory() || target.headwear().reassembling() || life.custody().junk() != null ? null : "accessory";
@@ -181,8 +219,14 @@ public final class InteractionDispatch {
             case TRIM_HAIR, CUT_LEFT, CUT_RIGHT -> (~target.body().hairLoss()&action.hairParts())!=0?null:"hair";
             case VIBRATE, STERILIZE -> !target.family().adult()||target.family().sterile()
                     ||action==CareAction.STERILIZE&&target.family().stimulation()==0?"condition":null;
+            case CUT_STEM, BOTTLE_STEM -> DetachedStemBlockEntity.cutRefusal(target, player, action == CareAction.BOTTLE_STEM);
             default -> null;
         };
+    }
+    private static String shakeRefusal(Player player, OperationLife operation) {
+        var residents = operation.residents(player);
+        return residents.isEmpty() ? "home" : residents.stream().map(resident -> harmContactRefusal(player, resident))
+                .filter(Objects::nonNull).findFirst().orElse(null);
     }
     public static boolean perform(Player player,YukkuriEntity target,CareAction action){
         var reason=refusal(player,target,action);

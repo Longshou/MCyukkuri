@@ -30,6 +30,15 @@ public enum CareAction {
         return null;
     }
     public String key(){return name().toLowerCase(Locale.ROOT);}
+    public boolean harmful() {
+        return tool != null || switch (this) {
+            case GRIP, FLICK, PUNCH, SLAP, ROLL, SHAKE_HOME, DISLIKE, CONFISCATE -> true;
+            default -> false;
+        };
+    }
+
+    boolean positiveContact() { return !harmful() || this == WRAP_HANG || this == VIBRATE; }
+
     public static CareAction forTool(Tool tool){
         for(var action:values())if(action.tool==tool)return action;
         throw new IllegalArgumentException(tool.name());

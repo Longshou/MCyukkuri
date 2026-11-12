@@ -308,8 +308,10 @@ final class LifeMeal {
                 if(spicy)o.entity().body().poisoned(Toxins.SPICY_DOSE);
                 else if(toxic>0)o.entity().body().poisoned(toxic);
                 if(waste)o.changeHygiene(-PIT_MEAL_DIRT);
-                if(!filling&&!spicy&&toxic==0&&!waste)o.entity().heal(2); o.personality().fed(feeder); o.entity().pet().contact(feeder,
-                        true); WildEvents.fed(o.entity(),feeder); String treat = Sweets.eaten(o.entity(), swallowed, feeder);
+                if(!filling&&!spicy&&toxic==0&&!waste)o.entity().heal(2);
+                if (!spicy) { o.personality().fed(feeder); WildEvents.fed(o.entity(),feeder); }
+                o.entity().pet().contact(feeder, !spicy);
+                String treat = Sweets.eaten(o.entity(), swallowed, feeder);
                 o.entity().pet().lessons().swallowed(feeder, swallowed);
                 if (feeder != null) ExamSession.fed(o.entity(), feeder);
                 boolean answered = eater.pet().care().requests().swallowed(feeder, pleasant && !sweet);

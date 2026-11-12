@@ -1986,14 +1986,15 @@ _source_cases=(('cut',-12,0,'木剑刀割'),('blunt',-6,0,'空手钝击'),('arro
                ('heat',-6,10,'火烧与热地板'),('friction',0,10,'真实滚拖摩擦'))
 add('wound_sources','body','用真实武器和环境造成伤','用真实武器和环境造成伤',
     '目标从健康无伤开始，玩家用有限工具真实命中，读实际扣血、wound_sites/anchors的shape与伤级；弓箭和三叉戟用真实投射物，仙人掌/石笋按实际接触，爆炸用TNT。右后玻璃围区有饥饿捕食种和猎物，普通AI自行追咬，观察bite。热地板只足烧，着火整体焦枯；滚拖从空手潜行右键的照料菜单操作。一次MC命中不虚构逐齿逐刺落点',
-    '先看右后追咬，再逐类手动操作；清场恢复地形与实体',[
+    '先看右后追咬，再逐类手动操作；可用钉针或铁箱，潜行空手右键选解除；清场恢复地形与实体',[
         *[yk('reimu',dx,dz,name,label=label,nutrition=90,energy=95,lead=i==0) for i,(name,dx,dz,label) in enumerate(_source_cases)],
         box(10,-1,7,20,5,17,'minecraft:glass','hollow'),
-        yk('reimu',15,11,'bite_target',label='真实追咬猎物',nutrition=70,energy=95),
-        yk('remilia',15,15,'bite_hunter',label='饥饿捕食种',nutrition=10,energy=95)],
+        yk('reimu',15,11,'bite_target',label='真实追咬猎物',nutrition=70,energy=95)],
+    late=[yk('remilia',15,15,'bite_hunter',label='饥饿捕食种',nutrition=10,energy=95)],
     env=DAY,vantage=(0,17),give=['minecraft:wooden_sword','minecraft:stick','minecraft:bow','minecraft:arrow 16',
         'minecraft:trident','minecraft:sand 4','minecraft:cactus 4','minecraft:pointed_dripstone 4','minecraft:tnt 2','minecraft:redstone_torch 2',
-        'minecraft:flint_and_steel','minecraft:magma_block 4','mcyukkuri:orange_juice 12'],
+        'minecraft:flint_and_steel','minecraft:magma_block 4','mcyukkuri:orange_juice 12',
+        'mcyukkuri:pin_tool','mcyukkuri:iron_enclosure','mcyukkuri:care_awl','mcyukkuri:sandpaper_mat'],
     reads=[(f'读{label}',f'yukkuri status {sel(name)} raw') for name,_,_,label in _source_cases]
         + [('读真实咬伤',f'yukkuri status {sel("bite_target")} raw'),('读捕食交接',f'yukkuri status {sel("bite_hunter")} raw')])
 
@@ -4432,13 +4433,30 @@ next(s for s in S if s.id == 'family_search_pane').smoke['verify'] = _family_pan
 _smoke('rain_open', 1200, [r'\[weather\][^\n]* shelter response started', r'\[needs\][^\n]* soaking damage '])
 _smoke('treatment_scars', 1600, [r'\[body\][^\n]* wound healing ', r'\[body\][^\n]* scar (?:formed|not formed) from '])
 _smoke('wound_materials', 400, [], forbid=[r'\[body\][^\n]* death settled'])
+_smoke('wound_sources', 320, [
+    r'\[interaction\][^\n]* operation started; [^\n]* pose=PIN duration=240 reserved_item=mcyukkuri:pin_tool count=1',
+    r'\[interaction\][^\n]* operation ended; [^\n]* pose=PIN ',
+    r'\[interaction\][^\n]* binding returned to world; [^\n]* item=mcyukkuri:pin_tool count=1',
+    r'\[interaction\][^\n]* operation started; [^\n]* pose=BOX duration=400 reserved_item=mcyukkuri:iron_enclosure count=1',
+    r'\[interaction\][^\n]* binding returned to world; [^\n]* item=mcyukkuri:iron_enclosure count=1',
+])
+next(s for s in S if s.id == 'wound_sources').smoke['commands'] = [
+    # The headless operator is not a level player, so the ordinary operator-departure exit returns each tool on the next tick.
+    (4, f'execute at {sel("blunt")} positioned ~ ~ ~1 run yukkuri scenario tool_click {sel("blunt")} enclose'),
+    (6, f'execute at {sel("cut")} positioned ~ ~ ~1 run yukkuri scenario tool_click {sel("cut")} pin'),
+]
 _smoke('hatless_scorn', 3600, [r'\[contempt\][^\n]* scorn target=',
                                  rf'\[contempt\] marisa #\d+ uuid={_uuid_text("hatless_scorn", "b1")} [^\n]* scorn target='])
 _smoke('hatless_monster', 1200, [r'\[contempt\][^\n]* monster target=', r'\[contempt\][^\n]* scorn target='])
 _smoke('feed_wild', 2400, [r'\[npc-care\][^\n]* action=begin_meal '])
 _smoke('shop_build', 1600, [r'\[npc-care\][^\n]* action=refill_bowl ', r'\[npc-care\][^\n]* action=clean_toilet ',
-                            r'\[shop\][^\n]* action=dispose_waste result=stored ', r'\[shop\][^\n]* action=register shop='],
-       forbid=[r'\[shop\][^\n]* action=job result=failed ', r'\[shop\][^\n]* action=job result=put_down '])
+                            r'\[shop\][^\n]* action=dispose_waste result=stored ', r'\[shop\][^\n]* action=register shop=',
+                            r'\[interaction\][^\n]* action=pin reason=shop'],
+       forbid=[r'\[shop\][^\n]* action=job result=failed ', r'\[shop\][^\n]* action=job result=put_down ',
+               r'\[interaction\][^\n]* operation started; [^\n]* pose=PIN '])
+next(s for s in S if s.id == 'shop_build').smoke['commands'] = [
+    (100, f'execute at @e[type=mcyukkuri:alice,distance=..60,nbt={{NeoForgeData:{{HumanCommerce:{{Use:"stock"}}}}}},limit=1] positioned ~ ~ ~.6 run yukkuri scenario tool_click {BOOTH.format("alice", 3)} pin'),
+]
 # Headless runs have no player at the window: two residents stop in the aisle in front of the street pen and the predator room (smoke only; NoAI keeps them there).
 def _aisle_customer(dx, name):
     return (f'summon mcyukkuri:caretaker_sister ~{dx} ~2 ~6.5 {{Tags:["scn","{tag(name)}"],PersistenceRequired:1b,NoAI:1b,Rotation:[0f,0f],'

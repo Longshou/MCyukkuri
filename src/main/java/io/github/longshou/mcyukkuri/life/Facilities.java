@@ -6,6 +6,7 @@ import io.github.longshou.mcyukkuri.registry.ModBlocks;
 import io.github.longshou.mcyukkuri.registry.ModItems;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.tags.BlockTags;
@@ -47,9 +48,15 @@ public final class Facilities {
             "clear_dice").stream().anyMatch(id->stack.is(ITEMS.get(id).get())); }
     public static boolean rollingToy(ItemStack stack) { return stack.is(ModItems.TOY.get())||stack.is(ITEMS.get("glass_marble").get())||stack.is(ITEMS.get("rubber_ball").get()); }
     public static BlockState floor(YukkuriEntity entity) {
-        var at=entity.level().getBlockState(entity.blockPosition());
-        return at.getBlock() instanceof CareBlock||at.is(BlockTags.WOOL_CARPETS)?at:entity.level().getBlockState(entity.blockPosition().below());
+        var pos = entity.blockPosition();
+        var at = entity.level().getBlockState(pos);
+        return occupiesFloorCell(at) ? at : entity.level().getBlockState(pos.below());
     }
+    public static BlockPos floorPosition(YukkuriEntity entity) {
+        var pos = entity.blockPosition();
+        return occupiesFloorCell(entity.level().getBlockState(pos)) ? pos : pos.below();
+    }
+    private static boolean occupiesFloorCell(BlockState state) { return state.getBlock() instanceof CareBlock || state.is(BlockTags.WOOL_CARPETS); }
     public static float roughness(BlockState floor) {
         if(floor.is(NEWSPAPER.get()))return .28f/.48f;
         if(floor.is(SOIL.get()))return .75f/.48f;

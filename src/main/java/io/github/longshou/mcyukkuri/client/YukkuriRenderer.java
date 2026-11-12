@@ -59,7 +59,12 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
     }
 
     private static String expression(YukkuriView entity) {
-        return FaceLibrary.expression(entity,ParentCarryPresentation.expression(entity,entity.getExpressionId()));
+        String face = ParentCarryPresentation.expression(entity, entity.getExpressionId());
+        if (switch (face) { case "pin_cry", "pressed_cry", "horrified", "cut_cry", "sukkiri_squeeze", "flushed_smile" -> true; default -> false; }
+                && (!entity.getMouthItem().isEmpty() || !entity.getMouthBodyFood().isEmpty()
+                    || !entity.getCarriedItem().isEmpty() || ParentCarry.mouthCarrying(entity)
+                    || HeldItemPresentation.hasMouthKit(entity))) face = "teary_frown";
+        return FaceLibrary.expression(entity, face);
     }
 
     private ResourceLocation textureAt(YukkuriView entity, String expression) {
@@ -180,6 +185,7 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
             var heldNow=HeldItemPresentation.now(entity,partialTick);
             model.setHeldItem(heldNow!=null&&heldNow.overlay(),heldNow!=null&&heldNow.attach(),entity.vehicleHat()!=null);
             model.setMouthHolding(HeldItemPresentation.closedGrip(entity)||!entity.getMouthBodyFood().isEmpty()||ParentCarry.mouthCarrying(entity)
+                    ||operated&&!entity.getMouthItem().isEmpty()
                     ||heldNow!=null&&heldNow.mouth());
             configureCareContact(entity,behavior,partialTick,model);
             var delivery=LiveBirthRenderer.prepare(entity,model,partialTick);

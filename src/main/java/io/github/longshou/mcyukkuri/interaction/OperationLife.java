@@ -10,6 +10,7 @@ import io.github.longshou.mcyukkuri.event.WildEvents;
 import io.github.longshou.mcyukkuri.family.DetachedStemBlockEntity;
 import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.headwear.HatGeometry;
+import io.github.longshou.mcyukkuri.human.Custody;
 import io.github.longshou.mcyukkuri.item.AccessoryItem;
 import io.github.longshou.mcyukkuri.item.OperationToolItem.Tool;
 import io.github.longshou.mcyukkuri.life.Facilities;
@@ -18,9 +19,9 @@ import io.github.longshou.mcyukkuri.mind.ExcitedLeak;
 import io.github.longshou.mcyukkuri.motor.Motor;
 import io.github.longshou.mcyukkuri.registry.ModItems;
 import io.github.longshou.mcyukkuri.social.DailyLife;
+import io.github.longshou.mcyukkuri.social.SocialDisposition;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.Comparator;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.UUID;
 import net.minecraft.core.BlockPos;
@@ -41,6 +42,7 @@ import net.minecraft.world.phys.Vec3;
 /** Short, exclusive physical operations. Every exit keeps or returns each inserted object exactly once. */
 public final class OperationLife {
     public enum Pose { NONE, LIFT, GRIP, SLIDE, RUB, ROLL, SUPINE, PIN, FIXED, WRAPPED, HOOK, RUMP, VIBRATE, BOX, ASSIST, HAT_REMOVE, HAT_RETURN }
+    private static final int BOX_BEAT = 80, ROTOR_PLEA = 100;
     private final YukkuriEntity entity;
     private Pose pose=Pose.NONE;
     private UUID operator;
@@ -128,7 +130,13 @@ public final class OperationLife {
             case ASK -> entity.pet().care().ask(player);
             case REMOVE_HARNESS -> entity.pet().care().takeOffHarness(player);
             case UNWRAP -> entity.pet().care().takeOffSwaddle(player);
-            case RELEASE -> end();
+            case RELEASE -> {
+                Pose released = pose;
+                boolean returned = end();
+                if (returned && released == Pose.VIBRATE)
+                    entity.showReaction(SocialDisposition.selfEsteem(entity) >= 50 ? "smug" : "puff", "", 40);
+                yield returned;
+            }
         };
         if(done&&action!=CareAction.RELEASE){
             if(action==CareAction.COLD||action==CareAction.FLICK){
@@ -138,12 +146,16 @@ public final class OperationLife {
             }
             if(action==CareAction.RUB)entity.pet().care().affection(player);
             cooldown=20;player.swing(InteractionHand.MAIN_HAND);
-            entity.pet().contact(player.getUUID(),!EnumSet.of(CareAction.FLICK,CareAction.PUNCH,CareAction.SLAP,CareAction.MALLET,CareAction.PIERCE,CareAction.BURN,CareAction.PIN).contains(action));
+            entity.pet().contact(player.getUUID(), action.positiveContact());
             if(action.tool!=null&&!action.tool.inserted)player.getMainHandItem().hurtAndBreak(1,player,EquipmentSlot.MAINHAND);
             switch(action){
-                case VIBRATE -> entity.showReaction("surprise","",60);
                 case COLLECT_NEAREST -> message(player,"collected");
-                case STERILIZE -> message(player,"sterilized");
+                case STERILIZE -> {
+                    entity.forceReaction("cut_cry", "", 80);
+                    message(player,"sterilized");
+                }
+                case PIERCE -> entity.forceReaction("pin_cry", "", 60);
+                case BURN -> entity.forceReaction("endure", "", 60);
                 case ABANDON -> message(player,"abandoned");
                 case DECLINE_EVENT -> message(player,"declined");
                 default -> {}
@@ -190,7 +202,15 @@ public final class OperationLife {
         if(!active()){if(!inserted.isEmpty())returnInserted();return;}
         var player=entity.level().getPlayerByUUID(operator);
         if(player==null||InteractionDispatch.reachRefusal(player,entity,5)!=null||entity.isInWaterOrBubble()||entity.isOnFire()||--remaining<=0){end();return;}
+        if ((switch (pose) {
+            case PIN, FIXED, WRAPPED, HOOK, BOX, VIBRATE, ASSIST, GRIP, ROLL -> true;
+            default -> false;
+        }) && (Custody.harmRefusal(player, entity, entity.blockPosition()) != null || entity.isPassenger())) {
+            end();
+            return;
+        }
         elapsed++;
+        if (elapsed == 1 || pose == Pose.BOX && elapsed % BOX_BEAT == 0) bindingReaction();
         if(pose==Pose.ASSIST){
             if(player.distanceToSqr(entity)>2.25||entity.position().distanceToSqr(anchor)>.04
                     ||!entity.family().readyForAssistance()){end();return;}
@@ -218,7 +238,8 @@ public final class OperationLife {
         }else if(pose==Pose.PIN||pose==Pose.FIXED||pose==Pose.SUPINE||pose==Pose.BOX||pose==Pose.VIBRATE||pose==Pose.HAT_REMOVE||pose==Pose.HAT_RETURN){
             moveTo(anchor);
             if(pose==Pose.VIBRATE&&elapsed%20==0){entity.family().stimulate();entity.life().spendNutrition(.5f);}
-            if(pose==Pose.BOX&&elapsed%80==0){ entity.mind().felt(EmotionEvent.FRIGHTENED); entity.showReaction("surprise","afraid",80); }
+            if (pose == Pose.VIBRATE && elapsed == ROTOR_PLEA)
+                entity.showReaction(entity.life().personality().intelligence() >= 70 ? "teary" : "sukkiri_squeeze", "", remaining);
         }else if(pose==Pose.ROLL){
             var forward=entity.position().subtract(player.position()).multiply(1,0,1).normalize();
             Motor.move(entity,forward.scale(.045).add(0,-.04,0),"operation_roll");
@@ -229,12 +250,35 @@ public final class OperationLife {
         // Neither still restraint nor suspension causes ground abrasion. Large loads/teleports are excluded.
         if((pose==Pose.ROLL||pose==Pose.SLIDE)&&entity.onGround()&&moved<.5){
             turn+=moved*360/(Math.PI*Math.max(.1,entity.getBbWidth()));
-            var floor=Facilities.floor(entity);
-            float roughness=Facilities.roughness(floor);
-            abrasion+=moved*roughness;
-            if(abrasion>=1.5f){abrasion-=1.5f;strike(player,1,WoundShape.ABRASION);}
+            var floor = Facilities.floorPosition(entity);
+            if (Custody.harmRefusal(player, entity, floor) != null || InteractionDispatch.contactRefusal(entity) != null) {
+                abrasion = 0;
+            } else {
+                abrasion += moved * Facilities.roughness(entity.level().getBlockState(floor));
+                if (abrasion >= 1.5f) { abrasion -= 1.5f; strike(player, 1, WoundShape.ABRASION); }
+            }
         }
         last=entity.position();entity.syncOperation(pose.name(),pose==Pose.HAT_REMOVE||pose==Pose.HAT_RETURN?elapsed/20f:turn);
+    }
+
+    private void bindingReaction() {
+        switch (pose) {
+            case PIN -> entity.forceReaction("pin_cry", "", remaining);
+            case FIXED -> {
+                entity.mind().felt(EmotionEvent.FRIGHTENED);
+                entity.forceReaction("pressed_cry", "", remaining);
+            }
+            case WRAPPED -> entity.showReaction("closed_smile", "airborne", remaining);
+            case HOOK -> entity.forceReaction("horrified", "", remaining);
+            case VIBRATE -> entity.showReaction("flushed_smile", "", ROTOR_PLEA);
+            case BOX -> {
+                var personality = entity.life().personality();
+                boolean calm = personality.boldness() >= 60 && personality.fear(operator) <= 30 && entity.mind().unease() < 60;
+                if (!calm) entity.mind().felt(EmotionEvent.FRIGHTENED);
+                entity.forceReaction(calm ? "sleepy" : "horrified", calm ? "" : "afraid", Math.min(remaining, BOX_BEAT));
+            }
+            default -> {}
+        }
     }
     private void moveTo(Vec3 desired){
         var delta=desired.subtract(entity.position());
@@ -255,9 +299,13 @@ public final class OperationLife {
         inserted=ItemStack.EMPTY;return true;
     }
     public boolean end(){
+        boolean recover = switch (pose) { case PIN, FIXED, WRAPPED, HOOK, BOX, VIBRATE -> true; default -> false; };
         if(active())GameplayLog.event(entity,"interaction","operation ended; player={} pose={} elapsed={} remaining={}",operator,pose,elapsed,remaining);
         pose=Pose.NONE;operator=null;ceiling=null;remaining=elapsed=0;
-        entity.syncOperation(Pose.NONE.name(),0);entity.getNavigation().stop();return returnInserted();
+        entity.syncOperation(Pose.NONE.name(),0);entity.getNavigation().stop();
+        if (recover && entity.isAlive() && !entity.isInWaterOrBubble() && !entity.isOnFire() && !entity.isPanicking() && entity.hurtTime == 0)
+            entity.showReaction("teary", "", 24);
+        return returnInserted();
     }
     private boolean takeAccessory(Player player,boolean confiscated){
         var custody = entity.life().custody();

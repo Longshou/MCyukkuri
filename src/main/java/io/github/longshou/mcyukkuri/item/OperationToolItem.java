@@ -77,11 +77,9 @@ public final class OperationToolItem extends Item {
     @Override public InteractionResult interactLivingEntity(ItemStack stack,Player player,LivingEntity target,InteractionHand hand){
         if(!(target instanceof YukkuriEntity entity)||hand!=InteractionHand.MAIN_HAND)return InteractionResult.PASS;
         if(player instanceof ServerPlayer server){
-            if(tool==Tool.CUTTER){
-                InteractionDispatch.openCutter(server,entity);
-            }else{
-                InteractionDispatch.perform(player,entity,CareAction.forTool(tool));
-            }
+            boolean applied = tool == Tool.CUTTER ? InteractionDispatch.openCutter(server, entity)
+                    : InteractionDispatch.perform(player, entity, CareAction.forTool(tool));
+            return applied ? InteractionResult.CONSUME : InteractionResult.FAIL;
         }
         return InteractionResult.sidedSuccess(player.level().isClientSide);
     }

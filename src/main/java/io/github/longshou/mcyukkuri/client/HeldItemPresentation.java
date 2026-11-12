@@ -1,5 +1,7 @@
 package io.github.longshou.mcyukkuri.client;
 
+import io.github.longshou.mcyukkuri.motor.ContactGeometry;
+
 import io.github.longshou.mcyukkuri.client.capture.PoseTap;
 
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -39,6 +41,11 @@ final class HeldItemPresentation {
         return !entity.profile().houseBody()&&!entity.getCarriedItem().isEmpty()
                 &&entity.getMouthItem().isEmpty()&&entity.getMouthBodyFood().isEmpty()&&!behavior.equals(Behaviors.FAMILY_CHEW)
                 &&!behavior.equals(Behaviors.BOAT_FEED_YOUNG);
+    }
+
+    static boolean hasMouthKit(YukkuriView entity) {
+        var held = now(entity, 0);
+        return held != null && (held.at() == Place.MOUTH || held.at() == Place.GRIP && !ContactGeometry.braided(entity));
     }
 
     /** The stick is shown while the mouth is free: not while eating, feeding, carrying by mouth or asleep. */
