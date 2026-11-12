@@ -57,11 +57,20 @@ class Building:
         messages=[json.dumps({'text':s},ensure_ascii=False) for s in (lines+['']*4)[:4]]
         self.block(x,y,z,'oak_sign',{'rotation':rotation,'waterlogged':'false'}, {'id':string('minecraft:sign'),
             'front_text':compound({'messages':sequence(8,messages),'color':string('black'),'has_glowing_text':byte(0)})})
+    def wall_sign(self,x,y,z,lines,facing='south',wood='birch'):
+        """A tag hung on the block behind it (the block on the opposite side of `facing` must be solid)."""
+        messages=[json.dumps({'text':s},ensure_ascii=False) for s in (lines+['']*4)[:4]]
+        self.block(x,y,z,f'{wood}_wall_sign',{'facing':facing,'waterlogged':'false'}, {'id':string('minecraft:sign'),
+            'front_text':compound({'messages':sequence(8,messages),'color':string('black'),'has_glowing_text':byte(0)})})
+    def toy(self,x,y,z,item):
+        """A real toy item lying in a pen for the stock to play with: it never despawns and nobody picks it up through the glass."""
+        self.entity(x,y,z,'minecraft:item',{'Item':compound({'id':string('mcyukkuri:'+item),'count':integer(1)}),
+            'Age':integer(-32768),'PickupDelay':integer(32767)})
     def human(self,x,z,kind,job,attitude,role):
         self.entity(x,3,z,'mcyukkuri:'+kind,{'HumanJob':integer(job),'HumanAttitude':integer(attitude),'SiteRole':string(role)})
     def animal(self,x,z,kind,role,use='stock',medal=0,group=0):
         self.entity(x,3,z,'mcyukkuri:'+kind,{'NeoForgeData':compound({'HumanCommerce':compound({'PendingRole':string(role),'Use':string(use),'Medal':integer(medal),'FactoryGroup':integer(group)})})})
-    def pet(self,x,z,kind,role,use,grade,*,skills=(),traits=None):
+    def pet(self,x,z,kind,role,use,grade,*,skills=(),traits=None,y=3):
         """Initial shop individual; custody, qualification, skills and five traits have separate owners."""
         data={'PendingRole':string(role),'Use':string(use),'FactoryGroup':integer(0)}
         pet={'Grade':integer(grade),'Worn':byte(1),'Source':integer(0),
@@ -70,7 +79,7 @@ class Building:
         if traits is not None:
             assert len(traits)==5 and all(0<=value<=100 for value in traits)
             extra['YukkuriLife']=compound({'Personality':compound({'Version':integer(1),'Innate':integers(traits)})})
-        self.entity(x,3,z,'mcyukkuri:'+kind,extra)
+        self.entity(x,y,z,'mcyukkuri:'+kind,extra)
     def pet_lost(self,x,z,kind,role):
         """Missing-companion quest animal, same data as the former template (Use lost)."""
         self.animal(x,z,kind,role,'lost')
@@ -82,8 +91,8 @@ class Building:
         self.entities.append({'pos':sequence(6,[x,y,z]),'blockPos':sequence(3,[int(x),int(y),int(z)]),
             'nbt':compound({'id':string(kind),'Pos':sequence(6,[x,y,z]),'Rotation':sequence(5,[180.,0.]),
                 'PersistenceRequired':byte(1),'Invulnerable':byte(0),**extra})})
-    def bowl(self,x,z):
-        self.block(x,3,z,'mcyukkuri:food_bowl',nbt={'id':string('mcyukkuri:care')})
+    def bowl(self,x,z,y=3):
+        self.block(x,y,z,'mcyukkuri:food_bowl',nbt={'id':string('mcyukkuri:care')})
     def pen(self,x,z,kind,role,use='stock',medal=0):
         self.box((x,3,z),(x+4,5,z+4),'glass')
         self.box((x+1,3,z+1),(x+3,5,z+3),'air')
@@ -130,14 +139,14 @@ def slab(b,x,y,z,name,kind='bottom'):
     b.block(x,y,z,name+'_slab',{'type':kind,'waterlogged':'false'})
 def barrel(b,x,y,z,facing='up'): b.block(x,y,z,'barrel',{'facing':facing,'open':'false'})
 def mark(b,x,z,kind): b.block(x,3,z,'mcyukkuri:exam_mark',{'kind':kind})
-def glass(b,a,c,y0=3,y1=7,full=False):
-    """Pen wall along a line of cells: full height glass (street, predator booth) or a birch base with glass panes (y4..5)."""
+def glass(b,a,c,y0=3,y1=7,full=False,top=5):
+    """Pen wall along a line of cells: full height glass (street, predator booth) or a birch base with glass panes (y4..top)."""
     for x in range(a[0],c[0]+1):
         for z in range(a[1],c[1]+1):
             if full: b.box((x,y0,z),(x,y1,z),'glass'); continue
             if name_at(b,x,4,z)=='minecraft:glass': continue   # a shared full-height wall wins
             if name_at(b,x,3,z)!='minecraft:stripped_birch_log': b.block(x,3,z,'stripped_birch_log',{'axis':'z' if a[0]==c[0] and a[1]!=c[1] else 'x'})
-            b.box((x,4,z),(x,5,z),'glass_pane',{'north':'false','south':'false','east':'false','west':'false','waterlogged':'false'})
+            b.box((x,4,z),(x,top,z),'glass_pane',{'north':'false','south':'false','east':'false','west':'false','waterlogged':'false'})
 def name_at(b,x,y,z): return b.blocks.get((x,y,z),('minecraft:air',))[0]
 def pen_rect(b,x0,z0,x1,z1,y0=3,y1=7,skip='',full=False):
     """Wall ring around an interior rectangle (walls sit just outside the interior); skip = sides n/s/w/e that already have a wall."""
@@ -154,13 +163,14 @@ def connect_panes(b):
         for d,(dx,dz) in {'north':(0,-1),'south':(0,1),'east':(1,0),'west':(-1,0)}.items():
             m=name_at(b,x+dx,y,z+dz); props[d]='true' if m in ('minecraft:glass_pane','minecraft:glass') or (m!='minecraft:air' and not transparent(m)) else 'false'
         b.blocks[x,y,z]=(n,props,None)
-def register_pen(b,name,interior,bowl,nests,minimum=(3,3)):
-    b.pens.append({'name':name,'interior':interior,'bowl':bowl,'nests':nests,'min':minimum})
-def carpet(b,x0,z0,x1,z1,color):
+def register_pen(b,name,interior,bowl,nests,minimum=(3,3),y=3):
+    """y is the cell the animals stand in (the floor block is below it)."""
+    b.pens.append({'name':name,'interior':interior,'bowl':bowl,'nests':nests,'min':minimum,'y':y})
+def carpet(b,x0,z0,x1,z1,color,y=3):
     """Rug on free floor cells only."""
     for x in range(x0,x1+1):
         for z in range(z0,z1+1):
-            if name_at(b,x,3,z)=='minecraft:air': b.block(x,3,z,color+'_carpet')
+            if name_at(b,x,y,z)=='minecraft:air': b.block(x,y,z,color+'_carpet')
 def roof(b,z0,z1):
     """Low pitched roof running along x: slab/stair pairs rise 1 per 2 blocks from both eaves to a flat ridge, gable ends filled.
     Dark-oak eave trim and ridge cap split each slope into 5-row mud-brick bands; three skylight patches per slope break it up."""
@@ -236,17 +246,26 @@ def shop():
     for x,z in [(23,9)]: b.door(x,3,z,'east')
     b.door(10,3,17); b.door(14,3,17); b.door(12,3,24,'east')
     # Sales hall: four display booths (interior 3x3, glass to street window and aisle). The window wall is the street glass.
-    def booth(x0,kind,grade,traits,label,predator=False):
+    # Each booth is a raised display shelf (block at y3, the animal at y4): eye level with a customer in the aisle and visible
+    # above the street plinth; panes rise three blocks above the shelf and the top stays open for the keeper's basket.
+    # A cushion carpet, a real toy, and a price tag hung on the shelf front in the aisle.
+    def booth(x0,kind,grade,traits,label,toy,cushion,predator=False):
         for x in (x0-1,x0+3):
-            if 2<=x<=22: glass(b,(x,4),(x,7),full=predator)
-        glass(b,(max(x0-1,2),7),(min(x0+3,22),7),full=predator)
-        b.bowl(x0,4); b.block(x0+2,3,4,'mcyukkuri:predator_nest' if predator else 'mcyukkuri:yukkuri_nest')
-        b.sign(x0+1,3,6,label,'0'); b.pet(x0+1.5,5.5,kind,'shopkeeper','stock',grade,skills=ALL_SKILLS,traits=traits)
-        register_pen(b,'booth_'+kind,(x0,4,x0+2,6),(x0,4),[(x0+2,4)])
-    booth(20,'remilia',2,(75,65,65,55,85),['银章 · 蕾米莉亚','捕食种 · 单独展舱','展示个体','向店员购买'],predator=True)   # full-height glass; written first so the shared wall at x=19 stays full
-    booth(2,'chen',2,(72,70,60,65,80),['银章 · 橙','已掌握六项技能','展示个体','向店员购买'])
-    booth(6,'alice',3,(85,80,65,70,90),['金章 · 爱丽丝','已掌握六项技能','展示个体','向店员购买'])
-    booth(16,'reimu',2,(70,75,55,70,80),['银章 · 灵梦','已掌握六项技能','展示个体','向店员购买'])
+            if 2<=x<=22: glass(b,(x,4),(x,7),full=predator,top=6)
+        glass(b,(max(x0-1,2),7),(min(x0+3,22),7),full=predator,top=6)
+        b.box((x0,3,4),(x0+2,3,6),'birch_planks')
+        b.bowl(x0,4,y=4); b.block(x0+2,4,4,'mcyukkuri:predator_nest' if predator else 'mcyukkuri:yukkuri_nest')
+        carpet(b,x0,4,x0+2,6,cushion,y=4)
+        b.pet(x0+1.5,5.5,kind,'shopkeeper','stock',grade,skills=ALL_SKILLS,traits=traits,y=4.0625)
+        b.toy(x0+.5,4.0625,6.5,toy)
+        b.wall_sign(x0+1,3,8,label)
+        register_pen(b,'booth_'+kind,(x0,4,x0+2,6),(x0,4),[(x0+2,4)],y=4)
+    # Authored temperaments (intelligence, friendliness, boldness, attachment, self-control) give the four booths four different answers
+    # to a customer at the window (shop/ShopWindow): Remilia pleads, Chen is shy, gold Alice is proud, Reimu shows off.
+    booth(20,'remilia',2,(70,65,55,60,60),['银章 · 蕾米莉亚','捕食种 · 单独展舱','展示个体','价格请问店主'],'rubber_ball','purple',predator=True)   # full-height glass; written first so the shared wall at x=19 stays full
+    booth(2,'chen',2,(60,60,15,60,70),['银章 · 橙','已掌握六项技能','展示个体','价格请问店主'],'yarn_ball','yellow')
+    booth(6,'alice',3,(85,30,70,50,85),['金章 · 爱丽丝','已掌握六项技能','展示个体','价格请问店主'],'marisa_doll','red')
+    booth(16,'reimu',2,(65,85,80,75,50),['银章 · 灵梦','已掌握六项技能','展示个体','价格请问店主'],'yarn_ball','pink')
     # Counter (customer side north, clerk behind), register lectern, goods wall on the clerk's back.
     b.box((8,3,12),(16,3,12),'dark_oak_planks'); b.box((16,3,13),(16,3,16),'dark_oak_planks')
     b.block(12,3,12,'lectern',{'facing':'north','has_book':'false','powered':'false'},over=True)
@@ -269,6 +288,7 @@ def shop():
         glass(b,(max(x0-1,2),aisle),(x0+3,aisle))
         bz=z0+2 if aisle==26 else z0   # bowl and nest on the side away from the aisle
         b.bowl(x0,bz); b.block(x0+2,3,bz,'mcyukkuri:yukkuri_nest'); b.pet(x0+1.5,z0+1.5,kind,'shopkeeper','stock',0)
+        if kind in ('marisa','chen'): b.toy(x0+.5,3,z0+(.5 if bz!=z0 else 2.5),'glass_marble' if kind=='marisa' else 'pretty_stone')
         register_pen(b,'tank_'+kind,(x0,z0,x0+2,z0+2),(x0,bz),[(x0+2,bz)])
     for z in range(22,26): barrel(b,2,3,z)
     for z in (22,25): barrel(b,3,3,z)
@@ -283,6 +303,7 @@ def shop():
     b.pet(20.5,19.5,'marisa','shop_keeper','stud',2,skills=ALL_SKILLS,traits=(75,70,65,60,80))
     register_pen(b,'stud',(17,18,21,22),(19,22),[(17,22),(21,22)],(4,4))
     b.bowl(19,28); b.block(17,3,28,'mcyukkuri:yukkuri_nest'); b.block(21,3,28,'mcyukkuri:yukkuri_nest')
+    b.toy(18.5,3,25.5,'yarn_ball'); b.toy(20.5,3,24.5,'rubber_ball')   # the young in the nursery pen have something to chase
     register_pen(b,'nursery',(17,24,21,28),(19,28),[(17,28),(21,28)],(3,3))
     b.sign(14,3,19,['繁育室','种油栏 / 幼体栏','饲养员专用','请勿喧哗'],'0')
     # ---- Exam hall (x 24..38, z 4..29).

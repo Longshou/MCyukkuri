@@ -71,14 +71,20 @@ def check(b):
             if not free(name_at(b, cx, yy, cz)): errors.append(f'{kind} at {(x, y, z)}: cell {(cx, yy, cz)} is {name_at(b, cx, yy, cz)}')
         if not solid_cell_below(b, cx, cy, cz) or name_at(b, cx, cy - 1, cz) in ('minecraft:glass',): errors.append(f'{kind} at {(x, y, z)} has no floor')
     for pen in b.pens:
-        x0, z0, x1, z1 = pen['interior']; bx, bz = pen['bowl']
-        if name_at(b, bx, 3, bz) != 'mcyukkuri:food_bowl': errors.append(f"pen {pen['name']}: bowl {(bx, 3, bz)} is {name_at(b, bx, 3, bz)}")
+        x0, z0, x1, z1 = pen['interior']; bx, bz = pen['bowl']; y = pen['y']
+        if name_at(b, bx, y, bz) != 'mcyukkuri:food_bowl': errors.append(f"pen {pen['name']}: bowl {(bx, y, bz)} is {name_at(b, bx, y, bz)}")
         for nx, nz in pen['nests']:
-            if not name_at(b, nx, 3, nz).endswith('nest'): errors.append(f"pen {pen['name']}: nest {(nx, 3, nz)} is {name_at(b, nx, 3, nz)}")
+            if not name_at(b, nx, y, nz).endswith('nest'): errors.append(f"pen {pen['name']}: nest {(nx, y, nz)} is {name_at(b, nx, y, nz)}")
         if x1 - x0 + 1 < pen['min'][0] or z1 - z0 + 1 < pen['min'][1]: errors.append(f"pen {pen['name']} interior {x1 - x0 + 1}x{z1 - z0 + 1} below {pen['min']}")
         for x in range(x0, x1 + 1):
             for z in range(z0, z1 + 1):
-                if name_at(b, x, 2, z) == AIR or name_at(b, x, 4, z) not in FREE: errors.append(f"pen {pen['name']}: cell {(x, z)} lacks floor or headroom")
+                if name_at(b, x, y - 1, z) == AIR or name_at(b, x, y + 1, z) not in FREE: errors.append(f"pen {pen['name']}: cell {(x, z)} lacks floor or headroom")
+        # A raised display shelf keeps its walls at least three blocks above the floor the animals stand on (no hop clears them).
+        if y > 3:
+            ring = [(x, z) for x in range(x0 - 1, x1 + 2) for z in (z0 - 1, z1 + 1)] + [(x, z) for x in (x0 - 1, x1 + 1) for z in range(z0, z1 + 1)]
+            for x, z in ring:
+                if any(name_at(b, x, yy, z) == AIR for yy in range(y, y + 3)):
+                    errors.append(f"pen {pen['name']}: wall at {(x, z)} lower than three blocks above the shelf")
     level = light_levels(b)
     dark = [(x, z, level.get((x, 3, z), 0)) for x, z in walk_cells(b) if level.get((x, 3, z), 0) < 8]
     if dark: errors.append(f'{len(dark)} walkable cells below light 8, first {dark[:6]}')
