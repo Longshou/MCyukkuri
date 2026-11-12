@@ -1,6 +1,6 @@
 """Original shop/factory block plans. Emits deterministic vanilla 1.21.1 structure NBT."""
 from pathlib import Path
-import gzip, json, struct, sys
+import gzip, json, math, struct, sys
 sys.path.insert(0,str(Path(__file__).parent))
 
 ROOT = Path(__file__).resolve().parents[3]
@@ -62,6 +62,11 @@ class Building:
         messages=[json.dumps({'text':s},ensure_ascii=False) for s in (lines+['']*4)[:4]]
         self.block(x,y,z,f'{wood}_wall_sign',{'facing':facing,'waterlogged':'false'}, {'id':string('minecraft:sign'),
             'front_text':compound({'messages':sequence(8,messages),'color':string('black'),'has_glowing_text':byte(0)})})
+    def counter_item(self,x,y,z,item,yaw=0.):
+        """A good set out on a counter top: a fixed item display on the cell above it, turned by yaw degrees."""
+        h=math.radians(yaw)/2
+        self.entity(x+.5,y,z+.5,'minecraft:item_display',{'item_display':string('ground'),'item':compound({'id':string('mcyukkuri:'+item),'count':integer(1)}),
+            'transformation':compound({'translation':sequence(5,[0.,.1,0.]),'scale':sequence(5,[.75,.75,.75]),'left_rotation':sequence(5,[0.,math.sin(h),0.,math.cos(h)]),'right_rotation':sequence(5,[0.,0.,0.,1.])})})
     def toy(self,x,y,z,item):
         """A real toy item lying in a pen for the stock to play with: it never despawns and nobody picks it up through the glass."""
         self.entity(x,y,z,'minecraft:item',{'Item':compound({'id':string('mcyukkuri:'+item),'count':integer(1)}),
@@ -269,6 +274,8 @@ def shop():
     # Counter (customer side north, clerk behind), register lectern, goods wall on the clerk's back.
     b.box((8,3,12),(16,3,12),'dark_oak_planks'); b.box((16,3,13),(16,3,16),'dark_oak_planks')
     b.block(12,3,12,'lectern',{'facing':'north','has_book':'false','powered':'false'},over=True)
+    # The toys on sale set out on the counter top in front of the customer (fixed displays, not the stock itself).
+    for x,item,yaw in [(9,'rubber_ball',0.),(10,'glass_marble',30.),(14,'reimu_doll',200.),(15,'marisa_doll',160.)]: b.counter_item(x,4,12,item,yaw)
     goods=['oil_grain_regular','oil_grain_premium','orange_juice','wash_cloth','teaching_whistle','yukkuri_carrier']   # columns 10 and 14 stay free: staff doors to the back rooms
     for x,item in zip((8,9,11,12,13,15),goods): barrel(b,x,3,16); b.display(x,4,16,item,over=True)
     b.human(11.5,14.5,'caretaker_brother',1,2,'shopkeeper')

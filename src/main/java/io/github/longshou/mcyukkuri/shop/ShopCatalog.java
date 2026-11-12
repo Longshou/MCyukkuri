@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.shop;
 
+import io.github.longshou.mcyukkuri.life.Facilities;
 import io.github.longshou.mcyukkuri.registry.ModItems;
 import java.util.ArrayList;
 import java.util.List;
@@ -48,7 +49,14 @@ public final class ShopCatalog {
         good("remilia_bonnet", 2, () -> new ItemStack(ModItems.REMILIA_BONNET.get()), 4, 2, 1, 0),
         good("flandre_bonnet", 2, () -> new ItemStack(ModItems.FLANDRE_BONNET.get()), 4, 2, 1, 0),
         good("pet_harness", 3, () -> new ItemStack(ModItems.PET_HARNESS.get()), 5, 3, 1, 1),
-        good("swaddle_cloth", 4, () -> new ItemStack(ModItems.SWADDLE_CLOTH.get()), 3, 3, 1, 0));
+        good("swaddle_cloth", 4, () -> new ItemStack(ModItems.SWADDLE_CLOTH.get()), 3, 3, 1, 0),
+        // The other real toys (life/Facilities): cheap rolling marbles up to the plush dolls, which need a bronze badge in the buyer's keeping.
+        good("glass_marble", 2, () -> new ItemStack(Facilities.ITEMS.get("glass_marble").get()), 1, 6, 3, 0),
+        good("rubber_ball", 2, () -> new ItemStack(Facilities.ITEMS.get("rubber_ball").get()), 2, 4, 2, 0),
+        good("pretty_stone", 2, () -> new ItemStack(Facilities.ITEMS.get("pretty_stone").get()), 2, 4, 2, 0),
+        good("clear_dice", 2, () -> new ItemStack(Facilities.ITEMS.get("clear_dice").get()), 3, 3, 1, 0),
+        good("reimu_doll", 2, () -> new ItemStack(Facilities.ITEMS.get("reimu_doll").get()), 5, 2, 1, 1),
+        good("marisa_doll", 2, () -> new ItemStack(Facilities.ITEMS.get("marisa_doll").get()), 5, 2, 1, 1));
 
     /** Each page: category followed by up to four catalog indexes. */
     private static final List<int[]> PAGES = new ArrayList<>();
