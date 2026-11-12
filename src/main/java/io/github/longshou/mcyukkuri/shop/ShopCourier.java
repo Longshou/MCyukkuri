@@ -240,8 +240,6 @@ public final class ShopCourier {
         keeper.getNavigation().stop();
         if (job.kind == Kind.SOLD || job.kind == Kind.BUY) {
             keeper.swing(InteractionHand.MAIN_HAND); a.playAction("basket_in"); a.speak("basket_enter"); phase(job, Phase.BASKET);
-            // A bought one leaves its shelf: the other stock that see it go answer on their own goals.
-            if (job.kind == Kind.BUY && level.getEntity(job.shop) instanceof HumanNpc shop) ShopWindow.departure(level, a, shop, keeper, job.buyer);
         } else phase(job, Phase.SPRAY);
         return false;
     }

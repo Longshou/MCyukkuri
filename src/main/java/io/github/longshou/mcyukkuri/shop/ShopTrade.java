@@ -55,10 +55,9 @@ public final class ShopTrade {
                 if (courier > 0) return true; // the keeper's basket finishes the sale
                 if (courier == 0 && age < JOY + KEEPER_WAIT) return false;
                 counter[0] = age;
-                // handover at the counter: the clerk holds out an empty basket and the animal climbs in; the other stock watch it go
+                // handover at the counter: the clerk holds out an empty basket and the animal climbs in
                 a.playAction("basket_in"); a.speak("basket_enter"); clerk.swing(InteractionHand.MAIN_HAND);
                 if (clerk.getMainHandItem().isEmpty()) clerk.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(ModItems.CARRIER.get()));
-                ShopWindow.departure(level, a, clerk, clerk, buyer);
                 return false;
             }
             if (age < counter[0] + CLIMB) return false;

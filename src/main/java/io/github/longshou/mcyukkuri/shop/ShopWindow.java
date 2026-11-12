@@ -4,6 +4,7 @@ import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.human.Custody;
 import io.github.longshou.mcyukkuri.human.HumanNpc;
+import io.github.longshou.mcyukkuri.item.CarrierItem;
 import io.github.longshou.mcyukkuri.life.GlassSight;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.motor.Action;
@@ -11,9 +12,11 @@ import io.github.longshou.mcyukkuri.motor.MotorOwner;
 import io.github.longshou.mcyukkuri.motor.Outcome;
 import io.github.longshou.mcyukkuri.motor.action.Walk;
 import io.github.longshou.mcyukkuri.pet.BadgeGrade;
+import io.github.longshou.mcyukkuri.registry.ModItems;
 import io.github.longshou.mcyukkuri.social.BondLevels;
 import io.github.longshou.mcyukkuri.social.Bonds;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
+import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.Locale;
 import java.util.UUID;
@@ -48,8 +51,11 @@ public final class ShopWindow implements MotorOwner {
     private static final int MIN_PLEA = 60;
     /** Moment lengths of the after-beats (droop 4 s, ignore 1.6 s) so a loop never restarts on screen. */
     private static final int LETDOWN_TICKS = 80, HMPH_TICKS = 32;
-    /** A witnessed departure is watched at most this long, and this long after the departing one climbed into the basket. */
-    private static final int WITNESS_TICKS = 300, WITNESS_TAIL = 60, WITNESS_PENDING = 40;
+    /** A neighbour being sold is watched at most this long (the keeper's walk to it included), its first strong answer (envy, "me too")
+     *  lasts REACTION_TICKS, and the eyes follow the basket this long after it climbed in. */
+    private static final int WITNESS_TICKS = 600, REACTION_TICKS = 160, WITNESS_TAIL = 70;
+    /** Sale sightings are within this many blocks. */
+    private static final double SALE_RANGE = 10;
     /** Rejections remembered at most, and the time after which one is forgotten (project design). */
     private static final int REJECTIONS = 4, FORGIVE_TICKS = 2400;
     /** Drive weights (project design, docs/FEATURES.md): each mode a continuous score, the largest wins after a jitter of up to 6. */
@@ -61,14 +67,14 @@ public final class ShopWindow implements MotorOwner {
     private After after;
     private Witness witness;
     private LivingEntity customer, candidate;
-    private Entity watched, basket;
-    private YukkuriEntity departing;
+    private Entity watched;
+    private YukkuriEntity departing, leaving;
+    /** The last neighbour whose sale it watched: one sale is answered once. */
+    private UUID witnessed;
     private BlockPos glass;
     private Action action;
     private long until, sessionStart, performStart, lastSeen, lastRestand, nextScan, cooldownUntil, forgiveAt, departedAt;
     private int restands, rejections;
-    private UUID saleSubject, saleBuyer, saleCarrier;
-    private long salePendingUntil;
 
     public ShopWindow(YukkuriEntity entity) { this.entity = entity; }
 
@@ -88,12 +94,10 @@ public final class ShopWindow implements MotorOwner {
                 case SULK -> Behaviors.WINDOW_SULK;
             };
             case AFTER -> after == After.LETDOWN ? Behaviors.WINDOW_LETDOWN : Behaviors.WINDOW_HMPH;
-            case WITNESS -> switch (witness) {
-                case FAREWELL -> Behaviors.WINDOW_FAREWELL;
-                case ENVY -> Behaviors.WINDOW_ENVY;
-                case ME_TOO -> Behaviors.WINDOW_APPEAL;
-                case WATCH -> Behaviors.WINDOW_WATCH;
-            };
+            // Envy and "me too" burst out while the neighbour is being fetched, a farewell when it climbs into the basket; otherwise it watches.
+            case WITNESS -> witness == Witness.FAREWELL && departedAt >= 0 ? Behaviors.WINDOW_FAREWELL
+                    : entity.level().getGameTime() - sessionStart >= REACTION_TICKS ? Behaviors.WINDOW_WATCH
+                    : witness == Witness.ENVY ? Behaviors.WINDOW_ENVY : witness == Witness.ME_TOO ? Behaviors.WINDOW_APPEAL : Behaviors.WINDOW_WATCH;
         };
     }
 
@@ -106,10 +110,13 @@ public final class ShopWindow implements MotorOwner {
     public boolean canUse() {
         long now = entity.level().getGameTime();
         forgive(now);
-        if (pendingWitness(now)) return stock() && ready();
         if (now < nextScan) return false;
         nextScan = now + SCAN_TICKS;
-        if (now < cooldownUntil || !stock()) return false;
+        if (!stock()) return false;
+        // A neighbour being sold outweighs the rest it takes between customers.
+        leaving = findSale();
+        if (leaving != null) return ready();
+        if (now < cooldownUntil) return false;
         var seen = findCustomer();
         if (seen == null) return false;
         String busy = busy();
@@ -125,17 +132,21 @@ public final class ShopWindow implements MotorOwner {
 
     public void start() {
         long now = entity.level().getGameTime();
-        if (pendingWitness(now)) beginWitness(now);
+        if (leaving != null) beginWitness(leaving, now);
         else if (candidate != null) beginSession(candidate, now);
-        candidate = null;
+        candidate = null; leaving = null;
     }
 
     public void tick() {
         long now = entity.level().getGameTime();
-        if (phase != Phase.WITNESS && pendingWitness(now)) {
-            if (phase == Phase.NOTICE || phase == Phase.APPROACH || phase == Phase.PERFORM) log("end", "witness", now);
-            cancelAction("witness");
-            beginWitness(now);
+        if (phase != Phase.WITNESS && phase != Phase.AFTER && now >= nextScan) {
+            nextScan = now + SCAN_TICKS;
+            var sale = findSale();
+            if (sale != null) { // a customer session gives way to a neighbour being sold
+                log("end", "witness", now);
+                cancelAction("witness");
+                beginWitness(sale, now);
+            }
         }
         if (phase == null) return;
         switch (phase) {
@@ -345,31 +356,24 @@ public final class ShopWindow implements MotorOwner {
         clear();
     }
 
-    // ---- a neighbour carried off ------------------------------------------------------------------------------------
+    // ---- a neighbour being sold ---------------------------------------------------------------------------------------
 
-    /** A stock individual is being carried off in a basket: every other stock of that shop that sees it (in the open or through one glass
-     *  cell) is told; each answers on its own goal. Never moves or presents anything itself. */
-    public static void departure(ServerLevel level, YukkuriEntity sold, HumanNpc shop, LivingEntity carrier, UUID buyer) {
-        long now = level.getGameTime();
-        for (var o : level.getEntitiesOfClass(YukkuriEntity.class, sold.getBoundingBox().inflate(10, 4, 10),
-                o -> o != sold && o.isAlive() && ShopMenu.stockOf(o, shop.getUUID())))
-            if (GlassSight.sees(o, sold)) o.shopWindow().witness(sold, carrier, buyer, now);
+    /** A stock neighbour of the same shop, in sight (in the open or through one glass cell), that has just been bought (held for the sale)
+     *  and whose sale this one has not answered yet. */
+    private YukkuriEntity findSale() {
+        var shop = Custody.view(entity).owner();
+        if (shop == null) return null;
+        for (var o : entity.level().getEntitiesOfClass(YukkuriEntity.class, entity.getBoundingBox().inflate(SALE_RANGE, HEIGHT, SALE_RANGE),
+                o -> o != entity && o.isAlive() && o.pet().busyWith().equals("sale") && !o.getUUID().equals(witnessed) && ShopMenu.stockOf(o, shop)))
+            if (GlassSight.sees(entity, o)) return o;
+        return null;
     }
 
-    private void witness(YukkuriEntity sold, LivingEntity carrier, UUID buyer, long now) {
-        saleSubject = sold.getUUID(); saleCarrier = carrier == null ? null : carrier.getUUID(); saleBuyer = buyer;
-        salePendingUntil = now + WITNESS_PENDING;
-    }
-
-    private boolean pendingWitness(long now) { return saleSubject != null && now < salePendingUntil; }
-
-    private void beginWitness(long now) {
+    private void beginWitness(YukkuriEntity sold, long now) {
         var level = (ServerLevel) entity.level();
-        var sold = level.getEntity(saleSubject) instanceof YukkuriEntity y && y.isAlive() ? y : null;
-        var carrier = saleCarrier == null ? null : level.getEntity(saleCarrier);
-        var buyer = saleBuyer == null ? null : level.getPlayerByUUID(saleBuyer);
-        saleSubject = saleBuyer = saleCarrier = null;
-        if (sold == null) { clear(); return; }
+        witnessed = sold.getUUID();
+        // The buyer is whoever holds the sale; it may be away (an operator's purchase) or out of sight.
+        var buyer = sold.pet().lockedBy() == null ? null : level.getPlayerByUUID(sold.pet().lockedBy());
         var p = entity.life().personality();
         boolean kin = Bonds.kin(entity, sold, EnumSet.of(Bonds.Kin.BIO, Bonds.Kin.CARE, Bonds.Kin.MATE));
         boolean friend = YukkuriWorldData.get(level).affinity(entity.getUUID(), sold.getUUID()) >= BondLevels.AFFINITY_CLOSE;
@@ -377,7 +381,7 @@ public final class ShopWindow implements MotorOwner {
         witness = kin || friend ? Witness.FAREWELL
                 : outranked || p.selfControl() < 40 && p.friendliness() < 50 ? Witness.ENVY
                 : buyer != null && hope() > .4 && p.boldness() >= 50 && GlassSight.sees(entity, buyer) ? Witness.ME_TOO : Witness.WATCH;
-        departing = sold; basket = carrier; watched = witness == Witness.ME_TOO ? buyer : sold;
+        departing = sold; watched = witness == Witness.ME_TOO ? buyer : sold;
         sessionStart = now; departedAt = -1;
         phase(Phase.WITNESS, now + WITNESS_TICKS);
         switch (witness) {
@@ -392,8 +396,11 @@ public final class ShopWindow implements MotorOwner {
     private void witnessing(long now) {
         if (departedAt < 0 && (!departing.isAlive() || departing.isRemoved())) {
             departedAt = now;
-            // The departing one is in the basket now: its eyes follow the basket in the carrier's hand, or stay on the buyer.
-            if (witness != Witness.ME_TOO && basket != null) watched = basket;
+            // It climbed into the basket: the eyes follow the basket in the staff's hand (or stay on the buyer).
+            if (witness != Witness.ME_TOO) watched = basketHolder();
+        } else if (departedAt < 0 && !departing.pet().busyWith().equals("sale")) {
+            GameplayLog.event(entity, "shop", "window witness end kind={} reason=sale_off ticks={}", witness, now - sessionStart);
+            finish(now); return;
         }
         if (watched != null && watched.isAlive() && !watched.isRemoved() && watched.level() == entity.level()) look(watched);
         if (now >= until || departedAt >= 0 && now - departedAt >= WITNESS_TAIL) {
@@ -401,6 +408,13 @@ public final class ShopWindow implements MotorOwner {
                     departedAt >= 0 ? "departed" : "timeout", now - sessionStart);
             finish(now);
         }
+    }
+
+    /** The staff member nearest to where the departing one was, holding a loaded transport basket, or null. */
+    private Entity basketHolder() {
+        return entity.level().getEntitiesOfClass(HumanNpc.class, departing.getBoundingBox().inflate(4),
+                        n -> n.isAlive() && n.getMainHandItem().is(ModItems.CARRIER.get()) && CarrierItem.token(n.getMainHandItem()) != null)
+                .stream().min(Comparator.comparingDouble(departing::distanceToSqr)).orElse(null);
     }
 
     // ---- shared -------------------------------------------------------------------------------------------------------
@@ -415,7 +429,7 @@ public final class ShopWindow implements MotorOwner {
     }
 
     private void clear() {
-        phase = null; mode = null; after = null; witness = null; customer = null; watched = null; basket = null; departing = null; glass = null; action = null;
+        phase = null; mode = null; after = null; witness = null; customer = null; watched = null; departing = null; glass = null; action = null;
     }
 
     private void log(String what, String reason, long now) {
