@@ -2177,7 +2177,7 @@ COLONY = BY_ID['colony']
 COLONY_LEAD = '@e[tag=scn_lead,distance=..70]'
 
 _mold_colony_x, _mold_colony_z = COLONY.spots['colony']
-_mold_outer_den, _ = den(_mold_colony_x, _mold_colony_z + 22)
+_mold_outer_den, _ = den(_mold_colony_x, _mold_colony_z + 28)
 add('colony_mold_exile', 'colony', '聚落驱逐油霉成员', '聚落驱逐油霉成员',
     '看附近成员发现油霉后鼓脸施压，患病成员退到聚落日常活动范围外，回头央求时再次受拒。',
     '约 1–2 分钟', [

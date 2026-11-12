@@ -29,6 +29,7 @@ import net.minecraft.world.phys.Vec3;
 public final class MoldExile extends Goal implements MotorOwner {
     private static final int SIGHT = 6;
     private static final int REACTION = 60;
+    // The walk limit leaves time to turn, try another dry stand and cover the normal colony return radius at a slow crawl.
     private static final int WALK_LIMIT = 600;
     private static final int[] EXIT_ANGLES = {0, 45, -45, 90, -90, 135, -135, 180};
 
@@ -99,8 +100,14 @@ public final class MoldExile extends Goal implements MotorOwner {
         var personality = observer.life().personality();
         int bond = YukkuriWorldData.get((ServerLevel)observer.level()).affinity(observer.getUUID(), subject.getUUID());
         double closeness = 1 - observer.distanceTo(subject) / SIGHT;
+        int visibleSeverity = switch (BodySigns.moldTier(subject.body().mold())) {
+            case 1 -> 2;
+            case 2 -> 5;
+            case 3 -> 7;
+            default -> 8;
+        };
         double ties = Bonds.careOrMate(observer, subject) ? 12 + .55 * personality.attachment() : 0;
-        return 9 * subject.body().mold() + 12 * closeness + .18 * (100 - personality.friendliness())
+        return 9 * visibleSeverity + 12 * closeness + .18 * (100 - personality.friendliness())
                 + .12 * (100 - personality.boldness()) - 38 - .30 * bond - ties;
     }
 
@@ -121,7 +128,7 @@ public final class MoldExile extends Goal implements MotorOwner {
     }
 
     public void welcomed(YukkuriEntity resident) {
-        if (exile != null && exile.home().colony() && resident(resident, exile.home())) readmitted(resident.getUUID());
+        if (exile != null && exile.home().colony()) readmitted(resident.getUUID());
     }
 
     public YukkuriEntity reunionPeer() {
@@ -286,6 +293,8 @@ public final class MoldExile extends Goal implements MotorOwner {
     @Override public boolean requiresUpdateEveryTick() { return true; }
 
     @Override public void tick() {
+        // A terminal tick can end this task before the selector clears its running wrapper.
+        if (task == null) return;
         ticks++;
         switch (task) {
             case WITNESS -> watch();
@@ -367,13 +376,13 @@ public final class MoldExile extends Goal implements MotorOwner {
                     peer == null ? "without answer" : "after refusal", peer == null ? null : peer.getUUID(), entity.body().mold());
         }
         entity.habitat().seekHomeNow();
-        stop();
+        end();
     }
 
     private void visit() {
         if (visitingSick && beginLeave(home)) { SurfaceApproach.stopWalking(entity); destination = null; start(); return; }
         if (!visitingSick && home.colony() && reunionPeer() != null) {
-            stop();
+            end();
             return;
         }
         if (ticks >= WALK_LIMIT || destination == null) { fail("visit_unreachable"); return; }
@@ -382,7 +391,7 @@ public final class MoldExile extends Goal implements MotorOwner {
         if (outcome != SurfaceApproach.Result.ARRIVED) return;
         if (!visitingSick) {
             var den = home.colony() ? null : ShelterBlock.shelter(level(), home.den());
-            if (den != null && entity.habitat().choose(den)) stop();
+            if (den != null && entity.habitat().choose(den)) end();
             else fail("no_admission");
             return;
         }
@@ -401,10 +410,17 @@ public final class MoldExile extends Goal implements MotorOwner {
         failedStage = entity.body().mold();
         GameplayLog.limited(entity, "settlement", "mold_exile." + reason, 200,
                 "mold exile interrupted task={} reason={} group={} den={}", task, reason, home.group(), home.den());
-        stop();
+        end();
     }
 
     @Override public void stop() {
+        if (task == Task.LEAVE || task == Task.VISIT)
+            GameplayLog.limited(entity, "settlement", "mold_exile.preempted", 200,
+                    "mold exile interrupted task={} reason=preempted group={} den={}", task, home.group(), home.den());
+        end();
+    }
+
+    private void end() {
         if (task == null) return;
         entity.motor().cancel(this, "mold_exile_end");
         SurfaceApproach.stopWalking(entity);

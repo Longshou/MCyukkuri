@@ -73,7 +73,7 @@ public final class WildEvents {
                     && token.source()==EventReservations.Source.WILD && leisure(WildEventData.get(level).scene(token.id())))
                 && !e.profile().houseBody() && !e.profile().dangerToYukkuri() && !HomeClaim.holds(e)
                 && !e.childhood().needsNewbornCare() && !e.dailyLife().active() && !e.social().active() && !e.groupInteraction().active() && !e.playLife().active()
-                && !e.family().active() && !e.house().active() && !e.habitat().active() && e.life().mealTicks()==0;
+                && !e.family().active() && !e.house().active() && !e.habitat().active() && !e.moldExile().active() && e.life().mealTicks()==0;
     }
     /** Only called after a homeless adult has found a valid claim and the entire family can be admitted. */
     static void yieldLeisureToHome(ServerLevel level, List<YukkuriEntity> members) {
