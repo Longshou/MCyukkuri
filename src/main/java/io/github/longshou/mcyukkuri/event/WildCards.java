@@ -48,6 +48,17 @@ public final class WildCards {
             default -> false;
         };
     }
+    static boolean ambient(Scene scene) {
+        return scene.kind == Kind.CARD && (leisure(scene.card)
+                || switch (scene.card) {
+                    case "crowd", "territory", "rivalry" -> true;
+                    default -> false;
+                });
+    }
+    static boolean canYield(Scene scene) {
+        return scene.active() && ambient(scene) && scene.phase == Phase.APPROACH && scene.responses == 0
+                && scene.target == null && scene.fed.isEmpty();
+    }
     private static final List<String> AMBIENT=List.of("weak-escort","little-gap","rivalry","crowd","territory","plea","lookout",
             "sibling-game","mate-touch","teach","imitate","ornament","deficient-wait","young-call","reconcile","group-turn","tank-corner","tank-doll",
             "grave-quiet","street-scraps","alley-sniff","alley-corner","forest-find","forest-family","park-family","park-race","rain-close","heat-rest");
@@ -183,10 +194,10 @@ public final class WildCards {
         boolean care = card.equals("weak-escort") || card.equals("little-gap") || card.equals("ornament")
                 || card.equals("deficient-wait") || card.equals("heat-rest") || card.equals("teach");
         if (care && first.getRandom().nextFloat() >= first.life().personality().helpProbability(familiar(first,second), second.life().hasUrgentNeed())) {
-            data.defer(first.getUUID(), level.getGameTime(), 1200); return null;
+            data.deferCard(first.getUUID(), level.getGameTime(), 1200); return null;
         }
         if (card.equals("territory") && first.getRandom().nextInt(100) >= first.life().personality().escalationScore()) {
-            data.defer(first.getUUID(), level.getGameTime(), 600); return null;
+            data.deferCard(first.getUUID(), level.getGameTime(), 600); return null;
         }
         Scene scene=WildEventData.get(level).start(Kind.CARD,card,GlobalPos.of(level.dimension(),first.blockPosition()),
                 all.stream().map(Entity::getUUID).toList(),player==null?null:player.getUUID(),level.getGameTime(),

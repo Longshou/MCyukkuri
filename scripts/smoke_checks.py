@@ -290,7 +290,8 @@ def progress(rows, records=()):
             action = s['act'] or {}
             hits = contact_ticks[actor]
             contacted = bisect_right(hits, row['t']) > bisect_right(hits, anchor['t'])
-            if not active_work(s) or contacted or changed(a, s) or wait_advanced(anchor, row) or (action.get('deadline') is not None and row['t'] <= action['deadline']):
+            if (s.get('sleeping') is True or not active_work(s) or contacted or changed(a, s) or wait_advanced(anchor, row)
+                    or (action.get('deadline') is not None and row['t'] <= action['deadline'])):
                 anchor = row
                 continue
             # A newly entered short action cannot retroactively shorten the

@@ -62,15 +62,21 @@ public final class WildEvents {
                 && e.body().condition().readyForWildEvent() && e.life().wetness()<50;
     }
     public static boolean available(YukkuriEntity e) {
-        return e.onGround() && available(e, false);
+        return e.onGround() && availableForHome(e, false);
+    }
+    public static boolean availableForOpportunity(YukkuriEntity e) {
+        return e.level() instanceof ServerLevel level && e.onGround() && availableBody(e)
+                && WildEventData.get(level).opportunitySlot(e.getUUID());
     }
     /** Admission does not depend on footing; HomeClaim waits for landing before choosing actions. */
-    static boolean availableForHome(YukkuriEntity e, boolean housing) { return available(e, housing); }
-    private static boolean leisure(Scene scene) { return scene.kind==Kind.CARD && WildCards.leisure(scene.card); }
-    private static boolean available(YukkuriEntity e, boolean housing) {
-        return e.level() instanceof ServerLevel level && safe(e)
+    static boolean availableForHome(YukkuriEntity e, boolean housing) {
+        return e.level() instanceof ServerLevel level && availableBody(e)
                 && EventReservations.owners(level.getServer(),e.getUUID()).stream().allMatch(token -> housing
-                    && token.source()==EventReservations.Source.WILD && leisure(WildEventData.get(level).scene(token.id())))
+                    && token.source()==EventReservations.Source.WILD && leisure(WildEventData.get(level).scene(token.id())));
+    }
+    private static boolean leisure(Scene scene) { return scene.kind==Kind.CARD && WildCards.leisure(scene.card); }
+    private static boolean availableBody(YukkuriEntity e) {
+        return safe(e)
                 && !e.profile().houseBody() && !e.profile().dangerToYukkuri() && !HomeClaim.holds(e)
                 && !e.childhood().needsNewbornCare() && !e.dailyLife().active() && !e.social().active() && !e.groupInteraction().active() && !e.playLife().active()
                 && !e.family().active() && !e.house().active() && !e.habitat().active() && !e.moldExile().active() && e.life().mealTicks()==0;
@@ -301,13 +307,20 @@ public final class WildEvents {
         return !expired;
     }
     private static void finish(MinecraftServer server, ServerLevel level, Scene s, Phase phase, String result) {
+        int cooldown = s.kind == Kind.BADGE_ARC ? BadgeArcs.cooldown(s) : 1200;
+        finish(server, level, s, phase, result, cooldown);
+    }
+    static void yieldForOpportunity(MinecraftServer server, Scene s) {
+        finish(server, server.getLevel(s.origin.dimension()), s, Phase.INTERRUPTED, "yielded_to_opportunity", 0);
+    }
+    private static void finish(MinecraftServer server, ServerLevel level, Scene s, Phase phase, String result, int cooldown) {
         var data=WildEventData.get(server.overworld());
         if(!s.active() || data.scene(s.id)!=s)return;
         boolean arc=s.kind==Kind.BADGE_ARC;
         if(arc && level!=null)BadgeArcs.settle(level,s,phase,result);
         BadgeArcs.releaseHeldMeal(s);
         s.concertToken=null;
-        data.finish(s,phase,result,level==null?s.supervision.originTime():level.getGameTime(),arc?BadgeArcs.cooldown(s):1200);
+        data.finish(s,phase,result,level==null?s.supervision.originTime():level.getGameTime(),cooldown);
         if(level!=null)for(UUID id:s.members)if(level.getEntity(id) instanceof YukkuriEntity e)e.getNavigation().stop();
     }
     /** Called only at the existing successful food swallow, before its feeder UUID is cleared. */

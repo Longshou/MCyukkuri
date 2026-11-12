@@ -2,6 +2,7 @@ package io.github.longshou.mcyukkuri.pet.social;
 
 import io.github.longshou.mcyukkuri.social.Bonds;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.event.WildEventData;
 import io.github.longshou.mcyukkuri.event.WildEvents;
 import io.github.longshou.mcyukkuri.life.YukkuriConfig;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
@@ -90,7 +91,7 @@ public final class BadgeSocial {
     public static void scan(YukkuriEntity o) {
         if (!enabled() || !(o.level() instanceof ServerLevel level) || o.profile().dangerToYukkuri() || o.profile().houseBody()) return;
         long now = level.getGameTime(); clock = now;
-        if (!o.pet().calm() || WildEvents.reserved(o)) return;
+        if (!o.pet().calm() || !WildEventData.get(level).opportunitySlot(o.getUUID())) return;
         var views = VIEWS.computeIfAbsent(o.getUUID(), id -> new HashMap<>());
         views.values().removeIf(v -> now - v.last > FORGET_VIEW_TICKS);
         if (VIEWS.size() > 256) VIEWS.entrySet().removeIf(e -> e.getValue().isEmpty() && level.getEntity(e.getKey()) == null);
@@ -130,10 +131,11 @@ public final class BadgeSocial {
                 || subject.pet().visibleEffective().id() <= 0 || subject.life().mouth().isEmpty()) return;
         long now = level.getGameTime(); clock = now;
         var viewer = level.getNearestPlayer(subject, AUDIENCE_RADIUS);
+        var data = WildEventData.get(level);
         for (var o : level.getEntitiesOfClass(YukkuriEntity.class, subject.getBoundingBox().inflate(SCAN_RADIUS, 3, SCAN_RADIUS), peer -> peer != subject && peer.isAlive()
                 && !peer.isRemoved() && !peer.isPassenger() && !peer.profile().houseBody() && !peer.profile().dangerToYukkuri() && !peer.life().isSleeping()
                 && peer.status().identity().free() && peer.life().nutrition() >= 30 && peer.life().nutrition() < 50)) {
-            if (!o.pet().calm() || WildEvents.reserved(o) || !o.hasLineOfSight(subject) || !inFront(o, subject)) continue;
+            if (!o.pet().calm() || !data.opportunitySlot(o.getUUID()) || !o.hasLineOfSight(subject) || !inFront(o, subject)) continue;
             sighted(level, o, subject, viewer, List.of(subject), now, false, true);
             if (subject.life().mealHeld()) return; // one beggar at a time
         }

@@ -635,6 +635,7 @@ public final class TraceRecorder {
         out.addProperty("dailyContactTicks", entity.dailyLife().observedContactTicks());
         out.addProperty("dailyGreetingWait", entity.dailyLife().observedGreetingWait());
         out.addProperty("thermalRestTicks", entity.life().temperature().observedRestTicks());
+        out.addProperty("sleeping", entity.life().isSleeping());
         out.addProperty("pitPhase", entity.settlement().duties().pit().observedPhase());
         out.add("hold", hold(entity));
         out.addProperty("dep", entity.childhood().shouldStayWithParents());

@@ -11,6 +11,7 @@ import io.github.longshou.mcyukkuri.mind.EmotionEvent;
 import io.github.longshou.mcyukkuri.social.Temperament;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
+import java.util.function.BooleanSupplier;
 import io.github.longshou.mcyukkuri.interaction.ItemContact;
 import io.github.longshou.mcyukkuri.life.EcologyMovement;
 import io.github.longshou.mcyukkuri.event.WildEventData;
@@ -87,9 +88,9 @@ public final class BadgeArcs {
     /** Null when the arc could start; otherwise a short machine reason (shown by the admin command). */
     public static String check(ServerLevel level, Arc arc, YukkuriEntity o, YukkuriEntity s, Player player, YukkuriEntity extra) {
         if (o == s || !o.isAlive() || !s.isAlive() || o.level() != level || s.level() != level) return "invalid_pair";
-        if (!WildEvents.available(o)) return "observer_unavailable";
+        if (!WildEvents.availableForOpportunity(o)) return "observer_unavailable";
         if (!subjectReady(s, arc == Arc.BEG_BITE)) return "subject_unavailable";
-        if (WildEventData.get(level).forMember(s.getUUID()) != null) return "subject_in_scene";
+        if (!WildEventData.get(level).opportunitySlot(s.getUUID())) return "subject_in_scene";
         if (o.distanceToSqr(s) > 144 || !o.hasLineOfSight(s)) return "not_in_sight";
         switch (arc) {
             case BEG_BITE -> {
@@ -129,18 +130,17 @@ public final class BadgeArcs {
         var origin = GlobalPos.of(level.dimension(), o.blockPosition());
         List<YukkuriEntity> all = new ArrayList<>(List.of(o, s));
         // A conflicting optional participant rejects this roster; ordinary cooldown fallback below stays local.
-        if (extra != null && extra != o && extra != s && extra.level() == level && extra.distanceToSqr(o) <= 100
-                && !data.membersFree(List.of(o.getUUID(),s.getUUID(),extra.getUUID()))) return null;
-        boolean third = extra != null && extra != o && extra != s && WildEvents.available(extra) && extra.distanceToSqr(o) <= 100;
+        boolean nearbyExtra = extra != null && extra != o && extra != s && extra.level() == level && extra.distanceToSqr(o) <= 100;
+        if (nearbyExtra && !data.opportunitySlot(extra.getUUID())) return null;
+        boolean third = nearbyExtra && WildEvents.availableForOpportunity(extra);
         if (third) all.add(extra);
-        List<UUID> ids = all.stream().map(Entity::getUUID).toList();
-        if (!data.canStart(origin, ids, now)) {
-            if (!third) return null;
-            all.remove(extra); ids = all.stream().map(Entity::getUUID).toList();
-            if (!data.canStart(origin, ids, now)) return null;
+        UUID viewer = player == null ? null : player.getUUID();
+        BooleanSupplier prepare = () -> arc != Arc.BEG_BITE || s.life().holdMeal(260);
+        Scene scene = data.start(Kind.BADGE_ARC, arc.id, origin, all.stream().map(Entity::getUUID).toList(), viewer, now, prepare);
+        if (scene == null && third) {
+            all.remove(extra);
+            scene = data.start(Kind.BADGE_ARC, arc.id, origin, List.of(o.getUUID(), s.getUUID()), viewer, now, prepare);
         }
-        Scene scene = data.start(Kind.BADGE_ARC, arc.id, origin, ids, player == null ? null : player.getUUID(), now,
-                () -> arc != Arc.BEG_BITE || s.life().holdMeal(260));
         if (scene == null) return null;
         if (arc == Arc.BEG_BITE) {
             scene.heldMealOwner = new WeakReference<>(s);
