@@ -513,7 +513,7 @@ public final class Reactions {
         public static boolean keepDry(YukkuriEntity animal) {
             return prey(animal) && animal.level().isRaining() && animal.life().nutrition() >= DRY_NUTRITION
                     && !rainAt(animal, animal.blockPosition()) && !BehaviorContinuity.emergency(animal)
-                    && !animal.family().birthDuty();
+                    && !animal.family().birthDuty() && !animal.life().leavingFoundShelter();
         }
         public static boolean allowsStep(YukkuriEntity animal, BlockPos destination) {
             return !keepDry(animal) || !rainAt(animal, destination);

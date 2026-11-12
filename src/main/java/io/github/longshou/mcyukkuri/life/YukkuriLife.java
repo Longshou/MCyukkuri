@@ -453,6 +453,7 @@ public final class YukkuriLife {
     public ShelterBlockEntity foundShelter() { return foundCover.inside(); }
     boolean usingPaperBedding(BlockPos pos) { return foundCover.usingPaperAt(pos); }
     public boolean targetingFoundShelter(BlockPos pos) { return foundCover.targeting(pos); }
+    public boolean leavingFoundShelter() { return foundCover.exiting(); }
     public boolean usingGarbage(BlockPos pos) { return garbage.targeting(pos); }
     public void yieldFoundShelter(BlockPos pos) { foundCover.yield(pos); }
     public void foundShelterRemoved(BlockPos pos, boolean wet) {
@@ -587,6 +588,8 @@ public final class YukkuriLife {
         temperature.stop();
         entity.dailyLife().stop();
         if (!meal.releaseForInterrupt()) return;
+        foundCover.stop();
+        garbage.stop();
         if(task==Task.SLEEP&&sleepTicks>=20)GameplayLog.limited(entity,"sleep","interrupt",200,
                 "interrupted source=life ticks={} energy={} nutrition={} panic={} water={} fire={}",
                 sleepTicks,energy,nutrition,entity.isPanicking(),entity.isInWaterOrBubble(),entity.isOnFire());
@@ -820,7 +823,9 @@ public final class YukkuriLife {
             case FOUND_COVER -> {
                 var step = foundCover.tick();
                 if (step == FoundShelter.Step.ENDED) stopGoal();
-                else if (step == FoundShelter.Step.RESTING && drowsy()) { task = Task.SLEEP; targetBlock = null; resetSleep(); }
+                else if (step == FoundShelter.Step.RESTING && drowsy() && foundCover.readyToSleep()) {
+                    task = Task.SLEEP; targetBlock = null; resetSleep();
+                }
             }
             case GARBAGE -> { if (!garbage.tick()) stopGoal(); }
             case TEMPERATURE -> {

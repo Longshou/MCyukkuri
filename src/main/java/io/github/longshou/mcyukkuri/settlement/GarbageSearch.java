@@ -13,6 +13,7 @@ import io.github.longshou.mcyukkuri.status.Identity;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
+import java.util.UUID;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.LivingEntity;
@@ -60,9 +61,16 @@ public final class GarbageSearch {
                 || !body.habitat().mouthFreeForLoad()) return false;
         if (identity == Identity.STRAY) return true;
         var family = FamilyData.get(level());
-        return identity == Identity.WILD_FAMILY && body.family().partner() == null
-                && body.family().mother() == null && body.family().father() == null && family.children(body.getUUID()).isEmpty()
+        return identity == Identity.WILD_FAMILY && !hasKin(family, body.family().partner())
+                && !hasKin(family, body.family().mother()) && !hasKin(family, body.family().father())
+                && family.children(body.getUUID()).stream().noneMatch(child -> hasKin(family, child))
                 && (body.habitat().shelter() == null || !body.habitat().shelter().hasFoodFor(body));
+    }
+
+    private static boolean hasKin(FamilyData family, UUID id) {
+        if (id == null) return false;
+        var person = family.person(id);
+        return person == null || person.status != FamilyData.Status.DEAD && person.status != FamilyData.Status.REMOVED;
     }
 
     public boolean plan() {
@@ -162,10 +170,11 @@ public final class GarbageSearch {
             GameplayLog.event(body, "forage", "garbage sniff point={} open={}", pos, open);
             return true;
         }
+        if (body.distanceToSqr(aim) > .25) { retreat(Vec3.atCenterOf(pos), "lost_contact"); return true; }
         if (now() < deadline) return true;
         if (phase == Phase.NOSE_IN) return take(barrel);
         if (open) {
-            phase = Phase.NOSE_IN; deadline = now() + clip(Behaviors.HOUSE_SNIFF);
+            phase = Phase.NOSE_IN; deadline = now() + clip(Behaviors.HOUSE_SCAVENGE);
             GameplayLog.event(body, "forage", "garbage nose_in point={}", pos);
             return true;
         }
@@ -217,8 +226,13 @@ public final class GarbageSearch {
     private static int clip(String action) { return Math.max(1, ClipMarkers.of(action).length()); }
     private SurfaceApproach.Result walk() { return SurfaceApproach.walkResult(body, aim, null, 1); }
     public String activity() {
-        return phase == Phase.RAM ? RAM : phase == Phase.SNIFF || phase == Phase.NOSE_IN ? Behaviors.HOUSE_SNIFF
-                : phase == Phase.CARRY ? Behaviors.SHELTER_CARRY : Behaviors.SEEK_FOOD;
+        return switch (phase) {
+            case SNIFF -> Behaviors.HOUSE_SNIFF;
+            case RAM -> RAM;
+            case NOSE_IN -> Behaviors.HOUSE_SCAVENGE;
+            case CARRY -> Behaviors.SHELTER_CARRY;
+            case null, default -> Behaviors.SEEK_FOOD;
+        };
     }
     public void stop() {
         if (point == null) return;

@@ -43,6 +43,7 @@ public final class FoundShelter {
     public boolean active() { return shelter != null || gap != null; }
     public boolean targeting(BlockPos at) { return shelter != null && shelter.getBlockPos().equals(at); }
     public boolean exiting() { return phase == Phase.EXIT; }
+    public boolean readyToSleep() { return phase == Phase.REST && now() >= deadline && !body.life().temperature().unsafeSleep(); }
     public ShelterBlockEntity inside() {
         if (!(body.level() instanceof ServerLevel)) return null;
         if (!(level().getBlockState(body.blockPosition()).getBlock() instanceof ShelterBlock block) || !block.kind().found()) return null;
@@ -146,7 +147,11 @@ public final class FoundShelter {
             if (!exiting()) return Step.ENDED;
         }
         if (exiting()) {
-            if (shelter == null || !shelter.contains(body.blockPosition())) { stop(); return Step.ENDED; }
+            if (!shelter.contains(body.blockPosition())) {
+                GameplayLog.event(body, "habitat", "found exited shelter={}", target());
+                stop();
+                return Step.ENDED;
+            }
             if (now() < warnUntil) return Step.ACTIVE;
             if (now() >= deadline || walk() == SurfaceApproach.Result.BLOCKED) { stop(); return Step.ENDED; }
             return Step.ACTIVE;
@@ -160,12 +165,18 @@ public final class FoundShelter {
             return inspect();
         }
         var result = walk();
-        if (result == SurfaceApproach.Result.BLOCKED || now() - began > 320) {
+        if (result == SurfaceApproach.Result.BLOCKED || now() - began > 320
+                || result == SurfaceApproach.Result.ARRIVED && phase == Phase.ENTER && shelter != null
+                        && !shelter.contains(body.blockPosition())) {
             if (++failures >= 2 || shelter == null) {
                 remember(target(), BLOCKED_REST, "entry_blocked"); stop(); return Step.ENDED;
             }
-            var lateral = shelter.facing().getClockWise().getNormal();
-            aim = aim.add(lateral.getX() * .32, 0, lateral.getZ() * .32);
+            if (phase == Phase.ENTER) aim = restPoint(shelter.foundBed(body), aim);
+            else {
+                var lateral = shelter.facing().getClockWise().getNormal();
+                aim = aim.add(lateral.getX() * .32, 0, lateral.getZ() * .32);
+            }
+            if (aim == null) { remember(target(), BLOCKED_REST, "no_rest_space"); stop(); return Step.ENDED; }
             began = now();
             return Step.ACTIVE;
         }
@@ -204,7 +215,7 @@ public final class FoundShelter {
             remember(target(), CONTEST_REST, "yield");
             stop(); return Step.ENDED;
         }
-        aim = restPoint(shelter.foundBed(body));
+        aim = restPoint(shelter.foundBed(body), null);
         if (aim == null) {
             remember(target(), BLOCKED_REST, "no_rest_space"); stop(); return Step.ENDED;
         }
@@ -212,15 +223,21 @@ public final class FoundShelter {
         return Step.ACTIVE;
     }
 
-    private Vec3 restPoint(BlockPos pos) {
+    private Vec3 restPoint(BlockPos pos, Vec3 failed) {
         var centre = Vec3.atBottomCenterOf(pos);
-        if (availableStand(centre)) return centre;
+        if (restStand(centre, failed)) return centre;
         for (var side : Direction.Plane.HORIZONTAL) {
             var d = side.getNormal();
-            var at = centre.add(d.getX() * .52, 0, d.getZ() * .52);
-            if (availableStand(at)) return at;
+            var at = centre.add(d.getX() * .40, 0, d.getZ() * .40);
+            if (restStand(at, failed)) return at;
         }
         return null;
+    }
+
+    private boolean restStand(Vec3 at, Vec3 failed) {
+        if (at.equals(failed) || !availableStand(at)) return false;
+        var stand = SurfaceApproach.stand(body, at);
+        return stand != null && shelter.contains(BlockPos.containing(stand));
     }
 
     private boolean availableStand(Vec3 at) {
@@ -232,7 +249,8 @@ public final class FoundShelter {
     private void settle() {
         SurfaceApproach.halt(body);
         phase = Phase.REST;
-        body.showReaction("relieved", "", 45);
+        deadline = now() + 20; // Let the shared temperature sampler observe the reached cover before sleep.
+        body.showReaction("closed_smile", "", 45);
         if (shelter != null) GameplayLog.event(body, "habitat", "found settled shelter={} kind={} occupants={}",
                 target(), shelter.kind(), shelter.occupants());
         else GameplayLog.event(body, "habitat", "wind cover settled at={} paper={}", gap, paperAt(gap));

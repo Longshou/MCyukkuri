@@ -378,7 +378,7 @@ add('stray_wind', 'forage', '流浪：钻进木板缝挡风', '流浪：钻进�
         item('minecraft:paper', 1, -3, -1, name='wind_paper'),
         street_stray('stray_wind', 'reimu', -3, 3, 'wind_stray', energy=34, rest_wait=0, lead=True),
     ], env={'time': 'night'}, spot='street', vantage=(0, 9),
-    smoke=dict(ticks=550, forbid=[r'\[habitat\][^\n]* home chosen '],
+    smoke=dict(ticks=550, forbid=[r'\[habitat\][^\n]* home chosen ', r'\[sleep\][^\n]* woken by danger reason=environment'],
                expect=[r'\[habitat\][^\n]* wind cover settled .*paper=true']))
 
 # ====================================================================================================== biome settlements
