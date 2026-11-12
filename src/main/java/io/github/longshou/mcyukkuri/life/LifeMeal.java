@@ -220,6 +220,11 @@ final class LifeMeal {
                 .sorted(Comparator.comparingInt(other->o.entity().family().caresFor(other)?0:1)).findFirst().orElse(null);
         if (peer == null || mouth().isEmpty()) return;
         if (requested != null || consideration > 0 && o.nutrition() >= 60 && peer.life().nutrition() < 40) {
+            if (PetConversation.sharingDanger(donor, peer)) {
+                UUID owner = donor.pet().owner();
+                if (owner != null) PetConversation.callOwnerForDanger(donor, peer, o.level().getPlayerByUUID(owner));
+                return;
+            }
             if (o.nutrition() >= 60 && peer.life().nutrition() < 40 && !bowlMeal && feeder == null
                     && !donor.dailyLife().sharedFoodToday(peer.getUUID())
                     && (requested != null || donor.getRandom().nextDouble() < consideration) && handOverMouth(peer, "share"))

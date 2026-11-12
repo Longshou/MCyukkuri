@@ -53,6 +53,11 @@ final class ExamPracticeItem implements ExamItem {
     @Override public boolean tick(ExamContext ctx) {
         long now = ctx.level().getGameTime();
         if (phase == Phase.COMMENT) return now >= until;
+        if (participant instanceof YukkuriEntity peer && PetConversation.sharingDanger(ctx.candidate(), peer)) {
+            PetConversation.callOwnerForDanger(ctx.candidate(), peer, ctx.owner());
+            ctx.interrupt("danger");
+            return false;
+        }
         if (participant != null && (!participant.isAlive() || participant.level() != ctx.level()
                 || participant.distanceToSqr(ctx.candidate()) > 64
                 || participant instanceof HumanNpc human && ExamSession.active(human)
@@ -136,7 +141,8 @@ final class ExamPracticeItem implements ExamItem {
         var donor = ctx.candidate();
         boolean assisted = asksOwner && ctx.owner() != null && ctx.owner().getUUID().equals(feeder);
         if (foodIncident != null && phase == Phase.OBSERVE && completed == null && receiver == participant
-                && donor.hasLineOfSight(receiver) && (donor.getUUID().equals(feeder) || assisted)) {
+                && donor.hasLineOfSight(receiver) && !PetConversation.sharingDanger(donor, receiver)
+                && (donor.getUUID().equals(feeder) || assisted)) {
             if (question == ExamPlan.Question.SHARE && assisted) {
                 if (donor.life().nutrition() < 60 || donor.dailyLife().sharedFoodToday(receiver.getUUID())) return;
                 donor.dailyLife().sharedFoodWith(receiver.getUUID());

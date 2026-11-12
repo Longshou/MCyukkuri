@@ -6583,5 +6583,7 @@
   "item.mcyukkuri.platinum_yukkuri_badge": "Platinum Yukkuri Badge",
   "exam.mcyukkuri.ui.daylight": "Silver and higher need about five minutes of daylight.",
   "human.mcyukkuri.greet_badge": "Hello, %s. A pleasure to see you.",
-  "exam.mcyukkuri.refuse.share_nutrition": "Let the candidate recover to at least 60 nutrition."
+  "exam.mcyukkuri.refuse.share_nutrition": "Let the candidate recover to at least 60 nutrition.",
+  "pet.mcyukkuri.reply.help_danger": "%s calls for help. %s is in danger!",
+  "exam.mcyukkuri.interrupt.danger": "Help the peer get to safety first."
 }

@@ -4,6 +4,7 @@ import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.social.YukkuriPersonality.Trait;
 import io.github.longshou.mcyukkuri.subspecies.SubspeciesLife.Congenital;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.player.Player;
 
 /** The same aptitude for complete, considerate explanations in daily life and at an exam. */
 public final class PetConversation {
@@ -30,6 +31,20 @@ public final class PetConversation {
         var personality = y.life().personality();
         return personality.potential(Trait.INTELLIGENCE) >= 80 && personality.potential(Trait.SELF_CONTROL) >= 80
                 && personality.potential(Trait.FRIENDLINESS) >= 80 && personality.potential(Trait.ATTACHMENT) >= 78;
+    }
+
+    public static boolean sharingDanger(YukkuriEntity y, YukkuriEntity peer) {
+        return y.isPanicking() || peer.isPanicking() || peer.isOnFire() || peer.isInWaterOrBubble()
+                || !y.level().getEntitiesOfClass(YukkuriEntity.class, peer.getBoundingBox().inflate(8), threat ->
+                        threat.isAlive() && threat.profile().dangerToYukkuri()
+                                && (threat.predator().prey() == peer || threat.predator().prey() == y)
+                                && y.hasLineOfSight(threat)).isEmpty();
+    }
+
+    public static void callOwnerForDanger(YukkuriEntity y, YukkuriEntity peer, Player owner) {
+        if (owner == null || !owner.isAlive() || owner.distanceToSqr(y) > 144) return;
+        owner.displayClientMessage(Component.translatable("pet.mcyukkuri.reply.help_danger", y.getDisplayName(), peer.getDisplayName()), true);
+        y.showReaction("teary", "afraid", 60);
     }
 
     public static Component fullStudyReply(PetSkill skill, Component answer) {

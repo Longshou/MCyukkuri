@@ -73,7 +73,9 @@
     "exam.mcyukkuri.ui.daylight": "Silver and higher need about five minutes of daylight.",
     "human.mcyukkuri.greet_badge": "Hello, %s. A pleasure to see you.",
     "exam.mcyukkuri.refuse.share_nutrition": "Let the candidate recover to at least 60 nutrition.",
-    "exam.mcyukkuri.hint.5": "Attempt the next grade. A missed answer leaves the current grade in place."
+    "exam.mcyukkuri.hint.5": "Attempt the next grade. A missed answer leaves the current grade in place.",
+    "pet.mcyukkuri.reply.help_danger": "%s calls for help. %s is in danger!",
+    "exam.mcyukkuri.interrupt.danger": "Help the peer get to safety first."
   },
   "zh_cn": {
     "exam.mcyukkuri.reply.name": "我叫%s！",
@@ -149,7 +151,9 @@
     "exam.mcyukkuri.ui.daylight": "银章及以上需要约五分钟的日照时间。",
     "human.mcyukkuri.greet_badge": "你好，%s。见到你很高兴。",
     "exam.mcyukkuri.refuse.share_nutrition": "请等考生营养恢复到 60 再来。",
-    "exam.mcyukkuri.hint.5": "挑战高一级徽章，答错时保留现有等级。"
+    "exam.mcyukkuri.hint.5": "挑战高一级徽章，答错时保留现有等级。",
+    "pet.mcyukkuri.reply.help_danger": "%s在求助，%s有危险！",
+    "exam.mcyukkuri.interrupt.danger": "请先帮同伴脱离危险。"
   },
   "ja_jp": {
     "exam.mcyukkuri.reply.name": "%sだよ！",
@@ -225,6 +229,8 @@
     "exam.mcyukkuri.ui.daylight": "銀以上は日没まで約5分必要です。",
     "human.mcyukkuri.greet_badge": "こんにちは、%s。お会いできてうれしいです。",
     "exam.mcyukkuri.refuse.share_nutrition": "受験者の栄養が60に戻ってから来てください。",
-    "exam.mcyukkuri.hint.5": "一つ上の等級に挑戦します。不合格でも現在の等級は維持されます。"
+    "exam.mcyukkuri.hint.5": "一つ上の等級に挑戦します。不合格でも現在の等級は維持されます。",
+    "pet.mcyukkuri.reply.help_danger": "%sが助けを呼んでいます。%sが危ない！",
+    "exam.mcyukkuri.interrupt.danger": "まず仲間を安全な所に連れていってください。"
   }
 }

@@ -6581,5 +6581,7 @@
   "item.mcyukkuri.platinum_yukkuri_badge": "油库里铂金章",
   "exam.mcyukkuri.ui.daylight": "银章及以上需要约五分钟的日照时间。",
   "human.mcyukkuri.greet_badge": "你好，%s。见到你很高兴。",
-  "exam.mcyukkuri.refuse.share_nutrition": "请等考生营养恢复到 60 再来。"
+  "exam.mcyukkuri.refuse.share_nutrition": "请等考生营养恢复到 60 再来。",
+  "pet.mcyukkuri.reply.help_danger": "%s在求助，%s有危险！",
+  "exam.mcyukkuri.interrupt.danger": "请先帮同伴脱离危险。"
 }
