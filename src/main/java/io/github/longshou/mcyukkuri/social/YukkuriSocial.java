@@ -80,11 +80,11 @@ public final class YukkuriSocial implements MotorOwner {
     /** The existing empty-hand greeting, counted once at its actual player entry. */
     public void clickedTalk(Player player) {
         if (ShopMenu.clickStock(player,entity)) return;
-        boolean accepted = talk(player, true);
+        boolean feedback = entity.pet().lessons().praise(player);
+        boolean accepted = feedback || talk(player, true);
         greetClicks++;
-        if (accepted) {
+        if (accepted && !feedback) {
             greetingBody("greet");
-            entity.pet().lessons().praise(player);
             entity.pet().care().praise(player);
         }
         GameplayLog.event(entity, "interaction", "greet click player={} accepted={} clicks={}", player.getUUID(), accepted, greetClicks);

@@ -38,10 +38,10 @@ public final class PetStudy {
             var held = owner.getMainHandItem();
             var written = held.get(DataComponents.WRITTEN_BOOK_CONTENT);
             if (written != null && !written.pages().isEmpty())
-                return text(written.pages().getFirst().raw().getString(), "book");
+                return text(written.pages().getFirst().get(true).getString(), "book");
             var writable = held.get(DataComponents.WRITABLE_BOOK_CONTENT);
             if (writable != null && !writable.pages().isEmpty())
-                return text(writable.pages().getFirst().raw(), "book");
+                return text(writable.pages().getFirst().get(true), "book");
         }
         var at = pet.blockPosition();
         Exercise closest = null;
@@ -116,7 +116,7 @@ public final class PetStudy {
 
     private static String countLine(Exercise exercise) {
         int count = exercise.count();
-        if (count == 1 || count == 2 || count > CLEAR_COUNT)
+        if (count > 0)
             return "count_" + (exercise.source().equals("young") ? "children_" : "food_")
                     + (count > CLEAR_COUNT ? "many" : count);
         return "exam_answer";

@@ -1230,12 +1230,14 @@ add('social_identity', 'town', '宠物、流浪与野生四类对照', '宠物�
 
 add('wild', 'town', '饿野油来讨宠物的苹果', '饿野油来讨宠物的苹果', '银章宠物就地吃苹果，旁边的野生魔理沙看见嘴里的食物才上前讨吃。看对方面向它、分一口或鼓脸拒绝。', '约半分钟', [
     yk('reimu', 0, 0, 'pet', nutrition=38, yaw=-90, lead=True, boldness=60), *own('pet'),
-    f'yukkuri scenario badge {sel("pet")} silver false', item('minecraft:apple', 3, 1, 0),
-    yk('marisa', 4, 0, 'wild', nutrition=31, yaw=90, boldness=40)], env=DAY, vantage=(1, 9))
+    f'yukkuri scenario badge {sel("pet")} silver false', item('minecraft:apple', 1, 1, 0),
+    yk('marisa', 4, 0, 'wild', nutrition=32, yaw=90, boldness=25)], env=DAY, vantage=(1, 9))
 
 add('badge', 'town', '银章灵梦遇到嫉妒的野油', '银章灵梦遇到嫉妒的野油', '野生魔理沙看见灵梦佩戴的银章，鼓脸或闹别扭。看灵梦是友善回礼，还是得意地展示徽章。', '约 1 分钟', [
-    yk('reimu', 0, 0, 'pet', yaw=-90, lead=True), *own('pet'),
-    yk('marisa', 2, 0, 'wild', yaw=90, nutrition=84, boldness=68, friendliness=12, attachment=14, self_control=38),
+    *(block(x, 0, z, 'minecraft:oak_fence') for x in range(-1, 4) for z in range(-2, 3)
+      if x in (-1, 3) or abs(z) == 2),
+    yk('reimu', 0, 0, 'pet', yaw=-90, lead=True, friendliness=53, boldness=35), *own('pet'),
+    yk('marisa', 1.5, 0, 'wild', yaw=90, nutrition=84, boldness=68, friendliness=0, attachment=0, self_control=38),
     f'yukkuri scenario badge {sel("pet")} silver false'], env=DAY, vantage=(1, 8))
 
 _practice_home = []
@@ -1250,20 +1252,23 @@ for _x, _kind, _name, _skill in ((-7, 'reimu', 'practised', 76), (7, 'marisa', '
         *own(_name), home(_name, _x, -4)]
 add('training_home', 'town', '宠物日常练习：吃饭、如厕、睡觉', '宠物日常练习：吃饭、如厕、睡觉',
     '两只同样饿、困并有便意的宠物，分别有食盆、沙厕和窝。看取食或打翻、走去沙厕或当场解决、回窝或就地睡下。用手册查看经验变化。',
-    '黄昏开始，约 1–2 分钟', _practice_home, env={'time': 'dusk'}, vantage=(0, 13),
+    '入夜开始，约 1–2 分钟', _practice_home, env={'time': 'night'}, vantage=(0, 13),
     give=['mcyukkuri:badge_handbook', 'mcyukkuri:teaching_whistle', 'mcyukkuri:sweet_candy 6'],
     reads=[('读训练经验', f'data get entity {sel("practised")} YukkuriPet.SkillExperience'),
            ('读新手经验', f'data get entity {sel("novice")} YukkuriPet.SkillExperience')])
 
 add('training_study', 'town', '宠物读告示牌、数苹果', '宠物读告示牌、数苹果',
-    '灵梦能看见写有「苹果」的告示牌和六个苹果。看它念出字、数到四以上说好多，或困惑答错。拿有字的书也可以从手册开课。',
+    '灵梦能看见写有「苹果」的告示牌，魔理沙面前有六个苹果。看它们念出字、数到四以上说好多，或困惑答错。拿有字的书也可以从手册开课。',
     '约 1 分钟', [
-        block(0, 0, -2, 'minecraft:oak_sign[rotation=0]{front_text:{messages:[\'{"text":"苹果"}\',\'""\',\'""\',\'""\']}}'),
-        item('minecraft:apple', 6, 2, 0, 'count_apples'),
-        yk('reimu', 0, 0, 'reader', nutrition=96, social_wait=0, lead=True, intelligence=90, self_control=86,
-           extra='YukkuriPet:{SkillExperience:{reading:76,arithmetic:76}}'), *own('reader')],
-    env=DAY, vantage=(1, 8), give=['mcyukkuri:badge_handbook', 'minecraft:writable_book'],
-    reads=[('读读字和算术经验', f'data get entity {sel("reader")} YukkuriPet.SkillExperience')])
+        block(-5, 0, -2, 'minecraft:oak_sign[rotation=0]{front_text:{messages:[\'{"text":"苹果"}\',\'""\',\'""\',\'""\']}}'),
+        item('minecraft:apple', 6, 6, 0, 'count_apples'),
+        yk('reimu', -5, 0, 'reader', nutrition=96, social_wait=0, lead=True, intelligence=90, self_control=86,
+           extra='YukkuriPet:{SkillExperience:{reading:76}}'), *own('reader'),
+        yk('marisa', 5, 0, 'counter', nutrition=96, social_wait=0, intelligence=90, self_control=86,
+           extra='YukkuriPet:{SkillExperience:{arithmetic:76}}'), *own('counter')],
+    env=DAY, vantage=(0, 8), give=['mcyukkuri:badge_handbook', 'minecraft:writable_book'],
+    reads=[('读读字经验', f'data get entity {sel("reader")} YukkuriPet.SkillExperience'),
+           ('读算术经验', f'data get entity {sel("counter")} YukkuriPet.SkillExperience')])
 
 add('exam', 'town', '宠物灵梦考试：及格得铜章，饿着必挂', '宠物灵梦考试：及格得铜章，饿着必挂',
     '带宠物灵梦去考官面前考试：紧张、作答、躲猫猫，合格得铜章。不及格对照：生成后立刻点“考生营养降到4”，考试必然不及格，之后被管教（不安 +10、营养清零），比原来的压力更重',
@@ -3994,7 +3999,7 @@ _smoke('training_home', 2100, [
 _smoke('training_study', 1750, [
     r'\[lesson\][^\n]*study answered skill=READING',
     r'\[lesson\][^\n]*study answered skill=ARITHMETIC source=food count=6',
-], readout=[f'data get entity {sel("reader")} YukkuriPet.SkillExperience'])
+], readout=[f'data get entity {sel(n)} YukkuriPet.SkillExperience' for n in ('reader', 'counter')])
 _smoke('balance_relation', 600, [r'\[status\] reimu [^\n]* identity observed kind=wild_family\b'],
     readout=[f'yukkuri status {sel(f"fear{fear}")} raw' for fear, _ in _BALANCE_FEAR])
 next(s for s in S if s.id == 'balance_relation').smoke['verify'] = _distinct(

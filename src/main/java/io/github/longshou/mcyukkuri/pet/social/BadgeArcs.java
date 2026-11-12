@@ -10,6 +10,7 @@ import io.github.longshou.mcyukkuri.mind.EmotionEvent;
 
 import io.github.longshou.mcyukkuri.social.Temperament;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.interaction.ItemContact;
 import io.github.longshou.mcyukkuri.life.EcologyMovement;
 import io.github.longshou.mcyukkuri.event.WildEventData;
@@ -95,7 +96,6 @@ public final class BadgeArcs {
                 if (!o.status().identity().free()) return "observer_owned";
                 if (!eating(s)) return "subject_not_eating";
                 if (!o.life().canEat() || o.life().nutrition() >= 75) return "observer_not_hungry";
-                if (o.distanceToSqr(s) > 4 && !o.life().reachable(s.blockPosition(), false)) return "food_out_of_reach";
             }
             case ENVY -> { if (grade(s) <= grade(o)) return "badge_not_higher"; }
             case PLEA -> {
@@ -118,7 +118,12 @@ public final class BadgeArcs {
     }
 
     public static Scene start(ServerLevel level, Arc arc, String variant, YukkuriEntity o, YukkuriEntity s, Player player, YukkuriEntity extra) {
-        if (check(level, arc, o, s, player, extra) != null) return null;
+        String reason = check(level, arc, o, s, player, extra);
+        if (reason != null) {
+            GameplayLog.limited(o, "badge", "admission." + arc.id, 80,
+                    "badge arc refused arc={} subject={} reason={}", arc.id, s.getUUID(), reason);
+            return null;
+        }
         var data = WildEventData.get(level);
         long now = level.getGameTime();
         var origin = GlobalPos.of(level.dimension(), o.blockPosition());

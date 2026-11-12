@@ -8,6 +8,7 @@ import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.pet.social.BadgeArcPolicy.Arc;
 import io.github.longshou.mcyukkuri.settlement.Rumours;
 import io.github.longshou.mcyukkuri.settlement.SettlementData;
+import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -24,6 +25,7 @@ public final class BadgeSocial {
     /** Affinity moved by badge reactions stays inside these guard rails: far from the bully (-20) and nuzzle (+10) thresholds. */
     public static final int FLOOR = -10, CEILING = 8;
     private static final int SCAN_RADIUS = 8, DWELL_TICKS = 40, FORGET_VIEW_TICKS = 100, ROLL_EVERY = 200, AUDIENCE_RADIUS = 32;
+    private static final double NEAR_SIGHT_SQR = 2.5 * 2.5;
     private static final class View {
         final long since;
         final int grade;
@@ -78,7 +80,7 @@ public final class BadgeSocial {
 
     private static boolean inFront(YukkuriEntity o, YukkuriEntity y) {
         Vec3 to = y.position().subtract(o.position()).multiply(1, 0, 1);
-        if (to.lengthSqr() < 1.0) return true; // very close: always in view
+        if (o.distanceToSqr(y) <= NEAR_SIGHT_SQR) return true;
         Vec3 look = o.getLookAngle().multiply(1, 0, 1);
         if (look.lengthSqr() < 1.0e-4) return true;
         return look.normalize().dot(to.normalize()) > .5; // about 120 degrees in front
@@ -107,9 +109,16 @@ public final class BadgeSocial {
         for (var y : seen) {
             var v = views.get(y.getUUID());
             int grade = y.pet().visibleEffective().id();
-            if (v == null || v.grade != grade) { views.put(y.getUUID(), new View(now, grade)); continue; }
+            if (v == null || v.grade != grade) {
+                v = new View(now, grade);
+                views.put(y.getUUID(), v);
+            }
             v.last = now;
-            if (!v.reported && now - v.since >= DWELL_TICKS) { v.reported = true; v.nextRoll = now + ROLL_EVERY; sighted(level, o, y, viewer, seen, now, true); }
+            if (!v.reported && (o.distanceToSqr(y) <= NEAR_SIGHT_SQR || now - v.since >= DWELL_TICKS)) {
+                v.reported = true;
+                v.nextRoll = now + ROLL_EVERY;
+                sighted(level, o, y, viewer, seen, now, true);
+            }
             else if (v.reported && now >= v.nextRoll) { v.nextRoll = now + ROLL_EVERY + o.getRandom().nextInt(100); sighted(level, o, y, viewer, seen, now, false); }
         }
     }
@@ -125,17 +134,16 @@ public final class BadgeSocial {
                 && !peer.isRemoved() && !peer.isPassenger() && !peer.profile().houseBody() && !peer.profile().dangerToYukkuri() && !peer.life().isSleeping()
                 && peer.status().identity().free() && peer.life().nutrition() >= 30 && peer.life().nutrition() < 50)) {
             if (!o.pet().calm() || WildEvents.reserved(o) || !o.hasLineOfSight(subject) || !inFront(o, subject)) continue;
-            sighted(level, o, subject, viewer, List.of(subject), now, false, Arc.BEG_BITE);
+            sighted(level, o, subject, viewer, List.of(subject), now, false, true);
             if (subject.life().mealHeld()) return; // one beggar at a time
         }
     }
 
     private static void sighted(ServerLevel level, YukkuriEntity o, YukkuriEntity s, Player viewer, List<YukkuriEntity> seen, long now, boolean edge) {
-        sighted(level, o, s, viewer, seen, now, edge, null);
+        sighted(level, o, s, viewer, seen, now, edge, false);
     }
 
-    /** {@code only}: roll just that arc's own probability instead of the shared scale (an event-driven chance, not a periodic sighting). */
-    private static void sighted(ServerLevel level, YukkuriEntity o, YukkuriEntity s, Player viewer, List<YukkuriEntity> seen, long now, boolean edge, Arc only) {
+    private static void sighted(ServerLevel level, YukkuriEntity o, YukkuriEntity s, Player viewer, List<YukkuriEntity> seen, long now, boolean edge, boolean meal) {
         var ledger = o.pet().badgeLedger();
         int grade = s.pet().visibleEffective().id();
         BadgeLedger.Sighting sight;
@@ -150,23 +158,30 @@ public final class BadgeSocial {
         var context = new BadgeArcPolicy.Context(viewer != null, Rumours.strength(group, Rumours.WARY_HUMAN, now) > 0, Rumours.strength(group, Rumours.BADGE_FED, now) > 0,
                 snatchEnabled(), homeClaimEnabled());
         BadgeArcPolicy.Choice choice;
-        if (only == null) choice = BadgeArcPolicy.choose(observer, subject, relation, context, o.getRandom().nextDouble());
+        if (!meal) choice = BadgeArcPolicy.choose(observer, subject, relation, context, o.getRandom().nextDouble());
         else {
-            choice = BadgeArcPolicy.Choice.SILENT;
-            for (var cand : BadgeArcPolicy.candidates(observer, subject, relation, context))
-                if (cand.arc() == only && o.getRandom().nextDouble() < cand.probability()) choice = new BadgeArcPolicy.Choice(cand.arc(), cand.variant());
-            if (choice.silent()) return;
+            double chance = BadgeArcPolicy.begBiteChance(observer, subject, relation);
+            if (chance == 0 || o.getRandom().nextDouble() >= chance) return;
+            choice = new BadgeArcPolicy.Choice(Arc.BEG_BITE, "");
         }
         if (choice.silent()) { glance(o, s, edge && (sight.first() || sight.changed())); return; }
         var arc = choice.arc();
         String variant = arc == Arc.BOAST && o.pet().recentBadgeSuccess() && o.life().personality().boldness() >= 55
                 && o.life().personality().friendliness() <= 65 ? "boast" : choice.variant();
         UUID viewerId = viewer == null ? null : viewer.getUUID();
-        if (budget().check(viewerId, arc.cost, o.getUUID(), s.getUUID()) != BadgeBudget.Verdict.OK) { glance(o, s, edge); return; }
+        // Begging acts on a real bite. Its existing pair memory and the held meal govern repeats.
+        if (arc != Arc.BEG_BITE) {
+            var verdict = budget().check(viewerId, arc.cost, o.getUUID(), s.getUUID());
+            if (verdict != BadgeBudget.Verdict.OK) {
+                GameplayLog.limited(o, "badge", "budget." + arc.id, 100, "badge arc deferred arc={} reason={}", arc.id, verdict);
+                glance(o, s, edge);
+                return;
+            }
+        }
         YukkuriEntity extra = extraFor(arc, o, s, seen);
         var scene = BadgeArcs.start(level, arc, variant, o, s, viewer, extra);
         if (scene == null) { glance(o, s, edge); return; }
-        budget().commit(viewerId, arc.cost, o.getUUID(), s.getUUID());
+        if (arc != Arc.BEG_BITE) budget().commit(viewerId, arc.cost, o.getUUID(), s.getUUID());
         ledger.arc(s.getUUID(), arc.id, now);
     }
 

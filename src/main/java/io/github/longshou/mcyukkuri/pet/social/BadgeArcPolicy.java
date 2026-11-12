@@ -37,6 +37,14 @@ public final class BadgeArcPolicy {
 
     private static double clamp01(double v) { return Math.max(0, Math.min(1, v)); }
 
+    public static double begBiteChance(Observer o, Subject s, Relation r) {
+        if (r.cooling() || o.pet() || !s.eating() || s.grade() <= 0
+                || o.nutrition() < 30 || o.nutrition() >= 50 || o.boldness() >= 70) return 0;
+        return clamp01(.45 + (50 - o.nutrition()) / 40.0 + (70 - o.boldness()) / 150.0
+                + ((r.flags() & BadgeLedger.FED_BY) != 0 ? .15 : 0)
+                - ((r.flags() & BadgeLedger.SNUBBED) != 0 ? .2 : 0));
+    }
+
     /** Every arc the situation allows with its own probability (unscaled). Empty means a silent record. */
     public static List<Candidate> candidates(Observer o, Subject s, Relation r, Context c) {
         List<Candidate> out = new ArrayList<>();
@@ -59,8 +67,6 @@ public final class BadgeArcPolicy {
         if (c.homeClaimEnabled() && !o.pet() && s.pet() && s.homeNear() && o.friendliness() <= 45
                 && o.nutrition() < 60 && !r.related())
             out.add(new Candidate(Arc.HOME_CLAIM, "", .2));
-        if (!o.pet() && s.eating() && s.grade() > 0 && o.nutrition() >= 30 && o.nutrition() < 50 && o.boldness() < 70)
-            out.add(new Candidate(Arc.BEG_BITE, "", clamp01(.45 + ((r.flags() & BadgeLedger.FED_BY) != 0 ? .15 : 0) - ((r.flags() & BadgeLedger.SNUBBED) != 0 ? .2 : 0))));
         if (!o.pet() && s.grade() > 0) {
             if (s.trustedPlayerNear()) out.add(new Candidate(Arc.PLEA, "", clamp01(.4 * (c.waryRumour() ? .3 : c.kindRumour() ? 1.3 : 1))));
             else if (c.playerNear() && (r.flags() & (BadgeLedger.ADMIRED | BadgeLedger.FED_BY)) != 0 && o.attachment() >= 55)
@@ -73,7 +79,7 @@ public final class BadgeArcPolicy {
             out.add(new Candidate(Arc.GLANCE, "", clamp01(nov * (.1 + .002 * o.intelligence() + .001 * (100 - o.boldness()) + (o.child() ? .12 : 0)))));
         boolean above = o.pet() ? s.grade() > o.ownGrade() : s.grade() > 0;
         if (above && novel) {
-            double p = .03 + .004 * (60 - o.friendliness()) + .08 * Math.max(0, s.grade() - o.ownGrade() - 1)
+            double p = .03 + .008 * (60 - o.friendliness()) + .12 * Math.max(0, s.grade() - o.ownGrade() - 1)
                     + (hungry ? .1 : 0) + (o.stress() >= BondLevels.UNEASE_CARE_LIMIT ? .06 : 0) + ((r.flags() & BadgeLedger.ENVIED) != 0 ? .08 : 0);
             if (p > .01) out.add(new Candidate(Arc.ENVY, "", clamp01(nov * p * (1 - o.attachment() / 200.0))));
         }

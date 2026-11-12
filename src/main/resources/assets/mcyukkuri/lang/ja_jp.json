@@ -6441,5 +6441,6 @@
   "pet.mcyukkuri.ui.tip.need_greeting": "見える場所にお客さんが必要です。",
   "pet.mcyukkuri.ui.tip.need_harness": "胴輪をつけ、リードを持ってください。",
   "pet.mcyukkuri.ui.tip.ok.greeting": "お客さんに挨拶させましょう。",
-  "pet.mcyukkuri.ui.tip.ok.harness": "一緒に歩き、リードを緩めて曲がりましょう。"
+  "pet.mcyukkuri.ui.tip.ok.harness": "一緒に歩き、リードを緩めて曲がりましょう。",
+  "pet.mcyukkuri.practice.good_night": "おやすみ……"
 }

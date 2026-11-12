@@ -10,6 +10,7 @@ import io.github.longshou.mcyukkuri.motor.surface.Occupancy;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.pet.PetSkill;
 import io.github.longshou.mcyukkuri.pet.social.BadgeArcs;
+import io.github.longshou.mcyukkuri.pet.stage.Staging;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.HashMap;
@@ -30,6 +31,7 @@ import net.minecraft.core.GlobalPos;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
@@ -909,6 +911,9 @@ public final class YukkuriLife {
                     if (!drugged && entity.pet().isPet()) {
                         boolean settled = targetBlock != null && targetBlock.equals(homeStand())
                                 && (nestOccupancy == null || nestOccupancy == Occupancy.INSIDE_SUPPORTED);
+                        if (settled)
+                            Staging.card(level(), entity.position().add(0, entity.getBbHeight() + .65, 0),
+                                    Component.translatable("pet.mcyukkuri.practice.good_night"), 60, 1.2f);
                         entity.pet().lessons().performed(PetSkill.BEDTIME, settled);
                     }
                 }

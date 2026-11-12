@@ -204,7 +204,8 @@ final class LifeMeal {
             o.entity().getNavigation().stop();
             if (mealHold > 0 && mealTicks >= 8 && mealTicks < 40) mealHold--; else mealTicks++; // a begging peer made the bite wait (pet/social/BadgeArcs)
             // A hungry wild onlooker may beg for this very bite while it is still in the mouth (badge-holders only; pet/social).
-            if (mealTicks == 3 && !sharedMeal && !preparedMeal && !mouth.isEmpty()) BadgeSocial.mealSeen(o.entity());
+            if ((mealTicks == 3 || mealTicks == 12) && mealHold == 0 && !sharedMeal && !preparedMeal
+                    && !mouth.isEmpty() && !Consumables.oral(mouth)) BadgeSocial.mealSeen(o.entity());
             if (mealTicks == 6 && mealHold == 0 && !sharedMeal && o.nutrition() >= 35) tryShare();
             if (mealTicks == 45 && !bodyFood.isEmpty()) {
                 swallowBodyFood();

@@ -338,10 +338,16 @@ public final class PetLessons {
                 animal.isInWaterOrBubble(), animal.isOnFire(), animal.hurtTime);
         player.displayClientMessage(Component.translatable("pet.mcyukkuri.lesson.interrupted", animal.getDisplayName()), true);
     }
-    public void praise(Player player) {
-        if (!awaitingFeedback() || !player.getUUID().equals(owner)) return;
-        if (completed) { addPractice(kind, 3, "praise"); animal.pet().addStress(-3); SurvivalProgress.award(player, "lesson_praised"); animal.playAction("joy_jump"); }
+    public boolean praise(Player player) {
+        if (!awaitingFeedback() || !player.getUUID().equals(owner)) return false;
+        if (completed) {
+            addPractice(kind, 3, "praise");
+            animal.pet().addStress(-3);
+            SurvivalProgress.award(player, "lesson_praised");
+            if (!animal.life().isSleeping() && animal.life().mealTicks() == 0) animal.playAction("joy_jump");
+        }
         end();
+        return true;
     }
     public void reprimand(Player player, CareAction action) {
         if (!awaitingFeedback() || !player.getUUID().equals(owner)) return;
