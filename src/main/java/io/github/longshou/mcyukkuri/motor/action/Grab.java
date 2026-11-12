@@ -267,8 +267,8 @@ public final class Grab implements Action {
         target.fallDistance = 0;
         mounted = true;
         ParentCarry.gripped(carrier, target, rejected, way);
-        if (inWater && hold.reach() == Reach.BRAID) carrier.speakCue("braid_rescue_grip");
-        else if (inWater && hold.reach() == Reach.MOUTH) carrier.speakCue("braid_rescue_mouth_grip");
+        if (inWater && hold == Hold.BRAID) carrier.speakCue("braid_rescue_grip");
+        else if (inWater && hold == Hold.MOUTH) carrier.speakCue("braid_rescue_mouth_grip");
         return way > 0 ? new Running(way, TravelMode.CONSUMED) : completed(carrier);
     }
 
