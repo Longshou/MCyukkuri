@@ -220,13 +220,13 @@ public final class ForageTrip extends Goal {
         return entity.life().mealTicks() == 0 && entity.family().carrying().isEmpty();
     }
 
-    /** A sole provider with dependants puts the short store ahead of empty-handed work and moderate personal hunger. */
+    /** The available provider puts the short store ahead of empty-handed work and moderate personal hunger. */
     public boolean provisioningFirst() {
         if (!(entity.level() instanceof ServerLevel) || hunting || entity.life().nutrition() < OWN_MEAL_NUTRITION
                 || !outing() && entity.tickCount < scanAfter || entity.bereaving() || !body() || !familyConditions()
                 || entity.family().carry().mouthBusy() || !entity.habitat().carrying().isEmpty()) return false;
         var home = shelter();
-        if (home == null) return false;
+        if (home == null || (outing() ? !shortStore(home, false) : !due(home, false))) return false;
         var household = household(home);
         return household.provider() == entity && (outing() ? shortStore(home, household.covered()) : due(home, household.covered()));
     }

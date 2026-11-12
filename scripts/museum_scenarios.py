@@ -261,14 +261,15 @@ _fm, _ff, _fc = uid('forage', 'mother'), uid('forage', 'father'), uid('forage', 
 add('forage', 'forage', '一方外出觅食，一方照看孩子', '一方外出觅食，一方照看孩子',
     '土丘洞储粮空了。较饿、胆大的灵梦去远处草场采草，魔理沙守洞口、照看赤油。看灵梦把草实际衔回放进粮堆，家里迎接归来，再用存粮喂赤油。',
     '数分钟（可倍速）', [
-        yk('marisa', 0, 3, 'father', uuid=_ff, yaw=180, kin=f'Partner:{uuid_nbt(_fm)}', nutrition=90, energy=100,
+        yk('marisa', 0, -2, 'father', uuid=_ff, yaw=0, kin=f'Partner:{uuid_nbt(_fm)}', nutrition=98, energy=100,
            boldness=20, friendliness=100, attachment=95),
-        yk('reimu', 2, 3, 'mother', uuid=_fm, yaw=180, lead=True, kin=f'Partner:{uuid_nbt(_ff)}', nutrition=63, energy=100,
+        yk('reimu', 0, 1, 'mother', uuid=_fm, yaw=180, lead=True, kin=f'Partner:{uuid_nbt(_ff)}', nutrition=88, energy=100,
            boldness=96, friendliness=100, attachment=95),
-        yk('reimu', 1, 4, 'child', stage='baby', uuid=_fc, yaw=180, nutrition=50, kin=f'Mother:{uuid_nbt(_fm)},Father:{uuid_nbt(_ff)}'),
+        yk('reimu', 1, -3, 'child', stage='baby', uuid=_fc, yaw=0, nutrition=50, self_control=96,
+           kin=f'Mother:{uuid_nbt(_fm)},Father:{uuid_nbt(_ff)}'),
         ],
     late=[f'yukkuri scenario home {sel(n)} ~ ~ ~-1' for n in ('mother', 'father', 'child')],
-    env=DAY, spot='forage', vantage=(0, 16),
+    env=DAY, spot='forage', vantage=(0, 9, 180, 12),
     # The baby at home welcoming a parent back from the meadow (inside the mound, so the camera follows it).
     capture=dict(shots=(1, 40, 600), sequences=((900, 2700, 6),), observe=False,
                  views={'child': dict(follow=f'@e[tag={tag("child")},limit=1]', offset=(.5, 1.2, 1.2))}),
@@ -296,7 +297,7 @@ add('family_absence', 'forage', '出门采草的亲油迟迟不归', '出门采�
         ],
     late=[*(f'yukkuri scenario home {sel(n)} ~ ~ ~-1' for n in ('absent', 'stayer', 'older', 'baby')),
           Retry(f'kill {_far_parent}', _far_parent, tries=150, every=20, first=120)],
-    env=DAY, spot='forage', vantage=(0, 12),
+    env=DAY, spot='forage', vantage=(0, 10, 180, 12),
     reads=[(label, f'yukkuri status {sel(n)} raw') for n, label in
            [('stayer', '读留守亲油'), ('older', '读子油寻亲'), ('baby', '读赤油等候')]])
 
@@ -4007,8 +4008,10 @@ _smoke('forage', 6000, [r'\[forage\][^\n]* begin role=FAMILY', r'\[forage\][^\n]
                          rf'\[family\][^\n]* feed handed to meal child={_uuid_text("forage", "child")}\b'])
 _absent_uuid = _uuid_text('family_absence', 'absent')
 _smoke('family_absence', 6000, [rf'\[family\][^\n]* kin overdue kin={_absent_uuid}\b',
-                                 rf'\[family\][^\n]* kin absence kin={_absent_uuid} phase=CALL\b'],
+                                 rf'\[family\][^\n]* missing kin call kin={_absent_uuid}\b'],
        forbid=[rf'\[family\][^\n]* witnessed kin death dead={_absent_uuid}\b'])
+for _sid in ('forage', 'family_absence'):
+    next(s for s in S if s.id == _sid).smoke['gating_checks'] = ('END',)
 _smoke('graze', 1200, [r'\[meal\][^\n]* swallowed item=minecraft:apple\b', r'\[meal\][^\n]* swallowed item=minecraft:short_grass\b'])
 _smoke('meal_content', 900, [r'\[meal\][^\n]* full nutrition=[^\n]*content=true'])
 next(s for s in S if s.id == 'meal_content').smoke['verify'] = _meal_content_verify
@@ -4230,14 +4233,19 @@ _scene_end('den_family', [('mother', _DRY), ('child', _ASHORE), ('father', 'aliv
            [('mother', 'seen:habitat:home chosen'), ('mother', 'seen:forage:begin role='),
             ('mother', 'seen:forage:deposit home=')])
 _scene_end('forage', [('mother', _DRY), ('father', _DRY), ('child', _DRY)],
-           [('mother', 'seen:forage:begin role=FAMILY'), ('father', 'seen:family:household watched entrance'),
-            ('mother', 'seen:forage:deposit home='), ('child', 'seen:family:welcome home started')],
-           [('child', 'seen:meal:swallowed item=')])
+           [('mother', 'seen:forage:begin role=FAMILY'),
+            ('father', f'seen:family:household watched entrance provider={_uuid_text("forage", "mother")}'),
+            ('mother', 'seen:forage:deposit home=.* moved=[1-9]'), ('child', 'seen:family:welcome home started')],
+           [('father', f'seen:family:feed handed to meal child={_uuid_text("forage", "child")}'),
+            ('child', f'seen:meal:swallowed item=.* feeder={_uuid_text("forage", "father")}')])
 _scene_end('family_absence', [('absent', 'alive=false'), ('stayer', _DRY), ('older', _DRY), ('baby', _DRY)],
-           [('absent', 'seen:forage:begin role=FAMILY'), ('stayer', f'seen:family:kin overdue kin={_absent_uuid}'),
-            ('stayer', f'seen:family:kin absence kin={_absent_uuid} phase=CALL')],
-           [('older', f'seen:family:kin absence kin={_absent_uuid} phase={phase}') for phase in ('CALL', 'SEARCH', 'RETURN', 'MOVED_ON')],
-           [('baby', f'seen:family:kin absence kin={_absent_uuid} phase={phase}') for phase in ('CALL', 'MOVED_ON')],
+           [('absent', 'seen:forage:begin role=FAMILY'), ('absent', 'seen:body:death settled into remains'),
+            ('stayer', f'seen:family:kin overdue kin={_absent_uuid}'), ('stayer', f'seen:family:missing kin call kin={_absent_uuid}')],
+           [('older', f'seen:family:missing kin call kin={_absent_uuid}'),
+            *[('older', f'seen:family:kin absence kin={_absent_uuid} phase={phase}') for phase in ('SEARCH', 'RETURN', 'MOVED_ON')],
+            ('older', 'seen:meal:swallowed item=.* feeder=null')],
+           [('baby', f'seen:family:missing kin call kin={_absent_uuid}'),
+            ('baby', f'seen:family:kin absence kin={_absent_uuid} phase=MOVED_ON')],
            forbid=[('baby', f'seen:family:kin absence kin={_absent_uuid} phase=SEARCH')])
 _scene_end('settle_snow', [('lead', _DRY)], [('actors', 'seen:habitat:home chosen')])
 _scene_end('settle_pit_slave', [('slave', _DRY)],

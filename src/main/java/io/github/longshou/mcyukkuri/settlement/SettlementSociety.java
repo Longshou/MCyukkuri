@@ -62,8 +62,11 @@ public final class SettlementSociety {
     }
 
     public boolean canWelcome(YukkuriEntity guest) {
-        if (guest.status().identity() != Identity.STRAY && !guest.moldExile().eligibleForWelcome(entity)
-                || guest.body().mold() > 0 || !(guest.family().adult() || guest.family().seekingFamilyHelp())
+        var guestIdentity = guest.status().identity();
+        boolean youngSeeking = guest.family().seekingFamilyHelp();
+        boolean eligible = guestIdentity == Identity.STRAY || guestIdentity == Identity.WILD_FAMILY && youngSeeking
+                || guest.moldExile().eligibleForWelcome(entity);
+        if (!eligible || guest.body().mold() > 0 || !(guest.family().adult() || youngSeeking)
                 || entity.status().identity() != Identity.WILD_SETTLEMENT || !accepted(entity)) return false;
         var group = entity.settlement().group();
         if (group == null || group.kind != SettlementData.Kind.FOREST || !entity.life().canRecognize(guest)

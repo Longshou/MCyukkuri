@@ -177,7 +177,9 @@ final class KinAbsence {
         if (home == null) return null;
         if (memory.phase == Phase.DOOR) {
             var door = FamilyProvision.entrance(e);
-            return TravelRange.babyDestination(e, door) ? FamilyProvision.entranceStand(e) : null;
+            // The covered threshold is the furthest safe call stand when the outside lip is beyond a baby's leash.
+            if (!TravelRange.babyDestination(e, door)) door = home;
+            return TravelRange.babyDestination(e, door) ? SurfaceApproach.floor(e, Vec3.atBottomCenterOf(door)) : null;
         }
         if (memory.phase == Phase.RETURN) return FamilyProvision.entranceStand(e);
         if (memory.phase != Phase.SEARCH || !dimension().equals(memory.dimension)) return null;

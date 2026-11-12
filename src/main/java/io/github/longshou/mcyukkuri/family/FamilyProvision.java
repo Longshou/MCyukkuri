@@ -24,7 +24,11 @@ public final class FamilyProvision {
 
     static BlockPos entrance(YukkuriEntity body) {
         var shelter = body.habitat().shelter();
-        return shelter == null ? home(body) : shelter.entrance();
+        if (shelter != null) return shelter.entrance();
+        var nest = body.life().homeStand();
+        if (nest == null) return null;
+        var door = body.life().entrance(nest);
+        return door == null ? nest : door;
     }
 
     static boolean sharesHome(YukkuriEntity a, YukkuriEntity b) {
@@ -40,10 +44,10 @@ public final class FamilyProvision {
         var b = child.family();
         if (!(a.mother() != null && a.mother().equals(b.mother())
                 || a.father() != null && a.father().equals(b.father()))) return false;
-        var level = (ServerLevel) caregiver.level();
+        if (!(caregiver.level() instanceof ServerLevel level)) return false;
         for (UUID id : new UUID[]{b.mother(), b.father()})
             if (id != null && level.getEntity(id) instanceof YukkuriEntity parent && parent.isAlive()
-                    && !parent.body().dying() && sharesHome(parent, child)) return false;
+                    && !parent.body().dying() && sharesHome(parent, child) && !caregiver.family().kinOverdue(id)) return false;
         return true;
     }
 
