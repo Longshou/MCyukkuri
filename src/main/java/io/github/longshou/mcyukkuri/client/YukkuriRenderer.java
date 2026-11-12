@@ -193,11 +193,12 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
             float brimWalkClock=carried?ParentCarry.brimWalkClock(parent,entity,partialTick):-1;
             boolean stepping=brimWalkClock>=0;
             boolean brimHopping=carried&&ParentCarry.brimHopping(parent,entity);
-            String action=braidClip!=null?braidClip:brimHopping?"hop_leg":carriedHop?"boat_be_carried":cradled?"be_cradled":stepping?"waddle":carried?"idle":hatCarrier?ParentCarry.carryAction(entity):entity.getAnimationId();
+            boolean leavingBrim=carried&&ParentCarry.hold(parent,entity)==Hold.BRIM&&entity.motorAction().equals(Hop.ID);
+            String action=braidClip!=null?braidClip:brimHopping?"hop_leg":carriedHop?"boat_be_carried":cradled?"be_cradled":stepping?"waddle":carried&&!leavingBrim?"idle":hatCarrier?ParentCarry.carryAction(entity):entity.getAnimationId();
             float clock=braidClip!=null?Math.max(0,(entity.level().getGameTime()-entity.motorStart()+partialTick)/20f)
                     :brimHopping?ParentCarry.brimHopClock(parent,entity,partialTick)
                     :carriedHop?(entity.level().getGameTime()-parent.motorStart()+partialTick)/20f
-                    :stepping?brimWalkClock:cradled?(entity.level().getGameTime()+partialTick)/20f:carried?0:elapsed;
+                    :stepping?brimWalkClock:cradled?(entity.level().getGameTime()+partialTick)/20f:carried&&!leavingBrim?0:elapsed;
             var anatomy=reproduction.anatomy();
             model.setReproductiveAnatomy(anatomy);
             if(!carried)ParentCarryPresentation.configure(entity,model,heldNow,partialTick);

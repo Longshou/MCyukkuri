@@ -12,17 +12,20 @@ import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.interaction.ItemContact;
 import io.github.longshou.mcyukkuri.motor.ContactGeometry;
 import io.github.longshou.mcyukkuri.motor.Action;
+import io.github.longshou.mcyukkuri.motor.BodyAbility;
 import io.github.longshou.mcyukkuri.motor.ClipMarkers;
 import io.github.longshou.mcyukkuri.motor.ContactGeometry.Reach;
 import io.github.longshou.mcyukkuri.motor.MotionPose;
 import io.github.longshou.mcyukkuri.motor.Feasibility;
 import io.github.longshou.mcyukkuri.motor.HeldMove;
 import io.github.longshou.mcyukkuri.motor.Motor;
+import io.github.longshou.mcyukkuri.motor.MotorOwner;
 import io.github.longshou.mcyukkuri.motor.Outcome;
 import io.github.longshou.mcyukkuri.motor.Progress;
 import io.github.longshou.mcyukkuri.motor.Reason;
 import io.github.longshou.mcyukkuri.motor.Running;
 import io.github.longshou.mcyukkuri.motor.TravelMode;
+import io.github.longshou.mcyukkuri.motor.geom.ArcSolver;
 import io.github.longshou.mcyukkuri.motor.geom.CarryGeometry;
 import io.github.longshou.mcyukkuri.motor.geom.BodyFootprint;
 import io.github.longshou.mcyukkuri.motor.geom.Disc;
@@ -54,7 +57,7 @@ import net.minecraft.world.phys.Vec3;
  * footprint and the next one begun inside this same action, the child still held where it is. A braid that lowers a brim or head
  * child first moves her held stick out of the way ({@link Stow}); once the braid is free again it takes the stick back.
  */
-public final class Release implements Action {
+public final class Release implements Action, MotorOwner {
     public static final String ID = "release";
     /** How far below the let-go feet support or water has to exist (blocks). */
     private static final double DROP = 1.5;
@@ -92,6 +95,8 @@ public final class Release implements Action {
     private double lowered;
     private final StowStep stow = new StowStep();
     private boolean begun;
+    private Hop brimHop;
+    private Outcome brimResult;
 
     public Release(YukkuriEntity child) { this(child, null); }
     public Release(YukkuriEntity child, SurfaceHost destination) {
@@ -140,7 +145,27 @@ public final class Release implements Action {
             seat = nearest(carrier, places, facings(carrier));
             return seat != null ? Feasibility.pass() : Feasibility.of(Reason.NO_SUPPORT, 0, "transfer_blocked");
         }
-        return plan(carrier);
+        brimHop = brimHop(carrier);
+        return brimHop != null ? Feasibility.pass() : plan(carrier);
+    }
+
+    private Hop brimHop(YukkuriEntity carrier) {
+        if (carrier.isPassenger() || ParentCarry.hold(carrier, child) != Hold.BRIM || ParentCarry.brimSeat(carrier, child) == null
+                || ParentCarry.lowering(carrier, child, 0) >= 0 || ParentCarry.placingLeft(carrier, child) > 0
+                || !SurfaceApproach.supportedGround(carrier, carrier.position())) return null;
+        var ability = BodyAbility.of(child);
+        if (!ability.canJump() || ability.turnRate() <= 0) return null;
+        var bed = BedContainer.of(child, nest);
+        var exit = bed == null ? null : cushionExit(carrier);
+        var landings = bed == null ? ground(carrier, null, null) : pad(carrier, bed, exit);
+        landings.sort(Comparator.comparingDouble(child::distanceToSqr));
+        var search = Hop.Search.admission();
+        for (var at : landings) {
+            if (at.subtract(child.position()).horizontalDistance() > ability.hopReach() + ArcSolver.REACH_SLACK) continue;
+            var hop = Hop.offWornBrim(carrier, at, point -> child.getY() - point.y <= DROP && space(carrier, point).ok());
+            if (hop.check(child, search).ok()) return hop;
+        }
+        return null;
     }
 
     private List<Float> facings(YukkuriEntity carrier) {
@@ -407,6 +432,17 @@ public final class Release implements Action {
 
     @Override public void start(YukkuriEntity carrier) {
         this.carrier = carrier;
+        if (brimHop != null) {
+            if (!child.motor().run(this, brimHop)) {
+                brimResult = child.motor().refusal();
+                if (brimResult == null) brimResult = new Outcome.Interrupted(child.motor().startRefusal().reason());
+            }
+            return;
+        }
+        startLowering(carrier);
+    }
+
+    private void startLowering(YukkuriEntity carrier) {
         begun = false;
         var hold = ParentCarry.hold(carrier, child);
         if ((hold == Hold.BRIM || hold == Hold.HEAD) && stow.start(carrier, Stow.freeBraid(carrier, "release"))) return;
@@ -438,6 +474,19 @@ public final class Release implements Action {
     }
 
     @Override public Progress tick(YukkuriEntity carrier) {
+        if (brimHop != null) {
+            if (brimResult == null) return new Running(0, TravelMode.CONSUMED);
+            if (brimResult instanceof Outcome.Done) {
+                released = true;
+                return new Outcome.Done("released");
+            }
+            if (child.getVehicle() != carrier) return brimResult;
+            GameplayLog.event(carrier, "family", "carry brim hop stopped child={} outcome={} next=lowering", child.getUUID(), brimResult);
+            brimHop = null;
+            var ready = plan(carrier);
+            if (!ready.ok()) return Outcome.of(ready.reason(), ready.shortfall(), ready.detail());
+            startLowering(carrier);
+        }
         if (released) {
             // The braid is free again: it takes her stick back (from her mouth, or from her own hat within reach).
             var back = stow.tick(carrier);
@@ -567,9 +616,12 @@ public final class Release implements Action {
     }
 
     /** A child on its way down with the braid or the tail is not put back: the lowering runs to the ground. */
-    @Override public boolean interruptible() { return carrier == null || ParentCarry.lowering(carrier, child, 0) < 0; }
+    @Override public boolean interruptible() {
+        return brimHop != null ? child.getVehicle() == carrier : carrier == null || ParentCarry.lowering(carrier, child, 0) < 0;
+    }
 
     @Override public void abort(YukkuriEntity carrier, String why) {
+        if (brimHop != null) child.motor().cancel(this, why);
         if (approach != null) approach.abort(carrier, why);
         if (child.getVehicle() == carrier) ParentCarry.stopLowering(carrier, child);
     }
@@ -611,13 +663,17 @@ public final class Release implements Action {
         failed(carrier, result);
     }
 
+    @Override public String ownerId() { return "brim_release"; }
+    @Override public boolean active() { return carrier.motor().current() == this; }
+    @Override public void finished(Action action, Outcome result) { brimResult = result; }
+
     /** The attempt's end, refused at its check or ended running; a real failure is told to the carrier's carry, so whoever holds
      *  the child after an ended intent inherits it ({@link ParentCarry#finish}). */
     private void failed(YukkuriEntity carrier, Outcome result) {
         outcome = result;
         failedWorld = world(carrier);
         if (result.reason() == null) return;
-        carrier.family().carry().releaseFailed(this);
+        if (brimHop == null || child.getVehicle() == carrier) carrier.family().carry().releaseFailed(this);
         GameplayLog.limited(carrier, "family", "release." + child.getUUID() + "." + result.reason(), 200,
                 "carry put down refused child={} outcome={} tries={}", child.getUUID(), result, tries);
     }

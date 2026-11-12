@@ -36,6 +36,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.nbt.CompoundTag;
@@ -63,6 +64,8 @@ public final class Hop implements Action {
     private Vec3 target;
     private Vec3 runUp;
     private SurfaceHost seatHost;
+    private YukkuriEntity wornBrim;
+    private Predicate<Vec3> releaseSpace;
     private Vec3 bank;
     private Consumer<YukkuriEntity> exitBlocked;
     private boolean brimOnly;
@@ -115,6 +118,13 @@ public final class Hop implements Action {
     public Hop(SurfaceHost host) { seatHost = host; target = null; }
     /** A destination on the host already carrying the body; the flight stays in its live frame. */
     public Hop(SurfaceHost host, Vec3 local) { seatHost = host; target = local; }
+    /** A rider keeps its worn-brim seat through the turn and wind-up, then takes the ordinary ground flight. */
+    static Hop offWornBrim(YukkuriEntity carrier, Vec3 ground, Predicate<Vec3> releaseSpace) {
+        var hop = new Hop(ground);
+        hop.wornBrim = carrier;
+        hop.releaseSpace = releaseSpace;
+        return hop;
+    }
     /** Leave through a supported host point, then hop to the admitted ground stand after settling there. */
     public static Hop off(SurfaceHost host, Vec3 local, Vec3 bank) {
         var hop = new Hop(host, local); hop.bank = bank; return hop;
@@ -334,6 +344,13 @@ public final class Hop implements Action {
     }
     private Flight solve(YukkuriEntity body, Vec3 from, int delay, Search search) {
         SeatTarget candidate = null;
+        if (wornBrim != null) {
+            if (!onWornBrim(body)) return new Flight(Feasibility.of(Reason.NO_CONTACT, 0, "brim_lost"), null, null);
+            var ability = BodyAbility.of(body);
+            if (!ability.canJump() || ability.turnRate() <= 0)
+                return new Flight(Feasibility.of(Reason.TOO_HIGH, 0, "brim_jump_unavailable"), null, null);
+            if (!releaseSpace.test(target)) return new Flight(Feasibility.of(Reason.NO_SUPPORT, 0, "release_ground_lost"), null, null);
+        }
         if (runUp != null && !ground(body, from))
             return new Flight(Feasibility.of(Reason.NO_SUPPORT, 0, "takeoff_support"), null, null);
         Vec3 to = target;
@@ -475,8 +492,13 @@ public final class Hop implements Action {
         return (int) Math.ceil(Math.max(0, Math.abs(Mth.wrapDegrees(to - from)) - Face.FACE_ARRIVED) / BodyAbility.of(body).turnRate());
     }
 
+    private boolean onWornBrim(YukkuriEntity body) {
+        return body.getVehicle() == wornBrim && ParentCarry.brimmed(wornBrim) && ParentCarry.hold(wornBrim, body) == ParentCarry.Hold.BRIM;
+    }
+
     @Override public void start(YukkuriEntity body) {
         if (carried != null) { carried.start(body); return; }
+        if (wornBrim != null) Motor.riderFacing(body, ParentCarry.brimYaw(wornBrim, body));
         departure = body.getVehicle() instanceof SurfaceHost host ? host : null;
         aboard = departure != null && departure == seatHost;
         takeoff = takeoffTicks();
@@ -493,6 +515,7 @@ public final class Hop implements Action {
             return settled(body);
         }
         if (!launched) {
+            if (wornBrim != null && !onWornBrim(body)) return new Outcome.Interrupted("brim_lost");
             if (onEntryFloor(body)) {
                 var entry = seatHost.restEntry(body);
                 if (entry == null) return Outcome.of(Reason.NO_ROOM, 0, "entry_place_lost");
@@ -536,11 +559,14 @@ public final class Hop implements Action {
             var impulse = new Vec(plan.vh() * plan.dir().x(), plan.vy(), plan.vh() * plan.dir().z());
             flight = Ballistic.samples(impulse, plan.ticks());
             if (!aboard) {
-                if (Attach.of(body) instanceof AttachState.OnHost) Motor.dismount(body, from, Vec3.ZERO, "hop_takeoff");
+                if (wornBrim != null) {
+                    Motor.dismount(body, from, Vec3.ZERO, "hop_takeoff");
+                    ParentCarry.released(wornBrim, body, "brim_hop");
+                } else if (Attach.of(body) instanceof AttachState.OnHost) Motor.dismount(body, from, Vec3.ZERO, "hop_takeoff");
                 Motor.takeoff(body, new Vec3(impulse.x(), impulse.y(), impulse.z()), "hop_takeoff");
             }
             launched = true;
-            if (StatusEvents.trace()) GameplayLog.event(body, "move",
+            if (wornBrim != null || StatusEvents.trace()) GameplayLog.event(body, "move",
                     "hop leg={} from={} to={} yaw={} bearing={} airTicks={} width={} apex={} ability={} windUpTicks={} recoveryTicks={}",
                     completedLegs + 1, GameplayLog.at(body.position()), GameplayLog.at(seat == null ? target : seat.world()),
                     body.yBodyRot, SurfaceApproach.yaw(body.position(), seat == null ? target : seat.world()), plan.ticks(),
@@ -615,7 +641,7 @@ public final class Hop implements Action {
                 startTick = body.level().getGameTime();
                 return new Running(takeoff, TravelMode.CONSUMED, true);
             }
-            if (seatHost == null) return ground(body, body.position())
+            if (seatHost == null) return ground(body, body.position()) && (wornBrim == null || !body.isPassenger())
                     ? new Outcome.Done("at=" + GameplayLog.at(body.position()) + " centre_support=true")
                     : Outcome.of(Reason.NO_SUPPORT, 0, "ground_centre_lost");
             if (target != null || brimOnly) return new Outcome.Done("at=" + GameplayLog.at(body.position()));
@@ -666,11 +692,15 @@ public final class Hop implements Action {
     }
     @Override public String startDetail() { return "from=" + GameplayLog.at(from) + " to=" + (seatHost == null ? GameplayLog.at(target) : seatHost.entity().getUUID())
             + (bank == null ? "" : " bank=" + GameplayLog.at(bank))
+            + (wornBrim == null ? "" : " departure=worn_brim carrier=" + wornBrim.getUUID())
             + (runUp == null ? "" : " runSpeed=" + runUp.horizontalDistance()); }
     @Override public String endDetail(Outcome outcome) { return String.format(Locale.ROOT, "legs=%d peak=%.2f airTicks=%d", completedLegs, peak, air); }
 
     private boolean clear(YukkuriEntity body, Vec3 from, SurfaceHost anchor, List<SurfaceHost> hosts, List<Vec> points, int delay, float yaw) {
         AABB base = body.getBoundingBox();
+        var brim = wornBrim == null ? null : ParentCarry.brimExitClearance(wornBrim, body);
+        var crew = wornBrim == null ? List.<AABB>of() : wornBrim.getPassengers().stream().filter(rider -> rider != body)
+                .map(rider -> rider.getBoundingBox()).toList();
         Vec3 previous = anchor == null ? from : anchor.frameAfter(delay).toWorld(from.scale(1 / anchor.frame().unit()));
         for (int tick = 0; tick < points.size(); tick++) {
             var point = points.get(tick);
@@ -687,8 +717,15 @@ public final class Hop implements Action {
             AABB startBox = base.move(previous.subtract(body.position()));
             AABB cornerBox = base.move(corner.subtract(body.position()));
             AABB atBox = base.move(at.subtract(body.position()));
-            if (!body.level().noCollision(body, startBox.minmax(cornerBox)) || !body.level().noCollision(body, cornerBox.minmax(atBox))) {
-                bodyBlocked |= bodyCollision(body, startBox.minmax(cornerBox), cornerBox.minmax(atBox));
+            var first = startBox.minmax(cornerBox);
+            var second = cornerBox.minmax(atBox);
+            if (brim != null && (!brim.test(corner) || !brim.test(at)
+                    || first.intersects(wornBrim.getBoundingBox()) || second.intersects(wornBrim.getBoundingBox())
+                    || crew.stream().anyMatch(box -> box.intersects(first) || box.intersects(second)))) {
+                obstruction = "worn_brim at=" + GameplayLog.at(at); return false;
+            }
+            if (!body.level().noCollision(body, first) || !body.level().noCollision(body, second)) {
+                bodyBlocked |= bodyCollision(body, first, second);
                 obstruction = "world at=" + GameplayLog.at(at) + " from=" + GameplayLog.at(previous);
                 return false;
             }

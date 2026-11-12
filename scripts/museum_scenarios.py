@@ -2626,8 +2626,12 @@ add(_walk_home, 'family', '天晚了，亲油抱赤油和小子油回窝', '天�
                    childhood=CHILDHOOD_HOPPING), sel('mother'), tries=1, first=1),
           Retry(home('small_child', 10, 0), sel('small_child'), tries=1, first=41)],
     env={'time': 'night'}, spot='carry_home', vantage=(.5, 13, 180, 20),
+    note='看会跳的赤油在帽檐座位上转向落点、蹲身蓄力，再从帽檐跳下并落稳。没有安全跳路时由亲油用辫子托放。',
     reads=[('读亲油与幼体的承托', 'yukkuri status @e[tag=scn,distance=..48] raw')],
-    smoke=dict(ticks=2200, expect=[r'\[family\][^\n]*carry pickup .*purpose=RETRIEVE .*childStage=BABY\b'],
+    smoke=dict(ticks=2200, expect=[r'\[family\][^\n]*carry pickup .*purpose=RETRIEVE .*childStage=BABY\b',
+                                  r'\[action\][^\n]*uuid=(\S+) [^\n]* start id=hop owner=brim_release [^\n]*departure=worn_brim\b'
+                                  r'[\s\S]*\[body\][^\n]*uuid=\1 [^\n]* dismount [^\n]*cause=hop_takeoff\b'
+                                  r'[\s\S]*\[action\][^\n]*uuid=\1 [^\n]* end id=hop outcome=DONE [^\n]*legs=1 peak=(?!0\.00)'],
                forbid=_carry_transport_forbid))
 
 add(_flight_home, 'family', '捕食种靠近，亲油抱起赤油躲回窝', '捕食种靠近，亲油抱起赤油躲回窝',

@@ -50,6 +50,7 @@ import java.util.StringJoiner;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.IntFunction;
+import java.util.function.Predicate;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataSerializers;
@@ -931,6 +932,32 @@ public final class ParentCarry {
         return new Matrix4f().rotationY((180 - yaw(carrier, partial)) * Mth.DEG_TO_RAD).mul(hatPose(carrier, partial)).setTranslation(0, 0, 0)
                 .rotateY(facing * Mth.DEG_TO_RAD);
     }
+
+    /** The settled seat's outward heading, before the rider turns to a landing. */
+    public static float brimYaw(YukkuriEntity carrier, YukkuriEntity child) {
+        var forward = brimRotation(carrier, 0, brimSeat(carrier, child)[3]).transformDirection(new Vector3f(0, 0, -1));
+        return SurfaceApproach.yaw(Vec3.ZERO, new Vec3(forward.x, 0, forward.z));
+    }
+
+    /** A hop clears the worn hat's crown and gets its footprint past the brim before descending through brim height. */
+    public static Predicate<Vec3> brimExitClearance(YukkuriEntity carrier, YukkuriEntity child) {
+        var hat = brim(carrier);
+        var faces = tops(hat, carrier.assetId());
+        var obstacles = new ArrayList<float[]>();
+        for (var box : hat.getAsJsonArray("obstacles")) obstacles.add(floats(box.getAsJsonArray()));
+        var inverse = hatPose(carrier, 0).invert();
+        var stand = carrier.position();
+        float yaw = carrier.bodyYaw();
+        float r = radius(carrier, child);
+        float h = (float) (child.getBbHeight() * 16 / (size(carrier) * HatScale.factor(carrier.subspeciesFlags())));
+        return at -> {
+            var p = inverse.transformPosition(modelAt(carrier, stand, yaw, at));
+            if (!clearOf(obstacles, p.x, p.z, p.y, r, h)) return false;
+            for (var face : faces)
+                if (p.y < face[4] && discOverlaps(p.x, p.z, r, face[0], face[1], face[2], face[3])) return false;
+            return true;
+        };
+    }
     private static float[] floats(JsonArray a) { var out = new float[a.size()]; for (int i = 0; i < out.length; i++) out[i] = a.get(i).getAsFloat(); return out; }
     private static final Map<String, List<float[]>> BRIM_TOPS = new ConcurrentHashMap<>();
     /** The brim's top faces (x0, z0, x1, z1, top; hat-bone model units). */
@@ -977,11 +1004,13 @@ public final class ParentCarry {
     }
     /** A disc of radius {@code r} at ({@code x}, {@code z}) standing at {@code top} keeps clear of the crown, band and bow boxes up to {@code h}. */
     private static boolean clearOf(List<float[]> boxes, float x, float z, float top, float r, float h) {
-        for (var b : boxes) if (b[1] < top + h && b[4] > top) {
-            float dx = Math.max(Math.max(b[0] - x, 0), x - b[3]), dz = Math.max(Math.max(b[2] - z, 0), z - b[5]);
-            if (dx * dx + dz * dz < r * r) return false;
-        }
+        for (var b : boxes)
+            if (b[1] < top + h && b[4] > top && discOverlaps(x, z, r, b[0], b[2], b[3], b[5])) return false;
         return true;
+    }
+    private static boolean discOverlaps(float x, float z, float r, float x0, float z0, float x1, float z1) {
+        float dx = Math.max(Math.max(x0 - x, 0), x - x1), dz = Math.max(Math.max(z0 - z, 0), z - z1);
+        return dx * dx + dz * dz < r * r;
     }
     /** A child's footprint on the brim: the shared footprint radius ({@link Occupancy#foot}), in the carrier's model units. */
     private static float radius(YukkuriView carrier, YukkuriView child) {
@@ -1809,7 +1838,7 @@ public final class ParentCarry {
     /** Release owns placement, approach and lowering. A failed action is reported, never rerun unchanged or forced. */
     private void tickSetDown(YukkuriEntity child, String reason) {
         var motor = carrier.motor();
-        if (motor.current() instanceof Release release && release.child() == child) return;
+        if (motor.current() instanceof Release) return;
         if (motor.current() instanceof Walk && motor.owner() == owner) return;
         var home = setDownHome(child);
         var host = setDownHost();

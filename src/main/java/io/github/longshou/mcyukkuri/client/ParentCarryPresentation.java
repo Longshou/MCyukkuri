@@ -10,6 +10,7 @@ import io.github.longshou.mcyukkuri.headwear.HatGeometry;
 import io.github.longshou.mcyukkuri.motor.ClipMarkers;
 import io.github.longshou.mcyukkuri.motor.TimelineClock;
 import io.github.longshou.mcyukkuri.motor.action.Grab;
+import io.github.longshou.mcyukkuri.motor.action.Hop;
 import io.github.longshou.mcyukkuri.motor.action.PlaceProp;
 import io.github.longshou.mcyukkuri.motor.action.TakeProp;
 import io.github.longshou.mcyukkuri.motor.geom.CarryGeometry;
@@ -322,6 +323,7 @@ final class ParentCarryPresentation {
                     feet = seated;
                     ParentCarry.brimRotation(carrier, partial, out).getNormalizedRotation(turnTo);
                 }
+                if (child.motorAction().equals(Hop.ID)) turnTo.rotationY((180 - yaw(child, partial)) * Mth.DEG_TO_RAD);
             }
             case TAIL_LEFT, TAIL_RIGHT -> {
                 pitch = 1.2f * me.gait * Mth.sin(phase * 2 - .6f);
@@ -418,7 +420,7 @@ final class ParentCarryPresentation {
         if (me.carried) {
             me.carried = false;
             me.releaseAt = now;
-            me.releaseFrom = me.drawn;
+            me.releaseFrom = child.motorAction().equals(Hop.ID) ? null : me.drawn;
             me.roll = me.rollSpeed = me.gait = 0;
         }
         me.free = self;
