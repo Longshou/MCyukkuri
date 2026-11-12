@@ -2,7 +2,7 @@
 
 圆润标准角色使用 [body-standard/anatomy.json](body-standard/anatomy.json) 与其生成的合并组件和骨架。两部位均为肤色。佩尼佩尼是一截粗细均匀的小触角：光滑椭圆短柱加圆头（组件 `peni_stub`，由 `body-standard/build.py` 生成网格，五个 `peni_taper_` 方块只作外包框），整体上翘 25°；麻姆麻姆是贴平身体的肤色底片上一道深色竖线（共用组件 `components/common/anatomy.json`）。麻姆麻姆和佩尼佩尼位于同一前下方表面挂点，油菊在后方；胎生使用该前方出口。原作部件与位置依据见[位置与轮廓记录](../yukkuri-v1/references/contact-position.md)。
 
-挂点高度从着地点往上量，各形态取同一绝对高度（圆润标准体 `surface_site` 的 1.281 单位），不随身体拉长按比例放大；豆形（`subspecies/deficient/recipes.json` 的 `organ_site`）同样两部位都在前方这一高度（项目设计，用户 2026-11-13）。家油是独立的小尺寸设计，仍用其自身挂点。素鸡立接触时，生殖层把麻姆麻姆放到身后表皮上、对方佩尼佩尼实际进入的高度；各形态的实测记录（伸出后的位置、突出量、后表皮深度）由 `drafts/sukkiri/organs.py --sites` 从运行模型生成，经 `drafts/rapem-alice/author_cues.py` 写入 `adult_states.json` 的 `organ_sites`，配对侧视图用 `organs.py --render` 出图。
+挂点高度从着地点往上量，各形态取同一绝对高度（圆润标准体 `surface_site` 的 1.281 单位），不随身体拉长按比例放大；豆形（`subspecies/deficient/recipes.json` 的 `organ_site`）同样两部位都在前方这一高度（项目设计，按用户要求）。家油是独立的小尺寸设计，仍用其自身挂点（麻姆麻姆在后腹）。各形态的实测记录（伸出后的位置、突出量、后表皮深度）由 `drafts/sukkiri/organs.py --sites` 从运行模型生成，经 `drafts/rapem-alice/author_cues.py` 写入 `adult_states.json` 的 `organ_sites`，供素鸡立接触时把麻姆麻姆放到身后表皮上、对方佩尼佩尼实际进入的高度；配对侧视图用 `organs.py --render` 出图。
 
 螺壳魔理沙 `marisa_tsumuri` 也使用同一控制接口；两部位随身体缩入壳内。见[螺壳标准模型](TSUMURI.md)。前方根部使用独立皮肤挂点，随身体动作移动。
 

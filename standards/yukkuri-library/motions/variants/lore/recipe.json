@@ -7311,8 +7311,8 @@
       "label": "被压住的受方·四拍与 3 秒",
       "applies": "prey",
       "height_keys": [[0, 1], [3.5, 1], [3.6, 1.04], [3.9, 1], [6.5, 1]],
-      "faces": [[0, 1.5, "horrified"], [1.5, 2.6, "pressed_cry"], [2.6, 3.5, "pin_cry"], [3.5, 4.4, "blank_cry"], [4.4, 63.0, "squeezed_cry_tears"]],
-      "lore": "Project design (user 2026-11-13: keep the mother pinned until the performance is complete): the held body takes Alice's four beats, each a fresh face (horror, pressed wail, grey-eyed wail), jolts once at the release with the blank-eyed cry and stays pinned, crying, through the 3 s peak.",
+      "faces": [[0, 1.5, "horrified"], [1.5, 2.6, "squeezed_cry"], [2.6, 3.5, "pin_cry"], [3.5, 4.4, "blank_cry"], [4.4, 63.0, "squeezed_cry_tears"]],
+      "lore": "Project design (user 2026-11-13: keep the mother pinned until the performance is complete): the held body takes Alice's four beats, each a fresh face (horror, squeezed wail, grey-eyed wail), jolts once at the release with the blank-eyed cry and stays pinned, crying, through the 3 s peak.",
       "triggers": ["agitation HELD climax (wiring package)"]
     },
     "sukkiri_alice_chase": {
