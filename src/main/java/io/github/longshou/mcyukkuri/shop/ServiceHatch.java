@@ -16,6 +16,7 @@ import java.util.HashSet;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.level.Level;
@@ -39,8 +40,24 @@ public record ServiceHatch(BlockPos door, Direction in) {
     /** Walkable cells a pen may have: larger enclosures are rooms people walk into, not pens served through a door. */
     private static final int PEN_CELLS = 16;
 
-    /** The service door of the small pen this body stands in, or null when it stands in the open or in a walk-in room. */
-    public static ServiceHatch of(Entity body) { return around(body.level(), body.blockPosition()); }
+    /** The service door of the small pen this body stands in, or null when it stands in the open or in a walk-in room. A body pressed
+     *  into the threshold wall can have its centre in the wall's cell while its feet still stand in the pen, so the cells its box covers at
+     *  its own height are tried after its own; the pen stays a pen (staff wait at its door) instead of reading as open floor. */
+    public static ServiceHatch of(Entity body) {
+        var level = body.level();
+        var own = body.blockPosition();
+        var hatch = around(level, own);
+        if (hatch != null || walkable(level, own)) return hatch;
+        var box = body.getBoundingBox();
+        for (int x = Mth.floor(box.minX); x <= Mth.floor(box.maxX); x++)
+            for (int z = Mth.floor(box.minZ); z <= Mth.floor(box.maxZ); z++) {
+                var cell = new BlockPos(x, own.getY(), z);
+                if (cell.equals(own)) continue;
+                hatch = around(level, cell);
+                if (hatch != null) return hatch;
+            }
+        return null;
+    }
 
     /** The service door of the small pen containing {@code cell}: a flood fill over walkable cells at that height (pen furniture counts as
      *  walkable), closed within {@link #PEN_CELLS}, with an iron door beside it. */
