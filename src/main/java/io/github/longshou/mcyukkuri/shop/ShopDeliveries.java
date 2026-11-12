@@ -8,11 +8,14 @@ import io.github.longshou.mcyukkuri.human.HumanCommerce;
 import io.github.longshou.mcyukkuri.human.HumanNpc;
 import io.github.longshou.mcyukkuri.human.HumanWorld;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
+import io.github.longshou.mcyukkuri.item.CarrierItem;
+import io.github.longshou.mcyukkuri.registry.ModItems;
 import java.util.*;
 import java.util.function.Predicate;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -20,7 +23,10 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.CustomData;
+import net.neoforged.neoforge.event.tick.ServerTickEvent;
 import net.minecraft.world.level.saveddata.SavedData;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
@@ -32,7 +38,7 @@ import net.minecraft.world.phys.Vec3;
 public final class ShopDeliveries extends SavedData {
     public static final long TRANSIT = 2400;
     public static final int RANGE = 256;
-    /** A delivery older than this (3 game days) is resolved: redirected to another live shop, else returned to its factory. */
+    /** Three game days of recall transit or silence from a registered destination. */
     public static final long EXPIRY = 72000;
     public record Delivery(UUID token, UUID shopkeeper, BlockPos shopPos, long shipped, UUID factory) {}
     private final Map<UUID, GlobalPos> shops = new HashMap<>();
@@ -56,7 +62,7 @@ public final class ShopDeliveries extends SavedData {
     public static void register(HumanNpc shopkeeper) {
         if (!(shopkeeper.level() instanceof ServerLevel level)) return;
         if (CustodyData.get(level).deadNpc(shopkeeper.getUUID())) return;
-        var pos = GlobalPos.of(level.dimension(), shopkeeper.blockPosition());
+        var pos = GlobalPos.of(level.dimension(), ShopRegistry.get(level).register(shopkeeper).pos);
         var data = get(level);
         long now = level.getGameTime(), before = data.seen.getOrDefault(shopkeeper.getUUID(), -1L); data.seen.put(shopkeeper.getUUID(), now);
         if (!pos.equals(data.shops.put(shopkeeper.getUUID(), pos)) || now - before > 6000) data.setDirty();
@@ -97,7 +103,7 @@ public final class ShopDeliveries extends SavedData {
                 GameplayLog.event(worker,"delivery","action=collect_recall result=removed token={} shop={} reason=token_missing",r.token,r.shopkeeper);
                 continue;
             }
-            if (now - r.shipped < TRANSIT) continue;
+            if (now - r.shipped < TRANSIT || now - r.shipped > EXPIRY) continue;
             if (intake.test(r.token)) {
                 it.remove(); data.setDirty();
                 GameplayLog.event(worker,"delivery","action=collect_recall result=committed token={} shop={}",r.token,r.shopkeeper);
@@ -106,38 +112,11 @@ public final class ShopDeliveries extends SavedData {
         }
         return false;
     }
-    /** A recall the factory never collected (3 game days) goes back on the shelf it came from, hungrier than it left. */
-    private static void returnStale(HumanNpc shop, ServerLevel level, long now) {
-        if (CustodyData.get(level).deadNpc(shop.getUUID())) return;
-        var data = get(level); var custody = YukkuriWorldData.get(level);
-        for (var it = data.recalls.iterator(); it.hasNext(); ) {
-            var r = it.next();
-            if (!r.shopkeeper.equals(shop.getUUID()) || now - r.shipped <= EXPIRY) continue;
-            if (!custody.hasToken(r.token)) {
-                it.remove(); data.setDirty();
-                GameplayLog.event(shop,"delivery","action=return_recall result=removed token={} factory={} reason=token_missing",r.token,r.factory);
-                continue;
-            }
-            var pen = ShopPens.freePen(level, shop, null, false);
-            if (pen == null) continue;
-            var y = custody.release(r.token, level, new Vec3(pen.getX() + .5, pen.getY() + 1, pen.getZ() + .5), shop.getYRot());
-            if (y == null) continue;
-            it.remove(); data.setDirty();
-            y.pet().unlock("sale"); y.pet().unlock("courier");
-            Custody.assign(y, shop, Custody.Role.STOCK);
-            if (!Custody.view(y).ownedBy(shop.getUUID())) return;
-            var tag = HumanCommerce.data(y).copy(); tag.putLong("ForSaleSince", now); tag.remove("StaleCuts"); HumanCommerce.set(y, tag);
-            y.life().releaseHome(); y.getNavigation().stop(); y.moveTo(pen.getX() + .5, pen.getY() + .12, pen.getZ() + .5, y.getYRot(), 0);
-            y.showReaction("cry", "", 100);
-            GameplayLog.event(y,"delivery","action=return_recall result=stocked token={} shop={} factory={}",r.token,shop.getUUID(),r.factory);
-            return;
-        }
-    }
-
     /** Nearest registered shopkeeper in the same dimension within RANGE blocks, or null. */
     public Map.Entry<UUID, GlobalPos> nearestShop(ServerLevel level, BlockPos from) {
         Map.Entry<UUID, GlobalPos> best = null; double bestD = (double) RANGE * RANGE; long now = level.getGameTime();
-        if (shops.keySet().removeIf(id -> seen.getOrDefault(id, -1L) < now - EXPIRY && pending.stream().noneMatch(d -> d.shopkeeper.equals(id)))) setDirty();
+        if (shops.keySet().removeIf(id -> seen.getOrDefault(id, -1L) < now - EXPIRY && pending.stream().noneMatch(d -> d.shopkeeper.equals(id))
+                && recalls.stream().noneMatch(r -> r.shopkeeper.equals(id)))) setDirty();
         for (var e : shops.entrySet()) {
             if (CustodyData.get(level).deadNpc(e.getKey())) continue;
             if (!e.getValue().dimension().equals(level.dimension()) || seen.getOrDefault(e.getKey(), -1L) < now - EXPIRY) continue;
@@ -172,103 +151,136 @@ public final class ShopDeliveries extends SavedData {
         if (changed) setDirty();
         return tokens;
     }
-    public int pendingFor(UUID shopkeeper) { return (int) pending.stream().filter(d -> d.shopkeeper.equals(shopkeeper)).count(); }
+    public int pendingFor(ServerLevel level, UUID shopkeeper) {
+        int transit = (int) pending.stream().filter(d -> d.shopkeeper.equals(shopkeeper)).count();
+        var site = shops.get(shopkeeper);
+        if (site == null || !level.hasChunkAt(site.pos())) return transit;
+        return transit + level.getEntitiesOfClass(ItemEntity.class, new AABB(site.pos()).inflate(24),
+                i -> shopkeeper.equals(destination(i.getItem()))).size();
+    }
     public List<Delivery> pending() { return List.copyOf(pending); }
     public void add(Delivery d) { pending.add(d); setDirty(); }
 
-    /**
-     * Overdue deliveries (shop gone silent, or never had room) are redirected to another live shop in range, else the captive goes back to its
-     * factory, else to the wild at the shop. A token is only consumed by a successful release.
-     */
-    public static void resolveExpired(ServerLevel level, long now) {
-        var data = get(level);
-        if (data.pending.stream().noneMatch(d -> now - d.shipped > EXPIRY)) return;
-        var custody = YukkuriWorldData.get(level);
-        for (var it = data.pending.listIterator(); it.hasNext(); ) {
+    /** Transit becomes a real, pickable basket even when the shop is empty of staff. */
+    public static void tick(ServerTickEvent.Post event) {
+        var server = event.getServer();
+        var overworld = server.overworld();
+        long now = overworld.getGameTime();
+        if (now % 20 != 0) return;
+        var data = get(overworld);
+        for (var it = data.pending.iterator(); it.hasNext(); ) {
             var d = it.next();
-            if (now - d.shipped <= EXPIRY || ShopCourier.inFlight(d.token)) continue;
-            if (!custody.hasToken(d.token)) {
-                it.remove(); data.setDirty();
-                GameplayLog.world(level,"delivery","action=expire result=removed token={} shop={} factory={} reason=token_missing",d.token,d.shopkeeper,d.factory);
-                continue;
+            var site = data.shops.get(d.shopkeeper);
+            if (site == null || now - d.shipped < TRANSIT) continue;
+            var level = server.getLevel(site.dimension());
+            if (level != null && stage(level, d.token, d.shopkeeper, site.pos(), d.factory, false)) {
+                it.remove();
+                data.setDirty();
             }
-            if (!level.hasChunkAt(d.shopPos)) continue;
-            Map.Entry<UUID, GlobalPos> alt = null; double best = (double) RANGE * RANGE;
-            for (var e : data.shops.entrySet()) {
-                if (CustodyData.get(level).deadNpc(e.getKey())) continue;
-                if (e.getKey().equals(d.shopkeeper) || !e.getValue().dimension().equals(level.dimension()) || data.seen.getOrDefault(e.getKey(), -1L) < now - EXPIRY) continue;
-                double dist = e.getValue().pos().distSqr(d.shopPos);
-                if (dist <= best) { best = dist; alt = e; }
+        }
+        for (var it = data.recalls.iterator(); it.hasNext(); ) {
+            var r = it.next();
+            var site = data.shops.get(r.shopkeeper);
+            if (site == null || now - r.shipped <= EXPIRY) continue;
+            var level = server.getLevel(site.dimension());
+            if (level != null && stage(level, r.token, r.shopkeeper, site.pos(), r.factory, true)) {
+                it.remove();
+                data.setDirty();
             }
-            if (alt != null) {
-                it.set(new Delivery(d.token, alt.getKey(), alt.getValue().pos(), now, d.factory)); data.setDirty();
-                GameplayLog.world(level,"delivery","action=expire result=redirected token={} shop={}->{} destination={}",d.token,d.shopkeeper,alt.getKey(),alt.getValue().pos().toShortString());
-                continue;
-            }
-            var origin = level.getEntity(d.factory) instanceof HumanNpc n && n.isAlive() && !CustodyData.get(level).deadNpc(n.getUUID()) ? n : null;
-            var base = origin != null ? origin.position() : Vec3.atBottomCenterOf(d.shopPos);
-            YukkuriEntity y = null;
-            for (int[] o : new int[][] {{0, 0}, {1, 0}, {-1, 0}, {0, 1}, {0, -1}}) {
-                y = custody.release(d.token, level, base.add(o[0], 0, o[1]), 0);
-                if (y != null) break;
-            }
-            if (y == null) continue;
-            it.remove(); data.setDirty();
-            if (origin != null && !CustodyData.get(level).deadNpc(origin.getUUID())) Custody.assign(y, origin, Custody.Role.NURSERY);
-            else { Custody.release(y, Custody.ReleaseReason.DELIVERY_FAILED, null, null); }
-            var clean = HumanCommerce.data(y).copy(); clean.remove("ShopCandidate"); HumanCommerce.set(y, clean);
-            GameplayLog.event(y,"delivery","action=expire result=released token={} factory={} owner={} role={}",d.token,d.factory,Custody.view(y).owner(),Custody.view(y).role());
         }
     }
 
-    /** Release at most one due delivery for the shop this keeper or shopkeeper serves; false if nothing arrived. */
-    public static boolean arrive(HumanNpc actor, ServerLevel level, long now) {
-        var data = get(level);
-        if (!data.recalls.isEmpty() && actor.job() == HumanNpc.Job.SHOPKEEPER) returnStale(actor, level, now);
-        if (data.pending.isEmpty()) return false;
-        resolveExpired(level, now);
-        var shop = actor.job() == HumanNpc.Job.SHOPKEEPER ? actor : level.getEntitiesOfClass(HumanNpc.class, actor.getBoundingBox().inflate(48),
-                n -> n.isAlive() && !CustodyData.get(level).deadNpc(n.getUUID()) && n.job() == HumanNpc.Job.SHOPKEEPER).stream().min(Comparator.comparingDouble(actor::distanceToSqr)).orElse(null);
-        if (shop == null || CustodyData.get(level).deadNpc(shop.getUUID())) return false;
-        var custody = YukkuriWorldData.get(level);
-        boolean keepers = ShopCourier.hasKeeper(level, shop);
-        var courier = keepers ? ShopCourier.idleKeeper(level, shop) : null;
-        for (var it = data.pending.iterator(); it.hasNext(); ) {
-            var d = it.next();
-            if (!d.shopkeeper.equals(shop.getUUID()) || ShopCourier.inFlight(d.token)) continue;
-            if (!custody.hasToken(d.token)) {
-                it.remove(); data.setDirty();
-                GameplayLog.event(actor,"delivery","action=arrive result=removed token={} shop={} reason=token_missing",d.token,d.shopkeeper);
-                continue;
-            } // record gone: never invent an animal
-            if (now - d.shipped < TRANSIT || ShopPens.stock(level, shop) >= ShopMenu.STOCK_CAPACITY) continue;
-            var pen = ShopPens.freePen(level, shop, null, false);
-            if (pen == null) continue;
-            if (keepers) { // a keeper carries it over; the record stays until the animal is set down, and while every keeper is busy the delivery waits
-                if (courier != null && ShopCourier.carry(level, courier, shop, d.token, pen)) return true;
-                continue;
-            }
-            var y = custody.release(d.token, level, new Vec3(pen.getX() + .5, pen.getY() + 1, pen.getZ() + .5), actor.getYRot());
-            if (y == null) continue; // token stays valid; retried on the next tick
-            it.remove(); data.setDirty();
-            finishArrival(level, y, shop, d.factory);
-            y.getNavigation().stop(); y.moveTo(pen.getX() + .5, pen.getY() + .12, pen.getZ() + .5, y.getYRot(), 0);
-            actor.swing(InteractionHand.MAIN_HAND);
-            y.playAction("look_around"); y.showReaction("cry", "", 100);
-            return true;
-        }
-        return false;
-    }
-    /** The animal of a delivery has been set down (by a keeper, or recovered): a factory arrival becomes stock with its badge data preserved. Returns whether it was a factory arrival. */
-    public static boolean completed(ServerLevel level, UUID token, YukkuriEntity y, HumanNpc shop) {
-        var data = get(level); UUID factory = null; boolean found = false;
-        for (var it = data.pending.iterator(); it.hasNext(); ) {
-            var d = it.next();
-            if (d.token.equals(token)) { factory = d.factory; found = true; it.remove(); data.setDirty(); break; }
-        }
-        if (!found && !HumanCommerce.data(y).getBoolean("ShopCandidate")) return false;
-        finishArrival(level, y, shop, factory);
+    private static boolean stage(ServerLevel level, UUID token, UUID shop, BlockPos at, UUID factory, boolean recalled) {
+        if (!level.hasChunkAt(at) || ShopCourier.inFlight(token)) return false;
+        if (!YukkuriWorldData.get(level).hasToken(token)) return true;
+        // Older deliveries can already be in a saved courier's hand when the job is reloaded.
+        var nearby = new AABB(at).inflate(48);
+        if (!level.getEntitiesOfClass(HumanNpc.class, nearby, n -> token.equals(CarrierItem.token(n.getMainHandItem()))).isEmpty()) return false;
+        if (!level.getEntitiesOfClass(ItemEntity.class, nearby, i -> token.equals(CarrierItem.token(i.getItem()))).isEmpty()) return true;
+        var basket = mark(ShopCourier.carrierStack(level, token), shop, factory, recalled);
+        if (ShopTrade.drop(level, null, Vec3.atBottomCenterOf(at), basket) == null) return false;
+        GameplayLog.world(level, "delivery", "action=arrival result=basket_on_ground token={} shop={} counter={} recall={}",
+                token, shop, at.toShortString(), recalled);
         return true;
+    }
+
+    /** A bought-back animal waiting at the handoff point can be loaded without moving it through the building. */
+    static boolean stageSale(ServerLevel level, HumanNpc shop, YukkuriEntity animal) {
+        if (!animal.onGround() || animal.isPassenger() || animal.isVehicle() || ServiceHatch.of(animal) != null) return false;
+        var at = animal.position();
+        var item = ShopTrade.drop(level, null, at, new ItemStack(ModItems.CARRIER.get()));
+        if (item == null) return false;
+        var token = YukkuriWorldData.get(level).capture(animal);
+        if (token == null) {
+            item.discard();
+            return false;
+        }
+        item.setItem(mark(HumanCommerce.carrier(animal, token), shop.getUUID(), null, false));
+        GameplayLog.world(level, "delivery", "action=buyback result=basket_on_ground token={} shop={} arrival={}",
+                token, shop.getUUID(), GameplayLog.at(at));
+        return true;
+    }
+
+    private static ItemStack mark(ItemStack basket, UUID shop, UUID factory, boolean recalled) {
+        CustomData.update(DataComponents.CUSTOM_DATA, basket, tag -> {
+            tag.putUUID("RestockShop", shop);
+            if (factory != null) tag.putUUID("RestockFactory", factory);
+            if (recalled) tag.putBoolean("RestockRecall", true);
+        });
+        return basket;
+    }
+
+    static UUID destination(ItemStack basket) {
+        var tag = basket.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY);
+        var data = tag.copyTag();
+        return basket.is(ModItems.CARRIER.get()) && data.hasUUID("RestockShop") ? data.getUUID("RestockShop") : null;
+    }
+
+    static ItemStack plainBasket(ItemStack basket) {
+        var copy = basket.copy();
+        CustomData.update(DataComponents.CUSTOM_DATA, copy, tag -> {
+            tag.remove("RestockShop");
+            tag.remove("RestockFactory");
+            tag.remove("RestockRecall");
+        });
+        return copy;
+    }
+
+    /** A clerk or keeper collects a parcel from the floor and then uses the ordinary stocking route. */
+    public static void arrive(HumanNpc actor, ServerLevel level) {
+        if (ShopCourier.busy(actor) || actor.isTrading() || !actor.getMainHandItem().isEmpty()) return;
+        var shop = actor.job() == HumanNpc.Job.SHOPKEEPER ? actor : level.getEntitiesOfClass(HumanNpc.class, actor.getBoundingBox().inflate(48),
+                n -> n.isAlive() && n.job() == HumanNpc.Job.SHOPKEEPER).stream().min(Comparator.comparingDouble(actor::distanceToSqr)).orElse(actor);
+        if (actor.job() == HumanNpc.Job.SHOPKEEPER && ShopCourier.idleKeeper(level, shop) != null) return;
+        var basket = level.getEntitiesOfClass(ItemEntity.class, new AABB(actor.home()).inflate(32), item -> {
+            UUID destination = destination(item.getItem());
+            return destination != null && !item.hasPickUpDelay()
+                    && (destination.equals(shop.getUUID()) || !(level.getEntity(destination) instanceof HumanNpc original && original.isAlive()));
+        }).stream().min(Comparator.comparingDouble(actor::distanceToSqr)).orElse(null);
+        if (basket == null || ShopPens.stock(level, shop) >= ShopMenu.STOCK_CAPACITY) return;
+        var pen = ShopPens.freePen(level, shop, null, false);
+        if (pen != null) ShopCourier.collect(level, actor, shop, basket, pen);
+    }
+
+    /** The token is consumed only after a physical set-down. Carry the parcel's provenance across that handoff. */
+    public static boolean completed(ServerLevel level, UUID token, ItemStack basket, YukkuriEntity y, HumanNpc shop) {
+        var data = get(level);
+        var tag = basket.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag();
+        UUID factory = tag.hasUUID("RestockFactory") ? tag.getUUID("RestockFactory") : null;
+        for (var it = data.pending.iterator(); it.hasNext(); ) {
+            var d = it.next();
+            if (d.token.equals(token)) { factory = d.factory; it.remove(); data.setDirty(); break; }
+        }
+        if (tag.getBoolean("RestockRecall")) {
+            var commerce = HumanCommerce.data(y).copy();
+            commerce.putLong("ForSaleSince", level.getGameTime());
+            commerce.remove("StaleCuts");
+            HumanCommerce.set(y, commerce);
+        }
+        if (tag.hasUUID("RestockShop") || factory != null || HumanCommerce.data(y).getBoolean("ShopCandidate")) {
+            finishArrival(level, y, shop, factory);
+        }
+        return factory != null;
     }
     private static void finishArrival(ServerLevel level, YukkuriEntity y, HumanNpc shop, UUID factory) {
         // The token is already released. A dead destination follows the existing no-shop completion.
@@ -284,6 +296,7 @@ public final class ShopDeliveries extends SavedData {
             return;
         }
         y.life().releaseHome();
+        ShopRegistry.get(level).stocked(shop, y);
         clearCandidate(y);
         if (factory != null) y.getPersistentData().putUUID("FactoryOrigin", factory);
         GameplayLog.event(y,"delivery","action=arrive result=stocked shop={} factory={} role={}",shop.getUUID(),factory,Custody.view(y).role());

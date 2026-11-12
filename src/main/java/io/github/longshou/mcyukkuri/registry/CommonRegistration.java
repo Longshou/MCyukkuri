@@ -38,6 +38,7 @@ import io.github.longshou.mcyukkuri.settlement.SettlementTicker;
 import io.github.longshou.mcyukkuri.settlement.ShelterIndexEvents;
 import io.github.longshou.mcyukkuri.settlement.SiteClaimer;
 import io.github.longshou.mcyukkuri.shop.ShopCourier;
+import io.github.longshou.mcyukkuri.shop.ShopDeliveries;
 import io.github.longshou.mcyukkuri.shop.ShopPerformance;
 import io.github.longshou.mcyukkuri.status.Reactions;
 import io.github.longshou.mcyukkuri.status.TraceRecorder;
@@ -109,6 +110,7 @@ public final class CommonRegistration {
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, ServerTickEvent.Post.class, Staging::tick);
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, ServerTickEvent.Post.class, Grazing::tick);
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, ServerTickEvent.Post.class, GroupMemberEvents::tick);
+        NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, ServerTickEvent.Post.class, ShopDeliveries::tick);
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, ServerTickEvent.Post.class, ShopPerformance::tick);
         NeoForge.EVENT_BUS.addListener(EventPriority.LOWEST, false, ServerTickEvent.Post.class, TraceRecorder::tickPost);
 

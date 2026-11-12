@@ -237,7 +237,7 @@ public final class HumanNpc extends PathfinderMob {
         if (job() == Job.SHOPKEEPER && tickCount % 200 == 11 && !resting()) CommodityLife.tickStock(this);
         if ((job() == Job.EXAMINER || job() == Job.SHOPKEEPER) && tickCount % 40 == 5 && !resting()) revokeVoidBadges();
         if (job() == Job.SHOPKEEPER && tickCount % 100 == 7) ShopDeliveries.register(this);
-        if (job() == Job.SHOPKEEPER && tickCount % 20 == 3 && !resting()) ShopDeliveries.arrive(this, (ServerLevel) level(), level().getGameTime());
+        if (job() == Job.SHOPKEEPER && tickCount % 20 == 3 && !resting()) ShopDeliveries.arrive(this, (ServerLevel) level());
         if (job() == Job.KEEPER && tickCount % 20 == 0) ShopKeeping.tick(this);
         if (job() == Job.SHOPKEEPER && tickCount % 20 == 0) ShopCourier.recover(this, (ServerLevel) level());
     }

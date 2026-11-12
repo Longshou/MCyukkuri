@@ -87,7 +87,6 @@ public final class FactoryPipeline {
     /** Every SHIP_INTERVAL ticks: ship the candidates (timer persisted). */
     private void tickShipping(ServerLevel level) {
         long now = level.getGameTime();
-        ShopDeliveries.resolveExpired(level, now);
         if (nextShip == 0) { nextShip = now + SHIP_INTERVAL; return; }
         if (now < nextShip) return;
         nextShip = now + SHIP_INTERVAL;
@@ -100,13 +99,13 @@ public final class FactoryPipeline {
         if (shop == null || !ShopDeliveries.enabled()) return 0;
         int sent = 0;
         for (var y : worker.animals(Custody.Role.NURSERY)) {
-            if (sent >= 2 || data.pendingFor(shop.getKey()) >= 4) break;
+            if (sent >= 2 || data.pendingFor(level, shop.getKey()) >= 4) break;
             if (!HumanCommerce.data(y).getBoolean("ShopCandidate") || !shopFit(y)) continue;
             var token = YukkuriWorldData.get(level).capture(y);
             if (token == null) continue;
             data.add(new ShopDeliveries.Delivery(token, shop.getKey(), shop.getValue().pos(), level.getGameTime(), worker.getUUID())); sent++;
             GameplayLog.event(worker,"delivery","action=queue target={} token={} shop={} destination={} pending={}",
-                    y.getUUID(),token,shop.getKey(),shop.getValue().pos().toShortString(),data.pendingFor(shop.getKey()));
+                    y.getUUID(),token,shop.getKey(),shop.getValue().pos().toShortString(),data.pendingFor(level, shop.getKey()));
         }
         return sent;
     }

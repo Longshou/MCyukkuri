@@ -422,18 +422,13 @@ public final class ShopMenu extends AbstractContainerMenu {
                 return true;
             }
             if (age < 60) return false;
-            // After the farewell a keeper fetches the animal, it climbs into a basket and is carried to its pen; busy keepers are waited for (up to 20 seconds), no keeper means the direct move.
-            int courier = ShopCourier.dispatchSale(level, clerk, id, pen, reservation);
-            if (courier > 0) return true;
-            if (courier == 0 && age < 460) return false;
             if (level.getEntity(id) instanceof YukkuriEntity y && y.isAlive()) {
+                if (ShopCourier.dispatchSale(level, clerk, y, pen, reservation)) return true;
+                if (clerk.isAlive() && age < 460) return false;
                 y.pet().unlock("sale");
-                if (ShopPerformance.owns(level, pen, reservation)) {
-                    level.sendParticles(ParticleTypes.POOF, y.getX(), y.getY() + .3, y.getZ(), 8, .25, .15, .25, .02);
-                    y.getNavigation().stop(); y.moveTo(pen.getX() + .5, pen.getY() + .12, pen.getZ() + .5, y.getYRot(), 0);
-                    GameplayLog.event(clerk,"shop","action=sell_live_placement result=placed target={} destination={} mode=direct",id,pen.toShortString());
-                    level.sendParticles(ParticleTypes.CLOUD, y.getX(), y.getY() + .3, y.getZ(), 8, .25, .15, .25, .02);
-                }
+                boolean staged = ShopDeliveries.stageSale(level, clerk, y);
+                GameplayLog.event(y, "shop", "action=sell_live_placement result={} shop={} destination={}",
+                        staged ? "basket_staged" : "left_at_handoff", clerk.getUUID(), pen.toShortString());
             }
             ShopPerformance.release(reservation);
             return true;

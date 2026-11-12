@@ -6,11 +6,9 @@ import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.family.FamilyLife;
 import io.github.longshou.mcyukkuri.human.HumanNpc;
-import io.github.longshou.mcyukkuri.motor.Motor;
 import java.util.Comparator;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.phys.Vec3;
 
 /** Keeper duties: every three game days the studs breed if the shop has room, and grown nursery young are put on sale. */
 public final class ShopKeeping {
@@ -24,7 +22,7 @@ public final class ShopKeeping {
         ShopCourier.recover(keeper, level);
         for (var y : keeper.animals(Custody.Role.SHOP_NURSERY)) if ((y.family().adult() || y.childhood().canLiveIndependently()) && !y.pet().busy() && !y.isPassenger()) train(keeper, level, y);
         long now = level.getGameTime();
-        ShopDeliveries.arrive(keeper, level, now);
+        if (!keeper.resting()) ShopDeliveries.arrive(keeper, level);
         if (keeper.nextBreed() == 0) { keeper.setNextBreed(now + INTERVAL); return; }
         if (now < keeper.nextBreed()) return;
         keeper.setNextBreed(now + (breed(keeper, level) ? INTERVAL : RETRY));
@@ -79,14 +77,7 @@ public final class ShopKeeping {
         if (shop == null || owners.deadNpc(shop.getUUID())) return;
         var pen = ShopPens.freePen(level, shop, y, false);
         if (pen == null) return;
-        Custody.assign(y, shop, Custody.Role.STOCK);
-        // The keeper walks over, sprays the graduate to sleep and carries it to the pen; with no taker it is moved directly.
-        if (!ShopCourier.graduate(level, keeper, shop, y, pen)) {
-            var reservation = ShopPerformance.reserve(level, pen);
-            if (reservation == null) return;
-            try { y.getNavigation().stop(); Motor.relocate(y, new Vec3(pen.getX() + .5, pen.getY() + .12, pen.getZ() + .5), y.getYRot(), "graduate_pen_placement"); }
-            finally { ShopPerformance.release(reservation); }
-        }
+        if (ShopCourier.graduate(level, keeper, shop, y, pen)) Custody.assign(y, shop, Custody.Role.STOCK);
     }
     private ShopKeeping() {}
 }
