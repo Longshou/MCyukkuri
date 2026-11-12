@@ -2,7 +2,7 @@
 
 [Wiki](../README.md) · **[按实体、情景、情绪筛图](gallery.html)** · [造型与动作参考](production-briefs.md) · [清晰画面精选](quality-picks.md)
 
-[作品证据索引](evidence.json)收录 **377 张原图中的 493 条制作画面、48 段原文、76 条已核对对白**。按[画面](image-evidence.md)、[小说](../novel-reading/evidence.md)或[对白](../hakkei-reference/dialogue/evidence.md)的入口查找。
+[作品证据索引](evidence.json)收录 **377 张原图中的 493 条制作画面、62 段原文、90 条已核对对白**。按[画面](image-evidence.md)、[小说](../novel-reading/evidence.md)或[对白](../hakkei-reference/dialogue/evidence.md)的入口查找。
 
 从要做的游戏内容出发找图：选实体，再叠加情景、情绪或制作目标。每条记录指向具体画格，并说明能用于哪个模型部位、动作、表情、道具、场景或事件。作品编号只用来追溯出处。
 
