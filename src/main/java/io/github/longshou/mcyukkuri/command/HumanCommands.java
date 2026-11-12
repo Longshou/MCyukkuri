@@ -173,7 +173,7 @@ public final class HumanCommands {
         UUID buyer = UuidArgument.getUuid(c, "buyer");
         if (keeper == null || animal == null) { say(c, "keeper must be an NPC and animal a yukkuri"); return 0; }
         boolean ok = ShopTrade.begin(c.getSource().getLevel(), keeper, animal, buyer, ShopPricing.price(animal));
-        say(c, ok ? "sale started for " + animal.getUUID() + " (done in ~46 ticks)" : "refused: not this keeper's stock, or busy");
+        say(c, ok ? "sale started for " + animal.getUUID() + " (a keeper fetches it in a basket, or the clerk hands it over at the counter)" : "refused: not this keeper's stock, or busy");
         return ok ? 1 : 0;
     }
 
