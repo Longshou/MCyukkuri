@@ -11,8 +11,6 @@ code{background:#333;padding:0 4px;border-radius:3px}
 <body>
 <p><a href="../inbox/index.html">待你查看</a> · <a href="../index.html">预览总入口</a></p>
 <h1>素鸡立演出：最终表情、动作片段与器官美术</h1>
-<div class="box"><b>状态</b>：美术已制作并导出（表情进标准表情库，动作进动作库）；<b>还没接进游戏逻辑</b>——由后续代码包按报告里的接线表接上，之后才能在试玩场看到。合入并更新运行包后直接生效的只有：<b>短舌</b>（“潮红闭眼伸舌”“含泪伸舌”所有用到的地方）和<b>新的佩妮佩妮／马姆马姆外观</b>。
-<br>按你的意见已定：爱丽丝没有神气阶段，整段偏癫狂邪恶；母方结尾换成温柔满足；耸动幅度节奏按方案；「すっきり～！」挪到释放瞬间；释放＝停住细颤＋水滴＋爱心，音效先占位。</div>
 <p class="note">全部为离线渲染（真实运行模型与导出片段，<code>preview.py strip</code>），不含游戏内站位、碰撞和粒子；最终以试玩为准。</p>
 
 <h2>1. 表情（三个种族，右下小图≈游戏几格远的大小）</h2>
@@ -24,17 +22,18 @@ code{background:#333;padding:0 4px;border-radius:3px}
 <h3>父·魔理沙（失神后神气）</h3><img src="sequence-0.png" alt="">
 <h3>父·灵梦及其他（失神后满足）</h3><img src="sequence-1.png" alt="">
 <h3>母方（失神后温柔满足）</h3><img src="sequence-2.png" alt="">
-<h3>爱丽丝（搜寻起就癫狂，动作与释放全程翻白眼咧嘴笑，事后仍癫狂）</h3><img src="sequence-3.png" alt="">
+<h3>爱丽丝（搜寻、循环、四拍与完成）</h3><img src="sequence-3.png" alt="">
 <h3>受方</h3><img src="sequence-4.png" alt="">
 
 <h2>3. 动作片段</h2>
 <p>父方下身耸动：身体下部约四成（最低 13 层软体切片）与臀部向前推，顶部、脸和帽子不动，不加整体俯仰（前倾仍由接触姿态给）。母方／受方每次晚 1 tick 被推前一点并被压扁一点（受力的物理原因）。</p>
-<h3>普通配对·父方（发情期 60 tick：擦蹭 0–10，慢顶 10–24，快顶 24–40，释放 40–60）</h3><img src="clip-pair60.png" alt="">
-<h3>普通配对·母方（60 tick）</h3><img src="clip-mamu60.png" alt="">
-<p class="note">非发情期 120 tick 用同样的节拍放慢（擦蹭 0–30，慢顶 30–65，快顶 65–100，释放 100–120），片段 <code>sukkiri_pair_120</code>／<code>sukkiri_mamu_120</code>。</p>
-<h3>爱丽丝攻击（240 tick：10→6→3–4 tick 一次，197 最深，200 释放颤抖到 225，240 结束）</h3><img src="clip-alice.png" alt="">
-<h3>事后·魔理沙神气（失神晃 → 挺身后仰 4° → 第三句台词时小弹一下）</h3><img src="clip-proud.png" alt="">
-<h3>事后·爱丽丝癫狂（两阵咯咯抖）</h3><img src="clip-manic.png" alt="">
+<h3>普通配对·父方循环</h3><img src="clip-pair-loop.png" alt="">
+<h3>普通配对·母方循环</h3><img src="clip-mamu-loop.png" alt="">
+<h3>四拍与 3 秒峰值</h3><img src="clip-pair-climax.png" alt="">
+<h3>爱丽丝蹦跳追击</h3><img src="clip-alice-chase.png" alt="">
+<h3>受方四拍与峰值</h3><img src="clip-held-climax.png" alt="">
+<h3>事后·魔理沙神气</h3><img src="clip-proud.png" alt="">
+<h3>事后·爱丽丝癫狂</h3><img src="clip-manic.png" alt="">
 <h3>事后·母方温柔</h3><img src="clip-tender.png" alt="">
 
 <h2>4. 佩妮佩妮 / 马姆马姆 外观（改前 / 改后）</h2>
@@ -42,6 +41,4 @@ code{background:#333;padding:0 4px;border-radius:3px}
 <h3>佩妮佩妮（伸出时）</h3><img src="organ-peni.png" alt="">
 <h3>马姆马姆（伸出时）</h3><img src="organ-mamu.png" alt="">
 
-<h2>5. 接线（后续代码包）</h2>
-<p>按“角色 × 种族 × 阶段”选表情与片段、tick 时点、释放效果挂点和需要改的读取位置（<code>AdultFaces</code>、<code>PresentationArbiter</code>、<code>AgitationLife</code>、<code>Courtship</code>、<code>ReproductionEffects</code>）写在报告 <code>.local/refactor/reports/wp-gk-sukkiri.md</code>。</p>
 </body></html>

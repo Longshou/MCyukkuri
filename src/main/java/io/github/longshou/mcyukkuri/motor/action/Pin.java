@@ -160,6 +160,8 @@ public final class Pin implements Action {
 
     @Override public void finished(YukkuriEntity body, Outcome outcome) {
         result = outcome;
+        if (target.motor().current() instanceof Held held && held.pin == this)
+            target.motor().cancel(target.motor().owner(), "pin_ended");
         failedFrom = body.position();
         failedTarget = target.position();
         if (!contact) GameplayLog.event(body, "agitation", "pounce blocked target={} distance={} reason={} outcome={}",

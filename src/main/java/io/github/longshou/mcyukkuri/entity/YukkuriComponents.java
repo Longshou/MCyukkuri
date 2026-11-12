@@ -163,6 +163,8 @@ public final class YukkuriComponents {
                 .load(170, (c, ctx) -> { if (ctx.root().contains("YukkuriFamily")) c.load(ctx.root().getCompound("YukkuriFamily")); })
                 // The carry's ordinary put-downs (the carry's own interruptions go through the MOTOR bridge, Release.interrupted).
                 .goal(2, EnumSet.of(Goal.Flag.MOVE, Goal.Flag.LOOK), (c, entity) -> c.carry().setDownGoal())
+                .interrupt(Interrupt.HURT, InterruptPhase.BEFORE_INJURY, 15, (c, ctx) -> c.interruptCourtship())
+                .interrupt(Interrupt.REMOVED, InterruptPhase.MAIN, 25, (c, ctx) -> c.interruptCourtship())
                 .interrupt(Interrupt.DEATH, InterruptPhase.DEATH_ONCE, 20, (c, ctx) -> c.died()).build(),
         ComponentSpec.ready(CHILDHOOD, YukkuriEntity::childhood)
                 .tick(100, ChildhoodLife::tick)
@@ -263,6 +265,7 @@ public final class YukkuriComponents {
                 .interrupt(Interrupt.FRIGHT, InterruptPhase.MAIN, 10, (c, ctx) -> c.stop())
                 .interrupt(Interrupt.COMMAND, InterruptPhase.MAIN, 20, (c, ctx) -> c.stop())
                 .interrupt(Interrupt.HURT, InterruptPhase.BEFORE_INJURY, 10, (c, ctx) -> c.stop())
+                .interrupt(Interrupt.REMOVED, InterruptPhase.MAIN, 24, (c, ctx) -> c.stop())
                 .interrupt(Interrupt.DEATH, InterruptPhase.DEATH_PREPARE, 40, (c, ctx) -> c.stop()).build(),
         ComponentSpec.ready(MIND, YukkuriEntity::mind)
                 .tick(330, MindLife::tick)

@@ -1,11 +1,13 @@
 package io.github.longshou.mcyukkuri.client;
 
 import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import io.github.longshou.mcyukkuri.MCYukkuri;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
+import io.github.longshou.mcyukkuri.entity.YukkuriAction;
 import io.github.longshou.mcyukkuri.entity.YukkuriView;
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -26,6 +28,18 @@ final class AgitationPresentation {
     private static final String[] CHANNELS = {"pitch", "yaw", "roll", "sx", "sy", "sz"};
     private static Map<String, float[][]> cues = Map.of();
     private static float mamuRearOffset;
+    private static Map<String, OrganSite> organSites = Map.of();
+
+    record OrganSite(boolean turn, float x, float y, float outer, float proud, float meet, float[][] rear) {
+        ReproductionPresentation.MamuPlacement rearPlacement(float target) {
+            float height = Math.clamp(target, rear[0][0], rear[rear.length-1][0]);
+            int i = 0;
+            while (i+2<rear.length && height>rear[i+1][0]) i++;
+            float[] a = rear[i], b = rear[i+1];
+            float depth = Mth.lerp((height-a[0])/(b[0]-a[0]),a[1],b[1]);
+            return new ReproductionPresentation.MamuPlacement(turn,-x,height-y,depth+proud-outer);
+        }
+    }
     // Values never strongly hold their key or level. Unloaded entities/worlds cannot be retained by a pose.
     private static final Map<YukkuriView, DisplayedPose> displayed = new WeakHashMap<>();
     private static WeakReference<Level> displayLevel = new WeakReference<>(null);
@@ -59,7 +73,6 @@ final class AgitationPresentation {
             if (!number(data.get("mamu_rear_offset")) || data.get("mamu_rear_offset").getAsDouble() <= 0
                     || data.get("mamu_rear_offset").getAsDouble() > 4)
                 throw new IllegalArgumentException("Invalid reproductive mamu rear offset");
-            mamuRearOffset=data.get("mamu_rear_offset").getAsFloat();
             if (!number(data.get("format")) || data.get("format").getAsDouble() != 1)
                 throw new IllegalArgumentException("Unsupported adult-state presentation");
             if (!data.has("channels") || !data.get("channels").isJsonArray())
@@ -107,12 +120,36 @@ final class AgitationPresentation {
                 }
                 loaded.put(branch, frames);
             }
-            cues = Map.copyOf(loaded);
+            var sites = readOrganSites(data.getAsJsonObject("organ_sites"));
+            mamuRearOffset=data.get("mamu_rear_offset").getAsFloat();
+            organSites=sites;
+            cues=Map.copyOf(loaded);
         } catch (IOException error) { throw new UncheckedIOException(error); }
     }
 
     private static boolean number(JsonElement value) {
         return value != null && value.isJsonPrimitive() && value.getAsJsonPrimitive().isNumber();
+    }
+
+    private static Map<String, OrganSite> readOrganSites(JsonObject data) {
+        var sites = new HashMap<String, OrganSite>();
+        for (var entry : data.entrySet()) {
+            var site = entry.getValue().getAsJsonObject();
+            var samples = site.getAsJsonArray("rear");
+            if (samples.size()<2) throw new IllegalArgumentException("Missing rear skin samples for "+entry.getKey());
+            float[][] rear = new float[samples.size()][2];
+            for (int i=0; i<rear.length; i++) {
+                var sample = samples.get(i).getAsJsonArray();
+                rear[i][0] = sample.get(0).getAsFloat();
+                rear[i][1] = sample.get(1).getAsFloat();
+                if (!Float.isFinite(rear[i][0]) || !Float.isFinite(rear[i][1]) || i>0 && rear[i][0]<=rear[i-1][0])
+                    throw new IllegalArgumentException("Invalid rear skin samples for "+entry.getKey());
+            }
+            sites.put(entry.getKey(), new OrganSite(site.get("turn").getAsBoolean(), site.get("x").getAsFloat(),
+                    site.get("y").getAsFloat(), site.get("outer").getAsFloat(), site.get("proud").getAsFloat(),
+                    site.get("meet").getAsFloat(), rear));
+        }
+        return Map.copyOf(sites);
     }
 
     static boolean selected(YukkuriView entity) {
@@ -125,6 +162,7 @@ final class AgitationPresentation {
         if (entity.isBaby() || entity.isDeadOrDying() || entity.isPassenger()
                 || entity.isRemoved() || !entity.contactPose().equals("NONE")) return false;
         String phase = entity.agitationState().getString("Phase");
+        if (phase.equals("ALICE_APPROACH") && !entity.getAnimationId().equals(YukkuriAction.LOOK_AROUND.id())) return false;
         // Preserve the real walking clip even on the boundary tick when navigation has just stopped.
         if ((phase.equals("HEAT") || phase.equals("HEAT_RELIEVED") || phase.equals("HEAT_UNMET") || phase.equals("RECOVER"))
                 && entity.getAnimationId().equals("waddle")) return false;
@@ -154,8 +192,6 @@ final class AgitationPresentation {
         float progress = switch (phase) {
             // A quiet attention loop; only the server's family timer can end the period.
             case "HEAT" -> ticks % 160 / 160;
-            // One-shot staged bounce across 120 ticks, then the unmet droop shares the recovery curve.
-            case "HEAT_RELIEVED" -> agitation.getBoolean("ReliefBeatsDone") ? 1 : Mth.clamp(ticks / 120, 0, 1);
             case "HEAT_UNMET", "RECOVER" -> .68f + .32f * Mth.clamp(ticks / 100, 0, 1);
             case "ALICE_WATCH" -> .3f * Mth.clamp(ticks / 60, 0, 1);
             case "ALICE_APPROACH" -> .3f + .24f * Mth.clamp(ticks / 160, 0, 1);
@@ -203,6 +239,7 @@ final class AgitationPresentation {
     }
 
     static float mamuRearOffset() { return mamuRearOffset; }
+    static OrganSite organSite(String asset) { return organSites.get(asset); }
 
     static float[] sample(String branch,float progress) {
         float[][] keys=cues.get(branch);

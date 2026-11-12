@@ -148,6 +148,11 @@ final class YukkuriDamage {
         owner.dieBase(source);
     }
     void remove(Entity.RemovalReason reason) {
+        if (!owner.level().isClientSide && !owner.isRemoved() && (reason == Entity.RemovalReason.UNLOADED_TO_CHUNK
+                || reason == Entity.RemovalReason.UNLOADED_WITH_PLAYER || reason == Entity.RemovalReason.CHANGED_DIMENSION)) {
+            owner.family().interruptCourtship();
+            owner.agitation().interruptContact();
+        }
         // Capture registers custody before discard. Unload, dimension transfer and KILLED are not this path.
         if (reason == Entity.RemovalReason.DISCARDED && !owner.isRemoved() && !discardCleanupStarted
                 && owner.level() instanceof ServerLevel server && !YukkuriWorldData.get(server).isCaptured(owner.getUUID())) {

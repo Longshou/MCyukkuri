@@ -1494,7 +1494,7 @@ def pairing_permission(partner):
 
 
 add('adult_pairing', 'meadow', '两只伴侣走近擦脸后素鸡立', '两只伴侣走近擦脸后素鸡立',
-    '两只健康成体互相接纳，近距互见后同步回应1.4秒（头顶爱心），再由父方绕到母方后方。接触时父方先擦蹭她后背，再由稳到快顶送。最后一秒看双方的颤抖、爱心和「すっきり～！」。松开后看魔理沙父方由失神转为得意、灵梦母方由失神转为温和闭眼。喷雾、带走、遮挡或绕后失败会重置配对', '约半分钟至数分钟', [
+    '两只健康成体互相接纳，近距互见后同步回应 1.4 秒（头顶爱心），再由父方绕到母方后方。观察双方接触循环、四拍台词和释放时的爱心。峰值持续 3 秒后，魔理沙露出得意脸，灵梦温和闭眼。喷雾、带走或失去接触可打断', '约半分钟至数分钟', [
         *shed(5, 0), *shed(5, 6),
         block(4, 0, 0, 'mcyukkuri:yukkuri_nest'), block(6, 0, 0, 'mcyukkuri:yukkuri_nest'),
         block(4, 0, 6, 'mcyukkuri:yukkuri_nest'), block(6, 0, 6, 'mcyukkuri:yukkuri_nest'),
@@ -1571,8 +1571,7 @@ add('widow_repair', 'meadow', '原伴侣死后才肯和新候选配对', '原伴
            ('读候选的关系与求偶阶段', f'yukkuri status {sel("new_partner")} raw')])
 
 add('alice_hunt', 'meadow', '发情爱丽丝追袭素鸡立', '发情爱丽丝追袭素鸡立',
-    '爱丽丝带着癫狂笑搜寻并追击，目标发现她会喊出警报台词并逃跑。接触时看爱丽丝的翻白眼咧嘴笑，以及受方挤眼含泪、释放时短暂失神、随后再哭的变化。末尾有三段完成台词、尘粒和爱心，可能结算茎生胎次；松开后受方逃开，爱丽丝又露出癫狂笑，之后可能再追。'
-    '动作中用喷雾或攻击打断：攻方喊出发情中断怒火台词并退入恢复，受方脱身后说出得救台词', '约半分钟，可重复观察', [
+    '爱丽丝带着癫狂笑蹦跳追击，目标发现她会喊出警报台词并逃跑。观察扑中后的接触循环、四拍台词与表情。释放时有尘粒和爱心，峰值持续 3 秒，期间受方仍被压住。峰值结束后受方脱身，爱丽丝接完成表情。喷雾或攻击可打断动作', '约半分钟，可重复观察', [
         yk('alice', 0, 0, 'hunter', lead=True, extra=agitation_start('ALICE_WATCH'), **pair_ready()),
         yk('reimu', 4, 0, 'prey', extra=agitation_start('IDLE'), **pair_ready()),
         yk('marisa', 9, 3, 'witness', extra=agitation_start('IDLE'), **pair_ready()),
@@ -4016,11 +4015,39 @@ _smoke('graze', 1200, [r'\[meal\][^\n]* swallowed item=minecraft:apple\b', r'\[m
 _smoke('meal_content', 900, [r'\[meal\][^\n]* full nutrition=[^\n]*content=true'])
 next(s for s in S if s.id == 'meal_content').smoke['verify'] = _meal_content_verify
 _smoke('meet', 2400, [r'\[social\][^\n]* greet [^\n]*why=first_meet', r'\[daily\][^\n]* session result kind=NUZZLE'])
+_sukkiri_beats = (('build', 1, 0), ('su', 2, 30), ('su_again', 2, 52), ('release', 3, 70))
+
+
+def _sukkiri_timing(log, *, alice=False):
+    start = re.search(r'(?:act timeline target=\S+|courtship contact started partner=\S+) loopTicks=(\d+) requiredTicks=(\d+)', log)
+    if not start:
+        return 'missing contact timeline'
+    loop, required = map(int, start.groups())
+    minimum, maximum, cycle = (100, 160, 20) if alice else (100, 600, 32)
+    if not minimum <= loop <= maximum or loop % cycle or required != loop + 130:
+        return f'invalid contact timeline: loop={loop}, total={required}, cycle={cycle}'
+    release = re.search(r'act release effect target=\S+ ticks=(\d+)' if alice
+                        else r'courtship release partner=\S+ tick=(\d+)', log)
+    finish = re.search(r'contact ended target=[^\n]* ticks=(\d+)' if alice
+                       else r'courtship contact ended partner=[^\n]* ticks=(\d+)', log)
+    if not release or not finish:
+        return 'missing release or contact end'
+    if int(release[1]) != loop + 70 or int(finish[1]) != required:
+        return f'contact timeline mismatch: loop={loop}, release={release[1]}, finish={finish[1]}'
+    if alice:
+        released = re.search(r'released attacker=\S+ settled=\w+ completed=true', log)
+        if not released or released.start() <= release.start() or released.start() >= finish.start():
+            return 'held partner did not release at contact completion'
+    return None
+
+
 _smoke('alice_hunt', 1200, [r'\[agitation\][^\n]* phase=ALICE_APPROACH -> ALICE_ACT',
-    r'\[agitation\][^\n]* act release effect target=\S+ ticks=200 droplets=8 hearts=2\b',
+    r'\[agitation\][^\n]* act release effect target=\S+ ticks=\d+ droplets=8 hearts=2\b',
     r'\[agitation\][^\n]* outcome (?:target=|refused)', r'\[agitation\][^\n]* contact ended target=',
-    *(rf'\[agitation\][^\n]* finale line=heat_relief_{beat} admitted=true' for beat in (1, 2, 3))],
+    *(rf'\[agitation\][^\n]* finale beat=beat_{beat} line=heat_relief_{line} admitted=true ticks=\d+ climaxTick={tick}\b'
+      for beat, line, tick in _sukkiri_beats)],
     forbid=[r'\[agitation\][^\n]* contact interrupted target=[^\n]* settled=true'])
+next(s for s in S if s.id == 'alice_hunt').smoke['verify'] = lambda log: _sukkiri_timing(log, alice=True)
 # The shared nest releases the young it may no longer hold as each one grows: three of the four cross BABY_END inside the window,
 # and each released child then claims one of the two free ordinary nests standing beside the shared one.
 def _family_nests_release(log):
@@ -4035,12 +4062,16 @@ def _family_nests_release(log):
 _smoke('family_nests', 4200, [r'\[home\][^\n]* growth released shared nest ', r'\[home\][^\n]* released child claimed a free nest '])
 next(s for s in S if s.id == 'family_nests').smoke['verify'] = _family_nests_release
 next(s for s in S if s.id == 'family_nests').smoke['readout'] = ['yukkuri status @e[tag=scn,type=mcyukkuri:reimu,distance=..48] raw']
-_pair_release = [r'\[family\][^\n]* courtship release partner=\S+ tick=(?:42 requiredTicks=60|102 requiredTicks=120) droplets=8 hearts=2 fatherSpoke=true motherSpoke=true\b',
-                 r'\[family\][^\n]* courtship release tail partner=\S+ tick=(?:50 requiredTicks=60|110 requiredTicks=120) droplets=4\b']
+_pair_release = [
+    *(rf'\[family\][^\n]* courtship beat=beat_{beat} line=heat_relief_{line} [^\n]*climaxTick={tick} fatherSpoke=true motherSpoke=true\b'
+      for beat, line, tick in _sukkiri_beats),
+    r'\[family\][^\n]* courtship release partner=\S+ tick=\d+ requiredTicks=\d+ droplets=8 hearts=2\b',
+    r'\[family\][^\n]* courtship release tail partner=\S+ tick=\d+ requiredTicks=\d+ droplets=4\b']
 _smoke('adult_pairing', 1800, [r'\[family\][^\n]* courtship acceptance started ', *_pair_release,
                                  r'\[family\][^\n]* courtship contact ended [^\n]*conceived=true'])
 next(s for s in S if s.id == 'adult_pairing').smoke['readout'] = [f'yukkuri status {sel("mother")} raw',
                                                                   f'yukkuri status {sel("father")} raw']
+next(s for s in S if s.id == 'adult_pairing').smoke['verify'] = _sukkiri_timing
 # The scene's own button ends the original partner; the widow may accept the candidate only once the ledger holds that death.
 _smoke('widow_repair', 3600, [r'\[family\][^\n]* court refused reason=partner_alive\b',
                                 r'\[family\] reimu[^\n]* witnessed kin death [^\n]*mate=true',

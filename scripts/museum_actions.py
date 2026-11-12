@@ -46,9 +46,10 @@ CATEGORIES = [
         ('boat_thrown','翻船被甩出'),('water_hat_right','咬檐翻正帽子')]),
     ('特殊身体', [('shell_retract','缩壳'),('anatomy_mamu_extend','产道伸出'),('anatomy_mamu_retract','产道收回'),
         ('anatomy_peni_extend','生殖部伸出'),('anatomy_peni_retract','生殖部收回')]),
-    ('素鸡立', [('sukkiri_pair_60','父方期内接触'),('sukkiri_pair_120','父方期外接触'),
-        ('sukkiri_mamu_60','母方期内接触'),('sukkiri_mamu_120','母方期外接触'),
-        ('sukkiri_alice_act','爱丽丝接触'),('sukkiri_held_240','被压制'),
+    ('素鸡立', [('sukkiri_pair_loop','父方接触循环'),('sukkiri_mamu_loop','母方接触循环'),
+        ('sukkiri_pair_climax','父方四拍与峰值'),('sukkiri_mamu_climax','母方四拍与峰值'),
+        ('sukkiri_alice_chase','爱丽丝蹦跳追击'),('sukkiri_alice_loop','爱丽丝接触循环'),
+        ('sukkiri_held_loop','受方接触循环'),('sukkiri_held_climax','受方四拍与峰值'),
         ('sukkiri_after_dazed','父方失神后满足'),('sukkiri_after_tender','母方温和闭眼'),
         ('sukkiri_after_proud','魔理沙父方得意'),('sukkiri_after_manic','爱丽丝完成')]),
 ]

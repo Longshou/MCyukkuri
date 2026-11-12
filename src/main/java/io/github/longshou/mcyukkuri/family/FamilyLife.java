@@ -518,7 +518,7 @@ public final class FamilyLife {
         greet();
         feeding.settleCareFood();
         if(entity.tickCount%40==0)retryMotherBurrow();
-        if(entity.isPanicking()||entity.isCommandPlaying()||(task!=Task.FEED_CHILD&&urgentNeed()))stop();
+        if(entity.isPanicking()||entity.isCommandPlaying()||(task!=Task.FEED_CHILD&&urgentNeed()&&!courtship.finishingContact()))stop();
         if(prioritizesBirth()) {
             if(entity.life().isSleeping())entity.life().interrupt();
             if(entity.dailyLife().active())entity.dailyLife().stop();
@@ -1344,12 +1344,12 @@ public final class FamilyLife {
     public boolean canContinue() {
         if(task==Task.NONE||entity.isPanicking()||entity.life().mealTicks()>0||entity.isCommandPlaying())return false;
         if(task==Task.FEED_CHILD)return feeding.canContinue();
-        if(urgentNeed())return false;
+        if(urgentNeed()&&!courtship.finishingContact())return false;
         if(task==Task.ABSENCE)return absence().active();
         if(task==Task.WATCH_HOME)return taskTicks<160 && !entity.life().isSleeping() && target.isAlive()
                 && !kinOverdue(target.getUUID()) && FamilyProvision.outForFood(target);
         if(task==Task.COURT&&(courtship.receiverInterrupted()||!courtship.stillWanted()))return false;
-        if(task==Task.RECEIVE_COURT&&!canReproduceWith(target)&&!courtship.answeringDecline())return false;
+        if(task==Task.RECEIVE_COURT&&!courtship.canReceive())return false;
         if(task==Task.FETCH_HAT)return (chore!=null||!choreHat.isRemoved()&&choreHat.catches())&&taskTicks<2400&&Conductor.roleOf(entity)==null;
         if(task==Task.COMFORT)return comfortTicks>0;
         // She stays settled with the unborn until a real need (above) takes her out or the birth's own beats begin.
@@ -1370,7 +1370,7 @@ public final class FamilyLife {
         if(task==Task.SEARCH&&call.waitingAtGlass())return true;
         double followRange = task == Task.FOLLOW && familyTravelling() ? FAMILY_SEARCH_RANGE * FAMILY_SEARCH_RANGE : 256;
         int timeCap = switch (task) {
-            case COURT, RECEIVE_COURT -> Courtship.ROUND_TICKS;
+            case COURT, RECEIVE_COURT -> courtship.roundTimeCap();
             case FOLLOW -> familyTravelling() ? 1200 : 240;
             default -> 240;
         };
@@ -1379,7 +1379,7 @@ public final class FamilyLife {
     }
     public void tickGoal() {
         if(!canContinue()){
-            if(task==Task.COURT&&taskTicks>=Courtship.ROUND_TICKS)courtship.courtStopped("time_cap");
+            if(task==Task.COURT&&taskTicks>=courtship.roundTimeCap())courtship.courtStopped("time_cap");
             stop();return;
         }
         taskTicks++;
@@ -1477,9 +1477,14 @@ public final class FamilyLife {
             default -> { }
         }
     }
+    public void interruptCourtship() {
+        if(task==Task.COURT||task==Task.RECEIVE_COURT)stop();
+    }
+
     public void stop() {
         glass.stop();
         call.stop();
+        if(task==Task.COURT||task==Task.RECEIVE_COURT)entity.getNavigation().stop();
         if(task==Task.ABSENCE)absence().stop();
         if(task==Task.STAY_HOME||task==Task.ABSENCE||task==Task.WATCH_HOME)SurfaceApproach.halt(entity);
         if(chore!=null){chore.stop("family_goal_stopped");chore=null;if(task==Task.FETCH_HAT)choreRetry=level().getGameTime()+600;}

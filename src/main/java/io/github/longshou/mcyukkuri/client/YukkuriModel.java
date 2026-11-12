@@ -180,8 +180,13 @@ public final class YukkuriModel {
     private LiveBirthRenderer.Delivery delivery;
     private String reproductiveAnatomy;
     private float reproductiveAmount;
+    private ReproductionPresentation.MamuPlacement mamuPlacement;
     /** An independent visible anatomy layer; it never selects or advances a business action. */
-    void setReproductiveAnatomy(String part,float amount){reproductiveAnatomy=part;reproductiveAmount=Math.clamp(amount,0,1);}
+    void setReproductiveAnatomy(ReproductionPresentation.Anatomy anatomy){
+        reproductiveAnatomy=anatomy==null?null:anatomy.part();
+        reproductiveAmount=anatomy==null?0:anatomy.amount();
+        mamuPlacement=anatomy==null?null:anatomy.mamu();
+    }
     /** Stem drain dulls the skin surface only; a whole-body burn's own tint takes precedence. */
     private int drainTint(String part){
         var skin=HairWoundAssets.model(id);
@@ -1059,6 +1064,8 @@ public final class YukkuriModel {
             }
         }
         if(pregnantSurface!=null)pregnantSurface.finish();
+        var rearTransform=mamuPlacement==null?null:mamuPlacement.transform(
+                AgitationPresentation.organSite(id)==null?new Matrix4f():world[rootBone()]);
         for (int partIndex=0;partIndex<parts.size();partIndex++) {
             Part part=puffAmount>0?(puffPartIndex==partIndex?puffSurface:puffAttachments.getOrDefault(partIndex,parts.get(partIndex))):parts.get(partIndex);
             buffer=evidenceBuffer(part.name,buffer);
@@ -1070,6 +1077,7 @@ public final class YukkuriModel {
             // Explicit visibility also covers interruption, idle and resource reload.
             boolean explicitAnatomy=action.startsWith("anatomy_" + part.anatomy + "_");
             boolean layeredAnatomy=part.anatomy.equals(reproductiveAnatomy)&&reproductiveAmount>.001f;
+            boolean rearAnatomy=layeredAnatomy&&part.anatomy.equals("mamu")&&rearTransform!=null;
             if (!part.anatomy.isEmpty() && (delivery!=null || !explicitAnatomy&&!layeredAnatomy)) continue;
             if (hatPart && hatDamageDraw.level() > 0) {
                 var source=parts.get(partIndex);
@@ -1097,11 +1105,7 @@ public final class YukkuriModel {
                     PregnancyFaces.render(triangle,uv,pregnancyBelly,pregnancyContraction,delivery,stack,buffer,light,overlay,pregnantSurface);continue;
                 }
                 for (int corner = 0; corner < 3; corner++) skin(first + corner, triangle[corner]);
-                if(layeredAnatomy&&part.anatomy.equals("mamu"))for(int corner=0;corner<3;corner++){
-                    // The birth outlet stays at the front. Only the reproductive layer turns the
-                    // same authored part to the rear, including its skin and mark.
-                    triangle[corner].x=-triangle[corner].x;triangle[corner].z=-triangle[corner].z+AgitationPresentation.mamuRearOffset();
-                }
+                if(rearAnatomy)for(int corner=0;corner<3;corner++)rearTransform.transformPosition(triangle[corner]);
                 if(curled!=null)for(int corner=0;corner<3;corner++)curled.transformPosition(triangle[corner]);
                 var lifted=cardNormals.get(part.name);
                 if(lifted!=null)for(int corner=0;corner<3;corner++)triangle[corner].fma(CARD_LIFT,lifted);
@@ -1119,7 +1123,7 @@ public final class YukkuriModel {
                 // Keep nonlinear pregnancy/puff/delivery and damaged hats on their original triangles.
                 int fourth=pregnancyBelly<=0&&puffAmount<=0&&delivery==null&&!hatPart&&woundDisplay==null?quadFourth[first]:-1;
                 if(fourth>=0){skin(fourth,fourthCorner);if(curled!=null)curled.transformPosition(fourthCorner);
-                    if(layeredAnatomy&&part.anatomy.equals("mamu")){fourthCorner.x=-fourthCorner.x;fourthCorner.z=-fourthCorner.z+AgitationPresentation.mamuRearOffset();}}
+                    if(rearAnatomy)rearTransform.transformPosition(fourthCorner);}
                 int rotation=fourth>=0?quadRotation[first]:0;
                 for (int corner = 0; corner < 4; corner++) {
                     int index=fourth>=0?(rotation+corner)%3:Math.min(corner,2);
@@ -1232,7 +1236,7 @@ public final class YukkuriModel {
             PoseTap.model(entity, this, accessory, hairLoss);
         }finally{drawEvidence=null;wear=0;retention=0;wearClear=false;woundDisplay=null;drain=0;adultStatePose=false;drawingWoundedBody=false;drawingSurfaceMarks=false;mouthHolding=false;carryLoad=carryLean=carryCurlLeft=carryCurlRight=carryMouth=carryCheeks=hatInBraid=0;hatMotion="";hatScale=1;hatProp=null;hatDamageDraw.reset();setCareContact(0,
                 Float.NaN,0,0);setBraidReach(null,0);
-                setBoardingPose(Float.NaN,0,1,0);setSelfHatPose(null);setExpression("");setReproductiveAnatomy(null,0);}
+                setBoardingPose(Float.NaN,0,1,0);setSelfHatPose(null);setExpression("");setReproductiveAnatomy(null);}
     }
 
     /** Keep only leak A's mouth-effect card after the expression returns to ordinary life. */

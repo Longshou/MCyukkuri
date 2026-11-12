@@ -21,38 +21,37 @@ OUT = SHARED/'.local/previews/sukkiri-plan'
 STRIPS = OUT/'strips'
 LABEL = dict(flushed_smile='潮红闭眼笑', flushed_tongue='潮红闭眼吐舌尖', impact='受击挤眼', teary_tongue='含泪吐舌尖',
              satisfied='满足闭眼', open_drool='睁眼流口水', squeezed_cry_tears='挤眼大哭', blank_cry='白眼哭喊',
-             horrified='惊恐', sukkiri_squeeze='潮红挤眼喊', sukkiri_dazed='失神', sukkiri_smug='潮红得意',
+             horrified='惊恐', landing='挤眼抿嘴', endure='白眼忍耐', squeezed_cry='挤眼哭喊',
+             pin_cry='灰眼哭喊', sukkiri_squeeze='潮红挤眼喊', sukkiri_dazed='失神', sukkiri_smug='潮红得意',
              sukkiri_grin='翻白眼咧嘴笑', sukkiri_manic='癫狂咧嘴笑', sukkiri_tender='温柔满足')
 MODELS = dict(marisa='魔理沙', reimu='灵梦', alice='爱丽丝')
 NEW = ['sukkiri_squeeze', 'sukkiri_dazed', 'sukkiri_smug', 'sukkiri_grin', 'sukkiri_manic', 'sukkiri_tender',
        'flushed_tongue', 'teary_tongue']
+PAIR_FACES = [('循环', 'flushed_tongue'), ('要来了', 'landing'), ('素', 'impact'), ('素', 'endure'),
+              ('素鸡立', 'sukkiri_squeeze'), ('峰值', 'sukkiri_dazed')]
 SEQUENCES = [
-    ('父·魔理沙', 'marisa', [('擦蹭', 'flushed_smile'), ('慢顶', 'flushed_tongue'), ('快顶', 'impact'),
-                          ('释放 0–6t', 'sukkiri_squeeze'), ('释放 6t–事后 40t', 'sukkiri_dazed'),
-                          ('事后 40–120t', 'sukkiri_smug')]),
-    ('父·灵梦及其他', 'reimu', [('擦蹭', 'flushed_smile'), ('慢顶', 'flushed_tongue'), ('快顶', 'impact'),
-                           ('释放 0–6t', 'sukkiri_squeeze'), ('释放 6t–事后 30t', 'sukkiri_dazed'),
-                           ('事后 30–120t', 'satisfied')]),
-    ('母方', 'reimu', [('擦蹭', 'flushed_smile'), ('慢顶', 'flushed_tongue'), ('快顶', 'teary_tongue'),
-                      ('释放 0–6t', 'sukkiri_squeeze'), ('释放 6t–事后 30t', 'sukkiri_dazed'),
-                      ('事后 30–120t', 'sukkiri_tender')]),
-    ('爱丽丝·攻击素鸡立', 'alice', [('搜寻追击', 'sukkiri_manic'), ('动作 0–240t（含释放）', 'sukkiri_grin'),
-                              ('事后', 'sukkiri_manic')]),
-    ('受方', 'reimu', [('压住 0–200t', 'squeezed_cry_tears'), ('释放 200–215t', 'blank_cry'),
-                      ('215–240t', 'squeezed_cry_tears'), ('松开后逃跑', 'horrified')]),
+    ('父·魔理沙', 'marisa', [*PAIR_FACES, ('事后', 'sukkiri_smug')]),
+    ('父·灵梦及其他', 'reimu', [*PAIR_FACES, ('事后', 'satisfied')]),
+    ('母方', 'reimu', [*PAIR_FACES, ('事后', 'sukkiri_tender')]),
+    ('爱丽丝·攻击素鸡立', 'alice', [('搜寻追击', 'sukkiri_manic'), ('循环', 'sukkiri_grin'),
+                              ('起拍', 'open_drool'), ('释放', 'sukkiri_squeeze'),
+                              ('峰值', 'sukkiri_grin'), ('事后', 'sukkiri_manic')]),
+    ('受方', 'reimu', [('循环', 'squeezed_cry_tears'), ('起拍', 'horrified'), ('第二拍', 'squeezed_cry'),
+                      ('第三拍', 'pin_cry'), ('释放', 'blank_cry'), ('峰值', 'squeezed_cry_tears')]),
 ]
 # Clip strips: (topic, model, clip, times in seconds, beat labels, partner).
 CLIPS = [
-    ('clip-pair60', 'marisa', 'sukkiri_pair_60', [0.2, 0.66, 1.0, 1.44, 2.1, 2.3, 2.4, 2.95],
-     ['擦蹭 4t', '慢顶·顶出 13t', '慢顶·收回 20t', '快顶·顶出 29t', '释放·最深 42t', '颤·左 46t', '颤·右 48t', '松劲 59t'], None),
-    ('clip-mamu60', 'reimu', 'sukkiri_mamu_60', [0.6, 0.71, 2.15, 2.35],
-     ['母方·回位', '母方·被推 14t', '释放·被推 43t', '随他颤 47t'], None),
-    ('clip-alice', 'alice', 'sukkiri_alice_act', [1.0, 1.2, 5.0, 8.5, 9.85, 10.3, 11.6],
-     ['10t 一次·回位', '顶出', '6t 一次', '冲刺 3–4t 一次', '最深 197t', '释放颤抖 206t', '松劲 232t'], None),
+    ('clip-pair-loop', 'marisa', 'sukkiri_pair_loop', [0, .3, .8, 1.1], ['起始', '第一下', '回位', '第二下'], None),
+    ('clip-mamu-loop', 'reimu', 'sukkiri_mamu_loop', [0, .35, .8, 1.15], ['起始', '第一下回应', '回位', '第二下回应'], None),
+    ('clip-pair-climax', 'marisa', 'sukkiri_pair_climax', [0, 1.5, 2.6, 3.5, 4.4, 6.45],
+     ['要来了', '素', '素', '素鸡立', '峰值', '收尾'], None),
+    ('clip-alice-chase', 'alice', 'sukkiri_alice_chase', [.1, .45, .65, 1.15], ['蹲身', '跳起', '落地', '再跳'], None),
+    ('clip-held-climax', 'reimu', 'sukkiri_held_climax', [0, 1.5, 2.6, 3.5, 4.4, 6.45],
+     ['惊恐', '挤眼哭', '灰眼哭', '短暂失神', '峰值', '仍受压制'], None),
     ('clip-proud', 'marisa', 'sukkiri_after_proud', [0.6, 1.8, 2.6, 4.55, 5.5],
-     ['失神晃·右', '失神晃·左', '挺身后仰', '小弹 91t', '停住'], None),
-    ('clip-manic', 'alice', 'sukkiri_after_manic', [0.6, 0.7, 3.2, 5.0], ['咯咯抖·右', '咯咯抖·左', '再一阵', '平静'], None),
-    ('clip-tender', 'reimu', 'sukkiri_after_tender', [0.6, 1.8, 3.0], ['失神晃', '失神晃', '温柔满足'], None),
+     ['得意', '摆身', '挺身后仰', '小弹', '停住'], None),
+    ('clip-manic', 'alice', 'sukkiri_after_manic', [0.6, 0.7, 3.2, 5.0], ['笑着点头', '回身', '再次点头', '平静'], None),
+    ('clip-tender', 'reimu', 'sukkiri_after_tender', [0.6, 1.8, 3.0], ['温柔满足', '轻摆', '停住'], None),
 ]
 ORGAN_BEFORE = '13d758f5a'  # main line before this package
 GAME = 72  # face frame shrunk to roughly how large the head reads at a few blocks in game

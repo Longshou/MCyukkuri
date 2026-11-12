@@ -22,10 +22,10 @@ import net.minecraft.world.phys.Vec3;
 /** Mutual courtship reads one initiator clock; the owner keeps all durable family and goal state. */
 final class Courtship {
     private final FamilyLife o;
-    private int courtNearTicks, courtContactTicks, courtPathFailures, courtRequiredTicks;
+    private int courtNearTicks, courtContactTicks, courtPathFailures, courtLoopTicks;
     private long courtStart=-1, courtContactStart=-1;
     private static final int COURT_ACCEPT_TICKS=28;
-    /** A comeback can start 12 blocks away, then still needs time to turn and complete a 120-tick contact. */
+    /** A comeback can start 12 blocks away, then still needs time to turn and make contact. */
     static final int ROUND_TICKS=440;
     /** How long a candidate leaves a paired adult alone after her back turned him down: half a heat period, like a held permit. */
     private static final int REFUSAL_PAUSE=600;
@@ -62,7 +62,7 @@ final class Courtship {
         var peer=o.target();
         if(o.task()==Task.COURT&&peer!=null&&o.entity().isAlive()) {
             if(declinedRound){askedUntilBy=peer.getUUID();askedUntil=o.level().getGameTime()+REFUSAL_PAUSE;}
-            else if(failed==null&&(courtRequiredTicks==0||courtContactTicks<courtRequiredTicks))
+            else if(failed==null&&(courtLoopTicks==0||courtContactTicks<=requiredTicks()))
                 failed=failure(peer,null);
         }
         resetCourtProgress();courtPathFailures=0;declinedRound=false;returning=false;declineTicks=0;refusalFaced=false;sawNotice=false;
@@ -94,16 +94,48 @@ final class Courtship {
         courtStopped("receiver_move_taken");return true;
     }
 
-    /** Both partners read the initiator's uninterrupted server clock, never their travel time. */
-    FamilyLife presentingCourt() {
-        if(o.entity().level().isClientSide||o.target()==null||!o.entity().isAlive()||!o.target().isAlive())return null;
+    private FamilyLife leader() {
+        if(o.target()==null)return null;
         FamilyLife leader=o.task()==Task.COURT?o:o.task()==Task.RECEIVE_COURT?o.target().family():null;
         if(leader==null||leader.task()!=Task.COURT||leader.target()==null||o.task()==Task.RECEIVE_COURT&&leader.target()!=o.entity()
                 ||leader.target().family().task()!=Task.RECEIVE_COURT
-                ||leader.target().family().target()!=leader.entity()||leader.courtship().courtNearTicks==0||leader.courtship().courtStart<0
-                ||!ready()||!o.target().family().ready()||o.entity().distanceToSqr(o.target())>2.25
-                ||!o.entity().hasLineOfSight(o.target())||!o.target().hasLineOfSight(o.entity())||!o.supported()||!o.target().family().supported())return null;
+                ||leader.target().family().target()!=leader.entity())return null;
         return leader;
+    }
+
+    /** Both partners read the initiator's uninterrupted server clock, never their travel time. */
+    FamilyLife presentingCourt() {
+        var leader=leader();
+        if(o.entity().level().isClientSide||leader==null||leader.courtship().courtNearTicks==0
+                ||!safeContact(o.target())||!leader.courtship().climax()&&(!ready()||!o.target().family().ready()))return null;
+        return leader;
+    }
+
+    private boolean climax() { return courtLoopTicks>0&&courtContactTicks>courtLoopTicks; }
+    private int requiredTicks() { return courtLoopTicks==0?0:courtLoopTicks+SukkiriTimeline.PEAK_END; }
+
+    boolean finishingContact() {
+        var leader=leader();
+        return leader!=null&&leader.courtship().climax();
+    }
+
+    int roundTimeCap() {
+        var leader=leader();
+        return leader!=null&&leader.courtship().courtContactTicks>0 ? ROUND_TICKS+leader.courtship().requiredTicks() : ROUND_TICKS;
+    }
+
+    private boolean safeContact(YukkuriEntity peer) {
+        var body=o.entity();
+        return peer.level()==body.level()&&contactReady(body)&&contactReady(peer)
+                &&body.distanceToSqr(peer)<=2.25&&body.hasLineOfSight(peer)&&peer.hasLineOfSight(body)
+                &&o.supported()&&peer.family().supported();
+    }
+
+    private static boolean contactReady(YukkuriEntity body) {
+        return body.isAlive()&&!body.isRemoved()&&!body.isNoAi()&&!body.isPanicking()&&!body.isOnFire()
+                &&!body.isInWaterOrBubble()&&!body.isPassenger()&&!body.isVehicle()
+                &&!body.isCommandPlaying()&&!body.operations().active()&&!body.pet().busy()
+                &&!body.body().dying()&&body.body().coreIntact()&&!body.life().isSleeping()&&!body.life().sedated();
     }
 
     String courtActivity() {
@@ -115,7 +147,8 @@ final class Courtship {
         var leader=presentingCourt();
         if(leader==null)return -1;
         var court=leader.courtship();
-        return court.courtContactTicks>0?court.courtContactStart:court.courtStart+(court.courtNearTicks<=COURT_ACCEPT_TICKS?0:COURT_ACCEPT_TICKS);
+        if(court.courtContactTicks>0)return court.courtContactStart+(court.climax()?court.courtLoopTicks:0);
+        return court.courtStart+(court.courtNearTicks<=COURT_ACCEPT_TICKS?0:COURT_ACCEPT_TICKS);
     }
 
     YukkuriAction contactAction() {
@@ -124,8 +157,8 @@ final class Courtship {
         var court=leader.courtship();
         if(court.courtContactTicks==0)return null;
         boolean mother=o.entity()==court.mother(leader.entity(),leader.target());
-        if(mother)return court.courtRequiredTicks==60?YukkuriAction.SUKKIRI_MAMU_60:YukkuriAction.SUKKIRI_MAMU_120;
-        return court.courtRequiredTicks==60?YukkuriAction.SUKKIRI_PAIR_60:YukkuriAction.SUKKIRI_PAIR_120;
+        if(mother)return court.climax()?YukkuriAction.SUKKIRI_MAMU_CLIMAX:YukkuriAction.SUKKIRI_MAMU_LOOP;
+        return court.climax()?YukkuriAction.SUKKIRI_PAIR_CLIMAX:YukkuriAction.SUKKIRI_PAIR_LOOP;
     }
 
     /** Display-only projection of the real court stage. No second client-side court state exists. */
@@ -135,8 +168,7 @@ final class Courtship {
         var court=leader.courtship();
         tag.putString("Phase",court.courtContactTicks>0?"CONTACT":court.courtNearTicks<=COURT_ACCEPT_TICKS?"ACCEPT":"ALIGN");
         tag.putLong("Start",courtAnimationStart());
-        // The contact cue spans the whole required contact, so its build-up ends on the climax at the real finish.
-        tag.putInt("Required",court.courtRequiredTicks);
+        tag.putInt("Required",court.requiredTicks());
         tag.putString("Role",o.entity()==court.mother(leader.entity(),leader.target())?"MAMU":"PENI");
         tag.putInt("TargetId",o.target().getId());
         return tag;
@@ -144,12 +176,24 @@ final class Courtship {
 
     String describe() {
         return "phase="+(courtStart<0?"idle":courtContactTicks>0?"contact":courtNearTicks<=COURT_ACCEPT_TICKS?"accept":"align")
-                +" nearTicks="+courtNearTicks+" contactTicks="+courtContactTicks+" requiredTicks="+courtRequiredTicks
+                +" nearTicks="+courtNearTicks+" contactTicks="+courtContactTicks+" requiredTicks="+requiredTicks()
                 +" mother="+(courtStart<0?"pending":initiatorMother?"initiator":"receiver")+" pathFailures="+courtPathFailures
                 +" returning="+returning+" failedPeer="+(failed==null?null:failed.peer())+" receiverGoal="+(failed==null?null:failed.receiverGoal());
     }
 
-    void resetCourtProgress(){courtNearTicks=courtContactTicks=courtRequiredTicks=0;courtStart=courtContactStart=-1;}
+    void resetCourtProgress(){courtNearTicks=courtContactTicks=courtLoopTicks=0;courtStart=courtContactStart=-1;}
+
+    private int loopTicks(YukkuriEntity peer) {
+        var body=o.entity();
+        var relations=YukkuriWorldData.get(o.level());
+        double affinity=(relations.affinity(body.getUUID(),peer.getUUID())+relations.affinity(peer.getUUID(),body.getUUID()))/2.0;
+        double bond=Math.clamp((affinity-BondLevels.AFFINITY_COOPERATIVE)/(100-BondLevels.AFFINITY_COOPERATIVE),0,1);
+        double control=(body.life().personality().selfControl()+peer.life().personality().selfControl())/200.0;
+        double pace=.6*control+.4*bond;
+        if(o.inBreedingPeriod()||peer.family().inBreedingPeriod())pace*=.5;
+        int cycle=SukkiriTimeline.PAIR_CYCLE;
+        return Math.min(SukkiriTimeline.cycles((int)Math.ceil(100+500*pace),cycle),600/cycle*cycle);
+    }
 
     void facePartner(){
         float yaw=(float)(Mth.atan2(o.target().getZ()-o.entity().getZ(),o.target().getX()-o.entity().getX())*Mth.RAD_TO_DEG)-90;
@@ -307,10 +351,10 @@ final class Courtship {
             return;
         }
         if(courtNearTicks==0){
-            courtStart=o.level().getGameTime();courtRequiredTicks=o.sexDrive()>0?60:120;
+            courtStart=o.level().getGameTime();courtLoopTicks=loopTicks(o.target());
             initiatorMother=!(o.entity().getVariant()==YukkuriVariant.MARISA&&o.target().getVariant()==YukkuriVariant.REIMU);
             GameplayLog.limited(o.entity(),"family","court.accept",200,
-                    "courtship acceptance started partner={} requiredTicks={}",o.target().getUUID(),courtRequiredTicks);
+                    "courtship acceptance started partner={} requiredTicks={}",o.target().getUUID(),requiredTicks());
         }
         courtNearTicks++;
         if(courtNearTicks<=COURT_ACCEPT_TICKS){o.entity().getNavigation().stop();facePartner();return;}
@@ -318,36 +362,41 @@ final class Courtship {
             tickRearApproach(o,o);
             if(o.task()==Task.COURT&&rearAligned(o)) {
                 courtContactTicks=1;courtContactStart=o.level().getGameTime();
-                GameplayLog.event(o.entity(),"family","courtship contact started partner={} requiredTicks={} mother={} father={}",
-                        o.target().getUUID(),courtRequiredTicks,mother(o.entity(),o.target()).getUUID(),
+                GameplayLog.event(o.entity(),"family","courtship contact started partner={} loopTicks={} requiredTicks={} mother={} father={}",
+                        o.target().getUUID(),courtLoopTicks,requiredTicks(),mother(o.entity(),o.target()).getUUID(),
                         (mother(o.entity(),o.target())==o.entity()?o.target():o.entity()).getUUID());
             }
             return;
         }
-        if(!rearAligned(o)) {
+        if(!climax()&&!rearAligned(o)) {
             GameplayLog.limited(o.entity(),"family","court.contact_lost",200,"courtship rear contact lost partner={} contactTicks={}",o.target().getUUID(),courtContactTicks);
             courtContactTicks=0;courtContactStart=-1;tickRearApproach(o,o);return;
         }
         faceRearContact(o,o);
-        // Contact starts at tick zero. Its last 20 ticks are the authored release.
         int contactTick=++courtContactTicks-1;
         YukkuriEntity peer=o.target(),mother=mother(o.entity(),peer),father=mother==o.entity()?peer:o.entity();
-        if(contactTick==courtRequiredTicks-18){
-            ReproductionEffects.release(o.level(),father,mother);
-            boolean fatherSpoke=father.speakCue("heat_relief_3"),motherSpoke=mother.speakCue("heat_relief_3");
-            GameplayLog.event(o.entity(),"family","courtship release partner={} tick={} requiredTicks={} droplets=8 hearts=2 fatherSpoke={} motherSpoke={}",
-                    peer.getUUID(),contactTick,courtRequiredTicks,fatherSpoke,motherSpoke);
-        }else if(contactTick==courtRequiredTicks-10){
+        int climaxTick=contactTick-courtLoopTicks;
+        var beat=SukkiriTimeline.beatAt(climaxTick);
+        if(beat!=null) {
+            boolean fatherSpoke=father.speakCue(beat.line),motherSpoke=mother.speakCue(beat.line);
+            GameplayLog.event(o.entity(),"family","courtship beat={} line={} partner={} tick={} climaxTick={} fatherSpoke={} motherSpoke={}",
+                    beat.marker,beat.line,peer.getUUID(),contactTick,climaxTick,fatherSpoke,motherSpoke);
+            if(beat==SukkiriTimeline.Beat.RELEASE) {
+                ReproductionEffects.release(o.level(),father,mother);
+                GameplayLog.event(o.entity(),"family","courtship release partner={} tick={} requiredTicks={} droplets=8 hearts=2",
+                        peer.getUUID(),contactTick,requiredTicks());
+            }
+        }else if(climaxTick==SukkiriTimeline.Beat.RELEASE.tick+8){
             ReproductionEffects.droplets(o.level(),mother,4);
             GameplayLog.event(o.entity(),"family","courtship release tail partner={} tick={} requiredTicks={} droplets=4",
-                    peer.getUUID(),contactTick,courtRequiredTicks);
+                    peer.getUUID(),contactTick,requiredTicks());
         }
-        if(courtContactTicks>=courtRequiredTicks) {
+        if(climaxTick==SukkiriTimeline.PEAK_END) {
             boolean unauthorized=peer.getUUID().equals(unauthorizedWith);
             boolean motherHeat=mother.family().inBreedingPeriod(),fatherHeat=father.family().inBreedingPeriod();
             var brood=FamilyData.get(o.level()).conceive(mother,father,mother.family().naturalBirthKind(father),GlobalPos.of(o.level().dimension(),mother.family().birthAnchor()));
             GameplayLog.event(o.entity(),"family","courtship contact ended partner={} mother={} father={} ticks={} conceived={} unauthorized={}",
-                    peer.getUUID(),mother.getUUID(),father.getUUID(),courtContactTicks,brood!=null,unauthorized);
+                    peer.getUUID(),mother.getUUID(),father.getUUID(),contactTick,brood!=null,unauthorized);
             if(brood!=null) {
                 mother.agitation().completePair(true,motherHeat);
                 father.agitation().completePair(false,fatherHeat);
@@ -369,6 +418,7 @@ final class Courtship {
     boolean stillWanted() {
         var peer=o.target();
         if(peer==null)return false;
+        if(climax())return leader()!=null&&safeContact(peer);
         if(canReproduceWith(peer))return true;
         if(declinedRound)return declinedPairing(peer);
         return returning&&pairingAllowed(peer)&&inComebackRange(peer);
@@ -488,7 +538,7 @@ final class Courtship {
         var mother=peer==null?null:mother(o.entity(),peer);var father=mother==null?null:mother==o.entity()?peer:o.entity();
         GameplayLog.limited(o.entity(),"family","court.stop."+reason,200,
                 "courtship stopped reason={} partner={} nearTicks={} contactTicks={} requiredTicks={} pathFailures={} distance={} rearDistance={} fatherNavDone={} receiverGoal={}",
-                reason,peer==null?null:peer.getUUID(),courtNearTicks,courtContactTicks,courtRequiredTicks,courtPathFailures,
+                reason,peer==null?null:peer.getUUID(),courtNearTicks,courtContactTicks,requiredTicks(),courtPathFailures,
                 peer==null?null:Math.round(o.entity().distanceTo(peer)*100)/100.0,
                 mother==null?null:Math.round(Math.sqrt(father.distanceToSqr(rearStand(mother,father)))*100)/100.0,
                 father==null?null:father.getNavigation().isDone(),peer==null?null:peer.competingMoveGoalId());
@@ -496,7 +546,7 @@ final class Courtship {
 
     void tickReceiver() {
         if(o.target().family().task()!=Task.COURT||o.target().family().target()!=o.entity()
-                ||!canReproduceWith(o.target())&&!answeringDecline()){o.stop();return;}
+                ||!canReceive()){o.stop();return;}
         var leader=o.target().family();
         if(leader.courtship().declinedRound){tickDeclinedAnswer(leader);return;}
         if(leader.courtship().courtNearTicks<COURT_ACCEPT_TICKS) {
@@ -504,5 +554,9 @@ final class Courtship {
         }
         if(leader.courtship().courtContactTicks==0)tickRearApproach(o,leader);
         else faceRearContact(o,leader);
+    }
+
+    boolean canReceive() {
+        return finishingContact()?safeContact(o.target()):canReproduceWith(o.target())||answeringDecline();
     }
 }

@@ -262,13 +262,18 @@ public final class PresentationArbiter {
         return new Presentation(() -> {
             state.behavior(e.agitation().activity());
             var action=e.agitation().action();
+            var motion=actionPose(e);
             if(YukkuriAction.sukkiri(action.id())){
                 state.animation(action);
                 state.animationStart(e.agitation().presentationStart());
+            }else if(motion!=null){
+                state.animation(motion.action());
+                state.animationStart(motion.startTick());
+            }else if(e.agitation().hunting()&&m.distanceSquared()>.000001){
+                state.animation(YukkuriAction.SUKKIRI_ALICE_CHASE);
+                state.animationStart(e.agitation().presentationStart());
             }else{
-                var pose=actionPose(e);
-                state.animation(pose!=null?pose.action():m.distanceSquared()>.000001&&!e.agitation().poseLocked()?YukkuriAction.WADDLE:action);
-                if(pose!=null)state.animationStart(pose.startTick());
+                state.animation(!e.agitation().hunting()&&m.distanceSquared()>.000001&&!e.agitation().poseLocked()?YukkuriAction.WADDLE:action);
             }
             state.expression(e.agitation().expression());
             return;

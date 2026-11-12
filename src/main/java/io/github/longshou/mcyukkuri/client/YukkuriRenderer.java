@@ -199,7 +199,7 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
                     :carriedHop?(entity.level().getGameTime()-parent.motorStart()+partialTick)/20f
                     :stepping?brimWalkClock:cradled?(entity.level().getGameTime()+partialTick)/20f:carried?0:elapsed;
             var anatomy=reproduction.anatomy();
-            model.setReproductiveAnatomy(anatomy==null?null:anatomy.part(),anatomy==null?0:anatomy.amount());
+            model.setReproductiveAnatomy(anatomy);
             if(!carried)ParentCarryPresentation.configure(entity,model,heldNow,partialTick);
             // The worn wrap lies under the hair; the model lifts the hair over it as it draws (CareWearRenderer.clearHair).
             int wear=preview||!hatCarrier&&!carried?entity.visibleWear():0;

@@ -13,6 +13,7 @@ import java.util.WeakHashMap;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
+import org.joml.Matrix4f;
 
 /** Shared adult-contact presentation. The server owns courtship, pinning and every consequence. */
 final class ReproductionPresentation {
@@ -27,7 +28,14 @@ final class ReproductionPresentation {
     private static WeakReference<Level> level=new WeakReference<>(null);
     private static long lastPrune=Long.MIN_VALUE;
 
-    record Anatomy(String part,float amount) {}
+    record MamuPlacement(boolean turn,float x,float y,float z) {
+        Matrix4f transform(Matrix4f root) {
+            var placement = new Matrix4f(root).translate(x,y,z);
+            if (turn) placement.scale(-1,1,-1);
+            return placement.mul(new Matrix4f(root).invert());
+        }
+    }
+    record Anatomy(String part,float amount,MamuPlacement mamu) {}
     record Frame(Anatomy anatomy,Vec3 offset) {}
     private record Spacing(Vec3 toward, double desired, double limit, boolean touching) {
         Vec3 keepClear(Vec3 offset) {
@@ -46,6 +54,7 @@ final class ReproductionPresentation {
         Vec3 offset=Vec3.ZERO,fromOffset=Vec3.ZERO;
         double contactChanged,accessoryAt;
         int accessoryPeer=-1;
+        MamuPlacement mamu;
         Track(String part,long tick) {
             this.part=part;target=part;changed=tick;
         }
@@ -141,12 +150,28 @@ final class ReproductionPresentation {
     }
 
     private static boolean relief(YukkuriView entity) {
-        return entity.getBehaviorId().equals(Behaviors.HEAT_RELIEF)
-                && !entity.agitationState().getBoolean("ReliefBeatsDone");
+        return entity.getBehaviorId().equals(Behaviors.HEAT_RELIEF);
     }
 
     private static float[] releasePose(YukkuriView entity,double now) {
         return relief(entity)?AgitationPresentation.sample("relief",(float)(now-entity.agitationState().getLong("Start"))/120):REST_POSE;
+    }
+
+    private static MamuPlacement mamuPlacement(YukkuriView entity,Contact contact) {
+        var site=AgitationPresentation.organSite(entity.assetId());
+        if(site==null)return new MamuPlacement(true,0,0,AgitationPresentation.mamuRearOffset());
+        float height=site.meet();
+        if(contact!=null&&contact.posed()) {
+            var peer=entity.yukkuriView(contact.partner());
+            if(peer!=null) {
+                var other=contact(peer);
+                var peerSite=AgitationPresentation.organSite(peer.assetId());
+                if(peerSite!=null&&other!=null&&other.posed()&&!other.rear()&&other.partner()==entity.getId())
+                    // growthScale already includes the Deibu form multiplier, as in YukkuriRenderer.
+                    height=peerSite.meet()*peer.growthScale()*peer.getScale()/(entity.growthScale()*entity.getScale());
+            }
+        }
+        return site.rearPlacement(height);
     }
 
     private static Vec3 localBearing(YukkuriView entity,float partialTick,Vec3 toward) {
@@ -183,7 +208,8 @@ final class ReproductionPresentation {
         track.offset=track.fromOffset.lerp(offset,mix*mix*(3-2*mix));
         if(spacing!=null)track.offset=spacing.keepClear(track.offset);
         if(track.part==null&&spacing==null&&mix==1)TRACKS.remove(entity);
-        return new Frame(amount>0?new Anatomy(track.part,amount):null,track.offset);
+        if("mamu".equals(wanted))track.mamu=mamuPlacement(entity,contact);
+        return new Frame(amount>0?new Anatomy(track.part,amount,"mamu".equals(track.part)?track.mamu:null):null,track.offset);
     }
 
     private static float sample(Track track,long tick) {
