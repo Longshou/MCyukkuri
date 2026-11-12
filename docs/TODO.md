@@ -17,6 +17,7 @@
 | 打招呼前倾把对方撞退（反馈 18） | `.worktrees/wp-hn-greet-push` | social greeting presentation / contact, motion greet clips |
 | 个体数值与交互选择（自尊、对人讨食/辱骂/后退）第一片 | `.worktrees/wp-hk-attitude` | social/YukkuriSocial, settlement/SettlementLife (release fact), social/YukkuriPersonality (derived self-esteem helper), museum TN-13 |
 | 考试：可见问答与铂金章（反馈 15–17） | `.worktrees/wp-ho-exams` | pet/exam (ExamSession...), badge/, BadgeGrade switches, dialogue exam events, museum TN exam scenes |
+| 语料库待补事件与动作分级 | `.worktrees/wp-hp-corpus-tiers` | art/dialogue/corpus/, standards/yukkuri-library/motions/tiers.json |
 
 ## 玩法待办
 
