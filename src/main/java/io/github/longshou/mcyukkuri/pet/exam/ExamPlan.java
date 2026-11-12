@@ -67,7 +67,7 @@ public final class ExamPlan {
     static LivingEntity visitor(YukkuriEntity y, Player owner, HumanNpc examiner) {
         return y.level().getEntitiesOfClass(LivingEntity.class, y.getBoundingBox().inflate(6), peer ->
                 peer != owner && peer != examiner && peer.isAlive() && y.hasLineOfSight(peer)
-                        && (!(peer instanceof HumanNpc human) || !ExamSession.active(human))
+                        && !ExamSession.assisting(peer) && (!(peer instanceof HumanNpc human) || !ExamSession.active(human))
                         && (peer instanceof HumanNpc || peer instanceof Player player && !player.isSpectator()))
                 .stream().min(Comparator.comparingDouble(y::distanceToSqr)).orElse(null);
     }
@@ -85,7 +85,7 @@ public final class ExamPlan {
                 peer != y && peer.isAlive() && peer.family().stage() != FamilyLife.Stage.BABY
                         && peer.life().nutrition() < 40 && peer.life().canEat() && !peer.isPassenger() && !peer.isPanicking()
                         && !peer.profile().dangerToYukkuri() && !peer.profile().houseBody()
-                        && !peer.pet().busy() && !ExamSession.running(peer) && y.hasLineOfSight(peer)
+                        && !peer.pet().busy() && !ExamSession.running(peer) && !ExamSession.assisting(peer) && y.hasLineOfSight(peer)
                         && (!sharing || !y.dailyLife().sharedFoodToday(peer.getUUID())))
                 .stream().min(Comparator.comparingDouble(y::distanceToSqr)).orElse(null);
     }

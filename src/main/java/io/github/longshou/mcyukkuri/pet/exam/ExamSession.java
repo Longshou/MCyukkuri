@@ -115,6 +115,11 @@ public final class ExamSession implements ExamContext {
         return session != null && session.ownerId.equals(id) && session.owner() != null;
     }
     public static boolean active(HumanNpc examiner) { return ACTIVE.containsKey(examiner.getUUID()); }
+    public static boolean assisting(Entity entity) {
+        for (var session : ACTIVE.values())
+            if (session.phase == Phase.ITEM && session.item instanceof ExamPracticeItem practice && practice.guest(entity)) return true;
+        return false;
+    }
     public static ExamSession of(HumanNpc examiner) { return ACTIVE.get(examiner.getUUID()); }
     public static int fee(int type) {
         return switch (type) { case JUDGMENT -> 9; case PROMOTION -> 4; case RENEWAL -> 2; case REISSUE -> 1; default -> 0; };
@@ -199,7 +204,7 @@ public final class ExamSession implements ExamContext {
         if (examiner.job() != HumanNpc.Job.EXAMINER) return "busy";
         if (y == null || !y.isAlive() || y.level() != p.level() || y.distanceToSqr(p) > 64) return "far";
         if (!examiner.level().isDay()) return "night";
-        if (active(examiner) || running(y)) return "busy";
+        if (active(examiner) || assisting(examiner) || running(y) || assisting(y)) return "busy";
         var pet = y.pet();
         boolean mine = pet.isPet() && pet.owned(p);
         if (!mine) {
