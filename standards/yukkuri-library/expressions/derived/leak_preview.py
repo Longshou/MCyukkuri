@@ -33,15 +33,18 @@ def puddle_ratio(scale):
     width = BODY_WIDTH*scale; return max(FLOOR, RATIO*width)/width
 
 
-# One played sequence: (face, ticks, wet edge on the body, puddle growth 0-1 or None, puddle alpha, body shift in body widths).
+# One played sequence: (face, ticks, skin mark (texture, alpha) or None, puddle growth 0-1 or None, puddle alpha, body shift in
+# body widths). The skin trace stays on the body (it moves with it) and dries a little later than the puddle.
 FLOW = 40  # D, mid adult / child range
-SEQUENCE = ([('neutral', 10, False, None, 1, 0), ('leak_startle', 8, False, None, 1, 0)]
-            + [('leak_flow', FLOW//4, True, None, 1, 0)]*4
-            + [('side_teary', 4, False, g, 1, 0) for g in (.4, .7, 1)]
-            + [('side_teary', 24, False, 1, 1, 0), ('side_teary_b', 12, False, 1, 1, 0), ('side_teary', 28, False, 1, 1, 0)]
-            + [('neutral', 4, False, 1, 1, s) for s in (.15, .35, .6, .85, 1.1, 1.35)]
-            + [('neutral', 20, False, 1, 1, 1.35)]
-            + [('neutral', 10, False, 1-.2*(1-a), a, 1.35) for a in (.8, .6, .4, .2)] + [('neutral', 20, False, None, 1, 1.35)])
+TRACE = ('leak_trace', 1.)
+SEQUENCE = ([('neutral', 10, None, None, 1, 0), ('leak_startle', 8, None, None, 1, 0)]
+            + [('leak_flow', FLOW//4, ('leak_wet', 1.), None, 1, 0)]*4
+            + [('side_teary', 4, TRACE, g, 1, 0) for g in (.4, .7, 1)]
+            + [('side_teary', 24, TRACE, 1, 1, 0), ('side_teary_b', 12, TRACE, 1, 1, 0), ('side_teary', 28, TRACE, 1, 1, 0)]
+            + [('neutral', 4, TRACE, 1, 1, s) for s in (.15, .35, .6, .85, 1.1, 1.35)]
+            + [('neutral', 20, TRACE, 1, 1, 1.35)]
+            + [('neutral', 10, ('leak_trace', t), 1-.2*(1-a), a, 1.35) for a, t in ((.8, 1.), (.6, .9), (.4, .8), (.2, .65))]
+            + [('neutral', 10, ('leak_trace', t), None, 1, 1.35) for t in (.5, .35, .2)] + [('neutral', 20, None, None, 1, 1.35)])
 VIEW = (25, 30)  # a player standing a few blocks away looks down on a small body
 BG = (205, 214, 190, 255)
 
@@ -71,12 +74,14 @@ class Renderer:
         return self.cache[key]
 
 
-WET = Image.open(ASSETS/'textures/props/body_wounds/leak_wet.png').convert('RGBA')
+MARKS = {n: Image.open(ASSETS/f'textures/props/body_wounds/{n}.png').convert('RGBA') for n in ('leak_wet', 'leak_trace')}
 PUDDLE = Image.open(ASSETS/'textures/effects/leak_puddle.png').convert('RGBA')
 
 
-def wet(body, view=VIEW):
-    """The body render with the wet edge mocked onto its lower skin (see the module note)."""
+def wet(body, view=VIEW, mark=('leak_wet', 1.)):
+    """The body render with a sole-projection skin mark (the wet edge or the skin trace, at an alpha) mocked onto its lower
+    skin (see the module note)."""
+    texture, alpha = MARKS[mark[0]], mark[1]
     out = body.copy(); box = body.getbbox()
     if not box: return out
     src = body.load(); px = out.load()
@@ -93,8 +98,8 @@ def wet(body, view=VIEW):
         for r in column:
             y = (base-r+.5)/height*9.6; v = (2-y)/2.5
             if not 0 <= v <= .8 or sum(abs(a-b) for a, b in zip(src[c, r][:3], skin)) > 60: continue
-            t = WET.getpixel((min(1023, int(u*1024)), min(255, int(v*256))))
-            if t[3]: px[c, r] = tuple(round(p*(1-t[3]/255)+q*t[3]/255) for p, q in zip(px[c, r][:3], t[:3]))+(255,)
+            t = texture.getpixel((min(1023, int(u*1024)), min(255, int(v*256)))); k = t[3]*alpha/255
+            if k: px[c, r] = tuple(round(p*(1-k)+q*k) for p, q in zip(px[c, r][:3], t[:3]))+(255,)
     return out
 
 
@@ -155,7 +160,9 @@ def main():
     with tempfile.TemporaryDirectory(prefix='leak-', dir=ROOT/'.local/tmp' if (ROOT/'.local/tmp').is_dir() else None) as directory:
         render = Renderer(args.node, Path(directory)); files = {}
         def body(model, face, size, view=VIEW, wet_edge=False):
-            image = render(model, face, size, view); return wet(image, view) if wet_edge else image
+            image = render(model, face, size, view)
+            mark = ('leak_wet', 1.) if wet_edge is True else wet_edge
+            return wet(image, view, mark) if mark else image
         # Close-up of one adult over the whole timeline.
         adult = puddle_ratio(1.)
         close = [(crop(scene(body('reimu', f, 300, wet_edge=w), adult, g, a, s, pad=(0, 0, 300, 60)), (0, .16, 1, 1)), ticks)
@@ -177,8 +184,8 @@ def main():
         # The two frames, front and from above, then the return faces.
         front = [(crop(body('reimu', f, 360, (0, -2), f == 'leak_flow'), (.15, .35, .85, .9)), LABEL[f]+'（正面略低）') for f in FRAMES]
         above = [(crop(scene(body('reimu', f, 360, wet_edge=f == 'leak_flow'), adult)), LABEL[f]+'（斜上方）') for f in FRAMES]
-        after = [(crop(scene(body('reimu', f, 360), adult, 1)), LABEL[f]+'＋水滩') for f in ('side_teary', 'satisfied')]
-        files['frames.png'] = sheet(front+above+after, 3, '灵梦：两帧（漏 A 带底部小湿边，示意）与之后（现有表情＋地上小水滩，成油大小）')
+        after = [(crop(scene(body('reimu', f, 360, wet_edge=TRACE), adult, 1)), LABEL[f]+'＋尿痕＋水滩') for f in ('side_teary', 'satisfied')]
+        files['frames.png'] = sheet(front+above+after, 3, '灵梦：两帧与之后（现有表情＋身上保留的尿痕＋地上小水滩；湿边与尿痕为示意）')
         cells = []
         for model in ['marisa', 'alice', 'chen', 'myon', 'remilia', 'patchouli', 'reimu_deibu', 'house_reimu', 'reimu_bean']:
             cells += [(crop(scene(body(model, f, 300, (15, 20), f == 'leak_flow'), adult, None, view=(15, 20))), f'{model} · {LABEL[f]}')
@@ -190,9 +197,10 @@ def main():
     E = html.escape
     timing = [('0', '触发（强烈／中等情绪尖峰）', 'leak_startle（单帧，第一股）', '—', '—', '「!」'),
               ('s = 6–10', '漏', 'leak_flow（单帧，漏 A）', 'leak_wet 小湿边', '—', '—'),
-              ('s + D', '漏完', '难为情 side_teary（现有动画）；兴奋型尖峰用松口气 satisfied', '去掉', '在身前地上出现，约 10 tick 摊开', '汗滴'),
-              ('s + D + 60–100', '恢复', '回到原来的情绪表情', '—', '留在原地，油库里走开也不动', '—'),
-              ('水滩出现后 500–600', '干', '—', '—', '最后 100 tick 缩小到 80% 并淡出', '—')]
+              ('s + D', '漏完', '难为情 side_teary（现有动画）；兴奋型尖峰用松口气 satisfied', '换成皮肤尿痕 leak_trace（尿线＋湿边，不再流动，随身体走）', '在身前地上出现，约 10 tick 摊开', '汗滴'),
+              ('s + D + 60–100', '恢复', '回到原来的情绪表情', '尿痕仍在', '留在原地，油库里走开也不动', '—'),
+              ('水滩出现后 500–600', '水滩干', '—', '尿痕仍在', '最后 100 tick 缩小到 80% 并淡出', '—'),
+              ('漏完后 600–800', '尿痕干', '—', '最后 200 tick 淡出（比水滩晚干）', '—', '—')]
     style = ('body{background:#f2efe6;font:16px system-ui,"Microsoft YaHei";margin:20px;max-width:1500px}img{max-width:100%;image-rendering:pixelated;'
              'display:block;margin:8px 0}h2{margin-top:30px}table{border-collapse:collapse}td,th{border:1px solid #bbb;padding:4px 8px}'
              '.ask{background:#fff7d6;border:1px solid #d9c27a;padding:10px 14px}.row{display:flex;gap:16px;align-items:flex-start;flex-wrap:wrap}')
@@ -201,7 +209,7 @@ def main():
         '之后的表情用现有的难为情／松口气；是否接受，水滩大小要不要再调。</div>',
         '<h2>1. 参考原图与新的完整过程</h2><p>照你的意见：只留第一股和漏 A；漏 B、漏 C、之后 A／B 和身体底部逐档长大的湿痕都去掉了，'
         '漏 A 保留它画里那一小块底部湿边。漏完时在身前地上摊开一小滩，按体型缩放（比上一版的水滩小得多，成油约 0.6 倍体宽），'
-        '它是地上的痕迹，油库里走开后留在原地，过一会儿缩小淡出。表情回到现有的难为情（垂眼哭丧），不新做“之后”帧。'
+        '它是地上的痕迹，油库里走开后留在原地，过一会儿缩小淡出。表情回到现有的难为情（垂眼哭丧），不新做“之后”帧；身上的尿线和底部湿边作为尿痕一直保留（不再流动），跟着身体走，比水滩晚一点才干掉淡出。'
         '页面里的底部湿边和水滩是离线示意，游戏里由代码画。</p>'
         '<div class="row"><img src="ref.png" style="max-width:600px"><img src="play-close.gif" style="width:760px"></div>',
         '<h2>2. 游戏距离（按成长阶段）</h2><p>赤油身体太小，水滩取下限 0.12 格（约等于它的体宽），否则远处看不见；'

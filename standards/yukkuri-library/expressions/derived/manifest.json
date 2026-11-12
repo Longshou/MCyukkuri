@@ -7,10 +7,11 @@
     "leak_startle": "neutral atlas, surprise brows, flushed_smile blush, big round wet eyes in the neutral eye colours, a small round open mouth, the first spurt",
     "leak_flow": "neutral atlas, teary brows and welling tears, flushed_smile blush, big round wet eyes, a wide open mouth with the tongue, one stream from the mamu site on the centre line",
     "leak_wet": "textures/props/body_wounds, sole projection: a small outlined pale wet edge at the front base under the stream, worn with leak_flow",
+    "leak_trace": "textures/props/body_wounds, sole projection: the wet edge plus the still stream from the mamu site down into it, left on the skin after the flow until it dries",
     "leak_puddle": "textures/effects, 32x32 top-down: a small outlined pale ground puddle left where the stream ends"
   },
   "builder": "standards/yukkuri-library/expressions/derived/faces.py",
-  "builder_sha256": "3c759842f543a6d425f908bfafe7e36e74ecb3d7b990228fe1cd521ac1645408",
+  "builder_sha256": "bcd4c442bc236290606afb45ccf0306d5b1d620efbda04714352cc038d9f6dca",
   "models": {
     "alice": {
       "sad": {
@@ -593,6 +594,10 @@
     "leak_wet": {
       "runtime": "src/main/resources/assets/mcyukkuri/textures/props/body_wounds/leak_wet.png",
       "sha256": "66ac9306c147fc483af6303ebf819291a5e01b6a41246a2826313c96ac353ab0"
+    },
+    "leak_trace": {
+      "runtime": "src/main/resources/assets/mcyukkuri/textures/props/body_wounds/leak_trace.png",
+      "sha256": "5ea40a1a218840b103342c04003ca2dc95f3a638c37285192e031644e6f203a9"
     },
     "leak_puddle": {
       "runtime": "src/main/resources/assets/mcyukkuri/textures/effects/leak_puddle.png",
