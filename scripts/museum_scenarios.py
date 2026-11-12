@@ -1280,7 +1280,8 @@ add('shop_build', 'shop', '整座商店：店员照料上架太久的库存', '�
     '商店整体放下：展舱有银章与金章个体，后场有无章库存；右键店主开店。货架上的个体已上架 11 天且营养偏低，店员按自己的口粮预算照常照料、喂食。'
     '读档案确认受训库存六项技能、徽章编号和有效期，购买放出后保持；手里的中枢馅潜行右键店主可卖',
     '建筑几秒；白天约 10–30 秒看店员照料', ['yukkuri human build shop ~8 ~ ~17 south',
-        yk('reimu', 8, 20, 'sale_stock', uuid=uid('shop_build', 'sale_stock'), label='待售灵梦',
+        # The unpenned sale fixture starts on the keeper's back-room aisle, on the shop floor.
+        yk('reimu', 14, -6, 'sale_stock', dy=2, uuid=uid('shop_build', 'sale_stock'), label='待售灵梦',
            extra='NeoForgeData:{HumanCommerce:{Use:"stock",OwnerKind:"npc"}}')],
     late=['scoreboard objectives add scn_t dummy', 'execute store result score #now scn_t run time query gametime',
           'scoreboard players remove #now scn_t 264000',

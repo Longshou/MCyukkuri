@@ -268,7 +268,7 @@ def shop():
     # Authored temperaments (intelligence, friendliness, boldness, attachment, self-control) give the four booths four different answers
     # to a customer at the window (shop/ShopWindow): Remilia pleads, Chen is shy, gold Alice is proud, Reimu shows off.
     booth(20,'remilia',2,(70,65,55,60,60),['银章 · 蕾米莉亚','捕食种 · 单独展舱','展示个体','价格请问店主'],'rubber_ball','purple',predator=True)   # full-height glass; written first so the shared wall at x=19 stays full
-    booth(2,'chen',2,(60,60,15,60,70),['银章 · 橙','已掌握六项技能','展示个体','价格请问店主'],'yarn_ball','yellow')
+    booth(2,'chen',2,(60,60,10,60,70),['银章 · 橙','已掌握六项技能','展示个体','价格请问店主'],'yarn_ball','yellow')
     booth(6,'alice',3,(85,30,70,50,85),['金章 · 爱丽丝','已掌握六项技能','展示个体','价格请问店主'],'marisa_doll','red')
     booth(16,'reimu',2,(65,85,80,75,50),['银章 · 灵梦','已掌握六项技能','展示个体','价格请问店主'],'yarn_ball','pink')
     # Counter (customer side north, clerk behind), register lectern, goods wall on the clerk's back.
