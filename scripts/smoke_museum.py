@@ -197,7 +197,7 @@ def load_field(st, field, feet):
         wait_command(st, f'execute {loaded} run say {marker}', marker)
 
 
-def failure(smoke, window):
+def failure(smoke, window, trace=()):
     """The scene's own check: one (stable reason, printed text) per failed check -- every forbidden pattern that hit and
     every expected pattern that is missing, so one fix round sees the whole list."""
     found = []
@@ -210,9 +210,10 @@ def failure(smoke, window):
     for pattern in smoke['expect']:
         if not re.search(pattern, window):
             found.append((f'missing /{pattern}/', f'missing /{pattern}/'))
-    problem = smoke['verify'](window) if 'verify' in smoke else None
-    if problem is not None:
-        found.append((fate.signature(problem)[:200], problem))
+    if 'verify' in smoke:
+        problem = smoke['verify'](window, trace) if smoke.get('verify_trace') else smoke['verify'](window)
+        if problem is not None:
+            found.append((fate.signature(problem)[:200], problem))
     return found
 
 
@@ -288,6 +289,7 @@ def run_scene(st, scene, builder, run_index, seed):
     end_tick = re.search(r'\d+', server.run_cmd(st, 'time query gametime'))[0]
     log = Path(st['rundir']).parent / f'{scene.id}-{run_index}.log'
     legacy = []
+    trace = []
     nonempty = False
     end_offset = server.log_offset(st)
     with log.open('w', encoding='utf-8') as output:
@@ -296,10 +298,12 @@ def run_scene(st, scene, builder, run_index, seed):
             output.write(line)
             if '[trace]' not in line:
                 legacy.append(line)
+            elif scene.smoke.get('verify_trace'):
+                trace.append(line)
         output.write(f'\nMCYSMOKE_END_TICK {end_tick}\n')
     window = ''.join(legacy) + f'\nMCYSMOKE_END_TICK {end_tick}\n'
     problems = [] if nonempty else [('empty log', 'empty server log window')]
-    problems += failure(scene.smoke, window)
+    problems += failure(scene.smoke, window, trace)
     problems += fate.fates(window, scene.smoke.get('allow_fate', ()))
     rerun = subprocess.list2cmdline([sys.executable, str(Path(__file__).resolve()), '--worktree',
                     str(builder.ROOT), '--seed', str(seed), scene.id])

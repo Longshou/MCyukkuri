@@ -11,6 +11,7 @@ Scenario definitions and readouts live here; AGENTS.md covers navigation and sha
 """
 import re
 import json
+import math
 import sys
 import uuid
 from pathlib import Path
@@ -4506,17 +4507,123 @@ next(s for s in S if s.id == 'shop_build').smoke['commands'] = [
 def _window_customer(dx, name):
     return (f'summon mcyukkuri:caretaker_sister ~{dx} ~2 ~15.5 {{Tags:["scn","{tag(name)}"],PersistenceRequired:1b,NoAI:1b,Rotation:[180f,0f],'
             'HumanJob:0,HumanAttitude:1,HumanInitialized:1b}')
-_smoke('shop_window', 1200, [
-    r'\[shop\] chen [^\n]* window start mode=POLITE [^\n]*closeness=20 fear=0 grade=0\b',
-    r'\[shop\] chen [^\n]* window start mode=SHY [^\n]*closeness=0 fear=60 grade=0\b',
-    r'\[shop\] alice [^\n]* window start mode=PROUD [^\n]*grade=4\b',
-    r'\[shop\] flandre [^\n]* window start mode=PROUD [^\n]*grade=0\b',
-    r'\[shop\] remilia [^\n]* window start mode=SULK [^\n]*hope=0\.00\b',
-    r'\[shop\] reimu [^\n]* window end mode=(?:APPEAL|SHOW_OFF) reason=customer_left [^\n]*rejections=1\b'],
+
+_WINDOW_MODES = {f'window_{mode.lower()}': mode for mode in ('APPEAL', 'SHOW_OFF', 'POLITE', 'PROUD', 'SHY', 'SULK')}
+
+
+def _window_choice(values):
+    def ramp(value, low, high):
+        return min(1, max(0, (value - low) / (high - low)))
+
+    hope, esteem, wary = (float(values[key]) for key in ('hope', 'esteem', 'wariness'))
+    confidence = ramp(esteem, 44, 56)
+    warmth = ramp(int(values['friendliness']), 30, 80)
+    familiar = ramp(int(values['closeness']), 0, 20)
+    control = int(values['self_control'])
+    hope_from_history = ramp(9 - int(values['days']), 0, 9) * (1 - .2 * int(values['rejections']))
+    fear = ramp(int(values['fear']), 15, 60)
+    if (not math.isclose(hope, hope_from_history, abs_tol=1e-9) or not fear <= wary <= 1
+            or not 0 <= esteem <= 100 or not 0 <= int(values['grade']) <= 4):
+        return None
+    bases = {
+        'appeal': 32 * hope + 30 * warmth + 24 * confidence - 35 * wary - 18 * familiar,
+        'polite': (20 + .4 * control + 20 * warmth + 30 * familiar + 18 * wary) * (.7 + .3 * hope),
+        'stand_tall': confidence * (70 + 24 * (1 - warmth)) * (1 - wary) * (.6 + .4 * hope),
+        'shy': 100 * wary + 20 * (1 - confidence),
+        'sulk': 82 * (1 - hope) + .2 * (100 - control) - 10,
+    }
+    scores = {key: float(values[key]) for key in bases}
+    if any(not math.isfinite(scores[key]) or abs(scores[key] - base) > 3.000000001 for key, base in bases.items()):
+        return None
+    appeal = 'SHOW_OFF' if confidence >= .45 and warmth >= .65 else 'APPEAL'
+    return dict(appeal=appeal, polite='POLITE', stand_tall='PROUD', shy='SHY', sulk='SULK')[max(scores, key=scores.get)]
+
+
+def _shop_window_verify(window, trace):
+    event = re.compile(r'\[shop\] \S+ #\d+ uuid=(\S+) t=(\d+) [^\n]*? window (sight|start|end) ([^\n]+)')
+    seen, started = set(), set()
+    sessions = {}
+    for actor, tick, kind, body in event.findall(window):
+        values = dict(re.findall(r'(\w+)=([^\s]+)', body))
+        tick = int(tick)
+        if kind == 'sight':
+            seen.add((actor, tick, values['customer']))
+        elif kind == 'start':
+            started.add((actor, tick, values['customer']))
+            if _window_choice(values) != values['mode']:
+                return f'window choice inconsistent with logged values for {actor} at {tick}: {body}'
+            sessions.setdefault(actor, []).append((tick, values, None))
+        else:
+            if actor not in sessions or sessions[actor][-1][2] is not None:
+                return f'window end without an open choice for {actor} at {tick}'
+            start, choice, _ = sessions[actor][-1]
+            if (values['customer'], values['mode']) != (choice['customer'], choice['mode']):
+                return f'window end differs from its choice for {actor} at {tick}: {body}'
+            sessions[actor][-1] = (start, choice, (tick, values))
+    if seen != started:
+        return f'window sightings and choices differ: {sorted(seen ^ started)}'
+
+    samples = {}
+    customer_origins, departures = {}, {}
+    for line in trace:
+        row = json.loads(line.split('[trace] ', 1)[1])
+        if row.get('win') != 'shop_window':
+            continue
+        actor, tick = row['u'], row['t']
+        if row['k'] == 'st' and row.get('behavior', '').startswith('window_'):
+            clip = row.get('window_clip')
+            if not clip or re.search(r'tremble|shiver|jitter', clip):
+                return f'window clip missing or high-frequency for {actor} at {tick}: {clip}'
+            mode = _WINDOW_MODES.get(row['behavior'])
+            if mode and (clip not in ('idle', 'waddle') or mode == 'SHY' and clip == 'waddle'):
+                samples.setdefault(actor, []).append((tick, mode))
+        elif row['k'] == 'geo' and any(tag.startswith('scn_customer_') for tag in row.get('tags', ())):
+            x, _, z = row['box'][:3]
+            first_x, first_z = customer_origins.setdefault(actor, (x, z))
+            if math.hypot(x - first_x, z - first_z) > 9:
+                departures.setdefault(actor, tick)
+
+    modes = set()
+    window_end = int(re.search(r'MCYSMOKE_END_TICK (\d+)', window)[1])
+    for actor, choices in sessions.items():
+        performed = False
+        for start, choice, end in choices:
+            mode = choice['mode']
+            shown = {tick: sample for tick, sample in samples.get(actor, ()) if tick >= start and (end is None or tick < end[0])}
+            if set(shown.values()) - {mode}:
+                return f'window presentation differs from {mode} for {actor} at {start}: {sorted(set(shown.values()))}'
+            performed |= bool(shown)
+            modes.update(shown.values())
+            departure = departures.get(choice['customer'])
+            actual_departure = departure is not None and start < departure
+            if end is None:
+                if actual_departure and mode in ('APPEAL', 'SHOW_OFF') and shown and min(shown) <= departure - 80 and window_end >= departure + 160:
+                    return f'window session did not resolve an observed departure after a plea for {actor}'
+                continue
+            tick, result = end
+            before, after = int(choice['rejections']), int(result['rejections'])
+            long_plea = mode in ('APPEAL', 'SHOW_OFF') and int(result['perform_ticks']) >= 60 and result['reserved'] == 'false'
+            reason = result['reason']
+            if actual_departure and tick >= departure - 20 and long_plea and reason not in ('interrupted', 'witness'):
+                if reason != 'customer_left' or after != min(4, before + 1):
+                    return f'window departure after an eligible plea was not counted for {actor} at {tick}'
+            elif reason != 'customer_left' or not long_plea:
+                if after != before:
+                    return f'window rejection without an eligible departure for {actor} at {tick}'
+        if not performed:
+            return f'window sighting without a presented reaction for {actor}'
+    if len(modes) < 2:
+        return f'window presented fewer than two modes: {sorted(modes)}'
+    return None
+
+
+_smoke('shop_window', 1200, [],
        forbid=[r'\[shop\][^\n]* action=job result=failed '],
        readout=[f'yukkuri status {BOOTH.format(kind, grade)} raw' for kind, grade in (('chen', 0), ('alice', 4), ('remilia', 2), ('flandre', 0))])
 # Start with direct sight lines through one glass cell, clear of the façade mullions.
-next(s for s in S if s.id == 'shop_window').smoke['commands'] = [
+_window_smoke = next(s for s in S if s.id == 'shop_window').smoke
+_window_smoke.update(verify=_shop_window_verify, verify_trace=True)
+_window_smoke['commands'] = [
     (70, f'execute positioned ~16.5 ~2 ~12.5 run tp {BOOTH.format("reimu", 0)} ~ ~ ~'),
     (70, f'execute positioned ~17.5 ~2 ~12.5 run tp {BOOTH.format("alice", 4)} ~ ~ ~'),
     (70, f'execute positioned ~16.5 ~2 ~13.5 run tp {BOOTH.format("chen", 0)} ~ ~ ~'),
@@ -4524,7 +4631,7 @@ next(s for s in S if s.id == 'shop_window').smoke['commands'] = [
     (70, f'yukkuri status relate {BOOTH.format("chen", 0)} {_window_west} 20'),
     (70, _window_customer(0.5, 'customer_flandre')),
     (70, _window_customer(2.5, 'customer_remilia')),
-    (270, f'tp {_window_west} ~16.5 ~ ~24.5'),
+    (270, f'tp {_window_west} ~16.5 ~ ~25.5'),
     (330, f'execute positioned ~16.5 ~2 ~13.5 run tp {BOOTH.format("chen", 0)} ~ ~ ~'),
     (330, _window_customer(16.5, 'customer_wary')),
     (330, f'yukkuri status fear {BOOTH.format("chen", 0)} {_window_wary} 60')]

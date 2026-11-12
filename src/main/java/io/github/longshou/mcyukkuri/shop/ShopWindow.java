@@ -16,6 +16,7 @@ import io.github.longshou.mcyukkuri.social.BondLevels;
 import io.github.longshou.mcyukkuri.social.Bonds;
 import io.github.longshou.mcyukkuri.social.SocialDisposition;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
+import io.github.longshou.mcyukkuri.status.StatusEvents;
 import java.util.EnumSet;
 import java.util.Locale;
 import java.util.UUID;
@@ -125,6 +126,7 @@ public final class ShopWindow implements MotorOwner {
             GameplayLog.limited(entity, "shop", "window_busy." + busy, 600, "window customer unanswered customer={} reason={}", seen.getUUID(), busy);
             return false;
         }
+        if (StatusEvents.trace()) GameplayLog.event(entity, "shop", "window sight customer={}", seen.getUUID());
         candidate = seen;
         return true;
     }
@@ -145,7 +147,7 @@ public final class ShopWindow implements MotorOwner {
         if (scan && phase != Phase.WITNESS && phase != Phase.AFTER) {
             var sale = findSale();
             if (sale != null) { // a customer session gives way to a neighbour being sold
-                log("end", "witness", now);
+                logEnd("witness", now, false);
                 cancelAction("witness");
                 beginWitness(sale, now);
             }
@@ -167,7 +169,7 @@ public final class ShopWindow implements MotorOwner {
     public void stop() {
         if (phase == null) return;
         long now = entity.level().getGameTime();
-        if (phase == Phase.NOTICE || phase == Phase.APPROACH || phase == Phase.PERFORM) log("end", "interrupted", now);
+        if (phase == Phase.NOTICE || phase == Phase.APPROACH || phase == Phase.PERFORM) logEnd("interrupted", now, false);
         // a need of its own (a meal, sleep, a fright) cuts a sale it is watching short; whether it saw the basket go is kept in the line
         if (phase == Phase.WITNESS) GameplayLog.event(entity, "shop", "window witness end kind={} reason=interrupted departed={} ticks={}", witness,
                 departedAt >= 0, now - sessionStart);
@@ -255,10 +257,10 @@ public final class ShopWindow implements MotorOwner {
                 ? confidence >= .45 && warmth >= .65 ? Mode.SHOW_OFF : Mode.APPEAL
                 : polite >= standTall && polite >= shy && polite >= sulk ? Mode.POLITE
                 : standTall >= shy && standTall >= sulk ? Mode.PROUD : shy >= sulk ? Mode.SHY : Mode.SULK;
-        GameplayLog.event(entity, "shop", "window start mode={} customer={} kind={} days={} rejections={} hope={} esteem={} wariness={} closeness={} fear={} grade={} appeal={} polite={} stand_tall={} shy={} sulk={}",
+        GameplayLog.event(entity, "shop", "window start mode={} customer={} kind={} days={} rejections={} hope={} esteem={} wariness={} closeness={} fear={} grade={} friendliness={} self_control={} appeal={} polite={} stand_tall={} shy={} sulk={}",
                 chosen, c.getUUID(), c instanceof Player ? "player" : "resident", Math.max(0, CommodityLife.forSaleDays(entity)), rejections,
-                round(hope), round(esteem), round(wary), bond.closeness(), bond.fear(), BadgeSocial.visibleRank(entity).id(),
-                round(appeal), round(polite), round(standTall), round(shy), round(sulk));
+                hope, esteem, wary, bond.closeness(), bond.fear(), BadgeSocial.visibleRank(entity).id(),
+                p.friendliness(), p.selfControl(), appeal, polite, standTall, shy, sulk);
         return chosen;
     }
 
@@ -355,16 +357,17 @@ public final class ShopWindow implements MotorOwner {
     private void leave(long now, String reason) {
         boolean pleaded = reason.equals("customer_left") && performStart >= sessionStart
                 && (mode == Mode.APPEAL || mode == Mode.SHOW_OFF) && now - performStart >= MIN_PLEA;
-        if (pleaded && !reservedByCustomer()) {
+        boolean reserved = pleaded && reservedByCustomer();
+        if (pleaded && !reserved) {
             rejections = Math.min(REJECTIONS, rejections + 1); forgiveAt = now + FORGIVE_TICKS;
-            log("end", reason, now);
+            logEnd(reason, now, false);
             entity.speak("plea_sad");
             after = After.LETDOWN; phase(Phase.AFTER, now + LETDOWN_TICKS);
         } else if (mode == Mode.PROUD && performStart >= sessionStart && reason.equals("customer_left")) {
-            log("end", reason, now);
+            logEnd(reason, now, false);
             after = After.HMPH; phase(Phase.AFTER, now + HMPH_TICKS);
         } else {
-            log("end", reason, now);
+            logEnd(reason, now, reserved);
             finish(now);
         }
     }
@@ -476,7 +479,9 @@ public final class ShopWindow implements MotorOwner {
         phase = null; mode = null; after = null; witness = null; customer = null; watched = null; departing = null; glass = null; action = null;
     }
 
-    private void log(String what, String reason, long now) {
-        GameplayLog.event(entity, "shop", "window {} mode={} reason={} ticks={} rejections={}", what, mode, reason, now - sessionStart, rejections);
+    private void logEnd(String reason, long now, boolean reserved) {
+        long performTicks = performStart < sessionStart ? 0 : now - performStart;
+        GameplayLog.event(entity, "shop", "window end mode={} reason={} ticks={} rejections={} customer={} perform_ticks={} reserved={}",
+                mode, reason, now - sessionStart, rejections, customer.getUUID(), performTicks, reserved);
     }
 }

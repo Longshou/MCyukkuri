@@ -10,6 +10,7 @@ import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import io.github.longshou.mcyukkuri.MCYukkuri;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.entity.presentation.Moments;
 import io.github.longshou.mcyukkuri.entity.presentation.PresentationArbiter;
 import io.github.longshou.mcyukkuri.family.ParentCarry;
 import io.github.longshou.mcyukkuri.family.FamilyData;
@@ -610,6 +611,11 @@ public final class TraceRecorder {
         entity.runningGoalIds().forEach(goals::add);
         out.add("goals", goals);
         out.addProperty("behavior", entity.getBehaviorId());
+        if (mode == Mode.DENSE && entity.getBehaviorId().startsWith("window_")) {
+            String moment = entity.getMomentId();
+            float elapsed = (entity.level().getGameTime() - entity.getAnimationStartTick()) / 20f;
+            out.addProperty("window_clip", moment.isEmpty() ? entity.getAnimationId() : Moments.frame(moment, elapsed).clip());
+        }
         if(mode==Mode.DENSE&&(entity.getAnimationId().startsWith("sukkiri_")||entity.agitation().agitated())){
             JsonObject performance=new JsonObject();
             performance.addProperty("clip",entity.getAnimationId());
