@@ -309,6 +309,10 @@ def state(action, t, c, height):
         # swell_keys: a uniform enlargement on top (puku).
         g = keyed(t, c['swell_keys']) if 'swell_keys' in c else 1.
         w = h**-.5; s = [w*g, h*g, w*g]
+        # hops: [start, take-off, land, end, height ratio] crouch-spring-land hops on top (a bounding run).
+        for a, takeoff, land, end, ratio in c.get('hops', []):
+            hs, hl, _ = hop(t, a, takeoff, land, end, height*ratio)
+            s = times(s, hs); lift += hl
         r = [keyed(t, c[k]) if k in c else 0. for k in ('pitch_keys', 'yaw_keys', 'roll_keys')]
         if 'reach_keys' in c: shift[1] = -keyed(t, c['reach_keys'])*height
     elif action == 'aquatic_hat_care':

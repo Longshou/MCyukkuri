@@ -216,6 +216,20 @@ def render_strip(args, stage, times, before=False):
             names = sorted(names)
             a['faceSlots'] = {face: len(textures)+i for i,face in enumerate(names)}
             images = [(ASSETS/'textures/entity'/model/(face+'.png'),None,[0,0],[1,1]) for face in names]
+        elif not prop and not before and not a.get('face') and not getattr(args, 'texture', None) and 'draftClip' not in a:
+            # A clip with authored face spans shows its own face at every sampled time (atlas and geometry together).
+            from face_usage import resolve
+            library = read(ASSETS/'yukkuri_presentation/face_library.json')
+            data = read(a['path'])
+            clip = {**data.get('clips', {}), **data.get('behavior_clips', {}),
+                    **read(ASSETS/'yukkuri_presentation/motion_corrections.json')['models'].get(model, {}).get('clips', {})}.get(args.clip, {})
+            spans = clip.get('expression_spans', [])
+            if spans:
+                names = {'neutral'} | {resolve(library, model, face) for _, _, face in spans}
+                names |= {phase for face in list(names) for phase in library['animations'].get(face, {}).get('frames', [])}
+                names = sorted(n for n in names if (ASSETS/'textures/entity'/model/(n+'.png')).is_file())
+                a['faceSlots'] = {face: len(textures)+i for i, face in enumerate(names)}
+                images = [(ASSETS/'textures/entity'/model/(face+'.png'),None,[0,0],[1,1]) for face in names]
         a['slots'] = list(range(len(textures), len(textures)+len(images)))
         textures.extend(images)
         actors.append(a)

@@ -2,7 +2,8 @@
   "id": "adult-states",
   "prefixes": [
     "art/source/adult-states/",
-    "standards/yukkuri-library/drafts/rapem-alice/"
+    "standards/yukkuri-library/drafts/rapem-alice/",
+    "standards/yukkuri-library/drafts/sukkiri/"
   ],
   "registry": [
     "adult_states",
