@@ -85,6 +85,7 @@ final class YukkuriSync {
     private static final EntityDataAccessor<CompoundTag> HELD_PLACE=YukkuriEntity.defineSyncedValue(EntityDataSerializers.COMPOUND_TAG);
     /** The server's body facing (the motor owns it): the client draws the body at it instead of estimating its own. */
     private static final EntityDataAccessor<Float> BODY_YAW=YukkuriEntity.defineSyncedValue(EntityDataSerializers.FLOAT);
+    private static final EntityDataAccessor<Long> LEAK_TRACE_AT=YukkuriEntity.defineSyncedValue(EntityDataSerializers.LONG);
     private Held heldSnapshot = Held.NONE;
     private YukkuriSyncState.Agitation agitationSnapshot;
     private YukkuriSyncState.WaterDistress waterDistressSnapshot;
@@ -138,6 +139,8 @@ final class YukkuriSync {
     String getAnimationId() { return owner.getEntityData().get(ANIMATION); }
     long getAnimationStartTick() { return owner.getEntityData().get(ANIMATION_START); }
     String getExpressionId() { return owner.getEntityData().get(EXPRESSION); }
+    long leakTraceAt() { return owner.getEntityData().get(LEAK_TRACE_AT); }
+    void leakTrace(long at) { owner.getEntityData().set(LEAK_TRACE_AT, at); }
     String getBehaviorId() { return owner.getEntityData().get(BEHAVIOR); }
     long getBehaviorStartTick() { return owner.getEntityData().get(BEHAVIOR_START); }
     int nuzzlePartnerId() { return owner.getEntityData().get(NUZZLE_PARTNER); }
@@ -344,6 +347,7 @@ final class YukkuriSync {
     void resetLoadedPresentation() {
         setAnimation(YukkuriAction.IDLE, true);
         owner.getEntityData().set(EXPRESSION, "neutral");
+        leakTrace(-1);
         owner.getEntityData().set(MEDAL, owner.pet().visibleGrade().id()); owner.getEntityData().set(ACCESSORY,
                 owner.life().hasAccessory()); owner.getEntityData().set(MOUTH, owner.life().mouth().copy());
         owner.getEntityData().set(WEAR, owner.wornBits());
@@ -376,6 +380,7 @@ final class YukkuriSync {
         builder.define(COURTSHIP,new CompoundTag());
         builder.define(WEAR,0);builder.define(MARKS,new CompoundTag());builder.define(HEADWEAR,100<<4);builder.define(KANROKEN,false);
         builder.define(HELD_ITEM,ItemStack.EMPTY);builder.define(HELD_PLACE,new CompoundTag());builder.define(BODY_YAW,0f);
+        builder.define(LEAK_TRACE_AT,-1L);
     }
     void onSyncedDataUpdated(EntityDataAccessor<?> key) {
         // set() calls this on the server too. Replace only this accessor's decoded value.

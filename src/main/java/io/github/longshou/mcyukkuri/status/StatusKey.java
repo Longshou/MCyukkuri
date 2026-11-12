@@ -330,6 +330,7 @@ public enum StatusKey {
     BEHAVIOR("behavior", "behavior", 0, YukkuriEntity::getBehaviorId, null),
     ANIMATION("behavior", "animation", 0, YukkuriEntity::getAnimationId, null),
     EXPRESSION("behavior", "expression", 0, YukkuriEntity::getExpressionId, null),
+    LEAK_TRACE_AT("behavior", "leak_trace_at", -1, YukkuriEntity::leakTraceAt, null),
     LIFE_ACTIVITY("behavior", "life_activity", 0, y -> y.life().activity(), null),
     REACTION("behavior", "reaction", 0, y -> y.status().reactions().describe(), null),
     ROAMING_STATE("behavior", "roaming", 0, y -> y.roaming() == null ? "unavailable" : y.roaming().describe(), null),

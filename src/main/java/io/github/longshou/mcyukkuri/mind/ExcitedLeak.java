@@ -13,6 +13,7 @@ public final class ExcitedLeak {
     public static final String STARTLE_FACE = "leak_startle", FLOW_FACE = "leak_flow";
     public static final String PUDDLE = "excited_leak";
     public static final float STARTLED_FALL_DISTANCE = 1.5f;
+    public static final int TRACE_LIFETIME = 800, TRACE_FADE_TICKS = 200;
     private static final int COOLDOWN = 1200;
     private static final int FLOW_RANGE = 20;
     private static final Band BABY = new Band(.50f, .80f, .20f, .40f, 40);
@@ -81,6 +82,7 @@ public final class ExcitedLeak {
             beat = null;
         } else if (now >= beat.puddleAt && !puddleEmitted) {
             puddleEmitted = true;
+            entity.syncLeakTrace(now);
             Vec3 forward = Vec3.directionFromRotation(0, entity.bodyYaw());
             Vec3 outlet = entity.position().add(forward.scale(entity.getBbWidth() / 2 + .2 * beat.width));
             BodyEffects.emit(entity, PUDDLE, beat.width, outlet, forward);

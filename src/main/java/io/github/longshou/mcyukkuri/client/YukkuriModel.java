@@ -1177,7 +1177,10 @@ public final class YukkuriModel {
         try{
             drawEvidence=PoseTap.active()?new DrawEvidence(stack.last().pose()):null;
             drawingSurfaceMarks=WoundRenderer.active(entity);
-            if(drawingSurfaceMarks&&!woundGeometryCompatible()){
+            int leakOpacity=WoundRenderer.leakOpacity(entity);
+            boolean compatible=woundGeometryCompatible();
+            if((drawingSurfaceMarks||leakOpacity>0)&&!compatible){
+                leakOpacity=0;
                 drawingSurfaceMarks=false;if(!warnedWoundMismatch){
                         LoggerFactory.getLogger(YukkuriModel.class).warn("Wound attachment disabled for incompatible resource-pack geometry: {}",id);warnedWoundMismatch=true;}
             }
@@ -1198,7 +1201,7 @@ public final class YukkuriModel {
             // Pieces licked together sit on the head as a cracked hat before they knit, though the owner is not yet recognised.
             boolean pieces=hatDamageDraw.level()==3;
             long perfStart=WoundLod.start();
-            if(woundGeometryCompatible()&&HairWoundAssets.model(id)!=null&&(!wounds.isEmpty()||(entity.visibleSigns()&BodySigns.FOOT_BURNED)!=0))
+            if(compatible&&HairWoundAssets.model(id)!=null&&(!wounds.isEmpty()||(entity.visibleSigns()&BodySigns.FOOT_BURNED)!=0))
                 woundDisplay=HairWoundRenderer.prepare(entity,this,id,expression,wounds,entity.visibleSigns(),health,hairLoss,
                         hatProp==null&&(accessory||pieces||hatMotion.equals("HAT_REMOVE")),headwear,true,cameraDistanceSquared(stack));
             if(woundDisplay!=null)WoundLod.time(WoundLod.PREPARE,perfStart);
@@ -1216,7 +1219,10 @@ public final class YukkuriModel {
             if(!entity.getMouthItem().isEmpty()||!entity.getMouthBodyFood().isEmpty()||!entity.getCarriedItem().isEmpty()
                     ||entity.visibleKanroken()||mouthHolding)captureMouthAttachment();
             long surfaceStart=woundDisplay==null?0:WoundLod.start();
-            if(drawingSurfaceMarks)WoundRenderer.render(entity,expression,world,stack,buffer,buffers,light,overlay,drawEvidence);
+            // The puff uses a different skin mesh; keep its clip instead of pinning the body to the sole decal.
+            if(puffAmount>0)leakOpacity=0;
+            if(drawingSurfaceMarks||leakOpacity>0)
+                WoundRenderer.render(entity,expression,leakOpacity,world,stack,buffer,buffers,light,overlay,drawEvidence);
             if(woundDisplay!=null){WoundLod.time(WoundLod.SURFACE,surfaceStart);long displayStart=WoundLod.start();
                 woundDisplay.render(world,pregnancyBelly,stack,buffers,light,overlay);WoundLod.time(WoundLod.DISPLAY,displayStart);WoundLod.drawn(!woundDisplay.simple);}
             hatDamageDraw.drawCaps(evidenceBuffers("hat",buffers));

@@ -1327,7 +1327,7 @@ _LEAK_ROWS = (('baby', '赤油', -7, 5, 2), ('child', '子油', -3, 10, 3), ('ad
 _LEAK_ACTORS = 'yukkuri status @e[tag=scn_leak_actor] raw'
 add('excited_leak', 'meadow', '短落差受惊：赤油、子油、成油漏尿', '短落差受惊：赤油、子油、成油漏尿',
     '从左到右是自制较低的赤油、子油和成油。开场从两格多的安全高度落下，各自真实抽签。看第一股、漏 A 与脚底湿边，'
-    '随后小水滩留在原地，个体继续活动。成油仍较少发生，没看到可清场重开；约半分钟后水滩淡去。',
+    '随后小水滩留在原地，皮肤上的尿痕随个体移动，比水滩晚干。成油仍较少发生，没看到可清场重开。',
     '开场约 1–4 秒，水滩可继续观察', [
         yk('reimu', x + i % columns * 1.25, 1 - i // columns * 1.25, f'leak_{stage}_{i}',
            dy=2.5, stage=stage, yaw=0, label=label if i == 0 else None,
@@ -1339,7 +1339,8 @@ add('excited_leak', 'meadow', '短落差受惊：赤油、子油、成油漏尿'
                          (180, 'execute as @e[tag=scn_leak_actor] at @s run tp @s ~ ~2.5 ~')],
                expect=[*[rf'\[leak\][^\n]*stage={stage} self_control=0 stimulus=drop\b'
                          for stage in ('baby', 'juvenile', 'adult')],
-                       r'expression:"leak_startle"', r'expression:"leak_flow"', r'expression:"side_teary"'],
+                       r'expression:"leak_startle"', r'expression:"leak_flow"',
+                       r'expression:"side_teary"[^}\n]*leak_trace_at:[0-9]+L'],
                forbid=[r'\[body\][^\n]* death settled\b'], verify=_verify_leak_scene))
 
 

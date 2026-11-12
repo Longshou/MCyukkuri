@@ -101,6 +101,7 @@ public interface YukkuriView {
     /** Synchronized carry record: which hold each carried child is in (ParentCarry.HOLDS). */
     CompoundTag carryHolds();
     String getExpressionId();
+    long leakTraceAt();
     String identityTranslationKey();
     String getBehaviorId();
     long getBehaviorStartTick();
