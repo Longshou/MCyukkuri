@@ -11,6 +11,7 @@
 | 台词审校与补充（用户与代理直接对话） | `.worktrees/wp-gb-speech-review` | art/dialogue/, src/main/resources/assets/mcyukkuri/dialogue/, lang/*.json |
 | 激动漏尿：单股流痕加小水滩（重画）并接入 | `.worktrees/wp-gp-leak` | standards/yukkuri-library/expressions 漏尿表情、接入代码 |
 | Wiki 参考整理 | `.worktrees/wp-gq-wiki-refs-3` | wiki/reference-library/**, wiki/novel-reading/**, wiki/art-references/** |
+| 油库里商店内容优化 | `.worktrees/wp-gr-shop` | human/HumanCommerce.java, client/ShopScreen.java, 商店建筑与演出, art/, scripts/museum_scenarios.py |
 
 ## 玩法待办
 
