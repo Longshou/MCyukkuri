@@ -8,6 +8,7 @@ import io.github.longshou.mcyukkuri.life.CareBlockEntity;
 import io.github.longshou.mcyukkuri.life.Sweets;
 import io.github.longshou.mcyukkuri.notebook.SurvivalProgress;
 import io.github.longshou.mcyukkuri.pet.stage.Staging;
+import io.github.longshou.mcyukkuri.pet.exam.ExamSession;
 import io.github.longshou.mcyukkuri.social.BondLevels;
 import io.github.longshou.mcyukkuri.motor.ClipMarkers;
 import java.util.UUID;
@@ -96,6 +97,8 @@ public final class PetLessons {
         boolean lesson = practicing(skill);
         if (success) addPractice(skill, lesson && coached ? 6 : 2, lesson && coached ? "lesson" : "daily");
         if (lesson) finishLesson(success);
+        if (skill == PetSkill.WAIT || skill == PetSkill.FOOD_BOWL || skill == PetSkill.TOILET || skill == PetSkill.BEDTIME)
+            ExamSession.performed(animal, skill, success);
     }
 
     private void addPractice(PetSkill skill, int gain, String source) {
@@ -149,6 +152,18 @@ public final class PetLessons {
             case HARNESS -> animal.getLeashHolder() == player;
         };
     }
+    public boolean careReady(PetSkill skill) {
+        return switch (skill) {
+            case FOOD_BOWL -> {
+                var stand = animal.life().canEat() && !animal.family().carry().mouthBusy() ? facility(skill) : null;
+                yield stand != null && level().getBlockEntity(stand.block()) instanceof CareBlockEntity bowl
+                        && bowl.hasFood(animal.life()::acceptsFood);
+            }
+            case TOILET -> animal.life().bladder() >= 70 && facility(skill) != null;
+            case BEDTIME -> animal.life().drowsy() && animal.life().homeStand() != null;
+            default -> throw new IllegalArgumentException("Not a care routine: " + skill);
+        };
+    }
     /** Preview stays side-effect free. */
     public String refusal(Player player, PetSkill skill) {
         if (animal.isPanicking() || animal.life().personality().fear(player.getUUID()) >= BondLevels.SOCIAL_FEAR_LIMIT) return "scared";
@@ -161,10 +176,17 @@ public final class PetLessons {
         return preconditionOk(player, skill) ? null : "need_" + skill.key();
     }
     public boolean start(Player player, PetSkill skill) {
-        return request(player, skill, true);
+        return !ExamSession.running(animal) && request(player, skill, true);
     }
     public boolean orderWait(Player player) {
-        return request(player, PetSkill.WAIT, false);
+        return !ExamSession.running(animal) && request(player, PetSkill.WAIT, false);
+    }
+    public boolean examWait(Player player) { return request(player, PetSkill.WAIT, false); }
+    public void stopExamWait() {
+        if (directed() && kind == PetSkill.WAIT) {
+            animal.pet().unlock(LOCK);
+            end();
+        }
     }
     private boolean request(Player player, PetSkill skill, boolean lesson) {
         if (animal.level().isClientSide || state != State.IDLE || skill == null) return false;

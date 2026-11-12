@@ -27,6 +27,7 @@ import io.github.longshou.mcyukkuri.motor.action.StepIn;
 import io.github.longshou.mcyukkuri.settlement.SettlementSociety;
 import io.github.longshou.mcyukkuri.pet.PetSkill;
 import io.github.longshou.mcyukkuri.pet.PetStudy;
+import io.github.longshou.mcyukkuri.pet.exam.ExamSession;
 import io.github.longshou.mcyukkuri.human.HumanNpc;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -81,6 +82,13 @@ public final class YukkuriSocial implements MotorOwner {
     private long accessoryRetry;
     public int greetClicks() { return greetClicks; }
     public boolean greeting() { return entity.level().getGameTime() < greetUntil; }
+    public boolean greetForPractice(Entity guest) {
+        if (!freeForSocial() || !visitor(guest) || !contactReady(guest)) return false;
+        stop();
+        target = guest; task = Task.PLAYER; duration = 200; elapsed = 0; greeted = false;
+        chooseApproach(guest);
+        return true;
+    }
     public long greetStart() { return greetUntil - ClipMarkers.of(greetClip).length(); }
     public String greetingClip() { return greetClip; }
     /** Presentation request only: no command goal and no interruption of the current leisure session. */
@@ -565,7 +573,10 @@ public final class YukkuriSocial implements MotorOwner {
         boolean visitor = visitor(target);
         greetingBody(visitor ? "bow" : "greet");
         entity.showReaction(wariness >= .18 ? "surprise" : "happy", line, 80);
-        if (visitor) entity.pet().lessons().performed(PetSkill.GREETING, true);
+        if (visitor) {
+            entity.pet().lessons().performed(PetSkill.GREETING, true);
+            ExamSession.greeted(entity, target, true);
+        }
         GameplayLog.limited(entity, "social", "human_greeting", 200, "human greeting identity={} player={} line={} wariness={}",
                 entity.status().identity().id(), target.getUUID(), line, wariness);
     }
@@ -622,7 +633,10 @@ public final class YukkuriSocial implements MotorOwner {
             greeted = true;
             boolean afraid = wariness >= .62;
             if (afraid) entity.mind().felt(EmotionEvent.FRIGHTENED);
-            if (visitor(target)) entity.pet().lessons().performed(PetSkill.GREETING, false);
+            if (visitor(target)) {
+                entity.pet().lessons().performed(PetSkill.GREETING, false);
+                ExamSession.greeted(entity, target, false);
+            }
             if (chooseHumanEscape(wariness)) entity.showReaction(afraid ? "surprise" : "angry", afraid ? "afraid" : "", 80);
             return;
         }

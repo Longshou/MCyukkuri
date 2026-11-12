@@ -136,13 +136,13 @@ public final class PetLife {
         return g == BadgeGrade.GOLD ? HumanWorld.GOLD_BADGE.get() : g == BadgeGrade.SILVER ? HumanWorld.SILVER_BADGE.get() : HumanWorld.BRONZE_BADGE.get();
     }
     public boolean detach(Player p) {
-        if (!near(p) || !owned(p) || busy() || !worn || !animal.life().hasAccessory() || grade == BadgeGrade.NONE) return false;
+        if (!near(p) || !owned(p) || busy() || ExamSession.running(animal) || !worn || !animal.life().hasAccessory() || grade == BadgeGrade.NONE) return false;
         var stack = token(); worn = false; give(p, stack); PetScenes.taken(animal, p);
         GameplayLog.event(animal, "badge", "detached player={} grade={} serial={}", p.getUUID(), grade, serial);
         return true;
     }
     public boolean attach(Player p, ItemStack stack) {
-        if (!near(p) || !owned(p) || busy() || worn || !animal.life().hasAccessory() || grade == BadgeGrade.NONE) return false;
+        if (!near(p) || !owned(p) || busy() || ExamSession.running(animal) || worn || !animal.life().hasAccessory() || grade == BadgeGrade.NONE) return false;
         var tag = stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag();
         if (!stack.is(item(grade)) || !tag.hasUUID("BadgeAnimal") || !tag.getUUID("BadgeAnimal").equals(animal.getUUID()) || !tag.hasUUID("BadgeSerial")
                 || serial == null || !serial.equals(tag.getUUID("BadgeSerial"))) return false;
@@ -181,7 +181,12 @@ public final class PetLife {
         var recent = history.getLast();
         return now() - recent.gameTime() < 3 * PetLessons.DAY && recent.outcome() <= 1 && recent.result() == visibleEffective();
     }
-    public void record(ExamRecord r) { history.add(r); while (history.size() > 16) history.remove(0); }
+    public void record(ExamRecord r) {
+        if (!history.isEmpty() && r.attempt() >= 0 && history.getLast().attempt() == r.attempt())
+            history.set(history.size() - 1, r);
+        else history.add(r);
+        if (history.size() > 16) history.removeFirst();
+    }
     /** Flavour title derived from the history (nothing saved): 0 none, 1 eternal silver, 2 hidden gold. M02 basis: docs/FEATURES.md. */
     public static final int TITLE_ETERNAL_SILVER = 1, TITLE_HIDDEN_GOLD = 2;
     public int title() { return title(history, grade); }

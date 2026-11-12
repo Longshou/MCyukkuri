@@ -280,6 +280,7 @@ final class LifeMeal {
                 if(!filling&&!spicy&&toxic==0&&!waste)o.entity().heal(2); o.personality().fed(feeder); o.entity().pet().contact(feeder,
                         true); WildEvents.fed(o.entity(),feeder); String treat = Sweets.eaten(o.entity(), swallowed, feeder);
                 o.entity().pet().lessons().swallowed(feeder, swallowed);
+                if (feeder != null) io.github.longshou.mcyukkuri.pet.exam.ExamSession.fed(o.entity(), feeder);
                 o.entity().mind().ate(swallowed, treat != null); feeder = null;
                 if (bowlMeal) { o.entity().pet().routineCompleted(0); bowlMeal = false; }
                 // A melting meal keeps the swallow face only to the end of the swallow (tick 53 starts the melt), so it cannot cover the after-meal clip.

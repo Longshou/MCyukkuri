@@ -4,6 +4,7 @@ import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.pet.stage.Staging;
 import io.github.longshou.mcyukkuri.motor.ClipMarkers;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
+import io.github.longshou.mcyukkuri.pet.exam.ExamSession;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
@@ -82,6 +83,7 @@ public final class PetWalk {
                     animal.showReaction(waiting ? "neutral" : "teary", waiting ? "wait_turn" : "harness_tug", duration);
                     GameplayLog.event(animal, "lesson", "harness turn owner={} waits={}", owner.getUUID(), waiting);
                     animal.pet().lessons().performed(PetSkill.HARNESS, waiting);
+                    ExamSession.performed(animal, PetSkill.HARNESS, waiting);
                 }
                 heading = direction;
             }

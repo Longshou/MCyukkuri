@@ -9,6 +9,7 @@ import io.github.longshou.mcyukkuri.social.BondLevels;
 import io.github.longshou.mcyukkuri.social.Bonds;
 import io.github.longshou.mcyukkuri.social.DailyLife;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
+import io.github.longshou.mcyukkuri.pet.exam.ExamSession;
 import io.github.longshou.mcyukkuri.status.Identity;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
@@ -49,7 +50,7 @@ public final class InteractionDispatch {
     }
     public static String petRefusal(Player player,YukkuriEntity target){
         if(!ownsPet(player,target))return "owner";
-        return target.pet().busy()?"busy":null;
+        return target.pet().busy() || ExamSession.running(target) ? "busy" : null;
     }
     public static boolean fitWear(Player player,YukkuriEntity target,ItemStack stack,CareAction removal){
         if(!requireReach(player,target,3))return false;
@@ -81,6 +82,7 @@ public final class InteractionDispatch {
     }
     public static boolean allowCapture(Player player,YukkuriEntity target){
         if(!requireReach(player,target,4))return false;
+        if (ExamSession.running(target)) { refuse(player, target, "capture", "busy"); return false; }
         if(HumanCommerce.mayCapture(player,target))return true;
         refuse(player,target,"capture","custody");
         return false;
@@ -97,6 +99,10 @@ public final class InteractionDispatch {
         if(event.getLevel().isClientSide()||!(event.getTarget() instanceof YukkuriEntity target))return;
         var player=event.getEntity();
         if(!requireReach(player,target,Math.max(5,player.entityInteractionRange()))){
+            event.setCanceled(true);
+            event.setCancellationResult(InteractionResult.FAIL);
+        } else if (ExamSession.running(target)) {
+            refuse(player, target, "exam", "busy");
             event.setCanceled(true);
             event.setCancellationResult(InteractionResult.FAIL);
         }else if(event.getItemStack().is(Items.LEAD)&&!target.isLeashed()){

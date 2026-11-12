@@ -7,6 +7,7 @@ import io.github.longshou.mcyukkuri.pet.stage.Staging;
 import io.github.longshou.mcyukkuri.social.Bonds;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.Comparator;
+import java.util.UUID;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
@@ -28,6 +29,7 @@ public final class PetStudy {
             return skill == other.skill && count == other.count && source.equals(other.source) && example.equals(other.example);
         }
     }
+    public record Answer(boolean success, UUID caption, int ticks) {}
 
     public static Exercise find(YukkuriEntity pet, Player owner, PetSkill skill) {
         return skill == PetSkill.READING ? reading(pet, owner) : counting(pet);
@@ -93,7 +95,7 @@ public final class PetStudy {
         return count > CLEAR_COUNT ? Component.translatable("pet.mcyukkuri.practice.many") : Component.literal(Integer.toString(count));
     }
 
-    public static void answer(YukkuriEntity pet, Exercise exercise) {
+    public static Answer answer(YukkuriEntity pet, Exercise exercise) {
         boolean success = pet.pet().lessons().attempt(exercise.skill());
         Component answer = exercise.example();
         boolean missing = success && exercise.source().equals("young") && pet.pet().lessons().noticesMissingYoung(exercise.count());
@@ -106,12 +108,13 @@ public final class PetStudy {
             } else answer = Component.translatable("pet.mcyukkuri.practice.unsure");
         }
         int length = ClipMarkers.of("think").length();
-        Staging.card((ServerLevel)pet.level(), pet.position().add(0, pet.getBbHeight() + .65, 0), answer, length + 30, 1.2f);
+        UUID caption = Staging.card((ServerLevel)pet.level(), pet.position().add(0, pet.getBbHeight() + .65, 0), answer, length + 30, 1.2f);
         String event = success ? countLine(exercise) : "exam_unsure";
         pet.showReaction(missing ? "teary" : success ? "happy" : "confused", event, length + 30);
         GameplayLog.event(pet, "lesson", "study answered skill={} source={} count={} success={} missing={}",
                 exercise.skill(), exercise.source(), exercise.count(), success, missing);
         pet.pet().lessons().performed(exercise.skill(), success);
+        return new Answer(success, caption, length + 30);
     }
 
     private static String countLine(Exercise exercise) {
