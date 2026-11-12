@@ -70,6 +70,7 @@ def check(b):
         for yy in sorted({cy, head}):
             if not free(name_at(b, cx, yy, cz)): errors.append(f'{kind} at {(x, y, z)}: cell {(cx, yy, cz)} is {name_at(b, cx, yy, cz)}')
         if not solid_cell_below(b, cx, cy, cz) or name_at(b, cx, cy - 1, cz) in ('minecraft:glass',): errors.append(f'{kind} at {(x, y, z)} has no floor')
+    seen = reachable(b)
     for pen in b.pens:
         x0, z0, x1, z1 = pen['interior']; bx, bz = pen['bowl']; y = pen['y']
         if name_at(b, bx, y, bz) != 'mcyukkuri:food_bowl': errors.append(f"pen {pen['name']}: bowl {(bx, y, bz)} is {name_at(b, bx, y, bz)}")
@@ -85,6 +86,7 @@ def check(b):
             for x, z in ring:
                 if any(name_at(b, x, yy, z) == AIR for yy in range(y, y + 3)):
                     errors.append(f"pen {pen['name']}: wall at {(x, z)} lower than three blocks above the shelf")
+        if pen['hatch']: errors += hatch_errors(b, pen, seen)
     level = light_levels(b)
     dark = [(x, z, level.get((x, 3, z), 0)) for x, z in walk_cells(b) if level.get((x, 3, z), 0) < 8]
     if dark: errors.append(f'{len(dark)} walkable cells below light 8, first {dark[:6]}')
@@ -102,18 +104,37 @@ def check(b):
     if ratio > 0.41: errors.append(f'roof is {ratio:.0%} of facade height')
     return errors
 
-def reachability(b):
-    """Staff must be reachable on foot (2-high clearance, doors open) from the pavement in front of the shop door."""
+def reachable(b):
+    """Floor cells staff reach on foot (2-high clearance, wooden doors opened on the way) from the pavement in front of the shop door.
+    Iron service doors are not walked through: only staff serving a pen open them."""
     def ok(x, z):
         if not (0 <= x < b.size[0] and 0 <= z < b.size[2]): return False
         if name_at(b, x, 2, z) == AIR: return False
-        def passable(y): n = name_at(b, x, y, z); return free(n) or n.endswith('_door') or n == 'mcyukkuri:exam_podium'
+        def passable(y): n = name_at(b, x, y, z); return free(n) or n.endswith('_door') and n != 'minecraft:iron_door' or n == 'mcyukkuri:exam_podium'
         return passable(3) and passable(4)
     start = (12, 2); seen = {start}; queue = deque([start])
     while queue:
         x, z = queue.popleft()
         for n in ((x + 1, z), (x - 1, z), (x, z + 1), (x, z - 1)):
             if n not in seen and ok(*n): seen.add(n); queue.append(n)
+    return seen
+
+def hatch_errors(b, pen, seen):
+    """A pen's service door: a 2-high iron door in its wall ring, one interior cell inside it, and outside it a floor cell staff walk to
+    (a booth's door sits on the shelf, a block above the aisle)."""
+    x0, z0, x1, z1 = pen['interior']; y = pen['y']; hx, hz = pen['hatch']; name = pen['name']
+    if name_at(b, hx, y, hz) != 'minecraft:iron_door' or name_at(b, hx, y + 1, hz) != 'minecraft:iron_door':
+        return [f'pen {name}: no 2-high iron service door at {(hx, y, hz)}']
+    inside = [(hx + dx, hz + dz) for dx, dz in ((1, 0), (-1, 0), (0, 1), (0, -1)) if x0 <= hx + dx <= x1 and z0 <= hz + dz <= z1]
+    if len(inside) != 1: return [f'pen {name}: service door {(hx, hz)} is not in its wall ring']
+    ox, oz = 2 * hx - inside[0][0], 2 * hz - inside[0][1]
+    if name_at(b, ox, y, oz) != AIR: return [f'pen {name}: service door {(hx, hz)} opens onto {name_at(b, ox, y, oz)}']
+    if (ox, oz) not in seen: return [f'pen {name}: staff cannot walk to its service door stand {(ox, oz)}']
+    return []
+
+def reachability(b):
+    """Staff must be reachable on foot from the pavement in front of the shop door."""
+    seen = reachable(b)
     errors = []
     for ent in b.entities:
         nbt = ent['nbt'][1]

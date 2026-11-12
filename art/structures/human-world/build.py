@@ -45,9 +45,10 @@ class Building:
         for x in range(a[0],b[0]+1):
             for y in range(a[1],b[1]+1):
                 for z in range(a[2],b[2]+1): self.block(x,y,z,name,props,over=over)
-    def door(self,x,y,z,facing='north'):
+    def door(self,x,y,z,facing='north',kind='oak'):
+        """A 2-high door; kind 'iron' is a pen's service hatch (shop/ServiceHatch): no hand, mob or yukkuri opens it, only staff serving the pen."""
         self.doors.append((x,y,z))
-        for dy,half in [(0,'lower'),(1,'upper')]: self.block(x,y+dy,z,'oak_door',{'facing':facing,'half':half,'hinge':'left','open':'false','powered':'false'},over=True)
+        for dy,half in [(0,'lower'),(1,'upper')]: self.block(x,y+dy,z,kind+'_door',{'facing':facing,'half':half,'hinge':'left','open':'false','powered':'false'},over=True)
     def entrance(self,x):
         self.box((x-1,2,0),(x+1,2,1),'air')
         for z,y in [(0,1),(1,2)]:
@@ -168,9 +169,9 @@ def connect_panes(b):
         for d,(dx,dz) in {'north':(0,-1),'south':(0,1),'east':(1,0),'west':(-1,0)}.items():
             m=name_at(b,x+dx,y,z+dz); props[d]='true' if m in ('minecraft:glass_pane','minecraft:glass') or (m!='minecraft:air' and not transparent(m)) else 'false'
         b.blocks[x,y,z]=(n,props,None)
-def register_pen(b,name,interior,bowl,nests,minimum=(3,3),y=3):
-    """y is the cell the animals stand in (the floor block is below it)."""
-    b.pens.append({'name':name,'interior':interior,'bowl':bowl,'nests':nests,'min':minimum,'y':y})
+def register_pen(b,name,interior,bowl,nests,minimum=(3,3),y=3,hatch=None):
+    """y is the cell the animals stand in (the floor block is below it); hatch is the (x, z) of its service door in the wall ring."""
+    b.pens.append({'name':name,'interior':interior,'bowl':bowl,'nests':nests,'min':minimum,'y':y,'hatch':hatch})
 def carpet(b,x0,z0,x1,z1,color):
     """Rug on free floor cells only."""
     for x in range(x0,x1+1):
@@ -252,7 +253,7 @@ def shop():
     b.door(10,3,17); b.door(14,3,17); b.door(12,3,24,'east')
     # Sales hall: four display booths (interior 3x3, glass to street window and aisle). The window wall is the street glass.
     # Each booth is a raised display shelf (block at y3, the animal at y4): eye level with a customer in the aisle and visible
-    # above the street plinth; panes rise three blocks above the shelf and the top stays open for the keeper's basket.
+    # above the street plinth; panes rise three blocks above the shelf (no hop clears them, no arm reaches over them).
     # The shelf top is a full wool cushion (a carpet would make the cells unstandable for the animals' own checks), with a real
     # toy on it, and a price tag hung on the shelf front in the aisle.
     def booth(x0,kind,grade,traits,label,toy,cushion,predator=False):
@@ -260,11 +261,14 @@ def shop():
             if 2<=x<=22: glass(b,(x,4),(x,7),full=predator,top=6)
         glass(b,(max(x0-1,2),7),(min(x0+3,22),7),full=predator,top=6)
         b.box((x0,3,4),(x0+2,3,6),cushion+'_wool')
+        # Service door (iron, staff only) in the aisle wall's side column, on the shelf: staff open it from the aisle to hand the animal a
+        # basket, feed or treat it, or set an animal in; the middle stays clear glass for the customers.
+        b.door(x0,4,7,'south','iron')
         b.bowl(x0,4,y=4); b.block(x0+2,4,4,'mcyukkuri:predator_nest' if predator else 'mcyukkuri:yukkuri_nest')
         b.pet(x0+1.5,5.5,kind,'shopkeeper','stock',grade,skills=ALL_SKILLS,traits=traits,y=4)
-        b.toy(x0+.5,4,6.5,toy)
+        b.toy(x0+2.5,4,6.5,toy)
         b.wall_sign(x0+1,3,8,label)
-        register_pen(b,'booth_'+kind,(x0,4,x0+2,6),(x0,4),[(x0+2,4)],y=4)
+        register_pen(b,'booth_'+kind,(x0,4,x0+2,6),(x0,4),[(x0+2,4)],y=4,hatch=(x0,7))
     # Authored temperaments (intelligence, friendliness, boldness, attachment, self-control) give the four booths four different answers
     # to a customer at the window (shop/ShopWindow): Remilia pleads, Chen is shy, gold Alice is proud, Reimu shows off.
     booth(20,'remilia',2,(70,65,55,60,60),['银章 · 蕾米莉亚','捕食种 · 单独展舱','展示个体','价格请问店主'],'rubber_ball','purple',predator=True)   # full-height glass; written first so the shared wall at x=19 stays full
@@ -296,7 +300,8 @@ def shop():
         bz=z0+2 if aisle==26 else z0   # bowl and nest on the side away from the aisle
         b.bowl(x0,bz); b.block(x0+2,3,bz,'mcyukkuri:yukkuri_nest'); b.pet(x0+1.5,z0+1.5,kind,'shopkeeper','stock',0)
         if kind in ('marisa','chen'): b.toy(x0+.5,3,z0+(.5 if bz!=z0 else 2.5),'glass_marble' if kind=='marisa' else 'pretty_stone')
-        register_pen(b,'tank_'+kind,(x0,z0,x0+2,z0+2),(x0,bz),[(x0+2,bz)])
+        b.door(x0+2,3,aisle,'south' if aisle==21 else 'north','iron')   # service door on the keeper's aisle (its east column keeps clear of the barrels)
+        register_pen(b,'tank_'+kind,(x0,z0,x0+2,z0+2),(x0,bz),[(x0+2,bz)],hatch=(x0+2,aisle))
     for z in range(22,26): barrel(b,2,3,z)
     for z in (22,25): barrel(b,3,3,z)
     b.block(5,3,22,'crafting_table'); b.block(7,3,22,'lectern',{'facing':'south','has_book':'false','powered':'false'})
