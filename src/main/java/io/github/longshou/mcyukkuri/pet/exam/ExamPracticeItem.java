@@ -2,6 +2,7 @@ package io.github.longshou.mcyukkuri.pet.exam;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.intent.AskLedger;
+import io.github.longshou.mcyukkuri.interaction.ItemContact;
 import io.github.longshou.mcyukkuri.pet.BadgeGrade;
 import io.github.longshou.mcyukkuri.pet.PetConversation;
 import io.github.longshou.mcyukkuri.pet.PetStudy;
@@ -22,10 +23,9 @@ final class ExamPracticeItem implements ExamItem {
     private String observed = "routine";
     private UUID caption;
     private String foodIncident;
+    private boolean asksOwner;
 
     ExamPracticeItem(ExamPlan.Question question) { this.question = question; }
-    @Override public ExamTaskArea area() { return ExamTaskArea.CARE_ROOM; }
-    @Override public BadgeGrade minimumGrade() { return question.grade; }
     @Override public String id() { return question.key(); }
     @Override public boolean passed() { return Boolean.TRUE.equals(completed); }
 
@@ -40,7 +40,7 @@ final class ExamPracticeItem implements ExamItem {
                 if (question.grade == BadgeGrade.PLATINUM) participant = ExamPlan.visitor(y, ctx.owner(), ctx.examiner());
             }
             case GREET -> participant = ExamPlan.visitor(y, ctx.owner(), ctx.examiner());
-            case HELP, SHARE -> participant = ExamPlan.needy(y);
+            case HELP, SHARE -> participant = ExamPlan.needy(y, question == ExamPlan.Question.SHARE);
             default -> { }
         }
         ctx.examinerSay("exam.mcyukkuri.question." + id());
@@ -50,20 +50,21 @@ final class ExamPracticeItem implements ExamItem {
     @Override public boolean tick(ExamContext ctx) {
         long now = ctx.level().getGameTime();
         if (phase == Phase.COMMENT) return now >= until;
+        if (participant != null && (!participant.isAlive() || participant.level() != ctx.level()
+                || participant.distanceToSqr(ctx.candidate()) > 64
+                || participant instanceof YukkuriEntity peer && ExamSession.running(peer))) {
+            ctx.interrupt("no_participant");
+            return false;
+        }
         if (phase == Phase.QUESTION) {
-            if (now < until) return false;
+            if (now < until || !ctx.inContact()) return false;
             phase = Phase.OBSERVE;
             beginAnswer(ctx, now);
             return false;
         }
-        if (participant != null && (!participant.isAlive() || participant.level() != ctx.level()
-                || participant.distanceToSqr(ctx.candidate()) > 64)) {
-            ctx.interrupt("no_participant");
-            return false;
-        }
         if (completed == null && now >= until) {
             if (question == ExamPlan.Question.WALK || question == ExamPlan.Question.GREET) ctx.interrupt("site");
-            else comment(ctx, false, "no_answer");
+            else if (ctx.inContact()) comment(ctx, false, "no_answer");
         } else if (completed != null && now >= until && ctx.inContact()) comment(ctx, completed, observed);
         return false;
     }
@@ -74,6 +75,14 @@ final class ExamPracticeItem implements ExamItem {
         if (example != null) {
             var actual = PetStudy.find(y, ctx.owner(), question.skill);
             if (actual == null || !example.sameExample(actual)) { ctx.interrupt("site"); return; }
+            if (participant != null) {
+                if (!y.hasLineOfSight(participant) || !participant.hasLineOfSight(y)) {
+                    ctx.interrupt("no_participant");
+                    return;
+                }
+                y.getLookControl().setLookAt(participant);
+                if (participant instanceof net.minecraft.world.entity.Mob visitor) visitor.getLookControl().setLookAt(y);
+            }
             boolean detailed = question.grade == BadgeGrade.PLATINUM && y.getRandom().nextDouble() < PetConversation.explanation(y);
             var answer = PetStudy.answer(y, actual, detailed);
             caption = answer.caption();
@@ -87,10 +96,11 @@ final class ExamPracticeItem implements ExamItem {
             var peer = (YukkuriEntity)participant;
             if (peer.life().nutrition() >= 40 || !y.hasLineOfSight(peer)) { ctx.interrupt("no_participant"); return; }
             var personality = y.life().personality();
-            double willingness = personality.helpProbability(false, peer.life().hasUrgentNeed());
-            if (question == ExamPlan.Question.SHARE) willingness *= PetConversation.considerate(y);
+            double willingness = question == ExamPlan.Question.SHARE ? PetConversation.considerate(y)
+                    : personality.helpProbability(false, peer.life().hasUrgentNeed());
             boolean helps = y.getRandom().nextDouble() < willingness;
-            var line = helps ? question == ExamPlan.Question.SHARE ? "offer_share" : "offer_help" : "unsure_help";
+            asksOwner = helps && (question == ExamPlan.Question.HELP || !y.life().canEat() || !ItemContact.mouthsMeet(y, peer));
+            var line = !helps ? "unsure_help" : asksOwner ? "offer_help" : "offer_share";
             ctx.card(y.position().add(0, y.getBbHeight() + .6, 0),
                     Component.translatable("exam.mcyukkuri.reply." + line, peer.getDisplayName()), 100, 1.2f);
             y.showReaction(helps ? "happy" : "confused", helps ? "exam_report" : "exam_unsure", 80);
@@ -103,6 +113,7 @@ final class ExamPracticeItem implements ExamItem {
         if (question == ExamPlan.Question.GREET && !y.social().greetForPractice(participant)) ctx.interrupt("no_participant");
         if (question == ExamPlan.Question.BOWL || question == ExamPlan.Question.TOILET || question == ExamPlan.Question.BED)
             y.life().replanNow();
+        if (question == ExamPlan.Question.SHARE) y.life().replanNow();
     }
 
     void performed(ExamContext ctx, boolean success) {
@@ -112,16 +123,24 @@ final class ExamPracticeItem implements ExamItem {
         }
     }
     boolean guest(net.minecraft.world.entity.Entity entity) { return participant == entity; }
+    YukkuriEntity sharingTarget() {
+        return question == ExamPlan.Question.SHARE && phase == Phase.OBSERVE && completed == null
+                && foodIncident != null && !asksOwner && participant instanceof YukkuriEntity peer ? peer : null;
+    }
 
     void fed(ExamContext ctx, YukkuriEntity receiver, UUID feeder) {
+        var donor = ctx.candidate();
+        boolean assisted = asksOwner && ctx.owner() != null && ctx.owner().getUUID().equals(feeder);
         if (foodIncident != null && phase == Phase.OBSERVE && completed == null && receiver == participant
-                && ctx.candidate().hasLineOfSight(receiver)
-                && (question != ExamPlan.Question.SHARE || ctx.candidate().life().nutrition() >= 60)
-                && (ctx.candidate().getUUID().equals(feeder) || ctx.owner() != null && ctx.owner().getUUID().equals(feeder))) {
+                && donor.hasLineOfSight(receiver) && (donor.getUUID().equals(feeder) || assisted)) {
+            if (question == ExamPlan.Question.SHARE && assisted) {
+                if (donor.life().nutrition() < 60 || donor.dailyLife().sharedFoodToday(receiver.getUUID())) return;
+                donor.dailyLife().sharedFoodWith(receiver.getUUID());
+            }
             AskLedger.server().ended(foodIncident, receiver.getUUID(), "fed");
             AskLedger.server().settle(foodIncident, "fed");
             foodIncident = null;
-            observed = "received_food";
+            observed = assisted ? "received_owner_food" : "received_food";
             completed = true;
             until = ctx.level().getGameTime();
         }

@@ -17,6 +17,7 @@ import io.github.longshou.mcyukkuri.human.HumanNpc;
 import io.github.longshou.mcyukkuri.item.CarrierContents;
 import io.github.longshou.mcyukkuri.life.Consumables;
 import io.github.longshou.mcyukkuri.pet.BadgeGrade;
+import io.github.longshou.mcyukkuri.pet.exam.ExamSession;
 import io.github.longshou.mcyukkuri.registry.ModItems;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import net.minecraft.ChatFormatting;
@@ -73,6 +74,23 @@ public final class ScenarioCommands {
         return 0;
     }
 
+    private static int examFixture(CommandContext<CommandSourceStack> context, int service) throws CommandSyntaxException {
+        if (context.getSource().getEntity() != null || !context.getSource().getLevel().players().isEmpty()) return 0;
+        var candidate = yukkuri(context, "candidate");
+        if (candidate == null || !(EntityArgument.getEntity(context, "examiner") instanceof HumanNpc examiner)) return 0;
+        var owner = FakePlayerFactory.getMinecraft(context.getSource().getLevel());
+        owner.setPos(candidate.getX(), candidate.getY(), candidate.getZ() + 1);
+        Custody.assign(candidate, owner.getUUID(), Custody.OwnerKind.PLAYER, Custody.Role.COMPANION);
+        if (service == ExamSession.PROMOTION) {
+            candidate.pet().issue(BadgeGrade.BRONZE, ExamSession.SIMPLE, examiner.getUUID());
+            owner.getInventory().clearContent();
+            owner.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(ModItems.SWEET_CANDY.get()));
+            owner.getInventory().add(new ItemStack(Items.EMERALD, ExamSession.fee(service)));
+        }
+        var reason = ExamSession.start(examiner, owner, candidate, service, true);
+        return reason == null ? 1 : refused(context.getSource(), candidate, "exam_fixture", reason);
+    }
+
     private static int spawn(CommandContext<CommandSourceStack> c) throws CommandSyntaxException {
         var at=BlockPosArgument.getLoadedBlockPos(c,"at");
         String reason=ScenarioSetup.spawn(c.getSource().getLevel(),at,IntegerArgumentType.getInteger(c,"count"));
@@ -105,6 +123,10 @@ public final class ScenarioCommands {
 
     public static LiteralArgumentBuilder<CommandSourceStack> command() {
         return Commands.literal("scenario").requires(s -> s.hasPermission(2))
+                .then(Commands.literal("exam_bronze").then(Commands.argument("examiner", EntityArgument.entity())
+                        .then(Commands.argument("candidate", EntityArgument.entity()).executes(c -> examFixture(c, ExamSession.SIMPLE)))))
+                .then(Commands.literal("exam_silver").then(Commands.argument("examiner", EntityArgument.entity())
+                        .then(Commands.argument("candidate", EntityArgument.entity()).executes(c -> examFixture(c, ExamSession.PROMOTION)))))
                 .then(Commands.literal("basket")
                         .then(Commands.literal("plain").executes(c -> basketHand(c, new ItemStack(ModItems.CARRIER.get()))))
                         .then(Commands.literal("fine").executes(c -> basketHand(c, new ItemStack(ModItems.FINE_CARRIER.get()))))
@@ -158,7 +180,7 @@ public final class ScenarioCommands {
                         }))))
                 .then(Commands.literal("badge").then(Commands.argument("target", EntityArgument.entity())
                         .then(Commands.argument("grade", StringArgumentType.word())
-                                .suggests((c, b) -> SharedSuggestionProvider.suggest(new String[]{"bronze", "silver", "gold"}, b))
+                                .suggests((c, b) -> SharedSuggestionProvider.suggest(new String[]{"bronze", "silver", "gold", "platinum"}, b))
                                 .then(Commands.argument("detached", BoolArgumentType.bool()).executes(c -> {
                                     var target = yukkuri(c, "target");
                                     if (target == null) return 0;

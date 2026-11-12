@@ -15,7 +15,7 @@ import static io.github.longshou.mcyukkuri.client.GuiKit.*;
 /** Examiner screen: subject card, hall support, last result and the five services. Button and data slot ids are documented on ExamMenu. */
 public final class ExamScreen extends AbstractContainerScreen<ExamMenu> {
     private static final int SERVICE_TOP = 111, SERVICE_ROW = 21, FOOT = 216;
-    private static final int TASKS_Y = 74, TASKS_WIDTH = 308;
+    private static final int TASKS_Y = 74;
     private final Button[] actions = new Button[ExamMenu.ButtonId.COUNT];
     public ExamScreen(ExamMenu menu, Inventory inv, Component title) { super(menu, inv, title); imageWidth = 340; imageHeight = 240; }
     @Override protected void init() {
@@ -54,13 +54,6 @@ public final class ExamScreen extends AbstractContainerScreen<ExamMenu> {
         }
         return any ? result : Component.translatable("pet.mcyukkuri.profile.skills_none");
     }
-    private static Component taskAreas(int mask) {
-        String[] areas = {"care", "practice", "challenge"};
-        var result = Component.translatable("exam.mcyukkuri.ui.tasks");
-        for (int i = 0; i < areas.length; i++) result.append("  ").append(Component.translatable("exam.mcyukkuri.ui.task_area." + areas[i]))
-                .append((mask >> i & 1) != 0 ? " ✓" : " ✗");
-        return result;
-    }
     @Override protected void renderLabels(GuiGraphics g, int mx, int my) {
         if (menu.value(ExamMenu.Data.SUBJECT_COUNT) == 0) { line(g, 40, SOFT, Component.translatable("exam.mcyukkuri.ui.no_subject")); line(g, 54,
                 SOFT, Component.translatable("exam.mcyukkuri.ui.no_subject_hint")); }
@@ -85,8 +78,7 @@ public final class ExamScreen extends AbstractContainerScreen<ExamMenu> {
             g.drawString(font, vitals, 16, 62, SOFT, false);
             int mask = menu.value(ExamMenu.Data.HALL_MASK);
             if ((mask & ExamMenu.HALL_FOUND) == 0) line(g, TASKS_Y, WARN, Component.translatable("exam.mcyukkuri.ui.no_hall"));
-            else line(g, TASKS_Y, (mask & ExamMenu.HALL_TASK_AREAS) == ExamMenu.HALL_TASK_AREAS ? GOOD : SOFT,
-                    ellipsize(font, taskAreas(mask), TASKS_WIDTH));
+            else line(g, TASKS_Y, SOFT, Component.translatable("exam.mcyukkuri.ui.daylight"));
             if (menu.value(ExamMenu.Data.LAST_OUTCOME) == 0) line(g, 87, SOFT, Component.translatable("badge.mcyukkuri.profile.exam_none"));
             else line(g, 87, INK, Component.translatable("exam.mcyukkuri.ui.last", Component.translatable("exam.mcyukkuri.type." + menu.value(ExamMenu.Data.LAST_TYPE)),
                     Component.translatable("exam.mcyukkuri.outcome." + (menu.value(ExamMenu.Data.LAST_OUTCOME) - 1), grade(menu.value(ExamMenu.Data.LAST_GRADE)))));
@@ -109,11 +101,5 @@ public final class ExamScreen extends AbstractContainerScreen<ExamMenu> {
         Component knownSkills = Component.translatable("pet.mcyukkuri.profile.skills", skills(menu.value(ExamMenu.Data.SKILL_MASK)));
         if (menu.value(ExamMenu.Data.SUBJECT_COUNT) > 0 && font.width(knownSkills) > 300 && over(x, y, leftPos + 16, topPos + 42, 300, font.lineHeight))
             g.renderTooltip(font, knownSkills, x, y);
-        int mask = menu.value(ExamMenu.Data.HALL_MASK);
-        if (menu.value(ExamMenu.Data.SUBJECT_COUNT) > 0 && (mask & ExamMenu.HALL_FOUND) != 0
-                && over(x, y, leftPos + 16, topPos + TASKS_Y, TASKS_WIDTH, font.lineHeight)) {
-            var tasks = taskAreas(mask);
-            if (font.width(tasks) > TASKS_WIDTH) setTooltipForNextRenderPass(tasks);
-        }
     }
 }

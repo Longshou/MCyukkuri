@@ -163,7 +163,7 @@ public final class BadgeArcs {
     private static void end(ServerLevel level, Scene s, Phase phase, String result) { WildEvents.finish(level, s, phase, result); }
     private static void quiet(YukkuriEntity e) { if (e.isCommandPlaying() && !e.isPanicking()) e.playAction("idle"); }
     private static void look(YukkuriEntity e, Entity at) { if (at != null) e.getLookControl().setLookAt(at, 30, 30); }
-    private static int grade(YukkuriEntity e) { return e.pet().visibleEffective().id(); }
+    private static int grade(YukkuriEntity e) { return BadgeSocial.visibleRank(e).id(); }
     private static void like(ServerLevel level, YukkuriEntity a, YukkuriEntity b, int delta) { BadgeSocial.nudge(YukkuriWorldData.get(level), a.getUUID(), b.getUUID(), delta); }
     /** Holder remembers the subject: flags and impression, creating the entry when the holder never sighted it. */
     private static void note(YukkuriEntity holder, YukkuriEntity subject, int flags, int impression, long now) {

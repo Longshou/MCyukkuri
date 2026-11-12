@@ -193,6 +193,10 @@
     "colony_migrate_babies": "CL-05",
     "colony_mold_exile": "CL-06",
     "training_home": "TN-14",
-    "training_study": "TN-15"
+    "training_study": "TN-15",
+    "exam_obstructed": "TN-16",
+    "exam_silver": "TN-17",
+    "exam_gold": "TN-18",
+    "exam_platinum": "TN-19"
   }
 }

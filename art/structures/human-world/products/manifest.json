@@ -27,6 +27,11 @@
       "target": "src/main/resources/assets/mcyukkuri/textures/item/gold_yukkuri_badge.png",
       "sha256": "d9e445f6821b3a0deff8e94f38b002146b5efc7615f436ea7969bf10b89a822e"
     },
+    "platinum_yukkuri_badge": {
+      "source": "art/structures/human-world/products/platinum_yukkuri_badge.png",
+      "target": "src/main/resources/assets/mcyukkuri/textures/item/platinum_yukkuri_badge.png",
+      "sha256": "06e264993c2014e9b65560ddab246f8e90189bb4d240be81450b0e5a2f7b17e4"
+    },
     "labor_bench": {
       "source": "art/structures/human-world/products/labor_bench.png",
       "target": "src/main/resources/assets/mcyukkuri/textures/block/labor_bench.png",

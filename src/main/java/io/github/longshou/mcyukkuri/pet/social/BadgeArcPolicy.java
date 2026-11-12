@@ -74,9 +74,11 @@ public final class BadgeArcPolicy {
         }
         if (!o.pet() && grudge && o.friendliness() <= 50 && o.selfControl() < 60 && s.grade() > 0 && !r.related()
                 && o.nutrition() >= 30 && o.sizePercent() * 10 >= s.sizePercent() * 9)
-            out.add(new Candidate(Arc.PROVOKE, "", clamp01(.3 + ((r.flags() & BadgeLedger.SNUBBED) != 0 ? .15 : 0))));
+            out.add(new Candidate(Arc.PROVOKE, "", clamp01(.3 + ((r.flags() & BadgeLedger.SNUBBED) != 0 ? .15 : 0)
+                    - .07 * Math.max(0, s.grade() - o.ownGrade() - 1))));
         if (!o.pet() && s.grade() > 0 && novel && o.friendliness() >= 35)
-            out.add(new Candidate(Arc.GLANCE, "", clamp01(nov * (.1 + .002 * o.intelligence() + .001 * (100 - o.boldness()) + (o.child() ? .12 : 0)))));
+            out.add(new Candidate(Arc.GLANCE, "", clamp01(nov * (.1 + .002 * o.intelligence() + .001 * (100 - o.boldness())
+                    + (o.child() ? .12 : 0) + .05 * Math.max(0, s.grade() - o.ownGrade() - 1)))));
         boolean above = o.pet() ? s.grade() > o.ownGrade() : s.grade() > 0;
         if (above && novel) {
             double p = .03 + .008 * (60 - o.friendliness()) + .12 * Math.max(0, s.grade() - o.ownGrade() - 1)

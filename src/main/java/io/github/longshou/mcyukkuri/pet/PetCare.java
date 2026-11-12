@@ -3,6 +3,7 @@ package io.github.longshou.mcyukkuri.pet;
 import io.github.longshou.mcyukkuri.mind.EmotionEvent;
 
 import io.github.longshou.mcyukkuri.social.BondLevels;
+import io.github.longshou.mcyukkuri.social.YukkuriPersonality.Trait;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.interaction.CareAction;
 import io.github.longshou.mcyukkuri.item.SwaddleStyle;
@@ -198,7 +199,7 @@ public final class PetCare {
         if (!sleeping) affection(player);
         if (!animal.pet().owned(player) || habitLeft <= 0) return false;
         habits++;
-        animal.life().personality().experienced(io.github.longshou.mcyukkuri.social.YukkuriPersonality.Trait.ATTACHMENT, 1);
+        animal.life().personality().experienced(Trait.ATTACHMENT, 1);
         animal.pet().addStress(-1);
         if (sleeping) animal.mind().felt(EmotionEvent.PRAISED, null);
         else {

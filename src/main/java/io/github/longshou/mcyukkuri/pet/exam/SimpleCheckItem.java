@@ -2,7 +2,6 @@ package io.github.longshou.mcyukkuri.pet.exam;
 
 import io.github.longshou.mcyukkuri.dialogue.NativeDialogue;
 import io.github.longshou.mcyukkuri.mind.Naming;
-import io.github.longshou.mcyukkuri.pet.BadgeGrade;
 import io.github.longshou.mcyukkuri.subspecies.SubspeciesLife.Congenital;
 import net.minecraft.network.chat.Component;
 
@@ -14,8 +13,6 @@ public final class SimpleCheckItem implements ExamItem {
     private Component name;
     private boolean passed;
 
-    @Override public ExamTaskArea area() { return ExamTaskArea.CARE_ROOM; }
-    @Override public BadgeGrade minimumGrade() { return BadgeGrade.BRONZE; }
     @Override public String id() { return "simple_check"; }
     @Override public void start(ExamContext ctx) { ctx.examinerWalkTo(ctx.candidate().blockPosition()); }
 
@@ -37,11 +34,19 @@ public final class SimpleCheckItem implements ExamItem {
             }
             case QUESTION -> {
                 if (now < until || now < y.speechEnd() && now < until + 180) return false;
+                int fear = y.life().personality().fear(examiner.getUUID());
+                if (fear >= 50 || y.mind().unease() >= 50) {
+                    y.playAction("shy");
+                    ctx.answer(id(), false, "too_uneasy");
+                    phase = Phase.ANSWER;
+                    until = now + 60;
+                    return false;
+                }
                 boolean deficient = y.subspecies().congenital() != Congenital.NORMAL;
                 String custom = y.getCustomName() == null ? "" : y.getCustomName().getString();
                 String given = Naming.ownName(y, custom) ? custom : y.mind().givenName();
                 name = given == null || given.isBlank() ? y.getType().getDescription() : Component.literal(given);
-                y.playAction(y.life().personality().fear(examiner.getUUID()) > 20 ? "shy" : "bow");
+                y.playAction(fear > 20 ? "shy" : "bow");
                 int sequence = y.speechSequence();
                 boolean spoken = y.speakCue("introduced") && y.speechSequence() != sequence;
                 var line = NativeDialogue.byKey(y.getDialogueKey());

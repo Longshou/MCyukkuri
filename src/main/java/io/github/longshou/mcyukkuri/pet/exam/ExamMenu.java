@@ -67,7 +67,7 @@ public final class ExamMenu extends AbstractContainerMenu {
         public static final int REFUSAL_BASE = 26;
         private Data() {}
     }
-    public static final int HALL_FOUND = 16, HALL_TASK_AREAS = 7;
+    public static final int HALL_FOUND = 1;
     private final HumanNpc target;
     private final Player viewer;
     private final List<UUID> subjects = new ArrayList<>();
@@ -114,7 +114,7 @@ public final class ExamMenu extends AbstractContainerMenu {
         for (int i = 0; i < Data.COUNT; i++) data.set(i, 0);
         put(Data.SUBJECT_COUNT, subjects.size()); put(Data.SUBJECT_INDEX, subjects.isEmpty() ? 0 : selected + 1); put(Data.DAYTIME,
                 target.level().isDay() ? 1 : 0); put(Data.BUSY, ExamSession.active(target) ? 1 : 0);
-        var hall = ExamHall.of(target); put(Data.HALL_MASK, hall == null ? 0 : hall.supportMask() | HALL_FOUND); put(Data.EMERALDS, ExamSession.emeralds(viewer));
+        put(Data.HALL_MASK, ExamHall.of(target) ? HALL_FOUND : 0); put(Data.EMERALDS, ExamSession.emeralds(viewer));
         var y = subject(); if (y == null) return;
         var b = y.pet();
         put(Data.RELATION, b.owned(viewer) ? 1 : 2); put(Data.GRADE, b.grade().id());

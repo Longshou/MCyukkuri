@@ -2,6 +2,7 @@ package io.github.longshou.mcyukkuri.shop;
 
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.pet.social.BadgeSocial;
 import io.github.longshou.mcyukkuri.human.Custody;
 import io.github.longshou.mcyukkuri.human.HumanNpc;
 import io.github.longshou.mcyukkuri.item.CarrierContents;
@@ -272,7 +273,7 @@ public final class ShopWindow implements MotorOwner {
         var p = entity.life().personality();
         double hope = hope();
         double fear = p.fear(c.getUUID()) + (c instanceof HumanNpc n && n.attitude() == HumanNpc.Attitude.CRUEL ? CRUEL_FEAR : 0);
-        int grade = entity.pet().effectiveGrade().id();
+        int grade = BadgeSocial.visibleRank(entity).id();
         double want = .4 * p.friendliness() + .4 * p.boldness() + 40 * hope - .6 * fear + jitter();
         // Posing is showing off to be chosen too: a badge holder long passed over loses the heart for it (60 % of it at no hope left).
         double pride = grade >= BadgeGrade.SILVER.id()
@@ -305,7 +306,7 @@ public final class ShopWindow implements MotorOwner {
     private void afterNotice(long now) {
         switch (mode) {
             case APPEAL, SHOW_OFF -> { entity.speak("shop_appeal"); if (!toGlass(now)) beginPerformance(now); }
-            case PROUD -> { if (entity.pet().effectiveGrade().id() >= BadgeGrade.SILVER.id()) entity.speak("badge_proud"); beginPerformance(now); }
+            case PROUD -> { if (BadgeSocial.visibleRank(entity).id() >= BadgeGrade.SILVER.id()) entity.speak("badge_proud"); beginPerformance(now); }
             case SHY -> { entity.speak("shy"); if (!retreat(now)) beginPerformance(now); }
             case SULK -> { entity.speak("request_sulk"); beginPerformance(now); }
         }
@@ -418,7 +419,7 @@ public final class ShopWindow implements MotorOwner {
         var p = entity.life().personality();
         boolean kin = Bonds.kin(entity, sold, EnumSet.of(Bonds.Kin.BIO, Bonds.Kin.CARE, Bonds.Kin.MATE));
         boolean friend = YukkuriWorldData.get(level).affinity(entity.getUUID(), sold.getUUID()) >= BondLevels.AFFINITY_CLOSE;
-        boolean outranked = sold.pet().effectiveGrade().id() > entity.pet().effectiveGrade().id();
+        boolean outranked = BadgeSocial.visibleRank(sold).id() > BadgeSocial.visibleRank(entity).id();
         witness = kin || friend ? Witness.FAREWELL
                 : outranked || p.selfControl() < 40 && p.friendliness() < 50 ? Witness.ENVY
                 : buyer != null && hope() > .4 && p.boldness() >= 50 && GlassSight.sees(entity, buyer) ? Witness.ME_TOO : Witness.WATCH;

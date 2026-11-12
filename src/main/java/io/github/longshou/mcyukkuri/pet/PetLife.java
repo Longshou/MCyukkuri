@@ -73,24 +73,15 @@ public final class PetLife {
     public BadgeGrade grade() { return grade; }
     public boolean expired() { return expiresAt >= 0 && now() > expiresAt; }
     public BadgeGrade effectiveGrade() { return voidBadge ? BadgeGrade.NONE : expired() ? grade.lower() : grade; }
-    /** Transient (never saved): the exam ceremony keeps a freshly decided badge off the animal until the pinning moment. */
-    private boolean badgeHidden;
-    /** Rollback for temporary wild-candidate ownership. Saved even though exam locks and directors are transient. */
+    /** Rollback for a temporary wild-candidate owner from an older save. */
     private CompoundTag examWildTag;
     private UUID examTemporaryOwner;
-    /** The exam session supplies its participating player's UUID, even if that player later disconnects. */
-    public void beginWildExam(UUID owner) {
-        examWildTag = HumanCommerce.data(animal).copy();
-        examTemporaryOwner = owner;
-        Custody.assign(animal, owner, Custody.OwnerKind.PLAYER, Custody.Role.COMPANION);
-    }
     public void finishWildExam() {
         if (examWildTag != null && animal.isAlive() && grade == BadgeGrade.NONE && ownedBy(examTemporaryOwner))
             Custody.release(animal, Custody.ReleaseReason.EXAM_ROLLBACK, null, examWildTag);
         examWildTag = null; examTemporaryOwner = null;
     }
-    public void hideBadge(boolean hidden) { badgeHidden = hidden; }
-    public BadgeGrade visibleGrade() { return worn && !badgeHidden && animal.life().hasAccessory() ? grade : BadgeGrade.NONE; }
+    public BadgeGrade visibleGrade() { return worn && animal.life().hasAccessory() ? grade : BadgeGrade.NONE; }
     public BadgeGrade visibleEffective() { return voidBadge ? BadgeGrade.NONE : expired() ? visibleGrade().lower() : visibleGrade(); }
     public boolean worn() { return worn; }
     public long issuedAt() { return issuedAt; }
@@ -402,7 +393,7 @@ public final class PetLife {
     private void face(YukkuriEntity peer, int ticks) { faceAt = peer.getUUID(); faceTicks = ticks; animal.getLookControl().setLookAt(peer, 30, 30); }
     public boolean reactTo(YukkuriEntity peer) {
         if (socialCooldown > 0 || stareTicks > 0 || !calm() || !peer.isAlive() || peer.pet().busy() || peer.life().isSleeping()
-                || peer.pet().visibleEffective() == BadgeGrade.NONE && visibleEffective() == BadgeGrade.NONE) return false;
+                || BadgeSocial.visibleRank(peer) == BadgeGrade.NONE && BadgeSocial.visibleRank(animal) == BadgeGrade.NONE) return false;
         if (BadgeSocial.enabled()) return BadgeSocial.greeting(animal, peer);
         if (!pairReady(peer)) return false; // one full reaction per pair per 10 minutes
         if (startStare(peer)) return true;
@@ -420,7 +411,7 @@ public final class PetLife {
     }
     /** A wild observer pauses to stare at a visible silver/gold badge before it reacts, once per pair per 10 minutes. */
     private boolean startStare(YukkuriEntity peer) {
-        if (!animal.status().identity().free() || peer.pet().visibleEffective().id() < BadgeGrade.SILVER.id() || !animal.hasLineOfSight(peer)) return false;
+        if (!animal.status().identity().free() || BadgeSocial.visibleRank(peer).id() < BadgeGrade.SILVER.id() || !animal.hasLineOfSight(peer)) return false;
         long t = now(); Long last = noticed.get(peer.getUUID());
         if (last != null && t - last < 12000) return false;
         noticed.values().removeIf(v -> t - v > 12000); noticed.put(peer.getUUID(), t);
@@ -431,7 +422,7 @@ public final class PetLife {
     }
     private int react(YukkuriEntity peer) {
         socialCooldown = 600; notePair(peer);
-        int mine = visibleEffective().id(), theirs = peer.pet().visibleEffective().id();
+        int mine = BadgeSocial.visibleRank(animal).id(), theirs = BadgeSocial.visibleRank(peer).id();
         var personality = animal.life().personality();
         boolean bold = personality.boldness() >= Temperament.BOLDNESS_AT_55;
         var world = YukkuriWorldData.get((ServerLevel)animal.level());
@@ -457,7 +448,7 @@ public final class PetLife {
     private void scanBadges() {
         if (!animal.status().identity().free() || socialCooldown > 0 || stareTicks > 0 || !calm()) return;
         var peer = animal.level().getEntitiesOfClass(YukkuriEntity.class, animal.getBoundingBox().inflate(6), y -> y != animal && y.isAlive()
-                && y.pet().visibleEffective().id() >= BadgeGrade.SILVER.id() && animal.hasLineOfSight(y)).stream()
+                && BadgeSocial.visibleRank(y).id() >= BadgeGrade.SILVER.id() && animal.hasLineOfSight(y)).stream()
                 .min(Comparator.comparingDouble(animal::distanceToSqr)).orElse(null);
         if (peer != null) reactTo(peer);
     }
@@ -527,7 +518,6 @@ public final class PetLife {
         ledger.load(tag.getCompound("BadgeLedger"));
         examWildTag = tag.contains("ExamWildTag", 10) && tag.hasUUID("ExamTemporaryOwner") ? tag.getCompound("ExamWildTag").copy() : null;
         examTemporaryOwner = examWildTag == null ? null : tag.getUUID("ExamTemporaryOwner");
-        badgeHidden = false;
         lockKind = null; lockedBy = null; director = null; lockGone = 0;
     }
     public static final class SessionGoal extends Goal {

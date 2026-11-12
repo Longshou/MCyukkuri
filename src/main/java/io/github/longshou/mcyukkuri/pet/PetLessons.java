@@ -341,6 +341,11 @@ public final class PetLessons {
 
     private void finishLesson(boolean success) {
         if (state != State.RUNNING) return;
+        if (kind == PetSkill.WAIT && ExamSession.running(animal)) {
+            animal.pet().unlock(LOCK);
+            end();
+            return;
+        }
         completed = success;
         routineObserveLeft = 0;
         animal.pet().setCooldown(COOLDOWN);

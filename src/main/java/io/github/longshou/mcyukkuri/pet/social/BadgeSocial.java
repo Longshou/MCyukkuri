@@ -2,6 +2,7 @@ package io.github.longshou.mcyukkuri.pet.social;
 
 import io.github.longshou.mcyukkuri.social.Bonds;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.pet.BadgeGrade;
 import io.github.longshou.mcyukkuri.event.WildEventData;
 import io.github.longshou.mcyukkuri.event.WildEvents;
 import io.github.longshou.mcyukkuri.life.YukkuriConfig;
@@ -23,6 +24,7 @@ import net.minecraft.world.phys.Vec3;
 /** Sightings of badges (and of lost ones), turned into silent ledger records, rare one-liners or multi-beat arcs. Server only, driven by PetLife's 2-second
  *  tick; nothing here depends on rendering. Redesign of the old poll-and-perform scan: docs/FEATURES.md */
 public final class BadgeSocial {
+    public static BadgeGrade visibleRank(YukkuriEntity subject) { return subject.pet().visibleEffective(); }
     /** Affinity moved by badge reactions stays inside these guard rails: far from the bully (-20) and nuzzle (+10) thresholds. */
     public static final int FLOOR = -10, CEILING = 8;
     private static final int SCAN_RADIUS = 8, DWELL_TICKS = 40, FORGET_VIEW_TICKS = 100, ROLL_EVERY = 200, AUDIENCE_RADIUS = 32;
@@ -95,13 +97,13 @@ public final class BadgeSocial {
         var views = VIEWS.computeIfAbsent(o.getUUID(), id -> new HashMap<>());
         views.values().removeIf(v -> now - v.last > FORGET_VIEW_TICKS);
         if (VIEWS.size() > 256) VIEWS.entrySet().removeIf(e -> e.getValue().isEmpty() && level.getEntity(e.getKey()) == null);
-        int mine = o.pet().visibleEffective().id();
+        int mine = visibleRank(o).id();
         var ledger = o.pet().badgeLedger();
         List<YukkuriEntity> seen = new ArrayList<>();
         for (var y : level.getEntitiesOfClass(YukkuriEntity.class, o.getBoundingBox().inflate(SCAN_RADIUS, 3, SCAN_RADIUS), peer -> peer != o && peer.isAlive() && !peer.isRemoved()
                 && !peer.isPassenger() && !peer.profile().houseBody() && !peer.life().isSleeping())) {
             if (!o.hasLineOfSight(y) || !inFront(o, y)) continue;
-            int theirs = y.pet().visibleEffective().id();
+            int theirs = visibleRank(y).id();
             var known = ledger.get(y.getUUID(), now);
             // Relevant: a badge to notice, a badge of my own to show off, or a badge I remember that is gone.
             if (theirs > 0 || o.pet().isPet() && mine > 0 || known != null && known.lastGrade() > theirs) seen.add(y);
@@ -109,7 +111,7 @@ public final class BadgeSocial {
         var viewer = level.getNearestPlayer(o, AUDIENCE_RADIUS);
         for (var y : seen) {
             var v = views.get(y.getUUID());
-            int grade = y.pet().visibleEffective().id();
+            int grade = visibleRank(y).id();
             if (v == null || v.grade != grade) {
                 v = new View(now, grade);
                 views.put(y.getUUID(), v);
@@ -128,7 +130,7 @@ public final class BadgeSocial {
      *  can almost never coincide with the ~1.8 s window in which a bite is held in the mouth, so this is the natural way for B4 to happen. */
     public static void mealSeen(YukkuriEntity subject) {
         if (!enabled() || !(subject.level() instanceof ServerLevel level) || subject.profile().dangerToYukkuri() || subject.profile().houseBody()
-                || subject.pet().visibleEffective().id() <= 0 || subject.life().mouth().isEmpty()) return;
+                || visibleRank(subject).id() <= 0 || subject.life().mouth().isEmpty()) return;
         long now = level.getGameTime(); clock = now;
         var viewer = level.getNearestPlayer(subject, AUDIENCE_RADIUS);
         var data = WildEventData.get(level);
@@ -147,7 +149,7 @@ public final class BadgeSocial {
 
     private static void sighted(ServerLevel level, YukkuriEntity o, YukkuriEntity s, Player viewer, List<YukkuriEntity> seen, long now, boolean edge, boolean meal) {
         var ledger = o.pet().badgeLedger();
-        int grade = s.pet().visibleEffective().id();
+        int grade = visibleRank(s).id();
         BadgeLedger.Sighting sight;
         if (edge) sight = ledger.note(s.getUUID(), grade, now);
         else { var e = ledger.ensure(s.getUUID(), grade, now); sight = new BadgeLedger.Sighting(e, false, false, false, e.lastGrade()); }
@@ -209,7 +211,7 @@ public final class BadgeSocial {
         boolean childNear = around.stream().anyMatch(y -> WildEvents.childOf(o, y));
         boolean elder = o.family().adult() && (group != null && o.getUUID().equals(group.leader) || childNear);
         return new BadgeArcPolicy.Observer(o.pet().isPet(), !o.family().adult(), elder, childNear, p.intelligence(), p.friendliness(), p.boldness(),
-                p.attachment(), p.selfControl(), Math.round(o.life().nutrition()), o.pet().stress(), o.pet().isPet() ? o.pet().visibleEffective().id() : 0,
+                p.attachment(), p.selfControl(), Math.round(o.life().nutrition()), o.pet().stress(), o.pet().isPet() ? visibleRank(o).id() : 0,
                 Math.round(o.getBbWidth() * 100));
     }
 
@@ -222,7 +224,7 @@ public final class BadgeSocial {
         if (viewer != null && WildEvents.playerNear(o, viewer) && viewer.distanceToSqr(o) <= 100) trusted = WildEvents.canAdopt(o, viewer);
         var home = s.life().home();
         boolean homeNear = pet && home != null && !s.life().naturalHome() && home.dimension().equals(level.dimension()) && home.pos().distSqr(o.blockPosition()) <= 36;
-        return new BadgeArcPolicy.Subject(s.pet().visibleEffective().id(), pet, eating, ownerNear, trusted, homeNear, pet && !ownerNear && ownerOnScene,
+        return new BadgeArcPolicy.Subject(visibleRank(s).id(), pet, eating, ownerNear, trusted, homeNear, pet && !ownerNear && ownerOnScene,
                 s.life().hasAccessory(), Math.round(s.getBbWidth() * 100));
     }
 
@@ -232,7 +234,7 @@ public final class BadgeSocial {
         if (!(o.level() instanceof ServerLevel level)) return false;
         long now = level.getGameTime(); clock = now;
         var ledger = o.pet().badgeLedger();
-        ledger.note(peer.getUUID(), peer.pet().visibleEffective().id(), now);
+        ledger.note(peer.getUUID(), visibleRank(peer).id(), now);
         var viewer = level.getNearestPlayer(o, AUDIENCE_RADIUS);
         UUID viewerId = viewer == null ? null : viewer.getUUID();
         if (budget().check(viewerId, 1, o.getUUID(), peer.getUUID()) != BadgeBudget.Verdict.OK) return false;
@@ -250,7 +252,7 @@ public final class BadgeSocial {
         if (why != null) return why;
         var scene = BadgeArcs.start(level, arc, arc == Arc.BOAST ? "boast" : arc == Arc.PITY ? "pity" : arc == Arc.ELDER_WARN ? "warn" : "", o, s, viewer, null);
         if (scene == null) return "start_refused";
-        o.pet().badgeLedger().ensure(s.getUUID(), s.pet().visibleEffective().id(), clock);
+        o.pet().badgeLedger().ensure(s.getUUID(), visibleRank(s).id(), clock);
         o.pet().badgeLedger().arc(s.getUUID(), arc.id, clock);
         return null;
     }

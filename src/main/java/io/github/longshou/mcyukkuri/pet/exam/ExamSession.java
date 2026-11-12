@@ -37,6 +37,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.event.server.ServerStoppingEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
+import net.neoforged.neoforge.common.util.FakePlayer;
 
 /** One examiner and candidate, with question receipts written before any result transaction. */
 public final class ExamSession implements ExamContext {
@@ -46,7 +47,7 @@ public final class ExamSession implements ExamContext {
             "cooldown", "no_accessory", "already_badged", "need_badge", "max_grade", "need_silver", "not_needed", "no_section", "no_fee",
             "no_management", "too_late", "stage", "deficient", "sick", "uneasy", "labor", "occupied", "need_sweet", "need_reading",
             "need_count", "need_care", "need_walk", "no_participant", "same_conditions", "need_gold", "platinum_potential",
-            "platinum_skills", "platinum_traits");
+            "platinum_skills", "platinum_traits", "share_nutrition");
     private static final Set<String> PLAYER_CAUSES = Set.of("owner_far", "owner_gone", "hurt", "panic", "fire", "water", "held", "accessory", "lost");
     private static final Map<UUID, ExamSession> ACTIVE = new HashMap<>();
     private enum Phase { APPROACH, ITEM, PAYMENT, RESULT }
@@ -55,6 +56,7 @@ public final class ExamSession implements ExamContext {
     private final HumanNpc examiner;
     private final YukkuriEntity candidate;
     private final UUID ownerId;
+    private final FakePlayer fixtureOwner;
     private final BadgeGrade before, target;
     private final int service, fee;
     private final long attempt;
@@ -75,6 +77,7 @@ public final class ExamSession implements ExamContext {
         this.examiner = examiner;
         this.candidate = candidate;
         this.ownerId = owner.getUUID();
+        this.fixtureOwner = owner instanceof FakePlayer fake ? fake : null;
         this.before = candidate.pet().grade();
         this.target = target;
         this.service = service;
@@ -128,7 +131,7 @@ public final class ExamSession implements ExamContext {
     }
     private static BadgeGrade target(int type, YukkuriEntity y) {
         if (type == JUDGMENT && y.subspecies().congenital() != Congenital.NORMAL) return BadgeGrade.BRONZE;
-        if (type == JUDGMENT && !y.family().adult()) return BadgeGrade.SILVER;
+        if (type == JUDGMENT && (!y.family().adult() || y.pet().grade() == BadgeGrade.NONE)) return BadgeGrade.SILVER;
         return targetOf(type, y.pet().grade());
     }
     public static boolean unmanaged(Player p) {
@@ -158,19 +161,37 @@ public final class ExamSession implements ExamContext {
                 yield guest == null ? "" : guest.getUUID().toString();
             }
             case HELP, SHARE -> {
-                var peer = ExamPlan.needy(y);
+                var peer = ExamPlan.needy(y, question == ExamPlan.Question.SHARE);
                 yield peer == null ? "" : peer.getUUID().toString();
             }
             case BED -> String.valueOf(y.life().homeStand());
             default -> examiner.home().toShortString();
         };
+        int aptitude = switch (question) {
+            case NAME, GREET -> personality.attachment();
+            case READ, COUNT, EXPLAIN, CLARIFY -> Math.min(personality.intelligence(), personality.selfControl());
+            case WAIT, BOWL, TOILET, BED, WALK -> personality.selfControl();
+            case HELP, SHARE -> personality.friendliness();
+        };
         return question.name() + "|" + (skill == null ? 0 : y.pet().lessons().xp(skill))
                 + "|" + y.pet().stress() / 5 + "|" + personality.fear(examiner.getUUID()) / 5
-                + "|" + personality.intelligence() + "/" + personality.selfControl() + "/" + personality.friendliness()
-                + "|" + example;
+                + "|" + aptitude + "|" + example;
+    }
+
+    private static boolean improved(String[] old, String[] current) {
+        try {
+            return Integer.parseInt(current[1]) > Integer.parseInt(old[1])
+                    || Integer.parseInt(current[2]) < Integer.parseInt(old[2])
+                    || Integer.parseInt(current[3]) < Integer.parseInt(old[3])
+                    || Integer.parseInt(current[4]) > Integer.parseInt(old[4])
+                    || !current[5].isEmpty() && !old[5].equals(current[5]);
+        } catch (NumberFormatException legacy) {
+            return true;
+        }
     }
 
     public static String refusal(HumanNpc examiner, Player p, YukkuriEntity y, int type) {
+        if (examiner.job() != HumanNpc.Job.EXAMINER) return "busy";
         if (y == null || !y.isAlive() || y.level() != p.level() || y.distanceToSqr(p) > 64) return "far";
         if (!examiner.level().isDay()) return "night";
         if (active(examiner) || running(y)) return "busy";
@@ -213,7 +234,7 @@ public final class ExamSession implements ExamContext {
         if (y.life().hasUrgentNeed()) return "not_ready";
         long day = Math.floorMod(examiner.level().getDayTime(), 24000);
         if (day < 12000 && 12000 - day < (target == BadgeGrade.BRONZE ? 600 : 6000)) return "too_late";
-        if (target.id() >= BadgeGrade.SILVER.id() && ExamHall.of(examiner) == null) return "no_hall";
+        if (target.id() >= BadgeGrade.SILVER.id() && !ExamHall.of(examiner)) return "no_hall";
         if (emeralds(p) < fee(type)) return "no_fee";
         var prior = previous(y, target);
         var resume = pending(prior);
@@ -223,8 +244,12 @@ public final class ExamSession implements ExamContext {
             if (reason != null) return reason;
         }
         if (prior != null && prior.outcome() >= 2 && prior.outcome() != 4 && !prior.evidence().isEmpty()) {
-            var failed = ExamPlan.Question.valueOf(prior.evidence().substring(0, prior.evidence().indexOf('|')));
-            if (prior.evidence().equals(evidence(failed, examiner, p, y))) return "same_conditions";
+            var old = prior.evidence().split("\\|", 6);
+            if (old.length == 6) {
+                var failed = ExamPlan.Question.valueOf(old[0]);
+                var current = evidence(failed, examiner, p, y).split("\\|", 6);
+                if (!improved(old, current)) return "same_conditions";
+            }
         }
         return null;
     }
@@ -270,6 +295,11 @@ public final class ExamSession implements ExamContext {
         for (var session : ACTIVE.values())
             if (session.phase == Phase.ITEM && session.item instanceof ExamPracticeItem practice)
                 practice.fed(session, receiver, feeder);
+    }
+    public static YukkuriEntity sharingTarget(YukkuriEntity donor) {
+        var session = candidateSession(donor);
+        return session != null && session.phase == Phase.ITEM && session.item instanceof ExamPracticeItem practice
+                ? practice.sharingTarget() : null;
     }
 
     private void tick() {
@@ -428,7 +458,7 @@ public final class ExamSession implements ExamContext {
     private void checkpoint(int outcome, BadgeGrade result, int next, String evidence) {
         candidate.pet().record(new ExamRecord(service, level.getGameTime(), result, outcome, examiner.getUUID(),
                 target, ExamPlan.encode(questions), next, successes, evidence == null ? "" : evidence, attempt));
-        if (!notes.isEmpty()) candidate.getPersistentData().putString("ExamNotes", String.join("|", notes));
+        if (!notes.isEmpty() || outcome != 4) candidate.getPersistentData().putString("ExamNotes", String.join("|", notes));
     }
 
     @Override public void interrupt(String reason) {
@@ -465,7 +495,7 @@ public final class ExamSession implements ExamContext {
     @Override public ServerLevel level() { return level; }
     @Override public HumanNpc examiner() { return examiner; }
     @Override public YukkuriEntity candidate() { return candidate; }
-    @Override public Player owner() { return level.getServer().getPlayerList().getPlayer(ownerId); }
+    @Override public Player owner() { return fixtureOwner != null ? fixtureOwner : level.getServer().getPlayerList().getPlayer(ownerId); }
     @Override public int itemTicks() { return itemTicks; }
     @Override public void examinerSay(String key, Object... args) {
         var text = Component.translatable(key, args);

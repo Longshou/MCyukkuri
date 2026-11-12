@@ -18,7 +18,9 @@ import io.github.longshou.mcyukkuri.motor.action.Face;
 import io.github.longshou.mcyukkuri.settlement.SettlementSeasons;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
@@ -65,6 +67,16 @@ public final class DailyLife {
     private static final int WELCOME_WINDOW = 600;
     /** Homecomings (member, its arrival tick) this one already welcomed or let pass; transient. */
     private final Map<UUID, Long> welcomed = new HashMap<>();
+    private final Set<UUID> sharedFood = new HashSet<>();
+    private long sharedFoodDay = Long.MIN_VALUE;
+
+    private void updateSharingDay() {
+        long day = Math.floorDiv(entity.level().getDayTime(), 24000L);
+        if (day != sharedFoodDay) { sharedFood.clear(); sharedFoodDay = day; }
+    }
+
+    public boolean sharedFoodToday(UUID peer) { updateSharingDay(); return sharedFood.contains(peer); }
+    public void sharedFoodWith(UUID peer) { updateSharingDay(); sharedFood.add(peer); }
 
     public DailyLife(YukkuriEntity entity) { this.entity = entity; }
     public int affectionNeed() { return affection; }
@@ -485,12 +497,22 @@ public final class DailyLife {
     public CompoundTag save() {
         var tag = new CompoundTag(); tag.putInt("Affection", affection); tag.putInt("Boredom", boredom);
         tag.putInt("Clock", clock); tag.putInt("Cooldown", cooldown);
-        tag.putInt("Nuzzles", nuzzles); tag.putInt("Songs", songs); tag.putInt("Exercises", exercises); return tag;
+        tag.putInt("Nuzzles", nuzzles); tag.putInt("Songs", songs); tag.putInt("Exercises", exercises);
+        tag.putLong("SharedFoodDay", sharedFoodDay);
+        var recipients = new CompoundTag();
+        for (UUID peer : sharedFood) recipients.putBoolean(peer.toString(), true);
+        tag.put("SharedFood", recipients);
+        return tag;
     }
     public void load(CompoundTag tag) {
         stop(false); affection = tag.contains("Affection") ? Math.clamp(tag.getInt("Affection"), 0, 100) : 20;
         boredom = tag.contains("Boredom") ? Math.clamp(tag.getInt("Boredom"), 0, 100) : 20;
         clock = Math.clamp(tag.getInt("Clock"), 0, 199); cooldown = Math.clamp(tag.getInt("Cooldown"), 0, 2400);
         nuzzles = Math.max(0, tag.getInt("Nuzzles")); songs = Math.max(0, tag.getInt("Songs")); exercises = Math.max(0, tag.getInt("Exercises"));
+        sharedFoodDay = tag.getLong("SharedFoodDay");
+        sharedFood.clear();
+        for (String peer : tag.getCompound("SharedFood").getAllKeys()) {
+            try { sharedFood.add(UUID.fromString(peer)); } catch (IllegalArgumentException ignored) { }
+        }
     }
 }

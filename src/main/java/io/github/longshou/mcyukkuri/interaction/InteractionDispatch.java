@@ -142,6 +142,7 @@ public final class InteractionDispatch {
         };
         String reason=reachRefusal(player,target,range);
         if(reason!=null)return reason;
+        if(ExamSession.running(target))return "busy";
         var operation=target.operations();
         if(action==CareAction.RELEASE)return operation.canRelease()?null:"no_operation";
         reason=operationRefusal(target);

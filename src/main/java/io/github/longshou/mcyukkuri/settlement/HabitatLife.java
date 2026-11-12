@@ -13,6 +13,7 @@ import io.github.longshou.mcyukkuri.status.Identity;
 import io.github.longshou.mcyukkuri.status.YukkuriStatus;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.pet.social.BadgeSocial;
 import io.github.longshou.mcyukkuri.entity.YukkuriComponents;
 import java.util.ArrayList;
 import java.util.List;
@@ -197,7 +198,7 @@ public final class HabitatLife {
         homes.homeChosen(value);
         if (entity.status().identity() == Identity.STRAY && grownEnough() && value.kind() == ShelterBlock.Kind.BURROW
                 && !level().isCloseToVillage(value.getBlockPos(), 1)
-                && (entity.life().hasAccessory() || entity.pet().visibleEffective().id() > 0)) {
+                && (entity.life().hasAccessory() || BadgeSocial.visibleRank(entity).id() > 0)) {
             if (entity.settlement().groupId() != null) entity.settlement().exile();
             entity.pet().leaveTownLife();
             YukkuriStatus.identityChanged(entity, Identity.STRAY, "wilderness_home");

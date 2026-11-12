@@ -1403,12 +1403,63 @@ add('training_study', 'town', '宠物读告示牌、数苹果', '宠物读告示
     reads=[('读读字经验', f'data get entity {sel("reader")} YukkuriPet.SkillExperience'),
            ('读算术经验', f'data get entity {sel("counter")} YukkuriPet.SkillExperience')])
 
-add('exam', 'town', '宠物灵梦考试：及格得铜章，饿着必挂', '宠物灵梦考试：及格得铜章，饿着必挂',
-    '带宠物灵梦去考官面前考试：紧张、作答、躲猫猫，合格得铜章。不及格对照：生成后立刻点“考生营养降到4”，考试必然不及格，之后被管教（不安 +10、营养清零），比原来的压力更重',
-    '约 1–2 分钟', [
-    block(0, 0, 0, 'mcyukkuri:exam_podium[facing=east]'), block(-4, 0, 0, 'mcyukkuri:exam_hide_box[facing=east]'), block(4, 0, 0, 'minecraft:lectern[facing=west]'),
-    human('caretaker_brother', 5, 0, 'judge', 3, yaw=90, label='考官'), yk('reimu', 2, 2, 'pet', yaw=180, lead=True), *own('pet')], vantage=(0, 12),
-    reads=[('读考生', f'yukkuri status {sel("pet")}'), ('考生营养降到4（必不及格）', set_status('pet', 'needs.nutrition', 4))])
+def exam_hall():
+    return [block(-3, 0, 0, 'mcyukkuri:exam_podium[facing=east]'),
+            human('caretaker_brother', 0, 0, 'judge', 3, yaw=180, label='考官')]
+
+
+def exam_study():
+    return [block(-2, 0, 1, 'minecraft:oak_sign[rotation=4]{front_text:{messages:[\'{"text":"苹果"}\',\'""\',\'""\',\'""\']}}'),
+            item('minecraft:apple', 3, 1, 2, 'count_apples')]
+
+
+def exam_candidate(grade, nutrition=72):
+    return [yk('reimu', 0, 2, 'pet', yaw=180, lead=True, nutrition=nutrition, intelligence=95,
+               friendliness=95, attachment=95, self_control=95, energy=95, social_wait=0,
+               extra='YukkuriPet:{SkillExperience:{reading:80,arithmetic:80,wait:80,food_bowl:80,greeting:80,harness:80}}'),
+            *own('pet'), f'yukkuri scenario badge {sel("pet")} {grade} false']
+
+
+add('exam', 'town', '铜章考试：自我介绍', '铜章考试：自我介绍',
+    '右键考官选简易考试，观察考官问姓名、灵梦作答、考官复述，再看铜章结果。',
+    '约 10 秒', [*exam_hall(), yk('reimu', 0, 2, 'pet', label='小柚', lead=True), *own('pet')],
+    env={'time': 'dawn'}, vantage=(0, 8), reads=[('读考生', f'yukkuri status {sel("pet")} raw')],
+    smoke=dict(ticks=340, commands=[(5, f'yukkuri scenario exam_bronze {sel("judge")} {sel("pet")}')],
+               expect=[r'(?s)action=line [^\n]*key=exam\.mcyukkuri\.say\.simple_name.*action=answer task=simple_check success=true.*key=exam\.mcyukkuri\.comment\.name.*action=result [^\n]*grade=NONE->BRONZE'],
+               forbid=[r'action=interrupt']))
+
+add('exam_obstructed', 'town', '铜章考试：视线被挡', '铜章考试：视线被挡',
+    '从考官一侧报名，考生在墙后。观察考官找路；一直无法接触时考试中断。',
+    '约 10 秒', [*exam_hall(), yk('reimu', 0, 2, 'pet', lead=True), *own('pet'),
+                  'fill ~-3 ~ ~1 ~3 ~2 ~1 minecraft:stone'], env={'time': 'dawn'}, vantage=(4, 6),
+    smoke=dict(ticks=250, commands=[(5, f'data merge entity {sel("judge")} {{NoAI:1b}}'),
+                                   (6, f'yukkuri scenario exam_bronze {sel("judge")} {sel("pet")}')],
+               expect=[r'action=start [^\n]*target=BRONZE', r'action=interrupt reason=site [^\n]*emeralds_used=0'],
+               forbid=[r'action=answer', r'action=result']))
+
+add('exam_silver', 'town', '银章考试：读数、等待与照料', '银章考试：读数、等待与照料',
+    '拿一份甜食在手上，右键考官选晋级。保持告示牌和散食可见，让考生演示日常食盆。',
+    '约 1 分钟', [*exam_hall(), *exam_study(),
+                  block(-2, 0, 2, 'mcyukkuri:food_bowl{Items:[{Slot:0b,id:"minecraft:apple",count:4}]}'),
+                  *exam_candidate('bronze', 56)], env={'time': 'dawn'}, vantage=(0, 7),
+    give=['mcyukkuri:sweet_candy', 'minecraft:emerald 4'],
+    smoke=dict(ticks=1400, commands=[(5, f'yukkuri scenario exam_silver {sel("judge")} {sel("pet")}')],
+               expect=[r'action=answer task=read success=true', r'action=answer task=count success=true',
+                       r'action=answer task=bowl success=true', r'action=answer task=wait success=true',
+                       r'action=result [^\n]*grade=BRONZE->SILVER emeralds_used=4'],
+               forbid=[r'action=interrupt']))
+
+add('exam_gold', 'town', '金章考试：牵引、迎客与求助', '金章考试：牵引、迎客与求助',
+    '给银章考生系胴带和拴绳，右键考官选晋级。牵引题实际走一个转弯，随后观察迎客；考生求助时可亲手喂饿着的同伴。',
+    '约 1 分钟', [*exam_hall(), *exam_candidate('silver'), human('caretaker_sister', 3, 2, 'visitor', 0),
+                  yk('marisa', 3, 3, 'peer', nutrition=32)], env={'time': 'dawn'}, vantage=(0, 7),
+    give=['mcyukkuri:pet_harness', 'minecraft:lead', 'minecraft:apple', 'minecraft:emerald 4'])
+
+add('exam_platinum', 'town', '铂金章考试：说明与分享', '铂金章考试：说明与分享',
+    '右键考官选晋级。先观察考生向访客说明读到的字和食物数量。宣布第二部分后，若考生向你求助，就把自己的一份食物喂给它指的同伴。',
+    '约 1 分钟', [*exam_hall(), *exam_study(), *exam_candidate('gold', 90), human('caretaker_sister', 3, 2, 'visitor', 0),
+                  yk('marisa', -3, 2, 'peer', yaw=-90, nutrition=32)], env={'time': 'dawn'}, vantage=(0, 7),
+    give=['minecraft:emerald 4', 'minecraft:apple'], reads=[('读考生', f'yukkuri status {sel("pet")} raw'), ('读同伴', f'yukkuri status {sel("peer")} raw')])
 
 add('date', 'town', '店方牵线，银章灵梦相亲', '店方牵线，银章灵梦相亲', '北侧店方饲养员牵线：有顶窝、真实银章的玩家灵梦，与店方真实登记的银章种油魔理沙害羞、靠近、蹭蹭', '等 2 秒登记窝位后，右键北侧饲养员；约 1 分钟', [
     human('caretaker_brother', 4, -4, 'keeper', 4, yaw=180, label='店方饲养员'), *shed(-4, -3),
@@ -4058,6 +4109,7 @@ TOPICS = {
     'house_empty': 'H1', 'house_pair': 'H2', 'house_eggs': 'H3',
     'shop_build': 'M1', 'shop_window': 'M1', 'shop_buy_keeper': 'M1', 'harness_walk': 'M3', 'swaddle_worn': 'M3', 'feed_wild': 'M3', 'oniisan_prey': 'M4', 'attack_witness': 'M4',
     'wild': 'M5', 'badge': 'M5', 'training_home': 'M5', 'training_study': 'M5', 'exam': 'M5', 'date': 'M5', 'transport': 'M5', 'custody_death': 'M5', 'social_identity': 'M5',
+    'exam_obstructed': 'M5', 'exam_silver': 'M5', 'exam_gold': 'M5', 'exam_platinum': 'M5',
     'airborne': 'R8', 'house_health': 'R9',
     'body_mold': 'R5', 'wound_materials': 'R5', 'thermal_body': 'R5', 'wound_sources': 'R5', 'wound_leak': 'R5', 'treatment_severe': 'R5', 'treatment_scars': 'R5', 'treatment_care': 'R5', 'magma_sole': 'R5', 'core_exposed': 'R5', 'core_filling': 'R5', 'remains_rot': 'R6', 'remains_forms': 'R6', 'carrion': 'R6', 'cannibal_hunt': 'R6',
     'last_words': 'R7', 'offering': 'R7', 'sacrifice': 'R7',

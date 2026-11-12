@@ -3,6 +3,9 @@ package io.github.longshou.mcyukkuri.human;
 import io.github.longshou.mcyukkuri.random.ModRandom;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.pet.BadgeGrade;
+import io.github.longshou.mcyukkuri.pet.social.BadgeSocial;
+import io.github.longshou.mcyukkuri.pet.stage.Staging;
 import io.github.longshou.mcyukkuri.item.TreatmentItem;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.life.CareBlockEntity;
@@ -61,6 +64,7 @@ public final class HumanNpc extends PathfinderMob {
     private static final long RESIDENT_WILD_FEED_INTERVAL = 2400;
     private static final String RESIDENT_WILD_FEED_AFTER = "ResidentWildFeedAfter";
     private int trades, delivered, careFood, medicine = 8, routineDelay;
+    private int nextBadgeGreeting;
     private YukkuriEntity attention;
     private ServiceHatch serviceHatch;
     private final FactoryProduction production = new FactoryProduction(this);
@@ -234,6 +238,8 @@ public final class HumanNpc extends PathfinderMob {
         entityData.set(RESTING, !level().isDay());
         if (routineDelay > 0) routineDelay--;
         if (tickCount % 100 == 0 && !resting() && !isTrading()) serviceFacilities();
+        if (tickCount % 40 == 17 && tickCount >= nextBadgeGreeting && !resting() && !isTrading()
+                && !ExamSession.active(this)) greetBadge();
         if (job() == Job.FACTORY) { production.tick(); if (tickCount % 100 == 9) ShopDeliveries.registerFactory(this); }
         if (job() == Job.SHOPKEEPER && tickCount % 200 == 11 && !resting()) CommodityLife.tickStock(this);
         if ((job() == Job.EXAMINER || job() == Job.SHOPKEEPER) && tickCount % 40 == 5 && !resting()) revokeVoidBadges();
@@ -241,6 +247,19 @@ public final class HumanNpc extends PathfinderMob {
         if (job() == Job.SHOPKEEPER && tickCount % 20 == 3 && !resting()) ShopDeliveries.arrive(this, (ServerLevel) level());
         if (job() == Job.KEEPER && tickCount % 20 == 0) ShopKeeping.tick(this);
         if (job() == Job.SHOPKEEPER && tickCount % 20 == 0) ShopCourier.recover(this, (ServerLevel) level());
+    }
+    private void greetBadge() {
+        var viewer = level().getNearestPlayer(this, 12);
+        if (viewer == null || !(level() instanceof ServerLevel server)) return;
+        var guest = level().getEntitiesOfClass(YukkuriEntity.class, getBoundingBox().inflate(4), y ->
+                y.isAlive() && !y.life().isSleeping() && !ExamSession.running(y) && hasLineOfSight(y)
+                        && BadgeSocial.visibleRank(y).id() >= BadgeGrade.SILVER.id()).stream()
+                .min(java.util.Comparator.comparingDouble(this::distanceToSqr)).orElse(null);
+        if (guest == null) return;
+        nextBadgeGreeting = tickCount + 1200;
+        getLookControl().setLookAt(guest);
+        Staging.card(server, position().add(0, getBbHeight() + .45, 0),
+                Component.translatable("human.mcyukkuri.greet_badge", guest.getDisplayName()), 60, 1.0f);
     }
     /** M02: a badge on a yukkuri whose registry entry went void (abandoned while worn) is taken off by staff who see it. */
     private void revokeVoidBadges() {
