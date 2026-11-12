@@ -271,7 +271,7 @@ public final class ExamSession implements ExamContext {
         var target = target(type, candidate);
         var resume = pending(previous(candidate, target));
         var plan = resume == null ? ExamPlan.questions(type, target, owner, candidate) : ExamPlan.decode(resume.questions());
-        if (!candidate.pet().lock(LOCK, owner.getUUID())) return "busy";
+        if (!candidate.pet().lock(LOCK, owner.getUUID(), plan.contains(ExamPlan.Question.WALK))) return "busy";
         var session = new ExamSession(level, examiner, owner, candidate, type, target, plan, resume, charge ? fee(type) : 0);
         ACTIVE.put(examiner.getUUID(), session);
         candidate.setPersistenceRequired();
@@ -340,7 +340,7 @@ public final class ExamSession implements ExamContext {
             presentResult();
             return;
         }
-        if (!LOCK.equals(candidate.pet().busyWith()) && !candidate.pet().lock(LOCK, ownerId)) {
+        if (!LOCK.equals(candidate.pet().busyWith()) && !candidate.pet().lock(LOCK, ownerId, questions.get(index) == ExamPlan.Question.WALK)) {
             interrupt("site");
             return;
         }

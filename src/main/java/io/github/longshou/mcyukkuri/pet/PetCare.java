@@ -132,10 +132,13 @@ public final class PetCare {
         if (swaddle) { animal.spawnAtLocation(swaddleStyle.stack()); GameplayLog.event(animal, "interaction", "swaddle off reason=death dropped=1 style={}", swaddleStyle.id); }
         harness = false; swaddle = false; syncWear();
     }
-    /** Any session lock (exam, lesson, sale, matchmaking) and carrier capture release the lead; the owner gets it back. */
+    /** Ordinary session locks and carrier capture return the lead to its holder. */
     public void released() {
+        released(false);
+    }
+    void released(boolean keepLead) {
         if (animal.level().isClientSide) return;
-        if (animal.isLeashed()) animal.dropLeash(true, true);
+        if (!keepLead && animal.isLeashed()) animal.dropLeash(true, true);
         PetPrivileges.note(animal); // about to leave the world in a carrier or a session: the owner's standing is on record
     }
     private void stripWear(Player preferred) {

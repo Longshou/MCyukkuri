@@ -83,11 +83,9 @@ public final class YukkuriSocial implements MotorOwner {
     public int greetClicks() { return greetClicks; }
     public boolean greeting() { return entity.level().getGameTime() < greetUntil; }
     public boolean greetForPractice(Entity guest) {
-        if (!freeForSocial() || !visitor(guest) || !contactReady(guest)) return false;
+        if (!(guest instanceof LivingEntity person) || !availableForSocial() || !visitor(person) || !contactReady(person)) return false;
         stop();
-        target = guest; task = Task.PLAYER; duration = 200; elapsed = 0; greeted = false;
-        chooseApproach(guest);
-        return true;
+        return tryHuman(person, personality().relation(person.getUUID()), false);
     }
     public long greetStart() { return greetUntil - ClipMarkers.of(greetClip).length(); }
     public String greetingClip() { return greetClip; }

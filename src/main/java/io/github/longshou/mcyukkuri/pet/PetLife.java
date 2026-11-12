@@ -359,9 +359,12 @@ public final class PetLife {
     public String busyWith() { return lockKind == null ? "" : lockKind; }
     public UUID lockedBy() { return lockedBy; }
     public boolean lock(String kind, UUID by) {
+        return lock(kind, by, false);
+    }
+    public boolean lock(String kind, UUID by, boolean keepLead) {
         if (busy() || kind == null || kind.isEmpty()) return false;
         animal.interrupt(Interrupt.PET_LOCK);
-        lockKind = kind; lockedBy = by; lockGone = 0; animal.setPersistenceRequired(); care.released(); return true;
+        lockKind = kind; lockedBy = by; lockGone = 0; animal.setPersistenceRequired(); care.released(keepLead); return true;
     }
     public void unlock(String kind) {
         if (lockKind == null || kind != null && !kind.equals(lockKind)) return;
