@@ -56,6 +56,13 @@
 - Python：PATH 上的 `python` 是坏的商店存根；用 `C:/Users/Administrator/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/python.exe`，并设 `PYTHONUTF8=1`（下文 `<py>`）。仓库脚本是 bash；PowerShell 里用 `& 'C:\Program Files\Git\bin\bash.exe' <脚本>`（裸 `bash` 可能是 WSL），且不用 Set-Content、Out-File 或 `>` 写源码与文档（BOM／UTF-16）。
 - 改源码与文档用 `scripts/safe_edit.py replace <文件> <旧文本> <新文本>`（多行用 `--old-from-file`／`--new-from-file`）或 Edit 工具，不用 `sed` 和临时脚本：后者会丢 `\r`、把 UTF-8 写成 ANSI 代码页、吃掉结尾换行。
 - 临时文件放本工作树 `.local/tmp/`，用完删除自己的临时脚本。截图、报告分别放 `.local/screenshots/`、`.local/reports/`；预览、截图、报告、验收或确认记录不入库。
+- 删除（所有代理）：
+  - 只删自己本次任务创建的东西。别人的、来源不明的、仓库外的（F: 其他目录、其他盘、用户目录）一律不删，报给总负责人；仓库外路径只由用户删除或经用户当次明确同意。
+  - 删前先看再删：列出目标的绝对路径、大小、最近修改时间，并查清归属与引用——`git worktree list`、冒烟名额（`smoke_slots.py`）、运行中的进程、`museum-runtime.json`、交接文件与报告。查不清就不删。
+  - 递归删除只用写死的绝对路径，且解析后必须落在本仓库 `.local/` 或 `.worktrees/` 内；不用通配符、未校验的变量或相对路径拼目标，不删目录联接或符号链接指向的内容。
+  - 有清理脚本的用脚本（`smoke_prune.py`、`pkg.py land`、`update_museum_runtime.py`），先看列表再 `--apply`；不手工删它们管理的目录。
+  - 不可再生的内容须用户当次明确同意才删：世界存档与试玩游戏目录、未入库的制作源和草稿、有未推送提交或未提交改动的工作树与分支、用户放进来的文件。主检出禁用 `git clean`、`git reset --hard`、`git checkout -- .`、`git stash drop`。
+  - 可再生的内容（冒烟实例、截图运行、缓存、旧运行包、已合入的工作树）由总负责人决定，工人只报告不动手。一次删除超过 20 GB 时在回复里写明删了什么、释放多少。
 - 试玩场入口是根目录 `启动动作博物馆.cmd`（`-Fresh` 全新世界、`-Resume` 保留世界、`-Menu` 主菜单），由用户运行；冒烟、截图与日志排查见 [coder.md](docs/roles/coder.md#4-命令与自查)。
 
 ## 5. 验收与状态

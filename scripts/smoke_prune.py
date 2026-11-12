@@ -3,9 +3,10 @@
     <py> scripts/smoke_prune.py [--keep-hours 24] [--apply]
 
 Candidates are `.local/smoke/instance-*` / `pack-*` and `.local/captures/<run>/` directories whose own modification time is older than
---keep-hours. A candidate is kept when its directory name appears in docs/, AGENTS.md, scripts/README.md, `.local/HANDOFF.md`,
-`.local/refactor/` or `.local/reports/` text files (evidence the TODO, a report or a design cites). Result and baseline indexes under
-`.local/smoke/` are not references: they name every run. Without --apply only the plan is printed.
+--keep-hours. A candidate is kept when its directory name appears in docs/, AGENTS.md, scripts/README.md or `.local/HANDOFF.md`, or in
+the briefs / reports of a package that still has a worktree (`.local/refactor/reports|briefs/<package>*`, `.local/reports/<package>*`).
+Evidence to keep after a package lands must be named in the TODO or the handoff. Result and baseline indexes under `.local/smoke/`
+are not references: they name every run. Without --apply only the plan is printed.
 """
 import argparse
 import re
@@ -18,7 +19,10 @@ import headless_server as server
 ROOT = server.COMMON
 LOCAL = ROOT / '.local'
 TEXT = {'.md', '.json', '.txt', '.html', '.jsonl'}
-REFERENCE_ROOTS = [ROOT / 'docs', ROOT / 'AGENTS.md', ROOT / 'scripts/README.md', LOCAL / 'HANDOFF.md', LOCAL / 'refactor', LOCAL / 'reports']
+# Curated places always count. Working files count only while their package is live (it still has a worktree): worker session
+# logs and the reports of landed packages name every run they ever made, which kept nearly everything forever.
+CURATED = [ROOT / 'docs', ROOT / 'AGENTS.md', ROOT / 'scripts/README.md', LOCAL / 'HANDOFF.md']
+WORKING = [LOCAL / 'refactor/reports', LOCAL / 'refactor/briefs', LOCAL / 'reports']
 # Raw copied logs inside reports are evidence themselves, not citations; reading them would only slow the scan.
 REFERENCE_LIMIT = 4 << 20
 # Smoke instances/packs are cited as instance-<12 hex>; capture runs by their <date>-<time>-<6 hex> directory name.
@@ -33,7 +37,9 @@ def candidates():
 
 def references():
     cited = set()
-    for root in REFERENCE_ROOTS:
+    live = [p.name for p in (ROOT / '.worktrees').iterdir() if p.is_dir()] if (ROOT / '.worktrees').is_dir() else []
+    working = [entry for root in WORKING if root.is_dir() for entry in root.iterdir() if entry.name.startswith(tuple(live))]
+    for root in CURATED + working:
         files = [root] if root.is_file() else root.rglob('*') if root.is_dir() else []
         for f in files:
             if f.is_file() and f.suffix in TEXT and f.stat().st_size <= REFERENCE_LIMIT:
