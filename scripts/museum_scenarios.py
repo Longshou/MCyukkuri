@@ -348,68 +348,63 @@ add('settle_mixed_dens', 'biomes', '同一聚落的山洞与平地土丘洞', '�
                              'if entity @e[tag=scn_lead,distance=..12] run say MCYSMOKE_MIXED_DEN_SITE_OK')],
                readout=['yukkuri settlement site check']))
 
-# Waste management on one plot, south of a vacant demo site: how much one body leaves, how portions add up on one cell, what a
-# full cell does with the next portion, what the ground does to a heap and what the pit does, and where a toilet keeps its share.
-# The vacant site supplies a real waste pit (its cells never decay); the actors are ordinary wild yukkuris on open ground.
-# Every prop and actor stands on natural ground (y=63, feet at 64) outside the site's works, so nothing spawns inside a mound.
+# The actors enter in groups so the volume comparison and the changes to the shared heap can be watched separately.
+# The vacant site supplies a real waste pit. Ground actors are beyond the toilet search range and outside the site's earthworks.
+_WASTE_ACTOR = sel('waste_demo_adult')
+
 add('waste_demo', 'biomes', '粪便管理：排量、合并、溢出、衰减与马桶', '粪便管理',
-    '依次看五件事，都在这一个视角里。①排量：左前方那一格先存着 7 份旧屎（好大一堆）；它前面的空地上，一只成油自己排一份（读数 1.0），'
+    '①排量：前方的空地上，一只成油自己排一份（读数 1.0），'
     '右边新生赤油自己排的那份只有它的一小部分（读数约 0.006，凑近看是一粒极小的屎）。'
-    '②合并与溢出：三只成油围着那 7 份的一格各排一份，第一份并进去凑满 8 份，格子里的堆随之长大；装不下的后两份溢到西边紧邻的一格，那格也跟着长大。'
-    '③收存：走到最前面那堆 1.5 份的屎前，潜行＋空手右键，只收走整份，地上留下 0.5 份（按钮可读）。'
-    '④马桶：最远处场地边上的马桶存量从 7 份涨到 8 份满（用“读马桶存量”看）。'
-    '⑤衰减：约 90 秒时本场把随机刻速度临时调到 200，露天野屎（左边那堆，以及前面几堆）随缩小最终消失；嗯嗯坑里那格始终不消失，'
-    '用“读嗯嗯坑存量”看坑内总量。其他场景开始时随机刻速度调回 3。',
+    '②合并与溢出：左前方同一格先有 6 份，随后两只成油各排一份，堆分两次长大至 8 份；第三只排的一份落在紧挨着的西邻格。'
+    '③衰减：约 30 秒时本场把随机刻速度临时调到 200，左边的露天野堆逐渐缩小消失，嗯嗯坑里的 1.5 份保留。'
+    '④收取：走到坑边，潜行＋空手右键坑里那堆，只收走整份，坑内留下 0.5 份。'
+    '⑤马桶：场地远端有一只橙稍后走进马桶，存量由 7 份增至 8 份。',
     '约 2 分钟', [
         'yukkuri settlement site vacant demo ~ ~ ~',
-        # Seeded stock: the merge cell and the two loose heaps on plain ground, one cell of the site pit (a managed cell, y=63),
-        # and a toilet three quarters full. The demo row lies outside the site's levelled ground and outside the toilet search range.
-        block(-4, 0, 27, 'mcyukkuri:yukkuri_poop'), 'data merge block ~-4 ~ ~27 {Volume:7.0d}',
+        block(-4, 0, 27, 'mcyukkuri:yukkuri_poop'), 'data merge block ~-4 ~ ~27 {Volume:6.0d}',
         block(-6, 0, 32, 'mcyukkuri:yukkuri_poop'), 'data merge block ~-6 ~ ~32 {Volume:1.0d}',
-        block(0, 0, 34, 'mcyukkuri:yukkuri_poop'), 'data merge block ~0 ~ ~34 {Volume:1.5d}',
-        block(6, -1, 6, 'mcyukkuri:yukkuri_poop'), 'data merge block ~6 ~-1 ~6 {Volume:2.0d}',
+        block(6, -1, 6, 'mcyukkuri:yukkuri_poop'), 'data merge block ~6 ~-1 ~6 {Volume:1.5d}',
         block(8, 0, 9, 'mcyukkuri:yukkuri_toilet'), 'data merge block ~8 ~ ~9 {Waste:7.0d}',
-        # The outlet of the straining clip hangs 0.343 blocks behind the body: each of these stands in its own cell next to the
-        # seeded one, just short of the shared edge and facing away from it, so its rear (and the portion) is over that one cell.
-        yk('reimu', -4, 26, 'merge_n', bladder=95, yaw=180),
-        f'tp {sel("merge_n")} ~-3.5 ~ ~26.9',
-        yk('reimu', -4, 28, 'merge_s', bladder=95, yaw=0),
-        f'tp {sel("merge_s")} ~-3.5 ~ ~28.1',
-        yk('reimu', -3, 27, 'merge_w', bladder=95, yaw=270),
-        f'tp {sel("merge_w")} ~-2.9 ~ ~27.5',
-        yk('reimu', 2, 31, 'adult', bladder=95, yaw=180),
-        yk('reimu', 4, 31, 'baby', stage='baby', bladder=95, yaw=180),
-        yk('chen', 5, 9, 'user', bladder=95, yaw=-90)],
-    env=DAY, spot='plains', vantage=(1, 39, 180, 15), retry='先“清空本场地”再按一次',
-    note='约 90 秒后本场才把随机刻速度调到 200（看衰减用）：前面几堆露天屎也会一起缩小消失，嗯嗯坑里的不会；别的场景开始时调回 3。',
-    late=[Retry('gamerule randomTickSpeed 200', sel('adult'), tries=1, first=1700)],
-    reads=[('读合并那格（7→8 满格）', 'data get block ~-4 ~ ~27 Volume'),
-           ('读溢出的西邻格（1～2 份）', 'data get block ~-5 ~ ~27 Volume'),
+        yk('reimu', 2, 31, 'waste_demo_adult', bladder=95, yaw=180),
+        yk('reimu', 4, 31, 'baby', stage='baby', bladder=95, yaw=180)],
+    env={**DAY, 'random_tick_window': (580, 1220, 200)}, spot='plains', vantage=(1, 38, 180, 15),
+    retry='先“清空本场地”再按一次',
+    note='约 30 秒至 90 秒提高随机刻速度演示露天衰减，随后恢复默认速度。',
+    # Start the three adults just inside the edge of their own cells, facing away from the heap. Each drops from its real outlet.
+    late=[Retry(yk('reimu', -4, 26.4, 'merge_n', bladder=95, yaw=180), _WASTE_ACTOR, tries=1, first=80),
+          Retry(yk('reimu', -4, 27.6, 'merge_s', bladder=95, yaw=0), _WASTE_ACTOR, tries=1, first=160),
+          Retry(yk('reimu', -3.4, 27, 'merge_e', bladder=95, yaw=270), _WASTE_ACTOR, tries=1, first=240),
+          Retry(yk('chen', 5, 9, 'user', bladder=95, yaw=-90), _WASTE_ACTOR, tries=1, first=1960)],
+    reads=[('读合并那格（6→7→8 满格）', 'data get block ~-4 ~ ~27 Volume'),
+           ('读溢出的西邻格（1 份）', 'data get block ~-5 ~ ~27 Volume'),
            ('读成油裸地那份（1.0）', 'data get block ~2 ~ ~31 Volume'),
            ('读新生赤油那份（约 0.006）', 'data get block ~4 ~ ~31 Volume'),
-           ('读眼前能收的屎堆（1.5）', 'data get block ~0 ~ ~34 Volume'),
            ('读露天野堆（会衰减消失）', 'data get block ~-6 ~ ~32 Volume'),
-           ('读嗯嗯坑存量（始终不消失）', 'yukkuri settlement site info'),
+           ('读嗯嗯坑存量（收取前 1.5，收取后 0.5）', 'yukkuri settlement site info'),
            ('读马桶存量（7→8 满）', 'data get block ~8 ~ ~9 Waste')],
     capture=dict(shots=(1, 40, 200, 600, 1400, 2000), sequences=((20, 200, 4),)),
     smoke=dict(ticks=2400,
                expect=[r'\[needs\][^\n]*poop placed [^\n]*overflow=false', r'\[needs\][^\n]*poop placed [^\n]*overflow=true',
                        r'\[needs\][^\n]*poop decayed', r'\[needs\][^\n]*relieved source=facility',
                        r'MCYSMOKE_MERGE_GROWN', r'MCYSMOKE_SPILL_PLACED', r'MCYSMOKE_ADULT_UNIT', r'MCYSMOKE_BABY_SPEC',
-                       r'MCYSMOKE_TOILET_FULL', r'MCYSMOKE_WILD_GONE', r'MCYSMOKE_PIT_STAYS'],
+                       r'MCYSMOKE_DECAY_SPEED', r'MCYSMOKE_TOILET_FULL', r'MCYSMOKE_WILD_GONE', r'MCYSMOKE_PIT_STAYS'],
                forbid=[r'\[body\][^\n]* invariant\b', r'\[body\][^\n]* in wall', r'\[body\][^\n]* death settled'],
                commands=[(500, 'execute store result score #waste_m museum run data get block ~-4 ~ ~27 Volume 1000'),
-                         (501, 'execute if score #waste_m museum matches 7500..8000 run say MCYSMOKE_MERGE_GROWN'),
+                         (501, 'execute if score #waste_m museum matches 8000 run say MCYSMOKE_MERGE_GROWN'),
                          (502, 'execute store result score #waste_w museum run data get block ~-5 ~ ~27 Volume 1000'),
-                         (503, 'execute if score #waste_w museum matches 500..3000 run say MCYSMOKE_SPILL_PLACED'),
+                         (503, 'execute if score #waste_w museum matches 1000 run say MCYSMOKE_SPILL_PLACED'),
                          (504, 'execute store result score #waste_a museum run data get block ~2 ~ ~31 Volume 1000'),
                          (505, 'execute if score #waste_a museum matches 900..1000 run say MCYSMOKE_ADULT_UNIT'),
                          (506, 'execute store result score #waste_b museum run data get block ~4 ~ ~31 Volume 1000000'),
                          (507, 'execute if score #waste_b museum matches 1000..40000 run say MCYSMOKE_BABY_SPEC'),
-                         (508, 'execute store result score #waste_t museum run data get block ~8 ~ ~9 Waste 10'),
-                         (509, 'execute if score #waste_t museum matches 79..80 run say MCYSMOKE_TOILET_FULL'),
+                         (640, 'execute store result score #waste_speed museum run gamerule randomTickSpeed'),
+                         (641, 'execute if score #waste_speed museum matches 200 run say MCYSMOKE_DECAY_SPEED'),
+                         (2160, 'execute store result score #waste_t museum run data get block ~8 ~ ~9 Waste 10'),
+                         (2161, 'execute if score #waste_t museum matches 80 run say MCYSMOKE_TOILET_FULL'),
                          (2200, 'execute unless block ~-6 ~ ~32 mcyukkuri:yukkuri_poop run say MCYSMOKE_WILD_GONE'),
-                         (2201, 'execute if block ~6 ~-1 ~6 mcyukkuri:yukkuri_poop run say MCYSMOKE_PIT_STAYS')]))
+                         (2201, 'execute store result score #waste_pit museum run data get block ~6 ~-1 ~6 Volume 1000'),
+                         (2202, 'execute if score #waste_pit museum matches 1500 run say MCYSMOKE_PIT_STAYS')],
+               readout=['data get block ~-6 ~ ~32 Volume', 'yukkuri settlement site info', 'gamerule randomTickSpeed']))
 
 # The waste pit in use: a hill-foot band whose adults all need to go soon after they have moved in.
 _PIT_ADULTS = '@e[type=#mcylab:yukkuri,distance=..30]'

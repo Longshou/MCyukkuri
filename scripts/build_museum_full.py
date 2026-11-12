@@ -211,6 +211,10 @@ def build_pack(world):
                      encoding='utf-8')
 
     # ---------------------------------------------------------------- field and scenario functions (collected first, probed below)
+    # Random tick speed is a world rule, so switching any field cancels pending changes as well as resetting its value.
+    random_tick_windows = {s.id: s.env['random_tick_window'] for s in museum_scenarios.S if 'random_tick_window' in s.env}
+    cancel_random_ticks = [f'schedule clear {NS}:scn/{sid}_random_ticks_{phase}'
+                           for sid in random_tick_windows for phase in ('start', 'end')]
     deck_info = {}
     for f in FIELDS:
         f.extras = []
@@ -235,8 +239,7 @@ def build_pack(world):
             cancel.append(f'schedule clear {NS}:clip/rest')
         # Java retains every UUID that visited the field, even after capture, death or unloading.
         clear_entities = f'yukkuri clear {bx1} {by1} {bz1} {bx2} {by2} {bz2} {field_mark(f)}'
-        # A scene that raised the random tick speed (waste_demo, for its decay) must not slow or hurry the scenes after it.
-        sweep = [f'function {NS}:util/speed_1x', 'gamerule randomTickSpeed 3'] + cancel + [clear_entities,
+        sweep = [f'function {NS}:util/speed_1x', 'gamerule randomTickSpeed 3'] + cancel_random_ticks + cancel + [clear_entities,
                  f'function {NS}:field/{f.id}/terrain',
                  f'yukkuri clear {bx1} {by1} {bz1} {bx2} {by2} {bz2}']  # Remove drops from rebuilt containers without resetting twice.
         fn(f'field/{f.id}/clear', sweep + ([f'function {NS}:clip/cast'] if f.id == 'clips' else [])
@@ -277,6 +280,12 @@ def build_pack(world):
             f'function {NS}:{clear_fn}',
         ] + env_commands(s.env)
         start.append(f'execute positioned {ax}.0 {FEET} {az}.0 run function {NS}:scn/{s.id}')
+        if s.id in random_tick_windows:
+            first, duration, speed = random_tick_windows[s.id]
+            base = f'scn/{s.id}_random_ticks'
+            fn(f'{base}_start', [f'gamerule randomTickSpeed {speed}', f'schedule function {NS}:{base}_end {duration}t replace'])
+            fn(f'{base}_end', ['gamerule randomTickSpeed 3'])
+            start.append(f'schedule function {NS}:{base}_start {first}t replace')
         if s.vantage is not None:
             vdx, vdz = s.vantage[0], s.vantage[1]
             # The common two-value view is the north observation line, looking south. Explicit three-value views
