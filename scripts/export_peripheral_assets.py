@@ -123,10 +123,12 @@ def outputs():
     for name in spec['blocks']:
         emit(ASSETS / f'models/block/{name}.json', {'textures': {'particle': f'mcyukkuri:props/{name}'}, 'elements': []})
     for name, details in spec['recipes'].items():
+        ingredients = [{'item': value} if isinstance(value, str) else value for value in details['ingredients']]
+        unlock = details.get('unlock', ingredients[0].get('item'))
         emit(DATA / f'recipe/{name}.json', {'type': 'minecraft:crafting_shapeless', 'category': 'misc',
-             'ingredients': [{'item': value} for value in details['ingredients']], 'result': {'id': f'mcyukkuri:{name}', 'count': details['count']}})
+             'ingredients': ingredients, 'result': {'id': f'mcyukkuri:{name}', 'count': details['count']}})
         emit(DATA / f'advancement/recipes/misc/{name}.json', {'parent': 'minecraft:recipes/root',
-             'criteria': {'has_ingredient': {'trigger': 'minecraft:inventory_changed', 'conditions': {'items': [{'items': details['ingredients'][0]}]}}},
+             'criteria': {'has_ingredient': {'trigger': 'minecraft:inventory_changed', 'conditions': {'items': [{'items': unlock}]}}},
              'requirements': [['has_ingredient']], 'rewards': {'recipes': [f'mcyukkuri:{name}']}})
     # NeoForge conditions retire old crafting routes while retaining IDs for existing saves.
     for name in spec['retired_recipes']:

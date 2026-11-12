@@ -32,7 +32,7 @@ import net.minecraft.world.phys.Vec3;
 
 public final class CarrierItem extends Item {
     public enum Grade {
-        PLAIN(4), FINE(6);
+        PLAIN(4), FINE(6), LARGE(12);
         private final int capacity;
         Grade(int capacity) { this.capacity = capacity; }
     }

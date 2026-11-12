@@ -74,6 +74,11 @@
       "base": "yukkuri_carrier",
       "shadow": "#122942",
       "highlight": "#d3e7f7"
+    },
+    "yukkuri_carrier_large": {
+      "base": "yukkuri_carrier",
+      "shadow": "#193b2a",
+      "highlight": "#d4efd6"
     }
   },
   "recipes": {
@@ -85,6 +90,16 @@
         "minecraft:iron_ingot",
         "minecraft:blue_dye"
       ],
+      "count": 1
+    },
+    "yukkuri_carrier_large": {
+      "ingredients": [
+        {"type": "mcyukkuri:empty_fine_basket"},
+        "minecraft:iron_ingot",
+        "minecraft:iron_ingot",
+        "minecraft:green_dye"
+      ],
+      "unlock": "mcyukkuri:yukkuri_carrier_fine",
       "count": 1
     },
     "oil_grain_budget": {

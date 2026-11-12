@@ -1236,8 +1236,8 @@ add('pred_pets', 'town', '饿了的宠物捕食种：受训的忍住', '饿了�
     give=['mcyukkuri:field_notebook 1'], vantage=(0, 12),
     reads=[('读受训捕食者', f'yukkuri status {sel("rem")} raw'), ('读未训捕食者', f'yukkuri status {sel("fla")} raw')])
 
-add('transport', 'town', '装篮运输：普通篮和高级篮', '装篮运输：普通篮和高级篮',
-    '喷雾后用普通篮装子油与两只赤油，试装第三只。蓝篮试装成体与两只赤油。看物品提示，再到西侧石地逐只放出。',
+add('transport', 'town', '装篮运输：三种容量', '装篮运输：三种容量',
+    '喷雾后用普通篮装子油与两只赤油，试装第三只。蓝篮可装成体与两只赤油。绿篮可混装两只成体、子油与两只赤油。看物品提示，再到西侧石地逐只放出。',
     '喷雾后约 5 秒；每次点击干地放出一只', [
     yk('reimu', 0, 0, 'pet', grade=1, yaw=-90, lead=True), *own('pet'),
     box(6, 0, -3, 10, 1, -3, 'minecraft:oak_fence'), box(6, 0, 1, 10, 1, 1, 'minecraft:oak_fence'),
@@ -1249,7 +1249,8 @@ add('transport', 'town', '装篮运输：普通篮和高级篮', '装篮运输�
          uuid=uid('transport', f'basket_baby_{i}'))
       for i, kind in enumerate(('reimu', 'marisa', 'alice', 'chen', 'patchouli'))],
     box(-10, -1, 4, -3, -1, 7, 'minecraft:stone')],
-    give=['mcyukkuri:sleep_spray 8', 'mcyukkuri:yukkuri_carrier 1', 'mcyukkuri:yukkuri_carrier_fine 1'], vantage=(0, 12))
+    give=['mcyukkuri:sleep_spray 8', 'mcyukkuri:yukkuri_carrier 1', 'mcyukkuri:yukkuri_carrier_fine 1',
+          'mcyukkuri:yukkuri_carrier_large 1'], vantage=(0, 12))
 
 # Eight pet young already wrapped, one style each (the cream knit is the plain cloth), side by side; the ninth, unwrapped, takes a cloth from the chest by hand.
 _SWADDLE_LOOKS = (('knit', '奶油针织'), ('frill', '荷叶边蝴蝶结'), ('letter', '首字母'), ('tiger', '虎纹'),
@@ -4078,6 +4079,8 @@ _smoke('transport', 320, [
     *[rf'\[interaction\][^\n]* uuid={_uuid_text("transport", name)} [^\n]* action=capture reason=carrier_full\b'
       for name in ('basket_baby_2', 'basket_baby_4')],
     r'\[transport\][^\n]* action=release result=refused token=\S+ [^\n]* reason=(?:collision|occupied_ground)\b',
+    r'\[carrier\][^\n]* action=upgrade_check occupants=0 matched=true result=mcyukkuri:yukkuri_carrier_large\b',
+    r'\[carrier\][^\n]* action=upgrade_check occupants=3 matched=false result=minecraft:air\b',
 ], forbid=[rf'\[carrier\][^\n]* action=capture result=committed target={_uuid_text("transport", "basket_baby_4")}\b'])
 next(s for s in S if s.id == 'transport').smoke['commands'] = [
     (60, 'yukkuri scenario basket plain'),
@@ -4089,9 +4092,11 @@ next(s for s in S if s.id == 'transport').smoke['commands'] = [
     (191, 'yukkuri scenario basket release ~-10 ~-1 ~4'),
     (192, 'yukkuri scenario basket release ~-8 ~-1 ~4'),
     (193, 'yukkuri scenario basket release ~-6 ~-1 ~4'),
-    (200, 'yukkuri scenario basket fine'),
+    (199, 'yukkuri scenario basket fine'),
+    (200, 'yukkuri scenario basket upgrade_check'),
     *[(201+i, f'yukkuri scenario basket capture {sel(name)}')
       for i, name in enumerate(('wild', 'basket_baby_2', 'basket_baby_3', 'basket_baby_4'))],
+    (205, 'yukkuri scenario basket upgrade_check'),
     *[(210+i, f'yukkuri scenario basket release ~{x} ~-1 ~7')
       for i, x in enumerate((-10, -8, -6))],
 ]

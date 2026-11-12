@@ -284,6 +284,7 @@
   "commands.mcyukkuri.action.success": "%2$s 匹に %1$s を再生しました（idle で日常行動に戻ります）",
   "item.mcyukkuri.yukkuri_carrier": "運搬かご",
   "item.mcyukkuri.yukkuri_carrier_fine": "上等な運搬かご",
+  "item.mcyukkuri.yukkuri_carrier_large": "大型の運搬かご",
   "item.mcyukkuri.wash_cloth": "お手入れ布",
   "item.mcyukkuri.yarn_ball": "毛糸玉",
   "item.mcyukkuri.teaching_whistle": "しつけ笛",

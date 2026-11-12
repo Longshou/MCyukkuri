@@ -19,6 +19,7 @@
   "commands.mcyukkuri.action.success": "已让 %2$s 只油库里播放 %1$s（idle 恢复日常行为）",
   "item.mcyukkuri.yukkuri_carrier": "运输篮",
   "item.mcyukkuri.yukkuri_carrier_fine": "高级运输篮",
+  "item.mcyukkuri.yukkuri_carrier_large": "大号运输篮",
   "item.mcyukkuri.wash_cloth": "清洗布",
   "item.mcyukkuri.yarn_ball": "毛线球",
   "item.mcyukkuri.teaching_whistle": "教学哨",

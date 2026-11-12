@@ -7,6 +7,7 @@ import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import io.github.longshou.mcyukkuri.MCYukkuri;
 import io.github.longshou.mcyukkuri.body.BodyPart;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.headwear.HullProfile;
@@ -27,12 +28,16 @@ import net.minecraft.commands.arguments.coordinates.BlockPosArgument;
 import net.minecraft.commands.arguments.coordinates.Vec3Argument;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.context.UseOnContext;
+import net.minecraft.world.item.crafting.CraftingInput;
+import net.minecraft.world.item.crafting.CraftingRecipe;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.phys.BlockHitResult;
@@ -101,6 +106,7 @@ public final class ScenarioCommands {
                 .then(Commands.literal("basket")
                         .then(Commands.literal("plain").executes(c -> basketHand(c, new ItemStack(ModItems.CARRIER.get()))))
                         .then(Commands.literal("fine").executes(c -> basketHand(c, new ItemStack(ModItems.FINE_CARRIER.get()))))
+                        .then(Commands.literal("upgrade_check").executes(ScenarioCommands::basketUpgradeCheck))
                         .then(Commands.literal("spray").then(Commands.argument("target", EntityArgument.entity())
                                 .executes(c -> basketClick(c, true))))
                         .then(Commands.literal("capture").then(Commands.argument("target", EntityArgument.entity())
@@ -323,6 +329,20 @@ public final class ScenarioCommands {
         var hit = new BlockHitResult(Vec3.atBottomCenterOf(floor.above()), Direction.UP, floor, false);
         var result = player.getMainHandItem().useOn(new UseOnContext(player, InteractionHand.MAIN_HAND, hit));
         return result.consumesAction() ? 1 : 0;
+    }
+
+    private static int basketUpgradeCheck(CommandContext<CommandSourceStack> c) {
+        var level = c.getSource().getLevel();
+        var basket = FakePlayerFactory.getMinecraft(level).getMainHandItem();
+        var holder = level.getRecipeManager().byKey(MCYukkuri.id("yukkuri_carrier_large")).orElse(null);
+        if (holder == null || !(holder.value() instanceof CraftingRecipe recipe) || !basket.is(ModItems.FINE_CARRIER.get())) return 0;
+        var input = CraftingInput.of(2, 2, List.of(basket, new ItemStack(Items.IRON_INGOT),
+                new ItemStack(Items.IRON_INGOT), new ItemStack(Items.GREEN_DYE)));
+        boolean matched = recipe.matches(input, level);
+        var result = matched ? recipe.assemble(input, level.registryAccess()) : ItemStack.EMPTY;
+        GameplayLog.world(level, "carrier", "action=upgrade_check occupants={} matched={} result={}",
+                CarrierContents.tokens(basket).size(), matched, BuiltInRegistries.ITEM.getKey(result.getItem()));
+        return 1;
     }
 
     /** {@code scenario afloat}: the owner's real hat set down on water with {@code food} apples stored in it, the listed young and

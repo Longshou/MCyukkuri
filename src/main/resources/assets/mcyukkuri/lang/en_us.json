@@ -19,6 +19,7 @@
   "commands.mcyukkuri.action.success": "Playing %s on %s Yukkuri (idle returns to normal behaviour)",
   "item.mcyukkuri.yukkuri_carrier": "Transport basket",
   "item.mcyukkuri.yukkuri_carrier_fine": "Fine transport basket",
+  "item.mcyukkuri.yukkuri_carrier_large": "Large transport basket",
   "item.mcyukkuri.wash_cloth": "Wash Cloth",
   "item.mcyukkuri.yarn_ball": "Yarn Ball",
   "item.mcyukkuri.teaching_whistle": "Teaching Whistle",

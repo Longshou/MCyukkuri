@@ -21,6 +21,7 @@ import io.github.longshou.mcyukkuri.body.BodyLife;
 import io.github.longshou.mcyukkuri.family.FamilyConfig;
 import io.github.longshou.mcyukkuri.freezer.FreezerModule;
 import io.github.longshou.mcyukkuri.human.HumanWorld;
+import io.github.longshou.mcyukkuri.item.EmptyFineBasketIngredient;
 import io.github.longshou.mcyukkuri.life.Consumables;
 import io.github.longshou.mcyukkuri.life.Facilities;
 import io.github.longshou.mcyukkuri.play.Playgrounds;
@@ -47,6 +48,7 @@ public final class MCYukkuri {
         ModBlocks.BLOCK_ENTITIES.register(modBus);
         ModEntities.TYPES.register(modBus);
         ModItems.ITEMS.register(modBus);
+        EmptyFineBasketIngredient.register(modBus);
         ModSounds.SOUND_EVENTS.register(modBus);
         ModMenus.MENUS.register(modBus);
         ModCreativeTabs.TABS.register(modBus);
