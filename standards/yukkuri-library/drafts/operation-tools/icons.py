@@ -336,28 +336,29 @@ def hanging_hook():
 
 
 def hair_clippers():
-    """ばりかん: manual barber clippers drawn upright: a steel head with a row of comb teeth on top, a brass pivot under it
-    and two leather grips spreading downwards."""
+    """ばりかん: manual barber clippers on the tool diagonal: a steel head at the top right whose outer edge is cut into comb
+    teeth, a brass pivot, and two short leather grips close together at the bottom left."""
     i = Icon('hair_clippers')
-    i.rows(legend(a=(LEATHER, 1), c=(LEATHER, 3), b=(LEATHER, 0), o=(IRON, 0), d=(IRON, 1), m=(IRON, 2), C=(IRON, 3),
-                  w=(IRON, 4), y=(BRASS, 3), Y=(BRASS, 1)), [
-        "...w.w.w.w.w....",
-        "..oCwCwCwCwCo...",
-        "..oCmmmmmmmmo...",
-        "..odddddddddo...",
-        "...oooyYoooo....",
-        ".....caac.......",
-        ".....ca.ca......",
-        "....ca..ca......",
-        "....ca...ca.....",
-        "...ca....ca.....",
-        "...ca.....ca....",
-        "..ca......ca....",
-        "..ca.......ca...",
-        "..bb.......bb...",
-        "................",
-        "................",
+    i.rows(legend(a=(LEATHER, 1), c=(LEATHER, 3), b=(LEATHER, 0)), [
+        "", "", "", "", "", "", "", "",
+        ".....acb........",
+        "....acbacb......",
+        "...acb.acb......",
+        "..acb..acb......",
+        ".acb..acb.......",
+        ".bb...acb.......",
+        "......bb........",
     ])
+    a, b = (5.6, 2.6), (11.4, 8.4)
+    i.bar(a, b, 2.2, IRON, glint=True)
+    i.finish()
+    head = {c for c, v in i.px.items() if v[0] is IRON}
+    edge = sorted((c for c in head if (c[0] + 1, c[1] - 1) not in head and (c[0] + 1, c[1]) not in head), key=lambda c: c[0] + c[1])
+    for k, (x, y) in enumerate(edge):         # every other pixel of the outer edge grows a two-pixel tooth
+        if k % 2 == 0:
+            i.px[(x + 1, y - 1)] = [IRON, 3, i.part + 1]
+            i.px[(x + 2, y - 2)] = [IRON, 4, i.part + 1]
+    i.rows(legend(y=(BRASS, 3), Y=(BRASS, 1)), ["", "", "", "", "", "", "", "......yY........", "......Y........."])
     return i
 
 
@@ -518,15 +519,27 @@ def iron_enclosure():
 
 
 def trimmed_hair():
-    """A loose lock of cut hair: three wavy strands pressed together at the blunt cut end (bottom left) that bend and part
-    towards their tips (top right); no tie."""
+    """A loose lock of cut hair: five fine wavy strands pressed together at the blunt cut end (bottom left) that bend by
+    different amounts and part towards lighter tips (top right); no tie."""
     i = Icon('trimmed_hair')
-    for points, light in [([(3, 12), (3, 10), (4, 8), (4, 6), (5, 4), (7, 2), (8, 1)], 3),
-                          ([(4, 12), (5, 10), (6, 8), (7, 6), (9, 5), (10, 3), (12, 1)], 4),
-                          ([(5, 13), (7, 12), (9, 10), (10, 8), (12, 7), (13, 5), (14, 3)], 3)]:
-        i.stroke(points, HAIR, light, 1)
-    i.rows(legend(o=(HAIR, 0), d=(HAIR, 1)), ["", "", "", "", "", "", "", "", "", "", "", "",
-                                               "..o.............", "..odd...........", "...ooo.........."])
+    i.rows(legend(o=(HAIR, 0), d=(HAIR, 1), m=(HAIR, 2), l=(HAIR, 3), w=(HAIR, 4)), [
+        "................",
+        "........w....w..",
+        ".......l....l...",
+        "......l..w.l..w.",
+        "......m.l..m.l..",
+        ".....m..m.m..m..",
+        ".....m.m.m..m...",
+        "....d..m.m.m...w",
+        "....d.m.m.m...l.",
+        "...d.d.m.m..mm..",
+        "...d.d.m.mmm....",
+        "..dd.d.dd.......",
+        "..ddddd.........",
+        "..ooooo.........",
+        "................",
+        "................",
+    ])
     return i
 
 
