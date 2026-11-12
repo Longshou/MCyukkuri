@@ -24,7 +24,7 @@
 | 日常互动、八景事件与其他作品故事 | [生活情景](hakkei-reference/world/events.md) · [作品事件](hakkei-reference/events/special-events.md) · [fandom 故事目录](hakkei-reference/events/fandom-stories.md) |
 | 原作品与本设定的不同写法 | [设定差异](hakkei-reference/lore/conflicts.md) |
 | 金银章佩戴、考核与等级态度的漫画、小说依据 | [金银章系统参考](badges.md) |
-| 商店、工厂结构与鬼威惨／爱派 NPC 的漫画、小说参考 | [商店、加工所与人类 NPC](shops-factory-npcs.md) |
+| 村庄街道、人类立场、可见情景与鬼威惨商店 | [人类世界：村庄、街道与商店](hakkei-reference/world/human-world.md) · [商店与加工所原作资料](shops-factory-npcs.md) |
 | 油库里题材的起源、油虐题材惯例与外站作者资料（创作史，不作设定） | [社区史与外站资料](fandom-history.md) |
 | 油虐用、饲料用活体的子油生产流程与当前实现缺口 | [工厂生产专项核读](factory-production-review.md) |
 | 日记 APK 的模型、骨骼、表情与 MC 借鉴方案 | [油库里日记实现核读](yukkuri-diary-implementation.md) |

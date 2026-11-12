@@ -10,7 +10,7 @@
 | 食物、馅料、住所、家油、巢与卵 | [资源与生活生态](resources-ecology.md) |
 | 受伤、照护行为、失能协助与恢复结果 | [受伤、照护与恢复](health-care.md) |
 | 日常互动、环境遭遇与作品故事 | [事件与生活情景](events.md) |
-| 商店、加工所与人类活动 | [漫画／小说参考](../../shops-factory-npcs.md) · [当前实现](../../../docs/FEATURES.md#人类世界) |
+| 村庄街道、人类立场、商店与加工所 | [人类世界：村庄、街道与商店](human-world.md) · [当前实现](../../../docs/FEATURES.md#人类世界) |
 | 离巢、住所、储粮、越冬与迁徙 | [住所与季节生活](../lore/habitat-seasonal-life.md) |
 | 语言、学习、识别与群体评价 | [学习与社会判断](../lore/learning-social.md) |
 | 外形、亚种与图片出处 | [种族目录](../lore/species/README.md) |

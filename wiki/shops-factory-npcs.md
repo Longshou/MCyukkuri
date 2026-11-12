@@ -1,6 +1,6 @@
 # 油库里商店、加工所与人类 NPC
 
-[Wiki 入口](README.md) · [世界背景](hakkei-reference/world/README.md)
+[Wiki 入口](README.md) · [村庄、街道与商店制作参考](hakkei-reference/world/human-world.md)
 
 本页以大讲堂的人类关系与产业母题为主线，整理商店、加工所、鬼威惨和爱派人物的常见作用。宠物店与徽章的现行玩法见 [宠物店实现](../docs/FEATURES.md#宠物店徽章与宠物培育)，人类建筑和 NPC 的范围见 [人类世界实现](../docs/FEATURES.md#人类世界)。
 
@@ -76,7 +76,7 @@ Category:Characters 里与人类角色有关的九页，写的是人类或东方
 
 ### 鬼威惨：施虐倾向可以与社会身份并存
 
-《お兄さん 1》写出爱派、虐待派与虐杀派的不同立场、住所和交往；角色会在日常来往中顾及他人的宠物。[R4]
+《お兄さん 1》写出爱派、虐待派与虐杀派的不同立场与交往。该篇的虐杀者会向朋友的宠物道谢并摸头；角色对野生个体与有主个体的行为可以不同。[R4]
 
 《楽園》中的鬼威惨借助农田纠纷与交易安排自己的利益，同时会在表面上帮助群落；爱派大姐姐则参与交涉并保护油库里。[R5] 这组人物呈现了职业、交际、利益和态度交织的人类社会关系。
 
@@ -84,7 +84,7 @@ Category:Characters 里与人类角色有关的九页，写的是人类或东方
 
 《お兄さん 1》的爱派大哥哥与受过教育的灵梦、魔理沙共同生活，也会考虑邻里关系；《楽園》的爱派大姐姐熟悉野生群落，参与交涉并帮助安置。[R4、R5] 爱派人物既可作为家庭饲主，也可成为群落照顾者与沟通者。
 
-作品里的“ゆっくりんピース”等组织与人物能力，作为各自作品中的人类关系版本记录。
+「ゆっくりんピース」的流浪者安置、转养与徽章会馆的不同写法见[人类世界](hakkei-reference/world/human-world.md#设施与商品)。
 
 ## Minecraft 生成与互动建议
 
@@ -134,5 +134,10 @@ NPC 应有住处／工作点、日间活动、休息、有限交易和持久身�
 | [R4：お兄さん 1](https://w.atwiki.jp/yukkuri_gyakutai/pages/1797.html) | 爱派与施虐派的人际往来 |
 | [R5：楽園](https://w.atwiki.jp/yukkuri_gyakutai/pages/345.html) | 农田纠纷、群落交涉与照顾者 |
 | [R6：職業見学 加工所のふらんちゃん 中編](https://w.atwiki.jp/futabayukkuriss/pages/2119.html) | 工厂空间分层与个体分流 |
+| [R7：虐待商品があるお店](https://w.atwiki.jp/yukkuri_gyakutai/pages/3480.html) | A；署名未确认。SHOPゆーゆー的招牌、货架、座位、柜台后接收与工厂来货；只取实际出现的陈列和业务，顾客猜测不作员工立场证明 |
+| R8：八景 ver1.12 二号店 | A；本机 `start.utf8.hsp` 的购买菜单 `label_0212` 及后续商品分支。社区[外出页](https://wikiwiki.jp/yukkuri8kei/外出)、[物品页](https://wikiwiki.jp/yukkuri8kei/アイテム)、[动作页](https://wikiwiki.jp/yukkuri8kei/アクション)与[问答](https://wikiwiki.jp/yukkuri8kei/Ｑ＆Ａ)补充店面分工、道具结果与版本边界；只代表八景，另对照 [F44](https://yukkuri.fandom.com/wiki/Yukkuri_Pet_Shop) |
+| [R9：餡サイクロペディア「ゆっくりんピース」](https://w.atwiki.jp/yukkurifutaba/pages/32.html) | W；词条的保护、阻止驱除与塑料安置屋母题；叙述措辞带立场 |
+| [R10：生きにくい 後編](https://w.atwiki.jp/hutaba_ranking/pages/180.html) | A；作品编号 anko2124。保护团体与加工所争论，末段有免费接收和为旧宠物找下任饲主的设施。作品中的条例、舆论与强制服从药均限于本篇 |
+| [R11：続、愛でスレ的ゆっくり加工場](https://w.atwiki.jp/slowlove/pages/171.html) | A；牧场主人与退会的保护团体成员交谈，她听到解释并改变对这处设施的看法；不以这个场主概括全行业 |
 
 [宠物商店、徽章与考试实现](../docs/FEATURES.md#宠物店徽章与宠物培育) · [建筑、工厂与人类 NPC 实现](../docs/FEATURES.md#人类世界)
