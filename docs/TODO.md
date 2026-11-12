@@ -32,15 +32,14 @@
   - 16 TN02：已接入待试玩（[a44ed817b](https://github.com/Longshou/MCyukkuri/commit/a44ed817b)，银章与嫉妒双方停下交换表情动作；街道 TN-02）。用户：「TN02演出油库里会乱跑 而且这个也得做的更丰富 表情互动都要有吧」
   - 17 考试：部分接入（训练八项技能分等级、经验来自日常，[3b2310e6f](https://github.com/Longshou/MCyukkuri/commit/3b2310e6f)，街道 TN-14、TN-15；考试每题可见问答、到公布结果才收费、新增铂金章（[c2c041856](https://github.com/Longshou/MCyukkuri/commit/c2c041856)；街道 TN-03、TN-16～TN-19；铂金章图案暂用金章改色占位，待美术）。用户：「考试过程演出对吗？我只测了铜章 提问名字后 我没看到油库里回答就过了。」15–17 合并处理，用户：「训练与考试相关建议全链路排查下 评估调整」
   - 18 打招呼前倾：已接入待试玩（[81124f288](https://github.com/Longshou/MCyukkuri/commit/81124f288)，前倾只在面对面蹭脸时做，招呼站位按真实体型留出前倾空间；草地 MD-02、MD-18）。用户：「打招呼过程前倾动作会把对面的油库里撞得后退？不符合预期」
-  - 19 抖动滥用：复测失败。用户：「不要使用高频的抖动组成非害怕颤抖场景 商店的演出用那么多抖动干嘛」
-  - 20 商店信息：复测失败。用户：「商店的油库里信息通过npc提供就可以了不要用告示牌 不然不好更新」
-  - 21 商店任务与店员：复测失败。用户：「删掉寻找丢失的油库里任务 没意义 不做店员店长的区分 右键商店npc都可以触发互动 不要只能店长触发」
-  - 22 商店空间：复测失败。用户：「商店太过狭窄 已知发现一直开关门 npc和油库里卡在一起。 可以做后院放养部分油库里」
-  - 23 商店购买：复测失败。用户：「无绿宝石购买 提示没钱或者时间不对什么的 然后准备好了绿宝石购买点了没反应。 另外购买界面的位置信息完全没必要。」
-  - 24 商店供货：复测失败。用户：「商店现在不要供货限制，自然刷新售卖的油库里，但是还是必须和店里的对应。」
-  - 25 商店陈列与门：复测失败。用户：「商店物品展示用展示框 。商店的铁门和玻璃板完全对不上的」
-  - 26 商店饲养：未做。用户：「商店内的油库里，店员保证喂食 和 清理厕所 ，待售状态油库里不会进入发情期方便管理。 且主要售卖未成年油」
-  - 20–26 商店：先梳理、用户确认后再改。用户：「商店改动先不做 先梳理好了再做」
+  - 19 抖动滥用：已接入待试玩（[7f5607a9b](https://github.com/Longshou/MCyukkuri/commit/7f5607a9b)，宠物店重做；商店场景 shop_build／shop_window／shop_buy／shop_restock）。用户：「不要使用高频的抖动组成非害怕颤抖场景 商店的演出用那么多抖动干嘛」
+  - 20 商店信息：已接入待试玩（[7f5607a9b](https://github.com/Longshou/MCyukkuri/commit/7f5607a9b)，宠物店重做；商店场景 shop_build／shop_window／shop_buy／shop_restock）。用户：「商店的油库里信息通过npc提供就可以了不要用告示牌 不然不好更新」
+  - 21 商店任务与店员：已接入待试玩（[7f5607a9b](https://github.com/Longshou/MCyukkuri/commit/7f5607a9b)，宠物店重做；商店场景 shop_build／shop_window／shop_buy／shop_restock）。用户：「删掉寻找丢失的油库里任务 没意义 不做店员店长的区分 右键商店npc都可以触发互动 不要只能店长触发」
+  - 22 商店空间：已接入待试玩（[7f5607a9b](https://github.com/Longshou/MCyukkuri/commit/7f5607a9b)，宠物店重做；商店场景 shop_build／shop_window／shop_buy／shop_restock）。用户：「商店太过狭窄 已知发现一直开关门 npc和油库里卡在一起。 可以做后院放养部分油库里」
+  - 23 商店购买：已接入待试玩（[7f5607a9b](https://github.com/Longshou/MCyukkuri/commit/7f5607a9b)，宠物店重做；商店场景 shop_build／shop_window／shop_buy／shop_restock）。用户：「无绿宝石购买 提示没钱或者时间不对什么的 然后准备好了绿宝石购买点了没反应。 另外购买界面的位置信息完全没必要。」
+  - 24 商店供货：已接入待试玩（[7f5607a9b](https://github.com/Longshou/MCyukkuri/commit/7f5607a9b)，宠物店重做；商店场景 shop_build／shop_window／shop_buy／shop_restock）。用户：「商店现在不要供货限制，自然刷新售卖的油库里，但是还是必须和店里的对应。」
+  - 25 商店陈列与门：已接入待试玩（[7f5607a9b](https://github.com/Longshou/MCyukkuri/commit/7f5607a9b)，宠物店重做；商店场景 shop_build／shop_window／shop_buy／shop_restock）。用户：「商店物品展示用展示框 。商店的铁门和玻璃板完全对不上的」
+  - 26 商店饲养：已接入待试玩（[7f5607a9b](https://github.com/Longshou/MCyukkuri/commit/7f5607a9b)，宠物店重做；商店场景 shop_build／shop_window／shop_buy／shop_restock）。用户：「商店内的油库里，店员保证喂食 和 清理厕所 ，待售状态油库里不会进入发情期方便管理。 且主要售卖未成年油」
   - 帽沿跳：已接入待试玩（[cd6883349](https://github.com/Longshou/MCyukkuri/commit/cd6883349)）。用户：「帽上子油蹦跳到自己位置时，跳的途中会突然变换位置，一次跳跃被分成了两次」
 
 - **2026-11-13 补充要求**（用户原话为验收标准）：
