@@ -11,7 +11,6 @@
 | 台词审校与补充（总负责人调度的 Codex 标签页） | `.worktrees/wp-gb-speech-review` | art/dialogue/, src/main/resources/assets/mcyukkuri/dialogue/, lang/*.json |
 | 宠物店重做（反馈 19–26 与 11-13 补充） | `.worktrees/wp-hg-pet-shop` | shop/、human/、art/structures/human-world/ |
 | 茎生：肉眼可见的快速生长、耗馅与带茎遗体 | `.worktrees/wp-hq-stem` | art/props/family-life, standards/yukkuri-library/drafts/remains, family/StemDrain, family/FamilyRenderer, RemainsEntity |
-| 垃圾头饰（态度第二片）：一物三样、自尊决定接受、识别与制裁 | `.worktrees/wp-ht-junk-headwear` | headwear/HatCustody, Recognition, Contempt, Sanction, item/JunkHeadwear, RemainsEntity, social (cower face) |
 
 ## 玩法待办
 
