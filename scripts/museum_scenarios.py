@@ -1408,9 +1408,9 @@ def exam_hall():
             human('caretaker_brother', 0, 0, 'judge', 3, yaw=180, label='考官')]
 
 
-def exam_study(food_height=.05):
+def exam_study(pickup_delay=0):
     return [block(-2, 0, 1, 'minecraft:oak_sign[rotation=4]{front_text:{messages:[\'{"text":"苹果"}\',\'""\',\'""\',\'""\']}}'),
-            item('minecraft:apple', 3, 1, 2, 'count_apples', dy=food_height)]
+            item('minecraft:apple', 3, 1, 2, 'count_apples').replace('PickupDelay:0s', f'PickupDelay:{pickup_delay}s')]
 
 
 def exam_candidate(grade, nutrition=72, bladder=0):
@@ -1466,8 +1466,8 @@ add('exam_gold', 'town', '金章考试：牵引、迎客与求助', '金章考�
 
 add('exam_platinum', 'town', '铂金章考试：说明与分享', '铂金章考试：说明与分享',
     '右键考官选晋级。听访客请考生从数堆改为一份一份数。宣布第二部分后，若考生向你求助，就把自己的一份食物喂给它指的同伴。',
-    '约 1 分钟', [*exam_hall(), block(1, 0, 2, 'minecraft:glass'), *exam_study(1.05),
-                  *exam_candidate('gold', 90), human('caretaker_sister', 3, 0, 'visitor', 0),
+    '约 1 分钟', [*exam_hall(), *exam_study(pickup_delay=900),
+                  *exam_candidate('gold', 90), human('caretaker_sister', 2, 0, 'visitor', 0),
                   f'data merge entity {sel("visitor")} {{CareFood:0,NextRestock:24000L}}',
                   yk('marisa', -2, 3, 'peer', yaw=-90, nutrition=32)], env={'time': 'dawn'}, vantage=(0, 7),
     give=['minecraft:emerald 4', 'minecraft:apple'], reads=[('读考生', f'yukkuri status {sel("pet")} raw'), ('读同伴', f'yukkuri status {sel("peer")} raw')],
