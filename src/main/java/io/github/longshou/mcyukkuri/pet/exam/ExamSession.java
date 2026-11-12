@@ -525,7 +525,7 @@ public final class ExamSession implements ExamContext {
         clearCards();
         allowRoutine();
         candidate.pet().finishWildExam();
-        if (sharingPeer != null) sharingPeer.pet().unlock(PEER_LOCK);
+        if (phase != Phase.RESULT && sharingPeer != null) sharingPeer.pet().unlock(PEER_LOCK);
         examiner.getNavigation().stop();
         ACTIVE.remove(examiner.getUUID());
     }
