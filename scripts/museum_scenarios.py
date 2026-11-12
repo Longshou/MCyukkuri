@@ -348,6 +348,69 @@ add('settle_mixed_dens', 'biomes', '同一聚落的山洞与平地土丘洞', '�
                              'if entity @e[tag=scn_lead,distance=..12] run say MCYSMOKE_MIXED_DEN_SITE_OK')],
                readout=['yukkuri settlement site check']))
 
+# Waste management on one plot, south of a vacant demo site: how much one body leaves, how portions add up on one cell, what a
+# full cell does with the next portion, what the ground does to a heap and what the pit does, and where a toilet keeps its share.
+# The vacant site supplies a real waste pit (its cells never decay); the actors are ordinary wild yukkuris on open ground.
+# Every prop and actor stands on natural ground (y=63, feet at 64) outside the site's works, so nothing spawns inside a mound.
+add('waste_demo', 'biomes', '粪便管理：排量、合并、溢出、衰减与马桶', '粪便管理',
+    '依次看五件事，都在这一个视角里。①排量：左前方那一格先存着 7 份旧屎（好大一堆）；它前面的空地上，一只成油自己排一份（读数 1.0），'
+    '右边新生赤油自己排的那份只有它的一小部分（读数约 0.006，凑近看是一粒极小的屎）。'
+    '②合并与溢出：三只成油围着那 7 份的一格各排一份，第一份并进去凑满 8 份，格子里的堆随之长大；装不下的后两份溢到西边紧邻的一格，那格也跟着长大。'
+    '③收存：走到最前面那堆 1.5 份的屎前，潜行＋空手右键，只收走整份，地上留下 0.5 份（按钮可读）。'
+    '④马桶：最远处场地边上的马桶存量从 7 份涨到 8 份满（用“读马桶存量”看）。'
+    '⑤衰减：约 90 秒时本场把随机刻速度临时调到 200，露天野屎（左边那堆，以及前面几堆）随缩小最终消失；嗯嗯坑里那格始终不消失，'
+    '用“读嗯嗯坑存量”看坑内总量。其他场景开始时随机刻速度调回 3。',
+    '约 2 分钟', [
+        'yukkuri settlement site vacant demo ~ ~ ~',
+        # Seeded stock: the merge cell and the two loose heaps on plain ground, one cell of the site pit (a managed cell, y=63),
+        # and a toilet three quarters full. The demo row lies outside the site's levelled ground and outside the toilet search range.
+        block(-4, 0, 27, 'mcyukkuri:yukkuri_poop'), 'data merge block ~-4 ~ ~27 {Volume:7.0d}',
+        block(-6, 0, 32, 'mcyukkuri:yukkuri_poop'), 'data merge block ~-6 ~ ~32 {Volume:1.0d}',
+        block(0, 0, 34, 'mcyukkuri:yukkuri_poop'), 'data merge block ~0 ~ ~34 {Volume:1.5d}',
+        block(6, -1, 6, 'mcyukkuri:yukkuri_poop'), 'data merge block ~6 ~-1 ~6 {Volume:2.0d}',
+        block(8, 0, 9, 'mcyukkuri:yukkuri_toilet'), 'data merge block ~8 ~ ~9 {Waste:7.0d}',
+        # The outlet of the straining clip hangs 0.343 blocks behind the body: each of these stands in its own cell next to the
+        # seeded one, just short of the shared edge and facing away from it, so its rear (and the portion) is over that one cell.
+        yk('reimu', -4, 26, 'merge_n', bladder=95, yaw=180),
+        f'tp {sel("merge_n")} ~-3.5 ~ ~26.9',
+        yk('reimu', -4, 28, 'merge_s', bladder=95, yaw=0),
+        f'tp {sel("merge_s")} ~-3.5 ~ ~28.1',
+        yk('reimu', -3, 27, 'merge_w', bladder=95, yaw=270),
+        f'tp {sel("merge_w")} ~-2.9 ~ ~27.5',
+        yk('reimu', 2, 31, 'adult', bladder=95, yaw=180),
+        yk('reimu', 4, 31, 'baby', stage='baby', bladder=95, yaw=180),
+        yk('chen', 5, 9, 'user', bladder=95, yaw=-90)],
+    env=DAY, spot='plains', vantage=(1, 39, 180, 15), retry='先“清空本场地”再按一次',
+    note='约 90 秒后本场才把随机刻速度调到 200（看衰减用）：前面几堆露天屎也会一起缩小消失，嗯嗯坑里的不会；别的场景开始时调回 3。',
+    late=[Retry('gamerule randomTickSpeed 200', sel('adult'), tries=1, first=1700)],
+    reads=[('读合并那格（7→8 满格）', 'data get block ~-4 ~ ~27 Volume'),
+           ('读溢出的西邻格（1～2 份）', 'data get block ~-5 ~ ~27 Volume'),
+           ('读成油裸地那份（1.0）', 'data get block ~2 ~ ~31 Volume'),
+           ('读新生赤油那份（约 0.006）', 'data get block ~4 ~ ~31 Volume'),
+           ('读眼前能收的屎堆（1.5）', 'data get block ~0 ~ ~34 Volume'),
+           ('读露天野堆（会衰减消失）', 'data get block ~-6 ~ ~32 Volume'),
+           ('读嗯嗯坑存量（始终不消失）', 'yukkuri settlement site info'),
+           ('读马桶存量（7→8 满）', 'data get block ~8 ~ ~9 Waste')],
+    capture=dict(shots=(1, 40, 200, 600, 1400, 2000), sequences=((20, 200, 4),)),
+    smoke=dict(ticks=2400,
+               expect=[r'\[needs\][^\n]*poop placed [^\n]*overflow=false', r'\[needs\][^\n]*poop placed [^\n]*overflow=true',
+                       r'\[needs\][^\n]*poop decayed', r'\[needs\][^\n]*relieved source=facility',
+                       r'MCYSMOKE_MERGE_GROWN', r'MCYSMOKE_SPILL_PLACED', r'MCYSMOKE_ADULT_UNIT', r'MCYSMOKE_BABY_SPEC',
+                       r'MCYSMOKE_TOILET_FULL', r'MCYSMOKE_WILD_GONE', r'MCYSMOKE_PIT_STAYS'],
+               forbid=[r'\[body\][^\n]* invariant\b', r'\[body\][^\n]* in wall', r'\[body\][^\n]* death settled'],
+               commands=[(500, 'execute store result score #waste_m museum run data get block ~-4 ~ ~27 Volume 1000'),
+                         (501, 'execute if score #waste_m museum matches 7500..8000 run say MCYSMOKE_MERGE_GROWN'),
+                         (502, 'execute store result score #waste_w museum run data get block ~-5 ~ ~27 Volume 1000'),
+                         (503, 'execute if score #waste_w museum matches 500..3000 run say MCYSMOKE_SPILL_PLACED'),
+                         (504, 'execute store result score #waste_a museum run data get block ~2 ~ ~31 Volume 1000'),
+                         (505, 'execute if score #waste_a museum matches 900..1000 run say MCYSMOKE_ADULT_UNIT'),
+                         (506, 'execute store result score #waste_b museum run data get block ~4 ~ ~31 Volume 1000000'),
+                         (507, 'execute if score #waste_b museum matches 1000..40000 run say MCYSMOKE_BABY_SPEC'),
+                         (508, 'execute store result score #waste_t museum run data get block ~8 ~ ~9 Waste 10'),
+                         (509, 'execute if score #waste_t museum matches 79..80 run say MCYSMOKE_TOILET_FULL'),
+                         (2200, 'execute unless block ~-6 ~ ~32 mcyukkuri:yukkuri_poop run say MCYSMOKE_WILD_GONE'),
+                         (2201, 'execute if block ~6 ~-1 ~6 mcyukkuri:yukkuri_poop run say MCYSMOKE_PIT_STAYS')]))
+
 # The waste pit in use: a hill-foot band whose adults all need to go soon after they have moved in.
 _PIT_ADULTS = '@e[type=#mcylab:yukkuri,distance=..30]'
 _PIT_READS = [('读聚落场地、嗯嗯坑存量与奴隶', 'yukkuri settlement site info'), ('读群体成员与奴隶数', 'yukkuri settlement info')]
@@ -413,8 +476,8 @@ def starves_without_pit_food(window):
 
 add('settle_pit', 'biomes', '成员走到嗯嗯坑沿排泄', '成员走到嗯嗯坑沿排泄',
     '森林山脚的小群入住约 10 秒后，全员便意升到 90，约 80 秒时再升一次：看它们各自从洞里走到南边低处的嗯嗯坑，只站在坑沿、背对坑口排泄，'
-    '不跳进凹地；每份排泄物真实落成坑格上的“嗯嗯”方块（1～8 份，按 2 份一档分 4 档外观，满格后落到相邻的坑格、坑满再落到坑沿外一格）。'
-    '不在洞口或空地上排。读数看坑内各格份数与档位；日志 [needs] toilet pit trip start → toilet pit edge reached → poop placed → relieved source=pit',
+    '不跳进凹地；每份排泄物真实落成坑格上的“嗯嗯”方块，堆的大小随格内体积连续变化（一格最多 8 份，满格后落到相邻的坑格、坑满再落到坑沿外一格）。'
+    '不在洞口或空地上排。读数看坑内各格体积；日志 [needs] toilet pit trip start → toilet pit edge reached → poop placed → relieved source=pit',
     '约 1–3 分钟', ['yukkuri settlement spawn band ~ ~ ~', LEAD_ANY],
     env=DAY, spot='forest', vantage=(0, 16, 180), retry='先“清空本场地”再按一次', note='待验证：新场景，尚未在游戏里实测。',
     late=[Retry(f'execute as {_PIT_ADULTS} run yukkuri status set @s needs.bladder 90', _PIT_ADULTS, tries=1, first=200),
@@ -767,21 +830,6 @@ add('first_toilet', 'family', '新生儿吃第一口后才首次排便', '新生
            ('读亲代照护决定', f'yukkuri status {sel("mom")} raw')],
     smoke=dict(ticks=2400,commands=[(100,item('minecraft:apple',3,0,0))],
                expect=[r'first toilet completed',r'poop placed [^\n]*volume='],forbid=[]))
-
-add('waste_volume', 'family', '赤油与成油的地面排便量', '赤油与成油的地面排便量',
-    '赤油已经吃过首餐，亲油辅助它首次排便；旁边便意强烈的成油自行寻找地面排便。空手右键读落地粪便体积，对比两者大小和逐渐缩小的速度。湿抹布只收集整单位，剩余小堆留在地上。',
-    '约 1 分钟', [
-        yk('chen', 0, 0, 'mom', yaw=-90, **pair_ready()),
-        yk('reimu', 2, 0, 'baby', stage='baby', nutrition=90, bladder=30, yaw=90, lead=True,
-           childhood='Version:1,Newborn:1b,Landed:1b,FirstMealDone:1b,FirstToiletDone:0b'),
-        f'yukkuri scenario kin {sel("mom")} {sel("baby")} false',
-        yk('reimu', -4, 0, 'adult', bladder=95, nutrition=90)], env=DAY, spot='first_toilet', vantage=(0,8),
-    give=['mcyukkuri:wash_cloth[minecraft:custom_data={Water:8}]'],
-    reads=[('读赤油排便',f'yukkuri status {sel("baby")} raw'),('读成油排便',f'yukkuri status {sel("adult")} raw')],
-    smoke=dict(ticks=1200,expect=[r'first toilet completed',r'relieved source=ground',r'poop placed [^\n]*volume='],forbid=[]),
-    capture=dict(shots=(1,40,200,600,1200),sequences=((40,300,8),),observe=False,
-                 views={'':dict(), 'baby':dict(follow=sel('baby'),offset=(.6,.4,1.1)),
-                        'adult':dict(follow=sel('adult'),offset=(1,.7,2))}))
 
 add('hop', 'family', '子油跟着亲油学会起跳', '子油跟着亲油学会起跳', '子油先爬行试探，亲油示范起跳，子油跟着练到学会', '约 1–2 分钟', [
     yk('reimu', 0, 0, 'mom', yaw=-90, **pair_ready()),
@@ -3906,7 +3954,7 @@ _number_scenes()
 TOPICS = {
     'home_pane': 'W7', 'home_open': 'W7',
     'balance_traits': 'N1', 'balance_relation': 'N1', 'balance_forms': 'N1', 'balance_deibu': 'N1',
-    'waste_volume': 'F5', 'family_walk_home': 'F4', 'family_flight_home': 'F4',
+    'waste_demo': 'F5', 'family_walk_home': 'F4', 'family_flight_home': 'F4',
     'agitation_relief': 'D2', 'adult_pairing': 'F6', 'widow_repair': 'F6', 'alice_hunt': 'R4', 'aftermath_growth': 'F7', 'aftermath_depletion': 'F7',
     'den_family': 'W1', 'den_mold_exile': 'W1', 'dig': 'W2', 'indep_near': 'W3', 'den_move': 'W4', 'forage': 'W5', 'graze': 'W6', 'den_barrier': 'W8',
     'family_absence': 'W9',
