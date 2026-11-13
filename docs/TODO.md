@@ -11,6 +11,7 @@
 | 物品画风统一与清理（玩具、装置、药，删重复与无用） | `.worktrees/wp-it-item-style-cleanup` | item registry, item models/textures, art/props, recipes, lang, creative tab |
 | 纸箱返工、垃圾桶方块与垃圾闭环 | `.worktrees/wp-art-box-bin` | settlement/ShelterBlock, cardboard_shelter assets, wild-shelters source, new trash bin block |
 | 客户端卡顿：JFR 录制与首次伤口、人群、商店掉帧 | `.worktrees/wp-perf-client` | 启动动作博物馆.cmd, scripts/museum runtime launcher, client render code |
+| 街道地形不再破坏观察台 | `.worktrees/wp-street-deck` | scripts/museum_scenarios.py street field, observation deck |
 
 ## 玩法待办
 
