@@ -1342,30 +1342,26 @@ public final class YukkuriModel {
         PropModels.renderHat(hatProp,hatDamageDraw.level(),-1,stack,evidenceBuffers("hat",buffers),light,overlay);
         stack.popPose();
     }
-    private void applyHatFrame(PoseStack stack){
+    private void applyHatFrame(PoseStack stack){applyCrownFrame(stack,hatFollowBone());}
+    private void applyCrownFrame(PoseStack stack,int bone){
         if(pregnancyBelly>0)stack.translate(crownLift.x/16,crownLift.y/16,crownLift.z/16);
-        stack.scale(1/16f,1/16f,1/16f);stack.mulPose(world[hatFollowBone()]);
+        stack.scale(1/16f,1/16f,1/16f);stack.mulPose(world[bone]);
         if(retention>0)stack.translate(0,0,retention*retentionCrownZ());
         stack.scale(16,16,16);
     }
-    /** Temporary meshes. Replacement art is seated at the crown in the same local frame for living bodies and remains. */
+    /**
+     * Junk headwear sits on the bare crown of every form, living or remains: the features frame (the worn hat bone's parent,
+     * so a Marisa's hat clips and the aquatic hat's size stay with her own hat) and the prop's authored seat for this form
+     * (art/props/junk-headwear).
+     */
     private void renderJunkHat(JunkHeadwear junk,PoseStack stack,MultiBufferSource buffers,int light,int overlay){
         if(junk==null)return;
+        String prop="junk_"+junk.id();
+        var seat=PropModels.anchor(prop,id);
+        if(seat==null)throw new IllegalStateException("No junk headwear seat for "+id);
         stack.pushPose();
-        applyHatFrame(stack);
-        var seat=HatGeometry.anchor().div(16);
-        stack.translate(seat.x,seat.y,seat.z);
-        String prop = switch(junk){
-            case PAPER_BOX -> "cardboard_shelter";
-            case BOTTLE_CAP -> "food_bowl_steel";
-            case ICE_CREAM_CONE -> "core_filling";
-        };
-        float size = switch(junk){
-            case PAPER_BOX -> .23f;
-            case BOTTLE_CAP -> .58f;
-            case ICE_CREAM_CONE -> .67f;
-        };
-        stack.scale(size,size,size);
+        applyCrownFrame(stack,featuresBone());
+        seat.apply(stack);
         PropModels.render(prop,0,stack,buffers,light,overlay);
         stack.popPose();
     }
@@ -1478,6 +1474,13 @@ public final class YukkuriModel {
         skinBase(index,target);
         Skin.pregnancy(target,pregnancyBelly,pregnancyContraction,rigidGroups==null?0:rigidGroups[index],crownLift,braidLift);
         if(wearClear&&overWearVertex(index)&&(retention<=0||rigidGroups()[index]!=1))CareWearRenderer.clearHair(target);
+    }
+    private int featuresBone=-1;
+    /** The face and crown features' frame, present on every form (the worn hat bone's parent on hatted forms). */
+    private int featuresBone(){
+        if(featuresBone<0){for(int i=0;i<bones.length;i++)if(bones[i].name().equals("features_squash"))featuresBone=i;
+            if(featuresBone<0)throw new IllegalStateException("No features_squash bone in "+id);}
+        return featuresBone;
     }
     private int hatFollowBone(){
         if(hatFollowBone==-2){hatFollowBone=-1;braidBone=-1;for(int i=0;i<bones.length;i++){if(bones[i].name().equals("hat_follow"))hatFollowBone=i;
