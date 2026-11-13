@@ -190,7 +190,148 @@ def load_build():
 
 def check_shop(): return check(load_build().shop())
 
+# ---------------------------------------------------------------------------------------------------- street pieces and the oni-san shop
+# Run against author_street.py plans. Fails on: overwrites; entities in blocks or without floor; pens as above (walls closed to the ceiling,
+# 2-high iron service door with clear stands, staff reach the outside stand); oni-shop covered floor below light 8; doors; staff unreachable
+# from the street door; a 1-wide corridor cell in the oni shop (two staff, or staff and stock, would jam in it); a garbage point, wind gap
+# or shelter spot that the stray systems would not accept or a stray cannot walk to from the lane; a street connector off the lane centre.
+PARTIAL = ('_slab', '_stairs', '_fence', '_wall', '_trapdoor', '_pane', 'iron_bars', 'lantern', 'dirt_path', 'composter', 'cauldron',
+           'lectern', 'grindstone', 'brewing_stand', 'hopper', '_bed', 'chain', 'cobweb', 'jigsaw', '_door')
+def full_block(name): return name != AIR and not free(name) and not name.startswith(('mcyukkuri:', 'minecraft:potted_')) and not name.endswith(PARTIAL)
+
+def reach_from(b, start, y, body=2, doors=True):
+    """Cells reached on foot at walking level y (floor at y-1, `body` free cells above it; doors opened on the way)."""
+    def passable(x, yy, z):
+        n = name_at(b, x, yy, z); return free(n) or (doors and n.endswith('_door'))
+    def ok(x, z):
+        return 0 <= x < b.size[0] and 0 <= z < b.size[2] and name_at(b, x, y - 1, z) != AIR and all(passable(x, y + i, z) for i in range(body))
+    seen = {start} if ok(*start) else set(); queue = deque(seen)
+    while queue:
+        x, z = queue.popleft()
+        for n in ((x + 1, z), (x - 1, z), (x, z + 1), (x, z - 1)):
+            if n not in seen and ok(*n): seen.add(n); queue.append(n)
+    return seen
+
+def entity_errors(b):
+    errors = []
+    for ent in b.entities:
+        nbt = ent['nbt'][1]; kind = nbt['id'][1]; x, y, z = ent['pos'][1][1]
+        cx, cy, cz = int(x // 1), int(y // 1), int(z // 1)
+        if kind == 'minecraft:marker': continue
+        if kind == 'minecraft:item_display':
+            if name_at(b, cx, cy, cz) != AIR: errors.append(f'{b.name}: item display inside a block at {(cx, cy, cz)}')
+            continue
+        head = cy + (1 if kind.startswith('mcyukkuri:caretaker') or kind.endswith('oniisan') else 0)
+        for yy in sorted({cy, head}):
+            if not free(name_at(b, cx, yy, cz)): errors.append(f'{b.name}: {kind} at {(x, y, z)}: cell {(cx, yy, cz)} is {name_at(b, cx, yy, cz)}')
+        if name_at(b, cx, cy - 1, cz) in (AIR, 'minecraft:glass'): errors.append(f'{b.name}: {kind} at {(x, y, z)} has no floor')
+    return errors
+
+def pen_errors(b, seen):
+    errors = []
+    for pen in b.pens:
+        x0, z0, x1, z1 = pen['interior']; bx, bz = pen['bowl']; y = pen['y']; name = f"{b.name} pen {pen['name']}"
+        if name_at(b, bx, y, bz) != 'mcyukkuri:food_bowl': errors.append(f'{name}: bowl {(bx, y, bz)} is {name_at(b, bx, y, bz)}')
+        for nx, nz in pen['nests']:
+            if not name_at(b, nx, y, nz).endswith('nest'): errors.append(f'{name}: nest {(nx, y, nz)} is {name_at(b, nx, y, nz)}')
+        if x1 - x0 + 1 < pen['min'][0] or z1 - z0 + 1 < pen['min'][1]: errors.append(f"{name} interior below {pen['min']}")
+        for x in range(x0, x1 + 1):
+            for z in range(z0, z1 + 1):
+                if name_at(b, x, y - 1, z) == AIR or name_at(b, x, y + 1, z) not in FREE: errors.append(f'{name}: cell {(x, z)} lacks floor or headroom')
+        ring = [(x, z) for x in range(x0 - 1, x1 + 2) for z in (z0 - 1, z1 + 1)] + [(x, z) for x in (x0 - 1, x1 + 1) for z in range(z0, z1 + 1)]
+        for x, z in ring:
+            if any(name_at(b, x, yy, z) == AIR for yy in range(y, y + 5)): errors.append(f'{name}: wall at {(x, z)} is open below y{y + 5}')
+        if pen['hatch']: errors += [f'{b.name}: {e}' for e in hatch_errors(b, pen, seen)]
+    return errors
+
+def door_errors(b):
+    errors = []
+    for (x, y, z) in b.doors:
+        up = b.blocks.get((x, y + 1, z)); lo = b.blocks.get((x, y, z))
+        if not (lo and up and lo[0].endswith('_door') and up[0] == lo[0] and lo[1].get('half') == 'lower' and up[1].get('half') == 'upper'):
+            errors.append(f'{b.name}: door at {(x, y, z)} is not a matching 2-high pair')
+    for (x, y, z), (name, props, _) in b.blocks.items():
+        if name.endswith('_door') and props.get('half') == 'lower' and (x, y, z) not in b.doors: errors.append(f'{b.name}: door at {(x, y, z)} not registered')
+    return errors
+
+def corridor_errors(b, y, x0, z0, x1, z1):
+    """No 1-wide corridor cell: a walkable cell open on two opposite sides and closed on the other two."""
+    def passable(x, yy, z): n = name_at(b, x, yy, z); return free(n) or n.endswith('_door')
+    walk = {(x, z) for x in range(x0, x1 + 1) for z in range(z0, z1 + 1)
+            if name_at(b, x, y - 1, z) != AIR and passable(x, y, z) and passable(x, y + 1, z)}
+    out = []
+    for x, z in sorted(walk):
+        n, s, e, w = (x, z - 1) in walk, (x, z + 1) in walk, (x + 1, z) in walk, (x - 1, z) in walk
+        if (n and s and not e and not w) or (e and w and not n and not s): out.append((x, z))
+    return [f'{b.name}: 1-wide corridor cells {out[:8]}'] if out else []
+
+def stray_errors(b, lane):
+    """Garbage points, wind gaps and shelter spots as the stray systems read them, each reachable by a stray (1-high body) from the lane."""
+    errors = []
+    strays = reach_from(b, lane, 1, body=1, doors=False)
+    for (x, yy, z), facing, (sx, sy, sz) in b.garbage:
+        state = b.blocks.get((x, yy, z))
+        if not state or state[0] != 'minecraft:barrel' or state[1].get('facing') != facing or 'NeoForgeData' not in (state[2] or {}):
+            errors.append(f'{b.name}: garbage {(x, yy, z)} is not a marked barrel facing {facing}')
+        if not free(name_at(b, sx, sy, sz)) or not full_block(name_at(b, sx, sy - 1, sz)): errors.append(f'{b.name}: garbage stand {(sx, sy, sz)} is not a dry floor cell')
+        if not name_at(b, sx, sy + 1, sz).endswith('_trapdoor'): errors.append(f'{b.name}: garbage {(x, yy, z)} has no lid over its stand')
+        if (sx, sz) not in strays: errors.append(f'{b.name}: garbage stand {(sx, sz)} unreachable from the lane')
+    for x, yy, z in b.gaps:
+        above = name_at(b, x, yy + 1, z)
+        if not free(name_at(b, x, yy, z)) or not full_block(name_at(b, x, yy - 1, z)): errors.append(f'{b.name}: wind gap {(x, yy, z)} is not a free floor cell')
+        if above == AIR or free(above): errors.append(f'{b.name}: wind gap {(x, yy, z)} has nothing over it')
+        if not any(full_block(name_at(b, x + dx, yy, z + dz)) for dx, dz in ((1, 0), (-1, 0), (0, 1), (0, -1))): errors.append(f'{b.name}: wind gap {(x, yy, z)} has no wall')
+        if (x, z) not in strays: errors.append(f'{b.name}: wind gap {(x, z)} unreachable from the lane')
+    for (x, yy, z), kind, facing in b.shelters:
+        for dx in (-1, 0, 1):
+            for dz in (-1, 0, 1):
+                if any(name_at(b, x + dx, yy + h, z + dz) != AIR for h in (0, 1)): errors.append(f'{b.name}: {kind} spot {(x, z)} footprint cell {(x + dx, z + dz)} is not empty')
+                if not full_block(name_at(b, x + dx, yy - 1, z + dz)): errors.append(f'{b.name}: {kind} spot {(x, z)} floor {(x + dx, z + dz)} is not sturdy')
+        ex, ez = x + 2 * {'east': 1, 'west': -1}.get(facing, 0), z + 2 * {'south': 1, 'north': -1}.get(facing, 0)
+        if not free(name_at(b, ex, yy, ez)) or (ex, ez) not in strays: errors.append(f'{b.name}: {kind} spot {(x, z)} entrance {(ex, ez)} blocked or unreachable')
+    for (x, yy, z), facing, name, target, pool in b.jigsaws:
+        edge = {'west': x == 0, 'east': x == b.size[0] - 1, 'north': z == 0}.get(facing, False)
+        if not edge or yy != 1 or (facing != 'north' and z != 4) or name_at(b, x, 0, z) == AIR:
+            errors.append(f'{b.name}: connector {(x, yy, z)} {facing} is off the lane edge')
+    return errors
+
+def check_site(b, door=None, region=None):
+    """door: a pavement cell staff start from (oni shop); region: x0, z0, x1, z1 of the interior checked for light and corridors."""
+    errors = [f'{b.name}: block overwrite at {pos}: {old} -> {new}' for pos, old, new in b.conflicts]
+    errors += entity_errors(b) + door_errors(b)
+    y = b.floor
+    seen = reach_from(b, door, y) if door else set()
+    errors += pen_errors(b, seen)
+    for ent in b.entities:
+        nbt = ent['nbt'][1]
+        if door and 'SiteRole' in nbt:
+            x, _, z = ent['pos'][1][1]
+            if (int(x // 1), int(z // 1)) not in seen: errors.append(f'{b.name}: staff {nbt["SiteRole"][1]} at {(x, z)} unreachable from the street door')
+    if region:
+        level = light_levels(b); x0, z0, x1, z1 = region
+        dark = [(x, z, level.get((x, y, z), 0)) for x, z in walk_cells(b, y) if x0 <= x <= x1 and z0 <= z <= z1 and level.get((x, y, z), 0) < 8]
+        if dark: errors.append(f'{b.name}: {len(dark)} walkable cells below light 8, first {dark[:6]}')
+        errors += corridor_errors(b, y, *region)
+    return errors
+
+def load_street():
+    path = Path(__file__).parent / 'author_street.py'
+    sys.path.insert(0, str(path.parent))
+    spec = importlib.util.spec_from_file_location('author_street_check', path); m = importlib.util.module_from_spec(spec); spec.loader.exec_module(m)
+    return m
+
+def check_street():
+    street = load_street(); built = street.pieces(); errors = []
+    for key in ('stall', 'alley'):
+        b = built[key]; errors += check_site(b) + stray_errors(b, (1, 4))
+    errors += check_site(built['oni'], door=(11, 1), region=(2, 4, 22, 23))
+    errors += stray_errors(built['village_oni'], (1, 4))
+    lot = street.build.village_shop(street.build.shop())
+    lot.floor = 1
+    errors += stray_errors(lot, (1, 4))
+    return errors
+
 if __name__ == '__main__':
-    problems = check_shop()
-    print('\n'.join(problems) if problems else 'yukkuri_shop structure checks passed')
+    problems = check_shop() + check_street()
+    print('\n'.join(problems) if problems else 'yukkuri_shop, street and oni-san shop structure checks passed')
     sys.exit(1 if problems else 0)

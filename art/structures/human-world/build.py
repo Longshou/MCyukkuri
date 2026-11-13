@@ -99,9 +99,9 @@ class Building:
         self.block(x,y,z+1,'dark_oak_planks',over=over)
         self.entity(x+.5,y+.5,z+.94,'minecraft:item_display',{'item_display':string('fixed'),'item':compound({'id':string(item if ':' in item else 'mcyukkuri:'+item),'count':integer(1)}),
             'transformation':compound({'translation':sequence(5,[0.,0.,0.]),'scale':sequence(5,[.65,.65,.65]),'left_rotation':sequence(5,[0.,0.,0.,1.]),'right_rotation':sequence(5,[0.,0.,0.,1.])})})
-    def entity(self,x,y,z,kind,extra):
+    def entity(self,x,y,z,kind,extra,yaw=180.):
         self.entities.append({'pos':sequence(6,[x,y,z]),'blockPos':sequence(3,[int(x),int(y),int(z)]),
-            'nbt':compound({'id':string(kind),'Pos':sequence(6,[x,y,z]),'Rotation':sequence(5,[180.,0.]),
+            'nbt':compound({'id':string(kind),'Pos':sequence(6,[x,y,z]),'Rotation':sequence(5,[yaw,0.]),
                 'PersistenceRequired':byte(1),'Invulnerable':byte(0),**extra})})
     def bowl(self,x,z,y=3,grain=0):
         """A food bowl; grain > 0 starts it with that many portions of regular grain (a shop that opens with its bowls served)."""
@@ -178,11 +178,12 @@ def connect_panes(b):
         for d,(dx,dz) in {'north':(0,-1),'south':(0,1),'east':(1,0),'west':(-1,0)}.items():
             m=name_at(b,x+dx,y,z+dz); props[d]='true' if m in ('minecraft:glass_pane','minecraft:glass') or (m!='minecraft:air' and not transparent(m)) else 'false'
         b.blocks[x,y,z]=(n,props,None)
-def marker(b,x,y,z,tag,data=None):
-    """A vanilla marker entity read once by the shop register (shop/ShopRegistry): footprint corners, counter, barrels, item-frame spots."""
+def marker(b,x,y,z,tag,data=None,yaw=180.):
+    """A vanilla marker entity read once by the shop register (shop/ShopRegistry): footprint corners, counter, barrels, item-frame spots.
+    Its yaw turns with the template, so a marker can carry a direction (street shelter openings)."""
     extra={'Tags':sequence(8,[tag])}
     if data: extra['data']=compound(data)
-    b.entity(x,y,z,'minecraft:marker',extra)
+    b.entity(x,y,z,'minecraft:marker',extra,yaw)
 def frame(b,x,y,z,item):
     """An item frame showing one good, hung on the wall behind this air cell (the register turns the marker into a fixed vanilla frame)."""
     marker(b,x+.5,y+.5,z+.5,'mcy_shop_frame',{'Item':compound({'id':string(item if ':' in item else 'mcyukkuri:'+item),'count':integer(1)})})
@@ -529,14 +530,15 @@ def village_shop(original):
         })
 
     jigsaw(12, 0, 'north', 'minecraft:street')
-    for x, facing in ((0, 'west'), (width - 1, 'east')):
-        jigsaw(x, 4, facing, 'minecraft:empty', 'mcyukkuri:street_site', 'mcyukkuri:village/street_sites')
+    import author_street   # bins as stray garbage points, street lamps, the sockets of both street ends
+    author_street.dress_shop_apron(lot)
     return lot
 
 
 def export():
+    import author_street
     museum_shop = shop()
-    summary=[museum_shop.save(), village_shop(museum_shop).save()]+[specialized_factory(k).save() for k in ('labor','manju','bag')]
+    summary=[museum_shop.save(), village_shop(museum_shop).save()]+[specialized_factory(k).save() for k in ('labor','manju','bag')]+author_street.export()
     for style in ('plains', 'desert', 'savanna', 'snowy', 'taiga'):
         pool = f'village/{style}/frontage'
         path = OUT / 'worldgen/template_pool' / f'{pool}.json'
