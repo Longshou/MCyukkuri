@@ -945,7 +945,8 @@
         "exercise",
         "lesson_progress",
         "lesson_start"
-      ]
+      ],
+      "english": "I'll twy my best!"
     },
     {
       "id": "marisa.young.l2444",
@@ -963,7 +964,8 @@
       "source_sha256": "384b1538545a9eea2a2120547b19a1fce4e0f4165b710f8fe2db25161f2ee3bd",
       "events": [
         "lost_accessory"
-      ]
+      ],
+      "english": "Give Mawisa her hat back!"
     },
     {
       "id": "marisa.young.l2455",
@@ -981,7 +983,8 @@
       "source_sha256": "766613e9219a3f4def8120bb6403a5e31805f700581778c15e1eb0564eef7604",
       "events": [
         "returned_accessory"
-      ]
+      ],
+      "english": "Welcome back, Mawisa's hat!"
     },
     {
       "id": "marisa.young.l2598",
@@ -1042,7 +1045,8 @@
       "source_sha256": "c0d8ec7a70b7758fbcabc00029ffcf8f6bc26e5e7475bd3d94e4068d0db0be54",
       "events": [
         "birth"
-      ]
+      ],
+      "english": "The baby's coming!"
     },
     {
       "id": "marisa.young.l5502",
@@ -1081,7 +1085,8 @@
       "source_sha256": "716843ad31cf86d704c96cb2dfc3b11490cd6a7d00a5d900cd1e6c8b31e237a8",
       "events": [
         "toy"
-      ]
+      ],
+      "english": "Mawisa wants to play too!"
     },
     {
       "id": "marisa.young.l5832",
@@ -1101,7 +1106,8 @@
         "mine",
         "lesson_refused",
         "puff"
-      ]
+      ],
+      "english": "Puff! Puuuff!"
     },
     {
       "id": "marisa.young.l6041",
@@ -1119,7 +1125,8 @@
       "source_sha256": "c5ec019b79c7a3e5e2bbabc39806d20b1f98b20e8267fd37e77712e95fc26f45",
       "events": [
         "unrecognized"
-      ]
+      ],
+      "english": "What was dat?"
     },
     {
       "id": "reimu.adult.l0013",
@@ -1163,7 +1170,8 @@
         "idle",
         "house_arrival",
         "house_deposit"
-      ]
+      ],
+      "english": "I'm going to take it easy!"
     },
     {
       "id": "reimu.adult.l0025",
@@ -1200,7 +1208,8 @@
       "source_sha256": "f26668142dc9a7bf78c1730fbc5bf1fa94ad66244e9a0aff99db2bac7bbea5bd",
       "events": [
         "wounded"
-      ]
+      ],
+      "english": "Yunyaaa! It hurts!"
     },
     {
       "id": "reimu.adult.l0134",
@@ -1256,7 +1265,8 @@
       "source_sha256": "ac4d840c171a21cb70a43f769b9cbcb16d794994f6c1b7755d04f953f70bccab",
       "events": [
         "take_food"
-      ]
+      ],
+      "english": "I'm going to take my time eating!"
     },
     {
       "id": "reimu.adult.l0321",
@@ -1378,7 +1388,8 @@
       "source_sha256": "80476bfb1872e77605b177aa7d8d53c8d2afb61a04db12928f2529917665bd1f",
       "events": [
         "awake"
-      ]
+      ],
+      "english": "Take it easy! Good morning!"
     },
     {
       "id": "reimu.adult.l0596",
@@ -1419,7 +1430,8 @@
       "source_sha256": "fa012992bf7c19d2256db253fa9d2b0c178801e21be213adfbdb801b8ae61062",
       "events": [
         "treated"
-      ]
+      ],
+      "english": "Thank you, Mr. Human!"
     },
     {
       "id": "reimu.adult.l1916",
@@ -1437,7 +1449,8 @@
       "source_sha256": "eb6dc55ba31b460a704cf69243abeaaf5834a3ac55dbda2ae61299579d656e9d",
       "events": [
         "wait_learned"
-      ]
+      ],
+      "english": "I get it now!"
     },
     {
       "id": "reimu.adult.l1927",
@@ -1455,7 +1468,8 @@
       "source_sha256": "f4427d84add89034239895fec512a9e8ac3540dd9a5015203dfbbc6e905b1e9c",
       "events": [
         "wait_turn"
-      ]
+      ],
+      "english": "Take it easy... okay, I get it..."
     },
     {
       "id": "reimu.adult.l1940",
@@ -1494,7 +1508,8 @@
         "exercise",
         "lesson_progress",
         "lesson_start"
-      ]
+      ],
+      "english": "I'll do my best and take it easy!"
     },
     {
       "id": "reimu.adult.l2444",
@@ -1512,7 +1527,8 @@
       "source_sha256": "f61a4e4f18150c26071c1af1ba61f4f1d8d01aef4e252bea7d28149c76e20007",
       "events": [
         "lost_accessory"
-      ]
+      ],
+      "english": "Give Reimu back her ribbon!"
     },
     {
       "id": "reimu.adult.l2455",
@@ -1530,7 +1546,8 @@
       "source_sha256": "1558e5da9e8c043559d2b4e7b66cf1217e0e60f7e8223214791772f274f34c7c",
       "events": [
         "returned_accessory"
-      ]
+      ],
+      "english": "Welcome back, Reimu's ribbon!"
     },
     {
       "id": "reimu.adult.l2598",
@@ -1631,7 +1648,8 @@
       "source_sha256": "b4443dd830bf01697a389af4beda08734c7b31acdc5e9e8e563e143ac037502c",
       "events": [
         "toy"
-      ]
+      ],
+      "english": "Reimu wants to play too!"
     },
     {
       "id": "reimu.adult.l5832",
@@ -1670,7 +1688,8 @@
       "source_sha256": "709d5535b3fd04d47d4147e55b95227b66fb1b47cad935a21eee25d99700fe0f",
       "events": [
         "unrecognized"
-      ]
+      ],
+      "english": "What was that?"
     },
     {
       "id": "reimu.young.l0013",
@@ -1714,7 +1733,8 @@
         "idle",
         "house_arrival",
         "house_deposit"
-      ]
+      ],
+      "english": "Gonna chake it eashy!"
     },
     {
       "id": "reimu.young.l0025",
@@ -1751,7 +1771,8 @@
       "source_sha256": "d81357c9517acdf8418fca27b6f8edfe75a89acbb8aa87619c4c9324a398e3a5",
       "events": [
         "wounded"
-      ]
+      ],
+      "english": "Yunyaaa! It huwts!"
     },
     {
       "id": "reimu.young.l0134",
@@ -1807,7 +1828,8 @@
       "source_sha256": "359957de50c3e23fb0ee33a1289bd0d0414e4794e79dcacf13cf2497af379200",
       "events": [
         "take_food"
-      ]
+      ],
+      "english": "Gonna take my time eating!"
     },
     {
       "id": "reimu.young.l0321",
@@ -1925,7 +1947,8 @@
       "source_sha256": "95a38a8cca324b8b6948fbcd1b20b0b0201fbf272b03683ab45686306c115f0c",
       "events": [
         "awake"
-      ]
+      ],
+      "english": "Chake it eashy! G'morning!"
     },
     {
       "id": "reimu.young.l0596",
@@ -1966,7 +1989,8 @@
       "source_sha256": "e5d7015b9b9f1488076181c4a5af1c7be9c67bae19f65104b7fa3a894daa1ff6",
       "events": [
         "treated"
-      ]
+      ],
+      "english": "Fank you, Mishter Human!"
     },
     {
       "id": "reimu.young.l1916",
@@ -1984,7 +2008,8 @@
       "source_sha256": "caca806c39e4e80c662b06e697ffea680826f6e02e43b03867c471873297bb4f",
       "events": [
         "wait_learned"
-      ]
+      ],
+      "english": "I get it now!"
     },
     {
       "id": "reimu.young.l1927",
@@ -2002,7 +2027,8 @@
       "source_sha256": "b168357059a0222cf26f8415d5e4ae59cbe878763cbf2a91c53ec3159f090482",
       "events": [
         "wait_turn"
-      ]
+      ],
+      "english": "Chake it eashy... I got it..."
     },
     {
       "id": "reimu.young.l1940",
@@ -2041,7 +2067,8 @@
         "exercise",
         "lesson_progress",
         "lesson_start"
-      ]
+      ],
+      "english": "I'll twy my best!"
     },
     {
       "id": "reimu.young.l2444",
@@ -2059,7 +2086,8 @@
       "source_sha256": "9dd60cb32584071bdd5b1563b21154dd822d7d86cd2f88ab20fa3fc2f95cbd47",
       "events": [
         "lost_accessory"
-      ]
+      ],
+      "english": "Give Weimu her ribbon back!"
     },
     {
       "id": "reimu.young.l2455",
@@ -2077,7 +2105,8 @@
       "source_sha256": "d7c9b14ffc95c709359618d2dba5c824e5c2a4f2c3181949a8f34a6f8f5b5b0a",
       "events": [
         "returned_accessory"
-      ]
+      ],
+      "english": "Welcome back, Weimu's ribbon!"
     },
     {
       "id": "reimu.young.l2598",
@@ -2138,7 +2167,8 @@
       "source_sha256": "c0d8ec7a70b7758fbcabc00029ffcf8f6bc26e5e7475bd3d94e4068d0db0be54",
       "events": [
         "birth"
-      ]
+      ],
+      "english": "The baby's coming!"
     },
     {
       "id": "reimu.young.l5502",
@@ -2177,7 +2207,8 @@
       "source_sha256": "2144d8af734570bfab7deeb3779973adb3b6247049b19a119340164be94b510f",
       "events": [
         "toy"
-      ]
+      ],
+      "english": "Weimu wants to play too!"
     },
     {
       "id": "reimu.young.l5832",
@@ -2197,7 +2228,8 @@
         "mine",
         "lesson_refused",
         "puff"
-      ]
+      ],
+      "english": "Puff! Puuuff!"
     },
     {
       "id": "reimu.young.l6041",
@@ -2215,7 +2247,8 @@
       "source_sha256": "d3155a57120511c92ebabc4a1ac28466ff06da49d81f8ccee771212eb700be74",
       "events": [
         "unrecognized"
-      ]
+      ],
+      "english": "What was dat?"
     },
     {
       "id": "reimu.adult.l3291",
@@ -2234,7 +2267,8 @@
       "source_sha256": "64678e75d6459ed5654d1864475e4323e0b99e92125e3d1063c701a027a14471",
       "events": [
         "nuzzle"
-      ]
+      ],
+      "english": "Rub, rub."
     },
     {
       "id": "reimu.adult.l3302",
@@ -2257,7 +2291,8 @@
       "translation": {
         "file": "油库里八景ver1.12/油库里八景ver1.12/translate/reimu/sei/seima_serifu.txt",
         "line": 2230
-      }
+      },
+      "english": "I want to rub cheeks!"
     },
     {
       "id": "reimu.young.l3291",
@@ -2276,7 +2311,8 @@
       "source_sha256": "ad79972ce7632f0b67b9ac7ba65ef213a06f976d026c9a6586f65e9ce11f46ee",
       "events": [
         "nuzzle"
-      ]
+      ],
+      "english": "Wub, wub."
     },
     {
       "id": "reimu.young.l3302",
@@ -2295,7 +2331,8 @@
       "source_sha256": "0b19808818dc4cf3c9db3ef666cb3e7b0bca31fad634277e440e7014a0dc8ae0",
       "events": [
         "want_nuzzle"
-      ]
+      ],
+      "english": "I wanna wub cheeks!"
     },
     {
       "id": "marisa.adult.l3291",
@@ -2314,7 +2351,8 @@
       "source_sha256": "64678e75d6459ed5654d1864475e4323e0b99e92125e3d1063c701a027a14471",
       "events": [
         "nuzzle"
-      ]
+      ],
+      "english": "Rub, rub."
     },
     {
       "id": "marisa.adult.l3302",
@@ -2337,7 +2375,8 @@
       "translation": {
         "file": "油库里八景ver1.12/油库里八景ver1.12/translate/marisa/sei/seima_serifu.txt",
         "line": 2230
-      }
+      },
+      "english": "I want to rub cheeks!"
     },
     {
       "id": "marisa.young.l3291",
@@ -2356,7 +2395,8 @@
       "source_sha256": "f6344bfe24cc70d26213192871cadf19be54c5b426b4368483a7592e047950ca",
       "events": [
         "nuzzle"
-      ]
+      ],
+      "english": "Wub, wub."
     },
     {
       "id": "marisa.young.l3302",
@@ -2375,7 +2415,8 @@
       "source_sha256": "04436efbe09bcdc469921b6ffdb9a1bdc49d36f7bc2e5f5500268c222485465b",
       "events": [
         "want_nuzzle"
-      ]
+      ],
+      "english": "I wanna wub cheeks!"
     },
     {
       "id": "alice.adult.l0013",
@@ -2421,7 +2462,8 @@
         "house_arrival",
         "house_deposit",
         "idle"
-      ]
+      ],
+      "english": "I'm going to take it easy!"
     },
     {
       "id": "alice.adult.l0025",
@@ -2460,7 +2502,8 @@
       "source_sha256": "f26668142dc9a7bf78c1730fbc5bf1fa94ad66244e9a0aff99db2bac7bbea5bd",
       "events": [
         "wounded"
-      ]
+      ],
+      "english": "Yunyaaa! It hurts!"
     },
     {
       "id": "alice.adult.l0134",
@@ -2519,7 +2562,8 @@
       "source_sha256": "ac4d840c171a21cb70a43f769b9cbcb16d794994f6c1b7755d04f953f70bccab",
       "events": [
         "take_food"
-      ]
+      ],
+      "english": "I'm going to take my time eating!"
     },
     {
       "id": "alice.adult.l0321",
@@ -2709,7 +2753,8 @@
       "source_sha256": "eb6dc55ba31b460a704cf69243abeaaf5834a3ac55dbda2ae61299579d656e9d",
       "events": [
         "wait_learned"
-      ]
+      ],
+      "english": "I get it now!"
     },
     {
       "id": "alice.adult.l1927",
@@ -2971,7 +3016,8 @@
       "source_sha256": "64678e75d6459ed5654d1864475e4323e0b99e92125e3d1063c701a027a14471",
       "events": [
         "nuzzle"
-      ]
+      ],
+      "english": "Rub, rub."
     },
     {
       "id": "alice.adult.l3302",
@@ -3075,7 +3121,8 @@
       "source_sha256": "d81357c9517acdf8418fca27b6f8edfe75a89acbb8aa87619c4c9324a398e3a5",
       "events": [
         "wounded"
-      ]
+      ],
+      "english": "Yunyaaa! It huwts!"
     },
     {
       "id": "alice.young.l0134",
@@ -3134,7 +3181,8 @@
       "source_sha256": "15c69d0be2de4d63ff792605266910850fb2ae0479f7ebc5aec4c11f0a7cfcf3",
       "events": [
         "take_food"
-      ]
+      ],
+      "english": "Gonna take my time eating!"
     },
     {
       "id": "alice.young.l0321",
@@ -3320,7 +3368,8 @@
       "source_sha256": "491596c6b4c5c1c15181bff4a8a4d98e1728ab02b00d5349635ea9fd132d4c4e",
       "events": [
         "wait_learned"
-      ]
+      ],
+      "english": "I get it now!"
     },
     {
       "id": "alice.young.l1927",
@@ -3480,7 +3529,8 @@
       "source_sha256": "c0d8ec7a70b7758fbcabc00029ffcf8f6bc26e5e7475bd3d94e4068d0db0be54",
       "events": [
         "birth"
-      ]
+      ],
+      "english": "The baby's coming!"
     },
     {
       "id": "alice.young.l5502",
@@ -3542,7 +3592,8 @@
         "lesson_refused",
         "mine",
         "puff"
-      ]
+      ],
+      "english": "Puff! Puuuff!"
     },
     {
       "id": "alice.young.l6041",
@@ -3580,7 +3631,8 @@
       "source_sha256": "f6344bfe24cc70d26213192871cadf19be54c5b426b4368483a7592e047950ca",
       "events": [
         "nuzzle"
-      ]
+      ],
+      "english": "Wub, wub."
     },
     {
       "id": "alice.young.l3302",
@@ -30496,7 +30548,8 @@
       "source_sha256": "c030683b0742c1b9fa51a24096958c1b286d926f2ba318c22845c9e1057cceb5",
       "events": [
         "puff"
-      ]
+      ],
+      "english": "Puff! Puuuff!"
     },
     {
       "id": "reimu.baby.h112_2113",
@@ -30518,7 +30571,8 @@
       "source_sha256": "f6344bfe24cc70d26213192871cadf19be54c5b426b4368483a7592e047950ca",
       "events": [
         "nuzzle"
-      ]
+      ],
+      "english": "Wub, wub."
     },
     {
       "id": "reimu.baby.h112_2125",
@@ -30540,7 +30594,8 @@
       "source_sha256": "44640baf9dc51cbd835d4ee95bc84813be0bc2f7d173aa7894460098113ff315",
       "events": [
         "want_nuzzle"
-      ]
+      ],
+      "english": "I wanna wub cheeks!"
     },
     {
       "id": "reimu.baby.h112_4876",
@@ -30584,7 +30639,8 @@
       "source_sha256": "8a4d8669edd875ebff14e8a3f103babbb5f18e42b81c54c06f5f360a669291ec",
       "events": [
         "wounded"
-      ]
+      ],
+      "english": "Yunyaaa! It huwts!"
     },
     {
       "id": "reimu.baby.h112_4181",
@@ -30809,7 +30865,8 @@
       "source_sha256": "c030683b0742c1b9fa51a24096958c1b286d926f2ba318c22845c9e1057cceb5",
       "events": [
         "puff"
-      ]
+      ],
+      "english": "Puff! Puuuff!"
     },
     {
       "id": "marisa.baby.h112_2118",
@@ -30831,7 +30888,8 @@
       "source_sha256": "f6344bfe24cc70d26213192871cadf19be54c5b426b4368483a7592e047950ca",
       "events": [
         "nuzzle"
-      ]
+      ],
+      "english": "Wub, wub."
     },
     {
       "id": "marisa.baby.h112_2130",
@@ -30853,7 +30911,8 @@
       "source_sha256": "04436efbe09bcdc469921b6ffdb9a1bdc49d36f7bc2e5f5500268c222485465b",
       "events": [
         "want_nuzzle"
-      ]
+      ],
+      "english": "I wanna wub cheeks!"
     },
     {
       "id": "marisa.baby.h112_4878",
@@ -30897,7 +30956,8 @@
       "source_sha256": "8a4d8669edd875ebff14e8a3f103babbb5f18e42b81c54c06f5f360a669291ec",
       "events": [
         "wounded"
-      ]
+      ],
+      "english": "Yunyaaa! It huwts!"
     },
     {
       "id": "marisa.baby.h112_4183",
