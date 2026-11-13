@@ -4624,6 +4624,7 @@ _smoke('shop_window', 1200, [],
 _window_smoke = next(s for s in S if s.id == 'shop_window').smoke
 _window_smoke.update(verify=_shop_window_verify, verify_trace=True)
 _window_smoke['commands'] = [
+    (70, f'tag {STOCK} add scn_stock'),
     (70, f'execute positioned ~16.5 ~2 ~12.5 run tp {BOOTH.format("reimu", 0)} ~ ~ ~'),
     (70, f'execute positioned ~17.5 ~2 ~12.5 run tp {BOOTH.format("alice", 4)} ~ ~ ~'),
     (70, f'execute positioned ~16.5 ~2 ~13.5 run tp {BOOTH.format("chen", 0)} ~ ~ ~'),
