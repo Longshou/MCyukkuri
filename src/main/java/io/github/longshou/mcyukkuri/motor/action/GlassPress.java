@@ -40,22 +40,29 @@ public final class GlassPress implements Action {
     private static final int SQUARE_TICKS = 20;
 
     private final BlockPos glass;
+    private final Entity wanted;
     private final ClipMarkers.Clip marks = ClipMarkers.of(CLIP);
     private final int length = marks.length();
-    private Vec3 outward, face, stand;
+    private final int contactTick = Math.round(marks.markers().get("contact") * 20);
+    private final int impactTick = Math.round(marks.markers().get("impact") * 20);
+    private Vec3 outward, stand;
+    private double plane;
     private float square;
     private int ticks, turning;
     private long startTick;
     private double closest = Double.POSITIVE_INFINITY;
 
-    private GlassPress(BlockPos glass) { this.glass = glass.immutable(); }
+    private GlassPress(BlockPos glass, Entity wanted) {
+        this.glass = glass.immutable();
+        this.wanted = wanted;
+    }
 
     /** A press toward {@code wanted} when exactly one glass cell is between them and that cell is right in front of the face, else null. */
     public static GlassPress toward(YukkuriEntity body, Entity wanted) {
         if (body == null || wanted == null) return null;
         var hit = GlassSight.glassBetween(body, body.getEyePosition(), wanted);
         if (hit == null) return null;
-        var press = new GlassPress(hit.getBlockPos());
+        var press = new GlassPress(hit.getBlockPos(), wanted);
         try {
             return press.check(body).ok() ? press : null;
         } catch (IllegalArgumentException e) {
@@ -87,6 +94,7 @@ public final class GlassPress implements Action {
             return Feasibility.of(Reason.NO_CONTACT, 0, "front_obstructed");
         var normal = Vec3.atLowerCornerOf(hit.getDirection().getNormal());
         double gap = body.position().subtract(hit.getLocation()).dot(normal) - RamContact.of(body.assetId(), CLIP).front()[0] * scale(body);
+        if (gap < 0) return Feasibility.of(Reason.NO_CONTACT, -gap, "stand_too_close_to_glass");
         return gap <= ADJACENT ? Feasibility.pass() : Feasibility.of(Reason.NO_CONTACT, gap, "glass_not_at_face");
     }
 
@@ -94,7 +102,7 @@ public final class GlassPress implements Action {
         body.getNavigation().stop();
         var hit = contact(body, glass);
         outward = Vec3.atLowerCornerOf(hit.getDirection().getNormal());
-        face = hit.getLocation();
+        plane = hit.getLocation().dot(outward);
         stand = body.position();
         square = SurfaceApproach.yaw(Vec3.ZERO, outward.reverse());
         ticks = 0; turning = 0;
@@ -102,29 +110,46 @@ public final class GlassPress implements Action {
     }
 
     @Override public Progress tick(YukkuriEntity body) {
+        if (!body.onGround() || body.isPassenger() || body.isInWaterOrBubble())
+            return Outcome.of(Reason.NO_SUPPORT, 0, "dry_ground_required");
+        var sight = wanted.isAlive() && wanted.level() == body.level()
+                ? GlassSight.glassBetween(body, body.getEyePosition(), wanted) : null;
+        if (sight == null || !sight.getBlockPos().equals(glass))
+            return Outcome.of(Reason.NO_CONTACT, 0, "glass_target_changed");
+        var hit = contact(body, glass);
+        if (hit.getType() != HitResult.Type.BLOCK || !hit.getBlockPos().equals(glass)
+                || !outward.equals(Vec3.atLowerCornerOf(hit.getDirection().getNormal()))
+                || Math.abs(hit.getLocation().dot(outward) - plane) > 1e-7)
+            return Outcome.of(Reason.NO_CONTACT, 0, "glass_face_changed");
         Motor.face(body, square);
         if (ticks == 0) {
             // Square up to the pane first, so the clip's straight-ahead front is the reach into the glass.
             if (Math.abs(Mth.wrapDegrees(square - body.yBodyRot)) > Face.FACE_ARRIVED) {
                 if (++turning > SQUARE_TICKS) return Outcome.of(Reason.NO_CONTACT, 0, "cannot_square_to_glass");
-                return new Running(length + SQUARE_TICKS - turning, TravelMode.CONSUMED);
+                return new Running(length + SQUARE_TICKS - turning, TravelMode.PASS);
             }
             startTick = body.level().getGameTime();
         }
         // The clip clock: tick n of the press draws the clip at n/20 s from startTick.
         if (ticks > length) return new Outcome.Done("block=" + glass);
         var sweep = RamContact.of(body.assetId(), CLIP);
-        double k = scale(body), seconds = Math.min(ticks++ / 20.0, marks.seconds());
-        double from = stand.subtract(face).dot(outward), distance = sweep.distance(from / k, seconds) * k;
+        int frame = ticks++;
+        double k = scale(body), seconds = Math.min(frame / 20.0, marks.seconds());
+        double from = stand.dot(outward) - plane, distance = sweep.distance(from / k, seconds) * k;
         // Lean in from the stand rather than step: until contact the body only closes on the press distance as the face reaches out.
-        Float launch = marks.markers().get("launch"), touch = marks.markers().get("contact");
-        if (launch != null && touch != null && seconds < touch)
+        float launch = marks.markers().get("launch"), touch = marks.markers().get("contact");
+        if (seconds < touch)
             distance = Math.max(distance, Mth.lerp(smooth((seconds - launch) / (touch - launch)), from, distance));
         var target = stand.add(outward.scale(distance - from));
+        if (!SurfaceApproach.stands(body, target))
+            return Outcome.of(Reason.NO_SUPPORT, 0, "glass_press_stand_lost");
         Motor.velocity(body, new Vec3(0, body.getDeltaMovement().y, 0), "glass_press");
-        Motor.move(body, target.subtract(body.position()).multiply(1, 0, 1), "glass_press");
-        closest = Math.min(closest, body.position().subtract(face).dot(outward) - sweep.impact() * k);
-        return new Running(length - ticks, TravelMode.CONSUMED);
+        var step = target.subtract(body.position()).multiply(1, 0, 1);
+        if (step.horizontalDistanceSqr() > 0) Motor.move(body, step, "glass_press");
+        if (frame >= contactTick && frame <= impactTick)
+            closest = Math.min(closest, body.position().dot(outward) - plane - sweep.frontAt(seconds) * k);
+        // Let vanilla settle the vertical axis after the horizontal stroke, as it does for Bash.
+        return new Running(length - ticks, TravelMode.PASS);
     }
 
     private static double smooth(double x) { x = Math.clamp(x, 0, 1); return x * x * (3 - 2 * x); }

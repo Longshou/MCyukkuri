@@ -24,6 +24,9 @@ public record RamContact(double impact, double turn, double[] front, double[] pe
     /** The same front sweep for another contact stroke clip that authors launch, impact and settled markers (glass_press). */
     public static RamContact of(String model, String stroke) { return CACHE.computeIfAbsent(model+"\u0000"+stroke,key->read(model,stroke)); }
 
+    /** The posed front at a server tick, which is also an exact sample of the sweep. */
+    public double frontAt(double seconds) { return front[Math.min(front.length - 1, (int)Math.round(seconds * SAMPLES))]; }
+
     /** Keep the admission stand. Launch closes its measured gap to the swept front, then recoil gives that travel back. */
     public double distance(double stand, double seconds) {
         if (seconds < launch) return stand;
