@@ -4,6 +4,7 @@ import io.github.longshou.mcyukkuri.body.RemainsRot;
 import io.github.longshou.mcyukkuri.family.FamilyLife.Stage;
 import io.github.longshou.mcyukkuri.life.BehaviorContinuity;
 import io.github.longshou.mcyukkuri.life.TravelRange;
+import io.github.longshou.mcyukkuri.pet.exam.ExamSession;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.status.Reactions;
 import java.util.EnumSet;
@@ -40,7 +41,7 @@ public final class RoamingGoal extends Goal {
     }
     private boolean available() {
         return animal.isAlive() && !animal.isNoAi() && !animal.isPassenger() && animal.childhood().canLearn()
-                && !animal.pet().care().walk().onOwnerLead()
+                && !animal.pet().care().walk().onOwnerLead() && !ExamSession.running(animal)
                 && (!animal.profile().houseBody() || animal.house().homeless())
                 && !animal.life().hasUrgentNeed() && !animal.life().isSleeping() && !animal.body().weak()
                 && !animal.family().active() && !animal.isCommandPlaying() && !animal.operations().active()
