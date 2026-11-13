@@ -114,7 +114,7 @@ public final class PetWalk {
                     turnUntil = nowTick + duration;
                     turnAside = waitsAtTurn ? null : aside(owner);
                     animal.showReaction(waitsAtTurn ? "neutral" : "teary", waitsAtTurn ? "wait_turn" : "harness_tug", duration);
-                    GameplayLog.event(animal, "lesson", "harness turn owner={} waits={}", owner.getUUID(), waitsAtTurn);
+                    GameplayLog.event(animal, "lesson", "harness turn owner={} waits={} aside={}", owner.getUUID(), waitsAtTurn, turnAside != null);
                     animal.pet().lessons().performed(PetSkill.HARNESS, waitsAtTurn);
                     ExamSession.performed(animal, PetSkill.HARNESS, waitsAtTurn);
                 }

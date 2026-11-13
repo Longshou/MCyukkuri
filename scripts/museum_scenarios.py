@@ -1699,7 +1699,7 @@ add('training_walk', 'town', '牵引转弯：停等或走偏', '牵引转弯：�
         'tag @e[type=mcyukkuri:reimu,distance=..30,sort=nearest,limit=1] add scn_walk_practised',
         f'tag {sel("walk_practised")} add scn',
         f'tag {sel("walk_practised")} add scn_lead',
-        f'data modify entity {sel("walk_practised")} YukkuriPet.SkillExperience.harness set value 76',
+        f'data modify entity {sel("walk_practised")} YukkuriPet.SkillExperience.harness set value 80',
         f'yukkuri status set {sel("walk_practised")} personality.self_control 95',
         'yukkuri human walker ~10 ~ ~-14 sister marisa',
         'tag @e[type=mcyukkuri:marisa,distance=..30,sort=nearest,limit=1] add scn_walk_novice',
@@ -4501,11 +4501,31 @@ _smoke('training_home', 2100, [
     r'\[needs\] marisa [^\n]*relieved source=ground [^\n]*accident=true',
     r'\[lesson\] marisa [^\n]*bowl skipped for loose food',
 ], readout=[f'data get entity {sel(n)} YukkuriPet.SkillExperience' for n in ('practised', 'novice')])
+def _lead_turns(window):
+    """A turn on the lead is a skill roll, not a fixed outcome: the practised pet waits at its likely roll, the novice misses at
+    its likely roll, and a miss either steps aside onto ground the log names or rejoins at once. Whether a step aside reaches
+    its goal depends on the owner's walk, so only the decision is asserted."""
+    turns = {'reimu': [], 'marisa': []}
+    for line in window.splitlines():
+        found = re.search(r'\[lesson\] (reimu|marisa) #[^\n]* harness turn owner=\S+ waits=(true|false) aside=(true|false)', line)
+        if found is not None:
+            turns[found[1]].append((found[2] == 'true', found[3] == 'true'))
+    if not turns['reimu']:
+        return 'the practised pet never met a turn on the lead'
+    if not any(waited for waited, aside in turns['reimu']):
+        return f'the practised pet never waited at a turn: {turns["reimu"]}'
+    if not turns['marisa']:
+        return 'the novice never met a turn on the lead'
+    if all(waited for waited, aside in turns['marisa']):
+        return f'the novice waited at every turn: {turns["marisa"]}'
+    return None
+
+
 _smoke('training_walk', 2300, [
     r'\[lesson\] reimu [^\n]*harness turn owner=[^ ]+ waits=true',
-    r'\[lesson\] marisa [^\n]*harness turn owner=[^ ]+ waits=false',
-    r'\[lesson\] marisa [^\n]*harness wandered at=',
+    r'\[lesson\] marisa [^\n]*harness turn owner=[^ ]+ waits=(?:true|false) aside=(?:true|false)',
 ], readout=[f'data get entity {sel(n)} YukkuriPet.SkillExperience' for n in ('walk_practised', 'walk_novice')])
+next(s for s in S if s.id == 'training_walk').smoke['verify'] = _lead_turns
 _smoke('training_study', 1750, [
     r'\[lesson\][^\n]*study answered skill=READING',
     r'\[lesson\][^\n]*study answered skill=ARITHMETIC source=food count=6',
