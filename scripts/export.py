@@ -54,6 +54,7 @@ TABLE = [
     exporter('peripheral-assets', 'scripts/export_peripheral_assets.py', ['art/props/runtime-peripheral/']),
     exporter('pet-goods-icons', 'scripts/export_pet_goods_icons.py', ['art/props/pet-goods/']),
     exporter('supply-icons', 'scripts/export_supply_icons.py', ['art/props/supply-icons/']),
+    exporter('item-icons', 'scripts/export_item_icons.py', ['art/props/item-icons/']),
     exporter('badges', 'scripts/export_badges.py', ['art/props/badges/']),
     exporter('human-world', 'scripts/export_human_world.py', ['art/structures/human-world/', 'art/props/badges/author_badges.py']),
     exporter('dialogue', 'scripts/export_dialogue.py', ['art/dialogue/', 'art/audio/aquestalk/']),
@@ -138,6 +139,12 @@ TABLE.append(exporter('source:'+JUNK_HEADWEAR, JUNK_HEADWEAR, [
     *['src/main/resources/assets/mcyukkuri/yukkuri_presentation/'+p+'.json' for p in ('placement_fit', 'living', 'subspecies', 'hat_vessel')],
 ], note='Junk headwear props, their seats on every runtime form and the item icon.'))
 
+# Inventory icons of the 3D-prop items: drawn with the oni-tool icon kit and the oil-grain sack.
+ITEM_ICONS = 'standards/yukkuri-library/drafts/item-icons/draw.py'
+TABLE.append(exporter('source:'+ITEM_ICONS, ITEM_ICONS, [
+    'standards/yukkuri-library/drafts/item-icons/', 'standards/yukkuri-library/drafts/operation-tools/icons.py',
+    'standards/yukkuri-library/drafts/care-props/supplies.py'], note='Inventory icons of the 3D-prop items (snapshots only).'))
+
 # Authoring prerequisites order only the selected builders; selecting a runtime
 # owner alone must not silently rebuild its previously accepted source geometry.
 SOURCE_ORDER = {
@@ -147,6 +154,7 @@ SOURCE_ORDER = {
     'source:'+PREDATOR_AUTHOR: ['standards/yukkuri-library/body-standard/build.py'],
     'human-world': ['art/structures/human-world/build.py'],
     'peripheral-assets': ['standards/yukkuri-library/drafts/care-props/build.py'],
+    'item-icons': [ITEM_ICONS],
     'placement-fit': ['standards/yukkuri-library/body-standard/build.py'],
     'motion-corrections': ['standards/yukkuri-library/interactions/marisa-hat-vessel/build.py',
                            'standards/yukkuri-library/interactions/aquatic-marisa-hat/export.py'],
@@ -160,7 +168,8 @@ MODEL_READERS = ['placement-fit', 'rounded-attachments', 'wound-surfaces', 'roun
                  'subspecies-wounds', 'hat-interactions', 'badges', 'hat-damage', 'ecology-expressions']
 INPUT_LEDGERS = {key: 'art/props/'+folder+'/provenance.json' for key, folder in [
     ('family-assets', 'family-life'), ('living-assets', 'care-facilities'),
-    ('peripheral-assets', 'runtime-peripheral'), ('pet-goods-icons', 'pet-goods'), ('supply-icons', 'supply-icons')]}
+    ('peripheral-assets', 'runtime-peripheral'), ('pet-goods-icons', 'pet-goods'), ('supply-icons', 'supply-icons'),
+    ('item-icons', 'item-icons')]}
 
 
 def table():

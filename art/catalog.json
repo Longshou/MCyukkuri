@@ -558,6 +558,16 @@
           "registry": [
             "toilet_contact"
           ]
+        },
+        {
+          "id": "item-icons",
+          "prefixes": [
+            "standards/yukkuri-library/drafts/item-icons/",
+            "art/props/item-icons/"
+          ],
+          "registry": [
+            "item_icons"
+          ]
         }
       ]
     },

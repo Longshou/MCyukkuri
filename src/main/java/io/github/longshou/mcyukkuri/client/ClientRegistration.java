@@ -15,6 +15,7 @@ import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.client.event.CalculatePlayerTurnEvent;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.event.InputEvent;
+import net.neoforged.neoforge.client.event.ModelEvent;
 import net.neoforged.neoforge.client.event.RegisterClientReloadListenersEvent;
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
@@ -47,6 +48,8 @@ public final class ClientRegistration {
 
         modBus.addListener(EventPriority.NORMAL, false, RegisterClientExtensionsEvent.class, ClientEvents::registerItemExtensions);
         modBus.addListener(EventPriority.NORMAL, false, RegisterClientExtensionsEvent.class, PlacedHatRenderer::items);
+        modBus.addListener(EventPriority.NORMAL, false, ModelEvent.RegisterAdditional.class, ItemIcons::register);
+        modBus.addListener(EventPriority.NORMAL, false, ModelEvent.ModifyBakingResult.class, ItemIcons::wrap);
 
         modBus.addListener(EventPriority.NORMAL, false, RegisterMenuScreensEvent.class, ClientEvents::registerScreens);
         modBus.addListener(EventPriority.NORMAL, false, RegisterMenuScreensEvent.class, HumanRenderer.Events::screens);
