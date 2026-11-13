@@ -10,7 +10,6 @@
 | --- | --- | --- |
 | 纸箱返工、垃圾桶方块与垃圾闭环 | `.worktrees/wp-art-box-bin` | settlement/ShelterBlock, cardboard_shelter assets, wild-shelters source, new trash bin block |
 | 窝适配墙角与宠物窝三档 | `.worktrees/wp-art-nests` | life nest blocks (yukkuri_nest, large nests), nest models/sources, sleep recovery hooks, shop stock |
-| 摆设专用方块：替换简陋的原版拼装体 | `.worktrees/wp-art-decor` | museum/street/shop/settlement structure authoring, new decor blocks and models |
 
 ## 玩法待办
 
