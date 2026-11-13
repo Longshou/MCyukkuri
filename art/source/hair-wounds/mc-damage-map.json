@@ -188,12 +188,6 @@
   ],
   "mod_sources": [
     {
-      "id": "mcyukkuri:terrain_abrasion",
-      "group": "abrasion",
-      "entry": "life/SurfaceLife.tick",
-      "rule": "砂纸垫真实贴地移动累积摩擦；原版普通地面滚动没有独立擦伤扣血，不能凭姿态造伤。"
-    },
-    {
       "id": "operation_tools",
       "group": "context_required",
       "entry": "item/OperationToolItem",
