@@ -36,14 +36,15 @@ import net.minecraft.util.RandomSource;
 /** Hollow, physical multi-block shelters. Only the central floor block owns inventory and residents. */
 public final class ShelterBlock extends Block implements EntityBlock {
     public enum Kind {
-        BURROW("forest_burrow", 0, 1, 16, 0),
-        CARDBOARD("cardboard_shelter", 1, 2, 2, 1.5),
-        CRATE("crate_shelter", 1, 2, 2, 1);
+        // Interior clear height and width in blocks, from the authored shells (data/mcyukkuri/shelters/<id>.json).
+        BURROW("forest_burrow", 0, 1, 16, 0, 0),
+        CARDBOARD("cardboard_shelter", 1, 2, 2, 23/16., 22/16.),
+        CRATE("crate_shelter", 1, 2, 2, 16/16., 40/16.);
         public final String id;
         public final int radius, height, capacity;
-        public final double openingHeight;
-        Kind(String id, int radius, int height, int capacity, double openingHeight) {
-            this.id=id; this.radius=radius; this.height=height; this.capacity=capacity; this.openingHeight=openingHeight;
+        public final double innerHeight, innerWidth;
+        Kind(String id, int radius, int height, int capacity, double innerHeight, double innerWidth) {
+            this.id=id; this.radius=radius; this.height=height; this.capacity=capacity; this.innerHeight=innerHeight; this.innerWidth=innerWidth;
         }
         public boolean found() { return this != BURROW; }
     }

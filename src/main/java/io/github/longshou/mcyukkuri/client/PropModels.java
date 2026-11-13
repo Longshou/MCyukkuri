@@ -259,7 +259,14 @@ public final class PropModels {
     private static void renderPiece(String name,int units,PoseStack pose,MultiBufferSource buffers,int light,int overlay,int side){
         renderPiece(name,units,pose,buffers,light,overlay,side,-1);
     }
+    /** The layer selection of {@link #renderLayers} with one tint over every part (a soaked shelter). */
+    public static void renderLayersTinted(String name,int mask,PoseStack pose,MultiBufferSource buffers,int light,int overlay,int tr,int tg,int tb){
+        renderPiece(name,Integer.MAX_VALUE,pose,buffers,light,overlay,0,mask,tr,tg,tb);
+    }
     private static void renderPiece(String name,int units,PoseStack pose,MultiBufferSource buffers,int light,int overlay,int side,int layers){
+        renderPiece(name,units,pose,buffers,light,overlay,side,layers,255,255,255);
+    }
+    private static void renderPiece(String name,int units,PoseStack pose,MultiBufferSource buffers,int light,int overlay,int side,int layers,int tr,int tg,int tb){
         Model model=models.get(name);if(model==null)throw new IllegalStateException("Missing prop: "+name);
         var transform=pose.last();var v=model.vertices;
         for(var part:model.parts){
@@ -272,7 +279,7 @@ public final class PropModels {
                 }
                 for(int corner=0;corner<4;corner++){
                     int i=(first+Math.min(corner,2))*8;
-                    consumer.addVertex(transform.pose(),v[i]/16,v[i+1]/16,v[i+2]/16).setColor(part.red,part.green,part.blue,255)
+                    consumer.addVertex(transform.pose(),v[i]/16,v[i+1]/16,v[i+2]/16).setColor(part.red*tr/255,part.green*tg/255,part.blue*tb/255,255)
                             .setUv(v[i+3],v[i+4]).setOverlay(overlay).setLight(light).setNormal(transform,v[i+5],v[i+6],v[i+7]);
                 }
             }

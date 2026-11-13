@@ -373,9 +373,12 @@ public final class ShelterBlockEntity extends BlockEntity {
         int reservedYoung = family.reservedForResidents(candidate -> candidate.equals(id) || residents.containsKey(candidate));
         boolean youngInside = residentIds().stream().anyMatch(other -> level instanceof ServerLevel server
                 && server.getEntity(other) instanceof YukkuriEntity child && !child.family().adult() && related(id, other));
-        return entity.family().adult() && (reservedYoung > 0 || youngInside || family.children(id).stream().anyMatch(child ->
+        boolean parent = entity.family().adult() && (reservedYoung > 0 || youngInside || family.children(id).stream().anyMatch(child ->
                 level instanceof ServerLevel server && server.getEntity(child) instanceof YukkuriEntity y
-                        && !y.family().adult() && y.distanceToSqr(entity) < 36)) ? beds().get(1) : worldPosition;
+                        && !y.family().adult() && y.distanceToSqr(entity) < 36));
+        // A parent lies at the mouth; a second grown-up also takes the mouth when another body already holds the back.
+        boolean backTaken = residents.entrySet().stream().anyMatch(e -> e.getValue() == 0 && !e.getKey().equals(id));
+        return parent || backTaken && !residents.containsValue(1) ? beds().get(1) : worldPosition;
     }
 
     boolean foundUsable(YukkuriEntity entity) {

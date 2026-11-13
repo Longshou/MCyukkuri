@@ -9,13 +9,13 @@ ROOT=HERE.parents[3]
 import sys
 sys.path.insert(0,str(ROOT/'standards/yukkuri-library/drafts/care-props'))
 import kit as care_kit   # shared care-prop palette (art/props/palette.json)
-care_kit.NOISE_DEFAULT=False   # the cardboard shelter keeps flat swatches; self-built nests below are vanilla-textured
-# The cardboard shelter uses the shared palette strip; the confirmed leaf-bed atlas below stays untouched.
+care_kit.NOISE_DEFAULT=False   # the crate keeps flat swatches; self-built nests below are vanilla-textured
+# The cardboard carton is authored in cardboard.py (block-style cuboids on a pixel atlas); the confirmed leaf-bed atlas stays untouched.
 # Wild settlements have no latrine model: their waste pit is bare terrain (settlement/site/SiteBuilder.pit).
 FLAT_MATERIALS={'paper':('cardboard',2),'paper_light':('cardboard',3),'paper_dark':('cardboard',0),'tape':('straw',2),'ink':('wood',0),
                 'grass':('straw',1),'leaf_dry':('straw',0),'soil':('wood',1),'wood':('wood',2),'waste':('anko',1),
                 'waste0':('anko',0),'waste1':('anko',1),'waste2':('anko',2),'waste3':('anko',3)}
-FLAT_MODELS={'cardboard_shelter','crate_shelter'}
+FLAT_MODELS={'crate_shelter'}
 OUT=HERE/'assembled'; PRE=ROOT/'.local/previews/wild-shelters/source-views'
 RUN=ROOT/'src/main/resources'; SNAP=ROOT/'art/props/wild-shelters'
 for p in (OUT,PRE,SNAP,RUN/'assets/mcyukkuri/yukkuri_props',RUN/'textures',RUN/'data/mcyukkuri/shelters'):
@@ -118,34 +118,6 @@ for i,(a,b,r) in enumerate([((-5.8,0,-7),(-8.1,9,-8.1),.24),((5.8,0,-7),(8.1,7,-
     name,points,faces,mat,_=boundary.meshes[-1];boundary.meshes[-1]=(name,points,faces,mat,i+1)
 models.append(boundary)
 write(RUN/'data/mcyukkuri/shelters/forest_burrow.json',{'units_per_block':16,'collision':[]})
-m=Model('cardboard_shelter')
-m.box('left_wall',[-23,0,-23],[-21,27,23],'paper',True)
-m.box('right_wall',[21,0,-23],[23,27,23],'paper',True)
-m.box('back_wall',[-21,0,-23],[21,27,-21],'paper',True)
-m.box('roof',[-23,26,-23],[23,28,23],'paper',True)
-m.box('front_jamb_left',[-21,0,21],[-14,26,23],'paper',True)
-m.box('front_jamb_right',[14,0,21],[21,26,23],'paper',True)
-m.box('front_lintel',[-14,24,21],[14,27,23],'paper_dark',True)
-m.box('floor',[-21,0,-21],[21,.18,22],'paper_dark')
-m.mesh('drooping_front_flap',[[-23,27,22],[23,27,22],[21,24,24],[-18,23.6,24]],[(3,2,1,0)],'paper_light')
-m.box('roof_tape',[-2,28.05,-23],[2,28.12,22],'tape')
-for i in range(9):
-    z=-17+i*4
-    m.box('side_crease_'+str(i),[-23.12,3+i%3,z],[-23.02,3.16+i%3,z+2],'paper_dark')
-m.box('back_tape',[-2,3,-23.12],[2,28,-23.02],'tape')
-# simple fold lines: wall-to-roof edge creases, vertical corner folds and the roof flap seams
-for side,x in (('l',-23.12),('r',23.02)):
-    m.box('roof_edge_crease_'+side,[x,25.2,-23],[x+.1,25.7,23],'paper_dark')
-    for z in (-19.5,19.0):m.box('corner_fold_%s_%d'%(side,z),[x,0,z],[x+.1,25.2,z+.5],'paper_dark')
-for x in (-12,12):m.box('roof_flap_seam_%d'%x,[x-.25,28.0,-23],[x+.25,28.1,22],'paper_dark')
-m.box('front_flap_fold',[-23,26.8,22.95],[23,27.2,23.05],'paper_dark')
-m.box('side_label',[23.02,9,-9],[23.12,18,6],'paper_light')
-for z in (-6,-3,0,3):m.box('label_ink_'+str(z),[23.14,11,z],[23.18,16,z+.5],'ink')
-for i in range(12):m.box('corrugated_edge_'+str(i),[-13+i*2,24,23.03],[-12.3+i*2,25,23.16],'paper_light')
-for i in range(9):m.box('bedding_'+str(i),[-8+i*1.7,.2,-7],[-7+i*1.7,.35,8],'grass',unit=1)
-for i in range(4):m.box('food_'+str(i),[-18,.2+i*.25,-16],[-12,.5+i*.25,-8],'leaf_dry',unit=2)
-models.append(m)
-
 m=Model('crate_shelter')
 m.box('left_boards',[-23,0,-23],[-20,17,23],'ink',True)
 m.box('right_boards',[20,0,-23],[23,17,23],'ink',True)
@@ -182,6 +154,21 @@ def export_kit(prop):
     tex=RUN/'assets/mcyukkuri/textures/props';tex.mkdir(parents=True,exist_ok=True);(tex/(name+'.png')).write_bytes(texture)
     return mesh
 exports={m.name:m.export() for m in models}
+import cardboard
+def export_carton():
+    carton=cardboard.build();mesh,elements,image=carton.export();name=carton.name
+    write(OUT/(name+'.json'),mesh)
+    tex_bytes=__import__('io').BytesIO();image.save(tex_bytes,format='PNG')
+    write(OUT/(name+'.bbmodel'),{'meta':{'format_version':'4.10','model_format':'free'},'name':name,'resolution':{'width':cardboard.SIZE,'height':cardboard.SIZE},
+          'elements':elements,'outliner':[e['uuid'] for e in elements],'textures':[{'name':name+'.png','id':'0','width':cardboard.SIZE,'height':cardboard.SIZE,
+          'source':'data:image/png;base64,'+base64.b64encode(tex_bytes.getvalue()).decode()}]})
+    save_image(image,OUT/(name+'.png'))
+    for suffix in ('.json','.bbmodel','.png'):shutil.copy2(OUT/(name+suffix),SNAP/(name+suffix))
+    shutil.copy2(OUT/(name+'.json'),RUN/'assets/mcyukkuri/yukkuri_props'/(name+'.json'))
+    save_image(image,RUN/'assets/mcyukkuri/textures/props'/(name+'.png'))
+    write(RUN/'data/mcyukkuri/shelters'/(name+'.json'),{'units_per_block':16,'collision':carton.collision})
+    return mesh
+exports['cardboard_shelter']=export_carton()
 for _name in KIT_NESTS:exports[_name]=export_kit(care_wild.WILD[_name]())
 write(RUN/'assets/mcyukkuri/yukkuri_props/shelters-index.json',{name:{} for name in exports})
 manifest={'status':'pending_user_confirmation','authoring':'build.py','coordinate_system':'16 units/block, +Z entrance, origin center floor','sources':[{'url':'http://blog.livedoor.jp/yukkuri_anko/archives/29803869.html','observed':'Battered cardboard shelter with an opening; original new mesh and texture.'},{'source':'User ecological correction, 2026-09-13','observed':'Existing cave or pit; only loose leaves and a few thin entrance twigs. No constructed earth walls, roof, arch or bindings. Previous mound interpretation rejected.'}],'exports':{name:{'mesh_sha256':sha(OUT/(name+'.json')),'editable_sha256':sha(OUT/(name+'.bbmodel')),'texture_sha256':sha(OUT/(name+'.png'))} for name in exports}}

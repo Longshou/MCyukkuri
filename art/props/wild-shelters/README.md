@@ -8,7 +8,7 @@
 | `personal_leaf_nest` | `assets/mcyukkuri/yukkuri_props/personal_leaf_nest.json` | 后期子体在原睡位完成的较小、碗形个人草窝（散叶 → 低草圈 → 草束小窝）；不产生新住所外壳或物理睡位 |
 | `bedding_bundle` | `assets/mcyukkuri/yukkuri_props/bedding_bundle.json` | 施工中放在睡位上的一份垫料：叼来的一小撮松散干草，夹着一片叶，草茎四散 |
 | `nest_boundary` | `assets/mcyukkuri/yukkuri_props/nest_boundary.json` | 洞口至多三根细枝，靠向现有侧壁，无承重或防御碰撞 |
-| `cardboard_shelter` | `assets/mcyukkuri/yukkuri_props/cardboard_shelter.json` | 开口、折盖、胶带、标签与箱内底面；使用共用色板的纸板明暗阶，保留折盖接缝与折痕 |
+| `cardboard_shelter` | `assets/mcyukkuri/yukkuri_props/cardboard_shelter.json` | 侧放的开口纸板箱：方块风格长方体、像素纸板贴图、外翻侧盖与地上底盖、可切换的顶盖（翻起／耷拉）和铺垫层 |
 
 以上路径均相对 `src/main/resources/`；各图集在 `assets/mcyukkuri/textures/props/<ID>.png`。住所碰撞在 `data/mcyukkuri/shelters/<ID>.json`。无骨架或独立动作；`ShelterRenderer` 按实际住户的睡位组合共巢外缘，并在个人巢的原睡位显示小叶巢。野外没有便所模型，聚落的嗯嗯坑只是地形浅坑（见[聚落场地](../../../docs/FEATURES.md#聚落族规与迁徙)）。物品缩略模型复用相同导出。
 

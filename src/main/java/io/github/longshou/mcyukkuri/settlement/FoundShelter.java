@@ -2,6 +2,7 @@ package io.github.longshou.mcyukkuri.settlement;
 
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.headwear.HeadTop;
 import io.github.longshou.mcyukkuri.human.HumanNpc;
 import io.github.longshou.mcyukkuri.human.WoodenBenchBlock;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
@@ -107,10 +108,11 @@ public final class FoundShelter implements MotorOwner {
                 && y.family().brood() == null && !y.family().birthDuty();
     }
 
+    /** The body with what it wears (and anything riding it) clears the shelter's real interior. */
     static boolean fits(YukkuriEntity y, ShelterBlock.Kind kind) {
-        double height = y.getBbHeight() * (y.life().hasAccessory() ? 1.22 : 1);
+        double height = HeadTop.height(y);
         for (var rider : y.getPassengers()) height = Math.max(height, rider.getBoundingBox().maxY - y.getY());
-        return height < kind.openingHeight && y.getBbWidth() < 1.7;
+        return height < kind.innerHeight && HeadTop.width(y) < kind.innerWidth;
     }
 
     private boolean wantsCover() {
