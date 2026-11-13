@@ -10,6 +10,7 @@ import io.github.longshou.mcyukkuri.motor.Action;
 import io.github.longshou.mcyukkuri.motor.Outcome;
 import io.github.longshou.mcyukkuri.motor.action.Face;
 import io.github.longshou.mcyukkuri.motor.action.Gesture;
+import io.github.longshou.mcyukkuri.motor.action.GlassPress;
 import io.github.longshou.mcyukkuri.motor.action.Walk;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.HashMap;
@@ -47,13 +48,17 @@ final class ChildCall {
     private boolean hopped;
     private YukkuriEntity glassParent;
     private Walk glassApproach;
+    /** Its glass approach just arrived: the next answer tick presses its face on the pane once. */
+    private boolean atStand;
     /** The turn and the answering hop belong to the call while a phase runs. */
     private final MotorOwner body = new MotorOwner() {
         @Override public String ownerId() { return "family_call"; }
         @Override public boolean active() { return phase != Phase.NONE; }
         @Override public void finished(Action action, Outcome outcome) {
-            if (action==glassApproach && outcome instanceof Outcome.Done)
+            if (action==glassApproach && outcome instanceof Outcome.Done) {
+                atStand=true;
                 GameplayLog.event(o.entity(),"family","glass child at stand parent={}",glassParent.getUUID());
+            }
         }
     };
 
@@ -230,6 +235,7 @@ final class ChildCall {
         if (glassParent!=previous && glassParent!=null) {
             var stand=glass.childStand(e);
             glassApproach=stand==null?null:Walk.stand(stand,1);
+            atStand=false;
         }
         phase = Phase.ANSWER; ticks = 0;
         if (glassParent==null || glassParent!=previous) hopped=false;
@@ -259,6 +265,11 @@ final class ChildCall {
             if (!hopped) {
                 hopped=true;
                 if (glassApproach!=null) e.motor().run(body,glassApproach);
+            } else if (atStand) {
+                // At its side of the pane with the parent just beyond: it squashes its face on the glass once.
+                atStand=false;
+                var press=GlassPress.toward(e,glassParent);
+                if (press!=null) e.motor().run(body,press);
             }
             return true;
         }
@@ -277,7 +288,7 @@ final class ChildCall {
         GameplayLog.limited(o.entity(), "family", "call.stop", 200, "child call interrupted phase={} ticks={}", phase, ticks);
         if (phase != Phase.ANSWER) nextCall = o.level().getGameTime() + interval(o.entity());
         o.entity().motor().cancel(body,"family_call_ended");
-        glassParent=null;glassApproach=null;
+        glassParent=null;glassApproach=null;atStand=false;
         phase = Phase.NONE;
     }
 }

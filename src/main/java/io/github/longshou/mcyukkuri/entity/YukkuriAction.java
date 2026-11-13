@@ -160,6 +160,8 @@ public enum YukkuriAction {
     PUKU_TEARY("puku_teary", 3.2, true),
     // Landed base rig: launch .36, impact .52, settled 1.1 seconds.
     LUNGE_RAM("lunge_ram", 1.1, false),
+    // Face squashed on a pane (GlassPress): launch .3, contact .6, impact (peel) 1.3, settled 1.9 seconds.
+    GLASS_PRESS("glass_press", 1.9, false),
     SUKKIRI_PAIR_LOOP("sukkiri_pair_loop", 1.6, true),
     SUKKIRI_MAMU_LOOP("sukkiri_mamu_loop", 1.6, true),
     SUKKIRI_PAIR_CLIMAX("sukkiri_pair_climax", 6.5, false),

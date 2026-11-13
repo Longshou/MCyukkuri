@@ -175,6 +175,7 @@
     "cling_left": {"source": "lore", "family": "social_greeting", "tier": "base", "classification": {"kind": "near_duplicate_of", "target": "rain_huddle_right"}, "callers": ["java:DailyLife.contactClip"]},
     "nod": {"source": "lore", "family": "social_greeting", "tier": "base", "classification": {"kind": "near_duplicate_of", "target": "bow"}, "callers": ["no caller"]},
     "lunge_ram": {"source": "lore", "family": "locomotion", "tier": "base", "classification": {"kind": "really_base"}, "callers": ["no caller"]},
+    "glass_press": {"source": "lore", "family": "social_greeting", "tier": "special", "classification": {"kind": "special", "reason": "The face flattens on a real pane: the squash is planted on the glass plane and the motor places the body from the clip's measured front sweep."}, "callers": ["no caller"]},
     "sukkiri_after_dazed": {"source": "lore", "family": "emotion", "tier": "base", "classification": {"kind": "really_base"}, "callers": ["java:YukkuriAction.SUKKIRI_AFTER_DAZED"]},
     "sukkiri_after_tender": {"source": "lore", "family": "emotion", "tier": "base", "classification": {"kind": "near_duplicate_of", "target": "sukkiri_after_dazed"}, "callers": ["java:YukkuriAction.SUKKIRI_AFTER_TENDER"]},
     "sukkiri_after_proud": {"source": "lore", "family": "emotion", "tier": "composite", "classification": {"kind": "really_composite", "base_motions": ["proud", "stretch_shape"]}, "callers": ["java:YukkuriAction.SUKKIRI_AFTER_PROUD"]},

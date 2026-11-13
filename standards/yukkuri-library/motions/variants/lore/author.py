@@ -321,7 +321,7 @@ def state(action, t, c, height):
         r = [-2*tidy, 10*shake, -2*tidy]; s[1] = 1-.02*abs(shake)
     elif action in ('nuzzle', 'comfort_lick'):
         w = math.sin(2*math.pi*t/d)
-        r = [c['lean'], 0., c['rub']*w]; shift[0] = c['rub_shift']*height*w; s = [1., 1-.015*abs(w), 1.]
+        r = [c['lean'], c.get('rub_yaw', 0.)*w, c['rub']*w]; shift[0] = c['rub_shift']*height*w; s = [1., 1-.015*abs(w), 1.]
     elif action in ('feed_child', 'first_toilet_assist'):
         # Both are deliberate care approaches, but they stay separate clips: mouth-to-mouth
         # feeding faces the child, while first-toilet care is positioned by the server at its rear.
@@ -579,11 +579,11 @@ def state(action, t, c, height):
         got = leap(0, .22, .62, .8, height*c['hop_ratio']) or leap(.8, 1.0, 1.4, 1.6, height*c['second_hop_ratio'])
         if got: s, lift, e = got; r[0] = c['look_up']*e
     elif action == 'sulk':
-        ph = 2*math.pi*t/d; wide = 1+(1-c['height'])*.5
-        s = [c['width'], c['height']+.01*math.sin(ph), c['width']]; s[0] = wide
-        r = [c['head_down'], c['turn'], c['tilt']]
-        if 1.4 <= t < 1.9:
-            w = bump((t-1.4)/.5)*math.sin(2*math.pi*9*t); r[2] += c['shudder']*w; shift[0] = .006*height*w
+        # Turned away and a little sunk; one slow sob per cycle heaves the body up, dips it and turns it further away (no shudder).
+        a, b = c['sob']; q = bump((t-a)/(b-a)) if a <= t <= b else 0.
+        s = [c['width'], c['height'], c['width']]
+        r = [c['head_down']+c['sob_dip']*q, c['turn']+c['sob_turn']*q, c['tilt']]
+        lift = c['sob_lift']*height*q
     elif action == 'hide_face':
         # Crouched with the front pushed into the box: shorter in depth, wider, a gentle nose-down pitch
         # (the rear reads as raised from the squash), and a wiggle made of yaw, a touch of roll and a
@@ -620,11 +620,25 @@ def state(action, t, c, height):
         r[0] = keyed(t, [(0, 0), (L, c['windup_lean']), (I-.04, c['dart_lean']), (I, c['impact_lean']), (R, c['impact_lean']), (B, c['recoil_lean']), (S, 0)])
         shift[1] = height*keyed(t, [(0, 0), (L, c['draw_back']), (I-.04, front+st*F), (I, front-fl*F), (R, front-fl*F), (B, c['recoil']), (S, 0)])
         lift = height*(c['dart_hop']*bump((t-L)/(I-.04-L)) + c['recoil_hop']*bump((t-R)/(S-R)))
+    elif action == 'glass_press':
+        # Face squashed on a pane (project design): an eager rise and small draw-back, lean in until the face meets the glass
+        # (launch..contact), squash flat against it with one slow extra push (contact..impact: the front stays on the pane, the body
+        # behind it squeezes in, a physical squash), then peel back with a small sticky stretch and settle (impact..settled).
+        # Travel is the motor's (GlassPress, from the same RamContact front sweep); the clip's forward shift stays within the body.
+        m = c['markers']; L, C, I, S = m['launch'], m['contact'], m['impact'], m['settled']
+        fl, F, st = c['flatten'], c['front_ratio'], c['stretch']
+        p0, p1 = c['push_window']
+        q = keyed(t, [(0, 0), (C, 0), (C+.2, 1), (I, 1), (I+.3, 0), (S, 0)])*fl + c['push']*(bump((t-p0)/(p1-p0)) if p0 <= t <= p1 else 0.)
+        up = keyed(t, [(0, 1), (L, 1+st), (C, 1), (I, 1), (I+.3, 1+.5*st), (S, 1)])
+        s = [1+.6*q, (1+.25*q)*up, 1-q]
+        r[0] = keyed(t, [(0, 0), (L, c['rise_lean']), (C, c['lean']), (I, c['lean']), (I+.3, c['peel_lean']), (S, 0)])
+        a = keyed(t, [(0, 0), (L, -c['draw_back']), (C, c['reach']), (I, c['reach']), (S, 0)])
+        shift[1] = -height*(a + q*F)
     elif action == 'shy':
         # Face turned away with a small sway; once per cycle it peeks back and turns away again.
         ph = 2*math.pi*t/d; peek = max(0., math.sin(ph))**2
         r = [-1.5-2*peek, c['turn']*(1-.6*peek), c['sway']*math.sin(ph)]
-        s = [1+.025*(1-peek), 1-.04*(1-peek), 1+.025*(1-peek)]; shift[0] = c['shift']*height*math.sin(ph)
+        shift[0] = c['shift']*height*math.sin(ph)
     elif action == 'doze_off':
         # Starts upright and ends in the exact sleep pose (height, slump, tilt) so the sleep clip takes over unseen.
         p = smooth(t/d); h = lerp(1., c['height'], p)

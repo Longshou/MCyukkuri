@@ -10,7 +10,7 @@
     "birth": {"clips": ["labor", "boat_labor", "midwife", "postpartum", "first_wake", "hat_hold", "hat_hold_aq", "hat_off_self", "hat_on_self", "hat_off_self_aq", "hat_on_self_aq"], "braid_follow": true, "birth_pose": true},
     "badge": {"clips": ["snatch_pull", "stand_ground", "offer_bite", "eat", "drink", "first_toilet_assist", "newborn_crawl", "nest_harvest", "nest_place", "nest_spread", "greet", "hat_off_aq", "hat_on_aq", "water_plunge", "water_recover", "water_hat_pull", "water_hat_over"], "braid_follow": true},
     "distress": {"clips": ["hat_stumble", "hat_jostle", "water_plunge", "water_struggle", "water_swim", "water_gasp", "water_recover", "water_held_breath", "boat_reassure", "boat_alarm_call", "boat_alarm_wait", "boat_answer_call", "boat_flee", "boat_calm", "braid_rescue_reach", "braid_rescue_hold", "braid_rescue_settle", "water_hat_flip", "water_hat_grip", "water_hat_climb", "water_hat_pull", "water_hat_over", "hat_brim_offer", "hat_hop_up", "water_bob_lunge", "hat_slide_over", "water_mouth_grip", "water_hat_shake", "water_hat_push", "boat_nudge_young", "braid_reach_low"]},
-    "base-motions": {"clips": ["lunge_ram", "nod", "cling_right", "cling_left"], "braid_follow": true},
+    "base-motions": {"clips": ["lunge_ram", "glass_press", "nod", "cling_right", "cling_left"], "braid_follow": true},
     "pet": {"clips": ["think", "nervous", "proud", "joy_jump", "sulk", "hide_face", "beg", "bow", "shy", "doze_off", "struggle", "basket_in", "basket_out", "ignore", "restrain"], "braid_follow": true},
     "sukkiri": {"clips": ["sukkiri_after_dazed", "sukkiri_after_tender", "sukkiri_after_proud", "sukkiri_after_manic", "sukkiri_pair_loop", "sukkiri_mamu_loop", "sukkiri_pair_climax", "sukkiri_mamu_climax", "sukkiri_alice_loop", "sukkiri_held_loop", "sukkiri_held_climax", "sukkiri_alice_chase"], "braid_follow": true},
     "aquatic": {"clip_source": "aquatic_tools.py", "clip_field": "EXPORT_CLIPS"}
@@ -1177,8 +1177,8 @@
       "applies": "all",
       "lean": -8,
       "chew_seconds": 0.4,
-      "chew_nod": -2,
-      "chew_squash": 0.05,
+      "chew_nod": -3.5,
+      "chew_squash": 0.065,
       "faces": [
         [
           0,
@@ -1233,7 +1233,7 @@
       "duration": 2.0,
       "loop": false,
       "applies": "all",
-      "hop_ratio": 0.14,
+      "hop_ratio": 0.2,
       "look_up": 6,
       "wiggle": 7,
       "faces": [
@@ -1596,7 +1596,7 @@
       "loop": true,
       "applies": "all",
       "height": 0.94,
-      "breath": 0.015,
+      "breath": 0.035,
       "tilt": 4,
       "slump": -3,
       "faces": [
@@ -1774,7 +1774,8 @@
       "applies": "all",
       "lean": -5,
       "rub": 6,
-      "rub_shift": 0.02,
+      "rub_yaw": 10,
+      "rub_shift": 0.04,
       "faces": [
         [
           0,
@@ -2076,9 +2077,9 @@
       "duration": 1.4,
       "loop": false,
       "applies": "all",
-      "hop_ratio": 0.16,
+      "hop_ratio": 0.22,
       "crouch": 1.5,
-      "bow": -10,
+      "bow": -11,
       "faces": [
         [
           0,
@@ -2102,8 +2103,8 @@
             "*marisa*"
           ],
           "style": "genki",
-          "hop_ratio": 0.16,
-          "second_hop_ratio": 0.07,
+          "hop_ratio": 0.22,
+          "second_hop_ratio": 0.1,
           "look_up": 8,
           "faces": [
             [
@@ -2156,9 +2157,9 @@
       "loop": true,
       "applies": "all",
       "height": 0.91,
-      "sigh": 0.02,
-      "head_down": -8,
-      "sway": 2,
+      "sigh": 0.04,
+      "head_down": -9,
+      "sway": 3,
       "faces": [
         [
           0,
@@ -4023,9 +4024,9 @@
       "duration": 2.0,
       "loop": false,
       "applies": "all",
-      "lean_back": 5,
-      "stretch": 0.09,
-      "chin_up": 2,
+      "lean_back": 6,
+      "stretch": 0.12,
+      "chin_up": 3,
       "faces": [
         [
           0,
@@ -4084,11 +4085,14 @@
       "loop": true,
       "applies": "all",
       "turn": 150,
-      "height": 0.9,
-      "width": 1.06,
+      "height": 0.95,
+      "width": 1.03,
       "head_down": -6,
       "tilt": 3,
-      "shudder": 3,
+      "sob": [1.3, 2.1],
+      "sob_lift": 0.04,
+      "sob_dip": -3,
+      "sob_turn": 14,
       "faces": [
         [
           0,
@@ -4106,7 +4110,7 @@
           "teary"
         ]
       ],
-      "lore": "Project design: body turned about 150 degrees from the front, sunk and flattened, with an occasional small shudder (cf. droop, TM02).",
+      "lore": "Project design: body turned about 150 degrees from the front and slightly sunk; once per cycle, on the cry face, one slow sob heaves the body up, dips it and turns it further away (a hmph), with no fast shudder (cf. droop, TM02).",
       "triggers": [
         "exam failed or scolded"
       ]
@@ -4144,12 +4148,12 @@
       "loop": true,
       "applies": "all",
       "lean": -5,
-      "lean_bounce": -2,
-      "bounce_ratio": 0.03,
+      "lean_bounce": -3,
+      "bounce_ratio": 0.06,
       "bounce_seconds": 0.7,
       "crouch": 0.1,
       "sway": 1.5,
-      "hop_shift": 0.04,
+      "hop_shift": 0.06,
       "faces": [
         [
           0,
@@ -4625,9 +4629,9 @@
       "duration": 2.0,
       "loop": true,
       "applies": "all",
-      "turn": -24,
-      "sway": 3,
-      "shift": 0.012,
+      "turn": -40,
+      "sway": 4,
+      "shift": 0.025,
       "faces": [
         [
           0,
@@ -4645,7 +4649,7 @@
           "closed_smile"
         ]
       ],
-      "lore": "Project design: the face turns about 24 degrees away with a slight squash and a small side sway, and peeks back once per cycle; pitch stays under 4 degrees.",
+      "lore": "Project design: the face turns about 40 degrees away with a small side sway and drift, and peeks back once per cycle; no squash, pitch stays under 4 degrees.",
       "triggers": [
         "matchmaking meeting, breeding permit granted, wild request"
       ]
@@ -7135,6 +7139,60 @@
       "lore": "Project design (motion library base lunge_ram, art decision B1/C2; wiki defense_flee and home invasion pushes N1, F15, F07): crouch and draw back (wind-up), dart forward stretched with a small hop (launch), flatten on the near contact face (impact: the front stays at the dart's farthest point and the body squeezes in behind it, a physical squash), spring back with a recoil hop and settle. Travel belongs to the motor; the clip's own forward shift stays within the body. front_ratio is the rest face front ahead of the root pivot over the body height (rounded body 6.07/9.6, bean 5.11/13.14). Markers: launch, impact (hit timing), settled.",
       "triggers": [
         "no caller yet (bash at a pane, glass ram, push re-expression)"
+      ]
+    },
+    "glass_press": {
+      "label": "玻璃挤脸",
+      "duration": 1.9,
+      "loop": false,
+      "applies": "all",
+      "markers": {
+        "launch": 0.3,
+        "contact": 0.6,
+        "impact": 1.3,
+        "settled": 1.9
+      },
+      "flatten": 0.15,
+      "push": 0.03,
+      "push_window": [
+        0.85,
+        1.25
+      ],
+      "front_ratio": 0.63,
+      "stretch": 0.03,
+      "reach": 0.07,
+      "draw_back": 0.015,
+      "rise_lean": 2,
+      "lean": -5,
+      "peel_lean": 1.5,
+      "faces": [
+        [
+          0,
+          0.6,
+          "open_smile"
+        ],
+        [
+          0.6,
+          1.4,
+          "flushed_smile"
+        ],
+        [
+          1.4,
+          61.9,
+          "open_smile"
+        ]
+      ],
+      "variants": {
+        "bean": {
+          "match": [
+            "*bean*"
+          ],
+          "front_ratio": 0.39
+        }
+      },
+      "lore": "Project design (user: glass face-squish): a body behind a pane presses toward someone or something it wants. Eager rise and small draw-back, lean in until the face meets the glass (contact), squash flat against it with one slow extra push (a physical squash; the front stays on the pane while the body behind it squeezes in), peel back with a small sticky stretch and settle. Travel belongs to the motor (GlassPress, from the RamContact front sweep of this clip); the clip's own forward shift stays within the body. Markers: launch, contact, impact (peel starts), settled.",
+      "triggers": [
+        "an approach goal reaching its glass stand with the wanted one beyond the pane (shop window plea, family glass vigil)"
       ]
     },
     "sukkiri_after_dazed": {

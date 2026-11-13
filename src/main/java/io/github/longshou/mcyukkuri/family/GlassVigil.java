@@ -10,6 +10,7 @@ import io.github.longshou.mcyukkuri.motor.MotorOwner;
 import io.github.longshou.mcyukkuri.motor.Outcome;
 import io.github.longshou.mcyukkuri.motor.action.Bash;
 import io.github.longshou.mcyukkuri.motor.action.Face;
+import io.github.longshou.mcyukkuri.motor.action.GlassPress;
 import io.github.longshou.mcyukkuri.motor.action.PaneOpening;
 import io.github.longshou.mcyukkuri.motor.action.Walk;
 import io.github.longshou.mcyukkuri.motor.geom.Effort;
@@ -22,7 +23,7 @@ import net.neoforged.neoforge.common.Tags;
 
 /** The land family search's one stop at a visible barrier. Only Walk, Face and Bash drive either body. */
 final class GlassVigil implements MotorOwner {
-    private enum Phase { APPROACH, WAIT, SQUARE, RAM, CROSS, FAREWELL }
+    private enum Phase { APPROACH, PRESS, WAIT, SQUARE, RAM, CROSS, FAREWELL }
     private final FamilyLife family;
     private final YukkuriEntity parent;
     private YukkuriEntity child;
@@ -82,11 +83,18 @@ final class GlassVigil implements MotorOwner {
             if (!(outcome instanceof Outcome.Done)) {
                 if (phase==Phase.SQUARE || phase==Phase.RAM) decline(outcome);
                 else if (phase==Phase.CROSS) { release(); return false; }
+                else if (phase==Phase.PRESS) arrive(now);
                 else farewell("stand_blocked");
                 return true;
             }
             switch (phase) {
-                case APPROACH -> arrive(now);
+                case APPROACH -> {
+                    // At its stand with the child just beyond the pane: it squashes its face on the glass once, then calls.
+                    var press=GlassPress.toward(parent,child);
+                    if (press==null) arrive(now);
+                    else run(Phase.PRESS,press);
+                }
+                case PRESS -> arrive(now);
                 case SQUARE -> run(Phase.RAM,new Bash(glass,new Bash.Damage(0,0),parent.getId()));
                 case RAM -> {
                     GameplayLog.event(parent,"family","glass pane opened child={} block={}",child.getUUID(),glass);
@@ -143,6 +151,7 @@ final class GlassVigil implements MotorOwner {
         if (parent.motor().run(this,move)) action=move;
         else if (next==Phase.CROSS) release();
         else if (next==Phase.APPROACH) farewell("stand_refused");
+        else if (next==Phase.PRESS) arrive(family.level().getGameTime());
         else decline(parent.motor().refusal());
     }
 

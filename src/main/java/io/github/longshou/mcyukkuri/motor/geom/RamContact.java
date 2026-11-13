@@ -20,7 +20,9 @@ public record RamContact(double impact, double turn, double[] front, double[] pe
     // Ternary narrowing of each local maximum's two-sample bracket: (2/3)^24 of 20 ms is under a microsecond.
     private static final int PEAK_STEPS = 24;
     private static final Map<String,RamContact> CACHE = new ConcurrentHashMap<>();
-    public static RamContact of(String model) { return CACHE.computeIfAbsent(model,RamContact::read); }
+    public static RamContact of(String model) { return of(model,CLIP); }
+    /** The same front sweep for another contact stroke clip that authors launch, impact and settled markers (glass_press). */
+    public static RamContact of(String model, String stroke) { return CACHE.computeIfAbsent(model+"\u0000"+stroke,key->read(model,stroke)); }
 
     /** Keep the admission stand. Launch closes its measured gap to the swept front, then recoil gives that travel back. */
     public double distance(double stand, double seconds) {
@@ -43,7 +45,7 @@ public record RamContact(double impact, double turn, double[] front, double[] pe
             return stream.readAllBytes();
         } catch(IOException e) { throw new UncheckedIOException(e); }
     }
-    private static RamContact read(String id) {
+    private static RamContact read(String id, String stroke) {
         byte[] base=bytes("yukkuri/"+id+".json"); var hash=ModelFingerprint.of(base);
         var data=JsonParser.parseString(new String(base,StandardCharsets.UTF_8)).getAsJsonObject();
         for(String file:List.of("placement_fit","motion_corrections","house_ecology","toilet_contact","face_library")) {
@@ -67,7 +69,7 @@ public record RamContact(double impact, double turn, double[] front, double[] pe
             for(int i=first;i<end;i++)visible.add(i);
             if(part.has("feature_bone")){int b=part.get("feature_bone").getAsInt();Arrays.fill(features,first,end,b);transforms.put(b,new Matrix4f());}
         }
-        var markers=clips.getAsJsonObject(CLIP).getAsJsonObject("markers");
+        var markers=clips.getAsJsonObject(stroke).getAsJsonObject("markers");
         float launch=markers.get("launch").getAsFloat(),strike=markers.get("impact").getAsFloat(),settled=markers.get("settled").getAsFloat();
         var front=new double[(int)Math.ceil(settled*SAMPLES)+1]; double impact=0; double[] turn={0};
         var point=new Vector3f();var scratch=new Vector3f();var inverse=new Matrix4f();
@@ -80,16 +82,16 @@ public record RamContact(double impact, double turn, double[] front, double[] pe
             for(int i:visible){Skin.base(i,point,scratch,vertices,bindings,world,null,0,null,features,transforms);f=Math.max(f,-point.z);turn[0]=Math.max(turn[0],Math.hypot(point.x,point.z));}
             return f;
         };
-        for(String name:List.of(CLIP,"idle","droop","startle")) {
+        for(String name:List.of(stroke,"idle","droop","startle")) {
             var clip=Clips.read(clips.getAsJsonObject(name),bones.length);
             int last=(int)Math.ceil(clip.duration*SAMPLES);
             for(int sample=0;sample<=last;sample++) {
                 double f=reach.apply(clip,Math.min(sample/(float)SAMPLES,Math.nextDown(clip.duration)));
-                if(name.equals(CLIP)){front[Math.min(sample,front.length-1)]=f;if(sample==Math.round(strike*SAMPLES))impact=f;}
+                if(name.equals(stroke)){front[Math.min(sample,front.length-1)]=f;if(sample==Math.round(strike*SAMPLES))impact=f;}
             }
         }
         // A forward swing can peak between two samples (the brim at 0.47 s does): locate each local maximum's true top.
-        var ram=Clips.read(clips.getAsJsonObject(CLIP),bones.length);
+        var ram=Clips.read(clips.getAsJsonObject(stroke),bones.length);
         var times=new ArrayList<Double>(); var peaks=new ArrayList<Double>();
         for(int i=1;i+1<front.length;i++) if(front[i]>=front[i-1]&&front[i]>=front[i+1]) {
             double lo=(i-1.0)/SAMPLES,hi=(i+1.0)/SAMPLES;

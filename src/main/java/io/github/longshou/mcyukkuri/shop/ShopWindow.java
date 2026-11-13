@@ -11,6 +11,7 @@ import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.motor.Action;
 import io.github.longshou.mcyukkuri.motor.MotorOwner;
 import io.github.longshou.mcyukkuri.motor.Outcome;
+import io.github.longshou.mcyukkuri.motor.action.GlassPress;
 import io.github.longshou.mcyukkuri.motor.action.Walk;
 import io.github.longshou.mcyukkuri.social.BondLevels;
 import io.github.longshou.mcyukkuri.social.Bonds;
@@ -338,10 +339,22 @@ public final class ShopWindow implements MotorOwner {
         if (action != null && entity.motor().current() == action && now < until) return;
         if (action != null && entity.motor().current() == action) cancelAction("approach_slow");
         var outcome = entity.motor().last();
+        boolean walked = action instanceof Walk;
         if (!(outcome instanceof Outcome.Done))
             GameplayLog.limited(entity, "shop", "window_walk_ended", 200, "window walk ended mode={} outcome={}", mode, outcome);
         action = null;
+        if (walked && outcome instanceof Outcome.Done && pressGlass(now)) return;
         beginPerformance(now);
+    }
+
+    /** Arrived at the glass in front of the customer it pleads to: it squashes its face on the pane once before pleading. */
+    private boolean pressGlass(long now) {
+        if (mode != Mode.APPEAL && mode != Mode.SHOW_OFF) return false;
+        var press = GlassPress.toward(entity, customer);
+        if (press == null || !entity.motor().run(this, press)) return false;
+        action = press;
+        phase(Phase.APPROACH, now + GlassPress.maxTicks());
+        return true;
     }
 
     private void beginPerformance(long now) {
