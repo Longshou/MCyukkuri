@@ -3,6 +3,8 @@ package io.github.longshou.mcyukkuri.life;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.LevelAccessor;
@@ -107,6 +109,14 @@ public final class PetNestBlock extends CareBlock {
             BlockPos pos, BlockPos neighbourPos) {
         if (side.getAxis().isHorizontal()) state = open(state.setValue(side(side), blocks(level, pos, side)));
         return super.updateShape(state, side, neighbour, level, pos, neighbourPos);
+    }
+    /** Scheduled when its block entity loads: refit the sides whose neighbour is loaded (an older save had no fit). */
+    @Override protected void tick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
+        var fitted = state;
+        for (Direction side : Direction.Plane.HORIZONTAL)
+            if (level.hasChunkAt(pos.relative(side))) fitted = fitted.setValue(side(side), blocks(level, pos, side));
+        fitted = open(fitted);
+        if (fitted != state) level.setBlock(pos, fitted, 3);
     }
     /** The entrance on its side if that is open, else on the next open side clockwise; enclosed, it stays where it was. */
     private static BlockState open(BlockState state) {

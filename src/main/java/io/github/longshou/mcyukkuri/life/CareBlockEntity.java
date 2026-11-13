@@ -194,6 +194,11 @@ public final class CareBlockEntity extends BlockEntity implements Container {
     private void changed() {
         setChanged();
     }
+    /** A pet bed loaded from an older save (or next to blocks changed while it was unloaded) checks its sides once. */
+    @Override public void onLoad() {
+        super.onLoad();
+        if (level instanceof ServerLevel server && getBlockState().getBlock() instanceof PetNestBlock bed) server.scheduleTick(worldPosition, bed, 1);
+    }
     @Override public void setChanged() {
         super.setChanged();
         if (level != null && !level.isClientSide) level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
