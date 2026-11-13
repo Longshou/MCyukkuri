@@ -68,7 +68,7 @@ public final class FoundShelter implements MotorOwner {
     public boolean readyToSleep() { return phase == Phase.REST && now() >= deadline && facingOut() && !body.life().temperature().unsafeSleep(); }
     /** Lying in a box it faces out of the opening, the way a stray peeks out; the shelter's room is measured for that pose too. */
     private float outward() { return shelter.facing().toYRot(); }
-    private boolean facingOut() { return shelter == null || Math.abs(Mth.wrapDegrees(body.getYRot() - outward())) < 2; }
+    private boolean facingOut() { return shelter == null || Math.abs(Mth.wrapDegrees(body.bodyYaw() - outward())) < 2; }
     public boolean restingAtBench() { return streetSpot == StreetSpot.BENCH && phase == Phase.REST; }
     public boolean ownsStreetCover(BlockPos pos) { return streetSpot != null && phase == Phase.REST && pos.equals(gap); }
     public ShelterBlockEntity inside() {
@@ -138,7 +138,12 @@ public final class FoundShelter implements MotorOwner {
             if (found.contains(here) && found.claim(body)) {
                 // Already inside (it woke or was put there): lie down on its own spot, not wherever it stands.
                 aim = restPoint(found.foundBed(body), null);
-                if (aim == null || SurfaceApproach.at(body, aim)) { settle(); return true; }
+                if (aim == null) {
+                    remember(target(), BLOCKED_REST, "no_rest_space");
+                    leave("no_rest_space");
+                    return true;
+                }
+                if (SurfaceApproach.at(body, aim)) { settle(); return true; }
                 phase = Phase.ENTER; began = now(); failures = 0;
                 GameplayLog.event(body, "habitat", "found shift to spot shelter={} spot={}", found.getBlockPos(), GameplayLog.at(aim));
                 return true;
@@ -356,8 +361,15 @@ public final class FoundShelter implements MotorOwner {
             return Step.ACTIVE;
         }
         if (phase == Phase.APPROACH) return sniff();
-        if (shelter != null && !shelter.claim(body)) {
-            remember(target(), CONTEST_REST, "occupied"); stop(); return Step.ENDED;
+        if (shelter != null) {
+            if (!clearRestTurn(body.position(), HeadTop.reach(body), HeadTop.height(body))) {
+                remember(target(), BLOCKED_REST, "no_rest_space");
+                leave("no_rest_space");
+                return Step.ACTIVE;
+            }
+            if (!shelter.claim(body)) {
+                remember(target(), CONTEST_REST, "occupied"); stop(); return Step.ENDED;
+            }
         }
         settle();
         return Step.RESTING;
@@ -402,19 +414,28 @@ public final class FoundShelter implements MotorOwner {
 
     private Vec3 restPoint(BlockPos pos, Vec3 failed) {
         var centre = shelter.restSpot(pos);
-        if (restStand(centre, failed)) return centre;
+        double reach = HeadTop.reach(body);
+        double height = HeadTop.height(body);
+        var stand = restStand(centre, failed, reach, height);
+        if (stand != null) return stand;
         for (var side : Direction.Plane.HORIZONTAL) {
             var d = side.getNormal();
-            var at = centre.add(d.getX() * .40, 0, d.getZ() * .40);
-            if (restStand(at, failed)) return at;
+            stand = restStand(centre.add(d.getX() * .40, 0, d.getZ() * .40), failed, reach, height);
+            if (stand != null) return stand;
         }
         return null;
     }
 
-    private boolean restStand(Vec3 at, Vec3 failed) {
-        if (at.equals(failed) || !availableStand(at)) return false;
+    private Vec3 restStand(Vec3 at, Vec3 failed, double reach, double height) {
         var stand = SurfaceApproach.stand(body, at);
-        return stand != null && shelter.contains(BlockPos.containing(stand));
+        if (stand == null || stand.equals(failed) || !shelter.contains(BlockPos.containing(stand)) || !availableStand(stand)) return null;
+        return clearRestTurn(stand, reach + SurfaceApproach.ARRIVAL, height) ? stand : null;
+    }
+
+    private boolean clearRestTurn(Vec3 feet, double reach, double height) {
+        // The body can turn at the actual stand, including an offset or a stand moved clear of a placed hat.
+        var swept = new AABB(feet.x - reach, feet.y, feet.z - reach, feet.x + reach, feet.y + height, feet.z + reach);
+        return !level().getBlockCollisions(body, swept).iterator().hasNext();
     }
 
     private boolean availableStand(Vec3 at) {
