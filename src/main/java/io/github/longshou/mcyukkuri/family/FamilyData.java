@@ -61,11 +61,13 @@ public final class FamilyData extends SavedData {
     public enum PartnerState { UNIMPORTED, SINGLE, PARTNERED, WIDOWED, BLOCKED }
     public enum BirthKind { STEM, EGG, LIVE }
     public record BadgeAcquisition(int grade, long acquiredAt) {}
+    public record Foster(UUID parent, long acceptedAt) {}
     public static final class Person {
         public final UUID id;
         public UUID mother, father, brood;
         /** Biological source of an aftermath birth; never a care parent or household member. */
         public UUID incidentSource;
+        private Foster foster;
         public GlobalPos position;
         public Status status = Status.ALIVE;
         public String variant;
@@ -79,6 +81,7 @@ public final class FamilyData extends SavedData {
         private final List<BadgeAcquisition> badgeAcquisitions = new ArrayList<>(3);
         public PartnerState partnerState() { return partnerState; }
         public UUID partner() { return partner; }
+        public Foster foster() { return foster; }
         public String lastName() { return lastName; }
         public String lastStage() { return lastStage; }
         public List<UUID> partnerHistory() { return List.copyOf(partnerHistory); }
@@ -136,6 +139,7 @@ public final class FamilyData extends SavedData {
     private void retainPersonReferences(Person person) {
         if(person.status!=Status.DEAD||person.partnerState==PartnerState.UNIMPORTED||person.partnerState==PartnerState.BLOCKED)retainForCleanup(person.id);
         retainForCleanup(person.mother);retainForCleanup(person.father);retainForCleanup(person.incidentSource);retainForCleanup(person.partner);
+        if (person.foster != null) retainForCleanup(person.foster.parent());
     }
     /** Derived incoming claims, including unresolved legacy claims and dead claimants. */
     private final Map<UUID, Set<UUID>> partnerClaims = new HashMap<>();
@@ -175,6 +179,28 @@ public final class FamilyData extends SavedData {
                 new Factory<>(FamilyData::new, FamilyData::load), "mcyukkuri_families");
     }
     public Person person(UUID id) { return id == null ? null : people.get(id); }
+    int dependents(YukkuriEntity parent) {
+        var level = (ServerLevel) parent.level();
+        UUID id = parent.getUUID();
+        int count = 0;
+        for (Person person : people.values()) {
+            if (person.status != Status.ALIVE || person.lastStage.equals("adult")) continue;
+            if (id.equals(person.mother) || id.equals(person.father)) count++;
+            else if (person.foster != null && id.equals(person.foster.parent())
+                    && (!(level.getEntity(person.id) instanceof YukkuriEntity child)
+                    || child.family().isActiveFoster(parent))) count++;
+            if (count == 3) break;
+        }
+        return count;
+    }
+
+    void recordFoster(YukkuriEntity child, YukkuriEntity parent) {
+        var record = people.get(child.getUUID());
+        if (record == null) record = register(child);
+        record.foster = new Foster(parent.getUUID(), child.level().getGameTime());
+        retainForCleanup(parent.getUUID());
+        setDirty();
+    }
     /** An opaque preimage used only by the settlement generation transaction. */
     public static final class PartnerSnapshot {
         private final UUID id;
@@ -264,7 +290,7 @@ public final class FamilyData extends SavedData {
         retainForCleanup(person.partner);
         partnerIndexDirty=true;setDirty();
     }
-    private boolean knownDead(UUID id) {
+    boolean knownDead(UUID id) {
         Person person=people.get(id);
         return person!=null&&person.status==Status.DEAD;
     }
@@ -798,6 +824,10 @@ public final class FamilyData extends SavedData {
             if (!person.lastStage.isEmpty()) value.putString("LastStage", person.lastStage);
             if(person.mother!=null)value.putUUID("Mother",person.mother);if(person.father!=null)value.putUUID("Father",person.father);if(person.brood!=null)value.putUUID("Brood",person.brood);
             if(person.incidentSource!=null)value.putUUID("IncidentSource",person.incidentSource);
+            if (person.foster != null) {
+                value.putUUID("FosterParent", person.foster.parent());
+                value.putLong("FosterSince", person.foster.acceptedAt());
+            }
             savePartner(person,value);
             ListTag dismissed=new ListTag();
             for(UUID child:person.dismissedChildren){var entry=new CompoundTag();entry.putUUID("Child",child);dismissed.add(entry);}
@@ -844,6 +874,7 @@ public final class FamilyData extends SavedData {
             if(value.hasUUID("Mother"))person.mother=value.getUUID("Mother");if(value.hasUUID("Father"))person.father=value.getUUID("Father");
                     if(value.hasUUID("Brood"))person.brood=value.getUUID("Brood");
             if(value.hasUUID("IncidentSource"))person.incidentSource=value.getUUID("IncidentSource");
+            if (value.hasUUID("FosterParent")) person.foster = new Foster(value.getUUID("FosterParent"), value.getLong("FosterSince"));
             data.loadPartner(person,value);
             for(var raw:value.getList("DismissedChildren",Tag.TAG_COMPOUND)){var dismissedEntry=(CompoundTag)raw;if(dismissedEntry.hasUUID("Child"))person.dismissedChildren.add(dismissedEntry.getUUID("Child"));}
             for (Tag badgeEntry : value.getList("BadgeAcquisitions", Tag.TAG_COMPOUND)) {

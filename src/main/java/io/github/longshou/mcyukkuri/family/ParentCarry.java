@@ -37,7 +37,6 @@ import io.github.longshou.mcyukkuri.motor.geom.FloorSearch;
 import io.github.longshou.mcyukkuri.motor.surface.Occupancy;
 import io.github.longshou.mcyukkuri.motor.surface.SurfaceHost;
 import io.github.longshou.mcyukkuri.motor.surface.SeatTarget;
-import io.github.longshou.mcyukkuri.social.Bonds;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -1244,7 +1243,7 @@ public final class ParentCarry {
     public static boolean bracingForPickup(YukkuriEntity child) {
         if (!(child.level() instanceof ServerLevel level) || child.family().adult() || !FamilyLife.ordinaryLandFree(child)
                 || child.isOnFire() || child.hurtTime > 0) return false;
-        for (var id : new UUID[]{child.family().mother(), child.family().father()})
+        for (var id : child.family().caregiverIds())
             if (id != null && level.getEntity(id) instanceof YukkuriEntity parent
                     && parent.motor().current() instanceof Grab grab && grab.target() == child
                     && (!child.isPanicking() || parent.family().carry().protectiveGrip(child))) return true;
@@ -1263,7 +1262,7 @@ public final class ParentCarry {
         if (!(child.level() instanceof ServerLevel level)) return false;
         if (bracingForPickup(child)) return true;
         if (!needsCarry(child)) return false;
-        for (var id : new UUID[]{child.family().mother(), child.family().father()})
+        for (var id : child.family().caregiverIds())
             if (id != null && level.getEntity(id) instanceof YukkuriEntity parent && parent.isAlive() && parent.family().adult()) {
                 var carry = parent.family().carry();
                 boolean incoming = parent.family().task() == FamilyLife.Task.SEARCH && parent.family().target() == child
@@ -1292,9 +1291,9 @@ public final class ParentCarry {
     public static boolean reservesMouth(YukkuriEntity parent) {
         if (!parent.family().adult() || !(parent.level() instanceof ServerLevel level)) return false;
         var kids = level.getEntitiesOfClass(YukkuriEntity.class, parent.getBoundingBox().inflate(24),
-                c -> c != parent && needsCarry(c) && Bonds.parentOf(parent, c));
+                c -> c != parent && needsCarry(c) && parent.family().careParentOf(c));
         if (kids.size() <= parent.family().carry().seatsFor(kids, false)) return false;
-        if (kids.stream().anyMatch(c -> parent.getUUID().equals(c.family().mother()))) return true;
+        if (kids.stream().anyMatch(c -> parent.getUUID().equals(c.family().mother()) || c.family().isActiveFoster(parent))) return true;
         var first = kids.get(0);
         var mother = first.family().mother() != null && level.getEntity(first.family().mother()) instanceof YukkuriEntity m && m.isAlive()
                 && m.family().adult() ? m : null;
@@ -1452,7 +1451,7 @@ public final class ParentCarry {
     }
     /** One lifter: the child's other parent is already going for it to carry it, gathering it, or lifting it. */
     private boolean fetchedByOther(YukkuriEntity child) {
-        for (var id : new UUID[]{child.family().mother(), child.family().father()})
+        for (var id : child.family().caregiverIds())
             if (id != null && !id.equals(carrier.getUUID()) && ((ServerLevel) carrier.level()).getEntity(id) instanceof YukkuriEntity other && other.isAlive()) {
                 var family = other.family();var carry = family.carry();
                 if (child.getUUID().equals(carry.lifting) || child.getUUID().equals(carry.gathering)
@@ -1601,7 +1600,7 @@ public final class ParentCarry {
 
     private List<YukkuriEntity> flightYoung() {
         return carrier.level().getEntitiesOfClass(YukkuriEntity.class, carrier.getBoundingBox().inflate(FLIGHT_GATHER_RANGE),
-                child -> dependentYoung(child) && FamilyLife.ordinaryLandFree(child) && Bonds.parentOf(carrier, child)
+                child -> dependentYoung(child) && FamilyLife.ordinaryLandFree(child) && carrier.family().careParentOf(child)
                         && carrier.distanceToSqr(child) <= FLIGHT_GATHER_RANGE * FLIGHT_GATHER_RANGE
                         && !FamilyNest.atAssignedNest(child) && carrier.life().canRecognize(child));
     }
@@ -1611,7 +1610,7 @@ public final class ParentCarry {
         if (!dependentYoung(child)) return null;
         var level = (ServerLevel) child.level();
         return level.getEntitiesOfClass(YukkuriEntity.class, child.getBoundingBox().inflate(12),
-                parent -> parent != threat && parent.isAlive() && Bonds.parentOf(parent, child) && child.life().canRecognize(parent)
+                parent -> parent != threat && parent.isAlive() && parent.family().careParentOf(child) && child.life().canRecognize(parent)
                         && (threat == null || parent.distanceToSqr(threat) > child.distanceToSqr(threat)))
                 .stream().min(Comparator.comparingDouble(child::distanceToSqr)).orElse(null);
     }
@@ -1921,7 +1920,7 @@ public final class ParentCarry {
             lifting = null;
         }
         return level.getEntitiesOfClass(YukkuriEntity.class, carrier.getBoundingBox().inflate(GATHER_RANGE),
-                kid -> kid != carrier && Bonds.parentOf(carrier, kid) && purposeFor(kid) == purpose && capable(kid) && carrier.life().canRecognize(kid))
+                kid -> kid != carrier && carrier.family().careParentOf(kid) && purposeFor(kid) == purpose && capable(kid) && carrier.life().canRecognize(kid))
                 .stream().min(Comparator.comparingDouble(carrier::distanceToSqr)).orElse(null);
     }
 

@@ -21,6 +21,7 @@ import io.github.longshou.mcyukkuri.predator.PredatorLife;
 import io.github.longshou.mcyukkuri.settlement.ForageGoal;
 import io.github.longshou.mcyukkuri.settlement.ForageTrip;
 import io.github.longshou.mcyukkuri.social.BondLevels;
+import io.github.longshou.mcyukkuri.social.Kindness;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.status.Reactions;
 import java.util.EnumSet;
@@ -50,7 +51,9 @@ final class YukkuriGoals {
     private final GoalSelector goalSelector;
     private PresentationGoals presentationGoals;
     private RoamingGoal roaming;
+    private Kindness kindness;
     RoamingGoal roaming() { return roaming; }
+    Kindness kindness() { return kindness; }
     YukkuriGoals(YukkuriEntity owner, GoalSelector goalSelector) {
         this.owner = owner;
         this.goalSelector = goalSelector;
@@ -133,6 +136,8 @@ final class YukkuriGoals {
         goalSelector.addGoal(3, landBinding(PresentationGoals.WILD_EVENT, new WildEventGoal(owner, true)));
         goalSelector.addGoal(5, landBinding(PresentationGoals.WILD_EVENT, new WildEventGoal(owner, false)));
         goalSelector.addGoal(4, presentationGoals.bind(PresentationGoals.COMFORT_GIVER, new ComfortGoal()));
+        kindness = new Kindness(owner);
+        goalSelector.addGoal(4, kindness);
         goalSelector.addGoal(5, landBinding(PresentationGoals.DAILY, new DailyGoal()));
         goalSelector.addGoal(6, landBinding(PresentationGoals.SOCIAL, new SocialGoal()));
         goalSelector.addGoal(5, landBinding(PresentationGoals.GROUP, new GroupGoal()));

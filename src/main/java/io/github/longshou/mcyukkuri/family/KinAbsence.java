@@ -58,6 +58,18 @@ final class KinAbsence {
 
     boolean movedOn() { return kin.values().stream().anyMatch(m -> m.phase == Phase.MOVED_ON); }
 
+    boolean gone(UUID id) {
+        var memory = kin.get(id);
+        return !present(id) && (memory != null && (memory.confirmed || memory.phase == Phase.MOVED_ON)
+                || FamilyData.get(family.level()).knownDead(id));
+    }
+
+    private boolean present(UUID id) {
+        return id != null && family.level().getEntity(id) instanceof YukkuriEntity peer && peer.isAlive()
+                && body().distanceToSqr(peer) <= 16 * 16 && body().life().canRecognize(peer)
+                && (body().hasLineOfSight(peer) || FamilySeparation.near(body(), peer));
+    }
+
     String describe() {
         return kin.entrySet().stream().map(e -> e.getKey() + "=" + e.getValue().phase + "/" + e.getValue().away
                 + (e.getValue().confirmed ? "/confirmed" : "")).toList() + " expected=" + expectation();
@@ -65,7 +77,8 @@ final class KinAbsence {
 
     void observe() {
         var e = body();
-        if (FamilyProvision.home(e) == null || e.life().isSleeping() || e.isPassenger() || family.awaitingLanding()) return;
+        if (e.life().isSleeping() || e.isPassenger() || family.awaitingLanding()) return;
+        if (family.adult() && FamilyProvision.home(e) == null) return;
         var mate = family.partner();
         if (family.adult()) {
             if (mate != null) {
@@ -73,9 +86,11 @@ final class KinAbsence {
                 observe(mate);
             } else for (var id : kin.keySet()) observe(id);
         } else {
-            kin.keySet().removeIf(id -> !id.equals(family.mother()) && !id.equals(family.father()));
+            UUID foster = family.fosterParent();
+            kin.keySet().removeIf(id -> !id.equals(family.mother()) && !id.equals(family.father()) && !id.equals(foster));
             observe(family.mother());
             observe(family.father());
+            observe(foster);
         }
         for (var entry : kin.entrySet()) {
             var memory = entry.getValue();
@@ -103,9 +118,7 @@ final class KinAbsence {
         if (id == null) return;
         var memory = kin.get(id);
         var e = body();
-        if (family.level().getEntity(id) instanceof YukkuriEntity peer && peer.isAlive()
-                && e.distanceToSqr(peer) <= 16 * 16 && e.life().canRecognize(peer)
-                && (e.hasLineOfSight(peer) || FamilySeparation.near(e, peer))) {
+        if (present(id) && family.level().getEntity(id) instanceof YukkuriEntity peer) {
             if (memory != null && overdue(id) && !memory.confirmed) {
                 GameplayLog.event(e, "family", "missing kin reunited kin={} away={} at={}", id, memory.away, peer.blockPosition());
                 if (!e.grieving()) {
@@ -113,7 +126,7 @@ final class KinAbsence {
                     BirthStaging.affection(e);
                 }
             }
-            if (memory == null || memory.away != 0) kin.put(id, new Memory(peer.blockPosition(), dimension()));
+            if (memory == null || memory.away != 0 || memory.confirmed) kin.put(id, new Memory(peer.blockPosition(), dimension()));
             else {
                 memory.seen = peer.blockPosition();
                 memory.dimension = dimension();
@@ -125,7 +138,8 @@ final class KinAbsence {
 
     void witness(UUID id, BlockPos at) {
         var memory = kin.get(id);
-        if (memory == null && !(id.equals(family.mother()) || id.equals(family.father()) || id.equals(family.partner()))) return;
+        if (memory == null && !(id.equals(family.mother()) || id.equals(family.father())
+                || id.equals(family.partner()) || id.equals(family.fosterParent()))) return;
         if (memory == null) {
             memory = new Memory(at, dimension());
             kin.put(id, memory);
@@ -259,7 +273,7 @@ final class KinAbsence {
         kin.clear();
         for (var raw : tag.getList("KinAbsence", Tag.TAG_COMPOUND)) {
             var value = (CompoundTag) raw;
-            if (!value.hasUUID("Kin") || kin.size() >= 2) continue;
+            if (!value.hasUUID("Kin") || kin.size() >= 3) continue;
             var memory = new Memory(BlockPos.of(value.getLong("Seen")), value.getString("Dimension"));
             memory.away = Math.clamp(value.getInt("Away"), 0, 1_000_000);
             memory.phase = Phase.values()[Math.clamp(value.getInt("Phase"), 0, Phase.values().length - 1)];

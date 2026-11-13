@@ -175,7 +175,7 @@ final class CareInspection {
                 right.add(new Line(Component.translatable(snapshot.groupKey()), false));
             }
             var lines = switch (relation) {
-                case MOTHER, FATHER, SOURCE, SIBLINGS -> left;
+                case MOTHER, FATHER, SOURCE, SIBLINGS, FOSTER_PARENT -> left;
                 case MATE, CHILDREN, LEADER -> right;
             };
             boolean heading = false;

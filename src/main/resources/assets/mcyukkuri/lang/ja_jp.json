@@ -6404,6 +6404,7 @@
   "care.mcyukkuri.relative_status": "%s・%s",
   "care.mcyukkuri.relation.mother": "母ゆ",
   "care.mcyukkuri.relation.father": "父ゆ",
+  "care.mcyukkuri.relation.foster_parent": "養親",
   "care.mcyukkuri.relation.source": "生物学上の由来",
   "care.mcyukkuri.relation.mate": "つがい",
   "care.mcyukkuri.relation.children": "子",

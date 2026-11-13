@@ -45,7 +45,7 @@ public final class FamilyProvision {
         if (!(a.mother() != null && a.mother().equals(b.mother())
                 || a.father() != null && a.father().equals(b.father()))) return false;
         if (!(caregiver.level() instanceof ServerLevel level)) return false;
-        for (UUID id : new UUID[]{b.mother(), b.father()})
+        for (UUID id : b.caregiverIds())
             if (id != null && level.getEntity(id) instanceof YukkuriEntity parent && parent.isAlive()
                     && !parent.body().dying() && sharesHome(parent, child)
                     && !outForFood(parent) && !caregiver.family().kinOverdue(id)) return false;
@@ -65,7 +65,7 @@ public final class FamilyProvision {
                         && children.stream().anyMatch(adult.family()::caresFor)));
         var level = (ServerLevel) body.level();
         for (var child : children) {
-            for (UUID id : new UUID[]{child.family().mother(), child.family().father()}) {
+            for (UUID id : child.family().caregiverIds()) {
                 if (id != null && level.getEntity(id) instanceof YukkuriEntity parent && parent.isAlive()
                         && !parent.body().dying() && sharesHome(body, parent) && parent.family().caresFor(child))
                     members.add(parent);

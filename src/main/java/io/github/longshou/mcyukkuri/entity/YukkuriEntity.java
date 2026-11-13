@@ -81,6 +81,7 @@ import io.github.longshou.mcyukkuri.social.GroupInteractionGoal;
 import io.github.longshou.mcyukkuri.social.SelfOffering;
 import io.github.longshou.mcyukkuri.social.TreasureLife;
 import io.github.longshou.mcyukkuri.social.WoundComfort;
+import io.github.longshou.mcyukkuri.social.Kindness;
 import io.github.longshou.mcyukkuri.social.YukkuriSocial;
 import io.github.longshou.mcyukkuri.status.StatusLife;
 import io.github.longshou.mcyukkuri.status.YukkuriStatus;
@@ -458,6 +459,7 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     public SpeciesLife species() { return species; }
     public WoundComfort woundComfort() { return woundComfort; }
     public YukkuriSocial social() { return social; }
+    public Kindness kindness() { return goals.kindness(); }
     public GroupInteractionGoal groupInteraction() { return groupInteraction; }
     public PlayLife playLife(){return playLife;}
     public SurfaceLife surfaceLife(){return surfaceLife;}

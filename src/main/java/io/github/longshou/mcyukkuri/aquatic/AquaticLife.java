@@ -90,7 +90,7 @@ public final class AquaticLife {
         var kept = YOUNG.get(parent);
         if (kept != null && kept.tick() == now) return kept.list();
         var out = new ArrayList<>(parent.level().getEntitiesOfClass(YukkuriEntity.class, parent.getBoundingBox().inflate(FAMILY_RANGE),
-                y -> y != parent && y.isAlive() && !y.family().adult() && Bonds.parentOf(parent, y)));
+                y -> y != parent && y.isAlive() && !y.family().adult() && parent.family().careParentOf(y)));
         out.sort(Comparator.comparingDouble(parent::distanceToSqr));
         var list = List.copyOf(out);
         YOUNG.put(parent, new Young(now, list));
@@ -113,9 +113,9 @@ public final class AquaticLife {
     /** The young's parent whose own hat is set down near it, or null. */
     static YukkuriEntity parent(YukkuriEntity young) {
         if (young.family().adult() || !(young.level() instanceof ServerLevel level)) return null;
-        for (UUID id : new UUID[]{young.family().mother(), young.family().father()}) {
+        for (UUID id : young.family().caregiverIds()) {
             if (id != null && level.getEntity(id) instanceof YukkuriEntity p && p.isAlive() && hat(p) != null
-                    && Bonds.parentOf(p, young) && p.distanceTo(young) <= FAMILY_RANGE) return p;
+                    && p.family().careParentOf(young) && p.distanceTo(young) <= FAMILY_RANGE) return p;
         }
         return null;
     }
@@ -124,8 +124,8 @@ public final class AquaticLife {
     static List<YukkuriEntity> parents(YukkuriEntity young) {
         var out = new ArrayList<YukkuriEntity>(2);
         if (!(young.level() instanceof ServerLevel level)) return out;
-        for (UUID id : new UUID[]{young.family().mother(), young.family().father()})
-            if (id != null && level.getEntity(id) instanceof YukkuriEntity p && p.isAlive() && Bonds.parentOf(p, young)) out.add(p);
+        for (UUID id : young.family().caregiverIds())
+            if (id != null && level.getEntity(id) instanceof YukkuriEntity p && p.isAlive() && p.family().careParentOf(young)) out.add(p);
         return out;
     }
 

@@ -4382,11 +4382,47 @@ def _number_scenes():
         assert field_of[scenario.number.split('-')[0]] == scenario.field, (scenario.id, scenario.number, scenario.field)
 
 
+_foster_parent = uid('kindness_adoption', 'missing')
+_foster_adult = uid('kindness_adoption', 'foster')
+_foster_child = uid('kindness_adoption', 'orphan')
+_orphan_memory = (f'Mother:{uuid_nbt(_foster_parent)},KinAbsence:[{{Kin:{uuid_nbt(_foster_parent)},'
+                  'Seen:0L,Dimension:"minecraft:overworld",Away:2100,Phase:5,Confirmed:1b}]')
+add('kindness_adoption', 'family', '孤儿分食与认养亲', '孤儿分食与认养亲',
+    '赤油确认原来的亲油已死。邻居嘴里只有一份苹果，先看她肯不肯递给赤油。赤油吃下后，看邻居是否接纳它，再到族谱里看养亲和原有亲缘。',
+    '约 10–30 秒', [
+        *shed(0, 0, half=4), *large_nest(0, 0, 'mcyukkuri:large_yukkuri_nest'),
+        yk('reimu', -1.8, 0, 'foster', uuid=_foster_adult, friendliness=100, yaw=-90, lead=True,
+           extra='YukkuriMouth:{Purpose:"MEAL",Items:[{id:"minecraft:apple",count:1}]}'),
+        yk('reimu', -1.37, 0, 'orphan', uuid=_foster_child, stage='baby', nutrition=23, yaw=90, kin=_orphan_memory,
+           childhood=CHILDHOOD_CRAWLING_READY),
+        f'data merge entity {sel("foster")} {{YukkuriLife:{{MealTicks:1}}}}',
+        home('foster', 0, 0),
+    ], env=DAY, spot='pet_birth', vantage=(1, 8, 100), reads=[
+        ('读赤油营养', f'yukkuri status {sel("orphan")} raw'), ('读邻居照护', f'yukkuri status {sel("foster")} raw')])
+
+_yield_adult = uid('kindness_bed', 'resident')
+_yield_child = uid('kindness_bed', 'wet_child')
+_yield_x, _yield_z = BY_ID['family'].spots['pet_birth']
+_yield_home = ((_yield_x & 0x3ffffff) << 38) | ((_yield_z & 0x3ffffff) << 12) | (FEET & 0xfff)
+if _yield_home >= 1 << 63:
+    _yield_home -= 1 << 64
+add('kindness_bed', 'family', '给淋湿的子油让窝', '给淋湿的子油让窝',
+    '天已放晴，一只子油还湿着，在邻居的窝口等。看原住者是否会先看看它、走出窝口，让子油自己进窝休息。',
+    '约 10 秒', [
+        *shed(0, 0, half=4), f'data merge block ~ ~ ~ {{Resident:{uuid_nbt(_yield_adult)},ResidentStage:2}}',
+        yk_on_nest('reimu', 0, 0, 'resident', uuid=_yield_adult, friendliness=100, lead=True),
+        'execute align xz run ' + yk('marisa', .47, -1.15, 'wet_child', uuid=_yield_child, stage='child', boldness=15, yaw=0),
+        f'data merge entity {sel("resident")} {{YukkuriLife:{{HomeDimension:"minecraft:overworld",HomePos:{_yield_home}L}}}}',
+        f'data merge entity {sel("wet_child")} {{YukkuriLife:{{Wetness:38f}}}}',
+    ], env=DAY, spot='pet_birth', vantage=(1, 8, 100), reads=[
+        ('读子油的新住处', f'yukkuri status {sel("wet_child")} raw')])
+
 _number_scenes()
 
 
 # Topic codes are shared by the scene buttons, signs, and readouts.
 TOPICS = {
+    'kindness_adoption': 'F4', 'kindness_bed': 'F4',
     'home_pane': 'W7', 'home_open': 'W7',
     'balance_traits': 'N1', 'balance_relation': 'N1', 'balance_forms': 'N1', 'balance_deibu': 'N1',
     'waste_demo': 'F5', 'family_walk_home': 'F4', 'family_flight_home': 'F4',
@@ -4429,6 +4465,14 @@ def _smoke(sid, ticks, expect, forbid=(), readout=()):
 
 _LICK = [r'\[comfort\][^\n]* approach started', r'\[comfort\][^\n]* mouth contact started']
 _smoke('hurt', 1800, _LICK)
+_smoke('kindness_adoption', 720, [
+    rf'\[kindness\][^\n]*uuid={_uuid_text("kindness_adoption", "foster")} [^\n]*bite handed peer={_uuid_text("kindness_adoption", "orphan")}\b',
+    rf'\[meal\][^\n]*uuid={_uuid_text("kindness_adoption", "orphan")} [^\n]*swallowed item=[^\n]*feeder={_uuid_text("kindness_adoption", "foster")}\b',
+    rf'\[family\][^\n]*uuid={_uuid_text("kindness_adoption", "foster")} [^\n]*foster accepted child={_uuid_text("kindness_adoption", "orphan")}\b',
+])
+_smoke('kindness_bed', 420, [
+    rf'\[kindness\][^\n]*uuid={_uuid_text("kindness_bed", "resident")} [^\n]*nest yielded peer={_uuid_text("kindness_bed", "wet_child")}\b',
+])
 next(s for s in S if s.id == 'hurt').smoke['verify'] = _two_lickers
 _smoke('birth_nest_safe', 3000, [r'\[family\][^\n]* birth landed [^\n]*outcome=CUSHION\b'])
 _smoke('birth_nest_stem', 3000, [r'\[family\][^\n]* stem site facing ', r'\[family\][^\n]* birth landed [^\n]*outcome=CUSHION\b'])

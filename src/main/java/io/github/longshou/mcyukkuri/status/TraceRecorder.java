@@ -719,8 +719,14 @@ public final class TraceRecorder {
         JsonObject out = new JsonObject();
         out.addProperty("braid", Braid.use(entity).name().toLowerCase(Locale.ROOT));
         var mouth = new JsonArray();
-        ItemStack mouthItem = entity.life().mouth();
-        if (!mouthItem.isEmpty()) mouth.add(item(mouthItem));
+        var oral = entity.component(YukkuriComponents.MOUTH);
+        if (oral.purpose() == Purpose.SWADDLE) {
+            var leaves = new JsonArray();
+            for (ItemStack held : oral.items()) if (!held.isEmpty()) leaves.add(item(held));
+            if (!leaves.isEmpty()) mouth.add(leaves);
+        } else {
+            for (ItemStack held : oral.items()) if (!held.isEmpty()) mouth.add(item(held));
+        }
         var bite = entity.getMouthBodyFood();
         if (!bite.isEmpty()) {
             JsonObject value = new JsonObject();
@@ -728,16 +734,10 @@ public final class TraceRecorder {
             value.addProperty("n", bite.portions());
             mouth.add(value);
         }
-        // CARRYING is a display priority, not an inventory: a leaf can hide food
-        // that still belongs to habitat. Observe each component's real store.
-        for (ItemStack carried : List.of(entity.family().carrying(), entity.independence().carrying(),
-                entity.settlement().duties().carrying(), entity.house().carrying(), entity.habitat().carrying(),
-                entity.forageTrip().load(), entity.component(YukkuriComponents.MOUTH).stack(Purpose.FIND))) {
+        // MouthOccupancy includes found junk and offered food. Read other work loads at their owners.
+        for (ItemStack carried : List.of(entity.independence().carrying(), entity.habitat().carrying(), entity.forageTrip().load())) {
             if (!carried.isEmpty()) mouth.add(item(carried));
         }
-        var carriedLeaves = new JsonArray();
-        for (ItemStack carried : entity.leafSwaddle().carriedItems()) carriedLeaves.add(item(carried));
-        if (!carriedLeaves.isEmpty()) mouth.add(carriedLeaves);
         out.add("mouth", mouth);
         out.addProperty("mouthAuthority", "components");
         // Observe this holder's authority only; hatKit() also aliases a deployed hat's stack.

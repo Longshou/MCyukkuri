@@ -178,13 +178,16 @@ public final class HabitatLife {
         return value!=null&&value.moisture()>=60&&value.contains(entity.blockPosition());
     }
     public boolean choose(ShelterBlockEntity value) {
+        return choose(value, null);
+    }
+    private boolean choose(ShelterBlockEntity value, YukkuriEntity foster) {
         if(value.kind().found()||roaming()||entity.profile().houseBody()||entity.profile().dangerToYukkuri()||!value.sound()||value.moisture()>=85||value.dirt()>=90
                 ||entity.distanceToSqr(Vec3.atBottomCenterOf(value.getBlockPos()))>32*32)return false;
         // The leaver never moves back into the home it said goodbye to.
         if(entity.independence().avoids(value.getBlockPos()))return false;
         if(hasNestProject()&&!sameNestHome(value)) { cancelNestProject();return false; }
         boolean owned=value.owns(entity.getUUID());
-        if(!value.claim(entity))return false;
+        if(!value.claim(entity, foster))return false;
         BlockPos bed=value.bed(entity.getUUID());
         SearchBudget.probe(entity.level());
         if(!entity.life().dryStand(bed)||!homeReachable(bed)){if(!owned)value.release(entity.getUUID());return false;}
@@ -208,6 +211,10 @@ public final class HabitatLife {
     }
     private boolean homeReachable(BlockPos bed) { SearchBudget.path(entity);return entity.life().reachable(bed,false); }
     public boolean inherit(YukkuriEntity parent) { var value=parent.habitat().shelter();return value!=null&&choose(value); }
+    public boolean takeInBy(YukkuriEntity foster) {
+        var shelter = foster.habitat().shelter();
+        return shelter != null && shelter.owns(foster.getUUID()) && choose(shelter, foster);
+    }
     public void release() {
         var value=shelter();if(value!=null)value.release(entity.getUUID());
         if(home!=null)GameplayLog.event(entity,"habitat","home released home={} task={} carried={}",home,task,carrying.getCount());

@@ -57,6 +57,7 @@
   "care.mcyukkuri.relative_status": "%s · %s",
   "care.mcyukkuri.relation.mother": "Mother",
   "care.mcyukkuri.relation.father": "Father",
+  "care.mcyukkuri.relation.foster_parent": "Foster parent",
   "care.mcyukkuri.relation.source": "Biological source",
   "care.mcyukkuri.relation.mate": "Mate",
   "care.mcyukkuri.relation.children": "Children",

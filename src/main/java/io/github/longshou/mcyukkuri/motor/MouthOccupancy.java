@@ -21,7 +21,7 @@ import net.minecraft.world.phys.Vec3;
 
 /** Item and bite payloads share one oral purpose. Live holds and the kit retain their physical owners. */
 public final class MouthOccupancy {
-    public enum Purpose { MEAL, CARE, DUTY, SWADDLE, HOUSE, FIND }
+    public enum Purpose { MEAL, CARE, DUTY, SWADDLE, HOUSE, FIND, KINDNESS }
 
     private record Load(Purpose purpose, List<ItemStack> items, BodyFood.Bite bite) {}
 
@@ -42,6 +42,12 @@ public final class MouthOccupancy {
     public List<ItemStack> items(Purpose purpose) {
         var load = load();
         return load != null && load.purpose() == purpose ? Collections.unmodifiableList(load.items()) : List.of();
+    }
+
+    /** Item payload at the single mouth authority, for inventory observation. */
+    public List<ItemStack> items() {
+        var load = load();
+        return load == null ? List.of() : Collections.unmodifiableList(load.items());
     }
 
     public ItemStack stack(Purpose purpose) {
@@ -138,6 +144,16 @@ public final class MouthOccupancy {
     public boolean releaseMeal(Predicate<ItemStack> item, Predicate<BodyFood.Bite> bite) {
         return purpose() == Purpose.MEAL
                 && held.release(load -> load.bite().isEmpty() ? item.test(load.items().getFirst()) : bite.test(load.bite()));
+    }
+
+    public boolean offerKindnessFood(Predicate<ItemStack> accepted) {
+        return purpose() == Purpose.KINDNESS && held.release(load -> accepted.test(load.items().getFirst()));
+    }
+
+    public boolean prepareKindnessFood() {
+        var before = load();
+        return before != null && before.purpose() == Purpose.MEAL && !before.items().isEmpty()
+                && held.replace(before, new Load(Purpose.KINDNESS, before.items(), BodyFood.Bite.EMPTY));
     }
 
     /** Release one real stack at a time so a later refusal cannot repeat an already accepted drop. */
@@ -274,6 +290,7 @@ public final class MouthOccupancy {
         else if (purpose == Purpose.SWADDLE) owner.leafSwaddle().putDownLeaves();
         else if (purpose == Purpose.HOUSE) owner.house().dropCarrying();
         else if (purpose == Purpose.FIND) owner.treasure().stop();
+        else if (purpose == Purpose.KINDNESS) releaseItems(purpose, 20);
     }
 
     public void releaseAtDeath() {

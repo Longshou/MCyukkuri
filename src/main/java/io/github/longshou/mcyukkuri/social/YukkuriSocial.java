@@ -145,6 +145,7 @@ public final class YukkuriSocial implements MotorOwner {
         return true;
     }
     public void tick() {
+        entity.kindness().clock();
         if (active() && (entity.isPanicking() || urgent() || entity.isCommandPlaying())) stop();
     }
     public void save(CompoundTag tag) {

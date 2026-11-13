@@ -32,6 +32,8 @@ import io.github.longshou.mcyukkuri.motor.surface.Occupancy;
 import io.github.longshou.mcyukkuri.motor.surface.SurfaceHost;
 import io.github.longshou.mcyukkuri.settlement.SettlementSeasons;
 import io.github.longshou.mcyukkuri.social.Bonds;
+import io.github.longshou.mcyukkuri.settlement.SettlementSociety;
+import io.github.longshou.mcyukkuri.status.Identity;
 import io.github.longshou.mcyukkuri.social.YukkuriPersonality;
 import io.github.longshou.mcyukkuri.social.YukkuriPersonality.Trait;
 import io.github.longshou.mcyukkuri.headwear.PlacedHatEntity;
@@ -249,9 +251,62 @@ public final class FamilyLife {
     public void endBreedingPeriod(){sexDrive=0;}
     public boolean takeStimulant(){return beginBreedingPeriod();}
     public boolean adult() { return stage==Stage.ADULT; }
+    private FamilyData.Foster foster() {
+        var person = FamilyData.get(level()).person(entity.getUUID());
+        return person == null ? null : person.foster();
+    }
+    UUID fosterParent() {
+        var record = foster();
+        return record == null ? null : record.parent();
+    }
+    public boolean orphaned() {
+        return !adult() && (mother != null || father != null)
+                && (mother == null || absence().gone(mother)) && (father == null || absence().gone(father));
+    }
+    public boolean isActiveFoster(YukkuriEntity parent) {
+        if (adult()) return false;
+        UUID foster = fosterParent();
+        return parent.getUUID().equals(foster) && parent.isAlive() && orphaned() && !absence().gone(foster);
+    }
+    public UUID[] caregiverIds() {
+        UUID foster = fosterParent();
+        if (foster != null && orphaned() && !absence().gone(foster)) return new UUID[]{mother, father, foster};
+        return new UUID[]{mother, father};
+    }
+    public boolean careParentOf(YukkuriEntity child) {
+        return Bonds.parentOf(entity, child) || child.family().isActiveFoster(entity);
+    }
+    public boolean canAdopt(YukkuriEntity child) {
+        if (!adult() || !entity.status().identity().free() || !child.status().identity().free()
+                || entity.profile().aquatic() != child.profile().aquatic()
+                || !child.family().orphaned() || !entity.life().canRecognize(child)
+                || !child.life().canRecognize(entity)) return false;
+        var former = child.family().foster();
+        if (former != null && (level().getGameTime() - former.acceptedAt() < 24000
+                || !child.family().absence().gone(former.parent()))) return false;
+        var identity = entity.status().identity();
+        if (identity != child.status().identity()) return false;
+        if (identity == Identity.WILD_FAMILY) {
+            if (entity.habitat().shelter() == null && FamilyNest.care(entity) == null) return false;
+        } else if (!SettlementSociety.sameGroup(entity, child)) return false;
+        return FamilyData.get(level()).dependents(entity) < 3;
+    }
+    public boolean adopt(YukkuriEntity child) {
+        if (!canAdopt(child)) return false;
+        var care = FamilyNest.care(entity);
+        boolean foundHome = child.family().sharesHome(entity)
+                || (care != null ? child.life().assignHome(entity.life().home()) : child.habitat().takeInBy(entity));
+        if (!foundHome && entity.status().identity() == Identity.WILD_FAMILY) return false;
+        FamilyData.get(level()).recordFoster(child, entity);
+        child.family().absence().observe();
+        child.family().wait = 0;
+        GameplayLog.event(entity, "family", "foster accepted child={}", child.getUUID());
+        return true;
+    }
     public boolean caresFor(YukkuriEntity child) {
         return !child.family().adult() && !entity.moldExile().leavesCareToResident(child)
-                && (adult() && Bonds.parentOf(entity, child) || FamilyProvision.siblingCare(entity, child));
+                && (adult() && (Bonds.parentOf(entity, child) || entity.life().nutrition() >= 35
+                    && child.family().isActiveFoster(entity)) || FamilyProvision.siblingCare(entity, child));
     }
     public boolean hasHungryChild() {
         return !entity.level().getEntitiesOfClass(YukkuriEntity.class,entity.getBoundingBox().inflate(1.5),child->caresFor(child)
@@ -1078,6 +1133,15 @@ public final class FamilyLife {
         // Early pregnancy: home to tend the brood; the last APPROACH_LEAD ticks belong to the birth's own beats.
         if(pregnancy!=null&&!pregnancy.cancelled&&!pregnancy.complete()&&pregnancy.kind!=FamilyData.BirthKind.EGG&&!birth.active()) { task=Task.BROOD;taskTicks=0;return true; }
         if(!adult()) {
+            var foster = fosterParent();
+            if (foster != null && !ParentCarry.awaitsCarrier(entity)) {
+                var caregiver = closestParent();
+                if (caregiver != null && !withinFollowDistance(caregiver)
+                        && (Bonds.parentOf(caregiver, entity)
+                        || caregiver.life().nutrition() >= 35 && !ParentCarry.needsCarry(entity))) {
+                    target=caregiver;task=Task.FOLLOW;taskTicks=0;return true;
+                }
+            }
             if(emergencyForaging())return false;
             if(subadult() && feeding.startCare())return true;
             if(startAbsence())return true;
@@ -1216,11 +1280,17 @@ public final class FamilyLife {
     }
     private YukkuriEntity closestParent() {
         if(familyTravelling())return migrationEscort();
-        return level().getEntitiesOfClass(YukkuriEntity.class,entity.getBoundingBox().inflate(12),other->other.isAlive()
+        var parent = level().getEntitiesOfClass(YukkuriEntity.class,entity.getBoundingBox().inflate(12),other->other.isAlive()
                 &&(other.getUUID().equals(mother)||other.getUUID().equals(father))&&entity.life().canRecognize(other)
                 &&!other.moldExile().leavesCareToResident(entity))
                 .stream().sorted(Comparator.comparingDouble(entity::distanceToSqr))
                 .filter(other->ParentCarry.needsCarry(entity)||gatherAt(other)!=null||entity.life().reachable(other.blockPosition(),false)).findFirst().orElse(null);
+        if (parent != null) return parent;
+        UUID fosterId = fosterParent();
+        return fosterId != null && level().getEntity(fosterId) instanceof YukkuriEntity foster && isActiveFoster(foster)
+                && foster.life().nutrition() >= 35 && entity.distanceToSqr(foster) < 12 * 12
+                && (ParentCarry.needsCarry(entity) || gatherAt(foster) != null || entity.life().reachable(foster.blockPosition(), false))
+                ? foster : null;
     }
     /** Use the same real parent for a travelling child's follow and the parents' search decisions. */
     YukkuriEntity migrationEscort() {
@@ -1433,7 +1503,14 @@ public final class FamilyLife {
         if(task==Task.STAY_HOME) {
             var home=earlyHomeStand();return home!=null&&needsBedReturn(home);
         }
-        if(task==Task.FOLLOW&&earlyHomeStand()!=null&&(!seekingFamilyHelp()||Bonds.parentOf(target,entity)))return false;
+        if (task == Task.FOLLOW && target != null) {
+            UUID foster = fosterParent();
+            if (target.getUUID().equals(foster)) {
+                if (!isActiveFoster(target) || target.life().nutrition() < 35 || withinFollowDistance(target)) return false;
+            } else if (foster != null && Bonds.parentOf(target, entity)) {
+                if (withinFollowDistance(target)) return false;
+            } else if (earlyHomeStand()!=null&&(!seekingFamilyHelp()||Bonds.parentOf(target,entity))) return false;
+        }
         if(task==Task.CARRY)return carry.carrying()&&taskTicks<2400;
         if(task==Task.SEARCH&&target!=null)return ordinaryLandFree(entity)&&target.level()==entity.level()
                 &&(carry.lifting()&&target.isAlive()&&caresFor(target)&&target.childhood().shouldStayWithParents()
@@ -1461,6 +1538,10 @@ public final class FamilyLife {
         // A child out looking for a parent (or following one) that hears her call answers it and goes where the call came from.
         if(!adult()&&(task==Task.FOLLOW||task==Task.SEARCH&&target==null)){
             var escort=familyTravelling()?migrationEscort():null;
+            if (escort == null && fosterParent() != null) {
+                var caregiver = closestParent();
+                if (caregiver != null && (Bonds.parentOf(caregiver, entity) || !ParentCarry.needsCarry(entity))) escort = caregiver;
+            }
             if(escort!=null){
                 if(task!=Task.FOLLOW||target!=escort){task=Task.FOLLOW;target=escort;taskTicks=1;call.stop();}
             }else{
@@ -1603,7 +1684,9 @@ public final class FamilyLife {
             if(age<1200&&(Bonds.parentOf(other, entity))) {
                 // A newborn lost at birth: the parents stare blankly, then cry.
                 other.life().personality().experienced(Trait.BOLDNESS,-3);other.bereave(EmotionEvent.BIRTH_LOSS);
-            } else if((Bonds.careKin(entity, other)||Bonds.eitherMate(entity, other))&&!other.life().isSleeping()&&entity.distanceToSqr(other)<100&&other.life().canRecognize(entity)&&other.hasLineOfSight(entity)) {
+            } else if((Bonds.careKin(entity, other)||Bonds.eitherMate(entity, other)
+                    || entity.getUUID().equals(other.family().fosterParent()) && other.family().orphaned())
+                    &&!other.life().isSleeping()&&entity.distanceToSqr(other)<100&&other.life().canRecognize(entity)&&other.hasLineOfSight(entity)) {
                 // Kin and the mate who see it die grieve where they stand (no walk to the body).
                 other.family().absence().witness(entity.getUUID(),entity.blockPosition());
                 other.life().personality().experienced(Trait.BOLDNESS,-3);other.bereave(EmotionEvent.FAMILY_DEATH);

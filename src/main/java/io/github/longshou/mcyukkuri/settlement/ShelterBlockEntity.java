@@ -245,10 +245,11 @@ public final class ShelterBlockEntity extends BlockEntity {
         residents.forEach((id,place)->{if(place==slot)members.put(id,level instanceof ServerLevel server&&server.getEntity(id) instanceof YukkuriEntity y?NestOccupancy.stage(y):2);});
         return NestOccupancy.accepts(slot<beds().size()&&largeBeds.contains(beds().get(slot)),members,entity);
     }
-    private Integer parentSlot(YukkuriEntity entity) {
+    private Integer parentSlot(YukkuriEntity entity, YukkuriEntity foster) {
         for(int slot=0;slot<beds().size();slot++)if(residents.containsValue(slot)&&acceptsAt(slot,entity)){
             boolean kin=false;for(var entry:residents.entrySet())if(entry.getValue()==slot
-                    &&(FamilyData.get((ServerLevel)level).socialKin(entity.getUUID(),entry.getKey())||entry.getKey().equals(entity.family().partner())))kin=true;
+                    &&(FamilyData.get((ServerLevel)level).socialKin(entity.getUUID(),entry.getKey())||entry.getKey().equals(entity.family().partner())
+                    || foster != null && entry.getKey().equals(foster.getUUID())))kin=true;
             if(kin)return slot;
         }
         return null;
@@ -296,6 +297,9 @@ public final class ShelterBlockEntity extends BlockEntity {
     }
     /** The spawner calls this only after completing the real family relationship records. */
     public boolean claim(YukkuriEntity entity) {
+        return claim(entity, null);
+    }
+    boolean claim(YukkuriEntity entity, YukkuriEntity foster) {
         if (kind().found()) return claimFound(entity);
         if(owns(entity.getUUID()))return true;
         if(!(level instanceof ServerLevel server)||!sound()||entity.profile().houseBody())return false;
@@ -305,12 +309,13 @@ public final class ShelterBlockEntity extends BlockEntity {
         boolean reservedChild=person!=null&&person.status==FamilyData.Status.UNBORN
                 &&(residents.containsKey(person.mother)||residents.containsKey(person.father));
         int incoming=families.reservedForResidents(entity.getUUID()::equals);
-        Integer shared=parentSlot(entity);
+        Integer shared=parentSlot(entity, foster);
         if(shared!=null){residents.put(entity.getUUID(),shared);changed();return true;}
         boolean young=shared!=null||reservedChild;
         int reservedYoung=families.reservedForResidents(residents::containsKey)+incoming;
         if(!fitsResident(young,reservedYoung))return false;
         if(!residents.isEmpty() && residents.keySet().stream().noneMatch(id->id.equals(entity.family().partner())
+                || foster != null && id.equals(foster.getUUID())
                 ||FamilyData.get((ServerLevel)level).socialKin(id,entity.getUUID())&&!(((ServerLevel)level).getEntity(id) instanceof YukkuriEntity res&&!Recognition.recognizes(res,
                         entity))))return false;
         if(shared!=null&&shared<capacity()){residents.put(entity.getUUID(),shared);changed();return true;}
@@ -319,7 +324,7 @@ public final class ShelterBlockEntity extends BlockEntity {
         for(int slot=0;slot<capacity();slot++)if(!residents.containsValue(slot)&&!reservedByLargeBed(beds.get(slot))&&!extras.contains(beds.get(slot))) {
             double distance=Double.MAX_VALUE;
             // Next to a parent or the partner: the family sleeps together in the deep part of the cave.
-            for(var kin:new UUID[]{entity.family().mother(),entity.family().father(),entity.family().partner()}) {
+            for(var kin:new UUID[]{entity.family().mother(),entity.family().father(),entity.family().partner(),foster == null ? null : foster.getUUID()}) {
                 if(kin==null)continue;
                 var kinBed=bed(kin);
                 if(kinBed!=null)distance=Math.min(distance,beds.get(slot).distSqr(kinBed));

@@ -17,6 +17,7 @@ import io.github.longshou.mcyukkuri.human.HumanNpc;
 import io.github.longshou.mcyukkuri.motor.MouthOccupancy;
 import io.github.longshou.mcyukkuri.motor.MouthOccupancy.Purpose;
 import io.github.longshou.mcyukkuri.pet.PetConversation;
+import io.github.longshou.mcyukkuri.social.Bonds;
 import io.github.longshou.mcyukkuri.pet.exam.ExamSession;
 import io.github.longshou.mcyukkuri.social.EcologyPresentation;
 import io.github.longshou.mcyukkuri.social.SocialDisposition;
@@ -167,6 +168,32 @@ final class LifeMeal {
                 && startMeal(prepared, caregiver.getUUID(), true, "receive_mash");
     }
 
+    boolean beginKindnessMeal(YukkuriEntity giver, ItemStack item) {
+        if (!occupancy().canHold(Purpose.MEAL) || !FamilyFeedingContact.mouthsMeet(giver, o.entity())
+                || !canReceiveCareFood(item) || item.getCount() != 1) return false;
+        boolean mash = o.entity().family().needsMash();
+        return (mash || canEat()) && startMeal(mash ? InfantFood.mash(item, giver.getUUID()) : item,
+                giver.getUUID(), true, mash ? "receive_mash" : "take_food");
+    }
+
+    boolean prepareKindnessFood() {
+        if (!canOfferMeal() || !occupancy().prepareKindnessFood()) return false;
+        clearTransfer();
+        o.finishConsumption();
+        return true;
+    }
+
+    private boolean canOfferMeal() {
+        var item = mouth();
+        return !sharedMeal && !preparedMeal && !bowlMeal && feeder == null && mealTicks > 0
+                && mealTicks < 40 && kindnessFood(item);
+    }
+
+    static boolean kindnessFood(ItemStack item) {
+        return !item.isEmpty() && !Consumables.oral(item) && !item.is(ModItems.WASTE.get())
+                && Consumables.kind(item) != Consumables.Kind.SPICY && Toxins.dose(item) == 0;
+    }
+
     private boolean startMeal(ItemStack transferred, UUID fromPlayer, boolean alreadyShared, String reaction) {
         if (!ExamSession.allowsPeerFeeding(o.entity(), fromPlayer)) return false;
         if (!makeRoom("meal") || !occupancy().acquireMeal(transferred.copy())) return false;
@@ -246,15 +273,18 @@ final class LifeMeal {
     void tryShare() {
         var donor = o.entity();
         var requested = ExamSession.sharingTarget(donor);
-        double consideration = PetConversation.considerate(donor);
         var peer = o.level().getEntitiesOfClass(YukkuriEntity.class, o.entity().getBoundingBox().inflate(1.5), other ->
                 other != o.entity() && other.isAlive() && other.life().canEat() && other.life().nutrition() < o.nutrition() - 15
-                        && (requested == null || other == requested)
+                        && (requested == null ? Bonds.careKin(donor, other) : other == requested)
                         && (o.canRecognize(other) || other == requested) && o.entity().hasLineOfSight(other)
                         && !ExamSession.running(other) && ItemContact.mouthsMeet(o.entity(), other)).stream()
-                .sorted(Comparator.comparingInt(other->o.entity().family().caresFor(other)?0:1)).findFirst().orElse(null);
-        if (peer == null || mouth().isEmpty()) return;
-        if (requested != null || consideration > 0 && o.nutrition() >= 60 && peer.life().nutrition() < 40) {
+                .min(Comparator.comparingDouble(donor::distanceToSqr)).orElse(null);
+        if (peer == null) {
+            if (requested == null && canOfferMeal()) donor.kindness().offerMeal();
+            return;
+        }
+        if (mouth().isEmpty()) return;
+        if (requested != null) {
             if (PetConversation.sharingDanger(donor, peer)) {
                 UUID owner = donor.pet().owner();
                 if (owner != null) PetConversation.callOwnerForDanger(donor, peer, o.level().getPlayerByUUID(owner));
@@ -262,7 +292,7 @@ final class LifeMeal {
             }
             if (o.nutrition() >= 60 && peer.life().nutrition() < 40 && !bowlMeal && feeder == null
                     && !donor.dailyLife().sharedFoodToday(peer.getUUID())
-                    && (requested != null || donor.getRandom().nextDouble() < consideration) && handOverMouth(peer, "share"))
+                    && handOverMouth(peer, "share"))
                 donor.dailyLife().sharedFoodWith(peer.getUUID());
             return;
         }
@@ -343,6 +373,7 @@ final class LifeMeal {
                 if(waste)o.changeHygiene(-PIT_MEAL_DIRT);
                 if(!filling&&!spicy&&toxic==0&&!waste)o.entity().heal(2);
                 if (!spicy) { o.personality().fed(feeder); WildEvents.fed(o.entity(),feeder); }
+                if (sharedMeal && pleasant) eater.kindness().swallowed(feeder);
                 o.entity().pet().contact(feeder, !spicy);
                 String treat = Sweets.eaten(o.entity(), swallowed, feeder);
                 o.entity().pet().lessons().swallowed(feeder, swallowed);

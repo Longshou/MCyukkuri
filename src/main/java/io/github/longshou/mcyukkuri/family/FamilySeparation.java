@@ -129,8 +129,8 @@ final class FamilySeparation {
         boolean wasLost=lost;lost=false;
         if(!o.adult()&&!o.subadult()&&!o.awaitingLanding()&&(o.mother()!=null||o.father()!=null)){
             boolean nearby=false,sameNest=false,expectsParent=false;
-            for(UUID id:new UUID[]{o.mother(),o.father()})if(id!=null){
-                expectsParent|=!absence.confirmed(id);
+            for(UUID id:o.caregiverIds())if(id!=null){
+                expectsParent|=!absence.gone(id);
                 if(o.level().getEntity(id) instanceof YukkuriEntity parent&&parent.isAlive()){
                     nearby|=near(e,parent);sameNest|=FamilyNest.sameNest(e,parent);
                 }

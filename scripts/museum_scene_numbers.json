@@ -207,6 +207,8 @@
     "shop_care": "SP-06",
     "care_attitude": "MD-19",
     "basket_attitude": "TN-22",
-    "training_walk": "TN-23"
+    "training_walk": "TN-23",
+    "kindness_adoption": "FM-23",
+    "kindness_bed": "FM-24"
   }
 }

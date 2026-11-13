@@ -614,6 +614,9 @@ public final class YukkuriLife {
     public boolean beginPreparedMeal(ItemStack prepared, UUID fromPlayer){ return meal.beginPreparedMeal(prepared, fromPlayer); }
     /** A biological parent must physically reach the child before transferring its prepared serving. */
     public boolean beginParentMeal(YukkuriEntity caregiver, ItemStack prepared){ return meal.beginParentMeal(caregiver, prepared); }
+    public boolean beginKindnessMeal(YukkuriEntity giver, ItemStack food) { return meal.beginKindnessMeal(giver, food); }
+    public boolean prepareKindnessFood() { return meal.prepareKindnessFood(); }
+    public static boolean kindnessFood(ItemStack food) { return LifeMeal.kindnessFood(food); }
     /** Badge social (B4): a hungry peer is begging at this serving, so the bite waits mid-chew for up to {@code ticks}. False unless a bite is really in the mouth. */
     public boolean holdMeal(int ticks){ return meal.holdMeal(ticks); }
     public void releaseMeal(){ meal.releaseMeal(); }

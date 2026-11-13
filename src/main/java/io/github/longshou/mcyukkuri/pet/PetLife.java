@@ -232,6 +232,7 @@ public final class PetLife {
     /** Former owner while the abandonment record stands; cleared by the next owner. */
     public UUID formerOwner() { return formerOwner; }
     public boolean abandoned() { return formerOwner != null && owner() == null; }
+    public boolean waitingAfterAbandonment() { return abandoned() && waits && now() - abandonedAt <= 24000; }
     /** An unkept individual still tied to human-town life, including offspring raised in it. */
     public boolean townRoots() { return townRoots; }
     public void markTownRoots() { townRoots = true; }

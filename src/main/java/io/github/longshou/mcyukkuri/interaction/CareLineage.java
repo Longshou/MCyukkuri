@@ -23,7 +23,7 @@ public record CareLineage(String stage, String roleKey, String groupKey, List<En
     private static final int MAX_PER_LIST = 48, MAX_NAME = 64;
     public static final String KEY = "care.mcyukkuri.";
 
-    public enum Relation { MOTHER, FATHER, SOURCE, MATE, CHILDREN, SIBLINGS, LEADER }
+    public enum Relation { MOTHER, FATHER, SOURCE, MATE, CHILDREN, SIBLINGS, LEADER, FOSTER_PARENT }
 
     public record Entry(Relation relation, String name, YukkuriVariant variant, String stage, FamilyData.Status status, int omitted) {
         public Component label() {
@@ -65,6 +65,7 @@ public record CareLineage(String stage, String roleKey, String groupKey, List<En
         if (person != null) {
             add(level, family, entries, Relation.MOTHER, person.mother);
             add(level, family, entries, Relation.FATHER, person.father);
+            if (person.foster() != null) add(level, family, entries, Relation.FOSTER_PARENT, person.foster().parent());
             add(level, family, entries, Relation.SOURCE, person.incidentSource);
             switch (person.partnerState()) {
                 case PARTNERED, WIDOWED -> add(level, family, entries, Relation.MATE, person.partner());
