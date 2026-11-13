@@ -979,8 +979,8 @@ public final class FamilyLife {
     }
     public boolean stemDepletionWarning() {
         var b=brood();
-        return attachedStem(b)&&b.fastStem&&FamilyGeometry.fruitScale(b.progress(),b.children.size(),b.children.size()-1,GrowthSize.STEM)>0
-                &&wouldDeplete(b);
+        // From the first visible shoot: the stem now grows for seconds before any fruit, and the drain already runs.
+        return attachedStem(b)&&b.fastStem&&b.elapsed>0&&wouldDeplete(b);
     }
     private static boolean attachedStem(FamilyData.Brood b){
         return b!=null&&b.kind==FamilyData.BirthKind.STEM&&!b.cancelled&&!b.complete();
