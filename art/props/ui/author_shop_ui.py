@@ -13,14 +13,14 @@ Atlas map (x, y, w, h):
   identity chips (0|16|32|48|64,80,16,16) corner 3: pet, stray, settlement, family, neutral
   status backing (80,80,16,16) corner 3
 """
-import hashlib, io, json, math, sys
+import hashlib, io, json, sys
 from pathlib import Path
 from PIL import Image
 
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[2]
 sys.path.insert(0, str(ROOT / 'art' / 'props' / 'badges'))
-from author_badges import PALETTES  # noqa: E402
+from author_badges import PALETTES, diamond_facet  # noqa: E402
 
 def rgb(h):
     h = h.lstrip('#'); return (int(h[0:2], 16), int(h[2:4], 16), int(h[4:6], 16), 255)
@@ -151,9 +151,7 @@ def chip(x0, tier):
             for i in range(9):
                 d = ((i - 4) ** 2 + (j - 4) ** 2) ** .5
                 if 2.2 < d <= 3.3:
-                    k = round((math.atan2(j - 4, i - 4) - math.atan2(-1, -1)) / (math.pi / 4)) % 8
-                    lit = math.cos(k * math.pi / 4)
-                    put(x0 + i, 48 + j, rgb(p['facet'][(2 if lit > .3 else 1 if lit > -.5 else 0) + k % 2]))
+                    put(x0 + i, 48 + j, rgb(diamond_facet(i - 4, j - 4)))
         put(x0 + 3, 48 + 2, rgb(p['spec'])); put(x0 + 2, 48 + 3, rgb(p['spec']))
     if tier == 'bronze':
         put(x0 + 3, 48 + 3, rgb(p['spec']))

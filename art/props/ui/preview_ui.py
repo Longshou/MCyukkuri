@@ -66,6 +66,7 @@ class Canvas:
         if f: self.tile(x + 1, y + 1, f, 4, 8 + a * 8, 24, 8, 4)
     def chip(self, x, y, g):
         if 1 <= g <= 3: self.blit(x, y, (g - 1) * 9, 48, 9, 9)
+        elif g == 4: self.blit(x, y, 36, 48, 9, 9)
     def text(self, x, y, t, color=INK):
         if MC:
             rgb = tuple(int(color.lstrip('#')[i:i + 2], 16) for i in (0, 2, 4)); MC.draw(self.im, x, y, t, rgb, self.s)
@@ -119,7 +120,7 @@ def footer(c, left=True):
 
 # Live rows mirror client/ShopScreen: a 48 px portrait box (the real model in game; a render of the moment preview here when
 # `portraits/<species>.png` sits in the output folder), then four lines 12 px apart beside it.
-LIVE = [dict(g=3, sp='alice', st=2, price=36, skills=6, tags=(1, 4), hp=10, food=80, zone='display', days=0, mood=2),
+LIVE = [dict(g=4, sp='alice', st=2, price=36, skills=6, tags=(1, 4), hp=10, food=80, zone='display', days=0, mood=2),
         dict(g=2, sp='reimu', st=2, price=18, skills=6, tags=(6,), hp=10, food=25, zone='display', days=3, mood=1),
         dict(g=2, sp='remilia', st=2, price=20, skills=6, tags=(2,), hp=4, food=60, zone='display', days=17, mood=4)]
 PORTRAITS = {}
@@ -150,7 +151,7 @@ def shop_live(s, focus=1):
         if not sold and r['mood']:
             zx = text_x + c.width(zone) + 8
             fit(c, zx, y + 41, ellipsize(c, tr(f'shop.mcyukkuri.mood.{r["mood"]}'), text_x + text_w - zx), WARN if r['mood'] in (4, 5) else '#2f6b3f', text_w, 'mood')
-        button(c, 270, y + 3, 62, 16, tr('shop.mcyukkuri.buy_price', r['price']), not sold); button(c, 270, y + 20, 62, 16, tr('shop.mcyukkuri.locate')); button(c, 270, y + 37, 62, 16, tr('shop.mcyukkuri.about'))
+        button(c, 270, y + 3, 62, 16, tr('shop.mcyukkuri.buy_price', r['price']), not sold); button(c, 270, y + 20, 62, 16, tr('shop.mcyukkuri.reserve')); button(c, 270, y + 37, 62, 16, tr('shop.mcyukkuri.about'))
     button(c, 8, 214, 40, 20, '<'); button(c, 52, 214, 40, 20, '>'); button(c, 272, 214, 60, 20, tr('gui.done'))
     c.text(100, 220, tr('shop.mcyukkuri.page', 1, 3), SOFT); return c
 
@@ -223,8 +224,8 @@ def badge(s):
     c = new_canvas(360, 250, s); c.card(6, 6, 348, 116); c.icon(334, 8, 5)
     head = tr('badge.mcyukkuri.subject', 'Reimu', 2, 1); c.text(14, 10, head)
     title = tr('badge.mcyukkuri.profile.title', tr('title.mcyukkuri.pet.1')); c.text(max(14 + c.width(head) + 8, 328 - c.width(title)), 10, title)
-    c.chip(14, 21, 3)
-    fit(c, 25, 21, tr('badge.mcyukkuri.profile.grade', tr('badge.mcyukkuri.profile.grade.3'), tr('badge.mcyukkuri.profile.validity.days', 10), tr('badge.mcyukkuri.wear.1')), INK, 300, 'grade')
+    c.chip(14, 21, 4)
+    fit(c, 25, 21, tr('badge.mcyukkuri.profile.grade', tr('badge.mcyukkuri.profile.grade.4'), tr('badge.mcyukkuri.profile.validity.days', 10), tr('badge.mcyukkuri.wear.1')), INK, 300, 'grade')
     fit(c, 14, 31, tr('badge.mcyukkuri.profile.source_no', tr('badge.mcyukkuri.profile.source.4'), 'No.3FA2'), INK, 320, 'source')
     fit(c, 14, 41, tr('badge.mcyukkuri.profile.abilities', 88, 72, 65, 90), INK, 320, 'abilities')
     fit(c, 14, 51, tr('badge.mcyukkuri.profile.routines', 5, 4, 6), INK, 320, 'routines')

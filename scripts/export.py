@@ -55,7 +55,7 @@ TABLE = [
     exporter('pet-goods-icons', 'scripts/export_pet_goods_icons.py', ['art/props/pet-goods/']),
     exporter('supply-icons', 'scripts/export_supply_icons.py', ['art/props/supply-icons/']),
     exporter('badges', 'scripts/export_badges.py', ['art/props/badges/']),
-    exporter('human-world', 'scripts/export_human_world.py', ['art/structures/human-world/']),
+    exporter('human-world', 'scripts/export_human_world.py', ['art/structures/human-world/', 'art/props/badges/author_badges.py']),
     exporter('dialogue', 'scripts/export_dialogue.py', ['art/dialogue/', 'art/audio/aquestalk/']),
     exporter('ecology-expressions', 'scripts/export_ecology_expressions.py', ['standards/yukkuri-library/expressions/', 'art/source/ecology/']),
     exporter('adult-states', 'scripts/export_adult_states.py', ['standards/yukkuri-library/drafts/rapem-alice/']),

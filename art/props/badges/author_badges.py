@@ -36,11 +36,7 @@ GOLD_TEETH = {(7, 0), (8, 0), (7, 15), (8, 15), (0, 7), (0, 8), (15, 7), (15, 8)
 FACETS = 8  # diamond rim facets, the first centred on the top-left light
 
 
-def _radius(tier, a):
-    return 7.95 if tier == 'silver' else 7.05  # bronze/gold/diamond: 14px disc; silver: 16px circle
-
-
-def _facet(p, dx, dy):
+def diamond_facet(dx, dy):
     """Diamond rim tone: the facet a pixel lies in, lit by how squarely that facet faces the top-left light;
     neighbouring facets alternate a step so the cut reads even on the shadow side."""
     step = 2*math.pi/FACETS
@@ -48,18 +44,19 @@ def _facet(p, dx, dy):
     k = round((math.atan2(dy, dx)-light)/step) % FACETS
     lit = math.cos(k*step)
     tone = 2 if lit > .3 else 1 if lit > -.5 else 0
-    return p['facet'][tone+k % 2]
+    return PALETTES['platinum']['facet'][tone+k % 2]
 
 
 def badge(tier):
     p = PALETTES[tier]
     im = Image.new('RGBA', (SIZE, SIZE), (0, 0, 0, 0))
     info = {}
+    radius = 7.95 if tier == 'silver' else 7.05  # bronze/gold/diamond: 14px disc; silver: 16px circle
     for y in range(SIZE):
         for x in range(SIZE):
             dx, dy = x + .5 - 8, y + .5 - 8
             r = math.hypot(dx, dy)
-            info[x, y] = (r <= _radius(tier, math.atan2(dy, dx)) or (tier == 'gold' and (x, y) in GOLD_TEETH), r, dx, dy)
+            info[x, y] = (r <= radius or (tier == 'gold' and (x, y) in GOLD_TEETH), r, dx, dy)
     inside = lambda x, y: info.get((x, y), (False,))[0]
     face_r = {'bronze': 5.2, 'silver': 4.1, 'gold': 5.1, 'platinum': 4.6}[tier]
     for (x, y), (ins, r, dx, dy) in info.items():
@@ -71,7 +68,7 @@ def badge(tier):
             c = GROOVE['silver']
         elif r > face_r:  # raised rim; the diamond's is cut into facets
             if tier == 'platinum':
-                c = _facet(p, dx, dy)
+                c = diamond_facet(dx, dy)
             else:
                 lit = d / max(r, .01)
                 c = p['shade'][2] if lit > .3 else p['shade'][1] if lit > -.4 else p['shade'][0]
