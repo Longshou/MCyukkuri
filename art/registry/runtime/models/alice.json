@@ -16,7 +16,7 @@
   "runtime_acceptance": "pending_current_verification",
   "appearance_note": "Confirmed rounded-body baseline; selected hair-contact revision and Deibu face/bow remain pending visual confirmation",
   "runtime": "src/main/resources/assets/mcyukkuri/yukkuri/alice.json",
-  "runtime_sha256": "a8061f378141b236e95db2be7ba05d5d986a19f6279c4c98551ab51fb85c3a92",
+  "runtime_sha256": "4777144ed9e0c6a0d84d1b2bf9afc14237694cfffe8073c665d895d22f0df97d",
   "rig": "art/source/rounded-runtime/alice/animation-rig.json",
   "bone_count": 262,
   "clips": [

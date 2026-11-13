@@ -16,7 +16,7 @@
   "runtime_acceptance": "pending_current_verification",
   "appearance_note": "Confirmed rounded-body baseline; selected hair-contact revision and Deibu face/bow remain pending visual confirmation",
   "runtime": "src/main/resources/assets/mcyukkuri/yukkuri/chen.json",
-  "runtime_sha256": "1bdf5f46ff8adb1985b14c42637896a03d67a13bad72ba2b12ef6ff280cc51ea",
+  "runtime_sha256": "0da1136a7a65d7317c59de3c84343e45881b81856283dd112904e454ebe582f3",
   "rig": "art/source/rounded-runtime/chen/animation-rig.json",
   "bone_count": 266,
   "clips": [

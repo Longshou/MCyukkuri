@@ -23,7 +23,7 @@
       "runtime_acceptance": "pending_current_verification",
       "appearance_note": "Confirmed rounded-body baseline; selected hair-contact revision and Deibu face/bow remain pending visual confirmation",
       "runtime": "src/main/resources/assets/mcyukkuri/yukkuri/reimu.json",
-      "runtime_sha256": "5daaf428cc6b994fdf2bc37a16bea5f1b6b0610caa41ed059e975dae12078e39",
+      "runtime_sha256": "2f726f5cada06ae053f2f21dbfcbd1f86bb541f070bdae769eb954e52c0c226b",
       "rig": "art/source/rounded-runtime/reimu/animation-rig.json",
       "bone_count": 261,
       "clips": [
@@ -198,10 +198,10 @@
       "geometry_identifier": "marisa",
       "base_species": "marisa",
       "selected_model": "standards/yukkuri-library/assembled/marisa/marisa.bbmodel",
-      "selected_model_sha256": "2f3748fbf0e1f81427721dbf274ef373f41fb2541036e6999393a5d801de1378",
+      "selected_model_sha256": "fd55f971139d1febb95434cf1825fc40f4a31d320d9503530820313d6581b0f8",
       "selected_rig": "standards/yukkuri-library/assembled/marisa/animation-rig.json",
-      "selected_rig_sha256": "345db2a3c73cd074715c77fa6dc3a8f6ca1cbedcf51b09afd6421b5a8748f131",
-      "selected_runtime_sha256": "358707d627d870319c6956873deddb29eea630ecadee969387d5cea7c931736d",
+      "selected_rig_sha256": "0338e7505dfb088f1bbf771b7a0e6cdaba7604fb406350b4010dc20547ca4944",
+      "selected_runtime_sha256": "1a7b501249889702ba61226a3de23f8378df390f2e6cd36323482c65702c10ec",
       "snapshot": "art/source/rounded-runtime/marisa/selected/marisa.bbmodel",
       "retargeting": {
         "source_weights_preserved": true,
@@ -212,7 +212,7 @@
       "runtime_acceptance": "pending_current_verification",
       "appearance_note": "Confirmed rounded-body baseline; selected hair-contact revision and Deibu face/bow remain pending visual confirmation",
       "runtime": "src/main/resources/assets/mcyukkuri/yukkuri/marisa.json",
-      "runtime_sha256": "eb13956e0fded417b95af0100eaad28d2fea2348c3b575f2c1b25744ceb0d228",
+      "runtime_sha256": "686e905274d4b228d14d16626cefa2ab4e9f0ae81d13b40b9665b9750c53aaae",
       "rig": "art/source/rounded-runtime/marisa/animation-rig.json",
       "bone_count": 268,
       "clips": [
@@ -401,7 +401,7 @@
       "runtime_acceptance": "pending_current_verification",
       "appearance_note": "Confirmed rounded-body baseline; selected hair-contact revision and Deibu face/bow remain pending visual confirmation",
       "runtime": "src/main/resources/assets/mcyukkuri/yukkuri/chen.json",
-      "runtime_sha256": "1bdf5f46ff8adb1985b14c42637896a03d67a13bad72ba2b12ef6ff280cc51ea",
+      "runtime_sha256": "0da1136a7a65d7317c59de3c84343e45881b81856283dd112904e454ebe582f3",
       "rig": "art/source/rounded-runtime/chen/animation-rig.json",
       "bone_count": 266,
       "clips": [
@@ -590,7 +590,7 @@
       "runtime_acceptance": "pending_current_verification",
       "appearance_note": "Confirmed rounded-body baseline; selected hair-contact revision and Deibu face/bow remain pending visual confirmation",
       "runtime": "src/main/resources/assets/mcyukkuri/yukkuri/alice.json",
-      "runtime_sha256": "a8061f378141b236e95db2be7ba05d5d986a19f6279c4c98551ab51fb85c3a92",
+      "runtime_sha256": "4777144ed9e0c6a0d84d1b2bf9afc14237694cfffe8073c665d895d22f0df97d",
       "rig": "art/source/rounded-runtime/alice/animation-rig.json",
       "bone_count": 262,
       "clips": [
@@ -780,7 +780,7 @@
       "runtime_acceptance": "pending_current_verification",
       "appearance_note": "Confirmed rounded-body baseline; selected hair-contact revision and Deibu face/bow remain pending visual confirmation",
       "runtime": "src/main/resources/assets/mcyukkuri/yukkuri/patchouli.json",
-      "runtime_sha256": "0d0f1bc850d9be387e6e68ac90226f3dd176be4d0579a6980da6109d91b128ab",
+      "runtime_sha256": "229b21884860a0277cd13b84a7ae325c4ea749deee6d7c0f749a0dc9239bc2cd",
       "rig": "art/source/rounded-runtime/patchouli/animation-rig.json",
       "bone_count": 265,
       "clips": [
@@ -955,10 +955,10 @@
       "geometry_identifier": "marisa_tsumuri",
       "base_species": "marisa",
       "selected_model": "standards/yukkuri-library/assembled/marisa_tsumuri/marisa_tsumuri.bbmodel",
-      "selected_model_sha256": "faeaeecdc0fb8bf684fedd867407fb9b7f2df704a7adc8254c4aa99e47640159",
+      "selected_model_sha256": "26a408119a9208cabb21e04534c2e4e8490b2476298a3dca01154a21e5680dea",
       "selected_rig": "standards/yukkuri-library/assembled/marisa_tsumuri/animation-rig.json",
-      "selected_rig_sha256": "5707931cc92013d6e128f5866ccc2e7e98a6f2a6d1ab27ab3e32d456c660a507",
-      "selected_runtime_sha256": "a963d9b06b4ca3a3a5a0942ee5e27c97077631601963beef4fec463878772ccd",
+      "selected_rig_sha256": "3b0919bd52066f5dcfa31bff351e9e19fea4f49fab9ae3787aff4a967b9265ee",
+      "selected_runtime_sha256": "4e1cd628016797cf68e525296b8b2a72af2c3a2e5e4617672c8cb8cbaff8c144",
       "snapshot": "art/source/rounded-runtime/marisa_tsumuri/selected/marisa_tsumuri.bbmodel",
       "retargeting": {
         "source_weights_preserved": true,
@@ -970,7 +970,7 @@
       "runtime_acceptance": "pending_current_verification",
       "appearance_note": "Confirmed rounded-body baseline; selected hair-contact revision and Deibu face/bow remain pending visual confirmation",
       "runtime": "src/main/resources/assets/mcyukkuri/yukkuri/marisa_tsumuri.json",
-      "runtime_sha256": "afcd798642fbf37c2bc35d22ee9929f391a3a317f9df3e63fa2568cd63d69ba2",
+      "runtime_sha256": "8374a07e921aeea7a625ecde5889fb35dc16683cb65453d63682cdb727fadbdf",
       "rig": "art/source/rounded-runtime/marisa_tsumuri/animation-rig.json",
       "bone_count": 269,
       "clips": [
@@ -1162,7 +1162,7 @@
       "runtime_acceptance": "pending_current_verification",
       "appearance_note": "Confirmed rounded-body baseline; selected hair-contact revision and Deibu face/bow remain pending visual confirmation",
       "runtime": "src/main/resources/assets/mcyukkuri/yukkuri/reimu_wasa.json",
-      "runtime_sha256": "c4db19d18ccaf19c4e4bb820bf7214cb2c5b33cb5aefe22ac54f57356ba68e02",
+      "runtime_sha256": "ba46852b1d895c1270023c301ab7d6ab44f0872d8a203efed8d88b5e9a787eec",
       "rig": "art/source/rounded-runtime/reimu_wasa/animation-rig.json",
       "bone_count": 261,
       "clips": [
@@ -1352,7 +1352,7 @@
       "runtime_acceptance": "pending_current_verification",
       "appearance_note": "Confirmed rounded-body baseline; selected hair-contact revision and Deibu face/bow remain pending visual confirmation",
       "runtime": "src/main/resources/assets/mcyukkuri/yukkuri/reimu_deibu.json",
-      "runtime_sha256": "5d1bdfbe54c8e53e601228190b818f44eab07679c31fddbaeea3f2dd3ec9694d",
+      "runtime_sha256": "5468e3b792048224717c0164d65c2b114d1766c9ff2f0c2bb2ff9b9faf4e4b51",
       "rig": "art/source/rounded-runtime/reimu_deibu/animation-rig.json",
       "bone_count": 261,
       "clips": [
@@ -1540,7 +1540,7 @@
       "shape_status": "runtime_combination_pending_confirmation",
       "runtime_acceptance": "pending_current_verification",
       "runtime": "src/main/resources/assets/mcyukkuri/yukkuri/reimu_wasa_deibu.json",
-      "runtime_sha256": "f5f7e6e41721a80b30130a2d54ce4081b26f5854b1106c6503c1760cd3a5bcb7",
+      "runtime_sha256": "53923e185a24c993f6794ac5e22ca54a1b52806e8b1355de95e9eef7c3a3d675",
       "rig": "art/source/rounded-runtime/reimu_wasa_deibu/animation-rig.json",
       "bone_count": 261,
       "clips": [

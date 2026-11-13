@@ -1,14 +1,14 @@
 {
   "selected_model": "standards/yukkuri-library/subspecies/predator/assembled/flandre/flandre.bbmodel",
-  "selected_model_sha256": "555681a6db9fe14f39d3aee801a915d6171562b54933ba8dd1881739f23bd10c",
+  "selected_model_sha256": "0d2cd4f0beee2b531952bec9e618aa409f6a56ca18e5aa82262bc8837038ebf7",
   "selected_rig": "standards/yukkuri-library/subspecies/predator/assembled/flandre/animation-rig.json",
-  "selected_rig_sha256": "748620469e80d232fd3b34d500e29ef43e16a9edb6a46c61aec47dca7c2b5cf6",
+  "selected_rig_sha256": "35dba5f93b2bc83f1a89b4666e3e06ccb9c83ace8f56105d3267c81eef251cab",
   "standard_motion_source": "standards/yukkuri-library/subspecies/predator/assembled/flandre/animation-rig.json",
-  "standard_motion_sha256": "748620469e80d232fd3b34d500e29ef43e16a9edb6a46c61aec47dca7c2b5cf6",
+  "standard_motion_sha256": "35dba5f93b2bc83f1a89b4666e3e06ccb9c83ace8f56105d3267c81eef251cab",
   "snapshot": "art/source/standard-runtime/flandre/flandre.bbmodel",
   "rig": "art/source/standard-runtime/flandre/animation-rig.json",
   "runtime": "src/main/resources/assets/mcyukkuri/yukkuri/flandre.json",
-  "runtime_sha256": "2ce2e3e01e1a2e4688fa1755f192d9839f208c9a31cedde5fee33ed715179f46",
+  "runtime_sha256": "939b25f128feb96c6dae4de9481b76f153ce9c301f74f1e1df8c93565aa67311",
   "geometry_identifier": "flandre",
   "bone_count": 273,
   "clips": [

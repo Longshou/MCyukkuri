@@ -23,7 +23,7 @@
       "diameter": 0.11875
     },
     "marisa": {
-      "model_sha256": "eb13956e0fded417b95af0100eaad28d2fea2348c3b575f2c1b25744ceb0d228",
+      "model_sha256": "686e905274d4b228d14d16626cefa2ab4e9f0ae81d13b40b9665b9750c53aaae",
       "part": "hat_band",
       "triangle": 14085,
       "weights": [
@@ -149,7 +149,7 @@
       "diameter": 0.040625
     },
     "remilia": {
-      "model_sha256": "79c56eee62107980175783847497f7ec8153574125ef70180baade7418a663b0",
+      "model_sha256": "fc3bdf735eaf18065b7f85ccc07f13ec76ce014362afb7f782af8181ea2ed83f",
       "part": "predator_cap_crown",
       "triangle": 6810,
       "weights": [
@@ -170,7 +170,7 @@
       "diameter": 0.1
     },
     "flandre": {
-      "model_sha256": "2ce2e3e01e1a2e4688fa1755f192d9839f208c9a31cedde5fee33ed715179f46",
+      "model_sha256": "939b25f128feb96c6dae4de9481b76f153ce9c301f74f1e1df8c93565aa67311",
       "part": "predator_cap_crown",
       "triangle": 7182,
       "weights": [
@@ -191,7 +191,7 @@
       "diameter": 0.1
     },
     "marisa_tsumuri": {
-      "model_sha256": "afcd798642fbf37c2bc35d22ee9929f391a3a317f9df3e63fa2568cd63d69ba2",
+      "model_sha256": "8374a07e921aeea7a625ecde5889fb35dc16683cb65453d63682cdb727fadbdf",
       "part": "shell_coil_0_3_0_1",
       "triangle": 21546,
       "weights": [

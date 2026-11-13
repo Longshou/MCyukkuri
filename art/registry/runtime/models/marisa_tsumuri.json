@@ -2,10 +2,10 @@
   "geometry_identifier": "marisa_tsumuri",
   "base_species": "marisa",
   "selected_model": "standards/yukkuri-library/assembled/marisa_tsumuri/marisa_tsumuri.bbmodel",
-  "selected_model_sha256": "faeaeecdc0fb8bf684fedd867407fb9b7f2df704a7adc8254c4aa99e47640159",
+  "selected_model_sha256": "26a408119a9208cabb21e04534c2e4e8490b2476298a3dca01154a21e5680dea",
   "selected_rig": "standards/yukkuri-library/assembled/marisa_tsumuri/animation-rig.json",
-  "selected_rig_sha256": "5707931cc92013d6e128f5866ccc2e7e98a6f2a6d1ab27ab3e32d456c660a507",
-  "selected_runtime_sha256": "a963d9b06b4ca3a3a5a0942ee5e27c97077631601963beef4fec463878772ccd",
+  "selected_rig_sha256": "3b0919bd52066f5dcfa31bff351e9e19fea4f49fab9ae3787aff4a967b9265ee",
+  "selected_runtime_sha256": "4e1cd628016797cf68e525296b8b2a72af2c3a2e5e4617672c8cb8cbaff8c144",
   "snapshot": "art/source/rounded-runtime/marisa_tsumuri/selected/marisa_tsumuri.bbmodel",
   "retargeting": {
     "source_weights_preserved": true,
@@ -17,7 +17,7 @@
   "runtime_acceptance": "pending_current_verification",
   "appearance_note": "Confirmed rounded-body baseline; selected hair-contact revision and Deibu face/bow remain pending visual confirmation",
   "runtime": "src/main/resources/assets/mcyukkuri/yukkuri/marisa_tsumuri.json",
-  "runtime_sha256": "afcd798642fbf37c2bc35d22ee9929f391a3a317f9df3e63fa2568cd63d69ba2",
+  "runtime_sha256": "8374a07e921aeea7a625ecde5889fb35dc16683cb65453d63682cdb727fadbdf",
   "rig": "art/source/rounded-runtime/marisa_tsumuri/animation-rig.json",
   "bone_count": 269,
   "clips": [

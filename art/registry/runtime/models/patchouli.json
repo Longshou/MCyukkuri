@@ -17,7 +17,7 @@
   "runtime_acceptance": "pending_current_verification",
   "appearance_note": "Confirmed rounded-body baseline; selected hair-contact revision and Deibu face/bow remain pending visual confirmation",
   "runtime": "src/main/resources/assets/mcyukkuri/yukkuri/patchouli.json",
-  "runtime_sha256": "0d0f1bc850d9be387e6e68ac90226f3dd176be4d0579a6980da6109d91b128ab",
+  "runtime_sha256": "229b21884860a0277cd13b84a7ae325c4ea749deee6d7c0f749a0dc9239bc2cd",
   "rig": "art/source/rounded-runtime/patchouli/animation-rig.json",
   "bone_count": 265,
   "clips": [

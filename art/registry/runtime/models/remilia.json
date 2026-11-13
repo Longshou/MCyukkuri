@@ -1,14 +1,14 @@
 {
   "selected_model": "standards/yukkuri-library/subspecies/predator/assembled/remilia/remilia.bbmodel",
-  "selected_model_sha256": "313cf1aee1978c3ba0157c34a7f3032e3fd9e7a2b7c77c2ebe181e902f704a10",
+  "selected_model_sha256": "9575c757e9db8620351b41c4bf6cebb25870a3698cd22618c0c1eeeffe81c4dc",
   "selected_rig": "standards/yukkuri-library/subspecies/predator/assembled/remilia/animation-rig.json",
-  "selected_rig_sha256": "e72c31f062a755ee7a890190d67d7de161ba67061b3f7dbae28ea2c903313159",
+  "selected_rig_sha256": "0e82b96de07d4b03b0a967c732a4aa29f58df513c961f8bbdea67b8264bbdc2a",
   "standard_motion_source": "standards/yukkuri-library/subspecies/predator/assembled/remilia/animation-rig.json",
-  "standard_motion_sha256": "e72c31f062a755ee7a890190d67d7de161ba67061b3f7dbae28ea2c903313159",
+  "standard_motion_sha256": "0e82b96de07d4b03b0a967c732a4aa29f58df513c961f8bbdea67b8264bbdc2a",
   "snapshot": "art/source/standard-runtime/remilia/remilia.bbmodel",
   "rig": "art/source/standard-runtime/remilia/animation-rig.json",
   "runtime": "src/main/resources/assets/mcyukkuri/yukkuri/remilia.json",
-  "runtime_sha256": "79c56eee62107980175783847497f7ec8153574125ef70180baade7418a663b0",
+  "runtime_sha256": "fc3bdf735eaf18065b7f85ccc07f13ec76ce014362afb7f782af8181ea2ed83f",
   "geometry_identifier": "remilia",
   "bone_count": 265,
   "clips": [

@@ -16,7 +16,7 @@
   "runtime_acceptance": "pending_current_verification",
   "appearance_note": "Confirmed rounded-body baseline; selected hair-contact revision and Deibu face/bow remain pending visual confirmation",
   "runtime": "src/main/resources/assets/mcyukkuri/yukkuri/reimu_wasa.json",
-  "runtime_sha256": "c4db19d18ccaf19c4e4bb820bf7214cb2c5b33cb5aefe22ac54f57356ba68e02",
+  "runtime_sha256": "ba46852b1d895c1270023c301ab7d6ab44f0872d8a203efed8d88b5e9a787eec",
   "rig": "art/source/rounded-runtime/reimu_wasa/animation-rig.json",
   "bone_count": 261,
   "clips": [

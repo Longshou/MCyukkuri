@@ -7,12 +7,12 @@
       "base_model_sha256": "b03f094a7d2ee458e773785bb28da647ea1d8b54aab620aef890eeb983983f45",
       "base_rig_sha256": "416303011b0cff957f5e1e6cb708ae01b800cfe81abb556005f4dba7fc9ee610",
       "shared_model": "standards/yukkuri-library/assembled/marisa/marisa.bbmodel",
-      "shared_model_sha256": "2f3748fbf0e1f81427721dbf274ef373f41fb2541036e6999393a5d801de1378",
+      "shared_model_sha256": "fd55f971139d1febb95434cf1825fc40f4a31d320d9503530820313d6581b0f8",
       "shared_rig": "standards/yukkuri-library/assembled/marisa/animation-rig.json",
-      "shared_rig_sha256": "345db2a3c73cd074715c77fa6dc3a8f6ca1cbedcf51b09afd6421b5a8748f131",
+      "shared_rig_sha256": "0338e7505dfb088f1bbf771b7a0e6cdaba7604fb406350b4010dc20547ca4944",
       "geometry_identifier": "geometry.remilia",
-      "model_sha256": "313cf1aee1978c3ba0157c34a7f3032e3fd9e7a2b7c77c2ebe181e902f704a10",
-      "rig_sha256": "e72c31f062a755ee7a890190d67d7de161ba67061b3f7dbae28ea2c903313159",
+      "model_sha256": "9575c757e9db8620351b41c4bf6cebb25870a3698cd22618c0c1eeeffe81c4dc",
+      "rig_sha256": "0e82b96de07d4b03b0a967c732a4aa29f58df513c961f8bbdea67b8264bbdc2a",
       "elements": 69,
       "triangles": 3368,
       "bones": 265,
@@ -133,12 +133,12 @@
       "base_model_sha256": "b03f094a7d2ee458e773785bb28da647ea1d8b54aab620aef890eeb983983f45",
       "base_rig_sha256": "416303011b0cff957f5e1e6cb708ae01b800cfe81abb556005f4dba7fc9ee610",
       "shared_model": "standards/yukkuri-library/assembled/marisa/marisa.bbmodel",
-      "shared_model_sha256": "2f3748fbf0e1f81427721dbf274ef373f41fb2541036e6999393a5d801de1378",
+      "shared_model_sha256": "fd55f971139d1febb95434cf1825fc40f4a31d320d9503530820313d6581b0f8",
       "shared_rig": "standards/yukkuri-library/assembled/marisa/animation-rig.json",
-      "shared_rig_sha256": "345db2a3c73cd074715c77fa6dc3a8f6ca1cbedcf51b09afd6421b5a8748f131",
+      "shared_rig_sha256": "0338e7505dfb088f1bbf771b7a0e6cdaba7604fb406350b4010dc20547ca4944",
       "geometry_identifier": "geometry.flandre",
-      "model_sha256": "555681a6db9fe14f39d3aee801a915d6171562b54933ba8dd1881739f23bd10c",
-      "rig_sha256": "748620469e80d232fd3b34d500e29ef43e16a9edb6a46c61aec47dca7c2b5cf6",
+      "model_sha256": "0d2cd4f0beee2b531952bec9e618aa409f6a56ca18e5aa82262bc8837038ebf7",
+      "rig_sha256": "35dba5f93b2bc83f1a89b4666e3e06ccb9c83ace8f56105d3267c81eef251cab",
       "elements": 73,
       "triangles": 3356,
       "bones": 273,
@@ -257,6 +257,6 @@
   "inputs": {
     "species.json": "4518949b65793cf1b48bf124798aa9b39e2c27e470ae1b2a198557978c0a988f",
     "species_geometry.py": "eb34b8db80b0bb59df9f70e273cf15ff384ca35f46f1e4d63359ce30886e3849",
-    "author_species.py": "7d7082bba5c2d7741ffc33391f7cf5dff934addd27ae84e52f67f4a05c51a2d3"
+    "author_species.py": "6a949fe9a505c19039c37ecdba2b609dd653314b068ffa10d1913b174ee13839"
   }
 }

@@ -2,10 +2,10 @@
   "geometry_identifier": "marisa",
   "base_species": "marisa",
   "selected_model": "standards/yukkuri-library/assembled/marisa/marisa.bbmodel",
-  "selected_model_sha256": "2f3748fbf0e1f81427721dbf274ef373f41fb2541036e6999393a5d801de1378",
+  "selected_model_sha256": "fd55f971139d1febb95434cf1825fc40f4a31d320d9503530820313d6581b0f8",
   "selected_rig": "standards/yukkuri-library/assembled/marisa/animation-rig.json",
-  "selected_rig_sha256": "345db2a3c73cd074715c77fa6dc3a8f6ca1cbedcf51b09afd6421b5a8748f131",
-  "selected_runtime_sha256": "358707d627d870319c6956873deddb29eea630ecadee969387d5cea7c931736d",
+  "selected_rig_sha256": "0338e7505dfb088f1bbf771b7a0e6cdaba7604fb406350b4010dc20547ca4944",
+  "selected_runtime_sha256": "1a7b501249889702ba61226a3de23f8378df390f2e6cd36323482c65702c10ec",
   "snapshot": "art/source/rounded-runtime/marisa/selected/marisa.bbmodel",
   "retargeting": {
     "source_weights_preserved": true,
@@ -16,7 +16,7 @@
   "runtime_acceptance": "pending_current_verification",
   "appearance_note": "Confirmed rounded-body baseline; selected hair-contact revision and Deibu face/bow remain pending visual confirmation",
   "runtime": "src/main/resources/assets/mcyukkuri/yukkuri/marisa.json",
-  "runtime_sha256": "eb13956e0fded417b95af0100eaad28d2fea2348c3b575f2c1b25744ceb0d228",
+  "runtime_sha256": "686e905274d4b228d14d16626cefa2ab4e9f0ae81d13b40b9665b9750c53aaae",
   "rig": "art/source/rounded-runtime/marisa/animation-rig.json",
   "bone_count": 268,
   "clips": [
