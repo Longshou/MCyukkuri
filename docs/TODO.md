@@ -15,7 +15,7 @@
 - **2026-11-13 试玩反馈**（运行版本 [41d423bff](https://github.com/Longshou/MCyukkuri/commit/41d423bff)，[CI 43260604657](https://github.com/Longshou/MCyukkuri/actions/runs/43260604657)；用户原话为验收标准，编号沿用原话，原话无 9）。此前的待办按用户「之前的todo待办移除」全部移除。
   - 1 捕食种建模：已接入待试玩（[d85745009](https://github.com/Longshou/MCyukkuri/commit/d85745009)，用户已看预览认可）。用户：「捕食种建模出问题，翅膀错位 面部头发错位等」
   - 2 按钮延迟：已接入待试玩（[ca2e66dc9](https://github.com/Longshou/MCyukkuri/commit/ca2e66dc9)，性能包；按钮不再被吞，场景加载期不被清场覆盖）。用户：「wo在测FM 21 22等的时候发现按了按钮延迟较高才出现演出 或者有时候按了也没用 看看是不是性能问题 如果是则修复」
-  - 3 同屏性能：部分接入（[1ea3f0740](https://github.com/Longshou/MCyukkuri/commit/1ea3f0740)，复用碰撞几何、减轻场景与人群渲染；仍需试玩看卡顿）。用户：「油库里同屏动作卡顿很明显 需要优化性能」
+  - 3 同屏性能：部分接入（[1ea3f0740](https://github.com/Longshou/MCyukkuri/commit/1ea3f0740)，复用碰撞几何、减轻场景与人群渲染；第二轮 [11920be33](https://github.com/Longshou/MCyukkuri/commit/11920be33) 复用窝路径查询与姿态缓存，服务器每 tick 平均 1–2 毫秒、家庭场景峰值 21→9 毫秒；如仍卡多半在客户端，需试玩看）。用户：「油库里同屏动作卡顿很明显 需要优化性能」
   - 4 素鸡立节奏：已接入待试玩（[8f9c4a8ed](https://github.com/Longshou/MCyukkuri/commit/8f9c4a8ed)；草地 MD-08、MD-10）。用户：「素鸡立演出问题：中间过程太短 素鸡立过程应该是： 中间重复多次 5~30秒 然后是素鸡立演出：要来了...素...素...素鸡立！  跟随语音台词节奏做演出 高峰期停留3秒 然后才接神气 / 满足脸」
   - 5 爱丽丝雷普魔：已接入待试玩（[8f9c4a8ed](https://github.com/Longshou/MCyukkuri/commit/8f9c4a8ed)；草地 MD-08、MD-10）。用户：「爱丽丝雷普魔状态的移动是平移 没有动作 且素鸡立瞬间没有演出，应该继续锁住母油演出完成后才释放」
   - 6 漏尿场景与水滩：已接入待试玩（[317b4afd9](https://github.com/Longshou/MCyukkuri/commit/317b4afd9)，MD-17 减到 4 只，水滩 90 秒后 30 秒淡出）。用户：「短受惊漏尿演出放那么多只 非常卡 场景演示要优化 性能也要优化 且尿液水滩应该也会随时间淡化消失 纯贴图变化」
