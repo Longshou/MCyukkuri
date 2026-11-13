@@ -13,8 +13,8 @@ toilet and the fills' look are project design. Palettes are local hue-shifted ra
 Footprints follow life/CareBlock; the two pet nests get a collision shell generated from their visible top surface (collision()).
 """
 import math
-from shapes import (Build, Outline, CIRCLE, revolve, cap, box, sprite, canvas, put, get, grain, stamp, top_view,
-                    rng, smoothstep, heightmap, collision_boxes)
+from shapes import (Build, Outline, SideOutline, CIRCLE, revolve, cap, grid, box, sprite, canvas, put, get, grain, stamp,
+                    top_view, rng, smoothstep, heightmap, collision_boxes)
 
 # ---- ramps (dark -> light) ------------------------------------------------------------------------------------------
 CREAM = ['#8c7a5c', '#b6a481', '#d7c8a6', '#ece2c7', '#f9f4e4']
@@ -370,16 +370,41 @@ NEST_ROLL = [(12.8, 0.0, 0), (13.2, 1.0, 1), (13.3, 2.2, 2), (13.1, 3.4, 3), (12
              (11.5, 4.85, 7), (11.3, 4.0, 8), (11.1, 3.0, 9), (10.75, 2.1, 10), (10.1, 1.6, 11)]
 NEST_CUSHION = [(10.1, 1.6), (7.4, 1.7), (3.7, 1.78)]
 NEST_CREST = 11.85
+NEST_OUTER = 13.3          # outer radius of the round roll (NEST_ROLL's widest row)
 NEST_PAD = 1.75            # collision top of the level pad over the whole block square
+NEST_LEVEL = 11.5          # the level pad reaches this far on a round side (block and the roll's inner slope)
+
+# Fitted against blocks (life/PetNestBlock): a side whose neighbouring block reaches into the overhang band is flattened so
+# nothing pokes into that block. The roll keeps its height and order of rows but runs straight along the block face (outer
+# edge at NEST_FLAT, the block face) with NEST_KEEP of its depth, pressed thinner like a soft roll pushed against a wall;
+# corners between a flat and a round side round off with radius 8, corners between two flat sides with radius 3. Masks are in
+# the nest's own frame, entrance to -z: bit 1 north (entrance), 2 east, 4 south (back), 8 west; the block rotates them.
+NEST_FLAT = 8.0
+NEST_KEEP = .55
+NEST_CORNER = {0: NEST_OUTER, 1: 8.0, 2: 3.0}
 
 
-def nest_notch(x, z, y, floor=1.6, lip=2.8, top=5.25):
-    """U-shaped entrance: within about 35 degrees of north the bolster sinks to a low rolled lip; the outer half scales
-    toward the ground, the inner half toward the pad, meeting at the crest."""
+def nest_walls(mask):
+    return {side: bool(mask >> i & 1) for i, side in enumerate('nesw')}
+
+
+def nest_outline(mask):
+    walled = nest_walls(mask)
+    extents = {side: NEST_FLAT if walled[side] else NEST_OUTER for side in 'nesw'}
+
+    def corner(sx, sz):
+        wx, wz = walled['e' if sx > 0 else 'w'], walled['s' if sz > 0 else 'n']
+        return NEST_CORNER[wx + wz], NEST_KEEP if wx else 1.0, NEST_KEEP if wz else 1.0
+    return SideOutline(extents, corner, arc=NEST_SEGS // 4)
+
+
+def nest_notch(x, z, y, o, floor=1.6, lip=2.8, top=5.25):
+    """U-shaped entrance: within about 35 degrees of north the bolster sinks to a low rolled lip; the outer half (rows from
+    the crest outward) scales toward the ground, the inner half toward the pad, meeting at the crest."""
     r = math.hypot(x, z)
     c = max(0.0, -z / r) if r > 1e-6 else 0.0
     w = smoothstep(.74, .89, c)
-    if r >= NEST_CREST:
+    if o >= NEST_CREST - NEST_OUTER:
         return y * (1 - (1 - lip / top) * w)
     return floor + (y - floor) * (1 - (1 - (lip - floor) / (top - floor)) * w) if y > floor else y
 
@@ -473,14 +498,164 @@ def cushion_top(style, size=22, radius=10.1):
     return grain(top_view(size, paint), ramp, 'cushion' + style, .07)
 
 
-def yukkuri_nest(style=''):
-    b = Build(model_name('yukkuri_nest', style))
-    o = CIRCLE(NEST_SEGS)
+# ---- three grades of the one-block pet bed (life/PetNestBlock): one geometry, three looks ------------------------------
+# Grade 1 straw nest: a coiled straw roll bound with straw wraps round a pad of loose hay (cheap, sold by the pet shop).
+# Grade 2 cushion nest: the quilted cotton cushion above with its seven dye styles.
+# Grade 3 velvet nest: wine velvet roll with a gold cord on the shoulder and a lace frill at its foot round a buttoned ivory
+# satin pad. Every look paints the same regions in the same order (roll band 72 x 11, pad 22 x 22, underside 4 x 4), so a
+# fitted shape (pet_nest_fit_<mask>) draws with any look's texture.
+WINE = ['#3a0d1f', '#5c1530', '#7e2042', '#a23458', '#c7577a']
+GOLD = ['#6b4a12', '#9c7220', '#c99a32', '#e8c25a', '#f8e49a']
+IVORY = ['#9c8f78', '#c8bba0', '#e6dcc4', '#f4eedd', '#fffaf0']
+RUSH = ['#5a4a28', '#7f6b3f', '#a38f5d', '#c2ae7c', '#ddcda0']       # dry straw, duller than the woven basket's STRAW
+
+
+def straw_band(w=72, key='rollstraw'):
+    """Coiled straw: strands run along the roll in the roll's shading rows, a binding wrap every twelve texels, a twisted
+    straw cord on the outer shoulder."""
+    h = len(ROLL_SHADE)
+    img = canvas(w, h)
+    r = rng(key)
+    for y in range(h):
+        s = ROLL_SHADE[y] if ROLL_SHADE[y] is not None else 3
+        for x in range(w):
+            put(img, x, y, RUSH[s])
+        if y in (0, 4, h - 1):
+            continue
+        x = 0
+        while x < w:                      # strand runs one step lighter or darker
+            run = r.randint(3, 7)
+            step = r.choice((-1, 1, 0))
+            for k in range(run):
+                if step:
+                    put(img, x + k, y, RUSH[max(0, min(4, s + step))])
+            x += run
+    for x in range(0, w, 12):              # binding wraps: a darker band with a lit edge
+        for y in range(1, h - 1):
+            if y == 4:
+                continue
+            s = ROLL_SHADE[y] if ROLL_SHADE[y] is not None else 3
+            put(img, x, y, RUSH[max(0, s - 2)])
+            put(img, x + 1, y, RUSH[min(4, s + 1)])
+    for x in range(w):                    # twisted cord on the shoulder
+        put(img, x, 4, RUSH[3] if x % 3 else RUSH[1])
+    return img
+
+
+def straw_top(size=22, radius=10.1):
+    """Loose hay pad from above: short strands in every direction over a straw-brown bed, a dark tuck ring at the roll."""
+    r = rng('hay-pad')
+    strands = []
+    for _ in range(45):
+        x, z = r.uniform(-radius, radius), r.uniform(-radius, radius)
+        a = r.uniform(0, math.pi)
+        strands.append((x, z, math.cos(a), math.sin(a), r.uniform(1.5, 3.0), r.choice((1, 3, 4))))
+
+    def paint(x, z, rr):
+        if rr > radius + .6:
+            return None
+        if rr > radius - .7:
+            return RUSH[0]
+        for sx, sz, dx, dz, length, shade in strands:
+            px, pz = x - sx, z - sz
+            t = px * dx + pz * dz
+            if 0 <= t <= length and abs(px * dz - pz * dx) < .5:
+                return RUSH[shade]
+        return RUSH[1] if (math.floor(x) * 7 + math.floor(z) * 3) % 5 == 0 else RUSH[2]
+    return top_view(size, paint)
+
+
+def velvet_band(w=72, key='rollvelvet'):
+    """Wine velvet roll: soft sheen streaks along the crest, a gold cord on the outer shoulder, a white lace frill at the foot."""
+    h = len(ROLL_SHADE)
+    img = canvas(w, h)
+    for y in range(h):
+        s = ROLL_SHADE[y] if ROLL_SHADE[y] is not None else 3
+        for x in range(w):
+            put(img, x, y, WINE[s])
+    grain(img, WINE, key, .05, rows=[5, 6, 7, 8])
+    for x in range(w):
+        put(img, x, 4, GOLD[3] if x % 3 else GOLD[1])           # gold cord
+        put(img, x, 2, IVORY[3])                                # lace band ...
+        put(img, x, 1, IVORY[2] if x % 4 in (1, 2) else WINE[1])  # ... scalloped at its lower edge
+        if x % 4 == 0:
+            put(img, x, 2, IVORY[1])
+    for x in range(3, w, 12):                                   # sheen on the crest
+        for k in range(4):
+            put(img, x + k, 6, WINE[4])
+    return img
+
+
+def velvet_top(size=22, radius=10.1):
+    """Buttoned ivory satin pad: diamond tufting seams, a gold button at every crossing, a gold-and-wine edge."""
+    def paint(x, z, r):
+        if r > radius + .6:
+            return None
+        u, v = math.floor(x), math.floor(z)
+        if r > radius - .7:
+            return WINE[1]
+        if r > radius - 1.4:
+            return GOLD[2] if (u + v) % 2 else GOLD[3]
+        if (u + v) % 6 == 0 and (u - v) % 6 == 0:
+            return GOLD[3]
+        if (u + v) % 6 == 3 or (u - v) % 6 == 3:
+            return IVORY[1]
+        if (u + v) % 6 in (1, 5) and (u - v) % 6 in (1, 5):
+            return IVORY[4]
+        return IVORY[3]
+    return grain(top_view(size, paint), IVORY, 'velvetpad', .05)
+
+
+# Looks: name -> (roll band, pad, underside colour). The cushion's dye styles keep their mesh names (yukkuri_nest[_style]).
+def nest_look(look):
+    if look == 'straw_nest':
+        return straw_band(), straw_top(), RUSH[0]
+    if look == 'velvet_nest':
+        return velvet_band(), velvet_top(), WINE[0]
+    style = look[len('yukkuri_nest_'):] if look.startswith('yukkuri_nest_') else ''
+    return fabric_band(style, 72, 'roll' + style), cushion_top(style), NESTS[style][0][0]
+
+
+def pet_nest(look='yukkuri_nest', mask=0, name=None):
+    """One-block pet bed in `look`, with the sides in `mask` flattened against neighbouring blocks (nest frame, entrance -z)."""
+    b = Build(name or look)
+    o = nest_outline(mask)
     part = b.part('nest')
-    revolve(b, part, o, NEST_ROLL, 'roll', fabric_band(style, 72, 'roll' + style), smooth=range(1, 11), ymap=nest_notch, ref=12.5)
-    cap(b, part, o, NEST_CUSHION, 'cushion', cushion_top(style), centre=1.8)
-    cap(b, part, o, [(12.8, 0.0)], 'under', canvas(4, 4, NESTS[style][0][0]), down=True, centre=0.0)
+    roll, pad, under = nest_look(look)
+    profile = [(r - NEST_OUTER, y, v) for r, y, v in NEST_ROLL]
+    revolve(b, part, o, profile, 'roll', roll, smooth=range(1, 11), ymap=nest_notch, offset_ymap=True, ref=12.5 - NEST_OUTER)
+    nest_pad(b, part, o, pad)
+    cap(b, part, o, [(12.8 - NEST_OUTER, 0.0)], 'under', canvas(4, 4, under), down=True, centre=0.0)
     return b.finish()
+
+
+def nest_pad(b, part, outline, img, centre=1.8):
+    """The quilted pad: its edge ring where the roll tucks in, inner rings shrunk toward the middle (a faint dome)."""
+    w, h = img.size
+    origin = b.region('cushion', img)
+    edge = [outline.at(s, NEST_CUSHION[0][0] - NEST_OUTER) for s in outline.samples]
+    P = [[[x * r / NEST_CUSHION[0][0], y, z * r / NEST_CUSHION[0][0]] for x, z in edge] for r, y in NEST_CUSHION]
+    P.append([[0.0, centre, 0.0] for _ in edge])
+    UV = [[(p[0] + w / 2, p[2] + h / 2) for p in row] + [(row[0][0] + w / 2, row[0][2] + h / 2)] for row in P]
+    grid(b, part, P, UV, origin, True, lambda i, j: [0, 1, 0], smooth_rows=set(range(1, len(P) - 1)))
+
+
+def yukkuri_nest(style=''):
+    return pet_nest(model_name('yukkuri_nest', style))
+
+
+def straw_nest():
+    return pet_nest('straw_nest')
+
+
+def velvet_nest():
+    return pet_nest('velvet_nest')
+
+
+def fitted_nests():
+    """Shapes flattened against blocks, masks 1..15 (nest_walls bits in the nest frame). Geometry only: the renderer draws
+    them with the placed bed's own look (its texture)."""
+    return {f'pet_nest_fit_{m}': (lambda m=m: pet_nest('yukkuri_nest', m, f'pet_nest_fit_{m}')) for m in range(1, 16)}
 
 
 # =====================================================================================================================
@@ -693,28 +868,50 @@ def variants():
 
 # Collision shells that follow the visible nests (life/CareBlock reads them): top-surface heightmaps of the meshes over
 # square cells, rounded up so a body rests on or just above the visible surface, merged into equal-height boxes.
-# The cushion nest's level pad is a 23 square (the block and 3.5 beyond each side, clipped to the round nest at radius
-# 13.75 so that no pad reaches past the visible bolster at the diagonals): a body box resting anywhere inside it touches
-# only the pad, never the bolster, so an adult (to 1.2x at full term) sits down in the nest instead of hanging on the rim;
-# the bolster keeps its collision outside the square (NestResting keeps resting bodies inside it).
-# name: (factory, half extent, cell, step, (level half extent, level top, level radius) or None)
-COLLISION = {'yukkuri_nest': (yukkuri_nest, 13.5, .5, .5, (11.5, NEST_PAD, 13.75)),
-             'large_yukkuri_nest': (large_yukkuri_nest, 16.0, .25, .25, None)}
+# The one-block bed's level pad reaches NEST_LEVEL (11.5) on a round side: a 23 square on the round bed (the block and 3.5
+# beyond each side, clipped to the outline grown by 0.45, radius 13.75 there, so no pad reaches past the visible roll at the
+# diagonals): a body box resting anywhere inside it touches only the pad, never the roll, so an adult (to 1.2x at full term)
+# sits down in the nest instead of hanging on the rim; the roll keeps its collision outside the pad (NestResting keeps
+# resting bodies inside it). A flattened side keeps NEST_KEEP of that reach inside its flat roll (7.0 from the centre).
+# Every grade has the same shape, so the shells are per fitted mask: pet_nest_<mask> (mask 0 = round).
+NEST_SHELL = (13.5, .5, .5)                 # half extent, cell, step
+
+
+def nest_level(mask):
+    """Per side, how far the level pad reaches from the block centre (nest frame)."""
+    walled = nest_walls(mask)
+    return {side: NEST_FLAT - (NEST_OUTER - NEST_LEVEL) * NEST_KEEP if walled[side] else NEST_LEVEL for side in 'nesw'}
+
+
+def nest_inside(mask, x, z, grow):
+    """Whether (x, z) lies inside the fitted outline grown by `grow` (scaled like the roll on flattened sides)."""
+    walled = nest_walls(mask)
+    sx, sz = (1 if x >= 0 else -1), (1 if z >= 0 else -1)
+    wx, wz = walled['e' if sx > 0 else 'w'], walled['s' if sz > 0 else 'n']
+    radius = NEST_CORNER[wx + wz]
+    ex, ez = (NEST_FLAT if wx else NEST_OUTER), (NEST_FLAT if wz else NEST_OUTER)
+    qx, qz = sx * x - (ex - radius), sz * z - (ez - radius)
+    d = math.hypot(max(qx, 0), max(qz, 0)) + min(max(qx, qz), 0) - radius
+    return d <= grow * (NEST_KEEP if (wx if qx >= qz else wz) else 1.0)
 
 
 def collision():
     out = {'format': 1, 'generator': 'standards/yukkuri-library/drafts/care-props/placed.py',
-           'units': 'boxes [x0, z0, x1, z1, top] in 1/16 block from the footprint centre (block centre), bottom 0'}
-    for name, (factory, half, cell, step, level) in COLLISION.items():
-        hm = heightmap(factory(), half, cell, step=step)
-        if level:
-            inner, top, reach = level
-            for k, row in enumerate(hm):
-                for i in range(len(row)):
-                    x0, z0 = -half + i * cell, -half + k * cell
-                    if -inner <= x0 and x0 + cell <= inner and -inner <= z0 and z0 + cell <= inner                             and math.hypot(x0 + cell / 2, z0 + cell / 2) <= reach:
-                        row[i] = top
+           'units': 'boxes [x0, z0, x1, z1, top] in 1/16 block from the footprint centre (block centre), bottom 0; '
+                    'pet_nest_<mask>: the one-block beds, sides flattened per mask (nest frame, entrance -z; bit 1 n, 2 e, 4 s, 8 w)'}
+    half, cell, step = NEST_SHELL
+    for mask in range(16):
+        hm = heightmap(pet_nest('yukkuri_nest', mask), half, cell, step=step)
+        level = nest_level(mask)
+        for k, row in enumerate(hm):
+            for i in range(len(row)):
+                x0, z0 = -half + i * cell, -half + k * cell
+                if (-level['w'] <= x0 and x0 + cell <= level['e'] and -level['n'] <= z0 and z0 + cell <= level['s']
+                        and nest_inside(mask, x0 + cell / 2, z0 + cell / 2, .45)):
+                    row[i] = NEST_PAD
         boxes = collision_boxes(hm, half, cell)
-        out[name] = {'cell': cell, 'top': max(b[4] for b in boxes), 'boxes': boxes}
+        out[f'pet_nest_{mask}'] = {'cell': cell, 'top': max(b[4] for b in boxes), 'boxes': boxes}
+    hm = heightmap(large_yukkuri_nest(), 16.0, .25, step=.25)
+    boxes = collision_boxes(hm, 16.0, .25)
+    out['large_yukkuri_nest'] = {'cell': .25, 'top': max(b[4] for b in boxes), 'boxes': boxes}
     return out
-

@@ -202,6 +202,51 @@ class Outline:
 CIRCLE = lambda segs: Outline(0, 0, 0, arc=segs // 4)
 
 
+class SideOutline(Outline):
+    """Rounded rectangle with its own extent per side ({'n','e','s','w'}: distance from the origin to that side at offset 0,
+    -z is north), its own corner radius per quadrant and a per-sample offset scale: a sample at offset o lies at
+    centre + normal * (radius + scale * o). Corners and the scale come from `corner(nx_sign, nz_sign)` -> (radius, scale_x,
+    scale_z): the scale blends from scale_x where the normal faces the x side to scale_z where it faces the z side, so a
+    profile run round it keeps one continuous cross-section that is thinner on the sides with a smaller scale. Same sample
+    order as Outline (counter-clockwise from +x toward +z); with equal extents r, radius r and scale 1 it is CIRCLE."""
+
+    def __init__(self, extents, corner, arc=8, step=4.0):
+        self.rc = 0.0
+        quads = [(1, 1), (-1, 1), (-1, -1), (1, -1)]
+        self.samples = []
+        geo = []
+        for sx, sz in quads:
+            radius, kx, kz = corner(sx, sz)
+            ex = extents['e'] if sx > 0 else extents['w']
+            ez = extents['s'] if sz > 0 else extents['n']
+            geo.append((sx * (ex - radius), sz * (ez - radius), radius, kx, kz))
+        for q in range(4):
+            a0 = q * math.pi / 2
+            cx, cz, radius, kx, kz = geo[q]
+            for i in range(arc):
+                a = a0 + math.pi / 2 * i / arc
+                c, s = math.cos(a), math.sin(a)
+                self.samples.append((cx, cz, c, s, radius, kx * c * c + kz * s * s))
+            nx, nz, nradius, _, _ = geo[(q + 1) % 4]
+            a = a0 + math.pi / 2
+            c, s = round(math.cos(a)), round(math.sin(a))
+            # the straight side between this corner and the next: both scales are the side's own (it faces one axis)
+            k = kx if c else kz
+            start = (cx + c * radius, cz + s * radius)
+            end = (nx + c * nradius, nz + s * nradius)
+            span = math.hypot(end[0] - start[0], end[1] - start[1])
+            if span > 1e-6:
+                n = max(2, 2 * math.ceil(span / (2 * step)))
+                for j in range(n):
+                    t = j / n
+                    px, pz = start[0] + (end[0] - start[0]) * t, start[1] + (end[1] - start[1]) * t
+                    self.samples.append((px - c * radius, pz - s * radius, c, s, radius, k))
+
+    def at(self, s, o):
+        cx, cz, nx, nz, radius, k = s
+        return cx + nx * (radius + k * o), cz + nz * (radius + k * o)
+
+
 # ---- surfaces -------------------------------------------------------------------------------------------------------
 def grid(b, part, P, UV, origin, closed, hint, smooth_rows=(), around=True):
     """Quads between rows of points P[i][j] with texel coordinates UV[i][j] (UV rows hold one extra column when closed).
@@ -241,9 +286,11 @@ def grid(b, part, P, UV, origin, closed, hint, smooth_rows=(), around=True):
             b.p.tri(part, [pts[a], pts[c], pts[d]], [nrm[a], nrm[c], nrm[d]], None, uvs=[uvs[a], uvs[c], uvs[d]])
 
 
-def revolve(b, part, outline, profile, key, img, smooth=(), ymap=None, cols=None, ref=None, inward=False, facet=False):
+def revolve(b, part, outline, profile, key, img, smooth=(), ymap=None, cols=None, ref=None, inward=False, facet=False,
+            offset_ymap=False):
     """Band surface: profile [(offset, y, v)] in order bottom-outer -> over the top -> inner-down, around the outline.
-    The painted band `img` wraps around (u = distance at offset `ref`), v is the given row coordinate."""
+    The painted band `img` wraps around (u = distance at offset `ref`), v is the given row coordinate.
+    ymap(x, z, y) bends heights; with offset_ymap it is called as ymap(x, z, y, offset) (the profile row's own offset)."""
     closed = cols is None
     idx = cols if cols is not None else list(range(len(outline.samples)))
     W = img.size[0]
@@ -254,7 +301,7 @@ def revolve(b, part, outline, profile, key, img, smooth=(), ymap=None, cols=None
         row = []
         for i in idx:
             x, z = outline.at(outline.samples[i], o)
-            row.append([x, ymap(x, z, y) if ymap else y, z])
+            row.append([x, (ymap(x, z, y, o) if offset_ymap else ymap(x, z, y)) if ymap else y, z])
         P.append(row)
         UV.append([(u, v) for u in us])
 

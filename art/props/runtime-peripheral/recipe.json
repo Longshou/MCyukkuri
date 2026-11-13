@@ -4,6 +4,8 @@
   "items": [
     "food_bowl",
     "yukkuri_nest",
+    "straw_nest",
+    "velvet_nest",
     "yukkuri_toilet",
     "yukkuri_carrier",
     "wash_cloth",
@@ -21,6 +23,8 @@
   "blocks": [
     "food_bowl",
     "yukkuri_nest",
+    "straw_nest",
+    "velvet_nest",
     "yukkuri_toilet",
     "burial_mound",
     "forage_pile"
@@ -59,7 +63,22 @@
     "yukkuri_toilet_lemon",
     "yukkuri_toilet_lemon_dirty",
     "yukkuri_toilet_sky",
-    "yukkuri_toilet_sky_dirty"
+    "yukkuri_toilet_sky_dirty",
+    "pet_nest_fit_1",
+    "pet_nest_fit_2",
+    "pet_nest_fit_3",
+    "pet_nest_fit_4",
+    "pet_nest_fit_5",
+    "pet_nest_fit_6",
+    "pet_nest_fit_7",
+    "pet_nest_fit_8",
+    "pet_nest_fit_9",
+    "pet_nest_fit_10",
+    "pet_nest_fit_11",
+    "pet_nest_fit_12",
+    "pet_nest_fit_13",
+    "pet_nest_fit_14",
+    "pet_nest_fit_15"
   ],
   "retired_recipes": [
     "food_scrap",
@@ -134,6 +153,21 @@
         "minecraft:red_mushroom",
         "minecraft:sugar",
         "minecraft:glass_bottle"
+      ],
+      "count": 1
+    },
+    "straw_nest": {
+      "ingredients": [
+        "minecraft:hay_block",
+        "minecraft:string"
+      ],
+      "count": 1
+    },
+    "velvet_nest": {
+      "ingredients": [
+        "mcyukkuri:yukkuri_nest",
+        "minecraft:red_wool",
+        "minecraft:gold_ingot"
       ],
       "count": 1
     }
