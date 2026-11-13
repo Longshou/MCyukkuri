@@ -132,7 +132,7 @@ def shop_views(a,out):
     render(a,np.concatenate(meshes),out,'shop-exterior',1400,900,.55,.36,22,6)
     render(a,np.concatenate(interior),out,'shop-cutaway',1400,1000,.12,1.08,23,2)
     for name,title,sub in [('shop-exterior','新宠物店 · 街边外观','41 × 16 × 33 格 · 当前制作源与运行方块贴图 · 离线光照，未放置场景实体'),
-                           ('shop-cutaway','销售、繁育与考试 · 去顶布局','剖切至 y=4，便于查看房间 · 前场展栏 / 后场库存 / 繁育区 / 右侧考场')]:
+                           ('shop-cutaway','销售、繁育与考试 · 去顶布局','剖切至 y=4，便于查看房间 · 前场展栏 / 后场库存 / 繁育区 / 东侧考场')]:
         p=out/f'{name}.png';label(Image.open(p),title,sub).save(p)
 
 def skins(out):

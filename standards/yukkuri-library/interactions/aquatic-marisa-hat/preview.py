@@ -47,7 +47,7 @@ class Atlas:
 def rasterize(tris, flags, texture, az, el, span, center):
     """flags: 0 cull back faces, 1 draw back faces flat in CUT, 2 the same in FOOD_CUT."""
     s, c, se, ce = math.sin(az), math.cos(az), math.sin(el), math.cos(el)
-    right = np.array([c, 0, s]); up = np.array([-s*se, ce, c*se]); eye = np.array([s*ce, se, -c*ce]); scale = RH/(2*span)
+    right = np.array([-c, 0, -s]); up = np.array([-s*se, ce, c*se]); eye = np.array([s*ce, se, -c*ce]); scale = RH/(2*span)
     center = np.asarray(center, float); pos = tris[:, :, :3]-center
     pts = np.stack((RW/2+pos@right*scale, RH/2-pos@up*scale, pos@eye), axis=2)
     front = tris[:, 0, 5:8]@eye > 0
@@ -274,7 +274,7 @@ def main():
     W = 1840; img = Image.new('RGB', (W, 1100), (250, 251, 252)); d = ImageDraw.Draw(img); f, g = P.preview_font(30), P.preview_font(18)
     img.paste(top.resize((900, 626), Image.Resampling.LANCZOS), (20, 60)); img.paste(side.resize((880, 612), Image.Resampling.LANCZOS), (940, 60))
     d.text((20, 14), '睡莲叶帽船（当前网格）：斜上方看', font=f, fill=(32, 52, 64))
-    d.text((940, 14), '剖面（船首在右）', font=f, fill=(32, 52, 64))
+    d.text((940, 14), '剖面（船首在左）', font=f, fill=(32, 52, 64))
     notes = [('帽子翻过来放下，与戴着同大（圆形 1.0 倍）', '帽盆在水下，但里面是干的'),
              ('帽檐外缘落到水面，像睡莲叶', '水线固定在帽檐面下 0.5 模型单位'), ('船长坐在船尾（座位离中心 0.75）', '辫子握着木枝越过帽檐划水'),
              ('两只赤油（0.20）坐在帽盆里', '身体低于帽口'), ('小子油（0.30）坐在船首帽檐边', '向水面侧倾 10° 时辫子能拍到水'),

@@ -25,4 +25,6 @@ python standards/yukkuri-library/body-standard/verify_sources.py
 
 茎生、胎生动作包分别由包内 `build_lifecycle.py`、`build_viviparous.py` 重建；动作包登记手工维护于 `motions/procedural/index.json`。它们有独立程序状态，不进入单骨架关键帧编译器。
 
+离线预览使用 [共用正交相机](runtime/render.js)。方位角 0 从 −Z 看向原点，画面左侧对应 +X。生成预览时直接使用渲染输出。
+
 标准表情、角色登记和选用快照的认可范围分别引用其 canonical provenance JSON；本页不另存审批流水或替代指纹记录。

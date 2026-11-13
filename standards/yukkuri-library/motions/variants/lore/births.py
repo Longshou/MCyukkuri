@@ -30,6 +30,7 @@ import page as viewer
 import delivery as DL
 
 PRESENT = P.ASSETS/'yukkuri_presentation'
+RENDERER = P.ROOT/'standards/yukkuri-library/runtime/render.js'
 VESSEL = json.loads((P.ASSETS.parents[4]/'standards/yukkuri-library/interactions/marisa-hat-vessel/geometry.json').read_text(encoding='utf-8'))
 CLIPS = ['idle', 'waddle', 'hop', 'brood', 'labor', 'postpartum', 'first_wake', 'hat_cradle', 'sleep', 'wake', 'bereaved', 'midwife',
          'boat_drift', 'boat_brood', 'boat_labor'] + [f'{c}{s}' for c in ('hat_off', 'hat_hold', 'hat_on', 'hat_off_self', 'hat_on_self') for s in ('', '_aq')]
@@ -521,6 +522,7 @@ canvas{display:block;width:100%;height:540px;background:#f4f1e9;border:1px solid
 <footer>生成于 __DATE__。离线页面只供查看出生与接生的编排，不代表游戏运行验收。失误是 12% 的原创几率事件；台词沿用已有原生台词。</footer></section>
 <section id="clipsView" hidden><iframe id="clipsFrame" title="单个动作"></iframe></section></main>
 <script>
+__RENDERER__
 const D=__DATA__;
 // ---- engine (also run offline by the checks) ----
 function decode(b,T){const s=atob(b),u=new Uint8Array(s.length);for(let i=0;i<s.length;i++)u[i]=s.charCodeAt(i);return new T(u.buffer);}
@@ -650,7 +652,7 @@ function frameItems(scene,t){
 function renderScene(items,width,height,az,el,span,centerY,night,focus){
   const fx=focus?focus[0]:0,fz=focus?focus[1]:0;
   const px=new Uint8ClampedArray(width*height*4),depth=new Float64Array(width*height).fill(-Infinity);
-  const s=Math.sin(az),c=Math.cos(az),se=Math.sin(el),ce=Math.cos(el),right=[c,0,s],up=[-s*se,ce,c*se],eye=[s*ce,se,-c*ce],scale=height/(2*span);
+  const {right,up,eye}=orthographicBasis(az,el),scale=height/(2*span);
   const tint=[1-.55*night,1-.5*night,1-.25*night];
   for(const it of items){const V2=it.v,tex=it.tex,size=it.size;if(!it.color&&!tex&&!it.mask)continue;
     for(let i=0;i<V2.length;i+=24){
@@ -706,6 +708,7 @@ def main():
     for scene in data['scenes']:
         for actor in scene['actors']: actor.pop('r', None); actor.pop('landed', None)
     html = (PAGE.replace('__REVISION__', corrections['revision']).replace('__DATE__', datetime.date.today().isoformat())
+            .replace('__RENDERER__', RENDERER.read_text(encoding='utf-8'))
             .replace('__DATA__', json.dumps(data, ensure_ascii=False, separators=(',', ':')))
             .replace('__CLIPS__', json.dumps(viewer.build(corrections), ensure_ascii=False).replace('</', '<\\/')))
     Path(a.out).parent.mkdir(parents=True, exist_ok=True); Path(a.out).write_text(html, encoding='utf-8')

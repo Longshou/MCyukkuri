@@ -170,8 +170,7 @@ def sheet(rows, title, file):
     draw.text((8, 6), title, font=font, fill=(10, 10, 10))
     for r, row in enumerate(rows):
         for c, (pid, label) in enumerate(row):
-            # the review rasterizer draws +X on the right when looking from -Z; the game's right-handed view has it on the left
-            tile = Image.frombytes('RGBA', (W, H), (WORK / f'{pid}.rgba').read_bytes()).transpose(Image.Transpose.FLIP_LEFT_RIGHT)
+            tile = Image.frombytes('RGBA', (W, H), (WORK / f'{pid}.rgba').read_bytes())
             bg = Image.new('RGBA', (W, H), BG + (255,))
             bg.alpha_composite(tile)
             d = ImageDraw.Draw(bg)

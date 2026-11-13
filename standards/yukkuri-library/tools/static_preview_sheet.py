@@ -3,9 +3,8 @@
 Pure Python (zlib only): reads assembled/<name>/<name>.bbmodel, animation-rig.json and the
 neutral texture, draws flat-shaded views with a depth buffer. It does not start a browser,
 renderer or the project, and it is not a rendering or motion acceptance check. Hidden
-default parts (puff, anatomy, contact) are skipped. Like runtime/render.js and Minecraft,
-+X is drawn on the right of the front view. Views are yaw:pitch in degrees; yaw 0 looks at
-the face (-Z), yaw 90 at the +X side, yaw 35 from the front-right.
+default parts (puff, anatomy, contact) are skipped. Views are yaw:pitch in degrees.
+Yaw 0 looks from -Z and draws +X on the left. Yaw 90 looks from +X.
 
   python tools/static_preview_sheet.py previews/current/marisa-braid.png marisa reimu:0:0
 """
@@ -76,7 +75,7 @@ def draw(rows, x_offset, size, tris, texture, yaw, pitch, scale, center_y):
     cy, sy, cp, sp = math.cos(math.radians(yaw)), math.sin(math.radians(yaw)), math.cos(math.radians(pitch)), math.sin(math.radians(pitch))
     def view(x, y, z):
         x, z = x*cy+z*sy, -x*sy+z*cy
-        return x, y*cp-z*sp, y*sp+z*cp
+        return -x, y*cp-z*sp, y*sp+z*cp
     light = [-.35, .55, -.75]; n = math.sqrt(sum(a*a for a in light)); light = [a/n for a in light]
     for t in tris:
         P = [view(p[0], p[1]-center_y, p[2]) for p in t]

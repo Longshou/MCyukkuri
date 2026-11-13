@@ -1,11 +1,16 @@
+// Azimuth zero looks from -Z. World up × the direction toward the camera
+// points along screen right, so +X appears on the left in the front view.
+function orthographicBasis(az, el) {
+  const s=Math.sin(az),c=Math.cos(az),se=Math.sin(el),ce=Math.cos(el);
+  return {right:[-c,0,-s],up:[-s*se,ce,c*se],eye:[s*ce,se,-c*ce]};
+}
+
 // Deterministic orthographic rasterizer: shared triangle data, per-pixel depth.
-// Also exported to Node so verification executes the actual viewer renderer.
 function renderModel(vertices, texture, width, height, az, el, span, options = {}) {
   const textureSize=options.textureSize ?? 128;
   const pixels=new Uint8ClampedArray(width*height*4), depth=new Float64Array(width*height);
   depth.fill(-Infinity);
-  const s=Math.sin(az),c=Math.cos(az),se=Math.sin(el),ce=Math.cos(el);
-  const right=[c,0,s],up=[-s*se,ce,c*se],eye=[s*ce,se,-c*ce],scale=height/(2*span);
+  const {right,up,eye}=orthographicBasis(az,el),scale=height/(2*span);
   for(let i=0;i<vertices.length;i+=24){
     let nx=vertices[i+5],ny=vertices[i+6],nz=vertices[i+7];
     const light=.78+.22*Math.max(0,nx*-.35+ny*.8+nz*-.48);
@@ -78,3 +83,5 @@ function smoothHouseSurface(model, vertices, references) {
     if(length>1e-8)for(let k=0;k<3;k++)vertices[references[i][0]+5+k]=normal[k]/length;
   }
 }
+
+if (typeof module !== 'undefined') module.exports = {orthographicBasis, renderModel, smoothHouseSurface};

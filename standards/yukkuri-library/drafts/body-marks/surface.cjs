@@ -7,6 +7,7 @@
 const fs=require('fs'),path=require('path');
 const root=path.resolve(__dirname,'../../../..');
 const {RuntimePose}=require(path.join(root,'preview/review/pose.js'));
+const {orthographicBasis}=require(path.join(root,'standards/yukkuri-library/runtime/render.js'));
 const {createCavity}=require('./cavity.cjs');
 const {createRuntimeCavity}=require('./preview_cavity.cjs');
 const {createHairWound}=require('./hair-wounds/author.cjs');
@@ -46,8 +47,7 @@ for(const job of jobs){
   const pixels=new Uint8Array(n*4),depth=new Float64Array(n).fill(-Infinity);
   // xyz, normal xyz, diffuse lighting, skin flag.
   const buffer=new Float32Array(n*8);
-  const s=Math.sin(job.az),c=Math.cos(job.az),se=Math.sin(job.el),ce=Math.cos(job.el);
-  const right=[c,0,s],up=[-s*se,ce,c*se],eye=[s*ce,se,-c*ce],scale=h/(2*job.span);
+  const {right,up,eye}=orthographicBasis(job.az,job.el),scale=h/(2*job.span);
   for(let i=0;i<vertices.length;i+=24){
     if(replaced.has(i/8))continue;
     const part=pose.model.parts.find(p=>i/8>=p.start&&i/8<p.start+p.count)||patchParts.find(p=>i/8>=p.start&&i/8<p.start+p.count);

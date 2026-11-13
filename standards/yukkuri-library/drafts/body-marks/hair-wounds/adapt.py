@@ -202,6 +202,7 @@ def main():
     with ThreadPoolExecutor(max_workers=args.workers) as pool:list(pool.map(lambda name:produce(name,args),names))
     if args.models:return
     inputs=[HERE/n for n in ['adapt.py','species.py','species.cjs','species.json','author.cjs','thermal.cjs','dry_face.py','recipe.json','materials.py','export.cjs','build.py','grading.py','sources.json']]+[HERE.parent/'surface.cjs',HERE.parent/'cavity.cjs',HERE.parent/'recipe.json',ROOT/'preview/review/pose.js']
+    inputs += [ROOT/'standards/yukkuri-library/runtime/render.js']
     inputs += [ASSETS/'yukkuri_presentation'/n for n in ['living.json','subspecies.json','family.json','placement_fit.json','hat_vessel.json']]
     inputs += [ROOT/'src/main/java/io/github/longshou/mcyukkuri'/n for n in ['rare/MyonLife.java','entity/YukkuriEntity.java','subspecies/SubspeciesAssets.java','headwear/HatGeometry.java','family/GrowthSize.java','body/BodyConstants.java','body/BodyLife.java','body/InjuryModel.java','body/BodySigns.java']]
     inputs += list((ASSETS/'yukkuri').glob('*.json'))

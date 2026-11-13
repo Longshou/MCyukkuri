@@ -254,7 +254,8 @@ def main():
             (work/f'{face}.rgba').write_bytes(image.tobytes())
     width, height = 600, 440
     renderer = 'function renderScene'+B.PAGE.split('function renderScene', 1)[1].split('// ---- end engine ----')[0]
-    script = "const fs=require('fs'); const dir="+json.dumps(str(work))+";\n"+renderer
+    script = ("const fs=require('fs'); const dir="+json.dumps(str(work))+";\n"
+              +"const {orthographicBasis}=require("+json.dumps(str(B.RENDERER))+");\n"+renderer)
     script += "\nconst frames=JSON.parse(fs.readFileSync(dir+'/frames.json')); const textures={}; for(const face of ['neutral','sleep'])textures[face]=fs.readFileSync(dir+'/'+face+'.rgba');\n"
     script += f"frames.forEach((f,i)=>{{for(const it of f.items){{it.tex=textures[it.texture];it.size={model['texture_size']};}}fs.writeFileSync(dir+'/'+i+'.rgba',renderScene(f.items,{width},{height},.42,-.16,2.2,f.center,0,f.focus));}});"
     (work/'render.cjs').write_text(script, encoding='utf-8')
