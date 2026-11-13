@@ -34,7 +34,7 @@ public final class VillageBin {
                     ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, resident));
             if (!at.equals(hit.getBlockPos())) continue;
             if (bin.tipped()) {
-                GarbageBinBlock.standUp(level, at);
+                if (!GarbageBinBlock.standUp(level, at)) continue;
                 resident.swing(InteractionHand.MAIN_HAND);
                 GameplayLog.event(resident, "npc-care", "action=bin_righted bin={}", at.toShortString());
                 return;

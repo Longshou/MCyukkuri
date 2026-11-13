@@ -81,7 +81,7 @@ public final class GarbageBinBlock extends Block implements EntityBlock {
     @Override protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hit) {
         if (level.isClientSide) return InteractionResult.SUCCESS;
         if (state.getValue(TIPPED)) {
-            standUp(level, pos);
+            if (!standUp(level, pos)) return InteractionResult.FAIL;
             GameplayLog.world((ServerLevel) level, "street", "bin righted by=player player={} bin={}", player.getUUID(), pos.toShortString());
         } else if (level.getBlockEntity(pos) instanceof GarbageBinBlockEntity bin) {
             player.openMenu(new SimpleMenuProvider((id, inventory, owner) -> new ChestMenu(MenuType.GENERIC_9x1, id, inventory, bin, 1),
@@ -102,9 +102,11 @@ public final class GarbageBinBlock extends Block implements EntityBlock {
         level.playSound(null, pos, SoundEvents.IRON_TRAPDOOR_CLOSE, SoundSource.BLOCKS, .8f, .7f);
     }
 
-    public static void standUp(Level level, BlockPos pos) {
-        level.setBlock(pos, level.getBlockState(pos).setValue(TIPPED, false), Block.UPDATE_ALL);
+    public static boolean standUp(Level level, BlockPos pos) {
+        var upright = level.getBlockState(pos).setValue(TIPPED, false);
+        if (!level.isUnobstructed(upright, pos, CollisionContext.empty()) || !level.setBlock(pos, upright, Block.UPDATE_ALL)) return false;
         level.playSound(null, pos, SoundEvents.IRON_TRAPDOOR_OPEN, SoundSource.BLOCKS, .6f, 1.1f);
+        return true;
     }
 
     @Override protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState replacement, boolean moving) {

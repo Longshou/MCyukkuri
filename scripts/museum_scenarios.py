@@ -3250,6 +3250,20 @@ def _uuid_text(sid, slot):
     return str(uuid.UUID(bytes=b''.join((n & 0xffffffff).to_bytes(4, 'big') for n in uid(sid, slot))))
 
 
+def _stray_rubbish_verify(log):
+    bold = uid('stray_rubbish', 'bold_stray')
+    return _family_search_order(log, [
+        (bold, r'garbage ram [^\n]*tipped=true'),
+        (bold, r'garbage reroute [^\n]*why=knocked_over'),
+        (bold, r'garbage nose_in '),
+        (bold, r'garbage pickup item=minecraft:apple [^\n]*holder=mouth'),
+        (bold, r'swallowed item=minecraft:apple\b'),
+    ])
+
+
+next(s for s in S if s.id == 'stray_rubbish').smoke['verify'] = _stray_rubbish_verify
+
+
 def _overload_family_choice(window):
     """Both kinds of parent on overload (FEATURES 载重, 超载断亲): the ordinary parent reads her hull's load warning and takes the
     family ashore to unload before it goes over (only a real overload capsize when she is too late dismisses her largest young);
