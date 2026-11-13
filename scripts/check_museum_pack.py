@@ -13,7 +13,8 @@ Generates the pack into a scratch directory below .local/experimental-map and th
   * relayed readings (``yukkuri relay ...``) wrap a command that exists; no retired item (nest lint, food scrap) or retired command is used;
   * scenario functions never fix, freeze or protect an individual (NoAI, Invulnerable, pm_actor, pm_live);
   * the field layout: no overlap between fields, decks and gates, anchors inside their field, pond bank and water agree with the
-    terrain, every den has a free doorway cell under a roof and an open notch;
+    terrain, every den has a free doorway cell under a roof and an open notch; every village building a scene places stands inside
+    its field's clear box and clear of every deck and of the ground the deck looks over;
   * every button survives the later fills, stands on a full block and has nothing on top; deck landings have a floor;
   * every board and label fits (CJK-aware width and line counts).
 

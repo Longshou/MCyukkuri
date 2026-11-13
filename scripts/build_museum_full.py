@@ -69,6 +69,40 @@ def rect_chunks(rect):
     return {(x, z) for x in range(x1 // 16 * 16, x2 // 16 * 16 + 1, 16) for z in range(z1 // 16 * 16, z2 // 16 * 16 + 1, 16)}
 
 
+def overlaps(a, b):
+    """Two (x1, z1, x2, z2) rectangles share a cell."""
+    return a[0] <= b[2] and b[0] <= a[2] and a[1] <= b[3] and b[1] <= a[3]
+
+
+def human_build_kinds():
+    """``yukkuri human build`` kind -> (template size, entrance x inside the template), taken from the command's own Java enum
+    (``HumanScenes.Kind``) and from the shipped template, so the museum and the game cannot disagree about a footprint."""
+    source = (ROOT / 'src/main/java/io/github/longshou/mcyukkuri/human/HumanScenes.java').read_text(encoding='utf-8')
+    body = source[source.index('enum Kind {'):]
+    body = body[:body.index(';')]
+    import gzip
+    import nbtlib
+    kinds = {}
+    for name, template, entrance in re.findall(r'(\w+)\("(\w+)", (\d+)\)', body):
+        with gzip.open(ROOT / f'src/main/resources/data/mcyukkuri/structure/{template}.nbt') as handle:
+            size = [int(value) for value in nbtlib.File.parse(handle)['size']]
+        kinds[name.lower()] = (tuple(size), int(entrance))
+    return kinds
+
+
+def human_build_rect(kind, entrance, front):
+    """World (x1, z1, x2, z2) that one build fills: the template turned so its door on the low-z street side faces ``front``, with
+    ``entrance`` the street cell in front of that door (the rotation and the placement of ``HumanScenes.place``)."""
+    (width, _, depth), entrance_x = human_build_kinds()[kind]
+    step = ('north', 'east', 'south', 'west').index(front)
+    turn = lambda x, z: ((x, z), (-z, x), (-x, -z), (z, -x))[step]
+    door_x, door_z = turn(entrance_x, 0)
+    corners = [turn(x, z) for x in (0, width - 1) for z in (0, depth - 1)]
+    x, z = entrance[0] - door_x, entrance[2] - door_z
+    return (x + min(c[0] for c in corners), z + min(c[1] for c in corners),
+            x + max(c[0] for c in corners), z + max(c[1] for c in corners))
+
+
 def field_mark(f):
     """Stable name of the field's UUID history (registered by util/tag_fields)."""
     return f'fld_{f.id}'
@@ -113,6 +147,27 @@ def validate():
     for group, seq in clip_chains():
         for action, _ in seq:
             assert action in ACTION_META and any(action in clips[m] for m in CLIP_ACTORS), action
+    validate_builds()
+
+
+def validate_builds():
+    """Village buildings a scene places must stand inside its field's clear box ("clear this field" removes them again) and clear of
+    every deck and of the ground a deck looks over (a building against the deck walls the observation in)."""
+    for scenario in museum_scenarios.S:
+        field = BY_ID[scenario.field]
+        x1, _, z1, x2, _, z2 = field.clear_box()
+        for line in list(scenario.lines) + [item for item in scenario.late if isinstance(item, str)]:
+            found = re.search(r'yukkuri human build (\w+) ~(-?\d*) ~ ~(-?\d*) (\w+)', line)
+            if not found:
+                continue
+            entrance = (scenario.anchor[0] + int(found.group(2) or 0), FEET, scenario.anchor[1] + int(found.group(3) or 0))
+            rect = human_build_rect(found.group(1), entrance, found.group(4))
+            what = f'scenario {scenario.id}: the {found.group(1)} at x{rect[0]}..{rect[2]} z{rect[1]}..{rect[3]}'
+            assert x1 <= rect[0] and rect[2] <= x2 and z1 <= rect[1] and rect[3] <= z2, (
+                f'{what} leaves the clear box of {field.id} (x{x1}..{x2} z{z1}..{z2}): clearing the field would leave a slice behind')
+            for other in FIELDS:
+                assert not overlaps(rect, other.deck_rect()) and not overlaps(rect, other.apron_rect()), (
+                    f'{what} stands on the {other.id} observation deck or on the {museum_fields.DECK_APRON} blocks of field it looks over')
 
 
 # ============================================================================== guide book

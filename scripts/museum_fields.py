@@ -19,6 +19,7 @@ FEET = GROUND + 1
 SKY = 82               # highest layer that is cleared again
 DECK_TOP = 68          # standing level of the observation deck (four blocks above the feet level)
 DECK_DEPTH = 16        # five rows with three-block spacing, common controls nearest the south landing
+DECK_APRON = 10        # field ground south of a deck that the visitor looks over: no scene building stands in it
 
 # theme groups, in lobby order: (id, title)
 GROUPS = [('wild', '野生与住所'), ('biome', '群系聚落'), ('family', '家庭与成长'), ('react', '天气、伤病与头饰'),
@@ -77,6 +78,13 @@ class Field:
     def deck_rect(self):
         x1, z1, x2, z2 = self.deck
         return (x1 - 1, z1 - 1, x2 + 1, z2 + 1)
+
+    def apron_rect(self):
+        """The strip of field ground the deck looks over, from its south edge ``DECK_APRON`` blocks into the field: a scene may put
+        props on it but no building, so the visitor on the deck sees the field instead of a wall (a building right against the deck
+        also leaves a slice behind when it is older than the clear margin)."""
+        x1, _, x2, z2 = self.deck
+        return (x1 - 1, z2 + 1, x2 + 1, z2 + DECK_APRON)
 
     def gate_rect(self):
         x, z = self.gate

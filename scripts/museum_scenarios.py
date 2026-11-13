@@ -1762,15 +1762,17 @@ add('oniisan_prey', 'town', '虐派居民：警告与四种豁免', '虐派居�
 add('street_mixed', 'town', '街道对照：爱派喝止、玩家喂熟、店门保护', '街道对照：爱派喝止、玩家喂熟、店门保护',
     '西边爱派看得见虐派和独行灵梦。另有已吃过玩家两份粮的橙，以及鬼威惨商店门口的一只流浪油。看爱派喝止、店员留岗与个体继续各自活动。',
     '约半分钟', [
-        'yukkuri human build oni_shop ~10 ~ ~-8 south',
+        # The shop stands on the east side of the street with its door facing west: its back wall is 21 blocks south of the deck
+        # edge, so the shop is beside the scene instead of filling the ground the town deck looks over.
+        'yukkuri human build oni_shop ~11 ~ ~0 west',
         street_abuser(-16, 0, 'street_stopped', label='被喝止的虐派'),
         human('caretaker_sister', -15, 3, 'street_helper', 0, label='目击的爱派'),
         street_trial('street_mixed', 'reimu', -15, 0, 'street_intervened', yaw=90, lead=True),
         'execute if entity @s[type=minecraft:player] run ' + street_abuser(-10, 6, 'street_trust_npc', label='路过的虐派'),
         street_trial('street_mixed', 'chen', -9, 6, 'street_trust', yaw=90, nutrition=66),
         'execute if entity @s[type=minecraft:player] run ' + f'yukkuri status relate {sel("street_trust")} @s 16',
-        street_abuser(9, -12, 'street_door_npc', dy=2, label='店门附近的居民'),
-        street_trial('street_mixed', 'marisa', 10, -12, 'street_door', dy=2, yaw=90),
+        street_abuser(9, 0, 'street_door_npc', label='店门附近的居民'),
+        street_trial('street_mixed', 'marisa', 15, 0, 'street_door', dy=2, yaw=90),
         human('caretaker_brother', 7, 0, 'street_passer', 0, attitude=2, label='普通路人'),
     ], env=DAY, vantage=(-4, 14, 180, 15), give=['mcyukkuri:oil_grain_regular 8'],
     reads=[('读吃过玩家粮的橙', f'yukkuri status {sel("street_trust")} raw'),
