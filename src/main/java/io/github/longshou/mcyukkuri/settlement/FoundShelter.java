@@ -18,6 +18,7 @@ import java.util.LinkedHashMap;
 import java.util.UUID;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.util.Mth;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.npc.Villager;
@@ -64,7 +65,10 @@ public final class FoundShelter implements MotorOwner {
     @Override public String ownerId() { return Behaviors.SEEK_WARMTH; }
     public boolean targeting(BlockPos at) { return shelter != null && shelter.getBlockPos().equals(at); }
     public boolean exiting() { return phase == Phase.EXIT || phase == Phase.STEP_DOWN; }
-    public boolean readyToSleep() { return phase == Phase.REST && now() >= deadline && !body.life().temperature().unsafeSleep(); }
+    public boolean readyToSleep() { return phase == Phase.REST && now() >= deadline && facingOut() && !body.life().temperature().unsafeSleep(); }
+    /** Lying in a box it faces out of the opening, the way a stray peeks out; the shelter's room is measured for that pose too. */
+    private float outward() { return shelter.facing().toYRot(); }
+    private boolean facingOut() { return shelter == null || Math.abs(Mth.wrapDegrees(body.getYRot() - outward())) < 2; }
     public boolean restingAtBench() { return streetSpot == StreetSpot.BENCH && phase == Phase.REST; }
     public boolean ownsStreetCover(BlockPos pos) { return streetSpot != null && phase == Phase.REST && pos.equals(gap); }
     public ShelterBlockEntity inside() {
@@ -108,11 +112,11 @@ public final class FoundShelter implements MotorOwner {
                 && y.family().brood() == null && !y.family().birthDuty();
     }
 
-    /** The body with what it wears (and anything riding it) clears the shelter's real interior. */
+    /** The body with what it wears (and anything riding it) clears the shelter's real interior from its lying spot, at any heading. */
     static boolean fits(YukkuriEntity y, ShelterBlock.Kind kind) {
         double height = HeadTop.height(y);
         for (var rider : y.getPassengers()) height = Math.max(height, rider.getBoundingBox().maxY - y.getY());
-        return height < kind.innerHeight && HeadTop.width(y) < kind.innerWidth;
+        return height < kind.innerHeight && HeadTop.reach(y) < kind.innerReach;
     }
 
     private boolean wantsCover() {
@@ -289,6 +293,7 @@ public final class FoundShelter implements MotorOwner {
             return Step.ENDED;
         }
         if (phase == Phase.REST) {
+            if (shelter != null && !facingOut()) SurfaceApproach.face(body, outward());
             if (checkRest(false)) return Step.RESTING;
             if (!exiting()) return Step.ENDED;
         }

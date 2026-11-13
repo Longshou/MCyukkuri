@@ -80,7 +80,7 @@ def main():
         box = lambda mask, src, stage='': ('cardboard_shelter' + stage, ('mask', mask), 0, 0, 0, 1, 0, src)
         tiles = [
             tile(new, [ground, box(1, old), *pair_old], '最早：3×3×2 格的旧纸箱', size, ppu, az=20, el=22),
-            tile(new, [ground, box(1, new), *pair], '现在：横宽纸箱，两只成体并排', size, ppu, az=20, el=22),
+            tile(new, [ground, box(1, new), *pair], '现在：横宽纸箱，两只成体并排朝外', size, ppu, az=20, el=22),
             tile(new, [ground, box(1, new)], '背面：标签、胶带', size, ppu, az=150, el=26),
             tile(new, [ground, box(0, new)], '雨①干燥：顶盖竖起', size, ppu, az=330, el=30),
             tile(new, [ground, box(0, new, '_damp')], '雨②受潮：水渍下洇，顶盖前垂', size, ppu, az=330, el=30),
@@ -106,7 +106,7 @@ def main():
     sheet.save(OUT / 'current.png')
     (OUT / 'index.html').write_text(
         '<!doctype html><meta charset="utf-8"><title>纸箱重做与街边垃圾桶</title><h1>纸箱重做与街边垃圾桶（第二版）</h1>'
-        '<p><b>本次按你的意见改了：</b>纸箱改成横宽：开口一侧能并排放下两只成体（连帽子），两边再各留一点；深度只够一只成体再多一点。'
+        '<p><b>本次按你的意见改了：</b>纸箱改成横宽：开口一侧能并排放下两只成体（连帽子），两边再各留一点；深度够一只成体连帽檐转身（第三版为此加深了一点，仍明显宽大于深），躺下时朝外。'
         '淋雨分三档且各不相同：受潮时水渍从顶上往下洇开、顶盖向前耷拉；泡透时整只箱子变深、箱顶一级级塌下去、两侧墙往里凹、顶盖垂下来挡住开口上半截，之后才塌掉。</p>'
         '<p>纸箱：方块风格长方体与像素纸板贴图，体块互不重叠；墙和顶有真实碰撞，只能从开口进出；进箱按身体连同头饰的实际尺寸判断。'
         '垃圾桶：新做的镀锌带盖铁皮桶方块，立着够不着，被撞倒后从桶口翻（本次未改）。大小都按游戏实际比例。'

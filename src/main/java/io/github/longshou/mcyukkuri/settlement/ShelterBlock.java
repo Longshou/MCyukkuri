@@ -36,15 +36,17 @@ import net.minecraft.util.RandomSource;
 /** Hollow, physical multi-block shelters. Only the central floor block owns inventory and residents. */
 public final class ShelterBlock extends Block implements EntityBlock {
     public enum Kind {
-        // Interior clear height and width in blocks, from the authored shells (data/mcyukkuri/shelters/<id>.json).
+        // Interior clear height, and clear reach round a lying spot to the nearest wall, in blocks, from the authored shells
+        // (data/mcyukkuri/shelters/<id>.json, ShelterBlockEntity.restSpot): the carton's spots at x=±9 have 12 to the side wall
+        // and to the back panel (two Marisa brims side by side may touch); the crate's core spot has 20.
         BURROW("forest_burrow", 0, 1, 16, 0, 0),
-        CARDBOARD("cardboard_shelter", 1, 2, 2, 23/16., 22/16.),   // width: one side-by-side spot, 11 each side of its centre
-        CRATE("crate_shelter", 1, 2, 2, 16/16., 40/16.);
+        CARDBOARD("cardboard_shelter", 1, 2, 2, 23/16., 12/16.),
+        CRATE("crate_shelter", 1, 2, 2, 16/16., 20/16.);
         public final String id;
         public final int radius, height, capacity;
-        public final double innerHeight, innerWidth;
-        Kind(String id, int radius, int height, int capacity, double innerHeight, double innerWidth) {
-            this.id=id; this.radius=radius; this.height=height; this.capacity=capacity; this.innerHeight=innerHeight; this.innerWidth=innerWidth;
+        public final double innerHeight, innerReach;
+        Kind(String id, int radius, int height, int capacity, double innerHeight, double innerReach) {
+            this.id=id; this.radius=radius; this.height=height; this.capacity=capacity; this.innerHeight=innerHeight; this.innerReach=innerReach;
         }
         public boolean found() { return this != BURROW; }
     }

@@ -10,6 +10,7 @@ import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
 /**
@@ -32,13 +33,16 @@ public final class HeadTop {
         return worn == null ? y.getBbHeight() : Math.max(y.getBbHeight(), worn[1]);
     }
 
-    /** Blocks across the widest of the body and its headwear. */
-    public static double width(YukkuriEntity y) {
+    /**
+     * Blocks from the body's vertical axis to the farthest point of the body or its headwear, whatever way it turns: a brim
+     * wider than it is deep sweeps this circle as the body walks in sideways or turns on its spot.
+     */
+    public static double reach(YukkuriEntity y) {
         var worn = worn(y);
-        return worn == null ? y.getBbWidth() : Math.max(y.getBbWidth(), worn[0]);
+        return worn == null ? y.getBbWidth() / 2 : Math.max(y.getBbWidth() / 2, worn[0]);
     }
 
-    /** Width and top (blocks above the feet) of the worn piece on this body, or null for a bare head. */
+    /** Horizontal reach from the body axis and top (blocks above the feet) of the worn piece, or null for a bare head. */
     private static double[] worn(YukkuriEntity y) {
         double body = y.growthScale() * y.getScale();
         String asset = SubspeciesLife.assetId(y.getVariant(), y.subspeciesFlags());
@@ -54,28 +58,26 @@ public final class HeadTop {
         return new double[]{e[0] * hat, y.getBbHeight() + Math.max(0, e[1] - BODY_UNITS / 16) * hat};
     }
 
-    /** The junk prop's vertices through its seat for this form: width and top in blocks at body scale 1. */
+    /** The junk prop's vertices through its seat for this form: reach from the body axis and top, in blocks at body scale 1. */
     private static double[] seated(String prop, String asset) {
         var data = prop(prop);
         var anchors = data.getAsJsonObject("anchors");
         if (anchors == null || !anchors.has(asset)) throw new IllegalStateException("No worn seat for " + prop + " on " + asset);
-        var seat = WornSeat.read(anchors.getAsJsonObject(asset)).matrix();
-        var v = data.getAsJsonArray("vertices");
-        float x0 = Float.MAX_VALUE, x1 = -Float.MAX_VALUE, z0 = Float.MAX_VALUE, z1 = -Float.MAX_VALUE, top = -Float.MAX_VALUE;
-        var p = new Vector3f();
-        for (int i = 0; i + 2 < v.size(); i += 8) {
-            seat.transformPosition(p.set(v.get(i).getAsFloat() / 16, v.get(i + 1).getAsFloat() / 16, v.get(i + 2).getAsFloat() / 16));
-            x0 = Math.min(x0, p.x); x1 = Math.max(x1, p.x); z0 = Math.min(z0, p.z); z1 = Math.max(z1, p.z); top = Math.max(top, p.y);
-        }
-        return new double[]{Math.max(x1 - x0, z1 - z0), top};
+        return extent(data, WornSeat.read(anchors.getAsJsonObject(asset)).matrix());
     }
 
-    /** The worn accessory export's width and top in blocks (feet origin, scale 1). */
-    private static double[] accessory(String prop) {
-        var bounds = prop(prop).getAsJsonArray("bounds");
-        double x = bounds.get(0).getAsJsonArray().get(1).getAsDouble() - bounds.get(0).getAsJsonArray().get(0).getAsDouble();
-        double z = bounds.get(2).getAsJsonArray().get(1).getAsDouble() - bounds.get(2).getAsJsonArray().get(0).getAsDouble();
-        return new double[]{Math.max(x, z) / 16, bounds.get(1).getAsJsonArray().get(1).getAsDouble() / 16};
+    /** The worn accessory export (feet origin, scale 1) as it is: reach from the body axis and top in blocks. */
+    private static double[] accessory(String prop) { return extent(prop(prop), new Matrix4f()); }
+
+    private static double[] extent(JsonObject data, Matrix4f place) {
+        var v = data.getAsJsonArray("vertices");
+        double reach = 0, top = -Double.MAX_VALUE;
+        var p = new Vector3f();
+        for (int i = 0; i + 2 < v.size(); i += 8) {
+            place.transformPosition(p.set(v.get(i).getAsFloat() / 16, v.get(i + 1).getAsFloat() / 16, v.get(i + 2).getAsFloat() / 16));
+            reach = Math.max(reach, Math.hypot(p.x, p.z)); top = Math.max(top, p.y);
+        }
+        return new double[]{reach, top};
     }
 
     private static JsonObject prop(String prop) {

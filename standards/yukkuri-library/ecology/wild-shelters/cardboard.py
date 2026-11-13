@@ -4,8 +4,9 @@ Axis-aligned cuboids only, one texel per unit (16 per block) on a hand-painted p
 boxes and no overlapping volumes, so no two visible faces share a plane (no z-fighting or normal flicker up close).
 
 Units are 1/16 block, origin at the centre of the shelter's core cell floor, +Z toward the entrance. Two adults lie side by
-side at x = -9 and +9 (ShelterBlockEntity.restSpot, in the cells left and right of the core); each has 11 units of room on
-either side of its centre, so an adult Marisa hat brim (20.3 wide) clears the walls. Interior x -20..20, z -8..9, y 0..23.
+side at x = -9 and +9 (ShelterBlockEntity.restSpot, in the cells left and right of the core). Each spot has 12 units of
+clear reach to its side wall and to the back panel, so an adult Marisa (hat brim reaching 11.4 from her axis at any heading)
+can walk in sideways and turn without the brim meeting cardboard; it lies facing out. Interior x -21..21, z -12..9, y 0..23.
 
 Three exports share one shape family: cardboard_shelter (dry), cardboard_shelter_damp (water stains spreading down from the
 top, the top flap flopped forward) and cardboard_shelter_soaked (dark through, the roof sagging in steps, the side walls bowed
@@ -194,7 +195,7 @@ class Carton:
 def build(level=0):
     """level 0 dry, 1 damp, 2 soaked (ShelterBlockEntity.rainStage)."""
     c = Carton(('cardboard_shelter', 'cardboard_shelter_damp', 'cardboard_shelter_soaked')[level], level)
-    X, B, F, T = 21, -9, 9, 24          # outer half width, back face, open front, roof top
+    X, B, F, T = 22, -13, 9, 24         # outer half width, back face, open front, roof top
     dry = level == 0
     c.cube('back_panel', (-X, 0, B), (X, T, B + 1), {'north': 'outer:tape_v', 'south': 'inner'}, solid=dry)
     if level < 2:
