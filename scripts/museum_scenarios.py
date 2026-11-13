@@ -4826,6 +4826,7 @@ next(s for s in S if s.id == 'learned_holder').smoke['commands'] = [
     (44, f'execute at {sel("target")} positioned ~ ~ ~1 run yukkuri scenario tool_operator enter'),
     (46, f'execute at {sel("target")} positioned ~ ~ ~1 run yukkuri scenario tool_click {sel("target")} vibrate'),
     (47, 'yukkuri scenario tool_operator leave'),
+    (248, f'execute at {sel("target")} run tp {sel("witness")} ~2 ~ ~1'),
     (249, f'execute at {sel("target")} positioned ~ ~ ~1 run yukkuri scenario tool_operator enter'),
     (251, f'execute at {sel("target")} positioned ~ ~ ~1 run yukkuri scenario tool_click {sel("target")} vibrate'),
     (255, f'execute at {sel("witness")} positioned ~ ~ ~1.2 run yukkuri scenario tool_operator move'),
