@@ -142,15 +142,7 @@ public final class FoundShelter implements MotorOwner {
             shelter = null;
         }
         shelter = home;
-        phase = Phase.EXIT; // Leaving the shelter is allowed to cross into rain.
-        var opening = Vec3.atBottomCenterOf(home.entrance());
-        if (!SurfaceApproach.canApproach(body, opening) && !SurfaceApproach.canApproach(body, insideOpening(home))) {
-            GameplayLog.limited(body, "habitat", "exit_blocked", 200,
-                    "found exit blocked shelter={} opening={}", home.getBlockPos(), home.entrance());
-            shelter = null;
-            phase = null;
-            return false;
-        }
+        // The exit phase tries the guarded opening step before falling back to the route planner.
         leave("no_rest_claim");
         return true;
     }
@@ -456,7 +448,8 @@ public final class FoundShelter implements MotorOwner {
     private Vec3 restStand(Vec3 at, Vec3 failed, double reach, double height) {
         var stand = SurfaceApproach.stand(body, at);
         if (stand == null || stand.equals(failed) || !shelter.contains(BlockPos.containing(stand)) || !availableStand(stand)) return null;
-        return clearRestTurn(stand, reach + SurfaceApproach.ARRIVAL, height) ? stand : null;
+        double paddedReach = reach + SurfaceApproach.ARRIVAL;
+        return clearRestTurn(stand, paddedReach, height) && shelter.clearsResidents(body, stand, paddedReach) ? stand : null;
     }
 
     private boolean clearRestTurn(Vec3 feet, double reach, double height) {

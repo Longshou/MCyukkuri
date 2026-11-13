@@ -10,7 +10,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 
-/** Authoring exports supply both render geometry and clipped physical shell boxes. */
+/** Authoring exports supply both render geometry and physical shell boxes for each part. */
 public final class ShelterGeometry {
     private static final EnumMap<ShelterBlock.Kind,VoxelShape[][]> CACHE=new EnumMap<>(ShelterBlock.Kind.class);
     public static VoxelShape shape(ShelterBlock.Kind kind, Direction facing, int part) {
@@ -22,13 +22,19 @@ public final class ShelterGeometry {
             var boxes=JsonParser.parseReader(reader).getAsJsonObject().getAsJsonArray("collision");
             for(Direction facing:Direction.Plane.HORIZONTAL) for(int part=0;part<75;part++) {
                 var offset=ShelterBlock.offset(part); VoxelShape shape=Shapes.empty();
+                // Keep the overhanging carton walls and roof on the lateral edge parts of the existing footprint.
+                boolean carton=kind==ShelterBlock.Kind.CARDBOARD;
+                boolean wideX=carton&&facing.getAxis()==Direction.Axis.Z,wideZ=carton&&facing.getAxis()==Direction.Axis.X;
+                double overhang=ShelterBlock.CARTON_SIDE_OVERHANG;
                 for(var raw:boxes) {
                     var box=raw.getAsJsonArray();double x0=box.get(0).getAsDouble(),y0=box.get(1).getAsDouble(),z0=box.get(2).getAsDouble();
                     double x1=box.get(3).getAsDouble(),y1=box.get(4).getAsDouble(),z1=box.get(5).getAsDouble();
                     for(int turn=0;turn<turns(facing);turn++) { double a=x0,b=x1;x0=-z1;x1=-z0;z0=a;z1=b; }
-                    x0=Math.max(0,x0/16+.5-offset.getX());x1=Math.min(1,x1/16+.5-offset.getX());
+                    x0=Math.max(wideX&&offset.getX()==-kind.radius?-overhang:0,x0/16+.5-offset.getX());
+                    x1=Math.min(wideX&&offset.getX()==kind.radius?1+overhang:1,x1/16+.5-offset.getX());
                     y0=Math.max(0,y0/16-offset.getY());y1=Math.min(1,y1/16-offset.getY());
-                    z0=Math.max(0,z0/16+.5-offset.getZ());z1=Math.min(1,z1/16+.5-offset.getZ());
+                    z0=Math.max(wideZ&&offset.getZ()==-kind.radius?-overhang:0,z0/16+.5-offset.getZ());
+                    z1=Math.min(wideZ&&offset.getZ()==kind.radius?1+overhang:1,z1/16+.5-offset.getZ());
                     if(x1>x0&&y1>y0&&z1>z0)shape=Shapes.or(shape,Shapes.box(x0,y0,z0,x1,y1,z1));
                 }
                 result[facing.get2DDataValue()][part]=shape.optimize();

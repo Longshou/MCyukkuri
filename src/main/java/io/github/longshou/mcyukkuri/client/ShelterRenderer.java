@@ -111,7 +111,8 @@ public final class ShelterRenderer implements BlockEntityRenderer<ShelterBlockEn
         return layers;
     }
     @Override public AABB getRenderBoundingBox(ShelterBlockEntity home) {
-        return home.kind()==ShelterBlock.Kind.BURROW?home.interior().inflate(1):new AABB(home.getBlockPos()).inflate(home.kind().radius,0,home.kind().radius).expandTowards(0,home.kind().height,0);
+        double radius=home.kind().radius+(home.kind()==ShelterBlock.Kind.CARDBOARD?ShelterBlock.CARTON_SIDE_OVERHANG:0);
+        return home.kind()==ShelterBlock.Kind.BURROW?home.interior().inflate(1):new AABB(home.getBlockPos()).inflate(radius,0,radius).expandTowards(0,home.kind().height,0);
     }
     @Override public boolean shouldRenderOffScreen(ShelterBlockEntity home) { return true; }
 }

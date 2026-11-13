@@ -37,8 +37,8 @@ import net.minecraft.util.RandomSource;
 public final class ShelterBlock extends Block implements EntityBlock {
     public enum Kind {
         // Interior clear height, and clear reach round a lying spot to the nearest wall, in blocks, from the authored shells
-        // (data/mcyukkuri/shelters/<id>.json, ShelterBlockEntity.restSpot): the carton's spots at x=±9 have 12 to the side wall
-        // and to the back panel (two Marisa brims side by side may touch); the crate's core spot has 20.
+        // (data/mcyukkuri/shelters/<id>.json, ShelterBlockEntity.restSpot). The carton's spots at x=±13 have 12 units
+        // to the side wall and back panel, and the crate's core spot has 20.
         BURROW("forest_burrow", 0, 1, 16, 0, 0),
         CARDBOARD("cardboard_shelter", 1, 2, 2, 23/16., 12/16.),
         CRATE("crate_shelter", 1, 2, 2, 16/16., 20/16.);
@@ -50,6 +50,8 @@ public final class ShelterBlock extends Block implements EntityBlock {
         }
         public boolean found() { return this != BURROW; }
     }
+    static final double CARTON_REST_OFFSET = 13 / 16.;
+    public static final double CARTON_SIDE_OVERHANG = 3 / 16.;
     public static final IntegerProperty PART = IntegerProperty.create("part", 0, 74);
     public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
     public static final int CORE = 12;

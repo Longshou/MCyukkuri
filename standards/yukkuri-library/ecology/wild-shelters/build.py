@@ -2,11 +2,18 @@
 Run with Python + Pillow. Coordinate units: 16/block, +Z entrance, ground Y=0.
 """
 from pathlib import Path
-import base64, hashlib, json, math, random, shutil, uuid, subprocess
+import argparse, base64, hashlib, json, math, random, shutil, uuid, subprocess
 from PIL import Image, ImageDraw, ImageFont
 HERE=Path(__file__).resolve().parent
 ROOT=HERE.parents[3]
 import sys
+parser=argparse.ArgumentParser(description=__doc__)
+parser.add_argument('--check',action='store_true',help='verify the authored carton exports without writing files')
+args=parser.parse_args()
+import cardboard
+if args.check:
+    cardboard.check(ROOT)
+    raise SystemExit(0)
 sys.path.insert(0,str(ROOT/'standards/yukkuri-library/drafts/care-props'))
 import kit as care_kit   # shared care-prop palette (art/props/palette.json)
 care_kit.NOISE_DEFAULT=False   # the crate keeps flat swatches; self-built nests below are vanilla-textured
@@ -154,7 +161,6 @@ def export_kit(prop):
     tex=RUN/'assets/mcyukkuri/textures/props';tex.mkdir(parents=True,exist_ok=True);(tex/(name+'.png')).write_bytes(texture)
     return mesh
 exports={m.name:m.export() for m in models}
-import cardboard
 def export_carton(level):
     carton=cardboard.build(level);mesh,elements,image=carton.export();name=carton.name
     write(OUT/(name+'.json'),mesh)

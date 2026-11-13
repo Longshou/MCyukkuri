@@ -42,6 +42,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import io.github.longshou.mcyukkuri.headwear.Recognition;
+import io.github.longshou.mcyukkuri.headwear.HeadTop;
 import io.github.longshou.mcyukkuri.life.NestOccupancy;
 import io.github.longshou.mcyukkuri.life.NestResting;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
@@ -165,12 +166,12 @@ public final class ShelterBlockEntity extends BlockEntity {
         if(kind()==ShelterBlock.Kind.CARDBOARD)return List.of(worldPosition.relative(facing().getClockWise()),worldPosition.relative(facing().getCounterClockWise()));
         return kind().found()?List.of(worldPosition, worldPosition.relative(facing())):naturalBeds;
     }
-    /** Where a body lies in this bed. In the carton the two spots sit 9/16 to each side of the core's centre (cardboard.py),
+    /** Where a body lies in this bed. In the carton the two spots sit 13/16 to each side of the core's centre (cardboard.py),
      *  each with room for an adult and its hat between its neighbour and the wall; other beds lie at the cell centre. */
     public Vec3 restSpot(BlockPos bed) {
         if(kind()!=ShelterBlock.Kind.CARDBOARD)return Vec3.atBottomCenterOf(bed);
         var side=bed.subtract(worldPosition);
-        return Vec3.atBottomCenterOf(worldPosition).add(side.getX()*9/16.,0,side.getZ()*9/16.);
+        return Vec3.atBottomCenterOf(worldPosition).add(side.getX()*ShelterBlock.CARTON_REST_OFFSET,0,side.getZ()*ShelterBlock.CARTON_REST_OFFSET);
     }
     public boolean privateNest(UUID id) { return owns(id)&&privateNests.contains(id); }
     /** Occupied common nest cells, ordered by their surveyed sleeping slot for client-side grouping. */
@@ -366,7 +367,8 @@ public final class ShelterBlockEntity extends BlockEntity {
     private boolean claimFound(YukkuriEntity entity) {
         var id = entity.getUUID();
         if (!(level instanceof ServerLevel server) || !FoundShelter.canTakeFoundShelter(entity) || !foundUsable(entity)
-                || residents.keySet().stream().anyMatch(other -> !related(id, other)) || !contains(entity.blockPosition())) return false;
+                || residents.keySet().stream().anyMatch(other -> !related(id, other)) || !contains(entity.blockPosition())
+                || !clearsResidents(entity, entity.position(), HeadTop.reach(entity))) return false;
         if (!owns(id)) {
             int slot = entity.blockPosition().equals(beds().get(1)) ? 1 : 0;
             boolean sharesSlot = residents.containsValue(slot);
@@ -375,6 +377,19 @@ public final class ShelterBlockEntity extends BlockEntity {
             residents.put(id, slot);
             emptyTicks = 0;
             changed();
+        }
+        return true;
+    }
+
+    /** Each carton occupant needs room to turn at the real stand, including when its neighbour used a fallback. */
+    boolean clearsResidents(YukkuriEntity entity, Vec3 stand, double reach) {
+        if (kind() != ShelterBlock.Kind.CARDBOARD) return true;
+        var server = (ServerLevel) level;
+        for (var id : residents.keySet()) {
+            if (server.getEntity(id) instanceof YukkuriEntity other && other != entity && other.isAlive() && contains(other.blockPosition())) {
+                double separation = reach + HeadTop.reach(other) + .5 / 16;
+                if (other.position().subtract(stand).horizontalDistanceSqr() < separation * separation) return false;
+            }
         }
         return true;
     }
@@ -683,7 +698,8 @@ public final class ShelterBlockEntity extends BlockEntity {
         int stage = moisture >= 80 ? 2 : moisture >= 55 ? 1 : 0;
         // The soaked roof, walls and flap intrude into the exit. Check the footprint on each wet tick so a returning
         // body clears the soaked look promptly. Moisture and collapse still follow their usual weather tick.
-        if (stage == 2 && !server.getEntitiesOfClass(LivingEntity.class, new AABB(worldPosition).inflate(kind().radius, 0, kind().radius)
+        double radius = kind().radius + ShelterBlock.CARTON_SIDE_OVERHANG;
+        if (stage == 2 && !server.getEntitiesOfClass(LivingEntity.class, new AABB(worldPosition).inflate(radius, 0, radius)
                 .expandTowards(0, kind().height - 1, 0), entity -> entity.isAlive() && !entity.isSpectator()).isEmpty()) stage = 1;
         if (stage == rainStage) return false;
         GameplayLog.world(server, "habitat", "found rain stage={} -> {} shelter={} moisture={}", rainStage, stage, worldPosition, moisture);

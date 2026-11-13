@@ -58,6 +58,19 @@ public final class ShelterPlacement {
         if(!level.hasChunkAt(entry)||!level.getFluidState(entry).isEmpty()||!level.getBlockState(entry).getCollisionShape(level,entry).isEmpty()
                 ||!level.getBlockState(entry.below()).isFaceSturdy(level,entry.below(),Direction.UP))return false;
         var bounds=new AABB(plan.center).inflate(plan.kind.radius,0,plan.kind.radius).expandTowards(0,plan.kind.height-1,0);
+        if (plan.kind == ShelterBlock.Kind.CARDBOARD) {
+            var side = plan.facing.getClockWise().getNormal();
+            double x = Math.abs(side.getX()) * ShelterBlock.CARTON_SIDE_OVERHANG;
+            double z = Math.abs(side.getZ()) * ShelterBlock.CARTON_SIDE_OVERHANG;
+            var left = x > 0 ? new AABB(bounds.minX-x,bounds.minY,bounds.minZ,bounds.minX,bounds.maxY,bounds.maxZ)
+                    : new AABB(bounds.minX,bounds.minY,bounds.minZ-z,bounds.maxX,bounds.maxY,bounds.minZ);
+            var right = x > 0 ? new AABB(bounds.maxX,bounds.minY,bounds.minZ,bounds.maxX+x,bounds.maxY,bounds.maxZ)
+                    : new AABB(bounds.minX,bounds.minY,bounds.maxZ,bounds.maxX,bounds.maxY,bounds.maxZ+z);
+            for (var edge : new AABB[]{left, right}) {
+                if (!level.hasChunkAt(BlockPos.containing(edge.getCenter())) || level.getBlockCollisions(null, edge).iterator().hasNext()) return false;
+            }
+            bounds = bounds.inflate(x, 0, z);
+        }
         for(var occupant:level.getEntitiesOfClass(LivingEntity.class,bounds,entity->entity.isAlive()&&!entity.isSpectator())) {
             var body=Shapes.create(occupant.getBoundingBox());
             for(var pos:positions(plan.center,plan.kind)) {

@@ -4,16 +4,17 @@ Axis-aligned cuboids only, one texel per unit (16 per block) on a hand-painted p
 boxes and no overlapping volumes, so no two visible faces share a plane (no z-fighting or normal flicker up close).
 
 Units are 1/16 block, origin at the centre of the shelter's core cell floor, +Z toward the entrance. Two adults lie side by
-side at x = -9 and +9 (ShelterBlockEntity.restSpot, in the cells left and right of the core). Each spot has 12 units of
-clear reach to its side wall and to the back panel, so an adult Marisa (hat brim reaching 11.4 from her axis at any heading)
-can walk in sideways and turn without the brim meeting cardboard; it lies facing out. Interior x -21..21, z -12..9, y 0..23.
+side at x = -13 and +13 (ShelterBlockEntity.restSpot, in the cells left and right of the core). Each spot has 12 units of
+clear reach to its side wall and back panel. Two adult Marisa hats can each sweep 11.44 units with room between them.
+Interior x -25..25, z -12..9, y 0..23.
 
 Three exports share one shape family: cardboard_shelter (dry), cardboard_shelter_damp (water stains spreading down from the
 top, the top flap flopped forward) and cardboard_shelter_soaked (dark through, the roof sagging in steps, the side walls bowed
 in, the top flap hanging down over the opening). Only the dry shell gives collision; the wet shapes stay inside it.
 Unit 1 of each export is the bedding (lined shelters).
 """
-import random, uuid, zlib
+from hashlib import sha256
+import json, random, uuid, zlib
 from PIL import Image
 
 PAL = {'k0': (0x78, 0x5c, 0x3f), 'k1': (0x96, 0x73, 0x4e), 'k2': (0xb1, 0x8b, 0x58), 'k3': (0xd4, 0xbc, 0x84),
@@ -21,6 +22,8 @@ PAL = {'k0': (0x78, 0x5c, 0x3f), 'k1': (0x96, 0x73, 0x4e), 'k2': (0xb1, 0x8b, 0x
        'ink': (0x5a, 0x45, 0x32), 'red': (0x9a, 0x3c, 0x2e), 'paper': (0xee, 0xea, 0xdc), 'news': (0xc4, 0xc2, 0xb8),
        'straw': (0xc8, 0xb0, 0x70), 'straw_dk': (0xa0, 0x8a, 0x52)}
 SIZE = 128
+REST_OFFSET = 13
+INNER_REACH = 12
 WET = ((0x5c, 0x43, 0x2c), (0x46, 0x33, 0x22))   # soaked kraft, and the tide line at a stain's edge
 
 
@@ -195,7 +198,7 @@ class Carton:
 def build(level=0):
     """level 0 dry, 1 damp, 2 soaked (ShelterBlockEntity.rainStage)."""
     c = Carton(('cardboard_shelter', 'cardboard_shelter_damp', 'cardboard_shelter_soaked')[level], level)
-    X, B, F, T = 22, -13, 9, 24         # outer half width, back face, open front, roof top
+    X, B, F, T = REST_OFFSET + INNER_REACH + 1, -13, 9, 24  # outer half width, back face, open front, roof top
     dry = level == 0
     c.cube('back_panel', (-X, 0, B), (X, T, B + 1), {'north': 'outer:tape_v', 'south': 'inner'}, solid=dry)
     if level < 2:
@@ -232,3 +235,45 @@ def build(level=0):
                                                (3, 1, 4, 5, 'straw'), (9, 2, 6, 4, 'paper'), (16, 0, 3, 5, 'news')]):
         c.cube(f'bedding_{i}', (x0, .5, z0), (x0 + w, 1, z0 + d), {'up': style, 'north': style, 'south': style, 'east': style, 'west': style}, unit=1)
     return c
+
+
+def check(root):
+    """Check the three generated shapes, texture pixels, collision and copies against the authoring source."""
+    source = root / 'standards/yukkuri-library/ecology/wild-shelters'
+    snapshot = root / 'art/props/wild-shelters'
+    runtime = root / 'src/main/resources'
+    assets = runtime / 'assets/mcyukkuri'
+    manifest = json.loads((source / 'manifest.json').read_bytes())['exports']
+    index = json.loads((assets / 'yukkuri_props/shelters-index.json').read_bytes())
+    errors = []
+
+    def expect(ok, path):
+        if not ok:
+            errors.append(str(path))
+
+    for level in range(3):
+        carton = build(level)
+        mesh, elements, image = carton.export()
+        name = carton.name
+        expect(name in index, 'shelters-index.json: ' + name)
+        for suffix, key, directory in (('json', 'mesh', assets / 'yukkuri_props'),
+                                       ('bbmodel', 'editable', None), ('png', 'texture', assets / 'textures/props')):
+            file = f'{name}.{suffix}'
+            data = (source / 'assembled' / file).read_bytes()
+            expect(sha256(data).hexdigest() == manifest[name][key + '_sha256'], file + ' fingerprint')
+            expect(data == (snapshot / file).read_bytes(), snapshot / file)
+            if directory is not None:
+                expect(data == (directory / file).read_bytes(), directory / file)
+            if suffix == 'json':
+                expect(json.loads(data) == mesh, file)
+            elif suffix == 'bbmodel':
+                expect(json.loads(data)['elements'] == elements, file)
+            else:
+                with Image.open(source / 'assembled' / file) as saved:
+                    expect(saved.size == image.size and saved.convert('RGBA').tobytes() == image.tobytes(), file)
+        if level == 0:
+            collision = runtime / 'data/mcyukkuri/shelters/cardboard_shelter.json'
+            expect(json.loads(collision.read_bytes()) == {'units_per_block': 16, 'collision': carton.collision}, collision)
+    if errors:
+        raise SystemExit('Carton exports differ: ' + ', '.join(errors))
+    print('Carton exports match all three stages and dry collision.')
