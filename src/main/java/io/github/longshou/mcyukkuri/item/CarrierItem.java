@@ -11,13 +11,13 @@ import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.shop.ShopPerformance;
 import io.github.longshou.mcyukkuri.social.Bonds;
 import io.github.longshou.mcyukkuri.social.SocialDisposition;
-import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.status.Reactions;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.Set;
+import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
@@ -172,7 +172,7 @@ public final class CarrierItem extends Item {
             if (mobile && canReact(entity) && entity.life().nutrition() >= 20
                     && InteractionDispatch.reachRefusal(player, entity, 4) == null) {
                 var away = Reactions.escapeStand(entity, player, 5, Set.of());
-                if (away != null) SurfaceApproach.walk(entity, away, 1.1);
+                if (away != null) entity.life().navigate(BlockPos.containing(away), 1.1, false);
             }
             return true;
         });

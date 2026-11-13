@@ -639,7 +639,7 @@ def inventory(s):
             # Missing authority is unknown, never a certified inventory total.
             return None
         # Hat ownership state is not a second copy of the physical hat's inventory.
-        for key in ('braid', 'mouth', 'kit'):
+        for key in ('braid', 'mouth', 'kit', 'head'):
             add(s['hold'].get(key))
     elif 'kit' in s:
         add(s['kit'])
@@ -662,7 +662,7 @@ def ledger(records, samples, dense=False, raw=''):
         if drop and drop[1] in observed:
             boundary.append(dict(k='ev',u=event['uuid'],t=int(re.search(r'\bt=(\d+)',line)[1]),
                                  cat=event['cat'],msg=event['msg']))
-    explanations = [r for r in [*records, *boundary] if r['k'] == 'ev' and re.search(r'\b(eat|ate|swallow|consum|place|pickup|interaction|interrupted item=|drop item=|shear drop; item=|poop stays a loose item|received (?:loose accessory )?item=|gathered item=|shed stem delivered|deposit home=|granary deposit|feed portion reserved|feed reserved portion dropped|feed reserved portion returned store=.*\bitem=|leaf swaddle (?:wrapped|leaf harvested item=)|feed plant harvested|feed mash prepared|feed handed to meal|nest material|pack store=|carried meal|stores (?:put|taken|spilled))', r.get('msg', ''), re.I)
+    explanations = [r for r in [*records, *boundary] if r['k'] == 'ev' and re.search(r'\b(eat|ate|swallow|consum|place|pickup|interaction|interrupted item=|drop item=|shear drop; item=|poop stays a loose item|received (?:loose accessory )?item=|gathered item=|shed stem delivered|deposit home=|granary deposit|feed portion reserved|feed reserved portion dropped|feed reserved portion returned store=.*\bitem=|leaf swaddle (?:wrapped|leaf harvested item=)|feed plant harvested|feed mash prepared|feed handed to meal|nest material|pack store=|carried meal|stores (?:put|taken|spilled)|(?:junk|find) death transfer item=|junk equipped variant=\S+ source=offer|junk removed .*destination=player item=)', r.get('msg', ''), re.I)
                     or r['k'] == 'life' and r.get('out') == 'discarded'
                         and known(r, 'age', 'lifespan', 'item') and r['age'] >= r['lifespan']]
     explained_items = defaultdict(set)

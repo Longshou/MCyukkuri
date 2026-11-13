@@ -66,9 +66,9 @@ public enum JunkHeadwear {
         var response = contact.response(true);
         if (response == SocialDisposition.Response.GRATEFUL) animal.showReaction(YukkuriAction.BOW, "closed_smile", "request_thanks");
         else animal.showReaction(contact.esteem() <= 22 ? "happy" : "teary", "", 60);
-        GameplayLog.event(animal, "headwear", "junk equipped variant={} source={} player={} esteem={} response={}",
+        GameplayLog.event(animal, "headwear", "junk equipped variant={} source={} player={} esteem={} response={} item={}",
                 animal.life().custody().junk().id(), giver == null ? "ground" : "offer",
-                giver == null ? null : giver.getUUID(), contact.esteem(), response.id());
+                giver == null ? null : giver.getUUID(), contact.esteem(), response.id(), ModItems.JUNK_HEADWEAR.get());
         return true;
     }
 

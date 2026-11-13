@@ -9,12 +9,14 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import io.github.longshou.mcyukkuri.MCYukkuri;
+import io.github.longshou.mcyukkuri.entity.YukkuriComponents;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.entity.presentation.Moments;
 import io.github.longshou.mcyukkuri.entity.presentation.PresentationArbiter;
 import io.github.longshou.mcyukkuri.family.ParentCarry;
 import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.family.FamilyNest;
+import io.github.longshou.mcyukkuri.headwear.JunkHeadwear;
 import io.github.longshou.mcyukkuri.headwear.PlacedHatEntity;
 import io.github.longshou.mcyukkuri.intent.Conductor;
 import io.github.longshou.mcyukkuri.intent.IntentRunner;
@@ -22,6 +24,7 @@ import io.github.longshou.mcyukkuri.motor.Attach;
 import io.github.longshou.mcyukkuri.motor.AttachState;
 import io.github.longshou.mcyukkuri.motor.BodyDriver;
 import io.github.longshou.mcyukkuri.motor.Braid;
+import io.github.longshou.mcyukkuri.motor.MouthOccupancy.Purpose;
 import io.github.longshou.mcyukkuri.motor.surface.HostFrame;
 import io.github.longshou.mcyukkuri.motor.surface.Occupancy;
 import io.github.longshou.mcyukkuri.motor.surface.SurfaceHost;
@@ -729,7 +732,7 @@ public final class TraceRecorder {
         // that still belongs to habitat. Observe each component's real store.
         for (ItemStack carried : List.of(entity.family().carrying(), entity.independence().carrying(),
                 entity.settlement().duties().carrying(), entity.house().carrying(), entity.habitat().carrying(),
-                entity.forageTrip().load())) {
+                entity.forageTrip().load(), entity.component(YukkuriComponents.MOUTH).stack(Purpose.FIND))) {
             if (!carried.isEmpty()) mouth.add(item(carried));
         }
         var carriedLeaves = new JsonArray();
@@ -749,6 +752,7 @@ public final class TraceRecorder {
         hat.addProperty("state", entity.headwear().stateId());
         hat.addProperty("placed", PlacedHatEntity.find(entity) != null);
         out.add("hat", hat);
+        if (entity.life().custody().junk() != null) out.add("head", item(JunkHeadwear.item()));
         var carry = new JsonArray();
         for (Entity passenger : entity.getPassengers()) if (passenger instanceof YukkuriEntity child) {
             JsonObject value = new JsonObject();

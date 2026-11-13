@@ -413,6 +413,12 @@ public final class YukkuriLife {
     public boolean needsFood(){ return meal.needsFood(); }
     private boolean edible(ItemStack food){ return meal.edible(food); }
     boolean seeksFood(ItemStack food) { return meal.seeksFood(food); }
+    public boolean seeksOfferedFood(Player giver) {
+        return seeksOfferedFood(giver.getMainHandItem(), giver) || seeksOfferedFood(giver.getOffhandItem(), giver);
+    }
+    private boolean seeksOfferedFood(ItemStack food, Player giver) {
+        return food.is(YukkuriEntity.FOOD) && meal.seeksFood(food, giver);
+    }
     public boolean refuseOfferedGrain(ItemStack food, Player giver) { return meal.refuseOfferedGrain(food, giver); }
     public boolean acceptsFood(ItemStack food){ return meal.acceptsFood(food); }
     private boolean readyForFood(){ return meal.readyForFood(); }

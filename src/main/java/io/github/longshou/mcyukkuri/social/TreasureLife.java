@@ -109,7 +109,7 @@ public final class TreasureLife extends Goal {
 
     @Override public boolean canUse() {
         if (!carried().isEmpty()) return eligible() && !entity.blockPosition().equals(blockedDropAt);
-        if (scanWait > 0 || !eligible() || !entity.component(YukkuriComponents.MOUTH).freeForExternalWork()
+        if (scanWait > 0 || !eligible() || !mouthFree()
                 || !EventHooks.canEntityGrief(level(), entity)) return false;
         boolean junk = wantsJunk();
         boolean treasure = cooldown == 0 && !full() && homePos() != null;
@@ -131,6 +131,11 @@ public final class TreasureLife extends Goal {
         if (best == null) return false;
         target = best; elapsed = 0;
         return true;
+    }
+
+    private boolean mouthFree() {
+        return entity.component(YukkuriComponents.MOUTH).freeForExternalWork()
+                && entity.habitat().carrying().isEmpty() && entity.forageTrip().load().isEmpty();
     }
 
     private boolean wantsJunk() {
@@ -159,7 +164,7 @@ public final class TreasureLife extends Goal {
             entity.getLookControl().setLookAt(target, 30, 30);
             boolean junk = JunkHeadwear.isItem(target.getItem());
             if (junk ? ItemContact.reaches(entity, target) && JunkHeadwear.onDryGround(entity) : entity.distanceToSqr(target) < 1.2) {
-                if (!mouth.freeForExternalWork() || target.hasPickUpDelay() || !EventHooks.canEntityGrief(level(), entity)) { stop(); return; }
+                if (!mouthFree() || target.hasPickUpDelay() || !EventHooks.canEntityGrief(level(), entity)) { stop(); return; }
                 var stack = target.getItem().copy();
                 mouth.set(Purpose.FIND, stack.split(1));
                 GameplayLog.event(entity, "treasure", "picked up drop={} item={} remaining={} holder=mouth", target.getUUID(), carried().getItem(), stack.getCount());

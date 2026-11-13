@@ -343,18 +343,20 @@ public final class OperationLife {
         var custody = entity.life().custody();
         if (!confiscated && custody.junk() != null) {
             var contact = SocialDisposition.contact(entity, player);
-            if (!custody.releaseJunk(variant -> {
+            boolean returned = custody.releaseJunk(variant -> {
                 var junk = JunkHeadwear.item();
                 return player.getInventory().add(junk) && junk.isEmpty();
-            }) && !custody.putDownJunk()) return false;
+            });
+            if (!returned && !custody.putDownJunk()) return false;
             var response = contact.response(false);
             switch (response) {
                 case GUARDED -> entity.showReaction(YukkuriAction.TREMBLE, "teary", "");
                 case DEFIANT -> entity.showReaction("cheek_puff", "puff", 45);
                 default -> entity.showReaction("look_down", "", 45);
             }
-            GameplayLog.event(entity, "headwear", "junk removed player={} response={} esteem={} wariness={}",
-                    player.getUUID(), response.id(), contact.esteem(), contact.wariness());
+            GameplayLog.event(entity, "headwear", "junk removed player={} response={} esteem={} wariness={} destination={} item={}",
+                    player.getUUID(), response.id(), contact.esteem(), contact.wariness(),
+                    returned ? "player" : "ground", ModItems.JUNK_HEADWEAR.get());
             return true;
         }
         var stack=new ItemStack(ModItems.accessoryFor(entity));

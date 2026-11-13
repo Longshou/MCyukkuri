@@ -171,6 +171,8 @@ public final class ScenarioCommands {
                         .then(Commands.argument("item", StringArgumentType.word()).executes(ScenarioCommands::careClick))))
                 .then(Commands.literal("basket")
                         .then(Commands.literal("plain").executes(c -> basketHand(c, new ItemStack(ModItems.CARRIER.get()))))
+                        .then(Commands.literal("fear").then(Commands.argument("target", EntityArgument.entity())
+                                .then(Commands.argument("fear", IntegerArgumentType.integer(0, 100)).executes(ScenarioCommands::basketFear))))
                         .then(Commands.literal("fine").executes(c -> basketHand(c, new ItemStack(ModItems.FINE_CARRIER.get()))))
                         .then(Commands.literal("upgrade_check").executes(ScenarioCommands::basketUpgradeCheck))
                         .then(Commands.literal("spray").then(Commands.argument("target", EntityArgument.entity())
@@ -440,6 +442,15 @@ public final class ScenarioCommands {
         var result = player.getItemInHand(hand).interactLivingEntity(player, target, hand);
         if (spray) player.setItemInHand(hand, ItemStack.EMPTY);
         return result.consumesAction() ? 1 : 0;
+    }
+
+    private static int basketFear(CommandContext<CommandSourceStack> c) throws CommandSyntaxException {
+        var target = yukkuri(c, "target");
+        if (target == null) return 0;
+        var id = FakePlayerFactory.getMinecraft(c.getSource().getLevel()).getUUID();
+        target.life().personality().relationshipChanged(id, 0,
+                IntegerArgumentType.getInteger(c, "fear") - target.life().personality().fear(id));
+        return 1;
     }
 
     private static int basketRelease(CommandContext<CommandSourceStack> c) throws CommandSyntaxException {

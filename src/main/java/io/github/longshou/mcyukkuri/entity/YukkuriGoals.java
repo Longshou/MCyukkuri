@@ -100,6 +100,7 @@ final class YukkuriGoals {
         goalSelector.addGoal(4, landBinding(PresentationGoals.TEMPT, new TemptGoal(owner, 1.15, Ingredient.of(YukkuriEntity.FOOD), false) {
             @Override public boolean canUse() {
                 return !owner.isPassenger() && owner.life().canEat() && super.canUse()
+                        && owner.life().seeksOfferedFood(player)
                         && owner.life().personality().fear(player.getUUID()) < BondLevels.SOCIAL_FEAR_LIMIT
                         && !owner.social().takeFoodApproach(player);
             }

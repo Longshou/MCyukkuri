@@ -86,7 +86,11 @@ final class LifeMeal {
     }
 
     boolean seeksFood(ItemStack food) {
-        return acceptsFood(food) && (!judgesBudgetGrain(food) || !declinesBudgetGrain(SocialDisposition.contact(o.entity(), null)));
+        return seeksFood(food, null);
+    }
+
+    boolean seeksFood(ItemStack food, Player giver) {
+        return acceptsFood(food) && (!judgesBudgetGrain(food) || !declinesBudgetGrain(SocialDisposition.contact(o.entity(), giver)));
     }
 
     boolean refuseOfferedGrain(ItemStack food, Player giver) {

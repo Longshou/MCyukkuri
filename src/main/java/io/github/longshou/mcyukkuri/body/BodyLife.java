@@ -10,11 +10,13 @@ import io.github.longshou.mcyukkuri.entity.RemainsEntity;
 import io.github.longshou.mcyukkuri.entity.YukkuriComponents;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.LeafSwaddle;
+import io.github.longshou.mcyukkuri.headwear.JunkHeadwear;
 import io.github.longshou.mcyukkuri.life.Consumables;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.mind.EmotionEvent;
 import io.github.longshou.mcyukkuri.mind.ExcitedLeak;
+import io.github.longshou.mcyukkuri.motor.MouthOccupancy.Purpose;
 import io.github.longshou.mcyukkuri.registry.ModItems;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.status.Marks;
@@ -607,11 +609,16 @@ public final class BodyLife {
         boolean placedBody = setDown || RemainsEntity.place(level,entity.position(),entity.yBodyRot,remains,false);
         boolean placed = placedBody || stem!=null&&ItemContact.release(entity,remains,entity.position(),Vec3.ZERO)!=null;
         var head = entity.life().custody();
-        head.releaseJunk(variant -> placed || YukkuriWorldData.get(level).dropDeathHeadwear(entity));
+        if (head.junk() != null && head.releaseJunk(variant -> placed || YukkuriWorldData.get(level).dropDeathHeadwear(entity))) {
+            GameplayLog.event(entity, "headwear", "junk death transfer item={} destination={}",
+                    JunkHeadwear.item().getItem(), placed ? "remains" : "world");
+        }
         if(!placed){
             if(stem!=null)GameplayLog.event(entity,"body","stem remains refused brood={} progress={} reason=entity_and_item_rejected",stem.brood(),stem.progress());
             return;
         }
+        var find = mouth.stack(Purpose.FIND);
+        if (!find.isEmpty()) GameplayLog.event(entity, "treasure", "find death transfer item={} count={}", find.getItem(), find.getCount());
         mouth.remainsAcceptedItems();
         if (found != null) found.release(entity.getUUID());
         settled=true;settledCause=internal;entity.syncBody();
