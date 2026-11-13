@@ -31614,7 +31614,8 @@
       "source_sha256": "ce7485686287b831ef206516f537325c4ec04fde834abe1a6907c1d40a0aa370",
       "events": [
         "afraid"
-      ]
+      ],
+      "english": "Yupeee! I'm scared!"
     },
     {
       "id": "reimu.adult.h112_6674",
@@ -31682,7 +31683,8 @@
       "source_sha256": "3efa55477ab23c4bf682bd6bee0f610a2ec7df90086dcc41e2284585d6ba81d2",
       "events": [
         "house_arrival"
-      ]
+      ],
+      "english": "Yu-yu?! It's Mr. Home!"
     },
     {
       "id": "reimu.adult.h112_1869",
@@ -31705,7 +31707,8 @@
       "events": [
         "expecting",
         "house_hatched"
-      ]
+      ],
+      "english": "Little one! Take it easy as you grow!"
     },
     {
       "id": "marisa.adult.h112_2773",
@@ -31727,7 +31730,8 @@
       "source_sha256": "a3e1cd9f87b013a0b077e6daa6d68f2b5017738a6f1214e54c725c43867dc1fd",
       "events": [
         "food_found"
-      ]
+      ],
+      "english": "Yu! It's Mr. Food!"
     },
     {
       "id": "marisa.adult.h112_3061",
@@ -31749,7 +31753,8 @@
       "source_sha256": "c95b6249f8da309a31507641d60d4ca456521817feb92dd47b4c4144bcc90f77",
       "events": [
         "bitter"
-      ]
+      ],
+      "english": "It's bitter... it tastes bad..."
     },
     {
       "id": "marisa.adult.h112_2100",
@@ -31771,7 +31776,8 @@
       "source_sha256": "f28a92ecdea045b318415c54bc01c2116db01eac42f7e723c0dace42dfc92988",
       "events": [
         "puff"
-      ]
+      ],
+      "english": "Puff! What do you want?!"
     },
     {
       "id": "marisa.adult.h112_4959",
@@ -31793,7 +31799,8 @@
       "source_sha256": "33b58aaeaa26b412fa7c9a4b9b54769b4cd2c048c0b9b3b4afd271aecd84f84c",
       "events": [
         "toilet_done"
-      ]
+      ],
+      "english": "What a relief!"
     },
     {
       "id": "marisa.adult.h112_4265",
@@ -31815,7 +31822,8 @@
       "source_sha256": "f9247684de399501f6201e8dea11b4894046b0cf89089ede1d0674a997c7694c",
       "events": [
         "afraid"
-      ]
+      ],
+      "english": "Yupeee! I'm scared!"
     },
     {
       "id": "marisa.adult.h112_6675",
@@ -31883,7 +31891,8 @@
       "source_sha256": "31528fac626ea464f285203726c30b8f9683cf49562c8f5b6520ddf83c6cfea8",
       "events": [
         "house_arrival"
-      ]
+      ],
+      "english": "Yu-yu?! It's Mr. Home!"
     },
     {
       "id": "marisa.adult.h112_1870",
@@ -31906,7 +31915,8 @@
       "events": [
         "expecting",
         "house_hatched"
-      ]
+      ],
+      "english": "Little one! Take it easy as you grow!"
     },
     {
       "id": "alice.adult.h112_1245",
@@ -31928,7 +31938,8 @@
       "source_sha256": "94bb93d30f703b38d0f9fbdca3c57b95dfb83cdee7fa339044e0481b042a0784",
       "events": [
         "hungry"
-      ]
+      ],
+      "english": "I'm hungry!"
     },
     {
       "id": "alice.adult.h112_3060",
@@ -31950,7 +31961,8 @@
       "source_sha256": "bdca06c3af172b6c4d7a1726213d791aa535c1f53c703c895a2a9266432f8800",
       "events": [
         "bitter"
-      ]
+      ],
+      "english": "It's bitter... it tastes bad..."
     },
     {
       "id": "alice.adult.h112_2099",
@@ -31972,7 +31984,8 @@
       "source_sha256": "c788ac4639344c0481b682f7867a8c66bed5d54dd79c66be39f534e192cc18c4",
       "events": [
         "puff"
-      ]
+      ],
+      "english": "Puff!"
     },
     {
       "id": "alice.adult.h112_2230",
@@ -31994,7 +32007,8 @@
       "source_sha256": "f641f020ac1bc0ce0777049d301a9e33812d91f91c0557dfe64e14aa7a7d1d16",
       "events": [
         "want_nuzzle"
-      ]
+      ],
+      "english": "I want to rub cheeks."
     },
     {
       "id": "alice.adult.h112_4957",
@@ -32016,7 +32030,8 @@
       "source_sha256": "33b58aaeaa26b412fa7c9a4b9b54769b4cd2c048c0b9b3b4afd271aecd84f84c",
       "events": [
         "toilet_done"
-      ]
+      ],
+      "english": "What a relief!"
     },
     {
       "id": "alice.adult.h112_1037",
@@ -32038,7 +32053,8 @@
       "source_sha256": "79fa999715021680e11f249021a50a2928992c406176cd50ead066ca7551e282",
       "events": [
         "wounded"
-      ]
+      ],
+      "english": "Yunyaaa! It hurts!"
     },
     {
       "id": "alice.adult.h112_4264",
@@ -32060,7 +32076,8 @@
       "source_sha256": "69f043e91f52c9f1da5e9532345ad120f4fc5c1362aabc5b528a071c87c31df2",
       "events": [
         "afraid"
-      ]
+      ],
+      "english": "Yupeee! I'm scared!"
     },
     {
       "id": "alice.adult.h112_6674",
@@ -32128,7 +32145,8 @@
       "source_sha256": "58474cb91b5aa0861fd63f38cf96a986e4cf0d7ed9d25c87b2e9db98dddbf883",
       "events": [
         "expecting"
-      ]
+      ],
+      "english": "Little one! Take it easy as you grow!"
     },
     {
       "id": "reimu.adult.o_glass_wait",
