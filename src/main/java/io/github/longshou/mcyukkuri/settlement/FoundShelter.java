@@ -63,7 +63,7 @@ public final class FoundShelter implements MotorOwner {
     public boolean targeting(BlockPos at) { return shelter != null && shelter.getBlockPos().equals(at); }
     public boolean exiting() { return phase == Phase.EXIT || phase == Phase.STEP_DOWN; }
     public boolean readyToSleep() { return phase == Phase.REST && now() >= deadline && !body.life().temperature().unsafeSleep(); }
-    public boolean onBench() { return streetSpot == StreetSpot.BENCH && phase == Phase.REST; }
+    public boolean restingAtBench() { return streetSpot == StreetSpot.BENCH && phase == Phase.REST; }
     public boolean ownsStreetCover(BlockPos pos) { return streetSpot != null && phase == Phase.REST && pos.equals(gap); }
     public ShelterBlockEntity inside() {
         if (!(body.level() instanceof ServerLevel)) return null;
@@ -222,12 +222,15 @@ public final class FoundShelter implements MotorOwner {
             if (streetOccupied(body, pos)) continue;
             Vec3 stand = kind == StreetSpot.BENCH
                     ? SurfaceApproach.floor(body, Vec3.atBottomCenterOf(pos).add(0, .5, 0)) : Vec3.atBottomCenterOf(pos);
-            if (stand == null || !availableStand(stand)) continue;
             Vec3 launch = null;
-            if (kind == StreetSpot.BENCH && !SurfaceApproach.at(body, stand)) {
-                launch = benchSide(pos, stand, true);
-                if (launch == null) continue;
-            } else if (kind != StreetSpot.BENCH && !SurfaceApproach.canApproach(body, stand)) continue;
+            if (kind == StreetSpot.BENCH) {
+                if (stand == null || !availableStand(stand)) stand = benchSide(pos, null, true);
+                else if (!SurfaceApproach.at(body, stand)) {
+                    launch = benchSide(pos, stand, true);
+                    if (launch == null) stand = benchSide(pos, null, true);
+                }
+                if (stand == null) continue;
+            } else if (!availableStand(stand) || !SurfaceApproach.canApproach(body, stand)) continue;
             gap = pos;
             streetSpot = kind;
             benchLaunch = launch;
@@ -288,7 +291,7 @@ public final class FoundShelter implements MotorOwner {
         }
         if (!canTakeFoundShelter(body) || body.life().nutrition() < LEAVE_HUNGRY
                 || (shelter != null ? shelter.isRemoved() || !shelter.foundUsable(body)
-                : streetSpot != null ? !streetStandValid() : !gapAt(gap))) {
+                : streetSpot != null ? !streetSpotValid() : !gapAt(gap))) {
             stop(); return Step.ENDED;
         }
         if (phase == Phase.WAIT) {
@@ -305,7 +308,11 @@ public final class FoundShelter implements MotorOwner {
         }
         if (phase == Phase.APPROACH && body.distanceToSqr(aim) <= SNIFF_REACH * SNIFF_REACH
                 && SurfaceApproach.stands(body, body.position())) return sniff();
-        var result = benchLaunch == null ? walk() : climbBench();
+        var result = streetSpot != null && !streetStandValid() ? SurfaceApproach.Result.BLOCKED
+                : benchLaunch == null ? walk() : climbBench();
+        if (streetSpot == StreetSpot.BENCH && atBenchSeat()
+                && (result == SurfaceApproach.Result.BLOCKED || now() - began > 320) && fallBackToBenchFoot())
+            return Step.ACTIVE;
         if (result == SurfaceApproach.Result.BLOCKED || now() - began > 320
                 || result == SurfaceApproach.Result.ARRIVED && phase == Phase.ENTER && shelter != null
                         && !shelter.contains(body.blockPosition())) {
@@ -322,6 +329,10 @@ public final class FoundShelter implements MotorOwner {
             return Step.ACTIVE;
         }
         if (result != SurfaceApproach.Result.ARRIVED) return Step.ACTIVE;
+        if (streetSpot == StreetSpot.BENCH && !body.onGround()) return Step.ACTIVE;
+        if (streetSpot == StreetSpot.BENCH && !SurfaceApproach.at(body, aim)) {
+            remember(gap, BLOCKED_REST, "bench_stand_unreached"); stop(); return Step.ENDED;
+        }
         if (streetSpot != null && now() - began < 20) {
             SurfaceApproach.halt(body);
             return Step.ACTIVE;
@@ -400,13 +411,27 @@ public final class FoundShelter implements MotorOwner {
         Vec3 best = null;
         for (var side : new Direction[]{facing, facing.getOpposite()}) {
             var stand = SurfaceApproach.floor(body, Vec3.atBottomCenterOf(seat.relative(side)));
-            if (stand == null || !availableStand(stand) || best != null && body.distanceToSqr(stand) >= body.distanceToSqr(best))
+            if (stand == null || stand.y > seat.getY() || !availableStand(stand) || level().isRainingAt(BlockPos.containing(stand))
+                    || best != null && body.distanceToSqr(stand) >= body.distanceToSqr(best))
                 continue;
-            if (climbing ? SurfaceApproach.canApproach(body, stand) && Hop.reaches(body, stand, top)
+            if (climbing ? SurfaceApproach.canApproach(body, stand) && (top == null || Hop.reaches(body, stand, top))
                     : SurfaceApproach.canApproach(body, stand) || Hop.reaches(body, body.position(), stand)) best = stand;
         }
         return best;
     }
+
+    private boolean fallBackToBenchFoot() {
+        body.motor().cancel(this, "bench_seat_unavailable");
+        var foot = benchSide(gap, null, true);
+        if (foot == null) return false;
+        aim = foot;
+        benchLaunch = null;
+        benchHop = null;
+        began = now();
+        return true;
+    }
+
+    private boolean atBenchSeat() { return gap.equals(BlockPos.containing(aim)); }
 
     private SurfaceApproach.Result climbBench() {
         if (benchHop != null) return hopToBenchAim();
@@ -437,25 +462,29 @@ public final class FoundShelter implements MotorOwner {
                 target(), shelter.kind(), shelter.occupants());
         else if (streetSpot != null) {
             streetAfter = now() + BLOCKED_REST;
-            GameplayLog.event(body, "habitat", "street rest spot={} at={} energy={}", streetSpot, gap.toShortString(), body.life().energy());
+            GameplayLog.event(body, "habitat", "street rest spot={} at={} stand={} energy={}", streetSpot, gap.toShortString(),
+                    streetSpot == StreetSpot.BENCH ? atBenchSeat() ? "seat" : "foot" : "cover", body.life().energy());
         } else GameplayLog.event(body, "habitat", "wind cover settled at={} paper={}", gap, paperAt(gap));
     }
 
+    private boolean streetSpotValid() {
+        return streetUser(body) && kindAt(gap) == streetSpot && !streetOccupied(body, gap);
+    }
+
     private boolean streetStandValid() {
-        return streetUser(body) && kindAt(gap) == streetSpot && !streetOccupied(body, gap)
-                && SurfaceApproach.stands(body, aim)
+        return SurfaceApproach.stands(body, aim)
                 && (streetSpot != StreetSpot.BENCH || !level().isRainingAt(BlockPos.containing(aim)));
     }
 
     public boolean checkRest(boolean waking) {
         if (phase != Phase.REST) return false;
         var here = body.blockPosition();
-        boolean displaced = shelter == null ? !gap.equals(here) : !shelter.contains(here);
+        boolean displaced = shelter == null ? !BlockPos.containing(aim).equals(here) : !shelter.contains(here);
         String reason = body.life().nutrition() < LEAVE_HUNGRY ? "hungry"
                 : !canTakeFoundShelter(body) ? "ineligible"
                 : displaced ? "displaced"
                 : shelter != null && (shelter.rainStage() > 0 || !shelter.sound()) ? "soaked_or_unsafe"
-                : streetSpot != null && !streetStandValid() ? "street_spot_gone"
+                : streetSpot != null && (!streetSpotValid() || !streetStandValid()) ? "street_spot_gone"
                 : streetSpot == null && gap != null && !gapAt(gap) ? "cover_gone"
                 : body.tickCount % 20 == 0 && !level().getEntitiesOfClass(YukkuriEntity.class, body.getBoundingBox().inflate(5),
                         y -> y.isAlive() && y.profile().dangerToYukkuri() && body.hasLineOfSight(y)).isEmpty() ? "predator" : null;
@@ -465,7 +494,7 @@ public final class FoundShelter implements MotorOwner {
     }
 
     public boolean humanNearBench() {
-        return onBench() && (level().isDay() && !level().getEntitiesOfClass(Player.class, body.getBoundingBox().inflate(3),
+        return restingAtBench() && (level().isDay() && !level().getEntitiesOfClass(Player.class, body.getBoundingBox().inflate(3),
                 person -> person.isAlive() && !person.isSpectator() && body.distanceToSqr(person) <= 9).isEmpty()
                 || !level().getEntitiesOfClass(HumanNpc.class, body.getBoundingBox().inflate(3),
                 person -> person.isAlive() && body.distanceToSqr(person) <= 9).isEmpty()
@@ -474,9 +503,13 @@ public final class FoundShelter implements MotorOwner {
     }
 
     public boolean leaveBench() {
-        if (!onBench()) return false;
+        if (!restingAtBench()) return false;
         var seat = gap;
-        var stand = benchSide(seat, aim, false);
+        if (!atBenchSeat()) {
+            GameplayLog.event(body, "habitat", "street bench foot released at={}", seat.toShortString());
+            return false;
+        }
+        var stand = benchSide(seat, null, false);
         if (stand == null) return false;
         phase = Phase.STEP_DOWN;
         aim = stand;

@@ -1811,7 +1811,7 @@ add('street_crops', 'town', '田边：吃一口作物，居民看见后警告', 
     ], env=DAY, vantage=(0, 8), reads=[('读血量', f'data get entity {sel("crop_eater")} Health')])
 
 add('street_furniture', 'town', '流浪油：长椅歇息、饮水、木桶檐下躲雨', '流浪油：长椅歇息、饮水、木桶檐下躲雨',
-    '西边困倦的魔理沙有一张屋檐下的长椅。口渴的灵梦能在干岸饮水。东边两只流浪油附近各有一处遮雨地，分别是抬高木桶和遮篷。', '约半分钟', [
+    '西边困倦的魔理沙会在檐下长椅的椅面或椅脚歇息。口渴的灵梦能在干岸饮水。东边两只流浪油附近各有一处遮雨地，分别是抬高木桶和遮篷。', '约半分钟', [
         box(-11, -1, -4, 12, -1, 4, 'minecraft:polished_andesite'),
         box(-9, 3, -2, -3, 3, 2, 'minecraft:spruce_planks'),
         box(-1, 3, -3, 3, 3, 1, 'minecraft:spruce_planks'),
@@ -4988,18 +4988,27 @@ _smoke('street_crops', 240, [
 ], [r'\[forage\][^\n]* crop bite [^\n]* age=0->',
     rf'\[body\][^\n]* uuid={_crop_eater}\b[^\n]* accepted damage'],
        readout=_street_health_reads('crop_eater'))
-_smoke('street_furniture', 780, [
-    rf'\[habitat\][^\n]* uuid={_bench_stray}\b[^\n]* street rest spot=BENCH ',
+_smoke('street_furniture', 900, [
+    rf'\[habitat\][^\n]* uuid={_bench_stray}\b[^\n]* street rest spot=BENCH [^\n]* stand=(?:seat|foot)\b',
     rf'\[sleep\][^\n]* uuid={_bench_stray}\b[^\n]* begin source=life',
     rf'\[needs\][^\n]* uuid={_water_stray}\b[^\n]* drink source=[^\n]* dryness=55\.0 -> 25\.0 pool=false',
-    rf'\[habitat\][^\n]* uuid={_bench_stray}\b[^\n]* street bench exited ',
     rf'\[weather\][^\n]* uuid={_barrel_stray}\b[^\n]* street rain cover reached spot=BARREL ',
     rf'\[weather\][^\n]* uuid={_awning_stray}\b[^\n]* street rain cover reached spot=AWNING ',
 ], readout=_street_health_reads('bench_stray', 'water_stray', 'barrel_stray', 'awning_stray'))
 
 
+def _street_bench_rest(log):
+    rest = re.search(rf'\[habitat\][^\n]* uuid={_bench_stray}\b[^\n]* street rest spot=BENCH [^\n]* stand=(seat|foot)\b', log)
+    if rest is None:
+        return 'the stray did not settle at the bench'
+    release = 'exited' if rest[1] == 'seat' else 'foot released'
+    if not re.search(rf'\[habitat\][^\n]* uuid={_bench_stray}\b[^\n]* street bench {release}\b', log[rest.end():]):
+        return f'the stray did not release the bench after resting at its {rest[1]}'
+    return None
+
+
 def _crop_warning_retreat(log):
-    warning = re.search(rf'\[npc-care\][^\n]* uuid=([\w-]+) [^\n]* action=street_warn target={_crop_eater}\b', log)
+    warning = re.search(rf'\[npc-care\][^\n]* uuid=([\w-]+) [^\n]* action=street_warn target={_crop_eater}\b[^\n]* crop=BlockPos', log)
     if warning is None:
         return 'the crop eater received no resident warning'
     swallowed = re.search(rf'\[meal\][^\n]* uuid={_crop_eater}\b[^\n]* swallowed item=minecraft:carrot', log[warning.end():])
@@ -5012,6 +5021,7 @@ def _crop_warning_retreat(log):
 
 
 next(s for s in S if s.id == 'street_crops').smoke['verify'] = _crop_warning_retreat
+next(s for s in S if s.id == 'street_furniture').smoke['verify'] = _street_bench_rest
 _smoke('oni_street_scrap', 1300, [
     r'\[shop\][^\n]* action=street_scrap result=lifted [^\n]* item=mcyukkuri:trimmed_hair count=1',
     r'\[shop\][^\n]* action=street_scrap result=stored [^\n]* item=mcyukkuri:trimmed_hair count=1',

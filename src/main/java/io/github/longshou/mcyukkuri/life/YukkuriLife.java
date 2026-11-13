@@ -747,7 +747,7 @@ public final class YukkuriLife {
             stopGoal(); return false;
         }
         if (task == Task.SLEEP && foundCover.active()) {
-            if (foundCover.checkRest(foundCover.onBench() && wakeAt > 0)) return true;
+            if (foundCover.checkRest(foundCover.restingAtBench() && wakeAt > 0)) return true;
             resetSleep();
             if (foundCover.exiting()) { task = Task.FOUND_COVER; return true; }
             stopGoal(); return false;
@@ -1129,12 +1129,12 @@ public final class YukkuriLife {
                 else if (wakeAt == 0 && drugSleep() == 0) {
                     // Real needs end a sleep at once, with the thresholds the daytime plan uses (checked once a second, like the nest sample).
                     String need = sleepTicks % 20 == 0 ? needWakeCause() : null;
-                    if (foundCover.onBench() && sleepTicks >= 20 && foundCover.humanNearBench()) wakeAt = sleepTicks + stretch;
+                    if (sleepTicks >= 20 && foundCover.humanNearBench()) wakeAt = sleepTicks + stretch;
                     else if (sleepTicks >= sleepDuration() && nutrition < 15) wakeNow("hunger");
                     else if (need != null) wakeNow(need);
                     // A sleep taken at its own rest time (the night, or a house body's day) goes on past the full stretch, so a night sleep
                     // lasts until that time is over; the rested wake clip then runs as usual.
-                    else if (sleepTicks >= SLEEP_TICKS && (!sleepTime() || foundCover.onBench())) wakeAt = sleepTicks + stretch;
+                    else if (sleepTicks >= SLEEP_TICKS && (!sleepTime() || foundCover.restingAtBench())) wakeAt = sleepTicks + stretch;
                 }
                 if (wakeAt > 0 && sleepTicks >= wakeAt) {
                     // The sleep ran past a full one only because its sleep time was still on, so it got up at that time's end (dawn; dusk for a
