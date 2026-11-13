@@ -55,6 +55,14 @@
   - 工厂：暂不开放，后续再做。用户：「工厂相关暂不开放，后面再做记为todo 现有内容不应该依赖工厂」。商店以外的依赖已解除（5e18b041f，新世界不生成工厂、旧存档可读）；商店侧由宠物店包清理。
 
 - **人类世界扩建（街道生活、爱派虐派 NPC、鬼威惨商店）**：已接入待试玩（街道摊位与小巷、流浪物件、鬼威惨商店：[ff20a18b6](https://github.com/Longshou/MCyukkuri/commit/ff20a18b6)、[21a79fd07](https://github.com/Longshou/MCyukkuri/commit/21a79fd07)，商店 oni_shop、流浪 stray_rubbish；爱派、虐派与路人居民单步可见交互：[dd8bbe15f](https://github.com/Longshou/MCyukkuri/commit/dd8bbe15f)，爱派喂食与制止、虐派只恐吓驱赶轻踢且不碰受保护个体、粮食有限可见；街道 TN-09、TN-10、TN-20）。用户：「做好群落和结构规划前 原版村庄需要纳入 mod 比如街道商店等都可以和村庄一起生成  街道相关内容也需要大幅度完善 现在的简陋  包括 npc 爱派虐派做好做完善 还有鬼威惨商店也可以做了 参考wiki 设定」「街道生活、爱派虐派 NPC 和鬼威惨商店 也需要」。设定依据见 Wiki [人类世界](../wiki/hakkei-reference/world/human-world.md)。村庄生成：已接入待试玩（[8f59e1f5d](https://github.com/Longshou/MCyukkuri/commit/8f59e1f5d)；新建默认世界种子 42，`/tp @s 651 80 -302`）。
+- **内容脉络第二批**（来自内容脉络图第 6 节；均为已接入待试玩）：
+  - 态度第五片：已接入待试玩（[cbdf135ea](https://github.com/Longshou/MCyukkuri/commit/cbdf135ea)，被篮子抓、洗、给或取垃圾头饰、喂不同档粮时按数值挣扎／发抖／道谢／嫌弃；放大镜一行态度；脏污降自尊、招来嫌弃；缺帽流浪自拾垃圾头饰；草地 MD-19、街道 TN-21、流浪 FG-12）。
+  - 让路与店内照料：已接入待试玩（[ef57c0567](https://github.com/Longshou/MCyukkuri/commit/ef57c0567)，闲着的油库里给走过的玩家和居民让路；店员治疗受伤的待售个体）。
+  - 走失找孩：已接入待试玩（[2f7decade](https://github.com/Longshou/MCyukkuri/commit/2f7decade)，亲油按自己亲眼看到的位置找走失的子油，不再全知）。
+  - 训练后果：已接入待试玩（[a132e71ef](https://github.com/Longshou/MCyukkuri/commit/a132e71ef)，没学会的技能在日常里真实出错：地上排泄、吃散食、牵绳走偏；街道 TN-14、TN-21）。
+  - 善意与收养：已接入待试玩（[0c1cc006e](https://github.com/Longshou/MCyukkuri/commit/0c1cc006e)，友善个体给非亲缘的饿油分一口、陪伴；孤儿由同群友善成体收养，谱系记养育者；让窝位暂缓）。
+  - 学会的恐惧：已接入待试玩（[f17e50d86](https://github.com/Longshou/MCyukkuri/commit/f17e50d86)，见过工具和伤害的个体躲开持用者；亲属尝试从钩下救援，够不到就放弃；烧伤后怕火；身体 BD-21～BD-23）。
+  - 街面设施与农田：已接入待试玩（[471e01b81](https://github.com/Longshou/MCyukkuri/commit/471e01b81)，流浪在长椅（或椅脚）歇息、饮水、木桶檐下躲雨；偷吃作物被居民警告；鬼威惨店员把碎屑送到街桶；街道 TN-21、TN-22，商店 SP-06）。
 
 ## 流程与工具
 
