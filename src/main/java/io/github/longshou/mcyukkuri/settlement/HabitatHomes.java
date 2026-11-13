@@ -146,7 +146,8 @@ final class HabitatHomes {
     void debug(CompoundTag tag) { tag.putBoolean("NoExtension",noExtension);tag.putInt("ExtendWait",extendWait);tag.putInt("MoveWait",moveWait);tag.putString("MoveNote",moveNote); }
     int digProgress() { return dig==null||dig.cells().isEmpty()?0:digIndex*100/dig.cells().size(); }
     boolean canDigContinue() { return dig!=null&&o.ticks()<900&&EventHooks.canEntityGrief(level(),o.entity())&&!o.entity().life().hasUrgentNeed()&&o.entity().life().nutrition()>=25; }
-    boolean canRoamContinue() { return roamTarget!=null&&o.ticks()<700&&!o.entity().life().hasUrgentNeed(); }
+    boolean canRoamContinue() { return roamTarget!=null&&o.ticks()<700&&!o.entity().life().hasUrgentNeed()
+            &&ShelterBlock.foundInterior(level(),o.entity().blockPosition())==null&&ShelterBlock.foundInterior(level(),roamTarget)==null; }
     void stop(Task task) {
         if(task==Task.DIG&&dig!=null)GameplayLog.limited(o.entity(),"habitat","dig_interrupted",200,
                 "dig interrupted mouth={} extension={} cells={}/{} work={} ticks={} nutrition={} energy={} panic={}",
@@ -614,6 +615,7 @@ final class HabitatHomes {
     }
     /** No soil face to dig into here: walk on a good way and look again. */
     private boolean startRoam() {
+        if(ShelterBlock.foundInterior(level(),o.entity().blockPosition())!=null)return false;
         roamWait=300;
         int tests=0;
         int span=40;
@@ -623,7 +625,7 @@ final class HabitatHomes {
             var column=o.entity().blockPosition().offset(dx,0,dz);
             if(!level().hasChunkAt(column))continue;
             var ground=level().getHeightmapPos(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,column);
-            if(!level().hasChunkAt(ground)||!o.entity().life().dryStand(ground))continue;
+            if(!level().hasChunkAt(ground)||ShelterBlock.foundInterior(level(),ground)!=null||!o.entity().life().dryStand(ground))continue;
             // Two route tests a turn; the rest of the eight draws come on the next turns (75 ticks later, 300 in all).
             if(!o.entity().life().reachable(ground,false)){if(++tests==2){roamWait=75;break;}continue;}
             SearchBudget.cancel(level(),o.entity(),Purpose.DIG,0);

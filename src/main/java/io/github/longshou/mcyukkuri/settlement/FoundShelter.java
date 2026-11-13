@@ -73,8 +73,7 @@ public final class FoundShelter implements MotorOwner {
     public boolean ownsStreetCover(BlockPos pos) { return streetSpot != null && phase == Phase.REST && pos.equals(gap); }
     public ShelterBlockEntity inside() {
         if (!(body.level() instanceof ServerLevel)) return null;
-        if (!(level().getBlockState(body.blockPosition()).getBlock() instanceof ShelterBlock block) || !block.kind().found()) return null;
-        var core = ShelterBlock.shelter(level(), body.blockPosition());
+        var core = ShelterBlock.foundInterior(level(), body.blockPosition());
         return core != null && core.owns(body.getUUID()) ? core : null;
     }
 
@@ -123,6 +122,38 @@ public final class FoundShelter implements MotorOwner {
         return body.life().drowsy() || body.life().temperature().cold() || body.life().wetness() >= 25;
     }
 
+    /** An occupant goes to a rest spot or uses the opening, including when it has no saved claim. */
+    public boolean planInside(ShelterBlockEntity home, boolean freeToRest) {
+        if (now() < nextScan) return false;
+        nextScan = now() + 80;
+        if (freeToRest && wantsCover() && body.life().nutrition() >= SEEK_HUNGRY && canTakeFoundShelter(body)
+                && !refusing(home.getBlockPos()) && home.foundUsable(body)
+                && home.residentIds().stream().allMatch(id -> home.related(body.getUUID(), id))) {
+            shelter = home;
+            aim = restPoint(home.foundBed(body), null);
+            if (aim != null) {
+                phase = Phase.ENTER;
+                began = now();
+                failures = 0;
+                GameplayLog.event(body, "habitat", "found shift to spot shelter={} spot={}", home.getBlockPos(), GameplayLog.at(aim));
+                return true;
+            }
+            shelter = null;
+        }
+        shelter = home;
+        phase = Phase.EXIT; // Leaving the shelter is allowed to cross into rain.
+        var opening = Vec3.atBottomCenterOf(home.entrance());
+        if (!SurfaceApproach.canApproach(body, opening) && !SurfaceApproach.canApproach(body, insideOpening(home))) {
+            GameplayLog.limited(body, "habitat", "exit_blocked", 200,
+                    "found exit blocked shelter={} opening={}", home.getBlockPos(), home.entrance());
+            shelter = null;
+            phase = null;
+            return false;
+        }
+        leave("no_rest_claim");
+        return true;
+    }
+
     public boolean plan() {
         if (now() < nextScan || !canTakeFoundShelter(body) || body.life().nutrition() < SEEK_HUNGRY
                 || body.isOnFire() || body.operations().active() || !wantsCover() && !seekingStreetRoof()) return false;
@@ -135,19 +166,6 @@ public final class FoundShelter implements MotorOwner {
                 .min(Comparator.comparingDouble(s -> body.distanceToSqr(Vec3.atBottomCenterOf(s.entrance())))).orElse(null);
         if (found != null) {
             shelter = found;
-            if (found.contains(here) && found.claim(body)) {
-                // Already inside (it woke or was put there): lie down on its own spot, not wherever it stands.
-                aim = restPoint(found.foundBed(body), null);
-                if (aim == null) {
-                    remember(target(), BLOCKED_REST, "no_rest_space");
-                    leave("no_rest_space");
-                    return true;
-                }
-                if (SurfaceApproach.at(body, aim)) { settle(); return true; }
-                phase = Phase.ENTER; began = now(); failures = 0;
-                GameplayLog.event(body, "habitat", "found shift to spot shelter={} spot={}", found.getBlockPos(), GameplayLog.at(aim));
-                return true;
-            }
             aim = Vec3.atBottomCenterOf(found.entrance());
             phase = Phase.APPROACH;
             began = now();
@@ -309,7 +327,13 @@ public final class FoundShelter implements MotorOwner {
                 return Step.ENDED;
             }
             if (now() < warnUntil) return Step.ACTIVE;
-            if (now() >= deadline || walk() == SurfaceApproach.Result.BLOCKED) { stop(); return Step.ENDED; }
+            if (now() >= deadline || walk() == SurfaceApproach.Result.BLOCKED) {
+                GameplayLog.limited(body, "habitat", "exit_blocked", 200,
+                        "found exit blocked shelter={} opening={}", target(), shelter.entrance());
+                nextScan = now() + 80;
+                stop();
+                return Step.ENDED;
+            }
             return Step.ACTIVE;
         }
         if (!canTakeFoundShelter(body) || body.life().nutrition() < LEAVE_HUNGRY
@@ -368,7 +392,9 @@ public final class FoundShelter implements MotorOwner {
                 return Step.ACTIVE;
             }
             if (!shelter.claim(body)) {
-                remember(target(), CONTEST_REST, "occupied"); stop(); return Step.ENDED;
+                remember(target(), CONTEST_REST, "occupied");
+                leave("occupied");
+                return Step.ACTIVE;
             }
         }
         settle();
@@ -541,7 +567,11 @@ public final class FoundShelter implements MotorOwner {
                 person -> person.isAlive() && body.distanceToSqr(person) <= 9).isEmpty());
     }
 
-    public boolean leaveBench() {
+    public boolean leaveAfterSleep() {
+        if (shelter != null && phase == Phase.REST) {
+            leave("rested");
+            return true;
+        }
         if (!restingAtBench()) return false;
         var seat = gap;
         if (!atBenchSeat()) {
@@ -598,7 +628,23 @@ public final class FoundShelter implements MotorOwner {
                 : phase == Phase.WAIT ? Behaviors.IDLE : Behaviors.SEEK_WARMTH;
     }
     private BlockPos target() { return shelter == null ? gap : shelter.getBlockPos(); }
-    private SurfaceApproach.Result walk() { return SurfaceApproach.walkResult(body, aim, null, 1); }
+    private static Vec3 insideOpening(ShelterBlockEntity home) {
+        return Vec3.atBottomCenterOf(home.entrance().relative(home.facing().getOpposite()));
+    }
+
+    private SurfaceApproach.Result walk() {
+        if (shelter == null || !shelter.contains(body.blockPosition())) return SurfaceApproach.walkResult(body, aim, null, 1);
+        if (SurfaceApproach.at(body, aim)) {
+            SurfaceApproach.halt(body);
+            return SurfaceApproach.Result.ARRIVED;
+        }
+        if (SurfaceApproach.tryStraightStep(body, aim, 1)) return SurfaceApproach.Result.MOVING;
+        if (phase == Phase.EXIT) {
+            var step = insideOpening(shelter);
+            if (!SurfaceApproach.at(body, step) && SurfaceApproach.tryStraightStep(body, step, 1)) return SurfaceApproach.Result.MOVING;
+        }
+        return SurfaceApproach.walkResult(body, aim, null, 1);
+    }
     private boolean refusing(BlockPos pos) { return refused.getOrDefault(pos, 0L) > now(); }
     private void remember(BlockPos pos, int duration, String reason) {
         if (refused.size() >= 16) refused.pollFirstEntry();

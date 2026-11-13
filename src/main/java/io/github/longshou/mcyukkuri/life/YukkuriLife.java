@@ -9,6 +9,7 @@ import io.github.longshou.mcyukkuri.settlement.GroupPits;
 import io.github.longshou.mcyukkuri.settlement.FoundShelter;
 import io.github.longshou.mcyukkuri.settlement.GarbageSearch;
 import io.github.longshou.mcyukkuri.settlement.Grazing;
+import io.github.longshou.mcyukkuri.settlement.ShelterBlock;
 import io.github.longshou.mcyukkuri.settlement.ShelterBlockEntity;
 import io.github.longshou.mcyukkuri.family.FamilyNest;
 import io.github.longshou.mcyukkuri.motor.ClipMarkers;
@@ -762,6 +763,12 @@ public final class YukkuriLife {
         if ((task == Task.FOOD || task == Task.FOOD_GLASS) && entity.forageTrip().provisioningFirst()) { stopGoal(); return false; }
         if (task != Task.NONE) return true;
         if(drugSleep()>0){task=Task.SLEEP;resetSleep();sleepTicks=20;return true;}
+        var inside = ShelterBlock.foundInterior(level(), entity.blockPosition());
+        if (inside != null && !entity.isPassenger()) {
+            if (!foundCover.planInside(inside, !ParentCarry.awaitsCarrier(entity))) return false;
+            task = Task.FOUND_COVER;
+            return true;
+        }
         if (planWait > 0) return false;
         planWait = 20;
         if(dryness>=40||spicyTicks()>0 || wantsStreetRinse()){targetBlock=nearestDrink();if(targetBlock!=null){task=Task.DRINK;drinkTicks=pursuitTicks=0;return true;}}
@@ -1143,9 +1150,9 @@ public final class YukkuriLife {
                     GameplayLog.event(entity,"sleep","end source=life cause={} night={} ticks={} energy={} nutrition={} stretched={}",
                             cause,level().isNight(),sleepTicks,energy,nutrition,sleepTicks > SLEEP_TICKS);
                     temperature.stop();
-                    boolean stepDown = foundCover.leaveBench();
-                    if (!stepDown) foundCover.stop();
-                    task = stepDown ? Task.FOUND_COVER : Task.NONE; restWait = restInterval(); resetSleep();
+                    boolean leaving = foundCover.leaveAfterSleep();
+                    if (!leaving) foundCover.stop();
+                    task = leaving ? Task.FOUND_COVER : Task.NONE; restWait = restInterval(); resetSleep();
                     if(!entity.family().woke())entity.showReaction("neutral", "awake", 60);
                 }
             }

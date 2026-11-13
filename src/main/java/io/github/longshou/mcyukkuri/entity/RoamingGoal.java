@@ -5,6 +5,7 @@ import io.github.longshou.mcyukkuri.family.FamilyLife.Stage;
 import io.github.longshou.mcyukkuri.life.BehaviorContinuity;
 import io.github.longshou.mcyukkuri.life.TravelRange;
 import io.github.longshou.mcyukkuri.pet.exam.ExamSession;
+import io.github.longshou.mcyukkuri.settlement.ShelterBlock;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.status.Reactions;
 import java.util.EnumSet;
@@ -45,8 +46,9 @@ public final class RoamingGoal extends Goal {
                 && (!animal.profile().houseBody() || animal.house().homeless())
                 && !animal.life().hasUrgentNeed() && !animal.life().isSleeping() && !animal.body().weak()
                 && !animal.family().active() && !animal.isCommandPlaying() && !animal.operations().active()
-                && !BehaviorContinuity.emergency(animal);
+                && !BehaviorContinuity.emergency(animal) && outsideFoundShelter(animal.blockPosition());
     }
+    private boolean outsideFoundShelter(BlockPos pos) { return ShelterBlock.foundInterior(animal.level(), pos) == null; }
     private boolean qualifies() {
         var p = animal.life().personality();
         return animal.getVariant() == YukkuriVariant.MARISA && animal.family().stage() == Stage.JUVENILE
@@ -108,7 +110,7 @@ public final class RoamingGoal extends Goal {
                     : LandRandomPos.getPosTowards(animal, radius, 3, Vec3.atBottomCenterOf(companion));
             if (point == null) continue;
             BlockPos pos = BlockPos.containing(point);
-            if (origin.distSqr(pos) > radius * radius || !TravelRange.babyDestination(animal,pos)) continue;
+            if (origin.distSqr(pos) > radius * radius || !outsideFoundShelter(pos) || !TravelRange.babyDestination(animal,pos)) continue;
             if (anchor != null && (outside ? pos.distSqr(anchor) >= origin.distSqr(anchor) : pos.distSqr(anchor) > homeRadius * homeRadius)) continue;
             if (expedition && origin.distSqr(pos) <= radius * radius / 4) continue;
             if (!expedition && !animal.family().allowsIdleWalk(point)) continue;
@@ -130,7 +132,8 @@ public final class RoamingGoal extends Goal {
     }
     @Override public boolean requiresUpdateEveryTick() { return true; }
     @Override public boolean canContinueToUse() {
-        if (!active || !available() || elapsed >= (expedition ? 1600 : 600) || failures >= 4) return false;
+        if (!active || !available() || !outsideFoundShelter(destination) || detour != null && !outsideFoundShelter(detour)
+                || elapsed >= (expedition ? 1600 : 600) || failures >= 4) return false;
         if (!expedition && !animal.family().allowsIdleWalk(Vec3.atBottomCenterOf(destination))) return false;
         return expedition || !animal.getNavigation().isDone();
     }
@@ -147,6 +150,7 @@ public final class RoamingGoal extends Goal {
         }
         boolean reached = animal.distanceToSqr(Vec3.atBottomCenterOf(destination)) < 1;
         if (expedition && !returning && (reached || animal.life().energy() < 40 || animal.life().nutrition() < 35)) {
+            if (!outsideFoundShelter(origin)) { stop(); return; }
             returning = true; destination = origin;
             GameplayLog.event(animal,"explore","return started reason={} nutrition={} energy={}",reached?"destination_reached":"needs",animal.life().nutrition(),animal.life().energy());
         } else if (reached) {
@@ -166,7 +170,8 @@ public final class RoamingGoal extends Goal {
         for (int sign : new int[]{1,-1}) {
             var point = animal.position().add(side.scale(sign * (animal.getBbWidth()+peer.getBbWidth()+1.2))).subtract(forward.scale(.6));
             var pos = BlockPos.containing(point);
-            if (!TravelRange.babyDestination(animal,pos) || !Reactions.Weather.allowsStep(animal,pos) || !animal.life().dryStand(pos)) continue;
+            if (!outsideFoundShelter(pos) || !TravelRange.babyDestination(animal,pos)
+                    || !Reactions.Weather.allowsStep(animal,pos) || !animal.life().dryStand(pos)) continue;
             if (!animal.level().getEntitiesOfClass(YukkuriEntity.class,animal.getBoundingBox().move(Vec3.atBottomCenterOf(pos).subtract(animal.position())),p -> p!=animal).isEmpty()) continue;
             if (animal.life().navigate(pos,1,false)) {
                 detour = pos; detourTicks = 0;

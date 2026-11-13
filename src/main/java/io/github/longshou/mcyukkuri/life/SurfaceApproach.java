@@ -229,6 +229,15 @@ public final class SurfaceApproach {
         return actor.onGround()&&clearLastStep(actor,actor.position(),destination);
     }
 
+    /** Close a short, clear segment without circling it under the ground steering turn cap. */
+    public static boolean tryStraightStep(YukkuriEntity actor, Vec3 destination, double speed) {
+        if (!(actor.getNavigation() instanceof YukkuriGroundNavigation ground)
+                || !clearLastStep(actor, destination) || ground.aim(destination, true) != destination) return false;
+        ground.stop();
+        ground.step(destination, speed);
+        return true;
+    }
+
     private static double reach(YukkuriEntity actor){return Math.max(1.5,actor.getBbWidth()+.5);}
 
     private static boolean clearLastStep(YukkuriEntity actor,Vec3 start,Vec3 destination){
@@ -665,9 +674,8 @@ public final class SurfaceApproach {
                 // A nearby release or rest stand can shift the doorway alignment sideways. The
                 // capped ground turn can circle a close target, so close this clear segment
                 // with the same collision-resolved straight step as the crossing itself.
-                if(direct(actor,door,body)&&ground.aim(door,true)==door){
-                    navigation.stop();current.target=null;current.lastStep=null;
-                    ground.step(door,speed);
+                if(clearOf(actor,actor.position(),door,body)&&tryStraightStep(actor,door,speed)){
+                    current.target=null;current.lastStep=null;
                     return observed(actor,Result.MOVING);
                 }
                 destination=door;

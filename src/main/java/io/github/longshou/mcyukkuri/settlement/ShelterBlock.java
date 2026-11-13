@@ -74,6 +74,14 @@ public final class ShelterBlock extends Block implements EntityBlock {
     private static BlockState orient(BlockState state, BlockPos offset, Direction facing) {
         return state.setValue(PART, part(offset.getX(), offset.getY(), offset.getZ())).setValue(FACING, facing);
     }
+    /** The found shelter at a floor cell, regardless of who owns a rest spot. */
+    public static ShelterBlockEntity foundInterior(BlockGetter level, BlockPos pos) {
+        if (level instanceof Level world && !world.hasChunkAt(pos)) return null;
+        if (!(level.getBlockState(pos).getBlock() instanceof ShelterBlock block) || !block.kind().found()) return null;
+        var home = shelter(level, pos);
+        return home != null && home.contains(pos) ? home : null;
+    }
+
     public static ShelterBlockEntity shelter(BlockGetter level, BlockPos pos) {
         if(level instanceof Level world&&!world.hasChunkAt(pos))return null;
         var state=level.getBlockState(pos);
