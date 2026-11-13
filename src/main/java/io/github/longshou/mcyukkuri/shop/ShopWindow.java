@@ -298,7 +298,10 @@ public final class ShopWindow implements MotorOwner {
     private void afterNotice(long now) {
         if (!present(customer)) { leave(now, "customer_left"); return; }
         switch (mode) {
-            case APPEAL, SHOW_OFF -> { entity.speak("shop_appeal"); if (!toGlass(now)) beginPerformance(now); }
+            case APPEAL, SHOW_OFF -> {
+                entity.speak("shop_appeal");
+                if (!toGlass(now) && !pressGlass(now)) beginPerformance(now);
+            }
             case POLITE -> { entity.speak("hello"); beginPerformance(now); }
             case PROUD -> { if (BadgeSocial.visibleRank(entity).id() > 0) entity.speak("badge_proud"); beginPerformance(now); }
             case SHY -> { entity.speak("shy"); if (!retreat(now)) beginPerformance(now); }
@@ -349,7 +352,7 @@ public final class ShopWindow implements MotorOwner {
 
     /** Arrived at the glass in front of the customer it pleads to: it squashes its face on the pane once before pleading. */
     private boolean pressGlass(long now) {
-        if (mode != Mode.APPEAL && mode != Mode.SHOW_OFF) return false;
+        if (performStart >= sessionStart || mode != Mode.APPEAL && mode != Mode.SHOW_OFF || !present(customer)) return false;
         var press = GlassPress.toward(entity, customer);
         if (press == null || !entity.motor().run(this, press)) return false;
         action = press;
