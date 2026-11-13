@@ -17,6 +17,7 @@ import io.github.longshou.mcyukkuri.family.ParentCarry;
 import io.github.longshou.mcyukkuri.human.HumanCommerce;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.settlement.DenSeal;
+import io.github.longshou.mcyukkuri.settlement.FoundShelter;
 import io.github.longshou.mcyukkuri.motor.SideContact;
 import io.github.longshou.mcyukkuri.settlement.SearchBudget;
 import io.github.longshou.mcyukkuri.settlement.ShelterBlock;
@@ -242,6 +243,8 @@ public final class Reactions {
                     o -> o != y && prey(o) && kin(y, o))) z.status().reactions().threat().heard(danger, now);
         }
         void heard(LivingEntity danger, long now) { heard(danger, now, HEARD); }
+        /** The ordinary threat goal waits for the meal to finish before it can steer. */
+        public void cropWarning(HumanNpc resident) { heard(resident, y.level().getGameTime()); }
         /** The one that just hurt this body is remembered for the whole danger window: a bitten animal does not forget it. */
         void attackedBy(LivingEntity danger) { heard(danger, y.level().getGameTime(), SAME_DANGER); }
         private void heard(LivingEntity danger, long now, int window) {
@@ -390,7 +393,8 @@ public final class Reactions {
                 if (roof <= ry) continue;                          // open sky at this height
                 var pos = new BlockPos(x, ry, z);
                 if (!level.getBlockState(pos.below()).isFaceSturdy(level, pos.below(), Direction.UP)) continue;
-                if (!life.dryStand(pos) || !life.covered(pos) || !TravelRange.babyDestination(y, pos)) continue;
+                if (!life.dryStand(pos) || !life.covered(pos) || !TravelRange.babyDestination(y, pos)
+                        || !FoundShelter.streetCoverFree(y, pos)) continue;
                 var owner = ShelterBlock.shelter(level, pos);
                 if (owner != null && !owner.owns(y.getUUID())) continue;
                 if (!farther(pos, y, danger)) continue;

@@ -207,10 +207,13 @@
     "exam_platinum": "TN-19",
     "street_mixed": "TN-20",
     "street_give_way": "TN-21",
-    "shop_care": "SP-06",
-    "care_attitude": "MD-19",
     "basket_attitude": "TN-22",
     "training_walk": "TN-23",
+    "street_crops": "TN-24",
+    "street_furniture": "TN-25",
+    "shop_care": "SP-06",
+    "oni_street_scrap": "SP-07",
+    "care_attitude": "MD-19",
     "kindness_adoption": "FM-23"
   }
 }

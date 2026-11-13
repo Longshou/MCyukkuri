@@ -72,7 +72,7 @@ public final class HumanNpc extends PathfinderMob {
     private int trades, delivered, careFood, medicine = 8, routineDelay;
     private int nextBadgeGreeting;
     private YukkuriEntity attention;
-    private final HumanStreet street = new HumanStreet(this);
+    final HumanStreet street = new HumanStreet(this);
     private final FactoryProduction production = new FactoryProduction(this);
     public FactoryProduction production() { return production; }
     /** Created on first use: registerGoals() runs inside the Mob constructor, before field initialisers. */
@@ -117,6 +117,7 @@ public final class HumanNpc extends PathfinderMob {
     }
     public boolean streetThreatTo(YukkuriEntity animal) { return street.threatTo(animal); }
     public static void witnessedStreetHurt(YukkuriEntity animal, Player player) { HumanStreet.witnessedHurt(animal, player); }
+    public static void witnessedCropBite(YukkuriEntity animal, BlockPos crop) { HumanStreet.witnessedCropBite(animal, crop); }
     long streetFrownAfter() { return street.frownAfter(); }
     void streetFrown(long until) { street.frown(until); }
     public int careFood() { return careFood; }
@@ -474,7 +475,7 @@ public final class HumanNpc extends PathfinderMob {
             }
             if (attention == null) return;
             if (streetResident() && elapsed >= 140) return;
-            if (streetResident() && attitude() == Attitude.CRUEL) {
+            if (streetResident() && street.reacting()) {
                 if (!street.step(attention)) elapsed = 140;
                 return;
             }

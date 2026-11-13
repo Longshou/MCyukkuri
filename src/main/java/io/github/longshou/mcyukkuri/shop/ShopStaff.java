@@ -8,6 +8,7 @@ import io.github.longshou.mcyukkuri.entity.YukkuriVariant;
 import io.github.longshou.mcyukkuri.human.Custody;
 import io.github.longshou.mcyukkuri.human.HumanCommerce;
 import io.github.longshou.mcyukkuri.human.HumanNpc;
+import io.github.longshou.mcyukkuri.human.VillageBin;
 import io.github.longshou.mcyukkuri.item.CarrierContents;
 import io.github.longshou.mcyukkuri.item.TreatmentItem;
 import io.github.longshou.mcyukkuri.life.CareBlock;
@@ -38,6 +39,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.HitResult;
@@ -57,7 +59,7 @@ import net.neoforged.neoforge.event.server.ServerStoppedEvent;
  * finished leaves the target to others for a while and anything held where it can be found again.
  */
 public final class ShopStaff {
-    enum Kind { BUY, SELL, NURSERY, TREAT, SETTLE, SHIP, FEED, CLEAN }
+    enum Kind { BUY, SELL, NURSERY, TREAT, SETTLE, SHIP, FEED, CLEAN, STREET_SCRAP }
     private enum Phase { GO, WORK, CARRY }
     private static final class Job {
         final UUID staff, shop; final Kind kind;
@@ -107,6 +109,8 @@ public final class ShopStaff {
     /** Hand's reach from the staff member's feet to the target's centre, with a clear line from its eyes. */
     private static final double REACH = 2.5, SPEED = .9;
     private static final double COUNTER_REACH = 1.5;
+    private static final int SCRAP_COOLDOWN = 24000;
+    private static final String SCRAP_AFTER = "StreetScrapAfter";
 
     public static void started(ServerStartingEvent event) { JOBS.clear(); UNREACHABLE.clear(); ShopDoors.clear(); }
     public static void stopped(ServerStoppedEvent event) { JOBS.clear(); UNREACHABLE.clear(); ShopDoors.clear(); }
@@ -213,6 +217,46 @@ public final class ShopStaff {
                 start(staff, job, be.getBlockPos().getCenter()); return;
             }
         }
+        if (shop.kind != ShopKind.ONI || shop.trash() == null || !level.isDay() || level.isRaining()
+                || now < staff.getPersistentData().getLong(SCRAP_AFTER) || !free(shop.trash(), now)) return;
+        var looseScrap = level.getEntitiesOfClass(ItemEntity.class, shop.bounds(), item -> item.isAlive()
+                        && item.onGround() && scrap(item.getItem()) && free(item.getUUID(), now))
+                .stream().min(Comparator.comparingDouble(staff::distanceToSqr)).orElse(null);
+        var trash = level.getBlockEntity(shop.trash()) instanceof Container box ? box : null;
+        int slot = trash == null ? -1 : scrapSlot(trash);
+        var portion = looseScrap != null ? looseScrap.getItem() : slot < 0 ? ItemStack.EMPTY : trash.getItem(slot);
+        if (portion.isEmpty() || streetBin(level, shop, portion) == null) return;
+        var job = new Job(staff.getUUID(), shop.id, Kind.STREET_SCRAP);
+        job.target = shop.trash();
+        job.loose = looseScrap;
+        start(staff, job, looseScrap == null ? job.target.getCenter() : looseScrap.position());
+    }
+
+    private static boolean scrap(ItemStack stack) { return stack.is(Items.PAPER) || stack.is(ModItems.TRIMMED_HAIR.get()); }
+
+    private static int scrapSlot(Container trash) {
+        for (int i = 0; i < trash.getContainerSize(); i++) if (scrap(trash.getItem(i))) return i;
+        return -1;
+    }
+
+    private static BlockPos streetBin(ServerLevel level, ShopRegistry.Entry shop, ItemStack portion) {
+        var bounds = shop.bounds().inflate(4, 1, 4);
+        BlockPos nearest = null;
+        double best = Double.MAX_VALUE;
+        for (int cx = (int)Math.floor(bounds.minX) >> 4; cx <= (int)Math.floor(bounds.maxX) >> 4; cx++) {
+            for (int cz = (int)Math.floor(bounds.minZ) >> 4; cz <= (int)Math.floor(bounds.maxZ) >> 4; cz++) {
+                var chunk = level.getChunkSource().getChunkNow(cx, cz);
+                if (chunk == null) continue;
+                for (var at : chunk.getBlockEntities().keySet()) {
+                    double distance = at.distSqr(shop.trash());
+                    if (distance >= best || !bounds.contains(at.getCenter()) || shop.contains(at.getCenter())
+                            || !free(at, level.getGameTime()) || !VillageBin.accepts(level, at, portion)) continue;
+                    nearest = at;
+                    best = distance;
+                }
+            }
+        }
+        return nearest;
     }
 
     /** Nobody works on it now and nobody has just failed to reach it. */
@@ -250,6 +294,16 @@ public final class ShopStaff {
     /** A staff member holding a basket or waste with no job carries it on to where it belongs. */
     private static boolean resume(ServerLevel level, HumanNpc staff, ShopRegistry.Entry shop) {
         var hand = staff.getMainHandItem();
+        if (scrap(hand) && shop.kind == ShopKind.ONI && shop.trash() != null) {
+            var to = streetBin(level, shop, hand);
+            if (to == null) to = shop.trash();
+            if (UNREACHABLE.active(to, level.getGameTime())) return true;
+            var job = new Job(staff.getUUID(), shop.id, Kind.STREET_SCRAP);
+            job.phase = Phase.CARRY;
+            job.target = to;
+            start(staff, job, to.getCenter());
+            return true;
+        }
         if (hand.is(ModItems.WASTE.get())) {
             if (shop.trash() == null || UNREACHABLE.active(shop.trash(), level.getGameTime())) return true;
             var job = new Job(staff.getUUID(), shop.id, Kind.CLEAN); job.phase = Phase.CARRY; job.target = shop.trash();
@@ -349,6 +403,11 @@ public final class ShopStaff {
                 var be = level.getBlockEntity(job.target);
                 if (!(be instanceof CareBlockEntity toilet && toilet.waste() >= 1 || be instanceof PoopBlockEntity poop && poop.count() >= 1)) return "clean";
             }
+            case STREET_SCRAP -> {
+                if (!level.isDay() || level.isRaining()) return "outdoor_closed";
+                if (job.loose != null ? !job.loose.isAlive() || !shop.contains(job.loose.position()) || !scrap(job.loose.getItem())
+                        : !(level.getBlockEntity(job.target) instanceof Container source) || scrapSlot(source) < 0) return "no_scrap";
+            }
             case SETTLE -> {
                 if (job.loose != null ? !job.loose.isAlive() : dockBasket(level, shop) < 0) return "basket_gone";
             }
@@ -428,7 +487,7 @@ public final class ShopStaff {
             else fail(level, staff, shop, job, "treatment_refused");
             return;
         }
-        if (job.timer < WORK) return;
+        if (job.timer < (job.kind == Kind.STREET_SCRAP ? 20 : WORK)) return;
         switch (job.kind) {
             case BUY -> {
                 job.token = ShopTrade.captureSale(level, staff, shop, y);
@@ -479,6 +538,24 @@ public final class ShopStaff {
                         job.target.toShortString(), waste.getCount());
                 carryTo(job, shop.trash());
             }
+            case STREET_SCRAP -> {
+                var trash = job.loose == null ? (Container) level.getBlockEntity(job.target) : null;
+                int slot = trash == null ? -1 : scrapSlot(trash);
+                var source = job.loose == null ? trash.getItem(slot) : job.loose.getItem().copy();
+                var bin = streetBin(level, shop, source);
+                if (bin == null) { end(staff, job, "no_street_bin"); return; }
+                var portion = trash == null ? source.split(1) : trash.removeItem(slot, 1);
+                if (job.loose != null) {
+                    if (source.isEmpty()) job.loose.discard();
+                    else job.loose.setItem(source);
+                }
+                staff.setItemInHand(InteractionHand.MAIN_HAND, portion);
+                staff.getPersistentData().putLong(SCRAP_AFTER, level.getGameTime() + SCRAP_COOLDOWN);
+                GameplayLog.event(staff, "shop", "action=street_scrap result=lifted source={} item={} count=1",
+                        job.loose == null ? job.target.toShortString() : job.loose.getUUID(), portion.getItem());
+                job.loose = null;
+                carryTo(job, bin);
+            }
             case SETTLE -> {
                 ItemStack basket;
                 if (job.loose != null) { basket = job.loose.getItem().copy(); job.loose.discard(); }
@@ -505,7 +582,11 @@ public final class ShopStaff {
 
     private static void carry(ServerLevel level, HumanNpc staff, ShopRegistry.Entry shop, Job job) {
         var hand = staff.getMainHandItem();
-        boolean holding = job.kind == Kind.CLEAN ? hand.is(ModItems.WASTE.get()) : job.token != null && job.token.equals(CarrierContents.singleToken(hand));
+        boolean holding = switch (job.kind) {
+            case CLEAN -> hand.is(ModItems.WASTE.get());
+            case STREET_SCRAP -> scrap(hand);
+            default -> job.token != null && job.token.equals(CarrierContents.singleToken(hand));
+        };
         if (!holding) { end(staff, job, "hand_changed"); return; }
         if (job.target == null) { fail(level, staff, shop, job, "no_destination"); return; }
         // A nest taken meanwhile is exchanged for another free one (or the barrel).
@@ -524,11 +605,21 @@ public final class ShopStaff {
             else fail(level, staff, shop, job, "handoff_blocked");
             return;
         }
+        if (job.kind == Kind.STREET_SCRAP && !job.target.equals(shop.trash())) {
+            if (!VillageBin.deposit(level, job.target, hand)) { carryTo(job, shop.trash()); return; }
+            staff.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
+            staff.swing(InteractionHand.MAIN_HAND);
+            GameplayLog.event(staff, "shop", "action=street_scrap result=stored bin={} item={} count=1",
+                    job.target.toShortString(), hand.getItem());
+            end(staff, job, "street_bin");
+            return;
+        }
         if (level.getBlockEntity(job.target) instanceof Container barrel && !(barrel instanceof CareBlockEntity)) {
             var left = insert(barrel, hand.copy());
             staff.setItemInHand(InteractionHand.MAIN_HAND, left);
             staff.swing(InteractionHand.MAIN_HAND);
-            GameplayLog.event(staff, "shop", "action={} result=stored shop={} token={} barrel={} full={}", job.kind == Kind.CLEAN ? "dispose_waste" : "stow_basket",
+            GameplayLog.event(staff, "shop", "action={} result=stored shop={} token={} barrel={} full={}",
+                    job.kind == Kind.CLEAN ? "dispose_waste" : job.kind == Kind.STREET_SCRAP ? "return_street_scrap" : "stow_basket",
                     shop.id, job.token, job.target.toShortString(), !left.isEmpty());
             if (!left.isEmpty()) { fail(level, staff, shop, job, "barrel_full"); return; }
             end(staff, job, "stored");
@@ -689,13 +780,17 @@ public final class ShopStaff {
             end(staff, job, reason);
             return;
         }
-        if (job.kind != Kind.BUY && job.kind != Kind.CLEAN && shop.dock() != null && !shop.dock().equals(job.target)
+        if (job.kind == Kind.STREET_SCRAP && !shop.trash().equals(job.target)) {
+            carryTo(job, shop.trash());
+            return;
+        }
+        if (job.kind != Kind.BUY && job.kind != Kind.CLEAN && job.kind != Kind.STREET_SCRAP && shop.dock() != null && !shop.dock().equals(job.target)
                 && !UNREACHABLE.active(shop.dock(), now)) {
             carryTo(job, shop.dock()); // try the barrel instead
             return;
         }
         var hand = staff.getMainHandItem().copy();
-        UUID target = job.kind == Kind.BUY ? job.customer : job.kind == Kind.CLEAN ? null : shop.id;
+        UUID target = job.kind == Kind.BUY ? job.customer : job.kind == Kind.CLEAN || job.kind == Kind.STREET_SCRAP ? null : shop.id;
         if (ShopTrade.drop(level, target, staff.position(), hand) != null) {
             staff.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
             GameplayLog.event(staff, "shop", "action=job result=put_down kind={} token={} at={} pickup={}", job.kind, job.token, GameplayLog.at(staff.position()), target);

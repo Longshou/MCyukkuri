@@ -522,8 +522,9 @@ def village_shop(original):
     lot.box((0, 0, 3), (width - 1, 0, 5), 'gravel')
     for x in (4, 34):
         lot.box((x, 0, 6), (x + 3, 0, 7), 'grass_block', {'snowy': 'false'})
-        for seat in range(x, x + 3):
-            stairs(lot, seat, 1, 7, 'oak', 'south')
+        stairs(lot, x, 1, 7, 'oak', 'south')
+        slab(lot, x + 1, 1, 7, 'oak')
+        stairs(lot, x + 2, 1, 7, 'oak', 'south')
         barrel(lot, x + 3, 1, 7)
 
     def jigsaw(x, z, facing, name, target='minecraft:empty', pool='minecraft:empty'):

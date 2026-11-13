@@ -250,7 +250,7 @@ final class LifeHome {
     BlockPos nearestDrink(){
         BlockPos best=null;double distance=Double.MAX_VALUE;
         for(var water:BlockPos.betweenClosed(o.entity().blockPosition().offset(-TravelRange.search(o.entity(),6),-2,-TravelRange.search(o.entity(),6)),o.entity().blockPosition().offset(TravelRange.search(o.entity(),6),1,TravelRange.search(o.entity(),6)))){
-            if(!TravelRange.babyDestination(o.entity(),water)||!o.level().hasChunkAt(water)||!o.level().getFluidState(water).is(FluidTags.WATER))continue;
+            if(!TravelRange.babyDestination(o.entity(),water)||!o.level().hasChunkAt(water)||!o.drinkableWater(water))continue;
             double d=o.entity().distanceToSqr(Vec3.atCenterOf(water));
             if(d<distance&&drinkStand(water)!=null){best=water.immutable();distance=d;}
         }

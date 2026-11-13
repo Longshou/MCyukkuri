@@ -206,7 +206,7 @@ def street_stall():
     b.block(2, 1, 9, 'composter', {'level': '3'})
     # Sidewalks: lamps and a bench facing the lane.
     lamp(b, 13, 1, 7); lamp(b, 1, 1, 1)
-    for x in (4, 5, 6): stairs(b, x, 1, 1, 'oak', 'north')
+    stairs(b, 4, 1, 1, 'oak', 'north'); slab(b, 5, 1, 1, 'oak'); stairs(b, 6, 1, 1, 'oak', 'north')
     for x, plant in [(3, 'potted_poppy'), (7, 'potted_dandelion')]: b.block(x, 1, 1, plant)
     street_residents(b, (5, 2), (8, 7))
     street_ends(b, W)
@@ -249,7 +249,11 @@ def street_alley():
     b.block(13, 1, 18, 'composter', {'level': '2'}); fence_row(b, 11, 16, 1, 19)
     # Sidewalks: lamps, a trough and planters.
     lamp(b, 6, 1, 7); lamp(b, 12, 1, 1)
-    b.block(3, 1, 1, 'water_cauldron', {'level': '3'}); b.block(4, 1, 1, 'hay_block', LOG)
+    b.block(3, 0, 1, 'water', {'level': '0'}, over=True)
+    b.block(4, 1, 1, 'hay_block', LOG)
+    # A raised storage barrel covers one dry stand. The lower bin and its lid are separate.
+    b.block(9, 2, 12, 'barrel', {'facing': 'west', 'open': 'false'},
+            {'id': string('minecraft:barrel'), 'NeoForgeData': compound({'StreetShelter': byte(1)})})
     for x, plant in [(8, 'potted_oxeye_daisy'), (9, 'potted_fern')]: b.block(x, 1, 1, plant)
     street_residents(b, (5, 2), (9, 7))
     street_ends(b, W)
@@ -481,8 +485,8 @@ def village_oni_shop(original):
     street_east), so a village has at most one; its east end continues the street."""
     lot = shifted(original, 'village/oni_shop', 8)
     street_band(lot, 0, original.size[0] - 1)
-    # The shop's own bin by its west corner (its staff throw out paper, sticks and cut hair), lamps on both sidewalks.
-    garbage(lot, 1, 1, 7, 'north', [('paper', 3), ('stick', 2), ('mcyukkuri:trimmed_hair', 2), ('bread', 1)], lid_open=False)
+    # Staff carry actual scraps to the pavement bin. There is no prefilled paper or hair to mask that transfer.
+    garbage(lot, 1, 1, 7, 'north', [('stick', 2), ('bread', 1)], lid_open=False)
     lamp(lot, 16, 1, 7); lamp(lot, 6, 1, 1); lamp(lot, 20, 1, 1)
     jigsaw(lot, 0, 1, 4, 'west', 'mcyukkuri:street_east')
     jigsaw(lot, original.size[0] - 1, 1, 4, 'east', 'minecraft:empty', 'mcyukkuri:street_east', SITES)

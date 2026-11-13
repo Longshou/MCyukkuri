@@ -6261,6 +6261,8 @@
   "human.mcyukkuri.talk.cruel.1": "Out of my way.",
   "human.mcyukkuri.talk.passing.0": "すみません、通ります。",
   "human.mcyukkuri.street.warning": "近寄るな。",
+  "human.mcyukkuri.street.crop": "作物を食べるな。畑から出ていけ。",
+  "human.mcyukkuri.street.crop_frown": "あら、作物がかじられてる。",
   "human.mcyukkuri.street.chase": "どいて！",
   "human.mcyukkuri.street.stop": "やめて。その子を行かせて。",
   "human.mcyukkuri.street.player_frown": "叩かないで。",

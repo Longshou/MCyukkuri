@@ -13,6 +13,7 @@ import io.github.longshou.mcyukkuri.motor.action.PaneOpening;
 import io.github.longshou.mcyukkuri.motor.action.Walk;
 import io.github.longshou.mcyukkuri.motor.geom.Effort;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
+import io.github.longshou.mcyukkuri.settlement.Grazing;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
@@ -27,7 +28,7 @@ public final class HomeClaimGoal extends Goal implements MotorOwner {
     private final YukkuriEntity entity;
     private BlockPos crop;
     private boolean homing;
-    private int cooldown, elapsed;
+    private int cooldown, elapsed, cropLook;
     private UUID consideredClaim;
     // Keep the choice through interruptions; only a real refusal or failed route declines the pane.
     private final Map<BlockPos,Boolean> paneChoices = new HashMap<>();
@@ -82,7 +83,7 @@ public final class HomeClaimGoal extends Goal implements MotorOwner {
         var claim=HomeClaim.of(entity);
         if (claim==null || !HomeClaim.mayAct(entity)) return false;
         if (opening!=null) return claim.stage!=HomeClaimData.Stage.RETREAT;
-        if (crop!=null) return elapsed<300 && HomeClaim.cropEdible(entity,crop);
+        if (crop!=null) return elapsed<300 && Grazing.cropAt(entity,crop);
         return HomeClaim.away(entity,claim,homing) && (claim.stage==HomeClaimData.Stage.RETREAT
                 || entity.life().reachable(claim.site.pos(),false));
     }
@@ -93,9 +94,14 @@ public final class HomeClaimGoal extends Goal implements MotorOwner {
         if (opening!=null) { paneTick(); return; }
         if (crop==null) { HomeClaim.step(entity,claim); return; }
         elapsed++;
-        if (entity.distanceToSqr(Vec3.atBottomCenterOf(crop))<1.5) {
-            HomeClaim.eat(entity,crop); crop=null; cooldown=20; entity.getNavigation().stop();
-        } else if (elapsed%10==1 && !entity.life().navigate(crop,1,false)) { crop=null; cooldown=60; }
+        if (Grazing.reachesCrop(entity,crop)) {
+            entity.getNavigation().stop();
+            entity.getLookControl().setLookAt(crop.getX()+.5, crop.getY()+.25, crop.getZ()+.5);
+            if (++cropLook >= 20) { Grazing.biteCrop(entity,crop); crop=null; cooldown=20; }
+        } else {
+            cropLook = 0;
+            if (elapsed%10==1 && !entity.life().navigate(crop,1,false)) { crop=null; cooldown=60; }
+        }
     }
     private void paneTick() {
         if (action!=null && entity.motor().current()==action) return;
@@ -131,6 +137,6 @@ public final class HomeClaimGoal extends Goal implements MotorOwner {
     @Override public void stop() {
         entity.motor().cancel(this,"home_claim_stopped");
         if (opening!=null && action!=null) endPane(entity.motor().last());
-        active=false; opening=null; action=null; crop=null; homing=false; entity.getNavigation().stop();
+        active=false; opening=null; action=null; crop=null; cropLook=0; homing=false; entity.getNavigation().stop();
     }
 }

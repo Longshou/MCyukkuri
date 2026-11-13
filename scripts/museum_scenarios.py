@@ -1799,6 +1799,32 @@ add('street_give_way', 'town', '街上挡路：给走来的居民和玩家侧让
         yk('marisa', 0, 4, 'pass_marisa', label='从西侧走来', extra='Health:2.8f', **pair_ready()),
     ], env=DAY, vantage=(-5, 4, -90, 10))
 
+add('street_crops', 'town', '田边：吃一口作物，居民看见后警告', '田边：吃一口作物，居民看见后警告',
+    '灵梦在田边，正对成熟胡萝卜。居民看得见它，旁边还有一棵苗。看成熟作物退一阶、灵梦吃完、居民当面警告。', '约半分钟', [
+        box(-3, -1, -3, 5, -1, 3, 'minecraft:polished_andesite'),
+        block(1, -1, 0, 'minecraft:farmland[moisture=7]'),
+        block(1, 0, 0, 'minecraft:carrots[age=7]'),
+        block(2, -1, 0, 'minecraft:farmland[moisture=7]'),
+        block(2, 0, 0, 'minecraft:carrots[age=0]'),
+        street_trial('street_crops', 'reimu', 0, 0, 'crop_eater', nutrition=25, yaw=-90, lead=True),
+        human('caretaker_brother', -2, -2, 'crop_witness', 0, attitude=2, yaw=-45, label='看得见田的居民'),
+    ], env=DAY, vantage=(0, 8), reads=[('读血量', f'data get entity {sel("crop_eater")} Health')])
+
+add('street_furniture', 'town', '流浪油：长椅歇息、饮水、木桶檐下躲雨', '流浪油：长椅歇息、饮水、木桶檐下躲雨',
+    '西边困倦的魔理沙有一张干燥的长椅。东边口渴的灵梦能站在岸边饮水。试用下雨按钮，观察长椅、抬高木桶和遮篷的干地。', '约半分钟', [
+        box(-11, -1, -4, 12, -1, 4, 'minecraft:polished_andesite'),
+        block(-7, 0, 0, 'minecraft:oak_stairs[facing=south]'),
+        block(-6, 0, 0, 'minecraft:oak_slab[type=bottom]'),
+        block(-5, 0, 0, 'minecraft:oak_stairs[facing=south]'),
+        block(6, -1, 0, 'minecraft:water[level=0]'),
+        block(10, 1, 0, 'minecraft:barrel[facing=west]'),
+        'data merge block ~10 ~1 ~ {NeoForgeData:{StreetShelter:1b}}',
+        box(9, 2, 2, 11, 2, 3, 'minecraft:orange_wool'),
+        street_trial('street_furniture', 'marisa', -6, 0, 'bench_stray', dy=.5, energy=19, rest_wait=0, lead=True),
+        street_trial('street_furniture', 'reimu', 5, 0, 'water_stray', hygiene=45),
+        f'data merge entity {sel("water_stray")} {{YukkuriLife:{{Dryness:55f}}}}',
+    ], env=DAY, vantage=(0, 14), reads=[('读饮水', f'yukkuri status {sel("water_stray")} raw')])
+
 # ---- shop and factories: the whole building is placed by `human build`, which levels the lot and fills the shop itself
 STOCK = '@e[type=#mcylab:yukkuri,distance=..60,nbt={NeoForgeData:{HumanCommerce:{Use:"stock"}}}]'
 CORE_FILLING = 'mcyukkuri:core_filling[minecraft:custom_data={FillingVersion:1,Composition:"core",Method:"core",Nutrition:10,Sweetness:90,Odor:0,Variant:"reimu"}] 2'
@@ -1866,6 +1892,15 @@ add('oni_shop', 'shop', '鬼威惨商店：工具、处理过的库存和低价�
         'execute positioned ~ ~2 ~ run ' + human('caretaker_sister', 15, 16, 'oni_customer', 0),
     ], give=['minecraft:emerald 64', 'mcyukkuri:magnifying_glass'], env=DAY, vantage=(15, 17, 180, 8),
     reads=[('读店铺与库存', 'yukkuri human shop list'), ('读库存体况与预防', f'yukkuri status {STOCK} raw')])
+add('oni_street_scrap', 'shop', '鬼威惨商店：店员把一份碎屑送到街桶', '鬼威惨商店：店员把一份碎屑送到街桶',
+    '废物桶里有一份剪落的头发。看店员从后屋拿出，走到门外街桶投放。桶里的头发可以读数。', '约一分钟', [
+        'yukkuri human build oni_shop ~8 ~ ~17 south',
+        'data merge block ~17 ~2 ~-6 {Items:[{Slot:0b,id:"mcyukkuri:trimmed_hair",count:1}]}',
+        *garbage_barrel(5, 18, 'minecraft:stick', True),
+        'data merge block ~5 ~ ~18 {NeoForgeData:{YukkuriGarbage:1b,VillageBin:1b}}',
+    ], env=DAY, vantage=(4, 20, 180, 10),
+    reads=[('读店内废物桶', 'data get block ~17 ~2 ~-6 Items'),
+           ('读门外街桶', 'data get block ~5 ~ ~18 Items')])
 add('shop_restock', 'shop', '三天补货：多余的成体装篮送走，新到的子油进窝', '三天补货：多余的成体装篮送走，新到的子油进窝',
     '后院多放了两只上架已久的成体魔理沙，场景立刻触发一次三天补货：店里只留两只成体，最久没卖出去的两只被店员装篮送进后屋的进出货桶；'
     '新到的子油装在篮子里放进桶，等有空窝时店员提篮进后院放进窝里。交了定金预订的个体不会被送走。下一次补货在三天后',
@@ -4446,7 +4481,7 @@ TOPICS = {
     'den_family': 'W1', 'den_mold_exile': 'W1', 'dig': 'W2', 'indep_near': 'W3', 'den_move': 'W4', 'forage': 'W5', 'graze': 'W6', 'food_behind_glass': 'W6', 'den_barrier': 'W8',
     'family_absence': 'W9',
     'stray_boxes': 'M5', 'stray_rain': 'R1', 'stray_rubbish': 'M5', 'stray_junk_headwear': 'M5', 'stray_wind': 'R1',
-    'oni_shop': 'M1', 'shop_care': 'M1', 'street_give_way': 'M4',
+    'oni_shop': 'M1', 'shop_care': 'M1', 'street_give_way': 'M4', 'oni_street_scrap': 'M1', 'street_crops': 'M4', 'street_furniture': 'M5',
     'sleep': 'D1', 'night_sleep': 'D1', 'night_hungry_child': 'D1', 'meal_content': 'D1', 'fatigue': 'R1', 'fatigue_predator': 'R2', 'nutrition_age': 'D1', 'meet': 'D1', 'greet_close': 'D1', 'toilet': 'F5', 'hurt': 'F3',
     'birth_land_caught': 'F1', 'birth_land_missed': 'F1', 'feed': 'F2', 'first_toilet': 'F2', 'hop': 'F2', 'growth': 'F4',
     'leaf_swaddle': 'F2', 'leaf_swaddle_neglect': 'F2', 'leaf_swaddle_neglect_stages': 'F2', 'family_distance': 'F8', 'family_search': 'F8', 'family_search_pane': 'F8', 'birth_nest_safe': 'F1', 'birth_nest_stem': 'F1', 'birth_stem_caught': 'F1', 'family_nests': 'F4', 'carry_home': 'F4', 'infant_starvation': 'F2',
@@ -4876,6 +4911,9 @@ _free = _uuid_text('oniisan_prey', 'street_free')
 _stopped = _uuid_text('street_mixed', 'street_intervened')
 _chewing = _uuid_text('oniisan_prey', 'street_chewing')
 _boxed = _uuid_text('oniisan_prey', 'street_box')
+_crop_eater = _uuid_text('street_crops', 'crop_eater')
+_bench_stray = _uuid_text('street_furniture', 'bench_stray')
+_water_stray = _uuid_text('street_furniture', 'water_stray')
 _street_protected = [_uuid_text('oniisan_prey', name) for _, name, _ in _street_trials
                      if name not in ('street_free', 'street_chewing', 'street_box')]
 _mixed_protected = [_uuid_text('street_mixed', name) for name in ('street_intervened', 'street_door', 'street_trust')]
@@ -4933,6 +4971,22 @@ _smoke('street_mixed', 280, [rf'\[npc-care\][^\n]* action=street_stop target={_s
        r'\[shop\][^\n]* action=register shop=[^\n]*kind=ONI '],
        [rf'\[npc-care\][^\n]* action=street_(warn|chase|kick) target=(?:{"|".join(_mixed_protected)})\b'],
        readout=_street_health_reads('street_intervened', 'street_door', 'street_trust'))
+_smoke('street_crops', 240, [
+    rf'\[forage\][^\n]* uuid={_crop_eater}\b[^\n]* crop bite [^\n]* age=7->6 count=1 holder=mouth',
+    rf'\[npc-care\][^\n]* action=street_warn target={_crop_eater}\b[^\n]*crop=BlockPos',
+    rf'\[meal\][^\n]* uuid={_crop_eater}\b[^\n]* swallowed item=minecraft:carrot',
+], [r'\[forage\][^\n]* crop bite [^\n]* age=0->',
+    rf'\[body\][^\n]* uuid={_crop_eater}\b[^\n]* accepted damage'],
+       readout=_street_health_reads('crop_eater'))
+_smoke('street_furniture', 420, [
+    rf'\[habitat\][^\n]* uuid={_bench_stray}\b[^\n]* street rest spot=BENCH ',
+    rf'\[sleep\][^\n]* uuid={_bench_stray}\b[^\n]* begin source=life',
+    rf'\[needs\][^\n]* uuid={_water_stray}\b[^\n]* drink source=[^\n]* dryness=55\.0 -> 25\.0 pool=false',
+], readout=_street_health_reads('bench_stray', 'water_stray'))
+_smoke('oni_street_scrap', 1300, [
+    r'\[shop\][^\n]* action=street_scrap result=lifted [^\n]* item=mcyukkuri:trimmed_hair count=1',
+    r'\[shop\][^\n]* action=street_scrap result=stored [^\n]* item=mcyukkuri:trimmed_hair count=1',
+], readout=['data get block ~17 ~2 ~-6 Items', 'data get block ~5 ~ ~18 Items'])
 _smoke('shop_build', 1600, [r'\[npc-care\][^\n]* action=refill_bowl ', r'\[npc-care\][^\n]* action=clean_toilet ',
                             r'\[shop\][^\n]* action=dispose_waste result=stored ', r'\[shop\][^\n]* action=register shop=',
                             r'\[interaction\][^\n]* action=pin reason=shop'],

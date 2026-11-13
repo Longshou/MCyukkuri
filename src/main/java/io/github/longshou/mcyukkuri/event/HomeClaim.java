@@ -354,24 +354,11 @@ public final class HomeClaim {
             if (!level.hasChunkAt(p)) continue;
             if (c.hasBox && (p.getX()<c.minX||p.getX()>c.maxX||p.getY()<c.minY-1||p.getY()>c.maxY+1||p.getZ()<c.minZ||p.getZ()>c.maxZ)) continue;
             var state=level.getBlockState(p);
-            if (!(state.getBlock() instanceof CropBlock crop) || food(y,state).isEmpty() || !Grazing.ripe(state)) continue;
+            if (!(state.getBlock() instanceof CropBlock crop) || !Grazing.cropAt(y,p)) continue;
             double d=y.distanceToSqr(Vec3.atBottomCenterOf(p))+(crop.isMaxAge(state)?0:100);
             if (d<score) { best=p.immutable(); score=d; }
         }
         return best!=null && y.life().reachable(best,false) ? best : null;
-    }
-    public static boolean cropEdible(YukkuriEntity y, BlockPos pos) {
-        return y.level().hasChunkAt(pos) && !food(y,y.level().getBlockState(pos)).isEmpty() && y.level().getBlockState(pos).getBlock() instanceof CropBlock
-                && Grazing.ripe(y.level().getBlockState(pos));
-    }
-    /** Eats one real crop block: it disappears and its item becomes the meal (griefing rules apply). */
-    public static boolean eat(YukkuriEntity y, BlockPos pos) {
-        var level=(ServerLevel)y.level(); var state=level.getBlockState(pos); ItemStack food=food(y,state);
-        if (food.isEmpty() || !EventHooks.canEntityGrief(level,y) || !Grazing.ripe(state)) return false;
-        // The crop steps back half its growth range instead of vanishing; vanilla growth ripens it again.
-        if (!y.life().beginMeal(food,null,false)) return false;
-        Grazing.graze(level,pos,state);
-        return true;
     }
 
     // --- movement (used by HomeClaimGoal) ---------------------------------------------------------------------

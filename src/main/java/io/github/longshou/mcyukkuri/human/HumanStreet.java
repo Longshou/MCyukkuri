@@ -38,8 +38,10 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 
 /** One local encounter, driven by the resident's existing routine goal. */
@@ -60,15 +62,19 @@ final class HumanStreet {
     private boolean chasing;
     private Vec3 chaseStand;
     private YukkuriEntity activeTarget;
+    private YukkuriEntity cropTarget;
+    private BlockPos witnessedCrop, activeCrop;
+    private long cropWitnessUntil;
     private YukkuriEntity lastPetted;
     private long nextDirtLook;
     int kickPose, frownPose;
 
     private static final class Warning {
         final long at;
+        final BlockPos crop;
         boolean seen, parted;
         long blockedUntil;
-        Warning(long at) { this.at = at; }
+        Warning(long at, BlockPos crop) { this.at = at; this.crop = crop; }
     }
 
     HumanStreet(HumanNpc npc) { this.npc = npc; }
@@ -86,13 +92,18 @@ final class HumanStreet {
 
     YukkuriEntity pick() {
         if (!npc.streetActive() || !observable()) return null;
+        if (actionDay != day()) { actionDay = day(); actions = 0; }
+        warnings.values().removeIf(warning -> now() >= Math.max(warning.at + DAY, warning.blockedUntil));
+        if (actions < 2 && cropTarget != null && now() < cropWitnessUntil && canCropWarn(cropTarget)) return cropTarget;
+        if (actions < 2 && HumanWorld.CRUELTY.get() && npc.attitude() != HumanNpc.Attitude.CARING) {
+            var returning = nearest(2, y -> cropReturn(y) != null && canStart(y));
+            if (returning != null) return returning;
+        }
         return switch (npc.attitude()) {
             case CARING -> nearest(4, this::canCare);
             case NEUTRAL -> null;
             case CRUEL -> {
                 if (npc.level().isRaining()) yield null;
-                if (actionDay != day()) { actionDay = day(); actions = 0; }
-                warnings.values().removeIf(warning -> now() >= Math.max(warning.at + DAY, warning.blockedUntil));
                 yield actions >= 2 ? null : nearest(2, this::canStart);
             }
         };
@@ -155,8 +166,8 @@ final class HumanStreet {
         return true;
     }
 
-    private boolean canTarget(YukkuriEntity y, BlockPos exposure) {
-        if (!npc.streetActive() || npc.attitude() != HumanNpc.Attitude.CRUEL || npc.level().isRaining()
+    private boolean canTarget(YukkuriEntity y, BlockPos exposure, boolean keepBite) {
+        if (!npc.streetActive() || npc.level().isRaining()
                 || !available(y) || y.profile().aquatic() || !y.onGround() || !npc.hasLineOfSight(y)
                 || !npc.isWithinRestriction(y.blockPosition()) || !npc.isWithinRestriction(exposure)) return false;
         var identity = y.status().identity();
@@ -164,7 +175,7 @@ final class HumanStreet {
                 || !y.family().adult() && !y.family().subadult()
                 || y.settlement().groupId() != null || y.settlement().society().slave()
                 || y.family().brood() != null || y.family().partner() != null || !lone(y)) return false;
-        if (y.life().hasMouthFood() || y.life().mealTicks() > 0 || !y.component(YukkuriComponents.MOUTH).freeForExternalWork()
+        if (!keepBite && (y.life().mealTicks() > 0 || !y.component(YukkuriComponents.MOUTH).freeForExternalWork())
                 || y.getHealth() < y.getMaxHealth() || y.body().toxin() > 0 || y.body().mold() > 0
                 || !y.body().wounds().isEmpty() || y.body().footBurned() || y.status().marks().dirt() > 0
                 || FamilyNest.atAssignedNest(y) || FamilyNest.rimNest(y) != null || Facilities.floor(y).is(ModBlocks.NEST.get())
@@ -187,10 +198,43 @@ final class HumanStreet {
     }
 
     private boolean canStart(YukkuriEntity y) {
-        if (npc.distanceToSqr(y) > CONTACT_SQ || !canTarget(y, y.blockPosition())) return false;
+        if (npc.distanceToSqr(y) > CONTACT_SQ || !canTarget(y, y.blockPosition(), false)) return false;
         var warning = warnings.get(y.getUUID());
         if (warning != null && (!warning.seen || !warning.parted || now() < warning.blockedUntil || !HumanWorld.CRUELTY.get())) return false;
-        return crowding(y) || y.social().demandingFoodFrom(npc);
+        if (npc.attitude() != HumanNpc.Attitude.CRUEL && cropReturn(y) == null) return false;
+        return cropReturn(y) != null || crowding(y) || y.social().demandingFoodFrom(npc);
+    }
+
+    private BlockPos cropReturn(YukkuriEntity y) {
+        var warning = warnings.get(y.getUUID());
+        return warning == null || warning.crop == null || y.blockPosition().distSqr(warning.crop) > 16
+                || y.life().avoidsCrop(warning.crop) ? null : warning.crop;
+    }
+
+    private boolean canCropWarn(YukkuriEntity y) {
+        return !npc.walking() && now() >= nextPlayerFrown && npc.distanceToSqr(y) <= 144
+                && !warnings.containsKey(y.getUUID()) && !y.life().avoidsCrop(witnessedCrop)
+                && canTarget(y, witnessedCrop, true);
+    }
+
+    static void witnessedCropBite(YukkuriEntity y, BlockPos crop) {
+        var witness = y.level().getEntitiesOfClass(HumanNpc.class, y.getBoundingBox().inflate(12, 12, 12), npc ->
+                npc.street.observable() && npc.street.canTarget(y, crop, true) && npc.distanceToSqr(y) <= 144
+                        && npc.street.seesCrop(crop) && !npc.walking() && !npc.street.warnings.containsKey(y.getUUID())
+                        && npc.street.now() >= npc.street.nextPlayerFrown
+                        && (npc.street.actionDay != npc.street.day() || npc.street.actions < 2))
+                .stream().min(Comparator.comparingDouble(y::distanceToSqr)).orElse(null);
+        if (witness == null) return;
+        var street = witness.street;
+        street.cropTarget = y;
+        street.witnessedCrop = crop.immutable();
+        street.cropWitnessUntil = street.now() + 60;
+    }
+
+    private boolean seesCrop(BlockPos crop) {
+        var sight = npc.level().clip(new ClipContext(npc.getEyePosition(), crop.getCenter(),
+                ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, npc));
+        return sight.getType() == HitResult.Type.MISS || sight.getBlockPos().equals(crop);
     }
 
     private boolean crowding(YukkuriEntity y) {
@@ -199,39 +243,56 @@ final class HumanStreet {
     }
 
     void begin(YukkuriEntity y) {
-        if (npc.attitude() == HumanNpc.Attitude.CRUEL) activeTarget = y;
+        activeCrop = y == cropTarget && now() < cropWitnessUntil ? witnessedCrop : cropReturn(y);
+        if (activeCrop != null || npc.attitude() == HumanNpc.Attitude.CRUEL) activeTarget = y;
     }
 
+    boolean reacting() { return activeTarget != null; }
+
     boolean step(YukkuriEntity y) {
-        if (activeTarget != y || !observable() || !canTarget(y, y.blockPosition())) return false;
-        npc.getLookControl().setLookAt(y, 30, 30);
         var warning = warnings.get(y.getUUID());
+        boolean cropWarning = activeCrop != null && !chasing && (beatUntil != 0 || warning == null);
+        if (activeTarget != y || !observable() || !canTarget(y, y.blockPosition(), cropWarning)) return false;
+        npc.getLookControl().setLookAt(y, 30, 30);
         if (beatUntil != 0) {
             if (chasing) return chaseContinues(y);
-            if (now() < beatUntil && npc.distanceToSqr(y) <= CONTACT_SQ && y.hasLineOfSight(npc) && aheadOf(y, npc)) warning.seen = true;
+            if (now() < beatUntil && npc.distanceToSqr(y) <= (activeCrop == null ? CONTACT_SQ : 144)
+                    && y.hasLineOfSight(npc) && aheadOf(y, npc)) {
+                if (!warning.seen && activeCrop != null) y.status().reactions().threat().cropWarning(npc);
+                warning.seen = true;
+            }
             return now() < beatUntil;
         }
-        if (!canStart(y)) return false;
+        if (!(cropWarning ? canCropWarn(y) : canStart(y))) return false;
         npc.getNavigation().stop();
         if (warning == null) {
-            warning = new Warning(now());
+            warning = new Warning(now(), activeCrop);
             warnings.put(y.getUUID(), warning);
-            if (interrupted(y, warning)) return false;
+            if (activeCrop == null && interrupted(y, warning)) return false;
+            if (activeCrop != null && npc.attitude() == HumanNpc.Attitude.CARING) {
+                actions++;
+                nextPlayerFrown = now() + ROUTE_TICKS;
+                npc.level().broadcastEntityEvent(npc, FROWN_EVENT);
+                cue(npc, y, "crop_frown");
+                GameplayLog.event(npc, "npc-care", "action=crop_frown target={} crop={} actions={}", y.getUUID(), activeCrop, actions);
+                return false;
+            }
             beatUntil = now() + 30;
             actions++;
-            cue(npc, y, "warning");
+            cue(npc, y, activeCrop == null ? "warning" : "crop");
             y.getLookControl().setLookAt(npc, 30, 30);
             y.showReaction("surprise", "", 30);
-            GameplayLog.event(npc, "npc-care", "action=street_warn target={} health={} actions={}", y.getUUID(), y.getHealth(), actions);
+            GameplayLog.event(npc, "npc-care", "action=street_warn target={} health={} actions={} crop={}", y.getUUID(), y.getHealth(), actions, activeCrop);
             return true;
         }
-        if (!crowding(y)) return false;
+        if (activeCrop == null && !crowding(y)) return false;
         warning.parted = false;
-        if (interrupted(y, warning)) return false;
+        if (activeCrop == null && interrupted(y, warning)) return false;
         var away = away(y);
         if (!dryStreet(y, y.position(), away)) return false;
         var data = y.getPersistentData();
-        if (npc.distanceToSqr(y) <= .85 * .85 && (!data.contains(KICK_DAY) || data.getLong(KICK_DAY) != day())
+        if (npc.attitude() == HumanNpc.Attitude.CRUEL && npc.distanceToSqr(y) <= .85 * .85
+                && (!data.contains(KICK_DAY) || data.getLong(KICK_DAY) != day())
                 && dryStreet(y, y.position().add(away.scale(.5)), away)
                 && npc.level().noCollision(y, y.getBoundingBox().move(away.scale(.5)).deflate(.01))) {
             kick(y, away);
@@ -246,6 +307,8 @@ final class HumanStreet {
         beatUntil = now() + ROUTE_TICKS;
         chasing = true;
         chaseStand = Vec3.atBottomCenterOf(stand);
+        if (activeCrop != null) y.life().avoidField(activeCrop);
+        if (activeCrop != null) warning.blockedUntil = now() + DAY;
         actions++;
         cue(npc, y, "chase");
         GameplayLog.event(npc, "npc-care", "action=street_chase target={} health={} actions={}", y.getUUID(), y.getHealth(), actions);
@@ -256,7 +319,7 @@ final class HumanStreet {
         return HumanWorld.CRUELTY.get() && now() < beatUntil && !npc.getNavigation().isDone() && !npc.horizontalCollision
                 && npc.distanceToSqr(y) <= CONTACT_SQ && aheadOf(npc, y) && dryStreet(y, y.position(), away(y))
                 && dryStreet(y, chaseStand, away(y))
-                && !interrupted(y, warnings.get(y.getUUID()));
+                && (activeCrop != null || !interrupted(y, warnings.get(y.getUUID())));
     }
 
     private boolean interrupted(YukkuriEntity y, Warning warning) {
@@ -282,7 +345,7 @@ final class HumanStreet {
         for (double distance = 0; distance <= 2; distance += .5) {
             var feet = stand.add(away.scale(distance));
             var at = BlockPos.containing(feet);
-            if (!npc.level().hasChunkAt(at) || !road(npc.level().getBlockState(at.below()))
+            if (!npc.level().hasChunkAt(at) || activeCrop == null && !road(npc.level().getBlockState(at.below()))
                     || !SurfaceApproach.supportedGround(y, feet) || Custody.harmRefusal(null, y, at) != null) return false;
         }
         return true;
@@ -301,6 +364,10 @@ final class HumanStreet {
         int closeness = personality.relation(npc.getUUID()).closeness();
         personality.relationshipChanged(npc.getUUID(), Math.min(-8, -1 - closeness), 18);
         y.getPersistentData().putLong(KICK_DAY, day());
+        if (activeCrop != null) {
+            y.life().avoidField(activeCrop);
+            warnings.get(y.getUUID()).blockedUntil = now() + DAY;
+        }
         npc.level().broadcastEntityEvent(npc, KICK_EVENT);
         actions++;
         GameplayLog.event(npc, "npc-care", "action=street_kick target={} health={}->{} actions={}",
@@ -321,6 +388,9 @@ final class HumanStreet {
                 GameplayLog.event(npc, "npc-care", "action=street_dirt_frown target={} dirt={}", dirty.getUUID(), dirty.status().marks().dirt());
             }
         }
+        if (cropTarget != null && (!cropTarget.isAlive() || cropTarget.isRemoved() || now() >= cropWitnessUntil)) {
+            cropTarget = null; witnessedCrop = null;
+        }
         if (lastPetted != null && (!lastPetted.isAlive() || lastPetted.level() != npc.level()
                 || npc.distanceToSqr(lastPetted) > PARTED_SQ)) lastPetted = null;
         if (warnings.isEmpty()) return;
@@ -328,7 +398,8 @@ final class HumanStreet {
         for (var entry : warnings.entrySet()) {
             var warning = entry.getValue();
             if (warning.seen && !warning.parted && level.getEntity(entry.getKey()) instanceof YukkuriEntity y
-                    && npc.distanceToSqr(y) > PARTED_SQ) warning.parted = true;
+                    && (warning.crop == null ? npc.distanceToSqr(y) > PARTED_SQ
+                            : y.blockPosition().distSqr(warning.crop) > 16)) warning.parted = true;
         }
     }
 
@@ -339,7 +410,7 @@ final class HumanStreet {
         }
         var interventions = new ListTag();
         warnings.forEach((target, warning) -> {
-            if (warning.blockedUntil <= now()) return;
+            if (warning.crop != null || warning.blockedUntil <= now()) return;
             var saved = new CompoundTag();
             saved.putUUID("Target", target);
             saved.putLong("Until", warning.blockedUntil);
@@ -355,13 +426,13 @@ final class HumanStreet {
         for (var item : tag.getList("StreetInterventions", Tag.TAG_COMPOUND)) {
             var saved = (CompoundTag) item;
             if (!saved.hasUUID("Target") || saved.getLong("Until") <= now()) continue;
-            var warning = new Warning(saved.getLong("Until") - DAY);
+            var warning = new Warning(saved.getLong("Until") - DAY, null);
             warning.blockedUntil = saved.getLong("Until");
             warnings.put(saved.getUUID("Target"), warning);
         }
     }
 
-    void cancel() { activeTarget = null; beatUntil = 0; chasing = false; chaseStand = null; }
+    void cancel() { activeTarget = null; activeCrop = null; beatUntil = 0; chasing = false; chaseStand = null; }
 
     /** Pick up an available real portion within reach. The same stock pays for feeding and bin transfers. */
     void pickUpGrain() {
@@ -381,10 +452,11 @@ final class HumanStreet {
 
     boolean threatTo(YukkuriEntity witness) {
         return activeTarget != null && beatUntil > now() && witness.distanceToSqr(npc) <= 64 && !witness.isLeashed()
+                && (activeCrop == null || chasing)
                 && witness.hasLineOfSight(npc) && (witness == activeTarget
                 ? chasing || beatUntil - now() <= 10 && warnings.get(activeTarget.getUUID()).seen
                 : witness.hasLineOfSight(activeTarget))
-                && canTarget(activeTarget, activeTarget.blockPosition());
+                && canTarget(activeTarget, activeTarget.blockPosition(), activeCrop != null && !chasing);
     }
 
     static void witnessedHurt(YukkuriEntity y, Player player) {

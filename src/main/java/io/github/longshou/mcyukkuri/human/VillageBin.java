@@ -28,17 +28,13 @@ public final class VillageBin {
         if (residentData.contains(DAY) && residentData.getLong(DAY) == day) return;
         for (var at : BlockPos.withinManhattan(resident.blockPosition(), REACH, 1, REACH)) {
             if (!level.hasChunkAt(at) || resident.distanceToSqr(at.getCenter()) > REACH * REACH
-                    || !(level.getBlockEntity(at) instanceof BarrelBlockEntity barrel)) continue;
-            var bin = barrel.getPersistentData();
-            if (!bin.getBoolean(GarbageSearch.MARKER) || !bin.getBoolean("VillageBin") || bin.contains(DAY) && bin.getLong(DAY) == day) continue;
+                    || !(level.getBlockEntity(at) instanceof BarrelBlockEntity)) continue;
             var hit = level.clip(new ClipContext(resident.getEyePosition(), at.getCenter(),
                     ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, resident));
             if (!at.equals(hit.getBlockPos())) continue;
-            if (!addScrap(barrel)) continue;
+            if (!deposit(level, at, new ItemStack(ModItems.GRAIN_REGULAR.get()))) continue;
             int before = resident.careFood();
             resident.drawCareFood(1);
-            bin.putLong(DAY, day);
-            barrel.setChanged();
             residentData.putLong(DAY, day);
             resident.swing(InteractionHand.OFF_HAND);
             GameplayLog.event(resident, "npc-care", "action=bin_refill bin={} day={} item=mcyukkuri:oil_grain_regular food={}->{}",
@@ -47,16 +43,33 @@ public final class VillageBin {
         }
     }
 
-    private static boolean addScrap(BarrelBlockEntity barrel) {
+    public static boolean accepts(ServerLevel level, BlockPos at, ItemStack portion) {
+        return slot(level, at, portion) >= 0;
+    }
+
+    public static boolean deposit(ServerLevel level, BlockPos at, ItemStack portion) {
+        int index = slot(level, at, portion);
+        if (index < 0) return false;
+        var barrel = (BarrelBlockEntity) level.getBlockEntity(at);
+        barrel.setItem(index, portion.copyWithCount(1));
+        barrel.getPersistentData().putLong(DAY, Math.floorDiv(level.getDayTime(), HumanStreet.DAY));
+        barrel.setChanged();
+        return true;
+    }
+
+    private static int slot(ServerLevel level, BlockPos at, ItemStack portion) {
+        if (!level.hasChunkAt(at) || !(level.getBlockEntity(at) instanceof BarrelBlockEntity barrel)) return -1;
+        var bin = barrel.getPersistentData();
+        long day = Math.floorDiv(level.getDayTime(), HumanStreet.DAY);
+        if (!bin.getBoolean(GarbageSearch.MARKER) || !bin.getBoolean("VillageBin")
+                || bin.contains(DAY) && bin.getLong(DAY) == day) return -1;
         int empty = -1;
         for (int slot = 0; slot < barrel.getContainerSize(); slot++) {
             var stack = barrel.getItem(slot);
-            if (stack.is(ModItems.GRAIN_REGULAR.get())) return false;
+            if (stack.is(portion.getItem())) return -1;
             if (stack.isEmpty() && empty < 0) empty = slot;
         }
-        if (empty < 0) return false;
-        barrel.setItem(empty, new ItemStack(ModItems.GRAIN_REGULAR.get()));
-        return true;
+        return empty;
     }
 
     private VillageBin() {}

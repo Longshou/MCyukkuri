@@ -6655,5 +6655,7 @@
   "human.mcyukkuri.street.warning": "离远一点。",
   "human.mcyukkuri.street.chase": "让开！",
   "human.mcyukkuri.street.stop": "住手，让它走。",
-  "human.mcyukkuri.street.player_frown": "别打它。"
+  "human.mcyukkuri.street.player_frown": "别打它。",
+  "human.mcyukkuri.street.crop": "别吃地里的庄稼，离远一点。",
+  "human.mcyukkuri.street.crop_frown": "哎，庄稼少了一口。"
 }

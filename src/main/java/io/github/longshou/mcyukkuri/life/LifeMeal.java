@@ -27,6 +27,7 @@ import io.github.longshou.mcyukkuri.registry.ModItems;
 import io.github.longshou.mcyukkuri.social.YukkuriPersonality.Trait;
 import java.util.Comparator;
 import java.util.UUID;
+import java.util.function.BooleanSupplier;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
@@ -125,6 +126,18 @@ final class LifeMeal {
     boolean beginMeal(ItemStack transferred, UUID fromPlayer, boolean alreadyShared) {
         if (!(canEat() || canTakeSweet(transferred)) || transferred.isEmpty() || !acceptsFood(transferred) || transferred.getCount() != 1) return false;
         return startMeal(transferred, fromPlayer, alreadyShared, "take_food");
+    }
+
+    /** A crop and its serving commit together. A refused world change leaves the mouth empty. */
+    boolean beginHarvestMeal(ItemStack serving, BooleanSupplier harvest) {
+        if (!canEat() || !acceptsFood(serving) || !ExamSession.allowsPeerFeeding(o.entity(), null)
+                || !occupancy().freeForExternalWork() || !occupancy().acquireMeal(serving)) return false;
+        if (!harvest.getAsBoolean()) {
+            occupancy().clear(Purpose.MEAL);
+            return false;
+        }
+        startItemMeal(serving, null, false, "take_food");
+        return true;
     }
 
     /** A caller checks this before consuming a body's one-shot resource. */

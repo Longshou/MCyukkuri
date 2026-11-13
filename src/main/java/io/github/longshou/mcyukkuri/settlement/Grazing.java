@@ -1,6 +1,11 @@
 package io.github.longshou.mcyukkuri.settlement;
 
 import io.github.longshou.mcyukkuri.random.ModRandom;
+import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.human.HumanNpc;
+import io.github.longshou.mcyukkuri.status.GameplayLog;
+import io.github.longshou.mcyukkuri.life.SurfaceApproach;
+import io.github.longshou.mcyukkuri.interaction.ItemContact;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -25,7 +30,9 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import net.minecraft.world.level.saveddata.SavedData;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
+import net.neoforged.neoforge.event.EventHooks;
 
 /**
  * Sustainable grazing (project design). Eating a plant never deletes it for good: it falls back one growth stage and
@@ -33,7 +40,7 @@ import net.neoforged.neoforge.event.tick.ServerTickEvent;
  * <ul>
  * <li>tall grass / large fern: back to short grass / fern, returns to tall after {@link #TALL_DELAY};</li>
  * <li>short grass / fern: back to bare turf, returns after {@link #SHORT_DELAY};</li>
- * <li>ripe crop: back by half its growth range, then ripens again with vanilla random ticks (no ledger needed);</li>
+ * <li>crop: back one stage, then ripens again with vanilla random ticks (no ledger needed);</li>
  * <li>sweet berry bush: already left at age 1 by the berry foragers.</li>
  * </ul>
  * Vanilla never regrows short grass on its own (only bonemeal and world generation place it), which is why the old
@@ -73,14 +80,53 @@ public final class Grazing {
         return true;
     }
 
-    /** A crop worth eating: ripe at least halfway. */
-    public static boolean ripe(BlockState state) {
-        return state.getBlock() instanceof CropBlock crop && crop.getAge(state) >= (crop.getMaxAge() + 1) / 2;
+    public static ItemStack cropFood(YukkuriEntity body, BlockState state) {
+        if (!(state.getBlock() instanceof CropBlock crop) || crop.getAge(state) == 0) return ItemStack.EMPTY;
+        var item = state.is(Blocks.WHEAT) ? Items.WHEAT : state.is(Blocks.CARROTS) ? Items.CARROT
+                : state.is(Blocks.POTATOES) ? Items.POTATO : state.is(Blocks.BEETROOTS) ? Items.BEETROOT : null;
+        if (item == null) return ItemStack.EMPTY;
+        var serving = new ItemStack(item);
+        return body.life().acceptsFood(serving) ? serving : ItemStack.EMPTY;
     }
-    /** Eating a crop sets it back half its growth range instead of removing it; vanilla growth ripens it again. */
-    public static boolean graze(ServerLevel level, BlockPos pos, BlockState state) {
-        if (!(state.getBlock() instanceof CropBlock crop) || !ripe(state)) return false;
-        return level.setBlock(pos, crop.getStateForAge(Math.max(0, crop.getAge(state) - (crop.getMaxAge() + 1) / 2)), 3);
+
+    public static boolean cropAt(YukkuriEntity body, BlockPos pos) {
+        var level = body.level();
+        return level.hasChunkAt(pos) && level.getBlockState(pos.below()).is(Blocks.FARMLAND)
+                && !body.life().avoidsCrop(pos) && !cropFood(body, level.getBlockState(pos)).isEmpty();
+    }
+
+    public static boolean streetForager(YukkuriEntity body) {
+        return FoundShelter.streetUser(body) && !body.settlement().settlementMember();
+    }
+
+    /** Free street foragers use the same crop and bite as home claimants. No POI is needed for a real cultivated plot. */
+    public static BlockPos nearbyCrop(YukkuriEntity body) {
+        var here = body.blockPosition();
+        var crops = new ArrayList<BlockPos>();
+        for (var at : BlockPos.betweenClosed(here.offset(-6, -1, -6), here.offset(6, 1, 6)))
+            if (cropAt(body, at)) crops.add(at.immutable());
+        return crops.stream().sorted(Comparator.comparingDouble(at -> body.distanceToSqr(Vec3.atBottomCenterOf(at))))
+                .limit(4).filter(at -> reachesCrop(body, at) || body.life().reachable(at, false)).findFirst().orElse(null);
+    }
+
+    public static boolean reachesCrop(YukkuriEntity body, BlockPos pos) {
+        var target = Vec3.atBottomCenterOf(pos).add(0, .25, 0);
+        return body.onGround() && body.distanceToSqr(target) <= 1.5 && ItemContact.clear(body, body.getEyePosition(), target)
+                && SurfaceApproach.supportedGround(body, body.position());
+    }
+
+    public static boolean biteCrop(YukkuriEntity body, BlockPos pos) {
+        var level = (ServerLevel) body.level();
+        if (!body.status().identity().free() || !cropAt(body, pos) || !reachesCrop(body, pos)
+                || !EventHooks.canEntityGrief(level, body)) return false;
+        var state = level.getBlockState(pos);
+        var crop = (CropBlock) state.getBlock();
+        int age = crop.getAge(state);
+        if (!body.life().beginCropMeal(cropFood(body, state),
+                () -> level.getBlockState(pos) == state && level.setBlock(pos, crop.getStateForAge(age - 1), Block.UPDATE_ALL))) return false;
+        GameplayLog.event(body, "forage", "crop bite source={} age={}->{} count=1 holder=mouth", pos.toShortString(), age, age - 1);
+        if (!body.settlement().settlementMember()) HumanNpc.witnessedCropBite(body, pos);
+        return true;
     }
 
     /** Pending regrowths in this level (for tests and observation). */
