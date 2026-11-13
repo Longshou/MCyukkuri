@@ -2321,20 +2321,21 @@ add('magma_sole', 'body', '踩岩浆块烫脚，跳着逃开', '踩岩浆块烫�
     reads=[('读脚底灼伤', f'yukkuri status {sel("hot")} raw'), ('读普通地面对照', f'yukkuri status {sel("cool")} raw')])
 
 add('learned_holder', 'body', '目击工具后躲开持用者', '目击工具后躲开持用者',
-    '在个体面前使用转子，间隔十秒再让它看见一次。空手靠近目击者也会引起退避。隔墙对照看不到工具接触。可把食物放在离持用者八格以外，观察极饿时恢复觅食。',
+    '在个体面前使用转子，间隔十秒再让它看见一次。空手靠近目击者也会引起退避。封闭隔间里的对照可以走动，始终看不到工具接触。可把食物放在离持用者八格以外，观察极饿时恢复觅食。',
     '站在目标前使用转子，读旁观者的对象关系', [
         yk('reimu',0,0,'target',label='工具接触对象',lead=True,extra='NoAI:1b'),
         yk('reimu',2,1,'witness',label='看得见的旁观者',boldness=0,uuid=uid('learned_holder','witness')),
-        box(-3,0,-2,-3,2,4,'minecraft:stone'),
-        yk('reimu',-4,1,'screened',label='隔墙对照',boldness=0,uuid=uid('learned_holder','screened')),
+        box(-8,0,-1,-4,3,3,'minecraft:stone','hollow'),
+        block(-6,3,1,'minecraft:sea_lantern'),
+        yk('reimu',-6,1,'screened',label='隔墙对照',boldness=0,uuid=uid('learned_holder','screened')),
     ], env=DAY,vantage=(0,8),give=['mcyukkuri:care_vibrator 2','minecraft:apple 4'],
     reads=[('读旁观者关系',f'yukkuri status {sel("witness")} raw'),('读隔墙对照',f'yukkuri status {sel("screened")} raw')])
 
 _hook_scene = 'hook_kin_rescue'
 add(_hook_scene, 'body', '亲属走近吊钩尝试救援', '亲属走近吊钩尝试救援',
-    '在透明顶板下的孩子身上使用吊钩，然后留在五格内并给亲油让开通路。亲油会先看向孩子，再按胆量、恐惧与友善决定是否上前。够到钩身才会放下孩子，钩子成为真实掉落物。',
-    '用吊钩挂起孩子，观察亲油能否走到接触点', [
-        box(-1,2,-1,1,2,1,'minecraft:glass'),
+    '在透明高顶下的孩子身上使用吊钩，然后留在五格内并给亲油让开通路。亲油按胆量、恐惧与友善决定是否上前。这处钩位偏高，观察亲油走到下方、抬头尝试、够不到时含泪退让。够到钩身才会松开钩子。',
+    '用吊钩挂起孩子，观察亲油走近后如何尝试', [
+        box(-1,3,-1,1,3,1,'minecraft:glass'),
         yk('reimu',0,0,'hook_child',label='孩子',lead=True,extra='NoAI:1b',
            uuid=uid(_hook_scene,'hook_child'),kin=f'Mother:{uuid_nbt(uid(_hook_scene,"hook_parent"))}'),
         yk('reimu',2,0,'hook_parent',label='亲油',uuid=uid(_hook_scene,'hook_parent'),boldness=100,friendliness=100),
@@ -4833,9 +4834,23 @@ next(s for s in S if s.id == 'learned_holder').smoke['commands'] = [
 
 _smoke('hook_kin_rescue', 380, [
     rf'\[interaction\][^\n]* uuid={_uuid_text(_hook_scene,"hook_child")} [^\n]* binding wound; pose=HOOK ',
-    rf'\[social\][^\n]* uuid={_uuid_text(_hook_scene,"hook_parent")} [^\n]* hook rescue end target={_uuid_text(_hook_scene,"hook_child")} [^\n]*result=released',
     r'\[interaction\][^\n]* binding returned to world; [^\n]* item=mcyukkuri:hanging_hook count=1',
 ], forbid=[r'\[body\][^\n]* death settled'])
+
+def _hook_rescue_attempt(window):
+    child, parent = (_uuid_text(_hook_scene, role) for role in ('hook_child', 'hook_parent'))
+    hook = re.search(rf'\[interaction\][^\n]* uuid={child} [^\n]* binding wound; pose=HOOK wound=([\w-]+)', window)
+    if hook is None:
+        return 'the child never hung from its own hook wound'
+    identity = rf'\[social\][^\n]* uuid={parent} [^\n]* hook rescue '
+    subject = rf'target={child} wound={hook[1]}'
+    sequence = (identity + 'cue ' + subject + r'[^\n]*\n[\s\S]*?' +
+                identity + 'attempt ' + subject + r'[^\n]*\n[\s\S]*?' +
+                identity + 'end ' + subject + r' result=(?:released|no_reach)\b')
+    if not re.search(sequence, window):
+        return 'the parent did not approach and try this hook before release or giving up out of reach'
+
+next(s for s in S if s.id == 'hook_kin_rescue').smoke['verify'] = _hook_rescue_attempt
 next(s for s in S if s.id == 'hook_kin_rescue').smoke['commands'] = [
     (44, f'execute at {sel("hook_child")} positioned ~ ~ ~1.8 run yukkuri scenario tool_operator enter'),
     (46, f'execute at {sel("hook_child")} positioned ~ ~ ~1.8 run yukkuri scenario tool_click {sel("hook_child")} hook_hang'),

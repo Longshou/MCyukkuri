@@ -22,7 +22,7 @@ public final class HookRescueGoal extends Goal {
     private UUID wound;
     private final Set<UUID> attemptedWounds = new HashSet<>();
     private Vec3 contact, stand;
-    private int ticks;
+    private int ticks, contactTicks;
     private long nextScan;
     private String result;
 
@@ -63,7 +63,7 @@ public final class HookRescueGoal extends Goal {
     }
 
     @Override public void start() {
-        ticks=0;result=null;attemptedWounds.add(wound);
+        ticks=contactTicks=0;result=null;attemptedWounds.add(wound);
         helper.showReaction("teary","afraid",60);
         var personality=helper.life().personality();
         int fear=personality.fear(target.operations().operator());
@@ -89,16 +89,34 @@ public final class HookRescueGoal extends Goal {
         if(++ticks<WARNING_TICKS||result!=null)return;
         if(contact==null||contact.distanceToSqr(point)>.04){
             contact=point;
+            contactTicks=0;
             double distance=helper.getBbWidth()*.5+ContactGeometry.GRAB_MARGIN*.5;
-            stand=SurfaceApproach.beside(helper,point,distance,target,
+            var ground=new Vec3(point.x,helper.getY(),point.z);
+            stand=SurfaceApproach.beside(helper,ground,distance,target,
                     at->ContactGeometry.mouthReachesPoint(helper,at,SurfaceApproach.yaw(at,point),point));
-            if(stand==null){result="no_reach";return;}
+            if(stand==null){
+                // Even with a high hook, the helper can walk to its foot and visibly try from below.
+                double clearance=(helper.getBbWidth()+target.getBbWidth())*.5+ContactGeometry.GRAB_MARGIN;
+                var below=new Vec3(target.getX(),helper.getY(),target.getZ());
+                stand=SurfaceApproach.beside(helper,below,clearance,target,at->true);
+                if(stand==null){result="blocked";return;}
+            }
         }
         var move=SurfaceApproach.walkResult(helper,stand,target,1.1);
         if(move==SurfaceApproach.Result.BLOCKED){result="blocked";return;}
         if(move!=SurfaceApproach.Result.ARRIVED)return;
         Motor.face(helper,SurfaceApproach.yaw(helper.position(),point));
+        if(++contactTicks==1){
+            helper.forceReaction("surprise","",WARNING_TICKS);
+            GameplayLog.event(helper,"social","hook rescue attempt target={} wound={} stand={} hook={}",
+                    target.getUUID(),wound,GameplayLog.at(stand),GameplayLog.at(point));
+        }
+        if(contactTicks<WARNING_TICKS)return;
         if(target.operations().releaseHook(helper,wound))result="released";
+        else{
+            helper.forceReaction("teary","afraid",60);
+            result="no_reach";
+        }
     }
 
     @Override public void stop() {
