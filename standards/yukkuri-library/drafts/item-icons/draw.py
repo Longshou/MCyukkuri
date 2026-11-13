@@ -55,6 +55,8 @@ INK = ['#2a2036', '#3a3048', '#4b4260', '#625a7a', '#8a84a0']          # Marisa 
 CREAM = ['#8c7a5c', '#b6a481', '#d7c8a6', '#ece2c7', '#f9f4e4']        # bowl lip (placed.py CREAM)
 MINTC = ['#2d6656', '#438a76', '#5fab94', '#86c9b2', '#b6e6d4']        # bowl and toilet glaze (placed.py MINT)
 ANKO = ['#2e1a10', '#4a2c1b', '#6a4129', '#8a5a3a', '#ad7d57']        # bean-paste filling (placed.py ANKO)
+WHITE = ['#8e95a3', '#b8bfcc', '#dde2ea', '#eff2f6', '#ffffff']        # glazed ceramic (placed.py WHITE)
+MARBLE = ['#2f5a86', '#5f8fbf', '#9cc3e4', '#cfe5f6', '#ffffff']       # marble glass, deeper than the bottle glass
 BERRY = ['#5e1424', '#932338', '#c23d52', '#e46d7b', '#fba3aa']        # nest cushion (strawberry)
 NAVYW = ['#273f5c', '#3d5f86', '#5a83ad', '#86abcf', '#b8d2ea']        # fine (blue) carrier wicker
 SAGEW = ['#2b4a33', '#41704b', '#5f9467', '#8bb98d', '#bfe0bd']        # large (green) carrier wicker
@@ -236,27 +238,27 @@ def spicy_grain():
 
 
 def reproductive_filling():
-    """A piping bag of bean-paste filling, point down: a twisted, clipped top, the paste showing near the tip, a metal nozzle."""
+    """A piping bag of bean-paste filling, point down: a twisted, clipped top, the paste showing in the long tip, a pointed metal nozzle."""
     i = Icon('reproductive_filling')
     i.rows(legend(o=(PAPER, 0), W=(PAPER, 4), w=(PAPER, 3), s=(PAPER, 2), S=(PAPER, 1),
                   b=(SKY, 2), B=(SKY, 1), c=(SKY, 3), n=(SKY, 0), f=(ANKO, 3), F=(ANKO, 2), A=(ANKO, 1), a=(ANKO, 4),
                   i=(IRON, 0), I=(IRON, 4), j=(IRON, 2)), [
-        "................",
         "......oWo.......",
         ".......osso.....",
         "......ncbBn.....",
         "....ooWwwsoo....",
         "...oWwwwwwsso...",
         "...oWwwwwwsso...",
-        "...oWwwwwwSso...",
-        "....oWwaffSo....",
-        "....oWafffAo....",
-        ".....oafFAo.....",
-        ".....oaFAAo.....",
+        "....oWwwwwso....",
+        "....oWwwwSso....",
+        ".....oWafFo.....",
+        ".....oaffAo.....",
+        "......oaFo......",
         "......oFAo......",
-        "......iIji......",
-        ".......ii.......",
-        "................",
+        ".......oo.......",
+        ".......iI.......",
+        ".......Ij.......",
+        "........i.......",
     ])
     return i
 
@@ -313,18 +315,17 @@ def yarn_ball():
 
 
 def glass_marble():
-    """A clear glass marble (11 px): a small red-and-green core, a white glint at the top left, light caught on the lower right."""
+    """A clear glass marble (11 px) in a deeper glass ramp so it holds at 1x: an orange twist inside, a white glint at the top left."""
     i = Icon('glass_marble')
-    i.disc((7.5, 8.5), 4.9, GLASS, glint=True)
+    i.disc((7.5, 8.5), 4.9, MARBLE, glint=True)
     i.finish()
-    i.rows(legend(r=(RED, 3), R=(RED, 2), d=(RED, 1), w=(PAPER, 4), c=(GLASS, 3), a=(GREEN, 2), A=(GREEN, 1)), [""] * 5 + [
+    i.rows(legend(r=(AMBER, 3), R=(AMBER, 2), d=(AMBER, 1), w=(PAPER, 4)), [""] * 5 + [
         "....ww..........",
         "....w...........",
         "........rR......",
-        ".......aRd......",
-        ".......Aa.......",
-        "..........c.....",
-        ".........cc.....",
+        ".......rRd......",
+        "........Rd......",
+        ".......rd.......",
     ])
     return i
 def pretty_stone():
@@ -499,26 +500,26 @@ def yukkuri_pool():
 
 # ---- care devices -----------------------------------------------------------------------------------------------------
 def food_bowl():
-    """Pet food bowl: cream lip, empty cream floor with a mint clover print, a mint glazed belly on a small foot."""
+    """Pet food bowl: white glazed ceramic with a red rim band, heaped with oil-grain kibble (the toilet is the teal tray)."""
     i = Icon('food_bowl')
-    i.rows(legend(c=(CREAM, 0), L=(CREAM, 4), l=(CREAM, 3), f=(CREAM, 2), F=(CREAM, 1),
-                  m=(MINTC, 0), H=(MINTC, 4), h=(MINTC, 3), g=(MINTC, 2), s=(MINTC, 1)), [
+    i.rows(legend(c=(WHITE, 0), L=(WHITE, 4), l=(WHITE, 3), f=(WHITE, 2), F=(WHITE, 1), r=(RED, 2), R=(RED, 1), q=(RED, 3),
+                  a=(S.PELLET, 0), d=(S.PELLET, 1), b=(S.PELLET, 2), k=(S.PELLET, 3)), [
         "................",
         "................",
         "................",
         "................",
         "................",
-        "....cccccccc....",
-        "..ccLLLLLLLLcc..",
-        ".cLFFFFFFFFFFlc.",
-        ".cLfffffhfffflc.",
-        ".cLffffhghffflc.",
-        ".clLfffffffflFc.",
-        ".mcLLLLLLLLllcm.",
-        ".mHhhhhhhhhhggm.",
-        "..mHhhhhhhhggm..",
-        "...mmssssssmm...",
-        "....mmmmmmmm....",
+        "......akba......",
+        "....akbdbkba....",
+        "...akbdakbdba...",
+        "..ccbdkbadbkcc..",
+        ".cqrkbdakbdbrRc.",
+        ".cqrrrrrrrrrrRc.",
+        ".cLllllllllllFc.",
+        "..cLllllllllFc..",
+        "...cLlllllFFc...",
+        "....ccffffcc....",
+        ".....cccccc.....",
     ])
     return i
 
@@ -549,10 +550,10 @@ def yukkuri_nest():
 
 
 def large_yukkuri_nest():
-    """2x2 woven nest: a wide basket of red wicker (weave on the rim and the front wall) round a plain cream cushion."""
+    """2x2 woven nest: a wide, deep basket of natural wicker (weave on the rim and the front wall) round a red cushion."""
     i = Icon('large_yukkuri_nest')
-    i.rows(legend(o=(BERRY, 0), H=(BERRY, 4), h=(BERRY, 3), m=(BERRY, 2), s=(BERRY, 1),
-                  c=(CREAM, 0), p=(CREAM, 3), P=(CREAM, 2), q=(CREAM, 1), w=(PAPER, 4)), [
+    i.rows(legend(o=(STRAW, 0), H=(STRAW, 4), h=(STRAW, 3), m=(STRAW, 2), s=(STRAW, 1),
+                  c=(BERRY, 0), p=(BERRY, 3), P=(BERRY, 2), q=(BERRY, 1), w=(BERRY, 4)), [
         "................",
         "................",
         "................",
@@ -599,24 +600,24 @@ def large_wild_nest():
 
 
 def predator_nest():
-    """Predator twig nest: a low wide bowl of crossed brown sticks, the dark hollow seen from above, twig ends poking out sideways."""
+    """Predator twig nest: a low wide bowl of crossed brown sticks with a ragged rim, the brown hollow seen from above."""
     i = Icon('predator_nest')
-    i.rows(legend(o=(TWIG, 0), H=(TWIG, 4), h=(TWIG, 3), m=(TWIG, 2), s=(TWIG, 1), x=(INK, 1), X=(INK, 2), y=(STRAW, 3)), [
+    i.rows(legend(o=(TWIG, 0), H=(TWIG, 4), h=(TWIG, 3), m=(TWIG, 2), s=(TWIG, 1), y=(STRAW, 3)), [
         "................",
         "................",
         "................",
         "................",
-        "................",
-        "....oooooooo....",
-        "oo.oHhhmhhmmo.oo",
-        ".ohoHoooooommoho",
-        "..oHoxXxxxxomso.",
-        "..ohmoooooomsso.",
-        "oHhmHhmsHhmhmso.",
-        ".ohmsmhymmsmhsoo",
-        "..ohmmsmhmmssoho",
-        "..ossmsssmsso..o",
-        "....oooooooo....",
+        "......o...o.....",
+        "...ooHoooHooo.o.",
+        "..oHhhmhhmhmmoh.",
+        ".ohmooooooooomso",
+        ".oHosssssssssoso",
+        "oHhmossmsssmohmo",
+        ".ohmHoooooooHmso",
+        ".oHhmHhmsHhmhsso",
+        "oohmsmhymmsmhmo.",
+        "..ossmssmsmsso..",
+        "...oooooooooo...",
         "................",
     ])
     return i
@@ -686,7 +687,7 @@ def crate_shelter():
         "..ooooooooooomdo",
         "..oHHHHHHHHHLodo",
         "..oLooooooooLomo",
-        "..oHommmmmmoHodo",
+        "..oHoLLLLLLoHodo",
         "..oLoddddddoLomo",
         "..oHooooooooHodo",
         "..oLommmmmmoLoo.",
@@ -697,27 +698,26 @@ def crate_shelter():
 
 
 def forage_pile():
-    """Forage store: a heap of dry grass with green blades poking out, red berries, brown nuts and a white daisy on top."""
+    """Forage store: a mound of gathered leaves and grass with a clump of red berries, brown nuts and a white daisy on top."""
     i = Icon('forage_pile')
-    i.rows(legend(o=(STRAW, 0), H=(STRAW, 4), h=(STRAW, 3), m=(STRAW, 2), s=(STRAW, 1),
-                  r=(RED, 2), R=(RED, 1), q=(RED, 3), w=(FLOWER, 2), c=(FLOWER, 1), g=(LEAF, 3), G=(LEAF, 1),
-                  n=(WOOD, 2), N=(WOOD, 0)), [
+    i.rows(legend(o=(LEAF, 0), L=(LEAF, 3), l=(LEAF, 2), G=(LEAF, 1), y=(STRAW, 3),
+                  r=(RED, 2), R=(RED, 1), q=(RED, 3), w=(FLOWER, 2), c=(FLOWER, 1), n=(WOOD, 3), N=(WOOD, 1), b=(WOOD, 0)), [
         "................",
         "................",
         "..........w.....",
         ".........wcw....",
-        "...g......wg....",
-        "...Gg..g..oGg...",
-        "....GoogooHhoo..",
-        "...oHhhGhhhmmso.",
-        "..oHhmhhmhmrRso.",
-        "..oHhqRhmhmRRmso",
-        ".oHhmRRmhmmhmsso",
-        ".ohmhmmnNmhmgmso",
-        "oHhmhmhNNhmmGsso",
-        "ohmhmmhmmhmmssmo",
-        ".oossssssssssoo.",
-        "...oooooooooo...",
+        "..........wl....",
+        ".....l....oGl...",
+        "....lGoo.oLlGo..",
+        "...oLlLGooLlGlo.",
+        "..oLqrlLlGnNlGo.",
+        "..oqrRqlGnNbnlGo",
+        ".oLrRRlLlnbNlGGo",
+        ".oLlRlLGlylLlGGo",
+        "oLlGlLlGlLlGGlGo",
+        "olGGlGGlGGlGGGGo",
+        ".oooooooooooooo.",
+        "................",
     ])
     return i
 
@@ -808,23 +808,24 @@ def wash_cloth():
 
 
 def teaching_whistle():
-    """Teaching whistle: a straight wooden barrel with a flat mouthpiece to the left, a dark slot on top and a ring at the back."""
+    """Teaching whistle (pea whistle, side view): a flat wooden mouthpiece to the left running into the round chamber, the sound
+    notch cut into the top edge, an iron ring at the back."""
     i = Icon('teaching_whistle')
-    i.rows(legend(o=(WHISTLE, 0), H=(WHISTLE, 4), h=(WHISTLE, 3), m=(WHISTLE, 2), s=(WHISTLE, 1), k=(INK, 1),
+    i.rows(legend(o=(WHISTLE, 0), H=(WHISTLE, 4), h=(WHISTLE, 3), m=(WHISTLE, 2), s=(WHISTLE, 1), K=(INK, 1),
                   c=(IRON, 1), C=(IRON, 3)), [
         "................",
         "................",
-        "................",
-        "................",
-        "......ooooooo...",
-        ".....oHHhhhhmo.C",
-        "ooooooHkkhhhhmoc",
-        "oHHHhhhhhhhhmmoc",
-        "ohhhhhhhhhhmmso.",
-        "ommmmmshhhmmsso.",
-        "oooooooshmmsso..",
-        ".......oooooo...",
-        "................",
+        ".............CC.",
+        "............C..c",
+        "oooooooo.ooooCcc",
+        "oHHHhhhhoKoHhhmo",
+        "ohhhhhhhhhhhhhmo",
+        "ommmmmmmhhhhhmmo",
+        "oooooooohhhhhmso",
+        ".......ohhhhmmso",
+        ".......ohhhmmsso",
+        "........ossssso.",
+        ".........ooooo..",
         "................",
         "................",
         "................",
