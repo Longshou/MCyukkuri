@@ -1,6 +1,5 @@
 package io.github.longshou.mcyukkuri.life;
 
-import com.google.common.cache.CacheBuilder;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.entity.YukkuriGroundNavigation;
 import io.github.longshou.mcyukkuri.motor.Action;
@@ -10,7 +9,7 @@ import io.github.longshou.mcyukkuri.motor.action.StepIn;
 import io.github.longshou.mcyukkuri.motor.action.Swim;
 import io.github.longshou.mcyukkuri.motor.action.Walk;
 import io.github.longshou.mcyukkuri.motor.geom.Detour;
-import io.github.longshou.mcyukkuri.motor.mixin.VoxelShapeAccess;
+import io.github.longshou.mcyukkuri.motor.surface.CollisionBoxes;
 import io.github.longshou.mcyukkuri.status.Reactions;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.ArrayList;
@@ -21,7 +20,6 @@ import java.util.Locale;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentMap;
 import java.util.function.Predicate;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -36,7 +34,6 @@ import net.minecraft.world.level.pathfinder.Path;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
-import net.minecraft.world.phys.shapes.DiscreteVoxelShape;
 
 /** Per-entity approach requests and supported last-step steering; navigation owns the actual path. */
 public final class SurfaceApproach {
@@ -45,10 +42,6 @@ public final class SurfaceApproach {
     /** Ticks between two {@code walk.sample} detail lines; the retry gate of a blocked request; how often a walk rechecks the hats round its goal. */
     private static final int SAMPLE_TICKS = 20, RETRY = 20, HATS_CHECK = 15;
     private static final double SAME_STAND_SQR = .0025;
-    private record VoxelBox(int minX, int maxX, int maxY, int minZ, int maxZ) {}
-    // Moving a VoxelShape changes only its coordinate lists. Reuse vanilla's merged boxes in grid indices.
-    private static final ConcurrentMap<DiscreteVoxelShape, List<VoxelBox>> BOXES =
-            CacheBuilder.newBuilder().weakKeys().maximumSize(128).<DiscreteVoxelShape, List<VoxelBox>>build().asMap();
     SurfaceApproach() {}
     private record Route(Path path,double length) {}
     public enum Result { ARRIVED, MOVING, WAITING, BLOCKED }
@@ -113,8 +106,7 @@ public final class SurfaceApproach {
                         && z.getDouble(1) > probe.minZ && z.getDouble(0) < probe.maxZ) top = Math.max(top, height);
                 continue;
             }
-            var discrete = ((VoxelShapeAccess) shape).mcyukkuri$discreteShape();
-            for (var box : BOXES.computeIfAbsent(discrete, SurfaceApproach::mergedBoxes)) {
+            for (var box : CollisionBoxes.of(shape)) {
                 double height = y.getDouble(box.maxY());
                 if (height <= top || height < probe.minY || height > probe.maxY) continue;
                 if (x.getDouble(box.maxX()) > probe.minX && x.getDouble(box.minX()) < probe.maxX
@@ -124,11 +116,6 @@ public final class SurfaceApproach {
         return Double.isFinite(top)?new Vec3(near.x,top,near.z):null;
     }
 
-    private static List<VoxelBox> mergedBoxes(DiscreteVoxelShape shape) {
-        var boxes = new ArrayList<VoxelBox>();
-        shape.forAllBoxes((minX, minY, minZ, maxX, maxY, maxZ) -> boxes.add(new VoxelBox(minX, maxX, maxY, minZ, maxZ)), true);
-        return List.copyOf(boxes);
-    }
     private static Vec3 floor(YukkuriEntity actor, Vec3 near, boolean planning) {
         var at=top(actor,near);
         return at!=null&&supported(actor,at,planning)?at:null;

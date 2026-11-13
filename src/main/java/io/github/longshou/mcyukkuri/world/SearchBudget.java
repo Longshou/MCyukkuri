@@ -73,10 +73,12 @@ public final class SearchBudget {
                 if (initialized) now = add(now, Integer.toUnsignedLong(tick - stamp));
                 initialized = true; stamp = tick; used = 0; exclusive = false;
             }
-            waiting.entrySet().removeIf(e -> !e.getValue().identity.valid(server, e.getKey())
-                    || now - e.getValue().lastRequested >= IDLE_TTL
-                    || e.getValue().headSince >= 0 && now - e.getValue().headSince >= HEAD_WINDOW);
-            head();
+            if (!waiting.isEmpty()) {
+                waiting.entrySet().removeIf(e -> !e.getValue().identity.valid(server, e.getKey())
+                        || now - e.getValue().lastRequested >= IDLE_TTL
+                        || e.getValue().headSince >= 0 && now - e.getValue().headSince >= HEAD_WINDOW);
+                head();
+            }
         }
         void head() { if (!waiting.isEmpty()) {
             var first = waiting.firstEntry().getValue();

@@ -9,9 +9,11 @@ import io.github.longshou.mcyukkuri.registry.ModBlocks;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.motor.surface.BedContainer;
+import io.github.longshou.mcyukkuri.motor.surface.CollisionBoxes;
 import io.github.longshou.mcyukkuri.motor.surface.Occupancy;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.GlobalPos;
 import java.util.UUID;
 import java.util.HashSet;
@@ -81,10 +83,10 @@ public final class FamilyNest {
     /** Resolve all occupied nest quarters to their owner, then confirm the actual collision top under the feet. */
     private static java.util.List<Bed> beds(YukkuriEntity e,boolean birthContact){
         var found=new java.util.ArrayList<Bed>();
-        var visited=new HashSet<BlockPos>();var box=e.getBoundingBox();
+        var visited=new HashSet<BlockPos>();var feet=e.getBoundingBox();
         var impact=birthContact&&e.family().awaitingLanding()&&e.yo>e.getY()+1e-6
-                ?box.move(e.xo-e.getX(),0,e.zo-e.getZ()):null;
-        if(impact!=null)box=box.minmax(impact);
+                ?feet.move(e.xo-e.getX(),0,e.zo-e.getZ()):null;
+        var box=impact==null?feet:feet.minmax(impact);
         // A cushion overhangs its own cell; a 2x2 nest stores its block entity only in the north-west quarter.
         for(var pos:BlockPos.betweenClosed(BlockPos.containing(box.minX-1,e.getY()-.01,box.minZ-1),
                 BlockPos.containing(box.maxX+1,e.getY(),box.maxZ+1))){
@@ -93,29 +95,45 @@ public final class FamilyNest {
             var origin=state.getBlock() instanceof LargeNestBlock?LargeNestBlock.origin(state,pos):pos.immutable();
             if(!visited.add(origin)||!(e.level().getBlockEntity(origin) instanceof CareBlockEntity c)
                     ||c.kind()!=CareBlock.Kind.NEST||c.getBlockState().is(ModBlocks.PREDATOR_NEST.get()))continue;
-            double contact=contactHeight(e,c,e.getBoundingBox());
             // Vanilla resolves the downward move before its horizontal components. A newborn can hit the soft
             // wall and slide partly past its edge in that same tick; the final centre alone is not the impact point.
-            if(impact!=null)contact=Math.max(contact,contactHeight(e,c,impact));
+            double contact=contactHeight(e,c,feet,impact);
             if(Double.isFinite(contact))found.add(new Bed(c.centre(),contact,c));
         }
         return found;
     }
     /** A body centre may be beyond the rim while its real footprint is still resting on its edge. */
-    private static double contactHeight(YukkuriEntity e,CareBlockEntity nest,AABB feet){
-        var origin=nest.getBlockPos();double highest=Double.NEGATIVE_INFINITY;
-        for(int part=0;part<(nest.largeNest()?4:1);part++){
-            var at=origin.offset(part&1,0,part>>1);
-            if(!e.level().hasChunkAt(at))continue;
-            var state=e.level().getBlockState(at);
-            if(nest.largeNest()&&(!(state.getBlock() instanceof LargeNestBlock)||!LargeNestBlock.origin(state,at).equals(origin)))continue;
-            for(var local:state.getCollisionShape(e.level(),at,CollisionContext.of(e)).toAabbs()){
-                var top=local.move(at);
-                if(Math.abs(top.maxY-e.getY())<=.002&&top.maxX>feet.minX+1e-6&&top.minX<feet.maxX-1e-6
-                        &&top.maxZ>feet.minZ+1e-6&&top.minZ<feet.maxZ-1e-6)highest=Math.max(highest,top.maxY-origin.getY());
+    private static double contactHeight(YukkuriEntity e, CareBlockEntity nest, AABB feet, AABB impact) {
+        var origin = nest.getBlockPos();
+        var level = e.level();
+        var context = CollisionContext.of(e);
+        boolean large = nest.largeNest();
+        double feetY = e.getY();
+        double highest = Double.NEGATIVE_INFINITY;
+        for (int part = 0; part < (large ? 4 : 1); part++) {
+            var at = origin.offset(part & 1, 0, part >> 1);
+            if (!level.hasChunkAt(at)) continue;
+            var state = level.getBlockState(at);
+            if (large && (!(state.getBlock() instanceof LargeNestBlock) || !LargeNestBlock.origin(state, at).equals(origin))) continue;
+            var shape = state.getCollisionShape(level, at, context);
+            var x = shape.getCoords(Direction.Axis.X);
+            var y = shape.getCoords(Direction.Axis.Y);
+            var z = shape.getCoords(Direction.Axis.Z);
+            for (var box : CollisionBoxes.of(shape)) {
+                double top = y.getDouble(box.maxY()) + at.getY();
+                if (!(Math.abs(top - feetY) <= .002)) continue;
+                double minX = x.getDouble(box.minX()) + at.getX(), maxX = x.getDouble(box.maxX()) + at.getX();
+                double minZ = z.getDouble(box.minZ()) + at.getZ(), maxZ = z.getDouble(box.maxZ()) + at.getZ();
+                if (overlaps(feet, minX, maxX, minZ, maxZ) || impact != null && overlaps(impact, minX, maxX, minZ, maxZ))
+                    highest = Math.max(highest, top - origin.getY());
             }
         }
         return highest;
+    }
+
+    private static boolean overlaps(AABB feet, double minX, double maxX, double minZ, double maxZ) {
+        return maxX > feet.minX + 1e-6 && minX < feet.maxX - 1e-6
+                && maxZ > feet.minZ + 1e-6 && minZ < feet.maxZ - 1e-6;
     }
     /**
      * A real contact with soft bedding cancels only the birth fall, never water or other hazards: the newborn's feet on the

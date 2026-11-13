@@ -386,8 +386,7 @@ public final class TraceRecorder {
     }
 
     private static void sampleLevel(ServerLevel level) {
-        List<Entity> entities = new ArrayList<>();
-        level.getAllEntities().forEach(entities::add);
+        var entities = level.getAllEntities();
         Map<UUID, SceneWindow> selected = new HashMap<>();
         SceneWindow current = currentWindow(level);
         for (Entity entity : entities) if (direct(entity)) selected.put(entity.getUUID(), current);
@@ -468,14 +467,16 @@ public final class TraceRecorder {
     private static void sampleYukkuri(YukkuriEntity entity, ActorCache cache) {
         long now = entity.level().getGameTime();
         JsonObject full = yukkuriState(entity);
+        if (mode == Mode.DENSE) {
+            emit(entity, cache.window, "st", full);
+            cache.emitted = full;
+            return;
+        }
         JsonObject cheap = cheapState(full);
         Vec3 position = entity.position(), velocity = entity.getDeltaMovement();
         String attachment = attachmentKey(entity);
         boolean jump = cache.lastPosition != null && jump(entity, position, velocity, attachment, cache);
-        if (mode == Mode.DENSE) {
-            emit(entity, cache.window, "st", full);
-            cache.emitted = full;
-        } else if (cache.emitted == null) {
+        if (cache.emitted == null) {
             emit(entity, cache.window, "st", full);
             cache.emitted = full;
             cache.lastPositionTick = now;
