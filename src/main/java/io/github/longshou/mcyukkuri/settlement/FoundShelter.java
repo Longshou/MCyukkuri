@@ -634,6 +634,8 @@ public final class FoundShelter implements MotorOwner {
 
     private SurfaceApproach.Result walk() {
         if (shelter == null || !shelter.contains(body.blockPosition())) return SurfaceApproach.walkResult(body, aim, null, 1);
+        // A newly placed or lifted body has not landed yet. Its short step can be checked once its feet are down.
+        if (!body.onGround()) return SurfaceApproach.Result.WAITING;
         if (SurfaceApproach.at(body, aim)) {
             SurfaceApproach.halt(body);
             return SurfaceApproach.Result.ARRIVED;
