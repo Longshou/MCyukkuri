@@ -724,8 +724,7 @@ public final class ShopStaff {
         var view = token == null ? null : Custody.fromSnapshot(YukkuriWorldData.get(level).captiveSnapshot(token));
         UUID target = view == null ? null : view.owner();
         if (ShopTrade.drop(level, target, staff.position(), hand.copy()) != null) staff.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
-        else if (hand.getItem() instanceof TreatmentItem || view != null && view.role() == Custody.Role.STOCK)
-            staff.setDropChance(net.minecraft.world.entity.EquipmentSlot.MAINHAND, 2.0f);
+        else if (view != null && view.role() == Custody.Role.STOCK) staff.setDropChance(net.minecraft.world.entity.EquipmentSlot.MAINHAND, 2.0f);
         else if (view != null) staff.setDropChance(net.minecraft.world.entity.EquipmentSlot.MAINHAND, 0.0f);
         GameplayLog.event(staff, "shop", "action=job result=staff_died kind={} token={} pickup={}", job == null ? null : job.kind, token, target);
     }
