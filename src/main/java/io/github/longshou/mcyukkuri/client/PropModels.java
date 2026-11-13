@@ -6,6 +6,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 import io.github.longshou.mcyukkuri.MCYukkuri;
+import io.github.longshou.mcyukkuri.headwear.WornSeat;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.HashMap;
@@ -27,12 +28,7 @@ import io.github.longshou.mcyukkuri.pose.check.PoseGeometry;
 public final class PropModels {
     public static final ResourceManagerReloadListener RELOAD = PropModels::reload;
     private record Part(String name,int start, int count, int unit, ResourceLocation texture, int red,int green,int blue,boolean translucent) {}
-    private record Model(float[] vertices, Part[] parts, float[][] bounds,Vec3 socket,Vec3 rootSocket,float bodyLift,Map<Integer,AABB> unitBounds,Map<String,Anchor> anchors) {}
-    /** A named placement authored with the prop: position in blocks, rotation degrees composed Rz*Ry*Rx, uniform scale. */
-    public record Anchor(Vec3 position,float rx,float ry,float rz,float scale) {
-        public void apply(PoseStack pose){pose.translate(position.x,position.y,position.z);
-            pose.mulPose(Axis.ZP.rotationDegrees(rz));pose.mulPose(Axis.YP.rotationDegrees(ry));pose.mulPose(Axis.XP.rotationDegrees(rx));pose.scale(scale,scale,scale);}
-    }
+    private record Model(float[] vertices, Part[] parts, float[][] bounds,Vec3 socket,Vec3 rootSocket,float bodyLift,Map<Integer,AABB> unitBounds,Map<String,WornSeat> anchors) {}
     private static Map<String, Model> models = Map.of();
     private static Map<ResourceLocation,HatDamageFaces.Sampler> propSamplers = Map.of();
     private static final Map<String,HatDamageFaces.Face[][]> HAT_FACES = new HashMap<>();
@@ -81,14 +77,10 @@ public final class PropModels {
         propSamplers=Map.copyOf(samplers);
         HAT_FACES.clear();
     }
-    private static Map<String,Anchor> anchors(JsonObject data){
+    private static Map<String,WornSeat> anchors(JsonObject data){
         if(!data.has("anchors"))return Map.of();
-        Map<String,Anchor> out=new HashMap<>();
-        for(var entry:data.getAsJsonObject("anchors").entrySet()){
-            var a=entry.getValue().getAsJsonObject();var p=a.getAsJsonArray("position");var r=a.getAsJsonArray("rotation");
-            out.put(entry.getKey(),new Anchor(new Vec3(p.get(0).getAsDouble()/16,p.get(1).getAsDouble()/16,p.get(2).getAsDouble()/16),
-                    r.get(0).getAsFloat(),r.get(1).getAsFloat(),r.get(2).getAsFloat(),a.has("scale")?a.get("scale").getAsFloat():1));
-        }
+        Map<String,WornSeat> out=new HashMap<>();
+        for(var entry:data.getAsJsonObject("anchors").entrySet())out.put(entry.getKey(),WornSeat.read(entry.getValue().getAsJsonObject()));
         return Map.copyOf(out);
     }
     public static boolean has(String name){return models.containsKey(name);}
@@ -101,7 +93,7 @@ public final class PropModels {
         return result;
     }
     /** The prop's named anchor, or null when the prop or anchor is missing. */
-    public static Anchor anchor(String name,String anchor){var model=models.get(name);return model==null?null:model.anchors.get(anchor);}
+    public static WornSeat anchor(String name,String anchor){var model=models.get(name);return model==null?null:model.anchors.get(anchor);}
     public static Vec3 socket(String name){return models.get(name).socket;}
     public static Vec3 rootSocket(String name){return models.get(name).rootSocket;}
     public static float bodyLift(String name){return models.get(name).bodyLift;}
@@ -259,14 +251,7 @@ public final class PropModels {
     private static void renderPiece(String name,int units,PoseStack pose,MultiBufferSource buffers,int light,int overlay,int side){
         renderPiece(name,units,pose,buffers,light,overlay,side,-1);
     }
-    /** The layer selection of {@link #renderLayers} with one tint over every part (a soaked shelter). */
-    public static void renderLayersTinted(String name,int mask,PoseStack pose,MultiBufferSource buffers,int light,int overlay,int tr,int tg,int tb){
-        renderPiece(name,Integer.MAX_VALUE,pose,buffers,light,overlay,0,mask,tr,tg,tb);
-    }
     private static void renderPiece(String name,int units,PoseStack pose,MultiBufferSource buffers,int light,int overlay,int side,int layers){
-        renderPiece(name,units,pose,buffers,light,overlay,side,layers,255,255,255);
-    }
-    private static void renderPiece(String name,int units,PoseStack pose,MultiBufferSource buffers,int light,int overlay,int side,int layers,int tr,int tg,int tb){
         Model model=models.get(name);if(model==null)throw new IllegalStateException("Missing prop: "+name);
         var transform=pose.last();var v=model.vertices;
         for(var part:model.parts){
@@ -279,7 +264,7 @@ public final class PropModels {
                 }
                 for(int corner=0;corner<4;corner++){
                     int i=(first+Math.min(corner,2))*8;
-                    consumer.addVertex(transform.pose(),v[i]/16,v[i+1]/16,v[i+2]/16).setColor(part.red*tr/255,part.green*tg/255,part.blue*tb/255,255)
+                    consumer.addVertex(transform.pose(),v[i]/16,v[i+1]/16,v[i+2]/16).setColor(part.red,part.green,part.blue,255)
                             .setUv(v[i+3],v[i+4]).setOverlay(overlay).setLight(light).setNormal(transform,v[i+5],v[i+6],v[i+7]);
                 }
             }

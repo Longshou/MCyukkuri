@@ -43,7 +43,7 @@ public final class BedContainer implements Container {
         if(shelter==null||!shelter.beds().contains(bed))return null;
         // Bedding drawn on a burrow's real floor has no collision rim (NestResting marks it soft): its floor is its rim.
         var hollow=shelter.largeBeds().contains(bed)?NestResting.LARGE_BED:NestResting.LEAF_BED;
-        var centre=Vec3.atBottomCenterOf(bed);
+        var centre=shelter.restSpot(bed);
         double floorY=floorAt(e,centre,centre.y);
         return new BedContainer(centre,lying(hollow),floorY,floorY);
     }

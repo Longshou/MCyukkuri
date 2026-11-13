@@ -38,7 +38,7 @@ public final class ShelterBlock extends Block implements EntityBlock {
     public enum Kind {
         // Interior clear height and width in blocks, from the authored shells (data/mcyukkuri/shelters/<id>.json).
         BURROW("forest_burrow", 0, 1, 16, 0, 0),
-        CARDBOARD("cardboard_shelter", 1, 2, 2, 23/16., 22/16.),
+        CARDBOARD("cardboard_shelter", 1, 2, 2, 23/16., 22/16.),   // width: one side-by-side spot, 11 each side of its centre
         CRATE("crate_shelter", 1, 2, 2, 16/16., 40/16.);
         public final String id;
         public final int radius, height, capacity;

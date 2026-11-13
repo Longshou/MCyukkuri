@@ -9,6 +9,8 @@
   ],
   "ids": [
     "cardboard_shelter",
+    "cardboard_shelter_damp",
+    "cardboard_shelter_soaked",
     "crate_shelter",
     "nest_boundary",
     "nest_lining",

@@ -80,13 +80,10 @@ public final class ShelterRenderer implements BlockEntityRenderer<ShelterBlockEn
         pose.pushPose();pose.translate(.5,0,.5);
         pose.mulPose(Axis.YP.rotationDegrees(-90*ShelterGeometry.turns(home.facing())));
         int lined=home.lining()>0?1:0;
-        if (home.kind() == ShelterBlock.Kind.CARDBOARD) {
-            // Carton units: 1 bedding, 2 top flap folded up (dry and damp), 3 top flap hanging limp (soaked, before the collapse).
-            // The shell never changes shape, so its collision stays true at every stage; the darkening shows the water.
-            int stage=home.rainStage();
-            int r=stage==0?255:stage==1?200:150,g=stage==0?255:stage==1?186:133,b=stage==0?255:stage==1?168:113;
-            PropModels.renderLayersTinted(home.kind().id,lined|(stage==2?4:2),pose,buffers,light,overlay,r,g,b);
-        } else PropModels.renderLayers(home.kind().id,lined,pose,buffers,light,overlay);
+        // The carton has one export per rain stage (cardboard.py): dry; damp (stains creeping down, top flap flopped forward);
+        // soaked (dark through, roof sagging, walls bowed in, top flap hanging over the opening). Unit 1 is the bedding.
+        String id=home.kind()==ShelterBlock.Kind.CARDBOARD&&home.rainStage()>0?home.kind().id+(home.rainStage()==1?"_damp":"_soaked"):home.kind().id;
+        PropModels.renderLayers(id,lined,pose,buffers,light,overlay);
         pose.popPose();
     }
     /** Unit 1 is the bedding; 2..5 are the north/east/south/west rim middles, 6..9 the NE/SE/SW/NW corner arcs (both sides

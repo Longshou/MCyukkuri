@@ -131,7 +131,14 @@ public final class FoundShelter implements MotorOwner {
                 .min(Comparator.comparingDouble(s -> body.distanceToSqr(Vec3.atBottomCenterOf(s.entrance())))).orElse(null);
         if (found != null) {
             shelter = found;
-            if (found.contains(here) && found.claim(body)) { settle(); return true; }
+            if (found.contains(here) && found.claim(body)) {
+                // Already inside (it woke or was put there): lie down on its own spot, not wherever it stands.
+                aim = restPoint(found.foundBed(body), null);
+                if (aim == null || SurfaceApproach.at(body, aim)) { settle(); return true; }
+                phase = Phase.ENTER; began = now(); failures = 0;
+                GameplayLog.event(body, "habitat", "found shift to spot shelter={} spot={}", found.getBlockPos(), GameplayLog.at(aim));
+                return true;
+            }
             aim = Vec3.atBottomCenterOf(found.entrance());
             phase = Phase.APPROACH;
             began = now();
@@ -389,7 +396,7 @@ public final class FoundShelter implements MotorOwner {
     }
 
     private Vec3 restPoint(BlockPos pos, Vec3 failed) {
-        var centre = Vec3.atBottomCenterOf(pos);
+        var centre = shelter.restSpot(pos);
         if (restStand(centre, failed)) return centre;
         for (var side : Direction.Plane.HORIZONTAL) {
             var d = side.getNormal();

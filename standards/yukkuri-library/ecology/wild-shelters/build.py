@@ -155,8 +155,8 @@ def export_kit(prop):
     return mesh
 exports={m.name:m.export() for m in models}
 import cardboard
-def export_carton():
-    carton=cardboard.build();mesh,elements,image=carton.export();name=carton.name
+def export_carton(level):
+    carton=cardboard.build(level);mesh,elements,image=carton.export();name=carton.name
     write(OUT/(name+'.json'),mesh)
     tex_bytes=__import__('io').BytesIO();image.save(tex_bytes,format='PNG')
     write(OUT/(name+'.bbmodel'),{'meta':{'format_version':'4.10','model_format':'free'},'name':name,'resolution':{'width':cardboard.SIZE,'height':cardboard.SIZE},
@@ -166,9 +166,9 @@ def export_carton():
     for suffix in ('.json','.bbmodel','.png'):shutil.copy2(OUT/(name+suffix),SNAP/(name+suffix))
     shutil.copy2(OUT/(name+'.json'),RUN/'assets/mcyukkuri/yukkuri_props'/(name+'.json'))
     save_image(image,RUN/'assets/mcyukkuri/textures/props'/(name+'.png'))
-    write(RUN/'data/mcyukkuri/shelters'/(name+'.json'),{'units_per_block':16,'collision':carton.collision})
+    if level==0:write(RUN/'data/mcyukkuri/shelters'/(name+'.json'),{'units_per_block':16,'collision':carton.collision})
     return mesh
-exports['cardboard_shelter']=export_carton()
+for _level,_name in enumerate(('cardboard_shelter','cardboard_shelter_damp','cardboard_shelter_soaked')):exports[_name]=export_carton(_level)
 for _name in KIT_NESTS:exports[_name]=export_kit(care_wild.WILD[_name]())
 write(RUN/'assets/mcyukkuri/yukkuri_props/shelters-index.json',{name:{} for name in exports})
 manifest={'status':'pending_user_confirmation','authoring':'build.py','coordinate_system':'16 units/block, +Z entrance, origin center floor','sources':[{'url':'http://blog.livedoor.jp/yukkuri_anko/archives/29803869.html','observed':'Battered cardboard shelter with an opening; original new mesh and texture.'},{'source':'User ecological correction, 2026-09-13','observed':'Existing cave or pit; only loose leaves and a few thin entrance twigs. No constructed earth walls, roof, arch or bindings. Previous mound interpretation rejected.'}],'exports':{name:{'mesh_sha256':sha(OUT/(name+'.json')),'editable_sha256':sha(OUT/(name+'.bbmodel')),'texture_sha256':sha(OUT/(name+'.png'))} for name in exports}}

@@ -159,7 +159,18 @@ public final class ShelterBlockEntity extends BlockEntity {
     /** The planned store cell inside the cavity, or null. */
     public BlockPos pileCell() { return naturalPile; }
     public boolean owns(UUID id) { return residents.containsKey(id); }
-    public List<BlockPos> beds() { return kind().found()?List.of(worldPosition, worldPosition.relative(facing())):naturalBeds; }
+    /** Found shelters: the carton's two side-by-side cells left and right of the core; the crate's core and the cell in front. */
+    public List<BlockPos> beds() {
+        if(kind()==ShelterBlock.Kind.CARDBOARD)return List.of(worldPosition.relative(facing().getClockWise()),worldPosition.relative(facing().getCounterClockWise()));
+        return kind().found()?List.of(worldPosition, worldPosition.relative(facing())):naturalBeds;
+    }
+    /** Where a body lies in this bed. In the carton the two spots sit 9/16 to each side of the core's centre (cardboard.py),
+     *  each with room for an adult and its hat between its neighbour and the wall; other beds lie at the cell centre. */
+    public Vec3 restSpot(BlockPos bed) {
+        if(kind()!=ShelterBlock.Kind.CARDBOARD)return Vec3.atBottomCenterOf(bed);
+        var side=bed.subtract(worldPosition);
+        return Vec3.atBottomCenterOf(worldPosition).add(side.getX()*9/16.,0,side.getZ()*9/16.);
+    }
     public boolean privateNest(UUID id) { return owns(id)&&privateNests.contains(id); }
     /** Occupied common nest cells, ordered by their surveyed sleeping slot for client-side grouping. */
     public List<BlockPos> sharedBeds() {
@@ -376,9 +387,9 @@ public final class ShelterBlockEntity extends BlockEntity {
         boolean parent = entity.family().adult() && (reservedYoung > 0 || youngInside || family.children(id).stream().anyMatch(child ->
                 level instanceof ServerLevel server && server.getEntity(child) instanceof YukkuriEntity y
                         && !y.family().adult() && y.distanceToSqr(entity) < 36));
-        // A parent lies at the mouth; a second grown-up also takes the mouth when another body already holds the back.
+        // A parent takes the second bed (the crate's mouth, the carton's other side); so does a second grown-up when the first is held.
         boolean backTaken = residents.entrySet().stream().anyMatch(e -> e.getValue() == 0 && !e.getKey().equals(id));
-        return parent || backTaken && !residents.containsValue(1) ? beds().get(1) : worldPosition;
+        return parent || backTaken && !residents.containsValue(1) ? beds().get(1) : beds().get(0);
     }
 
     boolean foundUsable(YukkuriEntity entity) {
@@ -656,6 +667,11 @@ public final class ShelterBlockEntity extends BlockEntity {
         if (kind() == ShelterBlock.Kind.CARDBOARD) {
             moisture = Math.clamp(moisture + (level.isRainingAt(worldPosition.above(kind().height)) ? 10 : -5), 0, 100);
             int stage = moisture >= 80 ? 2 : moisture >= 55 ? 1 : 0;
+            // The soaked shape (sagging roof, walls bowed in, top flap hanging over the opening) takes room inside and in the
+            // doorway: it shows only once nobody is in the box or on its step, so no body or hat ever meets it. Until then the
+            // carton stays damp-looking; the water keeps rising and the collapse at 100 still ejects whoever stayed.
+            if (stage == 2 && !server.getEntitiesOfClass(YukkuriEntity.class, new AABB(worldPosition).inflate(kind().radius, 0, kind().radius)
+                    .expandTowards(0, kind().height - 1, 0), YukkuriEntity::isAlive).isEmpty()) stage = 1;
             if (stage != rainStage) GameplayLog.world(server, "habitat", "found rain stage={} -> {} shelter={} moisture={}",
                     rainStage, stage, worldPosition, moisture);
             rainStage = stage;

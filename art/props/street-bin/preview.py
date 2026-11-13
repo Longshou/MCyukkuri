@@ -72,17 +72,19 @@ def main():
             t.extractall(Path(tmp) / 'old', filter='data')
         old, new = Scene(Path(tmp) / 'old'), Scene(ROOT)
         size, ppu = (440, 380), 7
-        # The carton's sleeping cells: the core (back) and the cell in front (mouth); adults face the opening (+Z).
-        pair = [('yuk:reimu:neutral', 8, 0, 0, 0, 1.0, 180), ('yuk:marisa:neutral', 8, 0, 0, 16, 1.0, 180)]
+        # Round 1 put the two adults one behind the other (core and the cell in front); the carton now lays them side by side
+        # at x = -9 and +9 (ShelterBlockEntity.restSpot). Adults face the opening (+Z).
+        pair_old = [('yuk:reimu:neutral', 8, 0, 0, 0, 1.0, 180), ('yuk:marisa:neutral', 8, 0, 0, 16, 1.0, 180)]
+        pair = [('yuk:reimu:neutral', 8, -9, 0, 0, 1.0, 180), ('yuk:marisa:neutral', 8, 9, 0, 0, 1.0, 180)]
         ground = ('ground:40', 8, 0, 0, 0, 1)
-        box = lambda mask, src: ('cardboard_shelter', ('mask', mask), 0, 0, 0, 1, 0, src)
+        box = lambda mask, src, stage='': ('cardboard_shelter' + stage, ('mask', mask), 0, 0, 0, 1, 0, src)
         tiles = [
-            tile(new, [ground, box(1, old), *pair], '改前：3×3×2 格的旧纸箱，两只成体', size, ppu, az=20, el=22),
-            tile(new, [ground, box(2, new), *pair], '改后：侧放开口纸箱（宽1.5 深2 高1.5格），一前一后两只成体', size, ppu, az=20, el=22),
-            tile(new, [ground, box(2 | 1, new), *pair], '改后：背面（标签、胶带），已铺垫', size, ppu, az=150, el=26),
-            tile(new, [('ground:24', 8, 0, 0, 0, 1), box(2, new)], '近看：方块风格长方体、像素纸板', size, 12, az=330, el=18),
-            tile(new, [('ground:24', 8, 0, 0, 0, 1), box(4, new)], '泡透后（塌前）：顶盖耷拉在开口上（另有变深）', size, 12, az=330, el=18),
-            tile(new, [ground, box(2, new), ('yuk:reimu:neutral', 8, 0, 0, 0, 1.0, 180)], '一只成体在后格（从开口斜上方看）', size, ppu, az=10, el=40),
+            tile(new, [ground, box(1, old), *pair_old], '最早：3×3×2 格的旧纸箱', size, ppu, az=20, el=22),
+            tile(new, [ground, box(1, new), *pair], '现在：横宽纸箱，两只成体并排', size, ppu, az=20, el=22),
+            tile(new, [ground, box(1, new)], '背面：标签、胶带', size, ppu, az=150, el=26),
+            tile(new, [ground, box(0, new)], '雨①干燥：顶盖竖起', size, ppu, az=330, el=30),
+            tile(new, [ground, box(0, new, '_damp')], '雨②受潮：水渍下洇，顶盖前垂', size, ppu, az=330, el=30),
+            tile(new, [ground, box(0, new, '_soaked')], '雨③泡透：变深、顶塌、墙凹、盖垂下', size, ppu, az=330, el=30),
         ]
         bins = [
             tile(new, [('ground:20', 8, 0, 0, 0, 1), ('bin', 8, 0, 0, 0, 1), ('yuk:reimu:neutral', 8, 0, 0, 18, 1.0, 0)],
@@ -91,9 +93,9 @@ def main():
                  '被撞倒：桶口朝倒下方向，盖子靠在旁边，灵梦在桶口', size, 11, az=300, el=20),
             tile(new, [('ground:20', 8, 0, 0, 0, 1), ('bin:tipped', 8, 0, 0, 0, 1)], '近看桶口：深色内里露出垃圾', size, 16, az=340, el=16),
         ]
-        street = tile(new, [('ground:56', 8, 0, 0, 0, 1), box(2, new), *pair,
-                            ('bin', 8, -34, 0, 0, 1), ('bin:tipped', 8, -58, 0, 4, 1), ('yuk:reimu:neutral', 8, -58, 0, 22, 1.0, 0)],
-                      '街角示意（约 8 格外）：纸箱里一前一后两只；左边一只立着的桶、一只被撞倒的桶和在桶口翻找的灵梦', (1320, 420), 5, az=15, el=16)
+        street = tile(new, [('ground:56', 8, 0, 0, 0, 1), box(1, new), *pair,
+                            ('bin', 8, -40, 0, 0, 1), ('bin:tipped', 8, -64, 0, 4, 1), ('yuk:reimu:neutral', 8, -64, 0, 22, 1.0, 0)],
+                      '街角示意（约 8 格外）：纸箱里两只并排；左边一只立着的桶、一只被撞倒的桶和在桶口翻找的灵梦', (1320, 420), 5, az=15, el=16)
     W = 3 * size[0]
     sheet = Image.new('RGBA', (W, 3 * size[1] + 420), BG)
     for i, im in enumerate(tiles):
@@ -103,10 +105,12 @@ def main():
     sheet.paste(street, (0, 3 * size[1]))
     sheet.save(OUT / 'current.png')
     (OUT / 'index.html').write_text(
-        '<!doctype html><meta charset="utf-8"><title>纸箱重做与街边垃圾桶</title><h1>纸箱重做与街边垃圾桶</h1>'
-        '<p>纸箱：改成侧放的开口纸板箱，方块风格长方体与像素纸板贴图，体块互不重叠（近看不再闪烁）；墙和顶有真实碰撞，只能从开口进出，'
-        '一前一后挤两只成体，进箱按身体连同头饰的实际尺寸判断。垃圾桶：新做的镀锌带盖铁皮桶方块，立着够不着，被撞倒后从桶口翻；'
-        '大小都按游戏实际比例。要你决定：两件外观能否采用，纸箱大小是否合适。</p>'
+        '<!doctype html><meta charset="utf-8"><title>纸箱重做与街边垃圾桶</title><h1>纸箱重做与街边垃圾桶（第二版）</h1>'
+        '<p><b>本次按你的意见改了：</b>纸箱改成横宽：开口一侧能并排放下两只成体（连帽子），两边再各留一点；深度只够一只成体再多一点。'
+        '淋雨分三档且各不相同：受潮时水渍从顶上往下洇开、顶盖向前耷拉；泡透时整只箱子变深、箱顶一级级塌下去、两侧墙往里凹、顶盖垂下来挡住开口上半截，之后才塌掉。</p>'
+        '<p>纸箱：方块风格长方体与像素纸板贴图，体块互不重叠；墙和顶有真实碰撞，只能从开口进出；进箱按身体连同头饰的实际尺寸判断。'
+        '垃圾桶：新做的镀锌带盖铁皮桶方块，立着够不着，被撞倒后从桶口翻（本次未改）。大小都按游戏实际比例。'
+        '要你决定：纸箱宽度与三档淋雨样子、垃圾桶外观能否采用。</p>'
         '<img src="current.png" alt="纸箱与垃圾桶当前预览" style="max-width:100%">', encoding='utf-8')
     print(OUT / 'current.png')
 

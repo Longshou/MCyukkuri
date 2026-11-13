@@ -1369,7 +1369,7 @@ public final class YukkuriModel {
         if(seat==null)throw new IllegalStateException("No junk headwear seat for "+id);
         stack.pushPose();
         applyCrownFrame(stack,featuresBone());
-        seat.apply(stack);
+        stack.mulPose(seat.matrix());
         PropModels.render(prop,0,stack,buffers,light,overlay);
         stack.popPose();
     }

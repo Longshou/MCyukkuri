@@ -8,6 +8,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ClipContext;
+import net.minecraft.world.level.block.entity.BarrelBlockEntity;
 import net.neoforged.neoforge.event.tick.EntityTickEvent;
 
 /**
@@ -28,8 +29,9 @@ public final class VillageBin {
         long day = level.getDayTime() / 24000;
         var residentData = resident.getPersistentData();
         for (var at : BlockPos.withinManhattan(resident.blockPosition(), REACH, 1, REACH)) {
-            if (!level.hasChunkAt(at) || resident.distanceToSqr(at.getCenter()) > REACH * REACH
-                    || !(level.getBlockEntity(at) instanceof GarbageBinBlockEntity bin)) continue;
+            if (!level.hasChunkAt(at) || resident.distanceToSqr(at.getCenter()) > REACH * REACH) continue;
+            if (GarbageBinBlock.legacy(level.getBlockEntity(at))) GarbageBinBlock.adopt(level, (BarrelBlockEntity) level.getBlockEntity(at));
+            if (!(level.getBlockEntity(at) instanceof GarbageBinBlockEntity bin)) continue;
             var hit = level.clip(new ClipContext(resident.getEyePosition(), at.getCenter(),
                     ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, resident));
             if (!at.equals(hit.getBlockPos())) continue;

@@ -1,14 +1,16 @@
-"""The stray cardboard carton: a box lying on its side, opening toward +Z, in Minecraft block style.
+"""The stray cardboard carton: a wide box lying on its side, opening toward +Z, in Minecraft block style.
 
 Axis-aligned cuboids only, one texel per unit (16 per block) on a hand-painted pixel atlas, flat face normals, no decal
 boxes and no overlapping volumes, so no two visible faces share a plane (no z-fighting or normal flicker up close).
 
-Units are 1/16 block, origin at the centre of the shelter's core cell floor, +Z toward the entrance. The core cell and the
-cell in front of it are the two sleeping cells (back and mouth); the walls stand outside both so the cells stay walkable.
-Interior: x -11..11, z -8..24, y 0..23 (two adults one behind the other, a Marisa hat clears the roof).
+Units are 1/16 block, origin at the centre of the shelter's core cell floor, +Z toward the entrance. Two adults lie side by
+side at x = -9 and +9 (ShelterBlockEntity.restSpot, in the cells left and right of the core); each has 11 units of room on
+either side of its centre, so an adult Marisa hat brim (20.3 wide) clears the walls. Interior x -20..20, z -8..9, y 0..23.
 
-Units of the exported mesh: 0 shell (always), 1 bedding (lined), 2 top flap folded up (dry and damp),
-3 top flap hanging over the opening (soaked, before the collapse).
+Three exports share one shape family: cardboard_shelter (dry), cardboard_shelter_damp (water stains spreading down from the
+top, the top flap flopped forward) and cardboard_shelter_soaked (dark through, the roof sagging in steps, the side walls bowed
+in, the top flap hanging down over the opening). Only the dry shell gives collision; the wet shapes stay inside it.
+Unit 1 of each export is the bedding (lined shelters).
 """
 import random, uuid, zlib
 from PIL import Image
@@ -18,7 +20,7 @@ PAL = {'k0': (0x78, 0x5c, 0x3f), 'k1': (0x96, 0x73, 0x4e), 'k2': (0xb1, 0x8b, 0x
        'ink': (0x5a, 0x45, 0x32), 'red': (0x9a, 0x3c, 0x2e), 'paper': (0xee, 0xea, 0xdc), 'news': (0xc4, 0xc2, 0xb8),
        'straw': (0xc8, 0xb0, 0x70), 'straw_dk': (0xa0, 0x8a, 0x52)}
 SIZE = 128
-OUTER_X, BACK, FRONT, TOP, WALL = 12, -9, 24, 24, 1
+WET = ((0x5c, 0x43, 0x2c), (0x46, 0x33, 0x22))   # soaked kraft, and the tide line at a stain's edge
 
 
 def clamp(c):
@@ -111,9 +113,37 @@ def paint(img, rect, style, seed):
                 if rng.random() < .55: px(x, y, tuple(v - 22 for v in PAL['k2']))
 
 
+def wet(img, rect, level, vertical, seed):
+    """Water stains: on walls they creep down from the top edge with a ragged tide line and drips; on flat faces they
+    are blotches. Level 1 (damp) reaches about a third down, level 2 (soaked) nearly to the floor and darker."""
+    if not level: return
+    x0, y0, w, h = rect
+    rng = random.Random(zlib.crc32(f'wet{level}:{seed}'.encode()))
+    mix = .55 if level == 1 else .82
+    def soak(x, y, k=mix):
+        r, g, b, a = img.getpixel((x0 + x, y0 + y))
+        img.putpixel((x0 + x, y0 + y), clamp(tuple(int(c * (1 - k) + t * k) for c, t in zip((r, g, b), WET[0]))) + (255,))
+    if vertical:
+        depth, walk = (.38 if level == 1 else .82) * h, 0.0
+        for x in range(w):
+            walk = max(-.18 * h, min(.18 * h, walk + rng.uniform(-1.6, 1.6)))
+            d = int(max(1, min(h, depth + walk)))
+            for y in range(d): soak(x, y, mix * (1.0 if y < d - 2 else .7))
+            if d < h: img.putpixel((x0 + x, y0 + d - 1), WET[1] + (255,))
+            if rng.random() < (.12 if level == 1 else .25):          # a drip running below the line
+                for y in range(d, min(h, d + rng.randint(2, 5))): soak(x, y, mix * .8)
+    else:
+        blots = max(1, int(w * h / (60 if level == 1 else 18)))
+        for _ in range(blots):
+            cx, cy, r = rng.uniform(0, w), rng.uniform(0, h), rng.uniform(1.5, 4.5 if level == 1 else 6)
+            for y in range(max(0, int(cy - r)), min(h, int(cy + r) + 1)):
+                for x in range(max(0, int(cx - r)), min(w, int(cx + r) + 1)):
+                    if (x - cx) ** 2 + (y - cy) ** 2 <= r * r: soak(x, y)
+
+
 class Carton:
-    def __init__(self, name):
-        self.name = name; self.atlas = Atlas(); self.cubes = []; self.collision = []
+    def __init__(self, name, level=0):
+        self.name = name; self.level = level; self.atlas = Atlas(); self.cubes = []; self.collision = []
 
     def cube(self, name, lo, hi, faces, unit=0, solid=False):
         """faces: per Blockbench face name a paint style; missing faces use 'fold'."""
@@ -143,7 +173,10 @@ class Carton:
             bb_faces = {}
             for face, (normal, corners, _, _) in self.faces_of(lo, hi).items():
                 rect = rect_of[(name, face)]
-                paint(self.atlas.img, rect, styles.get(face, 'fold'), f'{name}/{face}')
+                style = styles.get(face, 'fold')
+                paint(self.atlas.img, rect, style, f'{name}/{face}')
+                if style.split(':')[0] not in ('paper', 'news', 'straw'):
+                    wet(self.atlas.img, rect, self.level, face not in ('up', 'down'), f'{name}/{face}')
                 u0, v0, w, h = rect
                 uv = [(u0, v0), (u0 + w, v0), (u0 + w, v0 + h), (u0, v0 + h)]
                 for tri in ((0, 1, 2), (0, 2, 3)):
@@ -158,25 +191,43 @@ class Carton:
         return mesh, elements, self.atlas.img
 
 
-def build():
-    c = Carton('cardboard_shelter')
-    X, B, F, T = OUTER_X, BACK, FRONT, TOP
-    # Shell: back panel, two side panels, the top panel; the bottom panel lies on the ground (no collision, the cells stay walkable).
-    c.cube('back_panel', (-X, 0, B), (X, T, B + WALL), {'north': 'outer:tape_v', 'south': 'inner'}, solid=True)
-    c.cube('left_panel', (-X, 0, B + WALL), (-X + WALL, T - WALL, F), {'west': 'outer:stain', 'east': 'inner', 'south': 'cut'}, solid=True)
-    c.cube('right_panel', (X - WALL, 0, B + WALL), (X, T - WALL, F), {'east': 'outer:label', 'west': 'inner', 'south': 'cut'}, solid=True)
-    c.cube('top_panel', (-X, T - WALL, B + WALL), (X, T, F), {'up': 'outer:tape_wrap', 'down': 'inner', 'south': 'cut'}, solid=True)
-    c.cube('bottom_panel', (-X + WALL, 0, B + WALL), (X - WALL, .5, F), {'up': 'floor', 'south': 'cut'})
-    # Flaps of the open end: the side flaps swing out flat to the sides, the bottom flap lies on the ground as a doorstep.
-    c.cube('left_flap', (-X - 8, 0, F - WALL), (-X, T - WALL, F), {'north': 'outer', 'south': 'flap_in', 'west': 'cut'}, solid=True)
-    c.cube('right_flap', (X, 0, F - WALL), (X + 8, T - WALL, F), {'north': 'outer', 'south': 'flap_in', 'east': 'cut'}, solid=True)
-    c.cube('bottom_flap', (-X + WALL, 0, F), (X - WALL, .5, F + 8), {'up': 'flap_in', 'south': 'cut'})
-    # Top flap: folded straight up while dry or damp; hanging limp over the upper opening once soaked.
-    c.cube('top_flap_up', (-X, T, F - WALL), (X, T + 8, F), {'north': 'outer', 'south': 'flap_in', 'up': 'cut'}, unit=2)
-    c.cube('top_flap_hanging', (-X, T - 8, F), (X, T, F + WALL), {'north': 'flap_in', 'south': 'outer:stain', 'down': 'cut'}, unit=3)
-    # Bedding: shredded newspaper, paper scraps and dry grass pushed into the floor (lined shelters only).
-    for i, (x0, z0, w, d, style) in enumerate([(-9, -6, 5, 3, 'news'), (-3, -7, 4, 5, 'paper'), (2, -5, 6, 3, 'straw'),
-                                               (-8, 0, 3, 6, 'straw'), (-4, 3, 6, 4, 'news'), (3, 1, 5, 5, 'paper'),
-                                               (-7, 9, 5, 4, 'paper'), (0, 10, 4, 3, 'straw'), (5, 8, 4, 6, 'news')]):
+def build(level=0):
+    """level 0 dry, 1 damp, 2 soaked (ShelterBlockEntity.rainStage)."""
+    c = Carton(('cardboard_shelter', 'cardboard_shelter_damp', 'cardboard_shelter_soaked')[level], level)
+    X, B, F, T = 21, -9, 9, 24          # outer half width, back face, open front, roof top
+    dry = level == 0
+    c.cube('back_panel', (-X, 0, B), (X, T, B + 1), {'north': 'outer:tape_v', 'south': 'inner'}, solid=dry)
+    if level < 2:
+        c.cube('left_panel', (-X, 0, B + 1), (-X + 1, T - 1, F), {'west': 'outer:stain', 'east': 'inner', 'south': 'cut'}, solid=dry)
+        c.cube('right_panel', (X - 1, 0, B + 1), (X, T - 1, F), {'east': 'outer:label', 'west': 'inner', 'south': 'cut'}, solid=dry)
+        c.cube('top_panel', (-X, T - 1, B + 1), (X, T, F), {'up': 'outer:tape_wrap', 'down': 'inner', 'south': 'cut'}, solid=dry)
+    else:
+        # Soaked through: each side wall bows in by two texels over its middle (stepped), the roof sags in steps toward the middle.
+        for side, sx in (('left', -1), ('right', 1)):
+            look = {('west' if sx < 0 else 'east'): 'outer:stain' if sx < 0 else 'outer:label', ('east' if sx < 0 else 'west'): 'inner'}
+            for j, (z0, z1, inset) in enumerate([(B + 1, -4, 0), (-4, -1, 1), (-1, 3, 2), (3, 6, 1), (6, F, 0)]):
+                lo = -X + inset if sx < 0 else X - 1 - inset
+                c.cube(f'{side}_panel_{j}', (lo, 0, z0), (lo + 1, T - 1, z1), look | ({'south': 'cut'} if z1 == F else {}))
+        for i, (x0, x1, top) in enumerate([(-X, -16, T), (-16, -11, T - 1), (-11, -6, T - 2), (-6, 6, T - 3),
+                                           (6, 11, T - 2), (11, 16, T - 1), (16, X, T)]):
+            c.cube(f'top_panel_{i}', (x0, top - 1, B + 1), (x1, top, F), {'up': 'outer:tape_wrap' if i == 3 else 'outer',
+                                                                            'down': 'inner', 'south': 'cut'})
+    c.cube('bottom_panel', (-X + 1, 0, B + 1), (X - 1, .5, F), {'up': 'floor', 'south': 'cut'})
+    # Side flaps swung right back against the outside of the side walls; the bottom flap is a doorstep on the ground.
+    c.cube('left_flap', (-X - 1, 0, 1), (-X, T - 2, F), {'west': 'flap_in', 'east': 'outer', 'south': 'cut'}, solid=dry)
+    c.cube('right_flap', (X, 0, 1), (X + 1, T - 2, F), {'east': 'flap_in', 'west': 'outer', 'south': 'cut'}, solid=dry)
+    c.cube('bottom_flap', (-X + 1, 0, F), (X - 1, .5, F + 7), {'up': 'flap_in', 'south': 'cut'})
+    # Top flap: folded straight up while dry; flopped forward like a limp awning once damp; hanging over the opening when soaked.
+    if level == 0:
+        c.cube('top_flap', (-X, T, F - 1), (X, T + 7, F), {'north': 'outer', 'south': 'flap_in', 'up': 'cut'})
+    elif level == 1:
+        c.cube('top_flap', (-X, T - 1, F), (X, T, F + 7), {'up': 'flap_in', 'down': 'outer', 'south': 'cut'})
+    else:
+        c.cube('top_flap', (-X, T - 16, F), (X, T - 3, F + 1), {'north': 'flap_in', 'south': 'outer:stain', 'down': 'cut'})
+    # Bedding round the two lying spots: shredded newspaper, paper scraps and dry grass pushed into the floor.
+    for i, (x0, z0, w, d, style) in enumerate([(-17, -6, 5, 3, 'news'), (-11, -7, 4, 5, 'paper'), (-6, -4, 5, 3, 'straw'),
+                                               (-16, 0, 3, 6, 'straw'), (-12, 3, 6, 4, 'news'), (-4, 2, 4, 4, 'paper'),
+                                               (1, -6, 5, 3, 'paper'), (7, -7, 4, 5, 'news'), (12, -5, 5, 3, 'straw'),
+                                               (3, 1, 4, 5, 'straw'), (9, 2, 6, 4, 'paper'), (16, 0, 3, 5, 'news')]):
         c.cube(f'bedding_{i}', (x0, .5, z0), (x0 + w, 1, z0 + d), {'up': style, 'north': style, 'south': style, 'east': style, 'west': style}, unit=1)
     return c
