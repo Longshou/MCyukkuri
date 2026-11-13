@@ -768,6 +768,9 @@ public final class YukkuriLife {
                 foodGlassStand = glassStand;
                 task = Task.FOOD_GLASS;
                 pursuitTicks = 0;
+                GameplayLog.limited(entity, "meal", "glass_food_planned", 400,
+                        "food behind glass items={} item={} stand={} nutrition={}",
+                        offered.size(), glassFood.getItem(), GameplayLog.at(glassStand), nutrition);
                 return true;
             }
         }
