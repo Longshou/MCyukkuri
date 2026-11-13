@@ -1541,12 +1541,11 @@ public final class FamilyLife {
         searchAt=separation.lastSeen(target);
         if(glass.active()&&glass.tick())return;
         if(visible&&!carry.lifting()&&taskTicks%10==1&&glass.start(target))return;
-        if(carry.lifting()||visible&&entity.hasLineOfSight(target)&&carry.pickupWanted(target)) {
-            // Finish the shared lift even after the child has made contact with the carrier.
+        if(carry.lifting()) {
+            // A Grab in progress owns the child through the custody transfer.
             if(carry.tickPickup(target)==ParentCarry.Step.FAILED)stop();
             return;
         }
-        if(visible&&reached(target)){separation.reunited(target);stop();return;}
         if(searchAt==null){stop();return;}
         if(taskTicks>=1200){
             if(!visible)separation.searchedLastSight(target);
@@ -1554,6 +1553,11 @@ public final class FamilyLife {
         }
         if(call.tickParent(target,searchAt,visible))return;
         if(visible) {
+            if(entity.hasLineOfSight(target)&&carry.pickupWanted(target)){
+                if(carry.tickPickup(target)==ParentCarry.Step.FAILED)stop();
+                return;
+            }
+            if(reached(target)){separation.reunited(target);stop();return;}
             if(taskTicks%10==1&&!navigateToward(target.blockPosition(),1.1)){stop();return;}
             if(entity.getNavigation().isDone())entity.getLookControl().setLookAt(target,20,20);
             return;

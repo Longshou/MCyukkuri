@@ -1012,7 +1012,7 @@ _fs = {k: uid('family_search', k) for k in ('parent', 'child', 'lost_mother', 'l
 _fsp = {k: uid('family_search_pane', k) for k in ('parent', 'child')}
 _fs_x, _fs_z = BY_ID['family'].spots['hurt_kin']
 # The north mother saw her child around the south end of the wall before the child turned behind it.
-_fs_seen_x, _fs_seen_z = _fs_x + 2, _fs_z + 2
+_fs_seen_x, _fs_seen_z = _fs_x + 2, _fs_z + 8
 _fs_seen_pos = ((_fs_seen_x & 0x3ffffff) << 38) | ((_fs_seen_z & 0x3ffffff) << 12) | (FEET & 0xfff)
 if _fs_seen_pos >= 1 << 63:
     _fs_seen_pos -= 1 << 64
@@ -1086,9 +1086,12 @@ add('family_search', 'family', '走散亲子：绕墙重逢，隔整块玻璃道
     '约 30–70 秒', [
         yk('reimu', -15, -4, 'search_parent', uuid=_fs['parent'], label='寻子亲油·友善95', friendliness=95, lead=True,
            kin=_fs_sighting, **pair_ready()),
-        yk('reimu', 8, -4, 'search_child', uuid=_fs['child'], stage='child', label='走散子油', boldness=40,
+        yk('reimu', 4, -5, 'search_child', uuid=_fs['child'], stage='child', label='走散子油', boldness=40,
            kin=f'Mother:{uuid_nbt(_fs["parent"])}', **pair_ready()),
-        box(0, 0, -10, 0, 1, 0, 'minecraft:stone_bricks'),
+        box(0, 0, -12, 0, 1, 5, 'minecraft:stone_bricks'),
+        box(1, 0, -12, 6, 1, -12, 'minecraft:stone_bricks'),
+        box(6, 0, -11, 6, 1, 5, 'minecraft:stone_bricks'),
+        box(3, 0, 5, 5, 1, 5, 'minecraft:stone_bricks'),
         box(13, -1, 3, 17, 3, 7, 'minecraft:glass', 'hollow'),
         yk('reimu', 7, 5, 'lost_mother', uuid=_fs['lost_mother'], label='隔玻璃的亲油', friendliness=65, self_control=20, boldness=0, **pair_ready()),
         yk('reimu', 15, 5, 'lost_child', uuid=_fs['lost_child'], stage='child', label='被围住的子油', boldness=0,

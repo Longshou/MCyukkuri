@@ -152,7 +152,9 @@ final class FamilySeparation {
             if(o.caresFor(child)&&child.childhood().shouldStayWithParents())observeChild(child);
             if(!e.getUUID().equals(record.mother))continue;
             if(child.family().awaitingLanding()||child.isPassenger()||near(e,child)||atHome(child)){
-                searching.remove(id);o.call().found(id);
+                searching.remove(id);
+                // Sharing a home can settle the absence clock through a wall. It cannot reset an unanswered call.
+                if(e.hasLineOfSight(child))o.call().found(id);
                 continue;
             }
             int elapsed=searching.merge(id,20,Integer::sum);

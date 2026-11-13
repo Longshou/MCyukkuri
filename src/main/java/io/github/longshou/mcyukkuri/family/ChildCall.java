@@ -133,7 +133,7 @@ final class ChildCall {
 
     /** The child it searches for was seen again or reunited: the next loss starts with a fresh set of rounds. */
     void found(UUID child) {
-        if (child != null && child.equals(called)) { called = null; rounds = 0; nextCall = 0; }
+        if (child != null && child.equals(called) && phase == Phase.NONE) { called = null; rounds = 0; nextCall = 0; }
     }
 
     /**
