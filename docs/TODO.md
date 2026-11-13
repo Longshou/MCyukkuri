@@ -8,7 +8,6 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
-| 纸箱返工、垃圾桶方块与垃圾闭环 | `.worktrees/wp-art-box-bin` | settlement/ShelterBlock, cardboard_shelter assets, wild-shelters source, new trash bin block |
 | 窝适配墙角与宠物窝三档 | `.worktrees/wp-art-nests` | life nest blocks (yukkuri_nest, large nests), nest models/sources, sleep recovery hooks, shop stock |
 
 ## 玩法待办
