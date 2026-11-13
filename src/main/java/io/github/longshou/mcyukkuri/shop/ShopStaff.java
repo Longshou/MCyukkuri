@@ -289,6 +289,9 @@ public final class ShopStaff {
         if (job == null) return;
         staff.getNavigation().stop();
         clearApproach(job);
+        // The leg budget and the work timer stop with the walk: the pause is recorded, the job goes on once the menu closes or the flinch passes.
+        GameplayLog.limited(staff, "shop", "job_paused", 100, "action=job result=paused kind={} phase={} reason={} leg_ticks={}",
+                job.kind, job.phase, staff.isTrading() ? "trade" : staff.hurtTime > 0 ? "hurt" : "goal", job.leg);
     }
 
     private static YukkuriEntity animal(ServerLevel level, Job job) {
