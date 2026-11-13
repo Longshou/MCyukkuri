@@ -56,7 +56,13 @@ public final class GlassPress implements Action {
         var hit = GlassSight.glassBetween(body, body.getEyePosition(), wanted);
         if (hit == null) return null;
         var press = new GlassPress(hit.getBlockPos());
-        return press.check(body).ok() ? press : null;
+        try {
+            return press.check(body).ok() ? press : null;
+        } catch (IllegalArgumentException e) {
+            // A form whose posed contact geometry does not load cannot place its face on the glass; it pleads where it stands.
+            GameplayLog.limited(body, "action", "glass_press.geometry", 6000, "glass press unavailable model={} why={}", body.assetId(), e.getMessage());
+            return null;
+        }
     }
 
     /** The longest a press holds the body: squaring up, then the whole clip (ticks). */
