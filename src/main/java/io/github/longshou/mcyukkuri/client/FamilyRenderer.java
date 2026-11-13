@@ -105,8 +105,8 @@ final class FamilyRenderer {
                 :wilt(root,relative,along,total,radii,look.droop()*FamilyGeometry.length(count,variation),look.steepest());
         int[] colour=look.colour();
         if(rot>0)colour=new int[]{(colour[0]+105)/2,(colour[1]+105)/2,(colour[2]+105)/2};
-        var material=buffers.getBuffer(RenderType.entityCutoutNoCull(WHITE));
-        sweep(pose,material,curve,radii,light,colour);
+        var stemMaterial=RenderType.entityCutoutNoCull(WHITE);
+        sweep(pose,buffers.getBuffer(stemMaterial),curve,radii,light,colour);
         var arc=FamilyGeometry.arc(count,scale,variation,stem.mother());
         Vec3 shrivel=look.shrivel();
         for(int i=0;i<count;i++){
@@ -123,7 +123,8 @@ final class FamilyRenderer {
             anchor=anchor.scale(unit);
             var path=limp(socket,length,anchor.y,(count-1-i)%2==0?1:-1,look.splay());
             double[] radius=pedicelRadii(count,i,variation,scale,arc,living,grown);
-            sweep(pose,material,path,radius[0]*unit*look.thickness(),radius[1]*unit*look.thickness(),light,colour);
+            // A fruit texture can end the shared stem batch. Acquire the active buffer for each twig.
+            sweep(pose,buffers.getBuffer(stemMaterial),path,radius[0]*unit*look.thickness(),radius[1]*unit*look.thickness(),light,colour);
             if(size<=0)continue;
             Vec3 tip=path.getLast();
             pose.pushPose();
