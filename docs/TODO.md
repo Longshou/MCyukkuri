@@ -9,6 +9,7 @@
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
 | 台词审校与补充（总负责人调度的 Codex 标签页） | `.worktrees/wp-gb-speech-review` | art/dialogue/, src/main/resources/assets/mcyukkuri/dialogue/, lang/*.json |
+| 垃圾头饰与铂金章正式美术 | `.worktrees/wp-hy-art-placeholders` | YukkuriModel.renderJunkHat, junk headwear and platinum badge assets |
 
 ## 玩法待办
 
