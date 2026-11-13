@@ -247,8 +247,12 @@ public final class ShopWindow implements MotorOwner {
         double warmth = SocialDisposition.ramp(p.friendliness(), 30, 80);
         double familiar = SocialDisposition.ramp(bond.closeness(), 0, 20);
         double hope = hope();
-        var shop = ShopRegistry.get((ServerLevel) entity.level()).shop(Custody.view(entity).owner());
-        if (shop != null && shop.kind == ShopKind.ONI) {
+        var level = (ServerLevel) entity.level();
+        var owner = Custody.view(entity).owner();
+        var shop = ShopRegistry.get(level).shop(owner);
+        var kind = shop == null ? ShopKind.PET : shop.kind;
+        if (shop == null && owner != null && level.getEntity(owner) instanceof HumanNpc staff) kind = ShopKind.forStaff(staff);
+        if (kind == ShopKind.ONI) {
             double insolence = .45 * p.boldness() + .55 * (100 - p.friendliness()) - 35 * wary + variation();
             double sulk = .5 * p.attachment() + .5 * (100 - p.selfControl()) + 15 * (1 - hope) + variation();
             double numb = .65 * (100 - p.intelligence()) + .35 * (100 - p.boldness()) + variation();

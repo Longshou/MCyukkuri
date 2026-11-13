@@ -103,7 +103,7 @@ public final class HumanCommands {
     private static int build(CommandContext<CommandSourceStack> c, String front, boolean clear) throws CommandSyntaxException {
         var kind = HumanScenes.Kind.byName(StringArgumentType.getString(c, "kind"));
         var dir = Direction.byName(front);
-        if (kind == null || dir == null || dir.getAxis().isVertical()) { say(c, "kind: shop; front: north|east|south|west"); return 0; }
+        if (kind == null || dir == null || dir.getAxis().isVertical()) { say(c, "kind: shop|oni_shop; front: north|east|south|west"); return 0; }
         var pos = BlockPosArgument.getLoadedBlockPos(c, "entrance");
         var placed = HumanScenes.place(c.getSource().getLevel(), kind, pos, dir, clear);
         if (placed == null) { say(c, "template missing: " + kind.template); return 0; }

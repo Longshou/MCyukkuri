@@ -7,6 +7,7 @@ staff that cannot be reached from the street door; a facade patch of one block l
 Usage: python check_structure.py   (also called by scripts/export_human_world.py --check)
 """
 from collections import deque
+import json
 from pathlib import Path
 import importlib.util, sys
 
@@ -318,6 +319,26 @@ def check_site(b, door=None, region=None):
         errors += corridor_errors(b, y, *region)
     return errors
 
+def stock_nest_clearance(b):
+    """A stock body's feet must clear the cushion rolls extending beyond their own block."""
+    path = Path(__file__).resolve().parents[3] / 'src/main/resources/assets/mcyukkuri/yukkuri_presentation/care_collision.json'
+    rolls = json.loads(path.read_text(encoding='utf-8'))['yukkuri_nest']['boxes']
+    nests = [(x + .5, y, z + .5) for (x, y, z), (name, _, _) in b.blocks.items() if name == 'mcyukkuri:yukkuri_nest']
+    errors = []
+    for ent in b.entities:
+        nbt = ent['nbt'][1]
+        custody = nbt.get('NeoForgeData', (0, {}))[1].get('HumanCommerce', (0, {}))[1]
+        if custody.get('Use', (0, ''))[1] != 'stock': continue
+        x, y, z = ent['pos'][1][1]
+        radius = .4  # Ordinary adult body width in the template; young are smaller.
+        for nx, ny, nz in nests:
+            if y != ny or abs(x - nx) > 1.3 or abs(z - nz) > 1.3: continue
+            if any(x + radius > nx + left / 16 and x - radius < nx + right / 16
+                   and z + radius > nz + front / 16 and z - radius < nz + back / 16
+                   for left, front, right, back, _ in rolls):
+                errors.append(f'{b.name}: stock at {(x, y, z)} overlaps the nest at {(nx, ny, nz)}')
+    return errors
+
 def load_street():
     path = Path(__file__).parent / 'author_street.py'
     sys.path.insert(0, str(path.parent))
@@ -329,6 +350,7 @@ def check_street():
     for key in ('stall', 'alley'):
         b = built[key]; errors += check_site(b) + stray_errors(b, (1, 4))
     errors += check_site(built['oni'], door=(11, 1), region=(2, 4, 22, 23))
+    errors += stock_nest_clearance(built['oni'])
     errors += stray_errors(built['village_oni'], (1, 4))
     lot = street.build.village_shop(street.build.shop())
     lot.floor = 1

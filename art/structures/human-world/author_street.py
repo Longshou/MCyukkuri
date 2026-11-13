@@ -361,8 +361,8 @@ def oni_shop():
     b.bowl(6, 6, grain=3)
     register_pen(b, 'window', (2, 4, 6, 6), (6, 6), [(2, 4), (6, 4)], (5, 3), hatch=(4, 7))
     oni_stock(b, 3.5, 5.5, 'reimu', GESU, 38, 45, form='WASA_REIMU')
-    oni_stock(b, 5.5, 4.5, 'marisa', GESU, 42, 40)
-    oni_stock(b, 2.5, 5.5, 'reimu', WHINY, 30, 50, age=180000, shape='SPARSE_HAIR')
+    oni_stock(b, 5.0, 4.5, 'marisa', DULL, 42, 40)
+    oni_stock(b, 2.75, 6.35, 'reimu', WHINY, 30, 50, age=180000, shape='SPARSE_HAIR')
     # Stock cages (interiors x16..19): full bars to the customers (x15), iron staff doors on the corridor side (x20).
     b.box((21, 3, 7), (22, 6, 7), 'spruce_planks')     # closes the staff corridor off from the nook
     for name, z0, stock in [('cage_a', 8, [('marisa', GESU, 35, 40, None), ('marisa', DULL, 30, 45, 160000)]),
@@ -372,9 +372,10 @@ def oni_shop():
         for x, z in [(16, z0), (16, z0 + 2)]: b.block(x, 3, z, 'mcyukkuri:yukkuri_nest')
         b.bowl(18, z0 + 2, grain=2)
         register_pen(b, name, (16, z0, 19, z0 + 2), (18, z0 + 2), [(16, z0), (16, z0 + 2)], (4, 3), hatch=(20, z0))
-        for i, (kind, traits, nutrition, hygiene, age) in enumerate(stock):
+        starts = [(18.0, z0 + .6), (19.0, z0 + 1.4), (18.0, z0 + 1.5)]
+        for i, ((kind, traits, nutrition, hygiene, age), (x, z)) in enumerate(zip(stock, starts)):
             shape = 'FACE_ASYMMETRY' if name == 'cage_c' and i == 2 else 'NORMAL'
-            oni_stock(b, 17.5 + (i % 2), z0 + .5 + (i // 2) + (i % 2), kind, traits, nutrition, hygiene, age, shape=shape)
+            oni_stock(b, x, z, kind, traits, nutrition, hygiene, age, shape=shape)
     # Tool wall (west, x2 against x1): fourteen tools in two rows of fixed frames.
     for i, item in enumerate(TOOLS): frame(b, 2, 5 - i // 7, 9 + i % 7, item, facing='east')
     # Two goods shelves of stacked barrels: consumables on the first, grain and household goods on the second; frames on their east faces.
