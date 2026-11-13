@@ -27,6 +27,8 @@ public final class NestDoorway {
     private static final Map<Block, Doorway> SHAPES = new HashMap<>();
     private static final Predicate<BlockState> NEST = state -> state.getBlock() instanceof CareBlock care
             && care.kind() == CareBlock.Kind.NEST;
+    // Keep the broad phase conservative around vanilla AABB.clip's 1e-7 face tolerance.
+    private static final double CLIP_PADDING = 1e-6;
 
     public static CareBlockEntity bed(YukkuriEntity actor, BlockPos pos) {
         var level = actor.level();
@@ -161,9 +163,9 @@ public final class NestDoorway {
         var c = bed.centre();
         double r = shape(bed).outer() + foot;
         double minX = c.x - r, maxX = c.x + r, minY = c.y - 1, maxY = c.y + 1, minZ = c.z - r, maxZ = c.z + r;
-        if (Math.max(from.x, to.x) < minX || Math.min(from.x, to.x) > maxX
-                || Math.max(from.y, to.y) < minY || Math.min(from.y, to.y) > maxY
-                || Math.max(from.z, to.z) < minZ || Math.min(from.z, to.z) > maxZ) return false;
+        if (Math.max(from.x, to.x) < minX - CLIP_PADDING || Math.min(from.x, to.x) > maxX + CLIP_PADDING
+                || Math.max(from.y, to.y) < minY - CLIP_PADDING || Math.min(from.y, to.y) > maxY + CLIP_PADDING
+                || Math.max(from.z, to.z) < minZ - CLIP_PADDING || Math.min(from.z, to.z) > maxZ + CLIP_PADDING) return false;
         var box = new AABB(minX, minY, minZ, maxX, maxY, maxZ);
         boolean startsInside = box.contains(from);
         // A body pushed onto the rim may take an outward step from the overlap.

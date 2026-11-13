@@ -291,6 +291,8 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
             private List<BlockPos> avoidedPit;
             private final Long2ObjectOpenHashMap<PathType> pathTypes = new Long2ObjectOpenHashMap<>();
             @Override public void prepare(PathNavigationRegion region, Mob mob) {
+                // PathFinder can return before done() if its start node is missing.
+                pathTypes.clear();
                 super.prepare(region, mob);
                 keepDry = mob instanceof YukkuriEntity animal && Reactions.Weather.keepDry(animal);
                 keepHome = mob instanceof YukkuriEntity animal && TravelRange.keepBabyHome(animal);
