@@ -575,25 +575,26 @@ def large_yukkuri_nest():
 
 
 def large_wild_nest():
-    """Wild family bedding: a wide ring of woven dry grass round a pad of green leaves."""
+    """Wild family bedding: a ragged ring of heaped dry grass with loose blades sticking out round a hollow lined with green leaves
+    (the pet's woven basket is neat; this one is not)."""
     i = Icon('large_wild_nest')
     i.rows(legend(o=(STRAW, 0), H=(STRAW, 4), h=(STRAW, 3), m=(STRAW, 2), s=(STRAW, 1),
-                  g=(LEAF, 0), G=(LEAF, 2), L=(LEAF, 3), l=(LEAF, 1), k=(LEAF, 4)), [
+                  g=(LEAF, 0), G=(LEAF, 2), L=(LEAF, 3), l=(LEAF, 1), k=(LEAF, 4), b=(LEAF, 2)), [
         "................",
         "................",
         "................",
-        "................",
-        "...oooooooooo...",
-        ".ooHhmHhmHhmhoo.",
-        "oHhmglLGlGLlgmso",
-        "ohmgLkGlLGkLlgmo",
-        "oHgGLlGLkGlLGgso",
-        "ohglGLlGlLGLlgmo",
-        "oHmgGlLGLGlGgmso",
-        "ohhmgggggggggmso",
-        ".omHhmHhmHhmhso.",
-        "..oossmssmssoo..",
-        "....oooooooo....",
+        "...b......b.....",
+        "....b..h...b..h.",
+        "..h.ooHoh.ooHo..",
+        ".oHohhmHhhmhmo..",
+        "oHhgGlLlGlLlgmo.",
+        ".ohGLlkGlLGlgsoh",
+        "oHgLlGLlkGLlgmso",
+        ".ohgGlLGlGlgmso.",
+        "hoHmgggggggmmsso",
+        ".ohmHhmoHmhmso.o",
+        "o.oosmmsosmsoo..",
+        "....oo.ooo.o....",
         "................",
     ])
     return i
@@ -708,10 +709,10 @@ def forage_pile():
         ".........wcw....",
         "..........wl....",
         ".....l....oGl...",
-        "....lGoo.oLlGo..",
-        "...oLlLGooLlGlo.",
+        "....lGonNoLlGo..",
+        "...oLlnNNoLlGlo.",
         "..oLqrlLlGnNlGo.",
-        "..oqrRqlGnNbnlGo",
+        "..oqrRqlGnNnnlGo",
         ".oLrRRlLlnbNlGGo",
         ".oLlRlLGlylLlGGo",
         "oLlGlLlGlLlGGlGo",
@@ -808,17 +809,17 @@ def wash_cloth():
 
 
 def teaching_whistle():
-    """Teaching whistle (pea whistle, side view): a flat wooden mouthpiece to the left running into the round chamber, the sound
-    notch cut into the top edge, an iron ring at the back."""
+    """Teaching whistle (a metal pea whistle, side view): a flat mouthpiece to the left running into the round chamber, the dark
+    sound slot cut into the top edge, a ring at the back."""
     i = Icon('teaching_whistle')
-    i.rows(legend(o=(WHISTLE, 0), H=(WHISTLE, 4), h=(WHISTLE, 3), m=(WHISTLE, 2), s=(WHISTLE, 1), K=(INK, 1),
+    i.rows(legend(o=(IRON, 0), H=(IRON, 4), h=(IRON, 3), m=(IRON, 2), s=(IRON, 1), K=(INK, 1),
                   c=(IRON, 1), C=(IRON, 3)), [
         "................",
         "................",
         ".............CC.",
         "............C..c",
-        "oooooooo.ooooCcc",
-        "oHHHhhhhoKoHhhmo",
+        "oooooooooKKooCcc",
+        "oHHHhhhhoKKoHhmo",
         "ohhhhhhhhhhhhhmo",
         "ommmmmmmhhhhhmmo",
         "oooooooohhhhhmso",
