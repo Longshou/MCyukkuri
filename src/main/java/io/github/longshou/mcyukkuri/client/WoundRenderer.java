@@ -10,7 +10,10 @@ import io.github.longshou.mcyukkuri.family.LiveBirthGeometry;
 import io.github.longshou.mcyukkuri.mind.ExcitedLeak;
 import java.util.*;
 import java.util.UUID;
+import java.util.stream.Stream;
 import net.minecraft.client.renderer.*;
+import net.minecraft.client.renderer.texture.TextureManager;
+import net.minecraft.resources.ResourceLocation;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
@@ -19,13 +22,24 @@ final class WoundRenderer {
     record Contact(Vector3f point,Vector3f normal) {}
     private static final int MAX_TOPOLOGIES=64;
     private static final int CHAR_MATERIAL=44, LEAK_WET_MATERIAL=45;
-    private static final String[] MATERIALS={"scratch","dent","tear","scorch","scar","dirt_1","dirt_2","dirt_3",
-            "mold_1","mold_2","mold_3","mold_4","char","leak_wet"};
+    private static final ResourceLocation WOUNDS=MCYukkuri.id("textures/props/body_wounds.png");
+    private static final ResourceLocation MARKS=MCYukkuri.id("textures/props/body_marks.png");
+    private static final ResourceLocation CAVITY=MCYukkuri.id("textures/props/body_cavity_white.png");
+    private static final ResourceLocation[] MATERIALS=Stream.of(
+            "scratch","dent","tear","scorch","scar","dirt_1","dirt_2","dirt_3",
+            "mold_1","mold_2","mold_3","mold_4","char","leak_wet")
+            .map(name->MCYukkuri.id("textures/props/body_wounds/"+name+".png")).toArray(ResourceLocation[]::new);
     private static final Map<Object,Geometry> CACHE=new WeakHashMap<>();
     private static final Map<TopologyKey,Topology> TOPOLOGIES=new LinkedHashMap<TopologyKey,Topology>(MAX_TOPOLOGIES,.75f,true){
         @Override protected boolean removeEldestEntry(Map.Entry<TopologyKey,Topology> eldest){return size()>MAX_TOPOLOGIES;}
     };
     static void clear(){CACHE.clear();SIGNS.clear();TOPOLOGIES.clear();CavityRenderer.clear();}
+    static void warmTextures(TextureManager textures){
+        textures.getTexture(WOUNDS);
+        textures.getTexture(MARKS);
+        textures.getTexture(CAVITY);
+        for(var material:MATERIALS)textures.getTexture(material);
+    }
     private record Mark(WoundSurface.Hit a,WoundSurface.Hit b,WoundSurface.Hit c,int material,float offset,float[] uv) {}
     private record Face(int triangle,float[] a,float[] b,float[] c,float minX,float minY,float maxX,float maxY,float det) {
         WoundSurface.Hit hit(float[] p){float x=p[0]-a[0],y=p[1]-a[1];float u=Math.clamp((x*(c[1]-a[1])-y*(c[0]-a[0]))/det,0,1),v=
@@ -375,17 +389,17 @@ final class WoundRenderer {
                 mesh.points[i*5+3],mesh.points[i*5+4],mesh.points[(i+1)*5+3],mesh.points[(i+1)*5+4],mesh.points[(i+2)*5+3],mesh.points[(i+2)*5+4],
                 geometry.smoothNormals[geometry.normalSlots[i]],geometry.smoothNormals[geometry.normalSlots[i+1]],geometry.smoothNormals[geometry.normalSlots[i+2]]);}
         if(geometry.cavity!=null)geometry.cavity.render(world,geometry.posed,pregnancy,stack,buffers,light,overlay);
-        if(geometry.woundMarks){var ink=buffers.getBuffer(RenderType.entityCutoutNoCullZOffset(MCYukkuri.id("textures/props/body_wounds.png")));
+        if(geometry.woundMarks){var ink=buffers.getBuffer(RenderType.entityCutoutNoCullZOffset(WOUNDS));
             for(int i=0;i<geometry.marks.size();i++){var mark=geometry.marks.get(i);if(mark.material<16)drawMark(geometry,mark,stack,ink,light,overlay,mark.material,255);}}
         if(geometry.toneMarks){
-            var tone=buffers.getBuffer(RenderType.entityCutoutNoCullZOffset(MCYukkuri.id("textures/props/body_marks.png")));
+            var tone=buffers.getBuffer(RenderType.entityCutoutNoCullZOffset(MARKS));
             for(int i=0;i<geometry.marks.size();i++){var mark=geometry.marks.get(i);if(mark.material>=16&&mark.material<32)drawMark(geometry,mark,stack,tone,light,overlay,mark.material-16,255);}
         }
         // Authored transparency preserves the subtle bruise and skin lip; geometry and UVs are cached with the injury.
         if(geometry.texturedMarks)for(int material=0;material<MATERIALS.length;material++){
             VertexConsumer texture=null;
             for(var mark:geometry.marks)if(mark.material==32+material){
-                if(texture==null)texture=buffers.getBuffer(RenderType.entityTranslucent(MCYukkuri.id("textures/props/body_wounds/"+MATERIALS[material]+".png")));
+                if(texture==null)texture=buffers.getBuffer(RenderType.entityTranslucent(MATERIALS[material]));
                 drawMark(geometry,mark,stack,texture,light,overlay,0,mark.material==LEAK_WET_MATERIAL?leakOpacity:255);
             }
         }

@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import org.joml.Vector3f;
@@ -41,8 +42,8 @@ final class HairWoundAssets {
         final Vector3f scale,offset,hairEdge,hairHighlight;
         final Set<String> hair,thermalHair,coreTunnel;
         final Map<String,String> rigid,accessories;
-        final Map<Integer,Set<String>> dryFaces=new HashMap<>();
-        Model(JsonObject data,JsonObject faces,Palette palette){
+        final Map<Integer,Map<String,ResourceLocation>> dryFaces=new HashMap<>();
+        Model(String id,JsonObject data,JsonObject faces,Palette palette){
             this.palette=palette;
             body=data.get("body_part").getAsString();house=data.get("house").getAsBoolean();
             var fit=data.getAsJsonObject("fit");scale=vector(fit.getAsJsonArray("scale"));offset=vector(fit.getAsJsonArray("offset"));
@@ -50,7 +51,15 @@ final class HairWoundAssets {
             hair=strings(data.getAsJsonArray("hair_parts"));thermalHair=strings(data.getAsJsonArray("thermal_extra_hair_parts"));
             coreTunnel=strings(data.getAsJsonArray("core_tunnel_parts"));
             rigid=map(data.getAsJsonObject("rigid_groups"));accessories=map(data.getAsJsonObject("thermal_accessories"));
-            if(faces!=null)for(var entry:faces.entrySet())dryFaces.put(Integer.parseInt(entry.getKey()),strings(entry.getValue().getAsJsonArray()));
+            if(faces!=null)for(var entry:faces.entrySet()){
+                int grade=Integer.parseInt(entry.getKey());
+                var textures=new HashMap<String,ResourceLocation>();
+                for(var face:entry.getValue().getAsJsonArray()){
+                    String expression=face.getAsString();
+                    textures.put(expression,MCYukkuri.id("textures/wounds/hair/"+id+"/dry-"+expression+"-"+grade+".png"));
+                }
+                dryFaces.put(grade,Map.copyOf(textures));
+            }
         }
         boolean surface(String part){return part.equals(body)||part.startsWith("face_")||hair.contains(part);}
         boolean heated(String part){return surface(part)||thermalHair.contains(part);}
@@ -60,6 +69,7 @@ final class HairWoundAssets {
     private static final Map<String,Model> MODELS=new HashMap<>();
     private static final Map<String,Palette> PALETTES=new HashMap<>();
     private static final Map<String,Profile[]> PROFILES=new HashMap<>();
+    private static final Map<String,Map<String,ResourceLocation>> FACES=new HashMap<>();
     static float[] widthLoss;
     static float minimumInset,cheekHeight,cheekFalloff,soleLow,soleHigh,textureScale;
     static float[][] cavityControls;
@@ -76,10 +86,10 @@ final class HairWoundAssets {
         try(var reader=manager.getResourceOrThrow(MCYukkuri.id("yukkuri_presentation/hair_wounds.json")).openAsReader()){
             var data=JsonParser.parseReader(reader).getAsJsonObject();
             if(data.get("format").getAsInt()!=1)throw new IllegalArgumentException("Unsupported selected hair wounds");
-            MODELS.clear();PROFILES.clear();PALETTES.clear();var recipe=data.getAsJsonObject("recipe");
+            MODELS.clear();PROFILES.clear();PALETTES.clear();FACES.clear();var recipe=data.getAsJsonObject("recipe");
             for(var entry:data.getAsJsonObject("filling_palettes").entrySet())
                 PALETTES.put(entry.getKey(),new Palette(entry.getValue().getAsJsonObject()));
-            for(var entry:data.getAsJsonObject("models").entrySet())MODELS.put(entry.getKey(),new Model(entry.getValue().getAsJsonObject(),
+            for(var entry:data.getAsJsonObject("models").entrySet())MODELS.put(entry.getKey(),new Model(entry.getKey(),entry.getValue().getAsJsonObject(),
                     data.getAsJsonObject("dry_faces").getAsJsonObject(entry.getKey()),
                     PALETTES.get(entry.getValue().getAsJsonObject().get("filling_palette").getAsString())));
             for(var entry:data.getAsJsonObject("profiles").entrySet()){
@@ -101,6 +111,15 @@ final class HairWoundAssets {
             coreDensity=material.get("core_density_tint").getAsFloat();
         }catch(IOException error){throw new UncheckedIOException("Cannot load selected hair wound art",error);}
         HairWoundRenderer.clear();
+        // Shared overlays are small and independent of the entity or expression. Register them during resource reload.
+        var textures=Minecraft.getInstance().getTextureManager();
+        textures.getTexture(material("scar"));
+        for (var shape : WoundShape.values()) {
+            if (shape.kind()==null || shape.thermal()) continue;
+            for (int grade=1;grade<=3;grade++) textures.getTexture(material(shape.id()+"-"+grade));
+        }
+        for (int grade=1;grade<=3;grade++) textures.getTexture(material("thermal-"+grade));
+        WoundRenderer.warmTextures(textures);
     }
     static Model model(String id){return MODELS.get(id);}
     private static Palette palette(String id){var model=MODELS.get(id);return model==null?PALETTES.get("generic"):model.palette;}
@@ -115,9 +134,20 @@ final class HairWoundAssets {
     static float drainWidth(int drain){return drain==0?1:1-widthLoss[drain-1];}
     static ResourceLocation texture(String id,String expression,int grade){
         var model=MODELS.get(id);
-        if(grade>0&&model!=null&&model.dryFaces.getOrDefault(grade,Set.of()).contains(expression))
-            return MCYukkuri.id("textures/wounds/hair/"+id+"/dry-"+expression+"-"+grade+".png");
-        return MCYukkuri.id("textures/entity/"+id+"/"+expression+".png");
+        if(grade>0&&model!=null){
+            var dry=model.dryFaces.get(grade);
+            if(dry!=null){
+                var texture=dry.get(expression);
+                if(texture!=null)return texture;
+            }
+        }
+        var faces=FACES.computeIfAbsent(id,key->new HashMap<>());
+        var texture=faces.get(expression);
+        if(texture==null){
+            texture=MCYukkuri.id("textures/entity/"+id+"/"+expression+".png");
+            faces.put(expression,texture);
+        }
+        return texture;
     }
     static ResourceLocation material(String name){return MCYukkuri.id("textures/wounds/hair/"+name+".png");}
     private static Map<String,String> map(JsonObject data){var result=new HashMap<String,String>();if(data!=null)

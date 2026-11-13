@@ -5,12 +5,13 @@
 #   launcher.cmd -Fresh     always generate a brand-new world first (discards the old museum world)
 #   launcher.cmd -Resume    keep the installed world even if the generator changed
 #   launcher.cmd -Menu      open the Minecraft menu instead of the world
+#   launcher.cmd -Profile   record client performance until the game closes
 #
 # The world is built from scripts/build_museum_full.py into .local/experimental-map/museum (replaced as a whole, never
 # repaired in place). The mod itself comes from the prepared CI runtime named in .local/experimental-map/museum-runtime.json
 # ("runtime", "java"; optional "python" for the interpreter that has nbtlib). Source and scene inputs must match the
 # selected CI commit before world generation. Command probes alone cannot detect older implementations of existing commands.
-param([switch]$Menu, [switch]$Fresh, [switch]$Resume)
+param([switch]$Menu, [switch]$Fresh, [switch]$Resume, [switch]$Profile)
 $ErrorActionPreference = 'Stop'
 $projectRoot = Split-Path $PSScriptRoot -Parent
 $taskRoot = Join-Path $projectRoot '.local/experimental-map'
@@ -77,19 +78,30 @@ if ($build) {
 }
 if (-not (Test-Path -LiteralPath $worldFile)) { throw 'Playground save is missing.' }
 
+$launchTime = Get-Date
+$stamp = $launchTime.ToString('yyyyMMdd-HHmmss-fff')
 $arguments = @(
     ('"@' + (Join-Path $runtimeRoot 'clientRunClasspath.txt') + '"'),
     ('"@' + (Join-Path $runtimeRoot 'clientRunVmArgs.txt') + '"'),
     '-Xmx6G',
     '-Dmcyukkuri.aqdiag=true',
-    ('"-Dfml.modFolders=mcyukkuri%%' + (Join-Path $runtimeRoot 'mod') + '"'),
+    ('"-Dfml.modFolders=mcyukkuri%%' + (Join-Path $runtimeRoot 'mod') + '"')
+)
+if ($Profile) {
+    $recordingRoot = Join-Path $projectRoot '.local/reports/jfr'
+    New-Item -ItemType Directory -Force -Path $recordingRoot | Out-Null
+    $recording = Join-Path $recordingRoot "$stamp.jfr"
+    $arguments += @(
+        '-Dmcyukkuri.clientProfile=true',
+        ('"-XX:StartFlightRecording=name=mcyukkuri-client,settings=profile,dumponexit=true,maxage=30m,maxsize=256m,jdk.ClassLoad#enabled=true,jdk.ClassLoad#threshold=5ms,filename=' + $recording + '"')
+    )
+}
+$arguments += @(
     'net.neoforged.devlaunch.Main',
     ('"@' + (Join-Path $runtimeRoot 'clientRunProgramArgs.txt') + '"'),
     '--username','LabPlayer','--width','1440','--height','900'
 )
 if (-not $Menu) { $arguments += @('--quickPlaySingleplayer',$world) }
-$launchTime = Get-Date
-$stamp = $launchTime.ToString('yyyyMMdd-HHmmss-fff')
 $sessionFile = Join-Path $logRoot "$stamp.session.json"
 # Freeze the installed runtime identity before starting; later updates must not relabel old logs.
 $session = @{
@@ -97,6 +109,7 @@ $session = @{
     stdout=(Join-Path $logRoot "$stamp.log"); stderr=(Join-Path $logRoot "$stamp.err.log")
     world=$world; gameRoot=$gameRoot; runtimeConfig=$runtimeConfig
 }
+if ($Profile) { $session.jfr = $recording }
 $session | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath $sessionFile -Encoding utf8
 $client = Start-Process -FilePath $javaExe -ArgumentList $arguments -WorkingDirectory $gameRoot -WindowStyle Normal -PassThru -RedirectStandardOutput (Join-Path $logRoot "$stamp.log") -RedirectStandardError (Join-Path $logRoot "$stamp.err.log")
 $session.pid = $client.Id
@@ -105,3 +118,4 @@ $session | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath $sessionFile -Enco
 $session | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath $processFile -Encoding utf8
 Write-Host "Starting the Yukkuri playground (PID $($client.Id)). First entry builds the fields (about a minute); you are teleported to the lobby when done."
 Write-Host "Logs: $logRoot\$stamp.log (runtime $($runtimeConfig.commit), CI $($runtimeConfig.run))"
+if ($Profile) { Write-Host "Client recording (written when Minecraft closes): $recording" }

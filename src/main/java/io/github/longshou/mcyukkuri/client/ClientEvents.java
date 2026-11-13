@@ -1,7 +1,9 @@
 package io.github.longshou.mcyukkuri.client;
 
 import io.github.longshou.mcyukkuri.MCYukkuri;
+import io.github.longshou.mcyukkuri.body.WoundSurface;
 import io.github.longshou.mcyukkuri.entity.YukkuriVariant;
+import io.github.longshou.mcyukkuri.entity.YukkuriView;
 import io.github.longshou.mcyukkuri.interaction.CareMenu;
 import io.github.longshou.mcyukkuri.item.OperationToolItem;
 import io.github.longshou.mcyukkuri.item.SwaddleStyle;
@@ -24,6 +26,7 @@ import net.neoforged.neoforge.client.event.RegisterClientReloadListenersEvent;
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
 import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
+import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
 
 public final class ClientEvents {
 
@@ -65,6 +68,11 @@ public final class ClientEvents {
         event.registerReloadListener(AgitationPresentation.RELOAD);
         event.registerReloadListener(PropModels.RELOAD);
         event.registerReloadListener(HatDamageMask.RELOAD);
+    }
+
+    static void warmWoundSurface(EntityJoinLevelEvent event) {
+        if (event.getLevel().isClientSide() && event.getEntity() instanceof YukkuriView body)
+            WoundSurface.warm(body.assetId());
     }
 
 

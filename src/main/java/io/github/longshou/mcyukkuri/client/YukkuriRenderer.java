@@ -147,7 +147,12 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
             }
             if(contact.equals("GRIP"))pose.scale(1.1f,.85f,1.1f);
             // House bodies retain wound mechanics but never show the wounded-skin silhouette.
-            boolean open=!entity.profile().houseBody()&&entity.visibleWounds().stream().anyMatch(BodySigns::open);
+            boolean open = false;
+            if (!entity.profile().houseBody()) {
+                for (var wound : entity.visibleWounds()) {
+                    if (BodySigns.open(wound)) { open = true; break; }
+                }
+            }
             float health=entity.getMaxHealth()<=0?1:entity.getHealth()/entity.getMaxHealth();
             pose.scale(BodySigns.sagWidth(health,open),BodySigns.sagHeight(health,open),BodySigns.sagWidth(health,open));
             pose.scale(HairWoundAssets.drainWidth(entity.aftermathDrain()),1,1);
@@ -222,7 +227,7 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
             // The stool keeps the clock its body clip is sampled on (YukkuriModel: the action's own clock when the action is that clip), so
             // the server's release at clip tick DROP_TICKS is the tick this prop hands over to the item.
             ToiletPresentation.renderStool(entity,behavior,behavior.equals(action)?clock*20:phaseTicks,pose,buffers,packedLight);
-            var root=model.rootPose();
+            var stemRoot=FamilyRenderer.visible(entity)?model.rootPose():null;
             if(entity.hasVisibleAccessory()||contact.equals("HAT_REMOVE")) model.renderBadge(entity.visibleMedal(),pose,buffers,packedLight,overlay);
             if(wear!=0)CareWearRenderer.render(model,wear,pose,buffers,packedLight,overlay);
             var presentation=LivingPresentation.variants.get(entity.assetId());
@@ -295,12 +300,14 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
             pose.popPose();
             pose.popPose();
             // The stem grows from the forehead: carry it with the body's root motion, in this block-scaled space.
-            pose.pushPose();
-            var follow=new Matrix4f(root);float units=entity.growthScale()/16f;
-            follow.m30(follow.m30()*units);follow.m31(follow.m31()*units);follow.m32(follow.m32()*units);
-            pose.last().pose().mul(follow);pose.last().normal().mul(new Matrix3f(follow));
-            FamilyRenderer.render(entity,partialTick,pose,buffers,packedLight);
-            pose.popPose();
+            if (stemRoot!=null) {
+                pose.pushPose();
+                float units=entity.growthScale()/16f;
+                stemRoot.m30(stemRoot.m30()*units);stemRoot.m31(stemRoot.m31()*units);stemRoot.m32(stemRoot.m32()*units);
+                pose.last().pose().mul(stemRoot);pose.last().normal().mul(new Matrix3f(stemRoot));
+                FamilyRenderer.render(entity,partialTick,pose,buffers,packedLight);
+                pose.popPose();
+            }
             pose.popPose();
         }
         if(!preview){

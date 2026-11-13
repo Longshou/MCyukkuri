@@ -27,6 +27,7 @@ import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
 import net.neoforged.neoforge.client.event.ViewportEvent;
 import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
 import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
 import net.neoforged.neoforge.event.level.LevelEvent;
 
 /** Client-only entry point; never referenced by common startup. */
@@ -38,6 +39,10 @@ public final class ClientRegistration {
             NeoForge.EVENT_BUS.addListener(RenderFrameEvent.Post.class, MuseumCapture::frame);
             NeoForge.EVENT_BUS.addListener(ScreenEvent.Render.Pre.class, MuseumCapture::renderScreen);
             NeoForge.EVENT_BUS.addListener(EventPriority.LOWEST, false, ViewportEvent.ComputeFov.class, MuseumCapture::fov);
+        }
+        if (Boolean.getBoolean("mcyukkuri.clientProfile")) {
+            NeoForge.EVENT_BUS.addListener(ClientTickEvent.Post.class, ClientProfile::tick);
+            NeoForge.EVENT_BUS.addListener(RenderFrameEvent.Post.class, ClientProfile::frame);
         }
         container.registerConfig(ModConfig.Type.CLIENT, ClientConfig.SPEC, "mcyukkuri-client.toml");
         modBus.addListener(EventPriority.NORMAL, false, EntityRenderersEvent.RegisterRenderers.class, ClientEvents::registerRenderers);
@@ -80,5 +85,6 @@ public final class ClientRegistration {
         PlacedHatRenderer.layer(HullLarderRenderer::render);
 
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, LevelEvent.Unload.class, BodyEffectsRenderer::unload);
+        NeoForge.EVENT_BUS.addListener(EntityJoinLevelEvent.class, ClientEvents::warmWoundSurface);
     }
 }

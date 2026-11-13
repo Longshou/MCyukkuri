@@ -27,8 +27,12 @@ final class FamilyRenderer {
     // with the mother's actual travel (walking, hopping) and a lag opposite it. A still mother's fruit hang plumb; there is
     // no idle sway. Display only; the fruit's rest point is FamilyGeometry.childBase.
     private static final float SWAY_PERIOD_TICKS=46,SWAY_FORE=.13f,SWAY_SIDE=.05f,TRAVEL_LAG=1.6f,MAX_SWING=.32f;
+    static boolean visible(YukkuriView mother) {
+        return mother.broodCount() > 0 && mother.isAlive() && !mother.profile().houseBody();
+    }
+
     static void render(YukkuriView mother,float partialTick,PoseStack pose,MultiBufferSource buffers,int light) {
-        int count=mother.broodCount();if(!mother.isAlive()||count<1||mother.profile().houseBody())return;
+        int count=mother.broodCount();
         float progress=mother.broodProgress(partialTick),scale=mother.growthScale(),variation=mother.broodVariation();
         int types=0;for(int i=0;i<count;i++)types|=mother.broodVariant(i).ordinal()<<(i*4);
         Vec3 travel=mother.position().subtract(mother.getPosition(0));

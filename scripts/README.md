@@ -83,6 +83,14 @@ SPAWN 保留 0.0625 格支撑容差、碰撞与初始卡墙检查；初始化内
 
 
 
+### 客户端卡顿录制
+
+1. 用 `启动动作博物馆.cmd -Profile` 启动试玩场。
+2. 先在身体场 BD-07「用真实武器和环境造成伤」打出第一道伤口，再到家庭场 FM-13「一家六口同窝，长大再分窝」和商店场 SP-06「店员照料：带伤、长霉和拥挤的食盆」重现掉帧。
+3. 正常退出 Minecraft，把启动器显示的 `.local/reports/jfr/<时间>.jfr` 路径发给调度者。
+
+录制保留最近 30 分钟、最多约 256 MB。文件内有首次看见伤口时的游戏 tick，以及游戏中每秒的帧间隔摘要。用 `<py> scripts/jfr_summary.py <录制文件>`（`PYTHONUTF8=1`）读取模组相关方法、采样分配量、长 GC 暂停与类加载，以及卡顿标记附近的样本。可用 `--window` 调整标记前后的秒数、`--slow-ms` 调整长帧和暂停的阈值。
+
 ## 架构建议检查
 
 检查客户端读取服务端组件、未许可的 `getPersistentData`、原始 `isHouse/isPredator` 和内联全限定类型名；覆盖调用、方法引用、跨空白与显式泛型调用，排除注释、字符串、字符、text block 和 package/import。同步视图与快照不因组件词根而禁止。另有三条重构守卫：`BODY_WRITE`（`motor/` 以外对可确定为 `YukkuriEntity` 的接收者调用 `setPos`、`moveTo`、`teleportTo`、`setDeltaMovement`、`addDeltaMovement`、`move(MoverType…)`、`startRiding`、`stopRiding`、`setYRot`／`setYBodyRot`／`setYHeadRot`，仅转调 `BodyDriver` 的覆写除外）、`BASE_IMPORTS_DLC`（`aquatic/`、`client/aquatic/`、`registry/` 以外 import `aquatic` 包）、`GEOM_PURE`（`motor/geom/` import `net.minecraft`）。现有 `BODY_WRITE` 迁移基线已清零，许可条目为空；新的写入只能出现在 `motor/` 内，或经 `BodyDriver`／`Motor` 门面。

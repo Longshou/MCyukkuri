@@ -37,6 +37,7 @@ final class ReproductionPresentation {
     }
     record Anatomy(String part,float amount,MamuPlacement mamu) {}
     record Frame(Anatomy anatomy,Vec3 offset) {}
+    private static final Frame REST = new Frame(null, Vec3.ZERO);
     private record Spacing(Vec3 toward, double desired, double limit, boolean touching) {
         Vec3 keepClear(Vec3 offset) {
             return offset.subtract(toward.scale(Math.max(0,offset.dot(toward)-limit)));
@@ -185,7 +186,7 @@ final class ReproductionPresentation {
         var contact=contact(entity);
         var track=TRACKS.get(entity);
         if(track==null) {
-            if(wanted==null&&contact==null)return new Frame(null,Vec3.ZERO);
+            if(wanted==null&&contact==null)return REST;
             track=new Track(wanted,tick);
             TRACKS.put(entity,track);
         }
