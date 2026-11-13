@@ -243,7 +243,10 @@ final class HumanStreet {
     }
 
     void begin(YukkuriEntity y) {
-        activeCrop = y == cropTarget && now() < cropWitnessUntil ? witnessedCrop : cropReturn(y);
+        var warning = warnings.get(y.getUUID());
+        // Only a stray that has seen an earlier warning is driven off the field: a caring frown leaves the ordinary care path alone.
+        activeCrop = y == cropTarget && now() < cropWitnessUntil ? witnessedCrop
+                : warning != null && warning.seen ? cropReturn(y) : null;
         if (activeCrop != null || npc.attitude() == HumanNpc.Attitude.CRUEL) activeTarget = y;
     }
 
