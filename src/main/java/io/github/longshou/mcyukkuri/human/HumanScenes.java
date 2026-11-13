@@ -33,6 +33,9 @@ import net.minecraft.world.entity.Entity;
  * {@code /yukkuri human ...} (command/HumanCommands) is a thin wrapper over these methods.
  */
 public final class HumanScenes {
+    private static final int LEVEL_MARGIN = 3;
+    private static final int LEVEL_DEPTH = 4;
+
     private HumanScenes() {}
 
     public enum Kind {
@@ -86,14 +89,14 @@ public final class HumanScenes {
 
     private static void levelGround(ServerLevel level, BoundingBox box, int groundY) {
         var pos = new BlockPos.MutableBlockPos();
-        for (int x = box.minX() - 3; x <= box.maxX() + 3; x++)
-            for (int z = box.minZ() - 3; z <= box.maxZ() + 3; z++) {
+        for (int x = box.minX() - LEVEL_MARGIN; x <= box.maxX() + LEVEL_MARGIN; x++)
+            for (int z = box.minZ() - LEVEL_MARGIN; z <= box.maxZ() + LEVEL_MARGIN; z++) {
                 for (int y = groundY + 1; y <= box.maxY(); y++) {
                     pos.set(x, y, z);
                     if (!level.getBlockState(pos).isAir()) level.setBlock(pos, Blocks.AIR.defaultBlockState(), 2);
                 }
                 boolean inside = x >= box.minX() && x <= box.maxX() && z >= box.minZ() && z <= box.maxZ();
-                for (int y = groundY - 1; y >= groundY - 4; y--) {
+                for (int y = groundY - 1; y >= groundY - LEVEL_DEPTH; y--) {
                     pos.set(x, y, z);
                     var state = level.getBlockState(pos);
                     if (state.isAir() || !state.getFluidState().isEmpty() || state.is(BlockTags.REPLACEABLE))

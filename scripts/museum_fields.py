@@ -80,9 +80,7 @@ class Field:
         return (x1 - 1, z1 - 1, x2 + 1, z2 + 1)
 
     def apron_rect(self):
-        """The strip of field ground the deck looks over, from its south edge ``DECK_APRON`` blocks into the field: a scene may put
-        props on it but no building, so the visitor on the deck sees the field instead of a wall (a building right against the deck
-        also leaves a slice behind when it is older than the clear margin)."""
+        """The first ``DECK_APRON`` rows immediately south of the deck, reserved for a view into the field."""
         x1, _, x2, z2 = self.deck
         return (x1 - 1, z2 + 1, x2 + 1, z2 + DECK_APRON)
 

@@ -25,6 +25,7 @@ museum_scenarios.py, spawn vocabulary in museum_dsl.py, buttons and labels in mu
 """
 from pathlib import Path
 import argparse
+import gzip
 import hashlib
 import json
 import math
@@ -51,6 +52,7 @@ NS = 'mcylab'
 WORLD = 'MCyukkuri-Museum'
 SPAWN = (0, FEET, 36, 180)
 LOBBY = (-42, -36, 42, 42)            # x1, z1, x2, z2 of the lobby plaza
+HUMAN_SCENES = ROOT / 'src/main/java/io/github/longshou/mcyukkuri/human/HumanScenes.java'
 STAGING = (ROOT / '.local/experimental-map')
 ENV_TIME = {'noon': 'noon', 'dawn': '100', 'dusk': '12500', 'night': 'midnight'}
 SPEEDS = (('1x', 20), ('3x', 60), ('5x', 100), ('10x', 200), ('20x', 400))
@@ -74,13 +76,11 @@ def overlaps(a, b):
     return a[0] <= b[2] and b[0] <= a[2] and a[1] <= b[3] and b[1] <= a[3]
 
 
-def human_build_kinds():
+def human_build_kinds(source):
     """``yukkuri human build`` kind -> (template size, entrance x inside the template), taken from the command's own Java enum
     (``HumanScenes.Kind``) and from the shipped template, so the museum and the game cannot disagree about a footprint."""
-    source = (ROOT / 'src/main/java/io/github/longshou/mcyukkuri/human/HumanScenes.java').read_text(encoding='utf-8')
     body = source[source.index('enum Kind {'):]
     body = body[:body.index(';')]
-    import gzip
     import nbtlib
     kinds = {}
     for name, template, entrance in re.findall(r'(\w+)\("(\w+)", (\d+)\)', body):
@@ -90,10 +90,10 @@ def human_build_kinds():
     return kinds
 
 
-def human_build_rect(kind, entrance, front):
+def human_build_rect(template, entrance, front):
     """World (x1, z1, x2, z2) that one build fills: the template turned so its door on the low-z street side faces ``front``, with
     ``entrance`` the street cell in front of that door (the rotation and the placement of ``HumanScenes.place``)."""
-    (width, _, depth), entrance_x = human_build_kinds()[kind]
+    (width, _, depth), entrance_x = template
     step = ('north', 'east', 'south', 'west').index(front)
     turn = lambda x, z: ((x, z), (-z, x), (-x, -z), (z, -x))[step]
     door_x, door_z = turn(entrance_x, 0)
@@ -151,23 +151,37 @@ def validate():
 
 
 def validate_builds():
-    """Village buildings a scene places must stand inside its field's clear box ("clear this field" removes them again) and clear of
-    every deck and of the ground a deck looks over (a building against the deck walls the observation in)."""
+    """Keep buildings and their leveling inside the field clear box and leave the decks and their views clear."""
+    source = HUMAN_SCENES.read_text(encoding='utf-8')
+    kinds = human_build_kinds(source)
+    level_margin = int(re.search(r'\bLEVEL_MARGIN = (\d+);', source)[1])
+    level_depth = int(re.search(r'\bLEVEL_DEPTH = (\d+);', source)[1])
     for scenario in museum_scenarios.S:
         field = BY_ID[scenario.field]
-        x1, _, z1, x2, _, z2 = field.clear_box()
-        for line in list(scenario.lines) + [item for item in scenario.late if isinstance(item, str)]:
-            found = re.search(r'yukkuri human build (\w+) ~(-?\d*) ~ ~(-?\d*) (\w+)', line)
+        x1, y1, z1, x2, y2, z2 = field.clear_box()
+        for line in [*scenario.lines, *(item if isinstance(item, str) else item.command for item in scenario.late)]:
+            found = re.fullmatch(r'yukkuri human build (\w+) (\S+) (\S+) (\S+)(?: (north|east|south|west)(?: (true|false))?)?', line)
             if not found:
                 continue
-            entrance = (scenario.anchor[0] + int(found.group(2) or 0), FEET, scenario.anchor[1] + int(found.group(3) or 0))
-            rect = human_build_rect(found.group(1), entrance, found.group(4))
-            what = f'scenario {scenario.id}: the {found.group(1)} at x{rect[0]}..{rect[2]} z{rect[1]}..{rect[3]}'
-            assert x1 <= rect[0] and rect[2] <= x2 and z1 <= rect[1] and rect[3] <= z2, (
-                f'{what} leaves the clear box of {field.id} (x{x1}..{x2} z{z1}..{z2}): clearing the field would leave a slice behind')
+            kind, x, y, z, front, clear = found.groups()
+            ax, az = scenario.anchor
+            entrance = tuple(math.floor(base + float(coord[1:] or 0)) if coord.startswith('~') else int(coord)
+                             for coord, base in zip((x, y, z), (ax, FEET, az)))
+            rect = human_build_rect(kinds[kind], entrance, front or 'north')
+            margin = 0 if clear == 'false' else level_margin
+            leveled = (rect[0] - margin, rect[1] - margin, rect[2] + margin, rect[3] + margin)
+            ground = entrance[1] - 1
+            height = kinds[kind][0][1]
+            low = ground if clear == 'false' else ground - level_depth
+            high = ground + height - 1
+            what = f'scenario {scenario.id}: the {kind} at x{rect[0]}..{rect[2]} y{ground}..{high} z{rect[1]}..{rect[3]}'
+            assert (x1 <= leveled[0] and leveled[2] <= x2 and y1 <= low and high <= y2
+                    and z1 <= leveled[1] and leveled[3] <= z2), f'{what} or its leveling leaves the {field.id} clear box'
             for other in FIELDS:
-                assert not overlaps(rect, other.deck_rect()) and not overlaps(rect, other.apron_rect()), (
-                    f'{what} stands on the {other.id} observation deck or on the {museum_fields.DECK_APRON} blocks of field it looks over')
+                assert not overlaps(leveled, other.deck_rect()) and not overlaps(leveled, other.gate_rect()), (
+                    f'{what} or its leveling overlaps the {other.id} observation deck or return gate')
+                assert not overlaps(rect, other.apron_rect()), (
+                    f'{what} blocks the {other.id} observation deck apron')
 
 
 # ============================================================================== guide book
