@@ -8,7 +8,6 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
-| 导出脚本写出 CRLF 造成无变化改动 | `.worktrees/wp-ij-export-eol` | scripts/export_human_world.py, scripts/export helpers |
 
 ## 玩法待办
 
