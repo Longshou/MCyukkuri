@@ -2776,7 +2776,8 @@
         "mine"
       ],
       "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... Flandre's! It's Flandre's!"
     },
     {
       "id": "flandre.adult.o_toilet",
@@ -2788,7 +2789,8 @@
         "need_toilet"
       ],
       "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... which way's the toilet?"
     },
     {
       "id": "flandre.adult.o_clean",
@@ -2801,7 +2803,8 @@
         "washed"
       ],
       "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "That feels better. Am I still dirty?"
     },
     {
       "id": "flandre.adult.o_sleep",
@@ -2813,7 +2816,8 @@
         "sleep"
       ],
       "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... more after I wake up. Good night."
     },
     {
       "id": "flandre.adult.o_awake",
@@ -2825,7 +2829,8 @@
         "awake"
       ],
       "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... I'm awake! What will happen today?"
     },
     {
       "id": "flandre.adult.o_gentle",
@@ -2838,7 +2843,8 @@
         "caregiver"
       ],
       "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... stay close a bit longer... I want to snuggle..."
     },
     {
       "id": "flandre.adult.o_shy",
@@ -2851,7 +2857,8 @@
         "shy"
       ],
       "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... yuu... I'll tuck in a little..."
     },
     {
       "id": "flandre.adult.o_afraid",
@@ -2863,7 +2870,8 @@
         "afraid"
       ],
       "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... I'm scared!"
     },
     {
       "id": "flandre.adult.o_hurt",
@@ -2875,7 +2883,8 @@
         "wounded"
       ],
       "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... it hurts... it hurts!"
     },
     {
       "id": "flandre.adult.o_treated",
@@ -2900,7 +2909,8 @@
         "lost_accessory"
       ],
       "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "My headwear's gone. Where did it go?"
     },
     {
       "id": "flandre.adult.o_returned",
@@ -2912,7 +2922,8 @@
         "returned_accessory"
       ],
       "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... it's back! Thank you for looking!"
     },
     {
       "id": "flandre.adult.o_unknown",
@@ -2938,7 +2949,8 @@
         "exercise"
       ],
       "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... I'd like to try! Want to play together?"
     },
     {
       "id": "flandre.adult.o_refuse",
@@ -3003,7 +3015,8 @@
         "busy"
       ],
       "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... I'm busy right now. Later, okay?"
     },
     {
       "id": "flandre.adult.o_heard",
@@ -3015,7 +3028,8 @@
         "heard"
       ],
       "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... I heard you just fine."
     },
     {
       "id": "flandre.adult.o_newborn",
@@ -3040,7 +3054,8 @@
         "grown"
       ],
       "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... I've grown! Maybe I can reach more things now?"
     },
     {
       "id": "flandre.adult.o_courtship",
@@ -3052,7 +3067,8 @@
         "courtship"
       ],
       "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... I want to take it easy with you..."
     },
     {
       "id": "flandre.adult.o_brood",
@@ -3065,7 +3081,8 @@
         "birth"
       ],
       "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... little one... it won't be long..."
     },
     {
       "id": "flandre.adult.o_wait_family",
@@ -3077,7 +3094,8 @@
         "wait_family"
       ],
       "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... my family's still not back... I'll wait a little longer..."
     },
     {
       "id": "flandre.adult.o_parent",
@@ -3089,7 +3107,8 @@
         "lost_parent"
       ],
       "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... where's my parent? I wish I could hear them..."
     },
     {
       "id": "flandre.adult.o_grief",
@@ -3115,7 +3134,8 @@
         "want_nuzzle"
       ],
       "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... may I rub cheeks for a little while?"
     },
     {
       "id": "flandre.adult.o_content",
@@ -3128,7 +3148,8 @@
         "leisure_done"
       ],
       "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... phew... I can take it easy..."
     },
     {
       "id": "flandre.adult.o_puff",
@@ -3140,7 +3161,8 @@
         "puff"
       ],
       "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu! Flandre's here too!"
     },
     {
       "id": "flandre.young.o_hello",
@@ -3155,7 +3177,8 @@
         "known_peer"
       ],
       "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... can Fwan join too?"
     },
     {
       "id": "flandre.young.o_idle",
@@ -3167,7 +3190,8 @@
         "idle"
       ],
       "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... what should we pway?"
     },
     {
       "id": "flandre.young.o_hungry",
@@ -3192,7 +3216,8 @@
         "food_found"
       ],
       "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... can I eat dis?"
     },
     {
       "id": "flandre.young.o_eat",
@@ -3205,7 +3230,8 @@
         "chew"
       ],
       "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... munch, munch. What's it taste like?"
     },
     {
       "id": "flandre.young.o_fed",
@@ -3256,7 +3282,8 @@
         "mine"
       ],
       "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Fwan got this!"
     },
     {
       "id": "flandre.young.o_toilet",
@@ -3268,7 +3295,8 @@
         "need_toilet"
       ],
       "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... which way's the potty?"
     },
     {
       "id": "flandre.young.o_clean",
@@ -3281,7 +3309,8 @@
         "washed"
       ],
       "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Am I clean now? Look, look!"
     },
     {
       "id": "flandre.young.o_sleep",
@@ -3293,7 +3322,8 @@
         "sleep"
       ],
       "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... more later. Gonna sleep now."
     },
     {
       "id": "flandre.young.o_awake",
@@ -3305,7 +3335,8 @@
         "awake"
       ],
       "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... I'm awake! What's here?"
     },
     {
       "id": "flandre.young.o_gentle",
@@ -3318,7 +3349,8 @@
         "caregiver"
       ],
       "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... stay close a little longer... I wanna snuggle..."
     },
     {
       "id": "flandre.young.o_shy",
@@ -3331,7 +3363,8 @@
         "shy"
       ],
       "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... yuu... gonna tuck in..."
     },
     {
       "id": "flandre.young.o_afraid",
@@ -3343,7 +3376,8 @@
         "afraid"
       ],
       "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... scawy!"
     },
     {
       "id": "flandre.young.o_hurt",
@@ -3355,7 +3389,8 @@
         "wounded"
       ],
       "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... it huwts, it huwts!"
     },
     {
       "id": "flandre.young.o_treated",
@@ -3380,7 +3415,8 @@
         "lost_accessory"
       ],
       "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Where'd my headwear go?"
     },
     {
       "id": "flandre.young.o_returned",
@@ -3392,7 +3428,8 @@
         "returned_accessory"
       ],
       "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... it came back! Fank you!"
     },
     {
       "id": "flandre.young.o_unknown",
@@ -3418,7 +3455,8 @@
         "exercise"
       ],
       "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... I wanna twy! Wanna pway?"
     },
     {
       "id": "flandre.young.o_refuse",
@@ -3483,7 +3521,8 @@
         "busy"
       ],
       "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... I'm busy wight now..."
     },
     {
       "id": "flandre.young.o_heard",
@@ -3495,7 +3534,8 @@
         "heard"
       ],
       "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... I heard you."
     },
     {
       "id": "flandre.young.o_newborn",
@@ -3507,7 +3547,8 @@
         "newborn"
       ],
       "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... where am I?"
     },
     {
       "id": "flandre.young.o_grown",
@@ -3519,7 +3560,8 @@
         "grown"
       ],
       "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... I'm big now! Can I reach here?"
     },
     {
       "id": "flandre.young.o_courtship",
@@ -3531,7 +3573,8 @@
         "courtship"
       ],
       "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... I wanna chake it eashy together..."
     },
     {
       "id": "flandre.young.o_brood",
@@ -3544,7 +3587,8 @@
         "birth"
       ],
       "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... little one... soon..."
     },
     {
       "id": "flandre.young.o_wait_family",
@@ -3556,7 +3600,8 @@
         "wait_family"
       ],
       "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... my family's still not back... I'll wait a bit more..."
     },
     {
       "id": "flandre.young.o_parent",
@@ -3568,7 +3613,8 @@
         "lost_parent"
       ],
       "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... where's my parent? I wanna hear you."
     },
     {
       "id": "flandre.young.o_grief",
@@ -3580,7 +3626,8 @@
         "family_died"
       ],
       "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... wake up... pwease wake up..."
     },
     {
       "id": "flandre.young.o_nuzzle",
@@ -3593,7 +3640,8 @@
         "want_nuzzle"
       ],
       "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... can I wub cheeks?"
     },
     {
       "id": "flandre.young.o_content",
@@ -3606,7 +3654,8 @@
         "leisure_done"
       ],
       "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... phew... I can chake it eashy..."
     },
     {
       "id": "flandre.young.o_puff",
@@ -3618,7 +3667,8 @@
         "puff"
       ],
       "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu! Fwan's here too!"
     },
     {
       "id": "reimu.adult.o_house_listen",
@@ -3629,7 +3679,8 @@
       "events": [
         "house_listen"
       ],
-      "basis": "家油昼夜、照卵与清扫惊扰的项目原创字幕，依据仓库家油生态设定；非原作引文，尚未配音。"
+      "basis": "家油昼夜、照卵与清扫惊扰的项目原创字幕，依据仓库家油生态设定；非原作引文，尚未配音。",
+      "english": "Yu? Did Mr. Egg move?"
     },
     {
       "id": "marisa.adult.o_house_listen",
@@ -3640,7 +3691,8 @@
       "events": [
         "house_listen"
       ],
-      "basis": "家油昼夜、照卵与清扫惊扰的项目原创字幕，依据仓库家油生态设定；非原作引文，尚未配音。"
+      "basis": "家油昼夜、照卵与清扫惊扰的项目原创字幕，依据仓库家油生态设定；非原作引文，尚未配音。",
+      "english": "Yu? Did Mr. Egg move?"
     },
     {
       "id": "reimu.adult.o_house_startled",
@@ -3651,7 +3703,8 @@
       "events": [
         "house_startled"
       ],
-      "basis": "家油昼夜、照卵与清扫惊扰的项目原创字幕，依据仓库家油生态设定；非原作引文，尚未配音。"
+      "basis": "家油昼夜、照卵与清扫惊扰的项目原创字幕，依据仓库家油生态设定；非原作引文，尚未配音。",
+      "english": "Yu?! That was loud!"
     },
     {
       "id": "marisa.adult.o_house_startled",
@@ -3662,7 +3715,8 @@
       "events": [
         "house_startled"
       ],
-      "basis": "家油昼夜、照卵与清扫惊扰的项目原创字幕，依据仓库家油生态设定；非原作引文，尚未配音。"
+      "basis": "家油昼夜、照卵与清扫惊扰的项目原创字幕，依据仓库家油生态设定；非原作引文，尚未配音。",
+      "english": "Yu?! That was loud!"
     },
     {
       "id": "reimu.adult.o_house_search_home",
@@ -3673,7 +3727,8 @@
       "events": [
         "house_search_home"
       ],
-      "basis": "家油昼夜、照卵与清扫惊扰的项目原创字幕，依据仓库家油生态设定；非原作引文，尚未配音。"
+      "basis": "家油昼夜、照卵与清扫惊扰的项目原创字幕，依据仓库家油生态设定；非原作引文，尚未配音。",
+      "english": "Where are you, Mr. Home...?"
     },
     {
       "id": "marisa.adult.o_house_search_home",
@@ -3684,7 +3739,8 @@
       "events": [
         "house_search_home"
       ],
-      "basis": "家油昼夜、照卵与清扫惊扰的项目原创字幕，依据仓库家油生态设定；非原作引文，尚未配音。"
+      "basis": "家油昼夜、照卵与清扫惊扰的项目原创字幕，依据仓库家油生态设定；非原作引文，尚未配音。",
+      "english": "Where are you, Mr. Home...?"
     },
     {
       "id": "reimu.adult.o_house_hatched",
@@ -3719,7 +3775,8 @@
       "events": [
         "house_startled"
       ],
-      "basis": "家油昼夜、照卵与清扫惊扰的项目原创字幕，依据仓库家油生态设定；非原作引文，尚未配音。"
+      "basis": "家油昼夜、照卵与清扫惊扰的项目原创字幕，依据仓库家油生态设定；非原作引文，尚未配音。",
+      "english": "Yu?! That was loud!"
     },
     {
       "id": "marisa.young.o_house_startled",
@@ -3730,7 +3787,8 @@
       "events": [
         "house_startled"
       ],
-      "basis": "家油昼夜、照卵与清扫惊扰的项目原创字幕，依据仓库家油生态设定；非原作引文，尚未配音。"
+      "basis": "家油昼夜、照卵与清扫惊扰的项目原创字幕，依据仓库家油生态设定；非原作引文，尚未配音。",
+      "english": "Yu?! That was loud!"
     },
     {
       "id": "reimu.young.o_house_search_home",
@@ -3741,7 +3799,8 @@
       "events": [
         "house_search_home"
       ],
-      "basis": "家油昼夜、照卵与清扫惊扰的项目原创字幕，依据仓库家油生态设定；非原作引文，尚未配音。"
+      "basis": "家油昼夜、照卵与清扫惊扰的项目原创字幕，依据仓库家油生态设定；非原作引文，尚未配音。",
+      "english": "Where are you, Mishter Home...?"
     },
     {
       "id": "marisa.young.o_house_search_home",
@@ -3752,7 +3811,8 @@
       "events": [
         "house_search_home"
       ],
-      "basis": "家油昼夜、照卵与清扫惊扰的项目原创字幕，依据仓库家油生态设定；非原作引文，尚未配音。"
+      "basis": "家油昼夜、照卵与清扫惊扰的项目原创字幕，依据仓库家油生态设定；非原作引文，尚未配音。",
+      "english": "Where are you, Mishter Home...?"
     },
     {
       "id": "reimu.adult.o_exam_nervous",

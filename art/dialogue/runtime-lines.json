@@ -8020,7 +8020,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "flandre.adult.o_mine"
       },
-      "source_sha256": "b9b83f66f87cfaa5ebacb6ff7b698858caa79184f6df293f445cf900a7f45da1"
+      "source_sha256": "b9b83f66f87cfaa5ebacb6ff7b698858caa79184f6df293f445cf900a7f45da1",
+      "english": "Uu... Flandre's! It's Flandre's!"
     },
     {
       "id": "flandre.adult.o_toilet",
@@ -8036,7 +8037,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "flandre.adult.o_toilet"
       },
-      "source_sha256": "692f8c5fdb089d25c7ddcf5b1d15f70593ce71ee9d15958001688c5f36995347"
+      "source_sha256": "692f8c5fdb089d25c7ddcf5b1d15f70593ce71ee9d15958001688c5f36995347",
+      "english": "Uu... which way's the toilet?"
     },
     {
       "id": "flandre.adult.o_clean",
@@ -8053,7 +8055,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "flandre.adult.o_clean"
       },
-      "source_sha256": "dc25ade151b4f3aad7f2e624b9c01f4d73ca4ff7f43fb96608413cb01cd0d530"
+      "source_sha256": "dc25ade151b4f3aad7f2e624b9c01f4d73ca4ff7f43fb96608413cb01cd0d530",
+      "english": "That feels better. Am I still dirty?"
     },
     {
       "id": "flandre.adult.o_sleep",
@@ -8069,7 +8072,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "flandre.adult.o_sleep"
       },
-      "source_sha256": "155bf9382ae4f25b315dc6fd895b8d00eefac631955a63cabfd27db0929ad133"
+      "source_sha256": "155bf9382ae4f25b315dc6fd895b8d00eefac631955a63cabfd27db0929ad133",
+      "english": "Uu... more after I wake up. Good night."
     },
     {
       "id": "flandre.adult.o_awake",
@@ -8085,7 +8089,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "flandre.adult.o_awake"
       },
-      "source_sha256": "78a539a1b120f2f5186e5bd8ec9d9387fee202f76e7329d8cacc451bf01a3ed3"
+      "source_sha256": "78a539a1b120f2f5186e5bd8ec9d9387fee202f76e7329d8cacc451bf01a3ed3",
+      "english": "Uu... I'm awake! What will happen today?"
     },
     {
       "id": "flandre.adult.o_gentle",
@@ -8102,7 +8107,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "flandre.adult.o_gentle"
       },
-      "source_sha256": "f263163ff6e2561c06f86308fc530153784568215838562235f344eee050e27a"
+      "source_sha256": "f263163ff6e2561c06f86308fc530153784568215838562235f344eee050e27a",
+      "english": "Uu... stay close a bit longer... I want to snuggle..."
     },
     {
       "id": "flandre.adult.o_shy",
@@ -8119,7 +8125,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "flandre.adult.o_shy"
       },
-      "source_sha256": "a86b0ac9e2396e85a2cfc92d03c2198f62e2e98b07beed4dffedc4c5a8dd98b4"
+      "source_sha256": "a86b0ac9e2396e85a2cfc92d03c2198f62e2e98b07beed4dffedc4c5a8dd98b4",
+      "english": "Uu... yuu... I'll tuck in a little..."
     },
     {
       "id": "flandre.adult.o_afraid",
@@ -8135,7 +8142,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "flandre.adult.o_afraid"
       },
-      "source_sha256": "a188c54df360e71d26cc93b5f66ad66184b96527045dc1a77a9eaee121dc6967"
+      "source_sha256": "a188c54df360e71d26cc93b5f66ad66184b96527045dc1a77a9eaee121dc6967",
+      "english": "Uu... I'm scared!"
     },
     {
       "id": "flandre.adult.o_hurt",
@@ -8151,7 +8159,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "flandre.adult.o_hurt"
       },
-      "source_sha256": "ceba43474347b0d44d2568f681309bc187aadc79bcb19e476ff96e1dadb4bb02"
+      "source_sha256": "ceba43474347b0d44d2568f681309bc187aadc79bcb19e476ff96e1dadb4bb02",
+      "english": "Uu... it hurts... it hurts!"
     },
     {
       "id": "flandre.adult.o_treated",
@@ -8184,7 +8193,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "flandre.adult.o_lost"
       },
-      "source_sha256": "c882d9f1c740a223d5430a3f12c1e2a0836eb657f8e193d257a2770f6a267000"
+      "source_sha256": "c882d9f1c740a223d5430a3f12c1e2a0836eb657f8e193d257a2770f6a267000",
+      "english": "My headwear's gone. Where did it go?"
     },
     {
       "id": "flandre.adult.o_returned",
@@ -8200,7 +8210,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "flandre.adult.o_returned"
       },
-      "source_sha256": "bb600c2f189578338b0b0b5fffdc2e9941f1b457023460367bf7379962d8a834"
+      "source_sha256": "bb600c2f189578338b0b0b5fffdc2e9941f1b457023460367bf7379962d8a834",
+      "english": "Uu... it's back! Thank you for looking!"
     },
     {
       "id": "flandre.adult.o_unknown",
@@ -8234,7 +8245,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "flandre.adult.o_play"
       },
-      "source_sha256": "58da4236dc49848f2ab76b0c55f4f79d580a0506455adbb314d6e2e5efbef121"
+      "source_sha256": "58da4236dc49848f2ab76b0c55f4f79d580a0506455adbb314d6e2e5efbef121",
+      "english": "Uu... I'd like to try! Want to play together?"
     },
     {
       "id": "flandre.adult.o_refuse",
@@ -8319,7 +8331,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "flandre.adult.o_busy"
       },
-      "source_sha256": "1447db71cabab9747b1b56b0058937c04b5fb6b2b4c8afb58af428214013fa8b"
+      "source_sha256": "1447db71cabab9747b1b56b0058937c04b5fb6b2b4c8afb58af428214013fa8b",
+      "english": "Uu... I'm busy right now. Later, okay?"
     },
     {
       "id": "flandre.adult.o_heard",
@@ -8335,7 +8348,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "flandre.adult.o_heard"
       },
-      "source_sha256": "038dbb5363626ac3cf879650c30b81419edca0284db73906b4e9826e7bd15173"
+      "source_sha256": "038dbb5363626ac3cf879650c30b81419edca0284db73906b4e9826e7bd15173",
+      "english": "Uu... I heard you just fine."
     },
     {
       "id": "flandre.adult.o_newborn",
@@ -8368,7 +8382,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "flandre.adult.o_grown"
       },
-      "source_sha256": "4eed8e935c1b2138b5c3a126d72c909836a47aebc1965000e9fbc90e29790d3b"
+      "source_sha256": "4eed8e935c1b2138b5c3a126d72c909836a47aebc1965000e9fbc90e29790d3b",
+      "english": "Uu... I've grown! Maybe I can reach more things now?"
     },
     {
       "id": "flandre.adult.o_courtship",
@@ -8384,7 +8399,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "flandre.adult.o_courtship"
       },
-      "source_sha256": "32d16d26db25c5ff98a420ae8e7c140a2f9a14f6c2d4bd414ef36a78e13ef78d"
+      "source_sha256": "32d16d26db25c5ff98a420ae8e7c140a2f9a14f6c2d4bd414ef36a78e13ef78d",
+      "english": "Uu... I want to take it easy with you..."
     },
     {
       "id": "flandre.adult.o_brood",
@@ -8401,7 +8417,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "flandre.adult.o_brood"
       },
-      "source_sha256": "49af098d17fbf954fbac048b4a1145a1c8118d726cbac9abb12eaf3c75a09c79"
+      "source_sha256": "49af098d17fbf954fbac048b4a1145a1c8118d726cbac9abb12eaf3c75a09c79",
+      "english": "Uu... little one... it won't be long..."
     },
     {
       "id": "flandre.adult.o_wait_family",
@@ -8417,7 +8434,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "flandre.adult.o_wait_family"
       },
-      "source_sha256": "8233fbc3e62e08fa618c31911fe3422d60b8113f37c7a5d390913322386d276a"
+      "source_sha256": "8233fbc3e62e08fa618c31911fe3422d60b8113f37c7a5d390913322386d276a",
+      "english": "Uu... my family's still not back... I'll wait a little longer..."
     },
     {
       "id": "flandre.adult.o_parent",
@@ -8433,7 +8451,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "flandre.adult.o_parent"
       },
-      "source_sha256": "10172bc22a4939271e7e93238326b9b1e20c5ce21c05ed2c000da22efff6fd0a"
+      "source_sha256": "10172bc22a4939271e7e93238326b9b1e20c5ce21c05ed2c000da22efff6fd0a",
+      "english": "Uu... where's my parent? I wish I could hear them..."
     },
     {
       "id": "flandre.adult.o_grief",
@@ -8467,7 +8486,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "flandre.adult.o_nuzzle"
       },
-      "source_sha256": "f2c4d365885643bc47feddb951a45c93f84a6a298f045ab9469bb66e38826389"
+      "source_sha256": "f2c4d365885643bc47feddb951a45c93f84a6a298f045ab9469bb66e38826389",
+      "english": "Uu... may I rub cheeks for a little while?"
     },
     {
       "id": "flandre.adult.o_content",
@@ -8484,7 +8504,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "flandre.adult.o_content"
       },
-      "source_sha256": "48ffd0e71500bdeb3e32de2a6571b82ac278725fdb64087534b8699a61af5206"
+      "source_sha256": "48ffd0e71500bdeb3e32de2a6571b82ac278725fdb64087534b8699a61af5206",
+      "english": "Uu... phew... I can take it easy..."
     },
     {
       "id": "flandre.adult.o_puff",
@@ -8500,7 +8521,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "flandre.adult.o_puff"
       },
-      "source_sha256": "5328410ed4f2c358b78742ce315d826ef40fbb1d136a43696d07595d2c35c802"
+      "source_sha256": "5328410ed4f2c358b78742ce315d826ef40fbb1d136a43696d07595d2c35c802",
+      "english": "Uu! Flandre's here too!"
     },
     {
       "id": "flandre.young.o_hello",
@@ -8519,7 +8541,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "flandre.young.o_hello"
       },
-      "source_sha256": "8e5db03aff65292f4c187e6011e5158bd23b57ff42e680fec25bd9803c28e717"
+      "source_sha256": "8e5db03aff65292f4c187e6011e5158bd23b57ff42e680fec25bd9803c28e717",
+      "english": "Uu... can Fwan join too?"
     },
     {
       "id": "flandre.young.o_idle",
@@ -8535,7 +8558,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "flandre.young.o_idle"
       },
-      "source_sha256": "cc360e1a7310538529288c91207b99796628f33105bf18c86a4ab73bd261f690"
+      "source_sha256": "cc360e1a7310538529288c91207b99796628f33105bf18c86a4ab73bd261f690",
+      "english": "Uu... what should we pway?"
     },
     {
       "id": "flandre.young.o_hungry",
@@ -8568,7 +8592,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "flandre.young.o_food"
       },
-      "source_sha256": "73209edb10ee63acb46f637f45ee40173951d93e7b2461124d8e1b0ab1754a40"
+      "source_sha256": "73209edb10ee63acb46f637f45ee40173951d93e7b2461124d8e1b0ab1754a40",
+      "english": "Uu... can I eat dis?"
     },
     {
       "id": "flandre.young.o_eat",
@@ -8585,7 +8610,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "flandre.young.o_eat"
       },
-      "source_sha256": "b329d3132d0c0f72102d8e1ba7b3b8824dfc1d825af7a8361f01eb8131a7fbf2"
+      "source_sha256": "b329d3132d0c0f72102d8e1ba7b3b8824dfc1d825af7a8361f01eb8131a7fbf2",
+      "english": "Uu... munch, munch. What's it taste like?"
     },
     {
       "id": "flandre.young.o_fed",
@@ -8652,7 +8678,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "flandre.young.o_mine"
       },
-      "source_sha256": "ff55969eea1b335de818fcb70bbfe25fbca7fc11cea90b27bd2a2146a18d91b8"
+      "source_sha256": "ff55969eea1b335de818fcb70bbfe25fbca7fc11cea90b27bd2a2146a18d91b8",
+      "english": "Fwan got this!"
     },
     {
       "id": "flandre.young.o_toilet",
@@ -8668,7 +8695,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "flandre.young.o_toilet"
       },
-      "source_sha256": "fd94da5931e95576ee50c34c2b89e6cadd149b2ee821ed62f0920bdaedbc2733"
+      "source_sha256": "fd94da5931e95576ee50c34c2b89e6cadd149b2ee821ed62f0920bdaedbc2733",
+      "english": "Uu... which way's the potty?"
     },
     {
       "id": "flandre.young.o_clean",
@@ -8685,7 +8713,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "flandre.young.o_clean"
       },
-      "source_sha256": "0fb3d0a2c8d1bc60e2249be878320a4359d3fedcfcbb2ec10e6bc481db91ddef"
+      "source_sha256": "0fb3d0a2c8d1bc60e2249be878320a4359d3fedcfcbb2ec10e6bc481db91ddef",
+      "english": "Am I clean now? Look, look!"
     },
     {
       "id": "flandre.young.o_sleep",
@@ -8701,7 +8730,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "flandre.young.o_sleep"
       },
-      "source_sha256": "bc272cd4fb98d9a47e02e8d5ab96c58e4bce7ae4550f6aa86f1fa41167038809"
+      "source_sha256": "bc272cd4fb98d9a47e02e8d5ab96c58e4bce7ae4550f6aa86f1fa41167038809",
+      "english": "Uu... more later. Gonna sleep now."
     },
     {
       "id": "flandre.young.o_awake",
@@ -8717,7 +8747,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "flandre.young.o_awake"
       },
-      "source_sha256": "e73f1b86b7dab502dccfcbde9d19451937c187cad5163cf056cbbcf8fe569ec2"
+      "source_sha256": "e73f1b86b7dab502dccfcbde9d19451937c187cad5163cf056cbbcf8fe569ec2",
+      "english": "Uu... I'm awake! What's here?"
     },
     {
       "id": "flandre.young.o_gentle",
@@ -8734,7 +8765,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "flandre.young.o_gentle"
       },
-      "source_sha256": "119990a2583307786e87096a6365bff3d86e6bc9bfa2d0a4e48eed9b234a85af"
+      "source_sha256": "119990a2583307786e87096a6365bff3d86e6bc9bfa2d0a4e48eed9b234a85af",
+      "english": "Uu... stay close a little longer... I wanna snuggle..."
     },
     {
       "id": "flandre.young.o_shy",
@@ -8751,7 +8783,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "flandre.young.o_shy"
       },
-      "source_sha256": "69d831691524f5bd366bc91b0d45c9367f8e62e9d307a31df135d5ec8a7bd67d"
+      "source_sha256": "69d831691524f5bd366bc91b0d45c9367f8e62e9d307a31df135d5ec8a7bd67d",
+      "english": "Uu... yuu... gonna tuck in..."
     },
     {
       "id": "flandre.young.o_afraid",
@@ -8767,7 +8800,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "flandre.young.o_afraid"
       },
-      "source_sha256": "8f2d1c228b982be35b4183671529a84c7bd88293e6afa29f2c23662889c2da5a"
+      "source_sha256": "8f2d1c228b982be35b4183671529a84c7bd88293e6afa29f2c23662889c2da5a",
+      "english": "Uu... scawy!"
     },
     {
       "id": "flandre.young.o_hurt",
@@ -8783,7 +8817,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "flandre.young.o_hurt"
       },
-      "source_sha256": "1d11ff03c5eb634eb443ffbe02ed2c89f3172085cb0f967ee52881514ef65988"
+      "source_sha256": "1d11ff03c5eb634eb443ffbe02ed2c89f3172085cb0f967ee52881514ef65988",
+      "english": "Uu... it huwts, it huwts!"
     },
     {
       "id": "flandre.young.o_treated",
@@ -8816,7 +8851,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "flandre.young.o_lost"
       },
-      "source_sha256": "1e6f963b26e2b3ea1e61b8f9244f5a0a4989c408e31d5e87d01a77daa9bbfdac"
+      "source_sha256": "1e6f963b26e2b3ea1e61b8f9244f5a0a4989c408e31d5e87d01a77daa9bbfdac",
+      "english": "Where'd my headwear go?"
     },
     {
       "id": "flandre.young.o_returned",
@@ -8832,7 +8868,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "flandre.young.o_returned"
       },
-      "source_sha256": "2e1de06913b9d6265348c14361da48d3b358904779255d61b573cc594e03ea4b"
+      "source_sha256": "2e1de06913b9d6265348c14361da48d3b358904779255d61b573cc594e03ea4b",
+      "english": "Uu... it came back! Fank you!"
     },
     {
       "id": "flandre.young.o_unknown",
@@ -8866,7 +8903,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "flandre.young.o_play"
       },
-      "source_sha256": "e294810bc2f5e0646831df83b7c968c05d2189e48e1bfaaf32572688d64c2dab"
+      "source_sha256": "e294810bc2f5e0646831df83b7c968c05d2189e48e1bfaaf32572688d64c2dab",
+      "english": "Uu... I wanna twy! Wanna pway?"
     },
     {
       "id": "flandre.young.o_refuse",
@@ -8951,7 +8989,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "flandre.young.o_busy"
       },
-      "source_sha256": "43b7624c7907aca3b9e8afcae3e78804ef09cf6e63b035206bacfc11c2e37ce7"
+      "source_sha256": "43b7624c7907aca3b9e8afcae3e78804ef09cf6e63b035206bacfc11c2e37ce7",
+      "english": "Uu... I'm busy wight now..."
     },
     {
       "id": "flandre.young.o_heard",
@@ -8967,7 +9006,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "flandre.young.o_heard"
       },
-      "source_sha256": "562892e790b766f7a5c91029c7b4181870fd820eb8248438c38e286278809e50"
+      "source_sha256": "562892e790b766f7a5c91029c7b4181870fd820eb8248438c38e286278809e50",
+      "english": "Uu... I heard you."
     },
     {
       "id": "flandre.young.o_newborn",
@@ -8983,7 +9023,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "flandre.young.o_newborn"
       },
-      "source_sha256": "98c6afa5f32584431b639726c4c4597c912f47a023f769dd3b57c7d4edac78b1"
+      "source_sha256": "98c6afa5f32584431b639726c4c4597c912f47a023f769dd3b57c7d4edac78b1",
+      "english": "Uu... where am I?"
     },
     {
       "id": "flandre.young.o_grown",
@@ -8999,7 +9040,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "flandre.young.o_grown"
       },
-      "source_sha256": "a369cc2fa25bc059a9b7995841b9b844a1f3dd6bc04ddc3ae58d123d9bac8bc3"
+      "source_sha256": "a369cc2fa25bc059a9b7995841b9b844a1f3dd6bc04ddc3ae58d123d9bac8bc3",
+      "english": "Uu... I'm big now! Can I reach here?"
     },
     {
       "id": "flandre.young.o_courtship",
@@ -9015,7 +9057,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "flandre.young.o_courtship"
       },
-      "source_sha256": "52db16e43930c04f982cc5f4eaa5b451d38e8aba0ef2fcd2f39bda3535107b2d"
+      "source_sha256": "52db16e43930c04f982cc5f4eaa5b451d38e8aba0ef2fcd2f39bda3535107b2d",
+      "english": "Uu... I wanna chake it eashy together..."
     },
     {
       "id": "flandre.young.o_brood",
@@ -9032,7 +9075,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "flandre.young.o_brood"
       },
-      "source_sha256": "2b7a411076b11a4ecba33ae9d6be12192f21bbb8b51a92d491c6ee73a1244484"
+      "source_sha256": "2b7a411076b11a4ecba33ae9d6be12192f21bbb8b51a92d491c6ee73a1244484",
+      "english": "Uu... little one... soon..."
     },
     {
       "id": "flandre.young.o_wait_family",
@@ -9048,7 +9092,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "flandre.young.o_wait_family"
       },
-      "source_sha256": "f9473abbe6404ad5f05c660fa5c65edf8c7e7726aee49f34d1c76930be19930d"
+      "source_sha256": "f9473abbe6404ad5f05c660fa5c65edf8c7e7726aee49f34d1c76930be19930d",
+      "english": "Uu... my family's still not back... I'll wait a bit more..."
     },
     {
       "id": "flandre.young.o_parent",
@@ -9064,7 +9109,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "flandre.young.o_parent"
       },
-      "source_sha256": "9b59553e4412460447bd94d8323ed876acee647099f49fbebd511bdaa4194a30"
+      "source_sha256": "9b59553e4412460447bd94d8323ed876acee647099f49fbebd511bdaa4194a30",
+      "english": "Uu... where's my parent? I wanna hear you."
     },
     {
       "id": "flandre.young.o_grief",
@@ -9080,7 +9126,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "flandre.young.o_grief"
       },
-      "source_sha256": "2faee40e31e11dd3bbf17e3b65e48a5b747ed91155ae96bfd1d34bc6a02b503b"
+      "source_sha256": "2faee40e31e11dd3bbf17e3b65e48a5b747ed91155ae96bfd1d34bc6a02b503b",
+      "english": "Uu... wake up... pwease wake up..."
     },
     {
       "id": "flandre.young.o_nuzzle",
@@ -9097,7 +9144,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "flandre.young.o_nuzzle"
       },
-      "source_sha256": "148c74f19fe30284cf9dcb73db4b576c6c0411355a5e50cb8d428de51f08700a"
+      "source_sha256": "148c74f19fe30284cf9dcb73db4b576c6c0411355a5e50cb8d428de51f08700a",
+      "english": "Uu... can I wub cheeks?"
     },
     {
       "id": "flandre.young.o_content",
@@ -9114,7 +9162,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "flandre.young.o_content"
       },
-      "source_sha256": "0eefc161bc39e04c5c411ef82757e51b9982196658864136db4b5d4ab8162214"
+      "source_sha256": "0eefc161bc39e04c5c411ef82757e51b9982196658864136db4b5d4ab8162214",
+      "english": "Uu... phew... I can chake it eashy..."
     },
     {
       "id": "flandre.young.o_puff",
@@ -9130,7 +9179,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "flandre.young.o_puff"
       },
-      "source_sha256": "31993fabf178f2d8153eff28eb1c4606d323182805bf38e44ce4e6f5fe396fc7"
+      "source_sha256": "31993fabf178f2d8153eff28eb1c4606d323182805bf38e44ce4e6f5fe396fc7",
+      "english": "Uu! Fwan's here too!"
     },
     {
       "id": "reimu.adult.o_house_listen",
@@ -9146,7 +9196,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "reimu.adult.o_house_listen"
       },
-      "source_sha256": "9dcc01d8f283766ab6ff7c658cabe3a8579e1ff160ca3f3472d613743659a809"
+      "source_sha256": "9dcc01d8f283766ab6ff7c658cabe3a8579e1ff160ca3f3472d613743659a809",
+      "english": "Yu? Did Mr. Egg move?"
     },
     {
       "id": "marisa.adult.o_house_listen",
@@ -9162,7 +9213,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "marisa.adult.o_house_listen"
       },
-      "source_sha256": "7c22793c0cf7426c8de26b2c3cb9baf1cb05df57af493d93e60feffe32405225"
+      "source_sha256": "7c22793c0cf7426c8de26b2c3cb9baf1cb05df57af493d93e60feffe32405225",
+      "english": "Yu? Did Mr. Egg move?"
     },
     {
       "id": "reimu.adult.o_house_startled",
@@ -9178,7 +9230,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "reimu.adult.o_house_startled"
       },
-      "source_sha256": "29a580c8e3713e89f3b5c5423bba1be30f51ce5262d341a1a266325096c58340"
+      "source_sha256": "29a580c8e3713e89f3b5c5423bba1be30f51ce5262d341a1a266325096c58340",
+      "english": "Yu?! That was loud!"
     },
     {
       "id": "marisa.adult.o_house_startled",
@@ -9194,7 +9247,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "marisa.adult.o_house_startled"
       },
-      "source_sha256": "c870b7a4002c7ae5174f73fe0a16a195c7f22a809790fa008b388ac28f423d83"
+      "source_sha256": "c870b7a4002c7ae5174f73fe0a16a195c7f22a809790fa008b388ac28f423d83",
+      "english": "Yu?! That was loud!"
     },
     {
       "id": "reimu.adult.o_house_search_home",
@@ -9210,7 +9264,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "reimu.adult.o_house_search_home"
       },
-      "source_sha256": "61921e511af4901edced702c9d1c82068d31381daca4e177042759dc715f21ba"
+      "source_sha256": "61921e511af4901edced702c9d1c82068d31381daca4e177042759dc715f21ba",
+      "english": "Where are you, Mr. Home...?"
     },
     {
       "id": "marisa.adult.o_house_search_home",
@@ -9226,7 +9281,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "marisa.adult.o_house_search_home"
       },
-      "source_sha256": "61921e511af4901edced702c9d1c82068d31381daca4e177042759dc715f21ba"
+      "source_sha256": "61921e511af4901edced702c9d1c82068d31381daca4e177042759dc715f21ba",
+      "english": "Where are you, Mr. Home...?"
     },
     {
       "id": "reimu.adult.o_house_hatched",
@@ -9276,7 +9332,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "reimu.young.o_house_startled"
       },
-      "source_sha256": "d9d851cec2be8c1914c3e06565a0aa3fc62df0a5899cf6124a81df32c078d523"
+      "source_sha256": "d9d851cec2be8c1914c3e06565a0aa3fc62df0a5899cf6124a81df32c078d523",
+      "english": "Yu?! That was loud!"
     },
     {
       "id": "marisa.young.o_house_startled",
@@ -9292,7 +9349,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "marisa.young.o_house_startled"
       },
-      "source_sha256": "44c67696b51a548f5385dda4bc4c8397b8aa012c688fc3d46aa51e226f1a827d"
+      "source_sha256": "44c67696b51a548f5385dda4bc4c8397b8aa012c688fc3d46aa51e226f1a827d",
+      "english": "Yu?! That was loud!"
     },
     {
       "id": "reimu.young.o_house_search_home",
@@ -9308,7 +9366,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "reimu.young.o_house_search_home"
       },
-      "source_sha256": "457120394a68087fb552ba6c7d93209e2439829b96384add7a127790cd6c9d1a"
+      "source_sha256": "457120394a68087fb552ba6c7d93209e2439829b96384add7a127790cd6c9d1a",
+      "english": "Where are you, Mishter Home...?"
     },
     {
       "id": "marisa.young.o_house_search_home",
@@ -9324,7 +9383,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "marisa.young.o_house_search_home"
       },
-      "source_sha256": "457120394a68087fb552ba6c7d93209e2439829b96384add7a127790cd6c9d1a"
+      "source_sha256": "457120394a68087fb552ba6c7d93209e2439829b96384add7a127790cd6c9d1a",
+      "english": "Where are you, Mishter Home...?"
     },
     {
       "id": "reimu.adult.o_exam_nervous",
