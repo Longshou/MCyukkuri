@@ -131,6 +131,7 @@ public final class GarbageBinBlock extends Block implements EntityBlock {
         var facing = barrel.getBlockState().getValue(BarrelBlock.FACING);
         var stock = new ArrayList<ItemStack>(barrel.getContainerSize());
         for (int slot = 0; slot < barrel.getContainerSize(); slot++) stock.add(barrel.getItem(slot).copy());
+        var saved = barrel.getPersistentData();   // read while the barrel still exists
         barrel.clearContent();   // the barrel's own removal would otherwise spill what is moved below
         var state = ModBlocks.GARBAGE_BIN.get().defaultBlockState().setValue(TIPPED, facing.getAxis().isHorizontal())
                 .setValue(FACING, facing.getAxis().isHorizontal() ? facing : Direction.SOUTH);
@@ -139,7 +140,6 @@ public final class GarbageBinBlock extends Block implements EntityBlock {
             return;
         }
         var bin = (GarbageBinBlockEntity) level.getBlockEntity(pos);
-        var saved = barrel.getPersistentData();
         if (saved.contains(VillageBin.DAY)) bin.deposited(saved.getLong(VillageBin.DAY));
         int stacks = 0, dropped = 0;
         for (var stack : stock) {

@@ -124,9 +124,10 @@ public final class FoundShelter implements MotorOwner {
 
     /** An occupant goes to a rest spot or uses the opening, including when it has no saved claim. */
     public boolean planInside(ShelterBlockEntity home, boolean freeToRest) {
-        if (now() < nextScan) return false;
+        if (now() < nextScan || body.isOnFire() || body.operations().active()) return false;
         nextScan = now() + 80;
-        if (freeToRest && wantsCover() && body.life().nutrition() >= SEEK_HUNGRY && canTakeFoundShelter(body)
+        // The rest it joins ends below LEAVE_HUNGRY (tick), so an occupant is not sent out at a hunger it may rest at.
+        if (freeToRest && wantsCover() && body.life().nutrition() >= LEAVE_HUNGRY && canTakeFoundShelter(body)
                 && !refusing(home.getBlockPos()) && home.foundUsable(body)
                 && home.residentIds().stream().allMatch(id -> home.related(body.getUUID(), id))) {
             shelter = home;
