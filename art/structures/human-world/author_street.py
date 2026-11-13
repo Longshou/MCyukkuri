@@ -297,7 +297,7 @@ def oni_shop():
     b.box((1, 2, 3), (23, 2, 24), 'spruce_planks')
     for x in range(2, 23):
         for z in range(4, 24):
-            if (x * 7 + z * 11) % 9 == 0: b.block(x, 2, z, 'dark_oak_planks')   # floor boards replaced over the years
+            if (x * 73856093 ^ z * 19349663) % 11 == 0: b.block(x, 2, z, 'dark_oak_planks')   # floor boards replaced over the years
     for x in range(1, 24):
         for z in range(3, 25):
             if x in (1, 23) or z in (3, 24):
@@ -319,12 +319,11 @@ def oni_shop():
     b.door(11, 3, 3, 'north', 'oak', 'left'); b.door(12, 3, 3, 'north', 'oak', 'right')
     for x in (10, 11, 12, 13):   # street ramp: two half steps up to the pavement
         b.block(x, 2, 0, 'air'); stairs(b, x, 1, 0, 'cobblestone', 'south'); stairs(b, x, 2, 1, 'cobblestone', 'south')
-    # Tattered awning: brown and grey stripes over the front, gaps where the cloth tore.
+    # Faded awning: brown and white stripes stepping out over the pavement, its front edge torn in places.
     for x in range(1, 24):
-        if x % 6 == 4: continue
-        wool = 'brown_wool' if (x // 2) % 2 == 0 else 'light_gray_wool'
+        wool = 'brown_wool' if (x // 2) % 2 == 0 else 'white_wool'
         b.block(x, 6, 2, wool)
-        if x % 5 != 2: b.block(x, 5, 1, wool)
+        if x not in (4, 9, 16, 20): b.block(x, 5, 1, wool)
     # Patched low roof (ridge along x), gables at both ends; mossy and odd boards mark old repairs.
     dmax = max(min(z - 3, 24 - z) for z in range(3, 25))
     for z in range(3, 25):
@@ -339,9 +338,9 @@ def oni_shop():
             for yy in range(8, y): b.block(x, yy, z, 'spruce_planks' if (yy + z) % 3 else 'stripped_spruce_wood', None if (yy + z) % 3 else LOG)
     # Sign board in front of the roof: a Reimu and a Marisa head on faded board, as seen from the street (viewer's left is +x).
     b.box((5, 7, 2), (18, 13, 2), 'dark_oak_planks')
-    emblem = ['RR.RR..BBKBB', 'KKKKK..BKKKB', 'KSSSK..KKKKK', 'KESEK..YSSSY', 'FSMSF..YESEY']
-    mats = {'.': 'brown_terracotta', 'R': 'red_terracotta', 'K': 'black_terracotta', 'S': 'white_terracotta', 'E': 'black_concrete',
-            'F': 'white_concrete', 'M': 'red_terracotta', 'Y': 'yellow_terracotta', 'B': 'brown_terracotta'}
+    emblem = ['RR.RR....KK.', 'KKKKK...KKK.', 'KSSSK..KKKKK', 'KESEK..YSSSY', 'FSMSF..YESEY']
+    mats = {'.': 'cyan_terracotta', 'R': 'red_concrete', 'K': 'black_concrete', 'S': 'white_terracotta', 'E': 'black_concrete',
+            'F': 'white_concrete', 'M': 'red_terracotta', 'Y': 'yellow_concrete'}
     for r, row in enumerate(emblem):
         for c, ch in enumerate(row): b.block(17 - c, 12 - r, 2, mats[ch])
     for x, plant in [(3, 'potted_dead_bush'), (21, 'potted_dead_bush')]: b.block(x, 3, 1, plant)
@@ -379,12 +378,21 @@ def oni_shop():
     for z, item in zip(range(10, 14), CONSUMABLES): frame(b, 6, 4, z, item)
     for z, item in zip(range(10, 14), GROCERY): frame(b, 10, 4, z, item)
     # Counter (customers on z15, staff on z16..18 behind it); its west end is open 3 wide for the staff.
-    b.box((5, 3, 16), (14, 3, 16), 'dark_oak_planks')
+    b.box((5, 3, 16), (14, 3, 16), 'stripped_dark_oak_log', {'axis': 'x'})
     b.block(9, 3, 16, 'lectern', {'facing': 'north', 'has_book': 'false', 'powered': 'false'}, over=True)
     for x, item in [(6, 'mcyukkuri:yukkuri_manju'), (7, 'mcyukkuri:yukkuri_manju'), (12, 'minecraft:cookie'), (13, 'mcyukkuri:spicy_grain')]:
         ground_display(b, x, 4, 16, item, yaw=35. * x)
     b.human(9.5, 17.5, 'oniisan', 1, 0, 'oni_shopkeeper')
     marker(b, 9.5, 3, 17.5, 'mcy_oni_counter')
+    # Clutter that makes it feel cramped without narrowing a passage below 2: crates stacked by the door, a low demo table in the main
+    # aisle with tools laid out on it, sacks against the counter end.
+    for x, z, h in [(8, 4, 2), (9, 4, 1), (8, 5, 1)]:
+        for y in range(3, 3 + h): barrel(b, x, y, z, 'up' if y == 3 else 'south')
+    ground_display(b, 8, 5, 4, 'mcyukkuri:care_mallet', yaw=80.)
+    for z in (9, 10): b.block(12, 3, z, 'dark_oak_slab', {'type': 'top', 'waterlogged': 'false'})
+    for z, item in [(9, 'mcyukkuri:pin_tool'), (10, 'mcyukkuri:iron_enclosure')]: ground_display(b, 12, 4, z, item, yaw=25. * z, scale=.5)
+    b.block(14, 3, 15, 'hay_block', LOG)
+    for x, z in [(10, 6), (11, 6), (12, 6), (13, 6), (11, 7), (12, 7)]: b.block(x, 3, z, 'brown_carpet')
     # Customer nook by the east street window: a small table under the window with a chair on each side, the cages in view.
     b.block(19, 3, 4, 'spruce_fence'); b.block(19, 4, 4, 'spruce_pressure_plate', {'powered': 'false'})
     stairs(b, 18, 3, 4, 'spruce', 'west'); stairs(b, 20, 3, 4, 'spruce', 'east')
@@ -406,7 +414,9 @@ def oni_shop():
     for x in (16, 17, 18):
         barrel(b, x, 3, 23, 'up')
         if x != 17: barrel(b, x, 4, 23, 'up')
-    b.block(4, 3, 23, 'hay_block', LOG)
+    b.block(4, 3, 23, 'hay_block', LOG); b.block(5, 3, 23, 'hay_block', LOG); b.block(4, 4, 23, 'hay_block', LOG)
+    for x in (19, 20, 21, 22): barrel(b, x, 3, 23, 'up')
+    barrel(b, 20, 4, 23, 'up'); b.block(22, 3, 22, 'composter', {'level': '6'})
     ground_display(b, 17, 4, 23, 'mcyukkuri:yukkuri_carrier', yaw=15.)
     b.human(14.5, 21.5, 'caretaker_brother', 1, 0, 'oni_staff')
     for x, z in [(2, 23), (22, 23), (2, 17), (22, 4)]: b.block(x, 6, z, 'cobweb')
@@ -478,7 +488,7 @@ def pool(name, entries):
         elements.append({'weight': weight, 'element': element})
     path = OUT / 'worldgen/template_pool' / f'{name}.json'
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps({'name': f'mcyukkuri:{name}', 'fallback': 'minecraft:empty', 'elements': elements}, indent=2) + '\n', encoding='utf-8')
+    path.write_bytes((json.dumps({'name': f'mcyukkuri:{name}', 'fallback': 'minecraft:empty', 'elements': elements}, indent=2) + '\n').encode('utf-8'))
 
 
 def pieces():

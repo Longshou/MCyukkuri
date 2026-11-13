@@ -1,0 +1,30 @@
+{
+  "name": "mcyukkuri:village/street_east",
+  "fallback": "minecraft:empty",
+  "elements": [
+    {
+      "weight": 4,
+      "element": {
+        "element_type": "mcyukkuri:levelled",
+        "location": "mcyukkuri:village/oni_shop",
+        "processors": "minecraft:empty",
+        "projection": "rigid"
+      }
+    },
+    {
+      "weight": 1,
+      "element": {
+        "element_type": "mcyukkuri:levelled",
+        "location": "mcyukkuri:village/street_stall",
+        "processors": "minecraft:empty",
+        "projection": "rigid"
+      }
+    },
+    {
+      "weight": 1,
+      "element": {
+        "element_type": "minecraft:empty_pool_element"
+      }
+    }
+  ]
+}

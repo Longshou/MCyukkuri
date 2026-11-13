@@ -17,7 +17,7 @@
       16,
       41
     ],
-    "blocks": 12277,
+    "blocks": 12299,
     "entities": 57,
     "source": "art/structures/human-world/build.py"
   },
@@ -53,5 +53,49 @@
     "blocks": 21525,
     "entities": 13,
     "source": "art/structures/human-world/build.py"
+  },
+  {
+    "name": "village/street_stall",
+    "size": [
+      15,
+      8,
+      16
+    ],
+    "blocks": 1920,
+    "entities": 8,
+    "source": "art/structures/human-world/author_street.py"
+  },
+  {
+    "name": "village/street_alley",
+    "size": [
+      17,
+      9,
+      20
+    ],
+    "blocks": 3060,
+    "entities": 2,
+    "source": "art/structures/human-world/author_street.py"
+  },
+  {
+    "name": "yukkuri_oni_shop",
+    "size": [
+      25,
+      14,
+      26
+    ],
+    "blocks": 9031,
+    "entities": 49,
+    "source": "art/structures/human-world/author_street.py"
+  },
+  {
+    "name": "village/oni_shop",
+    "size": [
+      25,
+      14,
+      34
+    ],
+    "blocks": 9247,
+    "entities": 49,
+    "source": "art/structures/human-world/author_street.py"
   }
 ]

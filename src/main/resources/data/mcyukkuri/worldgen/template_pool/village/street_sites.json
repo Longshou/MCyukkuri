@@ -3,8 +3,28 @@
   "fallback": "minecraft:empty",
   "elements": [
     {
-      "weight": 1,
-      "element": {"element_type": "minecraft:empty_pool_element"}
+      "weight": 2,
+      "element": {
+        "element_type": "mcyukkuri:levelled",
+        "location": "mcyukkuri:village/street_stall",
+        "processors": "minecraft:empty",
+        "projection": "rigid"
+      }
+    },
+    {
+      "weight": 2,
+      "element": {
+        "element_type": "mcyukkuri:levelled",
+        "location": "mcyukkuri:village/street_alley",
+        "processors": "minecraft:empty",
+        "projection": "rigid"
+      }
+    },
+    {
+      "weight": 3,
+      "element": {
+        "element_type": "minecraft:empty_pool_element"
+      }
     }
   ]
 }
