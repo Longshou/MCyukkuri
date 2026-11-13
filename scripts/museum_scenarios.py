@@ -4708,36 +4708,52 @@ def _shop_window_verify(window, trace):
     if seen != started:
         return f'window sightings and choices differ: {sorted(seen ^ started)}'
 
-    samples = {}
+    samples, traced, front_customers = {}, set(), set()
     customer_origins, departures = {}, {}
     for line in trace:
         row = json.loads(line.split('[trace] ', 1)[1])
         if row.get('win') != 'shop_window':
             continue
         actor, tick = row['u'], row['t']
-        if row['k'] == 'st' and row.get('behavior', '').startswith('window_'):
-            clip = row.get('window_clip')
+        if row['k'] == 'st':
+            traced.add(actor)
+            state = row['st']
+            behavior = state.get('behavior', '')
+            if not behavior.startswith('window_'):
+                continue
+            clip = state.get('window_clip')
             if not clip or re.search(r'tremble|shiver|jitter', clip):
                 return f'window clip missing or high-frequency for {actor} at {tick}: {clip}'
-            mode = _WINDOW_MODES.get(row['behavior'])
+            mode = _WINDOW_MODES.get(behavior)
             if mode and (clip not in ('idle', 'waddle') or mode == 'SHY' and clip == 'waddle'):
                 samples.setdefault(actor, []).append((tick, mode))
         elif row['k'] == 'geo' and any(tag.startswith('scn_customer_') for tag in row.get('tags', ())):
+            if {'scn_customer_west', 'scn_customer_wary'}.intersection(row['tags']):
+                front_customers.add(actor)
             x, _, z = row['box'][:3]
             first_x, first_z = customer_origins.setdefault(actor, (x, z))
             if math.hypot(x - first_x, z - first_z) > 9:
                 departures.setdefault(actor, tick)
 
     modes = set()
+    front_performed = False
     window_end = int(re.search(r'MCYSMOKE_END_TICK (\d+)', window)[1])
     for actor, choices in sessions.items():
-        performed = False
+        if actor not in traced:
+            return f'window sighting without dense state samples for {actor}'
         for start, choice, end in choices:
             mode = choice['mode']
             shown = {tick: sample for tick, sample in samples.get(actor, ()) if tick >= start and (end is None or tick < end[0])}
             if set(shown.values()) - {mode}:
                 return f'window presentation differs from {mode} for {actor} at {start}: {sorted(set(shown.values()))}'
-            performed |= bool(shown)
+            # Notice and approach can be interrupted before the pose. A still-open session can use both their budgets.
+            if not shown:
+                if end is None:
+                    if window_end - start > 20 + 120:
+                        return f'window sighting without a presented reaction for {actor} at {start}'
+                elif int(end[1]['perform_ticks']) > 0 or end[1]['reason'] not in ('customer_left', 'interrupted', 'witness'):
+                    return f'window sighting without a presented reaction for {actor} at {start}'
+            front_performed |= bool(shown) and choice['customer'] in front_customers
             modes.update(shown.values())
             departure = departures.get(choice['customer'])
             actual_departure = departure is not None and start < departure
@@ -4755,30 +4771,29 @@ def _shop_window_verify(window, trace):
             elif reason != 'customer_left' or not long_plea:
                 if after != before:
                     return f'window rejection without an eligible departure for {actor} at {tick}'
-        if not performed:
-            return f'window sighting without a presented reaction for {actor}'
     if len(modes) < 2:
         return f'window presented fewer than two modes: {sorted(modes)}'
+    if not front_performed:
+        return 'street pen presented no reaction to a customer'
     return None
 
 
 _smoke('shop_window', 1200, [],
        forbid=[r'\[shop\][^\n]* action=job result=failed '],
        readout=[f'yukkuri status {BOOTH.format(kind, grade)} raw' for kind, grade in (('chen', 0), ('alice', 4), ('remilia', 2), ('flandre', 0))])
-# Start with direct sight lines through one glass cell, clear of the façade mullions.
+# Use clear wool floor behind the glass. From farther back, the rising eye ray crosses only one glass cell.
 _window_smoke = next(s for s in S if s.id == 'shop_window').smoke
 _window_smoke.update(verify=_shop_window_verify, verify_trace=True)
 _window_smoke['commands'] = [
     (70, f'tag {STOCK} add scn_stock'),
-    (70, f'execute positioned ~16.5 ~2 ~12.5 run tp {BOOTH.format("reimu", 0)} ~ ~ ~'),
-    (70, f'execute positioned ~17.5 ~2 ~12.5 run tp {BOOTH.format("alice", 4)} ~ ~ ~'),
-    (70, f'execute positioned ~16.5 ~2 ~13.5 run tp {BOOTH.format("chen", 0)} ~ ~ ~'),
+    (70, f'execute positioned ~16.5 ~2 ~11.5 run tp {BOOTH.format("reimu", 0)} ~ ~ ~'),
+    (70, f'execute positioned ~17.5 ~2 ~11.5 run tp {BOOTH.format("alice", 4)} ~ ~ ~'),
+    (70, f'execute positioned ~16.5 ~2 ~10.5 run tp {BOOTH.format("chen", 0)} ~ ~ ~'),
     (70, _window_customer(16.5, 'customer_west')),
     (70, f'yukkuri status relate {BOOTH.format("chen", 0)} {_window_west} 20'),
     (70, _window_customer(0.5, 'customer_flandre')),
     (70, _window_customer(2.5, 'customer_remilia')),
     (270, f'tp {_window_west} ~16.5 ~ ~25.5'),
-    (330, f'execute positioned ~16.5 ~2 ~13.5 run tp {BOOTH.format("chen", 0)} ~ ~ ~'),
     (330, _window_customer(16.5, 'customer_wary')),
     (330, f'yukkuri status fear {BOOTH.format("chen", 0)} {_window_wary} 60')]
 _smoke('oni_shop', 1200, [r'\[shop\][^\n]* action=register shop=[^\n]*kind=ONI [^\n]*frames=22\b',
