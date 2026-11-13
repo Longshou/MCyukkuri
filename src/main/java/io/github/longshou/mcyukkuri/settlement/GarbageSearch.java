@@ -177,7 +177,10 @@ public final class GarbageSearch {
                             && (y.distanceToSqr(aim) < body.distanceToSqr(aim) || y.distanceToSqr(aim) == body.distanceToSqr(aim) && y.getId() < body.getId()));
             if (!winner.isEmpty()) { decline("other_at_mouth"); return false; }
             var move = walk();
-            if (now() >= deadline || move == SurfaceApproach.Result.BLOCKED) { decline("no_route"); return false; }
+            // Coming down off a fallen bin it hopped onto, the last step is refused until the body lands beside the stand and
+            // the route is planned again; the leg's deadline still ends a stand that stays out of reach.
+            boolean landing = body.getY() > aim.y + .1 || body.position().subtract(aim).horizontalDistanceSqr() < 1;
+            if (now() >= deadline || move == SurfaceApproach.Result.BLOCKED && !landing) { decline("no_route"); return false; }
             if (move != SurfaceApproach.Result.ARRIVED) return true;
             SurfaceApproach.halt(body);
             SurfaceApproach.face(body, SurfaceApproach.yaw(body.position(), Vec3.atCenterOf(pos)));
