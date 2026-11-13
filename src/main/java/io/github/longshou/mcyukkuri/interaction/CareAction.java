@@ -7,17 +7,19 @@ import net.minecraft.network.chat.Component;
 /** Stable action names are the save/protocol vocabulary; each entry has a server-side operation. */
 public enum CareAction {
     LIFT(1,0), GRIP(2,0), FLICK(3,0), PUNCH(4,0), SLAP(5,0), RUB(6,0), ROLL(7,0), LAY_DOWN(8,0), SHAKE_HOME(9,0),
-    PIN(10,Tool.PIN), MALLET(11,Tool.MALLET), PIERCE(12,Tool.AWL), BURN(13,Tool.HEATED_AWL),
+    PIN(10,Tool.PIN), MALLET(11,Tool.MALLET), PIERCE(12,Tool.AWL), BURN(13,Tool.AWL),
     FIX_SUPINE(14,Tool.RESTRAINT), WRAP_HANG(15,Tool.SLING), HOOK_HANG(16,Tool.HOOK),
-    TRIM_HAIR(17,Tool.CLIPPERS), CUT_LEFT(18,Tool.CUTTER), CUT_RIGHT(19,Tool.CUTTER),
+    TRIM_HAIR(17,CareAction.SHEARS), CUT_LEFT(18,CareAction.SHEARS), CUT_RIGHT(19,CareAction.SHEARS),
     COLD(21,1), FAVOR(22,1), DISLIKE(23,1), SHOW_RUMP(24,1), LIE_COMMAND(25,1),
-    TAKE_ACCESSORY(26,2), CONFISCATE(27,2), COLLECT_NEAREST(29,2), RELEASE(30,0), CUT_ACCESSORY(31,Tool.CUTTER),
-    VIBRATE(32,Tool.VIBRATOR), STERILIZE(33,Tool.STERILIZER), ENCLOSE(34,Tool.BOX), CUT_STEM(35,Tool.STEM_SHEARS), BOTTLE_STEM(36,Tool.BOTTLE_SHEARS),
+    TAKE_ACCESSORY(26,2), CONFISCATE(27,2), COLLECT_NEAREST(29,2), RELEASE(30,0), CUT_ACCESSORY(31,CareAction.SHEARS),
+    VIBRATE(32,Tool.VIBRATOR), STERILIZE(33,CareAction.SHEARS), ENCLOSE(34,Tool.BOX), CUT_STEM(35,CareAction.SHEARS), BOTTLE_STEM(36,CareAction.SHEARS),
     SING(37,1), EXERCISE(38,1), ADOPT(39,2), ABANDON(40,2), DECLINE_EVENT(41,2),
     /** Stable wire IDs are independent of enum declaration order. "Ask how it is" (docs/FEATURES.md). */
     ASK(44,1), REMOVE_HARNESS(45,2), UNWRAP(46,2);
 
     public static final int GROUP_COUNT = 3;
+    /** Not a care-menu group: the cuts offered by vanilla shears (the cutter menu). */
+    private static final int SHEARS = -2;
     private final int id;
     public final int group;
     public final Tool tool;
@@ -30,8 +32,10 @@ public enum CareAction {
         return null;
     }
     public String key(){return name().toLowerCase(Locale.ROOT);}
+    /** A cut made with the shears in the main hand; each use costs one durability. */
+    public boolean shears(){return group==SHEARS;}
     public boolean harmful() {
-        return tool != null || switch (this) {
+        return tool != null || shears() || switch (this) {
             case GRIP, FLICK, PUNCH, SLAP, ROLL, SHAKE_HOME, DISLIKE, CONFISCATE -> true;
             default -> false;
         };

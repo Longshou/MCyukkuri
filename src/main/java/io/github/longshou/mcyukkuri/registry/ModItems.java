@@ -31,7 +31,9 @@ import io.github.longshou.mcyukkuri.item.TreatmentItem;
 import io.github.longshou.mcyukkuri.settlement.ShelterBlock;
 import io.github.longshou.mcyukkuri.subspecies.SubspeciesLife;
 import java.util.EnumMap;
+import java.util.List;
 import java.util.Map;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 
 public final class ModItems {
@@ -47,6 +49,12 @@ public final class ModItems {
     static {
         for(var tool:OperationToolItem.Tool.values())OPERATION_TOOLS.put(tool,ITEMS.register(tool.id,()->new OperationToolItem(tool,
                 tool.inserted?new Item.Properties().stacksTo(16):new Item.Properties().durability(128))));
+    }
+    static {
+        // Cutting tools are vanilla shears now and the heated awl is the awl's heat state; saved stacks resolve to those items.
+        for(var cutter:List.of("hair_clippers","cutting_knife","sterilizing_shears","stem_shears","bottle_stem_shears"))
+            ITEMS.addAlias(MCYukkuri.id(cutter),ResourceLocation.withDefaultNamespace("shears"));
+        ITEMS.addAlias(MCYukkuri.id("heated_awl"),MCYukkuri.id("care_awl"));
     }
     public static final DeferredItem<Item> TRIMMED_HAIR=ITEMS.registerSimpleItem("trimmed_hair",new Item.Properties());
 

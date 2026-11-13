@@ -15,6 +15,7 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.common.Tags;
 
 /** Player interaction and leash handling; exact server decisions stay in the existing components. */
 final class YukkuriInteractions {
@@ -33,6 +34,11 @@ final class YukkuriInteractions {
             return InteractionResult.sidedSuccess(owner.level().isClientSide);
         }
         if(Consumables.water(stack))return Consumables.feed(owner,player,hand);
+        // Vanilla shears carry every cut (hair, accessory, stem, sterilizing); the menu offers only the cuts that apply now.
+        if(stack.is(Tags.Items.TOOLS_SHEAR)&&hand==InteractionHand.MAIN_HAND){
+            if(player instanceof ServerPlayer server)InteractionDispatch.openCutter(server,owner);
+            return InteractionResult.sidedSuccess(owner.level().isClientSide);
+        }
         boolean food = stack.is(YukkuriEntity.FOOD) || Toxins.dose(stack) > 0 || InfantFood.isMash(stack)
                 || Consumables.kind(stack) == Consumables.Kind.SPICY || FillingResource.isFilling(stack)
                 || owner.profile().diet().eats(stack) || owner.profile().houseBody() && stack.is(ModItems.FOOD_SCRAP.get())

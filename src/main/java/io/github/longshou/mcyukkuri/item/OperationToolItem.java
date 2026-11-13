@@ -25,42 +25,42 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.CampfireBlock;
 
+/** Tools with no vanilla counterpart. Cutting uses vanilla shears (InteractionDispatch.openCutter); the awl's heat is a timed state of the same stack. */
 public final class OperationToolItem extends Item {
     public enum Tool {
-        PIN("pin_tool",true),MALLET("care_mallet",false),AWL("care_awl",false),HEATED_AWL("heated_awl",false),
+        PIN("pin_tool",true),MALLET("care_mallet",false),AWL("care_awl",false),
         RESTRAINT("restraint_frame",true),SLING("wrap_sling",true),HOOK("hanging_hook",true),
-        CLIPPERS("hair_clippers",false),CUTTER("cutting_knife",false),
-        VIBRATOR("care_vibrator",true),STERILIZER("sterilizing_shears",false),BOX("iron_enclosure",true),
-        STEM_SHEARS("stem_shears",false),BOTTLE_SHEARS("bottle_stem_shears",false);
+        VIBRATOR("care_vibrator",true),BOX("iron_enclosure",true);
         public final String id;
         public final boolean inserted;
         Tool(String id,boolean inserted){this.id=id;this.inserted=inserted;}
         public Item item(){return ModItems.OPERATION_TOOLS.get(this).get();}
     }
+    /** Heat lasts 30 s after the awl touches fire; then the same stack is a plain awl again. */
+    private static final int HEAT_TICKS = 600;
+    private static final String HEAT = "HeatUntil";
     private final Tool tool;
     public OperationToolItem(Tool tool,Properties properties){super(properties);this.tool=tool;}
     public Tool tool(){return tool;}
-    public static boolean isHot(ItemStack stack,Level level){
-        return stack.is(Tool.HEATED_AWL.item())&&stack.getOrDefault(DataComponents.CUSTOM_DATA,
-                CustomData.EMPTY).copyTag().getLong("HeatUntil")>level.getGameTime();
+    private static long heatUntil(ItemStack stack){
+        return stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag().getLong(HEAT);
     }
-    private static ItemStack temperature(ItemStack stack,Level level){
-        var tag=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();
-        if(!tag.contains("HeatUntil")){
-            CustomData.update(DataComponents.CUSTOM_DATA,stack,data->data.putLong("HeatUntil",level.getGameTime()+600));
-        }else if(!isHot(stack,level)){
-            var cold=new ItemStack(Tool.AWL.item());cold.setDamageValue(stack.getDamageValue());return cold;
-        }
-        return stack;
+    public static boolean isHot(ItemStack stack,Level level){
+        return stack.is(Tool.AWL.item())&&level!=null&&heatUntil(stack)>level.getGameTime();
+    }
+    /** An expired heat mark is removed, so the cooled awl reads and stacks exactly like a plain one. */
+    private static void cool(ItemStack stack,Level level){
+        if(heatUntil(stack)!=0&&!isHot(stack,level))CustomData.update(DataComponents.CUSTOM_DATA,stack,data->data.remove(HEAT));
     }
     @Override public void inventoryTick(ItemStack stack,Level level,Entity carrier,int slot,boolean selected){
-        if(level.isClientSide||tool!=Tool.HEATED_AWL)return;
-        var changed=temperature(stack,level);
-        if(changed!=stack&&carrier instanceof Player player)player.getInventory().setItem(slot,changed);
+        if(!level.isClientSide&&tool==Tool.AWL)cool(stack,level);
     }
     @Override public boolean onEntityItemUpdate(ItemStack stack,ItemEntity item){
-        if(!item.level().isClientSide&&tool==Tool.HEATED_AWL){var changed=temperature(stack,item.level());if(changed!=stack)item.setItem(changed);}
+        if(!item.level().isClientSide&&tool==Tool.AWL)cool(stack,item.level());
         return false;
+    }
+    @Override public Component getName(ItemStack stack){
+        return heatUntil(stack)!=0?Component.translatable("item.mcyukkuri.heated_awl"):super.getName(stack);
     }
     @Override public InteractionResult useOn(UseOnContext context){
         if(tool!=Tool.AWL)return InteractionResult.PASS;
@@ -69,23 +69,21 @@ public final class OperationToolItem extends Item {
                 ||state.getBlock() instanceof CampfireBlock&&state.getValue(CampfireBlock.LIT);
         if(!fire||context.getPlayer()==null)return InteractionResult.PASS;
         if(!level.isClientSide){
-            var hot=new ItemStack(Tool.HEATED_AWL.item());hot.setDamageValue(context.getItemInHand().getDamageValue());temperature(hot,level);
-            context.getPlayer().setItemInHand(context.getHand(),hot);
+            long until=level.getGameTime()+HEAT_TICKS;
+            CustomData.update(DataComponents.CUSTOM_DATA,context.getItemInHand(),data->data.putLong(HEAT,until));
         }
         return InteractionResult.sidedSuccess(level.isClientSide);
     }
     @Override public InteractionResult interactLivingEntity(ItemStack stack,Player player,LivingEntity target,InteractionHand hand){
         if(!(target instanceof YukkuriEntity entity)||hand!=InteractionHand.MAIN_HAND)return InteractionResult.PASS;
-        if(player instanceof ServerPlayer server){
-            boolean applied = tool == Tool.CUTTER ? InteractionDispatch.openCutter(server, entity)
-                    : InteractionDispatch.perform(player, entity, CareAction.forTool(tool));
-            return applied ? InteractionResult.CONSUME : InteractionResult.FAIL;
+        if(player instanceof ServerPlayer){
+            var action=tool==Tool.AWL&&isHot(stack,player.level())?CareAction.BURN:CareAction.forTool(tool);
+            return InteractionDispatch.perform(player, entity, action) ? InteractionResult.CONSUME : InteractionResult.FAIL;
         }
         return InteractionResult.sidedSuccess(player.level().isClientSide);
     }
     @Override public void appendHoverText(ItemStack stack,TooltipContext context,List<Component> lines,TooltipFlag flag){
-        lines.add(Component.translatable(tool==Tool.CUTTER?"operation.mcyukkuri.hint.knife":"operation.mcyukkuri.hint.tool")
-                .withStyle(ChatFormatting.GRAY));
-        if(tool!=Tool.CUTTER)lines.add(CareAction.forTool(tool).help());
+        lines.add(Component.translatable("operation.mcyukkuri.hint.tool").withStyle(ChatFormatting.GRAY));
+        lines.add((heatUntil(stack)!=0?CareAction.BURN:CareAction.forTool(tool)).help());
     }
 }

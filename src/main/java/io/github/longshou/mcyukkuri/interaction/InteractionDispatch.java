@@ -22,6 +22,7 @@ import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.ItemStack;
+import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 
 /** Shared server checks for player interaction. Care buttons use the same refusal as execution. */
@@ -134,7 +135,7 @@ public final class InteractionDispatch {
     private static void open(ServerPlayer player,YukkuriEntity target,boolean cutter){
         var lineage=cutter?null:CareLineage.of(player.serverLevel(),target);
         player.openMenu(new SimpleMenuProvider((id,inventory,owner)->new CareMenu(id,inventory,target.getId(),cutter,lineage),
-                cutter?Component.translatable("item.mcyukkuri.cutting_knife"):target.getDisplayName()),buffer->{
+                cutter?Component.translatable("item.minecraft.shears"):target.getDisplayName()),buffer->{
             buffer.writeVarInt(target.getId());
             buffer.writeBoolean(cutter);
             if(!cutter)lineage.write(buffer);
@@ -185,7 +186,8 @@ public final class InteractionDispatch {
         }
         reason=operationRefusal(target);
         if(reason!=null)return reason;
-        if(action.tool!=null&&!player.getMainHandItem().is(action.tool.item()))return "tool";
+        if(action.tool!=null&&!player.getMainHandItem().is(action.tool.item())
+                ||action.shears()&&!player.getMainHandItem().is(Tags.Items.TOOLS_SHEAR))return "tool";
         if(action==CareAction.ASK||action==CareAction.ABANDON||action==CareAction.REMOVE_HARNESS||action==CareAction.UNWRAP){
             if(!ownsPet(player,target))return "owner";
         }

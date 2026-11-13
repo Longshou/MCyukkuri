@@ -11,7 +11,6 @@ import io.github.longshou.mcyukkuri.interaction.CareAction;
 import io.github.longshou.mcyukkuri.interaction.CareLineage;
 import io.github.longshou.mcyukkuri.interaction.CareMenu;
 import io.github.longshou.mcyukkuri.interaction.InteractionDispatch;
-import io.github.longshou.mcyukkuri.item.OperationToolItem.Tool;
 import io.github.longshou.mcyukkuri.pet.exam.ExamMenu;
 import io.github.longshou.mcyukkuri.registry.ModItems;
 import io.github.longshou.mcyukkuri.shop.KeeperMenu;
@@ -26,6 +25,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.client.event.ScreenEvent;
 import net.neoforged.neoforge.client.event.ViewportEvent;
@@ -81,7 +81,7 @@ final class CaptureScreen {
                     InteractionDispatch.openCare(player, yukkuri);
                 }
                 case "cutter" -> {
-                    player.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(Tool.CUTTER.item()));
+                    player.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(Items.SHEARS));
                     InteractionDispatch.openCutter(player, (YukkuriEntity) actor);
                 }
                 case "badge" -> BadgeMenu.open(player, (YukkuriEntity) actor);

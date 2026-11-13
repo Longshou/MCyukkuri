@@ -51,9 +51,8 @@ public final class InjuryModel {
         if (melee && source.getEntity() instanceof LivingEntity attacker) {
             var item = attacker.getMainHandItem();
             String id = BuiltInRegistries.ITEM.getKey(item.getItem()).getPath();
-            if (item.is(ItemTags.SWORDS) || item.is(ItemTags.AXES) || id.equals("cutting_knife")
-                    || id.equals("sterilizing_shears")) return WoundShape.CUT;
-            if (item.is(Items.TRIDENT) || id.equals("care_awl") || id.equals("heated_awl")
+            if (item.is(ItemTags.SWORDS) || item.is(ItemTags.AXES)) return WoundShape.CUT;
+            if (item.is(Items.TRIDENT) || id.equals("care_awl")
                     || id.equals("pin_tool") || id.equals("hanging_hook")) return WoundShape.PUNCTURE;
             // Only a known biting attacker supplies bite marks; ordinary mob_attack alone does not.
             boolean bite = source.getDirectEntity() == attacker && item.isEmpty()
@@ -82,7 +81,6 @@ public final class InjuryModel {
         if (source.getEntity() instanceof LivingEntity attacker
                 && source.getDirectEntity() == attacker
                 && (!entity.operations().settlingDamage() || entity.operations().settlingShape() == WoundShape.PUNCTURE)
-                && BuiltInRegistries.ITEM.getKey(attacker.getMainHandItem().getItem()).getPath().equals("heated_awl")
                 && OperationToolItem.isHot(attacker.getMainHandItem(), entity.level())) severity = Math.max(2, severity);
         return severity;
     }

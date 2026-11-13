@@ -250,9 +250,9 @@ def care_awl():
     return _awl('care_awl', legend(w=(IRON, 4), c=(IRON, 3), C=(IRON, 3), s=(IRON, 1), o=(IRON, 0)))
 
 
-def heated_awl():
+def care_awl_hot():
     """キリライター: the awl after holding it to a fire; the spike glows from dull red at the ferrule to yellow at the tip."""
-    i = _awl('heated_awl', legend(w=(HOT, 4), c=(HOT, 3), C=(HOT, 2), s=(HOT, 1), o=(HOT, 0)))
+    i = _awl('care_awl_hot', legend(w=(HOT, 4), c=(HOT, 3), C=(HOT, 2), s=(HOT, 1), o=(HOT, 0)))
     for xy, step in {(12, 3): 3, (11, 4): 2, (10, 5): 2}.items():
         i.px[xy][1] = step
     i.rows(legend(e=(HOT, 3)), ["", "............e...", "", "...............e"])   # two sparks off the tip
@@ -333,139 +333,6 @@ def hanging_hook():
         "................",
     ])
     return i
-
-
-def hair_clippers():
-    """ばりかん: one continuous clipper body on the tool diagonal: a leather grip running through a brass collar into a
-    short steel head barely wider than the grip, with two comb teeth standing off its end face (top right). Nothing
-    crosses the axis, so it cannot read as a pick or hammer beside the mallet."""
-    i = Icon('hair_clippers')
-    i.rows(legend(o=(IRON, 0), d=(IRON, 1), m=(IRON, 2), C=(IRON, 3), c=(IRON, 3), w=(IRON, 4),
-                  a=(LEATHER, 1), l=(LEATHER, 3), b=(LEATHER, 0), y=(BRASS, 3), Y=(BRASS, 1)), [
-        "................",
-        "................",
-        "...........w....",
-        "..........oc....",
-        ".........oCo.w..",
-        "........oCCmoc..",
-        ".......oCCmddo..",
-        "......oCCmddo...",
-        "......yCmddo....",
-        ".....byYddo.....",
-        "....blaYbo......",
-        "...blaab........",
-        "..blaab.........",
-        ".blaab..........",
-        "..bab...........",
-        "...b............",
-    ])
-    return i
-
-
-def _scissors(name, bow, rows):
-    i = Icon(name)
-    i.rows(legend(w=(IRON, 4), c=(IRON, 3), m=(IRON, 2), s=(IRON, 1), o=(IRON, 0), B=(BRASS, 0), b=(BRASS, 3),
-                  y=(BRASS, 3), r=(bow, 3), R=(bow, 1), q=(bow, 0), k=(bow, 2)), rows)
-    return i
-
-
-def cutting_knife():
-    """裁ちばさみ: tailor shears, closed: two long blades with a dark seam between them, a large and a small hollow red bow."""
-    return _scissors('cutting_knife', RED, [
-        "................",
-        "..............w.",
-        ".............wc.",
-        "............wco.",
-        "...........wcos.",
-        "..........wcos..",
-        ".........wcos...",
-        "........yBos....",
-        "..qqqq.Rqs......",
-        ".qrrrRqR.R......",
-        ".qr..Rq.rr......",
-        ".qr..Rqr..R.....",
-        ".qRRRRqr..R.....",
-        "..qqqq..RR......",
-        "................",
-        "................",
-    ])
-
-
-def sterilizing_shears():
-    """ぺにきりばさみ: short all-steel surgical scissors with small round bows; reads smaller and colder than the tailor shears."""
-    return _scissors('sterilizing_shears', IRON, [
-        "................",
-        "................",
-        "................",
-        "............w...",
-        "...........wco..",
-        "..........wcso..",
-        ".........wcso...",
-        "...ooo..bBso....",
-        "..orrmoRmo......",
-        "..or.mo.Ro......",
-        "..ommmoRro......",
-        "...ooomr.mo.....",
-        "......om.mo.....",
-        "......ommmo.....",
-        ".......ooo......",
-        "................",
-    ])
-
-
-def _secateurs(name, grip, extra=None):
-    """茎きりばさみ: pruning shears with a curved cutting blade over a hooked anvil and two bowed grips."""
-    i = Icon(name)
-    i.rows(legend(a=(grip, 1), c=(grip, 3), b=(grip, 0)), [
-        "", "", "", "", "", "", "",
-        "........",
-        "......acb.......",
-        "....aacb.acb....",
-        "...acb..acb.....",
-        "..acb..acb......",
-        "..bb..acb.......",
-        "......acb.......",
-        ".....acb........",
-        ".....bb.........",
-    ])
-    i.rows(legend(w=(IRON, 4), c=(IRON, 3), m=(IRON, 2), s=(IRON, 1), o=(IRON, 0), B=(BRASS, 0), b=(BRASS, 3)), [
-        "................",
-        "............oo..",
-        "...........ocwo.",
-        "..........ocwmo.",
-        ".........ocwmo..",
-        "........ocwmo...",
-        "........cwmos...",
-        ".......bBos.o...",
-        "........osmmo...",
-        ".........ooo....",
-    ])
-    if extra:
-        extra(i)
-    return i
-
-
-def stem_shears():
-    return _secateurs('stem_shears', WOOD)
-
-
-def bottle_stem_shears():
-    """茎きりばさみ(瓶に入れる): the pruning shears with pink grips and a small corked bottle of sugar water at their foot."""
-    def bottle(i):
-        i.erase([(x, y) for x in range(9, 16) for y in range(8, 16)])
-        i.rows(legend(o=(GLASS, 0), g=(GLASS, 2), h=(GLASS, 3), s=(SYRUP, 2), S=(SYRUP, 1), L=(SYRUP, 3),
-                      k=(WOOD, 3), K=(WOOD, 1), e=(GREEN, 2), E=(GREEN, 1)), [
-            "", "", "", "", "", "", "", "",
-            "...........kK...",
-            "...........KK...",
-            "..........ohgo..",
-            ".........ohgEgo.",
-            ".........hLseSo.",
-            ".........gsSeSo.",
-            ".........osSSSo.",
-            "..........oooo..",
-        ])
-    return _secateurs('bottle_stem_shears', PINK, bottle)
 
 
 def care_vibrator():
@@ -570,11 +437,9 @@ def alcohol_lamp():
 
 
 ICONS = {
-    'pin_tool': pin_tool, 'care_mallet': care_mallet, 'care_awl': care_awl, 'heated_awl': heated_awl,
+    'pin_tool': pin_tool, 'care_mallet': care_mallet, 'care_awl': care_awl, 'care_awl_hot': care_awl_hot,
     'restraint_frame': restraint_frame, 'wrap_sling': wrap_sling, 'hanging_hook': hanging_hook,
-    'hair_clippers': hair_clippers, 'cutting_knife': cutting_knife, 'care_vibrator': care_vibrator,
-    'sterilizing_shears': sterilizing_shears, 'iron_enclosure': iron_enclosure, 'stem_shears': stem_shears,
-    'bottle_stem_shears': bottle_stem_shears, 'trimmed_hair': trimmed_hair,
+    'care_vibrator': care_vibrator, 'iron_enclosure': iron_enclosure, 'trimmed_hair': trimmed_hair,
 }
 DRAFTS = {'alcohol_lamp': alcohol_lamp}
 SHIPPED = tuple(ICONS)

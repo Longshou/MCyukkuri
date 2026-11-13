@@ -21,6 +21,7 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.network.syncher.*;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.ItemTags;
+import net.neoforged.neoforge.common.Tags;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.*;
@@ -38,7 +39,6 @@ import io.github.longshou.mcyukkuri.body.RemainsCause;
 import io.github.longshou.mcyukkuri.body.RemainsRot;
 import io.github.longshou.mcyukkuri.body.RemainsWater;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
-import io.github.longshou.mcyukkuri.item.OperationToolItem;
 import io.github.longshou.mcyukkuri.status.Marks;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
@@ -210,13 +210,8 @@ public final class RemainsEntity extends Entity {
     @Override public InteractionResult interact(Player player,InteractionHand hand){
         if(isRemoved()||player.isSpectator()||!player.mayBuild()||player.distanceToSqr(this)>36)return InteractionResult.PASS;
         var held=player.getItemInHand(hand);
-        if(held.getItem() instanceof OperationToolItem shears&&(shears.tool()==OperationToolItem.Tool.STEM_SHEARS
-                ||shears.tool()==OperationToolItem.Tool.BOTTLE_SHEARS)){
-            if(!level().isClientSide)player.displayClientMessage(Component.translatable("stem.mcyukkuri.cut_remains"),true);
-            return InteractionResult.sidedSuccess(level().isClientSide);
-        }
         if(held.is(ItemTags.SHOVELS))return bury(player,hand);
-        if(held.is(ItemTags.SWORDS)||held.getItem() instanceof OperationToolItem tool&&tool.tool()==OperationToolItem.Tool.CUTTER)return takeCore(player,hand);
+        if(held.is(ItemTags.SWORDS)||held.is(Tags.Items.TOOLS_SHEAR))return takeCore(player,hand);
         if(!held.isEmpty())return InteractionResult.PASS;
         if(player.isSecondaryUseActive() && JunkHeadwear.read(data())!=null){
             if(!level().isClientSide)releaseJunk(() -> {

@@ -1,7 +1,6 @@
 package io.github.longshou.mcyukkuri.interaction;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
-import io.github.longshou.mcyukkuri.item.OperationToolItem.Tool;
 import io.github.longshou.mcyukkuri.registry.ModMenus;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Inventory;
@@ -35,7 +34,7 @@ public final class CareMenu extends AbstractContainerMenu {
         return (available.get(0)&0xffffL)|(available.get(1)&0xffffL)<<16|(available.get(2)&0xffffL)<<32;
     }
     private boolean lists(CareAction action){
-        return cutter?action.tool==Tool.CUTTER:action.tool==null;
+        return cutter?action.shears():action.group>=0;
     }
     private void updateActions(){
         long mask=0;

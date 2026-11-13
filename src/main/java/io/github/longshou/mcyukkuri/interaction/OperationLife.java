@@ -43,6 +43,8 @@ import net.minecraft.world.phys.Vec3;
 public final class OperationLife {
     public enum Pose { NONE, LIFT, GRIP, SLIDE, RUB, ROLL, SUPINE, PIN, FIXED, WRAPPED, HOOK, RUMP, VIBRATE, BOX, ASSIST, HAT_REMOVE, HAT_RETURN }
     private static final int BOX_BEAT = 80, ROTOR_PLEA = 100;
+    /** Below this nutrition the gentle sling no longer soothes: it wants to come down (MindLife). */
+    public static final float SLING_HUNGER = 20;
     private final YukkuriEntity entity;
     private Pose pose=Pose.NONE;
     private UUID operator;
@@ -147,7 +149,7 @@ public final class OperationLife {
             if(action==CareAction.RUB)entity.pet().care().affection(player);
             cooldown=20;player.swing(InteractionHand.MAIN_HAND);
             entity.pet().contact(player.getUUID(), action.positiveContact());
-            if(action.tool!=null&&!action.tool.inserted)player.getMainHandItem().hurtAndBreak(1,player,EquipmentSlot.MAINHAND);
+            if(action.tool!=null&&!action.tool.inserted||action.shears())player.getMainHandItem().hurtAndBreak(1,player,EquipmentSlot.MAINHAND);
             switch(action){
                 case COLLECT_NEAREST -> message(player,"collected");
                 case STERILIZE -> {
@@ -268,17 +270,24 @@ public final class OperationLife {
                 entity.mind().felt(EmotionEvent.FRIGHTENED);
                 entity.forceReaction("pressed_cry", "", remaining);
             }
-            case WRAPPED -> entity.showReaction("closed_smile", "airborne", remaining);
+            case WRAPPED -> {
+                if (entity.life().nutrition() < SLING_HUNGER) entity.forceReaction("teary", "", remaining);
+                else entity.showReaction("closed_smile", "airborne", remaining);
+            }
             case HOOK -> entity.forceReaction("horrified", "", remaining);
             case VIBRATE -> entity.showReaction("flushed_smile", "", ROTOR_PLEA);
             case BOX -> {
-                var personality = entity.life().personality();
-                boolean calm = personality.boldness() >= 60 && personality.fear(operator) <= 30 && entity.mind().unease() < 60;
+                boolean calm = calmInBox();
                 if (!calm) entity.mind().felt(EmotionEvent.FRIGHTENED);
                 entity.forceReaction(calm ? "sleepy" : "horrified", calm ? "" : "afraid", Math.min(remaining, BOX_BEAT));
             }
             default -> {}
         }
+    }
+    /** A bold one that does not fear this operator and is not already uneasy dozes in the box instead of panicking. */
+    public boolean calmInBox() {
+        var personality = entity.life().personality();
+        return pose == Pose.BOX && personality.boldness() >= 60 && personality.fear(operator) <= 30 && entity.mind().unease() < 60;
     }
     private void moveTo(Vec3 desired){
         var delta=desired.subtract(entity.position());

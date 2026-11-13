@@ -1952,7 +1952,7 @@ def aftermath(sid, seen, watch, lanes, vantage):
     add(sid, 'meadow', seen, seen, watch,
         '约 20 秒长成。读母体状态可查看进度、营养、生命和耗馅级别。',
         _aftermath_pens(lanes),
-        env=DAY, give=['minecraft:apple 16', 'mcyukkuri:stem_shears 1', 'mcyukkuri:bottle_stem_shears 1'], vantage=vantage,
+        env=DAY, give=['minecraft:apple 16', 'minecraft:shears 1', "minecraft:potion[potion_contents={potion:'minecraft:water'}] 1"], vantage=vantage,
         note='通过场景入口建立事后胎次；每个围栏北侧栅栏外坐着的爱丽丝只作血缘登记的来源（让开场惊慌有个看得见的对象）。',
         late=[f'yukkuri scenario aftermath {sel(f"affected_{lane}")} {sel(f"source_{lane}")} {count}' for lane, _, _, _, _, count in lanes],
         reads=[(f'读{label}的母体与茎生进度', f'yukkuri status {sel(f"affected_{lane}")} raw') for lane, _, _, _, label, _ in lanes]

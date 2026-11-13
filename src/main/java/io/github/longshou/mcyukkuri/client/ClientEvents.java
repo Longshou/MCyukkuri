@@ -3,6 +3,7 @@ package io.github.longshou.mcyukkuri.client;
 import io.github.longshou.mcyukkuri.MCYukkuri;
 import io.github.longshou.mcyukkuri.entity.YukkuriVariant;
 import io.github.longshou.mcyukkuri.interaction.CareMenu;
+import io.github.longshou.mcyukkuri.item.OperationToolItem;
 import io.github.longshou.mcyukkuri.item.SwaddleStyle;
 import io.github.longshou.mcyukkuri.life.Consumables;
 import io.github.longshou.mcyukkuri.life.Facilities;
@@ -11,6 +12,7 @@ import io.github.longshou.mcyukkuri.registry.ModBlocks;
 import io.github.longshou.mcyukkuri.registry.ModEntities;
 import io.github.longshou.mcyukkuri.registry.ModItems;
 import io.github.longshou.mcyukkuri.registry.ModMenus;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
 import net.minecraft.client.renderer.item.ItemProperties;
@@ -48,8 +50,13 @@ public final class ClientEvents {
      * k / 8 pick swaddle_cloth_<style> (models/item/swaddle_cloth.json).
      */
     public static void registerItemProperties(FMLClientSetupEvent event) {
-        event.enqueueWork(() -> ItemProperties.register(ModItems.SWADDLE_CLOTH.get(), MCYukkuri.id("swaddle_style"),
-                (stack, level, entity, seed) -> (SwaddleStyle.of(stack).ordinal() + .5f) / 8));
+        event.enqueueWork(() -> {
+            ItemProperties.register(ModItems.SWADDLE_CLOTH.get(), MCYukkuri.id("swaddle_style"),
+                    (stack, level, entity, seed) -> (SwaddleStyle.of(stack).ordinal() + .5f) / 8);
+            // The heated awl glows (models/item/care_awl.json override) until its heat runs out.
+            ItemProperties.register(OperationToolItem.Tool.AWL.item(), MCYukkuri.id("hot"), (stack, level, entity, seed) ->
+                    OperationToolItem.isHot(stack, level != null ? level : Minecraft.getInstance().level) ? 1 : 0);
+        });
     }
 
     public static void registerReloadListeners(RegisterClientReloadListenersEvent event) {

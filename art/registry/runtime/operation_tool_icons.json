@@ -1,28 +1,36 @@
 {
   "source": "standards/yukkuri-library/drafts/operation-tools/icons.py",
+  "held_source": "standards/yukkuri-library/drafts/operation-tools/held.py",
   "snapshot": "art/props/operation-tools/icons",
+  "held_snapshot": "art/props/operation-tools/held",
   "exporter": "standards/yukkuri-library/drafts/operation-tools/build.py",
   "items": {
     "pin_tool": "src/main/resources/assets/mcyukkuri/textures/item/pin_tool.png",
     "care_mallet": "src/main/resources/assets/mcyukkuri/textures/item/care_mallet.png",
     "care_awl": "src/main/resources/assets/mcyukkuri/textures/item/care_awl.png",
-    "heated_awl": "src/main/resources/assets/mcyukkuri/textures/item/heated_awl.png",
+    "care_awl_hot": "src/main/resources/assets/mcyukkuri/textures/item/care_awl_hot.png",
     "restraint_frame": "src/main/resources/assets/mcyukkuri/textures/item/restraint_frame.png",
     "wrap_sling": "src/main/resources/assets/mcyukkuri/textures/item/wrap_sling.png",
     "hanging_hook": "src/main/resources/assets/mcyukkuri/textures/item/hanging_hook.png",
-    "hair_clippers": "src/main/resources/assets/mcyukkuri/textures/item/hair_clippers.png",
-    "cutting_knife": "src/main/resources/assets/mcyukkuri/textures/item/cutting_knife.png",
     "care_vibrator": "src/main/resources/assets/mcyukkuri/textures/item/care_vibrator.png",
-    "sterilizing_shears": "src/main/resources/assets/mcyukkuri/textures/item/sterilizing_shears.png",
     "iron_enclosure": "src/main/resources/assets/mcyukkuri/textures/item/iron_enclosure.png",
-    "stem_shears": "src/main/resources/assets/mcyukkuri/textures/item/stem_shears.png",
-    "bottle_stem_shears": "src/main/resources/assets/mcyukkuri/textures/item/bottle_stem_shears.png",
     "trimmed_hair": "src/main/resources/assets/mcyukkuri/textures/item/trimmed_hair.png"
+  },
+  "held_models": {
+    "pin_tool": "src/main/resources/assets/mcyukkuri/textures/item/pin_tool_model.png",
+    "care_mallet": "src/main/resources/assets/mcyukkuri/textures/item/care_mallet_model.png",
+    "care_awl": "src/main/resources/assets/mcyukkuri/textures/item/care_awl_model.png",
+    "care_awl_hot": "src/main/resources/assets/mcyukkuri/textures/item/care_awl_hot_model.png",
+    "restraint_frame": "src/main/resources/assets/mcyukkuri/textures/item/restraint_frame_model.png",
+    "wrap_sling": "src/main/resources/assets/mcyukkuri/textures/item/wrap_sling_model.png",
+    "hanging_hook": "src/main/resources/assets/mcyukkuri/textures/item/hanging_hook_model.png",
+    "care_vibrator": "src/main/resources/assets/mcyukkuri/textures/item/care_vibrator_model.png",
+    "iron_enclosure": "src/main/resources/assets/mcyukkuri/textures/item/iron_enclosure_model.png"
   },
   "drafts": {
     "alcohol_lamp": "art/props/operation-tools/icons/alcohol_lamp.png"
   },
-  "models": "src/main/resources/assets/mcyukkuri/models/item/<id>.json (item/generated, written by build.py)",
-  "role": "vanilla-style 16x16 item sprites for the operation and abuse tools and the cut hair lock, in the same style as the supply icons; the one sprite serves GUI, hand (extruded), ground, item frames, shop shelves and NPC hands. On-body attachments (pin, hook, rotor, fitted restraint board, sling and iron box, brood bottle) stay meshes from build.py; drafts are not shipped until their item is registered",
+  "models": "src/main/resources/assets/mcyukkuri/models/item/<id>.json (neoforge:separate_transforms: 3D base in the hands, sprite in GUI, ground and frames; trimmed_hair is item/generated; written by build.py)",
+  "role": "vanilla-style 16x16 sprites for the GUI, ground and item frames, and real 3D cuboid models of the same tools for both hands; the pin, hook and rotor contact meshes on the body are the same 3D models, and the body-fitted restraint board, sling and iron box sample the same material textures. Cutting tools are vanilla shears; the heated awl is the awl's heat state (care_awl_hot override). Drafts are not shipped until their item is registered",
   "status": "pending_user_confirmation"
 }

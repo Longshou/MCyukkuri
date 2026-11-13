@@ -12,14 +12,16 @@ import math
 from pathlib import Path
 import uuid
 from PIL import Image
+import held
 import icons
 
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[3]
 ASSETS = ROOT / 'src/main/resources/assets/mcyukkuri'
 SNAPSHOT = ROOT / 'art/props/operation-tools'
-# Meshes drawn on or around a live body (OperationAttachments, YukkuriRenderer, DetachedStemRenderer); fitted variants are added by fitted().
-IN_WORLD = ('pin_tool','hanging_hook','care_vibrator','brood_bottle')
+# Recipe meshes drawn beside a live body (DetachedStemRenderer); fitted variants are added by fitted(). The pin, hook and rotor
+# contact meshes come from held.py, the same 3D models as in the player's hand.
+IN_WORLD = ('brood_bottle',)
 PALETTE = ['#a46d39','#d9a85d','#353941','#818994','#d5dce0','#ee809b','#b74651','#f0e4c7','#614c37','#f38b35','#473126','#cbe9f3','#689cb5']
 
 
@@ -112,21 +114,7 @@ def hoop(center,r,t,c): return {'hoop':[center,r,t], 'color':c}
 def band(a,b,c,width=.8): return {'band':[a,b,width,.14], 'color':c}
 
 RECIPE = {
- 'pin_tool':[rod([0,0,0],[0,7.4,0],.10,4),rod([0,-.8,0],[0,0,0],0,4,.10),ball([0,8,0],[.8,.8,.8],5)],
- 'care_mallet':[rod([0,0,0],[0,8.5,0],.46,0),rod([-3,8.5,0],[3,8.5,0],1.8,2),rod([-3.1,8.5,0],[-2.6,8.5,0],1.82,3),rod([2.6,8.5,0],[3.1,8.5,0],1.82,3)],
- 'care_awl':[rod([0,0,0],[0,5.5,0],.58,0),rod([0,5.2,0],[0,6.2,0],.6,3),rod([0,6.2,0],[0,11,0],.13,4,.015)],
- 'heated_awl':[rod([0,0,0],[0,5.5,0],.58,0),rod([0,5.2,0],[0,6.2,0],.6,3),rod([0,6.2,0],[0,11,0],.13,9,.015)],
- 'restraint_frame':[box([-7,0,-6],[7,.65,22],0),box([-6,.65,-5],[-5,1.2,21],1),box([5,.65,-5],[6,1.2,21],1),box([-6,6.6,-1],[6,7.1,0],8),box([-6,6.6,6],[6,7.1,7],8),box([-6,.65,-1],[-5.5,7.1,0],8),box([5.5,.65,-1],[6,7.1,0],8),box([-6,.65,6],[-5.5,7.1,7],8),box([5.5,.65,6],[6,7.1,7],8)],
- 'wrap_sling':[box([-6,.1,-3.2],[6,.55,3.2],7),rod([-6,.4,0],[-3,10,0],.30,7),rod([6,.4,0],[3,10,0],.30,7),rod([-3,10,0],[0,12,0],.30,7),rod([3,10,0],[0,12,0],.30,7),ring([0,12.5,0],.6,.14,8)],
- 'hanging_hook':[ring([0,9,0],.6,.15,3),rod([0,8.5,0],[0,2,0],.17,4),rod([0,2,0],[-.8,.4,0],.17,4),rod([-.8,.4,0],[-2,.4,0],.17,4),rod([-2,.4,0],[-2.8,1.5,0],.17,4),rod([-2.8,1.5,0],[-2.6,3.1,0],.17,4,0)],
- 'hair_clippers':[box([-1.25,0,-.75],[1.25,6,.75],2),box([-.8,1,.75],[.8,4.4,.95],3),box([-1.65,6,-.7],[1.65,7,.7],4)]+[box([x,7,-.65],[x+.25,7.8,.65],4) for x in [-1.5,-1,-.5,0,.5,1]],
- 'cutting_knife':[rod([-2.2,0,0],[-.4,4.8,0],.46,6),rod([2.2,0,0],[.4,4.8,0],.46,6),rod([-.4,4.8,0],[2.4,10,0],.3,4,.04),rod([.4,4.8,0],[-2.4,10,0],.3,4,.04),ball([0,4.8,0],[.5,.5,.65],3)],
  'trimmed_hair':[rod([-2,0,0],[1,2,.3],.22,10,.02),rod([-1,0,.4],[2,2,-.3],.22,10,.02),rod([-2,0,.6],[-.5,2.4,0],.22,10,.02)],
- 'care_vibrator':[ball([0,2,0],[.8,2,.8],5),hoop([0,2,0],.8,.05,6)],
- 'sterilizing_shears':[ring([-1.5,1,0],1,.25,3),ring([1.5,1,0],1,.25,3),rod([-1.2,2,0],[1.8,8,0],.23,4,.035),rod([1.2,2,0],[-1.8,8,0],.23,4,.035),ball([0,4.3,0],[.4,.4,.5],2)],
- 'iron_enclosure':[box([-5,0,-5],[5,.4,5],3),box([-5,.4,-5],[-4.6,6,5],3),box([4.6,.4,-5],[5,6,5],3),box([-5,.4,4.6],[5,6,5],3),box([-5,.4,-5],[5,2,-4.6],3)]+[rod([x,2,-4.8],[x,6,-4.8],.10,4) for x in [-4,-2,0,2,4]]+[box([-5,6,-5],[5,6.4,5],3)],
- 'stem_shears':[ring([-1.7,1,0],1,.28,8),ring([1.7,1,0],1,.28,8),rod([-1.4,2,0],[2.7,9,0],.34,4,.03),rod([1.4,2,0],[-2.7,9,0],.34,4,.03),ball([0,4.5,0],[.4,.4,.5],0)],
- 'bottle_stem_shears':[ring([-1.7,1,0],1,.28,5),ring([1.7,1,0],1,.28,5),rod([-1.4,2,0],[2.7,9,0],.34,4,.03),rod([1.4,2,0],[-2.7,9,0],.34,4,.03),ball([0,4.5,0],[.4,.4,.5],0)],
  'brood_bottle':[hoop([0,.15,0],2.4,.13,4),hoop([0,4,0],2.1,.14,4),{**rod([0,.1,0],[0,3.5,0],2.4,11),'caps':'bottom'},{**rod([0,3.5,0],[0,4,0],2.4,11,2.1),'caps':'none'},rod([0,.18,0],[0,.75,0],2.27,12)],
 }
 
@@ -255,7 +243,7 @@ def outputs():
     for x,color in enumerate(PALETTE):
         for y in range(16):image.putpixel((x,y),tuple(bytes.fromhex(color[1:]))+((50 if x==11 else 150 if x==12 else 255),))
     stream=io.BytesIO();image.save(stream,format='PNG')
-    texture=preserve_representation(SNAPSHOT/'selected/pin_tool/texture.png',stream.getvalue())
+    texture=preserve_representation(SNAPSHOT/'selected/brood_bottle/texture.png',stream.getvalue())
     result={};index={}
     def emit(path,data): result[path]=(json.dumps(data,ensure_ascii=False,separators=(',',':'))+'\n').encode()
     emit(HERE/'recipe.json',{'status':'pending-review','units_per_block':16,'palette':PALETTE,'props':RECIPE})
@@ -263,15 +251,18 @@ def outputs():
     bare,bare_sockets,bare_sources,bare_lifts=fitted(True,previous.get('body_sources'));fitting.update(bare);sockets.update(bare_sockets);sources.update(bare_sources);lifts.update(bare_lifts)
     for name,shapes in {**RECIPE,**fitting}.items():
         vertices,parts,elements=[],[],[]
+        tool=held.fitted_tool(name)   # body-fitted restraint, sling and box sample the materials of the tool's 3D model
         for part_id,shape in enumerate(shapes):
             points,faces=geometry(shape);start=len(vertices)//8;u=(shape['color']+.5)/16;bbfaces={}
             for face in faces:
                 for k in range(1,len(face)-1):
                     tri=[face[0],face[k],face[k+1]];normal=unit(cross(sub(points[tri[1]],points[tri[0]]),sub(points[tri[2]],points[tri[0]])))
                     if sum(x*x for x in normal)<.5:continue
-                    for i in tri:vertices.extend([*points[i],u,.5,*normal])
+                    uvs=held.swatch_uv(tool,shape['color'],[points[i] for i in tri],normal) if tool else [(u,.5)]*3
+                    for i,uv in zip(tri,uvs):vertices.extend([*points[i],*uv,*normal])
                     bbfaces[str(len(bbfaces))]={'vertices':[str(i) for i in tri],'uv':{str(i):[u*16,8] for i in tri},'texture':0}
             parts.append({'name':f'part_{part_id}','start':start,'count':len(vertices)//8-start})
+            if tool:parts[-1]['texture']=f'mcyukkuri:textures/item/{tool}_model.png'
             if shape['color'] in (11,12):parts[-1]['translucent']=True
             elements.append({'name':f'part_{part_id}','type':'mesh','uuid':str(uuid.uuid5(uuid.NAMESPACE_URL,name+str(part_id))), 'origin':[0,0,0], 'rotation':[0,0,0], 'vertices':{str(i):point for i,point in enumerate(points)},'faces':bbfaces})
         bounds=[[min(vertices[i::8]),max(vertices[i::8])] for i in range(3)]
@@ -283,22 +274,33 @@ def outputs():
         emit(HERE/'assembled'/name/f'{name}.bbmodel',bb);emit(HERE/'assembled'/name/f'{name}.mesh.json',mesh);result[HERE/'assembled'/name/'texture.png']=texture
         if name not in IN_WORLD and name not in fitting:continue   # item-only tools are drawn by their item sprite; the mesh stays a source
         folder=SNAPSHOT/'selected'/name
-        emit(folder/f'{name}.bbmodel',bb);emit(folder/f'{name}.mesh.json',mesh);result[folder/'texture.png']=texture
-        emit(ASSETS/f'yukkuri_props/{name}.json',mesh);result[ASSETS/f'textures/props/{name}.png']=texture
+        emit(folder/f'{name}.bbmodel',bb);emit(folder/f'{name}.mesh.json',mesh);emit(ASSETS/f'yukkuri_props/{name}.json',mesh)
+        if not tool:result[folder/'texture.png']=texture;result[ASSETS/f'textures/props/{name}.png']=texture
         index[name]={'bounds':bounds,'triangles':len(vertices)//24}
-    emit(ASSETS/'yukkuri_props/operations-index.json',index)
-    # Every tool item (and the cut hair lock) is a vanilla-style item/generated sprite drawn by icons.py.
+    # Bound tools at the body contact: the same 3D model as in the hand, in the renderer's skin frame (+Y outward).
+    for name,(_,_,_,contact) in held.HELD.items():
+        if contact is None:continue
+        mesh=held.contact_mesh(name)
+        emit(ASSETS/f'yukkuri_props/{name}.json',mesh);emit(SNAPSHOT/'held'/f'{name}.contact.json',mesh)
+        index[name]={'bounds':mesh['bounds'],'triangles':len(mesh['vertices'])//24}
+    emit(ASSETS/'yukkuri_props/operations-index.json',dict(sorted(index.items())))
+    # GUI, ground and item frames show the vanilla-style sprite from icons.py; the hands show the 3D model from held.py.
+    sprites={}
     for path,data in icons.outputs().items():
         result[path]=data
         if path.stem in icons.SHIPPED:
-            result[ASSETS/f'textures/item/{path.stem}.png']=data
-            emit(ASSETS/f'models/item/{path.stem}.json',{'parent':'minecraft:item/generated','textures':{'layer0':f'mcyukkuri:item/{path.stem}'}})
+            result[ASSETS/f'textures/item/{path.stem}.png']=data;sprites[path.stem]=data
+            if path.stem not in held.HELD:
+                emit(ASSETS/f'models/item/{path.stem}.json',{'parent':'minecraft:item/generated','textures':{'layer0':f'mcyukkuri:item/{path.stem}'}})
+    for name in held.HELD:
+        model=held.item_model(name,name)
+        if name=='care_awl':model['overrides']=[{'predicate':{'mcyukkuri:hot':1},'model':'mcyukkuri:item/care_awl_hot'}]
+        emit(ASSETS/f'models/item/{name}.json',model);emit(SNAPSHOT/'held'/f'{name}.json',model)
+        skin=held.texture(name);result[ASSETS/f'textures/item/{name}_model.png']=skin;result[SNAPSHOT/'held'/f'{name}_model.png']=skin
     ingredients={'pin_tool':['iron_nugget','pink_dye'],'care_mallet':['iron_ingot','iron_ingot','stick'],
       'care_awl':['iron_nugget','iron_ingot','stick'],'restraint_frame':['oak_planks','oak_planks','string','leather'],
       'wrap_sling':['white_wool','string','string'],'hanging_hook':['iron_ingot','string'],
-      'hair_clippers':['iron_ingot','iron_ingot','redstone'],'cutting_knife':['iron_ingot','iron_ingot','red_dye']}
-    ingredients.update({'care_vibrator':['redstone','iron_ingot','pink_dye'],'sterilizing_shears':['shears','iron_nugget'],
-      'iron_enclosure':['iron_ingot','iron_ingot','iron_ingot','iron_bars'],'stem_shears':['shears','stick'],'bottle_stem_shears':['shears','glass_bottle']})
+      'care_vibrator':['redstone','iron_ingot','pink_dye'],'iron_enclosure':['iron_ingot','iron_ingot','iron_ingot','iron_bars']}
     for name in ('detached_brood_stem','bottled_brood_stem'):
         emit(ASSETS/f'blockstates/{name}.json',{'variants':{'':{'model':f'mcyukkuri:block/{name}'}}})
         emit(ASSETS/f'models/block/{name}.json',{'textures':{'particle':'mcyukkuri:props/brood_bottle'},'elements':[]})
@@ -316,7 +318,7 @@ def main():
             changed.append(path.relative_to(ROOT).as_posix())
             if not args.check:path.parent.mkdir(parents=True,exist_ok=True);path.write_bytes(data)
     if args.check and changed:raise SystemExit('Stale exports: '+', '.join(changed))
-    print(f'Operation props: {len(RECIPE)}; '+('exports match' if args.check else f'{len(changed)} files written'))
+    print(f'Operation props: {len(RECIPE)}, held models: {len(held.HELD)}; '+('exports match' if args.check else f'{len(changed)} files written'))
 
 
 if __name__=='__main__':

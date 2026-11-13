@@ -10,6 +10,7 @@ import io.github.longshou.mcyukkuri.dialogue.NativeDialogue;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.RemainsEntity;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.interaction.OperationLife;
 import io.github.longshou.mcyukkuri.life.Consumables;
 import io.github.longshou.mcyukkuri.life.FoodTaste;
 import io.github.longshou.mcyukkuri.life.Poops;
@@ -58,6 +59,8 @@ public final class MindLife {
     public static final int ONSET_TICKS = 1200, FRENZY_TICKS = 24000, FATAL_TICKS = 72000;
     private static final long PREVENTION_TICKS = 72000;
     private static final int SAMPLE = 100;
+    /** Per minute while bound: about +4 over a 12 s pin and +7 over a 20 s board or box, on top of the start fright. */
+    private static final float RESTRAINED = 20;
     private static final float PER_SAMPLE = SAMPLE / 1200f; // rates below are "per minute" (1200 ticks)
 
     private final YukkuriEntity entity;
@@ -276,6 +279,17 @@ public final class MindLife {
                 .getPrecipitationAt(entity.blockPosition()) == Biome.Precipitation.RAIN)
             put(entity.level().isThundering() ? "thunder" : "rain", entity.level().isThundering() ? 5 : 2.5f);
         if (entity.habitat().vagrant()) put("homeless", .3f);
+        // Operation tools (OperationLife): a binding it cannot leave presses on it for the whole hold; the sling soothes a fed
+        // one and troubles a hungry one; a calm one dozes in the box. Hair cut off by shears stays missing.
+        boolean hungry = life.nutrition() < OperationLife.SLING_HUNGER;
+        switch (entity.operations().pose()) {
+            case PIN, FIXED, HOOK -> put("restrained", RESTRAINED);
+            case BOX -> put(entity.operations().calmInBox() ? "sleep" : "restrained", entity.operations().calmInBox() ? -1 : RESTRAINED);
+            case WRAPPED -> put(hungry ? "restrained" : "comfort", hungry ? RESTRAINED / 2 : -3);
+            default -> {}
+        }
+        int cut = Integer.bitCount(entity.body().hairLoss() & 7);
+        if (cut > 0) put("hair_cut", cut == 3 ? 1 : .5f);
         if (entity.settlement().groupId() != null && entity.settlement().society().dejected()
                 && !pitPressure) put("shunned", 1);
         surroundings(identity);
