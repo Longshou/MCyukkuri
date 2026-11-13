@@ -11,6 +11,7 @@
 | 态度第五片：被抓、洗、给垃圾头饰、喂粮的反应；放大镜态度；脏污；自拾垃圾头饰 | `.worktrees/wp-im-attitude-e` | social/SocialDisposition consumers, LifeMeal, basket capture, washing, StatusKey, junk headwear pickup |
 | 让路给玩家与居民；商店照料受伤待售个体 | `.worktrees/wp-in-giveway-shopcare` | YukkuriGroundNavigation.giveWay, shop/ShopStaff care jobs |
 | 走失找孩改读第一手目击 | `.worktrees/wp-io-lost-child-sight` | family separation / lost child search owner |
+| 没学会的技能有日常后果 | `.worktrees/wp-ip-training-consequences` | pet training / neglect counters, daily routines |
 
 ## 玩法待办
 
