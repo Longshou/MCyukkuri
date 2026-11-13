@@ -296,6 +296,8 @@ public final class MindLife {
         // reliefs
         put("ease", -1);
         if (life.isSleeping()) put("sleep", -1);
+        // Its graded bed (life/NestComfort): softness and relief against hurt pride or feeling unworthy of it.
+        if (life.isSleeping() && life.bedRead() != null) put("bed", life.bedRead().unease());
         if (atHome(identity)) put("home", -1);
         if (entity.dailyLife().nuzzlePartnerId() >= 0 && entity.dailyLife().inContact() || entity.woundComfort().receiving() && entity.woundComfort().inContact()
                 || entity.status().reactions().weather().huddled() || entity.contactPose().equals("RUB")) put("comfort", -6);

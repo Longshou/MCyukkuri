@@ -12,9 +12,11 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.CollisionContext;
@@ -24,25 +26,36 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 /**
  * A family nest on a real 2x2 footprint, like a bed: the clicked cell is part 0 (north-west, owns the block entity and the
  * drop), part bit 1 is the +x cell and bit 2 the +z cell. Placement needs all four cells free; losing any part removes the
- * others. Each part collides with its own quarter of the nest shell, so nothing reaches outside the four cells.
+ * others. Each part collides with its own quarter of the nest shell, so nothing reaches outside the four cells. FACING is the
+ * entrance (the low front, authored on +z): toward the placer, else the next side clockwise whose two outside cells are open;
+ * with every side closed the nest is not placed.
  */
 public final class LargeNestBlock extends CareBlock {
     public static final IntegerProperty PART = IntegerProperty.create("part", 0, 3);
-    private final VoxelShape[] collision = new VoxelShape[4], outline = new VoxelShape[4];
+    public static final DirectionProperty FACING = HorizontalDirectionalBlock.FACING;
+    private final VoxelShape[][] collision = new VoxelShape[4][4];
+    private final VoxelShape[] outline = new VoxelShape[4];
+    private final int grade;
 
     public LargeNestBlock(Properties properties, String style) {
         super(Kind.NEST, properties, style, 6, 0);
-        registerDefaultState(stateDefinition.any().setValue(PART, 0));
+        registerDefaultState(stateDefinition.any().setValue(PART, 0).setValue(FACING, Direction.SOUTH));
         boolean wild = style.equals("large_wild_nest");
+        grade = wild ? 1 : 2;
         VoxelShape whole = wild ? wildShape() : authoredShape(style, 16);
         double top = wild ? 3 : authoredTop(style);
-        for (int part = 0; part < 4; part++) {
-            double dx = part & 1, dz = part >> 1;
-            collision[part] = Shapes.join(whole.move(-dx, 0, -dz), Shapes.block(), BooleanOp.AND).optimize();
-            outline[part] = box(0, 0, 0, 16, top, 16);
+        for (int turns = 0; turns < 4; turns++) {
+            var turned = turn(whole, 1, 1, turns);
+            for (int part = 0; part < 4; part++) {
+                double dx = part & 1, dz = part >> 1;
+                collision[turns][part] = Shapes.join(turned.move(-dx, 0, -dz), Shapes.block(), BooleanOp.AND).optimize();
+            }
         }
+        for (int part = 0; part < 4; part++) outline[part] = box(0, 0, 0, 16, top, 16);
     }
-    @Override protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) { builder.add(PART); }
+    /** Wild bedding 1, the woven pet basket 2 (docs/FEATURES.md). */
+    @Override public int grade() { return grade; }
+    @Override protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) { builder.add(PART, FACING); }
     /** Wild bedding (drafts/care-props/wild.py large_wild_nest): rounded 32-unit footprint centred on the shared corner, a 0.5 leaf
      *  floor, a 2.6 pressed-grass rim outside a 14.75 rounded square and a low southern (+z) entrance. */
     private static VoxelShape wildShape() {
@@ -70,18 +83,42 @@ public final class LargeNestBlock extends CareBlock {
     @Override protected BlockPos owner(BlockState state, BlockPos pos) { return origin(state, pos); }
     @Override public BlockEntity newBlockEntity(BlockPos pos, BlockState state) { return state.getValue(PART) == 0 ? super.newBlockEntity(pos, state) : null; }
     @Override protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) { return outline[state.getValue(PART)]; }
-    @Override protected VoxelShape getCollisionShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) { return collision[state.getValue(PART)]; }
+    @Override protected VoxelShape getCollisionShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+        return collision[turns(Direction.SOUTH, state.getValue(FACING))][state.getValue(PART)];
+    }
     @Override public BlockState getStateForPlacement(BlockPlaceContext context) {
         var level = context.getLevel();
+        var origin = context.getClickedPos();
         for (int part = 1; part < 4; part++) {
-            var cell = at(context.getClickedPos(), part);
+            var cell = at(origin, part);
             if (!level.getBlockState(cell).canBeReplaced(context) || !level.getWorldBorder().isWithinBounds(cell)) {
                 if (level.isClientSide && context.getPlayer() != null)
                     context.getPlayer().displayClientMessage(Component.literal("大窝占 2×2 格：点击格的东侧、南侧和东南格须空出"), true);
                 return null;
             }
         }
-        return defaultBlockState();
+        Direction entrance = context.getHorizontalDirection().getOpposite();
+        for (int k = 0; k < 4 && closed(level, origin, entrance); k++) entrance = entrance.getClockWise();
+        if (closed(level, origin, entrance)) {
+            if (level.isClientSide && context.getPlayer() != null)
+                context.getPlayer().displayClientMessage(Component.literal("大窝四面都被挡住，没有入口：至少留出一侧的两格"), true);
+            return null;
+        }
+        return defaultBlockState().setValue(FACING, entrance);
+    }
+    /** Whether a block stands (above floor coverings) in either of the two cells just outside that side of the footprint. */
+    private static boolean closed(BlockGetter level, BlockPos origin, Direction side) {
+        for (int k = 0; k < 2; k++) {
+            var cell = switch (side) {
+                case NORTH -> origin.offset(k, 0, -1);
+                case SOUTH -> origin.offset(k, 0, 2);
+                case WEST -> origin.offset(-1, 0, k);
+                default -> origin.offset(2, 0, k);
+            };
+            var shape = level.getBlockState(cell).getCollisionShape(level, cell);
+            if (!shape.isEmpty() && shape.max(Direction.Axis.Y) > .125) return true;
+        }
+        return false;
     }
     @Override public void setPlacedBy(Level level, BlockPos pos, BlockState state, LivingEntity placer, ItemStack stack) {
         super.setPlacedBy(level, pos, state, placer, stack);

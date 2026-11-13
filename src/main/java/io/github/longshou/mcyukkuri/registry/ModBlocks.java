@@ -5,6 +5,7 @@ import io.github.longshou.mcyukkuri.human.GarbageBinBlock;
 import io.github.longshou.mcyukkuri.human.GarbageBinBlockEntity;
 import io.github.longshou.mcyukkuri.life.CareBlock;
 import io.github.longshou.mcyukkuri.life.LargeNestBlock;
+import io.github.longshou.mcyukkuri.life.PetNestBlock;
 import io.github.longshou.mcyukkuri.life.CareBlockEntity;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.level.block.SoundType;
@@ -41,7 +42,10 @@ public final class ModBlocks {
     public static final DeferredHolder<BlockEntityType<?>,BlockEntityType<DetachedStemBlockEntity>> DETACHED_STEM_ENTITY=BLOCK_ENTITIES.register("detached_stem",
             ()->BlockEntityType.Builder.of(DetachedStemBlockEntity::new,DETACHED_STEM.get(),BOTTLED_STEM.get()).build(null));
     public static final DeferredBlock<CareBlock> FOOD_BOWL = register("food_bowl", CareBlock.Kind.BOWL, SoundType.STONE);
-    public static final DeferredBlock<CareBlock> NEST = register("yukkuri_nest", CareBlock.Kind.NEST, SoundType.GRASS);
+    /** The one-block pet beds, grades 1-3 (life/PetNestBlock, docs/FEATURES.md). */
+    public static final DeferredBlock<PetNestBlock> STRAW_NEST = petNest("straw_nest", 1, SoundType.GRASS);
+    public static final DeferredBlock<PetNestBlock> NEST = petNest("yukkuri_nest", 2, SoundType.GRASS);
+    public static final DeferredBlock<PetNestBlock> VELVET_NEST = petNest("velvet_nest", 3, SoundType.WOOL);
     public static final DeferredBlock<LargeNestBlock> LARGE_NEST = BLOCKS.register("large_yukkuri_nest", () ->
             new LargeNestBlock(BlockBehaviour.Properties.of().strength(.6f).sound(SoundType.GRASS).noOcclusion().pushReaction(PushReaction.DESTROY),"large_yukkuri_nest"));
     public static final DeferredBlock<LargeNestBlock> LARGE_WILD_NEST = BLOCKS.register("large_wild_nest", () ->
@@ -93,8 +97,12 @@ public final class ModBlocks {
     public static final DeferredHolder<BlockEntityType<?>,BlockEntityType<PoopBlockEntity>> POOP_ENTITY=BLOCK_ENTITIES.register("poop",
             ()->BlockEntityType.Builder.of(PoopBlockEntity::new,POOP.get()).build(null));
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<CareBlockEntity>> CARE = BLOCK_ENTITIES.register("care",
-            () -> BlockEntityType.Builder.of(CareBlockEntity::new, FOOD_BOWL.get(), NEST.get(), LARGE_NEST.get(), LARGE_WILD_NEST.get(), PREDATOR_NEST.get(), TOILET.get()).build(null));
+            () -> BlockEntityType.Builder.of(CareBlockEntity::new, FOOD_BOWL.get(), STRAW_NEST.get(), NEST.get(), VELVET_NEST.get(), LARGE_NEST.get(),
+                    LARGE_WILD_NEST.get(), PREDATOR_NEST.get(), TOILET.get()).build(null));
 
+    private static DeferredBlock<PetNestBlock> petNest(String id, int grade, SoundType sound) {
+        return BLOCKS.register(id, () -> new PetNestBlock(BlockBehaviour.Properties.of().strength(.6f).sound(sound).noOcclusion(), id, grade));
+    }
     private static DeferredBlock<CareBlock> register(String id, CareBlock.Kind kind, SoundType sound) {
         return BLOCKS.register(id, () -> new CareBlock(kind, BlockBehaviour.Properties.of().strength(.6f).sound(sound).noOcclusion()));
     }

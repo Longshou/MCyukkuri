@@ -13,11 +13,31 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 
 /** One render at the household root; shell collision belongs to every physical part. */
 public final class ShelterRenderer implements BlockEntityRenderer<ShelterBlockEntity> {
     public ShelterRenderer(BlockEntityRendererProvider.Context context) {}
+    /**
+     * The personal leaf nest is a loose heap reaching past its cell; against a burrow wall it is pushed together on that side so
+     * no leaf pokes into the earth: along each axis with a solid neighbour the heap is squeezed (and shifted off the wall) to
+     * end at the cell face, like the pet bed's flattened roll.
+     */
+    private static void fitAgainstWalls(ShelterBlockEntity home,BlockPos bed,PoseStack pose){
+        var level=home.getLevel();if(level==null)return;
+        var bounds=PropModels.bounds("personal_leaf_nest",7);
+        double[] x=span(level,bed,Direction.WEST,Direction.EAST,bounds.minX,bounds.maxX),z=span(level,bed,Direction.NORTH,Direction.SOUTH,bounds.minZ,bounds.maxZ);
+        pose.translate(x[1],0,z[1]);pose.scale((float)x[0],1,(float)z[0]);
+    }
+    /** Scale and shift that bring [min, max] inside the cell face on each side whose neighbour has a collision shape. */
+    private static double[] span(Level level,BlockPos bed,Direction low,Direction high,double min,double max){
+        double lo=solid(level,bed.relative(low))?Math.max(min,-.5):min,hi=solid(level,bed.relative(high))?Math.min(max,.5):max;
+        double scale=(hi-lo)/(max-min);
+        return new double[]{scale,lo-scale*min};
+    }
+    private static boolean solid(Level level,BlockPos pos){return !level.getBlockState(pos).getCollisionShape(level,pos).isEmpty();}
     @Override public void render(ShelterBlockEntity home,float partial,PoseStack pose,MultiBufferSource buffers,int light,int overlay) {
         if(home.kind()==ShelterBlock.Kind.BURROW) {
             var shared=new HashSet<>(home.sharedBeds());
@@ -37,7 +57,7 @@ public final class ShelterRenderer implements BlockEntityRenderer<ShelterBlockEn
             for(var bed:home.privateBeds()) {
                 var offset=bed.subtract(home.getBlockPos());
                 int local=home.getLevel()==null?light:LevelRenderer.getLightColor(home.getLevel(),bed);
-                pose.pushPose();pose.translate(offset.getX()+.5,0,offset.getZ()+.5);
+                pose.pushPose();pose.translate(offset.getX()+.5,0,offset.getZ()+.5);fitAgainstWalls(home,bed,pose);
                 PropModels.renderLayers("personal_leaf_nest",7,pose,buffers,local,overlay);pose.popPose();
             }
             for(var project:home.nestConstructions()) {
@@ -45,7 +65,11 @@ public final class ShelterRenderer implements BlockEntityRenderer<ShelterBlockEn
                 int local=home.getLevel()==null?light:LevelRenderer.getLightColor(home.getLevel(),bed);
                 pose.pushPose();pose.translate(offset.getX()+.5,offset.getY(),offset.getZ()+.5);
                 if(project.work()<20)PropModels.render("bedding_bundle",0,pose,buffers,local,overlay);
-                else PropModels.renderLayers("personal_leaf_nest",project.work()<80?1:project.work()<100?3:7,pose,buffers,local,overlay);
+                else {
+                    pose.pushPose();fitAgainstWalls(home,bed,pose);
+                    PropModels.renderLayers("personal_leaf_nest",project.work()<80?1:project.work()<100?3:7,pose,buffers,local,overlay);
+                    pose.popPose();
+                }
                 if(project.portions()==2&&project.work()<80){pose.translate(.18,0,.12);PropModels.render("bedding_bundle",0,pose,buffers,local,overlay);}
                 pose.popPose();
             }

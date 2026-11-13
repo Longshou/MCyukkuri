@@ -7,7 +7,7 @@ import io.github.longshou.mcyukkuri.family.ParentCarry.Hold;
 import io.github.longshou.mcyukkuri.headwear.HatGeometry;
 import io.github.longshou.mcyukkuri.headwear.HullBounds;
 import io.github.longshou.mcyukkuri.life.NestDoorway;
-import io.github.longshou.mcyukkuri.life.NestResting;
+import io.github.longshou.mcyukkuri.life.PetNestBlock;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.interaction.ItemContact;
 import io.github.longshou.mcyukkuri.motor.ContactGeometry;
@@ -291,13 +291,13 @@ public final class Release implements Action, MotorOwner {
     /** A resident bringing a child to a one-body cushion leaves room for its ordinary step across the low lip. */
     private AABB cushionExit(YukkuriEntity carrier) {
         var cushion = NestDoorway.bed(carrier, nest);
-        if (cushion == null || cushion.bed() != NestResting.CUSHION
+        if (cushion == null || !(cushion.getBlockState().getBlock() instanceof PetNestBlock)
                 || !cushion.owns(carrier.getUUID()) || cushion.owns(child.getUUID())) return null;
         var door = NestDoorway.shape(cushion);
-        var centre = cushion.centre();
+        var origin = cushion.origin();
         double foot = Occupancy.foot(child.getBbWidth()), half = door.opening() + foot;
         double outer = door.outer() + carrier.getBbWidth() / 2 + foot;
-        return new AABB(centre.add(-half, -1, -door.side() * foot), centre.add(half, 1, door.side() * outer));
+        return new AABB(origin.add(door.offset(-half, -foot)).add(0, -1, 0), origin.add(door.offset(half, outer)).add(0, 1, 0));
     }
 
     /** Supported pad points of this nest for the child's own footprint, nearest her first. */

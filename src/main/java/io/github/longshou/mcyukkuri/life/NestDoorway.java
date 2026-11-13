@@ -6,6 +6,7 @@ import io.github.longshou.mcyukkuri.motor.surface.BedContainer;
 import io.github.longshou.mcyukkuri.motor.surface.Occupancy;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
@@ -23,8 +24,21 @@ import java.util.function.Predicate;
 /** Physical nest openings, independent of residency. Routes end outside; a straight step crosses the low lip. */
 public final class NestDoorway {
     private NestDoorway() {}
-    public record Doorway(double inner, double outer, double opening, int side) {}
-    private static final Map<Block, Doorway> SHAPES = new HashMap<>();
+    /**
+     * The opening in the nest's own frame, measured from {@link CareBlockEntity#origin()}: depth runs toward the entrance
+     * ({@code facing}), lateral along its edge. {@code inner}: where the level floor ends toward the entrance; {@code outer}:
+     * the shell's reach on the entrance side; {@code opening}: half width of the low lip; {@code reach}: the shell's widest
+     * reach on any side (a conservative square for route checks).
+     */
+    public record Doorway(Direction facing, double inner, double outer, double opening, double reach) {
+        public double lateral(Vec3 offset) { return -offset.x * facing.getStepZ() + offset.z * facing.getStepX(); }
+        public double depth(Vec3 offset) { return offset.x * facing.getStepX() + offset.z * facing.getStepZ(); }
+        /** World offset from the origin of a point {@code lateral} along the edge and {@code depth} toward the entrance. */
+        public Vec3 offset(double lateral, double depth) {
+            return new Vec3(-lateral * facing.getStepZ() + depth * facing.getStepX(), 0, lateral * facing.getStepX() + depth * facing.getStepZ());
+        }
+    }
+    private static final Map<BlockState, Doorway> SHAPES = new HashMap<>();
     private static final Predicate<BlockState> NEST = state -> state.getBlock() instanceof CareBlock care
             && care.kind() == CareBlock.Kind.NEST;
     // Keep the broad phase conservative around vanilla AABB.clip's 1e-7 face tolerance.
@@ -47,33 +61,39 @@ public final class NestDoorway {
                 && bed.bed() != NestResting.LEDGE ? bed : null;
     }
 
-    /** The opening follows the authored collision shell: low front versus high back, shoulders below half rim height. */
+    /** The opening follows the authored collision shell turned into the nest's frame (x lateral, z depth toward the entrance):
+     *  the low lip is where the rim beyond the level floor stays below half rim height on both sides of the middle. */
     public static Doorway shape(CareBlockEntity bed) {
-        return SHAPES.computeIfAbsent(bed.getBlockState().getBlock(), block -> {
-            var centre = bed.centre();
+        return SHAPES.computeIfAbsent(bed.getBlockState(), state -> {
+            var origin = bed.origin();
+            var frame = new Doorway(bed.entrance(), 0, 0, 0, 0);
             var boxes = new ArrayList<AABB>();
+            double reach = 0;
             for (int part = 0; part < (bed.largeNest() ? 4 : 1); part++) {
                 var at = bed.getBlockPos().offset(part & 1, 0, part >> 1);
-                for (var box : bed.getLevel().getBlockState(at).getCollisionShape(bed.getLevel(), at).toAabbs())
-                    boxes.add(box.move(at.getX() - centre.x, -centre.y + at.getY(), at.getZ() - centre.z));
+                for (var box : bed.getLevel().getBlockState(at).getCollisionShape(bed.getLevel(), at).toAabbs()) {
+                    var a = new Vec3(box.minX + at.getX() - origin.x, 0, box.minZ + at.getZ() - origin.z);
+                    var b = new Vec3(box.maxX + at.getX() - origin.x, 0, box.maxZ + at.getZ() - origin.z);
+                    double l0 = frame.lateral(a), l1 = frame.lateral(b), d0 = frame.depth(a), d1 = frame.depth(b);
+                    boxes.add(new AABB(Math.min(l0, l1), box.minY + at.getY() - origin.y, Math.min(d0, d1),
+                            Math.max(l0, l1), box.maxY + at.getY() - origin.y, Math.max(d0, d1)));
+                    reach = Math.max(reach, Math.max(Math.max(-a.x, b.x), Math.max(-a.z, b.z)));
+                }
             }
-            double inner = bed.bed().box(), outer = boxes.stream().mapToDouble(b -> b.maxZ).max().orElseThrow();
-            double north = crest(boxes, 0, inner, -1), south = crest(boxes, 0, inner, 1);
-            int side = north < south ? -1 : 1;
+            double inner = bed.entranceReach(), outer = boxes.stream().mapToDouble(b -> b.maxZ).max().orElseThrow();
             double top = boxes.stream().mapToDouble(b -> b.maxY).max().orElseThrow();
             double threshold = (height(boxes, 0, 0) + top) * .5, opening = 0;
             // The authored meshes use at least quarter-pixel collision cells. Sample the whole rim, not just its inside lip.
             for (double x = 0; x < inner; x += 1.0 / 64) {
-                if (crest(boxes, x, inner, side) > threshold) break;
+                if (crest(boxes, x, inner) > threshold || crest(boxes, -x, inner) > threshold) break;
                 opening = x;
             }
-            return new Doorway(inner, outer, opening, side);
+            return new Doorway(frame.facing(), inner, outer, opening, reach);
         });
     }
 
-    private static double crest(List<AABB> boxes, double x, double inner, int side) {
-        return boxes.stream().filter(b -> b.minX <= x && b.maxX >= x
-                && (side > 0 ? b.maxZ >= inner : b.minZ <= -inner)).mapToDouble(b -> b.maxY).max().orElse(0);
+    private static double crest(List<AABB> boxes, double x, double inner) {
+        return boxes.stream().filter(b -> b.minX <= x && b.maxX >= x && b.maxZ >= inner).mapToDouble(b -> b.maxY).max().orElse(0);
     }
 
     private static double height(List<AABB> boxes, double x, double z) {
@@ -103,18 +123,19 @@ public final class NestDoorway {
                 BlockPos.containing(area.maxX, area.maxY, area.maxZ))) {
             var bed = bed(actor, pos);
             if (bed == null || bed == interior) continue;
-            var centre = bed.centre();
-            double outer = shape(bed).outer() + radius;
-            if (point.y >= centre.y - 1 && point.y < centre.y + 1
-                    && Math.abs(point.x - centre.x) < outer && Math.abs(point.z - centre.z) < outer) return bed;
+            var origin = bed.origin();
+            double outer = shape(bed).reach() + radius;
+            if (point.y >= origin.y - 1 && point.y < origin.y + 1
+                    && Math.abs(point.x - origin.x) < outer && Math.abs(point.z - origin.z) < outer) return bed;
         }
         return null;
     }
 
     private static boolean opening(YukkuriEntity actor, CareBlockEntity bed, Vec3 point) {
-        var d=shape(bed);var p=point.subtract(bed.centre());
-        return Math.abs(p.x)+passFoot(actor)<=d.opening()+SurfaceApproach.ARRIVAL
-                &&p.z*d.side()>0&&p.z*d.side()<=d.outer()+actor.getBbWidth()*.5+.05+SurfaceApproach.ARRIVAL;
+        var d=shape(bed);var p=point.subtract(bed.origin());
+        double depth=d.depth(p);
+        return Math.abs(d.lateral(p))+passFoot(actor)<=d.opening()+SurfaceApproach.ARRIVAL
+                &&depth>0&&depth<=d.outer()+actor.getBbWidth()*.5+.05+SurfaceApproach.ARRIVAL;
     }
 
     /** The low-lip segment is outside the pad: finish walking it out to the stand before following a route. */
@@ -160,8 +181,8 @@ public final class NestDoorway {
 
     private static boolean blocksLine(YukkuriEntity actor, CareBlockEntity bed, Vec3 from, Vec3 to, double foot) {
         if (bed == null) return false;
-        var c = bed.centre();
-        double r = shape(bed).outer() + foot;
+        var c = bed.origin();
+        double r = shape(bed).reach() + foot;
         double minX = c.x - r, maxX = c.x + r, minY = c.y - 1, maxY = c.y + 1, minZ = c.z - r, maxZ = c.z + r;
         if (Math.max(from.x, to.x) < minX - CLIP_PADDING || Math.min(from.x, to.x) > maxX + CLIP_PADDING
                 || Math.max(from.y, to.y) < minY - CLIP_PADDING || Math.min(from.y, to.y) > maxY + CLIP_PADDING
@@ -195,7 +216,7 @@ public final class NestDoorway {
                 driven=was?!inside(actor,bed,drive):inside(actor,bed,drive)||inside(actor,bed,from.lerp(drive,t));
             }
             GameplayLog.event(actor, "home", "bed crossing nest={} direction={} side={} opening={} source={} from={} at={} drive={}", bed.getBlockPos(),
-                    now ? "in" : "out", door.side() < 0 ? "north" : "south", opening, driven?"walk":"physics",
+                    now ? "in" : "out", door.facing().getName(), opening, driven?"walk":"physics",
                     GameplayLog.at(from), GameplayLog.at(to), drive==null?"none":GameplayLog.at(drive));
         }
     }
@@ -203,9 +224,10 @@ public final class NestDoorway {
     /** The footprint that has to pass the opening (a full-term belly squeezes through). */
     private static double passFoot(YukkuriEntity actor) { return Occupancy.foot(LiveBirthGeometry.passWidth(actor)); }
 
-    /** Align inside the hollow before the one straight crossing. */
+    /** Align inside the hollow before the one straight crossing: level with the stand across the opening, at the origin's depth. */
     public static Vec3 inner(YukkuriEntity actor, CareBlockEntity bed, Vec3 stand) {
-        return SurfaceApproach.surface(actor,new Vec3(stand.x,bed.centre().y,bed.centre().z));
+        var d = shape(bed); var origin = bed.origin();
+        return SurfaceApproach.surface(actor,origin.add(d.offset(d.lateral(stand.subtract(origin)),0)));
     }
 
     /** The closest body-sized point outside the actual opening, with no occupant or ownership reservation. */
@@ -220,10 +242,10 @@ public final class NestDoorway {
                     bed.getBlockPos(), shape.opening(), passFoot(actor), actor.getBbWidth());
             return null;
         }
-        var centre = bed.centre();
-        double preferred = Math.clamp(destination.x - centre.x, -room, room);
+        var origin = bed.origin();
+        double preferred = Math.clamp(shape.lateral(destination.subtract(origin)), -room, room);
         for (double x : new double[]{preferred, -room, room, 0}) {
-            var at = SurfaceApproach.restingFloor(actor, centre.add(x, 0, shape.side() * (shape.outer() + actor.getBbWidth() * .5 + .05)));
+            var at = SurfaceApproach.restingFloor(actor, origin.add(shape.offset(x, shape.outer() + actor.getBbWidth() * .5 + .05)));
             if (at != null) return at;
         }
         return null;

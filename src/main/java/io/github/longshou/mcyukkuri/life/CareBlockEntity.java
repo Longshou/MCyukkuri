@@ -11,6 +11,7 @@ import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.motor.surface.BedContainer;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -46,10 +47,26 @@ public final class CareBlockEntity extends BlockEntity implements Container {
     public boolean owns(UUID id){return residents.containsKey(id);}
     public List<UUID> residentIds(){return List.copyOf(residents.keySet());}
     public boolean largeNest(){return ((CareBlock)getBlockState().getBlock()).style().startsWith("large_");}
-    /** Ground centre of the bed: this block's centre, or for a 2x2 nest the shared corner of its four cells. */
-    public Vec3 centre(){return largeNest()?Vec3.atLowerCornerOf(worldPosition).add(1,0,1):Vec3.atBottomCenterOf(worldPosition);}
-    /** The level floor and visible hollow that resting bodies must fit (sizes in NestResting). */
-    public NestResting.Bed bed(){return largeNest()?NestResting.LARGE:getBlockState().is(ModBlocks.PREDATOR_NEST.get())?NestResting.LEDGE:NestResting.CUSHION;}
+    /** Ground origin of the bed's shape: this block's centre, or for a 2x2 nest the shared corner of its four cells. The
+     *  doorway is measured from here. */
+    public Vec3 origin(){return largeNest()?Vec3.atLowerCornerOf(worldPosition).add(1,0,1):Vec3.atBottomCenterOf(worldPosition);}
+    /** Ground centre of the resting floor: the origin, moved off the sides a pet bed has flattened against blocks. */
+    public Vec3 centre(){return getBlockState().getBlock() instanceof PetNestBlock?origin().add(PetNestBlock.fit(getBlockState()).offset()):origin();}
+    /** The level floor and visible hollow that resting bodies must fit (sizes in NestResting), around {@link #centre()}. */
+    public NestResting.Bed bed(){
+        if(getBlockState().getBlock() instanceof PetNestBlock)return PetNestBlock.fit(getBlockState()).bed();
+        return largeNest()?NestResting.LARGE:NestResting.LEDGE;
+    }
+    /** The side the entrance (the low lip) faces; the predator's ledge has none and reports north. */
+    public Direction entrance(){
+        var state=getBlockState();
+        return state.getBlock() instanceof PetNestBlock?state.getValue(PetNestBlock.FACING)
+                :state.getBlock() instanceof LargeNestBlock?state.getValue(LargeNestBlock.FACING):Direction.NORTH;
+    }
+    /** How far the level floor reaches from the origin toward the entrance (the doorway's inner edge). */
+    public double entranceReach(){return getBlockState().getBlock() instanceof PetNestBlock?PetNestBlock.entranceReach(getBlockState()):bed().box();}
+    /** Bed grade (CareBlock.grade): 1 straw or wild, 2 cushion or woven, 3 velvet; 0 for other facilities. */
+    public int grade(){return ((CareBlock)getBlockState().getBlock()).grade();}
     public boolean canClaim(YukkuriEntity entity){
         if(kind()!=CareBlock.Kind.NEST||!entity.moldExile().allowsAddress(worldPosition))return false;
         var current=new LinkedHashMap<UUID,Integer>();

@@ -251,12 +251,20 @@ public final class PropModels {
     private static void renderPiece(String name,int units,PoseStack pose,MultiBufferSource buffers,int light,int overlay,int side){
         renderPiece(name,units,pose,buffers,light,overlay,side,-1);
     }
+    /** A geometry-only prop drawn with another prop's texture (the fitted pet-bed shapes take the placed bed's look). */
+    public static void renderAs(String name,String look,PoseStack pose,MultiBufferSource buffers,int light,int overlay){
+        renderPiece(name,Integer.MAX_VALUE,pose,buffers,light,overlay,0,-1,MCYukkuri.id("textures/props/"+look+".png"));
+    }
     private static void renderPiece(String name,int units,PoseStack pose,MultiBufferSource buffers,int light,int overlay,int side,int layers){
+        renderPiece(name,units,pose,buffers,light,overlay,side,layers,null);
+    }
+    private static void renderPiece(String name,int units,PoseStack pose,MultiBufferSource buffers,int light,int overlay,int side,int layers,ResourceLocation look){
         Model model=models.get(name);if(model==null)throw new IllegalStateException("Missing prop: "+name);
         var transform=pose.last();var v=model.vertices;
         for(var part:model.parts){
             if(part.unit>units || part.unit>0 && (layers & (1 << (part.unit-1)))==0)continue;
-            var consumer=buffers.getBuffer(part.translucent?RenderType.entityTranslucent(part.texture):RenderType.entityCutoutNoCull(part.texture));
+            var texture=look!=null?look:part.texture;
+            var consumer=buffers.getBuffer(part.translucent?RenderType.entityTranslucent(texture):RenderType.entityCutoutNoCull(texture));
             for(int first=part.start;first<part.start+part.count;first+=3){
                 if(side!=0){
                     float center=(v[first*8]+v[(first+1)*8]+v[(first+2)*8])/3;

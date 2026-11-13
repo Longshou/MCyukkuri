@@ -113,7 +113,9 @@ public final class ModItems {
     public static final DeferredItem<BlockItem> FOOD_BOWL = ITEMS.registerSimpleBlockItem("food_bowl", ModBlocks.FOOD_BOWL);
     public static final DeferredItem<BlockItem> LARGE_NEST=ITEMS.registerSimpleBlockItem("large_yukkuri_nest",ModBlocks.LARGE_NEST);
     public static final DeferredItem<BlockItem> LARGE_WILD_NEST=ITEMS.registerSimpleBlockItem("large_wild_nest",ModBlocks.LARGE_WILD_NEST);
+    public static final DeferredItem<BlockItem> STRAW_NEST = ITEMS.registerSimpleBlockItem("straw_nest", ModBlocks.STRAW_NEST);
     public static final DeferredItem<BlockItem> NEST = ITEMS.registerSimpleBlockItem("yukkuri_nest", ModBlocks.NEST);
+    public static final DeferredItem<BlockItem> VELVET_NEST = ITEMS.registerSimpleBlockItem("velvet_nest", ModBlocks.VELVET_NEST);
     public static final DeferredItem<BlockItem> TOILET = ITEMS.registerSimpleBlockItem("yukkuri_toilet", ModBlocks.TOILET);
     public static final DeferredItem<BlockItem> GARBAGE_BIN=ITEMS.registerSimpleBlockItem("garbage_bin",ModBlocks.GARBAGE_BIN);
     public static final DeferredItem<BlockItem> FORAGE_PILE=ITEMS.registerSimpleBlockItem("forage_pile",ModBlocks.FORAGE_PILE);

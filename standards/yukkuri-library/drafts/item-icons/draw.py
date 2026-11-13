@@ -58,6 +58,8 @@ ANKO = ['#2e1a10', '#4a2c1b', '#6a4129', '#8a5a3a', '#ad7d57']        # bean-pas
 WHITE = ['#8e95a3', '#b8bfcc', '#dde2ea', '#eff2f6', '#ffffff']        # glazed ceramic (placed.py WHITE)
 MARBLE = ['#2f5a86', '#5f8fbf', '#9cc3e4', '#cfe5f6', '#ffffff']       # marble glass, deeper than the bottle glass
 BERRY = ['#5e1424', '#932338', '#c23d52', '#e46d7b', '#fba3aa']        # nest cushion (strawberry)
+WINE = ['#3a0d1f', '#5c1530', '#7e2042', '#a23458', '#c7577a']         # velvet nest roll (placed.py WINE)
+GOLDC = ['#6b4a12', '#9c7220', '#c99a32', '#e8c25a', '#f8e49a']        # velvet nest cord and buttons (placed.py GOLD)
 NAVYW = ['#273f5c', '#3d5f86', '#5a83ad', '#86abcf', '#b8d2ea']        # fine (blue) carrier wicker
 SAGEW = ['#2b4a33', '#41704b', '#5f9467', '#8bb98d', '#bfe0bd']        # large (green) carrier wicker
 DARKWOOD = ['#2b1d10', '#4a3219', '#6a4826', '#8c6336', '#ad8250']     # crate shelter
@@ -549,6 +551,58 @@ def yukkuri_nest():
     return i
 
 
+def straw_nest():
+    """Grade-1 straw nest: the same low wide bed as the cushion, a dull coiled-straw roll with dark binding wraps round a pad
+    of loose hay strands (no fabric, no piping)."""
+    i = Icon('straw_nest')
+    i.rows(legend(o=(STRAW, 0), H=(STRAW, 4), h=(STRAW, 3), m=(STRAW, 2), s=(STRAW, 1),
+                  c=(SAND, 0), p=(SAND, 2), P=(SAND, 1), q=(SAND, 0), w=(SAND, 3)), [
+        "................",
+        "................",
+        "................",
+        "................",
+        "...oooooooooo...",
+        ".ooHhHsHhhshmoo.",
+        "oHhsmmhmmsmmmsso",
+        "oHmoqqqqqqqqomso",
+        "ohmcpwPppwPpcmso",
+        "osmcPppwpPpwcsso",
+        "ohmocpwPpPqcomso",
+        "ohsmocccccccmsso",
+        ".ohmsmo..omsmso.",
+        "..oohmoooomsoo..",
+        "....ooossssoo...",
+        "......oooo......",
+    ])
+    return i
+
+
+def velvet_nest():
+    """Grade-3 velvet nest: the same bed in deep wine velvet with a gold cord along the top of the roll and a white lace frill at
+    its foot, round an ivory satin pad with gold buttons."""
+    i = Icon('velvet_nest')
+    i.rows(legend(o=(WINE, 0), H=(WINE, 4), h=(WINE, 3), m=(WINE, 2), s=(WINE, 1), g=(GOLDC, 3), G=(GOLDC, 1),
+                  c=(PAPER, 1), p=(PAPER, 3), P=(PAPER, 2), b=(GOLDC, 3), l=(PAPER, 4), L=(PAPER, 2)), [
+        "................",
+        "................",
+        "................",
+        "................",
+        "...oooooooooo...",
+        ".ooggggggggggoo.",
+        "oHhhmmmmmmmmmsso",
+        "oHmocccccccccmso",
+        "ohmcPpbpppbpcmso",
+        "ohmcPpppbpppcsso",
+        "ohmocPbppPbcomso",
+        "ohhmocccccccmsso",
+        ".ohmmmo..ommsso.",
+        "..lLlhmooomslLl.",
+        "...LlLlsssLlLl..",
+        "......oooo......",
+    ])
+    return i
+
+
 def large_yukkuri_nest():
     """2x2 woven nest: a wide, deep basket of natural wicker (weave on the rim and the front wall) round a red cushion."""
     i = Icon('large_yukkuri_nest')
@@ -888,7 +942,8 @@ ICONS = {
     'marisa_doll': marisa_doll,
     'ceramic_tunnel': ceramic_tunnel, 'yukkuri_slide': yukkuri_slide, 'yukkuri_trampoline': yukkuri_trampoline,
     'yukkuri_pool': yukkuri_pool,
-    'food_bowl': food_bowl, 'yukkuri_nest': yukkuri_nest, 'large_yukkuri_nest': large_yukkuri_nest,
+    'food_bowl': food_bowl, 'straw_nest': straw_nest, 'yukkuri_nest': yukkuri_nest, 'velvet_nest': velvet_nest,
+    'large_yukkuri_nest': large_yukkuri_nest,
     'large_wild_nest': large_wild_nest, 'predator_nest': predator_nest, 'yukkuri_toilet': yukkuri_toilet,
     'cardboard_shelter': cardboard_shelter, 'crate_shelter': crate_shelter, 'forage_pile': forage_pile,
     'yukkuri_carrier': yukkuri_carrier, 'yukkuri_carrier_fine': yukkuri_carrier_fine,

@@ -49,11 +49,6 @@ public class CareBlock extends Block implements EntityBlock {
     private final int capacity;
     private final float height;
     private static final JsonObject AUTHORED = readCollision();
-    private static final VoxelShape NEST_SHAPE = authoredShape("yukkuri_nest", 8);
-    private static final double NEST_TOP = authoredTop("yukkuri_nest");
-    /** How far the cushion nest's bolster reaches past its block on every side (placed.py NEST_ROLL outer radius 13.3, its
-     *  collision cells to 13.5). */
-    private static final double NEST_OVERHANG = 5.5 / 16;
     /** Collision shells generated from the visible pet nests (drafts/care-props/placed.py collision()). */
     private static JsonObject readCollision() {
         try (var stream = CareBlock.class.getResourceAsStream("/assets/mcyukkuri/yukkuri_presentation/care_collision.json")) {
@@ -77,46 +72,44 @@ public class CareBlock extends Block implements EntityBlock {
         }
         return shapes.isEmpty() ? Shapes.empty() : shapes.getFirst().optimize();
     }
+    /** {@code shape} turned {@code turns} clockwise quarter turns (seen from above: north to east) about the plane point
+     *  ({@code cx}, {@code cz}) in blocks; the authored nests face their entrance one way and the block turns them. */
+    static VoxelShape turn(VoxelShape shape, double cx, double cz, int turns) {
+        VoxelShape out = Shapes.empty();
+        for (var b : shape.toAabbs()) {
+            double x0 = b.minX - cx, z0 = b.minZ - cz, x1 = b.maxX - cx, z1 = b.maxZ - cz;
+            for (int k = 0; k < (turns & 3); k++) { double nx0 = -z1, nx1 = -z0; z0 = x0; z1 = x1; x0 = nx0; x1 = nx1; }
+            out = Shapes.or(out, Shapes.box(cx + x0, b.minY, cz + z0, cx + x1, b.maxY, cz + z1));
+        }
+        return out.optimize();
+    }
+    /** Clockwise quarter turns from the authored entrance side to {@code facing}. */
+    static int turns(Direction authored, Direction facing) { return (facing.get2DDataValue() - authored.get2DDataValue()) & 3; }
     public CareBlock(Kind kind, Properties properties) { this(kind,properties,"",8,0); }
     public CareBlock(Kind kind, Properties properties,String style,int capacity,float height) { super(properties);this.kind=kind;this.style=style;this.capacity=capacity;this.height=height; }
     public Kind kind() { return kind; }
     public String style(){return style;}
     public int capacity(){return capacity;}
+    /** Bed grade (1 straw, 2 cushion or woven, 3 velvet; docs/FEATURES.md); 0 for the facilities that are no graded bed. */
+    public int grade(){return 0;}
     @Override public BlockEntity newBlockEntity(BlockPos pos, BlockState state) { return new CareBlockEntity(pos, state); }
     /** The cell holding this facility's block entity (a 2x2 nest's helper cells answer for their owner). */
     protected BlockPos owner(BlockState state, BlockPos pos) { return pos; }
-    /** The pet cushion nest's bolster overhangs its block: it is only placed where the four side cells hold nothing solid,
-     *  so the soft roll never draws into a wall, another nest or another block (blocks set beside it later are the player's choice). */
-    @Override public BlockState getStateForPlacement(BlockPlaceContext context) {
-        if (kind != Kind.NEST || height > 0) return super.getStateForPlacement(context);
-        var level = context.getLevel(); var pos = context.getClickedPos();
-        for (Direction side : Direction.Plane.HORIZONTAL) {
-            var next = pos.relative(side);
-            var shape = level.getBlockState(next).getCollisionShape(level, next);
-            if (!shape.isEmpty() && (side.getAxisDirection() == Direction.AxisDirection.POSITIVE
-                    ? shape.min(side.getAxis()) < NEST_OVERHANG : shape.max(side.getAxis()) > 1 - NEST_OVERHANG)) {
-                if (level.isClientSide && context.getPlayer() != null)
-                    context.getPlayer().displayClientMessage(Component.literal("软垫窝的软卷会伸出本格约 5.5 像素：四周侧边须留空"), true);
-                return null;
-            }
-        }
-        return super.getStateForPlacement(context);
-    }
     @Override protected boolean isPathfindable(BlockState state, PathComputationType type) {
         // A toilet is a low step with a standing surface, not an open cell at ground height.
         return kind != Kind.TOILET && super.isPathfindable(state, type);
     }
     @Override protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
-        if(height>0)return box(0,0,0,16,height,16);
         return switch(kind){
             case BOWL -> box(.92,0,1.5572,15.08,2.22,14.4428);
-            case NEST -> box(-5.5,0,-5.5,21.5,NEST_TOP,21.5);
+            // The predator's twig ledge; the pet beds (PetNestBlock) and 2x2 nests (LargeNestBlock) have their own shapes.
+            case NEST -> box(0,0,0,16,height,16);
             // The pet sand tray (placed.py, 14.4 x 12) seats adults up to 1.2x.
             case TOILET -> box(.77,0,2.21,15.23,2.35,13.79);
         };
     }
     @Override protected VoxelShape getCollisionShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
-        return kind == Kind.NEST && height == 0 ? NEST_SHAPE : getShape(state,level,pos,context);
+        return getShape(state,level,pos,context);
     }
     @Override protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos,
             Player player, InteractionHand hand, BlockHitResult hit) {
@@ -163,7 +156,8 @@ public class CareBlock extends Block implements EntityBlock {
                 player.openMenu(new SimpleMenuProvider((id, inventory, owner) ->
                         new ChestMenu(MenuType.GENERIC_9x1, id, inventory, care, 1), Component.translatable("block.mcyukkuri.food_bowl")));
             } else if (kind == Kind.NEST) {
-                player.displayClientMessage(Component.literal((care.largeNest()?"大窝（成/亚成 2＋赤 4，子 2 单独） ":"普通窝（赤 4／子 2／成或亚成 1） ")+care.occupancy()), true);
+                player.displayClientMessage(Component.literal((care.largeNest()?"大窝（成/亚成 2＋赤 4，子 2 单独）":"普通窝（赤 4／子 2／成或亚成 1）")
+                        +(grade()>0?" "+grade()+" 档 ":" ")+care.occupancy()), true);
             } else {
                 player.displayClientMessage(Component.translatable("care.mcyukkuri.toilet.level", care.waste(), care.capacity()), true);
             }

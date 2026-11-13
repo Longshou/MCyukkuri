@@ -23,6 +23,7 @@ import java.util.WeakHashMap;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.pathfinder.Path;
+import net.minecraft.core.Direction;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
 import net.minecraft.util.Mth;
@@ -315,8 +316,15 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
                     var bed=NestDoorway.at(actor,actor.position());
                     if(bed==null)bed=NestDoorway.doorstep(actor);
                     var door=bed==null?null:NestDoorway.stand(actor,bed);
-                    if(door!=null)return getStartNode(new BlockPos(Mth.floor(door.x-entityWidth*.5+.5),Mth.floor(door.y+.5),
-                            NestDoorway.shape(bed).side()>0?Mth.ceil(door.z-entityDepth*.5):Mth.floor(door.z-entityDepth*.5)));
+                    if(door!=null){
+                        // The node on the stand's side of the opening: rounded outward along the entrance axis.
+                        var out=NestDoorway.shape(bed).facing();
+                        int x=out.getAxis()==Direction.Axis.X?(out.getStepX()>0?Mth.ceil(door.x-entityWidth*.5):Mth.floor(door.x-entityWidth*.5))
+                                :Mth.floor(door.x-entityWidth*.5+.5);
+                        int z=out.getAxis()==Direction.Axis.Z?(out.getStepZ()>0?Mth.ceil(door.z-entityDepth*.5):Mth.floor(door.z-entityDepth*.5))
+                                :Mth.floor(door.z-entityDepth*.5+.5);
+                        return getStartNode(new BlockPos(x,Mth.floor(door.y+.5),z));
+                    }
                 }
                 var start=super.getStart();
                 if(!forceSearch||!(mob instanceof YukkuriEntity animal)||!animal.onGround())return start;

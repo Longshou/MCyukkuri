@@ -124,7 +124,7 @@ def rest(nest, x, z, scale):
     """Height a body of this scale rests at in a nest: the highest authored collision box under its footprint (12.8 wide
     at scale 1), as the game's own collision would place it."""
     h = 12.8 * scale / 2 - .08
-    return max((b[4] for b in COLLISION[nest]['boxes'] if b[0] < x + h and b[2] > x - h and b[1] < z + h and b[3] > z - h), default=0.0)
+    return max((b[4] for b in COLLISION['pet_nest_0' if nest == 'yukkuri_nest' else nest]['boxes'] if b[0] < x + h and b[2] > x - h and b[1] < z + h and b[3] > z - h), default=0.0)
 
 
 def sit(who, nest, x, z, scale, yaw):

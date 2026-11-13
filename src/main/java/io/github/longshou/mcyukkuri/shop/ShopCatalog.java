@@ -34,7 +34,10 @@ public final class ShopCatalog {
         good("carrier", 1, () -> new ItemStack(ModItems.CARRIER.get()), 3, 3, 1, 0),
         good("wash_cloth", 1, () -> new ItemStack(ModItems.WASH_CLOTH.get()), 2, 4, 2, 0),
         good("food_bowl", 1, () -> new ItemStack(ModItems.FOOD_BOWL.get()), 3, 4, 2, 0),
+        // The three bed grades (docs/FEATURES.md): straw for every purse, the cushion, the velvet bed for a bronze-badged keeper.
+        good("straw_nest", 1, () -> new ItemStack(ModItems.STRAW_NEST.get()), 2, 4, 2, 0),
         good("yukkuri_nest", 1, () -> new ItemStack(ModItems.NEST.get()), 4, 4, 2, 0),
+        good("velvet_nest", 1, () -> new ItemStack(ModItems.VELVET_NEST.get()), 9, 2, 1, 1),
         good("yukkuri_toilet", 1, () -> new ItemStack(ModItems.TOILET.get()), 3, 4, 2, 0),
         good("mold_remover", 1, () -> new ItemStack(ModItems.MOLD_REMOVER.get()), 3, 4, 2, 0),
         good("yarn_ball", 2, () -> new ItemStack(ModItems.TOY.get()), 2, 4, 2, 0),

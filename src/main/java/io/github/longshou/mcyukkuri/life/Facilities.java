@@ -51,9 +51,9 @@ public final class Facilities {
     }
     private static boolean occupiesFloorCell(BlockState state) { return state.getBlock() instanceof CareBlock || state.is(BlockTags.WOOL_CARPETS); }
     public static float roughness(BlockState floor) {
-        if(floor.is(ModBlocks.NEST.get())||floor.is(BlockTags.WOOL_CARPETS))return 0;
+        if(floor.getBlock() instanceof PetNestBlock||floor.is(BlockTags.WOOL_CARPETS))return 0;
         return floor.is(BlockTags.DIRT)?.4f:1;
     }
-    public static float landing(BlockState floor) { return floor.is(ModBlocks.NEST.get())||floor.is(BlockTags.WOOL_CARPETS)?.5f:1; }
+    public static float landing(BlockState floor) { return floor.getBlock() instanceof PetNestBlock||floor.is(BlockTags.WOOL_CARPETS)?.5f:1; }
     private Facilities() {}
 }

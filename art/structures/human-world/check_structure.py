@@ -330,7 +330,7 @@ def check_site(b, door=None, region=None):
 def stock_nest_clearance(b):
     """A stock body's feet must clear the cushion rolls extending beyond their own block."""
     path = Path(__file__).resolve().parents[3] / 'src/main/resources/assets/mcyukkuri/yukkuri_presentation/care_collision.json'
-    rolls = json.loads(path.read_text(encoding='utf-8'))['yukkuri_nest']['boxes']
+    rolls = json.loads(path.read_text(encoding='utf-8'))['pet_nest_0']['boxes']
     nests = [(x + .5, y, z + .5) for (x, y, z), (name, _, _) in b.blocks.items() if name == 'mcyukkuri:yukkuri_nest']
     errors = []
     for ent in b.entities:

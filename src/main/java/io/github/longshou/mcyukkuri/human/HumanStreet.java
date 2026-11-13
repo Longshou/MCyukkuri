@@ -5,6 +5,7 @@ import io.github.longshou.mcyukkuri.entity.YukkuriComponents;
 import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.family.FamilyNest;
 import io.github.longshou.mcyukkuri.life.Facilities;
+import io.github.longshou.mcyukkuri.life.PetNestBlock;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.pet.BadgeGrade;
 import io.github.longshou.mcyukkuri.pet.social.BadgeSocial;
@@ -178,7 +179,7 @@ final class HumanStreet {
         if (!keepBite && (y.life().mealTicks() > 0 || !y.component(YukkuriComponents.MOUTH).freeForExternalWork())
                 || y.getHealth() < y.getMaxHealth() || y.body().toxin() > 0 || y.body().mold() > 0
                 || !y.body().wounds().isEmpty() || y.body().footBurned() || y.status().marks().dirt() > 0
-                || FamilyNest.atAssignedNest(y) || FamilyNest.rimNest(y) != null || Facilities.floor(y).is(ModBlocks.NEST.get())
+                || FamilyNest.atAssignedNest(y) || FamilyNest.rimNest(y) != null || Facilities.floor(y).getBlock() instanceof PetNestBlock
                 || ShelterBlock.shelter(y.level(), BlockPos.containing(y.position().add(0, .125, 0))) != null
                 || !SurfaceApproach.supportedGround(y, y.position())) return false;
         return !Custody.protectedAnimal(y) && Custody.harmRefusal(null, y, exposure) == null

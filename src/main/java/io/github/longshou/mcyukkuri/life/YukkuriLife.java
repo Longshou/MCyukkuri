@@ -257,7 +257,16 @@ public final class YukkuriLife {
     }
     void leaked() { releaseWaste();hygiene=Math.max(0,hygiene-15); }
     /** No sleep bookkeeping outlives a sleep: the next one starts from the enter clip with no wake tick. */
-    private void resetSleep() { sleepTicks = 0; wakeAt = 0; wakeCause = null; }
+    private void resetSleep() { sleepTicks = 0; wakeAt = 0; wakeCause = null; bedRead = null; }
+    /** The graded bed it is sleeping in, read from its own values (NestComfort) each time the sleep checks it lies inside; null
+     *  when it is not asleep in its own graded bed. Not saved: a reloaded sleep reads its bed again at the next check. */
+    private NestComfort.Read bedRead;
+    public NestComfort.Read bedRead() { return bedRead; }
+    /** The last time it looked over its own bed on lying down, and whether it refused it then (NestComfort.settle). Not saved. */
+    private record BedLook(long tick, boolean refused) {}
+    private BedLook bedLook;
+    /** A look this recent is not repeated when it lies down again (woken and back, a nap after the night). */
+    private static final int BED_LOOK_MEMORY = 6000;
     /** The sleep ends at this very tick because something real ended it; [sleep] end names it. */
     private void wakeNow(String cause) { wakeAt = sleepTicks; wakeCause = cause; }
     void beginConsumption() { resetSleep();task=Task.NONE; }
@@ -878,10 +887,28 @@ public final class YukkuriLife {
             // A slave in the open pit curls up where it stands at rest time: dry ground is all the pit has to offer.
             boolean penSleep = penned && dryStand(entity.blockPosition()) && !level().isRainingAt(entity.blockPosition());
             boolean restShort = bedRefused && SurfaceApproach.supportedGround(entity, entity.position()) && !level().isRainingAt(entity.blockPosition());
+            if (targetBlock != null && !dependentAtHome && settleIntoBed()) return false;
             if (targetBlock != null || energy <= 10 || penSleep || restShort || entity.family().needsMash() && entity.childhood().landed()
                     && dryStand(entity.blockPosition()) && restable(entity.blockPosition())) { task = Task.SLEEP; resetSleep(); return true; }
         }
         return false;
+    }
+    /**
+     * Lying down in its own graded bed it first looks it over (NestComfort.settle): true while that reaction plays or after it
+     * refused the bed, so it stays up for now (restWait); the next look after a refusal gives in. A recent look is not repeated.
+     */
+    private boolean settleIntoBed() {
+        var bed = FamilyNest.care(entity);
+        if (bed == null || !bed.getBlockPos().equals(targetBlock) || bed.grade() == 0) return false;
+        long now = level().getGameTime();
+        boolean recent = bedLook != null && now - bedLook.tick() < BED_LOOK_MEMORY;
+        if (recent && !bedLook.refused()) return false;
+        var look = NestComfort.settle(entity, bed, recent, energy, entity.pet().lessons().practicing(PetSkill.BEDTIME));
+        bedLook = new BedLook(now, look.refused());
+        if (look.delay() == 0) return false;
+        restWait = look.delay();
+        targetBlock = null;
+        return true;
     }
     /** Unmet needs are not prohibitions on food: only an executable higher-priority plan takes over. */
     private boolean planWinterPriority() {
@@ -1113,6 +1140,10 @@ public final class YukkuriLife {
                             "sleep stopped reason=nest_not_inside nest={} occupancy={} ticks={}", site, nestOccupancy, sleepTicks);
                     stopGoal(); break;
                 }
+                if (nestOccupancy != null) {
+                    var bed = FamilyNest.care(entity);
+                    bedRead = bed != null && bed.getBlockPos().equals(site) && bed.grade() > 0 ? NestComfort.read(entity, bed.grade()) : null;
+                }
                 if (sleepTicks == 20) {
                     entity.speak("sleep");
                     GameplayLog.event(entity,"sleep","begin source=life occupancy={} bed={} energy={} nutrition={} drugTicks={} reason={}",
@@ -1129,7 +1160,7 @@ public final class YukkuriLife {
                         } else entity.pet().lessons().performed(PetSkill.BEDTIME, false);
                     }
                 }
-                if (sleepTicks >= 20 && wakeAt == 0) energy = Math.min(100, energy + .5f);
+                if (sleepTicks >= 20 && wakeAt == 0) energy = Math.min(100, energy + .5f * (bedRead == null ? 1 : bedRead.rest()));
                 // Waking rested it lies there one long stretch and yawn (the wake clip); hunger gets it straight up to eat.
                 int stretch = ClipMarkers.of(Behaviors.WAKE).length();
                 if (drugged && drugSleep() == 0) wakeAt = SLEEP_TICKS + stretch; // a drug's sleep keeps its own finite wake

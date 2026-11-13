@@ -51,7 +51,7 @@ def wild_large_boxes(full=16.0, inner_r=14.75):
 
 def boxes_for(nest, src=AFTER):
     if nest in ('yukkuri_nest', 'large_yukkuri_nest'):
-        return collision_of(src)[nest]['boxes']
+        return collision_of(src)['pet_nest_0' if nest == 'yukkuri_nest' else nest]['boxes']
     if nest == 'large_wild_nest':
         return wild_large_boxes()
     return []                                   # wild leaf beds have no collision: bodies stand on the ground

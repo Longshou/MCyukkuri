@@ -4,6 +4,9 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import io.github.longshou.mcyukkuri.life.CareBlock;
 import io.github.longshou.mcyukkuri.life.CareBlockEntity;
 import io.github.longshou.mcyukkuri.life.CareStyles;
+import io.github.longshou.mcyukkuri.life.LargeNestBlock;
+import io.github.longshou.mcyukkuri.life.PetNestBlock;
+import com.mojang.math.Axis;
 import io.github.longshou.mcyukkuri.registry.ModItems;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -39,10 +42,20 @@ public final class CareRenderer implements BlockEntityRenderer<CareBlockEntity> 
         // Fills are heap-only meshes drawn inside whichever bowl style is placed.
         String fill=care.kind()!=CareBlock.Kind.BOWL?null:grain?"food_bowl_regular":wheat?"food_bowl_wheat":grass?"food_bowl_forage":null;
         int units=Math.min(8,care.visibleFoodCount());
-        // A 2x2 nest is drawn from its north-west part around the shared corner of its four cells.
+        // A 2x2 nest is drawn from its north-west part around the shared corner of its four cells, turned to its entrance
+        // (authored on +z); a pet bed is authored with its entrance on -z and drawn flattened against the blocks beside it.
         double centre=care.largeNest()?1:.5;
         pose.pushPose();pose.translate(centre,0,centre);
-        PropModels.render(model,units,pose,buffers,light,overlay);
+        var state=care.getBlockState();
+        if(state.getBlock() instanceof PetNestBlock){
+            pose.mulPose(Axis.YP.rotationDegrees(180-state.getValue(PetNestBlock.FACING).toYRot()));
+            int fit=PetNestBlock.localWalls(state);
+            if(fit==0)PropModels.render(model,units,pose,buffers,light,overlay);
+            else PropModels.renderAs("pet_nest_fit_"+fit,model,pose,buffers,light,overlay);
+        } else {
+            if(state.getBlock() instanceof LargeNestBlock)pose.mulPose(Axis.YP.rotationDegrees(-state.getValue(LargeNestBlock.FACING).toYRot()));
+            PropModels.render(model,units,pose,buffers,light,overlay);
+        }
         if(fill!=null)PropModels.render(fill,units,pose,buffers,light,overlay);
         pose.popPose();
         if(care.kind()==CareBlock.Kind.TOILET&&care.waste()>0){

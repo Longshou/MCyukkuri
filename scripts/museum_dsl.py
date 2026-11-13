@@ -163,7 +163,7 @@ def block(dx, dy, dz, state):
 def yk_on_nest(kind, dx, dz, name, *, large=False, **kwargs):
     """A real initial body on the authored cushion, centred on the placed blocks even at a fractional field anchor."""
     source = Path(__file__).resolve().parents[1] / 'src/main/resources/assets/mcyukkuri/yukkuri_presentation/care_collision.json'
-    shape = json.loads(source.read_text(encoding='utf-8'))['large_yukkuri_nest' if large else 'yukkuri_nest']
+    shape = json.loads(source.read_text(encoding='utf-8'))['large_yukkuri_nest' if large else 'pet_nest_0']
     height = max(b[4] for b in shape['boxes'] if b[0] <= 0 <= b[2] and b[1] <= 0 <= b[3]) / 16
     offset = .5 if large else 0
     return '\n'.join('execute align xz run ' + line for line in yk(kind, dx + offset, dz + offset, name, dy=height, **kwargs).splitlines())
